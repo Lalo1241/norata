@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#10151d">
 <title>Norata</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
   /* ============ Sistema visual: "noche de expedición" ============
@@ -35,7 +36,12 @@
     --coral: #ff8a70;
     --coral-soft: rgba(255, 138, 112, 0.13);
     --sans: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+    /* Solo se usa en escritorio (ver @media min-width:900px), pero vive
+       aquí para que la barra lateral y el margen del contenido siempre
+       lean el mismo número — así no se pueden desincronizar. */
+    --sidebar-w: 246px;
   }
+  html.sc { --sidebar-w: 84px; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; }
   body {
@@ -703,11 +709,15 @@
   .sec-hero { height: auto; min-height: 0; border-radius: 12px 34px 34px 34px; }
   .sec-hero .scene-body { position: relative; inset: auto; padding: 18px; }
   /* El degradado de .scene-fade da por hecho un fondo alto con el texto
-     pegado abajo (como la tarjeta de racha). Aquí el texto llena toda la
-     caja, así que ese degradado deja las líneas de arriba casi sin fondo
-     oscuro debajo. Un tinte parejo, en vez de un degradado, garantiza
-     contraste sin importar cuánto texto haya. */
-  .sec-hero .scene-fade { background: rgba(14, 19, 27, 0.82); }
+     pegado abajo (como la tarjeta de racha): abajo casi opaco, arriba casi
+     transparente. Aquí el texto llena toda la caja, así que las líneas de
+     arriba quedaban casi sin fondo oscuro debajo. Un primer intento puso
+     un tinte parejo y denso — resolvía el contraste pero apagaba el motivo
+     entero, quitándole toda la vida a la tarjeta. Este es más suave y
+     parejo (nunca baja de la mitad de oscuro, ni sube de dos tercios), y
+     el contraste que falta lo pone la sombra del texto, no el fondo. */
+  .sec-hero .scene-fade { background: linear-gradient(165deg, rgba(14, 19, 27, 0.5) 0%, rgba(14, 19, 27, 0.7) 100%); }
+  .sec-hero .scene-body { text-shadow: 0 1px 3px rgba(10, 15, 22, 0.9), 0 4px 16px rgba(10, 15, 22, 0.6); }
   .sh-main { display: flex; flex-direction: column; gap: 14px; }
   .sh-lead { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
   .sh-lead .ring-wrap { margin: 0; flex-shrink: 0; }
@@ -1664,16 +1674,18 @@
      La misma app: el cluster del pulgar se convierte en barra lateral
      y el contenido se reparte en dos columnas. */
   @media (min-width: 900px) {
-    body { padding-bottom: 40px; padding-left: 246px; }
+    body { padding-bottom: 40px; padding-left: var(--sidebar-w); transition: padding-left 0.22s ease; }
     .orb-1 { left: 220px; }
 
-    /* Centrado dentro del espacio libre, con aire a ambos lados */
+    /* Centrado dentro del espacio libre, con aire a ambos lados. Al variar
+       --sidebar-w (ver .sc más abajo) esto recentra solo: sigue siendo la
+       misma fórmula sobre un ancho disponible distinto, no un layout nuevo. */
     .app { width: min(1440px, 100%); max-width: none; padding: 0 40px; margin: 0 auto; }
 
     /* Barra lateral */
     .thumb-cluster {
       left: 0; right: auto; top: 0; bottom: 0;
-      width: 246px;
+      width: var(--sidebar-w);
       max-width: none;
       margin: 0;
       padding: 26px 18px;
@@ -1685,6 +1697,8 @@
       border-right: 1px solid var(--line);
       backdrop-filter: blur(12px);
       overflow-y: auto;
+      overflow-x: hidden;
+      transition: width 0.22s ease;
     }
     .side-brand {
       display: flex;
@@ -1692,15 +1706,30 @@
       gap: 10px;
       padding: 4px 12px 22px;
       pointer-events: auto;
+      /* Es un <button>: se le quita todo lo que trae un botón nativo para
+         que se siga viendo igual que cuando era un div decorativo. */
+      width: 100%;
+      border: none;
+      background: none;
+      font-family: inherit;
+      text-align: left;
+      cursor: pointer;
+      color: inherit;
     }
-    .side-brand .sb-mark { color: var(--mint); font-size: 15px; }
-    .side-brand .sb-tx { font-size: 17px; font-weight: 300; letter-spacing: 0.5px; }
+    .side-brand:hover .sb-mark { color: var(--text); }
+    .side-brand .sb-mark { color: var(--mint); flex-shrink: 0; transition: color 0.15s ease; }
+    .side-brand .sb-mark svg { width: 22px; height: 22px; display: block; }
+    .side-brand .sb-tx { font-size: 17px; font-weight: 300; letter-spacing: 0.5px; white-space: nowrap; }
     .side-brand .sb-tx b { font-weight: 700; }
 
     .thumb-cluster .nav-circles {
       flex-direction: column;
       gap: 5px;
       width: 100%;
+      /* Crece para llenar el alto disponible, así el margin-top:auto de
+         Ajustes (más abajo) tiene contra qué empujar hacia el fondo. */
+      flex: 1;
+      min-height: 0;
     }
     .thumb-cluster .c-nav {
       width: 100%;
@@ -1723,8 +1752,18 @@
       color: var(--mint);
     }
     .thumb-cluster .c-nav svg { width: 20px; height: 20px; flex-shrink: 0; }
-    .nav-label { display: inline; font-size: 14px; font-weight: 650; letter-spacing: -0.1px; }
+    .nav-label { display: inline; font-size: 14px; font-weight: 650; letter-spacing: -0.1px; white-space: nowrap; }
     .side-only { display: flex !important; }
+
+    /* Ajustes no se toca a cada rato: se separa del resto de la navegación
+       y se ancla abajo del todo, en vez de competir por atención junto a
+       Resumen/Misiones/Habilidades/Talentos/Proyectos. */
+    #nav-settings-side {
+      margin-top: auto;
+      border-top: 1px solid var(--line);
+      border-radius: 0;
+      padding-top: 16px;
+    }
 
     .thumb-cluster .c-main {
       width: 100%;
@@ -1741,7 +1780,15 @@
     .fab-plus { font-size: 18px; line-height: 1; }
     .fab-label { display: inline; }
 
-    /* Encabezados y dos columnas */
+    /* Menú plegado: una franja angosta solo con iconos. El logo (que es el
+       botón que plegó el menú) se centra y se queda como único indicador
+       de marca; el resto del texto se quita, no se oculta con recortes. */
+    html.sc .side-brand { justify-content: center; padding: 4px 0 22px; gap: 0; }
+    html.sc .sb-tx, html.sc .nav-label, html.sc .fab-label { display: none; }
+    html.sc .thumb-cluster .c-nav,
+    html.sc .thumb-cluster .c-main,
+    html.sc #nav-settings-side { justify-content: center; padding-left: 0; padding-right: 0; }
+    html.sc .thumb-cluster .c-main { gap: 0; }
     .page-head { padding: 34px 4px 22px; }
     .page-head h1 { font-size: 34px; }
     #settings-btn { display: none; }
@@ -1868,6 +1915,12 @@
 </style>
 </head>
 <body>
+<script>
+  /* Se aplica antes de pintar nada: si esto fuera parte del script principal
+     (que corre al final, después de todo el HTML), el menú se dibujaría
+     abierto un instante y luego saltaría a plegado en cada carga. */
+  try { if (localStorage.getItem("norata-sidebar-collapsed") === "1") document.documentElement.classList.add("sc"); } catch (e) {}
+</script>
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div class="orb orb-3"></div>
@@ -2305,10 +2358,10 @@
 
 <!-- ============ CLUSTER DEL PULGAR ============ -->
 <div class="thumb-cluster">
-  <div class="side-brand">
-    <span class="sb-mark">◆</span>
+  <button class="side-brand" id="side-brand-btn" onclick="toggleSidebar()" aria-label="Contraer o expandir el menú" aria-expanded="true">
+    <span class="sb-mark" aria-hidden="true"><svg viewBox="0 0 250 250"><path d="M224.919,110.004h-5.319c-2.476,0-4.487-2.011-4.487-4.487V25.081c0-4.947-4.027-8.973-8.973-8.973h-87.162c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487H31.811c-8.658,0-15.703,7.046-15.703,15.703v80.436c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v80.432c0,4.947,4.027,8.973,8.973,8.973h87.166c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h55.755c18.556,0,33.65-15.094,33.65-33.65v-62.485c0-4.947-4.027-8.973-8.973-8.973ZM55.91,128.783h-5.319c-2.476,0-4.487-2.011-4.487-4.487v-54.927c0-2.476,2.011-4.487,4.487-4.487h61.657c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h54.923c2.476,0,4.487,2.011,4.487,4.487v61.657c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v45.949c0,7.422-6.038,13.46-13.46,13.46h-52.679c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487h-54.927c-2.476,0-4.487-2.011-4.487-4.487v-61.653c0-4.947-4.027-8.973-8.973-8.973Z" fill="currentColor"/></svg></span>
     <span class="sb-tx"><b>Norata</b></span>
-  </div>
+  </button>
   <div class="nav-circles">
     <button class="c-nav" id="nav-summary" onclick="showView('summary')" aria-label="Resumen">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M15.5 8.5l-2.2 5-5 2.2 2.2-5z"/></svg>
@@ -3406,6 +3459,20 @@ async function setProjectStatus(prId, status) {
 /* ================= Navegación ================= */
 
 const NAV_VIEWS = { summary: "nav-summary", missions: "nav-missions", home: "nav-home", tree: "nav-tree", projects: "nav-projects", settings: "nav-settings-side" };
+
+/* Solo importa en escritorio (móvil no tiene barra lateral que plegar),
+   pero no hace daño llamarla desde donde sea: sin el div.side-brand del
+   layout de escritorio, el botón que la dispara ni siquiera existe.
+   Es preferencia de este aparato, no datos del usuario: vive en su propia
+   llave de localStorage, nunca en `state` (eso es lo que viaja a GitHub). */
+let sidebarCollapsed = document.documentElement.classList.contains("sc");
+
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  document.documentElement.classList.toggle("sc", sidebarCollapsed);
+  document.getElementById("side-brand-btn").setAttribute("aria-expanded", String(!sidebarCollapsed));
+  try { localStorage.setItem("norata-sidebar-collapsed", sidebarCollapsed ? "1" : "0"); } catch (e) {}
+}
 
 function showView(name) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));

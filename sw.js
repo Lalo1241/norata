@@ -1,5 +1,5 @@
 const CACHE = "norata-v1";
-const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
+const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./favicon.svg"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
