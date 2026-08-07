@@ -1,0 +1,19 @@
+# Nada de secretos en el repo: el token de sincronización vive solo en el
+# navegador de cada dispositivo, nunca en un archivo versionado.
+*.token
+*.secret
+.env
+.env.*
+config.local.js
+
+# Respaldos exportados desde la app (contienen tus datos personales)
+norata-respaldo-*.json
+mainquest-respaldo-*.json
+
+# Configuración local de herramientas
+.claude/
+
+# Ruido del sistema
+Thumbs.db
+desktop.ini
+.DS_Store
