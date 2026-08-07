@@ -305,7 +305,9 @@
     border-radius: 999px;
     background: rgba(234, 241, 239, 0.12);
   }
-  .streak-dots i.on { background: var(--mint); box-shadow: 0 0 8px rgba(95, 224, 176, 0.5); }
+  .streak-dots i.done { background: var(--mint); box-shadow: 0 0 8px rgba(95, 224, 176, 0.5); }
+  .streak-dots i.missed { background: var(--coral); box-shadow: 0 0 8px rgba(255, 138, 112, 0.35); }
+  .streak-dots i.today { background: rgba(234, 241, 239, 0.12); box-shadow: inset 0 0 0 1.5px rgba(95, 224, 176, 0.55); }
 
   /* ---------- Resumen: tarjetas ---------- */
   .sum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
@@ -700,6 +702,12 @@
      una cifra que resume, indicadores y el foco de lo que urge. */
   .sec-hero { height: auto; min-height: 0; border-radius: 12px 34px 34px 34px; }
   .sec-hero .scene-body { position: relative; inset: auto; padding: 18px; }
+  /* El degradado de .scene-fade da por hecho un fondo alto con el texto
+     pegado abajo (como la tarjeta de racha). Aquí el texto llena toda la
+     caja, así que ese degradado deja las líneas de arriba casi sin fondo
+     oscuro debajo. Un tinte parejo, en vez de un degradado, garantiza
+     contraste sin importar cuánto texto haya. */
+  .sec-hero .scene-fade { background: rgba(14, 19, 27, 0.82); }
   .sh-main { display: flex; flex-direction: column; gap: 14px; }
   .sh-lead { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
   .sh-lead .ring-wrap { margin: 0; flex-shrink: 0; }
@@ -868,6 +876,12 @@
   }
   .const-wrap {
     overflow-x: auto;
+    /* Sin esto el CSS lo convierte solo en "overflow-y: auto" (así es como
+       funciona la propiedad cuando solo se fija un eje), y ese eje extra
+       es justo lo que le roba el gesto vertical al scroll de la página en
+       el celular. Aquí no hace falta: en el celular esta caja ya mide
+       exactamente lo que sus talentos necesitan, nunca recorta nada. */
+    overflow-y: hidden;
     scrollbar-width: none;
     background:
       radial-gradient(circle at 1px 1px, rgba(139, 153, 165, 0.09) 1px, transparent 1.6px);
@@ -1832,7 +1846,7 @@
     #toast.show { transform: translateY(0); }
 
     /* La constelación aprovecha el ancho extra */
-    .const-wrap { max-height: 560px; }
+    .const-wrap { max-height: 560px; overflow-y: auto; }
   }
 
   @media (min-width: 1320px) {
@@ -1864,7 +1878,6 @@
   <div class="view active" id="view-summary">
     <div class="page-head">
       <div>
-        <div class="kicker">Norata</div>
         <h1>Resumen</h1>
       </div>
       <div style="display:flex;gap:9px">
@@ -1879,7 +1892,6 @@
   <div class="view" id="view-home">
     <div class="page-head">
       <div>
-        <div class="kicker">Norata</div>
         <h1>Habilidades</h1>
       </div>
     </div>
@@ -1893,7 +1905,6 @@
   <div class="view" id="view-tree">
     <div class="page-head">
       <div>
-        <div class="kicker">Norata</div>
         <h1>Árbol de talentos</h1>
       </div>
     </div>
@@ -1905,7 +1916,6 @@
   <div class="view form-view" id="view-onboarding">
     <div class="page-head">
       <div>
-        <div class="kicker">Norata</div>
         <h1>Bienvenido</h1>
       </div>
     </div>
@@ -1916,7 +1926,6 @@
   <div class="view" id="view-missions">
     <div class="page-head">
       <div>
-        <div class="kicker">Norata</div>
         <h1>Misiones</h1>
       </div>
     </div>
@@ -1990,7 +1999,6 @@
   <div class="view" id="view-projects">
     <div class="page-head">
       <div>
-        <div class="kicker">Norata</div>
         <h1>Proyectos</h1>
       </div>
     </div>
@@ -3009,10 +3017,24 @@ function streakInfo() {
     if (run > best) best = run;
     prev = k;
   }
-  // Últimos 14 días
+  /* Últimos 14 días, hoy primero (a la izquierda): así el número de casillas
+     verdes contadas desde el principio coincide con la racha actual, en vez
+     de tener que contar desde el otro extremo. Un día ya pasado sin ninguna
+     práctica se marca como "saltado" (se pinta en rojo) solo si cae después
+     del primer registro que existe en la app entera; los días de antes de
+     que el usuario empezara a usarla quedan neutros, no como huecos. */
+  const first = days[0] || null;
   const last14 = [];
   const t = todayKey();
-  for (let i = 13; i >= 0; i--) last14.push(set.has(addDaysKey(t, -i)));
+  for (let i = 0; i <= 13; i++) {
+    const k2 = addDaysKey(t, -i);
+    let day;
+    if (set.has(k2)) day = "done";
+    else if (i === 0) day = "today";
+    else if (first && k2 >= first) day = "missed";
+    else day = "empty";
+    last14.push(day);
+  }
   return { cur, best, last14, activeToday: set.has(t) };
 }
 
@@ -3224,8 +3246,14 @@ function logMission(id, delta) {
     }
     if (m.cadence === "once") { m.completedAt = key; m.archived = true; }
   }
-  if (!nowDone && wasDone && m.cadence === "once") {
-    m.completedAt = null; m.archived = false;
+  if (!nowDone && wasDone) {
+    // Revertir un cumplido resta el mismo XP que dio, para que marcar y
+    // desmarcar varias veces en el día no infle la habilidad de gratis.
+    if (m.skillId && m.xp) {
+      const s = state.skills.find(x => x.id === m.skillId);
+      if (s) removeXp(s, m.xp, `Misión revertida: ${m.name}`);
+    }
+    if (m.cadence === "once") { m.completedAt = null; m.archived = false; }
   }
   save();
   renderMissions();
@@ -3377,7 +3405,7 @@ async function setProjectStatus(prId, status) {
 
 /* ================= Navegación ================= */
 
-const NAV_VIEWS = { summary: "nav-summary", missions: "nav-missions", home: "nav-home", tree: "nav-tree", projects: "nav-projects" };
+const NAV_VIEWS = { summary: "nav-summary", missions: "nav-missions", home: "nav-home", tree: "nav-tree", projects: "nav-projects", settings: "nav-settings-side" };
 
 function showView(name) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
@@ -3419,7 +3447,7 @@ function fabAction() {
 
 function greeting() {
   const h = hourNow();
-  if (h < 6) return "Buenas madrugadas";
+  if (h < 6) return "Hola, trasnochador";
   if (h < 12) return "Buenos días";
   if (h < 19) return "Buenas tardes";
   return "Buenas noches";
@@ -3499,7 +3527,7 @@ function renderSummary() {
             <span class="num">${stk.cur}</span>
             <span class="lbl">día${stk.cur === 1 ? "" : "s"} de racha<br>mejor: ${stk.best}</span>
           </div>
-          <div class="streak-dots">${stk.last14.map(on => `<i class="${on ? "on" : ""}"></i>`).join("")}</div>
+          <div class="streak-dots">${stk.last14.map(d => `<i class="${d}"></i>`).join("")}</div>
         </div>
       </div>`,
 
@@ -4499,6 +4527,17 @@ function addXp(s, amount, note) {
   return real;
 }
 
+/* Contraparte de addXp() para cuando se revierte algo que ya había dado XP
+   (p. ej. desmarcar una misión). No toca `lastActivity`: corregir un error
+   de captura no es una sesión de práctica nueva, y no debe alimentar la
+   racha ni el registro de actividad del día. */
+function removeXp(s, amount, note) {
+  const real = Math.max(0, Math.min(amount, s.xp));
+  s.xp -= real;
+  s.log.unshift({ date: todayKey(), xp: -real, note });
+  return real;
+}
+
 function logActivity() {
   const s = state.skills.find(x => x.id === currentSkillId);
   if (!s) return;
@@ -4670,7 +4709,8 @@ function focusBranchFront(b, silent) {
   if (!silent) toast(`Al frente: ${target.name}`);
 }
 
-function resetBranchLayout(b) {
+async function resetBranchLayout(b) {
+  if (!await ask(`Esto va a reordenar automáticamente todos los talentos de "${b}". Si habías acomodado esta rama a mano, ese orden se pierde.`, "Reacomodar")) return;
   branchNodes(b).forEach(n => { delete n.x; delete n.y; });
   save();
   renderTree();
