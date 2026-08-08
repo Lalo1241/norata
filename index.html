@@ -1667,7 +1667,7 @@
   .sync-text span { color: var(--faint); font-size: 12px; }
 
   /* Elementos que solo existen en el diseño de escritorio */
-  .side-brand, .nav-label, .fab-label { display: none; }
+  .side-top, .nav-label, .fab-label { display: none; }
   .side-only { display: none !important; }
 
   /* ============ ESCRITORIO ============
@@ -1700,36 +1700,54 @@
       overflow-x: hidden;
       transition: width 0.22s ease;
     }
-    .side-brand {
+    .side-top {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 4px 12px 22px;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 4px 4px 22px 12px;
       pointer-events: auto;
+    }
+    .side-brand {
       /* Es un <button>: se le quita todo lo que trae un botón nativo para
          que se siga viendo igual que cuando era un div decorativo. */
-      width: 100%;
+      display: flex;
+      align-items: center;
+      min-width: 0;
       border: none;
       background: none;
       font-family: inherit;
-      text-align: left;
       cursor: pointer;
       color: inherit;
+      padding: 4px;
+      margin: -4px;
+      border-radius: 8px;
     }
-    .side-brand:hover .sb-mark { color: var(--text); }
-    .side-brand .sb-mark { color: var(--mint); flex-shrink: 0; transition: color 0.15s ease; }
-    .side-brand .sb-mark svg { width: 22px; height: 22px; display: block; }
-    .side-brand .sb-tx { font-size: 17px; font-weight: 300; letter-spacing: 0.5px; white-space: nowrap; }
-    .side-brand .sb-tx b { font-weight: 700; }
+    .side-brand:hover { background: var(--bg2); }
+    /* Colapsado muestra solo el isotipo; desplegado, el logo completo tal
+       cual se diseñó (icono + texto en un solo trazado, dos colores fijos:
+       no es de los íconos que heredan el color del tema). */
+    .side-brand .sb-mark { display: none; color: var(--mint); flex-shrink: 0; }
+    .side-brand .sb-mark svg { width: 24px; height: 24px; display: block; }
+    .side-brand .sb-logo-full svg { height: 26px; width: auto; display: block; }
+
+    .side-toggle {
+      flex-shrink: 0;
+      width: 30px; height: 30px;
+      border-radius: 9px;
+      border: 1px solid var(--line);
+      background: var(--bg2);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .side-toggle:hover { color: var(--text); border-color: var(--faint); }
+    .side-toggle svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
     .thumb-cluster .nav-circles {
       flex-direction: column;
       gap: 5px;
       width: 100%;
-      /* Crece para llenar el alto disponible, así el margin-top:auto de
-         Ajustes (más abajo) tiene contra qué empujar hacia el fondo. */
-      flex: 1;
-      min-height: 0;
     }
     .thumb-cluster .c-nav {
       width: 100%;
@@ -1770,21 +1788,23 @@
       height: auto;
       border-radius: 13px;
       padding: 13px 16px;
-      margin-top: 14px;
+      margin-top: 5px;
       font-size: 14px;
       font-weight: 700;
       gap: 9px;
-      order: 99;
     }
     .thumb-cluster .c-main.hidden { display: none; }
     .fab-plus { font-size: 18px; line-height: 1; }
     .fab-label { display: inline; }
 
-    /* Menú plegado: una franja angosta solo con iconos. El logo (que es el
-       botón que plegó el menú) se centra y se queda como único indicador
-       de marca; el resto del texto se quita, no se oculta con recortes. */
-    html.sc .side-brand { justify-content: center; padding: 4px 0 22px; gap: 0; }
-    html.sc .sb-tx, html.sc .nav-label, html.sc .fab-label { display: none; }
+    /* Menú plegado: una franja angosta solo con iconos. El logo completo no
+       cabe, así que se cambia por el isotipo solo; el botón que pliega y
+       despliega no se mueve, nada más se apila debajo en vez de al lado. */
+    html.sc .side-top { flex-direction: column; gap: 10px; padding: 4px 0 22px; }
+    html.sc .side-brand { justify-content: center; }
+    html.sc .side-brand .sb-mark { display: flex; }
+    html.sc .side-brand .sb-logo-full { display: none; }
+    html.sc .nav-label, html.sc .fab-label { display: none; }
     html.sc .thumb-cluster .c-nav,
     html.sc .thumb-cluster .c-main,
     html.sc #nav-settings-side { justify-content: center; padding-left: 0; padding-right: 0; }
@@ -2358,10 +2378,27 @@
 
 <!-- ============ CLUSTER DEL PULGAR ============ -->
 <div class="thumb-cluster">
-  <button class="side-brand" id="side-brand-btn" onclick="toggleSidebar()" aria-label="Contraer o expandir el menú" aria-expanded="true">
-    <span class="sb-mark" aria-hidden="true"><svg viewBox="0 0 250 250"><path d="M224.919,110.004h-5.319c-2.476,0-4.487-2.011-4.487-4.487V25.081c0-4.947-4.027-8.973-8.973-8.973h-87.162c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487H31.811c-8.658,0-15.703,7.046-15.703,15.703v80.436c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v80.432c0,4.947,4.027,8.973,8.973,8.973h87.166c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h55.755c18.556,0,33.65-15.094,33.65-33.65v-62.485c0-4.947-4.027-8.973-8.973-8.973ZM55.91,128.783h-5.319c-2.476,0-4.487-2.011-4.487-4.487v-54.927c0-2.476,2.011-4.487,4.487-4.487h61.657c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h54.923c2.476,0,4.487,2.011,4.487,4.487v61.657c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v45.949c0,7.422-6.038,13.46-13.46,13.46h-52.679c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487h-54.927c-2.476,0-4.487-2.011-4.487-4.487v-61.653c0-4.947-4.027-8.973-8.973-8.973Z" fill="currentColor"/></svg></span>
-    <span class="sb-tx"><b>Norata</b></span>
-  </button>
+  <div class="side-top">
+    <button class="side-brand" onclick="showView('summary')" aria-label="Ir a Resumen">
+      <span class="sb-mark" aria-hidden="true"><svg viewBox="0 0 250 250"><path d="M224.919,110.004h-5.319c-2.476,0-4.487-2.011-4.487-4.487V25.081c0-4.947-4.027-8.973-8.973-8.973h-87.162c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487H31.811c-8.658,0-15.703,7.046-15.703,15.703v80.436c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v80.432c0,4.947,4.027,8.973,8.973,8.973h87.166c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h55.755c18.556,0,33.65-15.094,33.65-33.65v-62.485c0-4.947-4.027-8.973-8.973-8.973ZM55.91,128.783h-5.319c-2.476,0-4.487-2.011-4.487-4.487v-54.927c0-2.476,2.011-4.487,4.487-4.487h61.657c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h54.923c2.476,0,4.487,2.011,4.487,4.487v61.657c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v45.949c0,7.422-6.038,13.46-13.46,13.46h-52.679c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487h-54.927c-2.476,0-4.487-2.011-4.487-4.487v-61.653c0-4.947-4.027-8.973-8.973-8.973Z" fill="currentColor"/></svg></span>
+      <span class="sb-logo-full" aria-hidden="true">
+        <svg viewBox="0 0 250 120">
+          <g>
+            <path d="M113.316,73.314h-5.288c-.278,0-.538-.14-.691-.372l-9.209-13.942c-.453-.685-1.519-.365-1.519.456v13.03c0,.457-.371.828-.828.828h-4.905c-.457,0-.828-.371-.828-.828v-25.279c0-.457.371-.828.828-.828h5.287c.279,0,.539.14.692.373l9.208,14.005c.452.687,1.52.367,1.52-.455v-13.096c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v25.279c0,.457-.371.828-.828.828Z" fill="#f7f8fa"/>
+            <path d="M122.988,72.278c-1.675-.895-2.993-2.174-3.952-3.837-.959-1.663-1.439-3.607-1.439-5.832,0-2.2.486-4.137,1.458-5.813.971-1.675,2.302-2.96,3.99-3.856,1.688-.895,3.581-1.343,5.678-1.343s3.99.448,5.678,1.343c1.688.896,3.018,2.181,3.991,3.856.971,1.676,1.458,3.613,1.458,5.813s-.492,4.138-1.477,5.813c-.985,1.676-2.328,2.961-4.029,3.856-1.702.896-3.601,1.343-5.698,1.343s-3.984-.447-5.66-1.343ZM131.851,66.561c.883-.921,1.324-2.238,1.324-3.952s-.429-3.031-1.286-3.952c-.857-.921-1.912-1.381-3.165-1.381-1.279,0-2.34.454-3.185,1.362-.844.908-1.266,2.232-1.266,3.971,0,1.714.416,3.031,1.247,3.952.831.921,1.874,1.381,3.127,1.381s2.321-.461,3.204-1.381Z" fill="#f7f8fa"/>
+            <path d="M152.781,52.691c.891-.524,1.859-.846,2.903-.965.495-.056.934.329.934.828v5.237c0,.457-.371.828-.828.828h-.976c-1.637,0-2.865.352-3.683,1.055-.819.704-1.228,1.938-1.228,3.703v9.11c0,.457-.371.828-.828.828h-4.905c-.457,0-.828-.371-.828-.828v-19.754c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v.475c0,.731.865,1.088,1.398.589.452-.422.945-.791,1.479-1.106Z" fill="#f7f8fa"/>
+            <path d="M159.707,56.777c.831-1.662,1.963-2.941,3.395-3.837,1.433-.895,3.031-1.343,4.796-1.343,1.509,0,2.833.307,3.971.921.455.246.868.522,1.24.829.556.459,1.388.112,1.388-.609v-.005c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v19.754c0,.457-.371.828-.828.828h-4.905c-.457,0-.828-.371-.828-.828v-.034c0-.718-.829-1.07-1.382-.612-.386.32-.814.607-1.285.861-1.138.614-2.462.921-3.971.921-1.739,0-3.325-.454-4.758-1.362-1.433-.908-2.565-2.2-3.395-3.875-.832-1.675-1.247-3.613-1.247-5.813s.416-4.131,1.247-5.794ZM173.136,58.734c-1.182-1.231-2.698-1.662-4.553-1.291-.064.013-.131.032-.191.056-2.171.851-3.255,2.542-3.255,5.071,0,1.637.454,2.935,1.362,3.894,1.192,1.26,2.728,1.693,4.604,1.297.066-.014.136-.035.198-.061,2.131-.885,3.198-2.583,3.198-5.092,0-1.637-.454-2.929-1.362-3.875Z" fill="#f7f8fa"/>
+            <path d="M197.749,68.579v3.907c0,.457-.371.828-.828.828h-2.51c-2.379,0-4.234-.582-5.564-1.746-1.33-1.164-1.995-3.063-1.995-5.698v-7.69c0-.457-.371-.828-.828-.828h-.953c-.457,0-.828-.371-.828-.828v-3.792c0-.457.371-.828.828-.828h.953c.457,0,.828-.371.828-.828v-3.562c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v3.562c0,.457.371.828.828.828h2.641c.457,0,.828.371.828.828v3.792c0,.457-.371.828-.828.828h-2.641c-.457,0-.828.371-.828.828v7.767c0,.64.153,1.1.46,1.381.307.282.818.422,1.535.422h1.512c.457,0,.828.371.828.828Z" fill="#f7f8fa"/>
+            <path d="M201.336,56.777c.831-1.662,1.963-2.941,3.395-3.837,1.433-.895,3.031-1.343,4.796-1.343,1.509,0,2.833.307,3.971.921.455.246.868.522,1.24.829.556.459,1.388.112,1.388-.609v-.005c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v19.754c0,.457-.371.828-.828.828h-4.905c-.457,0-.828-.371-.828-.828v-.034c0-.718-.829-1.07-1.382-.612-.386.32-.814.607-1.285.861-1.138.614-2.462.921-3.971.921-1.739,0-3.325-.454-4.758-1.362-1.433-.908-2.565-2.2-3.395-3.875-.832-1.675-1.247-3.613-1.247-5.813s.416-4.131,1.247-5.794ZM214.765,58.734c-1.182-1.231-2.698-1.662-4.553-1.291-.064.013-.131.032-.191.056-2.171.851-3.255,2.542-3.255,5.071,0,1.637.454,2.935,1.362,3.894,1.192,1.26,2.728,1.693,4.604,1.297.066-.014.136-.035.198-.061,2.131-.885,3.198-2.583,3.198-5.092,0-1.637-.454-2.929-1.362-3.875Z" fill="#f7f8fa"/>
+          </g>
+          <path d="M73.352,56.658h-1.186c-.552,0-1-.448-1-1v-17.928c0-1.103-.897-2-2-2h-19.427c-1.103,0-2,.897-2,2v1.186c0,.552-.448,1-1,1h-16.428c-1.93,0-3.5,1.57-3.5,3.5v17.928c0,1.103.897,2,2,2h1.186c.552,0,1,.448,1,1v17.927c0,1.103.897,2,2,2h19.428c1.103,0,2-.897,2-2v-1.186c0-.552.448-1,1-1h12.427c4.136,0,7.5-3.364,7.5-7.5v-13.927c0-1.103-.897-2-2-2ZM35.683,60.843h-1.186c-.552,0-1-.448-1-1v-12.242c0-.552.448-1,1-1h13.742c1.103,0,2-.897,2-2v-1.186c0-.552.448-1,1-1h12.241c.552,0,1,.448,1,1v13.742c0,1.103.897,2,2,2h1.186c.552,0,1,.448,1,1v10.241c0,1.654-1.346,3-3,3h-11.741c-1.103,0-2,.897-2,2v1.186c0,.552-.448,1-1,1h-12.242c-.552,0-1-.448-1-1v-13.741c0-1.103-.897-2-2-2Z" fill="#5fe0b0"/>
+        </svg>
+      </span>
+    </button>
+    <button class="side-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Cerrar barra lateral" title="Cerrar barra lateral" aria-expanded="true">
+      <svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3.5"/><path d="M9.5 4.5v15"/></svg>
+    </button>
+  </div>
   <div class="nav-circles">
     <button class="c-nav" id="nav-summary" onclick="showView('summary')" aria-label="Resumen">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M15.5 8.5l-2.2 5-5 2.2 2.2-5z"/></svg>
@@ -2383,13 +2420,13 @@
       <svg viewBox="0 0 24 24"><path d="M3 7.5a2 2 0 012-2h4l2 2.5h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M8 13.5h8"/></svg>
       <span class="nav-label">Proyectos</span>
     </button>
-    <button class="c-nav side-only" id="nav-settings-side" onclick="showView('settings')" aria-label="Ajustes">
-      <svg viewBox="0 0 24 24"><path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/></svg>
-      <span class="nav-label">Ajustes</span>
-    </button>
   </div>
   <button class="c-main hidden" id="fab" onclick="fabAction()" aria-label="Crear">
     <span class="fab-plus">＋</span><span class="fab-label"></span>
+  </button>
+  <button class="c-nav side-only" id="nav-settings-side" onclick="showView('settings')" aria-label="Ajustes">
+    <svg viewBox="0 0 24 24"><path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/></svg>
+    <span class="nav-label">Ajustes</span>
   </button>
 </div>
 
@@ -3466,11 +3503,21 @@ const NAV_VIEWS = { summary: "nav-summary", missions: "nav-missions", home: "nav
    Es preferencia de este aparato, no datos del usuario: vive en su propia
    llave de localStorage, nunca en `state` (eso es lo que viaja a GitHub). */
 let sidebarCollapsed = document.documentElement.classList.contains("sc");
+// El botón nace en HTML asumiendo el menú abierto; si ya estaba plegado
+// desde la carga anterior, su rótulo y su aria-expanded deben nacer igual.
+if (sidebarCollapsed) {
+  const btn0 = document.getElementById("sidebar-toggle-btn");
+  if (btn0) { btn0.setAttribute("aria-expanded", "false"); btn0.setAttribute("aria-label", "Abrir barra lateral"); btn0.setAttribute("title", "Abrir barra lateral"); }
+}
 
 function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
   document.documentElement.classList.toggle("sc", sidebarCollapsed);
-  document.getElementById("side-brand-btn").setAttribute("aria-expanded", String(!sidebarCollapsed));
+  const btn = document.getElementById("sidebar-toggle-btn");
+  const label = sidebarCollapsed ? "Abrir barra lateral" : "Cerrar barra lateral";
+  btn.setAttribute("aria-expanded", String(!sidebarCollapsed));
+  btn.setAttribute("aria-label", label);
+  btn.setAttribute("title", label);
   try { localStorage.setItem("norata-sidebar-collapsed", sidebarCollapsed ? "1" : "0"); } catch (e) {}
 }
 
@@ -4899,15 +4946,39 @@ function nodeShape(p, x, y, conf, fid) {
   return `<rect x="${x - 23}" y="${y - 23}" width="46" height="46" rx="9" transform="rotate(45 ${x} ${y})" ${common}/>`;
 }
 
-/* Curva entre dos nodos: sale por el costado derecho del padre y entra por
-   el izquierdo del hijo, como en un editor de nodos. Los tirantes horizontales
-   evitan que el trazo cruce por encima de las figuras. */
-function edgePath(a, b, ra, rb) {
-  const x1 = a.x + ra, y1 = a.y;
-  const x2 = b.x - rb, y2 = b.y;
-  const d = Math.abs(x2 - x1);
-  const pull = Math.max(46, Math.min(150, d * 0.55)) + (x2 < x1 ? Math.abs(y2 - y1) * 0.35 : 0);
-  return { d: `M ${x1.toFixed(1)} ${y1.toFixed(1)} C ${(x1 + pull).toFixed(1)} ${y1.toFixed(1)}, ${(x2 - pull).toFixed(1)} ${y2.toFixed(1)}, ${x2.toFixed(1)} ${y2.toFixed(1)}`, x1, y1, x2, y2 };
+/* Por qué costado sale o entra un trazo. Los talentos normales siempre usan
+   izquierda/derecha (así se lee el árbol, como flujo de trabajo). Los
+   mini-talento son la excepción: funcionan como llaves que puede requerir
+   cualquier vecino, así que si el otro nodo está más arriba/abajo que a un
+   lado, el trazo sale o entra por ahí en vez de forzar un rodeo horizontal. */
+const SIDE_VEC = { left: [-1, 0], right: [1, 0], top: [0, -1], bottom: [0, 1] };
+
+function sideAnchor(node, r, mini, dx, dy) {
+  const side = (mini && Math.abs(dy) > Math.abs(dx)) ? (dy < 0 ? "top" : "bottom") : (dx < 0 ? "left" : "right");
+  const [vx, vy] = SIDE_VEC[side];
+  return { x: node.x + vx * r, y: node.y + vy * r, side };
+}
+
+/* Curva entre dos nodos, como en un editor de nodos: el tirante de cada
+   extremo sigue la dirección por la que ese nodo sale/entra, así el trazo
+   nunca cruza por encima de las figuras aunque una de las dos sea vertical. */
+function edgePath(a, b, ra, rb, aMini, bMini) {
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const p1 = sideAnchor(a, ra, aMini, dx, dy);
+  const p2 = sideAnchor(b, rb, bMini, -dx, -dy);
+  const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+  let pull = Math.max(46, Math.min(150, dist * 0.55));
+  const [v1x, v1y] = SIDE_VEC[p1.side];
+  const [v2x, v2y] = SIDE_VEC[p2.side];
+  // Si el punto de llegada queda "detrás" del tirante de salida (un enlace
+  // que se dobla sobre sí mismo), se estira más para no pellizcar la curva.
+  if ((p2.x - p1.x) * v1x + (p2.y - p1.y) * v1y < 0) pull += Math.min(110, dist * 0.4);
+  const c1x = p1.x + v1x * pull, c1y = p1.y + v1y * pull;
+  const c2x = p2.x + v2x * pull, c2y = p2.y + v2y * pull;
+  return {
+    d: `M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`,
+    x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y
+  };
 }
 
 function constellation(nodes, key, editing) {
@@ -4922,9 +4993,11 @@ function constellation(nodes, key, editing) {
     (childrenOf[n.id] || []).forEach(c => {
       const a = pos[n.id], b = pos[c.id];
       const cst = perkStatus(c);
-      const lit = c.status === "completed" || cst === "active" || cst === "due";
-      const col = c.status === "completed" ? (c.color || "#5fe0b0") : (lit ? "#f5d76e" : "#3d4a5c");
-      const P = edgePath(a, b, nodeRadius(n), nodeRadius(c));
+      const done = c.status === "completed";
+      const inProgress = cst === "active" || cst === "due";
+      const lit = done || inProgress;
+      const col = done ? (c.color || "#5fe0b0") : (inProgress ? "#f5d76e" : "#3d4a5c");
+      const P = edgePath(a, b, nodeRadius(n), nodeRadius(c), n.mini, c.mini);
       const wdt = lit ? 3 : 2;
       // Sin filtro SVG: un trazo perfectamente horizontal tiene caja de altura
       // cero y el desenfoque lo hacía desaparecer. El halo se pinta a mano.
@@ -4932,12 +5005,18 @@ function constellation(nodes, key, editing) {
       if (lit) {
         edges += `<path d="${P.d}" fill="none" stroke="${col}" stroke-width="${wdt + 5}" stroke-linecap="round" opacity="0.16"/>`;
       }
-      // El trayecto siempre se ve, tenue, para que los guiones animados destaquen encima
-      edges += `<path d="${P.d}" fill="none" stroke="${col}" stroke-width="${wdt}" stroke-linecap="round"${lit ? ` opacity="0.45"` : ` stroke-dasharray="6 7" opacity="0.8"`}/>`;
-      if (cst === "active" || cst === "due") {
+      /* Tres estados y nada más: lisa cuando ya se completó (el camino quedó
+         hecho, nada sugiere que falte avanzar), punteada y animada mientras
+         hay algo en curso ahora mismo, punteada gris y quieta si todavía no
+         toca. Antes el estado "completo" mezclaba una línea lisa de fondo
+         con guiones encima; se veía a medias, ni lisa ni punteada. */
+      if (done) {
+        edges += `<path d="${P.d}" fill="none" stroke="${col}" stroke-width="${wdt}" stroke-linecap="round" opacity="0.95"/>`;
+      } else if (inProgress) {
+        edges += `<path d="${P.d}" fill="none" stroke="${col}" stroke-width="${wdt}" stroke-linecap="round" opacity="0.4"/>`;
         edges += `<path class="edge-flow" d="${P.d}" fill="none" stroke="#fff3cf" stroke-width="${wdt}" stroke-linecap="round" stroke-dasharray="3 21" opacity="0.95"/>`;
-      } else if (c.status === "completed") {
-        edges += `<path d="${P.d}" fill="none" stroke="${col}" stroke-width="${wdt}" stroke-linecap="round" stroke-dasharray="10 8" opacity="0.95"/>`;
+      } else {
+        edges += `<path d="${P.d}" fill="none" stroke="${col}" stroke-width="${wdt}" stroke-linecap="round" stroke-dasharray="6 7" opacity="0.8"/>`;
       }
       // Punta de flecha en el nodo hijo
       edges += `<circle cx="${P.x2.toFixed(1)}" cy="${P.y2.toFixed(1)}" r="${lit ? 3.6 : 2.8}" fill="${col}"${lit ? ` filter="url(#${fid})"` : ""}/>`;
@@ -5115,8 +5194,13 @@ function attachEditHandlers() {
       const r = nodeRadius(fp);
       const prev = wrap.querySelector(".link-preview");
       if (prev) {
-        const pull = Math.max(40, Math.abs(pt.x - from.x) * 0.5);
-        prev.setAttribute("d", `M ${from.x + r} ${from.y} C ${from.x + r + pull} ${from.y}, ${pt.x - pull} ${pt.y}, ${pt.x} ${pt.y}`);
+        // Mismo criterio de lado que edgePath(): si fp es mini-talento y el
+        // dedo está más arriba/abajo que a un lado, la vista previa sale por
+        // ahí, para no prometer un trazo que luego se conecte distinto.
+        const anchor = sideAnchor(from, r, fp.mini, pt.x - from.x, pt.y - from.y);
+        const [vx, vy] = SIDE_VEC[anchor.side];
+        const pull = Math.max(40, Math.hypot(pt.x - anchor.x, pt.y - anchor.y) * 0.5);
+        prev.setAttribute("d", `M ${anchor.x} ${anchor.y} C ${anchor.x + vx * pull} ${anchor.y + vy * pull}, ${pt.x - vx * pull} ${pt.y - vy * pull}, ${pt.x} ${pt.y}`);
         prev.style.display = "";
       }
     }
@@ -5133,9 +5217,21 @@ function attachEditHandlers() {
       return;
     }
     if (mode === "link") {
-      const el = document.elementFromPoint(e.clientX, e.clientY);
-      const target = el && el.closest(".cnode");
-      const toId = target && target.dataset.id;
+      /* Antes hacía falta soltar justo encima de la figura (elementFromPoint
+         detecta el píxel exacto), y en un talento pequeño eso fallaba fácil.
+         Ahora se busca el talento más cercano al soltar, con margen extra
+         alrededor de cada uno — no hace falta acertarle al dibujo. */
+      const pt = svgPoint(e);
+      const HIT_PAD = 34;
+      let toId = null, bestDist = Infinity;
+      branchNodes(b).forEach(p => {
+        if (p.id === curId) return;
+        const pp = editPos[p.id];
+        if (!pp) return;
+        const d = Math.hypot(pt.x - pp.x, pt.y - pp.y);
+        const thresh = nodeRadius(p) + HIT_PAD;
+        if (d <= thresh && d < bestDist) { bestDist = d; toId = p.id; }
+      });
       if (toId && toId !== curId) {
         if (isDescendant(toId, curId)) {
           toast("Esa conexión crearía un bucle");
