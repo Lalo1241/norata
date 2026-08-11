@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#10151d">
+<meta name="color-scheme" content="dark">
 <title>Norata</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
@@ -43,7 +44,17 @@
   }
   html.sc { --sidebar-w: 84px; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; }
+  /* El fondo va también en <html>, no solo en <body>: la franja que asoma al
+     rebotar el scroll en el móvil la pinta el elemento raíz, y sin esto salía
+     blanca. Y `color-scheme: dark` es lo que le dice al navegador que ponga
+     en oscuro lo suyo — barra de direcciones, barra inferior y scrollbars —
+     en vez de asumir una página clara. */
+  html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-gutter: stable;
+    color-scheme: dark;
+    background: #0e131b;
+  }
   body {
     font-family: var(--sans);
     background: linear-gradient(180deg, #0e131b 0%, #131924 55%, #10151d 100%);
@@ -304,10 +315,16 @@
   .streak-row .flame svg { width: 30px; height: 30px; stroke-width: 1.6; }
   .streak-row .num { font-size: 34px; font-weight: 700; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; }
   .streak-row .lbl { font-size: 12px; color: rgba(234, 241, 239, 0.8); line-height: 1.3; }
-  .streak-dots { display: flex; gap: 5px; margin-top: 10px; }
+  .streak-dots { display: flex; align-items: center; gap: 5px; margin-top: 10px; flex: none; }
   .streak-dots i {
-    flex: 1;
+    flex: 1 1 0;
+    /* El alto se fija por los tres lados a propósito: si la tarjeta crece
+       (se puede redimensionar desde "Acomodar tablero"), estas marcas no
+       deben estirarse con ella y convertirse en barrotes. */
     height: 7px;
+    min-height: 7px;
+    max-height: 7px;
+    align-self: center;
     border-radius: 999px;
     background: rgba(234, 241, 239, 0.12);
   }
@@ -501,9 +518,15 @@
     max-width: 560px;
     margin: 0 auto;
     padding: 0 18px;
+    /* La barra ocupa todo el ancho pero solo debe "existir" para el ratón
+       donde hay botones; el hueco del medio deja pasar el clic al contenido
+       de abajo. Por eso cada hijo directo se vuelve a activar aquí, en vez
+       de que lo haga cada uno por su cuenta: así mover un botón de sitio no
+       lo deja inservible sin que nadie se entere. */
     pointer-events: none;
     z-index: 60;
   }
+  .thumb-cluster > * { pointer-events: auto; }
   .thumb-cluster .nav-circles {
     display: flex;
     gap: 7px;
@@ -860,6 +883,59 @@
   }
   .branch-head h3 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .bhead-btns { margin-left: auto; display: flex; gap: 7px; }
+
+  /* ---------- Menú de herramientas de una rama ----------
+     El encabezado se llenaba de iconos sueltos sin nombre, y en el móvil
+     no cabían. Aquí cada herramienta lleva su rótulo a la izquierda y su
+     icono a la derecha, así no hay que adivinar qué hace cada dibujito.
+     Fuera solo queda "＋", que es lo único que se usa a diario. */
+  .bmenu-wrap { position: relative; display: inline-flex; }
+  .bmenu {
+    display: none;
+    position: absolute;
+    right: 0; top: calc(100% + 8px);
+    width: max-content;
+    max-width: min(280px, calc(100vw - 44px));
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 6px;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55);
+    z-index: 40;
+  }
+  .bmenu.open { display: block; }
+  .bmenu button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    padding: 9px 10px;
+    border-radius: 11px;
+  }
+  .bmenu button:hover { background: var(--bg2); }
+  .bm-tx { flex: 1; min-width: 0; }
+  .bm-tx b { display: block; font-size: 13.5px; font-weight: 650; line-height: 1.25; }
+  .bm-tx span { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+  .bm-ic {
+    flex: none;
+    width: 32px; height: 32px;
+    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+  }
+  .bmenu button:hover .bm-ic { color: var(--text); }
+  .bmenu button.danger .bm-tx b { color: var(--coral); }
+  .bmenu button.danger .bm-ic { color: var(--coral); border-color: rgba(255, 138, 112, 0.35); }
+  .bmenu button.danger:hover { background: var(--coral-soft); }
+  .bmenu button.danger:hover .bm-ic { color: var(--coral); }
+  .bm-ic svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
   .badd {
     width: 32px; height: 32px;
     border-radius: 999px;
@@ -2483,7 +2559,9 @@ const ICONS = {
   camera: '<path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/>',
   mic: '<path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4"/>',
   globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20 15.3 15.3 0 010-20z"/>',
-  coin: '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.7c0-1 1.1-1.7 2.5-1.7s2.5.7 2.5 1.7-1 1.5-2.5 1.8-2.5.8-2.5 1.8 1.1 1.7 2.5 1.7 2.5-.7 2.5-1.7"/>',
+  /* La S arranca arriba a la DERECHA y termina abajo a la izquierda. Al revés
+     dibuja una "Ƨ" espejada, que es lo que tenía antes. */
+  coin: '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M14.5 9.7c0-1-1.1-1.7-2.5-1.7s-2.5.7-2.5 1.7 1 1.5 2.5 1.8 2.5.8 2.5 1.8-1.1 1.7-2.5 1.7-2.5-.7-2.5-1.7"/>',
   bulb: '<path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0012 2z"/>',
   heart: '<path d="M12 20.5s-7.4-4.8-9.4-9.2C1.4 8.4 3.3 5.5 6.4 5.5c2 0 3.3 1.1 4.1 2.5.8-1.4 2.1-2.5 4.1-2.5 3.1 0 5 2.9 3.8 5.8-2 4.4-9.4 9.2-9.4 9.2z"/>',
   flame: '<path d="M12 22c4.4 0 7-2.9 7-6.5 0-4.5-4-6.3-4.5-10C13 7 11 8.5 11 11c-1.5-.6-2-2.3-1.8-4C6.5 8.8 5 11.5 5 15.5 5 19.1 7.6 22 12 22z"/>',
@@ -4160,6 +4238,89 @@ function sectionHero({ scene, lead, stats, focus }) {
     </div>`;
 }
 
+/* ================= Menú de herramientas de una rama =================
+   Solo "＋" se queda fuera, que es lo único de uso diario; lo demás vive
+   aquí dentro con su nombre escrito, en vez de ser una fila de iconos
+   mudos que además no cabía en el móvil. */
+
+const BM_ICONS = {
+  puntos: '<circle cx="5" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.8" fill="currentColor" stroke="none"/>',
+  flecha: '<path d="M5 12h13M13 6l6 6-6 6"/>',
+  lapiz: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>',
+  reordenar: '<path d="M3 12a9 9 0 0115.5-6.2M21 12a9 9 0 01-15.5 6.2"/><path d="M18 3v5h-5M6 21v-5h5"/>',
+  bote: '<path d="M4 7h16M10 11.5v6M14 11.5v6M6.5 7l.9 12.1a2 2 0 002 1.9h5.2a2 2 0 002-1.9L17.5 7M9.5 7V5.2a2 2 0 012-2h1a2 2 0 012 2V7"/>'
+};
+
+let openBranchMenu = null;
+
+function branchMenu(key, items) {
+  if (!items.length) return "";
+  return `
+    <div class="bmenu-wrap">
+      <button class="badd solid" onclick="toggleBranchMenu('${key}', event)" aria-label="Más opciones de esta rama" aria-haspopup="true">
+        <svg viewBox="0 0 24 24">${BM_ICONS.puntos}</svg>
+      </button>
+      <div class="bmenu" data-menu="${key}">
+        ${items.map(it => `
+          <button class="${it.danger ? "danger" : ""}" onclick="closeBranchMenus();${it.onclick}">
+            <span class="bm-tx"><b>${escapeHtml(it.title)}</b><span>${escapeHtml(it.hint)}</span></span>
+            <span class="bm-ic"><svg viewBox="0 0 24 24">${BM_ICONS[it.icon]}</svg></span>
+          </button>`).join("")}
+      </div>
+    </div>`;
+}
+
+function syncBranchMenus() {
+  document.querySelectorAll(".bmenu").forEach(m => m.classList.toggle("open", m.dataset.menu === openBranchMenu));
+}
+
+function closeBranchMenus() {
+  openBranchMenu = null;
+  syncBranchMenus();
+}
+
+/* stopPropagation es necesario: sin él, el mismo clic que abre el menú
+   burbujea hasta el documento y lo cierra en el acto. */
+function toggleBranchMenu(key, ev) {
+  if (ev) ev.stopPropagation();
+  openBranchMenu = (openBranchMenu === key) ? null : key;
+  syncBranchMenus();
+}
+
+document.addEventListener("click", () => { if (openBranchMenu) closeBranchMenus(); });
+
+/* Borrar una rama entera. Es de las pocas acciones de la app que destruyen
+   datos sin vuelta atrás, así que se avisa con el número exacto de lo que
+   se va y con el botón en rojo. */
+async function deleteBranch(kind, b) {
+  const esTalentos = kind === "perks";
+  const lista = (esTalentos ? state.perks : state.projects).filter(p => (p.branch || "General") === b);
+  const cosa = esTalentos ? "talento" : "proyecto";
+  if (!lista.length) { toast("Esa rama ya está vacía"); return; }
+
+  const cuantos = `${lista.length} ${cosa}${lista.length === 1 ? "" : "s"}`;
+  const ok = await ask(
+    `Se borrará la rama "${b}" y con ella ${cuantos}.\n\n` +
+    (esTalentos ? "También se pierden las conexiones que llegaban a esos talentos desde otras ramas.\n\n" : "") +
+    "Esto no se puede deshacer.",
+    "Borrar la rama", true);
+  if (!ok) return;
+
+  const ids = new Set(lista.map(p => p.id));
+  if (esTalentos) {
+    state.perks = state.perks.filter(p => !ids.has(p.id));
+    // Nadie puede quedar exigiendo un talento que ya no existe: eso dejaría
+    // nodos bloqueados para siempre, sin forma de desbloquearlos.
+    state.perks.forEach(p => { if (p.requiresId && ids.has(p.requiresId)) p.requiresId = null; });
+    if (editBranch === b) editBranch = null;
+  } else {
+    state.projects = state.projects.filter(p => !ids.has(p.id));
+  }
+  save();
+  if (esTalentos) renderTree(); else renderProjects();
+  toast(`Rama "${b}" borrada`);
+}
+
 /* Etiqueta de rama reutilizable: el mismo concepto en todas las secciones. */
 function branchHeader(name, countLabel, buttons) {
   return `
@@ -4373,6 +4534,9 @@ function renderProjects() {
         <h3>${escapeHtml(b)}</h3>
         <span class="count">${liveN} de ${list.length}</span>
         <div class="bhead-btns">
+          ${branchMenu("p:" + escapeAttr(b), [
+            { title: "Borrar esta rama", hint: `Se van también sus ${list.length} proyecto${list.length === 1 ? "" : "s"}`, icon: "bote", danger: true, onclick: `deleteBranch('projects','${escapeAttr(b)}')` }
+          ])}
           <button class="badd" onclick="openProjectForm(null, '${escapeAttr(b)}')" aria-label="Añadir proyecto a ${escapeAttr(b)}">＋</button>
         </div>
       </div>
@@ -4794,17 +4958,17 @@ function renderTree() {
         <h3 onclick="toggleBranch('${ba}')" style="cursor:pointer">${escapeHtml(b)}</h3>
         <span class="count">${doneN} de ${nodes.length}</span>
         <div class="bhead-btns">
-          ${collapsed ? "" : `
-          ${editing ? `
-          <button class="badd solid" onclick="resetBranchLayout('${ba}')" aria-label="Reacomodar automáticamente">
-            <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0115.5-6.2M21 12a9 9 0 01-15.5 6.2"/><path d="M18 3v5h-5M6 21v-5h5"/></svg>
-          </button>` : `
-          <button class="badd solid" onclick="focusBranchFront('${ba}')" aria-label="Ir al frente de avance">
-            <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
-          </button>`}
-          <button class="badd solid ${editing ? "on" : ""}" onclick="toggleEditBranch('${ba}')" aria-label="Modo edición">
-            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
-          </button>`}
+          ${branchMenu("t:" + ba, [
+            ...(collapsed ? [] : [
+              editing
+                ? { title: "Reacomodar solos", hint: "Los vuelve a ordenar automáticamente", icon: "reordenar", onclick: `resetBranchLayout('${ba}')` }
+                : { title: "Ir a donde vas", hint: "Salta al frente de tu avance", icon: "flecha", onclick: `focusBranchFront('${ba}')` },
+              editing
+                ? { title: "Terminar de editar", hint: "Vuelve al modo normal", icon: "lapiz", onclick: `toggleEditBranch('${ba}')` }
+                : { title: "Editar el mapa", hint: "Mueve y conecta los talentos", icon: "lapiz", onclick: `toggleEditBranch('${ba}')` }
+            ]),
+            { title: "Borrar esta rama", hint: `Se van también sus ${nodes.length} talento${nodes.length === 1 ? "" : "s"}`, icon: "bote", danger: true, onclick: `deleteBranch('perks','${ba}')` }
+          ])}
           <button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>
         </div>
       </div>
