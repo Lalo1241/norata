@@ -1213,6 +1213,30 @@
   .ctx-ic { flex: none; color: var(--muted); display: inline-flex; }
   .ctx-ic svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
   .ctx-sep { height: 1px; background: var(--line); margin: 5px 8px; }
+
+  /* Atajos escritos bajo cada rama (solo escritorio) */
+  .keys {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px 6px;
+    margin-top: 8px;
+    font-size: 10.5px;
+    color: var(--faint);
+  }
+  .keys .sep { font-style: normal; opacity: 0.5; }
+  .keys kbd {
+    font-family: inherit;
+    font-size: 9.5px;
+    font-weight: 800;
+    color: var(--muted);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1.5px 5px;
+    margin-right: 2px;
+  }
   .fs-hint {
     flex: none;
     padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
@@ -4692,7 +4716,8 @@ const BM_ICONS = {
   lapiz: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>',
   reordenar: '<path d="M3 12a9 9 0 0115.5-6.2M21 12a9 9 0 01-15.5 6.2"/><path d="M18 3v5h-5M6 21v-5h5"/>',
   bote: '<path d="M4 7h16M10 11.5v6M14 11.5v6M6.5 7l.9 12.1a2 2 0 002 1.9h5.2a2 2 0 002-1.9L17.5 7M9.5 7V5.2a2 2 0 012-2h1a2 2 0 012 2V7"/>',
-  expandir: '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/>'
+  expandir: '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/>',
+  copiar: '<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M6.5 15H5.2A2.2 2.2 0 013 12.8V5.2A2.2 2.2 0 015.2 3h7.6A2.2 2.2 0 0115 5.2v1.3"/>'
 };
 
 let openBranchMenu = null;
@@ -5405,8 +5430,8 @@ function renderTree() {
         <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> Ver la rama completa
       </button>
       ${editing
-        ? `<div class="const-hint edit">Arrastra los talentos para acomodarlos · tira del punto ▸ de la derecha hacia otro talento para conectarlos · toca una línea para quitarla</div>`
-        : `<div class="const-legend"><span><b>◇</b> meta con plan</span><span><b>⬡</b> asegurado al pagar</span><span><b>○</b> mini-talento</span></div>`}`;
+        ? `<div class="const-hint edit">Arrastra los talentos para acomodarlos · tira del punto ▸ de la derecha hacia otro talento para conectarlos · toca una línea para quitarla${atajosLegend()}</div>`
+        : `<div class="const-legend"><span><b>◇</b> meta con plan</span><span><b>⬡</b> asegurado al pagar</span><span><b>○</b> mini-talento</span></div>${atajosLegend(true)}`}`;
     }
 
     html += `
@@ -5425,9 +5450,9 @@ function renderTree() {
           ${branchMenu("t:" + ba, [
             { title: "Ver en pantalla completa", hint: "Recorre y edita la rama con sitio", icon: "expandir", onclick: `openBranchFullscreen('${ba}')` },
             ...(collapsed ? [] : [
-              editing
-                ? { title: "Reacomodar solos", hint: "Los vuelve a ordenar automáticamente", icon: "reordenar", onclick: `resetBranchLayout('${ba}')` }
-                : { title: "Ir a donde vas", hint: "Salta al frente de tu avance", icon: "flecha", onclick: `focusBranchFront('${ba}')` },
+              /* "Reacomodar solos" queda fuera a propósito hasta pulir cómo
+                 decide el orden; la función sigue existiendo, sin puerta. */
+              ...(editing ? [] : [{ title: "Centrar en lo que sigue", hint: "Te lleva al talento en curso o al siguiente por abrir", icon: "flecha", onclick: `focusBranchFront('${ba}')` }]),
               editing
                 ? { title: "Terminar de editar", hint: "Vuelve al modo normal", icon: "lapiz", onclick: `toggleEditBranch('${ba}')` }
                 : { title: "Editar el mapa", hint: "Mueve y conecta los talentos", icon: "lapiz", onclick: `toggleEditBranch('${ba}')` }
@@ -5485,7 +5510,7 @@ function focusBranchFront(b, silent) {
   const px = pos[target.id].x;
   const left = Math.max(0, px - wrap.clientWidth / 2);
   wrap.scrollTo({ left, behavior: silent ? "auto" : "smooth" });
-  if (!silent) toast(`Al frente: ${target.name}`);
+  if (!silent) toast(`Centrado en: ${target.name}`);
 }
 
 async function resetBranchLayout(b) {
@@ -5576,9 +5601,7 @@ function renderFullscreen() {
   document.getElementById("fs-name").textContent = b;
   document.getElementById("fs-count").textContent = `${doneN} de ${nodes.length}`;
   document.getElementById("fs-tools").innerHTML = `
-    ${editing
-      ? `<button class="badd solid" onclick="resetBranchLayout('${ba}')" aria-label="Reacomodar automáticamente"><svg viewBox="0 0 24 24">${BM_ICONS.reordenar}</svg></button>`
-      : `<button class="badd solid" onclick="focusBranchFront('${ba}')" aria-label="Ir al frente de avance"><svg viewBox="0 0 24 24">${BM_ICONS.flecha}</svg></button>`}
+    ${editing ? "" : `<button class="badd solid" onclick="focusBranchFront('${ba}')" aria-label="Centrar en lo que sigue" title="Centrar en lo que sigue"><svg viewBox="0 0 24 24">${BM_ICONS.flecha}</svg></button>`}
     <button class="badd solid ${editing ? "on" : ""}" onclick="toggleEditBranch('${ba}')" aria-label="Editar el mapa"><svg viewBox="0 0 24 24">${BM_ICONS.lapiz}</svg></button>
     <button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>`;
 
@@ -5589,7 +5612,7 @@ function renderFullscreen() {
     <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, 900, editing)}</div>
     <div class="fs-hint">${editing
       ? "Arrastra los talentos para acomodarlos · tira del punto ▸ hacia otro talento para conectarlos · toca una línea para quitarla"
-      : "Arrastra para recorrer la rama · toca un talento para abrirlo"}</div>`;
+      : "Arrastra para recorrer la rama · toca un talento para abrirlo"}${atajosLegend()}</div>`;
 
   ov.classList.add("show");
   if (editing) attachEditHandlers(ov);
@@ -5613,7 +5636,10 @@ const TIPOS_TALENTO = {
    avisar (cortar una conexión, mover algo sin querer). Se guarda una copia
    completa de los talentos antes de cada cambio; son pocos kilobytes y
    evita el "acabo de romper media rama y no sé cómo estaba". */
-const UNDO_MAX = 10;
+/* 50 pasos. El coste por acción no cambia (la copia se hacía igual con 10);
+   lo único que crece es la memoria retenida, y son unos pocos megas en el
+   peor caso. Nada de esto toca el dibujado, así que no añade tirones. */
+const UNDO_MAX = 50;
 let undoStack = [];
 
 function snapshotPerks() { return JSON.stringify(state.perks); }
@@ -5650,6 +5676,21 @@ function fijarPosiciones(b) {
   });
 }
 
+/* Los atajos escritos, para no tener que recordarlos. Van en la línea de
+   indicaciones que ya existía debajo de cada rama, que es donde el usuario
+   ya mira cuando no sabe qué hacer, y no ocupan sitio propio. */
+function atajosLegend(compacta) {
+  if (!isDesktop()) return "";
+  const k = (t) => `<kbd>${t}</kbd>`;
+  const partes = compacta
+    ? [`${k("Q")}${k("W")}${k("E")} crear`, `${k("C")} editar`, `clic derecho: más`]
+    : [
+        `${k("Q")} mini-talento`, `${k("W")} meta`, `${k("E")} asegurado`,
+        `${k("C")} salir`, `${k("Ctrl")}${k("Z")} deshacer`, `clic derecho: más`
+      ];
+  return `<span class="keys">${partes.join('<i class="sep">·</i>')}</span>`;
+}
+
 function crearTalentoRapido(branch, tipo, pos) {
   const t = TIPOS_TALENTO[tipo];
   if (!branch || !t) return;
@@ -5674,6 +5715,47 @@ function crearTalentoRapido(branch, tipo, pos) {
   save();
   renderTree();
   toast(`${t.nombre} creado · ábrelo para ponerle nombre`);
+}
+
+/* Copia el PLAN, no lo logrado: el duplicado nace sin progreso, sin dinero
+   invertido y sin fechas. Heredar el avance del original convertiría un
+   atajo para clonar la forma de un talento en una mentira sobre lo hecho. */
+function duplicarTalento(id, pos) {
+  const orig = state.perks.find(p => p.id === id);
+  if (!orig) return;
+  const branch = orig.branch || "General";
+  pushUndo("duplicar un talento");
+  fijarPosiciones(branch);
+
+  const copia = JSON.parse(JSON.stringify(orig));
+  copia.id = uid();
+  copia.name = orig.name + " (copia)";
+  copia.status = null;
+  copia.startDate = null;
+  copia.endDate = null;
+  copia.completedAt = null;
+  copia.investedTotal = 0;
+  copia.progress = 0;
+  copia.createdAt = todayKey();
+  copia.history = [{ date: todayKey(), at: stamp(), event: `Duplicado de "${orig.name}"` }];
+
+  // Donde se hizo clic; si no, junto al original pero sin taparlo
+  const destino = pos || (typeof orig.x === "number" ? { x: orig.x + 46, y: orig.y + 78 } : null);
+  if (destino) {
+    copia.x = clamp(Math.round(destino.x), 46, CANVAS_MAX_X);
+    copia.y = clamp(Math.round(destino.y), 42, CANVAS_MAX_Y);
+  }
+
+  state.perks.push(copia);
+  save();
+  renderTree();
+  toast(`Duplicado: ${copia.name}`);
+}
+
+function ctxDuplicar(id) {
+  const pos = ctxPos;
+  cerrarCtxMenu();
+  duplicarTalento(id, pos);
 }
 
 /* ---- Dónde está el ratón ----
@@ -5723,6 +5805,10 @@ function escribiendo(el) {
 
 document.addEventListener("keydown", (e) => {
   if (!isDesktop() || escribiendo(e.target)) return;
+  /* Con la tecla sostenida el sistema repite el evento decenas de veces por
+     segundo: sin esto, dejar el dedo en la Q sembraba la rama de talentos.
+     Un atajo de creación es una acción por pulsación, no por milisegundo. */
+  if (e.repeat) return;
 
   // Deshacer funciona siempre que haya algo en la pila del editor
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
@@ -5748,7 +5834,7 @@ document.addEventListener("keydown", (e) => {
 /* ---- Menú de clic derecho sobre el lienzo ---- */
 let ctxPos = null;
 
-function abrirCtxMenu(clientX, clientY, branch, pos) {
+function abrirCtxMenu(clientX, clientY, branch, pos, nodoId) {
   const el = document.getElementById("ctx");
   if (!el) return;
   ctxPos = pos;
@@ -5756,17 +5842,26 @@ function abrirCtxMenu(clientX, clientY, branch, pos) {
   const item = (titulo, pista, tecla, onclick, icono) => `
     <button onclick="${onclick}">
       <span class="ctx-tx"><b>${escapeHtml(titulo)}</b><span>${escapeHtml(pista)}</span></span>
-      ${tecla ? `<kbd>${tecla}</kbd>` : `<span class="ctx-ic"><svg viewBox="0 0 24 24">${icono}</svg></span>`}
+      ${tecla ? `<kbd>${tecla}</kbd>` : (icono ? `<span class="ctx-ic"><svg viewBox="0 0 24 24">${icono}</svg></span>` : "")}
     </button>`;
 
+  // Si el clic cayó sobre un talento, sus acciones van primero
+  const nodo = nodoId ? state.perks.find(p => p.id === nodoId) : null;
+  const bloqueNodo = nodo ? (
+    `<div class="ctx-head">${escapeHtml(nodo.name)}</div>` +
+    item("Duplicar talento", "Copia su forma, sin el progreso", "", `ctxDuplicar('${escapeAttr(nodo.id)}')`, BM_ICONS.copiar) +
+    item("Abrir talento", "Ver y editar sus datos", "", `cerrarCtxMenu();openPerk('${escapeAttr(nodo.id)}')`, BM_ICONS.lapiz) +
+    `<div class="ctx-sep"></div>`
+  ) : "";
+
   el.innerHTML =
+    bloqueNodo +
     `<div class="ctx-head">Crear aquí</div>` +
     item("Meta con plan", "Objetivo con fecha límite", "W", `ctxCrear('${escapeAttr(branch)}','meta')`) +
     item("Asegurado al pagar", "Tuyo en cuanto lo compras", "E", `ctxCrear('${escapeAttr(branch)}','seguro')`) +
     item("Mini-talento", "Una llave para seguir avanzando", "Q", `ctxCrear('${escapeAttr(branch)}','mini')`) +
     `<div class="ctx-sep"></div>` +
     item(editando ? "Salir de edición" : "Editar el mapa", editando ? "Vuelve al modo normal" : "Mueve y conecta talentos", "C", `cerrarCtxMenu();toggleEditBranch('${escapeAttr(branch)}')`) +
-    (editando ? item("Reacomodar solos", "Los vuelve a ordenar", "", `cerrarCtxMenu();resetBranchLayout('${escapeAttr(branch)}')`, BM_ICONS.reordenar) : "") +
     (undoStack.length ? item("Deshacer", undoStack[undoStack.length - 1].etiqueta, "Ctrl Z", `cerrarCtxMenu();undoEditor()`) : "");
 
   // Se coloca en el cursor, pero sin salirse de la pantalla
@@ -6114,6 +6209,83 @@ function isDescendant(nodeId, ancestorId) {
   return false;
 }
 
+/* Las dos mitades de un hilo cortado se retiran desde la tijera hacia sus
+   extremos. El truco es `stroke-dashoffset`: con un guion del largo de cada
+   mitad, correr el desfase hace que el trazo se salga del recorrido por el
+   lado que toca, y lo que queda dentro se ve encoger justo desde el corte.
+   Se usa eso en vez de animar `stroke-dasharray` porque el desfase es la
+   propiedad que todos los motores animan igual desde hace años. */
+function efectoCorte(branch, dAttr, cutPt, color) {
+  if (!dAttr || !cutPt) return;
+  try {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  } catch (e) {}
+  const wrap = constWrapFor(branch);
+  const svg = wrap && wrap.querySelector("svg");
+  if (!svg) return;
+  const NS = "http://www.w3.org/2000/svg";
+
+  // Se mide sobre una copia invisible: hace falta el largo real de la curva
+  const medidor = document.createElementNS(NS, "path");
+  medidor.setAttribute("d", dAttr);
+  medidor.setAttribute("fill", "none");
+  medidor.setAttribute("stroke", "none");
+  svg.appendChild(medidor);
+  let L = 0;
+  try { L = medidor.getTotalLength(); } catch (e) { L = 0; }
+  if (!L) { medidor.remove(); return; }
+
+  // ¿A qué altura del recorrido cayó la tijera?
+  let corte = L / 2, mejor = Infinity;
+  for (let i = 0; i <= 80; i++) {
+    const l = (i / 80) * L;
+    const p = medidor.getPointAtLength(l);
+    const dist = Math.hypot(p.x - cutPt.x, p.y - cutPt.y);
+    if (dist < mejor) { mejor = dist; corte = l; }
+  }
+  const centro = medidor.getPointAtLength(corte);
+  medidor.remove();
+
+  const g = document.createElementNS(NS, "g");
+  g.setAttribute("pointer-events", "none");
+
+  const mitad = (dash, desde, hasta) => {
+    const p = document.createElementNS(NS, "path");
+    p.setAttribute("d", dAttr);
+    p.setAttribute("fill", "none");
+    p.setAttribute("stroke", color);
+    p.setAttribute("stroke-width", "3");
+    p.setAttribute("stroke-linecap", "round");
+    p.setAttribute("stroke-dasharray", dash);
+    p.style.strokeDashoffset = desde;
+    g.appendChild(p);
+    p.animate(
+      [{ strokeDashoffset: desde, opacity: 0.95 }, { strokeDashoffset: hasta, opacity: 0 }],
+      { duration: 430, easing: "cubic-bezier(.35,0,.6,1)", fill: "forwards" }
+    );
+  };
+
+  mitad(`${corte} ${L}`, 0, corte);          // la de atrás se retira hacia el padre
+  mitad(`${L - corte} ${L}`, -corte, -L);    // la de delante, hacia el hijo
+
+  // Destello en el punto exacto del tijeretazo
+  const chispa = document.createElementNS(NS, "circle");
+  chispa.setAttribute("cx", centro.x);
+  chispa.setAttribute("cy", centro.y);
+  chispa.setAttribute("r", "3.5");
+  chispa.setAttribute("fill", "#ff8a70");
+  chispa.style.transformBox = "fill-box";
+  chispa.style.transformOrigin = "center";
+  g.appendChild(chispa);
+  chispa.animate(
+    [{ transform: "scale(0.5)", opacity: 1 }, { transform: "scale(3.6)", opacity: 0 }],
+    { duration: 360, easing: "ease-out", fill: "forwards" }
+  );
+
+  svg.appendChild(g);
+  setTimeout(() => g.remove(), 520);
+}
+
 function removeLink(childId) {
   const c = state.perks.find(x => x.id === childId);
   if (!c || !c.requiresId) return;
@@ -6165,7 +6337,8 @@ function attachCtxHandlers(scope) {
       e.preventDefault();
       e.stopPropagation();
       const p = puntoEnLienzo(wrap, e.clientX, e.clientY);
-      abrirCtxMenu(e.clientX, e.clientY, wrap.dataset.branch, p);
+      const nodo = e.target.closest ? e.target.closest(".cnode") : null;
+      abrirCtxMenu(e.clientX, e.clientY, wrap.dataset.branch, p, nodo && nodo.dataset.id);
     });
   });
 }
@@ -6181,6 +6354,8 @@ function attachEditHandlers(scope) {
   let mode = null, curId = null, offset = null, raf = null, panFrom = null;
   // Copia del estado al empezar un gesto, para poder deshacerlo después
   let snapAntes = null;
+  // Trazo y punto de la tijera, para animar el corte una vez consumado
+  let cutInfo = null;
 
   const svgPoint = (e) => {
     const svg = wrap.querySelector("svg");
@@ -6207,6 +6382,7 @@ function attachEditHandlers(scope) {
       mode = "cut";
       curId = cut.dataset.cut;
       panFrom = { x: e.clientX, y: e.clientY };
+      cutInfo = { d: cut.getAttribute("d"), pt: svgPoint(e) };
     } else if (port) {
       mode = "link";
       curId = port.dataset.from;
@@ -6275,8 +6451,23 @@ function attachEditHandlers(scope) {
     if (mode === "pan") { mode = null; panFrom = null; return; }
     if (mode === "cut") {
       const moved = Math.hypot(e.clientX - panFrom.x, e.clientY - panFrom.y);
-      mode = null; panFrom = null;
-      if (moved < 10) removeLink(curId);
+      const info = cutInfo;
+      mode = null; panFrom = null; cutInfo = null;
+      if (moved < 10) {
+        // El color se toma ANTES de cortar: al soltar el hijo se queda sin
+        // padre y su estado (y por tanto su color) puede cambiar.
+        const c = state.perks.find(x => x.id === curId);
+        let color = "#3d4a5c";
+        if (c) {
+          const cst = perkStatus(c);
+          color = c.status === "completed" ? (c.color || "#5fe0b0")
+            : ((cst === "active" || cst === "due") ? "#f5d76e" : "#3d4a5c");
+        }
+        removeLink(curId);
+        // Después del redibujado: la línea ya no está, así que lo que se ve
+        // desvanecerse son sus dos mitades y no una copia encima.
+        if (info) requestAnimationFrame(() => efectoCorte(b, info.d, info.pt, color));
+      }
       curId = null;
       return;
     }
