@@ -1159,7 +1159,60 @@
   .fs-overlay .const-wrap.editing { touch-action: none; cursor: grab; }
   /* Fuera de edición el lienzo se arrastra para recorrerlo */
   .fs-overlay .const-wrap:not(.editing) { cursor: grab; }
-  .fs-overlay .const-wrap.panning { cursor: grabbing; }
+  .const-wrap.panning { cursor: grabbing !important; }
+
+  /* ---------- Menú de clic derecho sobre el lienzo ----------
+     Solo existe en escritorio: en táctil no hay clic derecho, y las mismas
+     acciones ya están en el menú de la rama. */
+  .ctx {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    min-width: 258px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  }
+  .ctx.show { display: block; }
+  .ctx-head {
+    font-size: 10px; font-weight: 800; letter-spacing: 1.4px;
+    text-transform: uppercase; color: var(--faint);
+    padding: 7px 10px 5px;
+  }
+  .ctx button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    background: none;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .ctx button:hover { background: var(--bg2); }
+  .ctx-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .ctx-tx b { font-size: 13.5px; font-weight: 650; }
+  .ctx-tx span { font-size: 11px; color: var(--muted); }
+  .ctx kbd {
+    flex: none;
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--muted);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 3px 7px;
+  }
+  .ctx-ic { flex: none; color: var(--muted); display: inline-flex; }
+  .ctx-ic svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .ctx-sep { height: 1px; background: var(--line); margin: 5px 8px; }
   .fs-hint {
     flex: none;
     padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
@@ -2781,6 +2834,9 @@
     <div class="cel-sub" id="cel-sub"></div>
   </div>
 </div>
+
+<!-- ============ MENÚ DE CLIC DERECHO (solo escritorio) ============ -->
+<div class="ctx" id="ctx" onclick="event.stopPropagation()"></div>
 
 <!-- ============ RACHA: CELEBRACIÓN DE HITO ============ -->
 <div class="scel" id="scel">
@@ -5362,6 +5418,10 @@ function renderTree() {
         <h3 onclick="toggleBranch('${ba}')" style="cursor:pointer">${escapeHtml(b)}</h3>
         <span class="count">${doneN} de ${nodes.length}</span>
         <div class="bhead-btns">
+          ${editing ? `
+          <button class="badd solid on" onclick="toggleEditBranch('${ba}')" aria-label="Salir del modo edición" title="Salir de edición${isDesktop() ? " (C)" : ""}">
+            <svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>
+          </button>` : ""}
           ${branchMenu("t:" + ba, [
             { title: "Ver en pantalla completa", hint: "Recorre y edita la rama con sitio", icon: "expandir", onclick: `openBranchFullscreen('${ba}')` },
             ...(collapsed ? [] : [
@@ -5387,6 +5447,11 @@ function renderTree() {
      lienzo que el usuario está tocando. */
   renderFullscreen();
   if (editBranch && !fullscreenBranch) attachEditHandlers();
+  /* En escritorio el lienzo de la lista también se arrastra con el botón
+     izquierdo: la rama puede ser más ancha que la tarjeta y no hay por qué
+     entrar a pantalla completa solo para recorrerla. */
+  const cont = document.getElementById("tree-content");
+  if (cont) { attachPanHandlers(cont); attachCtxHandlers(cont); }
   if (focusPending) {
     focusPending = false;
     requestAnimationFrame(() => branches.forEach(b => focusBranchFront(b, true)));
@@ -5425,10 +5490,11 @@ function focusBranchFront(b, silent) {
 
 async function resetBranchLayout(b) {
   if (!await ask(`Esto va a reordenar automáticamente todos los talentos de "${b}". Si habías acomodado esta rama a mano, ese orden se pierde.`, "Reacomodar")) return;
+  pushUndo("reacomodar la rama");
   branchNodes(b).forEach(n => { delete n.x; delete n.y; });
   save();
   renderTree();
-  toast("Talentos reacomodados");
+  toast("Talentos reacomodados · Ctrl+Z para deshacer");
 }
 
 function cssEscape(s) {
@@ -5528,7 +5594,201 @@ function renderFullscreen() {
   ov.classList.add("show");
   if (editing) attachEditHandlers(ov);
   else attachPanHandlers(ov);
+  attachCtxHandlers(ov);
 }
+
+/* ================= Editor del árbol: teclado, deshacer y creación rápida =================
+   Todo esto es exclusivo de escritorio: son atajos de teclado y menú de
+   clic derecho, cosas que en una pantalla táctil no existen. En el móvil
+   nada de esto se activa y la app se comporta igual que antes. */
+
+const TIPOS_TALENTO = {
+  mini:   { nombre: "Mini-talento",       mini: true,  instant: false, tecla: "Q" },
+  meta:   { nombre: "Meta con plan",      mini: false, instant: false, tecla: "W" },
+  seguro: { nombre: "Asegurado al pagar", mini: false, instant: true,  tecla: "E" }
+};
+
+/* ---- Deshacer ----
+   El editor es lo único de la app donde una acción destruye trabajo sin
+   avisar (cortar una conexión, mover algo sin querer). Se guarda una copia
+   completa de los talentos antes de cada cambio; son pocos kilobytes y
+   evita el "acabo de romper media rama y no sé cómo estaba". */
+const UNDO_MAX = 10;
+let undoStack = [];
+
+function snapshotPerks() { return JSON.stringify(state.perks); }
+
+function pushUndo(etiqueta, snap) {
+  undoStack.push({ perks: snap || snapshotPerks(), etiqueta });
+  if (undoStack.length > UNDO_MAX) undoStack.shift();
+}
+
+function undoEditor() {
+  if (!undoStack.length) { toast("No hay nada que deshacer"); return; }
+  const prev = undoStack.pop();
+  state.perks = JSON.parse(prev.perks);
+  save();
+  renderTree();
+  toast(`Deshecho: ${prev.etiqueta}`);
+}
+
+/* Al salir del editor la pila se vacía: deshacer un movimiento de hace tres
+   sesiones sorprendería más de lo que ayudaría. */
+function clearUndo() { undoStack = []; }
+
+/* Congela las posiciones automáticas de una rama. Hace falta antes de
+   colocar algo a mano: si no, el resto de los nodos se reacomodarían
+   alrededor del nuevo y el usuario vería saltar toda la rama. */
+function fijarPosiciones(b) {
+  const nodes = branchNodes(b);
+  const { pos } = branchLayout(nodes);
+  nodes.forEach(n => {
+    if (typeof n.x !== "number" || typeof n.y !== "number") {
+      n.x = pos[n.id].x;
+      n.y = pos[n.id].y;
+    }
+  });
+}
+
+function crearTalentoRapido(branch, tipo, pos) {
+  const t = TIPOS_TALENTO[tipo];
+  if (!branch || !t) return;
+  pushUndo(`crear ${t.nombre.toLowerCase()}`);
+  fijarPosiciones(branch);
+  const n = state.perks.length;
+  const nuevo = {
+    id: uid(), name: t.nombre, branch, desc: "",
+    cost: 0, planDays: 360, instant: t.instant, mini: t.mini,
+    skillId: null, xpReward: t.mini ? 40 : 150, requiresId: null,
+    icon: ICON_LIST[(n * 5 + 3) % ICON_LIST.length],
+    color: COLORS[(n * 3 + 2) % COLORS.length],
+    status: null, startDate: null, endDate: null, completedAt: null,
+    investedTotal: 0, progress: 0, createdAt: todayKey(),
+    history: [{ date: todayKey(), at: stamp(), event: `Talento creado en la rama ${branch}` }]
+  };
+  if (pos) {
+    nuevo.x = clamp(Math.round(pos.x), 46, CANVAS_MAX_X);
+    nuevo.y = clamp(Math.round(pos.y), 42, CANVAS_MAX_Y);
+  }
+  state.perks.push(nuevo);
+  save();
+  renderTree();
+  toast(`${t.nombre} creado · ábrelo para ponerle nombre`);
+}
+
+/* ---- Dónde está el ratón ----
+   Se recuerda el último lienzo señalado y el punto exacto dentro de él, en
+   coordenadas del dibujo. Así un atajo de teclado puede dejar el talento
+   justo donde apunta el cursor, en vez de en una esquina cualquiera. */
+let cursorRama = null;
+
+function puntoEnLienzo(wrap, clientX, clientY) {
+  const svg = wrap.querySelector("svg");
+  if (!svg || !svg.viewBox || !svg.viewBox.baseVal) return null;
+  const r = svg.getBoundingClientRect();
+  const vb = svg.viewBox.baseVal;
+  if (!r.width || !r.height) return null;
+  return {
+    x: (clientX - r.left) * (vb.width / r.width),
+    y: (clientY - r.top) * (vb.height / r.height)
+  };
+}
+
+document.addEventListener("mousemove", (e) => {
+  if (!e.target || !e.target.closest) return;
+  const wrap = e.target.closest(".const-wrap");
+  if (!wrap) return;                       // fuera de un lienzo se conserva el último
+  const p = puntoEnLienzo(wrap, e.clientX, e.clientY);
+  if (p) cursorRama = { branch: wrap.dataset.branch, x: p.x, y: p.y };
+});
+
+/* La rama sobre la que actúan los atajos: la que señala el ratón, y si no,
+   la que esté a pantalla completa o en edición. */
+function ramaDeAtajo() {
+  // A pantalla completa solo hay una rama en juego, señale donde señale
+  if (fullscreenBranch) return fullscreenBranch;
+  if (cursorRama && cursorRama.branch) return cursorRama.branch;
+  return editBranch;
+}
+
+function posDeAtajo(branch) {
+  return (cursorRama && cursorRama.branch === branch) ? { x: cursorRama.x, y: cursorRama.y } : null;
+}
+
+function escribiendo(el) {
+  if (!el) return false;
+  const t = (el.tagName || "").toUpperCase();
+  return t === "INPUT" || t === "TEXTAREA" || t === "SELECT" || el.isContentEditable;
+}
+
+document.addEventListener("keydown", (e) => {
+  if (!isDesktop() || escribiendo(e.target)) return;
+
+  // Deshacer funciona siempre que haya algo en la pila del editor
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+    if (!undoStack.length) return;
+    e.preventDefault();
+    undoEditor();
+    return;
+  }
+  if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+
+  // Solo dentro del árbol (o de una rama a pantalla completa)
+  if (!fullscreenBranch && activeMainView !== "tree") return;
+  const rama = ramaDeAtajo();
+  if (!rama) return;
+
+  const k = e.key.toLowerCase();
+  if (k === "c") { e.preventDefault(); toggleEditBranch(rama); }
+  else if (k === "q") { e.preventDefault(); crearTalentoRapido(rama, "mini", posDeAtajo(rama)); }
+  else if (k === "w") { e.preventDefault(); crearTalentoRapido(rama, "meta", posDeAtajo(rama)); }
+  else if (k === "e") { e.preventDefault(); crearTalentoRapido(rama, "seguro", posDeAtajo(rama)); }
+});
+
+/* ---- Menú de clic derecho sobre el lienzo ---- */
+let ctxPos = null;
+
+function abrirCtxMenu(clientX, clientY, branch, pos) {
+  const el = document.getElementById("ctx");
+  if (!el) return;
+  ctxPos = pos;
+  const editando = editBranch === branch;
+  const item = (titulo, pista, tecla, onclick, icono) => `
+    <button onclick="${onclick}">
+      <span class="ctx-tx"><b>${escapeHtml(titulo)}</b><span>${escapeHtml(pista)}</span></span>
+      ${tecla ? `<kbd>${tecla}</kbd>` : `<span class="ctx-ic"><svg viewBox="0 0 24 24">${icono}</svg></span>`}
+    </button>`;
+
+  el.innerHTML =
+    `<div class="ctx-head">Crear aquí</div>` +
+    item("Meta con plan", "Objetivo con fecha límite", "W", `ctxCrear('${escapeAttr(branch)}','meta')`) +
+    item("Asegurado al pagar", "Tuyo en cuanto lo compras", "E", `ctxCrear('${escapeAttr(branch)}','seguro')`) +
+    item("Mini-talento", "Una llave para seguir avanzando", "Q", `ctxCrear('${escapeAttr(branch)}','mini')`) +
+    `<div class="ctx-sep"></div>` +
+    item(editando ? "Salir de edición" : "Editar el mapa", editando ? "Vuelve al modo normal" : "Mueve y conecta talentos", "C", `cerrarCtxMenu();toggleEditBranch('${escapeAttr(branch)}')`) +
+    (editando ? item("Reacomodar solos", "Los vuelve a ordenar", "", `cerrarCtxMenu();resetBranchLayout('${escapeAttr(branch)}')`, BM_ICONS.reordenar) : "") +
+    (undoStack.length ? item("Deshacer", undoStack[undoStack.length - 1].etiqueta, "Ctrl Z", `cerrarCtxMenu();undoEditor()`) : "");
+
+  // Se coloca en el cursor, pero sin salirse de la pantalla
+  el.classList.add("show");
+  const r = el.getBoundingClientRect();
+  el.style.left = Math.min(clientX, window.innerWidth - r.width - 10) + "px";
+  el.style.top = Math.min(clientY, window.innerHeight - r.height - 10) + "px";
+}
+
+function cerrarCtxMenu() {
+  const el = document.getElementById("ctx");
+  if (el) el.classList.remove("show");
+}
+
+function ctxCrear(branch, tipo) {
+  const pos = ctxPos;
+  cerrarCtxMenu();
+  crearTalentoRapido(branch, tipo, pos);
+}
+
+document.addEventListener("click", cerrarCtxMenu);
+document.addEventListener("scroll", cerrarCtxMenu, true);
 
 function isCollapsed(b) {
   return !!(state.ui && state.ui.collapsed && state.ui.collapsed[b]);
@@ -5544,20 +5804,19 @@ function toggleBranch(b) {
 }
 
 function toggleEditBranch(b) {
-  if (editBranch === b) { editBranch = null; renderTree(); return; }
+  if (editBranch === b) {
+    editBranch = null;
+    clearUndo();   // deshacer un cambio de hace tres sesiones sorprendería más de lo que ayuda
+    renderTree();
+    toast("Listo, modo edición cerrado");
+    return;
+  }
   editBranch = b;
-  // Congela las posiciones automáticas para que mover un nodo no reacomode al resto
-  const nodes = branchNodes(b);
-  const { pos } = branchLayout(nodes);
-  nodes.forEach(n => {
-    if (typeof n.x !== "number" || typeof n.y !== "number") {
-      n.x = pos[n.id].x;
-      n.y = pos[n.id].y;
-    }
-  });
+  clearUndo();
+  fijarPosiciones(b);
   save();
   renderTree();
-  toast("Modo edición: arrastra y conecta");
+  toast(isDesktop() ? "Edición: Q, W y E crean · C para salir" : "Modo edición: arrastra y conecta");
 }
 
 /* ================= Constelación =================
@@ -5858,39 +6117,57 @@ function isDescendant(nodeId, ancestorId) {
 function removeLink(childId) {
   const c = state.perks.find(x => x.id === childId);
   if (!c || !c.requiresId) return;
+  pushUndo("cortar una conexión");
   c.requiresId = null;
   save();
   renderTree();
-  toast("Conexión eliminada");
+  toast("Conexión eliminada · Ctrl+Z para deshacer");
 }
 
 /* Arrastrar el lienzo para recorrerlo fuera del modo edición. Solo con
    ratón: en pantalla táctil el propio navegador ya desplaza (touch-action
    se lo permite), y duplicarlo aquí haría que cada gesto contara doble. */
 function attachPanHandlers(scope) {
-  const wrap = (scope || document).querySelector(".const-wrap:not(.editing)");
-  if (!wrap) return;
-  let from = null;
+  (scope || document).querySelectorAll(".const-wrap:not(.editing)").forEach(wrap => {
+    let from = null;
 
-  wrap.addEventListener("pointerdown", (e) => {
-    if (e.pointerType !== "mouse" || e.button !== 0) return;
-    // Sobre un talento no: ahí el gesto significa "ábrelo"
-    if (e.target.closest(".cnode")) return;
-    from = { x: e.clientX, y: e.clientY, sl: wrap.scrollLeft, st: wrap.scrollTop };
-    wrap.classList.add("panning");
-    try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
-    e.preventDefault();
+    wrap.addEventListener("pointerdown", (e) => {
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      // Sobre un talento no: ahí el gesto significa "ábrelo"
+      if (e.target.closest(".cnode")) return;
+      from = { x: e.clientX, y: e.clientY, sl: wrap.scrollLeft, st: wrap.scrollTop, movido: false };
+      try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+      e.preventDefault();
+    });
+
+    wrap.addEventListener("pointermove", (e) => {
+      if (!from) return;
+      const dx = e.clientX - from.x, dy = e.clientY - from.y;
+      // La clase solo se pone al moverse de verdad: si no, un clic simple
+      // cambiaría el cursor a "agarrando" por un instante sin motivo.
+      if (!from.movido && Math.hypot(dx, dy) > 3) { from.movido = true; wrap.classList.add("panning"); }
+      wrap.scrollLeft = from.sl - dx;
+      wrap.scrollTop = from.st - dy;
+    });
+
+    const fin = () => { from = null; wrap.classList.remove("panning"); };
+    wrap.addEventListener("pointerup", fin);
+    wrap.addEventListener("pointercancel", fin);
   });
+}
 
-  wrap.addEventListener("pointermove", (e) => {
-    if (!from) return;
-    wrap.scrollLeft = from.sl - (e.clientX - from.x);
-    wrap.scrollTop = from.st - (e.clientY - from.y);
+/* Clic derecho sobre cualquier lienzo: crear un talento justo ahí y llegar
+   a las herramientas sin pasar por el menú de la rama. */
+function attachCtxHandlers(scope) {
+  (scope || document).querySelectorAll(".const-wrap").forEach(wrap => {
+    wrap.addEventListener("contextmenu", (e) => {
+      if (!isDesktop()) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const p = puntoEnLienzo(wrap, e.clientX, e.clientY);
+      abrirCtxMenu(e.clientX, e.clientY, wrap.dataset.branch, p);
+    });
   });
-
-  const fin = () => { from = null; wrap.classList.remove("panning"); };
-  wrap.addEventListener("pointerup", fin);
-  wrap.addEventListener("pointercancel", fin);
 }
 
 /* `scope` importa desde que existe el modo pantalla completa: con él abierto
@@ -5902,6 +6179,8 @@ function attachEditHandlers(scope) {
   const b = wrap.dataset.branch;
 
   let mode = null, curId = null, offset = null, raf = null, panFrom = null;
+  // Copia del estado al empezar un gesto, para poder deshacerlo después
+  let snapAntes = null;
 
   const svgPoint = (e) => {
     const svg = wrap.querySelector("svg");
@@ -5931,9 +6210,11 @@ function attachEditHandlers(scope) {
     } else if (port) {
       mode = "link";
       curId = port.dataset.from;
+      snapAntes = snapshotPerks();
     } else if (node) {
       mode = "drag";
       curId = node.dataset.id;
+      snapAntes = snapshotPerks();
       const pt = svgPoint(e);
       const cur = editPos[curId] || { x: pt.x, y: pt.y };
       offset = { dx: cur.x - pt.x, dy: cur.y - pt.y };
@@ -6020,14 +6301,20 @@ function attachEditHandlers(scope) {
           toast("Esa conexión crearía un bucle");
         } else {
           const t = state.perks.find(x => x.id === toId);
+          pushUndo("conectar dos talentos", snapAntes);
           t.requiresId = curId;
           save();
           toast(`Conectado: ${t.name} requiere el anterior`);
         }
       }
     }
-    if (mode === "drag") save();
-    mode = null; curId = null;
+    if (mode === "drag") {
+      // Solo cuenta como acción si de verdad cambió algo: un clic sin
+      // arrastre llenaría la pila de pasos vacíos que no deshacen nada.
+      if (snapAntes && snapAntes !== snapshotPerks()) pushUndo("mover un talento", snapAntes);
+      save();
+    }
+    mode = null; curId = null; snapAntes = null;
     redraw();
   };
 
