@@ -315,22 +315,57 @@
   .streak-row .flame svg { width: 30px; height: 30px; stroke-width: 1.6; }
   .streak-row .num { font-size: 34px; font-weight: 700; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; }
   .streak-row .lbl { font-size: 12px; color: rgba(234, 241, 239, 0.8); line-height: 1.3; }
-  .streak-dots { display: flex; align-items: center; gap: 5px; margin-top: 10px; flex: none; }
+  /* ---------- Los últimos 14 días ----------
+     Antes eran barritas de dos estados. Ahora cada día es un disco que dice
+     qué día de la semana fue, qué número era, y —por la intensidad del
+     relleno— cuánto hiciste: no es lo mismo rozar el mínimo que tener un
+     día redondo, y esa diferencia se perdía al pintarlo todo del mismo
+     verde. `aspect-ratio` los mantiene redondos a cualquier ancho, así que
+     no pueden volver a estirarse si la tarjeta crece. */
+  .streak-dots { display: flex; align-items: center; gap: 4px; margin-top: 12px; flex: none; }
   .streak-dots i {
     flex: 1 1 0;
-    /* El alto se fija por los tres lados a propósito: si la tarjeta crece
-       (se puede redimensionar desde "Acomodar tablero"), estas marcas no
-       deben estirarse con ella y convertirse en barrotes. */
-    height: 7px;
-    min-height: 7px;
-    max-height: 7px;
+    aspect-ratio: 1;
+    max-width: 34px;
+    min-width: 0;
     align-self: center;
     border-radius: 999px;
-    background: rgba(234, 241, 239, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    font-style: normal;
+    line-height: 1;
+    background: rgba(234, 241, 239, 0.07);
+    color: var(--faint);
+    overflow: hidden;
   }
-  .streak-dots i.done { background: var(--mint); box-shadow: 0 0 8px rgba(95, 224, 176, 0.5); }
-  .streak-dots i.missed { background: var(--coral); box-shadow: 0 0 8px rgba(255, 138, 112, 0.35); }
-  .streak-dots i.today { background: rgba(234, 241, 239, 0.12); box-shadow: inset 0 0 0 1.5px rgba(95, 224, 176, 0.55); }
+  .streak-dots i b { font-size: 9px; font-weight: 800; letter-spacing: 0.3px; }
+  .streak-dots i span { font-size: 8.5px; font-weight: 600; opacity: 0.75; }
+
+  /* Cuanto más hiciste ese día, más lleno se ve el disco */
+  .streak-dots i.done {
+    background: rgba(95, 224, 176, calc(0.20 + var(--n, 1) * 0.19));
+    color: #0e131b;
+    box-shadow: 0 0 0 1px rgba(95, 224, 176, 0.55);
+  }
+  .streak-dots i.done span { opacity: 0.65; }
+  .streak-dots i.missed {
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px rgba(255, 138, 112, 0.5);
+    color: rgba(255, 138, 112, 0.85);
+  }
+  .streak-dots i.empty { background: rgba(234, 241, 239, 0.05); color: rgba(234, 241, 239, 0.22); }
+  /* Hoy siempre lleva su aro, esté cumplido o no */
+  .streak-dots i.hoy { box-shadow: 0 0 0 2px var(--mint), 0 0 10px rgba(95, 224, 176, 0.45); }
+  .streak-dots i.today { background: rgba(95, 224, 176, 0.08); color: var(--mint); }
+
+  @media (max-width: 400px) {
+    .streak-dots { gap: 3px; }
+    .streak-dots i b { font-size: 8px; }
+    .streak-dots i span { font-size: 7.5px; }
+  }
 
   /* ---------- Resumen: tarjetas ---------- */
   .sum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
@@ -960,19 +995,103 @@
     background: var(--mint-soft);
     color: var(--mint);
   }
+  /* En el móvil, fuera de pantalla completa, la rama es SOLO una vista
+     previa: no recorre nada por dentro. Así el dedo nunca se pelea con la
+     caja y la página se desliza con naturalidad. Para recorrer la rama de
+     verdad está el modo pantalla completa. En escritorio se restaura el
+     desplazamiento más abajo, porque ahí lo maneja el ratón y no compite
+     con el gesto de la página. */
   .const-wrap {
-    overflow-x: auto;
-    /* Sin esto el CSS lo convierte solo en "overflow-y: auto" (así es como
-       funciona la propiedad cuando solo se fija un eje), y ese eje extra
-       es justo lo que le roba el gesto vertical al scroll de la página en
-       el celular. Aquí no hace falta: en el celular esta caja ya mide
-       exactamente lo que sus talentos necesitan, nunca recorta nada. */
-    overflow-y: hidden;
+    overflow: hidden;
+    touch-action: auto;
     scrollbar-width: none;
     background:
       radial-gradient(circle at 1px 1px, rgba(139, 153, 165, 0.09) 1px, transparent 1.6px);
     background-size: 26px 26px;
-    touch-action: pan-x;
+  }
+  /* Aviso de que la vista previa está recortada, y atajo para abrirla */
+  .fs-open {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: calc(100% - 36px);
+    margin: 10px 18px 2px;
+    padding: 9px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 650;
+    cursor: pointer;
+  }
+  .fs-open svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .fs-open:active { border-color: var(--mint); color: var(--mint); }
+  @media (max-width: 899px) { .fs-open { display: flex; } }
+
+  /* ---------- Rama a pantalla completa ----------
+     Un lienzo sin nada alrededor para acomodar y conectar talentos con
+     sitio de sobra, con las herramientas siempre a mano en la barra. */
+  .fs-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: var(--bg);
+    flex-direction: column;
+  }
+  .fs-overlay.show { display: flex; }
+  body.fs-on { overflow: hidden; }
+  .fs-bar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: calc(11px + env(safe-area-inset-top)) 14px 11px;
+    background: rgba(21, 27, 37, 0.92);
+    border-bottom: 1px solid var(--line);
+  }
+  .fs-close {
+    flex: none;
+    width: 36px; height: 36px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--text);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .fs-close svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+  .fs-title { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; }
+  .fs-title b { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fs-title span {
+    flex: none;
+    font-size: 11px; font-weight: 800;
+    color: var(--mint); background: var(--mint-soft);
+    border-radius: 999px; padding: 3px 9px;
+    font-variant-numeric: tabular-nums;
+  }
+  .fs-tools { flex: none; display: flex; gap: 7px; }
+  .fs-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  /* Aquí sí se recorre en los dos ejes: es el modo que existe para eso */
+  .fs-overlay .const-wrap {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    overflow: auto;
+    touch-action: pan-x pan-y;
+  }
+  .fs-overlay .const-wrap.editing { touch-action: none; cursor: grab; }
+  .fs-hint {
+    flex: none;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: var(--muted);
+    text-align: center;
+    border-top: 1px solid var(--line);
   }
   .const-wrap.editing { touch-action: none; cursor: grab; }
   .const-wrap::-webkit-scrollbar { display: none; }
@@ -1738,6 +1857,38 @@
   /* Los conflictos de sincronía se explican en varias líneas: sin esto el
      modal las aplasta en un párrafo ilegible. */
   #modal-msg { white-space: pre-line; }
+
+  /* ---------- Comparación de versiones en un conflicto ---------- */
+  .cf-intro { white-space: normal; font-size: 14px; line-height: 1.5; margin-bottom: 14px; }
+  .cf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; white-space: normal; }
+  .cf-side {
+    background: var(--bg2);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 11px 11px 9px;
+    text-align: left;
+  }
+  .cf-side.nuevo { border-color: var(--mint); background: var(--mint-soft); }
+  .cf-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 3px; }
+  .cf-tag { font-size: 10.5px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--faint); }
+  .cf-badge {
+    font-size: 9.5px; font-weight: 800; letter-spacing: 0.4px;
+    color: #0e131b; background: var(--mint);
+    border-radius: 999px; padding: 2px 7px;
+  }
+  .cf-dev { font-size: 14px; font-weight: 700; line-height: 1.2; }
+  .cf-when { font-size: 11.5px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .cf-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; margin-top: 9px; }
+  .cf-nums > div { display: flex; align-items: baseline; gap: 4px; }
+  .cf-nums b { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .cf-nums span { font-size: 10px; color: var(--muted); }
+  /* Solo se resalta lo que difiere: es lo único que hay que mirar */
+  .cf-nums > div.dif b { color: var(--fire); }
+  .cf-nums > div.dif span { color: var(--fire); opacity: 0.8; }
+  .cf-foot { white-space: normal; font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 13px; }
+  @media (max-width: 420px) {
+    .cf-grid { grid-template-columns: 1fr; }
+  }
   .sync-text { font-size: 13px; line-height: 1.45; }
   .sync-text b { display: block; font-weight: 600; }
   .sync-text span { color: var(--faint); font-size: 12px; }
@@ -1998,7 +2149,9 @@
     #toast.show { transform: translateY(0); }
 
     /* La constelación aprovecha el ancho extra */
-    .const-wrap { max-height: 560px; overflow-y: auto; }
+    /* Con ratón el desplazamiento no compite con ningún gesto, así que aquí
+       la rama sí se recorre sin necesidad de pantalla completa. */
+    .const-wrap { max-height: 560px; overflow: auto; }
   }
 
   @media (min-width: 1320px) {
@@ -2519,6 +2672,18 @@
   </button>
 </div>
 
+<!-- ============ RAMA A PANTALLA COMPLETA ============ -->
+<div class="fs-overlay" id="fs-overlay">
+  <div class="fs-bar">
+    <button class="fs-close" onclick="closeBranchFullscreen()" aria-label="Salir de pantalla completa">
+      <svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>
+    </button>
+    <div class="fs-title"><b id="fs-name"></b><span id="fs-count"></span></div>
+    <div class="fs-tools" id="fs-tools"></div>
+  </div>
+  <div class="fs-body" id="fs-body"></div>
+</div>
+
 <!-- ============ MODAL DE CONFIRMACIÓN ============ -->
 <div class="modal-backdrop" id="modal" onclick="if(event.target===this)modalDone(false)">
   <div class="modal-card">
@@ -2741,9 +2906,22 @@ let modalResolve = null;
 /* cancelLabel existe para los conflictos de sincronía: ahí ninguna de las dos
    salidas es "cancelar", las dos son una elección real sobre qué datos viven. */
 function ask(msg, okLabel, danger, alarm, cancelLabel) {
+  return askBase(msg, false, okLabel, danger, alarm, cancelLabel);
+}
+
+/* Igual que ask(), pero el cuerpo es HTML. Solo lo usa el conflicto de
+   sincronía, donde comparar dos versiones en una tabla se entiende de un
+   vistazo y en un párrafo corrido no. Todo lo que venga de los datos del
+   usuario se escapa antes de llegar aquí. */
+function askHtml(html, okLabel, cancelLabel) {
+  return askBase(html, true, okLabel, false, false, cancelLabel);
+}
+
+function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel) {
   return new Promise(resolve => {
     modalResolve = resolve;
-    document.getElementById("modal-msg").textContent = msg;
+    const cuerpo = document.getElementById("modal-msg");
+    if (esHtml) cuerpo.innerHTML = msg; else cuerpo.textContent = msg;
     const ok = document.getElementById("modal-ok");
     ok.textContent = okLabel || "Confirmar";
     ok.className = "btn " + (danger ? "btn-danger-ghost" : "btn-primary");
@@ -3166,24 +3344,35 @@ function daysUntilDecay(s) {
 
 /* Días con actividad real: práctica registrada (incluidas las de nivel máximo,
    que dan 0 XP) y movimientos en talentos. El decaimiento no cuenta. */
-function activityDaySet() {
-  const set = new Set();
+/* Cuántas cosas registraste cada día, no solo si registraste algo. Con el
+   número se puede distinguir un día de rozar el mínimo de uno redondo, que
+   es lo que hace que la tira de días sirva para leer tu ritmo. */
+function activityDayCounts() {
+  const m = new Map();
+  const add = k => m.set(k, (m.get(k) || 0) + 1);
   for (const s of state.skills) {
     for (const e of s.log) {
-      if (e.xp >= 0 && !/^Decaimiento/.test(e.note || "")) set.add(e.date);
+      if (e.xp >= 0 && !/^Decaimiento/.test(e.note || "")) add(e.date);
     }
   }
   for (const p of state.perks) {
-    for (const e of (p.history || [])) if (e.date) set.add(e.date);
+    for (const e of (p.history || [])) if (e.date) add(e.date);
   }
-  for (const m of state.missions) {
-    for (const k of Object.keys(m.log || {})) if (m.log[k] > 0) set.add(k);
+  for (const ms of state.missions) {
+    for (const k of Object.keys(ms.log || {})) if (ms.log[k] > 0) add(k);
   }
-  return set;
+  return m;
 }
 
+function activityDaySet() {
+  return new Set(activityDayCounts().keys());
+}
+
+const DOW_LETRA = ["D", "L", "M", "M", "J", "V", "S"];
+
 function streakInfo() {
-  const set = activityDaySet();
+  const counts = activityDayCounts();
+  const set = new Set(counts.keys());
   // Racha actual: días consecutivos con práctica, terminando hoy o ayer
   let cur = 0;
   let k = todayKey();
@@ -3209,12 +3398,17 @@ function streakInfo() {
   const t = todayKey();
   for (let i = 0; i <= 13; i++) {
     const k2 = addDaysKey(t, -i);
-    let day;
-    if (set.has(k2)) day = "done";
-    else if (i === 0) day = "today";
-    else if (first && k2 >= first) day = "missed";
-    else day = "empty";
-    last14.push(day);
+    const n = counts.get(k2) || 0;
+    let estado;
+    if (n > 0) estado = "done";
+    else if (i === 0) estado = "today";
+    else if (first && k2 >= first) estado = "missed";
+    else estado = "empty";
+    last14.push({
+      key: k2, estado, n, hoy: i === 0,
+      letra: DOW_LETRA[weekdayOfKey(k2)],
+      dia: Number(k2.slice(8, 10))
+    });
   }
   return { cur, best, last14, activeToday: set.has(t) };
 }
@@ -3745,7 +3939,12 @@ function renderSummary() {
             <span class="num">${stk.cur}</span>
             <span class="lbl">día${stk.cur === 1 ? "" : "s"} de racha<br>mejor: ${stk.best}</span>
           </div>
-          <div class="streak-dots">${stk.last14.map(d => `<i class="${d}"></i>`).join("")}</div>
+          <div class="streak-dots">${stk.last14.map(d => {
+            const cuando = formatDate(d.key);
+            const qué = d.n > 0 ? `${d.n} registro${d.n === 1 ? "" : "s"}`
+              : (d.estado === "today" ? "hoy, todavía nada" : (d.estado === "missed" ? "sin nada" : "antes de empezar"));
+            return `<i class="${d.estado}${d.hoy ? " hoy" : ""}" style="--n:${Math.min(d.n, 4)}" title="${escapeAttr(cuando + " · " + qué)}"><b>${d.letra}</b><span>${d.dia}</span></i>`;
+          }).join("")}</div>
         </div>
       </div>`,
 
@@ -4248,7 +4447,8 @@ const BM_ICONS = {
   flecha: '<path d="M5 12h13M13 6l6 6-6 6"/>',
   lapiz: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>',
   reordenar: '<path d="M3 12a9 9 0 0115.5-6.2M21 12a9 9 0 01-15.5 6.2"/><path d="M18 3v5h-5M6 21v-5h5"/>',
-  bote: '<path d="M4 7h16M10 11.5v6M14 11.5v6M6.5 7l.9 12.1a2 2 0 002 1.9h5.2a2 2 0 002-1.9L17.5 7M9.5 7V5.2a2 2 0 012-2h1a2 2 0 012 2V7"/>'
+  bote: '<path d="M4 7h16M10 11.5v6M14 11.5v6M6.5 7l.9 12.1a2 2 0 002 1.9h5.2a2 2 0 002-1.9L17.5 7M9.5 7V5.2a2 2 0 012-2h1a2 2 0 012 2V7"/>',
+  expandir: '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/>'
 };
 
 let openBranchMenu = null;
@@ -4289,19 +4489,31 @@ function toggleBranchMenu(key, ev) {
 
 document.addEventListener("click", () => { if (openBranchMenu) closeBranchMenus(); });
 
+/* "sus 1 proyecto" no lo dice nadie. El singular cambia el posesivo y el
+   verbo, y con cero no hay nada que anunciar: devuelve "" y quien llama
+   omite la frase entera en vez de escribir "sus 0 proyectos". */
+function fraseCantidad(n, singular, plural) {
+  if (n === 0) return "";
+  if (n === 1) return `su único ${singular}`;
+  return `sus ${n} ${plural}`;
+}
+
 /* Borrar una rama entera. Es de las pocas acciones de la app que destruyen
    datos sin vuelta atrás, así que se avisa con el número exacto de lo que
    se va y con el botón en rojo. */
 async function deleteBranch(kind, b) {
   const esTalentos = kind === "perks";
   const lista = (esTalentos ? state.perks : state.projects).filter(p => (p.branch || "General") === b);
-  const cosa = esTalentos ? "talento" : "proyecto";
-  if (!lista.length) { toast("Esa rama ya está vacía"); return; }
+  const singular = esTalentos ? "talento" : "proyecto";
+  const plural = esTalentos ? "talentos" : "proyectos";
+  const n = lista.length;
 
-  const cuantos = `${lista.length} ${cosa}${lista.length === 1 ? "" : "s"}`;
+  const arrastra = fraseCantidad(n, singular, plural);
   const ok = await ask(
-    `Se borrará la rama "${b}" y con ella ${cuantos}.\n\n` +
-    (esTalentos ? "También se pierden las conexiones que llegaban a esos talentos desde otras ramas.\n\n" : "") +
+    (arrastra
+      ? `Se borrará la rama "${b}" y con ella ${arrastra}.`
+      : `Se borrará la rama "${b}", que está vacía.`) + "\n\n" +
+    (esTalentos && n ? "También se pierden las conexiones que llegaban a esos talentos desde otras ramas.\n\n" : "") +
     "Esto no se puede deshacer.",
     "Borrar la rama", true);
   if (!ok) return;
@@ -4535,7 +4747,7 @@ function renderProjects() {
         <span class="count">${liveN} de ${list.length}</span>
         <div class="bhead-btns">
           ${branchMenu("p:" + escapeAttr(b), [
-            { title: "Borrar esta rama", hint: `Se van también sus ${list.length} proyecto${list.length === 1 ? "" : "s"}`, icon: "bote", danger: true, onclick: `deleteBranch('projects','${escapeAttr(b)}')` }
+            { title: "Borrar esta rama", hint: list.length === 0 ? "Está vacía" : (list.length === 1 ? "Se va también su único proyecto" : `Se van también sus ${list.length} proyectos`), icon: "bote", danger: true, onclick: `deleteBranch('projects','${escapeAttr(b)}')` }
           ])}
           <button class="badd" onclick="openProjectForm(null, '${escapeAttr(b)}')" aria-label="Añadir proyecto a ${escapeAttr(b)}">＋</button>
         </div>
@@ -4944,6 +5156,9 @@ function renderTree() {
     } else {
       body = `
       <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, bi, editing)}</div>
+      <button class="fs-open" onclick="openBranchFullscreen('${ba}')">
+        <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> Ver la rama completa
+      </button>
       ${editing
         ? `<div class="const-hint edit">Arrastra los talentos para acomodarlos · tira del punto ▸ de la derecha hacia otro talento para conectarlos · toca una línea para quitarla</div>`
         : `<div class="const-legend"><span><b>◇</b> meta con plan</span><span><b>⬡</b> asegurado al pagar</span><span><b>○</b> mini-talento</span></div>`}`;
@@ -4959,6 +5174,7 @@ function renderTree() {
         <span class="count">${doneN} de ${nodes.length}</span>
         <div class="bhead-btns">
           ${branchMenu("t:" + ba, [
+            { title: "Ver en pantalla completa", hint: "Recorre y edita la rama con sitio", icon: "expandir", onclick: `openBranchFullscreen('${ba}')` },
             ...(collapsed ? [] : [
               editing
                 ? { title: "Reacomodar solos", hint: "Los vuelve a ordenar automáticamente", icon: "reordenar", onclick: `resetBranchLayout('${ba}')` }
@@ -4967,7 +5183,7 @@ function renderTree() {
                 ? { title: "Terminar de editar", hint: "Vuelve al modo normal", icon: "lapiz", onclick: `toggleEditBranch('${ba}')` }
                 : { title: "Editar el mapa", hint: "Mueve y conecta los talentos", icon: "lapiz", onclick: `toggleEditBranch('${ba}')` }
             ]),
-            { title: "Borrar esta rama", hint: `Se van también sus ${nodes.length} talento${nodes.length === 1 ? "" : "s"}`, icon: "bote", danger: true, onclick: `deleteBranch('perks','${ba}')` }
+            { title: "Borrar esta rama", hint: nodes.length === 0 ? "Está vacía" : (nodes.length === 1 ? "Se va también su único talento" : `Se van también sus ${nodes.length} talentos`), icon: "bote", danger: true, onclick: `deleteBranch('perks','${ba}')` }
           ])}
           <button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>
         </div>
@@ -4976,7 +5192,12 @@ function renderTree() {
     </div>`;
   });
   el.innerHTML = html;
-  if (editBranch) attachEditHandlers();
+  /* La pantalla completa se pinta DESPUÉS de la lista, a propósito:
+     constellation() deja apuntadas en variables globales las posiciones del
+     último lienzo dibujado, y las que deben quedar vigentes son las del
+     lienzo que el usuario está tocando. */
+  renderFullscreen();
+  if (editBranch && !fullscreenBranch) attachEditHandlers();
   if (focusPending) {
     focusPending = false;
     requestAnimationFrame(() => branches.forEach(b => focusBranchFront(b, true)));
@@ -5001,7 +5222,7 @@ function frontNode(nodes) {
 }
 
 function focusBranchFront(b, silent) {
-  const wrap = document.querySelector(`.const-wrap[data-branch="${cssEscape(b)}"]`);
+  const wrap = constWrapFor(b);
   if (!wrap) return;
   const nodes = branchNodes(b);
   if (!nodes.length) return;
@@ -5028,6 +5249,85 @@ function cssEscape(s) {
 /* ================= Plegado y modo edición de ramas ================= */
 
 let editBranch = null;
+
+/* ================= Rama a pantalla completa =================
+   En el móvil la rama de la lista es solo una vista previa (no se recorre
+   por dentro, para no robarle el gesto al scroll de la página). Aquí es
+   donde se recorre y se edita de verdad, con sitio y las herramientas a
+   mano. En escritorio es opcional: sirve para trabajar una rama grande sin
+   el resto de la interfaz alrededor. */
+
+let fullscreenBranch = null;
+
+/* Con el modo abierto hay DOS lienzos de la misma rama en el documento: el
+   de la lista (tapado) y el de la pantalla completa. Todo lo que busque el
+   lienzo tiene que quedarse con el que se está viendo. */
+function constWrapFor(b) {
+  return document.querySelector(`#fs-body .const-wrap[data-branch="${cssEscape(b)}"]`)
+    || document.querySelector(`.const-wrap[data-branch="${cssEscape(b)}"]`);
+}
+
+function openBranchFullscreen(b) {
+  // Una rama plegada no tendría nada que enseñar: se despliega al entrar
+  if (isCollapsed(b)) {
+    delete state.ui.collapsed[b];
+    save();
+  }
+  fullscreenBranch = b;
+  document.body.classList.add("fs-on");
+  renderTree();
+  requestAnimationFrame(() => focusBranchFront(b, true));
+}
+
+function closeBranchFullscreen() {
+  if (!fullscreenBranch) return;
+  fullscreenBranch = null;
+  document.body.classList.remove("fs-on");
+  document.getElementById("fs-overlay").classList.remove("show");
+  renderTree();
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && fullscreenBranch) closeBranchFullscreen();
+});
+
+function renderFullscreen() {
+  const ov = document.getElementById("fs-overlay");
+  if (!ov) return;
+  if (!fullscreenBranch) { ov.classList.remove("show"); return; }
+
+  const b = fullscreenBranch;
+  const nodes = branchNodes(b);
+  // Si la rama desapareció (por ejemplo, al borrarla) no hay nada que abrir
+  if (!nodes.length && !state.perks.some(p => (p.branch || "General") === b)) {
+    closeBranchFullscreen();
+    return;
+  }
+  const ba = escapeAttr(b);
+  const editing = editBranch === b;
+  const doneN = nodes.filter(n => n.status === "completed").length;
+
+  document.getElementById("fs-name").textContent = b;
+  document.getElementById("fs-count").textContent = `${doneN} de ${nodes.length}`;
+  document.getElementById("fs-tools").innerHTML = `
+    ${editing
+      ? `<button class="badd solid" onclick="resetBranchLayout('${ba}')" aria-label="Reacomodar automáticamente"><svg viewBox="0 0 24 24">${BM_ICONS.reordenar}</svg></button>`
+      : `<button class="badd solid" onclick="focusBranchFront('${ba}')" aria-label="Ir al frente de avance"><svg viewBox="0 0 24 24">${BM_ICONS.flecha}</svg></button>`}
+    <button class="badd solid ${editing ? "on" : ""}" onclick="toggleEditBranch('${ba}')" aria-label="Editar el mapa"><svg viewBox="0 0 24 24">${BM_ICONS.lapiz}</svg></button>
+    <button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>`;
+
+  /* La clave del SVG es distinta de la que usa la lista: si coincidiera,
+     los dos lienzos compartirían los ids de los filtros y el brillo se
+     aplicaría al equivocado. */
+  document.getElementById("fs-body").innerHTML = `
+    <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, 900, editing)}</div>
+    <div class="fs-hint">${editing
+      ? "Arrastra los talentos para acomodarlos · tira del punto ▸ hacia otro talento para conectarlos · toca una línea para quitarla"
+      : "Arrastra para recorrer la rama · toca un talento para abrirlo"}</div>`;
+
+  ov.classList.add("show");
+  if (editing) attachEditHandlers(ov);
+}
 
 function isCollapsed(b) {
   return !!(state.ui && state.ui.collapsed && state.ui.collapsed[b]);
@@ -5363,8 +5663,11 @@ function removeLink(childId) {
   toast("Conexión eliminada");
 }
 
-function attachEditHandlers() {
-  const wrap = document.querySelector(".const-wrap.editing");
+/* `scope` importa desde que existe el modo pantalla completa: con él abierto
+   hay dos lienzos de la misma rama y sin acotar la búsqueda los gestos se
+   engancharían al de la lista, que está tapado. */
+function attachEditHandlers(scope) {
+  const wrap = (scope || document).querySelector(".const-wrap.editing");
   if (!wrap) return;
   const b = wrap.dataset.branch;
 
@@ -6584,6 +6887,10 @@ function syncTouch() {
   try {
     if (!syncReady()) return;
     sync.dirty = true;
+    // Cuándo se tocó esto por última vez. Sin este dato, ante un conflicto
+    // solo se puede fechar el lado remoto, y elegir "el más reciente" se
+    // vuelve una adivinanza.
+    sync.dirtyAt = new Date().toISOString();
     saveSync();
     clearTimeout(syncTimer);
     syncTimer = setTimeout(() => syncRun({ silent: true }), SYNC_DELAY);
@@ -6687,6 +6994,30 @@ function syncCount(s) {
     " misiones, " + (s.perks || []).length + " talentos y " + (s.projects || []).length + " proyectos";
 }
 
+/* Fecha y hora completas: en un conflicto lo que se compara es justo eso.
+   "hace poco" no sirve para decidir. */
+function syncFecha(iso) {
+  if (!iso) return null;
+  try {
+    return new Date(iso).toLocaleString("es-MX", {
+      timeZone: userTZ(), day: "numeric", month: "short",
+      hour: "2-digit", minute: "2-digit"
+    });
+  } catch (e) { return null; }
+}
+
+/* Las cuatro cifras por separado, para poder ponerlas en columnas y que se
+   vea de un vistazo en qué se diferencian las dos versiones. */
+function syncCifras(s) {
+  s = s || {};
+  return [
+    { t: "Habilidades", n: (s.skills || []).length },
+    { t: "Misiones", n: (s.missions || []).length },
+    { t: "Talentos", n: (s.perks || []).length },
+    { t: "Proyectos", n: (s.projects || []).length }
+  ];
+}
+
 function hasLocalData() {
   return (state.skills || []).length + (state.perks || []).length +
     (state.projects || []).length + (state.missions || []).length > 0;
@@ -6707,23 +7038,51 @@ function adoptRemote(env) {
   showView(activeMainView || "summary");
 }
 
+/* La pregunta más delicada de la app: elegir mal aquí borra progreso real.
+   Por eso se presenta como una comparación y no como un párrafo: las dos
+   versiones con su fecha y hora completas, sus cifras enfrentadas para ver
+   en qué se diferencian, y una etiqueta que señala cuál se guardó después.
+   La etiqueta dice "más reciente", no "la correcta": la más nueva suele ser
+   la buena, pero el que sabe si estuvo capturando en el otro aparato es el
+   usuario, no la app. */
 async function askConflict(env) {
-  let when = "hace poco";
-  if (env.updatedAt) {
-    try {
-      when = new Date(env.updatedAt).toLocaleString("es-MX", {
-        timeZone: userTZ(), day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"
-      });
-    } catch (e) {}
-  }
-  const who = env.device || "el otro dispositivo";
-  return await ask(
-    "Los dos lados cambiaron y tengo que elegir uno.\n\n" +
-    "En " + who + " (" + when + "): " + syncCount(env.state) + ".\n" +
-    "Aquí, sin subir todavía: " + syncCount(state) + ".\n\n" +
-    "Del lado que no elijas guardo una copia en este navegador, así que no se pierde nada.",
-    "Traer lo de " + who, false, false, "Conservar lo de aquí"
-  );
+  const quien = env.device || "el otro dispositivo";
+  const remotoISO = env.updatedAt || null;
+  const localISO = sync.dirtyAt || null;
+  const fRemoto = syncFecha(remotoISO) || "sin fecha";
+  const fLocal = syncFecha(localISO) || "sin fecha";
+
+  let masNuevo = null;
+  if (remotoISO && localISO) masNuevo = Date.parse(localISO) > Date.parse(remotoISO) ? "local" : "remoto";
+
+  const cifrasL = syncCifras(state);
+  const cifrasR = syncCifras(env.state);
+
+  const lado = (titulo, sub, fecha, cifras, otras, esNuevo) => `
+    <div class="cf-side${esNuevo ? " nuevo" : ""}">
+      <div class="cf-head">
+        <span class="cf-tag">${escapeHtml(titulo)}</span>
+        ${esNuevo ? '<span class="cf-badge">Más reciente</span>' : ""}
+      </div>
+      <div class="cf-dev">${escapeHtml(sub)}</div>
+      <div class="cf-when">${escapeHtml(fecha)}</div>
+      <div class="cf-nums">
+        ${cifras.map((c, i) => {
+          const dif = otras[i].n !== c.n;
+          return `<div class="${dif ? "dif" : ""}"><b>${c.n}</b><span>${escapeHtml(c.t)}</span></div>`;
+        }).join("")}
+      </div>
+    </div>`;
+
+  const html = `
+    <div class="cf-intro">Los dos aparatos cambiaron desde la última sincronía. Elige cuál se queda.</div>
+    <div class="cf-grid">
+      ${lado("Aquí", sync.device || "Este dispositivo", fLocal, cifrasL, cifrasR, masNuevo === "local")}
+      ${lado("Allá", quien, fRemoto, cifrasR, cifrasL, masNuevo === "remoto")}
+    </div>
+    <div class="cf-foot">Del lado que no elijas se guarda una copia en este navegador, así que no se pierde nada.</div>`;
+
+  return await askHtml(html, "Traer lo de " + quien, "Conservar lo de aquí");
 }
 
 async function syncOnce(opts) {
