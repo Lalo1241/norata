@@ -1,4 +1,6 @@
-const CACHE = "norata-v1";
+/* Al cambiar este nombre, activate() borra las cachés viejas: es la forma
+   de forzar que un aparato que se quedó con una versión anterior la suelte. */
+const CACHE = "norata-v2";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./favicon.svg"];
 
 self.addEventListener("install", (e) => {
@@ -15,9 +17,15 @@ self.addEventListener("activate", (e) => {
   self.clients.claim();
 });
 
+/* Red primero, y sin pasar por la caché HTTP del navegador.
+   Sin el `cache: "no-store"` el fetch podía servirse de esa caché y
+   devolver una versión vieja aunque hubiera conexión: la app quedaba
+   congelada en una build anterior sin que nada lo delatara. La copia en
+   CacheStorage sigue existiendo, pero solo como respaldo sin conexión. */
 self.addEventListener("fetch", (e) => {
+  if (e.request.method !== "GET") return;
   e.respondWith(
-    fetch(e.request)
+    fetch(e.request, { cache: "no-store" })
       .then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(e.request, copy));

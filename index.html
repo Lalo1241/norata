@@ -322,49 +322,122 @@
      día redondo, y esa diferencia se perdía al pintarlo todo del mismo
      verde. `aspect-ratio` los mantiene redondos a cualquier ancho, así que
      no pueden volver a estirarse si la tarjeta crece. */
-  .streak-dots { display: flex; align-items: center; gap: 4px; margin-top: 12px; flex: none; }
-  .streak-dots i {
-    flex: 1 1 0;
-    aspect-ratio: 1;
-    max-width: 34px;
-    min-width: 0;
-    align-self: center;
+  /* ---------- La semana en curso ----------
+     Siete días con su inicial y su marca. Todo va en píxeles fijos y con
+     propiedades de toda la vida (nada de aspect-ratio ni de calc() dentro
+     de rgba): esta tira ya se descuadró una vez en un navegador que no
+     digirió algo más moderno, y una racha ilegible es peor que una racha
+     sencilla. */
+  .wk { display: flex; justify-content: space-between; gap: 4px; margin-top: 13px; }
+  .wk-d { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .wk-l {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: rgba(234, 241, 239, 0.5);
+    line-height: 1;
+  }
+  .wk-c {
+    width: 30px;
+    height: 30px;
+    box-sizing: border-box;
     border-radius: 999px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1px;
-    font-style: normal;
+    font-size: 11.5px;
+    font-weight: 700;
     line-height: 1;
-    background: rgba(234, 241, 239, 0.07);
-    color: var(--faint);
+    background: rgba(234, 241, 239, 0.09);
+    color: rgba(234, 241, 239, 0.45);
+  }
+  .wk-c svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+  .wk-d.done .wk-c { background: var(--mint); color: #0e131b; box-shadow: 0 0 12px rgba(95, 224, 176, 0.45); }
+  .wk-d.missed .wk-c { background: rgba(255, 138, 112, 0.14); color: var(--coral); }
+  .wk-d.hoy .wk-c { background: rgba(95, 224, 176, 0.1); color: var(--mint); box-shadow: inset 0 0 0 2px var(--mint); }
+  /* Un día que todavía no llega no se juzga: ni verde ni rojo */
+  .wk-d.futuro .wk-c, .wk-d.empty .wk-c { background: rgba(234, 241, 239, 0.05); color: rgba(234, 241, 239, 0.26); }
+  .wk-d.done.hoy .wk-c { box-shadow: 0 0 0 3px rgba(95, 224, 176, 0.35), 0 0 14px rgba(95, 224, 176, 0.5); }
+  .wk-d.done .wk-l, .wk-d.hoy .wk-l { color: var(--mint); }
+
+  @media (max-width: 360px) {
+    .wk-c { width: 27px; height: 27px; }
+  }
+
+  /* ---------- Celebración de un hito de racha ----------
+     Ocupa la pantalla entera a propósito: es el único momento en que la app
+     interrumpe, y solo pasa en los días que de verdad valen la pena. */
+  .scel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    background: radial-gradient(circle at 50% 42%, #2a1d06 0%, #16110a 45%, #0e131b 100%);
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
   }
-  .streak-dots i b { font-size: 9px; font-weight: 800; letter-spacing: 0.3px; }
-  .streak-dots i span { font-size: 8.5px; font-weight: 600; opacity: 0.75; }
-
-  /* Cuanto más hiciste ese día, más lleno se ve el disco */
-  .streak-dots i.done {
-    background: rgba(95, 224, 176, calc(0.20 + var(--n, 1) * 0.19));
-    color: #0e131b;
-    box-shadow: 0 0 0 1px rgba(95, 224, 176, 0.55);
+  .scel.show { display: flex; }
+  .scel-rays {
+    position: absolute;
+    width: 150vmax; height: 150vmax;
+    background: repeating-conic-gradient(from 0deg, rgba(245, 215, 110, 0.13) 0deg 7deg, transparent 7deg 20deg);
+    animation: scelSpin 24s linear infinite;
+    pointer-events: none;
   }
-  .streak-dots i.done span { opacity: 0.65; }
-  .streak-dots i.missed {
-    background: transparent;
-    box-shadow: inset 0 0 0 1.5px rgba(255, 138, 112, 0.5);
-    color: rgba(255, 138, 112, 0.85);
+  @keyframes scelSpin { to { transform: rotate(360deg); } }
+  .scel-core { position: relative; text-align: center; padding: 24px; }
+  .scel-flame { color: var(--fire); filter: drop-shadow(0 0 26px rgba(245, 215, 110, 0.75)); }
+  .scel-flame svg { width: 96px; height: 96px; stroke: currentColor; fill: rgba(245, 215, 110, 0.22); stroke-width: 1.4; stroke-linejoin: round; }
+  .scel.show .scel-flame { animation: scelFlame 1.5s ease-in-out infinite; }
+  @keyframes scelFlame {
+    0%, 100% { transform: scale(1) rotate(-1.5deg); }
+    50% { transform: scale(1.07) rotate(1.5deg); }
   }
-  .streak-dots i.empty { background: rgba(234, 241, 239, 0.05); color: rgba(234, 241, 239, 0.22); }
-  /* Hoy siempre lleva su aro, esté cumplido o no */
-  .streak-dots i.hoy { box-shadow: 0 0 0 2px var(--mint), 0 0 10px rgba(95, 224, 176, 0.45); }
-  .streak-dots i.today { background: rgba(95, 224, 176, 0.08); color: var(--mint); }
-
-  @media (max-width: 400px) {
-    .streak-dots { gap: 3px; }
-    .streak-dots i b { font-size: 8px; }
-    .streak-dots i span { font-size: 7.5px; }
+  .scel-num {
+    font-size: 76px;
+    font-weight: 800;
+    letter-spacing: -3px;
+    line-height: 1;
+    color: var(--fire);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 6px 34px rgba(245, 215, 110, 0.55);
+    margin-top: 4px;
+  }
+  .scel.show .scel-num { animation: scelPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s backwards; }
+  @keyframes scelPop { from { transform: scale(0.3); opacity: 0; } }
+  .scel-unit {
+    font-size: 15px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: rgba(245, 215, 110, 0.85); margin-top: 2px;
+  }
+  .scel-sub {
+    font-size: 15px; line-height: 1.55; color: var(--text);
+    max-width: 30ch; margin: 18px auto 22px; opacity: 0.92;
+  }
+  .scel.show .scel-sub, .scel.show .scel-unit, .scel.show #scel-btn {
+    animation: scelUp 0.5s ease 0.3s backwards;
+  }
+  @keyframes scelUp { from { transform: translateY(12px); opacity: 0; } }
+  #scel-btn { min-width: 190px; }
+  .scel-sparks { position: absolute; inset: 0; pointer-events: none; }
+  .scel-sparks i {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 9px; height: 9px;
+    border-radius: 999px;
+    background: var(--fire);
+    opacity: 0;
+  }
+  .scel.show .scel-sparks i { animation: scelSpark 1.5s ease-out backwards; }
+  @keyframes scelSpark {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scel-rays, .scel.show .scel-flame, .scel.show .scel-num,
+    .scel.show .scel-sub, .scel.show .scel-unit, .scel.show #scel-btn,
+    .scel.show .scel-sparks i { animation: none; }
+    .scel-sparks { display: none; }
   }
 
   /* ---------- Resumen: tarjetas ---------- */
@@ -1084,6 +1157,9 @@
     touch-action: pan-x pan-y;
   }
   .fs-overlay .const-wrap.editing { touch-action: none; cursor: grab; }
+  /* Fuera de edición el lienzo se arrastra para recorrerlo */
+  .fs-overlay .const-wrap:not(.editing) { cursor: grab; }
+  .fs-overlay .const-wrap.panning { cursor: grabbing; }
   .fs-hint {
     flex: none;
     padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
@@ -2706,6 +2782,19 @@
   </div>
 </div>
 
+<!-- ============ RACHA: CELEBRACIÓN DE HITO ============ -->
+<div class="scel" id="scel">
+  <div class="scel-rays"></div>
+  <div class="scel-sparks" id="scel-sparks"></div>
+  <div class="scel-core">
+    <div class="scel-flame"><svg viewBox="0 0 24 24"><path d="M12 22c4.4 0 7-2.9 7-6.5 0-4.5-4-6.3-4.5-10C13 7 11 8.5 11 11c-1.5-.6-2-2.3-1.8-4C6.5 8.8 5 11.5 5 15.5 5 19.1 7.6 22 12 22z"/></svg></div>
+    <div class="scel-num" id="scel-num">0</div>
+    <div class="scel-unit">días de racha</div>
+    <div class="scel-sub" id="scel-sub"></div>
+    <button class="btn btn-primary" id="scel-btn" onclick="closeStreakCel()">Seguir así</button>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -2958,6 +3047,70 @@ function celebrate(title, sub, color, iconName) {
   if (userHasTapped && navigator.vibrate) navigator.vibrate([28, 40, 70]);
   clearTimeout(celTimer);
   celTimer = setTimeout(() => el.classList.remove("show"), 2200);
+}
+
+/* ================= Racha: celebrar los hitos =================
+   El punto de una racha es dar una razón para volver mañana. Por eso los
+   días redondos se celebran a lo grande y una sola vez: si la app festejara
+   cada día, la fiesta dejaría de significar nada. */
+
+function mensajeHito(n) {
+  if (n >= 365) return "Un año entero sin soltarlo. Esto ya no es fuerza de voluntad, es quién eres.";
+  if (n >= 200) return "Doscientos días. Muy poca gente llega hasta aquí.";
+  if (n >= 100) return "Cien días seguidos. El hábito ya se sostiene solo.";
+  if (n >= 50) return "Cincuenta días. Medio centenar de veces que elegiste aparecer.";
+  if (n >= 30) return "Un mes completo sin fallar un solo día.";
+  if (n >= 14) return "Dos semanas seguidas. Ya no es suerte.";
+  if (n >= 7) return "¡Semana perfecta! Siete de siete.";
+  return "Tres días seguidos: así es como empieza todo hábito.";
+}
+
+let scelTimer = null;
+
+function celebrateStreak(n) {
+  const el = document.getElementById("scel");
+  if (!el) return;
+  document.getElementById("scel-num").textContent = n;
+  document.getElementById("scel-sub").textContent = mensajeHito(n);
+
+  // Chispas en abanico, calculadas aquí para que salgan distintas cada vez
+  const sp = document.getElementById("scel-sparks");
+  let chispas = "";
+  for (let i = 0; i < 18; i++) {
+    const ang = (i / 18) * Math.PI * 2 + Math.random() * 0.3;
+    const dist = 120 + Math.random() * 190;
+    chispas += `<i style="--dx:${(Math.cos(ang) * dist).toFixed(0)}px;--dy:${(Math.sin(ang) * dist).toFixed(0)}px;animation-delay:${(Math.random() * 0.35).toFixed(2)}s;background:${Math.random() > 0.5 ? "#f5d76e" : "#ffd9a0"}"></i>`;
+  }
+  sp.innerHTML = chispas;
+
+  el.classList.remove("show");
+  void el.offsetWidth;                 // reiniciar las animaciones
+  el.classList.add("show");
+  if (userHasTapped && navigator.vibrate) navigator.vibrate([40, 60, 40, 60, 120]);
+  clearTimeout(scelTimer);
+  // Red de seguridad: si el botón se queda sin pulsar, no bloquea la app
+  scelTimer = setTimeout(closeStreakCel, 12000);
+}
+
+function closeStreakCel() {
+  clearTimeout(scelTimer);
+  const el = document.getElementById("scel");
+  if (el) el.classList.remove("show");
+}
+
+/* Se llama después de cualquier registro que pueda mantener viva la racha.
+   Guarda hasta qué número ya se festejó para no repetir la fiesta al
+   recargar, y para no celebrar hacia atrás si la racha venía de antes. */
+function checkStreakMilestone() {
+  const stk = streakInfo();
+  if (!stk.activeToday) return;
+  state.ui = state.ui || {};
+  const ya = state.ui.rachaFestejada || 0;
+  if (stk.cur <= ya) return;
+  const merece = HITOS_RACHA.includes(stk.cur);
+  state.ui.rachaFestejada = stk.cur;
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  if (merece) celebrateStreak(stk.cur);
 }
 
 /* ================= Escenas generadas ================= */
@@ -3368,7 +3521,10 @@ function activityDaySet() {
   return new Set(activityDayCounts().keys());
 }
 
-const DOW_LETRA = ["D", "L", "M", "M", "J", "V", "S"];
+/* Dos letras para martes y miércoles: con una sola, "M" y "M" seguidas no
+   se distinguen y la semana deja de leerse. */
+const DOW_LETRA = ["D", "L", "Ma", "Mi", "J", "V", "S"];
+const HITOS_RACHA = [3, 7, 14, 30, 50, 100, 200, 365, 500, 1000];
 
 function streakInfo() {
   const counts = activityDayCounts();
@@ -3410,7 +3566,26 @@ function streakInfo() {
       dia: Number(k2.slice(8, 10))
     });
   }
-  return { cur, best, last14, activeToday: set.has(t) };
+
+  /* La semana en curso, de domingo a sábado. Es lo que se enseña: una
+     semana natural deja ver los días que TODAVÍA no llegan, y esos no
+     pueden marcarse como fallados — solo el pasado se juzga. */
+  const semana = [];
+  const inicio = addDaysKey(t, -weekdayOfKey(t));
+  for (let i = 0; i < 7; i++) {
+    const k2 = addDaysKey(inicio, i);
+    const n = counts.get(k2) || 0;
+    const esHoy = k2 === t;
+    let estado;
+    if (n > 0) estado = "done";
+    else if (k2 > t) estado = "futuro";        // aún no ocurre: nunca en rojo
+    else if (esHoy) estado = "hoy";
+    else if (first && k2 >= first) estado = "missed";
+    else estado = "empty";                     // antes de que existiera nada
+    semana.push({ key: k2, estado, n, hoy: esHoy, letra: DOW_LETRA[i], dia: Number(k2.slice(8, 10)) });
+  }
+
+  return { cur, best, last14, semana, activeToday: set.has(t) };
 }
 
 /* ================= Talentos: estados ================= */
@@ -3633,6 +3808,8 @@ function logMission(id, delta) {
   save();
   renderMissions();
 
+  if (delta > 0) checkStreakMilestone();
+
   if (nowDone && !wasDone) {
     const st = missionStreak(m);
     if (st > 0 && st % 7 === 0) {
@@ -3839,6 +4016,13 @@ function showView(name) {
     projects: "Nuevo proyecto", missions: "Nueva misión"
   }[name] || "";
 
+  /* La pantalla completa es una capa por encima de todo, así que taparía
+     cualquier formulario que se abriera desde ella (crear talento, por
+     ejemplo). Se aparta mientras dure el formulario y vuelve sola al
+     regresar al árbol, en vez de obligar a salir del modo y perder el
+     sitio donde estabas. */
+  syncFullscreenForView(name);
+
   window.scrollTo(0, 0);
   if (name === "summary") renderSummary();
   if (name === "settings") { renderTimezone(); renderSync(); }
@@ -3939,11 +4123,15 @@ function renderSummary() {
             <span class="num">${stk.cur}</span>
             <span class="lbl">día${stk.cur === 1 ? "" : "s"} de racha<br>mejor: ${stk.best}</span>
           </div>
-          <div class="streak-dots">${stk.last14.map(d => {
-            const cuando = formatDate(d.key);
+          <div class="wk">${stk.semana.map(d => {
+            const marca = d.estado === "done" ? `<svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>`
+              : d.estado === "missed" ? `<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>`
+              : d.dia;
             const qué = d.n > 0 ? `${d.n} registro${d.n === 1 ? "" : "s"}`
-              : (d.estado === "today" ? "hoy, todavía nada" : (d.estado === "missed" ? "sin nada" : "antes de empezar"));
-            return `<i class="${d.estado}${d.hoy ? " hoy" : ""}" style="--n:${Math.min(d.n, 4)}" title="${escapeAttr(cuando + " · " + qué)}"><b>${d.letra}</b><span>${d.dia}</span></i>`;
+              : (d.estado === "hoy" ? "hoy, todavía nada" : (d.estado === "missed" ? "te lo saltaste" : (d.estado === "futuro" ? "aún no llega" : "antes de empezar")));
+            return `<div class="wk-d ${d.estado}${d.hoy ? " hoy" : ""}" title="${escapeAttr(formatDate(d.key) + " · " + qué)}">
+              <span class="wk-l">${d.letra}</span><span class="wk-c">${marca}</span>
+            </div>`;
           }).join("")}</div>
         </div>
       </div>`,
@@ -5061,6 +5249,7 @@ function logActivity() {
   const note = document.getElementById("log-note").value.trim();
   const real = addXp(s, selectedQuickXp, note || (levelInfo(s.xp).level >= MAX_LEVEL ? "Práctica (nivel máximo)" : ""));
   save();
+  checkStreakMilestone();
   const after = levelInfo(s.xp).level;
   renderDetail();
   if (real === 0) {
@@ -5279,6 +5468,17 @@ function openBranchFullscreen(b) {
   requestAnimationFrame(() => focusBranchFront(b, true));
 }
 
+/* No cierra el modo, solo lo esconde: el usuario sigue "dentro" de la rama
+   y al volver del formulario la encuentra tal cual la dejó. */
+function syncFullscreenForView(name) {
+  if (!fullscreenBranch) return;
+  const ov = document.getElementById("fs-overlay");
+  if (!ov) return;
+  const enElArbol = name === "tree";
+  ov.classList.toggle("show", enElArbol);
+  document.body.classList.toggle("fs-on", enElArbol);
+}
+
 function closeBranchFullscreen() {
   if (!fullscreenBranch) return;
   fullscreenBranch = null;
@@ -5327,6 +5527,7 @@ function renderFullscreen() {
 
   ov.classList.add("show");
   if (editing) attachEditHandlers(ov);
+  else attachPanHandlers(ov);
 }
 
 function isCollapsed(b) {
@@ -5661,6 +5862,35 @@ function removeLink(childId) {
   save();
   renderTree();
   toast("Conexión eliminada");
+}
+
+/* Arrastrar el lienzo para recorrerlo fuera del modo edición. Solo con
+   ratón: en pantalla táctil el propio navegador ya desplaza (touch-action
+   se lo permite), y duplicarlo aquí haría que cada gesto contara doble. */
+function attachPanHandlers(scope) {
+  const wrap = (scope || document).querySelector(".const-wrap:not(.editing)");
+  if (!wrap) return;
+  let from = null;
+
+  wrap.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    // Sobre un talento no: ahí el gesto significa "ábrelo"
+    if (e.target.closest(".cnode")) return;
+    from = { x: e.clientX, y: e.clientY, sl: wrap.scrollLeft, st: wrap.scrollTop };
+    wrap.classList.add("panning");
+    try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  });
+
+  wrap.addEventListener("pointermove", (e) => {
+    if (!from) return;
+    wrap.scrollLeft = from.sl - (e.clientX - from.x);
+    wrap.scrollTop = from.st - (e.clientY - from.y);
+  });
+
+  const fin = () => { from = null; wrap.classList.remove("panning"); };
+  wrap.addEventListener("pointerup", fin);
+  wrap.addEventListener("pointercancel", fin);
 }
 
 /* `scope` importa desde que existe el modo pantalla completa: con él abierto
