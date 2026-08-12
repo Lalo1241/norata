@@ -2077,11 +2077,10 @@
   .ms-card.done .ms-check { background: var(--mc); border-color: var(--mc); color: #10151d; }
   .ms-check[disabled] { cursor: default; }
 
-  /* La palomita pendiente es una insinuación, no un estado: se ve que se
-     puede marcar sin dar a entender que ya está marcada. */
+  /* La capa de reposo dice el estado; la de encima, la intención. Nunca se
+     ven las dos a la vez, y en reposo un círculo pendiente está vacío. */
   .ms-base, .ms-sobre { display: inline-flex; align-items: center; justify-content: center; }
-  .ms-check .ms-base svg { opacity: 0.4; transition: opacity 0.14s ease; }
-  .ms-card.done .ms-check .ms-base svg { opacity: 1; }
+  .ms-base { transition: opacity 0.14s ease; }
   .ms-sobre {
     position: absolute; inset: 0;
     opacity: 0;
@@ -2090,10 +2089,12 @@
   .ms-sobre svg { width: 17px; height: 17px; stroke-width: 2.6; }
   .ms-mas { font-size: 13px; font-weight: 800; letter-spacing: -0.3px; }
   @media (hover: hover) and (pointer: fine) {
-    .ms-check:hover .ms-base svg { opacity: 0.85; }
-    /* Solo las que tienen relevo esconden su cara normal al pasar encima */
     .ms-check.muda:hover .ms-base { opacity: 0; }
     .ms-check.muda:hover .ms-sobre { opacity: 1; }
+    /* Pendiente: el aro se tiñe al asomar la palomita, para que el gesto se
+       sienta como marcar y no como que ya estuviera marcada. */
+    .ms-card:not(.done) .ms-check:hover { background: color-mix(in srgb, var(--mc) 16%, transparent); }
+    /* Cumplida: pasa a rojo, porque lo que ofrece es revertir */
     .ms-card.done .ms-check:hover { background: var(--coral); border-color: var(--coral); }
   }
   .ms-count { font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
@@ -3491,6 +3492,12 @@ let activeCategory = "Todas";
 let selectedQuickXp = 40;   // la práctica moderada, valor medio de PRACTICAS
 let activeMainView = "summary";
 let lastDetailPct = 0;
+/* El anillo del día en Misiones recuerda dónde estaba para poder viajar
+   hasta el valor nuevo en vez de aparecer ya puesto. Empieza en null y no en
+   cero para distinguir "todavía no se ha pintado nunca" —donde sí queremos
+   el barrido desde cero, que da la sensación de que el día arranca— de "es
+   un repintado" —donde se parte de lo que había. */
+let lastMisionPct = null;
 
 function load() {
   let data = { skills: [], perks: [], projects: [] };
@@ -4244,7 +4251,21 @@ const INVITACIONES = [
   "¿Por dónde sería lo más fácil de empezar?",
   "¿Le damos una oportunidad esta semana?",
   "¿Qué haría falta para dar el primer paso?",
-  "¿La probamos una vez y vemos qué tal se siente?"
+  "¿La probamos una vez y vemos qué tal se siente?",
+  "¿Qué te llamó la atención de esto cuando la anotaste?",
+  "¿Existe una versión pequeña de esto que quepa hoy?",
+  "¿Sería más fácil con alguien más?",
+  "¿Hay algo que estés esperando para empezar?",
+  "¿Cuál sería el primer paso, aunque fuera diminuto?",
+  "¿Te gustaría que esto formara parte de tu semana?",
+  "¿Cuándo te quedaría mejor probarla?",
+  "¿Qué se te ocurre hacer con esto en diez minutos?",
+  "¿Te sigue dando curiosidad?",
+  "¿Qué necesitarías tener a mano para arrancar?",
+  "¿Hay un día de la semana donde encajaría bien?",
+  "¿Prefieres empezarla en serio o solo asomarte?",
+  "¿La dejamos aquí un tiempo más o le buscamos hueco?",
+  "¿Qué versión de esto te gustaría estar haciendo dentro de un año?"
 ];
 
 function invitacionPara(s) {
@@ -4600,12 +4621,20 @@ function sacudirPantalla() {
 }
 
 /* ================= El círculo de una misión =================
-   Dice, sin una sola palabra, qué pasa si lo pulsas. Antes estaba vacío
-   hasta que la misión se cumplía, así que no invitaba a nada: parecía un
-   adorno. Ahora lleva siempre una palomita —tenue mientras está pendiente,
-   sólida al cumplirse— y con ratón cambia al pasar por encima para
-   adelantar lo que hará el clic: flecha de retorno si ya está hecha, "+1"
-   si la misión lleva cuenta.
+   Dice, sin una sola palabra, qué pasa si lo pulsas. Y sobre todo: en
+   reposo NO dice nada que no sea verdad.
+
+   Hubo una versión con la palomita puesta en tenue mientras la misión
+   seguía pendiente, como pista de que ahí se marcaba. Era mala idea: una
+   palomita, por pálida que esté, se lee como "ya está" — daba una victoria
+   falsa al repasar la lista de un vistazo, que es justo el momento en que
+   uno confía en el símbolo y no en el matiz. Un círculo pendiente se queda
+   vacío. La pista solo aparece cuando el cursor está encima, que es cuando
+   ya hay una intención detrás y no puede confundirse con un estado.
+
+   Con ratón, entonces, el relevo adelanta lo que hará el clic: palomita si
+   está por cumplir, flecha de retorno si ya está hecha, "+1" si lleva
+   cuenta. Sin ratón el círculo se limita a mostrar el estado real.
 
    La diferencia entre las dos clases de misión no es un capricho. En una de
    un solo golpe, deshacer es revertirla entera y cabe en el propio círculo.
@@ -4622,7 +4651,7 @@ function botonMision(m, c, t, opciones) {
   const o = opciones || {};
   const ok = c >= t;
   const cuenta = t > 1;
-  let base, sobre = "", accion, etiqueta, apagado = false;
+  let base = "", sobre = "", accion, etiqueta, apagado = false;
 
   if (o.reabrir) {                       // misión guardada: solo se puede reabrir
     base = PALOMITA; sobre = VOLVER;
@@ -4636,10 +4665,15 @@ function botonMision(m, c, t, opciones) {
       accion = `logMission('${m.id}', 1)`;
       etiqueta = `Sumar una vez a ${m.name}`;
     }
+  } else if (ok) {
+    base = PALOMITA; sobre = VOLVER;
+    accion = `logMission('${m.id}', -1)`;
+    etiqueta = `Deshacer ${m.name}`;
   } else {
-    base = PALOMITA;
-    if (ok) { sobre = VOLVER; accion = `logMission('${m.id}', -1)`; etiqueta = `Deshacer ${m.name}`; }
-    else { accion = `logMission('${m.id}', 1)`; etiqueta = `Cumplir ${m.name}`; }
+    base = "";                           // pendiente: el círculo se queda vacío
+    sobre = PALOMITA;
+    accion = `logMission('${m.id}', 1)`;
+    etiqueta = `Cumplir ${m.name}`;
   }
 
   return `<button class="ms-check ${sobre ? "muda" : ""}" ${apagado ? "disabled" : `onclick="${accion}"`}
@@ -5368,8 +5402,8 @@ const DASH_META = {
   racha:     { title: "Racha", w: 2, h: 5 },
   misiones:  { title: "Misiones de hoy", w: 1, h: 8 },
   atencion:  { title: "Atención hoy", w: 1, h: 3 },
-  niveles:   { title: "Niveles", w: 1, h: 2 },
-  invertido: { title: "Invertido", w: 1, h: 2 },
+  niveles:   { title: "Niveles", w: 1, h: 3 },
+  invertido: { title: "Invertido", w: 1, h: 3 },
   proyectos: { title: "Proyectos", w: 1, h: 3 },
   listos:    { title: "Listos para empezar", w: 1, h: 4 }
 };
@@ -5382,10 +5416,13 @@ const DASH_MODULO = {
   invertido: "tree", listos: "tree", proyectos: "projects"
 };
 const ROW_H = 56, ROW_GAP = 22;
-/* Suelo de encogimiento: por debajo de esto la tarjeta deja de comunicar.
-   Las cuatro pequeñas bajan un escalón más porque su contenido cabe de
-   sobra: el suelo anterior les dejaba aire muerto que no aportaba nada. */
-const DASH_MIN_H = { racha: 3, misiones: 3, atencion: 1, niveles: 1, invertido: 1, proyectos: 1, listos: 3 };
+/* Suelo de encogimiento, medido tarjeta por tarjeta: por debajo de esto
+   deja de comunicar. No es una cifra común porque no todas dicen lo mismo
+   —"Listos para empezar" es una lista y necesita cuatro; "Proyectos" es un
+   dato suelto y se apaña con dos—. El techo sigue siendo el mismo para
+   todas: encoger estropea, agrandar no. */
+const DASH_MIN_H = { racha: 3, misiones: 3, atencion: 2, niveles: 3, invertido: 3, proyectos: 2, listos: 4 };
+const DASH_MAX_H = 14;
 
 let dashEditing = false;
 
@@ -5400,10 +5437,19 @@ function dashLayout() {
   };
 }
 
+function altoMinimo(id) { return DASH_MIN_H[id] || 2; }
+
+/* El suelo se aplica al LEER, no solo al arrastrar. Si no, un tablero
+   guardado con la altura vieja se seguiría pintando por debajo del mínimo
+   para siempre: el usuario nunca vuelve a tocar esa tarjeta y el valor
+   antiguo se queda mandando. */
 function dashSize(id) {
   const { sizes } = dashLayout();
   const s = sizes[id] || {};
-  return { w: s.w || DASH_META[id].w, h: s.h || DASH_META[id].h };
+  return {
+    w: s.w || DASH_META[id].w,
+    h: clamp(s.h || DASH_META[id].h, altoMinimo(id), DASH_MAX_H)
+  };
 }
 
 function saveDash(order, hidden, sizes) {
@@ -5417,9 +5463,12 @@ function saveDash(order, hidden, sizes) {
   save();
 }
 
+/* Y también al GUARDAR. Es el único punto por el que entra un tamaño nuevo,
+   así que sujetarlo aquí garantiza que en disco nunca quede nada por debajo
+   del suelo, venga del arrastre o de donde venga. */
 function setWidgetSize(id, w, h) {
   const { sizes } = dashLayout();
-  sizes[id] = { w, h };
+  sizes[id] = { w, h: clamp(h, altoMinimo(id), DASH_MAX_H) };
   saveDash(null, null, sizes);
 }
 
@@ -5577,7 +5626,7 @@ function attachDashHandlers() {
       const dw = Math.round((e.clientX - sizeStart.x) / (cellW + ROW_GAP));
       const dh = Math.round((e.clientY - sizeStart.y) / ROW_H);
       const w = clamp(sizeStart.w + dw, 1, sizeStart.max);
-      const h = clamp(sizeStart.h + dh, DASH_MIN_H[sizeId] || 2, 14);
+      const h = clamp(sizeStart.h + dh, altoMinimo(sizeId), DASH_MAX_H);
       el.style.setProperty("--w", w);
       el.style.setProperty("--h", h);
       return;
@@ -5607,7 +5656,12 @@ function attachDashHandlers() {
     if (sizeId) {
       const el = cont.querySelector(`.widget[data-w="${sizeId}"]`);
       if (el) {
-        setWidgetSize(sizeId, +el.style.getPropertyValue("--w") || 1, +el.style.getPropertyValue("--h") || 2);
+        /* El respaldo del alto es el suelo de ESA tarjeta, no un 2 fijo:
+           con el fijo, un widget cuyo mínimo es 4 podía guardarse en 2 si
+           la propiedad venía vacía. */
+        setWidgetSize(sizeId,
+          +el.style.getPropertyValue("--w") || 1,
+          +el.style.getPropertyValue("--h") || altoMinimo(sizeId));
         el.classList.remove("sizing");
       }
       sizeId = null; sizeStart = null;
@@ -5807,6 +5861,11 @@ const SKILL_CATALOG = [
   { n: "Escalada",       c: "Salud",       i: "flag",     k: "#f5d76e" },
   { n: "Baile",          c: "Salud",       i: "music",    k: "#f0a5c0" },
   { n: "Primeros auxilios", c: "Salud",    i: "heart",    k: "#ff8a70" },
+  /* El sitio donde caben las rutinas mínimas —beber agua, lavarse los
+     dientes, dormir a horas—. Sin ella, misiones así se quedaban sin
+     habilidad a la que sumar o acababan colgadas de Ejercicio, que no es
+     lo mismo: cuidarse no es entrenar. */
+  { n: "Cuidado personal", c: "Salud",     i: "smile",    k: "#6fc3e8" },
 
   // Casa y oficios
   { n: "Cocina",         c: "Casa",        i: "coffee",   k: "#f5d76e" },
@@ -5880,6 +5939,11 @@ const LEXICO = {
   "Escalada":      "!escalar !trepar escalada muro boulder rocodromo",
   "Baile":         "!bailar !danzar baile danza salsa coreografia",
   "Primeros auxilios": "!auxiliar rcp botiquin emergencias primeros auxilios",
+  /* Las rutinas de mantenimiento del cuerpo. Lleva "!beber" y "!dormir"
+     porque son las dos que más aparecen escritas como misión, y "vasos",
+     "cepillo" y "protector" porque la gente escribe el objeto y no el
+     verbo: "ocho vasos", "hilo dental", "protector solar". */
+  "Cuidado personal": "!beber !hidratarme !dormir !cepillarme !lavarme !descansar !estirarme agua vasos dientes cepillo hilo dental piel crema protector solar higiene rutina sueño siesta uñas cabello ducha",
 
   "Cocina":        "!cocinar !guisar !sofreir receta recetas sarten fogon comida platillo chef guiso",
   "Repostería":    "!hornear !amasar !repostear pastel tarta galletas pan masa reposteria horno",
@@ -6419,7 +6483,12 @@ function renderMissions() {
       scene: motifScene(820, 168, 55, "waves", "#5fe0b0"),
       lead: `
         <div class="ring-wrap" style="width:92px;height:92px">
-          ${ring(92, 9, [{ pct: pct / 100, color: "#5fe0b0" }], "rgba(234,241,239,0.14)")}
+          ${/* Animado, no fijo: cumplir una misión mueve este anillo, y verlo
+                crecer es la respuesta a lo que acabas de hacer. Estático,
+                el porcentaje simplemente aparecía cambiado y el gesto se
+                quedaba sin acuse de recibo. */
+            animRing(92, 9, pct / 100, "#5fe0b0",
+              lastMisionPct === null ? 0 : lastMisionPct, "rgba(234,241,239,0.14)")}
           <div class="ring-center">
             <div class="v" style="font-size:19px"><b>${done.length}</b><span style="font-size:13px;color:var(--muted)">/${due.length}</span></div>
           </div>
@@ -6473,6 +6542,7 @@ function renderMissions() {
         </div>`).join("")}</div>
     </div>` : ""}`;
   playRings(el);
+  lastMisionPct = pct / 100;
   attachMisionOrden();
 }
 
