@@ -5496,6 +5496,48 @@ function setWidgetSize(id, w, h) {
   saveDash(null, null, sizes);
 }
 
+/* ---- Deshacer del tablero ----
+   Acomodar el Resumen es prueba y error: se mueve algo, se ve cómo queda y
+   a veces la respuesta es "estaba mejor antes". Sin una salida atrás, esa
+   última parte obliga a reconstruir a mano lo que ya estaba bien.
+
+   Guarda una copia del reparto entero —orden, ocultas y tamaños— antes de
+   cada acción. Es un puñado de bytes por paso, así que la pila puede ser
+   larga sin que importe.
+
+   La pila NO se comparte con la del editor de talentos: son dos pantallas
+   distintas y Ctrl+Z tiene que deshacer lo que el usuario está mirando, no
+   lo último que tocó en cualquier sitio. */
+const DASH_UNDO_MAX = 40;
+let dashUndo = [];
+
+function instantaneaTablero() {
+  const { order, hidden, sizes } = dashLayout();
+  return JSON.stringify({ order, hidden, sizes });
+}
+
+function recordarTablero(etiqueta) {
+  dashUndo.push({ snap: instantaneaTablero(), etiqueta });
+  if (dashUndo.length > DASH_UNDO_MAX) dashUndo.shift();
+}
+
+/* Se llama al terminar una acción: si el tablero quedó igual que antes de
+   empezarla —un arrastre que vuelve a su sitio, un tirón del asa que no
+   llegó a cambiar de fila— el paso sobra. Sin esto, deshacer gastaría
+   pulsaciones en revertir cosas que nunca llegaron a pasar. */
+function olvidarPasoVacio() {
+  if (dashUndo.length && dashUndo[dashUndo.length - 1].snap === instantaneaTablero()) dashUndo.pop();
+}
+
+function deshacerTablero() {
+  if (!dashUndo.length) { toast("No hay nada que deshacer en el tablero", "atencion"); return; }
+  const prev = dashUndo.pop();
+  const d = JSON.parse(prev.snap);
+  saveDash(d.order, d.hidden, d.sizes);
+  renderSummary();
+  toast(`Deshecho: ${prev.etiqueta}`, "deshecho");
+}
+
 /* Qué pasa cuando el contenido no cabe en el alto elegido.
    Hubo una versión donde la tarjeta crecía sola hasta que cupiera todo. Era
    frustrante por una razón concreta: convertía el tamaño elegido en una
@@ -5537,7 +5579,10 @@ function dashTray(hidden) {
     <div class="tray-head">
       <div class="tray-tx">
         <h3>Modo edición</h3>
-        <p class="settings-note" style="margin:0">Arrastra para acomodar · esquina inferior derecha para cambiar el tamaño · ✕ para quitar</p>
+        <p class="settings-note" style="margin:0">Arrastra para acomodar · esquina inferior derecha para cambiar el tamaño · ✕ para quitar${
+          /* El atajo solo se menciona donde funciona: en el teléfono no hay
+             teclado a mano y anunciarlo sería ruido. */
+          isDesktop() ? ` · <kbd>Ctrl</kbd><kbd>Z</kbd> deshacer` : ""}</p>
       </div>
       <button class="btn btn-primary" onclick="setDashEdit(false)">Listo</button>
     </div>
@@ -5557,6 +5602,7 @@ function setDashEdit(on) {
 function hideWidget(id) {
   const { order, hidden } = dashLayout();
   if (hidden.includes(id)) return;
+  recordarTablero(`quitar ${DASH_META[id].title}`);
   saveDash(order, [...hidden, id]);
   flipRender(document.getElementById("summary-content"), renderSummary);
   toast(`${DASH_META[id].title} quitado del tablero`, "deshecho");
@@ -5564,6 +5610,7 @@ function hideWidget(id) {
 
 function showWidget(id) {
   const { order, hidden } = dashLayout();
+  recordarTablero(`añadir ${DASH_META[id].title}`);
   saveDash(order, hidden.filter(h => h !== id));
   flipRender(document.getElementById("summary-content"), renderSummary);
 }
@@ -5595,7 +5642,7 @@ function attachDashHandlers() {
   if (cont.dataset.bound) return;
   cont.dataset.bound = "1";
 
-  let holdTimer = null, dragId = null, ghost = null, startPt = null, lastOver = null;
+  let holdTimer = null, dragId = null, ghost = null, startPt = null;
   let sizeId = null, sizeStart = null, cellW = 0;
 
   const cols = () => {
@@ -5604,6 +5651,10 @@ function attachDashHandlers() {
   };
 
   const startDrag = (id, e) => {
+    /* Un solo paso por arrastre, no uno por cada intercambio del camino:
+       deshacer debe devolver la tarjeta a donde estaba antes de agarrarla,
+       que es lo que el usuario recuerda. */
+    recordarTablero(`mover ${DASH_META[id].title}`);
     dragId = id;
     const el = cont.querySelector(`.widget[data-w="${id}"]`);
     if (!el) return;
@@ -5624,6 +5675,7 @@ function attachDashHandlers() {
 
     // Esquina inferior derecha: cambia el tamaño en unidades de la cuadrícula
     if (e.target.closest(".w-resize")) {
+      recordarTablero(`tamaño de ${DASH_META[w.dataset.w].title}`);
       sizeId = w.dataset.w;
       const total = cont.getBoundingClientRect().width;
       const n = cols();
@@ -5680,14 +5732,35 @@ function attachDashHandlers() {
 
     const under = document.elementFromPoint(e.clientX, e.clientY);
     const target = under && under.closest(".widget");
-    if (!target || target.dataset.w === dragId || target.dataset.w === lastOver) return;
-    lastOver = target.dataset.w;
+    if (!target || target.dataset.w === dragId) return;
+
+    /* Dónde cae la tarjeta se decide por la posición del puntero dentro de
+       la que tiene debajo, no por cuál fue la última que pisó.
+
+       La versión anterior se acordaba de la última (lastOver) y se saltaba
+       cualquier movimiento sobre ella. Eso hacía imposible arrepentirse: al
+       soltar una tarjeta sobre otra quedaban intercambiadas, y volver atrás
+       exigía pasar por una tercera para "olvidar" la anterior. Había que
+       recolocarla a mano en vez de simplemente devolverla.
+
+       El guardián existía por algo real: sin él, recalcular el orden sobre
+       la misma tarjeta la hacía oscilar entre dos posiciones a cada píxel.
+       La regla del punto medio lo arregla de raíz porque no tiene memoria —
+       el resultado depende solo de dónde está el puntero ahora—, así que
+       volver sobre tus pasos devuelve exactamente el orden de partida. */
+    const r = target.getBoundingClientRect();
+    const centro = r.top + r.height / 2;
+    const despues = e.clientY > centro || (e.clientY === centro && e.clientX > r.left + r.width / 2);
 
     const { order, hidden } = dashLayout();
-    const from = order.indexOf(dragId), to = order.indexOf(lastOver);
-    if (from < 0 || to < 0) return;
-    order.splice(to, 0, order.splice(from, 1)[0]);
-    saveDash(order, hidden);
+    const sinLaQueMuevo = order.filter(id => id !== dragId);
+    let destino = sinLaQueMuevo.indexOf(target.dataset.w);
+    if (destino < 0) return;
+    if (despues) destino++;
+    const nuevo = [...sinLaQueMuevo.slice(0, destino), dragId, ...sinLaQueMuevo.slice(destino)];
+    if (nuevo.join() === order.join()) return;      // ya estaba justo ahí
+
+    saveDash(nuevo, hidden);
     flipRender(cont, renderSummary);
   });
 
@@ -5704,13 +5777,16 @@ function attachDashHandlers() {
         el.classList.remove("sizing");
       }
       sizeId = null; sizeStart = null;
+      olvidarPasoVacio();
+      marcarDesbordes();          // al cambiar el alto cambia lo que sobra
       return;
     }
     if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
     if (ghost) { ghost.remove(); ghost = null; }
     const el = cont.querySelector(".widget.dragging");
     if (el) el.classList.remove("dragging");
-    dragId = null; lastOver = null; startPt = null;
+    if (dragId) olvidarPasoVacio();
+    dragId = null; startPt = null;
   };
   cont.addEventListener("pointerup", endDrag);
   cont.addEventListener("pointercancel", endDrag);
@@ -7666,8 +7742,16 @@ document.addEventListener("keydown", (e) => {
      Un atajo de creación es una acción por pulsación, no por milisegundo. */
   if (e.repeat) return;
 
-  // Deshacer funciona siempre que haya algo en la pila del editor
+  /* Deshacer, repartido por pantalla: cada una tiene su propia pila y su
+     propio Ctrl+Z. Compartir una sola haría que la combinación revirtiera
+     algo que no está a la vista, que es la peor forma de deshacer. */
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+    if (activeMainView === "summary") {
+      if (!dashUndo.length) return;
+      e.preventDefault();
+      deshacerTablero();
+      return;
+    }
     if (!undoStack.length) return;
     e.preventDefault();
     undoEditor();
