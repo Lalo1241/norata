@@ -978,6 +978,9 @@
   }
   .detail-hero .ring-wrap { margin-top: 18px; }
   .xp-note { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: 12px; line-height: 1.55; }
+  /* La invitación se distingue del dato que la precede sin gritar: mismo
+     tamaño, un tono más vivo y cursiva. Es una pregunta, no un aviso. */
+  .invita { color: var(--text); font-style: italic; opacity: 0.82; }
 
   .quick-xp {
     display: flex;
@@ -2064,12 +2067,35 @@
     padding: 0;
     color: var(--mc);
     font-family: inherit;
-    transition: transform 0.14s ease;
+    position: relative;
+    transition: transform 0.14s ease, background 0.14s ease, border-color 0.14s ease;
   }
   .ms-check:active { transform: scale(0.88); }
-  .ms-check svg { width: 18px; height: 18px; stroke: #10151d; fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
-  .ms-card.done .ms-check { background: var(--mc); border-color: var(--mc); }
+  .ms-check svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+  /* Cumplida: el círculo se rellena con el color de la misión y el trazo
+     pasa a oscuro para leerse encima. */
+  .ms-card.done .ms-check { background: var(--mc); border-color: var(--mc); color: #10151d; }
   .ms-check[disabled] { cursor: default; }
+
+  /* La palomita pendiente es una insinuación, no un estado: se ve que se
+     puede marcar sin dar a entender que ya está marcada. */
+  .ms-base, .ms-sobre { display: inline-flex; align-items: center; justify-content: center; }
+  .ms-check .ms-base svg { opacity: 0.4; transition: opacity 0.14s ease; }
+  .ms-card.done .ms-check .ms-base svg { opacity: 1; }
+  .ms-sobre {
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity 0.14s ease;
+  }
+  .ms-sobre svg { width: 17px; height: 17px; stroke-width: 2.6; }
+  .ms-mas { font-size: 13px; font-weight: 800; letter-spacing: -0.3px; }
+  @media (hover: hover) and (pointer: fine) {
+    .ms-check:hover .ms-base svg { opacity: 0.85; }
+    /* Solo las que tienen relevo esconden su cara normal al pasar encima */
+    .ms-check.muda:hover .ms-base { opacity: 0; }
+    .ms-check.muda:hover .ms-sobre { opacity: 1; }
+    .ms-card.done .ms-check:hover { background: var(--coral); border-color: var(--coral); }
+  }
   .ms-count { font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
   .ms-count i { font-style: normal; font-size: 10px; color: var(--faint); }
   .ms-body { flex: 1; min-width: 0; cursor: pointer; }
@@ -2712,6 +2738,83 @@
     .dash { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .widget { grid-column: span min(var(--w, 1), 3); }
   }
+  /* El tono entra y sale con la misma suavidad: puesta solo dentro del
+     :hover, la transición se aplicaría al entrar y el corte al salir sería
+     seco. Va fuera de la consulta de medios porque no estorba en táctil. */
+  .skill-card, .sum-card, .linked-row, .proj-card, .ready-chip, .cat-chip,
+  .ms-card, .dz-row, .chip, .tray-chip, .xlink, .badd, .fs-open, .cat-all,
+  .t-act, .icon-btn, .history-item {
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  /* El botón ya animaba su encogido al pulsarse; se le añade el brillo sin
+     perderlo, que es lo que pasaría al redeclarar la propiedad entera. */
+  .btn { transition: transform 0.12s ease, filter 0.15s ease, background 0.15s ease, border-color 0.15s ease; }
+
+  /* ---------- Respuesta al cursor ----------
+     Con ratón hay un estado que en el teléfono no existe: el de estar
+     encima de algo sin haberlo tocado todavía. La app no lo usaba, así que
+     en escritorio casi nada se sentía pulsable; había que adivinar dónde
+     valía la pena hacer clic. Esto lo resuelve de un modo deliberadamente
+     aburrido: la superficie sube un escalón de tono, nada se mueve ni
+     cambia de tamaño. El indicio tiene que notarse, no llamar la atención.
+
+     Va todo junto y al final del CSS por dos razones: se lee de un vistazo
+     qué es pulsable en la app, y al ir después gana a las reglas de base
+     sin pelear con especificidades.
+
+     Solo con puntero fino. En pantalla táctil el navegador deja "pegado" el
+     último hover, y una tarjeta que se queda iluminada después de tocarla
+     parece seleccionada cuando no lo está. */
+  @media (hover: hover) and (pointer: fine) {
+    /* Tarjetas y filas: las piezas grandes que llevan a otra pantalla */
+    .skill-card:hover,
+    .sum-card:hover,
+    .linked-row:hover,
+    .proj-card:hover,
+    .ready-chip:hover,
+    .cat-chip:hover,
+    .history-item.selectable:hover { background: var(--card2); }
+
+    .ms-card:hover,
+    .dz-row:hover { background: var(--card); }
+
+    /* La tarjeta de misión se ilumina entera, pero lo que abre la ficha es
+       el cuerpo: el círculo y la racha tienen lo suyo. */
+    .sh-focus:hover { background: rgba(20, 27, 37, 0.75); }
+
+    /* Píldoras y botones pequeños: suben tono y marcan el borde */
+    .chip:hover,
+    .tray-chip:hover,
+    .xlink:hover,
+    .badd:hover,
+    .fs-open:hover,
+    .cat-all:hover,
+    .t-act:hover,
+    .icon-btn:hover { background: var(--card2); border-color: var(--faint); }
+
+    .icon-btn:hover { color: var(--text); }
+    .chip.active:hover { background: var(--mint); border-color: var(--mint); }
+
+    /* Botones de acción: el color ya los identifica, así que basta
+       aclararlos un punto en vez de cambiarles el fondo. */
+    .btn:hover { filter: brightness(1.09); }
+    .btn-ghost:hover { background: var(--card2); border-color: var(--faint); }
+
+    /* Lo que borra o revierte avisa en rojo antes de pulsarse */
+    .step-del:hover { color: var(--coral); }
+
+    /* Elementos con vida propia que ya tenían su gesto al pulsar */
+    .detail-hero .skill-emoji.editable:hover { filter: brightness(1.14); }
+    .detail-hero .skill-emoji.editable:hover .edit-hint { color: var(--text); border-color: var(--faint); }
+    .quick-xp button:hover { border-color: var(--faint); }
+    .quick-xp button.selected:hover { border-color: var(--mint); }
+    .dz-row:hover { border-color: var(--coral); }
+    .ready-chip:hover, .linked-row:hover { border-color: var(--faint); }
+
+    /* Las piezas que se arrastran anuncian que se pueden agarrar */
+    #skill-list .skill-card, .ms-list .ms-card { cursor: pointer; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, .view.active, .celebrate.show, .celebrate.show * { transition: none !important; animation: none !important; }
     .celebrate { display: none !important; }
@@ -4108,10 +4211,45 @@ function isDecaying(s) {
   return daysBetween(last, todayKey()) > s.graceDays;
 }
 
+/* Días de gracia que quedan, o null si no hay ninguno que contar.
+   Una habilidad sin XP no tiene periodo de gracia porque no tiene nada que
+   perder: el contador seguía corriendo igual y acababa enseñando cosas como
+   "te quedan -23 días", que además de no significar nada metía prisa por
+   proteger un cero. applyDecay e isDecaying ya la dejaban fuera; lo que
+   faltaba era que la cuenta tampoco existiera. */
 function daysUntilDecay(s) {
-  if (s.permanent) return null;
+  if (s.permanent || s.xp <= 0) return null;
   const last = s.lastActivity || s.createdAt;
-  return s.graceDays - daysBetween(last, todayKey());
+  return Math.max(0, s.graceDays - daysBetween(last, todayKey()));
+}
+
+/* Días que una habilidad lleva sin ganar nada. Para las que nunca se han
+   estrenado se cuenta desde que se creó, que es cuando empezó a esperar. */
+function diasSinGanar(s) {
+  return daysBetween(s.lastActivity || s.createdAt, todayKey());
+}
+
+/* Preguntas para las habilidades que llevan mucho sin estrenarse.
+   Son preguntas y no recordatorios a propósito: la habilidad la eligió el
+   usuario, así que lo útil es devolverle la elección, no señalarle una
+   deuda. Van sin cifras ni rachas por lo mismo — en cuanto se pone un
+   número al abandono deja de ser una invitación y pasa a ser un reproche.
+   La frase se elige por la habilidad y la semana, así que cambia con el
+   tiempo pero no baila cada vez que se abre la ficha. */
+const DIAS_PARA_INVITAR = 14;
+
+const INVITACIONES = [
+  "¿Y si hoy la estrenas? Con un rato corto ya cuenta.",
+  "¿Sigue siendo algo que te gustaría aprender?",
+  "¿Por dónde sería lo más fácil de empezar?",
+  "¿Le damos una oportunidad esta semana?",
+  "¿Qué haría falta para dar el primer paso?",
+  "¿La probamos una vez y vemos qué tal se siente?"
+];
+
+function invitacionPara(s) {
+  const semana = Math.floor(Date.now() / (7 * 864e5));
+  return INVITACIONES[(hashSeed(s.id) + semana) % INVITACIONES.length];
 }
 
 /* ================= Racha ================= */
@@ -4459,6 +4597,56 @@ function sacudirPantalla() {
   app.classList.add("sacude");
   setTimeout(() => app.classList.remove("sacude"), 480);
   if (userHasTapped && navigator.vibrate) navigator.vibrate([18, 40, 18]);
+}
+
+/* ================= El círculo de una misión =================
+   Dice, sin una sola palabra, qué pasa si lo pulsas. Antes estaba vacío
+   hasta que la misión se cumplía, así que no invitaba a nada: parecía un
+   adorno. Ahora lleva siempre una palomita —tenue mientras está pendiente,
+   sólida al cumplirse— y con ratón cambia al pasar por encima para
+   adelantar lo que hará el clic: flecha de retorno si ya está hecha, "+1"
+   si la misión lleva cuenta.
+
+   La diferencia entre las dos clases de misión no es un capricho. En una de
+   un solo golpe, deshacer es revertirla entera y cabe en el propio círculo.
+   En una de cuenta, quitar una vez no es lo mismo que revertirla, así que
+   esa se queda en su etiqueta aparte y el círculo solo suma.
+
+   Vive aquí y no dentro de renderMissions porque lo usan tres pantallas
+   —la lista de hoy, el resumen y las guardadas— y separado se desincronizan. */
+
+const PALOMITA = `<svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>`;
+const VOLVER = `<svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a5 5 0 010 10h-2"/></svg>`;
+
+function botonMision(m, c, t, opciones) {
+  const o = opciones || {};
+  const ok = c >= t;
+  const cuenta = t > 1;
+  let base, sobre = "", accion, etiqueta, apagado = false;
+
+  if (o.reabrir) {                       // misión guardada: solo se puede reabrir
+    base = PALOMITA; sobre = VOLVER;
+    accion = `logMission('${m.id}', -1)`;
+    etiqueta = `Reabrir ${m.name}`;
+  } else if (cuenta) {
+    base = ok ? PALOMITA : `<span class="ms-count">${c}<i>/${t}</i></span>`;
+    if (ok) { etiqueta = `${m.name}: completada hoy`; apagado = true; }
+    else {
+      sobre = `<span class="ms-mas">+1</span>`;
+      accion = `logMission('${m.id}', 1)`;
+      etiqueta = `Sumar una vez a ${m.name}`;
+    }
+  } else {
+    base = PALOMITA;
+    if (ok) { sobre = VOLVER; accion = `logMission('${m.id}', -1)`; etiqueta = `Deshacer ${m.name}`; }
+    else { accion = `logMission('${m.id}', 1)`; etiqueta = `Cumplir ${m.name}`; }
+  }
+
+  return `<button class="ms-check ${sobre ? "muda" : ""}" ${apagado ? "disabled" : `onclick="${accion}"`}
+    aria-label="${escapeAttr(etiqueta)}" title="${escapeAttr(etiqueta)}">
+    <span class="ms-base">${base}</span>
+    ${sobre ? `<span class="ms-sobre">${sobre}</span>` : ""}
+  </button>`;
 }
 
 /* ================= Reordenar arrastrando =================
@@ -5032,9 +5220,7 @@ function renderSummary() {
           ${pend.slice(0, 4).map(m => {
             const c = missionCount(m, key), t = missionTarget(m);
             return `<div class="ms-card" style="--mc:${m.color || "#5fe0b0"}">
-              <button class="ms-check" onclick="logMission('${m.id}', 1)" aria-label="Cumplir ${escapeAttr(m.name)}">
-                ${t > 1 ? `<span class="ms-count">${c}<i>/${t}</i></span>` : ""}
-              </button>
+              ${botonMision(m, c, t)}
               <div class="ms-body"><div class="ms-name">${escapeHtml(m.name)}</div></div>
             </div>`;
           }).join("")}
@@ -6194,13 +6380,11 @@ function renderMissions() {
     const st = missionStreak(m);
     const skill = m.skillId ? state.skills.find(s => s.id === m.skillId) : null;
     const col = m.color || "#5fe0b0";
+    const cuenta = t > 1;
+
     return `
     <div class="ms-card ${ok ? "done" : ""}" data-rid="${m.id}" style="--mc:${col}">
-      <button class="ms-check" onclick="logMission('${m.id}', 1)" aria-label="Cumplir ${escapeAttr(m.name)}" ${ok ? "disabled" : ""}>
-        ${ok
-          ? `<svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>`
-          : (t > 1 ? `<span class="ms-count">${c}<i>/${t}</i></span>` : "")}
-      </button>
+      ${botonMision(m, c, t)}
       <div class="ms-body" onclick="openMissionForm('${m.id}')">
         <div class="ms-name">${escapeHtml(m.name)}</div>
         <div class="ms-meta">
@@ -6210,11 +6394,15 @@ function renderMissions() {
           ${m.cadence === "once" ? `<span>una vez</span>` : ""}
           ${/* Deshacer vive DENTRO de la misión, junto a sus datos. Estaba
                 pegado a la llama de la racha, donde el signo "−" se leía
-                como "bájame la racha" en vez de "quita una vez de hoy". */
-            c > 0 ? `<button class="ms-undo" onclick="event.stopPropagation();logMission('${m.id}', -1)"
-              aria-label="Deshacer una vez de ${escapeAttr(m.name)}" title="Deshacer la última vez">
-              <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a5 5 0 010 10h-2"/></svg>
-              Deshacer${t > 1 ? ` (${c}→${c - 1})` : ""}
+                como "bájame la racha" en vez de "quita una vez de hoy".
+                Solo queda en las misiones con cuenta: en las de un solo
+                golpe lo hace ya el propio círculo al pasar el cursor, y
+                tener las dos cosas era ofrecer dos veces lo mismo. Dice
+                "−1" y no "3→2" para que sea el reverso exacto del "+1" que
+                aparece en el círculo. */
+            (cuenta && c > 0) ? `<button class="ms-undo" onclick="event.stopPropagation();logMission('${m.id}', -1)"
+              aria-label="Quitar una vez de ${escapeAttr(m.name)}" title="Quitar una vez de hoy">
+              ${VOLVER} −1
             </button>` : ""}
         </div>
       </div>
@@ -6279,9 +6467,7 @@ function renderMissions() {
       <h3>Hechas y guardadas</h3>
       <div class="ms-list">${archived.map(m => `
         <div class="ms-card done" style="--mc:${m.color || "#5fe0b0"}">
-          <button class="ms-check" onclick="logMission('${m.id}', -1)" aria-label="Reabrir">
-            <svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>
-          </button>
+          ${botonMision(m, 1, 1, { reabrir: true })}
           <div class="ms-body"><div class="ms-name">${escapeHtml(m.name)}</div>
           <div class="ms-meta"><span>cumplida el ${formatDate(m.completedAt)}</span></div></div>
         </div>`).join("")}</div>
@@ -6527,9 +6713,18 @@ function renderDetail() {
   const li = levelInfo(s.xp);
   const untilDecay = daysUntilDecay(s);
 
+  /* El orden importa: una habilidad en cero no tiene gracia ni decaimiento
+     que contar, así que ese caso se resuelve antes que ninguno. */
   let decayLine = "";
-  if (s.permanent) {
-    decayLine = `<div class="xp-note">Habilidad blindada: nunca pierde XP.</div>`;
+  if (s.xp <= 0) {
+    const espera = diasSinGanar(s);
+    decayLine = espera >= DIAS_PARA_INVITAR
+      ? `<div class="xp-note">Sin estrenar. <span class="invita">${invitacionPara(s)}</span></div>`
+      : `<div class="xp-note">Sin estrenar todavía: nada que perder hasta que registres tu primera práctica.</div>`;
+  } else if (s.permanent) {
+    const espera = diasSinGanar(s);
+    decayLine = `<div class="xp-note">Habilidad blindada: nunca pierde XP.${
+      espera >= DIAS_PARA_INVITAR ? ` <span class="invita">${invitacionPara(s)}</span>` : ""}</div>`;
   } else if (isDecaying(s)) {
     decayLine = `<div class="xp-note" style="color:var(--fire)"><b>En decaimiento:</b> pierdes ${s.decayPerDay} XP al día. Practica hoy para frenarlo.</div>`;
   } else {
@@ -8860,7 +9055,11 @@ function loadExamples() {
   const idiomas   = mkS("Idiomas", "Aprendizaje", "globe", "#6fc3e8", 520, false, daysAgo(2));
   const finanzas  = mkS("Finanzas", "Vida adulta", "coin", "#5fe0b0", 90, false, daysAgo(1));
   const creativo  = mkS("Dibujo", "Creatividad", "brush", "#b7a2ea", 60, false, daysAgo(3));
-  state.skills.push(ejercicio, cocina, idiomas, finanzas, creativo);
+  /* Existe para que "Renovar la cocina" tenga dónde caer. Es justo el
+     ejemplo con el que se explica el léxico: ahí "cocina" es el lugar y
+     "renovar" la actividad, así que el XP es de Reparaciones. */
+  const reparaciones = mkS("Reparaciones", "Casa", "wrench", "#9aa7b8", 120, false, daysAgo(2));
+  state.skills.push(ejercicio, cocina, idiomas, finanzas, creativo, reparaciones);
 
   /* Cuatro más en cero, sin misión ni talento detrás. El ejemplo no es solo
      una demostración de lo que la app hace: también enseña cómo se ve una
@@ -9002,7 +9201,7 @@ function loadProjectExamples(silent) {
     {
       id: uid(), name: "Renovar la cocina", branch: "Casa", icon: "wrench", color: "#f5d76e",
       desc: "Dejar la cocina funcional y ordenada, sin obra mayor.",
-      status: "active", skillId: skillBy("Cocina"), xpReward: 250,
+      status: "active", skillId: skillBy("Reparaciones"), xpReward: 250,
       steps: steps([["Medir y hacer lista de lo que falta", true], ["Comprar organizadores", true], ["Ordenar alacena", false], ["Cambiar la iluminación", false]]),
       createdAt: daysAgo(24), lastActivity: daysAgo(2), completedAt: null,
       history: [
