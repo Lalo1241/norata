@@ -567,6 +567,8 @@
   /* ---------- Habilidades: barra de acciones y catálogo ---------- */
   .hb-tools { display: flex; gap: 8px; margin-bottom: 12px; }
   .hb-b { flex: 1; padding: 10px 12px; font-size: 13px; }
+  .hb-hint { font-size: 10.5px; color: var(--faint); text-align: right; padding: 0 4px 9px; }
+  .hb-hint:empty { display: none; }
   .skill-card.marcada { border-color: var(--mint); background: var(--mint-soft); }
   .hb-check {
     flex: none;
@@ -2123,21 +2125,34 @@
   .app.sacude { animation: sacudida 0.44s cubic-bezier(.36,.07,.19,.97); }
   @media (prefers-reduced-motion: reduce) { .app.sacude { animation: none; } }
 
-  /* Modo orden de misiones */
+  /* ---------- Reordenar arrastrando ----------
+     Genérico: lo usan las misiones y las habilidades, y sirve para
+     cualquier lista que se acomode a mano. El modo no dura más que el
+     arrastre, así que estas reglas solo están vivas mientras se mueve algo
+     y no hace falta un estado visible de "estoy editando". */
   .hint-hold { font-size: 10.5px; color: var(--faint); }
-  .ms-list.editing .ms-card {
-    cursor: grab;
-    border-style: dashed;
-    animation: wiggle 2.4s ease-in-out infinite;
+
+  .reordenando { touch-action: none; user-select: none; }
+  /* Mientras se arrastra, la pieza entera es un asa: nada de lo que lleva
+     dentro debe dispararse por el camino. */
+  .reordenando > * { cursor: grabbing; user-select: none; }
+  .reordenando > * * { pointer-events: none; }
+
+  /* El hueco que deja la pieza: dice dónde va a caer sin taparlo todo. */
+  .arr-hueco {
+    opacity: 0.26;
+    border-style: dashed !important;
   }
-  .ms-list.editing .ms-card:nth-child(even) { animation-delay: -1.2s; }
-  /* En modo orden la tarjeta entera es un asa: sus botones no deben
-     dispararse al arrastrarla. */
-  .ms-list.editing .ms-check,
-  .ms-list.editing .ms-body,
-  .ms-list.editing .ms-undo { pointer-events: none; }
-  .ms-list.editing .ms-card.dragging { opacity: 0.6; border-color: var(--mint); animation: none; }
-  @media (prefers-reduced-motion: reduce) { .ms-list.editing .ms-card { animation: none; } }
+
+  /* La pieza flotando bajo el dedo. Mismo tratamiento que el editor del
+     Resumen, para que arrastrar se sienta igual en toda la app. */
+  .arr-flota {
+    opacity: 0.96;
+    transform: scale(1.03);
+    filter: drop-shadow(0 18px 34px rgba(0, 0, 0, 0.6));
+    transition: none;
+  }
+  .arr-flota * { pointer-events: none; }
 
   .seg { display: flex; gap: 7px; }
   .seg button {
@@ -2742,6 +2757,7 @@
     <div id="decay-zone"></div>
     <div class="hb-tools" id="hb-tools"></div>
     <div class="chips" id="chips"></div>
+    <div class="hb-hint" id="hb-hint"></div>
     <div id="skill-list"></div>
   </div>
 
@@ -2934,7 +2950,10 @@
     <div class="back-row">
       <button class="icon-btn" onclick="showView('home')" aria-label="Volver">←</button>
       <h2>Habilidad</h2>
-      <button class="icon-btn" onclick="openSkillForm(currentSkillId)" aria-label="Editar">✎</button>
+      <!-- Sin botón de editar: el icono grande de la ficha ya lleva ahí, y
+           tener dos accesos a lo mismo en la misma pantalla solo ocupaba
+           sitio. Los talentos conservan el suyo porque su ficha no tiene
+           icono en el que pulsar. -->
     </div>
     <div id="detail-content"></div>
   </div>
@@ -3317,6 +3336,15 @@ const ICONS = {
   /* Cara guiñando: el ojo izquierdo es punto y el derecho una curva cerrada.
      Es el icono de Carisma y de todo lo que sea trato con gente. */
   smile: '<circle cx="12" cy="12" r="9.2"/><path d="M8.2 14.8c.9 1.2 2.2 1.9 3.8 1.9s2.9-.7 3.8-1.9"/><path d="M9 9.6v.01"/><path d="M14.1 9.9c.5-.6 1.3-.6 1.8 0"/>',
+  /* Caña de pescar: vara en diagonal, carrete, sedal recto desde la punta y
+     anzuelo. Dos detalles se decidieron probándolo al tamaño real de la
+     tarjeta y no a tamaño grande: el carrete va separado de la vara, porque
+     encima se fundía con ella en un bulto, y el anzuelo abre hacia afuera,
+     porque cerrándose hacia la vara el conjunto se leía como un triángulo. */
+  rod: '<path d="M3 20.6L14.6 6"/><circle cx="7.2" cy="17.6" r="1.5"/><path d="M14.6 6v8.2"/><path d="M14.6 14.2a1.9 1.9 0 003.8 0v-.8"/>',
+  /* Gafas de buceo, sin tubo: dos lentes, el puente y la cinta que rodea la
+     cabeza. Sin snorkel se distinguen mejor de la careta de esnórquel. */
+  goggles: '<circle cx="7.6" cy="13.4" r="3.9"/><circle cx="16.4" cy="13.4" r="3.9"/><path d="M11.5 13.4h1"/><path d="M4.2 11.2C3.1 8.6 6 6.6 12 6.6s8.9 2 7.8 4.6"/>',
   lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   play: '<path d="M8 5.5l11 6.5-11 6.5z" stroke-linejoin="round"/>',
@@ -3325,7 +3353,7 @@ const ICONS = {
   settings: '<path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/>'
 };
 
-const ICON_LIST = ["brush","pen","book","dumbbell","code","music","camera","mic","globe","coin","bulb","heart","flame","trophy","target","flag","wrench","coffee","plant","cap","chart","map","compass","crown","gem","gamepad","star","bolt","shield","smile"];
+const ICON_LIST = ["brush","pen","book","dumbbell","code","music","camera","mic","globe","coin","bulb","heart","flame","trophy","target","flag","wrench","coffee","plant","cap","chart","map","compass","crown","gem","gamepad","star","bolt","shield","smile","rod","goggles"];
 
 const EMOJI_TO_ICON = {
   "🎨":"brush","🍳":"coffee","💪":"dumbbell","📚":"book","🎸":"music","💻":"code","🗣️":"mic","🧘":"heart",
@@ -3647,7 +3675,8 @@ const ICON_MOTIF = {
   dumbbell: "peaks", bolt: "peaks", target: "peaks", trophy: "peaks", flag: "peaks", wrench: "peaks", shield: "peaks",
   book: "constellation", cap: "constellation", bulb: "constellation", code: "constellation", chart: "constellation", star: "constellation",
   coin: "fireflies", gem: "fireflies", crown: "fireflies", smile: "fireflies",
-  plant: "forest", globe: "forest", map: "forest", compass: "forest"
+  plant: "forest", globe: "forest", map: "forest", compass: "forest",
+  rod: "marea", goggles: "marea"
 };
 function motifFor(iconName) { return ICON_MOTIF[iconName] || "constellation"; }
 
@@ -3840,6 +3869,30 @@ function motifScene(w, h, seed, motif, accent) {
       const x = rnd() * w, y = rnd() * V * 1.05, r = 1.8 + rnd() * 2.8;
       s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r * 3.4).toFixed(1)}" fill="${accent}" opacity="0.16"/>`;
       s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(2)}" fill="${accent}" opacity="0.95" filter="url(#${gid}-glow)"/>`;
+    }
+  }
+
+  if (motif === "marea") {
+    /* Agua vista desde dentro, no desde la orilla: la superficie arriba, los
+       rayos entrando en diagonal y las burbujas subiendo. Es el punto en
+       común entre pescar y bucear, y funciona con cualquier acento porque
+       todo el motivo se tiñe del color de la habilidad. */
+    const sup = V * 0.42;
+    for (let i = 0; i < 4; i++) {
+      const x = w * (0.06 + rnd() * 0.84), an = 14 + rnd() * 24;
+      s += `<polygon points="${x.toFixed(1)},${sup.toFixed(1)} ${(x + an).toFixed(1)},${sup.toFixed(1)} ${(x + an * 2).toFixed(1)},${h} ${(x - an * 0.5).toFixed(1)},${h}" fill="${accent}" opacity="0.055"/>`;
+    }
+    for (let i = 0; i < 4; i++) {
+      const y = sup + i * V * 0.26, amp = 8 - i * 1.5, paso = 46 + i * 9;
+      let d = `M-30 ${y.toFixed(1)}`;
+      for (let x = -30, k = 0; x < w + 30; x += paso, k++) {
+        d += ` q ${(paso / 2).toFixed(1)} ${(k % 2 ? amp : -amp).toFixed(1)} ${paso} 0`;
+      }
+      s += `<path d="${d}" fill="none" stroke="${accent}" stroke-width="${(3.6 - i * 0.7).toFixed(1)}" opacity="${(0.78 - i * 0.17).toFixed(2)}" stroke-linecap="round" filter="url(#${gid}-${i === 0 ? "glow" : "soft"})"/>`;
+    }
+    for (let i = 0; i < 11; i++) {
+      const x = rnd() * w, y = sup + rnd() * (V * 1.15 - sup), r = 1.3 + rnd() * 3;
+      s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(2)}" fill="none" stroke="${accent}" stroke-width="1.5" opacity="${(0.28 + rnd() * 0.45).toFixed(2)}"/>`;
     }
   }
 
@@ -4408,80 +4461,163 @@ function sacudirPantalla() {
   if (userHasTapped && navigator.vibrate) navigator.vibrate([18, 40, 18]);
 }
 
-/* ================= Orden de las misiones =================
-   Pulsación sostenida de un segundo para entrar en modo orden, igual que el
-   tablero del Resumen. Un segundo es el umbral que separa "quiero moverla"
-   de "he tocado sin querer". */
-let misionEdit = false;
+/* ================= Reordenar arrastrando =================
+   Un solo comportamiento para todas las listas que se acomodan a mano.
 
-function ordenarMisiones(lista) {
-  const orden = (state.ui && state.ui.misionOrden) || [];
+   La forma de EMPEZAR cambia según el aparato, porque el gesto disponible
+   es distinto. Con ratón basta desplazar el puntero unos píxeles: el clic y
+   el arrastre se distinguen solos, así que obligar a esperar sería una
+   molestia gratuita. Con el dedo hace falta la pulsación sostenida, porque
+   ahí el mismo gesto sirve también para recorrer la lista y en el primer
+   píxel no hay manera de saber cuál de los dos se quiso hacer.
+
+   Lo que sí es igual en los dos: el modo dura lo que dura el arrastre. Se
+   suelta la pieza y se acabó — no hay un "Listo" que haya que ir a buscar
+   para volver a la normalidad. Y mientras se mueve, la pieza va flotando
+   bajo el dedo y deja su hueco marcado en la lista, que es lo que hace
+   entender de un vistazo qué se está moviendo y dónde va a caer.
+
+   Cada pieza se identifica con data-rid; el contenedor recibe el orden ya
+   resuelto cuando se suelta. */
+
+const REORD_ESPERA = 400;   // ms de pulsación sostenida, solo en táctil
+const REORD_UMBRAL = 6;     // px que separan un clic de un arrastre
+
+/* Un arrastre no debe además activar lo que hubiera bajo el dedo: sin esto,
+   mover una habilidad terminaría abriendo su ficha al soltarla.
+
+   El filtro es un oyente permanente en fase de captura que mira la hora del
+   último arrastre, no uno de usar y tirar. La primera versión ponía el
+   oyente al soltar y repintaba la lista en ese mismo instante, y así no
+   funcionaba: al rehacer la lista la tarjeta quedaba desconectada del
+   documento, y el clic que el navegador sintetiza al soltar ya no subía
+   hasta aquí. Por eso el repintado ahora espera un turno (ver reordSoltar):
+   mientras llega el clic, la lista tiene que seguir en pie. */
+let reordFin = 0;
+
+function filtrarClicTrasArrastre(ev) {
+  if (Date.now() - reordFin < 350) { ev.stopPropagation(); ev.preventDefault(); }
+}
+
+/* Solo puede haber un arrastre a la vez, así que el estado vive aquí y los
+   oyentes de ventana se instalan UNA vez al final del archivo. Colgarlos
+   dentro de hacerReordenable los duplicaría en cada repintado, porque las
+   listas se rehacen enteras y el contenedor de antes se tira. */
+let reord = null;
+
+function hacerReordenable(cont, sel, alSoltar, permitido) {
+  if (!cont || cont.dataset.reord) return;
+  cont.dataset.reord = "1";
+
+  cont.addEventListener("pointerdown", (e) => {
+    if (e.button) return;                       // solo el botón principal
+    if (permitido && !permitido(e)) return;
+    const el = e.target.closest(sel);
+    if (!el || !cont.contains(el)) return;
+    reord = {
+      cont, sel, alSoltar, pieza: el, flota: null, off: null,
+      inicio: { x: e.clientX, y: e.clientY }, espera: null, activo: false
+    };
+    if (!isDesktop()) reord.espera = setTimeout(() => reordArrancar(e), REORD_ESPERA);
+  });
+
+  /* En táctil, frenar el desplazamiento de la página necesita un oyente de
+     touchmove no pasivo: preventDefault sobre el evento de puntero no basta
+     una vez que el navegador ya decidió que el gesto era un scroll. */
+  cont.addEventListener("touchmove", (e) => { if (reord && reord.activo) e.preventDefault(); }, { passive: false });
+}
+
+function reordArrancar(e) {
+  if (!reord) return;
+  reord.espera = null;
+  reord.activo = true;
+  reord.cont.classList.add("reordenando");
+  const r = reord.pieza.getBoundingClientRect();
+  const flota = reord.pieza.cloneNode(true);
+  flota.classList.add("arr-flota");
+  flota.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;margin:0;pointer-events:none;z-index:400`;
+  reord.off = { x: e.clientX - r.left, y: e.clientY - r.top };
+  document.body.appendChild(flota);
+  reord.flota = flota;
+  reord.pieza.classList.add("arr-hueco");
+  if (userHasTapped && navigator.vibrate) navigator.vibrate(12);
+}
+
+function reordMover(e) {
+  if (!reord) return;
+  const lejos = Math.hypot(e.clientX - reord.inicio.x, e.clientY - reord.inicio.y);
+  if (reord.espera) {
+    // Se movió antes de tiempo: era desplazar la lista, no agarrar la pieza
+    if (lejos > 10) { clearTimeout(reord.espera); reord = null; }
+    return;
+  }
+  if (!reord.activo) {
+    if (lejos <= REORD_UMBRAL) return;
+    reordArrancar(e);
+  }
+  e.preventDefault();
+  const { cont, sel, pieza, flota, off } = reord;
+  flota.style.left = (e.clientX - off.x) + "px";
+  flota.style.top = (e.clientY - off.y) + "px";
+
+  const bajo = document.elementFromPoint(e.clientX, e.clientY);
+  const sobre = bajo && bajo.closest(sel);
+  if (!sobre || sobre === pieza || !cont.contains(sobre)) return;
+  const items = [...cont.querySelectorAll(sel)];
+  const i = items.indexOf(pieza), j = items.indexOf(sobre);
+  if (i < 0 || j < 0) return;
+  if (j < i) cont.insertBefore(pieza, sobre);
+  else cont.insertBefore(pieza, sobre.nextSibling);
+}
+
+function reordSoltar() {
+  if (!reord) return;
+  const { cont, sel, alSoltar, pieza, flota, espera, activo } = reord;
+  reord = null;
+  if (espera) clearTimeout(espera);
+  if (!activo) return;
+  if (flota) flota.remove();
+  pieza.classList.remove("arr-hueco");
+  cont.classList.remove("reordenando");
+  reordFin = Date.now();
+  const ids = [...cont.querySelectorAll(sel)].map(el => el.dataset.rid);
+  /* El orden ya está bien en pantalla —las piezas se movieron durante el
+     arrastre—, así que repintar puede esperar un turno. Ese turno es justo
+     lo que necesita el clic sintetizado al soltar para encontrar viva la
+     tarjeta y poder ser filtrado. */
+  setTimeout(() => alSoltar(ids), 0);
+}
+
+/* Pista de uso: el gesto no es el mismo en cada aparato, así que el texto
+   tampoco puede serlo. */
+function pistaReordenar() {
+  return isDesktop() ? "Arrastra para reordenar" : "Mantén pulsada una para reordenar";
+}
+
+/* ---- Orden guardado, común a misiones y habilidades ---- */
+function ordenarPor(lista, clave) {
+  const orden = (state.ui && state.ui[clave]) || [];
   return [...lista].sort((a, b) => {
     const ia = orden.indexOf(a.id), ib = orden.indexOf(b.id);
     return (ia < 0 ? 1e9 : ia) - (ib < 0 ? 1e9 : ib);
   });
 }
 
-function guardarOrdenMisiones(ids) {
+function guardarOrden(clave, ids) {
   state.ui = state.ui || {};
-  const previo = state.ui.misionOrden || [];
+  const previo = state.ui[clave] || [];
   // Las que no están en pantalla ahora conservan su sitio relativo
-  state.ui.misionOrden = [...ids, ...previo.filter(id => !ids.includes(id))];
+  state.ui[clave] = [...ids, ...previo.filter(id => !ids.includes(id))];
   save();
 }
 
-function setMisionEdit(on) {
-  misionEdit = on;
-  renderMissions();
-  if (on) toast("Arrastra para reordenar tus misiones", "hecho");
-}
+function ordenarMisiones(lista) { return ordenarPor(lista, "misionOrden"); }
 
 function attachMisionOrden() {
-  const cont = document.getElementById("ms-pend");
-  if (!cont) return;
-  let hold = null, dragId = null, desde = null;
-
-  cont.addEventListener("pointerdown", (e) => {
-    const card = e.target.closest(".ms-card");
-    if (!card) return;
-    if (misionEdit) {
-      dragId = card.dataset.mid;
-      card.classList.add("dragging");
-      try { cont.setPointerCapture(e.pointerId); } catch (err) {}
-      e.preventDefault();
-      return;
-    }
-    desde = { x: e.clientX, y: e.clientY };
-    hold = setTimeout(() => { hold = null; setMisionEdit(true); }, 1000);
-  });
-
-  cont.addEventListener("pointermove", (e) => {
-    // Si el dedo se desplaza, era scroll y no una pulsación sostenida
-    if (hold && desde && Math.hypot(e.clientX - desde.x, e.clientY - desde.y) > 10) {
-      clearTimeout(hold); hold = null;
-    }
-    if (!dragId) return;
-    e.preventDefault();
-    const bajo = document.elementFromPoint(e.clientX, e.clientY);
-    const sobre = bajo && bajo.closest(".ms-card");
-    if (!sobre || sobre.dataset.mid === dragId) return;
-    const cards = [...cont.querySelectorAll(".ms-card")];
-    const actual = cards.find(c => c.dataset.mid === dragId);
-    if (!actual) return;
-    const i = cards.indexOf(actual), j = cards.indexOf(sobre);
-    if (j < i) cont.insertBefore(actual, sobre);
-    else cont.insertBefore(actual, sobre.nextSibling);
-  });
-
-  const fin = () => {
-    if (hold) { clearTimeout(hold); hold = null; }
-    if (!dragId) return;
-    guardarOrdenMisiones([...cont.querySelectorAll(".ms-card")].map(c => c.dataset.mid));
-    dragId = null;
+  hacerReordenable(document.getElementById("ms-pend"), ".ms-card", (ids) => {
+    guardarOrden("misionOrden", ids);
     renderMissions();
-  };
-  cont.addEventListener("pointerup", fin);
-  cont.addEventListener("pointercancel", fin);
+  });
 }
 
 function todayMissionStats() {
@@ -5392,6 +5528,10 @@ function renderHome() {
 
   renderHomeTools();
 
+  // Con una sola habilidad no hay nada que reordenar y la pista sobra
+  const pista = document.getElementById("hb-hint");
+  if (pista) pista.textContent = (visible.length > 1 && !seleccionHab) ? pistaReordenar() : "";
+
   if (skills.length === 0) {
     list.innerHTML = `
       <div class="empty">
@@ -5407,7 +5547,11 @@ function renderHome() {
   }
 
   const enSeleccion = !!seleccionHab;
-  const sorted = [...visible].sort((a, b) => b.xp - a.xp);
+  /* El XP decide el orden de salida, pero lo que el usuario haya acomodado
+     a mano manda por encima: si movió algo ahí quiso dejarlo. Las que nunca
+     tocó siguen ordenadas por XP, porque ordenarPor conserva el orden de
+     entrada de las que no figuran en la lista guardada. */
+  const sorted = ordenarPor([...visible].sort((a, b) => b.xp - a.xp), "habOrden");
   list.innerHTML = sorted.map((s, i) => {
     const li = levelInfo(s.xp);
     const marcada = enSeleccion && seleccionHab.has(s.id);
@@ -5417,6 +5561,7 @@ function renderHome() {
     const pct = li.level >= MAX_LEVEL ? 1 : li.pct / 100;
     return `
     <button type="button" class="skill-card ${i % 2 === 0 ? "r-a" : "r-b"}${marcada ? " marcada" : ""}"
+      data-rid="${s.id}"
       onclick="${enSeleccion ? `toggleHabSel('${s.id}')` : `openDetail('${s.id}')`}">
       ${tab}
       ${enSeleccion ? `<span class="hb-check">${marcada ? "✓" : ""}</span>` : ""}
@@ -5431,6 +5576,13 @@ function renderHome() {
       </div>`}
     </button>`;
   }).join("");
+
+  /* Reordenar a mano, salvo mientras se marcan habilidades para borrar: ahí
+     el mismo gesto ya significa otra cosa. */
+  hacerReordenable(list, ".skill-card", (ids) => {
+    guardarOrden("habOrden", ids);
+    renderHome();
+  }, () => !seleccionHab);
 }
 
 /* Barra de acciones sobre la lista: añadir del catálogo y quitar en bloque. */
@@ -5504,17 +5656,17 @@ const SKILL_CATALOG = [
 
   // Vida adulta
   { n: "Finanzas",       c: "Vida adulta", i: "coin",     k: "#5fe0b0" },
-  { n: "Carisma",        c: "Vida adulta", i: "smile",    k: "#f0a5c0" },
+  { n: "Carisma",        c: "Vida adulta", i: "smile",    k: "#6fc3e8" },
   { n: "Negociación",    c: "Vida adulta", i: "chart",    k: "#f5d76e" },
   { n: "Organización",   c: "Vida adulta", i: "map",      k: "#9aa7b8" },
-  { n: "Cata de vinos",  c: "Vida adulta", i: "coffee",   k: "#f0a5c0" },
+  { n: "Liderazgo",      c: "Vida adulta", i: "crown",    k: "#b7a2ea" },
   { n: "Barismo",        c: "Vida adulta", i: "coffee",   k: "#f5d76e" },
 
   // Aire libre
-  { n: "Pesca",          c: "Aire libre",  i: "target",   k: "#6fc3e8" },
+  { n: "Pesca",          c: "Aire libre",  i: "rod",      k: "#6fc3e8" },
   { n: "Senderismo",     c: "Aire libre",  i: "compass",  k: "#8fd18a" },
   { n: "Supervivencia",  c: "Aire libre",  i: "flame",    k: "#ff8a70" },
-  { n: "Buceo",          c: "Aire libre",  i: "target",   k: "#6fc3e8" },
+  { n: "Buceo",          c: "Aire libre",  i: "goggles",  k: "#6fc3e8" },
   { n: "Orientación",    c: "Aire libre",  i: "compass",  k: "#f5d76e" }
 ];
 
@@ -5576,7 +5728,7 @@ const LEXICO = {
   "Carisma":       "!conversar !socializar !platicar !conocer carisma conversacion gente social amigos trato empatia escucha red contactos",
   "Negociación":   "!negociar !vender !cerrar negociacion trato cliente venta acuerdo precio",
   "Organización":  "!organizar !ordenar !planificar organizacion agenda tramite papeles orden calendario",
-  "Cata de vinos": "!catar vino vinos cata bodega maridaje uva",
+  "Liderazgo":     "!liderar !dirigir !coordinar !delegar liderazgo equipo junta reunion jefe mentoria feedback decision",
   "Barismo":       "!preparar cafe barismo espresso molienda cafetera latte",
 
   "Pesca":         "!pescar pesca caña anzuelo carnada rio muelle",
@@ -6043,7 +6195,7 @@ function renderMissions() {
     const skill = m.skillId ? state.skills.find(s => s.id === m.skillId) : null;
     const col = m.color || "#5fe0b0";
     return `
-    <div class="ms-card ${ok ? "done" : ""}" data-mid="${m.id}" style="--mc:${col}">
+    <div class="ms-card ${ok ? "done" : ""}" data-rid="${m.id}" style="--mc:${col}">
       <button class="ms-check" onclick="logMission('${m.id}', 1)" aria-label="Cumplir ${escapeAttr(m.name)}" ${ok ? "disabled" : ""}>
         ${ok
           ? `<svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>`
@@ -6105,11 +6257,9 @@ function renderMissions() {
     <div class="panel">
       <div class="panel-head">
         <h3 style="margin:0">Pendientes de hoy</h3>
-        ${misionEdit
-          ? `<button class="btn btn-primary" style="padding:7px 16px;font-size:13px" onclick="setMisionEdit(false)">Listo</button>`
-          : `<span class="hint-hold">Mantén pulsada una para reordenar</span>`}
+        <span class="hint-hold">${pistaReordenar()}</span>
       </div>
-      <div class="ms-list ${misionEdit ? "editing" : ""}" id="ms-pend">${ordenarMisiones(pending).map(card).join("")}</div>
+      <div class="ms-list" id="ms-pend">${ordenarMisiones(pending).map(card).join("")}</div>
     </div>` : ""}
 
     ${finished.length ? `
@@ -9494,6 +9644,14 @@ function cerrarToast(id) {
 document.getElementById("settings-btn").innerHTML = icon("settings", 19);
 document.getElementById("dash-btn").innerHTML = icon("gamepad", 19);
 document.getElementById("perm-shield").innerHTML = icon("shield", 16);
+
+/* Los oyentes del arrastre, una sola vez para toda la app: las listas se
+   rehacen enteras a cada rato y colgarlos en cada una los duplicaría. */
+window.addEventListener("pointermove", reordMover, { passive: false });
+window.addEventListener("pointerup", reordSoltar);
+window.addEventListener("pointercancel", reordSoltar);
+document.addEventListener("click", filtrarClicTrasArrastre, true);
+
 applyDecay();
 aplicarModulos();
 showView("summary");
