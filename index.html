@@ -580,6 +580,12 @@
     margin-right: 2px;
   }
   .skill-card.marcada .hb-check { background: var(--mint); border-color: var(--mint); }
+  /* Las cuatro casillas que marcan estado llevan la misma palomita de trazo
+     que las misiones. Antes era el carácter "✓", que cada sistema dibuja a
+     su manera —más fino, más alto, desalineado— y no casaba con ningún otro
+     icono de la app. El trazo grueso es porque a 11-15px el de 1.8 por
+     defecto se deshace. */
+  .hb-check svg, .cc-box svg, .cc-ok svg, .hcheck svg { stroke-width: 3.2; }
 
   .cat-group { margin-bottom: 18px; }
   .cat-head { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; padding: 0 4px; }
@@ -2284,12 +2290,13 @@
     flex-shrink: 0;
     border-radius: 999px;
     border: 1.5px solid var(--line);
-    font-size: 9px;
-    line-height: 11px;
-    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin-top: 1px;
     align-self: flex-start;
   }
+  .pstep i svg { width: 9px; height: 9px; stroke-width: 3.4; }
   .pstep.ok { color: var(--text); border-color: color-mix(in srgb, var(--pc) 45%, transparent); }
   .pstep.ok i { background: var(--pc); border-color: var(--pc); color: #10151d; font-weight: 800; }
   .pstep.more { color: var(--faint); padding: 4px 11px; }
@@ -5270,7 +5277,7 @@ function renderSummary() {
           </div>
           <div class="mt-tx">
             <b>Misiones de hoy</b>
-            <span>${pend.length === 0 ? "Todas cumplidas ✓" : `${pend.length} pendiente${pend.length === 1 ? "" : "s"}`}</span>
+            <span>${pend.length === 0 ? "Todas cumplidas" : `${pend.length} pendiente${pend.length === 1 ? "" : "s"}`}</span>
           </div>
           <button class="btn btn-soft btn-sm" onclick="showView('missions')">Ver todas</button>
         </div>
@@ -5368,7 +5375,7 @@ function renderSummary() {
     atencion: () => `
       <div class="panel">
         <h3>Atención hoy</h3>
-        ${attention.length ? attention.join("") : `<p class="settings-note" style="margin:0">Todo bajo control. Nada urge hoy — sigue explorando. ✓</p>`}
+        ${attention.length ? attention.join("") : `<p class="settings-note" style="margin:0">Todo bajo control. Nada urge hoy — sigue explorando.</p>`}
       </div>`,
 
     listos: () => !readyList.length ? "" : `
@@ -5919,7 +5926,7 @@ function renderHome() {
       data-rid="${s.id}"
       onclick="${enSeleccion ? `toggleHabSel('${s.id}')` : `openDetail('${s.id}')`}">
       ${tab}
-      ${enSeleccion ? `<span class="hb-check">${marcada ? "✓" : ""}</span>` : ""}
+      ${enSeleccion ? `<span class="hb-check">${marcada ? icon("check", 13) : ""}</span>` : ""}
       <div class="skill-emoji" style="background:${s.color}26;color:${s.color}">${icon(s.icon, 23)}</div>
       <div class="skill-info">
         <div class="skill-name">${escapeHtml(s.name)}</div>
@@ -6321,7 +6328,7 @@ function renderCatalogo() {
               ${tengo ? "disabled" : `onclick="toggleCatalogo('${escapeAttr(x.n)}')"`}>
               <span class="cc-ic" style="background:${x.k}26;color:${x.k}">${icon(x.i, 18)}</span>
               <span class="cc-n">${escapeHtml(x.n)}</span>
-              ${tengo ? `<span class="cc-ok">✓</span>` : `<span class="cc-box">${sel ? "✓" : ""}</span>`}
+              ${tengo ? `<span class="cc-ok">${icon("check", 15)}</span>` : `<span class="cc-box">${sel ? icon("check", 13) : ""}</span>`}
             </button>`;
           }).join("")}
         </div>
@@ -6621,7 +6628,7 @@ function renderMissions() {
       focus: next
         ? { k: "Lo siguiente para hoy", v: next.name, color: "var(--mint)", onclick: `logMission('${next.id}', 1)` }
         : (due.length
-          ? { k: "Día completo", v: "Todas las misiones cumplidas ✓", color: "var(--mint)" }
+          ? { k: "Día completo", v: "Todas las misiones cumplidas", color: "var(--mint)" }
           : { k: "Sin misiones hoy", v: "Crea una o descansa", color: "var(--muted)" })
     })}
 
@@ -6770,7 +6777,7 @@ function renderProjects() {
             <div class="proj-steps">
               ${p.steps.map(s => `
                 <span class="pstep ${s.done ? "ok" : ""}">
-                  <i>${s.done ? "✓" : ""}</i>${escapeHtml(s.name)}
+                  <i>${s.done ? icon("check", 11) : ""}</i>${escapeHtml(s.name)}
                 </span>`).join("")}
             </div>` : ""}
           </button>`;
@@ -6813,7 +6820,7 @@ function renderProjectDetail() {
     : `
       <div class="stack">
         ${prog === 100 || pr.status === "active"
-          ? `<button class="btn ${prog === 100 ? "btn-primary" : "btn-soft"} btn-block" onclick="setProjectStatus('${pr.id}','done')">Dar por terminado ✓</button>` : ""}
+          ? `<button class="btn ${prog === 100 ? "btn-primary" : "btn-soft"} btn-block" onclick="setProjectStatus('${pr.id}','done')">Dar por terminado</button>` : ""}
         ${pr.status === "active"
           ? `<button class="btn btn-ghost btn-block" onclick="setProjectStatus('${pr.id}','paused')">Pausar por ahora</button>`
           : `<button class="btn btn-soft btn-block" onclick="setProjectStatus('${pr.id}','active')">Retomar</button>`}
@@ -6940,7 +6947,7 @@ function renderDetail() {
         return `
       <div class="history-item ${histSelMode ? "selectable" : ""} ${marcado ? "picked" : ""}"
         ${histSelMode ? `onclick="marcarHist(${i})"` : ""}>
-        ${histSelMode ? `<span class="hcheck">${marcado ? "✓" : ""}</span>` : ""}
+        ${histSelMode ? `<span class="hcheck">${marcado ? icon("check", 12) : ""}</span>` : ""}
         <div class="note">
           ${escapeHtml(e.note || "Práctica")}${sello}${origen}
           <span class="when">${formatWhen(e)}</span>
@@ -7039,7 +7046,7 @@ function linkedToSkill(s) {
         const st = missionStreak(m);
         return `<button class="linked-row" style="--lc:${m.color || "#5fe0b0"}" onclick="showView('missions')">
           <span class="lr-ic">${icon(m.icon, 16)}</span>
-          <span class="lr-tx"><b>${escapeHtml(m.name)}</b><span>+${m.xp} XP · ${ok ? "cumplida hoy ✓" : `${c} de ${t} hoy`}${st > 1 ? ` · racha ${st}` : ""}</span></span>
+          <span class="lr-tx"><b>${escapeHtml(m.name)}</b><span>+${m.xp} XP · ${ok ? "cumplida hoy" : `${c} de ${t} hoy`}${st > 1 ? ` · racha ${st}` : ""}</span></span>
           <span class="lr-go">→</span>
         </button>`;
       }))}
@@ -8529,7 +8536,7 @@ function renderPerkDetail() {
       <div class="bar" style="height:6px"><div class="bar-fill" style="width:${Math.min(100, Math.round(gone / total * 100))}%;background:var(--fire)"></div></div>
       <div class="xp-note">Del ${formatDate(p.startDate)} al ${formatDate(p.endDate)} — quedan <b>${left}</b> día${left === 1 ? "" : "s"}.</div>
       <div class="stack" style="margin-top:14px">
-        <button class="btn ${prog >= 100 ? "btn-primary" : "btn-soft"} btn-block" onclick="completePerk('${p.id}')">Ya logré la meta ✓</button>
+        <button class="btn ${prog >= 100 ? "btn-primary" : "btn-soft"} btn-block" onclick="completePerk('${p.id}')">Ya logré la meta</button>
         <button class="btn btn-danger-ghost btn-block" onclick="failPerk('${p.id}')">Rendirme y perder el talento</button>
       </div>
     </div>`;
@@ -8549,7 +8556,7 @@ function renderPerkDetail() {
   let actionPanel = "";
   if (st === "available") {
     actionPanel = p.mini
-      ? `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="completeMini('${p.id}')">Completar mini-talento${p.cost > 0 ? " · " + money(p.cost) : ""} ✓</button>`
+      ? `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="completeMini('${p.id}')">Completar mini-talento${p.cost > 0 ? " · " + money(p.cost) : ""}</button>`
       : (p.instant
         ? `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="investPerk('${p.id}')">Comprar y asegurar${p.cost > 0 ? " · " + money(p.cost) : ""}</button>`
         : `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="investPerk('${p.id}')">Comenzar plan${p.cost > 0 ? " · " + money(p.cost) : ""}</button>`);
