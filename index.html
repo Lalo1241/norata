@@ -495,6 +495,47 @@
     border-radius: 999px;
   }
 
+  /* ---------- Módulos: encender y apagar secciones del menú ---------- */
+  .mod-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 11px 13px;
+    margin-bottom: 8px;
+    font-family: inherit;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+  }
+  .mod-row:last-child { margin-bottom: 0; }
+  .mod-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .mod-tx b { font-size: 14px; font-weight: 650; }
+  .mod-tx span { font-size: 11.5px; color: var(--muted); }
+  .mod-sw {
+    flex: none;
+    width: 40px; height: 23px;
+    border-radius: 999px;
+    background: var(--line);
+    position: relative;
+    transition: background 0.16s ease;
+  }
+  .mod-sw i {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 17px; height: 17px;
+    border-radius: 999px;
+    background: var(--faint);
+    transition: transform 0.16s ease, background 0.16s ease;
+  }
+  .mod-row.on .mod-sw { background: var(--mint-soft); }
+  .mod-row.on .mod-sw i { transform: translateX(17px); background: var(--mint); }
+  .mod-row:not(.on) .mod-tx b { color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .mod-sw, .mod-sw i { transition: none; } }
+
   /* ---------- Habilidades: barra de acciones y catálogo ---------- */
   .hb-tools { display: flex; gap: 8px; margin-bottom: 12px; }
   .hb-b { flex: 1; padding: 10px 12px; font-size: 13px; }
@@ -2884,6 +2925,12 @@
     </div>
 
     <div class="panel">
+      <h3>Secciones del menú</h3>
+      <p class="settings-note">Apaga las que no uses y el menú deja de mostrarlas. No se borra nada: al volver a encenderlas, todo sigue donde estaba.</p>
+      <div id="modulos-list"></div>
+    </div>
+
+    <div class="panel">
       <h3>Sincronizar entre dispositivos</h3>
       <p class="settings-note">Guarda tu progreso en un repositorio privado tuyo de GitHub para que la computadora y el teléfono vean lo mismo. El token se queda en este navegador: nunca se sube al repositorio ni sale de este aparato.</p>
       <div class="sync-status" id="sync-status"></div>
@@ -4176,6 +4223,72 @@ async function setProjectStatus(prId, status) {
   renderProjectDetail();
 }
 
+/* ================= Módulos =================
+   Llamamos "módulos" a las cuatro secciones madre del menú: Misiones,
+   Habilidades, Talentos y Proyectos. Se pueden apagar, porque no todo el
+   mundo lleva proyectos ni quiere un árbol de talentos, y un menú con
+   cosas que nunca abres es ruido.
+
+   Resumen y Ajustes no están en la lista a propósito: el primero es la
+   puerta de entrada y el segundo es el único sitio desde donde se vuelven
+   a encender. Apagar ese par dejaría al usuario sin salida. */
+
+const MODULOS = [
+  { id: "missions", nav: "nav-missions", label: "Misiones",    hint: "Lo que haces hoy, con su racha" },
+  { id: "home",     nav: "nav-home",     label: "Habilidades", hint: "Lo que practicas y sube de nivel" },
+  { id: "tree",     nav: "nav-tree",     label: "Talentos",    hint: "Metas con inversión de dinero real" },
+  { id: "projects", nav: "nav-projects", label: "Proyectos",   hint: "Lo que avanza por etapas" }
+];
+
+/* A qué módulo pertenece cada vista, incluidas sus pantallas hijas: si
+   Talentos está apagado, tampoco debe poder abrirse la ficha de un talento
+   por un enlace viejo del Resumen. */
+const VISTA_MODULO = {
+  missions: "missions", "mission-form": "missions",
+  home: "home", detail: "home", form: "home", catalog: "home",
+  tree: "tree", perk: "tree", "perk-form": "tree",
+  projects: "projects", project: "projects", "project-form": "projects"
+};
+
+function moduloOn(id) {
+  const off = (state.ui && state.ui.modulosOff) || [];
+  return !off.includes(id);
+}
+
+function aplicarModulos() {
+  MODULOS.forEach(m => {
+    const el = document.getElementById(m.nav);
+    if (el) el.style.display = moduloOn(m.id) ? "" : "none";
+  });
+}
+
+function setModulo(id, on) {
+  state.ui = state.ui || {};
+  const off = new Set(state.ui.modulosOff || []);
+  if (on) off.delete(id); else off.add(id);
+  if (off.size >= MODULOS.length) { toast("Deja al menos un módulo encendido"); return; }
+  state.ui.modulosOff = [...off];
+  save();
+  aplicarModulos();
+  renderModulos();
+  if (!on && VISTA_MODULO[activeMainView] === id) showView("summary");
+  else renderSummary();
+  toast(on ? `${MODULOS.find(m => m.id === id).label} vuelve al menú` : "Oculto · puedes traerlo de vuelta aquí");
+}
+
+function renderModulos() {
+  const el = document.getElementById("modulos-list");
+  if (!el) return;
+  el.innerHTML = MODULOS.map(m => {
+    const on = moduloOn(m.id);
+    return `
+    <button class="mod-row ${on ? "on" : ""}" onclick="setModulo('${m.id}', ${!on})">
+      <span class="mod-tx"><b>${escapeHtml(m.label)}</b><span>${escapeHtml(m.hint)}</span></span>
+      <span class="mod-sw"><i></i></span>
+    </button>`;
+  }).join("");
+}
+
 /* ================= Navegación ================= */
 
 const NAV_VIEWS = { summary: "nav-summary", missions: "nav-missions", home: "nav-home", tree: "nav-tree", projects: "nav-projects", settings: "nav-settings-side" };
@@ -4218,6 +4331,10 @@ function brandClick() {
 }
 
 function showView(name) {
+  // Un módulo apagado no se abre ni por un enlace que quedara apuntando ahí
+  const mod = VISTA_MODULO[name];
+  if (mod && !moduloOn(mod)) name = "summary";
+
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.getElementById("view-" + name).classList.add("active");
   document.querySelectorAll(".thumb-cluster .c-nav").forEach(b => b.classList.remove("active"));
@@ -4251,7 +4368,7 @@ function showView(name) {
   window.scrollTo(0, 0);
   if (name === "catalog") renderCatalogo();
   if (name === "summary") renderSummary();
-  if (name === "settings") { renderTimezone(); renderSync(); }
+  if (name === "settings") { renderTimezone(); renderModulos(); renderSync(); }
   if (name === "missions") renderMissions();
   if (name === "home") renderHome();
   if (name === "tree") { focusPending = true; renderTree(); }
@@ -4499,9 +4616,12 @@ function renderSummary() {
 
   const { order, hidden } = dashLayout();
   el.className = dashEditing ? "dash editing" : "dash";
+  /* Una tarjeta que resume un módulo apagado no tiene a dónde llevar, así
+     que desaparece con él. No se toca la configuración del tablero: al
+     volver a encender el módulo, su tarjeta reaparece donde estaba. */
   el.innerHTML =
     (dashEditing ? dashTray(hidden) : "") +
-    order.filter(id => !hidden.includes(id)).map(id => {
+    order.filter(id => !hidden.includes(id) && (!DASH_MODULO[id] || moduloOn(DASH_MODULO[id]))).map(id => {
       const body = W[id] ? W[id]() : "";
       if (!body) return "";
       const meta = DASH_META[id];
@@ -4537,6 +4657,13 @@ const DASH_META = {
   listos:    { title: "Listos para empezar", w: 1, h: 4 }
 };
 const DASH_DEFAULT = ["racha", "misiones", "atencion", "niveles", "invertido", "proyectos", "listos"];
+/* Qué módulo alimenta cada tarjeta del tablero. "racha" y "atencion" no
+   aparecen porque se nutren de todo y siguen teniendo sentido con
+   cualquier combinación encendida. */
+const DASH_MODULO = {
+  misiones: "missions", niveles: "home",
+  invertido: "tree", listos: "tree", proyectos: "projects"
+};
 const ROW_H = 56, ROW_GAP = 22;
 /* Suelo de encogimiento: por debajo de esto la tarjeta deja de comunicar.
    Las cuatro pequeñas bajan un escalón más porque su contenido cabe de
@@ -7489,35 +7616,35 @@ async function deleteProject() {
 
 const ONBOARD_AREAS = [
   { id: "salud",     label: "Salud y cuerpo",     icon: "dumbbell", color: "#ff8a70",
-    skill: "Ejercicio", cat: "Salud",
+    skills: ["Ejercicio", "Correr", "Yoga"],
     mission: { name: "Moverme 20 minutos", icon: "bolt", xp: 20 },
     perk: { branch: "Salud", name: "Rutina que pueda sostener", icon: "flame", days: 90, xp: 250 } },
   { id: "mente",     label: "Aprender algo",      icon: "book", color: "#6fc3e8",
-    skill: "Estudio", cat: "Aprendizaje",
+    skills: ["Lectura", "Idiomas", "Programación"],
     mission: { name: "Estudiar 15 minutos", icon: "cap", xp: 20 },
     perk: { branch: "Aprender", name: "Terminar un curso", icon: "cap", days: 180, xp: 300 } },
   { id: "creativo",  label: "Crear cosas",        icon: "brush", color: "#b7a2ea",
-    skill: "Creatividad", cat: "Creatividad",
+    skills: ["Dibujo", "Escritura", "Fotografía"],
     mission: { name: "Crear algo pequeño", icon: "pen", xp: 20 },
     perk: { branch: "Creatividad", name: "Publicar mi primer trabajo", icon: "star", days: 120, xp: 300 } },
   { id: "dinero",    label: "Ordenar mi dinero",  icon: "coin", color: "#5fe0b0",
-    skill: "Finanzas", cat: "Vida adulta",
+    skills: ["Finanzas", "Organización", "Negociación"],
     mission: { name: "Anotar mis gastos del día", icon: "chart", xp: 15 },
     perk: { branch: "Dinero", name: "Fondo de emergencia", icon: "gem", days: 365, xp: 500 } },
   { id: "casa",      label: "Casa y cocina",      icon: "coffee", color: "#f5d76e",
-    skill: "Cocina", cat: "Casa",
+    skills: ["Cocina", "Repostería", "Jardinería"],
     mission: { name: "Cocinar en casa", icon: "coffee", xp: 20 },
     perk: { branch: "Casa", name: "Diez recetas de memoria", icon: "book", days: 120, xp: 250 } },
   { id: "calma",     label: "Descanso y calma",   icon: "heart", color: "#f0a5c0",
-    skill: "Descanso", cat: "Bienestar",
+    skills: ["Meditación", "Yoga", "Senderismo"],
     mission: { name: "10 minutos sin pantallas", icon: "heart", xp: 15 },
     perk: { branch: "Bienestar", name: "Dormir bien un mes seguido", icon: "target", days: 30, xp: 200 } },
   { id: "social",    label: "Gente que quiero",   icon: "mic", color: "#8fd18a",
-    skill: "Vínculos", cat: "Personas",
+    skills: ["Oratoria", "Baile", "Canto"],
     mission: { name: "Escribirle a alguien", icon: "mic", xp: 15 },
     perk: { branch: "Personas", name: "Ver a mis amigos cada mes", icon: "heart", days: 90, xp: 200 } },
   { id: "trabajo",   label: "Carrera y trabajo",  icon: "wrench", color: "#9aa7b8",
-    skill: "Oficio", cat: "Trabajo",
+    skills: ["Organización", "Negociación", "Programación"],
     mission: { name: "Una hora de trabajo profundo", icon: "bolt", xp: 25 },
     perk: { branch: "Trabajo", name: "Certificarme en lo mío", icon: "trophy", days: 180, xp: 400 } }
 ];
@@ -7621,12 +7748,30 @@ function buildFromOnboarding() {
   const areas = ONBOARD_AREAS.filter(a => onboardPick.areas.includes(a.id));
 
   areas.forEach((a, i) => {
-    const skill = {
-      id: uid(), name: a.skill, category: a.cat, icon: a.icon, color: a.color,
-      xp: 0, permanent: false, graceDays: grace, decayPerDay: decay,
-      createdAt: today, lastActivity: null, lastCheck: today, log: []
-    };
-    state.skills.push(skill);
+    /* Cada área trae tres habilidades afines en vez de una. Elegir "Salud y
+       cuerpo" y encontrarse una sola línea llamada "Ejercicio" dice poco;
+       ver Ejercicio, Correr y Yoga en cero ya dibuja un terreno. La primera
+       es la que enlaza con la misión y el talento del área. Los nombres se
+       resuelven contra el catálogo para no repetir icono y color en dos
+       sitios, y si una ya existe (dos áreas pueden compartirla) se reutiliza
+       en vez de duplicarla. */
+    let skill = null;
+    a.skills.forEach((nombre, j) => {
+      const yaEsta = state.skills.find(s => s.name.toLowerCase() === nombre.toLowerCase());
+      if (yaEsta) { if (j === 0) skill = yaEsta; return; }
+      const cat = SKILL_CATALOG.find(x => x.n === nombre);
+      const nueva = {
+        id: uid(), name: nombre,
+        category: cat ? cat.c : "General",
+        icon: cat ? cat.i : a.icon,
+        color: cat ? cat.k : a.color,
+        xp: 0, permanent: false, graceDays: grace, decayPerDay: decay,
+        createdAt: today, lastActivity: null, lastCheck: today, log: []
+      };
+      state.skills.push(nueva);
+      if (j === 0) skill = nueva;
+    });
+    if (!skill) skill = state.skills[0];
 
     state.missions.push({
       id: uid(), name: a.mission.name, desc: "", icon: a.mission.icon, color: a.color,
@@ -7690,6 +7835,14 @@ function loadExamples() {
   const finanzas  = mkS("Finanzas", "Vida adulta", "coin", "#5fe0b0", 90, false, daysAgo(1));
   const creativo  = mkS("Dibujo", "Creatividad", "brush", "#b7a2ea", 60, false, daysAgo(3));
   state.skills.push(ejercicio, cocina, idiomas, finanzas, creativo);
+
+  /* Cuatro más en cero, sin misión ni talento detrás. El ejemplo no es solo
+     una demostración de lo que la app hace: también enseña cómo se ve una
+     habilidad que aún no has empezado, que es la mitad de la idea. */
+  ["Lectura", "Jardinería", "Fotografía", "Pesca"].forEach(nombre => {
+    const c = SKILL_CATALOG.find(x => x.n === nombre);
+    if (c) state.skills.push(mkS(c.n, c.c, c.i, c.k, 0, false, null));
+  });
 
   const mkP = (extra) => Object.assign({
     id: uid(), branch: "Salud", desc: "", cost: 0, planDays: 90, instant: false, mini: false,
@@ -8423,6 +8576,7 @@ function toast(msg) {
 document.getElementById("settings-btn").innerHTML = icon("settings", 19);
 document.getElementById("dash-btn").innerHTML = icon("gamepad", 19);
 applyDecay();
+aplicarModulos();
 showView("summary");
 
 /* La sincronía se dispara al abrir, al volver a la pestaña y al recuperar
