@@ -2646,6 +2646,30 @@
       grid-row: span var(--h, 2);
     }
     .widget > *:not(.w-edit):not(.w-resize) { height: 100%; overflow: hidden; }
+
+    /* Lo que no cabe se desvanece en lugar de cortarse. El velo va sobre la
+       tarjeta, toma su color y su redondeo de ella (los pone marcarDesbordes)
+       y no intercepta el puntero: debajo sigue habiendo contenido pulsable.
+       Se queda por debajo del asa de tamaño y de la etiqueta de edición, que
+       tienen z-index mayor, para no taparlas al reajustar. */
+    .widget.rebosa::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 58px;
+      pointer-events: none;
+      z-index: 2;
+      border-bottom-left-radius: var(--rad-bl, 0);
+      border-bottom-right-radius: var(--rad-br, 0);
+      background: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0) 0%,
+        color-mix(in srgb, var(--fundido, var(--card)) 55%, transparent) 42%,
+        color-mix(in srgb, var(--fundido, var(--card)) 88%, transparent) 74%,
+        var(--fundido, var(--card)) 100%);
+    }
+    /* En edición el velo estorba para juzgar el tamaño: ahí interesa ver
+       exactamente dónde queda el corte. */
+    .dash.editing .widget.rebosa::after { display: none; }
     #missions-content > .scene-card,
     #projects-content > .scene-card,
     .full-row, .sec-label { grid-column: 1 / -1; }
@@ -5390,7 +5414,7 @@ function renderSummary() {
       </div>`;
     }).join("");
 
-  autoSizeWidgets();
+  marcarDesbordes();
   if (dashEditing) attachDashHandlers();
 }
 
@@ -5472,22 +5496,37 @@ function setWidgetSize(id, w, h) {
   saveDash(null, null, sizes);
 }
 
-/* Si el contenido no cabe en el alto asignado, la tarjeta crece sola.
-   Nunca encoge: reducir el tamaño es decisión del usuario. */
-function autoSizeWidgets() {
-  if (!isDesktop()) return;
+/* Qué pasa cuando el contenido no cabe en el alto elegido.
+   Hubo una versión donde la tarjeta crecía sola hasta que cupiera todo. Era
+   frustrante por una razón concreta: convertía el tamaño elegido en una
+   sugerencia. Uno ajustaba la tarjeta, salía de edición y la veía volver a
+   otro alto, sin manera de saber si se había guardado. El tamaño lo decide
+   el usuario, punto; el suelo por tarjeta (DASH_MIN_H) ya garantiza que
+   ninguna pueda quedar tan aplastada que no comunique nada.
+
+   Lo que sobra no se corta a hachazos: se desvanece hacia abajo. Un corte
+   limpio a media línea parece un error de maquetación; un degradado dice
+   "esto sigue" y deja el último renglón legible a medias, que es
+   exactamente la información que hace falta.
+
+   El color y el redondeo del velo se leen de la propia tarjeta en vez de
+   escribirse a mano, porque cada widget tiene los suyos —unos son .panel,
+   otros .sum-card— y una constante aquí se desincronizaría del CSS a la
+   primera que alguien cambiara un radio. */
+function marcarDesbordes() {
   document.querySelectorAll("#summary-content .widget").forEach(el => {
     const body = el.querySelector(":scope > *:not(.w-edit):not(.w-resize)");
-    if (!body) return;
-    const cur = +el.style.getPropertyValue("--h") || DASH_META[el.dataset.w].h;
-    // Se mide sin la restricción del grid para conocer el alto natural
-    const prev = body.style.cssText;
-    body.style.height = "auto";
-    body.style.overflow = "visible";
-    const natural = body.offsetHeight;
-    body.style.cssText = prev;
-    const needed = Math.max(1, Math.ceil(natural / ROW_H));
-    if (needed > cur) el.style.setProperty("--h", needed);
+    // Solo en escritorio hay alto fijo; en móvil la tarjeta ocupa lo que necesita
+    if (!body || !isDesktop()) { el.classList.remove("rebosa"); return; }
+    const rebosa = body.scrollHeight - body.clientHeight > 4;
+    el.classList.toggle("rebosa", rebosa);
+    if (!rebosa) return;
+    const cs = getComputedStyle(body);
+    const fondo = cs.backgroundColor;
+    const opaco = fondo && !/^rgba\(0, 0, 0, 0\)$|transparent/.test(fondo);
+    el.style.setProperty("--fundido", opaco ? fondo : "var(--card)");
+    el.style.setProperty("--rad-bl", cs.borderBottomLeftRadius);
+    el.style.setProperty("--rad-br", cs.borderBottomRightRadius);
   });
 }
 
@@ -9920,6 +9959,17 @@ window.addEventListener("pointermove", reordMover, { passive: false });
 window.addEventListener("pointerup", reordSoltar);
 window.addEventListener("pointercancel", reordSoltar);
 document.addEventListener("click", filtrarClicTrasArrastre, true);
+
+/* Al cambiar el ancho de la ventana cambia lo que cabe en cada tarjeta, y
+   cruzando los 900px el tablero pasa de alto fijo a alto natural. Sin esto,
+   el desvanecido se quedaría puesto donde ya no sobra nada —o faltaría
+   donde sí—. Se espera a que el arrastre del borde pare para no medir
+   cientos de veces por segundo. */
+let reajusteVentana = null;
+window.addEventListener("resize", () => {
+  clearTimeout(reajusteVentana);
+  reajusteVentana = setTimeout(marcarDesbordes, 150);
+});
 
 applyDecay();
 aplicarModulos();
