@@ -495,6 +495,34 @@
     border-radius: 999px;
   }
 
+  /* ---------- Sugerencias de habilidad en los formularios ---------- */
+  .sug { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+  .sug:empty { display: none; }
+  .sug-tit { font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--faint); }
+  .sug-nada { font-size: 11.5px; color: var(--faint); line-height: 1.4; }
+  .sug-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--bg2);
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 11px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 650;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .sug-chip i { font-style: normal; font-weight: 500; font-size: 10.5px; opacity: 0.7; }
+  .sug-chip.on {
+    border-color: var(--sc, var(--mint));
+    color: var(--sc, var(--mint));
+    background: color-mix(in srgb, var(--sc, #5fe0b0) 14%, transparent);
+  }
+  /* Sin color-mix el fondo se cae, pero el borde y el texto ya distinguen
+     el estado, así que degrada sin romperse. */
+
   /* ---------- Módulos: encender y apagar secciones del menú ---------- */
   .mod-row {
     display: flex;
@@ -2677,7 +2705,7 @@
       </label>
       <label class="field">
         <span>Nombre del proyecto</span>
-        <input type="text" id="pr-name" placeholder="Ej. Rediseñar mi portafolio" maxlength="60">
+        <input type="text" id="pr-name" placeholder="Ej. Rediseñar mi portafolio" maxlength="60" oninput="refrescarSugerencias('pr')">
       </label>
       <label class="field">
         <span>¿Qué quieres lograr? (opcional)</span>
@@ -2707,7 +2735,8 @@
       <h3>Conexiones</h3>
       <label class="field">
         <span>Habilidad que entrena</span>
-        <select id="pr-skill"></select>
+        <select id="pr-skill" onchange="marcarSugerenciaElegida('pr')"></select>
+        <div class="sug" id="pr-sug"></div>
       </label>
       <label class="field">
         <span>XP al terminarlo</span>
@@ -2818,7 +2847,7 @@
       </label>
       <label class="field">
         <span>Nombre del talento</span>
-        <input type="text" id="p-name" placeholder="Ej. Curso de ilustración digital" maxlength="60">
+        <input type="text" id="p-name" placeholder="Ej. Curso de ilustración digital" maxlength="60" oninput="refrescarSugerencias('p')">
       </label>
       <label class="field">
         <span>Descripción (opcional)</span>
@@ -2887,7 +2916,8 @@
       <h3>Conexiones</h3>
       <label class="field">
         <span>Habilidad vinculada</span>
-        <select id="p-skill"></select>
+        <select id="p-skill" onchange="marcarSugerenciaElegida('p')"></select>
+        <div class="sug" id="p-sug"></div>
         <div class="field-hint">Al completar el talento, esa habilidad recibe el XP de recompensa.</div>
       </label>
       <label class="field">
@@ -5080,6 +5110,228 @@ const SKILL_CATALOG = [
   { n: "Buceo",          c: "Aire libre",  i: "target",   k: "#6fc3e8" },
   { n: "Orientación",    c: "Aire libre",  i: "compass",  k: "#f5d76e" }
 ];
+
+/* ================= Adivinar qué habilidad sube =================
+   El objetivo es que el usuario no tenga que elegir a mano en cada
+   formulario. Probado contra los títulos reales de la app, buscar el nombre
+   de la habilidad dentro del título acierta 3 de 11 —y uno de esos tres es
+   un falso positivo ("Renovar la cocina" no es cocinar—, así que hace falta
+   un diccionario de verdad.
+
+   Dos pesos: los VERBOS (con "!") valen 3 y los sustantivos 1. No es un
+   capricho: el verbo dice qué HACES y el sustantivo suele ser el escenario.
+   En "Renovar la cocina", "cocina" es un lugar y "renovar" es la actividad;
+   sin esa diferencia, la XP se iría a Cocina en vez de a Reparaciones.
+
+   Nunca decide solo: propone, y lo que el usuario corrige se aprende. */
+
+const LEXICO = {
+  "Ejercicio":     "!entrenar !entreno !ejercitar !moverme gimnasio gym pesas rutina cardio abdominales flexiones sentadillas",
+  "Correr":        "!correr !corro !trotar carrera maraton running trote kilometros km 5k 10k zapatillas",
+  "Natación":      "!nadar !nado natacion alberca piscina brazadas crol",
+  "Yoga":          "!estirar yoga postura asana flexibilidad esterilla",
+  "Meditación":    "!meditar !respirar meditacion calma mindfulness silencio atencion plena",
+  "Ciclismo":      "!pedalear !rodar bici bicicleta ciclismo ruta pedaleo",
+  "Escalada":      "!escalar !trepar escalada muro boulder rocodromo",
+  "Baile":         "!bailar !danzar baile danza salsa coreografia",
+  "Primeros auxilios": "!auxiliar rcp botiquin emergencias primeros auxilios",
+
+  "Cocina":        "!cocinar !guisar !sofreir receta recetas sarten fogon comida platillo chef guiso",
+  "Repostería":    "!hornear !amasar !repostear pastel tarta galletas pan masa reposteria horno",
+  "Jardinería":    "!plantar !podar !regar !sembrar jardin maceta huerto semillas tierra planta",
+  "Botánica":      "!identificar botanica especies hojas flora herbario plantas",
+  "Carpintería":   "!lijar !ensamblar !tallar madera carpinteria sierra mueble tablon",
+  "Reparaciones":  "!reparar !arreglar !renovar !reformar !remodelar !instalar averia taladro obra fontaneria",
+  "Costura":       "!coser !bordar !remendar costura aguja hilo maquina patron tela",
+  "Mecánica":      "!desarmar mecanica motor coche taller aceite bujias",
+  "Electrónica":   "!soldar !cablear electronica circuito arduino soldadura placa",
+
+  "Dibujo":        "!dibujar !bocetar !ilustrar dibujo boceto ilustracion lapiz trazo",
+  "Pintura":       "!pintar !acuarela pintura oleo lienzo pincel mural",
+  "Fotografía":    "!fotografiar !retratar foto fotos fotografia camara retrato revelado encuadre",
+  "Escritura":     "!escribir !redactar !narrar escritura relato novela cuento articulo texto blog",
+  "Caligrafía":    "!caligrafiar caligrafia letras rotulacion pluma trazos lettering",
+  "Guitarra":      "!tocar guitarra acordes cuerdas guitarrista puentes",
+  "Piano":         "!tocar piano teclado teclas partitura pianista",
+  "Canto":         "!cantar canto voz coro afinacion karaoke",
+  "Cerámica":      "!modelar !tornear ceramica barro arcilla torno esmalte",
+  "Vídeo":         "!grabar !editar !montar video edicion metraje corto rodaje",
+
+  "Idiomas":       "!hablar !traducir idioma idiomas ingles frances aleman italiano portugues japones vocabulario gramatica duolingo",
+  "Programación":  "!programar !codear !desarrollar codigo software app web python javascript programacion",
+  "Lectura":       "!leer lectura libro libros pagina capitulo novela ensayo",
+  "Astronomía":    "!observar astronomia estrellas telescopio planetas cielo constelaciones",
+  "Ajedrez":       "!jugar ajedrez apertura tactica elo partidas tablero",
+  "Historia":      "!investigar historia epoca documental siglo museo",
+  "Oratoria":      "!hablar !exponer !presentar oratoria discurso publico presentacion charla",
+
+  "Finanzas":      "!ahorrar !invertir !presupuestar finanzas dinero gastos ahorro inversion presupuesto fondo deuda emergencia bolsa",
+  "Negociación":   "!negociar !vender !cerrar negociacion trato cliente venta acuerdo precio",
+  "Organización":  "!organizar !ordenar !planificar organizacion agenda tramite papeles orden calendario",
+  "Cata de vinos": "!catar vino vinos cata bodega maridaje uva",
+  "Barismo":       "!preparar cafe barismo espresso molienda cafetera latte",
+
+  "Pesca":         "!pescar pesca caña anzuelo carnada rio muelle",
+  "Senderismo":    "!caminar !senderear sendero ruta montana excursion mochila cumbre",
+  "Supervivencia": "!acampar !sobrevivir campamento fogata refugio supervivencia tienda",
+  "Buceo":         "!bucear buceo inmersion arrecife snorkel botella",
+  "Orientación":   "!orientar brujula mapa coordenadas norte orientacion"
+};
+
+/* Palabras vacías. Además de artículos y preposiciones, aquí van las que
+   aparecen en CUALQUIER meta —"curso", "taller", "proyecto", "semana"— y
+   que por eso no distinguen nada: dejarlas dentro hacía que "curso" llevara
+   a Programación en "Curso de cocina" y "Curso de inversión". */
+const PARADAS = new Set([
+  "de","del","la","el","los","las","un","una","mi","mis","para","por","con","en","y","o","a","al",
+  "que","me","lo","su","sus","este","esta","primer","primera","mas","muy",
+  "curso","cursos","clase","clases","taller","talleres","proyecto","meta","plan","reto",
+  "semana","semanas","mes","meses","dia","dias","ano","anos","vez","veces","hora","horas",
+  "linea","online","basico","basica","nuevo","nueva","propio","propia"
+]);
+
+function normalizarTexto(s) {
+  return String(s || "").toLowerCase()
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/).filter(w => w.length > 2 && !PARADAS.has(w));
+}
+
+/* Recorta terminaciones para que "corriendo", "corrí" y "correr" cuenten
+   igual. Es un recorte tosco a propósito: un lematizador completo pesaría
+   más que toda la app y aquí solo hace falta acercar palabras. */
+function raiz(w) {
+  return w.replace(/(andose|iendose|arse|erse|irse|ando|iendo|aste|aron|amos|emos|imos|aba|ado|ido|ar|er|ir|es|as|os|a|o|s)$/, "");
+}
+
+function lexAprendido() {
+  return (state.ui && state.ui.lexAprendido) || {};
+}
+
+/* Devuelve las habilidades candidatas ordenadas por puntuación. Solo mira
+   las que el usuario TIENE: proponer una que no existe sería inútil. */
+function sugerirHabilidades(titulo, rama) {
+  const palabras = normalizarTexto(titulo);
+  if (!palabras.length && !rama) return [];
+  const raices = palabras.map(raiz);
+  const aprendido = lexAprendido();
+  const puntos = new Map();
+  const suma = (nombre, p) => puntos.set(nombre, (puntos.get(nombre) || 0) + p);
+
+  /* Cada palabra del título puntúa UNA vez por habilidad, con su mejor
+     coincidencia. Sumar por término inflaba el resultado: "correr" casaba a
+     la vez con "!correr" y con "!corro" y valía el doble que nada.
+
+     Y el verbo exacto (3) vale más que el encontrado por raíz (2), porque
+     recortar terminaciones vuelve iguales al verbo y al sustantivo:
+     "cocina" y "cocinar" comparten raíz, pero solo una de las dos dice que
+     la actividad sea cocinar. Esa diferencia es la que hace que "Renovar la
+     cocina" vaya a Reparaciones y no a Cocina. */
+  Object.keys(LEXICO).forEach(nombre => {
+    const terminos = LEXICO[nombre].split(" ").map(t => {
+      const v = t[0] === "!";
+      const w = v ? t.slice(1) : t;
+      return { v, w, r: raiz(w) };
+    });
+    let total = 0;
+    palabras.forEach((pal, i) => {
+      const pr = raices[i];
+      let mejor = 0;
+      terminos.forEach(t => {
+        if (pal === t.w) mejor = Math.max(mejor, t.v ? 3 : 1);
+        else if (t.r.length > 3 && pr === t.r) mejor = Math.max(mejor, t.v ? 2 : 1);
+      });
+      total += mejor;
+    });
+    if (total > 0) suma(nombre, total);
+  });
+
+  // Lo aprendido de las correcciones del usuario pesa por encima del diccionario
+  palabras.forEach(w => {
+    const m = aprendido[w];
+    if (m) Object.keys(m).forEach(nombre => suma(nombre, m[nombre]));
+  });
+
+  const lista = state.skills.map(s => ({ s, p: puntos.get(s.name) || 0 })).filter(x => x.p > 0);
+  lista.sort((a, b) => b.p - a.p);
+
+  // Red de seguridad: si el título no dice nada, la rama al menos acota
+  if ((!lista.length || lista[0].p < 3) && rama) {
+    state.skills.forEach(s => {
+      if (s.category && normalizarTexto(s.category)[0] === normalizarTexto(rama)[0]) {
+        if (!lista.some(x => x.s.id === s.id)) lista.push({ s, p: 0.5, porRama: true });
+      }
+    });
+    lista.sort((a, b) => b.p - a.p);
+  }
+  return lista.slice(0, 4);
+}
+
+/* Guarda la corrección: si eliges una que no se proponía, sus palabras
+   quedan asociadas; si descartas la propuesta, se penaliza. Así la app
+   aprende cómo nombras TÚ las cosas. */
+function aprenderDeEleccion(titulo, elegidaNombre, propuestaNombre) {
+  if (!elegidaNombre || elegidaNombre === propuestaNombre) return;
+  state.ui = state.ui || {};
+  const mapa = state.ui.lexAprendido || (state.ui.lexAprendido = {});
+  normalizarTexto(titulo).forEach(w => {
+    const m = mapa[w] || (mapa[w] = {});
+    m[elegidaNombre] = Math.min(6, (m[elegidaNombre] || 0) + 2);
+    if (propuestaNombre) m[propuestaNombre] = Math.max(-6, (m[propuestaNombre] || 0) - 2);
+  });
+}
+
+/* ---- Las sugerencias dentro del formulario ----
+   Aparecen solas al escribir el título y la primera se marca sola. Marcarla
+   es la diferencia entre "cero trabajo si acierto" y "un desplegable más
+   que abrir"; que se vean todas y sean tocables es lo que evita que se
+   equivoque en silencio. */
+
+let sugActual = { p: null, pr: null };   // qué se propuso primero, para aprender de la corrección
+
+function refrescarSugerencias(pref) {
+  const cont = document.getElementById(pref + "-sug");
+  if (!cont) return;
+  const titulo = (document.getElementById(pref + "-name") || {}).value || "";
+  const rama = (document.getElementById(pref + "-branch") || {}).value || "";
+  const sel = document.getElementById(pref + "-skill");
+
+  if (titulo.trim().length < 3) { cont.innerHTML = ""; sugActual[pref] = null; return; }
+
+  const lista = sugerirHabilidades(titulo, rama);
+  if (!lista.length) {
+    cont.innerHTML = `<span class="sug-nada">No sé cuál encaja con ese nombre; elígela tú si quieres.</span>`;
+    sugActual[pref] = null;
+    return;
+  }
+
+  // Solo se marca sola si el campo sigue vacío: nunca pisa una decisión tuya
+  if (sel && !sel.value) { sel.value = lista[0].s.id; sugActual[pref] = lista[0].s.name; }
+  else if (!sugActual[pref]) sugActual[pref] = lista[0].s.name;
+
+  cont.innerHTML = `<span class="sug-tit">Sube:</span>` + lista.map(x => `
+    <button type="button" class="sug-chip ${sel && sel.value === x.s.id ? "on" : ""}"
+      style="--sc:${x.s.color}" onclick="elegirSugerencia('${pref}','${x.s.id}')">
+      ${escapeHtml(x.s.name)}${x.porRama ? ' <i>por la rama</i>' : ''}
+    </button>`).join("");
+}
+
+function elegirSugerencia(pref, id) {
+  const sel = document.getElementById(pref + "-skill");
+  if (!sel) return;
+  sel.value = sel.value === id ? "" : id;   // volver a tocarla la desmarca
+  refrescarSugerencias(pref);
+}
+
+function marcarSugerenciaElegida(pref) { refrescarSugerencias(pref); }
+
+/* Al guardar: si lo que quedó elegido no es lo que se propuso, esa
+   corrección se aprende y la próxima vez se propone mejor. */
+function aprenderAlGuardar(pref, titulo, skillId) {
+  const elegida = state.skills.find(s => s.id === skillId);
+  aprenderDeEleccion(titulo, elegida ? elegida.name : null, sugActual[pref]);
+  sugActual[pref] = null;
+}
 
 let catalogoSel = new Set();
 let seleccionHab = null;   // null = fuera del modo selección
@@ -7334,6 +7586,8 @@ function openPerkForm(id, presetBranch) {
   renderIconGrid("p-icon", pIcon, "pickPerkIcon", pColor);
   renderColorGrid("p-color", pColor, "pickPerkColor");
   togglePerkTypeFields();
+  sugActual.p = null;
+  refrescarSugerencias("p");
   showView("perk-form");
 }
 
@@ -7362,6 +7616,7 @@ function savePerk() {
   const skillId = document.getElementById("p-skill").value || null;
   const xpReward = Math.max(0, parseInt(document.getElementById("p-xp").value) || 0);
   const requiresId = document.getElementById("p-requires").value || null;
+  aprenderAlGuardar("p", name, skillId);
 
   if (editingPerkId) {
     const p = state.perks.find(x => x.id === editingPerkId);
@@ -7529,6 +7784,8 @@ function openProjectForm(id, presetBranch) {
   renderIconGrid("pr-icon", prIcon, "pickProjectIcon", prColor);
   renderColorGrid("pr-color", prColor, "pickProjectColor");
   renderFormSteps();
+  sugActual.pr = null;
+  refrescarSugerencias("pr");
   showView("project-form");
 }
 
@@ -7568,6 +7825,7 @@ function saveProject() {
   const desc = document.getElementById("pr-desc").value.trim();
   const skillId = document.getElementById("pr-skill").value || null;
   const xpReward = Math.max(0, parseInt(document.getElementById("pr-xp").value) || 0);
+  aprenderAlGuardar("pr", name, skillId);
 
   if (editingProjectId) {
     const pr = state.projects.find(x => x.id === editingProjectId);
