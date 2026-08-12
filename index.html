@@ -3683,7 +3683,24 @@ function motifScene(w, h, seed, motif, accent) {
 /* ================= Niveles y XP =================
    XP para pasar del nivel L al L+1: 100 + L*50. Total a nivel 10: 3250. */
 
-function xpForLevel(level) { return 100 + level * 50; }
+/* Curva exponencial (×1.62 por nivel), no lineal.
+   La lineal de antes sumaba 3.250 XP hasta el nivel 10: con una sola misión
+   diaria de 20 XP se llegaba al máximo en cinco meses, y una habilidad que
+   se termina en un semestre no representa haber aprendido nada.
+
+   Ahora son ~40.000 XP. El primer nivel sigue cayendo en menos de una
+   semana —si los primeros días no premian, nadie llega al segundo— pero el
+   último tramo cuesta 17.800 XP él solo.
+
+   El factor 1.8 salió de simular perfiles, no de elegirlo a ojo: con 1.62
+   un usuario intenso (40 XP diarios y un talento al mes) tocaba el máximo
+   en once meses, que es justo lo que había que evitar. Con 1.8 ni el perfil
+   más exigente baja de dos años y medio. Nivel 10 es maestría: debe ser
+   raro. El recorrido que la mayoría vivirá es del 1 al 8, y ese llega en
+   torno al año. */
+function xpForLevel(level) {
+  return Math.round(90 * Math.pow(1.8, level) / 5) * 5;
+}
 
 function totalXpForLevel(level) {
   let total = 0;
@@ -3758,13 +3775,20 @@ function applyDecay() {
 
     if (!s.permanent && s.xp > 0) {
       const last = s.lastActivity || s.createdAt;
+      /* El desgaste escala con el nivel. Con la curva exponencial, una cifra
+         fija dejó de significar lo mismo arriba que abajo: 10 XP al día
+         vacían un nivel 1 en nueve días y son ruido contra los 11.000 XP de
+         un nivel 9. Escalarlo mantiene la regla honesta —lo que no se usa se
+         pierde— en todo el recorrido, sin ensañarse al principio. */
+      const nivel = levelInfo(s.xp).level;
+      const porDia = Math.max(1, Math.round(s.decayPerDay * (1 + nivel * 0.6)));
       let lost = 0;
       let cursor = s.lastCheck;
       let guard = 4000;
       while (cursor < today && guard-- > 0) {
         cursor = addDaysKey(cursor, 1);
         const idle = daysBetween(last, cursor);
-        if (idle > s.graceDays) lost += s.decayPerDay;
+        if (idle > s.graceDays) lost += porDia;
       }
       if (lost > 0) {
         const real = Math.min(lost, s.xp);
@@ -6484,7 +6508,7 @@ function crearTalentoRapido(branch, tipo, pos) {
   const nuevo = {
     id: uid(), name: t.nombre, branch, desc: "",
     cost: 0, planDays: 360, instant: t.instant, mini: t.mini,
-    skillId: null, xpReward: t.mini ? 40 : 150, requiresId: null,
+    skillId: null, xpReward: t.mini ? 120 : 600, requiresId: null,
     icon: ICON_LIST[(n * 5 + 3) % ICON_LIST.length],
     color: COLORS[(n * 3 + 2) % COLORS.length],
     status: null, startDate: null, endDate: null, completedAt: null,
@@ -7558,7 +7582,7 @@ function openPerkForm(id, presetBranch) {
   document.getElementById("p-mini-cost").value = p && p.mini ? p.cost : 0;
   document.getElementById("p-instant").checked = p ? !!p.instant : false;
   document.getElementById("p-mini").checked = p ? !!p.mini : false;
-  document.getElementById("p-xp").value = p ? p.xpReward : 150;
+  document.getElementById("p-xp").value = p ? p.xpReward : 600;
   document.getElementById("p-delete").style.display = p ? "block" : "none";
   pIcon = p ? (p.icon || "star") : ICON_LIST[(state.perks.length * 5 + 3) % ICON_LIST.length];
   pColor = p ? (p.color || COLORS[2]) : COLORS[(state.perks.length * 3 + 2) % COLORS.length];
@@ -7597,7 +7621,7 @@ function togglePerkTypeFields() {
   const mini = document.getElementById("p-mini").checked;
   document.getElementById("plan-fields").style.display = mini ? "none" : "block";
   document.getElementById("mini-fields").style.display = mini ? "block" : "none";
-  if (mini && !editingPerkId) document.getElementById("p-xp").value = 50;
+  if (mini && !editingPerkId) document.getElementById("p-xp").value = 120;
 }
 
 function savePerk() {
@@ -7768,7 +7792,7 @@ function openProjectForm(id, presetBranch) {
   document.getElementById("pr-name").value = pr ? pr.name : "";
   document.getElementById("pr-branch").value = pr ? (pr.branch || "") : (presetBranch || "");
   document.getElementById("pr-desc").value = pr ? (pr.desc || "") : "";
-  document.getElementById("pr-xp").value = pr ? pr.xpReward : 200;
+  document.getElementById("pr-xp").value = pr ? pr.xpReward : 500;
   document.getElementById("pr-delete").style.display = pr ? "block" : "none";
   prIcon = pr ? pr.icon : ICON_LIST[(state.projects.length * 4 + 1) % ICON_LIST.length];
   prColor = pr ? pr.color : COLORS[state.projects.length % COLORS.length];
