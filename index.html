@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#10151d">
 <meta name="color-scheme" content="dark">
-<title>Norata</title>
+<title>Notara</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
@@ -459,6 +459,113 @@
   .sum-card.b .ic { color: var(--fire); }
   .sum-card .n { font-size: 23px; font-weight: 700; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
   .sum-card .t { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+
+  /* Cifras de apoyo dentro de una tarjeta pequeña. Existen porque "6
+     niveles" a solas dejaba media tarjeta vacía sin decir nada más. */
+  .sc-rows {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-top: 11px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+  }
+  .sc-rows > div { display: flex; align-items: baseline; gap: 5px; }
+  .sc-rows b { font-size: 13.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .sc-rows span { font-size: 10.5px; color: var(--faint); letter-spacing: 0.3px; }
+  /* Lo siguiente que se puede desbloquear: la parte accionable */
+  .sc-near { margin-top: 10px; }
+  .sc-near span { display: block; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--mint); }
+  .sc-near b { display: block; font-size: 12.5px; font-weight: 650; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sc-near i {
+    display: block;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(234, 241, 239, 0.1);
+    margin-top: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .sc-near i::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--p, 0%);
+    background: var(--c, var(--mint));
+    border-radius: 999px;
+  }
+
+  /* ---------- Habilidades: barra de acciones y catálogo ---------- */
+  .hb-tools { display: flex; gap: 8px; margin-bottom: 12px; }
+  .hb-b { flex: 1; padding: 10px 12px; font-size: 13px; }
+  .skill-card.marcada { border-color: var(--mint); background: var(--mint-soft); }
+  .hb-check {
+    flex: none;
+    width: 22px; height: 22px;
+    border-radius: 7px;
+    border: 2px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: #0e131b;
+    margin-right: 2px;
+  }
+  .skill-card.marcada .hb-check { background: var(--mint); border-color: var(--mint); }
+
+  .cat-group { margin-bottom: 18px; }
+  .cat-head { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; padding: 0 4px; }
+  .cat-head h3 { font-size: 15px; font-weight: 700; }
+  .cat-all {
+    margin-left: auto;
+    background: var(--mint-soft); color: var(--mint);
+    border: none; border-radius: 999px;
+    padding: 4px 11px; font-size: 11px; font-weight: 700;
+    font-family: inherit; cursor: pointer;
+  }
+  .cat-done { margin-left: auto; font-size: 11px; color: var(--faint); }
+  .cat-grid { display: grid; grid-template-columns: 1fr; gap: 7px; }
+  .cat-chip {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 9px 11px;
+    font-family: inherit;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+  }
+  .cat-chip.sel { border-color: var(--mint); background: var(--mint-soft); }
+  .cat-chip.tengo { opacity: 0.45; cursor: default; }
+  .cc-ic { flex: none; width: 32px; height: 32px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; }
+  .cc-n { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cc-box {
+    flex: none; width: 21px; height: 21px; border-radius: 7px;
+    border: 2px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: #0e131b;
+  }
+  .cat-chip.sel .cc-box { background: var(--mint); border-color: var(--mint); }
+  .cc-ok { flex: none; color: var(--mint); font-size: 14px; font-weight: 800; }
+  /* La barra de confirmar se queda a la vista mientras se elige */
+  .cat-bar {
+    position: sticky;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    display: flex; gap: 9px;
+    background: rgba(16, 21, 29, 0.92);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 9px;
+    margin-top: 16px;
+  }
+  .cat-bar .btn { flex: 1; }
+  .cat-bar .btn:disabled { opacity: 0.45; cursor: default; }
+
+  @media (min-width: 620px) {
+    .cat-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (min-width: 900px) {
+    .cat-grid { grid-template-columns: repeat(3, 1fr); }
+  }
 
   .att-item {
     display: flex;
@@ -2109,9 +2216,12 @@
        no es de los íconos que heredan el color del tema). */
     .side-brand .sb-mark, .side-brand .sb-expand { display: none; flex-shrink: 0; }
     .side-brand .sb-mark { color: var(--mint); }
-    .side-brand .sb-mark svg { width: 26px; height: 26px; display: block; }
+    .side-brand .sb-mark svg { width: 22px; height: 22px; display: block; }
     .side-brand .sb-expand { color: var(--muted); }
-    .side-brand .sb-expand svg { width: 19px; height: 19px; display: block; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    /* Dos píxeles menos que el isotipo: uno es una silueta maciza y el otro
+       un contorno fino, así que a igual medida el contorno se ve más
+       pequeño. Esto los iguala a la vista, que es lo que importa. */
+    .side-brand .sb-expand svg { width: 20px; height: 20px; display: block; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
     .side-brand .sb-logo-full svg { height: 30px; width: auto; display: block; }
 
     .side-toggle {
@@ -2161,9 +2271,16 @@
        Resumen/Misiones/Habilidades/Talentos/Proyectos. */
     #nav-settings-side {
       margin-top: auto;
-      border-top: 1px solid var(--line);
-      border-radius: 0;
-      padding-top: 16px;
+      position: relative;
+      /* El radio se hereda del resto de botones del menú a propósito: la
+         separación la marca la línea de arriba, no una esquina distinta. */
+    }
+    #nav-settings-side::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; top: -9px;
+      height: 1px;
+      background: var(--line);
     }
 
     .thumb-cluster .c-main {
@@ -2187,12 +2304,26 @@
        la franja no gasta una fila entera en un botón que casi no se usa. */
     html.sc .side-top { justify-content: center; padding: 4px 0 22px; }
     html.sc .side-toggle { display: none; }
-    html.sc .side-brand { justify-content: center; width: 40px; height: 40px; padding: 0; margin: 0; border-radius: 11px; }
-    html.sc .side-brand .sb-mark { display: flex; }
-    html.sc .side-brand:hover .sb-mark { display: none; }
-    html.sc .side-brand:hover .sb-expand { display: flex; }
-    html.sc .side-brand:hover .sb-expand { color: var(--text); }
+    html.sc .side-brand { justify-content: center; width: 40px; height: 40px; padding: 0; margin: 0; border-radius: 11px; position: relative; }
     html.sc .side-brand .sb-logo-full { display: none; }
+    /* Los dos iconos ocupan la MISMA caja, superpuestos, y se funden uno en
+       otro. Antes se alternaba display:none, que es un corte seco: el icono
+       aparecía desplazado y de otro tamaño, y el salto se notaba. */
+    html.sc .side-brand .sb-mark,
+    html.sc .side-brand .sb-expand {
+      display: flex;
+      position: absolute;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.16s ease, transform 0.16s ease;
+    }
+    html.sc .side-brand .sb-expand { opacity: 0; transform: scale(0.84); }
+    html.sc .side-brand:hover .sb-mark { opacity: 0; transform: scale(0.84); }
+    html.sc .side-brand:hover .sb-expand { opacity: 1; transform: scale(1); color: var(--text); }
+    @media (prefers-reduced-motion: reduce) {
+      html.sc .side-brand .sb-mark, html.sc .side-brand .sb-expand { transition: none; }
+    }
     html.sc .nav-label, html.sc .fab-label { display: none; }
     html.sc .thumb-cluster .c-nav,
     html.sc .thumb-cluster .c-main,
@@ -2330,7 +2461,7 @@
   /* Se aplica antes de pintar nada: si esto fuera parte del script principal
      (que corre al final, después de todo el HTML), el menú se dibujaría
      abierto un instante y luego saltaría a plegado en cada carga. */
-  try { if (localStorage.getItem("norata-sidebar-collapsed") === "1") document.documentElement.classList.add("sc"); } catch (e) {}
+  try { if (localStorage.getItem("notara-sidebar-collapsed") === "1") document.documentElement.classList.add("sc"); } catch (e) {}
 </script>
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
@@ -2361,8 +2492,18 @@
     </div>
 
     <div id="home-hero"></div>
+    <div class="hb-tools" id="hb-tools"></div>
     <div class="chips" id="chips"></div>
     <div id="skill-list"></div>
+  </div>
+
+  <!-- ============ VISTA: CATÁLOGO DE HABILIDADES ============ -->
+  <div class="view form-view" id="view-catalog">
+    <div class="back-row">
+      <button class="icon-btn" onclick="showView('home')" aria-label="Volver">←</button>
+      <h2>Catálogo</h2>
+    </div>
+    <div id="catalog-content"></div>
   </div>
 
   <!-- ============ VISTA: ÁRBOL ============ -->
@@ -2781,10 +2922,10 @@
           <g>
             <path d="M113.316,73.314h-5.288c-.278,0-.538-.14-.691-.372l-9.209-13.942c-.453-.685-1.519-.365-1.519.456v13.03c0,.457-.371.828-.828.828h-4.905c-.457,0-.828-.371-.828-.828v-25.279c0-.457.371-.828.828-.828h5.287c.279,0,.539.14.692.373l9.208,14.005c.452.687,1.52.367,1.52-.455v-13.096c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v25.279c0,.457-.371.828-.828.828Z" fill="#f7f8fa"/>
             <path d="M122.988,72.278c-1.675-.895-2.993-2.174-3.952-3.837-.959-1.663-1.439-3.607-1.439-5.832,0-2.2.486-4.137,1.458-5.813.971-1.675,2.302-2.96,3.99-3.856,1.688-.895,3.581-1.343,5.678-1.343s3.99.448,5.678,1.343c1.688.896,3.018,2.181,3.991,3.856.971,1.676,1.458,3.613,1.458,5.813s-.492,4.138-1.477,5.813c-.985,1.676-2.328,2.961-4.029,3.856-1.702.896-3.601,1.343-5.698,1.343s-3.984-.447-5.66-1.343ZM131.851,66.561c.883-.921,1.324-2.238,1.324-3.952s-.429-3.031-1.286-3.952c-.857-.921-1.912-1.381-3.165-1.381-1.279,0-2.34.454-3.185,1.362-.844.908-1.266,2.232-1.266,3.971,0,1.714.416,3.031,1.247,3.952.831.921,1.874,1.381,3.127,1.381s2.321-.461,3.204-1.381Z" fill="#f7f8fa"/>
-            <path d="M152.781,52.691c.891-.524,1.859-.846,2.903-.965.495-.056.934.329.934.828v5.237c0,.457-.371.828-.828.828h-.976c-1.637,0-2.865.352-3.683,1.055-.819.704-1.228,1.938-1.228,3.703v9.11c0,.457-.371.828-.828.828h-4.905c-.457,0-.828-.371-.828-.828v-19.754c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v.475c0,.731.865,1.088,1.398.589.452-.422.945-.791,1.479-1.106Z" fill="#f7f8fa"/>
+            <path d="M194.558,52.691c.891-.524,1.859-.846,2.903-.965.495-.056.934.329.934.828v5.237c0,.457-.371.828-.828.828h-.976c-1.637,0-2.865.352-3.683,1.055-.819.704-1.228,1.938-1.228,3.703v9.11c0,.457-.371.828-.828.828h-4.905c-.457,0-.828-.371-.828-.828v-19.754c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v.475c0,.731.865,1.088,1.398.589.452-.422.945-.791,1.479-1.106Z" fill="#f7f8fa"/>
+            <path d="M201.443,56.777c.831-1.662,1.963-2.941,3.395-3.837,1.433-.895,3.031-1.343,4.796-1.343,1.509,0,2.833.307,3.971.921.455.246.868.522,1.24.829.556.459,1.388.112,1.388-.609v-.005c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v19.754c0,.457-.371.828-.828.828h-4.905c-.457,0-.828-.371-.828-.828v-.034c0-.718-.829-1.07-1.382-.612-.386.32-.814.607-1.285.861-1.138.614-2.462.921-3.971.921-1.739,0-3.325-.454-4.758-1.362-1.433-.908-2.565-2.2-3.395-3.875-.832-1.675-1.247-3.613-1.247-5.813s.416-4.131,1.247-5.794ZM214.872,58.734c-1.182-1.231-2.698-1.662-4.553-1.291-.064.013-.131.032-.191.056-2.171.851-3.255,2.542-3.255,5.071,0,1.637.454,2.935,1.362,3.894,1.192,1.26,2.728,1.693,4.604,1.297.066-.014.136-.035.198-.061,2.131-.885,3.198-2.583,3.198-5.092,0-1.637-.454-2.929-1.362-3.875Z" fill="#f7f8fa"/>
+            <path d="M156.12,68.579v3.907c0,.457-.371.828-.828.828h-2.51c-2.379,0-4.234-.582-5.564-1.746-1.33-1.164-1.995-3.063-1.995-5.698v-7.69c0-.457-.371-.828-.828-.828h-.953c-.457,0-.828-.371-.828-.828v-3.792c0-.457.371-.828.828-.828h.953c.457,0,.828-.371.828-.828v-3.562c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v3.562c0,.457.371.828.828.828h2.641c.457,0,.828.371.828.828v3.792c0,.457-.371.828-.828.828h-2.641c-.457,0-.828.371-.828.828v7.767c0,.64.153,1.1.46,1.381.307.282.818.422,1.535.422h1.512c.457,0,.828.371.828.828Z" fill="#f7f8fa"/>
             <path d="M159.707,56.777c.831-1.662,1.963-2.941,3.395-3.837,1.433-.895,3.031-1.343,4.796-1.343,1.509,0,2.833.307,3.971.921.455.246.868.522,1.24.829.556.459,1.388.112,1.388-.609v-.005c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v19.754c0,.457-.371.828-.828.828h-4.905c-.457,0-.828-.371-.828-.828v-.034c0-.718-.829-1.07-1.382-.612-.386.32-.814.607-1.285.861-1.138.614-2.462.921-3.971.921-1.739,0-3.325-.454-4.758-1.362-1.433-.908-2.565-2.2-3.395-3.875-.832-1.675-1.247-3.613-1.247-5.813s.416-4.131,1.247-5.794ZM173.136,58.734c-1.182-1.231-2.698-1.662-4.553-1.291-.064.013-.131.032-.191.056-2.171.851-3.255,2.542-3.255,5.071,0,1.637.454,2.935,1.362,3.894,1.192,1.26,2.728,1.693,4.604,1.297.066-.014.136-.035.198-.061,2.131-.885,3.198-2.583,3.198-5.092,0-1.637-.454-2.929-1.362-3.875Z" fill="#f7f8fa"/>
-            <path d="M197.749,68.579v3.907c0,.457-.371.828-.828.828h-2.51c-2.379,0-4.234-.582-5.564-1.746-1.33-1.164-1.995-3.063-1.995-5.698v-7.69c0-.457-.371-.828-.828-.828h-.953c-.457,0-.828-.371-.828-.828v-3.792c0-.457.371-.828.828-.828h.953c.457,0,.828-.371.828-.828v-3.562c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v3.562c0,.457.371.828.828.828h2.641c.457,0,.828.371.828.828v3.792c0,.457-.371.828-.828.828h-2.641c-.457,0-.828.371-.828.828v7.767c0,.64.153,1.1.46,1.381.307.282.818.422,1.535.422h1.512c.457,0,.828.371.828.828Z" fill="#f7f8fa"/>
-            <path d="M201.336,56.777c.831-1.662,1.963-2.941,3.395-3.837,1.433-.895,3.031-1.343,4.796-1.343,1.509,0,2.833.307,3.971.921.455.246.868.522,1.24.829.556.459,1.388.112,1.388-.609v-.005c0-.457.371-.828.828-.828h4.905c.457,0,.828.371.828.828v19.754c0,.457-.371.828-.828.828h-4.905c-.457,0-.828-.371-.828-.828v-.034c0-.718-.829-1.07-1.382-.612-.386.32-.814.607-1.285.861-1.138.614-2.462.921-3.971.921-1.739,0-3.325-.454-4.758-1.362-1.433-.908-2.565-2.2-3.395-3.875-.832-1.675-1.247-3.613-1.247-5.813s.416-4.131,1.247-5.794ZM214.765,58.734c-1.182-1.231-2.698-1.662-4.553-1.291-.064.013-.131.032-.191.056-2.171.851-3.255,2.542-3.255,5.071,0,1.637.454,2.935,1.362,3.894,1.192,1.26,2.728,1.693,4.604,1.297.066-.014.136-.035.198-.061,2.131-.885,3.198-2.583,3.198-5.092,0-1.637-.454-2.929-1.362-3.875Z" fill="#f7f8fa"/>
           </g>
           <path d="M73.352,56.658h-1.186c-.552,0-1-.448-1-1v-17.928c0-1.103-.897-2-2-2h-19.427c-1.103,0-2,.897-2,2v1.186c0,.552-.448,1-1,1h-16.428c-1.93,0-3.5,1.57-3.5,3.5v17.928c0,1.103.897,2,2,2h1.186c.552,0,1,.448,1,1v17.927c0,1.103.897,2,2,2h19.428c1.103,0,2-.897,2-2v-1.186c0-.552.448-1,1-1h12.427c4.136,0,7.5-3.364,7.5-7.5v-13.927c0-1.103-.897-2-2-2ZM35.683,60.843h-1.186c-.552,0-1-.448-1-1v-12.242c0-.552.448-1,1-1h13.742c1.103,0,2-.897,2-2v-1.186c0-.552.448-1,1-1h12.241c.552,0,1,.448,1,1v13.742c0,1.103.897,2,2,2h1.186c.552,0,1,.448,1,1v10.241c0,1.654-1.346,3-3,3h-11.741c-1.103,0-2,.897-2,2v1.186c0,.552-.448,1-1,1h-12.242c-.552,0-1-.448-1-1v-13.741c0-1.103-.897-2-2-2Z" fill="#5fe0b0"/>
         </svg>
@@ -2937,7 +3078,7 @@ function icon(name, size) {
 
 /* ================= Modelo y persistencia ================= */
 
-/* El proyecto pasó a llamarse Norata, pero las llaves de almacenamiento
+/* El proyecto pasó a llamarse Notara, pero las llaves de almacenamiento
    conservan el nombre viejo a propósito: renombrarlas dejaría huérfano el
    progreso de quien ya venía usando la app. El nombre visible y el nombre
    interno no tienen por qué coincidir. */
@@ -4068,7 +4209,7 @@ function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
   document.documentElement.classList.toggle("sc", sidebarCollapsed);
   syncSidebarLabels();
-  try { localStorage.setItem("norata-sidebar-collapsed", sidebarCollapsed ? "1" : "0"); } catch (e) {}
+  try { localStorage.setItem("notara-sidebar-collapsed", sidebarCollapsed ? "1" : "0"); } catch (e) {}
 }
 
 function brandClick() {
@@ -4081,7 +4222,7 @@ function showView(name) {
   document.getElementById("view-" + name).classList.add("active");
   document.querySelectorAll(".thumb-cluster .c-nav").forEach(b => b.classList.remove("active"));
   const navId = NAV_VIEWS[name] ||
-    (name === "detail" || name === "form" ? "nav-home" :
+    (name === "detail" || name === "form" || name === "catalog" ? "nav-home" :
      (name === "perk" || name === "perk-form" ? "nav-tree" :
      (name === "project" || name === "project-form" ? "nav-projects" :
      (name === "mission-form" ? "nav-missions" : "nav-summary"))));
@@ -4103,7 +4244,12 @@ function showView(name) {
      sitio donde estabas. */
   syncFullscreenForView(name);
 
+  /* El modo selección no sobrevive a salir de Habilidades: volver y
+     encontrarse media lista marcada de antes sería una trampa. */
+  if (name !== "home" && seleccionHab) seleccionHab = null;
+
   window.scrollTo(0, 0);
+  if (name === "catalog") renderCatalogo();
   if (name === "summary") renderSummary();
   if (name === "settings") { renderTimezone(); renderSync(); }
   if (name === "missions") renderMissions();
@@ -4248,19 +4394,61 @@ function renderSummary() {
       </div>`;
     },
 
-    niveles: () => `
+    niveles: () => {
+      const totalXp = skills.reduce((a, s) => a + (s.xp || 0), 0);
+      // La habilidad más cerca de subir: es lo único accionable de la tarjeta
+      let cerca = null;
+      skills.forEach(s => {
+        const li = levelInfo(s.xp);
+        if (li.level >= MAX_LEVEL) return;
+        if (!cerca || li.pct > cerca.pct) {
+          cerca = { s, pct: li.pct, falta: li.needed - li.inLevel, nivel: li.level + 1 };
+        }
+      });
+      return `
       <button class="sum-card a" onclick="showView('home')" style="width:100%">
         ${icon("chart", 22)}
         <div class="n">${totalLevels}</div>
-        <div class="t">niveles en ${skills.length} habilidad${skills.length === 1 ? "" : "es"}${decayingList.length ? ` · <span style="color:var(--fire)">${decayingList.length} decayendo</span>` : ""}</div>
-      </button>`,
+        <div class="t">niveles en ${skills.length} habilidad${skills.length === 1 ? "" : "es"}</div>
+        <div class="sc-rows">
+          <div><b>${totalXp.toLocaleString("es-MX")}</b><span>XP TOTAL</span></div>
+          ${decayingList.length ? `<div><b style="color:var(--fire)">${decayingList.length}</b><span>DECAYENDO</span></div>` : ""}
+        </div>
+        ${cerca ? `<div class="sc-near">
+          <span>A ${cerca.falta} XP del nivel ${cerca.nivel}</span>
+          <b>${escapeHtml(cerca.s.name)}</b>
+          <i style="--p:${cerca.pct}%;--c:${cerca.s.color}"></i>
+        </div>` : ""}
+      </button>`;
+    },
 
-    invertido: () => `
+    invertido: () => {
+      const enCurso = activeList.length + dueList.length;
+      const permanentes = state.perks.filter(p => p.status === "completed").length;
+      const porAbrir = Math.max(0, state.perks.length - permanentes - enCurso);
+      // El talento en curso que más cerca está de cerrarse
+      let cerca = null;
+      [...activeList, ...dueList].forEach(p => {
+        const pct = Math.round(p.progress || 0);
+        if (!cerca || pct > cerca.pct) cerca = { p, pct };
+      });
+      return `
       <button class="sum-card b" onclick="showView('tree')" style="width:100%">
         ${icon("map", 22)}
         <div class="n">${money(invested)}</div>
-        <div class="t">invertido en ti · ${activeList.length + dueList.length} talento${activeList.length + dueList.length === 1 ? "" : "s"} en curso</div>
-      </button>`,
+        <div class="t">invertido en ti</div>
+        <div class="sc-rows">
+          <div><b style="color:var(--mint)">${permanentes}</b><span>PERMANENTES</span></div>
+          <div><b${enCurso ? ` style="color:var(--fire)"` : ""}>${enCurso}</b><span>EN CURSO</span></div>
+          <div><b>${porAbrir}</b><span>POR ABRIR</span></div>
+        </div>
+        ${cerca ? `<div class="sc-near">
+          <span>${cerca.pct}% hecho, lo más avanzado</span>
+          <b>${escapeHtml(cerca.p.name)}</b>
+          <i style="--p:${cerca.pct}%;--c:${cerca.p.color || "var(--fire)"}"></i>
+        </div>` : ""}
+      </button>`;
+    },
 
     proyectos: () => {
       const live = projects.filter(p => p.status === "active" || p.status === "paused");
@@ -4350,8 +4538,10 @@ const DASH_META = {
 };
 const DASH_DEFAULT = ["racha", "misiones", "atencion", "niveles", "invertido", "proyectos", "listos"];
 const ROW_H = 56, ROW_GAP = 22;
-/* Suelo de encogimiento: por debajo de esto la tarjeta deja de comunicar */
-const DASH_MIN_H = { racha: 3, misiones: 3, atencion: 2, niveles: 2, invertido: 2, proyectos: 2, listos: 3 };
+/* Suelo de encogimiento: por debajo de esto la tarjeta deja de comunicar.
+   Las cuatro pequeñas bajan un escalón más porque su contenido cabe de
+   sobra: el suelo anterior les dejaba aire muerto que no aportaba nada. */
+const DASH_MIN_H = { racha: 3, misiones: 3, atencion: 1, niveles: 1, invertido: 1, proyectos: 1, listos: 3 };
 
 let dashEditing = false;
 
@@ -4637,38 +4827,253 @@ function renderHome() {
   const list = document.getElementById("skill-list");
   const visible = activeCategory === "Todas" ? skills : skills.filter(s => s.category === activeCategory);
 
+  renderHomeTools();
+
   if (skills.length === 0) {
     list.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("star", 34)}</div>
         <h2>Sin habilidades todavía</h2>
-        <p>Crea tu primera habilidad y empieza a registrar tu progreso.</p>
-        <button class="btn btn-primary" onclick="openSkillForm()">Crear habilidad</button>
+        <p>Empieza por el catálogo: verlas en cero es lo que te recuerda que existen. Luego puedes crear las tuyas.</p>
+        <div class="stack" style="align-items:center">
+          <button class="btn btn-primary" onclick="openCatalogo()">Ver el catálogo</button>
+          <button class="btn btn-ghost" onclick="openSkillForm()">Crear una a mano</button>
+        </div>
       </div>`;
     return;
   }
 
+  const enSeleccion = !!seleccionHab;
   const sorted = [...visible].sort((a, b) => b.xp - a.xp);
   list.innerHTML = sorted.map((s, i) => {
     const li = levelInfo(s.xp);
+    const marcada = enSeleccion && seleccionHab.has(s.id);
     const tab = isDecaying(s)
       ? `<span class="skill-tab warn">▾ perdiendo XP</span>`
       : (s.permanent ? `<span class="skill-tab perm">permanente</span>` : "");
     const pct = li.level >= MAX_LEVEL ? 1 : li.pct / 100;
     return `
-    <button type="button" class="skill-card ${i % 2 === 0 ? "r-a" : "r-b"}" onclick="openDetail('${s.id}')">
+    <button type="button" class="skill-card ${i % 2 === 0 ? "r-a" : "r-b"}${marcada ? " marcada" : ""}"
+      onclick="${enSeleccion ? `toggleHabSel('${s.id}')` : `openDetail('${s.id}')`}">
       ${tab}
+      ${enSeleccion ? `<span class="hb-check">${marcada ? "✓" : ""}</span>` : ""}
       <div class="skill-emoji" style="background:${s.color}26;color:${s.color}">${icon(s.icon, 23)}</div>
       <div class="skill-info">
         <div class="skill-name">${escapeHtml(s.name)}</div>
         <div class="skill-meta">${escapeHtml(s.category || "Sin categoría")}</div>
       </div>
-      <div class="mini-ring">
+      ${enSeleccion ? "" : `<div class="mini-ring">
         ${ring(46, 4.5, [{ pct, color: s.color }], "#2a3441")}
         <span class="lv" style="color:${s.color}">${li.level}</span>
-      </div>
+      </div>`}
     </button>`;
   }).join("");
+}
+
+/* Barra de acciones sobre la lista: añadir del catálogo y quitar en bloque. */
+function renderHomeTools() {
+  const el = document.getElementById("hb-tools");
+  if (!el) return;
+  if (!state.skills.length) { el.innerHTML = ""; return; }
+  if (seleccionHab) {
+    const n = seleccionHab.size;
+    el.innerHTML = `
+      <button class="btn btn-ghost hb-b" onclick="toggleSeleccionHab()">Cancelar</button>
+      <button class="btn btn-danger-ghost hb-b" ${n ? "" : "disabled"} onclick="borrarSeleccionHab()">
+        ${n ? `Borrar ${n}` : "Marca alguna"}
+      </button>`;
+    return;
+  }
+  el.innerHTML = `
+    <button class="btn btn-soft hb-b" onclick="openCatalogo()">＋ Del catálogo</button>
+    <button class="btn btn-ghost hb-b" onclick="toggleSeleccionHab()">Seleccionar</button>`;
+}
+
+/* ================= Catálogo de habilidades =================
+   La idea es la de Los Sims: que el tablero enseñe también lo que NO has
+   desarrollado. Ver "Botánica 0" o "Pesca 0" propone algo; una lista con
+   solo lo que ya practicas no propone nada. Todas nacen en cero y se
+   pueden quitar en bloque, porque la lista es del usuario, no nuestra. */
+
+const SKILL_CATALOG = [
+  // Salud y cuerpo
+  { n: "Ejercicio",      c: "Salud",       i: "dumbbell", k: "#ff8a70" },
+  { n: "Correr",         c: "Salud",       i: "bolt",     k: "#ff8a70" },
+  { n: "Natación",       c: "Salud",       i: "target",   k: "#6fc3e8" },
+  { n: "Yoga",           c: "Salud",       i: "heart",    k: "#b7a2ea" },
+  { n: "Meditación",     c: "Salud",       i: "heart",    k: "#b7a2ea" },
+  { n: "Ciclismo",       c: "Salud",       i: "bolt",     k: "#8fd18a" },
+  { n: "Escalada",       c: "Salud",       i: "flag",     k: "#f5d76e" },
+  { n: "Baile",          c: "Salud",       i: "music",    k: "#f0a5c0" },
+  { n: "Primeros auxilios", c: "Salud",    i: "heart",    k: "#ff8a70" },
+
+  // Casa y oficios
+  { n: "Cocina",         c: "Casa",        i: "coffee",   k: "#f5d76e" },
+  { n: "Repostería",     c: "Casa",        i: "coffee",   k: "#f0a5c0" },
+  { n: "Jardinería",     c: "Casa",        i: "plant",    k: "#8fd18a" },
+  { n: "Botánica",       c: "Casa",        i: "plant",    k: "#5fe0b0" },
+  { n: "Carpintería",    c: "Casa",        i: "wrench",   k: "#f5d76e" },
+  { n: "Reparaciones",   c: "Casa",        i: "wrench",   k: "#9aa7b8" },
+  { n: "Costura",        c: "Casa",        i: "pen",      k: "#b7a2ea" },
+  { n: "Mecánica",       c: "Casa",        i: "wrench",   k: "#9aa7b8" },
+  { n: "Electrónica",    c: "Casa",        i: "bolt",     k: "#6fc3e8" },
+
+  // Creatividad
+  { n: "Dibujo",         c: "Creatividad", i: "brush",    k: "#b7a2ea" },
+  { n: "Pintura",        c: "Creatividad", i: "brush",    k: "#f0a5c0" },
+  { n: "Fotografía",     c: "Creatividad", i: "camera",   k: "#6fc3e8" },
+  { n: "Escritura",      c: "Creatividad", i: "pen",      k: "#f5d76e" },
+  { n: "Caligrafía",     c: "Creatividad", i: "pen",      k: "#9aa7b8" },
+  { n: "Guitarra",       c: "Creatividad", i: "music",    k: "#ff8a70" },
+  { n: "Piano",          c: "Creatividad", i: "music",    k: "#eaf1ef" },
+  { n: "Canto",          c: "Creatividad", i: "mic",      k: "#f0a5c0" },
+  { n: "Cerámica",       c: "Creatividad", i: "gem",      k: "#f5d76e" },
+  { n: "Vídeo",          c: "Creatividad", i: "camera",   k: "#b7a2ea" },
+
+  // Aprendizaje
+  { n: "Idiomas",        c: "Aprendizaje", i: "globe",    k: "#6fc3e8" },
+  { n: "Programación",   c: "Aprendizaje", i: "code",     k: "#5fe0b0" },
+  { n: "Lectura",        c: "Aprendizaje", i: "book",     k: "#f5d76e" },
+  { n: "Astronomía",     c: "Aprendizaje", i: "star",     k: "#b7a2ea" },
+  { n: "Ajedrez",        c: "Aprendizaje", i: "crown",    k: "#9aa7b8" },
+  { n: "Historia",       c: "Aprendizaje", i: "book",     k: "#f5d76e" },
+  { n: "Oratoria",       c: "Aprendizaje", i: "mic",      k: "#ff8a70" },
+
+  // Vida adulta
+  { n: "Finanzas",       c: "Vida adulta", i: "coin",     k: "#5fe0b0" },
+  { n: "Negociación",    c: "Vida adulta", i: "chart",    k: "#f5d76e" },
+  { n: "Organización",   c: "Vida adulta", i: "map",      k: "#9aa7b8" },
+  { n: "Cata de vinos",  c: "Vida adulta", i: "coffee",   k: "#f0a5c0" },
+  { n: "Barismo",        c: "Vida adulta", i: "coffee",   k: "#f5d76e" },
+
+  // Aire libre
+  { n: "Pesca",          c: "Aire libre",  i: "target",   k: "#6fc3e8" },
+  { n: "Senderismo",     c: "Aire libre",  i: "compass",  k: "#8fd18a" },
+  { n: "Supervivencia",  c: "Aire libre",  i: "flame",    k: "#ff8a70" },
+  { n: "Buceo",          c: "Aire libre",  i: "target",   k: "#6fc3e8" },
+  { n: "Orientación",    c: "Aire libre",  i: "compass",  k: "#f5d76e" }
+];
+
+let catalogoSel = new Set();
+let seleccionHab = null;   // null = fuera del modo selección
+
+function nuevaHabilidad(nombre, categoria, icono, color) {
+  return {
+    id: uid(), name: nombre, category: categoria, icon: icono, color: color,
+    xp: 0, log: [], permanent: false, graceDays: 7, decayPerDay: 10,
+    lastActivity: null, createdAt: todayKey()
+  };
+}
+
+function openCatalogo() {
+  catalogoSel = new Set();
+  renderCatalogo();
+  showView("catalog");
+}
+
+function toggleCatalogo(nombre) {
+  if (catalogoSel.has(nombre)) catalogoSel.delete(nombre);
+  else catalogoSel.add(nombre);
+  renderCatalogo();
+}
+
+function toggleCatalogoCat(cat) {
+  const dentro = SKILL_CATALOG.filter(x => x.c === cat && !yaTengo(x.n));
+  const todas = dentro.every(x => catalogoSel.has(x.n));
+  dentro.forEach(x => todas ? catalogoSel.delete(x.n) : catalogoSel.add(x.n));
+  renderCatalogo();
+}
+
+function yaTengo(nombre) {
+  return state.skills.some(s => s.name.toLowerCase() === nombre.toLowerCase());
+}
+
+function renderCatalogo() {
+  const cats = [...new Set(SKILL_CATALOG.map(x => x.c))];
+  const n = catalogoSel.size;
+  document.getElementById("catalog-content").innerHTML = `
+    <p class="settings-note" style="padding:0 4px 4px">
+      Añade las que te interese seguir, aunque sea en cero. Ver una habilidad
+      sin empezar es media idea: te recuerda que existe. Las que no quieras
+      se quitan cuando quieras.
+    </p>
+    ${cats.map(cat => {
+      const dentro = SKILL_CATALOG.filter(x => x.c === cat);
+      const libres = dentro.filter(x => !yaTengo(x.n));
+      return `
+      <div class="cat-group">
+        <div class="cat-head">
+          <h3>${escapeHtml(cat)}</h3>
+          ${libres.length ? `<button class="cat-all" onclick="toggleCatalogoCat('${escapeAttr(cat)}')">
+            ${libres.every(x => catalogoSel.has(x.n)) ? "Quitar todas" : "Todas"}
+          </button>` : `<span class="cat-done">ya las tienes</span>`}
+        </div>
+        <div class="cat-grid">
+          ${dentro.map(x => {
+            const tengo = yaTengo(x.n);
+            const sel = catalogoSel.has(x.n);
+            return `
+            <button class="cat-chip ${tengo ? "tengo" : ""} ${sel ? "sel" : ""}"
+              ${tengo ? "disabled" : `onclick="toggleCatalogo('${escapeAttr(x.n)}')"`}>
+              <span class="cc-ic" style="background:${x.k}26;color:${x.k}">${icon(x.i, 18)}</span>
+              <span class="cc-n">${escapeHtml(x.n)}</span>
+              ${tengo ? `<span class="cc-ok">✓</span>` : `<span class="cc-box">${sel ? "✓" : ""}</span>`}
+            </button>`;
+          }).join("")}
+        </div>
+      </div>`;
+    }).join("")}
+    <div class="cat-bar">
+      <button class="btn btn-ghost" onclick="showView('home')">Cancelar</button>
+      <button class="btn btn-primary" ${n ? "" : "disabled"} onclick="añadirDelCatalogo()">
+        ${n ? `Añadir ${n} habilidad${n === 1 ? "" : "es"}` : "Elige alguna"}
+      </button>
+    </div>`;
+}
+
+function añadirDelCatalogo() {
+  const elegidas = SKILL_CATALOG.filter(x => catalogoSel.has(x.n) && !yaTengo(x.n));
+  if (!elegidas.length) return;
+  elegidas.forEach(x => state.skills.push(nuevaHabilidad(x.n, x.c, x.i, x.k)));
+  save();
+  catalogoSel = new Set();
+  showView("home");
+  toast(`${elegidas.length} habilidad${elegidas.length === 1 ? "" : "es"} añadida${elegidas.length === 1 ? "" : "s"}`);
+}
+
+/* ---- Selección múltiple para quitar varias de golpe ---- */
+
+function toggleSeleccionHab() {
+  seleccionHab = seleccionHab ? null : new Set();
+  renderHome();
+}
+
+function toggleHabSel(id) {
+  if (!seleccionHab) return;
+  if (seleccionHab.has(id)) seleccionHab.delete(id);
+  else seleccionHab.add(id);
+  renderHome();
+}
+
+async function borrarSeleccionHab() {
+  if (!seleccionHab || !seleccionHab.size) return;
+  const n = seleccionHab.size;
+  const conXp = state.skills.filter(s => seleccionHab.has(s.id) && s.xp > 0).length;
+  const ok = await ask(
+    `Se van ${n} habilidad${n === 1 ? "" : "es"}` +
+    (conXp ? `, y ${conXp === 1 ? "una de ellas tiene" : `${conXp} de ellas tienen`} progreso registrado que se pierde` : "") +
+    ".\n\nEsto no se puede deshacer.",
+    `Borrar ${n === 1 ? "la habilidad" : "las " + n}`, true);
+  if (!ok) return;
+  // Las misiones que apuntaban a una habilidad borrada se quedan sin dueño,
+  // no se borran: la misión sigue siendo algo que el usuario hace.
+  state.missions.forEach(m => { if (seleccionHab.has(m.skillId)) m.skillId = null; });
+  state.perks.forEach(p => { if (seleccionHab.has(p.skillId)) p.skillId = null; });
+  state.skills = state.skills.filter(s => !seleccionHab.has(s.id));
+  seleccionHab = null;
+  save();
+  renderHome();
+  toast(`${n} habilidad${n === 1 ? "" : "es"} borrada${n === 1 ? "" : "s"}`);
 }
 
 function fmtXp(n) {
@@ -7495,7 +7900,7 @@ function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "norata-respaldo-" + todayKey() + ".json";
+  a.download = "notara-respaldo-" + todayKey() + ".json";
   a.click();
   URL.revokeObjectURL(a.href);
   toast("Respaldo exportado");
@@ -7924,7 +8329,7 @@ function renderSync() {
     '<label class="field"><span>Tu usuario de GitHub</span>' +
     '<input type="text" id="sync-owner" autocomplete="off" spellcheck="false" value="' + escapeAttr(sync.owner) + '" placeholder="mi-usuario"></label>' +
     '<label class="field"><span>Repositorio privado de datos</span>' +
-    '<input type="text" id="sync-repo" autocomplete="off" spellcheck="false" value="' + escapeAttr(sync.repo) + '" placeholder="norata-datos"></label>' +
+    '<input type="text" id="sync-repo" autocomplete="off" spellcheck="false" value="' + escapeAttr(sync.repo) + '" placeholder="notara-datos"></label>' +
     '<label class="field"><span>Token de acceso</span>' +
     '<input type="password" id="sync-token" autocomplete="off" spellcheck="false" placeholder="github_pat_…">' +
     '<div class="field-hint">Token de acceso personal con permiso de contenidos sobre ese repositorio y nada más. Se guarda solo en este navegador.</div></label>' +

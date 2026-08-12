@@ -1,4 +1,4 @@
-# Norata
+# Notara
 
 Tu vida como videojuego: misiones que haces hoy, habilidades que suben con la
 práctica, talentos que compras con dinero real y proyectos que avanzan por
@@ -33,7 +33,7 @@ no tiene servidor al que mandarlos.
 
 ### Puesta en marcha
 
-1. Crea un repositorio **privado** y vacío, por ejemplo `norata-datos`.
+1. Crea un repositorio **privado** y vacío, por ejemplo `notara-datos`.
    No hace falta añadirle nada: la app crea el archivo la primera vez.
 
 2. Genera un *fine-grained personal access token* en

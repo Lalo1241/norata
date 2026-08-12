@@ -7,7 +7,7 @@
 config.local.js
 
 # Respaldos exportados desde la app (contienen tus datos personales)
-norata-respaldo-*.json
+notara-respaldo-*.json
 mainquest-respaldo-*.json
 
 # Configuración local de herramientas
