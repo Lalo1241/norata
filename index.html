@@ -1820,28 +1820,82 @@
   }
 
   /* ---------- Toast ---------- */
+  /* ---------- Avisos ----------
+     Antes eran todos el mismo bloque verde con texto negro, dijeran lo que
+     dijeran: "+40 XP" y "El token expiró" se veían igual. Y ese verde
+     saturado, en un aviso que dura dos segundos, obliga a un esfuerzo de
+     lectura que no compensa.
+
+     Ahora el fondo es siempre oscuro —el mismo carbón que el resto de la
+     app, así que el aviso deja de ser una isla que obliga a reajustar la
+     vista— y el color vive en el borde y el icono. Cinco tonos, y la
+     duración también comunica: lo que ya sabías se va rápido, lo que hay
+     que leer se queda. */
   #toast {
     position: fixed;
     left: 50%;
     bottom: calc(110px + env(safe-area-inset-bottom));
-    transform: translateX(-50%) translateY(16px);
-    background: var(--mint);
-    color: #10151d;
-    padding: 12px 22px;
-    border-radius: 999px;
-    font-size: 13.5px;
-    font-weight: 700;
-    opacity: 0;
-    pointer-events: none;
-    transition: 0.25s;
+    transform: translateX(-50%);
     z-index: 100;
-    white-space: nowrap;
-    max-width: 90vw;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    box-shadow: 0 12px 32px rgba(95, 224, 176, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+    max-width: min(92vw, 420px);
   }
-  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(23, 30, 40, 0.97);
+    border: 1.5px solid var(--line);
+    border-left-width: 3px;
+    color: var(--text);
+    padding: 11px 15px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+    transition: opacity 0.22s ease, transform 0.22s cubic-bezier(.34,1.4,.64,1);
+    max-width: 100%;
+    pointer-events: auto;
+  }
+  .toast.show { opacity: 1; transform: translateY(0) scale(1); }
+  .t-ic { flex: none; display: inline-flex; color: var(--tc, var(--muted)); }
+  .t-ic svg {
+    width: 18px; height: 18px;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .t-tx { flex: 1; min-width: 0; }
+  .t-act {
+    flex: none;
+    background: none;
+    border: 1px solid var(--tc, var(--line));
+    color: var(--tc, var(--text));
+    border-radius: 999px;
+    padding: 4px 11px;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .t-act:active { background: rgba(255, 255, 255, 0.07); }
+
+  .toast.t-logro    { --tc: var(--mint);  border-left-color: var(--mint); }
+  .toast.t-hecho    { --tc: var(--faint); border-left-color: var(--faint); }
+  .toast.t-deshecho { --tc: var(--fire);  border-left-color: var(--fire); }
+  .toast.t-atencion { --tc: var(--coral); border-left-color: var(--coral); }
+  .toast.t-calma    { --tc: var(--muted); border-left-color: var(--muted); }
+  /* Solo el logro se permite brillar: es el único que celebra algo */
+  .toast.t-logro { box-shadow: 0 14px 34px rgba(0,0,0,.5), 0 0 0 1px rgba(95,224,176,.12); }
+
+  @media (prefers-reduced-motion: reduce) { .toast { transition: opacity 0.2s ease; transform: none; } }
 
   .sum-card.wide {
     width: 100%;
@@ -2593,8 +2647,8 @@
     }
     .modal-backdrop.show .modal-card { transform: none; }
 
-    #toast { bottom: 34px; left: auto; right: 34px; transform: translateY(16px); }
-    #toast.show { transform: translateY(0); }
+    /* En escritorio la pila se ancla a la esquina y crece hacia arriba */
+    #toast { bottom: 34px; left: auto; right: 34px; transform: none; align-items: flex-end; }
 
     /* La constelación aprovecha el ancho extra */
     /* Con ratón el desplazamiento no compite con ningún gesto, así que aquí
@@ -4095,7 +4149,7 @@ async function investPerk(id) {
   const p = state.perks.find(x => x.id === id);
   if (!p) return;
   const st = perkStatus(p);
-  if (st === "locked") { toast("Primero completa el requisito"); return; }
+  if (st === "locked") { toast("Primero completa el requisito", "atencion"); return; }
   if (st === "active" || st === "completed") return;
   const costTxt = p.cost > 0 ? `Costo: ${money(p.cost)}. ` : "";
   if (!await ask(`¿${p.instant ? "Comprar" : "Comenzar"} "${p.name}"? ${costTxt}${p.instant ? "Quedará asegurado de inmediato." : `Tendrás ${p.planDays} días para lograr la meta, registrando tu avance.`}`, p.instant ? "Comprar" : "Comenzar")) return;
@@ -4114,7 +4168,7 @@ async function investPerk(id) {
     p.startDate = todayKey();
     p.endDate = addDaysKey(p.startDate, p.planDays);
     p.history.unshift({ date: todayKey(), at: stamp(), event: `Inversión de ${money(p.cost)} — plan de ${p.planDays} días iniciado` });
-    toast(`Plan iniciado: ${p.planDays} días ⏱`);
+    toast(`Plan iniciado: ${p.planDays} días`, "logro");
   }
   save();
   renderPerkDetail();
@@ -4160,7 +4214,7 @@ async function failPerk(id) {
   p.status = "expired";
   p.history.unshift({ date: todayKey(), at: stamp(), event: "Plan vencido sin lograr la meta" });
   save();
-  toast(`El talento "${p.name}" se perdió. Puedes reintentarlo.`);
+  toast(`El talento "${p.name}" se perdió. Puedes reintentarlo.`, "atencion");
   renderPerkDetail();
   renderTree();
 }
@@ -4171,7 +4225,7 @@ function addProgress(id, n) {
   const before = p.progress || 0;
   p.progress = clamp(before + n, 0, 100);
   if (p.progress === before) {
-    toast(n > 0 ? "Ya estás al 100%" : "El avance ya está en 0%");
+    toast(n > 0 ? "Ya estás al 100%" : "El avance ya está en 0%", "calma");
     return;
   }
   p.history.unshift({
@@ -4182,9 +4236,9 @@ function addProgress(id, n) {
   save();
   renderPerkDetail();
   if (p.progress >= 100 && before < 100) {
-    toast("¡Llegaste al 100%! Confirma tu meta cuando quieras 🏁");
+    toast("¡Llegaste al 100%! Confirma tu meta cuando quieras", "logro");
   } else {
-    toast(`${p.name}: ${p.progress}%`);
+    toast(`${p.name}: ${p.progress}%`, "hecho");
   }
 }
 
@@ -4193,12 +4247,12 @@ function undoProgress(id) {
   const p = state.perks.find(x => x.id === id);
   if (!p || perkStatus(p) !== "active") return;
   const last = (p.history || []).find(e => e.undo);
-  if (!last) { toast("No hay avances que deshacer"); return; }
+  if (!last) { toast("No hay avances que deshacer", "atencion"); return; }
   p.progress = last.undo.from;
   p.history = p.history.filter(e => e !== last);
   save();
   renderPerkDetail();
-  toast(`Deshecho — vuelves a ${p.progress}%`);
+  toast(`Deshecho — vuelves a ${p.progress}%`, "deshecho");
 }
 
 function retryPerk(id) {
@@ -4297,12 +4351,12 @@ function logMission(id, delta) {
     if (st > 0 && st % 7 === 0) {
       celebrate(`${st} días seguidos`, m.name, m.color || "#5fe0b0", m.icon);
     } else {
-      toast(`${m.name} ✓${m.xp ? ` · +${m.xp} XP` : ""}${st > 1 ? ` · racha ${st}` : ""}`);
+      toast(`${m.name} cumplida${m.xp ? ` · +${m.xp} XP` : ""}${st > 1 ? ` · racha ${st}` : ""}`, "logro");
     }
   } else if (delta > 0) {
-    toast(`${m.name}: ${after} de ${target}`);
+    toast(`${m.name}: ${after} de ${target}`, "hecho");
   } else {
-    toast(`${m.name}: ${after} de ${target}`);
+    toast(`${m.name}: ${after} de ${target}`, "deshecho", { label: "Rehacer", onclick: `logMission('${m.id}', 1)` });
   }
 }
 
@@ -4344,7 +4398,7 @@ function guardarOrdenMisiones(ids) {
 function setMisionEdit(on) {
   misionEdit = on;
   renderMissions();
-  if (on) toast("Arrastra para reordenar tus misiones");
+  if (on) toast("Arrastra para reordenar tus misiones", "hecho");
 }
 
 function attachMisionOrden() {
@@ -4469,9 +4523,9 @@ function toggleStep(prId, stepId) {
   const prog = projectProgress(pr);
   renderProjectDetail();
   if (prog === 100 && s.done) {
-    toast("Todas las etapas listas — ciérralo cuando quieras 🏁");
+    toast("Todas las etapas listas — ciérralo cuando quieras", "logro");
   } else {
-    toast(`${pr.name}: ${prog}%`);
+    toast(`${pr.name}: ${prog}%`, "hecho");
   }
 }
 
@@ -4479,7 +4533,7 @@ async function addStepTo(prId) {
   const pr = state.projects.find(x => x.id === prId);
   const input = document.getElementById("detail-new-step");
   const name = input.value.trim();
-  if (!name) { toast("Escribe el nombre de la etapa"); return; }
+  if (!name) { toast("Escribe el nombre de la etapa", "atencion"); return; }
   pr.steps.push({ id: uid(), name, done: false, at: null });
   projectLog(pr, `Etapa añadida: ${name}`);
   save();
@@ -4521,7 +4575,7 @@ async function setProjectStatus(prId, status) {
     celebrate("Proyecto terminado", pr.name, pr.color || "#5fe0b0", pr.icon);
   } else {
     save();
-    toast({ active: "Proyecto retomado", paused: "Proyecto en pausa", dropped: "Proyecto descartado" }[status]);
+    toast({ active: "Proyecto retomado", paused: "Proyecto en pausa", dropped: "Proyecto descartado" }[status], status === "active" ? "hecho" : "deshecho");
   }
   renderProjectDetail();
 }
@@ -4569,14 +4623,14 @@ function setModulo(id, on) {
   state.ui = state.ui || {};
   const off = new Set(state.ui.modulosOff || []);
   if (on) off.delete(id); else off.add(id);
-  if (off.size >= MODULOS.length) { toast("Deja al menos un módulo encendido"); return; }
+  if (off.size >= MODULOS.length) { toast("Deja al menos un módulo encendido", "atencion"); return; }
   state.ui.modulosOff = [...off];
   save();
   aplicarModulos();
   renderModulos();
   if (!on && VISTA_MODULO[activeMainView] === id) showView("summary");
   else renderSummary();
-  toast(on ? `${MODULOS.find(m => m.id === id).label} vuelve al menú` : "Oculto · puedes traerlo de vuelta aquí");
+  toast(on ? `${MODULOS.find(m => m.id === id).label} vuelve al menú` : "Oculto · puedes traerlo de vuelta aquí", on ? "hecho" : "deshecho");
 }
 
 function renderModulos() {
@@ -5052,7 +5106,7 @@ function dashTray(hidden) {
 function setDashEdit(on) {
   dashEditing = on;
   renderSummary();
-  if (on) toast("Arrastra las tarjetas para reacomodarlas");
+  if (on) toast("Arrastra las tarjetas para reacomodarlas", "hecho");
 }
 
 function hideWidget(id) {
@@ -5060,7 +5114,7 @@ function hideWidget(id) {
   if (hidden.includes(id)) return;
   saveDash(order, [...hidden, id]);
   flipRender(document.getElementById("summary-content"), renderSummary);
-  toast(`${DASH_META[id].title} quitado del tablero`);
+  toast(`${DASH_META[id].title} quitado del tablero`, "deshecho");
 }
 
 function showWidget(id) {
@@ -5734,7 +5788,7 @@ function añadirDelCatalogo() {
   save();
   catalogoSel = new Set();
   showView("home");
-  toast(`${elegidas.length} habilidad${elegidas.length === 1 ? "" : "es"} añadida${elegidas.length === 1 ? "" : "s"}`);
+  toast(`${elegidas.length} habilidad${elegidas.length === 1 ? "" : "es"} añadida${elegidas.length === 1 ? "" : "s"}`, "logro");
 }
 
 /* ---- Selección múltiple para quitar varias de golpe ---- */
@@ -5769,7 +5823,7 @@ async function borrarSeleccionHab() {
   seleccionHab = null;
   save();
   renderHome();
-  toast(`${n} habilidad${n === 1 ? "" : "es"} borrada${n === 1 ? "" : "s"}`);
+  toast(`${n} habilidad${n === 1 ? "" : "es"} borrada${n === 1 ? "" : "s"}`, "deshecho");
 }
 
 function fmtXp(n) {
@@ -5900,7 +5954,7 @@ async function deleteBranch(kind, b) {
   }
   save();
   if (esTalentos) renderTree(); else renderProjects();
-  toast(`Rama "${b}" borrada`);
+  toast(`Rama "${b}" borrada`, "deshecho");
 }
 
 /* Etiqueta de rama reutilizable: el mismo concepto en todas las secciones. */
@@ -6594,11 +6648,11 @@ async function logActivity() {
   const after = levelInfo(s.xp).level;
   renderDetail();
   if (real === 0) {
-    toast(`Nivel máximo: práctica registrada, decaimiento frenado`);
+    toast(`Nivel máximo: práctica registrada, decaimiento frenado`, "logro");
   } else if (after > before) {
     celebrate(`Nivel ${after}`, `${s.name} sube de nivel`, s.color, s.icon);
   } else {
-    toast(`+${real} XP · práctica ${p.nivel}`);
+    toast(`+${real} XP · práctica ${p.nivel}`, "logro");
   }
 }
 
@@ -6624,7 +6678,7 @@ async function borrarHistSeleccion() {
   const s = state.skills.find(x => x.id === currentSkillId);
   if (!s) return;
   const idx = [...histSel].map(Number).sort((a, b) => a - b);
-  if (!idx.length) { toast("No hay nada marcado"); return; }
+  if (!idx.length) { toast("No hay nada marcado", "atencion"); return; }
   const neto = idx.reduce((a, i) => a + ((s.log[i] && s.log[i].xp) || 0), 0);
   if (!await ask(
     `Se quitarán ${idx.length} movimiento${idx.length === 1 ? "" : "s"} de ${s.name}` +
@@ -6808,7 +6862,7 @@ function focusBranchFront(b, silent) {
   const px = pos[target.id].x;
   const left = Math.max(0, px - wrap.clientWidth / 2);
   wrap.scrollTo({ left, behavior: silent ? "auto" : "smooth" });
-  if (!silent) toast(`Centrado en: ${target.name}`);
+  if (!silent) toast(`Centrado en: ${target.name}`, "hecho");
 }
 
 async function resetBranchLayout(b) {
@@ -6817,7 +6871,7 @@ async function resetBranchLayout(b) {
   branchNodes(b).forEach(n => { delete n.x; delete n.y; });
   save();
   renderTree();
-  toast("Talentos reacomodados · Ctrl+Z para deshacer");
+  toast("Talentos reacomodados", "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
 }
 
 function cssEscape(s) {
@@ -6948,12 +7002,12 @@ function pushUndo(etiqueta, snap) {
 }
 
 function undoEditor() {
-  if (!undoStack.length) { toast("No hay nada que deshacer"); return; }
+  if (!undoStack.length) { toast("No hay nada que deshacer", "atencion"); return; }
   const prev = undoStack.pop();
   state.perks = JSON.parse(prev.perks);
   save();
   renderTree();
-  toast(`Deshecho: ${prev.etiqueta}`);
+  toast(`Deshecho: ${prev.etiqueta}`, "deshecho");
 }
 
 /* Al salir del editor la pila se vacía: deshacer un movimiento de hace tres
@@ -7012,7 +7066,7 @@ function crearTalentoRapido(branch, tipo, pos) {
   state.perks.push(nuevo);
   save();
   renderTree();
-  toast(`${t.nombre} creado · ábrelo para ponerle nombre`);
+  toast(`${t.nombre} creado · ábrelo para ponerle nombre`, "hecho");
 }
 
 /* Copia el PLAN, no lo logrado: el duplicado nace sin progreso, sin dinero
@@ -7047,7 +7101,7 @@ function duplicarTalento(id, pos) {
   state.perks.push(copia);
   save();
   renderTree();
-  toast(`Duplicado: ${copia.name}`);
+  toast(`Duplicado: ${copia.name}`, "hecho");
 }
 
 function ctxDuplicar(id) {
@@ -7201,7 +7255,7 @@ function toggleEditBranch(b) {
     editBranch = null;
     clearUndo();   // deshacer un cambio de hace tres sesiones sorprendería más de lo que ayuda
     renderTree();
-    toast("Listo, modo edición cerrado");
+    toast("Listo, modo edición cerrado", "hecho");
     return;
   }
   editBranch = b;
@@ -7209,7 +7263,7 @@ function toggleEditBranch(b) {
   fijarPosiciones(b);
   save();
   renderTree();
-  toast(isDesktop() ? "Edición: Q, W y E crean · C para salir" : "Modo edición: arrastra y conecta");
+  toast(isDesktop() ? "Edición: Q, W y E crean · C para salir" : "Modo edición: arrastra y conecta", "hecho");
 }
 
 /* ================= Constelación =================
@@ -7591,7 +7645,7 @@ function removeLink(childId) {
   c.requiresId = null;
   save();
   renderTree();
-  toast("Conexión eliminada · Ctrl+Z para deshacer");
+  toast("Conexión eliminada", "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
 }
 
 /* Arrastrar el lienzo para recorrerlo fuera del modo edición. Solo con
@@ -7787,13 +7841,13 @@ function attachEditHandlers(scope) {
       });
       if (toId && toId !== curId) {
         if (isDescendant(toId, curId)) {
-          toast("Esa conexión crearía un bucle");
+          toast("Esa conexión crearía un bucle", "atencion");
         } else {
           const t = state.perks.find(x => x.id === toId);
           pushUndo("conectar dos talentos", snapAntes);
           t.requiresId = curId;
           save();
-          toast(`Conectado: ${t.name} requiere el anterior`);
+          toast(`Conectado: ${t.name} requiere el anterior`, "hecho");
         }
       }
     }
@@ -8014,7 +8068,7 @@ function togglePermFields() {
 
 function saveSkill() {
   const name = document.getElementById("f-name").value.trim();
-  if (!name) { toast("Ponle un nombre a la habilidad"); return; }
+  if (!name) { toast("Ponle un nombre a la habilidad", "atencion"); return; }
   const category = document.getElementById("f-cat").value.trim();
   const permanent = document.getElementById("f-perm").checked;
   const graceDays = Math.max(1, parseInt(document.getElementById("f-grace").value) || 7);
@@ -8051,7 +8105,7 @@ async function deleteSkill() {
   for (const p of state.perks) if (p.skillId === editingSkillId) p.skillId = null;
   currentSkillId = null;
   save();
-  toast("Habilidad eliminada");
+  toast("Habilidad eliminada", "deshecho");
   showView("home");
 }
 
@@ -8116,7 +8170,7 @@ function togglePerkTypeFields() {
 
 function savePerk() {
   const name = document.getElementById("p-name").value.trim();
-  if (!name) { toast("Ponle un nombre al talento"); return; }
+  if (!name) { toast("Ponle un nombre al talento", "atencion"); return; }
   const branch = document.getElementById("p-branch").value.trim() || "General";
   const desc = document.getElementById("p-desc").value.trim();
   const mini = document.getElementById("p-mini").checked;
@@ -8172,7 +8226,7 @@ async function deletePerk() {
   for (const other of state.perks) if (other.requiresId === editingPerkId) other.requiresId = null;
   currentPerkId = null;
   save();
-  toast("Talento eliminado");
+  toast("Talento eliminado", "deshecho");
   showView("tree");
 }
 
@@ -8264,7 +8318,7 @@ async function deleteMission() {
   if (!await ask(`¿Eliminar la misión "${m.name}" y su historial de rachas?`, "Eliminar", true)) return;
   state.missions = state.missions.filter(x => x.id !== editingMissionId);
   save();
-  toast("Misión eliminada");
+  toast("Misión eliminada", "deshecho");
   showView("missions");
 }
 
@@ -8334,7 +8388,7 @@ function removeFormStep(i) {
 
 function saveProject() {
   const name = document.getElementById("pr-name").value.trim();
-  if (!name) { toast("Ponle un nombre al proyecto"); return; }
+  if (!name) { toast("Ponle un nombre al proyecto", "atencion"); return; }
   const branch = document.getElementById("pr-branch").value.trim() || "General";
   const desc = document.getElementById("pr-desc").value.trim();
   const skillId = document.getElementById("pr-skill").value || null;
@@ -8378,7 +8432,7 @@ async function deleteProject() {
   state.projects = state.projects.filter(x => x.id !== editingProjectId);
   currentProjectId = null;
   save();
-  toast("Proyecto eliminado");
+  toast("Proyecto eliminado", "deshecho");
   showView("projects");
 }
 
@@ -8491,7 +8545,7 @@ function toggleArea(id) {
   const i = onboardPick.areas.indexOf(id);
   if (i >= 0) onboardPick.areas.splice(i, 1);
   else if (onboardPick.areas.length < 4) onboardPick.areas.push(id);
-  else { toast("Cuatro es suficiente para empezar"); return; }
+  else { toast("Cuatro es suficiente para empezar", "atencion"); return; }
   renderOnboarding();
 }
 
@@ -8847,7 +8901,7 @@ function importData(input) {
       showView("summary");
       toast("Respaldo importado");
     } catch (e) {
-      toast("El archivo no es un respaldo válido");
+      toast("El archivo no es un respaldo válido", "atencion");
     } finally {
       input.value = "";
     }
@@ -8861,7 +8915,7 @@ async function resetAll() {
   state = { skills: [], perks: [], projects: [], missions: [], settings: { timezone: userTZ() } };
   save();
   showView("summary");
-  toast("Datos borrados");
+  toast("Datos borrados", "deshecho");
 }
 
 /* ================= Sincronía entre dispositivos =================
@@ -9133,7 +9187,7 @@ async function syncOnce(opts) {
     if (!w.ok) throw ghError(w);
     sync.sha = w.body.content.sha; sync.rev = env.rev;
     sync.dirty = false; sync.lastAt = env.updatedAt; saveSync();
-    if (!opts.silent) toast("Listo: tu progreso ya está en GitHub");
+    if (!opts.silent) toast("Listo: tu progreso ya está en GitHub", "logro");
     return;
   }
 
@@ -9169,7 +9223,7 @@ async function syncOnce(opts) {
 
   if (!sync.dirty) {
     sync.lastAt = new Date().toISOString(); saveSync();
-    if (!opts.silent) toast("Todo al día");
+    if (!opts.silent) toast("Todo al día", "calma");
     return;
   }
 
@@ -9186,7 +9240,7 @@ async function syncRun(opts) {
   opts = opts || {};
   if (!syncReady() || syncBusy) return;
   if (navigator.onLine === false) {
-    if (!opts.silent) toast("Sin conexión: se subirá cuando vuelva");
+    if (!opts.silent) toast("Sin conexión: se subirá cuando vuelva", "calma");
     return;
   }
   syncBusy = true; syncError = null; renderSync();
@@ -9274,7 +9328,7 @@ async function syncConnect() {
   const repo = document.getElementById("sync-repo").value.trim();
   const token = document.getElementById("sync-token").value.trim();
   const device = document.getElementById("sync-device").value.trim();
-  if (!owner || !repo || !token) { toast("Falta usuario, repositorio o token"); return; }
+  if (!owner || !repo || !token) { toast("Falta usuario, repositorio o token", "atencion"); return; }
 
   sync.owner = owner; sync.repo = repo; sync.token = token;
   sync.device = device || guessDeviceName();
@@ -9294,7 +9348,7 @@ async function syncDisconnect() {
   saveSync();
   syncError = null;
   renderSync();
-  toast("Dispositivo desconectado");
+  toast("Dispositivo desconectado", "deshecho");
 }
 
 /* ================= Utilidades ================= */
@@ -9334,13 +9388,55 @@ function planLabel(days) {
   return days + " días";
 }
 
-let toastTimer = null;
-function toast(msg) {
-  const el = document.getElementById("toast");
-  el.textContent = msg;
-  el.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+/* ================= Avisos =================
+   Cinco tonos, porque no todo lo que la app dice significa lo mismo.
+   Los iconos son de trazo, del mismo juego que el catálogo de habilidades:
+   nada de caracteres de texto, que dependen de la fuente del sistema y se
+   ven distintos en cada aparato. */
+const TOAST_TIPOS = {
+  // Ganaste algo: XP, nivel, racha, un talento cerrado
+  logro: { ms: 2600, icon: '<path d="M12 3.5l1.9 4.4 4.6.4-3.5 3 1.1 4.5L12 13.4 7.9 15.8 9 11.3 5.5 8.3l4.6-.4z"/><path d="M18.5 16.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z"/>' },
+  // Se guardó, se creó, se sincronizó
+  hecho: { ms: 2200, icon: '<path d="M4.5 12.5l5 5L19.5 6.5"/>' },
+  // Quitaste, cortaste, revertiste: ni error ni celebración
+  deshecho: { ms: 3000, icon: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a5 5 0 010 10h-2"/>' },
+  // No se pudo, falta algo, se alcanzó un límite
+  atencion: { ms: 4500, icon: '<path d="M10.3 3.9L2.6 17.2A2 2 0 004.3 20.2h15.4a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 16.4v.2"/>' },
+  // Descanso, sin conexión, nada que hacer: nube y zzz
+  calma: { ms: 3500, icon: '<path d="M4.5 19h8.2a3.1 3.1 0 100-6.2 4.4 4.4 0 00-8.3.9A2.7 2.7 0 004.5 19z"/><path d="M13.8 3.2h4.4l-4.4 4.6h4.4"/><path d="M19.4 9.6h2.9l-2.9 3h2.9"/>' }
+};
+
+let toastSeq = 0;
+
+function toast(msg, tipo, accion) {
+  const cont = document.getElementById("toast");
+  if (!cont) return;
+  const t = TOAST_TIPOS[tipo] || TOAST_TIPOS.hecho;
+
+  /* Se apilan hasta tres en vez de pisarse. Antes, dos acciones seguidas
+     hacían desaparecer el primer aviso sin que nadie lo leyera. */
+  while (cont.children.length >= 3) cont.firstElementChild.remove();
+
+  const id = "tst" + (++toastSeq);
+  const el = document.createElement("div");
+  el.className = "toast t-" + (TOAST_TIPOS[tipo] ? tipo : "hecho");
+  el.id = id;
+  el.innerHTML =
+    `<span class="t-ic"><svg viewBox="0 0 24 24">${t.icon}</svg></span>` +
+    `<span class="t-tx">${escapeHtml(msg)}</span>` +
+    (accion ? `<button class="t-act" onclick="cerrarToast('${id}');${accion.onclick}">${escapeHtml(accion.label)}</button>` : "");
+  cont.appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+
+  // Si hay algo que pulsar, hay que dar tiempo real a verlo y decidir
+  setTimeout(() => cerrarToast(id), accion ? Math.max(t.ms, 6000) : t.ms);
+}
+
+function cerrarToast(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove("show");
+  setTimeout(() => el.remove(), 240);
 }
 
 /* ================= Arranque ================= */
