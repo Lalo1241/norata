@@ -2007,19 +2007,54 @@
     color: var(--fire);
     font-variant-numeric: tabular-nums;
   }
+  /* Deshacer: ahora es una etiqueta dentro de la misión, con flecha de
+     retroceso. El círculo con "−" pegado a la racha se leía como restar la
+     racha, que es justo lo contrario de lo que hace. */
   .ms-undo {
-    width: 26px; height: 26px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     border-radius: 999px;
     border: 1px solid var(--line);
-    background: transparent;
-    color: var(--faint);
-    cursor: pointer;
+    background: var(--bg2);
+    color: var(--muted);
     font-family: inherit;
-    font-size: 15px;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 9px 3px 7px;
+    cursor: pointer;
     line-height: 1;
-    padding: 0;
   }
-  .ms-undo:active { color: var(--coral); border-color: var(--coral); }
+  .ms-undo svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+  .ms-undo:active, .ms-undo:hover { color: var(--coral); border-color: var(--coral); }
+
+  /* Sacudida al deshacer algo ya logrado */
+  @keyframes sacudida {
+    0%, 100% { transform: translateX(0); }
+    15% { transform: translateX(-8px); }
+    32% { transform: translateX(7px); }
+    50% { transform: translateX(-5px); }
+    68% { transform: translateX(3px); }
+    85% { transform: translateX(-2px); }
+  }
+  .app.sacude { animation: sacudida 0.44s cubic-bezier(.36,.07,.19,.97); }
+  @media (prefers-reduced-motion: reduce) { .app.sacude { animation: none; } }
+
+  /* Modo orden de misiones */
+  .hint-hold { font-size: 10.5px; color: var(--faint); }
+  .ms-list.editing .ms-card {
+    cursor: grab;
+    border-style: dashed;
+    animation: wiggle 2.4s ease-in-out infinite;
+  }
+  .ms-list.editing .ms-card:nth-child(even) { animation-delay: -1.2s; }
+  /* En modo orden la tarjeta entera es un asa: sus botones no deben
+     dispararse al arrastrarla. */
+  .ms-list.editing .ms-check,
+  .ms-list.editing .ms-body,
+  .ms-list.editing .ms-undo { pointer-events: none; }
+  .ms-list.editing .ms-card.dragging { opacity: 0.6; border-color: var(--mint); animation: none; }
+  @media (prefers-reduced-motion: reduce) { .ms-list.editing .ms-card { animation: none; } }
 
   .seg { display: flex; gap: 7px; }
   .seg button {
@@ -4248,6 +4283,9 @@ function logMission(id, delta) {
       if (s) removeXp(s, m.xp, `Misión revertida: ${m.name}`, `Misión · ${m.name}`);
     }
     if (m.cadence === "once") { m.completedAt = null; m.archived = false; }
+    // Deshacer algo ya logrado merece notarse: sin esto, quitar una misión
+    // cumplida y quitar una a medias se sentían exactamente igual.
+    sacudirPantalla();
   }
   save();
   renderMissions();
@@ -4266,6 +4304,95 @@ function logMission(id, delta) {
   } else {
     toast(`${m.name}: ${after} de ${target}`);
   }
+}
+
+/* ---- Sacudida ----
+   Se aplica a .app y no a body porque las capas fijas (menú, modales) no
+   deben moverse: lo que se sacude es el contenido, no la interfaz entera. */
+function sacudirPantalla() {
+  const app = document.querySelector(".app");
+  if (!app) return;
+  app.classList.remove("sacude");
+  void app.offsetWidth;                 // reinicia la animación
+  app.classList.add("sacude");
+  setTimeout(() => app.classList.remove("sacude"), 480);
+  if (userHasTapped && navigator.vibrate) navigator.vibrate([18, 40, 18]);
+}
+
+/* ================= Orden de las misiones =================
+   Pulsación sostenida de un segundo para entrar en modo orden, igual que el
+   tablero del Resumen. Un segundo es el umbral que separa "quiero moverla"
+   de "he tocado sin querer". */
+let misionEdit = false;
+
+function ordenarMisiones(lista) {
+  const orden = (state.ui && state.ui.misionOrden) || [];
+  return [...lista].sort((a, b) => {
+    const ia = orden.indexOf(a.id), ib = orden.indexOf(b.id);
+    return (ia < 0 ? 1e9 : ia) - (ib < 0 ? 1e9 : ib);
+  });
+}
+
+function guardarOrdenMisiones(ids) {
+  state.ui = state.ui || {};
+  const previo = state.ui.misionOrden || [];
+  // Las que no están en pantalla ahora conservan su sitio relativo
+  state.ui.misionOrden = [...ids, ...previo.filter(id => !ids.includes(id))];
+  save();
+}
+
+function setMisionEdit(on) {
+  misionEdit = on;
+  renderMissions();
+  if (on) toast("Arrastra para reordenar tus misiones");
+}
+
+function attachMisionOrden() {
+  const cont = document.getElementById("ms-pend");
+  if (!cont) return;
+  let hold = null, dragId = null, desde = null;
+
+  cont.addEventListener("pointerdown", (e) => {
+    const card = e.target.closest(".ms-card");
+    if (!card) return;
+    if (misionEdit) {
+      dragId = card.dataset.mid;
+      card.classList.add("dragging");
+      try { cont.setPointerCapture(e.pointerId); } catch (err) {}
+      e.preventDefault();
+      return;
+    }
+    desde = { x: e.clientX, y: e.clientY };
+    hold = setTimeout(() => { hold = null; setMisionEdit(true); }, 1000);
+  });
+
+  cont.addEventListener("pointermove", (e) => {
+    // Si el dedo se desplaza, era scroll y no una pulsación sostenida
+    if (hold && desde && Math.hypot(e.clientX - desde.x, e.clientY - desde.y) > 10) {
+      clearTimeout(hold); hold = null;
+    }
+    if (!dragId) return;
+    e.preventDefault();
+    const bajo = document.elementFromPoint(e.clientX, e.clientY);
+    const sobre = bajo && bajo.closest(".ms-card");
+    if (!sobre || sobre.dataset.mid === dragId) return;
+    const cards = [...cont.querySelectorAll(".ms-card")];
+    const actual = cards.find(c => c.dataset.mid === dragId);
+    if (!actual) return;
+    const i = cards.indexOf(actual), j = cards.indexOf(sobre);
+    if (j < i) cont.insertBefore(actual, sobre);
+    else cont.insertBefore(actual, sobre.nextSibling);
+  });
+
+  const fin = () => {
+    if (hold) { clearTimeout(hold); hold = null; }
+    if (!dragId) return;
+    guardarOrdenMisiones([...cont.querySelectorAll(".ms-card")].map(c => c.dataset.mid));
+    dragId = null;
+    renderMissions();
+  };
+  cont.addEventListener("pointerup", fin);
+  cont.addEventListener("pointercancel", fin);
 }
 
 function todayMissionStats() {
@@ -5825,7 +5952,7 @@ function renderMissions() {
     const skill = m.skillId ? state.skills.find(s => s.id === m.skillId) : null;
     const col = m.color || "#5fe0b0";
     return `
-    <div class="ms-card ${ok ? "done" : ""}" style="--mc:${col}">
+    <div class="ms-card ${ok ? "done" : ""}" data-mid="${m.id}" style="--mc:${col}">
       <button class="ms-check" onclick="logMission('${m.id}', 1)" aria-label="Cumplir ${escapeAttr(m.name)}" ${ok ? "disabled" : ""}>
         ${ok
           ? `<svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>`
@@ -5838,11 +5965,18 @@ function renderMissions() {
           ${m.xp ? `<span>+${m.xp} XP</span>` : ""}
           ${m.cadence === "weekly" ? `<span>${(m.days || []).map(d => DAY_NAMES[d]).join(" ")}</span>` : ""}
           ${m.cadence === "once" ? `<span>una vez</span>` : ""}
+          ${/* Deshacer vive DENTRO de la misión, junto a sus datos. Estaba
+                pegado a la llama de la racha, donde el signo "−" se leía
+                como "bájame la racha" en vez de "quita una vez de hoy". */
+            c > 0 ? `<button class="ms-undo" onclick="event.stopPropagation();logMission('${m.id}', -1)"
+              aria-label="Deshacer una vez de ${escapeAttr(m.name)}" title="Deshacer la última vez">
+              <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a5 5 0 010 10h-2"/></svg>
+              Deshacer${t > 1 ? ` (${c}→${c - 1})` : ""}
+            </button>` : ""}
         </div>
       </div>
       <div class="ms-side">
         ${st > 0 ? `<span class="ms-streak">${icon("flame", 13)}${st}</span>` : ""}
-        ${c > 0 ? `<button class="ms-undo" onclick="logMission('${m.id}', -1)" aria-label="Quitar una">−</button>` : ""}
       </div>
     </div>`;
   };
@@ -5870,7 +6004,7 @@ function renderMissions() {
         { n: bestStreak, t: "Mejor racha" }
       ],
       focus: next
-        ? { k: "Lo siguiente", v: next.name, color: "var(--mint)", onclick: `logMission('${next.id}', 1)` }
+        ? { k: "Lo siguiente para hoy", v: next.name, color: "var(--mint)", onclick: `logMission('${next.id}', 1)` }
         : (due.length
           ? { k: "Día completo", v: "Todas las misiones cumplidas ✓", color: "var(--mint)" }
           : { k: "Sin misiones hoy", v: "Crea una o descansa", color: "var(--muted)" })
@@ -5878,8 +6012,13 @@ function renderMissions() {
 
     ${pending.length ? `
     <div class="panel">
-      <h3>Pendientes de hoy</h3>
-      <div class="ms-list">${pending.map(card).join("")}</div>
+      <div class="panel-head">
+        <h3 style="margin:0">Pendientes de hoy</h3>
+        ${misionEdit
+          ? `<button class="btn btn-primary" style="padding:7px 16px;font-size:13px" onclick="setMisionEdit(false)">Listo</button>`
+          : `<span class="hint-hold">Mantén pulsada una para reordenar</span>`}
+      </div>
+      <div class="ms-list ${misionEdit ? "editing" : ""}" id="ms-pend">${ordenarMisiones(pending).map(card).join("")}</div>
     </div>` : ""}
 
     ${finished.length ? `
@@ -5907,6 +6046,7 @@ function renderMissions() {
         </div>`).join("")}</div>
     </div>` : ""}`;
   playRings(el);
+  attachMisionOrden();
 }
 
 /* ================= Render: proyectos ================= */
