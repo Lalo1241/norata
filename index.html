@@ -982,6 +982,22 @@
   }
   .quick-xp button.selected .xp { color: var(--mint); }
 
+  /* Sellos del historial: qué tipo de práctica fue, o de dónde vino la XP */
+  .history-item .tag {
+    display: inline-block;
+    margin-left: 7px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--muted);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px 8px;
+    vertical-align: 1px;
+  }
+  .history-item .tag.src { color: var(--mint); border-color: rgba(95, 224, 176, 0.35); background: var(--mint-soft); }
+
   .history-item {
     display: flex;
     justify-content: space-between;
@@ -3172,7 +3188,7 @@ let editingPerkId = null;
 let currentProjectId = null;
 let editingProjectId = null;
 let activeCategory = "Todas";
-let selectedQuickXp = 25;
+let selectedQuickXp = 40;   // la práctica moderada, valor medio de PRACTICAS
 let activeMainView = "summary";
 let lastDetailPct = 0;
 
@@ -3688,18 +3704,17 @@ function motifScene(w, h, seed, motif, accent) {
    diaria de 20 XP se llegaba al máximo en cinco meses, y una habilidad que
    se termina en un semestre no representa haber aprendido nada.
 
-   Ahora son ~40.000 XP. El primer nivel sigue cayendo en menos de una
-   semana —si los primeros días no premian, nadie llega al segundo— pero el
-   último tramo cuesta 17.800 XP él solo.
+   Un primer intento con factor 1.8 se pasó al otro lado: ~40.000 XP en
+   total dejaban al usuario de uso ligero a once años del máximo, y una meta
+   inalcanzable desmotiva igual que una regalada. El equilibrio no está en
+   hacerlo largo, está en que se note el avance todo el tiempo.
 
-   El factor 1.8 salió de simular perfiles, no de elegirlo a ojo: con 1.62
-   un usuario intenso (40 XP diarios y un talento al mes) tocaba el máximo
-   en once meses, que es justo lo que había que evitar. Con 1.8 ni el perfil
-   más exigente baja de dos años y medio. Nivel 10 es maestría: debe ser
-   raro. El recorrido que la mayoría vivirá es del 1 al 8, y ese llega en
-   torno al año. */
+   Factor 1.5 y ~10.200 XP. Medido: uso normal 1,7 años al máximo; ligero
+   2,9; el nivel 8 —que es donde vive la mayoría— cae antes del año incluso
+   con poco uso. El primer nivel sigue llegando en cinco días, porque si los
+   primeros días no premian nadie llega al segundo. */
 function xpForLevel(level) {
-  return Math.round(90 * Math.pow(1.8, level) / 5) * 5;
+  return Math.round(90 * Math.pow(1.5, level) / 5) * 5;
 }
 
 function totalXpForLevel(level) {
@@ -3766,6 +3781,25 @@ function playRings(container) {
 
 /* ================= Decaimiento ================= */
 
+/* Cuánto puede quitar el desgaste como mucho: lo ganado en los cinco días
+   con actividad más recientes. Se mide contra el ritmo real de esa persona
+   y no contra una cifra inventada, así que a quien practica poco le duele
+   poco y a quien practica mucho le duele en proporción. */
+function techoDeDesgaste(s) {
+  const porDia = new Map();
+  (s.log || []).forEach(e => {
+    if (e.xp > 0) porDia.set(e.date, (porDia.get(e.date) || 0) + e.xp);
+  });
+  const recientes = [...porDia.keys()].sort().reverse().slice(0, 5);
+  const cincoDias = recientes.reduce((a, k) => a + porDia.get(k), 0) || (s.decayPerDay || 10) * 5;
+  /* Segundo techo, y es el que de verdad salva: nunca más de una cuarta
+     parte de lo que tienes. Sin él, una habilidad cuyo historial sea una
+     sola entrada grande podía quedarse en cero de una tacada, que es
+     exactamente el golpe que esto pretende evitar. */
+  const cuarto = Math.ceil(s.xp * 0.25);
+  return Math.max(1, Math.min(cincoDias, cuarto));
+}
+
 function applyDecay() {
   const today = todayKey();
   let changed = false;
@@ -3790,6 +3824,12 @@ function applyDecay() {
         const idle = daysBetween(last, cursor);
         if (idle > s.graceDays) lost += porDia;
       }
+      /* Techo del castigo: por muchos meses que pasen, el abandono nunca
+         cuesta más de lo que ganaste en tus últimos cinco días activos.
+         Volver y encontrarse el trabajo de un año evaporado no corrige un
+         hábito, hace cerrar la app para siempre. */
+      const techo = techoDeDesgaste(s);
+      if (lost > techo) lost = techo;
       if (lost > 0) {
         const real = Math.min(lost, s.xp);
         s.xp -= real;
@@ -4056,7 +4096,7 @@ function grantPerkReward(p) {
   if (!p.skillId || !p.xpReward) return;
   const s = state.skills.find(x => x.id === p.skillId);
   if (!s) return;
-  addXp(s, p.xpReward, `Talento completado: ${p.name}`);
+  addXp(s, p.xpReward, `Talento completado: ${p.name}`, `Talento · ${p.name}`);
 }
 
 /* ================= Misiones =================
@@ -4114,7 +4154,7 @@ function logMission(id, delta) {
   if (nowDone && !wasDone) {
     if (m.skillId && m.xp) {
       const s = state.skills.find(x => x.id === m.skillId);
-      if (s) addXp(s, m.xp, `Misión cumplida: ${m.name}`);
+      if (s) addXp(s, m.xp, `Misión cumplida: ${m.name}`, `Misión · ${m.name}`);
     }
     if (m.cadence === "once") { m.completedAt = key; m.archived = true; }
   }
@@ -4123,7 +4163,7 @@ function logMission(id, delta) {
     // desmarcar varias veces en el día no infle la habilidad de gratis.
     if (m.skillId && m.xp) {
       const s = state.skills.find(x => x.id === m.skillId);
-      if (s) removeXp(s, m.xp, `Misión revertida: ${m.name}`);
+      if (s) removeXp(s, m.xp, `Misión revertida: ${m.name}`, `Misión · ${m.name}`);
     }
     if (m.cadence === "once") { m.completedAt = null; m.archived = false; }
   }
@@ -4266,7 +4306,7 @@ async function setProjectStatus(prId, status) {
     pr.completedAt = todayKey();
     if (pr.skillId && pr.xpReward) {
       const s = state.skills.find(x => x.id === pr.skillId);
-      if (s) addXp(s, pr.xpReward, `Proyecto terminado: ${pr.name}`);
+      if (s) addXp(s, pr.xpReward, `Proyecto terminado: ${pr.name}`, `Proyecto · ${pr.name}`);
     }
     save();
     celebrate("Proyecto terminado", pr.name, pr.color || "#5fe0b0", pr.icon);
@@ -5998,14 +6038,26 @@ function renderDetail() {
 
   const historyHtml = s.log.length === 0
     ? `<p class="settings-note" style="margin:0">Todavía no hay actividad registrada.</p>`
-    : s.log.slice(0, 30).map(e => `
+    : s.log.slice(0, 30).map(e => {
+        /* Cada movimiento dice de dónde salió: qué tipo de práctica fue y
+           cuánto duró si lo registraste a mano, o qué misión, talento o
+           proyecto lo trajo si vino de otro sitio. Un "+25 XP" suelto no
+           permite revisar nada. */
+        const horas = e.min ? (e.min >= 60 ? `${Math.round(e.min / 60 * 10) / 10} h` : `${e.min} min`) : null;
+        const sello = e.nivel ? `<span class="tag">${escapeHtml(e.nivel)}${horas ? ` · ${horas}` : ""}</span>` : "";
+        const origen = e.fuente ? `<span class="tag src">${escapeHtml(e.fuente)}</span>` : "";
+        return `
       <div class="history-item">
         <div class="note">
-          ${escapeHtml(e.note || "Práctica")}
-          <span class="when">${formatDate(e.date)}</span>
+          ${escapeHtml(e.note || "Práctica")}${sello}${origen}
+          <span class="when">${formatWhen(e)}</span>
         </div>
         <div class="gain ${e.xp < 0 ? "loss" : ""}">${e.xp > 0 ? "+" : ""}${e.xp} XP</div>
-      </div>`).join("");
+      </div>`;
+      }).join("") + `
+      <button class="btn btn-danger-ghost btn-block" style="margin-top:14px" onclick="borrarUltimosRegistros()">
+        Quitar los últimos ${Math.min(5, s.log.length)} movimientos
+      </button>`;
 
   const content = document.getElementById("detail-content");
   content.innerHTML = `
@@ -6021,11 +6073,18 @@ function renderDetail() {
     <div class="panel alt">
       <h3>Registrar práctica</h3>
       <div class="quick-xp" id="quick-xp">
-        ${[{xp:10,t:"~15 min"},{xp:25,t:"~1 hora"},{xp:60,t:"2 h +"}].map(o => `
+        ${PRACTICAS.map(o => `
           <button class="${o.xp === selectedQuickXp ? "selected" : ""}" onclick="selectQuickXp(${o.xp})">
-            <span class="xp">+${o.xp}</span><span class="t">${o.t}</span>
+            <span class="xp">+${o.xp}</span><span class="t">${o.etiqueta}</span>
           </button>`).join("")}
       </div>
+      ${(() => {
+        const usado = minutosHoy(s);
+        const resto = TOPE_MIN_DIA - usado;
+        if (resto <= 0) return `<p class="settings-note" style="margin:0 0 10px;color:var(--coral)">Registro cerrado por hoy: ya sumaste medio día de práctica en esta habilidad.</p>`;
+        if (usado > 0) return `<p class="settings-note" style="margin:0 0 10px">Hoy llevas ${Math.round(usado / 60 * 10) / 10} h registradas · te quedan ${Math.round(resto / 60 * 10) / 10} h.</p>`;
+        return "";
+      })()}
       <label class="field">
         <span>Nota (opcional)</span>
         <input type="text" id="log-note" placeholder="¿Qué hiciste? Ej. Terminé módulo 2 del curso" maxlength="120">
@@ -6111,12 +6170,34 @@ function selectQuickXp(xp) {
 }
 
 /* Suma XP respetando el tope del nivel máximo. Devuelve el XP realmente añadido. */
-function addXp(s, amount, note) {
+/* Los tres botones de registro manual.
+   Antes daban +10 por 15 min, +25 por una hora y +60 por dos: 40, 25 y 30
+   XP por hora. Premiaban PEOR la sesión larga que la corta, justo al revés
+   de lo que debe incentivar una app de hábitos. Ahora la tarifa es constante
+   (40 XP/hora) con un extra pequeño por sostener el esfuerzo. */
+const PRACTICAS = [
+  { xp: 10, min: 15,  etiqueta: "~15 min", nivel: "suave" },
+  { xp: 40, min: 60,  etiqueta: "~1 hora", nivel: "moderada" },
+  { xp: 85, min: 120, etiqueta: "2 h +",   nivel: "intensiva" }
+];
+
+/* Medio día. Nadie dedica doce horas a una sola habilidad, así que por
+   encima de esto lo que hay no es práctica sino registro inflado. */
+const TOPE_MIN_DIA = 720;
+
+function practicaDe(xp) { return PRACTICAS.find(p => p.xp === xp) || PRACTICAS[0]; }
+
+function minutosHoy(s) {
+  const hoy = todayKey();
+  return (s.log || []).reduce((a, e) => a + ((e.date === hoy && e.min) ? e.min : 0), 0);
+}
+
+function addXp(s, amount, note, fuente, extra) {
   const cap = totalXpForLevel(MAX_LEVEL);
   const real = Math.max(0, Math.min(amount, cap - s.xp));
   s.xp += real;
   s.lastActivity = todayKey();
-  s.log.unshift({ date: todayKey(), xp: real, note });
+  s.log.unshift(Object.assign({ date: todayKey(), at: stamp(), xp: real, note, fuente: fuente || null }, extra || {}));
   return real;
 }
 
@@ -6124,19 +6205,79 @@ function addXp(s, amount, note) {
    (p. ej. desmarcar una misión). No toca `lastActivity`: corregir un error
    de captura no es una sesión de práctica nueva, y no debe alimentar la
    racha ni el registro de actividad del día. */
-function removeXp(s, amount, note) {
+function removeXp(s, amount, note, fuente) {
   const real = Math.max(0, Math.min(amount, s.xp));
   s.xp -= real;
-  s.log.unshift({ date: todayKey(), xp: -real, note });
+  s.log.unshift({ date: todayKey(), at: stamp(), xp: -real, note, fuente: fuente || null });
   return real;
 }
 
-function logActivity() {
+/* ---- Registro abusivo ----
+   Pasarse del medio día no es "usar mucho la app": es inflar el número que
+   la app existe para medir. Se avisa, se cierra el registro por hoy, y solo
+   si se repite al día siguiente hay castigo — un error de un día no debería
+   costar nada. */
+function diasDeAbuso() {
+  state.ui = state.ui || {};
+  return state.ui.abusoDias || (state.ui.abusoDias = []);
+}
+
+function penalizarPorAbuso() {
+  let tocadas = 0;
+  state.skills.forEach(s => {
+    const nv = levelInfo(s.xp).level;
+    if (nv <= 0) return;                       // nunca por debajo de cero
+    const suelo = totalXpForLevel(nv - 1);
+    const perdido = s.xp - suelo;
+    if (perdido <= 0) return;
+    s.xp = suelo;
+    s.log.unshift({ date: todayKey(), at: stamp(), xp: -perdido, note: "Nivel retirado por registro abusivo", fuente: "Sistema" });
+    tocadas++;
+  });
+  return tocadas;
+}
+
+async function marcarAbuso(s) {
+  const hoy = todayKey();
+  const dias = diasDeAbuso();
+  const repetido = dias.includes(addDaysKey(hoy, -1));
+  if (!dias.includes(hoy)) dias.push(hoy);
+  state.ui.abusoDias = dias.slice(-6);
+
+  if (repetido) {
+    const n = penalizarPorAbuso();
+    save();
+    renderDetail();
+    await ask(
+      `Es el segundo día seguido registrando más de medio día de práctica en una sola habilidad.\n\n` +
+      `El sistema de habilidades solo sirve si refleja algo real, así que se retira un nivel completo en ${n === 1 ? "la habilidad que tenía" : `las ${n} habilidades que tenían`} nivel para recuperar.\n\n` +
+      `Ninguna baja de cero. Mañana puedes volver a registrar con normalidad.`,
+      "Entendido", true);
+    return;
+  }
+
+  save();
+  renderDetail();
+  await ask(
+    `Ya registraste el equivalente a medio día de práctica en ${s.name}.\n\n` +
+    `Por encima de ahí el número deja de significar lo que hiciste, así que el registro manual queda cerrado por hoy en esta habilidad.\n\n` +
+    `Si mañana vuelve a pasar, se retirará un nivel completo en todas tus habilidades.`,
+    "Entendido");
+}
+
+async function logActivity() {
   const s = state.skills.find(x => x.id === currentSkillId);
   if (!s) return;
+  const p = practicaDe(selectedQuickXp);
+  const yaHoy = minutosHoy(s);
+
+  if (yaHoy + p.min > TOPE_MIN_DIA) { await marcarAbuso(s); return; }
+
   const before = levelInfo(s.xp).level;
   const note = document.getElementById("log-note").value.trim();
-  const real = addXp(s, selectedQuickXp, note || (levelInfo(s.xp).level >= MAX_LEVEL ? "Práctica (nivel máximo)" : ""));
+  // El sello del historial ya dice el tipo y la duración: repetirlo en la
+  // nota dejaba "Práctica moderada · práctica moderada · 1 h".
+  const real = addXp(s, p.xp, note || "Práctica", null, { min: p.min, nivel: p.nivel });
   save();
   checkStreakMilestone();
   const after = levelInfo(s.xp).level;
@@ -6146,8 +6287,27 @@ function logActivity() {
   } else if (after > before) {
     celebrate(`Nivel ${after}`, `${s.name} sube de nivel`, s.color, s.icon);
   } else {
-    toast(`+${real} XP en ${s.name}`);
+    toast(`+${real} XP · práctica ${p.nivel}`);
   }
+}
+
+/* Deshacer los últimos movimientos: registrar de más por error es fácil, y
+   sin esto la única salida era editar la habilidad a mano. */
+async function borrarUltimosRegistros() {
+  const s = state.skills.find(x => x.id === currentSkillId);
+  if (!s || !s.log.length) { toast("No hay movimientos que quitar"); return; }
+  const n = Math.min(5, s.log.length);
+  const lote = s.log.slice(0, n);
+  const neto = lote.reduce((a, e) => a + (e.xp || 0), 0);
+  if (!await ask(
+    `Se van a quitar los últimos ${n} movimiento${n === 1 ? "" : "s"} de ${s.name}` +
+    (neto !== 0 ? `, y con ellos ${neto > 0 ? "restar" : "devolver"} ${Math.abs(neto)} XP.` : ".") +
+    `\n\nEsto no se puede deshacer.`, "Quitar", true)) return;
+  s.xp = Math.max(0, s.xp - neto);
+  s.log = s.log.slice(n);
+  save();
+  renderDetail();
+  toast(`${n} movimiento${n === 1 ? "" : "s"} quitado${n === 1 ? "" : "s"}`);
 }
 
 /* ================= Render: árbol ================= */
