@@ -982,6 +982,50 @@
   }
   .quick-xp button.selected .xp { color: var(--mint); }
 
+  /* Cuadro de descanso: borde neutro, no rojo. Recordar que hay que parar
+     no es lo mismo que avisar de un abuso, y no debe sonar igual. */
+  .modal-card.suave { border: 1.5px solid rgba(234, 241, 239, 0.28); }
+
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .icon-btn.sm { width: 34px; height: 34px; }
+  .icon-btn.sm svg { width: 16px; height: 16px; }
+  .icon-btn.on { border-color: var(--coral); color: var(--coral); }
+
+  /* ---------- Zona de decaimiento ---------- */
+  .decay-panel { border-color: rgba(255, 138, 112, 0.3); }
+  .dz-count {
+    font-size: 11px; font-weight: 800;
+    color: var(--coral); background: var(--coral-soft);
+    border-radius: 999px; padding: 3px 10px;
+  }
+  .dz-list { display: flex; flex-direction: column; gap: 7px; }
+  .dz-row {
+    display: flex; align-items: center; gap: 11px;
+    width: 100%; text-align: left;
+    background: var(--bg2); border: 1px solid var(--line);
+    border-radius: 13px; padding: 9px 12px;
+    font-family: inherit; color: var(--text); cursor: pointer;
+  }
+  .dz-row:active { border-color: var(--coral); }
+  .dz-ic { flex: none; width: 30px; height: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; }
+  .dz-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .dz-tx b { font-size: 13.5px; font-weight: 650; }
+  .dz-tx span { font-size: 11.5px; color: var(--muted); }
+  .dz-row .go { color: var(--faint); flex: none; }
+  .dz-mas { font-size: 11.5px; color: var(--faint); padding: 4px 2px 0; }
+
+  /* Modo selección del historial */
+  .history-item.selectable { cursor: pointer; padding-left: 4px; }
+  .history-item.picked { background: var(--mint-soft); border-radius: 10px; }
+  .hcheck {
+    flex: none; width: 20px; height: 20px; margin-right: 9px;
+    border-radius: 6px; border: 1.5px solid var(--line);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: var(--mint);
+    align-self: center;
+  }
+  .history-item.picked .hcheck { border-color: var(--mint); background: var(--mint-soft); }
+
   /* Sellos del historial: qué tipo de práctica fue, o de dónde vino la XP */
   .history-item .tag {
     display: inline-block;
@@ -2577,6 +2621,7 @@
     </div>
 
     <div id="home-hero"></div>
+    <div id="decay-zone"></div>
     <div class="hb-tools" id="hb-tools"></div>
     <div class="chips" id="chips"></div>
     <div id="skill-list"></div>
@@ -3781,6 +3826,44 @@ function playRings(container) {
 
 /* ================= Decaimiento ================= */
 
+/* ================= La curva de descenso =================
+   Es el espejo de la de crecimiento, y hasta ahora no lo era: se perdía una
+   cifra fija multiplicada a ojo por el nivel, que no respondía a ninguna
+   pregunta útil.
+
+   Regla nueva, en una frase: **abandonar una habilidad cuesta un nivel cada
+   45 días, estés donde estés**. Como cada nivel cuesta 1,5 veces más que el
+   anterior, el desgaste diario crece igual de rápido que el crecimiento —
+   2 XP/día en el nivel 1, 51 en el nivel 9— y la proporción se mantiene.
+
+   Esto no es solo elegancia: hace que "te quedan X días para bajar de
+   nivel" sea una cifra real y no una estimación, y por eso se puede enseñar
+   en pantalla sin mentirle a nadie.
+
+   Encima siguen los dos techos: nunca más de lo ganado en cinco días
+   activos, ni más de un cuarto de lo acumulado. Volver tras un verano fuera
+   duele, pero no borra el año. */
+const DIAS_POR_NIVEL_PERDIDO = 45;
+
+function desgasteDiario(s) {
+  const nv = levelInfo(s.xp).level;
+  const banda = xpForLevel(Math.max(0, nv - 1));   // lo que costó el nivel en el que estás
+  return Math.max(1, Math.round(banda / DIAS_POR_NIVEL_PERDIDO));
+}
+
+/* Días de abandono que faltan para caer un nivel completo. Cuenta desde
+   hoy: si la habilidad aún está en su periodo de gracia, esos días se
+   suman, porque durante la gracia no se pierde nada. */
+function diasParaBajarNivel(s) {
+  const nv = levelInfo(s.xp).level;
+  if (nv <= 0) return null;
+  const sobrante = s.xp - totalXpForLevel(nv);
+  const dias = Math.ceil(sobrante / desgasteDiario(s));
+  const ocioso = daysBetween(s.lastActivity || s.createdAt, todayKey());
+  const gracia = Math.max(0, (s.graceDays || 7) - ocioso);
+  return Math.max(1, dias) + gracia;
+}
+
 /* Cuánto puede quitar el desgaste como mucho: lo ganado en los cinco días
    con actividad más recientes. Se mide contra el ritmo real de esa persona
    y no contra una cifra inventada, así que a quien practica poco le duele
@@ -3814,8 +3897,7 @@ function applyDecay() {
          vacían un nivel 1 en nueve días y son ruido contra los 11.000 XP de
          un nivel 9. Escalarlo mantiene la regla honesta —lo que no se usa se
          pierde— en todo el recorrido, sin ensañarse al principio. */
-      const nivel = levelInfo(s.xp).level;
-      const porDia = Math.max(1, Math.round(s.decayPerDay * (1 + nivel * 0.6)));
+      const porDia = desgasteDiario(s);
       let lost = 0;
       let cursor = s.lastCheck;
       let guard = 4000;
@@ -4524,12 +4606,15 @@ function renderSummary() {
         <span class="tx"><b>${escapeHtml(p.name)}</b><span>El plan venció — confirma si lo lograste</span></span>
         <span class="go">→</span>
       </button>`),
-    ...decayingList.map(s => `
+    ...decayingList.map(s => {
+      const d = diasParaBajarNivel(s);
+      return `
       <button class="att-item" onclick="openDetail('${s.id}')">
         <span class="dot" style="background:var(--coral-soft);color:var(--coral)">${icon(s.icon, 17)}</span>
-        <span class="tx"><b>${escapeHtml(s.name)}</b><span>Perdiendo ${s.decayPerDay} XP al día — practica hoy</span></span>
+        <span class="tx"><b>${escapeHtml(s.name)}</b><span>−${desgasteDiario(s)} XP al día${d ? ` · a ${d} día${d === 1 ? "" : "s"} de bajar al nivel ${levelInfo(s.xp).level - 1}` : ""}</span></span>
         <span class="go">→</span>
-      </button>`)
+      </button>`;
+    })
   ];
   const stalledProjects = projects.filter(p => projectHealth(p).key === "stalled");
   stalledProjects.forEach(p => attention.push(`
@@ -5038,6 +5123,47 @@ function renderHome() {
     ],
     focus: hFocus
   });
+
+  /* Panel de lo que está decayendo. Antes solo se veía un número y el
+     nombre de una: no decía cuáles, ni cuánto queda, ni qué hacer. Ahora
+     lista hasta cinco con sus días reales para bajar de nivel, resume el
+     resto, y termina diciendo la única cosa que lo detiene. */
+  const zona = document.getElementById("decay-zone");
+  if (zona) {
+    if (!decayList.length) {
+      zona.innerHTML = "";
+    } else {
+      const orden = [...decayList].sort((a, b) => (diasParaBajarNivel(a) || 999) - (diasParaBajarNivel(b) || 999));
+      const visibles = orden.slice(0, 5);
+      const resto = orden.length - visibles.length;
+      zona.innerHTML = `
+      <div class="panel decay-panel">
+        <div class="panel-head">
+          <h3 style="margin:0">Perdiendo XP</h3>
+          <span class="dz-count">${orden.length}</span>
+        </div>
+        <div class="dz-list">
+          ${visibles.map(s => {
+            const d = diasParaBajarNivel(s);
+            const nv = levelInfo(s.xp).level;
+            return `
+            <button class="dz-row" onclick="openDetail('${s.id}')">
+              <span class="dz-ic" style="background:${s.color}22;color:${s.color}">${icon(s.icon, 15)}</span>
+              <span class="dz-tx">
+                <b>${escapeHtml(s.name)}</b>
+                <span>−${desgasteDiario(s)} XP al día${d ? ` · ${d} día${d === 1 ? "" : "s"} para caer al nivel ${nv - 1}` : ""}</span>
+              </span>
+              <span class="go">→</span>
+            </button>`;
+          }).join("")}
+          ${resto > 0 ? `<div class="dz-mas">y ${resto} habilidad${resto === 1 ? "" : "es"} más</div>` : ""}
+        </div>
+        <p class="settings-note" style="margin:12px 0 0">
+          Se detiene con registrar cualquier práctica, cumplir una misión enlazada o avanzar un talento o proyecto que la entrene. Con eso vuelve a contar desde cero su periodo de gracia.
+        </p>
+      </div>`;
+    }
+  }
 
   const cats = ["Todas", ...new Set(skills.map(s => s.category).filter(Boolean))];
   if (!cats.includes(activeCategory)) activeCategory = "Todas";
@@ -6038,7 +6164,7 @@ function renderDetail() {
 
   const historyHtml = s.log.length === 0
     ? `<p class="settings-note" style="margin:0">Todavía no hay actividad registrada.</p>`
-    : s.log.slice(0, 30).map(e => {
+    : s.log.slice(0, 30).map((e, i) => {
         /* Cada movimiento dice de dónde salió: qué tipo de práctica fue y
            cuánto duró si lo registraste a mano, o qué misión, talento o
            proyecto lo trajo si vino de otro sitio. Un "+25 XP" suelto no
@@ -6046,18 +6172,22 @@ function renderDetail() {
         const horas = e.min ? (e.min >= 60 ? `${Math.round(e.min / 60 * 10) / 10} h` : `${e.min} min`) : null;
         const sello = e.nivel ? `<span class="tag">${escapeHtml(e.nivel)}${horas ? ` · ${horas}` : ""}</span>` : "";
         const origen = e.fuente ? `<span class="tag src">${escapeHtml(e.fuente)}</span>` : "";
+        const marcado = histSel.has(String(i));
         return `
-      <div class="history-item">
+      <div class="history-item ${histSelMode ? "selectable" : ""} ${marcado ? "picked" : ""}"
+        ${histSelMode ? `onclick="marcarHist(${i})"` : ""}>
+        ${histSelMode ? `<span class="hcheck">${marcado ? "✓" : ""}</span>` : ""}
         <div class="note">
           ${escapeHtml(e.note || "Práctica")}${sello}${origen}
           <span class="when">${formatWhen(e)}</span>
         </div>
         <div class="gain ${e.xp < 0 ? "loss" : ""}">${e.xp > 0 ? "+" : ""}${e.xp} XP</div>
       </div>`;
-      }).join("") + `
-      <button class="btn btn-danger-ghost btn-block" style="margin-top:14px" onclick="borrarUltimosRegistros()">
-        Quitar los últimos ${Math.min(5, s.log.length)} movimientos
-      </button>`;
+      }).join("") + (histSelMode ? `
+      <div class="stack" style="margin-top:14px">
+        <button class="btn btn-danger-ghost btn-block" onclick="borrarHistSeleccion()">Quitar lo marcado (${histSel.size})</button>
+        <button class="btn btn-ghost btn-block" onclick="toggleHistSel()">Cancelar</button>
+      </div>` : "");
 
   const content = document.getElementById("detail-content");
   content.innerHTML = `
@@ -6095,7 +6225,13 @@ function renderDetail() {
     ${linkedToSkill(s)}
 
     <div class="panel">
-      <h3>Historial</h3>
+      <div class="panel-head">
+        <h3 style="margin:0">Historial</h3>
+        ${s.log.length ? `<button class="icon-btn sm ${histSelMode ? "on" : ""}" onclick="toggleHistSel()" aria-label="Seleccionar movimientos para quitar" title="Quitar movimientos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${BM_ICONS.bote}</svg>
+        </button>` : ""}
+      </div>
+      ${histSelMode ? `<p class="settings-note">Marca los movimientos que quieras quitar. Se devolverá su XP.</p>` : ""}
       ${historyHtml}
     </div>`;
   playRings(content);
@@ -6187,9 +6323,28 @@ const TOPE_MIN_DIA = 720;
 
 function practicaDe(xp) { return PRACTICAS.find(p => p.xp === xp) || PRACTICAS[0]; }
 
+/* Aviso de descanso, no de abuso: son cosas distintas y deben sonar
+   distinto. Ocho horas seguidas en una sola habilidad es dedicación, no
+   trampa, así que ni bloquea ni castiga — solo lo dice una vez al día y con
+   el borde neutro del cuadro, no el rojo del castigo. */
+const MIN_DESCANSO = 480;
+
 function minutosHoy(s) {
   const hoy = todayKey();
   return (s.log || []).reduce((a, e) => a + ((e.date === hoy && e.min) ? e.min : 0), 0);
+}
+
+/* El tope por habilidad evita inflar una; este evita inflar el día entero
+   repartiendo entre varias. Doce horas es el techo en ambos casos. */
+function minutosHoyGlobal() {
+  return state.skills.reduce((a, s) => a + minutosHoy(s), 0);
+}
+
+function avisoDescanso(msg) {
+  const card = document.querySelector("#modal .modal-card");
+  if (card) card.classList.add("suave");
+  return askBase(msg, false, "Sigo un rato", false, false, "Lo dejo por hoy")
+    .then(v => { if (card) card.classList.remove("suave"); return v; });
 }
 
 function addXp(s, amount, note, fuente, extra) {
@@ -6237,7 +6392,7 @@ function penalizarPorAbuso() {
   return tocadas;
 }
 
-async function marcarAbuso(s) {
+async function marcarAbuso(s, esGlobal) {
   const hoy = todayKey();
   const dias = diasDeAbuso();
   const repetido = dias.includes(addDaysKey(hoy, -1));
@@ -6259,9 +6414,10 @@ async function marcarAbuso(s) {
   save();
   renderDetail();
   await ask(
-    `Ya registraste el equivalente a medio día de práctica en ${s.name}.\n\n` +
-    `Por encima de ahí el número deja de significar lo que hiciste, así que el registro manual queda cerrado por hoy en esta habilidad.\n\n` +
-    `Si mañana vuelve a pasar, se retirará un nivel completo en todas tus habilidades.`,
+    (esGlobal
+      ? `Ya registraste medio día de práctica sumando todas tus habilidades.\n\nRepartirlo entre varias no cambia que el día tiene las horas que tiene, así que el registro manual queda cerrado por hoy.`
+      : `Ya registraste el equivalente a medio día de práctica en ${s.name}.\n\nPor encima de ahí el número deja de significar lo que hiciste, así que el registro manual queda cerrado por hoy en esta habilidad.`) +
+    `\n\nSi mañana vuelve a pasar, se retirará un nivel completo en todas tus habilidades.`,
     "Entendido");
 }
 
@@ -6270,8 +6426,23 @@ async function logActivity() {
   if (!s) return;
   const p = practicaDe(selectedQuickXp);
   const yaHoy = minutosHoy(s);
+  const yaGlobal = minutosHoyGlobal();
 
   if (yaHoy + p.min > TOPE_MIN_DIA) { await marcarAbuso(s); return; }
+  if (yaGlobal + p.min > TOPE_MIN_DIA) { await marcarAbuso(s, true); return; }
+
+  /* Cruzar las ocho horas en una sola habilidad: se avisa una vez al día y
+     se puede seguir. Descansar también forma parte de sostener un hábito. */
+  state.ui = state.ui || {};
+  if (yaHoy < MIN_DESCANSO && yaHoy + p.min >= MIN_DESCANSO && state.ui.descansoAvisado !== todayKey()) {
+    state.ui.descansoAvisado = todayKey();
+    save();
+    const sigue = await avisoDescanso(
+      `Llevas ocho horas dedicadas a ${s.name} hoy.\n\n` +
+      `Es un montón, y está muy bien. Solo un recordatorio: descansar no es tiempo perdido, es parte de que esto se sostenga mañana y pasado.\n\n` +
+      `Si quieres seguir un rato más, adelante.`);
+    if (!sigue) return;
+  }
 
   const before = levelInfo(s.xp).level;
   const note = document.getElementById("log-note").value.trim();
@@ -6291,23 +6462,42 @@ async function logActivity() {
   }
 }
 
-/* Deshacer los últimos movimientos: registrar de más por error es fácil, y
-   sin esto la única salida era editar la habilidad a mano. */
-async function borrarUltimosRegistros() {
+/* Deshacer movimientos concretos, no "los últimos cinco".
+   Borrar un bloque entero se llevaba por delante ganancias legítimas que
+   estaban entre medias del error; aquí se marca exactamente lo que sobra. */
+let histSelMode = false;
+let histSel = new Set();
+
+function toggleHistSel() {
+  histSelMode = !histSelMode;
+  histSel.clear();
+  renderDetail();
+}
+
+function marcarHist(i) {
+  const k = String(i);
+  if (histSel.has(k)) histSel.delete(k); else histSel.add(k);
+  renderDetail();
+}
+
+async function borrarHistSeleccion() {
   const s = state.skills.find(x => x.id === currentSkillId);
-  if (!s || !s.log.length) { toast("No hay movimientos que quitar"); return; }
-  const n = Math.min(5, s.log.length);
-  const lote = s.log.slice(0, n);
-  const neto = lote.reduce((a, e) => a + (e.xp || 0), 0);
+  if (!s) return;
+  const idx = [...histSel].map(Number).sort((a, b) => a - b);
+  if (!idx.length) { toast("No hay nada marcado"); return; }
+  const neto = idx.reduce((a, i) => a + ((s.log[i] && s.log[i].xp) || 0), 0);
   if (!await ask(
-    `Se van a quitar los últimos ${n} movimiento${n === 1 ? "" : "s"} de ${s.name}` +
-    (neto !== 0 ? `, y con ellos ${neto > 0 ? "restar" : "devolver"} ${Math.abs(neto)} XP.` : ".") +
+    `Se quitarán ${idx.length} movimiento${idx.length === 1 ? "" : "s"} de ${s.name}` +
+    (neto !== 0 ? `, y con ${idx.length === 1 ? "él" : "ellos"} se ${neto > 0 ? "restarán" : "devolverán"} ${Math.abs(neto)} XP.` : ".") +
     `\n\nEsto no se puede deshacer.`, "Quitar", true)) return;
+  const fuera = new Set(idx);
+  s.log = s.log.filter((_, i) => !fuera.has(i));
   s.xp = Math.max(0, s.xp - neto);
-  s.log = s.log.slice(n);
+  histSelMode = false;
+  histSel.clear();
   save();
   renderDetail();
-  toast(`${n} movimiento${n === 1 ? "" : "s"} quitado${n === 1 ? "" : "s"}`);
+  toast(`${idx.length} movimiento${idx.length === 1 ? "" : "s"} quitado${idx.length === 1 ? "" : "s"}`);
 }
 
 /* ================= Render: árbol ================= */
