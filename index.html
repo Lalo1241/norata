@@ -3719,6 +3719,7 @@ function load() {
   if (!Array.isArray(data.perks)) data.perks = [];
   if (!Array.isArray(data.projects)) data.projects = [];
   if (!Array.isArray(data.missions)) data.missions = [];
+  if (!Array.isArray(data.cajas)) data.cajas = [];
   if (!data.settings) data.settings = {};
   if (!data.settings.timezone) {
     try { data.settings.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
@@ -3740,6 +3741,12 @@ function load() {
     if (!s.color) s.color = COLORS[i % COLORS.length];
     if (!s.icon) s.icon = EMOJI_TO_ICON[s.emoji] || ICON_LIST[i % ICON_LIST.length];
   });
+  const idsDeTalento = new Set(data.perks.map(p => p.id));
+  data.cajas.forEach(c => {
+    if (!Array.isArray(c.perkIds)) c.perkIds = [];
+    c.perkIds = c.perkIds.filter(id => idsDeTalento.has(id));
+  });
+  data.cajas = data.cajas.filter(c => c.perkIds.length);
   data.perks.forEach((p, i) => {
     if (!p.icon) p.icon = ICON_LIST[(i * 5 + 3) % ICON_LIST.length];
     if (!p.color) p.color = COLORS[(i * 3 + 2) % COLORS.length];
@@ -4621,6 +4628,8 @@ function perkStatus(p) {
   if (p.status === "completed") return "completed";
   if (p.status === "expired") return "expired";
   if (p.status === "active") {
+    // Congelado dentro de una caja: el plazo no corre, así que no vence
+    if (p.congeladoEl) return "active";
     return daysBetween(todayKey(), p.endDate) < 0 ? "due" : "active";
   }
   return requisitosCumplidos(p) ? "available" : "locked";
@@ -4793,6 +4802,218 @@ function retryPerk(id) {
   p.status = null;
   save();
   investPerk(id);
+}
+
+
+/* ================= El ático =================
+   Un mapa que solo crece deja de servir. `branchNodes` no filtraba por
+   estado, así que un talento completado seguía dibujado para siempre: con
+   ocho no se nota, con tres años de uso una rama son sesenta nodos y ya no
+   se puede leer.
+
+   La salida NO es archivar al estilo de un gestor de tareas de equipo. Allí
+   la tarea es desechable y lo hecho estorba; aquí lo hecho ES el producto —
+   toda la app existe para que veas cuánto has avanzado— así que esconderlo
+   pelearía con su única razón de ser.
+
+   Así que el pasado se PLIEGA: se guarda en una caja, como en un ático. La
+   caja sigue en el mapa, dice lo que lleva dentro, se abre cuando quieras y
+   hereda los hilos que cruzaban su frontera, para que la rama nunca se corte
+   por la mitad. Y nunca la cierra el sistema: la cierras tú, rama por rama.
+
+   Una caja guarda el TRIMESTRE ENTERO, no solo lo terminado. Guardar solo lo
+   hecho dejaría lo demás flotando sin contexto, que es peor que no guardar
+   nada; por eso la caja también cuenta lo que lleva sin terminar. */
+
+function trimestreDe(key) {
+  const y = key.slice(0, 4);
+  const q = Math.ceil(+key.slice(5, 7) / 3);
+  return `${y}-T${q}`;
+}
+
+function tituloTrimestre(tid) {
+  const [y, t] = tid.split("-T");
+  return `${t}º trim. ${y}`;
+}
+
+/* A qué trimestre pertenece un talento: al de cuando se logró si ya está
+   logrado, y si no al de cuando se creó. Así lo que sigue pendiente desde
+   hace un año pertenece al trimestre en que lo pensaste, no al actual. */
+function trimestreDeTalento(p) {
+  return trimestreDe(p.completedAt || p.createdAt || todayKey());
+}
+
+function cajasDeRama(b) {
+  return (state.cajas || []).filter(c => c.branch === b);
+}
+
+function cajaDeTalento(id) {
+  return (state.cajas || []).find(c => !c.abierta && c.perkIds.includes(id));
+}
+
+/* Los trimestres que se pueden cerrar en una rama: los ya terminados que
+   todavía tengan algo suelto. El actual nunca — no se guarda un trimestre
+   en el que aún estás. */
+function trimestresGuardables(b) {
+  const ahora = trimestreDe(todayKey());
+  const cuenta = {};
+  state.perks.forEach(p => {
+    if ((p.branch || "General") !== b) return;
+    if (cajaDeTalento(p.id) || (state.cajas || []).some(c => c.perkIds.includes(p.id))) return;
+    const t = trimestreDeTalento(p);
+    if (t >= ahora) return;
+    cuenta[t] = (cuenta[t] || 0) + 1;
+  });
+  return Object.keys(cuenta).sort().map(t => ({ id: t, n: cuenta[t] }));
+}
+
+function talentosDelTrimestre(b, tid) {
+  return state.perks.filter(p =>
+    (p.branch || "General") === b &&
+    trimestreDeTalento(p) === tid &&
+    !(state.cajas || []).some(c => c.perkIds.includes(p.id)));
+}
+
+function resumenCaja(c) {
+  const dentro = c.perkIds.map(id => state.perks.find(p => p.id === id)).filter(Boolean);
+  const hechos = dentro.filter(p => p.status === "completed").length;
+  return { total: dentro.length, hechos, pendientes: dentro.length - hechos, dentro };
+}
+
+async function guardarTrimestre(b, tid) {
+  const dentro = talentosDelTrimestre(b, tid);
+  if (!dentro.length) return;
+  const hechos = dentro.filter(p => p.status === "completed").length;
+  const sueltos = dentro.length - hechos;
+  /* Se dice exactamente qué entra, y lo pendiente se nombra aparte: meter
+     trabajo vivo en el ático tiene que ser una decisión visible y no una
+     desaparición. */
+  const detalle = sueltos
+    ? `Entran ${hechos} hecho${hechos === 1 ? "" : "s"} y ${sueltos} sin terminar. Los plazos de lo pendiente se congelan mientras esté guardado.`
+    : `Entran ${hechos} talento${hechos === 1 ? "" : "s"}, todos hechos.`;
+  if (!await ask(`¿Guardar el ${tituloTrimestre(tid)} de "${b}" en el ático? ${detalle}`, "Guardar")) return;
+
+  dentro.forEach(p => {
+    // R7: lo que estaba en curso deja de correr mientras esté dentro
+    if (p.status === "active" && !p.congeladoEl) p.congeladoEl = todayKey();
+  });
+  state.cajas = state.cajas || [];
+  state.cajas.push({
+    id: uid(), branch: b, trimestre: tid, guardadoEl: todayKey(),
+    abierta: false, perkIds: dentro.map(p => p.id)
+  });
+  save();
+  renderTree();
+  toast(`${tituloTrimestre(tid)} guardado · ${dentro.length} talento${dentro.length === 1 ? "" : "s"}`, "hecho",
+    { label: "Abrir", onclick: `abrirCaja('${state.cajas[state.cajas.length - 1].id}')` });
+}
+
+/* Abrir no es una vista de solo lectura: lo de dentro vuelve a ser
+   exactamente lo que era, con su ficha, su historial y sus conexiones. La
+   caja se queda marcada como abierta para poder volver a cerrarla de un
+   toque, en vez de tener que rehacer el trimestre entero. */
+function abrirCaja(id) {
+  const c = (state.cajas || []).find(x => x.id === id);
+  if (!c || c.abierta) return;
+  c.abierta = true;
+  descongelarCaja(c);
+  save();
+  renderTree();
+  toast(`${tituloTrimestre(c.trimestre)} abierto`, "deshecho", { label: "Volver a guardar", onclick: `cerrarCaja('${c.id}')` });
+}
+
+function cerrarCaja(id) {
+  const c = (state.cajas || []).find(x => x.id === id);
+  if (!c || !c.abierta) return;
+  c.abierta = false;
+  c.guardadoEl = todayKey();
+  c.perkIds.forEach(pid => {
+    const p = state.perks.find(x => x.id === pid);
+    if (p && p.status === "active" && !p.congeladoEl) p.congeladoEl = todayKey();
+  });
+  save();
+  renderTree();
+  toast(`${tituloTrimestre(c.trimestre)} guardado de nuevo`, "hecho");
+}
+
+/* R7: el plazo se congela dentro de la caja. Al abrirla, la fecha límite se
+   corre tantos días como estuvo guardada — guardar ordena el mapa, no es un
+   movimiento sobre el compromiso. Si caducaran metas por guardarlas, el
+   ático sería una trampa y nadie lo usaría. */
+function descongelarCaja(c) {
+  c.perkIds.forEach(pid => {
+    const p = state.perks.find(x => x.id === pid);
+    if (!p || !p.congeladoEl) return;
+    const dias = daysBetween(p.congeladoEl, todayKey());
+    if (dias > 0 && p.endDate) p.endDate = addDaysKey(p.endDate, dias);
+    delete p.congeladoEl;
+  });
+}
+
+async function borrarCaja(id) {
+  const c = (state.cajas || []).find(x => x.id === id);
+  if (!c) return;
+  const { total, hechos } = resumenCaja(c);
+  if (!await ask(
+    `¿Borrar la caja del ${tituloTrimestre(c.trimestre)}? Se van sus ${total} talento${total === 1 ? "" : "s"} y no se puede deshacer. ` +
+    `El XP que dieron los ${hechos} logrado${hechos === 1 ? "" : "s"} se queda en tus habilidades.`,
+    "Borrar", true)) return;
+  const fuera = new Set(c.perkIds);
+  state.perks = state.perks.filter(p => !fuera.has(p.id));
+  // Quien los pedía deja de esperarlos, en vez de quedarse bloqueado a nada
+  state.perks.forEach(p => {
+    const r = requisitosDe(p);
+    if (r.some(id2 => fuera.has(id2))) p.requiere = r.filter(id2 => !fuera.has(id2));
+  });
+  state.cajas = state.cajas.filter(x => x.id !== id);
+  save();
+  renderTree();
+  toast(`Caja del ${tituloTrimestre(c.trimestre)} borrada`, "deshecho");
+}
+
+/* ---- La rama tal como se dibuja ----
+   Aquí ocurre R5. Una caja cerrada se comporta como un solo nodo: los hilos
+   entre dos talentos que están dentro viajan con ella, y los que cruzaban su
+   frontera se reenganchan a la caja. Es una contracción del grafo, y por eso
+   esta fase iba después de las conexiones: escribirla antes habría obligado
+   a programar la herencia de aristas dos veces, primero para un padre único
+   y luego para una lista. */
+function vistaDeRama(b) {
+  const todos = state.perks.filter(p => (p.branch || "General") === b);
+  const cerradas = cajasDeRama(b).filter(c => !c.abierta);
+  const dentroDe = new Map();
+  cerradas.forEach(c => c.perkIds.forEach(id => dentroDe.set(id, c.id)));
+
+  // A quién representa cada talento en el dibujo: a sí mismo, o a su caja
+  const rep = id => dentroDe.get(id) || id;
+
+  const nodos = [];
+  cerradas.forEach(c => {
+    const { total, hechos, pendientes } = resumenCaja(c);
+    // Los requisitos de la caja: los de sus miembros que apuntan fuera
+    const req = new Set();
+    c.perkIds.forEach(pid => {
+      const p = state.perks.find(x => x.id === pid);
+      if (!p) return;
+      requisitosDe(p).forEach(r => { const v = rep(r); if (v !== c.id) req.add(v); });
+    });
+    nodos.push({
+      id: c.id, esCaja: true, cajaId: c.id,
+      name: tituloTrimestre(c.trimestre),
+      resumen: pendientes ? `${hechos} hechos · ${pendientes} sin terminar` : `${total} guardados`,
+      todoHecho: pendientes === 0,
+      requiere: [...req], modo: "todos",
+      color: "#5fe0b0", icon: "box",
+      x: c.x, y: c.y
+    });
+  });
+  todos.forEach(p => {
+    if (dentroDe.has(p.id)) return;
+    const req = [...new Set(requisitosDe(p).map(rep))].filter(id => id !== p.id);
+    // Copia para dibujar: el original no se toca al traducir sus requisitos
+    nodos.push(Object.assign(Object.create(Object.getPrototypeOf(p)), p, { requiere: req }));
+  });
+  return nodos;
 }
 
 function grantPerkReward(p) {
@@ -6687,7 +6908,8 @@ const BM_ICONS = {
   reordenar: '<path d="M3 12a9 9 0 0115.5-6.2M21 12a9 9 0 01-15.5 6.2"/><path d="M18 3v5h-5M6 21v-5h5"/>',
   bote: '<path d="M4 7h16M10 11.5v6M14 11.5v6M6.5 7l.9 12.1a2 2 0 002 1.9h5.2a2 2 0 002-1.9L17.5 7M9.5 7V5.2a2 2 0 012-2h1a2 2 0 012 2V7"/>',
   expandir: '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/>',
-  copiar: '<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M6.5 15H5.2A2.2 2.2 0 013 12.8V5.2A2.2 2.2 0 015.2 3h7.6A2.2 2.2 0 0115 5.2v1.3"/>'
+  copiar: '<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M6.5 15H5.2A2.2 2.2 0 013 12.8V5.2A2.2 2.2 0 015.2 3h7.6A2.2 2.2 0 0115 5.2v1.3"/>',
+  caja: '<path d="M3 8.5L12 4l9 4.5v7L12 20l-9-4.5z"/><path d="M3 8.5L12 13l9-4.5M12 13v7"/>'
 };
 
 let openBranchMenu = null;
@@ -7602,10 +7824,14 @@ function renderTree() {
   }) + `<div class="sec-label">Tus ramas de talentos</div>`;
 
   branches.forEach((b, bi) => {
-    const nodes = perks.filter(p => (p.branch || "General") === b);
+    // Lo que se dibuja: talentos sueltos y cajas cerradas. La cuenta de la
+    // cabecera, en cambio, sigue siendo de talentos de verdad — una caja no
+    // es un talento y contarla como uno mentiría sobre el tamaño de la rama.
+    const nodes = branchNodes(b);
+    const reales = talentosDeRama(b);
     const collapsed = isCollapsed(b);
     const editing = editBranch === b;
-    const doneN = nodes.filter(n => n.status === "completed").length;
+    const doneN = reales.filter(n => n.status === "completed").length;
     const ba = escapeAttr(b);
 
     let body;
@@ -7627,7 +7853,7 @@ function renderTree() {
       </button>
       ${editing
         ? `<div class="const-hint edit">Arrastra los talentos para acomodarlos · tira del punto ▸ de la derecha hacia otro talento para conectarlos · toca una línea para quitarla${atajosLegend()}</div>`
-        : `<div class="const-legend"><span><b>◇</b> meta con plan</span><span><b>⬡</b> asegurado al pagar</span><span><b>○</b> mini-talento</span></div>${atajosLegend(true)}`}`;
+        : `<div class="const-legend"><span><b>◇</b> meta</span><span><b>⬡</b> compra</span><span><b>○</b> hito</span><span><b>Y/O</b> requisitos</span></div>${atajosLegend(true)}`}`;
     }
 
     html += `
@@ -7637,7 +7863,7 @@ function renderTree() {
           <svg viewBox="0 0 24 24"><path d="${collapsed ? "M9 6l6 6-6 6" : "M6 9l6 6 6-6"}"/></svg>
         </button>
         <h3 onclick="toggleBranch('${ba}')" style="cursor:pointer">${escapeHtml(b)}</h3>
-        <span class="count">${doneN} de ${nodes.length}</span>
+        <span class="count">${doneN} de ${reales.length}</span>
         <div class="bhead-btns">
           ${editing ? `
           <button class="badd solid on" onclick="toggleEditBranch('${ba}')" aria-label="Salir del modo edición" title="Salir de edición${isDesktop() ? " (C)" : ""}">
@@ -7653,7 +7879,15 @@ function renderTree() {
                 ? { title: "Terminar de editar", hint: "Vuelve al modo normal", icon: "lapiz", onclick: `toggleEditBranch('${ba}')` }
                 : { title: "Editar el mapa", hint: "Mueve y conecta los talentos", icon: "lapiz", onclick: `toggleEditBranch('${ba}')` }
             ]),
-            { title: "Borrar esta rama", hint: nodes.length === 0 ? "Está vacía" : (nodes.length === 1 ? "Se va también su único talento" : `Se van también sus ${nodes.length} talentos`), icon: "bote", danger: true, onclick: `deleteBranch('perks','${ba}')` }
+            /* Una entrada por trimestre cerrable, y ninguna opción de
+               cerrarlos todos de golpe: es justo el atajo que un día mueve
+               algo que no querías mover (R8). */
+            ...trimestresGuardables(b).map(t => ({
+              title: `Guardar el ${tituloTrimestre(t.id)}`,
+              hint: `${t.n} talento${t.n === 1 ? "" : "s"} al ático`,
+              icon: "caja", onclick: `guardarTrimestre('${ba}','${t.id}')`
+            })),
+            { title: "Borrar esta rama", hint: reales.length === 0 ? "Está vacía" : (reales.length === 1 ? "Se va también su único talento" : `Se van también sus ${reales.length} talentos`), icon: "bote", danger: true, onclick: `deleteBranch('perks','${ba}')` }
           ])}
           <button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>
         </div>
@@ -8043,6 +8277,21 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId) {
       ${tecla ? `<kbd>${tecla}</kbd>` : (icono ? `<span class="ctx-ic"><svg viewBox="0 0 24 24">${icono}</svg></span>` : "")}
     </button>`;
 
+  // Si el clic cayó sobre una caja del ático, manda ella
+  const caja = nodoId ? (state.cajas || []).find(c => c.id === nodoId) : null;
+  if (caja) {
+    const { total, hechos, pendientes } = resumenCaja(caja);
+    el.innerHTML =
+      `<div class="ctx-head">${escapeHtml(tituloTrimestre(caja.trimestre))}</div>` +
+      item("Abrir la caja", pendientes ? `${hechos} hechos y ${pendientes} sin terminar` : `${total} talentos guardados`,
+        "", `cerrarCtxMenu();abrirCaja('${escapeAttr(caja.id)}')`, BM_ICONS.caja) +
+      `<div class="ctx-sep"></div>` +
+      item("Borrar la caja", `Se van sus ${total} talento${total === 1 ? "" : "s"}`, "",
+        `cerrarCtxMenu();borrarCaja('${escapeAttr(caja.id)}')`, BM_ICONS.bote);
+    colocarCtxMenu(el, clientX, clientY);
+    return;
+  }
+
   // Si el clic cayó sobre un talento, sus acciones van primero
   const nodo = nodoId ? state.perks.find(p => p.id === nodoId) : null;
   const bloqueNodo = nodo ? (
@@ -8064,7 +8313,12 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId) {
     item(editando ? "Salir de edición" : "Editar el mapa", editando ? "Vuelve al modo normal" : "Mueve y conecta talentos", "C", `cerrarCtxMenu();toggleEditBranch('${escapeAttr(branch)}')`) +
     (undoStack.length ? item("Deshacer", undoStack[undoStack.length - 1].etiqueta, "Ctrl Z", `cerrarCtxMenu();undoEditor()`) : "");
 
-  // Se coloca en el cursor, pero sin salirse de la pantalla
+  colocarCtxMenu(el, clientX, clientY);
+}
+
+/* Se coloca en el cursor, pero sin salirse de la pantalla. Vive aparte
+   porque el menú de una caja del ático sale antes y también la necesita. */
+function colocarCtxMenu(el, clientX, clientY) {
   el.classList.add("show");
   const r = el.getBoundingClientRect();
   el.style.left = Math.min(clientX, window.innerWidth - r.width - 10) + "px";
@@ -8196,12 +8450,21 @@ function branchLayout(nodes) {
 /* Radio horizontal de cada figura: de ahí salen y entran las conexiones.
    El rombo mide más en diagonal que de lado, de ahí el √2. */
 function nodeRadius(p) {
+  if (p.esCaja) return CAJA_W / 2;
   const t = metaDe(p);
   return t.forma === "rombo" ? Math.round(t.radio * Math.SQRT2) : t.radio;
 }
 
+const CAJA_W = 104, CAJA_H = 52;
+
 function nodeShape(p, x, y, conf, fid) {
   const common = `fill="${conf.fill}" stroke="${conf.stroke}" stroke-width="2"${conf.sop ? ` stroke-opacity="${conf.sop}"` : ""}${conf.glow ? ` filter="url(#${fid})"` : ""}`;
+  /* La caja no es una figura más del juego: es un contenedor, y por eso es
+     un rectángulo de borde punteado. Que no se parezca a ningún tipo de
+     talento es justo lo que la hace legible de un vistazo. */
+  if (p.esCaja) {
+    return `<rect x="${x - CAJA_W / 2}" y="${y - CAJA_H / 2}" width="${CAJA_W}" height="${CAJA_H}" rx="11" stroke-dasharray="6 4" ${common}/>`;
+  }
   const t = metaDe(p);
   if (t.forma === "circulo") {
     return `<circle cx="${x}" cy="${y}" r="${t.radio}" ${common}/>`;
@@ -8252,6 +8515,7 @@ const TODOS_LOS_RUMBOS = ["e", "w", "n", "s", "ne", "se", "nw", "sw"];
    se le permiten los ocho rumbos; los demás respetan la gramática de salir
    por delante y entrar por detrás. */
 function rumbosDe(p, saliendo) {
+  if (p.esCaja) return saliendo ? SALIDAS : ENTRADAS;
   return tipoDe(p) === "hito" ? TODOS_LOS_RUMBOS : (saliendo ? SALIDAS : ENTRADAS);
 }
 
@@ -8281,6 +8545,11 @@ function radioPoligono(R, lados, giro, th) {
 function radioEnRumbo(p, rumbo) {
   const [vx, vy] = DIRS[rumbo];
   const th = Math.atan2(vy, vx);
+  if (p.esCaja) {
+    // Rectángulo: el radio en cada rumbo es el de su lado más cercano
+    const c = Math.abs(Math.cos(th)), sn = Math.abs(Math.sin(th));
+    return Math.min(c ? (CAJA_W / 2) / c : 1e9, sn ? (CAJA_H / 2) / sn : 1e9);
+  }
   const t = metaDe(p);
   if (t.forma === "circulo") return t.radio;
   if (t.forma === "hexagono") return radioPoligono(t.radio, 6, Math.PI / 6, th);
@@ -8328,9 +8597,12 @@ function constellation(nodes, key, editing) {
   order.forEach(n => {
     (childrenOf[n.id] || []).forEach(c => {
       const a = pos[n.id], b = pos[c.id];
-      const cst = perkStatus(c);
-      const done = c.status === "completed";
-      const inProgress = cst === "active" || cst === "due";
+      /* Una caja no tiene estado propio: cuenta como hecha si todo lo que
+         guarda está hecho, para que el hilo que llega a ella se lea igual
+         que el que llegaría a los talentos que representa. */
+      const cst = c.esCaja ? (c.todoHecho ? "completed" : "available") : perkStatus(c);
+      const done = c.esCaja ? c.todoHecho : c.status === "completed";
+      const inProgress = !c.esCaja && (cst === "active" || cst === "due");
       const lit = done || inProgress;
       const col = done ? (c.color || "#5fe0b0") : (inProgress ? "#f5d76e" : "#3d4a5c");
       const P = edgePath(a, b, n, c);
@@ -8363,8 +8635,25 @@ function constellation(nodes, key, editing) {
   });
 
   order.forEach(n => {
-    const st = perkStatus(n);
     const { x, y } = pos[n.id];
+
+    /* ---- La caja del ático ----
+       No pasa por el resto del dibujo porque no es un talento: no tiene
+       estado, ni tipo, ni icono propio. Lleva su periodo y lo que guarda
+       dentro, que es toda la información que hace falta para decidir si
+       merece la pena abrirla. */
+    if (n.esCaja) {
+      const cc = n.todoHecho ? "#5fe0b0" : "#f5d76e";
+      nds += `<g class="cnode caja" data-id="${n.id}" ${editing ? "" : `onclick="abrirCaja('${n.cajaId}')"`}>
+        ${nodeShape(n, x, y, { stroke: cc, fill: cc + "14" }, fid)}
+        <text x="${x}" y="${y - 4}" text-anchor="middle" font-size="12" font-weight="700" fill="${cc}">${escapeHtml(n.name)}</text>
+        <text x="${x}" y="${y + 12}" text-anchor="middle" font-size="9.5" fill="#8b99a5">${escapeHtml(n.resumen)}</text>
+        <text x="${x}" y="${y + CAJA_H / 2 + 15}" text-anchor="middle" font-size="9" fill="#5d6b77">${editing ? "clic derecho para borrarla" : "toca para abrirla"}</text>
+      </g>`;
+      return;
+    }
+
+    const st = perkStatus(n);
     const col = n.color || "#5fe0b0";
     const conf = {
       completed: { stroke: col, fill: col + "33", glow: true, badge: "#5fe0b0", mark: "check" },
@@ -8474,7 +8763,15 @@ const CANVAS_MAX_X = 2200, CANVAS_MAX_Y = 1400;
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 function isDesktop() { return window.matchMedia("(min-width: 900px)").matches; }
 
+/* Lo que se DIBUJA de una rama: los talentos sueltos más las cajas
+   cerradas como un nodo cada una. Los de dentro de una caja no salen: los
+   representa ella. Ver vistaDeRama. */
 function branchNodes(b) {
+  return vistaDeRama(b);
+}
+
+/* Y los talentos de verdad, para contar y para las listas. */
+function talentosDeRama(b) {
   return state.perks.filter(p => (p.branch || "General") === b);
 }
 
@@ -9336,7 +9633,7 @@ function savePerk() {
       history: [{ date: todayKey(), at: stamp(), event: `Talento creado en la rama ${branch}` }]
     };
     // Si la rama ya tiene posiciones fijadas a mano, el nuevo entra debajo
-    const hermanos = branchNodes(branch).filter(n => typeof n.x === "number");
+    const hermanos = talentosDeRama(branch).filter(n => typeof n.x === "number");
     if (hermanos.length) {
       const req = requiere.length ? state.perks.find(x => x.id === requiere[0]) : null;
       nuevo.x = req && typeof req.x === "number" ? req.x + 168 : Math.min(...hermanos.map(n => n.x));
