@@ -1502,6 +1502,7 @@
     color: var(--faint);
   }
   .keys .sep { font-style: normal; opacity: 0.5; }
+  .keys .gl { color: var(--muted); font-weight: 600; font-size: 12px; margin: 0 1px; }
   .keys kbd {
     font-family: inherit;
     font-size: 9.5px;
@@ -1524,9 +1525,17 @@
   }
   .const-wrap.editing { touch-action: none; cursor: grab; }
   /* Fuera de edicion los talentos tambien se agarran (solo para acomodarlos) */
-  .const-wrap:not(.editing) .cnode { cursor: grab; }
+  .const-wrap:not(.editing) .cnode { cursor: pointer; }
   .const-wrap:not(.editing) .cnode.caja { cursor: pointer; }
   .const-wrap.moviendo, .const-wrap.moviendo .cnode { cursor: grabbing; }
+  /* En el mapa no hay nada que seleccionar: los nombres de los talentos son
+     etiquetas de un dibujo, no texto que uno vaya a copiar. Poder marcarlos
+     solo dejaba media rama en azul al arrastrar. */
+  .const-wrap, .const-wrap * {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
   .const-wrap::-webkit-scrollbar { display: none; }
   .const-wrap svg { display: block; }
   .cnode { cursor: pointer; }
@@ -3649,6 +3658,7 @@ const TIPOS = {
        mas narrativa pero rompe la retícula de nodos, que necesita figuras
        con un radio predecible en cada rumbo. */
     forma: "circulo",
+    glifo: "○",
     radio: 17,
     tecla: "E"
   },
@@ -3660,6 +3670,7 @@ const TIPOS = {
     llevaPlan: false,
     // El hexagono: un hito es un logro cerrado, con peso propio en el camino
     forma: "hexagono",
+    glifo: "⬡",
     radio: 26,
     tecla: "Q"
   },
@@ -3670,6 +3681,7 @@ const TIPOS = {
     pideImporte: false,
     llevaPlan: true,
     forma: "rombo",
+    glifo: "◇",
     radio: 23,
     tecla: "W"
   }
@@ -7915,7 +7927,7 @@ function renderTree() {
       </button>
       ${editing
         ? `<div class="const-hint edit">Arrastra los talentos para acomodarlos · tira del punto ▸ de la derecha hacia otro talento para conectarlos · toca una línea para quitarla${atajosLegend()}</div>`
-        : `<div class="const-legend"><span><b>◇</b> meta</span><span><b>⬡</b> hito</span><span><b>○</b> compra</span></div>${atajosLegend(true)}`}`;
+        : atajosLegend(true)}`;
     }
 
     html += `
@@ -8182,7 +8194,12 @@ function fijarPosiciones(b) {
 function atajosLegend(compacta) {
   if (!isDesktop()) return "";
   const k = (t) => `<kbd>${t}</kbd>`;
-  const crear = `${k("Q")} hito<i class="sep">·</i>${k("W")} meta<i class="sep">·</i>${k("E")} compra`;
+  /* Tecla, figura y nombre juntos. Antes la figura vivia en una fila de
+     simbologia aparte y el nombre en la de atajos, asi que los tres tipos se
+     listaban dos veces y ninguna de las dos filas se bastaba sola. */
+  const crear = ["hito", "meta", "compra"]
+    .map(t => `${k(TIPOS[t].tecla)} <b class="gl">${TIPOS[t].glifo}</b> ${TIPOS[t].nombre.toLowerCase()}`)
+    .join('<i class="sep">·</i>');
   const partes = compacta
     ? [crear, `${k("C")} editar el mapa`, `clic derecho: crear, editar y pantalla completa`]
     : [crear, `${k("C")} salir de edición`, `${k("Ctrl")}${k("Z")} deshacer`,
@@ -8382,9 +8399,11 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId) {
     `<div class="ctx-head">Crear aquí</div>` +
     /* Los tres tipos con su tecla, en el mismo orden que el selector del
        formulario para que la mano aprenda una sola disposición. */
-    item(TIPOS.meta.nombre, "Se sostiene en el tiempo y avanza por etapas", "W", `ctxCrear('${escapeAttr(branch)}','meta')`) +
-    item(TIPOS.compra.nombre, "Una llave que se paga y abre el paso", "E", `ctxCrear('${escapeAttr(branch)}','compra')`) +
-    item(TIPOS.hito.nombre, "Una acción puntual que se cierra en sí misma", "Q", `ctxCrear('${escapeAttr(branch)}','hito')`) +
+    /* La figura acompana al nombre, igual que en la linea de ayuda: es la
+       misma pista en los dos sitios, asi que se aprende una sola vez. */
+    item(`${TIPOS.meta.glifo} ${TIPOS.meta.nombre}`, "Se sostiene en el tiempo y avanza por etapas", "W", `ctxCrear('${escapeAttr(branch)}','meta')`) +
+    item(`${TIPOS.compra.glifo} ${TIPOS.compra.nombre}`, "Una llave que se paga y abre el paso", "E", `ctxCrear('${escapeAttr(branch)}','compra')`) +
+    item(`${TIPOS.hito.glifo} ${TIPOS.hito.nombre}`, "Una acción puntual que se cierra en sí misma", "Q", `ctxCrear('${escapeAttr(branch)}','hito')`) +
     `<div class="ctx-sep"></div>` +
     item(editando ? "Salir de edición" : "Editar el mapa", editando ? "Vuelve al modo normal" : "Conecta y corta hilos", "C", `cerrarCtxMenu();toggleEditBranch('${escapeAttr(branch)}')`) +
     item("Ver en pantalla completa", "Recorre la rama con sitio de sobra", "", `cerrarCtxMenu();openBranchFullscreen('${escapeAttr(branch)}')`, BM_ICONS.expandir) +
@@ -8995,21 +9014,24 @@ function removeLink(par) {
   toast("Conexión eliminada", "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
 }
 
-/* Arrastrar el lienzo para recorrerlo fuera del modo edición. Solo con
-   ratón: en pantalla táctil el propio navegador ya desplaza (touch-action
-   se lo permite), y duplicarlo aquí haría que cada gesto contara doble. */
-/* Fuera de edición el lienzo se recorre arrastrando el fondo, y AHORA
-   también se acomodan los talentos arrastrándolos. Acomodar el mapa era la
-   cosa más inocente que se podía hacer con él y exigía entrar a un modo
-   aparte; conectar y cortar, que sí son destructivos, siguen ahí dentro.
+/* Fuera de edición el lienzo se recorre arrastrando el fondo, y los talentos
+   se acomodan arrastrándolos. Acomodar era la acción más inocente que se
+   podía hacer con el mapa y exigía entrar a un modo aparte; conectar y
+   cortar, que sí son destructivas, siguen ahí dentro.
+
+   Aquí el clic ya significa algo —abrir la ficha—, así que el arrastre no
+   puede dispararse por un temblor de la mano: hace falta MANTENER pulsado.
+   En el modo edición no hace falta porque allí el clic no abre nada, y por
+   eso ahí el arrastre sigue siendo inmediato.
 
    El gesto se decide por dónde empieza: sobre un talento lo mueve, sobre el
-   fondo recorre el lienzo. Y un talento solo se considera movido si el
-   puntero se desplaza de verdad — si no, abrir su ficha con un clic dejaría
-   de funcionar. */
+   fondo recorre el lienzo. */
+
+const ESPERA_ARRASTRE = 300;   // ms de pulsación sostenida sobre un talento
+
 function attachPanHandlers(scope) {
   (scope || document).querySelectorAll(".const-wrap:not(.editing)").forEach(wrap => {
-    let from = null, arrastrando = null;
+    let from = null, arrastrando = null, espera = null;
     const b = wrap.dataset.branch;
 
     const svgPt = (e) => {
@@ -9022,6 +9044,8 @@ function attachPanHandlers(scope) {
       };
     };
 
+    const cancelarEspera = () => { if (espera) { clearTimeout(espera); espera = null; } };
+
     wrap.addEventListener("pointerdown", (e) => {
       if (e.pointerType === "mouse" && e.button !== 0) return;
       const nodo = e.target.closest(".cnode");
@@ -9031,8 +9055,20 @@ function attachPanHandlers(scope) {
         const p = state.perks.find(x => x.id === nodo.dataset.id);
         if (!p) return;
         const pt = svgPt(e);
-        arrastrando = { id: p.id, dx: (p.x ?? pt.x) - pt.x, dy: (p.y ?? pt.y) - pt.y, desde: pt, movido: false };
+        arrastrando = { id: p.id, dx: (p.x ?? pt.x) - pt.x, dy: (p.y ?? pt.y) - pt.y, desde: pt, listo: false, movido: false };
         try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+        /* Evita que el navegador arranque una selección de texto sobre las
+           etiquetas del SVG: sin esto, arrastrar dejaba media rama en azul. */
+        e.preventDefault();
+        espera = setTimeout(() => {
+          espera = null;
+          if (!arrastrando) return;
+          arrastrando.listo = true;
+          fijarPosiciones(b);
+          pushUndo("mover un talento");
+          wrap.classList.add("moviendo");
+          if (userHasTapped && navigator.vibrate) navigator.vibrate(12);
+        }, ESPERA_ARRASTRE);
         return;
       }
       if (e.pointerType !== "mouse") return;
@@ -9044,18 +9080,19 @@ function attachPanHandlers(scope) {
     wrap.addEventListener("pointermove", (e) => {
       if (arrastrando) {
         const pt = svgPt(e);
+        if (!arrastrando.listo) {
+          /* Si el puntero se va antes de que la espera termine, el gesto era
+             otra cosa (recorrer el lienzo con el dedo, un roce) y no debe
+             acabar moviendo nada. */
+          if (Math.hypot(pt.x - arrastrando.desde.x, pt.y - arrastrando.desde.y) > 8) {
+            cancelarEspera();
+            arrastrando = null;
+          }
+          return;
+        }
         const p = state.perks.find(x => x.id === arrastrando.id);
         if (!p) return;
-        if (!arrastrando.movido) {
-          /* El umbral se mide contra donde EMPEZO el puntero, no contra la
-             posicion del talento: un talento sin coordenadas propias aun no
-             tiene contra que comparar, y la distancia salia siempre cero. */
-          if (Math.hypot(pt.x - arrastrando.desde.x, pt.y - arrastrando.desde.y) < 4) return;
-          arrastrando.movido = true;
-          fijarPosiciones(b);
-          pushUndo("mover un talento");
-          wrap.classList.add("moviendo");
-        }
+        arrastrando.movido = true;
         p.x = clamp(Math.round(pt.x + arrastrando.dx), 46, CANVAS_MAX_X);
         p.y = clamp(Math.round(pt.y + arrastrando.dy), 42, CANVAS_MAX_Y);
         wrap.innerHTML = constellation(branchNodes(b), 0, false);
@@ -9072,12 +9109,15 @@ function attachPanHandlers(scope) {
     });
 
     const fin = () => {
-      /* El paso de deshacer se apila solo cuando el talento se movio de
-         verdad, asi que si el gesto se queda en un clic no hay nada que
-         retirar de la pila. */
-      if (arrastrando && arrastrando.movido) {
-        save();
-        tragarProximoClic();      // soltar no debe abrir la ficha del que moviste
+      cancelarEspera();
+      if (arrastrando && arrastrando.listo) {
+        if (arrastrando.movido) save();
+        else undoStack.pop();       // se armó el arrastre pero no llegó a moverse
+        /* Soltar no debe abrir la ficha del que acabas de agarrar. Se marca
+           la hora y el filtro de clics que ya vive en el arranque se come el
+           siguiente; llamar aquí a una función propia era lo que fallaba,
+           porque esa desapareció al unificar el filtro. */
+        reordFin = Date.now();
       }
       arrastrando = null;
       from = null;
