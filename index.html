@@ -1523,6 +1523,10 @@
     border-top: 1px solid var(--line);
   }
   .const-wrap.editing { touch-action: none; cursor: grab; }
+  /* Fuera de edicion los talentos tambien se agarran (solo para acomodarlos) */
+  .const-wrap:not(.editing) .cnode { cursor: grab; }
+  .const-wrap:not(.editing) .cnode.caja { cursor: pointer; }
+  .const-wrap.moviendo, .const-wrap.moviendo .cnode { cursor: grabbing; }
   .const-wrap::-webkit-scrollbar { display: none; }
   .const-wrap svg { display: block; }
   .cnode { cursor: pointer; }
@@ -3640,8 +3644,12 @@ const TIPOS = {
     icono: "key",
     pideImporte: true,
     llevaPlan: false,
-    forma: "hexagono",
-    radio: 26,
+    /* El circulo pequeno: una compra es la pieza mas menuda del mapa, la
+       llave que abre el paso y se resuelve aparte. Una llave literal seria
+       mas narrativa pero rompe la retícula de nodos, que necesita figuras
+       con un radio predecible en cada rumbo. */
+    forma: "circulo",
+    radio: 17,
     tecla: "E"
   },
   hito: {
@@ -3650,8 +3658,9 @@ const TIPOS = {
     icono: "flag",
     pideImporte: false,
     llevaPlan: false,
-    forma: "circulo",
-    radio: 17,
+    // El hexagono: un hito es un logro cerrado, con peso propio en el camino
+    forma: "hexagono",
+    radio: 26,
     tecla: "Q"
   },
   meta: {
@@ -6996,6 +7005,7 @@ function closeBranchMenus() {
    burbujea hasta el documento y lo cierra en el acto. */
 function toggleBranchMenu(key, ev) {
   if (ev) ev.stopPropagation();
+  cerrarCtxMenu();          // dos menús abiertos a la vez no se leen
   openBranchMenu = (openBranchMenu === key) ? null : key;
   syncBranchMenus();
 }
@@ -7905,7 +7915,7 @@ function renderTree() {
       </button>
       ${editing
         ? `<div class="const-hint edit">Arrastra los talentos para acomodarlos · tira del punto ▸ de la derecha hacia otro talento para conectarlos · toca una línea para quitarla${atajosLegend()}</div>`
-        : `<div class="const-legend"><span><b>◇</b> meta</span><span><b>⬡</b> compra</span><span><b>○</b> hito</span><span><b>Y/O</b> requisitos</span></div>${atajosLegend(true)}`}`;
+        : `<div class="const-legend"><span><b>◇</b> meta</span><span><b>⬡</b> hito</span><span><b>○</b> compra</span></div>${atajosLegend(true)}`}`;
     }
 
     html += `
@@ -7922,7 +7932,6 @@ function renderTree() {
             <svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>
           </button>` : ""}
           ${branchMenu("t:" + ba, [
-            { title: "Ver en pantalla completa", hint: "Recorre y edita la rama con sitio", icon: "expandir", onclick: `openBranchFullscreen('${ba}')` },
             ...(collapsed ? [] : [
               /* "Reacomodar solos" queda fuera a propósito hasta pulir cómo
                  decide el orden; la función sigue existiendo, sin puerta. */
@@ -7941,7 +7950,10 @@ function renderTree() {
             })),
             { title: "Borrar esta rama", hint: reales.length === 0 ? "Está vacía" : (reales.length === 1 ? "Se va también su único talento" : `Se van también sus ${reales.length} talentos`), icon: "bote", danger: true, onclick: `deleteBranch('perks','${ba}')` }
           ])}
-          <button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>
+          ${/* En PC no hay botón de crear: el clic derecho y las teclas
+                Q, W y E lo hacen mejor y sin ocupar la cabecera. En táctil
+                no existe ninguna de las dos cosas, así que ahí se queda. */
+            isDesktop() ? "" : `<button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>`}
         </div>
       </div>
       ${body}
@@ -8141,29 +8153,40 @@ function clearUndo() { undoStack = []; }
 /* Congela las posiciones automáticas de una rama. Hace falta antes de
    colocar algo a mano: si no, el resto de los nodos se reacomodarían
    alrededor del nuevo y el usuario vería saltar toda la rama. */
+/* Escribe sobre el objeto REAL, no sobre lo que devuelve branchNodes.
+   Desde que el lienzo dibuja una vista de la rama —copias de los talentos,
+   con sus requisitos ya traducidos a las cajas del ático—, guardar la
+   posición en el nodo dibujado la escribía en un objeto desechable. El
+   efecto era el que se veía: cada talento nuevo recolocaba a los demás,
+   porque los de antes seguían sin coordenadas propias y el reparto
+   automático los volvía a centrar con una fila más. */
 function fijarPosiciones(b) {
   const nodes = branchNodes(b);
   const { pos } = branchLayout(nodes);
   nodes.forEach(n => {
-    if (typeof n.x !== "number" || typeof n.y !== "number") {
-      n.x = pos[n.id].x;
-      n.y = pos[n.id].y;
-    }
+    const real = n.esCaja
+      ? (state.cajas || []).find(c => c.id === n.cajaId)
+      : state.perks.find(p => p.id === n.id);
+    if (!real || (typeof real.x === "number" && typeof real.y === "number")) return;
+    real.x = pos[n.id].x;
+    real.y = pos[n.id].y;
   });
 }
 
 /* Los atajos escritos, para no tener que recordarlos. Van en la línea de
    indicaciones que ya existía debajo de cada rama, que es donde el usuario
    ya mira cuando no sabe qué hacer, y no ocupan sitio propio. */
+/* Cada tecla dice QUÉ crea, pegada a su nombre. Antes se agrupaban las tres
+   en un "QWE crear" que obligaba a probar cuál era cuál, y el "clic derecho:
+   más" no decía nada: "más" no es una acción que uno pueda imaginarse. */
 function atajosLegend(compacta) {
   if (!isDesktop()) return "";
   const k = (t) => `<kbd>${t}</kbd>`;
+  const crear = `${k("Q")} hito<i class="sep">·</i>${k("W")} meta<i class="sep">·</i>${k("E")} compra`;
   const partes = compacta
-    ? [`${k("Q")}${k("W")}${k("E")} crear`, `${k("C")} editar`, `clic derecho: más`]
-    : [
-        `${k("Q")} hito`, `${k("W")} meta`, `${k("E")} compra`,
-        `${k("C")} salir`, `${k("Ctrl")}${k("Z")} deshacer`, `clic derecho: más`
-      ];
+    ? [crear, `${k("C")} editar el mapa`, `clic derecho: crear, editar y pantalla completa`]
+    : [crear, `${k("C")} salir de edición`, `${k("Ctrl")}${k("Z")} deshacer`,
+       `clic derecho: crear y más acciones`];
   return `<span class="keys">${partes.join('<i class="sep">·</i>')}</span>`;
 }
 
@@ -8321,6 +8344,7 @@ let ctxPos = null;
 function abrirCtxMenu(clientX, clientY, branch, pos, nodoId) {
   const el = document.getElementById("ctx");
   if (!el) return;
+  closeBranchMenus();       // y al revés: el de la rama se aparta
   ctxPos = pos;
   const editando = editBranch === branch;
   const item = (titulo, pista, tecla, onclick, icono) => `
@@ -8362,7 +8386,8 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId) {
     item(TIPOS.compra.nombre, "Una llave que se paga y abre el paso", "E", `ctxCrear('${escapeAttr(branch)}','compra')`) +
     item(TIPOS.hito.nombre, "Una acción puntual que se cierra en sí misma", "Q", `ctxCrear('${escapeAttr(branch)}','hito')`) +
     `<div class="ctx-sep"></div>` +
-    item(editando ? "Salir de edición" : "Editar el mapa", editando ? "Vuelve al modo normal" : "Mueve y conecta talentos", "C", `cerrarCtxMenu();toggleEditBranch('${escapeAttr(branch)}')`) +
+    item(editando ? "Salir de edición" : "Editar el mapa", editando ? "Vuelve al modo normal" : "Conecta y corta hilos", "C", `cerrarCtxMenu();toggleEditBranch('${escapeAttr(branch)}')`) +
+    item("Ver en pantalla completa", "Recorre la rama con sitio de sobra", "", `cerrarCtxMenu();openBranchFullscreen('${escapeAttr(branch)}')`, BM_ICONS.expandir) +
     (undoStack.length ? item("Deshacer", undoStack[undoStack.length - 1].etiqueta, "Ctrl Z", `cerrarCtxMenu();undoEditor()`) : "");
 
   colocarCtxMenu(el, clientX, clientY);
@@ -8422,8 +8447,8 @@ function toggleEditBranch(b) {
 
 /* ================= Constelación =================
    Mapa de nodos por rama, estilo árbol de talentos de RPG.
-   La geometría comunica el tipo: rombo = meta, hexágono = compra,
-   círculo pequeño = hito.
+   La geometría comunica el tipo: rombo = meta, hexágono = hito,
+   círculo pequeño = compra.
    Se conectan los talentos con "requiere completar antes". */
 
 /* Reparte los nodos de una rama en capas.
@@ -8568,7 +8593,9 @@ const TODOS_LOS_RUMBOS = ["e", "w", "n", "s", "ne", "se", "nw", "sw"];
    por delante y entrar por detrás. */
 function rumbosDe(p, saliendo) {
   if (p.esCaja) return saliendo ? SALIDAS : ENTRADAS;
-  return tipoDe(p) === "hito" ? TODOS_LOS_RUMBOS : (saliendo ? SALIDAS : ENTRADAS);
+  // Al nodo pequeno se le permiten los ocho rumbos porque suele colgar a un
+  // lado del tronco. Es cosa de su tamano, no de que tipo sea.
+  return metaDe(p).forma === "circulo" ? TODOS_LOS_RUMBOS : (saliendo ? SALIDAS : ENTRADAS);
 }
 
 function elegirRumbo(candidatos, dx, dy) {
@@ -8716,7 +8743,7 @@ function constellation(nodes, key, editing) {
       available: { stroke: col, fill: col + "12", glow: false, sop: 0.55 }
     }[st];
     const iname = st === "locked" ? "lock" : (n.icon || "star");
-    const esHito = tipoDe(n) === "hito";
+    const esHito = metaDe(n).forma === "circulo";   // el nodo pequeno
     const isc = esHito ? 0.62 : 0.8;
     const markR = esHito ? { dx: 13, dy: -13 } : { dx: 21, dy: -21 };
     const R = nodeRadius(n);
@@ -8769,6 +8796,9 @@ function constellation(nodes, key, editing) {
       const listo = requisitosCumplidos(n);
       const cE = listo ? (n.color || "#5fe0b0") : "#4a5768";
       ports += `<g class="port-in" data-in="${n.id}">
+        <title>${varios ? (modoDe(n) === "cualquiera"
+          ? `Basta con completar cualquiera de los ${reqs.length} requisitos`
+          : `Hacen falta los ${reqs.length} requisitos`) : "Requisito para abrirse"}</title>
         <circle cx="${x - R - 11}" cy="${y}" r="${varios ? 10 : 7}" fill="#161d28" stroke="${cE}" stroke-width="2"${
           modoDe(n) === "cualquiera" && varios ? ` stroke-dasharray="3.4 2.6"` : ""}/>
         ${varios
@@ -8968,20 +8998,70 @@ function removeLink(par) {
 /* Arrastrar el lienzo para recorrerlo fuera del modo edición. Solo con
    ratón: en pantalla táctil el propio navegador ya desplaza (touch-action
    se lo permite), y duplicarlo aquí haría que cada gesto contara doble. */
+/* Fuera de edición el lienzo se recorre arrastrando el fondo, y AHORA
+   también se acomodan los talentos arrastrándolos. Acomodar el mapa era la
+   cosa más inocente que se podía hacer con él y exigía entrar a un modo
+   aparte; conectar y cortar, que sí son destructivos, siguen ahí dentro.
+
+   El gesto se decide por dónde empieza: sobre un talento lo mueve, sobre el
+   fondo recorre el lienzo. Y un talento solo se considera movido si el
+   puntero se desplaza de verdad — si no, abrir su ficha con un clic dejaría
+   de funcionar. */
 function attachPanHandlers(scope) {
   (scope || document).querySelectorAll(".const-wrap:not(.editing)").forEach(wrap => {
-    let from = null;
+    let from = null, arrastrando = null;
+    const b = wrap.dataset.branch;
+
+    const svgPt = (e) => {
+      const svg = wrap.querySelector("svg");
+      const r = svg.getBoundingClientRect();
+      const vb = (svg.getAttribute("viewBox") || "0 0 1 1").split(" ").map(Number);
+      return {
+        x: vb[0] + (e.clientX - r.left) / r.width * vb[2],
+        y: vb[1] + (e.clientY - r.top) / r.height * vb[3]
+      };
+    };
 
     wrap.addEventListener("pointerdown", (e) => {
-      if (e.pointerType !== "mouse" || e.button !== 0) return;
-      // Sobre un talento no: ahí el gesto significa "ábrelo"
-      if (e.target.closest(".cnode")) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      const nodo = e.target.closest(".cnode");
+      if (nodo) {
+        // Las cajas del ático no se arrastran: no son piezas del camino
+        if (nodo.classList.contains("caja")) return;
+        const p = state.perks.find(x => x.id === nodo.dataset.id);
+        if (!p) return;
+        const pt = svgPt(e);
+        arrastrando = { id: p.id, dx: (p.x ?? pt.x) - pt.x, dy: (p.y ?? pt.y) - pt.y, desde: pt, movido: false };
+        try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+        return;
+      }
+      if (e.pointerType !== "mouse") return;
       from = { x: e.clientX, y: e.clientY, sl: wrap.scrollLeft, st: wrap.scrollTop, movido: false };
       try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
       e.preventDefault();
     });
 
     wrap.addEventListener("pointermove", (e) => {
+      if (arrastrando) {
+        const pt = svgPt(e);
+        const p = state.perks.find(x => x.id === arrastrando.id);
+        if (!p) return;
+        if (!arrastrando.movido) {
+          /* El umbral se mide contra donde EMPEZO el puntero, no contra la
+             posicion del talento: un talento sin coordenadas propias aun no
+             tiene contra que comparar, y la distancia salia siempre cero. */
+          if (Math.hypot(pt.x - arrastrando.desde.x, pt.y - arrastrando.desde.y) < 4) return;
+          arrastrando.movido = true;
+          fijarPosiciones(b);
+          pushUndo("mover un talento");
+          wrap.classList.add("moviendo");
+        }
+        p.x = clamp(Math.round(pt.x + arrastrando.dx), 46, CANVAS_MAX_X);
+        p.y = clamp(Math.round(pt.y + arrastrando.dy), 42, CANVAS_MAX_Y);
+        wrap.innerHTML = constellation(branchNodes(b), 0, false);
+        e.preventDefault();
+        return;
+      }
       if (!from) return;
       const dx = e.clientX - from.x, dy = e.clientY - from.y;
       // La clase solo se pone al moverse de verdad: si no, un clic simple
@@ -8991,7 +9071,18 @@ function attachPanHandlers(scope) {
       wrap.scrollTop = from.st - dy;
     });
 
-    const fin = () => { from = null; wrap.classList.remove("panning"); };
+    const fin = () => {
+      /* El paso de deshacer se apila solo cuando el talento se movio de
+         verdad, asi que si el gesto se queda en un clic no hay nada que
+         retirar de la pila. */
+      if (arrastrando && arrastrando.movido) {
+        save();
+        tragarProximoClic();      // soltar no debe abrir la ficha del que moviste
+      }
+      arrastrando = null;
+      from = null;
+      wrap.classList.remove("panning", "moviendo");
+    };
     wrap.addEventListener("pointerup", fin);
     wrap.addEventListener("pointercancel", fin);
   });
@@ -9720,7 +9811,10 @@ function savePerk() {
       investedTotal: 0, progress: 0, createdAt: todayKey(),
       history: [{ date: todayKey(), at: stamp(), event: `Talento creado en la rama ${branch}` }]
     };
-    // Si la rama ya tiene posiciones fijadas a mano, el nuevo entra debajo
+    /* Se congela la rama ANTES de meter el nuevo: si no, los que todavia
+       no tenian coordenadas propias se recolocarian al recalcular el
+       reparto automatico con una fila mas. */
+    fijarPosiciones(branch);
     const hermanos = talentosDeRama(branch).filter(n => typeof n.x === "number");
     if (hermanos.length) {
       const req = requiere.length ? state.perks.find(x => x.id === requiere[0]) : null;
