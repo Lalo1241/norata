@@ -2158,6 +2158,39 @@
   .app.sacude { animation: sacudida 0.44s cubic-bezier(.36,.07,.19,.97); }
   @media (prefers-reduced-motion: reduce) { .app.sacude { animation: none; } }
 
+  /* ---------- Requisitos ----------
+     Fichas encendibles en vez de un desplegable: desde que se pueden elegir
+     varios, un <select multiple> sería impracticable con el pulgar. */
+  .req-list { display: flex; flex-wrap: wrap; gap: 7px; }
+  .req-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 13px 7px 10px;
+    font-family: inherit;
+    font-size: 12.5px;
+    color: var(--muted);
+    cursor: pointer;
+    max-width: 100%;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .req-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .req-chip i { font-style: normal; font-size: 10px; color: var(--faint); }
+  .req-chip .ic { color: var(--faint); flex: none; }
+  .req-chip.on {
+    background: var(--mint-soft);
+    border-color: var(--mint);
+    color: var(--text);
+  }
+  .req-chip.on .ic { color: var(--mint); }
+  .req-chip.hecho { border-color: var(--mint); color: var(--text); }
+  .req-chip.hecho .ic { color: var(--mint); }
+  .req-chip.no { opacity: 0.35; cursor: not-allowed; }
+  @media (hover: hover) and (pointer: fine) {
+    .req-chip:not(.no):hover { border-color: var(--faint); background: var(--card2); }
+  }
+
   /* ---------- Tipo y etapas de un talento ---------- */
   /* El selector de tipo: tres botones excluyentes con su icono. En pantalla
      estrecha se apilan, porque "Compra" con su llave no cabe en un tercio
@@ -3302,11 +3335,18 @@
         <span>XP de recompensa</span>
         <input type="number" id="p-xp" value="150" min="0" max="5000" inputmode="numeric">
       </label>
-      <label class="field">
-        <span>Requiere completar antes</span>
-        <select id="p-requires"></select>
-        <div class="field-hint">El talento queda bloqueado (y conectado en el mapa) hasta completar su requisito. Así se ramifica el árbol.</div>
-      </label>
+      <div class="field">
+        <span class="lbl">Requiere completar antes</span>
+        <!-- Lista de fichas y no un desplegable: ahora se pueden elegir
+             varios, y un <select multiple> en el teléfono es de las peores
+             cosas que existen. -->
+        <div class="req-list" id="p-requires"></div>
+        <div id="p-modo-fila" style="display:none;margin-top:12px">
+          <span class="lbl">¿Hacen falta todos?</span>
+          <div class="seg" id="p-modo"></div>
+        </div>
+        <div class="field-hint" id="p-req-hint"></div>
+      </div>
     </div>
 
     <div class="stack">
@@ -3631,6 +3671,15 @@ function migrarTipoTalento(p) {
   delete p.mini;
   delete p.instant;
   delete p.progress;
+
+  /* Un requisito suelto se convierte en una lista de uno. El modo arranca
+     en "todos" porque con un solo requisito las dos lecturas coinciden, y
+     así lo que ya existía no cambia de comportamiento al migrar. */
+  if (!Array.isArray(p.requiere)) {
+    p.requiere = p.requiresId ? [p.requiresId] : [];
+  }
+  if (p.modo !== "cualquiera") p.modo = "todos";
+  delete p.requiresId;
 }
 
 /* El proyecto pasó a llamarse Notara, pero las llaves de almacenamiento
@@ -4529,6 +4578,43 @@ function streakInfo() {
   return { cur, best, last14, semana, activeToday: set.has(t) };
 }
 
+/* ================= Talentos: requisitos =================
+   Antes un talento tenía como mucho UN requisito, en un campo `requiresId`.
+   Varios hijos podían colgar del mismo padre, así que el árbol se abría en
+   abanico — pero nada podía volver a juntarse. No existía forma de decir
+   "esto necesita A y B", y por eso todas las ramas se sentían iguales por
+   mucho que cambiara el tipo de sus nodos: el número de caminos hasta
+   cualquier talento era siempre uno.
+
+   Ahora es una lista con un modo, y de ahí salen dos figuras que antes no
+   se podían dibujar:
+
+     todos       el nodo que corona — hacen falta TODOS sus requisitos
+     cualquiera  el camino alternativo — basta con UNO de ellos
+
+   El modo solo significa algo con dos o más requisitos; con uno, las dos
+   lecturas coinciden. */
+
+function requisitosDe(p) {
+  if (Array.isArray(p.requiere)) return p.requiere;
+  return p.requiresId ? [p.requiresId] : [];
+}
+
+function modoDe(p) { return p.modo === "cualquiera" ? "cualquiera" : "todos"; }
+
+/* Los requisitos que existen de verdad. Uno borrado deja de contar en vez
+   de bloquear para siempre un talento que ya no espera a nada. */
+function requisitosVivos(p) {
+  return requisitosDe(p).map(id => state.perks.find(x => x.id === id)).filter(Boolean);
+}
+
+function requisitosCumplidos(p) {
+  const reqs = requisitosVivos(p);
+  if (!reqs.length) return true;
+  const hechos = reqs.filter(r => r.status === "completed");
+  return modoDe(p) === "cualquiera" ? hechos.length > 0 : hechos.length === reqs.length;
+}
+
 /* ================= Talentos: estados ================= */
 
 function perkStatus(p) {
@@ -4537,11 +4623,7 @@ function perkStatus(p) {
   if (p.status === "active") {
     return daysBetween(todayKey(), p.endDate) < 0 ? "due" : "active";
   }
-  if (p.requiresId) {
-    const req = state.perks.find(x => x.id === p.requiresId);
-    if (req && req.status !== "completed") return "locked";
-  }
-  return "available";
+  return requisitosCumplidos(p) ? "available" : "locked";
 }
 
 const STATUS_LABEL = {
@@ -6680,7 +6762,10 @@ async function deleteBranch(kind, b) {
     state.perks = state.perks.filter(p => !ids.has(p.id));
     // Nadie puede quedar exigiendo un talento que ya no existe: eso dejaría
     // nodos bloqueados para siempre, sin forma de desbloquearlos.
-    state.perks.forEach(p => { if (p.requiresId && ids.has(p.requiresId)) p.requiresId = null; });
+    state.perks.forEach(p => {
+      const r = requisitosDe(p);
+      if (r.some(id => ids.has(id))) p.requiere = r.filter(id => !ids.has(id));
+    });
     if (editBranch === b) editBranch = null;
   } else {
     state.projects = state.projects.filter(p => !ids.has(p.id));
@@ -7805,7 +7890,7 @@ function crearTalentoRapido(branch, tipo, pos) {
   const nuevo = {
     id: uid(), name: t.nombre, branch, desc: "",
     tipo, cost: 0, planDays: 360, steps: [],
-    skillId: null, xpReward: tipo === "hito" ? 120 : 600, requiresId: null,
+    skillId: null, xpReward: tipo === "hito" ? 120 : 600, requiere: [], modo: "todos",
     icon: ICON_LIST[(n * 5 + 3) % ICON_LIST.length],
     color: COLORS[(n * 3 + 2) % COLORS.length],
     status: null, startDate: null, endDate: null, completedAt: null,
@@ -8035,36 +8120,59 @@ function toggleEditBranch(b) {
    hexágono = asegurado al pagar, círculo pequeño = mini-talento.
    Se conectan los talentos con "requiere completar antes". */
 
+/* Reparte los nodos de una rama en capas.
+   Con un requisito único esto era un recorrido en anchura desde las raíces:
+   cada nodo tenía un padre, así que su profundidad era la del padre más
+   uno y no había nada que decidir. Con varios padres deja de ser un árbol y
+   la profundidad pasa a ser la del padre MÁS PROFUNDO más uno — si no, un
+   nodo que corona dos caminos se dibujaría encima del más corto y su línea
+   volvería hacia atrás.
+
+   Se recorre en orden topológico (primero los que ya tienen todos sus
+   padres colocados). Como isDescendant impide los bucles, ese orden existe
+   siempre; aun así se sale por las bravas si quedara algo sin colocar, para
+   que un dato raro nunca cuelgue el dibujo. */
 function branchLayout(nodes) {
   const inBranch = new Set(nodes.map(n => n.id));
   const childrenOf = {};
-  const roots = [];
+  const padresDe = {};
   nodes.forEach(n => {
-    if (n.requiresId && inBranch.has(n.requiresId)) {
-      (childrenOf[n.requiresId] = childrenOf[n.requiresId] || []).push(n);
-    } else {
-      roots.push(n);
-    }
+    // Solo cuentan los requisitos de esta misma rama: los de fuera no se
+    // pueden colocar aquí, y su marca la pone el dibujo (ver R16).
+    padresDe[n.id] = requisitosDe(n).filter(id => inBranch.has(id));
+    padresDe[n.id].forEach(pid => {
+      (childrenOf[pid] = childrenOf[pid] || []).push(n);
+    });
   });
+
   const depth = {};
   const order = [];
-  const queue = [...roots];
-  roots.forEach(r => depth[r.id] = 0);
-  while (queue.length) {
-    const n = queue.shift();
-    order.push(n);
-    (childrenOf[n.id] || []).forEach(c => { depth[c.id] = depth[n.id] + 1; queue.push(c); });
+  const pendientes = new Set(nodes.map(n => n.id));
+  let guard = nodes.length + 5;
+  while (pendientes.size && guard-- > 0) {
+    let movio = false;
+    for (const n of nodes) {
+      if (!pendientes.has(n.id)) continue;
+      const padres = padresDe[n.id];
+      if (padres.some(pid => pendientes.has(pid))) continue;   // aún falta un padre
+      depth[n.id] = padres.length ? Math.max(...padres.map(pid => depth[pid])) + 1 : 0;
+      order.push(n);
+      pendientes.delete(n.id);
+      movio = true;
+    }
+    if (!movio) break;      // dato imposible: se colocan al principio
   }
   nodes.forEach(n => { if (!(n.id in depth)) { depth[n.id] = 0; order.push(n); } });
 
   const levels = [];
   order.forEach(n => { (levels[depth[n.id]] = levels[depth[n.id]] || []).push(n); });
+  for (let i = 0; i < levels.length; i++) if (!levels[i]) levels[i] = [];
 
   // En pantalla grande los nodos se separan más: hay espacio de sobra
   const wide = isDesktop();
   const X0 = wide ? 110 : 92, XS = wide ? 215 : 168,
         YS = wide ? 152 : 126, PADY = wide ? 96 : 78;
-  const maxCount = Math.max(...levels.map(l => l.length));
+  const maxCount = Math.max(1, ...levels.map(l => l.length));
   const autoH = PADY * 2 + (maxCount - 1) * YS;
   const pos = {};
   levels.forEach((lv, d) => {
@@ -8082,7 +8190,7 @@ function branchLayout(nodes) {
   const ys = order.map(n => pos[n.id].y);
   const W = Math.max(340, Math.max(...xs) + X0);
   const H = Math.max(200, Math.max(...ys) + PADY);
-  return { pos, order, childrenOf, H, W };
+  return { pos, order, childrenOf, padresDe, H, W };
 }
 
 /* Radio horizontal de cada figura: de ahí salen y entran las conexiones.
@@ -8249,7 +8357,7 @@ function constellation(nodes, key, editing) {
       // Punta de flecha en el nodo hijo
       edges += `<circle cx="${P.x2.toFixed(1)}" cy="${P.y2.toFixed(1)}" r="${lit ? 3.6 : 2.8}" fill="${col}"${lit ? ` filter="url(#${fid})"` : ""}/>`;
       if (editing) {
-        edges += `<path class="edge-hit" data-cut="${c.id}" d="${P.d}" fill="none" stroke="transparent" stroke-width="20"/>`;
+        edges += `<path class="edge-hit" data-cut="${c.id}|${n.id}" d="${P.d}" fill="none" stroke="transparent" stroke-width="20"/>`;
       }
     });
   });
@@ -8287,6 +8395,50 @@ function constellation(nodes, key, editing) {
       </text>
     </g>`;
 
+    /* ---- Los círculos de apoyo (R15) ----
+       Había uno solo, a la derecha y únicamente en edición: una salida sin
+       su entrada, así que la dirección de una línea solo se podía deducir
+       siguiéndola con la vista. Ahora el nodo lo declara él mismo — por la
+       izquierda entra lo que hace falta, por la derecha sale lo que habilita.
+
+       La entrada además dice el MODO, que es la otra mitad de lo que no se
+       entendía: con tres líneas llegando, "Y" avisa de que hacen falta las
+       tres y "O" de que basta una. Una letra en vez de una leyenda. */
+    const reqs = requisitosDe(n);
+    const cumplidos = requisitosVivos(n).filter(r => r.status === "completed").length;
+    if (reqs.length) {
+      const varios = reqs.length > 1;
+      const letra = modoDe(n) === "cualquiera" ? "O" : "Y";
+      const listo = requisitosCumplidos(n);
+      const cE = listo ? (n.color || "#5fe0b0") : "#4a5768";
+      ports += `<g class="port-in" data-in="${n.id}">
+        <circle cx="${x - R - 11}" cy="${y}" r="${varios ? 10 : 7}" fill="#161d28" stroke="${cE}" stroke-width="2"${
+          modoDe(n) === "cualquiera" && varios ? ` stroke-dasharray="3.4 2.6"` : ""}/>
+        ${varios
+          ? `<text x="${x - R - 11}" y="${y + 3.6}" text-anchor="middle" font-size="10" font-weight="800" fill="${cE}">${letra}</text>`
+          : `<circle cx="${x - R - 11}" cy="${y}" r="2.4" fill="${cE}"/>`}
+      </g>`;
+      if (varios && !listo) {
+        ports += `<text x="${x - R - 11}" y="${y + 22}" text-anchor="middle" font-size="8.5" fill="#75858e">${cumplidos}/${reqs.length}</text>`;
+      }
+
+      /* ---- Requisitos de otra rama (R16) ----
+         Bloqueaban sin dibujar nada: el nodo aparecía suelto y apagado sin
+         causa visible, y solo su ficha contaba la verdad. Aquí no se puede
+         trazar la línea entera —el otro talento está en otro lienzo—, así
+         que se dibuja el cabo por donde entra y de dónde viene. El mapa deja
+         de contradecir a la ficha. */
+      const fuera = requisitosVivos(n).filter(r => (r.branch || "General") !== (n.branch || "General"));
+      if (fuera.length) {
+        const cF = fuera.every(r => r.status === "completed") ? (n.color || "#5fe0b0") : "#4a5768";
+        const x0 = x - R - 21, x1 = x0 - 26;
+        ports += `<path d="M${x1} ${y} H${x0}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
+          <circle cx="${x1}" cy="${y}" r="3" fill="${cF}"/>
+          <text x="${x1 - 5}" y="${y + 3.4}" text-anchor="end" font-size="8.5" fill="#75858e">${
+            escapeHtml(fuera.length === 1 ? (fuera[0].branch || "General") : fuera.length + " ramas")}</text>`;
+      }
+    }
+
     if (editing) {
       ports += `<g class="port" data-from="${n.id}">
         <circle cx="${x + R + 11}" cy="${y}" r="9" fill="#1d2530" stroke="${col}" stroke-width="2"/>
@@ -8296,7 +8448,12 @@ function constellation(nodes, key, editing) {
   });
 
   const padRight = editing ? 46 : 0;
-  return `<svg width="${W + padRight}" height="${H + 30}" viewBox="0 0 ${W + padRight} ${H + 30}" font-family="Outfit, sans-serif">
+  /* Los cabos de otra rama y sus etiquetas viven a la IZQUIERDA del nodo
+     más a la izquierda, así que el encuadre tiene que empezar antes del
+     cero o se cortan. Solo se ensancha cuando de verdad hay alguno. */
+  const hayFuera = order.some(n => requisitosVivos(n).some(r => (r.branch || "General") !== (n.branch || "General")));
+  const padLeft = hayFuera ? 108 : 0;
+  return `<svg width="${W + padRight + padLeft}" height="${H + 30}" viewBox="${-padLeft} 0 ${W + padRight + padLeft} ${H + 30}" font-family="Outfit, sans-serif">
     <defs>
       <filter id="${fid}" x="-60%" y="-60%" width="220%" height="220%">
         <feGaussianBlur stdDeviation="2.6" result="b"/>
@@ -8321,13 +8478,27 @@ function branchNodes(b) {
   return state.perks.filter(p => (p.branch || "General") === b);
 }
 
-/* Evita ciclos: ¿"ancestorId" ya cuelga de "nodeId"? */
+/* Evita ciclos: ¿"ancestorId" ya cuelga de "nodeId"?
+   Con un requisito único bastaba con subir la cadena hasta la raíz. Ahora
+   un talento puede tener varios padres, así que hay que recorrer TODOS los
+   caminos hacia arriba: basta con que uno de ellos pase por nodeId para que
+   la conexión cierre un bucle. Se lleva un conjunto de visitados porque en
+   un grafo el mismo antepasado puede alcanzarse por dos rutas y sin él se
+   recorrería dos veces el mismo subárbol. */
 function isDescendant(nodeId, ancestorId) {
-  let cur = state.perks.find(x => x.id === ancestorId);
-  let guard = 200;
-  while (cur && cur.requiresId && guard-- > 0) {
-    if (cur.requiresId === nodeId) return true;
-    cur = state.perks.find(x => x.id === cur.requiresId);
+  const vistos = new Set();
+  const cola = [ancestorId];
+  let guard = 4000;
+  while (cola.length && guard-- > 0) {
+    const id = cola.shift();
+    if (vistos.has(id)) continue;
+    vistos.add(id);
+    const cur = state.perks.find(x => x.id === id);
+    if (!cur) continue;
+    for (const r of requisitosDe(cur)) {
+      if (r === nodeId) return true;
+      cola.push(r);
+    }
   }
   return false;
 }
@@ -8409,11 +8580,17 @@ function efectoCorte(branch, dAttr, cutPt, color) {
   setTimeout(() => g.remove(), 520);
 }
 
-function removeLink(childId) {
+/* Corta UN hilo, no todos los del hijo. Recibe "hijo|padre" porque desde
+   que un talento puede tener varios requisitos, saber a quién llega la
+   línea ya no dice cuál de ellas se está cortando. */
+function removeLink(par) {
+  const [childId, parentId] = String(par).split("|");
   const c = state.perks.find(x => x.id === childId);
-  if (!c || !c.requiresId) return;
+  if (!c) return;
+  const reqs = requisitosDe(c);
+  if (!reqs.length) return;
   pushUndo("cortar una conexión");
-  c.requiresId = null;
+  c.requiere = parentId ? reqs.filter(id => id !== parentId) : [];
   save();
   renderTree();
   toast("Conexión eliminada", "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
@@ -8579,7 +8756,7 @@ function attachEditHandlers(scope) {
       if (moved < 10) {
         // El color se toma ANTES de cortar: al soltar el hijo se queda sin
         // padre y su estado (y por tanto su color) puede cambiar.
-        const c = state.perks.find(x => x.id === curId);
+        const c = state.perks.find(x => x.id === String(curId).split("|")[0]);
         let color = "#3d4a5c";
         if (c) {
           const cst = perkStatus(c);
@@ -8615,10 +8792,22 @@ function attachEditHandlers(scope) {
           toast("Esa conexión crearía un bucle", "atencion");
         } else {
           const t = state.perks.find(x => x.id === toId);
-          pushUndo("conectar dos talentos", snapAntes);
-          t.requiresId = curId;
-          save();
-          toast(`Conectado: ${t.name} requiere el anterior`, "hecho");
+          const yaEstaba = requisitosDe(t).includes(curId);
+          if (yaEstaba) {
+            toast("Ya estaban conectados", "calma");
+          } else {
+            pushUndo("conectar dos talentos", snapAntes);
+            /* Se AÑADE a la lista en vez de reemplazarla: conectar un
+               segundo padre es justo lo que hace posible el nodo que corona,
+               y sustituir en silencio el requisito anterior sería deshacer
+               trabajo que el usuario no pidió deshacer. */
+            t.requiere = [...requisitosDe(t), curId];
+            save();
+            const n = t.requiere.length;
+            toast(n > 1
+              ? `${t.name} ahora pide ${n} requisitos (${modoDe(t) === "todos" ? "todos" : "cualquiera"})`
+              : `Conectado: ${t.name} requiere el anterior`, "hecho");
+          }
         }
       }
     }
@@ -8672,7 +8861,7 @@ function renderPerkDetail() {
   const st = perkStatus(p);
   const t = metaDe(p);
   const skill = p.skillId ? state.skills.find(s => s.id === p.skillId) : null;
-  const req = p.requiresId ? state.perks.find(x => x.id === p.requiresId) : null;
+  const reqs = requisitosVivos(p);
 
   /* El tipo se dice con su icono y su nombre, no con un glifo que haya que
      memorizar: la llave, la bandera y la diana explican solas de qué va. */
@@ -8765,8 +8954,27 @@ function renderPerkDetail() {
       actionPanel = `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="investPerk('${p.id}')">Comenzar plan${importe}</button>`;
     }
   }
-  if (st === "locked" && req) {
-    actionPanel = `<div class="panel alt"><h3>Bloqueado</h3><p class="settings-note" style="margin:0">Requiere completar antes: <b>${escapeHtml(req.name)}</b>.</p></div>`;
+  if (st === "locked" && reqs.length) {
+    /* Se listan TODOS los requisitos con su estado, no solo el primero, y se
+       dice bajo qué regla se abre. Con varios pendientes, saber cuál falta
+       —y si hace falta terminarlos todos o basta uno— es justo la
+       información que convierte un muro en un siguiente paso. */
+    const hechos = reqs.filter(r => r.status === "completed").length;
+    actionPanel = `
+    <div class="panel alt">
+      <h3>Bloqueado</h3>
+      <p class="settings-note">${reqs.length === 1
+        ? "Se abre al completar:"
+        : (modoDe(p) === "todos"
+          ? `Se abre al completar <b>los ${reqs.length}</b> — llevas ${hechos}.`
+          : `Se abre al completar <b>cualquiera</b> de los ${reqs.length}.`)}</p>
+      <div class="req-list">
+        ${reqs.map(r => `<button type="button" class="req-chip ${r.status === "completed" ? "hecho" : ""}" onclick="openPerk('${r.id}')">
+          ${r.status === "completed" ? icon("check", 13) : icon(r.icon || "star", 13)}<span>${escapeHtml(r.name)}</span>
+          <i>${escapeHtml(r.branch || "General")}</i>
+        </button>`).join("")}
+      </div>
+    </div>`;
   }
   if (st === "expired") {
     actionPanel = `
@@ -8956,9 +9164,9 @@ function openPerkForm(id, presetBranch) {
     state.skills.map(s => `<option value="${s.id}" ${p && p.skillId === s.id ? "selected" : ""}>${escapeHtml(s.name)}</option>`).join("");
 
   const others = state.perks.filter(x => !p || x.id !== p.id);
-  document.getElementById("p-requires").innerHTML =
-    `<option value="">— Ninguno —</option>` +
-    others.map(x => `<option value="${x.id}" ${p && p.requiresId === x.id ? "selected" : ""}>${escapeHtml(x.name)} (${escapeHtml(x.branch || "General")})</option>`).join("");
+  pReq = p ? requisitosDe(p).slice() : [];
+  pModo = p ? modoDe(p) : "todos";
+  renderPerkReqs();
 
   renderIconGrid("p-icon", pIcon, "pickPerkIcon", pColor);
   renderColorGrid("p-color", pColor, "pickPerkColor");
@@ -8976,6 +9184,57 @@ function pickPerkIcon(n) { pIcon = n; renderIconGrid("p-icon", n, "pickPerkIcon"
    las etapas se añaden y quitan antes de existir el talento. */
 let pTipo = "meta";
 let pSteps = [];
+let pReq = [];
+let pModo = "todos";
+
+/* ---- Requisitos en el formulario ----
+   Se listan todos los talentos como fichas encendibles. El modo solo
+   aparece con dos o más marcados, porque con uno "todos" y "cualquiera"
+   dicen exactamente lo mismo y ofrecer la elección solo confundiría. */
+function renderPerkReqs() {
+  const cont = document.getElementById("p-requires");
+  const otros = state.perks.filter(x => x.id !== editingPerkId);
+  if (!otros.length) {
+    cont.innerHTML = `<p class="settings-note" style="margin:0">Todavía no hay otros talentos a los que encadenarlo.</p>`;
+  } else {
+    cont.innerHTML = otros.map(x => {
+      const on = pReq.includes(x.id);
+      /* Elegir un descendiente cerraría un bucle. Se muestra apagado y sin
+         poder marcarse, en vez de dejar intentarlo y rechazarlo después. */
+      const bucle = !on && editingPerkId && isDescendant(editingPerkId, x.id);
+      return `<button type="button" class="req-chip ${on ? "on" : ""} ${bucle ? "no" : ""}"
+        ${bucle ? "disabled title=\"Crearía un bucle\"" : `onclick="togglePerkReq('${x.id}')"`}>
+        ${icon(x.icon || "star", 13)}<span>${escapeHtml(x.name)}</span>
+        <i>${escapeHtml(x.branch || "General")}</i>
+      </button>`;
+    }).join("");
+  }
+
+  const varios = pReq.length > 1;
+  document.getElementById("p-modo-fila").style.display = varios ? "block" : "none";
+  document.getElementById("p-modo").innerHTML = [
+    ["todos", "Todos", "Hacen falta los " + pReq.length],
+    ["cualquiera", "Cualquiera", "Basta con uno"]
+  ].map(([k, t, s]) => `
+    <button type="button" class="${pModo === k ? "on" : ""}" onclick="pickPerkModo('${k}')">
+      <span>${t}</span><i style="display:block;font-size:10px;opacity:0.75;font-style:normal">${s}</i>
+    </button>`).join("");
+
+  document.getElementById("p-req-hint").textContent = !pReq.length
+    ? "Sin requisitos: estará disponible desde el principio."
+    : (varios
+      ? (pModo === "todos"
+        ? "Quedará bloqueado hasta completar los " + pReq.length + ". Es el talento que corona varios caminos."
+        : "Se desbloquea en cuanto completes cualquiera de los " + pReq.length + ". Son caminos alternativos.")
+      : "Quedará bloqueado (y conectado en el mapa) hasta completar ese talento.");
+}
+
+function togglePerkReq(id) {
+  pReq = pReq.includes(id) ? pReq.filter(x => x !== id) : [...pReq, id];
+  renderPerkReqs();
+}
+
+function pickPerkModo(m) { pModo = m; renderPerkReqs(); }
 
 function pickPerkTipo(t) {
   if (!TIPOS[t]) return;
@@ -9047,7 +9306,8 @@ function savePerk() {
   const planDays = u === "m" ? n * 30 : n;
   const skillId = document.getElementById("p-skill").value || null;
   const xpReward = Math.max(0, parseInt(document.getElementById("p-xp").value) || 0);
-  const requiresId = document.getElementById("p-requires").value || null;
+  const requiere = pReq.filter(id => state.perks.some(x => x.id === id) && id !== editingPerkId);
+  const modo = pModo;
   const steps = t.llevaPlan ? pSteps : [];
 
   /* Se avisa al guardar y no al comprar, que es cuando el fallo estorba:
@@ -9062,7 +9322,7 @@ function savePerk() {
 
   if (editingPerkId) {
     const p = state.perks.find(x => x.id === editingPerkId);
-    Object.assign(p, { name, branch, desc, tipo: pTipo, cost, planDays, steps, skillId, xpReward, requiresId, icon: pIcon, color: pColor });
+    Object.assign(p, { name, branch, desc, tipo: pTipo, cost, planDays, steps, skillId, xpReward, requiere, modo, icon: pIcon, color: pColor });
     save();
     toast("Talento actualizado");
     if (currentPerkId === editingPerkId) { renderPerkDetail(); showView("perk"); }
@@ -9070,7 +9330,7 @@ function savePerk() {
   } else {
     const nuevo = {
       id: uid(), name, branch, desc, tipo: pTipo, cost, planDays, steps,
-      skillId, xpReward, requiresId, icon: pIcon, color: pColor,
+      skillId, xpReward, requiere, modo, icon: pIcon, color: pColor,
       status: null, startDate: null, endDate: null, completedAt: null,
       investedTotal: 0, progress: 0, createdAt: todayKey(),
       history: [{ date: todayKey(), at: stamp(), event: `Talento creado en la rama ${branch}` }]
@@ -9078,7 +9338,7 @@ function savePerk() {
     // Si la rama ya tiene posiciones fijadas a mano, el nuevo entra debajo
     const hermanos = branchNodes(branch).filter(n => typeof n.x === "number");
     if (hermanos.length) {
-      const req = requiresId ? state.perks.find(x => x.id === requiresId) : null;
+      const req = requiere.length ? state.perks.find(x => x.id === requiere[0]) : null;
       nuevo.x = req && typeof req.x === "number" ? req.x + 168 : Math.min(...hermanos.map(n => n.x));
       nuevo.y = Math.max(...hermanos.map(n => n.y)) + 126;
     }
@@ -9098,7 +9358,10 @@ async function deletePerk() {
   if (!p) return;
   if (!await ask(`¿Eliminar el talento "${p.name}"? Esta acción no se puede deshacer.`, "Eliminar", true)) return;
   state.perks = state.perks.filter(x => x.id !== editingPerkId);
-  for (const other of state.perks) if (other.requiresId === editingPerkId) other.requiresId = null;
+  for (const other of state.perks) {
+    const r = requisitosDe(other);
+    if (r.includes(editingPerkId)) other.requiere = r.filter(id => id !== editingPerkId);
+  }
   currentPerkId = null;
   save();
   toast("Talento eliminado", "deshecho");
@@ -9484,7 +9747,7 @@ function buildFromOnboarding() {
     state.perks.push({
       id: uid(), name: a.perk.name, branch: a.perk.branch, desc: "",
       tipo: "meta", cost: 0, planDays: a.perk.days, steps: [],
-      skillId: skill.id, xpReward: a.perk.xp, requiresId: null,
+      skillId: skill.id, xpReward: a.perk.xp, requiere: [], modo: "todos",
       icon: a.perk.icon, color: a.color,
       status: null, startDate: null, endDate: null, completedAt: null,
       investedTotal: 0, progress: 0, createdAt: today,
@@ -9551,7 +9814,7 @@ function loadExamples() {
 
   const mkP = (extra) => Object.assign({
     id: uid(), branch: "Salud", desc: "", tipo: "meta", cost: 0, planDays: 90, steps: [],
-    skillId: ejercicio.id, xpReward: 150, requiresId: null, icon: "star", color: "#5fe0b0",
+    skillId: ejercicio.id, xpReward: 150, requiere: [], modo: "todos", icon: "star", color: "#5fe0b0",
     status: null, startDate: null, endDate: null, completedAt: null,
     investedTotal: 0, progress: 0, createdAt: today,
     history: [{ date: today, at: stamp(), event: "Talento creado" }]
@@ -9571,14 +9834,14 @@ function loadExamples() {
   const primeraSalida = mkP({
     name: "Salir a correr una vez", icon: "flag", color: "#f5d76e", tipo: "hito",
     desc: "Un hito: una acción puntual que se cierra en sí misma. Se marca con un toque.",
-    xpReward: 40, requiresId: tenis.id,
+    xpReward: 40, requiere: [tenis.id],
     status: "completed", completedAt: daysAgo(18),
     history: [{ date: daysAgo(18), at: new Date(Date.now() - 18 * 864e5).toISOString(), event: "Hito conseguido" }]
   });
   const habito = mkP({
     name: "Correr 3 veces por semana", icon: "flame", color: "#ff8a70",
     desc: "Una meta: tienes 3 meses y avanza marcando sus etapas.",
-    planDays: 90, xpReward: 300, requiresId: primeraSalida.id,
+    planDays: 90, xpReward: 300, requiere: [primeraSalida.id],
     status: "active", startDate: daysAgo(16),
     endDate: addDaysKey(todayKey(), 74),
     steps: [
@@ -9595,7 +9858,7 @@ function loadExamples() {
   const carrera = mkP({
     name: "Correr mi primera carrera de 5 km", icon: "trophy", color: "#5fe0b0",
     desc: "La meta grande. Se desbloquea cuando el hábito esté firme.",
-    cost: 450, planDays: 180, xpReward: 600, requiresId: habito.id
+    cost: 450, planDays: 180, xpReward: 600, requiere: [habito.id]
   });
 
   // Rama Casa: dos caminos independientes que nacen del mismo punto
@@ -9607,7 +9870,7 @@ function loadExamples() {
   const cenaAmigos = mkP({
     branch: "Casa", skillId: cocina.id, name: "Cocinar para amigos", icon: "heart", color: "#f0a5c0", tipo: "hito",
     desc: "Invitar a alguien y cocinarle. Sin plazo: se logra o no se logra.",
-    xpReward: 60, requiresId: recetario.id
+    xpReward: 60, requiere: [recetario.id]
   });
 
   // Rama Dinero: un talento listo para empezar, con costo real
@@ -9619,7 +9882,7 @@ function loadExamples() {
   const curso = mkP({
     branch: "Dinero", skillId: finanzas.id, name: "Curso de inversión", icon: "chart", color: "#6fc3e8",
     desc: "Entender en qué invertir antes de invertir.",
-    cost: 1500, planDays: 180, xpReward: 350, requiresId: fondo.id
+    cost: 1500, planDays: 180, xpReward: 350, requiere: [fondo.id]
   });
 
   state.perks.push(tenis, primeraSalida, habito, carrera, recetario, cenaAmigos, fondo, curso);
