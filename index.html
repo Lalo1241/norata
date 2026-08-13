@@ -352,13 +352,20 @@
     color: rgba(234, 241, 239, 0.45);
   }
   .wk-c svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
-  .wk-d.done .wk-c { background: var(--mint); color: #0e131b; box-shadow: 0 0 12px rgba(95, 224, 176, 0.45); }
-  .wk-d.missed .wk-c { background: rgba(255, 138, 112, 0.14); color: var(--coral); }
-  .wk-d.hoy .wk-c { background: rgba(95, 224, 176, 0.1); color: var(--mint); box-shadow: inset 0 0 0 2px var(--mint); }
+  /* Los estados del día van con prefijo. Uno de ellos se llamaba `empty`, y
+     `.empty` es además el bloque de "aquí no hay nada todavía" que existe en
+     media app: en escritorio ese bloque mide 54vh de alto y lleva 40px de
+     relleno, así que un perfil recién creado —donde TODOS los días pasados
+     son "antes de empezar"— estiraba cada casilla de la semana hasta 389px y
+     la tira se salía de la tarjeta por arriba. Con datos de ejemplo no se
+     veía nunca, porque ahí ningún día lleva esa clase. */
+  .wk-d.wk-done .wk-c { background: var(--mint); color: #0e131b; box-shadow: 0 0 12px rgba(95, 224, 176, 0.45); }
+  .wk-d.wk-missed .wk-c { background: rgba(255, 138, 112, 0.14); color: var(--coral); }
+  .wk-d.wk-hoy .wk-c { background: rgba(95, 224, 176, 0.1); color: var(--mint); box-shadow: inset 0 0 0 2px var(--mint); }
   /* Un día que todavía no llega no se juzga: ni verde ni rojo */
-  .wk-d.futuro .wk-c, .wk-d.empty .wk-c { background: rgba(234, 241, 239, 0.05); color: rgba(234, 241, 239, 0.26); }
-  .wk-d.done.hoy .wk-c { box-shadow: 0 0 0 3px rgba(95, 224, 176, 0.35), 0 0 14px rgba(95, 224, 176, 0.5); }
-  .wk-d.done .wk-l, .wk-d.hoy .wk-l { color: var(--mint); }
+  .wk-d.wk-futuro .wk-c, .wk-d.wk-empty .wk-c { background: rgba(234, 241, 239, 0.05); color: rgba(234, 241, 239, 0.26); }
+  .wk-d.wk-done.wk-hoy .wk-c { box-shadow: 0 0 0 3px rgba(95, 224, 176, 0.35), 0 0 14px rgba(95, 224, 176, 0.5); }
+  .wk-d.wk-done .wk-l, .wk-d.wk-hoy .wk-l { color: var(--mint); }
 
   @media (max-width: 360px) {
     .wk-c { width: 27px; height: 27px; }
@@ -1811,6 +1818,42 @@
   .modal-actions { display: flex; gap: 10px; }
   .modal-actions .btn { flex: 1; }
 
+  /* ---------- Tutorial de bienvenida ---------- */
+  .tuto-card { text-align: center; }
+  .tuto-ic {
+    width: 62px; height: 62px;
+    margin: 0 auto 14px;
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--tc);
+    background: color-mix(in srgb, var(--tc) 14%, transparent);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tc) 34%, transparent);
+  }
+  .tuto-card h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 10px; }
+  .tuto-tx {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .tuto-tx b { color: var(--mint); font-weight: 700; }
+  .tuto-pie {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--faint);
+    margin-bottom: 18px;
+  }
+  /* Los puntos dicen cuánto falta: sin ellos, "Siguiente" parece que puede
+     seguir para siempre y la primera reacción es saltárselo. */
+  .tuto-dots { display: flex; justify-content: center; gap: 7px; margin-bottom: 18px; }
+  .tuto-dots i {
+    width: 7px; height: 7px;
+    border-radius: 999px;
+    background: var(--line);
+    transition: 0.25s;
+  }
+  .tuto-dots i.on { background: var(--mint); width: 20px; }
+
   /* ---------- Ventana de una caja del ático ---------- */
   .caja-card { max-height: 86vh; overflow-y: auto; }
   .caja-head { text-align: center; margin-bottom: 14px; }
@@ -2957,6 +3000,11 @@
     /* La constelación aprovecha el ancho extra */
     /* Con ratón el desplazamiento no compite con ningún gesto, así que aquí
        la rama sí se recorre sin necesidad de pantalla completa. */
+    /* El relleno es SITIO LIBRE, no adorno: un lienzo que solo se puede
+       recorrer hacia donde ya hay nodos se siente una lista disfrazada de
+       mapa. Con esto se puede mirar (y crear) por delante, por detrás y por
+       arriba del trabajo que ya existe. Va como relleno del contenedor y no
+       como tamaño del dibujo, para que la tarjeta no crezca por el hueco. */
     .const-wrap { max-height: 560px; overflow: auto; }
   }
 
@@ -3497,6 +3545,9 @@
       <h3>Secciones del menú</h3>
       <p class="settings-note">Apaga las que no uses y el menú deja de mostrarlas. No se borra nada: al volver a encenderlas, todo sigue donde estaba.</p>
       <div id="modulos-list"></div>
+      <!-- Aquí y no en otro sitio: quien cierra el tutorial sin querer viene
+           a buscarlo justo donde están los módulos que explicaba. -->
+      <button class="btn btn-soft btn-block" style="margin-top:14px" onclick="verTutorialOtraVez()">Ver otra vez qué hace cada sección</button>
     </div>
 
     <div class="panel">
@@ -3603,6 +3654,16 @@
       <button class="btn btn-primary" id="modal-ok" onclick="modalDone(true)">Confirmar</button>
     </div>
   </div>
+</div>
+
+<!-- ============ TUTORIAL DE BIENVENIDA ============
+     Cuatro módulos con nombres de videojuego no se adivinan solos: quien
+     entra por primera vez ve un menú con "Talentos" y "Habilidades" y no
+     tiene forma de saber en qué se diferencian ni cuál le toca hoy. Son
+     tarjetas y no un tour con flechas sobre la interfaz a propósito — el
+     tour obliga a seguirlo, y esto se salta de un toque. -->
+<div class="modal-backdrop" id="tuto" onclick="if(event.target===this)saltarTutorial()">
+  <div class="modal-card tuto-card" id="tuto-card"></div>
 </div>
 
 <!-- ============ VENTANA DE UNA CAJA DEL ÁTICO ============
@@ -5118,8 +5179,8 @@ function colocarCaja(c) {
   if (typeof c.x === "number" && typeof c.y === "number") return;
   const pts = Object.keys(c.pos || {}).map(k => c.pos[k]);
   if (!pts.length) return;
-  c.x = clamp(Math.round(pts.reduce((a, p) => a + p.x, 0) / pts.length), 46, CANVAS_MAX_X);
-  c.y = clamp(Math.round(pts.reduce((a, p) => a + p.y, 0) / pts.length), 42, CANVAS_MAX_Y);
+  c.x = enLienzoX(pts.reduce((a, p) => a + p.x, 0) / pts.length);
+  c.y = enLienzoY(pts.reduce((a, p) => a + p.y, 0) / pts.length);
 }
 
 /* Los grupos abiertos de una rama: siguen existiendo aunque estén
@@ -5270,8 +5331,8 @@ function sacarDeCaja(cajaId, perkId) {
   }
   // Se coloca al lado de la caja, no en el sitio que ocupó hace meses
   if (typeof c.x === "number") {
-    p.x = clamp(Math.round(c.x + 150), 46, CANVAS_MAX_X);
-    p.y = clamp(Math.round(c.y || 100), 42, CANVAS_MAX_Y);
+    p.x = enLienzoX(c.x + 150);
+    p.y = enLienzoY(c.y || 100);
   }
   if (!c.perkIds.length) {
     state.cajas = state.cajas.filter(x => x.id !== c.id);
@@ -6170,7 +6231,7 @@ function renderSummary() {
               : d.dia;
             const qué = d.n > 0 ? `${d.n} registro${d.n === 1 ? "" : "s"}`
               : (d.estado === "hoy" ? "hoy, todavía nada" : (d.estado === "missed" ? "te lo saltaste" : (d.estado === "futuro" ? "aún no llega" : "antes de empezar")));
-            return `<div class="wk-d ${d.estado}${d.hoy ? " hoy" : ""}" title="${escapeAttr(formatDate(d.key) + " · " + qué)}">
+            return `<div class="wk-d wk-${d.estado}${d.hoy && d.estado !== "hoy" ? " wk-hoy" : ""}" title="${escapeAttr(formatDate(d.key) + " · " + qué)}">
               <span class="wk-l">${d.letra}</span><span class="wk-c">${marca}</span>
             </div>`;
           }).join("")}</div>
@@ -8388,11 +8449,100 @@ function renderTree() {
      izquierdo: la rama puede ser más ancha que la tarjeta y no hay por qué
      entrar a pantalla completa solo para recorrerla. */
   const cont = document.getElementById("tree-content");
-  if (cont) { attachPanHandlers(cont); attachCtxHandlers(cont); }
+  if (cont) { attachPanHandlers(cont); attachCtxHandlers(cont); encuadrarLienzos(cont); }
   if (focusPending) {
     focusPending = false;
     requestAnimationFrame(() => branches.forEach(b => focusBranchFront(b, true)));
   }
+}
+
+/* ================= El encuadre del lienzo =================
+   Desde que alrededor del dibujo hay sitio libre —y desde que un nodo puede
+   vivir antes del cero—, la esquina del contenedor ya no es donde está el
+   trabajo. Así que cada rama tiene que decir a dónde mira:
+
+     · la primera vez, al principio de lo dibujado
+     · después, a donde la dejó el usuario
+
+   Sin la segunda mitad, cualquier acción que repinta el árbol (y son casi
+   todas: completar algo, mover un nodo, guardar) devolvería la rama al
+   principio, y trabajar en la parte derecha de un mapa grande sería un
+   pulso contra la app. */
+const scrollRama = {};
+
+function llaveDeLienzo(wrap, b) {
+  return (wrap.closest("#fs-overlay") ? "fs:" : "lista:") + b;
+}
+
+/* Al cambiar el tamaño de la ventana (girar el teléfono, acoplar la app) la
+   posición guardada deja de significar lo mismo: el lienzo mide otra cosa y
+   lo que estaba centrado puede quedar fuera. Se olvida y cada rama vuelve a
+   encuadrarse sola. */
+window.addEventListener("resize", () => {
+  Object.keys(scrollRama).forEach(k => delete scrollRama[k]);
+});
+
+/* De coordenada del dibujo a píxel dentro del lienzo que se recorre. */
+function pixelEnLienzo(wrap, x, y) {
+  const svg = wrap.querySelector("svg");
+  if (!svg || !svg.viewBox || !svg.viewBox.baseVal) return null;
+  const vb = svg.viewBox.baseVal;
+  if (!vb.width || !vb.height) return null;
+  const cs = getComputedStyle(wrap);
+  const r = svg.getBoundingClientRect();
+  const ex = (r.width || vb.width) / vb.width;
+  const ey = (r.height || vb.height) / vb.height;
+  return {
+    x: parseFloat(cs.paddingLeft) + (x - vb.x) * ex,
+    y: parseFloat(cs.paddingTop) + (y - vb.y) * ey
+  };
+}
+
+function encuadrarLienzo(wrap, b) {
+  const svg = wrap.querySelector("svg");
+  if (!svg) return;
+  /* La tarjeta mide lo que mide el DIBUJO, no el lienzo con su sitio libre:
+     si no, cada rama arrastraría trescientos píxeles de hueco a la vista y la
+     página del árbol se haría el doble de larga. El máximo y el mínimo los
+     sigue poniendo el CSS. En pantalla completa no se toca: ahí el lienzo
+     ocupa lo que le deje la pantalla. */
+  if (!wrap.closest("#fs-overlay") && svg.dataset.dh) {
+    wrap.style.height = svg.dataset.dh + "px";
+  }
+  const memo = scrollRama[llaveDeLienzo(wrap, b)];
+  if (memo) {
+    wrap.scrollLeft = memo.x;
+    wrap.scrollTop = memo.y;
+  } else {
+    const cs = getComputedStyle(wrap);
+    // data-ox/oy: a qué altura del dibujo empieza lo que hay que ver
+    wrap.scrollLeft = Math.max(0, parseFloat(cs.paddingLeft) + (+svg.dataset.ox || 0) - 8);
+    wrap.scrollTop = Math.max(0, parseFloat(cs.paddingTop) + (+svg.dataset.oy || 0) - 8);
+  }
+  wrap.addEventListener("scroll", () => {
+    scrollRama[llaveDeLienzo(wrap, b)] = { x: wrap.scrollLeft, y: wrap.scrollTop };
+  }, { passive: true });
+}
+
+/* Redibuja una rama conservando lo que se está viendo. Cuando alguien lleva
+   un nodo hacia atrás, el lienzo crece por la izquierda: todo el dibujo se
+   corre dentro del SVG, y sin compensar el desplazamiento el mapa daría un
+   salto justo mientras se arrastra, que es el peor momento posible. */
+function redibujarLienzo(wrap, html) {
+  const vb = (v => v && v.viewBox && v.viewBox.baseVal)(wrap.querySelector("svg"));
+  const ax = vb ? vb.x : 0, ay = vb ? vb.y : 0;
+  wrap.innerHTML = html;
+  const nvb = (v => v && v.viewBox && v.viewBox.baseVal)(wrap.querySelector("svg"));
+  if (nvb) {
+    wrap.scrollLeft += ax - nvb.x;
+    wrap.scrollTop += ay - nvb.y;
+  }
+}
+
+function encuadrarLienzos(scope) {
+  (scope || document).querySelectorAll(".const-wrap").forEach(wrap => {
+    encuadrarLienzo(wrap, wrap.dataset.branch);
+  });
 }
 
 /* ================= Frente de avance =================
@@ -8419,9 +8569,18 @@ function focusBranchFront(b, silent) {
   if (!nodes.length) return;
   const { pos } = branchLayout(nodes);
   const target = frontNode(nodes);
-  const px = pos[target.id].x;
-  const left = Math.max(0, px - wrap.clientWidth / 2);
-  wrap.scrollTo({ left, behavior: silent ? "auto" : "smooth" });
+  /* Por píxel y no por coordenada del dibujo: entre el borde del lienzo y el
+     cero del dibujo hay ahora el margen libre, y a veces también el trozo que
+     ocupan los nodos colocados hacia atrás. */
+  const p = pixelEnLienzo(wrap, pos[target.id].x, pos[target.id].y);
+  if (!p) return;
+  // Se centra también en vertical: con sitio libre arriba y abajo, dejar el
+  // eje vertical donde estuviera puede esconder justo el nodo que se busca
+  wrap.scrollTo({
+    left: Math.max(0, p.x - wrap.clientWidth / 2),
+    top: Math.max(0, p.y - wrap.clientHeight / 2),
+    behavior: silent ? "auto" : "smooth"
+  });
   if (!silent) toast(`Centrado en: ${target.name}`, "hecho");
 }
 
@@ -8538,6 +8697,7 @@ function renderFullscreen() {
   if (editing) attachEditHandlers(ov);
   else attachPanHandlers(ov);
   attachCtxHandlers(ov);
+  encuadrarLienzos(ov);
 }
 
 /* ================= Editor del árbol: teclado, deshacer y creación rápida =================
@@ -8645,8 +8805,8 @@ function crearTalentoRapido(branch, tipo, pos) {
     history: [{ date: todayKey(), at: stamp(), event: `Talento creado en la rama ${branch}` }]
   };
   if (pos) {
-    nuevo.x = clamp(Math.round(pos.x), 46, CANVAS_MAX_X);
-    nuevo.y = clamp(Math.round(pos.y), 42, CANVAS_MAX_Y);
+    nuevo.x = enLienzoX(pos.x);
+    nuevo.y = enLienzoY(pos.y);
   }
   state.perks.push(nuevo);
   save();
@@ -8679,8 +8839,8 @@ function duplicarTalento(id, pos) {
   // Donde se hizo clic; si no, junto al original pero sin taparlo
   const destino = pos || (typeof orig.x === "number" ? { x: orig.x + 46, y: orig.y + 78 } : null);
   if (destino) {
-    copia.x = clamp(Math.round(destino.x), 46, CANVAS_MAX_X);
-    copia.y = clamp(Math.round(destino.y), 42, CANVAS_MAX_Y);
+    copia.x = enLienzoX(destino.x);
+    copia.y = enLienzoY(destino.y);
   }
 
   state.perks.push(copia);
@@ -8969,7 +9129,12 @@ function branchLayout(nodes) {
   const ys = order.map(n => pos[n.id].y);
   const W = Math.max(340, Math.max(...xs) + X0);
   const H = Math.max(200, Math.max(...ys) + PADY);
-  return { pos, order, childrenOf, padresDe, H, W };
+  /* Y también hacia atrás: desde que se puede colocar un nodo antes del cero
+     —para intercalar un paso previo sin tener que empujar la rama entera—,
+     el borde izquierdo y el de arriba ya no son siempre el cero. */
+  const minX = xs.length ? Math.min(...xs) : 0;
+  const minY = ys.length ? Math.min(...ys) : 0;
+  return { pos, order, childrenOf, padresDe, H, W, minX, minY };
 }
 
 /* Radio horizontal de cada figura: de ahí salen y entran las conexiones.
@@ -9114,7 +9279,7 @@ function edgePath(a, b, pa, pb) {
 }
 
 function constellation(nodes, key, editing, branch) {
-  const { pos, order, childrenOf, H, W } = branchLayout(nodes);
+  const { pos, order, childrenOf, H, W, minX, minY } = branchLayout(nodes);
   const fid = "glow" + key;
   if (editing) { editPos = pos; editKey = key; }
   let edges = "";
@@ -9331,7 +9496,26 @@ function constellation(nodes, key, editing, branch) {
   const hayFuera = order.some(n => requisitosVivos(n).some(r => (r.branch || "General") !== (n.branch || "General")));
   const padLeft = hayFuera ? 108 : 0;
   const padTop = Math.max(0, Math.ceil(alto));
-  return `<svg width="${W + padRight + padLeft}" height="${H + 30 + padTop}" viewBox="${-padLeft} ${-padTop} ${W + padRight + padLeft} ${H + 30 + padTop}" font-family="Outfit, sans-serif">
+  /* Dónde empieza lo dibujado. Mientras nadie coloque nada antes del cero
+     esto vale cero y el encuadre es el de siempre; en cuanto alguien lleva un
+     talento hacia atrás, el lienzo crece por ese lado en vez de dejarlo
+     fuera de cuadro. `data-ox`/`data-oy` guardan a qué altura del dibujo
+     empieza el contenido, que es a donde mira la rama al abrirse. */
+  const inicioX = Math.min(0, minX - X0_LIBRE);
+  const inicioY = Math.min(0, minY - Y0_LIBRE);
+  /* Y alrededor de todo eso, sitio libre para moverse. Va en el dibujo y no
+     como relleno del contenedor a propósito: una caja no puede medir menos
+     que su relleno, así que por ahí cada tarjeta de rama habría crecido
+     trescientos píxeles de hueco visible. Aquí el hueco solo existe para
+     quien lo recorre — el alto de la tarjeta lo fija `encuadrarLienzo` con
+     `data-dh`, que es lo que mide el dibujo de verdad. */
+  const vbX = inicioX - padLeft - LIBRE_X;
+  const vbY = inicioY - padTop - LIBRE_Y;
+  const alturaDibujo = H + 30 - (inicioY - padTop);
+  const vbW = W + padRight + LIBRE_X - vbX;
+  const vbH = H + 30 + LIBRE_Y - vbY;
+  return `<svg width="${vbW}" height="${vbH}" viewBox="${vbX} ${vbY} ${vbW} ${vbH}"
+    data-ox="${LIBRE_X}" data-oy="${LIBRE_Y}" data-dh="${Math.round(alturaDibujo)}" font-family="Outfit, sans-serif">
     <defs>
       <filter id="${fid}" x="-60%" y="-60%" width="220%" height="220%">
         <feGaussianBlur stdDeviation="2.6" result="b"/>
@@ -9350,7 +9534,24 @@ function constellation(nodes, key, editing, branch) {
 
 let editPos = {};   // id → {x, y} del último dibujo en edición
 let editKey = 0;    // índice de la rama en edición (para los ids del SVG)
+/* El lienzo ya no empieza en la esquina: se puede llevar un talento hacia
+   atrás o hacia arriba del punto de partida. Hacía falta para lo que la gente
+   intenta de verdad —intercalar un paso ANTES del primero— que hasta ahora
+   obligaba a empujar la rama entera a mano. Los topes siguen existiendo, solo
+   que ahora también por el otro lado: un arrastre desbocado no puede mandar
+   un nodo a un sitio del que no se pueda volver. */
 const CANVAS_MAX_X = 2200, CANVAS_MAX_Y = 1400;
+const CANVAS_MIN_X = -1800, CANVAS_MIN_Y = -1200;
+// Aire entre el borde del dibujo y el primer nodo cuando la rama crece hacia atrás
+const X0_LIBRE = 110, Y0_LIBRE = 90;
+/* Y el sitio por el que uno puede pasearse aunque no haya nada: un mapa que
+   solo se deja recorrer hacia donde ya hay nodos se siente una lista
+   disfrazada. Es lo que permite mirar —y crear— por delante, por detrás y
+   por arriba de lo que ya existe. */
+const LIBRE_X = 340, LIBRE_Y = 300;
+
+function enLienzoX(v) { return clamp(Math.round(v), CANVAS_MIN_X, CANVAS_MAX_X); }
+function enLienzoY(v) { return clamp(Math.round(v), CANVAS_MIN_Y, CANVAS_MAX_Y); }
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 function isDesktop() { return window.matchMedia("(min-width: 900px)").matches; }
@@ -9633,9 +9834,9 @@ function attachPanHandlers(scope) {
         if (!n) return;
         const pt = svgPt(e);
         gesto.movido = true;
-        n.x = clamp(Math.round(pt.x + gesto.dx), 46, CANVAS_MAX_X);
-        n.y = clamp(Math.round(pt.y + gesto.dy), 42, CANVAS_MAX_Y);
-        wrap.innerHTML = constellation(branchNodes(b), 0, false, b);
+        n.x = enLienzoX(pt.x + gesto.dx);
+        n.y = enLienzoY(pt.y + gesto.dy);
+        redibujarLienzo(wrap, constellation(branchNodes(b), 0, false, b));
         e.preventDefault();
         return;
       }
@@ -9760,9 +9961,7 @@ function attachEditHandlers(scope) {
   };
 
   const redraw = () => {
-    const keep = wrap.scrollLeft;
-    wrap.innerHTML = constellation(branchNodes(b), editKey, true, b);
-    wrap.scrollLeft = keep;
+    redibujarLienzo(wrap, constellation(branchNodes(b), editKey, true, b));
   };
 
   wrap.addEventListener("pointerdown", (e) => {
@@ -9817,8 +10016,8 @@ function attachEditHandlers(scope) {
       // nodoPorId y no state.perks: la caja del atico tambien se arrastra
       const p = nodoPorId(curId);
       if (!p) return;
-      p.x = clamp(pt.x + offset.dx, 46, CANVAS_MAX_X);
-      p.y = clamp(pt.y + offset.dy, 42, CANVAS_MAX_Y);
+      p.x = enLienzoX(pt.x + offset.dx);
+      p.y = enLienzoY(pt.y + offset.dy);
       editPos[curId] = { x: p.x, y: p.y };
       // Al acercarse a un borde, el lienzo acompaña al dedo
       const r = wrap.getBoundingClientRect();
@@ -10279,6 +10478,9 @@ function saveSkill() {
     save();
     toast(`${name} añadida a tu expedición ✨`);
     showView("home");
+    /* Solo con la primera: el tutorial acompaña al estreno del tablero, y a
+       la segunda habilidad ya sobra. */
+    if (state.skills.length === 1) quizaTutorial(900);
   }
 }
 
@@ -10951,7 +11153,122 @@ function buildFromOnboarding() {
   save();
   showView("summary");
   celebrate("Tu tablero está listo", `${areas.length} área${areas.length === 1 ? "" : "s"} para empezar`, "#5fe0b0", "compass");
+  // Después de la celebración, no encima de ella
+  quizaTutorial(2600);
 }
+
+/* ================= Tutorial de bienvenida =================
+   Sale UNA vez, y sale cuando el tablero ya tiene algo dentro: explicar los
+   módulos con la app vacía es hablar de sitios que el usuario todavía no
+   puede reconocer. Por eso lo disparan los tres caminos de entrada —el
+   cuestionario, el ejemplo y la primera habilidad hecha a mano— y no el
+   primer arranque a secas.
+
+   Cada tarjeta explica UN módulo, con la misma pregunta detrás: ¿qué pongo
+   aquí y qué gano? Se salta entero desde la primera, y se puede volver a ver
+   desde Ajustes, que es donde uno busca las cosas que cerró sin querer. */
+
+const TUTO_PASOS = [
+  {
+    modulo: "missions", icon: "flame", color: "#f5d76e", titulo: "Misiones",
+    tx: "Lo que haces <b>hoy</b>. Pequeñas y repetibles: salir a caminar, leer diez páginas. Cada vez que cumples una sube una habilidad y sigue viva tu racha.",
+    pie: "Si dudas por dónde empezar, empieza aquí."
+  },
+  {
+    modulo: "home", icon: "star", color: "#5fe0b0", titulo: "Habilidades",
+    tx: "Lo que <b>practicas</b>. No se marcan como hechas: acumulan XP y suben de nivel con las horas que les dedicas.",
+    pie: "Y si dejas una abandonada mucho tiempo, baja. El progreso se sostiene, no se guarda."
+  },
+  {
+    modulo: "tree", icon: "gem", color: "#b7a2ea", titulo: "Talentos",
+    tx: "Lo que <b>te propones</b>, en un mapa. Cada nodo es una compra, un hito o una meta, y se encadenan: unos abren el paso a otros.",
+    pie: "Es el módulo para lo que cuesta dinero o meses, no para lo de esta tarde."
+  },
+  {
+    modulo: "projects", icon: "flag", color: "#6fc3e8", titulo: "Proyectos",
+    tx: "Lo que <b>construyes</b> por etapas. Tienen principio y final, y la app mide su ritmo para decirte cuáles siguen vivos.",
+    pie: "Un proyecto que lleva semanas quieto te lo dirá, sin regañarte."
+  },
+  {
+    modulo: null, icon: "compass", color: "#5fe0b0", titulo: "Y todo se conecta",
+    tx: "Una misión cumplida, un talento logrado o una etapa de proyecto terminan en el mismo sitio: <b>XP para tus habilidades</b>.",
+    pie: "Puedes apagar los módulos que no uses desde Ajustes, y volver a ver esto cuando quieras."
+  }
+];
+
+let tutoPaso = 0;
+
+function pasosDelTutorial() {
+  // Un módulo apagado no se explica: sería enseñar una puerta que no existe
+  return TUTO_PASOS.filter(p => !p.modulo || moduloOn(p.modulo));
+}
+
+function arrancarTutorial() {
+  tutoPaso = 0;
+  renderTutorial();
+  document.getElementById("tuto").classList.add("show");
+}
+
+/* Se llama desde los tres caminos de entrada. El retraso deja terminar lo que
+   estuviera en pantalla (la celebración del cuestionario dura lo suyo) para
+   que las dos cosas no se pisen. */
+function quizaTutorial(retraso) {
+  if (state.ui && state.ui.tutorialVisto) return;
+  setTimeout(arrancarTutorial, retraso || 400);
+}
+
+function renderTutorial() {
+  const pasos = pasosDelTutorial();
+  const p = pasos[tutoPaso];
+  if (!p) { cerrarTutorial(); return; }
+  const ultimo = tutoPaso === pasos.length - 1;
+  document.getElementById("tuto-card").innerHTML = `
+    <div class="tuto-ic" style="--tc:${p.color}">${icon(p.icon, 30)}</div>
+    <h2>${escapeHtml(p.titulo)}</h2>
+    <p class="tuto-tx">${p.tx}</p>
+    <p class="tuto-pie">${p.pie}</p>
+    <div class="tuto-dots">${pasos.map((_, i) =>
+      `<i class="${i === tutoPaso ? "on" : ""}"></i>`).join("")}</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="saltarTutorial()">${ultimo ? "Cerrar" : "Saltar tutorial"}</button>
+      <button class="btn btn-primary" onclick="tutoSiguiente()">${ultimo ? "Empezar" : "Siguiente"}</button>
+    </div>`;
+}
+
+function tutoSiguiente() {
+  tutoPaso++;
+  if (tutoPaso >= pasosDelTutorial().length) { terminarTutorial(); return; }
+  renderTutorial();
+}
+
+function saltarTutorial() { terminarTutorial(); }
+
+/* Saltarlo cuenta como haberlo visto: si volviera a salir, saltarlo dejaría
+   de ser una salida y pasaría a ser un aplazamiento. */
+function terminarTutorial() {
+  state.ui = state.ui || {};
+  state.ui.tutorialVisto = true;
+  save();
+  cerrarTutorial();
+}
+
+function cerrarTutorial() {
+  const el = document.getElementById("tuto");
+  if (el) el.classList.remove("show");
+}
+
+function verTutorialOtraVez() {
+  showView("summary");
+  arrancarTutorial();
+}
+
+document.addEventListener("keydown", (e) => {
+  const el = document.getElementById("tuto");
+  if (!el || !el.classList.contains("show")) return;
+  if (e.key === "Escape") { e.preventDefault(); saltarTutorial(); }
+  else if (e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); tutoSiguiente(); }
+  else if (e.key === "ArrowLeft" && tutoPaso > 0) { e.preventDefault(); tutoPaso--; renderTutorial(); }
+});
 
 /* ================= Ejemplos ================= */
 
@@ -11137,6 +11454,7 @@ function loadExamples() {
   save();
   showView("summary");
   toast("Ejemplo cargado: explora Misiones, Árbol y Proyectos");
+  quizaTutorial(700);
 }
 
 /* Misiones de ejemplo: una diaria con racha viva, una de varias veces al día,
