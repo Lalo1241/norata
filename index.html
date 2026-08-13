@@ -1266,6 +1266,16 @@
     font-variant-numeric: tabular-nums;
   }
   .branch-head h3 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* El lápiz solo aparece al acercarse: el nombre tiene que leerse como un
+     título, no como un campo de formulario permanente. */
+  .branch-head h3.renombrable { cursor: text; display: flex; align-items: center; gap: 6px; }
+  .branch-head h3.renombrable .ic {
+    flex: none;
+    opacity: 0;
+    color: var(--muted);
+    transition: opacity 0.15s;
+  }
+  .branch-head h3.renombrable:hover .ic { opacity: 1; }
   .bhead-btns { margin-left: auto; display: flex; gap: 7px; }
 
   /* ---------- Menú de herramientas de una rama ----------
@@ -1542,6 +1552,13 @@
   .const-wrap.editing .cnode { cursor: grab; }
   .cnode.dragging { cursor: grabbing; }
   .port { cursor: crosshair; }
+  /* El círculo de la letra es un interruptor, no un adorno: se comporta como
+     un botón para que la mano lo pruebe sin que nadie se lo explique. */
+  .port-in.switch { cursor: pointer; }
+  .port-in.switch circle:not(.halo) { transition: 0.15s; }
+  .port-in.switch:hover circle:not(.halo) { stroke-width: 3.2; }
+  .grupo-tag { cursor: pointer; }
+  .grupo-tag:hover rect { fill: #1a2330; }
   /* Tijeras: corta el hilo entre dos talentos */
   .edge-hit {
     cursor: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%2310151d' stroke-width='4.6'%3E%3Ccircle cx='6' cy='6' r='2.8'/%3E%3Ccircle cx='6' cy='18' r='2.8'/%3E%3Cpath d='M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12'/%3E%3C/g%3E%3Cg stroke='%23ff8a70' stroke-width='2'%3E%3Ccircle cx='6' cy='6' r='2.8'/%3E%3Ccircle cx='6' cy='18' r='2.8'/%3E%3Cpath d='M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12'/%3E%3C/g%3E%3C/svg%3E") 6 6, pointer;
@@ -1793,6 +1810,78 @@
   }
   .modal-actions { display: flex; gap: 10px; }
   .modal-actions .btn { flex: 1; }
+
+  /* ---------- Ventana de una caja del ático ---------- */
+  .caja-card { max-height: 86vh; overflow-y: auto; }
+  .caja-head { text-align: center; margin-bottom: 14px; }
+  .caja-nombre {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 19px;
+    cursor: text;
+    color: var(--text);
+  }
+  .caja-nombre .ic { opacity: 0; color: var(--muted); transition: opacity 0.15s; }
+  .caja-nombre:hover .ic { opacity: 1; }
+  .caja-sub {
+    display: block;
+    margin-top: 5px;
+    font-size: 11.5px;
+    color: var(--faint);
+  }
+  .caja-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .caja-stats > div {
+    background: var(--bg2);
+    border-radius: 14px;
+    padding: 9px 4px;
+    text-align: center;
+  }
+  .caja-stats b { display: block; font-size: 19px; font-variant-numeric: tabular-nums; }
+  .caja-stats span { font-size: 10.5px; color: var(--faint); }
+  .caja-lista { display: flex; flex-direction: column; gap: 6px; max-height: 40vh; overflow-y: auto; }
+  .caja-row { display: flex; align-items: stretch; gap: 6px; }
+  .caja-ir {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 9px 12px;
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+    min-width: 0;
+  }
+  .caja-row.ok .caja-ir { border-color: rgba(95, 224, 176, 0.32); }
+  .caja-ir .ct { min-width: 0; }
+  .caja-ir .ct b { display: block; font-size: 13.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .caja-ir .ct span { font-size: 10.5px; color: var(--faint); }
+  /* Sacar un talento es la acción menos usada de la fila, así que va al
+     margen y sin color: se encuentra, pero no se pulsa sin querer. */
+  .caja-sacar {
+    flex: none;
+    width: 38px;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    color: var(--muted);
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .caja-sacar:hover { color: var(--mint); border-color: var(--mint); }
   /* Última confirmación de borrado: sacude y late en rojo */
   .modal-card.alarm {
     border-color: var(--coral);
@@ -3516,6 +3605,16 @@
   </div>
 </div>
 
+<!-- ============ VENTANA DE UNA CAJA DEL ÁTICO ============
+     Entrar a una caja sin desplegarla. Antes la única forma de saber qué
+     llevaba dentro era abrirla —y abrirla devuelve ocho talentos al mapa—,
+     así que echar un vistazo costaba deshacer el orden que uno acababa de
+     poner. Aquí se ve lo que guarda, se entra a cualquiera de sus talentos y
+     se saca uno suelto, con la caja todavía cerrada. -->
+<div class="modal-backdrop" id="caja-modal" onclick="if(event.target===this)cerrarVentanaCaja()">
+  <div class="modal-card caja-card" id="caja-body"></div>
+</div>
+
 <!-- ============ CELEBRACIÓN ============ -->
 <div class="celebrate" id="celebrate">
   <div class="cel-ring"></div>
@@ -3785,13 +3884,32 @@ function load() {
   data.cajas.forEach(c => {
     if (!Array.isArray(c.perkIds)) c.perkIds = [];
     c.perkIds = c.perkIds.filter(id => idsDeTalento.has(id));
+    /* Una caja dejó de ser un archivador para ser un GRUPO, y un grupo es un
+       nodo más del mapa: tiene nombre propio, sitio propio y conexiones
+       propias. Lo que se guarda aquí es lo que el usuario decidió a mano; lo
+       que hereda de sus miembros se recalcula en cada dibujo (R5). */
+    if (!Array.isArray(c.requiere)) c.requiere = [];
+    if (c.modo !== "cualquiera") c.modo = "todos";
+    if (!c.pos || typeof c.pos !== "object") c.pos = {};
   });
   data.cajas = data.cajas.filter(c => c.perkIds.length);
+  /* Una conexión que apunta a algo que ya no existe deja al nodo bloqueado
+     sin causa visible, así que al cargar se barren las que quedaron sueltas
+     —de una caja que se vació, de un talento borrado en otro dispositivo—.
+     Vale tanto para los talentos como para las cajas: desde que las dos
+     cosas se conectan, las dos pueden quedarse colgando. */
+  const idsDeCaja = new Set(data.cajas.map(c => c.id));
+  const vivo = id => idsDeTalento.has(id) || idsDeCaja.has(id);
+  data.cajas.forEach(c => {
+    c.requiere = c.requiere.filter(id => vivo(id) && id !== c.id);
+  });
   data.perks.forEach((p, i) => {
     if (!p.icon) p.icon = ICON_LIST[(i * 5 + 3) % ICON_LIST.length];
     if (!p.color) p.color = COLORS[(i * 3 + 2) % COLORS.length];
     migrarTipoTalento(p);
     if (!Array.isArray(p.steps)) p.steps = [];
+    // Después de migrar: así también se limpia el requisito único de antes
+    p.requiere = p.requiere.filter(id => vivo(id) && id !== p.id);
   });
   return data;
 }
@@ -3882,6 +4000,35 @@ function ask(msg, okLabel, danger, alarm, cancelLabel) {
    usuario se escapa antes de llegar aquí. */
 function askHtml(html, okLabel, cancelLabel) {
   return askBase(html, true, okLabel, false, false, cancelLabel);
+}
+
+/* Pedir un texto con el mismo modal de siempre. prompt() del navegador se
+   bloquea en visores embebidos igual que confirm(), y además llega sin el
+   valor de partida escrito, que es justo lo que hace falta al renombrar:
+   corregir una palabra, no volver a teclearlo todo. */
+function askText(titulo, valor, okLabel, pista) {
+  const p = askHtml(
+    `<b style="display:block;margin-bottom:12px">${escapeHtml(titulo)}</b>
+     <input id="modal-input" type="text" maxlength="42" value="${escapeAttr(valor || "")}">
+     ${pista ? `<span class="field-hint" style="display:block;text-align:left">${escapeHtml(pista)}</span>` : ""}`,
+    okLabel || "Guardar");
+  /* setTimeout y no requestAnimationFrame: el cuadro tiene que quedar listo
+     para escribir aunque la pestaña esté en segundo plano, y ahí los cuadros
+     de animación no llegan. */
+  setTimeout(() => {
+    const el = document.getElementById("modal-input");
+    if (!el) return;
+    el.focus();
+    el.select();
+    // Enter confirma: en un campo de una sola línea es lo que la mano espera
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); modalDone(true); }
+    });
+  }, 0);
+  return p.then(ok => {
+    const el = document.getElementById("modal-input");
+    return ok ? (el ? el.value.trim() : "") : null;
+  });
 }
 
 function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel) {
@@ -4924,6 +5071,64 @@ function cajaDeTalento(id) {
   return (state.cajas || []).find(c => !c.abierta && c.perkIds.includes(id));
 }
 
+/* ---- La caja como grupo ----
+   El trimestre le da el nombre por defecto, pero un grupo que no se puede
+   renombrar es un cajón sin etiqueta: sirve para guardar, no para volver. */
+function nombreCaja(c) { return (c && c.nombre) ? c.nombre : tituloTrimestre(c.trimestre); }
+
+function cajaPorId(id) { return (state.cajas || []).find(c => c.id === id); }
+
+/* Un id del mapa puede ser un talento o una caja. Se dibujan, se mueven y se
+   conectan igual, así que casi todo el editor solo necesita "dame el nodo". */
+function nodoPorId(id) {
+  return state.perks.find(p => p.id === id) || cajaPorId(id);
+}
+
+/* A qué ids REALES corresponde un nodo del dibujo. Una caja cerrada habla en
+   nombre de sus miembros, así que la línea que llega hasta ella puede estar
+   guardada en cualquiera de ellos y no en la caja. */
+function idsRepresentados(id) {
+  const c = cajaPorId(id);
+  return (c && !c.abierta) ? [id, ...c.perkIds] : [id];
+}
+
+/* R5 con memoria. Al empaquetar se anota dónde estaba cada talento, para que
+   al abrir la caja el mapa vuelva a ser EL DE ANTES y no uno reacomodado por
+   el reparto automático. Guardar tiene que ser reversible hasta en el sitio
+   que ocupaban las cosas. */
+function guardarPosicionesEn(c) {
+  c.pos = {};
+  c.perkIds.forEach(pid => {
+    const p = state.perks.find(x => x.id === pid);
+    if (p && typeof p.x === "number" && typeof p.y === "number") c.pos[pid] = { x: p.x, y: p.y };
+  });
+}
+
+function restaurarPosiciones(c) {
+  Object.keys(c.pos || {}).forEach(pid => {
+    const p = state.perks.find(x => x.id === pid);
+    if (p) { p.x = c.pos[pid].x; p.y = c.pos[pid].y; }
+  });
+}
+
+/* La caja nace donde estaba el grupo —en el centro de lo que guarda— y no
+   en la esquina que le tocara por orden: si apareciera lejos, guardar un
+   trimestre parecería haber movido media rama. */
+function colocarCaja(c) {
+  if (typeof c.x === "number" && typeof c.y === "number") return;
+  const pts = Object.keys(c.pos || {}).map(k => c.pos[k]);
+  if (!pts.length) return;
+  c.x = clamp(Math.round(pts.reduce((a, p) => a + p.x, 0) / pts.length), 46, CANVAS_MAX_X);
+  c.y = clamp(Math.round(pts.reduce((a, p) => a + p.y, 0) / pts.length), 42, CANVAS_MAX_Y);
+}
+
+/* Los grupos abiertos de una rama: siguen existiendo aunque estén
+   desplegados, y por eso el mapa los dibuja como un recinto alrededor de sus
+   miembros en vez de olvidarlos hasta que se vuelvan a cerrar. */
+function gruposAbiertos(b) {
+  return cajasDeRama(b).filter(c => c.abierta && c.perkIds.length);
+}
+
 /* Los trimestres que se pueden cerrar en una rama: los ya terminados que
    todavía tengan algo suelto. El actual nunca — no se guarda un trimestre
    en el que aún estás. */
@@ -4970,15 +5175,23 @@ async function guardarTrimestre(b, tid) {
     // R7: lo que estaba en curso deja de correr mientras esté dentro
     if (p.status === "active" && !p.congeladoEl) p.congeladoEl = todayKey();
   });
-  state.cajas = state.cajas || [];
-  state.cajas.push({
+  /* Se congela el reparto ANTES de empaquetar: si los talentos no tenían
+     coordenadas propias, al abrir la caja volverían colocados por el reparto
+     automático y el usuario vería su rama reordenada sola. */
+  fijarPosiciones(b);
+  const caja = {
     id: uid(), branch: b, trimestre: tid, guardadoEl: todayKey(),
-    abierta: false, perkIds: dentro.map(p => p.id)
-  });
+    abierta: false, perkIds: dentro.map(p => p.id),
+    requiere: [], modo: "todos", pos: {}
+  };
+  guardarPosicionesEn(caja);
+  colocarCaja(caja);
+  state.cajas = state.cajas || [];
+  state.cajas.push(caja);
   save();
   renderTree();
   toast(`${tituloTrimestre(tid)} guardado · ${dentro.length} talento${dentro.length === 1 ? "" : "s"}`, "hecho",
-    { label: "Abrir", onclick: `abrirCaja('${state.cajas[state.cajas.length - 1].id}')` });
+    { label: "Ver qué lleva", onclick: `verCaja('${caja.id}')` });
 }
 
 /* Abrir no es una vista de solo lectura: lo de dentro vuelve a ser
@@ -4988,16 +5201,28 @@ async function guardarTrimestre(b, tid) {
 function abrirCaja(id) {
   const c = (state.cajas || []).find(x => x.id === id);
   if (!c || c.abierta) return;
+  cerrarVentanaCaja();
   c.abierta = true;
   descongelarCaja(c);
+  /* Todo vuelve como estaba: cada talento a su sitio, con sus conexiones
+     intactas (nunca se tocaron) y el grupo dibujado alrededor para que se
+     vea de dónde salieron. Las conexiones propias de la caja se quedan
+     guardadas y reaparecen si la vuelves a cerrar. */
+  restaurarPosiciones(c);
   save();
   renderTree();
-  toast(`${tituloTrimestre(c.trimestre)} abierto`, "deshecho", { label: "Volver a guardar", onclick: `cerrarCaja('${c.id}')` });
+  toast(`${nombreCaja(c)} desplegado · el grupo sigue marcado en el mapa`, "deshecho",
+    { label: "Volver a guardar", onclick: `cerrarCaja('${c.id}')` });
 }
 
 function cerrarCaja(id) {
   const c = (state.cajas || []).find(x => x.id === id);
   if (!c || !c.abierta) return;
+  cerrarVentanaCaja();
+  // Lo mismo que al empaquetar por primera vez: se anota dónde queda cada uno
+  fijarPosiciones(c.branch);
+  guardarPosicionesEn(c);
+  colocarCaja(c);
   c.abierta = false;
   c.guardadoEl = todayKey();
   c.perkIds.forEach(pid => {
@@ -5006,7 +5231,142 @@ function cerrarCaja(id) {
   });
   save();
   renderTree();
-  toast(`${tituloTrimestre(c.trimestre)} guardado de nuevo`, "hecho");
+  toast(`${nombreCaja(c)} guardado de nuevo`, "hecho");
+}
+
+/* Renombrar es lo que convierte "3º trim. 2026" en "El semestre del examen".
+   Un grupo con nombre propio se vuelve a abrir; uno con fecha, no. */
+async function renombrarCaja(id) {
+  const c = cajaPorId(id);
+  if (!c) return;
+  const nombre = await askText(
+    "¿Cómo quieres llamar a esta caja?",
+    nombreCaja(c),
+    "Ponerle nombre",
+    `Déjalo vacío para volver a "${tituloTrimestre(c.trimestre)}".`);
+  if (nombre === null) return;
+  if (nombre) c.nombre = nombre.slice(0, 42); else delete c.nombre;
+  save();
+  renderTree();
+  if (ventanaCajaId === c.id) verCaja(c.id);
+  toast(`Ahora se llama ${nombreCaja(c)}`, "hecho");
+}
+
+/* Sacar UN talento sin desmontar el grupo entero. Sin esto, recuperar una
+   sola cosa obligaba a abrir la caja, y abrir la caja deshace el orden que
+   costó tomar la decisión de guardar. */
+function sacarDeCaja(cajaId, perkId) {
+  const c = cajaPorId(cajaId);
+  const p = state.perks.find(x => x.id === perkId);
+  if (!c || !p) return;
+  pushUndo("sacar un talento de la caja");
+  c.perkIds = c.perkIds.filter(id => id !== perkId);
+  if (c.pos) delete c.pos[perkId];
+  // Vuelve a correr su plazo: fuera de la caja el compromiso está vivo
+  if (p.congeladoEl) {
+    const dias = daysBetween(p.congeladoEl, todayKey());
+    if (dias > 0 && p.endDate) p.endDate = addDaysKey(p.endDate, dias);
+    delete p.congeladoEl;
+  }
+  // Se coloca al lado de la caja, no en el sitio que ocupó hace meses
+  if (typeof c.x === "number") {
+    p.x = clamp(Math.round(c.x + 150), 46, CANVAS_MAX_X);
+    p.y = clamp(Math.round(c.y || 100), 42, CANVAS_MAX_Y);
+  }
+  if (!c.perkIds.length) {
+    state.cajas = state.cajas.filter(x => x.id !== c.id);
+    limpiarEnlacesA(c.id);
+    cerrarVentanaCaja();
+  }
+  save();
+  renderTree();
+  if (ventanaCajaId === c.id) verCaja(c.id);
+  toast(`${p.name} salió de la caja`, "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
+}
+
+/* ---- La ventana de una caja ----
+   Es la mitad que le faltaba al ático: mirar dentro sin desmontar nada.
+   Abrir una caja devuelve todo su contenido al mapa, y eso es una decisión;
+   asomarse a ver qué guardó uno en marzo no debería serlo. */
+let ventanaCajaId = null;
+
+function verCaja(id) {
+  const c = cajaPorId(id);
+  const el = document.getElementById("caja-modal");
+  if (!c || !el) return;
+  ventanaCajaId = id;
+  const { total, hechos, pendientes, dentro } = resumenCaja(c);
+  const cc = pendientes === 0 ? "var(--mint)" : "var(--fire)";
+  const dib = nodoDeVista(c.branch, c.id);
+  const enlaces = dib ? dib.requiere.length : 0;
+
+  const lista = dentro.map(p => {
+    const st = perkStatus(p);
+    return `
+    <div class="caja-row ${st === "completed" ? "ok" : ""}">
+      <button type="button" class="caja-ir" onclick="irATalentoDeCaja('${escapeAttr(p.id)}')">
+        <span class="ci" style="color:${p.color || "var(--mint)"}">${icon(st === "completed" ? "check" : (p.icon || "star"), 15)}</span>
+        <span class="ct"><b>${escapeHtml(p.name)}</b><span>${metaDe(p).nombre} · ${STATUS_LABEL[st]}</span></span>
+      </button>
+      <button type="button" class="caja-sacar" title="Sacar del ático" aria-label="Sacar ${escapeAttr(p.name)} del ático"
+        onclick="sacarDeCaja('${escapeAttr(c.id)}','${escapeAttr(p.id)}')">↥</button>
+    </div>`;
+  }).join("");
+
+  document.getElementById("caja-body").innerHTML = `
+    <div class="caja-head">
+      <button type="button" class="caja-nombre" onclick="renombrarCaja('${escapeAttr(c.id)}')" title="Renombrar esta caja">
+        <b style="color:${cc}">${escapeHtml(nombreCaja(c))}</b>${icon("pen", 12)}
+      </button>
+      <span class="caja-sub">${escapeHtml(c.branch)} · ${tituloTrimestre(c.trimestre)} · guardada el ${formatDate(c.guardadoEl)}</span>
+    </div>
+    <div class="caja-stats">
+      <div><b style="color:var(--mint)">${hechos}</b><span>hechos</span></div>
+      <div><b style="color:${pendientes ? "var(--fire)" : "var(--muted)"}">${pendientes}</b><span>sin terminar</span></div>
+      <div><b>${total}</b><span>en total</span></div>
+    </div>
+    <p class="settings-note" style="text-align:left;margin:0 0 12px">${
+      c.abierta
+        ? "Está desplegada: sus talentos viven en el mapa, dentro del recinto del grupo."
+        : `Está guardada: en el mapa ocupa un solo nodo${
+            pendientes ? ` y los plazos de lo pendiente están congelados` : ""}${
+            enlaces ? ` · ${enlaces} conexión${enlaces === 1 ? "" : "es"} entrando` : ""}.`}</p>
+    <div class="caja-lista">${lista || `<p class="settings-note" style="margin:0">Se quedó vacía.</p>`}</div>
+    <div class="stack" style="margin-top:14px">
+      ${c.abierta
+        ? `<button class="btn btn-primary btn-block" onclick="cerrarCaja('${escapeAttr(c.id)}')">Volver a guardarla</button>`
+        : `<button class="btn btn-primary btn-block" onclick="abrirCaja('${escapeAttr(c.id)}')">Desplegarla en el mapa</button>`}
+      <button class="btn btn-danger-ghost btn-block" onclick="borrarCaja('${escapeAttr(c.id)}')">Borrar la caja</button>
+      <button class="btn btn-ghost btn-block" onclick="cerrarVentanaCaja()">Cerrar</button>
+    </div>`;
+  el.classList.add("show");
+}
+
+function cerrarVentanaCaja() {
+  ventanaCajaId = null;
+  const el = document.getElementById("caja-modal");
+  if (el) el.classList.remove("show");
+}
+
+function irATalentoDeCaja(id) {
+  cerrarVentanaCaja();
+  openPerk(id);
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && ventanaCajaId) cerrarVentanaCaja();
+});
+
+/* Nadie puede quedar exigiendo un nodo que ya no existe: una línea que
+   apunta al vacío deja bloqueado a quien la tiene, sin causa visible. */
+function limpiarEnlacesA(id) {
+  state.perks.forEach(p => {
+    const r = requisitosDe(p);
+    if (r.includes(id)) p.requiere = r.filter(x => x !== id);
+  });
+  (state.cajas || []).forEach(c => {
+    if ((c.requiere || []).includes(id)) c.requiere = c.requiere.filter(x => x !== id);
+  });
 }
 
 /* R7: el plazo se congela dentro de la caja. Al abrirla, la fecha límite se
@@ -5028,9 +5388,10 @@ async function borrarCaja(id) {
   if (!c) return;
   const { total, hechos } = resumenCaja(c);
   if (!await ask(
-    `¿Borrar la caja del ${tituloTrimestre(c.trimestre)}? Se van sus ${total} talento${total === 1 ? "" : "s"} y no se puede deshacer. ` +
+    `¿Borrar "${nombreCaja(c)}"? Se van sus ${total} talento${total === 1 ? "" : "s"} y no se puede deshacer. ` +
     `El XP que dieron los ${hechos} logrado${hechos === 1 ? "" : "s"} se queda en tus habilidades.`,
     "Borrar", true)) return;
+  cerrarVentanaCaja();
   const fuera = new Set(c.perkIds);
   state.perks = state.perks.filter(p => !fuera.has(p.id));
   // Quien los pedía deja de esperarlos, en vez de quedarse bloqueado a nada
@@ -5039,9 +5400,10 @@ async function borrarCaja(id) {
     if (r.some(id2 => fuera.has(id2))) p.requiere = r.filter(id2 => !fuera.has(id2));
   });
   state.cajas = state.cajas.filter(x => x.id !== id);
+  limpiarEnlacesA(c.id);
   save();
   renderTree();
-  toast(`Caja del ${tituloTrimestre(c.trimestre)} borrada`, "deshecho");
+  toast(`"${nombreCaja(c)}" borrada`, "deshecho");
 }
 
 /* ---- La rama tal como se dibuja ----
@@ -5063,19 +5425,23 @@ function vistaDeRama(b) {
   const nodos = [];
   cerradas.forEach(c => {
     const { total, hechos, pendientes } = resumenCaja(c);
-    // Los requisitos de la caja: los de sus miembros que apuntan fuera
+    // Los requisitos de la caja: los de sus miembros que apuntan fuera...
     const req = new Set();
     c.perkIds.forEach(pid => {
       const p = state.perks.find(x => x.id === pid);
       if (!p) return;
       requisitosDe(p).forEach(r => { const v = rep(r); if (v !== c.id) req.add(v); });
     });
+    /* ...y los suyos propios. Una caja se puede atar a mano a cualquier nodo
+       aunque nada de lo que lleva dentro lo pidiera: es una conexión
+       simbólica —"esto vino de aquello"— y por eso no bloquea a nadie. */
+    (c.requiere || []).forEach(r => { const v = rep(r); if (v !== c.id) req.add(v); });
     nodos.push({
       id: c.id, esCaja: true, cajaId: c.id,
-      name: tituloTrimestre(c.trimestre),
+      name: nombreCaja(c),
       resumen: pendientes ? `${hechos} hechos · ${pendientes} sin terminar` : `${total} guardados`,
       todoHecho: pendientes === 0,
-      requiere: [...req], modo: "todos",
+      requiere: [...req], modo: modoDe(c),
       color: "#5fe0b0", icon: "box",
       x: c.x, y: c.y
     });
@@ -7071,6 +7437,40 @@ async function deleteBranch(kind, b) {
   toast(`Rama "${b}" borrada`, "deshecho");
 }
 
+/* ---- Renombrar una rama de talentos ----
+   La rama no es un dato aparte: es el nombre que llevan escrito sus talentos
+   y sus cajas. Renombrarla es reescribirlo en todos a la vez, y por eso vive
+   aquí y no en un formulario.
+
+   Si el nombre nuevo ya existe, las dos ramas se juntan. No es un error que
+   haya que impedir —juntar dos ramas que se llamaban casi igual es una razón
+   perfectamente buena para renombrar— pero sí se avisa antes, porque el
+   resultado no se puede adivinar desde el teclado. */
+async function renombrarRama(b) {
+  const nuevo = await askText(`Renombrar la rama "${b}"`, b, "Renombrar",
+    "Se reescribe en todos sus talentos y en sus cajas.");
+  if (nuevo === null || !nuevo || nuevo === b) return;
+
+  const existe = state.perks.some(p => (p.branch || "General") === nuevo);
+  if (existe && !await ask(
+    `Ya tienes una rama llamada "${nuevo}". Los talentos de "${b}" se van a juntar con los suyos en una sola rama.`,
+    "Juntarlas")) return;
+
+  state.perks.forEach(p => { if ((p.branch || "General") === b) p.branch = nuevo; });
+  (state.cajas || []).forEach(c => { if (c.branch === b) c.branch = nuevo; });
+  // El estado de la interfaz va pegado al nombre: si no se muda, la rama
+  // renombrada aparecería desplegada y la vieja seguiría "plegada" sin existir
+  if (state.ui && state.ui.collapsed && state.ui.collapsed[b]) {
+    delete state.ui.collapsed[b];
+    state.ui.collapsed[nuevo] = true;
+  }
+  if (editBranch === b) editBranch = nuevo;
+  if (fullscreenBranch === b) fullscreenBranch = nuevo;
+  save();
+  renderTree();
+  toast(existe ? `Ramas juntadas en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
+}
+
 /* Etiqueta de rama reutilizable: el mismo concepto en todas las secciones. */
 function branchHeader(name, countLabel, buttons) {
   return `
@@ -7921,13 +8321,16 @@ function renderTree() {
       </div>`;
     } else {
       body = `
-      <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, bi, editing)}</div>
+      <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, bi, editing, b)}</div>
       <button class="fs-open" onclick="openBranchFullscreen('${ba}')">
         <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> Ver la rama completa
       </button>
-      ${editing
-        ? `<div class="const-hint edit">Arrastra los talentos para acomodarlos · tira del punto ▸ de la derecha hacia otro talento para conectarlos · toca una línea para quitarla${atajosLegend()}</div>`
-        : atajosLegend(true)}`;
+      ${/* Una sola línea, y que diga lo que la mano puede hacer AHORA. Fuera
+            de edición el gesto es el que hay que aprender; dentro, las
+            herramientas. */
+        editing
+        ? `<div class="const-hint edit">Arrastra para acomodar · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos los requisitos o basta uno${atajosLegend()}</div>`
+        : `<div class="const-hint">Toca un nodo para abrirlo · arrástralo para acomodarlo · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno${atajosLegend(true)}</div>`}`;
     }
 
     html += `
@@ -7936,7 +8339,10 @@ function renderTree() {
         <button class="badd solid" onclick="toggleBranch('${ba}')" aria-label="${collapsed ? "Desplegar" : "Plegar"} ${ba}" style="margin-right:2px">
           <svg viewBox="0 0 24 24"><path d="${collapsed ? "M9 6l6 6-6 6" : "M6 9l6 6 6-6"}"/></svg>
         </button>
-        <h3 onclick="toggleBranch('${ba}')" style="cursor:pointer">${escapeHtml(b)}</h3>
+        <!-- El nombre abre el renombrado, no el plegado: plegar ya tiene su
+             flecha justo al lado, y escribir encima de un título es el gesto
+             que todo el mundo prueba primero. -->
+        <h3 class="renombrable" onclick="renombrarRama('${ba}')" title="Toca el nombre para renombrar la rama">${escapeHtml(b)}${icon("pen", 11)}</h3>
         <span class="count">${doneN} de ${reales.length}</span>
         <div class="bhead-btns">
           ${editing ? `
@@ -8022,7 +8428,13 @@ function focusBranchFront(b, silent) {
 async function resetBranchLayout(b) {
   if (!await ask(`Esto va a reordenar automáticamente todos los talentos de "${b}". Si habías acomodado esta rama a mano, ese orden se pierde.`, "Reacomodar")) return;
   pushUndo("reacomodar la rama");
-  branchNodes(b).forEach(n => { delete n.x; delete n.y; });
+  /* Sobre los objetos REALES: branchNodes devuelve copias de los talentos
+     (con sus requisitos ya traducidos a las cajas), y borrarles ahí las
+     coordenadas no borraba nada. */
+  branchNodes(b).forEach(n => {
+    const real = nodoPorId(n.id);
+    if (real) { delete real.x; delete real.y; }
+  });
   save();
   renderTree();
   toast("Talentos reacomodados", "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
@@ -8084,8 +8496,10 @@ function closeBranchFullscreen() {
   renderTree();
 }
 
+/* La ventana de una caja se cierra primero: Escape cierra lo de encima, no
+   todo lo que hay abierto de golpe. */
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && fullscreenBranch) closeBranchFullscreen();
+  if (e.key === "Escape" && fullscreenBranch && !ventanaCajaId) closeBranchFullscreen();
 });
 
 function renderFullscreen() {
@@ -8115,10 +8529,10 @@ function renderFullscreen() {
      los dos lienzos compartirían los ids de los filtros y el brillo se
      aplicaría al equivocado. */
   document.getElementById("fs-body").innerHTML = `
-    <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, 900, editing)}</div>
+    <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, 900, editing, b)}</div>
     <div class="fs-hint">${editing
-      ? "Arrastra los talentos para acomodarlos · tira del punto ▸ hacia otro talento para conectarlos · toca una línea para quitarla"
-      : "Arrastra para recorrer la rama · toca un talento para abrirlo"}${atajosLegend()}</div>`;
+      ? "Arrastra para acomodar · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia la regla de entrada"
+      : "Arrastra el fondo para recorrer la rama · toca un nodo para abrirlo y arrástralo para acomodarlo"}${atajosLegend()}</div>`;
 
   ov.classList.add("show");
   if (editing) attachEditHandlers(ov);
@@ -8142,7 +8556,12 @@ function renderFullscreen() {
 const UNDO_MAX = 50;
 let undoStack = [];
 
-function snapshotPerks() { return JSON.stringify(state.perks); }
+/* La copia incluye las cajas desde que son nodos del mapa: mover una caja o
+   sacarle un talento son acciones del editor como cualquier otra, y deshacer
+   solo la mitad del estado sería peor que no poder deshacer. */
+function snapshotPerks() {
+  return JSON.stringify({ perks: state.perks, cajas: state.cajas || [] });
+}
 
 function pushUndo(etiqueta, snap) {
   undoStack.push({ perks: snap || snapshotPerks(), etiqueta });
@@ -8152,7 +8571,9 @@ function pushUndo(etiqueta, snap) {
 function undoEditor() {
   if (!undoStack.length) { toast("No hay nada que deshacer", "atencion"); return; }
   const prev = undoStack.pop();
-  state.perks = JSON.parse(prev.perks);
+  const antes = JSON.parse(prev.perks);
+  state.perks = antes.perks;
+  state.cajas = antes.cajas || [];
   save();
   renderTree();
   toast(`Deshecho: ${prev.etiqueta}`, "deshecho");
@@ -8286,9 +8707,13 @@ function puntoEnLienzo(wrap, clientX, clientY) {
   const r = svg.getBoundingClientRect();
   const vb = svg.viewBox.baseVal;
   if (!r.width || !r.height) return null;
+  /* El encuadre no siempre empieza en cero: se corre a la izquierda cuando
+     hay cabos de otra rama y hacia arriba cuando un grupo desplegado
+     sobresale. Sin sumar ese origen, todo lo que se creaba o arrastraba
+     aparecía desplazado justo esa cantidad. */
   return {
-    x: (clientX - r.left) * (vb.width / r.width),
-    y: (clientY - r.top) * (vb.height / r.height)
+    x: vb.x + (clientX - r.left) * (vb.width / r.width),
+    y: vb.y + (clientY - r.top) * (vb.height / r.height)
   };
 }
 
@@ -8375,9 +8800,13 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId) {
   if (caja) {
     const { total, hechos, pendientes } = resumenCaja(caja);
     el.innerHTML =
-      `<div class="ctx-head">${escapeHtml(tituloTrimestre(caja.trimestre))}</div>` +
-      item("Abrir la caja", pendientes ? `${hechos} hechos y ${pendientes} sin terminar` : `${total} talentos guardados`,
-        "", `cerrarCtxMenu();abrirCaja('${escapeAttr(caja.id)}')`, BM_ICONS.caja) +
+      `<div class="ctx-head">${escapeHtml(nombreCaja(caja))}</div>` +
+      item("Ver qué lleva", pendientes ? `${hechos} hechos y ${pendientes} sin terminar` : `${total} talentos guardados`,
+        "", `cerrarCtxMenu();verCaja('${escapeAttr(caja.id)}')`, BM_ICONS.caja) +
+      item("Renombrar la caja", "Ponle el nombre de lo que fue esa época", "",
+        `cerrarCtxMenu();renombrarCaja('${escapeAttr(caja.id)}')`, BM_ICONS.lapiz) +
+      item("Desplegarla en el mapa", "Todo vuelve donde estaba", "",
+        `cerrarCtxMenu();abrirCaja('${escapeAttr(caja.id)}')`, BM_ICONS.expandir) +
       `<div class="ctx-sep"></div>` +
       item("Borrar la caja", `Se van sus ${total} talento${total === 1 ? "" : "s"}`, "",
         `cerrarCtxMenu();borrarCaja('${escapeAttr(caja.id)}')`, BM_ICONS.bote);
@@ -8684,13 +9113,98 @@ function edgePath(a, b, pa, pb) {
   };
 }
 
-function constellation(nodes, key, editing) {
+function constellation(nodes, key, editing, branch) {
   const { pos, order, childrenOf, H, W } = branchLayout(nodes);
   const fid = "glow" + key;
   if (editing) { editPos = pos; editKey = key; }
   let edges = "";
   let nds = "";
   let ports = "";
+  let recintos = "";
+  let alto = 0;      // cuánto sobresale un recinto por arriba del encuadre
+
+  /* ---- El grupo desplegado ----
+     Una caja abierta no desaparece: sus talentos vuelven al mapa pero siguen
+     siendo un grupo, y aquí se dibuja el recinto que los rodea con su nombre
+     en el borde. Sin esto, abrir una caja era perderla —no quedaba ni rastro
+     de qué había ido junto ni forma de volver a cerrarla desde el mapa. */
+  (branch ? gruposAbiertos(branch) : []).forEach(c => {
+    const pts = c.perkIds.map(id => pos[id]).filter(Boolean);
+    if (!pts.length) return;
+    const M = 40;
+    const x0 = Math.min(...pts.map(p => p.x)) - M, x1 = Math.max(...pts.map(p => p.x)) + M;
+    const y0 = Math.min(...pts.map(p => p.y)) - M, y1 = Math.max(...pts.map(p => p.y)) + M;
+    const { hechos, pendientes } = resumenCaja(c);
+    const cc = pendientes === 0 ? "#5fe0b0" : "#f5d76e";
+    alto = Math.max(alto, 18 - (y0 - 11));   // la etiqueta no puede quedar cortada
+    recintos += `<g class="grupo">
+      <rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" rx="22"
+        fill="${cc}0a" stroke="${cc}" stroke-opacity="0.35" stroke-width="1.6" stroke-dasharray="9 7" pointer-events="none"/>
+      <g class="grupo-tag" data-grupo="${c.id}">
+        <rect x="${x0 + 12}" y="${y0 - 11}" width="${Math.max(96, nombreCaja(c).length * 6.6 + 30)}" height="22" rx="11"
+          fill="#121821" stroke="${cc}" stroke-opacity="0.5" stroke-width="1.4"/>
+        <text x="${x0 + 24}" y="${y0 + 4}" font-size="10.5" font-weight="700" fill="${cc}">${
+          escapeHtml(nombreCaja(c))} · ${hechos}/${c.perkIds.length}</text>
+      </g>
+    </g>`;
+  });
+
+  /* Los dos círculos de un nodo (R15), y el de la izquierda además es un
+     interruptor. Vive en una función porque las cajas del ático también los
+     llevan desde que se pueden conectar, y antes solo los tenían los
+     talentos. */
+  const puertos = (n, x, y, R, col) => {
+    let out = "";
+    const reqs = requisitosDe(n);
+    /* Solo con DOS o más. Con uno, el hilo que llega ya lo cuenta todo y el
+       círculo era una bolita repetida en cada nodo; peor aún, invitaba a
+       cambiar una regla que con un requisito no cambia nada. */
+    if (reqs.length > 1) {
+      const modo = modoDe(n);
+      const letra = modo === "cualquiera" ? "O" : "Y";
+      const listo = requisitosCumplidos(n);
+      const cE = listo ? (n.color || "#5fe0b0") : "#4a5768";
+      const cumplidos = requisitosVivos(n).filter(r => r.status === "completed").length;
+      out += `<g class="port-in switch" data-modo="${n.id}">
+        <title>${modo === "cualquiera"
+          ? `Basta con completar CUALQUIERA de los ${reqs.length} requisitos. Toca para exigirlos todos.`
+          : `Hacen falta LOS ${reqs.length} requisitos. Toca para que baste con cualquiera.`}</title>
+        <circle class="halo" cx="${x - R - 12}" cy="${y}" r="15" fill="transparent"/>
+        <circle cx="${x - R - 12}" cy="${y}" r="10" fill="#161d28" stroke="${cE}" stroke-width="2"${
+          modo === "cualquiera" ? ` stroke-dasharray="3.4 2.6"` : ""}/>
+        <text x="${x - R - 12}" y="${y + 3.6}" text-anchor="middle" font-size="10" font-weight="800" fill="${cE}">${letra}</text>
+      </g>`;
+      if (!listo) {
+        out += `<text x="${x - R - 12}" y="${y + 23}" text-anchor="middle" font-size="8.5" fill="#75858e" pointer-events="none">${cumplidos}/${reqs.length}</text>`;
+      }
+    }
+
+    /* ---- Requisitos de otra rama (R16) ----
+       Bloqueaban sin dibujar nada: el nodo aparecía suelto y apagado sin
+       causa visible, y solo su ficha contaba la verdad. Aquí no se puede
+       trazar la línea entera —el otro talento está en otro lienzo—, así que
+       se dibuja el cabo por donde entra y de dónde viene.
+
+       Este SÍ se dibuja siempre, aunque sea un solo requisito y no estemos
+       editando: es la única señal de una dependencia que no se ve. */
+    const fuera = requisitosVivos(n).filter(r => (r.branch || "General") !== (n.branch || "General"));
+    if (fuera.length) {
+      const cF = fuera.every(r => r.status === "completed") ? (n.color || "#5fe0b0") : "#4a5768";
+      const x0 = x - R - 21, x1 = x0 - 26;
+      out += `<path d="M${x1} ${y} H${x0}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
+        <circle cx="${x1}" cy="${y}" r="3" fill="${cF}"/>
+        <text x="${x1 - 5}" y="${y + 3.4}" text-anchor="end" font-size="8.5" fill="#75858e">${
+          escapeHtml(fuera.length === 1 ? (fuera[0].branch || "General") : fuera.length + " ramas")}</text>`;
+    }
+
+    if (editing) {
+      out += `<g class="port" data-from="${n.id}">
+        <circle cx="${x + R + 11}" cy="${y}" r="9" fill="#1d2530" stroke="${col}" stroke-width="2"/>
+        <path d="M${x + R + 8} ${y - 3.5} L${x + R + 14} ${y} L${x + R + 8} ${y + 3.5} Z" fill="${col}"/>
+      </g>`;
+    }
+    return out;
+  };
 
   order.forEach(n => {
     (childrenOf[n.id] || []).forEach(c => {
@@ -8742,12 +9256,20 @@ function constellation(nodes, key, editing) {
        merece la pena abrirla. */
     if (n.esCaja) {
       const cc = n.todoHecho ? "#5fe0b0" : "#f5d76e";
-      nds += `<g class="cnode caja" data-id="${n.id}" ${editing ? "" : `onclick="abrirCaja('${n.cajaId}')"`}>
+      /* Dos líneas como mucho: la caja tiene una altura fija y un nombre
+         largo se saldría por abajo, encima del texto que dice qué guarda. */
+      const todo = wrapName(n.name);
+      const nom = todo.slice(0, 2);
+      if (todo.length > 2) nom[1] = nom[1].slice(0, 17) + "…";
+      nds += `<g class="cnode caja" data-id="${n.id}">
         ${nodeShape(n, x, y, { stroke: cc, fill: cc + "14" }, fid)}
-        <text x="${x}" y="${y - 4}" text-anchor="middle" font-size="12" font-weight="700" fill="${cc}">${escapeHtml(n.name)}</text>
-        <text x="${x}" y="${y + 12}" text-anchor="middle" font-size="9.5" fill="#8b99a5">${escapeHtml(n.resumen)}</text>
-        <text x="${x}" y="${y + CAJA_H / 2 + 15}" text-anchor="middle" font-size="9" fill="#5d6b77">${editing ? "clic derecho para borrarla" : "toca para abrirla"}</text>
+        <text x="${x}" y="${y - (nom.length > 1 ? 9 : 4)}" text-anchor="middle" font-size="${nom.length > 1 ? 10.5 : 12}" font-weight="700" fill="${cc}">
+          ${nom.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 11}">${escapeHtml(ln)}</tspan>`).join("")}
+        </text>
+        <text x="${x}" y="${y + (nom.length > 1 ? 14 : 12)}" text-anchor="middle" font-size="9.5" fill="#8b99a5">${escapeHtml(n.resumen)}</text>
+        <text x="${x}" y="${y + CAJA_H / 2 + 15}" text-anchor="middle" font-size="9" fill="#5d6b77">${editing ? "arrastra, conecta o clic derecho" : "toca para ver qué lleva"}</text>
       </g>`;
+      ports += puertos(n, x, y, CAJA_W / 2, cc);
       return;
     }
 
@@ -8769,7 +9291,11 @@ function constellation(nodes, key, editing) {
     const lines = wrapName(n.name);
     const topY = y + (esHito ? 32 : 44);
 
-    nds += `<g class="cnode" data-id="${n.id}" ${editing ? "" : `onclick="openPerk('${n.id}')"`}>
+    /* Sin onclick propio: abrir la ficha lo decide el gesto (ver
+       attachPanHandlers). Con el puntero capturado por el lienzo, el clic
+       que sintetiza el navegador llega al lienzo y no al nodo, así que un
+       onclick aquí no se disparaba nunca. */
+    nds += `<g class="cnode" data-id="${n.id}">
       ${st === "available" && !editing ? `<circle class="node-pulse" cx="${x}" cy="${y}" r="${R + 4}" fill="none" stroke="${col}" stroke-width="2.5"/>` : ""}
       ${nodeShape(n, x, y, conf, fid)}
       <g transform="translate(${x - 12 * isc}, ${y - 12 * isc}) scale(${isc})"
@@ -8792,69 +9318,10 @@ function constellation(nodes, key, editing) {
     </g>`;
 
     /* ---- Los círculos de apoyo (R15) ----
-       Había uno solo, a la derecha y únicamente en edición: una salida sin
-       su entrada, así que la dirección de una línea solo se podía deducir
-       siguiéndola con la vista. Ahora el nodo lo declara él mismo — por la
-       izquierda entra lo que hace falta, por la derecha sale lo que habilita.
-
-       La entrada además dice el MODO, que es la otra mitad de lo que no se
-       entendía: con tres líneas llegando, "Y" avisa de que hacen falta las
-       tres y "O" de que basta una. Una letra en vez de una leyenda. */
-    const reqs = requisitosDe(n);
-    const cumplidos = requisitosVivos(n).filter(r => r.status === "completed").length;
-    const varios = reqs.length > 1;
-    /* Solo se dibuja cuando dice algo que la línea no dice ya.
-       Con UN requisito el hilo que llega es toda la información: el
-       círculo era un punto de adorno repetido en cada nodo, y llenaba el
-       mapa de bolitas sin significado. Con DOS o más sí hay una regla que
-       contar —si hacen falta todas o basta una— y ahí gana su sitio.
-       En edición aparecen todos, porque entonces son el asa de la que se
-       tira para conectar y hace falta verlos aunque estén vacíos. */
-    if (reqs.length && (varios || editing)) {
-      const letra = modoDe(n) === "cualquiera" ? "O" : "Y";
-      const listo = requisitosCumplidos(n);
-      const cE = listo ? (n.color || "#5fe0b0") : "#4a5768";
-      ports += `<g class="port-in" data-in="${n.id}">
-        <title>${varios ? (modoDe(n) === "cualquiera"
-          ? `Basta con completar cualquiera de los ${reqs.length} requisitos`
-          : `Hacen falta los ${reqs.length} requisitos`) : "Requisito para abrirse"}</title>
-        <circle cx="${x - R - 11}" cy="${y}" r="${varios ? 10 : 7}" fill="#161d28" stroke="${cE}" stroke-width="2"${
-          modoDe(n) === "cualquiera" && varios ? ` stroke-dasharray="3.4 2.6"` : ""}/>
-        ${varios
-          ? `<text x="${x - R - 11}" y="${y + 3.6}" text-anchor="middle" font-size="10" font-weight="800" fill="${cE}">${letra}</text>`
-          : `<circle cx="${x - R - 11}" cy="${y}" r="2.4" fill="${cE}"/>`}
-      </g>`;
-      if (varios && !listo) {
-        ports += `<text x="${x - R - 11}" y="${y + 22}" text-anchor="middle" font-size="8.5" fill="#75858e">${cumplidos}/${reqs.length}</text>`;
-      }
-
-    }
-
-    /* ---- Requisitos de otra rama (R16) ----
-       Bloqueaban sin dibujar nada: el nodo aparecía suelto y apagado sin
-       causa visible, y solo su ficha contaba la verdad. Aquí no se puede
-       trazar la línea entera —el otro talento está en otro lienzo—, así que
-       se dibuja el cabo por donde entra y de dónde viene.
-
-       Este SÍ se dibuja siempre, aunque sea un solo requisito y no estemos
-       editando: es la única señal de una dependencia que no se ve, y sin él
-       volveríamos al nodo bloqueado sin causa aparente. */
-    const fuera = requisitosVivos(n).filter(r => (r.branch || "General") !== (n.branch || "General"));
-    if (fuera.length) {
-      const cF = fuera.every(r => r.status === "completed") ? (n.color || "#5fe0b0") : "#4a5768";
-      const x0 = x - R - 21, x1 = x0 - 26;
-      ports += `<path d="M${x1} ${y} H${x0}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
-        <circle cx="${x1}" cy="${y}" r="3" fill="${cF}"/>
-        <text x="${x1 - 5}" y="${y + 3.4}" text-anchor="end" font-size="8.5" fill="#75858e">${
-          escapeHtml(fuera.length === 1 ? (fuera[0].branch || "General") : fuera.length + " ramas")}</text>`;
-    }
-
-    if (editing) {
-      ports += `<g class="port" data-from="${n.id}">
-        <circle cx="${x + R + 11}" cy="${y}" r="9" fill="#1d2530" stroke="${col}" stroke-width="2"/>
-        <path d="M${x + R + 8} ${y - 3.5} L${x + R + 14} ${y} L${x + R + 8} ${y + 3.5} Z" fill="${col}"/>
-      </g>`;
-    }
+       Por la izquierda entra lo que hace falta —y esa letra, "Y" u "O", es
+       además el interruptor de la regla—, por la derecha sale lo que este
+       talento habilita. Ver `puertos`, arriba. */
+    ports += puertos(n, x, y, R, col);
   });
 
   const padRight = editing ? 46 : 0;
@@ -8863,13 +9330,17 @@ function constellation(nodes, key, editing) {
      cero o se cortan. Solo se ensancha cuando de verdad hay alguno. */
   const hayFuera = order.some(n => requisitosVivos(n).some(r => (r.branch || "General") !== (n.branch || "General")));
   const padLeft = hayFuera ? 108 : 0;
-  return `<svg width="${W + padRight + padLeft}" height="${H + 30}" viewBox="${-padLeft} 0 ${W + padRight + padLeft} ${H + 30}" font-family="Outfit, sans-serif">
+  const padTop = Math.max(0, Math.ceil(alto));
+  return `<svg width="${W + padRight + padLeft}" height="${H + 30 + padTop}" viewBox="${-padLeft} ${-padTop} ${W + padRight + padLeft} ${H + 30 + padTop}" font-family="Outfit, sans-serif">
     <defs>
       <filter id="${fid}" x="-60%" y="-60%" width="220%" height="220%">
         <feGaussianBlur stdDeviation="2.6" result="b"/>
         <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
     </defs>
+    ${/* El recinto del grupo va debajo de todo: es el suelo sobre el que se
+          apoyan sus talentos, no una figura más que compita con ellos. */
+      recintos}
     <g class="edges">${edges}</g>${nds}${ports}
     <path class="link-preview" fill="none" stroke="#5fe0b0" stroke-width="2.5" stroke-dasharray="6 6" style="display:none"/>
   </svg>`;
@@ -8911,7 +9382,9 @@ function isDescendant(nodeId, ancestorId) {
     const id = cola.shift();
     if (vistos.has(id)) continue;
     vistos.add(id);
-    const cur = state.perks.find(x => x.id === id);
+    // nodoPorId y no state.perks: una caja también encadena, aunque sea de
+    // forma simbólica, y un bucle que la incluya no se puede dibujar
+    const cur = nodoPorId(id);
     if (!cur) continue;
     for (const r of requisitosDe(cur)) {
       if (r === nodeId) return true;
@@ -9000,38 +9473,61 @@ function efectoCorte(branch, dAttr, cutPt, color) {
 
 /* Corta UN hilo, no todos los del hijo. Recibe "hijo|padre" porque desde
    que un talento puede tener varios requisitos, saber a quién llega la
-   línea ya no dice cuál de ellas se está cortando. */
+   línea ya no dice cuál de ellas se está cortando.
+
+   Con cajas de por medio, la línea que se ve y el dato que la sostiene ya no
+   son lo mismo: un hilo dibujado hasta una caja puede estar guardado en
+   cualquiera de los talentos que lleva dentro (R5). Por eso se corta contra
+   TODO lo que cada extremo representa; si no, la tijera sonaba y la línea
+   seguía ahí. */
 function removeLink(par) {
   const [childId, parentId] = String(par).split("|");
-  const c = state.perks.find(x => x.id === childId);
-  if (!c) return;
-  const reqs = requisitosDe(c);
-  if (!reqs.length) return;
-  pushUndo("cortar una conexión");
-  c.requiere = parentId ? reqs.filter(id => id !== parentId) : [];
+  if (!parentId) return;
+  const padres = new Set(idsRepresentados(parentId));
+  const snap = snapshotPerks();
+  let tocado = false;
+  idsRepresentados(childId).forEach(id => {
+    const n = nodoPorId(id);
+    if (!n) return;
+    const reqs = requisitosDe(n);
+    const quedan = reqs.filter(r => !padres.has(r));
+    if (quedan.length !== reqs.length) { n.requiere = quedan; tocado = true; }
+  });
+  if (!tocado) return;
+  pushUndo("cortar una conexión", snap);
   save();
   renderTree();
   toast("Conexión eliminada", "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
 }
 
-/* Fuera de edición el lienzo se recorre arrastrando el fondo, y los talentos
-   se acomodan arrastrándolos. Acomodar era la acción más inocente que se
-   podía hacer con el mapa y exigía entrar a un modo aparte; conectar y
-   cortar, que sí son destructivas, siguen ahí dentro.
+/* ================= El gesto del lienzo =================
+   Fuera de edición el lienzo se recorre arrastrando el fondo, y los nodos se
+   acomodan arrastrándolos. Acomodar era la acción más inocente que se podía
+   hacer con el mapa y exigía entrar a un modo aparte; conectar y cortar, que
+   sí son destructivas, siguen ahí dentro.
 
-   Aquí el clic ya significa algo —abrir la ficha—, así que el arrastre no
-   puede dispararse por un temblor de la mano: hace falta MANTENER pulsado.
-   En el modo edición no hace falta porque allí el clic no abre nada, y por
-   eso ahí el arrastre sigue siendo inmediato.
+   Aquí el clic ya significa algo —abrir la ficha—, así que las dos acciones
+   se reparten por el gesto, no por el tiempo:
 
-   El gesto se decide por dónde empieza: sobre un talento lo mueve, sobre el
-   fondo recorre el lienzo. */
+     clic seco            abre el talento (o la ventana de la caja)
+     clic y arrastras     lo mueves
 
-const ESPERA_ARRASTRE = 300;   // ms de pulsación sostenida sobre un talento
+   Antes hacía falta MANTENER pulsado 300 ms para poder mover, y eso rompía
+   las dos mitades a la vez: mover pedía esperar sin saber cuánto, y abrir
+   dejaba de funcionar en cuanto la pulsación se alargaba un poco. Con el
+   umbral de distancia cada gesto se declara solo por lo que hace la mano.
+
+   Y el clic se resuelve AQUÍ, no con un onclick en el nodo: el lienzo captura
+   el puntero para no perder el arrastre al salirse del dibujo, y con el
+   puntero capturado el navegador entrega el clic al lienzo y no al nodo. Ese
+   era el motivo de que tocar un talento no abriera nada. */
+
+const UMBRAL_ARRASTRE = 5;    // px de pantalla que separan un clic de un arrastre
+const ESPERA_TACTIL = 240;    // ms sostenidos en pantalla táctil, donde no hay ratón
 
 function attachPanHandlers(scope) {
   (scope || document).querySelectorAll(".const-wrap:not(.editing)").forEach(wrap => {
-    let from = null, arrastrando = null, espera = null;
+    let from = null, gesto = null, espera = null;
     const b = wrap.dataset.branch;
 
     const svgPt = (e) => {
@@ -9046,56 +9542,100 @@ function attachPanHandlers(scope) {
 
     const cancelarEspera = () => { if (espera) { clearTimeout(espera); espera = null; } };
 
+    // El gesto deja de ser un clic y pasa a ser un arrastre
+    const arrancar = (pt) => {
+      cancelarEspera();
+      if (!gesto || gesto.tipo !== "nodo" || gesto.moviendo) return;
+      gesto.moviendo = true;
+      fijarPosiciones(b);
+      /* El desfase se calcula AQUÍ y no al pulsar: hasta que no se congela el
+         reparto, un nodo colocado en automático no tiene coordenadas propias
+         y el desfase salía cero, así que al primer movimiento la figura
+         saltaba a ponerse bajo el cursor. */
+      const n = nodoPorId(gesto.id);
+      const p = pt || gesto.pt0;
+      if (n && typeof n.x === "number" && p) { gesto.dx = n.x - p.x; gesto.dy = n.y - p.y; }
+      pushUndo(gesto.esCaja ? "mover una caja" : "mover un talento");
+      wrap.classList.add("moviendo");
+      if (userHasTapped && navigator.vibrate) navigator.vibrate(12);
+    };
+
     wrap.addEventListener("pointerdown", (e) => {
       if (e.pointerType === "mouse" && e.button !== 0) return;
-      const nodo = e.target.closest(".cnode");
-      if (nodo) {
-        // Las cajas del ático no se arrastran: no son piezas del camino
-        if (nodo.classList.contains("caja")) return;
-        const p = state.perks.find(x => x.id === nodo.dataset.id);
-        if (!p) return;
-        const pt = svgPt(e);
-        arrastrando = { id: p.id, dx: (p.x ?? pt.x) - pt.x, dy: (p.y ?? pt.y) - pt.y, desde: pt, listo: false, movido: false };
-        try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
-        /* Evita que el navegador arranque una selección de texto sobre las
-           etiquetas del SVG: sin esto, arrastrar dejaba media rama en azul. */
+      const cli = { x: e.clientX, y: e.clientY };
+      const capturar = () => { try { wrap.setPointerCapture(e.pointerId); } catch (err) {} };
+
+      // El interruptor "Y / O" manda sobre lo que haya debajo
+      const sw = e.target.closest(".port-in.switch");
+      if (sw) {
+        gesto = { tipo: "modo", id: sw.dataset.modo, cli };
+        capturar();
         e.preventDefault();
-        espera = setTimeout(() => {
-          espera = null;
-          if (!arrastrando) return;
-          arrastrando.listo = true;
-          fijarPosiciones(b);
-          pushUndo("mover un talento");
-          wrap.classList.add("moviendo");
-          if (userHasTapped && navigator.vibrate) navigator.vibrate(12);
-        }, ESPERA_ARRASTRE);
         return;
       }
+      // La etiqueta de un grupo desplegado abre su ventana
+      const tag = e.target.closest(".grupo-tag");
+      if (tag) {
+        gesto = { tipo: "grupo", id: tag.dataset.grupo, cli };
+        capturar();
+        e.preventDefault();
+        return;
+      }
+
+      const nodo = e.target.closest(".cnode");
+      if (nodo) {
+        // Talento o caja: desde que la caja es un grupo, se mueve igual
+        const n = nodoPorId(nodo.dataset.id);
+        if (!n) return;
+        const pt = svgPt(e);
+        gesto = {
+          tipo: "nodo", id: n.id, esCaja: !!nodo.classList.contains("caja"),
+          dx: (typeof n.x === "number" ? n.x : pt.x) - pt.x,
+          dy: (typeof n.y === "number" ? n.y : pt.y) - pt.y,
+          pt0: pt, cli, moviendo: false, movido: false
+        };
+        capturar();
+        /* Solo con ratón: evita que el navegador arranque una selección de
+           texto sobre las etiquetas del SVG. En táctil hay que dejar pasar el
+           gesto, o la página no se podría desplazar tocando un nodo. */
+        if (e.pointerType === "mouse") e.preventDefault();
+        else espera = setTimeout(arrancar, ESPERA_TACTIL);
+        return;
+      }
+
       if (e.pointerType !== "mouse") return;
       from = { x: e.clientX, y: e.clientY, sl: wrap.scrollLeft, st: wrap.scrollTop, movido: false };
-      try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+      capturar();
       e.preventDefault();
     });
 
     wrap.addEventListener("pointermove", (e) => {
-      if (arrastrando) {
-        const pt = svgPt(e);
-        if (!arrastrando.listo) {
-          /* Si el puntero se va antes de que la espera termine, el gesto era
-             otra cosa (recorrer el lienzo con el dedo, un roce) y no debe
-             acabar moviendo nada. */
-          if (Math.hypot(pt.x - arrastrando.desde.x, pt.y - arrastrando.desde.y) > 8) {
-            cancelarEspera();
-            arrastrando = null;
-          }
+      if (gesto) {
+        const lejos = Math.hypot(e.clientX - gesto.cli.x, e.clientY - gesto.cli.y);
+        if (gesto.tipo !== "nodo") {
+          // Un interruptor o una etiqueta no se arrastran: si la mano se va,
+          // el gesto era otra cosa y no debe dispararse al soltar
+          if (lejos > 10) gesto = null;
           return;
         }
-        const p = state.perks.find(x => x.id === arrastrando.id);
-        if (!p) return;
-        arrastrando.movido = true;
-        p.x = clamp(Math.round(pt.x + arrastrando.dx), 46, CANVAS_MAX_X);
-        p.y = clamp(Math.round(pt.y + arrastrando.dy), 42, CANVAS_MAX_Y);
-        wrap.innerHTML = constellation(branchNodes(b), 0, false);
+        if (!gesto.moviendo) {
+          if (e.pointerType === "mouse") {
+            if (lejos > UMBRAL_ARRASTRE) arrancar(svgPt(e));
+          } else if (lejos > 12) {
+            /* En táctil el dedo se fue antes de la espera: era un desliz para
+               recorrer la página, no un arrastre. */
+            cancelarEspera();
+            gesto = null;
+          }
+          if (!gesto || !gesto.moviendo) return;
+        }
+        const n = nodoPorId(gesto.id);
+        if (!n) return;
+        const pt = svgPt(e);
+        gesto.movido = true;
+        n.x = clamp(Math.round(pt.x + gesto.dx), 46, CANVAS_MAX_X);
+        n.y = clamp(Math.round(pt.y + gesto.dy), 42, CANVAS_MAX_Y);
+        wrap.innerHTML = constellation(branchNodes(b), 0, false, b);
         e.preventDefault();
         return;
       }
@@ -9108,24 +9648,75 @@ function attachPanHandlers(scope) {
       wrap.scrollTop = from.st - dy;
     });
 
+    /* Mientras se arrastra un nodo con el dedo, la página no puede irse detrás
+       del gesto. preventDefault sobre el evento de puntero no basta una vez
+       que el navegador ya decidió que aquello era un desplazamiento. */
+    wrap.addEventListener("touchmove", (e) => {
+      if (gesto && gesto.tipo === "nodo" && gesto.moviendo) e.preventDefault();
+    }, { passive: false });
+
     const fin = () => {
       cancelarEspera();
-      if (arrastrando && arrastrando.listo) {
-        if (arrastrando.movido) save();
-        else undoStack.pop();       // se armó el arrastre pero no llegó a moverse
-        /* Soltar no debe abrir la ficha del que acabas de agarrar. Se marca
-           la hora y el filtro de clics que ya vive en el arranque se come el
-           siguiente; llamar aquí a una función propia era lo que fallaba,
-           porque esa desapareció al unificar el filtro. */
-        reordFin = Date.now();
-      }
-      arrastrando = null;
+      const g = gesto;
+      gesto = null;
       from = null;
       wrap.classList.remove("panning", "moviendo");
+      if (!g) return;
+
+      if (g.tipo === "modo") { alternarModo(g.id); return; }
+      if (g.tipo === "grupo") { verCaja(g.id); return; }
+
+      if (g.moviendo) {
+        if (g.movido) save();
+        else undoStack.pop();       // se armó el arrastre pero no llegó a moverse
+        /* Soltar no debe abrir la ficha del que acabas de agarrar: el filtro
+           de clics que vive en el arranque se come el que sintetiza el
+           navegador al terminar el gesto. */
+        reordFin = Date.now();
+        return;
+      }
+      // Ni arrastre ni interruptor: fue un clic, y un clic abre
+      if (g.esCaja) verCaja(g.id); else openPerk(g.id);
     };
     wrap.addEventListener("pointerup", fin);
     wrap.addEventListener("pointercancel", fin);
   });
+}
+
+/* El interruptor de la regla de entrada (R13). Vive en el propio mapa porque
+   es donde se ve el problema: tres líneas llegando a un nodo y ninguna pista
+   de si hacen falta las tres. Con dos o más requisitos, la letra del círculo
+   se cambia de un toque; con uno no aparece, porque ahí "todos" y
+   "cualquiera" dicen exactamente lo mismo. */
+function alternarModo(id) {
+  const n = nodoPorId(id);
+  const dib = nodoDibujado(id);
+  if (!n || !dib) return;
+  /* La cuenta que vale es la del DIBUJO, no la del estado: tres requisitos
+     que viven todos dentro de la misma caja llegan como una sola línea, y
+     ahí la regla no tiene nada que decidir. */
+  const cuenta = (dib.requiere || []).length;
+  if (cuenta < 2) return;
+  pushUndo("cambiar la regla de entrada");
+  n.modo = modoDe(n) === "todos" ? "cualquiera" : "todos";
+  save();
+  renderTree();
+  toast(modoDe(n) === "todos"
+    ? `${dib.name}: ahora hacen falta los ${cuenta} requisitos`
+    : `${dib.name}: ahora basta con cualquiera de los ${cuenta}`,
+    "hecho", { label: "Deshacer", onclick: "undoEditor()" });
+}
+
+/* El nodo TAL COMO SE DIBUJA: una caja cerrada suma a sus conexiones propias
+   las que heredó de lo que guarda, así que su número de requisitos no está en
+   ningún sitio del estado — se calcula al dibujar. */
+function nodoDeVista(b, id) {
+  return branchNodes(b).find(n => n.id === id) || null;
+}
+
+function nodoDibujado(id) {
+  const n = nodoPorId(id);
+  return n ? nodoDeVista(n.branch || "General", id) : null;
 }
 
 /* Clic derecho sobre cualquier lienzo: crear un talento justo ahí y llegar
@@ -9161,23 +9752,30 @@ function attachEditHandlers(scope) {
     const svg = wrap.querySelector("svg");
     const r = svg.getBoundingClientRect();
     const vb = svg.viewBox.baseVal;
+    // Igual que puntoEnLienzo: el origen del encuadre cuenta
     return {
-      x: (e.clientX - r.left) * (vb.width / r.width),
-      y: (e.clientY - r.top) * (vb.height / r.height)
+      x: vb.x + (e.clientX - r.left) * (vb.width / r.width),
+      y: vb.y + (e.clientY - r.top) * (vb.height / r.height)
     };
   };
 
   const redraw = () => {
     const keep = wrap.scrollLeft;
-    wrap.innerHTML = constellation(branchNodes(b), editKey, true);
+    wrap.innerHTML = constellation(branchNodes(b), editKey, true, b);
     wrap.scrollLeft = keep;
   };
 
   wrap.addEventListener("pointerdown", (e) => {
+    const sw = e.target.closest(".port-in.switch");
     const port = e.target.closest(".port");
     const node = e.target.closest(".cnode");
     const cut = e.target.closest(".edge-hit");
-    if (cut) {
+    if (sw) {
+      // El interruptor de la regla también funciona dentro del editor
+      mode = "modo";
+      curId = sw.dataset.modo;
+      panFrom = { x: e.clientX, y: e.clientY };
+    } else if (cut) {
       // El corte se confirma al soltar, para no cortar al intentar desplazar
       mode = "cut";
       curId = cut.dataset.cut;
@@ -9216,7 +9814,8 @@ function attachEditHandlers(scope) {
     const pt = svgPoint(e);
 
     if (mode === "drag") {
-      const p = state.perks.find(x => x.id === curId);
+      // nodoPorId y no state.perks: la caja del atico tambien se arrastra
+      const p = nodoPorId(curId);
       if (!p) return;
       p.x = clamp(pt.x + offset.dx, 46, CANVAS_MAX_X);
       p.y = clamp(pt.y + offset.dy, 42, CANVAS_MAX_Y);
@@ -9231,7 +9830,7 @@ function attachEditHandlers(scope) {
     if (mode === "link") {
       const from = editPos[curId];
       if (!from) return;
-      const fp = state.perks.find(x => x.id === curId);
+      const fp = nodoDeVista(b, curId) || nodoPorId(curId);
       const prev = wrap.querySelector(".link-preview");
       if (prev) {
         // Mismo criterio de rumbo que edgePath(), para que la vista previa no
@@ -9249,6 +9848,13 @@ function attachEditHandlers(scope) {
   const finish = (e) => {
     if (!mode) return;
     if (mode === "pan") { mode = null; panFrom = null; return; }
+    if (mode === "modo") {
+      const quieto = Math.hypot(e.clientX - panFrom.x, e.clientY - panFrom.y) < 10;
+      const id = curId;
+      mode = null; panFrom = null; curId = null;
+      if (quieto) alternarModo(id);
+      return;
+    }
     if (mode === "cut") {
       const moved = Math.hypot(e.clientX - panFrom.x, e.clientY - panFrom.y);
       const info = cutInfo;
@@ -9287,34 +9893,39 @@ function attachEditHandlers(scope) {
         const thresh = nodeRadius(p) + HIT_PAD;
         if (d <= thresh && d < bestDist) { bestDist = d; toId = p.id; }
       });
-      if (toId && toId !== curId) {
+      const t = toId && toId !== curId ? nodoPorId(toId) : null;
+      if (t) {
         if (isDescendant(toId, curId)) {
           toast("Esa conexión crearía un bucle", "atencion");
+        } else if (requisitosDe(t).includes(curId)) {
+          toast("Ya estaban conectados", "calma");
         } else {
-          const t = state.perks.find(x => x.id === toId);
-          const yaEstaba = requisitosDe(t).includes(curId);
-          if (yaEstaba) {
-            toast("Ya estaban conectados", "calma");
-          } else {
-            pushUndo("conectar dos talentos", snapAntes);
-            /* Se AÑADE a la lista en vez de reemplazarla: conectar un
-               segundo padre es justo lo que hace posible el nodo que corona,
-               y sustituir en silencio el requisito anterior sería deshacer
-               trabajo que el usuario no pidió deshacer. */
-            t.requiere = [...requisitosDe(t), curId];
-            save();
-            const n = t.requiere.length;
-            toast(n > 1
-              ? `${t.name} ahora pide ${n} requisitos (${modoDe(t) === "todos" ? "todos" : "cualquiera"})`
-              : `Conectado: ${t.name} requiere el anterior`, "hecho");
-          }
+          const esCaja = !!cajaPorId(toId) || !!cajaPorId(curId);
+          pushUndo("conectar dos nodos", snapAntes);
+          /* Se AÑADE a la lista en vez de reemplazarla: conectar un
+             segundo padre es justo lo que hace posible el nodo que corona,
+             y sustituir en silencio el requisito anterior sería deshacer
+             trabajo que el usuario no pidió deshacer. */
+          t.requiere = [...requisitosDe(t), curId];
+          save();
+          const nom = nodoDeVista(b, toId);
+          const n = (nodoDeVista(b, toId) || { requiere: t.requiere }).requiere.length;
+          /* Con una caja de por medio el hilo es SIMBÓLICO: dice de dónde
+             viene una cosa, pero no bloquea a nadie —lo que está guardado en
+             el ático ya no está en juego—. Decirlo aquí evita esperar un
+             candado que nunca va a aparecer. */
+          toast(esCaja
+            ? `Atado a ${nom ? nom.name : "la caja"} · es una conexión simbólica, no bloquea`
+            : (n > 1
+              ? `${nom ? nom.name : t.name} ahora pide ${n} requisitos (${modoDe(t) === "todos" ? "todos" : "cualquiera"})`
+              : `Conectado: ${nom ? nom.name : t.name} requiere el anterior`), "hecho");
         }
       }
     }
     if (mode === "drag") {
       // Solo cuenta como acción si de verdad cambió algo: un clic sin
       // arrastre llenaría la pila de pasos vacíos que no deshacen nada.
-      if (snapAntes && snapAntes !== snapshotPerks()) pushUndo("mover un talento", snapAntes);
+      if (snapAntes && snapAntes !== snapshotPerks()) pushUndo(cajaPorId(curId) ? "mover una caja" : "mover un talento", snapAntes);
       save();
     }
     mode = null; curId = null; snapAntes = null;
@@ -9375,6 +9986,35 @@ function renderPerkDetail() {
     <div class="xp-note" style="text-align:left;margin-top:10px">${t.sub}${
       t.llevaPlan ? ` Plan de ${planLabel(p.planDays)}.` : ""}${
       skill ? ` Beneficia a <b>${escapeHtml(skill.name)}</b>.` : ""}</div>`;
+
+  /* ---- La regla de entrada, también desde la ficha (R13) ----
+     El interruptor vive en el mapa, que es donde se ve el problema —varias
+     líneas llegando y ninguna pista de si hacen falta todas—, pero quien
+     llega hasta aquí no tiene por qué volver al mapa ni abrir el formulario
+     entero para cambiar una regla de dos opciones.
+
+     Solo con dos o más requisitos: con uno, "todos" y "cualquiera" describen
+     exactamente la misma situación y elegir entre ellos no significa nada. */
+  const modo = modoDe(p);
+  const listos = reqs.filter(r => r.status === "completed").length;
+  const reglaPanel = reqs.length < 2 ? "" : `
+    <div class="panel alt">
+      <div class="panel-head">
+        <h3 style="margin:0">Regla de entrada</h3>
+        <span class="hint-hold">${listos} de ${reqs.length}</span>
+      </div>
+      <div class="seg">
+        ${[["todos", "Todos", `Hacen falta los ${reqs.length}`],
+           ["cualquiera", "Cualquiera", "Basta con uno"]].map(([k, t, s]) => `
+          <button type="button" class="${modo === k ? "on" : ""}" onclick="ponerModoTalento('${p.id}','${k}')">
+            <span>${t}</span><i style="display:block;font-size:10px;opacity:0.75;font-style:normal">${s}</i>
+          </button>`).join("")}
+      </div>
+      <p class="settings-note" style="margin:10px 0 0">${modo === "todos"
+        ? `Este talento corona varios caminos: se abre cuando estén completos los ${reqs.length}.`
+        : `Son caminos alternativos: se abre en cuanto completes cualquiera de los ${reqs.length}.`}
+        En el mapa es el círculo con la letra <b>${modo === "todos" ? "Y" : "O"}</b> a su izquierda, y ahí también se cambia de un toque.</p>
+    </div>`;
 
   /* ---- Etapas ----
      Se ven siempre que la meta las tenga, aunque el plan no haya empezado:
@@ -9536,6 +10176,7 @@ function renderPerkDetail() {
       </button>` : ""}
     </div>
     <div class="panel alt">${facts}</div>
+    ${reglaPanel}
     ${etapas}
     ${planPanel}
     ${actionPanel}
@@ -9543,6 +10184,22 @@ function renderPerkDetail() {
       <h3>Movimientos</h3>
       ${historyHtml}
     </div>`;
+}
+
+/* El mismo cambio que el interruptor del mapa, pero desde la ficha. Se
+   reescribe la ficha y el mapa: la letra del círculo tiene que quedar igual
+   en los dos sitios, o el usuario acabaría dudando de cuál manda. */
+function ponerModoTalento(id, m) {
+  const p = state.perks.find(x => x.id === id);
+  if (!p || modoDe(p) === m) return;
+  pushUndo("cambiar la regla de entrada");
+  p.modo = m === "cualquiera" ? "cualquiera" : "todos";
+  save();
+  renderPerkDetail();
+  renderTree();
+  toast(m === "todos"
+    ? `Se abrirá al completar todos sus requisitos`
+    : `Se abrirá al completar cualquiera de sus requisitos`, "hecho");
 }
 
 /* ================= Formulario habilidad ================= */
