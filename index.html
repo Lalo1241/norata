@@ -2158,6 +2158,57 @@
   .app.sacude { animation: sacudida 0.44s cubic-bezier(.36,.07,.19,.97); }
   @media (prefers-reduced-motion: reduce) { .app.sacude { animation: none; } }
 
+  /* ---------- Tipo y etapas de un talento ---------- */
+  /* El selector de tipo: tres botones excluyentes con su icono. En pantalla
+     estrecha se apilan, porque "Compra" con su llave no cabe en un tercio
+     de 375px sin partir la palabra. */
+  .tipo-seg button {
+    flex-direction: column;
+    gap: 5px;
+    padding: 11px 6px;
+  }
+  .tipo-seg .ic { color: var(--muted); }
+  .tipo-seg button.on .ic { color: var(--mint); }
+
+  .fact .v.tipo-v {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px;
+  }
+  .fact .v.tipo-v .ic { color: var(--mint); }
+
+  /* Las etapas de una meta. Comparten el aire de las de un proyecto sin
+     copiar su chip: aquí se marcan una a una, así que cada una es una fila
+     con su casilla y necesita sitio para el dedo. */
+  .pk-steps { display: flex; flex-direction: column; gap: 7px; }
+  .pk-step {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%;
+    text-align: left;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--pc);
+    border-radius: 8px 14px 14px 8px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .pk-step[disabled] { cursor: default; opacity: 0.72; }
+  .pk-box {
+    flex: none;
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    border: 2px solid var(--line);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #0e131b;
+  }
+  .pk-box svg { stroke-width: 3.2; }
+  .pk-step.ok .pk-box { background: var(--pc); border-color: var(--pc); }
+  .pk-step.ok .pk-tx { color: var(--muted); text-decoration: line-through; }
+  .pk-tx { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+
   /* ---------- Reordenar arrastrando ----------
      Genérico: lo usan las misiones y las habilidades, y sirve para
      cualquier lista que se acomode a mano. El modo no dura más que el
@@ -3198,50 +3249,44 @@
 
     <div class="panel alt">
       <h3>Tipo de talento</h3>
-      <div class="toggle-row">
-        <div>
-          <div class="lbl">Mini-talento ○</div>
-          <div class="sub">Acción simple de un solo paso, sin plan ni fecha límite: publicar un dibujo, dar una clase de prueba. Se completa con un toque.</div>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="p-mini" onchange="togglePerkTypeFields()">
-          <span class="track"></span>
+      <!-- Tres botones excluyentes y no dos interruptores sueltos. Con
+           interruptores se podía marcar "Asegurado al pagar" dentro de un
+           mini-talento, verlo marcado, y que al guardar se descartara sin
+           avisar. Aquí elegir uno apaga los otros: la contradicción deja de
+           poder dibujarse siquiera. -->
+      <div class="seg tipo-seg" id="p-tipo"></div>
+      <div class="field-hint" id="p-tipo-sub" style="margin-top:10px"></div>
+
+      <div id="campo-importe" style="margin-top:16px">
+        <label class="field" style="margin-bottom:0">
+          <span id="p-cost-lbl">Costo (MXN)</span>
+          <input type="number" id="p-cost" value="0" min="0" step="0.01" inputmode="decimal">
+          <div class="field-hint" id="p-cost-hint"></div>
         </label>
       </div>
-      <div id="plan-fields">
-        <div class="row2">
-          <label class="field">
-            <span>Costo (MXN)</span>
-            <input type="number" id="p-cost" value="0" min="0" step="0.01" inputmode="decimal">
-          </label>
-          <label class="field">
-            <span>Plan de duración</span>
-            <div class="row2" style="gap:6px">
-              <input type="number" id="p-plan-n" value="12" min="1" max="999" inputmode="numeric">
-              <select id="p-plan-u">
-                <option value="d">días</option>
-                <option value="m" selected>meses</option>
-              </select>
-            </div>
-          </label>
-        </div>
-        <div class="field-hint" style="margin-bottom:14px">Al invertir arranca el plan ◇. Cuando termina, confirmas si lograste la meta: si la lograste, el talento se vuelve permanente; si no, se pierde.</div>
-        <div class="toggle-row" style="padding-bottom:4px">
-          <div>
-            <div class="lbl">Asegurado al pagar ⬡</div>
-            <div class="sub">Se vuelve permanente desde la compra, sin plan que cumplir. Para equipo, licencias, cosas que ya son tuyas.</div>
+
+      <div id="campo-plan" style="margin-top:16px">
+        <label class="field" style="margin-bottom:0">
+          <span>Plan de duración</span>
+          <div class="row2" style="gap:6px">
+            <input type="number" id="p-plan-n" value="12" min="1" max="999" inputmode="numeric">
+            <select id="p-plan-u">
+              <option value="d">días</option>
+              <option value="m" selected>meses</option>
+            </select>
           </div>
-          <label class="switch">
-            <input type="checkbox" id="p-instant">
-            <span class="track"></span>
-          </label>
-        </div>
-      </div>
-      <div id="mini-fields" style="display:none">
-        <label class="field">
-          <span>Costo (MXN, opcional)</span>
-          <input type="number" id="p-mini-cost" value="0" min="0" step="0.01" inputmode="decimal">
+          <div class="field-hint">Al comenzar arranca el plazo. Cuando termina confirmas si la lograste: si sí, el talento se vuelve permanente; si no, se pierde.</div>
         </label>
+      </div>
+    </div>
+
+    <div class="panel alt" id="panel-etapas">
+      <h3>Etapas</h3>
+      <p class="settings-note">Divide la meta en pasos concretos y el avance sale de contarlos, sin porcentajes a ojo. <b>Puedes dejarla sin etapas</b>: entonces la meta entera es su propia etapa y se cierra de una vez.</p>
+      <div id="p-steps"></div>
+      <div class="step-add">
+        <input type="text" id="p-new-step" placeholder="Nueva etapa…" maxlength="70" onkeydown="if(event.key==='Enter'){event.preventDefault();addPerkFormStep();}">
+        <button class="btn btn-soft btn-sm" onclick="addPerkFormStep()">Añadir</button>
       </div>
     </div>
 
@@ -3480,6 +3525,10 @@ const ICONS = {
   /* Gafas de buceo, sin tubo: dos lentes, el puente y la cinta que rodea la
      cabeza. Sin snorkel se distinguen mejor de la careta de esnórquel. */
   goggles: '<circle cx="7.6" cy="13.4" r="3.9"/><circle cx="16.4" cy="13.4" r="3.9"/><path d="M11.5 13.4h1"/><path d="M4.2 11.2C3.1 8.6 6 6.6 12 6.6s8.9 2 7.8 4.6"/>',
+  /* Llave: es el icono del tipo Compra, que existe para abrir el paso a lo
+     que sigue. El anillo abajo a la izquierda y los dientes sobre la caña,
+     perpendiculares a ella, que es lo que la distingue de una paleta. */
+  key: '<circle cx="7.6" cy="15.4" r="4.6"/><path d="M10.9 12.1L20.5 2.5"/><path d="M15.2 7.8l2.3 2.3"/><path d="M17.9 5.1l2.3 2.3"/>',
   lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   play: '<path d="M8 5.5l11 6.5-11 6.5z" stroke-linejoin="round"/>',
@@ -3488,7 +3537,7 @@ const ICONS = {
   settings: '<path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/>'
 };
 
-const ICON_LIST = ["brush","pen","book","dumbbell","code","music","camera","mic","globe","coin","bulb","heart","flame","trophy","target","flag","wrench","coffee","plant","cap","chart","map","compass","crown","gem","gamepad","star","bolt","shield","smile","rod","goggles"];
+const ICON_LIST = ["brush","pen","book","dumbbell","code","music","camera","mic","globe","coin","bulb","heart","flame","trophy","target","flag","wrench","coffee","plant","cap","chart","map","compass","crown","gem","gamepad","star","bolt","shield","smile","rod","goggles","key"];
 
 const EMOJI_TO_ICON = {
   "🎨":"brush","🍳":"coffee","💪":"dumbbell","📚":"book","🎸":"music","💻":"code","🗣️":"mic","🧘":"heart",
@@ -3502,6 +3551,87 @@ function icon(name, size) {
 }
 
 /* ================= Modelo y persistencia ================= */
+
+/* ================= Talentos: los tres tipos =================
+   Antes el tipo no era un campo: se deducía de dos banderas sueltas, `mini`
+   e `instant`. Cuatro combinaciones posibles para tres tipos con nombre, y
+   un interruptor de "Asegurado al pagar" que se podía marcar dentro de un
+   mini-talento y que al guardar se descartaba sin decir nada.
+
+   Ahora es un campo con tres valores, así que la cuarta combinación deja de
+   ser escribible. Los tres responden a la misma pregunta —qué hace falta
+   para que sea tuyo— y por eso se distinguen sin memorizarlos:
+
+     compra  dinero              y existe para abrir el paso a lo que sigue
+     hito    una acción puntual  y se cierra en sí mismo
+     meta    tiempo sostenido    y avanza por etapas
+
+   La diferencia entre compra e hito no es la etiqueta: una compra PIDE
+   importe porque es una llave que se paga, y un hito NO lo admite porque
+   lo que registra es que lo hiciste, no lo que gastaste.
+
+   La figura de cada tipo vive aquí y no repartida por el dibujo: el radio
+   se usa en cuatro sitios distintos (dónde nace una línea, dónde muere,
+   cuánto mide el nodo y dónde cae su etiqueta) y tenerlo en un solo lugar
+   es lo que impide que se desincronicen. */
+const TIPOS = {
+  compra: {
+    nombre: "Compra",
+    sub: "Una llave: la pagas y te abre el paso a lo que sigue. Equipo, licencias, cursos.",
+    icono: "key",
+    pideImporte: true,
+    llevaPlan: false,
+    forma: "hexagono",
+    radio: 26,
+    tecla: "E"
+  },
+  hito: {
+    nombre: "Hito",
+    sub: "Una acción puntual que se cierra en sí misma: publicar un dibujo, dar una clase de prueba.",
+    icono: "flag",
+    pideImporte: false,
+    llevaPlan: false,
+    forma: "circulo",
+    radio: 17,
+    tecla: "Q"
+  },
+  meta: {
+    nombre: "Meta",
+    sub: "Algo que sostienes en el tiempo. Avanza por etapas y tiene fecha límite.",
+    icono: "target",
+    pideImporte: false,
+    llevaPlan: true,
+    forma: "rombo",
+    radio: 23,
+    tecla: "W"
+  }
+};
+
+function tipoDe(p) { return TIPOS[p.tipo] ? p.tipo : "meta"; }
+function metaDe(p) { return TIPOS[tipoDe(p)]; }
+
+/* Traduce las banderas viejas y las borra. Se llama al cargar, así que un
+   tablero guardado con la versión anterior se convierte solo la primera vez
+   que se abre y ya nunca vuelve a pasar por aquí. */
+function migrarTipoTalento(p) {
+  if (!TIPOS[p.tipo]) {
+    p.tipo = p.mini ? "hito" : (p.instant ? "compra" : "meta");
+    /* El avance viejo era un porcentaje puesto a ojo y el nuevo se cuenta
+       por etapas, así que no hay forma honesta de traducirlo. Pero tampoco
+       se tira en silencio: quien tenía una meta al 45% vería el medidor
+       caer a cero sin explicación. Queda escrito en su historial. */
+    if (p.tipo === "meta" && p.progress > 0 && p.status === "active") {
+      p.history = p.history || [];
+      p.history.unshift({
+        date: todayKey(), at: stamp(),
+        event: `Avance anterior: ${Math.round(p.progress)}%. Ahora el avance se cuenta por etapas — añádelas para volver a medirlo.`
+      });
+    }
+  }
+  delete p.mini;
+  delete p.instant;
+  delete p.progress;
+}
 
 /* El proyecto pasó a llamarse Notara, pero las llaves de almacenamiento
    conservan el nombre viejo a propósito: renombrarlas dejaría huérfano el
@@ -3563,9 +3693,9 @@ function load() {
   });
   data.perks.forEach((p, i) => {
     if (!p.icon) p.icon = ICON_LIST[(i * 5 + 3) % ICON_LIST.length];
-    if (typeof p.mini !== "boolean") p.mini = false;
     if (!p.color) p.color = COLORS[(i * 3 + 2) % COLORS.length];
-    if (typeof p.progress !== "number") p.progress = 0;
+    migrarTipoTalento(p);
+    if (!Array.isArray(p.steps)) p.steps = [];
   });
   return data;
 }
@@ -4423,50 +4553,75 @@ const STATUS_LABEL = {
   expired: "Perdido"
 };
 
+/* ---- Avance de una meta: se cuenta, no se estima ----
+   Antes el avance era un porcentaje que el usuario empujaba a ojo con
+   botones de +5, +10 y +25. No había nada detrás de esa cifra, y el talento
+   —que es el compromiso más caro de la app porque lleva dinero— acababa con
+   el medidor más flojo. Proyectos ya lo tenía resuelto contando etapas.
+
+   Una meta puede no tener ninguna etapa, y entonces ella misma es su única
+   etapa: 0 hasta que la confirmas, 100 al confirmarla. Así no queda ningún
+   caso donde haya que inventarse una cifra. */
+function perkProgress(p) {
+  const st = p.steps || [];
+  if (!st.length) return p.status === "completed" ? 100 : 0;
+  return Math.round(st.filter(s => s.done).length / st.length * 100);
+}
+
 async function investPerk(id) {
   const p = state.perks.find(x => x.id === id);
   if (!p) return;
+  const t = metaDe(p);
   const st = perkStatus(p);
   if (st === "locked") { toast("Primero completa el requisito", "atencion"); return; }
   if (st === "active" || st === "completed") return;
+
+  /* Una compra sin importe no es una compra. Es la regla que la separa de
+     un hito, así que se comprueba antes de dejar seguir en vez de dejar
+     pasar un talento que luego no significa lo que dice ser. */
+  if (t.pideImporte && !(p.cost > 0)) {
+    toast("Una compra necesita su importe. Edítala y ponle cuánto costó.", "atencion");
+    return;
+  }
+
   const costTxt = p.cost > 0 ? `Costo: ${money(p.cost)}. ` : "";
-  if (!await ask(`¿${p.instant ? "Comprar" : "Comenzar"} "${p.name}"? ${costTxt}${p.instant ? "Quedará asegurado de inmediato." : `Tendrás ${p.planDays} días para lograr la meta, registrando tu avance.`}`, p.instant ? "Comprar" : "Comenzar")) return;
+  const pregunta = t.llevaPlan
+    ? `¿Comenzar "${p.name}"? ${costTxt}Tendrás ${planLabel(p.planDays)} para lograrla.`
+    : `¿Comprar "${p.name}"? ${costTxt}Quedará asegurada de inmediato.`;
+  if (!await ask(pregunta, t.llevaPlan ? "Comenzar" : "Comprar")) return;
 
   p.investedTotal = (p.investedTotal || 0) + (p.cost || 0);
   p.history = p.history || [];
-  if (p.instant) {
+  if (!t.llevaPlan) {
     p.status = "completed";
     p.completedAt = todayKey();
-    p.history.unshift({ date: todayKey(), at: stamp(), event: `Comprado y asegurado (${money(p.cost)})` });
+    p.history.unshift({ date: todayKey(), at: stamp(), event: `Comprada y asegurada (${money(p.cost)})` });
     grantPerkReward(p);
     celebrate("Talento asegurado", p.name, "#5fe0b0", p.icon);
   } else {
     p.status = "active";
-    p.progress = 0;
     p.startDate = todayKey();
     p.endDate = addDaysKey(p.startDate, p.planDays);
-    p.history.unshift({ date: todayKey(), at: stamp(), event: `Inversión de ${money(p.cost)} — plan de ${p.planDays} días iniciado` });
-    toast(`Plan iniciado: ${p.planDays} días`, "logro");
+    p.history.unshift({ date: todayKey(), at: stamp(), event: `Inversión de ${money(p.cost)} — plan de ${planLabel(p.planDays)} iniciado` });
+    toast(`Plan iniciado: ${planLabel(p.planDays)}`, "logro");
   }
   save();
   renderPerkDetail();
   renderTree();
 }
 
-async function completeMini(id) {
+async function completeHito(id) {
   const p = state.perks.find(x => x.id === id);
-  if (!p || !p.mini || p.status === "completed") return;
-  if (perkStatus(p) === "locked") { toast("Primero completa el requisito"); return; }
-  const costTxt = p.cost > 0 ? ` Costo: ${money(p.cost)}.` : "";
-  if (!await ask(`¿Completar el mini-talento "${p.name}"?${costTxt}`, "Completar")) return;
-  p.investedTotal = (p.investedTotal || 0) + (p.cost || 0);
+  if (!p || tipoDe(p) !== "hito" || p.status === "completed") return;
+  if (perkStatus(p) === "locked") { toast("Primero completa el requisito", "atencion"); return; }
+  if (!await ask(`¿Dar por hecho "${p.name}"?`, "Hecho")) return;
   p.history = p.history || [];
   p.status = "completed";
   p.completedAt = todayKey();
-  p.history.unshift({ date: todayKey(), at: stamp(), event: "Mini-talento completado" });
+  p.history.unshift({ date: todayKey(), at: stamp(), event: "Hito conseguido" });
   grantPerkReward(p);
   save();
-  celebrate("Mini-talento logrado", p.name, "#5fe0b0", p.icon);
+  celebrate("Hito conseguido", p.name, "#5fe0b0", p.icon);
   renderPerkDetail();
   renderTree();
 }
@@ -4497,40 +4652,57 @@ async function failPerk(id) {
   renderTree();
 }
 
-function addProgress(id, n) {
+/* ---- Deshacer un talento conseguido ----
+   Era la única acción irreversible de la app que no avisaba de serlo: dar
+   por hecho un hito con un toque y una confirmación, y para arreglar el
+   error no quedaba más que borrarlo y perder su historial.
+
+   Revertir NO es lo mismo que guardar o borrar. Guardar en el ático deja el
+   XP intacto porque lo aprendido sigue siendo tuyo; revertir dice que
+   aquello no llegó a pasar, así que se devuelve el XP y el dinero, igual
+   que ya hace desmarcar una misión. */
+async function revertirTalento(id) {
   const p = state.perks.find(x => x.id === id);
+  if (!p || p.status !== "completed") return;
+  const s = p.skillId ? state.skills.find(x => x.id === p.skillId) : null;
+  const devuelve = [];
+  if (s && p.xpReward) devuelve.push(`${p.xpReward} XP a ${s.name}`);
+  if (p.cost > 0) devuelve.push(money(p.cost));
+  const detalle = devuelve.length ? ` Se devolverá ${devuelve.join(" y ")}.` : "";
+  if (!await ask(`¿Deshacer "${p.name}"? Volverá al estado en el que estaba.${detalle}`, "Deshacer", true)) return;
+
+  if (s && p.xpReward) removeXp(s, p.xpReward, `Talento deshecho: ${p.name}`, `Talento · ${p.name}`);
+  p.investedTotal = Math.max(0, (p.investedTotal || 0) - (p.cost || 0));
+  p.completedAt = null;
+  /* Una meta vuelve a su plan si aún lo tenía; lo demás vuelve a estar por
+     empezar. Sin esto, deshacer una meta a medio plan la mandaría al
+     principio y borraría el avance que sí era real. */
+  p.status = (metaDe(p).llevaPlan && p.startDate) ? "active" : null;
+  p.history.unshift({ date: todayKey(), at: stamp(), event: "Deshecho: vuelve a estar pendiente" });
+  save();
+  toast(`"${p.name}" vuelve a estar pendiente`, "deshecho");
+  renderPerkDetail();
+  renderTree();
+}
+
+/* ---- Etapas de una meta ---- */
+function togglePerkStep(perkId, stepId) {
+  const p = state.perks.find(x => x.id === perkId);
   if (!p || perkStatus(p) !== "active") return;
-  const before = p.progress || 0;
-  p.progress = clamp(before + n, 0, 100);
-  if (p.progress === before) {
-    toast(n > 0 ? "Ya estás al 100%" : "El avance ya está en 0%", "calma");
-    return;
-  }
+  const s = (p.steps || []).find(x => x.id === stepId);
+  if (!s) return;
+  const antes = perkProgress(p);
+  s.done = !s.done;
+  s.at = s.done ? stamp() : null;
   p.history.unshift({
     date: todayKey(), at: stamp(),
-    event: `${n > 0 ? "Avance" : "Avance revertido"}: ${before}% → ${p.progress}%`,
-    undo: { from: before, to: p.progress }
+    event: `${s.done ? "Etapa hecha" : "Etapa reabierta"}: ${s.name}`
   });
   save();
   renderPerkDetail();
-  if (p.progress >= 100 && before < 100) {
-    toast("¡Llegaste al 100%! Confirma tu meta cuando quieras", "logro");
-  } else {
-    toast(`${p.name}: ${p.progress}%`, "hecho");
-  }
-}
-
-/* Deshace el último cambio de avance registrado. */
-function undoProgress(id) {
-  const p = state.perks.find(x => x.id === id);
-  if (!p || perkStatus(p) !== "active") return;
-  const last = (p.history || []).find(e => e.undo);
-  if (!last) { toast("No hay avances que deshacer", "atencion"); return; }
-  p.progress = last.undo.from;
-  p.history = p.history.filter(e => e !== last);
-  save();
-  renderPerkDetail();
-  toast(`Deshecho — vuelves a ${p.progress}%`, "deshecho");
+  const ahora = perkProgress(p);
+  if (ahora >= 100 && antes < 100) toast("Todas las etapas hechas. Confirma la meta cuando quieras", "logro");
+  else toast(`${p.name}: ${ahora}%`, s.done ? "hecho" : "deshecho");
 }
 
 function retryPerk(id) {
@@ -5328,7 +5500,7 @@ function renderSummary() {
       // El talento en curso que más cerca está de cerrarse
       let cerca = null;
       [...activeList, ...dueList].forEach(p => {
-        const pct = Math.round(p.progress || 0);
+        const pct = perkProgress(p);
         if (!cerca || pct > cerca.pct) cerca = { p, pct };
       });
       return `
@@ -7310,7 +7482,7 @@ function renderTree() {
   const soonest = [...inProgress].sort((a, b) =>
     daysBetween(todayKey(), a.endDate) - daysBetween(todayKey(), b.endDate))[0];
   const avgProgress = inProgress.length
-    ? Math.round(inProgress.reduce((a, p) => a + (p.progress || 0), 0) / inProgress.length) : 0;
+    ? Math.round(inProgress.reduce((a, p) => a + perkProgress(p), 0) / inProgress.length) : 0;
 
   let focus;
   if (dueNow.length) {
@@ -7358,7 +7530,7 @@ function renderTree() {
         <span class="pips">${nodes.slice(0, 12).map(n => {
           const st = perkStatus(n);
           const c = st === "completed" ? (n.color || "#5fe0b0") : (st === "active" || st === "due" ? "#f5d76e" : "#2e3947");
-          return `<i style="background:${c}${n.mini ? ";border-radius:999px" : ""}"></i>`;
+          return `<i style="background:${c}${tipoDe(n) === "hito" ? ";border-radius:999px" : ""}"></i>`;
         }).join("")}${nodes.length > 12 ? `<span style="font-size:11px">+${nodes.length - 12}</span>` : ""}</span>
         <span>${nodes.length} talento${nodes.length === 1 ? "" : "s"}</span>
       </div>`;
@@ -7564,12 +7736,6 @@ function renderFullscreen() {
    clic derecho, cosas que en una pantalla táctil no existen. En el móvil
    nada de esto se activa y la app se comporta igual que antes. */
 
-const TIPOS_TALENTO = {
-  mini:   { nombre: "Mini-talento",       mini: true,  instant: false, tecla: "Q" },
-  meta:   { nombre: "Meta con plan",      mini: false, instant: false, tecla: "W" },
-  seguro: { nombre: "Asegurado al pagar", mini: false, instant: true,  tecla: "E" }
-};
-
 /* ---- Deshacer ----
    El editor es lo único de la app donde una acción destruye trabajo sin
    avisar (cortar una conexión, mover algo sin querer). Se guarda una copia
@@ -7624,22 +7790,22 @@ function atajosLegend(compacta) {
   const partes = compacta
     ? [`${k("Q")}${k("W")}${k("E")} crear`, `${k("C")} editar`, `clic derecho: más`]
     : [
-        `${k("Q")} mini-talento`, `${k("W")} meta`, `${k("E")} asegurado`,
+        `${k("Q")} hito`, `${k("W")} meta`, `${k("E")} compra`,
         `${k("C")} salir`, `${k("Ctrl")}${k("Z")} deshacer`, `clic derecho: más`
       ];
   return `<span class="keys">${partes.join('<i class="sep">·</i>')}</span>`;
 }
 
 function crearTalentoRapido(branch, tipo, pos) {
-  const t = TIPOS_TALENTO[tipo];
+  const t = TIPOS[tipo];
   if (!branch || !t) return;
   pushUndo(`crear ${t.nombre.toLowerCase()}`);
   fijarPosiciones(branch);
   const n = state.perks.length;
   const nuevo = {
     id: uid(), name: t.nombre, branch, desc: "",
-    cost: 0, planDays: 360, instant: t.instant, mini: t.mini,
-    skillId: null, xpReward: t.mini ? 120 : 600, requiresId: null,
+    tipo, cost: 0, planDays: 360, steps: [],
+    skillId: null, xpReward: tipo === "hito" ? 120 : 600, requiresId: null,
     icon: ICON_LIST[(n * 5 + 3) % ICON_LIST.length],
     color: COLORS[(n * 3 + 2) % COLORS.length],
     status: null, startDate: null, endDate: null, completedAt: null,
@@ -7773,9 +7939,9 @@ document.addEventListener("keydown", (e) => {
 
   const k = e.key.toLowerCase();
   if (k === "c") { e.preventDefault(); toggleEditBranch(rama); }
-  else if (k === "q") { e.preventDefault(); crearTalentoRapido(rama, "mini", posDeAtajo(rama)); }
+  else if (k === "q") { e.preventDefault(); crearTalentoRapido(rama, "hito", posDeAtajo(rama)); }
   else if (k === "w") { e.preventDefault(); crearTalentoRapido(rama, "meta", posDeAtajo(rama)); }
-  else if (k === "e") { e.preventDefault(); crearTalentoRapido(rama, "seguro", posDeAtajo(rama)); }
+  else if (k === "e") { e.preventDefault(); crearTalentoRapido(rama, "compra", posDeAtajo(rama)); }
 });
 
 /* ---- Menú de clic derecho sobre el lienzo ---- */
@@ -7804,9 +7970,11 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId) {
   el.innerHTML =
     bloqueNodo +
     `<div class="ctx-head">Crear aquí</div>` +
-    item("Meta con plan", "Objetivo con fecha límite", "W", `ctxCrear('${escapeAttr(branch)}','meta')`) +
-    item("Asegurado al pagar", "Tuyo en cuanto lo compras", "E", `ctxCrear('${escapeAttr(branch)}','seguro')`) +
-    item("Mini-talento", "Una llave para seguir avanzando", "Q", `ctxCrear('${escapeAttr(branch)}','mini')`) +
+    /* Los tres tipos con su tecla, en el mismo orden que el selector del
+       formulario para que la mano aprenda una sola disposición. */
+    item(TIPOS.meta.nombre, "Se sostiene en el tiempo y avanza por etapas", "W", `ctxCrear('${escapeAttr(branch)}','meta')`) +
+    item(TIPOS.compra.nombre, "Una llave que se paga y abre el paso", "E", `ctxCrear('${escapeAttr(branch)}','compra')`) +
+    item(TIPOS.hito.nombre, "Una acción puntual que se cierra en sí misma", "Q", `ctxCrear('${escapeAttr(branch)}','hito')`) +
     `<div class="ctx-sep"></div>` +
     item(editando ? "Salir de edición" : "Editar el mapa", editando ? "Vuelve al modo normal" : "Mueve y conecta talentos", "C", `cerrarCtxMenu();toggleEditBranch('${escapeAttr(branch)}')`) +
     (undoStack.length ? item("Deshacer", undoStack[undoStack.length - 1].etiqueta, "Ctrl Z", `cerrarCtxMenu();undoEditor()`) : "");
@@ -7917,25 +8085,28 @@ function branchLayout(nodes) {
   return { pos, order, childrenOf, H, W };
 }
 
-/* Radio horizontal de cada figura: de ahí salen y entran las conexiones. */
+/* Radio horizontal de cada figura: de ahí salen y entran las conexiones.
+   El rombo mide más en diagonal que de lado, de ahí el √2. */
 function nodeRadius(p) {
-  return p.mini ? 17 : (p.instant ? 26 : 32);
+  const t = metaDe(p);
+  return t.forma === "rombo" ? Math.round(t.radio * Math.SQRT2) : t.radio;
 }
 
 function nodeShape(p, x, y, conf, fid) {
   const common = `fill="${conf.fill}" stroke="${conf.stroke}" stroke-width="2"${conf.sop ? ` stroke-opacity="${conf.sop}"` : ""}${conf.glow ? ` filter="url(#${fid})"` : ""}`;
-  if (p.mini) {
-    return `<circle cx="${x}" cy="${y}" r="17" ${common}/>`;
+  const t = metaDe(p);
+  if (t.forma === "circulo") {
+    return `<circle cx="${x}" cy="${y}" r="${t.radio}" ${common}/>`;
   }
-  if (p.instant) {
+  if (t.forma === "hexagono") {
     const pts = [];
     for (let i = 0; i < 6; i++) {
       const a = Math.PI / 6 + i * Math.PI / 3;
-      pts.push((x + 26 * Math.cos(a)).toFixed(1) + "," + (y + 26 * Math.sin(a)).toFixed(1));
+      pts.push((x + t.radio * Math.cos(a)).toFixed(1) + "," + (y + t.radio * Math.sin(a)).toFixed(1));
     }
     return `<polygon points="${pts.join(" ")}" stroke-linejoin="round" ${common}/>`;
   }
-  return `<rect x="${x - 23}" y="${y - 23}" width="46" height="46" rx="9" transform="rotate(45 ${x} ${y})" ${common}/>`;
+  return `<rect x="${x - t.radio}" y="${y - t.radio}" width="${t.radio * 2}" height="${t.radio * 2}" rx="9" transform="rotate(45 ${x} ${y})" ${common}/>`;
 }
 
 /* ---- Los ocho rumbos de un talento (el asterisco) ----
@@ -7969,8 +8140,11 @@ const TODOS_LOS_RUMBOS = ["e", "w", "n", "s", "ne", "se", "nw", "sw"];
    ocho brazos tanto para salir como para entrar — una llave puede colgar de
    cualquier vecino y abrirle la puerta a cualquier otro, sin que eso
    signifique que el recorrido retrocede. */
-function rumbosDe(esMini, saliendo) {
-  return esMini ? TODOS_LOS_RUMBOS : (saliendo ? SALIDAS : ENTRADAS);
+/* El hito es el nodo pequeño y suele colgar a un lado del tronco, así que
+   se le permiten los ocho rumbos; los demás respetan la gramática de salir
+   por delante y entrar por detrás. */
+function rumbosDe(p, saliendo) {
+  return tipoDe(p) === "hito" ? TODOS_LOS_RUMBOS : (saliendo ? SALIDAS : ENTRADAS);
 }
 
 function elegirRumbo(candidatos, dx, dy) {
@@ -7999,9 +8173,10 @@ function radioPoligono(R, lados, giro, th) {
 function radioEnRumbo(p, rumbo) {
   const [vx, vy] = DIRS[rumbo];
   const th = Math.atan2(vy, vx);
-  if (p.mini) return 17;                                  // círculo
-  if (p.instant) return radioPoligono(26, 6, Math.PI / 6, th);  // hexágono
-  return radioPoligono(23 * Math.SQRT2, 4, 0, th);        // rombo
+  const t = metaDe(p);
+  if (t.forma === "circulo") return t.radio;
+  if (t.forma === "hexagono") return radioPoligono(t.radio, 6, Math.PI / 6, th);
+  return radioPoligono(t.radio * Math.SQRT2, 4, 0, th);
 }
 
 function anclaEn(nodo, p, rumbo) {
@@ -8015,8 +8190,8 @@ function anclaEn(nodo, p, rumbo) {
    nunca cruza por encima de las figuras. */
 function edgePath(a, b, pa, pb) {
   const dx = b.x - a.x, dy = b.y - a.y;
-  const salida = elegirRumbo(rumbosDe(pa.mini, true), dx, dy);
-  const entrada = elegirRumbo(rumbosDe(pb.mini, false), -dx, -dy);
+  const salida = elegirRumbo(rumbosDe(pa, true), dx, dy);
+  const entrada = elegirRumbo(rumbosDe(pb, false), -dx, -dy);
   const p1 = anclaEn(a, pa, salida);
   const p2 = anclaEn(b, pb, entrada);
   const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
@@ -8092,11 +8267,12 @@ function constellation(nodes, key, editing) {
       available: { stroke: col, fill: col + "12", glow: false, sop: 0.55 }
     }[st];
     const iname = st === "locked" ? "lock" : (n.icon || "star");
-    const isc = n.mini ? 0.62 : 0.8;
-    const markR = n.mini ? { dx: 13, dy: -13 } : { dx: 21, dy: -21 };
+    const esHito = tipoDe(n) === "hito";
+    const isc = esHito ? 0.62 : 0.8;
+    const markR = esHito ? { dx: 13, dy: -13 } : { dx: 21, dy: -21 };
     const R = nodeRadius(n);
     const lines = wrapName(n.name);
-    const topY = y + (n.mini ? 32 : 44);
+    const topY = y + (esHito ? 32 : 44);
 
     nds += `<g class="cnode" data-id="${n.id}" ${editing ? "" : `onclick="openPerk('${n.id}')"`}>
       ${st === "available" && !editing ? `<circle class="node-pulse" cx="${x}" cy="${y}" r="${R + 4}" fill="none" stroke="${col}" stroke-width="2.5"/>` : ""}
@@ -8106,7 +8282,7 @@ function constellation(nodes, key, editing) {
       ${conf.mark ? `<circle cx="${x + markR.dx}" cy="${y + markR.dy}" r="9.5" fill="${conf.badge}"/>
         <g transform="translate(${x + markR.dx - 6}, ${y + markR.dy - 6}) scale(0.5)"
            stroke="#10151d" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g>` : ""}
-      <text x="${x}" y="${topY}" text-anchor="middle" font-size="${n.mini ? 9.5 : 10.5}" fill="#a8b4c0" font-weight="500">
+      <text x="${x}" y="${topY}" text-anchor="middle" font-size="${esHito ? 9.5 : 10.5}" fill="#a8b4c0" font-weight="500">
         ${lines.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 12}">${escapeHtml(ln)}</tspan>`).join("")}
       </text>
     </g>`;
@@ -8383,7 +8559,7 @@ function attachEditHandlers(scope) {
       if (prev) {
         // Mismo criterio de rumbo que edgePath(), para que la vista previa no
         // prometa un trazo que al soltar se dibuje por otro brazo.
-        const rumbo = elegirRumbo(rumbosDe(fp.mini, true), pt.x - from.x, pt.y - from.y);
+        const rumbo = elegirRumbo(rumbosDe(fp, true), pt.x - from.x, pt.y - from.y);
         const anchor = anclaEn(from, fp, rumbo);
         const [vx, vy] = DIRS[rumbo];
         const pull = Math.max(40, Math.hypot(pt.x - anchor.x, pt.y - anchor.y) * 0.5);
@@ -8494,42 +8670,59 @@ function renderPerkDetail() {
   const p = state.perks.find(x => x.id === currentPerkId);
   if (!p) { showView("tree"); return; }
   const st = perkStatus(p);
+  const t = metaDe(p);
   const skill = p.skillId ? state.skills.find(s => s.id === p.skillId) : null;
   const req = p.requiresId ? state.perks.find(x => x.id === p.requiresId) : null;
-  const typeLabel = p.mini ? "Mini-talento ○" : (p.instant ? "Asegurado al pagar ⬡" : "Meta con plan ◇");
 
+  /* El tipo se dice con su icono y su nombre, no con un glifo que haya que
+     memorizar: la llave, la bandera y la diana explican solas de qué va. */
   const facts = `
     <div class="fact-grid">
-      <div class="fact"><div class="k">COSTO</div><div class="v acc">${money(p.cost)}</div></div>
+      <div class="fact"><div class="k">COSTO</div><div class="v acc">${p.cost > 0 ? money(p.cost) : "—"}</div></div>
       <div class="fact"><div class="k">INVERTIDO TOTAL</div><div class="v">${money(p.investedTotal || 0)}</div></div>
-      <div class="fact"><div class="k">TIPO</div><div class="v" style="font-size:13.5px">${typeLabel}</div></div>
+      <div class="fact"><div class="k">TIPO</div><div class="v tipo-v">${icon(t.icono, 15)}${t.nombre}</div></div>
       <div class="fact"><div class="k">RECOMPENSA</div><div class="v">${skill ? "+" + p.xpReward + " XP" : "—"}</div></div>
     </div>
-    ${!p.mini && !p.instant ? `<div class="xp-note" style="text-align:left;margin-top:10px">Plan de ${planLabel(p.planDays)}${skill ? ` · beneficia a <b>${escapeHtml(skill.name)}</b>` : ""}</div>` : (skill ? `<div class="xp-note" style="text-align:left;margin-top:10px">Beneficia a <b>${escapeHtml(skill.name)}</b></div>` : "")}`;
+    <div class="xp-note" style="text-align:left;margin-top:10px">${t.sub}${
+      t.llevaPlan ? ` Plan de ${planLabel(p.planDays)}.` : ""}${
+      skill ? ` Beneficia a <b>${escapeHtml(skill.name)}</b>.` : ""}</div>`;
+
+  /* ---- Etapas ----
+     Se ven siempre que la meta las tenga, aunque el plan no haya empezado:
+     saber en qué se va a meter uno antes de comprometerse es justo lo que
+     ayuda a decidir si comprometerse. Solo se pueden marcar en curso. */
+  const etapas = (t.llevaPlan && (p.steps || []).length) ? `
+    <div class="panel alt">
+      <div class="panel-head">
+        <h3 style="margin:0">Etapas</h3>
+        <span class="hint-hold">${p.steps.filter(s => s.done).length} de ${p.steps.length}</span>
+      </div>
+      <div class="pk-steps">
+        ${p.steps.map(s => `
+          <button class="pk-step ${s.done ? "ok" : ""}" ${st === "active"
+            ? `onclick="togglePerkStep('${p.id}', '${s.id}')"`
+            : "disabled"} style="--pc:${p.color || "#5fe0b0"}">
+            <span class="pk-box">${s.done ? icon("check", 12) : ""}</span>
+            <span class="pk-tx">${escapeHtml(s.name)}</span>
+          </button>`).join("")}
+      </div>
+      ${st !== "active" ? `<p class="settings-note" style="margin:12px 0 0">Las etapas se marcan cuando el plan esté en curso.</p>` : ""}
+    </div>` : "";
 
   let planPanel = "";
   if (st === "active") {
     const total = daysBetween(p.startDate, p.endDate);
     const gone = daysBetween(p.startDate, todayKey());
     const left = total - gone;
-    const prog = p.progress || 0;
+    const prog = perkProgress(p);
+    const sinEtapas = !(p.steps || []).length;
     planPanel = `
     <div class="panel alt">
       <h3>Tu avance</h3>
       <div class="bar" style="height:8px"><div class="bar-fill" style="width:${prog}%;background:${p.color || "var(--mint)"}"></div></div>
-      <div class="xp-note" style="margin-top:8px">Llevas <b>${prog}%</b> de la meta. Registra tu avance conforme trabajes en ella.</div>
-      <div class="quick-xp" style="margin-top:14px;margin-bottom:0">
-        ${[5, 10, 25].map(n => `
-          <button onclick="addProgress('${p.id}', ${n})">
-            <span class="xp">+${n}%</span><span class="t">avance</span>
-          </button>`).join("")}
-      </div>
-      <div class="undo-row">
-        <button class="btn btn-ghost btn-sm" onclick="addProgress('${p.id}', -10)" ${prog === 0 ? "disabled" : ""}>−10%</button>
-        <button class="btn btn-ghost btn-sm" onclick="undoProgress('${p.id}')">↩ Deshacer</button>
-        <button class="btn btn-ghost btn-sm" onclick="addProgress('${p.id}', -100)" ${prog === 0 ? "disabled" : ""}>Reiniciar</button>
-      </div>
-      ${prog >= 100 ? `<div class="xp-note" style="color:var(--mint)"><b>¡100%!</b> Confirma tu meta abajo para hacerla permanente.</div>` : ""}
+      <div class="xp-note" style="margin-top:8px">${sinEtapas
+        ? `Esta meta no tiene etapas: <b>ella misma es la etapa</b>. Se cierra confirmándola abajo.`
+        : `Llevas <b>${prog}%</b> — ${p.steps.filter(s => s.done).length} de ${p.steps.length} etapas.`}</div>
     </div>
     <div class="panel alt">
       <h3>Plan de tiempo</h3>
@@ -8555,11 +8748,22 @@ function renderPerkDetail() {
 
   let actionPanel = "";
   if (st === "available") {
-    actionPanel = p.mini
-      ? `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="completeMini('${p.id}')">Completar mini-talento${p.cost > 0 ? " · " + money(p.cost) : ""}</button>`
-      : (p.instant
-        ? `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="investPerk('${p.id}')">Comprar y asegurar${p.cost > 0 ? " · " + money(p.cost) : ""}</button>`
-        : `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="investPerk('${p.id}')">Comenzar plan${p.cost > 0 ? " · " + money(p.cost) : ""}</button>`);
+    const importe = p.cost > 0 ? " · " + money(p.cost) : "";
+    if (tipoDe(p) === "hito") {
+      actionPanel = `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="completeHito('${p.id}')">Dar por hecho</button>`;
+    } else if (tipoDe(p) === "compra") {
+      /* Sin importe la compra no puede cerrarse: es lo que la hace una
+         llave y no un hito. El botón lo dice en vez de fallar al pulsarlo. */
+      actionPanel = p.cost > 0
+        ? `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="investPerk('${p.id}')">Comprar y asegurar${importe}</button>`
+        : `<div class="panel alt" style="border-color:var(--fire)">
+             <h3 style="color:var(--fire)">Le falta el importe</h3>
+             <p class="settings-note" style="margin:0 0 12px">Una compra es una llave que se paga. Ponle cuánto costó y podrás asegurarla.</p>
+             <button class="btn btn-soft btn-block" onclick="openPerkForm('${p.id}')">Editar y ponerle importe</button>
+           </div>`;
+    } else {
+      actionPanel = `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="investPerk('${p.id}')">Comenzar plan${importe}</button>`;
+    }
   }
   if (st === "locked" && req) {
     actionPanel = `<div class="panel alt"><h3>Bloqueado</h3><p class="settings-note" style="margin:0">Requiere completar antes: <b>${escapeHtml(req.name)}</b>.</p></div>`;
@@ -8570,6 +8774,14 @@ function renderPerkDetail() {
       <h3 style="color:var(--coral)">Talento perdido</h3>
       <p class="settings-note">El plan venció sin lograr la meta. Puedes reintentarlo: volverás a invertir y arrancará un plan nuevo.</p>
       <button class="btn btn-soft btn-block" onclick="retryPerk('${p.id}')">Reintentar${p.cost > 0 ? " · " + money(p.cost) : ""}</button>
+    </div>`;
+  }
+  if (st === "completed") {
+    actionPanel = `
+    <div class="panel alt" style="border-color:var(--mint)">
+      <h3 style="color:var(--mint)">Permanente desde el ${formatDate(p.completedAt)}</h3>
+      <p class="settings-note">Este talento ya es parte de ti. Nadie te lo quita.</p>
+      <button class="btn btn-ghost btn-block" onclick="revertirTalento('${p.id}')">Deshacer — no llegó a pasar</button>
     </div>`;
   }
   if (st === "completed") {
@@ -8600,6 +8812,7 @@ function renderPerkDetail() {
       </button>` : ""}
     </div>
     <div class="panel alt">${facts}</div>
+    ${etapas}
     ${planPanel}
     ${actionPanel}
     <div class="panel">
@@ -8717,17 +8930,18 @@ function openPerkForm(id, presetBranch) {
   document.getElementById("p-name").value = p ? p.name : "";
   document.getElementById("p-branch").value = p ? (p.branch || "") : (presetBranch || "");
   document.getElementById("p-desc").value = p ? (p.desc || "") : "";
-  document.getElementById("p-cost").value = p && !p.mini ? p.cost : 0;
-  document.getElementById("p-mini-cost").value = p && p.mini ? p.cost : 0;
-  document.getElementById("p-instant").checked = p ? !!p.instant : false;
-  document.getElementById("p-mini").checked = p ? !!p.mini : false;
+  document.getElementById("p-cost").value = p ? p.cost : 0;
   document.getElementById("p-xp").value = p ? p.xpReward : 600;
   document.getElementById("p-delete").style.display = p ? "block" : "none";
   pIcon = p ? (p.icon || "star") : ICON_LIST[(state.perks.length * 5 + 3) % ICON_LIST.length];
   pColor = p ? (p.color || COLORS[2]) : COLORS[(state.perks.length * 3 + 2) % COLORS.length];
+  pTipo = p ? tipoDe(p) : "meta";
+  /* Copia, no referencia: si se edita y luego se cancela, las etapas del
+     talento guardado tienen que quedar como estaban. */
+  pSteps = p ? (p.steps || []).map(s => ({ ...s })) : [];
 
   let n = 12, u = "m";
-  if (p && !p.mini) {
+  if (p && p.planDays) {
     if (p.planDays % 30 === 0) { n = p.planDays / 30; u = "m"; }
     else { n = p.planDays; u = "d"; }
   }
@@ -8748,7 +8962,8 @@ function openPerkForm(id, presetBranch) {
 
   renderIconGrid("p-icon", pIcon, "pickPerkIcon", pColor);
   renderColorGrid("p-color", pColor, "pickPerkColor");
-  togglePerkTypeFields();
+  renderPerkTipo();
+  renderPerkFormSteps();
   sugActual.p = null;
   refrescarSugerencias("p");
   showView("perk-form");
@@ -8756,41 +8971,106 @@ function openPerkForm(id, presetBranch) {
 
 function pickPerkIcon(n) { pIcon = n; renderIconGrid("p-icon", n, "pickPerkIcon", pColor); }
 
-function togglePerkTypeFields() {
-  const mini = document.getElementById("p-mini").checked;
-  document.getElementById("plan-fields").style.display = mini ? "none" : "block";
-  document.getElementById("mini-fields").style.display = mini ? "block" : "none";
-  if (mini && !editingPerkId) document.getElementById("p-xp").value = 120;
+/* El tipo elegido en el formulario y las etapas que se están editando.
+   Viven fuera del DOM porque el selector es de botones, no un <input>, y
+   las etapas se añaden y quitan antes de existir el talento. */
+let pTipo = "meta";
+let pSteps = [];
+
+function pickPerkTipo(t) {
+  if (!TIPOS[t]) return;
+  pTipo = t;
+  /* La recompensa por defecto acompaña al tipo, pero solo en talentos
+     nuevos: al editar, cambiar de tipo no puede pisar una cifra que el
+     usuario ya ajustó a mano. */
+  if (!editingPerkId) document.getElementById("p-xp").value = t === "hito" ? 120 : 600;
+  renderPerkTipo();
+}
+
+function renderPerkTipo() {
+  const t = TIPOS[pTipo];
+  document.getElementById("p-tipo").innerHTML = Object.keys(TIPOS).map(k => `
+    <button type="button" class="${k === pTipo ? "on" : ""}" onclick="pickPerkTipo('${k}')">
+      ${icon(TIPOS[k].icono, 15)}<span>${TIPOS[k].nombre}</span>
+    </button>`).join("");
+  document.getElementById("p-tipo-sub").textContent = t.sub;
+
+  /* Cada tipo enseña solo los campos que le significan algo. Un hito sin
+     casilla de importe no es una restricción caprichosa: es la regla que lo
+     separa de una compra, dicha con la propia forma del formulario. */
+  document.getElementById("campo-plan").style.display = t.llevaPlan ? "block" : "none";
+  document.getElementById("panel-etapas").style.display = t.llevaPlan ? "block" : "none";
+  document.getElementById("campo-importe").style.display = pTipo === "hito" ? "none" : "block";
+  document.getElementById("p-cost-lbl").textContent = t.pideImporte ? "Cuánto costó (MXN)" : "Costo (MXN, opcional)";
+  document.getElementById("p-cost-hint").textContent = t.pideImporte
+    ? "Obligatorio: una compra es una llave que se paga."
+    : "Si la meta te costó dinero, anótalo aquí.";
+}
+
+function renderPerkFormSteps() {
+  document.getElementById("p-steps").innerHTML = pSteps.length === 0
+    ? `<p class="settings-note" style="margin:0 0 10px">Sin etapas: la meta entera será su propia etapa.</p>`
+    : pSteps.map((s, i) => `
+      <div class="step-row">
+        <span class="step-num">${i + 1}</span>
+        <span class="step-name">${escapeHtml(s.name)}</span>
+        <button class="step-del" onclick="removePerkFormStep(${i})" aria-label="Quitar">✕</button>
+      </div>`).join("");
+}
+
+function addPerkFormStep() {
+  const input = document.getElementById("p-new-step");
+  const name = input.value.trim();
+  if (!name) return;
+  pSteps.push({ id: uid(), name, done: false, at: null });
+  input.value = "";
+  renderPerkFormSteps();
+  input.focus();
+}
+
+function removePerkFormStep(i) {
+  pSteps.splice(i, 1);
+  renderPerkFormSteps();
 }
 
 function savePerk() {
   const name = document.getElementById("p-name").value.trim();
   if (!name) { toast("Ponle un nombre al talento", "atencion"); return; }
+  const t = TIPOS[pTipo];
   const branch = document.getElementById("p-branch").value.trim() || "General";
   const desc = document.getElementById("p-desc").value.trim();
-  const mini = document.getElementById("p-mini").checked;
-  const cost = mini
-    ? Math.max(0, parseFloat(document.getElementById("p-mini-cost").value) || 0)
-    : Math.max(0, parseFloat(document.getElementById("p-cost").value) || 0);
+  /* Un hito no admite importe: no se lee el campo aunque tuviera un valor
+     de antes de cambiar de tipo. */
+  const cost = pTipo === "hito" ? 0 : Math.max(0, parseFloat(document.getElementById("p-cost").value) || 0);
   const n = Math.max(1, parseInt(document.getElementById("p-plan-n").value) || 12);
   const u = document.getElementById("p-plan-u").value;
   const planDays = u === "m" ? n * 30 : n;
-  const instant = mini ? false : document.getElementById("p-instant").checked;
   const skillId = document.getElementById("p-skill").value || null;
   const xpReward = Math.max(0, parseInt(document.getElementById("p-xp").value) || 0);
   const requiresId = document.getElementById("p-requires").value || null;
+  const steps = t.llevaPlan ? pSteps : [];
+
+  /* Se avisa al guardar y no al comprar, que es cuando el fallo estorba:
+     un talento a medio definir no debería poder quedarse guardado como si
+     estuviera listo. */
+  if (t.pideImporte && !(cost > 0)) {
+    toast("Una compra necesita su importe: ponle cuánto costó", "atencion");
+    document.getElementById("p-cost").focus();
+    return;
+  }
   aprenderAlGuardar("p", name, skillId);
 
   if (editingPerkId) {
     const p = state.perks.find(x => x.id === editingPerkId);
-    Object.assign(p, { name, branch, desc, cost, planDays, instant, mini, skillId, xpReward, requiresId, icon: pIcon, color: pColor });
+    Object.assign(p, { name, branch, desc, tipo: pTipo, cost, planDays, steps, skillId, xpReward, requiresId, icon: pIcon, color: pColor });
     save();
     toast("Talento actualizado");
     if (currentPerkId === editingPerkId) { renderPerkDetail(); showView("perk"); }
     else showView("tree");
   } else {
     const nuevo = {
-      id: uid(), name, branch, desc, cost, planDays, instant, mini, skillId, xpReward, requiresId, icon: pIcon, color: pColor,
+      id: uid(), name, branch, desc, tipo: pTipo, cost, planDays, steps,
+      skillId, xpReward, requiresId, icon: pIcon, color: pColor,
       status: null, startDate: null, endDate: null, completedAt: null,
       investedTotal: 0, progress: 0, createdAt: todayKey(),
       history: [{ date: todayKey(), at: stamp(), event: `Talento creado en la rama ${branch}` }]
@@ -8804,7 +9084,7 @@ function savePerk() {
     }
     state.perks.push(nuevo);
     save();
-    toast(`Talento "${name}" añadido al árbol 🗺`);
+    toast(`${TIPOS[pTipo].nombre} "${name}" añadida al árbol`);
     showView("tree");
   }
 }
@@ -9203,7 +9483,7 @@ function buildFromOnboarding() {
 
     state.perks.push({
       id: uid(), name: a.perk.name, branch: a.perk.branch, desc: "",
-      cost: 0, planDays: a.perk.days, instant: false, mini: false,
+      tipo: "meta", cost: 0, planDays: a.perk.days, steps: [],
       skillId: skill.id, xpReward: a.perk.xp, requiresId: null,
       icon: a.perk.icon, color: a.color,
       status: null, startDate: null, endDate: null, completedAt: null,
@@ -9270,7 +9550,7 @@ function loadExamples() {
   });
 
   const mkP = (extra) => Object.assign({
-    id: uid(), branch: "Salud", desc: "", cost: 0, planDays: 90, instant: false, mini: false,
+    id: uid(), branch: "Salud", desc: "", tipo: "meta", cost: 0, planDays: 90, steps: [],
     skillId: ejercicio.id, xpReward: 150, requiresId: null, icon: "star", color: "#5fe0b0",
     status: null, startDate: null, endDate: null, completedAt: null,
     investedTotal: 0, progress: 0, createdAt: today,
@@ -9281,7 +9561,7 @@ function loadExamples() {
   const tenis = mkP({
     name: "Tenis para correr", icon: "bolt", color: "#ff8a70",
     desc: "Comprarlos es el primer paso: son tuyos desde que los pagas, sin plazo que cumplir.",
-    cost: 1800, instant: true, xpReward: 80,
+    tipo: "compra", cost: 1800, xpReward: 80,
     status: "completed", completedAt: daysAgo(20), investedTotal: 1800,
     history: [
       { date: daysAgo(20), at: new Date(Date.now() - 20 * 864e5).toISOString(), event: "Comprado y asegurado ($1,800)" },
@@ -9289,21 +9569,27 @@ function loadExamples() {
     ]
   });
   const primeraSalida = mkP({
-    name: "Salir a correr una vez", icon: "flag", color: "#f5d76e", mini: true,
-    desc: "Un mini-talento: una acción simple, sin plazo. Se completa con un toque.",
+    name: "Salir a correr una vez", icon: "flag", color: "#f5d76e", tipo: "hito",
+    desc: "Un hito: una acción puntual que se cierra en sí misma. Se marca con un toque.",
     xpReward: 40, requiresId: tenis.id,
     status: "completed", completedAt: daysAgo(18),
-    history: [{ date: daysAgo(18), at: new Date(Date.now() - 18 * 864e5).toISOString(), event: "Mini-talento completado" }]
+    history: [{ date: daysAgo(18), at: new Date(Date.now() - 18 * 864e5).toISOString(), event: "Hito conseguido" }]
   });
   const habito = mkP({
     name: "Correr 3 veces por semana", icon: "flame", color: "#ff8a70",
-    desc: "Meta con plan: tienes 3 meses para lograrla. Registra tu avance conforme la cumplas.",
+    desc: "Una meta: tienes 3 meses y avanza marcando sus etapas.",
     planDays: 90, xpReward: 300, requiresId: primeraSalida.id,
-    status: "active", progress: 45, startDate: daysAgo(16),
+    status: "active", startDate: daysAgo(16),
     endDate: addDaysKey(todayKey(), 74),
+    steps: [
+      { id: uid(), name: "Primera semana completa", done: true, at: stamp() },
+      { id: uid(), name: "Cuatro semanas seguidas", done: true, at: stamp() },
+      { id: uid(), name: "Ocho semanas seguidas", done: false, at: null },
+      { id: uid(), name: "Las doce semanas", done: false, at: null }
+    ],
     history: [
-      { date: daysAgo(4), at: new Date(Date.now() - 4 * 864e5).toISOString(), event: "Avance: 30% → 45%", undo: { from: 30, to: 45 } },
-      { date: daysAgo(16), at: new Date(Date.now() - 16 * 864e5).toISOString(), event: "Inversión de $0 — plan de 90 días iniciado" }
+      { date: daysAgo(4), at: new Date(Date.now() - 4 * 864e5).toISOString(), event: "Etapa hecha: Cuatro semanas seguidas" },
+      { date: daysAgo(16), at: new Date(Date.now() - 16 * 864e5).toISOString(), event: "Inversión de $0 — plan de 3 meses iniciado" }
     ]
   });
   const carrera = mkP({
@@ -9319,7 +9605,7 @@ function loadExamples() {
     cost: 990, planDays: 120, xpReward: 250
   });
   const cenaAmigos = mkP({
-    branch: "Casa", skillId: cocina.id, name: "Cocinar para amigos", icon: "heart", color: "#f0a5c0", mini: true,
+    branch: "Casa", skillId: cocina.id, name: "Cocinar para amigos", icon: "heart", color: "#f0a5c0", tipo: "hito",
     desc: "Invitar a alguien y cocinarle. Sin plazo: se logra o no se logra.",
     xpReward: 60, requiresId: recetario.id
   });
