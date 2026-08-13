@@ -1531,6 +1531,10 @@
     padding: 1.5px 5px;
     margin-right: 2px;
   }
+  /* La misma pastilla que las teclas, con el dibujo dentro: el ratón es un
+     atajo más y tiene que leerse como tal. */
+  .keys kbd.kb-raton { padding: 1.5px 4px; display: inline-flex; align-items: center; vertical-align: -3px; }
+  .keys kbd.kb-raton svg { width: 11px; height: 13px; display: block; }
   .fs-hint {
     flex: none;
     padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
@@ -1819,7 +1823,36 @@
   .modal-actions .btn { flex: 1; }
 
   /* ---------- Tutorial de bienvenida ---------- */
-  .tuto-card { text-align: center; }
+  /* Alto mínimo y botones pegados abajo: las tarjetas no traen el mismo texto,
+     y sin esto "Siguiente" se movía debajo del dedo entre una y otra — que es
+     justo el botón que se pulsa cinco veces seguidas. */
+  .tuto-card {
+    text-align: center;
+    position: relative;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+  }
+  .tuto-card .modal-actions { margin-top: auto; }
+  .tuto-card .btn[disabled] { opacity: 0.35; cursor: default; }
+  .tuto-x {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 32px; height: 32px;
+    border: none;
+    border-radius: 999px;
+    background: var(--bg2);
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .tuto-x:hover { color: var(--text); }
+  /* El logo hace de título en la portada, así que ocupa el sitio del icono
+     y del encabezado juntos. */
+  .tuto-logo { margin: 6px auto 16px; color: var(--text); }
+  .tuto-logo svg { height: 38px; width: auto; display: block; margin: 0 auto; }
   .tuto-ic {
     width: 62px; height: 62px;
     margin: 0 auto 14px;
@@ -3005,7 +3038,12 @@
        mapa. Con esto se puede mirar (y crear) por delante, por detrás y por
        arriba del trabajo que ya existe. Va como relleno del contenedor y no
        como tamaño del dibujo, para que la tarjeta no crezca por el hueco. */
-    .const-wrap { max-height: 560px; overflow: auto; }
+    /* La rueda del ratón NO recorre la rama: aquí la tarjeta convive con la
+       página, y una rueda que a veces mueve el mapa y a veces la página deja
+       de ser predecible — pasar el cursor por encima al bajar por el árbol
+       secuestraba el desplazamiento. Vertical solo arrastrando (que es un
+       gesto deliberado) o en pantalla completa, que existe para eso. */
+    .const-wrap { max-height: 560px; overflow-x: auto; overflow-y: hidden; }
   }
 
   @media (min-width: 1320px) {
@@ -3662,7 +3700,9 @@
      tiene forma de saber en qué se diferencian ni cuál le toca hoy. Son
      tarjetas y no un tour con flechas sobre la interfaz a propósito — el
      tour obliga a seguirlo, y esto se salta de un toque. -->
-<div class="modal-backdrop" id="tuto" onclick="if(event.target===this)saltarTutorial()">
+<!-- Sin cierre al tocar fuera: salir del tutorial tiene que ser una
+     decision, no un dedo mal puesto. Se sale por la X. -->
+<div class="modal-backdrop" id="tuto">
   <div class="modal-card tuto-card" id="tuto-card"></div>
 </div>
 
@@ -6155,7 +6195,16 @@ function renderSummary() {
   const projects = state.projects;
   const missions = state.missions;
 
-  if (skills.length === 0 && perks.length === 0 && projects.length === 0 && missions.length === 0) {
+  /* Con el tablero vacío no hay tablero que acomodar. El botón de ordenar
+     widgets encima de la pantalla de bienvenida ofrecía un modo sin nada
+     dentro, justo cuando la única pregunta que importa es por cuál de los
+     tres caminos empezar. */
+  const vacio = skills.length === 0 && perks.length === 0 && projects.length === 0 && missions.length === 0;
+  const btnTablero = document.getElementById("dash-btn");
+  if (btnTablero) btnTablero.style.display = vacio ? "none" : "";
+  if (vacio) {
+    dashEditing = false;
+    el.className = "dash";
     el.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("compass", 34)}</div>
@@ -8411,6 +8460,11 @@ function renderTree() {
             <svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>
           </button>` : ""}
           ${branchMenu("t:" + ba, [
+            /* Fuera del bloque de "no plegada" a propósito: entrar a pantalla
+               completa despliega la rama de todos modos, y quien la tiene
+               plegada es justo quien no tiene a mano el botón de debajo del
+               lienzo. */
+            { title: "Ver en pantalla completa", hint: "Recorre la rama con sitio de sobra", icon: "expandir", onclick: `openBranchFullscreen('${ba}')` },
             ...(collapsed ? [] : [
               /* "Reacomodar solos" queda fuera a propósito hasta pulir cómo
                  decide el orden; la función sigue existiendo, sin puerta. */
@@ -8772,9 +8826,20 @@ function fijarPosiciones(b) {
 /* Cada tecla dice QUÉ crea, pegada a su nombre. Antes se agrupaban las tres
    en un "QWE crear" que obligaba a probar cuál era cuál, y el "clic derecho:
    más" no decía nada: "más" no es una acción que uno pueda imaginarse. */
+/* El ratón con el botón derecho encendido. La línea de ayuda tenía todas las
+   teclas en su tecla dibujada y "clic derecho" suelto en texto corrido, así
+   que la única pista que no era de teclado era justo la que menos se parecía
+   a un atajo. */
+const RATON_DERECHO = `<svg viewBox="0 0 24 24" aria-hidden="true">
+  <rect x="6.6" y="2.4" width="10.8" height="19.2" rx="5.4" fill="none" stroke="currentColor" stroke-width="1.7"/>
+  <path d="M12 2.9h.9a4.5 4.5 0 0 1 4.5 4.5v3.4H12z" fill="currentColor" stroke="none"/>
+  <path d="M12 3v7.8M6.6 10.8h10.8" stroke="currentColor" stroke-width="1.4" fill="none"/>
+</svg>`;
+
 function atajosLegend(compacta) {
   if (!isDesktop()) return "";
   const k = (t) => `<kbd>${t}</kbd>`;
+  const raton = `<kbd class="kb-raton">${RATON_DERECHO}</kbd>`;
   /* Tecla, figura y nombre juntos. Antes la figura vivia en una fila de
      simbologia aparte y el nombre en la de atajos, asi que los tres tipos se
      listaban dos veces y ninguna de las dos filas se bastaba sola. */
@@ -8782,9 +8847,9 @@ function atajosLegend(compacta) {
     .map(t => `${k(TIPOS[t].tecla)} <b class="gl">${TIPOS[t].glifo}</b> ${TIPOS[t].nombre.toLowerCase()}`)
     .join('<i class="sep">·</i>');
   const partes = compacta
-    ? [crear, `${k("C")} editar el mapa`, `clic derecho: crear, editar y pantalla completa`]
+    ? [crear, `${k("C")} editar el mapa`, `${raton} clic derecho: crear, editar y pantalla completa`]
     : [crear, `${k("C")} salir de edición`, `${k("Ctrl")}${k("Z")} deshacer`,
-       `clic derecho: crear y más acciones`];
+       `${raton} clic derecho: crear y más acciones`];
   return `<span class="keys">${partes.join('<i class="sep">·</i>')}</span>`;
 }
 
@@ -11170,6 +11235,15 @@ function buildFromOnboarding() {
 
 const TUTO_PASOS = [
   {
+    /* La portada. Antes se entraba directo a "Misiones", y una tarjeta que
+       explica la primera sección de algo que todavía no sabes qué es empieza
+       por el medio. El logo hace de presentación: es lo único que el usuario
+       ya vio (en el menú) y no ha podido relacionar con nada. */
+    logo: true, color: "#5fe0b0", titulo: "Notara",
+    tx: "Tu vida, con la mecánica de un juego de rol: lo que <b>haces</b>, lo que <b>practicas</b>, lo que <b>te propones</b> y lo que <b>construyes</b>.",
+    pie: "Son cuatro secciones. Te cuento en un minuto qué hace cada una."
+  },
+  {
     modulo: "missions", icon: "flame", color: "#f5d76e", titulo: "Misiones",
     tx: "Lo que haces <b>hoy</b>. Pequeñas y repetibles: salir a caminar, leer diez páginas. Cada vez que cumples una sube una habilidad y sigue viva tu racha.",
     pie: "Si dudas por dónde empezar, empieza aquí."
@@ -11217,20 +11291,36 @@ function quizaTutorial(retraso) {
   setTimeout(arrancarTutorial, retraso || 400);
 }
 
+/* El logo de verdad, no una copia: se toma del menú, que ya lo lleva dibujado.
+   Duplicar aquí un SVG de doscientas líneas garantizaría que un día los dos
+   dejen de parecerse. */
+function logoNotara() {
+  const el = document.querySelector(".sb-logo-full");
+  return el ? el.innerHTML : "";
+}
+
 function renderTutorial() {
   const pasos = pasosDelTutorial();
   const p = pasos[tutoPaso];
   if (!p) { cerrarTutorial(); return; }
   const ultimo = tutoPaso === pasos.length - 1;
   document.getElementById("tuto-card").innerHTML = `
-    <div class="tuto-ic" style="--tc:${p.color}">${icon(p.icon, 30)}</div>
-    <h2>${escapeHtml(p.titulo)}</h2>
+    <!-- Salir es una X y no un botón grande: el botón compite con "Siguiente"
+         justo cuando lo que queremos es que dé un paso más. -->
+    <button class="tuto-x" onclick="saltarTutorial()" aria-label="Saltar tutorial" title="Saltar tutorial">✕</button>
+    ${p.logo
+      ? `<div class="tuto-logo">${logoNotara()}</div>`
+      : `<div class="tuto-ic" style="--tc:${p.color}">${icon(p.icon, 30)}</div>
+         <h2>${escapeHtml(p.titulo)}</h2>`}
     <p class="tuto-tx">${p.tx}</p>
     <p class="tuto-pie">${p.pie}</p>
     <div class="tuto-dots">${pasos.map((_, i) =>
       `<i class="${i === tutoPaso ? "on" : ""}"></i>`).join("")}</div>
     <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="saltarTutorial()">${ultimo ? "Cerrar" : "Saltar tutorial"}</button>
+      ${/* "Atrás" está siempre, apagado en la primera. Quitarlo movía de sitio
+            a "Siguiente" justo al pasar de la primera a la segunda, y ese es
+            el botón que se pulsa cinco veces seguidas. */
+        ""}<button class="btn btn-ghost" onclick="tutoAtras()" ${tutoPaso ? "" : "disabled"}>Atrás</button>
       <button class="btn btn-primary" onclick="tutoSiguiente()">${ultimo ? "Empezar" : "Siguiente"}</button>
     </div>`;
 }
@@ -11238,6 +11328,12 @@ function renderTutorial() {
 function tutoSiguiente() {
   tutoPaso++;
   if (tutoPaso >= pasosDelTutorial().length) { terminarTutorial(); return; }
+  renderTutorial();
+}
+
+function tutoAtras() {
+  if (tutoPaso === 0) return;
+  tutoPaso--;
   renderTutorial();
 }
 
@@ -11267,7 +11363,7 @@ document.addEventListener("keydown", (e) => {
   if (!el || !el.classList.contains("show")) return;
   if (e.key === "Escape") { e.preventDefault(); saltarTutorial(); }
   else if (e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); tutoSiguiente(); }
-  else if (e.key === "ArrowLeft" && tutoPaso > 0) { e.preventDefault(); tutoPaso--; renderTutorial(); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); tutoAtras(); }
 });
 
 /* ================= Ejemplos ================= */
