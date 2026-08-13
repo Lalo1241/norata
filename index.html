@@ -951,6 +951,7 @@
      lápiz de la esquina seguía estando, así que esto es un segundo camino
      al mismo sitio, no el único. El lapicito pequeño existe para que se
      note que se puede tocar sin tener que descubrirlo por accidente. */
+  .perk-hero .skill-emoji.editable,
   .detail-hero .skill-emoji.editable {
     padding: 0;
     cursor: pointer;
@@ -958,7 +959,9 @@
     -webkit-tap-highlight-color: transparent;
     transition: transform 0.15s ease;
   }
+  .perk-hero .skill-emoji.editable:active,
   .detail-hero .skill-emoji.editable:active { transform: scale(0.94); }
+  .perk-hero .skill-emoji .edit-hint,
   .detail-hero .skill-emoji .edit-hint {
     position: absolute;
     right: -2px; bottom: -2px;
@@ -969,6 +972,7 @@
     color: var(--muted);
     display: flex; align-items: center; justify-content: center;
   }
+  .perk-hero .skill-emoji .edit-hint svg,
   .detail-hero .skill-emoji .edit-hint svg { width: 11px; height: 11px; stroke-width: 2.2; }
   .detail-hero h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.4px; }
   .detail-hero .cat {
@@ -2241,6 +2245,18 @@
   .pk-step.ok .pk-box { background: var(--pc); border-color: var(--pc); }
   .pk-step.ok .pk-tx { color: var(--muted); text-decoration: line-through; }
   .pk-tx { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .pk-del {
+    flex: none;
+    width: 22px; height: 22px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 7px;
+    color: var(--faint);
+    font-size: 12px;
+    line-height: 1;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .pk-del:hover { color: var(--coral); background: var(--coral-soft); }
+  }
 
   /* ---------- Reordenar arrastrando ----------
      Genérico: lo usan las misiones y las habilidades, y sirve para
@@ -2920,6 +2936,7 @@
     .step-del:hover { color: var(--coral); }
 
     /* Elementos con vida propia que ya tenían su gesto al pulsar */
+    .perk-hero .skill-emoji.editable:hover,
     .detail-hero .skill-emoji.editable:hover { filter: brightness(1.14); }
     .detail-hero .skill-emoji.editable:hover .edit-hint { color: var(--text); border-color: var(--faint); }
     .quick-xp button:hover { border-color: var(--faint); }
@@ -3182,7 +3199,9 @@
     <div class="back-row">
       <button class="icon-btn" onclick="showView('tree')" aria-label="Volver">←</button>
       <h2>Talento</h2>
-      <button class="icon-btn" onclick="openPerkForm(currentPerkId)" aria-label="Editar">✎</button>
+      <!-- Sin botón de editar: el icono grande de la ficha ya lleva ahí,
+           igual que en habilidades. Dos accesos a lo mismo en la misma
+           pantalla solo ocupaban sitio. -->
     </div>
     <div id="perk-content"></div>
   </div>
@@ -4776,7 +4795,40 @@ async function revertirTalento(id) {
   renderTree();
 }
 
-/* ---- Etapas de una meta ---- */
+/* ---- Etapas de una meta ----
+   Se pueden añadir y quitar desde la propia ficha, no solo desde el
+   formulario: una meta creada con el atajo del mapa nace sin ninguna, y
+   mandar al usuario a editar para ponerle la primera escondía la regla
+   justo donde está trabajando. */
+function anadirEtapa(perkId) {
+  const p = state.perks.find(x => x.id === perkId);
+  const input = document.getElementById("pk-new-step");
+  if (!p || !input) return;
+  const name = input.value.trim();
+  if (!name) return;
+  p.steps = p.steps || [];
+  p.steps.push({ id: uid(), name, done: false, at: null });
+  p.history.unshift({ date: todayKey(), at: stamp(), event: `Etapa añadida: ${name}` });
+  save();
+  renderPerkDetail();
+  renderTree();
+  const nuevo = document.getElementById("pk-new-step");
+  if (nuevo) nuevo.focus();
+}
+
+async function quitarEtapa(perkId, stepId) {
+  const p = state.perks.find(x => x.id === perkId);
+  if (!p) return;
+  const s = (p.steps || []).find(x => x.id === stepId);
+  if (!s) return;
+  if (!await ask(`¿Quitar la etapa "${s.name}"? El avance se recalcula con las que queden.`, "Quitar", true)) return;
+  p.steps = p.steps.filter(x => x.id !== stepId);
+  p.history.unshift({ date: todayKey(), at: stamp(), event: `Etapa quitada: ${s.name}` });
+  save();
+  renderPerkDetail();
+  renderTree();
+}
+
 function togglePerkStep(perkId, stepId) {
   const p = state.perks.find(x => x.id === perkId);
   if (!p || perkStatus(p) !== "active") return;
@@ -8370,8 +8422,8 @@ function toggleEditBranch(b) {
 
 /* ================= Constelación =================
    Mapa de nodos por rama, estilo árbol de talentos de RPG.
-   La geometría comunica el tipo: rombo = meta con plan,
-   hexágono = asegurado al pagar, círculo pequeño = mini-talento.
+   La geometría comunica el tipo: rombo = meta, hexágono = compra,
+   círculo pequeño = hito.
    Se conectan los talentos con "requiere completar antes". */
 
 /* Reparte los nodos de una rama en capas.
@@ -8506,7 +8558,7 @@ const SALIDAS = ["e", "ne", "se", "n", "s"];
 const ENTRADAS = ["w", "nw", "sw"];
 const TODOS_LOS_RUMBOS = ["e", "w", "n", "s", "ne", "se", "nw", "sw"];
 
-/* El mini-talento es una llave: no es un paso del camino, es una condición
+/* El hito es pequeño: no es un paso del camino, es una condición
    que otro paso exige. Por eso se salta la gramática de arriba y usa los
    ocho brazos tanto para salir como para entrar — una llave puede colgar de
    cualquier vecino y abrirle la puerta a cualquier otro, sin que eso
@@ -8682,6 +8734,15 @@ function constellation(nodes, key, editing) {
       <text x="${x}" y="${topY}" text-anchor="middle" font-size="${esHito ? 9.5 : 10.5}" fill="#a8b4c0" font-weight="500">
         ${lines.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 12}">${escapeHtml(ln)}</tspan>`).join("")}
       </text>
+      ${/* El avance de una meta en curso, en el propio mapa. Sin esto el
+            trabajo por etapas solo existía dentro de la ficha, y el mapa
+            —que es donde se decide qué tocar hoy— no decía cuál va más
+            adelantada. Se dice en etapas y no en porcentaje porque es lo que
+            se marca: "2/4" es accionable, "50%" es un resumen. */
+        (st === "active" && (n.steps || []).length)
+          ? `<text x="${x}" y="${topY + (lines.length - 1) * 12 + 13}" text-anchor="middle" font-size="9" fill="#f5d76e" font-weight="700">${
+              n.steps.filter(s2 => s2.done).length}/${n.steps.length} etapas</text>`
+          : ""}
     </g>`;
 
     /* ---- Los círculos de apoyo (R15) ----
@@ -8695,8 +8756,15 @@ function constellation(nodes, key, editing) {
        tres y "O" de que basta una. Una letra en vez de una leyenda. */
     const reqs = requisitosDe(n);
     const cumplidos = requisitosVivos(n).filter(r => r.status === "completed").length;
-    if (reqs.length) {
-      const varios = reqs.length > 1;
+    const varios = reqs.length > 1;
+    /* Solo se dibuja cuando dice algo que la línea no dice ya.
+       Con UN requisito el hilo que llega es toda la información: el
+       círculo era un punto de adorno repetido en cada nodo, y llenaba el
+       mapa de bolitas sin significado. Con DOS o más sí hay una regla que
+       contar —si hacen falta todas o basta una— y ahí gana su sitio.
+       En edición aparecen todos, porque entonces son el asa de la que se
+       tira para conectar y hace falta verlos aunque estén vacíos. */
+    if (reqs.length && (varios || editing)) {
       const letra = modoDe(n) === "cualquiera" ? "O" : "Y";
       const listo = requisitosCumplidos(n);
       const cE = listo ? (n.color || "#5fe0b0") : "#4a5768";
@@ -8711,21 +8779,25 @@ function constellation(nodes, key, editing) {
         ports += `<text x="${x - R - 11}" y="${y + 22}" text-anchor="middle" font-size="8.5" fill="#75858e">${cumplidos}/${reqs.length}</text>`;
       }
 
-      /* ---- Requisitos de otra rama (R16) ----
-         Bloqueaban sin dibujar nada: el nodo aparecía suelto y apagado sin
-         causa visible, y solo su ficha contaba la verdad. Aquí no se puede
-         trazar la línea entera —el otro talento está en otro lienzo—, así
-         que se dibuja el cabo por donde entra y de dónde viene. El mapa deja
-         de contradecir a la ficha. */
-      const fuera = requisitosVivos(n).filter(r => (r.branch || "General") !== (n.branch || "General"));
-      if (fuera.length) {
-        const cF = fuera.every(r => r.status === "completed") ? (n.color || "#5fe0b0") : "#4a5768";
-        const x0 = x - R - 21, x1 = x0 - 26;
-        ports += `<path d="M${x1} ${y} H${x0}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
-          <circle cx="${x1}" cy="${y}" r="3" fill="${cF}"/>
-          <text x="${x1 - 5}" y="${y + 3.4}" text-anchor="end" font-size="8.5" fill="#75858e">${
-            escapeHtml(fuera.length === 1 ? (fuera[0].branch || "General") : fuera.length + " ramas")}</text>`;
-      }
+    }
+
+    /* ---- Requisitos de otra rama (R16) ----
+       Bloqueaban sin dibujar nada: el nodo aparecía suelto y apagado sin
+       causa visible, y solo su ficha contaba la verdad. Aquí no se puede
+       trazar la línea entera —el otro talento está en otro lienzo—, así que
+       se dibuja el cabo por donde entra y de dónde viene.
+
+       Este SÍ se dibuja siempre, aunque sea un solo requisito y no estemos
+       editando: es la única señal de una dependencia que no se ve, y sin él
+       volveríamos al nodo bloqueado sin causa aparente. */
+    const fuera = requisitosVivos(n).filter(r => (r.branch || "General") !== (n.branch || "General"));
+    if (fuera.length) {
+      const cF = fuera.every(r => r.status === "completed") ? (n.color || "#5fe0b0") : "#4a5768";
+      const x0 = x - R - 21, x1 = x0 - 26;
+      ports += `<path d="M${x1} ${y} H${x0}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
+        <circle cx="${x1}" cy="${y}" r="3" fill="${cF}"/>
+        <text x="${x1 - 5}" y="${y + 3.4}" text-anchor="end" font-size="8.5" fill="#75858e">${
+          escapeHtml(fuera.length === 1 ? (fuera[0].branch || "General") : fuera.length + " ramas")}</text>`;
     }
 
     if (editing) {
@@ -9177,23 +9249,35 @@ function renderPerkDetail() {
      Se ven siempre que la meta las tenga, aunque el plan no haya empezado:
      saber en qué se va a meter uno antes de comprometerse es justo lo que
      ayuda a decidir si comprometerse. Solo se pueden marcar en curso. */
-  const etapas = (t.llevaPlan && (p.steps || []).length) ? `
+  const pasos = p.steps || [];
+  const etapas = !t.llevaPlan || st === "completed" || st === "expired" ? "" : `
     <div class="panel alt">
       <div class="panel-head">
         <h3 style="margin:0">Etapas</h3>
-        <span class="hint-hold">${p.steps.filter(s => s.done).length} de ${p.steps.length}</span>
+        ${pasos.length ? `<span class="hint-hold">${pasos.filter(s => s.done).length} de ${pasos.length}</span>` : ""}
       </div>
-      <div class="pk-steps">
-        ${p.steps.map(s => `
+      ${pasos.length ? `<div class="pk-steps">
+        ${pasos.map(s => `
           <button class="pk-step ${s.done ? "ok" : ""}" ${st === "active"
             ? `onclick="togglePerkStep('${p.id}', '${s.id}')"`
             : "disabled"} style="--pc:${p.color || "#5fe0b0"}">
             <span class="pk-box">${s.done ? icon("check", 12) : ""}</span>
             <span class="pk-tx">${escapeHtml(s.name)}</span>
+            ${st === "active" ? `<span class="pk-del" onclick="event.stopPropagation();quitarEtapa('${p.id}','${s.id}')" title="Quitar etapa">✕</span>` : ""}
           </button>`).join("")}
+      </div>`
+      : `<p class="settings-note" style="margin:0 0 12px">Todavía no tiene etapas: así, la meta entera cuenta como una sola y se cierra de una vez. Añade las que quieras y el avance se contará solo.</p>`}
+      <!-- Añadir etapas se hace AQUÍ, no solo en el formulario. Una meta
+           creada con el atajo del mapa nace sin ninguna, y obligar a entrar
+           a editar para ponerle la primera dejaba la regla de las etapas
+           escondida justo donde el usuario está trabajando. -->
+      <div class="step-add" style="margin-top:${pasos.length ? "12px" : "0"}">
+        <input type="text" id="pk-new-step" placeholder="Nueva etapa…" maxlength="70"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();anadirEtapa('${p.id}');}">
+        <button class="btn btn-soft btn-sm" onclick="anadirEtapa('${p.id}')">Añadir</button>
       </div>
-      ${st !== "active" ? `<p class="settings-note" style="margin:12px 0 0">Las etapas se marcan cuando el plan esté en curso.</p>` : ""}
-    </div>` : "";
+      ${st !== "active" && pasos.length ? `<p class="settings-note" style="margin:12px 0 0">Las etapas se marcan cuando el plan esté en curso.</p>` : ""}
+    </div>`;
 
   let planPanel = "";
   if (st === "active") {
@@ -9307,7 +9391,11 @@ function renderPerkDetail() {
   document.getElementById("perk-content").innerHTML = `
     <div class="detail-hero perk-hero h-${st}">
       <div class="strip">${motifScene(560, 156, hashSeed(p.id), motifFor(p.icon), p.color || "#5fe0b0")}</div>
-      <div class="skill-emoji" style="background:${(p.color || "#5fe0b0")}30;color:${p.color || "var(--mint)"}">${icon(p.icon, 26)}</div>
+      <button type="button" class="skill-emoji editable" style="background:${(p.color || "#5fe0b0")}30;color:${p.color || "var(--mint)"}"
+        onclick="openPerkForm(currentPerkId)" title="Editar talento" aria-label="Editar talento">
+        ${icon(p.icon, 26)}
+        <span class="edit-hint">${icon("pen", 11)}</span>
+      </button>
       <span class="state-big">${STATUS_LABEL[st]}</span>
       <h2>${escapeHtml(p.name)}</h2>
       <div class="branch-lbl">Rama de talentos · ${escapeHtml(p.branch || "General")}</div>
@@ -10117,14 +10205,19 @@ function loadExamples() {
     history: [{ date: today, at: stamp(), event: "Talento creado" }]
   }, extra);
 
-  // Rama Salud: el recorrido completo, del primer paso a la meta grande
+  /* ---- Rama Salud: el ejemplo grande ----
+     Es la que enseña de qué va el módulo, así que lleva las tres clases de
+     talento, una convergencia de las dos maneras, una meta con sus etapas a
+     medias y una caja del ático ya guardada. Las otras dos ramas se quedan
+     pequeñas a propósito: si todas fueran densas, no se vería que una rama
+     puede ser sencilla. */
   const tenis = mkP({
     name: "Tenis para correr", icon: "bolt", color: "#ff8a70",
     desc: "Comprarlos es el primer paso: son tuyos desde que los pagas, sin plazo que cumplir.",
     tipo: "compra", cost: 1800, xpReward: 80,
     status: "completed", completedAt: daysAgo(20), investedTotal: 1800,
     history: [
-      { date: daysAgo(20), at: new Date(Date.now() - 20 * 864e5).toISOString(), event: "Comprado y asegurado ($1,800)" },
+      { date: daysAgo(20), at: new Date(Date.now() - 20 * 864e5).toISOString(), event: "Comprada y asegurada ($1,800)" },
       { date: daysAgo(21), at: new Date(Date.now() - 21 * 864e5).toISOString(), event: "Talento creado en la rama Salud" }
     ]
   });
@@ -10152,10 +10245,67 @@ function loadExamples() {
       { date: daysAgo(16), at: new Date(Date.now() - 16 * 864e5).toISOString(), event: "Inversión de $0 — plan de 3 meses iniciado" }
     ]
   });
+  /* Un segundo camino que nace del mismo sitio: enseña que el árbol se abre
+     en abanico, no solo en cadena. */
+  const reloj = mkP({
+    name: "Reloj con pulsómetro", icon: "target", color: "#6fc3e8",
+    desc: "Para saber si corres al ritmo que crees que corres.",
+    tipo: "compra", cost: 2400, xpReward: 90, requiere: [primeraSalida.id]
+  });
+  const tecnica = mkP({
+    name: "Corregir mi técnica", icon: "bulb", color: "#b7a2ea",
+    desc: "Tres sesiones grabándome y ajustando la zancada.",
+    planDays: 60, xpReward: 200, requiere: [reloj.id],
+    steps: [
+      { id: uid(), name: "Grabarme corriendo", done: false, at: null },
+      { id: uid(), name: "Comparar con una referencia", done: false, at: null },
+      { id: uid(), name: "Tres salidas aplicando el cambio", done: false, at: null }
+    ]
+  });
+  /* EL NODO QUE CORONA: necesita el hábito Y la técnica. Es la figura que
+     antes no se podía dibujar, y por eso el ejemplo la trae. */
   const carrera = mkP({
     name: "Correr mi primera carrera de 5 km", icon: "trophy", color: "#5fe0b0",
-    desc: "La meta grande. Se desbloquea cuando el hábito esté firme.",
-    cost: 450, planDays: 180, xpReward: 600, requiere: [habito.id]
+    desc: "La meta grande: hace falta el hábito Y la técnica. Es un talento que corona dos caminos.",
+    cost: 450, planDays: 180, xpReward: 600,
+    requiere: [habito.id, tecnica.id], modo: "todos"
+  });
+  /* CAMINO ALTERNATIVO: vale con cualquiera de los dos. Enseña el otro modo
+     sin tener que buscarlo en un menú. */
+  const club = mkP({
+    name: "Entrar a un club de corredores", icon: "smile", color: "#f0a5c0", tipo: "hito",
+    desc: "Basta con tener el hábito O haber corrido una carrera: cualquiera de los dos te abre la puerta.",
+    xpReward: 120, requiere: [habito.id, carrera.id], modo: "cualquiera"
+  });
+
+  /* Lo del trimestre pasado, para que el ático se vea funcionando desde el
+     primer momento y no haya que esperar tres meses a entenderlo. */
+  const viejoTrim = trimestreDe(addDaysKey(todayKey(), -140));
+  const finDeTrim = addDaysKey(todayKey(), -140);
+  const revision = mkP({
+    name: "Revisión médica", icon: "heart", color: "#8fd18a", tipo: "hito",
+    desc: "Antes de empezar a correr en serio, saber cómo estoy.",
+    xpReward: 60, status: "completed", completedAt: finDeTrim, createdAt: finDeTrim,
+    history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: "Hito conseguido" }]
+  });
+  const bici = mkP({
+    name: "Bicicleta de segunda mano", icon: "bolt", color: "#9aa7b8",
+    desc: "El intento anterior. Sirvió para descubrir que lo mío es correr.",
+    tipo: "compra", cost: 3200, xpReward: 70, status: "completed",
+    completedAt: finDeTrim, createdAt: finDeTrim, investedTotal: 3200,
+    history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: "Comprada y asegurada ($3,200)" }]
+  });
+  const natacion = mkP({
+    name: "Natación dos veces por semana", icon: "goggles", color: "#6fc3e8",
+    desc: "Se quedó a medias, y por eso viaja en la caja: guardar el trimestre no juzga lo que no terminaste.",
+    planDays: 90, xpReward: 250, createdAt: finDeTrim,
+    status: "active", startDate: finDeTrim, endDate: addDaysKey(finDeTrim, 90),
+    congeladoEl: addDaysKey(todayKey(), -120),
+    steps: [
+      { id: uid(), name: "Cuatro semanas seguidas", done: true, at: stamp() },
+      { id: uid(), name: "Ocho semanas seguidas", done: false, at: null }
+    ],
+    history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: "Plan de 3 meses iniciado" }]
   });
 
   // Rama Casa: dos caminos independientes que nacen del mismo punto
@@ -10182,7 +10332,15 @@ function loadExamples() {
     cost: 1500, planDays: 180, xpReward: 350, requiere: [fondo.id]
   });
 
-  state.perks.push(tenis, primeraSalida, habito, carrera, recetario, cenaAmigos, fondo, curso);
+  state.perks.push(tenis, primeraSalida, habito, reloj, tecnica, carrera, club,
+    revision, bici, natacion, recetario, cenaAmigos, fondo, curso);
+
+  // La caja ya guardada, con lo del trimestre viejo dentro
+  state.cajas = [{
+    id: uid(), branch: "Salud", trimestre: viejoTrim, guardadoEl: addDaysKey(todayKey(), -120),
+    abierta: false, perkIds: [revision.id, bici.id, natacion.id]
+  }];
+
   loadProjectExamples(true);
   loadMissionExamples(true);
   save();
