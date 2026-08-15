@@ -1,6 +1,6 @@
-/* La tipografía Outfit, incrustada. Vive aparte del resto de estilos
-   porque es casi todo el peso del proyecto y no cambia nunca: así se
-   puede cachear de forma agresiva sin congelar la app. */
+/* La tipografía Outfit, incrustada. Vive aparte del resto de estilos porque
+   es lo único del proyecto que no cambia nunca, y eso permite servirla de
+   caché sin arriesgarse a dejar la app desfasada (ver sw.js). */
   @font-face {
     font-family: 'Outfit';
     font-style: normal;

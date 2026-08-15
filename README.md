@@ -100,7 +100,7 @@ recargar — nunca una pantalla en blanco sin explicación.
 | Archivo | Qué es |
 | --- | --- |
 | `index.html` | El marcado de todas las pantallas, y la red de seguridad ante errores |
-| `css/fuente.css` | Solo la tipografía incrustada. Aparte porque pesa mucho y no cambia |
+| `css/fuente.css` | Solo la tipografía incrustada. Aparte porque es lo único que no cambia nunca |
 | `css/estilos.css` | Todo lo demás del aspecto |
 | `js/01…11-*.js` | La aplicación, por áreas. **El orden importa**: se ejecutan uno tras otro |
 | `sw.js` | Service worker; guarda la app para que abra sin conexión |

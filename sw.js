@@ -13,11 +13,12 @@ const ASSETS = [
   "./js/10-sincronia.js", "./js/11-arranque.js"
 ];
 
-/* La tipografía es casi todo el peso del proyecto y no cambia nunca. Es el
-   único archivo que se sirve de la caché sin consultar a la red: así el
-   arranque no arrastra medio megabyte cada vez. El resto sigue yendo a la
-   red primero, que es lo que evita quedarse congelado en una versión vieja.
-   Si algún día hay que cambiarla, se sube el número de CACHE de arriba. */
+/* La tipografía (43 KB) es lo único que se sirve de caché sin consultar a la
+   red, y no por tamaño —el grueso del peso es el JavaScript— sino porque es
+   lo único que no cambia NUNCA: cachearla no puede dejar la app desfasada.
+   Todo lo demás sigue yendo a la red primero, que es lo que evita quedarse
+   congelado en una build vieja, y es un precio que se paga a conciencia. Si
+   algún día hay que renovar la fuente, se sube el número de CACHE. */
 const SIEMPRE_DE_CACHE = /\/css\/fuente\.css$/;
 
 self.addEventListener("install", (e) => {
