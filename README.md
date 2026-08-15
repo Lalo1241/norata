@@ -63,6 +63,11 @@ La app no elige por ti. Te dice qué hay de cada lado y cuándo se guardó, y t�
 decides cuál se queda. El lado que no elijas se guarda como copia en el
 navegador antes de tocar nada, así que no se pierde.
 
+Esas copias se ven y se recuperan desde **Ajustes → Copias de seguridad
+automáticas**, con su fecha y lo que contenía cada una. Se conservan las cinco
+más recientes; restaurar una aparta antes lo que tengas ahora, por si te
+arrepientes.
+
 ### Sobre el token
 
 El token se guarda en `localStorage`, en el navegador de cada dispositivo.
@@ -80,6 +85,11 @@ GitHub: los demás dispositivos solo tendrán que conectarse otra vez.
 En **Ajustes → Tus datos** puedes exportar un JSON y volver a importarlo.
 Funciona sin conexión y sin depender de ninguna cuenta, así que sigue siendo
 buena idea aunque uses la sincronía.
+
+Si el navegador se queda sin espacio para guardar, la app te lo dice y te
+ofrece exportar ahí mismo, en vez de perder el cambio en silencio. Y si algo
+revienta, aparece un aviso abajo con un botón para sacar el respaldo antes de
+recargar — nunca una pantalla en blanco sin explicación.
 
 ## Estructura
 
