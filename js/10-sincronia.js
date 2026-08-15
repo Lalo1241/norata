@@ -548,13 +548,21 @@ function renderSync() {
     '<span class="sync-text"><b>' + escapeHtml(titulo) + '</b><span>' + escapeHtml(detalle) + '</span></span>';
 
   if (syncReady()) {
+    const pruebas = esCuentaDePruebas();
     panelEl.innerHTML =
       '<label class="field"><span>Nombre de este dispositivo</span>' +
       '<input type="text" id="sync-device" value="' + escapeAttr(sync.device) + '" onchange="syncRenameDevice(this.value)">' +
       '<div class="field-hint">Aparece cuando dos aparatos cambian lo mismo y hay que elegir.</div></label>' +
+      '<div class="field"><span class="lbl">¿Qué es esta cuenta?</span><div class="seg">' +
+      '<button' + (pruebas ? "" : ' class="on"') + ' onclick="marcarCuentaDePruebas(false)">Mi cuenta real</button>' +
+      '<button' + (pruebas ? ' class="on"' : "") + ' onclick="marcarCuentaDePruebas(true)">De pruebas</button>' +
+      '</div><div class="field-hint">' + (pruebas
+        ? "Verás un marco punteado amarillo mientras la uses, y borrar todo no pedirá confirmación extra."
+        : "Borrar todo te pedirá escribir tu correo. Es a propósito: obliga a mirar en qué cuenta estás.") +
+      '</div></div>' +
       '<div class="stack">' +
       '<button class="btn btn-soft btn-block" onclick="syncRun({})">Sincronizar ahora</button>' +
-      '<button class="btn btn-danger-ghost btn-block" onclick="syncDisconnect()">Desconectar este dispositivo</button>' +
+      '<button class="btn btn-danger-ghost btn-block" onclick="syncDisconnect()">Cerrar sesión en este dispositivo</button>' +
       '</div>';
     return;
   }
@@ -648,10 +656,15 @@ async function syncDisconnect() {
   /* Se va la credencial entera, no solo una llave con nombre fijo: cada
      almacén guarda lo suyo y aquí no se sabe cómo se llama. */
   sync.enabled = false; sync.cfg = {}; sync.marca = null; sync.dirty = false;
+  /* Cerrar sesión devuelve a la portada. Dejar la app abierta con los datos
+     de quien acaba de salir sería justo lo contrario de lo que pidió. */
+  sync.entrada = null;
   saveSync();
   syncError = null;
   renderSync();
-  toast("Dispositivo desconectado", "deshecho");
+  pintarAvisoPruebas();
+  mostrarPortada();
+  toast("Sesión cerrada", "deshecho");
 }
 
 /* ================= Utilidades ================= */

@@ -12,7 +12,8 @@ const ASSETS = [
   "./js/01-base.js", "./js/02-progreso.js", "./js/03-talentos.js",
   "./js/04-misiones.js", "./js/05-resumen.js", "./js/06-detalle.js",
   "./js/07-lienzo.js", "./js/08-formularios.js", "./js/09-inicio.js",
-  "./js/10-sincronia.js", "./js/10b-supabase.js", "./js/11-arranque.js"
+  "./js/10-sincronia.js", "./js/10b-supabase.js", "./js/10c-portada.js",
+  "./js/11-arranque.js", "./marca/logotipo-claro.svg"
 ];
 
 /* La tipografía (43 KB) es lo único que se sirve de caché sin consultar a la

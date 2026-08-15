@@ -49,6 +49,16 @@ applyDecay();
 aplicarModulos();
 showView("summary");
 
+/* La entrada, antes que nada visible. El orden importa: primero se mira si
+   volvemos de Google —que llega con la sesión colgada de la dirección y hay
+   que recogerla antes de decidir si hace falta portada—, y solo después se
+   pregunta si hay que enseñarla. */
+(async () => {
+  const veniaDeGoogle = await sbVolverDeGoogle();
+  if (!veniaDeGoogle && portadaHaceFalta()) mostrarPortada();
+  pintarAvisoPruebas();
+})();
+
 /* La sincronía se dispara al abrir, al volver a la pestaña y al recuperar
    la conexión: son los tres momentos en los que el otro dispositivo pudo
    haber avanzado sin que este se enterara. */

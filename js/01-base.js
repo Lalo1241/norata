@@ -487,10 +487,14 @@ function askHtml(html, okLabel, cancelLabel) {
    bloquea en visores embebidos igual que confirm(), y además llega sin el
    valor de partida escrito, que es justo lo que hace falta al renombrar:
    corregir una palabra, no volver a teclearlo todo. */
-function askText(titulo, valor, okLabel, pista) {
+/* El tope de 42 es el bueno para nombres (ramas, talentos): más largo no cabe
+   en pantalla. Pero se puede subir, y hace falta: para confirmar algo
+   escribiendo un correo, 42 se queda corto y el usuario se quedaría sin poder
+   completar nunca la confirmación. */
+function askText(titulo, valor, okLabel, pista, max) {
   const p = askHtml(
     `<b style="display:block;margin-bottom:12px">${escapeHtml(titulo)}</b>
-     <input id="modal-input" type="text" maxlength="42" value="${escapeAttr(valor || "")}">
+     <input id="modal-input" type="text" maxlength="${Number(max) || 42}" value="${escapeAttr(valor || "")}">
      ${pista ? `<span class="field-hint" style="display:block;text-align:left">${escapeHtml(pista)}</span>` : ""}`,
     okLabel || "Guardar");
   /* setTimeout y no requestAnimationFrame: el cuadro tiene que quedar listo

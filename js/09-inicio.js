@@ -711,6 +711,25 @@ function importData(input) {
 
 async function resetAll() {
   if (!await ask("¿Borrar TODAS tus habilidades, misiones, talentos, proyectos y todo tu progreso? Esta acción no se puede deshacer.", "Borrar todo", true)) return;
+
+  /* En una cuenta de verdad no basta con pulsar dos veces. Quien usa una
+     cuenta para experimentar y otra para su vida acaba borrando en la que no
+     era, y "¿seguro?" no distingue una de otra: se pulsa igual de rápido en
+     las dos. Escribir el correo obliga a mirar CUÁL está abierta. En la
+     cuenta marcada como de pruebas no se pide, porque ahí borrar es la
+     rutina y la fricción solo estorbaría. */
+  if (syncReady() && !esCuentaDePruebas()) {
+    const correo = ((sync.cfg || {}).correo || "").trim();
+    const escrito = await askText(
+      "Esta es tu cuenta real. Escribe " + correo + " para confirmar que quieres borrar todo su progreso.",
+      "", "Borrar todo", correo, 120);
+    if (escrito === null) return;
+    if (String(escrito).trim().toLowerCase() !== correo.toLowerCase()) {
+      toast("El correo no coincide. No borré nada.", "calma");
+      return;
+    }
+  }
+
   if (!await ask("Última confirmación: se borrará todo. ¿Seguro?", "Sí, borrar", true, true)) return;
   state = { skills: [], perks: [], projects: [], missions: [], settings: { timezone: userTZ() } };
   save();

@@ -2703,6 +2703,61 @@
   .copia-acts { display: flex; gap: 8px; margin-top: 11px; }
   .copia-acts .btn { flex: 1; padding: 9px 8px; font-size: 12.5px; }
 
+  /* ---------- Portada de entrada ---------- */
+  .portada {
+    position: fixed; inset: 0; z-index: 8000; overflow-y: auto;
+    display: flex; align-items: center; justify-content: center; padding: 26px 20px;
+    background: var(--bg);
+    animation: portadaEntra 0.32s ease;
+  }
+  @keyframes portadaEntra { from { opacity: 0; } to { opacity: 1; } }
+  .portada.fuera { opacity: 0; transition: opacity 0.24s ease; pointer-events: none; }
+  .portada.ocupada { pointer-events: none; opacity: 0.65; }
+  .portada-caja { width: 100%; max-width: 360px; }
+  .portada-logo { display: block; width: 172px; max-width: 62%; margin: 0 auto 18px; }
+  .portada-lema {
+    text-align: center; color: var(--muted); font-size: 14px;
+    line-height: 1.6; margin: 0 0 24px;
+  }
+  .portada .field { margin-bottom: 12px; }
+  .portada .stack { margin-top: 18px; }
+  .portada-error {
+    background: rgba(245, 215, 110, 0.1); border: 1px solid rgba(245, 215, 110, 0.4);
+    color: var(--fire); border-radius: 12px; padding: 11px 13px;
+    font-size: 13px; line-height: 1.55; margin-bottom: 14px;
+  }
+  .portada-o { display: flex; align-items: center; gap: 10px; margin: 18px 0 12px; color: var(--faint); font-size: 12px; }
+  .portada-o::before, .portada-o::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .portada-google { display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .portada-google svg { width: 17px; height: 17px; flex: none; }
+  .portada-sin {
+    display: block; width: 100%; margin: 22px 0 0; padding: 10px;
+    background: none; border: 0; cursor: pointer;
+    color: var(--mint); font-size: 13.5px; font-weight: 700; font-family: inherit;
+  }
+  .portada-sin:hover { text-decoration: underline; }
+  .portada-nota { text-align: center; color: var(--faint); font-size: 12px; line-height: 1.55; margin: 6px 0 0; }
+
+  /* ---------- Aviso de cuenta de pruebas ----------
+     Es el mismo dibujo que un grupo del árbol de talentos: recinto punteado
+     amarillo rodeando lo que abarca, con su etiqueta colgada del borde. Aquí
+     lo que abarca es la pantalla entera. Se reutiliza ese lenguaje a
+     propósito — ya significa "esto es un contenedor aparte" — y va con
+     pointer-events en none para no estorbar a nada de debajo. */
+  .aviso-pruebas {
+    position: fixed; inset: 0; z-index: 7500; pointer-events: none;
+    border: 1.6px dashed var(--fire);
+    border-radius: 22px;
+    opacity: 0.55;
+  }
+  .aviso-pruebas .ap-tag {
+    position: absolute; top: -10px; left: 22px;
+    background: #121821; color: var(--fire);
+    border: 1.4px solid var(--fire); border-radius: 11px;
+    padding: 2px 11px; font-size: 10.5px; font-weight: 800;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
   /* Datos de una versión más nueva. Tapa todo y no se cierra: seguir usando
      la app sin poder guardar sería peor que no poder usarla. */
   .futuro-aviso {
