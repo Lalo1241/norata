@@ -191,6 +191,17 @@
     grid-template-columns: 1fr;
     gap: 14px;
     align-items: start;
+    /* La misma cuadrícula de puntos que el lienzo de Talentos: da referencias
+       para alinear las tarjetas a ojo, y de paso hace que las dos pantallas
+       donde se acomodan cosas se sientan la misma. */
+    background:
+      radial-gradient(circle at 1px 1px, rgba(139, 153, 165, 0.07) 1px, transparent 1.6px);
+    background-size: 26px 26px;
+  }
+  /* Mientras se acomoda, la referencia importa más y se sube el tono */
+  .dash.editing {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(139, 153, 165, 0.16) 1px, transparent 1.6px);
   }
   .widget { position: relative; min-width: 0; }
   .widget > *:not(.w-edit):not(.w-resize) { margin-bottom: 0 !important; }
@@ -1849,31 +1860,52 @@
     line-height: 1;
   }
   .tuto-x:hover { color: var(--text); }
-  /* El logo hace de título en la portada, así que ocupa el sitio del icono
-     y del encabezado juntos. */
-  .tuto-logo { margin: 6px auto 16px; color: var(--text); }
-  .tuto-logo svg { height: 38px; width: auto; display: block; margin: 0 auto; }
+  /* El logo ocupa el mismo hueco que el icono de las demás tarjetas, para que
+     la fila de arriba mida igual en las seis. */
+  .tuto-logo { display: flex; align-items: center; color: var(--text); }
+  .tuto-logo svg { height: 40px; width: auto; display: block; }
+  /* Cada fila con su altura reservada. Las medidas salen del contenido más
+     largo de las seis tarjetas: el texto ocupa como mucho cuatro líneas y el
+     gris dos, así que ese es el sitio que se guarda siempre. */
+  .tuto-marca {
+    height: 62px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .tuto-ic {
     width: 62px; height: 62px;
-    margin: 0 auto 14px;
     border-radius: 20px;
     display: flex; align-items: center; justify-content: center;
     color: var(--tc);
     background: color-mix(in srgb, var(--tc) 14%, transparent);
     box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tc) 34%, transparent);
   }
-  .tuto-card h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 10px; }
-  .tuto-tx {
+  .tuto-titulo {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+    min-height: 27px;
+    margin-bottom: 10px;
+  }
+  /* Con `.tuto-tx` a secas mandaba `.modal-card p`, que es mas especifico:
+     el texto salia a 15px y las alturas reservadas dejaban de cuadrar con lo
+     que de verdad ocupaba. */
+  .tuto-card p.tuto-tx {
     font-size: 14.5px;
     line-height: 1.6;
     color: var(--text);
+    min-height: 93px;
     margin-bottom: 10px;
   }
-  .tuto-tx b { color: var(--mint); font-weight: 700; }
-  .tuto-pie {
+  .tuto-card p.tuto-tx b { color: var(--mint); font-weight: 700; }
+  .tuto-card p.tuto-pie {
     font-size: 12.5px;
     line-height: 1.55;
     color: var(--faint);
+    min-height: 39px;
     margin-bottom: 18px;
   }
   /* Los puntos dicen cuánto falta: sin ellos, "Siguiente" parece que puede
@@ -2923,7 +2955,12 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       grid-auto-rows: 56px;
       gap: 24px 22px;
-      grid-auto-flow: row dense;
+      /* Sin `dense`. Con él, una tarjeta que no cabía en el hueco de al lado
+         hacía que otra de más abajo saltara hacia arriba a rellenarlo: mover
+         UNA tarjeta reacomodaba media pantalla y el resultado no se podía
+         prever. Sin él, cada una se queda donde la pusiste y las de debajo
+         solo se corren hacia abajo para dejarle sitio. */
+      grid-auto-flow: row;
       align-items: stretch;
     }
     .widget {
@@ -3302,7 +3339,7 @@
   <div class="view" id="view-project">
     <div class="back-row">
       <button class="icon-btn" onclick="showView('projects')" aria-label="Volver">←</button>
-      <h2>Proyecto</h2>
+      <h2>Encargo</h2>
       <button class="icon-btn" onclick="openProjectForm(currentProjectId)" aria-label="Editar">✎</button>
     </div>
     <div id="project-content"></div>
@@ -3312,23 +3349,23 @@
   <div class="view form-view" id="view-project-form">
     <div class="back-row">
       <button class="icon-btn" onclick="cancelProjectForm()" aria-label="Volver">←</button>
-      <h2 id="project-form-title">Nuevo proyecto</h2>
+      <h2 id="project-form-title">Nuevo encargo</h2>
     </div>
 
     <div class="panel">
       <label class="field">
-        <span>Rama de trabajo</span>
+        <span>Rama de Proyectos</span>
         <input type="text" id="pr-branch" placeholder="Ej. Cliente, Personal, Negocio…" maxlength="30" list="pr-branch-list">
         <datalist id="pr-branch-list"></datalist>
-        <div class="field-hint">Agrupa proyectos afines para compararlos entre sí.</div>
+        <div class="field-hint">Agrupa encargos afines para compararlos entre sí.</div>
       </label>
       <label class="field">
-        <span>Nombre del proyecto</span>
+        <span>Nombre del encargo</span>
         <input type="text" id="pr-name" placeholder="Ej. Rediseñar mi portafolio" maxlength="60" oninput="refrescarSugerencias('pr')">
       </label>
       <label class="field">
         <span>¿Qué quieres lograr? (opcional)</span>
-        <textarea id="pr-desc" rows="2" placeholder="En una frase: cómo se ve este proyecto terminado." maxlength="240"></textarea>
+        <textarea id="pr-desc" rows="2" placeholder="En una frase: cómo se ve este encargo terminado." maxlength="240"></textarea>
       </label>
       <div class="field">
         <span class="lbl">Icono</span>
@@ -3342,7 +3379,7 @@
 
     <div class="panel alt">
       <h3>Etapas</h3>
-      <p class="settings-note">Divide el proyecto en pasos concretos. El avance se mide con las etapas que marques como hechas.</p>
+      <p class="settings-note">Divide el encargo en pasos concretos. El avance se mide con las etapas que marques como hechas.</p>
       <div id="pr-steps"></div>
       <div class="step-add">
         <input type="text" id="pr-new-step" placeholder="Nueva etapa…" maxlength="70" onkeydown="if(event.key==='Enter'){event.preventDefault();addFormStep();}">
@@ -3364,8 +3401,8 @@
     </div>
 
     <div class="stack">
-      <button class="btn btn-primary btn-block" onclick="saveProject()">Guardar proyecto</button>
-      <button class="btn btn-danger-ghost btn-block" id="pr-delete" style="display:none" onclick="deleteProject()">Eliminar proyecto</button>
+      <button class="btn btn-primary btn-block" onclick="saveProject()">Guardar encargo</button>
+      <button class="btn btn-danger-ghost btn-block" id="pr-delete" style="display:none" onclick="deleteProject()">Eliminar encargo</button>
     </div>
   </div>
 
@@ -5834,8 +5871,13 @@ function reordMover(e) {
   const items = [...cont.querySelectorAll(sel)];
   const i = items.indexOf(pieza), j = items.indexOf(sobre);
   if (i < 0 || j < 0) return;
-  if (j < i) cont.insertBefore(pieza, sobre);
-  else cont.insertBefore(pieza, sobre.nextSibling);
+  /* Se inserta en la lista de la pieza que está debajo, no en el contenedor:
+     así el mismo gesto sirve para ordenar dentro de un grupo y para mudar la
+     pieza a otro. Cuando solo hay una lista, su padre ES el contenedor y esto
+     se comporta exactamente igual que antes. */
+  const destino = sobre.parentNode;
+  if (j < i) destino.insertBefore(pieza, sobre);
+  else destino.insertBefore(pieza, sobre.nextSibling);
 }
 
 function reordSoltar() {
@@ -5993,16 +6035,16 @@ async function setProjectStatus(prId, status) {
   const pr = state.projects.find(x => x.id === prId);
   if (!pr) return;
   const labels = {
-    active: ["¿Retomar este proyecto?", "Retomar"],
-    paused: ["¿Poner el proyecto en pausa? No contará como abandonado mientras esté pausado.", "Pausar"],
-    done: ["¿Dar por terminado este proyecto? Se guardará en tu historial y ganarás el XP.", "Terminarlo"],
-    dropped: ["¿Descartar este proyecto? Deja de pedirte atención, pero queda guardado por si lo retomas.", "Descartar"]
+    active: ["¿Retomar este encargo?", "Retomar"],
+    paused: ["¿Poner el encargo en pausa? No contará como abandonado mientras esté pausado.", "Pausar"],
+    done: ["¿Dar por terminado este encargo? Se guardará en tu historial y ganarás el XP.", "Terminarlo"],
+    dropped: ["¿Descartar este encargo? Deja de pedirte atención, pero queda guardado por si lo retomas.", "Descartar"]
   };
   const [msg, ok] = labels[status];
   if (!await ask(msg, ok, status === "dropped")) return;
 
   pr.status = status;
-  projectLog(pr, { active: "Proyecto retomado", paused: "Proyecto pausado", done: "Proyecto terminado", dropped: "Proyecto descartado" }[status]);
+  projectLog(pr, { active: "Encargo retomado", paused: "Encargo pausado", done: "Encargo terminado", dropped: "Encargo descartado" }[status]);
 
   if (status === "done") {
     pr.completedAt = todayKey();
@@ -6011,10 +6053,10 @@ async function setProjectStatus(prId, status) {
       if (s) addXp(s, pr.xpReward, `Proyecto terminado: ${pr.name}`, `Proyecto · ${pr.name}`);
     }
     save();
-    celebrate("Proyecto terminado", pr.name, pr.color || "#5fe0b0", pr.icon);
+    celebrate("Encargo terminado", pr.name, pr.color || "#5fe0b0", pr.icon);
   } else {
     save();
-    toast({ active: "Proyecto retomado", paused: "Proyecto en pausa", dropped: "Proyecto descartado" }[status], status === "active" ? "hecho" : "deshecho");
+    toast({ active: "Encargo retomado", paused: "Encargo en pausa", dropped: "Encargo descartado" }[status], status === "active" ? "hecho" : "deshecho");
   }
   renderProjectDetail();
 }
@@ -6147,7 +6189,7 @@ function showView(name) {
     !(name === "home" || name === "tree" || name === "projects" || name === "missions"));
   fab.querySelector(".fab-label").textContent = {
     home: "Nueva habilidad", tree: "Nuevo talento",
-    projects: "Nuevo proyecto", missions: "Nueva misión"
+    projects: "Nuevo encargo", missions: "Nueva misión"
   }[name] || "";
 
   /* La pantalla completa es una capa por encima de todo, así que taparía
@@ -6201,7 +6243,7 @@ function renderSummary() {
      tres caminos empezar. */
   const vacio = skills.length === 0 && perks.length === 0 && projects.length === 0 && missions.length === 0;
   const btnTablero = document.getElementById("dash-btn");
-  if (btnTablero) btnTablero.style.display = vacio ? "none" : "";
+  if (vacio && btnTablero) btnTablero.style.display = "none";
   if (vacio) {
     dashEditing = false;
     el.className = "dash";
@@ -6421,13 +6463,12 @@ function renderSummary() {
   };
 
   const { order, hidden } = dashLayout();
-  el.className = dashEditing ? "dash editing" : "dash";
   /* Una tarjeta que resume un módulo apagado no tiene a dónde llevar, así
      que desaparece con él. No se toca la configuración del tablero: al
      volver a encender el módulo, su tarjeta reaparece donde estaba. */
-  el.innerHTML =
-    (dashEditing ? dashTray(hidden) : "") +
-    order.filter(id => !hidden.includes(id) && (!DASH_MODULO[id] || moduloOn(DASH_MODULO[id]))).map(id => {
+  const piezas = order
+    .filter(id => !hidden.includes(id) && (!DASH_MODULO[id] || moduloOn(DASH_MODULO[id])))
+    .map(id => {
       const body = W[id] ? W[id]() : "";
       if (!body) return "";
       const meta = DASH_META[id];
@@ -6443,7 +6484,18 @@ function renderSummary() {
           <svg viewBox="0 0 24 24"><path d="M20 10v10H10M20 20l-9-9"/></svg>
         </button>
       </div>`;
-    }).join("");
+    })
+    .filter(Boolean);
+
+  /* El botón de acomodar aparece cuando hay algo que acomodar. Con una sola
+     tarjeta no existe un orden que elegir, así que ofrecerlo antes es enseñar
+     una herramienta que no puede hacer nada — y recién estrenada la app es
+     justo cuando más despista. */
+  if (piezas.length < 2) dashEditing = false;
+  if (btnTablero) btnTablero.style.display = piezas.length > 1 ? "" : "none";
+
+  el.className = dashEditing ? "dash editing" : "dash";
+  el.innerHTML = (dashEditing ? dashTray(hidden) : "") + piezas.join("");
 
   marcarDesbordes();
   if (dashEditing) attachDashHandlers();
@@ -6477,7 +6529,10 @@ const ROW_H = 56, ROW_GAP = 22;
    dato suelto y se apaña con dos—. El techo sigue siendo el mismo para
    todas: encoger estropea, agrandar no. */
 const DASH_MIN_H = { racha: 3, misiones: 3, atencion: 2, niveles: 3, invertido: 3, proyectos: 2, listos: 4 };
-const DASH_MAX_H = 14;
+/* Techo generoso: son 40 filas de la cuadrícula, más de dos pantallas de
+   alto. Existe solo para que un tirón desbocado del asa no deje una tarjeta
+   de mil filas imposible de volver a encoger. */
+const DASH_MAX_H = 40;
 
 let dashEditing = false;
 
@@ -7515,8 +7570,8 @@ function fraseCantidad(n, singular, plural) {
 async function deleteBranch(kind, b) {
   const esTalentos = kind === "perks";
   const lista = (esTalentos ? state.perks : state.projects).filter(p => (p.branch || "General") === b);
-  const singular = esTalentos ? "talento" : "proyecto";
-  const plural = esTalentos ? "talentos" : "proyectos";
+  const singular = esTalentos ? "talento" : "encargo";
+  const plural = esTalentos ? "talentos" : "encargos";
   const n = lista.length;
 
   const arrastra = fraseCantidad(n, singular, plural);
@@ -7578,6 +7633,26 @@ async function renombrarRama(b) {
   if (fullscreenBranch === b) fullscreenBranch = nuevo;
   save();
   renderTree();
+  toast(existe ? `Ramas juntadas en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
+}
+
+/* Lo mismo para las ramas de Proyectos. Vive aparte de la de Talentos porque
+   lo que arrastra cada una es distinto —allí también hay cajas del ático y un
+   modo edición abierto— y unificarlas dejaría una función con dos mitades que
+   nunca se ejecutan juntas. */
+async function renombrarRamaProyectos(b) {
+  const nuevo = await askText(`Renombrar la rama "${b}"`, b, "Renombrar",
+    "Se reescribe en todos sus encargos.");
+  if (nuevo === null || !nuevo || nuevo === b) return;
+
+  const existe = state.projects.some(p => (p.branch || "General") === nuevo);
+  if (existe && !await ask(
+    `Ya tienes una rama llamada "${nuevo}". Los encargos de "${b}" se van a juntar con los suyos en una sola rama.`,
+    "Juntarlas")) return;
+
+  state.projects.forEach(p => { if ((p.branch || "General") === b) p.branch = nuevo; });
+  save();
+  renderProjects();
   toast(existe ? `Ramas juntadas en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
 }
 
@@ -7741,10 +7816,10 @@ function renderProjects() {
     el.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("flag", 34)}</div>
-        <h2>Sin proyectos todavía</h2>
-        <p>Un proyecto es algo que estás construyendo y que avanza por etapas. La app mide su ritmo y te dice cuáles siguen vivos y cuáles conviene soltar.</p>
+        <h2>Sin encargos todavía</h2>
+        <p>Un encargo es algo que estás construyendo y que avanza por etapas. La app mide su ritmo y te dice cuáles siguen vivos y cuáles conviene soltar.</p>
         <div class="stack" style="align-items:center">
-          <button class="btn btn-primary" onclick="openProjectForm()">Crear mi primer proyecto</button>
+          <button class="btn btn-primary" onclick="openProjectForm()">Crear mi primer encargo</button>
           <button class="btn btn-ghost" onclick="loadExamples()">Ver un ejemplo completo</button>
         </div>
       </div>`;
@@ -7767,7 +7842,7 @@ function renderProjects() {
   } else if (live.length) {
     pFocus = { k: "Siguiente etapa", v: live[0].name, color: "var(--mint)", onclick: `openProject('${live[0].id}')`, pct: projectProgress(live[0]) };
   } else {
-    pFocus = { k: "Nada en marcha", v: "Crea un proyecto cuando quieras", color: "var(--muted)" };
+    pFocus = { k: "Nada en marcha", v: "Crea un encargo cuando quieras", color: "var(--muted)" };
   }
 
   let html = sectionHero({
@@ -7789,7 +7864,7 @@ function renderProjects() {
     html += `
     <div class="panel alt full-row" style="border-color:rgba(255,138,112,0.4)">
       <h3 style="color:var(--coral)">Decisión pendiente</h3>
-      <p class="settings-note">Estos proyectos llevan mucho sin avanzar. Retomarlos o soltarlos libera tu atención — dejarlos en el limbo es lo único que no ayuda.</p>
+      <p class="settings-note">Estos encargos llevan mucho sin avanzar. Retomarlos o soltarlos libera tu atención — dejarlos en el limbo es lo único que no ayuda.</p>
       ${stalled.map(p => `
         <button class="att-item" onclick="openProject('${p.id}')">
           <span class="dot" style="background:var(--coral-soft);color:var(--coral)">${icon(p.icon, 17)}</span>
@@ -7800,7 +7875,7 @@ function renderProjects() {
   }
 
   const branches = [...new Set(all.map(p => p.branch || "General"))];
-  html += `<div class="sec-label full-row">Tus ramas de trabajo</div>`;
+  html += `<div class="sec-label full-row">Tus ramas de Proyectos</div>`;
   for (const b of branches) {
     const list = all.filter(p => (p.branch || "General") === b)
       .sort((a, c) => (a.status === "dropped" || a.status === "done" ? 1 : 0) - (c.status === "dropped" || c.status === "done" ? 1 : 0));
@@ -7808,16 +7883,17 @@ function renderProjects() {
     html += `
     <div class="branch-card" style="padding-bottom:14px">
       <div class="branch-head" style="margin-bottom:12px">
-        <h3>${escapeHtml(b)}</h3>
+        <!-- Igual que en Talentos: el nombre se reescribe tocándolo -->
+        <h3 class="renombrable" onclick="renombrarRamaProyectos('${escapeAttr(b)}')" title="Toca el nombre para renombrar la rama">${escapeHtml(b)}${icon("pen", 11)}</h3>
         <span class="count">${liveN} de ${list.length}</span>
         <div class="bhead-btns">
           ${branchMenu("p:" + escapeAttr(b), [
-            { title: "Borrar esta rama", hint: list.length === 0 ? "Está vacía" : (list.length === 1 ? "Se va también su único proyecto" : `Se van también sus ${list.length} proyectos`), icon: "bote", danger: true, onclick: `deleteBranch('projects','${escapeAttr(b)}')` }
+            { title: "Borrar esta rama", hint: list.length === 0 ? "Está vacía" : (list.length === 1 ? "Se va también su único encargo" : `Se van también sus ${list.length} encargos`), icon: "bote", danger: true, onclick: `deleteBranch('projects','${escapeAttr(b)}')` }
           ])}
-          <button class="badd" onclick="openProjectForm(null, '${escapeAttr(b)}')" aria-label="Añadir proyecto a ${escapeAttr(b)}">＋</button>
+          <button class="badd" onclick="openProjectForm(null, '${escapeAttr(b)}')" aria-label="Añadir encargo a ${escapeAttr(b)}">＋</button>
         </div>
       </div>
-      <div class="proj-list">
+      <div class="proj-list" data-branch="${escapeAttr(b)}">
         ${list.map(p => {
           const prog = projectProgress(p);
           const h = projectHealth(p);
@@ -7825,7 +7901,7 @@ function renderProjects() {
           const col = p.color || "#5fe0b0";
           const doneN = (p.steps || []).filter(s => s.done).length;
           return `
-          <button class="proj-card ${dim ? "dim" : ""}" onclick="openProject('${p.id}')" style="--pc:${col}">
+          <button class="proj-card ${dim ? "dim" : ""}" data-rid="${p.id}" onclick="openProject('${p.id}')" style="--pc:${col}">
             <div class="proj-top">
               <span class="proj-ic" style="background:${col}22;color:${col}">${icon(p.icon, 19)}</span>
               <span class="proj-name">${escapeHtml(p.name)}</span>
@@ -7849,6 +7925,46 @@ function renderProjects() {
     </div>`;
   }
   el.innerHTML = html;
+  /* Las tarjetas se arrastran, y no solo dentro de su rama: soltarlas en
+     otra las muda. Es la operación que antes obligaba a abrir el encargo,
+     entrar a editarlo y cambiar un desplegable — tres pantallas para algo
+     que la mano quiere hacer de un tirón.
+
+     Se engancha al contenedor entero (no a cada lista) porque el arrastre
+     cruza fronteras, y una sola vez: hacerReordenable ya se protege de
+     repetirse en cada repintado. */
+  hacerReordenable(el, ".proj-card", reacomodarEncargos);
+}
+
+/* Reconstruye el orden y la rama de cada encargo a partir de lo que quedó en
+   pantalla. Se lee el DOM en vez de calcularlo porque el arrastre ya movió
+   las tarjetas a su sitio: lo que se ve ES el resultado. */
+function reacomodarEncargos() {
+  const orden = [];
+  const mudados = [];
+  document.querySelectorAll("#projects-content .proj-list").forEach(lista => {
+    const rama = lista.dataset.branch;
+    lista.querySelectorAll(".proj-card").forEach(el => {
+      const pr = state.projects.find(x => x.id === el.dataset.rid);
+      if (!pr) return;
+      if ((pr.branch || "General") !== rama) {
+        pr.branch = rama;
+        /* Queda en el historial, pero SIN tocar la fecha de actividad:
+           cambiar algo de sitio no es avanzarlo, y contarlo como avance
+           reiniciaría el contador de "estancado" sin haber hecho nada. */
+        pr.history = pr.history || [];
+        pr.history.unshift({ date: todayKey(), at: stamp(), event: `Movido a la rama ${rama}` });
+        mudados.push(pr);
+      }
+      orden.push(pr);
+    });
+  });
+  // Nadie se queda fuera aunque no estuviera dibujado
+  state.projects.forEach(p => { if (!orden.includes(p)) orden.push(p); });
+  state.projects = orden;
+  save();
+  renderProjects();
+  if (mudados.length === 1) toast(`${mudados[0].name} ahora vive en ${mudados[0].branch}`, "hecho");
 }
 
 function openProject(id) {
@@ -7867,7 +7983,7 @@ function renderProjectDetail() {
   const steps = pr.steps || [];
 
   const stepsHtml = steps.length === 0
-    ? `<p class="settings-note" style="margin:0 0 12px">Sin etapas todavía. Divide el proyecto en pasos concretos para poder medir su avance.</p>`
+    ? `<p class="settings-note" style="margin:0 0 12px">Sin etapas todavía. Divide el encargo en pasos concretos para poder medir su avance.</p>`
     : steps.map(s => `
       <div class="step-row ${s.done ? "done" : ""}">
         <button class="step-check" onclick="toggleStep('${pr.id}','${s.id}')" aria-label="${s.done ? "Reabrir" : "Completar"} etapa" style="--pc:${col}">
@@ -7879,7 +7995,7 @@ function renderProjectDetail() {
 
   const closed = pr.status === "done" || pr.status === "dropped";
   const actions = closed
-    ? `<button class="btn btn-soft btn-block" onclick="setProjectStatus('${pr.id}','active')">Retomar proyecto</button>`
+    ? `<button class="btn btn-soft btn-block" onclick="setProjectStatus('${pr.id}','active')">Retomar encargo</button>`
     : `
       <div class="stack">
         ${prog === 100 || pr.status === "active"
@@ -7887,7 +8003,7 @@ function renderProjectDetail() {
         ${pr.status === "active"
           ? `<button class="btn btn-ghost btn-block" onclick="setProjectStatus('${pr.id}','paused')">Pausar por ahora</button>`
           : `<button class="btn btn-soft btn-block" onclick="setProjectStatus('${pr.id}','active')">Retomar</button>`}
-        <button class="btn btn-danger-ghost btn-block" onclick="setProjectStatus('${pr.id}','dropped')">Descartar proyecto</button>
+        <button class="btn btn-danger-ghost btn-block" onclick="setProjectStatus('${pr.id}','dropped')">Descartar encargo</button>
       </div>`;
 
   const historyHtml = (pr.history || []).length === 0
@@ -7902,7 +8018,7 @@ function renderProjectDetail() {
       <div class="strip">${motifScene(560, 156, hashSeed(pr.id), motifFor(pr.icon), col)}</div>
       <div class="skill-emoji" style="background:${col}30;color:${col}">${icon(pr.icon, 28)}</div>
       <h2>${escapeHtml(pr.name)}</h2>
-      <span class="cat">Rama de trabajo · ${escapeHtml(pr.branch || "General")}</span>
+      <span class="cat">Rama de Proyectos · ${escapeHtml(pr.branch || "General")}</span>
       ${pr.desc ? `<div class="perk-desc">${escapeHtml(pr.desc)}</div>` : ""}
       ${skill ? `<div style="margin-top:12px"><button class="xlink" style="--xc:${skill.color}" onclick="openDetail('${skill.id}')">
         ${icon(skill.icon, 13)} Entrena ${escapeHtml(skill.name)} →
@@ -8086,7 +8202,7 @@ function linkedToSkill(s) {
     return `
     <div class="panel alt">
       <h3>Qué alimenta esta habilidad</h3>
-      <p class="settings-note" style="margin:0 0 12px">Nada apunta aquí todavía. Cuando vincules una misión, un talento o un proyecto a <b>${escapeHtml(s.name)}</b>, aparecerán en esta lista y su XP subirá sola.</p>
+      <p class="settings-note" style="margin:0 0 12px">Nada apunta aquí todavía. Cuando vincules una misión, un talento o un encargo a <b>${escapeHtml(s.name)}</b>, aparecerán en esta lista y su XP subirá sola.</p>
       <div class="stack">
         <button class="btn btn-soft btn-block" onclick="openMissionForm()">Crear una misión diaria</button>
         <button class="btn btn-ghost btn-block" onclick="openPerkForm()">Crear un talento</button>
@@ -8121,7 +8237,7 @@ function linkedToSkill(s) {
           <span class="lr-go">→</span>
         </button>`;
       }))}
-      ${group("proyecto", "proyectos", "flag", pr.map(p => `
+      ${group("encargo", "encargos", "flag", pr.map(p => `
         <button class="linked-row" style="--lc:${p.color || "#5fe0b0"}" onclick="openProject('${p.id}')">
           <span class="lr-ic">${icon(p.icon, 16)}</span>
           <span class="lr-tx"><b>${escapeHtml(p.name)}</b><span>${projectProgress(p)}% · ${PROJECT_STATUS[p.status].label}</span></span>
@@ -8552,6 +8668,40 @@ function pixelEnLienzo(wrap, x, y) {
   };
 }
 
+/* ---- Dónde deja la cámara la rama ----
+   El lienzo casi siempre es más grande que lo dibujado (por el sitio libre)
+   y a veces más pequeño (una rama larga). Con la regla de antes —pegar el
+   dibujo a la esquina superior izquierda— una rama que cabía entera quedaba
+   escorada, con todo el aire amontonado abajo y a la derecha. Ahora:
+
+     · si cabe entero, se centra;
+     · si no cabe, se enseña desde el principio, o alrededor de un punto de
+       interés, pero sin pasarse de los bordes del dibujo — nunca se enseña
+       hueco pudiendo enseñar mapa.
+
+   No mueve ni un talento: es solo dónde se planta la cámara. */
+function encuadreDe(wrap, foco) {
+  const svg = wrap.querySelector("svg");
+  if (!svg || !svg.dataset.bw) return null;
+  const p0 = pixelEnLienzo(wrap, +svg.dataset.bx, +svg.dataset.by);
+  if (!p0) return null;
+  const r = svg.getBoundingClientRect();
+  const vb = svg.viewBox.baseVal;
+  const esc = (r.width && vb.width) ? r.width / vb.width : 1;
+  const bw = +svg.dataset.bw * esc, bh = +svg.dataset.bh * esc;
+
+  const eje = (ini, tam, visible, f) => {
+    if (tam <= visible) return ini - (visible - tam) / 2;   // cabe: centrado
+    if (f == null) return ini;                              // no cabe: por el principio
+    // El recorrido válido va de "pegado al principio" a "pegado al final"
+    return clamp(f - visible / 2, ini, ini + tam - visible);
+  };
+  return {
+    left: Math.max(0, Math.round(eje(p0.x, bw, wrap.clientWidth, foco && foco.x))),
+    top: Math.max(0, Math.round(eje(p0.y, bh, wrap.clientHeight, foco && foco.y)))
+  };
+}
+
 function encuadrarLienzo(wrap, b) {
   const svg = wrap.querySelector("svg");
   if (!svg) return;
@@ -8568,10 +8718,8 @@ function encuadrarLienzo(wrap, b) {
     wrap.scrollLeft = memo.x;
     wrap.scrollTop = memo.y;
   } else {
-    const cs = getComputedStyle(wrap);
-    // data-ox/oy: a qué altura del dibujo empieza lo que hay que ver
-    wrap.scrollLeft = Math.max(0, parseFloat(cs.paddingLeft) + (+svg.dataset.ox || 0) - 8);
-    wrap.scrollTop = Math.max(0, parseFloat(cs.paddingTop) + (+svg.dataset.oy || 0) - 8);
+    const enc = encuadreDe(wrap, null);
+    if (enc) { wrap.scrollLeft = enc.left; wrap.scrollTop = enc.top; }
   }
   wrap.addEventListener("scroll", () => {
     scrollRama[llaveDeLienzo(wrap, b)] = { x: wrap.scrollLeft, y: wrap.scrollTop };
@@ -8625,16 +8773,14 @@ function focusBranchFront(b, silent) {
   const target = frontNode(nodes);
   /* Por píxel y no por coordenada del dibujo: entre el borde del lienzo y el
      cero del dibujo hay ahora el margen libre, y a veces también el trozo que
-     ocupan los nodos colocados hacia atrás. */
+     ocupan los nodos colocados hacia atrás. Y pasa por encuadreDe, que si la
+     rama cabe entera la centra en vez de escorarla para poner ese nodo justo
+     en el medio — enseñar la rama completa siempre gana. */
   const p = pixelEnLienzo(wrap, pos[target.id].x, pos[target.id].y);
   if (!p) return;
-  // Se centra también en vertical: con sitio libre arriba y abajo, dejar el
-  // eje vertical donde estuviera puede esconder justo el nodo que se busca
-  wrap.scrollTo({
-    left: Math.max(0, p.x - wrap.clientWidth / 2),
-    top: Math.max(0, p.y - wrap.clientHeight / 2),
-    behavior: silent ? "auto" : "smooth"
-  });
+  const enc = encuadreDe(wrap, p);
+  if (!enc) return;
+  wrap.scrollTo({ left: enc.left, top: enc.top, behavior: silent ? "auto" : "smooth" });
   if (!silent) toast(`Centrado en: ${target.name}`, "hecho");
 }
 
@@ -9353,6 +9499,20 @@ function constellation(nodes, key, editing, branch) {
   let recintos = "";
   let alto = 0;      // cuánto sobresale un recinto por arriba del encuadre
 
+  /* Lo que ocupa el dibujo DE VERDAD, midiendo figura por figura. Antes la
+     caja se sacaba del reparto automático (ancho = último nodo + un margen
+     fijo, alto = fila más baja + otro), y esas cifras no son lo que se ve: el
+     nombre cuelga por debajo, la letra Y/O sobresale por la izquierda, y el
+     margen de arriba y el de abajo no coincidían. La rama salía escorada
+     dentro de su tarjeta aunque cupiera de sobra. */
+  const caja = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+  const abarcar = (x0, y0, x1, y1) => {
+    if (x0 < caja.x0) caja.x0 = x0;
+    if (y0 < caja.y0) caja.y0 = y0;
+    if (x1 > caja.x1) caja.x1 = x1;
+    if (y1 > caja.y1) caja.y1 = y1;
+  };
+
   /* ---- El grupo desplegado ----
      Una caja abierta no desaparece: sus talentos vuelven al mapa pero siguen
      siendo un grupo, y aquí se dibuja el recinto que los rodea con su nombre
@@ -9367,6 +9527,7 @@ function constellation(nodes, key, editing, branch) {
     const { hechos, pendientes } = resumenCaja(c);
     const cc = pendientes === 0 ? "#5fe0b0" : "#f5d76e";
     alto = Math.max(alto, 18 - (y0 - 11));   // la etiqueta no puede quedar cortada
+    abarcar(x0, y0 - 11, x1, y1);
     recintos += `<g class="grupo">
       <rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" rx="22"
         fill="${cc}0a" stroke="${cc}" stroke-opacity="0.35" stroke-width="1.6" stroke-dasharray="9 7" pointer-events="none"/>
@@ -9500,6 +9661,8 @@ function constellation(nodes, key, editing, branch) {
         <text x="${x}" y="${y + CAJA_H / 2 + 15}" text-anchor="middle" font-size="9" fill="#5d6b77">${editing ? "arrastra, conecta o clic derecho" : "toca para ver qué lleva"}</text>
       </g>`;
       ports += puertos(n, x, y, CAJA_W / 2, cc);
+      abarcar(x - CAJA_W / 2 - (n.requiere.length > 1 ? 24 : 0), y - CAJA_H / 2,
+              x + CAJA_W / 2 + (editing ? 22 : 0), y + CAJA_H / 2 + 20);
       return;
     }
 
@@ -9552,6 +9715,14 @@ function constellation(nodes, key, editing, branch) {
        además el interruptor de la regla—, por la derecha sale lo que este
        talento habilita. Ver `puertos`, arriba. */
     ports += puertos(n, x, y, R, col);
+
+    // Lo que ocupa este talento con todo lo que le cuelga
+    const hayFueraAqui = requisitosVivos(n).some(r => (r.branch || "General") !== (n.branch || "General"));
+    abarcar(
+      x - R - (requisitosDe(n).length > 1 ? 26 : 0) - (hayFueraAqui ? 76 : 0),
+      y - R - (conf.mark ? 12 : 0),
+      x + R + (editing ? 22 : 0),
+      topY + (lines.length - 1) * 12 + ((st === "active" && (n.steps || []).length) ? 18 : 6));
   });
 
   const padRight = editing ? 46 : 0;
@@ -9574,13 +9745,26 @@ function constellation(nodes, key, editing, branch) {
      trescientos píxeles de hueco visible. Aquí el hueco solo existe para
      quien lo recorre — el alto de la tarjeta lo fija `encuadrarLienzo` con
      `data-dh`, que es lo que mide el dibujo de verdad. */
-  const vbX = inicioX - padLeft - LIBRE_X;
-  const vbY = inicioY - padTop - LIBRE_Y;
-  const alturaDibujo = H + 30 - (inicioY - padTop);
-  const vbW = W + padRight + LIBRE_X - vbX;
-  const vbH = H + 30 + LIBRE_Y - vbY;
+  /* La CAJA DEL DIBUJO: dónde empieza y cuánto ocupa lo que de verdad hay
+     que ver, sin contar el sitio libre de alrededor. Va estampada en el SVG
+     porque quien encuadra la rama (encuadrarLienzo, focusBranchFront) trabaja
+     sobre el elemento ya pintado y no tiene a mano estas cuentas. */
+  /* Un respiro igual por los cuatro lados. Con la caja pegada al dibujo, lo
+     que sobre o falte de sitio lo reparte el encuadre a partes iguales, y la
+     rama deja de salir escorada dentro de su tarjeta. */
+  const AIRE = 26;
+  const hayCaja = caja.x1 > caja.x0;
+  const bx0 = hayCaja ? Math.round(caja.x0 - AIRE) : inicioX - padLeft;
+  const by0 = hayCaja ? Math.round(caja.y0 - AIRE) : inicioY - padTop;
+  const bw = hayCaja ? Math.round(caja.x1 - caja.x0 + AIRE * 2) : W + padRight - bx0;
+  const bh = hayCaja ? Math.round(caja.y1 - caja.y0 + AIRE * 2) : H + 30 - by0;
+  const vbX = bx0 - LIBRE_X;
+  const vbY = by0 - LIBRE_Y;
+  const vbW = bw + LIBRE_X * 2;
+  const vbH = bh + LIBRE_Y * 2;
   return `<svg width="${vbW}" height="${vbH}" viewBox="${vbX} ${vbY} ${vbW} ${vbH}"
-    data-ox="${LIBRE_X}" data-oy="${LIBRE_Y}" data-dh="${Math.round(alturaDibujo)}" font-family="Outfit, sans-serif">
+    data-bx="${bx0}" data-by="${by0}" data-bw="${Math.round(bw)}" data-bh="${Math.round(bh)}"
+    data-dh="${Math.round(bh)}" font-family="Outfit, sans-serif">
     <defs>
       <filter id="${fid}" x="-60%" y="-60%" width="220%" height="220%">
         <feGaussianBlur stdDeviation="2.6" result="b"/>
@@ -10913,7 +11097,7 @@ function openProjectForm(id, presetBranch) {
   editingProjectId = id || null;
   const pr = id ? state.projects.find(x => x.id === id) : null;
 
-  document.getElementById("project-form-title").textContent = pr ? "Editar proyecto" : "Nuevo proyecto";
+  document.getElementById("project-form-title").textContent = pr ? "Editar encargo" : "Nuevo encargo";
   document.getElementById("pr-name").value = pr ? pr.name : "";
   document.getElementById("pr-branch").value = pr ? (pr.branch || "") : (presetBranch || "");
   document.getElementById("pr-desc").value = pr ? (pr.desc || "") : "";
@@ -10969,7 +11153,7 @@ function removeFormStep(i) {
 
 function saveProject() {
   const name = document.getElementById("pr-name").value.trim();
-  if (!name) { toast("Ponle un nombre al proyecto", "atencion"); return; }
+  if (!name) { toast("Ponle un nombre al encargo", "atencion"); return; }
   const branch = document.getElementById("pr-branch").value.trim() || "General";
   const desc = document.getElementById("pr-desc").value.trim();
   const skillId = document.getElementById("pr-skill").value || null;
@@ -10986,7 +11170,7 @@ function saveProject() {
       steps: formSteps.map(s => prev[s.id] ? { ...s, done: prev[s.id].done, at: prev[s.id].at } : s)
     });
     save();
-    toast("Proyecto actualizado");
+    toast("Encargo actualizado");
     if (currentProjectId === editingProjectId) { renderProjectDetail(); showView("project"); }
     else showView("projects");
   } else {
@@ -10997,7 +11181,7 @@ function saveProject() {
       history: [{ date: todayKey(), at: stamp(), event: `Proyecto creado en la rama ${branch}` }]
     });
     save();
-    toast(`Proyecto "${name}" creado 🚩`);
+    toast(`Encargo "${name}" creado 🚩`);
     showView("projects");
   }
 }
@@ -11239,8 +11423,8 @@ const TUTO_PASOS = [
        explica la primera sección de algo que todavía no sabes qué es empieza
        por el medio. El logo hace de presentación: es lo único que el usuario
        ya vio (en el menú) y no ha podido relacionar con nada. */
-    logo: true, color: "#5fe0b0", titulo: "Notara",
-    tx: "Tu vida, con la mecánica de un juego de rol: lo que <b>haces</b>, lo que <b>practicas</b>, lo que <b>te propones</b> y lo que <b>construyes</b>.",
+    logo: true, color: "#5fe0b0", titulo: "Te doy la bienvenida",
+    tx: "Notara lleva tu vida con la mecánica de un juego de rol: lo que <b>haces</b>, lo que <b>practicas</b>, lo que <b>te propones</b> y lo que <b>construyes</b>.",
     pie: "Son cuatro secciones. Te cuento en un minuto qué hace cada una."
   },
   {
@@ -11260,8 +11444,8 @@ const TUTO_PASOS = [
   },
   {
     modulo: "projects", icon: "flag", color: "#6fc3e8", titulo: "Proyectos",
-    tx: "Lo que <b>construyes</b> por etapas. Tienen principio y final, y la app mide su ritmo para decirte cuáles siguen vivos.",
-    pie: "Un proyecto que lleva semanas quieto te lo dirá, sin regañarte."
+    tx: "Los <b>encargos</b> que te haces a ti: cosas que construyes por etapas, con principio y final. La app mide su ritmo y te dice cuáles siguen vivos.",
+    pie: "Un encargo que lleva semanas quieto te lo dirá, sin regañarte."
   },
   {
     modulo: null, icon: "compass", color: "#5fe0b0", titulo: "Y todo se conecta",
@@ -11308,10 +11492,16 @@ function renderTutorial() {
     <!-- Salir es una X y no un botón grande: el botón compite con "Siguiente"
          justo cuando lo que queremos es que dé un paso más. -->
     <button class="tuto-x" onclick="saltarTutorial()" aria-label="Saltar tutorial" title="Saltar tutorial">✕</button>
-    ${p.logo
-      ? `<div class="tuto-logo">${logoNotara()}</div>`
-      : `<div class="tuto-ic" style="--tc:${p.color}">${icon(p.icon, 30)}</div>
-         <h2>${escapeHtml(p.titulo)}</h2>`}
+    ${/* Las cinco filas van SIEMPRE, en el mismo orden y con la misma altura:
+          marca, título, texto, resumen gris y puntos. Antes cada tarjeta
+          medía lo que midiera su texto y el contenido bailaba de una a otra
+          —el título subía, el gris se movía— aunque el alto total ya
+          estuviera fijado. Homologar las filas, y no solo la tarjeta, es lo
+          que hace que solo cambien las palabras. */""}
+    <div class="tuto-marca">${p.logo
+      ? `<span class="tuto-logo">${logoNotara()}</span>`
+      : `<span class="tuto-ic" style="--tc:${p.color}">${icon(p.icon, 30)}</span>`}</div>
+    <h2 class="tuto-titulo">${escapeHtml(p.titulo)}</h2>
     <p class="tuto-tx">${p.tx}</p>
     <p class="tuto-pie">${p.pie}</p>
     <div class="tuto-dots">${pasos.map((_, i) =>
