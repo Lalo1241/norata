@@ -4,9 +4,13 @@ Tu vida como videojuego: misiones que haces hoy, habilidades que suben con la
 práctica, talentos que compras con dinero real y proyectos que avanzan por
 etapas.
 
-Es una aplicación web de un solo archivo. No hay compilación, ni dependencias,
-ni servidor: `index.html` lleva dentro el CSS, el JavaScript y la tipografía.
-Se puede abrir con doble clic y funciona.
+Es una aplicación web sin compilación y sin dependencias: archivos sueltos que
+el navegador entiende tal cual. No hay `npm install`, ni empaquetador, ni paso
+previo — se editan los archivos y se recarga.
+
+Lo que sí hace falta es servirla por HTTP (`python -m http.server`, por
+ejemplo). Abrir `index.html` con doble clic ya no funciona desde que dejó de
+ser un solo archivo.
 
 ## Cómo se usa
 
@@ -95,11 +99,20 @@ recargar — nunca una pantalla en blanco sin explicación.
 
 | Archivo | Qué es |
 | --- | --- |
-| `index.html` | La aplicación entera: CSS, JavaScript y tipografía incluidos |
+| `index.html` | El marcado de todas las pantallas, y la red de seguridad ante errores |
+| `css/fuente.css` | Solo la tipografía incrustada. Aparte porque pesa mucho y no cambia |
+| `css/estilos.css` | Todo lo demás del aspecto |
+| `js/01…11-*.js` | La aplicación, por áreas. **El orden importa**: se ejecutan uno tras otro |
 | `sw.js` | Service worker; guarda la app para que abra sin conexión |
 | `manifest.webmanifest` | Metadatos para poder instalarla |
 | `icon.svg` | Icono |
 
-El service worker solo se registra sobre HTTPS, así que abrir el archivo
-localmente no activa el modo sin conexión. Es a propósito: evita quedarse con
-una versión vieja en caché mientras se trabaja en el código.
+Los `js/` son *scripts* normales, no módulos, y por eso sus funciones son
+globales: los `onclick` del HTML dependen de ello. Van sin `defer` y en el
+orden numerado, que es exactamente el que tenían cuando eran un solo bloque —
+cambiarlo rompe las dependencias entre piezas. `11-arranque.js` va el último
+porque es lo único que se ejecuta al abrir, en vez de solo declarar cosas.
+
+El service worker solo se registra sobre HTTPS, así que servirla en local no
+activa el modo sin conexión. Es a propósito: evita quedarse con una versión
+vieja en caché mientras se trabaja en el código.

@@ -1,0 +1,1450 @@
+/* Resumen, tablero, catálogo y el motor de sugerencia */
+/* ================= Render: resumen ================= */
+
+function greeting() {
+  const h = hourNow();
+  if (h < 6) return "Hola, trasnochador";
+  if (h < 12) return "Buenos días";
+  if (h < 19) return "Buenas tardes";
+  return "Buenas noches";
+}
+
+function renderSummary() {
+  const el = document.getElementById("summary-content");
+  const skills = state.skills;
+  const perks = state.perks;
+  const projects = state.projects;
+  const missions = state.missions;
+
+  /* Con el tablero vacío no hay tablero que acomodar. El botón de ordenar
+     widgets encima de la pantalla de bienvenida ofrecía un modo sin nada
+     dentro, justo cuando la única pregunta que importa es por cuál de los
+     tres caminos empezar. */
+  const vacio = skills.length === 0 && perks.length === 0 && projects.length === 0 && missions.length === 0;
+  const btnTablero = document.getElementById("dash-btn");
+  if (vacio && btnTablero) btnTablero.style.display = "none";
+  if (vacio) {
+    dashEditing = false;
+    el.className = "dash";
+    el.innerHTML = `
+      <div class="empty">
+        <div class="bubble">${icon("compass", 34)}</div>
+        <h2>Tu expedición empieza aquí</h2>
+        <p>Convierte tu vida en un videojuego: misiones que haces hoy, habilidades que suben con la práctica, talentos que compras con dinero real y proyectos que avanzan por etapas.</p>
+        <div class="stack" style="align-items:center">
+          <button class="btn btn-primary" onclick="startOnboarding()">Armar mi tablero en 3 preguntas</button>
+          <button class="btn btn-ghost" onclick="loadExamples()">Ver un ejemplo completo</button>
+          <button class="btn btn-ghost" onclick="openSkillForm()">Empezar de cero</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const stk = streakInfo();
+  const totalLevels = skills.reduce((a, s) => a + levelInfo(s.xp).level, 0);
+  const decayingList = skills.filter(isDecaying);
+  const dueList = perks.filter(p => perkStatus(p) === "due");
+  const activeList = perks.filter(p => perkStatus(p) === "active");
+  const invested = perks.reduce((a, p) => a + (p.investedTotal || 0), 0);
+  const dateTxt = keyToDate(todayKey()).toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
+
+  const readyList = perks.filter(p => perkStatus(p) === "available");
+  const attention = [
+    ...dueList.map(p => `
+      <button class="att-item" onclick="openPerk('${p.id}')">
+        <span class="dot" style="background:var(--fire-soft);color:var(--fire)">${icon("flag", 17)}</span>
+        <span class="tx"><b>${escapeHtml(p.name)}</b><span>El plan venció — confirma si lo lograste</span></span>
+        <span class="go">→</span>
+      </button>`),
+    ...decayingList.map(s => {
+      const d = diasParaBajarNivel(s);
+      return `
+      <button class="att-item" onclick="openDetail('${s.id}')">
+        <span class="dot" style="background:var(--coral-soft);color:var(--coral)">${icon(s.icon, 17)}</span>
+        <span class="tx"><b>${escapeHtml(s.name)}</b><span>−${desgasteDiario(s)} XP al día${d ? ` · a ${d} día${d === 1 ? "" : "s"} de bajar al nivel ${levelInfo(s.xp).level - 1}` : ""}</span></span>
+        <span class="go">→</span>
+      </button>`;
+    })
+  ];
+  const stalledProjects = projects.filter(p => projectHealth(p).key === "stalled");
+  stalledProjects.forEach(p => attention.push(`
+      <button class="att-item" onclick="openProject('${p.id}')">
+        <span class="dot" style="background:var(--coral-soft);color:var(--coral)">${icon(p.icon, 17)}</span>
+        <span class="tx"><b>${escapeHtml(p.name)}</b><span>Estancado ${daysIdle(p)} días — retómalo o suéltalo</span></span>
+        <span class="go">→</span>
+      </button>`));
+  if (!stk.activeToday) {
+    attention.push(`
+      <button class="att-item" onclick="showView('home')">
+        <span class="dot" style="background:var(--mint-soft);color:var(--mint)">${icon("flame", 17)}</span>
+        <span class="tx"><b>Aún no registras práctica hoy</b><span>Una sesión corta mantiene viva tu racha</span></span>
+        <span class="go">→</span>
+      </button>`);
+  }
+
+  // Cada bloque del tablero es un widget que se puede mover u ocultar
+  const W = {
+    racha: () => `
+      <div class="scene-card">
+        ${scene(820, 230, 11)}
+        <div class="scene-fade"></div>
+        <div class="scene-body">
+          <div class="label">${greeting()} · ${dateTxt}</div>
+          <div class="streak-row">
+            <span class="flame ic"><svg viewBox="0 0 24 24">${ICONS.flame}</svg></span>
+            <span class="num">${stk.cur}</span>
+            <span class="lbl">día${stk.cur === 1 ? "" : "s"} de racha<br>mejor: ${stk.best}</span>
+          </div>
+          <div class="wk">${stk.semana.map(d => {
+            const marca = d.estado === "done" ? `<svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>`
+              : d.estado === "missed" ? `<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>`
+              : d.dia;
+            const qué = d.n > 0 ? `${d.n} registro${d.n === 1 ? "" : "s"}`
+              : (d.estado === "hoy" ? "hoy, todavía nada" : (d.estado === "missed" ? "te lo saltaste" : (d.estado === "futuro" ? "aún no llega" : "antes de empezar")));
+            return `<div class="wk-d wk-${d.estado}${d.hoy && d.estado !== "hoy" ? " wk-hoy" : ""}" title="${escapeAttr(formatDate(d.key) + " · " + qué)}">
+              <span class="wk-l">${d.letra}</span><span class="wk-c">${marca}</span>
+            </div>`;
+          }).join("")}</div>
+        </div>
+      </div>`,
+
+    misiones: () => {
+      const { due, done, pct } = todayMissionStats();
+      if (!due.length) return "";
+      const key = todayKey();
+      const pend = due.filter(m => !missionDone(m, key));
+      return `
+      <div class="panel ms-today">
+        <div class="mt-head">
+          <div class="ring-wrap" style="width:64px;height:64px">
+            ${ring(64, 7, [{ pct: pct / 100, color: "#5fe0b0" }], "#2a3441")}
+            <div class="ring-center"><div class="v" style="font-size:15px"><b>${done.length}/${due.length}</b></div></div>
+          </div>
+          <div class="mt-tx">
+            <b>Misiones de hoy</b>
+            <span>${pend.length === 0 ? "Todas cumplidas" : `${pend.length} pendiente${pend.length === 1 ? "" : "s"}`}</span>
+          </div>
+          <button class="btn btn-soft btn-sm" onclick="showView('missions')">Ver todas</button>
+        </div>
+        ${pend.length ? `<div class="ms-list" style="margin-top:14px">
+          ${pend.slice(0, 4).map(m => {
+            const c = missionCount(m, key), t = missionTarget(m);
+            return `<div class="ms-card" style="--mc:${m.color || "#5fe0b0"}">
+              ${botonMision(m, c, t)}
+              <div class="ms-body"><div class="ms-name">${escapeHtml(m.name)}</div></div>
+            </div>`;
+          }).join("")}
+        </div>` : ""}
+      </div>`;
+    },
+
+    niveles: () => {
+      const totalXp = skills.reduce((a, s) => a + (s.xp || 0), 0);
+      // La habilidad más cerca de subir: es lo único accionable de la tarjeta
+      let cerca = null;
+      skills.forEach(s => {
+        const li = levelInfo(s.xp);
+        if (li.level >= MAX_LEVEL) return;
+        if (!cerca || li.pct > cerca.pct) {
+          cerca = { s, pct: li.pct, falta: li.needed - li.inLevel, nivel: li.level + 1 };
+        }
+      });
+      return `
+      <button class="sum-card a" onclick="showView('home')" style="width:100%">
+        ${icon("chart", 22)}
+        <div class="n">${totalLevels}</div>
+        <div class="t">niveles en ${skills.length} habilidad${skills.length === 1 ? "" : "es"}</div>
+        <div class="sc-rows">
+          <div><b>${totalXp.toLocaleString("es-MX")}</b><span>XP TOTAL</span></div>
+          ${decayingList.length ? `<div><b style="color:var(--fire)">${decayingList.length}</b><span>DECAYENDO</span></div>` : ""}
+        </div>
+        ${cerca ? `<div class="sc-near">
+          <span>A ${cerca.falta} XP del nivel ${cerca.nivel}</span>
+          <b>${escapeHtml(cerca.s.name)}</b>
+          <i style="--p:${cerca.pct}%;--c:${cerca.s.color}"></i>
+        </div>` : ""}
+      </button>`;
+    },
+
+    invertido: () => {
+      const enCurso = activeList.length + dueList.length;
+      const permanentes = state.perks.filter(p => p.status === "completed").length;
+      const porAbrir = Math.max(0, state.perks.length - permanentes - enCurso);
+      // El talento en curso que más cerca está de cerrarse
+      let cerca = null;
+      [...activeList, ...dueList].forEach(p => {
+        const pct = perkProgress(p);
+        if (!cerca || pct > cerca.pct) cerca = { p, pct };
+      });
+      return `
+      <button class="sum-card b" onclick="showView('tree')" style="width:100%">
+        ${icon("map", 22)}
+        <div class="n">${money(invested)}</div>
+        <div class="t">invertido en ti</div>
+        <div class="sc-rows">
+          <div><b style="color:var(--mint)">${permanentes}</b><span>PERMANENTES</span></div>
+          <div><b${enCurso ? ` style="color:var(--fire)"` : ""}>${enCurso}</b><span>EN CURSO</span></div>
+          <div><b>${porAbrir}</b><span>POR ABRIR</span></div>
+        </div>
+        ${cerca ? `<div class="sc-near">
+          <span>${cerca.pct}% hecho, lo más avanzado</span>
+          <b>${escapeHtml(cerca.p.name)}</b>
+          <i style="--p:${cerca.pct}%;--c:${cerca.p.color || "var(--fire)"}"></i>
+        </div>` : ""}
+      </button>`;
+    },
+
+    proyectos: () => {
+      const live = projects.filter(p => p.status === "active" || p.status === "paused");
+      if (!live.length) return "";
+      return `
+      <button class="sum-card wide" onclick="showView('projects')" style="width:100%">
+        <div class="sw-head">
+          ${icon("flag", 20)}
+          <span>Proyectos</span>
+          <span class="sw-go">→</span>
+        </div>
+        <div class="sw-rows">
+          ${live.slice(0, 4).map(p => {
+            const pg = projectProgress(p), hh = projectHealth(p);
+            return `<div class="sw-row">
+              <span class="sw-name">${escapeHtml(p.name)}</span>
+              <span class="sw-bar"><i style="width:${pg}%;background:${p.color}"></i></span>
+              <span class="sw-pct" style="color:${hh.color}">${pg}%</span>
+            </div>`;
+          }).join("")}
+        </div>
+      </button>`;
+    },
+
+    atencion: () => `
+      <div class="panel">
+        <h3>Atención hoy</h3>
+        ${attention.length ? attention.join("") : `<p class="settings-note" style="margin:0">Todo bajo control. Nada urge hoy — sigue explorando.</p>`}
+      </div>`,
+
+    listos: () => !readyList.length ? "" : `
+      <div class="panel alt ready-panel">
+        <h3>Listos para empezar</h3>
+        <p class="settings-note">Estos talentos están desbloqueados y esperando. Empieza uno para ponerlo en progreso.</p>
+        <div class="ready-grid">
+          ${readyList.slice(0, 6).map(p => `
+            <button class="ready-chip" onclick="openPerk('${p.id}')" style="--rc:${p.color || "#5fe0b0"}">
+              <span class="rc-ic">${icon(p.icon, 17)}</span>
+              <span class="rc-tx">
+                <b>${escapeHtml(p.name)}</b>
+                <span>${escapeHtml(p.branch || "General")}${p.cost > 0 ? " · " + money(p.cost) : ""}</span>
+              </span>
+            </button>`).join("")}
+        </div>
+        ${readyList.length > 6 ? `<p class="settings-note" style="margin:12px 0 0">y ${readyList.length - 6} más en el árbol.</p>` : ""}
+      </div>`
+  };
+
+  const { order, hidden } = dashLayout();
+  /* Una tarjeta que resume un módulo apagado no tiene a dónde llevar, así
+     que desaparece con él. No se toca la configuración del tablero: al
+     volver a encender el módulo, su tarjeta reaparece donde estaba. */
+  const piezas = order
+    .filter(id => !hidden.includes(id) && (!DASH_MODULO[id] || moduloOn(DASH_MODULO[id])))
+    .map(id => {
+      const body = W[id] ? W[id]() : "";
+      if (!body) return "";
+      const meta = DASH_META[id];
+      const sz = dashSize(id);
+      return `
+      <div class="widget" data-w="${id}" style="--w:${sz.w};--h:${sz.h}">
+        ${body}
+        <div class="w-edit">
+          <span class="w-grip">${icon("map", 14)} ${escapeHtml(meta.title)}</span>
+          <button class="w-hide" onclick="hideWidget('${id}')" aria-label="Quitar ${escapeAttr(meta.title)}">✕</button>
+        </div>
+        <button class="w-resize" aria-label="Cambiar tamaño de ${escapeAttr(meta.title)}">
+          <svg viewBox="0 0 24 24"><path d="M20 10v10H10M20 20l-9-9"/></svg>
+        </button>
+      </div>`;
+    })
+    .filter(Boolean);
+
+  /* El botón de acomodar aparece cuando hay algo que acomodar. Con una sola
+     tarjeta no existe un orden que elegir, así que ofrecerlo antes es enseñar
+     una herramienta que no puede hacer nada — y recién estrenada la app es
+     justo cuando más despista. */
+  if (piezas.length < 2) dashEditing = false;
+  if (btnTablero) btnTablero.style.display = piezas.length > 1 ? "" : "none";
+
+  el.className = dashEditing ? "dash editing" : "dash";
+  el.innerHTML = (dashEditing ? dashTray(hidden) : "") + piezas.join("");
+
+  marcarDesbordes();
+  if (dashEditing) attachDashHandlers();
+}
+
+/* ================= Tablero personalizable =================
+   El Resumen es una rejilla de widgets: se reordenan arrastrando
+   (mantén pulsado para entrar en modo edición) y se pueden quitar o volver a añadir. */
+
+const DASH_META = {
+  racha:     { title: "Racha", w: 2, h: 5 },
+  misiones:  { title: "Misiones de hoy", w: 1, h: 8 },
+  atencion:  { title: "Atención hoy", w: 1, h: 3 },
+  niveles:   { title: "Niveles", w: 1, h: 3 },
+  invertido: { title: "Invertido", w: 1, h: 3 },
+  proyectos: { title: "Proyectos", w: 1, h: 3 },
+  listos:    { title: "Listos para empezar", w: 1, h: 4 }
+};
+const DASH_DEFAULT = ["racha", "misiones", "atencion", "niveles", "invertido", "proyectos", "listos"];
+/* Qué módulo alimenta cada tarjeta del tablero. "racha" y "atencion" no
+   aparecen porque se nutren de todo y siguen teniendo sentido con
+   cualquier combinación encendida. */
+const DASH_MODULO = {
+  misiones: "missions", niveles: "home",
+  invertido: "tree", listos: "tree", proyectos: "projects"
+};
+const ROW_H = 56, ROW_GAP = 22;
+/* Suelo de encogimiento, medido tarjeta por tarjeta: por debajo de esto
+   deja de comunicar. No es una cifra común porque no todas dicen lo mismo
+   —"Listos para empezar" es una lista y necesita cuatro; "Proyectos" es un
+   dato suelto y se apaña con dos—. El techo sigue siendo el mismo para
+   todas: encoger estropea, agrandar no. */
+const DASH_MIN_H = { racha: 3, misiones: 3, atencion: 2, niveles: 3, invertido: 3, proyectos: 2, listos: 4 };
+/* Techo generoso: son 40 filas de la cuadrícula, más de dos pantallas de
+   alto. Existe solo para que un tirón desbocado del asa no deje una tarjeta
+   de mil filas imposible de volver a encoger. */
+const DASH_MAX_H = 40;
+
+let dashEditing = false;
+
+function dashLayout() {
+  const d = (state.ui && state.ui.dash) || {};
+  const saved = Array.isArray(d.order) ? d.order.filter(id => DASH_META[id]) : [];
+  const order = [...saved, ...DASH_DEFAULT.filter(id => !saved.includes(id))];
+  return {
+    order,
+    hidden: Array.isArray(d.hidden) ? d.hidden : [],
+    sizes: d.sizes || {}
+  };
+}
+
+function altoMinimo(id) { return DASH_MIN_H[id] || 2; }
+
+/* El suelo se aplica al LEER, no solo al arrastrar. Si no, un tablero
+   guardado con la altura vieja se seguiría pintando por debajo del mínimo
+   para siempre: el usuario nunca vuelve a tocar esa tarjeta y el valor
+   antiguo se queda mandando. */
+function dashSize(id) {
+  const { sizes } = dashLayout();
+  const s = sizes[id] || {};
+  return {
+    w: s.w || DASH_META[id].w,
+    h: clamp(s.h || DASH_META[id].h, altoMinimo(id), DASH_MAX_H)
+  };
+}
+
+function saveDash(order, hidden, sizes) {
+  state.ui = state.ui || {};
+  const cur = state.ui.dash || {};
+  state.ui.dash = {
+    order: order || cur.order,
+    hidden: hidden || cur.hidden || [],
+    sizes: sizes || cur.sizes || {}
+  };
+  save();
+}
+
+/* Y también al GUARDAR. Es el único punto por el que entra un tamaño nuevo,
+   así que sujetarlo aquí garantiza que en disco nunca quede nada por debajo
+   del suelo, venga del arrastre o de donde venga. */
+function setWidgetSize(id, w, h) {
+  const { sizes } = dashLayout();
+  sizes[id] = { w, h: clamp(h, altoMinimo(id), DASH_MAX_H) };
+  saveDash(null, null, sizes);
+}
+
+/* ---- Deshacer del tablero ----
+   Acomodar el Resumen es prueba y error: se mueve algo, se ve cómo queda y
+   a veces la respuesta es "estaba mejor antes". Sin una salida atrás, esa
+   última parte obliga a reconstruir a mano lo que ya estaba bien.
+
+   Guarda una copia del reparto entero —orden, ocultas y tamaños— antes de
+   cada acción. Es un puñado de bytes por paso, así que la pila puede ser
+   larga sin que importe.
+
+   La pila NO se comparte con la del editor de talentos: son dos pantallas
+   distintas y Ctrl+Z tiene que deshacer lo que el usuario está mirando, no
+   lo último que tocó en cualquier sitio. */
+const DASH_UNDO_MAX = 40;
+let dashUndo = [];
+
+function instantaneaTablero() {
+  const { order, hidden, sizes } = dashLayout();
+  return JSON.stringify({ order, hidden, sizes });
+}
+
+function recordarTablero(etiqueta) {
+  dashUndo.push({ snap: instantaneaTablero(), etiqueta });
+  if (dashUndo.length > DASH_UNDO_MAX) dashUndo.shift();
+}
+
+/* Se llama al terminar una acción: si el tablero quedó igual que antes de
+   empezarla —un arrastre que vuelve a su sitio, un tirón del asa que no
+   llegó a cambiar de fila— el paso sobra. Sin esto, deshacer gastaría
+   pulsaciones en revertir cosas que nunca llegaron a pasar. */
+function olvidarPasoVacio() {
+  if (dashUndo.length && dashUndo[dashUndo.length - 1].snap === instantaneaTablero()) dashUndo.pop();
+}
+
+function deshacerTablero() {
+  if (!dashUndo.length) { toast("No hay nada que deshacer en el tablero", "atencion"); return; }
+  const prev = dashUndo.pop();
+  const d = JSON.parse(prev.snap);
+  saveDash(d.order, d.hidden, d.sizes);
+  renderSummary();
+  toast(`Deshecho: ${prev.etiqueta}`, "deshecho");
+}
+
+/* Qué pasa cuando el contenido no cabe en el alto elegido.
+   Hubo una versión donde la tarjeta crecía sola hasta que cupiera todo. Era
+   frustrante por una razón concreta: convertía el tamaño elegido en una
+   sugerencia. Uno ajustaba la tarjeta, salía de edición y la veía volver a
+   otro alto, sin manera de saber si se había guardado. El tamaño lo decide
+   el usuario, punto; el suelo por tarjeta (DASH_MIN_H) ya garantiza que
+   ninguna pueda quedar tan aplastada que no comunique nada.
+
+   Lo que sobra no se corta a hachazos: se desvanece hacia abajo. Un corte
+   limpio a media línea parece un error de maquetación; un degradado dice
+   "esto sigue" y deja el último renglón legible a medias, que es
+   exactamente la información que hace falta.
+
+   El color y el redondeo del velo se leen de la propia tarjeta en vez de
+   escribirse a mano, porque cada widget tiene los suyos —unos son .panel,
+   otros .sum-card— y una constante aquí se desincronizaría del CSS a la
+   primera que alguien cambiara un radio. */
+function marcarDesbordes() {
+  document.querySelectorAll("#summary-content .widget").forEach(el => {
+    const body = el.querySelector(":scope > *:not(.w-edit):not(.w-resize)");
+    // Solo en escritorio hay alto fijo; en móvil la tarjeta ocupa lo que necesita
+    if (!body || !isDesktop()) { el.classList.remove("rebosa"); return; }
+    const rebosa = body.scrollHeight - body.clientHeight > 4;
+    el.classList.toggle("rebosa", rebosa);
+    if (!rebosa) return;
+    const cs = getComputedStyle(body);
+    const fondo = cs.backgroundColor;
+    const opaco = fondo && !/^rgba\(0, 0, 0, 0\)$|transparent/.test(fondo);
+    el.style.setProperty("--fundido", opaco ? fondo : "var(--card)");
+    el.style.setProperty("--rad-bl", cs.borderBottomLeftRadius);
+    el.style.setProperty("--rad-br", cs.borderBottomRightRadius);
+  });
+}
+
+function dashTray(hidden) {
+  const avail = Object.keys(DASH_META).filter(id => hidden.includes(id));
+  return `
+  <div class="dash-tray full-row">
+    <div class="tray-head">
+      <div class="tray-tx">
+        <h3>Modo edición</h3>
+        <p class="settings-note" style="margin:0">Arrastra para acomodar · esquina inferior derecha para cambiar el tamaño · ✕ para quitar${
+          /* El atajo solo se menciona donde funciona: en el teléfono no hay
+             teclado a mano y anunciarlo sería ruido. */
+          isDesktop() ? ` · <kbd>Ctrl</kbd><kbd>Z</kbd> deshacer` : ""}</p>
+      </div>
+      <button class="btn btn-primary" onclick="setDashEdit(false)">Listo</button>
+    </div>
+    ${avail.length ? `
+      <div class="tray-chips">
+        ${avail.map(id => `<button class="tray-chip" onclick="showWidget('${id}')">＋ ${escapeHtml(DASH_META[id].title)}</button>`).join("")}
+      </div>` : ""}
+  </div>`;
+}
+
+function setDashEdit(on) {
+  dashEditing = on;
+  renderSummary();
+  if (on) toast("Arrastra las tarjetas para reacomodarlas", "hecho");
+}
+
+function hideWidget(id) {
+  const { order, hidden } = dashLayout();
+  if (hidden.includes(id)) return;
+  recordarTablero(`quitar ${DASH_META[id].title}`);
+  saveDash(order, [...hidden, id]);
+  flipRender(document.getElementById("summary-content"), renderSummary);
+  toast(`${DASH_META[id].title} quitado del tablero`, "deshecho");
+}
+
+function showWidget(id) {
+  const { order, hidden } = dashLayout();
+  recordarTablero(`añadir ${DASH_META[id].title}`);
+  saveDash(order, hidden.filter(h => h !== id));
+  flipRender(document.getElementById("summary-content"), renderSummary);
+}
+
+/* Anima el reacomodo: mide antes, vuelve a dibujar y desliza desde la posición vieja. */
+function flipRender(container, renderFn) {
+  const before = new Map();
+  [...container.children].forEach(c => {
+    if (c.dataset.w) before.set(c.dataset.w, c.getBoundingClientRect());
+  });
+  renderFn();
+  [...container.children].forEach(c => {
+    const b = before.get(c.dataset.w);
+    if (!b) return;
+    const a = c.getBoundingClientRect();
+    const dx = b.left - a.left, dy = b.top - a.top;
+    if (!dx && !dy) return;
+    c.style.transition = "none";
+    c.style.transform = `translate(${dx}px, ${dy}px)`;
+    requestAnimationFrame(() => {
+      c.style.transition = "transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)";
+      c.style.transform = "";
+    });
+  });
+}
+
+function attachDashHandlers() {
+  const cont = document.getElementById("summary-content");
+  if (cont.dataset.bound) return;
+  cont.dataset.bound = "1";
+
+  let holdTimer = null, dragId = null, ghost = null, startPt = null;
+  let sizeId = null, sizeStart = null, cellW = 0;
+
+  const cols = () => {
+    const t = getComputedStyle(cont).gridTemplateColumns.split(" ").filter(Boolean);
+    return Math.max(1, t.length);
+  };
+
+  const startDrag = (id, e) => {
+    /* Un solo paso por arrastre, no uno por cada intercambio del camino:
+       deshacer debe devolver la tarjeta a donde estaba antes de agarrarla,
+       que es lo que el usuario recuerda. */
+    recordarTablero(`mover ${DASH_META[id].title}`);
+    dragId = id;
+    const el = cont.querySelector(`.widget[data-w="${id}"]`);
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    ghost = el.cloneNode(true);
+    ghost.className = "widget ghost";
+    ghost.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;pointer-events:none;z-index:400;`;
+    ghost.dataset.dx = e.clientX - r.left;
+    ghost.dataset.dy = e.clientY - r.top;
+    document.body.appendChild(ghost);
+    el.classList.add("dragging");
+    if (userHasTapped && navigator.vibrate) navigator.vibrate(12);
+  };
+
+  cont.addEventListener("pointerdown", (e) => {
+    const w = e.target.closest(".widget");
+    if (!w || e.target.closest(".w-hide")) return;
+
+    // Esquina inferior derecha: cambia el tamaño en unidades de la cuadrícula
+    if (e.target.closest(".w-resize")) {
+      recordarTablero(`tamaño de ${DASH_META[w.dataset.w].title}`);
+      sizeId = w.dataset.w;
+      const total = cont.getBoundingClientRect().width;
+      const n = cols();
+      cellW = (total - ROW_GAP * (n - 1)) / n;
+      // Se parte del tamaño que se ve en pantalla, no del guardado
+      sizeStart = {
+        x: e.clientX, y: e.clientY, max: n,
+        w: +w.style.getPropertyValue("--w") || dashSize(sizeId).w,
+        h: +w.style.getPropertyValue("--h") || dashSize(sizeId).h
+      };
+      w.classList.add("sizing");
+      try { cont.setPointerCapture(e.pointerId); } catch (err) {}
+      e.preventDefault();
+      return;
+    }
+
+    startPt = { x: e.clientX, y: e.clientY };
+    if (dashEditing) {
+      startDrag(w.dataset.w, e);
+      try { cont.setPointerCapture(e.pointerId); } catch (err) {}
+      e.preventDefault();
+    } else {
+      // Pulsación sostenida: entra en modo edición y arrastra de una vez
+      holdTimer = setTimeout(() => {
+        holdTimer = null;
+        dashEditing = true;
+        renderSummary();
+        startDrag(w.dataset.w, e);
+        try { cont.setPointerCapture(e.pointerId); } catch (err) {}
+      }, 420);
+    }
+  });
+
+  cont.addEventListener("pointermove", (e) => {
+    if (sizeId) {
+      e.preventDefault();
+      const el = cont.querySelector(`.widget[data-w="${sizeId}"]`);
+      if (!el) return;
+      const dw = Math.round((e.clientX - sizeStart.x) / (cellW + ROW_GAP));
+      const dh = Math.round((e.clientY - sizeStart.y) / ROW_H);
+      const w = clamp(sizeStart.w + dw, 1, sizeStart.max);
+      const h = clamp(sizeStart.h + dh, altoMinimo(sizeId), DASH_MAX_H);
+      el.style.setProperty("--w", w);
+      el.style.setProperty("--h", h);
+      return;
+    }
+    if (holdTimer && startPt && Math.hypot(e.clientX - startPt.x, e.clientY - startPt.y) > 10) {
+      clearTimeout(holdTimer); holdTimer = null;   // se movió: era desplazamiento, no pulsación
+    }
+    if (!dragId || !ghost) return;
+    e.preventDefault();
+    ghost.style.left = (e.clientX - ghost.dataset.dx) + "px";
+    ghost.style.top = (e.clientY - ghost.dataset.dy) + "px";
+
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    const target = under && under.closest(".widget");
+    if (!target || target.dataset.w === dragId) return;
+
+    /* Dónde cae la tarjeta se decide por la posición del puntero dentro de
+       la que tiene debajo, no por cuál fue la última que pisó.
+
+       La versión anterior se acordaba de la última (lastOver) y se saltaba
+       cualquier movimiento sobre ella. Eso hacía imposible arrepentirse: al
+       soltar una tarjeta sobre otra quedaban intercambiadas, y volver atrás
+       exigía pasar por una tercera para "olvidar" la anterior. Había que
+       recolocarla a mano en vez de simplemente devolverla.
+
+       El guardián existía por algo real: sin él, recalcular el orden sobre
+       la misma tarjeta la hacía oscilar entre dos posiciones a cada píxel.
+       La regla del punto medio lo arregla de raíz porque no tiene memoria —
+       el resultado depende solo de dónde está el puntero ahora—, así que
+       volver sobre tus pasos devuelve exactamente el orden de partida. */
+    const r = target.getBoundingClientRect();
+    const centro = r.top + r.height / 2;
+    const despues = e.clientY > centro || (e.clientY === centro && e.clientX > r.left + r.width / 2);
+
+    const { order, hidden } = dashLayout();
+    const sinLaQueMuevo = order.filter(id => id !== dragId);
+    let destino = sinLaQueMuevo.indexOf(target.dataset.w);
+    if (destino < 0) return;
+    if (despues) destino++;
+    const nuevo = [...sinLaQueMuevo.slice(0, destino), dragId, ...sinLaQueMuevo.slice(destino)];
+    if (nuevo.join() === order.join()) return;      // ya estaba justo ahí
+
+    saveDash(nuevo, hidden);
+    flipRender(cont, renderSummary);
+  });
+
+  const endDrag = () => {
+    if (sizeId) {
+      const el = cont.querySelector(`.widget[data-w="${sizeId}"]`);
+      if (el) {
+        /* El respaldo del alto es el suelo de ESA tarjeta, no un 2 fijo:
+           con el fijo, un widget cuyo mínimo es 4 podía guardarse en 2 si
+           la propiedad venía vacía. */
+        setWidgetSize(sizeId,
+          +el.style.getPropertyValue("--w") || 1,
+          +el.style.getPropertyValue("--h") || altoMinimo(sizeId));
+        el.classList.remove("sizing");
+      }
+      sizeId = null; sizeStart = null;
+      olvidarPasoVacio();
+      marcarDesbordes();          // al cambiar el alto cambia lo que sobra
+      return;
+    }
+    if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+    if (ghost) { ghost.remove(); ghost = null; }
+    const el = cont.querySelector(".widget.dragging");
+    if (el) el.classList.remove("dragging");
+    if (dragId) olvidarPasoVacio();
+    dragId = null; startPt = null;
+  };
+  cont.addEventListener("pointerup", endDrag);
+  cont.addEventListener("pointercancel", endDrag);
+}
+
+/* ================= Render: habilidades ================= */
+
+function renderHome() {
+  const skills = state.skills;
+
+  const totalLevels = skills.reduce((acc, s) => acc + levelInfo(s.xp).level, 0);
+  const totalXp = skills.reduce((acc, s) => acc + s.xp, 0);
+  const decaying = skills.filter(isDecaying).length;
+  const permanent = skills.filter(s => s.permanent).length;
+
+  // Lo que más urge practicar: la que ya decae, o la más cercana a subir de nivel
+  const decayList = skills.filter(isDecaying);
+  const closest = [...skills].filter(s => levelInfo(s.xp).level < MAX_LEVEL)
+    .sort((a, b) => levelInfo(b.xp).pct - levelInfo(a.xp).pct)[0];
+  let hFocus;
+  if (decayList.length) {
+    hFocus = { k: "Perdiendo XP", v: decayList[0].name, color: "var(--fire)", onclick: `openDetail('${decayList[0].id}')` };
+  } else if (closest) {
+    const li = levelInfo(closest.xp);
+    hFocus = { k: `A ${li.needed - li.inLevel} XP del nivel ${li.level + 1}`, v: closest.name, color: "var(--mint)", pct: li.pct, onclick: `openDetail('${closest.id}')` };
+  } else {
+    hFocus = { k: "Todo al máximo", v: "No queda nivel por subir", color: "var(--mint)" };
+  }
+
+  document.getElementById("home-hero").innerHTML = skills.length === 0 ? "" : sectionHero({
+    scene: scene(820, 168, 23),
+    lead: `<div>
+      <div class="label">Nivel de tu personaje</div>
+      <div class="big"><b>${totalLevels}</b><span> niveles</span></div>
+    </div>`,
+    stats: [
+      { n: skills.length, t: "Habilidades" },
+      { n: fmtXp(totalXp), t: "XP total" },
+      { n: skills.filter(s => s.permanent).length, t: "Blindadas", tone: "mint" },
+      { n: decaying, t: "Decayendo", tone: decaying ? "fire" : "" }
+    ],
+    focus: hFocus
+  });
+
+  /* Panel de lo que está decayendo. Antes solo se veía un número y el
+     nombre de una: no decía cuáles, ni cuánto queda, ni qué hacer. Ahora
+     lista hasta cinco con sus días reales para bajar de nivel, resume el
+     resto, y termina diciendo la única cosa que lo detiene. */
+  const zona = document.getElementById("decay-zone");
+  if (zona) {
+    if (!decayList.length) {
+      zona.innerHTML = "";
+    } else {
+      const orden = [...decayList].sort((a, b) => (diasParaBajarNivel(a) || 999) - (diasParaBajarNivel(b) || 999));
+      const visibles = orden.slice(0, 5);
+      const resto = orden.length - visibles.length;
+      zona.innerHTML = `
+      <div class="panel decay-panel">
+        <div class="panel-head">
+          <h3 style="margin:0">Perdiendo XP</h3>
+          <span class="dz-count">${orden.length}</span>
+        </div>
+        <div class="dz-list">
+          ${visibles.map(s => {
+            const d = diasParaBajarNivel(s);
+            const nv = levelInfo(s.xp).level;
+            return `
+            <button class="dz-row" onclick="openDetail('${s.id}')">
+              <span class="dz-ic" style="background:${s.color}22;color:${s.color}">${icon(s.icon, 15)}</span>
+              <span class="dz-tx">
+                <b>${escapeHtml(s.name)}</b>
+                <span>−${desgasteDiario(s)} XP al día${d ? ` · ${d} día${d === 1 ? "" : "s"} para caer al nivel ${nv - 1}` : ""}</span>
+              </span>
+              <span class="go">→</span>
+            </button>`;
+          }).join("")}
+          ${resto > 0 ? `<div class="dz-mas">y ${resto} habilidad${resto === 1 ? "" : "es"} más</div>` : ""}
+        </div>
+        <p class="settings-note" style="margin:12px 0 0">
+          Se detiene con registrar cualquier práctica, cumplir una misión enlazada o avanzar un talento o proyecto que la entrene. Con eso vuelve a contar desde cero su periodo de gracia.
+        </p>
+      </div>`;
+    }
+  }
+
+  const cats = ["Todas", ...new Set(skills.map(s => s.category).filter(Boolean))];
+  if (!cats.includes(activeCategory)) activeCategory = "Todas";
+  document.getElementById("chips").innerHTML = skills.length === 0 ? "" : cats.map(c =>
+    `<button class="chip ${c === activeCategory ? "active" : ""}" onclick="setCategory('${escapeAttr(c)}')">${escapeHtml(c)}</button>`
+  ).join("");
+
+  const list = document.getElementById("skill-list");
+  const visible = activeCategory === "Todas" ? skills : skills.filter(s => s.category === activeCategory);
+
+  renderHomeTools();
+
+  // Con una sola habilidad no hay nada que reordenar y la pista sobra
+  const pista = document.getElementById("hb-hint");
+  if (pista) pista.textContent = (visible.length > 1 && !seleccionHab) ? pistaReordenar() : "";
+
+  if (skills.length === 0) {
+    list.innerHTML = `
+      <div class="empty">
+        <div class="bubble">${icon("star", 34)}</div>
+        <h2>Sin habilidades todavía</h2>
+        <p>Empieza por el catálogo: verlas en cero es lo que te recuerda que existen. Luego puedes crear las tuyas.</p>
+        <div class="stack" style="align-items:center">
+          <button class="btn btn-primary" onclick="openCatalogo()">Ver el catálogo</button>
+          <button class="btn btn-ghost" onclick="openSkillForm()">Crear una a mano</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const enSeleccion = !!seleccionHab;
+  /* El XP decide el orden de salida, pero lo que el usuario haya acomodado
+     a mano manda por encima: si movió algo ahí quiso dejarlo. Las que nunca
+     tocó siguen ordenadas por XP, porque ordenarPor conserva el orden de
+     entrada de las que no figuran en la lista guardada. */
+  const sorted = ordenarPor([...visible].sort((a, b) => b.xp - a.xp), "habOrden");
+  list.innerHTML = sorted.map((s, i) => {
+    const li = levelInfo(s.xp);
+    const marcada = enSeleccion && seleccionHab.has(s.id);
+    const tab = isDecaying(s)
+      ? `<span class="skill-tab warn">▾ perdiendo XP</span>`
+      : (s.permanent ? `<span class="skill-tab perm">${icon("shield", 10)}blindada</span>` : "");
+    const pct = li.level >= MAX_LEVEL ? 1 : li.pct / 100;
+    return `
+    <button type="button" class="skill-card ${i % 2 === 0 ? "r-a" : "r-b"}${marcada ? " marcada" : ""}"
+      data-rid="${s.id}"
+      onclick="${enSeleccion ? `toggleHabSel('${s.id}')` : `openDetail('${s.id}')`}">
+      ${tab}
+      ${enSeleccion ? `<span class="hb-check">${marcada ? icon("check", 13) : ""}</span>` : ""}
+      <div class="skill-emoji" style="background:${s.color}26;color:${s.color}">${icon(s.icon, 23)}</div>
+      <div class="skill-info">
+        <div class="skill-name">${escapeHtml(s.name)}</div>
+        <div class="skill-meta">${escapeHtml(s.category || "Sin categoría")}</div>
+      </div>
+      ${enSeleccion ? "" : `<div class="mini-ring">
+        ${ring(46, 4.5, [{ pct, color: s.color }], "#2a3441")}
+        <span class="lv" style="color:${s.color}">${li.level}</span>
+      </div>`}
+    </button>`;
+  }).join("");
+
+  /* Reordenar a mano, salvo mientras se marcan habilidades para borrar: ahí
+     el mismo gesto ya significa otra cosa. */
+  hacerReordenable(list, ".skill-card", (ids) => {
+    guardarOrden("habOrden", ids);
+    renderHome();
+  }, () => !seleccionHab);
+}
+
+/* Barra de acciones sobre la lista: añadir del catálogo y quitar en bloque. */
+function renderHomeTools() {
+  const el = document.getElementById("hb-tools");
+  if (!el) return;
+  if (!state.skills.length) { el.innerHTML = ""; return; }
+  if (seleccionHab) {
+    const n = seleccionHab.size;
+    el.innerHTML = `
+      <button class="btn btn-ghost hb-b" onclick="toggleSeleccionHab()">Cancelar</button>
+      <button class="btn btn-danger-ghost hb-b" ${n ? "" : "disabled"} onclick="borrarSeleccionHab()">
+        ${n ? `Borrar ${n}` : "Marca alguna"}
+      </button>`;
+    return;
+  }
+  el.innerHTML = `
+    <button class="btn btn-soft hb-b" onclick="openCatalogo()">＋ Del catálogo</button>
+    <button class="btn btn-ghost hb-b" onclick="toggleSeleccionHab()">Seleccionar</button>`;
+}
+
+/* ================= Catálogo de habilidades =================
+   La idea es que el tablero enseñe también lo que NO has desarrollado. Ver
+   "Botánica 0" o "Pesca 0" propone algo; una lista con solo lo que ya
+   practicas no propone nada. Todas nacen en cero y se pueden quitar en
+   bloque, porque la lista es del usuario, no nuestra. */
+
+const SKILL_CATALOG = [
+  // Salud y cuerpo
+  { n: "Ejercicio",      c: "Salud",       i: "dumbbell", k: "#ff8a70" },
+  { n: "Correr",         c: "Salud",       i: "bolt",     k: "#ff8a70" },
+  { n: "Natación",       c: "Salud",       i: "target",   k: "#6fc3e8" },
+  { n: "Yoga",           c: "Salud",       i: "heart",    k: "#b7a2ea" },
+  { n: "Meditación",     c: "Salud",       i: "heart",    k: "#b7a2ea" },
+  { n: "Ciclismo",       c: "Salud",       i: "bolt",     k: "#8fd18a" },
+  { n: "Escalada",       c: "Salud",       i: "flag",     k: "#f5d76e" },
+  { n: "Baile",          c: "Salud",       i: "music",    k: "#f0a5c0" },
+  { n: "Primeros auxilios", c: "Salud",    i: "heart",    k: "#ff8a70" },
+  /* El sitio donde caben las rutinas mínimas —beber agua, lavarse los
+     dientes, dormir a horas—. Sin ella, misiones así se quedaban sin
+     habilidad a la que sumar o acababan colgadas de Ejercicio, que no es
+     lo mismo: cuidarse no es entrenar. */
+  { n: "Cuidado personal", c: "Salud",     i: "smile",    k: "#6fc3e8" },
+
+  // Casa y oficios
+  { n: "Cocina",         c: "Casa",        i: "coffee",   k: "#f5d76e" },
+  { n: "Repostería",     c: "Casa",        i: "coffee",   k: "#f0a5c0" },
+  { n: "Jardinería",     c: "Casa",        i: "plant",    k: "#8fd18a" },
+  { n: "Botánica",       c: "Casa",        i: "plant",    k: "#5fe0b0" },
+  { n: "Carpintería",    c: "Casa",        i: "wrench",   k: "#f5d76e" },
+  { n: "Reparaciones",   c: "Casa",        i: "wrench",   k: "#9aa7b8" },
+  { n: "Costura",        c: "Casa",        i: "pen",      k: "#b7a2ea" },
+  { n: "Mecánica",       c: "Casa",        i: "wrench",   k: "#9aa7b8" },
+  { n: "Electrónica",    c: "Casa",        i: "bolt",     k: "#6fc3e8" },
+
+  // Creatividad
+  { n: "Dibujo",         c: "Creatividad", i: "brush",    k: "#b7a2ea" },
+  { n: "Pintura",        c: "Creatividad", i: "brush",    k: "#f0a5c0" },
+  { n: "Fotografía",     c: "Creatividad", i: "camera",   k: "#6fc3e8" },
+  { n: "Escritura",      c: "Creatividad", i: "pen",      k: "#f5d76e" },
+  { n: "Caligrafía",     c: "Creatividad", i: "pen",      k: "#9aa7b8" },
+  { n: "Guitarra",       c: "Creatividad", i: "music",    k: "#ff8a70" },
+  { n: "Piano",          c: "Creatividad", i: "music",    k: "#eaf1ef" },
+  { n: "Canto",          c: "Creatividad", i: "mic",      k: "#f0a5c0" },
+  { n: "Cerámica",       c: "Creatividad", i: "gem",      k: "#f5d76e" },
+  { n: "Vídeo",          c: "Creatividad", i: "camera",   k: "#b7a2ea" },
+
+  // Aprendizaje
+  { n: "Idiomas",        c: "Aprendizaje", i: "globe",    k: "#6fc3e8" },
+  { n: "Programación",   c: "Aprendizaje", i: "code",     k: "#5fe0b0" },
+  { n: "Lectura",        c: "Aprendizaje", i: "book",     k: "#f5d76e" },
+  { n: "Astronomía",     c: "Aprendizaje", i: "star",     k: "#b7a2ea" },
+  { n: "Ajedrez",        c: "Aprendizaje", i: "crown",    k: "#9aa7b8" },
+  { n: "Historia",       c: "Aprendizaje", i: "book",     k: "#f5d76e" },
+  { n: "Oratoria",       c: "Aprendizaje", i: "mic",      k: "#ff8a70" },
+
+  // Vida adulta
+  { n: "Finanzas",       c: "Vida adulta", i: "coin",     k: "#5fe0b0" },
+  { n: "Carisma",        c: "Vida adulta", i: "smile",    k: "#6fc3e8" },
+  { n: "Negociación",    c: "Vida adulta", i: "chart",    k: "#f5d76e" },
+  { n: "Organización",   c: "Vida adulta", i: "map",      k: "#9aa7b8" },
+  { n: "Liderazgo",      c: "Vida adulta", i: "crown",    k: "#b7a2ea" },
+  { n: "Barismo",        c: "Vida adulta", i: "coffee",   k: "#f5d76e" },
+
+  // Aire libre
+  { n: "Pesca",          c: "Aire libre",  i: "rod",      k: "#6fc3e8" },
+  { n: "Senderismo",     c: "Aire libre",  i: "compass",  k: "#8fd18a" },
+  { n: "Supervivencia",  c: "Aire libre",  i: "flame",    k: "#ff8a70" },
+  { n: "Buceo",          c: "Aire libre",  i: "goggles",  k: "#6fc3e8" },
+  { n: "Orientación",    c: "Aire libre",  i: "compass",  k: "#f5d76e" }
+];
+
+/* ================= Adivinar qué habilidad sube =================
+   El objetivo es que el usuario no tenga que elegir a mano en cada
+   formulario. Probado contra los títulos reales de la app, buscar el nombre
+   de la habilidad dentro del título acierta 3 de 11 —y uno de esos tres es
+   un falso positivo ("Renovar la cocina" no es cocinar—, así que hace falta
+   un diccionario de verdad.
+
+   Dos pesos: los VERBOS (con "!") valen 3 y los sustantivos 1. No es un
+   capricho: el verbo dice qué HACES y el sustantivo suele ser el escenario.
+   En "Renovar la cocina", "cocina" es un lugar y "renovar" es la actividad;
+   sin esa diferencia, la XP se iría a Cocina en vez de a Reparaciones.
+
+   Nunca decide solo: propone, y lo que el usuario corrige se aprende. */
+
+const LEXICO = {
+  "Ejercicio":     "!entrenar !entreno !ejercitar !moverme gimnasio gym pesas rutina cardio abdominales flexiones sentadillas",
+  "Correr":        "!correr !corro !trotar carrera maraton running trote kilometros km 5k 10k zapatillas",
+  "Natación":      "!nadar !nado natacion alberca piscina brazadas crol",
+  "Yoga":          "!estirar yoga postura asana flexibilidad esterilla",
+  "Meditación":    "!meditar !respirar meditacion calma mindfulness silencio atencion plena",
+  "Ciclismo":      "!pedalear !rodar bici bicicleta ciclismo ruta pedaleo",
+  "Escalada":      "!escalar !trepar escalada muro boulder rocodromo",
+  "Baile":         "!bailar !danzar baile danza salsa coreografia",
+  "Primeros auxilios": "!auxiliar rcp botiquin emergencias primeros auxilios",
+  /* Las rutinas de mantenimiento del cuerpo. Lleva "!beber" y "!dormir"
+     porque son las dos que más aparecen escritas como misión, y "vasos",
+     "cepillo" y "protector" porque la gente escribe el objeto y no el
+     verbo: "ocho vasos", "hilo dental", "protector solar". */
+  "Cuidado personal": "!beber !hidratarme !dormir !cepillarme !lavarme !descansar !estirarme agua vasos dientes cepillo hilo dental piel crema protector solar higiene rutina sueño siesta uñas cabello ducha",
+
+  "Cocina":        "!cocinar !guisar !sofreir receta recetas sarten fogon comida platillo chef guiso",
+  "Repostería":    "!hornear !amasar !repostear pastel tarta galletas pan masa reposteria horno",
+  "Jardinería":    "!plantar !podar !regar !sembrar jardin maceta huerto semillas tierra planta",
+  "Botánica":      "!identificar botanica especies hojas flora herbario plantas",
+  "Carpintería":   "!lijar !ensamblar !tallar madera carpinteria sierra mueble tablon",
+  "Reparaciones":  "!reparar !arreglar !renovar !reformar !remodelar !instalar averia taladro obra fontaneria",
+  "Costura":       "!coser !bordar !remendar costura aguja hilo maquina patron tela",
+  "Mecánica":      "!desarmar mecanica motor coche taller aceite bujias",
+  "Electrónica":   "!soldar !cablear electronica circuito arduino soldadura placa",
+
+  "Dibujo":        "!dibujar !bocetar !ilustrar dibujo boceto ilustracion lapiz trazo",
+  "Pintura":       "!pintar !acuarela pintura oleo lienzo pincel mural",
+  "Fotografía":    "!fotografiar !retratar foto fotos fotografia camara retrato revelado encuadre",
+  "Escritura":     "!escribir !redactar !narrar escritura relato novela cuento articulo texto blog",
+  "Caligrafía":    "!caligrafiar caligrafia letras rotulacion pluma trazos lettering",
+  "Guitarra":      "!tocar guitarra acordes cuerdas guitarrista puentes",
+  "Piano":         "!tocar piano teclado teclas partitura pianista",
+  "Canto":         "!cantar canto voz coro afinacion karaoke",
+  "Cerámica":      "!modelar !tornear ceramica barro arcilla torno esmalte",
+  "Vídeo":         "!grabar !editar !montar video edicion metraje corto rodaje",
+
+  "Idiomas":       "!hablar !traducir idioma idiomas ingles frances aleman italiano portugues japones vocabulario gramatica duolingo",
+  "Programación":  "!programar !codear !desarrollar codigo software app web python javascript programacion",
+  "Lectura":       "!leer lectura libro libros pagina capitulo novela ensayo",
+  "Astronomía":    "!observar astronomia estrellas telescopio planetas cielo constelaciones",
+  "Ajedrez":       "!jugar ajedrez apertura tactica elo partidas tablero",
+  "Historia":      "!investigar historia epoca documental siglo museo",
+  "Oratoria":      "!hablar !exponer !presentar oratoria discurso publico presentacion charla",
+
+  "Finanzas":      "!ahorrar !invertir !presupuestar finanzas dinero gastos ahorro inversion presupuesto fondo deuda emergencia bolsa",
+  "Carisma":       "!conversar !socializar !platicar !conocer carisma conversacion gente social amigos trato empatia escucha red contactos",
+  "Negociación":   "!negociar !vender !cerrar negociacion trato cliente venta acuerdo precio",
+  "Organización":  "!organizar !ordenar !planificar organizacion agenda tramite papeles orden calendario",
+  "Liderazgo":     "!liderar !dirigir !coordinar !delegar liderazgo equipo junta reunion jefe mentoria feedback decision",
+  "Barismo":       "!preparar cafe barismo espresso molienda cafetera latte",
+
+  "Pesca":         "!pescar pesca caña anzuelo carnada rio muelle",
+  "Senderismo":    "!caminar !senderear sendero ruta montana excursion mochila cumbre",
+  "Supervivencia": "!acampar !sobrevivir campamento fogata refugio supervivencia tienda",
+  "Buceo":         "!bucear buceo inmersion arrecife snorkel botella",
+  "Orientación":   "!orientar brujula mapa coordenadas norte orientacion"
+};
+
+/* Palabras vacías. Además de artículos y preposiciones, aquí van las que
+   aparecen en CUALQUIER meta —"curso", "taller", "proyecto", "semana"— y
+   que por eso no distinguen nada: dejarlas dentro hacía que "curso" llevara
+   a Programación en "Curso de cocina" y "Curso de inversión". */
+const PARADAS = new Set([
+  "de","del","la","el","los","las","un","una","mi","mis","para","por","con","en","y","o","a","al",
+  "que","me","lo","su","sus","este","esta","primer","primera","mas","muy",
+  "curso","cursos","clase","clases","taller","talleres","proyecto","meta","plan","reto",
+  "semana","semanas","mes","meses","dia","dias","ano","anos","vez","veces","hora","horas",
+  "linea","online","basico","basica","nuevo","nueva","propio","propia"
+]);
+
+function normalizarTexto(s) {
+  return String(s || "").toLowerCase()
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/).filter(w => w.length > 2 && !PARADAS.has(w));
+}
+
+/* Recorta terminaciones para que "corriendo", "corrí" y "correr" cuenten
+   igual. Es un recorte tosco a propósito: un lematizador completo pesaría
+   más que toda la app y aquí solo hace falta acercar palabras. */
+function raiz(w) {
+  return w.replace(/(andose|iendose|arse|erse|irse|ando|iendo|aste|aron|amos|emos|imos|aba|ado|ido|ar|er|ir|es|as|os|a|o|s)$/, "");
+}
+
+function lexAprendido() {
+  return (state.ui && state.ui.lexAprendido) || {};
+}
+
+/* Devuelve las habilidades candidatas ordenadas por puntuación. Solo mira
+   las que el usuario TIENE: proponer una que no existe sería inútil. */
+function sugerirHabilidades(titulo, rama) {
+  const palabras = normalizarTexto(titulo);
+  if (!palabras.length && !rama) return [];
+  const raices = palabras.map(raiz);
+  const aprendido = lexAprendido();
+  const puntos = new Map();
+  const suma = (nombre, p) => puntos.set(nombre, (puntos.get(nombre) || 0) + p);
+
+  /* Cada palabra del título puntúa UNA vez por habilidad, con su mejor
+     coincidencia. Sumar por término inflaba el resultado: "correr" casaba a
+     la vez con "!correr" y con "!corro" y valía el doble que nada.
+
+     Y el verbo exacto (3) vale más que el encontrado por raíz (2), porque
+     recortar terminaciones vuelve iguales al verbo y al sustantivo:
+     "cocina" y "cocinar" comparten raíz, pero solo una de las dos dice que
+     la actividad sea cocinar. Esa diferencia es la que hace que "Renovar la
+     cocina" vaya a Reparaciones y no a Cocina. */
+  Object.keys(LEXICO).forEach(nombre => {
+    const terminos = LEXICO[nombre].split(" ").map(t => {
+      const v = t[0] === "!";
+      const w = v ? t.slice(1) : t;
+      return { v, w, r: raiz(w) };
+    });
+    let total = 0;
+    palabras.forEach((pal, i) => {
+      const pr = raices[i];
+      let mejor = 0;
+      terminos.forEach(t => {
+        if (pal === t.w) mejor = Math.max(mejor, t.v ? 3 : 1);
+        else if (t.r.length > 3 && pr === t.r) mejor = Math.max(mejor, t.v ? 2 : 1);
+      });
+      total += mejor;
+    });
+    if (total > 0) suma(nombre, total);
+  });
+
+  // Lo aprendido de las correcciones del usuario pesa por encima del diccionario
+  palabras.forEach(w => {
+    const m = aprendido[w];
+    if (m) Object.keys(m).forEach(nombre => suma(nombre, m[nombre]));
+  });
+
+  const lista = state.skills.map(s => ({ s, p: puntos.get(s.name) || 0 })).filter(x => x.p > 0);
+  lista.sort((a, b) => b.p - a.p);
+
+  // Red de seguridad: si el título no dice nada, la rama al menos acota
+  if ((!lista.length || lista[0].p < 3) && rama) {
+    state.skills.forEach(s => {
+      if (s.category && normalizarTexto(s.category)[0] === normalizarTexto(rama)[0]) {
+        if (!lista.some(x => x.s.id === s.id)) lista.push({ s, p: 0.5, porRama: true });
+      }
+    });
+    lista.sort((a, b) => b.p - a.p);
+  }
+  return lista.slice(0, 4);
+}
+
+/* Guarda la corrección: si eliges una que no se proponía, sus palabras
+   quedan asociadas; si descartas la propuesta, se penaliza. Así la app
+   aprende cómo nombras TÚ las cosas. */
+function aprenderDeEleccion(titulo, elegidaNombre, propuestaNombre) {
+  if (!elegidaNombre || elegidaNombre === propuestaNombre) return;
+  state.ui = state.ui || {};
+  const mapa = state.ui.lexAprendido || (state.ui.lexAprendido = {});
+  normalizarTexto(titulo).forEach(w => {
+    const m = mapa[w] || (mapa[w] = {});
+    m[elegidaNombre] = Math.min(6, (m[elegidaNombre] || 0) + 2);
+    if (propuestaNombre) m[propuestaNombre] = Math.max(-6, (m[propuestaNombre] || 0) - 2);
+  });
+}
+
+/* ---- Las sugerencias dentro del formulario ----
+   Aparecen solas al escribir el título y la primera se marca sola. Marcarla
+   es la diferencia entre "cero trabajo si acierto" y "un desplegable más
+   que abrir"; que se vean todas y sean tocables es lo que evita que se
+   equivoque en silencio. */
+
+let sugActual = { p: null, pr: null };   // qué se propuso primero, para aprender de la corrección
+
+function refrescarSugerencias(pref) {
+  const cont = document.getElementById(pref + "-sug");
+  if (!cont) return;
+  const titulo = (document.getElementById(pref + "-name") || {}).value || "";
+  const rama = (document.getElementById(pref + "-branch") || {}).value || "";
+  const sel = document.getElementById(pref + "-skill");
+
+  if (titulo.trim().length < 3) { cont.innerHTML = ""; sugActual[pref] = null; return; }
+
+  const lista = sugerirHabilidades(titulo, rama);
+  if (!lista.length) {
+    cont.innerHTML = `<span class="sug-nada">No sé cuál encaja con ese nombre; elígela tú si quieres.</span>`;
+    sugActual[pref] = null;
+    return;
+  }
+
+  // Solo se marca sola si el campo sigue vacío: nunca pisa una decisión tuya
+  if (sel && !sel.value) { sel.value = lista[0].s.id; sugActual[pref] = lista[0].s.name; }
+  else if (!sugActual[pref]) sugActual[pref] = lista[0].s.name;
+
+  cont.innerHTML = `<span class="sug-tit">Sube:</span>` + lista.map(x => `
+    <button type="button" class="sug-chip ${sel && sel.value === x.s.id ? "on" : ""}"
+      style="--sc:${x.s.color}" onclick="elegirSugerencia('${pref}','${x.s.id}')">
+      ${escapeHtml(x.s.name)}${x.porRama ? ' <i>por la rama</i>' : ''}
+    </button>`).join("");
+}
+
+function elegirSugerencia(pref, id) {
+  const sel = document.getElementById(pref + "-skill");
+  if (!sel) return;
+  sel.value = sel.value === id ? "" : id;   // volver a tocarla la desmarca
+  refrescarSugerencias(pref);
+}
+
+function marcarSugerenciaElegida(pref) { refrescarSugerencias(pref); }
+
+/* Al guardar: si lo que quedó elegido no es lo que se propuso, esa
+   corrección se aprende y la próxima vez se propone mejor. */
+function aprenderAlGuardar(pref, titulo, skillId) {
+  const elegida = state.skills.find(s => s.id === skillId);
+  aprenderDeEleccion(titulo, elegida ? elegida.name : null, sugActual[pref]);
+  sugActual[pref] = null;
+}
+
+let catalogoSel = new Set();
+let seleccionHab = null;   // null = fuera del modo selección
+
+function nuevaHabilidad(nombre, categoria, icono, color) {
+  return {
+    id: uid(), name: nombre, category: categoria, icon: icono, color: color,
+    xp: 0, log: [], permanent: false, graceDays: 7, decayPerDay: 10,
+    lastActivity: null, createdAt: todayKey()
+  };
+}
+
+function openCatalogo() {
+  catalogoSel = new Set();
+  renderCatalogo();
+  showView("catalog");
+}
+
+function toggleCatalogo(nombre) {
+  if (catalogoSel.has(nombre)) catalogoSel.delete(nombre);
+  else catalogoSel.add(nombre);
+  renderCatalogo();
+}
+
+function toggleCatalogoCat(cat) {
+  const dentro = SKILL_CATALOG.filter(x => x.c === cat && !yaTengo(x.n));
+  const todas = dentro.every(x => catalogoSel.has(x.n));
+  dentro.forEach(x => todas ? catalogoSel.delete(x.n) : catalogoSel.add(x.n));
+  renderCatalogo();
+}
+
+function yaTengo(nombre) {
+  return state.skills.some(s => s.name.toLowerCase() === nombre.toLowerCase());
+}
+
+function renderCatalogo() {
+  const cats = [...new Set(SKILL_CATALOG.map(x => x.c))];
+  const n = catalogoSel.size;
+  document.getElementById("catalog-content").innerHTML = `
+    <p class="settings-note" style="padding:0 4px 4px">
+      Añade las que te interese seguir, aunque sea en cero. Ver una habilidad
+      sin empezar es media idea: te recuerda que existe. Las que no quieras
+      se quitan cuando quieras.
+    </p>
+    ${cats.map(cat => {
+      const dentro = SKILL_CATALOG.filter(x => x.c === cat);
+      const libres = dentro.filter(x => !yaTengo(x.n));
+      return `
+      <div class="cat-group">
+        <div class="cat-head">
+          <h3>${escapeHtml(cat)}</h3>
+          ${libres.length ? `<button class="cat-all" onclick="toggleCatalogoCat('${escapeAttr(cat)}')">
+            ${libres.every(x => catalogoSel.has(x.n)) ? "Quitar todas" : "Todas"}
+          </button>` : `<span class="cat-done">ya las tienes</span>`}
+        </div>
+        <div class="cat-grid">
+          ${dentro.map(x => {
+            const tengo = yaTengo(x.n);
+            const sel = catalogoSel.has(x.n);
+            return `
+            <button class="cat-chip ${tengo ? "tengo" : ""} ${sel ? "sel" : ""}"
+              ${tengo ? "disabled" : `onclick="toggleCatalogo('${escapeAttr(x.n)}')"`}>
+              <span class="cc-ic" style="background:${x.k}26;color:${x.k}">${icon(x.i, 18)}</span>
+              <span class="cc-n">${escapeHtml(x.n)}</span>
+              ${tengo ? `<span class="cc-ok">${icon("check", 15)}</span>` : `<span class="cc-box">${sel ? icon("check", 13) : ""}</span>`}
+            </button>`;
+          }).join("")}
+        </div>
+      </div>`;
+    }).join("")}
+    <div class="cat-bar">
+      <button class="btn btn-ghost" onclick="showView('home')">Cancelar</button>
+      <button class="btn btn-primary" ${n ? "" : "disabled"} onclick="añadirDelCatalogo()">
+        ${n ? `Añadir ${n} habilidad${n === 1 ? "" : "es"}` : "Elige alguna"}
+      </button>
+    </div>`;
+}
+
+function añadirDelCatalogo() {
+  const elegidas = SKILL_CATALOG.filter(x => catalogoSel.has(x.n) && !yaTengo(x.n));
+  if (!elegidas.length) return;
+  elegidas.forEach(x => state.skills.push(nuevaHabilidad(x.n, x.c, x.i, x.k)));
+  save();
+  catalogoSel = new Set();
+  showView("home");
+  toast(`${elegidas.length} habilidad${elegidas.length === 1 ? "" : "es"} añadida${elegidas.length === 1 ? "" : "s"}`, "logro");
+}
+
+/* ---- Selección múltiple para quitar varias de golpe ---- */
+
+function toggleSeleccionHab() {
+  seleccionHab = seleccionHab ? null : new Set();
+  renderHome();
+}
+
+function toggleHabSel(id) {
+  if (!seleccionHab) return;
+  if (seleccionHab.has(id)) seleccionHab.delete(id);
+  else seleccionHab.add(id);
+  renderHome();
+}
+
+async function borrarSeleccionHab() {
+  if (!seleccionHab || !seleccionHab.size) return;
+  const n = seleccionHab.size;
+  const conXp = state.skills.filter(s => seleccionHab.has(s.id) && s.xp > 0).length;
+  const ok = await ask(
+    `Se van ${n} habilidad${n === 1 ? "" : "es"}` +
+    (conXp ? `, y ${conXp === 1 ? "una de ellas tiene" : `${conXp} de ellas tienen`} progreso registrado que se pierde` : "") +
+    ".\n\nEsto no se puede deshacer.",
+    `Borrar ${n === 1 ? "la habilidad" : "las " + n}`, true);
+  if (!ok) return;
+  // Las misiones que apuntaban a una habilidad borrada se quedan sin dueño,
+  // no se borran: la misión sigue siendo algo que el usuario hace.
+  state.missions.forEach(m => { if (seleccionHab.has(m.skillId)) m.skillId = null; });
+  state.perks.forEach(p => { if (seleccionHab.has(p.skillId)) p.skillId = null; });
+  state.skills = state.skills.filter(s => !seleccionHab.has(s.id));
+  seleccionHab = null;
+  save();
+  renderHome();
+  toast(`${n} habilidad${n === 1 ? "" : "es"} borrada${n === 1 ? "" : "s"}`, "deshecho");
+}
+
+function fmtXp(n) {
+  return n >= 10000 ? (n / 1000).toFixed(1).replace(".0", "") + "k" : String(n);
+}
+
+function setCategory(c) {
+  activeCategory = c;
+  renderHome();
+}
+
+/* ================= Encabezado común de sección =================
+   Las cuatro secciones se leen igual: una cifra que resume el conjunto,
+   indicadores comparables y el foco de lo que pide atención. */
+
+function sectionHero({ scene, lead, stats, focus }) {
+  return `
+    <div class="scene-card sec-hero">
+      ${scene}
+      <div class="scene-fade"></div>
+      <div class="scene-body">
+        <div class="sh-main">
+          <div class="sh-lead">${lead}</div>
+          <div class="sh-stats">
+            ${stats.map(s => `<div><div class="n ${s.tone || ""}">${s.n}</div><div class="t">${s.t}</div></div>`).join("")}
+          </div>
+          <${focus.onclick ? `button class="sh-focus" onclick="${focus.onclick}"` : `div class="sh-focus"`}>
+            <span class="shf-k" style="color:${focus.color}">${escapeHtml(focus.k)}</span>
+            <span class="shf-v">${escapeHtml(focus.v)}</span>
+            ${typeof focus.pct === "number" ? `<span class="shf-bar"><i style="width:${focus.pct}%;background:${focus.color}"></i></span>` : ""}
+          </${focus.onclick ? "button" : "div"}>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ================= Menú de herramientas de una rama =================
+   Solo "＋" se queda fuera, que es lo único de uso diario; lo demás vive
+   aquí dentro con su nombre escrito, en vez de ser una fila de iconos
+   mudos que además no cabía en el móvil. */
+
+const BM_ICONS = {
+  puntos: '<circle cx="5" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.8" fill="currentColor" stroke="none"/>',
+  flecha: '<path d="M5 12h13M13 6l6 6-6 6"/>',
+  lapiz: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>',
+  reordenar: '<path d="M3 12a9 9 0 0115.5-6.2M21 12a9 9 0 01-15.5 6.2"/><path d="M18 3v5h-5M6 21v-5h5"/>',
+  bote: '<path d="M4 7h16M10 11.5v6M14 11.5v6M6.5 7l.9 12.1a2 2 0 002 1.9h5.2a2 2 0 002-1.9L17.5 7M9.5 7V5.2a2 2 0 012-2h1a2 2 0 012 2V7"/>',
+  expandir: '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/>',
+  copiar: '<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M6.5 15H5.2A2.2 2.2 0 013 12.8V5.2A2.2 2.2 0 015.2 3h7.6A2.2 2.2 0 0115 5.2v1.3"/>',
+  caja: '<path d="M3 8.5L12 4l9 4.5v7L12 20l-9-4.5z"/><path d="M3 8.5L12 13l9-4.5M12 13v7"/>'
+};
+
+let openBranchMenu = null;
+
+function branchMenu(key, items) {
+  if (!items.length) return "";
+  return `
+    <div class="bmenu-wrap">
+      <button class="badd solid" onclick="toggleBranchMenu('${key}', event)" aria-label="Más opciones de esta rama" aria-haspopup="true">
+        <svg viewBox="0 0 24 24">${BM_ICONS.puntos}</svg>
+      </button>
+      <div class="bmenu" data-menu="${key}">
+        ${items.map(it => `
+          <button class="${it.danger ? "danger" : ""}" onclick="closeBranchMenus();${it.onclick}">
+            <span class="bm-tx"><b>${escapeHtml(it.title)}</b><span>${escapeHtml(it.hint)}</span></span>
+            <span class="bm-ic"><svg viewBox="0 0 24 24">${BM_ICONS[it.icon]}</svg></span>
+          </button>`).join("")}
+      </div>
+    </div>`;
+}
+
+function syncBranchMenus() {
+  document.querySelectorAll(".bmenu").forEach(m => m.classList.toggle("open", m.dataset.menu === openBranchMenu));
+}
+
+function closeBranchMenus() {
+  openBranchMenu = null;
+  syncBranchMenus();
+}
+
+/* stopPropagation es necesario: sin él, el mismo clic que abre el menú
+   burbujea hasta el documento y lo cierra en el acto. */
+function toggleBranchMenu(key, ev) {
+  if (ev) ev.stopPropagation();
+  cerrarCtxMenu();          // dos menús abiertos a la vez no se leen
+  openBranchMenu = (openBranchMenu === key) ? null : key;
+  syncBranchMenus();
+}
+
+document.addEventListener("click", () => { if (openBranchMenu) closeBranchMenus(); });
+
+/* "sus 1 proyecto" no lo dice nadie. El singular cambia el posesivo y el
+   verbo, y con cero no hay nada que anunciar: devuelve "" y quien llama
+   omite la frase entera en vez de escribir "sus 0 proyectos". */
+function fraseCantidad(n, singular, plural) {
+  if (n === 0) return "";
+  if (n === 1) return `su único ${singular}`;
+  return `sus ${n} ${plural}`;
+}
+
+/* Borrar una rama entera. Es de las pocas acciones de la app que destruyen
+   datos sin vuelta atrás, así que se avisa con el número exacto de lo que
+   se va y con el botón en rojo. */
+async function deleteBranch(kind, b) {
+  const esTalentos = kind === "perks";
+  const lista = (esTalentos ? state.perks : state.projects).filter(p => (p.branch || "General") === b);
+  const singular = esTalentos ? "talento" : "encargo";
+  const plural = esTalentos ? "talentos" : "encargos";
+  const n = lista.length;
+
+  const arrastra = fraseCantidad(n, singular, plural);
+  const ok = await ask(
+    (arrastra
+      ? `Se borrará la rama "${b}" y con ella ${arrastra}.`
+      : `Se borrará la rama "${b}", que está vacía.`) + "\n\n" +
+    (esTalentos && n ? "También se pierden las conexiones que llegaban a esos talentos desde otras ramas.\n\n" : "") +
+    "Esto no se puede deshacer.",
+    "Borrar la rama", true);
+  if (!ok) return;
+
+  const ids = new Set(lista.map(p => p.id));
+  if (esTalentos) {
+    state.perks = state.perks.filter(p => !ids.has(p.id));
+    // Nadie puede quedar exigiendo un talento que ya no existe: eso dejaría
+    // nodos bloqueados para siempre, sin forma de desbloquearlos.
+    state.perks.forEach(p => {
+      const r = requisitosDe(p);
+      if (r.some(id => ids.has(id))) p.requiere = r.filter(id => !ids.has(id));
+    });
+    if (editBranch === b) editBranch = null;
+  } else {
+    state.projects = state.projects.filter(p => !ids.has(p.id));
+  }
+  save();
+  if (esTalentos) renderTree(); else renderProjects();
+  toast(`Rama "${b}" borrada`, "deshecho");
+}
+
+/* ---- Renombrar una rama de talentos ----
+   La rama no es un dato aparte: es el nombre que llevan escrito sus talentos
+   y sus cajas. Renombrarla es reescribirlo en todos a la vez, y por eso vive
+   aquí y no en un formulario.
+
+   Si el nombre nuevo ya existe, las dos ramas se juntan. No es un error que
+   haya que impedir —juntar dos ramas que se llamaban casi igual es una razón
+   perfectamente buena para renombrar— pero sí se avisa antes, porque el
+   resultado no se puede adivinar desde el teclado. */
+async function renombrarRama(b) {
+  const nuevo = await askText(`Renombrar la rama "${b}"`, b, "Renombrar",
+    "Se reescribe en todos sus talentos y en sus cajas.");
+  if (nuevo === null || !nuevo || nuevo === b) return;
+
+  const existe = state.perks.some(p => (p.branch || "General") === nuevo);
+  if (existe && !await ask(
+    `Ya tienes una rama llamada "${nuevo}". Los talentos de "${b}" se van a juntar con los suyos en una sola rama.`,
+    "Juntarlas")) return;
+
+  state.perks.forEach(p => { if ((p.branch || "General") === b) p.branch = nuevo; });
+  (state.cajas || []).forEach(c => { if (c.branch === b) c.branch = nuevo; });
+  // El estado de la interfaz va pegado al nombre: si no se muda, la rama
+  // renombrada aparecería desplegada y la vieja seguiría "plegada" sin existir
+  if (state.ui && state.ui.collapsed && state.ui.collapsed[b]) {
+    delete state.ui.collapsed[b];
+    state.ui.collapsed[nuevo] = true;
+  }
+  if (editBranch === b) editBranch = nuevo;
+  if (fullscreenBranch === b) fullscreenBranch = nuevo;
+  save();
+  renderTree();
+  toast(existe ? `Ramas juntadas en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
+}
+
+/* Lo mismo para las ramas de Proyectos. Vive aparte de la de Talentos porque
+   lo que arrastra cada una es distinto —allí también hay cajas del ático y un
+   modo edición abierto— y unificarlas dejaría una función con dos mitades que
+   nunca se ejecutan juntas. */
+async function renombrarRamaProyectos(b) {
+  const nuevo = await askText(`Renombrar la rama "${b}"`, b, "Renombrar",
+    "Se reescribe en todos sus encargos.");
+  if (nuevo === null || !nuevo || nuevo === b) return;
+
+  const existe = state.projects.some(p => (p.branch || "General") === nuevo);
+  if (existe && !await ask(
+    `Ya tienes una rama llamada "${nuevo}". Los encargos de "${b}" se van a juntar con los suyos en una sola rama.`,
+    "Juntarlas")) return;
+
+  state.projects.forEach(p => { if ((p.branch || "General") === b) p.branch = nuevo; });
+  save();
+  renderProjects();
+  toast(existe ? `Ramas juntadas en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
+}
+
+/* Etiqueta de rama reutilizable: el mismo concepto en todas las secciones. */
+function branchHeader(name, countLabel, buttons) {
+  return `
+    <div class="branch-head">
+      <div class="btitle">
+        <span class="branch-kicker">Rama</span>
+        <h3>${escapeHtml(name)}</h3>
+      </div>
+      <span class="count">${countLabel}</span>
+      <div class="bhead-btns">${buttons}</div>
+    </div>`;
+}
+

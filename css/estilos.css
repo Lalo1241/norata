@@ -1,0 +1,3189 @@
+  /* ============ Sistema visual: "noche de expedición" ============
+     Carbón azulado + menta + amarillo luciérnaga. Escenas SVG generadas,
+     iconografía propia de trazo, geometría con significado en el árbol,
+     celebraciones de luz y cluster del pulgar. Oscuro por diseño. */
+  :root {
+    --bg: #10151d;
+    --bg2: #151b25;
+    --card: #1d2530;
+    --card2: #222c39;
+    --line: #2a3441;
+    --text: #eaf1ef;
+    --muted: #8b99a5;
+    --faint: #5d6b77;
+    --mint: #5fe0b0;
+    --mint-deep: #37b287;
+    --mint-soft: rgba(95, 224, 176, 0.13);
+    --fire: #f5d76e;
+    --fire-soft: rgba(245, 215, 110, 0.13);
+    --coral: #ff8a70;
+    --coral-soft: rgba(255, 138, 112, 0.13);
+    --sans: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+    /* Solo se usa en escritorio (ver @media min-width:900px), pero vive
+       aquí para que la barra lateral y el margen del contenido siempre
+       lean el mismo número — así no se pueden desincronizar. */
+    --sidebar-w: 246px;
+  }
+  html.sc { --sidebar-w: 84px; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  /* El fondo va también en <html>, no solo en <body>: la franja que asoma al
+     rebotar el scroll en el móvil la pinta el elemento raíz, y sin esto salía
+     blanca. Y `color-scheme: dark` es lo que le dice al navegador que ponga
+     en oscuro lo suyo — barra de direcciones, barra inferior y scrollbars —
+     en vez de asumir una página clara. */
+  html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-gutter: stable;
+    color-scheme: dark;
+    background: #0e131b;
+  }
+  body {
+    font-family: var(--sans);
+    background: linear-gradient(180deg, #0e131b 0%, #131924 55%, #10151d 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+    overflow-x: hidden;
+  }
+  .orb {
+    position: fixed;
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(2px);
+  }
+  .orb-1 { width: 90px; height: 90px; top: 12%; left: -34px; background: radial-gradient(circle, rgba(95,224,176,0.18), transparent 70%); }
+  .orb-2 { width: 140px; height: 140px; top: 42%; right: -60px; background: radial-gradient(circle, rgba(245,215,110,0.13), transparent 70%); }
+  .orb-3 { width: 70px; height: 70px; bottom: 18%; left: -20px; background: radial-gradient(circle, rgba(255,138,112,0.12), transparent 70%); }
+
+  .app { max-width: 560px; margin: 0 auto; padding: 0 18px; position: relative; z-index: 1; }
+
+  /* ---------- Cabecera ---------- */
+  .page-head {
+    padding: 30px 4px 18px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .page-head .kicker {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--mint);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .page-head h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .icon-btn {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    width: 42px; height: 42px;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text);
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon-btn svg { width: 19px; height: 19px; }
+
+  /* ---------- Iconos de trazo ---------- */
+  .ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ic svg {
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ---------- Tarjeta de escena ---------- */
+  .scene-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 34px 34px 34px 12px;
+    height: 252px;
+    margin-bottom: 20px;
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+  }
+  .scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .scene-fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 20%, rgba(14, 19, 27, 0.62) 60%, rgba(14, 19, 27, 0.96) 100%);
+  }
+  .scene-body {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 18px;
+  }
+  .scene-body { text-shadow: 0 2px 12px rgba(10, 15, 22, 0.65); }
+  .scene-body .label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(234, 241, 239, 0.82);
+  }
+  .scene-body .big {
+    font-size: 42px;
+    font-weight: 300;
+    letter-spacing: -1.5px;
+    line-height: 1.12;
+    margin: 1px 0 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .scene-body .big b { font-weight: 700; }
+  .scene-body .big span { font-size: 19px; font-weight: 500; color: rgba(234, 241, 239, 0.8); letter-spacing: 0; }
+  .glass-row { display: flex; gap: 8px; }
+  .glass-chip {
+    flex: 1;
+    background: rgba(20, 27, 37, 0.55);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(234, 241, 239, 0.1);
+    border-radius: 16px;
+    padding: 9px 6px;
+    text-align: center;
+  }
+  .glass-chip .n { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .glass-chip .n.warn { color: var(--fire); }
+  .glass-chip .n.okc { color: var(--mint); }
+  .glass-chip .t { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+  /* ---------- Tablero de widgets ----------
+     Rejilla con celdas fijas: cada tarjeta ocupa un número entero de
+     columnas y de filas, y se puede redimensionar arrastrando su esquina. */
+  .dash {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    align-items: start;
+    /* La misma cuadrícula de puntos que el lienzo de Talentos: da referencias
+       para alinear las tarjetas a ojo, y de paso hace que las dos pantallas
+       donde se acomodan cosas se sientan la misma. */
+    background:
+      radial-gradient(circle at 1px 1px, rgba(139, 153, 165, 0.07) 1px, transparent 1.6px);
+    background-size: 26px 26px;
+  }
+  /* Mientras se acomoda, la referencia importa más y se sube el tono */
+  .dash.editing {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(139, 153, 165, 0.16) 1px, transparent 1.6px);
+  }
+  .widget { position: relative; min-width: 0; }
+  .widget > *:not(.w-edit):not(.w-resize) { margin-bottom: 0 !important; }
+  .w-edit, .w-resize { display: none; }
+  .dash.editing { padding-top: 20px; }
+  .dash.editing .widget { touch-action: none; }
+  .dash.editing .widget > *:not(.w-edit):not(.w-resize) {
+    pointer-events: none;
+    outline: 2px dashed var(--line);
+    outline-offset: 3px;
+    border-radius: var(--r-md);
+  }
+  /* Los controles van encima de la tarjeta, nunca debajo tapando otra */
+  .dash.editing .w-edit {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: absolute;
+    left: 8px; top: -14px;
+    max-width: calc(100% - 46px);
+    z-index: 5;
+  }
+  .w-grip { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dash.editing .w-resize {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: -8px; bottom: -8px;
+    width: 28px; height: 28px;
+    border-radius: 9px;
+    background: var(--card2);
+    border: 2px solid var(--mint);
+    color: var(--mint);
+    cursor: nwse-resize;
+    z-index: 6;
+    font-family: inherit;
+    padding: 0;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+  }
+  .w-resize svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; }
+  .widget.sizing > *:not(.w-edit):not(.w-resize) { outline-color: var(--mint); }
+  .w-grip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    background: var(--mint);
+    color: #10151d;
+    border-radius: 999px;
+    padding: 4px 11px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  }
+  .w-grip .ic svg { width: 12px; height: 12px; stroke-width: 2.4; }
+  /* Pegado al título: en la esquina derecha chocaba con el asa de tamaño */
+  .w-hide {
+    width: 26px; height: 26px;
+    border-radius: 999px;
+    border: none;
+    background: var(--coral);
+    color: #10151d;
+    font-size: 13px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    pointer-events: auto;
+  }
+  .dash.editing .widget:not(.dragging) { animation: wiggle 2.4s ease-in-out infinite; }
+  .dash.editing .widget:nth-child(even) { animation-delay: -1.2s; }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-0.25deg); }
+    50% { transform: rotate(0.25deg); }
+  }
+  .widget.dragging > *:not(.w-edit) { opacity: 0.25; }
+  .widget.ghost {
+    opacity: 0.94;
+    transform: scale(1.03);
+    filter: drop-shadow(0 18px 34px rgba(0,0,0,0.6));
+  }
+  .widget.ghost .w-edit { display: none; }
+  .dash-tray {
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 20px;
+    padding: 16px 18px;
+    grid-row: span 2;
+  }
+  .dash-tray h3 {
+    font-size: 11px; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--mint); margin-bottom: 5px;
+  }
+  .tray-head { display: flex; align-items: center; gap: 16px; }
+  .tray-tx { flex: 1; min-width: 0; }
+  .tray-head .btn { flex-shrink: 0; }
+  .tray-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .tray-chip {
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 650;
+    background: var(--bg2);
+    border: 1px dashed var(--line);
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+  .tray-chip:active { border-color: var(--mint); color: var(--mint); }
+  @media (prefers-reduced-motion: reduce) { .dash.editing .widget { animation: none; } }
+
+  /* ---------- Resumen: racha ---------- */
+  .streak-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 10px;
+  }
+  .streak-row .flame { color: var(--fire); }
+  .streak-row .flame svg { width: 30px; height: 30px; stroke-width: 1.6; }
+  .streak-row .num { font-size: 34px; font-weight: 700; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .streak-row .lbl { font-size: 12px; color: rgba(234, 241, 239, 0.8); line-height: 1.3; }
+  /* ---------- Los últimos 14 días ----------
+     Antes eran barritas de dos estados. Ahora cada día es un disco que dice
+     qué día de la semana fue, qué número era, y —por la intensidad del
+     relleno— cuánto hiciste: no es lo mismo rozar el mínimo que tener un
+     día redondo, y esa diferencia se perdía al pintarlo todo del mismo
+     verde. `aspect-ratio` los mantiene redondos a cualquier ancho, así que
+     no pueden volver a estirarse si la tarjeta crece. */
+  /* ---------- La semana en curso ----------
+     Siete días con su inicial y su marca. Todo va en píxeles fijos y con
+     propiedades de toda la vida (nada de aspect-ratio ni de calc() dentro
+     de rgba): esta tira ya se descuadró una vez en un navegador que no
+     digirió algo más moderno, y una racha ilegible es peor que una racha
+     sencilla. */
+  .wk { display: flex; justify-content: space-between; gap: 4px; margin-top: 13px; }
+  .wk-d { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .wk-l {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: rgba(234, 241, 239, 0.5);
+    line-height: 1;
+  }
+  .wk-c {
+    width: 30px;
+    height: 30px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1;
+    background: rgba(234, 241, 239, 0.09);
+    color: rgba(234, 241, 239, 0.45);
+  }
+  .wk-c svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+  /* Los estados del día van con prefijo. Uno de ellos se llamaba `empty`, y
+     `.empty` es además el bloque de "aquí no hay nada todavía" que existe en
+     media app: en escritorio ese bloque mide 54vh de alto y lleva 40px de
+     relleno, así que un perfil recién creado —donde TODOS los días pasados
+     son "antes de empezar"— estiraba cada casilla de la semana hasta 389px y
+     la tira se salía de la tarjeta por arriba. Con datos de ejemplo no se
+     veía nunca, porque ahí ningún día lleva esa clase. */
+  .wk-d.wk-done .wk-c { background: var(--mint); color: #0e131b; box-shadow: 0 0 12px rgba(95, 224, 176, 0.45); }
+  .wk-d.wk-missed .wk-c { background: rgba(255, 138, 112, 0.14); color: var(--coral); }
+  .wk-d.wk-hoy .wk-c { background: rgba(95, 224, 176, 0.1); color: var(--mint); box-shadow: inset 0 0 0 2px var(--mint); }
+  /* Un día que todavía no llega no se juzga: ni verde ni rojo */
+  .wk-d.wk-futuro .wk-c, .wk-d.wk-empty .wk-c { background: rgba(234, 241, 239, 0.05); color: rgba(234, 241, 239, 0.26); }
+  .wk-d.wk-done.wk-hoy .wk-c { box-shadow: 0 0 0 3px rgba(95, 224, 176, 0.35), 0 0 14px rgba(95, 224, 176, 0.5); }
+  .wk-d.wk-done .wk-l, .wk-d.wk-hoy .wk-l { color: var(--mint); }
+
+  @media (max-width: 360px) {
+    .wk-c { width: 27px; height: 27px; }
+  }
+
+  /* ---------- Celebración de un hito de racha ----------
+     Ocupa la pantalla entera a propósito: es el único momento en que la app
+     interrumpe, y solo pasa en los días que de verdad valen la pena. */
+  .scel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    background: radial-gradient(circle at 50% 42%, #2a1d06 0%, #16110a 45%, #0e131b 100%);
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .scel.show { display: flex; }
+  .scel-rays {
+    position: absolute;
+    width: 150vmax; height: 150vmax;
+    background: repeating-conic-gradient(from 0deg, rgba(245, 215, 110, 0.13) 0deg 7deg, transparent 7deg 20deg);
+    animation: scelSpin 24s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes scelSpin { to { transform: rotate(360deg); } }
+  .scel-core { position: relative; text-align: center; padding: 24px; }
+  .scel-flame { color: var(--fire); filter: drop-shadow(0 0 26px rgba(245, 215, 110, 0.75)); }
+  .scel-flame svg { width: 96px; height: 96px; stroke: currentColor; fill: rgba(245, 215, 110, 0.22); stroke-width: 1.4; stroke-linejoin: round; }
+  .scel.show .scel-flame { animation: scelFlame 1.5s ease-in-out infinite; }
+  @keyframes scelFlame {
+    0%, 100% { transform: scale(1) rotate(-1.5deg); }
+    50% { transform: scale(1.07) rotate(1.5deg); }
+  }
+  .scel-num {
+    font-size: 76px;
+    font-weight: 800;
+    letter-spacing: -3px;
+    line-height: 1;
+    color: var(--fire);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 6px 34px rgba(245, 215, 110, 0.55);
+    margin-top: 4px;
+  }
+  .scel.show .scel-num { animation: scelPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s backwards; }
+  @keyframes scelPop { from { transform: scale(0.3); opacity: 0; } }
+  .scel-unit {
+    font-size: 15px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: rgba(245, 215, 110, 0.85); margin-top: 2px;
+  }
+  .scel-sub {
+    font-size: 15px; line-height: 1.55; color: var(--text);
+    max-width: 30ch; margin: 18px auto 22px; opacity: 0.92;
+  }
+  .scel.show .scel-sub, .scel.show .scel-unit, .scel.show #scel-btn {
+    animation: scelUp 0.5s ease 0.3s backwards;
+  }
+  @keyframes scelUp { from { transform: translateY(12px); opacity: 0; } }
+  #scel-btn { min-width: 190px; }
+  .scel-sparks { position: absolute; inset: 0; pointer-events: none; }
+  .scel-sparks i {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 9px; height: 9px;
+    border-radius: 999px;
+    background: var(--fire);
+    opacity: 0;
+  }
+  .scel.show .scel-sparks i { animation: scelSpark 1.5s ease-out backwards; }
+  @keyframes scelSpark {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scel-rays, .scel.show .scel-flame, .scel.show .scel-num,
+    .scel.show .scel-sub, .scel.show .scel-unit, .scel.show #scel-btn,
+    .scel.show .scel-sparks i { animation: none; }
+    .scel-sparks { display: none; }
+  }
+
+  /* ---------- Resumen: tarjetas ---------- */
+  .sum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .sum-card {
+    background: var(--card);
+    border: 1px solid rgba(42, 52, 65, 0.7);
+    padding: 16px;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .sum-card.a { border-radius: 26px 26px 10px 26px; }
+  .sum-card.b { border-radius: 26px 26px 26px 10px; }
+  .sum-card:active { background: var(--card2); }
+  .sum-card .ic { color: var(--mint); margin-bottom: 10px; }
+  .sum-card .ic svg { width: 22px; height: 22px; }
+  .sum-card.b .ic { color: var(--fire); }
+  .sum-card .n { font-size: 23px; font-weight: 700; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+  .sum-card .t { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+
+  /* Cifras de apoyo dentro de una tarjeta pequeña. Existen porque "6
+     niveles" a solas dejaba media tarjeta vacía sin decir nada más. */
+  .sc-rows {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-top: 11px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+  }
+  .sc-rows > div { display: flex; align-items: baseline; gap: 5px; }
+  .sc-rows b { font-size: 13.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .sc-rows span { font-size: 10.5px; color: var(--faint); letter-spacing: 0.3px; }
+  /* Lo siguiente que se puede desbloquear: la parte accionable */
+  .sc-near { margin-top: 10px; }
+  .sc-near span { display: block; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--mint); }
+  .sc-near b { display: block; font-size: 12.5px; font-weight: 650; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sc-near i {
+    display: block;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(234, 241, 239, 0.1);
+    margin-top: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .sc-near i::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--p, 0%);
+    background: var(--c, var(--mint));
+    border-radius: 999px;
+  }
+
+  /* ---------- Sugerencias de habilidad en los formularios ---------- */
+  .sug { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+  .sug:empty { display: none; }
+  .sug-tit { font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--faint); }
+  .sug-nada { font-size: 11.5px; color: var(--faint); line-height: 1.4; }
+  .sug-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--bg2);
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 11px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 650;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .sug-chip i { font-style: normal; font-weight: 500; font-size: 10.5px; opacity: 0.7; }
+  .sug-chip.on {
+    border-color: var(--sc, var(--mint));
+    color: var(--sc, var(--mint));
+    background: color-mix(in srgb, var(--sc, #5fe0b0) 14%, transparent);
+  }
+  /* Sin color-mix el fondo se cae, pero el borde y el texto ya distinguen
+     el estado, así que degrada sin romperse. */
+
+  /* ---------- Módulos: encender y apagar secciones del menú ---------- */
+  .mod-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 11px 13px;
+    margin-bottom: 8px;
+    font-family: inherit;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+  }
+  .mod-row:last-child { margin-bottom: 0; }
+  .mod-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .mod-tx b { font-size: 14px; font-weight: 650; }
+  .mod-tx span { font-size: 11.5px; color: var(--muted); }
+  .mod-sw {
+    flex: none;
+    width: 40px; height: 23px;
+    border-radius: 999px;
+    background: var(--line);
+    position: relative;
+    transition: background 0.16s ease;
+  }
+  .mod-sw i {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 17px; height: 17px;
+    border-radius: 999px;
+    background: var(--faint);
+    transition: transform 0.16s ease, background 0.16s ease;
+  }
+  .mod-row.on .mod-sw { background: var(--mint-soft); }
+  .mod-row.on .mod-sw i { transform: translateX(17px); background: var(--mint); }
+  .mod-row:not(.on) .mod-tx b { color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .mod-sw, .mod-sw i { transition: none; } }
+
+  /* ---------- Habilidades: barra de acciones y catálogo ---------- */
+  .hb-tools { display: flex; gap: 8px; margin-bottom: 12px; }
+  .hb-b { flex: 1; padding: 10px 12px; font-size: 13px; }
+  .hb-hint { font-size: 10.5px; color: var(--faint); text-align: right; padding: 0 4px 9px; }
+  .hb-hint:empty { display: none; }
+  .skill-card.marcada { border-color: var(--mint); background: var(--mint-soft); }
+  .hb-check {
+    flex: none;
+    width: 22px; height: 22px;
+    border-radius: 7px;
+    border: 2px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: #0e131b;
+    margin-right: 2px;
+  }
+  .skill-card.marcada .hb-check { background: var(--mint); border-color: var(--mint); }
+  /* Las cuatro casillas que marcan estado llevan la misma palomita de trazo
+     que las misiones. Antes era el carácter "✓", que cada sistema dibuja a
+     su manera —más fino, más alto, desalineado— y no casaba con ningún otro
+     icono de la app. El trazo grueso es porque a 11-15px el de 1.8 por
+     defecto se deshace. */
+  .hb-check svg, .cc-box svg, .cc-ok svg, .hcheck svg { stroke-width: 3.2; }
+
+  .cat-group { margin-bottom: 18px; }
+  .cat-head { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; padding: 0 4px; }
+  .cat-head h3 { font-size: 15px; font-weight: 700; }
+  .cat-all {
+    margin-left: auto;
+    background: var(--mint-soft); color: var(--mint);
+    border: none; border-radius: 999px;
+    padding: 4px 11px; font-size: 11px; font-weight: 700;
+    font-family: inherit; cursor: pointer;
+  }
+  .cat-done { margin-left: auto; font-size: 11px; color: var(--faint); }
+  .cat-grid { display: grid; grid-template-columns: 1fr; gap: 7px; }
+  .cat-chip {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 9px 11px;
+    font-family: inherit;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+  }
+  .cat-chip.sel { border-color: var(--mint); background: var(--mint-soft); }
+  .cat-chip.tengo { opacity: 0.45; cursor: default; }
+  .cc-ic { flex: none; width: 32px; height: 32px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; }
+  .cc-n { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cc-box {
+    flex: none; width: 21px; height: 21px; border-radius: 7px;
+    border: 2px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: #0e131b;
+  }
+  .cat-chip.sel .cc-box { background: var(--mint); border-color: var(--mint); }
+  .cc-ok { flex: none; color: var(--mint); font-size: 14px; font-weight: 800; }
+  /* La barra de confirmar se queda a la vista mientras se elige */
+  .cat-bar {
+    position: sticky;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    display: flex; gap: 9px;
+    background: rgba(16, 21, 29, 0.92);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 9px;
+    margin-top: 16px;
+  }
+  .cat-bar .btn { flex: 1; }
+  .cat-bar .btn:disabled { opacity: 0.45; cursor: default; }
+
+  @media (min-width: 620px) {
+    .cat-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (min-width: 900px) {
+    .cat-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .att-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--line);
+    padding: 12px 2px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .att-item:last-child { border-bottom: none; }
+  .att-item .dot {
+    width: 34px; height: 34px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .att-item .dot svg { width: 17px; height: 17px; }
+  .att-item .tx { flex: 1; min-width: 0; }
+  .att-item .tx b { display: block; font-size: 14px; }
+  .att-item .tx span { font-size: 12px; color: var(--muted); }
+  .att-item .go { color: var(--faint); }
+
+  /* ---------- Chips ---------- */
+  .chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 2px 2px 16px;
+    scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .chip.active {
+    background: var(--mint);
+    border-color: var(--mint);
+    color: #10151d;
+  }
+
+  /* ---------- Tarjeta de habilidad ---------- */
+  .skill-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid rgba(42, 52, 65, 0.7);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    position: relative;
+  }
+  .skill-card.r-a { border-radius: 28px 14px 28px 14px; }
+  .skill-card.r-b { border-radius: 14px 28px 14px 28px; }
+  .skill-card:active { background: var(--card2); }
+  .skill-tab {
+    position: absolute;
+    top: -9px;
+    right: 22px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    color: #10151d;
+  }
+  .skill-tab.warn { background: var(--fire); }
+  .skill-tab.perm { background: var(--mint); display: inline-flex; align-items: center; gap: 4px; }
+  .skill-tab .ic svg { width: 10px; height: 10px; stroke-width: 2.6; }
+  .skill-emoji {
+    width: 50px; height: 50px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    border-radius: 58% 42% 55% 45% / 52% 48% 60% 40%;
+  }
+  .skill-emoji svg { width: 23px; height: 23px; }
+  .skill-info { flex: 1; min-width: 0; }
+  .skill-name {
+    font-weight: 700;
+    font-size: 16.5px;
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .skill-meta { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .mini-ring { position: relative; width: 46px; height: 46px; flex-shrink: 0; }
+  .mini-ring svg { transform: rotate(-90deg); display: block; }
+  .mini-ring .lv {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13.5px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Estado vacío ---------- */
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+  .empty .bubble {
+    width: 82px; height: 82px;
+    margin: 0 auto 16px;
+    border-radius: 58% 42% 55% 45% / 52% 48% 60% 40%;
+    background: var(--mint-soft);
+    color: var(--mint);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .empty .bubble svg { width: 34px; height: 34px; }
+  .empty h2 { color: var(--text); font-size: 21px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
+  .empty p { font-size: 14px; line-height: 1.6; margin-bottom: 22px; }
+
+  /* ---------- Botones ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: none;
+    border-radius: 999px;
+    padding: 14px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.12s ease;
+  }
+  .btn-primary { background: var(--mint); color: #10151d; box-shadow: 0 10px 26px rgba(95, 224, 176, 0.25); }
+  .btn-soft { background: var(--mint-soft); color: var(--mint); }
+  .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--line); }
+  .btn-danger-ghost { background: var(--coral-soft); color: var(--coral); }
+  .btn-block { width: 100%; }
+  .btn:active { transform: scale(0.97); opacity: 0.9; }
+
+  /* ---------- Cluster del pulgar ---------- */
+  .thumb-cluster {
+    position: fixed;
+    left: 0; right: 0;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 0 18px;
+    /* La barra ocupa todo el ancho pero solo debe "existir" para el ratón
+       donde hay botones; el hueco del medio deja pasar el clic al contenido
+       de abajo. Por eso cada hijo directo se vuelve a activar aquí, en vez
+       de que lo haga cada uno por su cuenta: así mover un botón de sitio no
+       lo deja inservible sin que nadie se entere. */
+    pointer-events: none;
+    z-index: 60;
+  }
+  .thumb-cluster > * { pointer-events: auto; }
+  .thumb-cluster .nav-circles {
+    display: flex;
+    gap: 7px;
+    pointer-events: auto;
+  }
+  .thumb-cluster .c-nav {
+    width: 44px; height: 44px;
+    border-radius: 999px;
+    background: rgba(29, 37, 48, 0.92);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    color: var(--faint);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    transition: 0.15s ease;
+  }
+  .thumb-cluster .c-nav svg {
+    width: 19px; height: 19px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .thumb-cluster .c-nav.active {
+    color: var(--mint);
+    border-color: var(--mint);
+    box-shadow: 0 0 0 4px rgba(95, 224, 176, 0.12), 0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+  .thumb-cluster .c-main {
+    pointer-events: auto;
+    flex-shrink: 0;
+    width: 58px; height: 58px;
+    border-radius: 999px;
+    background: var(--mint);
+    color: #10151d;
+    border: none;
+    font-size: 26px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 12px 32px rgba(95, 224, 176, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+    transition: transform 0.15s ease, opacity 0.2s ease;
+  }
+  .thumb-cluster .c-main:active { transform: scale(0.92); }
+  .thumb-cluster .c-main.hidden { opacity: 0; pointer-events: none; transform: scale(0.6); }
+
+  /* ---------- Vistas ---------- */
+  .view { display: none; }
+  .view.active { display: block; animation: viewIn 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+  @keyframes viewIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+  .back-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 22px 2px 18px;
+  }
+  .back-row h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; flex: 1; }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid rgba(42, 52, 65, 0.7);
+    border-radius: 26px 26px 26px 10px;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .panel.alt { border-radius: 10px 26px 26px 26px; }
+  .panel h3 {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 14px;
+  }
+
+  /* ---------- Anillo ---------- */
+  .ring-wrap { position: relative; width: 150px; height: 150px; margin: 0 auto; }
+  .ring-wrap svg { transform: rotate(-90deg); display: block; }
+  .ring-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .ring-center .v { font-size: 27px; font-weight: 300; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+  .ring-center .v b { font-weight: 700; }
+  .ring-center .k { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  /* ---------- Detalle de habilidad ---------- */
+  .detail-hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--card);
+    border: 1px solid rgba(42, 52, 65, 0.7);
+    border-radius: 34px 34px 12px 34px;
+    margin-bottom: 14px;
+    text-align: center;
+    padding: 0 20px 22px;
+  }
+  .detail-hero .strip {
+    position: relative;
+    height: 156px;
+    margin: 0 -20px 0;
+    overflow: hidden;
+  }
+  .detail-hero .strip .scene { position: absolute; inset: 0; }
+  .detail-hero .strip::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 45%, var(--card) 100%);
+  }
+  .detail-hero .skill-emoji {
+    width: 64px; height: 64px;
+    margin: -30px auto 10px;
+    position: relative;
+    z-index: 2;
+    border: 4px solid var(--card);
+  }
+  .detail-hero .skill-emoji svg { width: 28px; height: 28px; }
+  /* El icono del héroe también edita. Es el elemento más grande y más
+     obvio de la ficha, y hasta ahora era el único que no hacía nada; el
+     lápiz de la esquina seguía estando, así que esto es un segundo camino
+     al mismo sitio, no el único. El lapicito pequeño existe para que se
+     note que se puede tocar sin tener que descubrirlo por accidente. */
+  .perk-hero .skill-emoji.editable,
+  .detail-hero .skill-emoji.editable {
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s ease;
+  }
+  .perk-hero .skill-emoji.editable:active,
+  .detail-hero .skill-emoji.editable:active { transform: scale(0.94); }
+  .perk-hero .skill-emoji .edit-hint,
+  .detail-hero .skill-emoji .edit-hint {
+    position: absolute;
+    right: -2px; bottom: -2px;
+    width: 21px; height: 21px;
+    border-radius: 999px;
+    background: var(--bg2);
+    border: 1.5px solid var(--card);
+    color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .perk-hero .skill-emoji .edit-hint svg,
+  .detail-hero .skill-emoji .edit-hint svg { width: 11px; height: 11px; stroke-width: 2.2; }
+  .detail-hero h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.4px; }
+  .detail-hero .cat {
+    display: inline-block;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 4px 13px;
+    margin-top: 8px;
+  }
+  .detail-hero .ring-wrap { margin-top: 18px; }
+  .xp-note { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: 12px; line-height: 1.55; }
+  /* La invitación se distingue del dato que la precede sin gritar: mismo
+     tamaño, un tono más vivo y cursiva. Es una pregunta, no un aviso. */
+  .invita { color: var(--text); font-style: italic; opacity: 0.82; }
+
+  .quick-xp {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .quick-xp button {
+    width: 76px; height: 76px;
+    border-radius: 999px;
+    background: var(--bg2);
+    border: 2px solid var(--line);
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    transition: 0.15s ease;
+  }
+  .quick-xp button .xp { font-size: 16.5px; font-weight: 800; }
+  .quick-xp button .t { font-size: 9.5px; color: var(--muted); }
+  .quick-xp button.selected {
+    border-color: var(--mint);
+    background: var(--mint-soft);
+    box-shadow: 0 0 0 5px rgba(95, 224, 176, 0.08), 0 8px 22px rgba(95, 224, 176, 0.18);
+  }
+  .quick-xp button.selected .xp { color: var(--mint); }
+
+  /* Cuadro de descanso: borde neutro, no rojo. Recordar que hay que parar
+     no es lo mismo que avisar de un abuso, y no debe sonar igual. */
+  .modal-card.suave { border: 1.5px solid rgba(234, 241, 239, 0.28); }
+
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .icon-btn.sm { width: 34px; height: 34px; }
+  .icon-btn.sm svg { width: 16px; height: 16px; }
+  .icon-btn.on { border-color: var(--coral); color: var(--coral); }
+
+  /* ---------- Zona de decaimiento ---------- */
+  .decay-panel { border-color: rgba(255, 138, 112, 0.3); }
+  .dz-count {
+    font-size: 11px; font-weight: 800;
+    color: var(--coral); background: var(--coral-soft);
+    border-radius: 999px; padding: 3px 10px;
+  }
+  .dz-list { display: flex; flex-direction: column; gap: 7px; }
+  .dz-row {
+    display: flex; align-items: center; gap: 11px;
+    width: 100%; text-align: left;
+    background: var(--bg2); border: 1px solid var(--line);
+    border-radius: 13px; padding: 9px 12px;
+    font-family: inherit; color: var(--text); cursor: pointer;
+  }
+  .dz-row:active { border-color: var(--coral); }
+  .dz-ic { flex: none; width: 30px; height: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; }
+  .dz-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .dz-tx b { font-size: 13.5px; font-weight: 650; }
+  .dz-tx span { font-size: 11.5px; color: var(--muted); }
+  .dz-row .go { color: var(--faint); flex: none; }
+  .dz-mas { font-size: 11.5px; color: var(--faint); padding: 4px 2px 0; }
+
+  /* Modo selección del historial */
+  .history-item.selectable { cursor: pointer; padding-left: 4px; }
+  .history-item.picked { background: var(--mint-soft); border-radius: 10px; }
+  .hcheck {
+    flex: none; width: 20px; height: 20px; margin-right: 9px;
+    border-radius: 6px; border: 1.5px solid var(--line);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: var(--mint);
+    align-self: center;
+  }
+  .history-item.picked .hcheck { border-color: var(--mint); background: var(--mint-soft); }
+
+  /* Sellos del historial: qué tipo de práctica fue, o de dónde vino la XP */
+  .history-item .tag {
+    display: inline-block;
+    margin-left: 7px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--muted);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px 8px;
+    vertical-align: 1px;
+  }
+  .history-item .tag.src { color: var(--mint); border-color: rgba(95, 224, 176, 0.35); background: var(--mint-soft); }
+
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    padding: 11px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 14px;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-item .note { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .history-item .when { font-size: 11.5px; color: var(--faint); display: block; margin-top: 1px; }
+  .history-item .gain { font-weight: 800; color: var(--mint); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .history-item .gain.loss { color: var(--fire); }
+
+  /* ---------- Árbol / constelación ---------- */
+  .tree-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .tree-stats > div { text-align: center; }
+  .tree-stats .n { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .tree-stats .n.mint { color: var(--mint); }
+  .tree-stats .n.fire { color: var(--fire); }
+  .tree-stats .t { font-size: 10px; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-top: 2px; }
+
+  /* ---------- Encabezado común de sección ----------
+     Misiones, Habilidades, Talentos y Proyectos comparten este esqueleto:
+     una cifra que resume, indicadores y el foco de lo que urge. */
+  .sec-hero { height: auto; min-height: 0; border-radius: 12px 34px 34px 34px; }
+  .sec-hero .scene-body { position: relative; inset: auto; padding: 18px; }
+  /* El degradado de .scene-fade da por hecho un fondo alto con el texto
+     pegado abajo (como la tarjeta de racha): abajo casi opaco, arriba casi
+     transparente. Aquí el texto llena toda la caja, así que las líneas de
+     arriba quedaban casi sin fondo oscuro debajo. Un primer intento puso
+     un tinte parejo y denso — resolvía el contraste pero apagaba el motivo
+     entero, quitándole toda la vida a la tarjeta. Este es más suave y
+     parejo (nunca baja de la mitad de oscuro, ni sube de dos tercios), y
+     el contraste que falta lo pone la sombra del texto, no el fondo. */
+  .sec-hero .scene-fade { background: linear-gradient(165deg, rgba(14, 19, 27, 0.5) 0%, rgba(14, 19, 27, 0.7) 100%); }
+  .sec-hero .scene-body { text-shadow: 0 1px 3px rgba(10, 15, 22, 0.9), 0 4px 16px rgba(10, 15, 22, 0.6); }
+  .sh-main { display: flex; flex-direction: column; gap: 14px; }
+  .sh-lead { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+  .sh-lead .ring-wrap { margin: 0; flex-shrink: 0; }
+  .sh-lead .big { margin-bottom: 0; }
+  .sh-stats { display: flex; gap: 8px; }
+  .sh-stats > div { flex: 1; text-align: center; }
+  .sh-stats .n { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .sh-stats .n.mint { color: var(--mint); }
+  .sh-stats .n.fire { color: var(--fire); }
+  .sh-stats .n.coral { color: var(--coral); }
+  .sh-stats .t { font-size: 10px; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-top: 2px; }
+  .sh-focus {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    text-align: left;
+    font-family: inherit;
+    background: rgba(20, 27, 37, 0.55);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(234, 241, 239, 0.1);
+    border-radius: 16px;
+    padding: 11px 14px;
+    color: var(--text);
+    cursor: pointer;
+    width: 100%;
+  }
+  .sh-focus:active { background: rgba(20, 27, 37, 0.75); }
+  .shf-k { font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
+  .shf-v { font-size: 13.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .shf-bar { display: block; height: 4px; border-radius: 999px; background: rgba(234,241,239,0.14); margin-top: 5px; overflow: hidden; }
+  .shf-bar i { display: block; height: 100%; border-radius: 999px; }
+
+  /* ---------- Rama: el contenedor que se repite en toda la app ---------- */
+  .sec-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 22px 4px 12px;
+  }
+  .sec-label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .branch-kicker {
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--faint);
+    display: block;
+    margin-bottom: 1px;
+  }
+  .branch-head .btitle { min-width: 0; }
+  .branch-head .btitle h3 { line-height: 1.15; }
+
+  /* Enlaces entre secciones */
+  .xlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 650;
+    color: var(--muted);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px 11px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .xlink:active { border-color: var(--mint); color: var(--mint); }
+  .xlink .ic { color: var(--xc, var(--mint)); }
+  .xlink .ic svg { width: 13px; height: 13px; }
+
+  .linked-group + .linked-group { margin-top: 16px; }
+  .linked-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 9px;
+  }
+  .linked-title .ic { color: var(--mint); }
+  .linked-title .ic svg { width: 15px; height: 15px; }
+  .linked-title b { color: var(--text); }
+  .linked-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--lc, var(--mint));
+    border-radius: 6px 14px 14px 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    margin-bottom: 7px;
+    font-size: 13.5px;
+  }
+  .linked-row:active { background: var(--card2); }
+  .linked-row .lr-ic { color: var(--lc); display: inline-flex; flex-shrink: 0; }
+  .linked-row .lr-tx { flex: 1; min-width: 0; }
+  .linked-row .lr-tx b { display: block; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .linked-row .lr-tx span { font-size: 11.5px; color: var(--muted); }
+  .linked-row .lr-go { color: var(--faint); flex-shrink: 0; }
+
+  .branch-card {
+    background: var(--card);
+    border: 1px solid rgba(42, 52, 65, 0.7);
+    border-radius: 26px 26px 26px 10px;
+    padding: 16px 0 6px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .branch-card .branch-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 18px;
+    margin-bottom: 4px;
+  }
+  .branch-head h3 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; }
+  .branch-head .count {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--mint);
+    background: var(--mint-soft);
+    border-radius: 999px;
+    padding: 3px 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .branch-head h3 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* El lápiz solo aparece al acercarse: el nombre tiene que leerse como un
+     título, no como un campo de formulario permanente. */
+  .branch-head h3.renombrable { cursor: text; display: flex; align-items: center; gap: 6px; }
+  .branch-head h3.renombrable .ic {
+    flex: none;
+    opacity: 0;
+    color: var(--muted);
+    transition: opacity 0.15s;
+  }
+  .branch-head h3.renombrable:hover .ic { opacity: 1; }
+  .bhead-btns { margin-left: auto; display: flex; gap: 7px; }
+
+  /* ---------- Menú de herramientas de una rama ----------
+     El encabezado se llenaba de iconos sueltos sin nombre, y en el móvil
+     no cabían. Aquí cada herramienta lleva su rótulo a la izquierda y su
+     icono a la derecha, así no hay que adivinar qué hace cada dibujito.
+     Fuera solo queda "＋", que es lo único que se usa a diario. */
+  .bmenu-wrap { position: relative; display: inline-flex; }
+  .bmenu {
+    display: none;
+    position: absolute;
+    right: 0; top: calc(100% + 8px);
+    width: max-content;
+    max-width: min(280px, calc(100vw - 44px));
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 6px;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55);
+    z-index: 40;
+  }
+  .bmenu.open { display: block; }
+  .bmenu button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    padding: 9px 10px;
+    border-radius: 11px;
+  }
+  .bmenu button:hover { background: var(--bg2); }
+  .bm-tx { flex: 1; min-width: 0; }
+  .bm-tx b { display: block; font-size: 13.5px; font-weight: 650; line-height: 1.25; }
+  .bm-tx span { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+  .bm-ic {
+    flex: none;
+    width: 32px; height: 32px;
+    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+  }
+  .bmenu button:hover .bm-ic { color: var(--text); }
+  .bmenu button.danger .bm-tx b { color: var(--coral); }
+  .bmenu button.danger .bm-ic { color: var(--coral); border-color: rgba(255, 138, 112, 0.35); }
+  .bmenu button.danger:hover { background: var(--coral-soft); }
+  .bmenu button.danger:hover .bm-ic { color: var(--coral); }
+  .bm-ic svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .badd {
+    width: 32px; height: 32px;
+    border-radius: 999px;
+    border: 1.5px dashed #3a4757;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .badd svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .badd:active { border-color: var(--mint); color: var(--mint); }
+  .badd.solid { border-style: solid; }
+  .badd.on {
+    border-style: solid;
+    border-color: var(--mint);
+    background: var(--mint-soft);
+    color: var(--mint);
+  }
+  /* En el móvil, fuera de pantalla completa, la rama es SOLO una vista
+     previa: no recorre nada por dentro. Así el dedo nunca se pelea con la
+     caja y la página se desliza con naturalidad. Para recorrer la rama de
+     verdad está el modo pantalla completa. En escritorio se restaura el
+     desplazamiento más abajo, porque ahí lo maneja el ratón y no compite
+     con el gesto de la página. */
+  .const-wrap {
+    overflow: hidden;
+    touch-action: auto;
+    scrollbar-width: none;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(139, 153, 165, 0.09) 1px, transparent 1.6px);
+    background-size: 26px 26px;
+  }
+  /* Aviso de que la vista previa está recortada, y atajo para abrirla */
+  .fs-open {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: calc(100% - 36px);
+    margin: 10px 18px 2px;
+    padding: 9px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 650;
+    cursor: pointer;
+  }
+  .fs-open svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .fs-open:active { border-color: var(--mint); color: var(--mint); }
+  @media (max-width: 899px) { .fs-open { display: flex; } }
+
+  /* ---------- Rama a pantalla completa ----------
+     Un lienzo sin nada alrededor para acomodar y conectar talentos con
+     sitio de sobra, con las herramientas siempre a mano en la barra. */
+  .fs-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: var(--bg);
+    flex-direction: column;
+  }
+  .fs-overlay.show { display: flex; }
+  body.fs-on { overflow: hidden; }
+  .fs-bar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: calc(11px + env(safe-area-inset-top)) 14px 11px;
+    background: rgba(21, 27, 37, 0.92);
+    border-bottom: 1px solid var(--line);
+  }
+  .fs-close {
+    flex: none;
+    width: 36px; height: 36px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--text);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .fs-close svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+  .fs-title { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; }
+  .fs-title b { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fs-title span {
+    flex: none;
+    font-size: 11px; font-weight: 800;
+    color: var(--mint); background: var(--mint-soft);
+    border-radius: 999px; padding: 3px 9px;
+    font-variant-numeric: tabular-nums;
+  }
+  .fs-tools { flex: none; display: flex; gap: 7px; }
+  .fs-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  /* Aquí sí se recorre en los dos ejes: es el modo que existe para eso */
+  .fs-overlay .const-wrap {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    overflow: auto;
+    touch-action: pan-x pan-y;
+  }
+  .fs-overlay .const-wrap.editing { touch-action: none; cursor: grab; }
+  /* Fuera de edición el lienzo se arrastra para recorrerlo */
+  .fs-overlay .const-wrap:not(.editing) { cursor: grab; }
+  .const-wrap.panning { cursor: grabbing !important; }
+
+  /* ---------- Menú de clic derecho sobre el lienzo ----------
+     Solo existe en escritorio: en táctil no hay clic derecho, y las mismas
+     acciones ya están en el menú de la rama. */
+  .ctx {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    min-width: 258px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  }
+  .ctx.show { display: block; }
+  .ctx-head {
+    font-size: 10px; font-weight: 800; letter-spacing: 1.4px;
+    text-transform: uppercase; color: var(--faint);
+    padding: 7px 10px 5px;
+  }
+  .ctx button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    background: none;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .ctx button:hover { background: var(--bg2); }
+  .ctx-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .ctx-tx b { font-size: 13.5px; font-weight: 650; }
+  .ctx-tx span { font-size: 11px; color: var(--muted); }
+  .ctx kbd {
+    flex: none;
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--muted);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 3px 7px;
+  }
+  .ctx-ic { flex: none; color: var(--muted); display: inline-flex; }
+  .ctx-ic svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .ctx-sep { height: 1px; background: var(--line); margin: 5px 8px; }
+
+  /* Atajos escritos bajo cada rama (solo escritorio) */
+  .keys {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px 6px;
+    margin-top: 8px;
+    font-size: 10.5px;
+    color: var(--faint);
+  }
+  .keys .sep { font-style: normal; opacity: 0.5; }
+  .keys .gl { color: var(--muted); font-weight: 600; font-size: 12px; margin: 0 1px; }
+  .keys kbd {
+    font-family: inherit;
+    font-size: 9.5px;
+    font-weight: 800;
+    color: var(--muted);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1.5px 5px;
+    margin-right: 2px;
+  }
+  /* La misma pastilla que las teclas, con el dibujo dentro: el ratón es un
+     atajo más y tiene que leerse como tal. */
+  .keys kbd.kb-raton { padding: 1.5px 4px; display: inline-flex; align-items: center; vertical-align: -3px; }
+  .keys kbd.kb-raton svg { width: 11px; height: 13px; display: block; }
+  .fs-hint {
+    flex: none;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: var(--muted);
+    text-align: center;
+    border-top: 1px solid var(--line);
+  }
+  .const-wrap.editing { touch-action: none; cursor: grab; }
+  /* Fuera de edicion los talentos tambien se agarran (solo para acomodarlos) */
+  .const-wrap:not(.editing) .cnode { cursor: pointer; }
+  .const-wrap:not(.editing) .cnode.caja { cursor: pointer; }
+  .const-wrap.moviendo, .const-wrap.moviendo .cnode { cursor: grabbing; }
+  /* En el mapa no hay nada que seleccionar: los nombres de los talentos son
+     etiquetas de un dibujo, no texto que uno vaya a copiar. Poder marcarlos
+     solo dejaba media rama en azul al arrastrar. */
+  .const-wrap, .const-wrap * {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .const-wrap::-webkit-scrollbar { display: none; }
+  .const-wrap svg { display: block; }
+  .cnode { cursor: pointer; }
+  .const-wrap.editing .cnode { cursor: grab; }
+  .cnode.dragging { cursor: grabbing; }
+  .port { cursor: crosshair; }
+  /* El círculo de la letra es un interruptor, no un adorno: se comporta como
+     un botón para que la mano lo pruebe sin que nadie se lo explique. */
+  .port-in.switch { cursor: pointer; }
+  .port-in.switch circle:not(.halo) { transition: 0.15s; }
+  .port-in.switch:hover circle:not(.halo) { stroke-width: 3.2; }
+  .grupo-tag { cursor: pointer; }
+  .grupo-tag:hover rect { fill: #1a2330; }
+  /* Tijeras: corta el hilo entre dos talentos */
+  .edge-hit {
+    cursor: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%2310151d' stroke-width='4.6'%3E%3Ccircle cx='6' cy='6' r='2.8'/%3E%3Ccircle cx='6' cy='18' r='2.8'/%3E%3Cpath d='M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12'/%3E%3C/g%3E%3Cg stroke='%23ff8a70' stroke-width='2'%3E%3Ccircle cx='6' cy='6' r='2.8'/%3E%3Ccircle cx='6' cy='18' r='2.8'/%3E%3Cpath d='M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12'/%3E%3C/g%3E%3C/svg%3E") 6 6, pointer;
+  }
+  /* Latido en los talentos listos para empezar */
+  .node-pulse {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pulseRing 2.6s ease-out infinite;
+    pointer-events: none;
+  }
+  @keyframes pulseRing {
+    0%   { transform: scale(0.9); opacity: 0.5; }
+    70%  { transform: scale(1.55); opacity: 0; }
+    100% { transform: scale(1.55); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .node-pulse { animation: none; opacity: 0.35; } }
+  .const-hint {
+    font-size: 10.5px;
+    color: var(--faint);
+    text-align: center;
+    padding: 8px 18px 10px;
+    letter-spacing: 0.4px;
+    line-height: 1.5;
+  }
+  .const-hint.edit { color: var(--mint); }
+  .const-legend {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 10.5px;
+    color: var(--faint);
+    padding: 4px 18px 8px;
+  }
+  .const-legend b { color: var(--muted); font-weight: 600; }
+  .branch-collapsed {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 18px 10px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .branch-collapsed .pips { display: flex; gap: 5px; }
+  .branch-collapsed .pips i {
+    width: 9px; height: 9px;
+    border-radius: 3px;
+    transform: rotate(45deg);
+    display: inline-block;
+    background: #2e3947;
+  }
+  @keyframes dashFlow { to { stroke-dashoffset: -24; } }
+  .edge-flow { animation: dashFlow 1.1s linear infinite; }
+  @media (prefers-reduced-motion: reduce) { .edge-flow { animation: none; } }
+
+  /* ---------- Detalle de talento ---------- */
+  .perk-hero { text-align: center; padding: 0 20px 22px; }
+  .perk-hero .skill-emoji {
+    width: 58px; height: 58px;
+    margin: -28px auto 12px;
+    position: relative;
+    z-index: 2;
+    border: 4px solid var(--card);
+  }
+  .perk-hero .skill-emoji svg { width: 26px; height: 26px; }
+  .perk-hero .state-big {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    background: var(--bg2);
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 5px 14px;
+    margin-bottom: 12px;
+  }
+  .perk-hero.h-completed .state-big { background: var(--mint-soft); color: var(--mint); }
+  .perk-hero.h-active .state-big, .perk-hero.h-due .state-big { background: var(--fire-soft); color: var(--fire); }
+  .perk-hero.h-expired .state-big { background: var(--coral-soft); color: var(--coral); }
+  .perk-hero h2 { font-size: 23px; font-weight: 700; letter-spacing: -0.4px; }
+  .perk-hero .branch-lbl { color: var(--muted); font-size: 12.5px; font-weight: 600; margin-top: 5px; }
+  .perk-hero .desc { font-size: 14px; color: var(--muted); line-height: 1.55; margin-top: 12px; }
+  .fact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .fact {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 18px 18px 18px 6px;
+    padding: 12px 14px;
+  }
+  .fact:nth-child(even) { border-radius: 18px 18px 6px 18px; }
+  .fact .k { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--faint); }
+  .fact .v {
+    font-size: 16.5px;
+    font-weight: 700;
+    margin-top: 3px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+  }
+  .fact .v.acc { color: var(--mint); }
+  .bar {
+    height: 6px;
+    background: var(--bg2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    min-width: 6px;
+  }
+
+  /* ---------- Formularios ---------- */
+  label.field { display: block; margin-bottom: 15px; }
+  label.field > span, .field > span.lbl {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  input[type="text"], input[type="number"], input[type="password"], select, textarea {
+    width: 100%;
+    max-width: 100%;
+    background: var(--bg2);
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    padding: 13px 15px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+  }
+  /* El textarea solo crece hacia arriba y abajo, nunca a lo ancho,
+     y nunca por debajo de dos líneas legibles. */
+  textarea {
+    resize: vertical;
+    min-height: 76px;
+    max-height: 320px;
+    line-height: 1.5;
+  }
+  select { appearance: none; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--mint); }
+  .field-hint { font-size: 12px; color: var(--faint); margin-top: 6px; line-height: 1.5; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .icon-grid button {
+    padding: 10px 0;
+    background: var(--bg2);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon-grid button svg { width: 20px; height: 20px; }
+  .icon-grid button.selected {
+    border-color: var(--sel, var(--mint));
+    background: color-mix(in srgb, var(--sel, var(--mint)) 14%, transparent);
+    color: var(--sel, var(--mint));
+  }
+
+  .color-grid { display: flex; gap: 9px; flex-wrap: wrap; }
+  .color-grid button {
+    width: 38px; height: 38px;
+    border-radius: 58% 42% 55% 45% / 52% 48% 60% 40%;
+    border: 2px solid transparent;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    cursor: pointer;
+  }
+  .color-grid button.selected { outline-color: var(--text); }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0 14px;
+  }
+  .toggle-row .lbl { font-size: 14.5px; font-weight: 700; }
+  /* Rótulo con icono al lado: el escudo de "blindada" dice de un vistazo lo
+     que la palabra tarda una frase en explicar. */
+  .toggle-row .lbl.con-ic { display: flex; align-items: center; gap: 7px; }
+  .toggle-row .lbl.con-ic .ic { color: var(--mint); }
+  .toggle-row .sub { font-size: 12.5px; color: var(--muted); font-weight: 400; margin-top: 2px; line-height: 1.45; }
+  .switch { position: relative; width: 50px; height: 28px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .track {
+    position: absolute; inset: 0;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    transition: 0.2s;
+    cursor: pointer;
+  }
+  .switch .track::before {
+    content: "";
+    position: absolute;
+    width: 20px; height: 20px;
+    left: 3px; top: 3px;
+    background: var(--faint);
+    border-radius: 999px;
+    transition: 0.2s;
+  }
+  .switch input:checked + .track { background: var(--mint-soft); border-color: var(--mint); }
+  .switch input:checked + .track::before { transform: translateX(22px); background: var(--mint); }
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 12, 18, 0.72);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.2s;
+  }
+  .modal-backdrop.show { opacity: 1; pointer-events: auto; }
+  .modal-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-bottom: none;
+    border-radius: 30px 30px 0 0;
+    padding: 26px 20px calc(26px + env(safe-area-inset-bottom));
+    width: 100%;
+    max-width: 560px;
+    transform: translateY(34px);
+    transition: 0.22s;
+  }
+  .modal-backdrop.show .modal-card { transform: none; }
+  .modal-card p {
+    font-size: 15px;
+    line-height: 1.55;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions .btn { flex: 1; }
+
+  /* ---------- Tutorial de bienvenida ---------- */
+  /* Alto mínimo y botones pegados abajo: las tarjetas no traen el mismo texto,
+     y sin esto "Siguiente" se movía debajo del dedo entre una y otra — que es
+     justo el botón que se pulsa cinco veces seguidas. */
+  .tuto-card {
+    text-align: center;
+    position: relative;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+  }
+  .tuto-card .modal-actions { margin-top: auto; }
+  .tuto-card .btn[disabled] { opacity: 0.35; cursor: default; }
+  .tuto-x {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 32px; height: 32px;
+    border: none;
+    border-radius: 999px;
+    background: var(--bg2);
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .tuto-x:hover { color: var(--text); }
+  /* El logo ocupa el mismo hueco que el icono de las demás tarjetas, para que
+     la fila de arriba mida igual en las seis. */
+  .tuto-logo { display: flex; align-items: center; color: var(--text); }
+  .tuto-logo svg { height: 40px; width: auto; display: block; }
+  /* Cada fila con su altura reservada. Las medidas salen del contenido más
+     largo de las seis tarjetas: el texto ocupa como mucho cuatro líneas y el
+     gris dos, así que ese es el sitio que se guarda siempre. */
+  .tuto-marca {
+    height: 62px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tuto-ic {
+    width: 62px; height: 62px;
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--tc);
+    background: color-mix(in srgb, var(--tc) 14%, transparent);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tc) 34%, transparent);
+  }
+  .tuto-titulo {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+    min-height: 27px;
+    margin-bottom: 10px;
+  }
+  /* Con `.tuto-tx` a secas mandaba `.modal-card p`, que es mas especifico:
+     el texto salia a 15px y las alturas reservadas dejaban de cuadrar con lo
+     que de verdad ocupaba. */
+  .tuto-card p.tuto-tx {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--text);
+    min-height: 93px;
+    margin-bottom: 10px;
+  }
+  .tuto-card p.tuto-tx b { color: var(--mint); font-weight: 700; }
+  .tuto-card p.tuto-pie {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--faint);
+    min-height: 39px;
+    margin-bottom: 18px;
+  }
+  /* Los puntos dicen cuánto falta: sin ellos, "Siguiente" parece que puede
+     seguir para siempre y la primera reacción es saltárselo. */
+  .tuto-dots { display: flex; justify-content: center; gap: 7px; margin-bottom: 18px; }
+  .tuto-dots i {
+    width: 7px; height: 7px;
+    border-radius: 999px;
+    background: var(--line);
+    transition: 0.25s;
+  }
+  .tuto-dots i.on { background: var(--mint); width: 20px; }
+
+  /* ---------- Ventana de una caja del ático ---------- */
+  .caja-card { max-height: 86vh; overflow-y: auto; }
+  .caja-head { text-align: center; margin-bottom: 14px; }
+  .caja-nombre {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 19px;
+    cursor: text;
+    color: var(--text);
+  }
+  .caja-nombre .ic { opacity: 0; color: var(--muted); transition: opacity 0.15s; }
+  .caja-nombre:hover .ic { opacity: 1; }
+  .caja-sub {
+    display: block;
+    margin-top: 5px;
+    font-size: 11.5px;
+    color: var(--faint);
+  }
+  .caja-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .caja-stats > div {
+    background: var(--bg2);
+    border-radius: 14px;
+    padding: 9px 4px;
+    text-align: center;
+  }
+  .caja-stats b { display: block; font-size: 19px; font-variant-numeric: tabular-nums; }
+  .caja-stats span { font-size: 10.5px; color: var(--faint); }
+  .caja-lista { display: flex; flex-direction: column; gap: 6px; max-height: 40vh; overflow-y: auto; }
+  .caja-row { display: flex; align-items: stretch; gap: 6px; }
+  .caja-ir {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 9px 12px;
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+    min-width: 0;
+  }
+  .caja-row.ok .caja-ir { border-color: rgba(95, 224, 176, 0.32); }
+  .caja-ir .ct { min-width: 0; }
+  .caja-ir .ct b { display: block; font-size: 13.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .caja-ir .ct span { font-size: 10.5px; color: var(--faint); }
+  /* Sacar un talento es la acción menos usada de la fila, así que va al
+     margen y sin color: se encuentra, pero no se pulsa sin querer. */
+  .caja-sacar {
+    flex: none;
+    width: 38px;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    color: var(--muted);
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .caja-sacar:hover { color: var(--mint); border-color: var(--mint); }
+  /* Última confirmación de borrado: sacude y late en rojo */
+  .modal-card.alarm {
+    border-color: var(--coral);
+    animation: alarmShake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97), alarmGlow 1.6s ease-in-out 0.55s infinite;
+  }
+  .modal-card.alarm p { color: var(--coral); font-weight: 650; }
+  @keyframes alarmShake {
+    0%, 100% { transform: translateX(0); }
+    12% { transform: translateX(-9px); }
+    26% { transform: translateX(8px); }
+    40% { transform: translateX(-6px); }
+    54% { transform: translateX(5px); }
+    68% { transform: translateX(-3px); }
+    84% { transform: translateX(2px); }
+  }
+  @keyframes alarmGlow {
+    0%, 100% { box-shadow: 0 0 0 1px var(--coral), 0 0 22px rgba(255, 138, 112, 0.22); }
+    50% { box-shadow: 0 0 0 2px var(--coral), 0 0 46px rgba(255, 138, 112, 0.5); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .modal-card.alarm { animation: none; box-shadow: 0 0 0 2px var(--coral), 0 0 40px rgba(255, 138, 112, 0.4); }
+  }
+
+  /* ---------- Celebración ---------- */
+  .celebrate {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(circle at 50% 46%, rgba(14, 19, 27, 0.55), rgba(14, 19, 27, 0.92));
+  }
+  .celebrate.show { animation: celFade 2.1s ease forwards; }
+  @keyframes celFade {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    82% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .cel-ring {
+    position: absolute;
+    width: 180px; height: 180px;
+    border-radius: 999px;
+    border: 2px solid var(--cel, #5fe0b0);
+    opacity: 0;
+  }
+  .celebrate.show .cel-ring { animation: celRing 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s; }
+  .celebrate.show .cel-ring.r2 { animation-delay: 0.32s; animation-duration: 1.7s; }
+  @keyframes celRing {
+    0% { transform: scale(0.4); opacity: 0.9; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+  .cel-core { text-align: center; position: relative; }
+  .cel-icon {
+    width: 84px; height: 84px;
+    margin: 0 auto 16px;
+    border-radius: 58% 42% 55% 45% / 52% 48% 60% 40%;
+    background: color-mix(in srgb, var(--cel, #5fe0b0) 18%, transparent);
+    border: 2px solid var(--cel, #5fe0b0);
+    color: var(--cel, #5fe0b0);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 44px color-mix(in srgb, var(--cel, #5fe0b0) 45%, transparent);
+  }
+  .cel-icon svg { width: 38px; height: 38px; stroke-width: 1.6; }
+  .celebrate.show .cel-icon { animation: celPop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s backwards; }
+  @keyframes celPop {
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .cel-title {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    color: #fff;
+  }
+  .cel-sub { font-size: 14px; color: var(--muted); margin-top: 5px; }
+  .celebrate.show .cel-title, .celebrate.show .cel-sub {
+    animation: celPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.22s backwards;
+  }
+
+  /* ---------- Toast ---------- */
+  /* ---------- Avisos ----------
+     Antes eran todos el mismo bloque verde con texto negro, dijeran lo que
+     dijeran: "+40 XP" y "El token expiró" se veían igual. Y ese verde
+     saturado, en un aviso que dura dos segundos, obliga a un esfuerzo de
+     lectura que no compensa.
+
+     Ahora el fondo es siempre oscuro —el mismo carbón que el resto de la
+     app, así que el aviso deja de ser una isla que obliga a reajustar la
+     vista— y el color vive en el borde y el icono. Cinco tonos, y la
+     duración también comunica: lo que ya sabías se va rápido, lo que hay
+     que leer se queda. */
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(110px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+    max-width: min(92vw, 420px);
+  }
+  .toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(23, 30, 40, 0.97);
+    border: 1.5px solid var(--line);
+    border-left-width: 3px;
+    color: var(--text);
+    padding: 11px 15px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+    transition: opacity 0.22s ease, transform 0.22s cubic-bezier(.34,1.4,.64,1);
+    max-width: 100%;
+    pointer-events: auto;
+  }
+  .toast.show { opacity: 1; transform: translateY(0) scale(1); }
+  .t-ic { flex: none; display: inline-flex; color: var(--tc, var(--muted)); }
+  .t-ic svg {
+    width: 18px; height: 18px;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .t-tx { flex: 1; min-width: 0; }
+  .t-act {
+    flex: none;
+    background: none;
+    border: 1px solid var(--tc, var(--line));
+    color: var(--tc, var(--text));
+    border-radius: 999px;
+    padding: 4px 11px;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .t-act:active { background: rgba(255, 255, 255, 0.07); }
+
+  .toast.t-logro    { --tc: var(--mint);  border-left-color: var(--mint); }
+  .toast.t-hecho    { --tc: var(--faint); border-left-color: var(--faint); }
+  .toast.t-deshecho { --tc: var(--fire);  border-left-color: var(--fire); }
+  .toast.t-atencion { --tc: var(--coral); border-left-color: var(--coral); }
+  .toast.t-calma    { --tc: var(--muted); border-left-color: var(--muted); }
+  /* Solo el logro se permite brillar: es el único que celebra algo */
+  .toast.t-logro { box-shadow: 0 14px 34px rgba(0,0,0,.5), 0 0 0 1px rgba(95,224,176,.12); }
+
+  @media (prefers-reduced-motion: reduce) { .toast { transition: opacity 0.2s ease; transform: none; } }
+
+  .sum-card.wide {
+    width: 100%;
+    border-radius: 26px 10px 26px 26px;
+    margin-bottom: 14px;
+  }
+  .sum-card.wide .sw-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .sum-card.wide .sw-head .ic { color: var(--mint); margin: 0; }
+  .sum-card.wide .sw-go { margin-left: auto; color: var(--faint); }
+  .sw-rows { display: flex; flex-direction: column; gap: 8px; }
+  .sw-row { display: flex; align-items: center; gap: 10px; font-size: 12.5px; }
+  .sw-name {
+    flex: 1; min-width: 0;
+    color: var(--muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .sw-bar {
+    width: 74px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--bg2);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .sw-bar i { display: block; height: 100%; border-radius: 999px; }
+  .sw-pct { font-weight: 700; font-variant-numeric: tabular-nums; width: 34px; text-align: right; flex-shrink: 0; }
+
+  /* ---------- Bienvenida ---------- */
+  .ob-q {
+    background: var(--card);
+    border: 1px solid rgba(42, 52, 65, 0.7);
+    border-radius: 26px 26px 26px 10px;
+    padding: 24px 22px;
+  }
+  .ob-num {
+    font-size: 11px; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--mint); margin-bottom: 8px;
+  }
+  .ob-q h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 8px; }
+  .ob-areas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 6px; }
+  .ob-area {
+    display: flex; align-items: center; gap: 10px;
+    text-align: left; font-family: inherit; font-size: 13.5px; font-weight: 650;
+    color: var(--muted);
+    background: var(--bg2);
+    border: 2px solid transparent;
+    border-radius: 15px;
+    padding: 13px 14px;
+    cursor: pointer;
+  }
+  .ob-area .oa-ic { color: var(--oc); flex-shrink: 0; display: inline-flex; }
+  .ob-area.on { border-color: var(--oc); background: color-mix(in srgb, var(--oc) 12%, transparent); color: var(--text); }
+  .ob-pace { display: flex; flex-direction: column; gap: 9px; margin-top: 6px; }
+  .ob-pace-opt {
+    text-align: left; font-family: inherit;
+    background: var(--bg2);
+    border: 2px solid transparent;
+    border-radius: 15px;
+    padding: 13px 15px;
+    cursor: pointer;
+    color: var(--muted);
+  }
+  .ob-pace-opt b { display: block; font-size: 14.5px; color: var(--text); margin-bottom: 2px; }
+  .ob-pace-opt span { font-size: 12.5px; }
+  .ob-pace-opt.on { border-color: var(--mint); background: var(--mint-soft); }
+  .ob-nav { display: flex; gap: 10px; margin-top: 14px; }
+  .ob-nav .btn { flex: 1; }
+  .ob-dots { display: flex; justify-content: center; gap: 7px; margin-top: 18px; }
+  .ob-dots i { width: 7px; height: 7px; border-radius: 999px; background: var(--line); display: block; }
+  .ob-dots i.on { background: var(--mint); width: 22px; }
+
+  /* ---------- Misiones ---------- */
+  .ms-today { border-color: rgba(95, 224, 176, 0.3); }
+  .mt-head { display: flex; align-items: center; gap: 14px; }
+  .mt-head .ring-wrap { margin: 0; flex-shrink: 0; }
+  .mt-tx { flex: 1; min-width: 0; }
+  .mt-tx b { display: block; font-size: 14.5px; font-weight: 700; }
+  .mt-tx span { font-size: 12.5px; color: var(--muted); }
+  .mt-head .btn { flex-shrink: 0; }
+
+  .ms-hero {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: var(--card);
+    border: 1px solid rgba(42, 52, 65, 0.7);
+    border-radius: 34px 34px 34px 12px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  .ms-hero .ring-wrap { margin: 0; flex-shrink: 0; }
+  .ms-hero-tx { min-width: 0; }
+  .ms-day {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--mint);
+    margin-bottom: 5px;
+  }
+  .ms-line { font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+  .ms-line b { color: var(--text); }
+
+  .ms-list { display: flex; flex-direction: column; gap: 9px; }
+  .ms-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--mc);
+    border-radius: 8px 18px 18px 8px;
+    padding: 11px 13px;
+  }
+  .ms-card.done { opacity: 0.62; }
+  .ms-card.done .ms-name { text-decoration: line-through; color: var(--muted); }
+  .ms-check {
+    width: 38px; height: 38px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    border: 2px solid var(--mc);
+    background: transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: var(--mc);
+    font-family: inherit;
+    position: relative;
+    transition: transform 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+  }
+  .ms-check:active { transform: scale(0.88); }
+  .ms-check svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+  /* Cumplida: el círculo se rellena con el color de la misión y el trazo
+     pasa a oscuro para leerse encima. */
+  .ms-card.done .ms-check { background: var(--mc); border-color: var(--mc); color: #10151d; }
+  .ms-check[disabled] { cursor: default; }
+
+  /* La capa de reposo dice el estado; la de encima, la intención. Nunca se
+     ven las dos a la vez, y en reposo un círculo pendiente está vacío. */
+  .ms-base, .ms-sobre { display: inline-flex; align-items: center; justify-content: center; }
+  .ms-base { transition: opacity 0.14s ease; }
+  .ms-sobre {
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity 0.14s ease;
+  }
+  .ms-sobre svg { width: 17px; height: 17px; stroke-width: 2.6; }
+  .ms-mas { font-size: 13px; font-weight: 800; letter-spacing: -0.3px; }
+  @media (hover: hover) and (pointer: fine) {
+    .ms-check.muda:hover .ms-base { opacity: 0; }
+    .ms-check.muda:hover .ms-sobre { opacity: 1; }
+    /* Pendiente: el aro se tiñe al asomar la palomita, para que el gesto se
+       sienta como marcar y no como que ya estuviera marcada. */
+    .ms-card:not(.done) .ms-check:hover { background: color-mix(in srgb, var(--mc) 16%, transparent); }
+    /* Cumplida: pasa a rojo, porque lo que ofrece es revertir */
+    .ms-card.done .ms-check:hover { background: var(--coral); border-color: var(--coral); }
+  }
+  .ms-count { font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .ms-count i { font-style: normal; font-size: 10px; color: var(--faint); }
+  .ms-body { flex: 1; min-width: 0; cursor: pointer; }
+  .ms-name { font-size: 14.5px; font-weight: 650; overflow-wrap: anywhere; }
+  .ms-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px 10px;
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .ms-side { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .ms-streak {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--fire);
+    font-variant-numeric: tabular-nums;
+  }
+  /* Deshacer: ahora es una etiqueta dentro de la misión, con flecha de
+     retroceso. El círculo con "−" pegado a la racha se leía como restar la
+     racha, que es justo lo contrario de lo que hace. */
+  .ms-undo {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--bg2);
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 9px 3px 7px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .ms-undo svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+  .ms-undo:active, .ms-undo:hover { color: var(--coral); border-color: var(--coral); }
+
+  /* Sacudida al deshacer algo ya logrado */
+  @keyframes sacudida {
+    0%, 100% { transform: translateX(0); }
+    15% { transform: translateX(-8px); }
+    32% { transform: translateX(7px); }
+    50% { transform: translateX(-5px); }
+    68% { transform: translateX(3px); }
+    85% { transform: translateX(-2px); }
+  }
+  .app.sacude { animation: sacudida 0.44s cubic-bezier(.36,.07,.19,.97); }
+  @media (prefers-reduced-motion: reduce) { .app.sacude { animation: none; } }
+
+  /* ---------- Requisitos ----------
+     Fichas encendibles en vez de un desplegable: desde que se pueden elegir
+     varios, un <select multiple> sería impracticable con el pulgar. */
+  .req-list { display: flex; flex-wrap: wrap; gap: 7px; }
+  .req-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 13px 7px 10px;
+    font-family: inherit;
+    font-size: 12.5px;
+    color: var(--muted);
+    cursor: pointer;
+    max-width: 100%;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .req-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .req-chip i { font-style: normal; font-size: 10px; color: var(--faint); }
+  .req-chip .ic { color: var(--faint); flex: none; }
+  .req-chip.on {
+    background: var(--mint-soft);
+    border-color: var(--mint);
+    color: var(--text);
+  }
+  .req-chip.on .ic { color: var(--mint); }
+  .req-chip.hecho { border-color: var(--mint); color: var(--text); }
+  .req-chip.hecho .ic { color: var(--mint); }
+  .req-chip.no { opacity: 0.35; cursor: not-allowed; }
+  @media (hover: hover) and (pointer: fine) {
+    .req-chip:not(.no):hover { border-color: var(--faint); background: var(--card2); }
+  }
+
+  /* ---------- Tipo y etapas de un talento ---------- */
+  /* El selector de tipo: tres botones excluyentes con su icono. En pantalla
+     estrecha se apilan, porque "Compra" con su llave no cabe en un tercio
+     de 375px sin partir la palabra. */
+  .tipo-seg button {
+    flex-direction: column;
+    gap: 5px;
+    padding: 11px 6px;
+  }
+  .tipo-seg .ic { color: var(--muted); }
+  .tipo-seg button.on .ic { color: var(--mint); }
+
+  .fact .v.tipo-v {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px;
+  }
+  .fact .v.tipo-v .ic { color: var(--mint); }
+
+  /* Las etapas de una meta. Comparten el aire de las de un proyecto sin
+     copiar su chip: aquí se marcan una a una, así que cada una es una fila
+     con su casilla y necesita sitio para el dedo. */
+  .pk-steps { display: flex; flex-direction: column; gap: 7px; }
+  .pk-step {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%;
+    text-align: left;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--pc);
+    border-radius: 8px 14px 14px 8px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .pk-step[disabled] { cursor: default; opacity: 0.72; }
+  .pk-box {
+    flex: none;
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    border: 2px solid var(--line);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #0e131b;
+  }
+  .pk-box svg { stroke-width: 3.2; }
+  .pk-step.ok .pk-box { background: var(--pc); border-color: var(--pc); }
+  .pk-step.ok .pk-tx { color: var(--muted); text-decoration: line-through; }
+  .pk-tx { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .pk-del {
+    flex: none;
+    width: 22px; height: 22px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 7px;
+    color: var(--faint);
+    font-size: 12px;
+    line-height: 1;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .pk-del:hover { color: var(--coral); background: var(--coral-soft); }
+  }
+
+  /* ---------- Reordenar arrastrando ----------
+     Genérico: lo usan las misiones y las habilidades, y sirve para
+     cualquier lista que se acomode a mano. El modo no dura más que el
+     arrastre, así que estas reglas solo están vivas mientras se mueve algo
+     y no hace falta un estado visible de "estoy editando". */
+  .hint-hold { font-size: 10.5px; color: var(--faint); }
+
+  .reordenando { touch-action: none; user-select: none; }
+  /* Mientras se arrastra, la pieza entera es un asa: nada de lo que lleva
+     dentro debe dispararse por el camino. */
+  .reordenando > * { cursor: grabbing; user-select: none; }
+  .reordenando > * * { pointer-events: none; }
+
+  /* El hueco que deja la pieza: dice dónde va a caer sin taparlo todo. */
+  .arr-hueco {
+    opacity: 0.26;
+    border-style: dashed !important;
+  }
+
+  /* La pieza flotando bajo el dedo. Mismo tratamiento que el editor del
+     Resumen, para que arrastrar se sienta igual en toda la app. */
+  .arr-flota {
+    opacity: 0.96;
+    transform: scale(1.03);
+    filter: drop-shadow(0 18px 34px rgba(0, 0, 0, 0.6));
+    transition: none;
+  }
+  .arr-flota * { pointer-events: none; }
+
+  .seg { display: flex; gap: 7px; }
+  .seg button {
+    flex: 1;
+    background: var(--bg2);
+    border: 2px solid transparent;
+    border-radius: 14px;
+    padding: 11px 6px;
+    font-size: 12.5px;
+    font-weight: 650;
+    font-family: inherit;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .seg button.on { border-color: var(--mint); background: var(--mint-soft); color: var(--mint); }
+  .daypick { display: flex; gap: 6px; margin-top: 8px; }
+  .daypick button {
+    flex: 1;
+    aspect-ratio: 1;
+    background: var(--bg2);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .daypick button.on { border-color: var(--mint); background: var(--mint-soft); color: var(--mint); }
+
+  /* ---------- Proyectos ---------- */
+  .proj-list { display: flex; flex-direction: column; gap: 10px; padding: 0 16px; }
+  .proj-card {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--pc);
+    border-radius: 8px 20px 20px 8px;
+    padding: 13px 15px;
+    cursor: pointer;
+  }
+  .proj-card:active { background: var(--card2); }
+  .proj-card.dim { opacity: 0.5; }
+  .proj-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .proj-ic {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .proj-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 14.5px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .proj-state {
+    flex-shrink: 0;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .proj-bar .bar { height: 5px; }
+  .proj-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 7px;
+  }
+  .proj-meta b { color: var(--text); }
+  .proj-steps { display: none; }
+  .pstep {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    color: var(--muted);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px 11px 4px 8px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pstep i {
+    font-style: normal;
+    width: 13px; height: 13px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    align-self: flex-start;
+  }
+  .pstep i svg { width: 9px; height: 9px; stroke-width: 3.4; }
+  .pstep.ok { color: var(--text); border-color: color-mix(in srgb, var(--pc) 45%, transparent); }
+  .pstep.ok i { background: var(--pc); border-color: var(--pc); color: #10151d; font-weight: 800; }
+  .pstep.more { color: var(--faint); padding: 4px 11px; }
+
+  .step-row {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .step-row:last-of-type { border-bottom: none; }
+  .step-check {
+    width: 24px; height: 24px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    border: 2px solid var(--line);
+    background: transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .step-check svg { width: 14px; height: 14px; stroke: #10151d; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .step-row.done .step-check { background: var(--pc); border-color: var(--pc); }
+  .step-num {
+    width: 24px; height: 24px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: var(--faint);
+  }
+  .step-name { flex: 1; font-size: 14px; cursor: pointer; overflow-wrap: anywhere; }
+  .step-row.done .step-name { color: var(--faint); text-decoration: line-through; }
+  .step-del {
+    background: none; border: none;
+    color: var(--faint);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 6px;
+    flex-shrink: 0;
+    font-family: inherit;
+  }
+  .step-del:active { color: var(--coral); }
+  .step-add { display: flex; gap: 8px; margin-top: 12px; }
+  .step-add input { flex: 1; }
+  .step-add .btn { flex-shrink: 0; }
+  .perk-desc { font-size: 14px; color: var(--muted); line-height: 1.55; margin-top: 12px; }
+
+  /* Listos para empezar */
+  .ready-panel { border-color: rgba(95, 224, 176, 0.35); }
+  .ready-grid { display: flex; flex-direction: column; gap: 8px; }
+  .ready-chip {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--rc);
+    border-radius: 8px 16px 16px 8px;
+    padding: 11px 13px;
+    cursor: pointer;
+  }
+  .ready-chip:active { background: var(--card2); }
+  .ready-chip .rc-ic {
+    color: var(--rc);
+    display: inline-flex;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .ready-chip .rc-ic::after {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border-radius: 999px;
+    border: 1.5px solid var(--rc);
+    animation: pulseRing 2.6s ease-out infinite;
+  }
+  .ready-chip .rc-tx { min-width: 0; }
+  .ready-chip .rc-tx b { display: block; font-size: 14px; font-weight: 700; }
+  .ready-chip .rc-tx span { font-size: 11.5px; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .ready-chip .rc-ic::after { animation: none; opacity: 0.4; } }
+
+  .undo-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .undo-row .btn { flex: 1; }
+  .btn-sm { padding: 10px 8px; font-size: 12px; }
+  .btn[disabled] { opacity: 0.4; pointer-events: none; }
+  .settings-note { font-size: 13.5px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+  .stack { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Copias de conflicto. Los botones van debajo y a lo ancho, no apretados a
+     la derecha: uno de los dos borra un respaldo y no debe quedar a tiro de
+     un dedo distraído. */
+  .copia-item {
+    padding: 12px 13px; border-radius: 12px; margin-bottom: 10px;
+    background: rgba(255,255,255,.04); border: 1px solid var(--line);
+  }
+  .copia-item:last-child { margin-bottom: 0; }
+  .copia-info b { display: block; font-size: 14px; }
+  .copia-info span { display: block; font-size: 12.5px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+  .copia-acts { display: flex; gap: 8px; margin-top: 11px; }
+  .copia-acts .btn { flex: 1; padding: 9px 8px; font-size: 12.5px; }
+
+  /* Datos de una versión más nueva. Tapa todo y no se cierra: seguir usando
+     la app sin poder guardar sería peor que no poder usarla. */
+  .futuro-aviso {
+    position: fixed; inset: 0; z-index: 9000; display: flex;
+    align-items: center; justify-content: center; padding: 22px;
+    background: rgba(8, 11, 16, .88); backdrop-filter: blur(6px);
+  }
+  .futuro-card {
+    max-width: 420px; padding: 24px; border-radius: 18px;
+    background: var(--card); border: 1px solid var(--line);
+  }
+  .futuro-card h3 { margin: 0 0 12px; font-size: 18px; }
+  .futuro-card p { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+  .futuro-card .stack { margin-top: 18px; }
+
+  /* Estado de la sincronía: un punto de color dice más rápido que un párrafo
+     si tus datos están a salvo en otro lado o solo viven en este aparato. */
+  .sync-status {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 13px; border-radius: 12px; margin-bottom: 12px;
+    background: rgba(255,255,255,.04); border: 1px solid var(--line);
+  }
+  .sync-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--faint); }
+  .sync-dot.ok { background: var(--mint); box-shadow: 0 0 0 3px rgba(95,224,176,.16); }
+  .sync-dot.busy { background: var(--fire); animation: syncPulse 1s ease-in-out infinite; }
+  .sync-dot.bad { background: var(--coral); box-shadow: 0 0 0 3px var(--coral-soft); }
+  @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+  /* Los conflictos de sincronía se explican en varias líneas: sin esto el
+     modal las aplasta en un párrafo ilegible. */
+  #modal-msg { white-space: pre-line; }
+
+  /* ---------- Comparación de versiones en un conflicto ---------- */
+  .cf-intro { white-space: normal; font-size: 14px; line-height: 1.5; margin-bottom: 14px; }
+  .cf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; white-space: normal; }
+  .cf-side {
+    background: var(--bg2);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 11px 11px 9px;
+    text-align: left;
+  }
+  .cf-side.nuevo { border-color: var(--mint); background: var(--mint-soft); }
+  .cf-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 3px; }
+  .cf-tag { font-size: 10.5px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--faint); }
+  .cf-badge {
+    font-size: 9.5px; font-weight: 800; letter-spacing: 0.4px;
+    color: #0e131b; background: var(--mint);
+    border-radius: 999px; padding: 2px 7px;
+  }
+  .cf-dev { font-size: 14px; font-weight: 700; line-height: 1.2; }
+  .cf-when { font-size: 11.5px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .cf-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; margin-top: 9px; }
+  .cf-nums > div { display: flex; align-items: baseline; gap: 4px; }
+  .cf-nums b { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .cf-nums span { font-size: 10px; color: var(--muted); }
+  /* Solo se resalta lo que difiere: es lo único que hay que mirar */
+  .cf-nums > div.dif b { color: var(--fire); }
+  .cf-nums > div.dif span { color: var(--fire); opacity: 0.8; }
+  .cf-foot { white-space: normal; font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 13px; }
+  @media (max-width: 420px) {
+    .cf-grid { grid-template-columns: 1fr; }
+  }
+  .sync-text { font-size: 13px; line-height: 1.45; }
+  .sync-text b { display: block; font-weight: 600; }
+  .sync-text span { color: var(--faint); font-size: 12px; }
+
+  /* Elementos que solo existen en el diseño de escritorio */
+  .side-top, .nav-label, .fab-label { display: none; }
+  .side-only { display: none !important; }
+
+  /* ============ ESCRITORIO ============
+     La misma app: el cluster del pulgar se convierte en barra lateral
+     y el contenido se reparte en dos columnas. */
+  @media (min-width: 900px) {
+    body { padding-bottom: 40px; padding-left: var(--sidebar-w); transition: padding-left 0.22s ease; }
+    .orb-1 { left: 220px; }
+
+    /* Centrado dentro del espacio libre, con aire a ambos lados. Al variar
+       --sidebar-w (ver .sc más abajo) esto recentra solo: sigue siendo la
+       misma fórmula sobre un ancho disponible distinto, no un layout nuevo. */
+    .app { width: min(1440px, 100%); max-width: none; padding: 0 40px; margin: 0 auto; }
+
+    /* Barra lateral */
+    .thumb-cluster {
+      left: 0; right: auto; top: 0; bottom: 0;
+      width: var(--sidebar-w);
+      max-width: none;
+      margin: 0;
+      padding: 26px 18px;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+      gap: 8px;
+      background: rgba(21, 27, 37, 0.72);
+      border-right: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: width 0.22s ease;
+    }
+    .side-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 4px 4px 22px 12px;
+      pointer-events: auto;
+    }
+    .side-brand {
+      /* Es un <button>: se le quita todo lo que trae un botón nativo para
+         que se siga viendo igual que cuando era un div decorativo. */
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      border: none;
+      background: none;
+      font-family: inherit;
+      cursor: pointer;
+      color: inherit;
+      padding: 4px;
+      margin: -4px;
+      border-radius: 8px;
+    }
+    .side-brand:hover { background: var(--bg2); }
+    /* Colapsado muestra solo el isotipo; desplegado, el logo completo tal
+       cual se diseñó (icono + texto en un solo trazado, dos colores fijos:
+       no es de los íconos que heredan el color del tema). */
+    .side-brand .sb-mark, .side-brand .sb-expand { display: none; flex-shrink: 0; }
+    .side-brand .sb-mark { color: var(--mint); }
+    .side-brand .sb-mark svg { width: 22px; height: 22px; display: block; }
+    .side-brand .sb-expand { color: var(--muted); }
+    /* Dos píxeles menos que el isotipo: uno es una silueta maciza y el otro
+       un contorno fino, así que a igual medida el contorno se ve más
+       pequeño. Esto los iguala a la vista, que es lo que importa. */
+    .side-brand .sb-expand svg { width: 20px; height: 20px; display: block; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .side-brand .sb-logo-full svg { height: 30px; width: auto; display: block; }
+
+    .side-toggle {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--bg2);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .side-toggle:hover { color: var(--text); border-color: var(--faint); }
+    .side-toggle svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    .thumb-cluster .nav-circles {
+      flex-direction: column;
+      gap: 5px;
+      width: 100%;
+    }
+    .thumb-cluster .c-nav {
+      width: 100%;
+      height: auto;
+      border-radius: 13px;
+      justify-content: flex-start;
+      gap: 13px;
+      padding: 12px 14px;
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+      color: var(--muted);
+    }
+    .thumb-cluster .c-nav:hover { background: var(--bg2); color: var(--text); }
+    .thumb-cluster .c-nav.active {
+      background: var(--mint-soft);
+      border-color: transparent;
+      box-shadow: none;
+      color: var(--mint);
+    }
+    .thumb-cluster .c-nav svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .nav-label { display: inline; font-size: 14px; font-weight: 650; letter-spacing: -0.1px; white-space: nowrap; }
+    .side-only { display: flex !important; }
+
+    /* Ajustes no se toca a cada rato: se separa del resto de la navegación
+       y se ancla abajo del todo, en vez de competir por atención junto a
+       Resumen/Misiones/Habilidades/Talentos/Proyectos. */
+    #nav-settings-side {
+      margin-top: auto;
+      position: relative;
+      /* El radio se hereda del resto de botones del menú a propósito: la
+         separación la marca la línea de arriba, no una esquina distinta. */
+    }
+    #nav-settings-side::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; top: -9px;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .thumb-cluster .c-main {
+      width: 100%;
+      height: auto;
+      border-radius: 13px;
+      padding: 13px 16px;
+      margin-top: 5px;
+      font-size: 14px;
+      font-weight: 700;
+      gap: 9px;
+    }
+    .thumb-cluster .c-main.hidden { display: none; }
+    .fab-plus { font-size: 18px; line-height: 1; }
+    .fab-label { display: inline; }
+
+    /* Menú plegado: una franja angosta solo con iconos. El logo completo no
+       cabe, así que queda el isotipo — y como el botón de desplegar tampoco
+       cabe al lado, es el propio isotipo el que asume ese papel: al pasar el
+       ratón se transforma en el icono de desplegar y con un clic se abre. Así
+       la franja no gasta una fila entera en un botón que casi no se usa. */
+    html.sc .side-top { justify-content: center; padding: 4px 0 22px; }
+    html.sc .side-toggle { display: none; }
+    html.sc .side-brand { justify-content: center; width: 40px; height: 40px; padding: 0; margin: 0; border-radius: 11px; position: relative; }
+    html.sc .side-brand .sb-logo-full { display: none; }
+    /* Los dos iconos ocupan la MISMA caja, superpuestos, y se funden uno en
+       otro. Antes se alternaba display:none, que es un corte seco: el icono
+       aparecía desplazado y de otro tamaño, y el salto se notaba. */
+    html.sc .side-brand .sb-mark,
+    html.sc .side-brand .sb-expand {
+      display: flex;
+      position: absolute;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.16s ease, transform 0.16s ease;
+    }
+    html.sc .side-brand .sb-expand { opacity: 0; transform: scale(0.84); }
+    html.sc .side-brand:hover .sb-mark { opacity: 0; transform: scale(0.84); }
+    html.sc .side-brand:hover .sb-expand { opacity: 1; transform: scale(1); color: var(--text); }
+    @media (prefers-reduced-motion: reduce) {
+      html.sc .side-brand .sb-mark, html.sc .side-brand .sb-expand { transition: none; }
+    }
+    html.sc .nav-label, html.sc .fab-label { display: none; }
+    html.sc .thumb-cluster .c-nav,
+    html.sc .thumb-cluster .c-main,
+    html.sc #nav-settings-side { justify-content: center; padding-left: 0; padding-right: 0; }
+    html.sc .thumb-cluster .c-main { gap: 0; }
+    .page-head { padding: 34px 4px 22px; }
+    .page-head h1 { font-size: 34px; }
+    #settings-btn { display: none; }
+
+    #summary-content, #missions-content, #projects-content,
+    #detail-content, #perk-content, #project-content,
+    #view-form .panel, #view-perk-form .panel, #view-project-form .panel, #view-mission-form .panel {
+      /* los formularios conservan una sola columna legible */
+    }
+    #missions-content, #projects-content {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 18px;
+      align-items: start;
+    }
+    /* El tablero reparte por columnas y filas: una cuadrícula donde todo encaja */
+    .dash {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: 56px;
+      gap: 24px 22px;
+      /* Sin `dense`. Con él, una tarjeta que no cabía en el hueco de al lado
+         hacía que otra de más abajo saltara hacia arriba a rellenarlo: mover
+         UNA tarjeta reacomodaba media pantalla y el resultado no se podía
+         prever. Sin él, cada una se queda donde la pusiste y las de debajo
+         solo se corren hacia abajo para dejarle sitio. */
+      grid-auto-flow: row;
+      align-items: stretch;
+    }
+    .widget {
+      grid-column: span min(var(--w, 1), 2);
+      grid-row: span var(--h, 2);
+    }
+    .widget > *:not(.w-edit):not(.w-resize) { height: 100%; overflow: hidden; }
+
+    /* Lo que no cabe se desvanece en lugar de cortarse. El velo va sobre la
+       tarjeta, toma su color y su redondeo de ella (los pone marcarDesbordes)
+       y no intercepta el puntero: debajo sigue habiendo contenido pulsable.
+       Se queda por debajo del asa de tamaño y de la etiqueta de edición, que
+       tienen z-index mayor, para no taparlas al reajustar. */
+    .widget.rebosa::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 58px;
+      pointer-events: none;
+      z-index: 2;
+      border-bottom-left-radius: var(--rad-bl, 0);
+      border-bottom-right-radius: var(--rad-br, 0);
+      background: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0) 0%,
+        color-mix(in srgb, var(--fundido, var(--card)) 55%, transparent) 42%,
+        color-mix(in srgb, var(--fundido, var(--card)) 88%, transparent) 74%,
+        var(--fundido, var(--card)) 100%);
+    }
+    /* En edición el velo estorba para juzgar el tamaño: ahí interesa ver
+       exactamente dónde queda el corte. */
+    .dash.editing .widget.rebosa::after { display: none; }
+    #missions-content > .scene-card,
+    #projects-content > .scene-card,
+    .full-row, .sec-label { grid-column: 1 / -1; }
+    #missions-content > *, #projects-content > * { min-width: 0; }
+
+    /* Detalles: ficha a la izquierda, acciones a la derecha */
+    #detail-content, #perk-content, #project-content {
+      display: grid;
+      grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+      gap: 0 18px;
+      align-items: start;
+    }
+    #detail-content > .detail-hero, #perk-content > .detail-hero, #project-content > .detail-hero {
+      grid-row: span 3;
+      position: sticky;
+      top: 26px;
+    }
+
+    /* Las habilidades sí llenan el ancho completo de su vista */
+    #skill-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+    .icon-grid { grid-template-columns: repeat(10, 1fr); }
+
+    /* Estados vacíos: centrados en todo el espacio disponible */
+    .empty {
+      grid-column: 1 / -1;
+      min-height: 54vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+    .empty p { max-width: 46ch; }
+
+    /* Encabezado de sección en una sola fila: deja de robar altura */
+    .sec-hero .scene-body { padding: 20px 22px; }
+    .sh-main { flex-direction: row; align-items: center; gap: 26px; }
+    .sh-stats { flex: 1; gap: 4px; }
+    .sh-focus { width: auto; min-width: 250px; max-width: 330px; flex-shrink: 0; }
+
+    /* Etapas de cada proyecto visibles y completas, sin recortes */
+    .proj-steps {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      margin-top: 11px;
+      padding-top: 11px;
+      border-top: 1px dashed var(--line);
+    }
+    .pstep { white-space: normal; overflow: visible; line-height: 1.35; }
+    .proj-name { white-space: normal; overflow: visible; }
+
+    /* Las ramas de talentos respiran más */
+    .const-wrap { min-height: 300px; max-height: 640px; }
+    .branch-card { padding-bottom: 10px; }
+
+    /* Formularios centrados en el cuadrante, con el mismo aire a los lados */
+    .form-view { max-width: 660px; margin: 0 auto; }
+
+    /* Modal centrado en lugar de hoja inferior */
+    .modal-backdrop { align-items: center; }
+    .modal-card {
+      max-width: 460px;
+      border-radius: 26px;
+      border-bottom: 1px solid var(--line);
+      transform: scale(0.96);
+      margin-bottom: 0;
+      padding: 28px 26px;
+    }
+    .modal-backdrop.show .modal-card { transform: none; }
+
+    /* En escritorio la pila se ancla a la esquina y crece hacia arriba */
+    #toast { bottom: 34px; left: auto; right: 34px; transform: none; align-items: flex-end; }
+
+    /* La constelación aprovecha el ancho extra */
+    /* Con ratón el desplazamiento no compite con ningún gesto, así que aquí
+       la rama sí se recorre sin necesidad de pantalla completa. */
+    /* El relleno es SITIO LIBRE, no adorno: un lienzo que solo se puede
+       recorrer hacia donde ya hay nodos se siente una lista disfrazada de
+       mapa. Con esto se puede mirar (y crear) por delante, por detrás y por
+       arriba del trabajo que ya existe. Va como relleno del contenedor y no
+       como tamaño del dibujo, para que la tarjeta no crezca por el hueco. */
+    /* La rueda del ratón NO recorre la rama: aquí la tarjeta convive con la
+       página, y una rueda que a veces mueve el mapa y a veces la página deja
+       de ser predecible — pasar el cursor por encima al bajar por el árbol
+       secuestraba el desplazamiento. Vertical solo arrastrando (que es un
+       gesto deliberado) o en pantalla completa, que existe para eso. */
+    .const-wrap { max-height: 560px; overflow-x: auto; overflow-y: hidden; }
+  }
+
+  @media (min-width: 1320px) {
+    #missions-content, #projects-content { gap: 0 22px; }
+    /* Los proyectos se apilan siempre: cada tarjeta usa el ancho de su rama */
+    .ready-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    #skill-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  /* Pantallas muy anchas (16:9 grandes): tres columnas de contenido */
+  @media (min-width: 1700px) {
+    #projects-content, #missions-content { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .dash { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .widget { grid-column: span min(var(--w, 1), 3); }
+  }
+  /* El tono entra y sale con la misma suavidad: puesta solo dentro del
+     :hover, la transición se aplicaría al entrar y el corte al salir sería
+     seco. Va fuera de la consulta de medios porque no estorba en táctil. */
+  .skill-card, .sum-card, .linked-row, .proj-card, .ready-chip, .cat-chip,
+  .ms-card, .dz-row, .chip, .tray-chip, .xlink, .badd, .fs-open, .cat-all,
+  .t-act, .icon-btn, .history-item {
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  /* El botón ya animaba su encogido al pulsarse; se le añade el brillo sin
+     perderlo, que es lo que pasaría al redeclarar la propiedad entera. */
+  .btn { transition: transform 0.12s ease, filter 0.15s ease, background 0.15s ease, border-color 0.15s ease; }
+
+  /* ---------- Respuesta al cursor ----------
+     Con ratón hay un estado que en el teléfono no existe: el de estar
+     encima de algo sin haberlo tocado todavía. La app no lo usaba, así que
+     en escritorio casi nada se sentía pulsable; había que adivinar dónde
+     valía la pena hacer clic. Esto lo resuelve de un modo deliberadamente
+     aburrido: la superficie sube un escalón de tono, nada se mueve ni
+     cambia de tamaño. El indicio tiene que notarse, no llamar la atención.
+
+     Va todo junto y al final del CSS por dos razones: se lee de un vistazo
+     qué es pulsable en la app, y al ir después gana a las reglas de base
+     sin pelear con especificidades.
+
+     Solo con puntero fino. En pantalla táctil el navegador deja "pegado" el
+     último hover, y una tarjeta que se queda iluminada después de tocarla
+     parece seleccionada cuando no lo está. */
+  @media (hover: hover) and (pointer: fine) {
+    /* Tarjetas y filas: las piezas grandes que llevan a otra pantalla */
+    .skill-card:hover,
+    .sum-card:hover,
+    .linked-row:hover,
+    .proj-card:hover,
+    .ready-chip:hover,
+    .cat-chip:hover,
+    .history-item.selectable:hover { background: var(--card2); }
+
+    .ms-card:hover,
+    .dz-row:hover { background: var(--card); }
+
+    /* La tarjeta de misión se ilumina entera, pero lo que abre la ficha es
+       el cuerpo: el círculo y la racha tienen lo suyo. */
+    .sh-focus:hover { background: rgba(20, 27, 37, 0.75); }
+
+    /* Píldoras y botones pequeños: suben tono y marcan el borde */
+    .chip:hover,
+    .tray-chip:hover,
+    .xlink:hover,
+    .badd:hover,
+    .fs-open:hover,
+    .cat-all:hover,
+    .t-act:hover,
+    .icon-btn:hover { background: var(--card2); border-color: var(--faint); }
+
+    .icon-btn:hover { color: var(--text); }
+    .chip.active:hover { background: var(--mint); border-color: var(--mint); }
+
+    /* Botones de acción: el color ya los identifica, así que basta
+       aclararlos un punto en vez de cambiarles el fondo. */
+    .btn:hover { filter: brightness(1.09); }
+    .btn-ghost:hover { background: var(--card2); border-color: var(--faint); }
+
+    /* Lo que borra o revierte avisa en rojo antes de pulsarse */
+    .step-del:hover { color: var(--coral); }
+
+    /* Elementos con vida propia que ya tenían su gesto al pulsar */
+    .perk-hero .skill-emoji.editable:hover,
+    .detail-hero .skill-emoji.editable:hover { filter: brightness(1.14); }
+    .detail-hero .skill-emoji.editable:hover .edit-hint { color: var(--text); border-color: var(--faint); }
+    .quick-xp button:hover { border-color: var(--faint); }
+    .quick-xp button.selected:hover { border-color: var(--mint); }
+    .dz-row:hover { border-color: var(--coral); }
+    .ready-chip:hover, .linked-row:hover { border-color: var(--faint); }
+
+    /* Las piezas que se arrastran anuncian que se pueden agarrar */
+    #skill-list .skill-card, .ms-list .ms-card { cursor: pointer; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, .view.active, .celebrate.show, .celebrate.show * { transition: none !important; animation: none !important; }
+    .celebrate { display: none !important; }
+  }

@@ -1,0 +1,958 @@
+/* Pantallas de proyecto, habilidad y árbol */
+/* ================= Render: misiones ================= */
+
+function renderMissions() {
+  const el = document.getElementById("missions-content");
+  const key = todayKey();
+  const all = state.missions.filter(m => !m.archived || m.cadence !== "once");
+
+  if (state.missions.length === 0) {
+    el.innerHTML = `
+      <div class="empty">
+        <div class="bubble">${icon("target", 34)}</div>
+        <h2>Sin misiones todavía</h2>
+        <p>Las misiones son lo que haces hoy: pequeñas, repetibles y con recompensa. Son las que mantienen viva tu racha y hacen subir tus habilidades sin que lo notes.</p>
+        <div class="stack" style="align-items:center">
+          <button class="btn btn-primary" onclick="openMissionForm()">Crear mi primera misión</button>
+          <button class="btn btn-ghost" onclick="loadExamples()">Ver un ejemplo completo</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const { due, done, pct } = todayMissionStats();
+  const pending = due.filter(m => !missionDone(m, key));
+  const finished = due.filter(m => missionDone(m, key));
+  const otherDays = all.filter(m => !missionDueToday(m) && !m.archived);
+  const archived = state.missions.filter(m => m.archived);
+  const dayName = keyToDate(key).toLocaleDateString("es-MX", { weekday: "long" });
+
+  const card = (m) => {
+    const c = missionCount(m, key);
+    const t = missionTarget(m);
+    const ok = c >= t;
+    const st = missionStreak(m);
+    const skill = m.skillId ? state.skills.find(s => s.id === m.skillId) : null;
+    const col = m.color || "#5fe0b0";
+    const cuenta = t > 1;
+
+    return `
+    <div class="ms-card ${ok ? "done" : ""}" data-rid="${m.id}" style="--mc:${col}">
+      ${botonMision(m, c, t)}
+      <div class="ms-body" onclick="openMissionForm('${m.id}')">
+        <div class="ms-name">${escapeHtml(m.name)}</div>
+        <div class="ms-meta">
+          ${skill ? `<span>${escapeHtml(skill.name)}</span>` : ""}
+          ${m.xp ? `<span>+${m.xp} XP</span>` : ""}
+          ${m.cadence === "weekly" ? `<span>${(m.days || []).map(d => DAY_NAMES[d]).join(" ")}</span>` : ""}
+          ${m.cadence === "once" ? `<span>una vez</span>` : ""}
+          ${/* Deshacer vive DENTRO de la misión, junto a sus datos. Estaba
+                pegado a la llama de la racha, donde el signo "−" se leía
+                como "bájame la racha" en vez de "quita una vez de hoy".
+                Solo queda en las misiones con cuenta: en las de un solo
+                golpe lo hace ya el propio círculo al pasar el cursor, y
+                tener las dos cosas era ofrecer dos veces lo mismo. Dice
+                "−1" y no "3→2" para que sea el reverso exacto del "+1" que
+                aparece en el círculo. */
+            (cuenta && c > 0) ? `<button class="ms-undo" onclick="event.stopPropagation();logMission('${m.id}', -1)"
+              aria-label="Quitar una vez de ${escapeAttr(m.name)}" title="Quitar una vez de hoy">
+              ${VOLVER} −1
+            </button>` : ""}
+        </div>
+      </div>
+      <div class="ms-side">
+        ${st > 0 ? `<span class="ms-streak">${icon("flame", 13)}${st}</span>` : ""}
+      </div>
+    </div>`;
+  };
+
+  const bestStreak = state.missions.reduce((a, m) => Math.max(a, missionStreak(m)), 0);
+  const next = pending[0];
+  el.innerHTML = `
+    ${sectionHero({
+      scene: motifScene(820, 168, 55, "waves", "#5fe0b0"),
+      lead: `
+        <div class="ring-wrap" style="width:92px;height:92px">
+          ${/* Animado, no fijo: cumplir una misión mueve este anillo, y verlo
+                crecer es la respuesta a lo que acabas de hacer. Estático,
+                el porcentaje simplemente aparecía cambiado y el gesto se
+                quedaba sin acuse de recibo. */
+            animRing(92, 9, pct / 100, "#5fe0b0",
+              lastMisionPct === null ? 0 : lastMisionPct, "rgba(234,241,239,0.14)")}
+          <div class="ring-center">
+            <div class="v" style="font-size:19px"><b>${done.length}</b><span style="font-size:13px;color:var(--muted)">/${due.length}</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="label">${dayName}</div>
+          <div class="big" style="font-size:30px"><b>${pct}%</b><span> del día</span></div>
+        </div>`,
+      stats: [
+        { n: due.length, t: "Hoy" },
+        { n: done.length, t: "Cumplidas", tone: "mint" },
+        { n: pending.length, t: "Pendientes", tone: pending.length ? "fire" : "" },
+        { n: bestStreak, t: "Mejor racha" }
+      ],
+      focus: next
+        ? { k: "Lo siguiente para hoy", v: next.name, color: "var(--mint)", onclick: `logMission('${next.id}', 1)` }
+        : (due.length
+          ? { k: "Día completo", v: "Todas las misiones cumplidas", color: "var(--mint)" }
+          : { k: "Sin misiones hoy", v: "Crea una o descansa", color: "var(--muted)" })
+    })}
+
+    ${pending.length ? `
+    <div class="panel">
+      <div class="panel-head">
+        <h3 style="margin:0">Pendientes de hoy</h3>
+        <span class="hint-hold">${pistaReordenar()}</span>
+      </div>
+      <div class="ms-list" id="ms-pend">${ordenarMisiones(pending).map(card).join("")}</div>
+    </div>` : ""}
+
+    ${finished.length ? `
+    <div class="panel alt">
+      <h3>Cumplidas hoy</h3>
+      <div class="ms-list">${finished.map(card).join("")}</div>
+    </div>` : ""}
+
+    ${otherDays.length ? `
+    <div class="panel">
+      <h3>Otros días</h3>
+      <div class="ms-list">${otherDays.map(card).join("")}</div>
+    </div>` : ""}
+
+    ${archived.length ? `
+    <div class="panel alt">
+      <h3>Hechas y guardadas</h3>
+      <div class="ms-list">${archived.map(m => `
+        <div class="ms-card done" style="--mc:${m.color || "#5fe0b0"}">
+          ${botonMision(m, 1, 1, { reabrir: true })}
+          <div class="ms-body"><div class="ms-name">${escapeHtml(m.name)}</div>
+          <div class="ms-meta"><span>cumplida el ${formatDate(m.completedAt)}</span></div></div>
+        </div>`).join("")}</div>
+    </div>` : ""}`;
+  playRings(el);
+  lastMisionPct = pct / 100;
+  attachMisionOrden();
+}
+
+/* ================= Render: proyectos ================= */
+
+function renderProjects() {
+  const el = document.getElementById("projects-content");
+  const all = state.projects;
+
+  if (all.length === 0) {
+    el.innerHTML = `
+      <div class="empty">
+        <div class="bubble">${icon("flag", 34)}</div>
+        <h2>Sin encargos todavía</h2>
+        <p>Un encargo es algo que estás construyendo y que avanza por etapas. La app mide su ritmo y te dice cuáles siguen vivos y cuáles conviene soltar.</p>
+        <div class="stack" style="align-items:center">
+          <button class="btn btn-primary" onclick="openProjectForm()">Crear mi primer encargo</button>
+          <button class="btn btn-ghost" onclick="loadExamples()">Ver un ejemplo completo</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const live = all.filter(p => p.status === "active" || p.status === "paused");
+  const stalled = live.filter(p => projectHealth(p).key === "stalled");
+  const done = all.filter(p => p.status === "done");
+  const avgProg = live.length ? Math.round(live.reduce((a, p) => a + projectProgress(p), 0) / live.length) : 0;
+
+  // Foco: lo estancado primero, si no lo que está por cerrarse
+  const closing = [...live].filter(p => projectProgress(p) >= 60)
+    .sort((a, b) => projectProgress(b) - projectProgress(a))[0];
+  let pFocus;
+  if (stalled.length) {
+    pFocus = { k: `Estancado ${daysIdle(stalled[0])} días`, v: stalled[0].name, color: "var(--coral)", onclick: `openProject('${stalled[0].id}')`, pct: projectProgress(stalled[0]) };
+  } else if (closing) {
+    pFocus = { k: "A punto de cerrarse", v: closing.name, color: "var(--mint)", onclick: `openProject('${closing.id}')`, pct: projectProgress(closing) };
+  } else if (live.length) {
+    pFocus = { k: "Siguiente etapa", v: live[0].name, color: "var(--mint)", onclick: `openProject('${live[0].id}')`, pct: projectProgress(live[0]) };
+  } else {
+    pFocus = { k: "Nada en marcha", v: "Crea un encargo cuando quieras", color: "var(--muted)" };
+  }
+
+  let html = sectionHero({
+    scene: motifScene(820, 168, 77, "peaks", "#5fe0b0"),
+    lead: `<div>
+      <div class="label">Avance de lo que construyes</div>
+      <div class="big"><b>${avgProg}%</b><span> promedio</span></div>
+    </div>`,
+    stats: [
+      { n: live.length, t: "Vivos", tone: "mint" },
+      { n: stalled.length, t: "Estancados", tone: stalled.length ? "coral" : "" },
+      { n: done.length, t: "Terminados" },
+      { n: all.reduce((a, p) => a + (p.steps || []).filter(s => s.done).length, 0), t: "Etapas hechas" }
+    ],
+    focus: pFocus
+  });
+
+  if (stalled.length) {
+    html += `
+    <div class="panel alt full-row" style="border-color:rgba(255,138,112,0.4)">
+      <h3 style="color:var(--coral)">Decisión pendiente</h3>
+      <p class="settings-note">Estos encargos llevan mucho sin avanzar. Retomarlos o soltarlos libera tu atención — dejarlos en el limbo es lo único que no ayuda.</p>
+      ${stalled.map(p => `
+        <button class="att-item" onclick="openProject('${p.id}')">
+          <span class="dot" style="background:var(--coral-soft);color:var(--coral)">${icon(p.icon, 17)}</span>
+          <span class="tx"><b>${escapeHtml(p.name)}</b><span>${daysIdle(p)} días sin avance · ${projectProgress(p)}% hecho</span></span>
+          <span class="go">→</span>
+        </button>`).join("")}
+    </div>`;
+  }
+
+  const branches = [...new Set(all.map(p => p.branch || "General"))];
+  html += `<div class="sec-label full-row">Tus ramas de Proyectos</div>`;
+  for (const b of branches) {
+    const list = all.filter(p => (p.branch || "General") === b)
+      .sort((a, c) => (a.status === "dropped" || a.status === "done" ? 1 : 0) - (c.status === "dropped" || c.status === "done" ? 1 : 0));
+    const liveN = list.filter(p => p.status === "active" || p.status === "paused").length;
+    html += `
+    <div class="branch-card" style="padding-bottom:14px">
+      <div class="branch-head" style="margin-bottom:12px">
+        <!-- Igual que en Talentos: el nombre se reescribe tocándolo -->
+        <h3 class="renombrable" onclick="renombrarRamaProyectos('${escapeAttr(b)}')" title="Toca el nombre para renombrar la rama">${escapeHtml(b)}${icon("pen", 11)}</h3>
+        <span class="count">${liveN} de ${list.length}</span>
+        <div class="bhead-btns">
+          ${branchMenu("p:" + escapeAttr(b), [
+            { title: "Borrar esta rama", hint: list.length === 0 ? "Está vacía" : (list.length === 1 ? "Se va también su único encargo" : `Se van también sus ${list.length} encargos`), icon: "bote", danger: true, onclick: `deleteBranch('projects','${escapeAttr(b)}')` }
+          ])}
+          <button class="badd" onclick="openProjectForm(null, '${escapeAttr(b)}')" aria-label="Añadir encargo a ${escapeAttr(b)}">＋</button>
+        </div>
+      </div>
+      <div class="proj-list" data-branch="${escapeAttr(b)}">
+        ${list.map(p => {
+          const prog = projectProgress(p);
+          const h = projectHealth(p);
+          const dim = p.status === "dropped" || p.status === "done";
+          const col = p.color || "#5fe0b0";
+          const doneN = (p.steps || []).filter(s => s.done).length;
+          return `
+          <button class="proj-card ${dim ? "dim" : ""}" data-rid="${p.id}" onclick="openProject('${p.id}')" style="--pc:${col}">
+            <div class="proj-top">
+              <span class="proj-ic" style="background:${col}22;color:${col}">${icon(p.icon, 19)}</span>
+              <span class="proj-name">${escapeHtml(p.name)}</span>
+              <span class="proj-state" style="background:${PROJECT_STATUS[p.status].soft};color:${PROJECT_STATUS[p.status].color}">${PROJECT_STATUS[p.status].label}</span>
+            </div>
+            <div class="proj-bar"><div class="bar"><div class="bar-fill" style="width:${prog}%;background:${col}"></div></div></div>
+            <div class="proj-meta">
+              <span>${doneN} de ${(p.steps || []).length} etapas · <b>${prog}%</b></span>
+              <span style="color:${h.color}">${h.label}</span>
+            </div>
+            ${(p.steps || []).length ? `
+            <div class="proj-steps">
+              ${p.steps.map(s => `
+                <span class="pstep ${s.done ? "ok" : ""}">
+                  <i>${s.done ? icon("check", 11) : ""}</i>${escapeHtml(s.name)}
+                </span>`).join("")}
+            </div>` : ""}
+          </button>`;
+        }).join("")}
+      </div>
+    </div>`;
+  }
+  el.innerHTML = html;
+  /* Las tarjetas se arrastran, y no solo dentro de su rama: soltarlas en
+     otra las muda. Es la operación que antes obligaba a abrir el encargo,
+     entrar a editarlo y cambiar un desplegable — tres pantallas para algo
+     que la mano quiere hacer de un tirón.
+
+     Se engancha al contenedor entero (no a cada lista) porque el arrastre
+     cruza fronteras, y una sola vez: hacerReordenable ya se protege de
+     repetirse en cada repintado. */
+  hacerReordenable(el, ".proj-card", reacomodarEncargos);
+}
+
+/* Reconstruye el orden y la rama de cada encargo a partir de lo que quedó en
+   pantalla. Se lee el DOM en vez de calcularlo porque el arrastre ya movió
+   las tarjetas a su sitio: lo que se ve ES el resultado. */
+function reacomodarEncargos() {
+  const orden = [];
+  const mudados = [];
+  document.querySelectorAll("#projects-content .proj-list").forEach(lista => {
+    const rama = lista.dataset.branch;
+    lista.querySelectorAll(".proj-card").forEach(el => {
+      const pr = state.projects.find(x => x.id === el.dataset.rid);
+      if (!pr) return;
+      if ((pr.branch || "General") !== rama) {
+        pr.branch = rama;
+        /* Queda en el historial, pero SIN tocar la fecha de actividad:
+           cambiar algo de sitio no es avanzarlo, y contarlo como avance
+           reiniciaría el contador de "estancado" sin haber hecho nada. */
+        pr.history = pr.history || [];
+        pr.history.unshift({ date: todayKey(), at: stamp(), event: `Movido a la rama ${rama}` });
+        mudados.push(pr);
+      }
+      orden.push(pr);
+    });
+  });
+  // Nadie se queda fuera aunque no estuviera dibujado
+  state.projects.forEach(p => { if (!orden.includes(p)) orden.push(p); });
+  state.projects = orden;
+  save();
+  renderProjects();
+  if (mudados.length === 1) toast(`${mudados[0].name} ahora vive en ${mudados[0].branch}`, "hecho");
+}
+
+function openProject(id) {
+  currentProjectId = id;
+  renderProjectDetail();
+  showView("project");
+}
+
+function renderProjectDetail() {
+  const pr = state.projects.find(x => x.id === currentProjectId);
+  if (!pr) { showView("projects"); return; }
+  const prog = projectProgress(pr);
+  const h = projectHealth(pr);
+  const col = pr.color || "#5fe0b0";
+  const skill = pr.skillId ? state.skills.find(s => s.id === pr.skillId) : null;
+  const steps = pr.steps || [];
+
+  const stepsHtml = steps.length === 0
+    ? `<p class="settings-note" style="margin:0 0 12px">Sin etapas todavía. Divide el encargo en pasos concretos para poder medir su avance.</p>`
+    : steps.map(s => `
+      <div class="step-row ${s.done ? "done" : ""}">
+        <button class="step-check" onclick="toggleStep('${pr.id}','${s.id}')" aria-label="${s.done ? "Reabrir" : "Completar"} etapa" style="--pc:${col}">
+          ${s.done ? `<svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>` : ""}
+        </button>
+        <span class="step-name" onclick="toggleStep('${pr.id}','${s.id}')">${escapeHtml(s.name)}</span>
+        <button class="step-del" onclick="removeStep('${pr.id}','${s.id}')" aria-label="Eliminar etapa">✕</button>
+      </div>`).join("");
+
+  const closed = pr.status === "done" || pr.status === "dropped";
+  const actions = closed
+    ? `<button class="btn btn-soft btn-block" onclick="setProjectStatus('${pr.id}','active')">Retomar encargo</button>`
+    : `
+      <div class="stack">
+        ${prog === 100 || pr.status === "active"
+          ? `<button class="btn ${prog === 100 ? "btn-primary" : "btn-soft"} btn-block" onclick="setProjectStatus('${pr.id}','done')">Dar por terminado</button>` : ""}
+        ${pr.status === "active"
+          ? `<button class="btn btn-ghost btn-block" onclick="setProjectStatus('${pr.id}','paused')">Pausar por ahora</button>`
+          : `<button class="btn btn-soft btn-block" onclick="setProjectStatus('${pr.id}','active')">Retomar</button>`}
+        <button class="btn btn-danger-ghost btn-block" onclick="setProjectStatus('${pr.id}','dropped')">Descartar encargo</button>
+      </div>`;
+
+  const historyHtml = (pr.history || []).length === 0
+    ? `<p class="settings-note" style="margin:0">Sin movimientos todavía.</p>`
+    : pr.history.slice(0, 25).map(e => `
+      <div class="history-item">
+        <div class="note">${escapeHtml(e.event)}<span class="when">${formatWhen(e)}</span></div>
+      </div>`).join("");
+
+  document.getElementById("project-content").innerHTML = `
+    <div class="detail-hero">
+      <div class="strip">${motifScene(560, 156, hashSeed(pr.id), motifFor(pr.icon), col)}</div>
+      <div class="skill-emoji" style="background:${col}30;color:${col}">${icon(pr.icon, 28)}</div>
+      <h2>${escapeHtml(pr.name)}</h2>
+      <span class="cat">Rama de Proyectos · ${escapeHtml(pr.branch || "General")}</span>
+      ${pr.desc ? `<div class="perk-desc">${escapeHtml(pr.desc)}</div>` : ""}
+      ${skill ? `<div style="margin-top:12px"><button class="xlink" style="--xc:${skill.color}" onclick="openDetail('${skill.id}')">
+        ${icon(skill.icon, 13)} Entrena ${escapeHtml(skill.name)} →
+      </button></div>` : ""}
+      <div class="ring-wrap" style="margin-top:16px">
+        ${animRing(150, 12, prog / 100, col, 0, "#2a3441")}
+        <div class="ring-center">
+          <div class="v"><b>${prog}%</b></div>
+          <div class="k">${steps.filter(s => s.done).length} de ${steps.length} etapas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel alt" style="border-color:${h.key === "stalled" ? "rgba(255,138,112,0.45)" : "rgba(42,52,65,0.7)"}">
+      <h3 style="color:${h.color}">${h.label}</h3>
+      <p class="settings-note" style="margin:0">${escapeHtml(h.note)}</p>
+    </div>
+
+    <div class="panel">
+      <h3>Etapas</h3>
+      ${stepsHtml}
+      <div class="step-add">
+        <input type="text" id="detail-new-step" placeholder="Nueva etapa…" maxlength="70" onkeydown="if(event.key==='Enter'){event.preventDefault();addStepTo('${pr.id}');}">
+        <button class="btn btn-soft btn-sm" onclick="addStepTo('${pr.id}')">Añadir</button>
+      </div>
+    </div>
+
+    <div class="panel alt">
+      <h3>Ficha</h3>
+      <div class="fact-grid">
+        <div class="fact"><div class="k">CREADO</div><div class="v" style="font-size:13.5px">${formatDate(pr.createdAt)}</div></div>
+        <div class="fact"><div class="k">ÚLTIMO AVANCE</div><div class="v" style="font-size:13.5px">${daysIdle(pr) === 0 ? "Hoy" : `Hace ${daysIdle(pr)} d`}</div></div>
+        <div class="fact"><div class="k">ENTRENA</div><div class="v" style="font-size:13.5px">${skill ? escapeHtml(skill.name) : "—"}</div></div>
+        <div class="fact"><div class="k">RECOMPENSA</div><div class="v" style="font-size:13.5px">${skill ? "+" + pr.xpReward + " XP" : "—"}</div></div>
+      </div>
+    </div>
+
+    ${actions}
+
+    <div class="panel" style="margin-top:14px">
+      <h3>Movimientos</h3>
+      ${historyHtml}
+    </div>`;
+  playRings(document.getElementById("project-content"));
+}
+
+/* ================= Render: detalle habilidad ================= */
+
+function openDetail(id) {
+  if (currentSkillId !== id) lastDetailPct = 0;
+  currentSkillId = id;
+  /* La moderada, que es la de en medio. Estaba escrito 25 a mano, un valor
+     que dejó de existir al cambiar la curva: no encendía ningún botón y
+     "Registrar" acababa dando +10 por el respaldo de practicaDe(). */
+  selectedQuickXp = PRACTICAS[1].xp;
+  renderDetail();
+  showView("detail");
+}
+
+function renderDetail() {
+  const s = state.skills.find(x => x.id === currentSkillId);
+  if (!s) { showView("home"); return; }
+  const li = levelInfo(s.xp);
+  const untilDecay = daysUntilDecay(s);
+
+  /* El orden importa: una habilidad en cero no tiene gracia ni decaimiento
+     que contar, así que ese caso se resuelve antes que ninguno. */
+  let decayLine = "";
+  if (s.xp <= 0) {
+    const espera = diasSinGanar(s);
+    decayLine = espera >= DIAS_PARA_INVITAR
+      ? `<div class="xp-note">Sin estrenar. <span class="invita">${invitacionPara(s)}</span></div>`
+      : `<div class="xp-note">Sin estrenar todavía: nada que perder hasta que registres tu primera práctica.</div>`;
+  } else if (s.permanent) {
+    const espera = diasSinGanar(s);
+    decayLine = `<div class="xp-note">Habilidad blindada: nunca pierde XP.${
+      espera >= DIAS_PARA_INVITAR ? ` <span class="invita">${invitacionPara(s)}</span>` : ""}</div>`;
+  } else if (isDecaying(s)) {
+    decayLine = `<div class="xp-note" style="color:var(--fire)"><b>En decaimiento:</b> pierdes ${s.decayPerDay} XP al día. Practica hoy para frenarlo.</div>`;
+  } else {
+    decayLine = `<div class="xp-note">Te quedan <b>${untilDecay}</b> día${untilDecay === 1 ? "" : "s"} de gracia antes de empezar a perder XP.</div>`;
+  }
+
+  const pct = li.level >= MAX_LEVEL ? 1 : li.pct / 100;
+  const ringHtml = `
+    <div class="ring-wrap" id="lvl-ring">
+      ${animRing(150, 12, pct, s.color, lastDetailPct, "#2a3441")}
+      <div class="ring-center">
+        <div class="v"><b>Nv ${li.level}</b></div>
+        <div class="k">${li.level >= MAX_LEVEL ? "Nivel máximo" : li.inLevel + " / " + li.needed + " XP"}</div>
+      </div>
+    </div>`;
+
+  const historyHtml = s.log.length === 0
+    ? `<p class="settings-note" style="margin:0">Todavía no hay actividad registrada.</p>`
+    : s.log.slice(0, 30).map((e, i) => {
+        /* Cada movimiento dice de dónde salió: qué tipo de práctica fue y
+           cuánto duró si lo registraste a mano, o qué misión, talento o
+           proyecto lo trajo si vino de otro sitio. Un "+25 XP" suelto no
+           permite revisar nada. */
+        const horas = e.min ? (e.min >= 60 ? `${Math.round(e.min / 60 * 10) / 10} h` : `${e.min} min`) : null;
+        const sello = e.nivel ? `<span class="tag">${escapeHtml(e.nivel)}${horas ? ` · ${horas}` : ""}</span>` : "";
+        const origen = e.fuente ? `<span class="tag src">${escapeHtml(e.fuente)}</span>` : "";
+        const marcado = histSel.has(String(i));
+        return `
+      <div class="history-item ${histSelMode ? "selectable" : ""} ${marcado ? "picked" : ""}"
+        ${histSelMode ? `onclick="marcarHist(${i})"` : ""}>
+        ${histSelMode ? `<span class="hcheck">${marcado ? icon("check", 12) : ""}</span>` : ""}
+        <div class="note">
+          ${escapeHtml(e.note || "Práctica")}${sello}${origen}
+          <span class="when">${formatWhen(e)}</span>
+        </div>
+        <div class="gain ${e.xp < 0 ? "loss" : ""}">${e.xp > 0 ? "+" : ""}${e.xp} XP</div>
+      </div>`;
+      }).join("") + (histSelMode ? `
+      <div class="stack" style="margin-top:14px">
+        <button class="btn btn-danger-ghost btn-block" onclick="borrarHistSeleccion()">Quitar lo marcado (${histSel.size})</button>
+        <button class="btn btn-ghost btn-block" onclick="toggleHistSel()">Cancelar</button>
+      </div>` : "");
+
+  const content = document.getElementById("detail-content");
+  content.innerHTML = `
+    <div class="detail-hero">
+      <div class="strip">${motifScene(560, 156, hashSeed(s.id), motifFor(s.icon), s.color)}</div>
+      <button type="button" class="skill-emoji editable" style="background:${s.color}30;color:${s.color}"
+        onclick="openSkillForm(currentSkillId)" title="Editar habilidad" aria-label="Editar habilidad">
+        ${icon(s.icon, 28)}
+        <span class="edit-hint">${icon("pen", 11)}</span>
+      </button>
+      <h2>${escapeHtml(s.name)}</h2>
+      <span class="cat">${escapeHtml(s.category || "Sin categoría")}</span>
+      ${ringHtml}
+      ${decayLine}
+    </div>
+
+    <div class="panel alt">
+      <h3>Registrar práctica</h3>
+      <div class="quick-xp" id="quick-xp">
+        ${PRACTICAS.map(o => `
+          <button data-xp="${o.xp}" class="${o.xp === selectedQuickXp ? "selected" : ""}" onclick="selectQuickXp(${o.xp})">
+            <span class="xp">+${o.xp}</span><span class="t">${o.etiqueta}</span>
+          </button>`).join("")}
+      </div>
+      ${(() => {
+        const usado = minutosHoy(s);
+        const resto = TOPE_MIN_DIA - usado;
+        if (resto <= 0) return `<p class="settings-note" style="margin:0 0 10px;color:var(--coral)">Registro cerrado por hoy: ya sumaste medio día de práctica en esta habilidad.</p>`;
+        if (usado > 0) return `<p class="settings-note" style="margin:0 0 10px">Hoy llevas ${Math.round(usado / 60 * 10) / 10} h registradas · te quedan ${Math.round(resto / 60 * 10) / 10} h.</p>`;
+        return "";
+      })()}
+      <label class="field">
+        <span>Nota (opcional)</span>
+        <input type="text" id="log-note" placeholder="¿Qué hiciste? Ej. Terminé módulo 2 del curso" maxlength="120">
+      </label>
+      <button class="btn btn-primary btn-block" onclick="logActivity()">Registrar y ganar XP</button>
+    </div>
+
+    ${linkedToSkill(s)}
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3 style="margin:0">Historial</h3>
+        ${s.log.length ? `<button class="icon-btn sm ${histSelMode ? "on" : ""}" onclick="toggleHistSel()" aria-label="Seleccionar movimientos para quitar" title="Quitar movimientos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${BM_ICONS.bote}</svg>
+        </button>` : ""}
+      </div>
+      ${histSelMode ? `<p class="settings-note">Marca los movimientos que quieras quitar. Se devolverá su XP.</p>` : ""}
+      ${historyHtml}
+    </div>`;
+  playRings(content);
+  lastDetailPct = pct;
+}
+
+/* Todo lo que alimenta esta habilidad, en un solo lugar: las misiones que la
+   entrenan a diario, los talentos que la desbloquean y los proyectos que la usan. */
+function linkedToSkill(s) {
+  const ms = state.missions.filter(m => m.skillId === s.id);
+  const pk = state.perks.filter(p => p.skillId === s.id);
+  const pr = state.projects.filter(p => p.skillId === s.id);
+  if (!ms.length && !pk.length && !pr.length) {
+    return `
+    <div class="panel alt">
+      <h3>Qué alimenta esta habilidad</h3>
+      <p class="settings-note" style="margin:0 0 12px">Nada apunta aquí todavía. Cuando vincules una misión, un talento o un encargo a <b>${escapeHtml(s.name)}</b>, aparecerán en esta lista y su XP subirá sola.</p>
+      <div class="stack">
+        <button class="btn btn-soft btn-block" onclick="openMissionForm()">Crear una misión diaria</button>
+        <button class="btn btn-ghost btn-block" onclick="openPerkForm()">Crear un talento</button>
+      </div>
+    </div>`;
+  }
+
+  const group = (one, many, iconName, rows) => rows.length ? `
+    <div class="linked-group">
+      <div class="linked-title">${icon(iconName, 15)}<span><b>${rows.length}</b> ${rows.length === 1 ? one : many}</span></div>
+      ${rows.join("")}
+    </div>` : "";
+
+  const key = todayKey();
+  return `
+    <div class="panel alt">
+      <h3>Qué alimenta esta habilidad</h3>
+      ${group("misión diaria", "misiones diarias", "target", ms.map(m => {
+        const c = missionCount(m, key), t = missionTarget(m), ok = c >= t;
+        const st = missionStreak(m);
+        return `<button class="linked-row" style="--lc:${m.color || "#5fe0b0"}" onclick="showView('missions')">
+          <span class="lr-ic">${icon(m.icon, 16)}</span>
+          <span class="lr-tx"><b>${escapeHtml(m.name)}</b><span>+${m.xp} XP · ${ok ? "cumplida hoy" : `${c} de ${t} hoy`}${st > 1 ? ` · racha ${st}` : ""}</span></span>
+          <span class="lr-go">→</span>
+        </button>`;
+      }))}
+      ${group("talento", "talentos", "gem", pk.map(p => {
+        const stt = perkStatus(p);
+        return `<button class="linked-row" style="--lc:${p.color || "#5fe0b0"}" onclick="openPerk('${p.id}')">
+          <span class="lr-ic">${icon(p.icon, 16)}</span>
+          <span class="lr-tx"><b>${escapeHtml(p.name)}</b><span>${STATUS_LABEL[stt]} · +${p.xpReward} XP al lograrlo</span></span>
+          <span class="lr-go">→</span>
+        </button>`;
+      }))}
+      ${group("encargo", "encargos", "flag", pr.map(p => `
+        <button class="linked-row" style="--lc:${p.color || "#5fe0b0"}" onclick="openProject('${p.id}')">
+          <span class="lr-ic">${icon(p.icon, 16)}</span>
+          <span class="lr-tx"><b>${escapeHtml(p.name)}</b><span>${projectProgress(p)}% · ${PROJECT_STATUS[p.status].label}</span></span>
+          <span class="lr-go">→</span>
+        </button>`))}
+    </div>`;
+}
+
+function hashSeed(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
+  return Math.abs(h) % 1000 + 20;
+}
+
+/* Marca el botón por su propio valor, no por una posición escrita a mano.
+   La versión anterior traducía XP a índice con un mapa fijo {10:0, 25:1,
+   60:2} heredado de la curva vieja; al pasar PRACTICAS a 10/40/85 los dos
+   botones grandes caían fuera del mapa, el índice salía undefined y la
+   línea reventaba después de haber quitado ya la marca a todos: ninguno se
+   encendía. Leyendo el valor del propio botón, PRACTICAS puede cambiar las
+   veces que haga falta sin que esto vuelva a desincronizarse. */
+function selectQuickXp(xp) {
+  selectedQuickXp = xp;
+  document.querySelectorAll("#quick-xp button").forEach(b =>
+    b.classList.toggle("selected", Number(b.dataset.xp) === xp));
+}
+
+/* Suma XP respetando el tope del nivel máximo. Devuelve el XP realmente añadido. */
+/* Los tres botones de registro manual.
+   Antes daban +10 por 15 min, +25 por una hora y +60 por dos: 40, 25 y 30
+   XP por hora. Premiaban PEOR la sesión larga que la corta, justo al revés
+   de lo que debe incentivar una app de hábitos. Ahora la tarifa es constante
+   (40 XP/hora) con un extra pequeño por sostener el esfuerzo. */
+const PRACTICAS = [
+  { xp: 10, min: 15,  etiqueta: "~15 min", nivel: "suave" },
+  { xp: 40, min: 60,  etiqueta: "~1 hora", nivel: "moderada" },
+  { xp: 85, min: 120, etiqueta: "2 h +",   nivel: "intensiva" }
+];
+
+/* Medio día. Nadie dedica doce horas a una sola habilidad, así que por
+   encima de esto lo que hay no es práctica sino registro inflado. */
+const TOPE_MIN_DIA = 720;
+
+function practicaDe(xp) { return PRACTICAS.find(p => p.xp === xp) || PRACTICAS[0]; }
+
+/* Aviso de descanso, no de abuso: son cosas distintas y deben sonar
+   distinto. Ocho horas seguidas en una sola habilidad es dedicación, no
+   trampa, así que ni bloquea ni castiga — solo lo dice una vez al día y con
+   el borde neutro del cuadro, no el rojo del castigo. */
+const MIN_DESCANSO = 480;
+
+function minutosHoy(s) {
+  const hoy = todayKey();
+  return (s.log || []).reduce((a, e) => a + ((e.date === hoy && e.min) ? e.min : 0), 0);
+}
+
+/* El tope por habilidad evita inflar una; este evita inflar el día entero
+   repartiendo entre varias. Doce horas es el techo en ambos casos. */
+function minutosHoyGlobal() {
+  return state.skills.reduce((a, s) => a + minutosHoy(s), 0);
+}
+
+function avisoDescanso(msg) {
+  const card = document.querySelector("#modal .modal-card");
+  if (card) card.classList.add("suave");
+  return askBase(msg, false, "Sigo un rato", false, false, "Lo dejo por hoy")
+    .then(v => { if (card) card.classList.remove("suave"); return v; });
+}
+
+function addXp(s, amount, note, fuente, extra) {
+  const cap = totalXpForLevel(MAX_LEVEL);
+  const real = Math.max(0, Math.min(amount, cap - s.xp));
+  s.xp += real;
+  s.lastActivity = todayKey();
+  s.log.unshift(Object.assign({ date: todayKey(), at: stamp(), xp: real, note, fuente: fuente || null }, extra || {}));
+  return real;
+}
+
+/* Contraparte de addXp() para cuando se revierte algo que ya había dado XP
+   (p. ej. desmarcar una misión). No toca `lastActivity`: corregir un error
+   de captura no es una sesión de práctica nueva, y no debe alimentar la
+   racha ni el registro de actividad del día. */
+function removeXp(s, amount, note, fuente) {
+  const real = Math.max(0, Math.min(amount, s.xp));
+  s.xp -= real;
+  s.log.unshift({ date: todayKey(), at: stamp(), xp: -real, note, fuente: fuente || null });
+  return real;
+}
+
+/* ---- Registro abusivo ----
+   Pasarse del medio día no es "usar mucho la app": es inflar el número que
+   la app existe para medir. Se avisa, se cierra el registro por hoy, y solo
+   si se repite al día siguiente hay castigo — un error de un día no debería
+   costar nada. */
+function diasDeAbuso() {
+  state.ui = state.ui || {};
+  return state.ui.abusoDias || (state.ui.abusoDias = []);
+}
+
+function penalizarPorAbuso() {
+  let tocadas = 0;
+  state.skills.forEach(s => {
+    const nv = levelInfo(s.xp).level;
+    if (nv <= 0) return;                       // nunca por debajo de cero
+    const suelo = totalXpForLevel(nv - 1);
+    const perdido = s.xp - suelo;
+    if (perdido <= 0) return;
+    s.xp = suelo;
+    s.log.unshift({ date: todayKey(), at: stamp(), xp: -perdido, note: "Nivel retirado por registro abusivo", fuente: "Sistema" });
+    tocadas++;
+  });
+  return tocadas;
+}
+
+async function marcarAbuso(s, esGlobal) {
+  const hoy = todayKey();
+  const dias = diasDeAbuso();
+  const repetido = dias.includes(addDaysKey(hoy, -1));
+  if (!dias.includes(hoy)) dias.push(hoy);
+  state.ui.abusoDias = dias.slice(-6);
+
+  if (repetido) {
+    const n = penalizarPorAbuso();
+    save();
+    renderDetail();
+    await ask(
+      `Es el segundo día seguido registrando más de medio día de práctica en una sola habilidad.\n\n` +
+      `El sistema de habilidades solo sirve si refleja algo real, así que se retira un nivel completo en ${n === 1 ? "la habilidad que tenía" : `las ${n} habilidades que tenían`} nivel para recuperar.\n\n` +
+      `Ninguna baja de cero. Mañana puedes volver a registrar con normalidad.`,
+      "Entendido", true);
+    return;
+  }
+
+  save();
+  renderDetail();
+  await ask(
+    (esGlobal
+      ? `Ya registraste medio día de práctica sumando todas tus habilidades.\n\nRepartirlo entre varias no cambia que el día tiene las horas que tiene, así que el registro manual queda cerrado por hoy.`
+      : `Ya registraste el equivalente a medio día de práctica en ${s.name}.\n\nPor encima de ahí el número deja de significar lo que hiciste, así que el registro manual queda cerrado por hoy en esta habilidad.`) +
+    `\n\nSi mañana vuelve a pasar, se retirará un nivel completo en todas tus habilidades.`,
+    "Entendido");
+}
+
+async function logActivity() {
+  const s = state.skills.find(x => x.id === currentSkillId);
+  if (!s) return;
+  const p = practicaDe(selectedQuickXp);
+  const yaHoy = minutosHoy(s);
+  const yaGlobal = minutosHoyGlobal();
+
+  if (yaHoy + p.min > TOPE_MIN_DIA) { await marcarAbuso(s); return; }
+  if (yaGlobal + p.min > TOPE_MIN_DIA) { await marcarAbuso(s, true); return; }
+
+  /* Cruzar las ocho horas en una sola habilidad: se avisa una vez al día y
+     se puede seguir. Descansar también forma parte de sostener un hábito. */
+  state.ui = state.ui || {};
+  if (yaHoy < MIN_DESCANSO && yaHoy + p.min >= MIN_DESCANSO && state.ui.descansoAvisado !== todayKey()) {
+    state.ui.descansoAvisado = todayKey();
+    save();
+    const sigue = await avisoDescanso(
+      `Llevas ocho horas dedicadas a ${s.name} hoy.\n\n` +
+      `Es un montón, y está muy bien. Solo un recordatorio: descansar no es tiempo perdido, es parte de que esto se sostenga mañana y pasado.\n\n` +
+      `Si quieres seguir un rato más, adelante.`);
+    if (!sigue) return;
+  }
+
+  const before = levelInfo(s.xp).level;
+  const note = document.getElementById("log-note").value.trim();
+  // El sello del historial ya dice el tipo y la duración: repetirlo en la
+  // nota dejaba "Práctica moderada · práctica moderada · 1 h".
+  const real = addXp(s, p.xp, note || "Práctica", null, { min: p.min, nivel: p.nivel });
+  save();
+  checkStreakMilestone();
+  const after = levelInfo(s.xp).level;
+  renderDetail();
+  if (real === 0) {
+    toast(`Nivel máximo: práctica registrada, decaimiento frenado`, "logro");
+  } else if (after > before) {
+    celebrate(`Nivel ${after}`, `${s.name} sube de nivel`, s.color, s.icon);
+  } else {
+    toast(`+${real} XP · práctica ${p.nivel}`, "logro");
+  }
+}
+
+/* Deshacer movimientos concretos, no "los últimos cinco".
+   Borrar un bloque entero se llevaba por delante ganancias legítimas que
+   estaban entre medias del error; aquí se marca exactamente lo que sobra. */
+let histSelMode = false;
+let histSel = new Set();
+
+function toggleHistSel() {
+  histSelMode = !histSelMode;
+  histSel.clear();
+  renderDetail();
+}
+
+function marcarHist(i) {
+  const k = String(i);
+  if (histSel.has(k)) histSel.delete(k); else histSel.add(k);
+  renderDetail();
+}
+
+async function borrarHistSeleccion() {
+  const s = state.skills.find(x => x.id === currentSkillId);
+  if (!s) return;
+  const idx = [...histSel].map(Number).sort((a, b) => a - b);
+  if (!idx.length) { toast("No hay nada marcado", "atencion"); return; }
+  const neto = idx.reduce((a, i) => a + ((s.log[i] && s.log[i].xp) || 0), 0);
+  if (!await ask(
+    `Se quitarán ${idx.length} movimiento${idx.length === 1 ? "" : "s"} de ${s.name}` +
+    (neto !== 0 ? `, y con ${idx.length === 1 ? "él" : "ellos"} se ${neto > 0 ? "restarán" : "devolverán"} ${Math.abs(neto)} XP.` : ".") +
+    `\n\nEsto no se puede deshacer.`, "Quitar", true)) return;
+  const fuera = new Set(idx);
+  s.log = s.log.filter((_, i) => !fuera.has(i));
+  s.xp = Math.max(0, s.xp - neto);
+  histSelMode = false;
+  histSel.clear();
+  save();
+  renderDetail();
+  toast(`${idx.length} movimiento${idx.length === 1 ? "" : "s"} quitado${idx.length === 1 ? "" : "s"}`);
+}
+
+/* ================= Render: árbol ================= */
+
+function renderTree() {
+  const el = document.getElementById("tree-content");
+  const perks = state.perks;
+
+  if (perks.length === 0) {
+    el.innerHTML = `
+      <div class="empty">
+        <div class="bubble">${icon("map", 34)}</div>
+        <h2>Tu mapa está por trazarse</h2>
+        <p>Un talento es una meta con inversión real: un curso, un equipo, una certificación. Al pagarla arranca un plan con fecha límite — si logras la meta, el talento es tuyo para siempre.</p>
+        <button class="btn btn-primary" onclick="openPerkForm()">Crear mi primer talento</button>
+      </div>`;
+    return;
+  }
+
+  const invested = perks.reduce((a, p) => a + (p.investedTotal || 0), 0);
+  const completed = perks.filter(p => p.status === "completed").length;
+  const inProgress = perks.filter(p => perkStatus(p) === "active");
+  const dueNow = perks.filter(p => perkStatus(p) === "due");
+  const readyNow = perks.filter(p => perkStatus(p) === "available");
+  const activeN = inProgress.length + dueNow.length;
+  const total = perks.length;
+
+  // Lo que más urge: un plan vencido, el próximo a vencer, o algo listo para abrir
+  const soonest = [...inProgress].sort((a, b) =>
+    daysBetween(todayKey(), a.endDate) - daysBetween(todayKey(), b.endDate))[0];
+  const avgProgress = inProgress.length
+    ? Math.round(inProgress.reduce((a, p) => a + perkProgress(p), 0) / inProgress.length) : 0;
+
+  let focus;
+  if (dueNow.length) {
+    focus = { k: "Plan vencido", v: dueNow[0].name, color: "var(--fire)", id: dueNow[0].id };
+  } else if (soonest) {
+    const left = daysBetween(todayKey(), soonest.endDate);
+    focus = { k: `Vence en ${left} día${left === 1 ? "" : "s"}`, v: soonest.name, color: "var(--fire)", id: soonest.id };
+  } else if (readyNow.length) {
+    focus = { k: "Listo para empezar", v: readyNow[0].name, color: "var(--mint)", id: readyNow[0].id };
+  } else {
+    focus = { k: "Sin planes en curso", v: "Abre un talento cuando quieras", color: "var(--muted)", id: null };
+  }
+
+  const branches = [...new Set(perks.map(p => p.branch || "General"))];
+
+  let html = sectionHero({
+    scene: topoScene(820, 168, 31),
+    lead: `<div>
+      <div class="label">Invertido en ti</div>
+      <div class="big"><b>${money(invested)}</b></div>
+    </div>`,
+    stats: [
+      { n: completed, t: "Permanentes", tone: "mint" },
+      { n: activeN, t: "En curso", tone: activeN ? "fire" : "" },
+      { n: total - completed - activeN, t: "Por abrir" },
+      ...(inProgress.length ? [{ n: avgProgress + "%", t: "Avance medio" }] : [])
+    ],
+    focus: Object.assign(focus, {
+      onclick: focus.id ? `openPerk('${focus.id}')` : null,
+      pct: inProgress.length ? avgProgress : undefined
+    })
+  }) + `<div class="sec-label">Tus ramas de talentos</div>`;
+
+  branches.forEach((b, bi) => {
+    // Lo que se dibuja: talentos sueltos y cajas cerradas. La cuenta de la
+    // cabecera, en cambio, sigue siendo de talentos de verdad — una caja no
+    // es un talento y contarla como uno mentiría sobre el tamaño de la rama.
+    const nodes = branchNodes(b);
+    const reales = talentosDeRama(b);
+    const collapsed = isCollapsed(b);
+    const editing = editBranch === b;
+    const doneN = reales.filter(n => n.status === "completed").length;
+    const ba = escapeAttr(b);
+
+    let body;
+    if (collapsed) {
+      body = `
+      <div class="branch-collapsed">
+        <span class="pips">${nodes.slice(0, 12).map(n => {
+          const st = perkStatus(n);
+          const c = st === "completed" ? (n.color || "#5fe0b0") : (st === "active" || st === "due" ? "#f5d76e" : "#2e3947");
+          return `<i style="background:${c}${tipoDe(n) === "hito" ? ";border-radius:999px" : ""}"></i>`;
+        }).join("")}${nodes.length > 12 ? `<span style="font-size:11px">+${nodes.length - 12}</span>` : ""}</span>
+        <span>${nodes.length} talento${nodes.length === 1 ? "" : "s"}</span>
+      </div>`;
+    } else {
+      body = `
+      <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, bi, editing, b)}</div>
+      <button class="fs-open" onclick="openBranchFullscreen('${ba}')">
+        <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> Ver la rama completa
+      </button>
+      ${/* Una sola línea, y que diga lo que la mano puede hacer AHORA. Fuera
+            de edición el gesto es el que hay que aprender; dentro, las
+            herramientas. */
+        editing
+        ? `<div class="const-hint edit">Arrastra para acomodar · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos los requisitos o basta uno${atajosLegend()}</div>`
+        : `<div class="const-hint">Toca un nodo para abrirlo · arrástralo para acomodarlo · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno${atajosLegend(true)}</div>`}`;
+    }
+
+    html += `
+    <div class="branch-card">
+      <div class="branch-head">
+        <button class="badd solid" onclick="toggleBranch('${ba}')" aria-label="${collapsed ? "Desplegar" : "Plegar"} ${ba}" style="margin-right:2px">
+          <svg viewBox="0 0 24 24"><path d="${collapsed ? "M9 6l6 6-6 6" : "M6 9l6 6 6-6"}"/></svg>
+        </button>
+        <!-- El nombre abre el renombrado, no el plegado: plegar ya tiene su
+             flecha justo al lado, y escribir encima de un título es el gesto
+             que todo el mundo prueba primero. -->
+        <h3 class="renombrable" onclick="renombrarRama('${ba}')" title="Toca el nombre para renombrar la rama">${escapeHtml(b)}${icon("pen", 11)}</h3>
+        <span class="count">${doneN} de ${reales.length}</span>
+        <div class="bhead-btns">
+          ${editing ? `
+          <button class="badd solid on" onclick="toggleEditBranch('${ba}')" aria-label="Salir del modo edición" title="Salir de edición${isDesktop() ? " (C)" : ""}">
+            <svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>
+          </button>` : ""}
+          ${branchMenu("t:" + ba, [
+            /* Fuera del bloque de "no plegada" a propósito: entrar a pantalla
+               completa despliega la rama de todos modos, y quien la tiene
+               plegada es justo quien no tiene a mano el botón de debajo del
+               lienzo. */
+            { title: "Ver en pantalla completa", hint: "Recorre la rama con sitio de sobra", icon: "expandir", onclick: `openBranchFullscreen('${ba}')` },
+            ...(collapsed ? [] : [
+              /* "Reacomodar solos" queda fuera a propósito hasta pulir cómo
+                 decide el orden; la función sigue existiendo, sin puerta. */
+              ...(editing ? [] : [{ title: "Centrar en lo que sigue", hint: "Te lleva al talento en curso o al siguiente por abrir", icon: "flecha", onclick: `focusBranchFront('${ba}')` }]),
+              editing
+                ? { title: "Terminar de editar", hint: "Vuelve al modo normal", icon: "lapiz", onclick: `toggleEditBranch('${ba}')` }
+                : { title: "Editar el mapa", hint: "Mueve y conecta los talentos", icon: "lapiz", onclick: `toggleEditBranch('${ba}')` }
+            ]),
+            /* Una entrada por trimestre cerrable, y ninguna opción de
+               cerrarlos todos de golpe: es justo el atajo que un día mueve
+               algo que no querías mover (R8). */
+            ...trimestresGuardables(b).map(t => ({
+              title: `Guardar el ${tituloTrimestre(t.id)}`,
+              hint: `${t.n} talento${t.n === 1 ? "" : "s"} al ático`,
+              icon: "caja", onclick: `guardarTrimestre('${ba}','${t.id}')`
+            })),
+            { title: "Borrar esta rama", hint: reales.length === 0 ? "Está vacía" : (reales.length === 1 ? "Se va también su único talento" : `Se van también sus ${reales.length} talentos`), icon: "bote", danger: true, onclick: `deleteBranch('perks','${ba}')` }
+          ])}
+          ${/* En PC no hay botón de crear: el clic derecho y las teclas
+                Q, W y E lo hacen mejor y sin ocupar la cabecera. En táctil
+                no existe ninguna de las dos cosas, así que ahí se queda. */
+            isDesktop() ? "" : `<button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>`}
+        </div>
+      </div>
+      ${body}
+    </div>`;
+  });
+  el.innerHTML = html;
+  /* La pantalla completa se pinta DESPUÉS de la lista, a propósito:
+     constellation() deja apuntadas en variables globales las posiciones del
+     último lienzo dibujado, y las que deben quedar vigentes son las del
+     lienzo que el usuario está tocando. */
+  renderFullscreen();
+  if (editBranch && !fullscreenBranch) attachEditHandlers();
+  /* En escritorio el lienzo de la lista también se arrastra con el botón
+     izquierdo: la rama puede ser más ancha que la tarjeta y no hay por qué
+     entrar a pantalla completa solo para recorrerla. */
+  const cont = document.getElementById("tree-content");
+  if (cont) { attachPanHandlers(cont); attachCtxHandlers(cont); encuadrarLienzos(cont); }
+  if (focusPending) {
+    focusPending = false;
+    requestAnimationFrame(() => branches.forEach(b => focusBranchFront(b, true)));
+  }
+}
+

@@ -1,0 +1,720 @@
+/* Bienvenida, tutorial, ejemplos, zona horaria y respaldos */
+/* ================= Bienvenida =================
+   Tres preguntas para armar un tablero con las cosas que a esa persona
+   le importan, en vez de soltarla frente a una app vacía. */
+
+const ONBOARD_AREAS = [
+  { id: "salud",     label: "Salud y cuerpo",     icon: "dumbbell", color: "#ff8a70",
+    skills: ["Ejercicio", "Correr", "Yoga"],
+    mission: { name: "Moverme 20 minutos", icon: "bolt", xp: 20 },
+    perk: { branch: "Salud", name: "Rutina que pueda sostener", icon: "flame", days: 90, xp: 250 } },
+  { id: "mente",     label: "Aprender algo",      icon: "book", color: "#6fc3e8",
+    skills: ["Lectura", "Idiomas", "Programación"],
+    mission: { name: "Estudiar 15 minutos", icon: "cap", xp: 20 },
+    perk: { branch: "Aprender", name: "Terminar un curso", icon: "cap", days: 180, xp: 300 } },
+  { id: "creativo",  label: "Crear cosas",        icon: "brush", color: "#b7a2ea",
+    skills: ["Dibujo", "Escritura", "Fotografía"],
+    mission: { name: "Crear algo pequeño", icon: "pen", xp: 20 },
+    perk: { branch: "Creatividad", name: "Publicar mi primer trabajo", icon: "star", days: 120, xp: 300 } },
+  { id: "dinero",    label: "Ordenar mi dinero",  icon: "coin", color: "#5fe0b0",
+    skills: ["Finanzas", "Organización", "Negociación"],
+    mission: { name: "Anotar mis gastos del día", icon: "chart", xp: 15 },
+    perk: { branch: "Dinero", name: "Fondo de emergencia", icon: "gem", days: 365, xp: 500 } },
+  { id: "casa",      label: "Casa y cocina",      icon: "coffee", color: "#f5d76e",
+    skills: ["Cocina", "Repostería", "Jardinería"],
+    mission: { name: "Cocinar en casa", icon: "coffee", xp: 20 },
+    perk: { branch: "Casa", name: "Diez recetas de memoria", icon: "book", days: 120, xp: 250 } },
+  { id: "calma",     label: "Descanso y calma",   icon: "heart", color: "#f0a5c0",
+    skills: ["Meditación", "Yoga", "Senderismo"],
+    mission: { name: "10 minutos sin pantallas", icon: "heart", xp: 15 },
+    perk: { branch: "Bienestar", name: "Dormir bien un mes seguido", icon: "target", days: 30, xp: 200 } },
+  { id: "social",    label: "Gente que quiero",   icon: "mic", color: "#8fd18a",
+    skills: ["Oratoria", "Baile", "Canto"],
+    mission: { name: "Escribirle a alguien", icon: "mic", xp: 15 },
+    perk: { branch: "Personas", name: "Ver a mis amigos cada mes", icon: "heart", days: 90, xp: 200 } },
+  { id: "trabajo",   label: "Carrera y trabajo",  icon: "wrench", color: "#9aa7b8",
+    skills: ["Organización", "Negociación", "Programación"],
+    mission: { name: "Una hora de trabajo profundo", icon: "bolt", xp: 25 },
+    perk: { branch: "Trabajo", name: "Certificarme en lo mío", icon: "trophy", days: 180, xp: 400 } }
+];
+
+let onboardStep = 0;
+let onboardPick = { areas: [], pace: "medio", project: "" };
+
+function startOnboarding() {
+  onboardStep = 0;
+  onboardPick = { areas: [], pace: "medio", project: "" };
+  renderOnboarding();
+  showView("onboarding");
+}
+
+function renderOnboarding() {
+  const el = document.getElementById("onboarding-content");
+  const steps = [
+    () => `
+      <div class="ob-q">
+        <div class="ob-num">Pregunta 1 de 3</div>
+        <h2>¿Qué partes de tu vida quieres mejorar?</h2>
+        <p class="settings-note">Elige de dos a cuatro. Con eso armo tus primeras habilidades y misiones — después puedes cambiar todo.</p>
+        <div class="ob-areas">
+          ${ONBOARD_AREAS.map(a => `
+            <button class="ob-area ${onboardPick.areas.includes(a.id) ? "on" : ""}" style="--oc:${a.color}" onclick="toggleArea('${a.id}')">
+              <span class="oa-ic">${icon(a.icon, 20)}</span>
+              <span>${a.label}</span>
+            </button>`).join("")}
+        </div>
+      </div>`,
+    () => `
+      <div class="ob-q">
+        <div class="ob-num">Pregunta 2 de 3</div>
+        <h2>¿Qué tan exigente lo quieres?</h2>
+        <p class="settings-note">Esto define cuánto tiempo puedes dejar una habilidad sin practicar antes de que empiece a bajar.</p>
+        <div class="ob-pace">
+          ${[
+            { id: "suave", t: "Tranquilo", d: "14 días de gracia. Para empezar sin presión." },
+            { id: "medio", t: "Equilibrado", d: "7 días de gracia. El punto medio recomendado." },
+            { id: "duro",  t: "Exigente", d: "3 días de gracia. Si fallas, se nota rápido." }
+          ].map(p => `
+            <button class="ob-pace-opt ${onboardPick.pace === p.id ? "on" : ""}" onclick="pickPace('${p.id}')">
+              <b>${p.t}</b><span>${p.d}</span>
+            </button>`).join("")}
+        </div>
+      </div>`,
+    () => `
+      <div class="ob-q">
+        <div class="ob-num">Pregunta 3 de 3</div>
+        <h2>¿Hay algo que estés construyendo ahora?</h2>
+        <p class="settings-note">Un proyecto con etapas: mudarte, lanzar algo, terminar un trámite. Si no hay nada, puedes saltarlo.</p>
+        <label class="field">
+          <span>Nombre del proyecto (opcional)</span>
+          <input type="text" id="ob-project" placeholder="Ej. Renovar mi cuarto" maxlength="60" value="${escapeAttr(onboardPick.project)}">
+        </label>
+      </div>`
+  ];
+
+  const canNext = onboardStep !== 0 || onboardPick.areas.length > 0;
+  el.innerHTML = `
+    ${steps[onboardStep]()}
+    <div class="ob-nav">
+      ${onboardStep > 0 ? `<button class="btn btn-ghost" onclick="obBack()">Atrás</button>` : `<button class="btn btn-ghost" onclick="showView('summary')">Cancelar</button>`}
+      <button class="btn btn-primary" onclick="obNext()" ${canNext ? "" : "disabled"}>
+        ${onboardStep === 2 ? "Armar mi tablero" : "Siguiente"}
+      </button>
+    </div>
+    <div class="ob-dots">${[0, 1, 2].map(i => `<i class="${i === onboardStep ? "on" : ""}"></i>`).join("")}</div>`;
+}
+
+function toggleArea(id) {
+  const i = onboardPick.areas.indexOf(id);
+  if (i >= 0) onboardPick.areas.splice(i, 1);
+  else if (onboardPick.areas.length < 4) onboardPick.areas.push(id);
+  else { toast("Cuatro es suficiente para empezar", "atencion"); return; }
+  renderOnboarding();
+}
+
+function pickPace(p) { onboardPick.pace = p; renderOnboarding(); }
+
+function obBack() {
+  if (onboardStep === 2) onboardPick.project = document.getElementById("ob-project").value.trim();
+  onboardStep--;
+  renderOnboarding();
+}
+
+function obNext() {
+  if (onboardStep === 2) {
+    onboardPick.project = document.getElementById("ob-project").value.trim();
+    buildFromOnboarding();
+    return;
+  }
+  onboardStep++;
+  renderOnboarding();
+}
+
+function buildFromOnboarding() {
+  const today = todayKey();
+  const grace = { suave: 14, medio: 7, duro: 3 }[onboardPick.pace];
+  const decay = { suave: 5, medio: 10, duro: 18 }[onboardPick.pace];
+  const areas = ONBOARD_AREAS.filter(a => onboardPick.areas.includes(a.id));
+
+  areas.forEach((a, i) => {
+    /* Cada área trae tres habilidades afines en vez de una. Elegir "Salud y
+       cuerpo" y encontrarse una sola línea llamada "Ejercicio" dice poco;
+       ver Ejercicio, Correr y Yoga en cero ya dibuja un terreno. La primera
+       es la que enlaza con la misión y el talento del área. Los nombres se
+       resuelven contra el catálogo para no repetir icono y color en dos
+       sitios, y si una ya existe (dos áreas pueden compartirla) se reutiliza
+       en vez de duplicarla. */
+    let skill = null;
+    a.skills.forEach((nombre, j) => {
+      const yaEsta = state.skills.find(s => s.name.toLowerCase() === nombre.toLowerCase());
+      if (yaEsta) { if (j === 0) skill = yaEsta; return; }
+      const cat = SKILL_CATALOG.find(x => x.n === nombre);
+      const nueva = {
+        id: uid(), name: nombre,
+        category: cat ? cat.c : "General",
+        icon: cat ? cat.i : a.icon,
+        color: cat ? cat.k : a.color,
+        xp: 0, permanent: false, graceDays: grace, decayPerDay: decay,
+        createdAt: today, lastActivity: null, lastCheck: today, log: []
+      };
+      state.skills.push(nueva);
+      if (j === 0) skill = nueva;
+    });
+    if (!skill) skill = state.skills[0];
+
+    state.missions.push({
+      id: uid(), name: a.mission.name, desc: "", icon: a.mission.icon, color: a.color,
+      cadence: "daily", days: [], target: 1,
+      skillId: skill.id, xp: a.mission.xp, log: {}, archived: false, completedAt: null,
+      createdAt: today
+    });
+
+    state.perks.push({
+      id: uid(), name: a.perk.name, branch: a.perk.branch, desc: "",
+      tipo: "meta", cost: 0, planDays: a.perk.days, steps: [],
+      skillId: skill.id, xpReward: a.perk.xp, requiere: [], modo: "todos",
+      icon: a.perk.icon, color: a.color,
+      status: null, startDate: null, endDate: null, completedAt: null,
+      investedTotal: 0, progress: 0, createdAt: today,
+      history: [{ date: today, at: stamp(), event: `Talento creado en la rama ${a.perk.branch}` }]
+    });
+  });
+
+  if (onboardPick.project) {
+    const first = areas[0];
+    state.projects.push({
+      id: uid(), name: onboardPick.project, branch: "Personal",
+      icon: "flag", color: first ? first.color : COLORS[0],
+      desc: "", status: "active",
+      steps: [
+        { id: uid(), name: "Definir qué significa terminarlo", done: false, at: null },
+        { id: uid(), name: "Primer paso concreto", done: false, at: null },
+        { id: uid(), name: "Revisar avance", done: false, at: null }
+      ],
+      skillId: first ? state.skills[0].id : null, xpReward: 250,
+      createdAt: today, lastActivity: today, completedAt: null,
+      history: [{ date: today, at: stamp(), event: "Proyecto creado desde la bienvenida" }]
+    });
+  }
+
+  save();
+  showView("summary");
+  celebrate("Tu tablero está listo", `${areas.length} área${areas.length === 1 ? "" : "s"} para empezar`, "#5fe0b0", "compass");
+  // Después de la celebración, no encima de ella
+  quizaTutorial(2600);
+}
+
+/* ================= Tutorial de bienvenida =================
+   Sale UNA vez, y sale cuando el tablero ya tiene algo dentro: explicar los
+   módulos con la app vacía es hablar de sitios que el usuario todavía no
+   puede reconocer. Por eso lo disparan los tres caminos de entrada —el
+   cuestionario, el ejemplo y la primera habilidad hecha a mano— y no el
+   primer arranque a secas.
+
+   Cada tarjeta explica UN módulo, con la misma pregunta detrás: ¿qué pongo
+   aquí y qué gano? Se salta entero desde la primera, y se puede volver a ver
+   desde Ajustes, que es donde uno busca las cosas que cerró sin querer. */
+
+const TUTO_PASOS = [
+  {
+    /* La portada. Antes se entraba directo a "Misiones", y una tarjeta que
+       explica la primera sección de algo que todavía no sabes qué es empieza
+       por el medio. El logo hace de presentación: es lo único que el usuario
+       ya vio (en el menú) y no ha podido relacionar con nada. */
+    logo: true, color: "#5fe0b0", titulo: "Te doy la bienvenida",
+    tx: "Notara lleva tu vida con la mecánica de un juego de rol: lo que <b>haces</b>, lo que <b>practicas</b>, lo que <b>te propones</b> y lo que <b>construyes</b>.",
+    pie: "Son cuatro secciones. Te cuento en un minuto qué hace cada una."
+  },
+  {
+    modulo: "missions", icon: "flame", color: "#f5d76e", titulo: "Misiones",
+    tx: "Lo que haces <b>hoy</b>. Pequeñas y repetibles: salir a caminar, leer diez páginas. Cada vez que cumples una sube una habilidad y sigue viva tu racha.",
+    pie: "Si dudas por dónde empezar, empieza aquí."
+  },
+  {
+    modulo: "home", icon: "star", color: "#5fe0b0", titulo: "Habilidades",
+    tx: "Lo que <b>practicas</b>. No se marcan como hechas: acumulan XP y suben de nivel con las horas que les dedicas.",
+    pie: "Y si dejas una abandonada mucho tiempo, baja. El progreso se sostiene, no se guarda."
+  },
+  {
+    modulo: "tree", icon: "gem", color: "#b7a2ea", titulo: "Talentos",
+    tx: "Lo que <b>te propones</b>, en un mapa. Cada nodo es una compra, un hito o una meta, y se encadenan: unos abren el paso a otros.",
+    pie: "Es el módulo para lo que cuesta dinero o meses, no para lo de esta tarde."
+  },
+  {
+    modulo: "projects", icon: "flag", color: "#6fc3e8", titulo: "Proyectos",
+    tx: "Los <b>encargos</b> que te haces a ti: cosas que construyes por etapas, con principio y final. La app mide su ritmo y te dice cuáles siguen vivos.",
+    pie: "Un encargo que lleva semanas quieto te lo dirá, sin regañarte."
+  },
+  {
+    modulo: null, icon: "compass", color: "#5fe0b0", titulo: "Y todo se conecta",
+    tx: "Una misión cumplida, un talento logrado o una etapa de proyecto terminan en el mismo sitio: <b>XP para tus habilidades</b>.",
+    pie: "Puedes apagar los módulos que no uses desde Ajustes, y volver a ver esto cuando quieras."
+  }
+];
+
+let tutoPaso = 0;
+
+function pasosDelTutorial() {
+  // Un módulo apagado no se explica: sería enseñar una puerta que no existe
+  return TUTO_PASOS.filter(p => !p.modulo || moduloOn(p.modulo));
+}
+
+function arrancarTutorial() {
+  tutoPaso = 0;
+  renderTutorial();
+  document.getElementById("tuto").classList.add("show");
+}
+
+/* Se llama desde los tres caminos de entrada. El retraso deja terminar lo que
+   estuviera en pantalla (la celebración del cuestionario dura lo suyo) para
+   que las dos cosas no se pisen. */
+function quizaTutorial(retraso) {
+  if (state.ui && state.ui.tutorialVisto) return;
+  setTimeout(arrancarTutorial, retraso || 400);
+}
+
+/* El logo de verdad, no una copia: se toma del menú, que ya lo lleva dibujado.
+   Duplicar aquí un SVG de doscientas líneas garantizaría que un día los dos
+   dejen de parecerse. */
+function logoNotara() {
+  const el = document.querySelector(".sb-logo-full");
+  return el ? el.innerHTML : "";
+}
+
+function renderTutorial() {
+  const pasos = pasosDelTutorial();
+  const p = pasos[tutoPaso];
+  if (!p) { cerrarTutorial(); return; }
+  const ultimo = tutoPaso === pasos.length - 1;
+  document.getElementById("tuto-card").innerHTML = `
+    <!-- Salir es una X y no un botón grande: el botón compite con "Siguiente"
+         justo cuando lo que queremos es que dé un paso más. -->
+    <button class="tuto-x" onclick="saltarTutorial()" aria-label="Saltar tutorial" title="Saltar tutorial">✕</button>
+    ${/* Las cinco filas van SIEMPRE, en el mismo orden y con la misma altura:
+          marca, título, texto, resumen gris y puntos. Antes cada tarjeta
+          medía lo que midiera su texto y el contenido bailaba de una a otra
+          —el título subía, el gris se movía— aunque el alto total ya
+          estuviera fijado. Homologar las filas, y no solo la tarjeta, es lo
+          que hace que solo cambien las palabras. */""}
+    <div class="tuto-marca">${p.logo
+      ? `<span class="tuto-logo">${logoNotara()}</span>`
+      : `<span class="tuto-ic" style="--tc:${p.color}">${icon(p.icon, 30)}</span>`}</div>
+    <h2 class="tuto-titulo">${escapeHtml(p.titulo)}</h2>
+    <p class="tuto-tx">${p.tx}</p>
+    <p class="tuto-pie">${p.pie}</p>
+    <div class="tuto-dots">${pasos.map((_, i) =>
+      `<i class="${i === tutoPaso ? "on" : ""}"></i>`).join("")}</div>
+    <div class="modal-actions">
+      ${/* "Atrás" está siempre, apagado en la primera. Quitarlo movía de sitio
+            a "Siguiente" justo al pasar de la primera a la segunda, y ese es
+            el botón que se pulsa cinco veces seguidas. */
+        ""}<button class="btn btn-ghost" onclick="tutoAtras()" ${tutoPaso ? "" : "disabled"}>Atrás</button>
+      <button class="btn btn-primary" onclick="tutoSiguiente()">${ultimo ? "Empezar" : "Siguiente"}</button>
+    </div>`;
+}
+
+function tutoSiguiente() {
+  tutoPaso++;
+  if (tutoPaso >= pasosDelTutorial().length) { terminarTutorial(); return; }
+  renderTutorial();
+}
+
+function tutoAtras() {
+  if (tutoPaso === 0) return;
+  tutoPaso--;
+  renderTutorial();
+}
+
+function saltarTutorial() { terminarTutorial(); }
+
+/* Saltarlo cuenta como haberlo visto: si volviera a salir, saltarlo dejaría
+   de ser una salida y pasaría a ser un aplazamiento. */
+function terminarTutorial() {
+  state.ui = state.ui || {};
+  state.ui.tutorialVisto = true;
+  save();
+  cerrarTutorial();
+}
+
+function cerrarTutorial() {
+  const el = document.getElementById("tuto");
+  if (el) el.classList.remove("show");
+}
+
+function verTutorialOtraVez() {
+  showView("summary");
+  arrancarTutorial();
+}
+
+document.addEventListener("keydown", (e) => {
+  const el = document.getElementById("tuto");
+  if (!el || !el.classList.contains("show")) return;
+  if (e.key === "Escape") { e.preventDefault(); saltarTutorial(); }
+  else if (e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); tutoSiguiente(); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); tutoAtras(); }
+});
+
+/* ================= Ejemplos ================= */
+
+/* Ejemplo pensado para que cualquiera entienda el sistema de un vistazo:
+   habilidades cotidianas y una rama que muestra los tres tipos de talento
+   encadenados, del primer paso a la meta grande. */
+function loadExamples() {
+  const today = todayKey();
+  const daysAgo = (n) => addDaysKey(todayKey(), -n);
+
+  const mkS = (name, category, iconName, color, xp, permanent, lastAct) => ({
+    id: uid(), name, category, icon: iconName, color, xp,
+    permanent: !!permanent, graceDays: 7, decayPerDay: 10,
+    createdAt: daysAgo(30), lastActivity: lastAct || (xp > 0 ? today : null), lastCheck: today,
+    log: xp > 0 ? [{ date: lastAct || today, xp, note: "Nivel inicial estimado" }] : []
+  });
+
+  const ejercicio = mkS("Ejercicio", "Salud", "dumbbell", "#ff8a70", 340, false, today);
+  const cocina    = mkS("Cocina", "Casa", "coffee", "#f5d76e", 180, false, today);
+  const idiomas   = mkS("Idiomas", "Aprendizaje", "globe", "#6fc3e8", 520, false, daysAgo(2));
+  const finanzas  = mkS("Finanzas", "Vida adulta", "coin", "#5fe0b0", 90, false, daysAgo(1));
+  const creativo  = mkS("Dibujo", "Creatividad", "brush", "#b7a2ea", 60, false, daysAgo(3));
+  /* Existe para que "Renovar la cocina" tenga dónde caer. Es justo el
+     ejemplo con el que se explica el léxico: ahí "cocina" es el lugar y
+     "renovar" la actividad, así que el XP es de Reparaciones. */
+  const reparaciones = mkS("Reparaciones", "Casa", "wrench", "#9aa7b8", 120, false, daysAgo(2));
+  state.skills.push(ejercicio, cocina, idiomas, finanzas, creativo, reparaciones);
+
+  /* Cuatro más en cero, sin misión ni talento detrás. El ejemplo no es solo
+     una demostración de lo que la app hace: también enseña cómo se ve una
+     habilidad que aún no has empezado, que es la mitad de la idea. */
+  ["Lectura", "Jardinería", "Fotografía", "Pesca"].forEach(nombre => {
+    const c = SKILL_CATALOG.find(x => x.n === nombre);
+    if (c) state.skills.push(mkS(c.n, c.c, c.i, c.k, 0, false, null));
+  });
+
+  const mkP = (extra) => Object.assign({
+    id: uid(), branch: "Salud", desc: "", tipo: "meta", cost: 0, planDays: 90, steps: [],
+    skillId: ejercicio.id, xpReward: 150, requiere: [], modo: "todos", icon: "star", color: "#5fe0b0",
+    status: null, startDate: null, endDate: null, completedAt: null,
+    investedTotal: 0, progress: 0, createdAt: today,
+    history: [{ date: today, at: stamp(), event: "Talento creado" }]
+  }, extra);
+
+  /* ---- Rama Salud: el ejemplo grande ----
+     Es la que enseña de qué va el módulo, así que lleva las tres clases de
+     talento, una convergencia de las dos maneras, una meta con sus etapas a
+     medias y una caja del ático ya guardada. Las otras dos ramas se quedan
+     pequeñas a propósito: si todas fueran densas, no se vería que una rama
+     puede ser sencilla. */
+  const tenis = mkP({
+    name: "Tenis para correr", icon: "bolt", color: "#ff8a70",
+    desc: "Comprarlos es el primer paso: son tuyos desde que los pagas, sin plazo que cumplir.",
+    tipo: "compra", cost: 1800, xpReward: 80,
+    status: "completed", completedAt: daysAgo(20), investedTotal: 1800,
+    history: [
+      { date: daysAgo(20), at: new Date(Date.now() - 20 * 864e5).toISOString(), event: "Comprada y asegurada ($1,800)" },
+      { date: daysAgo(21), at: new Date(Date.now() - 21 * 864e5).toISOString(), event: "Talento creado en la rama Salud" }
+    ]
+  });
+  const primeraSalida = mkP({
+    name: "Salir a correr una vez", icon: "flag", color: "#f5d76e", tipo: "hito",
+    desc: "Un hito: una acción puntual que se cierra en sí misma. Se marca con un toque.",
+    xpReward: 40, requiere: [tenis.id],
+    status: "completed", completedAt: daysAgo(18),
+    history: [{ date: daysAgo(18), at: new Date(Date.now() - 18 * 864e5).toISOString(), event: "Hito conseguido" }]
+  });
+  const habito = mkP({
+    name: "Correr 3 veces por semana", icon: "flame", color: "#ff8a70",
+    desc: "Una meta: tienes 3 meses y avanza marcando sus etapas.",
+    planDays: 90, xpReward: 300, requiere: [primeraSalida.id],
+    status: "active", startDate: daysAgo(16),
+    endDate: addDaysKey(todayKey(), 74),
+    steps: [
+      { id: uid(), name: "Primera semana completa", done: true, at: stamp() },
+      { id: uid(), name: "Cuatro semanas seguidas", done: true, at: stamp() },
+      { id: uid(), name: "Ocho semanas seguidas", done: false, at: null },
+      { id: uid(), name: "Las doce semanas", done: false, at: null }
+    ],
+    history: [
+      { date: daysAgo(4), at: new Date(Date.now() - 4 * 864e5).toISOString(), event: "Etapa hecha: Cuatro semanas seguidas" },
+      { date: daysAgo(16), at: new Date(Date.now() - 16 * 864e5).toISOString(), event: "Inversión de $0 — plan de 3 meses iniciado" }
+    ]
+  });
+  /* Un segundo camino que nace del mismo sitio: enseña que el árbol se abre
+     en abanico, no solo en cadena. */
+  const reloj = mkP({
+    name: "Reloj con pulsómetro", icon: "target", color: "#6fc3e8",
+    desc: "Para saber si corres al ritmo que crees que corres.",
+    tipo: "compra", cost: 2400, xpReward: 90, requiere: [primeraSalida.id]
+  });
+  const tecnica = mkP({
+    name: "Corregir mi técnica", icon: "bulb", color: "#b7a2ea",
+    desc: "Tres sesiones grabándome y ajustando la zancada.",
+    planDays: 60, xpReward: 200, requiere: [reloj.id],
+    steps: [
+      { id: uid(), name: "Grabarme corriendo", done: false, at: null },
+      { id: uid(), name: "Comparar con una referencia", done: false, at: null },
+      { id: uid(), name: "Tres salidas aplicando el cambio", done: false, at: null }
+    ]
+  });
+  /* EL NODO QUE CORONA: necesita el hábito Y la técnica. Es la figura que
+     antes no se podía dibujar, y por eso el ejemplo la trae. */
+  const carrera = mkP({
+    name: "Correr mi primera carrera de 5 km", icon: "trophy", color: "#5fe0b0",
+    desc: "La meta grande: hace falta el hábito Y la técnica. Es un talento que corona dos caminos.",
+    cost: 450, planDays: 180, xpReward: 600,
+    requiere: [habito.id, tecnica.id], modo: "todos"
+  });
+  /* CAMINO ALTERNATIVO: vale con cualquiera de los dos. Enseña el otro modo
+     sin tener que buscarlo en un menú. */
+  const club = mkP({
+    name: "Entrar a un club de corredores", icon: "smile", color: "#f0a5c0", tipo: "hito",
+    desc: "Basta con tener el hábito O haber corrido una carrera: cualquiera de los dos te abre la puerta.",
+    xpReward: 120, requiere: [habito.id, carrera.id], modo: "cualquiera"
+  });
+
+  /* Lo del trimestre pasado, para que el ático se vea funcionando desde el
+     primer momento y no haya que esperar tres meses a entenderlo. */
+  const viejoTrim = trimestreDe(addDaysKey(todayKey(), -140));
+  const finDeTrim = addDaysKey(todayKey(), -140);
+  const revision = mkP({
+    name: "Revisión médica", icon: "heart", color: "#8fd18a", tipo: "hito",
+    desc: "Antes de empezar a correr en serio, saber cómo estoy.",
+    xpReward: 60, status: "completed", completedAt: finDeTrim, createdAt: finDeTrim,
+    history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: "Hito conseguido" }]
+  });
+  const bici = mkP({
+    name: "Bicicleta de segunda mano", icon: "bolt", color: "#9aa7b8",
+    desc: "El intento anterior. Sirvió para descubrir que lo mío es correr.",
+    tipo: "compra", cost: 3200, xpReward: 70, status: "completed",
+    completedAt: finDeTrim, createdAt: finDeTrim, investedTotal: 3200,
+    history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: "Comprada y asegurada ($3,200)" }]
+  });
+  const natacion = mkP({
+    name: "Natación dos veces por semana", icon: "goggles", color: "#6fc3e8",
+    desc: "Se quedó a medias, y por eso viaja en la caja: guardar el trimestre no juzga lo que no terminaste.",
+    planDays: 90, xpReward: 250, createdAt: finDeTrim,
+    status: "active", startDate: finDeTrim, endDate: addDaysKey(finDeTrim, 90),
+    congeladoEl: addDaysKey(todayKey(), -120),
+    steps: [
+      { id: uid(), name: "Cuatro semanas seguidas", done: true, at: stamp() },
+      { id: uid(), name: "Ocho semanas seguidas", done: false, at: null }
+    ],
+    history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: "Plan de 3 meses iniciado" }]
+  });
+
+  // Rama Casa: dos caminos independientes que nacen del mismo punto
+  const recetario = mkP({
+    branch: "Casa", skillId: cocina.id, name: "Curso de cocina básica", icon: "cap", color: "#f5d76e",
+    desc: "Aprender diez recetas que puedas hacer sin receta.",
+    cost: 990, planDays: 120, xpReward: 250
+  });
+  const cenaAmigos = mkP({
+    branch: "Casa", skillId: cocina.id, name: "Cocinar para amigos", icon: "heart", color: "#f0a5c0", tipo: "hito",
+    desc: "Invitar a alguien y cocinarle. Sin plazo: se logra o no se logra.",
+    xpReward: 60, requiere: [recetario.id]
+  });
+
+  // Rama Dinero: un talento listo para empezar, con costo real
+  const fondo = mkP({
+    branch: "Dinero", skillId: finanzas.id, name: "Fondo de emergencia", icon: "gem", color: "#5fe0b0",
+    desc: "Juntar tres meses de gastos. Un año de plazo para lograrlo.",
+    planDays: 365, xpReward: 500
+  });
+  const curso = mkP({
+    branch: "Dinero", skillId: finanzas.id, name: "Curso de inversión", icon: "chart", color: "#6fc3e8",
+    desc: "Entender en qué invertir antes de invertir.",
+    cost: 1500, planDays: 180, xpReward: 350, requiere: [fondo.id]
+  });
+
+  state.perks.push(tenis, primeraSalida, habito, reloj, tecnica, carrera, club,
+    revision, bici, natacion, recetario, cenaAmigos, fondo, curso);
+
+  // La caja ya guardada, con lo del trimestre viejo dentro
+  state.cajas = [{
+    id: uid(), branch: "Salud", trimestre: viejoTrim, guardadoEl: addDaysKey(todayKey(), -120),
+    abierta: false, perkIds: [revision.id, bici.id, natacion.id]
+  }];
+
+  loadProjectExamples(true);
+  loadMissionExamples(true);
+  save();
+  showView("summary");
+  toast("Ejemplo cargado: explora Misiones, Árbol y Proyectos");
+  quizaTutorial(700);
+}
+
+/* Misiones de ejemplo: una diaria con racha viva, una de varias veces al día,
+   una de días sueltos y una de un solo uso. */
+function loadMissionExamples(silent) {
+  const daysAgo = (n) => addDaysKey(todayKey(), -n);
+  const skillBy = (name) => (state.skills.find(s => s.name === name) || {}).id || null;
+  const streakLog = (n, val) => {
+    const log = {};
+    for (let i = 1; i <= n; i++) log[daysAgo(i)] = val;
+    return log;
+  };
+
+  state.missions.push(
+    {
+      id: uid(), name: "Caminar 20 minutos", desc: "Cuenta cualquier caminata seguida de 20 min o más.",
+      icon: "bolt", color: "#ff8a70", cadence: "daily", days: [], target: 1,
+      skillId: skillBy("Ejercicio"), xp: 20, log: streakLog(4, 1),
+      archived: false, completedAt: null, createdAt: daysAgo(30)
+    },
+    {
+      id: uid(), name: "Beber agua", desc: "Ocho vasos a lo largo del día.",
+      icon: "heart", color: "#6fc3e8", cadence: "daily", days: [], target: 8,
+      skillId: null, xp: 10, log: Object.assign(streakLog(3, 8), { [todayKey()]: 3 }),
+      archived: false, completedAt: null, createdAt: daysAgo(20)
+    },
+    {
+      id: uid(), name: "Practicar idioma 15 min", desc: "Lecciones, video o conversación.",
+      icon: "globe", color: "#5fe0b0", cadence: "weekly", days: [1, 3, 5], target: 1,
+      skillId: skillBy("Idiomas"), xp: 25, log: streakLog(2, 1),
+      archived: false, completedAt: null, createdAt: daysAgo(25)
+    },
+    {
+      id: uid(), name: "Cocinar algo nuevo", desc: "Una receta que nunca hayas hecho.",
+      icon: "coffee", color: "#f5d76e", cadence: "weekly", days: [0, 6], target: 1,
+      skillId: skillBy("Cocina"), xp: 30, log: {},
+      archived: false, completedAt: null, createdAt: daysAgo(14)
+    },
+    {
+      id: uid(), name: "Revisar mis suscripciones", desc: "Cancelar lo que ya no uso.",
+      icon: "coin", color: "#b7a2ea", cadence: "once", days: [], target: 1,
+      skillId: skillBy("Finanzas"), xp: 40, log: {},
+      archived: false, completedAt: null, createdAt: daysAgo(5)
+    }
+  );
+  if (!silent) { save(); renderMissions(); toast("Misiones de ejemplo cargadas"); }
+}
+
+/* Proyectos de ejemplo: uno con ritmo, uno casi listo y uno estancado,
+   para que se vea de inmediato para qué sirve el veredicto de salud. */
+function loadProjectExamples(silent) {
+  const daysAgo = (n) => addDaysKey(todayKey(), -n);
+  const skillBy = (name) => (state.skills.find(s => s.name === name) || {}).id || null;
+  const steps = (arr) => arr.map(([name, done]) => ({ id: uid(), name, done: !!done, at: done ? stamp() : null }));
+
+  state.projects.push(
+    {
+      id: uid(), name: "Renovar la cocina", branch: "Casa", icon: "wrench", color: "#f5d76e",
+      desc: "Dejar la cocina funcional y ordenada, sin obra mayor.",
+      status: "active", skillId: skillBy("Reparaciones"), xpReward: 250,
+      steps: steps([["Medir y hacer lista de lo que falta", true], ["Comprar organizadores", true], ["Ordenar alacena", false], ["Cambiar la iluminación", false]]),
+      createdAt: daysAgo(24), lastActivity: daysAgo(2), completedAt: null,
+      history: [
+        { date: daysAgo(2), at: new Date(Date.now() - 2 * 864e5).toISOString(), event: "Etapa completada: Comprar organizadores" },
+        { date: daysAgo(24), at: new Date(Date.now() - 24 * 864e5).toISOString(), event: "Proyecto creado en la rama Casa" }
+      ]
+    },
+    {
+      id: uid(), name: "Curso de inglés en línea", branch: "Aprender", icon: "cap", color: "#6fc3e8",
+      desc: "Terminar los módulos y presentar la evaluación final.",
+      status: "active", skillId: skillBy("Idiomas"), xpReward: 400,
+      steps: steps([["Módulos 1 a 4", true], ["Módulos 5 a 8", true], ["Práctica de conversación", true], ["Evaluación final", false]]),
+      createdAt: daysAgo(60), lastActivity: daysAgo(3), completedAt: null,
+      history: [
+        { date: daysAgo(3), at: new Date(Date.now() - 3 * 864e5).toISOString(), event: "Etapa completada: Práctica de conversación" },
+        { date: daysAgo(60), at: new Date(Date.now() - 60 * 864e5).toISOString(), event: "Proyecto creado en la rama Aprender" }
+      ]
+    },
+    {
+      id: uid(), name: "Tienda en línea de artesanías", branch: "Negocio", icon: "coin", color: "#ff8a70",
+      desc: "Vender lo que hago sin depender de redes sociales.",
+      status: "active", skillId: skillBy("Finanzas"), xpReward: 600,
+      steps: steps([["Definir catálogo", true], ["Fotos de producto", false], ["Montar la tienda", false], ["Primera venta", false]]),
+      createdAt: daysAgo(120), lastActivity: daysAgo(58), completedAt: null,
+      history: [
+        { date: daysAgo(58), at: new Date(Date.now() - 58 * 864e5).toISOString(), event: "Etapa completada: Definir catálogo" },
+        { date: daysAgo(120), at: new Date(Date.now() - 120 * 864e5).toISOString(), event: "Proyecto creado en la rama Negocio" }
+      ]
+    }
+  );
+  if (!silent) { save(); renderProjects(); toast("Proyectos de ejemplo cargados"); }
+}
+
+/* ================= Zona horaria ================= */
+
+const TZ_OPTIONS = [
+  "America/Mexico_City", "America/Tijuana", "America/Monterrey", "America/Cancun",
+  "America/Bogota", "America/Lima", "America/Santiago", "America/Argentina/Buenos_Aires",
+  "America/Sao_Paulo", "America/New_York", "America/Chicago", "America/Denver",
+  "America/Los_Angeles", "Europe/Madrid", "Europe/London", "UTC"
+];
+
+function detectedTZ() {
+  try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; } catch (e) { return "UTC"; }
+}
+
+function renderTimezone() {
+  const sel = document.getElementById("tz-select");
+  if (!sel) return;
+  const cur = userTZ();
+  const list = [...new Set([detectedTZ(), cur, ...TZ_OPTIONS])];
+  sel.innerHTML = list.map(tz =>
+    `<option value="${escapeAttr(tz)}" ${tz === cur ? "selected" : ""}>${escapeHtml(tz.replace(/_/g, " "))}${tz === detectedTZ() ? " (de este equipo)" : ""}</option>`
+  ).join("");
+  const now = new Date();
+  let hora = "";
+  try {
+    hora = now.toLocaleTimeString("es-MX", { timeZone: cur, hour: "2-digit", minute: "2-digit" });
+  } catch (e) { hora = "—"; }
+  document.getElementById("tz-hint").textContent = `Ahí son las ${hora}. Tu día en la app: ${formatDate(todayKey())}.`;
+}
+
+function setTimezone(tz) {
+  state.settings = state.settings || {};
+  state.settings.timezone = tz;
+  save();
+  renderTimezone();
+  toast("Zona horaria actualizada");
+}
+
+/* ================= Datos: exportar / importar ================= */
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "notara-respaldo-" + todayKey() + ".json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("Respaldo exportado");
+}
+
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!data || !Array.isArray(data.skills)) throw new Error("formato");
+      if ((Number(data.schemaVersion) || 1) > SCHEMA) {
+        toast("Ese respaldo viene de una versión más nueva de Notara. Actualiza la app aquí antes de importarlo.", "atencion");
+        return;
+      }
+      if (!Array.isArray(data.perks)) data.perks = [];
+      if (!await ask(`El respaldo tiene ${data.skills.length} habilidad(es), ${data.perks.length} talento(s), ${(data.projects || []).length} proyecto(s) y ${(data.missions || []).length} misión(es), y reemplazará tus datos actuales. ¿Continuar?`, "Importar")) return;
+      if (!guardarLocal(data)) return;
+      state = load();
+      applyDecay();
+      showView("summary");
+      toast("Respaldo importado");
+    } catch (e) {
+      toast("El archivo no es un respaldo válido", "atencion");
+    } finally {
+      input.value = "";
+    }
+  };
+  reader.readAsText(file);
+}
+
+async function resetAll() {
+  if (!await ask("¿Borrar TODAS tus habilidades, misiones, talentos, proyectos y todo tu progreso? Esta acción no se puede deshacer.", "Borrar todo", true)) return;
+  if (!await ask("Última confirmación: se borrará todo. ¿Seguro?", "Sí, borrar", true, true)) return;
+  state = { skills: [], perks: [], projects: [], missions: [], settings: { timezone: userTZ() } };
+  save();
+  showView("summary");
+  toast("Datos borrados", "deshecho");
+}
+
