@@ -7,6 +7,13 @@
 <meta name="color-scheme" content="dark">
 <title>Notara</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<!-- iOS no lee los iconos del manifest para la pantalla de inicio y no
+     admite SVG aquí: sin este PNG, el icono acaba siendo una captura
+     borrosa de la propia página. -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Notara">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="css/fuente.css">
 <link rel="stylesheet" href="css/estilos.css">

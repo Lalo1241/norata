@@ -5,7 +5,9 @@
 const CACHE = "notara-v3";
 
 const ASSETS = [
-  "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./favicon.svg",
+  "./", "./index.html", "./manifest.webmanifest",
+  "./icon.svg", "./favicon.svg", "./icon-192.png", "./icon-512.png",
+  "./icon-maskable-512.png", "./apple-touch-icon.png",
   "./css/fuente.css", "./css/estilos.css",
   "./js/01-base.js", "./js/02-progreso.js", "./js/03-talentos.js",
   "./js/04-misiones.js", "./js/05-resumen.js", "./js/06-detalle.js",
