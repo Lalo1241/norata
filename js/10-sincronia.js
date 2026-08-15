@@ -543,7 +543,14 @@ function renderSync() {
 
   /* El formulario lo dicta el almacén, no esta función: añadir uno nuevo no
      debería obligar a tocar la pantalla de Ajustes. */
+  const opciones = Object.keys(ALMACENES).map(k =>
+    '<button' + (k === sync.tipo ? ' class="on"' : "") + ' onclick="syncElegirAlmacen(\'' + k + '\')">' +
+    escapeHtml(ALMACENES[k].nombre) + '</button>').join("");
+
   panelEl.innerHTML =
+    (Object.keys(ALMACENES).length > 1
+      ? '<div class="field"><span class="lbl">¿Dónde se guarda?</span><div class="seg">' + opciones + '</div></div>'
+      : "") +
     alm.campos().map(c =>
       '<label class="field"><span>' + escapeHtml(c.etiqueta) + '</span>' +
       '<input type="' + (c.secreto ? "password" : "text") + '" id="sync-c-' + escapeAttr(c.k) + '"' +
@@ -554,7 +561,24 @@ function renderSync() {
     ).join("") +
     '<label class="field"><span>Nombre de este dispositivo</span>' +
     '<input type="text" id="sync-device" value="' + escapeAttr(sync.device) + '"></label>' +
-    '<div class="stack"><button class="btn btn-primary btn-block" onclick="syncConnect()">Conectar</button></div>';
+    '<div class="stack">' +
+    '<button class="btn btn-primary btn-block" onclick="syncConnect()">Conectar</button>' +
+    ((alm.acciones && alm.acciones()) || []).map(a =>
+      '<button class="btn btn-soft btn-block" onclick="' + escapeAttr(a.onclick) + '">' +
+      escapeHtml(a.etiqueta) + '</button>').join("") +
+    '</div>';
+}
+
+/* Cambiar de almacén solo se ofrece mientras no haya ninguno conectado: con
+   la sincronía activa, saltar de sitio dejaría el progreso a medias entre
+   los dos. Para mudarse hay que desconectar primero, a conciencia. */
+function syncElegirAlmacen(tipo) {
+  if (!ALMACENES[tipo] || syncReady()) return;
+  sync.tipo = tipo;
+  sync.cfg = {};
+  sync.marca = null;
+  saveSync();
+  renderSync();
 }
 
 function syncRenameDevice(v) {
@@ -574,7 +598,21 @@ async function syncConnect() {
   }
   const device = document.getElementById("sync-device").value.trim();
 
-  sync.cfg = alm.configurar(valores);
+  /* `configurar` puede tardar: un almacén con cuentas tiene que iniciar
+     sesión aquí, y si el correo o la contraseña están mal hay que decirlo
+     antes de dar la conexión por buena. */
+  syncBusy = true; syncError = null; renderSync();
+  try {
+    sync.cfg = await alm.configurar(valores);
+  } catch (e) {
+    syncBusy = false;
+    syncError = (e && e.message) || String(e);
+    renderSync();
+    toast(syncError, "atencion");
+    return;
+  }
+  syncBusy = false;
+
   sync.device = device || guessDeviceName();
   sync.enabled = true; sync.marca = null; sync.rev = 0;
   // Si este aparato ya tiene progreso, cuenta como cambios por subir; si está
