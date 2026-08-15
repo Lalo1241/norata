@@ -1,23 +1,48 @@
 /* Sincronía, copias de conflicto, utilidades y avisos */
 /* ================= Sincronía entre dispositivos =================
-   Tu progreso vive en un archivo JSON dentro de un repositorio PRIVADO tuyo
-   de GitHub. Cada guardado local marca "hay algo que subir" y una espera
-   corta agrupa los cambios: así una tarde de uso son unos pocos commits y
-   no uno por cada toque.
+   Tu progreso vive fuera de este aparato para que la computadora y el
+   teléfono vean lo mismo. Cada guardado local marca "hay algo que subir" y
+   una espera corta agrupa los cambios: así una tarde de uso son unos pocos
+   envíos y no uno por cada toque.
 
-   El token se guarda en una llave aparte de localStorage y NUNCA dentro de
-   `state`. Es a propósito: `state` es exactamente lo que se sube al
-   repositorio, así que meter ahí el token sería publicarlo.
+   La credencial se guarda en una llave aparte de localStorage y NUNCA dentro
+   de `state`. Es a propósito: `state` es exactamente lo que se sube, así que
+   meter ahí la credencial sería publicarla.
 
-   Sobre pisar datos: GitHub identifica cada versión de un archivo con un
-   `sha`. Guardamos el que conocemos y lo mandamos al escribir; si el remoto
-   cambió desde otro aparato, GitHub rechaza la escritura. Entonces
-   preguntamos en vez de decidir por ti, y el lado que no elijas se guarda
-   como copia local antes de tocar nada. */
+   Sobre pisar datos: el almacén identifica cada versión con una MARCA
+   opaca. Guardamos la que conocemos y la mandamos al escribir; si el remoto
+   cambió desde otro aparato, la escritura se rechaza. Entonces preguntamos
+   en vez de decidir por ti, y el lado que no elijas se guarda como copia
+   local antes de tocar nada.
+
+   ---- Por qué hay una interfaz de almacén ----
+   Todo lo de arriba —la espera, la marca, la pregunta ante un conflicto, las
+   copias— es independiente de DÓNDE vivan los datos. Lo único propio de
+   GitHub es cómo se leen y se escriben cuatro bytes. Separarlo permite
+   cambiar de sitio sin volver a tocar la parte delicada, que es la que se
+   probó a conciencia y la que puede perder progreso si se rompe.
+
+   Un almacén debe ofrecer:
+     nombre                cómo se llama, para los textos de la app
+     etiqueta()            de dónde vienen los datos, para el estado
+     listo()               si está configurado
+     campos()              qué pedirle al usuario para conectarse
+     configurar(valores)   traduce esos campos a su configuración
+     leer()                -> {vacio:true} | {marca, env}
+     escribir(env, marca)  -> {ok:true, marca} | {ok:false, conflicto:true}
+
+   `escribir` devuelve `conflicto` en vez de un código HTTP: quien lo llama no
+   tiene por qué saber que 409 y 422 significan lo mismo. Los errores se
+   lanzan ya traducidos a algo que el usuario pueda accionar. */
 
 const SYNC_KEY = "mainquest-sync-v1";
 const SYNC_DELAY = 4000;
-const GH_API = "https://api.github.com";
+
+const ALMACENES = {};
+
+function almacen() {
+  return ALMACENES[sync.tipo] || ALMACENES.github;
+}
 
 let sync = loadSync();
 let syncTimer = null;
@@ -26,13 +51,28 @@ let syncError = null;
 
 function loadSync() {
   const base = {
-    enabled: false, owner: "", repo: "", path: "estado.json", branch: "main",
-    token: "", device: "", sha: null, rev: 0, dirty: false, lastAt: null
+    enabled: false, tipo: "github", cfg: {},
+    device: "", marca: null, rev: 0, dirty: false, lastAt: null
   };
   try {
     const raw = localStorage.getItem(SYNC_KEY);
     if (raw) Object.assign(base, JSON.parse(raw));
   } catch (e) { /* configuración corrupta: volver a los valores por defecto */ }
+
+  /* Los aparatos que ya venían sincronizando guardaron owner/repo/token
+     sueltos y la marca con el nombre `sha`. Se traen aquí, una sola vez, para
+     que nadie tenga que volver a conectar su teléfono. */
+  if (!base.cfg || typeof base.cfg !== "object") base.cfg = {};
+  if (base.owner && !base.cfg.owner) {
+    base.cfg = {
+      owner: base.owner, repo: base.repo, token: base.token,
+      path: base.path || "estado.json", branch: base.branch || "main"
+    };
+  }
+  if (base.sha && !base.marca) base.marca = base.sha;
+  delete base.owner; delete base.repo; delete base.token;
+  delete base.path; delete base.branch; delete base.sha;
+
   if (!base.device) base.device = guessDeviceName();
   return base;
 }
@@ -50,7 +90,7 @@ function guessDeviceName() {
 }
 
 function syncReady() {
-  return !!(sync && sync.enabled && sync.token && sync.owner && sync.repo);
+  return !!(sync && sync.enabled && almacen().listo());
 }
 
 /* Marca que hay algo que subir. Es una declaración de función (y lleva
@@ -89,19 +129,91 @@ function fromB64(b64) {
   return new TextDecoder().decode(bytes);
 }
 
+/* ---- Almacén: un repositorio privado de GitHub ----
+   Un archivo JSON dentro de un repo tuyo. La marca de versión es el `sha`
+   que GitHub le da a cada versión del archivo; mandarlo al escribir es lo que
+   hace que dos aparatos no se pisen. Como cada guardado es un commit, el
+   repositorio queda además como historial. */
+
+const GH_API = "https://api.github.com";
+
+ALMACENES.github = {
+  nombre: "GitHub",
+
+  listo() {
+    const c = sync.cfg || {};
+    return !!(c.token && c.owner && c.repo);
+  },
+
+  etiqueta() {
+    const c = sync.cfg || {};
+    return c.owner + "/" + c.repo;
+  },
+
+  campos() {
+    const c = sync.cfg || {};
+    return [
+      { k: "owner", etiqueta: "Tu usuario de GitHub", valor: c.owner || "", marcador: "mi-usuario" },
+      { k: "repo", etiqueta: "Repositorio privado de datos", valor: c.repo || "", marcador: "notara-datos" },
+      { k: "token", etiqueta: "Token de acceso", secreto: true, marcador: "github_pat_…",
+        pista: "Token de acceso personal con permiso de contenidos sobre ese repositorio y nada más. Se guarda solo en este navegador." }
+    ];
+  },
+
+  configurar(v) {
+    return { owner: v.owner, repo: v.repo, token: v.token, path: "estado.json", branch: "main" };
+  },
+
+  async leer() {
+    const r = await gh(ghUrl(ghFilePath()) + "?ref=" + encodeURIComponent(sync.cfg.branch));
+    if (r.status === 404) return { vacio: true };
+    if (!r.ok) throw ghError(r);
+
+    let text = r.body.content ? fromB64(r.body.content) : "";
+    // Arriba de 1 MB la API de contenidos manda el cuerpo vacío y hay que ir al blob
+    if (!text && r.body.sha) {
+      const b = await gh(ghUrl("/git/blobs/" + r.body.sha));
+      if (b.ok && b.body && b.body.content) text = fromB64(b.body.content);
+    }
+    let env = null;
+    try { env = JSON.parse(text); } catch (e) {
+      throw new Error("El archivo del repositorio no es un JSON válido; no voy a tocarlo.");
+    }
+    return { marca: r.body.sha, env: env };
+  },
+
+  async escribir(env, marca) {
+    const body = {
+      message: (marca ? "Progreso desde " : "Primer guardado desde ") + sync.device,
+      content: toB64(JSON.stringify(env, null, 2)),
+      branch: sync.cfg.branch
+    };
+    if (marca) body.sha = marca;
+    const r = await gh(ghUrl(ghFilePath()), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    // Otro aparato escribió entre nuestra lectura y nuestra escritura
+    if (r.status === 409 || r.status === 422) return { ok: false, conflicto: true };
+    if (!r.ok) throw ghError(r);
+    return { ok: true, marca: r.body.content.sha };
+  }
+};
+
 function ghUrl(suffix) {
-  return GH_API + "/repos/" + encodeURIComponent(sync.owner) + "/" +
-    encodeURIComponent(sync.repo) + suffix;
+  return GH_API + "/repos/" + encodeURIComponent(sync.cfg.owner) + "/" +
+    encodeURIComponent(sync.cfg.repo) + suffix;
 }
 
 function ghFilePath() {
-  return "/contents/" + String(sync.path).split("/").filter(Boolean).map(encodeURIComponent).join("/");
+  return "/contents/" + String(sync.cfg.path).split("/").filter(Boolean).map(encodeURIComponent).join("/");
 }
 
 async function gh(url, opts) {
   const o = Object.assign({ cache: "no-store" }, opts || {});
   o.headers = Object.assign({
-    "Authorization": "Bearer " + sync.token,
+    "Authorization": "Bearer " + sync.cfg.token,
     "Accept": "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28"
   }, o.headers || {});
@@ -114,44 +226,12 @@ async function gh(url, opts) {
 /* Los errores de la API se traducen a algo accionable: "401" no le dice a
    nadie qué hacer, "el token expiró" sí. */
 function ghError(r) {
+  const donde = ALMACENES.github.etiqueta();
   if (r.status === 401) return new Error("El token no es válido o ya expiró. Genera uno nuevo y vuelve a conectar.");
-  if (r.status === 403) return new Error("El token no tiene permiso de escritura sobre " + sync.owner + "/" + sync.repo + ".");
-  if (r.status === 404) return new Error("No encontré " + sync.owner + "/" + sync.repo + ". Revisa el nombre y que el token incluya ese repositorio.");
-  if (r.status === 409 || r.status === 422) return new Error("El repositorio cambió mientras guardaba. Intenta otra vez.");
+  if (r.status === 403) return new Error("El token no tiene permiso de escritura sobre " + donde + ".");
+  if (r.status === 404) return new Error("No encontré " + donde + ". Revisa el nombre y que el token incluya ese repositorio.");
   const msg = r.body && r.body.message ? r.body.message : "error " + r.status;
   return new Error("GitHub respondió: " + msg);
-}
-
-async function syncFetchRemote() {
-  const r = await gh(ghUrl(ghFilePath()) + "?ref=" + encodeURIComponent(sync.branch));
-  if (r.status === 404) return { missing: true };
-  if (!r.ok) throw ghError(r);
-
-  let text = r.body.content ? fromB64(r.body.content) : "";
-  // Arriba de 1 MB la API de contenidos manda el cuerpo vacío y hay que ir al blob
-  if (!text && r.body.sha) {
-    const b = await gh(ghUrl("/git/blobs/" + r.body.sha));
-    if (b.ok && b.body && b.body.content) text = fromB64(b.body.content);
-  }
-  let env = null;
-  try { env = JSON.parse(text); } catch (e) {
-    throw new Error("El archivo del repositorio no es un JSON válido; no voy a tocarlo.");
-  }
-  return { sha: r.body.sha, env: env };
-}
-
-async function syncWriteRemote(env, sha, message) {
-  const body = {
-    message: message,
-    content: toB64(JSON.stringify(env, null, 2)),
-    branch: sync.branch
-  };
-  if (sha) body.sha = sha;
-  return await gh(ghUrl(ghFilePath()), {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
 }
 
 function envelope(rev) {
@@ -324,16 +404,17 @@ async function askConflict(env) {
 }
 
 async function syncOnce(opts) {
-  const remote = await syncFetchRemote();
+  const almacenActual = almacen();
+  const remote = await almacenActual.leer();
 
-  // Repositorio todavía vacío: lo sembramos con lo que hay aquí
-  if (remote.missing) {
+  // Todavía no hay nada allá: lo sembramos con lo que hay aquí
+  if (remote.vacio) {
     const env = envelope((sync.rev || 0) + 1);
-    const w = await syncWriteRemote(env, null, "Primer guardado desde " + sync.device);
-    if (!w.ok) throw ghError(w);
-    sync.sha = w.body.content.sha; sync.rev = env.rev;
+    const w = await almacenActual.escribir(env, null);
+    if (w.conflicto) { const e = new Error("carrera"); e.retry = true; throw e; }
+    sync.marca = w.marca; sync.rev = env.rev;
     sync.dirty = false; sync.lastAt = env.updatedAt; saveSync();
-    if (!opts.silent) toast("Listo: tu progreso ya está en GitHub", "logro");
+    if (!opts.silent) toast("Listo: tu progreso ya está en " + almacenActual.nombre, "logro");
     return;
   }
 
@@ -349,32 +430,32 @@ async function syncOnce(opts) {
   }
 
   const remoteRev = env && typeof env.rev === "number" ? env.rev : 0;
-  const remoteNewer = remoteRev > sync.rev || remote.sha !== sync.sha;
+  const remoteNewer = remoteRev > sync.rev || remote.marca !== sync.marca;
 
   if (sync.dirty && remoteNewer && env && env.state) {
     const traer = await askConflict(env);
     if (traer) {
       stashConflict("local", state);
       adoptRemote(env);
-      sync.sha = remote.sha; sync.rev = remoteRev;
+      sync.marca = remote.marca; sync.rev = remoteRev;
       sync.dirty = false; sync.lastAt = env.updatedAt; saveSync();
       renderSync();
       toast("Traído desde " + (env.device || "el otro dispositivo"));
       return;
     }
-    // Te quedas con lo de aquí: guardamos lo remoto y adoptamos su sha
+    // Te quedas con lo de aquí: guardamos lo remoto y adoptamos su marca
     // para poder escribir encima en el mismo intento.
     stashConflict("remoto", env.state);
-    sync.sha = remote.sha; sync.rev = remoteRev;
+    sync.marca = remote.marca; sync.rev = remoteRev;
   } else if (remoteNewer && env && env.state) {
     adoptRemote(env);
-    sync.sha = remote.sha; sync.rev = remoteRev;
+    sync.marca = remote.marca; sync.rev = remoteRev;
     sync.dirty = false; sync.lastAt = env.updatedAt; saveSync();
     renderSync();
     if (!opts.silent) toast("Al día con " + (env.device || "el otro dispositivo"));
     return;
   } else {
-    sync.sha = remote.sha;
+    sync.marca = remote.marca;
   }
 
   if (!sync.dirty) {
@@ -384,10 +465,9 @@ async function syncOnce(opts) {
   }
 
   const out = envelope(Math.max(sync.rev || 0, remoteRev) + 1);
-  const w = await syncWriteRemote(out, sync.sha, "Progreso desde " + sync.device);
-  if (w.status === 409 || w.status === 422) { const e = new Error("carrera"); e.retry = true; throw e; }
-  if (!w.ok) throw ghError(w);
-  sync.sha = w.body.content.sha; sync.rev = out.rev;
+  const w = await almacenActual.escribir(out, sync.marca);
+  if (w.conflicto) { const e = new Error("carrera"); e.retry = true; throw e; }
+  sync.marca = w.marca; sync.rev = out.rev;
   sync.dirty = false; sync.lastAt = out.updatedAt; saveSync();
   if (!opts.silent) toast("Sincronizado");
 }
@@ -423,17 +503,18 @@ function renderSync() {
   const panelEl = document.getElementById("sync-panel");
   if (!statusEl || !panelEl) return;
 
+  const alm = almacen();
   let dot = "", titulo = "", detalle = "";
   if (!syncReady()) {
     dot = ""; titulo = "Solo en este dispositivo";
     detalle = "Tu progreso no sale de este navegador.";
   } else if (syncBusy) {
-    dot = "busy"; titulo = "Sincronizando…"; detalle = sync.owner + "/" + sync.repo;
+    dot = "busy"; titulo = "Sincronizando…"; detalle = alm.etiqueta();
   } else if (syncError) {
     dot = "bad"; titulo = "No pude sincronizar"; detalle = syncError;
   } else {
     dot = "ok";
-    titulo = sync.dirty ? "Cambios sin subir" : "Al día con GitHub";
+    titulo = sync.dirty ? "Cambios sin subir" : "Al día con " + alm.nombre;
     let cuando = "";
     if (sync.lastAt) {
       try {
@@ -442,7 +523,7 @@ function renderSync() {
         });
       } catch (e) {}
     }
-    detalle = sync.owner + "/" + sync.repo + cuando;
+    detalle = alm.etiqueta() + cuando;
   }
   statusEl.innerHTML =
     '<span class="sync-dot ' + dot + '"></span>' +
@@ -460,14 +541,17 @@ function renderSync() {
     return;
   }
 
+  /* El formulario lo dicta el almacén, no esta función: añadir uno nuevo no
+     debería obligar a tocar la pantalla de Ajustes. */
   panelEl.innerHTML =
-    '<label class="field"><span>Tu usuario de GitHub</span>' +
-    '<input type="text" id="sync-owner" autocomplete="off" spellcheck="false" value="' + escapeAttr(sync.owner) + '" placeholder="mi-usuario"></label>' +
-    '<label class="field"><span>Repositorio privado de datos</span>' +
-    '<input type="text" id="sync-repo" autocomplete="off" spellcheck="false" value="' + escapeAttr(sync.repo) + '" placeholder="notara-datos"></label>' +
-    '<label class="field"><span>Token de acceso</span>' +
-    '<input type="password" id="sync-token" autocomplete="off" spellcheck="false" placeholder="github_pat_…">' +
-    '<div class="field-hint">Token de acceso personal con permiso de contenidos sobre ese repositorio y nada más. Se guarda solo en este navegador.</div></label>' +
+    alm.campos().map(c =>
+      '<label class="field"><span>' + escapeHtml(c.etiqueta) + '</span>' +
+      '<input type="' + (c.secreto ? "password" : "text") + '" id="sync-c-' + escapeAttr(c.k) + '"' +
+      ' autocomplete="off" spellcheck="false" value="' + escapeAttr(c.valor || "") + '"' +
+      ' placeholder="' + escapeAttr(c.marcador || "") + '">' +
+      (c.pista ? '<div class="field-hint">' + escapeHtml(c.pista) + '</div>' : "") +
+      '</label>'
+    ).join("") +
     '<label class="field"><span>Nombre de este dispositivo</span>' +
     '<input type="text" id="sync-device" value="' + escapeAttr(sync.device) + '"></label>' +
     '<div class="stack"><button class="btn btn-primary btn-block" onclick="syncConnect()">Conectar</button></div>';
@@ -480,15 +564,19 @@ function syncRenameDevice(v) {
 }
 
 async function syncConnect() {
-  const owner = document.getElementById("sync-owner").value.trim();
-  const repo = document.getElementById("sync-repo").value.trim();
-  const token = document.getElementById("sync-token").value.trim();
+  const alm = almacen();
+  const campos = alm.campos();
+  const valores = {};
+  for (const c of campos) {
+    const el = document.getElementById("sync-c-" + c.k);
+    valores[c.k] = el ? el.value.trim() : "";
+    if (!valores[c.k]) { toast("Falta " + c.etiqueta.toLowerCase(), "atencion"); return; }
+  }
   const device = document.getElementById("sync-device").value.trim();
-  if (!owner || !repo || !token) { toast("Falta usuario, repositorio o token", "atencion"); return; }
 
-  sync.owner = owner; sync.repo = repo; sync.token = token;
+  sync.cfg = alm.configurar(valores);
   sync.device = device || guessDeviceName();
-  sync.enabled = true; sync.sha = null; sync.rev = 0;
+  sync.enabled = true; sync.marca = null; sync.rev = 0;
   // Si este aparato ya tiene progreso, cuenta como cambios por subir; si está
   // vacío, no: así un dispositivo nuevo simplemente recibe lo que ya existe.
   sync.dirty = hasLocalData();
@@ -499,8 +587,11 @@ async function syncConnect() {
 }
 
 async function syncDisconnect() {
-  if (!await ask("Se borrará el token de este dispositivo y tu progreso dejará de subirse. Lo que ya está en GitHub se queda ahí, y los datos de este aparato tampoco se tocan.", "Desconectar")) return;
-  sync.enabled = false; sync.token = ""; sync.sha = null; sync.dirty = false;
+  const alm = almacen();
+  if (!await ask("Se borrará la credencial de este dispositivo y tu progreso dejará de subirse. Lo que ya está en " + alm.nombre + " se queda ahí, y los datos de este aparato tampoco se tocan.", "Desconectar")) return;
+  /* Se va la credencial entera, no solo una llave con nombre fijo: cada
+     almacén guarda lo suyo y aquí no se sabe cómo se llama. */
+  sync.enabled = false; sync.cfg = {}; sync.marca = null; sync.dirty = false;
   saveSync();
   syncError = null;
   renderSync();
