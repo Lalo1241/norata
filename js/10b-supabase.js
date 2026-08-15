@@ -129,6 +129,11 @@ function sbError(r) {
 ALMACENES.supabase = {
   nombre: "Supabase",
 
+  explicacion() {
+    return "Guarda tu progreso en tu cuenta para que la computadora y el teléfono vean lo mismo. " +
+      "Tu contraseña no se guarda en este aparato, y nadie más puede ver tus datos: eso lo impide la propia base de datos, no la app.";
+  },
+
   listo() {
     const s = (sync.cfg || {}).sesion;
     return !!(s && s.refresh && s.uid);

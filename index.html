@@ -531,14 +531,14 @@
 
     <div class="panel">
       <h3>Sincronizar entre dispositivos</h3>
-      <p class="settings-note">Guarda tu progreso en un repositorio privado tuyo de GitHub para que la computadora y el teléfono vean lo mismo. El token se queda en este navegador: nunca se sube al repositorio ni sale de este aparato.</p>
+      <p class="settings-note" id="sync-nota"></p>
       <div class="sync-status" id="sync-status"></div>
       <div id="sync-panel"></div>
     </div>
 
     <div class="panel">
       <h3>Tus datos</h3>
-      <p class="settings-note">Tu progreso vive en este navegador, y en GitHub si activaste la sincronía. Un respaldo en archivo sigue siendo útil: es tuyo, funciona sin conexión y no depende de ninguna cuenta.</p>
+      <p class="settings-note" id="datos-nota"></p>
       <div class="stack">
         <button class="btn btn-soft btn-block" onclick="exportData()">Exportar respaldo (JSON)</button>
         <button class="btn btn-soft btn-block" onclick="document.getElementById('import-file').click()">Importar respaldo</button>

@@ -140,6 +140,11 @@ const GH_API = "https://api.github.com";
 ALMACENES.github = {
   nombre: "GitHub",
 
+  explicacion() {
+    return "Guarda tu progreso en un repositorio privado tuyo de GitHub para que la computadora y el teléfono vean lo mismo. " +
+      "El token se queda en este navegador: nunca se sube al repositorio ni sale de este aparato.";
+  },
+
   listo() {
     const c = sync.cfg || {};
     return !!(c.token && c.owner && c.repo);
@@ -504,6 +509,19 @@ function renderSync() {
   if (!statusEl || !panelEl) return;
 
   const alm = almacen();
+
+  /* Los textos explicativos los pone el almacén y no están escritos en el
+     HTML: cuando lo estaban, seguían hablando de repositorios y de tokens
+     después de haberse mudado a una cuenta de correo. */
+  const nota = document.getElementById("sync-nota");
+  if (nota) nota.textContent = alm.explicacion();
+  const notaDatos = document.getElementById("datos-nota");
+  if (notaDatos) {
+    notaDatos.textContent = "Tu progreso vive en este navegador" +
+      (syncReady() ? " y en " + alm.nombre + "" : "") +
+      ". Un respaldo en archivo sigue siendo útil: es tuyo, funciona sin conexión y no depende de ninguna cuenta.";
+  }
+
   let dot = "", titulo = "", detalle = "";
   if (!syncReady()) {
     dot = ""; titulo = "Solo en este dispositivo";
