@@ -1,6 +1,6 @@
 /* Al cambiar este nombre, activate() borra las cachés viejas: es la forma
    de forzar que un aparato que se quedó con una versión anterior la suelte. */
-const CACHE = "notara-v1";
+const CACHE = "notara-v2";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./favicon.svg"];
 
 self.addEventListener("install", (e) => {

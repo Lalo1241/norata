@@ -2721,6 +2721,21 @@
   .copia-acts { display: flex; gap: 8px; margin-top: 11px; }
   .copia-acts .btn { flex: 1; padding: 9px 8px; font-size: 12.5px; }
 
+  /* Datos de una versión más nueva. Tapa todo y no se cierra: seguir usando
+     la app sin poder guardar sería peor que no poder usarla. */
+  .futuro-aviso {
+    position: fixed; inset: 0; z-index: 9000; display: flex;
+    align-items: center; justify-content: center; padding: 22px;
+    background: rgba(8, 11, 16, .88); backdrop-filter: blur(6px);
+  }
+  .futuro-card {
+    max-width: 420px; padding: 24px; border-radius: 18px;
+    background: var(--card); border: 1px solid var(--line);
+  }
+  .futuro-card h3 { margin: 0 0 12px; font-size: 18px; }
+  .futuro-card p { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+  .futuro-card .stack { margin-top: 18px; }
+
   /* Estado de la sincronía: un punto de color dice más rápido que un párrafo
      si tus datos están a salvo en otro lado o solo viven en este aparato. */
   .sync-status {
@@ -4055,6 +4070,49 @@ function migrarTipoTalento(p) {
    progreso de quien ya venía usando la app. El nombre visible y el nombre
    interno no tienen por qué coincidir. */
 const STORE_KEY = "mainquest-v1";
+
+/* ================= Versión del formato de datos =================
+   Hasta aquí `load()` normalizaba lo que llegara y listo. Eso basta mientras
+   todos los aparatos corran la misma versión de la app, que es lo que pasa
+   cuando el único usuario eres tú. En cuanto haya cuentas dejará de ser
+   cierto: alguien tendrá el teléfono sin actualizar y abrirá datos escritos
+   por una versión más nueva. Sin un número que lo delate, la app vieja los
+   leería a medias, guardaría encima y borraría lo que no entiende, callando.
+
+   La regla va en un solo sentido: los datos VIEJOS se suben de escalón; los
+   datos NUEVOS no se tocan, y mucho menos se escriben. */
+
+const SCHEMA = 1;
+
+/* Cada entrada sube un escalón: `MIGRACIONES[n]` convierte datos de la
+   versión n a la n+1. Hoy está vacía a propósito —todo lo que existe es v1—;
+   está aquí para que el próximo cambio de formato tenga dónde vivir en vez
+   de colarse suelto dentro de `load()`. */
+const MIGRACIONES = {};
+
+/* Mientras esté puesto, la app mira pero no escribe. Es la única defensa
+   real contra estropear datos que no entiende. */
+let modoSoloLectura = false;
+
+function migrar(data) {
+  // Lo que no lleva número es de antes de que existiera el número: es v1
+  const v = Number(data && data.schemaVersion) || 1;
+
+  if (v > SCHEMA) {
+    /* Bajar de versión sería inventarse qué tirar. Mejor no tocar nada y
+       decirlo. */
+    modoSoloLectura = true;
+    return data;
+  }
+
+  for (let n = v; n < SCHEMA; n++) {
+    const paso = MIGRACIONES[n];
+    if (paso) data = paso(data) || data;
+  }
+  data.schemaVersion = SCHEMA;
+  return data;
+}
+
 const MAX_LEVEL = 10;
 const COLORS = ["#5fe0b0","#f5d76e","#ff8a70","#b7a2ea","#6fc3e8","#8fd18a","#f0a5c0","#9aa7b8"];
 const FMT_MONEY = new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 });
@@ -4083,6 +4141,10 @@ function load() {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) data = JSON.parse(raw);
   } catch (e) { /* datos corruptos: empezar de cero */ }
+  /* Antes de mirar nada más: de qué versión vienen. Si son más nuevos que
+     esta app, `migrar` enciende el modo solo lectura y a partir de ahí lo que
+     sigue se hace en memoria sin llegar nunca al disco. */
+  data = migrar(data);
   if (!Array.isArray(data.skills)) data.skills = [];
   if (!Array.isArray(data.perks)) data.perks = [];
   if (!Array.isArray(data.projects)) data.projects = [];
@@ -4108,6 +4170,13 @@ function load() {
   data.skills.forEach((s, i) => {
     if (!s.color) s.color = COLORS[i % COLORS.length];
     if (!s.icon) s.icon = EMOJI_TO_ICON[s.emoji] || ICON_LIST[i % ICON_LIST.length];
+    /* El historial se da por hecho en media app (`s.log.unshift`, `for (const
+       e of s.log)`), así que una habilidad sin él tumba la pantalla entera.
+       No pasa con datos nacidos aquí, pero sí con un respaldo editado a mano
+       o venido de otro sitio — y de eso va a haber más, no menos. Y un XP que
+       no sea número es peor que un fallo: se propaga como NaN sin avisar. */
+    if (!Array.isArray(s.log)) s.log = [];
+    if (typeof s.xp !== "number" || !isFinite(s.xp)) s.xp = 0;
   });
   const idsDeTalento = new Set(data.perks.map(p => p.id));
   data.cajas.forEach(c => {
@@ -4158,6 +4227,10 @@ const MAX_COPIAS = 5;
 let avisoSinEspacio = false;
 
 function guardarLocal(data) {
+  /* La guarda que de verdad protege: si los datos de este aparato vienen de
+     una versión más nueva, no se escribe. Ni al guardar, ni al importar, ni
+     al traer algo de la sincronía. */
+  if (modoSoloLectura) return false;
   const texto = JSON.stringify(data);
   // Un intento por copia que se pueda tirar, más el primero
   for (let intento = 0; intento <= MAX_COPIAS; intento++) {
@@ -12051,6 +12124,10 @@ function importData(input) {
     try {
       const data = JSON.parse(reader.result);
       if (!data || !Array.isArray(data.skills)) throw new Error("formato");
+      if ((Number(data.schemaVersion) || 1) > SCHEMA) {
+        toast("Ese respaldo viene de una versión más nueva de Notara. Actualiza la app aquí antes de importarlo.", "atencion");
+        return;
+      }
       if (!Array.isArray(data.perks)) data.perks = [];
       if (!await ask(`El respaldo tiene ${data.skills.length} habilidad(es), ${data.perks.length} talento(s), ${(data.projects || []).length} proyecto(s) y ${(data.missions || []).length} misión(es), y reemplazará tus datos actuales. ¿Continuar?`, "Importar")) return;
       if (!guardarLocal(data)) return;
@@ -12233,7 +12310,7 @@ async function syncWriteRemote(env, sha, message) {
 
 function envelope(rev) {
   return {
-    app: "mainquest", version: 1, rev: rev,
+    app: "mainquest", version: 1, schema: SCHEMA, rev: rev,
     updatedAt: new Date().toISOString(), device: sync.device, state: state
   };
 }
@@ -12415,6 +12492,16 @@ async function syncOnce(opts) {
   }
 
   const env = remote.env;
+
+  /* El caso que justifica todo el versionado: el otro aparato ya se
+     actualizó y este no. Se corta ANTES de leer nada y antes de escribir
+     nada — si siguiéramos, o adoptaríamos datos que no entendemos, o los
+     pisaríamos con los nuestros, que es peor. */
+  const schemaRemoto = Number(env && (env.schema || (env.state && env.state.schemaVersion))) || 1;
+  if (schemaRemoto > SCHEMA) {
+    throw new Error("El otro aparato usa una versión más nueva de Notara. Actualiza esta (recarga la página) antes de sincronizar; mientras tanto no toco nada.");
+  }
+
   const remoteRev = env && typeof env.rev === "number" ? env.rev : 0;
   const remoteNewer = remoteRev > sync.rev || remote.sha !== sync.sha;
 
@@ -12685,6 +12772,28 @@ window.addEventListener("resize", () => {
   clearTimeout(reajusteVentana);
   reajusteVentana = setTimeout(marcarDesbordes, 150);
 });
+
+/* Datos de una versión más nueva: la app no puede guardar nada, así que hay
+   que decirlo antes de que el usuario se pase media hora capturando y
+   descubra que no quedó. El aviso no se puede cerrar a propósito — el único
+   final bueno es actualizar la app. */
+if (modoSoloLectura) avisarDatosDelFuturo();
+
+function avisarDatosDelFuturo() {
+  const caja = document.createElement("div");
+  caja.className = "futuro-aviso";
+  caja.innerHTML =
+    `<div class="futuro-card">
+       <h3>Esta copia de Notara está desactualizada</h3>
+       <p>Tu progreso lo guardó una versión más nueva de la app, así que aquí no puedo entenderlo del todo. <b>No voy a tocar nada</b>: prefiero no guardar a estropearlo.</p>
+       <p>Actualiza Notara en este aparato y vuelve a abrirla. Tus datos siguen enteros.</p>
+       <div class="stack">
+         <button class="btn btn-primary btn-block" onclick="location.reload(true)">Buscar la versión nueva</button>
+         <button class="btn btn-soft btn-block" onclick="exportData()">Guardar un respaldo</button>
+       </div>
+     </div>`;
+  document.body.appendChild(caja);
+}
 
 applyDecay();
 aplicarModulos();
