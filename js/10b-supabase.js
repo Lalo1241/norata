@@ -69,17 +69,75 @@ async function sbEntrar(correo, clave) {
 
 /* Devuelve la sesión, o null si hay que confirmar el correo antes de entrar. */
 async function sbRegistrar(correo, clave) {
-  const r = await sbFetch("/auth/v1/signup", {
+  if (String(clave).length < CLAVE_MIN) {
+    throw new Error("La contraseña necesita al menos " + CLAVE_MIN + " caracteres.");
+  }
+  const r = await sbFetch("/auth/v1/signup?redirect_to=" + encodeURIComponent(sbVuelta()), {
     method: "POST", body: JSON.stringify({ email: correo, password: clave })
   });
   if (!r.ok) {
     const m = sbMensaje(r);
-    if (/password/i.test(m) && /least|short|6/i.test(m)) {
-      throw new Error("La contraseña es muy corta. Usa al menos 6 caracteres.");
+    if (/password/i.test(m) && /least|short|weak|characters/i.test(m)) {
+      throw new Error("La contraseña es muy corta. Usa al menos " + CLAVE_MIN + " caracteres.");
+    }
+    if (/already registered|already exists/i.test(m)) {
+      throw new Error("Ya hay una cuenta con ese correo. Usa «Entrar», o «¿Olvidaste tu contraseña?» si no la recuerdas.");
     }
     throw new Error(m);
   }
   return r.body && r.body.access_token ? sbSesionDe(r.body) : null;
+}
+
+/* A dónde vuelve el usuario desde un correo. Sin la ruta ni la consulta: el
+   enlace llega días después y arrastrar hasta ahí el estado de aquella sesión
+   no tiene sentido. */
+function sbVuelta() {
+  return location.origin + location.pathname;
+}
+
+/* Pedir el correo de recuperación. Responde bien SIEMPRE, exista o no la
+   cuenta, y eso es a propósito: si dijera "ese correo no está registrado",
+   cualquiera podría averiguar quién tiene cuenta probando direcciones. */
+async function sbRecuperar(correo) {
+  const r = await sbFetch("/auth/v1/recover?redirect_to=" + encodeURIComponent(sbVuelta()), {
+    method: "POST", body: JSON.stringify({ email: correo })
+  });
+  /* Un 429 sí se cuenta: no delata nada —salta por dirección IP, no por
+     cuenta— y callarlo dejaría al usuario pulsando un botón que ya no hace
+     nada, creyendo que el correo va en camino. */
+  if (r.status === 429) throw new Error("Demasiados intentos seguidos. Espera unos minutos y vuelve a probar.");
+  return true;
+}
+
+/* Volver a mandar el correo de confirmación, para quien lo borró sin querer o
+   nunca le llegó. */
+async function sbReenviarVerificacion(correo) {
+  const r = await sbFetch("/auth/v1/resend?redirect_to=" + encodeURIComponent(sbVuelta()), {
+    method: "POST", body: JSON.stringify({ type: "signup", email: correo })
+  });
+  if (r.status === 429) throw new Error("Demasiados intentos seguidos. Espera unos minutos y vuelve a probar.");
+  if (!r.ok) throw new Error(sbMensaje(r));
+  return true;
+}
+
+/* Estrenar contraseña. Se hace con la sesión que trae el enlace del correo,
+   que es lo que prueba que quien la cambia tiene acceso a ese buzón. */
+async function sbCambiarClave(nueva) {
+  const t = await sbToken();
+  const r = await sbFetch("/auth/v1/user", {
+    method: "PUT",
+    headers: { "Authorization": "Bearer " + t },
+    body: JSON.stringify({ password: nueva })
+  });
+  if (!r.ok) {
+    const m = sbMensaje(r);
+    if (/password/i.test(m) && /least|short|weak|characters/i.test(m)) {
+      throw new Error("Esa contraseña no cumple el mínimo. Usa al menos " + CLAVE_MIN + " caracteres.");
+    }
+    if (/different from the old/i.test(m)) throw new Error("Esa es la contraseña que ya tenías. Elige otra distinta.");
+    throw new Error(m);
+  }
+  return true;
 }
 
 /* El token de acceso caduca en una hora. Esto lo renueva solo con el de

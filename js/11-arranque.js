@@ -53,7 +53,7 @@ showView("summary");
    que recogerla antes de decidir si hace falta portada—, y solo después se
    pregunta si hay que enseñarla. */
 (async () => {
-  const veniaDeGoogle = await sbVolverDeGoogle();
+  const veniaDeGoogle = await sbVolverDeEnlace();
   if (!veniaDeGoogle && portadaHaceFalta()) mostrarPortada();
   pintarAvisoPruebas();
 
