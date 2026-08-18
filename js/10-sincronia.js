@@ -15,19 +15,19 @@
    en vez de decidir por ti, y el lado que no elijas se guarda como copia
    local antes de tocar nada.
 
-   ---- Por qué hay una interfaz de almacén ----
-   Todo lo de arriba —la espera, la marca, la pregunta ante un conflicto, las
-   copias— es independiente de DÓNDE vivan los datos. Lo único propio de
-   GitHub es cómo se leen y se escriben cuatro bytes. Separarlo permite
-   cambiar de sitio sin volver a tocar la parte delicada, que es la que se
-   probó a conciencia y la que puede perder progreso si se rompe.
+   ---- Por qué sigue habiendo una interfaz de almacén ----
+   Hoy solo hay uno, Supabase, y la interfaz podría parecer de más. Se queda
+   porque ya demostró para qué sirve: la mudanza desde GitHub no tocó ni una
+   línea de lo de arriba —la espera, la marca, la pregunta ante un conflicto,
+   las copias—, que es justo la parte que puede perder progreso si se rompe.
+   La próxima mudanza tampoco tendría que tocarla.
 
    Un almacén debe ofrecer:
      nombre                cómo se llama, para los textos de la app
      etiqueta()            de dónde vienen los datos, para el estado
      listo()               si está configurado
-     campos()              qué pedirle al usuario para conectarse
-     configurar(valores)   traduce esos campos a su configuración
+     explicacion()         qué le pasa a tus datos ahí, para Ajustes
+     configurar(valores)   inicia sesión y devuelve su configuración
      leer()                -> {vacio:true} | {marca, env}
      escribir(env, marca)  -> {ok:true, marca} | {ok:false, conflicto:true}
 
@@ -41,7 +41,7 @@ const SYNC_DELAY = 4000;
 const ALMACENES = {};
 
 function almacen() {
-  return ALMACENES[sync.tipo] || ALMACENES.github;
+  return ALMACENES[sync.tipo] || ALMACENES.supabase;
 }
 
 let sync = loadSync();
@@ -51,27 +51,34 @@ let syncError = null;
 
 function loadSync() {
   const base = {
-    enabled: false, tipo: "github", cfg: {},
+    enabled: false, tipo: "supabase", cfg: {},
     device: "", marca: null, rev: 0, dirty: false, lastAt: null
   };
   try {
     const raw = localStorage.getItem(SYNC_KEY);
     if (raw) Object.assign(base, JSON.parse(raw));
   } catch (e) { /* configuración corrupta: volver a los valores por defecto */ }
-
-  /* Los dispositivos que ya venían sincronizando guardaron owner/repo/token
-     sueltos y la marca con el nombre `sha`. Se traen aquí, una sola vez, para
-     que nadie tenga que volver a conectar su teléfono. */
   if (!base.cfg || typeof base.cfg !== "object") base.cfg = {};
-  if (base.owner && !base.cfg.owner) {
-    base.cfg = {
-      owner: base.owner, repo: base.repo, token: base.token,
-      path: base.path || "estado.json", branch: base.branch || "main"
-    };
+
+  /* Un dispositivo que se quedó sincronizando contra GitHub. Ese almacén ya no
+     existe en la app, así que la configuración se jubila aquí: se suelta la
+     credencial y se apaga la sincronía, y en el siguiente arranque aparece la
+     pantalla de entrada.
+
+     Lo que NO se toca son los datos de este dispositivo. Siguen enteros en
+     localStorage y son los que se subirán al entrar con la cuenta, así que la
+     mudanza no pierde nada aunque el teléfono llevara semanas sin abrirse.
+     El repositorio de GitHub tampoco se borra: se queda tal cual, de archivo. */
+  if (base.tipo === "github" || base.owner || base.cfg.token) {
+    base.tipo = "supabase";
+    base.cfg = {};
+    base.enabled = false;
+    base.entrada = null;
+    base.marca = null;
+    base.rev = 0;
+    base.dirty = false;
   }
-  if (base.sha && !base.marca) base.marca = base.sha;
-  delete base.owner; delete base.repo; delete base.token;
-  delete base.path; delete base.branch; delete base.sha;
+  ["owner", "repo", "token", "path", "branch", "sha"].forEach(k => delete base[k]);
 
   if (!base.device) base.device = guessDeviceName();
   return base;
@@ -110,134 +117,6 @@ function syncTouch() {
   } catch (e) { /* la sincronía todavía no existe: se subirá al próximo guardado */ }
 }
 
-/* btoa/atob trabajan en bytes, no en texto: sin pasar por TextEncoder, un
-   acento o un emoji rompen la codificación. El troceado evita reventar la
-   pila de argumentos cuando el estado crece. */
-function toB64(text) {
-  const bytes = new TextEncoder().encode(text);
-  let bin = "";
-  const CHUNK = 0x8000;
-  for (let i = 0; i < bytes.length; i += CHUNK) {
-    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
-  }
-  return btoa(bin);
-}
-
-function fromB64(b64) {
-  const bin = atob(String(b64).replace(/\s/g, ""));
-  const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
-
-/* ---- Almacén: un repositorio privado de GitHub ----
-   Un archivo JSON dentro de un repo tuyo. La marca de versión es el `sha`
-   que GitHub le da a cada versión del archivo; mandarlo al escribir es lo que
-   hace que dos dispositivos no se pisen. Como cada guardado es un commit, el
-   repositorio queda además como historial. */
-
-const GH_API = "https://api.github.com";
-
-ALMACENES.github = {
-  nombre: "GitHub",
-
-  explicacion() {
-    return "Guarda tu progreso en un repositorio privado tuyo de GitHub para que la computadora y el teléfono vean lo mismo. " +
-      "El token se queda en este navegador: nunca se sube al repositorio ni sale de este dispositivo.";
-  },
-
-  listo() {
-    const c = sync.cfg || {};
-    return !!(c.token && c.owner && c.repo);
-  },
-
-  etiqueta() {
-    const c = sync.cfg || {};
-    return c.owner + "/" + c.repo;
-  },
-
-  campos() {
-    const c = sync.cfg || {};
-    return [
-      { k: "owner", etiqueta: "Tu usuario de GitHub", valor: c.owner || "", marcador: "mi-usuario" },
-      { k: "repo", etiqueta: "Repositorio privado de datos", valor: c.repo || "", marcador: "notara-datos" },
-      { k: "token", etiqueta: "Token de acceso", secreto: true, marcador: "github_pat_…",
-        pista: "Token de acceso personal con permiso de contenidos sobre ese repositorio y nada más. Se guarda solo en este navegador." }
-    ];
-  },
-
-  configurar(v) {
-    return { owner: v.owner, repo: v.repo, token: v.token, path: "estado.json", branch: "main" };
-  },
-
-  async leer() {
-    const r = await gh(ghUrl(ghFilePath()) + "?ref=" + encodeURIComponent(sync.cfg.branch));
-    if (r.status === 404) return { vacio: true };
-    if (!r.ok) throw ghError(r);
-
-    let text = r.body.content ? fromB64(r.body.content) : "";
-    // Arriba de 1 MB la API de contenidos manda el cuerpo vacío y hay que ir al blob
-    if (!text && r.body.sha) {
-      const b = await gh(ghUrl("/git/blobs/" + r.body.sha));
-      if (b.ok && b.body && b.body.content) text = fromB64(b.body.content);
-    }
-    let env = null;
-    try { env = JSON.parse(text); } catch (e) {
-      throw new Error("El archivo del repositorio no es un JSON válido; no voy a tocarlo.");
-    }
-    return { marca: r.body.sha, env: env };
-  },
-
-  async escribir(env, marca) {
-    const body = {
-      message: (marca ? "Progreso desde " : "Primer guardado desde ") + sync.device,
-      content: toB64(JSON.stringify(env, null, 2)),
-      branch: sync.cfg.branch
-    };
-    if (marca) body.sha = marca;
-    const r = await gh(ghUrl(ghFilePath()), {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-    // Otro dispositivo escribió entre nuestra lectura y nuestra escritura
-    if (r.status === 409 || r.status === 422) return { ok: false, conflicto: true };
-    if (!r.ok) throw ghError(r);
-    return { ok: true, marca: r.body.content.sha };
-  }
-};
-
-function ghUrl(suffix) {
-  return GH_API + "/repos/" + encodeURIComponent(sync.cfg.owner) + "/" +
-    encodeURIComponent(sync.cfg.repo) + suffix;
-}
-
-function ghFilePath() {
-  return "/contents/" + String(sync.cfg.path).split("/").filter(Boolean).map(encodeURIComponent).join("/");
-}
-
-async function gh(url, opts) {
-  const o = Object.assign({ cache: "no-store" }, opts || {});
-  o.headers = Object.assign({
-    "Authorization": "Bearer " + sync.cfg.token,
-    "Accept": "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28"
-  }, o.headers || {});
-  const res = await fetch(url, o);
-  let body = null;
-  try { body = await res.json(); } catch (e) {}
-  return { ok: res.ok, status: res.status, body };
-}
-
-/* Los errores de la API se traducen a algo accionable: "401" no le dice a
-   nadie qué hacer, "el token expiró" sí. */
-function ghError(r) {
-  const donde = ALMACENES.github.etiqueta();
-  if (r.status === 401) return new Error("El token no es válido o ya expiró. Genera uno nuevo y vuelve a conectar.");
-  if (r.status === 403) return new Error("El token no tiene permiso de escritura sobre " + donde + ".");
-  if (r.status === 404) return new Error("No encontré " + donde + ". Revisa el nombre y que el token incluya ese repositorio.");
-  const msg = r.body && r.body.message ? r.body.message : "error " + r.status;
-  return new Error("GitHub respondió: " + msg);
-}
 
 function envelope(rev) {
   return {
@@ -567,87 +446,22 @@ function renderSync() {
     return;
   }
 
-  /* El formulario lo dicta el almacén, no esta función: añadir uno nuevo no
-     debería obligar a tocar la pantalla de Ajustes. */
-  const opciones = Object.keys(ALMACENES).map(k =>
-    '<button' + (k === sync.tipo ? ' class="on"' : "") + ' onclick="syncElegirAlmacen(\'' + k + '\')">' +
-    escapeHtml(ALMACENES[k].nombre) + '</button>').join("");
-
+  /* Sin sesión, aquí no se pide nada: el correo y la contraseña se escriben
+     en la pantalla de entrada, que es donde ya vive ese formulario. Tenerlo
+     dos veces significaba mantener dos caminos para lo mismo, y el de Ajustes
+     era el peor de los dos — sin logo, sin Google, sin "probar sin cuenta" y
+     escondido detrás de un menú. */
   panelEl.innerHTML =
-    (Object.keys(ALMACENES).length > 1
-      ? '<div class="field"><span class="lbl">¿Dónde se guarda?</span><div class="seg">' + opciones + '</div></div>'
-      : "") +
-    alm.campos().map(c =>
-      '<label class="field"><span>' + escapeHtml(c.etiqueta) + '</span>' +
-      '<input type="' + (c.secreto ? "password" : "text") + '" id="sync-c-' + escapeAttr(c.k) + '"' +
-      ' autocomplete="off" spellcheck="false" value="' + escapeAttr(c.valor || "") + '"' +
-      ' placeholder="' + escapeAttr(c.marcador || "") + '">' +
-      (c.pista ? '<div class="field-hint">' + escapeHtml(c.pista) + '</div>' : "") +
-      '</label>'
-    ).join("") +
-    '<label class="field"><span>Nombre de este dispositivo</span>' +
-    '<input type="text" id="sync-device" value="' + escapeAttr(sync.device) + '"></label>' +
     '<div class="stack">' +
-    '<button class="btn btn-primary btn-block" onclick="syncConnect()">Conectar</button>' +
-    ((alm.acciones && alm.acciones()) || []).map(a =>
-      '<button class="btn btn-soft btn-block" onclick="' + escapeAttr(a.onclick) + '">' +
-      escapeHtml(a.etiqueta) + '</button>').join("") +
-    '</div>';
-}
-
-/* Cambiar de almacén solo se ofrece mientras no haya ninguno conectado: con
-   la sincronía activa, saltar de sitio dejaría el progreso a medias entre
-   los dos. Para mudarse hay que desconectar primero, a conciencia. */
-function syncElegirAlmacen(tipo) {
-  if (!ALMACENES[tipo] || syncReady()) return;
-  sync.tipo = tipo;
-  sync.cfg = {};
-  sync.marca = null;
-  saveSync();
-  renderSync();
+    '<button class="btn btn-primary btn-block" onclick="mostrarPortada()">Iniciar sesión o crear cuenta</button>' +
+    '</div>' +
+    '<p class="field-hint" style="margin-top:10px">Mientras tanto tu progreso se guarda solo en este dispositivo. Al entrar, lo que ya tienes aquí sube a tu cuenta: no se pierde nada.</p>';
 }
 
 function syncRenameDevice(v) {
   sync.device = String(v || "").trim() || guessDeviceName();
   saveSync();
   renderSync();
-}
-
-async function syncConnect() {
-  const alm = almacen();
-  const campos = alm.campos();
-  const valores = {};
-  for (const c of campos) {
-    const el = document.getElementById("sync-c-" + c.k);
-    valores[c.k] = el ? el.value.trim() : "";
-    if (!valores[c.k]) { toast("Falta " + c.etiqueta.toLowerCase(), "atencion"); return; }
-  }
-  const device = document.getElementById("sync-device").value.trim();
-
-  /* `configurar` puede tardar: un almacén con cuentas tiene que iniciar
-     sesión aquí, y si el correo o la contraseña están mal hay que decirlo
-     antes de dar la conexión por buena. */
-  syncBusy = true; syncError = null; renderSync();
-  try {
-    sync.cfg = await alm.configurar(valores);
-  } catch (e) {
-    syncBusy = false;
-    syncError = (e && e.message) || String(e);
-    renderSync();
-    toast(syncError, "atencion");
-    return;
-  }
-  syncBusy = false;
-
-  sync.device = device || guessDeviceName();
-  sync.enabled = true; sync.marca = null; sync.rev = 0;
-  // Si este dispositivo ya tiene progreso, cuenta como cambios por subir; si está
-  // vacío, no: así un dispositivo nuevo simplemente recibe lo que ya existe.
-  sync.dirty = hasLocalData();
-  sync.lastAt = null;
-  saveSync();
-  renderSync();
-  await syncRun({});
 }
 
 async function syncDisconnect() {

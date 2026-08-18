@@ -23,6 +23,11 @@ function portadaHaceFalta() {
 
 function mostrarPortada() {
   if (document.getElementById("portada")) return;
+  /* La misma pantalla sirve para dos momentos distintos: la primera vez que
+     se abre la app, y cuando alguien que ya venía usándola sin cuenta entra a
+     Ajustes a crearla. En el segundo caso "probar sin cuenta" no describe
+     nada —ya estaba dentro— y la salida es simplemente volver. */
+  const yaEntroSinCuenta = sync.entrada === "local";
   const cap = document.createElement("div");
   cap.id = "portada";
   cap.className = "portada";
@@ -40,8 +45,10 @@ function mostrarPortada() {
          <button class="btn btn-soft btn-block" onclick="portadaRegistrar()">Crear cuenta</button>
        </div>
        <div id="portada-google"></div>
-       <button class="portada-sin" onclick="portadaSinCuenta()">Probar sin cuenta</button>
-       <p class="portada-nota">Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crearla después sin perder nada.</p>
+       <button class="portada-sin" onclick="portadaSinCuenta()">${yaEntroSinCuenta ? "Volver sin iniciar sesión" : "Probar sin cuenta"}</button>
+       <p class="portada-nota">${yaEntroSinCuenta
+         ? "Seguirás guardando solo en este dispositivo."
+         : "Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crearla después sin perder nada."}</p>
      </div>`;
   document.body.appendChild(cap);
 

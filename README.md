@@ -14,52 +14,34 @@ ser un solo archivo.
 
 ## Cómo se usa
 
-Ábrela en el navegador. Desde el móvil o el escritorio se puede instalar como
-aplicación ("Añadir a pantalla de inicio" / "Instalar"), y a partir de ahí
-funciona sin conexión.
+Lo primero es la pantalla de entrada. Hay dos caminos: iniciar sesión (o crear
+una cuenta con tu correo) o **probar sin cuenta**.
 
-Al entrar por primera vez hay tres caminos: armar el tablero con tres
-preguntas, cargar un ejemplo completo para curiosear, o empezar de cero.
+Sin cuenta la app funciona entera, pero tu progreso se queda en ese navegador.
+Crear la cuenta después no pierde nada: lo que ya tienes en el dispositivo es
+justo lo que sube a la cuenta nueva.
+
+Desde el móvil o el escritorio se puede instalar como aplicación ("Añadir a
+pantalla de inicio" / "Instalar"), y a partir de ahí abre sin conexión.
 
 ## Dónde viven tus datos
 
-Por defecto, en `localStorage` de tu navegador y en ningún otro sitio. No hay
-cuentas, ni analítica, ni nada que salga de tu dispositivo.
+Siempre en el navegador del dispositivo. Si iniciaste sesión, además en tu
+cuenta, para que la computadora y el teléfono vean lo mismo.
 
-Eso tiene una consecuencia incómoda: el teléfono y la computadora no ven lo
-mismo. Para eso está la sincronía opcional.
+Nadie puede ver los datos de otra persona, y eso no lo garantiza el código de
+la app sino una regla dentro de la base de datos: solo entrega la fila cuyo
+dueño coincide con quien pregunta. Aunque la app tuviera un fallo, o alguien
+la modificara en su propio navegador, la base no suelta nada ajeno.
 
-## Sincronía entre dispositivos (opcional)
-
-Tu progreso se guarda como un archivo JSON dentro de **un repositorio privado
-tuyo**. Tú eres el dueño de los datos y del sitio donde están; este proyecto
-no tiene servidor al que mandarlos.
-
-### Puesta en marcha
-
-1. Crea un repositorio **privado** y vacío, por ejemplo `notara-datos`.
-   No hace falta añadirle nada: la app crea el archivo la primera vez.
-
-2. Genera un *fine-grained personal access token* en
-   **Settings → Developer settings → Personal access tokens → Fine-grained tokens**:
-   - **Repository access:** solo el repositorio de datos que acabas de crear.
-   - **Permissions → Repository permissions → Contents:** `Read and write`.
-   - Nada más. Ese token no debe poder tocar ningún otro repositorio.
-
-3. En la app, entra a **Ajustes → Sincronizar entre dispositivos**, escribe tu
-   usuario, el nombre del repositorio y el token, y pulsa **Conectar**.
-
-4. Repite el paso 3 en cada dispositivo. El primero sube lo que ya tenía; los
-   demás reciben ese progreso al conectarse.
+Tu contraseña no se guarda en el dispositivo. Se cambia una vez por una sesión
+que caduca y se renueva sola.
 
 ### Qué esperar
 
 La sincronía ocurre sola al abrir la app, al volver a la pestaña y al
 recuperar la conexión. Después de un cambio espera unos segundos antes de
-subirlo, para que una tarde de uso sean unos pocos commits y no cien.
-
-Como cada guardado es un commit, el repositorio de datos te queda además como
-un historial: puedes ver cómo estabas hace dos semanas.
+subirlo, para que una tarde de uso sean unos pocos envíos y no cien.
 
 ### Si dos dispositivos cambian lo mismo
 
@@ -72,17 +54,12 @@ automáticas**, con su fecha y lo que contenía cada una. Se conservan las cinco
 más recientes; restaurar una aparta antes lo que tengas ahora, por si te
 arrepientes.
 
-### Sobre el token
+### Dos cuentas: la real y la de pruebas
 
-El token se guarda en `localStorage`, en el navegador de cada dispositivo.
-Nunca se escribe dentro del archivo de datos ni se sube a ningún repositorio.
-
-Aun así, conviene saber lo que implica: cualquiera con acceso físico a un
-dispositivo desbloqueado podría leerlo desde las herramientas de desarrollo.
-Por eso el token debe estar limitado a un único repositorio privado de datos
-y a permisos de contenido. Así, en el peor de los casos, lo que está en juego
-es ese archivo y nada más. Si pierdes un dispositivo, revoca el token desde
-GitHub: los demás dispositivos solo tendrán que conectarse otra vez.
+En **Ajustes → Sincronizar** cada cuenta se marca como real o de pruebas. En
+la de pruebas verás un marco punteado amarillo rodeando la pantalla mientras
+la uses. En la real, borrar todo te pide escribir tu correo — obliga a mirar
+en cuál estás antes de vaciarla.
 
 ## Respaldos
 
@@ -105,13 +82,22 @@ recargar — nunca una pantalla en blanco sin explicación.
 | `js/01…11-*.js` | La aplicación, por áreas. **El orden importa**: se ejecutan uno tras otro |
 | `sw.js` | Service worker; guarda la app para que abra sin conexión |
 | `manifest.webmanifest` | Metadatos para poder instalarla |
-| `icon.svg` | Icono |
+| `icon*.png`, `apple-touch-icon.png` | Iconos de la app instalada |
+| `icon.svg`, `favicon.svg` | Icono vectorial y el de la pestaña |
+| `marca/` | Logos sueltos y el script que los regenera desde la app |
 
 Los `js/` son *scripts* normales, no módulos, y por eso sus funciones son
 globales: los `onclick` del HTML dependen de ello. Van sin `defer` y en el
 orden numerado, que es exactamente el que tenían cuando eran un solo bloque —
 cambiarlo rompe las dependencias entre piezas. `11-arranque.js` va el último
 porque es lo único que se ejecuta al abrir, en vez de solo declarar cosas.
+
+`10-sincronia.js` no sabe dónde viven los datos: habla con un *almacén*, y
+`10b-supabase.js` es el único que hay hoy. Esa separación nació de la
+mudanza desde GitHub, y se ganó quedarse: la mudanza no obligó a tocar ni
+una línea de la sincronía —ni la espera que agrupa cambios, ni la
+resolución de conflictos, ni las copias—, que es justo la parte capaz de
+perder progreso si se rompe.
 
 El service worker solo se registra sobre HTTPS, así que servirla en local no
 activa el modo sin conexión. Es a propósito: evita quedarse con una versión

@@ -143,19 +143,6 @@ ALMACENES.supabase = {
     return (sync.cfg || {}).correo || "tu cuenta";
   },
 
-  campos() {
-    const c = sync.cfg || {};
-    return [
-      { k: "correo", etiqueta: "Tu correo", valor: c.correo || "", marcador: "tu@correo.com" },
-      { k: "clave", etiqueta: "Contraseña", secreto: true,
-        pista: "Tu contraseña no se guarda en este dispositivo: se cambia por una sesión que caduca y se renueva sola." }
-    ];
-  },
-
-  acciones() {
-    return [{ etiqueta: "Crear cuenta", onclick: "sbCrearCuenta()" }];
-  },
-
   async configurar(v) {
     const sesion = await sbEntrar(v.correo, v.clave);
     return { correo: v.correo, sesion: sesion };
@@ -201,38 +188,3 @@ ALMACENES.supabase = {
     return { ok: true, marca: r.body[0].rev };
   }
 };
-
-/* Crear cuenta es un botón aparte y no un "si falla entrar, registra": como
-   Supabase no distingue entre correo desconocido y contraseña mal puesta,
-   adivinarlo llevaría a ofrecer crear una cuenta que ya existe. Mejor que lo
-   diga el usuario. */
-async function sbCrearCuenta() {
-  const correo = (document.getElementById("sync-c-correo") || {}).value;
-  const clave = (document.getElementById("sync-c-clave") || {}).value;
-  if (!correo || !clave) { toast("Escribe tu correo y una contraseña", "atencion"); return; }
-
-  if (!await ask("Se creará una cuenta para " + correo + " y tu progreso pasará a guardarse ahí.", "Crear cuenta")) return;
-
-  syncBusy = true; syncError = null; renderSync();
-  try {
-    const sesion = await sbRegistrar(correo.trim(), clave);
-    if (!sesion) {
-      toast("Cuenta creada. Te mandé un correo: ábrelo, confirma, y vuelve a entrar aquí.", "logro");
-      return;
-    }
-    sync.cfg = { correo: correo.trim(), sesion: sesion };
-    sync.tipo = "supabase";
-    sync.enabled = true; sync.marca = null; sync.rev = 0;
-    sync.dirty = hasLocalData();
-    sync.lastAt = null;
-    saveSync();
-    toast("Cuenta creada", "logro");
-  } catch (e) {
-    syncError = (e && e.message) || String(e);
-    toast(syncError, "atencion");
-  } finally {
-    syncBusy = false;
-    renderSync();
-  }
-  if (syncReady()) await syncRun({});
-}
