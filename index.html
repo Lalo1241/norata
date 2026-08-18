@@ -5,6 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#10151d">
 <meta name="color-scheme" content="dark">
+<!-- Muralla del navegador. La app usa manejadores en el marcado y estilos en
+     línea por todas partes, así que 'unsafe-inline' es inevitable sin
+     reescribirla entera — y por eso mismo el escapado de datos del usuario
+     sigue siendo la defensa principal, no esto.
+
+     Lo que sí aporta, y mucho, es `connect-src`: aunque algún día se colara
+     código ajeno, solo podría hablar con este sitio y con nuestro servidor.
+     No podría mandarle a nadie la sesión ni el progreso de nadie, que es
+     exactamente lo que haría un atacante que consiguiera ejecutar algo.
+     `object-src` y `base-uri` cierran dos vías clásicas de secuestro. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: blob:;
+  font-src 'self' data:;
+  connect-src 'self' https://wifffghnyrqfuwqlatci.supabase.co;
+  form-action 'self';
+  base-uri 'none';
+  object-src 'none'">
 <title>Notara</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <!-- iOS no lee los iconos del manifest para la pantalla de inicio y no
