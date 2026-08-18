@@ -150,8 +150,32 @@ async function portadaRegistrar() {
 
 /* Lo común a las tres formas de entrar. Lo que ya hubiera en este dispositivo
    cuenta como cambios por subir: así, quien probó sin cuenta y luego se
-   registra, se lleva su progreso en vez de empezar de cero. */
+   registra, se lleva su progreso en vez de empezar de cero.
+
+   Pero SOLO si esos datos son suyos. Un navegador compartido —o el mismo
+   dueño con su cuenta de pruebas y la de verdad— deja aquí el progreso de
+   quien entró antes, y sin esta comprobación se subiría a la cuenta que entre
+   después: dos vidas mezcladas en una, y del lado del servidor todo correcto,
+   porque cada fila sigue siendo de su dueño. El error estaría aquí.
+
+   `sync.dueño` recuerda de quién es lo que hay guardado en este dispositivo.
+   Sin dueño —quien probó sin cuenta— los datos no son de nadie todavía y se
+   los queda quien entre. */
 function portadaEntrada(correo) {
+  const uid = ((sync.cfg || {}).sesion || {}).uid || null;
+
+  if (sync.dueño && uid && sync.dueño !== uid) {
+    // No se tira: se aparta donde se puede recuperar desde Ajustes
+    stashConflict("otra-cuenta", state);
+    guardarLocal({
+      skills: [], perks: [], projects: [], missions: [], cajas: [],
+      settings: { timezone: userTZ() }, schemaVersion: SCHEMA
+    });
+    state = load();
+    toast("Este dispositivo tenía datos de otra cuenta. Los aparté y bajo los tuyos.", "atencion");
+  }
+  sync.dueño = uid;
+
   sync.device = sync.device || guessDeviceName();
   sync.enabled = true;
   sync.entrada = "cuenta";

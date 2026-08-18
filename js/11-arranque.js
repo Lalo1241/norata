@@ -45,7 +45,6 @@ function avisarDatosDelFuturo() {
   document.body.appendChild(caja);
 }
 
-applyDecay();
 aplicarModulos();
 showView("summary");
 
@@ -57,17 +56,91 @@ showView("summary");
   const veniaDeGoogle = await sbVolverDeGoogle();
   if (!veniaDeGoogle && portadaHaceFalta()) mostrarPortada();
   pintarAvisoPruebas();
-})();
 
-/* La sincronía se dispara al abrir, al volver a la pestaña y al recuperar
-   la conexión: son los tres momentos en los que el otro dispositivo pudo
-   haber avanzado sin que este se enterara. */
-if (syncReady()) syncRun({ silent: true });
+  /* El desgaste se aplica DESPUÉS de traer lo del otro dispositivo, y esto no
+     es un detalle de orden: es lo que evitaba que la app preguntara sin
+     motivo.
+
+     `applyDecay()` escribe el primer arranque de cada día —actualiza hasta
+     cuándo se revisó cada habilidad— y eso marcaba el dispositivo como "tiene
+     cambios sin subir" antes de haber hablado con el servidor. Abrir la app en
+     la computadora al día siguiente de usarla en el móvil bastaba para que los
+     dos lados pareciesen haber cambiado. Además, calculado antes de bajar,
+     el desgaste se calcula sobre datos viejos: castiga por una inactividad
+     que en el otro dispositivo no existió.
+
+     Se hace en cuanto vuelve la sincronía, y si no hay conexión se aplica
+     igual: más vale un desgaste calculado con lo que hay que ninguno. */
+  if (syncReady()) await syncRun({ silent: true });
+  applyDecay();
+  showView(activeMainView || "summary");
+})();
 
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") syncRun({ silent: true });
 });
 window.addEventListener("online", () => syncRun({ silent: true }));
+
+/* ---- Deslizar hacia abajo para actualizar ----
+   El gesto que todo el mundo ya tiene en los dedos. Existe porque la
+   sincronía automática cubre casi todo —al abrir, al volver a la pestaña, al
+   recuperar la conexión— pero no el caso de "sé que acabo de cambiar algo en
+   la computadora y lo quiero ver AQUÍ, ahora". Sin esto, la única salida era
+   cerrar y abrir la app.
+
+   Solo cuenta empezando desde arriba del todo y con un dedo: cualquier otra
+   cosa es un desplazamiento normal, o un arrastre del tablero o del lienzo,
+   y robarles el gesto sería peor que no tenerlo. */
+(function () {
+  const UMBRAL = 72;
+  let inicioY = null, aviso = null;
+
+  function pintar(dist, texto) {
+    if (!aviso) {
+      aviso = document.createElement("div");
+      aviso.className = "tirar-aviso";
+      document.body.appendChild(aviso);
+    }
+    aviso.textContent = texto;
+    aviso.style.transform = "translate(-50%," + Math.min(dist, UMBRAL + 18) + "px)";
+    aviso.classList.toggle("listo", dist >= UMBRAL);
+  }
+
+  function quitar() {
+    if (!aviso) return;
+    const a = aviso; aviso = null;
+    a.classList.add("fuera");
+    setTimeout(() => a.remove(), 240);
+  }
+
+  window.addEventListener("touchstart", (e) => {
+    inicioY = null;
+    if (e.touches.length !== 1) return;
+    if (window.scrollY > 0) return;
+    if (dashEditing) return;                       // ahí el dedo mueve tarjetas
+    if (document.querySelector(".portada, .futuro-aviso")) return;
+    if (document.body.classList.contains("fs-on")) return;
+    inicioY = e.touches[0].clientY;
+  }, { passive: true });
+
+  window.addEventListener("touchmove", (e) => {
+    if (inicioY === null) return;
+    const d = e.touches[0].clientY - inicioY;
+    if (d <= 0) { quitar(); return; }
+    pintar(d * 0.5, d * 0.5 >= UMBRAL ? "Suelta para actualizar" : "Desliza para actualizar");
+  }, { passive: true });
+
+  window.addEventListener("touchend", async () => {
+    if (inicioY === null || !aviso) { inicioY = null; quitar(); return; }
+    const listo = aviso.classList.contains("listo");
+    inicioY = null;
+    if (!listo) { quitar(); return; }
+    pintar(UMBRAL, "Actualizando…");
+    if (syncReady()) await syncRun({ silent: true });
+    else toast("Sin cuenta: no hay nada que traer", "calma");
+    quitar();
+  }, { passive: true });
+})();
 
 if ("serviceWorker" in navigator && location.protocol === "https:") {
   navigator.serviceWorker.register("sw.js").catch(() => {});

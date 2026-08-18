@@ -143,18 +143,6 @@ function syncFecha(iso) {
   } catch (e) { return null; }
 }
 
-/* Las cuatro cifras por separado, para poder ponerlas en columnas y que se
-   vea de un vistazo en qué se diferencian las dos versiones. */
-function syncCifras(s) {
-  s = s || {};
-  return [
-    { t: "Habilidades", n: (s.skills || []).length },
-    { t: "Misiones", n: (s.missions || []).length },
-    { t: "Talentos", n: (s.perks || []).length },
-    { t: "Proyectos", n: (s.projects || []).length }
-  ];
-}
-
 function hasLocalData() {
   return (state.skills || []).length + (state.perks || []).length +
     (state.projects || []).length + (state.missions || []).length > 0;
@@ -185,7 +173,7 @@ function renderCopias() {
   const copias = listarCopias().filter(c => c.datos);
 
   if (!copias.length) {
-    cont.innerHTML = `<p class="settings-note" style="margin:0">No hay ninguna. Aquí aparecerán solas si alguna vez dos dispositivos cambian lo mismo y eliges con cuál quedarte.</p>`;
+    cont.innerHTML = `<p class="settings-note" style="margin:0">No hay ninguna, y es buena señal: significa que tus dispositivos nunca han tenido que juntar cambios a la fuerza.</p>`;
     return;
   }
 
@@ -240,53 +228,6 @@ function adoptRemote(env) {
   showView(activeMainView || "summary");
 }
 
-/* La pregunta más delicada de la app: elegir mal aquí borra progreso real.
-   Por eso se presenta como una comparación y no como un párrafo: las dos
-   versiones con su fecha y hora completas, sus cifras enfrentadas para ver
-   en qué se diferencian, y una etiqueta que señala cuál se guardó después.
-   La etiqueta dice "más reciente", no "la correcta": la más nueva suele ser
-   la buena, pero el que sabe si estuvo capturando en el otro dispositivo es el
-   usuario, no la app. */
-async function askConflict(env) {
-  const quien = env.device || "el otro dispositivo";
-  const remotoISO = env.updatedAt || null;
-  const localISO = sync.dirtyAt || null;
-  const fRemoto = syncFecha(remotoISO) || "sin fecha";
-  const fLocal = syncFecha(localISO) || "sin fecha";
-
-  let masNuevo = null;
-  if (remotoISO && localISO) masNuevo = Date.parse(localISO) > Date.parse(remotoISO) ? "local" : "remoto";
-
-  const cifrasL = syncCifras(state);
-  const cifrasR = syncCifras(env.state);
-
-  const lado = (titulo, sub, fecha, cifras, otras, esNuevo) => `
-    <div class="cf-side${esNuevo ? " nuevo" : ""}">
-      <div class="cf-head">
-        <span class="cf-tag">${escapeHtml(titulo)}</span>
-        ${esNuevo ? '<span class="cf-badge">Más reciente</span>' : ""}
-      </div>
-      <div class="cf-dev">${escapeHtml(sub)}</div>
-      <div class="cf-when">${escapeHtml(fecha)}</div>
-      <div class="cf-nums">
-        ${cifras.map((c, i) => {
-          const dif = otras[i].n !== c.n;
-          return `<div class="${dif ? "dif" : ""}"><b>${c.n}</b><span>${escapeHtml(c.t)}</span></div>`;
-        }).join("")}
-      </div>
-    </div>`;
-
-  const html = `
-    <div class="cf-intro">Los dos dispositivos cambiaron desde la última sincronía. Elige cuál se queda.</div>
-    <div class="cf-grid">
-      ${lado("Aquí", sync.device || "Este dispositivo", fLocal, cifrasL, cifrasR, masNuevo === "local")}
-      ${lado("Allá", quien, fRemoto, cifrasR, cifrasL, masNuevo === "remoto")}
-    </div>
-    <div class="cf-foot">Del lado que no elijas se guarda una copia en este navegador, así que no se pierde nada.</div>`;
-
-  return await askHtml(html, "Traer lo de " + quien, "Conservar lo de aquí");
-}
-
 async function syncOnce(opts) {
   const almacenActual = almacen();
   const remote = await almacenActual.leer();
@@ -317,20 +258,23 @@ async function syncOnce(opts) {
   const remoteNewer = remoteRev > sync.rev || remote.marca !== sync.marca;
 
   if (sync.dirty && remoteNewer && env && env.state) {
-    const traer = await askConflict(env);
-    if (traer) {
-      stashConflict("local", state);
-      adoptRemote(env);
-      sync.marca = remote.marca; sync.rev = remoteRev;
-      sync.dirty = false; sync.lastAt = env.updatedAt; saveSync();
-      renderSync();
-      toast("Traído desde " + (env.device || "el otro dispositivo"));
-      return;
-    }
-    // Te quedas con lo de aquí: guardamos lo remoto y adoptamos su marca
-    // para poder escribir encima en el mismo intento.
-    stashConflict("remoto", env.state);
+    /* Los dos lados avanzaron. Antes esto abría una pregunta y elegir tiraba
+       un lado entero; ahora se juntan. La copia previa se guarda igual: la
+       fusión no debería perder nada, pero "no debería" no es lo mismo que
+       "no puede", y el coste de guardarla es un puñado de bytes. */
+    stashConflict("previo", state);
+
+    const suyoEsMasNuevo = Date.parse(env.updatedAt || 0) > Date.parse(sync.dirtyAt || 0);
+    guardarLocal(fusionarEstados(state, env.state, suyoEsMasNuevo));
+    state = load();
+    applyDecay();
+    showView(activeMainView || "summary");
+
     sync.marca = remote.marca; sync.rev = remoteRev;
+    // Sigue habiendo algo que subir: la fusión, que ninguno de los dos tiene
+    sync.dirty = true;
+    saveSync();
+    if (!opts.silent) toast("Al día con " + (env.device || "el otro dispositivo"), "hecho");
   } else if (remoteNewer && env && env.state) {
     adoptRemote(env);
     sync.marca = remote.marca; sync.rev = remoteRev;

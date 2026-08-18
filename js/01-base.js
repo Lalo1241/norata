@@ -179,6 +179,16 @@ function migrarTipoTalento(p) {
    conservan el nombre viejo a propósito: renombrarlas dejaría huérfano el
    progreso de quien ya venía usando la app. El nombre visible y el nombre
    interno no tienen por qué coincidir. */
+/* Las colecciones que forman el progreso. Se declaran aquí arriba y no junto
+   a lo que las usa porque `load()` las necesita, y `load()` corre en cuanto
+   este archivo se ejecuta: declararlas después las deja fuera de alcance en
+   ese instante y la app no arranca.
+   Añadir una colección nueva al estado obliga a sumarla aquí, o quedará
+   fuera de la detección de borrados y de la fusión entre dispositivos. */
+const COLECCIONES = ["skills", "missions", "perks", "projects", "cajas"];
+const DIAS_DE_TUMBA = 120;
+let idsVivos = null;
+
 const STORE_KEY = "mainquest-v1";
 
 /* ================= Versión del formato de datos =================
@@ -192,13 +202,39 @@ const STORE_KEY = "mainquest-v1";
    La regla va en un solo sentido: los datos VIEJOS se suben de escalón; los
    datos NUEVOS no se tocan, y mucho menos se escriben. */
 
-const SCHEMA = 1;
+const SCHEMA = 2;
 
 /* Cada entrada sube un escalón: `MIGRACIONES[n]` convierte datos de la
-   versión n a la n+1. Hoy está vacía a propósito —todo lo que existe es v1—;
-   está aquí para que el próximo cambio de formato tenga dónde vivir en vez
-   de colarse suelto dentro de `load()`. */
-const MIGRACIONES = {};
+   versión n a la n+1. */
+const MIGRACIONES = {
+  /* v1 -> v2. Las misiones guardaban un NÚMERO por día: "hoy, 3 veces". Un
+     número no se puede fusionar. Si el teléfono dice 3 y la computadora dice
+     2, no hay forma de saber si son los mismos tres registros vistos dos
+     veces —y entonces son 3— o cinco distintos —y entonces son 5—. Con el
+     dato que hay, cualquier respuesta es una adivinanza.
+
+     Ahora cada registro es una marca con identidad propia, así que juntar
+     dos dispositivos es juntar dos conjuntos: lo que está en los dos se
+     cuenta una vez, lo que está en uno solo se suma, y da igual el orden en
+     que se fusionen o cuántas veces se repita.
+
+     Las marcas que nacen aquí llevan un id DERIVADO de la fecha y la
+     posición, no uno al azar: los dos dispositivos migran los mismos datos
+     por su cuenta y tienen que llegar al mismo id, o al sincronizarse se
+     duplicaría todo el historial de misiones. */
+  1(d) {
+    (d.missions || []).forEach(m => {
+      if (!m.log || typeof m.log !== "object") { m.log = {}; return; }
+      Object.keys(m.log).forEach(k => {
+        if (Array.isArray(m.log[k])) return;
+        const cuantas = Math.max(0, Math.floor(Number(m.log[k]) || 0));
+        if (!cuantas) { delete m.log[k]; return; }
+        m.log[k] = Array.from({ length: cuantas }, (_, i) => "v1." + k + "." + i);
+      });
+    });
+    return d;
+  }
+};
 
 /* Mientras esté puesto, la app mira pero no escribe. Es la única defensa
    real contra estropear datos que no entiende. */
@@ -260,6 +296,7 @@ function load() {
   if (!Array.isArray(data.projects)) data.projects = [];
   if (!Array.isArray(data.missions)) data.missions = [];
   if (!Array.isArray(data.cajas)) data.cajas = [];
+  if (!data.borrados || typeof data.borrados !== "object") data.borrados = {};
   if (!data.settings) data.settings = {};
   if (!data.settings.timezone) {
     try { data.settings.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
@@ -319,6 +356,11 @@ function load() {
     // Después de migrar: así también se limpia el requisito único de antes
     p.requiere = p.requiere.filter(id => vivo(id) && id !== p.id);
   });
+  /* El punto de partida para detectar borrados: lo que hay justo ahora. Se
+     fija aquí y no en `save()` porque `load()` también corre al adoptar algo
+     de la sincronía, y ahí el conjunto de ids cambia de golpe sin que nadie
+     haya borrado nada. */
+  idsVivos = idsDeEstado(data);
   return data;
 }
 
@@ -395,7 +437,45 @@ function tirarCopiaMasVieja() {
   catch (e) { return false; }
 }
 
+/* ---- Qué se borró, y cuándo ----
+   Una fusión automática que solo une lo que ve resucita lo borrado: el
+   teléfono todavía tiene la misión que quitaste en la computadora, y al
+   juntarlos vuelve. Para distinguir "esto es nuevo allá" de "esto lo maté
+   aquí" hace falta recordar las muertes.
+
+   Se detectan solas comparando con el guardado anterior, en vez de anotarlas
+   en cada sitio que borra algo. Hay diez sitios distintos que borran, y el
+   siguiente que alguien añada se olvidaría de anotarlo; así no hay nada que
+   recordar. */
+
+function idsDeEstado(d) {
+  const s = new Set();
+  COLECCIONES.forEach(c => (d[c] || []).forEach(x => { if (x && x.id) s.add(x.id); }));
+  return s;
+}
+
+function anotarBorrados() {
+  const ahora = idsDeEstado(state);
+  if (idsVivos) {
+    state.borrados = state.borrados || {};
+    const t = Date.now();
+    idsVivos.forEach(id => { if (!ahora.has(id)) state.borrados[id] = t; });
+    /* Si algo vuelve a existir —deshacer, importar un respaldo— deja de estar
+       muerto. Sin esto, restaurar una copia traería de vuelta los datos pero
+       la fusión los volvería a matar en el siguiente encuentro. */
+    ahora.forEach(id => { if (state.borrados[id]) delete state.borrados[id]; });
+
+    // Pasados cuatro meses, cualquier dispositivo vivo ya se enteró
+    const limite = t - DIAS_DE_TUMBA * 86400000;
+    Object.keys(state.borrados).forEach(id => {
+      if (state.borrados[id] < limite) delete state.borrados[id];
+    });
+  }
+  idsVivos = ahora;
+}
+
 function save() {
+  anotarBorrados();
   guardarLocal(state);
   syncTouch();
 }

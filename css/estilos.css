@@ -2784,6 +2784,21 @@
   .portada-sin:hover { text-decoration: underline; }
   .portada-nota { text-align: center; color: var(--faint); font-size: 12px; line-height: 1.55; margin: 6px 0 0; }
 
+  /* ---------- Deslizar para actualizar ----------
+     Va colgado del borde de arriba y sigue al dedo. No tapa nada: aparece
+     donde el pulgar ya está mirando y se va solo. */
+  .tirar-aviso {
+    position: fixed; top: 0; left: 50%; z-index: 7000;
+    transform: translate(-50%, 0);
+    background: var(--card2); border: 1px solid var(--line);
+    border-radius: 999px; padding: 7px 15px;
+    font-size: 12.5px; font-weight: 700; color: var(--muted);
+    white-space: nowrap; pointer-events: none;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  }
+  .tirar-aviso.listo { color: var(--mint); border-color: var(--mint); }
+  .tirar-aviso.fuera { opacity: 0; transition: opacity 0.22s ease; }
+
   /* ---------- Aviso de cuenta de pruebas ----------
      Es el mismo dibujo que un grupo del árbol de talentos: recinto punteado
      amarillo rodeando lo que abarca, con su etiqueta colgada del borde. Aquí
@@ -2835,37 +2850,6 @@
      modal las aplasta en un párrafo ilegible. */
   #modal-msg { white-space: pre-line; }
 
-  /* ---------- Comparación de versiones en un conflicto ---------- */
-  .cf-intro { white-space: normal; font-size: 14px; line-height: 1.5; margin-bottom: 14px; }
-  .cf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; white-space: normal; }
-  .cf-side {
-    background: var(--bg2);
-    border: 1.5px solid var(--line);
-    border-radius: 14px;
-    padding: 11px 11px 9px;
-    text-align: left;
-  }
-  .cf-side.nuevo { border-color: var(--mint); background: var(--mint-soft); }
-  .cf-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 3px; }
-  .cf-tag { font-size: 10.5px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--faint); }
-  .cf-badge {
-    font-size: 9.5px; font-weight: 800; letter-spacing: 0.4px;
-    color: #0e131b; background: var(--mint);
-    border-radius: 999px; padding: 2px 7px;
-  }
-  .cf-dev { font-size: 14px; font-weight: 700; line-height: 1.2; }
-  .cf-when { font-size: 11.5px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
-  .cf-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; margin-top: 9px; }
-  .cf-nums > div { display: flex; align-items: baseline; gap: 4px; }
-  .cf-nums b { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
-  .cf-nums span { font-size: 10px; color: var(--muted); }
-  /* Solo se resalta lo que difiere: es lo único que hay que mirar */
-  .cf-nums > div.dif b { color: var(--fire); }
-  .cf-nums > div.dif span { color: var(--fire); opacity: 0.8; }
-  .cf-foot { white-space: normal; font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 13px; }
-  @media (max-width: 420px) {
-    .cf-grid { grid-template-columns: 1fr; }
-  }
   .sync-text { font-size: 13px; line-height: 1.45; }
   .sync-text b { display: block; font-weight: 600; }
   .sync-text span { color: var(--faint); font-size: 12px; }

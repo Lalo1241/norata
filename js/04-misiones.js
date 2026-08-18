@@ -16,7 +16,13 @@ function missionDueToday(m) {
   return missionScheduledOn(m, todayKey());
 }
 
-function missionCount(m, key) { return (m.log && m.log[key]) || 0; }
+/* Tolera el formato viejo (un número) además del nuevo (lista de marcas):
+   `load()` migra, pero esto también lo lee un estado remoto recién bajado que
+   todavía no ha pasado por ahí. */
+function missionCount(m, key) {
+  const v = m.log && m.log[key];
+  return Array.isArray(v) ? v.length : (Number(v) || 0);
+}
 function missionTarget(m) { return Math.max(1, m.target || 1); }
 function missionDone(m, key) { return missionCount(m, key) >= missionTarget(m); }
 
@@ -45,8 +51,14 @@ function logMission(id, delta) {
   const before = missionCount(m, key);
   const after = clamp(before + delta, 0, target);
   if (after === before) return;
-  m.log[key] = after;
-  if (after === 0) delete m.log[key];
+  /* Cada vez que se marca nace una marca con identidad propia, y al
+     desmarcar se retira la última. El número sale de contarlas, no se guarda:
+     un contador y una lista pueden desincronizarse, y entonces la fusión
+     entre dispositivos deja de tener una verdad a la que agarrarse. */
+  const marcas = Array.isArray(m.log[key]) ? m.log[key].slice() : [];
+  while (marcas.length > after) marcas.pop();
+  while (marcas.length < after) marcas.push(uid());
+  if (marcas.length) m.log[key] = marcas; else delete m.log[key];
 
   const wasDone = before >= target;
   const nowDone = after >= target;
