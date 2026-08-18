@@ -183,7 +183,7 @@ const STORE_KEY = "mainquest-v1";
 
 /* ================= Versión del formato de datos =================
    Hasta aquí `load()` normalizaba lo que llegara y listo. Eso basta mientras
-   todos los aparatos corran la misma versión de la app, que es lo que pasa
+   todos los dispositivos corran la misma versión de la app, que es lo que pasa
    cuando el único usuario eres tú. En cuanto haya cuentas dejará de ser
    cierto: alguien tendrá el teléfono sin actualizar y abrirá datos escritos
    por una versión más nueva. Sin un número que lo delate, la app vieja los
@@ -337,7 +337,7 @@ const MAX_COPIAS = 5;
 let avisoSinEspacio = false;
 
 function guardarLocal(data) {
-  /* La guarda que de verdad protege: si los datos de este aparato vienen de
+  /* La guarda que de verdad protege: si los datos de este dispositivo vienen de
      una versión más nueva, no se escribe. Ni al guardar, ni al importar, ni
      al traer algo de la sincronía. */
   if (modoSoloLectura) return false;
@@ -406,7 +406,7 @@ function uid() {
 
 /* ================= El día del usuario =================
    Todo lo que mide días (racha, decaimiento, misiones) se ancla a la zona
-   horaria del perfil, no a la del aparato: así un viaje no rompe una racha.
+   horaria del perfil, no a la del dispositivo: así un viaje no rompe una racha.
    Las fechas se manejan como claves "YYYY-MM-DD" con aritmética propia,
    sin pasar por husos horarios. */
 

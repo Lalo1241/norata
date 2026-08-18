@@ -1,6 +1,6 @@
 /* Sincronía, copias de conflicto, utilidades y avisos */
 /* ================= Sincronía entre dispositivos =================
-   Tu progreso vive fuera de este aparato para que la computadora y el
+   Tu progreso vive fuera de este dispositivo para que la computadora y el
    teléfono vean lo mismo. Cada guardado local marca "hay algo que subir" y
    una espera corta agrupa los cambios: así una tarde de uso son unos pocos
    envíos y no uno por cada toque.
@@ -11,7 +11,7 @@
 
    Sobre pisar datos: el almacén identifica cada versión con una MARCA
    opaca. Guardamos la que conocemos y la mandamos al escribir; si el remoto
-   cambió desde otro aparato, la escritura se rechaza. Entonces preguntamos
+   cambió desde otro dispositivo, la escritura se rechaza. Entonces preguntamos
    en vez de decidir por ti, y el lado que no elijas se guarda como copia
    local antes de tocar nada.
 
@@ -59,7 +59,7 @@ function loadSync() {
     if (raw) Object.assign(base, JSON.parse(raw));
   } catch (e) { /* configuración corrupta: volver a los valores por defecto */ }
 
-  /* Los aparatos que ya venían sincronizando guardaron owner/repo/token
+  /* Los dispositivos que ya venían sincronizando guardaron owner/repo/token
      sueltos y la marca con el nombre `sha`. Se traen aquí, una sola vez, para
      que nadie tenga que volver a conectar su teléfono. */
   if (!base.cfg || typeof base.cfg !== "object") base.cfg = {};
@@ -132,7 +132,7 @@ function fromB64(b64) {
 /* ---- Almacén: un repositorio privado de GitHub ----
    Un archivo JSON dentro de un repo tuyo. La marca de versión es el `sha`
    que GitHub le da a cada versión del archivo; mandarlo al escribir es lo que
-   hace que dos aparatos no se pisen. Como cada guardado es un commit, el
+   hace que dos dispositivos no se pisen. Como cada guardado es un commit, el
    repositorio queda además como historial. */
 
 const GH_API = "https://api.github.com";
@@ -142,7 +142,7 @@ ALMACENES.github = {
 
   explicacion() {
     return "Guarda tu progreso en un repositorio privado tuyo de GitHub para que la computadora y el teléfono vean lo mismo. " +
-      "El token se queda en este navegador: nunca se sube al repositorio ni sale de este aparato.";
+      "El token se queda en este navegador: nunca se sube al repositorio ni sale de este dispositivo.";
   },
 
   listo() {
@@ -199,7 +199,7 @@ ALMACENES.github = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     });
-    // Otro aparato escribió entre nuestra lectura y nuestra escritura
+    // Otro dispositivo escribió entre nuestra lectura y nuestra escritura
     if (r.status === 409 || r.status === 422) return { ok: false, conflicto: true };
     if (!r.ok) throw ghError(r);
     return { ok: true, marca: r.body.content.sha };
@@ -306,13 +306,13 @@ function renderCopias() {
   const copias = listarCopias().filter(c => c.datos);
 
   if (!copias.length) {
-    cont.innerHTML = `<p class="settings-note" style="margin:0">No hay ninguna. Aquí aparecerán solas si alguna vez dos aparatos cambian lo mismo y eliges con cuál quedarte.</p>`;
+    cont.innerHTML = `<p class="settings-note" style="margin:0">No hay ninguna. Aquí aparecerán solas si alguna vez dos dispositivos cambian lo mismo y eliges con cuál quedarte.</p>`;
     return;
   }
 
   cont.innerHTML = copias.map(c => {
     const cuando = c.ms ? syncFecha(new Date(c.ms).toISOString()) : null;
-    const de = c.lado === "remoto" ? "la versión del otro aparato" : "la versión de este aparato";
+    const de = c.lado === "remoto" ? "la versión del otro dispositivo" : "la versión de este dispositivo";
     return `
       <div class="copia-item">
         <div class="copia-info">
@@ -366,7 +366,7 @@ function adoptRemote(env) {
    versiones con su fecha y hora completas, sus cifras enfrentadas para ver
    en qué se diferencian, y una etiqueta que señala cuál se guardó después.
    La etiqueta dice "más reciente", no "la correcta": la más nueva suele ser
-   la buena, pero el que sabe si estuvo capturando en el otro aparato es el
+   la buena, pero el que sabe si estuvo capturando en el otro dispositivo es el
    usuario, no la app. */
 async function askConflict(env) {
   const quien = env.device || "el otro dispositivo";
@@ -398,7 +398,7 @@ async function askConflict(env) {
     </div>`;
 
   const html = `
-    <div class="cf-intro">Los dos aparatos cambiaron desde la última sincronía. Elige cuál se queda.</div>
+    <div class="cf-intro">Los dos dispositivos cambiaron desde la última sincronía. Elige cuál se queda.</div>
     <div class="cf-grid">
       ${lado("Aquí", sync.device || "Este dispositivo", fLocal, cifrasL, cifrasR, masNuevo === "local")}
       ${lado("Allá", quien, fRemoto, cifrasR, cifrasL, masNuevo === "remoto")}
@@ -425,13 +425,13 @@ async function syncOnce(opts) {
 
   const env = remote.env;
 
-  /* El caso que justifica todo el versionado: el otro aparato ya se
+  /* El caso que justifica todo el versionado: el otro dispositivo ya se
      actualizó y este no. Se corta ANTES de leer nada y antes de escribir
      nada — si siguiéramos, o adoptaríamos datos que no entendemos, o los
      pisaríamos con los nuestros, que es peor. */
   const schemaRemoto = Number(env && (env.schema || (env.state && env.state.schemaVersion))) || 1;
   if (schemaRemoto > SCHEMA) {
-    throw new Error("El otro aparato usa una versión más nueva de Notara. Actualiza esta (recarga la página) antes de sincronizar; mientras tanto no toco nada.");
+    throw new Error("El otro dispositivo usa una versión más nueva de Notara. Actualiza esta (recarga la página) antes de sincronizar; mientras tanto no toco nada.");
   }
 
   const remoteRev = env && typeof env.rev === "number" ? env.rev : 0;
@@ -486,7 +486,7 @@ async function syncRun(opts) {
   }
   syncBusy = true; syncError = null; renderSync();
   try {
-    // Un reintento cubre el caso de que otro aparato escriba justo entre
+    // Un reintento cubre el caso de que otro dispositivo escriba justo entre
     // nuestra lectura y nuestra escritura.
     for (let intento = 0; intento < 2; intento++) {
       try { await syncOnce(opts); break; }
@@ -552,7 +552,7 @@ function renderSync() {
     panelEl.innerHTML =
       '<label class="field"><span>Nombre de este dispositivo</span>' +
       '<input type="text" id="sync-device" value="' + escapeAttr(sync.device) + '" onchange="syncRenameDevice(this.value)">' +
-      '<div class="field-hint">Aparece cuando dos aparatos cambian lo mismo y hay que elegir.</div></label>' +
+      '<div class="field-hint">Aparece cuando dos dispositivos cambian lo mismo y hay que elegir.</div></label>' +
       '<div class="field"><span class="lbl">¿Qué es esta cuenta?</span><div class="seg">' +
       '<button' + (pruebas ? "" : ' class="on"') + ' onclick="marcarCuentaDePruebas(false)">Mi cuenta real</button>' +
       '<button' + (pruebas ? ' class="on"' : "") + ' onclick="marcarCuentaDePruebas(true)">De pruebas</button>' +
@@ -641,7 +641,7 @@ async function syncConnect() {
 
   sync.device = device || guessDeviceName();
   sync.enabled = true; sync.marca = null; sync.rev = 0;
-  // Si este aparato ya tiene progreso, cuenta como cambios por subir; si está
+  // Si este dispositivo ya tiene progreso, cuenta como cambios por subir; si está
   // vacío, no: así un dispositivo nuevo simplemente recibe lo que ya existe.
   sync.dirty = hasLocalData();
   sync.lastAt = null;
@@ -652,7 +652,7 @@ async function syncConnect() {
 
 async function syncDisconnect() {
   const alm = almacen();
-  if (!await ask("Se borrará la credencial de este dispositivo y tu progreso dejará de subirse. Lo que ya está en " + alm.nombre + " se queda ahí, y los datos de este aparato tampoco se tocan.", "Desconectar")) return;
+  if (!await ask("Se borrará la credencial de este dispositivo y tu progreso dejará de subirse. Lo que ya está en " + alm.nombre + " se queda ahí, y los datos de este dispositivo tampoco se tocan.", "Desconectar")) return;
   /* Se va la credencial entera, no solo una llave con nombre fijo: cada
      almacén guarda lo suyo y aquí no se sabe cómo se llama. */
   sync.enabled = false; sync.cfg = {}; sync.marca = null; sync.dirty = false;
@@ -708,7 +708,7 @@ function planLabel(days) {
    Cinco tonos, porque no todo lo que la app dice significa lo mismo.
    Los iconos son de trazo, del mismo juego que el catálogo de habilidades:
    nada de caracteres de texto, que dependen de la fuente del sistema y se
-   ven distintos en cada aparato. */
+   ven distintos en cada dispositivo. */
 const TOAST_TIPOS = {
   // Ganaste algo: XP, nivel, racha, un talento cerrado
   logro: { ms: 2600, icon: '<path d="M12 3.5l1.9 4.4 4.6.4-3.5 3 1.1 4.5L12 13.4 7.9 15.8 9 11.3 5.5 8.3l4.6-.4z"/><path d="M18.5 16.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z"/>' },

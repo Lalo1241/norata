@@ -24,7 +24,7 @@ preguntas, cargar un ejemplo completo para curiosear, o empezar de cero.
 ## Dónde viven tus datos
 
 Por defecto, en `localStorage` de tu navegador y en ningún otro sitio. No hay
-cuentas, ni analítica, ni nada que salga de tu aparato.
+cuentas, ni analítica, ni nada que salga de tu dispositivo.
 
 Eso tiene una consecuencia incómoda: el teléfono y la computadora no ven lo
 mismo. Para eso está la sincronía opcional.
@@ -49,7 +49,7 @@ no tiene servidor al que mandarlos.
 3. En la app, entra a **Ajustes → Sincronizar entre dispositivos**, escribe tu
    usuario, el nombre del repositorio y el token, y pulsa **Conectar**.
 
-4. Repite el paso 3 en cada aparato. El primero sube lo que ya tenía; los
+4. Repite el paso 3 en cada dispositivo. El primero sube lo que ya tenía; los
    demás reciben ese progreso al conectarse.
 
 ### Qué esperar
@@ -61,7 +61,7 @@ subirlo, para que una tarde de uso sean unos pocos commits y no cien.
 Como cada guardado es un commit, el repositorio de datos te queda además como
 un historial: puedes ver cómo estabas hace dos semanas.
 
-### Si dos aparatos cambian lo mismo
+### Si dos dispositivos cambian lo mismo
 
 La app no elige por ti. Te dice qué hay de cada lado y cuándo se guardó, y tú
 decides cuál se queda. El lado que no elijas se guarda como copia en el
@@ -81,7 +81,7 @@ Aun así, conviene saber lo que implica: cualquiera con acceso físico a un
 dispositivo desbloqueado podría leerlo desde las herramientas de desarrollo.
 Por eso el token debe estar limitado a un único repositorio privado de datos
 y a permisos de contenido. Así, en el peor de los casos, lo que está en juego
-es ese archivo y nada más. Si pierdes un aparato, revoca el token desde
+es ese archivo y nada más. Si pierdes un dispositivo, revoca el token desde
 GitHub: los demás dispositivos solo tendrán que conectarse otra vez.
 
 ## Respaldos

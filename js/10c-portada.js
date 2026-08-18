@@ -5,7 +5,7 @@
    ya no es verdad: que tener cuenta era un extra. Ahora es lo primero.
 
    Pero no obligatorio. Se puede entrar sin cuenta y usar la app entera
-   guardando solo en este aparato; crear la cuenta después NO pierde nada,
+   guardando solo en este dispositivo; crear la cuenta después NO pierde nada,
    porque lo que ya hay aquí es justo lo que siembra la cuenta nueva. Esa
    salida existe porque alguien que solo quería curiosear se va si lo primero
    que ve es un registro, y el ejemplo completo de Notara es lo que convence.
@@ -41,7 +41,7 @@ function mostrarPortada() {
        </div>
        <div id="portada-google"></div>
        <button class="portada-sin" onclick="portadaSinCuenta()">Probar sin cuenta</button>
-       <p class="portada-nota">Sin cuenta, tu progreso se guarda solo en este aparato. Puedes crearla después sin perder nada.</p>
+       <p class="portada-nota">Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crearla después sin perder nada.</p>
      </div>`;
   document.body.appendChild(cap);
 
@@ -141,7 +141,7 @@ async function portadaRegistrar() {
   }
 }
 
-/* Lo común a las tres formas de entrar. Lo que ya hubiera en este aparato
+/* Lo común a las tres formas de entrar. Lo que ya hubiera en este dispositivo
    cuenta como cambios por subir: así, quien probó sin cuenta y luego se
    registra, se lleva su progreso en vez de empezar de cero. */
 function portadaEntrada(correo) {
@@ -164,7 +164,7 @@ function portadaSinCuenta() {
   sync.entrada = "local";
   saveSync();
   cerrarPortada();
-  toast("Guardando solo en este aparato", "calma");
+  toast("Guardando solo en este dispositivo", "calma");
 }
 
 /* ---- Google ---- */
@@ -223,7 +223,7 @@ function esCuentaDePruebas() {
   return lista.indexOf(correoActual()) !== -1;
 }
 
-/* La marca va por correo y no como un simple sí/no del aparato: en la misma
+/* La marca va por correo y no como un simple sí/no del dispositivo: en la misma
    computadora se usan las dos cuentas, y un interruptor suelto se quedaría
    puesto al cambiar de una a otra, que es exactamente el accidente que esto
    trata de evitar. */

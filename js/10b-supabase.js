@@ -4,7 +4,7 @@
    Una fila por persona en la tabla `perfiles`: el sobre entero en la columna
    `estado`, y su número de revisión en `rev`. La marca de versión ES ese
    `rev`: al escribir se exige que siga siendo el que leímos, y si otro
-   aparato ya escribió, la actualización no toca ninguna fila. Eso es el
+   dispositivo ya escribió, la actualización no toca ninguna fila. Eso es el
    conflicto. Misma mecánica que el `sha` de GitHub, con otro nombre.
 
    Lo que impide ver datos ajenos NO es este archivo: es una regla dentro de
@@ -131,7 +131,7 @@ ALMACENES.supabase = {
 
   explicacion() {
     return "Guarda tu progreso en tu cuenta para que la computadora y el teléfono vean lo mismo. " +
-      "Tu contraseña no se guarda en este aparato, y nadie más puede ver tus datos: eso lo impide la propia base de datos, no la app.";
+      "Tu contraseña no se guarda en este dispositivo, y nadie más puede ver tus datos: eso lo impide la propia base de datos, no la app.";
   },
 
   listo() {
@@ -148,7 +148,7 @@ ALMACENES.supabase = {
     return [
       { k: "correo", etiqueta: "Tu correo", valor: c.correo || "", marcador: "tu@correo.com" },
       { k: "clave", etiqueta: "Contraseña", secreto: true,
-        pista: "Tu contraseña no se guarda en este aparato: se cambia por una sesión que caduca y se renueva sola." }
+        pista: "Tu contraseña no se guarda en este dispositivo: se cambia por una sesión que caduca y se renueva sola." }
     ];
   },
 
@@ -180,13 +180,13 @@ ALMACENES.supabase = {
         headers: { "Prefer": "return=representation" },
         body: JSON.stringify(Object.assign({ user_id: uid }, fila))
       });
-      // Ya existía: otro aparato la sembró primero
+      // Ya existía: otro dispositivo la sembró primero
       if (r.status === 409) return { ok: false, conflicto: true };
       if (!r.ok) throw sbError(r);
       return { ok: true, marca: r.body[0].rev };
     }
 
-    /* `rev=eq.<marca>` es todo el mecanismo de seguridad: si otro aparato ya
+    /* `rev=eq.<marca>` es todo el mecanismo de seguridad: si otro dispositivo ya
        escribió, el rev de la fila cambió, la condición no encaja con ninguna
        y la respuesta viene vacía. Eso es el conflicto — sin bloqueos, sin
        transacciones y sin poder pisar nada por accidente. */

@@ -313,6 +313,69 @@ const DASH_MIN_H = { racha: 3, misiones: 3, atencion: 2, niveles: 3, invertido: 
    de mil filas imposible de volver a encoger. */
 const DASH_MAX_H = 40;
 
+/* ================= Acomodos sugeridos =================
+   Acomodar el tablero a mano es lento: siete tarjetas, cada una con su sitio
+   y su tamaño, y hasta que no está entero no se sabe si el reparto funciona.
+   Estos tres son puntos de partida ya probados; desde cualquiera de ellos se
+   sigue arrastrando a gusto.
+
+   Se guardan como orden + tamaños y nada más. En concreto NO tocan qué
+   tarjetas están puestas: si alguien quitó "Invertido" o apagó el módulo de
+   Proyectos, elegir un acomodo no se lo devuelve a la cara. El acomodo dice
+   cómo repartir lo que hay, no qué debe haber.
+
+   La diferencia entre los tres es a qué se le da el sitio de honor: al
+   reparto parejo, a la escena a lo ancho, o a la escena presidiendo. */
+const DASH_ACOMODOS = [
+  {
+    nombre: "Columnas",
+    sub: "Tres columnas parejas, las misiones al centro",
+    order: ["atencion", "misiones", "racha", "proyectos", "niveles", "listos", "invertido"],
+    sizes: {
+      /* Misiones va deliberadamente más alta de lo que su contenido pide: es
+         lo que mantiene ocupada la columna del centro y obliga a "Invertido"
+         a caer en la tercera. Con la altura justa, el reparto automático lo
+         mete debajo de Misiones y la tercera columna queda coja. */
+      atencion: { w: 1, h: 3 }, misiones: { w: 1, h: 12 }, racha: { w: 1, h: 5 },
+      proyectos: { w: 1, h: 3 }, niveles: { w: 1, h: 3 }, listos: { w: 1, h: 5 },
+      invertido: { w: 1, h: 3 }
+    }
+  },
+  {
+    nombre: "Panorama",
+    sub: "La escena a lo ancho, arriba a la derecha",
+    /* El orden importa más que los tamaños: "Listos" tiene que ir DESPUÉS de
+       Atención y Niveles para que caiga bajo Misiones y no se cuele en la
+       columna del medio. */
+    order: ["misiones", "racha", "atencion", "niveles", "listos", "proyectos", "invertido"],
+    sizes: {
+      misiones: { w: 1, h: 8 }, racha: { w: 2, h: 6 }, listos: { w: 1, h: 5 },
+      atencion: { w: 1, h: 4 }, niveles: { w: 1, h: 4 },
+      proyectos: { w: 1, h: 4 }, invertido: { w: 1, h: 4 }
+    }
+  },
+  {
+    nombre: "Mirador",
+    sub: "La escena grande, presidiendo el tablero",
+    order: ["racha", "misiones", "atencion", "niveles", "listos", "proyectos", "invertido"],
+    sizes: {
+      racha: { w: 2, h: 7 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 4 },
+      niveles: { w: 1, h: 4 }, listos: { w: 1, h: 5 },
+      proyectos: { w: 1, h: 4 }, invertido: { w: 1, h: 4 }
+    }
+  }
+];
+
+function aplicarAcomodo(i) {
+  const a = DASH_ACOMODOS[i];
+  if (!a) return;
+  recordarTablero("acomodo " + a.nombre);
+  // `hidden` se pasa como null a propósito: saveDash conserva el que ya había
+  saveDash(a.order.slice(), null, JSON.parse(JSON.stringify(a.sizes)));
+  flipRender(document.getElementById("summary-content"), renderSummary);
+  toast("Acomodo " + a.nombre, "hecho", { label: "Deshacer", onclick: "deshacerTablero()" });
+}
+
 let dashEditing = false;
 
 function dashLayout() {
@@ -455,6 +518,16 @@ function dashTray(hidden) {
       <div class="tray-chips">
         ${avail.map(id => `<button class="tray-chip" onclick="showWidget('${id}')">＋ ${escapeHtml(DASH_META[id].title)}</button>`).join("")}
       </div>` : ""}
+    <div class="tray-acomodos">
+      <span class="lbl">Acomodos sugeridos</span>
+      <div class="acomodo-fila">
+        ${DASH_ACOMODOS.map((a, i) => `
+          <button class="acomodo" onclick="aplicarAcomodo(${i})">
+            <span class="ac-n">${i + 1}</span>
+            <span class="ac-tx"><b>${escapeHtml(a.nombre)}</b><span>${escapeHtml(a.sub)}</span></span>
+          </button>`).join("")}
+      </div>
+    </div>
   </div>`;
 }
 

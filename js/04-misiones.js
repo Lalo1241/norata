@@ -168,7 +168,7 @@ function botonMision(m, c, t, opciones) {
 /* ================= Reordenar arrastrando =================
    Un solo comportamiento para todas las listas que se acomodan a mano.
 
-   La forma de EMPEZAR cambia según el aparato, porque el gesto disponible
+   La forma de EMPEZAR cambia según el dispositivo, porque el gesto disponible
    es distinto. Con ratón basta desplazar el puntero unos píxeles: el clic y
    el arrastre se distinguen solos, así que obligar a esperar sería una
    molestia gratuita. Con el dedo hace falta la pulsación sostenida, porque
@@ -297,7 +297,7 @@ function reordSoltar() {
   setTimeout(() => alSoltar(ids), 0);
 }
 
-/* Pista de uso: el gesto no es el mismo en cada aparato, así que el texto
+/* Pista de uso: el gesto no es el mismo en cada dispositivo, así que el texto
    tampoco puede serlo. */
 function pistaReordenar() {
   return isDesktop() ? "Arrastra para reordenar" : "Mantén pulsada una para reordenar";
@@ -533,7 +533,7 @@ const NAV_VIEWS = { summary: "nav-summary", missions: "nav-missions", home: "nav
 /* Solo importa en escritorio (móvil no tiene barra lateral que plegar),
    pero no hace daño llamarla desde donde sea: sin el div.side-brand del
    layout de escritorio, el botón que la dispara ni siquiera existe.
-   Es preferencia de este aparato, no datos del usuario: vive en su propia
+   Es preferencia de este dispositivo, no datos del usuario: vive en su propia
    llave de localStorage, nunca en `state` (eso es lo que viaja a GitHub). */
 let sidebarCollapsed = document.documentElement.classList.contains("sc");
 

@@ -295,6 +295,34 @@
     cursor: pointer;
   }
   .tray-chip:active { border-color: var(--mint); color: var(--mint); }
+
+  /* Acomodos sugeridos. Van numerados y con una frase de qué hace cada uno:
+     los nombres solos ("Panorama", "Mirador") no dicen nada hasta que ya los
+     probaste, y probar cuesta perder el reparto que tenías. */
+  .tray-acomodos { margin-top: 16px; }
+  .tray-acomodos .lbl {
+    display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--faint); margin-bottom: 9px;
+  }
+  .acomodo-fila { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  @media (min-width: 640px) { .acomodo-fila { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .acomodo {
+    display: flex; align-items: center; gap: 11px; text-align: left;
+    font-family: inherit; cursor: pointer;
+    background: var(--bg2); border: 1px dashed var(--line);
+    border-radius: 14px; padding: 10px 12px;
+  }
+  .acomodo:hover { border-color: var(--mint); }
+  .acomodo:active { border-style: solid; border-color: var(--mint); }
+  .ac-n {
+    flex: none; width: 24px; height: 24px; border-radius: 8px;
+    display: grid; place-items: center;
+    background: rgba(95, 224, 176, 0.12); color: var(--mint);
+    font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums;
+  }
+  .ac-tx { min-width: 0; }
+  .ac-tx b { display: block; font-size: 13px; color: var(--text); }
+  .ac-tx span { display: block; font-size: 11.5px; color: var(--faint); line-height: 1.45; margin-top: 1px; }
   @media (prefers-reduced-motion: reduce) { .dash.editing .widget { animation: none; } }
 
   /* ---------- Resumen: racha ---------- */
@@ -1690,7 +1718,13 @@
     color: var(--muted);
     margin-bottom: 7px;
   }
-  input[type="text"], input[type="number"], input[type="password"], select, textarea {
+  /* Los tipos van enumerados, y por eso hay que acordarse de sumar aquí
+     cualquiera nuevo: `email` se quedó fuera al hacer la portada y el
+     campo del correo salía con el aspecto crudo del navegador al lado de
+     una contraseña bien vestida. */
+  input[type="text"], input[type="number"], input[type="password"],
+  input[type="email"], input[type="tel"], input[type="url"],
+  input[type="search"], select, textarea {
     width: 100%;
     max-width: 100%;
     background: var(--bg2);
@@ -1711,6 +1745,18 @@
   }
   select { appearance: none; }
   input:focus, select:focus, textarea:focus { outline: none; border-color: var(--mint); }
+  /* El relleno automático de Chrome pinta el fondo con un color suyo,
+     pensado para páginas claras, y en una app oscura queda un rectángulo
+     azul chillón. No se puede cambiar el fondo, pero sí taparlo con una
+     sombra interior del tamaño del campo, que es el truco de siempre. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--bg2) inset;
+    -webkit-text-fill-color: var(--text);
+    caret-color: var(--text);
+    transition: background-color 9999s ease-in-out 0s;
+  }
   .field-hint { font-size: 12px; color: var(--faint); margin-top: 6px; line-height: 1.5; }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
