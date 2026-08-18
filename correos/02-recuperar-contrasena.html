@@ -1,30 +1,89 @@
-<!-- Supabase: Reset password -->
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6fb;padding:32px 12px;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif">
-  <tr><td align="center">
-    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:18px;padding:32px 28px">
-      <tr><td align="center" style="padding-bottom:22px">
-        <img src="https://lalo1241.github.io/notara/icon-192.png" width="52" height="52" alt="Notara"
-             style="display:block;border-radius:14px">
-      </td></tr>
-      <tr><td style="font-size:20px;font-weight:700;color:#131823;padding-bottom:12px">Pon una contraseña nueva</td></tr>
-      <tr><td style="font-size:15px;line-height:1.6;color:#4a5560;padding-bottom:24px">Pediste recuperar el acceso a tu cuenta de Notara. Pulsa el botón y elige una contraseña nueva; con ella entrarás en todos tus dispositivos.</td></tr>
-      <tr><td align="center" style="padding-bottom:24px">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Notara es oscura por diseño. Sin estas dos líneas, Gmail y Outlook
+     "ayudan" invirtiendo los colores de un correo oscuro y lo dejan
+     ilegible: texto claro sobre fondo claro. -->
+<meta name="color-scheme" content="dark">
+<meta name="supported-color-schemes" content="dark">
+<title>Recupera tu acceso · Notara</title>
+<style>
+  @media (max-width:520px) {
+    .caja { padding:26px 20px !important; }
+    .titulo { font-size:21px !important; }
+    .boton a { display:block !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#10151d;">
+<!-- Lo que se lee en la bandeja antes de abrir. Sin esto, el cliente enseña
+     el primer texto que encuentre, que suele ser "ver en el navegador" o el
+     alt del logo. Los espacios invisibles del final empujan fuera el resto. -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Enlace para poner una contraseña nueva. Caduca en una hora.
+&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+       style="background:#10151d;margin:0;padding:0;">
+<tr><td align="center" style="padding:36px 12px;">
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+    <tr><td align="center" style="padding-bottom:24px;">
+      <img src="https://lalo1241.github.io/notara/marca/logotipo-correo.png" width="280" height="72" alt="Notara"
+           style="display:block;border:0;outline:none;text-decoration:none;width:280px;height:auto;">
+    </td></tr>
+
+    <tr><td class="caja" style="background:#151b25;border:1px solid #2a3441;border-radius:20px;padding:34px 30px;">
+
+      <p class="titulo" style="margin:0 0 14px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+         font-size:23px;line-height:1.25;font-weight:700;color:#f7f8fa;">Vamos a recuperar tu cuenta</p>
+
+      <p style="margin:0 0 26px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+         font-size:15px;line-height:1.65;color:#aab3bf;">Pediste volver a entrar a Notara. Pulsa el botón y elige una contraseña nueva; con ella entrarás en todos tus dispositivos. Tu progreso está intacto y te espera donde lo dejaste.</p>
+
+      <!-- Botón a prueba de Outlook: no entiende los bordes redondeados del
+           HTML, así que ahí se dibuja con su propio lenguaje (VML) y el resto
+           de clientes usan el enlace normal de abajo. -->
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" class="boton">
+      <tr><td align="center" style="padding-bottom:8px;">
+        <!--[if mso]>
+        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
+          href="{{ .ConfirmationURL }}" style="height:48px;v-text-anchor:middle;width:270px;"
+          arcsize="50%" stroke="f" fillcolor="#5fe0b0">
+          <w:anchorlock/>
+          <center style="color:#10151d;font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:700;">Elegir contraseña nueva</center>
+        </v:roundrect>
+        <![endif]-->
+        <!--[if !mso]><!-- -->
         <a href="{{ .ConfirmationURL }}"
            style="display:inline-block;background:#5fe0b0;color:#10151d;text-decoration:none;
-                  font-weight:700;font-size:15px;padding:14px 30px;border-radius:999px">Elegir contraseña nueva</a>
-      </td></tr>
-      <tr><td style="font-size:13px;line-height:1.6;color:#8b93a1;border-top:1px solid #e6e9ef;padding-top:20px">
-        <b>Este enlace caduca en una hora y solo sirve una vez.</b><br><br>Si no pediste esto, ignora el mensaje: tu contraseña actual sigue funcionando y nadie ha entrado a tu cuenta.
-      </td></tr>
-      <tr><td style="font-size:12px;line-height:1.6;color:#a8b0ba;padding-top:14px">
-        Si el botón no funciona, copia esta dirección en tu navegador:<br>
-        <span style="word-break:break-all;color:#5a6470">{{ .ConfirmationURL }}</span>
-      </td></tr>
-    </table>
-    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px">
-      <tr><td align="center" style="font-size:12px;color:#a8b0ba;padding-top:18px">
-        Notara · tu vida como videojuego
-      </td></tr>
-    </table>
-  </td></tr>
+                  font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:700;
+                  padding:15px 34px;border-radius:999px;">Elegir contraseña nueva</a>
+        <!--<![endif]-->
+      </td></tr></table>
+
+      <p style="margin:22px 0 0;padding-top:20px;border-top:1px solid #2a3441;
+         font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.65;color:#79848f;">
+        <b style="color:#f5d76e;">Este enlace caduca en una hora y solo sirve una vez.</b><br><br>Si no pediste esto, ignóralo: tu contraseña de siempre sigue funcionando y nadie ha entrado a tu cuenta.
+      </p>
+
+      <p style="margin:16px 0 0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+         font-size:11.5px;line-height:1.6;color:#79848f;">
+        Si el botón no te deja pulsar, copia esta dirección en tu navegador:<br>
+        <span style="word-break:break-all;color:#aab3bf;">{{ .ConfirmationURL }}</span>
+      </p>
+
+    </td></tr>
+
+    <tr><td align="center" style="padding-top:22px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+        font-size:12px;line-height:1.6;color:#79848f;">
+      Notara &middot; tu vida como videojuego<br>
+      <a href="https://lalo1241.github.io/notara/" style="color:#79848f;text-decoration:underline;">Abrir Notara</a>
+    </td></tr>
+  </table>
+
+</td></tr>
 </table>
+</body>
+</html>
