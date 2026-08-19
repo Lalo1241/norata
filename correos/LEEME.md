@@ -19,9 +19,13 @@ sustituye por el enlace real al enviar. Si se cambia o se borra, el correo
 sale sin enlace y no sirve para nada.
 
 **El logo depende de que el sitio esté publicado.** Apunta a
-`norata.app/marca/logotipo-correo.png`. Ahora que hay dominio propio esa
-dirección ya no cambia aunque se renombre el repositorio, que era justo lo
-frágil de antes.
+`mi.norata.app/marca/logotipo-correo.png` — al SUBDOMINIO de la app, no al
+dominio raíz. `norata.app` y `www.norata.app` quedaron reservados para la
+landing y hoy devuelven 404, así que apuntar ahí dejaría el logo roto y el
+enlace del pie en ninguna parte.
+
+Ahora que hay dominio propio, esa dirección ya no cambia aunque se renombre el
+repositorio, que era justo lo frágil de antes.
 
 **El fondo del PNG del logo es el mismo de la página, no el de la tarjeta.**
 Suena a detalle y no lo es: con el color de la tarjeta se ve un recuadro
@@ -58,6 +62,6 @@ puede pulsar un botón y sin eso el correo queda inservible.
 
 ## Hecho
 
-- **Redirect URLs de Supabase**: `https://norata.app` en *Authentication → URL
+- **Redirect URLs de Supabase**: `https://mi.norata.app` en *Authentication → URL
   Configuration*, tanto en Site URL como en la lista de redirecciones. Sin esto
   el enlace del correo lleva a un error en vez de a la app.
