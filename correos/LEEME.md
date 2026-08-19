@@ -19,9 +19,9 @@ sustituye por el enlace real al enviar. Si se cambia o se borra, el correo
 sale sin enlace y no sirve para nada.
 
 **El logo depende de que el sitio esté publicado.** Apunta a
-`lalo1241.github.io/notara/marca/logotipo-correo.png`. Si el sitio cambia de
-dirección, hay que actualizarlo en las tres plantillas o los correos saldrán
-con el hueco de una imagen rota.
+`norata.app/marca/logotipo-correo.png`. Ahora que hay dominio propio esa
+dirección ya no cambia aunque se renombre el repositorio, que era justo lo
+frágil de antes.
 
 **El fondo del PNG del logo es el mismo de la página, no el de la tarjeta.**
 Suena a detalle y no lo es: con el color de la tarjeta se ve un recuadro
@@ -46,15 +46,18 @@ puede pulsar un botón y sin eso el correo queda inservible.
 
 ## Lo que falta para que esto funcione de verdad
 
-1. **Redirect URLs.** En *Authentication → URL Configuration*, la dirección
-   publicada tiene que estar en la lista. Si no, el enlace del correo lleva al
-   usuario a un error en vez de a la app.
-
-2. **Servidor de correo propio.** El de Supabase incluido está limitado a unos
+1. **Servidor de correo propio.** El de Supabase incluido está limitado a unos
    pocos mensajes por hora y es solo para probar. Con usuarios de verdad, quien
    recupere su contraseña pasado el cupo no recibe nada, y no hay ningún aviso
    de que eso ocurrió. Se conecta en *Project Settings → Auth → SMTP*.
 
-3. **Remitente propio.** Mientras no haya dominio de Norata, el correo saldrá
-   de una dirección genérica por mucho que el diseño sea el nuestro. Cambiar
-   eso exige comprar un dominio; no hay atajo.
+2. **Remitente propio.** Ya se puede: con `norata.app` en la mano, un proveedor
+   de correo permite enviar desde `hola@norata.app` en vez de una dirección
+   genérica. Hace falta añadir unos registros al DNS para demostrar que el
+   dominio es tuyo — el propio proveedor los dicta.
+
+## Hecho
+
+- **Redirect URLs de Supabase**: `https://norata.app` en *Authentication → URL
+  Configuration*, tanto en Site URL como en la lista de redirecciones. Sin esto
+  el enlace del correo lleva a un error en vez de a la app.
