@@ -58,9 +58,14 @@ async function sbEntrar(correo, clave) {
     const m = sbMensaje(r);
     /* Supabase responde lo mismo si el correo no existe que si la contraseña
        está mal, y lo hace a propósito: distinguirlos permitiría averiguar qué
-       correos están registrados. Así que el aviso tampoco lo distingue. */
+       correos están registrados. Así que el aviso tampoco lo distingue.
+
+       Por eso mismo nombra las dos salidas posibles en vez de una. Quien se
+       registró con Google no tiene contraseña que recordar —nunca puso una—,
+       y aquí se pasaba la vida escribiendo la de su correo sin que nada
+       funcionara: el aviso le mandaba a crear una cuenta que ya existía. */
     if (/invalid login credentials/i.test(m)) {
-      throw new Error("Correo o contraseña incorrectos. Si todavía no tienes cuenta, usa «Crear cuenta».");
+      throw new Error("Correo o contraseña incorrectos. Si entraste con Google la primera vez, usa ese botón; y si todavía no tienes cuenta, créala abajo.");
     }
     if (/email not confirmed/i.test(m)) {
       throw new Error("Falta confirmar tu correo. Abre el mensaje que te mandamos y pulsa el enlace; luego vuelve aquí.");
