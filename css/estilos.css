@@ -2780,12 +2780,25 @@
   .copia-acts .btn { flex: 1; padding: 9px 8px; font-size: 12.5px; }
 
   /* ---------- Portada de entrada ---------- */
+  /* Centrada cuando cabe, y desplazable cuando no.
+
+     El centrado NO lo hace `align-items: center`, aunque sea lo que se
+     escribiría primero. Con esa regla, un formulario más alto que la pantalla
+     se desborda por ARRIBA además de por abajo, y esa mitad de arriba no se
+     puede alcanzar: el desplazamiento no llega a números negativos, así que el
+     principio del formulario queda fuera para siempre. Se vio al añadir el
+     nombre y el apodo, que hicieron crecer la pantalla de registro lo justo
+     para no caber en un teléfono pequeño.
+
+     `margin: auto` sobre la caja hace lo mismo cuando sobra sitio y, cuando
+     falta, reparte cero por los dos lados en vez de empujar hacia arriba. */
   .portada {
     position: fixed; inset: 0; z-index: 8000; overflow-y: auto;
-    display: flex; align-items: center; justify-content: center; padding: 26px 20px;
+    display: flex; justify-content: center; padding: 26px 20px;
     background: var(--bg);
     animation: portadaEntra 0.32s ease;
   }
+  .portada > .portada-caja { margin: auto; }
   @keyframes portadaEntra { from { opacity: 0; } to { opacity: 1; } }
   .portada.fuera { opacity: 0; transition: opacity 0.24s ease; pointer-events: none; }
   .portada.ocupada { pointer-events: none; opacity: 0.65; }
@@ -2870,6 +2883,9 @@
     width: 62px; height: 62px; margin: 0 auto 18px; display: grid; place-items: center;
     border-radius: 50%; background: var(--mint-soft); color: var(--mint);
   }
+  /* El mismo sello, en amarillo, cuando lo que anuncia no es bueno ni malo
+     sino que hay algo que decidir. */
+  .portada-sello.aviso { background: var(--fire-soft); color: var(--fire); }
   .portada-sello svg {
     width: 30px; height: 30px; fill: none; stroke: currentColor;
     stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;

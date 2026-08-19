@@ -11,12 +11,29 @@ existe dentro de una página web ajena no se puede comparar ni volver atrás.
 **Sin esto, el botón «Borrar mi cuenta» de Ajustes no funciona**: avisa de que
 falta activarlo en el servidor y no borra nada.
 
-Cómo se pone, una sola vez:
+Son dos pasos, en este orden:
 
-1. Entrar a [supabase.com](https://supabase.com) y abrir el proyecto de Norata.
-2. En el menú de la izquierda, **SQL Editor**.
-3. Pegar el contenido entero de `borrar-cuenta.sql` y pulsar **Run**.
-4. Debe decir *Success*. Ya está.
+1. **Activar `pg_cron`.** En el menú de la izquierda, **Database → Extensions**.
+   Buscar `pg_cron` y encenderla. Es lo que permite que la base de datos haga
+   sola una tarea todos los días.
+2. **Correr el SQL.** En **SQL Editor**, abrir una pestaña nueva con el `+`
+   (no encima de las que ya hay, que son historial), pegar
+   `borrar-cuenta.sql` entero y pulsar **Run**. Debe decir *Success*.
+
+Si el paso 1 se salta, el Run falla en la última instrucción y la tarea diaria
+no queda programada: las cuentas se marcarían y no se borrarían nunca.
+
+### Cómo funciona el plazo de 30 días
+
+Pedir el borrado **no borra**: apunta una fecha a 30 días vista y cierra la
+sesión. Una tarea que corre de madrugada borra las cuentas cuya fecha ya pasó.
+
+Si esa persona vuelve a entrar antes de la fecha, no entra a la app: entra a
+una pantalla que le dice cuándo se borra, con dos salidas — recuperarla (su
+progreso vuelve entero desde el servidor) o borrarla ya, sin esperar.
+
+Mientras dure el plazo su correo sigue ocupado, así que no puede registrarse
+de nuevo con él. Es el precio de poder arrepentirse.
 
 ### Por qué hace falta un rodeo
 
@@ -24,13 +41,19 @@ Quitar a alguien de la lista de usuarios es cosa de administrador, y la llave
 de administrador **jamás** puede estar dentro de la app: cualquiera que abriera
 el código del navegador la tendría, y con ella podría borrar la cuenta de otro.
 
-Lo que hace este SQL es dejar una función *dentro* de la base de datos que solo
-sabe hacer una cosa: borrar a quien la llama. No recibe a quién borrar, así que
-no hay nada que falsificar desde fuera. La app solo puede decir «bórrame a mí».
+Lo que hace este SQL es dejar funciones *dentro* de la base de datos que solo
+saben actuar sobre quien las llama. No reciben a quién borrar, así que no hay
+nada que falsificar desde fuera. La app solo puede decir «bórrame a mí».
 
-### Qué pasa al usarlo
+### Cosas que no son obvias
 
-Se borra la fila de progreso y el usuario entero. El correo queda libre: esa
-misma persona puede volver a registrarse con él como si fuera nuevo, que es
-justo lo que se buscaba. La app, por su lado, vacía también lo que tuviera
-guardado en ese dispositivo.
+**La comprobación vive en el momento de entrar, no en la sincronía.** Un
+dispositivo que ya estaba con la sesión abierta cuando se pidió el borrado
+sigue sincronizando hasta que la cuenta desaparece de verdad. Es a propósito:
+meter esa comprobación en cada sincronía obligaba a que la app y la base de
+datos cambiaran a la vez o todo dejaba de guardar.
+
+**La tarea diaria se puede mirar.** En el SQL Editor:
+`select * from cron.job;` para ver que está programada, y
+`select * from cron.job_run_details order by start_time desc limit 10;` para
+ver si corrió y qué contestó.

@@ -472,9 +472,15 @@ async function syncDisconnect() {
    forma de volver a entrar. Por eso la puerta es más estrecha: además de las
    confirmaciones hay que escribir una frase que no se teclea sin querer.
 
-   Después se puede volver a registrar el mismo correo desde la portada, como
-   si fuera nuevo. Eso no es un efecto secundario: es la razón de borrar de
-   verdad en vez de limitarse a vaciar la fila. */
+   Y no borra hoy: apunta una fecha a 30 días vista. Hasta entonces se puede
+   recuperar entera volviendo a entrar con el mismo correo, porque en el
+   servidor sigue estando todo. De este dispositivo sí se va en el momento —
+   dejar el progreso a la vista de alguien que acaba de pedir borrarlo sería
+   contestarle que no.
+
+   Pasada la fecha se borra el usuario del servidor y el correo queda libre
+   para registrarse otra vez. Eso no es un efecto secundario: es la razón de
+   borrar de verdad en vez de limitarse a vaciar la fila. */
 
 const FRASE_BORRAR = "BORRAR MI CUENTA";
 
@@ -483,7 +489,7 @@ function renderZonaCuenta() {
   if (!el) return;
   if (!syncReady()) { el.innerHTML = ""; return; }
   el.innerHTML =
-    '<p class="settings-note" style="margin:16px 0 10px">Borrar la cuenta quita del servidor tu correo y tu progreso, y cierra la sesión en todos tus dispositivos. Si algún día quieres volver, puedes registrarte otra vez con el mismo correo.</p>' +
+    '<p class="settings-note" style="margin:16px 0 10px">Al pedirlo se cierra tu sesión y este dispositivo queda vacío, pero la cuenta no se borra hasta <b>30 días después</b>. Si te arrepientes, entra otra vez con tu correo y la recuperas con todo tu progreso.</p>' +
     '<button class="btn btn-danger-ghost btn-block" onclick="borrarCuenta()">Borrar mi cuenta</button>';
 }
 
@@ -492,7 +498,8 @@ async function borrarCuenta() {
   const correo = ((sync.cfg || {}).correo || "tu cuenta").trim();
 
   if (!await ask(
-    "Se borrará la cuenta " + correo + " y todo su progreso, en este dispositivo y en los demás. Esto no se puede deshacer.",
+    "Se cerrará tu sesión y este dispositivo quedará vacío. La cuenta " + correo +
+    " se borrará dentro de 30 días; hasta entonces puedes recuperarla entrando otra vez con tu correo.",
     "Continuar", true)) return;
 
   /* Una frase y no un "¿seguro?": el segundo se pulsa con el dedo ya en
@@ -506,9 +513,10 @@ async function borrarCuenta() {
     return;
   }
 
-  cargaMostrar("Borrando tu cuenta…");
+  cargaMostrar("Programando el borrado…");
+  let cuando = null;
   try {
-    await sbBorrarCuenta();
+    cuando = await sbPedirBorrado();
   } catch (e) {
     cargaCerrar();
     toast((e && e.message) || String(e), "atencion");
@@ -539,7 +547,19 @@ async function borrarCuenta() {
   renderZonaCuenta();
   mostrarPortada();
   cargaCerrar();
-  toast("Cuenta borrada", "deshecho");
+  const fecha = fechaLarga(cuando);
+  toast(fecha ? "Tu cuenta se borrará el " + fecha : "Borrado programado", "deshecho");
+}
+
+/* Una fecha para leer, no para calcular: el día y el mes con letra. La hora
+   sobra —el plazo es de un mes— y en una fecha lejana solo añade ruido. */
+function fechaLarga(iso) {
+  if (!iso) return null;
+  try {
+    return new Date(iso).toLocaleDateString("es-MX", {
+      timeZone: userTZ(), day: "numeric", month: "long", year: "numeric"
+    });
+  } catch (e) { return null; }
 }
 
 /* ================= Utilidades ================= */

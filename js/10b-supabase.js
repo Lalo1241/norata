@@ -218,6 +218,50 @@ async function sbToken() {
   return nueva.access;
 }
 
+/* ---- Borrar la cuenta, con 30 días para arrepentirse ----
+
+   Pedirlo no borra: apunta una fecha. Una tarea que corre de madrugada dentro
+   de la propia base de datos borra las que ya vencieron. El plazo existe
+   porque el arrepentimiento llega tarde por definición — a los tres días, no
+   a los tres segundos— y para entonces el botón de confirmar ya no sirve de
+   nada.
+
+   Las tres viven en la base de datos y no aquí por lo mismo que `sbBorrarCuenta`
+   (ver abajo). Si el SQL todavía no se ha corrido, el servidor contesta 404 y
+   se traduce a algo accionable en vez de a un número suelto. */
+
+const FALTA_SQL = "Falta activar el borrado de cuentas en el servidor. Es un paso de una sola vez; hasta entonces no puedo tocar la cuenta desde aquí.";
+
+async function sbPedirBorrado() {
+  const r = await sbDatos("/rpc/pedir_borrado", { method: "POST", body: "{}" });
+  if (r.status === 404) throw new Error(FALTA_SQL);
+  if (!r.ok) throw sbError(r);
+  return r.body;                       // la fecha en que se borrará
+}
+
+async function sbCancelarBorrado() {
+  const r = await sbDatos("/rpc/cancelar_borrado", { method: "POST", body: "{}" });
+  if (r.status === 404) throw new Error(FALTA_SQL);
+  if (!r.ok) throw sbError(r);
+  return true;
+}
+
+/* ¿Esta cuenta está esperando a borrarse? Se pregunta al entrar y solo al
+   entrar. Ante cualquier duda contesta que no: si la columna todavía no
+   existe —porque falta correr el SQL— o la red falla, lo correcto es dejar
+   pasar a quien acaba de poner bien su contraseña, no cerrarle la puerta por
+   una pregunta que ni siquiera se pudo hacer. */
+async function sbBorradoPendiente() {
+  try {
+    const uid = sbUid();
+    const r = await sbDatos("/perfiles?select=borrar_el&user_id=eq." + encodeURIComponent(uid));
+    if (!r.ok || !Array.isArray(r.body) || !r.body.length) return null;
+    return r.body[0].borrar_el || null;
+  } catch (e) {
+    return null;
+  }
+}
+
 /* Borrar la cuenta de verdad, no solo sus datos.
 
    Esto NO se puede pedir desde aquí con una llamada normal: quitar a alguien
@@ -233,9 +277,7 @@ async function sbToken() {
    traduce a algo accionable en vez de a un número suelto. */
 async function sbBorrarCuenta() {
   const r = await sbDatos("/rpc/borrar_mi_cuenta", { method: "POST", body: "{}" });
-  if (r.status === 404) {
-    throw new Error("Falta activar el borrado de cuentas en el servidor. Es un paso de una sola vez; hasta entonces no puedo borrarla desde aquí.");
-  }
+  if (r.status === 404) throw new Error(FALTA_SQL);
   if (!r.ok) throw sbError(r);
   return true;
 }

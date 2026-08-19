@@ -207,6 +207,21 @@ function portadaPintar(modo) {
        <p class="portada-nota">Te mandaré un correo para confirmar que la dirección es tuya. Hasta que lo abras, la cuenta no se activa.</p>
        <p class="portada-pie">¿Ya tienes una? <button onclick="portadaIrA('entrar')">Entra aquí</button></p>`;
 
+  } else if (modo === "rescate") {
+    const fecha = fechaLarga(rescateCuando) || "dentro de unos días";
+    dentro =
+      `<div class="portada-sello aviso">
+         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.4v5.1l3.2 1.9"/></svg>
+       </div>
+       <h2>Esta cuenta se va a borrar</h2>
+       <p class="portada-lema">Pediste borrar <b>${escapeHtml(portadaCorreo)}</b>, y se hará el <b>${escapeHtml(fecha)}</b>. Hasta ese día puedes recuperarla con todo tu progreso intacto.</p>
+       <div id="portada-error" class="portada-error" hidden></div>
+       <div class="stack">
+         <button class="btn btn-primary btn-block" id="portada-ok" onclick="rescatarCuenta()">Recuperar mi cuenta</button>
+         <button class="btn btn-danger-ghost btn-block" onclick="borrarCuentaYa()">Borrarla ahora, sin esperar</button>
+       </div>
+       <button class="portada-sin sutil" onclick="salirDelRescate()">Dejarlo como está y salir</button>`;
+
   } else if (modo === "enviado") {
     /* Pantalla propia y no un aviso amarillo dentro del formulario: lo único
        que queda por hacer está en otro sitio —el buzón—, y un formulario
@@ -271,7 +286,7 @@ function portadaPintar(modo) {
     });
   });
 
-  if (modo !== "crear" && modo !== "enviado") portadaOfrecerGoogle();
+  if (modo !== "crear" && modo !== "enviado" && modo !== "rescate") portadaOfrecerGoogle();
 
   /* La ayuda del apodo se escribe sola mientras se teclea el nombre. Contar
      de antemano cómo te vamos a llamar es lo que convierte un campo opcional
@@ -475,6 +490,12 @@ async function portadaRegistrar() {
    antes hasta que bajaba lo de la cuenta: la pantalla cambiaba dos veces
    seguidas y eso se lee como un fallo. */
 async function portadaEntrada(correo, mensaje) {
+  /* Lo primero, antes de dar la sesión por buena: ¿esta cuenta está esperando
+     a borrarse? Quien pidió borrarla y vuelve no viene a usar la app, viene a
+     decidir. Entrar como si nada le escondería justo eso. */
+  const pendiente = await sbBorradoPendiente();
+  if (pendiente) { mostrarRescate(pendiente); return; }
+
   const uid = ((sync.cfg || {}).sesion || {}).uid || null;
 
   if (sync.dueño && uid && sync.dueño !== uid) {
@@ -537,6 +558,61 @@ async function portadaEntrada(correo, mensaje) {
   cargaCerrar();
   toast(mensaje || ("Hola de nuevo" + coma()), "logro");
   quizaTutorialDeEntrada();
+}
+
+/* ---- La cuenta está esperando a borrarse ----
+   Dos salidas y ninguna por defecto: recuperarla o terminar ya. Se dibuja
+   dentro de la portada porque es parte de entrar, no una pantalla de la app:
+   detrás no hay nada suyo todavía y no debe haberlo hasta que decida. */
+let rescateCuando = null;
+
+function mostrarRescate(cuando) {
+  if (!document.getElementById("portada")) mostrarPortada();
+  rescateCuando = cuando;
+  // Por si se llegó desde un enlace del correo y nadie escribió nada aquí
+  portadaCorreo = portadaCorreo || (sync.cfg || {}).correo || "";
+  portadaPintar("rescate");
+}
+
+async function rescatarCuenta() {
+  portadaAviso(""); portadaOcupada(true, "Recuperándola…");
+  try {
+    await sbCancelarBorrado();
+  } catch (e) {
+    portadaOcupada(false);
+    portadaAviso((e && e.message) || String(e));
+    return;
+  }
+  rescateCuando = null;
+  // Ya no hay nada pendiente, así que esta vez la entrada sigue su curso
+  await portadaEntrada(portadaCorreo, "Cuenta recuperada");
+}
+
+/* Borrarla ya. No se vuelve a pedir la frase —se escribió al solicitarlo— pero
+   sí una confirmación, porque esto es lo único de aquí que no tiene vuelta. */
+async function borrarCuentaYa() {
+  if (!await ask("Se borrará ahora mismo, sin esperar. Esto ya no se puede deshacer.", "Borrarla ahora", true)) return;
+  portadaAviso(""); portadaOcupada(true, "Borrando…");
+  try {
+    await sbBorrarCuenta();
+  } catch (e) {
+    portadaOcupada(false);
+    portadaAviso((e && e.message) || String(e));
+    return;
+  }
+  sync.cfg = {}; sync.enabled = false; sync.entrada = null; sync.dueño = null;
+  saveSync();
+  rescateCuando = null;
+  portadaPintar("entrar");
+  toast("Cuenta borrada", "deshecho");
+}
+
+/* Salir de aquí sin decidir. La cuenta se queda como estaba: esperando. */
+function salirDelRescate() {
+  sync.cfg = {}; sync.enabled = false;
+  saveSync();
+  rescateCuando = null;
+  portadaPintar("entrar");
 }
 
 function portadaSinCuenta() {
