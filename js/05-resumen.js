@@ -131,6 +131,7 @@ function renderSummary() {
             const c = missionCount(m, key), t = missionTarget(m);
             return `<div class="ms-card" style="--mc:${m.color || "#5fe0b0"}">
               ${botonMision(m, c, t)}
+              ${iconoMision(m)}
               <div class="ms-body"><div class="ms-name">${escapeHtml(m.name)}</div></div>
             </div>`;
           }).join("")}
@@ -1235,9 +1236,10 @@ function renderCatalogo() {
   const n = catalogoSel.size;
   document.getElementById("catalog-content").innerHTML = `
     <p class="settings-note" style="padding:0 4px 4px">
-      Añade las que te interese seguir, aunque sea en cero. Ver una habilidad
-      sin empezar es media idea: te recuerda que existe. Las que no quieras
-      se quitan cuando quieras.
+      Añade las que te interese seguir, aunque sea en cero: ver una habilidad
+      sin empezar te recuerda que existe. Las de aquí además se reconocen
+      solas — al escribir un talento o un proyecto se proponen para recibir el
+      XP. Si te falta alguna, créala arriba: esa lo irá aprendiendo del uso.
     </p>
     ${cats.map(cat => {
       const dentro = SKILL_CATALOG.filter(x => x.c === cat);

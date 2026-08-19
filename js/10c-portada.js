@@ -117,11 +117,24 @@ function portadaHaceFalta() {
 let portadaModo = "entrar";
 // Lo escrito no se pierde al cambiar de pantalla
 let portadaCorreo = "";
+let portadaNombre = "";
+let portadaApodo = "";
 
 function portadaCorreoValor() {
   const el = document.getElementById("portada-correo");
   if (el) return (el.value || "").trim();
   return portadaCorreo;
+}
+
+/* Antes de repintar hay que rescatar lo escrito, porque el repintado tira los
+   campos. Está en una función y no repetido en cada sitio para que no se
+   quede uno fuera al añadir el siguiente. */
+function portadaRecordar() {
+  portadaCorreo = portadaCorreoValor();
+  const n = document.getElementById("portada-nombre");
+  const a = document.getElementById("portada-apodo");
+  if (n) portadaNombre = n.value || "";
+  if (a) portadaApodo = a.value || "";
 }
 
 function valorDe(id) {
@@ -159,12 +172,28 @@ function portadaPintar(modo) {
   let dentro;
 
   if (modo === "crear") {
+    /* El nombre va PRIMERO, antes que el correo. No es capricho de orden: es
+       la única pregunta del formulario que no es un trámite, y abrir por ahí
+       cambia lo que parece la pantalla. Además es el dato que hace falta
+       antes que ningún otro, porque el correo de confirmación sale del
+       servidor en el mismo momento del alta y ya lo lleva dentro.
+
+       El apodo es opcional de verdad —se puede dejar en blanco y no pasa
+       nada—, y su ayuda dice qué usaremos si se deja vacío en vez de callarlo:
+       nadie escribe un apodo si no sabe qué se evita con él. */
     dentro =
       `<div class="portada-cab">
          <button class="portada-volver" onclick="portadaIrA('entrar')" aria-label="Volver a iniciar sesión">←</button>
          <h2>Crear tu cuenta</h2>
        </div>
        <div id="portada-error" class="portada-error" hidden></div>
+       <label class="field"><span>¿Cómo te llamas?</span>
+         <input type="text" id="portada-nombre" value="${escapeAttr(portadaNombre)}" autocomplete="name"
+                maxlength="${NOMBRE_MAX}" placeholder="Tu nombre"></label>
+       <label class="field"><span>¿Cómo te decimos? <i>opcional</i></span>
+         <input type="text" id="portada-apodo" value="${escapeAttr(portadaApodo)}" autocomplete="nickname"
+                maxlength="${APODO_MAX}" placeholder="Tu apodo">
+         <div class="field-hint" id="portada-apodo-hint"></div></label>
        <label class="field"><span>Tu correo</span>
          <input type="email" id="portada-correo" value="${correo}" autocomplete="email" inputmode="email" spellcheck="false" placeholder="tu@correo.com"></label>
        <div class="field"><span class="lbl">Contraseña</span>
@@ -196,18 +225,34 @@ function portadaPintar(modo) {
        <p class="portada-nota">Si no aparece en unos minutos, míralo en la carpeta de no deseado.</p>`;
 
   } else {
-    dentro =
-      `<img class="portada-logo" src="marca/logotipo-claro.svg" alt="Norata">
-       <p class="portada-lema">Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.</p>
-       <div id="portada-error" class="portada-error" hidden></div>
+    /* Quien ya entró alguna vez en este dispositivo se encuentra su nombre y
+       su correo puestos, y solo tiene que escribir la contraseña. Es el caso
+       normal —la sesión caduca, el teléfono se reinicia— y hasta ahora la
+       pantalla lo trataba igual que a un desconocido.
+
+       Solo el saludo y el correo: la contraseña no se guarda aquí ni se
+       guardará nunca. Y con salida, porque el dispositivo se presta y "no soy
+       yo" tiene que estar a la vista sin tener que borrar un campo a mano. */
+    const vuelve = !!(sync.ultimoSaludo && sync.ultimoCorreo);
+    dentro = vuelve
+      ? `<div class="portada-vuelve">
+           ${avatarPinta(sync.ultimoUid, sync.ultimoSaludo, sync.ultimoCorreo, 56)}
+           <h2>Hola de nuevo, ${escapeHtml(sync.ultimoSaludo)}</h2>
+           <p class="portada-lema">Escribe tu contraseña y sigues donde lo dejaste.</p>
+         </div>`
+      : `<img class="portada-logo" src="marca/logotipo-claro.svg" alt="Norata">
+         <p class="portada-lema">Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.</p>`;
+    dentro +=
+      `<div id="portada-error" class="portada-error" hidden></div>
        <label class="field"><span>Tu correo</span>
-         <input type="email" id="portada-correo" value="${correo}" autocomplete="username" inputmode="email" spellcheck="false" placeholder="tu@correo.com"></label>
+         <input type="email" id="portada-correo" value="${correo || (vuelve ? escapeAttr(sync.ultimoCorreo) : "")}" autocomplete="username" inputmode="email" spellcheck="false" placeholder="tu@correo.com"></label>
        <div class="field"><span class="lbl">Contraseña</span>
          ${campoClave("portada-clave", "current-password")}</div>
        <div class="stack">
          <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaEntrar()">Entrar</button>
        </div>
        <button class="portada-sin sutil" onclick="portadaOlvide()">¿Olvidaste tu contraseña?</button>
+       ${vuelve ? '<button class="portada-sin sutil" onclick="portadaNoSoyYo()">No soy ' + escapeHtml(sync.ultimoSaludo) + '</button>' : ""}
        <div id="portada-google"></div>
        <p class="portada-pie">¿Todavía no tienes cuenta? <button onclick="portadaIrA('crear')">Créala aquí</button></p>
        <button class="portada-sin" onclick="portadaSinCuenta()">${yaEntroSinCuenta ? "Volver sin iniciar sesión" : "Probar sin cuenta"}</button>
@@ -228,6 +273,19 @@ function portadaPintar(modo) {
 
   if (modo !== "crear" && modo !== "enviado") portadaOfrecerGoogle();
 
+  /* La ayuda del apodo se escribe sola mientras se teclea el nombre. Contar
+     de antemano cómo te vamos a llamar es lo que convierte un campo opcional
+     en una decisión: quien escribe "María José García" ve que le vamos a
+     decir María y, si no le gusta, ya sabe para qué sirve la casilla de
+     abajo. Un texto fijo no habría enseñado nada. */
+  if (modo === "crear") {
+    ["portada-nombre", "portada-apodo"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("input", portadaPistaApodo);
+    });
+    portadaPistaApodo();
+  }
+
   /* El foco va al primer campo vacío: al volver de «crear cuenta» el correo
      ya está escrito y lo que falta es la contraseña. */
   setTimeout(() => {
@@ -238,8 +296,29 @@ function portadaPintar(modo) {
 }
 
 function portadaIrA(modo) {
-  portadaCorreo = portadaCorreoValor();
+  portadaRecordar();
   portadaPintar(modo);
+}
+
+function portadaPistaApodo() {
+  const el = document.getElementById("portada-apodo-hint");
+  if (!el) return;
+  const s = saludoDe(valorDe("portada-nombre"), valorDe("portada-apodo"));
+  const propio = !!limpiarNombre(valorDe("portada-apodo"), APODO_MAX);
+  el.textContent = !s
+    ? "Si lo dejas en blanco usaremos tu nombre."
+    : propio
+      ? "Te llamaremos " + s + "."
+      : "Si lo dejas en blanco te llamaremos " + s + ".";
+}
+
+/* El dispositivo se presta, y quien lo recibe no tiene por qué borrar el
+   correo de otro a mano para poder entrar. Se olvida lo recordado y se
+   repinta desde cero: la pantalla vuelve a ser la de un desconocido. */
+function portadaNoSoyYo() {
+  olvidarUltimo();
+  portadaCorreo = "";
+  portadaPintar("entrar");
 }
 
 function cerrarPortada(seca) {
@@ -339,21 +418,33 @@ async function portadaRegistrar() {
   const correo = portadaCorreoValor();
   const clave = valorDe("portada-clave");
   const clave2 = valorDe("portada-clave2");
+  const perfil = armarPerfil(valorDe("portada-nombre"), valorDe("portada-apodo"));
 
+  /* El nombre se pide de verdad. Podría ser opcional y rellenarse después,
+     pero entonces el primer correo —el de confirmar la cuenta, el único que
+     todo el mundo abre— saldría sin él, y ese es justo el momento que se
+     quería arreglar. Es una casilla de texto libre: vale cualquier cosa que
+     alguien reconozca como suya. */
+  if (!perfil.nombre) {
+    portadaAviso("Dime cómo te llamas: es lo que usaré para hablarte.");
+    const n = document.getElementById("portada-nombre");
+    if (n) n.focus();
+    return;
+  }
   if (!correo) { portadaAviso("Escribe el correo con el que quieres entrar."); return; }
   if (!/.+@.+\..+/.test(correo)) { portadaAviso("Ese correo no parece completo. Revísalo."); return; }
   if (clave.length < CLAVE_MIN) { portadaAviso("La contraseña necesita al menos " + CLAVE_MIN + " caracteres."); return; }
   if (clave !== clave2) { portadaAviso("Las dos contraseñas no coinciden. Míralas con el ojito para compararlas."); return; }
 
-  portadaCorreo = correo;
+  portadaRecordar();
   portadaAviso(""); portadaOcupada(true, "Creando tu cuenta…");
   try {
-    const sesion = await sbRegistrar(correo, clave);
+    const sesion = await sbRegistrar(correo, clave, perfil);
     // Sin sesión: falta confirmar el correo antes de poder entrar
     if (!sesion) { portadaIrA("enviado"); return; }
     sync.tipo = "supabase";
-    sync.cfg = { correo: correo, sesion: sesion };
-    await portadaEntrada(correo, "Cuenta creada. Bienvenido");
+    sync.cfg = { correo: correo, sesion: sesion, perfil: perfil };
+    await portadaEntrada(correo, "Cuenta creada. Bienvenido" + coma(perfil.saludo));
   } catch (e) {
     portadaOcupada(false);
     /* Si la cuenta ya existía se manda a entrar en vez de dejar el aviso a
@@ -383,7 +474,7 @@ async function portadaRegistrar() {
    la contraseña, y lo que quedaba a la vista era la app con los datos de
    antes hasta que bajaba lo de la cuenta: la pantalla cambiaba dos veces
    seguidas y eso se lee como un fallo. */
-async function portadaEntrada(correo, saludo) {
+async function portadaEntrada(correo, mensaje) {
   const uid = ((sync.cfg || {}).sesion || {}).uid || null;
 
   if (sync.dueño && uid && sync.dueño !== uid) {
@@ -407,7 +498,24 @@ async function portadaEntrada(correo, saludo) {
   sync.rev = 0;
   sync.dirty = hasLocalData();
   sync.lastAt = null;
+  recordarUltimo();
   saveSync();
+
+  /* Una cuenta que existía antes de que se pidiera el nombre, o una que entró
+     por Google, llega sin `saludo` guardado. Se completa aquí, en silencio y
+     una sola vez, con lo que se haya podido deducir: sin esto, sus correos
+     seguirían empezando sin nombre para siempre, porque el único sitio donde
+     se rellenaba era el formulario de alta por el que ya no van a pasar.
+
+     Va sin `await` a propósito. Es una mejora para el próximo correo, no algo
+     que esta pantalla necesite: hacerla esperar añadiría una llamada más al
+     momento de entrar, que es la espera que más se nota de toda la app. Y por
+     eso mismo solo ocurre cuando de verdad falta algo — `deducido` lo dice—,
+     no en cada entrada. */
+  const p = perfilActual();
+  if (p.deducido && p.saludo) {
+    guardarPerfil(p.nombre, p.apodo).catch(() => { /* el próximo intento */ });
+  }
 
   cargaMostrar("Trayendo tu progreso…");
   pintarAvisoPruebas();
@@ -427,7 +535,8 @@ async function portadaEntrada(correo, saludo) {
   // La app ya está pintada con lo que toca: recién ahora se destapa
   cerrarPortada(true);
   cargaCerrar();
-  toast(saludo || "Hola de nuevo", "logro");
+  toast(mensaje || ("Hola de nuevo" + coma()), "logro");
+  quizaTutorialDeEntrada();
 }
 
 function portadaSinCuenta() {
@@ -435,6 +544,8 @@ function portadaSinCuenta() {
   saveSync();
   cerrarPortada();
   toast("Guardando solo en este dispositivo", "calma");
+  // Con retraso: la portada tarda un cuarto de segundo en irse
+  setTimeout(quizaTutorialDeEntrada, 320);
 }
 
 /* ---- Se me olvidó la contraseña ----
@@ -603,7 +714,15 @@ async function sbVolverDeEnlace() {
 
   sesion.uid = datos.id;
   sync.tipo = "supabase";
-  sync.cfg = { correo: datos.email || "tu cuenta", sesion: sesion };
+  /* Por aquí entran los tres caminos de fuera, y dos de ellos traen el nombre
+     de sitios distintos: el enlace de confirmación devuelve lo que se escribió
+     al registrarse, y Google devuelve lo suyo (`full_name`). `perfilDe` los
+     iguala, así que aquí no hay que distinguirlos. */
+  sync.cfg = {
+    correo: datos.email || "tu cuenta",
+    sesion: sesion,
+    perfil: perfilDe(datos.user_metadata)
+  };
 
   /* Recuperación: la sesión sirve para UNA cosa, poner contraseña nueva. No se
      entra a la app todavía. Si alguien deja el enlace abierto y se va, lo peor

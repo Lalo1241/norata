@@ -593,8 +593,23 @@
   @media (prefers-reduced-motion: reduce) { .mod-sw, .mod-sw i { transition: none; } }
 
   /* ---------- Habilidades: barra de acciones y catálogo ---------- */
-  .hb-tools { display: flex; gap: 8px; margin-bottom: 12px; }
-  .hb-b { flex: 1; padding: 10px 12px; font-size: 13px; }
+  /* Herramientas de la lista, no protagonistas. Antes eran dos botones a
+     todo lo ancho —uno de ellos en menta— justo encima de las habilidades, y
+     pesaban más que la propia lista, que es lo que se viene a mirar. Ahora
+     son dos pastillas pequeñas: la de añadir a la izquierda y la de
+     seleccionar arrinconada a la derecha, donde no estorba a la vista.
+
+     La acción principal de esta pantalla no está aquí: es tocar una
+     habilidad, y crear una tiene su botón flotante. */
+  .hb-tools { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 0 2px; }
+  /* Con el contenedor delante: `.btn` vive más abajo en este archivo y, a
+     igual especificidad, ganaba él — el relleno se quedaba en el de un botón
+     grande por mucho que aquí dijera otra cosa. */
+  .hb-tools .hb-b { flex: none; padding: 7px 14px; font-size: 12.5px; border-radius: 999px; }
+  .hb-tools .hb-b + .hb-b { margin-left: auto; }
+  /* Borde invisible en la de menta: la otra lleva uno y sin esto quedaban
+     dos pastillas de altura distinta pegadas. */
+  .hb-tools .btn-soft { border: 1px solid transparent; }
   .hb-hint { font-size: 10.5px; color: var(--faint); text-align: right; padding: 0 4px 9px; }
   .hb-hint:empty { display: none; }
   .skill-card.marcada { border-color: var(--mint); background: var(--mint-soft); }
@@ -912,6 +927,9 @@
     padding: 22px 2px 18px;
   }
   .back-row h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; flex: 1; }
+  /* La acción alterna de una cabecera: existe, se encuentra, y no compite con
+     lo que la pantalla propone. Pequeña y en gris, nunca en menta. */
+  .back-row .bck-alt { flex: none; padding: 7px 14px; font-size: 12.5px; border-radius: 999px; }
 
   .panel {
     background: var(--card);
@@ -2293,7 +2311,7 @@
   .ms-card {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     background: var(--bg2);
     border: 1px solid var(--line);
     border-left: 3px solid var(--mc);
@@ -2345,6 +2363,18 @@
     /* Cumplida: pasa a rojo, porque lo que ofrece es revertir */
     .ms-card.done .ms-check:hover { background: var(--coral); border-color: var(--coral); }
   }
+  /* El icono de la misión: mismo dibujo que el de una habilidad —cuadrado
+     teñido de su color—, para que se lea como lo que es, la identidad de la
+     cosa, y no como otro botón al lado del que sí lo es. */
+  .ms-ic {
+    flex: none; width: 28px; height: 28px; border-radius: 9px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .ms-ic svg { width: 16px; height: 16px; }
+  /* Cumplida: la tarjeta entera ya se apaga, y el icono se apaga un poco más
+     para que el círculo relleno siga siendo lo primero que se ve. */
+  .ms-card.done .ms-ic { opacity: 0.75; }
+
   .ms-count { font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
   .ms-count i { font-style: normal; font-size: 10px; color: var(--faint); }
   .ms-body { flex: 1; min-width: 0; cursor: pointer; }
@@ -2846,6 +2876,58 @@
   }
   .portada-caja h2 { text-align: center; font-size: 20px; margin-bottom: 12px; }
   .portada-cab h2 { text-align: left; margin-bottom: 0; }
+
+  /* ---------- El nombre de quien usa la app ----------
+     El círculo con la inicial es lo que hay en vez de una foto de perfil.
+     Resuelve lo único que hacía falta —saber en qué cuenta estás— sin
+     almacenamiento, sin permisos y sin recortar imágenes.
+
+     El color lo pone el JavaScript en el atributo `style`, porque sale de la
+     cuenta y aquí no se puede saber cuál es. Lo de aquí es solo la forma. */
+  .avatar {
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 999px; flex: none;
+    font-weight: 700; line-height: 1;
+    /* Oscuro sobre el color, siempre: los ocho tonos de la lista se eligieron
+       para que esta letra se lea en todos. Con texto claro habría que ir
+       comprobando el contraste color por color. */
+    color: #101820;
+    /* La inicial es una letra y las letras tienen partes que bajan; sin esto,
+       una "g" o una "J" se apoyan en el borde de abajo del círculo. */
+    padding-bottom: 0.06em;
+    user-select: none;
+  }
+
+  /* La bienvenida de la pantalla de entrada: sustituye al logo cuando ya
+     sabemos quién vuelve. El logo se va porque el saludo dice lo mismo mejor
+     —esto ya es tuyo— y dos cosas grandes seguidas empujan el formulario
+     fuera de la pantalla en un teléfono. */
+  .portada-vuelve { text-align: center; margin-bottom: 22px; }
+  .portada-vuelve .avatar { margin: 0 auto 14px; display: flex; }
+  .portada-vuelve h2 { margin-bottom: 8px; }
+  .portada-vuelve .portada-lema { margin-bottom: 0; }
+
+  /* La ficha de Ajustes: quién eres, arriba del todo del panel de la cuenta */
+  .perfil-ficha {
+    display: flex; align-items: center; gap: 13px;
+    padding: 13px; margin-bottom: 16px;
+    background: var(--card2); border: 1px solid var(--line); border-radius: 16px;
+  }
+  .perfil-quien { min-width: 0; }
+  .perfil-quien b { display: block; font-size: 15.5px; }
+  /* El correo se parte por donde sea: los hay largos, y sin esto la ficha
+     estira el panel entero y aparece una barra horizontal en el teléfono. */
+  .perfil-quien span {
+    display: block; font-size: 12.5px; color: var(--muted);
+    margin-top: 2px; word-break: break-all;
+  }
+
+  /* "opcional" al lado de la etiqueta. En cursiva y más claro para que se lea
+     como una aclaración y no como parte del nombre del campo. */
+  label.field > span i {
+    font-weight: 500; font-style: italic; color: var(--faint);
+    text-transform: none; letter-spacing: 0;
+  }
 
   /* ---------- Pantalla de carga ----------
      Un único elemento para toda la app, y aparece en poquísimos sitios a

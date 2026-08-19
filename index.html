@@ -187,6 +187,11 @@
     <div class="back-row">
       <button class="icon-btn" onclick="showView('home')" aria-label="Volver">←</button>
       <h2>Catálogo</h2>
+      <!-- Estando aquí dentro no había ni rastro de que se pueda crear una a
+           mano: el único acceso era el botón flotante de Habilidades, que en
+           esta pantalla se esconde. Va en tono apagado y no en menta a
+           propósito: la recomendación sigue siendo empezar por el catálogo. -->
+      <button class="btn btn-ghost bck-alt" onclick="openSkillForm()">＋ Crear habilidad</button>
     </div>
     <div id="catalog-content"></div>
   </div>
@@ -611,6 +616,9 @@
     <div class="panel alt">
       <h3>Zona de peligro</h3>
       <button class="btn btn-danger-ghost btn-block" onclick="resetAll()">Borrar todos los datos</button>
+      <!-- Solo con sesión: sin cuenta no hay nada que borrar en ningún
+           servidor, y el botón prometería algo que no existe. -->
+      <div id="zona-cuenta"></div>
     </div>
   </div>
 
@@ -759,6 +767,7 @@
 <script src="js/09-inicio.js"></script>
 <script src="js/10-fusion.js"></script>
 <script src="js/10-sincronia.js"></script>
+<script src="js/10a-perfil.js"></script>
 <script src="js/10b-supabase.js"></script>
 <script src="js/10c-portada.js"></script>
 <script src="js/11-arranque.js"></script>

@@ -372,7 +372,22 @@ function renderSync() {
 
   if (syncReady()) {
     const pruebas = esCuentaDePruebas();
+    const p = perfilActual();
+    /* La ficha de arriba contesta de un vistazo la pregunta que trae aquí a
+       casi todo el mundo: en qué cuenta estoy. Antes solo estaba el correo,
+       perdido entre el estado de la sincronía; ahora hay una cara —el círculo
+       con la inicial y su color— que se reconoce sin leer. */
     panelEl.innerHTML =
+      '<div class="perfil-ficha">' + avatarHTML(48) +
+      '<div class="perfil-quien"><b>' + escapeHtml(p.saludo || "Sin nombre") + '</b>' +
+      '<span>' + escapeHtml((sync.cfg || {}).correo || "") + '</span></div></div>' +
+      '<label class="field"><span>Tu nombre</span>' +
+      '<input type="text" id="perfil-nombre" maxlength="' + NOMBRE_MAX + '" autocomplete="name"' +
+      ' value="' + escapeAttr(p.nombre) + '" onchange="perfilGuardarAqui()"></label>' +
+      '<label class="field"><span>¿Cómo te decimos? <i>opcional</i></span>' +
+      '<input type="text" id="perfil-apodo" maxlength="' + APODO_MAX + '" autocomplete="nickname"' +
+      ' value="' + escapeAttr(p.apodo) + '" onchange="perfilGuardarAqui()">' +
+      '<div class="field-hint">Es lo que usaremos al saludarte, aquí y en los correos.</div></label>' +
       '<label class="field"><span>Nombre de este dispositivo</span>' +
       '<input type="text" id="sync-device" value="' + escapeAttr(sync.device) + '" onchange="syncRenameDevice(this.value)">' +
       '<div class="field-hint">Aparece cuando dos dispositivos cambian lo mismo y hay que elegir.</div></label>' +
@@ -402,6 +417,32 @@ function renderSync() {
     '<p class="field-hint" style="margin-top:10px">Mientras tanto tu progreso se guarda solo en este dispositivo. Al entrar, lo que ya tienes aquí sube a tu cuenta.</p>';
 }
 
+/* Guarda el nombre y el apodo desde Ajustes.
+
+   Lee los DOS campos aunque solo se haya tocado uno: el guardado reemplaza el
+   perfil entero en el servidor, así que mandar únicamente el que cambió
+   borraría el otro. Es el mismo motivo por el que `armarPerfil` devuelve
+   siempre el trío completo. */
+async function perfilGuardarAqui() {
+  const n = document.getElementById("perfil-nombre");
+  const a = document.getElementById("perfil-apodo");
+  if (!n || !a) return;
+  const antes = perfilActual();
+  const quiere = armarPerfil(n.value, a.value);
+  if (quiere.nombre === antes.nombre && quiere.apodo === antes.apodo) return;
+  try {
+    await guardarPerfil(n.value, a.value);
+    renderSync();
+    /* Se avisa por el saludo y no por el nombre: es el que se va a ver, y
+       enseñarlo aquí es la única forma de comprobar que el apodo hizo lo que
+       se esperaba sin tener que cerrar sesión para verlo. */
+    toast(quiere.saludo ? "Te llamaremos " + quiere.saludo : "Nombre guardado", "logro");
+  } catch (e) {
+    toast((e && e.message) || String(e));
+    renderSync();   // devuelve los campos a lo que sí está guardado
+  }
+}
+
 function syncRenameDevice(v) {
   sync.device = String(v || "").trim() || guessDeviceName();
   saveSync();
@@ -423,6 +464,82 @@ async function syncDisconnect() {
   pintarAvisoPruebas();
   mostrarPortada();
   toast("Sesión cerrada", "deshecho");
+}
+
+/* ---- Borrar la cuenta entera ----
+   Distinto de "borrar todos los datos": aquello vacía el progreso y deja la
+   cuenta en pie; esto quita también el correo del servidor, y con él la
+   forma de volver a entrar. Por eso la puerta es más estrecha: además de las
+   confirmaciones hay que escribir una frase que no se teclea sin querer.
+
+   Después se puede volver a registrar el mismo correo desde la portada, como
+   si fuera nuevo. Eso no es un efecto secundario: es la razón de borrar de
+   verdad en vez de limitarse a vaciar la fila. */
+
+const FRASE_BORRAR = "BORRAR MI CUENTA";
+
+function renderZonaCuenta() {
+  const el = document.getElementById("zona-cuenta");
+  if (!el) return;
+  if (!syncReady()) { el.innerHTML = ""; return; }
+  el.innerHTML =
+    '<p class="settings-note" style="margin:16px 0 10px">Borrar la cuenta quita del servidor tu correo y tu progreso, y cierra la sesión en todos tus dispositivos. Si algún día quieres volver, puedes registrarte otra vez con el mismo correo.</p>' +
+    '<button class="btn btn-danger-ghost btn-block" onclick="borrarCuenta()">Borrar mi cuenta</button>';
+}
+
+async function borrarCuenta() {
+  if (!syncReady()) return;
+  const correo = ((sync.cfg || {}).correo || "tu cuenta").trim();
+
+  if (!await ask(
+    "Se borrará la cuenta " + correo + " y todo su progreso, en este dispositivo y en los demás. Esto no se puede deshacer.",
+    "Continuar", true)) return;
+
+  /* Una frase y no un "¿seguro?": el segundo se pulsa con el dedo ya en
+     camino, sin leerlo. Escribir tres palabras obliga a parar. */
+  const escrito = await askText(
+    "Escribe " + FRASE_BORRAR + " para confirmar que quieres borrarla.",
+    "", "Borrar la cuenta", FRASE_BORRAR, 40);
+  if (escrito === null) return;
+  if (String(escrito).trim().toUpperCase() !== FRASE_BORRAR) {
+    toast("No coincide. No borré nada.", "calma");
+    return;
+  }
+
+  cargaMostrar("Borrando tu cuenta…");
+  try {
+    await sbBorrarCuenta();
+  } catch (e) {
+    cargaCerrar();
+    toast((e && e.message) || String(e), "atencion");
+    return;
+  }
+
+  /* Del servidor ya no queda nada, así que aquí tampoco puede quedar: ni el
+     progreso, ni las copias de conflicto —que son fotos de esa misma cuenta—,
+     ni la marca de cuenta de pruebas. Borrar a medias sería lo peor de las
+     dos opciones: la cuenta ya no existe y sus datos siguen en el aparato. */
+  listarCopias().forEach(c => { try { localStorage.removeItem(c.key); } catch (e) {} });
+  sync.cuentasPrueba = (sync.cuentasPrueba || []).filter(c => c !== correo.toLowerCase());
+  sync.enabled = false; sync.cfg = {}; sync.marca = null; sync.rev = 0;
+  sync.dirty = false; sync.lastAt = null; sync.entrada = null; sync.dueño = null;
+  saveSync();
+  syncError = null;
+
+  guardarLocal({
+    skills: [], perks: [], projects: [], missions: [], cajas: [],
+    settings: { timezone: userTZ() }, schemaVersion: SCHEMA
+  });
+  state = load();
+
+  pintarAvisoPruebas();
+  showView("summary");
+  renderSync();
+  renderCopias();
+  renderZonaCuenta();
+  mostrarPortada();
+  cargaCerrar();
+  toast("Cuenta borrada", "deshecho");
 }
 
 /* ================= Utilidades ================= */

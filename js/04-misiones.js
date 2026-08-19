@@ -141,6 +141,20 @@ function sacudirPantalla() {
 const PALOMITA = `<svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>`;
 const VOLVER = `<svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a5 5 0 010 10h-2"/></svg>`;
 
+/* El icono que se elige al crear la misión. Hasta ahora se guardaba y no se
+   veía en ninguna parte: se elegía a ciegas y no servía de nada.
+
+   Va FUERA del círculo a propósito. Ese círculo es el control —la palomita,
+   el +1, el deshacer— y su cara en reposo ya dice el estado: vacío si falta,
+   "3/5" si lleva cuenta, palomita si está hecha. Metiendo ahí la identidad de
+   la misión habría que quitar una de esas tres cosas, y son justo las que se
+   leen de un vistazo. Así que el icono va al lado, con el mismo dibujo que el
+   de una habilidad: cuadrado teñido de su propio color. */
+function iconoMision(m) {
+  const col = m.color || "#5fe0b0";
+  return `<span class="ms-ic" style="background:${col}22;color:${col}" aria-hidden="true">${icon(m.icon || "target", 16)}</span>`;
+}
+
 function botonMision(m, c, t, opciones) {
   const o = opciones || {};
   const ok = c >= t;
@@ -617,7 +631,7 @@ function showView(name) {
   window.scrollTo(0, 0);
   if (name === "catalog") renderCatalogo();
   if (name === "summary") renderSummary();
-  if (name === "settings") { renderTimezone(); renderModulos(); renderSync(); renderCopias(); }
+  if (name === "settings") { renderTimezone(); renderModulos(); renderSync(); renderCopias(); renderZonaCuenta(); }
   if (name === "missions") renderMissions();
   if (name === "home") renderHome();
   if (name === "tree") { focusPending = true; renderTree(); }

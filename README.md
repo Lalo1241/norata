@@ -92,6 +92,8 @@ recargar — nunca una pantalla en blanco sin explicación.
 | `icon*.png`, `apple-touch-icon.png` | Iconos de la app instalada |
 | `icon.svg`, `favicon.svg` | Icono vectorial y el de la pestaña |
 | `marca/` | Logos sueltos y el script que los regenera desde la app |
+| `correos/` | Las plantillas de correo. Se copian a mano en Supabase |
+| `supabase/` | Lo que hay que dejar puesto en el servidor una sola vez |
 
 Los `js/` son *scripts* normales, no módulos, y por eso sus funciones son
 globales: los `onclick` del HTML dependen de ello. Van sin `defer` y en el

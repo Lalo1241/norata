@@ -39,6 +39,7 @@ function renderMissions() {
     return `
     <div class="ms-card ${ok ? "done" : ""}" data-rid="${m.id}" style="--mc:${col}">
       ${botonMision(m, c, t)}
+      ${iconoMision(m)}
       <div class="ms-body" onclick="openMissionForm('${m.id}')">
         <div class="ms-name">${escapeHtml(m.name)}</div>
         <div class="ms-meta">
@@ -127,6 +128,7 @@ function renderMissions() {
       <div class="ms-list">${archived.map(m => `
         <div class="ms-card done" style="--mc:${m.color || "#5fe0b0"}">
           ${botonMision(m, 1, 1, { reabrir: true })}
+          ${iconoMision(m)}
           <div class="ms-body"><div class="ms-name">${escapeHtml(m.name)}</div>
           <div class="ms-meta"><span>cumplida el ${formatDate(m.completedAt)}</span></div></div>
         </div>`).join("")}</div>
@@ -149,8 +151,12 @@ function renderProjects() {
         <h2>Sin encargos todavía</h2>
         <p>Un encargo es algo que estás construyendo y que avanza por etapas. La app mide su ritmo y te dice cuáles siguen vivos y cuáles conviene soltar.</p>
         <div class="stack" style="align-items:center">
+          <!-- Aquí había un "Ver un ejemplo completo", y sembraba la app
+               ENTERA: habilidades, talentos y misiones además de los
+               proyectos. Quien llegaba con cosas suyas ya dentro acababa con
+               todo duplicado y la app irreconocible. El ejemplo completo se
+               ofrece donde tiene sentido, en la portada de una app vacía. -->
           <button class="btn btn-primary" onclick="openProjectForm()">Crear mi primer encargo</button>
-          <button class="btn btn-ghost" onclick="loadExamples()">Ver un ejemplo completo</button>
         </div>
       </div>`;
     return;

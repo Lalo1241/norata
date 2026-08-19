@@ -47,6 +47,9 @@ function sbSesionDe(b) {
   };
 }
 
+/* Devuelve la sesión Y el perfil, porque la misma respuesta ya trae los dos y
+   pedirlos por separado sería una llamada de más justo en el momento en que
+   la pantalla está esperando. */
 async function sbEntrar(correo, clave) {
   const r = await sbFetch("/auth/v1/token?grant_type=password", {
     method: "POST", body: JSON.stringify({ email: correo, password: clave })
@@ -64,7 +67,10 @@ async function sbEntrar(correo, clave) {
     }
     throw new Error(sbMensaje(r));
   }
-  return sbSesionDe(r.body);
+  return {
+    sesion: sbSesionDe(r.body),
+    perfil: perfilDe((r.body.user || {}).user_metadata)
+  };
 }
 
 /* Ese correo ya tiene cuenta. Se marca con `yaExiste` para que la pantalla
@@ -75,13 +81,20 @@ function sbYaExiste() {
   return e;
 }
 
-/* Devuelve la sesión, o null si hay que confirmar el correo antes de entrar. */
-async function sbRegistrar(correo, clave) {
+/* Devuelve la sesión, o null si hay que confirmar el correo antes de entrar.
+
+   El perfil viaja DENTRO del alta y no en una llamada posterior, y esa es la
+   diferencia entre un correo que saluda por su nombre y uno que no: el mensaje
+   de confirmación sale del servidor en el mismo instante en que se crea la
+   cuenta. Cualquier cosa que se guarde después llega tarde para ese correo,
+   que es justo el primero que va a leer. */
+async function sbRegistrar(correo, clave, perfil) {
   if (String(clave).length < CLAVE_MIN) {
     throw new Error("La contraseña necesita al menos " + CLAVE_MIN + " caracteres.");
   }
   const r = await sbFetch("/auth/v1/signup?redirect_to=" + encodeURIComponent(sbVuelta()), {
-    method: "POST", body: JSON.stringify({ email: correo, password: clave })
+    method: "POST",
+    body: JSON.stringify({ email: correo, password: clave, data: perfil || {} })
   });
   if (!r.ok) {
     const m = sbMensaje(r);
@@ -169,6 +182,24 @@ async function sbCambiarClave(nueva) {
   return true;
 }
 
+/* Guardar el nombre y el apodo en la cuenta.
+
+   Es la misma dirección con la que se cambia la contraseña, pero mandando
+   `data` en vez de `password`. Supabase reemplaza el objeto entero por el que
+   se le pase, así que hay que enviar los tres campos siempre: mandar solo el
+   apodo borraría el nombre. Por eso quien llama pasa por `armarPerfil`, que
+   devuelve el trío completo, y no un campo suelto. */
+async function sbGuardarPerfil(perfil) {
+  const t = await sbToken();
+  const r = await sbFetch("/auth/v1/user", {
+    method: "PUT",
+    headers: { "Authorization": "Bearer " + t },
+    body: JSON.stringify({ data: perfil })
+  });
+  if (!r.ok) throw new Error(sbMensaje(r));
+  return perfilDe((r.body || {}).user_metadata);
+}
+
 /* El token de acceso caduca en una hora. Esto lo renueva solo con el de
    refresco, para que una sesión larga no se corte a media tarde. */
 async function sbToken() {
@@ -185,6 +216,28 @@ async function sbToken() {
   sync.cfg.sesion = nueva;
   saveSync();
   return nueva.access;
+}
+
+/* Borrar la cuenta de verdad, no solo sus datos.
+
+   Esto NO se puede pedir desde aquí con una llamada normal: quitar a alguien
+   de la lista de usuarios es cosa de administrador, y la llave de
+   administrador jamás puede estar en el navegador —quien la tuviera podría
+   borrar la cuenta de cualquiera—. La salida es una función que vive DENTRO
+   de la base de datos y solo sabe hacer una cosa: borrar a quien la llama.
+   Ni recibe a quién borrar ni puede recibirlo, así que no hay nada que
+   falsificar desde fuera.
+
+   Esa función hay que crearla una vez en Supabase; el SQL y el cómo están en
+   `supabase/LEEME.md`. Mientras no exista, el servidor contesta 404 y aquí se
+   traduce a algo accionable en vez de a un número suelto. */
+async function sbBorrarCuenta() {
+  const r = await sbDatos("/rpc/borrar_mi_cuenta", { method: "POST", body: "{}" });
+  if (r.status === 404) {
+    throw new Error("Falta activar el borrado de cuentas en el servidor. Es un paso de una sola vez; hasta entonces no puedo borrarla desde aquí.");
+  }
+  if (!r.ok) throw sbError(r);
+  return true;
 }
 
 /* De quién son los datos. Pasa por aquí y no por `sync.cfg.sesion.uid`
@@ -231,8 +284,8 @@ ALMACENES.supabase = {
   },
 
   async configurar(v) {
-    const sesion = await sbEntrar(v.correo, v.clave);
-    return { correo: v.correo, sesion: sesion };
+    const r = await sbEntrar(v.correo, v.clave);
+    return { correo: v.correo, sesion: r.sesion, perfil: r.perfil };
   },
 
   async leer() {

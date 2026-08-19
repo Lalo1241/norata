@@ -82,6 +82,7 @@ showView("summary");
      dibujado. Es lo último de todo a propósito — destaparla antes es
      justamente lo que hacía parpadear la app al abrirla. */
   cargaCerrar();
+  quizaTutorialDeEntrada();
 })();
 
 document.addEventListener("visibilitychange", () => {

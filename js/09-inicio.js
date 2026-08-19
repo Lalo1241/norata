@@ -265,6 +265,28 @@ function arrancarTutorial() {
   document.getElementById("tuto").classList.add("show");
 }
 
+/* El tutorial ANTES de elegir camino, no después.
+
+   Antes salía al terminar el cuestionario, el ejemplo o la primera habilidad,
+   con el argumento de que explicar los módulos con la app vacía es hablar de
+   sitios que todavía no se pueden reconocer. En la práctica pasaba lo
+   contrario: la primera pantalla pedía elegir entre tres caminos sin haber
+   dicho nunca de qué va la app, y esa elección es justo la que necesita
+   contexto.
+
+   Solo en la entrada de verdad: con la portada delante quedaría detrás del
+   formulario de acceso, y con datos ya dentro no es una presentación sino
+   una interrupción. Las tres llamadas de después se quedan como estaban:
+   `tutorialVisto` hace que no se repita, y cubren el caso de llegar a esos
+   caminos sin haber pasado por aquí. */
+function quizaTutorialDeEntrada() {
+  if (state.ui && state.ui.tutorialVisto) return;
+  if (document.getElementById("portada") || document.querySelector(".futuro-aviso")) return;
+  if (typeof cargaVisible === "function" && cargaVisible()) return;
+  if (hasLocalData()) return;
+  quizaTutorial(500);
+}
+
 /* Se llama desde los tres caminos de entrada. El retraso deja terminar lo que
    estuviera en pantalla (la celebración del cuestionario dura lo suyo) para
    que las dos cosas no se pisen. */
