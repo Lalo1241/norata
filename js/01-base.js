@@ -175,7 +175,7 @@ function migrarTipoTalento(p) {
   delete p.requiresId;
 }
 
-/* El proyecto pasó a llamarse Notara, pero las llaves de almacenamiento
+/* El proyecto pasó a llamarse Norata, pero las llaves de almacenamiento
    conservan el nombre viejo a propósito: renombrarlas dejaría huérfano el
    progreso de quien ya venía usando la app. El nombre visible y el nombre
    interno no tienen por qué coincidir. */

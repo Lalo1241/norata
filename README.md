@@ -1,4 +1,4 @@
-# Notara
+# Norata
 
 Tu vida como videojuego: misiones que haces hoy, habilidades que suben con la
 práctica, talentos que compras con dinero real y proyectos que avanzan por
@@ -45,14 +45,21 @@ subirlo, para que una tarde de uso sean unos pocos envíos y no cien.
 
 ### Si dos dispositivos cambian lo mismo
 
-La app no elige por ti. Te dice qué hay de cada lado y cuándo se guardó, y tú
-decides cuál se queda. El lado que no elijas se guarda como copia en el
-navegador antes de tocar nada, así que no se pierde.
+No hay que elegir: se juntan. Casi todo lo que guarda Norata es acumulativo
+—movimientos de XP, misiones cumplidas, historial— y dos listas de cosas que
+pasaron se suman en vez de competir. El XP no se suma a mano, se recalcula
+contando los movimientos, así que juntar dos veces lo mismo nunca lo infla.
 
-Esas copias se ven y se recuperan desde **Ajustes → Copias de seguridad
-automáticas**, con su fecha y lo que contenía cada una. Se conservan las cinco
-más recientes; restaurar una aparta antes lo que tengas ahora, por si te
-arrepientes.
+Lo único que compite son los campos sueltos (el nombre de una habilidad, el
+color de una misión) y ahí gana el que se guardó después. Se pierde un nombre
+reescrito, nunca progreso.
+
+Lo que borras no vuelve: se recuerda qué se borró y cuándo, así que el otro
+dispositivo no lo resucita al sincronizarse.
+
+Aun así, antes de cada fusión se guarda una copia de lo que había. Se ven y se
+recuperan desde **Ajustes → Copias de seguridad automáticas**. No deberías
+necesitarlas nunca.
 
 ### Dos cuentas: la real y la de pruebas
 

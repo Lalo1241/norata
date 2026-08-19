@@ -8,7 +8,7 @@
    guardando solo en este dispositivo; crear la cuenta después NO pierde nada,
    porque lo que ya hay aquí es justo lo que siembra la cuenta nueva. Esa
    salida existe porque alguien que solo quería curiosear se va si lo primero
-   que ve es un registro, y el ejemplo completo de Notara es lo que convence.
+   que ve es un registro, y el ejemplo completo de Norata es lo que convence.
 
    Tres estados posibles, y `sync.entrada` los distingue:
      null      todavía no ha elegido  -> se ve la portada
@@ -75,7 +75,7 @@ function mostrarPortada() {
   cap.className = "portada";
   cap.innerHTML =
     `<div class="portada-caja">
-       <img class="portada-logo" src="marca/logotipo-claro.svg" alt="Notara">
+       <img class="portada-logo" src="marca/logotipo-claro.svg" alt="Norata">
        <p class="portada-lema">Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.</p>
        <div id="portada-error" class="portada-error" hidden></div>
        <label class="field"><span>Tu correo</span>
@@ -308,7 +308,7 @@ function mostrarNuevaClave() {
   cap.className = "portada";
   cap.innerHTML =
     `<div class="portada-caja">
-       <img class="portada-logo" src="marca/logotipo-claro.svg" alt="Notara">
+       <img class="portada-logo" src="marca/logotipo-claro.svg" alt="Norata">
        <p class="portada-lema">Elige tu contraseña nueva. Con ella entrarás en todos tus dispositivos.</p>
        <div id="nc-error" class="portada-error" hidden></div>
        <div class="field"><span class="lbl">Contraseña nueva</span>

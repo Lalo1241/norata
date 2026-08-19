@@ -222,7 +222,7 @@ const TUTO_PASOS = [
        por el medio. El logo hace de presentación: es lo único que el usuario
        ya vio (en el menú) y no ha podido relacionar con nada. */
     logo: true, color: "#5fe0b0", titulo: "Te doy la bienvenida",
-    tx: "Notara lleva tu vida con la mecánica de un juego de rol: lo que <b>haces</b>, lo que <b>practicas</b>, lo que <b>te propones</b> y lo que <b>construyes</b>.",
+    tx: "Norata lleva tu vida con la mecánica de un juego de rol: lo que <b>haces</b>, lo que <b>practicas</b>, lo que <b>te propones</b> y lo que <b>construyes</b>.",
     pie: "Son cuatro secciones. Te cuento en un minuto qué hace cada una."
   },
   {
@@ -276,7 +276,7 @@ function quizaTutorial(retraso) {
 /* El logo de verdad, no una copia: se toma del menú, que ya lo lleva dibujado.
    Duplicar aquí un SVG de doscientas líneas garantizaría que un día los dos
    dejen de parecerse. */
-function logoNotara() {
+function logoNorata() {
   const el = document.querySelector(".sb-logo-full");
   return el ? el.innerHTML : "";
 }
@@ -297,7 +297,7 @@ function renderTutorial() {
           estuviera fijado. Homologar las filas, y no solo la tarjeta, es lo
           que hace que solo cambien las palabras. */""}
     <div class="tuto-marca">${p.logo
-      ? `<span class="tuto-logo">${logoNotara()}</span>`
+      ? `<span class="tuto-logo">${logoNorata()}</span>`
       : `<span class="tuto-ic" style="--tc:${p.color}">${icon(p.icon, 30)}</span>`}</div>
     <h2 class="tuto-titulo">${escapeHtml(p.titulo)}</h2>
     <p class="tuto-tx">${p.tx}</p>
@@ -675,7 +675,7 @@ function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "notara-respaldo-" + todayKey() + ".json";
+  a.download = "norata-respaldo-" + todayKey() + ".json";
   a.click();
   URL.revokeObjectURL(a.href);
   toast("Respaldo exportado");
@@ -690,7 +690,7 @@ function importData(input) {
       const data = JSON.parse(reader.result);
       if (!data || !Array.isArray(data.skills)) throw new Error("formato");
       if ((Number(data.schemaVersion) || 1) > SCHEMA) {
-        toast("Ese respaldo viene de una versión más nueva de Notara. Actualiza la app aquí antes de importarlo.", "atencion");
+        toast("Ese respaldo viene de una versión más nueva de Norata. Actualiza la app aquí antes de importarlo.", "atencion");
         return;
       }
       if (!Array.isArray(data.perks)) data.perks = [];

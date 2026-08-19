@@ -55,6 +55,6 @@ puede pulsar un botón y sin eso el correo queda inservible.
    recupere su contraseña pasado el cupo no recibe nada, y no hay ningún aviso
    de que eso ocurrió. Se conecta en *Project Settings → Auth → SMTP*.
 
-3. **Remitente propio.** Mientras no haya dominio de Notara, el correo saldrá
+3. **Remitente propio.** Mientras no haya dominio de Norata, el correo saldrá
    de una dirección genérica por mucho que el diseño sea el nuestro. Cambiar
    eso exige comprar un dominio; no hay atajo.

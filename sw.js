@@ -2,7 +2,7 @@
    de forzar que un aparato que se quedó con una versión anterior la suelte.
    También es el único modo de renovar la tipografía, que se sirve de caché
    sin preguntar (ver abajo). */
-const CACHE = "notara-v3";
+const CACHE = "norata-v4";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",

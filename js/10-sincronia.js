@@ -251,7 +251,7 @@ async function syncOnce(opts) {
      pisaríamos con los nuestros, que es peor. */
   const schemaRemoto = Number(env && (env.schema || (env.state && env.state.schemaVersion))) || 1;
   if (schemaRemoto > SCHEMA) {
-    throw new Error("El otro dispositivo usa una versión más nueva de Notara. Actualiza esta (recarga la página) antes de sincronizar; mientras tanto no toco nada.");
+    throw new Error("El otro dispositivo usa una versión más nueva de Norata. Actualiza esta (recarga la página) antes de sincronizar; mientras tanto no toco nada.");
   }
 
   const remoteRev = env && typeof env.rev === "number" ? env.rev : 0;

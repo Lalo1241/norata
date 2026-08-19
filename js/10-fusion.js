@@ -6,7 +6,7 @@
    de trabajo del teléfono a la basura porque la computadora también se tocó.
 
    Ahora se juntan. La pregunta desaparece no porque se decida en silencio,
-   sino porque deja de haber algo que decidir: casi todo lo que guarda Notara
+   sino porque deja de haber algo que decidir: casi todo lo que guarda Norata
    es acumulativo —movimientos de XP, marcas de misión, historial— y dos
    listas de cosas que pasaron se suman, no compiten.
 

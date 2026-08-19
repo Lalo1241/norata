@@ -1,7 +1,7 @@
 {
-  "id": "notara",
-  "name": "Notara",
-  "short_name": "Notara",
+  "id": "norata",
+  "name": "Norata",
+  "short_name": "Norata",
   "description": "Tu vida como videojuego: habilidades, XP y progreso real.",
   "start_url": "./",
   "scope": "./",

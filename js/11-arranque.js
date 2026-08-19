@@ -34,9 +34,9 @@ function avisarDatosDelFuturo() {
   caja.className = "futuro-aviso";
   caja.innerHTML =
     `<div class="futuro-card">
-       <h3>Esta copia de Notara está desactualizada</h3>
+       <h3>Esta copia de Norata está desactualizada</h3>
        <p>Tu progreso lo guardó una versión más nueva de la app, así que aquí no puedo entenderlo del todo. <b>No voy a tocar nada</b>: prefiero no guardar a estropearlo.</p>
-       <p>Actualiza Notara en este dispositivo y vuelve a abrirla. Tus datos siguen enteros.</p>
+       <p>Actualiza Norata en este dispositivo y vuelve a abrirla. Tus datos siguen enteros.</p>
        <div class="stack">
          <button class="btn btn-primary btn-block" onclick="location.reload(true)">Buscar la versión nueva</button>
          <button class="btn btn-soft btn-block" onclick="exportData()">Guardar un respaldo</button>
