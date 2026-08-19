@@ -106,7 +106,19 @@
       });
 
       document.body.appendChild(caja);
+      destaparApp();
     }
+
+    /* La pantalla de carga tapa la app entera, así que si el arranque muere a
+       medias tiene que irse igualmente: una portada de carga eterna se ve
+       exactamente igual que una app rota, pero sin el aviso de abajo. El
+       plazo cubre además el caso sin error visible — una petición de red que
+       nunca contesta ni falla, típico del wifi de un hotel. */
+    function destaparApp() {
+      var c = document.getElementById("carga");
+      if (c) c.className = "carga oculta";
+    }
+    setTimeout(destaparApp, 15000);
 
     window.onerror = function (msg, url, linea) {
       avisar(String(msg) + (linea ? " (línea " + linea + ")" : ""));
@@ -117,6 +129,23 @@
     });
   })();
 </script>
+<!-- ============ PANTALLA DE CARGA ============
+     Se ve desde el primer instante y tapa la app entera. Existe porque hasta
+     ahora el resumen se dibujaba antes de que ningún script hubiera decidido
+     si tocaba pedir la sesión: durante un suspiro se veía la app, y encima
+     aparecía la entrada. Ese parpadeo hacía dudar de si se había entrado o no.
+
+     Vive en el marcado y no la crea el JavaScript por la misma razón: si
+     naciera desde un script, llegaría tarde — justo al momento que se quiere
+     cubrir. Se apaga sola cuando la app ya sabe qué enseñar. -->
+<div class="carga" id="carga" role="status" aria-live="polite">
+  <div class="carga-marca">
+    <span class="carga-anillo"></span>
+    <svg viewBox="0 0 250 250" aria-hidden="true"><path d="M224.919,110.004h-5.319c-2.476,0-4.487-2.011-4.487-4.487V25.081c0-4.947-4.027-8.973-8.973-8.973h-87.162c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487H31.811c-8.658,0-15.703,7.046-15.703,15.703v80.436c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v80.432c0,4.947,4.027,8.973,8.973,8.973h87.166c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h55.755c18.556,0,33.65-15.094,33.65-33.65v-62.485c0-4.947-4.027-8.973-8.973-8.973ZM55.91,128.783h-5.319c-2.476,0-4.487-2.011-4.487-4.487v-54.927c0-2.476,2.011-4.487,4.487-4.487h61.657c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h54.923c2.476,0,4.487,2.011,4.487,4.487v61.657c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v45.949c0,7.422-6.038,13.46-13.46,13.46h-52.679c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487h-54.927c-2.476,0-4.487-2.011-4.487-4.487v-61.653c0-4.947-4.027-8.973-8.973-8.973Z"/></svg>
+  </div>
+  <p class="carga-msg" id="carga-msg">Abriendo Norata…</p>
+</div>
+
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div class="orb orb-3"></div>

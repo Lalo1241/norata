@@ -51,9 +51,16 @@ Suena a detalle y no lo es: con el color de la tarjeta se ve un recuadro
 flotando alrededor del logo. Si algún día se cambia el color de fondo del
 correo, hay que regenerar el PNG a juego.
 
-**Diseño oscuro, con las dos metas de `color-scheme`.** Sin ellas, Gmail y
-Outlook "ayudan" invirtiendo los colores y dejan texto claro sobre fondo
-claro. Con ellas, respetan el diseño.
+**Diseño CLARO, aunque la app sea oscura.** Hubo una versión oscura y se
+descartó con evidencia: Eduardo la probó en dos cuentas reales de Gmail —una
+en tema claro y otra en oscuro— y en las dos quedaba un rectángulo oscuro
+flotando sin sentido dentro de la bandeja. Un correo vive en la casa de otro y
+tiene que respetar su decoración; la marca se sostiene con el logo y el color
+del botón. Las dos metas de `color-scheme` siguen puestas para que el cliente
+no "ayude" invirtiendo los colores.
+
+**El logo del correo usa `logotipo-oscuro.svg`** (palabra oscura), no el claro
+de la app, y lleva incrustado el fondo `#f4f6fb` de la página del correo.
 
 **El botón está dos veces.** Outlook no entiende los bordes redondeados del
 HTML, así que ahí se dibuja con su propio lenguaje (VML) y los demás clientes

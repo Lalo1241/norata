@@ -67,6 +67,14 @@ async function sbEntrar(correo, clave) {
   return sbSesionDe(r.body);
 }
 
+/* Ese correo ya tiene cuenta. Se marca con `yaExiste` para que la pantalla
+   pueda ofrecer el botón de entrar en vez de dejar el aviso a secas. */
+function sbYaExiste() {
+  const e = new Error("Ya hay una cuenta con ese correo. Entra con tu contraseña, o usa «¿Olvidaste tu contraseña?» si no la recuerdas. No he tocado nada de lo que ya tenías.");
+  e.yaExiste = true;
+  return e;
+}
+
 /* Devuelve la sesión, o null si hay que confirmar el correo antes de entrar. */
 async function sbRegistrar(correo, clave) {
   if (String(clave).length < CLAVE_MIN) {
@@ -80,12 +88,33 @@ async function sbRegistrar(correo, clave) {
     if (/password/i.test(m) && /least|short|weak|characters/i.test(m)) {
       throw new Error("La contraseña es muy corta. Usa al menos " + CLAVE_MIN + " caracteres.");
     }
-    if (/already registered|already exists/i.test(m)) {
-      throw new Error("Ya hay una cuenta con ese correo. Usa «Entrar», o «¿Olvidaste tu contraseña?» si no la recuerdas.");
-    }
+    if (/already registered|already exists/i.test(m)) throw sbYaExiste();
     throw new Error(m);
   }
-  return r.body && r.body.access_token ? sbSesionDe(r.body) : null;
+
+  const b = r.body || {};
+  if (b.access_token) return sbSesionDe(b);
+
+  /* Aquí estaba el fallo que hacía creer que se había creado una cuenta que
+     ya existía. Con la confirmación por correo activada, Supabase responde
+     que TODO fue bien aunque la dirección ya estuviera registrada: contesta
+     con un usuario inventado, sin sesión, exactamente igual que un alta de
+     verdad. Lo hace a propósito, para que nadie pueda averiguar quién tiene
+     cuenta aquí probando correos.
+
+     Lo que sí lo delata es `identities`: en un alta real trae la identidad
+     recién creada, y en la respuesta inventada viene vacío. Se distingue
+     aquí y no en la pantalla porque es un detalle de cómo contesta este
+     servidor, no de cómo se enseña.
+
+     El aviso que se le da al usuario sí dice la verdad —«ya existe»— porque
+     esto no es una pantalla pública de registro: es su propia app, y decirle
+     «te mandé un correo» cuando no hay ningún correo en camino lo deja
+     esperando algo que nunca llega. */
+  const u = b.user || b;
+  if (Array.isArray(u.identities) && u.identities.length === 0) throw sbYaExiste();
+
+  return null;
 }
 
 /* A dónde vuelve el usuario desde un correo. Sin la ruta ni la consulta: el

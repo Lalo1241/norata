@@ -71,9 +71,17 @@ showView("summary");
 
      Se hace en cuanto vuelve la sincronía, y si no hay conexión se aplica
      igual: más vale un desgaste calculado con lo que hay que ninguno. */
-  if (syncReady()) await syncRun({ silent: true });
+  /* La condición del enlace no es por el desgaste, sino para no pedir lo
+     mismo dos veces: si venimos de un correo o de Google, la entrada ya
+     sincronizó al terminar. */
+  if (!veniaDeGoogle && syncReady()) await syncRun({ silent: true });
   applyDecay();
   showView(activeMainView || "summary");
+
+  /* Y hasta aquí la pantalla de carga: ya se sabe qué hay que enseñar y está
+     dibujado. Es lo último de todo a propósito — destaparla antes es
+     justamente lo que hacía parpadear la app al abrirla. */
+  cargaCerrar();
 })();
 
 document.addEventListener("visibilitychange", () => {
@@ -119,6 +127,7 @@ window.addEventListener("online", () => syncRun({ silent: true }));
     if (window.scrollY > 0) return;
     if (dashEditing) return;                       // ahí el dedo mueve tarjetas
     if (document.querySelector(".portada, .futuro-aviso")) return;
+    if (cargaVisible()) return;                    // todavía está entrando
     if (document.body.classList.contains("fs-on")) return;
     inicioY = e.touches[0].clientY;
   }, { passive: true });

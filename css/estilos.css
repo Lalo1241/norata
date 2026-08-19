@@ -2808,6 +2808,97 @@
   }
   .portada-nota { text-align: center; color: var(--faint); font-size: 12px; line-height: 1.55; margin: 6px 0 0; }
 
+  /* La portada aparece desvaneciéndose salvo cuando releva a la pantalla de
+     carga: ahí las dos tapan lo mismo con el mismo fondo, así que encadenar
+     dos desvanecidos solo consigue enseñar un instante lo que hay debajo. */
+  .portada.sin-anim { animation: none; }
+
+  /* Cabecera de «crear cuenta». La flecha de volver no es un adorno: una
+     pantalla nueva sin salida visible es la forma más rápida de que alguien
+     se sienta atrapado y cierre la app. */
+  .portada-cab { display: flex; align-items: center; gap: 11px; margin-bottom: 20px; }
+  .portada-cab h2 { font-size: 19px; }
+  .portada-volver {
+    width: 38px; height: 38px; flex: none; display: grid; place-items: center;
+    background: none; border: 1px solid var(--line); border-radius: 11px;
+    color: var(--text); cursor: pointer; font-size: 17px; font-family: inherit;
+  }
+  .portada-volver:hover { border-color: var(--mint); color: var(--mint); }
+
+  /* El puente entre las dos pantallas. Va en tono apagado y con el verbo en
+     menta: quien busca crear cuenta lo encuentra, y quien no, no lo lee. */
+  .portada-pie { text-align: center; color: var(--faint); font-size: 13px; margin-top: 20px; }
+  .portada-pie button {
+    background: none; border: 0; padding: 0; cursor: pointer;
+    font: inherit; font-weight: 700; color: var(--mint);
+  }
+  .portada-pie button:hover { text-decoration: underline; }
+
+  /* El sello de «revisa tu correo». Un sobre grande en vez de un párrafo más:
+     esa pantalla se lee de reojo, ya con el buzón medio abierto en la cabeza. */
+  .portada-sello {
+    width: 62px; height: 62px; margin: 0 auto 18px; display: grid; place-items: center;
+    border-radius: 50%; background: var(--mint-soft); color: var(--mint);
+  }
+  .portada-sello svg {
+    width: 30px; height: 30px; fill: none; stroke: currentColor;
+    stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .portada-caja h2 { text-align: center; font-size: 20px; margin-bottom: 12px; }
+  .portada-cab h2 { text-align: left; margin-bottom: 0; }
+
+  /* ---------- Pantalla de carga ----------
+     Un único elemento para toda la app, y aparece en poquísimos sitios a
+     propósito: al abrir y al entrar a una cuenta. Son los dos momentos en que
+     el usuario espera sin saber a qué; el resto de las esperas de Norata son
+     locales y terminan antes de que dé tiempo a mirar.
+
+     Tapa con el mismo fondo que la portada, y por eso el relevo entre las dos
+     no se nota: lo que cambia es el contenido, no la pantalla. */
+  .carga {
+    position: fixed; inset: 0; z-index: 9500;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 22px; padding: 26px 20px; background: var(--bg);
+    transition: opacity 0.28s ease;
+  }
+  .carga.fuera { opacity: 0; pointer-events: none; }
+  .carga.oculta { display: none; }
+
+  /* Dos señales distintas y no una: el anillo gira (esto avanza) y el
+     isotipo late (esto sigue vivo). Solo con el giro, un tirón del navegador
+     que congele la animación se lee como app colgada. */
+  .carga-marca { position: relative; width: 96px; height: 96px; display: grid; place-items: center; }
+  .carga-anillo {
+    position: absolute; inset: 0; border-radius: 50%;
+    border: 2px solid rgba(95, 224, 176, 0.14);
+    border-top-color: var(--mint);
+    animation: cargaGira 0.95s linear infinite;
+  }
+  .carga-marca svg { width: 42px; height: 42px; fill: var(--mint); animation: cargaLate 1.9s ease-in-out infinite; }
+  .carga-msg { color: var(--muted); font-size: 14px; text-align: center; line-height: 1.55; max-width: 300px; }
+  @keyframes cargaGira { to { transform: rotate(360deg); } }
+  @keyframes cargaLate {
+    0%, 100% { opacity: 0.55; transform: scale(0.94); }
+    50%      { opacity: 1;    transform: scale(1); }
+  }
+  /* El mismo botón mientras piensa. El aro hereda el color del texto del
+     botón, así que sirve igual sobre el menta y sobre el gris. */
+  .giro {
+    display: inline-block; width: 14px; height: 14px; margin-right: 9px;
+    vertical-align: -2px; border-radius: 50%;
+    border: 2px solid currentColor; border-top-color: transparent;
+    animation: cargaGira 0.8s linear infinite;
+  }
+  /* Quien pidió menos movimiento se queda sin las dos animaciones: de eso ya
+     se encarga la regla general del final del archivo, que las apaga todas.
+     Lo que hay que arreglar aquí es el dibujo: un aro al que solo se le pinta
+     un trozo se entiende porque gira, y quieto parece roto. Sin movimiento se
+     cierra el círculo entero y se atenúa. */
+  @media (prefers-reduced-motion: reduce) {
+    .carga-anillo { border-color: rgba(95, 224, 176, 0.45); }
+    .giro { border-color: currentColor; opacity: 0.5; }
+  }
+
   /* ---------- Deslizar para actualizar ----------
      Va colgado del borde de arriba y sigue al dedo. No tapa nada: aparece
      donde el pulgar ya está mirando y se va solo. */

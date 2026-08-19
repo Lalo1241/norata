@@ -57,58 +57,195 @@ function alternarClave(id, boton) {
   try { el.setSelectionRange(fin, fin); } catch (e) { /* type=email no lo admite */ }
 }
 
+/* ================= Pantalla de carga =================
+   Una sola para toda la app, y ya está en el marcado antes de que corra
+   ningún script (ver `#carga` en index.html): si naciera aquí llegaría tarde,
+   justo al instante que se quiere cubrir.
+
+   Se usa en dos sitios y no más: al abrir la app y al entrar a una cuenta.
+   Son las únicas esperas de Norata que dependen de la red y que terminan
+   cambiando la pantalla entera; lo demás pasa en este dispositivo y se
+   resuelve antes de que dé tiempo a mirar. */
+
+/* Cada vez que se enseña o se esconde se cuenta un turno: así, si vuelve a
+   hacer falta a mitad del desvanecido, el temporizador viejo ya no la apaga. */
+let cargaTurno = 0;
+
+function cargaVisible() {
+  const el = document.getElementById("carga");
+  return !!(el && !el.classList.contains("oculta") && !el.classList.contains("fuera"));
+}
+
+function cargaMostrar(mensaje) {
+  const el = document.getElementById("carga");
+  if (!el) return;
+  cargaTurno++;
+  const msg = document.getElementById("carga-msg");
+  if (msg) msg.textContent = mensaje || "Un momento…";
+  el.classList.remove("oculta", "fuera");
+}
+
+/* `seca` la quita de golpe, sin desvanecido. Es lo correcto cuando quien
+   releva —la portada— ya tapa lo mismo: encadenar dos desvanecidos enseña un
+   instante lo que hay debajo, que es justo el parpadeo que se quiere quitar. */
+function cargaCerrar(seca) {
+  const el = document.getElementById("carga");
+  if (!el || el.classList.contains("oculta")) return;
+  const mio = ++cargaTurno;
+  if (seca) { el.classList.add("oculta"); el.classList.remove("fuera"); return; }
+  el.classList.add("fuera");
+  setTimeout(() => {
+    if (cargaTurno !== mio) return;      // volvió a hacer falta mientras se iba
+    el.classList.add("oculta");
+    el.classList.remove("fuera");
+  }, 300);
+}
+
 function portadaHaceFalta() {
   if (modoSoloLectura) return false;          // ya hay otro aviso más urgente
   if (syncReady()) return false;
   return sync.entrada !== "local";
 }
 
-function mostrarPortada() {
+/* En qué pantalla está la portada: "entrar", "crear" o "enviado".
+
+   Antes las dos primeras eran una sola con dos botones debajo, y eso hacía
+   algo que nadie pedía: «Crear cuenta» daba de alta ahí mismo con lo que ya
+   estuviera escrito. Sin repetir la contraseña —así que una errata al
+   teclearla se convertía en una cuenta a la que ya no se podía entrar— y con
+   el correo del intento anterior, si venías de equivocarte al entrar. */
+let portadaModo = "entrar";
+// Lo escrito no se pierde al cambiar de pantalla
+let portadaCorreo = "";
+
+function portadaCorreoValor() {
+  const el = document.getElementById("portada-correo");
+  if (el) return (el.value || "").trim();
+  return portadaCorreo;
+}
+
+function valorDe(id) {
+  const el = document.getElementById(id);
+  return el ? (el.value || "") : "";
+}
+
+function mostrarPortada(modo) {
   if (document.getElementById("portada")) return;
+  const cap = document.createElement("div");
+  cap.id = "portada";
+  cap.className = "portada";
+  /* Si releva a la pantalla de carga entra sin desvanecido: las dos tapan lo
+     mismo con el mismo fondo, así que el cambio no se nota. Abierta desde
+     Ajustes, en cambio, sí hay algo debajo y el desvanecido explica de dónde
+     sale. */
+  if (cargaVisible()) cap.classList.add("sin-anim");
+  document.body.appendChild(cap);
+  portadaPintar(modo || "entrar");
+  cargaCerrar(true);
+}
+
+function portadaPintar(modo) {
+  const cap = document.getElementById("portada");
+  if (!cap) return;
+  portadaModo = modo;
+  cap.classList.remove("ocupada");
+
   /* La misma pantalla sirve para dos momentos distintos: la primera vez que
      se abre la app, y cuando alguien que ya venía usándola sin cuenta entra a
      Ajustes a crearla. En el segundo caso "probar sin cuenta" no describe
      nada —ya estaba dentro— y la salida es simplemente volver. */
   const yaEntroSinCuenta = sync.entrada === "local";
-  const cap = document.createElement("div");
-  cap.id = "portada";
-  cap.className = "portada";
-  cap.innerHTML =
-    `<div class="portada-caja">
-       <img class="portada-logo" src="marca/logotipo-claro.svg" alt="Norata">
+  const correo = escapeAttr(portadaCorreo);
+  let dentro;
+
+  if (modo === "crear") {
+    dentro =
+      `<div class="portada-cab">
+         <button class="portada-volver" onclick="portadaIrA('entrar')" aria-label="Volver a iniciar sesión">←</button>
+         <h2>Crear tu cuenta</h2>
+       </div>
+       <div id="portada-error" class="portada-error" hidden></div>
+       <label class="field"><span>Tu correo</span>
+         <input type="email" id="portada-correo" value="${correo}" autocomplete="email" inputmode="email" spellcheck="false" placeholder="tu@correo.com"></label>
+       <div class="field"><span class="lbl">Contraseña</span>
+         ${campoClave("portada-clave", "new-password")}
+         <div class="field-hint">Mínimo ${CLAVE_MIN} caracteres. Cuanto más larga, mejor.</div></div>
+       <div class="field"><span class="lbl">Repítela</span>
+         ${campoClave("portada-clave2", "new-password")}</div>
+       <div class="stack">
+         <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaRegistrar()">Crear cuenta</button>
+       </div>
+       <p class="portada-nota">Te mandaré un correo para confirmar que la dirección es tuya. Hasta que lo abras, la cuenta no se activa.</p>
+       <p class="portada-pie">¿Ya tienes una? <button onclick="portadaIrA('entrar')">Entra aquí</button></p>`;
+
+  } else if (modo === "enviado") {
+    /* Pantalla propia y no un aviso amarillo dentro del formulario: lo único
+       que queda por hacer está en otro sitio —el buzón—, y un formulario
+       delante invita a seguir intentándolo aquí. */
+    dentro =
+      `<div class="portada-sello">
+         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.6" y="5" width="18.8" height="14" rx="2.6"/><path d="M3.4 7l7.4 5.4a2 2 0 002.4 0L20.6 7"/></svg>
+       </div>
+       <h2>Revisa tu correo</h2>
+       <p class="portada-lema">Le mandé un mensaje a <b>${escapeHtml(portadaCorreo)}</b>. Ábrelo, pulsa el enlace, y vuelve aquí a entrar.</p>
+       <div id="portada-error" class="portada-error" hidden></div>
+       <div class="stack">
+         <button class="btn btn-primary btn-block" onclick="portadaIrA('entrar')">Ya lo confirmé: entrar</button>
+         <button class="btn btn-soft btn-block" id="portada-ok" onclick="portadaReenviarVerificacion()">Reenviar el correo</button>
+       </div>
+       <p class="portada-nota">Si no aparece en unos minutos, míralo en la carpeta de no deseado.</p>`;
+
+  } else {
+    dentro =
+      `<img class="portada-logo" src="marca/logotipo-claro.svg" alt="Norata">
        <p class="portada-lema">Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.</p>
        <div id="portada-error" class="portada-error" hidden></div>
        <label class="field"><span>Tu correo</span>
-         <input type="email" id="portada-correo" autocomplete="username" inputmode="email" spellcheck="false" placeholder="tu@correo.com"></label>
+         <input type="email" id="portada-correo" value="${correo}" autocomplete="username" inputmode="email" spellcheck="false" placeholder="tu@correo.com"></label>
        <div class="field"><span class="lbl">Contraseña</span>
          ${campoClave("portada-clave", "current-password")}</div>
        <div class="stack">
-         <button class="btn btn-primary btn-block" id="portada-entrar" onclick="portadaEntrar()">Entrar</button>
-         <button class="btn btn-soft btn-block" onclick="portadaRegistrar()">Crear cuenta</button>
+         <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaEntrar()">Entrar</button>
        </div>
        <button class="portada-sin sutil" onclick="portadaOlvide()">¿Olvidaste tu contraseña?</button>
        <div id="portada-google"></div>
+       <p class="portada-pie">¿Todavía no tienes cuenta? <button onclick="portadaIrA('crear')">Créala aquí</button></p>
        <button class="portada-sin" onclick="portadaSinCuenta()">${yaEntroSinCuenta ? "Volver sin iniciar sesión" : "Probar sin cuenta"}</button>
        <p class="portada-nota">${yaEntroSinCuenta
          ? "Seguirás guardando solo en este dispositivo."
-         : "Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crearla después sin perder nada."}</p>
-     </div>`;
-  document.body.appendChild(cap);
+         : "Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crearla después sin perder nada."}</p>`;
+  }
 
-  // Enter en cualquiera de los dos campos entra, que es lo que espera todo el mundo
-  ["portada-correo", "portada-clave"].forEach(id => {
-    document.getElementById(id).addEventListener("keydown", e => {
-      if (e.key === "Enter") portadaEntrar();
+  cap.innerHTML = `<div class="portada-caja">${dentro}</div>`;
+
+  // Enter en cualquier campo hace lo mismo que el botón grande de esa pantalla
+  cap.querySelectorAll("input").forEach(el => {
+    el.addEventListener("keydown", e => {
+      if (e.key !== "Enter") return;
+      if (portadaModo === "crear") portadaRegistrar(); else portadaEntrar();
     });
   });
 
-  portadaOfrecerGoogle();
-  setTimeout(() => { const c = document.getElementById("portada-correo"); if (c) c.focus(); }, 60);
+  if (modo !== "crear" && modo !== "enviado") portadaOfrecerGoogle();
+
+  /* El foco va al primer campo vacío: al volver de «crear cuenta» el correo
+     ya está escrito y lo que falta es la contraseña. */
+  setTimeout(() => {
+    const campos = Array.prototype.slice.call(cap.querySelectorAll("input"));
+    const el = campos.filter(c => !c.value)[0] || campos[0];
+    if (el) el.focus();
+  }, 60);
 }
 
-function cerrarPortada() {
+function portadaIrA(modo) {
+  portadaCorreo = portadaCorreoValor();
+  portadaPintar(modo);
+}
+
+function cerrarPortada(seca) {
   const cap = document.getElementById("portada");
   if (!cap) return;
+  if (seca) { cap.remove(); return; }
   cap.classList.add("fuera");
   setTimeout(() => cap.remove(), 260);
 }
@@ -130,11 +267,25 @@ function portadaAviso(msg, accion) {
   }
 }
 
-function portadaOcupada(si) {
-  const b = document.getElementById("portada-entrar");
-  if (b) b.disabled = !!si;
+/* Mientras se comprueba algo contra el servidor. El botón dice qué está
+   pasando en vez de quedarse mudo y apagado, y la portada NO se cierra: eso
+   es lo que hacía parpadear la pantalla —se quitaba la entrada dando la
+   sesión por buena, y si la contraseña no valía volvía a aparecer—. */
+function portadaOcupada(si, texto) {
   const cap = document.getElementById("portada");
   if (cap) cap.classList.toggle("ocupada", !!si);
+  const b = document.getElementById("portada-ok");
+  if (!b) return;
+  if (si) {
+    b.disabled = true;
+    if (texto) {
+      if (!b.dataset.txt) b.dataset.txt = b.textContent;
+      b.innerHTML = '<span class="giro"></span>' + escapeHtml(texto);
+    }
+  } else {
+    b.disabled = false;
+    if (b.dataset.txt) b.textContent = b.dataset.txt;
+  }
 }
 
 /* El botón de Google solo aparece si el proveedor está activado de verdad en
@@ -163,44 +314,54 @@ async function portadaOfrecerGoogle() {
 }
 
 async function portadaEntrar() {
-  const correo = (document.getElementById("portada-correo").value || "").trim();
-  const clave = document.getElementById("portada-clave").value || "";
+  const correo = portadaCorreoValor();
+  const clave = valorDe("portada-clave");
   if (!correo || !clave) { portadaAviso("Escribe tu correo y tu contraseña."); return; }
 
-  portadaAviso(""); portadaOcupada(true);
+  portadaCorreo = correo;
+  portadaAviso(""); portadaOcupada(true, "Comprobando…");
   try {
     sync.tipo = "supabase";
     sync.cfg = await ALMACENES.supabase.configurar({ correo: correo, clave: clave });
-    portadaEntrada(correo);
+    await portadaEntrada(correo);
   } catch (e) {
     const m = (e && e.message) || String(e);
+    portadaOcupada(false);
     portadaAviso(m, /confirmar tu correo/i.test(m)
       ? { etiqueta: "Reenviar el correo", fn: portadaReenviarVerificacion }
       : null);
-  } finally {
-    portadaOcupada(false);
   }
 }
 
+/* Aquí sí se comprueban el correo y las dos contraseñas antes de mandar nada:
+   es la única pantalla donde una errata no se puede corregir después. */
 async function portadaRegistrar() {
-  const correo = (document.getElementById("portada-correo").value || "").trim();
-  const clave = document.getElementById("portada-clave").value || "";
-  if (!correo || !clave) { portadaAviso("Escribe tu correo y la contraseña que quieras usar."); return; }
+  const correo = portadaCorreoValor();
+  const clave = valorDe("portada-clave");
+  const clave2 = valorDe("portada-clave2");
 
-  portadaAviso(""); portadaOcupada(true);
+  if (!correo) { portadaAviso("Escribe el correo con el que quieres entrar."); return; }
+  if (!/.+@.+\..+/.test(correo)) { portadaAviso("Ese correo no parece completo. Revísalo."); return; }
+  if (clave.length < CLAVE_MIN) { portadaAviso("La contraseña necesita al menos " + CLAVE_MIN + " caracteres."); return; }
+  if (clave !== clave2) { portadaAviso("Las dos contraseñas no coinciden. Míralas con el ojito para compararlas."); return; }
+
+  portadaCorreo = correo;
+  portadaAviso(""); portadaOcupada(true, "Creando tu cuenta…");
   try {
     const sesion = await sbRegistrar(correo, clave);
-    if (!sesion) {
-      portadaAviso("Cuenta creada. Te mandé un correo a " + correo + ": ábrelo, confirma, y vuelve a entrar aquí.");
-      return;
-    }
+    // Sin sesión: falta confirmar el correo antes de poder entrar
+    if (!sesion) { portadaIrA("enviado"); return; }
     sync.tipo = "supabase";
     sync.cfg = { correo: correo, sesion: sesion };
-    portadaEntrada(correo);
+    await portadaEntrada(correo, "Cuenta creada. Bienvenido");
   } catch (e) {
-    portadaAviso((e && e.message) || String(e));
-  } finally {
     portadaOcupada(false);
+    /* Si la cuenta ya existía se manda a entrar en vez de dejar el aviso a
+       secas: quien acaba de descubrir que ya tenía cuenta lo que quiere es
+       usarla, y el correo ya está escrito. */
+    portadaAviso((e && e.message) || String(e), (e && e.yaExiste)
+      ? { etiqueta: "Ir a iniciar sesión", fn: () => portadaIrA("entrar") }
+      : null);
   }
 }
 
@@ -216,19 +377,26 @@ async function portadaRegistrar() {
 
    `sync.dueño` recuerda de quién es lo que hay guardado en este dispositivo.
    Sin dueño —quien probó sin cuenta— los datos no son de nadie todavía y se
-   los queda quien entre. */
-function portadaEntrada(correo) {
+   los queda quien entre.
+
+   La entrada no se cierra hasta el final. Antes se quitaba nada más aceptar
+   la contraseña, y lo que quedaba a la vista era la app con los datos de
+   antes hasta que bajaba lo de la cuenta: la pantalla cambiaba dos veces
+   seguidas y eso se lee como un fallo. */
+async function portadaEntrada(correo, saludo) {
   const uid = ((sync.cfg || {}).sesion || {}).uid || null;
 
   if (sync.dueño && uid && sync.dueño !== uid) {
-    // No se tira: se aparta donde se puede recuperar desde Ajustes
+    /* No se tira: se aparta donde se puede recuperar desde Ajustes. Y no se
+       avisa —no ha pasado nada malo ni hay nada que decidir—: un mensaje
+       sobre datos de otra cuenta justo al entrar solo asusta a quien acaba de
+       hacer lo correcto. Las copias siguen estando en Ajustes. */
     stashConflict("otra-cuenta", state);
     guardarLocal({
       skills: [], perks: [], projects: [], missions: [], cajas: [],
       settings: { timezone: userTZ() }, schemaVersion: SCHEMA
     });
     state = load();
-    toast("Este dispositivo tenía datos de otra cuenta. Los aparté y bajo los tuyos.", "atencion");
   }
   sync.dueño = uid;
 
@@ -240,11 +408,26 @@ function portadaEntrada(correo) {
   sync.dirty = hasLocalData();
   sync.lastAt = null;
   saveSync();
-  cerrarPortada();
+
+  cargaMostrar("Trayendo tu progreso…");
   pintarAvisoPruebas();
   renderSync();
-  toast("Hola de nuevo", "logro");
-  syncRun({ silent: true });
+
+  /* Con tope de espera. `fetch` no trae ninguno, así que una petición que no
+     contesta ni falla —el wifi de un aeropuerto que en realidad pide una
+     contraseña— dejaría esta pantalla puesta para siempre. Cumplido el plazo
+     se entra igual: la sesión ya vale, y lo que quede por traer llegará en la
+     siguiente sincronía. */
+  await Promise.race([
+    syncRun({ silent: true }),
+    new Promise(listo => setTimeout(listo, 12000))
+  ]);
+  showView(activeMainView || "summary");
+
+  // La app ya está pintada con lo que toca: recién ahora se destapa
+  cerrarPortada(true);
+  cargaCerrar();
+  toast(saludo || "Hola de nuevo", "logro");
 }
 
 function portadaSinCuenta() {
@@ -263,13 +446,15 @@ function portadaSinCuenta() {
    quién tiene cuenta aquí: se prueban direcciones hasta que una responda
    distinto. */
 async function portadaOlvide() {
-  const correo = (document.getElementById("portada-correo").value || "").trim();
+  const correo = portadaCorreoValor();
   if (!correo) {
     portadaAviso("Escribe arriba tu correo y vuelve a pulsar: ahí te mando el enlace.");
-    document.getElementById("portada-correo").focus();
+    const c = document.getElementById("portada-correo");
+    if (c) c.focus();
     return;
   }
-  portadaAviso(""); portadaOcupada(true);
+  portadaCorreo = correo;
+  portadaAviso(""); portadaOcupada(true, "Mandando el enlace…");
   try {
     await sbRecuperar(correo);
     portadaAviso("Si hay una cuenta con " + correo + ", te acaba de llegar un enlace para poner una contraseña nueva. Revisa también la carpeta de no deseado.");
@@ -281,9 +466,10 @@ async function portadaOlvide() {
 }
 
 async function portadaReenviarVerificacion() {
-  const correo = (document.getElementById("portada-correo").value || "").trim();
+  const correo = portadaCorreoValor();
   if (!correo) { portadaAviso("Escribe arriba tu correo."); return; }
-  portadaAviso(""); portadaOcupada(true);
+  // Este botón se pulsa desde dos sitios; solo se reetiqueta cuando es suyo
+  portadaAviso(""); portadaOcupada(true, portadaModo === "enviado" ? "Reenviando…" : null);
   try {
     await sbReenviarVerificacion(correo);
     portadaAviso("Te reenvié el correo de confirmación a " + correo + ". Míralo también en no deseado.");
@@ -300,7 +486,7 @@ async function portadaReenviarVerificacion() {
    Por eso no se pide la contraseña vieja — quien está aquí es justo el que no
    la recuerda. */
 function mostrarNuevaClave() {
-  cerrarPortada();
+  cerrarPortada(cargaVisible());
   const previo = document.getElementById("nueva-clave");
   if (previo) previo.remove();
   const cap = document.createElement("div");
@@ -321,6 +507,7 @@ function mostrarNuevaClave() {
        </div>
      </div>`;
   document.body.appendChild(cap);
+  cargaCerrar(true);
   document.getElementById("nc-clave2").addEventListener("keydown", e => {
     if (e.key === "Enter") guardarNuevaClave();
   });
@@ -340,15 +527,19 @@ async function guardarNuevaClave() {
   aviso("");
   const btn = document.getElementById("nc-ok");
   btn.disabled = true;
+  btn.innerHTML = '<span class="giro"></span>Guardando…';
   try {
     await sbCambiarClave(a);
+    /* La pantalla se quita al final, cuando `portadaEntrada` ya bajó el
+       progreso y tapó todo con la de carga: quitarla antes deja a la vista
+       una app a medio poner. */
+    await portadaEntrada(sync.cfg.correo, "Contraseña cambiada");
     const cap = document.getElementById("nueva-clave");
     if (cap) cap.remove();
-    portadaEntrada(sync.cfg.correo);
-    toast("Contraseña cambiada", "logro");
   } catch (e) {
     aviso((e && e.message) || String(e));
     btn.disabled = false;
+    btn.textContent = "Guardar y entrar";
   }
 }
 
@@ -423,7 +614,7 @@ async function sbVolverDeEnlace() {
     return true;
   }
 
-  portadaEntrada(sync.cfg.correo);
+  await portadaEntrada(sync.cfg.correo);
   return true;
 }
 
