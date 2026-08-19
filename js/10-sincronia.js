@@ -201,7 +201,7 @@ async function restaurarCopia(key) {
 
   if (!await ask(
     `Se pondrá esta copia (${syncCount(datos)}) en lugar de lo que tienes ahora (${syncCount(state)}). ` +
-    `Lo de ahora no se pierde: se guarda como otra copia antes de cambiar nada.`,
+    `Lo de ahora se guarda como otra copia antes de cambiar nada.`,
     "Restaurar")) return;
 
   /* Restaurar es exactamente el mismo movimiento peligroso que resolver un
@@ -251,7 +251,7 @@ async function syncOnce(opts) {
      pisaríamos con los nuestros, que es peor. */
   const schemaRemoto = Number(env && (env.schema || (env.state && env.state.schemaVersion))) || 1;
   if (schemaRemoto > SCHEMA) {
-    throw new Error("El otro dispositivo usa una versión más nueva de Norata. Actualiza esta (recarga la página) antes de sincronizar; mientras tanto no toco nada.");
+    throw new Error("El otro dispositivo usa una versión más nueva de Norata. Actualiza esta (recarga la página) antes de sincronizar.");
   }
 
   const remoteRev = env && typeof env.rev === "number" ? env.rev : 0;
@@ -342,7 +342,7 @@ function renderSync() {
   if (notaDatos) {
     notaDatos.textContent = "Tu progreso vive en este navegador" +
       (syncReady() ? " y en " + alm.nombre + "" : "") +
-      ". Un respaldo en archivo sigue siendo útil: es tuyo, funciona sin conexión y no depende de ninguna cuenta.";
+      ". También puedes guardarlo en un archivo: es tuyo y funciona sin conexión.";
   }
 
   let dot = "", titulo = "", detalle = "";
@@ -399,7 +399,7 @@ function renderSync() {
     '<div class="stack">' +
     '<button class="btn btn-primary btn-block" onclick="mostrarPortada()">Iniciar sesión o crear cuenta</button>' +
     '</div>' +
-    '<p class="field-hint" style="margin-top:10px">Mientras tanto tu progreso se guarda solo en este dispositivo. Al entrar, lo que ya tienes aquí sube a tu cuenta: no se pierde nada.</p>';
+    '<p class="field-hint" style="margin-top:10px">Mientras tanto tu progreso se guarda solo en este dispositivo. Al entrar, lo que ya tienes aquí sube a tu cuenta.</p>';
 }
 
 function syncRenameDevice(v) {
@@ -410,7 +410,7 @@ function syncRenameDevice(v) {
 
 async function syncDisconnect() {
   const alm = almacen();
-  if (!await ask("Se borrará la credencial de este dispositivo y tu progreso dejará de subirse. Lo que ya está en " + alm.nombre + " se queda ahí, y los datos de este dispositivo tampoco se tocan.", "Desconectar")) return;
+  if (!await ask("Se borrará la credencial de este dispositivo y tu progreso dejará de subirse. Lo que ya subiste sigue en tu cuenta.", "Desconectar")) return;
   /* Se va la credencial entera, no solo una llave con nombre fijo: cada
      almacén guarda lo suyo y aquí no se sabe cómo se llama. */
   sync.enabled = false; sync.cfg = {}; sync.marca = null; sync.dirty = false;

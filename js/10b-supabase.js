@@ -70,7 +70,7 @@ async function sbEntrar(correo, clave) {
 /* Ese correo ya tiene cuenta. Se marca con `yaExiste` para que la pantalla
    pueda ofrecer el botón de entrar en vez de dejar el aviso a secas. */
 function sbYaExiste() {
-  const e = new Error("Ya hay una cuenta con ese correo. Entra con tu contraseña, o usa «¿Olvidaste tu contraseña?» si no la recuerdas. No he tocado nada de lo que ya tenías.");
+  const e = new Error("Ya hay una cuenta con ese correo. Entra con tu contraseña, o usa «¿Olvidaste tu contraseña?» si no la recuerdas.");
   e.yaExiste = true;
   return e;
 }
@@ -218,7 +218,7 @@ ALMACENES.supabase = {
 
   explicacion() {
     return "Guarda tu progreso en tu cuenta para que la computadora y el teléfono vean lo mismo. " +
-      "Tu contraseña no se guarda en este dispositivo, y nadie más puede ver tus datos: eso lo impide la propia base de datos, no la app.";
+      "Solo tú puedes verlo, y tu contraseña no se queda guardada aquí.";
   },
 
   listo() {

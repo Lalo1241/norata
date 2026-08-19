@@ -34,22 +34,27 @@ enlace del pie en ninguna parte.
 Ahora que hay dominio propio, esa dirección ya no cambia aunque se renombre el
 repositorio, que era justo lo frágil de antes.
 
-**El logo se dibuja conservando su proporción, y hay que respetarlo.** La
-primera versión le restaba el mismo margen a lo ancho y a lo alto; en una
-imagen casi cuatro veces más ancha que alta esos píxeles pesan cuatro veces
-más en la altura, y el logo salía achatado (proporción 5.21 en vez de 3.90).
-Se ve a simple vista, pero solo si te fijas — pasó desapercibido hasta que
-Eduardo lo notó en una previsualización. Si se regenera el PNG, calcular el
-alto y sacar el ancho de la proporción, nunca al revés.
+**Gmail cachea las imágenes y NO vuelve a pedirlas.** No las carga del
+servidor: las sirve desde su propio proxy y las guarda. Cambiar el archivo sin
+cambiar el nombre deja a todo el mundo viendo la versión vieja — pasó al
+cambiar el logo de oscuro a claro, y el correo llegó con un recuadro negro.
+**Si cambia el logo, cambia también el nombre del archivo** (`logo-correo-v2`,
+`-v3`…). No hay otra forma de forzarlo.
 
-**El lienzo mide 560x143 y no debe cambiar.** Las plantillas declaran el logo
-a 280x72, que es exactamente la mitad. Cambiar el tamaño del PNG obliga a
-reeditar las tres plantillas dentro de Supabase a mano.
+**El logo va DENTRO de la tarjeta, con el blanco incrustado.** Fuera, sobre el
+fondo de la página, se le notaba el recuadro por mucho que el color coincidiera
+en teoría. Dentro, sobre blanco y con blanco detrás, desaparece.
 
-**El fondo del PNG del logo es el mismo de la página, no el de la tarjeta.**
-Suena a detalle y no lo es: con el color de la tarjeta se ve un recuadro
-flotando alrededor del logo. Si algún día se cambia el color de fondo del
-correo, hay que regenerar el PNG a juego.
+**El logo se dibuja conservando su proporción.** Una versión le restaba el
+mismo margen a lo ancho y a lo alto; en una imagen casi cuatro veces más ancha
+que alta esos píxeles pesan cuatro veces más en la altura, y salía achatado
+(proporción 5.21 en vez de 3.90). Al regenerarlo: fijar el alto y sacar el
+ancho de la proporción, nunca al revés.
+
+**Poppins solo llegará a algunos clientes.** Gmail descarta las tipografías
+externas casi siempre. Por eso la lista sigue con Century Gothic y Futura, las
+únicas de sistema con la «a» redonda de una sola planta, y termina en las de
+siempre. Se ve bien en todos; se ve *nuestro* en algunos.
 
 **Diseño CLARO, aunque la app sea oscura.** Hubo una versión oscura y se
 descartó con evidencia: Eduardo la probó en dos cuentas reales de Gmail —una

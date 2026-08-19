@@ -213,7 +213,7 @@ function portadaPintar(modo) {
        <button class="portada-sin" onclick="portadaSinCuenta()">${yaEntroSinCuenta ? "Volver sin iniciar sesión" : "Probar sin cuenta"}</button>
        <p class="portada-nota">${yaEntroSinCuenta
          ? "Seguirás guardando solo en este dispositivo."
-         : "Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crearla después sin perder nada."}</p>`;
+         : "Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crear una cuenta cuando quieras y llevártelo."}</p>`;
   }
 
   cap.innerHTML = `<div class="portada-caja">${dentro}</div>`;

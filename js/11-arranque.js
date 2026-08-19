@@ -35,8 +35,8 @@ function avisarDatosDelFuturo() {
   caja.innerHTML =
     `<div class="futuro-card">
        <h3>Esta copia de Norata está desactualizada</h3>
-       <p>Tu progreso lo guardó una versión más nueva de la app, así que aquí no puedo entenderlo del todo. <b>No voy a tocar nada</b>: prefiero no guardar a estropearlo.</p>
-       <p>Actualiza Norata en este dispositivo y vuelve a abrirla. Tus datos siguen enteros.</p>
+       <p>Tu progreso lo guardó una versión más nueva de la app, así que aquí no puedo entenderlo del todo. <b>Mientras tanto no voy a guardar nada.</b></p>
+       <p>Actualiza Norata en este dispositivo y vuelve a abrirla.</p>
        <div class="stack">
          <button class="btn btn-primary btn-block" onclick="location.reload(true)">Buscar la versión nueva</button>
          <button class="btn btn-soft btn-block" onclick="exportData()">Guardar un respaldo</button>
