@@ -34,6 +34,18 @@ enlace del pie en ninguna parte.
 Ahora que hay dominio propio, esa dirección ya no cambia aunque se renombre el
 repositorio, que era justo lo frágil de antes.
 
+**El logo se dibuja conservando su proporción, y hay que respetarlo.** La
+primera versión le restaba el mismo margen a lo ancho y a lo alto; en una
+imagen casi cuatro veces más ancha que alta esos píxeles pesan cuatro veces
+más en la altura, y el logo salía achatado (proporción 5.21 en vez de 3.90).
+Se ve a simple vista, pero solo si te fijas — pasó desapercibido hasta que
+Eduardo lo notó en una previsualización. Si se regenera el PNG, calcular el
+alto y sacar el ancho de la proporción, nunca al revés.
+
+**El lienzo mide 560x143 y no debe cambiar.** Las plantillas declaran el logo
+a 280x72, que es exactamente la mitad. Cambiar el tamaño del PNG obliga a
+reeditar las tres plantillas dentro de Supabase a mano.
+
 **El fondo del PNG del logo es el mismo de la página, no el de la tarjeta.**
 Suena a detalle y no lo es: con el color de la tarjeta se ve un recuadro
 flotando alrededor del logo. Si algún día se cambia el color de fondo del
