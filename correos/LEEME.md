@@ -3,11 +3,18 @@
 Estas son las plantillas que le llegan al usuario. **La app no las lee**: se
 copian a mano en Supabase, en *Authentication → Emails*, cada una en su sitio.
 
-| Archivo | Dónde va en Supabase |
-| --- | --- |
-| `01-confirmar-cuenta.html` | Confirm signup |
-| `02-recuperar-contrasena.html` | Reset password |
-| `03-cambio-de-correo.html` | Change email address |
+| Archivo | Plantilla en Supabase | Asunto |
+| --- | --- | --- |
+| `01-confirmar-cuenta.html` | Confirm signup | Confirma tu correo para entrar a Norata |
+| `02-recuperar-contrasena.html` | Reset password | Recupera el acceso a tu cuenta de Norata |
+| `03-cambio-de-correo.html` | Change email address | Confirma tu correo nuevo en Norata |
+
+El **asunto** también hay que cambiarlo: viene en inglés por defecto y es lo
+primero que se ve en la bandeja. Sin signos de exclamación ni mayúsculas
+sueltas — eso es lo que los filtros de correo leen como propaganda.
+
+Las demás plantillas que ofrece Supabase (Magic Link, Invite user,
+Reauthentication) **no se tocan**: la app no las usa.
 
 Viven aquí y no solo en el panel para que tengan historial. Un texto que solo
 existe dentro de una página web ajena no se puede comparar ni volver atrás.
