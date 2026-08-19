@@ -750,15 +750,24 @@ function sbEntrarConGoogle() {
    válida dentro: si se queda, viaja al historial, a lo que se comparte al
    copiar la dirección, y a cualquier cosa que la registre. */
 async function sbVolverDeEnlace() {
-  const h = location.hash || "";
-  if (h.length < 2) return false;
-  const p = new URLSearchParams(h.slice(1));
+  const p = new URLSearchParams((location.hash || "").replace(/^#/, ""));
+  const consulta = new URLSearchParams(location.search || "");
   const limpiar = () => history.replaceState(null, "", location.pathname + location.search);
 
-  // Enlace caducado o ya usado: es lo más común después de "no me llegó"
-  if (p.get("error") || p.get("error_description")) {
-    limpiar();
-    const d = String(p.get("error_description") || "");
+  /* Un fallo puede volver por dos caminos distintos y hay que mirar los dos.
+     Los enlaces del correo lo traen colgado de la almohadilla; los de un
+     proveedor de fuera —Google sin activar, una dirección de vuelta que no
+     está en su lista— vuelven en la consulta, antes de la almohadilla.
+
+     Mirando solo el primero, esos aterrizaban en una portada muda: ni sesión
+     ni mensaje. Desde fuera se ve igual que un botón que no hace nada, que es
+     la peor forma de fallar. */
+  const fallo = p.get("error_description") || p.get("error") ||
+                consulta.get("error_description") || consulta.get("error");
+  if (fallo) {
+    // Aquí sí se limpia también la consulta: el error viene dentro de ella
+    history.replaceState(null, "", location.pathname);
+    const d = String(fallo);
     mostrarPortada();
     portadaAviso(/expired|invalid/i.test(d)
       ? "Ese enlace ya caducó o se usó. Pide uno nuevo con «¿Olvidaste tu contraseña?»."
