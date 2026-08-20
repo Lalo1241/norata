@@ -387,7 +387,10 @@ function load() {
    avisa, con la salida a mano en el propio aviso. */
 
 const COPIA_PREFIJO = "mainquest-conflicto-";
-const MAX_COPIAS = 5;
+/* Tres. Eran cinco y es más de lo que nadie mira: la lista se volvía una
+   pared de botones "Restaurar" iguales, y cada copia es un estado entero
+   ocupando sitio en un almacén que también tiene que guardar lo vivo. */
+const MAX_COPIAS = 3;
 let avisoSinEspacio = false;
 
 function guardarLocal(data) {

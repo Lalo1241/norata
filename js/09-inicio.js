@@ -667,6 +667,76 @@ function detectedTZ() {
   try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; } catch (e) { return "UTC"; }
 }
 
+/* ================= Ajustes por secciones =================
+   Eran seis paneles uno detrás de otro en la misma tira: para cambiar la zona
+   horaria había que pasar por delante de "borrar todos los datos". Ahora cada
+   cosa vive en su sección y se llega a ella a propósito.
+
+   La forma cambia con el tamaño porque el gesto disponible es distinto: en la
+   computadora un índice a la izquierda y la sección abierta al lado —se ve
+   dónde estás y qué más hay sin perder el sitio—; en el teléfono una lista
+   que lleva a la sección y vuelve con la flecha, que es lo que hace cualquier
+   app de ajustes en una pantalla estrecha. Los bloques son los mismos: lo que
+   cambia es cómo se llega. */
+const AJUSTES_SECS = [
+  { id: "cuenta",  nombre: "Cuenta",          icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
+  { id: "dia",     nombre: "Tu día",          icon: "globe",   sub: "La zona horaria con la que se cuenta todo" },
+  { id: "menu",    nombre: "Secciones",       icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
+  { id: "datos",   nombre: "Tus datos",       icon: "book",    sub: "Respaldos, importar y copias automáticas" },
+  { id: "peligro", nombre: "Zona de peligro", icon: "alert",   sub: "Borrar tus datos o tu cuenta" }
+];
+
+/* Qué sección se está viendo. En el teléfono, null significa "la lista"; en la
+   computadora siempre hay una abierta, porque el índice y el contenido conviven
+   y una columna vacía al lado del índice no dice nada. */
+let ajusteAbierto = null;
+
+function renderAjustes() {
+  const nav = document.getElementById("ajustes-nav");
+  const wrap = document.getElementById("ajustes-wrap");
+  if (!nav || !wrap) return;
+  const escritorio = isDesktop();
+  if (escritorio && !ajusteAbierto) ajusteAbierto = AJUSTES_SECS[0].id;
+
+  nav.innerHTML = AJUSTES_SECS.map(sec => `
+    <button class="aj-item ${ajusteAbierto === sec.id ? "on" : ""} ${sec.id === "peligro" ? "riesgo" : ""}"
+      onclick="mostrarAjuste('${sec.id}')">
+      <span class="aj-ic">${icon(sec.icon, 17)}</span>
+      <span class="aj-tx"><b>${escapeHtml(sec.nombre)}</b><span>${escapeHtml(sec.sub)}</span></span>
+      <span class="aj-chev" aria-hidden="true">›</span>
+    </button>`).join("");
+
+  wrap.classList.toggle("en-seccion", !!ajusteAbierto);
+  document.querySelectorAll("#ajustes-cuerpo .ajuste-bloque").forEach(b => {
+    b.classList.toggle("visible", b.dataset.sec === ajusteAbierto);
+  });
+
+  /* En el teléfono el título dice dónde estás, porque el índice ya no se ve.
+     En la computadora sigue diciendo "Ajustes": el índice de al lado marca la
+     sección y repetirlo arriba sería decir dos veces lo mismo. */
+  const abierta = AJUSTES_SECS.find(x => x.id === ajusteAbierto);
+  const titulo = document.getElementById("ajustes-titulo");
+  if (titulo) titulo.textContent = (!escritorio && abierta) ? abierta.nombre : "Ajustes";
+}
+
+function mostrarAjuste(id) {
+  ajusteAbierto = id;
+  renderAjustes();
+  if (!isDesktop()) window.scrollTo(0, 0);
+}
+
+/* La flecha de arriba vuelve un paso, no a la portada: desde una sección del
+   teléfono devuelve a la lista, y solo desde la lista sale de Ajustes. */
+function volverDeAjustes() {
+  if (!isDesktop() && ajusteAbierto) {
+    ajusteAbierto = null;
+    renderAjustes();
+    window.scrollTo(0, 0);
+    return;
+  }
+  showView("summary");
+}
+
 function renderTimezone() {
   const sel = document.getElementById("tz-select");
   if (!sel) return;

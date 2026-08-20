@@ -1012,7 +1012,14 @@ function showView(name) {
   window.scrollTo(0, 0);
   if (name === "catalog") renderCatalogo();
   if (name === "summary") renderSummary();
-  if (name === "settings") { renderTimezone(); renderModulos(); renderSync(); renderCopias(); renderZonaCuenta(); }
+  if (name === "settings") {
+    /* Entrar siempre empieza igual: la lista en el teléfono, la primera
+       sección en la computadora. Recordar la última visitada haría que la
+       pantalla apareciera distinta cada vez sin motivo visible. */
+    ajusteAbierto = null;
+    renderAjustes();
+    renderTimezone(); renderModulos(); renderSync(); renderCopias(); renderZonaCuenta();
+  }
   if (name === "missions") renderMissions();
   if (name === "home") renderHome();
   if (name === "tree") { focusPending = true; renderTree(); }

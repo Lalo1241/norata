@@ -37,7 +37,8 @@ const REDIBUJA_AL_CRUZAR = {
   "view-summary": () => renderSummary(),
   "view-projects": () => renderProjects(),
   "view-project": () => renderProjectDetail(),
-  "view-missions": () => renderMissions()
+  "view-missions": () => renderMissions(),
+  "view-settings": () => renderAjustes()
 };
 
 function revisarAnchoDePantalla() {

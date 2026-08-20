@@ -718,7 +718,47 @@
   .att-item .tx { flex: 1; min-width: 0; }
   .att-item .tx b { display: block; font-size: 14px; }
   .att-item .tx span { font-size: 12px; color: var(--muted); }
-  .att-item .go { color: var(--faint); }
+  .att-item .go { color: var(--faint); transition: color 0.15s ease, transform 0.15s ease; }
+
+  /* ---------- Ajustes por secciones ----------
+     En el teléfono la lista y la sección se turnan; en la computadora conviven
+     (ver la consulta de medios). La fila es la misma en los dos sitios: dos
+     diseños distintos para lo mismo se acaban desincronizando. */
+  .ajustes-nav { display: flex; flex-direction: column; gap: 8px; }
+  .aj-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 14px;
+    cursor: pointer;
+  }
+  .aj-item .aj-ic {
+    width: 34px; height: 34px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: var(--mint-soft);
+    color: var(--mint);
+  }
+  .aj-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .aj-tx b { font-size: 14px; }
+  .aj-tx span { font-size: 11.5px; color: var(--muted); }
+  .aj-chev { color: var(--faint); font-size: 20px; line-height: 1; flex: none; }
+  /* La sección de borrar se anuncia desde el índice: llegar ahí no debería ser
+     una sorpresa. */
+  .aj-item.riesgo .aj-ic { background: var(--coral-soft); color: var(--coral); }
+  .aj-item.on { border-color: var(--mint); background: var(--card2); }
+
+  .ajuste-bloque { display: none; }
+  .ajuste-bloque.visible { display: block; }
+  .ajustes-wrap.en-seccion .ajustes-nav { display: none; }
 
   /* ---------- Chips ---------- */
   .chips {
@@ -3600,6 +3640,21 @@
     /* Formularios centrados en el cuadrante, con el mismo aire a los lados */
     .form-view { max-width: 660px; margin: 0 auto; }
 
+    /* Ajustes no es un formulario de una columna: es un índice y su contenido,
+       y con 660 px los dos juntos quedan estrangulados. */
+    #view-settings.form-view { max-width: 1020px; }
+    .ajustes-wrap {
+      display: grid;
+      grid-template-columns: 274px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+    /* Aquí el índice no se va nunca: es lo que dice dónde estás */
+    .ajustes-wrap.en-seccion .ajustes-nav { display: flex; }
+    .ajustes-nav { position: sticky; top: 26px; }
+    /* La flecha promete "esto abre otra pantalla", y aquí no la abre */
+    .aj-chev { display: none; }
+
     /* Modal centrado en lugar de hoja inferior */
     .modal-backdrop { align-items: center; }
     .modal-card {
@@ -3648,7 +3703,7 @@
      seco. Va fuera de la consulta de medios porque no estorba en táctil. */
   .skill-card, .sum-card, .linked-row, .proj-card, .ready-chip, .cat-chip,
   .ms-card, .dz-row, .chip, .tray-chip, .xlink, .badd, .fs-open, .cat-all,
-  .t-act, .icon-btn, .history-item {
+  .t-act, .icon-btn, .history-item, .att-item, .att-item .tx b {
     transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   }
   /* El botón ya animaba su encogido al pulsarse; se le añade el brillo sin
@@ -3679,6 +3734,15 @@
     .ready-chip:hover,
     .cat-chip:hover,
     .history-item.selectable:hover { background: var(--card2); }
+
+    /* Las filas de "Atención hoy" llevan a una ficha igual que las demás, pero
+       eran las únicas que no se enteraban del cursor: parecían texto suelto en
+       vez de algo que se puede pulsar. */
+    .att-item:hover { background: var(--card2); border-radius: 14px; }
+    .aj-item:hover { background: var(--card2); border-color: var(--faint); }
+    .aj-item.on:hover { border-color: var(--mint); }
+    .att-item:hover .go { color: var(--text); transform: translateX(3px); }
+    .att-item:hover .tx b { color: var(--mint); }
 
     .ms-card:hover,
     .dz-row:hover { background: var(--card); }

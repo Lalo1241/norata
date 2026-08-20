@@ -656,8 +656,15 @@ function flipRender(container, renderFn) {
     if (c.dataset.w) before.set(c.dataset.w, c.getBoundingClientRect());
   });
   renderFn();
+  animarDesde(container, before);
+}
+
+/* Anima un reacomodo que YA está hecho en el DOM: se le pasa dónde estaba
+   cada pieza antes de moverla y las desliza desde ahí. Es la segunda mitad de
+   flipRender, separada para poder usarla sin volver a dibujar nada. */
+function animarDesde(container, antes) {
   [...container.children].forEach(c => {
-    const b = before.get(c.dataset.w);
+    const b = antes.get(c.dataset.w);
     if (!b) return;
     const a = c.getBoundingClientRect();
     const dx = b.left - a.left, dy = b.top - a.top;
@@ -665,7 +672,7 @@ function flipRender(container, renderFn) {
     c.style.transition = "none";
     c.style.transform = `translate(${dx}px, ${dy}px)`;
     requestAnimationFrame(() => {
-      c.style.transition = "transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)";
+      c.style.transition = "transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)";
       c.style.transform = "";
     });
   });
@@ -678,6 +685,12 @@ function attachDashHandlers() {
 
   let holdTimer = null, dragId = null, ghost = null, startPt = null;
   let sizeId = null, sizeStart = null, cellW = 0;
+  /* El orden mientras dura el arrastre. Se guarda al soltar, no en cada paso:
+     antes cada cruce de tarjeta escribía en disco y volvía a dibujar el
+     Resumen ENTERO —siete tarjetas rehechas desde cero, con sus anillos
+     reanimados—, y eso es lo que se sentía pesado. Ahora en cada paso solo se
+     mueve un nodo de sitio y se anima el deslizamiento. */
+  let ordenVivo = null, ghostIni = null;
 
   const cols = () => {
     const t = getComputedStyle(cont).gridTemplateColumns.split(" ").filter(Boolean);
@@ -696,8 +709,7 @@ function attachDashHandlers() {
     ghost = el.cloneNode(true);
     ghost.className = "widget ghost";
     ghost.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;pointer-events:none;z-index:400;`;
-    ghost.dataset.dx = e.clientX - r.left;
-    ghost.dataset.dy = e.clientY - r.top;
+    ghostIni = { x: r.left, y: r.top, dx: e.clientX - r.left, dy: e.clientY - r.top };
     document.body.appendChild(ghost);
     el.classList.add("dragging");
     if (userHasTapped && navigator.vibrate) navigator.vibrate(12);
@@ -761,12 +773,26 @@ function attachDashHandlers() {
     }
     if (!dragId || !ghost) return;
     e.preventDefault();
-    ghost.style.left = (e.clientX - ghost.dataset.dx) + "px";
-    ghost.style.top = (e.clientY - ghost.dataset.dy) + "px";
+    /* Con transform y no con left/top: el navegador lo resuelve sin volver a
+       calcular el reparto de la página, así que la pieza va pegada al cursor
+       en vez de ir un paso por detrás. */
+    ghost.style.transform =
+      `translate3d(${e.clientX - ghostIni.dx - ghostIni.x}px, ${e.clientY - ghostIni.dy - ghostIni.y}px, 0) scale(1.03)`;
 
-    const under = document.elementFromPoint(e.clientX, e.clientY);
-    const target = under && under.closest(".widget");
-    if (!target || target.dataset.w === dragId) return;
+    /* La tarjeta de destino es la que tiene el centro MÁS CERCA del puntero,
+       no la que esté justo debajo. Acertarle a la figura obligaba a apuntar
+       fino: los huecos de la cuadrícula (22 px), el borde de la pantalla y el
+       espacio de debajo de la última tarjeta no hacían nada, y el reacomodo
+       se sentía tosco y a medio responder. Con la cercanía, arrastrar hacia
+       una zona ya basta. */
+    let target = null, mejor = Infinity;
+    [...cont.querySelectorAll(".widget")].forEach(el => {
+      if (el.dataset.w === dragId) return;
+      const rr = el.getBoundingClientRect();
+      const d = Math.hypot(e.clientX - (rr.left + rr.width / 2), e.clientY - (rr.top + rr.height / 2));
+      if (d < mejor) { mejor = d; target = el; }
+    });
+    if (!target) return;
 
     /* Dónde cae la tarjeta se decide por la posición del puntero dentro de
        la que tiene debajo, no por cuál fue la última que pisó.
@@ -786,7 +812,7 @@ function attachDashHandlers() {
     const centro = r.top + r.height / 2;
     const despues = e.clientY > centro || (e.clientY === centro && e.clientX > r.left + r.width / 2);
 
-    const { order, hidden } = dashLayout();
+    const order = ordenVivo || dashLayout().order;
     const sinLaQueMuevo = order.filter(id => id !== dragId);
     let destino = sinLaQueMuevo.indexOf(target.dataset.w);
     if (destino < 0) return;
@@ -794,8 +820,16 @@ function attachDashHandlers() {
     const nuevo = [...sinLaQueMuevo.slice(0, destino), dragId, ...sinLaQueMuevo.slice(destino)];
     if (nuevo.join() === order.join()) return;      // ya estaba justo ahí
 
-    saveDash(nuevo, hidden);
-    flipRender(cont, renderSummary);
+    /* Mover el nodo y animar, sin tocar el disco ni rehacer el HTML. El hueco
+       translúcido de la tarjeta que se arrastra viaja con ella, que es lo que
+       hace entender dónde va a caer — igual que en Misiones y en Proyectos. */
+    const antes = new Map();
+    [...cont.children].forEach(c => { if (c.dataset.w) antes.set(c.dataset.w, c.getBoundingClientRect()); });
+    const piezas = new Map();
+    [...cont.children].forEach(c => { if (c.dataset.w) piezas.set(c.dataset.w, c); });
+    nuevo.forEach(id => { const el = piezas.get(id); if (el) cont.appendChild(el); });
+    animarDesde(cont, antes);
+    ordenVivo = nuevo;
   });
 
   const endDrag = () => {
@@ -819,8 +853,10 @@ function attachDashHandlers() {
     if (ghost) { ghost.remove(); ghost = null; }
     const el = cont.querySelector(".widget.dragging");
     if (el) el.classList.remove("dragging");
+    // El orden se escribe una sola vez, cuando se suelta
+    if (ordenVivo) { saveDash(ordenVivo, dashLayout().hidden); ordenVivo = null; }
     if (dragId) olvidarPasoVacio();
-    dragId = null; startPt = null;
+    dragId = null; startPt = null; ghostIni = null;
   };
   cont.addEventListener("pointerup", endDrag);
   cont.addEventListener("pointercancel", endDrag);

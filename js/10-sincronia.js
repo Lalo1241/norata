@@ -157,6 +157,13 @@ function stashConflict(tag, data) {
   /* Antes no había tope y nadie las borraba nunca: cada conflicto dejaba un
      estado entero ocupando sitio para siempre, hasta llenar el almacén y
      tumbar el guardado de los datos vivos. Se conservan las últimas. */
+  podarCopias();
+}
+
+/* Tira las que sobran del tope. Se llama al guardar una nueva y también al
+   enseñar la lista: quien ya tenía cinco de antes no debería seguir viéndolas
+   —ni ocupando sitio— hasta que se dé la próxima sincronía conflictiva. */
+function podarCopias() {
   const copias = listarCopias();
   for (let i = MAX_COPIAS; i < copias.length; i++) {
     try { localStorage.removeItem(copias[i].key); } catch (e) {}
@@ -170,6 +177,7 @@ function stashConflict(tag, data) {
 function renderCopias() {
   const cont = document.getElementById("copias-lista");
   if (!cont) return;
+  podarCopias();
   const copias = listarCopias().filter(c => c.datos);
 
   if (!copias.length) {
