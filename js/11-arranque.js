@@ -83,6 +83,16 @@ function avisarDatosDelFuturo() {
 }
 
 aplicarModulos();
+
+/* El gesto de atrás del teléfono pasa por aquí. Ver atrasApp(): si la app se
+   ocupa, se repone el colchón; si no, se deja ir de verdad —el gesto ya
+   consumió una entrada, así que hace falta soltar otra—. */
+armarColchon();
+window.addEventListener("popstate", () => {
+  if (atrasApp()) armarColchon();
+  else setTimeout(() => { try { history.back(); } catch (e) {} }, 0);
+});
+
 showView("summary");
 
 /* La entrada, antes que nada visible. El orden importa: primero se mira si

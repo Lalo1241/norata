@@ -956,6 +956,78 @@ function brandClick() {
   else showView("summary");
 }
 
+/* ================= El gesto de atrás =================
+   En el teléfono, deslizar desde el borde es "atrás". La app vivía en una
+   sola entrada del historial, así que ese gesto no volvía a ninguna parte:
+   se salía de Norata de golpe, y pasaba a menudo sin querer.
+
+   La solución es un colchón: una entrada de historial de mentira que está
+   siempre puesta. El gesto la consume, nosotros nos enteramos y hacemos lo
+   que haría la flecha de esa pantalla, y volvemos a poner el colchón. Así el
+   gesto del sistema y las flechas de la app hacen lo mismo, que es lo que
+   cualquiera espera.
+
+   Estando ya en la raíz no hay a dónde volver: ahí el primer gesto avisa y el
+   segundo sí sale. Salir tiene que ser una decisión, no un resbalón. */
+function armarColchon() {
+  try {
+    if (!history.state || !history.state.colchonNorata) {
+      history.pushState({ colchonNorata: true }, "");
+    }
+  } catch (e) { /* sin historial disponible: el gesto se comporta como antes */ }
+}
+
+let avisoDeSalida = 0;
+
+/* Devuelve true si se ha ocupado del gesto (y hay que reponer el colchón), o
+   false si lo que toca es dejar salir de la app. El orden va de lo más
+   encima a lo más al fondo: primero se cierra lo que tapa la pantalla, luego
+   se navega, y la salida es siempre lo último. */
+function atrasApp() {
+  // 1. Capas que están por encima de todo
+  const menu = document.getElementById("ajustes-menu");
+  if (menu && menu.classList.contains("show")) { cerrarMenuAjustes(); return true; }
+
+  const ventana = document.getElementById("ajustes-modal");
+  if (ventana && ventana.classList.contains("show")) { cerrarVentanaAjustes(); return true; }
+
+  const tuto = document.getElementById("tuto");
+  if (tuto && tuto.classList.contains("show")) { cerrarTutorial(); return true; }
+
+  if (typeof ventanaCajaId !== "undefined" && ventanaCajaId) { cerrarVentanaCaja(); return true; }
+
+  const modal = document.getElementById("modal");
+  if (modal && modal.classList.contains("show")) { modalDone(false); return true; }
+
+  if (typeof fullscreenBranch !== "undefined" && fullscreenBranch) { closeBranchFullscreen(); return true; }
+
+  // 2. Modos que cambian lo que hacen los toques
+  if (typeof selNodos !== "undefined" && (selNodos.size || modoElegir)) { soltarSeleccion(); return true; }
+  if (typeof editBranch !== "undefined" && editBranch) { toggleEditBranch(editBranch); return true; }
+  if (typeof dashEditing !== "undefined" && dashEditing) { setDashEdit(false); return true; }
+
+  // 3. Navegación: lo mismo que haría la flecha de esta pantalla
+  const activa = document.querySelector(".view.active");
+  const vista = activa ? activa.id.replace("view-", "") : "summary";
+
+  if (vista === "settings") {
+    // En el teléfono, Ajustes tiene su propio paso intermedio: la lista
+    if (!isDesktop() && ajusteAbierto) { volverDeAjustes(); return true; }
+    showView("summary");
+    return true;
+  }
+  const padre = VISTA_MODULO[vista];
+  if (padre && padre !== vista) { showView(padre); return true; }
+
+  // 4. Ya en la raíz
+  if (isDesktop()) return false;
+  const ahora = Date.now();
+  if (ahora - avisoDeSalida < 2600) return false;
+  avisoDeSalida = ahora;
+  toast("Desliza otra vez para salir", "calma");
+  return true;
+}
+
 function showView(name) {
   // Un módulo apagado no se abre ni por un enlace que quedara apuntando ahí
   const mod = VISTA_MODULO[name];
@@ -1010,6 +1082,10 @@ function showView(name) {
   }
 
   window.scrollTo(0, 0);
+  /* El colchón se repone al movernos: si algo lo consumió por su cuenta (una
+     vuelta de Google limpia la dirección con replaceState, por ejemplo), el
+     gesto de atrás se quedaría sin red. */
+  armarColchon();
   if (name === "catalog") renderCatalogo();
   if (name === "summary") renderSummary();
   if (name === "settings") {

@@ -292,7 +292,10 @@ function renderSummary() {
   if (piezas.length < 2) dashEditing = false;
   if (btnTablero) btnTablero.style.display = piezas.length > 1 ? "" : "none";
 
-  el.className = dashEditing ? "dash editing" : "dash";
+  /* "editing" enciende las etiquetas, el asa de tamaño y el meneo de las
+     tarjetas. En el teléfono no hay nada de eso: la bandeja sale igual, pero
+     el tablero se queda como está. */
+  el.className = dashEditing ? (isDesktop() ? "dash editing" : "dash eligiendo") : "dash";
   el.innerHTML = piezas.join("");
   /* La bandeja del Modo Editor vive fuera del tablero: dentro competía por
      una celda con las tarjetas y había que calcularle filas a mano. */
@@ -300,7 +303,7 @@ function renderSummary() {
   if (host) host.innerHTML = dashEditing ? dashTray(hidden) : "";
 
   marcarDesbordes();
-  if (dashEditing) attachDashHandlers();
+  if (dashEditing && isDesktop()) attachDashHandlers();
 }
 
 /* ================= Tablero personalizable =================
@@ -394,10 +397,50 @@ const DASH_ACOMODOS = [
   }
 ];
 
+/* ---- Acomodos del teléfono ----
+   En una sola columna no hay nada que repartir a lo ancho ni alturas que
+   elegir: lo único que cambia el tablero es QUÉ VA PRIMERO. Por eso son otros
+   tres, y no los de la computadora traducidos —allí un acomodo reparte tres
+   columnas; aquí decide con qué te encuentras al abrir la app—.
+
+   El arrastre y el resto del Modo Editor están apagados en el teléfono a
+   propósito: la personalización de móvil se va a rehacer con otro gesto, y
+   mientras tanto es mejor no tener a medias algo que se siente mal. */
+const DASH_ACOMODOS_MOVIL = [
+  {
+    nombre: "El día",
+    sub: "Lo de hoy primero: misiones, racha y lo que urge",
+    order: ["misiones", "racha", "atencion", "proyectos", "niveles", "invertido", "listos"]
+  },
+  {
+    nombre: "Constancia",
+    sub: "La racha arriba, y debajo lo que la alimenta",
+    order: ["racha", "misiones", "niveles", "atencion", "listos", "invertido", "proyectos"]
+  },
+  {
+    nombre: "Lo que construyo",
+    sub: "Proyectos y talentos al frente; el día, después",
+    order: ["proyectos", "listos", "invertido", "misiones", "atencion", "racha", "niveles"]
+  }
+];
+
+function acomodosDeAhora() {
+  return isDesktop() ? DASH_ACOMODOS : DASH_ACOMODOS_MOVIL;
+}
+
 function aplicarAcomodo(i) {
-  const a = DASH_ACOMODOS[i];
+  const a = acomodosDeAhora()[i];
   if (!a) return;
   recordarTablero("acomodo " + a.nombre);
+
+  /* En el teléfono solo cambia el orden: no hay columnas que repartir ni
+     alturas que encoger, así que aquí se acaba. */
+  if (!isDesktop()) {
+    saveDash(a.order.slice(), null, null);
+    flipRender(document.getElementById("summary-content"), renderSummary);
+    toast("Acomodo " + a.nombre, "hecho", { label: "Deshacer", onclick: "deshacerTablero()" });
+    return;
+  }
   /* Un acomodo sigue estando escrito como una lista ordenada, que es como se
      piensa al diseñarlo. Se empaqueta a coordenadas aquí: a partir de ese
      momento las tarjetas tienen sitio propio y dejan de fluir. */
@@ -704,15 +747,15 @@ function marcarDesbordes() {
 
 function dashTray(hidden) {
   const avail = Object.keys(DASH_META).filter(id => hidden.includes(id));
+  const escritorio = isDesktop();
   return `
   <div class="dash-tray full-row">
     <div class="tray-head">
       <div class="tray-tx">
-        <h3>Modo Editor</h3>
-        <p class="settings-note" style="margin:0">Arrastra para acomodar · esquina inferior derecha para cambiar el tamaño · ✕ para quitar${
-          /* El atajo solo se menciona donde funciona: en el teléfono no hay
-             teclado a mano y anunciarlo sería ruido. */
-          isDesktop() ? ` · <kbd>Ctrl</kbd><kbd>Z</kbd> deshacer` : ""}</p>
+        <h3>${escritorio ? "Modo Editor" : "Acomodos"}</h3>
+        <p class="settings-note" style="margin:0">${escritorio
+          ? `Arrastra para acomodar · esquina inferior derecha para cambiar el tamaño · ✕ para quitar · <kbd>Ctrl</kbd><kbd>Z</kbd> deshacer`
+          : `Elige con qué quieres encontrarte al abrir la app. Acomodar tarjeta por tarjeta llegará más adelante, con un gesto pensado para el teléfono.`}</p>
       </div>
       <button class="btn btn-primary" onclick="setDashEdit(false)">Listo</button>
     </div>
@@ -723,7 +766,7 @@ function dashTray(hidden) {
     <div class="tray-acomodos">
       <span class="lbl">Acomodos sugeridos</span>
       <div class="acomodo-fila">
-        ${DASH_ACOMODOS.map((a, i) => `
+        ${acomodosDeAhora().map((a, i) => `
           <button class="acomodo" onclick="aplicarAcomodo(${i})">
             <span class="ac-n">${i + 1}</span>
             <span class="ac-tx"><b>${escapeHtml(a.nombre)}</b><span>${escapeHtml(a.sub)}</span></span>
@@ -736,7 +779,10 @@ function dashTray(hidden) {
 function setDashEdit(on) {
   dashEditing = on;
   renderSummary();
-  if (on) toast("Arrastra las tarjetas para reacomodarlas", "hecho");
+  if (!on) return;
+  toast(isDesktop()
+    ? "Arrastra las tarjetas para reacomodarlas"
+    : "Elige un acomodo para tu Resumen", "hecho");
 }
 
 function hideWidget(id) {
@@ -785,6 +831,8 @@ function animarDesde(container, antes) {
 }
 
 function attachDashHandlers() {
+  // El tablero solo se toca con las manos en la computadora (ver dashTray)
+  if (!isDesktop()) return;
   const cont = document.getElementById("summary-content");
   if (cont.dataset.bound) return;
   cont.dataset.bound = "1";
@@ -826,6 +874,10 @@ function attachDashHandlers() {
   };
 
   cont.addEventListener("pointerdown", (e) => {
+    /* Los oyentes se enganchan una sola vez y sobreviven a un cambio de
+       tamaño de ventana: sin esto, encoger la ventana hasta el ancho de un
+       teléfono dejaría vivo el arrastre que ahí está apagado. */
+    if (!isDesktop()) return;
     const w = e.target.closest(".widget");
     if (!w || e.target.closest(".w-hide")) return;
 
