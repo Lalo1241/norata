@@ -258,15 +258,21 @@ function renderSummary() {
   /* Una tarjeta que resume un módulo apagado no tiene a dónde llevar, así
      que desaparece con él. No se toca la configuración del tablero: al
      volver a encender el módulo, su tarjeta reaparece donde estaba. */
-  const piezas = order
-    .filter(id => !hidden.includes(id) && (!DASH_MODULO[id] || moduloOn(DASH_MODULO[id])))
+  const visibles = order.filter(id =>
+    !hidden.includes(id) && (!DASH_MODULO[id] || moduloOn(DASH_MODULO[id])) && W[id] && W[id]());
+  /* Dónde va cada una. En el teléfono no hay columnas que repartir: se apilan
+     en el orden de lectura y la cuadrícula de una sola columna hace el resto. */
+  const sitio = isDesktop() ? disposicionTablero(visibles, dashCols()) : {};
+  const piezas = visibles
     .map(id => {
       const body = W[id] ? W[id]() : "";
       if (!body) return "";
       const meta = DASH_META[id];
       const sz = dashSize(id);
+      const p = sitio[id];
       return `
-      <div class="widget" data-w="${id}" style="--w:${sz.w};--h:${sz.h}">
+      <div class="widget" data-w="${id}" style="--w:${sz.w};--h:${sz.h}${
+        p ? `;--c:${p.c + 1};--f:${p.f + 1}` : ""}">
         ${body}
         <div class="w-edit">
           <span class="w-grip">${icon("map", 14)} ${escapeHtml(meta.title)}</span>
@@ -287,34 +293,14 @@ function renderSummary() {
   if (btnTablero) btnTablero.style.display = piezas.length > 1 ? "" : "none";
 
   el.className = dashEditing ? "dash editing" : "dash";
-  el.innerHTML = (dashEditing ? dashTray(hidden) : "") + piezas.join("");
+  el.innerHTML = piezas.join("");
+  /* La bandeja del Modo Editor vive fuera del tablero: dentro competía por
+     una celda con las tarjetas y había que calcularle filas a mano. */
+  const host = document.getElementById("dash-tray-host");
+  if (host) host.innerHTML = dashEditing ? dashTray(hidden) : "";
 
   marcarDesbordes();
-  if (dashEditing) { ajustarBandeja(); attachDashHandlers(); }
-}
-
-/* ---- La bandeja del editor ocupa las filas que necesita ----
-   Estaba clavada a dos filas de la cuadrícula (112 px) y su contenido mide
-   bastante más: los acomodos sugeridos se salían por abajo y las etiquetas de
-   las tarjetas de la fila siguiente —que sobresalen por encima de cada
-   tarjeta— acababan escritas encima de ellos.
-
-   No se puede pedirle a una celda de altura fija que se ajuste a su
-   contenido, así que se mide y se le dan las filas que le hagan falta, más un
-   respiro para que nada de la fila de abajo la roce. */
-/* Cuánto respiro se le pide de más. No es un capricho de diseño: las
-   etiquetas del modo editor sobresalen por encima de cada tarjeta, así que
-   pegar la primera fila a la bandeja las hace chocar. Con esto la bandeja se
-   lee como un panel aparte y no como la primera pieza del tablero. */
-const BANDEJA_AIRE = 36;
-
-function ajustarBandeja() {
-  const bandeja = document.querySelector(".dash-tray");
-  if (!bandeja || !isDesktop()) return;
-  bandeja.style.gridRow = "";                       // medir sin lo de antes puesto
-  const alto = bandeja.scrollHeight + BANDEJA_AIRE;
-  const filas = Math.max(2, Math.ceil((alto + ROW_GAP) / (ROW_H + ROW_GAP)));
-  bandeja.style.gridRow = `span ${filas}`;
+  if (dashEditing) attachDashHandlers();
 }
 
 /* ================= Tablero personalizable =================
@@ -339,6 +325,11 @@ const DASH_MODULO = {
   invertido: "tree", listos: "tree", proyectos: "projects"
 };
 const ROW_H = 56, ROW_GAP = 22;
+/* El hueco vertical es distinto del horizontal (gap: 24px 22px), y para
+   colocar por filas hay que usar el de verdad: con el otro, la cuenta se va
+   desviando una fila cada pocas filas. */
+const ROW_GAP_V = 24;
+const ROW_PITCH = ROW_H + ROW_GAP_V;
 /* Suelo de encogimiento, medido tarjeta por tarjeta: por debajo de esto
    deja de comunicar. No es una cifra común porque no todas dicen lo mismo
    —"Listos para empezar" es una lista y necesita cuatro; "Proyectos" es un
@@ -407,8 +398,13 @@ function aplicarAcomodo(i) {
   const a = DASH_ACOMODOS[i];
   if (!a) return;
   recordarTablero("acomodo " + a.nombre);
+  /* Un acomodo sigue estando escrito como una lista ordenada, que es como se
+     piensa al diseñarlo. Se empaqueta a coordenadas aquí: a partir de ese
+     momento las tarjetas tienen sitio propio y dejan de fluir. */
+  const sizes = JSON.parse(JSON.stringify(a.sizes));
   // `hidden` se pasa como null a propósito: saveDash conserva el que ya había
-  saveDash(a.order.slice(), null, JSON.parse(JSON.stringify(a.sizes)));
+  saveDash(a.order.slice(), null, sizes);
+  saveDash(null, null, null, empaquetar(a.order.filter(id => !dashLayout().hidden.includes(id)), sizes, dashCols()));
   flipRender(document.getElementById("summary-content"), renderSummary);
   /* Un acomodo sugerido que obliga a bajar por la pantalla para verse entero
      no es un acomodo: es una lista. Las alturas de aquí arriba están escritas
@@ -433,11 +429,15 @@ function encajarEnPantalla() {
   for (let vuelta = 0; vuelta < 6; vuelta++) {
     const caja = el.getBoundingClientRect();
     /* La bandeja del editor no cuenta: desaparece al salir del modo, y lo que
-       tiene que caber es el tablero que quedará después. */
-    const bandeja = el.querySelector(".dash-tray");
-    const estorbo = bandeja ? bandeja.getBoundingClientRect().height + ROW_GAP : 0;
-    const disponible = window.innerHeight - caja.top - 26;
-    const alto = caja.height - estorbo;
+       tiene que caber es el tablero que quedará después. Mientras está puesta,
+       empuja el tablero hacia abajo, así que se le devuelve ese sitio a la
+       cuenta —si no, se encogería más de lo necesario o se daría por vencido
+       creyendo que no hay hueco. */
+    const host = document.getElementById("dash-tray-host");
+    const bandeja = host && host.firstElementChild
+      ? host.getBoundingClientRect().height + 26 : 0;
+    const disponible = window.innerHeight - (caja.top - bandeja) - 26;
+    const alto = caja.height;
     if (alto <= disponible) break;
 
     const factor = disponible / alto;
@@ -451,6 +451,11 @@ function encajarEnPantalla() {
     });
     if (!cambio) break;                 // todas están ya en su mínimo
     state.ui[ranuraTablero()].sizes = sizes;
+    /* Al cambiar los altos, lo que había debajo puede subir: se vuelve a
+       empaquetar para que el acomodo siga siendo el que se eligió y no quede
+       un tablero con agujeros. */
+    const vis = dashLayout().order.filter(id => !dashLayout().hidden.includes(id) && DASH_META[id]);
+    state.ui[ranuraTablero()].pos = empaquetar(vis, sizes, dashCols());
     tocado = true;
     renderSummary();
   }
@@ -480,8 +485,108 @@ function dashLayout() {
   return {
     order,
     hidden: Array.isArray(d.hidden) ? d.hidden : [],
-    sizes: d.sizes || {}
+    sizes: d.sizes || {},
+    /* Dónde está cada tarjeta: `pos[id] = {c, f}`, columna y fila. Puede no
+       existir —tableros de antes de que esto fuera posicional— y entonces se
+       deduce empaquetando el orden, que es justo lo que hacía la cuadrícula
+       por su cuenta. Así nadie ve su tablero cambiar al actualizar. */
+    pos: d.pos || null
   };
+}
+
+/* Cuántas columnas tiene el tablero AHORA. La cuadrícula lo decide en CSS por
+   el ancho de la ventana; aquí hay que saberlo para colocar y para arrastrar,
+   y las dos cuentas tienen que dar lo mismo. */
+function dashCols() {
+  if (!isDesktop()) return 1;
+  return window.matchMedia("(min-width: 1700px)").matches ? 3 : 2;
+}
+
+/* ---- Empaquetar en orden ----
+   Coloca una lista de tarjetas buscando el primer hueco libre de arriba a
+   abajo y de izquierda a derecha: exactamente lo que hacía la cuadrícula
+   sola. Se usa para estrenar el modelo con lo que ya había y para aplicar un
+   acomodo, que sigue estando escrito como una lista ordenada. */
+function empaquetar(order, sizes, cols) {
+  const usado = [];
+  const pos = {};
+  const libre = (c, f, w, h) => {
+    for (let i = f; i < f + h; i++) {
+      if (!usado[i]) continue;
+      for (let j = c; j < c + w; j++) if (usado[i][j]) return false;
+    }
+    return true;
+  };
+  const marcar = (c, f, w, h) => {
+    for (let i = f; i < f + h; i++) {
+      usado[i] = usado[i] || [];
+      for (let j = c; j < c + w; j++) usado[i][j] = true;
+    }
+  };
+  order.forEach(id => {
+    if (!DASH_META[id]) return;
+    const s = dashSize(id);
+    const w = Math.min(s.w, cols);
+    for (let f = 0; f < 500; f++) {
+      let puesto = false;
+      for (let c = 0; c + w <= cols; c++) {
+        if (libre(c, f, w, s.h)) { pos[id] = { c, f }; marcar(c, f, w, s.h); puesto = true; break; }
+      }
+      if (puesto) break;
+    }
+  });
+  return pos;
+}
+
+/* ---- La disposición final ----
+   Toma lo que el usuario decidió (columna y fila de cada tarjeta) y resuelve
+   los solapes de la única forma que no sorprende: lo que estorba BAJA, y baja
+   dentro de su columna. Nadie cambia de columna por culpa de otro, que es lo
+   que convertía cada arrastre en una cascada.
+
+   Se ordena por fila y luego por columna —el orden en que se lee— para que el
+   resultado no dependa de en qué orden estén guardadas las tarjetas. */
+function disposicionTablero(ids, cols, extra) {
+  const { pos, sizes, order, hidden } = dashLayout();
+  // Las escondidas no ocupan sitio en el reparto de estreno
+  const base = pos || empaquetar(order.filter(id => !hidden.includes(id)), sizes, cols);
+  const piezas = ids.map(id => {
+    const s = dashSize(id);
+    const p = (extra && extra[id]) || base[id] || { c: 0, f: 0 };
+    return { id, w: Math.min(s.w, cols), h: s.h, c: clamp(p.c, 0, Math.max(0, cols - Math.min(s.w, cols))), f: Math.max(0, p.f) };
+  });
+  piezas.sort((a, b) => (a.f - b.f) || (a.c - b.c));
+
+  const usado = [];
+  const libre = (c, f, w, h) => {
+    for (let i = f; i < f + h; i++) {
+      if (!usado[i]) continue;
+      for (let j = c; j < c + w; j++) if (usado[i][j]) return false;
+    }
+    return true;
+  };
+  const marcar = (c, f, w, h) => {
+    for (let i = f; i < f + h; i++) {
+      usado[i] = usado[i] || [];
+      for (let j = c; j < c + w; j++) usado[i][j] = true;
+    }
+  };
+  const fin = {};
+  piezas.forEach(p => {
+    let f = p.f;
+    while (f < 600 && !libre(p.c, f, p.w, p.h)) f++;
+    marcar(p.c, f, p.w, p.h);
+    fin[p.id] = { c: p.c, f, w: p.w, h: p.h };
+  });
+  return fin;
+}
+
+function guardarPosiciones(pos) {
+  state.ui = state.ui || {};
+  const ranura = ranuraTablero();
+  const cur = state.ui[ranura] || state.ui.dash || {};
+  state.ui[ranura] = Object.assign({}, cur, { pos });
+  save();
 }
 
 function altoMinimo(id) { return DASH_MIN_H[id] || 2; }
@@ -499,14 +604,15 @@ function dashSize(id) {
   };
 }
 
-function saveDash(order, hidden, sizes) {
+function saveDash(order, hidden, sizes, pos) {
   state.ui = state.ui || {};
   const ranura = ranuraTablero();
   const cur = state.ui[ranura] || state.ui.dash || {};
   state.ui[ranura] = {
     order: order || cur.order,
     hidden: hidden || cur.hidden || [],
-    sizes: sizes || cur.sizes || {}
+    sizes: sizes || cur.sizes || {},
+    pos: pos || cur.pos || null
   };
   save();
 }
@@ -536,8 +642,8 @@ const DASH_UNDO_MAX = 40;
 let dashUndo = [];
 
 function instantaneaTablero() {
-  const { order, hidden, sizes } = dashLayout();
-  return JSON.stringify({ order, hidden, sizes });
+  const { order, hidden, sizes, pos } = dashLayout();
+  return JSON.stringify({ order, hidden, sizes, pos });
 }
 
 function recordarTablero(etiqueta) {
@@ -557,7 +663,7 @@ function deshacerTablero() {
   if (!dashUndo.length) { toast("No hay nada que deshacer en el tablero", "atencion"); return; }
   const prev = dashUndo.pop();
   const d = JSON.parse(prev.snap);
-  saveDash(d.order, d.hidden, d.sizes);
+  saveDash(d.order, d.hidden, d.sizes, d.pos);
   renderSummary();
   toast(`Deshecho: ${prev.etiqueta}`, "deshecho");
 }
@@ -691,6 +797,10 @@ function attachDashHandlers() {
      reanimados—, y eso es lo que se sentía pesado. Ahora en cada paso solo se
      mueve un nodo de sitio y se anima el deslizamiento. */
   let ordenVivo = null, ghostIni = null;
+  /* La disposición que se está viendo mientras se arrastra, y la última celda
+     probada: sin ella se recalcularía en cada píxel aunque la celda no haya
+     cambiado, y las animaciones se cortarían unas a otras. */
+  let sitioVivo = null, celdaVista = null;
 
   const cols = () => {
     const t = getComputedStyle(cont).gridTemplateColumns.split(" ").filter(Boolean);
@@ -779,12 +889,43 @@ function attachDashHandlers() {
     ghost.style.transform =
       `translate3d(${e.clientX - ghostIni.dx - ghostIni.x}px, ${e.clientY - ghostIni.dy - ghostIni.y}px, 0) scale(1.03)`;
 
-    /* La tarjeta de destino es la que tiene el centro MÁS CERCA del puntero,
-       no la que esté justo debajo. Acertarle a la figura obligaba a apuntar
-       fino: los huecos de la cuadrícula (22 px), el borde de la pantalla y el
-       espacio de debajo de la última tarjeta no hacían nada, y el reacomodo
-       se sentía tosco y a medio responder. Con la cercanía, arrastrar hacia
-       una zona ya basta. */
+    /* ---- En escritorio se arrastra por CELDAS ----
+       La tarjeta cae en la columna y la fila donde la sueltas, y punto. Lo
+       que estorbe baja dentro de su columna; nadie más se entera. Antes esto
+       era una lista que la cuadrícula volvía a empaquetar en cada paso, y por
+       eso al mover una se recolocaban cinco o seis a la vez: eso era el
+       parpadeo. Mover dentro de una columna ya no puede sugerir otra, porque
+       la columna la decide el puntero y nada más. */
+    if (isDesktop()) {
+      const rc = cont.getBoundingClientRect();
+      const cols = dashCols();
+      const anchoCol = (rc.width - ROW_GAP * (cols - 1)) / cols;
+      const w = Math.min(dashSize(dragId).w, cols);
+      const gx = e.clientX - ghostIni.dx;      // esquina de la pieza, no el cursor
+      const gy = e.clientY - ghostIni.dy;
+      const c = clamp(Math.round((gx - rc.left) / (anchoCol + ROW_GAP)), 0, Math.max(0, cols - w));
+      const f = Math.max(0, Math.round((gy - rc.top) / ROW_PITCH));
+      if (celdaVista && celdaVista.c === c && celdaVista.f === f) return;
+      celdaVista = { c, f };
+
+      const visibles = [...cont.querySelectorAll(".widget")].map(el => el.dataset.w);
+      const mapa = disposicionTablero(visibles, cols, { [dragId]: { c, f } });
+      const antes = new Map();
+      cont.querySelectorAll(".widget").forEach(el => antes.set(el.dataset.w, el.getBoundingClientRect()));
+      cont.querySelectorAll(".widget").forEach(el => {
+        const p = mapa[el.dataset.w];
+        if (!p) return;
+        el.style.setProperty("--c", p.c + 1);
+        el.style.setProperty("--f", p.f + 1);
+      });
+      animarDesde(cont, antes);
+      sitioVivo = mapa;
+      return;
+    }
+
+    /* En el teléfono no hay columnas: el tablero es una pila y lo que importa
+       es el orden. La tarjeta de destino es la que tiene el centro más cerca,
+       para que no haya que apuntarle fino. */
     let target = null, mejor = Infinity;
     [...cont.querySelectorAll(".widget")].forEach(el => {
       if (el.dataset.w === dragId) return;
@@ -846,6 +987,10 @@ function attachDashHandlers() {
       }
       sizeId = null; sizeStart = null;
       olvidarPasoVacio();
+      /* Una tarjeta más alta puede pisar a la de abajo: se vuelve a resolver
+         con las mismas reglas que al arrastrar —lo que estorba baja— en vez
+         de dejar dos tarjetas encimadas. */
+      if (isDesktop()) renderSummary();
       marcarDesbordes();          // al cambiar el alto cambia lo que sobra
       return;
     }
@@ -853,8 +998,19 @@ function attachDashHandlers() {
     if (ghost) { ghost.remove(); ghost = null; }
     const el = cont.querySelector(".widget.dragging");
     if (el) el.classList.remove("dragging");
-    // El orden se escribe una sola vez, cuando se suelta
+    // Se escribe una sola vez, cuando se suelta
+    if (sitioVivo) {
+      const pos = {};
+      Object.keys(sitioVivo).forEach(id => { pos[id] = { c: sitioVivo[id].c, f: sitioVivo[id].f }; });
+      /* Las escondidas conservan las coordenadas que tenían: al volver a
+         encenderlas deben aparecer donde estaban, no en la esquina. */
+      const previas = dashLayout().pos || {};
+      Object.keys(previas).forEach(id => { if (!pos[id]) pos[id] = previas[id]; });
+      guardarPosiciones(pos);
+      sitioVivo = null;
+    }
     if (ordenVivo) { saveDash(ordenVivo, dashLayout().hidden); ordenVivo = null; }
+    celdaVista = null;
     if (dragId) olvidarPasoVacio();
     dragId = null; startPt = null; ghostIni = null;
   };

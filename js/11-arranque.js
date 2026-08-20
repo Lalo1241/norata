@@ -45,6 +45,16 @@ function revisarAnchoDePantalla() {
   const ahora = isDesktop();
   if (ahora === anchoEraDeEscritorio) return;
   anchoEraDeEscritorio = ahora;
+  /* La ventana de Ajustes y su menú son cosa de escritorio: al encoger la
+     ventana hay que devolverlos a la pantalla de siempre, o el contenido se
+     quedaría dentro de una caja que ya no se dibuja. */
+  if (!ahora) {
+    const modal = document.getElementById("ajustes-modal");
+    const abierta = modal && modal.classList.contains("show");
+    cerrarMenuAjustes();
+    cerrarVentanaAjustes();
+    if (abierta) { showView("settings"); return; }
+  }
   const activa = document.querySelector(".view.active");
   const rehacer = activa && REDIBUJA_AL_CRUZAR[activa.id];
   if (rehacer) rehacer();

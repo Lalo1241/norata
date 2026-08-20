@@ -719,6 +719,99 @@ function renderAjustes() {
   if (titulo) titulo.textContent = (!escritorio && abierta) ? abierta.nombre : "Ajustes";
 }
 
+/* ---- El engrane ----
+   En el teléfono abre la pantalla de Ajustes, que es donde el pulgar puede
+   recorrer una lista. En la computadora abre un menú corto pegado al botón:
+   se ve todo lo que hay de un vistazo y se entra directo a lo que se busca,
+   sin cambiar de pantalla ni perder lo que estabas mirando. */
+function ajustesClick(ev) {
+  if (!isDesktop()) { showView("settings"); return; }
+  const btn = (ev && (ev.currentTarget || ev.target)) || document.getElementById("settings-btn");
+  abrirMenuAjustes(btn.closest("button") || btn);
+}
+
+function abrirMenuAjustes(btn) {
+  const m = document.getElementById("ajustes-menu");
+  if (!m || !btn) return;
+  m.innerHTML = `
+    <div class="mm-tit">Ajustes</div>
+    ${AJUSTES_SECS.map(sec => `
+      <button class="mm-item ${sec.id === "peligro" ? "riesgo" : ""}" onclick="abrirVentanaAjustes('${sec.id}')">
+        <span class="mm-ic">${icon(sec.icon, 16)}</span>
+        <span class="mm-tx"><b>${escapeHtml(sec.nombre)}</b><span>${escapeHtml(sec.sub)}</span></span>
+      </button>`).join("")}`;
+  m.classList.add("show");
+  // Se coloca ya dibujado: antes de tener contenido no se sabe cuánto mide
+  const r = btn.getBoundingClientRect();
+  const caja = m.getBoundingClientRect();
+  const hueco = 10;
+  /* A la derecha del botón si cabe (la barra lateral vive a la izquierda), y
+     si no, a la izquierda. Y siempre dentro de la pantalla por arriba y por
+     abajo: el engrane de la barra está abajo del todo y el menú es alto. */
+  let x = r.right + hueco;
+  if (x + caja.width > window.innerWidth - 8) x = Math.max(8, r.left - caja.width - hueco);
+  let y = Math.min(r.top, window.innerHeight - caja.height - 12);
+  m.style.left = Math.round(x) + "px";
+  m.style.top = Math.round(Math.max(12, y)) + "px";
+}
+
+function cerrarMenuAjustes() {
+  const m = document.getElementById("ajustes-menu");
+  if (m) m.classList.remove("show");
+}
+
+/* Un clic en cualquier otro sitio lo cierra: un menú que se queda puesto
+   estorba más de lo que ayuda. En captura, para enterarse antes que el clic
+   que abre otra cosa. */
+document.addEventListener("pointerdown", (e) => {
+  const m = document.getElementById("ajustes-menu");
+  if (!m || !m.classList.contains("show")) return;
+  if (e.target.closest("#ajustes-menu") || e.target.closest("#settings-btn") || e.target.closest("#nav-settings-side")) return;
+  cerrarMenuAjustes();
+}, true);
+
+/* ---- La ventana ----
+   El mismo bloque de secciones que usa el teléfono, mudado a una ventana. Se
+   MUEVE en vez de duplicarse: dos copias del mismo formulario acabarían
+   enseñando cosas distintas, y los ids son únicos. */
+function abrirVentanaAjustes(sec) {
+  cerrarMenuAjustes();
+  const modal = document.getElementById("ajustes-modal");
+  const cuerpo = document.getElementById("ajustes-modal-body");
+  const wrap = document.getElementById("ajustes-wrap");
+  if (!modal || !cuerpo || !wrap) return;
+  prepararVentanaAjustes();
+  cuerpo.appendChild(wrap);
+  ajusteAbierto = sec || AJUSTES_SECS[0].id;
+  renderAjustes();
+  renderTimezone(); renderModulos(); renderSync(); renderCopias(); renderZonaCuenta();
+  modal.classList.add("show");
+}
+
+function prepararVentanaAjustes() {
+  const modal = document.getElementById("ajustes-modal");
+  if (!modal || modal.dataset.listo) return;
+  modal.dataset.listo = "1";
+  modal.addEventListener("pointerdown", (e) => { if (e.target === modal) cerrarVentanaAjustes(); });
+}
+
+function cerrarVentanaAjustes() {
+  const modal = document.getElementById("ajustes-modal");
+  if (!modal || !modal.classList.contains("show")) return;
+  modal.classList.remove("show");
+  // Vuelve a su sitio: si no, la pantalla de Ajustes del teléfono se quedaría vacía
+  const host = document.getElementById("ajustes-host");
+  const wrap = document.getElementById("ajustes-wrap");
+  if (host && wrap) host.appendChild(wrap);
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  const m = document.getElementById("ajustes-menu");
+  if (m && m.classList.contains("show")) { cerrarMenuAjustes(); return; }
+  cerrarVentanaAjustes();
+});
+
 function mostrarAjuste(id) {
   ajusteAbierto = id;
   renderAjustes();

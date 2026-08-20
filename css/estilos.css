@@ -268,17 +268,14 @@
     filter: drop-shadow(0 18px 34px rgba(0,0,0,0.6));
   }
   .widget.ghost .w-edit { display: none; }
+  /* La bandeja del Modo Editor. Ya no es una celda del tablero: es un panel
+     encima, y por eso mide lo que mide su contenido sin cuentas de filas. */
   .dash-tray {
     background: var(--card);
     border: 1px solid var(--mint);
     border-radius: 20px;
     padding: 16px 18px;
-    /* Las filas las calcula ajustarBandeja() midiendo el contenido; esto es
-       solo el punto de partida antes de la primera medida. `align-self` es lo
-       que deja el aire de sobra DEBAJO en vez de estirar el panel hasta
-       llenarlo. */
-    grid-row: span 2;
-    align-self: start;
+    margin-bottom: 26px;
   }
   .dash-tray h3 {
     font-size: 11px; font-weight: 800; letter-spacing: 2px;
@@ -755,6 +752,91 @@
      una sorpresa. */
   .aj-item.riesgo .aj-ic { background: var(--coral-soft); color: var(--coral); }
   .aj-item.on { border-color: var(--mint); background: var(--card2); }
+
+  /* ---------- El mini menú del engrane ----------
+     Mismo lenguaje que el menú del clic derecho del árbol: una tarjeta que
+     aparece pegada a lo que la abrió, con las opciones en filas de icono +
+     nombre + para qué sirve. Se coloca desde JS porque el engrane vive en dos
+     sitios distintos —la barra y la cabecera— y cada uno mira a un lado. */
+  .mini-menu {
+    display: none;
+    position: fixed;
+    z-index: 420;
+    width: 296px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 8px;
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.55);
+  }
+  .mini-menu.show { display: block; }
+  .mm-tit {
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding: 6px 10px 8px;
+  }
+  .mm-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    border-radius: 13px;
+    padding: 9px 10px;
+    cursor: pointer;
+  }
+  .mm-ic {
+    width: 30px; height: 30px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: var(--mint-soft);
+    color: var(--mint);
+  }
+  .mm-item.riesgo .mm-ic { background: var(--coral-soft); color: var(--coral); }
+  .mm-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .mm-tx b { font-size: 13.5px; }
+  .mm-tx span { font-size: 11px; color: var(--muted); }
+
+  /* ---------- La ventana de Ajustes ----------
+     No usa el modal de confirmar: aquel es una hoja estrecha para una
+     pregunta, y esto es una pantalla entera dentro de una ventana. */
+  .am-back {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 410;
+    background: rgba(6, 9, 14, 0.72);
+    backdrop-filter: blur(3px);
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+  }
+  .am-back.show { display: flex; }
+  .am-card {
+    position: relative;
+    width: min(1000px, 100%);
+    max-height: min(760px, 88vh);
+    overflow: hidden;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+  }
+  .am-close { position: absolute; top: 14px; right: 14px; z-index: 2; }
+  .am-body { overflow: auto; padding: 26px 26px 24px; }
+  /* Dentro de la ventana el índice no se pega al desplazarse: la que se
+     desplaza es la ventana, no la página. */
+  .am-body .ajustes-nav { position: static; }
 
   .ajuste-bloque { display: none; }
   .ajuste-bloque.visible { display: block; }
@@ -3441,9 +3523,15 @@
       grid-auto-flow: row;
       align-items: stretch;
     }
+    /* Colocación EXPLÍCITA: cada tarjeta dice en qué columna y en qué fila
+       empieza. Antes se dejaban fluir en orden y la cuadrícula las iba
+       encajando sola; eso es lo que hacía que mover una recolocara a todas
+       las de después —medido: cinco o seis de siete a la vez— y que el
+       tablero pareciera parpadear. Ahora cada una se queda donde está y solo
+       baja la que estorba. Las coordenadas las pone disposicionTablero(). */
     .widget {
-      grid-column: span min(var(--w, 1), 2);
-      grid-row: span var(--h, 2);
+      grid-column: var(--c, auto) / span min(var(--w, 1), 2);
+      grid-row: var(--f, auto) / span var(--h, 2);
     }
     .widget > *:not(.w-edit):not(.w-resize) { height: 100%; overflow: hidden; }
 
@@ -3696,7 +3784,7 @@
   @media (min-width: 1700px) {
     #projects-content, #missions-content { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .dash { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .widget { grid-column: span min(var(--w, 1), 3); }
+    .widget { grid-column: var(--c, auto) / span min(var(--w, 1), 3); }
   }
   /* El tono entra y sale con la misma suavidad: puesta solo dentro del
      :hover, la transición se aplicaría al entrar y el corte al salir sería

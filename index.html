@@ -160,9 +160,12 @@
       </div>
       <div style="display:flex;gap:9px">
         <button class="icon-btn" onclick="setDashEdit(!dashEditing)" aria-label="Acomodar tablero" id="dash-btn"></button>
-        <button class="icon-btn" onclick="showView('settings')" aria-label="Ajustes" id="settings-btn"></button>
+        <button class="icon-btn" onclick="ajustesClick(event)" aria-label="Ajustes" id="settings-btn"></button>
       </div>
     </div>
+    <!-- La bandeja del Modo Editor vive FUERA del tablero: dentro era una
+         celda más de la cuadrícula peleándose por el sitio con las tarjetas. -->
+    <div id="dash-tray-host"></div>
     <div id="summary-content" class="dash"></div>
   </div>
 
@@ -576,6 +579,7 @@
       <h2 id="ajustes-titulo">Ajustes</h2>
     </div>
 
+    <div id="ajustes-host">
     <div class="ajustes-wrap" id="ajustes-wrap">
       <nav class="ajustes-nav" id="ajustes-nav"></nav>
 
@@ -641,8 +645,21 @@
         </section>
       </div>
     </div>
+    </div>
   </div>
 
+</div>
+
+<!-- ============ AJUSTES: MINI MENÚ Y VENTANA (solo escritorio) ============
+     El engrane abre un menú corto con las secciones, y cada sección abre una
+     ventana con el índice al lado. En el teléfono no se usan: ahí Ajustes
+     sigue siendo una pantalla, que es lo que funciona con el pulgar. -->
+<div class="mini-menu" id="ajustes-menu"></div>
+<div class="am-back" id="ajustes-modal">
+  <div class="am-card">
+    <button class="am-close icon-btn" onclick="cerrarVentanaAjustes()" aria-label="Cerrar ajustes">✕</button>
+    <div class="am-body" id="ajustes-modal-body"></div>
+  </div>
 </div>
 
 <!-- ============ CLUSTER DEL PULGAR ============ -->
@@ -697,7 +714,7 @@
   <button class="c-main hidden" id="fab" onclick="fabAction()" aria-label="Crear">
     <span class="fab-plus">＋</span><span class="fab-label"></span>
   </button>
-  <button class="c-nav side-only" id="nav-settings-side" onclick="showView('settings')" aria-label="Ajustes">
+  <button class="c-nav side-only" id="nav-settings-side" onclick="ajustesClick(event)" aria-label="Ajustes">
     <svg viewBox="0 0 24 24"><path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/></svg>
     <span class="nav-label">Ajustes</span>
   </button>
