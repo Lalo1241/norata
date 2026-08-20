@@ -5,17 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
-<title>Confirma tu correo nuevo · Norata</title>
+<title>Confirma tu correo nuevo &middot; Norata</title>
 <!-- Poppins llega a los clientes que cargan tipografias (Apple Mail, iOS,
      Outlook.com). Gmail las descarta casi siempre y usara la siguiente de la
      lista; por eso detras van Century Gothic y Futura, que son las unicas
-     tipografias de sistema con la "a" redonda de una sola planta. Si tampoco
-     estan, cae en las de siempre y se ve correcto, solo que menos nuestro. -->
+     tipografias de sistema con la "a" redonda de una sola planta. -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  @media (max-width:520px) {
-    .caja { padding:30px 22px !important; }
-    .titulo { font-size:20px !important; }
+  @media (max-width:560px) {
+    .caja { padding:28px 22px !important; }
+    .titulo { font-size:21px !important; }
     .boton a { display:block !important; }
   }
 </style>
@@ -28,56 +27,84 @@
        style="background:#f2f4f8;margin:0;padding:0;">
 <tr><td align="center" style="padding:40px 14px;">
 
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:460px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+         style="max-width:520px;background:#ffffff;border:1px solid #e8ecf2;border-radius:20px;">
 
-    <tr><td class="caja" style="background:#ffffff;border:1px solid #e8ecf2;border-radius:16px;padding:36px 34px;">
+    <!-- 1. Franja del logo. Va encima de la ilustracion y no debajo por un
+         motivo de maqueta: las esquinas de arriba son las unicas redondeadas,
+         y unos clientes las redondean y otros no. Con la franja blanca ahi,
+         la ilustracion queda entre dos bordes rectos y se puede pegar de lado
+         a lado sin que ninguna esquina la recorte. -->
+    <tr><td align="center" style="padding:26px 20px 22px;">
+      <img src="https://mi.norata.app/marca/logo-correo-v2.png" width="150" height="38" alt="Norata"
+           style="display:block;border:0;outline:none;text-decoration:none;width:150px;height:auto;">
+    </td></tr>
 
-      <!-- El logo va DENTRO de la tarjeta y con el blanco incrustado: fuera,
-           sobre el fondo de la pagina, se le notaba el recuadro. -->
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-      <tr><td align="center" style="padding-bottom:26px;">
-        <img src="https://mi.norata.app/marca/logo-correo-v2.png" width="180" height="46" alt="Norata"
-             style="display:block;border:0;outline:none;text-decoration:none;width:180px;height:auto;">
-      </td></tr></table>
+    <!-- 2. La ilustracion, a sangre.
+
+         AHORA MISMO ES UNA BANDA DE COLOR: la ilustracion de verdad todavia
+         no existe. Cuando este dibujada se sustituye esta celda entera por la
+         linea comentada de abajo, y no hay que tocar nada mas.
+
+              <tr><td style="padding:0;font-size:0;line-height:0;">
+                <img src="https://mi.norata.app/marca/correo-seguridad-v1.png"
+                     width="520" height="260" alt=""
+                     style="display:block;border:0;width:100%;max-width:520px;height:auto;">
+              </td></tr>
+
+         El `alt` va vacio a proposito: el dibujo no dice nada que el texto no
+         diga ya, y un lector de pantalla que lo lea solo estorba. -->
+    <tr><td style="padding:0;font-size:0;line-height:0;background:#ff8a70;height:130px;">&nbsp;</td></tr>
+
+    <!-- 3. El cuerpo -->
+    <tr><td class="caja" style="padding:32px 36px 34px;">
+
+      <!-- El saludo por nombre. La condicion no es un adorno: si la cuenta no
+           trae nombre guardado, sin ella la plantilla escribiria "Hola, " a
+           secas o incluso un aviso de Supabase en medio del correo. -->
+      <p style="margin:0 0 6px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+         font-size:14px;line-height:1.5;color:#8b95a4;font-weight:500;">{{ if .Data.saludo }}Hola, {{ .Data.saludo }}{{ else }}Hola{{ end }}</p>
 
       <p class="titulo" style="margin:0 0 14px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-         font-size:22px;line-height:1.3;font-weight:600;color:#1c2430;">Confirma tu correo nuevo</p>
+         font-size:23px;line-height:1.3;font-weight:600;color:#1c2430;">Confirma tu correo nuevo</p>
 
-      <p style="margin:0 0 30px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+      <p style="margin:0 0 28px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
          font-size:15px;line-height:1.7;color:#556070;font-weight:400;">Pediste cambiar el correo de tu cuenta de Norata. Pulsa el botón para confirmar que esta dirección es tuya y dejarla como la buena.</p>
 
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" class="boton">
-      <tr><td align="center" style="padding-bottom:6px;">
+      <tr><td align="center" style="padding-bottom:4px;">
         <!--[if mso]>
         <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
           href="{{ .ConfirmationURL }}" style="height:50px;v-text-anchor:middle;width:260px;"
-          arcsize="50%" stroke="f" fillcolor="#5fe0b0">
+          arcsize="50%" stroke="f" fillcolor="#ff8a70">
           <w:anchorlock/>
           <center style="color:#0f1620;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">Confirmar el cambio</center>
         </v:roundrect>
         <![endif]-->
         <!--[if !mso]><!-- -->
         <a href="{{ .ConfirmationURL }}"
-           style="display:inline-block;background:#5fe0b0;color:#0f1620;text-decoration:none;
+           style="display:inline-block;background:#ff8a70;color:#0f1620;text-decoration:none;
                   font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;
                   padding:15px 32px;border-radius:999px;">Confirmar el cambio</a>
         <!--<![endif]-->
       </td></tr></table>
 
-      <p style="margin:30px 0 0;padding-top:22px;border-top:1px solid #e8ecf2;
+      <p style="margin:28px 0 0;padding-top:22px;border-top:1px solid #e8ecf2;
          font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.7;color:#98a1ae;font-weight:400;">
         Hasta que confirmes, tu correo anterior sigue siendo el válido. Si no pediste este cambio, ignora el mensaje y revisa tu contraseña por si acaso.
       </p>
 
     </td></tr>
+  </table>
 
-    <tr><td align="center" style="padding-top:20px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-        font-size:11.5px;line-height:1.7;color:#98a1ae;font-weight:400;">
-      Si el botón no te deja pulsar, copia esta dirección:<br>
-      <span style="word-break:break-all;">{{ .ConfirmationURL }}</span>
-      <br><br>
-      <a href="https://mi.norata.app/" style="color:#98a1ae;text-decoration:underline;">norata.app</a>
-    </td></tr>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;">
+  <tr><td align="center" style="padding-top:20px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+      font-size:11.5px;line-height:1.7;color:#98a1ae;font-weight:400;">
+    Si el botón no te deja pulsar, copia esta dirección:<br>
+    <span style="word-break:break-all;">{{ .ConfirmationURL }}</span>
+    <br><br>
+    <a href="https://mi.norata.app/" style="color:#98a1ae;text-decoration:underline;">norata.app</a>
+  </td></tr>
   </table>
 
 </td></tr>

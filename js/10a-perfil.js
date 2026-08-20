@@ -202,6 +202,38 @@ function olvidarUltimo() {
   saveSync();
 }
 
+/* ================= El correo de bienvenida =================
+   Esto NO manda el correo: solo avisa de que alguien acaba de entrar. Quien
+   decide si toca mandarlo es la función `bienvenida` del servidor, que mira
+   una marca que ella misma escribió y que desde aquí no se puede tocar.
+
+   Se hace así y no al revés porque la decisión no se puede confiar al
+   navegador: recargar la página veinte veces mandaría veinte correos.
+
+   Se llama al entrar y no al registrarse porque en ese momento la dirección
+   todavía no está confirmada — es decir, todavía no se ha demostrado que sea
+   suya. La primera entrada de verdad ocurre justo después de pulsar el enlace
+   del correo de confirmación, que es exactamente cuando la bienvenida tiene
+   sentido.
+
+   Falla en silencio a propósito, y esa es la parte importante: mientras la
+   función no esté desplegada, esta llamada devuelve un error que no le importa
+   a nadie. Nadie se queda sin entrar porque un correo de cortesía no salga. */
+async function avisarBienvenida() {
+  try {
+    if (!syncReady()) return;
+    const t = await sbToken();
+    await fetch(SB_URL + "/functions/v1/bienvenida", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + t,
+        "apikey": SB_KEY,
+        "Content-Type": "application/json"
+      }
+    });
+  } catch (e) { /* sin función desplegada, o sin conexión: no pasa nada */ }
+}
+
 /* ================= Guardar el perfil =================
    Va a la cuenta y no a la tabla del progreso, así que no pasa por la
    sincronía y no tiene revisiones ni conflictos: es una llamada y ya está.

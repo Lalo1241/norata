@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
-<title>Recupera tu acceso &middot; Norata</title>
+<title>Una forma nueva de entrar &middot; Norata</title>
 <!-- Poppins llega a los clientes que cargan tipografias (Apple Mail, iOS,
      Outlook.com). Gmail las descarta casi siempre y usara la siguiente de la
      lista; por eso detras van Century Gothic y Futura, que son las unicas
@@ -20,7 +20,7 @@
 </style>
 </head>
 <body style="margin:0;padding:0;background:#f2f4f8;">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Enlace para poner una contraseña nueva. Caduca en una hora.
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Se vinculo un metodo de acceso nuevo a tu cuenta.
 &#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;</div>
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
@@ -47,14 +47,14 @@
          linea comentada de abajo, y no hay que tocar nada mas.
 
               <tr><td style="padding:0;font-size:0;line-height:0;">
-                <img src="https://mi.norata.app/marca/correo-recuperar-v1.png"
+                <img src="https://mi.norata.app/marca/correo-seguridad-v1.png"
                      width="520" height="260" alt=""
                      style="display:block;border:0;width:100%;max-width:520px;height:auto;">
               </td></tr>
 
          El `alt` va vacio a proposito: el dibujo no dice nada que el texto no
          diga ya, y un lector de pantalla que lo lea solo estorba. -->
-    <tr><td style="padding:0;font-size:0;line-height:0;background:#f5d76e;height:130px;">&nbsp;</td></tr>
+    <tr><td style="padding:0;font-size:0;line-height:0;background:#ff8a70;height:130px;">&nbsp;</td></tr>
 
     <!-- 3. El cuerpo -->
     <tr><td class="caja" style="padding:32px 36px 34px;">
@@ -66,32 +66,32 @@
          font-size:14px;line-height:1.5;color:#8b95a4;font-weight:500;">{{ if .Data.saludo }}Hola, {{ .Data.saludo }}{{ else }}Hola{{ end }}</p>
 
       <p class="titulo" style="margin:0 0 14px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-         font-size:23px;line-height:1.3;font-weight:600;color:#1c2430;">Vamos a recuperar tu cuenta</p>
+         font-size:23px;line-height:1.3;font-weight:600;color:#1c2430;">Ya puedes entrar de otra forma</p>
 
       <p style="margin:0 0 28px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-         font-size:15px;line-height:1.7;color:#556070;font-weight:400;">Pediste volver a entrar a Norata. Pulsa el botón y elige una contraseña nueva; con ella entrarás en todos tus dispositivos. Tu progreso está intacto y te espera donde lo dejaste.</p>
+         font-size:15px;line-height:1.7;color:#556070;font-weight:400;">Se acaba de vincular una forma nueva de entrar a tu cuenta — entrar con Google, por ejemplo. De aquí en adelante sirve igual que tu contraseña: las dos te llevan al mismo sitio y al mismo progreso.</p>
 
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" class="boton">
       <tr><td align="center" style="padding-bottom:4px;">
         <!--[if mso]>
         <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
-          href="{{ .ConfirmationURL }}" style="height:50px;v-text-anchor:middle;width:260px;"
-          arcsize="50%" stroke="f" fillcolor="#f5d76e">
+          href="https://mi.norata.app/" style="height:50px;v-text-anchor:middle;width:260px;"
+          arcsize="50%" stroke="f" fillcolor="#ff8a70">
           <w:anchorlock/>
-          <center style="color:#0f1620;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">Elegir contraseña nueva</center>
+          <center style="color:#0f1620;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">Revisar mi cuenta</center>
         </v:roundrect>
         <![endif]-->
         <!--[if !mso]><!-- -->
-        <a href="{{ .ConfirmationURL }}"
-           style="display:inline-block;background:#f5d76e;color:#0f1620;text-decoration:none;
+        <a href="https://mi.norata.app/"
+           style="display:inline-block;background:#ff8a70;color:#0f1620;text-decoration:none;
                   font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;
-                  padding:15px 32px;border-radius:999px;">Elegir contraseña nueva</a>
+                  padding:15px 32px;border-radius:999px;">Revisar mi cuenta</a>
         <!--<![endif]-->
       </td></tr></table>
 
       <p style="margin:28px 0 0;padding-top:22px;border-top:1px solid #e8ecf2;
          font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.7;color:#98a1ae;font-weight:400;">
-        Este enlace caduca en una hora y solo sirve una vez. Si no lo pediste tú, ignóralo: tu contraseña sigue siendo la de siempre.
+        Si NO fuiste tú, alguien ha conseguido entrar. Cambia tu contraseña cuanto antes con «¿Olvidaste tu contraseña?», que es lo único que se hace desde tu buzón y no desde la cuenta.
       </p>
 
     </td></tr>
@@ -100,9 +100,6 @@
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;">
   <tr><td align="center" style="padding-top:20px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
       font-size:11.5px;line-height:1.7;color:#98a1ae;font-weight:400;">
-    Si el botón no te deja pulsar, copia esta dirección:<br>
-    <span style="word-break:break-all;">{{ .ConfirmationURL }}</span>
-    <br><br>
     <a href="https://mi.norata.app/" style="color:#98a1ae;text-decoration:underline;">norata.app</a>
   </td></tr>
   </table>

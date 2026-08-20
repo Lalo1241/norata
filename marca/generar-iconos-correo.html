@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<title>Generar los iconos del correo</title></head><body>
+<p>Abre la consola. Esta pagina existe solo para convertir los iconos de la
+   barra de Norata en archivos PNG, porque Gmail borra los SVG.</p>
+<script>
+/* Los trazos salen de index.html, de la barra de navegacion. Se copian aqui
+   a mano y no se leen de alli porque esto se ejecuta una vez cada vez que un
+   icono cambie, que es casi nunca. */
+const ICONOS = {
+  "misiones":    '<path d="M4 6.5l2 2 3.5-3.5M4 14.5l2 2 3.5-3.5M13 7h7M13 15h7"/>',
+  "habilidades": '<path d="M4 6h10M4 12h16M4 18h7"/>',
+  "talentos":    '<circle cx="12" cy="5" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M12 7.5v4M12 11.5l-5 4.5M12 11.5l5 4.5"/>',
+  "proyectos":   '<path d="M3 7.5a2 2 0 012-2h4l2 2.5h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M8 13.5h8"/>'
+};
+
+/* Un color por modulo, el mismo que lleva su titulo en el correo. Son las
+   versiones oscuras de la paleta: la menta y el amarillo de la app estan
+   hechos para fondo oscuro y sobre blanco no se leen. */
+const COLORES = {
+  "misiones": "#136b4e", "habilidades": "#7a5d06",
+  "talentos": "#b1341d", "proyectos": "#136b4e"
+};
+
+/* 40 px para dibujar 20: las pantallas de los telefonos tienen el doble de
+   puntos y un icono a tamano justo sale con los bordes sucios. */
+const LADO = 40;
+
+async function png(nombre) {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="' + LADO + '" height="' + LADO + '">' +
+    '<g fill="none" stroke="' + COLORES[nombre] + '" stroke-width="1.9" ' +
+    'stroke-linecap="round" stroke-linejoin="round">' + ICONOS[nombre] + '</g></svg>';
+  const img = new Image();
+  /* Se carga como data URI y no desde un archivo: asi el lienzo no se marca
+     como "contaminado" y toDataURL puede leerlo de vuelta. */
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  await img.decode();
+  const c = document.createElement("canvas");
+  c.width = c.height = LADO;
+  /* Sin fondo: el icono va sobre la tarjeta blanca del correo y un cuadro
+     blanco incrustado se notaria en cuanto la tarjeta deje de ser blanca. */
+  c.getContext("2d").drawImage(img, 0, 0, LADO, LADO);
+  return c.toDataURL("image/png").split(",")[1];
+}
+
+window.generarTodos = async function () {
+  const salida = {};
+  for (const n of Object.keys(ICONOS)) salida[n] = await png(n);
+  return salida;
+};
+</script></body></html>

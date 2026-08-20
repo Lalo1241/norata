@@ -538,6 +538,11 @@ async function portadaEntrada(correo, mensaje) {
     guardarPerfil(p.nombre, p.apodo).catch(() => { /* el próximo intento */ });
   }
 
+  /* El aviso de la bienvenida, también sin `await`. La pantalla no depende de
+     él y el servidor tarda lo que tarde: hacer esperar a alguien que acaba de
+     confirmar su cuenta por un correo de cortesía sería justo al revés. */
+  avisarBienvenida();
+
   cargaMostrar("Trayendo tu progreso…");
   pintarAvisoPruebas();
   renderSync();
