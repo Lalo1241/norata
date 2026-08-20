@@ -89,8 +89,12 @@ aplicarModulos();
    consumió una entrada, así que hace falta soltar otra—. */
 armarColchon();
 window.addEventListener("popstate", () => {
-  if (atrasApp()) armarColchon();
-  else setTimeout(() => { try { history.back(); } catch (e) {} }, 0);
+  if (!atrasApp()) { setTimeout(() => { try { history.back(); } catch (e) {} }, 0); return; }
+  /* El colchón se repone cuando la pantalla ya está pintada. El navegador
+     guarda una foto de la entrada al dejarla atrás, y esa foto es la que
+     enseña durante el gesto: si se repone antes de pintar, la foto es de la
+     pantalla vieja y por un instante se ve la de antes encima de la nueva. */
+  requestAnimationFrame(() => requestAnimationFrame(armarColchon));
 });
 
 showView("summary");

@@ -984,27 +984,34 @@ let avisoDeSalida = 0;
    encima a lo más al fondo: primero se cierra lo que tapa la pantalla, luego
    se navega, y la salida es siempre lo último. */
 function atrasApp() {
+  /* Cualquier gesto que NO sea "salir" desarma el aviso. Antes el aviso se
+     quedaba armado dos segundos y medio pase lo que pase: si en ese rato
+     cerrabas un cuadro con otro gesto, el siguiente ya contaba como el
+     segundo y la app se iba. Los dos gestos de salir tienen que ser
+     seguidos y los dos en la raíz. */
+  const desarmar = () => { avisoDeSalida = 0; return true; };
+
   // 1. Capas que están por encima de todo
   const menu = document.getElementById("ajustes-menu");
-  if (menu && menu.classList.contains("show")) { cerrarMenuAjustes(); return true; }
+  if (menu && menu.classList.contains("show")) { cerrarMenuAjustes(); return desarmar(); }
 
   const ventana = document.getElementById("ajustes-modal");
-  if (ventana && ventana.classList.contains("show")) { cerrarVentanaAjustes(); return true; }
+  if (ventana && ventana.classList.contains("show")) { cerrarVentanaAjustes(); return desarmar(); }
 
   const tuto = document.getElementById("tuto");
-  if (tuto && tuto.classList.contains("show")) { cerrarTutorial(); return true; }
+  if (tuto && tuto.classList.contains("show")) { cerrarTutorial(); return desarmar(); }
 
-  if (typeof ventanaCajaId !== "undefined" && ventanaCajaId) { cerrarVentanaCaja(); return true; }
+  if (typeof ventanaCajaId !== "undefined" && ventanaCajaId) { cerrarVentanaCaja(); return desarmar(); }
 
   const modal = document.getElementById("modal");
-  if (modal && modal.classList.contains("show")) { modalDone(false); return true; }
+  if (modal && modal.classList.contains("show")) { modalDone(false); return desarmar(); }
 
-  if (typeof fullscreenBranch !== "undefined" && fullscreenBranch) { closeBranchFullscreen(); return true; }
+  if (typeof fullscreenBranch !== "undefined" && fullscreenBranch) { closeBranchFullscreen(); return desarmar(); }
 
   // 2. Modos que cambian lo que hacen los toques
-  if (typeof selNodos !== "undefined" && (selNodos.size || modoElegir)) { soltarSeleccion(); return true; }
-  if (typeof editBranch !== "undefined" && editBranch) { toggleEditBranch(editBranch); return true; }
-  if (typeof dashEditing !== "undefined" && dashEditing) { setDashEdit(false); return true; }
+  if (typeof selNodos !== "undefined" && (selNodos.size || modoElegir)) { soltarSeleccion(); return desarmar(); }
+  if (typeof editBranch !== "undefined" && editBranch) { toggleEditBranch(editBranch); return desarmar(); }
+  if (typeof dashEditing !== "undefined" && dashEditing) { setDashEdit(false); return desarmar(); }
 
   // 3. Navegación: lo mismo que haría la flecha de esta pantalla
   const activa = document.querySelector(".view.active");
@@ -1012,12 +1019,12 @@ function atrasApp() {
 
   if (vista === "settings") {
     // En el teléfono, Ajustes tiene su propio paso intermedio: la lista
-    if (!isDesktop() && ajusteAbierto) { volverDeAjustes(); return true; }
+    if (!isDesktop() && ajusteAbierto) { volverDeAjustes(); return desarmar(); }
     showView("summary");
-    return true;
+    return desarmar();
   }
   const padre = VISTA_MODULO[vista];
-  if (padre && padre !== vista) { showView(padre); return true; }
+  if (padre && padre !== vista) { showView(padre); return desarmar(); }
 
   // 4. Ya en la raíz
   if (isDesktop()) return false;

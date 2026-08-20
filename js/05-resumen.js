@@ -428,6 +428,41 @@ function acomodosDeAhora() {
   return isDesktop() ? DASH_ACOMODOS : DASH_ACOMODOS_MOVIL;
 }
 
+/* ---- Qué plantilla está puesta ----
+   Se guarda el NOMBRE, no el número: las listas de la computadora y del
+   teléfono no son la misma, y un índice apuntaría a otra cosa al cambiar de
+   pantalla. Deja de estar puesta en cuanto se toca algo a mano —mover,
+   redimensionar, quitar o añadir una tarjeta—, porque a partir de ahí el
+   tablero ya no es el que propuso la plantilla. */
+function acomodoActivo() {
+  const d = (state.ui || {})[ranuraTablero()] || {};
+  return d.acomodo || null;
+}
+
+function marcarAcomodo(nombre) {
+  state.ui = state.ui || {};
+  const ranura = ranuraTablero();
+  const cur = state.ui[ranura] || {};
+  if (nombre) cur.acomodo = nombre; else delete cur.acomodo;
+  state.ui[ranura] = cur;
+}
+
+/* Vuelve a dibujar solo la bandeja. Arrastrar o redimensionar no repinta el
+   tablero (esa es justo la razón de que se sienta fluido), pero sí apaga la
+   plantilla activa: sin esto, el botón se quedaría encendido señalando un
+   acomodo que ya no es el que hay. */
+function refrescarBandeja() {
+  const host = document.getElementById("dash-tray-host");
+  if (!host || !dashEditing) return;
+  host.innerHTML = dashTray(dashLayout().hidden);
+}
+
+function olvidarAcomodo() {
+  if (!acomodoActivo()) return;
+  marcarAcomodo(null);
+  save();
+}
+
 function aplicarAcomodo(i) {
   const a = acomodosDeAhora()[i];
   if (!a) return;
@@ -437,8 +472,12 @@ function aplicarAcomodo(i) {
      alturas que encoger, así que aquí se acaba. */
   if (!isDesktop()) {
     saveDash(a.order.slice(), null, null);
+    marcarAcomodo(a.nombre);
+    save();
+    /* Sin aviso: el botón se queda encendido, que ya dice cuál está puesta, y
+       cambiar de idea es tocar otro. Un aviso por cada toque estorbaba más de
+       lo que ayudaba. */
     flipRender(document.getElementById("summary-content"), renderSummary);
-    toast("Acomodo " + a.nombre, "hecho", { label: "Deshacer", onclick: "deshacerTablero()" });
     return;
   }
   /* Un acomodo sigue estando escrito como una lista ordenada, que es como se
@@ -448,6 +487,8 @@ function aplicarAcomodo(i) {
   // `hidden` se pasa como null a propósito: saveDash conserva el que ya había
   saveDash(a.order.slice(), null, sizes);
   saveDash(null, null, null, empaquetar(a.order.filter(id => !dashLayout().hidden.includes(id)), sizes, dashCols()));
+  marcarAcomodo(a.nombre);
+  save();
   flipRender(document.getElementById("summary-content"), renderSummary);
   /* Un acomodo sugerido que obliga a bajar por la pantalla para verse entero
      no es un acomodo: es una lista. Las alturas de aquí arriba están escritas
@@ -629,6 +670,7 @@ function guardarPosiciones(pos) {
   const ranura = ranuraTablero();
   const cur = state.ui[ranura] || state.ui.dash || {};
   state.ui[ranura] = Object.assign({}, cur, { pos });
+  marcarAcomodo(null);       // movido a mano: ya no es la plantilla
   save();
 }
 
@@ -666,6 +708,7 @@ function saveDash(order, hidden, sizes, pos) {
 function setWidgetSize(id, w, h) {
   const { sizes } = dashLayout();
   sizes[id] = { w, h: clamp(h, altoMinimo(id), DASH_MAX_H) };
+  marcarAcomodo(null);
   saveDash(null, null, sizes);
 }
 
@@ -686,7 +729,7 @@ let dashUndo = [];
 
 function instantaneaTablero() {
   const { order, hidden, sizes, pos } = dashLayout();
-  return JSON.stringify({ order, hidden, sizes, pos });
+  return JSON.stringify({ order, hidden, sizes, pos, acomodo: acomodoActivo() });
 }
 
 function recordarTablero(etiqueta) {
@@ -707,6 +750,8 @@ function deshacerTablero() {
   const prev = dashUndo.pop();
   const d = JSON.parse(prev.snap);
   saveDash(d.order, d.hidden, d.sizes, d.pos);
+  marcarAcomodo(d.acomodo || null);
+  save();
   renderSummary();
   toast(`Deshecho: ${prev.etiqueta}`, "deshecho");
 }
@@ -767,7 +812,7 @@ function dashTray(hidden) {
       <span class="lbl">Acomodos sugeridos</span>
       <div class="acomodo-fila">
         ${acomodosDeAhora().map((a, i) => `
-          <button class="acomodo" onclick="aplicarAcomodo(${i})">
+          <button class="acomodo ${a.nombre === acomodoActivo() ? "on" : ""}" onclick="aplicarAcomodo(${i})">
             <span class="ac-n">${i + 1}</span>
             <span class="ac-tx"><b>${escapeHtml(a.nombre)}</b><span>${escapeHtml(a.sub)}</span></span>
           </button>`).join("")}
@@ -789,6 +834,7 @@ function hideWidget(id) {
   const { order, hidden } = dashLayout();
   if (hidden.includes(id)) return;
   recordarTablero(`quitar ${DASH_META[id].title}`);
+  marcarAcomodo(null);
   saveDash(order, [...hidden, id]);
   flipRender(document.getElementById("summary-content"), renderSummary);
   toast(`${DASH_META[id].title} quitado del tablero`, "deshecho");
@@ -797,6 +843,7 @@ function hideWidget(id) {
 function showWidget(id) {
   const { order, hidden } = dashLayout();
   recordarTablero(`añadir ${DASH_META[id].title}`);
+  marcarAcomodo(null);
   saveDash(order, hidden.filter(h => h !== id));
   flipRender(document.getElementById("summary-content"), renderSummary);
 }
@@ -1043,6 +1090,7 @@ function attachDashHandlers() {
          con las mismas reglas que al arrastrar —lo que estorba baja— en vez
          de dejar dos tarjetas encimadas. */
       if (isDesktop()) renderSummary();
+      refrescarBandeja();
       marcarDesbordes();          // al cambiar el alto cambia lo que sobra
       return;
     }
@@ -1063,6 +1111,7 @@ function attachDashHandlers() {
     }
     if (ordenVivo) { saveDash(ordenVivo, dashLayout().hidden); ordenVivo = null; }
     celdaVista = null;
+    refrescarBandeja();
     if (dragId) olvidarPasoVacio();
     dragId = null; startPt = null; ghostIni = null;
   };

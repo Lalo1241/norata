@@ -315,6 +315,17 @@
     border-radius: 14px; padding: 10px 12px;
   }
   .acomodo:hover { border-color: var(--mint); }
+  /* La plantilla que está puesta se queda encendida. Se apaga sola en cuanto
+     tocas algo a mano: a partir de ahí el tablero ya no es el que ella
+     propuso, y seguir marcándola sería mentir. */
+  .acomodo.on {
+    border-style: solid;
+    border-color: var(--mint);
+    background: var(--mint-soft);
+    box-shadow: 0 0 0 1px rgba(95, 224, 176, 0.25);
+  }
+  .acomodo.on .ac-n { background: var(--mint); color: #0f1620; }
+  .acomodo.on .ac-tx span { color: var(--muted); }
   .acomodo:active { border-style: solid; border-color: var(--mint); }
   .ac-n {
     flex: none; width: 24px; height: 24px; border-radius: 8px;
