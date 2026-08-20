@@ -104,7 +104,7 @@ function renderMissions() {
      contra la que colocarse. */
   const cuerpo = (c) => {
     const lista = ordenarMisiones(porTablero[c.id] || []);
-    return `<div class="ms-list" data-tablero="${c.id}" data-soltar>${
+    return `<div class="ms-list" data-tablero="${c.id}" data-soltar=".ms-card">${
       lista.length
         ? lista.map(card).join("")
         : `<p class="col-vacia">${escapeHtml(VACIO[c.id] || "Arrastra aquí la misión que quieras.")}</p>`
@@ -298,7 +298,7 @@ function renderProjects() {
           <button class="badd" onclick="openProjectForm(null, '${escapeAttr(b)}')" aria-label="Añadir encargo a ${escapeAttr(b)}">＋</button>
         </div>
       </div>
-      <div class="proj-list" data-branch="${escapeAttr(b)}" data-soltar>
+      <div class="proj-list" data-branch="${escapeAttr(b)}" data-soltar=".proj-card">
         ${!list.length ? `<p class="col-vacia">Arrastra aquí el proyecto que quieras, o crea uno con el ＋.</p>` : ""}
         ${list.map(p => {
           const prog = projectProgress(p);
@@ -1010,7 +1010,7 @@ function renderTree() {
             de edición el gesto es el que hay que aprender; dentro, las
             herramientas. */
         editing
-        ? `<div class="const-hint edit">Arrastra para acomodar · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos los requisitos o basta uno${atajosLegend()}</div>`
+        ? `<div class="const-hint edit">Arrastra para acomodar · <b>Shift</b> y clic (o Shift y arrastra un recuadro) elige varios para moverlos juntos o agruparlos · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos los requisitos o basta uno${atajosLegend()}</div>`
         : `<div class="const-hint">Toca un nodo para abrirlo · arrástralo para acomodarlo · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno${atajosLegend(true)}</div>`}`;
     }
 

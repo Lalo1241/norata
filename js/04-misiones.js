@@ -552,8 +552,13 @@ function reordMover(e) {
        tarjeta. Sin esto, un tablero recién creado no podría recibir jamás su
        primera misión —no hay contra qué colocarse— y arrastrar al final de
        una columna obligaba a apuntar a la mitad de abajo de la última. */
-    const zona = bajo && bajo.closest("[data-soltar]");
-    if (!zona || !cont.contains(zona)) return;
+    /* La zona dice QUÉ acepta, y solo se mira si es de lo que se trae. Sin
+       eso, arrastrar una rama entera de Proyectos por encima de una lista de
+       encargos intentaba meter la rama dentro de sí misma y el navegador
+       tumbaba la app ("el hijo nuevo contiene al padre"). La segunda guarda
+       es de cinturón: nada puede caer dentro de sí mismo. */
+    const zona = bajo && bajo.closest(`[data-soltar="${sel}"]`);
+    if (!zona || !cont.contains(zona) || pieza.contains(zona)) return;
     const piezas = [...zona.querySelectorAll(sel)].filter(x => x !== pieza);
     const ultima = piezas[piezas.length - 1];
     if (!ultima) { if (pieza.parentNode !== zona) zona.appendChild(pieza); return; }

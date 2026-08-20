@@ -231,7 +231,12 @@ function closeBranchFullscreen() {
 /* La ventana de una caja se cierra primero: Escape cierra lo de encima, no
    todo lo que hay abierto de golpe. */
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && fullscreenBranch && !ventanaCajaId) closeBranchFullscreen();
+  if (e.key !== "Escape") return;
+  /* Escape va de dentro hacia fuera: primero suelta lo elegido, y solo si no
+     había nada elegido cierra la pantalla completa. Si no, quien quiere
+     deshacer una selección se encuentra con que se le cerró el mapa. */
+  if (selNodos.size) { soltarSeleccion(); return; }
+  if (fullscreenBranch && !ventanaCajaId) closeBranchFullscreen();
 });
 
 function renderFullscreen() {
@@ -263,7 +268,7 @@ function renderFullscreen() {
   document.getElementById("fs-body").innerHTML = `
     <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, 900, editing, b)}</div>
     <div class="fs-hint">${editing
-      ? "Arrastra para acomodar · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia la regla de entrada"
+      ? "Arrastra para acomodar · <b>Shift</b> y clic (o Shift y arrastra un recuadro) elige varios · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia la regla de entrada"
       : "Arrastra el fondo para recorrer la rama · toca un nodo para abrirlo y arrástralo para acomodarlo"}${atajosLegend()}</div>`;
 
   ov.classList.add("show");
@@ -622,6 +627,8 @@ function toggleBranch(b) {
 }
 
 function toggleEditBranch(b) {
+  // Fuera del editor la selección no puede hacer nada, así que no sobrevive
+  limpiarSeleccion();
   if (editBranch === b) {
     editBranch = null;
     clearUndo();   // deshacer un cambio de hace tres sesiones sorprendería más de lo que ayuda
@@ -898,7 +905,7 @@ function constellation(nodes, key, editing, branch) {
     const x0 = Math.min(...pts.map(p => p.x)) - M, x1 = Math.max(...pts.map(p => p.x)) + M;
     const y0 = Math.min(...pts.map(p => p.y)) - M, y1 = Math.max(...pts.map(p => p.y)) + M;
     const { hechos, pendientes } = resumenCaja(c);
-    const cc = pendientes === 0 ? "#5fe0b0" : "#f5d76e";
+    const cc = c.color || (pendientes === 0 ? "#5fe0b0" : "#f5d76e");
     alto = Math.max(alto, 18 - (y0 - 11));   // la etiqueta no puede quedar cortada
     abarcar(x0, y0 - 11, x1, y1);
     recintos += `<g class="grupo">
@@ -970,6 +977,22 @@ function constellation(nodes, key, editing, branch) {
     return out;
   };
 
+  /* ---- Lo que está elegido ----
+     Un aro celeste punteado alrededor, del mismo color que la banda con la
+     que se eligen: quien acaba de arrastrar el recuadro reconoce lo que
+     quedó dentro sin tener que preguntárselo. Solo en edición, que es donde
+     la selección significa algo. */
+  if (editing && selNodos.size) {
+    order.forEach(n => {
+      if (!selNodos.has(n.id)) return;
+      const { x, y } = pos[n.id];
+      const rw = nodeRadius(n) + 13;
+      const rh = (n.esCaja ? CAJA_H / 2 : nodeRadius(n)) + 13;
+      nds += `<rect class="sel-marca" x="${x - rw}" y="${y - rh}" width="${rw * 2}" height="${rh * 2}"
+        rx="15" fill="none" stroke="#8ecdf5" stroke-width="2" stroke-dasharray="6 5" pointer-events="none"/>`;
+    });
+  }
+
   order.forEach(n => {
     (childrenOf[n.id] || []).forEach(c => {
       const a = pos[n.id], b = pos[c.id];
@@ -1019,7 +1042,7 @@ function constellation(nodes, key, editing, branch) {
        dentro, que es toda la información que hace falta para decidir si
        merece la pena abrirla. */
     if (n.esCaja) {
-      const cc = n.todoHecho ? "#5fe0b0" : "#f5d76e";
+      const cc = n.colorPropio || (n.todoHecho ? "#5fe0b0" : "#f5d76e");
       /* Dos líneas como mucho: la caja tiene una altura fija y un nombre
          largo se saldría por abajo, encima del texto que dice qué guarda. */
       const todo = wrapName(n.name);
@@ -1560,12 +1583,94 @@ function attachCtxHandlers(scope) {
 /* `scope` importa desde que existe el modo pantalla completa: con él abierto
    hay dos lienzos de la misma rama y sin acotar la búsqueda los gestos se
    engancharían al de la lista, que está tapado. */
+/* ================= Elegir varios talentos =================
+   Acomodar una rama a mano se hacía de uno en uno, y mover seis talentos era
+   seis arrastres y seis oportunidades de descolocar el reparto. Con varios
+   elegidos, un solo gesto los lleva a todos —y, sobre todo, se pueden meter
+   de golpe en un grupo.
+
+   Dos formas de elegir, las dos con Shift: clic a clic, o arrastrando un
+   recuadro sobre el mapa. Shift y no un modo aparte porque un modo hay que
+   entrar y salir de él, y esto es algo que se hace en mitad de otra cosa.
+
+   Vive solo dentro del editor: fuera de él un clic abre la ficha, que es lo
+   que la gente espera, y una selección invisible no debe cambiar eso. */
+let selNodos = new Set();
+let selRama = null;
+
+function limpiarSeleccion() {
+  selNodos = new Set();
+  selRama = null;
+}
+
+function alternarSeleccion(id, rama) {
+  // La selección pertenece a UNA rama: elegir en otra empieza de cero
+  if (selRama !== rama) { selNodos = new Set(); selRama = rama; }
+  if (selNodos.has(id)) selNodos.delete(id); else selNodos.add(id);
+  if (!selNodos.size) selRama = null;
+}
+
+/* La barra de acciones se mete en la línea de pistas que ya vive bajo el
+   lienzo, en vez de flotar encima del mapa: ahí no tapa nada y está en el
+   sitio donde ya se mira para saber qué se puede hacer. */
+function pintarBarraSeleccion(wrap) {
+  const caja = wrap && wrap.parentElement;
+  const pista = caja && caja.querySelector(".const-hint, .fs-hint");
+  if (!pista) return;
+  if (!selNodos.size) {
+    if (pista.dataset.pistaOriginal !== undefined) {
+      pista.innerHTML = pista.dataset.pistaOriginal;
+      delete pista.dataset.pistaOriginal;
+      pista.classList.remove("con-seleccion");
+    }
+    return;
+  }
+  if (pista.dataset.pistaOriginal === undefined) pista.dataset.pistaOriginal = pista.innerHTML;
+  pista.classList.add("con-seleccion");
+  const n = selNodos.size;
+  pista.innerHTML = `
+    <b>${n} elegido${n === 1 ? "" : "s"}</b>
+    <button type="button" class="btn btn-soft btn-sm" onclick="agruparElegidos()">Agruparlos</button>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">Quitar la selección</button>`;
+}
+
+function repintarSeleccion() {
+  document.querySelectorAll(".const-wrap.editing").forEach(w => {
+    redibujarLienzo(w, constellation(branchNodes(w.dataset.branch), editKey, true, w.dataset.branch));
+    pintarBarraSeleccion(w);
+  });
+}
+
+function soltarSeleccion() {
+  limpiarSeleccion();
+  repintarSeleccion();
+}
+
+async function agruparElegidos() {
+  const rama = selRama;
+  const ids = [...selNodos];
+  if (!rama) return;
+  /* Las cajas no se meten dentro de otra caja: un grupo de grupos no se
+     puede dibujar sin que el mapa deje de leerse. Se avisa en vez de
+     ignorarlo en silencio. */
+  if (ids.some(id => cajaPorId(id))) {
+    toast("Un grupo no puede meterse dentro de otro", "atencion");
+    return;
+  }
+  const caja = await crearGrupoCon(ids, rama);
+  if (caja) limpiarSeleccion();
+  else repintarSeleccion();
+}
+
 function attachEditHandlers(scope) {
   const wrap = (scope || document).querySelector(".const-wrap.editing");
   if (!wrap) return;
   const b = wrap.dataset.branch;
 
   let mode = null, curId = null, offset = null, raf = null, panFrom = null;
+  // Recuadro de selección: esquina donde empezó y posiciones de lo que se
+  // arrastra en bloque cuando hay varios elegidos
+  let banda = null, grupoIni = null, ptIni = null;
   // Copia del estado al empezar un gesto, para poder deshacerlo después
   let snapAntes = null;
   // Trazo y punto de la tijera, para animar el corte una vez consumado
@@ -1591,6 +1696,18 @@ function attachEditHandlers(scope) {
     const port = e.target.closest(".port");
     const node = e.target.closest(".cnode");
     const cut = e.target.closest(".edge-hit");
+
+    /* Shift sobre un nodo: entra o sale de la selección y ahí acaba el gesto.
+       Nada de arrastrar: quien mantiene Shift está eligiendo, no moviendo. */
+    if (node && e.shiftKey) {
+      alternarSeleccion(node.dataset.id, b);
+      redraw();
+      pintarBarraSeleccion(wrap);
+      mode = null;
+      e.preventDefault();
+      return;
+    }
+
     if (sw) {
       // El interruptor de la regla también funciona dentro del editor
       mode = "modo";
@@ -1613,11 +1730,43 @@ function attachEditHandlers(scope) {
       const pt = svgPoint(e);
       const cur = editPos[curId] || { x: pt.x, y: pt.y };
       offset = { dx: cur.x - pt.x, dy: cur.y - pt.y };
+      /* Si lo que se agarra es uno de los elegidos, se mueven todos a la vez
+         y con la misma distancia: se apunta dónde estaba cada uno al empezar
+         y se les suma el desplazamiento del puntero. Agarrar cualquier otro
+         nodo mueve solo ese, sin deshacer la selección. */
+      ptIni = pt;
+      grupoIni = null;
+      if (selNodos.has(curId) && selNodos.size > 1) {
+        grupoIni = new Map();
+        selNodos.forEach(id => {
+          const q = editPos[id];
+          if (q) grupoIni.set(id, { x: q.x, y: q.y });
+        });
+      }
       node.classList.add("dragging");
+    } else if (e.shiftKey) {
+      /* Shift sobre el fondo: se dibuja el recuadro. El rectángulo se mete
+         dentro del propio SVG y no encima del contenedor, así queda en las
+         mismas coordenadas que los nodos —al desplazar el lienzo mientras se
+         arrastra, el recuadro no se despega de lo que está encerrando—. */
+      mode = "banda";
+      ptIni = svgPoint(e);
+      const svg = wrap.querySelector("svg");
+      banda = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      banda.setAttribute("class", "banda-sel");
+      banda.setAttribute("x", ptIni.x);
+      banda.setAttribute("y", ptIni.y);
+      banda.setAttribute("width", 0);
+      banda.setAttribute("height", 0);
+      svg.appendChild(banda);
     } else {
       // Fondo: se desplaza el lienzo, para que nada quede fuera de alcance
       mode = "pan";
       panFrom = { x: e.clientX, scroll: wrap.scrollLeft };
+      /* Tocar el fondo sin Shift es "ya no quiero nada de esto elegido": la
+         selección no puede sobrevivir a un clic en el vacío, o acabaría
+         agrupando cosas que uno ya no tenía en la cabeza. */
+      if (selNodos.size) { limpiarSeleccion(); redraw(); pintarBarraSeleccion(wrap); }
     }
     try { wrap.setPointerCapture(e.pointerId); } catch (err) { /* puntero ya liberado */ }
     e.preventDefault();
@@ -1634,13 +1783,33 @@ function attachEditHandlers(scope) {
 
     const pt = svgPoint(e);
 
+    if (mode === "banda") {
+      const x0 = Math.min(ptIni.x, pt.x), y0 = Math.min(ptIni.y, pt.y);
+      banda.setAttribute("x", x0);
+      banda.setAttribute("y", y0);
+      banda.setAttribute("width", Math.abs(pt.x - ptIni.x));
+      banda.setAttribute("height", Math.abs(pt.y - ptIni.y));
+      return;
+    }
+
     if (mode === "drag") {
       // nodoPorId y no state.perks: la caja del atico tambien se arrastra
       const p = nodoPorId(curId);
       if (!p) return;
-      p.x = enLienzoX(pt.x + offset.dx);
-      p.y = enLienzoY(pt.y + offset.dy);
-      editPos[curId] = { x: p.x, y: p.y };
+      if (grupoIni) {
+        const dx = pt.x - ptIni.x, dy = pt.y - ptIni.y;
+        grupoIni.forEach((ini, id) => {
+          const q = nodoPorId(id);
+          if (!q) return;
+          q.x = enLienzoX(ini.x + dx);
+          q.y = enLienzoY(ini.y + dy);
+          editPos[id] = { x: q.x, y: q.y };
+        });
+      } else {
+        p.x = enLienzoX(pt.x + offset.dx);
+        p.y = enLienzoY(pt.y + offset.dy);
+        editPos[curId] = { x: p.x, y: p.y };
+      }
       // Al acercarse a un borde, el lienzo acompaña al dedo
       const r = wrap.getBoundingClientRect();
       if (e.clientX > r.right - 46) wrap.scrollLeft += 14;
@@ -1669,6 +1838,25 @@ function attachEditHandlers(scope) {
   const finish = (e) => {
     if (!mode) return;
     if (mode === "pan") { mode = null; panFrom = null; return; }
+    if (mode === "banda") {
+      const pt = svgPoint(e);
+      const x0 = Math.min(ptIni.x, pt.x), x1 = Math.max(ptIni.x, pt.x);
+      const y0 = Math.min(ptIni.y, pt.y), y1 = Math.max(ptIni.y, pt.y);
+      if (banda) banda.remove();
+      banda = null; mode = null;
+      /* Basta con que el centro del nodo caiga dentro. Exigir la figura
+         entera obligaría a rodearlo con holgura, y con nodos grandes eso es
+         casi imposible sin arrastrar media rama de paso. */
+      if (selRama !== b) { selNodos = new Set(); selRama = b; }
+      branchNodes(b).forEach(n => {
+        const q = editPos[n.id];
+        if (q && q.x >= x0 && q.x <= x1 && q.y >= y0 && q.y <= y1) selNodos.add(n.id);
+      });
+      if (!selNodos.size) selRama = null;
+      redraw();
+      pintarBarraSeleccion(wrap);
+      return;
+    }
     if (mode === "modo") {
       const quieto = Math.hypot(e.clientX - panFrom.x, e.clientY - panFrom.y) < 10;
       const id = curId;
@@ -1746,15 +1934,23 @@ function attachEditHandlers(scope) {
     if (mode === "drag") {
       // Solo cuenta como acción si de verdad cambió algo: un clic sin
       // arrastre llenaría la pila de pasos vacíos que no deshacen nada.
-      if (snapAntes && snapAntes !== snapshotPerks()) pushUndo(cajaPorId(curId) ? "mover una caja" : "mover un talento", snapAntes);
+      if (snapAntes && snapAntes !== snapshotPerks()) {
+        pushUndo(grupoIni ? `mover ${grupoIni.size} talentos`
+          : (cajaPorId(curId) ? "mover una caja" : "mover un talento"), snapAntes);
+      }
       save();
     }
-    mode = null; curId = null; snapAntes = null;
+    mode = null; curId = null; snapAntes = null; grupoIni = null;
     redraw();
   };
 
   wrap.addEventListener("pointerup", finish);
   wrap.addEventListener("pointercancel", finish);
+
+  /* El árbol se redibuja entero muchas veces (al guardar, al volver de una
+     ficha) y la barra vive en el HTML de la tarjeta, no en el SVG: hay que
+     volver a ponerla o la selección seguiría viva sin nada que la mande. */
+  if (selRama === b) pintarBarraSeleccion(wrap);
 }
 
 /* Nombre en hasta dos líneas centradas: nada de puntos suspensivos salvo

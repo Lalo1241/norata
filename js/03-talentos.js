@@ -511,6 +511,72 @@ function sacarDeCaja(cajaId, perkId) {
   toast(`${p.name} salió de la caja`, "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
 }
 
+/* ---- Agrupar a mano ----
+   El ático nació guardando trimestres enteros, que es una forma de agrupar
+   pero no la única: a veces lo que va junto es "los tres cursos de dibujo",
+   sin importar cuándo se hicieron. Esto crea el mismo grupo con lo que el
+   usuario haya elegido en el mapa.
+
+   Nace DESPLEGADO: agrupar es dibujar un recinto alrededor de lo que ya
+   está, no mandarlo al desván. Por eso tampoco congela ningún plazo —eso
+   solo pasa al guardarlo de verdad, desde su propia ventana—. */
+async function crearGrupoCon(ids, branch) {
+  const dentro = ids.map(id => state.perks.find(p => p.id === id)).filter(Boolean);
+  if (dentro.length < 2) { toast("Elige al menos dos talentos", "atencion"); return null; }
+  const yaAgrupado = dentro.filter(p => (state.cajas || []).some(c => c.perkIds.includes(p.id)));
+  if (yaAgrupado.length) {
+    toast(`${yaAgrupado[0].name} ya está en otro grupo`, "atencion");
+    return null;
+  }
+  const nombre = await askText(
+    `Agrupar ${dentro.length} talentos`, "", "Agrupar",
+    "El nombre del grupo. Puedes cambiarlo después.", 42);
+  if (nombre === null) return null;
+
+  fijarPosiciones(branch);
+  const caja = {
+    id: uid(), branch, trimestre: trimestreDe(todayKey()), guardadoEl: todayKey(),
+    abierta: true, perkIds: dentro.map(p => p.id),
+    requiere: [], modo: "todos", pos: {}
+  };
+  if (nombre) caja.nombre = nombre.slice(0, 42);
+  guardarPosicionesEn(caja);
+  state.cajas = state.cajas || [];
+  state.cajas.push(caja);
+  save();
+  renderTree();
+  toast(`${nombreCaja(caja)} · ${dentro.length} talentos agrupados`, "hecho",
+    { label: "Deshacer", onclick: `desagrupar('${caja.id}')` });
+  return caja;
+}
+
+/* Deshacer el grupo NO es borrarlo: los talentos se quedan donde están y
+   solo desaparece el recinto que los rodeaba. Existe porque "Borrar la caja"
+   se lleva por delante lo que hay dentro, y eso no puede ser la única salida
+   de un grupo hecho por error. */
+function desagrupar(id) {
+  const c = cajaPorId(id);
+  if (!c) return;
+  cerrarVentanaCaja();
+  descongelarCaja(c);
+  state.cajas = state.cajas.filter(x => x.id !== id);
+  limpiarEnlacesA(c.id);
+  save();
+  renderTree();
+  toast(`${nombreCaja(c)} deshecho · sus talentos siguen ahí`, "deshecho");
+}
+
+/* El color del grupo. Vacío devuelve el automático: verde si todo está
+   hecho, amarillo si algo sigue vivo. */
+function pintarCaja(color) {
+  const c = cajaPorId(ventanaCajaId);
+  if (!c) return;
+  if (color) c.color = color; else delete c.color;
+  save();
+  renderTree();
+  verCaja(c.id);
+}
+
 /* ---- La ventana de una caja ----
    Es la mitad que le faltaba al ático: mirar dentro sin desmontar nada.
    Abrir una caja devuelve todo su contenido al mapa, y eso es una decisión;
@@ -559,11 +625,19 @@ function verCaja(id) {
             pendientes ? ` y los plazos de lo pendiente están congelados` : ""}${
             enlaces ? ` · ${enlaces} conexión${enlaces === 1 ? "" : "es"} entrando` : ""}.`}</p>
     <div class="caja-lista">${lista || `<p class="settings-note" style="margin:0">Se quedó vacía.</p>`}</div>
+    <div class="caja-color">
+      <span class="caja-sub">Color del grupo</span>
+      <div class="color-grid">
+        <button type="button" class="cc-auto ${!c.color ? "selected" : ""}" onclick="pintarCaja('')" title="Que lo decida su estado">auto</button>
+        ${COLORS.map(col => `<button type="button" class="${c.color === col ? "selected" : ""}" style="background:${col}" onclick="pintarCaja('${col}')" aria-label="${col}"></button>`).join("")}
+      </div>
+    </div>
     <div class="stack" style="margin-top:14px">
       ${c.abierta
         ? `<button class="btn btn-primary btn-block" onclick="cerrarCaja('${escapeAttr(c.id)}')">Volver a guardarla</button>`
         : `<button class="btn btn-primary btn-block" onclick="abrirCaja('${escapeAttr(c.id)}')">Desplegarla en el mapa</button>`}
-      <button class="btn btn-danger-ghost btn-block" onclick="borrarCaja('${escapeAttr(c.id)}')">Borrar la caja</button>
+      <button class="btn btn-soft btn-block" onclick="desagrupar('${escapeAttr(c.id)}')">Deshacer el grupo</button>
+      <button class="btn btn-danger-ghost btn-block" onclick="borrarCaja('${escapeAttr(c.id)}')">Borrar la caja y lo que lleva</button>
       <button class="btn btn-ghost btn-block" onclick="cerrarVentanaCaja()">Cerrar</button>
     </div>`;
   el.classList.add("show");
@@ -669,7 +743,10 @@ function vistaDeRama(b) {
       resumen: pendientes ? `${hechos} hechos · ${pendientes} sin terminar` : `${total} guardados`,
       todoHecho: pendientes === 0,
       requiere: [...req], modo: modoDe(c),
-      color: "#5fe0b0", icon: "box",
+      /* El color elegido a mano manda sobre el del estado. Viaja aparte
+                 (`colorPropio`) para que el dibujo sepa distinguir "lo pintó
+                 alguien" de "lo pinta su estado". */
+      color: c.color || "#5fe0b0", colorPropio: c.color || null, icon: "box",
       x: c.x, y: c.y
     });
   });

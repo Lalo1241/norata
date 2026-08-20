@@ -1509,6 +1509,45 @@
   .fs-overlay .const-wrap:not(.editing) { cursor: grab; }
   .const-wrap.panning { cursor: grabbing !important; }
 
+  /* El recuadro con el que se eligen varios talentos. Celeste y punteado: es
+     una herramienta que pasa, no una figura del mapa, y ningún estado del
+     árbol usa ese color —así nunca se confunde con un nodo—. */
+  .banda-sel {
+    fill: rgba(142, 205, 245, 0.1);
+    stroke: #8ecdf5;
+    stroke-width: 1.6;
+    stroke-dasharray: 7 6;
+    pointer-events: none;
+  }
+  /* La línea de pistas de debajo del lienzo, cuando pasa a ser la barra de lo
+     elegido: los botones necesitan aire y quedar alineados con el texto. */
+  .const-hint.con-seleccion, .fs-hint.con-seleccion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: var(--text);
+  }
+  .const-hint.con-seleccion b, .fs-hint.con-seleccion b { color: #8ecdf5; }
+
+  /* El color de un grupo, en su ventana */
+  .caja-color { margin-top: 14px; }
+  .caja-color .color-grid { margin-top: 8px; }
+  .caja-color .cc-auto {
+    width: 38px; height: 38px;
+    border-radius: 58% 42% 55% 45% / 52% 48% 60% 40%;
+    border: 2px dashed var(--line);
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    background: transparent;
+    color: var(--faint);
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .caja-color .cc-auto.selected { outline-color: var(--text); color: var(--text); }
+
   /* ---------- Menú de clic derecho sobre el lienzo ----------
      Solo existe en escritorio: en táctil no hay clic derecho, y las mismas
      acciones ya están en el menú de la rama. */
