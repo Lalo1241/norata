@@ -4,7 +4,6 @@
 function renderMissions() {
   const el = document.getElementById("missions-content");
   const key = todayKey();
-  const all = state.missions.filter(m => !m.archived || m.cadence !== "once");
 
   if (state.missions.length === 0) {
     el.innerHTML = `
@@ -22,12 +21,10 @@ function renderMissions() {
 
   const { due, done, pct } = todayMissionStats();
   const pending = due.filter(m => !missionDone(m, key));
-  const finished = due.filter(m => missionDone(m, key));
-  const otherDays = all.filter(m => !missionDueToday(m) && !m.archived);
-  const archived = state.missions.filter(m => m.archived);
   const dayName = keyToDate(key).toLocaleDateString("es-MX", { weekday: "long" });
 
   const card = (m) => {
+    const guardada = !!m.archived;
     const c = missionCount(m, key);
     const t = missionTarget(m);
     const ok = c >= t;
@@ -35,18 +32,31 @@ function renderMissions() {
     const skill = m.skillId ? state.skills.find(s => s.id === m.skillId) : null;
     const col = m.color || "#5fe0b0";
     const cuenta = t > 1;
+    /* Lo que lleva esperando desde que alguien la apartó. Va en la tarjeta y
+       no escondido en su ficha porque el sentido de contarlo es justo ese:
+       una misión que lleva nueve días de columna en columna se delata sola. */
+    const espera = diasPospuesta(m);
+    /* Ya cumplida, el sello cambia de tiempo verbal: deja de ser una cuenta
+       que corre y pasa a ser lo que costó. Se enseña mientras la misión siga
+       a la vista —hoy, o guardada en las terminadas—, no para siempre. */
+    const costo = m.pospuestaUltima && (guardada || m.pospuestaUltima.cerradaEl === key)
+      ? m.pospuestaUltima.dias : 0;
 
     return `
-    <div class="ms-card ${ok ? "done" : ""}" data-rid="${m.id}" style="--mc:${col}">
-      ${botonMision(m, c, t)}
+    <div class="ms-card ${ok || guardada ? "done" : ""}" data-rid="${m.id}" style="--mc:${col}">
+      ${guardada ? botonMision(m, 1, 1, { reabrir: true }) : botonMision(m, c, t)}
       ${iconoMision(m)}
       <div class="ms-body" onclick="openMissionForm('${m.id}')">
         <div class="ms-name">${escapeHtml(m.name)}</div>
         <div class="ms-meta">
-          ${skill ? `<span>${escapeHtml(skill.name)}</span>` : ""}
+          ${guardada
+            ? `<span>cumplida el ${formatDate(m.completedAt)}</span>`
+            : `${skill ? `<span>${escapeHtml(skill.name)}</span>` : ""}
           ${m.xp ? `<span>+${m.xp} XP</span>` : ""}
           ${m.cadence === "weekly" ? `<span>${(m.days || []).map(d => DAY_NAMES[d]).join(" ")}</span>` : ""}
-          ${m.cadence === "once" ? `<span>una vez</span>` : ""}
+          ${m.cadence === "once" ? `<span>una vez</span>` : ""}`}
+          ${espera > 0 ? `<span class="ms-espera">pospuesta ${espera} d</span>` : ""}
+          ${costo > 0 ? `<span class="ms-espera">esperó ${costo} d</span>` : ""}
           ${/* Deshacer vive DENTRO de la misión, junto a sus datos. Estaba
                 pegado a la llama de la racha, donde el signo "−" se leía
                 como "bájame la racha" en vez de "quita una vez de hoy".
@@ -55,7 +65,7 @@ function renderMissions() {
                 tener las dos cosas era ofrecer dos veces lo mismo. Dice
                 "−1" y no "3→2" para que sea el reverso exacto del "+1" que
                 aparece en el círculo. */
-            (cuenta && c > 0) ? `<button class="ms-undo" onclick="event.stopPropagation();logMission('${m.id}', -1)"
+            (!guardada && cuenta && c > 0) ? `<button class="ms-undo" onclick="event.stopPropagation();logMission('${m.id}', -1)"
               aria-label="Quitar una vez de ${escapeAttr(m.name)}" title="Quitar una vez de hoy">
               ${VOLVER} −1
             </button>` : ""}
@@ -67,72 +77,118 @@ function renderMissions() {
     </div>`;
   };
 
-  const bestStreak = state.missions.reduce((a, m) => Math.max(a, missionStreak(m)), 0);
-  const next = pending[0];
-  el.innerHTML = `
-    ${sectionHero({
-      scene: motifScene(820, 168, 55, "waves", "#5fe0b0"),
-      lead: `
-        <div class="ring-wrap" style="width:92px;height:92px">
-          ${/* Animado, no fijo: cumplir una misión mueve este anillo, y verlo
-                crecer es la respuesta a lo que acabas de hacer. Estático,
-                el porcentaje simplemente aparecía cambiado y el gesto se
-                quedaba sin acuse de recibo. */
-            animRing(92, 9, pct / 100, "#5fe0b0",
-              lastMisionPct === null ? 0 : lastMisionPct, "rgba(234,241,239,0.14)")}
-          <div class="ring-center">
-            <div class="v" style="font-size:19px"><b>${done.length}</b><span style="font-size:13px;color:var(--muted)">/${due.length}</span></div>
-          </div>
+  /* ---- Reparto en columnas ----
+     Cada misión cae en una sola columna, y la mayoría sin que nadie lo haya
+     decidido: lo dice su cadencia. Ver tableroDeMision. */
+  const cols = tablerosDeMisiones();
+  const porTablero = {};
+  cols.forEach(c => { porTablero[c.id] = []; });
+  state.missions.forEach(m => {
+    const id = tableroDeMision(m);
+    (porTablero[id] || porTablero.semana).push(m);
+  });
+
+  const VACIO = {
+    hoy: "Nada pendiente para hoy.",
+    hechas: "Todavía no has cumplido ninguna hoy.",
+    semana: "Aquí esperan las que no son de hoy.",
+    terminadas: "Aquí se guardan las que ya cerraste."
+  };
+
+  /* La lista es también la zona donde se suelta: `data-soltar` deja que una
+     columna vacía reciba su primera misión, cuando no hay ninguna tarjeta
+     contra la que colocarse. */
+  const cuerpo = (c) => {
+    const lista = ordenarMisiones(porTablero[c.id] || []);
+    return `<div class="ms-list" data-tablero="${c.id}" data-soltar>${
+      lista.length
+        ? lista.map(card).join("")
+        : `<p class="col-vacia">${escapeHtml(VACIO[c.id] || "Arrastra aquí lo que quieras apartar.")}</p>`
+    }</div>`;
+  };
+
+  const menuTablero = (c) => c.propio
+    ? branchMenu("t:" + c.id, [
+        { title: "Renombrar", hint: "Cambia cómo se llama", icon: "lapiz", onclick: `renombrarTableroMisiones('${c.id}')` },
+        { title: "Borrar este tablero", hint: (porTablero[c.id] || []).length ? "Sus misiones vuelven a su sitio" : "Está vacío", icon: "bote", danger: true, onclick: `borrarTableroMisiones('${c.id}')` }
+      ])
+    : "";
+
+  const hero = sectionHero({
+    scene: motifScene(820, 168, 55, "waves", "#5fe0b0"),
+    lead: `
+      <div class="ring-wrap" style="width:92px;height:92px">
+        ${/* Animado, no fijo: cumplir una misión mueve este anillo, y verlo
+              crecer es la respuesta a lo que acabas de hacer. Estático,
+              el porcentaje simplemente aparecía cambiado y el gesto se
+              quedaba sin acuse de recibo. */
+          animRing(92, 9, pct / 100, "#5fe0b0",
+            lastMisionPct === null ? 0 : lastMisionPct, "rgba(234,241,239,0.14)")}
+        <div class="ring-center">
+          <div class="v" style="font-size:19px"><b>${done.length}</b><span style="font-size:13px;color:var(--muted)">/${due.length}</span></div>
         </div>
-        <div>
-          <div class="label">${dayName}</div>
-          <div class="big" style="font-size:30px"><b>${pct}%</b><span> del día</span></div>
-        </div>`,
-      stats: [
-        { n: due.length, t: "Hoy" },
-        { n: done.length, t: "Cumplidas", tone: "mint" },
-        { n: pending.length, t: "Pendientes", tone: pending.length ? "fire" : "" },
-        { n: bestStreak, t: "Mejor racha" }
-      ],
-      focus: next
-        ? { k: "Lo siguiente para hoy", v: next.name, color: "var(--mint)", onclick: `logMission('${next.id}', 1)` }
-        : (due.length
-          ? { k: "Día completo", v: "Todas las misiones cumplidas", color: "var(--mint)" }
-          : { k: "Sin misiones hoy", v: "Crea una o descansa", color: "var(--muted)" })
-    })}
-
-    ${pending.length ? `
-    <div class="panel">
-      <div class="panel-head">
-        <h3 style="margin:0">Pendientes de hoy</h3>
-        <span class="hint-hold">${pistaReordenar()}</span>
       </div>
-      <div class="ms-list" id="ms-pend">${ordenarMisiones(pending).map(card).join("")}</div>
-    </div>` : ""}
+      <div>
+        <div class="label">${dayName}</div>
+        <div class="big" style="font-size:30px"><b>${pct}%</b><span> del día</span></div>
+      </div>`,
+    stats: [
+      { n: due.length, t: "Hoy" },
+      { n: done.length, t: "Cumplidas", tone: "mint" },
+      { n: pending.length, t: "Pendientes", tone: pending.length ? "fire" : "" },
+      { n: state.missions.reduce((a, m) => Math.max(a, missionStreak(m)), 0), t: "Mejor racha" }
+    ],
+    focus: pending[0]
+      ? { k: "Lo siguiente para hoy", v: pending[0].name, color: "var(--mint)", onclick: `logMission('${pending[0].id}', 1)` }
+      : (due.length
+        ? { k: "Día completo", v: "Todas las misiones cumplidas", color: "var(--mint)" }
+        : { k: "Sin misiones hoy", v: "Crea una o descansa", color: "var(--muted)" })
+  });
 
-    ${finished.length ? `
-    <div class="panel alt">
-      <h3>Cumplidas hoy</h3>
-      <div class="ms-list">${finished.map(card).join("")}</div>
-    </div>` : ""}
+  /* Dos formas para el mismo tablero. En pantalla ancha son columnas de
+     verdad, con desplazamiento de lado: se ven varias a la vez y mover algo
+     de una a otra es un gesto corto. En el teléfono no cabe ni una columna
+     y media, así que se quedan apiladas como estaban: bajar por la pantalla
+     es más natural que empujarla de lado con el pulgar.
 
-    ${otherDays.length ? `
-    <div class="panel">
-      <h3>Otros días</h3>
-      <div class="ms-list">${otherDays.map(card).join("")}</div>
-    </div>` : ""}
+     Las vacías solo se dibujan en pantalla ancha, donde una columna vacía es
+     un sitio donde soltar. Apiladas serían tres recuadros vacíos ocupando la
+     primera pantalla entera. Los tableros propios son la excepción: recién
+     creados están vacíos, y si no se vieran parecería que no se creó nada. */
+  const visibles = cols.filter(c => {
+    const n = (porTablero[c.id] || []).length;
+    if (c.soloConAlgo) return n > 0;
+    return isDesktop() ? true : (n > 0 || c.propio);
+  });
 
-    ${archived.length ? `
-    <div class="panel alt">
-      <h3>Hechas y guardadas</h3>
-      <div class="ms-list">${archived.map(m => `
-        <div class="ms-card done" style="--mc:${m.color || "#5fe0b0"}">
-          ${botonMision(m, 1, 1, { reabrir: true })}
-          ${iconoMision(m)}
-          <div class="ms-body"><div class="ms-name">${escapeHtml(m.name)}</div>
-          <div class="ms-meta"><span>cumplida el ${formatDate(m.completedAt)}</span></div></div>
-        </div>`).join("")}</div>
-    </div>` : ""}`;
+  el.innerHTML = hero + (isDesktop()
+    ? `
+    <div class="tablero-pista full-row">
+      <span class="hint-hold">Arrastra una misión de una columna a otra: a la semana queda pospuesta, a las terminadas queda cerrada.</span>
+      <button class="btn btn-soft btn-sm" onclick="crearTableroMisiones()">Nuevo tablero</button>
+    </div>
+    <div class="tablero-mis full-row" data-carril>
+      ${visibles.map(c => `
+        <section class="col-mis">
+          <div class="col-head">
+            <h3>${escapeHtml(c.nombre)}</h3>
+            <span class="count">${(porTablero[c.id] || []).length}</span>
+            ${menuTablero(c)}
+          </div>
+          ${cuerpo(c)}
+        </section>`).join("")}
+    </div>`
+    : `
+    ${visibles.map((c, i) => `
+      <div class="panel ${i % 2 ? "alt" : ""}">
+        <div class="panel-head">
+          <h3 style="margin:0">${escapeHtml(c.nombre)}</h3>
+          ${c.propio ? menuTablero(c) : `<span class="hint-hold">${c.id === "hoy" ? pistaReordenar() : ""}</span>`}
+        </div>
+        ${cuerpo(c)}
+      </div>`).join("")}
+    <button class="btn btn-soft btn-block" onclick="crearTableroMisiones()">Añadir un tablero</button>`);
+
   playRings(el);
   lastMisionPct = pct / 100;
   attachMisionOrden();
@@ -210,14 +266,15 @@ function renderProjects() {
     </div>`;
   }
 
-  const branches = [...new Set(all.map(p => p.branch || "General"))];
-  html += `<div class="sec-label full-row">Tus ramas de Proyectos</div>`;
+  const branches = ordenarRamasProyectos([...new Set(all.map(p => p.branch || "General"))]);
+  html += `<div class="sec-label full-row">Tus ramas de Proyectos${
+    branches.length > 1 ? `<span class="hint-hold">${pistaReordenarRamas()}</span>` : ""}</div>`;
   for (const b of branches) {
     const list = all.filter(p => (p.branch || "General") === b)
       .sort((a, c) => (a.status === "dropped" || a.status === "done" ? 1 : 0) - (c.status === "dropped" || c.status === "done" ? 1 : 0));
     const liveN = list.filter(p => p.status === "active" || p.status === "paused").length;
     html += `
-    <div class="branch-card" style="padding-bottom:14px">
+    <div class="branch-card" data-rid="${escapeAttr(b)}" style="padding-bottom:14px">
       <div class="branch-head" style="margin-bottom:12px">
         <!-- Igual que en Talentos: el nombre se reescribe tocándolo -->
         <h3 class="renombrable" onclick="renombrarRamaProyectos('${escapeAttr(b)}')" title="Toca el nombre para renombrar la rama">${escapeHtml(b)}${icon("pen", 11)}</h3>
@@ -268,8 +325,46 @@ function renderProjects() {
 
      Se engancha al contenedor entero (no a cada lista) porque el arrastre
      cruza fronteras, y una sola vez: hacerReordenable ya se protege de
-     repetirse en cada repintado. */
-  hacerReordenable(el, ".proj-card", reacomodarEncargos);
+     repetirse en cada repintado.
+
+     Las ramas se arrastran por su cabecera y las tarjetas por cualquier otro
+     sitio. Repartir el gesto por dónde empieza evita el asa aparte: la
+     cabecera ya es una franja ancha y vacía, y es justo donde la mano va a
+     agarrar una columna entera. Los botones que viven ahí (el ＋ y el menú)
+     quedan fuera para que sigan siendo botones. */
+  hacerReordenable(el, ".proj-card", reacomodarEncargos,
+    (e) => !e.target.closest(".branch-head"));
+  hacerReordenable(el, ".branch-card", reacomodarRamas,
+    (e) => !!e.target.closest(".branch-head") && !e.target.closest("button"));
+}
+
+/* ---- Orden de las ramas de Proyectos ----
+   Antes salían en el orden en que aparecía su primer encargo, así que
+   moverlas de sitio obligaba a mover encargos. Ahora el orden es suyo y se
+   guarda aparte: las ramas que nadie ha tocado se quedan detrás, en el
+   orden de siempre. */
+function ordenarRamasProyectos(nombres) {
+  const orden = (state.ui && state.ui.ramasProyectos) || [];
+  return [...nombres].sort((a, b) => {
+    const ia = orden.indexOf(a), ib = orden.indexOf(b);
+    return (ia < 0 ? 1e9 : ia) - (ib < 0 ? 1e9 : ib);
+  });
+}
+
+function reacomodarRamas(nombres) {
+  state.ui = state.ui || {};
+  /* Solo se guardan las ramas que existen: si no, cada rama borrada dejaría
+     su nombre aquí para siempre. Volver a crear una que se llame igual la
+     devuelve a su sitio de antes, que es lo que se espera. */
+  const vivas = new Set(state.projects.map(p => p.branch || "General"));
+  state.ui.ramasProyectos = nombres.filter(n => vivas.has(n));
+  save();
+  renderProjects();
+}
+
+function pistaReordenarRamas() {
+  return isDesktop() ? "Arrastra una cabecera para reordenar las ramas"
+                     : "Mantén pulsada una cabecera para reordenar las ramas";
 }
 
 /* Reconstruye el orden y la rama de cada encargo a partir de lo que quedó en
@@ -349,7 +444,7 @@ function renderProjectDetail() {
         <div class="note">${escapeHtml(e.event)}<span class="when">${formatWhen(e)}</span></div>
       </div>`).join("");
 
-  document.getElementById("project-content").innerHTML = `
+  const heroHtml = `
     <div class="detail-hero">
       <div class="strip">${motifScene(560, 156, hashSeed(pr.id), motifFor(pr.icon), col)}</div>
       <div class="skill-emoji" style="background:${col}30;color:${col}">${icon(pr.icon, 28)}</div>
@@ -366,8 +461,9 @@ function renderProjectDetail() {
           <div class="k">${steps.filter(s => s.done).length} de ${steps.length} etapas</div>
         </div>
       </div>
-    </div>
+    </div>`;
 
+  const panelesHtml = `
     <div class="panel alt" style="border-color:${h.key === "stalled" ? "rgba(255,138,112,0.45)" : "rgba(42,52,65,0.7)"}">
       <h3 style="color:${h.color}">${h.label}</h3>
       <p class="settings-note" style="margin:0">${escapeHtml(h.note)}</p>
@@ -390,14 +486,30 @@ function renderProjectDetail() {
         <div class="fact"><div class="k">ENTRENA</div><div class="v" style="font-size:13.5px">${skill ? escapeHtml(skill.name) : "—"}</div></div>
         <div class="fact"><div class="k">RECOMPENSA</div><div class="v" style="font-size:13.5px">${skill ? "+" + pr.xpReward + " XP" : "—"}</div></div>
       </div>
-    </div>
+    </div>`;
 
-    ${actions}
-
+  const movimientosHtml = `
     <div class="panel" style="margin-top:14px">
       <h3>Movimientos</h3>
       ${historyHtml}
     </div>`;
+
+  /* En escritorio son dos columnas de verdad, cada una con su propia altura.
+     Antes era una sola rejilla y las filas se compartían: los botones de
+     cerrar el encargo caían en la fila que sobraba a la izquierda, y esa
+     fila empezaba donde acabara la columna de la derecha. Un encargo con
+     muchas etapas los empujaba media pantalla hacia abajo, lejos de la
+     ficha a la que pertenecen. Repartir el contenido en dos contenedores
+     los deja pegados al encargo pase lo que pase al lado.
+
+     En móvil no hay columnas y el orden es el de siempre: primero cómo va,
+     luego las etapas y la ficha, después las decisiones y al final el
+     historial. Las decisiones no se adelantan: descartar algo no es lo
+     primero que se ofrece al abrirlo. */
+  document.getElementById("project-content").innerHTML = isDesktop()
+    ? `<div class="detail-side">${heroHtml}${actions}</div>
+       <div class="detail-main">${panelesHtml}${movimientosHtml}</div>`
+    : heroHtml + panelesHtml + actions + movimientosHtml;
   playRings(document.getElementById("project-content"));
 }
 

@@ -20,8 +20,33 @@ document.addEventListener("click", filtrarClicTrasArrastre, true);
 let reajusteVentana = null;
 window.addEventListener("resize", () => {
   clearTimeout(reajusteVentana);
-  reajusteVentana = setTimeout(marcarDesbordes, 150);
+  reajusteVentana = setTimeout(() => {
+    marcarDesbordes();
+    revisarAnchoDePantalla();
+  }, 150);
 });
+
+/* Cruzar los 900px no es un detalle de estilo: hay pantallas que se dibujan
+   distintas a cada lado de esa línea —el encargo reparte su contenido en dos
+   columnas, el Resumen cambia de acomodo guardado— y el navegador no puede
+   rehacer solo lo que se decidió en JavaScript. Sin esto, arrastrar el borde
+   de la ventana dejaba la pantalla anterior puesta hasta el siguiente clic. */
+let anchoEraDeEscritorio = isDesktop();
+const REDIBUJA_AL_CRUZAR = {
+  "view-summary": () => renderSummary(),
+  "view-projects": () => renderProjects(),
+  "view-project": () => renderProjectDetail(),
+  "view-missions": () => renderMissions()
+};
+
+function revisarAnchoDePantalla() {
+  const ahora = isDesktop();
+  if (ahora === anchoEraDeEscritorio) return;
+  anchoEraDeEscritorio = ahora;
+  const activa = document.querySelector(".view.active");
+  const rehacer = activa && REDIBUJA_AL_CRUZAR[activa.id];
+  if (rehacer) rehacer();
+}
 
 /* Datos de una versión más nueva: la app no puede guardar nada, así que hay
    que decirlo antes de que el usuario se pase media hora capturando y

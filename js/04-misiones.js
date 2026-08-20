@@ -13,7 +13,185 @@ function missionScheduledOn(m, key) {
 
 function missionDueToday(m) {
   if (m.archived) return false;
+  /* Traída a mano al día de hoy desde otro tablero: manda sobre la cadencia,
+     pero solo por hoy. Mañana vuelve a decidir su cadencia. */
+  if (m.paraHoy === todayKey()) return true;
+  /* Apartada en otro tablero: está pospuesta, así que hoy no cuenta ni en la
+     lista ni en el porcentaje del día. Ese es justo el precio de posponer, y
+     el que hace que el número del día signifique algo. */
+  if (m.tablero) return false;
   return missionScheduledOn(m, todayKey());
+}
+
+/* ================= Tableros de Misiones =================
+   Misiones dejó de ser una lista larga para ser un tablero de columnas. Tres
+   están siempre y no se pueden ni borrar ni renombrar, porque no son cosas
+   que el usuario haya creado: son los tres estados por los que pasa una
+   misión —hoy, esta semana, terminada—. El resto se los inventa él.
+
+   La columna de una misión NO se guarda salvo que la muevas a mano: mientras
+   nadie la toque, la decide su cadencia. Así una misión diaria aparece cada
+   mañana en "Pendientes de hoy" sin que nadie la arrastre, que es de lo que
+   va la app. `m.tablero` solo existe cuando alguien la apartó.
+
+   "Cumplidas hoy" es la única que no recibe: se llega a ella cumpliendo la
+   misión, no moviéndola… aunque soltarla ahí también la cumple, porque quien
+   la arrastra hasta ahí está diciendo exactamente eso. */
+const TABLEROS_FIJOS = [
+  { id: "hoy",        nombre: "Pendientes de hoy" },
+  { id: "hechas",     nombre: "Cumplidas hoy", soloConAlgo: true },
+  { id: "semana",     nombre: "Pendientes de la semana" },
+  { id: "terminadas", nombre: "Misiones terminadas" }
+];
+
+function tablerosDeMisiones() {
+  const fijo = (id) => TABLEROS_FIJOS.find(t => t.id === id);
+  const propios = (state.tableros || []).map(t => ({ id: t.id, nombre: t.nombre, propio: true }));
+  return [fijo("hoy"), fijo("hechas"), fijo("semana"), ...propios, fijo("terminadas")];
+}
+
+function nombreTablero(id) {
+  const t = tablerosDeMisiones().find(x => x.id === id);
+  return t ? t.nombre : "otro tablero";
+}
+
+function tableroDeMision(m) {
+  if (m.archived) return "terminadas";
+  // `load()` ya devolvió al ciclo las que apuntaban a un tablero borrado
+  if (m.tablero) return m.tablero;
+  if (missionDueToday(m)) return missionDone(m, todayKey()) ? "hechas" : "hoy";
+  return "semana";
+}
+
+/* ---- Cuánto lleva esperando ----
+   Posponer no es gratis y tenía que verse. Se cuenta desde el día en que se
+   apartó y sigue corriendo mientras siga fuera de hoy; al volver, los días
+   se guardan sumados para que el periodo en que por fin se haga sepa lo que
+   costó llegar hasta ahí. */
+function diasPospuesta(m) {
+  const p = m.pospuesta;
+  if (!p) return 0;
+  return (p.dias || 0) + (p.desde ? Math.max(0, daysBetween(p.desde, todayKey())) : 0);
+}
+
+function abrirPosposicion(m) {
+  const p = m.pospuesta || (m.pospuesta = { dias: 0, veces: 0 });
+  if (p.desde) return;                 // ya estaba fuera: el reloj no se reinicia
+  p.desde = todayKey();
+  p.veces = (p.veces || 0) + 1;
+}
+
+function cerrarPosposicion(m) {
+  const p = m.pospuesta;
+  if (!p || !p.desde) return;
+  p.dias = (p.dias || 0) + Math.max(0, daysBetween(p.desde, todayKey()));
+  delete p.desde;
+  // Apartada y devuelta el mismo día: no llegó a pasar nada que contar
+  if (!p.dias) delete m.pospuesta;
+}
+
+function fraseDias(n) { return n + (n === 1 ? " día" : " días"); }
+
+/* Mueve una misión de columna y hace lo que ese movimiento significa. Devuelve
+   el aviso que hay que dar, o "" cuando ya habló logMission por su cuenta. */
+function moverMisionATablero(id, destino) {
+  const m = state.missions.find(x => x.id === id);
+  if (!m) return "";
+  const key = todayKey();
+  const origen = tableroDeMision(m);
+  if (origen === destino) return "";
+
+  // Sacarla de las terminadas la devuelve a la vida
+  if (origen === "terminadas") { m.archived = false; m.completedAt = null; }
+
+  if (destino === "hoy" || destino === "hechas") {
+    delete m.tablero;
+    m.paraHoy = key;
+    cerrarPosposicion(m);
+  } else if (destino === "terminadas") {
+    delete m.tablero;
+    delete m.paraHoy;
+  } else {
+    m.tablero = destino;
+    delete m.paraHoy;
+    abrirPosposicion(m);
+  }
+
+  const hecha = missionDone(m, key);
+
+  /* Cumplir y descumplir se dejan en manos de logMission: es quien reparte el
+     XP, mueve la racha y avisa. Repetir aquí esa cuenta sería tener dos
+     versiones de la misma verdad. */
+  if (destino === "hechas" && !hecha) {
+    save();
+    logMission(m.id, missionTarget(m) - missionCount(m, key));
+    return "";
+  }
+  if (destino === "hoy" && hecha) {
+    save();
+    logMission(m.id, -missionCount(m, key));
+    return "";
+  }
+  if (destino === "terminadas") {
+    m.archived = true;
+    m.completedAt = key;
+    if (!hecha) {
+      logMission(m.id, missionTarget(m) - missionCount(m, key));
+      return "";
+    }
+    save();
+    return `${m.name} queda terminada`;
+  }
+
+  const espera = diasPospuesta(m);
+  save();
+  if (destino === "semana" || m.tablero) {
+    return espera > 0
+      ? `${m.name} a ${nombreTablero(destino)} · lleva ${fraseDias(espera)} esperando`
+      : `${m.name} a ${nombreTablero(destino)}`;
+  }
+  return `${m.name} vuelve a hoy`;
+}
+
+/* ---- Los tableros propios ---- */
+async function crearTableroMisiones() {
+  const nombre = await askText("Nuevo tablero", "", "Crear",
+    "Un sitio donde apartar misiones: un proyecto, un ámbito, lo que quieras.", 28);
+  if (!nombre) return;
+  state.tableros = state.tableros || [];
+  state.tableros.push({ id: uid(), nombre });
+  save();
+  renderMissions();
+  toast(`Tablero "${nombre}" creado`, "hecho");
+}
+
+async function renombrarTableroMisiones(id) {
+  const t = (state.tableros || []).find(x => x.id === id);
+  if (!t) return;
+  const nombre = await askText(`Renombrar "${t.nombre}"`, t.nombre, "Renombrar", "", 28);
+  if (!nombre || nombre === t.nombre) return;
+  t.nombre = nombre;
+  save();
+  renderMissions();
+}
+
+async function borrarTableroMisiones(id) {
+  const t = (state.tableros || []).find(x => x.id === id);
+  if (!t) return;
+  const dentro = state.missions.filter(m => m.tablero === id);
+  const ok = await ask(
+    (dentro.length
+      ? `Se borra el tablero "${t.nombre}". ${dentro.length === 1
+          ? "La misión que tiene dentro no se pierde: vuelve a su sitio de siempre, según toque hoy o no."
+          : `Las ${dentro.length} misiones que tiene dentro no se pierden: vuelven a su sitio de siempre, según toquen hoy o no.`}`
+      : `Se borra el tablero "${t.nombre}", que está vacío.`),
+    "Borrar el tablero", true);
+  if (!ok) return;
+  dentro.forEach(m => { delete m.tablero; cerrarPosposicion(m); });
+  state.tableros = state.tableros.filter(x => x.id !== id);
+  save();
+  renderMissions();
+  toast(`Tablero "${t.nombre}" borrado`, "hecho");
 }
 
 /* Tolera el formato viejo (un número) además del nuevo (lista de marcas):
@@ -63,11 +241,21 @@ function logMission(id, delta) {
   const wasDone = before >= target;
   const nowDone = after >= target;
 
+  /* Los días que estuvo esperando se cobran aquí: al cumplirla. Es el
+     "periodo donde corresponde" —el de verdad, no aquel en el que debía
+     haberse hecho— y por eso la cuenta se cierra en este momento y no antes.
+     Queda apuntada en la misión para poder decirlo: en el aviso de ahora y
+     en su tarjeta mientras siga a la vista. */
+  const esperaba = nowDone && !wasDone ? diasPospuesta(m) : 0;
   if (nowDone && !wasDone) {
     if (m.skillId && m.xp) {
       const s = state.skills.find(x => x.id === m.skillId);
       if (s) addXp(s, m.xp, `Misión cumplida: ${m.name}`, `Misión · ${m.name}`);
     }
+    if (esperaba > 0) {
+      m.pospuestaUltima = { dias: esperaba, veces: (m.pospuesta && m.pospuesta.veces) || 1, cerradaEl: key };
+    }
+    delete m.pospuesta;
     if (m.cadence === "once") { m.completedAt = key; m.archived = true; }
   }
   if (!nowDone && wasDone) {
@@ -78,6 +266,14 @@ function logMission(id, delta) {
       if (s) removeXp(s, m.xp, `Misión revertida: ${m.name}`, `Misión · ${m.name}`);
     }
     if (m.cadence === "once") { m.completedAt = null; m.archived = false; }
+    /* Deshacer el cumplido devuelve también la espera que se había saldado:
+       si no, quitar y volver a poner la palomita borraría de la memoria los
+       días que costó llegar hasta ahí. */
+    const u = m.pospuestaUltima;
+    if (u && u.cerradaEl === key) {
+      m.pospuesta = { dias: u.dias, veces: u.veces };
+      delete m.pospuestaUltima;
+    }
     // Deshacer algo ya logrado merece notarse: sin esto, quitar una misión
     // cumplida y quitar una a medias se sentían exactamente igual.
     sacudirPantalla();
@@ -92,7 +288,8 @@ function logMission(id, delta) {
     if (st > 0 && st % 7 === 0) {
       celebrate(`${st} días seguidos`, m.name, m.color || "#5fe0b0", m.icon);
     } else {
-      toast(`${m.name} cumplida${m.xp ? ` · +${m.xp} XP` : ""}${st > 1 ? ` · racha ${st}` : ""}`, "logro");
+      toast(`${m.name} cumplida${m.xp ? ` · +${m.xp} XP` : ""}${st > 1 ? ` · racha ${st}` : ""}${
+        esperaba > 0 ? ` · tras ${fraseDias(esperaba)} esperando` : ""}`, "logro");
     }
   } else if (delta > 0) {
     toast(`${m.name}: ${after} de ${target}`, "hecho");
@@ -235,9 +432,17 @@ function filtrarClicTrasArrastre(ev) {
    listas se rehacen enteras y el contenedor de antes se tira. */
 let reord = null;
 
+/* Un mismo contenedor puede tener DOS cosas que se arrastran: en Proyectos,
+   las tarjetas y las ramas que las agrupan. Se distinguen por el selector y
+   por `permitido`, que reparte el gesto según dónde empezó —la cabecera de
+   la rama la mueve entera; cualquier otro sitio mueve la tarjeta—. Por eso
+   la marca de "ya registrado" guarda los selectores en vez de un sí o un no:
+   con un sí o un no, el segundo registro se perdía en silencio. */
 function hacerReordenable(cont, sel, alSoltar, permitido) {
-  if (!cont || cont.dataset.reord) return;
-  cont.dataset.reord = "1";
+  if (!cont) return;
+  const ya = (cont.dataset.reord || "").split("|");
+  if (ya.includes(sel)) return;
+  cont.dataset.reord = [...ya.filter(Boolean), sel].join("|");
 
   cont.addEventListener("pointerdown", (e) => {
     if (e.button) return;                       // solo el botón principal
@@ -269,8 +474,37 @@ function reordArrancar(e) {
   reord.off = { x: e.clientX - r.left, y: e.clientY - r.top };
   document.body.appendChild(flota);
   reord.flota = flota;
+  reord.carril = reord.cont.querySelector("[data-carril]");
+  if (reord.carril) reord.latido = setInterval(latidoCarril, 30);
   reord.pieza.classList.add("arr-hueco");
+  /* Ver `.reordenando .arr-pieza` en los estilos: mientras dure el arrastre,
+     las piezas hermanas son lo único que sigue respondiendo al puntero. */
+  reord.cont.querySelectorAll(reord.sel).forEach(el => el.classList.add("arr-pieza"));
   if (userHasTapped && navigator.vibrate) navigator.vibrate(12);
+}
+
+/* ---- El tablero que no cabe en la pantalla ----
+   Las columnas de Misiones se salen de lo ancho, así que la de destino puede
+   estar fuera de vista al empezar a arrastrar. Al acercarse a un borde, el
+   carril se desplaza solo.
+
+   Es un latido aparte y no un empujón por cada movimiento del puntero: quien
+   arrastra hasta el borde se queda ahí quieto esperando a que llegue la
+   columna, y sin latido no llegaría nunca. */
+const CARRIL_MARGEN = 78;      // px desde el borde donde empieza a arrastrar
+const CARRIL_PASO = 14;        // px por latido
+
+function empujarCarril(e) {
+  if (!reord) return;
+  reord.raton = { x: e.clientX, y: e.clientY };
+}
+
+function latidoCarril() {
+  if (!reord || !reord.activo || !reord.carril || !reord.raton) return;
+  const r = reord.carril.getBoundingClientRect();
+  const x = reord.raton.x;
+  if (x > r.right - CARRIL_MARGEN) reord.carril.scrollLeft += CARRIL_PASO;
+  else if (x < r.left + CARRIL_MARGEN) reord.carril.scrollLeft -= CARRIL_PASO;
 }
 
 function reordMover(e) {
@@ -290,9 +524,24 @@ function reordMover(e) {
   flota.style.left = (e.clientX - off.x) + "px";
   flota.style.top = (e.clientY - off.y) + "px";
 
+  empujarCarril(e);
+
   const bajo = document.elementFromPoint(e.clientX, e.clientY);
   const sobre = bajo && bajo.closest(sel);
-  if (!sobre || sobre === pieza || !cont.contains(sobre)) return;
+  if (!sobre || sobre === pieza || !cont.contains(sobre)) {
+    /* No hay ninguna pieza debajo, pero puede haber una lista que acepte lo
+       que se trae: una columna vacía, o el hueco que queda bajo la última
+       tarjeta. Sin esto, un tablero recién creado no podría recibir jamás su
+       primera misión —no hay contra qué colocarse— y arrastrar al final de
+       una columna obligaba a apuntar a la mitad de abajo de la última. */
+    const zona = bajo && bajo.closest("[data-soltar]");
+    if (!zona || !cont.contains(zona)) return;
+    const piezas = [...zona.querySelectorAll(sel)].filter(x => x !== pieza);
+    const ultima = piezas[piezas.length - 1];
+    if (!ultima) { if (pieza.parentNode !== zona) zona.appendChild(pieza); return; }
+    if (e.clientY > ultima.getBoundingClientRect().bottom) zona.appendChild(pieza);
+    return;
+  }
   const items = [...cont.querySelectorAll(sel)];
   const i = items.indexOf(pieza), j = items.indexOf(sobre);
   if (i < 0 || j < 0) return;
@@ -307,12 +556,14 @@ function reordMover(e) {
 
 function reordSoltar() {
   if (!reord) return;
-  const { cont, sel, alSoltar, pieza, flota, espera, activo } = reord;
+  const { cont, sel, alSoltar, pieza, flota, espera, activo, latido } = reord;
   reord = null;
   if (espera) clearTimeout(espera);
+  if (latido) clearInterval(latido);
   if (!activo) return;
   if (flota) flota.remove();
   pieza.classList.remove("arr-hueco");
+  cont.querySelectorAll(".arr-pieza").forEach(el => el.classList.remove("arr-pieza"));
   cont.classList.remove("reordenando");
   reordFin = Date.now();
   const ids = [...cont.querySelectorAll(sel)].map(el => el.dataset.rid);
@@ -348,11 +599,38 @@ function guardarOrden(clave, ids) {
 
 function ordenarMisiones(lista) { return ordenarPor(lista, "misionOrden"); }
 
+/* El arrastre ya no vive dentro de una sola lista: se engancha a la pantalla
+   entera porque ahora cruza columnas, y cambiar de columna no es acomodar —es
+   posponer, cumplir o cerrar la misión—. */
 function attachMisionOrden() {
-  hacerReordenable(document.getElementById("ms-pend"), ".ms-card", (ids) => {
-    guardarOrden("misionOrden", ids);
-    renderMissions();
+  hacerReordenable(document.getElementById("missions-content"), ".ms-card", alSoltarMisiones);
+}
+
+/* Se lee el DOM y no se calcula: el arrastre ya dejó cada tarjeta donde toca,
+   así que lo que se ve ES el resultado. */
+function alSoltarMisiones() {
+  const orden = [];
+  const cambios = [];
+  document.querySelectorAll("#missions-content .ms-list[data-tablero]").forEach(lista => {
+    const destino = lista.dataset.tablero;
+    lista.querySelectorAll(".ms-card").forEach(el => {
+      const m = state.missions.find(x => x.id === el.dataset.rid);
+      if (!m) return;
+      orden.push(m.id);
+      if (tableroDeMision(m) !== destino) cambios.push({ id: m.id, destino });
+    });
   });
+  guardarOrden("misionOrden", orden);
+  /* Un arrastre mueve UNA tarjeta, así que como mucho hay un cambio de
+     columna. Se recorren todos por si acaso, pero solo avisa el primero:
+     una pila de avisos por un solo gesto sería ruido. */
+  let aviso = "";
+  cambios.forEach((c, i) => {
+    const msg = moverMisionATablero(c.id, c.destino);
+    if (i === 0) aviso = msg;
+  });
+  renderMissions();
+  if (aviso) toast(aviso, "hecho");
 }
 
 function todayMissionStats() {
@@ -614,7 +892,7 @@ function showView(name) {
     !(name === "home" || name === "tree" || name === "projects" || name === "missions"));
   fab.querySelector(".fab-label").textContent = {
     home: "Nueva habilidad", tree: "Nuevo talento",
-    projects: "Nuevo encargo", missions: "Nueva misión"
+    projects: "Nuevo proyecto", missions: "Nueva misión"
   }[name] || "";
 
   /* La pantalla completa es una capa por encima de todo, así que taparía

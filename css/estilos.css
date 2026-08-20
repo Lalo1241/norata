@@ -1216,6 +1216,16 @@
     margin: 22px 4px 12px;
   }
   .sec-label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  /* La pista de arrastre viaja dentro del rótulo, pero no es un rótulo: ni
+     versalitas ni el espaciado de letras, que a este tamaño se lee mal. Y el
+     rótulo pasa a poder partirse en dos líneas, porque en un teléfono la
+     pista es larga y prefiero que baje a que se estruje. */
+  .sec-label { flex-wrap: wrap; }
+  .sec-label .hint-hold {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 600;
+  }
   .branch-kicker {
     font-size: 9.5px;
     font-weight: 800;
@@ -1224,6 +1234,12 @@
     color: var(--faint);
     display: block;
     margin-bottom: 1px;
+  }
+  /* La cabecera es el asa de la rama: con ratón se avisa con el cursor. */
+  @media (hover: hover) and (pointer: fine) {
+    #projects-content .branch-head { cursor: grab; }
+    #projects-content .branch-head button,
+    #projects-content .branch-head .renombrable { cursor: pointer; }
   }
   .branch-head .btitle { min-width: 0; }
   .branch-head .btitle h3 { line-height: 1.15; }
@@ -2387,6 +2403,27 @@
     color: var(--muted);
     margin-top: 2px;
   }
+  /* Lo que lleva esperando una misión apartada. Va en amarillo luciérnaga
+     porque es exactamente lo que ese color significa en la app: atención, sin
+     llegar a alarma. El coral se guarda para lo que ya se rompió. */
+  .ms-espera {
+    color: var(--fire);
+    background: var(--fire-soft);
+    border-radius: 999px;
+    padding: 1px 7px;
+    font-weight: 600;
+  }
+  /* Una columna sin nada tiene que verse como un sitio donde soltar, no como
+     un error. De ahí el borde punteado: es un hueco, no una tarjeta rota. */
+  .col-vacia {
+    margin: 0;
+    padding: 16px 12px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--faint);
+    border: 1px dashed var(--line);
+    border-radius: var(--r-md);
+  }
   .ms-side { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
   .ms-streak {
     display: inline-flex;
@@ -2538,6 +2575,22 @@
      dentro debe dispararse por el camino. */
   .reordenando > * { cursor: grabbing; user-select: none; }
   .reordenando > * * { pointer-events: none; }
+  /* …salvo las piezas mismas, que tienen que seguir siendo tocables: el
+     arrastre averigua dónde va a caer preguntando qué hay bajo el dedo, y
+     una pieza sin puntero no aparece en esa pregunta.
+
+     Se nota solo cuando las piezas NO son hijas directas del contenedor.
+     En Misiones lo son —el contenedor es la lista—, así que la regla de
+     arriba nunca las alcanzó y todo parecía correcto. En Proyectos el
+     contenedor abarca varias ramas, las tarjetas cuelgan dos niveles más
+     abajo, y ahí el arrastre se quedaba mudo: ni cambiaban de rama ni se
+     ordenaban dentro de la suya. La marca la ponen y la quitan reordArrancar
+     y reordSoltar. */
+  .reordenando .arr-pieza { pointer-events: auto; }
+  /* Y las listas que aceptan lo que se suelta, por lo mismo: una columna
+     vacía no tiene ninguna pieza dentro, así que si ella tampoco responde al
+     puntero no hay forma de saber que el dedo está encima. */
+  .reordenando [data-soltar] { pointer-events: auto; }
 
   /* El hueco que deja la pieza: dice dónde va a caer sin taparlo todo. */
   .arr-hueco {
@@ -3316,6 +3369,69 @@
     .full-row, .sec-label { grid-column: 1 / -1; }
     #missions-content > *, #projects-content > * { min-width: 0; }
 
+    /* ---------- Misiones en columnas ----------
+       Solo aquí: en el teléfono las mismas columnas se apilan como paneles
+       (lo decide renderMissions, no estos estilos).
+
+       El carril se desplaza de lado y las columnas no se encogen: más vale
+       empujar el tablero que apretar las tarjetas hasta que no se lean.
+       `overscroll-behavior-x: contain` evita que al llegar al final el gesto
+       siga de largo y se lleve la página o el historial del navegador. */
+    .tablero-pista {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 18px 4px 10px;
+    }
+    .tablero-mis {
+      display: flex;
+      /* Estiradas a la misma altura, como en cualquier tablero de columnas.
+         No es estética: el hueco que le sobra a una columna corta es lo que
+         permite soltar una tarjeta "al final" sin tener que apuntar al
+         milímetro justo debajo de la última. */
+      align-items: stretch;
+      gap: 14px;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      padding-bottom: 12px;
+    }
+    .col-mis {
+      flex: 0 0 302px;
+      max-width: 302px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 14px 13px 13px;
+      display: flex;
+      flex-direction: column;
+    }
+    .col-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 11px;
+    }
+    .col-head h3 {
+      margin: 0;
+      font-size: 13.5px;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .col-head .count {
+      font-size: 11px;
+      color: var(--faint);
+      background: var(--card2);
+      border-radius: 999px;
+      padding: 2px 8px;
+    }
+    /* Alto mínimo para que una columna vacía siga siendo un blanco al que
+       apuntar mientras se arrastra. */
+    .col-mis .ms-list { min-height: 68px; flex: 1; }
+
     /* Detalles: ficha a la izquierda, acciones a la derecha */
     #detail-content, #perk-content, #project-content {
       display: grid;
@@ -3328,6 +3444,24 @@
       position: sticky;
       top: 26px;
     }
+
+    /* El encargo reparte su contenido en dos contenedores en vez de fiarlo
+       todo a la rejilla (ver renderProjectDetail). Cada columna mide lo suyo,
+       así que los botones de cerrarlo se quedan pegados a la ficha aunque la
+       lista de etapas de al lado crezca.
+
+       Aquí no hay pegado al desplazar: la ficha del encargo es alta —dibujo,
+       nombre, anillo— y con los botones debajo pasa de largo el alto de la
+       pantalla. Pegada, el final se quedaría fuera y los botones no habría
+       forma de alcanzarlos. */
+    #project-content > .detail-side {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
+    }
+    #project-content > .detail-main { min-width: 0; }
+    #project-content > .detail-side > .detail-hero { position: static; margin-bottom: 0; }
 
     /* Las habilidades sí llenan el ancho completo de su vista */
     #skill-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }

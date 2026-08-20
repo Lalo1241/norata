@@ -185,7 +185,7 @@ function migrarTipoTalento(p) {
    ese instante y la app no arranca.
    Añadir una colección nueva al estado obliga a sumarla aquí, o quedará
    fuera de la detección de borrados y de la fusión entre dispositivos. */
-const COLECCIONES = ["skills", "missions", "perks", "projects", "cajas"];
+const COLECCIONES = ["skills", "missions", "perks", "projects", "cajas", "tableros"];
 const DIAS_DE_TUMBA = 120;
 let idsVivos = null;
 
@@ -296,17 +296,29 @@ function load() {
   if (!Array.isArray(data.projects)) data.projects = [];
   if (!Array.isArray(data.missions)) data.missions = [];
   if (!Array.isArray(data.cajas)) data.cajas = [];
+  /* Los tableros que el usuario se inventa en Misiones. Los tres de siempre
+     —hoy, la semana, las terminadas— no viven aquí: no se pueden borrar ni
+     renombrar, así que no son datos, son la pantalla. */
+  if (!Array.isArray(data.tableros)) data.tableros = [];
   if (!data.borrados || typeof data.borrados !== "object") data.borrados = {};
   if (!data.settings) data.settings = {};
   if (!data.settings.timezone) {
     try { data.settings.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
     catch (e) { data.settings.timezone = "UTC"; }
   }
+  const tablerosVivos = new Set(data.tableros.map(t => t && t.id));
   data.missions.forEach((m, i) => {
     if (!m.color) m.color = COLORS[i % COLORS.length];
     if (!m.icon) m.icon = ICON_LIST[(i * 6 + 14) % ICON_LIST.length];
     if (!m.cadence) m.cadence = "daily";
     if (!m.log) m.log = {};
+    /* Una misión apartada en un tablero que ya no existe —borrado en otro
+       dispositivo— se quedaría escondida para siempre: no sale en ninguna
+       columna y no hay forma de llegar a ella. Vuelve al ciclo normal. */
+    if (m.tablero && m.tablero !== "semana" && !tablerosVivos.has(m.tablero)) {
+      delete m.tablero;
+      delete m.pospuesta;
+    }
   });
   data.projects.forEach((p, i) => {
     if (!p.color) p.color = COLORS[i % COLORS.length];

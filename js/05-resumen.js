@@ -379,8 +379,21 @@ function aplicarAcomodo(i) {
 
 let dashEditing = false;
 
+/* ---- Un tablero por tamaño de pantalla ----
+   El mismo reparto no puede servir en los dos sitios: en escritorio hay dos
+   o tres columnas y las tarjetas tienen alto propio; en el teléfono hay una
+   sola columna y el alto lo pone el contenido. Acomodar en el teléfono
+   deshacía el trabajo hecho en la computadora, y al revés.
+
+   Así que cada uno guarda el suyo y ninguno toca al otro. El del teléfono
+   estrena copiando al de escritorio —se lee de ahí mientras no exista, y la
+   primera vez que se acomoda algo se queda con lo que había— para que el
+   día del cambio nadie se encuentre el tablero de fábrica. */
+function ranuraTablero() { return isDesktop() ? "dash" : "dashMovil"; }
+
 function dashLayout() {
-  const d = (state.ui && state.ui.dash) || {};
+  const ui = state.ui || {};
+  const d = ui[ranuraTablero()] || ui.dash || {};
   const saved = Array.isArray(d.order) ? d.order.filter(id => DASH_META[id]) : [];
   const order = [...saved, ...DASH_DEFAULT.filter(id => !saved.includes(id))];
   return {
@@ -407,8 +420,9 @@ function dashSize(id) {
 
 function saveDash(order, hidden, sizes) {
   state.ui = state.ui || {};
-  const cur = state.ui.dash || {};
-  state.ui.dash = {
+  const ranura = ranuraTablero();
+  const cur = state.ui[ranura] || state.ui.dash || {};
+  state.ui[ranura] = {
     order: order || cur.order,
     hidden: hidden || cur.hidden || [],
     sizes: sizes || cur.sizes || {}
@@ -1505,6 +1519,14 @@ async function renombrarRamaProyectos(b) {
     "Juntarlas")) return;
 
   state.projects.forEach(p => { if ((p.branch || "General") === b) p.branch = nuevo; });
+  /* La rama conserva su sitio al cambiar de nombre. Si se juntó con otra, el
+     hueco de la que desaparece se cierra en vez de dejar un nombre muerto. */
+  if (state.ui && Array.isArray(state.ui.ramasProyectos)) {
+    const o = state.ui.ramasProyectos;
+    const i = o.indexOf(b);
+    if (i >= 0) o[i] = o.includes(nuevo) ? null : nuevo;
+    state.ui.ramasProyectos = o.filter(Boolean);
+  }
   save();
   renderProjects();
   toast(existe ? `Ramas juntadas en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
