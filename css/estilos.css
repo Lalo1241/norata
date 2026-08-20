@@ -2413,6 +2413,10 @@
     padding: 1px 7px;
     font-weight: 600;
   }
+  /* La pista del tablero de Misiones. En pantalla ancha ademas se reparte en
+     una fila con el resto (ver la consulta de medios); aqui solo necesita
+     separarse de lo de arriba y de lo de abajo. */
+  .tablero-pista { margin: 16px 4px 10px; }
   /* Una columna sin nada tiene que verse como un sitio donde soltar, no como
      un error. De ahí el borde punteado: es un hueco, no una tarjeta rota. */
   .col-vacia {

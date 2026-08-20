@@ -101,8 +101,18 @@ function moverMisionATablero(id, destino) {
   const origen = tableroDeMision(m);
   if (origen === destino) return "";
 
-  // Sacarla de las terminadas la devuelve a la vida
-  if (origen === "terminadas") { m.archived = false; m.completedAt = null; }
+  /* Sacarla de las terminadas la devuelve a la vida ENTERA: no basta con
+     quitarle el sello de guardada, hay que deshacer lo cumplido —el XP que
+     dio, la racha, la marca del día—. Si no, una misión podría cobrarse dos
+     veces con solo arrastrarla fuera y volver a meterla. Va callado: la
+     sacudida de pantalla avisa de un tropiezo, y esto no lo es. */
+  let revertida = false;
+  if (origen === "terminadas") {
+    m.archived = false;
+    m.completedAt = null;
+    const marcas = missionCount(m, key);
+    if (marcas > 0) { logMission(m.id, -marcas, { silencioso: true }); revertida = true; }
+  }
 
   if (destino === "hoy" || destino === "hechas") {
     delete m.tablero;
@@ -144,13 +154,14 @@ function moverMisionATablero(id, destino) {
   }
 
   const espera = diasPospuesta(m);
+  const deshecho = revertida ? " · se deshizo lo cumplido" : "";
   save();
   if (destino === "semana" || m.tablero) {
     return espera > 0
       ? `${m.name} a ${nombreTablero(destino)} · lleva ${fraseDias(espera)} esperando`
-      : `${m.name} a ${nombreTablero(destino)}`;
+      : `${m.name} a ${nombreTablero(destino)}${deshecho}`;
   }
-  return `${m.name} vuelve a hoy`;
+  return `${m.name} vuelve a hoy${deshecho}`;
 }
 
 /* ---- Los tableros propios ---- */
@@ -220,7 +231,13 @@ function missionStreak(m) {
   return n;
 }
 
-function logMission(id, delta) {
+/* `opciones.silencioso` la deja hacer su trabajo —XP, racha, marcas del día—
+   sin avisar ni sacudir la pantalla. Lo usa quien ya va a decir por su cuenta
+   lo que pasó: sacar una misión de las terminadas deshace lo cumplido, pero
+   eso no es un error que merezca una sacudida, es exactamente lo que pediste
+   al arrastrarla. */
+function logMission(id, delta, opciones) {
+  const op = opciones || {};
   const m = state.missions.find(x => x.id === id);
   if (!m) return;
   const key = todayKey();
@@ -276,10 +293,11 @@ function logMission(id, delta) {
     }
     // Deshacer algo ya logrado merece notarse: sin esto, quitar una misión
     // cumplida y quitar una a medias se sentían exactamente igual.
-    sacudirPantalla();
+    if (!op.silencioso) sacudirPantalla();
   }
   save();
   renderMissions();
+  if (op.silencioso) return;
 
   if (delta > 0) checkStreakMilestone();
 
@@ -890,9 +908,14 @@ function showView(name) {
   const fab = document.getElementById("fab");
   fab.classList.toggle("hidden",
     !(name === "home" || name === "tree" || name === "projects" || name === "missions"));
+  /* El botón grande crea el CONTENEDOR de cada pantalla, no lo que va dentro:
+     los talentos, los proyectos y las misiones ya se crean desde el ＋ de su
+     propia rama o columna, que es donde se está mirando cuando dan ganas de
+     añadir algo. Aquí quedaba un atajo que siempre te preguntaba "¿y en qué
+     rama?" cuando la respuesta ya estaba en la pantalla. */
   fab.querySelector(".fab-label").textContent = {
-    home: "Nueva habilidad", tree: "Nuevo talento",
-    projects: "Nuevo proyecto", missions: "Nueva misión"
+    home: "Nueva habilidad", tree: "Nueva rama",
+    projects: "Nueva rama", missions: "Nuevo tablero"
   }[name] || "";
 
   /* La pantalla completa es una capa por encima de todo, así que taparía
@@ -917,9 +940,9 @@ function showView(name) {
 }
 
 function fabAction() {
-  if (activeMainView === "tree") openPerkForm();
-  else if (activeMainView === "projects") openProjectForm();
-  else if (activeMainView === "missions") openMissionForm();
+  if (activeMainView === "tree") crearRama("perks");
+  else if (activeMainView === "projects") crearRama("projects");
+  else if (activeMainView === "missions") crearTableroMisiones();
   else openSkillForm();
 }
 

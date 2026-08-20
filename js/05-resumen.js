@@ -1435,6 +1435,63 @@ function fraseCantidad(n, singular, plural) {
 /* Borrar una rama entera. Es de las pocas acciones de la app que destruyen
    datos sin vuelta atrás, así que se avisa con el número exacto de lo que
    se va y con el botón en rojo. */
+/* ---- Las ramas existen aunque estén vacías ----
+   Una rama era solo el nombre que llevaban escrito sus talentos o sus
+   encargos: al sacar el último, la rama desaparecía de la pantalla y lo que
+   acababas de mover ya no tenía a dónde volver. Mover una tarjeta nunca debe
+   cerrar la puerta por la que entró.
+
+   Así que la lista de ramas se guarda aparte. Una rama vacía sigue ahí
+   esperando, se puede crear antes de tener nada que meterle, y solo
+   desaparece cuando se borra a mano. */
+function claveRamas(kind) { return kind === "perks" ? "ramasTalentos" : "ramasProyectos"; }
+
+function ramasDe(kind) {
+  const lista = kind === "perks" ? state.perks : state.projects;
+  state.ui = state.ui || {};
+  const clave = claveRamas(kind);
+  const guardadas = state.ui[clave] || [];
+  const usadas = [...new Set(lista.map(x => x.branch || "General"))];
+  const nuevas = usadas.filter(n => !guardadas.includes(n));
+  /* Las ramas que llegan escritas en un dato —de antes de que existiera esta
+     lista, de una importación, de otro dispositivo— se apuntan la primera vez
+     que se dibujan. Solo se guarda cuando de verdad hay algo nuevo: si no,
+     cada repintado escribiría en disco. */
+  if (nuevas.length) {
+    state.ui[clave] = [...guardadas, ...nuevas];
+    save();
+  }
+  return (state.ui[clave] || []).slice();
+}
+
+async function crearRama(kind) {
+  const esTalentos = kind === "perks";
+  const nombre = await askText(
+    esTalentos ? "Nueva rama de talentos" : "Nueva rama de Proyectos", "", "Crear",
+    esTalentos
+      ? "Un ámbito donde agrupar talentos: un oficio, un instrumento, un plan."
+      : "Un ámbito donde agrupar proyectos: un cliente, la casa, un negocio.",
+    30);
+  if (!nombre) return;
+  const ramas = ramasDe(kind);
+  if (ramas.includes(nombre)) { toast(`Ya tienes una rama "${nombre}"`, "atencion"); return; }
+  state.ui[claveRamas(kind)] = [...ramas, nombre];
+  save();
+  if (esTalentos) renderTree(); else renderProjects();
+  toast(`Rama "${nombre}" creada`, "hecho");
+}
+
+/* Al renombrar, la rama conserva su sitio en la lista. Si se juntó con otra,
+   el hueco de la que desaparece se cierra en vez de dejar un nombre muerto. */
+function renombrarEnRamas(kind, viejo, nuevo) {
+  const clave = claveRamas(kind);
+  const o = ramasDe(kind);
+  const i = o.indexOf(viejo);
+  if (i < 0) return;
+  o[i] = o.includes(nuevo) ? null : nuevo;
+  state.ui[clave] = o.filter(Boolean);
+}
+
 async function deleteBranch(kind, b) {
   const esTalentos = kind === "perks";
   const lista = (esTalentos ? state.perks : state.projects).filter(p => (p.branch || "General") === b);
@@ -1451,6 +1508,8 @@ async function deleteBranch(kind, b) {
     "Esto no se puede deshacer.",
     "Borrar la rama", true);
   if (!ok) return;
+
+  state.ui[claveRamas(kind)] = ramasDe(kind).filter(n => n !== b);
 
   const ids = new Set(lista.map(p => p.id));
   if (esTalentos) {
@@ -1491,6 +1550,7 @@ async function renombrarRama(b) {
 
   state.perks.forEach(p => { if ((p.branch || "General") === b) p.branch = nuevo; });
   (state.cajas || []).forEach(c => { if (c.branch === b) c.branch = nuevo; });
+  renombrarEnRamas("perks", b, nuevo);
   // El estado de la interfaz va pegado al nombre: si no se muda, la rama
   // renombrada aparecería desplegada y la vieja seguiría "plegada" sin existir
   if (state.ui && state.ui.collapsed && state.ui.collapsed[b]) {
@@ -1519,14 +1579,7 @@ async function renombrarRamaProyectos(b) {
     "Juntarlas")) return;
 
   state.projects.forEach(p => { if ((p.branch || "General") === b) p.branch = nuevo; });
-  /* La rama conserva su sitio al cambiar de nombre. Si se juntó con otra, el
-     hueco de la que desaparece se cierra en vez de dejar un nombre muerto. */
-  if (state.ui && Array.isArray(state.ui.ramasProyectos)) {
-    const o = state.ui.ramasProyectos;
-    const i = o.indexOf(b);
-    if (i >= 0) o[i] = o.includes(nuevo) ? null : nuevo;
-    state.ui.ramasProyectos = o.filter(Boolean);
-  }
+  renombrarEnRamas("projects", b, nuevo);
   save();
   renderProjects();
   toast(existe ? `Ramas juntadas en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");

@@ -590,14 +590,19 @@ async function deletePerk() {
 
 /* ================= Formulario de misión ================= */
 
+let msTablero = null;
 let msIcon = ICON_LIST[14];
 let msColor = COLORS[0];
 let msCadence = "daily";
 let msDays = [1, 3, 5];
 let editingMissionId = null;
 
-function openMissionForm(id) {
+/* `presetTablero` llega desde el ＋ de una columna: la misión nueva nace ya
+   colocada ahí. En "Pendientes de hoy" no se guarda nada, que es su sitio
+   natural; en cualquier otra, se apunta la columna. */
+function openMissionForm(id, presetTablero) {
   editingMissionId = id || null;
+  msTablero = (!id && presetTablero && presetTablero !== "hoy") ? presetTablero : null;
   const m = id ? state.missions.find(x => x.id === id) : null;
 
   document.getElementById("mission-form-title").textContent = m ? "Editar misión" : "Nueva misión";
@@ -662,7 +667,10 @@ function saveMission() {
       id: uid(), name, desc, icon: msIcon, color: msColor,
       cadence: msCadence, days: msDays, target: msCadence === "once" ? 1 : target,
       skillId, xp, log: {}, archived: false, completedAt: null,
-      createdAt: todayKey()
+      createdAt: todayKey(),
+      /* Nacida en una columna concreta: no es una posposición —nadie la ha
+         aplazado— así que no arranca ningún reloj de espera. */
+      ...(msTablero ? { tablero: msTablero } : {})
     });
     save();
     toast(`Misión "${name}" añadida 🎯`);

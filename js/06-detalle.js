@@ -88,11 +88,15 @@ function renderMissions() {
     (porTablero[id] || porTablero.semana).push(m);
   });
 
+  /* Una columna vacía invita, no informa: "Nada pendiente para hoy" era una
+     noticia, y lo que hace falta ahí es decir qué se puede hacer con ese
+     hueco. La de cumplidas es la excepción —a esa se llega cumpliendo, no
+     planeando— y por eso es la única que cuenta algo. */
   const VACIO = {
-    hoy: "Nada pendiente para hoy.",
-    hechas: "Todavía no has cumplido ninguna hoy.",
-    semana: "Aquí esperan las que no son de hoy.",
-    terminadas: "Aquí se guardan las que ya cerraste."
+    hoy: "Arrastra aquí la misión que quieras.",
+    hechas: "Aquí van apareciendo las que cumples hoy.",
+    semana: "Arrastra aquí la misión que quieras.",
+    terminadas: "Arrastra aquí la misión que quieras dar por terminada."
   };
 
   /* La lista es también la zona donde se suelta: `data-soltar` deja que una
@@ -103,9 +107,15 @@ function renderMissions() {
     return `<div class="ms-list" data-tablero="${c.id}" data-soltar>${
       lista.length
         ? lista.map(card).join("")
-        : `<p class="col-vacia">${escapeHtml(VACIO[c.id] || "Arrastra aquí lo que quieras apartar.")}</p>`
+        : `<p class="col-vacia">${escapeHtml(VACIO[c.id] || "Arrastra aquí la misión que quieras.")}</p>`
     }</div>`;
   };
+
+  /* Crear desde la columna en la que estás mirando: la misión nace ya puesta
+     ahí. Las dos columnas de cerrado no lo llevan —a "Cumplidas hoy" y a
+     "Misiones terminadas" se llega cumpliendo, no creando—. */
+  const masTablero = (c) => (c.id === "hechas" || c.id === "terminadas") ? "" :
+    `<button class="badd" onclick="openMissionForm(null, '${c.id}')" aria-label="Añadir misión a ${escapeAttr(c.nombre)}">＋</button>`;
 
   const menuTablero = (c) => c.propio
     ? branchMenu("t:" + c.id, [
@@ -164,8 +174,7 @@ function renderMissions() {
   el.innerHTML = hero + (isDesktop()
     ? `
     <div class="tablero-pista full-row">
-      <span class="hint-hold">Arrastra una misión de una columna a otra: a la semana queda pospuesta, a las terminadas queda cerrada.</span>
-      <button class="btn btn-soft btn-sm" onclick="crearTableroMisiones()">Nuevo tablero</button>
+      <span class="hint-hold">Arrastra una misión de una columna a otra: a la semana queda pospuesta, a las terminadas queda cerrada. El ＋ de cada columna crea una misión ya puesta ahí.</span>
     </div>
     <div class="tablero-mis full-row" data-carril>
       ${visibles.map(c => `
@@ -173,21 +182,21 @@ function renderMissions() {
           <div class="col-head">
             <h3>${escapeHtml(c.nombre)}</h3>
             <span class="count">${(porTablero[c.id] || []).length}</span>
-            ${menuTablero(c)}
+            <div class="bhead-btns">${menuTablero(c)}${masTablero(c)}</div>
           </div>
           ${cuerpo(c)}
         </section>`).join("")}
     </div>`
     : `
+    <div class="tablero-pista full-row"><span class="hint-hold">${pistaReordenar()} · el ＋ de cada tablero crea una misión ya puesta ahí</span></div>
     ${visibles.map((c, i) => `
       <div class="panel ${i % 2 ? "alt" : ""}">
         <div class="panel-head">
           <h3 style="margin:0">${escapeHtml(c.nombre)}</h3>
-          ${c.propio ? menuTablero(c) : `<span class="hint-hold">${c.id === "hoy" ? pistaReordenar() : ""}</span>`}
+          <div class="bhead-btns">${menuTablero(c)}${masTablero(c)}</div>
         </div>
         ${cuerpo(c)}
-      </div>`).join("")}
-    <button class="btn btn-soft btn-block" onclick="crearTableroMisiones()">Añadir un tablero</button>`);
+      </div>`).join("")}`);
 
   playRings(el);
   lastMisionPct = pct / 100;
@@ -199,8 +208,11 @@ function renderMissions() {
 function renderProjects() {
   const el = document.getElementById("projects-content");
   const all = state.projects;
+  const ramas = ramasDe("projects");
 
-  if (all.length === 0) {
+  /* El vacío es no tener NADA, ni siquiera una rama esperando: con una rama
+     creada hay que enseñarla, aunque todavía no tenga nada dentro. */
+  if (all.length === 0 && ramas.length === 0) {
     el.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("flag", 34)}</div>
@@ -266,7 +278,7 @@ function renderProjects() {
     </div>`;
   }
 
-  const branches = ordenarRamasProyectos([...new Set(all.map(p => p.branch || "General"))]);
+  const branches = ramas;
   html += `<div class="sec-label full-row">Tus ramas de Proyectos${
     branches.length > 1 ? `<span class="hint-hold">${pistaReordenarRamas()}</span>` : ""}</div>`;
   for (const b of branches) {
@@ -286,7 +298,8 @@ function renderProjects() {
           <button class="badd" onclick="openProjectForm(null, '${escapeAttr(b)}')" aria-label="Añadir encargo a ${escapeAttr(b)}">＋</button>
         </div>
       </div>
-      <div class="proj-list" data-branch="${escapeAttr(b)}">
+      <div class="proj-list" data-branch="${escapeAttr(b)}" data-soltar>
+        ${!list.length ? `<p class="col-vacia">Arrastra aquí el proyecto que quieras, o crea uno con el ＋.</p>` : ""}
         ${list.map(p => {
           const prog = projectProgress(p);
           const h = projectHealth(p);
@@ -340,24 +353,12 @@ function renderProjects() {
 
 /* ---- Orden de las ramas de Proyectos ----
    Antes salían en el orden en que aparecía su primer encargo, así que
-   moverlas de sitio obligaba a mover encargos. Ahora el orden es suyo y se
-   guarda aparte: las ramas que nadie ha tocado se quedan detrás, en el
-   orden de siempre. */
-function ordenarRamasProyectos(nombres) {
-  const orden = (state.ui && state.ui.ramasProyectos) || [];
-  return [...nombres].sort((a, b) => {
-    const ia = orden.indexOf(a), ib = orden.indexOf(b);
-    return (ia < 0 ? 1e9 : ia) - (ib < 0 ? 1e9 : ib);
-  });
-}
-
+   moverlas de sitio obligaba a mover encargos. Ahora el orden es suyo y vive
+   en la misma lista que dice qué ramas existen (ver ramasDe). */
 function reacomodarRamas(nombres) {
   state.ui = state.ui || {};
-  /* Solo se guardan las ramas que existen: si no, cada rama borrada dejaría
-     su nombre aquí para siempre. Volver a crear una que se llame igual la
-     devuelve a su sitio de antes, que es lo que se espera. */
-  const vivas = new Set(state.projects.map(p => p.branch || "General"));
-  state.ui.ramasProyectos = nombres.filter(n => vivas.has(n));
+  const previas = ramasDe("projects");
+  state.ui.ramasProyectos = [...nombres, ...previas.filter(n => !nombres.includes(n))];
   save();
   renderProjects();
 }
@@ -913,8 +914,10 @@ async function borrarHistSeleccion() {
 function renderTree() {
   const el = document.getElementById("tree-content");
   const perks = state.perks;
+  const ramasT = ramasDe("perks");
 
-  if (perks.length === 0) {
+  // Una rama recién creada, aunque esté vacía, ya es algo que enseñar
+  if (perks.length === 0 && ramasT.length === 0) {
     el.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("map", 34)}</div>
@@ -951,7 +954,7 @@ function renderTree() {
     focus = { k: "Sin planes en curso", v: "Abre un talento cuando quieras", color: "var(--muted)", id: null };
   }
 
-  const branches = [...new Set(perks.map(p => p.branch || "General"))];
+  const branches = ramasT;
 
   let html = sectionHero({
     scene: topoScene(820, 168, 31),
@@ -983,7 +986,11 @@ function renderTree() {
     const ba = escapeAttr(b);
 
     let body;
-    if (collapsed) {
+    if (!nodes.length) {
+      /* Una rama vacía no se dibuja como un lienzo en blanco —parecería rota—
+         sino como lo que es: un sitio esperando su primer talento. */
+      body = `<p class="col-vacia">Todavía no hay talentos en esta rama. Créale el primero con el ＋.</p>`;
+    } else if (collapsed) {
       body = `
       <div class="branch-collapsed">
         <span class="pips">${nodes.slice(0, 12).map(n => {
@@ -1050,7 +1057,7 @@ function renderTree() {
           ${/* En PC no hay botón de crear: el clic derecho y las teclas
                 Q, W y E lo hacen mejor y sin ocupar la cabecera. En táctil
                 no existe ninguna de las dos cosas, así que ahí se queda. */
-            isDesktop() ? "" : `<button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>`}
+            `<button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>`}
         </div>
       </div>
       ${body}
