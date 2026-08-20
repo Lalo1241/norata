@@ -231,8 +231,16 @@ no con doble clic.
 - **Fondo transparente.** Van sobre la tarjeta blanca, y un cuadro blanco
   incrustado se notaría en cuanto la tarjeta dejara de serlo.
 - **Cada uno en el color de su módulo** — los mismos tonos oscuros que llevan
-  sus títulos, porque la menta y el amarillo de la app están hechos para fondo
-  oscuro y sobre blanco no se leen.
+  sus títulos, porque los colores de la app están hechos para fondo oscuro y
+  sobre blanco no se leen. Misiones y Proyectos en menta `#136b4e`, Habilidades
+  en celeste `#1a6a99`, Talentos en coral `#b1341d`.
+- **El dorado no se usa en el producto.** Habilidades lo llevó un día
+  (`#7a5d06`) y se cambió: ese tono se lee como un aviso, y un módulo no es un
+  aviso. El amarillo luciérnaga sigue vivo donde sí toca — el correo de
+  recuperar, que es justo una alerta.
+- **La versión va por icono, no global.** Al pasar Habilidades a celeste subió
+  solo ese a `v2`; los otros tres siguen en `v1`. Subirlos todos a la vez
+  tiraría a la basura el cacheado de los que no cambiaron.
 - Si un icono cambia en la app, se vuelve a abrir esa página y **se sube el
   número del nombre**. Gmail guarda las imágenes por nombre y no vuelve a
   pedirlas nunca.

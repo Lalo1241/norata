@@ -14,11 +14,21 @@ const ICONOS = {
 };
 
 /* Un color por modulo, el mismo que lleva su titulo en el correo. Son las
-   versiones oscuras de la paleta: la menta y el amarillo de la app estan
-   hechos para fondo oscuro y sobre blanco no se leen. */
+   versiones oscuras de la paleta: los tonos de la app estan hechos para fondo
+   oscuro y sobre blanco no se leen.
+
+   La VERSION va por icono y no es global: Gmail guarda las imagenes por
+   nombre y no vuelve a pedirlas nunca, asi que cambiar un color obliga a
+   cambiar tambien el nombre de ESE archivo. Subir todos a la vez tiraría a la
+   basura el cacheado de los que no cambiaron.
+
+   Habilidades paso de un dorado (#7a5d06) a celeste en la v2: el dorado se
+   lee como un aviso, y esto no es un aviso, es un modulo del producto. */
 const COLORES = {
-  "misiones": "#136b4e", "habilidades": "#7a5d06",
-  "talentos": "#b1341d", "proyectos": "#136b4e"
+  "misiones":    { color: "#136b4e", v: 1 },
+  "habilidades": { color: "#1a6a99", v: 2 },
+  "talentos":    { color: "#b1341d", v: 1 },
+  "proyectos":   { color: "#136b4e", v: 1 }
 };
 
 /* 40 px para dibujar 20: las pantallas de los telefonos tienen el doble de
@@ -27,7 +37,7 @@ const LADO = 40;
 
 async function png(nombre) {
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="' + LADO + '" height="' + LADO + '">' +
-    '<g fill="none" stroke="' + COLORES[nombre] + '" stroke-width="1.9" ' +
+    '<g fill="none" stroke="' + COLORES[nombre].color + '" stroke-width="1.9" ' +
     'stroke-linecap="round" stroke-linejoin="round">' + ICONOS[nombre] + '</g></svg>';
   const img = new Image();
   /* Se carga como data URI y no desde un archivo: asi el lienzo no se marca
@@ -44,7 +54,9 @@ async function png(nombre) {
 
 window.generarTodos = async function () {
   const salida = {};
-  for (const n of Object.keys(ICONOS)) salida[n] = await png(n);
+  for (const n of Object.keys(ICONOS)) {
+    salida["icono-" + n + "-v" + COLORES[n].v] = await png(n);
+  }
   return salida;
 };
 </script></body></html>
