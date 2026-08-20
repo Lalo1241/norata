@@ -205,6 +205,31 @@ async function sbGuardarPerfil(perfil) {
   return perfilDe((r.body || {}).user_metadata);
 }
 
+/* Echar a los demás dispositivos.
+
+   Es la otra mitad de cambiar una contraseña, y sin ella el cambio no sirve
+   para lo que la gente cree que sirve. Quien la cambia porque sospecha que
+   alguien entró en su cuenta espera que ese alguien quede fuera; si la sesión
+   del intruso sigue viva, la contraseña nueva no le ha quitado nada, porque
+   una sesión iniciada ya no la necesita — se renueva sola.
+
+   `scope=others` y no `global`: global cerraría también la de aquí, y quien
+   acaba de poner una contraseña nueva se encontraría de vuelta en la pantalla
+   de entrada sin entender por qué.
+
+   Se hace explícito en vez de confiar en que el servidor lo haga solo. Puede
+   que ya lo haga; no lo damos por hecho, porque es de esas cosas que si un día
+   cambian de comportamiento nadie se entera hasta que hace falta. Cuesta una
+   petición. */
+async function sbCerrarOtrasSesiones() {
+  const t = await sbToken();
+  const r = await sbFetch("/auth/v1/logout?scope=others", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + t }
+  });
+  return r.ok;
+}
+
 /* El token de acceso caduca en una hora. Esto lo renueva solo con el de
    refresco, para que una sesión larga no se corte a media tarde. */
 async function sbToken() {

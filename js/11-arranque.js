@@ -54,7 +54,12 @@ showView("summary");
    pregunta si hay que enseñarla. */
 (async () => {
   const veniaDeGoogle = await sbVolverDeEnlace();
-  if (!veniaDeGoogle && portadaHaceFalta()) mostrarPortada();
+  /* El atajo de los correos de aviso (`#olvide`) va después de recoger la
+     sesión y antes de decidir si hace falta portada: no es una sesión que
+     recoger, pero sí abre la portada por su cuenta, y preguntar después
+     «¿hace falta?» la abriría dos veces o ninguna. */
+  const veniaAOlvidar = !veniaDeGoogle && portadaAtajoOlvide();
+  if (!veniaDeGoogle && !veniaAOlvidar && portadaHaceFalta()) mostrarPortada();
   pintarAvisoPruebas();
 
   /* El desgaste se aplica DESPUÉS de traer lo del otro dispositivo, y esto no

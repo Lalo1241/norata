@@ -243,6 +243,41 @@ de pantalla que diga «misiones misiones» estorba.
 **Los archivos tienen que estar publicados** en `mi.norata.app/marca/` para que
 se vean. Mientras no se suban, el correo llega con cuatro huecos.
 
+## El enlace directo a recuperar la contraseña
+
+`https://mi.norata.app/#olvide`
+
+Todo correo que le diga a alguien «cambia tu contraseña» tiene que llevar ese
+enlace en esas mismas palabras. Decirlo sin darlo obliga a abrir la app,
+encontrar un enlace pequeño debajo del botón de entrar y acordarse de cómo se
+llamaba — y quien acaba de asustarse no hace ese recorrido, cierra el correo y
+lo deja para luego.
+
+Lo llevan el `03`, el `05` y el `06`. **Es una regla, no tres casos**: cualquier
+correo nuevo que mencione cambiar la contraseña lo lleva también.
+
+Al llegar, la app abre la pantalla de entrada con la dirección ya escrita, el
+aviso puesto y el botón de «¿Olvidaste tu contraseña?» resaltado en amarillo.
+
+**No manda el correo solo al llegar, y es a propósito.** Los enlaces de un
+mensaje los abren también los antivirus y las vistas previas del buzón, sin que
+nadie los haya pulsado: un enlace que dispara un envío al abrirse acaba mandando
+correos que nadie pidió. Queda a un toque, no a cero.
+
+## Cambiar la contraseña echa a los demás dispositivos
+
+Desde el 20 de agosto de 2026, al poner una contraseña nueva la app llama a
+`logout?scope=others`. Sin eso, el cambio no servía para lo que la gente cree
+que sirve: una sesión ya iniciada no vuelve a pedir la contraseña nunca —se
+renueva sola—, así que quien hubiera entrado seguía dentro con la contraseña
+vieja cambiada.
+
+`others` y no `global`: global cerraría también la de aquí, y quien acaba de
+recuperar su cuenta se encontraría de vuelta en la pantalla de entrada.
+
+Puede que Supabase ya lo hiciera solo; no se da por hecho, porque es de esas
+cosas que si cambian de comportamiento nadie se entera hasta que hace falta.
+
 ## El saludo por nombre
 
 Las plantillas escriben el nombre así:

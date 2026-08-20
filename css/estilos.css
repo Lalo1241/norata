@@ -2893,6 +2893,17 @@
   .portada-caja h2 { text-align: center; font-size: 20px; margin-bottom: 12px; }
   .portada-cab h2 { text-align: left; margin-bottom: 0; }
 
+  /* Quien llega desde el enlace de un correo de aviso viene a hacer UNA cosa,
+     y esa cosa era hasta ahora el texto más discreto de la pantalla. Solo se
+     resalta en ese caso: de normal, «¿Olvidaste tu contraseña?» no debe pesar
+     más que el botón de entrar. */
+  .portada-sin.sutil.resaltado {
+    color: var(--fire);
+    font-weight: 600;
+    background: var(--fire-soft);
+    border-radius: 12px;
+  }
+
   /* ---------- El nombre de quien usa la app ----------
      El círculo con la inicial es lo que hay en vez de una foto de perfil.
      Resuelve lo único que hacía falta —saber en qué cuenta estás— sin

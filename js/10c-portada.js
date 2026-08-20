@@ -657,6 +657,30 @@ async function portadaOlvide() {
   }
 }
 
+/* ---- Llegar directo a recuperar la contraseña ----
+   Los correos de aviso —«tu contraseña cambió», «se vinculó una forma nueva de
+   entrar»— dicen qué hacer si no fuiste tú, y lo decían sin dar por dónde:
+   había que abrir la app, encontrar un enlace pequeño debajo del botón de
+   entrar y acordarse de cómo se llamaba. Alguien asustado no hace ese
+   recorrido; cierra el correo y lo deja para luego.
+
+   NO manda el correo solo al llegar, y eso es deliberado. Los enlaces de un
+   mensaje los abren también los antivirus y las vistas previas del propio
+   buzón, sin que nadie los haya pulsado: un enlace que dispara un envío al
+   abrirse acaba mandando correos que nadie pidió. Lo que hace es dejar la
+   pantalla puesta, con la dirección ya escrita, a un solo toque. */
+function portadaAtajoOlvide() {
+  if ((location.hash || "").toLowerCase() !== "#olvide") return false;
+  // Fuera de la barra antes de nada: recargar no tiene por qué repetir esto
+  history.replaceState(null, "", location.pathname + location.search);
+  portadaCorreo = sync.ultimoCorreo || "";
+  mostrarPortada("entrar");
+  const b = document.querySelector(".portada-sin.sutil");
+  if (b) b.classList.add("resaltado");
+  portadaAviso("Para poner una contraseña nueva, comprueba que el correo de abajo es el tuyo y pulsa «¿Olvidaste tu contraseña?».");
+  return true;
+}
+
 async function portadaReenviarVerificacion() {
   const correo = portadaCorreoValor();
   if (!correo) { portadaAviso("Escribe arriba tu correo."); return; }
@@ -722,10 +746,22 @@ async function guardarNuevaClave() {
   btn.innerHTML = '<span class="giro"></span>Guardando…';
   try {
     await sbCambiarClave(a);
+
+    /* Y fuera todos los demás dispositivos. Cambiar la contraseña sin esto
+       deja a medias justo el caso para el que se cambia: quien entró en tu
+       cuenta ya tiene una sesión, y una sesión abierta no vuelve a pedir la
+       contraseña nunca — se renueva sola hasta el fin de los tiempos.
+
+       El fallo aquí no interrumpe: la contraseña YA cambió, y devolver a la
+       pantalla de entrada a quien acaba de recuperarla, por un paso que ni
+       pidió ni ve, sería peor que el riesgo que evita. Lo que se pierde es
+       raro y acotado: que un dispositivo ajeno siga dentro un rato más. */
+    try { await sbCerrarOtrasSesiones(); } catch (e) { /* la sesión de aquí vale igual */ }
+
     /* La pantalla se quita al final, cuando `portadaEntrada` ya bajó el
        progreso y tapó todo con la de carga: quitarla antes deja a la vista
        una app a medio poner. */
-    await portadaEntrada(sync.cfg.correo, "Contraseña cambiada");
+    await portadaEntrada(sync.cfg.correo, "Contraseña cambiada. Cerré la sesión en los demás dispositivos");
     const cap = document.getElementById("nueva-clave");
     if (cap) cap.remove();
   } catch (e) {
