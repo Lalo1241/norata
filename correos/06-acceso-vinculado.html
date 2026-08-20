@@ -69,7 +69,34 @@
          font-size:23px;line-height:1.3;font-weight:600;color:#1c2430;">Ya puedes entrar de otra forma</p>
 
       <p style="margin:0 0 28px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-         font-size:15px;line-height:1.7;color:#556070;font-weight:400;">Se acaba de vincular una forma nueva de entrar a tu cuenta — entrar con Google, por ejemplo. De aquí en adelante sirve igual que tu contraseña: las dos te llevan al mismo sitio y al mismo progreso.</p>
+         font-size:15px;line-height:1.7;color:#556070;font-weight:400;">Se acaba de vincular una forma nueva de entrar a tu cuenta. De aquí en adelante sirve igual que tu contraseña: las dos te llevan al mismo sitio y al mismo progreso.</p>
+
+      <!-- El detalle, con las dos variables que Supabase ofrece en ESTA
+           plantilla y solo en esta: `.Provider` y `.Email`.
+
+           Van como ficha de datos y no dentro de una frase por un motivo
+           tonto pero visible: `.Provider` llega en minusculas —"google", no
+           "Google"— y estas plantillas no tienen forma de poner una mayuscula.
+           Metido en mitad de una frase se lee como una errata; en la columna
+           de un dato, se lee como lo que es.
+
+           Las dos condiciones no son adorno: sin ellas, una plantilla que no
+           reciba el dato no deja un hueco, escribe un aviso de Supabase. -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+             style="margin:0 0 28px;background:#fdf3f0;border:1px solid #f7ded7;border-radius:12px;">
+        {{ if .Provider }}<tr>
+          <td style="padding:14px 16px 4px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+              font-size:13px;line-height:1.5;color:#8b7a75;">Método nuevo</td>
+          <td align="right" style="padding:14px 16px 4px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+              font-size:13.5px;line-height:1.5;color:#1c2430;font-weight:600;">{{ .Provider }}</td>
+        </tr>{{ end }}
+        {{ if .Email }}<tr>
+          <td style="padding:4px 16px 14px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+              font-size:13px;line-height:1.5;color:#8b7a75;">Cuenta</td>
+          <td align="right" style="padding:4px 16px 14px;font-family:'Poppins','Century Gothic',Futura,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+              font-size:13.5px;line-height:1.5;color:#1c2430;font-weight:600;word-break:break-all;">{{ .Email }}</td>
+        </tr>{{ end }}
+      </table>
 
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" class="boton">
       <tr><td align="center" style="padding-bottom:4px;">

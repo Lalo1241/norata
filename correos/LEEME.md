@@ -24,6 +24,12 @@ Reauthentication) **no se tocan**: la app no las usa.
 **Los dos últimos hay que encenderlos**, además de pegarlos: vienen apagados en
 el panel de Supabase y tienen su propio interruptor.
 
+Hay una página con un botón de copiar por plantilla, que saca el contenido de
+estos mismos archivos:
+https://claude.ai/code/artifact/78be8060-ff87-444f-81d1-7d5f538c65ea
+Se regenera con `armar-pegador.py` — vive en el bloc de notas de la sesión, no
+en el repositorio, porque solo sirve para esta tarea.
+
 Viven aquí y no solo en el panel para que tengan historial. Un texto que solo
 existe dentro de una página web ajena no se puede comparar ni volver atrás.
 
@@ -32,6 +38,21 @@ existe dentro de una página web ajena no se puede comparar ni volver atrás.
 **`{{ .ConfirmationURL }}` es de Supabase, no un error de escritura.** Lo
 sustituye por el enlace real al enviar. Si se cambia o se borra, el correo
 sale sin enlace y no sirve para nada.
+
+**Cada plantilla ofrece unas variables distintas**, y el panel las lista debajo
+del cuerpo, en *Template variables*. Las que se usan:
+
+| Variable | Dónde | Qué trae |
+| --- | --- | --- |
+| `{{ .ConfirmationURL }}` | 01, 02, 03 | el enlace |
+| `{{ .Data.saludo }}` | todas | el nombre, vía datos de la cuenta |
+| `{{ .Email }}` | 05, 06 | la dirección de la cuenta |
+| `{{ .Provider }}` | 06 | `google`, `github`… |
+
+**`.Provider` llega en minúsculas** — «google», no «Google»— y estas plantillas
+no tienen forma de poner una mayúscula. Por eso en el `06` no va dentro de una
+frase, donde se leería como una errata, sino en una ficha de datos con su
+rótulo al lado, donde una minúscula es lo normal.
 
 **El logo depende de que el sitio esté publicado.** Apunta a
 `mi.norata.app/marca/logotipo-correo.png` — al SUBDOMINIO de la app, no al
