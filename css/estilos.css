@@ -3189,6 +3189,12 @@
        --sidebar-w (ver .sc más abajo) esto recentra solo: sigue siendo la
        misma fórmula sobre un ancho disponible distinto, no un layout nuevo. */
     .app { width: min(1440px, 100%); max-width: none; padding: 0 40px; margin: 0 auto; }
+    /* Misiones es la única pantalla que gana algo con cada píxel de ancho:
+       cada 300 px de más es otra columna a la vista en vez de otra columna
+       escondida detrás del carril. Las demás no lo necesitan —una ficha de
+       1900 px de ancho se lee peor, no mejor— así que el tope general se
+       queda donde estaba. La clase la pone showView. */
+    html.ancho-tablero .app { width: min(1900px, 100%); }
 
     /* Barra lateral */
     .thumb-cluster {
@@ -3438,16 +3444,31 @@
       overflow-x: auto;
       overscroll-behavior-x: contain;
       padding-bottom: 12px;
+      /* El alto lo pone ajustarAltoTablero() midiendo lo que queda de
+         pantalla: en CSS habría que adivinar cuánto ocupa la cabecera, y esa
+         cuenta se rompe sola en cuanto cambia una cifra del encabezado. El
+         suelo está aquí para que en una ventana baja siga siendo usable. */
+      min-height: 320px;
     }
+    /* Las columnas se reparten lo que hay en vez de medir siempre lo mismo.
+       Con tres o cuatro tableros llenan la pantalla y no hace falta empujar
+       nada de lado; el carril solo aparece cuando de verdad hay muchos.
+
+       El suelo (272) es el ancho por debajo del cual una tarjeta empieza a
+       partir palabras; el techo (480) evita la columna gigantesca con dos
+       tarjetas dentro, que se ve más vacía todavía — y da justo para que
+       tres tableros llenen una pantalla ancha sin dejar un pasillo muerto. */
     .col-mis {
-      flex: 0 0 302px;
-      max-width: 302px;
+      flex: 1 1 302px;
+      min-width: 272px;
+      max-width: 480px;
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 20px;
       padding: 14px 13px 13px;
       display: flex;
       flex-direction: column;
+      min-height: 0;
     }
     .col-head {
       display: flex;
@@ -3473,7 +3494,19 @@
     }
     /* Alto mínimo para que una columna vacía siga siendo un blanco al que
        apuntar mientras se arrastra. */
-    .col-mis .ms-list { min-height: 68px; flex: 1; }
+    /* La lista se queda con todo el alto de la columna y se desplaza por
+       dentro. Así el hueco de una columna corta sigue siendo sitio donde
+       soltar, y una columna con veinte misiones no estira el tablero.
+       `min-height: 0` es lo que permite encoger dentro de un flex: sin eso,
+       la lista crece hasta su contenido y se lleva la columna por delante. */
+    .col-mis .ms-list {
+      flex: 1;
+      min-height: 68px;
+      overflow-y: auto;
+      overscroll-behavior-y: contain;
+      scrollbar-width: thin;
+      padding-right: 2px;
+    }
 
     /* Detalles: ficha a la izquierda, acciones a la derecha */
     #detail-content, #perk-content, #project-content {

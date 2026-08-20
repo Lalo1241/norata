@@ -198,6 +198,24 @@ function renderMissions() {
   playRings(el);
   lastMisionPct = pct / 100;
   attachMisionOrden();
+  ajustarAltoTablero();
+}
+
+/* ---- El tablero llega hasta abajo ----
+   Medía lo que midiera la columna más alta, así que con dos misiones se
+   quedaba en 230 px y dejaba media pantalla en negro: había que empujar de
+   lado para ver los tableros de la derecha teniendo 400 px libres debajo.
+
+   Se mide dónde empieza el carril y se le da todo lo que queda de ventana.
+   El hueco pasa a ser de las columnas, que es donde sirve: es sitio donde
+   soltar una tarjeta. */
+function ajustarAltoTablero() {
+  const carril = document.querySelector(".tablero-mis");
+  if (!carril) return;
+  if (!isDesktop()) { carril.style.height = ""; return; }
+  const arriba = carril.getBoundingClientRect().top + window.scrollY;
+  const alto = window.innerHeight - arriba - 26;
+  carril.style.height = Math.max(320, Math.round(alto)) + "px";
 }
 
 /* ================= Render: proyectos ================= */

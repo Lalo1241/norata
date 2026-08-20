@@ -2,7 +2,7 @@
    de forzar que un aparato que se quedó con una versión anterior la suelte.
    También es el único modo de renovar la tipografía, que se sirve de caché
    sin preguntar (ver abajo). */
-const CACHE = "norata-v9";
+const CACHE = "norata-v10";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",

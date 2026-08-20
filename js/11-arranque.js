@@ -23,6 +23,7 @@ window.addEventListener("resize", () => {
   reajusteVentana = setTimeout(() => {
     marcarDesbordes();
     revisarAnchoDePantalla();
+    ajustarAltoTablero();
   }, 150);
 });
 

@@ -538,6 +538,18 @@ function latidoCarril() {
     if (x > r.right - CARRIL_MARGEN) reord.carril.scrollLeft += CARRIL_PASO;
     else if (x < r.left + CARRIL_MARGEN) reord.carril.scrollLeft -= CARRIL_PASO;
   }
+  /* Una columna que se desplaza por dentro se recorre sola cuando el dedo
+     llega a su borde. Desde que el tablero llega hasta abajo de la pantalla,
+     una columna con muchas misiones esconde su final: sin esto, para poner
+     algo al fondo habría que soltarlo, desplazar y volver a agarrarlo. */
+  const bajo = document.elementFromPoint(x, y);
+  const zona = bajo && bajo.closest("[data-soltar]");
+  if (zona && zona.scrollHeight > zona.clientHeight + 4) {
+    const rz = zona.getBoundingClientRect();
+    if (y > rz.bottom - 48) { zona.scrollTop += CARRIL_PASO; return; }
+    if (y < rz.top + 48) { zona.scrollTop -= CARRIL_PASO; return; }
+  }
+
   /* Y la página entera, hacia arriba y hacia abajo. En el teléfono los
      tableros van apilados: el de destino casi nunca cabe en la misma
      pantalla que el de origen, y sin esto no habría forma de llegar hasta
@@ -936,6 +948,8 @@ function showView(name) {
   if (navId) document.getElementById(navId).classList.add("active");
 
   if (NAV_VIEWS[name]) activeMainView = name;
+  // Solo el tablero de Misiones se sale del ancho común (ver .ancho-tablero)
+  document.documentElement.classList.toggle("ancho-tablero", name === "missions");
   const fab = document.getElementById("fab");
   fab.classList.toggle("hidden",
     !(name === "home" || name === "tree" || name === "projects" || name === "missions"));
