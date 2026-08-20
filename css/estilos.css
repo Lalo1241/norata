@@ -1329,15 +1329,25 @@
   }
   .branch-head h3 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* El lápiz solo aparece al acercarse: el nombre tiene que leerse como un
-     título, no como un campo de formulario permanente. */
-  .branch-head h3.renombrable { cursor: text; display: flex; align-items: center; gap: 6px; }
-  .branch-head h3.renombrable .ic {
+     título, no como un campo de formulario permanente.
+
+     La regla no lleva apellido —vale para cualquier h3 que se pueda
+     reescribir— porque el gesto es el mismo en las ramas de Talentos, en las
+     de Proyectos y en las columnas de Misiones, y tenerlo escrito tres veces
+     era la forma segura de que un día se vieran distintos. */
+  h3.renombrable { cursor: text; display: flex; align-items: center; gap: 6px; min-width: 0; }
+  h3.renombrable .ic {
     flex: none;
     opacity: 0;
     color: var(--muted);
     transition: opacity 0.15s;
   }
-  .branch-head h3.renombrable:hover .ic { opacity: 1; }
+  h3.renombrable:hover .ic { opacity: 1; }
+  /* Sin ratón no hay "acercarse", así que ahí el lápiz se queda puesto en
+     tenue: es la única pista de que ese título se puede tocar. */
+  @media (hover: none) {
+    h3.renombrable .ic { opacity: 0.5; }
+  }
   .bhead-btns { margin-left: auto; display: flex; gap: 7px; }
 
   /* ---------- Menú de herramientas de una rama ----------
@@ -3189,12 +3199,14 @@
        --sidebar-w (ver .sc más abajo) esto recentra solo: sigue siendo la
        misma fórmula sobre un ancho disponible distinto, no un layout nuevo. */
     .app { width: min(1440px, 100%); max-width: none; padding: 0 40px; margin: 0 auto; }
-    /* Misiones es la única pantalla que gana algo con cada píxel de ancho:
-       cada 300 px de más es otra columna a la vista en vez de otra columna
-       escondida detrás del carril. Las demás no lo necesitan —una ficha de
-       1900 px de ancho se lee peor, no mejor— así que el tope general se
-       queda donde estaba. La clase la pone showView. */
-    html.ancho-tablero .app { width: min(1900px, 100%); }
+    /* Las pantallas que ENSEÑAN cosas usan toda la ventana; las que se leen
+       o se llenan, no. En una lista, una rejilla o un mapa, cada píxel de más
+       es otra tarjeta a la vista; en una ficha o un formulario, es una línea
+       de texto más larga de lo que el ojo sigue cómodo y un campo que cruza
+       media pantalla. De ahí las dos anchuras: la de mirar y la de leer.
+
+       La clase la pone showView, que es quien sabe en cuál estamos. */
+    html.ancho-libre .app { width: min(1900px, 100%); }
 
     /* Barra lateral */
     .thumb-cluster {
@@ -3485,6 +3497,8 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    /* El nombre se recorta antes que perder el lápiz de al lado */
+    .col-head h3.renombrable { overflow: hidden; }
     .col-head .count {
       font-size: 11px;
       color: var(--faint);

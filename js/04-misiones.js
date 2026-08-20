@@ -44,8 +44,17 @@ const TABLEROS_FIJOS = [
   { id: "terminadas", nombre: "Misiones terminadas" }
 ];
 
+/* Los tres de siempre también se pueden llamar como uno quiera. Lo que no
+   cambia es lo que significan —siguen siendo hoy, la semana y lo cerrado, y
+   por eso su id no se toca—: solo cambia el rótulo. El nombre puesto a mano
+   vive en la interfaz, no en el tablero, porque el tablero no existe como
+   dato: existe como estado por el que pasa una misión. */
 function tablerosDeMisiones() {
-  const fijo = (id) => TABLEROS_FIJOS.find(t => t.id === id);
+  const puestos = (state.ui && state.ui.nombresTablero) || {};
+  const fijo = (id) => {
+    const t = TABLEROS_FIJOS.find(x => x.id === id);
+    return Object.assign({}, t, { nombre: puestos[id] || t.nombre, deFabrica: t.nombre });
+  };
   const propios = (state.tableros || []).map(t => ({ id: t.id, nombre: t.nombre, propio: true }));
   return [fijo("hoy"), fijo("hechas"), fijo("semana"), ...propios, fijo("terminadas")];
 }
@@ -177,13 +186,28 @@ async function crearTableroMisiones() {
 }
 
 async function renombrarTableroMisiones(id) {
-  const t = (state.tableros || []).find(x => x.id === id);
-  if (!t) return;
-  const nombre = await askText(`Renombrar "${t.nombre}"`, t.nombre, "Renombrar", "", 28);
-  if (!nombre || nombre === t.nombre) return;
-  t.nombre = nombre;
+  const propio = (state.tableros || []).find(x => x.id === id);
+  const fijo = !propio && TABLEROS_FIJOS.find(x => x.id === id);
+  if (!propio && !fijo) return;
+  const actual = propio ? propio.nombre : ((state.ui && state.ui.nombresTablero && state.ui.nombresTablero[id]) || fijo.nombre);
+
+  const nombre = await askText(
+    `Renombrar "${actual}"`, actual, "Renombrar",
+    fijo ? `Déjalo vacío para volver a "${fijo.nombre}".` : "", 28);
+  if (nombre === null || nombre === actual) return;
+
+  if (propio) {
+    if (!nombre) return;              // un tablero propio sin nombre no se puede dibujar
+    propio.nombre = nombre;
+  } else {
+    state.ui = state.ui || {};
+    state.ui.nombresTablero = state.ui.nombresTablero || {};
+    if (nombre) state.ui.nombresTablero[id] = nombre;
+    else delete state.ui.nombresTablero[id];
+  }
   save();
   renderMissions();
+  toast(`Ahora se llama "${nombre || fijo.nombre}"`, "hecho");
 }
 
 async function borrarTableroMisiones(id) {
@@ -948,8 +972,10 @@ function showView(name) {
   if (navId) document.getElementById(navId).classList.add("active");
 
   if (NAV_VIEWS[name]) activeMainView = name;
-  // Solo el tablero de Misiones se sale del ancho común (ver .ancho-tablero)
-  document.documentElement.classList.toggle("ancho-tablero", name === "missions");
+  /* Las cinco pantallas de mirar aprovechan toda la ventana (ver
+     .ancho-libre). Las fichas, los formularios y los ajustes se quedan en el
+     ancho de lectura: ahí un renglón de 1800 px no ayuda a nadie. */
+  document.documentElement.classList.toggle("ancho-libre", VISTAS_ANCHAS.has(name));
   const fab = document.getElementById("fab");
   fab.classList.toggle("hidden",
     !(name === "home" || name === "tree" || name === "projects" || name === "missions"));
@@ -983,6 +1009,8 @@ function showView(name) {
   if (name === "tree") { focusPending = true; renderTree(); }
   if (name === "projects") renderProjects();
 }
+
+const VISTAS_ANCHAS = new Set(["summary", "missions", "home", "tree", "projects"]);
 
 function fabAction() {
   if (activeMainView === "tree") crearRama("perks");

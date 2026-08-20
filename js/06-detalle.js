@@ -117,9 +117,15 @@ function renderMissions() {
   const masTablero = (c) => (c.id === "hechas" || c.id === "terminadas") ? "" :
     `<button class="badd" onclick="openMissionForm(null, '${c.id}')" aria-label="Añadir misión a ${escapeAttr(c.nombre)}">＋</button>`;
 
+  /* Igual que en las ramas de Proyectos y de Talentos: el nombre se reescribe
+     tocándolo. Renombrar deja de estar escondido en un menú, que es donde
+     nadie lo busca — el lápiz al lado del título lo dice sin explicarlo. */
+  const tituloTablero = (c) => `
+    <h3 class="renombrable" onclick="renombrarTableroMisiones('${c.id}')"
+      title="Toca el nombre para renombrar este tablero">${escapeHtml(c.nombre)}${icon("pen", 11)}</h3>`;
+
   const menuTablero = (c) => c.propio
     ? branchMenu("t:" + c.id, [
-        { title: "Renombrar", hint: "Cambia cómo se llama", icon: "lapiz", onclick: `renombrarTableroMisiones('${c.id}')` },
         { title: "Borrar este tablero", hint: (porTablero[c.id] || []).length ? "Sus misiones vuelven a su sitio" : "Está vacío", icon: "bote", danger: true, onclick: `borrarTableroMisiones('${c.id}')` }
       ])
     : "";
@@ -177,7 +183,7 @@ function renderMissions() {
       ${visibles.map(c => `
         <section class="col-mis">
           <div class="col-head">
-            <h3>${escapeHtml(c.nombre)}</h3>
+            ${tituloTablero(c)}
             <span class="count">${(porTablero[c.id] || []).length}</span>
             <div class="bhead-btns">${menuTablero(c)}${masTablero(c)}</div>
           </div>
@@ -189,7 +195,7 @@ function renderMissions() {
     ${visibles.map((c, i) => `
       <div class="panel ${i % 2 ? "alt" : ""}">
         <div class="panel-head">
-          <h3 style="margin:0">${escapeHtml(c.nombre)}</h3>
+          ${tituloTablero(c)}
           <div class="bhead-btns">${menuTablero(c)}${masTablero(c)}</div>
         </div>
         ${cuerpo(c)}
