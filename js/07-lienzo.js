@@ -260,6 +260,7 @@ function renderFullscreen() {
   document.getElementById("fs-tools").innerHTML = `
     ${editing ? "" : `<button class="badd solid" onclick="focusBranchFront('${ba}')" aria-label="Centrar en lo que sigue" title="Centrar en lo que sigue"><svg viewBox="0 0 24 24">${BM_ICONS.flecha}</svg></button>`}
     <button class="badd solid ${editing ? "on" : ""}" onclick="toggleEditBranch('${ba}')" aria-label="Editar el mapa"><svg viewBox="0 0 24 24">${BM_ICONS.lapiz}</svg></button>
+    <button class="badd solid ${modoElegir ? "on" : ""}" onclick="toggleElegirVarios('${ba}')" aria-label="Elegir varios talentos" title="Elegir varios talentos"><svg viewBox="0 0 24 24">${BM_ICONS.caja}</svg></button>
     <button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>`;
 
   /* La clave del SVG es distinta de la que usa la lista: si coincidiera,
@@ -982,7 +983,7 @@ function constellation(nodes, key, editing, branch) {
      que se eligen: quien acaba de arrastrar el recuadro reconoce lo que
      quedó dentro sin tener que preguntárselo. Solo en edición, que es donde
      la selección significa algo. */
-  if (editing && selNodos.size) {
+  if ((editing || modoElegir) && selNodos.size) {
     order.forEach(n => {
       if (!selNodos.has(n.id)) return;
       const { x, y } = pos[n.id];
@@ -1521,11 +1522,21 @@ function attachPanHandlers(scope) {
         reordFin = Date.now();
         return;
       }
-      // Ni arrastre ni interruptor: fue un clic, y un clic abre
+      /* Ni arrastre ni interruptor: fue un clic. Normalmente abre; mientras
+         se está eligiendo, mete o saca de la selección — que es justo lo que
+         hace falta en el teléfono, donde no hay Shift. */
+      if (modoElegir) {
+        alternarSeleccion(g.id, b);
+        redibujarLienzo(wrap, constellation(branchNodes(b), 0, false, b));
+        pintarBarraSeleccion(wrap);
+        return;
+      }
       if (g.esCaja) verCaja(g.id); else openPerk(g.id);
     };
     wrap.addEventListener("pointerup", fin);
     wrap.addEventListener("pointercancel", fin);
+
+    if (modoElegir) pintarBarraSeleccion(wrap);
   });
 }
 
@@ -1597,10 +1608,28 @@ function attachCtxHandlers(scope) {
    que la gente espera, y una selección invisible no debe cambiar eso. */
 let selNodos = new Set();
 let selRama = null;
+/* En el teléfono no hay Shift ni recuadro que arrastrar: el dedo ya está
+   ocupado moviendo nodos y recorriendo el mapa. Así que la misma selección se
+   puede encender como un modo —"elegir varios"— en el que un toque elige en
+   vez de abrir. Es el mismo patrón que ya usan el historial de una habilidad
+   y el borrado múltiple de Habilidades, así que no hay que aprender nada
+   nuevo. En la computadora sigue estando Shift, que es más rápido. */
+let modoElegir = false;
 
 function limpiarSeleccion() {
   selNodos = new Set();
   selRama = null;
+}
+
+function toggleElegirVarios(rama) {
+  modoElegir = !modoElegir;
+  limpiarSeleccion();
+  if (modoElegir) selRama = rama;
+  renderTree();
+  if (fullscreenBranch) renderFullscreen();
+  toast(modoElegir
+    ? "Toca los talentos que quieras juntar"
+    : "Listo, ya no estás eligiendo", modoElegir ? "calma" : "hecho");
 }
 
 function alternarSeleccion(id, rama) {
@@ -1617,7 +1646,7 @@ function pintarBarraSeleccion(wrap) {
   const caja = wrap && wrap.parentElement;
   const pista = caja && caja.querySelector(".const-hint, .fs-hint");
   if (!pista) return;
-  if (!selNodos.size) {
+  if (!selNodos.size && !modoElegir) {
     if (pista.dataset.pistaOriginal !== undefined) {
       pista.innerHTML = pista.dataset.pistaOriginal;
       delete pista.dataset.pistaOriginal;
@@ -1628,22 +1657,35 @@ function pintarBarraSeleccion(wrap) {
   if (pista.dataset.pistaOriginal === undefined) pista.dataset.pistaOriginal = pista.innerHTML;
   pista.classList.add("con-seleccion");
   const n = selNodos.size;
-  pista.innerHTML = `
-    <b>${n} elegido${n === 1 ? "" : "s"}</b>
-    <button type="button" class="btn btn-soft btn-sm" onclick="agruparElegidos()">Agruparlos</button>
-    <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">Quitar la selección</button>`;
+  /* Con el modo encendido y nada elegido todavía, la barra dice qué hacer y
+     por dónde salir: un modo sin salida a la vista es una trampa. */
+  pista.innerHTML = n
+    ? `<b>${n} elegido${n === 1 ? "" : "s"}</b>
+       <button type="button" class="btn btn-soft btn-sm" onclick="agruparElegidos()">Agruparlos</button>
+       <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">${modoElegir ? "Salir" : "Quitar la selección"}</button>`
+    : `<b>Toca los talentos que quieras juntar</b>
+       <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">Salir</button>`;
 }
 
 function repintarSeleccion() {
-  document.querySelectorAll(".const-wrap.editing").forEach(w => {
-    redibujarLienzo(w, constellation(branchNodes(w.dataset.branch), editKey, true, w.dataset.branch));
+  const sel = modoElegir ? ".const-wrap" : ".const-wrap.editing";
+  document.querySelectorAll(sel).forEach(w => {
+    const b = w.dataset.branch;
+    const editando = w.classList.contains("editing");
+    redibujarLienzo(w, constellation(branchNodes(b), editando ? editKey : 0, editando, b));
     pintarBarraSeleccion(w);
   });
 }
 
 function soltarSeleccion() {
+  const habiaModo = modoElegir;
+  modoElegir = false;
   limpiarSeleccion();
-  repintarSeleccion();
+  /* Con el modo encendido, la pista de debajo la puso la barra en TODAS las
+     ramas que se estén viendo; el repintado normal solo toca las que están en
+     edición, así que aquí hace falta el repintado completo. */
+  if (habiaModo) { renderTree(); if (fullscreenBranch) renderFullscreen(); }
+  else repintarSeleccion();
 }
 
 async function agruparElegidos() {
@@ -1658,8 +1700,13 @@ async function agruparElegidos() {
     return;
   }
   const caja = await crearGrupoCon(ids, rama);
-  if (caja) limpiarSeleccion();
-  else repintarSeleccion();
+  if (caja) {
+    // Hecho el grupo, el modo ya cumplió: se apaga solo
+    modoElegir = false;
+    limpiarSeleccion();
+    renderTree();
+    if (fullscreenBranch) renderFullscreen();
+  } else repintarSeleccion();
 }
 
 function attachEditHandlers(scope) {
@@ -1699,7 +1746,7 @@ function attachEditHandlers(scope) {
 
     /* Shift sobre un nodo: entra o sale de la selección y ahí acaba el gesto.
        Nada de arrastrar: quien mantiene Shift está eligiendo, no moviendo. */
-    if (node && e.shiftKey) {
+    if (node && (e.shiftKey || modoElegir)) {
       alternarSeleccion(node.dataset.id, b);
       redraw();
       pintarBarraSeleccion(wrap);

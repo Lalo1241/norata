@@ -157,19 +157,16 @@ function renderMissions() {
 
   /* Dos formas para el mismo tablero. En pantalla ancha son columnas de
      verdad, con desplazamiento de lado: se ven varias a la vez y mover algo
-     de una a otra es un gesto corto. En el teléfono no cabe ni una columna
-     y media, así que se quedan apiladas como estaban: bajar por la pantalla
-     es más natural que empujarla de lado con el pulgar.
+     de una a otra es un gesto corto. En el teléfono se apilan en vertical:
+     no cabe ni una columna y media, y bajar por la pantalla es más natural
+     que empujarla de lado con el pulgar.
 
-     Las vacías solo se dibujan en pantalla ancha, donde una columna vacía es
-     un sitio donde soltar. Apiladas serían tres recuadros vacíos ocupando la
-     primera pantalla entera. Los tableros propios son la excepción: recién
-     creados están vacíos, y si no se vieran parecería que no se creó nada. */
-  const visibles = cols.filter(c => {
-    const n = (porTablero[c.id] || []).length;
-    if (c.soloConAlgo) return n > 0;
-    return isDesktop() ? true : (n > 0 || c.propio);
-  });
+     Lo que NO cambia entre los dos es qué tableros hay. Un tablero vacío se
+     queda igualmente, con su recuadro punteado, porque si desapareciera no
+     habría dónde devolver lo que acabas de sacar de él. La única que va y
+     viene es "Cumplidas hoy": no es un sitio donde guardar cosas, es el
+     resultado del día, y vacía no dice nada. */
+  const visibles = cols.filter(c => !c.soloConAlgo || (porTablero[c.id] || []).length);
 
   el.innerHTML = hero + (isDesktop()
     ? `
@@ -1037,6 +1034,11 @@ function renderTree() {
                lienzo. */
             { title: "Ver en pantalla completa", hint: "Recorre la rama con sitio de sobra", icon: "expandir", onclick: `openBranchFullscreen('${ba}')` },
             ...(collapsed ? [] : [
+              /* Elegir varios sin teclado: en el teléfono es la única forma
+                 de juntar talentos, y en la computadora convive con Shift. */
+              { title: modoElegir ? "Salir de elegir" : "Elegir varios talentos",
+                hint: modoElegir ? "Vuelve a tocar para abrir fichas" : "Tócalos y agrúpalos o muévelos juntos",
+                icon: "caja", onclick: `toggleElegirVarios('${ba}')` },
               /* "Reacomodar solos" queda fuera a propósito hasta pulir cómo
                  decide el orden; la función sigue existiendo, sin puerta. */
               ...(editing ? [] : [{ title: "Centrar en lo que sigue", hint: "Te lleva al talento en curso o al siguiente por abrir", icon: "flecha", onclick: `focusBranchFront('${ba}')` }]),

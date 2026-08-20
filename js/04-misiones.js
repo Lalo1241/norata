@@ -296,7 +296,7 @@ function logMission(id, delta, opciones) {
     if (!op.silencioso) sacudirPantalla();
   }
   save();
-  renderMissions();
+  repintarTrasMision();
   if (op.silencioso) return;
 
   if (delta > 0) checkStreakMilestone();
@@ -314,6 +314,15 @@ function logMission(id, delta, opciones) {
   } else {
     toast(`${m.name}: ${after} de ${target}`, "deshecho", { label: "Rehacer", onclick: `logMission('${m.id}', 1)` });
   }
+}
+
+/* Cumplir una misión se puede hacer desde dos pantallas: su tablero y la
+   tarjeta del Resumen. Repintar siempre Misiones dejaba el Resumen congelado
+   —marcabas ahí una misión y no pasaba absolutamente nada a la vista, aunque
+   por dentro ya estuviera cumplida—. Se repinta la que se está mirando. */
+function repintarTrasMision() {
+  if (activeMainView === "summary") renderSummary();
+  else renderMissions();
 }
 
 /* ---- Sacudida ----
@@ -492,8 +501,11 @@ function reordArrancar(e) {
   reord.off = { x: e.clientX - r.left, y: e.clientY - r.top };
   document.body.appendChild(flota);
   reord.flota = flota;
+  /* El latido va SIEMPRE, haya carril o no: aunque no exista un tablero que
+     empujar de lado, la página se arrastra sola al llegar al borde y eso hace
+     falta en cualquier lista larga. */
   reord.carril = reord.cont.querySelector("[data-carril]");
-  if (reord.carril) reord.latido = setInterval(latidoCarril, 30);
+  reord.latido = setInterval(latidoCarril, 30);
   reord.pieza.classList.add("arr-hueco");
   /* Ver `.reordenando .arr-pieza` en los estilos: mientras dure el arrastre,
      las piezas hermanas son lo único que sigue respondiendo al puntero. */
@@ -511,6 +523,7 @@ function reordArrancar(e) {
    columna, y sin latido no llegaría nunca. */
 const CARRIL_MARGEN = 78;      // px desde el borde donde empieza a arrastrar
 const CARRIL_PASO = 14;        // px por latido
+const BORDE_PAGINA = 92;       // px del borde de la pantalla que arrastran la página
 
 function empujarCarril(e) {
   if (!reord) return;
@@ -518,11 +531,24 @@ function empujarCarril(e) {
 }
 
 function latidoCarril() {
-  if (!reord || !reord.activo || !reord.carril || !reord.raton) return;
-  const r = reord.carril.getBoundingClientRect();
-  const x = reord.raton.x;
-  if (x > r.right - CARRIL_MARGEN) reord.carril.scrollLeft += CARRIL_PASO;
-  else if (x < r.left + CARRIL_MARGEN) reord.carril.scrollLeft -= CARRIL_PASO;
+  if (!reord || !reord.activo || !reord.raton) return;
+  const { x, y } = reord.raton;
+  if (reord.carril) {
+    const r = reord.carril.getBoundingClientRect();
+    if (x > r.right - CARRIL_MARGEN) reord.carril.scrollLeft += CARRIL_PASO;
+    else if (x < r.left + CARRIL_MARGEN) reord.carril.scrollLeft -= CARRIL_PASO;
+  }
+  /* Y la página entera, hacia arriba y hacia abajo. En el teléfono los
+     tableros van apilados: el de destino casi nunca cabe en la misma
+     pantalla que el de origen, y sin esto no habría forma de llegar hasta
+     él sin soltar la tarjeta. En la computadora hace lo mismo con las ramas
+     de Proyectos, que también se apilan.
+
+     La pieza que va bajo el dedo está en posición fija, así que se queda
+     quieta mientras el contenido pasa por debajo: exactamente lo que se
+     espera al arrastrar algo hasta el borde. */
+  if (y > innerHeight - BORDE_PAGINA) scrollBy(0, CARRIL_PASO);
+  else if (y < BORDE_PAGINA) scrollBy(0, -CARRIL_PASO);
 }
 
 function reordMover(e) {

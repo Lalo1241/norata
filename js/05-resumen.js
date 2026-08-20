@@ -126,16 +126,28 @@ function renderSummary() {
           </div>
           <button class="btn btn-soft btn-sm" onclick="showView('missions')">Ver todas</button>
         </div>
-        ${pend.length ? `<div class="ms-list" style="margin-top:14px">
-          ${pend.slice(0, 4).map(m => {
+        ${/* Lo pendiente primero y lo cumplido después, pero cumplido a la
+              vista: esto es un resumen del día, y un día del que ya
+              desaparece lo hecho cuenta la mitad de la historia. Además, al
+              marcar una desde aquí se ve el cambio en el sitio donde se
+              tocó, en vez de esfumarse la tarjeta. */""}
+        ${(() => {
+          const hechas = due.filter(m => missionDone(m, key));
+          const lista = [...pend, ...hechas].slice(0, 5);
+          const resto = due.length - lista.length;
+          if (!lista.length) return "";
+          return `<div class="ms-list" style="margin-top:14px">
+          ${lista.map(m => {
             const c = missionCount(m, key), t = missionTarget(m);
-            return `<div class="ms-card" style="--mc:${m.color || "#5fe0b0"}">
+            return `<div class="ms-card ${c >= t ? "done" : ""}" style="--mc:${m.color || "#5fe0b0"}">
               ${botonMision(m, c, t)}
               ${iconoMision(m)}
               <div class="ms-body"><div class="ms-name">${escapeHtml(m.name)}</div></div>
             </div>`;
           }).join("")}
-        </div>` : ""}
+          ${resto > 0 ? `<p class="settings-note" style="margin:2px 0 0">y ${resto} más en Misiones.</p>` : ""}
+        </div>`;
+        })()}
       </div>`;
     },
 
