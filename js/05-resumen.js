@@ -290,7 +290,31 @@ function renderSummary() {
   el.innerHTML = (dashEditing ? dashTray(hidden) : "") + piezas.join("");
 
   marcarDesbordes();
-  if (dashEditing) attachDashHandlers();
+  if (dashEditing) { ajustarBandeja(); attachDashHandlers(); }
+}
+
+/* ---- La bandeja del editor ocupa las filas que necesita ----
+   Estaba clavada a dos filas de la cuadrícula (112 px) y su contenido mide
+   bastante más: los acomodos sugeridos se salían por abajo y las etiquetas de
+   las tarjetas de la fila siguiente —que sobresalen por encima de cada
+   tarjeta— acababan escritas encima de ellos.
+
+   No se puede pedirle a una celda de altura fija que se ajuste a su
+   contenido, así que se mide y se le dan las filas que le hagan falta, más un
+   respiro para que nada de la fila de abajo la roce. */
+/* Cuánto respiro se le pide de más. No es un capricho de diseño: las
+   etiquetas del modo editor sobresalen por encima de cada tarjeta, así que
+   pegar la primera fila a la bandeja las hace chocar. Con esto la bandeja se
+   lee como un panel aparte y no como la primera pieza del tablero. */
+const BANDEJA_AIRE = 36;
+
+function ajustarBandeja() {
+  const bandeja = document.querySelector(".dash-tray");
+  if (!bandeja || !isDesktop()) return;
+  bandeja.style.gridRow = "";                       // medir sin lo de antes puesto
+  const alto = bandeja.scrollHeight + BANDEJA_AIRE;
+  const filas = Math.max(2, Math.ceil((alto + ROW_GAP) / (ROW_H + ROW_GAP)));
+  bandeja.style.gridRow = `span ${filas}`;
 }
 
 /* ================= Tablero personalizable =================
@@ -386,7 +410,52 @@ function aplicarAcomodo(i) {
   // `hidden` se pasa como null a propósito: saveDash conserva el que ya había
   saveDash(a.order.slice(), null, JSON.parse(JSON.stringify(a.sizes)));
   flipRender(document.getElementById("summary-content"), renderSummary);
+  /* Un acomodo sugerido que obliga a bajar por la pantalla para verse entero
+     no es un acomodo: es una lista. Las alturas de aquí arriba están escritas
+     a mano y no saben en qué pantalla van a caer —ni el alto de la ventana, ni
+     si el tablero tiene dos columnas o tres—, así que después de ponerlo se
+     mide lo que ocupa de verdad y se encoge hasta que quepa.
+
+     Se hace solo al elegir un acomodo. Si alguien estira una tarjeta a mano
+     hasta pasarse de pantalla, eso es su decisión y no hay que corregirla. */
+  requestAnimationFrame(() => encajarEnPantalla());
   toast("Acomodo " + a.nombre, "hecho", { label: "Deshacer", onclick: "deshacerTablero()" });
+}
+
+/* Encoge las tarjetas —nunca por debajo de su suelo— hasta que el tablero
+   entero quepa en lo que queda de ventana. Devuelve si tocó algo. */
+function encajarEnPantalla() {
+  if (!isDesktop()) return false;
+  const el = document.getElementById("summary-content");
+  if (!el) return false;
+  let tocado = false;
+
+  for (let vuelta = 0; vuelta < 6; vuelta++) {
+    const caja = el.getBoundingClientRect();
+    /* La bandeja del editor no cuenta: desaparece al salir del modo, y lo que
+       tiene que caber es el tablero que quedará después. */
+    const bandeja = el.querySelector(".dash-tray");
+    const estorbo = bandeja ? bandeja.getBoundingClientRect().height + ROW_GAP : 0;
+    const disponible = window.innerHeight - caja.top - 26;
+    const alto = caja.height - estorbo;
+    if (alto <= disponible) break;
+
+    const factor = disponible / alto;
+    const { order, hidden, sizes } = dashLayout();
+    let cambio = false;
+    order.forEach(id => {
+      if (hidden.includes(id) || !DASH_META[id]) return;
+      const s = dashSize(id);
+      const nuevo = Math.max(altoMinimo(id), Math.floor(s.h * factor));
+      if (nuevo !== s.h) { sizes[id] = { w: s.w, h: nuevo }; cambio = true; }
+    });
+    if (!cambio) break;                 // todas están ya en su mínimo
+    state.ui[ranuraTablero()].sizes = sizes;
+    tocado = true;
+    renderSummary();
+  }
+  if (tocado) save();
+  return tocado;
 }
 
 let dashEditing = false;
@@ -533,7 +602,7 @@ function dashTray(hidden) {
   <div class="dash-tray full-row">
     <div class="tray-head">
       <div class="tray-tx">
-        <h3>Modo edición</h3>
+        <h3>Modo Editor</h3>
         <p class="settings-note" style="margin:0">Arrastra para acomodar · esquina inferior derecha para cambiar el tamaño · ✕ para quitar${
           /* El atajo solo se menciona donde funciona: en el teléfono no hay
              teclado a mano y anunciarlo sería ruido. */

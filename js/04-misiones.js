@@ -1000,6 +1000,15 @@ function showView(name) {
      encontrarse media lista marcada de antes sería una trampa. */
   if (name !== "home" && seleccionHab) seleccionHab = null;
 
+  /* Lo mismo con el Modo Editor del Resumen: irse a otro módulo es darlo por
+     terminado. No hay nada que "confirmar" —cada movimiento ya se guardó
+     según se hacía—, así que salir simplemente lo cierra y lo deja escrito. */
+  if (name !== "summary" && dashEditing) {
+    dashEditing = false;
+    save();
+    toast("Modo Editor cerrado · tu tablero quedó guardado", "hecho");
+  }
+
   window.scrollTo(0, 0);
   if (name === "catalog") renderCatalogo();
   if (name === "summary") renderSummary();

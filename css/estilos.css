@@ -273,7 +273,12 @@
     border: 1px solid var(--mint);
     border-radius: 20px;
     padding: 16px 18px;
+    /* Las filas las calcula ajustarBandeja() midiendo el contenido; esto es
+       solo el punto de partida antes de la primera medida. `align-self` es lo
+       que deja el aire de sobra DEBAJO en vez de estirar el panel hasta
+       llenarlo. */
     grid-row: span 2;
+    align-self: start;
   }
   .dash-tray h3 {
     font-size: 11px; font-weight: 800; letter-spacing: 2px;
