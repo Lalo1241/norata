@@ -26,6 +26,31 @@
   }
   html.sc { --sidebar-w: 84px; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* ---------- Las barras de desplazamiento ----------
+     Cada navegador pinta las suyas: Chrome las hace gruesas y claras, Firefox
+     las suyas, y en una app oscura se ven como un parche del sistema pegado
+     encima. Aquí se dicta una sola forma —fina, redondeada y del color de los
+     bordes de la app— por los dos caminos que existen: el estándar
+     (`scrollbar-*`, que entiende Firefox) y el de WebKit.
+
+     El pulgar lleva un borde transparente recortado al relleno: es el truco
+     que deja aire a los lados sin tener que pintar el carril.
+
+     Va con `*` a propósito, para que valga también dentro de las ventanas y
+     los paneles. Lo que quiere esconderlas del todo —las tiras de chips, el
+     lienzo del árbol— tiene su propia regla y gana por ser más específica. */
+  * { scrollbar-width: thin; scrollbar-color: #33404f transparent; }
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: #33404f;
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: #465569; background-clip: padding-box; }
+  ::-webkit-scrollbar-corner { background: transparent; }
   /* El fondo va también en <html>, no solo en <body>: la franja que asoma al
      rebotar el scroll en el móvil la pinta el elemento raíz, y sin esto salía
      blanca. Y `color-scheme: dark` es lo que le dice al navegador que ponga
@@ -781,6 +806,23 @@
     box-shadow: 0 26px 60px rgba(0, 0, 0, 0.55);
   }
   .mini-menu.show { display: block; }
+  /* La ficha de quién está dentro, arriba del menú */
+  .mm-perfil {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 11px;
+    margin-bottom: 4px;
+    cursor: pointer;
+  }
+  .mm-perfil .avatar { flex: none; }
   .mm-tit {
     font-size: 10.5px;
     font-weight: 800;
@@ -834,7 +876,11 @@
   .am-card {
     position: relative;
     width: min(1000px, 100%);
-    max-height: min(760px, 88vh);
+    /* Alto FIJO, no "hasta donde llegue": con max-height la ventana crecía y
+       encogía al cambiar de sección y el índice de la izquierda bailaba con
+       ella. Se elige el alto de la sección más grande y las demás dejan aire,
+       que molesta mucho menos que un menú que se mueve solo. */
+    height: min(620px, 86vh);
     overflow: hidden;
     background: var(--bg2);
     border: 1px solid var(--line);
@@ -845,6 +891,9 @@
   }
   .am-close { position: absolute; top: 14px; right: 14px; z-index: 2; }
   .am-body { overflow: auto; padding: 26px 26px 24px; }
+  /* La barra no puede tocar las esquinas redondeadas: ahí se ve cortada por
+     el redondeo y parece rota. Se le deja aire arriba y abajo. */
+  .am-body::-webkit-scrollbar-track { margin: 18px 0; }
   /* Dentro de la ventana el índice no se pega al desplazarse: la que se
      desplaza es la ventana, no la página. */
   .am-body .ajustes-nav { position: static; }

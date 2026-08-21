@@ -678,12 +678,15 @@ function detectedTZ() {
    que lleva a la sección y vuelve con la flecha, que es lo que hace cualquier
    app de ajustes en una pantalla estrecha. Los bloques son los mismos: lo que
    cambia es cómo se llega. */
+/* Tres, no cinco. "Tu día" y "Zona de peligro" hablaban de lo mismo que "Tus
+   datos" —con qué día se cuentan, cómo se respaldan, cómo se borran— y tenerlos
+   como entradas sueltas obligaba a recordar en cuál de las tres estaba cada
+   cosa. Dentro de la sección van en el orden en que se piensan: primero qué
+   cuenta como hoy, luego los respaldos, y borrar al final. */
 const AJUSTES_SECS = [
-  { id: "cuenta",  nombre: "Cuenta",          icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
-  { id: "dia",     nombre: "Tu día",          icon: "globe",   sub: "La zona horaria con la que se cuenta todo" },
-  { id: "menu",    nombre: "Secciones",       icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
-  { id: "datos",   nombre: "Tus datos",       icon: "book",    sub: "Respaldos, importar y copias automáticas" },
-  { id: "peligro", nombre: "Zona de peligro", icon: "alert",   sub: "Borrar tus datos o tu cuenta" }
+  { id: "cuenta", nombre: "Cuenta",    icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
+  { id: "menu",   nombre: "Secciones", icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
+  { id: "datos",  nombre: "Tus datos", icon: "book",    sub: "Tu día, respaldos, copias y borrado" }
 ];
 
 /* Qué sección se está viendo. En el teléfono, null significa "la lista"; en la
@@ -733,7 +736,23 @@ function ajustesClick(ev) {
 function abrirMenuAjustes(btn) {
   const m = document.getElementById("ajustes-menu");
   if (!m || !btn) return;
-  m.innerHTML = `
+  /* Arriba del todo, en qué cuenta estás. Es la pregunta que trae aquí a más
+     gente que ninguna otra, y contestarla antes de abrir nada ahorra el viaje
+     entero. Sin sesión, la misma fila invita a entrar. */
+  const cfg = (typeof sync !== "undefined" && sync.cfg) || {};
+  const dentro = typeof syncReady === "function" && syncReady();
+  const ficha = dentro
+    ? `<button class="mm-perfil" onclick="abrirVentanaAjustes('cuenta')">
+         ${avatarHTML(38)}
+         <span class="mm-tx"><b>${escapeHtml(perfilActual().saludo || "Sin nombre")}</b>
+         <span>${escapeHtml(cfg.correo || "")}</span></span>
+       </button>`
+    : `<button class="mm-perfil" onclick="abrirVentanaAjustes('cuenta')">
+         <span class="mm-ic">${icon("shield", 16)}</span>
+         <span class="mm-tx"><b>Sin cuenta</b><span>Entra para sincronizar tus dispositivos</span></span>
+       </button>`;
+
+  m.innerHTML = ficha + `
     <div class="mm-tit">Ajustes</div>
     ${AJUSTES_SECS.map(sec => `
       <button class="mm-item ${sec.id === "peligro" ? "riesgo" : ""}" onclick="abrirVentanaAjustes('${sec.id}')">
