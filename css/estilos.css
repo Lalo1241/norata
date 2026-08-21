@@ -23,6 +23,37 @@
        aquí para que la barra lateral y el margen del contenido siempre
        lean el mismo número — así no se pueden desincronizar. */
     --sidebar-w: 246px;
+
+    /* ---------- Los pisos ----------
+       Cada cosa que se pone encima de la app tenía su número suelto, escrito
+       donde tocaba y sin mirar a los demás. Así aparecieron ventanas que se
+       tapaban entre ellas: el cuadro de confirmar salía DEBAJO de la ventana
+       de Ajustes que lo había pedido, y el tutorial, debajo del botón que lo
+       llamaba. La regla que faltaba es sencilla y ahora está escrita:
+
+         lo que abre algo va SIEMPRE por debajo de lo que abre.
+
+       Por eso confirmar vive tan arriba: es lo último que puede pedir
+       cualquiera de los de abajo —la portada incluida— y nunca abre nada.
+       Encima solo quedan las dos pantallas que no preguntan: la de cargar y
+       la de "esta versión ya no vale". */
+    --piso-rama: 40;       /* el menú de una rama, colgado de su fila */
+    --piso-barra: 60;      /* la barra de navegación */
+    --piso-lienzo: 90;     /* la rama a pantalla completa */
+    --piso-flotante: 100;  /* menús pegados a algo: clic derecho, rama */
+    --piso-fiesta: 120;    /* celebraciones que ocupan la pantalla */
+    --piso-arrastre: 200;  /* la copia que sigue al dedo al reordenar */
+    --piso-confeti: 300;   /* la luz de celebrar, que no se toca */
+    --piso-ventana: 400;   /* ventanas: la caja del ático, Ajustes */
+    --piso-menucito: 420;  /* el mini menú del engrane */
+    --piso-encima: 500;    /* lo que una ventana abre y la reemplaza */
+    --piso-tirar: 7000;    /* deslizar para actualizar */
+    --piso-pruebas: 7500;  /* el marco de "cuenta de pruebas" */
+    --piso-portada: 8000;  /* entrar a la app */
+    --piso-brindis: 8500;  /* los avisos de abajo, encima de todo lo anterior */
+    --piso-confirmar: 8600;/* el cuadro de confirmar: SIEMPRE lo último */
+    --piso-bloqueo: 9000;  /* datos de una versión más nueva */
+    --piso-carga: 9500;    /* la pantalla de esperar */
   }
   html.sc { --sidebar-w: 84px; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -437,7 +468,7 @@
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 120;
+    z-index: var(--piso-fiesta);
     background: radial-gradient(circle at 50% 42%, #2a1d06 0%, #16110a 45%, #0e131b 100%);
     align-items: center;
     justify-content: center;
@@ -789,6 +820,22 @@
   .aj-item.riesgo .aj-ic { background: var(--coral-soft); color: var(--coral); }
   .aj-item.on { border-color: var(--mint); background: var(--card2); }
 
+  /* El mismo dato en el teléfono, al final de la pantalla de Ajustes: ahí no
+     hay barra lateral donde ponerlo. Centrado y con aire por arriba, para que
+     se lea como el pie de la pantalla y no como una opción más de la lista. */
+  .version-pie {
+    margin-top: 26px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .version-pie .sv-fecha { font-weight: 500; }
+  /* En la computadora Ajustes es una ventana y el número ya vive en la barra */
+  @media (min-width: 900px) { .version-pie { display: none; } }
+
   /* ---------- El mini menú del engrane ----------
      Mismo lenguaje que el menú del clic derecho del árbol: una tarjeta que
      aparece pegada a lo que la abrió, con las opciones en filas de icono +
@@ -797,7 +844,7 @@
   .mini-menu {
     display: none;
     position: fixed;
-    z-index: 420;
+    z-index: var(--piso-menucito);
     width: 296px;
     background: var(--card);
     border: 1px solid var(--line);
@@ -819,18 +866,11 @@
     border: 1px solid var(--line);
     border-radius: 14px;
     padding: 10px 11px;
-    margin-bottom: 4px;
+    /* Antes la separaba el rótulo "AJUSTES"; sin él, el aire lo pone ella. */
+    margin-bottom: 8px;
     cursor: pointer;
   }
   .mm-perfil .avatar { flex: none; }
-  .mm-tit {
-    font-size: 10.5px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--faint);
-    padding: 6px 10px 8px;
-  }
   .mm-item {
     display: flex;
     align-items: center;
@@ -865,7 +905,7 @@
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 410;
+    z-index: var(--piso-ventana);
     background: rgba(6, 9, 14, 0.72);
     backdrop-filter: blur(3px);
     align-items: center;
@@ -1047,7 +1087,7 @@
        de que lo haga cada uno por su cuenta: así mover un botón de sitio no
        lo deja inservible sin que nadie se entere. */
     pointer-events: none;
-    z-index: 60;
+    z-index: var(--piso-barra);
   }
   .thumb-cluster > * { pointer-events: auto; }
   .thumb-cluster .nav-circles {
@@ -1126,6 +1166,34 @@
     margin-bottom: 14px;
   }
   .panel.alt { border-radius: 10px 26px 26px 26px; }
+
+  /* ---------- El recinto de lo que no se deshace ----------
+     Se llamaba "Zona de peligro" y se veía igual que el panel de los
+     respaldos: mismo borde gris, mismo título gris, y dentro dos botones
+     rosa pálido que ya tienen los talentos y las ramas para "quitar esto de
+     aquí". Nada avisaba de que estos dos no se pueden deshacer.
+
+     Ahora el aviso está en la caja entera —borde coral y un fondo con un
+     punto de rojo— y no en una palabra del título. Y los botones se vuelven
+     coral macizo: dentro de esta caja, el rosa pálido se confundía con el
+     fondo y acababa siendo el elemento MENOS visible de la sección más
+     delicada. Fuera de aquí siguen igual que siempre, que es donde ese tono
+     sí está bien medido. */
+  .panel.peligro {
+    border-color: rgba(255, 138, 112, 0.55);
+    background: linear-gradient(180deg, rgba(255, 138, 112, 0.07), rgba(255, 138, 112, 0.03));
+  }
+  .panel.peligro h3 { color: var(--coral); }
+  .panel.peligro .settings-note { color: #c6a89f; }
+  .panel.peligro .btn-danger-ghost {
+    background: var(--coral);
+    /* Texto oscuro sobre coral: en blanco se queda en 2,4 sobre 1 y no se lee.
+       Este da de sobra. */
+    color: #3a1009;
+    font-weight: 750;
+  }
+  .panel.peligro .btn-danger-ghost:hover { background: #ffa38d; }
+
   .panel h3 {
     font-size: 11px;
     font-weight: 800;
@@ -1554,7 +1622,10 @@
     border-radius: 16px;
     padding: 6px;
     box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55);
-    z-index: 40;
+    /* Vive DENTRO de la página, no encima de ella: cuelga de la fila de su
+       rama y se desplaza con ella. Por eso no sube al piso de los menús
+       flotantes —solo compite con las tarjetas que tiene al lado—. */
+    z-index: var(--piso-rama);
   }
   .bmenu.open { display: block; }
   .bmenu button {
@@ -1656,12 +1727,29 @@
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 90;
+    z-index: var(--piso-lienzo);
     background: var(--bg);
     flex-direction: column;
   }
   .fs-overlay.show { display: flex; }
   body.fs-on { overflow: hidden; }
+
+  /* ---------- La página se queda quieta detrás de una ventana ----------
+     Con una ventana abierta, la rueda del ratón seguía moviendo la app de
+     detrás: se cerraba la ventana y ya no estabas donde la habías abierto.
+     En el teléfono era peor, porque el dedo arrastra lo que pilla.
+
+     Se para en las DOS: <html> es quien se desplaza en escritorio y <body>
+     en algunos navegadores de teléfono, y cuál de las dos manda cambia según
+     el navegador. Poner las dos cuesta una línea y quita el "en tal sitio no
+     funciona".
+
+     Y no hace falta compensar nada para que la página no dé un brinco: <html>
+     ya lleva `scrollbar-gutter: stable` desde siempre (ver arriba), así que el
+     hueco de la barra está reservado tanto si se desplaza como si no. Medido:
+     el ancho de la app es el mismo con la ventana abierta y cerrada. */
+  html.quieto { overflow: hidden; }
+  html.quieto body { overflow: hidden; }
   .fs-bar {
     flex: none;
     display: flex;
@@ -1751,7 +1839,7 @@
   .ctx {
     display: none;
     position: fixed;
-    z-index: 100;
+    z-index: var(--piso-flotante);
     min-width: 258px;
     background: var(--card);
     border: 1px solid var(--line);
@@ -2104,12 +2192,27 @@
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    z-index: 200;
+    z-index: var(--piso-ventana);
     opacity: 0;
     pointer-events: none;
     transition: 0.2s;
   }
   .modal-backdrop.show { opacity: 1; pointer-events: auto; }
+  /* Las tres hojas comparten forma pero no piso, porque no hacen lo mismo.
+
+     Confirmar es lo último que se pregunta y lo puede pedir cualquiera: la
+     ventana de Ajustes ("¿borro todos los datos?"), la caja del ático
+     ("¿borro la caja?") o la propia portada ("¿borro la cuenta ahora?"). Si
+     se quedara al nivel de una ventana normal saldría por debajo de quien la
+     llamó — y eso es exactamente lo que pasaba: el botón parecía no hacer
+     nada. Va arriba del todo y no abre nada, así que nadie puede quedar
+     tapado por ella.
+
+     El tutorial se llama desde Ajustes y lo REEMPLAZA: no se apila encima de
+     una ventana, la sustituye. Va un piso por encima de las ventanas para que
+     la de Ajustes no lo tape mientras se cierra. */
+  #modal { z-index: var(--piso-confirmar); }
+  #tuto { z-index: var(--piso-encima); }
   .modal-card {
     background: var(--card);
     border: 1px solid var(--line);
@@ -2130,6 +2233,18 @@
   }
   .modal-actions { display: flex; gap: 10px; }
   .modal-actions .btn { flex: 1; }
+  /* El botón de confirmar es el ÚNICO de la app que no se vuelve a dibujar:
+     es siempre el mismo nodo y lo que le cambia es la clase, de menta a coral
+     según lo que se esté preguntando. Y ahí muerde la trampa de siempre: con
+     una transición por medio, Chrome no se entera de que un color que sale de
+     una variable ha cambiado y lo deja clavado en el de la primera vez.
+
+     Se veía en el peor sitio posible: "¿Borrar TODAS tus habilidades…?" salía
+     con el botón VERDE, igual que un "Guardar". Medido: la clase era
+     btn-danger-ghost y el color que pintaba, el menta. Quitando el
+     desvanecido pinta el que le toca — y un botón de confirmar no necesita
+     entrar despacio. */
+  #modal-ok, #modal-cancel { transition: none; }
 
   /* ---------- Tutorial de bienvenida ---------- */
   /* Alto mínimo y botones pegados abajo: las tarjetas no traen el mismo texto,
@@ -2318,7 +2433,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 300;
+    z-index: var(--piso-confeti);
     pointer-events: none;
     opacity: 0;
     background: radial-gradient(circle at 50% 46%, rgba(14, 19, 27, 0.55), rgba(14, 19, 27, 0.92));
@@ -2388,7 +2503,7 @@
     left: 50%;
     bottom: calc(110px + env(safe-area-inset-bottom));
     transform: translateX(-50%);
-    z-index: 100;
+    z-index: var(--piso-brindis);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -3086,7 +3201,7 @@
      `margin: auto` sobre la caja hace lo mismo cuando sobra sitio y, cuando
      falta, reparte cero por los dos lados en vez de empujar hacia arriba. */
   .portada {
-    position: fixed; inset: 0; z-index: 8000; overflow-y: auto;
+    position: fixed; inset: 0; z-index: var(--piso-portada); overflow-y: auto;
     display: flex; justify-content: center; padding: 26px 20px;
     background: var(--bg);
     animation: portadaEntra 0.32s ease;
@@ -3258,7 +3373,7 @@
      Tapa con el mismo fondo que la portada, y por eso el relevo entre las dos
      no se nota: lo que cambia es el contenido, no la pantalla. */
   .carga {
-    position: fixed; inset: 0; z-index: 9500;
+    position: fixed; inset: 0; z-index: var(--piso-carga);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 22px; padding: 26px 20px; background: var(--bg);
     transition: opacity 0.28s ease;
@@ -3305,7 +3420,7 @@
      Va colgado del borde de arriba y sigue al dedo. No tapa nada: aparece
      donde el pulgar ya está mirando y se va solo. */
   .tirar-aviso {
-    position: fixed; top: 0; left: 50%; z-index: 7000;
+    position: fixed; top: 0; left: 50%; z-index: var(--piso-tirar);
     transform: translate(-50%, 0);
     background: var(--card2); border: 1px solid var(--line);
     border-radius: 999px; padding: 7px 15px;
@@ -3323,7 +3438,7 @@
      propósito — ya significa "esto es un contenedor aparte" — y va con
      pointer-events en none para no estorbar a nada de debajo. */
   .aviso-pruebas {
-    position: fixed; inset: 0; z-index: 7500; pointer-events: none;
+    position: fixed; inset: 0; z-index: var(--piso-pruebas); pointer-events: none;
     border: 1.6px dashed var(--fire);
     border-radius: 22px;
     opacity: 0.55;
@@ -3339,7 +3454,7 @@
   /* Datos de una versión más nueva. Tapa todo y no se cierra: seguir usando
      la app sin poder guardar sería peor que no poder usarla. */
   .futuro-aviso {
-    position: fixed; inset: 0; z-index: 9000; display: flex;
+    position: fixed; inset: 0; z-index: var(--piso-bloqueo); display: flex;
     align-items: center; justify-content: center; padding: 22px;
     background: rgba(8, 11, 16, .88); backdrop-filter: blur(6px);
   }
@@ -3434,7 +3549,7 @@
       color: inherit;
       padding: 4px;
       margin: -4px;
-      border-radius: 8px;
+      border-radius: 4px;
     }
     .side-brand:hover { background: var(--bg2); }
     /* Colapsado muestra solo el isotipo; desplegado, el logo completo tal
@@ -3468,21 +3583,43 @@
       gap: 5px;
       width: 100%;
     }
+    /* Las filas del menú, más altas y con la esquina casi recta.
+
+       Más altas porque en la computadora el blanco de una barra lateral no
+       cuesta nada —sobra sitio de arriba abajo— y en cambio una fila baja
+       obliga a apuntar; con 50 px el ratón acierta sin mirar.
+
+       Y casi rectas porque a este tamaño el redondeo de 13 px las convertía
+       en pastillas sueltas flotando una encima de otra, y lo que son es una
+       columna. Cuatro píxeles bastan para que no sea un cajón, sin fingir que
+       cada fila es un botón aparte. El resto de la app conserva sus esquinas:
+       esto es solo del menú. */
     .thumb-cluster .c-nav {
       width: 100%;
       height: auto;
-      border-radius: 13px;
+      border-radius: 4px;
       justify-content: flex-start;
       gap: 13px;
-      padding: 12px 14px;
+      padding: 15px 14px;
       background: transparent;
       border-color: transparent;
       box-shadow: none;
       backdrop-filter: none;
       color: var(--muted);
+      /* Sin desvanecido, y no por gusto: el color sale de una variable, y
+         Chrome no se entera de que cambia si hay una transición por medio —
+         deja el botón clavado en el color de partida para siempre—. Con
+         Ajustes encendido se veía: la clase entraba, el verde no. Es la misma
+         trampa que ya mordió en los selectores, y se arregla igual, quitando
+         la transición. Un botón de menú quiere responder, no bailar. */
+      transition: none;
     }
     .thumb-cluster .c-nav:hover { background: var(--bg2); color: var(--text); }
-    .thumb-cluster .c-nav.active {
+    .thumb-cluster .c-nav.active,
+    /* Con el mini menú desplegado, Ajustes se enciende igual que la sección
+       en la que estás. Es lo que ata el menú al botón del que sale: sin eso
+       aparecía un panel flotando sin origen visible. */
+    .thumb-cluster .c-nav.abierto {
       background: var(--mint-soft);
       border-color: transparent;
       box-shadow: none;
@@ -3509,11 +3646,40 @@
       background: var(--line);
     }
 
+    /* ---------- En qué versión va la app ----------
+       Debajo de Ajustes, en el último renglón de la barra. Es un dato para
+       consultar de reojo, no algo con lo que se hace nada: por eso va en el
+       gris de los textos secundarios, sin caja ni borde y sin responder al
+       ratón. Lo que lo aparta del menú es el tamaño, no el color: en el gris
+       más apagado de la paleta se quedaba en 3,16 de contraste, y a 10,5 px
+       eso no se lee —hay que acercarse a la pantalla para distinguir un 6 de
+       un 8, que es justo lo único que este renglón tiene que decir—. */
+    .side-version {
+      display: flex;
+      align-items: baseline;
+      padding: 9px 14px 2px;
+      font-size: 10.5px;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      user-select: text;
+    }
+    /* La fecha se distingue del número por el trazo, no por el gris: bajarle
+       el color la devolvería al problema de arriba. */
+    .side-version .sv-fecha { font-weight: 500; }
+    /* Plegada, la barra son 84 px: solo cabe el número, y centrado. La fecha
+       se va antes que el número porque la pregunta que se contesta aquí es
+       "¿cuál está puesta?", no "¿de cuándo es?". */
+    html.sc .side-version { justify-content: center; padding-left: 0; padding-right: 0; }
+    html.sc .side-version .sv-fecha { display: none; }
+
     .thumb-cluster .c-main {
       width: 100%;
       height: auto;
-      border-radius: 13px;
-      padding: 13px 16px;
+      border-radius: 4px;
+      padding: 16px 16px;
       margin-top: 5px;
       font-size: 14px;
       font-weight: 700;
@@ -3530,7 +3696,7 @@
        la franja no gasta una fila entera en un botón que casi no se usa. */
     html.sc .side-top { justify-content: center; padding: 4px 0 22px; }
     html.sc .side-toggle { display: none; }
-    html.sc .side-brand { justify-content: center; width: 40px; height: 40px; padding: 0; margin: 0; border-radius: 11px; position: relative; }
+    html.sc .side-brand { justify-content: center; width: 44px; height: 44px; padding: 0; margin: 0; border-radius: 4px; position: relative; }
     html.sc .side-brand .sb-logo-full { display: none; }
     /* Los dos iconos ocupan la MISMA caja, superpuestos, y se funden uno en
        otro. Antes se alternaba display:none, que es un corte seco: el icono

@@ -678,15 +678,21 @@ function detectedTZ() {
    que lleva a la sección y vuelve con la flecha, que es lo que hace cualquier
    app de ajustes en una pantalla estrecha. Los bloques son los mismos: lo que
    cambia es cómo se llega. */
-/* Tres, no cinco. "Tu día" y "Zona de peligro" hablaban de lo mismo que "Tus
-   datos" —con qué día se cuentan, cómo se respaldan, cómo se borran— y tenerlos
-   como entradas sueltas obligaba a recordar en cuál de las tres estaba cada
-   cosa. Dentro de la sección van en el orden en que se piensan: primero qué
-   cuenta como hoy, luego los respaldos, y borrar al final. */
+/* Tres, no cinco. La zona horaria y la zona de peligro hablaban de lo mismo
+   que los respaldos —con qué día se cuentan las cosas, cómo se guardan, cómo
+   se borran— y tenerlas como entradas sueltas obligaba a recordar en cuál de
+   las tres estaba cada cosa. Dentro de la sección van en el orden en que se
+   piensan: primero qué cuenta como hoy, luego los respaldos, y borrar al
+   final.
+
+   Y los nombres dicen de quién es la cosa, no de qué va el panel. "Cuenta",
+   "Secciones" y "Tus datos" describían el contenido desde fuera; "Mi perfil",
+   "Mis módulos" y "Almacenamiento" se buscan solos cuando uno viene a cambiar
+   algo suyo. */
 const AJUSTES_SECS = [
-  { id: "cuenta", nombre: "Cuenta",    icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
-  { id: "menu",   nombre: "Secciones", icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
-  { id: "datos",  nombre: "Tus datos", icon: "book",    sub: "Tu día, respaldos, copias y borrado" }
+  { id: "cuenta", nombre: "Mi perfil",      icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
+  { id: "menu",   nombre: "Mis módulos",    icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
+  { id: "datos",  nombre: "Almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" }
 ];
 
 /* Qué sección se está viendo. En el teléfono, null significa "la lista"; en la
@@ -729,6 +735,10 @@ function renderAjustes() {
    sin cambiar de pantalla ni perder lo que estabas mirando. */
 function ajustesClick(ev) {
   if (!isDesktop()) { showView("settings"); return; }
+  // Segundo clic en el mismo botón: se cierra. Con el botón encendido, volver
+  // a pulsarlo tiene que apagarlo; si no, no hay forma de cerrarlo desde ahí.
+  const m = document.getElementById("ajustes-menu");
+  if (m && m.classList.contains("show")) { cerrarMenuAjustes(); return; }
   const btn = (ev && (ev.currentTarget || ev.target)) || document.getElementById("settings-btn");
   abrirMenuAjustes(btn.closest("button") || btn);
 }
@@ -752,8 +762,10 @@ function abrirMenuAjustes(btn) {
          <span class="mm-tx"><b>Sin cuenta</b><span>Entra para sincronizar tus dispositivos</span></span>
        </button>`;
 
+  /* Sin el rótulo "AJUSTES" encima de la lista: el menú sale de un botón que
+     ya dice Ajustes y que además queda iluminado justo debajo mientras está
+     abierto. Repetirlo era decir dos veces lo mismo en cuatro centímetros. */
   m.innerHTML = ficha + `
-    <div class="mm-tit">Ajustes</div>
     ${AJUSTES_SECS.map(sec => `
       <button class="mm-item ${sec.id === "peligro" ? "riesgo" : ""}" onclick="abrirVentanaAjustes('${sec.id}')">
         <span class="mm-ic">${icon(sec.icon, 16)}</span>
@@ -764,19 +776,41 @@ function abrirMenuAjustes(btn) {
   const r = btn.getBoundingClientRect();
   const caja = m.getBoundingClientRect();
   const hueco = 10;
-  /* A la derecha del botón si cabe (la barra lateral vive a la izquierda), y
-     si no, a la izquierda. Y siempre dentro de la pantalla por arriba y por
-     abajo: el engrane de la barra está abajo del todo y el menú es alto. */
-  let x = r.right + hueco;
-  if (x + caja.width > window.innerWidth - 8) x = Math.max(8, r.left - caja.width - hueco);
-  let y = Math.min(r.top, window.innerHeight - caja.height - 12);
+  /* ARRIBA del botón, no al lado. Al lado quedaba en tierra de nadie: un
+     panel flotando en mitad del contenido, lejos del borde, sin nada que lo
+     atara a lo que lo había abierto. Ajustes vive abajo del todo de la barra,
+     así que hacia arriba hay sitio de sobra y el menú crece desde su botón —
+     que es el gesto que hace cualquier menú anclado a un pie.
+
+     Alineado por la izquierda con el botón, y metido hacia dentro si no cabe:
+     con la barra plegada el botón es una franja estrecha y el menú se saldría
+     por la derecha. */
+  let x = r.left;
+  if (x + caja.width > window.innerWidth - 8) x = window.innerWidth - 8 - caja.width;
+  x = Math.max(8, x);
+  /* Y si el menú fuera más alto que lo que queda por encima —una ventana muy
+     baja—, en vez de salirse por arriba se apoya en el techo. */
+  let y = Math.max(12, r.top - caja.height - hueco);
   m.style.left = Math.round(x) + "px";
-  m.style.top = Math.round(Math.max(12, y)) + "px";
+  m.style.top = Math.round(y) + "px";
+  // El botón se queda encendido mientras el menú está puesto: es lo que dice
+  // de dónde ha salido, y sin eso el menú parecía venir de ningún sitio.
+  marcarEngraneAbierto(true);
+}
+
+/* El mismo verde de la sección activa. No es un estado nuevo que inventarse:
+   mientras el menú está abierto, Ajustes ES donde estás. */
+function marcarEngraneAbierto(abierto) {
+  ["nav-settings-side", "settings-btn"].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.classList.toggle("abierto", !!abierto);
+  });
 }
 
 function cerrarMenuAjustes() {
   const m = document.getElementById("ajustes-menu");
   if (m) m.classList.remove("show");
+  marcarEngraneAbierto(false);
 }
 
 /* Un clic en cualquier otro sitio lo cierra: un menú que se queda puesto

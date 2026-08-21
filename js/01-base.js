@@ -1,6 +1,40 @@
 /* Iconos, modelo, versión del formato, guardado, fechas y el modal */
 "use strict";
 
+/* ================= En qué versión vamos =================
+   Un solo número para toda la app, y el sitio donde se cambia es este.
+
+   Contesta dos preguntas distintas con la misma cifra. La de Eduardo: "¿ya
+   está arriba lo que hicimos?" —abre la app, mira la esquina de abajo y si el
+   número es el que le dijeron, el despliegue llegó; si no, GitHub Pages
+   todavía va en camino o el aparato sigue con la copia vieja—. Y la mía:
+   nombrar cada tanda de trabajo en vez de decir "lo de ayer".
+
+   CÓMO SE CUENTA
+
+     0.x     antes de la Play Store. Todo lo de hoy vive aquí.
+     1.0     el día del lanzamiento, y lo dice Eduardo. No se llega solo.
+
+     la décima (0.6 → 0.7)   la app hace algo que antes no hacía, o cambia
+                             la forma de usarla. Un módulo nuevo, una pantalla
+                             nueva, algo que cambia cómo se trabaja con ella.
+
+     el tercero (0.6.1 → 0.6.2)   una tanda de trabajo: arreglos, retoques,
+                                  ajustes. Lo de casi todos los días.
+
+   La décima no se salta por acumular tandas: sube cuando hay algo que contar
+   en una frase. Si no hay frase, es un tercer número.
+
+   AL CAMBIARLO hay que tocar tres sitios, y son tres a propósito —cada uno
+   sirve para algo distinto y descuadrarlos se nota enseguida—:
+     1. este número
+     2. la fecha de aquí abajo
+     3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
+        aparatos ya instalados a soltar la copia vieja.
+   Y la línea que lo cuenta, en VERSIONES.md. */
+const VERSION = "0.6.1";
+const VERSION_FECHA = "20 ago 2026";
+
 /* ================= Iconografía propia =================
    Iconos de trazo (24x24) dibujados a mano; nada de emojis. */
 
@@ -631,5 +665,56 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel) {
 function modalDone(v) {
   document.getElementById("modal").classList.remove("show");
   if (modalResolve) { modalResolve(v); modalResolve = null; }
+}
+
+/* ================= La página se queda quieta detrás de una ventana =================
+   Con una ventana abierta, la rueda del ratón movía la app de detrás: se
+   cerraba la ventana y ya no estabas donde la habías dejado. En el teléfono
+   era peor, porque el dedo arrastra lo que pilla.
+
+   Aquí solo está la LISTA de lo que tapa, en un sitio y no repartida por diez
+   archivos. Quien abre una ventana no tiene que acordarse de parar nada, y
+   quien la cierra no puede olvidarse de soltarla —que es como se acaba con la
+   app congelada sin que nadie sepa por qué—.
+
+   No es un contador de abiertas y cerradas por lo mismo: un contador se
+   descuadra en cuanto alguien cierra dos veces o cierra sin haber abierto, y
+   descuadrado deja la página muerta. Esto MIRA lo que hay puesto ahora mismo,
+   así que siempre acierta aunque el camino haya sido raro.
+
+   Todas viven colgadas del <body>, así que basta con enterarse de dos cosas:
+   cuando una cambia de clase y cuando nace o muere una nueva. */
+const CAPAS_QUE_TAPAN = [
+  "#modal.show",            // confirmar
+  "#tuto.show",             // el tutorial
+  "#caja-modal.show",       // una caja del ático
+  "#ajustes-modal.show",    // la ventana de Ajustes
+  "#scel.show",             // celebrar una racha
+  "#fs-overlay.show",       // una rama a pantalla completa
+  "#portada",               // entrar a la app
+  ".futuro-aviso",          // datos de una versión más nueva
+  "#carga:not(.oculta)"     // esperando
+].join(",");
+
+function revisarFondoQuieto() {
+  const raiz = document.documentElement;
+  raiz.classList.toggle("quieto", !!document.querySelector(CAPAS_QUE_TAPAN));
+}
+
+function vigilarCapas() {
+  const porClase = new MutationObserver(revisarFondoQuieto);
+  const mirar = (el) => {
+    if (el && el.nodeType === 1) porClase.observe(el, { attributes: true, attributeFilter: ["class"] });
+  };
+  Array.prototype.forEach.call(document.body.children, mirar);
+  /* Solo los hijos directos del <body>, sin bajar al árbol entero: la app
+     cambia clases a cada rato —el lienzo, los botones del menú— y escuchar
+     todo eso para enterarse de una ventana sería pagar mil avisos por uno
+     que importa. */
+  new MutationObserver(listas => {
+    listas.forEach(l => Array.prototype.forEach.call(l.addedNodes, mirar));
+    revisarFondoQuieto();
+  }).observe(document.body, { childList: true });
+  revisarFondoQuieto();
 }
 

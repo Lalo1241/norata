@@ -1,8 +1,15 @@
 /* Al cambiar este nombre, activate() borra las cachés viejas: es la forma
    de forzar que un aparato que se quedó con una versión anterior la suelte.
    También es el único modo de renovar la tipografía, que se sirve de caché
-   sin preguntar (ver abajo). */
-const CACHE = "norata-v18";
+   sin preguntar (ver abajo).
+
+   Lleva el MISMO número que `VERSION` en js/01-base.js —el que se ve debajo
+   de Ajustes—, y no una cuenta aparte. Antes eran dos numeraciones sin
+   relación ("v18") y no había forma de mirar la app y saber qué caché estaba
+   sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
+   Un service worker no puede leer los archivos de la app, así que la copia se
+   hace a mano: al subir la versión hay que cambiar los dos. */
+const CACHE = "norata-0.6.1";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",

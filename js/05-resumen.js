@@ -913,7 +913,7 @@ function attachDashHandlers() {
     const r = el.getBoundingClientRect();
     ghost = el.cloneNode(true);
     ghost.className = "widget ghost";
-    ghost.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;pointer-events:none;z-index:400;`;
+    ghost.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;pointer-events:none;z-index:var(--piso-arrastre);`;
     ghostIni = { x: r.left, y: r.top, dx: e.clientX - r.left, dy: e.clientY - r.top };
     document.body.appendChild(ghost);
     el.classList.add("dragging");

@@ -1,6 +1,27 @@
 /* Lo que corre al abrir. Va el último a propósito */
 /* ================= Arranque ================= */
 
+/* Que ninguna ventana deje moverse a la app de detrás. Se enciende aquí, con
+   el marcado ya entero: la vigilancia se cuelga de los hijos del <body>, y
+   arrancarla antes solo vigilaría a la mitad. */
+vigilarCapas();
+
+/* El número de versión, en los dos sitios donde se enseña, escrito desde la
+   misma constante: dos números a mano acaban discrepando el día que uno se
+   cambie y el otro no, y entonces el dato deja de servir para lo único que
+   sirve —saber si lo que estás viendo ya es lo último—. */
+(function pintarVersion() {
+  /* El punto medio va DENTRO del trozo de la fecha, no suelto entre los dos:
+     plegada la barra la fecha se esconde, y un separador aparte se quedaría
+     colgando detrás del número sin nada que separar. */
+  const html = `<span class="sv-num">v${VERSION}</span>` +
+               `<span class="sv-fecha"> · ${VERSION_FECHA}</span>`;
+  ["side-version", "version-pie"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  });
+})();
+
 document.getElementById("settings-btn").innerHTML = icon("settings", 19);
 document.getElementById("dash-btn").innerHTML = icon("gamepad", 19);
 document.getElementById("perm-shield").innerHTML = icon("shield", 16);

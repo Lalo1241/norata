@@ -609,10 +609,10 @@
              Estaban repartidos en tres entradas del menú que decían lo mismo. -->
         <section class="ajuste-bloque" data-sec="datos">
           <div class="panel">
-            <h3>Tu día</h3>
+            <h3>Zona horaria</h3>
             <p class="settings-note">Las rachas, el decaimiento y las misiones se calculan con esta zona horaria, no con la del dispositivo. Así tu progreso no se descuadra si viajas o abres la app desde otra computadora.</p>
             <label class="field" style="margin-bottom:0">
-              <span>Zona horaria</span>
+              <span>Zona horaria actual</span>
               <select id="tz-select" onchange="setTimezone(this.value)"></select>
               <div class="field-hint" id="tz-hint"></div>
             </label>
@@ -634,8 +634,13 @@
             <div id="copias-lista"></div>
           </div>
 
-          <div class="panel alt">
+          <div class="panel alt peligro">
             <h3>Zona de peligro</h3>
+            <!-- El botón decía qué hace pero no qué se lleva por delante, y
+                 "todos los datos" no dibuja nada en la cabeza: hay que
+                 nombrarlos. Y decir que es de este dispositivo, porque con
+                 cuenta la pregunta que sigue es siempre la misma. -->
+            <p class="settings-note" style="margin-bottom:12px">Deja la app vacía: se van tus habilidades, misiones, talentos, proyectos y todo el progreso que llevas. No se puede deshacer. Con la sesión abierta, el vaciado también viaja a tus otros dispositivos; la cuenta en sí no se toca.</p>
             <button class="btn btn-danger-ghost btn-block" onclick="resetAll()">Borrar todos los datos</button>
             <!-- Solo con sesión: sin cuenta no hay nada que borrar en ningún
                  servidor, y el botón prometería algo que no existe. -->
@@ -646,6 +651,12 @@
       </div>
     </div>
     </div>
+
+    <!-- El mismo dato que la barra lateral, para el teléfono, que no tiene
+         barra. Va FUERA de #ajustes-host a propósito: lo de dentro se muda a
+         la ventana de la computadora, y allí el número ya está en la barra;
+         mudarlo también saldría dos veces. -->
+    <div class="version-pie" id="version-pie"></div>
   </div>
 
 </div>
@@ -718,6 +729,10 @@
     <svg viewBox="0 0 24 24"><path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/></svg>
     <span class="nav-label">Ajustes</span>
   </button>
+  <!-- En qué versión va lo que estás viendo AHORA MISMO. Debajo de Ajustes y
+       no dentro: es un dato de la app, no algo que se pueda tocar. Lo escribe
+       el JS desde VERSION para que no haya dos números que puedan discrepar. -->
+  <div class="side-version side-only" id="side-version" title="Versión de la app"></div>
 </div>
 
 <!-- ============ RAMA A PANTALLA COMPLETA ============ -->

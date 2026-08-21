@@ -521,7 +521,7 @@ function reordArrancar(e) {
   const r = reord.pieza.getBoundingClientRect();
   const flota = reord.pieza.cloneNode(true);
   flota.classList.add("arr-flota");
-  flota.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;margin:0;pointer-events:none;z-index:400`;
+  flota.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;margin:0;pointer-events:none;z-index:var(--piso-arrastre)`;
   reord.off = { x: e.clientX - r.left, y: e.clientY - r.top };
   document.body.appendChild(flota);
   reord.flota = flota;
@@ -1039,6 +1039,23 @@ function showView(name) {
   // Un módulo apagado no se abre ni por un enlace que quedara apuntando ahí
   const mod = VISTA_MODULO[name];
   if (mod && !moduloOn(mod)) name = "summary";
+
+  /* Cambiar de pantalla cierra lo que hubiera puesto encima. Una ventana es
+     una capa sobre UNA pantalla; en cuanto la pantalla de debajo ya no es la
+     misma, la ventana está hablando de otra cosa.
+
+     Sin esto pasaba justo eso: "Ver otra vez qué hace cada sección" llevaba al
+     Resumen y arrancaba el tutorial, pero la ventana de Ajustes seguía
+     encima —y el tutorial detrás—, así que el botón parecía no hacer nada. Y
+     al borrar todos los datos, la app quedaba vacía debajo de una ventana que
+     seguía enseñando ajustes de lo que ya no existía.
+
+     Se arregla aquí y no en cada botón porque los botones son muchos y van a
+     seguir apareciendo; pasar de pantalla, en cambio, pasa por un solo sitio.
+     Todas se van solas si no había ninguna puesta. */
+  if (typeof cerrarMenuAjustes === "function") cerrarMenuAjustes();
+  if (typeof cerrarVentanaAjustes === "function") cerrarVentanaAjustes();
+  if (typeof cerrarVentanaCaja === "function") cerrarVentanaCaja();
 
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.getElementById("view-" + name).classList.add("active");
