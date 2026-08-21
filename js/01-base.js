@@ -12,18 +12,29 @@
 
    CÓMO SE CUENTA
 
-     0.x     antes de la Play Store. Todo lo de hoy vive aquí.
-     1.0     el día del lanzamiento, y lo dice Eduardo. No se llega solo.
+     0 . 6 . 2 . 1
+     │   │   │   └─ un retoque suelto: un rótulo, un color, un arreglo
+     │   │   └───── una tanda: varias cosas de una sentada
+     │   └───────── la app hace algo que antes no hacía
+     └───────────── 0 hasta la Play Store; 1 el día del lanzamiento
 
-     la décima (0.6 → 0.7)   la app hace algo que antes no hacía, o cambia
-                             la forma de usarla. Un módulo nuevo, una pantalla
-                             nueva, algo que cambia cómo se trabaja con ella.
+   Cuatro tramos y no tres. Con tres, cambiar dos palabras de un rótulo subía
+   el mismo número que rehacer media pantalla, y a ese paso el número corre
+   sin que lo que cuenta haya corrido igual. El cuarto existe para eso: los
+   retoques se cuentan aparte y no inflan la tanda.
 
-     el tercero (0.6.1 → 0.6.2)   una tanda de trabajo: arreglos, retoques,
-                                  ajustes. Lo de casi todos los días.
+   NINGÚN TRAMO SE PARA EN 9. No son décimas de verdad, son casillas: después
+   de 0.6.9 viene 0.6.10, y 0.6.14.23 es un número perfectamente válido. Nunca
+   hay que "saltar de nivel" porque el de abajo se haya llenado —no se llena—.
+   Se sube de nivel cuando lo que se hizo lo merece, y solo entonces.
 
-   La décima no se salta por acumular tandas: sube cuando hay algo que contar
-   en una frase. Si no hay frase, es un tercer número.
+     el 4º   un retoque suelto. Lo de arreglar lo que se acaba de ver.
+     el 3º   una tanda: varias cosas de una sentada. Vuelve el 4º a 0.
+     el 2º   la app hace algo que antes no hacía, o cambia la forma de
+             usarla: un módulo nuevo, una pantalla nueva. Vuelven 3º y 4º a 0.
+     el 1º   el lanzamiento en la Play Store, y lo dice Eduardo.
+
+   La prueba para el 2º: si el salto no se cuenta en una frase, no es un 2º.
 
    AL CAMBIARLO hay que tocar tres sitios, y son tres a propósito —cada uno
    sirve para algo distinto y descuadrarlos se nota enseguida—:
@@ -32,7 +43,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.6.2";
+const VERSION = "0.6.2.1";
 const VERSION_FECHA = "20 ago 2026";
 
 /* ================= Iconografía propia =================

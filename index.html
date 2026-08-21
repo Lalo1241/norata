@@ -667,8 +667,20 @@
      sigue siendo una pantalla, que es lo que funciona con el pulgar. -->
 <div class="mini-menu" id="ajustes-menu"></div>
 <div class="am-back" id="ajustes-modal">
-  <div class="am-card">
-    <button class="am-close icon-btn" onclick="cerrarVentanaAjustes()" aria-label="Cerrar ajustes">✕</button>
+  <div class="am-card" role="dialog" aria-modal="true" aria-labelledby="am-titulo">
+    <!-- La cabecera dice en qué sección estás. Sin ella la ventana se abría
+         anónima: al quitarle el índice de la izquierda no quedaba nada que
+         dijera si lo que estabas viendo era Mi perfil o Almacenamiento, y el
+         primer rótulo de dentro ("SINCRONIZAR ENTRE DISPOSITIVOS") nombra el
+         panel, no la sección. La X vive aquí dentro y no flotando encima del
+         contenido, que es donde se comía la esquina del primer panel. -->
+    <div class="am-head">
+      <div class="am-tit">
+        <h2 id="am-titulo"></h2>
+        <p id="am-sub"></p>
+      </div>
+      <button class="am-close icon-btn" onclick="cerrarVentanaAjustes()" aria-label="Cerrar ajustes">✕</button>
+    </div>
     <div class="am-body" id="ajustes-modal-body"></div>
   </div>
 </div>

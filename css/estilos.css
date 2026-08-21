@@ -953,11 +953,12 @@
   .am-back.show { display: flex; }
   .am-card {
     position: relative;
-    /* Angosta, no de mil píxeles: los mil eran para el índice y su contenido
-       uno al lado del otro. Sin índice, esa anchura deja renglones de novecientos
-       píxeles, que el ojo no sigue de un extremo a otro. Este ancho es el que
-       tenía la columna de contenido, así que el texto se lee igual que antes. */
-    width: min(680px, 100%);
+    /* Ni los mil de cuando llevaba índice al lado, ni los 680 de después: con
+       680 la ventana quedaba estrecha para lo que guarda —campos de texto que
+       piden anchura, fichas de cuenta, listas— y se leía apretada. Con 880 los
+       campos respiran y los renglones de texto siguen entrando en el ojo de un
+       barrido, que es el límite real (ver el tope de los párrafos, abajo). */
+    width: min(880px, 100%);
     /* Alto FIJO, no "hasta donde llegue": con max-height la ventana crecía y
        encogía al cambiar de sección, y una ventana que se mueve sola marea.
        Se elige el alto de la sección más grande y las demás dejan aire. */
@@ -974,8 +975,41 @@
     display: flex;
     flex-direction: column;
   }
-  .am-close { position: absolute; top: 14px; right: 14px; z-index: 2; }
-  .am-body { overflow: auto; padding: 26px 26px 24px; }
+  /* ---------- La cabecera de la ventana ----------
+     Fija: se queda a la vista mientras el contenido se desplaza por debajo,
+     porque el rótulo que dice dónde estás no sirve si se va con el scroll —y
+     estas secciones son largas—. La X va con ella por lo mismo. */
+  .am-head {
+    flex: none;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 20px 16px 28px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg2);
+  }
+  .am-tit { min-width: 0; }
+  .am-tit h2 {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+  /* La misma frase que traía la fila del mini menú. No es adorno: confirma que
+     llegaste donde querías, con las palabras con las que lo elegiste. */
+  .am-tit p {
+    margin-top: 3px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .am-close { flex: none; }
+  .am-body { overflow: auto; padding: 24px 28px 26px; }
+  /* Los párrafos no se estiran con la ventana. Un campo de texto agradece los
+     800 px; un renglón de prosa, no: pasados unos 70 caracteres el ojo pierde
+     el salto de línea y hay que releer. Los campos siguen usando todo el
+     ancho, que es lo que se ganó al ensancharla. */
+  .am-body .settings-note, .am-body .field-hint { max-width: 66ch; }
   /* A la barra se le deja aire arriba y abajo: pegada al borde parece que
      empieza cortada. */
   .am-body::-webkit-scrollbar-track { margin: 18px 0; }

@@ -836,6 +836,14 @@ function abrirVentanaAjustes(sec) {
   prepararVentanaAjustes();
   cuerpo.appendChild(wrap);
   ajusteAbierto = sec || AJUSTES_SECS[0].id;
+  /* El rótulo de la ventana sale de la MISMA lista que el mini menú, no de un
+     texto escrito aparte: así la ventana no puede acabar diciendo un nombre
+     que la fila que la abrió ya no usa. */
+  const abierta = AJUSTES_SECS.find(x => x.id === ajusteAbierto) || AJUSTES_SECS[0];
+  const tit = document.getElementById("am-titulo");
+  const sub = document.getElementById("am-sub");
+  if (tit) tit.textContent = abierta.nombre;
+  if (sub) sub.textContent = abierta.sub;
   renderAjustes();
   renderTimezone(); renderModulos(); renderSync(); renderCopias(); renderZonaCuenta();
   modal.classList.add("show");

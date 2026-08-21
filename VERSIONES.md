@@ -6,22 +6,28 @@ nombrar una tanda de trabajo en vez de decir «lo de ayer».
 
 ## Cómo se cuenta
 
-| | Qué significa |
+```
+0 . 6 . 2 . 1
+│   │   │   └─ un retoque suelto: un rótulo, un color, un arreglo
+│   │   └───── una tanda: varias cosas de una sentada
+│   └───────── la app hace algo que antes no hacía
+└───────────── 0 hasta la Play Store; 1 el día del lanzamiento
+```
+
+| Tramo | Cuándo sube |
 | --- | --- |
-| **0.x** | Antes de la Play Store. Todo lo de hoy vive aquí. |
-| **1.0** | El día del lanzamiento. Lo decide Eduardo, no se llega solo. |
+| **el 4º** | Un retoque suelto. Arreglar lo que se acaba de ver, cambiar un rótulo, corregir un color. |
+| **el 3º** | Una tanda: varias cosas de una sentada. Al subirlo, el 4º vuelve a 0. |
+| **el 2º** | La app hace algo que antes no hacía, o cambia la forma de usarla: un módulo nuevo, una pantalla nueva. Vuelven el 3º y el 4º a 0. |
+| **el 1º** | El lanzamiento en la Play Store. Lo decide Eduardo, no se llega solo. |
 
-Dentro del `0.x`:
+**Ningún tramo se para en 9.** No son décimas de verdad, son casillas: después
+de `0.6.9` viene `0.6.10`, y `0.6.14.23` es un número perfectamente válido.
+Nunca hay que subir de nivel porque el de abajo «se haya llenado» — no se
+llena. Se sube de nivel cuando lo que se hizo lo merece, y solo entonces.
 
-- **La décima** (`0.6` → `0.7`) sube cuando la app **hace algo que antes no
-  hacía**, o cambia la forma de usarla: un módulo nuevo, una pantalla nueva,
-  algo que cambia cómo se trabaja con ella. La regla para no inflarla: si el
-  salto no se puede contar en una frase, no es una décima.
-- **El tercer número** (`0.6.1` → `0.6.2`) sube con **cada tanda de trabajo**:
-  arreglos, retoques, ajustes. Lo de casi todos los días.
-
-La décima no sube por acumular tandas. Diez arreglos pequeños siguen siendo
-arreglos pequeños.
+La prueba para el 2º: **si el salto no se cuenta en una frase, no es un 2º.**
+Diez tandas de arreglos siguen siendo arreglos.
 
 ## Al subir la versión
 
@@ -34,6 +40,19 @@ Cuatro sitios, y son cuatro a propósito:
 4. Una línea en esta lista
 
 ## La lista
+
+### 0.6.2.1 · 20 ago 2026
+Retoques sobre la ventana de Ajustes.
+- La ventana lleva **cabecera con el nombre de la sección** y la frase con la
+  que la elegiste en el mini menú. Sin índice a la izquierda se abría anónima:
+  el primer rótulo de dentro nombra el panel, no la sección. La cabecera es
+  fija, porque un rótulo que dice dónde estás no sirve si se va con el scroll.
+- Más ancha (880 px). Con 680 los campos quedaban apretados. Los párrafos se
+  quedan topados a 66 caracteres: un campo agradece la anchura, un renglón de
+  prosa no.
+- La X pasa a la cabecera, en vez de flotar sobre la esquina del primer panel.
+- La numeración gana un cuarto tramo (ver arriba): los retoques se cuentan
+  aparte y dejan de inflar la tanda.
 
 ### 0.6.2 · 20 ago 2026
 Corrección de la tanda anterior.
