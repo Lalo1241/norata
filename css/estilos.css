@@ -894,6 +894,44 @@
     color: var(--mint);
   }
   .mm-item.riesgo .mm-ic { background: var(--coral-soft); color: var(--coral); }
+
+  /* ---------- El mini menú responde al ratón ----------
+     Era una tarjeta completamente quieta: se pasaba el cursor por encima de
+     las tres filas y no se movía nada, así que no había forma de saber cuál
+     se iba a abrir hasta pulsarla. En un menú eso importa más que en otros
+     sitios, porque las filas son altas y van pegadas: el dedo del ratón cae
+     entre dos y no hay nada que diga en cuál está.
+
+     El fondo se aclara un peldaño —la fila sube del color de la tarjeta al
+     del siguiente tono de la paleta— y el icono pasa a menta lleno, que es lo
+     que ya significa "esto" en el resto de la app.
+
+     Sin transición: el color sale de una variable y una transición por medio
+     lo deja congelado (es lo que dejaba el botón de Ajustes sin encenderse).
+     Y `:focus-visible` con lo mismo, para quien lo recorra con el tabulador. */
+  .mm-item:hover,
+  .mm-item:focus-visible {
+    background: var(--card2);
+    outline: none;
+  }
+  .mm-item:hover .mm-ic,
+  .mm-item:focus-visible .mm-ic {
+    background: var(--mint);
+    color: #10151d;
+  }
+  .mm-item.riesgo:hover .mm-ic,
+  .mm-item.riesgo:focus-visible .mm-ic {
+    background: var(--coral);
+    color: #3a1009;
+  }
+  /* La ficha de la cuenta ya tiene fondo propio, así que sube al tono de
+     encima para que el salto se note igual que en las filas. */
+  .mm-perfil:hover,
+  .mm-perfil:focus-visible {
+    background: var(--line);
+    border-color: var(--faint);
+    outline: none;
+  }
   .mm-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
   .mm-tx b { font-size: 13.5px; }
   .mm-tx span { font-size: 11px; color: var(--muted); }
@@ -915,28 +953,32 @@
   .am-back.show { display: flex; }
   .am-card {
     position: relative;
-    width: min(1000px, 100%);
+    /* Angosta, no de mil píxeles: los mil eran para el índice y su contenido
+       uno al lado del otro. Sin índice, esa anchura deja renglones de novecientos
+       píxeles, que el ojo no sigue de un extremo a otro. Este ancho es el que
+       tenía la columna de contenido, así que el texto se lee igual que antes. */
+    width: min(680px, 100%);
     /* Alto FIJO, no "hasta donde llegue": con max-height la ventana crecía y
-       encogía al cambiar de sección y el índice de la izquierda bailaba con
-       ella. Se elige el alto de la sección más grande y las demás dejan aire,
-       que molesta mucho menos que un menú que se mueve solo. */
-    height: min(620px, 86vh);
+       encogía al cambiar de sección, y una ventana que se mueve sola marea.
+       Se elige el alto de la sección más grande y las demás dejan aire. */
+    height: min(720px, 88vh);
     overflow: hidden;
     background: var(--bg2);
     border: 1px solid var(--line);
-    border-radius: 26px;
+    /* Casi recta. Con 26 px la ventana se leía como una tarjeta grande —una
+       cosa que flota—, y esto no flota: es una pantalla dentro de la app. El
+       redondeo suave se queda en las tarjetas del contenido, que sí son
+       piezas sueltas; el marco que las contiene no compite con ellas. */
+    border-radius: 8px;
     box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
     display: flex;
     flex-direction: column;
   }
   .am-close { position: absolute; top: 14px; right: 14px; z-index: 2; }
   .am-body { overflow: auto; padding: 26px 26px 24px; }
-  /* La barra no puede tocar las esquinas redondeadas: ahí se ve cortada por
-     el redondeo y parece rota. Se le deja aire arriba y abajo. */
+  /* A la barra se le deja aire arriba y abajo: pegada al borde parece que
+     empieza cortada. */
   .am-body::-webkit-scrollbar-track { margin: 18px 0; }
-  /* Dentro de la ventana el índice no se pega al desplazarse: la que se
-     desplaza es la ventana, no la página. */
-  .am-body .ajustes-nav { position: static; }
 
   .ajuste-bloque { display: none; }
   .ajuste-bloque.visible { display: block; }
@@ -3549,7 +3591,7 @@
       color: inherit;
       padding: 4px;
       margin: -4px;
-      border-radius: 4px;
+      border-radius: 8px;
     }
     .side-brand:hover { background: var(--bg2); }
     /* Colapsado muestra solo el isotipo; desplegado, el logo completo tal
@@ -3583,21 +3625,17 @@
       gap: 5px;
       width: 100%;
     }
-    /* Las filas del menú, más altas y con la esquina casi recta.
+    /* Las filas del menú, más altas: en la computadora el blanco de una barra
+       lateral no cuesta nada —sobra sitio de arriba abajo— y en cambio una
+       fila baja obliga a apuntar. Con 52 px el ratón acierta sin mirar.
 
-       Más altas porque en la computadora el blanco de una barra lateral no
-       cuesta nada —sobra sitio de arriba abajo— y en cambio una fila baja
-       obliga a apuntar; con 50 px el ratón acierta sin mirar.
-
-       Y casi rectas porque a este tamaño el redondeo de 13 px las convertía
-       en pastillas sueltas flotando una encima de otra, y lo que son es una
-       columna. Cuatro píxeles bastan para que no sea un cajón, sin fingir que
-       cada fila es un botón aparte. El resto de la app conserva sus esquinas:
-       esto es solo del menú. */
+       Las esquinas se quedan como estaban. Se probaron casi rectas y no era
+       aquí: la barra son pastillas y así se lee como una lista de sitios a
+       los que ir. Lo recto le toca a la ventana de Ajustes. */
     .thumb-cluster .c-nav {
       width: 100%;
       height: auto;
-      border-radius: 4px;
+      border-radius: 13px;
       justify-content: flex-start;
       gap: 13px;
       padding: 15px 14px;
@@ -3678,7 +3716,7 @@
     .thumb-cluster .c-main {
       width: 100%;
       height: auto;
-      border-radius: 4px;
+      border-radius: 13px;
       padding: 16px 16px;
       margin-top: 5px;
       font-size: 14px;
@@ -3696,7 +3734,7 @@
        la franja no gasta una fila entera en un botón que casi no se usa. */
     html.sc .side-top { justify-content: center; padding: 4px 0 22px; }
     html.sc .side-toggle { display: none; }
-    html.sc .side-brand { justify-content: center; width: 44px; height: 44px; padding: 0; margin: 0; border-radius: 4px; position: relative; }
+    html.sc .side-brand { justify-content: center; width: 40px; height: 40px; padding: 0; margin: 0; border-radius: 11px; position: relative; }
     html.sc .side-brand .sb-logo-full { display: none; }
     /* Los dos iconos ocupan la MISMA caja, superpuestos, y se funden uno en
        otro. Antes se alternaba display:none, que es un corte seco: el icono
@@ -3966,6 +4004,21 @@
     /* Aquí el índice no se va nunca: es lo que dice dónde estás */
     .ajustes-wrap.en-seccion .ajustes-nav { display: flex; }
     .ajustes-nav { position: sticky; top: 26px; }
+
+    /* …pero DENTRO de la ventana no hay índice. A la ventana se llega
+       eligiendo en el mini menú, así que repetir las tres opciones al lado es
+       preguntar otra vez lo que acabas de contestar, y encima ocupando el
+       cuarto izquierdo de la pantalla.
+
+       El índice se queda en el código —cuando cada sección tenga seis cosas
+       dentro va a hacer falta—; hoy son tres y la lista es más grande que lo
+       que ordena. Sigue vivo en la pantalla de Ajustes del teléfono, que es
+       donde de verdad hace de índice.
+
+       Va con tres clases y no con dos porque tiene que ganarle a la regla de
+       aquí arriba, que tiene esa misma fuerza. */
+    .am-body .ajustes-wrap { display: block; }
+    .am-body .ajustes-wrap .ajustes-nav { display: none; }
     /* La flecha promete "esto abre otra pantalla", y aquí no la abre */
     .aj-chev { display: none; }
 

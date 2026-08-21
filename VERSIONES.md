@@ -35,6 +35,18 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.6.2 · 20 ago 2026
+Corrección de la tanda anterior.
+- Las esquinas casi rectas vuelven a su sitio: la barra lateral recupera sus
+  pastillas de siempre y quien se endereza es la **ventana de Ajustes**.
+- La ventana pierde el índice de secciones: se llega a ella eligiendo en el
+  mini menú, así que repetir las tres opciones al lado preguntaba otra vez lo
+  recién contestado. El índice sigue vivo en la pantalla del teléfono, y el
+  sistema se queda en el código para cuando cada sección tenga más cosas
+  dentro. La ventana se estrecha a la anchura que tenía su columna de
+  contenido, para no dejar renglones de novecientos píxeles.
+- El mini menú responde al ratón: la fila se aclara y su icono pasa a menta.
+
 ### 0.6.1 · 20 ago 2026
 Tanda de ajustes de interfaz.
 - El menú de la computadora, más alto y con las esquinas casi rectas.
