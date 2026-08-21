@@ -1107,6 +1107,39 @@ function showView(name) {
   if (name === "home") renderHome();
   if (name === "tree") { focusPending = true; renderTree(); }
   if (name === "projects") renderProjects();
+
+  // Lo último: los rótulos de arriba ya están pintados y se pueden leer
+  titularPestana(name);
+}
+
+/* El nombre de la pestaña dice en qué parte de la app estás. En el teléfono no
+   se ve nunca; en la computadora, con ocho pestañas abiertas y el título
+   recortado a dos palabras, es la diferencia entre encontrar Norata y abrir
+   tres para dar con ella.
+
+   El rótulo se LEE del encabezado de la propia pantalla en vez de una lista
+   aparte. Así "Nueva habilidad" y "Editar habilidad" salen distintos sin
+   escribir una línea, y ningún título se queda desfasado el día que alguien
+   cambie el de una pantalla y no se acuerde de esta función.
+
+   Ajustes se queda fuera a propósito, por petición de Eduardo. */
+const ROTULO_PESTANA = {
+  // Su encabezado es "Árbol de talentos", que recortado no dice nada
+  tree: "Talentos"
+};
+
+function titularPestana(name) {
+  const APP = "Norata";
+  /* Con la entrada o la carga delante, lo que se ve NO es esa pantalla. La
+     pestaña diría "Resumen" mientras se pide la contraseña. */
+  if (document.getElementById("portada") || (typeof cargaVisible === "function" && cargaVisible())) {
+    document.title = APP;
+    return;
+  }
+  const vista = document.getElementById("view-" + name);
+  const cabecera = vista && vista.querySelector(".page-head h1, .back-row h2");
+  const rotulo = ROTULO_PESTANA[name] || (cabecera ? cabecera.textContent.trim() : "");
+  document.title = (name === "settings" || !rotulo) ? APP : rotulo + " - " + APP;
 }
 
 const VISTAS_ANCHAS = new Set(["summary", "missions", "home", "tree", "projects"]);

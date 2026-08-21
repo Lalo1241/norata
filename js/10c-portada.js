@@ -155,6 +155,7 @@ function mostrarPortada(modo) {
   document.body.appendChild(cap);
   portadaPintar(modo || "entrar");
   cargaCerrar(true);
+  document.title = "Norata";
 }
 
 function portadaPintar(modo) {
@@ -339,9 +340,12 @@ function portadaNoSoyYo() {
 function cerrarPortada(seca) {
   const cap = document.getElementById("portada");
   if (!cap) return;
-  if (seca) { cap.remove(); return; }
+  /* El título se repone DESPUÉS de quitarla del documento, no antes: mientras
+     siga ahí, `titularPestana` la ve y contesta "Norata". */
+  const reponerTitulo = () => titularPestana(activeMainView || "summary");
+  if (seca) { cap.remove(); reponerTitulo(); return; }
   cap.classList.add("fuera");
-  setTimeout(() => cap.remove(), 260);
+  setTimeout(() => { cap.remove(); reponerTitulo(); }, 260);
 }
 
 /* El aviso puede traer un botón. Hace falta para el caso más frustrante de
