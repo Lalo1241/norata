@@ -1,0 +1,126 @@
+# Norata
+
+La vida tratada como un videojuego. Vive en `https://mi.norata.app`, publicada
+con GitHub Pages desde `main`. **Cuatro módulos:** Misiones (lo de hoy),
+Habilidades (suben con la práctica y bajan si las dejas), Talentos (las cosas
+grandes, en un árbol por ramas) y Proyectos (lo que avanza por etapas).
+
+## No hay compilación
+
+Ni `npm install`, ni empaquetador, ni paso previo: archivos sueltos que el
+navegador entiende tal cual. Tres consecuencias que muerden si se olvidan:
+
+1. **El orden de los `<script>` importa.** Están numerados (`01-base.js` →
+   `11-arranque.js`) y el último es el que arranca. Al añadir un archivo hay
+   que registrarlo en DOS sitios: `index.html` y la lista `ASSETS` de `sw.js`.
+2. **Hay que subir la versión al tocar cualquier archivo de `ASSETS`** (ver
+   abajo). Si no, los aparatos ya instalados siguen sirviendo la copia vieja.
+3. **Hace falta servirla por HTTP.** `python -m http.server 8123`. Abrir
+   `index.html` con doble clic no funciona.
+
+## Versiones
+
+El número se ve debajo de Ajustes y **las reglas están en `VERSIONES.md`** —
+leerlo antes de subirlo. En corto: cuatro tramos, `0.6.2.1`; el 4º es un
+retoque suelto, el 3º una tanda, el 2º algo que la app no hacía antes, y el
+1º llega a `1.0` el día de la Play Store. **Ningún tramo se para en 9.**
+
+Al subirlo: `VERSION` y `VERSION_FECHA` en `js/01-base.js`, `CACHE` en `sw.js`
+con el mismo número, y una línea en `VERSIONES.md`.
+
+## Cómo verificar
+
+**El panel del navegador suele no componer imagen** en algunos entornos y las
+capturas fallan. No bloquea nada: se verifica **midiendo el DOM**, que además
+es mejor evidencia que mirar una imagen. En vez de juzgar si «se ve bien»,
+comprobar números:
+
+```js
+document.documentElement.scrollWidth > innerWidth   // ¿desborda de lado?
+getComputedStyle(el).backgroundColor                // el color, leído, no supuesto
+caja.getBoundingClientRect().top - cap.getBoundingClientRect().top  // >= 0
+```
+
+Y contrastar con un control conocido: al comprobar si algo ya está publicado,
+pedir también un archivo que ya funcionaba. Si el control falla, lo que está
+roto es la prueba, no el archivo.
+
+Probar **el caso vacío y el extremo**, no solo el feliz: un perfil recién
+creado, un nombre de 200 letras, la pantalla a 480 px de alto. Ahí han salido
+todos los fallos reales.
+
+## Trampas que ya costaron horas
+
+- **Una transición sobre una propiedad cuyo valor sale de una variable se
+  queda congelada.** Chrome no detecta el cambio y deja el color clavado en el
+  inicial para siempre. Ya mordió tres veces: los selectores, el botón de
+  Ajustes que no se encendía y el botón de confirmar un borrado, que salía
+  **verde** en vez de coral. **Se arregla quitando la transición** — apuntar a
+  `background-color` en vez de `background` no sirve.
+- **`align-items: center` esconde para siempre la parte de arriba de un hijo
+  más alto que el contenedor.** El desplazamiento no llega a negativos. Se
+  centra con `margin: auto` sobre el hijo.
+- **Comparar el archivo local con el publicado da distinto aunque sea el
+  mismo:** el árbol de trabajo está en CRLF y GitHub sirve LF. Comparar sin
+  los retornos: `tr -d '\r' < archivo | md5sum`.
+- **GitHub Pages tarda un minuto largo en publicar.** Un archivo recién subido
+  que no carga no está roto: aún no ha desplegado.
+- **No verificar DNS con `nslookup`** — devuelve respuestas cacheadas. Usar
+  `dns.google/resolve`.
+
+## Las capas
+
+**Ningún `z-index` se escribe a mano:** salen de variables `--piso-*`
+declaradas juntas en `:root` de `css/estilos.css`, con la regla al lado — *lo
+que abre algo va siempre por debajo de lo que abre*. Al añadir una ventana:
+un `--piso-*` nuevo, y una línea en `CAPAS_QUE_TAPAN` (`js/01-base.js`), que
+es lo que para la página de detrás. Nada más: no hay que acordarse de parar ni
+de soltar.
+
+## La paleta
+
+Pensada para **fondo oscuro** (la app). Los correos son claros y usan las
+variantes oscuras, porque viven en la bandeja de otro.
+
+| | App (oscuro) | Correos (claro) |
+| --- | --- | --- |
+| Menta | `#5fe0b0` | `#136b4e` |
+| Luciérnaga | `#f5d76e` | — |
+| Coral | `#ff8a70` | `#b1341d` |
+| Celeste | `#8ecdf5` | `#1a6a99` |
+| Fondo | `#10151d` | `#f2f4f8` |
+
+**Sobre blanco hay que usar la versión oscura**: la menta de la app sobre
+blanco da 1,7 sobre 1. Al inventar un tono para fondo claro, calcular el
+contraste antes de usarlo (umbral 4,5 para texto normal).
+
+## El tono
+
+Decisiones ya cerradas. No volver a proponerlas.
+
+- **Español de México, cercano, sin jerga.** La app tutea.
+- **Nada de cerrar diciendo lo que NO se va a hacer.** Los cierres van en
+  aspiracional: «Tienes por delante un camino largo, y se recorre en días
+  pequeños.»
+- **Sin signos de exclamación en los asuntos de correo** ni mayúsculas
+  sueltas: es lo que los filtros leen como propaganda.
+- **Nada de «NO» en mayúsculas** para asustar. Un aviso informa y da la
+  salida; no grita.
+- **Los comentarios del código explican POR QUÉ**, no qué hace la línea, y
+  cuentan el fallo que motivó la decisión para que nadie lo deshaga sin saber.
+
+## Correos
+
+Son seis; cinco se pegan a mano en Supabase y el de bienvenida lo manda una
+función propia. **Gmail borra los SVG** (todo icono va en PNG) y **guarda las
+imágenes por nombre y no vuelve a pedirlas nunca** (al cambiar una imagen hay
+que cambiarle el nombre: `-v1` → `-v2`).
+
+## Qué NO hacer
+
+- **No crear una plantilla, pantalla o archivo sin comprobar que existe el
+  camino que lo dispara.** Ya pasó: hay una plantilla que ninguna pantalla usa.
+- **No dar por hecho el comportamiento del servidor.** Si algo importa,
+  hacerlo explícito aunque puede que ya lo hiciera solo.
+- **Supabase es la base de datos, no el hosting.** La web sale de GitHub
+  Pages. Subir código no toca los datos de nadie.
