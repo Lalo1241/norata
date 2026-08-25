@@ -160,6 +160,13 @@ showView("summary");
      justamente lo que hacía parpadear la app al abrirla. */
   cargaCerrar();
   quizaTutorialDeEntrada();
+
+  /* El latido va aquí, lo último de todo y sin esperarlo: es una libreta para
+     saber si la gente vuelve, no una pieza de la app, y no tiene por qué
+     retrasar ni un milisegundo lo que el usuario está esperando ver. Una vez
+     por arranque y no en cada vuelta a la pestaña, que es lo que cuenta
+     `aperturas`. Falla en silencio por diseño — ver `sbLatir()`. */
+  sbLatir();
 })();
 
 document.addEventListener("visibilitychange", () => {

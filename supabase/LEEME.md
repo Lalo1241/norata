@@ -57,3 +57,66 @@ datos cambiaran a la vez o todo dejaba de guardar.
 `select * from cron.job;` para ver que está programada, y
 `select * from cron.job_run_details order by start_time desc limit 10;` para
 ver si corrió y qué contestó.
+
+## Medir si la gente vuelve (`medicion.sql`)
+
+**Sin esto, `sbLatir()` recibe un 404 y no pasa nada más**: la app no se
+entera, nadie ve un error y no se apunta ni un dato. Es el único archivo de
+esta carpeta que no bloquea nada — y justo por eso es fácil olvidarlo hasta
+que ya se perdió el primer mes de gente.
+
+Un solo paso: abrir el **SQL Editor**, pestaña nueva con el `+`, pegar
+`medicion.sql` entero y **Run**. No hace falta ninguna extensión.
+
+### Qué se guarda, y qué no
+
+Una fila por persona y día. Nada más. La fila lleva el día, la versión de la
+app, si fue teléfono o computadora, si estaba instalada, y cuántas veces se
+abrió. **Ni un título de misión, ni el nombre de una habilidad, ni una nota.**
+
+Esa regla —cuentas, nunca contenido— no es un escrúpulo suelto: es lo que
+permite que el aviso de privacidad quepa en una página, y poder decir sin
+letra chica que no se lee lo que la gente escribe. Cualquier campo nuevo que
+se le añada a esta tabla tiene que pasar esa prueba antes de entrar.
+
+### Por qué una fila al día y no un registro de eventos
+
+Un evento por cada cosa que pasa crece sin control, obliga a construir un
+panel para poder leerlo y acaba abandonado. Una fila al día son como mucho
+365 al año por cuenta: mil personas durante un año caben en unos 30 MB, y el
+plan gratuito da 500. Y las preguntas que hay que responder —¿vuelven?,
+¿cuántos siguen al mes?— se contestan igual de bien.
+
+### Nadie toca esa tabla, ni su dueño
+
+Tiene RLS encendida y **ninguna regla que permita nada**. La única puerta es
+`latir()`. Así la fecha la pone siempre el servidor: nadie puede inventarse un
+historial, ni borrar el suyo para salirse de las cuentas, ni asomarse al de
+otro. Al borrar la cuenta los pulsos se van solos, por el `on delete cascade`.
+
+### Dónde se ven los números
+
+**En el SQL Editor, no en un panel.** Las seis consultas están al final de
+`medicion.sql`, comentadas y listas para pegar; guárdalas ahí con nombre. Con
+veinte o trescientas personas eso sobra, y el día que estorbe, ese día se
+construye un panel — no antes.
+
+### Cosas que no son obvias
+
+**Quien prueba sin cuenta es invisible, a propósito.** No tiene identidad en
+la base, y medirlo obligaría a dejarle una marca al aparato. Eso ya es
+rastrear a alguien que no dio permiso, así que se acepta el hueco.
+
+**«Aparato» sale del ancho de la ventana, no del user agent.** Responde la
+única pregunta que interesa —¿usa la computadora y el teléfono?— sin fichar
+el aparato de nadie. Cuesta precisión: dos teléfonos distintos cuentan como
+uno solo, y la consulta 4 lo sobreentiende.
+
+**El latido va lo último del arranque y sin esperarlo.** No debe retrasar ni
+un milisegundo lo que el usuario está esperando ver, y falla en el más
+absoluto silencio. Si algún día un fallo de la medición interrumpe a alguien
+que está usando la app, la medición habrá costado más de lo que vale.
+
+**La consulta 6 caza el fallo clásico de una app instalable.** Si ahí aparece
+una versión que ya no existe, es un aparato pegado a una copia vieja porque
+no se subió el número de `CACHE` en `sw.js`.

@@ -312,6 +312,47 @@ async function sbBorrarCuenta() {
   return true;
 }
 
+/* Un latido: «alguien abrió la app hoy». Es lo único que Norata cuenta de sí
+   misma, y son cuatro cosas —el día, la versión, si fue teléfono o
+   computadora, y si estaba instalada—, nunca nada de lo que el usuario
+   escribe. El SQL y el porqué del diseño están en `supabase/medicion.sql`.
+
+   Tres decisiones que conviene no deshacer:
+
+   1. **Falla en el más absoluto silencio.** Ni un toast, ni un error en
+      consola que asuste. Esto no es una función de la app: es una libreta
+      para saber si la gente vuelve. Si el servidor no contesta, si falta
+      correr el SQL (404) o si no hay red, lo correcto es no enterarse. El
+      día que un fallo de la medición interrumpa a alguien que está usando
+      la app, la medición habrá costado más de lo que vale.
+
+   2. **Sin sesión no se apunta nada, y no se busca la forma.** Quien prueba
+      Norata sin cuenta no tiene identidad aquí, y por lo tanto es invisible
+      en las cuentas. Es un hueco a propósito: medirlo exigiría dejarle una
+      marca al aparato, y eso ya es rastrear a alguien que no dio permiso.
+
+   3. **El tipo de aparato sale del ancho de la ventana**, no del user agent.
+      No hace falta husmear qué teléfono es nadie para responder la única
+      pregunta que interesa —«¿usa la computadora y el teléfono?»—, y el
+      ancho la responde. Cuesta precisión: dos teléfonos distintos cuentan
+      como uno. Se acepta a cambio de no fichar aparatos. */
+async function sbLatir() {
+  try {
+    if (!syncReady()) return;
+    await sbDatos("/rpc/latir", {
+      method: "POST",
+      body: JSON.stringify({
+        v: VERSION,
+        ap: isDesktop() ? "escritorio" : "movil",
+        inst: window.matchMedia("(display-mode: standalone)").matches ||
+              window.navigator.standalone === true
+      })
+    });
+  } catch (e) {
+    /* A propósito. Ver el punto 1 de arriba. */
+  }
+}
+
 /* De quién son los datos. Pasa por aquí y no por `sync.cfg.sesion.uid`
    suelto: sin sesión, aquello reventaba con un error de JavaScript en vez de
    decir qué hacer. No debería ocurrir —syncReady() lo filtra— pero un fallo
