@@ -72,7 +72,7 @@ function renderPerkDetail() {
         ${pasos.map(s => `
           <button class="pk-step ${s.done ? "ok" : ""}" ${st === "active"
             ? `onclick="togglePerkStep('${p.id}', '${s.id}')"`
-            : "disabled"} style="--pc:${p.color || "#5fe0b0"}">
+            : "disabled"} style="--pc:${pinta(p.color)}">
             <span class="pk-box">${s.done ? icon("check", 12) : ""}</span>
             <span class="pk-tx">${escapeHtml(s.name)}</span>
             ${st === "active" ? `<span class="pk-del" onclick="event.stopPropagation();quitarEtapa('${p.id}','${s.id}')" title="Quitar etapa">✕</span>` : ""}
@@ -203,7 +203,7 @@ function renderPerkDetail() {
   document.getElementById("perk-content").innerHTML = `
     <div class="detail-hero perk-hero h-${st}">
       <div class="strip">${motifScene(560, 156, hashSeed(p.id), motifFor(p.icon), p.color || "#5fe0b0")}</div>
-      <button type="button" class="skill-emoji editable" style="background:${(p.color || "#5fe0b0")}30;color:${tinta(p.color)}"
+      <button type="button" class="skill-emoji editable" style="background:${velo(p.color, "30")};color:${tinta(p.color)}"
         onclick="openPerkForm(currentPerkId)" title="Editar talento" aria-label="Editar talento">
         ${icon(p.icon, 26)}
         <span class="edit-hint">${icon("pen", 11)}</span>
@@ -212,7 +212,7 @@ function renderPerkDetail() {
       <h2>${escapeHtml(p.name)}</h2>
       <div class="branch-lbl">Rama de talentos · ${escapeHtml(p.branch || "General")}</div>
       ${p.desc ? `<div class="desc">${escapeHtml(p.desc)}</div>` : ""}
-      ${skill ? `<button class="xlink" style="--xc:${skill.color}" onclick="openDetail('${skill.id}')">
+      ${skill ? `<button class="xlink" style="--xc:${pinta(skill.color)}" onclick="openDetail('${skill.id}')">
         ${icon(skill.icon, 13)} Entrena ${escapeHtml(skill.name)} →
       </button>` : ""}
     </div>
@@ -276,7 +276,7 @@ function openSkillForm(id) {
 function renderIconGrid(elId, selected, pickFn, color) {
   const el = document.getElementById(elId);
   if (!el) return;
-  if (color) el.style.setProperty("--sel", color);
+  if (color) el.style.setProperty("--sel", pinta(color));
   el.innerHTML = ICON_LIST.map(n =>
     `<button type="button" class="${n === selected ? "selected" : ""}" onclick="${pickFn}('${n}')" aria-label="${n}">${icon(n, 20)}</button>`
   ).join("");
@@ -285,7 +285,7 @@ function pickSkillIcon(n) { fIcon = n; renderIconGrid("f-icon", n, "pickSkillIco
 
 function renderColorGrid(elId, selected, pickFn) {
   document.getElementById(elId).innerHTML = COLORS.map(c =>
-    `<button type="button" class="${c === selected ? "selected" : ""}" style="background:${c}" onclick="${pickFn}('${c}')" aria-label="${c}"></button>`
+    `<button type="button" class="${c === selected ? "selected" : ""}" style="background:${pinta(c)}" onclick="${pickFn}('${c}')" aria-label="${c}"></button>`
   ).join("");
 }
 function pickColor(c) { fColor = c; renderColorGrid("f-color", c, "pickColor"); renderIconGrid("f-icon", fIcon, "pickSkillIcon", c); }

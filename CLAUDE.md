@@ -94,7 +94,15 @@ los mismos que ya usaban los correos —viven en la bandeja de otro—.
 | Luciérnaga | `#f5d76e` | `#8a6209` |
 | Coral | `#ff8a70` | `#b1341d` |
 | Celeste | `#8ecdf5` | `#1a6a99` |
-| Fondo | `#10151d` | `#f2f4f8` |
+| Fondo | `#10151d` | `#dcdef0` (los correos, `#f2f4f8`) |
+| Tarjeta | `#1d2530` | `#f2f0f9` |
+| Levantado | — | `#f7f8fa` |
+
+Los tres fondos de día los eligió Eduardo. **La tarjeta siempre queda por
+encima del fondo**: el degradado de la página se mueve entre `#e3e5f2` y
+`#dcdef0`, los dos por debajo de `#f2f0f9`. Si algún día se aclara el
+degradado por arriba, las tarjetas se hunden en la mitad de arriba de la
+pantalla y flotan en la de abajo.
 
 **Sobre blanco hay que usar la versión oscura**: la menta de la app sobre
 blanco da 1,7 sobre 1. Al inventar un tono para fondo claro, calcular el
@@ -106,11 +114,27 @@ esas variables y nada más — incluido el árbol de talentos, que se dibuja
 desde JavaScript y lee `var(--...)` en los atributos del SVG. Al añadir un
 tono nuevo: se declara arriba, con su pareja clara en `html.claro`.
 
-Tres cosas que hay que saber antes de tocarlo:
+Cuatro cosas que hay que saber antes de tocarlo:
 
-- **Los ocho colores que elige el usuario** están guardados en sus datos y no
-  se pueden cambiar. Para ESCRIBIR con ellos se pasan por `tinta()`, que en
-  claro los hunde hacia el carbón; para rellenar se usan crudos.
+- **Los ocho colores que elige el usuario** tienen dos caras, declaradas como
+  `--paleta-1` … `--paleta-8`: la de noche (pastel) y la de día (saturada).
+  El color guardado en los datos no cambia nunca; lo que cambia es con cuál
+  se pinta, y eso lo deciden tres ayudantes de `js/01-base.js`:
+
+  | | para qué | ejemplo |
+  | --- | --- | --- |
+  | `pinta(c)` | rellenar | un punto, una barra, `--mc` |
+  | `tinta(c)` | escribir o trazar | un número, un icono, un contorno |
+  | `velo(c, "22")` | el fondo tenue de una pastilla | `background` de `.ms-ic` |
+
+  **Nunca pegar la transparencia al hex** (`col + "22"`): eso ata el relleno a
+  la cara de noche, porque a un `var(...)` no se le pueden pegar dos dígitos
+  detrás. Para eso está `velo()`.
+
+- **Los tonos `*-soft` levantan hacia el blanco en el modo claro**, no hunden
+  hacia el color. Sobre carbón un velo del tono aclara la zona; sobre una
+  página ya teñida el mismo velo la oscurece y la pastilla se lee como un
+  hueco en vez de como algo apoyado encima.
 - **La escena de la racha y la celebración se quedan de noche** en los dos
   modos: no son interfaz, son un dibujo. Dentro de ellas la paleta oscura se
   vuelve a declarar entera (regla `.scene-card, .celebrate`).

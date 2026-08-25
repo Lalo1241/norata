@@ -43,7 +43,7 @@ function renderMissions() {
       ? m.pospuestaUltima.dias : 0;
 
     return `
-    <div class="ms-card ${ok || guardada ? "done" : ""}" data-rid="${m.id}" style="--mc:${col}">
+    <div class="ms-card ${ok || guardada ? "done" : ""}" data-rid="${m.id}" style="--mc:${pinta(col)}">
       ${guardada ? botonMision(m, 1, 1, { reabrir: true }) : botonMision(m, c, t)}
       ${iconoMision(m)}
       <div class="ms-body" onclick="openMissionForm('${m.id}')">
@@ -328,9 +328,9 @@ function renderProjects() {
           const col = p.color || "#5fe0b0";
           const doneN = (p.steps || []).filter(s => s.done).length;
           return `
-          <button class="proj-card ${dim ? "dim" : ""}" data-rid="${p.id}" onclick="openProject('${p.id}')" style="--pc:${col}">
+          <button class="proj-card ${dim ? "dim" : ""}" data-rid="${p.id}" onclick="openProject('${p.id}')" style="--pc:${pinta(col)}">
             <div class="proj-top">
-              <span class="proj-ic" style="background:${col}22;color:${tinta(col)}">${icon(p.icon, 19)}</span>
+              <span class="proj-ic" style="background:${velo(col, "22")};color:${tinta(col)}">${icon(p.icon, 19)}</span>
               <span class="proj-name">${escapeHtml(p.name)}</span>
               <span class="proj-state" style="background:${PROJECT_STATUS[p.status].soft};color:${PROJECT_STATUS[p.status].color}">${PROJECT_STATUS[p.status].label}</span>
             </div>
@@ -439,7 +439,7 @@ function renderProjectDetail() {
     ? `<p class="settings-note" style="margin:0 0 12px">Sin etapas todavía. Divide el encargo en pasos concretos para poder medir su avance.</p>`
     : steps.map(s => `
       <div class="step-row ${s.done ? "done" : ""}">
-        <button class="step-check" onclick="toggleStep('${pr.id}','${s.id}')" aria-label="${s.done ? "Reabrir" : "Completar"} etapa" style="--pc:${col}">
+        <button class="step-check" onclick="toggleStep('${pr.id}','${s.id}')" aria-label="${s.done ? "Reabrir" : "Completar"} etapa" style="--pc:${pinta(col)}">
           ${s.done ? `<svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>` : ""}
         </button>
         <span class="step-name" onclick="toggleStep('${pr.id}','${s.id}')">${escapeHtml(s.name)}</span>
@@ -469,15 +469,15 @@ function renderProjectDetail() {
   const heroHtml = `
     <div class="detail-hero">
       <div class="strip">${motifScene(560, 156, hashSeed(pr.id), motifFor(pr.icon), col)}</div>
-      <div class="skill-emoji" style="background:${col}30;color:${tinta(col)}">${icon(pr.icon, 28)}</div>
+      <div class="skill-emoji" style="background:${velo(col, "30")};color:${tinta(col)}">${icon(pr.icon, 28)}</div>
       <h2>${escapeHtml(pr.name)}</h2>
       <span class="cat">Rama de Proyectos · ${escapeHtml(pr.branch || "General")}</span>
       ${pr.desc ? `<div class="perk-desc">${escapeHtml(pr.desc)}</div>` : ""}
-      ${skill ? `<div style="margin-top:12px"><button class="xlink" style="--xc:${skill.color}" onclick="openDetail('${skill.id}')">
+      ${skill ? `<div style="margin-top:12px"><button class="xlink" style="--xc:${pinta(skill.color)}" onclick="openDetail('${skill.id}')">
         ${icon(skill.icon, 13)} Entrena ${escapeHtml(skill.name)} →
       </button></div>` : ""}
       <div class="ring-wrap" style="margin-top:16px">
-        ${animRing(150, 12, prog / 100, col, 0, "var(--line)")}
+        ${animRing(150, 12, prog / 100, pinta(col), 0, "var(--line)")}
         <div class="ring-center">
           <div class="v"><b>${prog}%</b></div>
           <div class="k">${steps.filter(s => s.done).length} de ${steps.length} etapas</div>
@@ -575,7 +575,7 @@ function renderDetail() {
   const pct = li.level >= MAX_LEVEL ? 1 : li.pct / 100;
   const ringHtml = `
     <div class="ring-wrap" id="lvl-ring">
-      ${animRing(150, 12, pct, s.color, lastDetailPct, "var(--line)")}
+      ${animRing(150, 12, pct, pinta(s.color), lastDetailPct, "var(--line)")}
       <div class="ring-center">
         <div class="v"><b>Nv ${li.level}</b></div>
         <div class="k">${li.level >= MAX_LEVEL ? "Nivel máximo" : li.inLevel + " / " + li.needed + " XP"}</div>
@@ -613,7 +613,7 @@ function renderDetail() {
   content.innerHTML = `
     <div class="detail-hero">
       <div class="strip">${motifScene(560, 156, hashSeed(s.id), motifFor(s.icon), s.color)}</div>
-      <button type="button" class="skill-emoji editable" style="background:${s.color}30;color:${tinta(s.color)}"
+      <button type="button" class="skill-emoji editable" style="background:${velo(s.color, "30")};color:${tinta(s.color)}"
         onclick="openSkillForm(currentSkillId)" title="Editar habilidad" aria-label="Editar habilidad">
         ${icon(s.icon, 28)}
         <span class="edit-hint">${icon("pen", 11)}</span>
@@ -693,7 +693,7 @@ function linkedToSkill(s) {
       ${group("misión diaria", "misiones diarias", "target", ms.map(m => {
         const c = missionCount(m, key), t = missionTarget(m), ok = c >= t;
         const st = missionStreak(m);
-        return `<button class="linked-row" style="--lc:${m.color || "#5fe0b0"}" onclick="showView('missions')">
+        return `<button class="linked-row" style="--lc:${pinta(m.color)}" onclick="showView('missions')">
           <span class="lr-ic">${icon(m.icon, 16)}</span>
           <span class="lr-tx"><b>${escapeHtml(m.name)}</b><span>+${m.xp} XP · ${ok ? "cumplida hoy" : `${c} de ${t} hoy`}${st > 1 ? ` · racha ${st}` : ""}</span></span>
           <span class="lr-go">→</span>
@@ -701,14 +701,14 @@ function linkedToSkill(s) {
       }))}
       ${group("talento", "talentos", "gem", pk.map(p => {
         const stt = perkStatus(p);
-        return `<button class="linked-row" style="--lc:${p.color || "#5fe0b0"}" onclick="openPerk('${p.id}')">
+        return `<button class="linked-row" style="--lc:${pinta(p.color)}" onclick="openPerk('${p.id}')">
           <span class="lr-ic">${icon(p.icon, 16)}</span>
           <span class="lr-tx"><b>${escapeHtml(p.name)}</b><span>${STATUS_LABEL[stt]} · +${p.xpReward} XP al lograrlo</span></span>
           <span class="lr-go">→</span>
         </button>`;
       }))}
       ${group("encargo", "encargos", "flag", pr.map(p => `
-        <button class="linked-row" style="--lc:${p.color || "#5fe0b0"}" onclick="openProject('${p.id}')">
+        <button class="linked-row" style="--lc:${pinta(p.color)}" onclick="openProject('${p.id}')">
           <span class="lr-ic">${icon(p.icon, 16)}</span>
           <span class="lr-tx"><b>${escapeHtml(p.name)}</b><span>${projectProgress(p)}% · ${PROJECT_STATUS[p.status].label}</span></span>
           <span class="lr-go">→</span>
@@ -1016,7 +1016,7 @@ function renderTree() {
       <div class="branch-collapsed">
         <span class="pips">${nodes.slice(0, 12).map(n => {
           const st = perkStatus(n);
-          const c = st === "completed" ? (n.color || "#5fe0b0") : (st === "active" || st === "due" ? "var(--fire)" : "var(--pip)");
+          const c = pinta(st === "completed" ? (n.color || "#5fe0b0") : (st === "active" || st === "due" ? "var(--fire)" : "var(--pip)"));
           return `<i style="background:${c}${tipoDe(n) === "hito" ? ";border-radius:999px" : ""}"></i>`;
         }).join("")}${nodes.length > 12 ? `<span style="font-size:11px">+${nodes.length - 12}</span>` : ""}</span>
         <span>${nodes.length} talento${nodes.length === 1 ? "" : "s"}</span>

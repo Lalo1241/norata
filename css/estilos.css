@@ -111,6 +111,21 @@
     --hundir: 0%;
     --tinta-fondo: #0c1118;
 
+    /* Y estos son los ocho, uno por uno. Cada color guardado en los datos de
+       alguien tiene DOS caras, igual que el resto de la app: la de noche
+       —pastel, para que brille sobre carbon— y la de dia, mas saturada,
+       porque sobre papel un pastel se lava y deja de ser un color.
+       El orden es el de `COLORS` en js/01-base.js, y ese orden es el
+       contrato: `pinta()` busca por posicion. */
+    --paleta-1: #5fe0b0;   /* menta */
+    --paleta-2: #f5d76e;   /* luciernaga */
+    --paleta-3: #ff8a70;   /* coral */
+    --paleta-4: #b7a2ea;   /* lila */
+    --paleta-5: #6fc3e8;   /* celeste */
+    --paleta-6: #8fd18a;   /* verde */
+    --paleta-7: #f0a5c0;   /* rosa */
+    --paleta-8: #9aa7b8;   /* acero */
+
     --esquema: dark;
     --fondo-raiz: #0e131b;
     --fondo-pagina: linear-gradient(180deg, #0e131b 0%, #131924 55%, #10151d 100%);
@@ -172,42 +187,59 @@
      Y funcionan también al revés —blanco encima de ellos— que es lo que pide
      un botón macizo: 6,5 el de menta, 6,2 el de coral. */
   html.claro {
-    --bg: #f2f4f8;
-    --bg2: #e9edf4;
-    --card: #ffffff;
-    --card2: #f1f4f9;
-    --line: #d6dde8;
+    /* Los tres neutros salen de la lamina que dibujo Eduardo, columna por
+       columna: #10151d (el fondo) -> #dcdef0, #1d2530 (la tarjeta) -> #f2f0f9,
+       y #131924 -> #f7f8fa, que era la franja de en medio del degradado.
+       Ese ultimo NO se queda en el degradado: puesto ahi dejaba la pagina mas
+       clara que las tarjetas en la mitad de arriba y mas oscura en la de
+       abajo, asi que las tarjetas se invertian al bajar. Va donde su papel
+       si cuadra: la superficie levantada -- lo que flota por encima. */
+    --bg: #dcdef0;
+    --bg2: #e7e9f4;
+    --card: #f2f0f9;
+    --card2: #f7f8fa;
+    --line: #cdd1e4;
     --text: #16202b;
-    --muted: #5b6875;
-    --faint: #6d7b8a;
+    /* Un punto mas oscuros que la primera version del modo claro: la pagina
+       dejo de ser casi blanca y paso a ser lavanda, y sobre ella los grises
+       de antes caian de 5,18 a 4,28. Estos devuelven el contraste que habia. */
+    --muted: #4f5b67;
+    --faint: #606d7b;
     --mint: #136b4e;
     --mint-deep: #0d5239;
-    --mint-soft: rgba(19, 107, 78, 0.11);
+    /* Los tonos "soft" LEVANTAN hacia el blanco en vez de hundir hacia el
+       color. Es lo contrario que de noche, y tiene que serlo: sobre carbon un
+       velo del tono aclara la zona, pero sobre una pagina ya teñida el mismo
+       velo la oscurece y la pastilla se lee como un hueco en vez de como algo
+       apoyado encima. Van en hex y no en rgba por lo mismo: lo que hace falta
+       es un tono FIJO mas claro que el fondo, no una transparencia que cambia
+       de sentido segun donde caiga. */
+    --mint-soft: #e7f0ed;
     --fire: #8a6209;
-    --fire-soft: rgba(138, 98, 9, 0.13);
+    --fire-soft: #f1ece1;
     --coral: #b1341d;
-    --coral-soft: rgba(177, 52, 29, 0.10);
+    --coral-soft: #f7ebe8;
     --coral-vivo: #8e2513;
     --celeste: #1a6a99;
-    --celeste-soft: rgba(26, 106, 153, 0.12);
+    --celeste-soft: #e6eff4;
 
     --sobre-acento: #ffffff;
     --sobre-acento-coral: #ffffff;
 
-    --borde-panel: #dfe4ec;
-    --linea-guion: #c2ccd9;
-    --pip: #ccd5e0;
-    --hueco: #eef1f6;
-    --tag-fondo: #ffffff;
+    --borde-panel: #d8dbec;
+    --linea-guion: #b9bfd7;
+    --pip: #c5cae0;
+    --hueco: #e7e9f4;
+    --tag-fondo: #f7f8fa;
     --peligro-nota: #7f4536;
     --marca: #131823;
 
     --vidrio: rgba(22, 32, 43, 0.045);
     --vidrio-fuerte: rgba(22, 32, 43, 0.08);
 
-    --flotante: rgba(255, 255, 255, 0.94);
-    --flotante-macizo: rgba(255, 255, 255, 0.98);
-    --flotante-lateral: rgba(255, 255, 255, 0.82);
+    --flotante: rgba(247, 248, 250, 0.94);
+    --flotante-macizo: rgba(247, 248, 250, 0.98);
+    --flotante-lateral: rgba(247, 248, 250, 0.84);
 
     /* El velo sigue siendo oscuro a propósito. Un velo blanco sobre una
        página blanca no separa nada: la ventana se quedaría flotando sin
@@ -219,23 +251,39 @@
     --sombra-m: rgba(23, 38, 56, 0.10);
     --sombra-l: rgba(23, 38, 56, 0.14);
 
-    --pulgar: #c3ccd8;
-    --pulgar-vivo: #a3b0c0;
+    --pulgar: #bcc1da;
+    --pulgar-vivo: #9ba2c4;
 
-    --lienzo-apagado: #98a5b4;
-    --lienzo-hilo: #b3bdcb;
-    --lienzo-rotulo: #41505e;
-    --lienzo-halo: #e4e9f1;
-    --lienzo-ficha: #ffffff;
-    --lienzo-caja: #ffffff;
-    --lienzo-bloqueado: #eef1f6;
+    --lienzo-apagado: #949ab8;
+    --lienzo-hilo: #b0b5d0;
+    --lienzo-rotulo: #3e435c;
+    --lienzo-halo: #e7e9f4;
+    --lienzo-ficha: #f7f8fa;
+    --lienzo-caja: #f7f8fa;
+    --lienzo-bloqueado: #e7e9f4;
     --lienzo-flujo: #c08c00;
 
-    --hundir: 52%;
+    /* Medio a medio camino del carbon. Es lo que hace falta para que el peor
+       de los ocho —el amarillo luciernaga— llegue a 4,65 sobre una tarjeta;
+       con menos se queda corto y con mas los ocho se vuelven el mismo gris. */
+    --hundir: 50%;
+
+    /* Los mismos ocho, de dia. Son los que dibujo Eduardo. */
+    --paleta-1: #00cc7f;
+    --paleta-2: #f5c314;
+    --paleta-3: #ff603d;
+    --paleta-4: #7d50ea;
+    --paleta-5: #23ace8;
+    --paleta-6: #45d13b;
+    --paleta-7: #f03e7e;
+    --paleta-8: #6287b8;
 
     --esquema: light;
-    --fondo-raiz: #f2f4f8;
-    --fondo-pagina: linear-gradient(180deg, #f6f8fb 0%, #eef1f7 55%, #f2f4f8 100%);
+    --fondo-raiz: #dcdef0;
+    /* Un lavado suave ALREDEDOR del fondo, no de blanco a lavanda: el
+       degradado tiene que quedarse por debajo de las tarjetas en toda su
+       altura, o al bajar la pagina las tarjetas dejan de levantarse. */
+    --fondo-pagina: linear-gradient(180deg, #e3e5f2 0%, #dcdef0 55%, #e0e2f1 100%);
   }
 
   /* Los orbes son manchas de luz: sobre carbón dan atmósfera y sobre papel
@@ -277,9 +325,18 @@
     --coral-soft: rgba(255, 138, 112, 0.13);
     --sobre-acento: #10151d;
     --sobre-acento-coral: #3a1009;
-    /* Y los colores del usuario tampoco se hunden aquí dentro: el fondo
-       sigue siendo de noche, que es para lo que se eligieron. */
+    /* Y los colores del usuario vuelven a su cara de noche aquí dentro, sin
+       hundir: el fondo sigue siendo de noche, que es para lo que se
+       eligieron. */
     --hundir: 0%;
+    --paleta-1: #5fe0b0;
+    --paleta-2: #f5d76e;
+    --paleta-3: #ff8a70;
+    --paleta-4: #b7a2ea;
+    --paleta-5: #6fc3e8;
+    --paleta-6: #8fd18a;
+    --paleta-7: #f0a5c0;
+    --paleta-8: #9aa7b8;
     color: var(--text);
   }
 

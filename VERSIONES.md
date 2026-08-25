@@ -52,6 +52,44 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.1 · 25 ago 2026
+El modo claro estrena la paleta de día que dibujó Eduardo.
+
+- **Los ocho colores que se eligen para una misión, una habilidad o un
+  talento tienen ahora dos caras**: la de noche, pastel, y la de día, más
+  saturada. Antes de día se hundían todos hacia el carbón desde la versión
+  pastel y el resultado era el mismo tono apagado con distinto matiz; ahora
+  cada uno tiene su pareja de verdad. El color guardado en los datos no
+  cambia: lo que cambia es con cuál de las dos se pinta.
+
+  | | noche | día |
+  | --- | --- | --- |
+  | menta | `#5fe0b0` | `#00cc7f` |
+  | luciérnaga | `#f5d76e` | `#f5c314` |
+  | coral | `#ff8a70` | `#ff603d` |
+  | lila | `#b7a2ea` | `#7d50ea` |
+  | celeste | `#6fc3e8` | `#23ace8` |
+  | verde | `#8fd18a` | `#45d13b` |
+  | rosa | `#f0a5c0` | `#f03e7e` |
+  | acero | `#9aa7b8` | `#6287b8` |
+
+- Tres ayudantes deciden qué cara usa cada cosa: `pinta()` para rellenar,
+  `tinta()` para escribir o trazar, y `velo()` para el fondo tenue de una
+  pastilla. Hacía falta separarlos: un relleno se ve a cualquier tono, pero
+  un número escrito en luciérnaga de día da 1,47 sobre 1 y no se lee. Al
+  escribir, el tono se hunde a medio camino del carbón, que es lo que deja
+  al peor de los ocho en 4,65 sobre una tarjeta.
+- **Los tres fondos de día también son los suyos**: la página pasa a lavanda
+  `#dcdef0`, la tarjeta a `#f2f0f9` y lo que flota por encima —el mini menú,
+  los avisos, la barra lateral— a `#f7f8fa`.
+- Con la página más oscura, los grises de antes caían de 5,18 a 4,28. Los dos
+  bajan un punto para devolver el contraste que había.
+- Y los tonos tenues de los acentos ahora **levantan hacia el blanco** en vez
+  de hundir hacia el color: sobre una página teñida, un velo del propio tono
+  la oscurece y la pastilla se lee como un hueco en vez de como algo apoyado
+  encima.
+- La rejilla donde se elige el color enseña la cara que vas a ver.
+
 ### 0.7 · 25 ago 2026
 Norata también es de día.
 

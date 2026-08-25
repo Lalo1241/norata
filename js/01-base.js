@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7";
+const VERSION = "0.7.1";
 const VERSION_FECHA = "25 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -148,23 +148,57 @@ function icon(name, size) {
    para abajo, todo el color sale de las variables de `css/estilos.css`. */
 const TEMA_LLAVE = "norata-tema";
 
-/* El color de una cosa del usuario, listo para ESCRIBIR con él —el número
-   dentro del círculo de una misión, el icono de una habilidad, el nombre de
-   una caja—. Rellenar con esos tonos va bien en los dos modos; escribir con
-   ellos, no: son ocho pasteles pensados para fondo oscuro y sobre papel
-   blanco se desvanecen.
+/* ---- Los colores del usuario, en la cara que toca ----
+   Cada uno de los ocho de `COLORS` tiene DOS caras, declaradas en el CSS como
+   `--paleta-1` … `--paleta-8`: la de noche —pastel, para brillar sobre
+   carbón— y la de día, más saturada, porque sobre papel un pastel se lava y
+   deja de ser un color. El color guardado en los datos no cambia nunca, que
+   es suyo; lo que cambia es con cuál de las dos se pinta.
 
-   Lo que devuelve es una mezcla que en oscuro no mezcla nada (`--hundir`
-   vale 0%) y en claro hunde el tono hacia el carbón. Va en color-mix y no en
-   una cuenta hecha aquí a propósito: así el color lo recalcula el navegador
-   al cambiar de modo, sin tener que volver a dibujar la pantalla.
+   Tres ayudantes, tres papeles, y la diferencia importa: un relleno se ve a
+   cualquier tono, pero un número escrito en luciérnaga de día da 1,47 sobre
+   1 y no se lee. Escribir no es lo mismo que rellenar.
 
-   Si le llega un `var(...)` lo devuelve tal cual: eso ya es un color de la
-   app, que cambia solo con el modo, y hundirlo otra vez lo dejaría negro. */
+     pinta(c)       rellenar: un punto, una barra, el aro de un nodo
+     tinta(c)       escribir o trazar: un número, un icono, un contorno
+     velo(c, "22")  el fondo tenue de una pastilla, con su transparencia
+
+   Los tres devuelven `var(...)` o `color-mix(...)`, nunca un color ya
+   resuelto: así lo recalcula el navegador al cambiar de modo, sin tener que
+   volver a dibujar la pantalla. */
+
+/* Busca el color por POSICIÓN en la lista, no por nombre: la posición es lo
+   que ata cada tono con su pareja de día. Lo que no esté en la lista —datos
+   viejos, un color escrito a mano— sale tal cual y se apaña con el hundido. */
+function caraDe(col) {
+  const i = COLORS.indexOf(String(col).toLowerCase());
+  return i === -1 ? null : `var(--paleta-${i + 1})`;
+}
+
+function pinta(col) {
+  if (!col) return "var(--mint)";
+  if (String(col).indexOf("var(") === 0) return col;
+  return caraDe(col) || col;
+}
+
+/* Escribir con él. `--hundir` vale 0% de noche —o sea, no mezcla nada, el
+   color sale exactamente como estaba— y 50% de día, que es lo que hace falta
+   para que el peor de los ocho llegue a 4,65 sobre una tarjeta. Un `var(...)`
+   que llegue ya hecho se devuelve intacto: eso ya es un color de la app, y
+   hundirlo otra vez lo dejaría negro. */
 function tinta(col) {
   if (!col) return "var(--mint)";
   if (String(col).indexOf("var(") === 0) return col;
-  return `color-mix(in srgb, ${col}, var(--tinta-fondo) var(--hundir))`;
+  return `color-mix(in srgb, ${pinta(col)}, var(--tinta-fondo) var(--hundir))`;
+}
+
+/* El fondo tenue de una pastilla. Antes se armaba pegándole la transparencia
+   al final del hex (`col + "22"`), y eso ataba el relleno a la cara de noche
+   para siempre: a un `var(...)` no se le pueden pegar dos dígitos detrás.
+   Recibe esos mismos dos dígitos para no ir traduciendo a mano en cada sitio. */
+function velo(col, alfa) {
+  const pct = Math.round((parseInt(alfa, 16) / 255) * 100);
+  return `color-mix(in srgb, ${pinta(col)} ${pct}%, transparent)`;
 }
 
 function temaEsClaro() {

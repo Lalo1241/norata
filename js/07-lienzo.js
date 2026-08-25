@@ -907,15 +907,15 @@ function constellation(nodes, key, editing, branch) {
     const y0 = Math.min(...pts.map(p => p.y)) - M, y1 = Math.max(...pts.map(p => p.y)) + M;
     const { hechos, pendientes } = resumenCaja(c);
     const cc = c.color || (pendientes === 0 ? "#5fe0b0" : "#f5d76e");
-    /* Dos formas del mismo color: el crudo para el relleno translucido
-       —que se arma pegandole la transparencia al hex— y el hundido para
-       trazar y escribir, que es lo que hay que leer sobre papel. */
+    /* El crudo se guarda porque velo() y tinta() necesitan el color TAL
+       COMO esta en los datos para buscarlo en la lista de ocho; lo que se
+       dibuja sale siempre de uno de los dos. */
     const ccT = tinta(cc);
     alto = Math.max(alto, 18 - (y0 - 11));   // la etiqueta no puede quedar cortada
     abarcar(x0, y0 - 11, x1, y1);
     recintos += `<g class="grupo">
       <rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" rx="22"
-        fill="${cc}0a" stroke="${ccT}" stroke-opacity="0.35" stroke-width="1.6" stroke-dasharray="9 7" pointer-events="none"/>
+        fill="${velo(cc, "0a")}" stroke="${ccT}" stroke-opacity="0.35" stroke-width="1.6" stroke-dasharray="9 7" pointer-events="none"/>
       <g class="grupo-tag" data-grupo="${c.id}">
         <rect x="${x0 + 12}" y="${y0 - 11}" width="${Math.max(96, nombreCaja(c).length * 6.6 + 30)}" height="22" rx="11"
           fill="var(--lienzo-caja)" stroke="${ccT}" stroke-opacity="0.5" stroke-width="1.4"/>
@@ -1055,7 +1055,7 @@ function constellation(nodes, key, editing, branch) {
       const nom = todo.slice(0, 2);
       if (todo.length > 2) nom[1] = nom[1].slice(0, 17) + "…";
       nds += `<g class="cnode caja" data-id="${n.id}">
-        ${nodeShape(n, x, y, { stroke: ccT, fill: cc + "14" }, fid)}
+        ${nodeShape(n, x, y, { stroke: ccT, fill: velo(cc, "14") }, fid)}
         <text x="${x}" y="${y - (nom.length > 1 ? 9 : 4)}" text-anchor="middle" font-size="${nom.length > 1 ? 10.5 : 12}" font-weight="700" fill="${ccT}">
           ${nom.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 11}">${escapeHtml(ln)}</tspan>`).join("")}
         </text>
@@ -1070,16 +1070,16 @@ function constellation(nodes, key, editing, branch) {
 
     const st = perkStatus(n);
     const col = n.color || "#5fe0b0";
-    /* Igual que en el recinto: el relleno se arma con el hex crudo mas
-       la transparencia, y el trazo va hundido para verse sobre papel. */
+    /* Dos caras del mismo color: el trazo hundido, para verse sobre papel,
+       y el relleno translucido, que velo() arma con la cara del modo. */
     const colT = tinta(col);
     const conf = {
-      completed: { stroke: colT, fill: col + "33", glow: true, badge: "var(--mint)", mark: "check" },
-      active:    { stroke: colT, fill: col + "1f", glow: true, badge: "var(--fire)", mark: "play" },
+      completed: { stroke: colT, fill: velo(col, "33"), glow: true, badge: "var(--mint)", mark: "check" },
+      active:    { stroke: colT, fill: velo(col, "1f"), glow: true, badge: "var(--fire)", mark: "play" },
       due:       { stroke: "var(--fire)", fill: "rgba(245,215,110,0.2)", glow: true, badge: "var(--fire)", mark: "alert" },
       expired:   { stroke: "var(--coral)", fill: "rgba(255,138,112,0.1)", glow: false, badge: "var(--coral)", mark: "close" },
       locked:    { stroke: "var(--pip)", fill: "var(--lienzo-bloqueado)", glow: false },
-      available: { stroke: colT, fill: col + "12", glow: false, sop: 0.55 }
+      available: { stroke: colT, fill: velo(col, "12"), glow: false, sop: 0.55 }
     }[st];
     const iname = st === "locked" ? "lock" : (n.icon || "star");
     const esHito = metaDe(n).forma === "circulo";   // el nodo pequeno

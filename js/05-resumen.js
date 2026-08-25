@@ -139,7 +139,7 @@ function renderSummary() {
           return `<div class="ms-list" style="margin-top:14px">
           ${lista.map(m => {
             const c = missionCount(m, key), t = missionTarget(m);
-            return `<div class="ms-card ${c >= t ? "done" : ""}" style="--mc:${m.color || "#5fe0b0"}">
+            return `<div class="ms-card ${c >= t ? "done" : ""}" style="--mc:${pinta(m.color)}">
               ${botonMision(m, c, t)}
               ${iconoMision(m)}
               <div class="ms-body"><div class="ms-name">${escapeHtml(m.name)}</div></div>
@@ -222,7 +222,7 @@ function renderSummary() {
             const pg = projectProgress(p), hh = projectHealth(p);
             return `<div class="sw-row">
               <span class="sw-name">${escapeHtml(p.name)}</span>
-              <span class="sw-bar"><i style="width:${pg}%;background:${p.color}"></i></span>
+              <span class="sw-bar"><i style="width:${pg}%;background:${pinta(p.color)}"></i></span>
               <span class="sw-pct" style="color:${hh.color}">${pg}%</span>
             </div>`;
           }).join("")}
@@ -242,7 +242,7 @@ function renderSummary() {
         <p class="settings-note">Estos talentos están desbloqueados y esperando. Empieza uno para ponerlo en progreso.</p>
         <div class="ready-grid">
           ${readyList.slice(0, 6).map(p => `
-            <button class="ready-chip" onclick="openPerk('${p.id}')" style="--rc:${p.color || "#5fe0b0"}">
+            <button class="ready-chip" onclick="openPerk('${p.id}')" style="--rc:${pinta(p.color)}">
               <span class="rc-ic">${icon(p.icon, 17)}</span>
               <span class="rc-tx">
                 <b>${escapeHtml(p.name)}</b>
@@ -1182,7 +1182,7 @@ function renderHome() {
             const nv = levelInfo(s.xp).level;
             return `
             <button class="dz-row" onclick="openDetail('${s.id}')">
-              <span class="dz-ic" style="background:${s.color}22;color:${tinta(s.color)}">${icon(s.icon, 15)}</span>
+              <span class="dz-ic" style="background:${velo(s.color, "22")};color:${tinta(s.color)}">${icon(s.icon, 15)}</span>
               <span class="dz-tx">
                 <b>${escapeHtml(s.name)}</b>
                 <span>−${desgasteDiario(s)} XP al día${d ? ` · ${d} día${d === 1 ? "" : "s"} para caer al nivel ${nv - 1}` : ""}</span>
@@ -1247,13 +1247,13 @@ function renderHome() {
       onclick="${enSeleccion ? `toggleHabSel('${s.id}')` : `openDetail('${s.id}')`}">
       ${tab}
       ${enSeleccion ? `<span class="hb-check">${marcada ? icon("check", 13) : ""}</span>` : ""}
-      <div class="skill-emoji" style="background:${s.color}26;color:${tinta(s.color)}">${icon(s.icon, 23)}</div>
+      <div class="skill-emoji" style="background:${velo(s.color, "26")};color:${tinta(s.color)}">${icon(s.icon, 23)}</div>
       <div class="skill-info">
         <div class="skill-name">${escapeHtml(s.name)}</div>
         <div class="skill-meta">${escapeHtml(s.category || "Sin categoría")}</div>
       </div>
       ${enSeleccion ? "" : `<div class="mini-ring">
-        ${ring(46, 4.5, [{ pct, color: s.color }], "var(--line)")}
+        ${ring(46, 4.5, [{ pct, color: pinta(s.color) }], "var(--line)")}
         <span class="lv" style="color:${tinta(s.color)}">${li.level}</span>
       </div>`}
     </button>`;
@@ -1563,7 +1563,7 @@ function refrescarSugerencias(pref) {
 
   cont.innerHTML = `<span class="sug-tit">Sube:</span>` + lista.map(x => `
     <button type="button" class="sug-chip ${sel && sel.value === x.s.id ? "on" : ""}"
-      style="--sc:${x.s.color}" onclick="elegirSugerencia('${pref}','${x.s.id}')">
+      style="--sc:${pinta(x.s.color)}" onclick="elegirSugerencia('${pref}','${x.s.id}')">
       ${escapeHtml(x.s.name)}${x.porRama ? ' <i>por la rama</i>' : ''}
     </button>`).join("");
 }
@@ -1647,7 +1647,7 @@ function renderCatalogo() {
             return `
             <button class="cat-chip ${tengo ? "tengo" : ""} ${sel ? "sel" : ""}"
               ${tengo ? "disabled" : `onclick="toggleCatalogo('${escapeAttr(x.n)}')"`}>
-              <span class="cc-ic" style="background:${x.k}26;color:${tinta(x.k)}">${icon(x.i, 18)}</span>
+              <span class="cc-ic" style="background:${velo(x.k, "26")};color:${tinta(x.k)}">${icon(x.i, 18)}</span>
               <span class="cc-n">${escapeHtml(x.n)}</span>
               ${tengo ? `<span class="cc-ok">${icon("check", 15)}</span>` : `<span class="cc-box">${sel ? icon("check", 13) : ""}</span>`}
             </button>`;
