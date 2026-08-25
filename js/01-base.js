@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.2";
+const VERSION = "0.7.3";
 const VERSION_FECHA = "25 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -192,15 +192,32 @@ function tinta(col) {
   return `color-mix(in srgb, ${pinta(col)}, var(--tinta-fondo) var(--hundir))`;
 }
 
-/* Trazar con él: el contorno de un nodo del árbol, el hilo entre dos, el
-   icono de dentro. Un dibujo pide 3 sobre 1 y no 4,5, así que se hunde mucho
-   menos que un texto y el color se reconoce todavía. Con el hundido de los
-   textos, un talento coral salía marrón sucio, y ocho de esos en el mismo
-   lienzo lo dejaban pareciendo un charco. */
+/* Trazar con él: el aro de una misión, el contorno de un nodo del árbol, el
+   hilo entre dos, una raya de 2 px. Un dibujo pide 3 sobre 1 y no 4,5, así
+   que puede quedarse mucho más cerca del color de verdad que un texto.
+
+   Cada uno tiene su propia versión de línea (`--paleta-N-linea`) en vez de
+   hundirse todos el mismo porcentaje, y la diferencia se ve: al coral le
+   sobra con un 11% y al amarillo le hace falta un 36%, así que bajarlos a
+   todos lo mismo dejaba el coral color ladrillo sin ninguna necesidad. Tres
+   de los ocho no se mueven nada.
+
+   Lo que no esté en la lista se apaña con el hundido general, que es lo único
+   que se puede hacer sin conocer el color de antemano. */
 function trazo(col) {
   if (!col) return "var(--mint)";
   if (String(col).indexOf("var(") === 0) return col;
-  return `color-mix(in srgb, ${pinta(col)}, var(--tinta-fondo) var(--hundir-trazo))`;
+  const i = COLORS.indexOf(String(col).toLowerCase());
+  if (i !== -1) return `var(--paleta-${i + 1}-linea)`;
+  return `color-mix(in srgb, ${col}, var(--tinta-fondo) var(--hundir-trazo))`;
+}
+
+/* Las dos caras de una cosa del usuario, listas para pegar en un `style`: la
+   de rellenar y la de trazar. Van juntas porque casi siempre hacen falta las
+   dos en la misma tarjeta —el icono se rellena y el aro se traza— y separarlas
+   era la forma segura de que una se quedara sin actualizar. */
+function tonos(nombre, col) {
+  return `--${nombre}:${pinta(col)};--${nombre}-l:${trazo(col)}`;
 }
 
 /* El fondo tenue de una pastilla. Antes se armaba pegándole la transparencia

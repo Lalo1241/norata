@@ -100,6 +100,13 @@
     --sombra-m: rgba(0, 0, 0, 0.45);
     --sombra-l: rgba(0, 0, 0, 0.6);
 
+    /* El carril por el que avanza un aro o una barra de progreso. No es
+       `--line`: un borde tiene que apenas notarse y un carril tiene que
+       dejar ver por dónde va lo lleno. De noche coinciden; de día el carril
+       se aclara, porque sobre él hay que distinguir ocho colores y con el
+       tono de los bordes el amarillo se perdía dentro (1,05 sobre 1). */
+    --carril: #2a3441;
+
     --pulgar: #33404f;        /* la barra de desplazamiento */
     --pulgar-vivo: #465569;
 
@@ -166,6 +173,22 @@
     --paleta-6: #8fd18a;   /* verde */
     --paleta-7: #f0a5c0;   /* rosa */
     --paleta-8: #9aa7b8;   /* acero */
+
+    /* Y los mismos ocho para TRAZAR: un aro, un contorno, una raya de 2 px.
+       De noche son idénticos —el pastel ya se ve sobre carbón— y de día cada
+       uno baja lo justo para llegar a 3 sobre 1, que es el umbral de un
+       dibujo. Lo JUSTO y uno por uno, no un porcentaje igual para todos: al
+       coral le sobraba con un 11% y al amarillo le hacía falta un 36%, así
+       que hundirlos a todos lo mismo dejaba el coral de color ladrillo sin
+       necesidad. Tres de los ocho no se mueven nada. */
+    --paleta-1-linea: #5fe0b0;
+    --paleta-2-linea: #f5d76e;
+    --paleta-3-linea: #ff8a70;
+    --paleta-4-linea: #b7a2ea;
+    --paleta-5-linea: #6fc3e8;
+    --paleta-6-linea: #8fd18a;
+    --paleta-7-linea: #f0a5c0;
+    --paleta-8-linea: #9aa7b8;
 
     --esquema: dark;
     --fondo-raiz: #0e131b;
@@ -239,7 +262,11 @@
     --bg2: #e7e9f4;
     --card: #f2f0f9;
     --card2: #f7f8fa;
-    --line: #cdd1e4;
+    /* Un punto mas oscuro de lo que salia al invertir el tono de noche.
+       Sobre papel hay menos margen que sobre carbon: con #cdd1e4 el borde de
+       un campo de texto daba 1,14 sobre 1 contra la pagina —o sea, no habia
+       borde—, y de noche ese mismo borde da 1,45. Esto lo devuelve. */
+    --line: #b4b8c9;
     --text: #16202b;
     /* Un punto mas oscuros que la primera version del modo claro: la pagina
        dejo de ser casi blanca y paso a ser lavanda, y sobre ella los grises
@@ -278,8 +305,8 @@
     --coral-macizo: #ff603d;
 
     --borde-panel: #d8dbec;
-    --linea-guion: #b9bfd7;
-    --pip: #c5cae0;
+    --linea-guion: #a9afc6;
+    --pip: #bcc1d6;
     --hueco: #e7e9f4;
     --tag-fondo: #f7f8fa;
     --peligro-nota: #7f4536;
@@ -301,6 +328,11 @@
     --sombra-s: rgba(23, 38, 56, 0.07);
     --sombra-m: rgba(23, 38, 56, 0.10);
     --sombra-l: rgba(23, 38, 56, 0.14);
+
+    /* Ni tan claro que el carril desaparezca contra la tarjeta, ni tan
+       oscuro que se coma lo lleno. Medido: asi el carril da 1,21 —lo mismo
+       que de noche— y el peor de los ocho colores encima da 2,93. */
+    --carril: #dadce7;
 
     --pulgar: #bcc1da;
     --pulgar-vivo: #9ba2c4;
@@ -344,6 +376,19 @@
     --paleta-6: #45d13b;
     --paleta-7: #f03e7e;
     --paleta-8: #6287b8;
+
+    /* Lo justo para 3 sobre 1 en los TRES fondos donde se traza: la tarjeta
+       (#f2f0f9), la ranura de una misión (#e7e9f4) y el lienzo a pantalla
+       completa (#dcdef0), que es el más exigente de los tres. El lila no se
+       mueve nada, y el rosa y el acero se mueven un 5%. */
+    --paleta-1-linea: #04905e;   /* menta, 32% */
+    --paleta-2-linea: #987c16;   /* luciérnaga, 40% — el único que se va lejos */
+    --paleta-3-linea: #d85337;   /* coral, 16% */
+    --paleta-4-linea: #7d50ea;   /* lila, sin tocar */
+    --paleta-5-linea: #1d87b6;   /* celeste, 24% */
+    --paleta-6-linea: #32902f;   /* verde, 34% */
+    --paleta-7-linea: #e53c79;   /* rosa, 5% */
+    --paleta-8-linea: #5e81b0;   /* acero, 5% */
 
     --esquema: light;
     --fondo-raiz: #dcdef0;
@@ -434,6 +479,14 @@
     --paleta-6: #8fd18a;
     --paleta-7: #f0a5c0;
     --paleta-8: #9aa7b8;
+    --paleta-1-linea: #5fe0b0;
+    --paleta-2-linea: #f5d76e;
+    --paleta-3-linea: #ff8a70;
+    --paleta-4-linea: #b7a2ea;
+    --paleta-5-linea: #6fc3e8;
+    --paleta-6-linea: #8fd18a;
+    --paleta-7-linea: #f0a5c0;
+    --paleta-8-linea: #9aa7b8;
     color: var(--text);
   }
 
@@ -995,7 +1048,7 @@
   }
   .sug-chip i { font-style: normal; font-weight: 500; font-size: 10.5px; opacity: 0.7; }
   .sug-chip.on {
-    border-color: var(--sc, var(--mint));
+    border-color: var(--sc-l, var(--sc, var(--mint)));
     color: color-mix(in srgb, var(--sc, var(--mint)), var(--tinta-fondo) var(--hundir));
     background: color-mix(in srgb, var(--sc, #5fe0b0) 14%, transparent);
   }
@@ -2661,7 +2714,7 @@
   }
   .icon-grid button svg { width: 20px; height: 20px; }
   .icon-grid button.selected {
-    border-color: var(--sel, var(--mint));
+    border-color: var(--sel-l, var(--sel, var(--mint)));
     background: color-mix(in srgb, var(--sel, var(--mint)) 14%, transparent);
     color: color-mix(in srgb, var(--sel, var(--mint)), var(--tinta-fondo) var(--hundir));
   }
@@ -3210,7 +3263,7 @@
     gap: 10px;
     background: var(--bg2);
     border: 1px solid var(--line);
-    border-left: 3px solid var(--mc);
+    border-left: 3px solid var(--mc-l, var(--mc));
     border-radius: 8px 18px 18px 8px;
     padding: 11px 13px;
   }
@@ -3220,7 +3273,7 @@
     width: 38px; height: 38px;
     flex-shrink: 0;
     border-radius: 999px;
-    border: 2px solid var(--mc);
+    border: 2px solid var(--mc-l, var(--mc));
     background: transparent;
     cursor: pointer;
     display: inline-flex;
@@ -3412,7 +3465,7 @@
     text-align: left;
     background: var(--bg2);
     border: 1px solid var(--line);
-    border-left: 3px solid var(--pc);
+    border-left: 3px solid var(--pc-l, var(--pc));
     border-radius: 8px 14px 14px 8px;
     padding: 10px 12px;
     font-family: inherit;
@@ -3531,7 +3584,7 @@
     color: var(--text);
     background: var(--bg2);
     border: 1px solid var(--line);
-    border-left: 3px solid var(--pc);
+    border-left: 3px solid var(--pc-l, var(--pc));
     border-radius: 8px 20px 20px 8px;
     padding: 13px 15px;
     cursor: pointer;
@@ -3667,7 +3720,7 @@
     color: var(--text);
     background: var(--bg2);
     border: 1px solid var(--line);
-    border-left: 3px solid var(--rc);
+    border-left: 3px solid var(--rc-l, var(--rc));
     border-radius: 8px 16px 16px 8px;
     padding: 11px 13px;
     cursor: pointer;
@@ -3684,7 +3737,7 @@
     position: absolute;
     inset: -7px;
     border-radius: 999px;
-    border: 1.5px solid var(--rc);
+    border: 1.5px solid var(--rc-l, var(--rc));
     animation: pulseRing 2.6s ease-out infinite;
   }
   .ready-chip .rc-tx { min-width: 0; }

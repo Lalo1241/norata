@@ -103,6 +103,11 @@ mismo tono vivo —mismo matiz, misma saturación, distinta luz—:
 Sobre un relleno macizo la tinta es **oscura** (`--sobre-macizo`) en los dos
 modos, porque los tres tonos vivos son claros en los dos modos. Los correos
 siguen con la menta `#136b4e` que ya tenían.
+
+**`--carril` no es `--line`.** Un borde tiene que apenas notarse; el carril de
+un aro o de una barra tiene que dejar ver por dónde va lo lleno. De noche
+coinciden; de día no pueden, porque encima del carril hay que distinguir ocho
+colores y con el tono de los bordes el amarillo se perdía dentro (1,05).
 | Fondo | `#10151d` | `#dcdef0` (los correos, `#f2f4f8`) |
 | Tarjeta | `#1d2530` | `#f2f0f9` |
 | Levantado | — | `#f7f8fa` |
@@ -132,14 +137,22 @@ Cuatro cosas que hay que saber antes de tocarlo:
 
   | | para qué | umbral | ejemplo |
   | --- | --- | --- | --- |
-  | `pinta(c)` | rellenar | — | un punto, una barra, `--mc` |
+  | `pinta(c)` | rellenar una superficie | — | un icono cuadrado, un chip |
   | `tinta(c)` | escribir | 4,5 | un número, un rótulo |
-  | `trazo(c)` | dibujar | 3 | el contorno de un nodo, un hilo |
+  | `trazo(c)` | dibujar una LÍNEA | 3 | un aro, un contorno, una barra |
   | `velo(c, "22")` | el fondo tenue de una pastilla | — | `.ms-ic` |
+  | `tonos("mc", c)` | las dos primeras de golpe | — | `style="${tonos(…)}"` |
 
-  `trazo()` existe aparte de `tinta()` porque un dibujo pide 3 sobre 1 y no
-  4,5, así que puede quedarse mucho más cerca del color de verdad. Con el
-  hundido de los textos, un talento coral salía marrón sucio en el mapa.
+  **La regla que decide entre `pinta` y `trazo`: cuánta superficie ocupa.** Un
+  cuadrado relleno se ve a cualquier tono; una raya de 2 px o un aro de 4, no.
+  Por eso el aro de una misión, el contorno de un nodo, el arco de un anillo y
+  lo lleno de una barra van todos en `trazo()`, aunque parezcan rellenos.
+
+  Y `trazo()` no hunde un porcentaje fijo: cada color tiene su propia versión
+  de línea (`--paleta-N-linea`), la mínima que llega a 3 sobre 1. Con un
+  porcentaje igual para todos, al coral —que necesitaba un 16%— se le aplicaba
+  lo mismo que al amarillo —que necesita un 40%— y salía color ladrillo. El
+  lila no se mueve nada.
 
   **Nunca pegar la transparencia al hex** (`col + "22"`): eso ata el relleno a
   la cara de noche, porque a un `var(...)` no se le pueden pegar dos dígitos

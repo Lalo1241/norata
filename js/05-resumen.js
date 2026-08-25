@@ -117,7 +117,7 @@ function renderSummary() {
       <div class="panel ms-today">
         <div class="mt-head">
           <div class="ring-wrap" style="width:64px;height:64px">
-            ${ring(64, 7, [{ pct: pct / 100, color: "var(--mint)" }], "var(--line)")}
+            ${ring(64, 7, [{ pct: pct / 100, color: "var(--mint)" }], "var(--carril)")}
             <div class="ring-center"><div class="v" style="font-size:15px"><b>${done.length}/${due.length}</b></div></div>
           </div>
           <div class="mt-tx">
@@ -139,7 +139,7 @@ function renderSummary() {
           return `<div class="ms-list" style="margin-top:14px">
           ${lista.map(m => {
             const c = missionCount(m, key), t = missionTarget(m);
-            return `<div class="ms-card ${c >= t ? "done" : ""}" style="--mc:${pinta(m.color)}">
+            return `<div class="ms-card ${c >= t ? "done" : ""}" style="${tonos("mc", m.color)}">
               ${botonMision(m, c, t)}
               ${iconoMision(m)}
               <div class="ms-body"><div class="ms-name">${escapeHtml(m.name)}</div></div>
@@ -222,7 +222,7 @@ function renderSummary() {
             const pg = projectProgress(p), hh = projectHealth(p);
             return `<div class="sw-row">
               <span class="sw-name">${escapeHtml(p.name)}</span>
-              <span class="sw-bar"><i style="width:${pg}%;background:${pinta(p.color)}"></i></span>
+              <span class="sw-bar"><i style="width:${pg}%;background:${trazo(p.color)}"></i></span>
               <span class="sw-pct" style="color:${hh.color}">${pg}%</span>
             </div>`;
           }).join("")}
@@ -242,7 +242,7 @@ function renderSummary() {
         <p class="settings-note">Estos talentos están desbloqueados y esperando. Empieza uno para ponerlo en progreso.</p>
         <div class="ready-grid">
           ${readyList.slice(0, 6).map(p => `
-            <button class="ready-chip" onclick="openPerk('${p.id}')" style="--rc:${pinta(p.color)}">
+            <button class="ready-chip" onclick="openPerk('${p.id}')" style="${tonos("rc", p.color)}">
               <span class="rc-ic">${icon(p.icon, 17)}</span>
               <span class="rc-tx">
                 <b>${escapeHtml(p.name)}</b>
@@ -1253,7 +1253,7 @@ function renderHome() {
         <div class="skill-meta">${escapeHtml(s.category || "Sin categoría")}</div>
       </div>
       ${enSeleccion ? "" : `<div class="mini-ring">
-        ${ring(46, 4.5, [{ pct, color: pinta(s.color) }], "var(--line)")}
+        ${ring(46, 4.5, [{ pct, color: trazo(s.color) }], "var(--carril)")}
         <span class="lv" style="color:${tinta(s.color)}">${li.level}</span>
       </div>`}
     </button>`;
@@ -1563,7 +1563,7 @@ function refrescarSugerencias(pref) {
 
   cont.innerHTML = `<span class="sug-tit">Sube:</span>` + lista.map(x => `
     <button type="button" class="sug-chip ${sel && sel.value === x.s.id ? "on" : ""}"
-      style="--sc:${pinta(x.s.color)}" onclick="elegirSugerencia('${pref}','${x.s.id}')">
+      style="${tonos("sc", x.s.color)}" onclick="elegirSugerencia('${pref}','${x.s.id}')">
       ${escapeHtml(x.s.name)}${x.porRama ? ' <i>por la rama</i>' : ''}
     </button>`).join("");
 }

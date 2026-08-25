@@ -52,6 +52,37 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.3 · 25 ago 2026
+Repaso general del modo claro, módulo por módulo.
+
+Salió de una pregunta de Eduardo —«¿estás usando los colores que te di?»— y
+la respuesta medida era: en los rellenos sí, en las líneas no del todo.
+
+- **La regla que faltaba: cuánta superficie ocupa.** Un cuadrado relleno se ve
+  a cualquier tono; una raya de 2 px o un aro de 4, no. Así que el aro de una
+  misión, el contorno de un nodo, el arco de un anillo y lo lleno de una barra
+  pasan todos por `trazo()`, aunque parezcan rellenos.
+- **Y `trazo()` deja de hundir un porcentaje fijo.** Cada color tiene ahora su
+  propia versión de línea, la mínima que llega a 3 sobre 1. Con el 35% igual
+  para todos, al coral —que necesitaba un 16%— se le aplicaba lo mismo que al
+  amarillo —que necesita un 40%— y salía color ladrillo. El lila no se mueve
+  nada; el rosa y el acero, un 5%.
+- **Arreglado el aro de progreso, que era invisible.** Iba en el tono exacto
+  sobre un carril del color de los bordes: para el amarillo eso daba 1,05
+  sobre 1, o sea, no se veía cuánto llevabas. Ahora hay un `--carril` aparte
+  del tono de los bordes —un borde tiene que apenas notarse y un carril tiene
+  que dejar ver por dónde va lo lleno— y el arco va en la versión de línea.
+- **Y el aro de una misión pendiente**, que en amarillo daba 1,37.
+- Los bordes de día suben un punto. Sobre papel hay menos margen que sobre
+  carbón: el borde de un campo de texto daba 1,14 contra la página —o sea, no
+  había borde— y de noche ese mismo borde da 1,45.
+- Las líneas del motivo ilustrado también pasan por `trazo()`: eran el tono
+  exacto sobre un cielo claro.
+
+Medido en 14 pantallas: ningún texto, borde, aro ni barra se ve peor de día
+que de noche. De día quedan 30 líneas por debajo de 3 sobre 1 y de noche 48,
+y son las mismas: bordes de tarjeta y cosas apagadas a propósito.
+
 ### 0.7.2 · 25 ago 2026
 El modo claro deja de tener verde pasto, y el árbol deja de verse sucio.
 
