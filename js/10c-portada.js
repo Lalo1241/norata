@@ -256,7 +256,7 @@ function portadaPintar(modo) {
            <h2>Hola de nuevo, ${escapeHtml(sync.ultimoSaludo)}</h2>
            <p class="portada-lema">Escribe tu contraseña y sigues donde lo dejaste.</p>
          </div>`
-      : `<img class="portada-logo" src="marca/logotipo-claro.svg" alt="Norata">
+      : `<img class="portada-logo" src="${logotipoSrc()}" alt="Norata">
          <p class="portada-lema">Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.</p>`;
     dentro +=
       `<div id="portada-error" class="portada-error" hidden></div>
@@ -714,7 +714,7 @@ function mostrarNuevaClave() {
   cap.className = "portada";
   cap.innerHTML =
     `<div class="portada-caja">
-       <img class="portada-logo" src="marca/logotipo-claro.svg" alt="Norata">
+       <img class="portada-logo" src="${logotipoSrc()}" alt="Norata">
        <p class="portada-lema">Elige tu contraseña nueva. Con ella entrarás en todos tus dispositivos.</p>
        <div id="nc-error" class="portada-error" hidden></div>
        <div class="field"><span class="lbl">Contraseña nueva</span>

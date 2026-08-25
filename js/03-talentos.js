@@ -598,7 +598,7 @@ function verCaja(id) {
     return `
     <div class="caja-row ${st === "completed" ? "ok" : ""}">
       <button type="button" class="caja-ir" onclick="irATalentoDeCaja('${escapeAttr(p.id)}')">
-        <span class="ci" style="color:${p.color || "var(--mint)"}">${icon(st === "completed" ? "check" : (p.icon || "star"), 15)}</span>
+        <span class="ci" style="color:${tinta(p.color)}">${icon(st === "completed" ? "check" : (p.icon || "star"), 15)}</span>
         <span class="ct"><b>${escapeHtml(p.name)}</b><span>${metaDe(p).nombre} · ${STATUS_LABEL[st]}</span></span>
       </button>
       <button type="button" class="caja-sacar" title="Sacar del ático" aria-label="Sacar ${escapeAttr(p.name)} del ático"
@@ -609,7 +609,7 @@ function verCaja(id) {
   document.getElementById("caja-body").innerHTML = `
     <div class="caja-head">
       <button type="button" class="caja-nombre" onclick="renombrarCaja('${escapeAttr(c.id)}')" title="Renombrar esta caja">
-        <b style="color:${cc}">${escapeHtml(nombreCaja(c))}</b>${icon("pen", 12)}
+        <b style="color:${tinta(cc)}">${escapeHtml(nombreCaja(c))}</b>${icon("pen", 12)}
       </button>
       <span class="caja-sub">${escapeHtml(c.branch)} · ${tituloTrimestre(c.trimestre)} · guardada el ${formatDate(c.guardadoEl)}</span>
     </div>

@@ -203,7 +203,7 @@ function renderPerkDetail() {
   document.getElementById("perk-content").innerHTML = `
     <div class="detail-hero perk-hero h-${st}">
       <div class="strip">${motifScene(560, 156, hashSeed(p.id), motifFor(p.icon), p.color || "#5fe0b0")}</div>
-      <button type="button" class="skill-emoji editable" style="background:${(p.color || "#5fe0b0")}30;color:${p.color || "var(--mint)"}"
+      <button type="button" class="skill-emoji editable" style="background:${(p.color || "#5fe0b0")}30;color:${tinta(p.color)}"
         onclick="openPerkForm(currentPerkId)" title="Editar talento" aria-label="Editar talento">
         ${icon(p.icon, 26)}
         <span class="edit-hint">${icon("pen", 11)}</span>

@@ -36,6 +36,11 @@
 
    La prueba para el 2º: si el salto no se cuenta en una frase, no es un 2º.
 
+   0.8 ESTÁ APARTADO: es la beta, y a partir de ahí el salto es grande. No se
+   coge por acumulación. Mientras tanto la cuenta sigue por dentro de 0.7 —
+   0.7.1, 0.7.2…— aunque toque algo que en otro momento habría subido el 2º.
+   Lo decide Eduardo, igual que el 1.0. El detalle, en VERSIONES.md.
+
    AL CAMBIARLO hay que tocar tres sitios, y son tres a propósito —cada uno
    sirve para algo distinto y descuadrarlos se nota enseguida—:
      1. este número
@@ -43,8 +48,8 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.6.2.1";
-const VERSION_FECHA = "20 ago 2026";
+const VERSION = "0.7";
+const VERSION_FECHA = "25 ago 2026";
 
 /* ================= Iconografía propia =================
    Iconos de trazo (24x24) dibujados a mano; nada de emojis. */
@@ -104,7 +109,13 @@ const ICONS = {
   play: '<path d="M8 5.5l11 6.5-11 6.5z" stroke-linejoin="round"/>',
   alert: '<path d="M12 7v7M12 17.4v.2"/>',
   close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
-  settings: '<path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/>'
+  settings: '<path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/>',
+  /* Sol y luna: los dos modos de la app. Ocho rayos y no doce, porque a
+     15 px los doce se empastan en una rueda gris. */
+  sol: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.3M12 19.1v2.3M2.6 12h2.3M19.1 12h2.3M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/>',
+  /* La luna va con el hueco a la DERECHA, mirando al sol de al lado: al
+     revés los dos iconos se dan la espalda y la pareja se lee peor. */
+  luna: '<path d="M20 14.2A8.4 8.4 0 019.8 4 8.4 8.4 0 1020 14.2z"/>'
 };
 
 const ICON_LIST = ["brush","pen","book","dumbbell","code","music","camera","mic","globe","coin","bulb","heart","flame","trophy","target","flag","wrench","coffee","plant","cap","chart","map","compass","crown","gem","gamepad","star","bolt","shield","smile","rod","goggles","key"];
@@ -118,6 +129,121 @@ const EMOJI_TO_ICON = {
 function icon(name, size) {
   const paths = ICONS[name] || ICONS.star;
   return `<span class="ic"><svg viewBox="0 0 24 24" width="${size || 20}" height="${size || 20}">${paths}</svg></span>`;
+}
+
+/* ================= De noche o de día =================
+   La app nació oscura y esa sigue siendo su cara: quien no toque nada la ve
+   igual que siempre. El modo claro es para quien lo pida —una pantalla al
+   lado de una ventana a mediodía es un espejo—, y por eso el valor de
+   partida es "oscuro" y no lo que diga el sistema: si siguiéramos al sistema,
+   media Norata cambiaría de aspecto de golpe sin que nadie lo hubiera pedido.
+
+   Es preferencia DE ESTE APARATO, no dato del usuario: vive en su propia
+   llave de localStorage y nunca en `state`. Si viajara con la cuenta, poner
+   el teléfono en claro te dejaría la computadora en claro también, y el
+   teléfono se usa en la calle y la computadora de noche. Por eso mismo
+   tampoco entra en los respaldos ni en la sincronía.
+
+   Lo único que hace es poner (o quitar) la clase `claro` en <html>. De ahí
+   para abajo, todo el color sale de las variables de `css/estilos.css`. */
+const TEMA_LLAVE = "norata-tema";
+
+/* El color de una cosa del usuario, listo para ESCRIBIR con él —el número
+   dentro del círculo de una misión, el icono de una habilidad, el nombre de
+   una caja—. Rellenar con esos tonos va bien en los dos modos; escribir con
+   ellos, no: son ocho pasteles pensados para fondo oscuro y sobre papel
+   blanco se desvanecen.
+
+   Lo que devuelve es una mezcla que en oscuro no mezcla nada (`--hundir`
+   vale 0%) y en claro hunde el tono hacia el carbón. Va en color-mix y no en
+   una cuenta hecha aquí a propósito: así el color lo recalcula el navegador
+   al cambiar de modo, sin tener que volver a dibujar la pantalla.
+
+   Si le llega un `var(...)` lo devuelve tal cual: eso ya es un color de la
+   app, que cambia solo con el modo, y hundirlo otra vez lo dejaría negro. */
+function tinta(col) {
+  if (!col) return "var(--mint)";
+  if (String(col).indexOf("var(") === 0) return col;
+  return `color-mix(in srgb, ${col}, var(--tinta-fondo) var(--hundir))`;
+}
+
+function temaEsClaro() {
+  return document.documentElement.classList.contains("claro");
+}
+
+/* El logotipo de la portada es un <img>, y a una imagen no se le puede
+   cambiar el color desde el CSS: hay que cambiar de archivo. Los dos existen
+   desde siempre en `marca/` y los nombres dicen de qué COLOR es el dibujo,
+   no para qué fondo sirve —el claro es el que se usa sobre fondo oscuro—,
+   que es justo al revés de lo que uno lee con prisa. */
+function logotipoSrc() {
+  return temaEsClaro() ? "marca/logotipo-oscuro.svg" : "marca/logotipo-claro.svg";
+}
+
+function ponerTema(cual) {
+  const claro = cual === "claro";
+  const raiz = document.documentElement;
+
+  /* Un instante sin transiciones, y esto NO es por estética.
+     En esta app una transición sobre una propiedad cuyo valor sale de una
+     variable se queda congelada: Chrome no se entera del cambio y deja el
+     color clavado en el primero que vio, para siempre. Cambiar de modo
+     cambia TODAS las variables de golpe, así que sin esto media app se
+     quedaba de noche —medido: la tarjeta de un cuadro de diálogo seguía en
+     #1d2530 con el texto ya oscuro encima, ilegible—.
+     Se apagan, se cambia, se fuerza el recálculo leyendo un estilo, y se
+     devuelven en el siguiente cuadro. */
+  raiz.classList.add("cambiando-modo");
+  raiz.classList.toggle("claro", claro);
+  getComputedStyle(raiz).backgroundColor;   // obliga a recalcular ya, no luego
+  /* Y se devuelven en el siguiente turno. Con requestAnimationFrame no vale:
+     en una pestaña que está en segundo plano el navegador no dibuja cuadros,
+     así que ese aviso no llega nunca y la app se quedaba SIN transiciones
+     para siempre. Un temporizador se dispara igual aunque no se pinte.
+     Da igual que tarde: el color nuevo ya entró en el recálculo de arriba,
+     con las transiciones apagadas, así que no queda ninguna a medias. */
+  setTimeout(() => raiz.classList.remove("cambiando-modo"), 0);
+  try { localStorage.setItem(TEMA_LLAVE, claro ? "claro" : "oscuro"); } catch (e) {}
+  /* La franja del navegador de arriba —y en Android la barra de estado de la
+     app instalada— no la pinta el CSS: sale de esta etiqueta, y sin
+     cambiarla la app clara se queda con una ceja negra encima. */
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", claro ? "#f2f4f8" : "#10151d");
+  pintarTema();
+}
+
+function alternarTema() {
+  ponerTema(temaEsClaro() ? "oscuro" : "claro");
+}
+
+/* El interruptor de sol y luna. Sale de aquí y no del HTML porque vive en
+   dos sitios a la vez —la pantalla de Ajustes del teléfono y el mini menú
+   del engrane en la computadora—, y dos copias escritas a mano acabarían
+   diciendo cosas distintas. Por eso también va con clases y no con ids. */
+function temaSwitchHTML() {
+  const claro = temaEsClaro();
+  const op = (valor, nombre, ico, activo) => `
+    <button type="button" class="ts-op${activo ? " on" : ""}" role="radio"
+      aria-checked="${activo}" onclick="ponerTema('${valor}')">
+      ${icon(ico, 15)}<span>${nombre}</span>
+    </button>`;
+  return `
+    <div class="tema-fila">
+      <span class="tema-tit">Aspecto</span>
+      <div class="tema-sw" role="radiogroup" aria-label="Aspecto de la app">
+        ${op("oscuro", "Oscuro", "luna", !claro)}
+        ${op("claro", "Claro", "sol", claro)}
+      </div>
+    </div>`;
+}
+
+/* Al cambiar de modo, los interruptores que estén puestos tienen que quedar
+   marcados donde toca. Se vuelven a dibujar en vez de manosear clases uno a
+   uno: así solo hay una descripción de cómo se ve el control, la de arriba. */
+function pintarTema() {
+  document.querySelectorAll(".tema-hueco").forEach(h => { h.innerHTML = temaSwitchHTML(); });
+  // Y el logotipo de la portada, que es una imagen y no se recolorea sola
+  document.querySelectorAll(".portada-logo").forEach(img => { img.src = logotipoSrc(); });
 }
 
 /* ================= Modelo y persistencia ================= */

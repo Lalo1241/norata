@@ -29,6 +29,17 @@ llena. Se sube de nivel cuando lo que se hizo lo merece, y solo entonces.
 La prueba para el 2º: **si el salto no se cuenta en una frase, no es un 2º.**
 Diez tandas de arreglos siguen siendo arreglos.
 
+## `0.8` está apartado: es la beta
+
+El único número reservado de antemano. **`0.8` no se coge por acumulación** —
+ni por diez tandas, ni por un módulo nuevo, ni porque `0.7` «lleve mucho»—:
+es la puerta de la beta, y a partir de ahí el salto es grande.
+
+Así que mientras tanto la cuenta sigue por dentro de `0.7`: después de `0.7`
+viene `0.7.1`, y luego `0.7.2`, `0.7.3`… Un módulo nuevo o una pantalla nueva
+que en otro momento habría subido el 2º sube el 3º y ya está. Lo decide
+Eduardo, igual que el `1.0`.
+
 ## Al subir la versión
 
 Cuatro sitios, y son cuatro a propósito:
@@ -40,6 +51,46 @@ Cuatro sitios, y son cuatro a propósito:
 4. Una línea en esta lista
 
 ## La lista
+
+### 0.7 · 25 ago 2026
+Norata también es de día.
+
+- **Modo claro**, con un interruptor de sol y luna en Ajustes: en el teléfono
+  arriba de la lista de secciones, y en la computadora al final del mini menú
+  del engrane, que es el único sitio donde esa lista se ve. La app sigue
+  naciendo oscura: el claro es una elección, no lo que diga el sistema.
+- Es preferencia **de este aparato**, no de la cuenta. El teléfono se usa en
+  la calle y la computadora de noche, así que no viaja con la sincronía ni
+  entra en los respaldos.
+- Los acentos cambian de tono, no de sitio: la menta de la noche sobre papel
+  blanco da 1,7 sobre 1 y desaparece. En claro se usan los tres tonos que ya
+  vivían en los correos —menta `#136b4e`, coral `#b1341d`, ámbar `#8a6209`—,
+  medidos uno por uno contra el fondo donde se escriben.
+- Los ocho colores que se pueden elegir para una misión o una habilidad están
+  guardados en los datos y no se pueden cambiar, así que en claro se hunden
+  hacia el carbón lo justo para leerse. Rellenar con ellos sigue igual.
+- **La escena de la racha y la celebración se quedan de noche** en los dos
+  modos: no son interfaz, son un dibujo y un fogonazo de luz.
+- Ningún color se escribe ya suelto dentro de una regla: todos salen de las
+  variables de `:root`, y eso incluye el árbol de talentos, que se dibuja
+  desde JavaScript.
+- Arreglado de paso: al cambiar de modo, media app se quedaba con el color
+  viejo clavado. Era la trampa de siempre —una transición sobre un valor que
+  sale de una variable no se entera del cambio—, y ahora el cambio se hace
+  con las transiciones apagadas un instante.
+
+### 0.6.3 · 22 ago 2026
+Norata empieza a contar si la gente vuelve.
+- Una tabla de pulsos en Supabase: **una fila por persona y día**, con el
+  día, la versión, si fue teléfono o computadora y si estaba instalada.
+  Cuentas, nunca contenido — ni un título de misión entra ahí.
+- Nadie toca esa tabla directamente: la única puerta es una función que solo
+  sabe apuntar a quien la llama, así que la fecha la pone el servidor y no
+  hay historial que falsificar.
+- El latido va lo último del arranque, sin esperarlo y fallando en silencio:
+  si falta correr el SQL o no hay red, nadie se entera.
+- Quien prueba sin cuenta sigue siendo invisible, a propósito.
+- Las seis consultas de lectura quedan escritas en `supabase/medicion.sql`.
 
 ### 0.6.2.1 · 20 ago 2026
 Retoques sobre la ventana de Ajustes.

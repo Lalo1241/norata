@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.6.2.1";
+const CACHE = "norata-0.7";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -20,7 +20,11 @@ const ASSETS = [
   "./js/04-misiones.js", "./js/05-resumen.js", "./js/06-detalle.js",
   "./js/07-lienzo.js", "./js/08-formularios.js", "./js/09-inicio.js",
   "./js/10-fusion.js", "./js/10-sincronia.js", "./js/10a-perfil.js", "./js/10b-supabase.js", "./js/10c-portada.js",
-  "./js/11-arranque.js", "./marca/logotipo-claro.svg"
+  "./js/11-arranque.js",
+  /* Los dos logotipos, porque desde el modo claro la portada usa uno u otro
+     según cómo esté la app. Sin el segundo aquí, quien entre de día y sin red
+     se queda con el hueco de una imagen que no llegó. */
+  "./marca/logotipo-claro.svg", "./marca/logotipo-oscuro.svg"
 ];
 
 /* La tipografía (43 KB) es lo único que se sirve de caché sin consultar a la

@@ -138,7 +138,7 @@ function renderMissions() {
               crecer es la respuesta a lo que acabas de hacer. Estático,
               el porcentaje simplemente aparecía cambiado y el gesto se
               quedaba sin acuse de recibo. */
-          animRing(92, 9, pct / 100, "#5fe0b0",
+          animRing(92, 9, pct / 100, "var(--mint)",
             lastMisionPct === null ? 0 : lastMisionPct, "rgba(234,241,239,0.14)")}
         <div class="ring-center">
           <div class="v" style="font-size:19px"><b>${done.length}</b><span style="font-size:13px;color:var(--muted)">/${due.length}</span></div>
@@ -330,7 +330,7 @@ function renderProjects() {
           return `
           <button class="proj-card ${dim ? "dim" : ""}" data-rid="${p.id}" onclick="openProject('${p.id}')" style="--pc:${col}">
             <div class="proj-top">
-              <span class="proj-ic" style="background:${col}22;color:${col}">${icon(p.icon, 19)}</span>
+              <span class="proj-ic" style="background:${col}22;color:${tinta(col)}">${icon(p.icon, 19)}</span>
               <span class="proj-name">${escapeHtml(p.name)}</span>
               <span class="proj-state" style="background:${PROJECT_STATUS[p.status].soft};color:${PROJECT_STATUS[p.status].color}">${PROJECT_STATUS[p.status].label}</span>
             </div>
@@ -469,7 +469,7 @@ function renderProjectDetail() {
   const heroHtml = `
     <div class="detail-hero">
       <div class="strip">${motifScene(560, 156, hashSeed(pr.id), motifFor(pr.icon), col)}</div>
-      <div class="skill-emoji" style="background:${col}30;color:${col}">${icon(pr.icon, 28)}</div>
+      <div class="skill-emoji" style="background:${col}30;color:${tinta(col)}">${icon(pr.icon, 28)}</div>
       <h2>${escapeHtml(pr.name)}</h2>
       <span class="cat">Rama de Proyectos · ${escapeHtml(pr.branch || "General")}</span>
       ${pr.desc ? `<div class="perk-desc">${escapeHtml(pr.desc)}</div>` : ""}
@@ -477,7 +477,7 @@ function renderProjectDetail() {
         ${icon(skill.icon, 13)} Entrena ${escapeHtml(skill.name)} →
       </button></div>` : ""}
       <div class="ring-wrap" style="margin-top:16px">
-        ${animRing(150, 12, prog / 100, col, 0, "#2a3441")}
+        ${animRing(150, 12, prog / 100, col, 0, "var(--line)")}
         <div class="ring-center">
           <div class="v"><b>${prog}%</b></div>
           <div class="k">${steps.filter(s => s.done).length} de ${steps.length} etapas</div>
@@ -486,7 +486,7 @@ function renderProjectDetail() {
     </div>`;
 
   const panelesHtml = `
-    <div class="panel alt" style="border-color:${h.key === "stalled" ? "rgba(255,138,112,0.45)" : "rgba(42,52,65,0.7)"}">
+    <div class="panel alt" style="border-color:${h.key === "stalled" ? "rgba(255,138,112,0.45)" : "var(--borde-panel)"}">
       <h3 style="color:${h.color}">${h.label}</h3>
       <p class="settings-note" style="margin:0">${escapeHtml(h.note)}</p>
     </div>
@@ -575,7 +575,7 @@ function renderDetail() {
   const pct = li.level >= MAX_LEVEL ? 1 : li.pct / 100;
   const ringHtml = `
     <div class="ring-wrap" id="lvl-ring">
-      ${animRing(150, 12, pct, s.color, lastDetailPct, "#2a3441")}
+      ${animRing(150, 12, pct, s.color, lastDetailPct, "var(--line)")}
       <div class="ring-center">
         <div class="v"><b>Nv ${li.level}</b></div>
         <div class="k">${li.level >= MAX_LEVEL ? "Nivel máximo" : li.inLevel + " / " + li.needed + " XP"}</div>
@@ -613,7 +613,7 @@ function renderDetail() {
   content.innerHTML = `
     <div class="detail-hero">
       <div class="strip">${motifScene(560, 156, hashSeed(s.id), motifFor(s.icon), s.color)}</div>
-      <button type="button" class="skill-emoji editable" style="background:${s.color}30;color:${s.color}"
+      <button type="button" class="skill-emoji editable" style="background:${s.color}30;color:${tinta(s.color)}"
         onclick="openSkillForm(currentSkillId)" title="Editar habilidad" aria-label="Editar habilidad">
         ${icon(s.icon, 28)}
         <span class="edit-hint">${icon("pen", 11)}</span>
@@ -1016,7 +1016,7 @@ function renderTree() {
       <div class="branch-collapsed">
         <span class="pips">${nodes.slice(0, 12).map(n => {
           const st = perkStatus(n);
-          const c = st === "completed" ? (n.color || "#5fe0b0") : (st === "active" || st === "due" ? "#f5d76e" : "#2e3947");
+          const c = st === "completed" ? (n.color || "#5fe0b0") : (st === "active" || st === "due" ? "var(--fire)" : "var(--pip)");
           return `<i style="background:${c}${tipoDe(n) === "hito" ? ";border-radius:999px" : ""}"></i>`;
         }).join("")}${nodes.length > 12 ? `<span style="font-size:11px">+${nodes.length - 12}</span>` : ""}</span>
         <span>${nodes.length} talento${nodes.length === 1 ? "" : "s"}</span>

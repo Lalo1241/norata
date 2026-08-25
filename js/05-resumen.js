@@ -117,7 +117,7 @@ function renderSummary() {
       <div class="panel ms-today">
         <div class="mt-head">
           <div class="ring-wrap" style="width:64px;height:64px">
-            ${ring(64, 7, [{ pct: pct / 100, color: "#5fe0b0" }], "#2a3441")}
+            ${ring(64, 7, [{ pct: pct / 100, color: "var(--mint)" }], "var(--line)")}
             <div class="ring-center"><div class="v" style="font-size:15px"><b>${done.length}/${due.length}</b></div></div>
           </div>
           <div class="mt-tx">
@@ -1182,7 +1182,7 @@ function renderHome() {
             const nv = levelInfo(s.xp).level;
             return `
             <button class="dz-row" onclick="openDetail('${s.id}')">
-              <span class="dz-ic" style="background:${s.color}22;color:${s.color}">${icon(s.icon, 15)}</span>
+              <span class="dz-ic" style="background:${s.color}22;color:${tinta(s.color)}">${icon(s.icon, 15)}</span>
               <span class="dz-tx">
                 <b>${escapeHtml(s.name)}</b>
                 <span>−${desgasteDiario(s)} XP al día${d ? ` · ${d} día${d === 1 ? "" : "s"} para caer al nivel ${nv - 1}` : ""}</span>
@@ -1247,14 +1247,14 @@ function renderHome() {
       onclick="${enSeleccion ? `toggleHabSel('${s.id}')` : `openDetail('${s.id}')`}">
       ${tab}
       ${enSeleccion ? `<span class="hb-check">${marcada ? icon("check", 13) : ""}</span>` : ""}
-      <div class="skill-emoji" style="background:${s.color}26;color:${s.color}">${icon(s.icon, 23)}</div>
+      <div class="skill-emoji" style="background:${s.color}26;color:${tinta(s.color)}">${icon(s.icon, 23)}</div>
       <div class="skill-info">
         <div class="skill-name">${escapeHtml(s.name)}</div>
         <div class="skill-meta">${escapeHtml(s.category || "Sin categoría")}</div>
       </div>
       ${enSeleccion ? "" : `<div class="mini-ring">
-        ${ring(46, 4.5, [{ pct, color: s.color }], "#2a3441")}
-        <span class="lv" style="color:${s.color}">${li.level}</span>
+        ${ring(46, 4.5, [{ pct, color: s.color }], "var(--line)")}
+        <span class="lv" style="color:${tinta(s.color)}">${li.level}</span>
       </div>`}
     </button>`;
   }).join("");
@@ -1647,7 +1647,7 @@ function renderCatalogo() {
             return `
             <button class="cat-chip ${tengo ? "tengo" : ""} ${sel ? "sel" : ""}"
               ${tengo ? "disabled" : `onclick="toggleCatalogo('${escapeAttr(x.n)}')"`}>
-              <span class="cc-ic" style="background:${x.k}26;color:${x.k}">${icon(x.i, 18)}</span>
+              <span class="cc-ic" style="background:${x.k}26;color:${tinta(x.k)}">${icon(x.i, 18)}</span>
               <span class="cc-n">${escapeHtml(x.n)}</span>
               ${tengo ? `<span class="cc-ok">${icon("check", 15)}</span>` : `<span class="cc-box">${sel ? icon("check", 13) : ""}</span>`}
             </button>`;

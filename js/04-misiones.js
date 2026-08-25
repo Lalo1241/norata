@@ -400,7 +400,7 @@ const VOLVER = `<svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h
    de una habilidad: cuadrado teñido de su propio color. */
 function iconoMision(m) {
   const col = m.color || "#5fe0b0";
-  return `<span class="ms-ic" style="background:${col}22;color:${col}" aria-hidden="true">${icon(m.icon || "target", 16)}</span>`;
+  return `<span class="ms-ic" style="background:${col}22;color:${tinta(col)}" aria-hidden="true">${icon(m.icon || "target", 16)}</span>`;
 }
 
 function botonMision(m, c, t, opciones) {

@@ -707,7 +707,14 @@ function renderAjustes() {
   const escritorio = isDesktop();
   if (escritorio && !ajusteAbierto) ajusteAbierto = AJUSTES_SECS[0].id;
 
-  nav.innerHTML = AJUSTES_SECS.map(sec => `
+  /* El sol y la luna van en el índice, no dentro de una sección. Son tres
+     secciones a propósito (ver la nota de arriba) y el aspecto no es una
+     cuarta: es un interruptor de dos posiciones que se resuelve de un toque
+     y no tiene nada más dentro. Metido en "Mis módulos" o en
+     "Almacenamiento" estaría escondido detrás de una puerta que habla de
+     otra cosa. */
+  nav.innerHTML = `<div class="tema-hueco">${temaSwitchHTML()}</div>` +
+    AJUSTES_SECS.map(sec => `
     <button class="aj-item ${ajusteAbierto === sec.id ? "on" : ""} ${sec.id === "peligro" ? "riesgo" : ""}"
       onclick="mostrarAjuste('${sec.id}')">
       <span class="aj-ic">${icon(sec.icon, 17)}</span>
@@ -765,12 +772,18 @@ function abrirMenuAjustes(btn) {
   /* Sin el rótulo "AJUSTES" encima de la lista: el menú sale de un botón que
      ya dice Ajustes y que además queda iluminado justo debajo mientras está
      abierto. Repetirlo era decir dos veces lo mismo en cuatro centímetros. */
+  /* Y abajo del todo, el sol y la luna. En la computadora este menú es el
+     único sitio donde se ve el índice de Ajustes —la ventana lo esconde—,
+     así que si el interruptor viviera solo allí, en el escritorio no habría
+     forma de llegar a él. Va al final porque es lo que menos se cambia: lo
+     que trae a alguien aquí casi siempre es su cuenta. */
   m.innerHTML = ficha + `
     ${AJUSTES_SECS.map(sec => `
       <button class="mm-item ${sec.id === "peligro" ? "riesgo" : ""}" onclick="abrirVentanaAjustes('${sec.id}')">
         <span class="mm-ic">${icon(sec.icon, 16)}</span>
         <span class="mm-tx"><b>${escapeHtml(sec.nombre)}</b><span>${escapeHtml(sec.sub)}</span></span>
-      </button>`).join("")}`;
+      </button>`).join("")}
+    <div class="tema-hueco mm-tema">${temaSwitchHTML()}</div>`;
   m.classList.add("show");
   // Se coloca ya dibujado: antes de tener contenido no se sabe cuánto mide
   const r = btn.getBoundingClientRect();

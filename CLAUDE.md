@@ -24,6 +24,8 @@ El número se ve debajo de Ajustes y **las reglas están en `VERSIONES.md`** —
 leerlo antes de subirlo. En corto: cuatro tramos, `0.6.2.1`; el 4º es un
 retoque suelto, el 3º una tanda, el 2º algo que la app no hacía antes, y el
 1º llega a `1.0` el día de la Play Store. **Ningún tramo se para en 9.**
+**`0.8` está apartado para la beta** y no se coge por acumulación: hasta que
+Eduardo lo diga, la cuenta sigue por dentro de `0.7` (`0.7.1`, `0.7.2`…).
 
 Al subirlo: `VERSION` y `VERSION_FECHA` en `js/01-base.js`, `CACHE` en `sw.js`
 con el mismo número, y una línea en `VERSIONES.md`.
@@ -54,9 +56,12 @@ todos los fallos reales.
 - **Una transición sobre una propiedad cuyo valor sale de una variable se
   queda congelada.** Chrome no detecta el cambio y deja el color clavado en el
   inicial para siempre. Ya mordió tres veces: los selectores, el botón de
-  Ajustes que no se encendía y el botón de confirmar un borrado, que salía
-  **verde** en vez de coral. **Se arregla quitando la transición** — apuntar a
-  `background-color` en vez de `background` no sirve.
+  Ajustes que no se encendía, el botón de confirmar un borrado que salía
+  **verde** en vez de coral, y el cambio de modo claro/oscuro, que dejaba
+  media app con el color viejo puesto. **Se arregla quitando la transición**
+  — apuntar a `background-color` en vez de `background` no sirve. Cuando hay
+  que cambiar muchas variables de golpe, la clase `cambiando-modo` las apaga
+  todas durante un turno (ver `ponerTema` en `js/01-base.js`).
 - **`align-items: center` esconde para siempre la parte de arriba de un hijo
   más alto que el contenedor.** El desplazamiento no llega a negativos. Se
   centra con `margin: auto` sobre el hijo.
@@ -79,13 +84,14 @@ de soltar.
 
 ## La paleta
 
-Pensada para **fondo oscuro** (la app). Los correos son claros y usan las
-variantes oscuras, porque viven en la bandeja de otro.
+Dos caras y los mismos tonos. La app nace de noche; el **modo claro** se
+elige en Ajustes (clase `claro` en `<html>`) y usa los tonos oscuros, que son
+los mismos que ya usaban los correos —viven en la bandeja de otro—.
 
-| | App (oscuro) | Correos (claro) |
+| | Noche (app) | Día (modo claro y correos) |
 | --- | --- | --- |
 | Menta | `#5fe0b0` | `#136b4e` |
-| Luciérnaga | `#f5d76e` | — |
+| Luciérnaga | `#f5d76e` | `#8a6209` |
 | Coral | `#ff8a70` | `#b1341d` |
 | Celeste | `#8ecdf5` | `#1a6a99` |
 | Fondo | `#10151d` | `#f2f4f8` |
@@ -93,6 +99,24 @@ variantes oscuras, porque viven en la bandeja de otro.
 **Sobre blanco hay que usar la versión oscura**: la menta de la app sobre
 blanco da 1,7 sobre 1. Al inventar un tono para fondo claro, calcular el
 contraste antes de usarlo (umbral 4,5 para texto normal).
+
+**Ningún color se escribe suelto dentro de una regla.** Todos salen de las
+variables de `:root` en `css/estilos.css`, y el modo claro se hace cambiando
+esas variables y nada más — incluido el árbol de talentos, que se dibuja
+desde JavaScript y lee `var(--...)` en los atributos del SVG. Al añadir un
+tono nuevo: se declara arriba, con su pareja clara en `html.claro`.
+
+Tres cosas que hay que saber antes de tocarlo:
+
+- **Los ocho colores que elige el usuario** están guardados en sus datos y no
+  se pueden cambiar. Para ESCRIBIR con ellos se pasan por `tinta()`, que en
+  claro los hunde hacia el carbón; para rellenar se usan crudos.
+- **La escena de la racha y la celebración se quedan de noche** en los dos
+  modos: no son interfaz, son un dibujo. Dentro de ellas la paleta oscura se
+  vuelve a declarar entera (regla `.scene-card, .celebrate`).
+- **El logotipo de la portada es un `<img>`** y hay que cambiar de archivo:
+  `logotipoSrc()` elige entre los dos de `marca/`. Ojo con los nombres, que
+  dicen de qué color es el dibujo: el *claro* va sobre fondo oscuro.
 
 ## El tono
 

@@ -1,7 +1,17 @@
   /* ============ Sistema visual: "noche de expedición" ============
      Carbón azulado + menta + amarillo luciérnaga. Escenas SVG generadas,
      iconografía propia de trazo, geometría con significado en el árbol,
-     celebraciones de luz y cluster del pulgar. Oscuro por diseño. */
+     celebraciones de luz y cluster del pulgar.
+
+     La app nació de noche y esa sigue siendo su cara. Pero hay gente que
+     trabaja con la pantalla al lado de una ventana y a mediodía una app
+     oscura es un espejo, así que el modo claro existe y se elige en Ajustes
+     (ver `html.claro` más abajo).
+
+     La regla para no romperlo: NINGÚN color se escribe suelto en una regla.
+     Todos salen de las variables de aquí, y el modo claro se hace cambiando
+     esas variables y nada más. Si al añadir algo hace falta un tono nuevo,
+     el sitio donde se declara es este, con su pareja clara al lado. */
   :root {
     --bg: #10151d;
     --bg2: #151b25;
@@ -18,6 +28,93 @@
     --fire-soft: rgba(245, 215, 110, 0.13);
     --coral: #ff8a70;
     --coral-soft: rgba(255, 138, 112, 0.13);
+    --coral-vivo: #ffa38d;
+    --celeste: #8ecdf5;
+    --celeste-soft: rgba(142, 205, 245, 0.1);
+
+    /* ---------- Los tonos que cambian de bando ----------
+       Cada uno estaba escrito suelto donde hacía falta, y así el modo claro
+       era imposible: no había un sitio donde cambiarlos. */
+
+    /* La tinta que va ENCIMA de un relleno de acento (menta, luciérnaga,
+       coral). En oscuro los acentos son claros y la tinta es negra; en claro
+       los acentos son profundos y la tinta pasa a blanca. Por eso no vale
+       poner "#10151d" a mano: sería un botón verde oscuro con letra negra. */
+    --sobre-acento: #10151d;
+    --sobre-acento-coral: #3a1009;
+
+    --borde-panel: rgba(42, 52, 65, 0.7);
+    --linea-guion: #3a4757;   /* el punteado del botón de añadir */
+    --pip: #2e3947;           /* los rombitos de una rama plegada */
+    --hueco: #1a2330;         /* el rectángulo de un grupo, al pasar por encima */
+    --tag-fondo: #121821;     /* la etiqueta del marco de "cuenta de pruebas" */
+    --peligro-nota: #c6a89f;
+    /* La tinta del logotipo. Es el mismo dibujo en los dos modos —solo cambia
+       de color— y por eso los trazos van en currentColor y no con el tono
+       escrito dentro del SVG. El isotipo de al lado se queda menta en los dos,
+       que es como esta hecho el logotipo oficial para fondo claro
+       (marca/logotipo-oscuro.svg). */
+    --marca: #f7f8fa;
+
+    /* El velo claro con el que se marca lo pulsado. Sobre papel blanco un
+       blanco al 4% no existe, así que en claro se vuelve tinta. */
+    --vidrio: rgba(255, 255, 255, 0.04);
+    --vidrio-fuerte: rgba(255, 255, 255, 0.07);
+
+    /* Superficies que flotan sobre la página, con desenfoque detrás */
+    --flotante: rgba(29, 37, 48, 0.92);
+    --flotante-macizo: rgba(23, 30, 40, 0.97);
+    --flotante-lateral: rgba(21, 27, 37, 0.72);
+
+    /* Lo que se pone ENTRE una ventana y la página. Sigue siendo oscuro en
+       los dos modos: un velo aclara el fondo en vez de apagarlo, y entonces
+       la ventana deja de despegarse. */
+    --velo: rgba(6, 9, 14, 0.72);
+    --velo-macizo: rgba(8, 11, 16, 0.88);
+
+    /* Tres fuerzas de sombra, no diecisiete negros sueltos. En claro son
+       azules y flojas: un negro a 0,6 sobre blanco es un manchón de luto. */
+    --sombra-s: rgba(0, 0, 0, 0.35);
+    --sombra-m: rgba(0, 0, 0, 0.45);
+    --sombra-l: rgba(0, 0, 0, 0.6);
+
+    --pulgar: #33404f;        /* la barra de desplazamiento */
+    --pulgar-vivo: #465569;
+
+    /* ---------- El lienzo del árbol ----------
+       El mapa de talentos se dibuja en SVG desde JavaScript, así que sus
+       tonos no pueden salir de una regla: se leen desde el atributo con
+       `var(...)`, y por eso viven aquí y no dentro de `07-lienzo.js`. */
+    --lienzo-apagado: #4a5768;  /* un requisito que aún no se cumple */
+    --lienzo-hilo: #3d4a5c;     /* el hilo entre dos talentos, apagado */
+    --lienzo-rotulo: #a8b4c0;   /* el nombre debajo de cada nodo */
+    --lienzo-halo: #1d2530;     /* el recorte que separa un hilo del fondo */
+    --lienzo-ficha: #161d28;    /* los discos pequeños que cuelgan del nodo */
+    --lienzo-caja: #121821;     /* la etiqueta de un grupo */
+    --lienzo-bloqueado: #1a2230;/* el relleno de un talento con candado */
+    --lienzo-flujo: #fff3cf;    /* los guiones que corren por un hilo vivo */
+
+    /* El fondo de todo. `--esquema` es lo que le dice al navegador de qué
+       color pintar LO SUYO —barra de direcciones, menús de un <select>, los
+       calendarios— y sin él un modo claro se queda con desplegables negros. */
+    /* ---------- Los colores que elige el usuario ----------
+       Los ocho tonos de la paleta (`COLORS`, en `01-base.js`) se escogieron
+       para brillar sobre carbón, y sobre papel blanco se caen: el celeste
+       #6fc3e8 escrito sobre blanco da 1,7 sobre 1. Cambiarlos no se puede
+       —están guardados en los datos de cada quien— así que en claro se
+       hunden hacia el fondo de noche, lo justo para leerse. El 52% deja el
+       peor de los ocho (el amarillo) en 4,9 sobre una tarjeta blanca.
+
+       En oscuro `--hundir` vale 0%, que en color-mix significa "no toques
+       nada": el color sale exactamente como estaba. Así la misma regla vale
+       para los dos modos y no hay dos versiones que descuadrar. */
+    --hundir: 0%;
+    --tinta-fondo: #0c1118;
+
+    --esquema: dark;
+    --fondo-raiz: #0e131b;
+    --fondo-pagina: linear-gradient(180deg, #0e131b 0%, #131924 55%, #10151d 100%);
+
     --sans: 'Outfit', 'Segoe UI', system-ui, sans-serif;
     /* Solo se usa en escritorio (ver @media min-width:900px), pero vive
        aquí para que la barra lateral y el margen del contenido siempre
@@ -55,6 +152,137 @@
     --piso-bloqueo: 9000;  /* datos de una versión más nueva */
     --piso-carga: 9500;    /* la pantalla de esperar */
   }
+  /* ============ Modo claro ============
+     La misma app de día. No es "el oscuro con los colores al revés": los
+     acentos tienen que cambiar de tono, porque la menta de la noche (#5fe0b0)
+     sobre papel blanco da 1,7 sobre 1 y desaparece. Los tres acentos de aquí
+     son los que ya se usan en los correos, que viven en fondo claro desde
+     siempre, así que la marca se lee igual en los dos sitios.
+
+     Cada tono se midió contra el fondo donde se usa, no a ojo (umbral 4,5
+     para texto normal):
+
+       menta   #136b4e   5,9 sobre la página · 6,5 sobre una tarjeta
+       coral   #b1341d   5,7 · 6,2
+       ámbar   #8a6209   5,0 · 5,5
+       celeste #1a6a99   5,4 · 5,9
+       texto   #16202b  15,0 · 16,5
+       apagado #5b6875   5,2 · 5,7
+
+     Y funcionan también al revés —blanco encima de ellos— que es lo que pide
+     un botón macizo: 6,5 el de menta, 6,2 el de coral. */
+  html.claro {
+    --bg: #f2f4f8;
+    --bg2: #e9edf4;
+    --card: #ffffff;
+    --card2: #f1f4f9;
+    --line: #d6dde8;
+    --text: #16202b;
+    --muted: #5b6875;
+    --faint: #6d7b8a;
+    --mint: #136b4e;
+    --mint-deep: #0d5239;
+    --mint-soft: rgba(19, 107, 78, 0.11);
+    --fire: #8a6209;
+    --fire-soft: rgba(138, 98, 9, 0.13);
+    --coral: #b1341d;
+    --coral-soft: rgba(177, 52, 29, 0.10);
+    --coral-vivo: #8e2513;
+    --celeste: #1a6a99;
+    --celeste-soft: rgba(26, 106, 153, 0.12);
+
+    --sobre-acento: #ffffff;
+    --sobre-acento-coral: #ffffff;
+
+    --borde-panel: #dfe4ec;
+    --linea-guion: #c2ccd9;
+    --pip: #ccd5e0;
+    --hueco: #eef1f6;
+    --tag-fondo: #ffffff;
+    --peligro-nota: #7f4536;
+    --marca: #131823;
+
+    --vidrio: rgba(22, 32, 43, 0.045);
+    --vidrio-fuerte: rgba(22, 32, 43, 0.08);
+
+    --flotante: rgba(255, 255, 255, 0.94);
+    --flotante-macizo: rgba(255, 255, 255, 0.98);
+    --flotante-lateral: rgba(255, 255, 255, 0.82);
+
+    /* El velo sigue siendo oscuro a propósito. Un velo blanco sobre una
+       página blanca no separa nada: la ventana se quedaría flotando sin
+       suelo y no se sabría qué está apagado y qué no. */
+    --velo: rgba(16, 24, 34, 0.42);
+    --velo-macizo: rgba(16, 24, 34, 0.62);
+
+    --sombra-s: rgba(23, 38, 56, 0.07);
+    --sombra-m: rgba(23, 38, 56, 0.10);
+    --sombra-l: rgba(23, 38, 56, 0.14);
+
+    --pulgar: #c3ccd8;
+    --pulgar-vivo: #a3b0c0;
+
+    --lienzo-apagado: #98a5b4;
+    --lienzo-hilo: #b3bdcb;
+    --lienzo-rotulo: #41505e;
+    --lienzo-halo: #e4e9f1;
+    --lienzo-ficha: #ffffff;
+    --lienzo-caja: #ffffff;
+    --lienzo-bloqueado: #eef1f6;
+    --lienzo-flujo: #c08c00;
+
+    --hundir: 52%;
+
+    --esquema: light;
+    --fondo-raiz: #f2f4f8;
+    --fondo-pagina: linear-gradient(180deg, #f6f8fb 0%, #eef1f7 55%, #f2f4f8 100%);
+  }
+
+  /* Los orbes son manchas de luz: sobre carbón dan atmósfera y sobre papel
+     dan suciedad. De día se apagan. */
+  html.claro .orb { opacity: 0.45; }
+
+  /* El instante en que se cambia de modo, con todo quieto. Hay media docena
+     de reglas con `transition: 0.2s` a secas —o sea, TODAS las propiedades—
+     y una transición sobre un color que sale de una variable se congela: el
+     navegador no detecta el cambio y deja el tono viejo puesto para siempre.
+     Apagándolas durante el cambio, el color nuevo entra de golpe, que además
+     es como tiene que entrar: un modo claro que se desvanece desde el oscuro
+     durante un cuarto de segundo se ve como un fallo, no como un efecto. */
+  html.cambiando-modo, html.cambiando-modo * { transition: none !important; }
+
+  /* ---------- Lo que se queda de noche ----------
+     Dos cosas no cambian de modo, y por el mismo motivo: no son interfaz.
+
+     La tarjeta de escena —la de la racha y los encabezados de sección— es un
+     DIBUJO de una noche de expedición, con su cielo, su luna y sus abetos.
+     Y la celebración es un fogonazo de luz sobre un fondo apagado: aclararla
+     sería quitarle justo lo que la hace una celebración.
+
+     Las dos siguen oscuras en claro, así que todo lo que va escrito encima
+     —cifras, rótulos, las pastillas de vidrio— necesita la paleta de noche o
+     se vuelve ilegible. Se resuelve aquí, en un sitio, en vez de ir
+     arreglando rótulo por rótulo: vuelven a declarar las variables que usan
+     sus hijos, y lo que se añada dentro ya nace con el tono correcto. */
+  .scene-card, .celebrate {
+    --text: #eaf1ef;
+    --muted: #8b99a5;
+    --faint: #5d6b77;
+    --mint: #5fe0b0;
+    --mint-deep: #37b287;
+    --mint-soft: rgba(95, 224, 176, 0.13);
+    --fire: #f5d76e;
+    --fire-soft: rgba(245, 215, 110, 0.13);
+    --coral: #ff8a70;
+    --coral-soft: rgba(255, 138, 112, 0.13);
+    --sobre-acento: #10151d;
+    --sobre-acento-coral: #3a1009;
+    /* Y los colores del usuario tampoco se hunden aquí dentro: el fondo
+       sigue siendo de noche, que es para lo que se eligieron. */
+    --hundir: 0%;
+    color: var(--text);
+  }
+
   html.sc { --sidebar-w: 84px; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -71,16 +299,16 @@
      Va con `*` a propósito, para que valga también dentro de las ventanas y
      los paneles. Lo que quiere esconderlas del todo —las tiras de chips, el
      lienzo del árbol— tiene su propia regla y gana por ser más específica. */
-  * { scrollbar-width: thin; scrollbar-color: #33404f transparent; }
+  * { scrollbar-width: thin; scrollbar-color: var(--pulgar) transparent; }
   ::-webkit-scrollbar { width: 11px; height: 11px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: #33404f;
+    background: var(--pulgar);
     border-radius: 999px;
     border: 3px solid transparent;
     background-clip: padding-box;
   }
-  ::-webkit-scrollbar-thumb:hover { background: #465569; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--pulgar-vivo); background-clip: padding-box; }
   ::-webkit-scrollbar-corner { background: transparent; }
   /* El fondo va también en <html>, no solo en <body>: la franja que asoma al
      rebotar el scroll en el móvil la pinta el elemento raíz, y sin esto salía
@@ -90,12 +318,12 @@
   html {
     -webkit-text-size-adjust: 100%;
     scrollbar-gutter: stable;
-    color-scheme: dark;
-    background: #0e131b;
+    color-scheme: var(--esquema);
+    background: var(--fondo-raiz);
   }
   body {
     font-family: var(--sans);
-    background: linear-gradient(180deg, #0e131b 0%, #131924 55%, #10151d 100%);
+    background: var(--fondo-pagina);
     background-attachment: fixed;
     color: var(--text);
     min-height: 100vh;
@@ -172,7 +400,7 @@
     border-radius: 34px 34px 34px 12px;
     height: 252px;
     margin-bottom: 20px;
-    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 22px 50px var(--sombra-m);
   }
   .scene { position: absolute; inset: 0; width: 100%; height: 100%; }
   .scene-fade {
@@ -278,7 +506,7 @@
     z-index: 6;
     font-family: inherit;
     padding: 0;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+    box-shadow: 0 4px 14px var(--sombra-m);
   }
   .w-resize svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; }
   .widget.sizing > *:not(.w-edit):not(.w-resize) { outline-color: var(--mint); }
@@ -291,10 +519,10 @@
     letter-spacing: 0.6px;
     text-transform: uppercase;
     background: var(--mint);
-    color: #10151d;
+    color: var(--sobre-acento);
     border-radius: 999px;
     padding: 4px 11px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 14px var(--sombra-m);
   }
   .w-grip .ic svg { width: 12px; height: 12px; stroke-width: 2.4; }
   /* Pegado al título: en la esquina derecha chocaba con el asa de tamaño */
@@ -303,12 +531,12 @@
     border-radius: 999px;
     border: none;
     background: var(--coral);
-    color: #10151d;
+    color: var(--sobre-acento);
     font-size: 13px;
     font-weight: 800;
     font-family: inherit;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 14px var(--sombra-m);
     pointer-events: auto;
   }
   .dash.editing .widget:not(.dragging) { animation: wiggle 2.4s ease-in-out infinite; }
@@ -321,7 +549,7 @@
   .widget.ghost {
     opacity: 0.94;
     transform: scale(1.03);
-    filter: drop-shadow(0 18px 34px rgba(0,0,0,0.6));
+    filter: drop-shadow(0 18px 34px var(--sombra-l));
   }
   .widget.ghost .w-edit { display: none; }
   /* La bandeja del Modo Editor. Ya no es una celda del tablero: es un panel
@@ -380,7 +608,7 @@
     background: var(--mint-soft);
     box-shadow: 0 0 0 1px rgba(95, 224, 176, 0.25);
   }
-  .acomodo.on .ac-n { background: var(--mint); color: #0f1620; }
+  .acomodo.on .ac-n { background: var(--mint); color: var(--sobre-acento); }
   .acomodo.on .ac-tx span { color: var(--muted); }
   .acomodo:active { border-style: solid; border-color: var(--mint); }
   .ac-n {
@@ -449,7 +677,7 @@
      son "antes de empezar"— estiraba cada casilla de la semana hasta 389px y
      la tira se salía de la tarjeta por arriba. Con datos de ejemplo no se
      veía nunca, porque ahí ningún día lleva esa clase. */
-  .wk-d.wk-done .wk-c { background: var(--mint); color: #0e131b; box-shadow: 0 0 12px rgba(95, 224, 176, 0.45); }
+  .wk-d.wk-done .wk-c { background: var(--mint); color: var(--sobre-acento); box-shadow: 0 0 12px rgba(95, 224, 176, 0.45); }
   .wk-d.wk-missed .wk-c { background: rgba(255, 138, 112, 0.14); color: var(--coral); }
   .wk-d.wk-hoy .wk-c { background: rgba(95, 224, 176, 0.1); color: var(--mint); box-shadow: inset 0 0 0 2px var(--mint); }
   /* Un día que todavía no llega no se juzga: ni verde ni rojo */
@@ -541,7 +769,7 @@
   .sum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
   .sum-card {
     background: var(--card);
-    border: 1px solid rgba(42, 52, 65, 0.7);
+    border: 1px solid var(--borde-panel);
     padding: 16px;
     text-align: left;
     font-family: inherit;
@@ -614,7 +842,7 @@
   .sug-chip i { font-style: normal; font-weight: 500; font-size: 10.5px; opacity: 0.7; }
   .sug-chip.on {
     border-color: var(--sc, var(--mint));
-    color: var(--sc, var(--mint));
+    color: color-mix(in srgb, var(--sc, var(--mint)), var(--tinta-fondo) var(--hundir));
     background: color-mix(in srgb, var(--sc, #5fe0b0) 14%, transparent);
   }
   /* Sin color-mix el fondo se cae, pero el borde y el texto ya distinguen
@@ -739,7 +967,7 @@
     position: sticky;
     bottom: calc(12px + env(safe-area-inset-bottom));
     display: flex; gap: 9px;
-    background: rgba(16, 21, 29, 0.92);
+    background: var(--flotante);
     backdrop-filter: blur(10px);
     border: 1px solid var(--line);
     border-radius: 16px;
@@ -820,6 +1048,77 @@
   .aj-item.riesgo .aj-ic { background: var(--coral-soft); color: var(--coral); }
   .aj-item.on { border-color: var(--mint); background: var(--card2); }
 
+  /* ---------- Sol y luna ----------
+     Dos posiciones a la vista y no un interruptor de encender/apagar: con un
+     solo botón hay que adivinar si el dibujo dice en qué modo estás o a cuál
+     te lleva, y esa duda la tiene todo el mundo la primera vez. Aquí las dos
+     opciones se ven, y la que está puesta está marcada.
+
+     Sin `transition` ninguna, y no por prisa: en esta app una transición
+     sobre una propiedad cuyo valor sale de una variable se queda congelada
+     —Chrome no se entera del cambio y deja el color clavado en el primero
+     que vio—. Ya pasó tres veces. Y aquí, además, cambiar de modo cambia
+     TODAS las variables a la vez: es justo el caso que lo dispara. */
+  .tema-fila {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 10px 12px;
+  }
+  .tema-tit {
+    flex: 1; min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .tema-sw {
+    flex: none;
+    display: flex;
+    gap: 3px;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px;
+  }
+  .ts-op {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    /* Alto final 33 px, del tamaño del botón de añadir (`.badd`, 32) y del
+       icono de una fila de Ajustes (34). Con menos relleno quedaba en 27 y
+       en el teléfono el pulgar se comía la mitad del otro. */
+    padding: 9px 13px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .ts-op svg { width: 15px; height: 15px; }
+  .ts-op.on {
+    background: var(--mint);
+    color: var(--sobre-acento);
+  }
+
+  /* En el mini menú la fila no lleva tarjeta propia: el menú YA es la
+     tarjeta, y una caja dentro de otra a ocho píxeles del borde se ve como
+     un error de montaje. Se separa con una línea, como el resto del menú. */
+  .mm-tema .tema-fila {
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+    margin-top: 6px;
+    padding: 10px 5px 3px;
+  }
+  .mm-tema .tema-tit { font-size: 13px; color: var(--muted); font-weight: 650; }
+
   /* El mismo dato en el teléfono, al final de la pantalla de Ajustes: ahí no
      hay barra lateral donde ponerlo. Centrado y con aire por arriba, para que
      se lea como el pie de la pantalla y no como una opción más de la lista. */
@@ -850,7 +1149,7 @@
     border: 1px solid var(--line);
     border-radius: 18px;
     padding: 8px;
-    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 26px 60px var(--sombra-l);
   }
   .mini-menu.show { display: block; }
   /* La ficha de quién está dentro, arriba del menú */
@@ -917,12 +1216,12 @@
   .mm-item:hover .mm-ic,
   .mm-item:focus-visible .mm-ic {
     background: var(--mint);
-    color: #10151d;
+    color: var(--sobre-acento);
   }
   .mm-item.riesgo:hover .mm-ic,
   .mm-item.riesgo:focus-visible .mm-ic {
     background: var(--coral);
-    color: #3a1009;
+    color: var(--sobre-acento-coral);
   }
   /* La ficha de la cuenta ya tiene fondo propio, así que sube al tono de
      encima para que el salto se note igual que en las filas. */
@@ -944,7 +1243,7 @@
     position: fixed;
     inset: 0;
     z-index: var(--piso-ventana);
-    background: rgba(6, 9, 14, 0.72);
+    background: var(--velo);
     backdrop-filter: blur(3px);
     align-items: center;
     justify-content: center;
@@ -971,7 +1270,7 @@
        redondeo suave se queda en las tarjetas del contenido, que sí son
        piezas sueltas; el marco que las contiene no compite con ellas. */
     border-radius: 8px;
-    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 40px 90px var(--sombra-l);
     display: flex;
     flex-direction: column;
   }
@@ -1042,7 +1341,7 @@
   .chip.active {
     background: var(--mint);
     border-color: var(--mint);
-    color: #10151d;
+    color: var(--sobre-acento);
   }
 
   /* ---------- Tarjeta de habilidad ---------- */
@@ -1055,7 +1354,7 @@
     font-family: inherit;
     color: var(--text);
     background: var(--card);
-    border: 1px solid rgba(42, 52, 65, 0.7);
+    border: 1px solid var(--borde-panel);
     padding: 14px 16px;
     margin-bottom: 12px;
     cursor: pointer;
@@ -1074,7 +1373,7 @@
     text-transform: uppercase;
     padding: 3px 10px;
     border-radius: 999px;
-    color: #10151d;
+    color: var(--sobre-acento);
   }
   .skill-tab.warn { background: var(--fire); }
   .skill-tab.perm { background: var(--mint); display: inline-flex; align-items: center; gap: 4px; }
@@ -1139,7 +1438,7 @@
     font-family: inherit;
     transition: transform 0.12s ease;
   }
-  .btn-primary { background: var(--mint); color: #10151d; box-shadow: 0 10px 26px rgba(95, 224, 176, 0.25); }
+  .btn-primary { background: var(--mint); color: var(--sobre-acento); box-shadow: 0 10px 26px rgba(95, 224, 176, 0.25); }
   .btn-soft { background: var(--mint-soft); color: var(--mint); }
   .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--line); }
   .btn-danger-ghost { background: var(--coral-soft); color: var(--coral); }
@@ -1174,13 +1473,13 @@
   .thumb-cluster .c-nav {
     width: 44px; height: 44px;
     border-radius: 999px;
-    background: rgba(29, 37, 48, 0.92);
+    background: var(--flotante);
     backdrop-filter: blur(10px);
     border: 1px solid var(--line);
     color: var(--faint);
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 20px var(--sombra-m);
     transition: 0.15s ease;
   }
   .thumb-cluster .c-nav svg {
@@ -1194,7 +1493,7 @@
   .thumb-cluster .c-nav.active {
     color: var(--mint);
     border-color: var(--mint);
-    box-shadow: 0 0 0 4px rgba(95, 224, 176, 0.12), 0 8px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 4px rgba(95, 224, 176, 0.12), 0 8px 20px var(--sombra-m);
   }
   .thumb-cluster .c-main {
     pointer-events: auto;
@@ -1202,7 +1501,7 @@
     width: 58px; height: 58px;
     border-radius: 999px;
     background: var(--mint);
-    color: #10151d;
+    color: var(--sobre-acento);
     border: none;
     font-size: 26px;
     font-weight: 500;
@@ -1236,7 +1535,7 @@
 
   .panel {
     background: var(--card);
-    border: 1px solid rgba(42, 52, 65, 0.7);
+    border: 1px solid var(--borde-panel);
     border-radius: 26px 26px 26px 10px;
     padding: 20px;
     margin-bottom: 14px;
@@ -1260,15 +1559,15 @@
     background: linear-gradient(180deg, rgba(255, 138, 112, 0.07), rgba(255, 138, 112, 0.03));
   }
   .panel.peligro h3 { color: var(--coral); }
-  .panel.peligro .settings-note { color: #c6a89f; }
+  .panel.peligro .settings-note { color: var(--peligro-nota); }
   .panel.peligro .btn-danger-ghost {
     background: var(--coral);
     /* Texto oscuro sobre coral: en blanco se queda en 2,4 sobre 1 y no se lee.
        Este da de sobra. */
-    color: #3a1009;
+    color: var(--sobre-acento-coral);
     font-weight: 750;
   }
-  .panel.peligro .btn-danger-ghost:hover { background: #ffa38d; }
+  .panel.peligro .btn-danger-ghost:hover { background: var(--coral-vivo); }
 
   .panel h3 {
     font-size: 11px;
@@ -1297,7 +1596,7 @@
     position: relative;
     overflow: hidden;
     background: var(--card);
-    border: 1px solid rgba(42, 52, 65, 0.7);
+    border: 1px solid var(--borde-panel);
     border-radius: 34px 34px 12px 34px;
     margin-bottom: 14px;
     text-align: center;
@@ -1591,7 +1890,7 @@
     cursor: pointer;
   }
   .xlink:active { border-color: var(--mint); color: var(--mint); }
-  .xlink .ic { color: var(--xc, var(--mint)); }
+  .xlink .ic { color: color-mix(in srgb, var(--xc, var(--mint)), var(--tinta-fondo) var(--hundir)); }
   .xlink .ic svg { width: 13px; height: 13px; }
 
   .linked-group + .linked-group { margin-top: 16px; }
@@ -1625,7 +1924,7 @@
     font-size: 13.5px;
   }
   .linked-row:active { background: var(--card2); }
-  .linked-row .lr-ic { color: var(--lc); display: inline-flex; flex-shrink: 0; }
+  .linked-row .lr-ic { color: color-mix(in srgb, var(--lc), var(--tinta-fondo) var(--hundir)); display: inline-flex; flex-shrink: 0; }
   .linked-row .lr-tx { flex: 1; min-width: 0; }
   .linked-row .lr-tx b { display: block; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .linked-row .lr-tx span { font-size: 11.5px; color: var(--muted); }
@@ -1633,7 +1932,7 @@
 
   .branch-card {
     background: var(--card);
-    border: 1px solid rgba(42, 52, 65, 0.7);
+    border: 1px solid var(--borde-panel);
     border-radius: 26px 26px 26px 10px;
     padding: 16px 0 6px;
     margin-bottom: 16px;
@@ -1697,7 +1996,7 @@
     border: 1px solid var(--line);
     border-radius: 16px;
     padding: 6px;
-    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 18px 42px var(--sombra-l);
     /* Vive DENTRO de la página, no encima de ella: cuelga de la fila de su
        rama y se desplaza con ella. Por eso no sube al piso de los menús
        flotantes —solo compite con las tarjetas que tiene al lado—. */
@@ -1739,7 +2038,7 @@
   .badd {
     width: 32px; height: 32px;
     border-radius: 999px;
-    border: 1.5px dashed #3a4757;
+    border: 1.5px dashed var(--linea-guion);
     background: transparent;
     color: var(--muted);
     cursor: pointer;
@@ -1832,7 +2131,7 @@
     align-items: center;
     gap: 10px;
     padding: calc(11px + env(safe-area-inset-top)) 14px 11px;
-    background: rgba(21, 27, 37, 0.92);
+    background: var(--flotante);
     border-bottom: 1px solid var(--line);
   }
   .fs-close {
@@ -1874,8 +2173,8 @@
      una herramienta que pasa, no una figura del mapa, y ningún estado del
      árbol usa ese color —así nunca se confunde con un nodo—. */
   .banda-sel {
-    fill: rgba(142, 205, 245, 0.1);
-    stroke: #8ecdf5;
+    fill: var(--celeste-soft);
+    stroke: var(--celeste);
     stroke-width: 1.6;
     stroke-dasharray: 7 6;
     pointer-events: none;
@@ -1890,7 +2189,7 @@
     gap: 10px;
     color: var(--text);
   }
-  .const-hint.con-seleccion b, .fs-hint.con-seleccion b { color: #8ecdf5; }
+  .const-hint.con-seleccion b, .fs-hint.con-seleccion b { color: var(--celeste); }
 
   /* El color de un grupo, en su ventana */
   .caja-color { margin-top: 14px; }
@@ -1921,7 +2220,7 @@
     border: 1px solid var(--line);
     border-radius: 14px;
     padding: 6px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 20px 50px var(--sombra-l);
   }
   .ctx.show { display: block; }
   .ctx-head {
@@ -2024,7 +2323,7 @@
   .port-in.switch circle:not(.halo) { transition: 0.15s; }
   .port-in.switch:hover circle:not(.halo) { stroke-width: 3.2; }
   .grupo-tag { cursor: pointer; }
-  .grupo-tag:hover rect { fill: #1a2330; }
+  .grupo-tag:hover rect { fill: var(--hueco); }
   /* Tijeras: corta el hilo entre dos talentos */
   .edge-hit {
     cursor: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%2310151d' stroke-width='4.6'%3E%3Ccircle cx='6' cy='6' r='2.8'/%3E%3Ccircle cx='6' cy='18' r='2.8'/%3E%3Cpath d='M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12'/%3E%3C/g%3E%3Cg stroke='%23ff8a70' stroke-width='2'%3E%3Ccircle cx='6' cy='6' r='2.8'/%3E%3Ccircle cx='6' cy='18' r='2.8'/%3E%3Cpath d='M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12'/%3E%3C/g%3E%3C/svg%3E") 6 6, pointer;
@@ -2075,7 +2374,7 @@
     border-radius: 3px;
     transform: rotate(45deg);
     display: inline-block;
-    background: #2e3947;
+    background: var(--pip);
   }
   @keyframes dashFlow { to { stroke-dashoffset: -24; } }
   .edge-flow { animation: dashFlow 1.1s linear infinite; }
@@ -2210,7 +2509,7 @@
   .icon-grid button.selected {
     border-color: var(--sel, var(--mint));
     background: color-mix(in srgb, var(--sel, var(--mint)) 14%, transparent);
-    color: var(--sel, var(--mint));
+    color: color-mix(in srgb, var(--sel, var(--mint)), var(--tinta-fondo) var(--hundir));
   }
 
   .color-grid { display: flex; gap: 9px; flex-wrap: wrap; }
@@ -2263,7 +2562,7 @@
   .modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(8, 12, 18, 0.72);
+    background: var(--velo);
     backdrop-filter: blur(5px);
     display: flex;
     align-items: flex-end;
@@ -2351,7 +2650,7 @@
   .tuto-x:hover { color: var(--text); }
   /* El logo ocupa el mismo hueco que el icono de las demás tarjetas, para que
      la fila de arriba mida igual en las seis. */
-  .tuto-logo { display: flex; align-items: center; color: var(--text); }
+  .tuto-logo { display: flex; align-items: center; color: var(--marca); }
   .tuto-logo svg { height: 40px; width: auto; display: block; }
   /* Cada fila con su altura reservada. Las medidas salen del contenido más
      largo de las seis tarjetas: el texto ocupa como mucho cuatro líneas y el
@@ -2591,7 +2890,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    background: rgba(23, 30, 40, 0.97);
+    background: var(--flotante-macizo);
     border: 1.5px solid var(--line);
     border-left-width: 3px;
     color: var(--text);
@@ -2600,7 +2899,7 @@
     font-size: 13.5px;
     font-weight: 600;
     line-height: 1.35;
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 14px 34px var(--sombra-l);
     backdrop-filter: blur(10px);
     opacity: 0;
     transform: translateY(14px) scale(0.97);
@@ -2628,7 +2927,7 @@
     font-weight: 800;
     cursor: pointer;
   }
-  .t-act:active { background: rgba(255, 255, 255, 0.07); }
+  .t-act:active { background: var(--vidrio-fuerte); }
 
   .toast.t-logro    { --tc: var(--mint);  border-left-color: var(--mint); }
   .toast.t-hecho    { --tc: var(--faint); border-left-color: var(--faint); }
@@ -2636,7 +2935,7 @@
   .toast.t-atencion { --tc: var(--coral); border-left-color: var(--coral); }
   .toast.t-calma    { --tc: var(--muted); border-left-color: var(--muted); }
   /* Solo el logro se permite brillar: es el único que celebra algo */
-  .toast.t-logro { box-shadow: 0 14px 34px rgba(0,0,0,.5), 0 0 0 1px rgba(95,224,176,.12); }
+  .toast.t-logro { box-shadow: 0 14px 34px var(--sombra-l), 0 0 0 1px rgba(95,224,176,.12); }
 
   @media (prefers-reduced-motion: reduce) { .toast { transition: opacity 0.2s ease; transform: none; } }
 
@@ -2677,7 +2976,7 @@
   /* ---------- Bienvenida ---------- */
   .ob-q {
     background: var(--card);
-    border: 1px solid rgba(42, 52, 65, 0.7);
+    border: 1px solid var(--borde-panel);
     border-radius: 26px 26px 26px 10px;
     padding: 24px 22px;
   }
@@ -2732,7 +3031,7 @@
     align-items: center;
     gap: 18px;
     background: var(--card);
-    border: 1px solid rgba(42, 52, 65, 0.7);
+    border: 1px solid var(--borde-panel);
     border-radius: 34px 34px 34px 12px;
     padding: 18px 20px;
     margin-bottom: 16px;
@@ -2774,7 +3073,7 @@
     align-items: center;
     justify-content: center;
     padding: 0;
-    color: var(--mc);
+    color: color-mix(in srgb, var(--mc), var(--tinta-fondo) var(--hundir));
     font-family: inherit;
     position: relative;
     transition: transform 0.14s ease, background 0.14s ease, border-color 0.14s ease;
@@ -3034,7 +3333,7 @@
   .arr-flota {
     opacity: 0.96;
     transform: scale(1.03);
-    filter: drop-shadow(0 18px 34px rgba(0, 0, 0, 0.6));
+    filter: drop-shadow(0 18px 34px var(--sombra-l));
     transition: none;
   }
   .arr-flota * { pointer-events: none; }
@@ -3221,7 +3520,7 @@
   }
   .ready-chip:active { background: var(--card2); }
   .ready-chip .rc-ic {
-    color: var(--rc);
+    color: color-mix(in srgb, var(--rc), var(--tinta-fondo) var(--hundir));
     display: inline-flex;
     flex-shrink: 0;
     position: relative;
@@ -3255,7 +3554,7 @@
      un dedo distraído. */
   .copia-item {
     padding: 12px 13px; border-radius: 12px; margin-bottom: 10px;
-    background: rgba(255,255,255,.04); border: 1px solid var(--line);
+    background: var(--vidrio); border: 1px solid var(--line);
   }
   .copia-item:last-child { margin-bottom: 0; }
   .copia-info b { display: block; font-size: 14px; }
@@ -3463,7 +3762,7 @@
   .carga-marca { position: relative; width: 96px; height: 96px; display: grid; place-items: center; }
   .carga-anillo {
     position: absolute; inset: 0; border-radius: 50%;
-    border: 2px solid rgba(95, 224, 176, 0.14);
+    border: 2px solid var(--mint-soft);
     border-top-color: var(--mint);
     animation: cargaGira 0.95s linear infinite;
   }
@@ -3488,7 +3787,7 @@
      un trozo se entiende porque gira, y quieto parece roto. Sin movimiento se
      cierra el círculo entero y se atenúa. */
   @media (prefers-reduced-motion: reduce) {
-    .carga-anillo { border-color: rgba(95, 224, 176, 0.45); }
+    .carga-anillo { border-color: color-mix(in srgb, var(--mint) 45%, transparent); }
     .giro { border-color: currentColor; opacity: 0.5; }
   }
 
@@ -3502,7 +3801,7 @@
     border-radius: 999px; padding: 7px 15px;
     font-size: 12.5px; font-weight: 700; color: var(--muted);
     white-space: nowrap; pointer-events: none;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 6px 18px var(--sombra-s);
   }
   .tirar-aviso.listo { color: var(--mint); border-color: var(--mint); }
   .tirar-aviso.fuera { opacity: 0; transition: opacity 0.22s ease; }
@@ -3521,7 +3820,7 @@
   }
   .aviso-pruebas .ap-tag {
     position: absolute; top: -10px; left: 22px;
-    background: #121821; color: var(--fire);
+    background: var(--tag-fondo); color: var(--fire);
     border: 1.4px solid var(--fire); border-radius: 11px;
     padding: 2px 11px; font-size: 10.5px; font-weight: 800;
     letter-spacing: 0.04em; text-transform: uppercase;
@@ -3532,7 +3831,7 @@
   .futuro-aviso {
     position: fixed; inset: 0; z-index: var(--piso-bloqueo); display: flex;
     align-items: center; justify-content: center; padding: 22px;
-    background: rgba(8, 11, 16, .88); backdrop-filter: blur(6px);
+    background: var(--velo-macizo); backdrop-filter: blur(6px);
   }
   .futuro-card {
     max-width: 420px; padding: 24px; border-radius: 18px;
@@ -3547,7 +3846,7 @@
   .sync-status {
     display: flex; align-items: center; gap: 10px;
     padding: 11px 13px; border-radius: 12px; margin-bottom: 12px;
-    background: rgba(255,255,255,.04); border: 1px solid var(--line);
+    background: var(--vidrio); border: 1px solid var(--line);
   }
   .sync-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--faint); }
   .sync-dot.ok { background: var(--mint); box-shadow: 0 0 0 3px rgba(95,224,176,.16); }
@@ -3597,7 +3896,7 @@
       justify-content: flex-start;
       align-items: stretch;
       gap: 8px;
-      background: rgba(21, 27, 37, 0.72);
+      background: var(--flotante-lateral);
       border-right: 1px solid var(--line);
       backdrop-filter: blur(12px);
       overflow-y: auto;
@@ -3639,6 +3938,7 @@
        un contorno fino, así que a igual medida el contorno se ve más
        pequeño. Esto los iguala a la vista, que es lo que importa. */
     .side-brand .sb-expand svg { width: 20px; height: 20px; display: block; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .side-brand .sb-logo-full { color: var(--marca); }
     .side-brand .sb-logo-full svg { height: 30px; width: auto; display: block; }
 
     .side-toggle {

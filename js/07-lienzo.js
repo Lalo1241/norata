@@ -907,15 +907,19 @@ function constellation(nodes, key, editing, branch) {
     const y0 = Math.min(...pts.map(p => p.y)) - M, y1 = Math.max(...pts.map(p => p.y)) + M;
     const { hechos, pendientes } = resumenCaja(c);
     const cc = c.color || (pendientes === 0 ? "#5fe0b0" : "#f5d76e");
+    /* Dos formas del mismo color: el crudo para el relleno translucido
+       —que se arma pegandole la transparencia al hex— y el hundido para
+       trazar y escribir, que es lo que hay que leer sobre papel. */
+    const ccT = tinta(cc);
     alto = Math.max(alto, 18 - (y0 - 11));   // la etiqueta no puede quedar cortada
     abarcar(x0, y0 - 11, x1, y1);
     recintos += `<g class="grupo">
       <rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" rx="22"
-        fill="${cc}0a" stroke="${cc}" stroke-opacity="0.35" stroke-width="1.6" stroke-dasharray="9 7" pointer-events="none"/>
+        fill="${cc}0a" stroke="${ccT}" stroke-opacity="0.35" stroke-width="1.6" stroke-dasharray="9 7" pointer-events="none"/>
       <g class="grupo-tag" data-grupo="${c.id}">
         <rect x="${x0 + 12}" y="${y0 - 11}" width="${Math.max(96, nombreCaja(c).length * 6.6 + 30)}" height="22" rx="11"
-          fill="#121821" stroke="${cc}" stroke-opacity="0.5" stroke-width="1.4"/>
-        <text x="${x0 + 24}" y="${y0 + 4}" font-size="10.5" font-weight="700" fill="${cc}">${
+          fill="var(--lienzo-caja)" stroke="${ccT}" stroke-opacity="0.5" stroke-width="1.4"/>
+        <text x="${x0 + 24}" y="${y0 + 4}" font-size="10.5" font-weight="700" fill="${ccT}">${
           escapeHtml(nombreCaja(c))} · ${hechos}/${c.perkIds.length}</text>
       </g>
     </g>`;
@@ -935,19 +939,19 @@ function constellation(nodes, key, editing, branch) {
       const modo = modoDe(n);
       const letra = modo === "cualquiera" ? "O" : "Y";
       const listo = requisitosCumplidos(n);
-      const cE = listo ? (n.color || "#5fe0b0") : "#4a5768";
+      const cE = tinta(listo ? (n.color || "#5fe0b0") : "var(--lienzo-apagado)");
       const cumplidos = requisitosVivos(n).filter(r => r.status === "completed").length;
       out += `<g class="port-in switch" data-modo="${n.id}">
         <title>${modo === "cualquiera"
           ? `Basta con completar CUALQUIERA de los ${reqs.length} requisitos. Toca para exigirlos todos.`
           : `Hacen falta LOS ${reqs.length} requisitos. Toca para que baste con cualquiera.`}</title>
         <circle class="halo" cx="${x - R - 12}" cy="${y}" r="15" fill="transparent"/>
-        <circle cx="${x - R - 12}" cy="${y}" r="10" fill="#161d28" stroke="${cE}" stroke-width="2"${
+        <circle cx="${x - R - 12}" cy="${y}" r="10" fill="var(--lienzo-ficha)" stroke="${cE}" stroke-width="2"${
           modo === "cualquiera" ? ` stroke-dasharray="3.4 2.6"` : ""}/>
         <text x="${x - R - 12}" y="${y + 3.6}" text-anchor="middle" font-size="10" font-weight="800" fill="${cE}">${letra}</text>
       </g>`;
       if (!listo) {
-        out += `<text x="${x - R - 12}" y="${y + 23}" text-anchor="middle" font-size="8.5" fill="#75858e" pointer-events="none">${cumplidos}/${reqs.length}</text>`;
+        out += `<text x="${x - R - 12}" y="${y + 23}" text-anchor="middle" font-size="8.5" fill="var(--faint)" pointer-events="none">${cumplidos}/${reqs.length}</text>`;
       }
     }
 
@@ -961,18 +965,18 @@ function constellation(nodes, key, editing, branch) {
        editando: es la única señal de una dependencia que no se ve. */
     const fuera = requisitosVivos(n).filter(r => (r.branch || "General") !== (n.branch || "General"));
     if (fuera.length) {
-      const cF = fuera.every(r => r.status === "completed") ? (n.color || "#5fe0b0") : "#4a5768";
+      const cF = tinta(fuera.every(r => r.status === "completed") ? (n.color || "#5fe0b0") : "var(--lienzo-apagado)");
       const x0 = x - R - 21, x1 = x0 - 26;
       out += `<path d="M${x1} ${y} H${x0}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
         <circle cx="${x1}" cy="${y}" r="3" fill="${cF}"/>
-        <text x="${x1 - 5}" y="${y + 3.4}" text-anchor="end" font-size="8.5" fill="#75858e">${
+        <text x="${x1 - 5}" y="${y + 3.4}" text-anchor="end" font-size="8.5" fill="var(--faint)">${
           escapeHtml(fuera.length === 1 ? (fuera[0].branch || "General") : fuera.length + " ramas")}</text>`;
     }
 
     if (editing) {
       out += `<g class="port" data-from="${n.id}">
-        <circle cx="${x + R + 11}" cy="${y}" r="9" fill="#1d2530" stroke="${col}" stroke-width="2"/>
-        <path d="M${x + R + 8} ${y - 3.5} L${x + R + 14} ${y} L${x + R + 8} ${y + 3.5} Z" fill="${col}"/>
+        <circle cx="${x + R + 11}" cy="${y}" r="9" fill="var(--lienzo-ficha)" stroke="${colT}" stroke-width="2"/>
+        <path d="M${x + R + 8} ${y - 3.5} L${x + R + 14} ${y} L${x + R + 8} ${y + 3.5} Z" fill="${colT}"/>
       </g>`;
     }
     return out;
@@ -990,7 +994,7 @@ function constellation(nodes, key, editing, branch) {
       const rw = nodeRadius(n) + 13;
       const rh = (n.esCaja ? CAJA_H / 2 : nodeRadius(n)) + 13;
       nds += `<rect class="sel-marca" x="${x - rw}" y="${y - rh}" width="${rw * 2}" height="${rh * 2}"
-        rx="15" fill="none" stroke="#8ecdf5" stroke-width="2" stroke-dasharray="6 5" pointer-events="none"/>`;
+        rx="15" fill="none" stroke="var(--celeste)" stroke-width="2" stroke-dasharray="6 5" pointer-events="none"/>`;
     });
   }
 
@@ -1004,12 +1008,12 @@ function constellation(nodes, key, editing, branch) {
       const done = c.esCaja ? c.todoHecho : c.status === "completed";
       const inProgress = !c.esCaja && (cst === "active" || cst === "due");
       const lit = done || inProgress;
-      const col = done ? (c.color || "#5fe0b0") : (inProgress ? "#f5d76e" : "#3d4a5c");
+      const col = tinta(done ? (c.color || "#5fe0b0") : (inProgress ? "var(--fire)" : "var(--lienzo-hilo)"));
       const P = edgePath(a, b, n, c);
       const wdt = lit ? 3 : 2;
       // Sin filtro SVG: un trazo perfectamente horizontal tiene caja de altura
       // cero y el desenfoque lo hacía desaparecer. El halo se pinta a mano.
-      edges += `<path d="${P.d}" fill="none" stroke="#1d2530" stroke-width="${wdt + 7}" stroke-linecap="round"/>`;
+      edges += `<path d="${P.d}" fill="none" stroke="var(--lienzo-halo)" stroke-width="${wdt + 7}" stroke-linecap="round"/>`;
       if (lit) {
         edges += `<path d="${P.d}" fill="none" stroke="${col}" stroke-width="${wdt + 5}" stroke-linecap="round" opacity="0.16"/>`;
       }
@@ -1022,7 +1026,7 @@ function constellation(nodes, key, editing, branch) {
         edges += `<path d="${P.d}" fill="none" stroke="${col}" stroke-width="${wdt}" stroke-linecap="round" opacity="0.95"/>`;
       } else if (inProgress) {
         edges += `<path d="${P.d}" fill="none" stroke="${col}" stroke-width="${wdt}" stroke-linecap="round" opacity="0.4"/>`;
-        edges += `<path class="edge-flow" d="${P.d}" fill="none" stroke="#fff3cf" stroke-width="${wdt}" stroke-linecap="round" stroke-dasharray="3 21" opacity="0.95"/>`;
+        edges += `<path class="edge-flow" d="${P.d}" fill="none" stroke="var(--lienzo-flujo)" stroke-width="${wdt}" stroke-linecap="round" stroke-dasharray="3 21" opacity="0.95"/>`;
       } else {
         edges += `<path d="${P.d}" fill="none" stroke="${col}" stroke-width="${wdt}" stroke-linecap="round" stroke-dasharray="6 7" opacity="0.8"/>`;
       }
@@ -1044,20 +1048,21 @@ function constellation(nodes, key, editing, branch) {
        merece la pena abrirla. */
     if (n.esCaja) {
       const cc = n.colorPropio || (n.todoHecho ? "#5fe0b0" : "#f5d76e");
+      const ccT = tinta(cc);   // ver la nota del recinto, mas arriba
       /* Dos líneas como mucho: la caja tiene una altura fija y un nombre
          largo se saldría por abajo, encima del texto que dice qué guarda. */
       const todo = wrapName(n.name);
       const nom = todo.slice(0, 2);
       if (todo.length > 2) nom[1] = nom[1].slice(0, 17) + "…";
       nds += `<g class="cnode caja" data-id="${n.id}">
-        ${nodeShape(n, x, y, { stroke: cc, fill: cc + "14" }, fid)}
-        <text x="${x}" y="${y - (nom.length > 1 ? 9 : 4)}" text-anchor="middle" font-size="${nom.length > 1 ? 10.5 : 12}" font-weight="700" fill="${cc}">
+        ${nodeShape(n, x, y, { stroke: ccT, fill: cc + "14" }, fid)}
+        <text x="${x}" y="${y - (nom.length > 1 ? 9 : 4)}" text-anchor="middle" font-size="${nom.length > 1 ? 10.5 : 12}" font-weight="700" fill="${ccT}">
           ${nom.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 11}">${escapeHtml(ln)}</tspan>`).join("")}
         </text>
-        <text x="${x}" y="${y + (nom.length > 1 ? 14 : 12)}" text-anchor="middle" font-size="9.5" fill="#8b99a5">${escapeHtml(n.resumen)}</text>
-        <text x="${x}" y="${y + CAJA_H / 2 + 15}" text-anchor="middle" font-size="9" fill="#5d6b77">${editing ? "arrastra, conecta o clic derecho" : "toca para ver qué lleva"}</text>
+        <text x="${x}" y="${y + (nom.length > 1 ? 14 : 12)}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${escapeHtml(n.resumen)}</text>
+        <text x="${x}" y="${y + CAJA_H / 2 + 15}" text-anchor="middle" font-size="9" fill="var(--faint)">${editing ? "arrastra, conecta o clic derecho" : "toca para ver qué lleva"}</text>
       </g>`;
-      ports += puertos(n, x, y, CAJA_W / 2, cc);
+      ports += puertos(n, x, y, CAJA_W / 2, ccT);
       abarcar(x - CAJA_W / 2 - (n.requiere.length > 1 ? 24 : 0), y - CAJA_H / 2,
               x + CAJA_W / 2 + (editing ? 22 : 0), y + CAJA_H / 2 + 20);
       return;
@@ -1065,13 +1070,16 @@ function constellation(nodes, key, editing, branch) {
 
     const st = perkStatus(n);
     const col = n.color || "#5fe0b0";
+    /* Igual que en el recinto: el relleno se arma con el hex crudo mas
+       la transparencia, y el trazo va hundido para verse sobre papel. */
+    const colT = tinta(col);
     const conf = {
-      completed: { stroke: col, fill: col + "33", glow: true, badge: "#5fe0b0", mark: "check" },
-      active:    { stroke: col, fill: col + "1f", glow: true, badge: "#f5d76e", mark: "play" },
-      due:       { stroke: "#f5d76e", fill: "rgba(245,215,110,0.2)", glow: true, badge: "#f5d76e", mark: "alert" },
-      expired:   { stroke: "#ff8a70", fill: "rgba(255,138,112,0.1)", glow: false, badge: "#ff8a70", mark: "close" },
-      locked:    { stroke: "#2e3947", fill: "#1a2230", glow: false },
-      available: { stroke: col, fill: col + "12", glow: false, sop: 0.55 }
+      completed: { stroke: colT, fill: col + "33", glow: true, badge: "var(--mint)", mark: "check" },
+      active:    { stroke: colT, fill: col + "1f", glow: true, badge: "var(--fire)", mark: "play" },
+      due:       { stroke: "var(--fire)", fill: "rgba(245,215,110,0.2)", glow: true, badge: "var(--fire)", mark: "alert" },
+      expired:   { stroke: "var(--coral)", fill: "rgba(255,138,112,0.1)", glow: false, badge: "var(--coral)", mark: "close" },
+      locked:    { stroke: "var(--pip)", fill: "var(--lienzo-bloqueado)", glow: false },
+      available: { stroke: colT, fill: col + "12", glow: false, sop: 0.55 }
     }[st];
     const iname = st === "locked" ? "lock" : (n.icon || "star");
     const esHito = metaDe(n).forma === "circulo";   // el nodo pequeno
@@ -1086,14 +1094,14 @@ function constellation(nodes, key, editing, branch) {
        que sintetiza el navegador llega al lienzo y no al nodo, así que un
        onclick aquí no se disparaba nunca. */
     nds += `<g class="cnode" data-id="${n.id}">
-      ${st === "available" && !editing ? `<circle class="node-pulse" cx="${x}" cy="${y}" r="${R + 4}" fill="none" stroke="${col}" stroke-width="2.5"/>` : ""}
+      ${st === "available" && !editing ? `<circle class="node-pulse" cx="${x}" cy="${y}" r="${R + 4}" fill="none" stroke="${colT}" stroke-width="2.5"/>` : ""}
       ${nodeShape(n, x, y, conf, fid)}
       <g transform="translate(${x - 12 * isc}, ${y - 12 * isc}) scale(${isc})"
-         stroke="${st === "locked" ? "#5d6b77" : conf.stroke}" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[iname] || ICONS.star}</g>
+         stroke="${st === "locked" ? "var(--faint)" : conf.stroke}" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[iname] || ICONS.star}</g>
       ${conf.mark ? `<circle cx="${x + markR.dx}" cy="${y + markR.dy}" r="9.5" fill="${conf.badge}"/>
         <g transform="translate(${x + markR.dx - 6}, ${y + markR.dy - 6}) scale(0.5)"
-           stroke="#10151d" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g>` : ""}
-      <text x="${x}" y="${topY}" text-anchor="middle" font-size="${esHito ? 9.5 : 10.5}" fill="#a8b4c0" font-weight="500">
+           stroke="var(--sobre-acento)" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g>` : ""}
+      <text x="${x}" y="${topY}" text-anchor="middle" font-size="${esHito ? 9.5 : 10.5}" fill="var(--lienzo-rotulo)" font-weight="500">
         ${lines.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 12}">${escapeHtml(ln)}</tspan>`).join("")}
       </text>
       ${/* El avance de una meta en curso, en el propio mapa. Sin esto el
@@ -1102,7 +1110,7 @@ function constellation(nodes, key, editing, branch) {
             adelantada. Se dice en etapas y no en porcentaje porque es lo que
             se marca: "2/4" es accionable, "50%" es un resumen. */
         (st === "active" && (n.steps || []).length)
-          ? `<text x="${x}" y="${topY + (lines.length - 1) * 12 + 13}" text-anchor="middle" font-size="9" fill="#f5d76e" font-weight="700">${
+          ? `<text x="${x}" y="${topY + (lines.length - 1) * 12 + 13}" text-anchor="middle" font-size="9" fill="var(--fire)" font-weight="700">${
               n.steps.filter(s2 => s2.done).length}/${n.steps.length} etapas</text>`
           : ""}
     </g>`;
@@ -1172,7 +1180,7 @@ function constellation(nodes, key, editing, branch) {
           apoyan sus talentos, no una figura más que compita con ellos. */
       recintos}
     <g class="edges">${edges}</g>${nds}${ports}
-    <path class="link-preview" fill="none" stroke="#5fe0b0" stroke-width="2.5" stroke-dasharray="6 6" style="display:none"/>
+    <path class="link-preview" fill="none" stroke="var(--mint)" stroke-width="2.5" stroke-dasharray="6 6" style="display:none"/>
   </svg>`;
 }
 
@@ -1305,7 +1313,7 @@ function efectoCorte(branch, dAttr, cutPt, color) {
   chispa.setAttribute("cx", centro.x);
   chispa.setAttribute("cy", centro.y);
   chispa.setAttribute("r", "3.5");
-  chispa.setAttribute("fill", "#ff8a70");
+  chispa.setAttribute("fill", "var(--coral)");
   chispa.style.transformBox = "fill-box";
   chispa.style.transformOrigin = "center";
   g.appendChild(chispa);
@@ -1919,11 +1927,11 @@ function attachEditHandlers(scope) {
         // El color se toma ANTES de cortar: al soltar el hijo se queda sin
         // padre y su estado (y por tanto su color) puede cambiar.
         const c = state.perks.find(x => x.id === String(curId).split("|")[0]);
-        let color = "#3d4a5c";
+        let color = "var(--lienzo-hilo)";
         if (c) {
           const cst = perkStatus(c);
-          color = c.status === "completed" ? (c.color || "#5fe0b0")
-            : ((cst === "active" || cst === "due") ? "#f5d76e" : "#3d4a5c");
+          color = tinta(c.status === "completed" ? (c.color || "#5fe0b0")
+            : ((cst === "active" || cst === "due") ? "var(--fire)" : "var(--lienzo-hilo)"));
         }
         removeLink(curId);
         // Después del redibujado: la línea ya no está, así que lo que se ve
