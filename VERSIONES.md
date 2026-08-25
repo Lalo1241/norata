@@ -52,6 +52,40 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.4 · 25 ago 2026
+Los ocho tonos que eligió Eduardo mirándolos, y la etiqueta que se salía.
+
+- **Los ocho tonos de línea salen del veredicto**, no de la cuenta. Eduardo vio
+  la app entera con los tonos crudos (la prueba de 0.7.3.1) y decidió uno por
+  uno. Van por debajo del 3 sobre 1 que pide una línea, y es a propósito:
+  entre el número y el color de la marca, eligió el color.
+
+  | | antes | ahora | qué pidió |
+  | --- | --- | --- | --- |
+  | menta | `#04905e` | `#039b64` | el de antes, un pelín más claro |
+  | amarillo luciérnaga | `#987c16` | `#c69f15` | a medio camino del crudo |
+  | coral | `#d85337` | `#ff603d` | el crudo tal cual |
+  | lila | `#7d50ea` | `#7d50ea` | el crudo tal cual |
+  | celeste | `#1d87b6` | `#2099cf` | el crudo, un pelín más oscuro |
+  | verde | `#32902f` | `#3eba37` | el crudo, un pelín más oscuro |
+  | rosa | `#e53c79` | `#f03e7e` | el crudo tal cual |
+  | acero | `#5e81b0` | `#6287b8` | el crudo tal cual |
+
+- **El TEXTO no se tocó.** Ahí un tono flojo no es un contorno pálido: es una
+  cifra que no se puede leer. Sigue hundiéndose a medio camino del carbón, y
+  medido en diez pantallas ningún texto se ve peor de día que de noche.
+- **La etiqueta de «cuenta de pruebas» se salía por arriba.** Colgaba del borde
+  del marco y el marco iba pegado a los cuatro lados, así que quedaba diez
+  píxeles por encima de la pantalla: se veía cortada por la mitad. Ahora el
+  marco se mete hacia dentro contando el hueco que reserva el aparato —la
+  muesca, la barra de estado— y la etiqueta cae entera dentro. Medido en
+  escritorio y en teléfono.
+- Y el aviso de deslizar para actualizar, por lo mismo: arrancaba en el borde
+  de arriba y en un teléfono con muesca el primer tramo del tirón no se veía.
+- Fuera la prueba de tonos crudos, que ya cumplió. **El patrón se queda
+  escrito en `CLAUDE.md`** para la próxima: lo que pueda estropear la
+  experiencia se sube apagado, detrás de un parámetro en la dirección.
+
 ### 0.7.3.1 · 25 ago 2026
 Un rótulo y una prueba para mirar.
 

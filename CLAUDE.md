@@ -51,6 +51,32 @@ Probar **el caso vacío y el extremo**, no solo el feliz: un perfil recién
 creado, un nombre de 200 letras, la pantalla a 480 px de alto. Ahí han salido
 todos los fallos reales.
 
+## Antes de tocar lo que se ve: una prueba con enlace
+
+Cuando un cambio pueda estropearle la experiencia a alguien —y sobre todo
+cuando la decisión sea de Eduardo y no mía—, **no se sube y ya: se sube
+apagado, detrás de un parámetro en la dirección.** Se lo pidió él después de
+probarlo así con los tonos del modo claro (0.7.3.1).
+
+La receta, que cabe en veinte líneas:
+
+1. Una clase en `<html>` que cambia solo variables (`html.claro.crudo`).
+2. En el script de arriba de `index.html`, junto al modo claro: leer
+   `?loquesea=valor`, guardarlo en **`sessionStorage`** —no en localStorage,
+   para que no se quede pegado como si fuera un ajuste— y poner la clase.
+   Ahí arriba y no en el script principal, o se ve el fogonazo.
+3. Un rótulo fijo que recuerde que la pestaña está en modo prueba. Sin él es
+   fácil olvidarlo y acabar juzgando la app de verdad por lo que se ve ahí.
+4. Dos enlaces para él: uno que lo enciende y otro que lo apaga.
+5. En `VERSIONES.md`, la lista exacta de qué hay que borrar después.
+
+Nadie que no pida la prueba se la encuentra, y con la pestaña cerrada
+desaparece. **Al quitarla, borrar por nombre y no por rango**: la primera vez
+se cortó de "aquí" a "allá" y se llevaron por delante cuatro bloques que
+estaban en medio y no tenían nada que ver —entre ellos `cambiando-modo`, que
+es lo que evita que los colores se queden congelados—. Lo cazó la medición
+del DOM, no la vista.
+
 ## Trampas que ya costaron horas
 
 - **Una transición sobre una propiedad cuyo valor sale de una variable se

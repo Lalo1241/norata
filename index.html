@@ -62,25 +62,6 @@
     }
   } catch (e) {}
 
-  /* ---- PRUEBA TEMPORAL: los ocho tonos sin tocar ----
-     `?tonos=crudos` los deja exactamente como los dibujó Eduardo, sin hundir
-     ninguno ni un punto, para poder juzgarlo con los ojos. `?tonos=normal`
-     lo apaga, y cerrar la pestaña también: vive en sessionStorage a
-     propósito, para que no se quede pegado como si fuera un ajuste.
-     Va aquí arriba por lo mismo que el modo claro: si esperara al script
-     principal se vería un fogonazo con los tonos de siempre. El detalle está
-     en `html.claro.crudo`, en css/estilos.css. */
-  try {
-    var qt = /[?&]tonos=([a-z]+)/.exec(location.search);
-    if (qt) {
-      if (qt[1] === "crudos") sessionStorage.setItem("norata-tonos", "crudos");
-      else sessionStorage.removeItem("norata-tonos");
-    }
-    if (sessionStorage.getItem("norata-tonos") === "crudos") {
-      document.documentElement.classList.add("crudo");
-    }
-  } catch (e) {}
-
   /* ---- Red de seguridad ----
      Vive en este bloque y no en el script principal a propósito: el grande
      corre al final, así que un manejador declarado dentro de él nunca
@@ -165,10 +146,6 @@
     });
   })();
 </script>
-<!-- PRUEBA TEMPORAL: el rotulo que recuerda que esta pestana esta en modo
-     "tonos crudos". Se quita junto con el resto de la prueba. -->
-<div class="marca-prueba" aria-hidden="true">tonos crudos · prueba</div>
-
 <!-- ============ PANTALLA DE CARGA ============
      Se ve desde el primer instante y tapa la app entera. Existe porque hasta
      ahora el resumen se dibujaba antes de que ningún script hubiera decidido

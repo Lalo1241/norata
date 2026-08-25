@@ -377,18 +377,32 @@
     --paleta-7: #f03e7e;
     --paleta-8: #6287b8;
 
-    /* Lo justo para 3 sobre 1 en los TRES fondos donde se traza: la tarjeta
-       (#f2f0f9), la ranura de una misión (#e7e9f4) y el lienzo a pantalla
-       completa (#dcdef0), que es el más exigente de los tres. El lila no se
-       mueve nada, y el rosa y el acero se mueven un 5%. */
-    --paleta-1-linea: #04905e;   /* menta, 32% */
-    --paleta-2-linea: #987c16;   /* amarillo luciérnaga, 40% — el único que se va lejos */
-    --paleta-3-linea: #d85337;   /* coral, 16% */
-    --paleta-4-linea: #7d50ea;   /* lila, sin tocar */
-    --paleta-5-linea: #1d87b6;   /* celeste, 24% */
-    --paleta-6-linea: #32902f;   /* verde, 34% */
-    --paleta-7-linea: #e53c79;   /* rosa, 5% */
-    --paleta-8-linea: #5e81b0;   /* acero, 5% */
+    /* Estos ocho los eligió Eduardo A OJO, viendo la app entera con los tonos
+       crudos al lado (prueba `?tonos=crudos`, 0.7.3.1) y decidiendo uno por
+       uno. Van por debajo del 3 sobre 1 que pide una línea, y es a propósito:
+       entre el número y el color de la marca, eligió el color. Lo que NO se
+       tocó es el texto —ver `--hundir`—, porque ahí un tono flojo no es un
+       contorno pálido: es una cifra que no se puede leer.
+
+       Al lado va lo que da cada uno sobre el peor fondo, para que nadie los
+       "arregle" sin saber que ya se miraron:
+
+         menta      un pelín más claro que el medido          2,67
+         amarillo   a medio camino entre el medido y el crudo 1,87
+         verde      el crudo, un pelín más oscuro             1,90
+         celeste    el crudo, un pelín más oscuro             2,41
+         coral      el crudo tal cual                         2,25
+         lila       el crudo tal cual                         3,74
+         rosa       el crudo tal cual                         2,77
+         acero      el crudo tal cual                         2,77 */
+    --paleta-1-linea: #039b64;   /* menta */
+    --paleta-2-linea: #c69f15;   /* amarillo luciérnaga */
+    --paleta-3-linea: #ff603d;   /* coral */
+    --paleta-4-linea: #7d50ea;   /* lila */
+    --paleta-5-linea: #2099cf;   /* celeste */
+    --paleta-6-linea: #3eba37;   /* verde */
+    --paleta-7-linea: #f03e7e;   /* rosa */
+    --paleta-8-linea: #6287b8;   /* acero */
 
     --esquema: light;
     --fondo-raiz: #dcdef0;
@@ -402,65 +416,6 @@
      dan suciedad. De día se apagan. */
   html.claro .orb { opacity: 0.45; }
 
-  /* ============ PRUEBA: los ocho tonos sin tocar ============
-     TEMPORAL. Existe para que Eduardo vea con sus ojos qué pasa si ningún
-     tono se mueve ni un punto, y decida. Se enciende con
-     `mi.norata.app/?tonos=crudos` y se apaga con `?tonos=normal` o cerrando
-     la pestaña; nadie se la encuentra sin pedirla.
-
-     Lo que hace es poner a cero TODO lo que mueve un color de día:
-
-       --hundir          lo que se hunde un tono para poder ESCRIBIR con él
-       --hundir-trazo    lo mismo para lo que no está en la lista de ocho
-       --paleta-N-linea  la versión de cada uno para líneas y aros
-       --mint/--fire/--coral   los acentos de la app, que también son
-                               versiones oscurecidas de los tres primeros
-
-     Así que en esta prueba el amarillo escrito da 1,47 sobre 1 y el aro de
-     progreso 1,05: eso es exactamente lo que hay que mirar.
-
-     Va sobre `html.claro` y no sobre `html` a secas porque de noche no hay
-     nada que poner a cero —ahí ya están todos crudos— y forzar los acentos
-     dejaría la app de noche con los tonos de día.
-
-     PARA QUITARLO: este bloque, `.marca-prueba` de más abajo, el trozo de
-     `index.html` que lee el parámetro, y su div. */
-  html.claro.crudo {
-    --hundir: 0%;
-    --hundir-trazo: 0%;
-    --paleta-1-linea: #00cc7f;
-    --paleta-2-linea: #f5c314;
-    --paleta-3-linea: #ff603d;
-    --paleta-4-linea: #7d50ea;
-    --paleta-5-linea: #23ace8;
-    --paleta-6-linea: #45d13b;
-    --paleta-7-linea: #f03e7e;
-    --paleta-8-linea: #6287b8;
-    --mint: #00cc7f;
-    --mint-deep: #00cc7f;
-    --fire: #f5c314;
-    --coral: #ff603d;
-    --celeste: #23ace8;
-  }
-
-  /* El rótulo que recuerda que la pestaña está en modo prueba. Sin él es
-     fácil olvidarlo y acabar juzgando la app de verdad por lo que se ve
-     aquí. No estorba a nada: no recibe el ratón. */
-  .marca-prueba { display: none; }
-  html.crudo .marca-prueba {
-    display: block;
-    position: fixed;
-    top: 0; left: 50%;
-    transform: translateX(-50%);
-    z-index: var(--piso-brindis);
-    pointer-events: none;
-    background: var(--fire-macizo);
-    color: var(--sobre-macizo);
-    font-size: 10.5px; font-weight: 800;
-    letter-spacing: 0.06em; text-transform: uppercase;
-    padding: 3px 12px 4px;
-    border-radius: 0 0 10px 10px;
-  }
 
   /* El instante en que se cambia de modo, con todo quieto. Hay media docena
      de reglas con `transition: 0.2s` a secas —o sea, TODAS las propiedades—
@@ -4062,7 +4017,11 @@
      Va colgado del borde de arriba y sigue al dedo. No tapa nada: aparece
      donde el pulgar ya está mirando y se va solo. */
   .tirar-aviso {
-    position: fixed; top: 0; left: 50%; z-index: var(--piso-tirar);
+    /* Cuelga del borde de arriba y baja siguiendo al dedo. El `env(...)` es
+       por lo mismo que el marco de cuenta de pruebas: en un teléfono con
+       muesca, el primer tramo del tirón lo dibujaba por debajo de la barra de
+       estado y no se veía empezar. */
+    position: fixed; top: env(safe-area-inset-top); left: 50%; z-index: var(--piso-tirar);
     transform: translate(-50%, 0);
     background: var(--card2); border: 1px solid var(--line);
     border-radius: 999px; padding: 7px 15px;
@@ -4080,7 +4039,19 @@
      propósito — ya significa "esto es un contenedor aparte" — y va con
      pointer-events en none para no estorbar a nada de debajo. */
   .aviso-pruebas {
-    position: fixed; inset: 0; z-index: var(--piso-pruebas); pointer-events: none;
+    /* El marco se mete hacia dentro en vez de pegarse a los cuatro bordes.
+       Su etiqueta cuelga del borde de ARRIBA, así que con `inset: 0` quedaba
+       diez píxeles por encima de la pantalla: se veía cortada por la mitad, y
+       en el teléfono la franja de la hora se comía la poca que quedaba. Ahora
+       el borde de arriba baja lo suficiente para que la etiqueta entera caiga
+       dentro, contando además el hueco que reserva el aparato (la muesca, la
+       barra de estado) con `env(safe-area-inset-*)`. */
+    position: fixed;
+    top: calc(16px + env(safe-area-inset-top));
+    right: calc(7px + env(safe-area-inset-right));
+    bottom: calc(7px + env(safe-area-inset-bottom));
+    left: calc(7px + env(safe-area-inset-left));
+    z-index: var(--piso-pruebas); pointer-events: none;
     border: 1.6px dashed var(--fire);
     border-radius: 22px;
     opacity: 0.55;
