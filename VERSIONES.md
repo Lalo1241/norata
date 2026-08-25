@@ -52,6 +52,28 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.3.1 · 25 ago 2026
+Un rótulo y una prueba para mirar.
+
+- El amarillo pasa a llamarse **amarillo luciérnaga** en todas partes. Con
+  «luciérnaga» a secas había que acordarse de que era el amarillo.
+- **Modo de prueba «tonos crudos»**, temporal, para que Eduardo juzgue con
+  los ojos si los ocho colores aguantan sin moverse ni un punto. Se enciende
+  con `?tonos=crudos` y se apaga con `?tonos=normal` o cerrando la pestaña;
+  vive en `sessionStorage` para que no se quede pegado como si fuera un
+  ajuste, y lleva un rótulo arriba que recuerda que la pestaña está en modo
+  prueba. Solo hace algo de día: de noche los ocho ya están crudos.
+
+  Pone a cero TODO lo que mueve un color de día —`--hundir`,
+  `--hundir-trazo`, las ocho versiones de línea y los tres acentos de la
+  app—. Medido con la prueba encendida: 3.739 sitios con el tono exacto y
+  cero tonos derivados, y 160 sitios por debajo de 3 sobre 1. El peor es el
+  amarillo luciérnaga, en 1,37.
+
+  **Para quitarlo** cuando haya veredicto: el bloque `html.claro.crudo` y
+  `.marca-prueba` en `css/estilos.css`, el trozo que lee el parámetro en
+  `index.html`, y su `<div>`.
+
 ### 0.7.3 · 25 ago 2026
 Repaso general del modo claro, módulo por módulo.
 
@@ -96,7 +118,7 @@ El modo claro deja de tener verde pasto, y el árbol deja de verse sucio.
   | | rellenar | escribir y trazar |
   | --- | --- | --- |
   | menta | `#00cc7f` | `#007046` |
-  | luciérnaga | `#f5c314` | `#755c05` |
+  | amarillo luciérnaga | `#f5c314` | `#755c05` |
   | coral | `#ff603d` | `#bd2200` |
 
   El verde de antes (`#136b4e`) tenía el matiz parecido pero la saturación al
@@ -135,7 +157,7 @@ El modo claro estrena la paleta de día que dibujó Eduardo.
   | | noche | día |
   | --- | --- | --- |
   | menta | `#5fe0b0` | `#00cc7f` |
-  | luciérnaga | `#f5d76e` | `#f5c314` |
+  | amarillo luciérnaga | `#f5d76e` | `#f5c314` |
   | coral | `#ff8a70` | `#ff603d` |
   | lila | `#b7a2ea` | `#7d50ea` |
   | celeste | `#6fc3e8` | `#23ace8` |
@@ -146,7 +168,7 @@ El modo claro estrena la paleta de día que dibujó Eduardo.
 - Tres ayudantes deciden qué cara usa cada cosa: `pinta()` para rellenar,
   `tinta()` para escribir o trazar, y `velo()` para el fondo tenue de una
   pastilla. Hacía falta separarlos: un relleno se ve a cualquier tono, pero
-  un número escrito en luciérnaga de día da 1,47 sobre 1 y no se lee. Al
+  un número escrito en amarillo luciérnaga de día da 1,47 sobre 1 y no se lee. Al
   escribir, el tono se hunde a medio camino del carbón, que es lo que deja
   al peor de los ocho en 4,65 sobre una tarjeta.
 - **Los tres fondos de día también son los suyos**: la página pasa a lavanda

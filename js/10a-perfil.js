@@ -128,7 +128,7 @@ function coma(nombre) {
    correo, ni tan oscuro como para tragarse la letra. */
 const AVATAR_COLORES = [
   "#5fe0b0",  // menta
-  "#f5d76e",  // luciérnaga
+  "#f5d76e",  // amarillo luciérnaga
   "#ff8a70",  // coral
   "#8ecdf5",  // cielo
   "#c9a7f0",  // violeta

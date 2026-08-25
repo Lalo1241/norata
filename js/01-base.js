@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.3";
+const VERSION = "0.7.3.1";
 const VERSION_FECHA = "25 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -156,7 +156,7 @@ const TEMA_LLAVE = "norata-tema";
    es suyo; lo que cambia es con cuál de las dos se pinta.
 
    Tres ayudantes, tres papeles, y la diferencia importa: un relleno se ve a
-   cualquier tono, pero un número escrito en luciérnaga de día da 1,47 sobre
+   cualquier tono, pero un número escrito en amarillo luciérnaga de día da 1,47 sobre
    1 y no se lee. Escribir no es lo mismo que rellenar.
 
      pinta(c)       rellenar: un punto, una barra, el aro de un nodo

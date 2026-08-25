@@ -58,7 +58,7 @@
        Cada uno estaba escrito suelto donde hacía falta, y así el modo claro
        era imposible: no había un sitio donde cambiarlos. */
 
-    /* La tinta que va ENCIMA de un relleno de acento (menta, luciérnaga,
+    /* La tinta que va ENCIMA de un relleno de acento (menta, amarillo luciérnaga,
        coral). En oscuro los acentos son claros y la tinta es negra; en claro
        los acentos son profundos y la tinta pasa a blanca. Por eso no vale
        poner "#10151d" a mano: sería un botón verde oscuro con letra negra. */
@@ -166,7 +166,7 @@
        El orden es el de `COLORS` en js/01-base.js, y ese orden es el
        contrato: `pinta()` busca por posicion. */
     --paleta-1: #5fe0b0;   /* menta */
-    --paleta-2: #f5d76e;   /* luciernaga */
+    --paleta-2: #f5d76e;   /* amarillo luciernaga */
     --paleta-3: #ff8a70;   /* coral */
     --paleta-4: #b7a2ea;   /* lila */
     --paleta-5: #6fc3e8;   /* celeste */
@@ -382,7 +382,7 @@
        completa (#dcdef0), que es el más exigente de los tres. El lila no se
        mueve nada, y el rosa y el acero se mueven un 5%. */
     --paleta-1-linea: #04905e;   /* menta, 32% */
-    --paleta-2-linea: #987c16;   /* luciérnaga, 40% — el único que se va lejos */
+    --paleta-2-linea: #987c16;   /* amarillo luciérnaga, 40% — el único que se va lejos */
     --paleta-3-linea: #d85337;   /* coral, 16% */
     --paleta-4-linea: #7d50ea;   /* lila, sin tocar */
     --paleta-5-linea: #1d87b6;   /* celeste, 24% */
@@ -401,6 +401,66 @@
   /* Los orbes son manchas de luz: sobre carbón dan atmósfera y sobre papel
      dan suciedad. De día se apagan. */
   html.claro .orb { opacity: 0.45; }
+
+  /* ============ PRUEBA: los ocho tonos sin tocar ============
+     TEMPORAL. Existe para que Eduardo vea con sus ojos qué pasa si ningún
+     tono se mueve ni un punto, y decida. Se enciende con
+     `mi.norata.app/?tonos=crudos` y se apaga con `?tonos=normal` o cerrando
+     la pestaña; nadie se la encuentra sin pedirla.
+
+     Lo que hace es poner a cero TODO lo que mueve un color de día:
+
+       --hundir          lo que se hunde un tono para poder ESCRIBIR con él
+       --hundir-trazo    lo mismo para lo que no está en la lista de ocho
+       --paleta-N-linea  la versión de cada uno para líneas y aros
+       --mint/--fire/--coral   los acentos de la app, que también son
+                               versiones oscurecidas de los tres primeros
+
+     Así que en esta prueba el amarillo escrito da 1,47 sobre 1 y el aro de
+     progreso 1,05: eso es exactamente lo que hay que mirar.
+
+     Va sobre `html.claro` y no sobre `html` a secas porque de noche no hay
+     nada que poner a cero —ahí ya están todos crudos— y forzar los acentos
+     dejaría la app de noche con los tonos de día.
+
+     PARA QUITARLO: este bloque, `.marca-prueba` de más abajo, el trozo de
+     `index.html` que lee el parámetro, y su div. */
+  html.claro.crudo {
+    --hundir: 0%;
+    --hundir-trazo: 0%;
+    --paleta-1-linea: #00cc7f;
+    --paleta-2-linea: #f5c314;
+    --paleta-3-linea: #ff603d;
+    --paleta-4-linea: #7d50ea;
+    --paleta-5-linea: #23ace8;
+    --paleta-6-linea: #45d13b;
+    --paleta-7-linea: #f03e7e;
+    --paleta-8-linea: #6287b8;
+    --mint: #00cc7f;
+    --mint-deep: #00cc7f;
+    --fire: #f5c314;
+    --coral: #ff603d;
+    --celeste: #23ace8;
+  }
+
+  /* El rótulo que recuerda que la pestaña está en modo prueba. Sin él es
+     fácil olvidarlo y acabar juzgando la app de verdad por lo que se ve
+     aquí. No estorba a nada: no recibe el ratón. */
+  .marca-prueba { display: none; }
+  html.crudo .marca-prueba {
+    display: block;
+    position: fixed;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    z-index: var(--piso-brindis);
+    pointer-events: none;
+    background: var(--fire-macizo);
+    color: var(--sobre-macizo);
+    font-size: 10.5px; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 12px 4px;
+    border-radius: 0 0 10px 10px;
+  }
 
   /* El instante en que se cambia de modo, con todo quieto. Hay media docena
      de reglas con `transition: 0.2s` a secas —o sea, TODAS las propiedades—

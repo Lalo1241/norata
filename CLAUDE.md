@@ -96,7 +96,7 @@ mismo tono vivo —mismo matiz, misma saturación, distinta luz—:
 | | Noche | Día: rellenar (`-macizo`) | Día: escribir y trazar |
 | --- | --- | --- | --- |
 | Menta | `#5fe0b0` | `#00cc7f` | `#007046` |
-| Luciérnaga | `#f5d76e` | `#f5c314` | `#755c05` |
+| Amarillo luciérnaga | `#f5d76e` | `#f5c314` | `#755c05` |
 | Coral | `#ff8a70` | `#ff603d` | `#bd2200` |
 | Celeste | `#8ecdf5` | — | `#0f688f` |
 
