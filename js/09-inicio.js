@@ -58,7 +58,7 @@ function renderOnboarding() {
         <p class="settings-note">Elige de dos a cuatro. Con eso armo tus primeras habilidades y misiones — después puedes cambiar todo.</p>
         <div class="ob-areas">
           ${ONBOARD_AREAS.map(a => `
-            <button class="ob-area ${onboardPick.areas.includes(a.id) ? "on" : ""}" style="--oc:${a.color}" onclick="toggleArea('${a.id}')">
+            <button class="ob-area ${onboardPick.areas.includes(a.id) ? "on" : ""}" style="${tonos("oc", a.color)}" onclick="toggleArea('${a.id}')">
               <span class="oa-ic">${icon(a.icon, 20)}</span>
               <span>${a.label}</span>
             </button>`).join("")}
@@ -320,7 +320,7 @@ function renderTutorial() {
           que hace que solo cambien las palabras. */""}
     <div class="tuto-marca">${p.logo
       ? `<span class="tuto-logo">${logoNorata()}</span>`
-      : `<span class="tuto-ic" style="--tc:${p.color}">${icon(p.icon, 30)}</span>`}</div>
+      : `<span class="tuto-ic" style="${tonos("tc", p.color)}">${icon(p.icon, 30)}</span>`}</div>
     <h2 class="tuto-titulo">${escapeHtml(p.titulo)}</h2>
     <p class="tuto-tx">${p.tx}</p>
     <p class="tuto-pie">${p.pie}</p>

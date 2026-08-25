@@ -67,6 +67,7 @@
 
     --borde-panel: rgba(42, 52, 65, 0.7);
     --linea-guion: #3a4757;   /* el punteado del botón de añadir */
+    --borde-suave: rgba(234, 241, 239, 0.28);  /* el cuadro de descanso */
     --pip: #2e3947;           /* los rombitos de una rama plegada */
     --hueco: #1a2330;         /* el rectángulo de un grupo, al pasar por encima */
     --tag-fondo: #121821;     /* la etiqueta del marco de "cuenta de pruebas" */
@@ -306,6 +307,7 @@
 
     --borde-panel: #d8dbec;
     --linea-guion: #a9afc6;
+    --borde-suave: #a9afc6;
     --pip: #bcc1d6;
     --hueco: #e7e9f4;
     --tag-fondo: #f7f8fa;
@@ -1028,7 +1030,10 @@
     display: block;
     height: 4px;
     border-radius: 999px;
-    background: rgba(234, 241, 239, 0.1);
+    /* El carril, no `--line`: aquí encima va un color del usuario y hay que
+       verlo avanzar. Antes era un blanco al 10% —pensado para carbón— y sobre
+       una tarjeta clara no era ningún carril. */
+    background: var(--carril);
     margin-top: 6px;
     overflow: hidden;
     position: relative;
@@ -1038,7 +1043,7 @@
     position: absolute;
     inset: 0 auto 0 0;
     width: var(--p, 0%);
-    background: var(--c, var(--mint));
+    background: var(--c-l, var(--c, var(--mint)));
     border-radius: 999px;
   }
 
@@ -1922,7 +1927,7 @@
 
   /* Cuadro de descanso: borde neutro, no rojo. Recordar que hay que parar
      no es lo mismo que avisar de un abuso, y no debe sonar igual. */
-  .modal-card.suave { border: 1.5px solid rgba(234, 241, 239, 0.28); }
+  .modal-card.suave { border: 1.5px solid var(--borde-suave); }
 
   .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
   .icon-btn.sm { width: 34px; height: 34px; }
@@ -2888,9 +2893,9 @@
     width: 62px; height: 62px;
     border-radius: 20px;
     display: flex; align-items: center; justify-content: center;
-    color: var(--tc);
+    color: var(--tc-l, var(--tc));
     background: color-mix(in srgb, var(--tc) 14%, transparent);
-    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tc) 34%, transparent);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tc-l, var(--tc)) 34%, transparent);
   }
   .tuto-titulo {
     font-size: 22px;
@@ -3218,8 +3223,8 @@
     padding: 13px 14px;
     cursor: pointer;
   }
-  .ob-area .oa-ic { color: var(--oc); flex-shrink: 0; display: inline-flex; }
-  .ob-area.on { border-color: var(--oc); background: color-mix(in srgb, var(--oc) 12%, transparent); color: var(--text); }
+  .ob-area .oa-ic { color: var(--oc-l, var(--oc)); flex-shrink: 0; display: inline-flex; }
+  .ob-area.on { border-color: var(--oc-l, var(--oc)); background: color-mix(in srgb, var(--oc) 12%, transparent); color: var(--text); }
   .ob-pace { display: flex; flex-direction: column; gap: 9px; margin-top: 6px; }
   .ob-pace-opt {
     text-align: left; font-family: inherit;
@@ -4033,35 +4038,31 @@
   .tirar-aviso.fuera { opacity: 0; transition: opacity 0.22s ease; }
 
   /* ---------- Aviso de cuenta de pruebas ----------
-     Es el mismo dibujo que un grupo del árbol de talentos: recinto punteado
-     amarillo rodeando lo que abarca, con su etiqueta colgada del borde. Aquí
-     lo que abarca es la pantalla entera. Se reutiliza ese lenguaje a
-     propósito — ya significa "esto es un contenedor aparte" — y va con
-     pointer-events en none para no estorbar a nada de debajo. */
+     Una pastilla colgada del centro de arriba, y nada más. Antes era un
+     recinto punteado alrededor de la pantalla entera con la etiqueta en una
+     esquina — el mismo dibujo que un grupo del árbol de talentos —, y tenía
+     dos problemas: la etiqueta en la esquina se salía por arriba, y el marco
+     compite con todo lo que hay dentro sin decir nada que la pastilla no
+     diga ya. Este acomodo lo eligió Eduardo viendo el rótulo de una prueba
+     puesto así (0.7.3.1).
+
+     `env(safe-area-inset-top)` porque en un teléfono con muesca el borde de
+     arriba no es el borde de la pantalla. Y `pointer-events: none` en el
+     contenedor para no estorbar a nada de debajo. */
   .aviso-pruebas {
-    /* El marco se mete hacia dentro en vez de pegarse a los cuatro bordes.
-       Su etiqueta cuelga del borde de ARRIBA, así que con `inset: 0` quedaba
-       diez píxeles por encima de la pantalla: se veía cortada por la mitad, y
-       en el teléfono la franja de la hora se comía la poca que quedaba. Ahora
-       el borde de arriba baja lo suficiente para que la etiqueta entera caiga
-       dentro, contando además el hueco que reserva el aparato (la muesca, la
-       barra de estado) con `env(safe-area-inset-*)`. */
-    position: fixed;
-    top: calc(16px + env(safe-area-inset-top));
-    right: calc(7px + env(safe-area-inset-right));
-    bottom: calc(7px + env(safe-area-inset-bottom));
-    left: calc(7px + env(safe-area-inset-left));
+    position: fixed; inset: 0;
     z-index: var(--piso-pruebas); pointer-events: none;
-    border: 1.6px dashed var(--fire);
-    border-radius: 22px;
-    opacity: 0.55;
   }
   .aviso-pruebas .ap-tag {
-    position: absolute; top: -10px; left: 22px;
-    background: var(--tag-fondo); color: var(--fire);
-    border: 1.4px solid var(--fire); border-radius: 11px;
-    padding: 2px 11px; font-size: 10.5px; font-weight: 800;
-    letter-spacing: 0.04em; text-transform: uppercase;
+    position: absolute;
+    top: env(safe-area-inset-top);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--fire-macizo); color: var(--sobre-macizo);
+    border-radius: 0 0 10px 10px;
+    padding: 3px 12px 4px; font-size: 10.5px; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    white-space: nowrap;
   }
 
   /* Datos de una versión más nueva. Tapa todo y no se cierra: seguir usando

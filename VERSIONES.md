@@ -52,6 +52,26 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.4.1 · 25 ago 2026
+El amarillo que quedaba suelto, y la etiqueta de cuenta de pruebas.
+
+- **La barra de «A 45 XP del nivel 2» del Resumen seguía con el tono crudo.**
+  No pasaba por ninguno de los ayudantes: su color se ponía a mano en una
+  variable (`--c`) que se me escapó en los repasos. Y su carril era un blanco
+  al 10% —pensado para carbón—, así que sobre una tarjeta clara no era ningún
+  carril. Ahora usa `--carril` y el tono de línea que eligió Eduardo.
+- **Con ella, otras tres del mismo tipo**: las áreas de la bienvenida
+  (`--oc`), el icono grande del tutorial (`--tc`) y la segunda barra del
+  Resumen. Las cuatro se ponían a mano y ninguna cambiaba de cara.
+- El borde del cuadro de descanso era un blanco translúcido: invisible sobre
+  una tarjeta clara. Pasa a `--borde-suave`.
+- **La etiqueta de «cuenta de pruebas» cambia de forma.** Era un recinto
+  punteado alrededor de la pantalla entera con la etiqueta colgada de una
+  esquina; ahora es una pastilla ámbar colgada del centro de arriba, sin
+  marco. Lo eligió Eduardo viendo el rótulo de la prueba de tonos puesto así.
+  El marco no decía nada que la pastilla no diga, y competía con todo lo que
+  hay dentro.
+
 ### 0.7.4 · 25 ago 2026
 Los ocho tonos que eligió Eduardo mirándolos, y la etiqueta que se salía.
 

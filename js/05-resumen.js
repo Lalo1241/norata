@@ -174,7 +174,7 @@ function renderSummary() {
         ${cerca ? `<div class="sc-near">
           <span>A ${cerca.falta} XP del nivel ${cerca.nivel}</span>
           <b>${escapeHtml(cerca.s.name)}</b>
-          <i style="--p:${cerca.pct}%;--c:${cerca.s.color}"></i>
+          <i style="--p:${cerca.pct}%;${tonos("c", cerca.s.color)}"></i>
         </div>` : ""}
       </button>`;
     },
@@ -202,7 +202,7 @@ function renderSummary() {
         ${cerca ? `<div class="sc-near">
           <span>${cerca.pct}% hecho, lo más avanzado</span>
           <b>${escapeHtml(cerca.p.name)}</b>
-          <i style="--p:${cerca.pct}%;--c:${cerca.p.color || "var(--fire)"}"></i>
+          <i style="--p:${cerca.pct}%;${tonos("c", cerca.p.color || "var(--fire)")}"></i>
         </div>` : ""}
       </button>`;
     },
