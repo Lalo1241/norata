@@ -88,12 +88,21 @@ Dos caras y los mismos tonos. La app nace de noche; el **modo claro** se
 elige en Ajustes (clase `claro` en `<html>`) y usa los tonos oscuros, que son
 los mismos que ya usaban los correos —viven en la bandeja de otro—.
 
-| | Noche (app) | Día (modo claro y correos) |
-| --- | --- | --- |
-| Menta | `#5fe0b0` | `#136b4e` |
-| Luciérnaga | `#f5d76e` | `#8a6209` |
-| Coral | `#ff8a70` | `#b1341d` |
-| Celeste | `#8ecdf5` | `#1a6a99` |
+**Escribir con un acento no es rellenar con él.** De noche el mismo tono hace
+las dos cosas; de día no puede: el verde de la marca escrito sobre papel da
+1,87 sobre 1. Así que cada acento se parte en dos, y las dos mitades salen del
+mismo tono vivo —mismo matiz, misma saturación, distinta luz—:
+
+| | Noche | Día: rellenar (`-macizo`) | Día: escribir y trazar |
+| --- | --- | --- | --- |
+| Menta | `#5fe0b0` | `#00cc7f` | `#007046` |
+| Luciérnaga | `#f5d76e` | `#f5c314` | `#755c05` |
+| Coral | `#ff8a70` | `#ff603d` | `#bd2200` |
+| Celeste | `#8ecdf5` | — | `#0f688f` |
+
+Sobre un relleno macizo la tinta es **oscura** (`--sobre-macizo`) en los dos
+modos, porque los tres tonos vivos son claros en los dos modos. Los correos
+siguen con la menta `#136b4e` que ya tenían.
 | Fondo | `#10151d` | `#dcdef0` (los correos, `#f2f4f8`) |
 | Tarjeta | `#1d2530` | `#f2f0f9` |
 | Levantado | — | `#f7f8fa` |
@@ -121,11 +130,16 @@ Cuatro cosas que hay que saber antes de tocarlo:
   El color guardado en los datos no cambia nunca; lo que cambia es con cuál
   se pinta, y eso lo deciden tres ayudantes de `js/01-base.js`:
 
-  | | para qué | ejemplo |
-  | --- | --- | --- |
-  | `pinta(c)` | rellenar | un punto, una barra, `--mc` |
-  | `tinta(c)` | escribir o trazar | un número, un icono, un contorno |
-  | `velo(c, "22")` | el fondo tenue de una pastilla | `background` de `.ms-ic` |
+  | | para qué | umbral | ejemplo |
+  | --- | --- | --- | --- |
+  | `pinta(c)` | rellenar | — | un punto, una barra, `--mc` |
+  | `tinta(c)` | escribir | 4,5 | un número, un rótulo |
+  | `trazo(c)` | dibujar | 3 | el contorno de un nodo, un hilo |
+  | `velo(c, "22")` | el fondo tenue de una pastilla | — | `.ms-ic` |
+
+  `trazo()` existe aparte de `tinta()` porque un dibujo pide 3 sobre 1 y no
+  4,5, así que puede quedarse mucho más cerca del color de verdad. Con el
+  hundido de los textos, un talento coral salía marrón sucio en el mapa.
 
   **Nunca pegar la transparencia al hex** (`col + "22"`): eso ata el relleno a
   la cara de noche, porque a un `var(...)` no se le pueden pegar dos dígitos
@@ -138,6 +152,16 @@ Cuatro cosas que hay que saber antes de tocarlo:
 - **La escena de la racha y la celebración se quedan de noche** en los dos
   modos: no son interfaz, son un dibujo. Dentro de ellas la paleta oscura se
   vuelve a declarar entera (regla `.scene-card, .celebrate`).
+- **La franja ilustrada de una ficha (`motifScene`) sí cambia de luz**, porque
+  vive en los dos sitios: dentro de una escena —que se queda de noche— y
+  encima de una ficha, que de día es clara. Su cielo y sus chispas salen de
+  las variables `--motivo-*`.
+- **De día no hay resplandor.** Los nodos del árbol y los motivos llevan una
+  copia borrosa de sí mismos por debajo; sobre carbón eso es luz, sobre papel
+  es una mancha, y con ocho colores en el mismo lienzo el conjunto se ve
+  sucio. Se apaga desde el CSS (`html.claro .const-wrap [filter]`) y no
+  dejando de escribir el atributo: un atributo de presentación de SVG pierde
+  contra una regla, así que no hay que volver a dibujar nada al cambiar.
 - **El logotipo de la portada es un `<img>`** y hay que cambiar de archivo:
   `logotipoSrc()` elige entre los dos de `marca/`. Ojo con los nombres, que
   dicen de qué color es el dibujo: el *claro* va sobre fondo oscuro.

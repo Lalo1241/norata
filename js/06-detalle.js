@@ -131,7 +131,7 @@ function renderMissions() {
     : "";
 
   const hero = sectionHero({
-    scene: motifScene(820, 168, 55, "waves", "#5fe0b0"),
+    scene: motifScene(820, 168, 55, "waves", pinta("#5fe0b0")),
     lead: `
       <div class="ring-wrap" style="width:92px;height:92px">
         ${/* Animado, no fijo: cumplir una misión mueve este anillo, y verlo
@@ -271,7 +271,7 @@ function renderProjects() {
   }
 
   let html = sectionHero({
-    scene: motifScene(820, 168, 77, "peaks", "#5fe0b0"),
+    scene: motifScene(820, 168, 77, "peaks", pinta("#5fe0b0")),
     lead: `<div>
       <div class="label">Avance de lo que construyes</div>
       <div class="big"><b>${avgProg}%</b><span> promedio</span></div>
@@ -468,7 +468,7 @@ function renderProjectDetail() {
 
   const heroHtml = `
     <div class="detail-hero">
-      <div class="strip">${motifScene(560, 156, hashSeed(pr.id), motifFor(pr.icon), col)}</div>
+      <div class="strip">${motifScene(560, 156, hashSeed(pr.id), motifFor(pr.icon), pinta(col))}</div>
       <div class="skill-emoji" style="background:${velo(col, "30")};color:${tinta(col)}">${icon(pr.icon, 28)}</div>
       <h2>${escapeHtml(pr.name)}</h2>
       <span class="cat">Rama de Proyectos · ${escapeHtml(pr.branch || "General")}</span>
@@ -612,7 +612,7 @@ function renderDetail() {
   const content = document.getElementById("detail-content");
   content.innerHTML = `
     <div class="detail-hero">
-      <div class="strip">${motifScene(560, 156, hashSeed(s.id), motifFor(s.icon), s.color)}</div>
+      <div class="strip">${motifScene(560, 156, hashSeed(s.id), motifFor(s.icon), pinta(s.color))}</div>
       <button type="button" class="skill-emoji editable" style="background:${velo(s.color, "30")};color:${tinta(s.color)}"
         onclick="openSkillForm(currentSkillId)" title="Editar habilidad" aria-label="Editar habilidad">
         ${icon(s.icon, 28)}

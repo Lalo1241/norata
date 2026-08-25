@@ -228,13 +228,18 @@ function topoScene(w, h, seed) {
    Composición abstracta protagonista en el color de la habilidad,
    según su icono. Sin paisaje: eso es solo del Resumen y Habilidades. */
 
+/* El motivo de una ficha: una franja ilustrada con el color de la cosa.
+   Vive en DOS sitios con fondos opuestos —dentro de una tarjeta de escena,
+   que se queda de noche siempre, y encima de una ficha, que de dia es clara—
+   asi que ni el cielo ni las chispas pueden ir escritos aqui: salen de
+   variables y cada sitio pone las suyas (ver `--motivo-*` en estilos.css). */
 function motifScene(w, h, seed, motif, accent) {
   const rnd = mulberry32(seed);
   const gid = "m" + seed;
   let s = `<svg class="scene" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">`;
   s += `<defs>
     <linearGradient id="${gid}-bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1c2534"/><stop offset="1" stop-color="#141b26"/>
+      <stop offset="0" stop-color="var(--motivo-cielo-1)"/><stop offset="1" stop-color="var(--motivo-cielo-2)"/>
     </linearGradient>
     <radialGradient id="${gid}-tint">
       <stop offset="0" stop-color="${accent}" stop-opacity="0.2"/>
@@ -258,7 +263,7 @@ function motifScene(w, h, seed, motif, accent) {
     s += `<path d="M-20 ${V * 1.05} C ${w * 0.3} ${V * 0.45}, ${w * 0.62} ${V * 1.35}, ${w + 20} ${V * 0.6}" stroke="${accent}" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.3" filter="url(#${gid}-soft)"/>`;
     s += `<path d="M-20 ${V * 0.62} C ${w * 0.28} ${-V * 0.05}, ${w * 0.58} ${V * 1.0}, ${w + 20} ${V * 0.22}" stroke="${accent}" stroke-width="4.5" fill="none" stroke-linecap="round" opacity="0.85" filter="url(#${gid}-glow)"/>`;
     for (let i = 0; i < 10; i++) {
-      s += `<circle cx="${(rnd() * w).toFixed(1)}" cy="${(rnd() * V).toFixed(1)}" r="${(0.6 + rnd()).toFixed(2)}" fill="#e9f2f5" opacity="${(0.3 + rnd() * 0.5).toFixed(2)}"/>`;
+      s += `<circle cx="${(rnd() * w).toFixed(1)}" cy="${(rnd() * V).toFixed(1)}" r="${(0.6 + rnd()).toFixed(2)}" fill="var(--motivo-chispa)" opacity="${(0.3 + rnd() * 0.5).toFixed(2)}"/>`;
     }
   }
 
@@ -278,13 +283,13 @@ function motifScene(w, h, seed, motif, accent) {
     // Fogata: núcleo brillante a media altura, humo y chispas subiendo
     const fx = w * 0.5, fy = V * 0.92;
     s += `<ellipse cx="${fx}" cy="${fy + 6}" rx="140" ry="46" fill="${accent}" opacity="0.3" filter="url(#${gid}-soft)"/>`;
-    s += `<ellipse cx="${fx}" cy="${fy}" rx="46" ry="20" fill="#ffd9a0" opacity="0.5" filter="url(#${gid}-soft)"/>`;
-    s += `<circle cx="${fx}" cy="${fy - 4}" r="12" fill="#ffe9bd" filter="url(#${gid}-glow)"/>`;
-    s += `<path d="M${fx - 16} ${fy - 14} q 12 -20 1 -38 q -10 -18 5 -36" stroke="rgba(233,242,245,0.3)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#${gid}-soft)"/>`;
-    s += `<path d="M${fx + 18} ${fy - 12} q 9 -16 0 -32 q -7 -13 4 -24" stroke="rgba(233,242,245,0.2)" stroke-width="3.6" fill="none" stroke-linecap="round" filter="url(#${gid}-soft)"/>`;
+    s += `<ellipse cx="${fx}" cy="${fy}" rx="46" ry="20" fill="var(--motivo-brasa)" opacity="0.5" filter="url(#${gid}-soft)"/>`;
+    s += `<circle cx="${fx}" cy="${fy - 4}" r="12" fill="var(--motivo-brasa-viva)" filter="url(#${gid}-glow)"/>`;
+    s += `<path d="M${fx - 16} ${fy - 14} q 12 -20 1 -38 q -10 -18 5 -36" stroke="var(--motivo-humo)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#${gid}-soft)"/>`;
+    s += `<path d="M${fx + 18} ${fy - 12} q 9 -16 0 -32 q -7 -13 4 -24" stroke="var(--motivo-humo-tenue)" stroke-width="3.6" fill="none" stroke-linecap="round" filter="url(#${gid}-soft)"/>`;
     for (let i = 0; i < 13; i++) {
       const x = fx + (rnd() - 0.5) * 230, y = fy - rnd() * V * 0.95;
-      s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.5 + rnd() * 2).toFixed(2)}" fill="${rnd() > 0.45 ? accent : "#ffd9a0"}" opacity="${(0.45 + rnd() * 0.5).toFixed(2)}" filter="url(#${gid}-glow)"/>`;
+      s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.5 + rnd() * 2).toFixed(2)}" fill="${rnd() > 0.45 ? accent : "var(--motivo-brasa)"}" opacity="${(0.45 + rnd() * 0.5).toFixed(2)}" filter="url(#${gid}-glow)"/>`;
     }
   }
 
@@ -308,7 +313,7 @@ function motifScene(w, h, seed, motif, accent) {
 
   if (motif === "constellation") {
     for (let i = 0; i < 20; i++) {
-      s += `<circle cx="${(rnd() * w).toFixed(1)}" cy="${(rnd() * V * 1.2).toFixed(1)}" r="${(0.5 + rnd()).toFixed(2)}" fill="#e9f2f5" opacity="${(0.25 + rnd() * 0.5).toFixed(2)}"/>`;
+      s += `<circle cx="${(rnd() * w).toFixed(1)}" cy="${(rnd() * V * 1.2).toFixed(1)}" r="${(0.5 + rnd()).toFixed(2)}" fill="var(--motivo-chispa)" opacity="${(0.25 + rnd() * 0.5).toFixed(2)}"/>`;
     }
     const pts = Array.from({ length: 7 }, (_, i) => [w * (0.08 + i * 0.14 + rnd() * 0.04), V * (0.12 + rnd() * 0.78)]);
     let path = "";
@@ -367,7 +372,7 @@ function motifScene(w, h, seed, motif, accent) {
     }
     for (let i = 0; i < 3; i++) {
       const bx = w * (0.12 + rnd() * 0.7), by = V * (0.12 + rnd() * 0.3);
-      s += `<path d="M${bx.toFixed(1)} ${by.toFixed(1)} q 6 -6 12 0 q 6 -6 12 0" stroke="rgba(233,242,245,0.6)" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+      s += `<path d="M${bx.toFixed(1)} ${by.toFixed(1)} q 6 -6 12 0 q 6 -6 12 0" stroke="var(--motivo-espuma)" stroke-width="2" fill="none" stroke-linecap="round"/>`;
     }
     for (let i = 0; i < 4; i++) {
       s += `<circle cx="${(rnd() * w).toFixed(1)}" cy="${(V * (0.45 + rnd() * 0.35)).toFixed(1)}" r="2" fill="${accent}" opacity="0.95" filter="url(#${gid}-glow)"/>`;

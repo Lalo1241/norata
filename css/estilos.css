@@ -29,6 +29,28 @@
     --coral: #ff8a70;
     --coral-soft: rgba(255, 138, 112, 0.13);
     --coral-vivo: #ffa38d;
+
+    /* ---------- Escribir con un acento no es rellenar con él ----------
+       De noche los tres acentos hacen las dos cosas con el mismo tono: son
+       claros, así que se leen sobre carbón Y admiten tinta oscura encima.
+       De día no puede ser el mismo tono: el verde de la marca (#00cc7f)
+       escrito sobre papel da 1,87 sobre 1, y hundido hasta poder leerse deja
+       de ser el verde de la marca.
+
+       Así que se parten en dos, y cada mitad hace lo suyo:
+         --mint / --fire / --coral      escribir, trazar, bordear
+         --mint-macizo / …              RELLENAR, con tinta oscura encima
+
+       De día el macizo es el tono vivo de la lámina y el otro es ese mismo
+       tono más oscuro —mismo matiz, misma saturación—, así que los dos son
+       el mismo color de marca visto a dos luces. De noche los dos valen lo
+       que valían y no cambia nada. */
+    --mint-macizo: #5fe0b0;
+    --fire-macizo: #f5d76e;
+    --coral-macizo: #ff8a70;
+    /* La tinta encima de un relleno macizo. Oscura en los dos modos, porque
+       los tres tonos vivos son claros en los dos modos. */
+    --sobre-macizo: #10151d;
     --celeste: #8ecdf5;
     --celeste-soft: rgba(142, 205, 245, 0.1);
 
@@ -94,6 +116,20 @@
     --lienzo-bloqueado: #1a2230;/* el relleno de un talento con candado */
     --lienzo-flujo: #fff3cf;    /* los guiones que corren por un hilo vivo */
 
+    /* ---------- La franja ilustrada de una ficha ----------
+       El mismo dibujo aparece dentro de una tarjeta de escena —que se queda
+       de noche siempre— y encima de la ficha de una habilidad, que de día es
+       clara. Por eso el cielo y las chispas viven aquí y no dentro del
+       JavaScript que dibuja el motivo. */
+    --motivo-cielo-1: #1c2534;
+    --motivo-cielo-2: #141b26;
+    --motivo-chispa: #e9f2f5;        /* las estrellitas del fondo */
+    --motivo-brasa: #ffd9a0;
+    --motivo-brasa-viva: #ffe9bd;
+    --motivo-humo: rgba(233, 242, 245, 0.3);
+    --motivo-humo-tenue: rgba(233, 242, 245, 0.2);
+    --motivo-espuma: rgba(233, 242, 245, 0.6);
+
     /* El fondo de todo. `--esquema` es lo que le dice al navegador de qué
        color pintar LO SUYO —barra de direcciones, menús de un <select>, los
        calendarios— y sin él un modo claro se queda con desplegables negros. */
@@ -109,6 +145,11 @@
        nada": el color sale exactamente como estaba. Así la misma regla vale
        para los dos modos y no hay dos versiones que descuadrar. */
     --hundir: 0%;
+    /* Un trazo no es un texto. El umbral de un dibujo es 3 sobre 1 y no 4,5,
+       así que un contorno puede quedarse mucho más cerca del color de verdad
+       —que es de lo que vive el mapa de talentos—. Con el hundido de los
+       textos, un nodo coral salía marrón sucio. */
+    --hundir-trazo: 0%;
     --tinta-fondo: #0c1118;
 
     /* Y estos son los ocho, uno por uno. Cada color guardado en los datos de
@@ -205,8 +246,12 @@
        de antes caian de 5,18 a 4,28. Estos devuelven el contraste que habia. */
     --muted: #4f5b67;
     --faint: #606d7b;
-    --mint: #136b4e;
-    --mint-deep: #0d5239;
+    /* Todos salen del vivo de la lámina: mismo matiz, misma saturación, solo
+       más oscuros. El verde de antes (#136b4e) tenía el matiz parecido pero
+       la saturación al 70%, y por eso se leía como verde pasto en vez de
+       como el verde de Norata. */
+    --mint: #007046;
+    --mint-deep: #005c39;
     /* Los tonos "soft" LEVANTAN hacia el blanco en vez de hundir hacia el
        color. Es lo contrario que de noche, y tiene que serlo: sobre carbon un
        velo del tono aclara la zona, pero sobre una pagina ya teñida el mismo
@@ -214,17 +259,23 @@
        apoyado encima. Van en hex y no en rgba por lo mismo: lo que hace falta
        es un tono FIJO mas claro que el fondo, no una transparencia que cambia
        de sentido segun donde caiga. */
-    --mint-soft: #e7f0ed;
-    --fire: #8a6209;
-    --fire-soft: #f1ece1;
-    --coral: #b1341d;
-    --coral-soft: #f7ebe8;
-    --coral-vivo: #8e2513;
-    --celeste: #1a6a99;
-    --celeste-soft: #e6eff4;
+    --mint-soft: #e6f1ec;
+    --fire: #755c05;
+    --fire-soft: #eeebe1;
+    --coral: #bd2200;
+    --coral-soft: #f8e9e6;
+    --coral-vivo: #991b00;
+    --celeste: #0f688f;
+    --celeste-soft: #e5eef3;
 
     --sobre-acento: #ffffff;
     --sobre-acento-coral: #ffffff;
+
+    /* Los tres vivos de la lámina, para rellenar. La tinta que va encima
+       sigue siendo oscura (--sobre-macizo), igual que de noche. */
+    --mint-macizo: #00cc7f;
+    --fire-macizo: #f5c314;
+    --coral-macizo: #ff603d;
 
     --borde-panel: #d8dbec;
     --linea-guion: #b9bfd7;
@@ -263,10 +314,26 @@
     --lienzo-bloqueado: #e7e9f4;
     --lienzo-flujo: #c08c00;
 
+    /* El cielo se da la vuelta: arranca en el tono levantado y baja hasta la
+       tarjeta, así que la franja no es un parche pegado encima sino el borde
+       de arriba de la propia ficha. Y lo que era luz —chispas, brasas, humo—
+       pasa a ser tinta, porque sobre papel un punto casi blanco no existe. */
+    --motivo-cielo-1: #e4e6f4;
+    --motivo-cielo-2: #f2f0f9;
+    --motivo-chispa: #8f97b8;
+    --motivo-brasa: #c9791a;
+    --motivo-brasa-viva: #a85c06;
+    --motivo-humo: rgba(70, 80, 110, 0.30);
+    --motivo-humo-tenue: rgba(70, 80, 110, 0.20);
+    --motivo-espuma: rgba(70, 80, 110, 0.55);
+
     /* Medio a medio camino del carbon. Es lo que hace falta para que el peor
        de los ocho —el amarillo luciernaga— llegue a 4,65 sobre una tarjeta;
        con menos se queda corto y con mas los ocho se vuelven el mismo gris. */
     --hundir: 50%;
+    /* Y para trazar basta con 35: ahí el peor llega a 3,14, que es el umbral
+       de un dibujo, y el color sigue siendo reconocible. */
+    --hundir-trazo: 35%;
 
     /* Los mismos ocho, de dia. Son los que dibujo Eduardo. */
     --paleta-1: #00cc7f;
@@ -299,6 +366,24 @@
      durante un cuarto de segundo se ve como un fallo, no como un efecto. */
   html.cambiando-modo, html.cambiando-modo * { transition: none !important; }
 
+  /* ---------- De día el mapa de talentos no brilla ----------
+     Cada nodo encendido lleva una copia borrosa de sí mismo por debajo. Sobre
+     carbón eso es luz —el nodo parece emitir—; sobre papel es una mancha del
+     mismo color alrededor de la figura, y con ocho colores distintos en el
+     mismo lienzo el conjunto se ve sucio. De día se quita y las figuras
+     quedan limpias.
+
+     Se apaga desde aquí y no dejando de escribir el atributo: un atributo de
+     presentación de SVG pierde contra una regla de CSS, así que esto gana sin
+     tener que volver a dibujar el mapa al cambiar de modo. */
+  html.claro .const-wrap [filter] { filter: none; }
+
+  /* Y lo mismo en la franja ilustrada de una ficha. Aquí solo se quita el
+     resplandor (`-glow`, que es una copia borrosa por debajo); el desenfoque
+     de verdad (`-soft`) se queda, porque ahí no adorna: es lo que hace que
+     una brasa sea una brasa y no una elipse con el borde cortado. */
+  html.claro .strip [filter$="-glow)"] { filter: none; }
+
   /* ---------- Lo que se queda de noche ----------
      Dos cosas no cambian de modo, y por el mismo motivo: no son interfaz.
 
@@ -325,10 +410,22 @@
     --coral-soft: rgba(255, 138, 112, 0.13);
     --sobre-acento: #10151d;
     --sobre-acento-coral: #3a1009;
+    --mint-macizo: #5fe0b0;
+    --fire-macizo: #f5d76e;
+    --coral-macizo: #ff8a70;
+    --motivo-cielo-1: #1c2534;
+    --motivo-cielo-2: #141b26;
+    --motivo-chispa: #e9f2f5;
+    --motivo-brasa: #ffd9a0;
+    --motivo-brasa-viva: #ffe9bd;
+    --motivo-humo: rgba(233, 242, 245, 0.3);
+    --motivo-humo-tenue: rgba(233, 242, 245, 0.2);
+    --motivo-espuma: rgba(233, 242, 245, 0.6);
     /* Y los colores del usuario vuelven a su cara de noche aquí dentro, sin
        hundir: el fondo sigue siendo de noche, que es para lo que se
        eligieron. */
     --hundir: 0%;
+    --hundir-trazo: 0%;
     --paleta-1: #5fe0b0;
     --paleta-2: #f5d76e;
     --paleta-3: #ff8a70;
@@ -575,8 +672,8 @@
     font-weight: 800;
     letter-spacing: 0.6px;
     text-transform: uppercase;
-    background: var(--mint);
-    color: var(--sobre-acento);
+    background: var(--mint-macizo);
+    color: var(--sobre-macizo);
     border-radius: 999px;
     padding: 4px 11px;
     box-shadow: 0 4px 14px var(--sombra-m);
@@ -587,8 +684,8 @@
     width: 26px; height: 26px;
     border-radius: 999px;
     border: none;
-    background: var(--coral);
-    color: var(--sobre-acento);
+    background: var(--coral-macizo);
+    color: var(--sobre-macizo);
     font-size: 13px;
     font-weight: 800;
     font-family: inherit;
@@ -665,7 +762,7 @@
     background: var(--mint-soft);
     box-shadow: 0 0 0 1px rgba(95, 224, 176, 0.25);
   }
-  .acomodo.on .ac-n { background: var(--mint); color: var(--sobre-acento); }
+  .acomodo.on .ac-n { background: var(--mint-macizo); color: var(--sobre-macizo); }
   .acomodo.on .ac-tx span { color: var(--muted); }
   .acomodo:active { border-style: solid; border-color: var(--mint); }
   .ac-n {
@@ -976,7 +1073,7 @@
     font-size: 12px; font-weight: 800; color: #0e131b;
     margin-right: 2px;
   }
-  .skill-card.marcada .hb-check { background: var(--mint); border-color: var(--mint); }
+  .skill-card.marcada .hb-check { background: var(--mint-macizo); border-color: var(--mint-macizo); }
   /* Las cuatro casillas que marcan estado llevan la misma palomita de trazo
      que las misiones. Antes era el carácter "✓", que cada sistema dibuja a
      su manera —más fino, más alto, desalineado— y no casaba con ningún otro
@@ -1017,7 +1114,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 800; color: #0e131b;
   }
-  .cat-chip.sel .cc-box { background: var(--mint); border-color: var(--mint); }
+  .cat-chip.sel .cc-box { background: var(--mint-macizo); border-color: var(--mint-macizo); }
   .cc-ok { flex: none; color: var(--mint); font-size: 14px; font-weight: 800; }
   /* La barra de confirmar se queda a la vista mientras se elige */
   .cat-bar {
@@ -1159,8 +1256,8 @@
   }
   .ts-op svg { width: 15px; height: 15px; }
   .ts-op.on {
-    background: var(--mint);
-    color: var(--sobre-acento);
+    background: var(--mint-macizo);
+    color: var(--sobre-macizo);
   }
 
   /* En el mini menú la fila no lleva tarjeta propia: el menú YA es la
@@ -1272,13 +1369,13 @@
   }
   .mm-item:hover .mm-ic,
   .mm-item:focus-visible .mm-ic {
-    background: var(--mint);
-    color: var(--sobre-acento);
+    background: var(--mint-macizo);
+    color: var(--sobre-macizo);
   }
   .mm-item.riesgo:hover .mm-ic,
   .mm-item.riesgo:focus-visible .mm-ic {
-    background: var(--coral);
-    color: var(--sobre-acento-coral);
+    background: var(--coral-macizo);
+    color: var(--sobre-macizo);
   }
   /* La ficha de la cuenta ya tiene fondo propio, así que sube al tono de
      encima para que el salto se note igual que en las filas. */
@@ -1396,9 +1493,9 @@
     cursor: pointer;
   }
   .chip.active {
-    background: var(--mint);
-    border-color: var(--mint);
-    color: var(--sobre-acento);
+    background: var(--mint-macizo);
+    border-color: var(--mint-macizo);
+    color: var(--sobre-macizo);
   }
 
   /* ---------- Tarjeta de habilidad ---------- */
@@ -1430,10 +1527,10 @@
     text-transform: uppercase;
     padding: 3px 10px;
     border-radius: 999px;
-    color: var(--sobre-acento);
+    color: var(--sobre-macizo);
   }
-  .skill-tab.warn { background: var(--fire); }
-  .skill-tab.perm { background: var(--mint); display: inline-flex; align-items: center; gap: 4px; }
+  .skill-tab.warn { background: var(--fire-macizo); }
+  .skill-tab.perm { background: var(--mint-macizo); display: inline-flex; align-items: center; gap: 4px; }
   .skill-tab .ic svg { width: 10px; height: 10px; stroke-width: 2.6; }
   .skill-emoji {
     width: 50px; height: 50px;
@@ -1495,7 +1592,7 @@
     font-family: inherit;
     transition: transform 0.12s ease;
   }
-  .btn-primary { background: var(--mint); color: var(--sobre-acento); box-shadow: 0 10px 26px rgba(95, 224, 176, 0.25); }
+  .btn-primary { background: var(--mint-macizo); color: var(--sobre-macizo); box-shadow: 0 10px 26px rgba(95, 224, 176, 0.25); }
   .btn-soft { background: var(--mint-soft); color: var(--mint); }
   .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--line); }
   .btn-danger-ghost { background: var(--coral-soft); color: var(--coral); }
@@ -1557,8 +1654,8 @@
     flex-shrink: 0;
     width: 58px; height: 58px;
     border-radius: 999px;
-    background: var(--mint);
-    color: var(--sobre-acento);
+    background: var(--mint-macizo);
+    color: var(--sobre-macizo);
     border: none;
     font-size: 26px;
     font-weight: 500;
@@ -1618,10 +1715,10 @@
   .panel.peligro h3 { color: var(--coral); }
   .panel.peligro .settings-note { color: var(--peligro-nota); }
   .panel.peligro .btn-danger-ghost {
-    background: var(--coral);
+    background: var(--coral-macizo);
     /* Texto oscuro sobre coral: en blanco se queda en 2,4 sobre 1 y no se lee.
        Este da de sobra. */
-    color: var(--sobre-acento-coral);
+    color: var(--sobre-macizo);
     font-weight: 750;
   }
   .panel.peligro .btn-danger-ghost:hover { background: var(--coral-vivo); }
@@ -3160,7 +3257,7 @@
        sienta como marcar y no como que ya estuviera marcada. */
     .ms-card:not(.done) .ms-check:hover { background: color-mix(in srgb, var(--mc) 16%, transparent); }
     /* Cumplida: pasa a rojo, porque lo que ofrece es revertir */
-    .ms-card.done .ms-check:hover { background: var(--coral); border-color: var(--coral); }
+    .ms-card.done .ms-check:hover { background: var(--coral-macizo); border-color: var(--coral-macizo); }
   }
   /* El icono de la misión: mismo dibujo que el de una habilidad —cuadrado
      teñido de su color—, para que se lea como lo que es, la identidad de la
@@ -3820,10 +3917,10 @@
   .carga-anillo {
     position: absolute; inset: 0; border-radius: 50%;
     border: 2px solid var(--mint-soft);
-    border-top-color: var(--mint);
+    border-top-color: var(--mint-macizo);
     animation: cargaGira 0.95s linear infinite;
   }
-  .carga-marca svg { width: 42px; height: 42px; fill: var(--mint); animation: cargaLate 1.9s ease-in-out infinite; }
+  .carga-marca svg { width: 42px; height: 42px; fill: var(--mint-macizo); animation: cargaLate 1.9s ease-in-out infinite; }
   .carga-msg { color: var(--muted); font-size: 14px; text-align: center; line-height: 1.55; max-width: 300px; }
   @keyframes cargaGira { to { transform: rotate(360deg); } }
   @keyframes cargaLate {
@@ -3988,7 +4085,7 @@
        cual se diseñó (icono + texto en un solo trazado, dos colores fijos:
        no es de los íconos que heredan el color del tema). */
     .side-brand .sb-mark, .side-brand .sb-expand { display: none; flex-shrink: 0; }
-    .side-brand .sb-mark { color: var(--mint); }
+    .side-brand .sb-mark { color: var(--mint-macizo); }
     .side-brand .sb-mark svg { width: 22px; height: 22px; display: block; }
     .side-brand .sb-expand { color: var(--muted); }
     /* Dos píxeles menos que el isotipo: uno es una silueta maciza y el otro
@@ -4520,7 +4617,7 @@
     .icon-btn:hover { background: var(--card2); border-color: var(--faint); }
 
     .icon-btn:hover { color: var(--text); }
-    .chip.active:hover { background: var(--mint); border-color: var(--mint); }
+    .chip.active:hover { background: var(--mint-macizo); border-color: var(--mint-macizo); }
 
     /* Botones de acción: el color ya los identifica, así que basta
        aclararlos un punto en vez de cambiarles el fondo. */

@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.1";
+const VERSION = "0.7.2";
 const VERSION_FECHA = "25 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -190,6 +190,17 @@ function tinta(col) {
   if (!col) return "var(--mint)";
   if (String(col).indexOf("var(") === 0) return col;
   return `color-mix(in srgb, ${pinta(col)}, var(--tinta-fondo) var(--hundir))`;
+}
+
+/* Trazar con él: el contorno de un nodo del árbol, el hilo entre dos, el
+   icono de dentro. Un dibujo pide 3 sobre 1 y no 4,5, así que se hunde mucho
+   menos que un texto y el color se reconoce todavía. Con el hundido de los
+   textos, un talento coral salía marrón sucio, y ocho de esos en el mismo
+   lienzo lo dejaban pareciendo un charco. */
+function trazo(col) {
+  if (!col) return "var(--mint)";
+  if (String(col).indexOf("var(") === 0) return col;
+  return `color-mix(in srgb, ${pinta(col)}, var(--tinta-fondo) var(--hundir-trazo))`;
 }
 
 /* El fondo tenue de una pastilla. Antes se armaba pegándole la transparencia

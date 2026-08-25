@@ -910,15 +910,16 @@ function constellation(nodes, key, editing, branch) {
     /* El crudo se guarda porque velo() y tinta() necesitan el color TAL
        COMO esta en los datos para buscarlo en la lista de ocho; lo que se
        dibuja sale siempre de uno de los dos. */
-    const ccT = tinta(cc);
+    const ccT = tinta(cc);      // la etiqueta, que es texto
+    const ccZ = trazo(cc);      // el borde punteado, que es dibujo
     alto = Math.max(alto, 18 - (y0 - 11));   // la etiqueta no puede quedar cortada
     abarcar(x0, y0 - 11, x1, y1);
     recintos += `<g class="grupo">
       <rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" rx="22"
-        fill="${velo(cc, "0a")}" stroke="${ccT}" stroke-opacity="0.35" stroke-width="1.6" stroke-dasharray="9 7" pointer-events="none"/>
+        fill="${velo(cc, "0a")}" stroke="${ccZ}" stroke-opacity="0.35" stroke-width="1.6" stroke-dasharray="9 7" pointer-events="none"/>
       <g class="grupo-tag" data-grupo="${c.id}">
         <rect x="${x0 + 12}" y="${y0 - 11}" width="${Math.max(96, nombreCaja(c).length * 6.6 + 30)}" height="22" rx="11"
-          fill="var(--lienzo-caja)" stroke="${ccT}" stroke-opacity="0.5" stroke-width="1.4"/>
+          fill="var(--lienzo-caja)" stroke="${ccZ}" stroke-opacity="0.5" stroke-width="1.4"/>
         <text x="${x0 + 24}" y="${y0 + 4}" font-size="10.5" font-weight="700" fill="${ccT}">${
           escapeHtml(nombreCaja(c))} · ${hechos}/${c.perkIds.length}</text>
       </g>
@@ -1008,7 +1009,7 @@ function constellation(nodes, key, editing, branch) {
       const done = c.esCaja ? c.todoHecho : c.status === "completed";
       const inProgress = !c.esCaja && (cst === "active" || cst === "due");
       const lit = done || inProgress;
-      const col = tinta(done ? (c.color || "#5fe0b0") : (inProgress ? "var(--fire)" : "var(--lienzo-hilo)"));
+      const col = trazo(done ? (c.color || "#5fe0b0") : (inProgress ? "var(--fire)" : "var(--lienzo-hilo)"));
       const P = edgePath(a, b, n, c);
       const wdt = lit ? 3 : 2;
       // Sin filtro SVG: un trazo perfectamente horizontal tiene caja de altura
@@ -1048,21 +1049,21 @@ function constellation(nodes, key, editing, branch) {
        merece la pena abrirla. */
     if (n.esCaja) {
       const cc = n.colorPropio || (n.todoHecho ? "#5fe0b0" : "#f5d76e");
-      const ccT = tinta(cc);   // ver la nota del recinto, mas arriba
+      const ccT = tinta(cc), ccZ = trazo(cc);   // ver la nota del recinto
       /* Dos líneas como mucho: la caja tiene una altura fija y un nombre
          largo se saldría por abajo, encima del texto que dice qué guarda. */
       const todo = wrapName(n.name);
       const nom = todo.slice(0, 2);
       if (todo.length > 2) nom[1] = nom[1].slice(0, 17) + "…";
       nds += `<g class="cnode caja" data-id="${n.id}">
-        ${nodeShape(n, x, y, { stroke: ccT, fill: velo(cc, "14") }, fid)}
+        ${nodeShape(n, x, y, { stroke: ccZ, fill: velo(cc, "14") }, fid)}
         <text x="${x}" y="${y - (nom.length > 1 ? 9 : 4)}" text-anchor="middle" font-size="${nom.length > 1 ? 10.5 : 12}" font-weight="700" fill="${ccT}">
           ${nom.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 11}">${escapeHtml(ln)}</tspan>`).join("")}
         </text>
         <text x="${x}" y="${y + (nom.length > 1 ? 14 : 12)}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${escapeHtml(n.resumen)}</text>
         <text x="${x}" y="${y + CAJA_H / 2 + 15}" text-anchor="middle" font-size="9" fill="var(--faint)">${editing ? "arrastra, conecta o clic derecho" : "toca para ver qué lleva"}</text>
       </g>`;
-      ports += puertos(n, x, y, CAJA_W / 2, ccT);
+      ports += puertos(n, x, y, CAJA_W / 2, ccZ);
       abarcar(x - CAJA_W / 2 - (n.requiere.length > 1 ? 24 : 0), y - CAJA_H / 2,
               x + CAJA_W / 2 + (editing ? 22 : 0), y + CAJA_H / 2 + 20);
       return;
@@ -1070,14 +1071,16 @@ function constellation(nodes, key, editing, branch) {
 
     const st = perkStatus(n);
     const col = n.color || "#5fe0b0";
-    /* Dos caras del mismo color: el trazo hundido, para verse sobre papel,
-       y el relleno translucido, que velo() arma con la cara del modo. */
-    const colT = tinta(col);
+    /* Tres papeles para el mismo color: el contorno y el icono se TRAZAN
+       —basta con 3 sobre 1, y asi el tono se sigue reconociendo—, el relleno
+       lo arma velo() con la cara del modo, y la chapa de estado va en el tono
+       vivo, porque lleva tinta oscura encima y tiene que resaltar. */
+    const colT = trazo(col);
     const conf = {
-      completed: { stroke: colT, fill: velo(col, "33"), glow: true, badge: "var(--mint)", mark: "check" },
-      active:    { stroke: colT, fill: velo(col, "1f"), glow: true, badge: "var(--fire)", mark: "play" },
-      due:       { stroke: "var(--fire)", fill: "rgba(245,215,110,0.2)", glow: true, badge: "var(--fire)", mark: "alert" },
-      expired:   { stroke: "var(--coral)", fill: "rgba(255,138,112,0.1)", glow: false, badge: "var(--coral)", mark: "close" },
+      completed: { stroke: colT, fill: velo(col, "33"), glow: true, badge: "var(--mint-macizo)", mark: "check" },
+      active:    { stroke: colT, fill: velo(col, "1f"), glow: true, badge: "var(--fire-macizo)", mark: "play" },
+      due:       { stroke: "var(--fire)", fill: velo("#f5d76e", "33"), glow: true, badge: "var(--fire-macizo)", mark: "alert" },
+      expired:   { stroke: "var(--coral)", fill: velo("#ff8a70", "1a"), glow: false, badge: "var(--coral-macizo)", mark: "close" },
       locked:    { stroke: "var(--pip)", fill: "var(--lienzo-bloqueado)", glow: false },
       available: { stroke: colT, fill: velo(col, "12"), glow: false, sop: 0.55 }
     }[st];
@@ -1100,7 +1103,7 @@ function constellation(nodes, key, editing, branch) {
          stroke="${st === "locked" ? "var(--faint)" : conf.stroke}" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[iname] || ICONS.star}</g>
       ${conf.mark ? `<circle cx="${x + markR.dx}" cy="${y + markR.dy}" r="9.5" fill="${conf.badge}"/>
         <g transform="translate(${x + markR.dx - 6}, ${y + markR.dy - 6}) scale(0.5)"
-           stroke="var(--sobre-acento)" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g>` : ""}
+           stroke="var(--sobre-macizo)" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g>` : ""}
       <text x="${x}" y="${topY}" text-anchor="middle" font-size="${esHito ? 9.5 : 10.5}" fill="var(--lienzo-rotulo)" font-weight="500">
         ${lines.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 12}">${escapeHtml(ln)}</tspan>`).join("")}
       </text>

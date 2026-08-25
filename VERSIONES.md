@@ -52,6 +52,45 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.2 · 25 ago 2026
+El modo claro deja de tener verde pasto, y el árbol deja de verse sucio.
+
+- **El isotipo pasa a `#00cc7f` sobre fondo claro**, que es el verde de la
+  marca. Cambia solo en la barra lateral, en la pantalla de carga y en el
+  logotipo de la portada; de noche sigue siendo el menta de siempre.
+- **Escribir con un acento deja de ser lo mismo que rellenar con él.** De
+  noche el mismo tono hace las dos cosas porque es claro; de día no puede,
+  así que cada acento se parte en dos mitades sacadas del mismo tono vivo:
+
+  | | rellenar | escribir y trazar |
+  | --- | --- | --- |
+  | menta | `#00cc7f` | `#007046` |
+  | luciérnaga | `#f5c314` | `#755c05` |
+  | coral | `#ff603d` | `#bd2200` |
+
+  El verde de antes (`#136b4e`) tenía el matiz parecido pero la saturación al
+  70%, y por eso se leía como verde pasto en vez de como el verde de Norata.
+  Los nuevos tienen el matiz y la saturación exactos del vivo: solo cambia la
+  luz. El botón de "Nueva rama" es ahora `#00cc7f` con tinta oscura —8,67
+  sobre 1— igual que de noche.
+- **El árbol de talentos deja de brillar de día.** Cada nodo encendido llevaba
+  una copia borrosa de sí mismo por debajo: sobre carbón eso es luz, sobre
+  papel es una mancha del mismo color alrededor, y con ocho colores en el
+  mismo lienzo el conjunto se ve sucio.
+- **Y sus contornos recuperan el color.** Un dibujo pide 3 sobre 1 y no 4,5,
+  así que ahora se hunden 35% en vez de 50% y el tono se reconoce: el coral
+  pasa de un marrón `#86382a` a `#aa4430`. Las chapas de estado van en el
+  tono vivo, con tinta oscura encima.
+- **La franja ilustrada de una ficha cambia de luz.** Era un trozo de noche
+  pegado encima de una tarjeta clara. Ahora su cielo arranca en el tono
+  levantado y baja hasta el color de la tarjeta, así que es el borde de
+  arriba de la ficha y no un parche; y lo que era luz —chispas, brasas,
+  humo— pasa a ser tinta, porque sobre papel un punto casi blanco no existe.
+- Arreglado `marca/generar-marca.py`, que llevaba roto desde el cambio de
+  nombre: sacaba de la app solo el atributo `d` de cada trazo, y dos de las
+  seis letras llevan un `transform` escrito antes de la `d`. Ni las
+  encontraba. Volver a correrlo generaba un logotipo de cuatro letras.
+
 ### 0.7.1 · 25 ago 2026
 El modo claro estrena la paleta de día que dibujó Eduardo.
 
