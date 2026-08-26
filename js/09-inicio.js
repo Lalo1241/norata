@@ -695,6 +695,21 @@ const AJUSTES_SECS = [
   { id: "datos",  nombre: "Almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" }
 ];
 
+/* Las secciones que se dibujan HOY, que no siempre son las tres de arriba: la
+   de administración solo existe para quien el servidor reconoce como tal.
+   Y conviene tener claro qué protege esto: nada. Es limpieza, no seguridad —
+   un usuario no debería toparse con una pantalla que no le sirve. Quien
+   quiera puede poner `esAdmin` a true desde la consola y lo único que verá es
+   una pantalla vacía, porque los números los da el servidor tras comprobar
+   quién pregunta (ver `supabase/administracion.sql`). */
+function seccionesAjustes() {
+  const secs = AJUSTES_SECS.slice();
+  if (typeof esAdmin !== "undefined" && esAdmin) {
+    secs.push({ id: "admin", nombre: "Los números", icon: "gamepad", sub: "Cuánta gente usa Norata, el cobro y lo que se rompe" });
+  }
+  return secs;
+}
+
 /* Qué sección se está viendo. En el teléfono, null significa "la lista"; en la
    computadora siempre hay una abierta, porque el índice y el contenido conviven
    y una columna vacía al lado del índice no dice nada. */
@@ -714,7 +729,7 @@ function renderAjustes() {
      "Almacenamiento" estaría escondido detrás de una puerta que habla de
      otra cosa. */
   nav.innerHTML = `<div class="tema-hueco">${temaSwitchHTML()}</div>` +
-    AJUSTES_SECS.map(sec => `
+    seccionesAjustes().map(sec => `
     <button class="aj-item ${ajusteAbierto === sec.id ? "on" : ""} ${sec.id === "peligro" ? "riesgo" : ""}"
       onclick="mostrarAjuste('${sec.id}')">
       <span class="aj-ic">${icon(sec.icon, 17)}</span>
@@ -730,7 +745,12 @@ function renderAjustes() {
   /* En el teléfono el título dice dónde estás, porque el índice ya no se ve.
      En la computadora sigue diciendo "Ajustes": el índice de al lado marca la
      sección y repetirlo arriba sería decir dos veces lo mismo. */
-  const abierta = AJUSTES_SECS.find(x => x.id === ajusteAbierto);
+  /* El panel de números se dibuja al abrir su sección y no al arrancar: pedir
+     las métricas cuesta una llamada al servidor, y no tiene sentido pagarla
+     cada vez que alguien entra a Ajustes a cambiar la zona horaria. */
+  if (ajusteAbierto === "admin" && typeof renderPanelAdmin === "function") renderPanelAdmin();
+
+  const abierta = seccionesAjustes().find(x => x.id === ajusteAbierto);
   const titulo = document.getElementById("ajustes-titulo");
   if (titulo) titulo.textContent = (!escritorio && abierta) ? abierta.nombre : "Ajustes";
 }

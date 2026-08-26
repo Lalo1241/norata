@@ -52,6 +52,87 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.6 · 25 ago 2026
+El panel de números, dentro de Ajustes y solo para quien administra. Todavía
+no enseña nada: falta correr `supabase/administracion.sql` y darse de alta a
+mano como administrador — los dos pasos están en `supabase/LEEME.md`.
+
+La pregunta que lo ordenó todo fue de Eduardo: si el panel vive dentro de la
+app, ¿cómo se evita que lo vea cualquiera? La respuesta es que **esconder el
+botón no protege nada** —cualquiera puede leer el JavaScript, sacar el nombre
+de una función y llamarla desde su consola— y que lo único que protege es que
+el servidor compruebe quién pregunta antes de contestar. De ahí el reparto:
+
+- **`supabase/administracion.sql`** — la tabla `administradores`, sin ninguna
+  política de RLS, igual que `ajustes_negocio`: no se lee ni se escribe desde
+  fuera. Y **no es una marca en los metadatos de la cuenta a propósito**, que
+  es el error clásico: en Supabase el propio usuario puede escribir sus
+  metadatos, así que un `es_admin` guardado ahí se lo pone cualquiera.
+- **`metricas()`** comprueba el permiso en su primera línea, antes de tocar un
+  solo dato, y devuelve **totales y nunca filas de nadie**: «23 personas
+  activas», jamás «la cuenta X abrió el martes». Eso es lo que permite que el
+  aviso de privacidad siga siendo verdad aunque el panel exista.
+- **Todo en una sola llamada** y no seis: el panel las quiere juntas y seis
+  viajes desde un teléfono se notan.
+
+Lo que se ve dentro: la gente (cuentas, activos, retención a 30 días, cuántos
+volvieron, cuántos la instalaron, cuántos usan los dos aparatos), una gráfica
+de los últimos catorce días, el estado del cobro con los lugares de fundador,
+qué versión corre cada quien, y lo que se rompe.
+
+- **Los tropiezos son nuevos.** La red de seguridad de `index.html` ya avisaba
+  al usuario, pero lo que pasó no lo sabía nadie. Ahora lo apunta, y se agrupa
+  por día + versión + sitio + mensaje: un fallo dentro de un bucle escribiría
+  miles de filas iguales y se comería el plan gratis en una tarde; aquí el
+  quinto mil solo suma uno al contador.
+- **Se apunta desde antes de tener sesión**, que es justo lo contrario de lo
+  que parece razonable: los errores que más importa cazar son los que impiden
+  arrancar, y ésos nadie podría reportarlos desde dentro. Como ese script corre
+  antes que toda la app, deja lo que pilla en una lista y `sbVaciarTropiezos()`
+  la recoge cuando ya hay con qué mandarla.
+- El mensaje se recorta a 300 caracteres por dos motivos distintos: un volcado
+  completo arrastra sin querer lo que hubiera en las variables —y ahí puede ir
+  el nombre de la misión de alguien—, y un índice único sobre texto sin límite
+  revienta pasados unos 2.700 bytes.
+
+El botón para dar los errores por vistos **no los borra**: un error que vuelve
+después de darlo por visto es información, y borrarlo la perdería. Se apagan.
+
+### 0.7.5 · 25 ago 2026
+Los cimientos del cobro. Todavía no cobra nada: falta correr `planes.sql`,
+crear los tres productos en Stripe y desplegar las dos funciones — los pasos
+están en `supabase/LEEME.md`. Mientras tanto, todo el mundo sale como «libre»
+y los botones de pagar avisan de que el pago aún no está disponible.
+
+Qué queda puesto:
+
+- **`supabase/planes.sql`** — la tabla `suscripciones`, con RLS que deja leer
+  solo lo propio y **ninguna regla de escritura para nadie**. La única mano
+  que escribe es la función `cobro`, con la llave de servicio, que jamás baja
+  al navegador. Más `mi_plan()`, que decide si el plan sigue vigente contra el
+  reloj del servidor —mover el del teléfono no revive nada— y
+  `lugares_fundador()`, el contador del cupo, que sí puede preguntar
+  cualquiera porque es un número.
+- **`supabase/functions/pagar/`** — pide a Stripe una página de cobro y
+  devuelve su dirección. También abre el portal donde se cancela. Las
+  direcciones de vuelta están escritas aquí y no se aceptan del cuerpo de la
+  petición: una que llegue de fuera convierte esto en un trampolín con la
+  marca de Stripe detrás.
+- **`supabase/functions/cobro/`** — el aviso de Stripe. Comprueba la firma
+  antes que nada, y en vez de creerse el aviso vuelve a preguntarle a Stripe
+  cómo está esa suscripción: así deja de importar que los avisos lleguen tarde
+  o desordenados.
+- **`js/10d-plan.js`** — la capa de la app: `esPro()`, `cabeUnoMas()`,
+  `planPermite()`, los límites en un solo sitio y los textos de cuando alguien
+  topa con uno. Empieza explicando que **nada de ese archivo es seguridad**, y
+  por qué eso está bien.
+
+Los límites del plan libre quedan declarados (una rama, doce talentos, el año
+en curso del ático, el resumen de la semana), pero **todavía no están puestos
+en ninguna pantalla**: los cuatro módulos siguen sin tope para todos. Ponerlos
+es el paso siguiente, y va aparte a propósito — el cobro tiene que estar
+probado antes de que empiece a decirle que no a nadie.
+
 ### 0.7.4.1 · 25 ago 2026
 El amarillo que quedaba suelto, y la etiqueta de cuenta de pruebas.
 

@@ -137,12 +137,37 @@
     }
     setTimeout(destaparApp, 15000);
 
+    /* Además de avisar al usuario, se apunta qué se rompió para poder verlo
+       después en el panel. Va a una lista y no directo al servidor porque
+       este script corre ANTES que todo el JavaScript de la app: aquí todavía
+       no existe la función que sabe hablar con Supabase. `sbVaciarTropiezos()`
+       recoge la lista cuando ya hay con qué mandarla.
+
+       Y es justo al revés de lo que parece: los errores que más importa cazar
+       son los que ocurren aquí arriba, porque son los que impiden que la app
+       llegue a arrancar — y por lo tanto los que nadie podría reportar desde
+       dentro. */
+    window.__tropiezos = [];
+    function apuntar(donde, mensaje) {
+      try {
+        /* Tope de diez. Un error dentro de un bucle dispara miles en un
+           segundo, y una lista sin límite se comería la memoria del aparato
+           encima de alguien a quien ya se le rompió la app. */
+        if (window.__tropiezos.length >= 10) return;
+        window.__tropiezos.push({ donde: donde, mensaje: String(mensaje).slice(0, 300) });
+      } catch (e) { /* ni aquí se puede fallar */ }
+    }
+
     window.onerror = function (msg, url, linea) {
-      avisar(String(msg) + (linea ? " (línea " + linea + ")" : ""));
+      var texto = String(msg) + (linea ? " (línea " + linea + ")" : "");
+      apuntar("error", texto);
+      avisar(texto);
     };
     window.addEventListener("unhandledrejection", function (ev) {
       var r = ev && ev.reason;
-      avisar((r && r.message) ? r.message : String(r));
+      var texto = (r && r.message) ? r.message : String(r);
+      apuntar("promesa", texto);
+      avisar(texto);
     });
   })();
 </script>
@@ -665,6 +690,15 @@
           </div>
         </section>
 
+        <!-- Los números. Este bloque existe en el marcado de todo el mundo,
+             pero se queda vacío salvo que el servidor reconozca la cuenta como
+             administradora: lo que se dibuja aquí lo decide `renderPanelAdmin`
+             y lo que se puede leer lo decide `metricas()` en el servidor. El
+             marcado suelto no revela nada — es un div sin contenido. -->
+        <section class="ajuste-bloque" data-sec="admin">
+          <div id="panel-admin"></div>
+        </section>
+
       </div>
     </div>
     </div>
@@ -852,6 +886,8 @@
 <script src="js/10a-perfil.js"></script>
 <script src="js/10b-supabase.js"></script>
 <script src="js/10c-portada.js"></script>
+<script src="js/10d-plan.js"></script>
+<script src="js/10e-panel.js"></script>
 <script src="js/11-arranque.js"></script>
 </body>
 </html>

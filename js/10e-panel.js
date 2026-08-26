@@ -1,0 +1,207 @@
+/* El panel de administración: los números de Norata, dentro de Ajustes.
+ *
+ * AVISO, y es el mismo que lleva 10d-plan.js: NADA de este archivo es
+ * seguridad. Que `esAdmin` valga false solo hace que el botón no se dibuje;
+ * cualquiera puede poner esa variable a true desde la consola del navegador y
+ * lo único que conseguirá es ver una pantalla vacía, porque el servidor no le
+ * va a contestar. Quien decide es `metricas()` en administracion.sql.
+ *
+ * Por qué vive dentro de la app y no en una página aparte: para poder mirarlo
+ * desde el teléfono sin escribir una dirección de memoria. El precio es que
+ * este archivo viaja en la app de todo el mundo — los datos no, solo el
+ * dibujo — y se paga a sabiendas.
+ */
+
+/* Empieza en false y solo el servidor lo sube. El orden importa: si arrancara
+   en true, habría un instante con el botón puesto para cualquiera. */
+let esAdmin = false;
+let metricasCache = null;
+
+/* Se pregunta una vez al arrancar, después de que la sesión esté lista. Si no
+   hay sesión, ni se pregunta: la respuesta ya se sabe. */
+async function revisarAdmin() {
+  esAdmin = await sbSoyAdmin();
+  if (esAdmin && typeof renderAjustes === "function") renderAjustes();
+}
+
+/* ---- Piezas de dibujo ----
+   Todo se dibuja a mano con SVG y CSS. No hay librería de gráficas y no la va
+   a haber: meter una obligaría a un empaquetador, y Norata no tiene ninguno
+   a propósito. Cuatro barras y un número grande no necesitan trescientos
+   kilobytes. */
+
+function panelCifra(valor, rotulo, pista) {
+  return `<div class="pn-kpi">
+      <b>${escapeHtml(String(valor))}</b>
+      <span>${escapeHtml(rotulo)}</span>
+      ${pista ? `<i>${escapeHtml(pista)}</i>` : ""}
+    </div>`;
+}
+
+/* De cuántos, cuántos — con el divisor a la vista. Un «3 siguen» no significa
+   nada sin saber de cuántos: puede ser estupendo o ser un desastre. */
+function panelDeCada(parte, total, rotulo, pista) {
+  const p = total > 0 ? Math.round((parte / total) * 100) : 0;
+  const texto = total > 0 ? p + "%" : "—";
+  return `<div class="pn-kpi">
+      <b>${texto}</b>
+      <span>${escapeHtml(rotulo)}</span>
+      <i>${total > 0 ? parte + " de " + total : "todavía sin datos"}${pista ? " · " + escapeHtml(pista) : ""}</i>
+    </div>`;
+}
+
+/* La gráfica de los últimos catorce días. Barras y no línea porque lo que se
+   mira aquí es «¿hubo movimiento este día?», que es una cuenta por día y no
+   una magnitud continua. */
+function panelBarras(dias) {
+  if (!dias || !dias.length) {
+    return `<p class="settings-note">Todavía no hay ni un día con actividad. Aparecerá en cuanto alguien abra la app con su cuenta.</p>`;
+  }
+  const alto = 120, ancho = 100 / dias.length;
+  const tope = Math.max(...dias.map(d => Number(d.personas) || 0), 1);
+
+  const barras = dias.map((d, i) => {
+    const v = Number(d.personas) || 0;
+    const h = Math.max((v / tope) * (alto - 22), v > 0 ? 3 : 0);
+    const x = i * ancho;
+    /* El día se escribe solo cada tres, o en un teléfono los números se
+       encaraman unos sobre otros y no se lee ninguno. */
+    const etiqueta = (i % 3 === 0 || i === dias.length - 1)
+      ? `<text x="${x + ancho / 2}" y="${alto - 4}" class="pn-eje">${String(d.dia).slice(8, 10)}</text>`
+      : "";
+    return `<rect x="${x + ancho * 0.18}" y="${alto - 18 - h}"
+              width="${ancho * 0.64}" height="${h}" rx="1.6"
+              fill="var(--menta)"><title>${escapeHtml(String(d.dia))}: ${v}</title></rect>${etiqueta}`;
+  }).join("");
+
+  return `<svg class="pn-graf" viewBox="0 0 100 ${alto}" preserveAspectRatio="none"
+            role="img" aria-label="Personas activas por día, últimos catorce días">
+      <line x1="0" y1="${alto - 18}" x2="100" y2="${alto - 18}" class="pn-suelo"/>
+      ${barras}
+    </svg>
+    <p class="settings-note" style="margin-top:6px">Máximo del periodo: ${tope} ${tope === 1 ? "persona" : "personas"} en un día.</p>`;
+}
+
+/* Barras horizontales para lo que es una lista con pesos: versiones, planes. */
+function panelListaBarras(filas, claveNombre, claveValor, vacio) {
+  if (!filas || !filas.length) return `<p class="settings-note">${escapeHtml(vacio)}</p>`;
+  const tope = Math.max(...filas.map(f => Number(f[claveValor]) || 0), 1);
+  return `<div class="pn-lista">` + filas.map(f => {
+    const v = Number(f[claveValor]) || 0;
+    const nombre = String(f[claveNombre] || "—") || "(sin dato)";
+    return `<div class="pn-fila">
+        <span class="pn-nom">${escapeHtml(nombre)}</span>
+        <span class="pn-riel"><i style="width:${Math.round((v / tope) * 100)}%"></i></span>
+        <span class="pn-val">${v}</span>
+      </div>`;
+  }).join("") + `</div>`;
+}
+
+/* ---- La pantalla ---- */
+
+function renderPanelAdmin() {
+  const caja = document.getElementById("panel-admin");
+  if (!caja) return;
+  if (!esAdmin) { caja.innerHTML = ""; return; }
+
+  const m = metricasCache;
+  if (!m) {
+    caja.innerHTML = `<div class="panel">
+        <h3>Los números</h3>
+        <p class="settings-note">Se piden al servidor cuando abres esta sección.</p>
+        <button class="btn btn-soft btn-block" onclick="cargarMetricas()">Cargar los números</button>
+      </div>`;
+    return;
+  }
+
+  const r = m.resumen || {};
+  const c = m.cobro || {};
+  const tropiezos = m.tropiezos || [];
+  const sinVer = tropiezos.filter(t => !t.visto).length;
+
+  caja.innerHTML = `
+    <div class="panel">
+      <h3>La gente</h3>
+      <div class="pn-kpis">
+        ${panelCifra(r.cuentas || 0, "Cuentas creadas")}
+        ${panelCifra(r.activos7 || 0, "Activos esta semana", "abrieron en 7 días")}
+        ${panelDeCada(r.siguen30 || 0, r.maduros || 0, "Siguen tras 30 días", "señal buena: 20%")}
+        ${panelDeCada(r.volvieron || 0, r.abrieron || 0, "Volvieron otro día", "señal buena: 40%")}
+        ${panelDeCada(r.instalaron || 0, r.abrieron || 0, "La instalaron", "señal buena: 30%")}
+        ${panelDeCada(r.dos_aparatos || 0, r.abrieron || 0, "Teléfono y compu", "señal buena: 25%")}
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Los últimos 14 días</h3>
+      <p class="settings-note">Cuántas personas distintas abrieron la app cada día. Aquí se ve si una tanda de invitaciones movió algo, y si el movimiento duró más de dos días.</p>
+      ${panelBarras(m.dias)}
+    </div>
+
+    <div class="panel">
+      <h3>El cobro</h3>
+      <div class="pn-kpis">
+        ${panelCifra(c.pagando || 0, "Pagando ahora")}
+        ${panelCifra("$" + (c.mrr || 0), "Al mes", "sin contar fundador")}
+        ${panelCifra(c.lugares_fundador == null ? "—" : c.lugares_fundador, "Lugares de fundador", "de 200")}
+      </div>
+      ${panelListaBarras(c.planes, "plan", "personas", "Todavía no hay ninguna suscripción.")}
+    </div>
+
+    <div class="panel">
+      <h3>Qué versión corre la gente</h3>
+      <p class="settings-note">Si aquí aparece una versión que ya no existe, hay un aparato pegado a una copia vieja — casi siempre porque no se subió el número de <code>CACHE</code> en <code>sw.js</code>.</p>
+      ${panelListaBarras(m.versiones, "version", "personas", "Nadie ha abierto la app en los últimos siete días.")}
+    </div>
+
+    <div class="panel">
+      <h3>Lo que se rompe${sinVer ? ` <span class="pn-globo">${sinVer}</span>` : ""}</h3>
+      <p class="settings-note">Cada fila es un error distinto de un día, con las veces que pasó. Se agrupan a propósito: un fallo dentro de un bucle escribiría miles de filas iguales.</p>
+      ${tropiezos.length
+        ? `<div class="pn-errores">` + tropiezos.map(t => `
+            <div class="pn-error ${t.visto ? "visto" : ""}">
+              <div class="pn-error-tit">
+                <b>${escapeHtml(String(t.mensaje))}</b>
+                <span>${t.cuantos}×</span>
+              </div>
+              <div class="pn-error-pie">${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")} · ${escapeHtml(String(t.donde) || "?")}</div>
+            </div>`).join("") + `</div>
+           ${sinVer ? `<button class="btn btn-soft btn-block" style="margin-top:12px" onclick="marcarTropiezosVistos()">Dar por vistos los ${sinVer} nuevos</button>` : ""}`
+        : `<p class="settings-note">Ni un error en los últimos treinta días.</p>`}
+    </div>
+
+    <div class="panel">
+      <p class="settings-note" style="margin:0">Números tomados ${escapeHtml(String(m.al_momento || "").slice(0, 16).replace("T", " a las "))}.</p>
+      <button class="btn btn-soft btn-block" style="margin-top:10px" onclick="cargarMetricas()">Volver a pedirlos</button>
+    </div>`;
+}
+
+async function cargarMetricas() {
+  const caja = document.getElementById("panel-admin");
+  if (caja) caja.innerHTML = `<div class="panel"><p class="settings-note">Pidiendo los números…</p></div>`;
+  try {
+    metricasCache = await sbMetricas();
+    renderPanelAdmin();
+  } catch (e) {
+    /* Aquí sí se enseña el error, al revés que en el latido: quien abrió el
+       panel está esperando algo y merece saber por qué no llegó. */
+    if (caja) {
+      caja.innerHTML = `<div class="panel">
+          <h3>No pude traer los números</h3>
+          <p class="settings-note">${escapeHtml(e.message || String(e))}</p>
+          <button class="btn btn-soft btn-block" onclick="cargarMetricas()">Intentar otra vez</button>
+        </div>`;
+    }
+  }
+}
+
+async function marcarTropiezosVistos() {
+  try {
+    await sbTropiezosVistos();
+    metricasCache = null;
+    await cargarMetricas();
+    toast("Errores dados por vistos", "hecho");
+  } catch (e) {
+    toast(e.message || String(e), "atencion");
+  }
+}

@@ -353,6 +353,86 @@ async function sbLatir() {
   }
 }
 
+/* ---- Administración ----
+   Tres puertas al panel de números. La seguridad de las tres NO está aquí:
+   está en `supabase/administracion.sql`, donde cada función comprueba quién
+   llama antes de contestar. Esto de abajo es solo el timbre.
+
+   Dicho de otra forma: alguien puede leer este archivo, copiar el nombre de
+   `metricas` y llamarlo desde la consola de su navegador. El servidor le
+   dirá que no. Esconder estas líneas no añadiría ni un gramo de seguridad,
+   así que no se esconden. */
+
+/* ¿Puedo ver el panel? Se pregunta al arrancar y decide si Ajustes dibuja la
+   sección. Falla a `false` ante cualquier problema —sin red, sin sesión, sin
+   SQL corrido— porque el error seguro es no enseñarlo. */
+async function sbSoyAdmin() {
+  try {
+    if (!syncReady()) return false;
+    const r = await sbDatos("/rpc/soy_admin", { method: "POST", body: "{}" });
+    if (!r.ok) return false;
+    return r.body === true || r.body === "true";
+  } catch (e) {
+    return false;
+  }
+}
+
+/* Los números, todos de una vez. Aquí sí se deja ver el error: si el panel no
+   puede cargar, quien lo abrió necesita saber por qué —a diferencia del
+   latido, que es mejor que falle callado. */
+async function sbMetricas() {
+  const r = await sbDatos("/rpc/metricas", { method: "POST", body: "{}" });
+  if (r.status === 404) throw new Error("Falta correr administracion.sql en el servidor. Está en supabase/, y el cómo en su LEEME.");
+  if (r.status === 403 || r.status === 401) throw new Error("Esta cuenta no tiene permiso para ver el panel.");
+  if (!r.ok) throw sbError(r);
+  return r.body;
+}
+
+async function sbTropiezosVistos() {
+  const r = await sbDatos("/rpc/tropiezos_vistos", { method: "POST", body: "{}" });
+  if (!r.ok) throw sbError(r);
+  return true;
+}
+
+/* Apuntar que algo se rompió.
+
+   Va por `sbFetch` y no por `sbDatos` a propósito: `sbDatos` exige un token, y
+   los errores que más importa cazar son los del arranque, cuando todavía no
+   hay sesión ninguna. Un fallo que solo se pudiera reportar tras entrar sería
+   invisible justo cuando más falta hace verlo.
+
+   Y falla en silencio por la misma razón que el latido: si el aviso de un
+   error provoca otro error, la app entra en un bucle de quejas encima de
+   alguien que ya está teniendo un mal rato. */
+async function sbTropiezo(donde, mensaje) {
+  try {
+    if (!mensaje) return;
+    await sbFetch("/rest/v1/rpc/apuntar_tropiezo", {
+      method: "POST",
+      body: JSON.stringify({
+        v: (typeof VERSION !== "undefined" ? VERSION : ""),
+        ap: (typeof isDesktop === "function" && isDesktop()) ? "escritorio" : "movil",
+        dnd: String(donde || ""),
+        msg: String(mensaje).slice(0, 300)
+      })
+    });
+  } catch (e) {
+    /* A propósito. */
+  }
+}
+
+/* La red de seguridad de index.html corre antes que este archivo, así que
+   guarda lo que pilla en una lista y aquí se vacía. Sin esto, los errores más
+   graves —los que matan el arranque— serían los únicos que nunca se apuntan. */
+async function sbVaciarTropiezos() {
+  const cola = window.__tropiezos;
+  if (!cola || !cola.length) return;
+  /* Se vacía la lista ANTES de mandarla: si el envío falla y volviéramos a
+     dejarla puesta, cada arranque reintentaría una cola que solo crece. */
+  const pendientes = cola.splice(0, cola.length).slice(0, 5);
+  for (const t of pendientes) await sbTropiezo(t.donde, t.mensaje);
+}
+
 /* De quién son los datos. Pasa por aquí y no por `sync.cfg.sesion.uid`
    suelto: sin sesión, aquello reventaba con un error de JavaScript en vez de
    decir qué hacer. No debería ocurrir —syncReady() lo filtra— pero un fallo

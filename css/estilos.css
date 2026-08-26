@@ -4729,3 +4729,110 @@
     *, .view.active, .celebrate.show, .celebrate.show * { transition: none !important; animation: none !important; }
     .celebrate { display: none !important; }
   }
+
+/* ============ EL PANEL DE NÚMEROS (Ajustes → Los números) ============
+   Solo lo ve quien el servidor reconoce como administrador, pero el estilo
+   viaja con la app como todo lo demás. Ver `js/10e-panel.js`.
+
+   Dos decisiones de color que siguen la regla de la paleta:
+   - Las barras RELLENAN superficie, así que van en `--mint-macizo`. Con el
+     tono de escribir se veían apagadas de día.
+   - El riel de cada barra es `--carril` y no `--line`: un borde tiene que
+     apenas notarse, pero un carril tiene que dejar ver por dónde va lo lleno.
+   Y ninguna transición sobre estas propiedades: su valor sale de una
+   variable, y Chrome deja el color congelado en el inicial para siempre. */
+
+.pn-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 10px;
+}
+
+.pn-kpi {
+  background: var(--card2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pn-kpi b {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--mint);
+  font-variant-numeric: tabular-nums;
+}
+
+.pn-kpi span { font-size: .82rem; color: var(--text); }
+.pn-kpi i { font-size: .72rem; color: var(--muted); font-style: normal; }
+
+.pn-graf { width: 100%; height: 120px; display: block; }
+.pn-suelo { stroke: var(--carril); stroke-width: 1; vector-effect: non-scaling-stroke; }
+
+/* El SVG se estira con preserveAspectRatio="none" para ocupar el ancho, y eso
+   deformaría cualquier texto de dentro. Por eso el número del día se dibuja
+   fuera de la escala: sin esto, los días salían aplastados a lo ancho. */
+.pn-eje {
+  fill: var(--muted);
+  font-size: 7px;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.pn-lista { display: flex; flex-direction: column; gap: 7px; }
+
+.pn-fila {
+  display: grid;
+  grid-template-columns: minmax(70px, 1fr) 2fr auto;
+  gap: 10px;
+  align-items: center;
+  font-size: .85rem;
+}
+
+.pn-nom { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.pn-riel {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--carril);
+  overflow: hidden;
+}
+
+.pn-riel i { display: block; height: 100%; background: var(--mint-macizo); border-radius: 999px; }
+
+.pn-val { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
+
+.pn-globo {
+  display: inline-block;
+  min-width: 20px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--coral-macizo);
+  color: var(--sobre-macizo);
+  font-size: .72rem;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.pn-errores { display: flex; flex-direction: column; gap: 8px; }
+
+.pn-error {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--coral);
+  border-radius: 0 9px 9px 0;
+  padding: 9px 12px;
+  background: var(--card2);
+}
+
+/* Lo ya visto se apaga en vez de desaparecer: un error que vuelve después de
+   darlo por visto es información, y esconderlo la perdería. */
+.pn-error.visto { border-left-color: var(--carril); opacity: .55; }
+
+.pn-error-tit { display: flex; gap: 10px; align-items: baseline; justify-content: space-between; }
+.pn-error-tit b { font-size: .84rem; font-weight: 600; color: var(--text); word-break: break-word; }
+.pn-error-tit span { font-size: .76rem; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+.pn-error-pie { font-size: .72rem; color: var(--muted); margin-top: 3px; }

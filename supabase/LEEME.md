@@ -120,3 +120,202 @@ que está usando la app, la medición habrá costado más de lo que vale.
 **La consulta 6 caza el fallo clásico de una app instalable.** Si ahí aparece
 una versión que ya no existe, es un aparato pegado a una copia vieja porque
 no se subió el número de `CACHE` en `sw.js`.
+
+## El panel de números (`administracion.sql`)
+
+**Sin esto, en Ajustes no aparece la sección «Los números»** para nadie, ni
+siquiera para ti. La app pregunta al servidor si eres administrador, el
+servidor no sabe de qué le hablan, y la respuesta es que no.
+
+Necesita `medicion.sql` y `planes.sql` ya corridos: lee sus tablas, no las crea.
+
+Son **dos pasos**, y el segundo no se puede automatizar:
+
+1. **Correr el SQL.** SQL Editor → pestaña nueva con el `+` → pegar
+   `administracion.sql` entero → Run. Debe decir *Success*.
+2. **Darte de alta como administrador**, cambiando el correo por el tuyo:
+
+   ```sql
+   insert into public.administradores (user_id, nota)
+   select id, 'Eduardo' from auth.users where email = 'TU-CORREO@AQUI'
+   on conflict (user_id) do nothing;
+   ```
+
+   Después, recarga la app con tu sesión abierta y la sección aparece.
+
+El paso 2 va a mano **a propósito**: una función que convirtiera a alguien en
+administrador sería exactamente la puerta que todo lo demás intenta cerrar.
+
+### Dos trampas del paso 2, y las dos ya mordieron
+
+**`select public.soy_admin();` en el SQL Editor devuelve `false` siempre.**
+Ahí no hay ninguna sesión iniciada, así que `auth.uid()` es NULL y la función
+no encuentra a nadie — esté el alta bien o mal. No prueba nada y parece que
+todo falló. La comprobación que sí sirve:
+
+```sql
+select a.nota, u.email, a.desde
+  from public.administradores a
+  join auth.users u on u.id = a.user_id;
+```
+
+Una fila con tu correo significa que está hecho. Para verlo funcionando de
+verdad, recarga la app: si aparece «Los números» en Ajustes, está cerrado.
+
+**El final de `administracion.sql` lleva también la instrucción que QUITA el
+permiso.** Descomentar el bloque entero y darle a Run te da de alta y te vuelve
+a quitar en la misma pasada, y el resultado parece un fallo del SQL cuando en
+realidad se hicieron las dos cosas seguidas. Descomenta solo el `insert`,
+corre, y vuelve a comentarlo.
+
+### Por qué el botón no es la seguridad
+
+Que la sección no se dibuje es **limpieza, no protección**. Cualquiera puede
+abrir la consola de su navegador, poner `esAdmin = true` y ver aparecer la
+sección — y entonces verá una pantalla vacía, porque `metricas()` comprueba
+quién pregunta antes de devolver nada. Ésa es la única frontera, y por eso
+`js/10e-panel.js` empieza diciendo que él no es seguridad.
+
+**El error clásico que este archivo evita:** marcar al administrador en los
+metadatos de la cuenta. En Supabase el propio usuario puede escribir sus
+metadatos desde el navegador, así que un `es_admin: true` guardado ahí se lo
+pone cualquiera en diez segundos. Por eso es una tabla que él no alcanza.
+
+### Qué se puede ver y qué no
+
+`metricas()` devuelve **totales, nunca filas de nadie**: «23 personas activas»,
+jamás «la cuenta X abrió el martes». No es prudencia de más — es lo que
+permite que el aviso de privacidad siga siendo verdad aunque el panel exista,
+y limita el daño el día que algo aquí se rompa.
+
+### Los tropiezos
+
+`apuntar_tropiezo()` es **la única función del proyecto que acepta a alguien
+sin sesión**, y tiene que serlo: los errores más graves son los del arranque,
+antes de que nadie haya entrado. Un fallo que solo se pudiera reportar tras
+iniciar sesión sería invisible justo cuando importa.
+
+Como es abierta, lleva dos frenos: el mensaje se recorta a 300 caracteres, y
+pasadas 500 filas en un día se dejan de crear nuevas pero se siguen contando
+las que ya existen — así, quien quisiera llenar la tabla no borra de paso la
+información de un fallo real.
+
+## Cobrar (`planes.sql` + las funciones `pagar` y `cobro`)
+
+**Sin esto, el plan de todo el mundo es «libre» y los botones de pagar avisan
+de que el pago todavía no está disponible.** La app no se rompe: es el estado
+en el que está hoy.
+
+El reparto, que es lo único que hay que entender para no meter la pata:
+
+| Quién | Qué puede hacer con la tabla `suscripciones` |
+| --- | --- |
+| La app, la landing, cualquiera | **Leer su propia fila. Nada más.** |
+| La función `cobro` | Escribir, y solo si Stripe firmó el aviso |
+
+No hay ninguna política de escritura para nadie. Eso es lo que impide que
+alguien se regale un plan reescribiendo el JavaScript en su navegador: puede
+engañar a su propia pantalla, y al recargar la mentira se cae sola.
+
+### Los pasos, en orden
+
+1. **Correr `planes.sql`.** SQL Editor, pestaña nueva con el `+`, pegar entero
+   y Run. Debe decir *Success*. Con esto ya funciona `mi_plan()` y todo el
+   mundo sale como «libre».
+
+2. **Crear los tres productos en Stripe.** Products → Add product, en pesos:
+
+   | Producto | Cómo | Precio |
+   | --- | --- | --- |
+   | Norata mensual | Recurring, monthly | $69 MXN |
+   | Norata anual | Recurring, yearly | $590 MXN |
+   | Norata fundador | One time | $890 MXN |
+
+   De cada uno se copia el identificador del **precio** (`price_...`), no el
+   del producto. Es el error de siempre y da un error de Stripe que no
+   explica nada.
+
+3. **Guardar los secretos.** Desde la terminal, con la CLI de Supabase:
+
+   ```
+   supabase secrets set STRIPE_SECRETA=sk_live_xxxxxxxx
+   supabase secrets set STRIPE_PRECIO_MENSUAL=price_xxx
+   supabase secrets set STRIPE_PRECIO_ANUAL=price_xxx
+   supabase secrets set STRIPE_PRECIO_FUNDADOR=price_xxx
+   ```
+
+4. **Desplegar las dos funciones.** La segunda lleva `--no-verify-jwt` y no es
+   opcional: Stripe no tiene sesión de Supabase y no puede mandar una. Sin esa
+   bandera, **todos** los avisos rebotan con un 401 y nadie se entera hasta que
+   alguien reclama que pagó y no tiene plan.
+
+   ```
+   supabase functions deploy pagar
+   supabase functions deploy cobro --no-verify-jwt
+   ```
+
+5. **Dar de alta el webhook en Stripe.** Developers → Webhooks → Add endpoint,
+   apuntando a `https://<proyecto>.supabase.co/functions/v1/cobro`, con estos
+   cinco sucesos y no más:
+
+   ```
+   checkout.session.completed
+   customer.subscription.updated
+   customer.subscription.deleted
+   invoice.paid
+   invoice.payment_failed
+   ```
+
+6. **Guardar la firma**, que aparece al crear el endpoint del paso anterior:
+
+   ```
+   supabase secrets set STRIPE_FIRMA=whsec_xxxxxxxx
+   supabase functions deploy cobro --no-verify-jwt
+   ```
+
+   Sí, se vuelve a desplegar: un secreto nuevo no llega a una función que ya
+   estaba corriendo.
+
+7. **Encender el portal de cliente.** Settings → Billing → Customer portal, y
+   permitir cancelar y actualizar la tarjeta. Es lo que abre «Mi suscripción»
+   en Ajustes. Sin esto, ese botón da error y la única forma de cancelar es
+   escribiendo un correo.
+
+### Probarlo antes de que haya dinero de verdad
+
+Todo lo anterior en **modo prueba** primero (el interruptor de arriba a la
+derecha en Stripe): las llaves son `sk_test_` y `whsec_` distinto, y la
+tarjeta `4242 4242 4242 4242` con cualquier fecha futura paga siempre. Ahí se
+comprueba el ciclo entero —pagar, ver el plan encendido, cancelar en el
+portal, ver que sigue hasta la fecha— sin cobrarle a nadie.
+
+Para provocar los casos que no salen solos, `stripe trigger invoice.payment_failed`
+desde la CLI de Stripe. El fallo de tarjeta es el caso que nunca se prueba y
+el que más correos genera.
+
+### Cosas que no son obvias
+
+**El cupo de fundador se mira antes de abrir la caja, y no se reserva.** Dos
+personas pueden entrar en el mismo segundo con un lugar libre y quedarse las
+dos. Es a propósito: reservar el lugar mientras alguien teclea su tarjeta
+significa que quien abandone el pago se lleva un lugar al limbo. Pasarse por
+uno o dos no le hace daño a nadie; negarle el plan a quien ya pagó, sí. El
+registro de la función `cobro` avisa cuando el cupo se agota — es la señal
+para quitarlo de la landing.
+
+**Borrar la cuenta borra la fila, pero no cancela el cobro en Stripe.** El
+`on delete cascade` se lleva el registro local y ahí se acaba lo que puede
+hacer la base de datos. Hoy hay que cancelarlo a mano desde el panel de
+Stripe. Es el hueco conocido más grande de todo esto y conviene cerrarlo
+antes de que haya mucha gente: alguien a quien se le sigue cobrando por una
+cuenta que borró es una queja cara.
+
+**La firma se calcula sobre el texto exacto que llegó.** Pasarlo por
+`JSON.parse` y volver a serializarlo cambia espacios y orden, la firma deja de
+cuadrar para siempre y el rechazo no da ninguna pista. Si algún día todos los
+avisos empiezan a rebotar con 400, mirar eso primero.
+
+**No se cree lo que viene en el aviso: se le vuelve a preguntar a Stripe.**
+Los avisos no llegan en orden y se reintentan durante tres días. Un «se
+canceló» que llega tarde dejaría cancelada una suscripción viva. Volver a
+preguntar cuesta una llamada y hace que el orden deje de importar.

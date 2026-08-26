@@ -205,6 +205,38 @@ Cuatro cosas que hay que saber antes de tocarlo:
   `logotipoSrc()` elige entre los dos de `marca/`. Ojo con los nombres, que
   dicen de qué color es el dibujo: el *claro* va sobre fondo oscuro.
 
+## El cobro
+
+Tres planes: mensual $69, anual $590 y **fundador $890 con cupo** (200, en
+`ajustes_negocio`). Se cobra con **Stripe**, desde la landing y desde la app:
+ninguna de las dos cobra nada, las dos le piden a la funcion `pagar` una
+direccion de stripe.com y llevan alli. La tarjeta no pasa por Norata.
+
+**Donde vive el candado, que es lo unico que hay que tener claro:**
+
+| Quien | Que puede hacer con `suscripciones` |
+| --- | --- |
+| La app, la landing, cualquiera | leer su propia fila |
+| La funcion `cobro` | escribir, y solo con la firma de Stripe |
+
+La tabla **no tiene ninguna politica de escritura para nadie**, ni para el
+dueno de la fila. Por eso `js/10d-plan.js` no es seguridad y no intenta serlo:
+quien reescriba el JavaScript se engana a su propia pantalla y al recargar la
+mentira se cae. La pregunta no es si alguien puede saltarselo, sino si puede
+conseguir que el servidor le crea — y eso se contesta en `supabase/planes.sql`.
+`mi_plan()` decide la vigencia contra el reloj del servidor: mover el del
+telefono no revive nada.
+
+**Congelar, nunca quitar.** Al dejar de pagar, lo que pasa del limite queda
+visible y en solo lectura; el XP no se toca; la app nunca elige que se congela.
+Por eso los ayudantes preguntan por CREAR (`cabeUnoMas`, `planPermite`) y
+ninguno pregunta por VER. Los limites viven todos en `LIMITES`, un solo sitio.
+
+Los pasos de Stripe estan en `supabase/LEEME.md`. Dos que muerden: `cobro` se
+despliega con `--no-verify-jwt` o todos los avisos rebotan con 401 en silencio,
+y la firma se calcula sobre el texto **exacto** que llego —re-serializarlo la
+rompe para siempre—.
+
 ## El tono
 
 Decisiones ya cerradas. No volver a proponerlas.

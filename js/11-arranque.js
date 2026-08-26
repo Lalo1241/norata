@@ -167,6 +167,43 @@ showView("summary");
      por arranque y no en cada vuelta a la pestaña, que es lo que cuenta
      `aperturas`. Falla en silencio por diseño — ver `sbLatir()`. */
   sbLatir();
+
+  /* Lo que se rompió antes de que la app llegara a arrancar. La red de
+     seguridad de index.html lo dejó en una lista porque allí arriba todavía
+     no existía nada capaz de hablar con el servidor; aquí ya sí. También sin
+     esperarlo y también en silencio: un fallo al reportar un fallo no puede
+     acabar molestando a quien ya tuvo el primero. */
+  sbVaciarTropiezos();
+
+  /* Y por último, si esta cuenta puede ver el panel de números. Lo contesta
+     el servidor, nunca el navegador; esto solo decide si Ajustes dibuja la
+     sección. Ver la advertencia al principio de `js/10e-panel.js`. */
+  revisarAdmin();
+
+  /* El plan, también al final y también sin esperarlo. Va después de pintar
+     porque la app arranca en «libre» y va encendiendo lo que corresponda:
+     al revés —esperar la respuesta para dibujar— quien no tenga red se queda
+     mirando la pantalla de carga por culpa de una pregunta de negocio. Ver
+     `js/10d-plan.js`, que empieza explicando por qué nada de esto es
+     seguridad. */
+  planCargar().then(() => {
+    /* Solo se repinta si resultó que sí paga: para quien no, ya está bien
+       dibujado y un repintado de más hace parpadear la pantalla. */
+    if (esPro()) showView(activeMainView || "summary");
+  });
+
+  /* Y lo que traiga la dirección: vuelvo de pagar, o vengo de la landing con
+     un plan elegido. Se atiende aquí y no en la portada porque la landing
+     manda a la app entera, no a una pantalla concreta. */
+  const traido = planAtenderDireccion();
+  if (traido.pago === "listo") {
+    toast("Gracias. Tu plan se está activando.", "bien");
+  } else if (traido.pago === "cancelado") {
+    /* Ni una palabra de reproche. Quien se arrepintió a mitad del pago no
+       necesita que se lo recuerden; el silencio es la respuesta correcta. */
+  } else if (traido.comprar) {
+    irAPagar(traido.comprar).catch((e) => toast(e.message, "aviso"));
+  }
 })();
 
 document.addEventListener("visibilitychange", () => {
