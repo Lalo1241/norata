@@ -382,7 +382,14 @@ async function sbSoyAdmin() {
    latido, que es mejor que falle callado. */
 async function sbMetricas() {
   const r = await sbDatos("/rpc/metricas", { method: "POST", body: "{}" });
-  if (r.status === 404) throw new Error("Falta correr administracion.sql en el servidor. Está en supabase/, y el cómo en su LEEME.");
+  /* Un 404 aquí NO significa solo «falta el archivo». PostgREST devuelve 404
+     tanto cuando la función no existe como cuando algo DENTRO de ella no
+     existe —una tabla que aún no se ha creado—, y las dos cosas llegan con el
+     mismo número. Culpar al archivo costó una tarde: administracion.sql estaba
+     puesto y lo que faltaba era planes.sql, del que `metricas()` tiraba sin
+     necesidad. Ese fallo ya está arreglado en el SQL; el mensaje se queda
+     honesto por si aparece otra pieza que falte. */
+  if (r.status === 404) throw new Error("El servidor no encontró algo que la consulta necesita. Suele ser que falta correr un SQL de la carpeta supabase/ — mira su LEEME. Detalle: " + sbMensaje(r));
   if (r.status === 403 || r.status === 401) throw new Error("Esta cuenta no tiene permiso para ver el panel.");
   if (!r.ok) throw sbError(r);
   return r.body;

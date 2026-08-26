@@ -52,6 +52,24 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.6.2 · 26 ago 2026
+El panel de números ya no depende de que el cobro esté desplegado.
+
+`metricas()` leía la tabla `suscripciones` sin comprobar que existiera. Sin
+`planes.sql` corrido, la consulta moría con «no existe esa tabla», **PostgREST
+traduce ese error a un 404**, y la app lo leía como «falta administracion.sql»
+— que estaba puesto y correcto. Un mensaje que acusa al archivo equivocado
+cuesta más que el fallo.
+
+Ahora el bloque del cobro se calcula aparte y solo si la tabla existe, con
+`to_regclass` y `EXECUTE` (una consulta escrita a pelo contra una tabla que no
+existe ni siquiera se puede planificar, aunque un `if` no la deje correr). Sin
+cobro desplegado, esa caja lo dice en una línea en vez de enseñar ceros.
+
+Y el mensaje de error se quedó honesto: **un 404 de PostgREST significa tanto
+«la función no existe» como «falta algo dentro de ella»**, así que ya no se
+acusa a un archivo por su número.
+
 ### 0.7.6.1 · 26 ago 2026
 El panel de números aparecía en el teléfono y no en la computadora.
 

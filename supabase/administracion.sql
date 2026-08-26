@@ -166,11 +166,48 @@ set search_path = public, auth
 as $fn$
 declare
   r jsonb;
+  cobro jsonb := jsonb_build_object('desplegado', false);
 begin
   -- La primera línea, antes de tocar un solo dato. Todo lo que hay debajo
   -- depende de que esto pase.
   if not public.soy_admin() then
     raise exception 'Sin permiso.' using errcode = '42501';
+  end if;
+
+  -- El bloque del cobro se calcula aparte y solo si `planes.sql` está puesto.
+  --
+  -- Esto empezó siendo parte del jsonb de abajo y fue un error de diseño: sin
+  -- `planes.sql` corrido, la consulta moría con «no existe la tabla
+  -- suscripciones», PostgREST traduce ese error a un **404**, y la app lo leyó
+  -- como «falta administracion.sql» — que estaba puesto. Un mensaje que acusa
+  -- al archivo equivocado cuesta más que el fallo.
+  --
+  -- Va por EXECUTE porque una consulta escrita a pelo contra una tabla que no
+  -- existe ni siquiera se puede planificar, aunque el `if` no la deje correr.
+  if to_regclass('public.suscripciones') is not null then
+    execute $q$
+      select jsonb_build_object(
+        'desplegado', true,
+        'planes', coalesce((
+          select jsonb_agg(x order by x.plan)
+            from (select plan, estado, count(*) as personas
+                    from public.suscripciones group by plan, estado) x
+        ), '[]'::jsonb),
+        'pagando', (select count(*) from public.suscripciones
+                     where estado = 'activa'
+                       and (vence_el is null or vence_el > now())),
+        'mrr', coalesce((
+          select round(sum(case plan
+                             when 'mensual' then 69
+                             when 'anual'   then 590 / 12.0
+                             else 0 end))
+            from public.suscripciones
+           where estado = 'activa'
+             and (vence_el is null or vence_el > now())
+        ), 0),
+        'lugares_fundador', public.lugares_fundador()
+      )
+    $q$ into cobro;
   end if;
 
   with u as (
@@ -224,30 +261,11 @@ begin
                group by version) x
     ), '[]'::jsonb),
 
-    'cobro', jsonb_build_object(
-      'planes', coalesce((
-        select jsonb_agg(x order by x.plan)
-          from (select plan, estado, count(*) as personas
-                  from public.suscripciones
-                 group by plan, estado) x
-      ), '[]'::jsonb),
-      'pagando', (select count(*) from public.suscripciones
-                   where estado = 'activa'
-                     and (vence_el is null or vence_el > now())),
-      -- Ingreso mensual recurrente aproximado, en pesos. Fundador no entra:
-      -- es pago único y meterlo aquí inflaría el número que sirve para
-      -- decidir si esto se sostiene mes a mes.
-      'mrr', coalesce((
-        select round(sum(case plan
-                           when 'mensual' then 69
-                           when 'anual'   then 590 / 12.0
-                           else 0 end))
-          from public.suscripciones
-         where estado = 'activa'
-           and (vence_el is null or vence_el > now())
-      ), 0),
-      'lugares_fundador', public.lugares_fundador()
-    ),
+    -- Ya viene calculado de arriba, y trae `desplegado: false` si el cobro
+    -- todavía no existe. El MRR de ahí no cuenta a los fundadores: es pago
+    -- único, y meterlo inflaría el número que sirve para saber si esto se
+    -- sostiene mes a mes.
+    'cobro', cobro,
 
     'tropiezos', coalesce((
       select jsonb_agg(x order by x.dia desc, x.cuantos desc)

@@ -140,12 +140,14 @@ function renderPanelAdmin() {
 
     <div class="panel">
       <h3>El cobro</h3>
-      <div class="pn-kpis">
-        ${panelCifra(c.pagando || 0, "Pagando ahora")}
-        ${panelCifra("$" + (c.mrr || 0), "Al mes", "sin contar fundador")}
-        ${panelCifra(c.lugares_fundador == null ? "—" : c.lugares_fundador, "Lugares de fundador", "de 200")}
-      </div>
-      ${panelListaBarras(c.planes, "plan", "personas", "Todavía no hay ninguna suscripción.")}
+      ${c.desplegado === false
+        ? `<p class="settings-note">El cobro todavía no está puesto en el servidor, así que aquí no hay nada que contar. Cuando corras <code>planes.sql</code> y despliegues Stripe, esta caja se llena sola — los pasos están en <code>supabase/LEEME.md</code>.</p>`
+        : `<div class="pn-kpis">
+             ${panelCifra(c.pagando || 0, "Pagando ahora")}
+             ${panelCifra("$" + (c.mrr || 0), "Al mes", "sin contar fundador")}
+             ${panelCifra(c.lugares_fundador == null ? "—" : c.lugares_fundador, "Lugares de fundador", "de 200")}
+           </div>
+           ${panelListaBarras(c.planes, "plan", "personas", "Todavía no hay ninguna suscripción.")}`}
     </div>
 
     <div class="panel">
