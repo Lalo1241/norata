@@ -50,34 +50,70 @@ function panelDeCada(parte, total, rotulo, pista) {
     </div>`;
 }
 
-/* La gráfica de los últimos catorce días. Barras y no línea porque lo que se
-   mira aquí es «¿hubo movimiento este día?», que es una cuenta por día y no
-   una magnitud continua. */
-function panelBarras(dias) {
+/* Los últimos catorce días, dibujados como una constelación: un punto por día
+   y un hilo que los une. Lo eligió Eduardo y encaja con la casa — el árbol de
+   Talentos ya es eso mismo.
+ *
+ * Dos cosas que aquí importan más de lo que parece:
+ *
+ * 1. **Nada de `preserveAspectRatio="none"`.** La versión de barras estiraba
+ *    el lienzo para ocupar el ancho, y eso deformaba también los números del
+ *    eje: los días salían aplastados e ilegibles. Con el viewBox proporcional
+ *    y `width:100%; height:auto`, el dibujo entero escala sin achatarse.
+ * 2. **Los colores salen de variables del CSS, no de atributos.** La versión
+ *    anterior escribía `fill="var(--menta)"` — una variable que en Norata no
+ *    existe, porque aquí se llama `--mint`. Un `fill` que no resuelve no
+ *    avisa: pinta negro. Por eso ahora el color va en clases y no a mano.
+ */
+function panelConstelacion(dias) {
   if (!dias || !dias.length) {
     return `<p class="settings-note">Todavía no hay ni un día con actividad. Aparecerá en cuanto alguien abra la app con su cuenta.</p>`;
   }
-  const alto = 120, ancho = 100 / dias.length;
+
+  const W = 340, H = 132;
+  const izq = 12, der = 12, arr = 16, aba = 28;
+  const util = W - izq - der;
+  const alto = H - arr - aba;
+
+  const n = dias.length;
   const tope = Math.max(...dias.map(d => Number(d.personas) || 0), 1);
 
-  const barras = dias.map((d, i) => {
+  /* Con un solo día no hay recta que trazar: el punto va al centro, que es
+     donde se lee como «esto es lo que hay» y no como el principio de algo. */
+  const x = (i) => n === 1 ? izq + util / 2 : izq + (i * util) / (n - 1);
+  const y = (v) => arr + (1 - (Number(v) || 0) / tope) * alto;
+
+  const reja = [0, 0.5, 1].map(f =>
+    `<line x1="${izq}" y1="${(arr + f * alto).toFixed(1)}" x2="${W - der}" y2="${(arr + f * alto).toFixed(1)}" class="pn-reja"/>`
+  ).join("");
+
+  const pts = dias.map((d, i) => [x(i), y(d.personas)]);
+  const hilo = pts.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+
+  const estrellas = dias.map((d, i) => {
     const v = Number(d.personas) || 0;
-    const h = Math.max((v / tope) * (alto - 22), v > 0 ? 3 : 0);
-    const x = i * ancho;
-    /* El día se escribe solo cada tres, o en un teléfono los números se
-       encaraman unos sobre otros y no se lee ninguno. */
-    const etiqueta = (i % 3 === 0 || i === dias.length - 1)
-      ? `<text x="${x + ancho / 2}" y="${alto - 4}" class="pn-eje">${String(d.dia).slice(8, 10)}</text>`
-      : "";
-    return `<rect x="${x + ancho * 0.18}" y="${alto - 18 - h}"
-              width="${ancho * 0.64}" height="${h}" rx="1.6"
-              fill="var(--menta)"><title>${escapeHtml(String(d.dia))}: ${v}</title></rect>${etiqueta}`;
+    /* Un día sin nadie no se borra: se apaga. Un hueco en la línea se lee
+       como «falta el dato», y un punto tenue como «ese día no vino nadie»,
+       que es lo que de verdad pasó. */
+    const clase = v === 0 ? "vacia" : (v === tope ? "cima" : "");
+    const r = v === 0 ? 2.2 : (v === tope ? 4.6 : 3.4);
+    return `<circle cx="${pts[i][0].toFixed(1)}" cy="${pts[i][1].toFixed(1)}" r="${r}" class="pn-estrella ${clase}"><title>${escapeHtml(String(d.dia))}: ${v}</title></circle>`;
   }).join("");
 
-  return `<svg class="pn-graf" viewBox="0 0 100 ${alto}" preserveAspectRatio="none"
-            role="img" aria-label="Personas activas por día, últimos catorce días">
-      <line x1="0" y1="${alto - 18}" x2="100" y2="${alto - 18}" class="pn-suelo"/>
-      ${barras}
+  /* El día se escribe solo cada tres, o en un teléfono los números se
+     encaraman unos sobre otros y no se lee ninguno. */
+  const fechas = dias.map((d, i) =>
+    (i % 3 === 0 || i === n - 1)
+      ? `<text x="${x(i).toFixed(1)}" y="${H - 9}" class="pn-eje">${escapeHtml(String(d.dia).slice(8, 10))}</text>`
+      : ""
+  ).join("");
+
+  return `<svg class="pn-cielo" viewBox="0 0 ${W} ${H}" role="img"
+            aria-label="Personas activas cada día durante los últimos catorce días">
+      ${reja}
+      <polyline points="${hilo}" class="pn-hilo"/>
+      ${estrellas}
+      ${fechas}
     </svg>
     <p class="settings-note" style="margin-top:6px">Máximo del periodo: ${tope} ${tope === 1 ? "persona" : "personas"} en un día.</p>`;
 }
@@ -135,7 +171,7 @@ function renderPanelAdmin() {
     <div class="panel">
       <h3>Los últimos 14 días</h3>
       <p class="settings-note">Cuántas personas distintas abrieron la app cada día. Aquí se ve si una tanda de invitaciones movió algo, y si el movimiento duró más de dos días.</p>
-      ${panelBarras(m.dias)}
+      ${panelConstelacion(m.dias)}
     </div>
 
     <div class="panel">

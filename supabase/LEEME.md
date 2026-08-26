@@ -231,6 +231,12 @@ engañar a su propia pantalla, y al recargar la mentira se cae sola.
    | Norata anual | Recurring, yearly | $590 MXN |
    | Norata fundador | One time | $890 MXN |
 
+   En el codigo de impuestos de los tres, **Software como servicio (SaaS):
+   uso personal**. No es descarga electronica —Norata se usa en el navegador,
+   y poder instalarla como acceso directo no la convierte en una descarga— ni
+   uso comercial, que es lo que se le vende a una empresa. Ese codigo solo
+   importa el dia que se encienda Stripe Tax, y se puede corregir despues.
+
    De cada uno se copia el identificador del **precio** (`price_...`), no el
    del producto. Es el error de siempre y da un error de Stripe que no
    explica nada.

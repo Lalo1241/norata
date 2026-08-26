@@ -52,6 +52,28 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.6.3 · 26 ago 2026
+La gráfica del panel salía en negro, y ahora es una constelación.
+
+**Las barras se pintaban de negro** porque el SVG llevaba escrito
+`fill="var(--menta)"` y en Norata esa variable se llama `--mint`. Un color que
+no resuelve **no avisa de nada**: no hay error en consola, simplemente sale
+negro. Por eso ningún color del panel se escribe ya en un atributo del SVG
+— todos viven en clases del CSS, donde sí se pueden comprobar.
+
+**Los números del eje salían achatados** por `preserveAspectRatio="none"`, que
+estiraba el lienzo para ocupar el ancho y de paso deformaba el texto de
+dentro. El comentario del código decía que las fechas se dibujaban fuera de
+esa escala y era mentira: estaban dentro. Ahora el viewBox es proporcional.
+
+**Y el dibujo cambia de barras a puntos unidos por un hilo**, que lo pidió
+Eduardo y encaja con la casa: el árbol de Talentos ya es una constelación. Un
+día sin nadie no deja un hueco — deja un punto apagado, porque un hueco se lee
+como «falta el dato» y un punto tenue como «ese día no vino nadie».
+
+**Al añadir color a un SVG dibujado desde JavaScript, comprobar el nombre de
+la variable contra `css/estilos.css` antes de darlo por bueno.**
+
 ### 0.7.6.2 · 26 ago 2026
 El panel de números ya no depende de que el cobro esté desplegado.
 

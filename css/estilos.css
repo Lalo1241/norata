@@ -4769,15 +4769,44 @@
 .pn-kpi span { font-size: .82rem; color: var(--text); }
 .pn-kpi i { font-size: .72rem; color: var(--muted); font-style: normal; }
 
-.pn-graf { width: 100%; height: 120px; display: block; }
-.pn-suelo { stroke: var(--carril); stroke-width: 1; vector-effect: non-scaling-stroke; }
+/* ---- La constelación de los últimos catorce días ----
+   Un punto por día y un hilo que los une. El lienzo escala proporcionalmente
+   (nada de `preserveAspectRatio="none"`, que achataba los números del eje) y
+   los colores viven AQUÍ y no en atributos del SVG: un `fill="var(--loquesea)"`
+   que no resuelve no avisa de nada, simplemente pinta negro. */
+.pn-cielo { width: 100%; height: auto; display: block; }
 
-/* El SVG se estira con preserveAspectRatio="none" para ocupar el ancho, y eso
-   deformaría cualquier texto de dentro. Por eso el número del día se dibuja
-   fuera de la escala: sin esto, los días salían aplastados a lo ancho. */
+.pn-reja {
+  stroke: var(--carril);
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+  opacity: .55;
+  vector-effect: non-scaling-stroke;
+}
+
+.pn-hilo {
+  fill: none;
+  stroke: var(--mint);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: .5;
+  vector-effect: non-scaling-stroke;
+}
+
+.pn-estrella { fill: var(--mint); }
+
+/* El día sin nadie se apaga en vez de desaparecer: un hueco se lee como
+   «falta el dato», y un punto tenue como «ese día no vino nadie». */
+.pn-estrella.vacia { fill: var(--carril); }
+
+/* El máximo lleva un aro del color de la tarjeta, que lo despega del hilo sin
+   necesidad de resplandor — de día una copia borrosa se ve como una mancha. */
+.pn-estrella.cima { stroke: var(--card); stroke-width: 2; }
+
 .pn-eje {
   fill: var(--muted);
-  font-size: 7px;
+  font-size: 10px;
   text-anchor: middle;
   font-variant-numeric: tabular-nums;
 }
