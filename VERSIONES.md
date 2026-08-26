@@ -52,6 +52,17 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.6.1 · 26 ago 2026
+El panel de números aparecía en el teléfono y no en la computadora.
+
+La pantalla de Ajustes ya preguntaba por las secciones a `seccionesAjustes()`
+—que añade las que solo existen para algunas cuentas— pero el **mini menú** y
+la **ventana de escritorio** seguían leyendo la constante `AJUSTES_SECS`. Los
+tres sitios listan lo mismo y solo uno se había actualizado.
+
+**Al añadir una sección de Ajustes hay que tocar los tres**, y el que se olvida
+siempre es el mini menú, porque en el teléfono no existe y ahí todo se ve bien.
+
 ### 0.7.6 · 25 ago 2026
 El panel de números, dentro de Ajustes y solo para quien administra. Todavía
 no enseña nada: falta correr `supabase/administracion.sql` y darse de alta a

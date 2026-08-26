@@ -798,7 +798,7 @@ function abrirMenuAjustes(btn) {
      forma de llegar a él. Va al final porque es lo que menos se cambia: lo
      que trae a alguien aquí casi siempre es su cuenta. */
   m.innerHTML = ficha + `
-    ${AJUSTES_SECS.map(sec => `
+    ${seccionesAjustes().map(sec => `
       <button class="mm-item ${sec.id === "peligro" ? "riesgo" : ""}" onclick="abrirVentanaAjustes('${sec.id}')">
         <span class="mm-ic">${icon(sec.icon, 16)}</span>
         <span class="mm-tx"><b>${escapeHtml(sec.nombre)}</b><span>${escapeHtml(sec.sub)}</span></span>
@@ -871,8 +871,14 @@ function abrirVentanaAjustes(sec) {
   ajusteAbierto = sec || AJUSTES_SECS[0].id;
   /* El rótulo de la ventana sale de la MISMA lista que el mini menú, no de un
      texto escrito aparte: así la ventana no puede acabar diciendo un nombre
-     que la fila que la abrió ya no usa. */
-  const abierta = AJUSTES_SECS.find(x => x.id === ajusteAbierto) || AJUSTES_SECS[0];
+     que la fila que la abrió ya no usa.
+
+     Y esa lista es `seccionesAjustes()`, no `AJUSTES_SECS`: hay secciones que
+     solo existen para algunas cuentas. Con la constante, la sección de los
+     números salía en el teléfono y no en la computadora, porque la pantalla
+     ya usaba la función y estos dos sitios se habían quedado atrás. */
+  const secs = seccionesAjustes();
+  const abierta = secs.find(x => x.id === ajusteAbierto) || secs[0];
   const tit = document.getElementById("am-titulo");
   const sub = document.getElementById("am-sub");
   if (tit) tit.textContent = abierta.nombre;
