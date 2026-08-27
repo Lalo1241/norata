@@ -3062,6 +3062,28 @@
     animation: alarmShake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97), alarmGlow 1.6s ease-in-out 0.55s infinite;
   }
   .modal-card.alarm p { color: var(--coral); font-weight: 650; }
+
+  /* El titulo del aviso, con el mismo peso que el de una tarjeta del tutorial:
+     es el mismo trabajo —decir de que va esto en tres palabras— y no habia
+     motivo para inventar otra escala. */
+  .modal-titulo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    line-height: 1.25;
+    margin: 0 0 10px;
+    color: var(--coral);
+    text-align: center;
+  }
+  /* Con titulo, el cuerpo vuelve a ser cuerpo: blanco y sin negrita. Todo el
+     parrafo en coral y en negrita se leia como una sola voz gritando, y
+     entonces no destaca nada — que es lo contrario de lo que busca un aviso.
+     El grito se lo queda el titulo, que es de una linea. */
+  .modal-card.alarm.con-titulo p {
+    color: var(--text);
+    font-weight: 400;
+    text-align: left;
+  }
   @keyframes alarmShake {
     0%, 100% { transform: translateX(0); }
     12% { transform: translateX(-9px); }

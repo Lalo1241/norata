@@ -506,35 +506,56 @@ async function borrarCuenta() {
   if (!syncReady()) return;
   const correo = ((sync.cfg || {}).correo || "tu cuenta").trim();
 
-  /* ---- Con un plan vigente no se borra, y se dice antes que nada ----
+  /* ---- Lo unico que se interpone: un cobro que sigue vivo ----
 
      El motivo es de dinero y no de codigo: borrar la cuenta se lleva su fila
      de `suscripciones` por el `on delete cascade`, pero NO cancela nada en
-     Stripe. Quien se fuera asi seguiria pagando una cuenta que ya no existe,
-     y esa es la queja mas cara que puede haber — con razon.
+     Stripe. Quien se fuera con la renovacion encendida seguiria pagando una
+     cuenta que ya no existe, y esa es la queja mas cara que puede haber.
 
-     Va lo PRIMERO de todo, antes incluso del "¿seguro?", y lo pidio Eduardo:
-     si de todas formas no va a poder, hacerle recorrer dos pantallas y
-     escribir una frase para acabar en un no es tomarle el pelo.
+     LA PREGUNTA CORRECTA ES `renueva`, NO `esPro()`. La primera version
+     preguntaba si tenia plan y estaba mal, lo cazo Eduardo mirandolo: quien
+     ya pidio la baja conserva el plan hasta su fecha —asi lo quisimos, y por
+     eso `vence_el` no se mueve al cancelar— pero no tiene ningun cobro
+     pendiente. Bloquearlo era retenerle la cuenta por algo que ya resolvio.
+     Al Fundador le pasaba lo mismo y era mas absurdo todavia: paga una sola
+     vez, no se renueva nunca, y aun asi no podia irse jamas.
+
+     Asi que solo para aqui quien tenga la renovacion encendida, que es el
+     unico caso en el que borrar le costaria dinero de verdad.
+
+     Va lo PRIMERO de todo, antes incluso del "¿seguro?": si de todas formas
+     no va a poder, hacerle recorrer dos pantallas y escribir una frase para
+     acabar en un no es tomarle el pelo.
 
      Y es un aviso fijo: el clic fuera no lo cierra. Esta pantalla existe
      justamente para que se lea. */
-  if (typeof esPro === "function" && esPro()) {
+  const leVanACobrar = typeof PLAN !== "undefined" && PLAN && PLAN.pro && PLAN.renueva;
+
+  if (leVanACobrar) {
     await avisar(
-      "Todavía tienes un plan activo. Si borraras la cuenta ahora, el cobro seguiría vivo por su cuenta " +
-      "y te seguiríamos cobrando algo que ya no usas.\n\n" +
-      "Cancela primero tu plan desde Ajustes › Mi plan. Puedes volver aquí en cuanto lo hayas hecho; " +
-      "tu progreso te espera mientras tanto.",
-      "lock", "Ir a cancelar mi plan");
+      "Si borras la cuenta ahora, el cobro seguirá vivo por su cuenta y te seguiríamos cobrando " +
+      "algo que ya no usas. Borrar la cuenta aquí no cancela el cobro.\n\n" +
+      "Cancela primero tu plan y vuelve: tu progreso te espera mientras tanto, y podrás borrar la " +
+      "cuenta aunque al plan le queden meses.",
+      "lock", "Ir a cancelar mi plan", "Tu plan se sigue cobrando");
     /* Se le deja donde tiene que estar en vez de decirle el camino y que lo
        busque: es el mismo numero de toques y no hay forma de perderse. */
     mostrarAjuste("plan");
     return;
   }
 
+  /* Y a quien SI puede irse pero todavia le queda plan pagado se le dice,
+     porque es dinero suyo que no va a recuperar. Se le dice y se le deja
+     seguir: es su decision, no la nuestra. */
+  const pagadoQueSePierde = (typeof PLAN !== "undefined" && PLAN && PLAN.pro && PLAN.vence_el)
+    ? " Tu plan está pagado hasta el " + fechaCorta(PLAN.vence_el) + " y ese tiempo se pierde al borrarla."
+    : "";
+
   if (!await ask(
     "Se cerrará tu sesión y este dispositivo quedará vacío. La cuenta " + correo +
-    " se borrará dentro de 30 días; hasta entonces puedes recuperarla entrando otra vez con tu correo.",
+    " se borrará dentro de 30 días; hasta entonces puedes recuperarla entrando otra vez con tu correo." +
+    pagadoQueSePierde,
     "Continuar", true)) return;
 
   /* Una frase y no un "¿seguro?": el segundo se pulsa con el dedo ya en

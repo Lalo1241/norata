@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.8";
+const VERSION = "0.7.8.1";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -859,14 +859,19 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
     const cuerpo = document.getElementById("modal-msg");
     if (esHtml) cuerpo.innerHTML = msg; else cuerpo.textContent = msg;
 
-    /* El icono se vacia siempre, tenga o no que dibujarse: el modal es UNO
-       solo y se reutiliza, asi que lo que no se limpia aqui reaparece en la
-       siguiente pregunta que no lo pidio. */
+    /* El icono y el titulo se vacian SIEMPRE, tengan o no que dibujarse: el
+       modal es UNO solo y se reutiliza, asi que lo que no se limpia aqui
+       reaparece en la siguiente pregunta que no lo pidio. */
     const ic = document.getElementById("modal-ic");
     if (ic) {
       ic.innerHTML = ex.icono ? icon(ex.icono, 26) : "";
       ic.hidden = !ex.icono;
       ic.className = "modal-ic" + (danger || alarm ? " riesgo" : "");
+    }
+    const tit = document.getElementById("modal-titulo");
+    if (tit) {
+      tit.textContent = ex.titulo || "";
+      tit.hidden = !ex.titulo;
     }
 
     const ok = document.getElementById("modal-ok");
@@ -878,6 +883,11 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
 
     const card = document.querySelector("#modal .modal-card");
     card.classList.remove("alarm");
+    /* Con titulo, el cuerpo deja de gritar: el color y la negrita de la alarma
+       se los queda el titulo y el texto vuelve a leerse como texto. Una
+       pregunta de una linea sigue yendo entera en coral, que ahi el aviso ES
+       la frase. */
+    card.classList.toggle("con-titulo", !!ex.titulo);
     if (alarm) { void card.offsetWidth; card.classList.add("alarm"); }
     const fondo = document.getElementById("modal");
     fondo.classList.toggle("fijo", !!ex.fijo);
@@ -889,9 +899,9 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
 /* Un aviso que hay que leer: un icono, un solo boton y el clic fuera no vale.
    Devuelve una promesa como los demas para poder esperarlo, aunque siempre
    conteste lo mismo — quien lo llama casi siempre se para justo despues. */
-function avisar(msg, icono, okLabel) {
+function avisar(msg, icono, okLabel, titulo) {
   return askBase(msg, false, okLabel || "Entendido", true, true, null,
-                 { icono: icono || "alert", fijo: true, soloOk: true });
+                 { icono: icono || "alert", fijo: true, soloOk: true, titulo: titulo });
 }
 
 /* El clic en el fondo. Se sale por aqui y no desde el atributo del marcado

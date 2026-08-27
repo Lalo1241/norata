@@ -52,6 +52,31 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.8.1 · 27 ago 2026
+El candado de la cuenta preguntaba lo que no era.
+
+**Preguntaba `esPro()` y tenía que preguntar `renueva`.** Lo cazó Eduardo
+mirándolo: quien ya pidió la baja conserva el plan hasta su fecha —así lo
+quisimos, y por eso `vence_el` no se mueve al cancelar— pero no tiene ningún
+cobro pendiente. Bloquearlo era retenerle la cuenta por algo que ya resolvió.
+Al **Fundador** le pasaba lo mismo y era más absurdo: paga una sola vez, no se
+renueva nunca, y aun así no podía irse jamás.
+
+Ahora solo se para quien tenga la renovación encendida, que es el único caso
+en el que borrar le costaría dinero. A quien sí puede irse pero le queda plan
+pagado se le **dice** que ese tiempo se pierde, y se le deja seguir: es su
+decisión, no la nuestra.
+
+Y el aviso, reestructurado:
+
+- **Un título**, con la misma escala que las tarjetas del tutorial. El grito
+  se lo queda él, que es de una línea.
+- **El cuerpo vuelve a ser cuerpo**: blanco, sin negrita y alineado a la
+  izquierda. Todo el párrafo en coral y en negrita se leía como una sola voz
+  gritando, y entonces no destaca nada — lo contrario de lo que busca un
+  aviso.
+
+
 ### 0.7.8 · 27 ago 2026
 La zona de peligro, con las dos salidas bien separadas y un candado nuevo.
 
