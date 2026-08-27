@@ -52,6 +52,31 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.7.1 · 27 ago 2026
+El ciclo del cobro, cerrado y probado de punta a punta con dinero de verdad.
+
+**Cancelar no apagaba el plan en la base.** Se canceló desde el portal de
+Stripe, el aviso llegó, la fila se actualizó… y `renueva` seguía en `true`.
+Misma causa que la fecha de 0.7.7: `cancel_at_period_end` es el campo de
+siempre y en las versiones nuevas de la API de Stripe ya no basta —no da
+error, llega vacío—. Ahora se pregunta por cuatro caminos (`cancel_at_period_end`,
+`cancel_at`, `canceled_at`, `cancellation_details.reason`) y basta con que uno
+diga que sí, porque **equivocarse tiene un precio muy desigual**: decir «se
+renueva» de quien ya canceló le promete algo que no va a pasar; decir «no se
+renueva» de alguien activo solo enseña una fecha de más.
+
+Queda además una línea de diagnóstico en el registro de `cobro` con esos
+cuatro campos —solo los nombres y si vienen o no, nunca datos de nadie—, para
+que la próxima vez que Stripe mueva uno se vea en diez segundos.
+
+**Y una palabra:** «Se renueva solo el 27 de agosto» se leía como *solo ese
+día* en vez de *sin que hagas nada*. Ahora lo dice entero.
+
+Comprobado contra la base después de pagar de verdad: al cancelar, `renueva`
+pasa a `false`, `vence_el` **no se mueve** y el plan sigue encendido hasta esa
+fecha. Es la regla que sostiene todo lo demás.
+
+
 ### 0.7.7 · 27 ago 2026
 «Mi plan», dentro de Ajustes, y el primer cobro de verdad.
 

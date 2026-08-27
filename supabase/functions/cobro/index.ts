@@ -196,6 +196,40 @@ async function aplicarSuscripcion(
      el mundo paga y se queda con `vence_el` en null para siempre. */
   const finDePeriodo = sub.current_period_end ?? renglon?.current_period_end;
 
+  /* ¿Se le va a volver a cobrar? Se pregunta por CUATRO caminos y basta con
+     que uno diga que no, porque aqui equivocarse tiene un precio muy desigual:
+     decir "se renueva" de alguien que ya cancelo le promete algo que no va a
+     pasar y le estropea la frase de la pantalla; decir "no se renueva" de
+     alguien activo no le quita nada, solo enseña una fecha de mas.
+
+     Cuatro y no uno porque Stripe ha ido moviendo esto entre versiones de su
+     API, igual que hizo con `current_period_end` —ver arriba—, y el campo que
+     ya no se usa no da error: llega vacio. El 27 ago 2026 pasó exactamente
+     eso: se cancelo una suscripcion desde el portal, el aviso llego, y
+     `cancel_at_period_end` no bastó para enterarse.
+
+       cancel_at_period_end   el de siempre
+       cancel_at              la fecha en la que se va a cortar, si esta puesta
+       canceled_at            cuando se pidio la cancelacion
+       cancellation_details   el motivo, presente solo si hay cancelacion */
+  const vaACancelarse = !!(
+    sub.cancel_at_period_end ||
+    sub.cancel_at ||
+    sub.canceled_at ||
+    sub.cancellation_details?.reason
+  );
+
+  /* Sin datos, solo los cuatro campos: es un registro de diagnostico, no un
+     volcado del objeto. El dia que Stripe vuelva a mover uno, esta linea dice
+     cual en diez segundos en vez de costar otra tarde. */
+  console.log("cancelacion:", JSON.stringify({
+    cancel_at_period_end: sub.cancel_at_period_end ?? null,
+    cancel_at: sub.cancel_at ?? null,
+    canceled_at: sub.canceled_at ?? null,
+    motivo: sub.cancellation_details?.reason ?? null,
+    status: sub.status,
+  }));
+
   await guardar(SB, SERVICIO, uid, {
     plan: plan,
     estado: estado,
@@ -206,7 +240,7 @@ async function aplicarSuscripcion(
     vence_el: finDePeriodo
       ? new Date(finDePeriodo * 1000).toISOString()
       : null,
-    renueva: !sub.cancel_at_period_end && (sub.status === "active" || sub.status === "trialing"),
+    renueva: !vaACancelarse && (sub.status === "active" || sub.status === "trialing"),
     cliente: cliente || null,
     suscripcion: sub.id,
   });

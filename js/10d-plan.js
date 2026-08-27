@@ -433,7 +433,7 @@ function planActivoHTML() {
   } else if (!PLAN.renueva && PLAN.vence_el) {
     nota = "Cancelaste, y sigue funcionando hasta el " + fechaCorta(PLAN.vence_el) + ". Nada de lo tuyo se borra ese día.";
   } else if (PLAN.vence_el) {
-    nota = "Se renueva solo el " + fechaCorta(PLAN.vence_el) + ".";
+    nota = "Se renueva por su cuenta el " + fechaCorta(PLAN.vence_el) + ", sin que tengas que hacer nada.";
   } else {
     nota = "Activo.";
   }
