@@ -52,6 +52,48 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.9.1 · 27 ago 2026
+La puerta, las negritas y la caja de despedida en su sitio.
+
+- **La puerta se leía como un edificio.** Tenía la hoja estrechándose por
+  arriba y por abajo, y ese doble escorzo sobre un rectángulo alto es la
+  silueta de una torre. Ahora la hoja es un **paralelogramo** —los dos lados
+  verticales miden lo mismo— y el suelo va partido en dos trazos, que es lo
+  que remata la lectura.
+- **La papelera pasa a `ICON_LIST`**, así que ya se puede elegir para una
+  habilidad o un talento. Va al final de la lista a propósito: la asignación
+  automática es `ICON_LIST[n % largo]` y meterla en medio le cambia el icono
+  por defecto a todo el mundo.
+- **En negrita solo lo que cambia de una persona a otra**: su correo, el plazo
+  y su fecha. El resto es igual para todos, y resaltarlo también sería no
+  resaltar nada. El correo pasa por `escapeHtml` porque ahora el mensaje viaja
+  como HTML.
+- **La caja del motivo**: pegada a lo de arriba, con tope de 500 caracteres
+  **escrito en pantalla** —un tope que solo se descubre cuando el teclado deja
+  de responder es un tope roto— y con el contador cambiando de color al
+  llenarse. Nuevo texto de ejemplo.
+- **`limpiarLibre()`**, que es por dónde pasa lo que se escriba: fuera los
+  signos de menor y mayor, fuera los caracteres de control, los enters de más
+  recortados y el tope aplicado otra vez. El `maxlength` del campo es del
+  navegador y se quita en dos segundos; esto es la segunda barrera, y el día
+  que el motivo se mande a algún sitio hará falta **una tercera en el
+  servidor**, que es la única que cuenta de verdad.
+
+Y tres fallos de maqueta que se veían y no se sabía por qué:
+
+- **`#modal-msg` tiene `white-space: pre-line`**, que es justo lo que quiere un
+  mensaje de texto —sus saltos se ven como párrafos sin escribir HTML— pero en
+  modo HTML se vuelve en contra: **los saltos y la sangría del propio archivo
+  se dibujaban como huecos de verdad**, y un cuadro con tres campos acababa
+  con tres líneas vacías repartidas por dentro. Acotado al modo texto.
+- **El contador heredaba los estilos de la pregunta**, porque `> span` los
+  cogía a los dos: le ponía su color —de ahí que no cambiara al llenarse— y
+  un `display: flex` que anulaba el `text-align: right`. Cada uno con su clase.
+- **El bloque del motivo usaba `block`** y los saltos de línea del HTML abrían
+  una línea vacía antes de cada elemento. Con `flex`, que ignora el espacio en
+  blanco suelto, los huecos son los que dice `gap` y nada más.
+
+
 ### 0.7.9 · 27 ago 2026
 Las ventanas de borrar, con icono y con una pregunta al final.
 

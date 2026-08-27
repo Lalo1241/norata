@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.9";
+const VERSION = "0.7.9.1";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -105,11 +105,15 @@ const ICONS = {
      perpendiculares a ella, que es lo que la distingue de una paleta. */
   key: '<circle cx="7.6" cy="15.4" r="4.6"/><path d="M10.9 12.1L20.5 2.5"/><path d="M15.2 7.8l2.3 2.3"/><path d="M17.9 5.1l2.3 2.3"/>',
   lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',
-  /* Una puerta entreabierta: el marco fijo y la hoja abierta hacia dentro, en
-     perspectiva. La hoja se estrecha por arriba y por abajo —de ahi que sus
-     dos lados no sean paralelos— porque una puerta abierta de frente se ve
-     asi; dibujada como un rectangulo recto parecia un armario. */
-  puerta: '<path d="M3 21h18"/><path d="M6 21V4a1 1 0 011.2-1l7 -1.4A1 1 0 0115.4 2.6v18.4"/><path d="M15.4 5.5H19a1 1 0 011 1V21"/><circle cx="12.4" cy="12" r=".9"/>',
+  /* Una puerta abierta, vista un poco desde arriba. La primera version se leia
+     como un edificio: tenia la hoja estrechandose por arriba y por abajo, y
+     ese doble escorzo sobre un rectangulo alto es exactamente la silueta de
+     una torre. Aqui la hoja es un PARALELOGRAMO —los dos lados verticales
+     miden lo mismo y solo esta desplazado hacia abajo el lado cercano—, que
+     es como se ve una puerta abierta en un picado suave y no se confunde con
+     nada. El suelo, partido en dos trazos, es lo que remata la lectura: sin
+     el, cualquier cosa vertical puede ser un mueble. */
+  puerta: '<path d="M2.5 20.5h4.5"/><path d="M17.5 20.5h4"/><path d="M7 3h10.5v17.5"/><path d="M7 3l6.5 3.2v14.3L7 17.3z"/><path d="M11.9 12.6v2.2"/>',
   /* Una papelera. La tapa aparte del cuerpo y dos rayas dentro: sin ellas se
      confunde con un vaso a tamaño pequeño. */
   papelera: '<path d="M4 7h16"/><path d="M10 4h4"/><path d="M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/><path d="M10 11v6M14 11v6"/>',
@@ -126,7 +130,7 @@ const ICONS = {
   luna: '<path d="M20 14.2A8.4 8.4 0 019.8 4 8.4 8.4 0 1020 14.2z"/>'
 };
 
-const ICON_LIST = ["brush","pen","book","dumbbell","code","music","camera","mic","globe","coin","bulb","heart","flame","trophy","target","flag","wrench","coffee","plant","cap","chart","map","compass","crown","gem","gamepad","star","bolt","shield","smile","rod","goggles","key"];
+const ICON_LIST = ["brush","pen","book","dumbbell","code","music","camera","mic","globe","coin","bulb","heart","flame","trophy","target","flag","wrench","coffee","plant","cap","chart","map","compass","crown","gem","gamepad","star","bolt","shield","smile","rod","goggles","key","papelera"];
 
 const EMOJI_TO_ICON = {
   "🎨":"brush","🍳":"coffee","💪":"dumbbell","📚":"book","🎸":"music","💻":"code","🗣️":"mic","🧘":"heart",
@@ -827,6 +831,40 @@ function askHtml(html, okLabel, cancelLabel) {
    en pantalla. Pero se puede subir, y hace falta: para confirmar algo
    escribiendo un correo, 42 se queda corto y el usuario se quedaría sin poder
    completar nunca la confirmación. */
+/* Cuanto cabe en una caja de texto libre. Quinientos son unas cien palabras:
+   de sobra para contar por que te vas, y poco para que quepa nada raro.
+   El numero se enseña SIEMPRE en pantalla —ver el contador— porque un tope
+   que solo se descubre cuando el teclado deja de responder es un tope roto. */
+const MOTIVO_MAX = 500;
+
+/* Texto escrito por una persona que va a salir de la app y viajar por red.
+   Hace lo mismo que `limpiarNombre` y por las mismas razones, mas una:
+
+   - Fuera los signos de menor y mayor. NO es que hoy haga falta —esto no se
+     mete en ningun HTML— sino que este texto esta pensado para acabar algun
+     dia en un correo o en un panel, y ahi si. Quitarlos en el origen cierra
+     la pregunta para todos los sitios a los que vaya, en vez de dejarla
+     abierta para que la conteste bien cada uno de ellos.
+   - Fuera los caracteres de control, que no se ven y ensucian cualquier
+     registro donde caigan.
+   - Se recortan los saltos de linea de mas: tres seguidos son un enter
+     nervioso, no una estructura.
+   - Y el tope, otra vez. El `maxlength` del campo ya lo aplica al teclear y
+     al pegar, pero es del navegador: quien abra las herramientas lo quita en
+     dos segundos. Aqui se aplica de nuevo, y el dia que esto se mande a algun
+     sitio habra que aplicarlo UNA TERCERA VEZ en el servidor — es el unico
+     de los tres que cuenta de verdad. */
+function limpiarLibre(v) {
+  return String(v == null ? "" : v)
+    .replace(/[<>]/g, "")
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/(?:\r?\n){3,}/g, "\n\n")
+    .trim()
+    .slice(0, MOTIVO_MAX);
+}
+
+
 /* El sexto argumento, `motivo`, añade debajo una caja de texto opcional. Solo
    la piden las despedidas —irse de Norata— y por eso no esta siempre: en un
    cuadro para renombrar una rama, preguntar "¿por que?" seria absurdo.
@@ -840,9 +878,10 @@ function askText(titulo, valor, okLabel, pista, max, motivo) {
      <input id="modal-input" type="text" maxlength="${Number(max) || 42}" value="${escapeAttr(valor || "")}">
      ${pista ? `<span class="field-hint" style="display:block;text-align:left">${escapeHtml(pista)}</span>` : ""}
      ${motivo ? `<label class="modal-motivo">
-       <span>${escapeHtml(motivo.titulo || "¿Nos cuentas por qué te vas?")} <i>Opcional</i></span>
-       <textarea id="modal-motivo" rows="3" maxlength="600"
+       <span class="modal-motivo-t">${escapeHtml(motivo.titulo || "¿Nos cuentas por qué te vas?")} <i>Opcional</i></span>
+       <textarea id="modal-motivo" rows="3" maxlength="${MOTIVO_MAX}"
          placeholder="${escapeAttr(motivo.pista || "Lo que quieras contarnos.")}"></textarea>
+       <span class="modal-cuenta" id="modal-cuenta">0 / ${MOTIVO_MAX}</span>
      </label>` : ""}`,
     okLabel || "Guardar");
   /* setTimeout y no requestAnimationFrame: el cuadro tiene que quedar listo
@@ -857,6 +896,19 @@ function askText(titulo, valor, okLabel, pista, max, motivo) {
     el.addEventListener("keydown", (e) => {
       if (e.key === "Enter") { e.preventDefault(); modalDone(true); }
     });
+
+    /* El contador. Se pinta desde el primer momento y no solo al escribir:
+       saber cuanto cabe ANTES de empezar es la mitad de para lo que sirve. */
+    const mot = document.getElementById("modal-motivo");
+    const cuenta = document.getElementById("modal-cuenta");
+    if (mot && cuenta) {
+      const pintar = () => {
+        cuenta.textContent = mot.value.length + " / " + MOTIVO_MAX;
+        cuenta.classList.toggle("lleno", mot.value.length >= MOTIVO_MAX);
+      };
+      mot.addEventListener("input", pintar);
+      pintar();
+    }
   }, 0);
   return p.then(ok => {
     const el = document.getElementById("modal-input");
@@ -866,7 +918,7 @@ function askText(titulo, valor, okLabel, pista, max, motivo) {
        cuadro ya habia reescrito el cuerpo y volvia vacio. */
     const texto = ok ? (el ? el.value.trim() : "") : null;
     if (!motivo) return texto;
-    return { texto: texto, motivo: (ok && mot) ? mot.value.trim() : "" };
+    return { texto: texto, motivo: (ok && mot) ? limpiarLibre(mot.value) : "" };
   });
 }
 
@@ -923,6 +975,15 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
        la frase. */
     card.classList.toggle("con-titulo", !!ex.titulo);
     card.classList.toggle("oro", ex.tono === "oro");
+    /* `#modal-msg` respeta los saltos de linea, y eso es justo lo que quiere
+       un mensaje de TEXTO: sus `
+
+` se ven como parrafos sin tener que
+       escribir HTML. Pero en modo HTML se vuelve en contra — los saltos y la
+       sangria de la propia plantilla se dibujan como huecos de verdad, y un
+       cuadro con tres campos acababa con tres lineas vacias repartidas por
+       dentro sin que nada en el codigo las pidiera. */
+    card.classList.toggle("cuerpo-html", !!esHtml);
     if (alarm) { void card.offsetWidth; card.classList.add("alarm"); }
     const fondo = document.getElementById("modal");
     fondo.classList.toggle("fijo", !!ex.fijo);

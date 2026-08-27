@@ -592,15 +592,22 @@ async function borrarCuenta() {
      seguir: es su decision, no la nuestra. Al fundador no, que ya tuvo su
      propia pantalla y repetirselo seria regañarle dos veces. */
   const pagadoQueSePierde = (!esFundador && typeof PLAN !== "undefined" && PLAN && PLAN.pro && PLAN.vence_el)
-    ? "\n\nTu plan actual está pagado hasta el " + fechaCorta(PLAN.vence_el) +
-      ". Se perderá el tiempo que sobre después de borrarse tu cuenta de forma definitiva."
+    ? "<br><br>Tu plan actual está pagado hasta el <b>" + escapeHtml(fechaCorta(PLAN.vence_el)) +
+      "</b>. Se perderá el tiempo que sobre después de borrarse tu cuenta de forma definitiva."
     : "";
 
   if (!await askBase(
-    "Se cerrará tu sesión y este dispositivo perderá tu progreso. La cuenta " + correo +
-    " se borrará dentro de 30 días naturales; hasta entonces podrás recuperarla entrando nuevamente " +
-    "con tu correo." + pagadoQueSePierde,
-    false, "Continuar", true, false, null,
+    /* En negrita solo lo que cambia de una persona a otra: su correo, el plazo
+       y su fecha. El resto del parrafo es igual para todo el mundo, y
+       resaltarlo tambien seria no resaltar nada.
+
+       Va como HTML —de ahi el `true` de abajo— para poder hacerlo, y por eso
+       el correo pasa por `escapeHtml`: lo escribio el usuario al registrarse
+       y acaba dentro de esta plantilla. */
+    "Se cerrará tu sesión y este dispositivo perderá tu progreso. La cuenta <b>" + escapeHtml(correo) +
+    "</b> se borrará dentro de <b>30 días naturales</b>; hasta entonces podrás recuperarla entrando " +
+    "nuevamente con tu correo." + pagadoQueSePierde,
+    true, "Continuar", true, false, null,
     { icono: "puerta", titulo: "Estás a punto de borrar tu cuenta." })) return;
 
   /* Una frase y no un "¿seguro?": el segundo se pulsa con el dedo ya en
@@ -608,7 +615,7 @@ async function borrarCuenta() {
   const respuesta = await askText(
     "Escribe " + FRASE_BORRAR + " para confirmar que quieres borrarla.",
     "", "Borrar la cuenta", FRASE_BORRAR, 40,
-    { titulo: "¿Nos cuentas por qué te vas?", pista: "Lo que no funcionó, lo que echaste de menos, lo que sea." });
+    { titulo: "¿Nos cuentas por qué te vas?", pista: "Lo que no funcionó, lo que echaste de menos, o algo que desees compartirnos para mejorar Norata." });
   if (respuesta === null || respuesta.texto === null) return;
   const escrito = respuesta.texto;
   guardarMotivoDeBaja(respuesta.motivo);

@@ -3089,23 +3089,31 @@
      Va debajo del campo que confirma, separada por aire y alineada a la
      izquierda: lo de arriba es un tramite y esto es una pregunta de verdad,
      y centrarla la habria disfrazado de aviso. */
+  /* FLEX y no `block`, y no es capricho: en `block`, los saltos de linea que
+     el propio HTML tiene entre la pregunta, el campo y el contador cuentan
+     como texto y cada uno abria una linea vacia de unos 20px. Se colaban tres
+     —una antes de la pregunta, otra antes del campo, otra antes del
+     contador— y el bloque entero acababa hundido y desparramado, que es
+     justo lo que se veia. Un contenedor flex ignora el espacio en blanco
+     suelto, asi que los huecos pasan a ser los que dice `gap` y nada mas. */
   .modal-motivo {
-    display: block;
-    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 12px;
     text-align: left;
   }
-  .modal-motivo > span {
+  .modal-motivo-t {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 13px;
     color: var(--muted);
-    margin-bottom: 7px;
   }
   /* "Opcional" en una pastilla y no entre parentesis: entre parentesis se lee
      como parte de la pregunta y se salta, y justo esa palabra es la que quita
      la sensacion de examen. */
-  .modal-motivo > span i {
+  .modal-motivo-t i {
     font-style: normal;
     font-size: 10.5px;
     font-weight: 700;
@@ -3140,6 +3148,21 @@
     outline: none;
     border-color: var(--mint);
   }
+  /* Cuantas letras van. A la derecha y debajo del campo, que es donde la
+     mirada acaba al dejar de escribir. */
+  .modal-cuenta {
+    display: block;
+    text-align: right;
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+    /* `--muted` y no `--faint`: medido, el apagado daba 2,82 sobre 1 en modo
+       oscuro. Un contador de 11,5px es de lo que menos margen tiene, y
+       ademas es un dato que se consulta —cuanto me queda—, no un adorno. */
+    color: var(--muted);
+  }
+  /* Al llegar al tope cambia de color: sin esto, el teclado deja de responder
+     y no hay forma de saber si el fallo es del campo o del aparato. */
+  .modal-cuenta.lleno { color: var(--coral); font-weight: 600; }
 
   /* Con un solo boton, que ocupe el ancho: centrado y a medias parece que
      falta el otro, que es justo lo que se quiere evitar en un aviso. */
@@ -4279,6 +4302,9 @@
   /* Los conflictos de sincronía se explican en varias líneas: sin esto el
      modal las aplasta en un párrafo ilegible. */
   #modal-msg { white-space: pre-line; }
+  /* En modo HTML manda el marcado, no la sangria del archivo. Ver la nota de
+     `askBase`: sin esto, cada salto de linea de la plantilla es un hueco. */
+  .modal-card.cuerpo-html #modal-msg { white-space: normal; }
 
   .sync-text { font-size: 13px; line-height: 1.45; }
   .sync-text b { display: block; font-weight: 600; }
