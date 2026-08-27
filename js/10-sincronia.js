@@ -522,6 +522,9 @@ function renderZonaCuenta() {
 async function borrarCuenta() {
   if (!syncReady()) return;
   const correo = ((sync.cfg || {}).correo || "tu cuenta").trim();
+  /* Se coge ahora, no al final: para cuando toque despedirse, el perfil ya se
+     habrá vaciado y no quedará de dónde sacarlo. */
+  const saludo = (typeof saludoActual === "function" ? saludoActual() : "") || "";
 
   /* ---- Lo unico que se interpone: un cobro que sigue vivo ----
 
@@ -659,10 +662,19 @@ async function borrarCuenta() {
   renderSync();
   renderCopias();
   renderZonaCuenta();
-  mostrarPortada();
+
+  /* Y aquí termina en una despedida y no en el formulario de entrar. Ofrecerle
+     iniciar sesión a quien acaba de pedir que le borren la cuenta es invitarle
+     a deshacer lo que acaba de hacer, y la fecha del plazo —lo único que tiene
+     que recordar— iba en un aviso de abajo que dura cuatro segundos.
+
+     `rescateCuando` es lo que la pantalla lee para escribir la fecha, y se
+     pone antes de pintar. El saludo también: dos líneas más arriba el perfil
+     se acaba de vaciar. */
+  rescateCuando = cuando;
+  portadaSaludo = saludo;
+  mostrarPortada("adios");
   cargaCerrar();
-  const fecha = fechaLarga(cuando);
-  toast(fecha ? "Tu cuenta se borrará el " + fecha : "Borrado programado", "deshecho");
 }
 
 /* Una fecha para leer, no para calcular: el día y el mes con letra. La hora

@@ -54,6 +54,27 @@
     --celeste: #8ecdf5;
     --celeste-soft: rgba(142, 205, 245, 0.1);
 
+    /* ---------- El lila: el color de Fundador ----------
+       Fundador iba en luciérnaga y había que sacarlo de ahí: el amarillo ya
+       significa «mira esto» en toda la app —un plan que se cancela, un recibo
+       que no se pudo cobrar, la trastienda del negocio— y usarlo también para
+       el plan bueno pedía leer el contexto para saber si era un aviso o un
+       premio. El lila no dice nada más en Norata, así que puede decir esto.
+
+       Sale del octavo de la paleta que ya eligió Eduardo (`--paleta-4`), así
+       que no es un color nuevo en la casa: es uno que ya estaba.
+
+       Se parte en dos igual que los otros acentos (ver arriba). De noche los
+       dos valen lo mismo; de día, no: el lila vivo escrito sobre papel da 4,42
+       —por debajo del 4,5 que pide un texto— así que para escribir se hunde
+       hasta #5b32c0 (6,99 sobre la tarjeta clara) y para rellenar se aclara
+       hasta #9b6bff, que es el único que admite la tinta oscura de
+       `--sobre-macizo` con holgura (5,18). Con el vivo tal cual, la tinta
+       encima daba 3,67 y la pastilla no se leía. */
+    --lila: #b7a2ea;
+    --lila-soft: rgba(183, 162, 234, 0.13);
+    --lila-macizo: #b7a2ea;
+
     /* ---------- Los tonos que cambian de bando ----------
        Cada uno estaba escrito suelto donde hacía falta, y así el modo claro
        era imposible: no había un sitio donde cambiarlos. */
@@ -227,6 +248,7 @@
     --piso-tirar: 7000;    /* deslizar para actualizar */
     --piso-pruebas: 7500;  /* el marco de "cuenta de pruebas" */
     --piso-portada: 8000;  /* entrar a la app */
+    --piso-compra: 8200;   /* volver de pagar: tapa la app, no los avisos */
     --piso-brindis: 8500;  /* los avisos de abajo, encima de todo lo anterior */
     --piso-confirmar: 8600;/* el cuadro de confirmar: SIEMPRE lo último */
     --piso-bloqueo: 9000;  /* datos de una versión más nueva */
@@ -295,6 +317,10 @@
     --coral-vivo: #991b00;
     --celeste: #0f688f;
     --celeste-soft: #e5eef3;
+    /* Ver la nota larga del lila en el bloque de noche. Para escribir, hundido
+       hasta pasar el 4,5; el velo levanta hacia el blanco como los demás. */
+    --lila: #5b32c0;
+    --lila-soft: #eeeaf7;
 
     --sobre-acento: #ffffff;
     --sobre-acento-coral: #ffffff;
@@ -304,6 +330,9 @@
     --mint-macizo: #00cc7f;
     --fire-macizo: #f5c314;
     --coral-macizo: #ff603d;
+    /* Más claro que el lila de la paleta (#7d50ea) a propósito: con el vivo,
+       la tinta oscura de encima daba 3,67 sobre 1. */
+    --lila-macizo: #9b6bff;
 
     --borde-panel: #d8dbec;
     --linea-guion: #a9afc6;
@@ -475,6 +504,9 @@
     --mint-macizo: #5fe0b0;
     --fire-macizo: #f5d76e;
     --coral-macizo: #ff8a70;
+    --lila: #b7a2ea;
+    --lila-soft: rgba(183, 162, 234, 0.13);
+    --lila-macizo: #b7a2ea;
     --motivo-cielo-1: #1c2534;
     --motivo-cielo-2: #141b26;
     --motivo-chispa: #e9f2f5;
@@ -1285,9 +1317,11 @@
      otro sitio del CSS, y estas clases las escribe JavaScript pegando un
      trozo de texto. */
   .aj-item.t-oro .aj-ic { background: var(--fire-soft); color: var(--fire); }
+  .aj-item.t-lila .aj-ic { background: var(--lila-soft); color: var(--lila); }
   .aj-item.t-coral .aj-ic { background: var(--coral-soft); color: var(--coral); }
   .aj-item.on { border-color: var(--mint); background: var(--card2); }
   .aj-item.t-oro.on { border-color: var(--fire); }
+  .aj-item.t-lila.on { border-color: var(--lila); }
   .aj-item.t-coral.on { border-color: var(--coral); }
 
   /* ---------- Sol y luna ----------
@@ -1435,6 +1469,7 @@
     color: var(--mint);
   }
   .mm-item.t-oro .mm-ic { background: var(--fire-soft); color: var(--fire); }
+  .mm-item.t-lila .mm-ic { background: var(--lila-soft); color: var(--lila); }
   .mm-item.t-coral .mm-ic { background: var(--coral-soft); color: var(--coral); }
 
   /* ---------- El mini menú responde al ratón ----------
@@ -1464,6 +1499,11 @@
   .mm-item.t-oro:hover .mm-ic,
   .mm-item.t-oro:focus-visible .mm-ic {
     background: var(--fire-macizo);
+    color: var(--sobre-macizo);
+  }
+  .mm-item.t-lila:hover .mm-ic,
+  .mm-item.t-lila:focus-visible .mm-ic {
+    background: var(--lila-macizo);
     color: var(--sobre-macizo);
   }
   .mm-item.t-coral:hover .mm-ic,
@@ -1509,6 +1549,7 @@
     color: var(--mint);
   }
   .mm-plan.t-oro { background: var(--fire-soft); color: var(--fire); }
+  .mm-plan.t-lila { background: var(--lila-soft); color: var(--lila); }
   .mm-plan.t-coral { background: var(--coral-soft); color: var(--coral); }
   .mm-plan .ic svg { width: 12px; height: 12px; }
   /* La chapa no cambia con el ratón: la fila entera lleva a Mi perfil y el
@@ -1646,6 +1687,63 @@
   .btn-danger-ghost { background: var(--coral-soft); color: var(--coral); }
   .btn-block { width: 100%; }
   .btn:active { transform: scale(0.97); opacity: 0.9; }
+
+  /* ---------- Volver de pagar ----------
+     Una pantalla entera y no un aviso de abajo. Lo que había era un `toast` de
+     cuatro segundos —«Gracias. Tu plan se está activando»— para el único
+     momento de toda la app en el que alguien acaba de pagar: se lo perdía
+     cualquiera que mirara al teléfono medio segundo tarde, y no contestaba la
+     pregunta que de verdad se hace ahí, que es «¿ya está?, ¿qué tengo ahora?».
+
+     Se queda hasta que se cierra a propósito. Tapa la app y no se va sola:
+     aquí no hay nada más urgente que esto. */
+  .compra {
+    display: none;
+    position: fixed; inset: 0; z-index: var(--piso-compra);
+    overflow-y: auto;
+    padding: 26px 20px;
+    background: var(--bg);
+    animation: portadaEntra 0.32s ease;
+  }
+  .compra.show { display: flex; justify-content: center; }
+  /* `margin: auto` y no `align-items: center`: con el centrado por flex, una
+     caja más alta que la ventana pierde su parte de arriba para siempre —el
+     desplazamiento no llega a negativos—. Ya mordió en la portada. */
+  .compra-caja { width: 100%; max-width: 400px; margin: auto; text-align: center; }
+  .compra-ic {
+    width: 76px; height: 76px; margin: 0 auto 18px;
+    border-radius: 26px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--mint-soft); color: var(--mint);
+  }
+  .compra-caja.lila .compra-ic { background: var(--lila-soft); color: var(--lila); }
+  .compra-caja h2 {
+    font-size: 24px; font-weight: 700; letter-spacing: -0.4px;
+    color: var(--text); margin: 0 0 8px; line-height: 1.25;
+  }
+  .compra-sub { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 0 0 20px; }
+  /* Lo que se acaba de desbloquear, en fila y con su palomita. Es la respuesta
+     a «¿qué tengo ahora?» y por eso va aquí y no en Ajustes: leerlo en el
+     momento de pagar es lo que convierte el cobro en algo recibido. */
+  .compra-lista {
+    text-align: left;
+    border: 1px solid var(--line); border-radius: 14px;
+    background: var(--card); padding: 6px 14px; margin-bottom: 20px;
+  }
+  .compra-lista div {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 0; font-size: 13.5px; color: var(--text);
+    border-bottom: 1px solid var(--line);
+  }
+  .compra-lista div:last-child { border-bottom: none; }
+  .compra-lista .ic { color: var(--mint); flex: none; }
+  .compra-caja.lila .compra-lista .ic { color: var(--lila); }
+  .compra-caja.lila .btn-primary {
+    background: var(--lila-macizo); color: var(--sobre-macizo); box-shadow: none;
+  }
+  /* Mientras el aviso de Stripe todavía no ha llegado. La rueda es la misma
+     del botón que espera. */
+  .compra-esperando .compra-ic { background: var(--card2); color: var(--muted); }
 
   /* ---------- Cluster del pulgar ---------- */
   .thumb-cluster {
@@ -4158,7 +4256,7 @@
      avatar sale grande en Ajustes y pequeño en el menú. Y sin transición, que
      el valor sale de una variable (ver la nota del modo claro). */
   .avatar.es-fundador {
-    box-shadow: 0 0 0 2px var(--card2), 0 0 0 4px var(--fire);
+    box-shadow: 0 0 0 2px var(--card2), 0 0 0 4px var(--lila);
   }
 
   /* La bienvenida de la pantalla de entrada: sustituye al logo cuando ya
@@ -5113,6 +5211,8 @@
    se renueva. */
 .plan-hoy.t-oro { border-color: var(--fire); background: var(--fire-soft); }
 .plan-hoy.t-oro .plan-hoy-ic { background: var(--fire-soft); color: var(--fire); }
+.plan-hoy.t-lila { border-color: var(--lila); background: var(--lila-soft); }
+.plan-hoy.t-lila .plan-hoy-ic { background: var(--lila-soft); color: var(--lila); }
 .plan-hoy.t-coral { border-color: var(--coral); background: var(--coral-soft); }
 .plan-hoy.t-coral .plan-hoy-ic { background: var(--coral-soft); color: var(--coral); }
 .plan-hoy-t {
@@ -5166,14 +5266,28 @@
   position: relative;
 }
 /* El borde y no un fondo de color: son tres tarjetas juntas y teñir una
-   entera la separa tanto del conjunto que parece de otra pantalla. */
+   entera la separa tanto del conjunto que parece de otra pantalla.
+
+   Dos destacadas y no una, porque destacan cosas distintas: el anual es el que
+   recomendamos de los que se renuevan, y Fundador es el que se acaba. Cada uno
+   con su color, que es lo que evita leerlos como el mismo mensaje dicho dos
+   veces. */
 .plan-card.destacada { border-color: var(--mint); }
+.plan-card.limitada { border-color: var(--lila); }
 
 .plan-tag {
   position: absolute; top: -9px; left: 13px;
   font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
   padding: 2px 8px; border-radius: 99px;
   background: var(--mint-macizo); color: var(--sobre-macizo);
+}
+.plan-tag.lila { background: var(--lila-macizo); }
+/* El botón de Fundador va relleno como el del anual, pero en su color. La
+   sombra se apaga: la de `.btn-primary` es menta y aquí cantaría. */
+.plan-card.limitada .btn-primary {
+  background: var(--lila-macizo);
+  color: var(--sobre-macizo);
+  box-shadow: none;
 }
 .plan-n { font-weight: 700; font-size: 15px; color: var(--text); }
 .plan-p { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1.1; }
@@ -5280,7 +5394,21 @@
   min-width: 190px;
 }
 .plan-vs td { color: var(--text); font-weight: 600; }
-/* Fundador es la que recomendamos: se marca con el mismo dorado que la piedra
-   y el anillo, para que las tres cosas digan lo mismo sin explicarlo. */
-.plan-vs td:last-child { color: var(--fire); }
-.plan-vs thead th:last-child { color: var(--fire); }
+/* Solo las celdas donde Fundador dice algo que ningún otro plan dice. La
+   columna entera iba en color y se leía peor: teñía de premio ocho filas que
+   repiten lo mismo que la de al lado, y con todo destacado no destacaba nada. */
+.plan-vs td.ojo { color: var(--lila); }
+/* El encabezado sí lleva su color, que es lo que ata la columna a la piedra, a
+   la chapa del menú y al anillo del avatar. */
+.plan-vs thead th.t-lila { color: var(--lila); }
+
+/* Las piedras encima de las columnas. En bloque y centradas sobre el nombre:
+   al lado, en una columna de 130 px, empujaban el rótulo a dos renglones. */
+.plan-vs thead th { text-align: center; }
+.plan-vs thead th:first-child { text-align: left; }
+.vs-piedra { display: block; margin-bottom: 3px; }
+.vs-piedra .ic { display: inline-flex; }
+/* Los valores se quedan a la izquierda aunque el encabezado esté centrado: son
+   frases de largo distinto («Sin tope» y «Solo las paletas de color») y
+   centradas se convierten en un zigzag que cuesta recorrer con la vista. */
+.plan-vs tbody td { text-align: left; }
