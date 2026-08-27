@@ -117,6 +117,13 @@ const LIMITES = {
    menos violento que pintarlas y apagarlas en la cara de quien sí pagó. */
 let PLAN = { plan: "libre", pro: false, estado: "ninguna", vence_el: null, renueva: false, compro: "libre" };
 
+/* Lo MISMO, pero sin la simulación encima. Existe por el modo de pruebas: al
+   ponerse a mirar la app «como fundador», `PLAN` deja de ser lo que dijo el
+   servidor, y hace falta un sitio donde siga estando la verdad para poder
+   volver a ella sin preguntar otra vez. Fuera del modo de pruebas los dos
+   valen lo mismo siempre. */
+let PLAN_REAL = null;
+
 const PLAN_GUARDADO = "norata-plan";
 
 /* Una semana. El plan se guarda en el aparato para que quien pagó y abre la
@@ -150,28 +157,153 @@ function planEscribirGuardado(p) {
    persona que paga se siente estafada, y por una razón que ni siquiera es
    suya. Ante la duda, lo último que se supo. */
 async function planCargar() {
+  /* La copia guardada se pone ANTES de esperar nada. Es el motivo entero de
+     que exista: quien pagó y abre la app en el metro no puede ver la versión
+     gratuita durante los dos segundos que tarda la pregunta. */
   const guardado = planLeerGuardado();
-  if (guardado) PLAN = guardado;
+  if (guardado) {
+    PLAN_REAL = guardado;
+    PLAN = planConSimulacion(guardado);
+  }
 
+  PLAN_REAL = await planDelServidor(PLAN_REAL || PLAN);
+  PLAN = planConSimulacion(PLAN_REAL);
+  return PLAN;
+}
+
+/* Lo que contesta el servidor, y nada más. Devuelve `antes` —lo último que se
+   supo— en todos los caminos que fallan, que es la regla de arriba: ante la
+   duda, lo último que se supo. */
+async function planDelServidor(antes) {
   try {
     if (typeof syncReady === "function" && !syncReady()) {
       /* Sin cuenta no hay plan que preguntar. Y sin cuenta tampoco tiene
          sentido arrastrar la copia guardada de otra sesión. */
-      PLAN = { plan: "libre", pro: false, estado: "ninguna", vence_el: null, renueva: false, compro: "libre" };
-      return PLAN;
+      return { plan: "libre", pro: false, estado: "ninguna", vence_el: null, renueva: false, compro: "libre" };
     }
     const r = await sbDatos("/rpc/mi_plan", { method: "POST", body: "{}" });
     /* 404: todavía no se ha corrido `planes.sql`. Es la única respuesta rara
        que se espera y no merece un error: significa que el cobro aún no
        existe, que es la verdad hoy. */
-    if (r.status === 404) return PLAN;
-    if (!r.ok || !r.body) return PLAN;
-    PLAN = r.body;
-    planEscribirGuardado(PLAN);
+    if (r.status === 404) return antes;
+    if (!r.ok || !r.body) return antes;
+    /* Se guarda lo del SERVIDOR, nunca lo simulado: si la simulación llegara
+       a esta línea, cerrar la pestaña dejaría a alguien creyéndose fundador
+       durante una semana entera (ver `PLAN_CADUCA`). */
+    planEscribirGuardado(r.body);
+    return r.body;
   } catch (e) {
     /* A propósito. Ver arriba. */
+    return antes;
   }
-  return PLAN;
+}
+
+/* ================= Ver la app con otro plan =================
+
+   Para qué existe: no se pueden tener las tres membresías compradas a la vez,
+   y hay estados que además no se pueden provocar a voluntad —un recibo que
+   falla, una suscripción cancelada a la que le quedan días—. Sin esto, la
+   única forma de ver esas pantallas es esperar a que le pasen a alguien.
+
+   Esto NO abre nada. Lo dice el archivo entero desde su primera línea, pero
+   aquí conviene repetirlo porque parece lo contrario: escribir "fundador" en
+   `PLAN` cambia lo que la app DIBUJA y no lo que el servidor CREE. Las ramas
+   de más siguen sin poder crearse contra la base de datos, el ático sigue sin
+   contestar, y al recargar sin la marca puesta la mentira se cae sola. Quien
+   quiera engañarse a sí mismo ya podía hacerlo desde la consola en diez
+   segundos; esto solo lo hace cómodo para quien tiene que revisarlo.
+
+   En `sessionStorage` y no en `localStorage`, por lo mismo que las pruebas
+   con enlace: tiene que sobrevivir a una recarga —si no, no se puede navegar
+   por la app mirando— y tiene que morir al cerrar la pestaña, para que no se
+   quede pegado como si fuera un ajuste. */
+const PLAN_SIMULADO = "norata-plan-simulado";
+
+/* Los siete estados que importan. Los cuatro primeros son lo que se compra;
+   los tres últimos son los que no se pueden provocar y son justo donde la
+   pantalla del plan cambia de color y de texto. */
+const PLANES_SIMULABLES = [
+  { id: "", rotulo: "De verdad" },
+  { id: "libre", rotulo: "Gratuito" },
+  { id: "mensual", rotulo: "Pro mensual" },
+  { id: "anual", rotulo: "Pro anual" },
+  { id: "fundador", rotulo: "Fundador" },
+  { id: "cancelando", rotulo: "Pro cancelándose" },
+  { id: "impago", rotulo: "Pro sin pagar" },
+  { id: "terminado", rotulo: "Plan terminado" }
+];
+
+function planLeerSimulado() {
+  try {
+    return sessionStorage.getItem(PLAN_SIMULADO) || "";
+  } catch (e) {
+    return "";
+  }
+}
+
+function planNombreSimulado() {
+  const cual = planLeerSimulado();
+  const x = PLANES_SIMULABLES.find(p => p.id === cual);
+  return cual && x ? x.rotulo : "";
+}
+
+/* Las fechas se calculan desde hoy y no se escriben a mano: un "vence el 3 de
+   marzo de 2026" clavado en el código empieza a mentir en cuanto pasa esa
+   fecha, y lo que se está revisando aquí es precisamente cómo se cuentan los
+   días que quedan. */
+function planConSimulacion(real) {
+  const cual = planLeerSimulado();
+  if (!cual) return real;
+  const en = (dias) => new Date(Date.now() + dias * 864e5).toISOString();
+
+  if (cual === "libre") {
+    return { plan: "libre", pro: false, estado: "ninguna", vence_el: null, renueva: false, compro: "libre" };
+  }
+  if (cual === "terminado") {
+    return { plan: "libre", pro: false, estado: "cancelada", vence_el: en(-9), renueva: false, compro: "anual" };
+  }
+  if (cual === "mensual") {
+    return { plan: "mensual", pro: true, estado: "activa", vence_el: en(18), renueva: true, compro: "mensual" };
+  }
+  if (cual === "anual") {
+    return { plan: "anual", pro: true, estado: "activa", vence_el: en(210), renueva: true, compro: "anual" };
+  }
+  if (cual === "cancelando") {
+    return { plan: "anual", pro: true, estado: "activa", vence_el: en(43), renueva: false, compro: "anual" };
+  }
+  if (cual === "impago") {
+    return { plan: "mensual", pro: true, estado: "impago", vence_el: en(-1), renueva: true, compro: "mensual" };
+  }
+  if (cual === "fundador") {
+    return { plan: "fundador", pro: true, estado: "activa", vence_el: null, renueva: false, compro: "fundador" };
+  }
+  return real;
+}
+
+/* Cambiar de plan simulado. No vuelve a preguntar al servidor: `PLAN_REAL` ya
+   tiene la respuesta y pedirla otra vez por cambiar de vista sería pagar un
+   viaje por nada.
+
+   Repinta TODO y no solo la sección del plan: lo que se viene a mirar aquí es
+   cómo se comporta la app entera —el árbol con una rama, el ático cerrado,
+   los resúmenes que faltan—, y dejar el Resumen dibujado con el plan anterior
+   es exactamente el error que este botón trata de evitar. */
+function planSimular(cual) {
+  try {
+    if (cual) sessionStorage.setItem(PLAN_SIMULADO, cual);
+    else sessionStorage.removeItem(PLAN_SIMULADO);
+  } catch (e) {
+    /* En una ventana privada puede no dejar. Se sigue sin simular, que es
+       molesto pero no rompe nada. */
+  }
+  PLAN = planConSimulacion(PLAN_REAL || PLAN);
+  if (typeof pintarAvisoPruebas === "function") pintarAvisoPruebas();
+  if (typeof renderAjustes === "function") renderAjustes();
+  if (typeof renderPanelAdmin === "function") renderPanelAdmin();
+  if (typeof renderPanelPlan === "function") renderPanelPlan();
+  if (typeof toast === "function") {
+    toast(cual ? "Viendo la app como " + planNombreSimulado() : "De vuelta a tu plan de verdad", "hecho");
+  }
 }
 
 /* ---- Las preguntas que hace el resto de la app ---- */

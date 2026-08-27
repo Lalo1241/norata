@@ -21,7 +21,27 @@ let metricasCache = null;
    hay sesión, ni se pregunta: la respuesta ya se sabe. */
 async function revisarAdmin() {
   esAdmin = await sbSoyAdmin();
-  if (esAdmin && typeof renderAjustes === "function") renderAjustes();
+
+  /* Antes de nada, la puerta de atrás del modo de pruebas. El plan simulado
+     vive en `sessionStorage`, así que aguanta una recarga a propósito —si no,
+     no se podría navegar por la app mirando—. Pero el rótulo que lo anuncia
+     cuelga de ser administrador, y si la respuesta del servidor llega diciendo
+     que no lo eres, la simulación se quedaría puesta sin nada que la delate.
+     Una app que miente sin avisar es peor que una que no se deja probar.
+
+     Aquí y no en `planCargar`: allí `esAdmin` todavía no ha contestado, y
+     preguntarlo antes de tiempo borraría la simulación siempre. */
+  if (typeof planLeerSimulado === "function" && planLeerSimulado() &&
+      (!esAdmin || !esCuentaDePruebas())) {
+    planSimular("");
+  }
+
+  if (!esAdmin) return;
+  if (typeof renderAjustes === "function") renderAjustes();
+  /* Y el rótulo de pruebas, que también cuelga de esto. Sin esta línea no
+     aparecía nunca: cuando la sesión se abre, `esAdmin` todavía vale false, y
+     `pintarAvisoPruebas` ya había pasado por ahí decidiendo que no. */
+  if (typeof pintarAvisoPruebas === "function") pintarAvisoPruebas();
 }
 
 /* ---- Piezas de dibujo ----
@@ -133,6 +153,54 @@ function panelListaBarras(filas, claveNombre, claveValor, vacio) {
   }).join("") + `</div>`;
 }
 
+/* ---- El modo de pruebas ----
+   Vive aquí y no en Mi perfil porque solo le sirve a quien revisa Norata, y
+   porque uno de sus dos efectos es quitar la confirmación de borrar: eso no
+   puede estar al alcance de alguien que entró a cambiarse el apodo.
+
+   Dos cosas dentro, y la segunda cuelga de la primera:
+
+     el interruptor   marca esta cuenta como de pruebas (rótulo arriba, y
+                      borrar deja de pedir el correo)
+     los planes       enseña la app como si tuvieras otro plan
+
+   Los planes solo aparecen con el modo encendido, y no es por orden: el rótulo
+   de arriba es lo único que avisa de que el plan que estás viendo no es el
+   tuyo. Sin el modo no hay rótulo, y una app que miente sin nada que lo diga
+   es peor que no poder probarla. */
+function panelPruebasHTML() {
+  const on = typeof esCuentaDePruebas === "function" && esCuentaDePruebas();
+  const cual = typeof planLeerSimulado === "function" ? planLeerSimulado() : "";
+  const lista = typeof PLANES_SIMULABLES !== "undefined" ? PLANES_SIMULABLES : [];
+
+  return `<div class="panel">
+      <h3>Modo de pruebas</h3>
+      <p class="settings-note">Solo lo ves tú, y solo mientras esta cuenta sea administradora. No cambia nada en el servidor: lo que hay aquí decide qué se DIBUJA, no lo que la base de datos cree.</p>
+
+      <div class="field">
+        <span class="lbl">Esta cuenta</span>
+        <div class="seg">
+          <button${on ? "" : ' class="on"'} onclick="marcarCuentaDePruebas(false)">Normal</button>
+          <button${on ? ' class="on"' : ""} onclick="marcarCuentaDePruebas(true)">De pruebas</button>
+        </div>
+        <div class="field-hint">${on
+          ? "Verás un marco punteado amarillo mientras la uses, y borrar todo no pedirá confirmación extra."
+          : "Borrar todo te pedirá escribir tu correo. Es a propósito: obliga a mirar en qué cuenta estás."}</div>
+      </div>
+
+      ${on ? `<div class="field" style="margin-bottom:0">
+        <span class="lbl">Ver la app como si tuviera</span>
+        <div class="pn-planes">` +
+          lista.map(x => `<button class="${cual === x.id ? "on" : ""}"
+            onclick="planSimular('${x.id}')">${escapeHtml(x.rotulo)}</button>`).join("") +
+        `</div>
+        <div class="field-hint">${cual
+          ? "Estás viendo la app como <b>" + escapeHtml(planNombreSimulado()) + "</b>. Se cae sola al cerrar la pestaña, y no toca lo que pagaste."
+          : "Los topes, las pantallas y los avisos de cada plan, sin tener que comprarlos. Vive en la pestaña: aguanta una recarga y muere al cerrarla."}</div>
+      </div>` : ""}
+    </div>`;
+}
+
 /* ---- La pantalla ---- */
 
 function renderPanelAdmin() {
@@ -141,8 +209,12 @@ function renderPanelAdmin() {
   if (!esAdmin) { caja.innerHTML = ""; return; }
 
   const m = metricasCache;
+  /* El modo de pruebas va PRIMERO y en los dos caminos. Es lo único de esta
+     sección con lo que se interactúa —el resto se lee— y no depende de que las
+     métricas hayan llegado: dejarlo debajo de una tabla que todavía se está
+     pidiendo lo escondía justo cuando hace falta. */
   if (!m) {
-    caja.innerHTML = `<div class="panel">
+    caja.innerHTML = panelPruebasHTML() + `<div class="panel">
         <h3>Los números</h3>
         <p class="settings-note">Se piden al servidor cuando abres esta sección.</p>
         <button class="btn btn-soft btn-block" onclick="cargarMetricas()">Cargar los números</button>
@@ -155,7 +227,7 @@ function renderPanelAdmin() {
   const tropiezos = m.tropiezos || [];
   const sinVer = tropiezos.filter(t => !t.visto).length;
 
-  caja.innerHTML = `
+  caja.innerHTML = panelPruebasHTML() + `
     <div class="panel">
       <h3>La gente</h3>
       <div class="pn-kpis">

@@ -52,6 +52,42 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.12 · 27 ago 2026
+El modo de pruebas se muda a la trastienda, y trae los planes puestos.
+
+- **Ver la app como si tuvieras otro plan.** Ocho estados —Gratuito, Pro
+  mensual, Pro anual, Fundador, y los tres que no se pueden provocar a
+  voluntad: cancelándose, sin pagar y terminado—. No se pueden tener las tres
+  membresías compradas a la vez, y sin esto la única forma de ver esas
+  pantallas era esperar a que le pasaran a alguien. **No abre nada:** cambia lo
+  que la app DIBUJA, no lo que el servidor cree; las ramas de más siguen sin
+  poder crearse contra la base de datos. Vive en `sessionStorage` —aguanta una
+  recarga, para poder navegar mirando, y muere al cerrar la pestaña— y **nunca
+  toca la copia de `localStorage`**: si llegara ahí, cerrar la pestaña te
+  dejaría creyéndote fundador una semana (ver `PLAN_CADUCA`).
+- **`PLAN_REAL`**, que es lo que dijo el servidor sin la simulación encima. Sin
+  un sitio donde siga estando la verdad no se puede volver a ella sin preguntar
+  otra vez. Fuera del modo de pruebas los dos valen lo mismo siempre.
+- **El modo de pruebas ahora cuelga de ser administrador**, y su interruptor se
+  fue de «Mi perfil» a «Norata por dentro». El botón estaba a la vista de
+  cualquiera y era un botón raro: nadie más que Eduardo tiene dos cuentas de
+  Norata, así que a todo el mundo le preguntaba algo que no le pasa — y el «sí»
+  de ese botón **quita la confirmación de borrar**. Ofrecerle eso a un
+  desconocido es ofrecerle la forma más rápida de perderlo todo.
+- **Dos cierres para que no se pueda mirar una app que miente sin avisar.**
+  Apagar el modo se lleva por delante el plan simulado; y si el servidor
+  contesta que esta cuenta ya no es administradora, `revisarAdmin` borra la
+  simulación que hubiera guardada. El rótulo de arriba es lo ÚNICO que avisa, y
+  cuelga de lo mismo: sin rótulo, no hay simulación.
+- **El rótulo dice las dos cosas**: «Cuenta de pruebas · viendo como Fundador».
+  Con el plan simulado, «Cuenta de pruebas» a secas se queda corto — lo que
+  engaña no es la cuenta, es el plan, y hay que poder leerlo sin abrir Ajustes.
+- **`administracion.sql` gana la receta de mudarse de cuenta** (apartado 5). El
+  orden importa y equivocarse deja la app sin ningún administrador: el `insert`
+  saca el id de `auth.users`, así que si la cuenta nueva todavía no ha entrado
+  nunca a Norata añade **cero filas sin dar error**, y el `delete` que va
+  después te deja fuera.
+
 ### 0.7.11 · 27 ago 2026
 Los planes se llaman como se llaman, y por fin se pueden comparar.
 

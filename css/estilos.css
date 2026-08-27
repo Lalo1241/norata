@@ -3761,6 +3761,38 @@
     cursor: pointer;
   }
   .seg button.on { border-color: var(--mint); background: var(--mint-soft); color: var(--mint); }
+
+  /* ---------- Los planes que se pueden fingir ----------
+     Ocho botones no caben en una fila de `.seg`, que no dobla a propósito —un
+     segmentado que se parte en dos renglones deja de leerse como un grupo de
+     opciones excluyentes—. Aquí sí son excluyentes y sí son ocho, así que
+     doblan en rejilla y el elegido se marca igual que en el segmentado.
+
+     En luciérnaga y no en menta: todo lo que se enciende en esta sección es de
+     la trastienda, y el marco de pruebas de arriba ya es amarillo. Que el
+     botón y el rótulo de la pantalla digan lo mismo con el mismo color es lo
+     que evita olvidarse de que está puesto. */
+  .pn-planes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 7px;
+  }
+  .pn-planes button {
+    font-family: inherit;
+    font-size: 12.5px; font-weight: 650;
+    padding: 9px 10px;
+    border-radius: 11px;
+    border: 1px solid var(--line);
+    background: var(--card2);
+    color: var(--muted);
+    cursor: pointer;
+    text-align: center;
+  }
+  .pn-planes button.on {
+    border-color: var(--fire);
+    background: var(--fire-soft);
+    color: var(--fire);
+  }
   .daypick { display: flex; gap: 6px; margin-top: 8px; }
   .daypick button {
     flex: 1;

@@ -353,3 +353,55 @@ grant execute on function public.tropiezos_vistos() to authenticated;
 --
 --   delete from public.administradores where user_id = (
 --     select id from auth.users where email = 'CORREO@AQUI');
+
+
+-- ============================================================
+-- 5. Mudarse de cuenta: pasar el permiso de una a otra
+-- ============================================================
+--
+-- Se hizo el 27 ago 2026, al separar la cuenta de trabajo (norata.app@gmail.com)
+-- de la personal (jcamarilloperez@gmail.com). Queda escrito porque el orden
+-- importa y equivocarse deja la app SIN NINGÚN administrador, que es un lío:
+-- no hay pantalla para arreglarlo, solo esta puerta de servicio.
+--
+-- **Primero lo que casi nadie mira, y es lo que rompe la operación:** el
+-- `insert` de abajo saca el `id` de `auth.users`, así que **la cuenta nueva
+-- tiene que existir ya**. Si todavía no has entrado a Norata con ella, el
+-- select no encuentra nada, el insert añade CERO filas —sin error, sin
+-- avisar— y si a continuación corres el delete te quedas sin administrador.
+--
+-- El orden correcto es: alta primero, comprobar, y bajar la vieja al final.
+-- Nunca al revés, y nunca las dos en la misma pasada de Run.
+--
+--   1) Entra a Norata con la cuenta NUEVA, aunque sea para cerrar sesión
+--      enseguida. Con eso ya existe en `auth.users`.
+--
+--   2) Dale de alta:
+--
+--        insert into public.administradores (user_id, nota)
+--        select id, 'Norata (trabajo)' from auth.users
+--         where email = 'norata.app@gmail.com'
+--        on conflict (user_id) do nothing;
+--
+--   3) COMPRUEBA que quedaron DOS filas antes de tocar nada más. Si aquí solo
+--      sale una, el paso 1 no se hizo: para y vuelve a él.
+--
+--        select a.nota, u.email, a.desde
+--          from public.administradores a
+--          join auth.users u on u.id = a.user_id
+--         order by a.desde;
+--
+--   4) Y solo entonces, quita la vieja:
+--
+--        delete from public.administradores where user_id = (
+--          select id from auth.users where email = 'jcamarilloperez@gmail.com');
+--
+--   5) Vuelve a correr el select del paso 3: tiene que quedar UNA fila, la
+--      nueva. Después, recarga la app en las dos cuentas — la de trabajo gana
+--      la sección «Norata por dentro» y la personal la pierde.
+--
+-- Y una consecuencia que conviene tener presente, porque es deseada: el modo
+-- de pruebas cuelga de esto (ver `esCuentaDePruebas` en `js/10c-portada.js`).
+-- La cuenta personal deja de poder marcarse como de pruebas, así que borrar
+-- todo en ella vuelve a pedir el correo escrito. Es justo el accidente del que
+-- protege.
