@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.10";
+const CACHE = "norata-0.7.10.1";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -54,12 +54,54 @@ self.addEventListener("activate", (e) => {
    devolver una versión vieja aunque hubiera conexión: la app quedaba
    congelada en una build anterior sin que nada lo delatara. La copia en
    CacheStorage sigue existiendo, pero solo como respaldo sin conexión. */
+
+/* Solo lo nuestro. Antes este service worker se metía en TODAS las peticiones,
+   incluidas las de Supabase, y guardaba en la caché lo que contestara el
+   servidor de datos. Eso es de otra casa: una respuesta de la base de datos no
+   es un archivo de la app, guardarla no sirve para nada sin conexión —hace
+   falta la sesión— y devolver una copia vieja de una consulta es peor que
+   devolver el error. Que vayan directas a la red, como cualquier otra página
+   haría sin service worker de por medio. */
+function esNuestro(req) {
+  try {
+    return new URL(req.url).origin === self.location.origin;
+  } catch (e) {
+    return false;
+  }
+}
+
+/* Una respuesta que NO se puede guardar es cualquiera que no venga bien: un
+   404, un 500, o la página de error que devuelve el servidor mientras
+   despliega. Comprobarlo es lo que faltaba y lo que costó un susto.
+
+   Esto es lo que pasaba: GitHub Pages tarda un minuto largo en publicar, y
+   quien recargue justo en ese hueco puede pedir un archivo que todavía no
+   está. El servidor contesta 404 con una página de HTML; el navegador la
+   ejecuta como si fuera JavaScript, no define nada, y la app arranca a medias
+   —«perkStatus is not defined», que es la primera función que falta al pintar
+   el Resumen—. Hasta aquí es mala suerte y se arregla recargando.
+
+   Lo que lo convertía en un problema de verdad es que esa página de error se
+   GUARDABA en la caché igual que un archivo bueno, así que recargar seguía
+   sirviendo el error hasta la siguiente versión. Ahora una respuesta mala ni
+   se guarda ni se sirve si hay una copia buena de antes.
+
+   Las opacas (`type === "opaque"`) se dejan pasar aparte: vienen de otro
+   origen sin CORS y su `status` es siempre 0, así que preguntarles si están
+   bien no tiene respuesta. Con `esNuestro` ya no deberían llegar aquí, pero la
+   comprobación se queda por si algún día vuelve a colarse alguna. */
+function seguardase(res) {
+  return !!res && (res.ok || res.type === "opaque");
+}
+
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
+  if (!esNuestro(e.request)) return;
 
   if (SIEMPRE_DE_CACHE.test(new URL(e.request.url).pathname)) {
     e.respondWith(
       caches.match(e.request).then((hit) => hit || fetch(e.request).then((res) => {
+        if (!seguardase(res)) return res;
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(e.request, copy));
         return res;
@@ -71,10 +113,17 @@ self.addEventListener("fetch", (e) => {
   e.respondWith(
     fetch(e.request, { cache: "no-store" })
       .then((res) => {
+        /* Mala: se prefiere lo que ya había, y si no había nada se devuelve el
+           error tal cual — que al menos es la verdad de lo que contestó el
+           servidor y sale en la pestaña de red. */
+        if (!seguardase(res)) return caches.match(e.request).then((hit) => hit || res);
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(e.request, copy));
         return res;
       })
-      .catch(() => caches.match(e.request))
+      /* Sin red. `caches.match` devuelve `undefined` cuando tampoco hay copia,
+         y un `undefined` dentro de `respondWith` revienta con un error de tipo
+         que no dice nada de lo que pasó. */
+      .catch(() => caches.match(e.request).then((hit) => hit || Response.error()))
   );
 });

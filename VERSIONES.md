@@ -52,6 +52,29 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.10.1 · 27 ago 2026
+El service worker dejaba pegada la página de error.
+
+- **Una respuesta mala ya no se guarda en la caché.** GitHub Pages tarda un
+  minuto largo en publicar, y quien recargue justo en ese hueco puede pedir un
+  archivo que todavía no está: el servidor contesta 404 con una página de
+  HTML, el navegador la ejecuta como si fuera JavaScript y la app arranca a
+  medias — «perkStatus is not defined», que es la primera función que falta al
+  pintar el Resumen. Hasta ahí es mala suerte y se arregla recargando. Lo que
+  lo hacía grave es que el service worker **guardaba esa página de error igual
+  que un archivo bueno**, así que recargar seguía sirviendo el error hasta la
+  siguiente versión. Ahora se comprueba el estado: lo que no viene bien ni se
+  guarda ni se sirve si hay una copia buena de antes.
+- **El service worker deja de meterse en las peticiones de Supabase.** Se
+  metía en todas y guardaba en la caché lo que contestara el servidor de
+  datos, que es de otra casa: no sirve para nada sin conexión —hace falta la
+  sesión— y devolver una copia vieja de una consulta es peor que devolver el
+  error. Ahora solo toca lo del propio origen.
+- **Sin red y sin copia, un error de verdad.** `caches.match` devuelve
+  `undefined` cuando no hay nada guardado, y un `undefined` dentro de
+  `respondWith` reventaba con un error de tipo que no decía nada de lo que
+  había pasado.
+
 ### 0.7.10 · 27 ago 2026
 Ajustes vuelve a ser una pantalla, y el plan por fin dice algo.
 
