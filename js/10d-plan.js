@@ -758,8 +758,7 @@ function planActivoHTML() {
     `<button class="btn btn-soft btn-block" style="margin-top:14px" onclick="irAlPortal(this)">${
       PLAN.plan === "fundador" ? "Ver mi recibo" : "Editar suscripción"
     }</button>
-     <p class="settings-note plan-pie">Lo abre Stripe, que es quien cobra: ahí se cambia la tarjeta, se ven los recibos y se cancela. Funciona aunque Norata esté caída.</p>` +
-    planLegalHTML();
+     ` + planPortalNotaHTML();
 }
 
 /* El rótulo de la tarjeta destacada. "El que sale mejor" sonaba a rebaja de
@@ -781,6 +780,32 @@ function planTarjetaHTML(k) {
       <button class="btn ${p.destacado ? "btn-primary" : "btn-soft"} btn-block"
         onclick="irAPagarDesdeAjustes('${k}', this)">Elegir</button>
     </div>`;
+}
+
+/* ---- El aviso de quien ya paga ----
+   Aquí salían DOS avisos seguidos y ninguno de los dos servía. El primero
+   contaba lo mismo que el botón que tenía encima; el segundo era el pie legal
+   de las tarjetas de precio —IVA incluido, pagos por Stripe, cifrado— puesto
+   en una pantalla **donde no se exhibe ningún precio**, así que informaba de
+   condiciones de una compra que no está ocurriendo.
+
+   Lo que sí hace falta decir es a dónde lleva el botón antes de pulsarlo: sale
+   de Norata y aterriza en un sitio con otro nombre y otro aspecto, y encontrar
+   los datos de tu tarjeta en una página que no reconoces asusta con razón.
+
+   El tono es más formal que el resto de la app, y es a propósito: Eduardo lo
+   pidió así. Donde se habla de dinero, la cercanía suena a que se le está
+   quitando importancia a algo. Se sigue tuteando, que eso no se negocia. */
+function planPortalNotaHTML() {
+  const fundador = PLAN.plan === "fundador";
+  const accion = fundador ? "Ver mi recibo" : "Editar suscripción";
+  const dentro = fundador
+    ? "Ahí puedes consultar y descargar el comprobante de tu pago."
+    : "Ahí puedes actualizar tu método de pago, consultar tus recibos y cancelar la renovación cuando lo decidas.";
+
+  return `<p class="settings-note plan-pie">${escapeHtml(accion)} abre el portal de Stripe,
+    la plataforma que procesa los pagos de Norata. ${escapeHtml(dentro)}
+    Tus datos bancarios se administran únicamente en Stripe y no se almacenan en Norata.</p>`;
 }
 
 /* ---- El pie legal ----
@@ -875,29 +900,43 @@ function planTablaHTML() {
 
 /* Los dos botones desactivan mientras esperan. Sin esto, el segundo entra a
    Stripe llevándose por delante al primero: la respuesta tarda un segundo
-   largo y un segundo largo con un botón que no reacciona invita a insistir. */
+   largo y un segundo largo con un botón que no reacciona invita a insistir.
+
+   Y no basta con desactivarlo: un botón apagado que cambia de palabra puede
+   leerse como que se rompió. La rueda girando es lo que dice «esto sigue
+   pasando», que es justo lo que hay que contestar mientras se pide la
+   dirección al servidor y el navegador empieza a cambiar de página. */
+function botonEsperando(btn, esperando) {
+  if (!btn) return;
+  if (esperando) {
+    /* Se guarda el HTML y no el texto: estos botones pueden llevar dentro algo
+       más que palabras, y restaurar solo el texto los dejaría pelados. */
+    btn.dataset.antes = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-rueda" aria-hidden="true"></span>Cargando…';
+    return;
+  }
+  if (btn.dataset.antes != null) btn.innerHTML = btn.dataset.antes;
+  delete btn.dataset.antes;
+  btn.disabled = false;
+}
+
 async function irAPagarDesdeAjustes(cual, btn) {
-  const antes = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = "Abriendo…";
+  botonEsperando(btn, true);
   try {
     await irAPagar(cual);
   } catch (e) {
     toast(e.message, "aviso");
-    btn.disabled = false;
-    btn.textContent = antes;
+    botonEsperando(btn, false);
   }
 }
 
 async function irAlPortal(btn) {
-  const antes = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = "Abriendo…";
+  botonEsperando(btn, true);
   try {
     await abrirPortalDePago();
   } catch (e) {
     toast(e.message, "aviso");
-    btn.disabled = false;
-    btn.textContent = antes;
+    botonEsperando(btn, false);
   }
 }
