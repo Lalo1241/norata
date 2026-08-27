@@ -34,25 +34,43 @@
    dice Stripe, y la app nunca le manda un importe: le manda cuál de los tres
    planes quiere. Si algún día no coinciden, el que manda es Stripe y aquí
    hay un texto viejo que corregir. */
+/* Tres formas de pagar, DOS niveles. Mensual y anual son el mismo Pro: lo que
+   cambia es cada cuánto se cobra, no lo que se abre (ver `LIMITES`, que tiene
+   dos entradas y no tres). Por eso se llaman "Pro mensual" y "Pro anual" y no
+   "Mensual" y "Anual" a secas: con los nombres sueltos parecían dos productos
+   distintos y había que leerse las dos tarjetas enteras para descubrir que
+   traen lo mismo.
+
+   Los niveles, para nombrarlos siempre igual en toda la app: **Gratuito, Pro y
+   Fundador.** "Plan libre" y "plan completo" eran dos nombres más para lo
+   mismo y no se corresponden con nada de lo que se cobra.
+
+   El precio lleva MXN escrito. Un "$69" a secas lo lee cada quien en su
+   moneda, y a quien lo lea en dólares le va a parecer que Norata cuesta mil
+   trescientos pesos. */
 const PLANES = {
   mensual: {
-    nombre: "Mensual",
-    precio: "$69",
+    nombre: "Pro mensual",
+    precio: "$69 MXN",
     periodo: "al mes",
     pie: "Se renueva solo. Cancelas cuando quieras."
   },
   anual: {
-    nombre: "Anual",
-    precio: "$590",
+    nombre: "Pro anual",
+    precio: "$590 MXN",
     periodo: "al año",
-    pie: "Dos meses de regalo frente al mensual.",
-    destacado: true
+    pie: "Dos meses de regalo frente al mensual."
   },
   fundador: {
     nombre: "Fundador",
-    precio: "$890",
+    precio: "$890 MXN",
     periodo: "una sola vez",
-    pie: "Para siempre, con cupo limitado.",
+    /* El destacado es este y no el anual, y el motivo cabe en una línea: los
+       otros dos son suscripciones y este no. Se paga una vez, no se renueva,
+       no hay nada que cancelar y no puede subir de precio. Eso es mejor oferta
+       que dos meses de regalo, aunque cueste más de entrada. */
+    pie: "Pago único. No se renueva ni se cancela: es tuyo y ya.",
+    destacado: true,
     cupo: true
   }
 };
@@ -190,22 +208,22 @@ function planIncluyeResumen(cual) {
    dónde se sigue. */
 function planMensaje(clave) {
   if (clave === "ramas") {
-    return "Tu árbol tiene una rama en el plan libre. Con el plan completo puedes abrir las que quieras.";
+    return "Tu árbol tiene una rama en el plan Gratuito. Con Pro puedes abrir las que quieras.";
   }
   if (clave === "talentos") {
-    return "Caben " + LIMITES.libre.talentos + " talentos por rama en el plan libre. " +
-      "Con el plan completo no hay tope.";
+    return "Caben " + LIMITES.libre.talentos + " talentos por rama en el plan Gratuito. " +
+      "Con Pro no hay tope.";
   }
   if (clave === "atico") {
-    return "El plan libre guarda el año en curso. Con el plan completo puedes volver a cualquier año.";
+    return "El plan Gratuito guarda el año en curso. Con Pro puedes volver a cualquier año.";
   }
   if (clave === "resumen") {
-    return "El resumen de la semana es de todos. El del mes y el del año vienen con el plan completo.";
+    return "El resumen de la semana es de todos. El del mes y el del año vienen con Pro.";
   }
   if (clave === "apariencia") {
-    return "Las paletas de color son de todos. Las apariencias completas vienen con el plan completo.";
+    return "Las paletas de color son de todos. Las apariencias completas vienen con Pro.";
   }
-  return "Esto viene con el plan completo.";
+  return "Esto viene con Pro.";
 }
 
 /* ---- Cómo se ve el plan, de un vistazo ----
@@ -253,12 +271,15 @@ function planTono() {
 function planEtiquetaCorta() {
   if (!PLAN.pro) {
     if (PLAN.compro && PLAN.compro !== "libre") return "Tu plan terminó";
-    return "Plan libre";
+    return "Gratuito";
   }
   if (PLAN.estado === "impago") return "Revisa tu pago";
   if (PLAN.plan === "fundador") return "Fundador";
   if (!PLAN.renueva && PLAN.vence_el) return "Hasta el " + fechaCorta(PLAN.vence_el);
-  return "Plan " + ((PLANES[PLAN.plan] || {}).nombre || PLAN.plan);
+  /* El nivel y no la cadencia: en una pastilla de once píxeles, "Pro" dice lo
+     que esta persona tiene y "Pro anual" gasta la mitad del hueco en decir
+     cada cuánto le cobran, que no es lo que se viene a mirar aquí. */
+  return "Pro";
 }
 
 /* La frase de debajo de "Mi plan" en el índice de Ajustes. Decía "Qué tienes
@@ -274,12 +295,15 @@ function planSub() {
     if (PLAN.compro && PLAN.compro !== "libre") {
       return "Tu plan " + ((PLANES[PLAN.compro] || {}).nombre || PLAN.compro) + " terminó";
     }
-    return "Plan libre · una rama y " + LIMITES.libre.talentos + " talentos";
+    return "Gratuito · una rama y " + LIMITES.libre.talentos + " talentos";
   }
   if (PLAN.estado === "impago") return "No pudimos cobrar tu último recibo";
-  if (PLAN.plan === "fundador") return "Fundador · " + p.precio + ", una sola vez";
-  if (!PLAN.renueva && PLAN.vence_el) return p.nombre + " · termina el " + fechaCorta(PLAN.vence_el);
-  return p.nombre + " · " + p.precio + " " + p.periodo;
+  /* «Vigente» y no el precio. El precio ya está dentro, en la cabecera y en el
+     renglón de «qué pagas», y aquí compite con el único dato que esta línea
+     tiene que dar: si lo que tienes sigue en pie o se está acabando. La única
+     vez que sale una fecha es cuando hay una fecha que mirar. */
+  if (!PLAN.renueva && PLAN.vence_el) return p.nombre + " · Termina el " + fechaCorta(PLAN.vence_el);
+  return (p.nombre || PLAN.plan) + " · Vigente";
 }
 
 /* La pastilla de la ficha del mini menú: la piedra y el nombre corto. */
@@ -295,7 +319,7 @@ function planChapaHTML() {
 function planEtiqueta() {
   if (!PLAN.pro) {
     if (PLAN.compro && PLAN.compro !== "libre") return "Tu plan " + (PLANES[PLAN.compro] || {}).nombre + " terminó";
-    return "Plan libre";
+    return "Gratuito";
   }
   if (PLAN.plan === "fundador") return "Fundador";
   if (!PLAN.renueva && PLAN.vence_el) {
@@ -491,21 +515,13 @@ function renderPanelPlan() {
     `<h3>Tu plan</h3>` +
     planCabeceraHTML() +
     planIncluyeHTML(false) +
-    `<h4 class="plan-h">Qué se abre con el plan completo</h4>
+    planCompararHTML() +
+    `<h4 class="plan-h">Qué se abre con Pro</h4>
      <p class="settings-note">Las ramas que quieras, sin tope de talentos, el ático entero y los resúmenes del mes y del año. Lo que ya escribiste no se toca nunca: al cambiar de plan no se borra nada.</p>
      <div class="plan-cards">` +
     Object.keys(PLANES).map(k => planTarjetaHTML(k)).join("") +
-    `</div>
-     <p class="settings-note plan-pie">El cobro lo hace Stripe. Tu tarjeta no pasa por Norata.</p>`;
-
-  /* Los lugares de fundador se piden después de pintar y sin esperarlos: es un
-     número de adorno, y si el servidor no contesta la tarjeta se queda como
-     está en vez de decir "quedan 0" y espantar a quien iba a comprar. */
-  lugaresDeFundador().then(n => {
-    const el = document.getElementById("plan-cupo");
-    if (!el || n === null) return;
-    el.textContent = n > 0 ? "Quedan " + n + " lugares" : "Ya se agotaron";
-  });
+    `</div>` +
+    planLegalHTML();
 }
 
 /* ---- La cabecera: qué plan, cuánto cuesta y qué le pasa ----
@@ -524,13 +540,13 @@ function planCabeceraHTML() {
   let titulo, precio, nota;
 
   if (libre) {
-    titulo = "Plan libre";
+    titulo = "Gratuito";
     precio = "Sin costo";
     if (PLAN.compro && PLAN.compro !== "libre") {
       nota = "Tu plan " + ((PLANES[PLAN.compro] || {}).nombre || PLAN.compro) +
-        " terminó. No se borró nada: lo que pasa del plan libre sigue a la vista, en solo lectura, y vuelve a moverse en cuanto renueves.";
+        " terminó. No se borró nada: lo que pasa del plan Gratuito sigue a la vista, en solo lectura, y vuelve a moverse en cuanto renueves.";
     } else {
-      nota = "Es tuyo para siempre y sin fecha. Norata entera funciona así; el plan completo solo quita los topes.";
+      nota = "Es tuyo para siempre y sin fecha. Norata entera funciona así; Pro solo quita los topes.";
     }
   } else {
     titulo = p.nombre || PLAN.plan;
@@ -603,25 +619,125 @@ function planActivoHTML() {
     filas.map(f => `<div><dt>${escapeHtml(f[0])}</dt><dd>${escapeHtml(f[1])}</dd></div>`).join("") +
     `</dl>` +
     planIncluyeHTML(true) +
+    planCompararHTML() +
     /* Fundador no tiene nada que gestionar —ni tarjeta que cambiar ni
        suscripción que cancelar—, pero sí recibos que mirar, así que el botón
        se queda para todos y solo cambia lo que promete. */
     `<button class="btn btn-soft btn-block" style="margin-top:14px" onclick="irAlPortal(this)">${
-      PLAN.plan === "fundador" ? "Ver mi recibo" : "Cambiar tarjeta o cancelar"
+      PLAN.plan === "fundador" ? "Ver mi recibo" : "Editar suscripción"
     }</button>
-     <p class="settings-note plan-pie">Lo abre Stripe, que es quien cobra. Tu tarjeta no pasa por Norata, y cancelar funciona aunque Norata esté caída.</p>`;
+     <p class="settings-note plan-pie">Lo abre Stripe, que es quien cobra: ahí se cambia la tarjeta, se ven los recibos y se cancela. Funciona aunque Norata esté caída.</p>` +
+    planLegalHTML();
 }
 
+/* El rótulo de la tarjeta destacada. "El que sale mejor" sonaba a rebaja de
+   tienda; y además señalaba al anual, que sale mejor solo si comparas mes
+   contra mes. Fundador es el que recomendamos y el motivo es de otra clase:
+   no es una suscripción.
+
+   Aquí estaba también el contador de lugares (`#plan-cupo`), que pedía el
+   número al servidor y lo pintaba. Se retira: el cupo no se hace público por
+   ahora. `lugaresDeFundador()` se queda viva —la landing la usa— y la tarjeta
+   sigue diciendo que el cupo existe, que es verdad, sin dar la cifra. */
 function planTarjetaHTML(k) {
   const p = PLANES[k];
   return `<div class="plan-card${p.destacado ? " destacada" : ""}">
-      ${p.destacado ? '<span class="plan-tag">El que sale mejor</span>' : ""}
+      ${p.destacado ? '<span class="plan-tag">Recomendado</span>' : ""}
       <span class="plan-n">${escapeHtml(p.nombre)}</span>
       <span class="plan-p">${escapeHtml(p.precio)} <i>${escapeHtml(p.periodo)}</i></span>
       <span class="plan-d">${escapeHtml(p.pie)}</span>
-      ${p.cupo ? '<span class="plan-cupo" id="plan-cupo">&nbsp;</span>' : ""}
       <button class="btn ${p.destacado ? "btn-primary" : "btn-soft"} btn-block"
         onclick="irAPagarDesdeAjustes('${k}', this)">Elegir</button>
+    </div>`;
+}
+
+/* ---- El pie legal ----
+   Tres cosas que hay que decir donde se cobra, y que en una frase corrida se
+   leen como relleno. En bolitas se leen como lo que son: tres hechos sueltos.
+   Va en la sección de plan de los dos lados —quien ya paga tiene el mismo
+   derecho a acordarse de que el IVA está dentro— y sale de una sola función
+   para que no puedan acabar diciendo cosas distintas. */
+function planLegalHTML() {
+  const puntos = [
+    "IVA incluido",
+    "Pagos procesados por Stripe",
+    "Datos cifrados de extremo a extremo"
+  ];
+  return `<p class="settings-note plan-legal">` +
+    puntos.map(t => `<span>${escapeHtml(t)}</span>`).join("") +
+    `</p>`;
+}
+
+/* ---- Comparar los planes ----
+
+   Se despliega ahí mismo en vez de abrir una ventana. Una ventana obliga a
+   inventar un piso nuevo, a acordarse de pararla y soltarla, y sobre todo a
+   tapar justo las tarjetas de precio que la persona está comparando. Abierta
+   aquí, la tabla y las tarjetas conviven y se puede ir y volver con la vista.
+
+   La tabla no está escrita a mano: sale de `LIMITES`, que es lo que la app
+   aplica de verdad. Una tabla comparativa escrita aparte es la forma más
+   rápida de acabar prometiendo un tope que el código no respeta. */
+let planComparando = false;
+
+function planAlternarComparacion() {
+  planComparando = !planComparando;
+  renderPanelPlan();
+  /* Se deja la tabla a la vista al abrirla: en el teléfono el botón puede
+     quedar a media pantalla y lo que se despliega debajo nace fuera de ella. */
+  if (planComparando) {
+    const t = document.getElementById("plan-compara");
+    if (t && t.scrollIntoView) t.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+}
+
+function planCompararHTML() {
+  return `<button class="btn btn-soft btn-block plan-vs-btn" onclick="planAlternarComparacion()">${
+    planComparando ? "Ocultar la comparación" : "Comparar los planes"
+  }</button>` + (planComparando ? planTablaHTML() : "");
+}
+
+/* Las filas. Las cinco primeras las decide `LIMITES` y las demás son las que
+   no tienen tope en ningún plan —que son la mitad del mensaje: lo que se cobra
+   no es la app, son los topes—. Fundador copia la columna de Pro salvo donde
+   se dice lo contrario, porque ES Pro: lo que cambia es cómo se paga. */
+function planFilasComparadas() {
+  const l = LIMITES.libre, p = LIMITES.pro;
+  const ramas = (x) => x === Infinity ? "Las que quieras" : (x === 1 ? "Una" : String(x));
+  const tope = (x) => x === Infinity ? "Sin tope" : String(x);
+  const atico = (x) => x === Infinity ? "Todos los años" : "El año en curso";
+  const resu = (x) => x.length > 1 ? "Semana, mes y año" : "Solo el de la semana";
+  const apar = (x) => x ? "Todas" : "Solo las paletas de color";
+
+  return [
+    ["Ramas de talentos", ramas(l.ramas), ramas(p.ramas), ramas(p.ramas)],
+    ["Talentos por rama", tope(l.talentos), tope(p.talentos), tope(p.talentos)],
+    ["El ático", atico(l.atico), atico(p.atico), atico(p.atico)],
+    ["Resúmenes", resu(l.resumen), resu(p.resumen), resu(p.resumen)],
+    ["Apariencias", apar(l.apariencia), apar(p.apariencia), apar(p.apariencia)],
+    ["Misiones, habilidades y proyectos", "Sin tope", "Sin tope", "Sin tope"],
+    ["Sincronía entre dispositivos", "Incluida", "Incluida", "Incluida"],
+    ["Tu progreso y tu XP", "Tuyos", "Tuyos", "Tuyos"],
+    ["Cómo se paga", "No se paga", "Suscripción", "Una sola vez"],
+    /* El distintivo de fundador existe hoy y no es una promesa: el anillo
+       dorado alrededor del círculo de la cuenta y la piedra con corona en vez
+       de la tallada. Si algún día se le añade algo más, se añade aquí. */
+    ["Distintivo de fundador", "—", "—", "Anillo dorado y piedra con corona"]
+  ];
+}
+
+function planTablaHTML() {
+  const cols = ["Gratuito", "Pro", "Fundador"];
+  return `<div class="plan-vs" id="plan-compara">
+      <table>
+        <thead><tr><th></th>${cols.map(c => `<th>${escapeHtml(c)}</th>`).join("")}</tr></thead>
+        <tbody>` +
+    planFilasComparadas().map(f =>
+      `<tr><th scope="row">${escapeHtml(f[0])}</th>` +
+      f.slice(1).map(v => `<td>${escapeHtml(v)}</td>`).join("") +
+      `</tr>`).join("") +
+    `</tbody>
+      </table>
     </div>`;
 }
 

@@ -207,8 +207,19 @@ Cuatro cosas que hay que saber antes de tocarlo:
 
 ## El cobro
 
-Tres planes: mensual $69, anual $590 y **fundador $890 con cupo** (200, en
-`ajustes_negocio`). Se cobra con **Stripe**, desde la landing y desde la app:
+**Dos niveles y tres formas de pagar.** Los niveles son **Gratuito, Pro y
+Fundador**, y así se llaman en toda la app — «plan libre» y «plan completo»
+eran dos nombres más para lo mismo y ya no se usan. Mensual y anual son el
+MISMO Pro: lo que cambia es cada cuánto se cobra, no lo que se abre (por eso
+`LIMITES` tiene dos entradas y no tres, y las tarjetas dicen «Pro mensual» y
+«Pro anual»). Fundador es Pro sin fecha, pagado una vez, y es el que se
+recomienda: no es una suscripción.
+
+Precios **con MXN escrito** y con IVA dentro: $69 al mes, $590 al año y $890
+una sola vez. El cupo de fundador (200, en `ajustes_negocio`) existe pero **no
+se hace público**: `lugaresDeFundador()` sigue viva para la landing, y la app
+ya no pinta el contador. Se cobra con **Stripe**, desde la landing y desde la
+app:
 ninguna de las dos cobra nada, las dos le piden a la funcion `pagar` una
 direccion de stripe.com y llevan alli. La tarjeta no pasa por Norata.
 

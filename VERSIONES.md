@@ -52,6 +52,47 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.11 · 27 ago 2026
+Los planes se llaman como se llaman, y por fin se pueden comparar.
+
+- **Gratuito, Pro y Fundador.** Se acabaron el «plan libre» y el «plan
+  completo», que eran dos nombres más para lo mismo y no se correspondían con
+  nada de lo que se cobra. Mensual y anual son el MISMO Pro —lo que cambia es
+  cada cuánto se cobra, no lo que se abre—, así que las tarjetas dicen «Pro
+  mensual» y «Pro anual»: con los nombres sueltos parecían dos productos y
+  había que leerse las dos enteras para descubrir que traen lo mismo.
+- **Los precios llevan MXN escrito.** Un «$69» a secas lo lee cada quien en su
+  moneda, y en dólares Norata parece costar mil trescientos pesos.
+- **Pie legal en bolitas**: IVA incluido · Pagos procesados por Stripe · Datos
+  cifrados de extremo a extremo. En una frase corrida se leía como relleno.
+  Sale de una sola función y va en los dos lados de la sección — quien ya paga
+  tiene el mismo derecho a acordarse de que el IVA está dentro.
+- **«El que sale mejor» → «Recomendado», y pasa a Fundador.** Lo primero sonaba
+  a rebaja de tienda; lo segundo señalaba al anual, que sale mejor solo si
+  comparas mes contra mes. Fundador gana por otra razón: no es una suscripción,
+  no se renueva, no hay nada que cancelar y no puede subirle el precio.
+- **Fuera el contador de lugares.** El cupo no se hace público por ahora. La
+  tarjeta sigue diciendo que existe, sin la cifra; `lugaresDeFundador()` se
+  queda viva porque la landing la usa.
+- **«Editar suscripción»** en vez de «Cambiar tarjeta o cancelar». En Fundador
+  el botón sigue diciendo «Ver mi recibo», que es lo único que hay que hacer
+  ahí: no es una suscripción.
+- **La fila de Ajustes dice «Vigente» en vez del precio**, y la fecha solo sale
+  cuando hay una fecha que mirar («Pro anual · Termina el 27 de agosto de
+  2027», ahora con mayúscula). El precio ya está dentro dos veces y aquí
+  competía con el único dato que esa línea tiene que dar.
+- **Comparar los planes.** Un botón que despliega la tabla ahí mismo, sin
+  ventana: una ventana taparía justo las tarjetas que se están comparando, y
+  obligaría a inventar un piso nuevo. **La tabla sale de `LIMITES`**, que es lo
+  que la app aplica de verdad — una comparativa escrita aparte es la forma más
+  rápida de prometer un tope que el código no respeta. Se desplaza dentro de su
+  caja y nunca empuja la página de lado.
+- **El distintivo de fundador existe de verdad**, no es una promesa de la
+  tabla: anillo dorado alrededor del círculo de la cuenta (`.avatar.es-fundador`)
+  y la piedra con corona en vez de la tallada. El anillo se pone en
+  `avatarHTML` y no en `avatarPinta`, porque la portada dibuja el círculo de
+  quien entró la última vez y ahí todavía no se sabe qué plan tiene nadie.
+
 ### 0.7.10.1 · 27 ago 2026
 El service worker dejaba pegada la página de error.
 

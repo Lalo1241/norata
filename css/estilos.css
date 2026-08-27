@@ -4116,6 +4116,18 @@
     padding-bottom: 0.06em;
     user-select: none;
   }
+  /* ---------- El distintivo de fundador ----------
+     Dos aros y no uno: el de dentro es del color de la tarjeta y hace de hueco,
+     así el dorado no toca el color del círculo —que puede ser cualquiera de los
+     ocho, y pegado a un amarillo el anillo desaparecía—.
+
+     Con `box-shadow` y no con `border`: un borde de 2 px encogería el círculo
+     por dentro, y el diámetro lo fija el JavaScript en píxeles porque el mismo
+     avatar sale grande en Ajustes y pequeño en el menú. Y sin transición, que
+     el valor sale de una variable (ver la nota del modo claro). */
+  .avatar.es-fundador {
+    box-shadow: 0 0 0 2px var(--card2), 0 0 0 4px var(--fire);
+  }
 
   /* La bienvenida de la pantalla de entrada: sustituye al logo cuando ya
      sabemos quién vuelve. El logo se va porque el saludo dice lo mismo mejor
@@ -5139,3 +5151,70 @@
 .plan-card .btn { margin-top: 8px; }
 
 .plan-pie { margin-top: 12px; }
+
+/* ---------- El pie legal ----------
+   Tres hechos sueltos, no una frase. Las bolitas van con `::before` entre
+   renglones y no escritas en el texto, para que al doblarse en un teléfono no
+   quede una bolita huérfana al principio de la segunda línea. */
+.plan-legal {
+  display: flex; flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 12px;
+}
+.plan-legal span { display: inline-flex; align-items: center; gap: 10px; }
+.plan-legal span + span::before {
+  content: "•";
+  color: var(--faint);
+}
+
+/* ---------- Comparar los planes ----------
+   El botón manda: es lo último de «qué tienes» y lo primero de «qué hay». */
+.plan-vs-btn { margin-top: 14px; }
+
+/* La tabla se desplaza dentro de su caja y nunca empuja la página de lado:
+   son cuatro columnas y en un teléfono de 360 px no caben por mucho que se
+   aprieten. `min-width` para que no se estrangulen intentándolo. */
+.plan-vs {
+  margin-top: 12px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card2);
+}
+.plan-vs table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+}
+.plan-vs th, .plan-vs td {
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--line);
+}
+.plan-vs tbody tr:last-child th,
+.plan-vs tbody tr:last-child td { border-bottom: none; }
+/* La cabecera se queda a la vista al desplazar de lado: sin esto, a media
+   tabla ya no se sabe qué columna es cuál. */
+.plan-vs thead th {
+  position: sticky; top: 0;
+  background: var(--card2);
+  font-weight: 700; font-size: 12px;
+  letter-spacing: .04em; text-transform: uppercase;
+  color: var(--muted);
+}
+/* La columna de la izquierda dice de qué habla la fila, así que se queda
+   quieta mientras las otras tres pasan por debajo. */
+.plan-vs tbody th {
+  position: sticky; left: 0;
+  background: var(--card2);
+  font-weight: 600;
+  color: var(--muted);
+  min-width: 190px;
+}
+.plan-vs td { color: var(--text); font-weight: 600; }
+/* Fundador es la que recomendamos: se marca con el mismo dorado que la piedra
+   y el anillo, para que las tres cosas digan lo mismo sin explicarlo. */
+.plan-vs td:last-child { color: var(--fire); }
+.plan-vs thead th:last-child { color: var(--fire); }

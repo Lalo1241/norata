@@ -168,17 +168,31 @@ function avatarInicial(saludo, correo) {
    Los datos se pasan sueltos en vez de leerse de la sesión porque hay un
    sitio donde todavía no hay sesión: la pantalla de entrada, que enseña el
    círculo de quien entró la última vez en este dispositivo. */
-function avatarPinta(semilla, saludo, correo, tam) {
+function avatarPinta(semilla, saludo, correo, tam, extra) {
   const d = tam || 44;
-  return '<span class="avatar" aria-hidden="true" style="' +
+  return '<span class="avatar' + (extra ? " " + extra : "") + '" aria-hidden="true" style="' +
     'width:' + d + 'px;height:' + d + 'px;font-size:' + Math.round(d * 0.42) + 'px;' +
     'background:' + avatarColor(semilla || correo) + '">' +
     escapeHtml(avatarInicial(saludo, correo)) + '</span>';
 }
 
+/* El anillo dorado del fundador. Es la mitad de su distintivo —la otra mitad
+   es la piedra con corona en vez de la tallada— y vive aquí y no en cada sitio
+   que dibuja un círculo, para que no haya una pantalla donde se le olvide.
+
+   Solo se pone donde hay sesión: `avatarPinta` se usa además en la portada,
+   que enseña el círculo de quien entró la última vez en este aparato, y ahí
+   todavía no se sabe qué plan tiene nadie. Prometerle un anillo a alguien
+   antes de comprobarlo sería enseñárselo y quitárselo al entrar.
+
+   El `typeof` no es por elegancia: `10d-plan.js` se carga después que este
+   archivo. Al llamarse desde un render ya existe, pero la guarda evita que un
+   orden distinto en el futuro rompa el avatar entero por un adorno. */
 function avatarHTML(tam) {
   const cfg = sync.cfg || {};
-  return avatarPinta((cfg.sesion || {}).uid, perfilActual().saludo, cfg.correo, tam);
+  const fundador = typeof planNivel === "function" && planNivel() === "fundador";
+  return avatarPinta((cfg.sesion || {}).uid, perfilActual().saludo, cfg.correo, tam,
+    fundador ? "es-fundador" : "");
 }
 
 /* ================= Quién entró la última vez =================
