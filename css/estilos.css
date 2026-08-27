@@ -5184,12 +5184,46 @@
 
 .plan-pie { margin-top: 12px; }
 
+/* ---------- La rueda del botón que espera ----------
+   Sale al pedirle a Stripe la dirección del portal. La palabra sola no basta:
+   «Cargando…» en un botón apagado se puede leer como que se atascó, y esto
+   tarda un segundo largo porque hay una llamada al servidor y después un
+   cambio de página entero.
+
+   `currentColor` para que herede el color del botón —el de menta y el suave
+   son distintos— y `border-top-color: transparent` para abrir el hueco que
+   convierte el aro en rueda. Anima `transform`, que no sale de ninguna
+   variable: una animación sobre un valor heredado de `var()` se queda
+   congelada (ver la nota de los selectores). */
+.btn-rueda {
+  display: inline-block;
+  width: 14px; height: 14px;
+  margin-right: 9px;
+  vertical-align: -2px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: btn-rueda 0.7s linear infinite;
+}
+@keyframes btn-rueda { to { transform: rotate(360deg); } }
+/* Sin movimiento, la rueda se esconde en vez de quedarse quieta: un aro
+   partido e inmóvil parece un icono roto, y la palabra ya dice lo que pasa. */
+@media (prefers-reduced-motion: reduce) {
+  .btn-rueda { display: none; }
+}
+
 /* ---------- El pie legal ----------
    Tres hechos sueltos, no una frase. Las bolitas van con `::before` entre
    renglones y no escritas en el texto, para que al doblarse en un teléfono no
    quede una bolita huérfana al principio de la segunda línea. */
 .plan-legal {
   display: flex; flex-wrap: wrap;
+  /* Centrado. Alineado a la izquierda se leía como un párrafo más de la
+     pantalla; centrado bajo las tres tarjetas se lee como lo que es, el pie de
+     esa tabla de precios. `justify-content` para la fila y `text-align` para
+     cuando dobla en un teléfono y el último renglón queda corto. */
+  justify-content: center;
+  text-align: center;
   gap: 4px 10px;
   margin-top: 12px;
 }

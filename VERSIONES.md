@@ -52,6 +52,37 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.12.1 · 27 ago 2026
+Un solo aviso donde había dos, y el botón que espera lo dice.
+
+- **El pie legal va centrado.** Alineado a la izquierda se leía como un párrafo
+  más de la pantalla; centrado bajo las tres tarjetas se lee como lo que es, el
+  pie de esa tabla de precios.
+- **Con plan vigente salían DOS avisos seguidos y ninguno servía.** El primero
+  contaba lo mismo que el botón que tenía encima. El segundo era el pie legal de
+  las tarjetas —IVA incluido, pagos por Stripe, cifrado— puesto en una pantalla
+  **donde no se exhibe ningún precio**: informaba de las condiciones de una
+  compra que no está ocurriendo. Los dos fuera.
+- **En su lugar, a dónde lleva el botón.** Es lo único que hacía falta decir
+  antes de pulsarlo: sales de Norata y aterrizas en un sitio con otro nombre y
+  otro aspecto, y encontrar los datos de tu tarjeta en una página que no
+  reconoces asusta con razón. El texto lo pidió Eduardo **formal**, que es una
+  excepción deliberada al tono de la app: donde se habla de dinero, la cercanía
+  suena a quitarle importancia a algo. Se sigue tuteando. La frase se arma con
+  el nombre del botón, así que en Fundador dice «Ver mi recibo» y habla del
+  comprobante en vez de la renovación.
+- **«Cargando…» con una rueda girando**, en vez de «Abriendo…» a secas. Un botón
+  apagado que solo cambia de palabra se puede leer como que se rompió, y esto
+  tarda un segundo largo: hay una llamada al servidor y después un cambio de
+  página entero. `botonEsperando()` guarda el **HTML** y no el texto, para no
+  dejar pelado un botón que lleve algo dentro. Lo usan los dos caminos que van a
+  Stripe —el portal y las tres tarjetas de Elegir—, porque son el mismo gesto y
+  dos comportamientos distintos para lo mismo se acaban notando.
+- La rueda hereda `currentColor`, así que sale menta sobre el botón suave y
+  oscura sobre el macizo sin una sola regla de color; y con movimiento reducido
+  **se esconde** en vez de quedarse quieta — un aro partido e inmóvil parece un
+  icono roto, y la palabra ya dice lo que pasa.
+
 ### 0.7.12 · 27 ago 2026
 El modo de pruebas se muda a la trastienda, y trae los planes puestos.
 
