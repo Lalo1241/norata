@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.9.1";
+const VERSION = "0.7.10";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -82,6 +82,15 @@ const ICONS = {
   compass: '<circle cx="12" cy="12" r="10"/><path d="M16 8l-2.5 6L8 16l2.5-6z"/>',
   crown: '<path d="M3 18h18M4 18l-1-9 5 3 4-6 4 6 5-3-1 9z"/>',
   gem: '<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/>',
+  /* Los tres planes, en la misma piedra. Se leen en fila —libre, Pro,
+     fundador— y por eso comparten silueta: si cada nivel fuera un dibujo
+     distinto habria que aprenderse tres cosas en vez de notar que una crece.
+     El libre es la piedra desnuda, el Pro le talla las caras, y el fundador
+     le pone corona encima (que es lo unico que cabe arriba sin encoger la
+     piedra hasta que no se lea a 16 px). */
+  "plan-libre": '<path d="M7.5 3.5h9l4 5.5-8.5 11.5L3.5 9z"/>',
+  "plan-pro": '<path d="M7.5 3.5h9l4 5.5-8.5 11.5L3.5 9z"/><path d="M3.5 9h17M9.8 9L12 3.5l2.2 5.5-2.2 11.5z"/>',
+  "plan-fundador": '<path d="M8.5 10h7l3 4-6.5 7.5L5.5 14z"/><path d="M5.5 14h12"/><path d="M6.2 7.4l-1.2-5.2 3.9 2.6L12 1.4l3.1 3.4 3.9-2.6-1.2 5.2z"/>',
   gamepad: '<path d="M6 12h4M8 10v4M15.5 11h.01M18 13.5h.01"/><path d="M17.3 5H6.7a4.7 4.7 0 00-4.6 5.6l1 5A3 3 0 006 18c1 0 1.7-.4 2.3-1l1-1h5.4l1 1c.6.6 1.4 1 2.3 1a3 3 0 002.9-2.4l1-5A4.7 4.7 0 0017.3 5z"/>',
   star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 5.9-5.3-3-5.3 3 1.2-5.9L3.4 9.3l6-.7z"/>',
   bolt: '<path d="M13 2L5 14h6l-1 8 8-12h-6l1-8z"/>',
@@ -1048,7 +1057,6 @@ const CAPAS_QUE_TAPAN = [
   "#modal.show",            // confirmar
   "#tuto.show",             // el tutorial
   "#caja-modal.show",       // una caja del ático
-  "#ajustes-modal.show",    // la ventana de Ajustes
   "#scel.show",             // celebrar una racha
   "#fs-overlay.show",       // una rama a pantalla completa
   "#portada",               // entrar a la app

@@ -26,7 +26,14 @@
    correo que se manda es el de confirmar la cuenta. */
 
 const NOMBRE_MAX = 60;
-const APODO_MAX = 24;
+/* Veinte, y no veinticuatro. El apodo no vive solo en su campo: sale en el
+   saludo del Resumen, en la ficha del mini menú, en la cabecera de los
+   correos y en cualquier sitio estrecho que quede por venir. Con veinticuatro
+   ya se salía por el borde en la ficha de la cuenta —que mide 296 px con el
+   círculo delante—, y un rótulo que se corta con puntos suspensivos es peor
+   que uno que nunca llegó a caber. Veinte entra en todos los huecos que hay
+   hoy y deja margen para el siguiente. */
+const APODO_MAX = 20;
 
 /* Un nombre escrito por una persona llega con espacios de sobra, saltos de
    línea pegados y a veces caracteres invisibles. Se limpia aquí y no en cada

@@ -52,6 +52,52 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.10 · 27 ago 2026
+Ajustes vuelve a ser una pantalla, y el plan por fin dice algo.
+
+- **Se retira la ventana emergente de Ajustes.** La sección ya no se abre en
+  una caja flotante: el mini menú del engrane lleva a la pantalla de Ajustes,
+  con su índice a la izquierda, que es la forma que tenía antes. Esto arregla
+  de paso el fallo que lo destapó —minimizar el navegador estando dentro de la
+  ventana dejaba los ajustes a medio camino entre los dos tamaños— porque la
+  mudanza que se rompía ya no existe: los bloques no viajan a ningún sitio.
+  **El mini menú se queda**; lo único que cambia es dónde aterriza.
+  Desaparecen `#ajustes-modal`, `#ajustes-host`, las funciones
+  `abrirVentanaAjustes` / `cerrarVentanaAjustes` / `prepararVentanaAjustes`
+  (ahora es una sola, `abrirAjustes`) y todo el CSS `.am-*`.
+- **«Almacenamiento» pasa a «Mi almacenamiento»**, que es como se llaman las
+  otras tres.
+- **«Los números» pasa a «Norata por dentro»**, con la gráfica en vez del mando
+  de videojuego y en luciérnaga en vez de menta. Las cuatro primeras son
+  ajustes de quien usa la app; esta es la trastienda del negocio, y con el
+  mismo verde y la misma forma parecía una quinta cosa tuya.
+- **Los tonos de las filas de Ajustes se nombran `t-oro` y `t-coral`** (antes
+  había un solo `riesgo` que ya no usaba nadie). Oro es «mira esto» y coral es
+  «esto va mal»; los pintan el índice, el mini menú y la cabecera del plan
+  leyendo todos de `planTono()`, para que no puedan discrepar.
+- **Tres piedras, una por nivel de plan**: `plan-libre` desnuda, `plan-pro`
+  tallada y `plan-fundador` con corona. Comparten silueta a propósito — se ven
+  en fila y así se nota que una crece en vez de haber que aprenderse tres
+  dibujos. Mensual y anual son la MISMA piedra: lo que cambia es cada cuánto se
+  paga, no lo que se abre.
+- **La fila «Mi plan» dice qué plan hay.** Decía «Qué tienes abierto y cómo
+  cambiarlo», que se lee entera sin enterarse de nada; ahora dice «Anual · $590
+  al año», «Fundador · $890, una sola vez» o «Anual · termina el 14 de marzo»,
+  y se pone en luciérnaga cuando el plan está contando sus últimos días.
+- **La ficha del mini menú lleva el plan debajo del correo**, con su piedra
+  pequeña. Era la segunda pregunta que traía a la gente aquí y hasta ahora
+  había que abrir una sección para contestarla.
+- **La sección Mi plan, entera.** Cabecera con la piedra, el nombre y el
+  precio —que no salía por ningún lado una vez pagado, que es justo cuando se
+  busca—; los renglones de recibo (qué pagas, siguiente cobro o hasta cuándo);
+  y la lista de lo que hay abierto, leída de `LIMITES` y no copiada a mano, así
+  que sube sola el día que suba un tope. El plan libre se pinta igual: también
+  es un plan, y antes su sección contestaba «qué te vendemos» en vez de «qué
+  tienes».
+- **El apodo baja de 24 a 20 caracteres** y el tope se escribe en pantalla. No
+  vive solo en su campo: sale en el saludo del Resumen, en la ficha del mini
+  menú y en los correos, y con 24 ya se salía por el borde de la ficha.
+
 ### 0.7.9.1 · 27 ago 2026
 La puerta, las negritas y la caja de despedida en su sitio.
 

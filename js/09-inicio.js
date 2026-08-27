@@ -690,10 +690,10 @@ function detectedTZ() {
    "Mis módulos" y "Almacenamiento" se buscan solos cuando uno viene a cambiar
    algo suyo. */
 const AJUSTES_SECS = [
-  { id: "cuenta", nombre: "Mi perfil",      icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
-  { id: "plan",   nombre: "Mi plan",        icon: "gem",     sub: "Qué tienes abierto y cómo cambiarlo" },
-  { id: "menu",   nombre: "Mis módulos",    icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
-  { id: "datos",  nombre: "Almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" }
+  { id: "cuenta", nombre: "Mi perfil",         icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
+  { id: "plan",   nombre: "Mi plan",           icon: "gem",     sub: "Tu plan, qué incluye y hasta cuándo va" },
+  { id: "menu",   nombre: "Mis módulos",       icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
+  { id: "datos",  nombre: "Mi almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" }
 ];
 
 /* Las secciones que se dibujan HOY, que no siempre son las tres de arriba: la
@@ -704,9 +704,39 @@ const AJUSTES_SECS = [
    una pantalla vacía, porque los números los da el servidor tras comprobar
    quién pregunta (ver `supabase/administracion.sql`). */
 function seccionesAjustes() {
-  const secs = AJUSTES_SECS.slice();
+  const secs = AJUSTES_SECS.map(sec => Object.assign({}, sec));
+
+  /* La fila del plan no puede decir lo mismo a todo el mundo: es la única de
+     las cuatro cuyo contenido cambia de una cuenta a otra, y decía "Qué
+     tienes abierto y cómo cambiarlo" —una frase que se puede leer entera sin
+     enterarse de nada—. Ahora dice qué plan hay y hasta cuándo, que es
+     exactamente lo que trae aquí a la gente; entrar deja de ser la única
+     forma de saberlo. */
+  const plan = secs.find(x => x.id === "plan");
+  if (plan && typeof planSub === "function") {
+    plan.sub = planSub();
+    plan.icon = planIcono();
+    if (typeof planTono === "function") plan.tono = planTono();
+  }
+
+  /* La de administración solo existe para quien el servidor reconoce como tal.
+     Y conviene tener claro qué protege esto: nada. Es limpieza, no seguridad —
+     un usuario no debería toparse con una pantalla que no le sirve. Quien
+     quiera puede poner `esAdmin` a true desde la consola y lo único que verá es
+     una pantalla vacía, porque los números los da el servidor tras comprobar
+     quién pregunta (ver `supabase/administracion.sql`).
+
+     Va en luciérnaga y no en menta, y con un nombre que no empieza por "Mi":
+     las otras cuatro son ajustes de quien usa la app, y esta es la trastienda
+     del negocio. Con el mismo verde y la misma forma parecía una quinta cosa
+     tuya, y se abría sin querer. El icono es la gráfica porque lo que hay
+     dentro son cifras — el mando de videojuego venía copiado de la fila de
+     los módulos y no decía nada de esto. */
   if (typeof esAdmin !== "undefined" && esAdmin) {
-    secs.push({ id: "admin", nombre: "Los números", icon: "gamepad", sub: "Cuánta gente usa Norata, el cobro y lo que se rompe" });
+    secs.push({
+      id: "admin", nombre: "Norata por dentro", icon: "chart", tono: "oro",
+      sub: "Cuánta gente la usa, el cobro y lo que se rompe"
+    });
   }
   return secs;
 }
@@ -731,7 +761,7 @@ function renderAjustes() {
      otra cosa. */
   nav.innerHTML = `<div class="tema-hueco">${temaSwitchHTML()}</div>` +
     seccionesAjustes().map(sec => `
-    <button class="aj-item ${ajusteAbierto === sec.id ? "on" : ""} ${sec.id === "peligro" ? "riesgo" : ""}"
+    <button class="aj-item ${ajusteAbierto === sec.id ? "on" : ""} ${sec.tono ? "t-" + sec.tono : ""}"
       onclick="mostrarAjuste('${sec.id}')">
       <span class="aj-ic">${icon(sec.icon, 17)}</span>
       <span class="aj-tx"><b>${escapeHtml(sec.nombre)}</b><span>${escapeHtml(sec.sub)}</span></span>
@@ -780,15 +810,27 @@ function abrirMenuAjustes(btn) {
      entero. Sin sesión, la misma fila invita a entrar. */
   const cfg = (typeof sync !== "undefined" && sync.cfg) || {};
   const dentro = typeof syncReady === "function" && syncReady();
+  /* Y debajo del correo, el plan. Es la segunda pregunta que trae aquí a la
+     gente —después de "¿en qué cuenta estoy?"— y hasta ahora había que abrir
+     una sección para contestarla. La piedra de delante la contesta antes de
+     leer: la desnuda es el plan libre, la tallada el Pro, la de la corona el
+     fundador (ver los iconos `plan-*` en `js/01-base.js`).
+
+     Toda la fila lleva a Mi perfil y no el plan a Mi plan: dos destinos
+     dentro del mismo botón obligan a apuntar, y a este tamaño el renglón del
+     plan mide once píxeles de alto. */
+  const chapa = typeof planChapaHTML === "function" ? planChapaHTML() : "";
   const ficha = dentro
-    ? `<button class="mm-perfil" onclick="abrirVentanaAjustes('cuenta')">
+    ? `<button class="mm-perfil" onclick="abrirAjustes('cuenta')">
          ${avatarHTML(38)}
          <span class="mm-tx"><b>${escapeHtml(perfilActual().saludo || "Sin nombre")}</b>
-         <span>${escapeHtml(cfg.correo || "")}</span></span>
+         <span>${escapeHtml(cfg.correo || "")}</span>
+         ${chapa}</span>
        </button>`
-    : `<button class="mm-perfil" onclick="abrirVentanaAjustes('cuenta')">
+    : `<button class="mm-perfil" onclick="abrirAjustes('cuenta')">
          <span class="mm-ic">${icon("shield", 16)}</span>
-         <span class="mm-tx"><b>Sin cuenta</b><span>Entra para sincronizar tus dispositivos</span></span>
+         <span class="mm-tx"><b>Sin cuenta</b><span>Entra para sincronizar tus dispositivos</span>
+         ${chapa}</span>
        </button>`;
 
   /* Sin el rótulo "AJUSTES" encima de la lista: el menú sale de un botón que
@@ -801,7 +843,7 @@ function abrirMenuAjustes(btn) {
      que trae a alguien aquí casi siempre es su cuenta. */
   m.innerHTML = ficha + `
     ${seccionesAjustes().map(sec => `
-      <button class="mm-item ${sec.id === "peligro" ? "riesgo" : ""}" onclick="abrirVentanaAjustes('${sec.id}')">
+      <button class="mm-item ${sec.tono ? "t-" + sec.tono : ""}" onclick="abrirAjustes('${sec.id}')">
         <span class="mm-ic">${icon(sec.icon, 16)}</span>
         <span class="mm-tx"><b>${escapeHtml(sec.nombre)}</b><span>${escapeHtml(sec.sub)}</span></span>
       </button>`).join("")}
@@ -858,60 +900,40 @@ document.addEventListener("pointerdown", (e) => {
   cerrarMenuAjustes();
 }, true);
 
-/* ---- La ventana ----
-   El mismo bloque de secciones que usa el teléfono, mudado a una ventana. Se
-   MUEVE en vez de duplicarse: dos copias del mismo formulario acabarían
-   enseñando cosas distintas, y los ids son únicos. */
-function abrirVentanaAjustes(sec) {
+/* ---- De vuelta a la pantalla ----
+   Aquí hubo una ventana: el mini menú abría una caja flotante con la sección
+   dentro. Se retiró por dos motivos, y el segundo pesa más que el primero.
+
+   El primero es que se rompía. La ventana solo existía en la computadora, así
+   que al encoger el navegador había que devolver el contenido a su sitio a
+   mano, y ese trasplante —los bloques VIAJAN, no se duplican, porque los ids
+   son únicos— dejaba a medias los ajustes de la caja: quien encogía la
+   ventana estando dentro se encontraba Ajustes con una pinta que ya no era la
+   de ninguno de los dos tamaños.
+
+   El segundo es que la pantalla se usa mejor. Dentro de la caja no cabía el
+   índice —repetir las cinco filas al lado de la que acabas de elegir era
+   preguntar otra vez lo mismo—, así que para cambiar de sección había que
+   cerrar, volver al engrane y elegir de nuevo. En la pantalla el índice vive
+   a la izquierda y cambiar de sección es un clic.
+
+   El mini menú se queda: sigue siendo el atajo que lleva directo a la sección
+   que buscas sin pasar por la lista. Lo único que cambia es dónde aterriza. */
+function abrirAjustes(sec) {
   cerrarMenuAjustes();
-  const modal = document.getElementById("ajustes-modal");
-  const cuerpo = document.getElementById("ajustes-modal-body");
-  const wrap = document.getElementById("ajustes-wrap");
-  if (!modal || !cuerpo || !wrap) return;
-  prepararVentanaAjustes();
-  cuerpo.appendChild(wrap);
+  /* Antes de tocar `ajusteAbierto`, no después: `showView("settings")` lo pone
+     a null a propósito (entrar por el menú de abajo siempre empieza igual), y
+     si se eligiera primero la sección, el viaje la borraría por el camino. */
+  showView("settings");
   ajusteAbierto = sec || AJUSTES_SECS[0].id;
-  /* El rótulo de la ventana sale de la MISMA lista que el mini menú, no de un
-     texto escrito aparte: así la ventana no puede acabar diciendo un nombre
-     que la fila que la abrió ya no usa.
-
-     Y esa lista es `seccionesAjustes()`, no `AJUSTES_SECS`: hay secciones que
-     solo existen para algunas cuentas. Con la constante, la sección de los
-     números salía en el teléfono y no en la computadora, porque la pantalla
-     ya usaba la función y estos dos sitios se habían quedado atrás. */
-  const secs = seccionesAjustes();
-  const abierta = secs.find(x => x.id === ajusteAbierto) || secs[0];
-  const tit = document.getElementById("am-titulo");
-  const sub = document.getElementById("am-sub");
-  if (tit) tit.textContent = abierta.nombre;
-  if (sub) sub.textContent = abierta.sub;
   renderAjustes();
-  renderTimezone(); renderModulos(); renderSync(); renderCopias(); renderZonaCuenta();
-  modal.classList.add("show");
-}
-
-function prepararVentanaAjustes() {
-  const modal = document.getElementById("ajustes-modal");
-  if (!modal || modal.dataset.listo) return;
-  modal.dataset.listo = "1";
-  modal.addEventListener("pointerdown", (e) => { if (e.target === modal) cerrarVentanaAjustes(); });
-}
-
-function cerrarVentanaAjustes() {
-  const modal = document.getElementById("ajustes-modal");
-  if (!modal || !modal.classList.contains("show")) return;
-  modal.classList.remove("show");
-  // Vuelve a su sitio: si no, la pantalla de Ajustes del teléfono se quedaría vacía
-  const host = document.getElementById("ajustes-host");
-  const wrap = document.getElementById("ajustes-wrap");
-  if (host && wrap) host.appendChild(wrap);
+  window.scrollTo(0, 0);
 }
 
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   const m = document.getElementById("ajustes-menu");
-  if (m && m.classList.contains("show")) { cerrarMenuAjustes(); return; }
-  cerrarVentanaAjustes();
+  if (m && m.classList.contains("show")) cerrarMenuAjustes();
 });
 
 function mostrarAjuste(id) {

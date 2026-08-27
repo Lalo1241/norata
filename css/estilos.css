@@ -1270,10 +1270,25 @@
   .aj-tx b { font-size: 14px; }
   .aj-tx span { font-size: 11.5px; color: var(--muted); }
   .aj-chev { color: var(--faint); font-size: 20px; line-height: 1; flex: none; }
-  /* La sección de borrar se anuncia desde el índice: llegar ahí no debería ser
-     una sorpresa. */
-  .aj-item.riesgo .aj-ic { background: var(--coral-soft); color: var(--coral); }
+  /* ---------- Las filas que no son verdes ----------
+     Casi todas lo son: menta es el color de "esto es tuyo y es normal". Las
+     dos excepciones se anuncian desde el índice, porque llegar ahí no debería
+     ser una sorpresa.
+
+     `t-oro` marca lo que hay que mirar sin que esté roto: el plan que se
+     cancela y sigue contando días, y la trastienda del negocio, que no es un
+     ajuste de nadie. `t-coral` queda para lo que sí va mal —un recibo que no
+     se pudo cobrar— y para borrar.
+
+     Los nombres van con prefijo (`t-`) y no sueltos por lo de siempre: `oro`
+     a secas es una palabra que cualquiera puede usar mañana para otra cosa en
+     otro sitio del CSS, y estas clases las escribe JavaScript pegando un
+     trozo de texto. */
+  .aj-item.t-oro .aj-ic { background: var(--fire-soft); color: var(--fire); }
+  .aj-item.t-coral .aj-ic { background: var(--coral-soft); color: var(--coral); }
   .aj-item.on { border-color: var(--mint); background: var(--card2); }
+  .aj-item.t-oro.on { border-color: var(--fire); }
+  .aj-item.t-coral.on { border-color: var(--coral); }
 
   /* ---------- Sol y luna ----------
      Dos posiciones a la vista y no un interruptor de encender/apagar: con un
@@ -1359,7 +1374,7 @@
     color: var(--muted);
   }
   .version-pie .sv-fecha { font-weight: 500; }
-  /* En la computadora Ajustes es una ventana y el número ya vive en la barra */
+  /* En la computadora el número ya vive al pie de la barra lateral */
   @media (min-width: 900px) { .version-pie { display: none; } }
 
   /* ---------- El mini menú del engrane ----------
@@ -1419,7 +1434,8 @@
     background: var(--mint-soft);
     color: var(--mint);
   }
-  .mm-item.riesgo .mm-ic { background: var(--coral-soft); color: var(--coral); }
+  .mm-item.t-oro .mm-ic { background: var(--fire-soft); color: var(--fire); }
+  .mm-item.t-coral .mm-ic { background: var(--coral-soft); color: var(--coral); }
 
   /* ---------- El mini menú responde al ratón ----------
      Era una tarjeta completamente quieta: se pasaba el cursor por encima de
@@ -1445,8 +1461,13 @@
     background: var(--mint-macizo);
     color: var(--sobre-macizo);
   }
-  .mm-item.riesgo:hover .mm-ic,
-  .mm-item.riesgo:focus-visible .mm-ic {
+  .mm-item.t-oro:hover .mm-ic,
+  .mm-item.t-oro:focus-visible .mm-ic {
+    background: var(--fire-macizo);
+    color: var(--sobre-macizo);
+  }
+  .mm-item.t-coral:hover .mm-ic,
+  .mm-item.t-coral:focus-visible .mm-ic {
     background: var(--coral-macizo);
     color: var(--sobre-macizo);
   }
@@ -1461,84 +1482,38 @@
   .mm-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
   .mm-tx b { font-size: 13.5px; }
   .mm-tx span { font-size: 11px; color: var(--muted); }
+  /* ---------- Qué plan tienes, en la ficha de la cuenta ----------
+     Tercer renglón y no una fila aparte: nombre, correo y plan son la misma
+     respuesta —"quién soy aquí"— y separarlos obligaba a leer dos veces.
 
-  /* ---------- La ventana de Ajustes ----------
-     No usa el modal de confirmar: aquel es una hoja estrecha para una
-     pregunta, y esto es una pantalla entera dentro de una ventana. */
-  .am-back {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: var(--piso-ventana);
-    background: var(--velo);
-    backdrop-filter: blur(3px);
+     Va con su propio fondo tenue porque es lo único de los tres que cambia de
+     color según lo que digan: menta lo normal, luciérnaga el fundador y el
+     plan que se está acabando, coral un recibo que no se pudo cobrar. Sin
+     fondo, un renglón de once píxeles en amarillo sobre la tarjeta se lee
+     como texto descolorido y no como un aviso.
+
+     `align-self: flex-start` para que la pastilla mida lo que dice y no todo
+     el ancho de la ficha: estirada parecía una barra de progreso. */
+  .mm-plan {
+    align-self: flex-start;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    padding: 28px;
+    gap: 5px;
+    margin-top: 4px;
+    padding: 2px 8px 2px 6px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1.5;
+    background: var(--mint-soft);
+    color: var(--mint);
   }
-  .am-back.show { display: flex; }
-  .am-card {
-    position: relative;
-    /* Ni los mil de cuando llevaba índice al lado, ni los 680 de después: con
-       680 la ventana quedaba estrecha para lo que guarda —campos de texto que
-       piden anchura, fichas de cuenta, listas— y se leía apretada. Con 880 los
-       campos respiran y los renglones de texto siguen entrando en el ojo de un
-       barrido, que es el límite real (ver el tope de los párrafos, abajo). */
-    width: min(880px, 100%);
-    /* Alto FIJO, no "hasta donde llegue": con max-height la ventana crecía y
-       encogía al cambiar de sección, y una ventana que se mueve sola marea.
-       Se elige el alto de la sección más grande y las demás dejan aire. */
-    height: min(720px, 88vh);
-    overflow: hidden;
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    /* Casi recta. Con 26 px la ventana se leía como una tarjeta grande —una
-       cosa que flota—, y esto no flota: es una pantalla dentro de la app. El
-       redondeo suave se queda en las tarjetas del contenido, que sí son
-       piezas sueltas; el marco que las contiene no compite con ellas. */
-    border-radius: 8px;
-    box-shadow: 0 40px 90px var(--sombra-l);
-    display: flex;
-    flex-direction: column;
-  }
-  /* ---------- La cabecera de la ventana ----------
-     Fija: se queda a la vista mientras el contenido se desplaza por debajo,
-     porque el rótulo que dice dónde estás no sirve si se va con el scroll —y
-     estas secciones son largas—. La X va con ella por lo mismo. */
-  .am-head {
-    flex: none;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 20px 20px 16px 28px;
-    border-bottom: 1px solid var(--line);
-    background: var(--bg2);
-  }
-  .am-tit { min-width: 0; }
-  .am-tit h2 {
-    font-size: 19px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-    color: var(--text);
-  }
-  /* La misma frase que traía la fila del mini menú. No es adorno: confirma que
-     llegaste donde querías, con las palabras con las que lo elegiste. */
-  .am-tit p {
-    margin-top: 3px;
-    font-size: 12.5px;
-    color: var(--muted);
-  }
-  .am-close { flex: none; }
-  .am-body { overflow: auto; padding: 24px 28px 26px; }
-  /* Los párrafos no se estiran con la ventana. Un campo de texto agradece los
-     800 px; un renglón de prosa, no: pasados unos 70 caracteres el ojo pierde
-     el salto de línea y hay que releer. Los campos siguen usando todo el
-     ancho, que es lo que se ganó al ensancharla. */
-  .am-body .settings-note, .am-body .field-hint { max-width: 66ch; }
-  /* A la barra se le deja aire arriba y abajo: pegada al borde parece que
-     empieza cortada. */
-  .am-body::-webkit-scrollbar-track { margin: 18px 0; }
+  .mm-plan.t-oro { background: var(--fire-soft); color: var(--fire); }
+  .mm-plan.t-coral { background: var(--coral-soft); color: var(--coral); }
+  .mm-plan .ic svg { width: 12px; height: 12px; }
+  /* La chapa no cambia con el ratón: la fila entera lleva a Mi perfil y el
+     resto de la ficha ya se enciende. Dos cosas encendiéndose a la vez dentro
+     del mismo botón hacen dudar de cuál se va a pulsar. */
 
   .ajuste-bloque { display: none; }
   .ajuste-bloque.visible { display: block; }
@@ -4788,21 +4763,8 @@
     .ajustes-wrap.en-seccion .ajustes-nav { display: flex; }
     .ajustes-nav { position: sticky; top: 26px; }
 
-    /* …pero DENTRO de la ventana no hay índice. A la ventana se llega
-       eligiendo en el mini menú, así que repetir las tres opciones al lado es
-       preguntar otra vez lo que acabas de contestar, y encima ocupando el
-       cuarto izquierdo de la pantalla.
-
-       El índice se queda en el código —cuando cada sección tenga seis cosas
-       dentro va a hacer falta—; hoy son tres y la lista es más grande que lo
-       que ordena. Sigue vivo en la pantalla de Ajustes del teléfono, que es
-       donde de verdad hace de índice.
-
-       Va con tres clases y no con dos porque tiene que ganarle a la regla de
-       aquí arriba, que tiene esa misma fuerza. */
-    .am-body .ajustes-wrap { display: block; }
-    .am-body .ajustes-wrap .ajustes-nav { display: none; }
-    /* La flecha promete "esto abre otra pantalla", y aquí no la abre */
+    /* La flecha promete "esto abre otra pantalla", y aquí no la abre: el
+       índice y la sección conviven, y elegir una fila cambia lo de al lado. */
     .aj-chev { display: none; }
 
     /* Modal centrado en lugar de hoja inferior */
@@ -5081,14 +5043,74 @@
 /* Lo que tienes hoy. Va antes que las opciones a propósito: la primera
    pregunta de quien entra es «¿qué tengo?», no «¿qué me venden?». */
 .plan-hoy {
-  display: flex; flex-direction: column; gap: 3px;
+  display: flex; align-items: flex-start; gap: 12px;
   padding: 13px 15px; border-radius: 12px;
   background: var(--card2); border: 1px solid var(--line);
   margin-bottom: 14px;
 }
+.plan-hoy-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+/* La piedra del plan. Del tamaño de dos renglones para que sea lo primero que
+   se ve: quien entra reconoce su nivel antes de leer el nombre. */
+.plan-hoy-ic {
+  flex: none;
+  width: 38px; height: 38px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--card); color: var(--muted);
+}
 .plan-hoy.activo { border-color: var(--mint); background: var(--mint-soft); }
-.plan-hoy-t { font-weight: 700; font-size: 16px; color: var(--text); }
+.plan-hoy.activo .plan-hoy-ic { background: var(--mint-soft); color: var(--mint); }
+/* ---------- Los dos casos que no son verdes ----------
+   El mismo reparto que en el índice de Ajustes (ver `.aj-item.t-oro`): la
+   luciérnaga es «mira esto» y el coral es «esto va mal». Aquí el caso de oro
+   es el que pidió nombre propio: un plan cancelado que todavía cuenta días no
+   está roto —funciona igual hasta la fecha— pero tampoco es lo normal, y
+   pintarlo del verde de siempre lo escondía justo cuando hay que decidir si
+   se renueva. */
+.plan-hoy.t-oro { border-color: var(--fire); background: var(--fire-soft); }
+.plan-hoy.t-oro .plan-hoy-ic { background: var(--fire-soft); color: var(--fire); }
+.plan-hoy.t-coral { border-color: var(--coral); background: var(--coral-soft); }
+.plan-hoy.t-coral .plan-hoy-ic { background: var(--coral-soft); color: var(--coral); }
+.plan-hoy-t {
+  font-weight: 700; font-size: 16px; color: var(--text);
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+}
+/* El precio pegado al nombre y no en su propio renglón: son la misma frase
+   («Anual, $590 al año») y separarlos obliga a bajar la vista para completar
+   un dato de cuatro caracteres. */
+.plan-hoy-t i {
+  font-style: normal; font-weight: 600; font-size: 12.5px;
+  color: var(--muted);
+}
 .plan-hoy-s { font-size: 13px; color: var(--muted); line-height: 1.45; }
+
+/* ---------- Los renglones de dato ----------
+   Clave a la izquierda, valor a la derecha y una línea entre medias. Es la
+   forma de un recibo, que es exactamente lo que se viene a mirar aquí: hasta
+   cuándo va, cuánto se paga y qué topes hay. En prosa los mismos datos había
+   que rastrearlos dentro de los párrafos.
+
+   `dl` de verdad y no divs con clases: son pares de nombre y valor, y así un
+   lector de pantalla los lee emparejados en vez de como catorce trozos de
+   texto seguidos. */
+.plan-h {
+  font-size: 12px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--muted);
+  margin: 18px 0 8px;
+}
+.plan-datos { display: flex; flex-direction: column; }
+.plan-datos > div {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 16px;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--line);
+}
+.plan-datos > div:last-child { border-bottom: none; }
+.plan-datos dt { font-size: 13px; color: var(--muted); min-width: 0; }
+.plan-datos dd {
+  font-size: 13px; font-weight: 650; color: var(--text);
+  text-align: right; flex: none;
+}
 
 .plan-cards { display: grid; gap: 10px; margin: 14px 0 4px; }
 @media (min-width: 900px) { .plan-cards { grid-template-columns: repeat(3, 1fr); } }

@@ -208,6 +208,87 @@ function planMensaje(clave) {
   return "Esto viene con el plan completo.";
 }
 
+/* ---- Cómo se ve el plan, de un vistazo ----
+
+   Cuatro ayudantes que contestan la misma pregunta —«¿qué plan tiene esta
+   persona?»— desde sitios distintos: la fila del índice de Ajustes, la ficha
+   del mini menú y la cabecera del panel. Viven juntos aquí para que los tres
+   sitios no puedan acabar diciendo cosas distintas el día que cambie un
+   estado, que es exactamente lo que pasa cuando cada pantalla se lo pregunta
+   a su manera. */
+
+/* Tres niveles y no cinco. Mensual y anual son el MISMO plan: lo que cambia
+   es cada cuánto se paga, no lo que se abre (ver `LIMITES`, que solo tiene
+   dos entradas). Enseñar "Mensual" y "Anual" como si fueran escalones
+   distintos haría creer que el anual trae algo más. */
+function planNivel() {
+  if (!PLAN.pro) return "libre";
+  return PLAN.plan === "fundador" ? "fundador" : "pro";
+}
+
+/* La piedra que le toca. Los tres dibujos comparten silueta y crecen: desnuda,
+   tallada y con corona (ver los `plan-*` de `ICONS`, en `js/01-base.js`). */
+function planIcono() {
+  return "plan-" + planNivel();
+}
+
+/* De qué color se pinta esa piedra. Menta es "todo normal" y es el caso de
+   casi todo el mundo; el oro marca lo que hay que mirar aunque no esté roto
+   —el fundador, y el plan que se está acabando— y el coral lo que sí va mal.
+
+   Devuelve el nombre pelado y quien lo use le pone el prefijo `t-`: el mismo
+   tono lo pintan tres CSS distintos (la fila del índice, la del mini menú y
+   la chapa) y ninguno tiene por qué saber cómo se llaman las clases del
+   otro. */
+function planTono() {
+  if (PLAN.estado === "impago") return "coral";
+  if (planNivel() === "fundador") return "oro";
+  if (PLAN.pro && !PLAN.renueva && PLAN.vence_el) return "oro";
+  if (!PLAN.pro && PLAN.compro && PLAN.compro !== "libre") return "oro";
+  return "";
+}
+
+/* El nombre corto, para un hueco de once píxeles. `planEtiqueta()` escribe la
+   frase entera —"Plan Mensual, hasta el 14 de marzo"— y ahí no cabe. */
+function planEtiquetaCorta() {
+  if (!PLAN.pro) {
+    if (PLAN.compro && PLAN.compro !== "libre") return "Tu plan terminó";
+    return "Plan libre";
+  }
+  if (PLAN.estado === "impago") return "Revisa tu pago";
+  if (PLAN.plan === "fundador") return "Fundador";
+  if (!PLAN.renueva && PLAN.vence_el) return "Hasta el " + fechaCorta(PLAN.vence_el);
+  return "Plan " + ((PLANES[PLAN.plan] || {}).nombre || PLAN.plan);
+}
+
+/* La frase de debajo de "Mi plan" en el índice de Ajustes. Decía "Qué tienes
+   abierto y cómo cambiarlo", que se puede leer entera sin enterarse de nada:
+   es la única de las cuatro filas cuyo contenido cambia de una cuenta a otra,
+   así que aquí va el dato y no la promesa de que hay un dato dentro. */
+function planSub() {
+  if (typeof syncReady === "function" && !syncReady()) {
+    return "Con una cuenta puedes tener plan";
+  }
+  const p = PLANES[PLAN.plan] || {};
+  if (!PLAN.pro) {
+    if (PLAN.compro && PLAN.compro !== "libre") {
+      return "Tu plan " + ((PLANES[PLAN.compro] || {}).nombre || PLAN.compro) + " terminó";
+    }
+    return "Plan libre · una rama y " + LIMITES.libre.talentos + " talentos";
+  }
+  if (PLAN.estado === "impago") return "No pudimos cobrar tu último recibo";
+  if (PLAN.plan === "fundador") return "Fundador · " + p.precio + ", una sola vez";
+  if (!PLAN.renueva && PLAN.vence_el) return p.nombre + " · termina el " + fechaCorta(PLAN.vence_el);
+  return p.nombre + " · " + p.precio + " " + p.periodo;
+}
+
+/* La pastilla de la ficha del mini menú: la piedra y el nombre corto. */
+function planChapaHTML() {
+  const tono = planTono();
+  return '<span class="mm-plan' + (tono ? " t-" + tono : "") + '">' +
+    icon(planIcono(), 12) + escapeHtml(planEtiquetaCorta()) + '</span>';
+}
+
 /* Cómo se llama lo que tiene, para pintarlo en Ajustes. Distingue los tres
    casos que importan y que se confunden todo el tiempo:
    pagando, canceló pero le quedan días, y se acabó. */
@@ -392,7 +473,7 @@ function renderPanelPlan() {
     caja.innerHTML =
       `<h3>Tu plan</h3>
        <p class="settings-note">Norata funciona entera sin cuenta, y lo que llevas hecho es tuyo. Para tener un plan hace falta una, porque es donde se guarda.</p>
-       <button class="btn btn-primary btn-block" onclick="abrirVentanaAjustes('cuenta')">Crear mi cuenta</button>`;
+       <button class="btn btn-primary btn-block" onclick="abrirAjustes('cuenta')">Crear mi cuenta</button>`;
     return;
   }
 
@@ -401,13 +482,17 @@ function renderPanelPlan() {
     return;
   }
 
+  /* La versión libre también es un plan y se pinta como tal: la cabecera con
+     su piedra, y debajo el detalle de lo que hay abierto ahora mismo. Antes
+     aquí solo había un rótulo y un renglón, y las tres tarjetas de venta se
+     llevaban la pantalla entera — así que la sección contestaba «qué te
+     vendemos» y no «qué tienes», que es a lo que se entra. */
   caja.innerHTML =
-    `<h3>Tu plan</h3>
-     <div class="plan-hoy">
-       <span class="plan-hoy-t">${escapeHtml(planEtiqueta())}</span>
-       <span class="plan-hoy-s">Una rama de talentos, ${LIMITES.libre.talentos} talentos dentro, y el resumen de cada semana.</span>
-     </div>
-     <p class="settings-note">Con el plan completo se abren las ramas que quieras, el ático entero y los resúmenes del mes y del año. Lo que ya escribiste no se toca nunca.</p>
+    `<h3>Tu plan</h3>` +
+    planCabeceraHTML() +
+    planIncluyeHTML(false) +
+    `<h4 class="plan-h">Qué se abre con el plan completo</h4>
+     <p class="settings-note">Las ramas que quieras, sin tope de talentos, el ático entero y los resúmenes del mes y del año. Lo que ya escribiste no se toca nunca: al cambiar de plan no se borra nada.</p>
      <div class="plan-cards">` +
     Object.keys(PLANES).map(k => planTarjetaHTML(k)).join("") +
     `</div>
@@ -423,31 +508,108 @@ function renderPanelPlan() {
   });
 }
 
-function planActivoHTML() {
+/* ---- La cabecera: qué plan, cuánto cuesta y qué le pasa ----
+   Los tres datos juntos y en ese orden. El precio no salía por ningún lado una
+   vez pagado, que es justo cuando más se busca: quien entra aquí a los ocho
+   meses viene casi siempre a acordarse de cuánto paga.
+
+   El color lo decide `planTono()` y no esta función, para que la cabecera, la
+   fila del índice y la chapa del mini menú no puedan discrepar. */
+function planCabeceraHTML() {
+  const libre = !PLAN.pro;
   const p = PLANES[PLAN.plan] || {};
-  let nota;
-  if (PLAN.plan === "fundador") {
-    nota = "Es para siempre. No hay nada que renovar ni que cancelar.";
-  } else if (PLAN.estado === "impago") {
-    nota = "No pudimos cobrar tu último recibo. Revisa tu tarjeta para que no se interrumpa.";
-  } else if (!PLAN.renueva && PLAN.vence_el) {
-    nota = "Cancelaste, y sigue funcionando hasta el " + fechaCorta(PLAN.vence_el) + ". Nada de lo tuyo se borra ese día.";
-  } else if (PLAN.vence_el) {
-    nota = "Se renueva por su cuenta el " + fechaCorta(PLAN.vence_el) + ", sin que tengas que hacer nada.";
+  const tono = planTono();
+  const clases = "plan-hoy" + (libre ? "" : " activo") + (tono ? " t-" + tono : "");
+
+  let titulo, precio, nota;
+
+  if (libre) {
+    titulo = "Plan libre";
+    precio = "Sin costo";
+    if (PLAN.compro && PLAN.compro !== "libre") {
+      nota = "Tu plan " + ((PLANES[PLAN.compro] || {}).nombre || PLAN.compro) +
+        " terminó. No se borró nada: lo que pasa del plan libre sigue a la vista, en solo lectura, y vuelve a moverse en cuanto renueves.";
+    } else {
+      nota = "Es tuyo para siempre y sin fecha. Norata entera funciona así; el plan completo solo quita los topes.";
+    }
   } else {
-    nota = "Activo.";
+    titulo = p.nombre || PLAN.plan;
+    precio = PLAN.plan === "fundador" ? p.precio + ", una sola vez" : p.precio + " " + p.periodo;
+    if (PLAN.estado === "impago") {
+      nota = "No pudimos cobrar tu último recibo. Revisa tu tarjeta para que no se interrumpa; hay tres días de margen desde la fecha de cobro.";
+    } else if (PLAN.plan === "fundador") {
+      nota = "Lo pagaste una vez y es para siempre. No hay nada que renovar ni que cancelar.";
+    } else if (!PLAN.renueva && PLAN.vence_el) {
+      nota = "Cancelaste, y sigue funcionando hasta el " + fechaCorta(PLAN.vence_el) +
+        ". Nada de lo tuyo se borra ese día: lo que pase de los topes se queda a la vista y en solo lectura.";
+    } else if (PLAN.vence_el) {
+      nota = "Se renueva por su cuenta el " + fechaCorta(PLAN.vence_el) + ", sin que tengas que hacer nada.";
+    } else {
+      nota = "Activo.";
+    }
   }
 
-  return `<div class="plan-hoy activo">
-      <span class="plan-hoy-t">${escapeHtml(p.nombre || PLAN.plan)}</span>
-      <span class="plan-hoy-s">${escapeHtml(nota)}</span>
-    </div>` +
+  return `<div class="${clases}">
+      <span class="plan-hoy-ic">${icon(planIcono(), 22)}</span>
+      <span class="plan-hoy-tx">
+        <span class="plan-hoy-t">${escapeHtml(titulo)}<i>${escapeHtml(precio)}</i></span>
+        <span class="plan-hoy-s">${escapeHtml(nota)}</span>
+      </span>
+    </div>`;
+}
+
+/* ---- Qué hay abierto ----
+   Los topes escritos con palabras, leídos de `LIMITES` y no copiados a mano:
+   el día que suba el tope de talentos, esta lista sube sola. Copiarlos aquí
+   sería crear la segunda verdad de la que avisa `LIMITES` allá arriba.
+
+   Se pinta igual con plan y sin él, porque la pregunta es la misma. Lo único
+   que cambia es de qué lado caen las respuestas. */
+function planIncluyeHTML(pro) {
+  const l = LIMITES[pro ? "pro" : "libre"];
+  const filas = [
+    ["Ramas de talentos", l.ramas === Infinity ? "Las que quieras" : (l.ramas === 1 ? "Una" : String(l.ramas))],
+    ["Talentos por rama", l.talentos === Infinity ? "Sin tope" : String(l.talentos)],
+    ["El ático", l.atico === Infinity ? "Todos los años" : "El año en curso"],
+    ["Resúmenes", l.resumen.length > 1 ? "De la semana, del mes y del año" : "Solo el de la semana"],
+    ["Apariencias", l.apariencia ? "Todas" : "Las paletas de color"],
+    /* Estas dos no salen de `LIMITES` porque no tienen tope en ningún plan, y
+       decirlo aquí es la mitad del mensaje: lo que se cobra no es la app, son
+       los topes. Sin ellas la lista del plan libre parece una lista de peros. */
+    ["Misiones, habilidades y proyectos", "Sin tope"],
+    ["Sincronía entre dispositivos", "Incluida"]
+  ];
+  return `<h4 class="plan-h">${pro ? "Qué tienes abierto" : "Qué tienes ahora"}</h4>
+    <dl class="plan-datos">` +
+    filas.map(f => `<div><dt>${escapeHtml(f[0])}</dt><dd>${escapeHtml(f[1])}</dd></div>`).join("") +
+    `</dl>`;
+}
+
+function planActivoHTML() {
+  const p = PLANES[PLAN.plan] || {};
+
+  /* Los dos datos que se buscan al entrar: cuánto se paga y cuándo toca. Van
+     en su propia lista y no dentro del párrafo de la cabecera, porque un dato
+     metido en una frase hay que leerse la frase entera para encontrarlo. */
+  const filas = [["Qué pagas", PLAN.plan === "fundador" ? p.precio + ", una sola vez" : p.precio + " " + p.periodo]];
+  if (PLAN.plan === "fundador") {
+    filas.push(["Hasta cuándo", "Para siempre"]);
+  } else if (PLAN.vence_el) {
+    filas.push([PLAN.renueva ? "Siguiente cobro" : "Termina el", fechaCorta(PLAN.vence_el)]);
+  }
+
+  return planCabeceraHTML() +
+    `<dl class="plan-datos">` +
+    filas.map(f => `<div><dt>${escapeHtml(f[0])}</dt><dd>${escapeHtml(f[1])}</dd></div>`).join("") +
+    `</dl>` +
+    planIncluyeHTML(true) +
     /* Fundador no tiene nada que gestionar —ni tarjeta que cambiar ni
        suscripción que cancelar—, pero sí recibos que mirar, así que el botón
        se queda para todos y solo cambia lo que promete. */
-    `<button class="btn btn-soft btn-block" onclick="irAlPortal(this)">${
+    `<button class="btn btn-soft btn-block" style="margin-top:14px" onclick="irAlPortal(this)">${
       PLAN.plan === "fundador" ? "Ver mi recibo" : "Cambiar tarjeta o cancelar"
-    }</button>`;
+    }</button>
+     <p class="settings-note plan-pie">Lo abre Stripe, que es quien cobra. Tu tarjeta no pasa por Norata, y cancelar funciona aunque Norata esté caída.</p>`;
 }
 
 function planTarjetaHTML(k) {

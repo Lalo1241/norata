@@ -621,7 +621,6 @@
       <h2 id="ajustes-titulo">Ajustes</h2>
     </div>
 
-    <div id="ajustes-host">
     <div class="ajustes-wrap" id="ajustes-wrap">
       <nav class="ajustes-nav" id="ajustes-nav"></nav>
 
@@ -713,40 +712,22 @@
 
       </div>
     </div>
-    </div>
 
     <!-- El mismo dato que la barra lateral, para el teléfono, que no tiene
-         barra. Va FUERA de #ajustes-host a propósito: lo de dentro se muda a
-         la ventana de la computadora, y allí el número ya está en la barra;
-         mudarlo también saldría dos veces. -->
+         barra. En la computadora se esconde por CSS: allí el número ya vive
+         al pie de la barra y saldría dos veces. -->
     <div class="version-pie" id="version-pie"></div>
   </div>
 
 </div>
 
-<!-- ============ AJUSTES: MINI MENÚ Y VENTANA (solo escritorio) ============
-     El engrane abre un menú corto con las secciones, y cada sección abre una
-     ventana con el índice al lado. En el teléfono no se usan: ahí Ajustes
-     sigue siendo una pantalla, que es lo que funciona con el pulgar. -->
+<!-- ============ AJUSTES: EL MINI MENÚ (solo escritorio) ============
+     El engrane abre un menú corto con las secciones y cada fila lleva a su
+     sección de la pantalla de Ajustes. Aquí hubo también una ventana flotante
+     que guardaba la sección dentro; se retiró (ver `abrirAjustes` en
+     `js/09-inicio.js`). En el teléfono el menú no se usa: ahí el engrane abre
+     Ajustes directamente, que es lo que funciona con el pulgar. -->
 <div class="mini-menu" id="ajustes-menu"></div>
-<div class="am-back" id="ajustes-modal">
-  <div class="am-card" role="dialog" aria-modal="true" aria-labelledby="am-titulo">
-    <!-- La cabecera dice en qué sección estás. Sin ella la ventana se abría
-         anónima: al quitarle el índice de la izquierda no quedaba nada que
-         dijera si lo que estabas viendo era Mi perfil o Almacenamiento, y el
-         primer rótulo de dentro ("SINCRONIZAR ENTRE DISPOSITIVOS") nombra el
-         panel, no la sección. La X vive aquí dentro y no flotando encima del
-         contenido, que es donde se comía la esquina del primer panel. -->
-    <div class="am-head">
-      <div class="am-tit">
-        <h2 id="am-titulo"></h2>
-        <p id="am-sub"></p>
-      </div>
-      <button class="am-close icon-btn" onclick="cerrarVentanaAjustes()" aria-label="Cerrar ajustes">✕</button>
-    </div>
-    <div class="am-body" id="ajustes-modal-body"></div>
-  </div>
-</div>
 
 <!-- ============ CLUSTER DEL PULGAR ============ -->
 <div class="thumb-cluster">

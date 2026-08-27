@@ -395,7 +395,7 @@ function renderSync() {
       '<label class="field"><span>¿Cómo te decimos? <i>opcional</i></span>' +
       '<input type="text" id="perfil-apodo" maxlength="' + APODO_MAX + '" autocomplete="nickname"' +
       ' value="' + escapeAttr(p.apodo) + '" onchange="perfilGuardarAqui()">' +
-      '<div class="field-hint">Es lo que usaremos al saludarte, aquí y en los correos.</div></label>' +
+      '<div class="field-hint">Es lo que usaremos al saludarte, aquí y en los correos. Hasta ' + APODO_MAX + ' letras.</div></label>' +
       '<label class="field"><span>Nombre de este dispositivo</span>' +
       '<input type="text" id="sync-device" value="' + escapeAttr(sync.device) + '" onchange="syncRenameDevice(this.value)">' +
       '<div class="field-hint">Aparece cuando dos dispositivos cambian lo mismo y hay que elegir.</div></label>' +

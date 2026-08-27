@@ -995,9 +995,6 @@ function atrasApp() {
   const menu = document.getElementById("ajustes-menu");
   if (menu && menu.classList.contains("show")) { cerrarMenuAjustes(); return desarmar(); }
 
-  const ventana = document.getElementById("ajustes-modal");
-  if (ventana && ventana.classList.contains("show")) { cerrarVentanaAjustes(); return desarmar(); }
-
   const tuto = document.getElementById("tuto");
   if (tuto && tuto.classList.contains("show")) { cerrarTutorial(); return desarmar(); }
 
@@ -1054,7 +1051,6 @@ function showView(name) {
      seguir apareciendo; pasar de pantalla, en cambio, pasa por un solo sitio.
      Todas se van solas si no había ninguna puesta. */
   if (typeof cerrarMenuAjustes === "function") cerrarMenuAjustes();
-  if (typeof cerrarVentanaAjustes === "function") cerrarVentanaAjustes();
   if (typeof cerrarVentanaCaja === "function") cerrarVentanaCaja();
 
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));

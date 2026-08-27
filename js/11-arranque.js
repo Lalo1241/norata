@@ -66,16 +66,14 @@ function revisarAnchoDePantalla() {
   const ahora = isDesktop();
   if (ahora === anchoEraDeEscritorio) return;
   anchoEraDeEscritorio = ahora;
-  /* La ventana de Ajustes y su menú son cosa de escritorio: al encoger la
-     ventana hay que devolverlos a la pantalla de siempre, o el contenido se
-     quedaría dentro de una caja que ya no se dibuja. */
-  if (!ahora) {
-    const modal = document.getElementById("ajustes-modal");
-    const abierta = modal && modal.classList.contains("show");
-    cerrarMenuAjustes();
-    cerrarVentanaAjustes();
-    if (abierta) { showView("settings"); return; }
-  }
+  /* El mini menú es cosa de escritorio y se coloca con coordenadas fijas
+     calculadas al abrirlo: al cruzar el ancho se queda flotando donde ya no
+     hay botón del que colgar, así que se cierra. Ajustes no necesita nada
+     más — es la misma pantalla en los dos tamaños y `renderAjustes` la
+     recompone sola unas líneas más abajo. Aquí hubo una mudanza (la ventana
+     de escritorio devolvía su contenido a la pantalla) y era justo lo que se
+     rompía al minimizar el navegador; sin ventana no hay nada que mudar. */
+  if (!ahora) cerrarMenuAjustes();
   const activa = document.querySelector(".view.active");
   const rehacer = activa && REDIBUJA_AL_CRUZAR[activa.id];
   if (rehacer) rehacer();
