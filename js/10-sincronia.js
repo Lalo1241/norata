@@ -497,13 +497,40 @@ function renderZonaCuenta() {
   if (!el) return;
   if (!syncReady()) { el.innerHTML = ""; return; }
   el.innerHTML =
-    '<p class="settings-note" style="margin:16px 0 10px">Al pedirlo se cierra tu sesión y este dispositivo queda vacío, pero la cuenta no se borra hasta <b>30 días después</b>. Si te arrepientes, entra otra vez con tu correo y la recuperas con todo tu progreso.</p>' +
+    '<h4 class="peligro-t">Borrar la cuenta</h4>' +
+    '<p class="settings-note">Se cierra tu sesión y este dispositivo queda vacío, pero la cuenta no se borra hasta <b>30 días después</b>. Si te arrepientes, entra otra vez con tu correo y la recuperas con todo tu progreso.</p>' +
     '<button class="btn btn-danger-ghost btn-block" onclick="borrarCuenta()">Borrar mi cuenta</button>';
 }
 
 async function borrarCuenta() {
   if (!syncReady()) return;
   const correo = ((sync.cfg || {}).correo || "tu cuenta").trim();
+
+  /* ---- Con un plan vigente no se borra, y se dice antes que nada ----
+
+     El motivo es de dinero y no de codigo: borrar la cuenta se lleva su fila
+     de `suscripciones` por el `on delete cascade`, pero NO cancela nada en
+     Stripe. Quien se fuera asi seguiria pagando una cuenta que ya no existe,
+     y esa es la queja mas cara que puede haber — con razon.
+
+     Va lo PRIMERO de todo, antes incluso del "¿seguro?", y lo pidio Eduardo:
+     si de todas formas no va a poder, hacerle recorrer dos pantallas y
+     escribir una frase para acabar en un no es tomarle el pelo.
+
+     Y es un aviso fijo: el clic fuera no lo cierra. Esta pantalla existe
+     justamente para que se lea. */
+  if (typeof esPro === "function" && esPro()) {
+    await avisar(
+      "Todavía tienes un plan activo. Si borraras la cuenta ahora, el cobro seguiría vivo por su cuenta " +
+      "y te seguiríamos cobrando algo que ya no usas.\n\n" +
+      "Cancela primero tu plan desde Ajustes › Mi plan. Puedes volver aquí en cuanto lo hayas hecho; " +
+      "tu progreso te espera mientras tanto.",
+      "lock", "Ir a cancelar mi plan");
+    /* Se le deja donde tiene que estar en vez de decirle el camino y que lo
+       busque: es el mismo numero de toques y no hay forma de perderse. */
+    mostrarAjuste("plan");
+    return;
+  }
 
   if (!await ask(
     "Se cerrará tu sesión y este dispositivo quedará vacío. La cuenta " + correo +
@@ -520,6 +547,11 @@ async function borrarCuenta() {
     toast("No coincide. No borré nada.", "calma");
     return;
   }
+
+  /* La misma ultima parada que tiene borrar los datos. Faltaba aqui, que es
+     donde mas se necesita: vaciar la app se deshace volviendo a capturar;
+     borrar la cuenta arranca un plazo de 30 dias. */
+  if (!await ask("Última confirmación: se borrará tu cuenta. ¿Seguro?", "Sí, borrarla", true, true)) return;
 
   cargaMostrar("Programando el borrado…");
   let cuando = null;

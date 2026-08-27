@@ -52,6 +52,45 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.8 · 27 ago 2026
+La zona de peligro, con las dos salidas bien separadas y un candado nuevo.
+
+**Con un plan vigente ya no se puede borrar la cuenta.** El motivo es de
+dinero: borrarla se lleva su fila de `suscripciones` por el `on delete
+cascade`, pero **no cancela nada en Stripe**, así que quien se fuera así
+seguiría pagando una cuenta que ya no existe. Ahora sale un aviso que lo
+explica y deja a la persona en «Mi plan» para que cancele primero.
+
+Ese aviso estrena tres cosas del modal, que sirven para cualquier otro:
+
+- **Un icono arriba**, que dice de qué va antes de que el ojo llegue a la
+  primera línea.
+- **Fijo: el clic fuera no lo cierra.** Hay mensajes que existen para leerse,
+  y en esos un clic distraído a dos centímetros no puede valer como
+  «entendido».
+- **Un solo botón**, sin «Cancelar», porque no es una pregunta.
+
+**Va lo primero de todo, antes del «¿seguro?»**, y lo pidió Eduardo: si de
+todas formas no va a poder, hacerle recorrer dos pantallas y escribir una
+frase para acabar en un no es tomarle el pelo.
+
+**Y borrar la cuenta ya tiene su última parada**, la misma caja animada que
+tenía borrar los datos. Faltaba justo donde más se necesita: vaciar la app se
+deshace volviendo a capturar, borrar la cuenta arranca un plazo de 30 días.
+
+De la caja en sí, tres arreglos que se veían:
+
+- **Cada acción lleva su título** («Vaciar la app», «Borrar la cuenta») y una
+  línea entre las dos. Son dos cosas distintas y de nombre parecido, una
+  encima de otra: leídas de corrido se confundían.
+- **Los párrafos ya llenan el ancho.** Se recortaban a 66ch —buena tipografía
+  en general— y al lado de un botón que sí ocupa todo dejaban un escalón a la
+  derecha que parecía un fallo de maqueta.
+- **El texto ya no tira a amarillo.** `--peligro-nota` era un tostado
+  (`#c6a89f`) que sobre el fondo coral de la caja se leía sucio; ahora es un
+  neutro con el punto justo de calidez.
+
+
 ### 0.7.7.1 · 27 ago 2026
 El ciclo del cobro, cerrado y probado de punta a punta con dinero de verdad.
 

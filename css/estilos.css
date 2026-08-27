@@ -71,7 +71,7 @@
     --pip: #2e3947;           /* los rombitos de una rama plegada */
     --hueco: #1a2330;         /* el rectángulo de un grupo, al pasar por encima */
     --tag-fondo: #121821;     /* la etiqueta del marco de "cuenta de pruebas" */
-    --peligro-nota: #c6a89f;
+    --peligro-nota: #bcc2c8;
     /* La tinta del logotipo. Es el mismo dibujo en los dos modos —solo cambia
        de color— y por eso los trazos van en currentColor y no con el tono
        escrito dentro del SVG. El isotipo de al lado se queda menta en los dos,
@@ -311,7 +311,7 @@
     --pip: #bcc1d6;
     --hueco: #e7e9f4;
     --tag-fondo: #f7f8fa;
-    --peligro-nota: #7f4536;
+    --peligro-nota: #4f5b67;
     --marca: #131823;
 
     --vidrio: rgba(22, 32, 43, 0.045);
@@ -1786,7 +1786,33 @@
     background: linear-gradient(180deg, rgba(255, 138, 112, 0.07), rgba(255, 138, 112, 0.03));
   }
   .panel.peligro h3 { color: var(--coral); }
-  .panel.peligro .settings-note { color: var(--peligro-nota); }
+  .panel.peligro .settings-note {
+    color: var(--peligro-nota);
+    /* Aqui NO se recorta a 66ch. Fuera de esta caja ese tope es buena
+       tipografia —una linea larguisima se lee mal—, pero dentro son dos
+       parrafos cortos junto a un boton que si ocupa todo el ancho, y el
+       escalon que quedaba a la derecha parecia un fallo de maqueta. */
+    max-width: none;
+    margin-bottom: 10px;
+  }
+
+  /* El titulo de cada accion. Va en coral como el de la caja pero mas
+     pequeño y sin espaciar: si compitiera con "Zona de peligro" habria dos
+     encabezados discutiendo por ser el primero. */
+  .panel.peligro .peligro-t {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    color: var(--text);
+  }
+  /* El segundo bloque necesita aire por arriba y una linea que lo separe del
+     primero: son dos acciones distintas, no una lista de dos frases. */
+  .panel.peligro #zona-cuenta .peligro-t {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 138, 112, 0.28);
+  }
   .panel.peligro .btn-danger-ghost {
     background: var(--coral-macizo);
     /* Texto oscuro sobre coral: en blanco se queda en 2,4 sobre 1 y no se lee.
@@ -3006,6 +3032,31 @@
   }
   .caja-sacar:hover { color: var(--mint); border-color: var(--mint); }
   /* Última confirmación de borrado: sacude y late en rojo */
+  /* El icono de un aviso. Va centrado y encima del texto porque llega antes
+     que la lectura: dice de que va esto en el tiempo que tarda el ojo en
+     bajar a la primera linea. */
+  .modal-ic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: var(--card2);
+    color: var(--text);
+  }
+  .modal-ic.riesgo {
+    background: var(--coral-soft);
+    color: var(--coral);
+  }
+  .modal-ic svg { display: block; }
+
+  /* Con un solo boton, que ocupe el ancho: centrado y a medias parece que
+     falta el otro, que es justo lo que se quiere evitar en un aviso. */
+  #modal-cancel[hidden] { display: none; }
+  #modal-cancel[hidden] + #modal-ok { flex: 1; }
+
   .modal-card.alarm {
     border-color: var(--coral);
     animation: alarmShake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97), alarmGlow 1.6s ease-in-out 0.55s infinite;

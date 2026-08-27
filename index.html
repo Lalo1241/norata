@@ -688,7 +688,13 @@
                  "todos los datos" no dibuja nada en la cabeza: hay que
                  nombrarlos. Y decir que es de este dispositivo, porque con
                  cuenta la pregunta que sigue es siempre la misma. -->
-            <p class="settings-note" style="margin-bottom:12px">Deja la app vacía: se van tus habilidades, misiones, talentos, proyectos y todo el progreso que llevas. No se puede deshacer. Con la sesión abierta, el vaciado también viaja a tus otros dispositivos; la cuenta en sí no se toca.</p>
+            <!-- Dos acciones distintas y muy parecidas de nombre, una encima de
+                 otra y sin nada que las separe: leidas de corrido se confunden,
+                 y aqui confundirlas cuesta caro. Cada una lleva ahora su
+                 titulo, que es lo unico que hace falta para saber en cual
+                 estas antes de leer el parrafo. -->
+            <h4 class="peligro-t">Vaciar la app</h4>
+            <p class="settings-note">Se van tus habilidades, misiones, talentos, proyectos y todo el progreso que llevas. No se puede deshacer. Con la sesión abierta, el vaciado también viaja a tus otros dispositivos; <b>tu cuenta no se toca</b> y puedes seguir usándola.</p>
             <button class="btn btn-danger-ghost btn-block" onclick="resetAll()">Borrar todos los datos</button>
             <!-- Solo con sesión: sin cuenta no hay nada que borrar en ningún
                  servidor, y el botón prometería algo que no existe. -->
@@ -817,8 +823,12 @@
 </div>
 
 <!-- ============ MODAL DE CONFIRMACIÓN ============ -->
-<div class="modal-backdrop" id="modal" onclick="if(event.target===this)modalDone(false)">
+<!-- El clic fuera cierra, salvo en los avisos marcados como fijos: hay
+     mensajes que existen justamente para que se lean, y en esos un clic
+     distraido a dos centimetros no puede valer como "entendido". -->
+<div class="modal-backdrop" id="modal" onclick="modalClicFuera(event, this)">
   <div class="modal-card">
+    <div class="modal-ic" id="modal-ic" hidden></div>
     <p id="modal-msg"></p>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="modal-cancel" onclick="modalDone(false)">Cancelar</button>

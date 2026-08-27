@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.7.1";
+const VERSION = "0.7.8";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -844,25 +844,72 @@ function askText(titulo, valor, okLabel, pista, max) {
   });
 }
 
-function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel) {
+/* El quinto argumento en adelante creció hasta ser incomodo, asi que los
+   extras van en un objeto: `{ icono, fijo, soloOk }`. Los cuatro primeros se
+   quedan posicionales porque hay decenas de llamadas y renombrarlas todas
+   para ganar claridad en tres sitios no sale a cuenta.
+
+     icono   nombre de ICONS, se dibuja arriba del texto
+     fijo    el clic fuera NO cierra
+     soloOk  sin boton de cancelar: es un aviso, no una pregunta */
+function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
+  const ex = extra || {};
   return new Promise(resolve => {
     modalResolve = resolve;
     const cuerpo = document.getElementById("modal-msg");
     if (esHtml) cuerpo.innerHTML = msg; else cuerpo.textContent = msg;
+
+    /* El icono se vacia siempre, tenga o no que dibujarse: el modal es UNO
+       solo y se reutiliza, asi que lo que no se limpia aqui reaparece en la
+       siguiente pregunta que no lo pidio. */
+    const ic = document.getElementById("modal-ic");
+    if (ic) {
+      ic.innerHTML = ex.icono ? icon(ex.icono, 26) : "";
+      ic.hidden = !ex.icono;
+      ic.className = "modal-ic" + (danger || alarm ? " riesgo" : "");
+    }
+
     const ok = document.getElementById("modal-ok");
     ok.textContent = okLabel || "Confirmar";
     ok.className = "btn " + (danger ? "btn-danger-ghost" : "btn-primary");
-    document.getElementById("modal-cancel").textContent = cancelLabel || "Cancelar";
+    const cancelar = document.getElementById("modal-cancel");
+    cancelar.textContent = cancelLabel || "Cancelar";
+    cancelar.hidden = !!ex.soloOk;
+
     const card = document.querySelector("#modal .modal-card");
     card.classList.remove("alarm");
     if (alarm) { void card.offsetWidth; card.classList.add("alarm"); }
-    document.getElementById("modal").classList.add("show");
+    const fondo = document.getElementById("modal");
+    fondo.classList.toggle("fijo", !!ex.fijo);
+    fondo.classList.add("show");
     if (alarm && userHasTapped && navigator.vibrate) navigator.vibrate([40, 60, 40]);
   });
 }
 
+/* Un aviso que hay que leer: un icono, un solo boton y el clic fuera no vale.
+   Devuelve una promesa como los demas para poder esperarlo, aunque siempre
+   conteste lo mismo — quien lo llama casi siempre se para justo despues. */
+function avisar(msg, icono, okLabel) {
+  return askBase(msg, false, okLabel || "Entendido", true, true, null,
+                 { icono: icono || "alert", fijo: true, soloOk: true });
+}
+
+/* El clic en el fondo. Se sale por aqui y no desde el atributo del marcado
+   para que la excepcion de los avisos fijos viva junto al resto de la logica
+   del modal, y no escondida dentro de una comilla del HTML. */
+function modalClicFuera(ev, fondo) {
+  if (ev.target !== fondo) return;
+  if (fondo.classList.contains("fijo")) return;
+  modalDone(false);
+}
+
 function modalDone(v) {
-  document.getElementById("modal").classList.remove("show");
+  const fondo = document.getElementById("modal");
+  fondo.classList.remove("show");
+  /* Se quita al cerrar y no al abrir el siguiente: entre una y otra hay un
+     instante con el modal escondido pero aun marcado, y basta con que algo
+     lo vuelva a enseñar para que herede una regla que no pidio. */
+  fondo.classList.remove("fijo");
   if (modalResolve) { modalResolve(v); modalResolve = null; }
 }
 
