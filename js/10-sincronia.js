@@ -379,7 +379,6 @@ function renderSync() {
     '<span class="sync-text"><b>' + escapeHtml(titulo) + '</b><span>' + escapeHtml(detalle) + '</span></span>';
 
   if (syncReady()) {
-    const pruebas = esCuentaDePruebas();
     const p = perfilActual();
     /* La ficha de arriba contesta de un vistazo la pregunta que trae aquí a
        casi todo el mundo: en qué cuenta estoy. Antes solo estaba el correo,
@@ -399,13 +398,12 @@ function renderSync() {
       '<label class="field"><span>Nombre de este dispositivo</span>' +
       '<input type="text" id="sync-device" value="' + escapeAttr(sync.device) + '" onchange="syncRenameDevice(this.value)">' +
       '<div class="field-hint">Aparece cuando dos dispositivos cambian lo mismo y hay que elegir.</div></label>' +
-      '<div class="field"><span class="lbl">¿Qué es esta cuenta?</span><div class="seg">' +
-      '<button' + (pruebas ? "" : ' class="on"') + ' onclick="marcarCuentaDePruebas(false)">Mi cuenta real</button>' +
-      '<button' + (pruebas ? ' class="on"' : "") + ' onclick="marcarCuentaDePruebas(true)">De pruebas</button>' +
-      '</div><div class="field-hint">' + (pruebas
-        ? "Verás un marco punteado amarillo mientras la uses, y borrar todo no pedirá confirmación extra."
-        : "Borrar todo te pedirá escribir tu correo. Es a propósito: obliga a mirar en qué cuenta estás.") +
-      '</div></div>' +
+      /* Aquí estaba «¿Qué es esta cuenta?». Se fue a «Norata por dentro», que
+         solo existe para la cuenta que el servidor reconoce como
+         administradora: nadie más que Eduardo tiene dos cuentas de Norata, así
+         que a todo el mundo le preguntaba algo que no le pasa — y el «sí» de
+         ese botón quita la confirmación de borrar. Ver `esCuentaDePruebas` en
+         `js/10c-portada.js`. */
       '<div class="stack">' +
       '<button class="btn btn-soft btn-block" onclick="syncRun({})">Sincronizar ahora</button>' +
       '<button class="btn btn-danger-ghost btn-block" onclick="syncDisconnect()">Cerrar sesión en este dispositivo</button>' +

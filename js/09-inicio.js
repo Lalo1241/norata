@@ -735,7 +735,7 @@ function seccionesAjustes() {
   if (typeof esAdmin !== "undefined" && esAdmin) {
     secs.push({
       id: "admin", nombre: "Norata por dentro", icon: "chart", tono: "oro",
-      sub: "Cuánta gente la usa, el cobro y lo que se rompe"
+      sub: "El modo de pruebas, cuánta gente la usa y lo que se rompe"
     });
   }
   return secs;

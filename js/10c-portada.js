@@ -867,12 +867,24 @@ async function sbVolverDeEnlace() {
   return true;
 }
 
-/* ---- Cuenta de pruebas ----
-   Eduardo usa una cuenta para experimentar (y ahí borra todo cada dos por
-   tres) y otra para su vida real. El riesgo no es técnico sino humano:
-   borrar en la que no era. Por eso el aviso es imposible de no ver y se
-   dibuja igual que un grupo del árbol de talentos —marco punteado amarillo
-   rodeando lo que abarca—, que es lenguaje que ya conoce. */
+/* ---- Modo de pruebas ----
+   Eduardo revisa la app metiéndole y sacándole cosas todo el rato (y ahí borra
+   todo cada dos por tres), y aparte tiene su cuenta de verdad. El riesgo no es
+   técnico sino humano: borrar en la que no era. Por eso el aviso es imposible
+   de no ver y se dibuja igual que un grupo del árbol de talentos —marco
+   punteado amarillo rodeando lo que abarca—, que es lenguaje que ya conoce.
+
+   **Ahora cuelga de ser administrador**, y el interruptor vive en la sección
+   «Norata por dentro». Antes el botón estaba en Mi perfil, a la vista de
+   cualquiera, y era un botón raro: nadie más que él tiene dos cuentas de
+   Norata, así que a todo el mundo le preguntaba algo que no le pasa. Y como el
+   modo quita la confirmación de borrar, dejarlo al alcance de todos era
+   ofrecer un botón cuyo único efecto para un desconocido es hacer más fácil
+   perderlo todo.
+
+   Que dependa de `esAdmin` tiene una consecuencia buena y de regalo: la cuenta
+   personal, que ya no es administradora, no puede quedarse marcada aunque lo
+   estuviera de antes. La marca vieja deja de aplicar sola. */
 
 function correoActual() {
   return ((sync.cfg || {}).correo || "").toLowerCase();
@@ -880,6 +892,11 @@ function correoActual() {
 
 function esCuentaDePruebas() {
   if (!syncReady()) return false;
+  /* Lo decide el servidor, no esta línea. Y mientras la respuesta viaja,
+     `esAdmin` vale false: el modo tarda un instante en encenderse al arrancar
+     y eso está bien, porque el lado en el que se equivoca es el seguro —borrar
+     pide el correo hasta que se sepa con certeza que no hace falta. */
+  if (typeof esAdmin === "undefined" || !esAdmin) return false;
   const lista = sync.cuentasPrueba || [];
   return lista.indexOf(correoActual()) !== -1;
 }
@@ -895,8 +912,17 @@ function marcarCuentaDePruebas(si) {
   if (si) lista.push(correo);
   sync.cuentasPrueba = lista;
   saveSync();
+
+  /* Apagar el modo apaga también el plan simulado, y no es una cortesía: el
+     rótulo de arriba es lo ÚNICO que avisa de que lo que estás viendo no es tu
+     plan. Dejar la simulación puesta sin el rótulo sería quedarse mirando una
+     app que miente sin nada que lo diga — que es justo lo que este modo existe
+     para impedir. */
+  if (!si && typeof planSimular === "function" && planLeerSimulado()) planSimular("");
+
   pintarAvisoPruebas();
   renderSync();
+  if (typeof renderPanelAdmin === "function") renderPanelAdmin();
 }
 
 function pintarAvisoPruebas() {
@@ -904,9 +930,14 @@ function pintarAvisoPruebas() {
   if (previo) previo.remove();
   if (!esCuentaDePruebas()) return;
 
+  /* El rótulo dice las dos cosas cuando hay dos que decir. Con el plan
+     simulado, «Cuenta de pruebas» a secas se queda corto: lo que engaña no es
+     la cuenta, es el plan, y hay que poder leerlo sin abrir Ajustes. */
+  const simulado = typeof planNombreSimulado === "function" ? planNombreSimulado() : "";
   const marco = document.createElement("div");
   marco.id = "aviso-pruebas";
   marco.className = "aviso-pruebas";
-  marco.innerHTML = '<span class="ap-tag">Cuenta de pruebas</span>';
+  marco.innerHTML = '<span class="ap-tag">Cuenta de pruebas' +
+    (simulado ? ' · viendo como ' + escapeHtml(simulado) : '') + '</span>';
   document.body.appendChild(marco);
 }
