@@ -143,7 +143,13 @@ function valorDe(id) {
 }
 
 function mostrarPortada(modo) {
-  if (document.getElementById("portada")) return;
+  /* Si ya estaba puesta no se duplica, pero SÍ se le hace caso al modo: la
+     despedida llega con la portada ya en pantalla en algún camino, y sin esto
+     se quedaba enseñando el formulario de entrar. */
+  if (document.getElementById("portada")) {
+    if (modo) portadaPintar(modo);
+    return;
+  }
   const cap = document.createElement("div");
   cap.id = "portada";
   cap.className = "portada";
@@ -223,6 +229,34 @@ function portadaPintar(modo) {
        </div>
        <button class="portada-sin sutil" onclick="salirDelRescate()">Dejarlo como está y salir</button>`;
 
+  } else if (modo === "adios") {
+    /* La despedida. Sale EN LUGAR del formulario de entrar, y ese es el punto
+       entero: quien acaba de pedir que se borre su cuenta no puede encontrarse
+       la pantalla de iniciar sesión, que es una invitación a volver a hacer lo
+       que acaba de deshacer. Antes pasaba justo eso — se borraba, aparecía el
+       login y un aviso de abajo con la fecha, que dura cuatro segundos y se va.
+
+       El plazo de 30 días es lo único que hay que retener de aquí, así que va
+       en grande y no dentro de un párrafo: hasta esa fecha, entrar otra vez
+       con el mismo correo recupera todo.
+
+       Las dos salidas son a propósito distintas: entrar (que además es cómo se
+       recupera la cuenta) y salir de Norata del todo. No hay una tercera; esta
+       pantalla no tiene nada más que ofrecer y llenarla de botones sería no
+       dejar irse. */
+    const fecha = fechaLarga(rescateCuando) || "";
+    dentro =
+      `<div class="portada-sello">
+         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 3.5H18a2 2 0 012 2v13a2 2 0 01-2 2h-3.5"/><path d="M10 7l-5 5 5 5M5 12h9"/></svg>
+       </div>
+       <h2>Hasta pronto${escapeHtml(coma(portadaSaludo))}</h2>
+       <p class="portada-lema">Tu cuenta quedó programada para borrarse${fecha ? " el <b>" + escapeHtml(fecha) + "</b>" : ""}. Hasta ese día puedes recuperarla entera —con tu progreso, tus rachas y tu XP— entrando otra vez con tu correo.</p>
+       <p class="portada-lema">Gracias por el tiempo que le diste a Norata. Lo que aprendiste jugando a esto sigue siendo tuyo, esté o no la app de por medio.</p>
+       <div class="stack">
+         <button class="btn btn-soft btn-block" onclick="portadaIrA('entrar')">Volver a entrar</button>
+         <a class="btn btn-ghost btn-block" href="https://www.norata.app">Ir a norata.app</a>
+       </div>`;
+
   } else if (modo === "enviado") {
     /* Pantalla propia y no un aviso amarillo dentro del formulario: lo único
        que queda por hacer está en otro sitio —el buzón—, y un formulario
@@ -287,7 +321,7 @@ function portadaPintar(modo) {
     });
   });
 
-  if (modo !== "crear" && modo !== "enviado" && modo !== "rescate") portadaOfrecerGoogle();
+  if (modo !== "crear" && modo !== "enviado" && modo !== "rescate" && modo !== "adios") portadaOfrecerGoogle();
 
   /* La ayuda del apodo se escribe sola mientras se teclea el nombre. Contar
      de antemano cómo te vamos a llamar es lo que convierte un campo opcional
@@ -885,6 +919,12 @@ async function sbVolverDeEnlace() {
    Que dependa de `esAdmin` tiene una consecuencia buena y de regalo: la cuenta
    personal, que ya no es administradora, no puede quedarse marcada aunque lo
    estuviera de antes. La marca vieja deja de aplicar sola. */
+
+/* A quién nos estamos despidiendo. Se apunta aparte porque la despedida se
+   pinta DESPUÉS de vaciar la sesión: para cuando la pantalla existe, el perfil
+   ya no está, y saludar por su nombre justo al irse es lo poco que se puede
+   hacer bien en ese momento. */
+let portadaSaludo = "";
 
 function correoActual() {
   return ((sync.cfg || {}).correo || "").toLowerCase();

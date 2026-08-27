@@ -852,6 +852,19 @@
   </div>
 </div>
 
+<!-- ============ VOLVER DE PAGAR ============
+     Se llena desde `js/10d-plan.js` al volver de Stripe con `?pago=listo`.
+     Vacía no pinta nada: la clase `show` es lo único que la enciende. -->
+<div class="compra" id="compra" role="dialog" aria-modal="true" aria-labelledby="compra-tit">
+  <div class="compra-caja">
+    <div class="compra-ic" id="compra-ic"></div>
+    <h2 id="compra-tit"></h2>
+    <p class="compra-sub" id="compra-sub"></p>
+    <div id="compra-lista"></div>
+    <div class="stack" id="compra-botones"></div>
+  </div>
+</div>
+
 <!-- ============ MENÚ DE CLIC DERECHO (solo escritorio) ============ -->
 <div class="ctx" id="ctx" onclick="event.stopPropagation()"></div>
 

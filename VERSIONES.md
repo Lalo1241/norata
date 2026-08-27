@@ -52,6 +52,58 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.13 · 27 ago 2026
+Fundador tiene color propio, y dos pantallas que faltaban.
+
+- **Fundador pasa del amarillo al lila.** El amarillo ya significa «mira esto»
+  en toda la app —un plan que se cancela, un recibo que no se pudo cobrar, la
+  trastienda del negocio— y usarlo también para el plan bueno obligaba a leer
+  el contexto para saber si era premio o problema. El lila no dice nada más en
+  Norata, así que puede decir esto. Sale del octavo de la paleta que ya existía
+  (`--paleta-4`), así que no es un color nuevo en la casa.
+- **El lila se parte en dos como los demás acentos.** De día el lila vivo
+  escrito sobre papel da 4,42 —por debajo del 4,5 que pide un texto—, así que
+  para escribir se hunde a `#5b32c0` (6,99 sobre la tarjeta clara) y para
+  rellenar se aclara a `#9b6bff`, el único que admite la tinta oscura de
+  `--sobre-macizo` con holgura (5,18). Con el vivo tal cual, la tinta encima
+  daba 3,67 y la pastilla no se leía.
+- **La columna de Fundador deja de ir entera en color.** Si todo destaca, no
+  destaca nada — y teñía de premio ocho filas que dicen exactamente lo mismo
+  que la columna de al lado. El texto vuelve a ser blanco y solo se marcan las
+  dos celdas donde Fundador dice algo que ningún otro plan dice.
+- **«Es gratis» y «Pago único»**, en vez de «No se paga» y «Una sola vez». La
+  primera dice lo que hay y la segunda lo que no pasa; y «Pago único» es como
+  se nombra en el sitio, así que había tres formas de decir lo mismo.
+- **Las tres piedras, encima de sus columnas.** Es el mismo dibujo que sale en
+  la ficha del mini menú y en la cabecera del plan, así que la tabla se
+  reconoce sin leer.
+- **Dos tarjetas destacadas, diciendo cosas distintas.** «Recomendado» vuelve
+  al anual —de los que se renuevan, es el que sale mejor, y esa comparación se
+  puede hacer— y Fundador lleva «Tiempo limitado» en lila. No compiten: el
+  primero contesta «¿cuál me conviene?» y el segundo «¿hasta cuándo puedo?».
+- **«Qué se desbloquea con Pro»**, y el aviso del portal partido en dos
+  párrafos: dónde vas es una cosa y dónde acaban tus datos bancarios es otra.
+
+**Y las dos pantallas que faltaban:**
+
+- **Volver de pagar.** Era un aviso de abajo de cuatro segundos —«Gracias. Tu
+  plan se está activando»— para el único momento de la app en el que alguien
+  acaba de pagar: se lo perdía quien mirara al teléfono medio segundo tarde, y
+  no contestaba «¿ya está?, ¿qué tengo ahora?». Ahora es una pantalla que se
+  queda hasta que se cierra, con la piedra del plan y **lo que se acaba de
+  desbloquear leído de `LIMITES`**. Tiene **dos estados a propósito**: Stripe
+  avisa al servidor por un lado y devuelve a la persona por otro, y a veces
+  gana ella —llega antes de que el webhook escriba la fila—. Así que abre
+  diciendo que confirma, y `planReintentar` la resuelve; si a los 31 segundos
+  el aviso no llegó, lo dice sin alarmar, porque el cobro sí se hizo.
+- **La despedida al borrar la cuenta**, en lugar del formulario de entrar.
+  Ofrecerle iniciar sesión a quien acaba de pedir que le borren la cuenta es
+  invitarle a deshacer lo que acaba de hacer, y la fecha del plazo —lo único
+  que hay que recordar— iba en un aviso que dura cuatro segundos. Es un modo
+  más de la portada (`adios`), saluda por su nombre —cogido ANTES de vaciar el
+  perfil, que si no ya no está— y tiene dos salidas: volver a entrar (que es
+  además cómo se recupera la cuenta dentro del plazo) y `www.norata.app`.
+
 ### 0.7.12.1 · 27 ago 2026
 Un solo aviso donde había dos, y el botón que espera lo dice.
 

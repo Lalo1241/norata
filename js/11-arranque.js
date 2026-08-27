@@ -195,7 +195,11 @@ showView("summary");
      manda a la app entera, no a una pantalla concreta. */
   const traido = planAtenderDireccion();
   if (traido.pago === "listo") {
-    toast("Gracias. Tu plan se está activando.", "bien");
+    /* Pantalla entera y no un aviso de abajo: es el único momento de la app en
+       el que alguien acaba de pagar, y un `toast` de cuatro segundos se lo
+       pierde quien mire al teléfono medio segundo tarde. La abre en estado de
+       espera; `planReintentar` la resuelve. */
+    compraAbrir();
   } else if (traido.pago === "cancelado") {
     /* Ni una palabra de reproche. Quien se arrepintió a mitad del pago no
        necesita que se lo recuerden; el silencio es la respuesta correcta. */

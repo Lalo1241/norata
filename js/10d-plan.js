@@ -59,18 +59,24 @@ const PLANES = {
     nombre: "Pro anual",
     precio: "$590 MXN",
     periodo: "al año",
-    pie: "Dos meses de regalo frente al mensual."
+    pie: "Dos meses de regalo frente al mensual.",
+    /* El recomendado vuelve a ser este. De los que se renuevan es el que sale
+       mejor, y esa es una comparación que se puede hacer: mes contra mes. */
+    tag: "Recomendado",
+    destacado: true
   },
   fundador: {
     nombre: "Fundador",
     precio: "$890 MXN",
     periodo: "una sola vez",
-    /* El destacado es este y no el anual, y el motivo cabe en una línea: los
-       otros dos son suscripciones y este no. Se paga una vez, no se renueva,
-       no hay nada que cancelar y no puede subir de precio. Eso es mejor oferta
-       que dos meses de regalo, aunque cueste más de entrada. */
     pie: "Pago único. No se renueva ni se cancela: es tuyo y ya.",
-    destacado: true,
+    /* Destacado también, pero diciendo otra cosa y en otro color. «Recomendado»
+       y «Tiempo limitado» no compiten: el primero responde «¿cuál me conviene?»
+       y el segundo «¿hasta cuándo puedo?». Con la misma palabra y el mismo
+       tono se leerían como el mismo mensaje repetido, y una de las dos
+       tarjetas sobraría. */
+    tag: "Tiempo limitado",
+    limitado: true,
     cupo: true
   }
 };
@@ -392,7 +398,11 @@ function planIcono() {
    otro. */
 function planTono() {
   if (PLAN.estado === "impago") return "coral";
-  if (planNivel() === "fundador") return "oro";
+  /* Fundador tiene color propio y ya no comparte el de los avisos. El amarillo
+     significa «mira esto» en toda la app —un plan que se cancela, un recibo
+     que no se pudo cobrar, la trastienda— y usarlo también para el plan bueno
+     obligaba a leer el contexto para saber si era premio o problema. */
+  if (planNivel() === "fundador") return "lila";
   if (PLAN.pro && !PLAN.renueva && PLAN.vence_el) return "oro";
   if (!PLAN.pro && PLAN.compro && PLAN.compro !== "libre") return "oro";
   return "";
@@ -603,11 +613,97 @@ function planReintentar(intento) {
   planCargar().then(function () {
     if (esPro()) {
       if (typeof showView === "function") showView(activeMainView || "summary");
+      compraPintar("listo");
       return;
     }
-    if (intento >= 5) return;
+    if (intento >= 5) { compraPintar("tarda"); return; }
     setTimeout(function () { planReintentar(intento + 1); }, Math.pow(2, intento) * 1000);
   });
+}
+
+/* ================= Volver de pagar =================
+
+   Hay una carrera de verdad aquí, y es la razón de que esta pantalla tenga
+   dos estados en vez de uno. Stripe manda su aviso al servidor por un lado y
+   devuelve a la persona a la app por otro, y a veces gana ella: llega antes de
+   que el webhook haya escrito la fila. Pintar «ya está» en ese momento sería
+   mentir, y pintar «no pagaste» a quien acaba de pagar es peor todavía.
+
+   Así que se abre diciendo que se está confirmando, y `planReintentar` la
+   cambia cuando sabe algo. Si a los treinta y un segundos el aviso no ha
+   llegado, se dice eso mismo —sin alarmar, porque el cobro sí se hizo y lo que
+   falta es que dos servidores se pongan de acuerdo. */
+function compraAbrir() {
+  const caja = document.getElementById("compra");
+  if (!caja) return;
+  caja.classList.add("show");
+  compraPintar("esperando");
+}
+
+function compraCerrar() {
+  const caja = document.getElementById("compra");
+  if (caja) caja.classList.remove("show");
+}
+
+function compraPintar(estado) {
+  const caja = document.getElementById("compra");
+  if (!caja || !caja.classList.contains("show")) return;
+
+  const dentro = caja.querySelector(".compra-caja");
+  const ic = document.getElementById("compra-ic");
+  const tit = document.getElementById("compra-tit");
+  const sub = document.getElementById("compra-sub");
+  const lista = document.getElementById("compra-lista");
+  const botones = document.getElementById("compra-botones");
+
+  const fundador = PLAN.plan === "fundador";
+  dentro.classList.toggle("lila", estado === "listo" && fundador);
+  dentro.classList.toggle("compra-esperando", estado !== "listo");
+
+  if (estado === "esperando") {
+    ic.innerHTML = '<span class="btn-rueda" aria-hidden="true" style="width:28px;height:28px;margin:0"></span>';
+    tit.textContent = "Confirmando tu pago";
+    sub.textContent = "Stripe ya cobró. Estamos esperando su aviso para encender tu plan; suele tardar un par de segundos.";
+    lista.innerHTML = "";
+    botones.innerHTML = "";
+    return;
+  }
+
+  if (estado === "tarda") {
+    ic.innerHTML = icon("bulb", 34);
+    tit.textContent = "Tu pago se registró";
+    sub.textContent = "El aviso de Stripe está tardando más de lo normal. Tu plan se encenderá solo en cuanto llegue: no hay que volver a pagar ni hacer nada. Si al recargar la app en unos minutos sigue igual, escríbenos.";
+    lista.innerHTML = "";
+    botones.innerHTML = '<button class="btn btn-soft btn-block" onclick="compraCerrar()">Entendido</button>';
+    return;
+  }
+
+  /* Listo. El nombre del plan y la piedra que le toca, y debajo lo que se
+     acaba de abrir — leído de `LIMITES`, como todo lo demás. */
+  const p = PLANES[PLAN.plan] || {};
+  ic.innerHTML = icon(planIcono(), 34);
+  tit.textContent = fundador ? "Ya eres fundador" : "Ya tienes " + (p.nombre || "Pro");
+  sub.textContent = fundador
+    ? "Pago único, sin fecha y sin renovaciones. Tu lugar está guardado y la app queda abierta entera."
+    : "Tu plan está activo. Todo lo que sigue ya está encendido, y lo que tenías escrito sigue donde estaba.";
+
+  const l = LIMITES.pro;
+  const abiertas = [
+    l.ramas === Infinity ? "Las ramas de talentos que quieras" : "Más ramas de talentos",
+    l.talentos === Infinity ? "Talentos sin tope dentro de cada rama" : "Más talentos por rama",
+    "El ático entero, año por año",
+    "Los resúmenes del mes y del año",
+    "Todas las apariencias"
+  ];
+  if (fundador) abiertas.push("Tu distintivo: el anillo lila y la piedra con corona");
+
+  lista.className = "compra-lista";
+  lista.innerHTML = abiertas.map(t =>
+    `<div>${icon("check", 16)}<span>${escapeHtml(t)}</span></div>`).join("");
+
+  botones.innerHTML =
+    '<button class="btn btn-primary btn-block" onclick="compraCerrar()">Empezar</button>' +
+    '<button class="btn btn-ghost btn-block" onclick="compraCerrar(); abrirAjustes(\'plan\')">Ver mi plan</button>';
 }
 
 /* ---- La pantalla de Ajustes ----
@@ -648,7 +744,7 @@ function renderPanelPlan() {
     planCabeceraHTML() +
     planIncluyeHTML(false) +
     planCompararHTML() +
-    `<h4 class="plan-h">Qué se abre con Pro</h4>
+    `<h4 class="plan-h">Qué se desbloquea con Pro</h4>
      <p class="settings-note">Las ramas que quieras, sin tope de talentos, el ático entero y los resúmenes del mes y del año. Lo que ya escribiste no se toca nunca: al cambiar de plan no se borra nada.</p>
      <div class="plan-cards">` +
     Object.keys(PLANES).map(k => planTarjetaHTML(k)).join("") +
@@ -772,12 +868,13 @@ function planActivoHTML() {
    sigue diciendo que el cupo existe, que es verdad, sin dar la cifra. */
 function planTarjetaHTML(k) {
   const p = PLANES[k];
-  return `<div class="plan-card${p.destacado ? " destacada" : ""}">
-      ${p.destacado ? '<span class="plan-tag">Recomendado</span>' : ""}
+  const marcada = p.destacado || p.limitado;
+  return `<div class="plan-card${p.destacado ? " destacada" : ""}${p.limitado ? " limitada" : ""}">
+      ${p.tag ? `<span class="plan-tag${p.limitado ? " lila" : ""}">${escapeHtml(p.tag)}</span>` : ""}
       <span class="plan-n">${escapeHtml(p.nombre)}</span>
       <span class="plan-p">${escapeHtml(p.precio)} <i>${escapeHtml(p.periodo)}</i></span>
       <span class="plan-d">${escapeHtml(p.pie)}</span>
-      <button class="btn ${p.destacado ? "btn-primary" : "btn-soft"} btn-block"
+      <button class="btn ${marcada ? "btn-primary" : "btn-soft"} btn-block"
         onclick="irAPagarDesdeAjustes('${k}', this)">Elegir</button>
     </div>`;
 }
@@ -803,9 +900,14 @@ function planPortalNotaHTML() {
     ? "Ahí puedes consultar y descargar el comprobante de tu pago."
     : "Ahí puedes actualizar tu método de pago, consultar tus recibos y cancelar la renovación cuando lo decidas.";
 
+  /* Dos párrafos y no uno. El primero dice a dónde vas y qué puedes hacer
+     allí; el segundo es de otra clase —dónde acaban tus datos bancarios— y
+     metido en el mismo bloque se leía como el final de la frase anterior, que
+     es justo donde deja de leerse. */
   return `<p class="settings-note plan-pie">${escapeHtml(accion)} abre el portal de Stripe,
-    la plataforma que procesa los pagos de Norata. ${escapeHtml(dentro)}
-    Tus datos bancarios se administran únicamente en Stripe y no se almacenan en Norata.</p>`;
+      la plataforma que procesa los pagos de Norata. ${escapeHtml(dentro)}</p>
+    <p class="settings-note plan-pie">Tus datos bancarios se administran únicamente en Stripe
+      y no se almacenan en Norata.</p>`;
 }
 
 /* ---- El pie legal ----
@@ -858,6 +960,15 @@ function planCompararHTML() {
    no tienen tope en ningún plan —que son la mitad del mensaje: lo que se cobra
    no es la app, son los topes—. Fundador copia la columna de Pro salvo donde
    se dice lo contrario, porque ES Pro: lo que cambia es cómo se paga. */
+/* Una celda que hay que mirar. La columna de Fundador iba ENTERA en color y
+   estaba mal: si todo destaca, no destaca nada, y ademas tenia de premio ocho
+   filas que dicen exactamente lo mismo que la columna de al lado --"Sin tope"
+   junto a "Sin tope"--. El texto vuelve a ser blanco y solo se marcan las dos
+   celdas donde Fundador dice algo que ningun otro plan dice. */
+function ojo(texto) {
+  return { t: texto, ojo: true };
+}
+
 function planFilasComparadas() {
   const l = LIMITES.libre, p = LIMITES.pro;
   const ramas = (x) => x === Infinity ? "Las que quieras" : (x === 1 ? "Una" : String(x));
@@ -875,23 +986,46 @@ function planFilasComparadas() {
     ["Misiones, habilidades y proyectos", "Sin tope", "Sin tope", "Sin tope"],
     ["Sincronía entre dispositivos", "Incluida", "Incluida", "Incluida"],
     ["Tu progreso y tu XP", "Tuyos", "Tuyos", "Tuyos"],
-    ["Cómo se paga", "No se paga", "Suscripción", "Una sola vez"],
+    /* "Es gratis" y no "No se paga": la primera dice lo que hay, la segunda lo
+       que no pasa, y en una fila que se llama "Cómo se paga" un no se lee como
+       una carencia. Y "Pago único" porque es como se nombra en el sitio; "Una
+       sola vez" era una tercera forma de decir lo mismo. */
+    ["Cómo se paga", "Es gratis", "Suscripción", ojo("Pago único")],
     /* El distintivo de fundador existe hoy y no es una promesa: el anillo
-       dorado alrededor del círculo de la cuenta y la piedra con corona en vez
-       de la tallada. Si algún día se le añade algo más, se añade aquí. */
-    ["Distintivo de fundador", "—", "—", "Anillo dorado y piedra con corona"]
+       alrededor del círculo de la cuenta y la piedra con corona en vez de la
+       tallada. El anillo es LILA desde 0.7.13 — si vuelve a cambiar de color,
+       esta línea cambia con él o pasa a describir algo que no se ve. */
+    ["Distintivo de fundador", "—", "—", ojo("Anillo lila y piedra con corona")]
   ];
 }
 
+/* Las tres piedras encima de sus columnas. El encabezado decia los nombres y
+   ya esta; con la piedra delante, la tabla y el resto de la app hablan el
+   mismo idioma -- es el mismo dibujo que sale en la ficha del mini menu y en
+   la cabecera del plan, asi que se reconoce sin leer. */
+const PLAN_COLUMNAS = [
+  { nivel: "libre", nombre: "Gratuito", tono: "" },
+  { nivel: "pro", nombre: "Pro", tono: "" },
+  { nivel: "fundador", nombre: "Fundador", tono: "lila" }
+];
+
 function planTablaHTML() {
-  const cols = ["Gratuito", "Pro", "Fundador"];
+  const celda = (v) => typeof v === "string"
+    ? `<td>${escapeHtml(v)}</td>`
+    : `<td class="ojo">${escapeHtml(v.t)}</td>`;
+
   return `<div class="plan-vs" id="plan-compara">
       <table>
-        <thead><tr><th></th>${cols.map(c => `<th>${escapeHtml(c)}</th>`).join("")}</tr></thead>
+        <thead><tr><th></th>` +
+    PLAN_COLUMNAS.map(c => `<th class="${c.tono ? "t-" + c.tono : ""}">
+        <span class="vs-piedra">${icon("plan-" + c.nivel, 20)}</span>
+        <span>${escapeHtml(c.nombre)}</span>
+      </th>`).join("") +
+    `</tr></thead>
         <tbody>` +
     planFilasComparadas().map(f =>
       `<tr><th scope="row">${escapeHtml(f[0])}</th>` +
-      f.slice(1).map(v => `<td>${escapeHtml(v)}</td>`).join("") +
+      f.slice(1).map(celda).join("") +
       `</tr>`).join("") +
     `</tbody>
       </table>
