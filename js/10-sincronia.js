@@ -545,10 +545,34 @@ async function borrarCuenta() {
     return;
   }
 
+  /* ---- El fundador pierde algo que no se puede volver a comprar ----
+
+     No es un candado: puede irse, y la puerta se abre con un boton. Es un
+     aviso, y va en luciernaga y no en coral porque no esta rompiendo nada
+     —esta perdiendo algo—. El coral aqui mentiria sobre lo que pasa.
+
+     Y es el unico caso en toda la app donde "puedes volver a contratarlo" es
+     FALSO: los lugares son 200 y no se reponen. Decirselo antes es lo minimo;
+     enterarse despues, cuando el cupo ya se agoto, no tiene arreglo ninguno.
+
+     Va con el peso puesto en quedarse: el boton de seguir dice lo que hace y
+     el otro dice "Mejor no", que es lo que casi siempre conviene. */
+  const esFundador = typeof PLAN !== "undefined" && PLAN && PLAN.pro && PLAN.plan === "fundador";
+
+  if (esFundador) {
+    if (!await avisarOro(
+      "Tu lugar de fundador es de por vida y no se puede recuperar: al borrar la cuenta se va con ella.\n\n" +
+      "Los lugares de fundador son limitados y no se reponen. Si algún día quisieras volver, el plan " +
+      "podría estar agotado y tendrías que entrar por una suscripción normal.\n\n" +
+      "Si solo quieres empezar de cero, «Vaciar la app» te deja la cuenta —y tu lugar— intactos.",
+      "crown", "Aun así, borrar mi cuenta", "Vas a perder tu lugar de fundador", "Mejor no")) return;
+  }
+
   /* Y a quien SI puede irse pero todavia le queda plan pagado se le dice,
      porque es dinero suyo que no va a recuperar. Se le dice y se le deja
-     seguir: es su decision, no la nuestra. */
-  const pagadoQueSePierde = (typeof PLAN !== "undefined" && PLAN && PLAN.pro && PLAN.vence_el)
+     seguir: es su decision, no la nuestra. Al fundador no, que ya tuvo su
+     propia pantalla y repetirselo seria regañarle dos veces. */
+  const pagadoQueSePierde = (!esFundador && typeof PLAN !== "undefined" && PLAN && PLAN.pro && PLAN.vence_el)
     ? " Tu plan está pagado hasta el " + fechaCorta(PLAN.vence_el) + " y ese tiempo se pierde al borrarla."
     : "";
 

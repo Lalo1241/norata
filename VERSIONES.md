@@ -52,6 +52,35 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.8.2 · 27 ago 2026
+El fundador tiene su propio aviso, en luciérnaga.
+
+**Un fundador que borra su cuenta no rompe nada: pierde algo.** Y es el único
+caso de toda la app donde «puedes volver a contratarlo» sería mentira — los
+lugares son 200 y no se reponen. Así que tiene pantalla propia, con corona, y
+le dice que si algún día quisiera volver el plan podría estar agotado. También
+le recuerda que «Vaciar la app» le deja la cuenta y su lugar intactos, que casi
+siempre es lo que de verdad quería.
+
+**No es un candado**: dos botones, y el peso puesto en quedarse. El coral se
+reserva para lo que sí se rompe; el oro es para lo que tiene un coste que no
+se ve. Pintar esto de rojo lo convertía en una alarma que no era.
+
+Y dos arreglos que salieron de comprobarlo:
+
+- **El borde del modal llevaba congelado desde siempre.** `.modal-card` tenía
+  `transition: 0.22s` sobre *todas* las propiedades, y ahí dentro caía
+  `border-color`, cuyo valor sale de una variable — el caso exacto que Chrome
+  no detecta. El borde se quedaba en `--line` para siempre, también en las
+  alarmas coral; no se notó nunca porque el aro que se ve lo dibuja el
+  `box-shadow` de la animación, no el borde. Ahora la transición es solo de
+  `transform`. **Es la cuarta vez que muerde lo mismo.**
+- **Red de seguridad en pantallas bajas.** A 375×480 el aviso del fundador
+  terminaba justo en el borde inferior: cabía por un pelo, y con una letra un
+  punto mayor los botones se salían sin que se viera que faltaba algo. Ahora
+  la caja se desplaza por dentro y el botón siempre se alcanza.
+
+
 ### 0.7.8.1 · 27 ago 2026
 El candado de la cuenta preguntaba lo que no era.
 

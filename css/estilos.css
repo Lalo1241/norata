@@ -2850,7 +2850,25 @@
     width: 100%;
     max-width: 560px;
     transform: translateY(34px);
-    transition: 0.22s;
+    /* SOLO `transform`, y no `0.22s` a secas. Con la transicion abierta a
+       todas las propiedades, `border-color` quedaba dentro — y su valor sale
+       de una variable, que es justo el caso que Chrome no detecta: el borde
+       se quedaba clavado en `--line` para siempre. Llevaba asi desde el
+       principio y no se noto porque el aro que se ve en una alarma lo dibuja
+       el `box-shadow` de la animacion, no el borde. Se descubrio al añadir la
+       version dorada, comparando el color leido con el esperado.
+       Es la cuarta vez que muerde lo mismo; ver la nota de `ponerTema`. */
+    transition: transform 0.22s;
+    /* Red de seguridad para una pantalla baja. A 375x480 —un telefono
+       pequeño en horizontal, o uno normal con el teclado abierto— el aviso
+       del fundador terminaba justo en el borde: cabia por un pelo, y con una
+       letra un punto mas grande los botones se salian por debajo, que es la
+       peor forma de romperse porque no se ve que falta algo. Con esto, lo que
+       no cabe se desplaza y el boton siempre se alcanza.
+       `dvh` y no `vh`: en el movil la barra del navegador entra y sale, y
+       `vh` mide la ventana como si no estuviera. */
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
   }
   .modal-backdrop.show .modal-card { transform: none; }
   .modal-card p {
@@ -3079,6 +3097,27 @@
      parrafo en coral y en negrita se leia como una sola voz gritando, y
      entonces no destaca nada — que es lo contrario de lo que busca un aviso.
      El grito se lo queda el titulo, que es de una linea. */
+  /* ---------- El mismo aviso, en luciernaga ----------
+     Todo sale de `--fire`, que ya tiene sus dos caras: de noche el amarillo
+     claro, de dia el hundido. Solo se redefine lo que cambia de color; la
+     estructura, el temblor y el tamaño son los mismos, porque es el mismo
+     objeto diciendo algo de otra clase. */
+  .modal-card.alarm.oro {
+    border-color: var(--fire);
+    animation: alarmShake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97), oroGlow 1.6s ease-in-out 0.55s infinite;
+  }
+  .modal-card.alarm.oro p { color: var(--fire); }
+  .modal-card.oro .modal-titulo { color: var(--fire); }
+  .modal-ic.riesgo.oro { background: var(--fire-soft); color: var(--fire); }
+  .modal-card.oro .btn-danger-ghost {
+    background: var(--fire-macizo);
+    color: var(--sobre-macizo);
+  }
+  @keyframes oroGlow {
+    0%, 100% { box-shadow: 0 0 0 1px var(--fire), 0 0 22px rgba(245, 215, 110, 0.22); }
+    50% { box-shadow: 0 0 0 2px var(--fire), 0 0 46px rgba(245, 215, 110, 0.5); }
+  }
+
   .modal-card.alarm.con-titulo p {
     color: var(--text);
     font-weight: 400;
@@ -3099,6 +3138,7 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .modal-card.alarm { animation: none; box-shadow: 0 0 0 2px var(--coral), 0 0 40px rgba(255, 138, 112, 0.4); }
+    .modal-card.alarm.oro { animation: none; box-shadow: 0 0 0 2px var(--fire), 0 0 40px rgba(245, 215, 110, 0.4); }
   }
 
   /* ---------- Celebración ---------- */

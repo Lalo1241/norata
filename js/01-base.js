@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.8.1";
+const VERSION = "0.7.8.2";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -850,8 +850,15 @@ function askText(titulo, valor, okLabel, pista, max) {
    para ganar claridad en tres sitios no sale a cuenta.
 
      icono   nombre de ICONS, se dibuja arriba del texto
+     titulo  una linea encima del cuerpo; con el, el cuerpo deja de gritar
      fijo    el clic fuera NO cierra
-     soloOk  sin boton de cancelar: es un aviso, no una pregunta */
+     soloOk  sin boton de cancelar: es un aviso, no una pregunta
+     tono    "oro" para el amarillo luciernaga; por defecto, coral
+
+   El tono no es decoracion: el coral dice "esto rompe algo" y el oro dice
+   "esto tiene un coste que quiza no ves". Un fundador que borra su cuenta no
+   esta rompiendo nada —esta perdiendo algo—, y pintarlo de rojo lo convertia
+   en una alarma que no era. */
 function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
   const ex = extra || {};
   return new Promise(resolve => {
@@ -866,7 +873,8 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
     if (ic) {
       ic.innerHTML = ex.icono ? icon(ex.icono, 26) : "";
       ic.hidden = !ex.icono;
-      ic.className = "modal-ic" + (danger || alarm ? " riesgo" : "");
+      ic.className = "modal-ic" + (danger || alarm ? " riesgo" : "") +
+                     (ex.tono === "oro" ? " oro" : "");
     }
     const tit = document.getElementById("modal-titulo");
     if (tit) {
@@ -888,6 +896,7 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
        pregunta de una linea sigue yendo entera en coral, que ahi el aviso ES
        la frase. */
     card.classList.toggle("con-titulo", !!ex.titulo);
+    card.classList.toggle("oro", ex.tono === "oro");
     if (alarm) { void card.offsetWidth; card.classList.add("alarm"); }
     const fondo = document.getElementById("modal");
     fondo.classList.toggle("fijo", !!ex.fijo);
@@ -902,6 +911,14 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
 function avisar(msg, icono, okLabel, titulo) {
   return askBase(msg, false, okLabel || "Entendido", true, true, null,
                  { icono: icono || "alert", fijo: true, soloOk: true, titulo: titulo });
+}
+
+/* Como `avisar`, pero se PUEDE seguir: dos botones y el peso puesto en
+   quedarse. Para lo que tiene un coste que no se ve —perder algo, no romper
+   algo—, que es cuando el rojo miente y el oro dice la verdad. */
+function avisarOro(msg, icono, okLabel, titulo, cancelLabel) {
+  return askBase(msg, false, okLabel || "Continuar", true, true, cancelLabel || "Mejor no",
+                 { icono: icono || "alert", fijo: true, titulo: titulo, tono: "oro" });
 }
 
 /* El clic en el fondo. Se sale por aqui y no desde el atributo del marcado
