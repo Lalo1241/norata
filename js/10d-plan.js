@@ -372,3 +372,122 @@ function planReintentar(intento) {
     setTimeout(function () { planReintentar(intento + 1); }, Math.pow(2, intento) * 1000);
   });
 }
+
+/* ---- La pantalla de Ajustes ----
+
+   Vive aquí y no en `09-inicio.js` con las demás por lo mismo que el panel de
+   números vive en el suyo: todo lo que sabe de planes está en este archivo, y
+   repartirlo obliga a acordarse de dos sitios cada vez que cambie un precio.
+
+   Se dibuja con lo que ya está en memoria y NO pregunta al servidor: `PLAN` se
+   cargó al arrancar. Entrar a Ajustes a cambiar la zona horaria no tiene por
+   qué costar una llamada. */
+function renderPanelPlan() {
+  const caja = document.getElementById("panel-plan");
+  if (!caja) return;
+
+  /* Sin cuenta no hay plan que enseñar ni a quién cobrarle. Se dice y se
+     ofrece la salida, en vez de pintar tres botones que van a fallar. */
+  if (typeof syncReady === "function" && !syncReady()) {
+    caja.innerHTML =
+      `<h3>Tu plan</h3>
+       <p class="settings-note">Norata funciona entera sin cuenta, y lo que llevas hecho es tuyo. Para tener un plan hace falta una, porque es donde se guarda.</p>
+       <button class="btn btn-primary btn-block" onclick="abrirVentanaAjustes('cuenta')">Crear mi cuenta</button>`;
+    return;
+  }
+
+  if (esPro()) {
+    caja.innerHTML = `<h3>Tu plan</h3>` + planActivoHTML();
+    return;
+  }
+
+  caja.innerHTML =
+    `<h3>Tu plan</h3>
+     <div class="plan-hoy">
+       <span class="plan-hoy-t">${escapeHtml(planEtiqueta())}</span>
+       <span class="plan-hoy-s">Una rama de talentos, ${LIMITES.libre.talentos} talentos dentro, y el resumen de cada semana.</span>
+     </div>
+     <p class="settings-note">Con el plan completo se abren las ramas que quieras, el ático entero y los resúmenes del mes y del año. Lo que ya escribiste no se toca nunca.</p>
+     <div class="plan-cards">` +
+    Object.keys(PLANES).map(k => planTarjetaHTML(k)).join("") +
+    `</div>
+     <p class="settings-note plan-pie">El cobro lo hace Stripe. Tu tarjeta no pasa por Norata.</p>`;
+
+  /* Los lugares de fundador se piden después de pintar y sin esperarlos: es un
+     número de adorno, y si el servidor no contesta la tarjeta se queda como
+     está en vez de decir "quedan 0" y espantar a quien iba a comprar. */
+  lugaresDeFundador().then(n => {
+    const el = document.getElementById("plan-cupo");
+    if (!el || n === null) return;
+    el.textContent = n > 0 ? "Quedan " + n + " lugares" : "Ya se agotaron";
+  });
+}
+
+function planActivoHTML() {
+  const p = PLANES[PLAN.plan] || {};
+  let nota;
+  if (PLAN.plan === "fundador") {
+    nota = "Es para siempre. No hay nada que renovar ni que cancelar.";
+  } else if (PLAN.estado === "impago") {
+    nota = "No pudimos cobrar tu último recibo. Revisa tu tarjeta para que no se interrumpa.";
+  } else if (!PLAN.renueva && PLAN.vence_el) {
+    nota = "Cancelaste, y sigue funcionando hasta el " + fechaCorta(PLAN.vence_el) + ". Nada de lo tuyo se borra ese día.";
+  } else if (PLAN.vence_el) {
+    nota = "Se renueva solo el " + fechaCorta(PLAN.vence_el) + ".";
+  } else {
+    nota = "Activo.";
+  }
+
+  return `<div class="plan-hoy activo">
+      <span class="plan-hoy-t">${escapeHtml(p.nombre || PLAN.plan)}</span>
+      <span class="plan-hoy-s">${escapeHtml(nota)}</span>
+    </div>` +
+    /* Fundador no tiene nada que gestionar —ni tarjeta que cambiar ni
+       suscripción que cancelar—, pero sí recibos que mirar, así que el botón
+       se queda para todos y solo cambia lo que promete. */
+    `<button class="btn btn-soft btn-block" onclick="irAlPortal(this)">${
+      PLAN.plan === "fundador" ? "Ver mi recibo" : "Cambiar tarjeta o cancelar"
+    }</button>`;
+}
+
+function planTarjetaHTML(k) {
+  const p = PLANES[k];
+  return `<div class="plan-card${p.destacado ? " destacada" : ""}">
+      ${p.destacado ? '<span class="plan-tag">El que sale mejor</span>' : ""}
+      <span class="plan-n">${escapeHtml(p.nombre)}</span>
+      <span class="plan-p">${escapeHtml(p.precio)} <i>${escapeHtml(p.periodo)}</i></span>
+      <span class="plan-d">${escapeHtml(p.pie)}</span>
+      ${p.cupo ? '<span class="plan-cupo" id="plan-cupo">&nbsp;</span>' : ""}
+      <button class="btn ${p.destacado ? "btn-primary" : "btn-soft"} btn-block"
+        onclick="irAPagarDesdeAjustes('${k}', this)">Elegir</button>
+    </div>`;
+}
+
+/* Los dos botones desactivan mientras esperan. Sin esto, el segundo entra a
+   Stripe llevándose por delante al primero: la respuesta tarda un segundo
+   largo y un segundo largo con un botón que no reacciona invita a insistir. */
+async function irAPagarDesdeAjustes(cual, btn) {
+  const antes = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Abriendo…";
+  try {
+    await irAPagar(cual);
+  } catch (e) {
+    toast(e.message, "aviso");
+    btn.disabled = false;
+    btn.textContent = antes;
+  }
+}
+
+async function irAlPortal(btn) {
+  const antes = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Abriendo…";
+  try {
+    await abrirPortalDePago();
+  } catch (e) {
+    toast(e.message, "aviso");
+    btn.disabled = false;
+    btn.textContent = antes;
+  }
+}

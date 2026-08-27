@@ -17,3 +17,7 @@ mainquest-respaldo-*.json
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Basura que genera la CLI de Supabase al conectarse con el proyecto.
+# No es del proyecto y se rehace sola.
+supabase/.temp/

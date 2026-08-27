@@ -182,19 +182,29 @@ async function aplicarSuscripcion(
   const uid = await duenoDe(SB, SERVICIO, sub.metadata, undefined, cliente);
   if (!uid) return "sin dueno";
 
-  const precio = sub.items?.data?.[0]?.price?.id;
+  const renglon = sub.items?.data?.[0];
+  const precio = renglon?.price?.id;
   const plan = planDePrecio(precio) || sub.metadata?.plan || "mensual";
   const estado = estadoDe(sub.status);
+
+  /* `current_period_end` cambio de sitio en las versiones nuevas de la API de
+     Stripe: dejo de estar en la suscripcion y paso a vivir en cada renglon
+     (`items.data[].current_period_end`). Se prueban las dos rutas para que de
+     igual con que version quede configurado el webhook — probado el 27 ago
+     2026, con la version 2026-07-29.dahlia, donde YA NO esta en la raiz y
+     `sub.current_period_end` viene vacio en silencio: sin este respaldo, todo
+     el mundo paga y se queda con `vence_el` en null para siempre. */
+  const finDePeriodo = sub.current_period_end ?? renglon?.current_period_end;
 
   await guardar(SB, SERVICIO, uid, {
     plan: plan,
     estado: estado,
-    /* `current_period_end` es la fecha hasta la que esta pagado, y se copia
-       incluso cuando la suscripcion ya se cancelo: es lo que permite que a
-       quien cancela el dia 2 le siga funcionando hasta el 30. Quitar esto
-       para "simplificar" apaga el plan de alguien que ya pago ese mes. */
-    vence_el: sub.current_period_end
-      ? new Date(sub.current_period_end * 1000).toISOString()
+    /* Es la fecha hasta la que esta pagado, y se copia incluso cuando la
+       suscripcion ya se cancelo: es lo que permite que a quien cancela el
+       dia 2 le siga funcionando hasta el 30. Quitar esto para "simplificar"
+       apaga el plan de alguien que ya pago ese mes. */
+    vence_el: finDePeriodo
+      ? new Date(finDePeriodo * 1000).toISOString()
       : null,
     renueva: !sub.cancel_at_period_end && (sub.status === "active" || sub.status === "trialing"),
     cliente: cliente || null,

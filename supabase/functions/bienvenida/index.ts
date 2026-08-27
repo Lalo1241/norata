@@ -47,7 +47,7 @@ function cabecerasCORS(origen: string | null) {
   const ok = origen && PERMITIDOS.includes(origen) ? origen : PERMITIDOS[0];
   return {
     "Access-Control-Allow-Origin": ok,
-    "Access-Control-Allow-Headers": "authorization, content-type",
+    "Access-Control-Allow-Headers": "authorization, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
   };
 }

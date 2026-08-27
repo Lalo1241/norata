@@ -4865,3 +4865,47 @@
 .pn-error-tit b { font-size: .84rem; font-weight: 600; color: var(--text); word-break: break-word; }
 .pn-error-tit span { font-size: .76rem; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
 .pn-error-pie { font-size: .72rem; color: var(--muted); margin-top: 3px; }
+
+/* ================= Mi plan =================
+   Todo sale de las variables de :root, así que el modo claro no necesita ni
+   una regla propia aquí abajo. */
+
+/* Lo que tienes hoy. Va antes que las opciones a propósito: la primera
+   pregunta de quien entra es «¿qué tengo?», no «¿qué me venden?». */
+.plan-hoy {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 13px 15px; border-radius: 12px;
+  background: var(--card2); border: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+.plan-hoy.activo { border-color: var(--mint); background: var(--mint-soft); }
+.plan-hoy-t { font-weight: 700; font-size: 16px; color: var(--text); }
+.plan-hoy-s { font-size: 13px; color: var(--muted); line-height: 1.45; }
+
+.plan-cards { display: grid; gap: 10px; margin: 14px 0 4px; }
+@media (min-width: 900px) { .plan-cards { grid-template-columns: repeat(3, 1fr); } }
+
+.plan-card {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 15px; border-radius: 12px;
+  background: var(--card2); border: 1px solid var(--line);
+  position: relative;
+}
+/* El borde y no un fondo de color: son tres tarjetas juntas y teñir una
+   entera la separa tanto del conjunto que parece de otra pantalla. */
+.plan-card.destacada { border-color: var(--mint); }
+
+.plan-tag {
+  position: absolute; top: -9px; left: 13px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
+  padding: 2px 8px; border-radius: 99px;
+  background: var(--mint-macizo); color: var(--sobre-macizo);
+}
+.plan-n { font-weight: 700; font-size: 15px; color: var(--text); }
+.plan-p { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1.1; }
+.plan-p i { font-style: normal; font-size: 12.5px; font-weight: 500; color: var(--muted); }
+.plan-d { font-size: 12.5px; color: var(--muted); line-height: 1.45; min-height: 34px; }
+.plan-cupo { font-size: 12px; font-weight: 600; color: var(--fire); }
+.plan-card .btn { margin-top: 8px; }
+
+.plan-pie { margin-top: 12px; }

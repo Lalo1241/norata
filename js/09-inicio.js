@@ -691,6 +691,7 @@ function detectedTZ() {
    algo suyo. */
 const AJUSTES_SECS = [
   { id: "cuenta", nombre: "Mi perfil",      icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
+  { id: "plan",   nombre: "Mi plan",        icon: "gem",     sub: "Qué tienes abierto y cómo cambiarlo" },
   { id: "menu",   nombre: "Mis módulos",    icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
   { id: "datos",  nombre: "Almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" }
 ];
@@ -749,6 +750,7 @@ function renderAjustes() {
      las métricas cuesta una llamada al servidor, y no tiene sentido pagarla
      cada vez que alguien entra a Ajustes a cambiar la zona horaria. */
   if (ajusteAbierto === "admin" && typeof renderPanelAdmin === "function") renderPanelAdmin();
+  if (ajusteAbierto === "plan" && typeof renderPanelPlan === "function") renderPanelPlan();
 
   const abierta = seccionesAjustes().find(x => x.id === ajusteAbierto);
   const titulo = document.getElementById("ajustes-titulo");

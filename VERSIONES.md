@@ -52,6 +52,31 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.7 · 27 ago 2026
+«Mi plan», dentro de Ajustes, y el primer cobro de verdad.
+
+- **La pantalla que faltaba.** Hasta ahora el cobro existía entero por dentro
+  pero no había ni un botón: la única puerta era escribir `?comprar=anual` en
+  la dirección. Ahora hay una sección en Ajustes que dice qué tienes y, si no
+  tienes nada, enseña los tres planes. Seis estados, todos comprobados: sin
+  cuenta, libre, activo, cancelado-pero-vigente, fundador e impago.
+- **A quien canceló se le dice que sigue teniéndolo**, con la fecha. Es la
+  frase que más importa de toda la pantalla y por eso está separada de las
+  demás: quien cancela no pierde lo que ya pagó.
+- **Un fallo del cobro, encontrado pagando de verdad.** El primer pago guardó
+  `vence_el` vacío y el plan no se encendía. Stripe movió `current_period_end`
+  de la suscripción a cada uno de sus renglones en las versiones nuevas de su
+  API, y el campo viejo no da error: devuelve vacío. `cobro` ahora prueba las
+  dos rutas. Se corrigió sin volver a cobrar, reenviando el aviso desde el
+  panel de Stripe.
+- **Y otro de CORS.** `pagar` y `bienvenida` no permitían la cabecera `apikey`,
+  que la app sí manda, así que el navegador cortaba la llamada antes de salir
+  y solo se veía un «Failed to fetch». Las dos redesplegadas.
+
+Los límites del plan libre siguen declarados y sin aplicarse en ninguna
+pantalla. Ese sigue siendo el paso siguiente.
+
+
 ### 0.7.6.3 · 26 ago 2026
 La gráfica del panel salía en negro, y ahora es una constelación.
 
