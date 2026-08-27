@@ -52,6 +52,38 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.9 · 27 ago 2026
+Las ventanas de borrar, con icono y con una pregunta al final.
+
+- **Dos iconos nuevos**: `puerta` —entreabierta, con su picaporte— y
+  `papelera`. Los dos con el mismo trazo de 1,8 y comprobados dentro del
+  lienzo de 24, para que no desentonen con los cuarenta que ya había.
+- **«Vaciar la app»** estrena papelera y el título «Vas a vaciar la app.»
+- **«Borrar mi cuenta»** estrena la puerta, el título «Estás a punto de borrar
+  tu cuenta.» y el texto nuevo, con los 30 días naturales y lo que se pierde
+  del plan pagado.
+- **Una caja para contar por qué te vas**, opcional y estirable, debajo de la
+  frase de confirmación. **Todavía no se manda a ninguna parte**, y está
+  escrito así en el código: `guardarMotivoDeBaja()` es el único sitio donde
+  habrá que enchufar el envío, el mismo que usará el botón de reportar fallos.
+
+Y dos fallos que salieron de comprobarlo, los dos anteriores a esta tanda:
+
+- **Había un círculo gris vacío** encima del texto en todas las ventanas que
+  no piden icono. `hidden` no escondía nada: ese atributo trae `display: none`
+  de la hoja del navegador y el `display: flex` del CSS le ganaba por ser de
+  autor. Lo raro es que solo se veía donde NO había icono, que es justo lo que
+  lo hacía difícil de atribuir.
+- **El modal se dibujaba 34 px más abajo de donde debía, siempre.** La
+  transición sobre `transform` no llegaba a correr nunca y la tarjeta se
+  quedaba con el desplazamiento inicial puesto — medido: quitando la
+  transición a mano, `transform` pasa a `none` al instante. En una pantalla de
+  480 px de alto eso recortaba los botones por debajo sin que se viera que
+  faltaba algo. **Quinta vez que muerde una transición**; el remedio, el de
+  siempre. No se pierde ninguna animación, porque la que había no ocurría: la
+  entrada la hace el velo del fondo, que sí funciona.
+
+
 ### 0.7.8.2 · 27 ago 2026
 El fundador tiene su propio aviso, en luciérnaga.
 

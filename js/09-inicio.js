@@ -997,7 +997,12 @@ function importData(input) {
 }
 
 async function resetAll() {
-  if (!await ask("¿Borrar TODAS tus habilidades, misiones, talentos, proyectos y todo tu progreso? Esta acción no se puede deshacer.", "Borrar todo", true)) return;
+  /* Papelera y no candado: aqui no se cierra nada, se tira. El icono dice de
+     que va antes de que el ojo llegue a leer "TODAS". */
+  if (!await askBase(
+    "Se van tus habilidades, misiones, talentos, proyectos y todo el progreso que llevas. Esta acción no se puede deshacer.",
+    false, "Borrar todo", true, false, null,
+    { icono: "papelera", titulo: "Vas a vaciar la app." })) return;
 
   /* En una cuenta de verdad no basta con pulsar dos veces. Quien usa una
      cuenta para experimentar y otra para su vida acaba borrando en la que no

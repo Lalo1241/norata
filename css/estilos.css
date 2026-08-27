@@ -2849,16 +2849,26 @@
     padding: 26px 20px calc(26px + env(safe-area-inset-bottom));
     width: 100%;
     max-width: 560px;
-    transform: translateY(34px);
-    /* SOLO `transform`, y no `0.22s` a secas. Con la transicion abierta a
-       todas las propiedades, `border-color` quedaba dentro — y su valor sale
-       de una variable, que es justo el caso que Chrome no detecta: el borde
-       se quedaba clavado en `--line` para siempre. Llevaba asi desde el
-       principio y no se noto porque el aro que se ve en una alarma lo dibuja
-       el `box-shadow` de la animacion, no el borde. Se descubrio al añadir la
-       version dorada, comparando el color leido con el esperado.
-       Es la cuarta vez que muerde lo mismo; ver la nota de `ponerTema`. */
-    transition: transform 0.22s;
+    /* SIN `transition`, y sin el `translateY(34px)` que la acompañaba.
+       Aqui hubo dos cosas, y la segunda es peor que la primera:
+
+       1. La transicion estaba abierta a TODAS las propiedades (`0.22s` a
+          secas) y ahi dentro caia `border-color`, cuyo valor sale de una
+          variable — el caso que Chrome no detecta—. El borde se quedaba
+          clavado en `--line` para siempre, tambien en las alarmas; no se noto
+          nunca porque el aro que se ve lo dibuja el `box-shadow`.
+
+       2. Al acotarla a `transform` se vio lo de verdad: la transicion del
+          transform tampoco corria. La tarjeta se quedaba con los 34px
+          puestos, o sea 34px MAS ABAJO de donde debia, y en una pantalla
+          baja eso recorta los botones por debajo sin que se vea que faltan.
+          Medido: con la transicion quitada a mano, `transform` pasa a `none`
+          al instante; con ella puesta, se queda en 34 para siempre.
+
+       Asi que se quita, que es el remedio de siempre en esta casa. No se
+       pierde ninguna animacion: la que habia no llegaba a ocurrir. La entrada
+       la sigue haciendo el velo del fondo, que se desvanece con su propia
+       transicion de opacidad y esa si funciona. */
     /* Red de seguridad para una pantalla baja. A 375x480 —un telefono
        pequeño en horizontal, o uno normal con el teclado abierto— el aviso
        del fundador terminaba justo en el borde: cabia por un pelo, y con una
@@ -2870,7 +2880,6 @@
     max-height: calc(100dvh - 24px);
     overflow-y: auto;
   }
-  .modal-backdrop.show .modal-card { transform: none; }
   .modal-card p {
     font-size: 15px;
     line-height: 1.55;
@@ -3069,6 +3078,68 @@
     color: var(--coral);
   }
   .modal-ic svg { display: block; }
+  /* Sin esto, `hidden` no esconde nada: el atributo trae `display: none` de
+     la hoja del navegador y el `display: flex` de arriba le gana por ser de
+     autor. Se veia como un circulo gris vacio flotando encima del texto en
+     todas las ventanas que no piden icono — y no en las que si, que es lo que
+     lo hacia dificil de atribuir. */
+  .modal-ic[hidden] { display: none; }
+
+  /* ---------- La caja del motivo ----------
+     Va debajo del campo que confirma, separada por aire y alineada a la
+     izquierda: lo de arriba es un tramite y esto es una pregunta de verdad,
+     y centrarla la habria disfrazado de aviso. */
+  .modal-motivo {
+    display: block;
+    margin-top: 18px;
+    text-align: left;
+  }
+  .modal-motivo > span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  /* "Opcional" en una pastilla y no entre parentesis: entre parentesis se lee
+     como parte de la pregunta y se salta, y justo esa palabra es la que quita
+     la sensacion de examen. */
+  .modal-motivo > span i {
+    font-style: normal;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 99px;
+    background: var(--card2);
+    /* `--muted` y no `--faint`: medido, el apagado daba 2,58 sobre 1 dentro de
+       la pastilla. Es texto de 10,5px, o sea del que mas contraste necesita
+       justo cuando mas tienta bajarlo. */
+    color: var(--muted);
+  }
+  .modal-motivo textarea {
+    display: block;
+    width: 100%;
+    min-height: 74px;
+    /* Solo hacia abajo. En horizontal, estirarla se sale de la ventana y deja
+       el texto cortado sin forma de volver. */
+    resize: vertical;
+    padding: 11px 13px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--bg2);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .modal-motivo textarea::placeholder { color: var(--faint); }
+  .modal-motivo textarea:focus-visible {
+    outline: none;
+    border-color: var(--mint);
+  }
 
   /* Con un solo boton, que ocupe el ancho: centrado y a medias parece que
      falta el otro, que es justo lo que se quiere evitar en un aviso. */
@@ -4714,11 +4785,9 @@
       max-width: 460px;
       border-radius: 26px;
       border-bottom: 1px solid var(--line);
-      transform: scale(0.96);
       margin-bottom: 0;
       padding: 28px 26px;
     }
-    .modal-backdrop.show .modal-card { transform: none; }
 
     /* En escritorio la pila se ancla a la esquina y crece hacia arriba */
     #toast { bottom: 34px; left: auto; right: 34px; transform: none; align-items: flex-end; }

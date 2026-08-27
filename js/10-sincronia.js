@@ -492,6 +492,25 @@ async function syncDisconnect() {
 
 const FRASE_BORRAR = "BORRAR MI CUENTA";
 
+/* Lo que alguien escribe al irse. HOY NO SE MANDA A NINGUNA PARTE, y esta
+   escrito aqui para que quede claro y no se de por hecho lo contrario: es el
+   sitio unico donde enchufar el envio cuando exista el camino —el mismo que
+   va a usar el boton de reportar fallos, que tampoco existe todavia—.
+
+   No se guarda en este aparato a proposito: el motivo se escribe justo antes
+   de borrar la cuenta, y lo que se guarde aqui se va con ella en la misma
+   linea. Guardarlo seria fingir que se conserva.
+
+   Va envuelto en `try` porque esta a un paso de un borrado: el dia que esto
+   mande algo por red, un fallo suyo no puede impedir que alguien se vaya. */
+function guardarMotivoDeBaja(texto) {
+  try {
+    const t = String(texto || "").trim();
+    if (!t) return;
+    console.log("[motivo de baja, aun sin enviar]", t);
+  } catch (e) { /* irse nunca puede fallar por esto */ }
+}
+
 function renderZonaCuenta() {
   const el = document.getElementById("zona-cuenta");
   if (!el) return;
@@ -573,21 +592,26 @@ async function borrarCuenta() {
      seguir: es su decision, no la nuestra. Al fundador no, que ya tuvo su
      propia pantalla y repetirselo seria regañarle dos veces. */
   const pagadoQueSePierde = (!esFundador && typeof PLAN !== "undefined" && PLAN && PLAN.pro && PLAN.vence_el)
-    ? " Tu plan está pagado hasta el " + fechaCorta(PLAN.vence_el) + " y ese tiempo se pierde al borrarla."
+    ? "\n\nTu plan actual está pagado hasta el " + fechaCorta(PLAN.vence_el) +
+      ". Se perderá el tiempo que sobre después de borrarse tu cuenta de forma definitiva."
     : "";
 
-  if (!await ask(
-    "Se cerrará tu sesión y este dispositivo quedará vacío. La cuenta " + correo +
-    " se borrará dentro de 30 días; hasta entonces puedes recuperarla entrando otra vez con tu correo." +
-    pagadoQueSePierde,
-    "Continuar", true)) return;
+  if (!await askBase(
+    "Se cerrará tu sesión y este dispositivo perderá tu progreso. La cuenta " + correo +
+    " se borrará dentro de 30 días naturales; hasta entonces podrás recuperarla entrando nuevamente " +
+    "con tu correo." + pagadoQueSePierde,
+    false, "Continuar", true, false, null,
+    { icono: "puerta", titulo: "Estás a punto de borrar tu cuenta." })) return;
 
   /* Una frase y no un "¿seguro?": el segundo se pulsa con el dedo ya en
      camino, sin leerlo. Escribir tres palabras obliga a parar. */
-  const escrito = await askText(
+  const respuesta = await askText(
     "Escribe " + FRASE_BORRAR + " para confirmar que quieres borrarla.",
-    "", "Borrar la cuenta", FRASE_BORRAR, 40);
-  if (escrito === null) return;
+    "", "Borrar la cuenta", FRASE_BORRAR, 40,
+    { titulo: "¿Nos cuentas por qué te vas?", pista: "Lo que no funcionó, lo que echaste de menos, lo que sea." });
+  if (respuesta === null || respuesta.texto === null) return;
+  const escrito = respuesta.texto;
+  guardarMotivoDeBaja(respuesta.motivo);
   if (String(escrito).trim().toUpperCase() !== FRASE_BORRAR) {
     toast("No coincide. No borré nada.", "calma");
     return;

@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.8.2";
+const VERSION = "0.7.9";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -105,6 +105,14 @@ const ICONS = {
      perpendiculares a ella, que es lo que la distingue de una paleta. */
   key: '<circle cx="7.6" cy="15.4" r="4.6"/><path d="M10.9 12.1L20.5 2.5"/><path d="M15.2 7.8l2.3 2.3"/><path d="M17.9 5.1l2.3 2.3"/>',
   lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',
+  /* Una puerta entreabierta: el marco fijo y la hoja abierta hacia dentro, en
+     perspectiva. La hoja se estrecha por arriba y por abajo —de ahi que sus
+     dos lados no sean paralelos— porque una puerta abierta de frente se ve
+     asi; dibujada como un rectangulo recto parecia un armario. */
+  puerta: '<path d="M3 21h18"/><path d="M6 21V4a1 1 0 011.2-1l7 -1.4A1 1 0 0115.4 2.6v18.4"/><path d="M15.4 5.5H19a1 1 0 011 1V21"/><circle cx="12.4" cy="12" r=".9"/>',
+  /* Una papelera. La tapa aparte del cuerpo y dos rayas dentro: sin ellas se
+     confunde con un vaso a tamaño pequeño. */
+  papelera: '<path d="M4 7h16"/><path d="M10 4h4"/><path d="M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/><path d="M10 11v6M14 11v6"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   play: '<path d="M8 5.5l11 6.5-11 6.5z" stroke-linejoin="round"/>',
   alert: '<path d="M12 7v7M12 17.4v.2"/>',
@@ -819,11 +827,23 @@ function askHtml(html, okLabel, cancelLabel) {
    en pantalla. Pero se puede subir, y hace falta: para confirmar algo
    escribiendo un correo, 42 se queda corto y el usuario se quedaría sin poder
    completar nunca la confirmación. */
-function askText(titulo, valor, okLabel, pista, max) {
+/* El sexto argumento, `motivo`, añade debajo una caja de texto opcional. Solo
+   la piden las despedidas —irse de Norata— y por eso no esta siempre: en un
+   cuadro para renombrar una rama, preguntar "¿por que?" seria absurdo.
+
+   Cuando la lleva, devuelve `{ texto, motivo }` en vez de una cadena suelta.
+   Es un cambio de forma feo, pero la alternativa —devolver siempre un objeto—
+   obligaba a tocar las quince llamadas que ya existen para no ganar nada. */
+function askText(titulo, valor, okLabel, pista, max, motivo) {
   const p = askHtml(
     `<b style="display:block;margin-bottom:12px">${escapeHtml(titulo)}</b>
      <input id="modal-input" type="text" maxlength="${Number(max) || 42}" value="${escapeAttr(valor || "")}">
-     ${pista ? `<span class="field-hint" style="display:block;text-align:left">${escapeHtml(pista)}</span>` : ""}`,
+     ${pista ? `<span class="field-hint" style="display:block;text-align:left">${escapeHtml(pista)}</span>` : ""}
+     ${motivo ? `<label class="modal-motivo">
+       <span>${escapeHtml(motivo.titulo || "¿Nos cuentas por qué te vas?")} <i>Opcional</i></span>
+       <textarea id="modal-motivo" rows="3" maxlength="600"
+         placeholder="${escapeAttr(motivo.pista || "Lo que quieras contarnos.")}"></textarea>
+     </label>` : ""}`,
     okLabel || "Guardar");
   /* setTimeout y no requestAnimationFrame: el cuadro tiene que quedar listo
      para escribir aunque la pestaña esté en segundo plano, y ahí los cuadros
@@ -840,7 +860,13 @@ function askText(titulo, valor, okLabel, pista, max) {
   }, 0);
   return p.then(ok => {
     const el = document.getElementById("modal-input");
-    return ok ? (el ? el.value.trim() : "") : null;
+    const mot = document.getElementById("modal-motivo");
+    /* Los valores se leen ANTES de que el modal se reutilice. Con `motivo` hay
+       dos campos y uno se leia tarde: para cuando se preguntaba, el siguiente
+       cuadro ya habia reescrito el cuerpo y volvia vacio. */
+    const texto = ok ? (el ? el.value.trim() : "") : null;
+    if (!motivo) return texto;
+    return { texto: texto, motivo: (ok && mot) ? mot.value.trim() : "" };
   });
 }
 
