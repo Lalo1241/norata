@@ -2818,12 +2818,35 @@
   .zoom-mando button:disabled { opacity: 0.32; cursor: default; }
   /* El porcentaje es un botón, no un rótulo: tocarlo ajusta todo a la
      pantalla. Por eso mide más y lleva la letra del texto normal. */
+  /* El porcentaje es un campo escribible, no un rótulo. Va sin borde ni fondo
+     propios para que se lea como parte del mando y no como un formulario
+     metido en una esquina. */
   .zoom-mando .pct {
-    width: auto;
-    padding: 0 9px;
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    padding: 0 4px 0 7px;
     font-size: 11.5px;
     font-variant-numeric: tabular-nums;
     color: var(--text);
+  }
+  .zoom-mando .pct input {
+    font: inherit;
+    font-weight: 700;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    outline: none;
+    width: 3ch;
+    padding: 0;
+    text-align: right;
+  }
+  .zoom-mando .pct i { font-style: normal; color: var(--muted); }
+  .zoom-mando .pct:focus-within { color: var(--mint); }
+  .zoom-mando .ajustar svg {
+    width: 15px; height: 15px;
+    fill: none; stroke: currentColor; stroke-width: 1.9;
+    stroke-linecap: round; stroke-linejoin: round;
   }
 
   /* ================= El nivel de detalle =================
@@ -5274,7 +5297,20 @@
   }
   .streak-mes .cal-mes { max-width: 100%; margin: 0; }
   .streak-mes .cal-dow { display: none; }
-  .streak-mes .cal-rejilla { gap: 3px; }
+  /* ---- El mes dentro de la racha: casillas con tope ----
+     Las casillas del calendario son `1fr` con proporción cuadrada, que es lo
+     que evita que se queden hechas un sello. Pero dentro de la tarjeta de la
+     racha —que en escritorio mide 728 px— eso las estiraba a 101×101 y el mes
+     ocupaba 624 px de alto: la tarjeta se volvía una parrilla gigante.
+
+     El tope va en la CASILLA y no en el ancho del calendario: así se encoge
+     sola en un teléfono estrecho y deja de crecer en cuanto hay sitio de
+     sobra, sin que nadie tenga que acertar un ancho máximo. */
+  .streak-mes .cal-rejilla {
+    gap: 3px;
+    grid-template-columns: repeat(7, minmax(0, 30px));
+    justify-content: start;
+  }
   .streak-mes .cal-rejilla i { border-radius: 3px; }
   .streak-mes .inf-escala { display: none; }
 
@@ -6188,7 +6224,11 @@
   flex-wrap: wrap;
   gap: 8px 18px;
   align-items: flex-end;
-  margin-bottom: 14px;
+  /* Debajo del dibujo, con una raya que las separa: sin ella se leían como si
+     fueran parte del eje de abajo. */
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
 }
 .pn-gc { display: flex; flex-direction: column; gap: 1px; }
 .pn-gc b {

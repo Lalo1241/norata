@@ -97,7 +97,18 @@ const PLANES = {
     nombre: "Fundador",
     precio: "$890 MXN",
     periodo: "una sola vez",
-    pie: "Pago único. No se renueva ni se cancela: es tuyo y ya.",
+    /* El pie ya no repite que es un pago único: eso lo dicen la franja de la
+       tarjeta y la primera ventaja, y era la tercera vez en quince centímetros.
+       Aquí hace falta otra cosa.
+
+       «Fundador» en español dice que fundaste la cosa, y no es lo que significa
+       aquí: significa que llegaste al principio y confiaste en el proyecto.
+       Eduardo lo vio y no quería el malentendido. Se valoró renombrarlo
+       —«Norata Origen» era la alternativa— y eligió quedarse con el nombre y
+       desactivar la confusión con esta frase, que además evita el otro
+       problema del nombre: en español, un cargo en masculino deja fuera a
+       media clientela, y esta frase no tiene género. */
+    pie: "Para quienes llegaron al principio y confiaron en Norata.",
     /* Destacado también, pero diciendo otra cosa y en otro color. «Recomendado»
        y «Tiempo limitado» no compiten: el primero responde «¿cuál me conviene?»
        y el segundo «¿hasta cuándo puedo?». Con la misma palabra y el mismo

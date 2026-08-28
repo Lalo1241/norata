@@ -99,13 +99,13 @@ function panelConstelacion(dias) {
     return `<p class="settings-note">Todavía no hay ni un día con actividad. Aparecerá en cuanto alguien abra la app con su cuenta.</p>`;
   }
 
-  /* Más alto y con sitio a la izquierda para la escala. Antes eran 152 con 14
-     de margen: la línea flotaba en el centro y los números del eje no cabían,
-     así que el único sitio donde se decía cuánto valía un punto era una frase
-     debajo del dibujo. Una gráfica que hay que leer por debajo no es una
-     gráfica. */
-  const W = 340, H = 190;
-  const izq = 30, der = 16, arr = 16, aba = 34;
+  /* Con sitio a la izquierda para la escala —los números del eje no cabían en
+     los 14 de margen que había— pero MÁS BAJO que antes. Subió a 190 al añadir
+     la escala y quedó demasiado aire entre la línea y el suelo: con cifras
+     pequeñas la gráfica es casi toda hueco. 132 la deja proporcionada sin
+     apretar los números del eje. */
+  const W = 340, H = 132;
+  const izq = 30, der = 16, arr = 14, aba = 26;
   const util = W - izq - der;
   const alto = H - arr - aba;
   const suelo = arr + alto;
@@ -244,11 +244,13 @@ function panelConstelacion(dias) {
       ${tendencia ? `<div class="pn-gc tend">${tendencia}</div>` : ""}
     </div>`;
 
-  /* Las cifras van ARRIBA del dibujo y no debajo. Es donde cae el ojo al
-     entrar en la caja, y son la respuesta corta; la línea es el detalle de
-     esa respuesta. Al revés —como estaba— había que mirar una forma sin
-     escala, no entenderla, y encontrar el único número al final. */
-  return resumen + `<svg class="pn-cielo" viewBox="0 0 ${W} ${H}" role="img"
+  /* La gráfica arriba y las cifras debajo, que es como lo quiso Eduardo al
+     verlo montado. Estuvieron encima un rato y el orden se lee peor de lo que
+     parecía sobre el papel: la caja ya tiene su título y su párrafo, así que
+     tres números más antes del dibujo eran un cuarto bloque de texto antes de
+     llegar a lo que se viene a ver. Debajo funcionan como el pie de una foto —
+     miras la forma, y ahí está lo que no se podía leer de ella. */
+  return `<svg class="pn-cielo" viewBox="0 0 ${W} ${H}" role="img"
             aria-label="Personas activas y cuentas nuevas cada día durante los últimos catorce días. Media de ${media} al día, máximo de ${tope}.">
       ${reja}
       ${marcas}
@@ -257,7 +259,8 @@ function panelConstelacion(dias) {
       ${estrellas}
       ${fechas}
     </svg>
-    ${pie}`;
+    ${pie}
+    ${resumen}`;
 }
 
 /* ---- La dona ----

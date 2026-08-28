@@ -52,6 +52,21 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.33.2 · 28 ago 2026
+La gráfica encoge y sus cifras bajan al pie.
+
+- **Las cifras pasan de encima del dibujo a debajo.** Estuvieron arriba un rato
+  y el orden se lee peor de lo que parecía sobre el papel: la caja ya tiene su
+  título y su párrafo, así que tres números más antes de la gráfica eran un
+  cuarto bloque de texto antes de llegar a lo que se viene a ver. Debajo
+  funcionan como el pie de una foto — miras la forma, y ahí está lo que no se
+  podía leer de ella. Con una raya que las separa, o se leían como parte del
+  eje de abajo.
+- **Y la gráfica encoge**: de 190 a 132 de alto. Había subido al añadir la
+  escala y quedó demasiado aire entre la línea y el suelo — con cifras
+  pequeñas era casi todo hueco. 132 la deja proporcionada sin apretar los
+  números del eje.
+
 ### 0.7.33.1 · 28 ago 2026
 Fundador se llama como se llama, y las dos tarjetas se alinean solas.
 

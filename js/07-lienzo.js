@@ -71,14 +71,29 @@ const scrollRama = {};
    la dejaste, y eso incluye cuánto habías acercado. */
 const zoomRama = {};
 
-const ZOOM_MIN = 0.25, ZOOM_MAX = 2, ZOOM_PASO = 1.25;
+/* De 50 a 150 y siempre de cinco en cinco. Antes iba de 25 a 200 y por
+   multiplicación (×1.25), y eso hacía dos cosas mal: los saltos eran enormes
+   —de 80 a 100 de un golpe— y el número que salía en el mando era cualquiera,
+   así que no se podía escribir uno a mano ni volver al que tenías. */
+const ZOOM_MIN = 0.5, ZOOM_MAX = 1.5, ZOOM_PASO = 0.05;
+
+/* Todo pasa por aquí: los botones, la rueda, el pellizco y lo que se escribe.
+   Si un gesto continuo —el pellizco— no se redondeara, el mando enseñaría
+   87 % un instante y 88 % al siguiente, y el número dejaría de servir para
+   volver a un nivel concreto. */
+function pasoDeZoom(z) {
+  return limitarZoom(Math.round(z / ZOOM_PASO) * ZOOM_PASO);
+}
 
 function zoomDe(wrap, b) {
   const z = zoomRama[llaveDeLienzo(wrap, b)];
   return typeof z === "number" ? z : 1;
 }
 
-function limitarZoom(z) { return Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z)); }
+function limitarZoom(z) {
+  // El redondeo deja colas de coma flotante (0.7500000000000001): se cortan
+  return Math.round(Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z)) * 1000) / 1000;
+}
 
 /* Escribe el tamaño del SVG. El alto de la TARJETA no se toca aquí: en la
    lista lo fija `encuadrarLienzo` a partir de lo que mide el dibujo, y si
@@ -101,16 +116,19 @@ function aplicarZoom(wrap, b) {
    chapa de estado, luego el nombre, y lo último que queda es la figura con su
    icono — que es lo que deja reconocer un nodo de un vistazo. Lo hace el CSS
    con una clase, así que cambiar de nivel no vuelve a dibujar nada. */
+/* Los cortes van repartidos dentro del rango que existe (50–150), no en
+   abstracto: con el rango viejo el nivel "lejos" empezaba por debajo del 45 %,
+   que ya no se puede alcanzar. */
 function ponerDetalle(wrap, z) {
-  wrap.classList.toggle("z-medio", z < 0.8 && z >= 0.45);
-  wrap.classList.toggle("z-lejos", z < 0.45);
+  wrap.classList.toggle("z-medio", z < 0.9 && z >= 0.65);
+  wrap.classList.toggle("z-lejos", z < 0.65);
 }
 
 /* Acercar o alejar dejando quieto el punto que se está señalando. Sin esto el
    zoom se va siempre al origen del dibujo y uno acaba persiguiendo el mapa. */
 function zoomEn(wrap, b, nuevo, clientX, clientY) {
   const z0 = zoomDe(wrap, b);
-  const z1 = limitarZoom(nuevo);
+  const z1 = pasoDeZoom(nuevo);
   if (Math.abs(z1 - z0) < 0.0005) return z0;
 
   const r = wrap.getBoundingClientRect();
@@ -123,12 +141,18 @@ function zoomEn(wrap, b, nuevo, clientX, clientY) {
   aplicarZoom(wrap, b);
 
   /* Y se recoloca el recorrido para que ese mismo punto del dibujo vuelva a
-     caer bajo el dedo. Se hace DESPUÉS de escalar, con el tamaño ya nuevo. */
+     caer bajo el dedo. Se hace DESPUÉS de escalar, con el tamaño ya nuevo.
+
+     Es una ASIGNACIÓN, no una suma, y ahí estuvo el fallo: `pixelEnLienzo`
+     devuelve dónde cae el punto dentro del contenido, medido desde su origen
+     —no un desplazamiento—, así que sumarlo al recorrido que ya había lo
+     duplicaba. Se veía como que el zoom ignoraba el cursor y el mapa se
+     escapaba hacia la esquina de arriba a la izquierda. */
   if (antes) {
     const px = pixelEnLienzo(wrap, antes.x, antes.y);
     if (px) {
-      wrap.scrollLeft += px.x - (cx - r.left);
-      wrap.scrollTop += px.y - (cy - r.top);
+      wrap.scrollLeft = px.x - (cx - r.left);
+      wrap.scrollTop = px.y - (cy - r.top);
     }
   }
   recordarEncuadre(wrap, b);
@@ -172,18 +196,46 @@ function pintarMandoZoom(wrap, b) {
   if (!mando) {
     mando = document.createElement("div");
     mando.className = "zoom-mando";
+    /* El porcentaje es un CAMPO, no un rótulo: se escribe dentro para ir a un
+       nivel concreto sin dar quince veces al botón. Lo escrito se redondea al
+       múltiplo de cinco más cercano y se mete en el rango, así que no hay
+       forma de dejarlo en un número que el mando no sepa repetir. */
     mando.innerHTML = `
       <button type="button" data-z="menos" aria-label="Alejar">−</button>
-      <button type="button" data-z="ajustar" class="pct" aria-label="Ajustar todo a la pantalla"></button>
-      <button type="button" data-z="mas" aria-label="Acercar">+</button>`;
+      <span class="pct"><input type="text" inputmode="numeric" aria-label="Nivel de zoom, en porcentaje"><i>%</i></span>
+      <button type="button" data-z="mas" aria-label="Acercar">+</button>
+      <button type="button" data-z="ajustar" class="ajustar" aria-label="Ajustar todo a la pantalla" title="Ajustar todo a la pantalla"><svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg></button>`;
     mando.addEventListener("pointerdown", (e) => e.stopPropagation());
     mando.addEventListener("click", (e) => {
       const btn = e.target.closest("button");
       if (!btn) return;
       const rama = wrap.dataset.branch;
       if (btn.dataset.z === "ajustar") ajustarZoom(wrap, rama);
-      else zoomEn(wrap, rama, zoomDe(wrap, rama) * (btn.dataset.z === "mas" ? ZOOM_PASO : 1 / ZOOM_PASO), null, null);
+      else zoomEn(wrap, rama, zoomDe(wrap, rama) + (btn.dataset.z === "mas" ? ZOOM_PASO : -ZOOM_PASO), null, null);
     });
+
+    const campo = mando.querySelector(".pct input");
+    const aplicar = () => {
+      const rama = wrap.dataset.branch;
+      const n = parseFloat(String(campo.value).replace(/[^0-9.]/g, ""));
+      /* Un campo vacío o con letras vuelve al nivel que había: no es un error
+         que merezca un aviso, es que no se escribió nada. */
+      if (isFinite(n) && n > 0) zoomEn(wrap, rama, n / 100, null, null);
+      else pintarMandoZoom(wrap, rama);
+    };
+    campo.addEventListener("keydown", (e) => {
+      const rama = wrap.dataset.branch;
+      if (e.key === "Enter") { e.preventDefault(); aplicar(); campo.blur(); }
+      if (e.key === "Escape") { e.preventDefault(); pintarMandoZoom(wrap, rama); campo.blur(); }
+      // Las flechas mueven de cinco en cinco, igual que los botones
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        e.preventDefault();
+        zoomEn(wrap, rama, zoomDe(wrap, rama) + (e.key === "ArrowUp" ? ZOOM_PASO : -ZOOM_PASO), null, null);
+      }
+    });
+    campo.addEventListener("blur", aplicar);
+    campo.addEventListener("focus", () => campo.select());
+
     padre.insertBefore(mando, wrap.nextSibling);
   }
   /* ---- Dónde se planta ----
@@ -195,7 +247,9 @@ function pintarMandoZoom(wrap, b) {
   colocarMando(mando, wrap);
 
   const z = zoomDe(wrap, b === undefined ? wrap.dataset.branch : b);
-  mando.querySelector(".pct").textContent = Math.round(z * 100) + "%";
+  const campo = mando.querySelector(".pct input");
+  // Mientras se escribe no se le pisa lo tecleado
+  if (document.activeElement !== campo) campo.value = Math.round(z * 100);
   mando.querySelector('[data-z="menos"]').disabled = z <= ZOOM_MIN + 0.001;
   mando.querySelector('[data-z="mas"]').disabled = z >= ZOOM_MAX - 0.001;
 }
@@ -2235,9 +2289,8 @@ function attachZoomHandlers(scope) {
       /* Por pasos y no por píxeles del evento: una rueda de ratón manda
          saltos de 100 y un trackpad de 3, así que usar el número crudo hace
          que el mismo gesto acerque muchísimo en uno y nada en el otro. */
-      const paso = Math.sign(e.deltaY) > 0 ? 1 / ZOOM_PASO : ZOOM_PASO;
-      const suave = e.ctrlKey && Math.abs(e.deltaY) < 30 ? Math.pow(paso, 0.45) : paso;
-      zoomEn(wrap, b, zoomDe(wrap, b) * suave, e.clientX, e.clientY);
+      const paso = Math.sign(e.deltaY) > 0 ? -ZOOM_PASO : ZOOM_PASO;
+      zoomEn(wrap, b, zoomDe(wrap, b) + paso, e.clientX, e.clientY);
     }, { passive: false });
 
     /* ---- El pellizco ----
