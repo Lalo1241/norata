@@ -242,8 +242,13 @@ const TUTO_PASOS = [
   },
   {
     modulo: "projects", icon: "flag", color: "#6fc3e8", titulo: "Proyectos",
-    tx: "Los <b>encargos</b> que te haces a ti: cosas que construyes por etapas, con principio y final. La app mide su ritmo y te dice cuáles siguen vivos.",
-    pie: "Un encargo que lleva semanas quieto te lo dirá, sin regañarte."
+    /* La misma frase que había en la pantalla vacía de Proyectos, y con el
+       mismo error: describía un proyecto y lo llamaba encargo. Aquí pesa
+       incluso más, porque esta tarjeta es donde alguien aprende cómo se llama
+       cada cosa — si el módulo se llama Proyectos y el tutorial dice
+       «encargos», el nombre queda torcido desde el primer minuto. */
+    tx: "Los <b>proyectos</b> que te haces a ti: cosas que construyes por etapas, con principio y final. La app mide tu ritmo y te dice cuáles siguen vivos.",
+    pie: "Un proyecto que lleva semanas quieto te lo dirá, sin regañarte."
   },
   {
     modulo: null, icon: "compass", color: "#5fe0b0", titulo: "Y todo se conecta",
@@ -707,7 +712,7 @@ function loadProjectExamples(silent) {
       createdAt: daysAgo(24), lastActivity: daysAgo(2), completedAt: null,
       history: [
         { date: daysAgo(2), at: new Date(Date.now() - 2 * 864e5).toISOString(), event: "Etapa completada: Comprar organizadores" },
-        { date: daysAgo(24), at: new Date(Date.now() - 24 * 864e5).toISOString(), event: "Proyecto creado en la rama Casa" }
+        { date: daysAgo(24), at: new Date(Date.now() - 24 * 864e5).toISOString(), event: "Encargo creado en el proyecto Casa" }
       ]
     },
     {
@@ -718,7 +723,7 @@ function loadProjectExamples(silent) {
       createdAt: daysAgo(60), lastActivity: daysAgo(3), completedAt: null,
       history: [
         { date: daysAgo(3), at: new Date(Date.now() - 3 * 864e5).toISOString(), event: "Etapa completada: Práctica de conversación" },
-        { date: daysAgo(60), at: new Date(Date.now() - 60 * 864e5).toISOString(), event: "Proyecto creado en la rama Aprender" }
+        { date: daysAgo(60), at: new Date(Date.now() - 60 * 864e5).toISOString(), event: "Encargo creado en el proyecto Aprender" }
       ]
     },
     {
@@ -729,7 +734,7 @@ function loadProjectExamples(silent) {
       createdAt: daysAgo(120), lastActivity: daysAgo(58), completedAt: null,
       history: [
         { date: daysAgo(58), at: new Date(Date.now() - 58 * 864e5).toISOString(), event: "Etapa completada: Definir catálogo" },
-        { date: daysAgo(120), at: new Date(Date.now() - 120 * 864e5).toISOString(), event: "Proyecto creado en la rama Negocio" }
+        { date: daysAgo(120), at: new Date(Date.now() - 120 * 864e5).toISOString(), event: "Encargo creado en el proyecto Negocio" }
       ]
     }
   );

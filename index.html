@@ -62,6 +62,25 @@
     }
   } catch (e) {}
 
+  /* ---- Prueba de las flechas de los paneles (0.7.20) ----
+     Las flechas de comparación cambian los cuatro paneles grandes a la vez, y
+     qué número merece estar arriba lo decide Eduardo. Así que van apagadas:
+     se encienden con `?informes=si` y se apagan con `?informes=no`.
+
+     En sessionStorage y no en localStorage a propósito: un ajuste se queda
+     puesto, y esto no es un ajuste. Al cerrar la pestaña desaparece, así que
+     nadie se queda mirando una prueba creyendo que es la app.
+
+     Aquí arriba y no en el script principal por lo mismo que el modo claro:
+     abajo se vería un instante el panel viejo y luego el cambio. */
+  try {
+    var qi = new URLSearchParams(location.search).get("informes");
+    if (qi === "si" || qi === "no") sessionStorage.setItem("norata-prueba-informes", qi);
+    if (sessionStorage.getItem("norata-prueba-informes") === "si") {
+      document.documentElement.classList.add("informes");
+    }
+  } catch (e) {}
+
   /* ---- Red de seguridad ----
      Vive en este bloque y no en el script principal a propósito: el grande
      corre al final, así que un manejador declarado dentro de él nunca
@@ -186,6 +205,15 @@
     <svg viewBox="0 0 250 250" aria-hidden="true"><path d="M224.919,110.004h-5.319c-2.476,0-4.487-2.011-4.487-4.487V25.081c0-4.947-4.027-8.973-8.973-8.973h-87.162c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487H31.811c-8.658,0-15.703,7.046-15.703,15.703v80.436c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v80.432c0,4.947,4.027,8.973,8.973,8.973h87.166c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h55.755c18.556,0,33.65-15.094,33.65-33.65v-62.485c0-4.947-4.027-8.973-8.973-8.973ZM55.91,128.783h-5.319c-2.476,0-4.487-2.011-4.487-4.487v-54.927c0-2.476,2.011-4.487,4.487-4.487h61.657c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h54.923c2.476,0,4.487,2.011,4.487,4.487v61.657c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v45.949c0,7.422-6.038,13.46-13.46,13.46h-52.679c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487h-54.927c-2.476,0-4.487-2.011-4.487-4.487v-61.653c0-4.947-4.027-8.973-8.973-8.973Z"/></svg>
   </div>
   <p class="carga-msg" id="carga-msg">Abriendo Norata…</p>
+</div>
+
+<!-- Rótulo de la prueba de las flechas (0.7.20). Sin él es facilísimo olvidar
+     que la pestaña está en modo prueba y acabar juzgando la app de verdad por
+     lo que se ve aquí. Se borra entero al quitar la prueba; ver VERSIONES.md,
+     que lleva la lista exacta de qué hay que borrar y dónde. -->
+<div class="rotulo-prueba" id="rotulo-informes">
+  Prueba: los paneles con flechas de comparación
+  <a href="?informes=no">apagar</a>
 </div>
 
 <div class="orb orb-1"></div>
@@ -364,10 +392,10 @@
 
     <div class="panel">
       <label class="field">
-        <span>Rama de Proyectos</span>
-        <input type="text" id="pr-branch" placeholder="Ej. Cliente, Personal, Negocio…" maxlength="30" list="pr-branch-list">
+        <span>Proyecto</span>
+        <input type="text" id="pr-branch" placeholder="Ej. Mudanza, Lanzamiento, Portafolio…" maxlength="30" list="pr-branch-list">
         <datalist id="pr-branch-list"></datalist>
-        <div class="field-hint">Agrupa encargos afines para compararlos entre sí.</div>
+        <div class="field-hint">A qué proyecto pertenece este encargo. Dentro de un proyecto, sus encargos se comparan entre sí.</div>
       </label>
       <label class="field">
         <span>Nombre del encargo</span>
@@ -899,6 +927,7 @@
 <script src="js/10c-portada.js"></script>
 <script src="js/10d-plan.js"></script>
 <script src="js/10e-panel.js"></script>
+<script src="js/10f-informes.js"></script>
 <script src="js/11-arranque.js"></script>
 </body>
 </html>

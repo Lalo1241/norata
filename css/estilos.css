@@ -254,6 +254,7 @@
     --piso-tirar: 7000;    /* deslizar para actualizar */
     --piso-pruebas: 7500;  /* el marco de "cuenta de pruebas" */
     --piso-ejemplo: 7600;  /* el rótulo de "estás viendo un ejemplo" */
+    --piso-rotulo-prueba: 7700; /* "esta pestaña está en modo prueba" */
     --piso-portada: 8000;  /* entrar a la app */
     --piso-compra: 8200;   /* volver de pagar: tapa la app, no los avisos */
     --piso-brindis: 8500;  /* los avisos de abajo, encima de todo lo anterior */
@@ -2175,6 +2176,35 @@
   .sh-stats .n.fire { color: var(--fire); }
   .sh-stats .n.coral { color: var(--coral); }
   .sh-stats .t { font-size: 10px; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-top: 2px; }
+
+  /* La flecha de comparación. Vive dentro de la escena, que se queda de noche
+     en los dos modos, así que usa la paleta oscura sin pareja clara.
+
+     Sin transición y a propósito: el color sale de una variable, y una
+     transición sobre una propiedad cuyo valor viene de un `var()` se queda
+     congelada en el tono inicial para siempre (ver la lista de trampas). */
+  .sh-var {
+    display: block;
+    font-style: normal;
+    font-size: 9.5px;
+    font-weight: 700;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Los rótulos del panel con flechas son más largos que los de antes —dicen
+     de qué periodo hablan— y en un teléfono unos caben en un renglón y otros
+     en dos. Con alturas distintas, las cuatro columnas quedaban desalineadas y
+     el bloque se leía roto. Dos renglones de sitio para todos: medido a 375 px,
+     ninguno pide tres. Va dentro de `html.informes` para no meterle aire de
+     más al panel de siempre, que sigue teniendo rótulos de una palabra. */
+  html.informes .sh-stats .t { min-height: 26px; }
+
+  .sh-var.mejor { color: var(--mint); }
+  .sh-var.peor { color: var(--coral); }
+  .sh-var.igual { color: var(--muted); }
   .sh-focus {
     display: flex;
     flex-direction: column;
@@ -3359,6 +3389,19 @@
      que levanta en los dos modos —#222c39 sobre #1d2530 de noche, #f7f8fa
      sobre #f2f0f9 de día—, que es para lo que existe. El verde no se pierde:
      lo ponen las cuatro palomitas. */
+  /* El rótulo de la lista. Va pegado a ella —sin aire entre los dos— para que
+     se lean como una sola pieza: el título y lo que titula. En versalitas y
+     pequeño porque no compite con el titular del cuadro, solo dice de qué es
+     la lista de abajo. */
+  .modal-card.menta .tope-tit {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--mint);
+    margin-bottom: 7px;
+  }
   .modal-card.menta .tope-lista {
     display: grid;
     gap: 9px;
@@ -3385,6 +3428,27 @@
     color: var(--muted);
     text-align: center;
     margin-bottom: 18px;
+  }
+  /* ---- El botón de comprar no se va bajo el pliegue ----
+     Este cuadro es el más alto de la app y la tarjeta tiene `max-height` con
+     scroll propio. Medido a 375×480 —la pantalla baja de las pruebas—: la
+     tarjeta pide 484 px y caben 455, así que los dos botones quedaban 28 px
+     por debajo del borde. Se alcanzaban desplazando, pero eran justo los dos
+     que hay que ver: en la pantalla que existe para vender, la acción quedaba
+     escondida detrás de un gesto que nadie sabe que tiene que hacer.
+
+     Pegados abajo, el texto se desplaza por detrás y los botones se quedan.
+     Con el fondo de la tarjeta puesto —si no, las viñetas se leen a través— y
+     el aire de abajo para que el último renglón no muera pegado al borde.
+
+     Solo en `.menta`: es el único cuadro largo de verdad. Los de confirmar
+     caben enteros y ahí `sticky` no cambiaría nada, pero tampoco hace falta
+     probarlo en catorce sitios para ganar cero. */
+  .modal-card.menta .modal-actions {
+    position: sticky;
+    bottom: calc(-1 * env(safe-area-inset-bottom));
+    background: var(--card);
+    padding-bottom: calc(4px + env(safe-area-inset-bottom));
   }
 
   .modal-card.alarm.con-titulo p {
@@ -4551,6 +4615,48 @@
   body.ejemplo-on .aviso-pruebas .ap-tag {
     top: calc(env(safe-area-inset-top) + 38px);
     border-radius: 10px;
+  }
+
+  /* ---------- Rótulo de una prueba con enlace (0.7.20) ----------
+     Recuerda que ESTA pestaña está viendo algo que todavía no es la app. Sin
+     él es facilísimo olvidarlo y acabar juzgando la app de verdad por lo que
+     se ve aquí.
+
+     Abajo a la izquierda y no arriba: arriba ya se apilan la pastilla de
+     cuenta de pruebas y la de «estás viendo un ejemplo», y una tercera
+     dejaría las tres ilegibles. El hueco de abajo se calcula sobre la barra
+     de navegación del teléfono (64 px) más el borde seguro.
+
+     No se dibuja salvo que la clase esté puesta en `<html>`, que es lo que
+     hace el script de arriba de index.html al ver `?informes=si`. Cuando se
+     quite la prueba se borra este bloque entero, por nombre. */
+  .rotulo-prueba { display: none; }
+  html.informes .rotulo-prueba {
+    display: flex; align-items: center; gap: 8px;
+    position: fixed;
+    left: 12px;
+    bottom: calc(env(safe-area-inset-bottom) + 64px);
+    z-index: var(--piso-rotulo-prueba);
+    background: var(--fire-macizo); color: var(--sobre-macizo);
+    border-radius: 999px;
+    padding: 5px 8px 5px 13px;
+    font-size: 10.5px; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    max-width: calc(100vw - 24px);
+  }
+  html.informes .rotulo-prueba a {
+    color: inherit;
+    background: rgba(16, 21, 29, 0.14);
+    border: 1px solid rgba(16, 21, 29, 0.28);
+    border-radius: 999px; padding: 4px 10px 5px;
+    text-decoration: none;
+  }
+  /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
+     deja congelado en el inicial. */
+  html.informes .rotulo-prueba a:hover { background: rgba(16, 21, 29, 0.24); }
+  @media (min-width: 900px) {
+    /* En pantalla ancha la barra de navegación no está abajo. */
+    html.informes .rotulo-prueba { bottom: calc(env(safe-area-inset-bottom) + 14px); }
   }
 
   /* Datos de una versión más nueva. Tapa todo y no se cierra: seguir usando

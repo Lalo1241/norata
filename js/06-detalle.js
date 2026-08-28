@@ -148,7 +148,10 @@ function renderMissions() {
         <div class="label">${dayName}</div>
         <div class="big" style="font-size:30px"><b>${pct}%</b><span> del día</span></div>
       </div>`,
-    stats: [
+    /* Con la prueba encendida manda el motor de informes (js/10f-informes.js):
+       los números pasan a ser de los últimos siete días y cada uno trae su
+       flecha. Apagada, el panel de siempre. */
+    stats: pruebaInformes() ? statsPanelMisiones({ due }) : [
       { n: due.length, t: "Hoy" },
       { n: done.length, t: "Cumplidas", tone: "mint" },
       { n: pending.length, t: "Pendientes", tone: pending.length ? "fire" : "" },
@@ -231,21 +234,35 @@ function renderProjects() {
   const all = state.projects;
   const ramas = ramasDe("projects");
 
-  /* El vacío es no tener NADA, ni siquiera una rama esperando: con una rama
-     creada hay que enseñarla, aunque todavía no tenga nada dentro. */
+  /* El vacío es no tener NADA, ni siquiera un proyecto esperando: con un
+     proyecto creado hay que enseñarlo, aunque todavía no lleve encargos. */
   if (all.length === 0 && ramas.length === 0) {
     el.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("flag", 34)}</div>
-        <h2>Sin encargos todavía</h2>
-        <p>Un encargo es algo que estás construyendo y que avanza por etapas. La app mide su ritmo y te dice cuáles siguen vivos y cuáles conviene soltar.</p>
+        <!-- «Proyecto» y no «encargo», y lo corrigió Eduardo: esta pantalla
+             describía un proyecto —algo que construyes y que avanza— y lo
+             llamaba encargo, que es otra cosa. Un proyecto avanza POR
+             encargos, y los encargos se dividen en etapas. La primera
+             pantalla del módulo es justo donde no se puede confundir el
+             nombre del módulo con el de lo que lleva dentro. -->
+        <h2>Sin proyectos todavía</h2>
+        <p>Un proyecto es algo que estás construyendo y que avanza por encargos divididos en etapas. La app mide tu ritmo y te dice cuáles proyectos siguen vivos y cuáles te conviene soltar.</p>
         <div class="stack" style="align-items:center">
           <!-- Aquí había un "Ver un ejemplo completo", y sembraba la app
                ENTERA: habilidades, talentos y misiones además de los
                proyectos. Quien llegaba con cosas suyas ya dentro acababa con
                todo duplicado y la app irreconocible. El ejemplo completo se
                ofrece donde tiene sentido, en la portada de una app vacía. -->
-          <button class="btn btn-primary" onclick="openProjectForm()">Crear mi primer encargo</button>
+          <!-- crearRama y no openProjectForm: el botón dice «proyecto» y tiene
+               que crear un proyecto. Abría el formulario de un ENCARGO, que es
+               lo que va dentro, así que el primer gesto de la pantalla enseñaba
+               los dos nombres cambiados. Con el proyecto ya creado, sus
+               encargos se añaden con el ＋ de su tarjeta.
+               SIN COMILLAS INVERSAS: este comentario vive dentro de un template
+               literal, y una sola cierra la cadena y parte el archivo entero.
+               Lo hizo: renderProjects dejó de existir y Proyectos no cargaba. -->
+          <button class="btn btn-primary" onclick="crearRama('projects')">Crear mi primer proyecto</button>
         </div>
       </div>`;
     return;
@@ -276,7 +293,9 @@ function renderProjects() {
       <div class="label">Avance de lo que construyes</div>
       <div class="big"><b>${avgProg}%</b><span> promedio</span></div>
     </div>`,
-    stats: [
+    /* Con la prueba encendida, «Etapas hechas» —un acumulado que solo sube—
+       deja sitio a las etapas y los cierres de esta semana, con su flecha. */
+    stats: pruebaInformes() ? statsPanelProyectos({ live, stalled }) : [
       { n: live.length, t: "Vivos", tone: "mint" },
       { n: stalled.length, t: "Estancados", tone: stalled.length ? "coral" : "" },
       { n: done.length, t: "Terminados" },
@@ -300,7 +319,7 @@ function renderProjects() {
   }
 
   const branches = ramas;
-  html += `<div class="sec-label full-row">Tus ramas de Proyectos${
+  html += `<div class="sec-label full-row">Tus proyectos${
     branches.length > 1 ? `<span class="hint-hold">${pistaReordenarRamas()}</span>` : ""}</div>`;
   for (const b of branches) {
     const list = all.filter(p => (p.branch || "General") === b)
@@ -310,17 +329,17 @@ function renderProjects() {
     <div class="branch-card" data-rid="${escapeAttr(b)}" style="padding-bottom:14px">
       <div class="branch-head" style="margin-bottom:12px">
         <!-- Igual que en Talentos: el nombre se reescribe tocándolo -->
-        <h3 class="renombrable" onclick="renombrarRamaProyectos('${enJS(b)}')" title="Toca el nombre para renombrar la rama">${escapeHtml(b)}${icon("pen", 11)}</h3>
+        <h3 class="renombrable" onclick="renombrarRamaProyectos('${enJS(b)}')" title="Toca el nombre para renombrar el proyecto">${escapeHtml(b)}${icon("pen", 11)}</h3>
         <span class="count">${liveN} de ${list.length}</span>
         <div class="bhead-btns">
           ${branchMenu("p:" + b, [
-            { title: "Borrar esta rama", hint: list.length === 0 ? "Está vacía" : (list.length === 1 ? "Se va también su único encargo" : `Se van también sus ${list.length} encargos`), icon: "bote", danger: true, onclick: `deleteBranch('projects','${enJS(b)}')` }
+            { title: "Borrar este proyecto", hint: list.length === 0 ? "Está vacío" : (list.length === 1 ? "Se va también su único encargo" : `Se van también sus ${list.length} encargos`), icon: "bote", danger: true, onclick: `deleteBranch('projects','${enJS(b)}')` }
           ])}
           <button class="badd" onclick="openProjectForm(null, '${enJS(b)}')" aria-label="Añadir encargo a ${escapeAttr(b)}">＋</button>
         </div>
       </div>
       <div class="proj-list" data-branch="${escapeAttr(b)}" data-soltar=".proj-card">
-        ${!list.length ? `<p class="col-vacia">Arrastra aquí el proyecto que quieras, o crea uno con el ＋.</p>` : ""}
+        ${!list.length ? `<p class="col-vacia">Arrastra aquí el encargo que quieras, o crea uno con el ＋.</p>` : ""}
         ${list.map(p => {
           const prog = projectProgress(p);
           const h = projectHealth(p);
@@ -988,7 +1007,9 @@ function renderTree() {
       <div class="label">Invertido en ti</div>
       <div class="big"><b>${money(invested)}</b></div>
     </div>`,
-    stats: [
+    /* Con la prueba encendida se va «Por abrir» —un inventario que no pide
+       nada— y entran el dinero de la semana y lo que se vence. */
+    stats: pruebaInformes() ? statsPanelTalentos({ activeN }) : [
       { n: completed, t: "Permanentes", tone: "mint" },
       { n: activeN, t: "En curso", tone: activeN ? "fire" : "" },
       { n: total - completed - activeN, t: "Por abrir" },

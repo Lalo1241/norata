@@ -48,6 +48,23 @@
    El precio lleva MXN escrito. Un "$69" a secas lo lee cada quien en su
    moneda, y a quien lo lea en dólares le va a parecer que Norata cuesta mil
    trescientos pesos. */
+/* ---- Cómo se LLAMA el plan de pago ----
+   «Pro» a secas no es un nombre, es un adjetivo, y en la pantalla donde
+   alguien lo ve por primera vez no se sostiene solo: no es Disney+ ni Spotify
+   Premium, marcas que ya significan algo antes de leer la frase. Un botón que
+   dice «Quiero Pro» le pide a la persona que adivine de qué producto le están
+   hablando justo en el segundo en que decide si paga. Lo cazó Eduardo leyendo
+   el cuadro del tope: «Pro solo se siente como nada».
+
+   Así que el nombre completo se usa donde se PRESENTA —el cuadro del tope, el
+   botón, el rótulo de la lista— y «Pro» a secas se queda donde el contexto ya
+   lo dijo: dentro de la pantalla del plan, donde las tarjetas y la tabla ya
+   están hablando de esto y repetir «Norata» cuatro veces suena a folleto.
+
+   En una constante y no escrito a mano en cada sitio, por lo de siempre: el
+   día que cambie el nombre, cambia aquí. */
+const NOMBRE_PRO = "Norata Pro";
+
 const PLANES = {
   mensual: {
     nombre: "Pro mensual",
@@ -382,7 +399,7 @@ function topeTexto(clave) {
   if (clave === "ramas") {
     return {
       titulo: "Tu árbol pide otra rama",
-      frase: "Llenaste la primera. Con Pro abres las ramas que quieras, y cada una lleva su propio camino."
+      frase: "Llenaste la primera. Con " + NOMBRE_PRO + " abres las que quieras, y cada una lleva su propio camino."
     };
   }
   if (clave === "talentos") {
@@ -392,22 +409,22 @@ function topeTexto(clave) {
     return {
       titulo: "Llenaste esta rama",
       frase: "Los " + LIMITES.libre.talentos + " talentos del plan Gratuito, completos. " +
-        "Con Pro esta rama sigue creciendo sin contar."
+        "Con " + NOMBRE_PRO + " esta rama sigue creciendo sin contar."
     };
   }
   if (clave === "resumen") {
     return {
       titulo: "El mes entero, de un vistazo",
-      frase: "El resumen de la semana es de todos. Con Pro llegan también el del mes y el del año."
+      frase: "El resumen de la semana es de todos. Con " + NOMBRE_PRO + " llegan también el del mes y el del año."
     };
   }
   if (clave === "apariencia") {
     return {
       titulo: "Norata con otra piel",
-      frase: "Las paletas de color son de todos. Las apariencias completas vienen con Pro."
+      frase: "Las paletas de color son de todos. Las apariencias completas vienen con " + NOMBRE_PRO + "."
     };
   }
-  return { titulo: "Esto viene con Pro", frase: "Tu plan Gratuito no incluye esta parte." };
+  return { titulo: "Esto viene con " + NOMBRE_PRO, frase: "Tu plan Gratuito no incluye esta parte." };
 }
 
 /* La frase suelta, sin título, para quien solo necesite el texto. Se queda
@@ -423,9 +440,20 @@ function planMensaje(clave) {
    mentira este es el peor: es el único que se lee con la cartera en la mano. */
 function ventajasPro() {
   const l = LIMITES.libre, p = LIMITES.pro, v = [];
-  if (p.ramas > l.ramas && p.talentos > l.talentos) v.push("Ramas y talentos sin tope");
+  /* Ramas y talentos van en DOS renglones y no en uno. Iban juntos —"Ramas
+     y talentos sin tope"— y era la línea que más pesa contada de la forma
+     más floja: una sola viñeta para las dos cosas que de verdad se compran
+     hoy. Separadas se leen dos, que es lo que son, y cada una dice contra
+     qué número choca la persona en este momento.
+
+     Y "ilimitadas" en vez de "sin tope", que lo pidió Eduardo: "sin tope"
+     describe la ausencia de una traba —habla del límite, no de lo que
+     abres— y en una lista que existe para convencer, cada renglón tiene que
+     decir lo que ganas. */
+  if (p.ramas > l.ramas) v.push("Ramas de talentos ilimitadas");
+  if (p.talentos > l.talentos) v.push("Talentos ilimitados en cada rama");
   if (p.resumen.length > l.resumen.length) v.push("Resúmenes del mes y del año");
-  if (p.apariencia && !l.apariencia) v.push("Apariencias completas");
+  if (p.apariencia && !l.apariencia) v.push("Todas las apariencias");
   return v;
 }
 
@@ -461,6 +489,11 @@ function topeAlcanzado(clave) {
      por lo mismo. */
   const cuerpo =
     '<span class="tope-frase">' + escapeHtml(t.frase) + '</span>' +
+    /* La lista llevaba tres palomitas y ningún rótulo encima, así que no
+       decía de QUÉ eran: se leían como características sueltas del cuadro y
+       no como lo que abre pagar. Un renglón lo arregla, y de paso es donde
+       el nombre del producto aparece por primera vez. */
+    '<span class="tope-tit">Lo que abre ' + escapeHtml(NOMBRE_PRO) + '</span>' +
     '<span class="tope-lista">' +
       ventajasPro().map(function (v) {
         return '<span class="tope-item">' + icon("check", 15) +
@@ -477,7 +510,7 @@ function topeAlcanzado(clave) {
   /* `danger` y `alarm` en false a propósito, y es la decisión de fondo de todo
      este cuadro: aquí no se rompió nada. Alguien llenó una rama, que es un
      logro. El temblor y el coral son para lo que se pierde. */
-  return askBase(cuerpo, true, "Quiero Pro", false, false, "Ahora no",
+  return askBase(cuerpo, true, "Quiero " + NOMBRE_PRO, false, false, "Ahora no",
                  { icono: "crown", titulo: t.titulo, tono: "menta" }).then(ok => {
     if (ok && typeof abrirAjustes === "function") abrirAjustes("plan");
   });
@@ -862,7 +895,7 @@ function renderPanelPlan() {
     planCabeceraHTML() +
     planIncluyeHTML(false) +
     planCompararHTML() +
-    `<h4 class="plan-h">Qué se desbloquea con Pro</h4>
+    `<h4 class="plan-h">Qué se desbloquea con ${NOMBRE_PRO}</h4>
      <p class="settings-note">Las ramas que quieras y sin tope de talentos dentro de cada una. Lo que ya escribiste no se toca nunca: al cambiar de plan no se borra nada.</p>
      <div class="plan-cards">` +
     Object.keys(PLANES).map(k => planTarjetaHTML(k)).join("") +
@@ -948,14 +981,14 @@ function planCabeceraHTML() {
 function planIncluyeHTML(pro) {
   const l = LIMITES[pro ? "pro" : "libre"];
   const filas = [
-    ["Ramas de talentos", l.ramas === Infinity ? "Las que quieras" : (l.ramas === 1 ? "Una" : String(l.ramas))],
-    ["Talentos por rama", l.talentos === Infinity ? "Sin tope" : String(l.talentos)],
+    ["Ramas de talentos", l.ramas === Infinity ? "Ilimitadas" : (l.ramas === 1 ? "Una" : String(l.ramas))],
+    ["Talentos por rama", l.talentos === Infinity ? "Ilimitados" : String(l.talentos)],
     ["Resúmenes", l.resumen.length > 1 ? "De la semana, del mes y del año" : "Solo el de la semana"],
     ["Apariencias", l.apariencia ? "Todas" : "Las paletas de color"],
     /* Estas dos no salen de `LIMITES` porque no tienen tope en ningún plan, y
        decirlo aquí es la mitad del mensaje: lo que se cobra no es la app, son
        los topes. Sin ellas la lista del plan libre parece una lista de peros. */
-    ["Misiones, habilidades y proyectos", "Sin tope"],
+    ["Misiones, habilidades y proyectos", "Ilimitados"],
     ["Sincronía entre dispositivos", "Incluida"]
   ];
   return `<h4 class="plan-h">${pro ? "Qué tienes abierto" : "Qué tienes ahora"}</h4>
@@ -1104,8 +1137,8 @@ function planCompararHTML() {
    se dice lo contrario, porque ES Pro: lo que cambia es cómo se paga. */
 /* Una celda que hay que mirar. La columna de Fundador iba ENTERA en color y
    estaba mal: si todo destaca, no destaca nada, y ademas tenia de premio ocho
-   filas que dicen exactamente lo mismo que la columna de al lado --"Sin tope"
-   junto a "Sin tope"--. El texto vuelve a ser blanco y solo se marcan las dos
+   filas que dicen exactamente lo mismo que la columna de al lado --"Ilimitados"
+   junto a "Ilimitados"--. El texto vuelve a ser blanco y solo se marcan las dos
    celdas donde Fundador dice algo que ningun otro plan dice. */
 function ojo(texto) {
   return { t: texto, ojo: true };
@@ -1113,8 +1146,8 @@ function ojo(texto) {
 
 function planFilasComparadas() {
   const l = LIMITES.libre, p = LIMITES.pro;
-  const ramas = (x) => x === Infinity ? "Las que quieras" : (x === 1 ? "Una" : String(x));
-  const tope = (x) => x === Infinity ? "Sin tope" : String(x);
+  const ramas = (x) => x === Infinity ? "Ilimitadas" : (x === 1 ? "Una" : String(x));
+  const tope = (x) => x === Infinity ? "Ilimitados" : String(x);
   const resu = (x) => x.length > 1 ? "Semana, mes y año" : "Solo el de la semana";
   const apar = (x) => x ? "Todas" : "Solo las paletas de color";
 
@@ -1123,7 +1156,7 @@ function planFilasComparadas() {
     ["Talentos por rama", tope(l.talentos), tope(p.talentos), tope(p.talentos)],
     ["Resúmenes", resu(l.resumen), resu(p.resumen), resu(p.resumen)],
     ["Apariencias", apar(l.apariencia), apar(p.apariencia), apar(p.apariencia)],
-    ["Misiones, habilidades y proyectos", "Sin tope", "Sin tope", "Sin tope"],
+    ["Misiones, habilidades y proyectos", "Ilimitados", "Ilimitados", "Ilimitados"],
     ["Sincronía entre dispositivos", "Incluida", "Incluida", "Incluida"],
     ["Tu progreso y tu XP", "Tuyos", "Tuyos", "Tuyos"],
     /* "Es gratis" y no "No se paga": la primera dice lo que hay, la segunda lo

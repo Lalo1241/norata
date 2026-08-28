@@ -52,6 +52,107 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.20 · 27 ago 2026
+Las misiones empiezan a guardar la hora, y los paneles aprenden a comparar.
+
+- **Cada marca de misión guarda la hora en que se puso.** Hasta ahora el
+  registro solo sabía el día. La hora es el único dato de la app que **no se
+  puede reconstruir después** —el día se sabe siempre, la hora solo si estaba
+  puesta cuando pasó—, así que se empieza a guardar ya aunque la gráfica que la
+  use llegue en meses. Viaja pegada a la propia marca (`…@1435`) y no en una
+  lista aparte: la sincronía une las marcas por igualdad de texto, y dos listas
+  que hay que mantener a la par acaban desincronizándose. Las marcas viejas no
+  la llevan y eso no es un fallo: `horaDeMarca` devuelve null y quien pregunta
+  las deja fuera de la cuenta.
+- **El motor de los informes** (`js/10f-informes.js`, nuevo): qué pasó en un
+  periodo —semana, mes, año, o una ventana rodante de N días— y cómo se compara
+  con el anterior, para los cuatro módulos. Solo calcula: no dibuja nada, no
+  toca `state` y no ejecuta nada al cargarse. La pantalla de informes se apoyará
+  en él, y tiene que leer exactamente los mismos números que los paneles o
+  acabarán discutiendo entre ellos delante del usuario.
+- **Cumplir una misión vuelve a contar para la racha.** Desde que una marca es
+  una lista con identidad propia en vez de un contador, `ms.log[k] > 0`
+  comparaba un array con un número y daba falso siempre. No se veía porque una
+  misión enlazada a una habilidad sigue marcando el día por su movimiento de XP;
+  las que no tienen habilidad llevaban tiempo sin contar para nada.
+
+**Y una prueba con enlace, apagada por defecto.** Los cuatro paneles con
+flechas de comparación: los acumulados que solo suben —«XP total», «Etapas
+hechas», «Por abrir»— dejan sitio a lo que se movió en los últimos siete días,
+y cada número trae su flecha contra los siete anteriores.
+
+- Encender: `https://mi.norata.app/?informes=si`
+- Apagar: `https://mi.norata.app/?informes=no`
+
+Vive en `sessionStorage` y no en localStorage: al cerrar la pestaña desaparece,
+para que no se quede pegado como si fuera un ajuste. Quien no pida la prueba ve
+el panel de siempre.
+
+**Al quitarla hay que borrar, por nombre y no por rango:**
+
+1. `index.html` — el bloque `---- Prueba de las flechas de los paneles ----`
+   del script de arriba, y el `<div class="rotulo-prueba" id="rotulo-informes">`.
+2. `css/estilos.css` — el bloque `---- Rótulo de una prueba con enlace ----`,
+   la variable `--piso-rotulo-prueba`, y la regla `html.informes .sh-stats .t`
+   (si la prueba se queda, esa regla pierde el `html.informes` y se queda:
+   es lo que mantiene alineadas las cuatro columnas cuando los rótulos ocupan
+   dos renglones).
+3. `js/10f-informes.js` — la función `pruebaInformes()`.
+4. Los cuatro `pruebaInformes() ? … : …` de `js/05-resumen.js` (uno) y
+   `js/06-detalle.js` (tres): se queda la rama que Eduardo decida, y se borra
+   la otra con su comentario.
+
+Lo que **no** se borra: el motor, la hora de las marcas, el arreglo de la racha
+y `.sh-var` en el CSS.
+
+### 0.7.19 · 27 ago 2026
+Un proyecto deja de llamarse encargo, y Pro deja de llamarse solo Pro.
+
+- **Proyecto, encargo y etapa dejan de ser la misma palabra.** La pantalla
+  vacía de Proyectos describía un proyecto —«algo que estás construyendo y que
+  avanza»— y lo llamaba *encargo*; el tutorial repetía la misma frase con el
+  mismo cruce. La jerarquía que fijó Eduardo:
+
+      rama de proyectos  →  encargos  →  etapas
+
+  Con el detalle que lo hace entendible: **una rama de proyectos, una vez
+  creada, se llama proyecto.** Se crean ramas y se tienen proyectos — por eso
+  el cuadro dice «Nueva rama de proyectos» y el aviso de después dice
+  «Proyecto "Mudanza" creado». No es una inconsistencia, es el ciclo de vida
+  de la misma cosa. Los encargos son las tarjetas de dentro —«son como
+  quests», palabras suyas— y las etapas, los pasos de cada quest.
+
+  Él mismo avisó de que suena raro y de que parece faltar un eslabón. Se queda
+  así a propósito: es como entiende hoy el asunto, y el vocabulario de la app
+  tiene que ser el suyo y no uno más ordenado que no usa nadie.
+- **El botón grande crea el contenedor, no lo de dentro.** «Crear mi primer
+  proyecto» abría el formulario de un encargo, así que el primer gesto de la
+  pantalla ya enseñaba los dos nombres cambiados. Ahora crea la rama de
+  proyectos, y sus encargos se añaden con el ＋ de su tarjeta — la misma regla
+  que ya regía en Talentos y en Misiones. El botón de la barra dice «Nueva
+  rama» en los dos módulos y el nombre largo va en el cuadro, porque en el
+  botón ya se sabe en qué pantalla estás.
+- **«Sin tope» pasa a «Ilimitados».** Lo pidió él y tiene razón: «sin tope»
+  describe la ausencia de una traba, o sea habla del límite y no de lo que
+  abres, y en una lista que existe para convencer cada renglón tiene que decir
+  lo que ganas. Ramas y talentos se separan además en dos renglones: iban
+  juntos en uno solo —«Ramas y talentos sin tope»— y era la línea que más pesa
+  contada de la forma más floja.
+- **El plan de pago se llama Norata Pro donde se presenta.** «Pro» a secas es
+  un adjetivo, no un nombre: no es Disney+ ni Spotify Premium, marcas que ya
+  significan algo antes de leer la frase. Un botón que decía «Quiero Pro» le
+  pedía a la persona que adivinara de qué producto le hablaban justo en el
+  segundo en que decide si paga. El nombre completo va en el cuadro del tope,
+  el botón y el rótulo; «Pro» a secas se queda dentro de la pantalla del plan,
+  donde el contexto ya lo dijo.
+- **La lista del tope tenía tres palomitas y ningún rótulo encima**, así que no
+  decía de qué eran. Ahora lleva «LO QUE ABRE NORATA PRO», que además es donde
+  el nombre aparece por primera vez.
+- **Y el botón de comprar ya no se va bajo el pliegue.** Medido a 375×480: la
+  tarjeta pedía 484 px y cabían 455, así que los dos botones quedaban 28 px por
+  debajo del borde — se alcanzaban desplazando, en la única pantalla que existe
+  para vender. Ahora van pegados abajo y el texto se desplaza por detrás.
+
 ### 0.7.18.1 · 27 ago 2026
 El tope del plan deja de parecer un borrado, y el ático deja de venderse.
 

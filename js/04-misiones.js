@@ -276,7 +276,13 @@ function logMission(id, delta, opciones) {
      entre dispositivos deja de tener una verdad a la que agarrarse. */
   const marcas = Array.isArray(m.log[key]) ? m.log[key].slice() : [];
   while (marcas.length > after) marcas.pop();
-  while (marcas.length < after) marcas.push(uid());
+  /* La marca lleva la hora pegada detrás ("...@1435"). El registro solo sabía
+     el día, y la hora es lo único que no se puede reconstruir después: cuando
+     los informes quieran contestar "¿a qué hora cumples?", solo podrán mirar
+     lo que se guardó desde hoy. Las marcas viejas no la llevan y eso no es un
+     fallo — se leen con `horaDeMarca`, que devuelve null y quien pregunta las
+     deja fuera de la cuenta. */
+  while (marcas.length < after) marcas.push(uid() + "@" + hhmmNow());
   if (marcas.length) m.log[key] = marcas; else delete m.log[key];
 
   const wasDone = before >= target;
@@ -888,7 +894,7 @@ const MODULOS = [
   { id: "missions", nav: "nav-missions", label: "Misiones",    hint: "Lo que haces hoy, con su racha" },
   { id: "home",     nav: "nav-home",     label: "Habilidades", hint: "Lo que practicas y sube de nivel" },
   { id: "tree",     nav: "nav-tree",     label: "Talentos",    hint: "Metas con inversión de dinero real" },
-  { id: "projects", nav: "nav-projects", label: "Proyectos",   hint: "Lo que avanza por etapas" }
+  { id: "projects", nav: "nav-projects", label: "Proyectos",   hint: "Lo que construyes, encargo a encargo" }
 ];
 
 /* A qué módulo pertenece cada vista, incluidas sus pantallas hijas: si
@@ -1102,6 +1108,12 @@ function showView(name) {
      añadir algo. Aquí quedaba un atajo que siempre te preguntaba "¿y en qué
      rama?" cuando la respuesta ya estaba en la pantalla. */
   fab.querySelector(".fab-label").textContent = {
+    /* «Nueva rama» en los dos, y no es un descuido. Lo que se crea aquí es una
+       RAMA DE PROYECTOS; una vez creada se la llama proyecto, y de ahí en
+       adelante toda la app dice «proyecto». El nombre completo va en el cuadro
+       que pide el nombre —igual que Talentos, cuyo botón también dice «Nueva
+       rama» y cuyo cuadro dice «Nueva rama de talentos»—, porque en el botón
+       ya se sabe en qué pantalla estás. */
     home: "Nueva habilidad", tree: "Nueva rama",
     projects: "Nueva rama", missions: "Nuevo tablero"
   }[name] || "";
