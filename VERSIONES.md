@@ -52,6 +52,38 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.33.1 · 28 ago 2026
+Fundador se llama como se llama, y las dos tarjetas se alinean solas.
+
+- **«Norata Fundador» en la tarjeta**, al lado de «Norata Pro». Un «Fundador» a
+  secas se leía como otra cosa y no como el otro plan de la misma app. Fuera de
+  ahí sigue siendo «Fundador», que es la regla que ya seguía `NOMBRE_PRO`.
+- **El botón dice «Pasar a Plan Fundador»**, simétrico con «Pasar a Plan Pro».
+  Antes decía «Pasar a ser Fundador», que es lo único de la pantalla que le
+  ponía a la PERSONA una palabra con género.
+- **«Piedra» pasa a «insignia»** en los tres sitios que lo decían. «Piedra» es
+  como llamamos al dibujo entre nosotros; lo que reconoce quien lo ve es una
+  insignia.
+- **«Todo lo que Norata añada a Pro»**, sin «sin volver a pagar» detrás: la
+  tarjeta ya dice dos veces que es un pago único —en la franja y en el pie—, así
+  que ahí sobraba y alargaba la única viñeta que se partía en dos renglones.
+
+**Y el nivelado se generaliza a todas las filas.** Nivelaba solo el renglón de
+debajo del conmutador, y se quedó corto en cuanto los textos crecieron: con las
+tarjetas estrechas «Norata Fundador» pide dos renglones donde «Norata Pro» pide
+uno, y a partir de ahí el precio, el pie y todo lo demás bajan en una tarjeta y
+no en la otra. Parchear cada fila cuando falla es una carrera que se pierde:
+cambiar una palabra vuelve a romperlo.
+
+`planNivelarFilas` iguala las seis filas de arriba —franja, gancho, nombre,
+precio, pie y botón— después de pintar. Es lo que haría un `subgrid`, hecho a
+mano porque las dos tarjetas son dos rejillas independientes. Las ventajas NO
+entran: no son la misma fila, Pro tiene cuatro y Fundador tres a propósito. Y
+solo actúa cuando las tarjetas están en la misma fila: apiladas, igualar
+alturas no alinea nada y solo añade aire.
+
+Medido alineado en siete anchos de tarjeta, de 182 a 332 px.
+
 ### 0.7.33 · 28 ago 2026
 La flecha se pone encima, el mes entra en la racha, el informe deja de bailar,
 y el panel de números empieza a decir algo.

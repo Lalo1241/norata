@@ -939,10 +939,9 @@ function renderPanelPlan() {
     planCompararHTML();
 
   /* Lo que hay que medir para terminarlo, ahora que ya está en la página:
-     el encuadre del mapa de la rama y la altura de los dos renglones de
-     debajo del conmutador. */
+     el encuadre del mapa de la rama y las filas de las dos tarjetas. */
   planAjustarLienzos(caja);
-  planNivelarGanchos(caja);
+  planNivelarFilas(caja);
 }
 
 /* ---- La cabecera: qué plan, cuánto cuesta y qué le pasa ----
@@ -1469,28 +1468,51 @@ function planAjustarLienzos(caja) {
   });
 }
 
-/* Deja los dos renglones de debajo del conmutador a la misma altura.
+/* Deja las dos tarjetas alineadas fila por fila.
 
-   Hace falta por un tramo estrecho y concreto: con las tarjetas lado a lado y
-   unos 250 px cada una, la frase de Pro cabía en un renglón y la de Fundador
-   pedía dos, así que el nombre y el precio de una tarjeta bajaban 17 px
-   respecto a los de la otra y la comparación se torcía. Un `min-height` fijo
-   de dos renglones lo arregla igual pero deja un hueco muerto en todos los
-   demás anchos, que son casi todos.
+   Empezó nivelando solo el renglón de debajo del conmutador, y se quedó corto
+   en cuanto los textos crecieron: con las tarjetas estrechas, «Norata Fundador»
+   pide dos renglones donde «Norata Pro» pide uno, y a partir de ahí el precio,
+   el pie y todo lo demás bajan en una tarjeta y no en la otra. Parchear cada
+   fila cuando falla es una carrera que se pierde: cambiar una palabra vuelve a
+   romperlo.
 
-   Solo cuando están en la MISMA fila: apiladas, igualar alturas no alinea
-   nada y solo añade aire donde no hace falta. Y se limpia antes de medir, o
-   la segunda pasada mediría lo que dejó la primera. */
-function planNivelarGanchos(caja) {
-  const g = [...(caja || document).querySelectorAll(".plan-cards .plan-gancho")];
-  g.forEach(x => { x.style.minHeight = ""; });
-  if (g.length < 2) return;
-  const tarjetas = g.map(x => x.closest(".plan-card"));
-  if (!tarjetas[0] || !tarjetas[1]) return;
+   Así que se nivelan TODAS las filas de arriba —las que van antes de las
+   ventajas, que son las que se comparan renglón contra renglón—. Las ventajas
+   no se nivelan porque no son la misma fila: Pro tiene cuatro y Fundador tres,
+   a propósito.
+
+   El botón sí entra, aunque ya vaya pegado al suelo con `margin-top: auto`:
+   con las tarjetas muy estrechas «Pasar a Plan Fundador» pide dos renglones y
+   «Pasar a Plan Pro» uno, así que los suelos coincidían pero uno empezaba más
+   arriba y la fila de botones quedaba escalonada. Nivelados miden igual, que
+   es como se leen dos botones que se comparan.
+
+   Es lo que haría un `subgrid`, hecho a mano porque las dos tarjetas son dos
+   rejillas independientes y no una sola.
+
+   Solo cuando están en la MISMA fila: apiladas, igualar alturas no alinea nada
+   y solo añade aire donde no hace falta. Y se limpia antes de medir, o la
+   segunda pasada mediría lo que dejó la primera. */
+const PLAN_FILAS = [".plan-per-wrap", ".plan-gancho", ".plan-n", ".plan-p", ".plan-d", ".btn"];
+
+function planNivelarFilas(caja) {
+  const tarjetas = [...(caja || document).querySelectorAll(".plan-cards .plan-card")];
+  PLAN_FILAS.forEach(sel => tarjetas.forEach(c => {
+    const e = c.querySelector(sel);
+    if (e) e.style.minHeight = "";
+  }));
+  if (tarjetas.length < 2) return;
+
   const arriba = tarjetas.map(c => Math.round(c.getBoundingClientRect().top));
-  if (arriba[0] !== arriba[1]) return;          // apiladas: cada una a lo suyo
-  const alto = Math.max(...g.map(x => x.getBoundingClientRect().height));
-  if (alto) g.forEach(x => { x.style.minHeight = alto + "px"; });
+  if (new Set(arriba).size !== 1) return;      // apiladas: cada una a lo suyo
+
+  PLAN_FILAS.forEach(sel => {
+    const els = tarjetas.map(c => c.querySelector(sel)).filter(Boolean);
+    if (els.length < 2) return;
+    const alto = Math.max(...els.map(e => e.getBoundingClientRect().height));
+    if (alto) els.forEach(e => { e.style.minHeight = alto + "px"; });
+  });
 }
 
 /* El bloque entero, o cadena vacía si no hay nada que decir. Devuelve texto y
