@@ -4163,11 +4163,33 @@
     margin-top: 7px;
   }
   .proj-meta b { color: var(--text); }
-  .proj-steps { display: none; }
+  /* ---- Las etapas, también en el teléfono ----
+     Estaban apagadas aquí y encendidas solo en escritorio, así que la lista
+     del teléfono decía «1 de 4 etapas» y para saber cuáles había que entrar
+     al encargo. En fila que envuelve y con el recorte que hace el JS
+     (ETAPAS_EN_MOVIL), ocupan poco y dicen lo único accionable. */
+  .proj-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 11px;
+    padding-top: 11px;
+    border-top: 1px dashed var(--line);
+  }
+  /* La zona que abre el encargo. La tarjeta dejó de ser un <button> porque
+     ahora lleva botones dentro, así que el papel de "esto abre" baja aquí. */
+  .proj-abre { cursor: pointer; }
+  .proj-abre:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; border-radius: 10px; }
   .pstep {
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    /* Nace de un <button>: sin esto hereda la fuente del sistema y el
+       centrado del navegador, y las etapas dejarían de parecerse a las de
+       la ficha del encargo. */
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
     font-size: 11.5px;
     color: var(--muted);
     background: var(--card);
@@ -4195,6 +4217,31 @@
   .pstep.ok { color: var(--text); border-color: color-mix(in srgb, var(--pc) 45%, transparent); }
   .pstep.ok i { background: var(--pc); border-color: var(--pc); color: #10151d; font-weight: 800; }
   .pstep.more { color: var(--faint); padding: 4px 11px; }
+
+  /* ---- Marcar y crear sin salir de la lista ----
+     Un toque marca la etapa, otro la desmarca. El ＋ se convierte en un campo
+     en su propio sitio, y al dar Enter vuelve a quedar listo: las etapas se
+     piensan en tanda, no de una en una. */
+  .pstep:hover { border-color: color-mix(in srgb, var(--pc) 45%, transparent); }
+  .pstep:active { transform: scale(0.97); }
+  .pstep:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+  .pstep.add {
+    color: var(--pc-l, var(--pc));
+    border-style: dashed;
+    font-weight: 700;
+    padding: 4px 11px;
+  }
+  .pstep.escribiendo { padding-right: 6px; border-color: var(--mint); }
+  .pstep.escribiendo input {
+    font: inherit;
+    color: var(--text);
+    background: transparent;
+    border: 0;
+    outline: none;
+    width: 13ch;
+    min-width: 0;
+    padding: 0;
+  }
 
   .step-row {
     display: flex;
@@ -5185,16 +5232,10 @@
     .sh-stats { flex: 1; gap: 4px; }
     .sh-focus { width: auto; min-width: 250px; max-width: 330px; flex-shrink: 0; }
 
-    /* Etapas de cada proyecto visibles y completas, sin recortes */
-    .proj-steps {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 6px;
-      margin-top: 11px;
-      padding-top: 11px;
-      border-top: 1px dashed var(--line);
-    }
+    /* En escritorio, una debajo de otra y sin recortes. Encenderlas ya no
+       hace falta: desde que se ven también en el teléfono, aquí solo cambia
+       la dirección. */
+    .proj-steps { flex-direction: column; align-items: flex-start; }
     .pstep { white-space: normal; overflow: visible; line-height: 1.35; }
     .proj-name { white-space: normal; overflow: visible; }
 

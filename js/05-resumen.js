@@ -1953,12 +1953,21 @@ async function deleteBranch(kind, b) {
       const r = requisitosDe(p);
       if (r.some(id => ids.has(id))) p.requiere = r.filter(id => !ids.has(id));
     });
-    if (editBranch === b) editBranch = null;
+    if (editandoRama(b, "talentos")) editBranch = null;
     /* Y si se estaba viendo a pantalla completa, se sale: quedarse dentro de
        una rama borrada es lo que dejaba la capa encima con datos fantasma. */
     if (typeof fullscreenBranch !== "undefined" && fullscreenBranch === b) closeBranchFullscreen();
   } else {
     state.projects = state.projects.filter(p => !ids.has(p.id));
+    /* La misma trampa que en Talentos, y ahora tambien aqui porque un
+       encargo puede depender de otro: sin limpiar, los que apuntaban a uno
+       borrado se quedarian esperando un turno que no va a llegar nunca. */
+    state.projects.forEach(p => {
+      const r = requisitosDe(p);
+      if (r.some(id => ids.has(id))) p.requiere = r.filter(id => !ids.has(id));
+    });
+    if (editandoRama(b, "proyectos")) editBranch = null;
+    if (state.ui.mapaProyectos) delete state.ui.mapaProyectos[b];
   }
   save();
   if (esTalentos) renderTree(); else renderProjects();
@@ -1993,7 +2002,7 @@ async function renombrarRama(b) {
     delete state.ui.collapsed[b];
     state.ui.collapsed[nuevo] = true;
   }
-  if (editBranch === b) editBranch = nuevo;
+  if (editandoRama(b, "talentos")) editBranch = nuevo;
   if (fullscreenBranch === b) fullscreenBranch = nuevo;
   save();
   renderTree();
@@ -2016,6 +2025,14 @@ async function renombrarRamaProyectos(b) {
 
   state.projects.forEach(p => { if ((p.branch || "General") === b) p.branch = nuevo; });
   renombrarEnRamas("projects", b, nuevo);
+  /* Igual que "plegada" en Talentos: si la vista no se muda con el nombre, el
+     proyecto renombrado vuelve a la lista y el nombre viejo se queda marcado
+     como "en mapa" sin existir. */
+  if (state.ui && state.ui.mapaProyectos && state.ui.mapaProyectos[b]) {
+    delete state.ui.mapaProyectos[b];
+    state.ui.mapaProyectos[nuevo] = true;
+  }
+  if (editandoRama(b, "proyectos")) editBranch = nuevo;
   save();
   renderProjects();
   toast(existe ? `Proyectos juntados en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");

@@ -23,16 +23,36 @@ function requisitosDe(p) {
 
 function modoDe(p) { return p.modo === "cualquiera" ? "cualquiera" : "todos"; }
 
+/* ---- Estas las comparten Talentos y Proyectos ----
+   Desde que el lienzo dibuja las dos cosas, "de que depende esto" y "ya
+   esta?" tienen que saber en que coleccion buscar y con que palabra se dice
+   hecho: un talento se completa ("completed") y un encargo se termina
+   ("done"). Lo decide la etiqueta `mod` del propio nodo.
+
+   Buscar en las dos listas a la vez seria mas corto y esta descartado: una
+   caja del atico tiene id igual que un talento y apareceria donde antes no
+   aparecia nada. */
+function esNodoDeProyecto(n) { return !!n && n.mod === "proyectos"; }
+
+function coleccionDe(n) { return esNodoDeProyecto(n) ? state.projects : state.perks; }
+
+/* Este requisito ya esta cumplido? La palabra cambia segun el modulo, y el
+   modulo lo dice quien pregunta: un encargo solo depende de encargos. */
+function nodoHecho(n, esProyecto) {
+  return esProyecto ? n.status === "done" : n.status === "completed";
+}
+
 /* Los requisitos que existen de verdad. Uno borrado deja de contar en vez
    de bloquear para siempre un talento que ya no espera a nada. */
 function requisitosVivos(p) {
-  return requisitosDe(p).map(id => state.perks.find(x => x.id === id)).filter(Boolean);
+  const lista = coleccionDe(p);
+  return requisitosDe(p).map(id => lista.find(x => x.id === id)).filter(Boolean);
 }
 
 function requisitosCumplidos(p) {
   const reqs = requisitosVivos(p);
   if (!reqs.length) return true;
-  const hechos = reqs.filter(r => r.status === "completed");
+  const hechos = reqs.filter(r => nodoHecho(r, esNodoDeProyecto(p)));
   return modoDe(p) === "cualquiera" ? hechos.length > 0 : hechos.length === reqs.length;
 }
 
@@ -307,8 +327,12 @@ function cajaPorId(id) { return (state.cajas || []).find(c => c.id === id); }
 
 /* Un id del mapa puede ser un talento o una caja. Se dibujan, se mueven y se
    conectan igual, así que casi todo el editor solo necesita "dame el nodo". */
+/* Los encargos van al final y no al principio a proposito: asi el orden de
+   busqueda de Talentos no cambia ni un paso. Los ids son unicos en toda la
+   app, asi que no hay empate posible. */
 function nodoPorId(id) {
-  return state.perks.find(p => p.id === id) || cajaPorId(id);
+  return state.perks.find(p => p.id === id) || cajaPorId(id)
+      || state.projects.find(p => p.id === id);
 }
 
 /* A qué ids REALES corresponde un nodo del dibujo. Una caja cerrada habla en
