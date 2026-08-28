@@ -231,6 +231,51 @@ Cuatro cosas que hay que saber antes de tocarlo:
   `logotipoSrc()` elige entre los dos de `marca/`. Ojo con los nombres, que
   dicen de qué color es el dibujo: el *claro* va sobre fondo oscuro.
 
+## El material
+
+La paleta de arriba resuelve el COLOR. Desde 0.7.37 hay una segunda familia al
+lado que resuelve de qué está hecha la app, y la regla es la misma: **ningún
+radio, ninguna superficie y ningún marco se escribe suelto dentro de una
+regla.** Todos salen de `:root`, junto a los colores.
+
+Existe porque sin ella una apariencia solo puede recolorear, y un recoloreado
+no es una apariencia. El número que lo decidió: en los 300 KB del CSS había
+**un solo `url(...)`, y era la tipografía**.
+
+| Familia | Para qué | Ojo |
+| --- | --- | --- |
+| `--r-redondo`, `--r-disco` | círculos y puntos | **no** pasan por el factor |
+| `--r-barra`, `--r-pastilla`, `--r-boton` | carriles, chips, botones | sí pasan |
+| `--r-grande` … `--r-micro` | la escala de las superficies | 16, 14, 12, 10, 8, 6 |
+| `--r-factor` | el interruptor grueso | `0` endereza el 79% de las esquinas |
+| `--sup-*` | el MATERIAL de un fondo | van en `background`, admiten capas |
+| `--marco-tarjeta` + `--borde-tarjeta` | el marco forjado | hacen falta las DOS |
+| `--tipo-titulo`, `--tipo-cifra` | títulos y cifras aparte | el cuerpo no se toca |
+| `--dur-*`, `--curva*` | el peso del movimiento | |
+
+Cuatro cosas que hay que saber antes de tocarlo:
+
+- **Un círculo es redondo porque es redondo.** `--r-redondo` está separado de
+  `--r-pastilla` a propósito: con un solo nombre para los dos, cuadrar las
+  etiquetas cuadraba también el círculo de marcar una misión. Eso ya no es una
+  apariencia, es otra app.
+- **`--card` es el color; `--sup-tarjeta` es lo que se pinta.** Son dos cosas y
+  hasta 0.7.37 eran la misma variable. `--card` se sigue usando en bordes y en
+  `color-mix`, donde una textura no cabe. La textura va SIEMPRE en la `--sup-*`.
+- **Un marco necesita las dos variables.** Con `--marco-tarjeta` puesto y el
+  borde en un píxel no se ve nada: `border-image` solo se dibuja sobre el ancho
+  del borde.
+- **63 de los 221 radios siguen sueltos** —esquinas interiores de 3 px, medios
+  redondeos, las siluetas giradas de las burbujas— y el factor no los alcanza.
+  Una apariencia que los quiera tiene que ir a por ellos con sus propias reglas.
+
+**Cómo se comprueba que un cambio de estos no rompió nada:** una foto de los
+estilos calculados de toda la app —siete pantallas, los dos modos, con
+`verElEjemplo()` sembrado— antes y después, y se diffean. En 0.7.37 eso fueron
+24 326 elementos y cambiaron 10, todos a propósito. Dos fotos de la app sin
+tocar salen idénticas, así que un «no cambió nada» significa algo. Ver la
+entrada de 0.7.37 en `VERSIONES.md`.
+
 ## Los botones
 
 Seis niveles, y la pregunta que los separa es **«¿qué me pasa si lo pulso sin

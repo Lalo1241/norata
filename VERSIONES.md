@@ -52,6 +52,79 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.37 · 28 ago 2026
+El material de la app deja de estar escrito a mano.
+
+Esto no se ve. Es el camino por el que van a llegar las apariencias, y se
+adelanta a propósito: hacerlo con un tema encima habría sido cambiar dos cosas
+a la vez y no saber cuál rompió qué.
+
+**Lo que había.** El color estaba resuelto desde el modo claro: ninguno se
+escribe suelto, todos salen de `:root`, y cambiarlos cambia la app entera. El
+MATERIAL no lo estaba. En los 300 KB de `css/estilos.css` había **un solo
+`url(...)`, y era la tipografía**: la app no tenía ninguna noción de
+superficie. Todo era relleno plano con las esquinas redondeadas a mano —221
+radios escritos uno por uno—, 142 bordes de un píxel y ni un sitio donde
+agarrar nada de eso.
+
+Con eso, una apariencia solo podía recolorear. Y un recoloreado no es una
+apariencia: es la misma app pintada de otro color.
+
+**Lo que hay ahora.** Una segunda familia de variables al lado de la de los
+colores, con los valores por defecto EXACTAMENTE iguales a los que ya estaban
+sueltos:
+
+- **La forma.** Cuatro nombres para lo que era el mismo `999px`, porque son
+  cuatro cosas distintas: `--r-redondo` (el aro de marcar una misión, los
+  puntos), `--r-barra` (los carriles), `--r-pastilla` y `--r-boton`. Y la
+  escala de las superficies, `--r-grande` a `--r-micro`. Encima, `--r-factor`:
+  una apariencia forjada pone `0` y **el 79% de las esquinas de la app se
+  endereza en una línea** — medido: de 114 esquinas redondas quedan 24. Los
+  círculos NO pasan por el factor y siguen redondos, que era justo el motivo
+  de separarlos: con un solo nombre para los cuatro, cuadrar las pastillas
+  cuadraba también el círculo de marcar una misión, y eso ya no es una
+  apariencia, es otra app.
+- **La superficie.** `--sup-tarjeta`, `--sup-panel`, `--sup-pagina` y dos más.
+  El color de un fondo y el material de ese fondo no son lo mismo y hasta hoy
+  eran la misma variable: `--card` se usa también en bordes y en `color-mix`,
+  donde una textura no cabe. Ahora una apariencia escribe
+  `--sup-tarjeta: url(piedra.webp) center/240px, #241b14` y la textura llega a
+  **100 elementos** sin tocar una regla.
+- **El marco.** `--marco-tarjeta` y `--borde-tarjeta`, en las 24 reglas que son
+  una tarjeta de verdad. Un borde de un píxel es lo que tiene una app de hoy;
+  una pieza forjada tiene un marco con esquinas, y eso son `border-image` y un
+  borde ancho debajo — las dos cosas, porque con la imagen puesta y el borde en
+  un píxel no se ve nada. Con la ranura llena, **50 piezas** se enmarcan.
+- **La letra.** `--tipo-titulo` y `--tipo-cifra`. Antes solo se podía cambiar
+  la tipografía entera, texto corrido incluido, que es donde una display se
+  vuelve ilegible. Los títulos son `h1/h2/h3`; una cifra es lo que ya llevaba
+  `tabular-nums`, así que la definición no se inventó: ya estaba en el archivo.
+- **El movimiento.** `--dur-corta`, `--dur-media`, `--curva` y
+  `--curva-rebote`. Una app ligera sale sin inercia; una pesada frena al llegar.
+
+**Cómo se comprobó que no se rompió nada.** Con el panel del navegador midiendo
+el DOM, que es como se verifica aquí. Una foto de los estilos calculados de
+**24 326 elementos** —siete pantallas, los dos modos, con el ejemplo completo
+sembrado— antes y después. Dos fotos de la app sin tocar salen idénticas, y
+mover una sola esquina un píxel se detecta 106 veces: la red tiene la
+sensibilidad que hace falta para que un «no cambió nada» signifique algo.
+
+Resultado: **de 24 326 elementos, cambiaron 10.** Y son a propósito.
+
+**Los 10 que sí se movieron, que además son un fallo que llevaba ahí desde
+siempre.** Dos reglas usaban `border-radius: var(--r-md)` con `--r-md` sin
+declarar en ninguna parte —el hueco de una columna vacía y el contorno al
+reacomodar el tablero—. Un `var(...)` sin valor ni respaldo no hereda: invalida
+la declaración entera, así que esas dos esquinas llevaban en cuadrado sin que
+nadie lo hubiera pedido, y nadie lo vio porque un borde punteado cuadrado no
+parece un error. Al declarar la variable se enderezan.
+
+**Lo que se queda escrito suelto, dicho para que nadie lo dé por hecho:** 63 de
+los 221 radios siguen a mano. Son los sueltos de verdad —una esquina interior
+de 3 px, un medio redondeo donde algo se pega a otra cosa— y las siluetas
+giradas de las burbujas. Ninguno lo alcanza el factor, así que una apariencia
+que los quiera tiene que ir a por ellos con sus propias reglas.
+
 ### 0.7.36.1 · 28 ago 2026
 Las pantallas vacías dejan de terminar a media altura.
 

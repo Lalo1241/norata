@@ -1,0 +1,45 @@
+# La red de debajo
+
+Dos guiones para comprobar que un cambio de estilos **no movió nada**. No son
+parte de la app: no se sirven, no están en `ASSETS` de `sw.js` y el navegador
+no los ve nunca. La app sigue sin compilación; esto es herramienta de taller.
+
+Existen porque el panel del navegador no compone imagen en algunos entornos y
+las capturas fallan (ver `CLAUDE.md`), así que la verificación se hace midiendo
+el DOM. A mano eso no se sostiene: son veinticuatro mil elementos.
+
+## Cómo se usa
+
+```sh
+python3 -m http.server 8123           # la app tiene que ir por HTTP
+npm install playwright                 # fuera del repositorio, donde sea
+
+node foto.js antes.json                # con el código SIN tocar
+#   ... aquí se hace el cambio ...
+node foto.js despues.json
+node diff.js antes.json despues.json
+```
+
+`foto.js` abre siete pantallas en los dos modos con el ejemplo completo
+sembrado (`verElEjemplo()`) y anota los estilos calculados de cada elemento más
+su rectángulo. `diff.js` los compara y dice qué se movió y dónde.
+
+## Las dos trampas que ya están resueltas dentro
+
+1. **Sin componer fotogramas las transiciones no terminan nunca** y
+   `getComputedStyle` devuelve el valor de PARTIDA. Se saltan al final antes de
+   medir. Las que no acaban nunca —un pulso que late— no se pueden «terminar»:
+   se paran en el cuadro cero, o su valor cambia entre una foto y la siguiente
+   y el diff se llena de ruido que no es un cambio.
+2. **Hay que entrar sin cuenta** o la portada tapa la app. Se hace poniendo
+   `entrada: "local"` en `mainquest-sync-v1` antes de que cargue la página.
+
+## Cómo saber si la red funciona
+
+Antes de fiarse de un «no cambió nada», dos comprobaciones:
+
+- **Dos fotos de la app sin tocar tienen que salir idénticas.** Si no, hay
+  ruido y el diff no vale.
+- **Un cambio de un píxel tiene que verse.** Mover una esquina de `18px` a
+  `17px` en `.ms-card` salta 106 veces. Si no salta, lo que está roto es la
+  prueba.
