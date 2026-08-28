@@ -211,54 +211,148 @@ begin
   end if;
 
   with u as (
-    select id, created_at::date as alta from auth.users
+    select id,
+           created_at::date as alta,
+           (email_confirmed_at is not null) as confirmada
+      from auth.users
   ),
   p as (
     select user_id,
+           min(dia)                as primero,
            max(dia)                as ultimo,
            count(distinct dia)     as dias,
            count(distinct aparato) as aparatos,
-           bool_or(instalada)      as instalo
+           bool_or(instalada)      as instalo,
+           sum(aperturas)          as aperturas
       from public.pulsos
      group by user_id
+  ),
+
+  -- La ÚLTIMA versión que vio cada cuenta, no todas las que ha visto nunca.
+  --
+  -- Antes se contaban los pulsos de siete días agrupados por versión, y eso
+  -- daba un retrato falso: una sola persona que hubiera abierto la app en tres
+  -- aparatos aparecía tres veces, y seguía apareciendo en aparatos donde ya
+  -- había cerrado la sesión — el pulso quedó escrito ese día y no se borra.
+  -- La pregunta real es «¿con qué versión se quedó cada quien?», y eso es una
+  -- fila por cuenta: la más reciente.
+  ultima_v as (
+    select distinct on (user_id) user_id, version
+      from public.pulsos
+     where dia >= current_date - 30
+     order by user_id, dia desc
+  ),
+
+  -- Teléfono, computadora, o las dos. Sale del ancho de la ventana y no de
+  -- fichar el aparato, así que dos teléfonos distintos cuentan como uno.
+  reparto as (
+    select case
+             when count(distinct aparato) > 1  then 'Los dos'
+             when max(aparato) = 'movil'       then 'Solo teléfono'
+             else                                   'Solo computadora'
+           end as grupo
+      from public.pulsos
+     group by user_id
+  ),
+
+  instalacion as (
+    select case when bool_or(instalada) then 'Instalada' else 'En el navegador' end as grupo
+      from public.pulsos
+     group by user_id
+  ),
+
+  antiguedad as (
+    select case
+             when alta > current_date - 7  then 'Menos de una semana'
+             when alta > current_date - 30 then 'Entre 1 y 4 semanas'
+             else                               'Más de un mes'
+           end as tramo
+      from u
   )
+
   select jsonb_build_object(
     'resumen', jsonb_build_object(
-      'cuentas',       (select count(*) from u),
-      'abrieron',      (select count(*) from p),
-      'activos7',      (select count(distinct user_id) from public.pulsos
-                         where dia >= current_date - 7),
-      'activos30',     (select count(distinct user_id) from public.pulsos
-                         where dia >= current_date - 30),
-      'volvieron',     (select count(*) from p where dias > 1),
-      'instalaron',    (select count(*) from p where instalo),
-      'dos_aparatos',  (select count(*) from p where aparatos > 1),
+      'cuentas',        (select count(*) from u),
+      'confirmadas',    (select count(*) from u where confirmada),
+      'sin_confirmar',  (select count(*) from u where not confirmada),
+      'abrieron',       (select count(*) from p),
+      -- Se registraron y nunca llegaron a abrir la app. Es el agujero más
+      -- caro del embudo y no se ve en ninguna otra cifra.
+      'nunca_abrieron', (select count(*) from u where id not in (select user_id from p)),
+      'activos7',       (select count(distinct user_id) from public.pulsos
+                          where dia >= current_date - 7),
+      'activos30',      (select count(distinct user_id) from public.pulsos
+                          where dia >= current_date - 30),
+      'volvieron',      (select count(*) from p where dias > 1),
+      'instalaron',     (select count(*) from p where instalo),
+      'dos_aparatos',   (select count(*) from p where aparatos > 1),
       -- Retención a 30 días: de los que se registraron hace un mes o más,
       -- cuántos seguían apareciendo pasado ese mes. `maduros` es el divisor,
       -- y va aparte porque sin él el porcentaje no se puede calcular ni leer:
       -- «3 siguen» no significa nada si no se sabe de cuántos.
-      'maduros',       (select count(*) from u where alta <= current_date - 30),
-      'siguen30',      (select count(*) from u join p on p.user_id = u.id
-                         where u.alta <= current_date - 30
-                           and p.ultimo >= u.alta + 30)
+      'maduros',        (select count(*) from u where alta <= current_date - 30),
+      'siguen30',       (select count(*) from u join p on p.user_id = u.id
+                          where u.alta <= current_date - 30
+                            and p.ultimo >= u.alta + 30),
+      'pidieron_borrado', (select count(*) from public.perfiles where borrar_el is not null),
+      'aperturas7',     (select coalesce(sum(aperturas), 0) from public.pulsos
+                          where dia >= current_date - 7),
+      -- Cuántos días distintos abre la app una persona, de media. Es la
+      -- medida de hábito: dos personas con la misma retención pero una que
+      -- entra a diario y otra una vez al mes no son el mismo producto.
+      'dias_medios',    (select coalesce(round(avg(dias), 1), 0) from p)
     ),
 
+    -- El embudo, en el orden en que se pierde gente. Cada paso es un
+    -- subconjunto del anterior, así que se lee de arriba abajo y el escalón
+    -- que más cae es el que hay que arreglar.
+    'embudo', jsonb_build_array(
+      jsonb_build_object('paso', 'Se registraron',        'personas', (select count(*) from u)),
+      jsonb_build_object('paso', 'Confirmaron el correo', 'personas', (select count(*) from u where confirmada)),
+      jsonb_build_object('paso', 'Abrieron la app',       'personas', (select count(*) from p)),
+      jsonb_build_object('paso', 'Volvieron otro día',    'personas', (select count(*) from p where dias > 1)),
+      jsonb_build_object('paso', 'Siguen esta semana',    'personas', (select count(distinct user_id)
+                                                                        from public.pulsos
+                                                                       where dia >= current_date - 7))
+    ),
+
+    -- Los catorce días SIEMPRE completos, incluidos los que no tuvo nadie.
+    -- Antes solo venían los días con actividad y la gráfica mentía: dos días
+    -- sueltos con una semana de silencio en medio se dibujaban pegados, como
+    -- si fueran consecutivos. `generate_series` es lo que pone los ceros.
     'dias', coalesce((
       select jsonb_agg(x order by x.dia)
-        from (select dia,
-                     count(*)        as personas,
-                     sum(aperturas)  as aperturas
-                from public.pulsos
-               where dia >= current_date - 13
-               group by dia) x
+        from (
+          select g.d::date as dia,
+                 coalesce(a.personas, 0)  as personas,
+                 coalesce(a.aperturas, 0) as aperturas,
+                 coalesce(n.altas, 0)     as altas
+            from generate_series(current_date - 13, current_date, interval '1 day') g(d)
+            left join (select dia, count(*) as personas, sum(aperturas) as aperturas
+                         from public.pulsos group by dia) a on a.dia = g.d::date
+            left join (select created_at::date as dia, count(*) as altas
+                         from auth.users group by 1) n on n.dia = g.d::date
+        ) x
+    ), '[]'::jsonb),
+
+    'aparatos', coalesce((
+      select jsonb_agg(x order by x.personas desc)
+        from (select grupo, count(*) as personas from reparto group by grupo) x
+    ), '[]'::jsonb),
+
+    'instalacion', coalesce((
+      select jsonb_agg(x order by x.personas desc)
+        from (select grupo, count(*) as personas from instalacion group by grupo) x
+    ), '[]'::jsonb),
+
+    'antiguedad', coalesce((
+      select jsonb_agg(x order by x.tramo)
+        from (select tramo, count(*) as personas from antiguedad group by tramo) x
     ), '[]'::jsonb),
 
     'versiones', coalesce((
       select jsonb_agg(x order by x.personas desc)
-        from (select version, count(distinct user_id) as personas
-                from public.pulsos
-               where dia >= current_date - 7
-               group by version) x
+        from (select version, count(*) as personas from ultima_v group by version) x
     ), '[]'::jsonb),
 
     -- Ya viene calculado de arriba, y trae `desplegado: false` si el cobro

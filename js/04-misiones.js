@@ -829,7 +829,32 @@ async function setProjectStatus(prId, status) {
     dropped: ["¿Descartar este encargo? Deja de pedirte atención, pero queda guardado por si lo retomas.", "Descartar"]
   };
   const [msg, ok] = labels[status];
-  if (!await ask(msg, ok, status === "dropped")) return;
+
+  /* ---- Salir de «terminado» devuelve el XP ----
+     Sin esto, terminar un encargo pagaba la recompensa CADA VEZ: reabrirlo y
+     volver a cerrarlo la cobraba otra vez, y otra, sin límite. Un encargo de
+     300 XP daba 600 con una sola vuelta y 3.000 con diez, que es el atajo más
+     cómodo que tenía la app para inflar una habilidad sin hacer nada.
+
+     Los otros dos módulos ya lo hacían bien y este se había quedado atrás:
+     `revertirTalento` devuelve el XP y el dinero, y `moverMisionATablero`
+     deshace lo cumplido al sacar una misión de las terminadas. La regla es la
+     misma en los tres: **deshacer dice que aquello no llegó a pasar**.
+
+     Se avisa antes de preguntar, no después: quien reabre un encargo tiene
+     derecho a saber que va a perder la recompensa mientras decide. */
+  const deshaceRecompensa = pr.status === "done" && status !== "done";
+  const sRev = deshaceRecompensa && pr.skillId && pr.xpReward
+    ? state.skills.find(x => x.id === pr.skillId) : null;
+  const aviso = sRev ? `\n\nSe le devolverán los ${pr.xpReward} XP a ${sRev.name}.` : "";
+
+  if (!await ask(msg + aviso, ok, status === "dropped")) return;
+
+  if (sRev) removeXp(sRev, pr.xpReward, `Encargo reabierto: ${pr.name}`, `Proyecto · ${pr.name}`);
+  /* Y la fecha se limpia siempre que deje de estar terminado, lleve XP o no:
+     un encargo activo con fecha de término se cuela en el historial como si
+     siguiera cerrado. */
+  if (deshaceRecompensa) pr.completedAt = null;
 
   pr.status = status;
   projectLog(pr, { active: "Encargo retomado", paused: "Encargo pausado", done: "Encargo terminado", dropped: "Encargo descartado" }[status]);

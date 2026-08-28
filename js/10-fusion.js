@@ -110,6 +110,34 @@ function fusionarEstados(a, b, bEsMasNuevo) {
   // Las muertes de los dos lados valen: basta que uno lo haya borrado
   out.borrados = Object.assign({}, otro.borrados || {}, base.borrados || {});
 
+  /* ---- Las listas de ramas también se unen ----
+     `out` sale de clonar el lado que guardó después, así que TODO `ui` venía
+     del más nuevo y lo del otro lado se tiraba entero. Con las ramas eso era
+     pérdida de trabajo de verdad: crear una rama en el teléfono, no meterle
+     nada todavía, abrir la computadora — y la rama ya no está. En silencio.
+
+     Solo se notaba con las VACÍAS, y por eso tardó en verse: en cuanto una
+     rama tiene un talento dentro, `ramasDe()` la vuelve a apuntar al
+     dibujarla. La que se perdía era justo la recién creada, que es la que
+     más duele.
+
+     El precio de unir es que una rama vacía borrada en un aparato puede
+     reaparecer al sincronizar con otro que aún no se había enterado. Se
+     acepta a sabiendas, y en esta dirección y no en la otra: resucitar una
+     rama vacía cuesta un clic, perder una recién creada cuesta trabajo y
+     confianza. Los talentos que llevaba dentro NO vuelven — ésos sí tienen
+     lápida en `borrados`, y esto no los toca. */
+  const unirRamas = (clave) => {
+    const a = (base.ui && base.ui[clave]) || [];
+    const b = (otro.ui && otro.ui[clave]) || [];
+    if (!a.length && !b.length) return;
+    out.ui = out.ui || {};
+    // El orden lo pone el lado más nuevo; lo del otro se añade detrás
+    out.ui[clave] = [...a, ...b.filter(x => !a.includes(x))];
+  };
+  unirRamas("ramasTalentos");
+  unirRamas("ramasProyectos");
+
   COLECCIONES.forEach(col => {
     const porId = new Map();
     (otro[col] || []).forEach(x => { if (x && x.id) porId.set(x.id, x); });

@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.16";
+const VERSION = "0.7.18.1";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -502,6 +502,25 @@ const MIGRACIONES = {
    real contra estropear datos que no entiende. */
 let modoSoloLectura = false;
 
+/* El ejemplo es un PREVISUALIZADOR, no una carga: mientras está puesto, la
+   app se puede tocar entera pero no escribe ni sube nada, y al salir todo
+   vuelve exactamente a como estaba. Ver `verElEjemplo` en 09-inicio.js.
+
+   Vive aquí y no allí por dos motivos. El de forma: quien lo lee es
+   `guardarLocal`, cuatrocientas líneas más abajo, y una bandera declarada en
+   un archivo que se carga después daría un error de zona muerta el día que
+   algo guarde antes de tiempo. Y el de fondo: **este es el sitio donde están
+   los candados del guardado**, y tenerlos juntos es lo que hace que se vean.
+   Un tercer candado escondido en otro archivo es el que un día no se mira.
+
+   El candado está en `guardarLocal` y en `syncTouch`/`syncRun`, o sea en el
+   disco y en el servidor, y no en cada botón. Es a propósito: el ejemplo deja
+   cumplir misiones, mover talentos y abrir cajas —eso es lo que hay que poder
+   previsualizar—, así que taparlo acción por acción sería una lista que se
+   queda corta a la primera pantalla nueva. Se corta donde sale, que son dos
+   puertas y están las dos aquí al lado. */
+let modoEjemplo = false;
+
 function migrar(data) {
   // Lo que no lleva número es de antes de que existiera el número: es v1
   const v = Number(data && data.schemaVersion) || 1;
@@ -660,6 +679,11 @@ function guardarLocal(data) {
      una versión más nueva, no se escribe. Ni al guardar, ni al importar, ni
      al traer algo de la sincronía. */
   if (modoSoloLectura) return false;
+  /* Y el ejemplo, por lo mismo: lo que se ve es de mentira y no puede
+     acabar en el disco de nadie. Al salir, el estado de verdad se restaura
+     desde memoria; si en vez de salir se recarga la página, tampoco pasa
+     nada — nunca se escribió, así que lo que carga es lo real. */
+  if (modoEjemplo) return false;
   const texto = JSON.stringify(data);
   // Un intento por copia que se pueda tirar, más el primero
   for (let intento = 0; intento <= MAX_COPIAS; intento++) {
@@ -968,8 +992,12 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
     if (ic) {
       ic.innerHTML = ex.icono ? icon(ex.icono, 26) : "";
       ic.hidden = !ex.icono;
+      /* El tono viaja tal cual como clase --`oro`, `menta`-- en vez de irse
+         comprobando uno a uno. Con el `=== "oro"` de antes, cada tono nuevo
+         obligaba a volver aqui a anadir su comparacion, y el tono lo decide
+         quien abre el cuadro, no el cuadro. */
       ic.className = "modal-ic" + (danger || alarm ? " riesgo" : "") +
-                     (ex.tono === "oro" ? " oro" : "");
+                     (ex.tono ? " " + ex.tono : "");
     }
     const tit = document.getElementById("modal-titulo");
     if (tit) {
@@ -991,7 +1019,12 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
        pregunta de una linea sigue yendo entera en coral, que ahi el aviso ES
        la frase. */
     card.classList.toggle("con-titulo", !!ex.titulo);
+    /* Los tonos se apagan TODOS en cada apertura y no solo el que toca: el
+       modal es UNO y se reutiliza, asi que el tono que no se quita reaparece
+       en la siguiente pregunta que no lo pidio -- el mismo fallo del que ya
+       avisan el icono y el titulo unas lineas mas arriba. */
     card.classList.toggle("oro", ex.tono === "oro");
+    card.classList.toggle("menta", ex.tono === "menta");
     /* `#modal-msg` respeta los saltos de linea, y eso es justo lo que quiere
        un mensaje de TEXTO: sus `
 

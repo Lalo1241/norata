@@ -253,6 +253,7 @@
     --piso-encima: 500;    /* lo que una ventana abre y la reemplaza */
     --piso-tirar: 7000;    /* deslizar para actualizar */
     --piso-pruebas: 7500;  /* el marco de "cuenta de pruebas" */
+    --piso-ejemplo: 7600;  /* el rótulo de "estás viendo un ejemplo" */
     --piso-portada: 8000;  /* entrar a la app */
     --piso-compra: 8200;   /* volver de pagar: tapa la app, no los avisos */
     --piso-brindis: 8500;  /* los avisos de abajo, encima de todo lo anterior */
@@ -3321,6 +3322,71 @@
     50% { box-shadow: 0 0 0 2px var(--fire), 0 0 46px rgba(245, 215, 110, 0.5); }
   }
 
+  /* ---------- El mismo aviso, en menta: un tope del plan ----------
+     Ni tiembla ni brilla, y eso es lo que lo separa de los otros dos tonos:
+     `alarm` avisa de algo que se rompe, y aquí no se rompió nada. Solo cambia
+     el color y la forma de leer el cuerpo, porque este es el único cuadro de
+     la app que lleva tres cosas dentro en vez de una frase.
+
+     El borde se cambia por clase y sin transición, como todo aquí: con una
+     transición por medio Chrome no se entera de que un color que sale de una
+     variable ha cambiado y lo deja clavado en el inicial (el comentario largo
+     de `.modal-card` cuenta las dos veces que ya mordió en esta misma caja). */
+  .modal-card.menta { border-color: var(--mint); }
+  .modal-card.menta .modal-titulo { color: var(--mint); }
+  .modal-ic.menta { background: var(--mint-soft); color: var(--mint); }
+
+  /* El cuerpo, alineado a la izquierda. Centrada se lee bien una frase suelta
+     y se lee mal un párrafo seguido de una lista: los renglones cortos quedan
+     flotando y la vista pierde por dónde arranca cada uno. */
+  .modal-card.menta #modal-msg { text-align: left; }
+  .modal-card.menta .tope-frase {
+    display: block;
+    font-size: 15px;
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+  /* La lista va sobre su propio velo y no suelta sobre la tarjeta: es lo que
+     se está comprando, y separarla del párrafo es lo que hace que se lea
+     entera en vez de saltársela.
+
+     De noche el velo es menta y de día es `--card2`, y NO es un capricho: la
+     regla de la casa dice que un `*-soft` tiene que levantar hacia el blanco
+     en el modo claro, y `--mint-soft` (#e6f1ec) levanta respecto al FONDO de
+     la página pero no respecto a la TARJETA (#f2f0f9), que es donde se apoya
+     esta pastilla. Medido: luminancia menor que la de la tarjeta, o sea un
+     hueco excavado en vez de algo puesto encima. `--card2` es el único tono
+     que levanta en los dos modos —#222c39 sobre #1d2530 de noche, #f7f8fa
+     sobre #f2f0f9 de día—, que es para lo que existe. El verde no se pierde:
+     lo ponen las cuatro palomitas. */
+  .modal-card.menta .tope-lista {
+    display: grid;
+    gap: 9px;
+    padding: 14px;
+    margin-bottom: 16px;
+    border-radius: 14px;
+    background: var(--mint-soft);
+  }
+  html.claro .modal-card.menta .tope-lista { background: var(--card2); }
+  .modal-card.menta .tope-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 14px;
+    line-height: 1.35;
+    color: var(--text);
+  }
+  /* La palomita no se encoge. Sin esto, en el renglón que se parte en dos
+     líneas el icono se estrecha hasta volverse un óvalo. */
+  .modal-card.menta .tope-item svg { flex: none; color: var(--mint); }
+  .modal-card.menta .tope-precio {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
   .modal-card.alarm.con-titulo p {
     color: var(--text);
     font-weight: 400;
@@ -4431,6 +4497,62 @@
     white-space: nowrap;
   }
 
+  /* ---------- «Estás viendo un ejemplo» ----------
+     Mismo sitio y mismo amarillo que el rótulo de cuenta de pruebas, porque
+     dicen lo mismo: lo que hay en pantalla no es real. Repetir el tono es la
+     intención — este amarillo es el color con el que la app avisa de eso, y
+     inventarle uno propio haría creer que son avisos de distinta clase.
+
+     La diferencia es que éste lleva salida, así que la pastilla recupera los
+     clics que el contenedor apaga. El contenedor sigue en `pointer-events:
+     none` para no tragarse los toques del resto de la pantalla: en el
+     ejemplo se puede tocar todo, que es el punto. */
+  .aviso-ejemplo {
+    position: fixed; inset: 0;
+    z-index: var(--piso-ejemplo); pointer-events: none;
+  }
+  .aviso-ejemplo .ae-tag {
+    position: absolute;
+    top: env(safe-area-inset-top);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 8px;
+    background: var(--fire-macizo); color: var(--sobre-macizo);
+    border-radius: 0 0 10px 10px;
+    padding: 3px 6px 4px 12px; font-size: 10.5px; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: auto;
+  }
+  /* El botón se dibuja pequeño porque la pastilla lo es, pero la zona que
+     recibe el dedo no puede serlo: a 19 px de alto se falla en un teléfono.
+     El relleno vertical la sube a 26 sin engordar el rótulo, y el negativo
+     de la pastilla se lo devuelve. Es la única salida del ejemplo — fallar
+     el toque aquí deja a alguien atrapado mirando datos que no son suyos. */
+  .aviso-ejemplo .ae-tag button {
+    font: inherit; letter-spacing: inherit; text-transform: inherit;
+    color: inherit; cursor: pointer;
+    background: rgba(16, 21, 29, 0.14);
+    border: 1px solid rgba(16, 21, 29, 0.28);
+    border-radius: 999px; padding: 5px 11px 6px;
+  }
+  /* Sin transición en el fondo: el color sale de una variable y Chrome deja
+     el valor congelado en el inicial (ver la nota del modo claro). */
+  .aviso-ejemplo .ae-tag button:hover { background: rgba(16, 21, 29, 0.24); }
+
+  /* Con los dos rótulos puestos —la cuenta de pruebas de Eduardo mirando el
+     ejemplo—, el de pruebas baja para no quedar debajo del otro. Es raro y
+     dura un rato, pero dos pastillas superpuestas no se leen ninguna.
+
+     El número sale de la altura real de la pastilla de arriba (34 px con su
+     botón dentro) más cuatro de aire. Va medido y no a ojo: la primera vez se
+     puso 28 —la altura que tenía ANTES de agrandarle el área de toque al
+     botón— y los dos rótulos seguían montados seis píxeles. */
+  body.ejemplo-on .aviso-pruebas .ap-tag {
+    top: calc(env(safe-area-inset-top) + 38px);
+    border-radius: 10px;
+  }
+
   /* Datos de una versión más nueva. Tapa todo y no se cierra: seguir usando
      la app sin poder guardar sería peor que no poder usarla. */
   .futuro-aviso {
@@ -5468,3 +5590,154 @@
 .vs-piedra { display: block; margin-bottom: 3px; }
 .vs-piedra .ic { display: inline-flex; }
 .plan-vs tbody td { text-align: left; }
+
+/* ---- Piezas nuevas del panel (0.7.18) ----
+   Todos los colores salen de variables comprobadas contra este mismo archivo
+   antes de escribirlas. Ver la nota de arriba: un `fill` que no resuelve no
+   avisa de nada, pinta negro, y eso ya costó una versión. */
+
+/* La tira de avisos: solo se dibuja si hay algo que mirar */
+.pn-avisos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.pn-aviso {
+  background: var(--card2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--fire);
+  border-radius: 0 12px 12px 0;
+  padding: 11px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pn-aviso b {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--fire);
+  font-variant-numeric: tabular-nums;
+}
+
+.pn-aviso span { font-size: .82rem; color: var(--text); }
+.pn-aviso i { font-size: .72rem; color: var(--muted); font-style: normal; }
+
+/* ---- El embudo ---- */
+.pn-embudo { display: flex; flex-direction: column; gap: 14px; }
+
+.pn-paso { display: flex; flex-direction: column; gap: 5px; }
+
+.pn-paso-tit {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: .88rem;
+  color: var(--text);
+}
+
+.pn-paso-tit b { font-variant-numeric: tabular-nums; color: var(--mint); }
+
+.pn-paso-riel {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--carril);
+  overflow: hidden;
+}
+
+.pn-paso-riel i { display: block; height: 100%; background: var(--mint-macizo); border-radius: 999px; }
+
+.pn-caida { font-size: .74rem; color: var(--fire); }
+.pn-caida.ok { color: var(--muted); }
+
+/* ---- Las donas ---- */
+.pn-donas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 22px;
+}
+
+.pn-sub {
+  margin: 0 0 10px;
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.pn-dona-caja { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+.pn-dona { width: 108px; height: 108px; flex: none; }
+
+.pn-dona-riel { fill: none; stroke: var(--carril); }
+
+/* Sin transición en el trazo: su color sale de una variable, y una transición
+   sobre eso se queda congelada en el valor inicial para siempre. */
+.pn-gajo { fill: none; }
+.pn-gajo-1 { stroke: var(--mint-macizo); }
+.pn-gajo-2 { stroke: var(--celeste); }
+.pn-gajo-3 { stroke: var(--fire-macizo); }
+.pn-gajo-4 { stroke: var(--coral-macizo); }
+
+.pn-dona-num {
+  fill: var(--text);
+  font-size: 20px;
+  font-weight: 700;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.pn-dona-pie { fill: var(--muted); font-size: 8px; text-anchor: middle; }
+
+.pn-leyenda { display: flex; flex-direction: column; gap: 7px; min-width: 110px; }
+
+.pn-ley {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: .82rem;
+  color: var(--text);
+}
+
+.pn-ley i { width: 10px; height: 10px; border-radius: 3px; }
+.pn-ley b { color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.pn-ley i.pn-gajo-1 { background: var(--mint-macizo); }
+.pn-ley i.pn-gajo-2 { background: var(--celeste); }
+.pn-ley i.pn-gajo-3 { background: var(--fire-macizo); }
+.pn-ley i.pn-gajo-4 { background: var(--coral-macizo); }
+
+/* ---- Añadidos a la constelación ---- */
+
+/* La marca de cada lunes, para poder comparar una semana con la anterior.
+   La de hoy va entera y las demás punteadas: el último día casi siempre está
+   a medias y conviene que se note antes de sacar conclusiones. */
+.pn-guia {
+  stroke: var(--line);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.pn-guia.hoy { stroke: var(--carril); stroke-dasharray: none; }
+
+/* Las cuentas nuevas del día, al fondo y en su propia escala */
+.pn-alta { fill: var(--celeste); opacity: .32; }
+
+.pn-pie-graf {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 8px;
+  font-size: .76rem;
+  color: var(--muted);
+}
+
+.pn-pie-graf span { display: inline-flex; align-items: center; gap: 6px; }
+.pn-mu-punto { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); }
+.pn-mu-barra { width: 6px; height: 11px; border-radius: 1px; background: var(--celeste); opacity: .5; }

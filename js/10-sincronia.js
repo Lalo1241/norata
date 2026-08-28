@@ -106,6 +106,11 @@ function syncReady() {
 function syncTouch() {
   try {
     if (!syncReady()) return;
+    /* Viendo el ejemplo no hay nada que marcar como pendiente: lo que se está
+       tocando no es del usuario. Sin esto, el previsualizador dejaba la
+       bandera de «hay algo que subir» puesta y el temporizador armado, y al
+       salir se subía una foto de datos inventados. */
+    if (modoEjemplo) return;
     sync.dirty = true;
     // Cuándo se tocó esto por última vez. Sin este dato, ante un conflicto
     // solo se puede fechar el lado remoto, y elegir "el más reciente" se
@@ -311,6 +316,13 @@ async function syncOnce(opts) {
 async function syncRun(opts) {
   opts = opts || {};
   if (!syncReady() || syncBusy) return;
+  /* El segundo candado del ejemplo, y el que de verdad hacía falta: por aquí
+     pasan las SIETE puertas de la sincronía —el temporizador, «Sincronizar
+     ahora», volver a la pestaña, recuperar la conexión, el arranque, la
+     entrada y el tirón para actualizar—. Cerrar solo `syncTouch` dejaba
+     fuera a las seis que no dependen de haber tocado nada: bastaba con
+     entrar al ejemplo y cambiar de pestaña para que se subiera. */
+  if (modoEjemplo) return;
   if (navigator.onLine === false) {
     if (!opts.silent) toast("Sin conexión: se subirá cuando vuelva", "calma");
     return;
