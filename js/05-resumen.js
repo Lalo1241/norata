@@ -84,51 +84,85 @@ function renderSummary() {
 
   // Cada bloque del tablero es un widget que se puede mover u ocultar
   const W = {
-    racha: () => `
-      <div class="scene-card">
+    /* ---- La tarjeta de la racha ----
+
+       Estaba desaprovechada y se veía: media tarjeta de cielo vacío arriba, el
+       contenido apretado contra el borde de abajo y el mes en una esquina.
+       Eduardo lo comparó con la pantalla de racha de Duolingo, que es la
+       referencia obvia del género, y la pregunta que sacamos de ahí no fue
+       «cómo copiarla» sino qué hace bien: **el mes entero es la superficie que
+       hace volver, no el número.** Ver el mes llenándose es lo que engancha;
+       el número solo lo resume.
+
+       Así que el mes pasa al centro, con sus fechas escritas, y la tarjeta se
+       reparte en dos columnas: a la izquierda quién eres hoy —la llama, la
+       racha, lo que llevas del mes—, a la derecha el mes. En el teléfono se
+       apilan y el calendario ocupa el ancho entero, que es donde antes peor
+       se veía.
+
+       Lo que NO se copia, y es a propósito: ni las cápsulas de colores por
+       semana, ni los congeladores, ni las flechas para pasear por meses
+       viejos, ni el susto de «te quedan 2 días para recuperar tu racha». Un
+       aviso en Norata informa y da la salida; no mete prisa.
+
+       Y la tira de siete días con sus palomitas se va: el mes la contiene
+       entera, y tenerlas las dos era decir lo mismo dos veces en la misma
+       tarjeta —que es justo lo que dejaba el cielo vacío arriba—. Lo que
+       hacía falta de ella, «cómo voy esta semana», queda dicho en una cifra. */
+    racha: () => {
+      const cuentas = activityDayCounts();
+      const hoy = todayKey();
+      const anio = Number(hoy.slice(0, 4));
+      const mes = Number(hoy.slice(5, 7));
+      const desdeMes = hoy.slice(0, 8) + "01";
+      const delMes = { periodo: "mes", desde: desdeMes, hasta: hoy };
+      const diasMes = diasDe(delMes);
+      const activosMes = diasMes.filter(k => (cuentas.get(k) || 0) > 0).length;
+
+      const inicioSemana = addDaysKey(hoy, -weekdayOfKey(hoy));
+      let activosSemana = 0;
+      for (let i = 0; i < 7; i++) {
+        const k = addDaysKey(inicioSemana, i);
+        if (k <= hoy && (cuentas.get(k) || 0) > 0) activosSemana++;
+      }
+      const diasCorridos = daysBetween(inicioSemana, hoy) + 1;
+
+      /* La frase de hoy. Es lo único de esta tarjeta que pide algo, y pide sin
+         asustar: dice qué falta y con qué se resuelve, nunca cuánto vas a
+         perder. */
+      const hoyCuenta = (cuentas.get(hoy) || 0) > 0;
+      const frase = hoyCuenta
+        ? "Hoy ya cuenta."
+        : (stk.cur > 0
+          ? "Hoy todavía no cuenta. Cualquier registro la mantiene viva."
+          : "Cualquier registro de hoy la echa a andar.");
+
+      return `
+      <div class="scene-card streak-card">
         ${scene(820, 230, 11)}
         <div class="scene-fade"></div>
         <div class="scene-body">
           <div class="label">${greeting()} · ${dateTxt}</div>
-          <div class="streak-row">
-            <span class="flame ic"><svg viewBox="0 0 24 24">${ICONS.flame}</svg></span>
-            <span class="num">${stk.cur}</span>
-            <span class="lbl">día${stk.cur === 1 ? "" : "s"} de racha<br>mejor: ${stk.best}</span>
+          <div class="streak-grid">
+            <div class="sg-izq">
+              <div class="streak-row">
+                <span class="flame ic"><svg viewBox="0 0 24 24">${ICONS.flame}</svg></span>
+                <span class="num">${stk.cur}</span>
+                <span class="lbl">día${stk.cur === 1 ? "" : "s"} de racha<br>mejor: ${stk.best}</span>
+              </div>
+              <p class="sg-hoy${hoyCuenta ? " si" : ""}">${escapeHtml(frase)}</p>
+              <div class="sg-cifras">
+                <div><b>${activosSemana}<span>/${diasCorridos}</span></b><span>esta semana</span></div>
+                <div><b>${activosMes}<span>/${diasMes.length}</span></b><span>en ${MESES[mes - 1]}</span></div>
+              </div>
+            </div>
+            <div class="sg-der">
+              ${calendarioRacha(anio, mes, cuentas, hoy)}
+            </div>
           </div>
-          <div class="wk">${stk.semana.map(d => {
-            const marca = d.estado === "done" ? `<svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>`
-              : d.estado === "missed" ? `<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>`
-              : d.dia;
-            const qué = d.n > 0 ? `${d.n} registro${d.n === 1 ? "" : "s"}`
-              : (d.estado === "hoy" ? "hoy, todavía nada" : (d.estado === "missed" ? "te lo saltaste" : (d.estado === "futuro" ? "aún no llega" : "antes de empezar")));
-            return `<div class="wk-d wk-${d.estado}${d.hoy && d.estado !== "hoy" ? " wk-hoy" : ""}" title="${escapeAttr(formatDate(d.key) + " · " + qué)}">
-              <span class="wk-l">${d.letra}</span><span class="wk-c">${marca}</span>
-            </div>`;
-          }).join("")}</div>
-          ${/* El mes entero debajo de la semana. La tarjeta de la racha
-                enseñaba siete días y nada más, así que el dato que le da
-                sentido —cuántos días del mes llevas moviéndote— había que ir
-                a buscarlo al informe. Es el mismo calendario de "Tus días"
-                (js/10g-informe.js) leyendo los días con actividad de verdad,
-                que es lo que cuenta la racha: práctica, misiones y talentos,
-                no solo misiones.
-
-                La escena se queda de noche en los dos modos, y el calendario
-                saca sus tonos de `velo()` y `pinta()`, así que no hay que
-                declararle nada aparte. */
-             (() => {
-               const cuentas = activityDayCounts();
-               const hoy = todayKey();
-               const mes = { periodo: "mes", desde: hoy.slice(0, 8) + "01", hasta: hoy };
-               const conAlgo = diasDe(mes).filter(k => (cuentas.get(k) || 0) > 0).length;
-               return `
-                 <div class="streak-mes">
-                   <div class="sm-rot">${MESES[Number(hoy.slice(5, 7)) - 1].toUpperCase()} · ${conAlgo} día${conAlgo === 1 ? "" : "s"} con actividad</div>
-                   ${gCalendario(mes, cuentas, { vacia: "" })}
-                 </div>`;
-             })()}
         </div>
-      </div>`,
+      </div>`;
+    },
 
     misiones: () => {
       const { due, done, pct } = todayMissionStats();
@@ -1304,6 +1338,60 @@ function renderHome() {
 }
 
 /* Barra de acciones sobre la lista: añadir del catálogo y quitar en bloque. */
+/* ---- El calendario de la racha ----
+
+   Es primo del de los informes pero no el mismo, y la diferencia es lo que
+   cambia todo: **aquí los días llevan su número escrito.** En un informe el
+   calendario es un patrón que se mira de lejos —cuántos días, dónde están los
+   huecos— y las fechas sobran; en la tarjeta de la racha se mira de cerca,
+   una casilla es un día concreto de tu semana, y sin el número hay que
+   contarlas con el dedo para saber cuál es cuál.
+
+   Tres estados y ninguno regaña:
+     · lleno    lo hiciste, y cuánto lo dice la intensidad
+     · vacío    no pasó nada; sin cruces ni rojos, que un mes marcado de
+                fallos es un mes que no se quiere volver a abrir
+     · futuro   el número apagado, para que se vea que el mes sigue
+
+   Hoy lleva un aro, y la semana en curso una banda por detrás: es lo que
+   contesta «¿cómo voy AHORA?» sin necesitar una tira aparte. */
+function calendarioRacha(anio, mes, cuentas, hoy) {
+  const total = new Date(Date.UTC(anio, mes, 0)).getUTCDate();
+  const primero = new Date(Date.UTC(anio, mes - 1, 1)).getUTCDay();
+  const mm = String(mes).padStart(2, "0");
+  const inicioSemana = addDaysKey(hoy, -weekdayOfKey(hoy));
+  const finSemana = addDaysKey(inicioSemana, 6);
+
+  let max = 1;
+  for (let d = 1; d <= total; d++) max = Math.max(max, cuentas.get(anio + "-" + mm + "-" + String(d).padStart(2, "0")) || 0);
+  const escala = ["", velo("#5fe0b0", "3a"), velo("#5fe0b0", "77"), velo("#5fe0b0", "b4"), pinta("#5fe0b0")];
+
+  let celdas = "";
+  for (let i = 0; i < primero; i++) celdas += `<i class="rc-hueco"></i>`;
+  for (let d = 1; d <= total; d++) {
+    const k = anio + "-" + mm + "-" + String(d).padStart(2, "0");
+    const n = cuentas.get(k) || 0;
+    const nivel = n <= 0 ? 0 : Math.min(4, Math.ceil(n / max * 4));
+    const clases = ["rc-d"];
+    if (k > hoy) clases.push("rc-futuro");
+    if (k === hoy) clases.push("rc-hoy");
+    if (k >= inicioSemana && k <= finSemana) clases.push("rc-semana");
+    /* Tinta oscura solo sobre el relleno macizo: es el único nivel que se
+       pinta con el color entero, y encima de él un número claro desaparece.
+       Los tres velos siguen siendo fondo oscuro con transparencia. */
+    if (nivel === 4) clases.push("rc-tinta");
+    const titulo = d + " de " + MESES[mes - 1] + (n ? ": " + n + (n === 1 ? " registro" : " registros") : "");
+    celdas += `<i class="${clases.join(" ")}"${nivel ? ` style="background:${escala[nivel]}"` : ""} title="${escapeAttr(titulo)}">${d}</i>`;
+  }
+
+  return `
+    <div class="rc">
+      <div class="rc-rot">${escapeHtml(MESES[mes - 1])}</div>
+      <div class="rc-dow" aria-hidden="true">${["D", "L", "M", "M", "J", "V", "S"].map(x => `<span>${x}</span>`).join("")}</div>
+      <div class="rc-rejilla">${celdas}</div>
+    </div>`;
+}
+
 function renderHomeTools() {
   const el = document.getElementById("hb-tools");
   if (!el) return;

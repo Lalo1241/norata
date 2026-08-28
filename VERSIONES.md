@@ -52,6 +52,54 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.34 · 28 ago 2026
+La racha se rehace: el mes al centro, con sus fechas escritas.
+
+La tarjeta estaba desaprovechada y se veía: media tarjeta de cielo vacío
+arriba, el contenido apretado contra el borde de abajo y el mes arrinconado en
+una esquina. Eduardo lo comparó con la pantalla de racha de Duolingo, que es la
+referencia obvia del género, y la pregunta que salió de ahí no fue cómo
+copiarla sino **qué hace bien: el mes entero es la superficie que hace volver,
+no el número.** Ver el mes llenándose es lo que engancha; el número solo lo
+resume.
+
+- **El mes pasa al centro y con sus fechas escritas.** Es primo del calendario
+  de los informes pero no el mismo, y la diferencia lo cambia todo: en un
+  informe el calendario es un patrón que se mira de lejos y las fechas sobran;
+  en la racha se mira de cerca, una casilla es un día concreto de tu semana, y
+  sin el número hay que contarlas con el dedo.
+- **La tarjeta se reparte en dos columnas** en cuanto hay sitio: a la izquierda
+  quién eres hoy —la llama, la racha, lo que llevas de semana y de mes—, a la
+  derecha el mes. Por debajo de 640 px se apilan y el calendario se lleva el
+  ancho entero, que es donde peor se veía.
+- **Y una frase que pide sin asustar**: «Hoy ya cuenta» cuando ya cuenta, y
+  «Hoy todavía no cuenta. Cualquier registro la mantiene viva» cuando falta.
+  Dice qué falta y con qué se resuelve, nunca cuánto vas a perder.
+
+**Lo que NO se copia, y es a propósito:** ni las cápsulas de colores por
+semana, ni los congeladores, ni las flechas para pasear por meses viejos, ni el
+susto de «te quedan 2 días para recuperar tu racha». Un aviso en Norata informa
+y da la salida; no mete prisa. Y un día sin actividad se queda en el carril, sin
+cruz ni rojo: un mes marcado de fallos es un mes que no se quiere volver a
+abrir.
+
+**Se va la tira de siete días con sus palomitas.** El mes la contiene entera, y
+tener las dos era decir lo mismo dos veces en la misma tarjeta —que es justo lo
+que dejaba el cielo vacío arriba—. Lo que hacía falta de ella, «cómo voy esta
+semana», queda dicho en una cifra y en la banda que marca la semana en curso
+dentro del calendario. Sus reglas de CSS se borran también: no dibujaban nada.
+
+**Y el fallo de fondo que lo explicaba todo.** `.scene-card` mide 252 px fijos
+y pone su cuerpo en absoluto pegado abajo: nació para una escena decorativa con
+un pie de dos líneas, y el cielo vacío de arriba era el dibujo. Con el mes
+dentro dejó de servir —la rejilla medía 259 px en una caja de 252 y se salía
+por abajo sin que nada lo dijera—. Ahora la tarjeta crece con lo que lleva
+dentro, que es el mismo arreglo que ya tenía `.sec-hero`.
+
+Medido a 1280, 375 y 320: el calendario cabe entero en los tres, casillas de
+42, 40 y 32 px, y ninguna página se desborda de lado. **Quien tenga el tablero
+acomodado a mano verá la tarjeta con el fundido de abajo hasta que la estire.**
+
 ### 0.7.33.2 · 28 ago 2026
 La gráfica encoge y sus cifras bajan al pie.
 
