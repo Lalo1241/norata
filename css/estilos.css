@@ -5895,7 +5895,16 @@
 .plan-p i { font-style: normal; font-size: 12.5px; font-weight: 500; color: var(--muted); }
 .plan-d { font-size: 12.5px; color: var(--muted); line-height: 1.45; min-height: 34px; }
 .plan-cupo { font-size: 12px; font-weight: 600; color: var(--fire); }
-.plan-card .btn { margin-top: 8px; }
+/* El boton, siempre abajo del todo. Las dos tarjetas miden lo mismo —las
+   estira la rejilla— pero su contenido no, asi que los dos botones de pagar
+   quedaban a distinta altura y la comparacion se torcia justo en la fila que
+   se compara. `auto` los empuja al suelo de su tarjeta. */
+/* Los lados se aprietan de 22 px a 12. Lado a lado las dos tarjetas se
+   quedan en unos 207 px, y ahi "Pasar a ser Fundador" mide 138 px contra los
+   131 que dejaba el relleno de un boton normal: se partia en dos renglones y
+   la fila de botones quedaba desnivelada. Con 12 px caben con nueve de
+   sobra. Arriba y abajo no se tocan, que es lo que da la altura del boton. */
+.plan-card .btn { margin-top: auto; padding-left: 12px; padding-right: 12px; }
 
 /* Los avisos del pie, centrados. Es lo contrario que la tabla y por el mismo
    motivo: aquí no hay columnas con las que alinearse, son dos frases sueltas
@@ -6031,8 +6040,22 @@ html.claro .plan-linea { stroke-opacity: .85; }
    Vive DENTRO de la tarjeta de Pro, no encima de las dos: solo Pro se cobra de
    dos maneras, y puesto fuera parecía que también cambiaba el precio de
    Fundador. */
+.plan-per-wrap, .plan-hueco { margin-bottom: 10px; }
+/* El hueco va declarado ANTES de la consulta que lo enciende. Al revés —que
+   es como estaba— las dos reglas tienen la misma especificidad y gana la
+   última escrita, así que el `display: none` se comía al de la consulta y el
+   hueco no aparecía nunca. */
+.plan-hueco { display: none; }
+@media (min-width: 1100px) {
+  /* Lado a lado, las dos tarjetas reservan la misma fila de arriba para que
+     los nombres y los precios se alineen. Apiladas no: el hueco sería un
+     agujero al principio de la tarjeta de Fundador. El corte es el mismo que
+     el de las dos columnas, y tiene que seguir siéndolo. */
+  .plan-hueco { display: block; }
+  .plan-per-wrap, .plan-hueco { min-height: 62px; }
+}
 .plan-per-wrap {
-  display: flex; gap: 3px; margin-bottom: 10px;
+  display: flex; gap: 3px;
   background: var(--bg); border: 1px solid var(--line);
   border-radius: 99px; padding: 3px;
 }
@@ -6069,9 +6092,21 @@ html.claro .plan-linea { stroke-opacity: .85; }
 }
 .plan-card.limitada .plan-vent li::before { color: var(--lila); }
 
-/* Dos tarjetas y no tres, porque no hay tres planes. */
-.plan-cards.dos { margin-top: 4px; }
-@media (min-width: 900px) { .plan-cards.dos { grid-template-columns: repeat(2, 1fr); } }
+/* Dos tarjetas y no tres, porque no hay tres planes.
+
+   Y se ponen lado a lado MUCHO más tarde que las tres de antes: a 900 px de
+   ventana esta pantalla tiene una columna de secciones a la izquierda, así
+   que al panel le quedan unos 300 px y cada tarjeta se estrujaba a 150 —con
+   el botón partido en tres renglones—. Se comparan de verdad a partir de los
+   1100, que es cuando cada una pasa de 200 px.
+
+   `minmax(0, 1fr)` y no `1fr`: `1fr` es `minmax(auto, 1fr)`, así que el ancho
+   mínimo del contenido manda y la tarjeta con la ventaja más larga se llevaba
+   37 px de la otra. Dos columnas que se comparan tienen que medir igual. */
+.plan-cards.dos { margin-top: 4px; grid-template-columns: 1fr; }
+@media (min-width: 1100px) {
+  .plan-cards.dos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 /* ---------- El pie legal ----------
    Tres hechos sueltos, no una frase. Las bolitas van con `::before` entre

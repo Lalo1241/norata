@@ -52,6 +52,41 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.27.2 · 28 ago 2026
+Los retoques de la pantalla del plan, después de verla funcionando.
+
+- **La franja de la rama baja de 108 a 76 px.** Ocupaba más que el argumento
+  que ilustra. Los nodos no encogen: su radio se calcula en píxeles y se pasa
+  a unidades del mapa, así que miden lo mismo con cualquier altura; lo único
+  que cambia es cuánto mapa se ve.
+- **El ancho del recuadro ya no se adivina: se mide.** Estaba adivinado —620 px
+  en escritorio— y en una ventana de 1100 el hueco real eran 394: como un SVG
+  nunca estira su contenido, `meet` encogía el mapa entero y los nodos salían a
+  **3,4 px en vez de 10,8**. Ahora se pinta con un ancho provisional y
+  `planAjustarLienzos` rehace el `viewBox` con el de verdad. De paso, la
+  decisión de recortar se toma ahí, así que ya no puede encenderse el degradado
+  sobre un dibujo que sí cabía.
+- **Los dos botones de pagar, a la misma altura.** `margin-top: auto` los pega
+  al suelo de su tarjeta, que es la fila que se compara.
+- **Las dos tarjetas alinean nombre y precio.** Fundador reserva la fila del
+  conmutador con un hueco, solo cuando están lado a lado.
+- **Los botones dicen «Pasar a Plan Pro» y «Pasar a ser Fundador».** Con los
+  lados apretados a 12 px: a 207 px de tarjeta, el segundo medía 138 px contra
+  los 131 que dejaba un botón normal y se partía en dos renglones.
+
+**Dos fallos de CSS que se venían venir y valen como regla:**
+
+- **Una regla que apaga algo va ANTES de la consulta que lo enciende.** El
+  `display: none` del hueco estaba escrito después del `@media` y, con la misma
+  especificidad, gana la última: el hueco no aparecía nunca.
+- **Dos columnas que se comparan se declaran `minmax(0, 1fr)`.** `1fr` es
+  `minmax(auto, 1fr)`, así que manda el ancho mínimo del contenido y la tarjeta
+  con la ventaja más larga se llevaba 37 px de la otra.
+
+Y **las dos columnas empiezan a los 1100 px, no a los 900**: esta pantalla
+tiene una columna de secciones a la izquierda, así que a 900 al panel le
+quedaban 300 px y cada tarjeta se estrujaba a 150.
+
 ### 0.7.27.1 · 27 ago 2026
 El botón de reportar se muda a la barra, y pregunta con una caja de verdad.
 
