@@ -5274,13 +5274,23 @@
     .side-version {
       display: flex;
       align-items: center;
-      /* La bolita se queda a la derecha y el texto ocupa lo demás. Los dos no
-         caben en una línea con la fecha puesta —medido: 181 px de texto más
-         38 de bolita contra 194 disponibles—, así que el conjunto envuelve y
-         la bolita baja a su propio renglón, alineada a la derecha. Preferí eso
-         a recortar la fecha: el número y su fecha son el dato, la bolita es un
-         acompañante. */
-      flex-wrap: wrap;
+      /* ---- La bolita NO va en el flujo, y es lo que quita el escalonamiento ----
+         Estaba dentro de la fila con `flex-wrap`, y de ahí nacía el defecto: al
+         plegar o desplegar, el ancho de la barra se anima entre 84 y 246 px, y
+         a mitad de camino el texto y la bolita dejan de caber en una línea. La
+         bolita saltaba a un segundo renglón, la fila crecía de 43 a 60 px de
+         alto, y al terminar la animación volvía a subir. Ese ida y vuelta es el
+         escalón, y que se corrigiera solo al acabar es justo lo que lo hacía
+         parecer un misterio.
+
+         Sacada del flujo, no hay nada que envolver: el ancho puede animarse
+         todo lo que quiera y la fila no cambia de alto ni una vez. Ver
+         `.side-version .sv-bug`, unas líneas más abajo. */
+      position: relative;
+      /* Sitio para la bolita, que ya no lo pide por su cuenta. Son los 32 de
+         la bolita más los 11 de relleno de la fila (9 arriba, 2 abajo): con
+         `box-sizing: border-box` el mínimo incluye el relleno. */
+      min-height: 43px;
       /* La separación entre «Alpha», el número y la fecha sale de aquí y no
          de espacios escritos dentro de cada trozo: en un flex, el espacio al
          principio o al final de un hijo se colapsa y las tres piezas salían
@@ -5302,7 +5312,21 @@
       display: flex; align-items: baseline; gap: 5px;
       min-width: 0;
     }
-    .side-version .sv-bug { margin-left: auto; }
+    /* Pegada a la derecha y alineada con el botón de plegar la barra. Los 4 px
+       salen de una medición, no de la vista: el botón de plegar termina en 223
+       y la fila de la versión en 227, así que cuatro es exactamente lo que
+       faltaba. Antes la bolita quedaba 10 px más a la izquierda que él, y esos
+       10 px eran todo lo que rompía la columna de la derecha.
+
+       `margin-top` negativo en vez de `translateY(-50%)` a propósito: plegada
+       la barra, la bolita usa `transform` para la escala del cambio, y las dos
+       cosas no pueden compartir la misma propiedad. */
+    .side-version .sv-bug {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      margin-top: -16px;
+    }
     /* «Alpha» en menta: es lo único de este renglón que dice algo sobre en qué
        punto está la app, y en el mismo gris que el número se leía como parte
        de él. */
@@ -5333,6 +5357,10 @@
     html.sc .side-version .sv-txt,
     html.sc .side-version .sv-bug {
       position: absolute;
+      /* `inset: 0` suelta el anclaje a la derecha que la bolita usa
+         desplegada (`right: 4px` y un `margin-top` negativo). Sin esto se
+         quedaría pegada al borde en vez de centrada en la fila; el `margin: 0`
+         de la línea siguiente es el que borra ese margen negativo. */
       inset: 0;
       width: auto; height: auto;
       margin: 0;
