@@ -52,6 +52,48 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.31 · 28 ago 2026
+Las tarjetas de precio dicen mejor lo que venden, y respiran.
+
+- **El conmutador vuelve a ser una franja de un renglón.** Llevaba dos —«Anual»
+  y debajo «2 meses gratis»— y medía 62 px: dentro de una tarjeta de 207 se
+  comía el sitio del precio y se leía como un botón gordo antes de saber de
+  qué plan estabas leyendo. Ahora mide 39, y el gancho del anual se mudó a su
+  propio renglón debajo, que ocupa su sitio **aunque esté vacío**: si
+  desapareciera, cambiar de pestaña subiría el precio de golpe y la tarjeta
+  daría un salto en la cara de quien compara. Medido: cero píxeles de salto.
+- **Cada plan lleva su piedra al lado del nombre.** Es la misma que sale en la
+  cabecera, en la fila del índice, en la chapa del mini menú y encima de su
+  columna en la tabla: se empieza a reconocer aquí y se reconoce después en la
+  cuenta. Sale de `icon("plan-*")`, como en los otros cuatro sitios.
+- **Las tres ventajas de Fundador, reescritas.** «Todo lo de Pro, sin fecha» no
+  decía qué pasaba con la fecha —se leía como una carencia— y no decía lo más
+  valioso del plan, que es que **lo que venga después va incluido**. Ahora:
+  Pro entero y sin límites para siempre, todo lo que Norata añada a Pro sin
+  volver a pagar, y el distintivo. La promesa se hace sobre **Pro** y no sobre
+  «Norata entera» a propósito: es lo que el plan abre de verdad, y una promesa
+  más ancha sería una que algún día habría que romper.
+- **Se acabó la «piedra con corona».** Describía la pieza por dentro; lo que la
+  persona ve es un anillo lila en su perfil y una piedra que no se parece a la
+  de nadie más. Cambiado en los tres sitios que lo decían: la tarjeta, la tabla
+  comparativa y la pantalla de compra.
+- **Más aire**: 18 px de relleno en la tarjeta, 9 entre ventajas, 14 entre las
+  dos tarjetas. Apretadas, las cuatro cosas que hay que leer —qué plan, cuánto
+  cuesta, qué abre, dónde se pulsa— se leían como un bloque único.
+
+**El hueco que alinea las dos tarjetas es ahora una copia escondida del
+conmutador**, no una altura escrita a mano. Con el número fijo se quedaba ocho
+píxeles corto, y cualquier retoque futuro al conmutador lo habría vuelto a
+descuadrar sin que nada avisara. Va con `visibility: hidden` —que sigue
+midiendo— y con `span` en vez de `button`, para que no se pueda enfocar.
+
+**Una trampa nueva, y de las caras:** las comillas invertidas dentro de un
+comentario de HTML que vive dentro de una plantilla de JavaScript **cortan la
+plantilla**. El síntoma no es un error a la vista: desaparecen funciones
+sueltas del archivo. Y en la misma tanda, un `s.index(a) : s.index(b)` mal
+elegido se llevó por delante el bloque entero de los topes; se recuperó del
+commit anterior. Al reemplazar por rangos, comprobar qué hay EN MEDIO.
+
 ### 0.7.30 · 28 ago 2026
 Talentos deja de encabezar con el dinero, y el informe gratuito dice qué abre.
 

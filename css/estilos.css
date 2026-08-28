@@ -6191,21 +6191,12 @@ html.claro .plan-linea { stroke-opacity: .85; }
 /* ---------- Cada cuánto se cobra Pro ----------
    Vive DENTRO de la tarjeta de Pro, no encima de las dos: solo Pro se cobra de
    dos maneras, y puesto fuera parecía que también cambiaba el precio de
-   Fundador. */
-.plan-per-wrap, .plan-hueco { margin-bottom: 10px; }
-/* El hueco va declarado ANTES de la consulta que lo enciende. Al revés —que
-   es como estaba— las dos reglas tienen la misma especificidad y gana la
-   última escrita, así que el `display: none` se comía al de la consulta y el
-   hueco no aparecía nunca. */
-.plan-hueco { display: none; }
-@media (min-width: 1100px) {
-  /* Lado a lado, las dos tarjetas reservan la misma fila de arriba para que
-     los nombres y los precios se alineen. Apiladas no: el hueco sería un
-     agujero al principio de la tarjeta de Fundador. El corte es el mismo que
-     el de las dos columnas, y tiene que seguir siéndolo. */
-  .plan-hueco { display: block; }
-  .plan-per-wrap, .plan-hueco { min-height: 62px; }
-}
+   Fundador.
+
+   Y es UNA franja de un renglón. Llevaba dos —«Anual» y debajo «2 meses
+   gratis»— y con eso medía 62 px: dentro de una tarjeta de 207 px se comía el
+   sitio del precio y se leía como un botón gordo antes de saber de qué plan
+   estabas leyendo. El gancho del anual se mudó a su propio renglón debajo. */
 .plan-per-wrap {
   display: flex; gap: 3px;
   background: var(--bg); border: 1px solid var(--line);
@@ -6213,36 +6204,69 @@ html.claro .plan-linea { stroke-opacity: .85; }
 }
 .plan-per {
   flex: 1; min-width: 0;
-  font: inherit; font-size: 12px; font-weight: 600;
-  padding: 6px 8px; border-radius: 99px;
+  font: inherit; font-size: 12.5px; font-weight: 600;
+  padding: 7px 8px; border-radius: 99px;
   border: 1px solid transparent; background: none; color: var(--muted);
-  cursor: pointer; text-align: center;
-  display: flex; flex-direction: column; line-height: 1.2;
+  cursor: pointer; text-align: center; line-height: 1.2;
 }
 /* Sin transición. El fondo sale de una variable, y una transición sobre una
    propiedad cuyo valor viene de `var()` se queda congelada en el valor
    inicial — es la trampa que ya mordió en los selectores y en el botón de
    Ajustes. */
 .plan-per.on { background: var(--card2); color: var(--text); }
-.plan-per i {
-  font-style: normal; font-size: 10.5px; font-weight: 500; color: var(--mint);
+
+/* El gancho del anual. Ocupa su sitio aunque esté vacío —con el anual puesto
+   no hay nada que decir— porque si desapareciera, cambiar de pestaña subiría
+   el precio de golpe y la tarjeta daría un salto en la cara de quien compara. */
+.plan-gancho {
+  display: block; min-height: 17px;
+  margin: 7px 2px 4px;
+  font-size: 11.5px; line-height: 1.35; color: var(--mint);
 }
-.plan-per.on i { color: var(--mint); }
+
+/* ---------- Las tarjetas ----------
+   Más aire del que tenían. Apretadas, las cuatro cosas que hay que leer —qué
+   plan, cuánto cuesta, qué abre y dónde se pulsa— se leían como un bloque
+   único y había que separarlas con la vista. */
+.plan-card { padding: 18px; gap: 7px; }
+
+/* La piedra junto al nombre. `flex` y no un margen: el nombre puede doblar en
+   dos renglones en una tarjeta estrecha, y con un margen suelto la piedra se
+   quedaba pegada al primero en vez de al bloque. */
+.plan-n { display: flex; align-items: center; gap: 8px; }
+/* El que no se encoge es `.ic`, que es el hijo del flex; el `svg` vive dentro
+   de él. Y el color se pone en `.ic` porque `.ic svg` toma `currentColor`. */
+.plan-n .ic { flex: none; }
+.plan-card.destacada .plan-n .ic { color: var(--mint); }
+.plan-card.limitada .plan-n .ic { color: var(--lila); }
+
+.plan-p { margin-top: 2px; }
+.plan-d { margin-bottom: 4px; }
 
 /* Las ventajas dentro de la tarjeta. Antes vivían en una lista aparte encima
    de los precios —y otra vez en la tabla comparativa—, así que lo que se
    compra se decía dos veces y en ninguno de los dos sitios estaba junto a su
    precio. */
-.plan-vent { list-style: none; margin: 6px 0 4px; padding: 0; display: grid; gap: 6px; }
+.plan-vent { list-style: none; margin: 4px 0 8px; padding: 0; display: grid; gap: 9px; }
 .plan-vent li {
-  position: relative; padding-left: 18px;
-  font-size: 12.5px; color: var(--text); line-height: 1.4;
+  position: relative; padding-left: 21px;
+  font-size: 12.5px; color: var(--text); line-height: 1.45;
 }
 .plan-vent li::before {
   content: "✓"; position: absolute; left: 0; top: 0;
   font-size: 12px; color: var(--mint);
 }
 .plan-card.limitada .plan-vent li::before { color: var(--lila); }
+
+/* El botón, siempre abajo del todo. Las dos tarjetas miden lo mismo —las
+   estira la rejilla— pero su contenido no, así que los dos botones de pagar
+   quedaban a distinta altura y la comparación se torcía justo en la fila que
+   se compara. `auto` los empuja al suelo de su tarjeta.
+
+   Los lados se aprietan de 22 px a 12: lado a lado las tarjetas se quedan en
+   unos 207 px, y ahí «Pasar a ser Fundador» mide 138 contra los 131 que dejaba
+   un botón normal, así que se partía en dos renglones. */
+.plan-card .btn { margin-top: auto; padding-left: 12px; padding-right: 12px; }
 
 /* Dos tarjetas y no tres, porque no hay tres planes.
 
@@ -6255,9 +6279,22 @@ html.claro .plan-linea { stroke-opacity: .85; }
    `minmax(0, 1fr)` y no `1fr`: `1fr` es `minmax(auto, 1fr)`, así que el ancho
    mínimo del contenido manda y la tarjeta con la ventaja más larga se llevaba
    37 px de la otra. Dos columnas que se comparan tienen que medir igual. */
-.plan-cards.dos { margin-top: 4px; grid-template-columns: 1fr; }
+.plan-cards.dos { margin-top: 6px; gap: 14px; grid-template-columns: 1fr; }
+/* Escondido pero midiendo: `visibility` y no `display`, que es lo que hace
+   que siga ocupando su sitio. */
+.plan-hueco { display: none; visibility: hidden; }
 @media (min-width: 1100px) {
   .plan-cards.dos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Lado a lado, las dos tarjetas reservan la misma fila de arriba para que
+     los nombres y los precios se alineen. Apiladas no: el hueco sería un
+     agujero al principio de la tarjeta de Fundador. El corte es el mismo que
+     el de las dos columnas, y tiene que seguir siéndolo. */
+  /* En columna y con el MISMO hueco entre renglones que la tarjeta. Dentro
+     del hueco los dos trozos son hijos de un div, no de la tarjeta, así que
+     no les tocaba su `gap` y faltaban justo esos 7 px: la copia medía 67 y
+     tenía que medir 74. Si algún día cambia el `gap` de `.plan-card`, este
+     tiene que cambiar con él. */
+  .plan-hueco { display: flex; flex-direction: column; gap: 7px; }
 }
 
 /* ---------- El pie legal ----------
