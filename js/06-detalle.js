@@ -319,7 +319,11 @@ function renderProjects() {
   }
 
   const branches = ramas;
-  html += `<div class="sec-label full-row">Tus proyectos${
+  /* «Tus ramas de proyectos» y no «Tus proyectos»: este rótulo encabeza la
+     LISTA de contenedores, que es donde el nombre largo hace falta. Dentro de
+     cada tarjeta ya se les dice proyecto a secas — ahí el contexto lo da la
+     propia tarjeta. Ver `crearRama` para la jerarquía entera. */
+  html += `<div class="sec-label full-row">Tus ramas de proyectos${
     branches.length > 1 ? `<span class="hint-hold">${pistaReordenarRamas()}</span>` : ""}</div>`;
   let iRama = 0;
   for (const b of branches) {

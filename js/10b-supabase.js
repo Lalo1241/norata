@@ -411,10 +411,15 @@ async function sbTropiezosVistos() {
    Y falla en silencio por la misma razón que el latido: si el aviso de un
    error provoca otro error, la app entra en un bucle de quejas encima de
    alguien que ya está teniendo un mal rato. */
+/* Devuelve si llegó o no. Los avisos automáticos siguen sin mirarlo —les da
+   igual, y por eso esta función sigue sin lanzar—, pero el botón de reportar
+   un fallo SÍ tiene que saberlo: darle las gracias a alguien por un reporte
+   que no salió del teléfono es mentirle en el único momento en que estaba
+   haciéndonos un favor. */
 async function sbTropiezo(donde, mensaje) {
   try {
-    if (!mensaje) return;
-    await sbFetch("/rest/v1/rpc/apuntar_tropiezo", {
+    if (!mensaje) return false;
+    const r = await sbFetch("/rest/v1/rpc/apuntar_tropiezo", {
       method: "POST",
       body: JSON.stringify({
         v: (typeof VERSION !== "undefined" ? VERSION : ""),
@@ -423,8 +428,10 @@ async function sbTropiezo(donde, mensaje) {
         msg: String(mensaje).slice(0, 300)
       })
     });
+    return !!(r && r.ok);
   } catch (e) {
     /* A propósito. */
+    return false;
   }
 }
 

@@ -14,13 +14,21 @@ vigilarCapas();
   /* El punto medio va DENTRO del trozo de la fecha, no suelto entre los dos:
      plegada la barra la fecha se esconde, y un separador aparte se quedaría
      colgando detrás del número sin nada que separar. */
-  const html = `<span class="sv-num">v${VERSION}</span>` +
+  /* «Alpha» delante, y va en su propio trozo por lo mismo que la fecha: con la
+     barra plegada solo caben unos pocos caracteres, y ahí la palabra que sobra
+     es ésta —quien mira el renglón encogido busca el número—. Es la etiqueta
+     de la etapa en la que está la app, no parte del número: cuando deje de ser
+     alpha se quita de aquí y de ningún otro sitio. */
+  const html = `<span class="sv-etapa">Alpha </span>` +
+               `<span class="sv-num">v${VERSION}</span>` +
                `<span class="sv-fecha"> · ${VERSION_FECHA}</span>`;
   ["side-version", "version-pie"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = html;
   });
 })();
+
+document.getElementById("bug-btn").innerHTML = icon("bicho", 18);
 
 document.getElementById("settings-btn").innerHTML = icon("settings", 19);
 document.getElementById("dash-btn").innerHTML = icon("gamepad", 19);

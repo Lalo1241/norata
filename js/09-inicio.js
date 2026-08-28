@@ -1006,6 +1006,52 @@ document.addEventListener("pointerdown", (e) => {
 
    El mini menú se queda: sigue siendo el atajo que lleva directo a la sección
    que buscas sin pasar por la lista. Lo único que cambia es dónde aterriza. */
+/* ================= Reportar un fallo =================
+   El botón del bicho, abajo a la derecha.
+
+   No abre un formulario nuevo ni una tabla nueva: reusa `apuntar_tropiezo`,
+   que es por donde ya entran los errores que la app caza sola, y así los
+   reportes de la gente aparecen en el mismo panel y en la misma lista. Un
+   buzón aparte habría que acordarse de mirarlo; éste ya se mira.
+
+   Se apunta con `donde: "reporte"` para poder distinguirlos de un vistazo de
+   los automáticos: los de la gente valen más porque traen contexto de lo que
+   estaba intentando hacer, y mezclarlos sin marca los enterraría entre cien
+   volcados de JavaScript.
+
+   Funciona SIN sesión, igual que los automáticos. Es deliberado: quien no
+   puede entrar es justo quien más necesita poder avisar de que no puede
+   entrar. */
+async function reportarFallo() {
+  const texto = await askText(
+    "¿Qué salió mal?",
+    "",
+    "Enviar",
+    "Cuéntamelo como se lo contarías a alguien: qué hacías y qué pasó. Si sabes en qué pantalla fue, dímelo — con eso lo encuentro mucho más rápido.",
+    /* 280 y no 300, que es el tope del servidor: los últimos veinte se los
+       come la pantalla que se añade abajo, y un mensaje recortado a la mitad
+       por culpa de una etiqueta que puso la app sería peor que no tenerla. */
+    280);
+  if (texto === null) return;
+  const limpio = String(texto).trim();
+  if (!limpio) { toast("No mandé nada: el mensaje venía vacío.", "atencion"); return; }
+
+  /* La pantalla desde la que se reporta, pegada al final. Es el dato que más
+     ahorra al buscarlo y el que nadie escribe por su cuenta. */
+  const donde = (typeof activeMainView !== "undefined" && activeMainView) ? activeMainView : "";
+  const mensaje = limpio + (donde ? ` [en: ${donde}]` : "");
+
+  const ok = await sbTropiezo("reporte", mensaje);
+  if (ok) {
+    toast("Gracias. Ya me llegó y lo voy a revisar.", "hecho");
+  } else {
+    /* Ni «error» ni una disculpa larga: se dice qué pasó y qué se puede
+       hacer. Lo escrito se ha perdido, y eso también se dice — dejar creer
+       que quedó guardado en alguna parte es lo único imperdonable aquí. */
+    toast("No pude enviarlo: revisa tu conexión y vuelve a intentarlo.", "atencion");
+  }
+}
+
 function abrirAjustes(sec) {
   cerrarMenuAjustes();
   /* Antes de tocar `ajusteAbierto`, no después: `showView("settings")` lo pone

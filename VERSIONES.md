@@ -52,6 +52,38 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.21.1 · 27 ago 2026
+Alpha en la esquina, y un bicho para avisar.
+
+- **La versión dice «Alpha» delante.** Va en su propio trozo y no pegada al
+  número: con la barra plegada solo caben unos caracteres, y ahí la palabra
+  que sobra es ésta — quien mira el renglón encogido busca el número. En menta
+  para que no se lea como parte de la cifra. Cuando deje de ser alpha se quita
+  de un sitio y de ninguno más.
+- **Botón de reportar un fallo, abajo a la derecha.** No abre un buzón nuevo:
+  reusa `apuntar_tropiezo`, que es por donde ya entran los errores que la app
+  caza sola, así que los reportes caen en la misma lista del panel — un buzón
+  aparte habría que acordarse de mirarlo, y éste ya se mira. Se apuntan con
+  `donde: "reporte"` para distinguirlos de los automáticos, y se les pega la
+  pantalla desde la que se escribió (`[en: tree]`), que es el dato que más
+  ahorra al buscar y el que nadie escribe por su cuenta.
+- **Funciona sin sesión**, igual que los avisos automáticos: quien no puede
+  entrar es justo quien más necesita poder avisar de que no puede entrar.
+- **Y `sbTropiezo` ahora devuelve si llegó.** Los avisos automáticos siguen
+  sin mirarlo, pero el botón sí: darle las gracias a alguien por un reporte
+  que no salió del teléfono es mentirle en el único momento en que estaba
+  haciendo un favor. Si falla, se dice que no se envió y que lo reintente.
+- **Fuera de la barra de navegación a propósito.** No es una sección, es una
+  salida de emergencia: tiene que estar en la misma esquina en todas las
+  pantallas, incluida aquella en la que algo se acaba de romper. En el
+  teléfono sube por encima de la barra; en la computadora la barra vive a la
+  izquierda y baja del todo. Medido en las seis vistas: alcanzable en todas,
+  sin chocar con la barra ni con el botón de crear, y tapado por el cuadro de
+  confirmar cuando hay uno abierto.
+- **«Tus ramas de proyectos»** en el rótulo que encabeza la lista de
+  contenedores. Dentro de cada tarjeta se les sigue diciendo proyecto a
+  secas: ahí el contexto lo da la propia tarjeta.
+
 ### 0.7.21 · 27 ago 2026
 Un proyecto se puede dibujar como mapa, y sus etapas se marcan sin entrar.
 
