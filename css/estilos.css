@@ -2605,6 +2605,17 @@
      desplazamiento más abajo, porque ahí lo maneja el ratón y no compite
      con el gesto de la página. */
   .const-wrap {
+    /* ---- Cuando el dibujo cabe entero, se centra ----
+       Al alejarse llega un punto en el que el mapa es más pequeño que su
+       ventana. Ahí no queda recorrido, así que el zoom no puede sujetar el
+       punto que señalas y todo se quedaba pegado arriba a la izquierda: se
+       veía como si los nodos huyeran a la esquina.
+
+       `display: grid` con `margin: auto` en el SVG, y NO `place-content` ni
+       `align-items: center`: con esos, un dibujo más alto que la ventana
+       pierde para siempre su parte de arriba, porque el desplazamiento no
+       llega a negativos. Es una trampa que ya costó horas en este proyecto. */
+    display: grid;
     overflow: hidden;
     touch-action: auto;
     scrollbar-width: none;
@@ -2706,6 +2717,7 @@
   .fs-overlay .const-wrap.editing { touch-action: none; cursor: grab; }
   /* Fuera de edición el lienzo se arrastra para recorrerlo */
   .fs-overlay .const-wrap:not(.editing) { cursor: grab; }
+  .const-wrap > svg { margin: auto; }
   .const-wrap.panning { cursor: grabbing !important; }
 
   /* ================= La tira de herramientas del mapa =================
