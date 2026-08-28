@@ -52,6 +52,84 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.25 · 27 ago 2026
+La pantalla del plan deja de contestar dos preguntas a la vez, Alpha se
+despega del número y el bicho parece un bicho.
+
+**El renglón de la versión.**
+
+- **«Alpha» salía pegado al número** —«Alphav0.7.24· 27 ago 2026»— y la causa
+  no era el texto: ese renglón es un `flex`, y ahí el espacio en blanco al
+  principio o al final de un hijo **se colapsa**. Los espacios estaban
+  escritos; simplemente no se dibujaban. Ahora la separación la pone el `gap`
+  del contenedor, que es lo único que un flex respeta, y ninguna de las tres
+  piezas lleva espacios sueltos dentro. El pie del teléfono usa la misma regla,
+  para que los dos sitios donde se lee la versión no puedan acabar diciéndolo
+  distinto.
+- **La uve va en mayúscula**: `V0.7.25`.
+- **Con la barra plegada, «Alpha» se esconde con la fecha.** En 84 px no cabe
+  «Alpha V0.7.25», y de las tres piezas la que contesta la pregunta que trae a
+  alguien a mirar ese renglón —«¿cuál tengo puesta?»— es el número. El
+  comentario ya lo decía y el CSS no lo hacía.
+
+**El botón de reportar fallos.**
+
+- **El bicho se leía como un asterisco**, y por eso costaba reconocerlo: seis
+  patas del mismo grosor que el cuerpo y llegando casi al borde del marco. A
+  18 px eso es una salpicadura, no un insecto. Redibujado con el cuerpo más
+  grande, antenas en vez de un arco de cabeza y las patas más cortas — medido,
+  el cuerpo pasa de ocupar poco más de la mitad del dibujo a dos tercios (64%
+  del ancho). Y se pinta a 20 px en vez de 18, que dentro de un botón de 38
+  tenía sitio de sobra.
+
+**La pantalla del plan.**
+
+**Contestaba «qué tienes» y «qué te vendemos» al mismo tiempo, y ninguna de
+las dos ganaba.** Entre la lista de topes y la tabla comparativa se decía lo
+MISMO dos veces con otras palabras, y el precio —lo único que hay que decidir
+ahí— quedaba al final, después de dos bloques de lectura y un botón.
+
+- **Tres tarjetas pasan a dos.** Mensual y anual no son dos planes: son el
+  mismo Pro cobrado con otro ritmo, y eso ya lo decía `LIMITES`, que tiene dos
+  entradas y no tres. Ahora son una tarjeta de Pro con un conmutador dentro y
+  la de Fundador al lado. El conmutador arranca en **mensual**: una pantalla
+  que aparece con la opción más cara ya elegida se nota, y hace desconfiar del
+  resto. El incentivo del anual se dice ahí mismo, **en meses** —«2 meses
+  gratis»— y no en porcentaje: el 29% hay que traducirlo antes de que
+  signifique algo.
+- **Las ventajas viven dentro de la tarjeta**, junto a su precio, y salen de
+  `ventajasPro()`, que las calcula comparando `LIMITES.pro` con `LIMITES.libre`.
+  `planIncluyeHTML` sigue viva y sigue pintándose para quien YA paga, que es
+  donde contesta la pregunta correcta.
+- **La tabla comparativa baja al pie.** Desplegada en medio tapaba justo las
+  tarjetas de precio que la persona estaba comparando.
+- **Nuevo: dónde vas contra el tope.** Sustituye a la cabecera cuando aprieta un
+  límite, y dice el argumento con los datos de quien mira —«ya llenaste tu
+  única rama» pesa más que «ramas ilimitadas»—. Los talentos se cuentan con el
+  **mapa de tu rama de verdad**, dibujado desde `branchLayout` de
+  `07-lienzo.js`; las ramas, con pastillas que llevan su nombre dentro.
+
+Tres reglas de ese bloque que no se deshacen sin volver a discutirlas:
+
+- **Solo sale cuando aprieta** (`PLAN_AVISA_DESDE`, hoy 3 o menos). Con 2 de 12
+  el mensaje sería «te falta mucho»: verdad, pero no dice nada, y una cuenta
+  recién creada estrenaría Norata mirando un contador de lo que no tiene.
+  Dispara **solo el tope de talentos**: el de ramas está a cero desde el primer
+  día —el plan da una— así que si contara, el bloque saldría siempre.
+- **El conteo dice lo que QUEDA**, nunca lo gastado, y que llegue a cero es el
+  mensaje, no un caso raro.
+- **Un hueco vacío solo se dibuja si existe.** Esto empezó siendo un fallo: se
+  pintaban dos cuadros de rama —uno lleno y uno por abrir— cuando el plan da
+  UNA. Ese hueco prometía una rama que no está.
+
+**Nada crece con el tope.** Ni la fila de cuadritos ni el mapa: lo que sobra se
+recorta por la izquierda con `mask-image`, que es donde ya no hay nada que
+decidir, y a la derecha se ve entero lo que queda. Con máscara y no con un
+degradado encima, porque un degradado sólido tendría que saber de qué color es
+el fondo y `--card` cambia con el modo. Y el mapa **nunca se estira**: una rama
+larga metida a la fuerza en un recuadro apaisado sale deformada y deja de
+parecerse a la que la persona conoce.
+
 ### 0.7.24 · 27 ago 2026
 El dinero dice en qué moneda está, y el informe llega al mes y al año.
 

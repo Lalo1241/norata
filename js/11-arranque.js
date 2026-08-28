@@ -19,9 +19,14 @@ vigilarCapas();
      es ésta —quien mira el renglón encogido busca el número—. Es la etiqueta
      de la etapa en la que está la app, no parte del número: cuando deje de ser
      alpha se quita de aquí y de ningún otro sitio. */
-  const html = `<span class="sv-etapa">Alpha </span>` +
-               `<span class="sv-num">v${VERSION}</span>` +
-               `<span class="sv-fecha"> · ${VERSION_FECHA}</span>`;
+  /* Ningún trozo lleva espacios sueltos dentro, y no es descuido: el renglón
+     es un `flex`, y ahí el espacio en blanco al principio o al final de un
+     hijo se COLAPSA. Con `Alpha ` y ` · ` escritos a mano salía
+     «Alphav0.7.24· 27 ago 2026», todo pegado. La separación la pone el `gap`
+     del contenedor, que es lo único que un flex respeta. */
+  const html = `<span class="sv-etapa">Alpha</span>` +
+               `<span class="sv-num">V${VERSION}</span>` +
+               `<span class="sv-fecha">· ${VERSION_FECHA}</span>`;
   ["side-version", "version-pie"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = html;
@@ -41,7 +46,7 @@ vigilarCapas();
    Los tres de siempre nunca lo notaron porque llevan meses en el HTML. El
    riesgo es exactamente el de los NUEVOS, que es cuando las dos copias
    discrepan. Por eso el bucle: el día que se añada el cuarto, ya está. */
-[["bug-btn", "bicho", 18],
+[["bug-btn", "bicho", 20],
  ["settings-btn", "settings", 19],
  ["dash-btn", "gamepad", 19],
  ["perm-shield", "shield", 16]].forEach(([id, nombre, tam]) => {
