@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.23";
+const VERSION = "0.7.24";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -551,7 +551,53 @@ function migrar(data) {
 
 const MAX_LEVEL = 10;
 const COLORS = ["#5fe0b0","#f5d76e","#ff8a70","#b7a2ea","#6fc3e8","#8fd18a","#f0a5c0","#9aa7b8"];
-const FMT_MONEY = new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 });
+/* ================= El dinero =================
+
+   Todo importe de la app —lo que cuesta un talento, lo que llevas invertido,
+   lo que dice el informe— pasa por `money()`, y money() escribe SIEMPRE el
+   código de la moneda: «$1,890 MXN» y no «$1,890». El motivo es el mismo por
+   el que los precios del plan lo llevan desde 0.7.x: el signo $ lo usan
+   media docena de países, y quien lea «$1,890» en dólares creerá que se
+   gastó treinta mil pesos.
+
+   La moneda vive en un solo sitio, `state.settings.moneda`, y arranca en MXN
+   —que es la que hay que tener sí o sí—. Está preparada para que un día se
+   pueda elegir USD o EUR desde Ajustes: para añadir una, se pone aquí su
+   línea y no hay que tocar nada más. Lo que todavía NO existe es la pantalla
+   para elegirla, y es a propósito.
+
+   Y hay algo que hay que decir el día que se abra esa pantalla, porque no es
+   obvio y muerde: **cambiar de moneda NO convierte nada**. Los importes se
+   guardan como los escribiste, sin tipo de cambio; lo único que cambia es con
+   qué código y con qué formato se leen. Convertirlos de verdad exigiría saber
+   a qué cambio estaba cada compra el día que se hizo, y eso ni se guarda ni
+   se puede reconstruir. */
+const MONEDAS = {
+  MXN: { codigo: "MXN", nombre: "Peso mexicano", locale: "es-MX" },
+  USD: { codigo: "USD", nombre: "Dólar estadounidense", locale: "en-US" },
+  EUR: { codigo: "EUR", nombre: "Euro", locale: "es-ES" }
+};
+const MONEDA_POR_DEFECTO = "MXN";
+
+/* Los formateadores se guardan al vuelo: construir un Intl.NumberFormat es
+   caro, y el informe llama a money() decenas de veces por dibujo. */
+const _fmtMoneda = {};
+function formateadorMoneda(cod) {
+  if (!_fmtMoneda[cod]) {
+    const m = MONEDAS[cod] || MONEDAS[MONEDA_POR_DEFECTO];
+    _fmtMoneda[cod] = new Intl.NumberFormat(m.locale, {
+      style: "currency", currency: m.codigo, maximumFractionDigits: 0
+    });
+  }
+  return _fmtMoneda[cod];
+}
+
+/* La moneda de ahora. Tolera un ajuste corrupto o de una versión más nueva:
+   antes que romper la pantalla del dinero, se cae a pesos. */
+function monedaActual() {
+  const c = state && state.settings && state.settings.moneda;
+  return MONEDAS[c] ? c : MONEDA_POR_DEFECTO;
+}
 
 let state = load();
 let currentSkillId = null;
@@ -592,6 +638,11 @@ function load() {
   if (!Array.isArray(data.tableros)) data.tableros = [];
   if (!data.borrados || typeof data.borrados !== "object") data.borrados = {};
   if (!data.settings) data.settings = {};
+  /* Sin ajuste guardado, pesos. No se adivina por la zona horaria del
+     aparato: alguien de vacaciones en Madrid no cambia de moneda, y un
+     importe que cambia de código solo lo lee como que la app perdió sus
+     datos. */
+  if (!MONEDAS[data.settings.moneda]) data.settings.moneda = MONEDA_POR_DEFECTO;
   if (!data.settings.timezone) {
     try { data.settings.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
     catch (e) { data.settings.timezone = "UTC"; }
@@ -902,7 +953,14 @@ function keyToDate(key) {
   return new Date(y, m - 1, d);
 }
 
-function money(n) { return FMT_MONEY.format(n || 0); }
+/* El importe, con su código detrás y sin excepciones. Se pensó en una
+   versión corta para las listas y se descartó: en cuanto hay dos formas de
+   escribir un importe, la corta acaba en el sitio donde justamente había que
+   desambiguar. Una sola regla no se puede aplicar mal. */
+function money(n) {
+  const cod = monedaActual();
+  return formateadorMoneda(cod).format(n || 0) + " " + cod;
+}
 
 /* ================= Modal de confirmación =================
    confirm() del navegador se bloquea en visores embebidos,

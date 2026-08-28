@@ -52,6 +52,60 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.24 · 27 ago 2026
+El dinero dice en qué moneda está, y el informe llega al mes y al año.
+
+**Todo importe lleva su moneda escrita.** «$1,890 MXN» y no «$1,890». El signo
+`$` lo usan media docena de países, y quien lea «$1,890» pensando en dólares
+creerá que se gastó treinta mil pesos. Es la misma razón por la que los precios
+del plan ya lo llevaban; ahora vale para lo que escribe el usuario también: el
+costo de un talento, lo invertido, y las cifras del informe.
+
+- La moneda vive en **un solo sitio**, `state.settings.moneda`, y arranca en
+  **MXN**, que es la que tiene que estar sí o sí. Está preparada para USD y
+  EUR: para añadir una se pone su línea en `MONEDAS` y no hay que tocar nada
+  más — ni los dieciséis sitios que llaman a `money()`, ni el rótulo del
+  formulario, que ya pregunta por el código activo y no por «MXN» a mano.
+- **Lo que todavía NO existe es la pantalla para elegirla**, y es a propósito:
+  Eduardo la quiere pronto, no ahora. Cuando se haga, hay una cosa que decir
+  ahí y que no es obvia: **cambiar de moneda no convierte nada.** Los importes
+  se guardan como se escribieron; lo único que cambia es con qué código se
+  leen. Convertirlos de verdad exigiría saber a qué cambio estaba cada compra
+  el día que se hizo, y eso ni se guarda ni se puede reconstruir.
+- Se pensó en una versión corta de `money()` sin el código, para las listas, y
+  se descartó: en cuanto hay dos formas de escribir un importe, la corta acaba
+  justo en el sitio donde había que desambiguar.
+
+**Y la fase 3 del informe: el mes y el año.** El mando de periodo ya estaba;
+lo que llega ahora son las tres gráficas que en una semana no dicen nada.
+
+- **El mapa de calor.** Una casilla por día, en columnas de semana. Contesta la
+  única pregunta que no contesta ninguna otra: cuántos días de tu vida hiciste
+  algo. Cinco escalones de color y no un degradado —con una rampa continua, dos
+  días de esfuerzo muy distinto acaban del mismo tono—. La primera columna se
+  rellena con huecos según el día de la semana en que empieza el periodo: sin
+  eso, el calendario entero queda corrido y un martes aparece en la fila del
+  jueves, que es el fallo clásico de esta gráfica.
+- **Las curvas acumuladas** de las cinco habilidades que más se movieron. Sin
+  ejes a propósito: la pregunta es la forma —si algo se despegó o se quedó
+  plano—, y unos números en el borde solo invitan a leerlas como una tabla mal
+  hecha. En el año se agrupan por semanas; 365 puntos no son una curva, son
+  ruido.
+- **El repaso de diciembre**, debajo de los tres números de la portada y solo
+  en el informe del año: niveles subidos, la racha más larga *de ese año* —que
+  no es la histórica: la del año pasado no cuenta en el repaso de éste— y lo
+  invertido.
+- Y tres cifras más que necesitan recorrido: **¿cierras lo que abres?** (días
+  de media y cuántos dentro de plazo), **en qué trimestre gastaste** (solo en
+  el año) y **cuánto tarda un encargo** de crearlo a cerrarlo.
+
+Con esto ninguna rama pasa de cinco gráficas, así que el tope de seis se
+mantiene con sitio de sobra. Medido a 1280 y 375 px: el calendario del año mide
+557 px y se desplaza dentro de su caja de 297 sin que la página se mueva de
+lado, que es la regla —la pantalla decide la forma, nunca el contenido—. Y en
+modo claro la menta del mapa pasa sola a la saturada (`#00cc7f`) y el trazo de
+las curvas a su versión de línea, porque ningún color va escrito suelto.
+
 ### 0.7.23 · 27 ago 2026
 El mapa de un proyecto también se ve a pantalla completa.
 

@@ -478,7 +478,11 @@ function renderPerkTipo() {
   document.getElementById("campo-plan").style.display = t.llevaPlan ? "block" : "none";
   document.getElementById("panel-etapas").style.display = t.llevaPlan ? "block" : "none";
   document.getElementById("campo-importe").style.display = pTipo === "hito" ? "none" : "block";
-  document.getElementById("p-cost-lbl").textContent = t.pideImporte ? "Cuánto costó (MXN)" : "Costo (MXN, opcional)";
+  /* La moneda sale del ajuste y no escrita a mano: el día que se pueda
+     elegir USD, este rótulo tiene que cambiar con ella o estaría pidiendo
+     pesos para guardar dólares. */
+  const cod = monedaActual();
+  document.getElementById("p-cost-lbl").textContent = t.pideImporte ? "Cuánto costó (" + cod + ")" : "Costo (" + cod + ", opcional)";
   document.getElementById("p-cost-hint").textContent = t.pideImporte
     ? "Obligatorio: una compra es una llave que se paga."
     : "Si la meta te costó dinero, anótalo aquí.";
