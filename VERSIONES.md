@@ -52,6 +52,26 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.20.1 · 27 ago 2026
+El reparto del XP deja de contar dos veces lo que se devolvió.
+
+- **Las dos tandas que iban en paralelo se pisaban en un sitio, y solo en uno.**
+  El motor de informes reparte el XP ganado por familias —misiones, talentos,
+  proyectos, práctica— sumando únicamente los movimientos POSITIVOS. Y desde
+  0.7.17 hay movimientos negativos con familia: reabrir un encargo devuelve su
+  recompensa, igual que deshacer un talento o descumplir una misión. Resultado:
+  cerrar y reabrir el mismo encargo tres veces dejaba «300 XP de proyectos» en
+  el desglose cuando lo ganado de verdad era cero. `neta` salía bien y el
+  desglose mentía, que es peor que fallar en los dos.
+- **La regla que lo arregla, y que es la que distingue los dos casos:** un
+  negativo CON fuente es una vuelta atrás y se descuenta de su familia; un
+  negativo SIN fuente es desgaste por inactividad —`applyDecay` no escribe
+  fuente— y se queda solo en `perdida`, porque no viene de ninguna parte y no
+  hay a quién restárselo.
+- Medido con tres vueltas de cerrar y reabrir: 5 movimientos, suma real +100,
+  y el informe dice ganada 300 · perdida 200 · neta 100 · proyectos 100. Antes
+  decía proyectos 300.
+
 ### 0.7.20 · 27 ago 2026
 Las misiones empiezan a guardar la hora, y los paneles aprenden a comparar.
 
