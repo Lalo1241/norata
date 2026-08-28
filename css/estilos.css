@@ -4783,6 +4783,147 @@
     html.informes .rotulo-prueba { bottom: calc(env(safe-area-inset-bottom) + 14px); }
   }
 
+
+  /* ==================== La pantalla de informes (0.7.21) ====================
+     Cinco informes cortos —Todo, y uno por módulo— con tope de seis gráficas
+     cada uno. La regla que manda aquí es la de Eduardo: el tamaño de la
+     pantalla decide la FORMA, nunca el contenido. Por eso nada se esconde en
+     el teléfono; lo que no cabe se desplaza de lado dentro de su caja. */
+
+  .inf-mandos { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  /* Las dos filas de mandos se desplazan de lado en vez de partirse: cinco
+     módulos en dos renglones se leen como dos grupos distintos. */
+  .inf-periodos, .inf-ramas {
+    display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .inf-periodos::-webkit-scrollbar, .inf-ramas::-webkit-scrollbar { display: none; }
+  .inf-periodos button, .inf-ramas button {
+    flex: none; font: inherit; font-size: 13px; font-weight: 650;
+    color: var(--muted); background: var(--card); cursor: pointer;
+    border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px;
+  }
+  /* Sin transición en el fondo ni en el color: los dos salen de variables y
+     Chrome deja el valor congelado en el inicial (ver las trampas). */
+  .inf-periodos button.on, .inf-ramas button.on {
+    color: var(--sobre-macizo); background: var(--mint-macizo); border-color: transparent;
+  }
+  /* Un periodo que todavía no abre no se esconde: se ve y dice por qué al
+     tocarlo. Esconderlo haría creer que no existe. */
+  .inf-periodos button.bajo-llave { opacity: 0.55; }
+
+  .inf-rango {
+    margin: 0 0 12px; font-size: 12px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--muted); font-weight: 650;
+  }
+
+  .inf-portada { margin-bottom: 14px; }
+  .inf-frase { margin: 0 0 16px; font-size: 15.5px; line-height: 1.6; }
+  .inf-tres { display: flex; gap: 10px; }
+  .inf-tres > div { flex: 1; text-align: center; }
+  .inf-tres b { display: block; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .inf-tres span { display: block; font-size: 11px; margin-top: 3px; color: var(--muted); }
+
+  .inf-bloque { margin-bottom: 14px; }
+  .inf-bloque h3 { margin: 0 0 4px; font-size: 16px; }
+  /* La pregunta que contesta la gráfica, y no un pie de foto: es lo que hace
+     que un dibujo sirva para decidir algo en vez de para mirarlo. */
+  .inf-pregunta { margin: 0 0 14px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .inf-vacia {
+    margin: 0; padding: 16px; border-radius: 12px;
+    border: 1px dashed var(--line); color: var(--muted);
+    font-size: 13px; line-height: 1.5; text-align: center;
+  }
+
+  /* ---- Barras verticales ---- */
+  .inf-barras { display: flex; gap: 6px; align-items: flex-end; overflow-x: auto; scrollbar-width: none; }
+  .inf-barras::-webkit-scrollbar { display: none; }
+  .ib-col { flex: 1; min-width: 26px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .ib-v { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; min-height: 14px; }
+  /* La barra crece desde abajo, así que el carril se apila al revés. */
+  .ib-barra {
+    width: 100%; height: var(--inf-alto, 110px); border-radius: 6px;
+    background: var(--carril);
+    display: flex; align-items: flex-end; overflow: hidden;
+  }
+  .ib-barra i { display: block; width: 100%; border-radius: 6px; }
+  .ib-k { font-size: 10.5px; color: var(--muted); letter-spacing: 0.04em; }
+
+  /* ---- Barras horizontales (rankings) ---- */
+  .inf-rank { display: flex; flex-direction: column; gap: 10px; }
+  .ir-fila { display: grid; grid-template-columns: minmax(0, 1fr) 2fr auto; gap: 10px; align-items: center; }
+  .ir-k { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ir-barra { height: 10px; border-radius: 999px; background: var(--carril); overflow: hidden; }
+  .ir-barra i { display: block; height: 100%; border-radius: 999px; }
+  .ir-v { font-size: 12px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  @media (max-width: 480px) {
+    /* En el teléfono el nombre se lleva su propio renglón entero: en tres
+       columnas se quedaba en «Repasar voca…» y el ranking dejaba de decir de
+       qué hablaba. Se pierde altura, no información. */
+    .ir-fila { grid-template-columns: 1fr auto; }
+    .ir-k { grid-column: 1 / -1; }
+  }
+
+  /* ---- Barra apilada al 100% ---- */
+  .inf-apilada { display: flex; height: 18px; border-radius: 999px; overflow: hidden; }
+  .inf-apilada i { display: block; height: 100%; }
+  .inf-leyenda { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; }
+  .il-item { display: flex; align-items: center; gap: 7px; font-size: 12.5px; }
+  .il-item i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .il-item span { color: var(--muted); }
+
+  /* ---- Aro con cifra ---- */
+  .inf-doble { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
+  .inf-aro { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: none; }
+  .inf-aro .ring-wrap { margin: 0; }
+  .inf-aro-pie { margin: 0; font-size: 11.5px; color: var(--muted); text-align: center; max-width: 170px; line-height: 1.4; }
+
+  .inf-cifras { display: flex; gap: 14px; flex: 1; min-width: 180px; }
+  .inf-cifras > div { flex: 1; }
+  .inf-cifras b { display: block; font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .inf-cifras b.mint { color: var(--mint); }
+  .inf-cifras b.coral { color: var(--coral); }
+  .inf-cifras span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  /* La flecha del informe es la misma pieza que la del panel, pero aquí vive
+     sobre la tarjeta y no sobre la ilustración: alineada a la izquierda como
+     todo lo demás de este bloque. */
+  .inf-cifras .sh-var { text-align: left; margin-top: 4px; }
+
+  .inf-balance { display: flex; gap: 14px; }
+  .ib-lado { flex: 1; }
+  .ib-lado b { display: block; font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .ib-lado b.mint { color: var(--mint); }
+  .ib-lado b.coral { color: var(--coral); }
+  .ib-lado span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+  /* ---- Los cuatro accesos de la portada ---- */
+  .inf-accesos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .inf-acceso {
+    font: inherit; text-align: left; cursor: pointer; color: var(--text);
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 14px 16px;
+  }
+  .inf-acceso b { display: block; font-size: 14.5px; }
+  .inf-acceso span { display: block; font-size: 11.5px; color: var(--mint); margin-top: 3px; }
+
+  /* ---- La antesala de quien todavía no paga ----
+     No es un muro: arriba quedan sus números de verdad y aquí abajo se
+     insinúa lo que falta. Las siluetas no llevan cifras a propósito —serían
+     datos inventados sobre su vida— y por eso son `aria-hidden`. */
+  .inf-siluetas {
+    display: flex; gap: 8px; align-items: flex-end; height: 90px; margin: 18px 0;
+    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
+  }
+  .inf-siluetas i { flex: 1; background: var(--mint-soft); border-radius: 8px; display: block; }
+
+  @media (min-width: 900px) {
+    /* En pantalla ancha los dos mandos caben en una fila y el informe se lee
+       sin bajar tanto. */
+    .inf-mandos { flex-direction: row; align-items: center; justify-content: space-between; gap: 18px; }
+    .inf-accesos { grid-template-columns: repeat(4, 1fr); }
+  }
+
   /* Datos de una versión más nueva. Tapa todo y no se cierra: seguir usando
      la app sin poder guardar sería peor que no poder usarla. */
   .futuro-aviso {

@@ -656,6 +656,19 @@
        una lista que lleva a cada sección y vuelve con la flecha. Los bloques
        son los mismos en los dos sitios: lo que cambia es cómo se llega a
        ellos, que es justo lo que se hace distinto en cada tamaño. -->
+  <!-- ============ VISTA: INFORME ============
+       La pantalla de los informes (0.7.22). Se llega desde el botón "Ver el
+       informe" del panel de cada módulo, y se entra por la rama de la que
+       vienes: nunca se cae en un índice a buscar lo que ibas a ver.
+       El cuerpo lo dibuja renderInforme() en js/10g-informe.js. -->
+  <div class="view form-view" id="view-informe">
+    <div class="back-row">
+      <button class="icon-btn" onclick="volverDeInforme()" aria-label="Volver">←</button>
+      <h2>Informe</h2>
+    </div>
+    <div id="informe-cuerpo"></div>
+  </div>
+
   <div class="view form-view" id="view-settings">
     <div class="back-row">
       <button class="icon-btn" onclick="volverDeAjustes()" aria-label="Volver">←</button>
@@ -950,6 +963,7 @@
 <script src="js/10d-plan.js"></script>
 <script src="js/10e-panel.js"></script>
 <script src="js/10f-informes.js"></script>
+<script src="js/10g-informe.js"></script>
 <script src="js/11-arranque.js"></script>
 </body>
 </html>

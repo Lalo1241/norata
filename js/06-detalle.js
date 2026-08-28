@@ -157,6 +157,7 @@ function renderMissions() {
       { n: pending.length, t: "Pendientes", tone: pending.length ? "fire" : "" },
       { n: state.missions.reduce((a, m) => Math.max(a, missionStreak(m)), 0), t: "Mejor racha" }
     ],
+    informe: "misiones",
     focus: pending[0]
       ? { k: "Lo siguiente para hoy", v: pending[0].name, color: "var(--mint)", onclick: `logMission('${pending[0].id}', 1)` }
       : (due.length
@@ -301,6 +302,7 @@ function renderProjects() {
       { n: done.length, t: "Terminados" },
       { n: all.reduce((a, p) => a + (p.steps || []).filter(s => s.done).length, 0), t: "Etapas hechas" }
     ],
+    informe: "proyectos",
     focus: pFocus
   });
 
@@ -1234,6 +1236,7 @@ function renderTree() {
       { n: total - completed - activeN, t: "Por abrir" },
       ...(inProgress.length ? [{ n: avgProgress + "%", t: "Avance medio" }] : [])
     ],
+    informe: "talentos",
     focus: Object.assign(focus, {
       onclick: focus.id ? `openPerk('${focus.id}')` : null,
       pct: inProgress.length ? avgProgress : undefined

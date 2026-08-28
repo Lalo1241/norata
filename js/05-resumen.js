@@ -1159,6 +1159,7 @@ function renderHome() {
       { n: skills.filter(s => s.permanent).length, t: "Blindadas", tone: "mint" },
       { n: decaying, t: "Decayendo", tone: decaying ? "fire" : "" }
     ],
+    informe: "habilidades",
     focus: hFocus
   });
 
@@ -1725,7 +1726,7 @@ function setCategory(c) {
    Las cuatro secciones se leen igual: una cifra que resume el conjunto,
    indicadores comparables y el foco de lo que pide atención. */
 
-function sectionHero({ scene, lead, stats, focus }) {
+function sectionHero({ scene, lead, stats, focus, informe }) {
   return `
     <div class="scene-card sec-hero">
       ${scene}
@@ -1756,6 +1757,13 @@ function sectionHero({ scene, lead, stats, focus }) {
             <span class="shf-v">${escapeHtml(focus.v)}</span>
             ${typeof focus.pct === "number" ? `<span class="shf-bar"><i style="width:${focus.pct}%;background:${focus.color}"></i></span>` : ""}
           </${focus.onclick ? "button" : "div"}>
+          ${/* La puerta al informe. En `btn-linea` y no en menta maciza porque
+                no escribe nada: solo lleva a mirar (ver los seis niveles de
+                botón). Y solo con la prueba encendida, que es lo que mantiene
+                el panel de siempre intacto para quien no la pidió. */
+             informe && typeof pruebaInformes === "function" && pruebaInformes()
+               ? `<button class="btn btn-linea sh-informe" onclick="abrirInforme('${informe}')">Ver el informe</button>`
+               : ""}
         </div>
       </div>
     </div>`;
