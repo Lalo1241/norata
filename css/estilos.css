@@ -6053,10 +6053,18 @@
     #skill-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
     .icon-grid { grid-template-columns: repeat(10, 1fr); }
 
-    /* Estados vacíos: centrados en todo el espacio disponible */
+    /* ---- Estados vacíos: centrados en todo el espacio disponible ----
+       Horizontalmente ya lo estaban —los cinco, medidos, con desviación
+       cero—. Lo que quedaba descuadrado era el alto: con 54vh el bloque
+       terminaba a media pantalla y debajo quedaban trescientos píxeles de
+       nada, así que la pantalla se leía vacía por abajo en vez de centrada.
+
+       El descuento son los 111 px que hay por encima —el título de la
+       pantalla y su aire— más un respiro al pie. Así el bloque ocupa el hueco
+       libre de verdad y su contenido queda en mitad de lo que se ve. */
     .empty {
       grid-column: 1 / -1;
-      min-height: 54vh;
+      min-height: calc(100vh - 150px);
       display: flex;
       flex-direction: column;
       align-items: center;

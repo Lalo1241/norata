@@ -52,6 +52,21 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.36.1 · 28 ago 2026
+Las pantallas vacías dejan de terminar a media altura.
+
+Las cinco —Resumen, Misiones, Habilidades, Talentos y Proyectos— ocupaban 54vh
+y centraban su contenido ahí dentro, así que el bloque terminaba a media
+pantalla y debajo quedaban trescientos píxeles de nada: la pantalla se leía
+vacía por abajo en vez de centrada. Ahora ocupan el hueco libre de verdad
+—todo el alto menos los 111 px del título y un respiro al pie— y su contenido
+queda en mitad de lo que se ve. Medido a 900 y a 970 de alto: 39 píxeles de
+sobra abajo en vez de 303.
+
+De paso, la comprobación que pedía el encargo: **horizontalmente ya estaban
+centradas las cinco**, con desviación cero respecto de su columna de
+contenido. Lo único que estaba descuadrado era el alto.
+
 ### 0.7.36 · 28 ago 2026
 La racha dice a dónde va y de qué está hecha.
 
