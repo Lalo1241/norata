@@ -5269,7 +5269,18 @@
      mismo arreglo que ya lleva `.sec-hero`: alto automático y el cuerpo en
      flujo normal, con la escena de fondo detrás. */
   .streak-card { height: auto; min-height: 252px; }
-  .streak-card .scene-body { position: relative; inset: auto; justify-content: flex-start; }
+  /* El cuerpo va centrado en vertical: la tarjeta tiene una altura de rejilla
+     —un número entero de filas— así que casi nunca cuadra al píxel con lo que
+     lleva dentro. Pegado arriba, ese sobrante se acumulaba abajo y se leía
+     como un agujero; repartido, se lee como el aire de la tarjeta. */
+  .streak-card .scene-body {
+    position: relative; inset: auto;
+    /* Alto completo Y centrado: sin el alto, el cuerpo mide lo que mide su
+       contenido y `center` no tiene nada que repartir — el sobrante se
+       quedaba entero abajo igual que antes. */
+    height: 100%;
+    justify-content: center;
+  }
 
   /* ==================== La tarjeta de la racha ====================
      Dos columnas en cuanto hay sitio: a la izquierda quién eres hoy, a la
@@ -5323,14 +5334,49 @@
      el color entero, y encima de él un número claro desaparece. */
   .rc-tinta { color: var(--sobre-macizo); font-weight: 800; }
 
-  @media (min-width: 640px) {
-    /* Las dos columnas solo cuando caben de verdad. Por debajo se apilan y el
-       calendario se lleva el ancho entero, que es lo que hacía falta en el
-       teléfono. */
-    .streak-grid { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 28px; }
-    .sg-izq { flex: 1; min-width: 0; }
-    .sg-der { flex: none; }
+  /* ---- Los últimos meses, solo en el ancho de tres ---- */
+  .sg-meses { display: flex; flex-direction: column; gap: 9px; }
+  .sgm { display: grid; grid-template-columns: 62px 1fr 22px; gap: 9px; align-items: center; font-size: 12px; }
+  .sgm-n { color: var(--muted); text-transform: capitalize; }
+  .sgm-b { height: 8px; border-radius: 999px; background: var(--carril); overflow: hidden; }
+  .sgm-b i { display: block; height: 100%; border-radius: 999px; background: var(--mint-deep); }
+  .sgm-v { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--muted); }
+  /* El mes en curso, en menta y con su cifra clara: es el único de los seis
+     que todavía se puede mover. */
+  .sgm.actual .sgm-n, .sgm.actual .sgm-v { color: var(--text); }
+  .sgm.actual .sgm-b i { background: var(--mint); }
+
+  /* ---- Un acomodo por ancho ----
+     La tarjeta puede ocupar una, dos o tres columnas del tablero, y estirar
+     el mismo acomodo en los tres deja o el calendario ahogado o media
+     tarjeta de cielo vacío. El ancho llega en , que lo escribe
+     el propio tablero al dibujar la pieza.
+
+     Se lee del contenedor y no de la ventana: la misma pantalla de 1700 px
+     puede tener esta tarjeta de una columna o de tres, y una consulta de
+     ventana no sabe distinguirlas. */
+  .widget[data-ancho="2"] .streak-grid,
+  .widget[data-ancho="3"] .streak-grid {
+    flex-direction: row; align-items: flex-start; gap: 28px;
   }
+  .widget[data-ancho="2"] .sg-izq,
+  .widget[data-ancho="3"] .sg-izq { flex: 1; min-width: 0; }
+  .widget[data-ancho="2"] .sg-der,
+  .widget[data-ancho="3"] .sg-der { flex: none; }
+  /* La tercera columna se lleva el resto del ancho y no más de lo que
+     necesita: con `flex: 1` sin tope, en una pantalla muy ancha las barras se
+     estiraban medio metro y dejaban de compararse entre ellas. */
+  .widget[data-ancho="3"] .sg-extra { flex: 1; min-width: 0; max-width: 320px; }
+
+  /* Apilada —una sola columna— el calendario se lleva el ancho entero, que es
+     donde peor se veía antes. */
+  .widget[data-ancho="1"] .rc { max-width: 100%; }
+  /* Con tope, aunque se lleve el ancho entero: `1fr` sin límite convierte una
+     columna ancha en seis filas de ladrillos —ya pasó una vez con este mismo
+     calendario—. En un teléfono la casilla se queda en unos 45 px, que es lo
+     que hay; en una columna ancha deja de crecer a 56. */
+  .widget[data-ancho="1"] .rc-dow,
+  .widget[data-ancho="1"] .rc-rejilla { grid-template-columns: repeat(7, minmax(0, 56px)); }
 
   /* Un mes: siete columnas, las iniciales arriba y una casilla por día. Las
      casillas se estiran con la tarjeta —`1fr` y `aspect-ratio`— en vez de

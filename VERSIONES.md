@@ -52,6 +52,54 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.35 · 28 ago 2026
+La racha sabe de qué ancho es, y el alto deja de ser una decisión.
+
+**Un acomodo por cada ancho.** La tarjeta puede ocupar una, dos o tres columnas
+del tablero, y hasta ahora estiraba el mismo reparto en las tres: o el
+calendario ahogado o media tarjeta de cielo vacío.
+
+- **De una columna**, todo apilado y el calendario a lo ancho, con la casilla
+  topada a 56 px —sin tope, una columna ancha lo convertía en seis filas de
+  ladrillos, que es el mismo fallo que ya mordió una vez—.
+- **De dos**, la identidad a la izquierda y el mes a la derecha.
+- **De tres**, se abre una tercera columna con **los últimos seis meses**: un
+  renglón por mes con sus días activos y su barra. Es la pregunta que sigue
+  naturalmente a la racha —¿voy mejorando mes a mes?— y es lo que hace que
+  agrandar la tarjeta dé algo más que aire.
+
+El ancho llega en `data-ancho`, que escribe el propio tablero al dibujar la
+pieza. Se lee del contenedor y no de la ventana a propósito: la misma pantalla
+de 1700 px puede tener esta tarjeta de una columna o de tres, y una consulta de
+ventana no sabe distinguirlas.
+
+**El alto ya no se elige: sale del ancho.** Nueve filas apilada, seis en dos o
+en tres columnas — medido con el peor mes posible, uno de seis semanas como
+agosto de 2026. Estirarla hacia abajo solo añadía cielo vacío, que es el
+problema del que venimos. Se aplica al leer y al escribir, así que un tablero
+guardado con la altura vieja se corrige solo.
+
+**Y el cuerpo va centrado en vertical.** La tarjeta mide un número entero de
+filas de la rejilla, así que casi nunca cuadra al píxel con lo que lleva
+dentro; pegado arriba, ese sobrante se acumulaba abajo y se leía como un
+agujero. Repartido, se lee como el aire de la tarjeta: 60 px arriba y 60 abajo
+en vez de 0 y 84.
+
+- **Fuera «mejor: 5».** La gracia está en la racha que tienes viva, no en una
+  que ya se rompió: al lado del número de hoy, el récord viejo solo puede hacer
+  dos cosas, y las dos sobran — recordarte que ya lo hiciste mejor, o encogerse
+  cuando el de hoy lo supera.
+- **El calendario dice el año.** Lo preguntó Eduardo y no había ninguna razón
+  para no ponerlo: sin él, un mes suelto de treinta y un días que empieza en
+  jueves puede ser perfectamente el de hace tres años.
+- **Y el saludo de madrugada saluda a la HORA y no a la persona.**
+  «Trasnochador» le ponía género a quien lee —y una «a» detrás no lo arregla,
+  lo alarga— además de sonar a reproche amable. Ahora dice **«Hola,
+  madrugada»**: la hora no tiene género, y a las cuatro de la mañana, con un
+  cielo estrellado de fondo, sí hay algo bonito que decir.
+- Y una tarjeta guardada de tres columnas ya no llega al teléfono diciendo que
+  es de tres: el ancho se topa con las columnas que hay de verdad.
+
 ### 0.7.34 · 28 ago 2026
 La racha se rehace: el mes al centro, con sus fechas escritas.
 
