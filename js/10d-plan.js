@@ -65,6 +65,14 @@
    día que cambie el nombre, cambia aquí. */
 const NOMBRE_PRO = "Norata Pro";
 
+/* Lo mismo para Fundador, y por el mismo motivo: en la tarjeta de precio, al
+   lado de «Norata Pro», un «Fundador» a secas se leía como otra cosa y no como
+   el otro plan de la misma app. Fuera de ahí —la cabecera, la columna de la
+   tabla, la chapa del mini menú— sigue siendo «Fundador» a secas, porque el
+   contexto ya dijo de qué se está hablando y repetir «Norata» cuatro veces
+   suena a folleto. Es la misma regla que sigue `NOMBRE_PRO`. */
+const NOMBRE_FUNDADOR = "Norata Fundador";
+
 const PLANES = {
   mensual: {
     nombre: "Pro mensual",
@@ -862,7 +870,7 @@ function compraPintar(estado) {
     "Los resúmenes del mes y del año",
     "Todas las apariencias"
   ];
-  if (fundador) abiertas.push("Tu distintivo: el anillo lila y tu propia piedra");
+  if (fundador) abiertas.push("Tu distintivo: el anillo lila y tu propia insignia");
 
   lista.className = "compra-lista";
   lista.innerHTML = abiertas.map(t =>
@@ -1170,13 +1178,16 @@ function planTarjetasHTML() {
        valor de un pago único y no estaba escrito en ningún sitio. Se promete
        sobre **Pro** y no sobre «Norata entera» a propósito: es lo que el plan
        abre de verdad, y una promesa más ancha sería una que algún día habría
-       que romper.
+       que romper. Y sin «sin volver a pagar» detrás: la tarjeta ya dice dos
+       veces que es un pago único —en la franja y en el pie—, así que ahí
+       sobraba y alargaba la única viñeta que se partía en dos renglones.
      · «Piedra con corona» era la pieza descrita por dentro. Lo que la persona
-       ve es un anillo en su foto y una piedra distinta a la de los demás. */
+       ve es un anillo en su foto y una insignia distinta a la de los demás
+       —«piedra» es como la llamamos en el código, no como se llama sola—. */
   const ventajasFundador = [
     "Pro entero y sin límites, para siempre",
-    "Todo lo que Norata añada a Pro, sin volver a pagar",
-    "Anillo lila en tu perfil y tu propia piedra"
+    "Todo lo que Norata añada a Pro",
+    "Anillo lila en tu perfil y tu propia insignia"
   ];
 
   return `<div class="plan-cards dos">
@@ -1215,12 +1226,12 @@ function planTarjetasHTML() {
              escrito a mano, para que el día que cambie uno de los dos no quede
              aquí una cuenta que ya no sale. -->
         <span class="plan-gancho">${escapeHtml(planFundadorGancho())}</span>
-        ${conPiedra("fundador", f.nombre)}
+        ${conPiedra("fundador", NOMBRE_FUNDADOR)}
         <span class="plan-p">${escapeHtml(f.precio)} <i>${escapeHtml(f.periodo)}</i></span>
         <span class="plan-d">${escapeHtml(f.pie)}</span>
         ${vent(ventajasFundador)}
         <button class="btn btn-primary btn-block"
-          onclick="irAPagarDesdeAjustes('fundador', this)">Pasar a ser Fundador</button>
+          onclick="irAPagarDesdeAjustes('fundador', this)">Pasar a Plan Fundador</button>
       </div>
     </div>`;
 }
@@ -1651,14 +1662,15 @@ function planFilasComparadas() {
        sola vez" era una tercera forma de decir lo mismo. */
     ["Cómo se paga", "Es gratis", "Suscripción", ojo("Pago único")],
     /* El distintivo de fundador existe hoy y no es una promesa: el anillo
-       alrededor del círculo de la cuenta y su propia piedra en vez de la
+       alrededor del círculo de la cuenta y su propia insignia en vez de la
        tallada. El anillo es LILA desde 0.7.13 — si vuelve a cambiar de color,
        esta línea cambia con él o pasa a describir algo que no se ve.
 
-       "Piedra con corona" describía la pieza por dentro; lo que la persona ve
-       es que la suya no se parece a la de nadie más. Esta celda y la ventaja
+       "Piedra con corona" describía la pieza por dentro, y "piedra" seguía
+       siendo el nombre que le damos al dibujo entre nosotros, no el que
+       entiende quien lo ve: lo que la persona reconoce es una INSIGNIA. Esta celda y la ventaja
        de la tarjeta dicen lo mismo a propósito: son la misma promesa. */
-    ["Distintivo de fundador", "—", "—", ojo("Anillo lila y piedra propia")]
+    ["Distintivo de fundador", "—", "—", ojo("Anillo lila e insignia propia")]
   ];
 }
 
