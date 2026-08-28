@@ -5268,7 +5268,17 @@
      en una caja de 252 y se salía por abajo sin que nada lo dijera—. Es el
      mismo arreglo que ya lleva `.sec-hero`: alto automático y el cuerpo en
      flujo normal, con la escena de fondo detrás. */
-  .streak-card { height: auto; min-height: 252px; }
+  /* `height: 100%` y no `auto`, y esto arregla un fallo que se veía feo: con
+     alto automático, una tarjeta a la que no le cabe lo que lleva dentro
+     —mientras se arrastra el asa de tamaño, por ejemplo— crecía POR FUERA de
+     su hueco y se quedaba montada encima de la de abajo. Llenando el hueco
+     exacto, lo que no cabe se recorta y `marcarDesbordes` le pone su fundido,
+     que es como se comporta cualquier otra tarjeta del tablero. */
+  /* Sin `min-height`, y hace falta quitarlo: con él puesto, una tarjeta a la
+     que se le asigna menos hueco —mientras se arrastra el asa— seguía
+     midiendo 252 px y se salía por abajo igual, que era justo el fallo. El
+     suelo lo pone ahora el contenido, que en esta tarjeta nunca es poco. */
+  .streak-card { height: 100%; }
   /* El cuerpo va centrado en vertical: la tarjeta tiene una altura de rejilla
      —un número entero de filas— así que casi nunca cuadra al píxel con lo que
      lleva dentro. Pegado arriba, ese sobrante se acumulaba abajo y se leía
@@ -5334,17 +5344,26 @@
      el color entero, y encima de él un número claro desaparece. */
   .rc-tinta { color: var(--sobre-macizo); font-weight: 800; }
 
-  /* ---- Los últimos meses, solo en el ancho de tres ---- */
-  .sg-meses { display: flex; flex-direction: column; gap: 9px; }
-  .sgm { display: grid; grid-template-columns: 62px 1fr 22px; gap: 9px; align-items: center; font-size: 12px; }
-  .sgm-n { color: var(--muted); text-transform: capitalize; }
-  .sgm-b { height: 8px; border-radius: 999px; background: var(--carril); overflow: hidden; }
-  .sgm-b i { display: block; height: 100%; border-radius: 999px; background: var(--mint-deep); }
-  .sgm-v { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--muted); }
-  /* El mes en curso, en menta y con su cifra clara: es el único de los seis
-     que todavía se puede mover. */
-  .sgm.actual .sgm-n, .sgm.actual .sgm-v { color: var(--text); }
-  .sgm.actual .sgm-b i { background: var(--mint); }
+  /* ---- La tercera columna: el hito que viene y qué sostiene la racha ---- */
+  .sg-extra { display: flex; flex-direction: column; gap: 20px; }
+
+  .sgh-n { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
+  .sgh-n b { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .sgh-n span { font-size: 12px; color: var(--muted); }
+  .sgh-b { height: 8px; border-radius: 999px; background: var(--carril); overflow: hidden; }
+  .sgh-b i { display: block; height: 100%; border-radius: 999px; background: var(--mint); }
+  .sgh-p { margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+  .sg-sostiene { display: flex; flex-direction: column; gap: 8px; }
+  .sgs { display: grid; grid-template-columns: minmax(0, 1fr) 54px 18px; gap: 9px; align-items: center; font-size: 12px; }
+  /* El nombre puede ser largo —«Práctica de Fotografía analógica»— y aquí
+     manda que la columna no crezca: se recorta con puntos suspensivos y el
+     título completo sigue estando al pasar el dedo. */
+  .sgs-n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sgs-b { height: 6px; border-radius: 999px; background: var(--carril); overflow: hidden; }
+  .sgs-b i { display: block; height: 100%; border-radius: 999px; }
+  .sgs-v { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .sgs-pie { margin: 4px 0 0; font-size: 11px; color: var(--faint); line-height: 1.4; }
 
   /* ---- Un acomodo por ancho, medido en PÍXELES ----
      Primero se hizo con el número de columnas del tablero, y estaba mal
@@ -5369,8 +5388,13 @@
     /* Dos bloques lado a lado en cuanto caben, con las casillas pequeñas. Es
        lo que devuelve la tarjeta de una columna a cinco filas de alto en vez
        de nueve. */
-    .streak-grid { flex-direction: row; align-items: flex-start; gap: 24px; }
-    .sg-izq { flex: 1; min-width: 0; }
+    .streak-grid { flex-direction: row; align-items: center; gap: 24px; }
+    /* La identidad, centrada en su columna. Alineada a la izquierda se
+       quedaba pegada a la esquina con todo el hueco a su derecha, y en una
+       tarjeta que es sobre todo un calendario eso se leía como un descuido. */
+    .sg-izq { flex: 1; min-width: 0; align-items: center; text-align: center; }
+    .sg-izq .streak-row { justify-content: center; }
+    .sg-cifras { justify-content: center; }
     .sg-der { flex: none; }
     .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, 30px); gap: 4px; }
     .rc-d { font-size: 11px; border-radius: 7px; }
@@ -5384,10 +5408,16 @@
   }
 
   @container (min-width: 1150px) {
-    /* La tercera columna se lleva el resto y no más de lo que necesita: con
-       `flex: 1` sin tope, en una pantalla muy ancha las barras se estiraban
-       medio metro y dejaban de compararse entre ellas. */
-    .sg-extra { flex: 1; min-width: 0; max-width: 320px; }
+    /* Tres columnas, y el calendario se va al final. El orden lo pone el CSS
+       y no el marcado a propósito: en el HTML la tercera columna va después
+       del calendario porque solo existe a este ancho, y reordenar el marcado
+       obligaría a moverla también en los otros dos acomodos.
+
+       Por qué el calendario al final y no en medio: es la pieza más grande y
+       la más densa, y en el centro parte la tarjeta en dos mitades que no se
+       hablan. Al borde, lo demás se lee como una columna de lectura seguida.  */
+    .sg-extra { order: 2; flex: 1; min-width: 0; max-width: 300px; }
+    .sg-der { order: 3; }
   }
 
   /* Un mes: siete columnas, las iniciales arriba y una casilla por día. Las

@@ -177,7 +177,7 @@ function renderSummary() {
             <div class="sg-der">
               ${calendarioRacha(anio, mes, cuentas, hoy)}
             </div>
-            ${ancho >= 3 ? `<div class="sg-extra">${mesesRecientes(cuentas, anio, mes)}</div>` : ""}
+            ${ancho >= 3 ? `<div class="sg-extra">${loQueSostiene(stk.cur)}</div>` : ""}
           </div>
         </div>
       </div>`;
@@ -1407,35 +1407,99 @@ function renderHome() {
 
    Hoy lleva un aro, y la semana en curso una banda por detrás: es lo que
    contesta «¿cómo voy AHORA?» sin necesitar una tira aparte. */
-/* Los últimos seis meses, uno por renglón. Es lo que aparece cuando la
-   tarjeta se hace de tres columnas, y contesta la pregunta que sigue
-   naturalmente a la racha: ¿voy mejorando mes a mes? Un mes con cero días no
-   se esconde —esconderlo dejaría una tabla que solo enseña lo bueno— pero
-   tampoco se subraya: su barra simplemente no está. */
-function mesesRecientes(cuentas, anio, mes) {
+/* ---- La tercera columna: lo que hace que la racha siga viva ----
+
+   Aquí estaban «los últimos meses»: seis renglones con los días activos de
+   cada uno. Eduardo lo leyó y dijo que no le decía nada, y al mirarlo con esa
+   pregunta encima tenía razón — era una tabla que casi siempre son ceros o
+   números parecidos, no contesta nada que se pueda hacer hoy, y compararte con
+   tu marzo no cambia tu jueves.
+
+   Lo que sí importa de una racha son dos cosas, y las dos son de AHORA:
+
+     1. **A dónde va.** Norata ya celebra hitos de racha (3, 7, 14, 30…), pero
+        el número de la tarjeta no decía nunca cuál viene ni cuánto falta: el
+        premio existía y era invisible. Una meta cerca es lo que hace volver
+        mañana; un mes viejo, no.
+     2. **De qué está hecha.** Casi todas las rachas largas se sostienen sobre
+        una o dos cosas concretas. Saber cuáles —con su nombre y sus días— es
+        lo único de esta tarjeta que se puede usar para decidir algo: si tu
+        racha vive de una sola misión, ya sabes qué proteger.
+
+   Las dos se calculan sobre los últimos treinta días, no sobre la racha viva:
+   con una racha de tres días, contar solo esos tres daría tres empates de uno
+   y no diría nada. */
+
+/* El hito de racha que viene, con lo que llevas recorrido desde el anterior.
+   `HITOS_RACHA` es la misma lista que dispara la celebración, así que la
+   tarjeta y el festejo no pueden decir cosas distintas. */
+function proximoHito(cur) {
+  const sig = HITOS_RACHA.find(h => h > cur);
+  if (!sig) return null;
+  const previos = HITOS_RACHA.filter(h => h <= cur);
+  const desde = previos.length ? previos[previos.length - 1] : 0;
+  return { sig, faltan: sig - cur, pct: Math.round((cur - desde) / (sig - desde) * 100) };
+}
+
+/* En cuántos DÍAS distintos de los últimos treinta apareció cada cosa. Días y
+   no veces: una misión cumplida tres veces el martes sostiene un día, no
+   tres — y lo que se está midiendo es qué mantiene la racha, que se cuenta en
+   días. */
+function sostienenLaRacha(dias) {
+  const desde = addDaysKey(todayKey(), -(dias - 1));
   const filas = [];
-  let max = 1;
-  for (let i = 5; i >= 0; i--) {
-    const total = anio * 12 + (mes - 1) - i;
-    const a = Math.floor(total / 12), m = (total % 12) + 1;
-    const dias = new Date(Date.UTC(a, m, 0)).getUTCDate();
+
+  state.missions.forEach(m => {
     let n = 0;
-    for (let d = 1; d <= dias; d++) {
-      if ((cuentas.get(a + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0")) || 0) > 0) n++;
-    }
-    max = Math.max(max, n);
-    filas.push({ nombre: MESES[m - 1], n, actual: i === 0 });
-  }
+    Object.keys(m.log || {}).forEach(k => { if (k >= desde && missionCount(m, k) > 0) n++; });
+    if (n) filas.push({ nombre: m.name, dias: n, color: m.color });
+  });
+
+  /* La práctica registrada a mano cuenta aparte de las misiones aunque toque
+     la misma habilidad: son dos gestos distintos y el que sostiene la racha
+     es el que se hizo. Se deja fuera lo que no es tuyo —el desgaste, que
+     resta— y lo que ya está contado como misión, talento o proyecto. */
+  state.skills.forEach(sk => {
+    const dias30 = new Set();
+    (sk.log || []).forEach(e => {
+      if (e.date >= desde && (Number(e.xp) || 0) > 0 && !e.fuente) dias30.add(e.date);
+    });
+    if (dias30.size) filas.push({ nombre: "Práctica de " + sk.name, dias: dias30.size, color: sk.color });
+  });
+
+  return filas.sort((a, b) => b.dias - a.dias).slice(0, 3);
+}
+
+const RACHA_VENTANA = 30;
+
+function loQueSostiene(cur) {
+  const hito = proximoHito(cur);
+  const filas = sostienenLaRacha(RACHA_VENTANA);
+  const max = filas.length ? filas[0].dias : 1;
+
   return `
-    <div class="rc-rot">Los últimos meses</div>
-    <div class="sg-meses">
-      ${filas.map(f => `
-        <div class="sgm${f.actual ? " actual" : ""}">
-          <span class="sgm-n">${escapeHtml(f.nombre)}</span>
-          <span class="sgm-b"><i style="width:${Math.round(f.n / max * 100)}%"></i></span>
-          <span class="sgm-v">${f.n}</span>
-        </div>`).join("")}
-    </div>`;
+    ${hito ? `
+      <div class="sg-hito">
+        <div class="rc-rot">Próximo hito</div>
+        <div class="sgh-n"><b>${hito.sig}</b><span>días</span></div>
+        <div class="sgh-b"><i style="width:${Math.max(3, hito.pct)}%"></i></div>
+        <div class="sgh-p">Te ${hito.faltan === 1 ? "falta 1 día" : "faltan " + hito.faltan + " días"}</div>
+      </div>` : `
+      <div class="sg-hito">
+        <div class="rc-rot">Los hitos</div>
+        <div class="sgh-p">Pasaste el último de la lista. A partir de aquí, cada día es récord.</div>
+      </div>`}
+    ${filas.length ? `
+      <div class="sg-sostiene">
+        <div class="rc-rot">Qué la sostiene</div>
+        ${filas.map(f => `
+          <div class="sgs">
+            <span class="sgs-n">${escapeHtml(f.nombre)}</span>
+            <span class="sgs-b"><i style="width:${Math.round(f.dias / max * 100)}%;background:${trazo(f.color || "#5fe0b0")}"></i></span>
+            <span class="sgs-v">${f.dias}</span>
+          </div>`).join("")}
+        <p class="sgs-pie">Días de los últimos ${RACHA_VENTANA} en que apareció cada una.</p>
+      </div>` : ""}`;
 }
 
 function calendarioRacha(anio, mes, cuentas, hoy) {
