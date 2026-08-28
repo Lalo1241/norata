@@ -161,6 +161,94 @@ function gAro(pct, texto, pie, color) {
     </div>`;
 }
 
+
+/* ================= Piezas de los periodos largos (fase 3) =================
+
+   Tres gráficas que en una semana no dicen nada y en un año lo dicen todo, así
+   que solo salen cuando el periodo da para ellas. Es la otra mitad del tope de
+   seis: no se trata de tener seis siempre, sino de que ninguna sobre. */
+
+/* El mapa de calor. Una casilla por día, en columnas de semana —cada columna
+   es un domingo-a-sábado, igual que el resto de la app— y las filas son los
+   días de la semana.
+
+   La primera columna casi nunca empieza en domingo, así que se rellena con
+   huecos: sin ellos, todo el calendario queda corrido y un martes aparece en
+   la fila del jueves. Es el fallo clásico de esta gráfica. */
+function gMapaCalor(dias, cuentas, opciones) {
+  const op = opciones || {};
+  if (!dias.length) return gVacia(op.vacia || "Todavía no hay días que pintar.");
+  const valores = dias.map(k => cuentas.get(k) || 0);
+  const max = Math.max(...valores, 1);
+  if (!valores.some(v => v > 0)) return gVacia(op.vacia || "En cuanto cumplas misiones, aquí se llena el calendario.");
+
+  /* Cinco escalones y no una rampa continua: con un degradado, dos días de
+     esfuerzo muy distinto acaban del mismo color y el mapa deja de contar
+     nada. El cero usa el carril, que es el tono pensado justo para dejar ver
+     por dónde va lo lleno. */
+  const ESCALA = ["var(--carril)", velo("#5fe0b0", "44"), velo("#5fe0b0", "77"),
+    velo("#5fe0b0", "bb"), pinta("#5fe0b0")];
+  const nivel = (n) => n <= 0 ? 0 : Math.min(4, Math.ceil(n / max * 4));
+
+  const huecos = weekdayOfKey(dias[0]);
+  const celdas =
+    Array.from({ length: huecos }, () => `<i class="mc-hueco"></i>`).join("") +
+    dias.map((k, i) => {
+      const n = valores[i];
+      return `<i style="background:${ESCALA[nivel(n)]}" title="${escapeAttr(k + ": " + n + (n === 1 ? " marca" : " marcas"))}"></i>`;
+    }).join("");
+
+  return `
+    <div class="inf-calor-caja">
+      <div class="inf-calor">${celdas}</div>
+    </div>
+    <div class="inf-escala">
+      <span>Menos</span>
+      ${ESCALA.map(c => `<i style="background:${c}"></i>`).join("")}
+      <span>Más</span>
+    </div>`;
+}
+
+/* Líneas acumuladas. La pregunta es la forma de la curva —si una habilidad se
+   despegó o se quedó plana—, no el número exacto de ningún día, así que no
+   lleva ejes: llevan nombre y color, que es lo que hace falta para leerla.
+
+   El trazo va por `trazo()` y no por `pinta()` aunque el color sea el de la
+   habilidad: son dos píxeles de línea, y con el tono pastel sobre papel
+   desaparecen. Es la regla de la casa y aquí es donde más se nota. */
+function gLineas(series, opciones) {
+  const op = opciones || {};
+  const vivas = series.filter(s => s.valores.some(v => v > 0));
+  if (!vivas.length) return gVacia(op.vacia || "Todavía no hay suficiente historia para dibujar una curva.");
+
+  const W = 300, H = 110, P = 3;
+  const n = vivas[0].valores.length;
+  const max = Math.max(...vivas.map(s => Math.max(...s.valores)), 1);
+  const x = (i) => (n <= 1 ? 0 : (i / (n - 1)) * (W - P * 2)) + P;
+  const y = (v) => H - P - (v / max) * (H - P * 2);
+
+  return `
+    <svg class="inf-lineas" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img"
+      aria-label="Curvas de XP acumulado por habilidad">
+      ${vivas.map(s => `<polyline fill="none" stroke="${trazo(s.color)}" stroke-width="2"
+        stroke-linejoin="round" stroke-linecap="round"
+        points="${s.valores.map((v, i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ")}"/>`).join("")}
+    </svg>
+    <div class="inf-leyenda">
+      ${vivas.map(s => `<span class="il-item"><i style="background:${pinta(s.color)}"></i><b>${escapeHtml(s.nombre)}</b><span>${escapeHtml(fmtXp(s.valores[s.valores.length - 1]))} XP</span></span>`).join("")}
+    </div>`;
+}
+
+/* Los días de un rango agrupados en tramos, para que una curva de 365 puntos
+   no sea una pared de ruido. Un año se lee por semanas; un mes, por días. */
+function tramosDe(r) {
+  const dias = diasDe(r);
+  if (r.periodo !== "ano") return dias.map(k => [k]);
+  const out = [];
+  for (let i = 0; i < dias.length; i += 7) out.push(dias.slice(i, i + 7));
+  return out;
+}
+
 function bloque(titulo, pregunta, cuerpo) {
   return `
     <section class="panel inf-bloque">
@@ -247,6 +335,17 @@ function portadaHTML(r, rAntes, D) {
     ? `${tituloDeRango(r)}: cumpliste ${fraseCantidad2(mis.marcas, "misión", "misiones")}, ganaste ${fmtXp(hab.ganada)} XP y cerraste ${fraseCantidad2(cerradas, "cosa", "cosas")}. ${cola}`
     : `${tituloDeRango(r)}: todavía sin movimiento. Esto se llena solo en cuanto empieces a marcar.`;
 
+  /* El repaso de diciembre. Un año no se resume con los mismos tres números
+     que una semana: lo que se recuerda de un año es cuánto subiste, cuánto
+     aguantaste seguido y cuánto costó todo. Va debajo y no en lugar de los
+     tres de arriba, que siguen siendo la respuesta a «¿cómo voy?». */
+  const repaso = r.periodo === "ano" ? `
+      <div class="inf-tres inf-repaso">
+        <div><b>${hab.niveles}</b><span>Niveles subidos</span></div>
+        <div><b>${rachaMasLarga(r, D)}</b><span>Tu racha más larga</span></div>
+        <div><b>${money(tal.invertido)}</b><span>Invertido en ti</span></div>
+      </div>` : "";
+
   return `
     <section class="panel inf-portada">
       <p class="inf-frase">${escapeHtml(frase)}</p>
@@ -255,7 +354,25 @@ function portadaHTML(r, rAntes, D) {
         <div><b>${fmtXp(hab.ganada)}</b><span>XP ganada</span></div>
         <div><b>${cerradas}</b><span>Cosas cerradas</span></div>
       </div>
+      ${repaso}
     </section>`;
+}
+
+/* La racha más larga dentro del periodo, que no es la misma que la racha
+   histórica de `streakInfo`: la del año pasado no cuenta en el repaso de
+   éste. Se corta en los bordes a propósito — una racha que viene de diciembre
+   se cuenta desde el 1 de enero, porque lo que se está contando es el año. */
+function rachaMasLarga(r, D) {
+  const datos = D || state;
+  const dias = diasDe(r);
+  let mejor = 0, run = 0;
+  dias.forEach(k => {
+    let hubo = false;
+    datos.missions.forEach(x => { if (!hubo && missionCount(x, k) > 0) hubo = true; });
+    run = hubo ? run + 1 : 0;
+    if (run > mejor) mejor = run;
+  });
+  return mejor;
 }
 
 /* «1 misión» y no «1 misiones». La de `05-resumen.js` sirve para otra cosa
@@ -323,6 +440,23 @@ function infMisiones(r, rAntes, D) {
         <div><b>${m.constancia === null ? "—" : m.constancia + "%"}</b><span>Constancia</span>${flechaHTML(variacion(m.constancia, p.constancia), "Frente al periodo anterior")}</div>
       </div>
     </div>`);
+
+  /* El mapa de calor. En una semana son siete casillas y no dice nada; en un
+     mes o un año es la gráfica que contesta la única pregunta que nadie más
+     contesta: cuántos días de tu vida hiciste algo. */
+  if (r.periodo !== "semana") {
+    const cuentas = new Map();
+    diasDe(r).forEach(k => {
+      let n = 0;
+      datos.missions.forEach(x => { n += missionCount(x, k); });
+      if (n) cuentas.set(k, n);
+    });
+    const conAlgo = cuentas.size;
+    const total = diasDe(r).length;
+    html += bloque("Tus días",
+      conAlgo ? `Hiciste algo ${conAlgo} de los ${total} días de este periodo.` : "",
+      gMapaCalor(diasDe(r), cuentas, { vacia: "En cuanto cumplas misiones, aquí se llena el calendario." }));
+  }
 
   /* Por día de la semana. La pregunta no es cuánto hiciste, es DÓNDE se te
      cae la semana: con el día señalado, la respuesta es accionable. */
@@ -398,6 +532,32 @@ function infHabilidades(r, rAntes, D) {
       <div class="ib-lado"><b>${h.neta >= 0 ? "+" : "−"}${fmtXp(Math.abs(h.neta))}</b><span>Neta</span>${flechaHTML(variacion(h.neta, p.neta), "Frente al periodo anterior")}</div>
     </div>`);
 
+  /* Cómo creció cada una a lo largo del periodo. En una semana serían siete
+     puntos y una recta: la forma de la curva —si algo se despegó o se quedó
+     plano— solo aparece con un mes o un año por delante. */
+  if (r.periodo !== "semana") {
+    const tramos = tramosDe(r);
+    const cinco = [...h.porHabilidad.entries()]
+      .sort((a, b) => b[1] - a[1]).slice(0, 5)
+      .map(([id]) => datos.skills.find(x => x.id === id)).filter(Boolean);
+
+    const series = cinco.map(sk => {
+      let acumulado = 0;
+      const valores = tramos.map(g => {
+        const set = new Set(g);
+        sk.log.forEach(e => { if (set.has(e.date) && e.xp > 0) acumulado += e.xp; });
+        return acumulado;
+      });
+      return { nombre: sk.name, color: sk.color || "#5fe0b0", valores };
+    });
+
+    /* «La curva de cada una» y no «Cómo creciste»: dos bloques seguidos
+       llamados «Cómo creciste» y «Dónde creciste» se leen como el mismo
+       título repetido y nadie mira el segundo. */
+    html += bloque("La curva de cada una", "Las cinco que más se movieron, sumando desde el principio del periodo.",
+      gLineas(series, { vacia: "Con un poco más de historia aquí se verá la forma de cada habilidad." }));
+  }
+
   const top = [...h.porHabilidad.entries()]
     .map(([id, xp]) => {
       const s = datos.skills.find(x => x.id === id);
@@ -440,6 +600,45 @@ function infTalentos(r, rAntes, D) {
       <div><b>${t.completados}</b><span>Asegurados</span>${flechaHTML(variacion(t.completados, p.completados), "Frente al periodo anterior")}</div>
       <div><b class="${t.vencidos ? "coral" : ""}">${t.vencidos}</b><span>Se les pasó el plazo</span></div>
     </div>`);
+
+  /* Por trimestre, y solo en el informe del año: en un mes hay un trimestre y
+     medio, así que la gráfica sería una barra sola llamándose comparación. */
+  if (r.periodo === "ano") {
+    const porTri = [0, 0, 0, 0];
+    datos.perks.forEach(x => {
+      const d = diaDeInversion(x);
+      if (!(x.cost > 0) || !enRango(d, r)) return;
+      porTri[Math.floor((Number(d.slice(5, 7)) - 1) / 3)] += x.cost;
+    });
+    html += bloque("En qué trimestre gastaste", "",
+      gBarras(porTri.map((v, i) => ({
+        k: "T" + (i + 1), v, etiqueta: v ? money(v) : "",
+        color: pinta("#c7a6ff"), titulo: "Trimestre " + (i + 1) + ": " + money(v)
+      })), { vacia: "Aquí se reparte por trimestre lo que inviertas este año." }));
+  }
+
+  /* Cuánto tardas en cerrar lo que abres. Solo cuenta lo que se completó
+     DENTRO del periodo: meter lo de hace tres años haría que la cifra no se
+     moviera nunca y dejara de significar «cómo voy». */
+  const cerrados = datos.perks.filter(x => x.completedAt && enRango(x.completedAt, r) && (x.startDate || x.createdAt));
+  if (r.periodo !== "semana") {
+    const dias = cerrados.map(x => Math.max(0, daysBetween(x.startDate || x.createdAt, x.completedAt)));
+    const medio = dias.length ? Math.round(dias.reduce((a, b) => a + b, 0) / dias.length) : null;
+    /* A tiempo: se cerró antes de su propia fecha de vencimiento. Los que no
+       llevan plazo no entran ni a favor ni en contra — no tenían nada que
+       cumplir. */
+    const conPlazo = cerrados.filter(x => x.endDate);
+    const aTiempo = conPlazo.filter(x => x.completedAt <= x.endDate).length;
+
+    html += bloque("¿Cierras lo que abres?", "",
+      medio === null
+        ? gVacia("Cuando completes un talento con fecha, aquí verás cuánto tardaste.")
+        : `<div class="inf-cifras tres">
+            <div><b>${cerrados.length}</b><span>Completados</span></div>
+            <div><b>${medio}</b><span>Días de media</span></div>
+            <div><b class="${conPlazo.length && aTiempo < conPlazo.length ? "coral" : "mint"}">${conPlazo.length ? aTiempo + " de " + conPlazo.length : "—"}</b><span>Dentro de plazo</span></div>
+          </div>`);
+  }
 
   /* Lo que se vence. Es dato de acción, no de repaso, y por eso va con nombre
      y días — un número suelto no dice a cuál hay que ir. */
@@ -507,6 +706,21 @@ function infProyectos(r, rAntes, D) {
 
   html += bloque("Tu ritmo", "Etapas cerradas a lo largo del periodo.",
     gBarras(ritmo, { vacia: "Aquí se verá el ritmo en cuanto cierres etapas." }));
+
+  /* Cuánto tarda un encargo de principio a fin. Con una semana la muestra es
+     de uno o dos y la media es ruido; de un mes en adelante ya dice algo. */
+  if (r.periodo !== "semana") {
+    const cerrados = datos.projects.filter(x => x.status === "done" && enRango(x.completedAt || x.lastActivity, r));
+    const dias = cerrados.map(x => Math.max(0, daysBetween(x.createdAt, x.completedAt || x.lastActivity)));
+    html += bloque("Cuánto tarda un encargo", "De crearlo a cerrarlo.",
+      dias.length
+        ? `<div class="inf-cifras tres">
+            <div><b>${Math.round(dias.reduce((a, b) => a + b, 0) / dias.length)}</b><span>Días de media</span></div>
+            <div><b class="mint">${Math.min(...dias)}</b><span>El más rápido</span></div>
+            <div><b>${Math.max(...dias)}</b><span>El más lento</span></div>
+          </div>`
+        : gVacia("Cuando termines un encargo, aquí verás cuánto te llevó."));
+  }
 
   html += bloque("Lo que cerraste y lo que soltaste", "",
     `<div class="inf-cifras tres">
