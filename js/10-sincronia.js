@@ -406,7 +406,7 @@ function renderSync() {
          `js/10c-portada.js`. */
       '<div class="stack">' +
       '<button class="btn btn-soft btn-block" onclick="syncRun({})">Sincronizar ahora</button>' +
-      '<button class="btn btn-danger-ghost btn-block" onclick="syncDisconnect()">Cerrar sesión en este dispositivo</button>' +
+      '<button class="btn btn-aviso btn-block" onclick="syncDisconnect()">Cerrar sesión en este dispositivo</button>' +
       '</div>';
     return;
   }
@@ -696,6 +696,31 @@ function escapeHtml(str) {
 }
 function escapeAttr(str) {
   return escapeHtml(str).replace(/'/g, "&#39;");
+}
+
+/* Lo mismo, pero para un texto que va DENTRO de unas comillas simples de
+   JavaScript que a su vez viven dentro de un atributo HTML — el caso de
+   `onclick="abrirRama('AQUÍ')"`, que es como se llama a casi todo en la app.
+
+   `escapeAttr` no sirve ahí, y por eso existe esta: convierte la comilla en
+   `&#39;`, pero el navegador deshace esa entidad ANTES de leer el JavaScript,
+   así que una rama llamada "Rock'n'roll" le llegaba al motor como
+   `abrirRama('Rock'n'roll')` y reventaba con un error de sintaxis. El efecto
+   era grande y silencioso: en esa tarjeta dejaban de funcionar TODOS los
+   botones a la vez —pantalla completa, renombrar, editar, borrar, crear— sin
+   que nada avisara. Se cazó probando un nombre con apóstrofo, no leyendo.
+
+   El orden importa: primero se escapa para JavaScript (la barra invertida
+   antes que nada, o se escaparía a sí misma) y solo después para HTML. Los
+   saltos de línea se vuelven espacio porque una cadena de JavaScript no puede
+   llevarlos partidos. */
+function enJS(str) {
+  return escapeHtml(
+    String(str)
+      .replace(/\\/g, "\\\\")
+      .replace(/'/g, "\\'")
+      .replace(/[\r\n\u2028\u2029]/g, " ")
+  );
 }
 
 function formatDate(key) {

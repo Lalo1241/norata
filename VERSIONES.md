@@ -52,6 +52,41 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.16 · 27 ago 2026
+Los botones dejan de ser todos verdes.
+
+- **Nomenclatura de color, seis niveles**, y la pregunta que los separa es «¿qué
+  me pasa si lo pulso sin querer?». Dos clases nuevas: **`btn-linea`** (fondo
+  oscuro, borde menta) para lo que solo mira, consulta o lleva a otro sitio, y
+  **`btn-aviso`** (luciérnaga) para lo que toca dinero o algo delicado pero se
+  deshace. La regla al dudar entre `soft` y `linea`: **¿ese botón escribe algo?**
+  Si solo enseña, es `linea`. Queda escrita en `CLAUDE.md`.
+- **El reparto, botón por botón.** «Ver mi recibo» y «Comparar los planes» pasan
+  a `linea` —no cambian nada—; «Editar suscripción» a `aviso`. «Exportar
+  respaldo» a `linea` y **«Importar respaldo» a `aviso`**, que es el que
+  reemplaza todos tus datos y estaba pintado igual que exportar. Los del panel
+  de números, todos a `linea`: ahí solo se consulta.
+- **«Cerrar sesión» deja de ser coral.** No destruye nada —tu progreso sigue en
+  tu cuenta y vuelves entrando— y estaba pintado igual que «Borrar mi cuenta»,
+  que sí es para siempre. Dos cosas muy distintas con el mismo color, una al
+  lado de la otra. Ahora es `aviso`.
+- **Lo que NO se tocó, a propósito:** los botones de Misiones, Talentos,
+  Proyectos y los formularios. Ahí el reparto ya era correcto —primary para
+  guardar, danger para borrar, ghost para cancelar— y recolorear a ciegas
+  pantallas que no estoy viendo es la forma más rápida de empeorarlas.
+- **El precio dejaba de estar dos veces en tres centímetros.** Salía en la
+  cabecera del plan y otra vez en «Qué pagas» justo debajo. Repetido así no
+  informa dos veces, ensucia una. La cabecera se queda con qué plan es y qué le
+  pasa; la cifra vive en los renglones de recibo. Sigue en la cabecera en los
+  dos casos que no tienen recibo debajo: el Gratuito y la cuenta de casa.
+- **La tabla de planes, toda a la izquierda.** Los encabezados estaban centrados
+  y los valores no, así que el rótulo no caía encima de su columna sino en medio
+  de la nada. Ahora cada rótulo empieza donde empiezan sus respuestas — medido:
+  cuadran al píxel.
+- **Y los avisos del pie, centrados**, que es lo contrario y por el mismo
+  motivo: ahí no hay columnas con las que alinearse, son dos frases sueltas
+  debajo de un botón que ocupa todo el ancho.
+
 ### 0.7.15 · 27 ago 2026
 La cuenta de casa es fundadora, y el lila enciende.
 

@@ -212,6 +212,28 @@ Cuatro cosas que hay que saber antes de tocarlo:
   `logotipoSrc()` elige entre los dos de `marca/`. Ojo con los nombres, que
   dicen de qué color es el dibujo: el *claro* va sobre fondo oscuro.
 
+## Los botones
+
+Seis niveles, y la pregunta que los separa es **«¿qué me pasa si lo pulso sin
+querer?»**. Antes casi todos eran verdes, y un verde que lo mismo guarda que te
+lleva a cambiar tu tarjeta deja de decir nada.
+
+| Clase | Cuándo | Aspecto |
+| --- | --- | --- |
+| `btn-primary` | Lo que has venido a hacer. **Una por pantalla** | menta maciza |
+| `btn-soft` | Una acción más, normal y sin consecuencias | menta tenue |
+| `btn-linea` | Mirar, consultar, salir a otro sitio. No cambia nada tuyo | fondo oscuro, borde menta |
+| `btn-aviso` | Toca dinero o algo delicado, pero se deshace | luciérnaga |
+| `btn-danger-ghost` | Destruye, o no tiene vuelta | coral |
+| `btn-ghost` | Neutro: cancelar, cerrar, atrás. No es acción, es salida | apagado |
+
+**La regla al dudar entre `soft` y `linea`: ¿ese botón ESCRIBE algo?** Si solo
+enseña o lleva a otro sitio, es `linea`.
+
+Y el reparto del amarillo importa: «Cerrar sesión» dejó de ser coral porque no
+destruye nada —tu progreso sigue en tu cuenta y vuelves entrando—, pero tampoco
+puede ser verde porque toca la sesión. Ese hueco es exactamente `btn-aviso`.
+
 ## El cobro
 
 **Dos niveles y tres formas de pagar.** Los niveles son **Gratuito, Pro y

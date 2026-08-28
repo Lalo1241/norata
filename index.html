@@ -647,7 +647,7 @@
             <div id="modulos-list"></div>
             <!-- Aquí y no en otro sitio: quien cierra el tutorial sin querer viene
                  a buscarlo justo donde están los módulos que explicaba. -->
-            <button class="btn btn-soft btn-block" style="margin-top:14px" onclick="verTutorialOtraVez()">Ver otra vez qué hace cada sección</button>
+            <button class="btn btn-linea btn-block" style="margin-top:14px" onclick="verTutorialOtraVez()">Ver otra vez qué hace cada sección</button>
           </div>
         </section>
 
@@ -669,8 +669,8 @@
             <h3>Respaldos</h3>
             <p class="settings-note" id="datos-nota"></p>
             <div class="stack">
-              <button class="btn btn-soft btn-block" onclick="exportData()">Exportar respaldo (JSON)</button>
-              <button class="btn btn-soft btn-block" onclick="document.getElementById('import-file').click()">Importar respaldo</button>
+              <button class="btn btn-linea btn-block" onclick="exportData()">Exportar respaldo (JSON)</button>
+              <button class="btn btn-aviso btn-block" onclick="document.getElementById('import-file').click()">Importar respaldo</button>
               <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importData(this)">
             </div>
           </div>
