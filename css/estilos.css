@@ -2640,6 +2640,7 @@
   html.quieto body { overflow: hidden; }
   .fs-bar {
     flex: none;
+    position: relative;                /* para la línea de avance de abajo */
     display: flex;
     align-items: center;
     gap: 10px;
@@ -2667,7 +2668,46 @@
     border-radius: 999px; padding: 3px 9px;
     font-variant-numeric: tabular-nums;
   }
-  .fs-tools { flex: none; display: flex; gap: 7px; }
+  .fs-tools { flex: none; display: flex; align-items: center; gap: 7px; }
+
+  /* ---- Lo que sigue, en la esquina derecha ----
+     Dos renglones muy juntos: el rótulo diminuto y el nombre. Es un botón,
+     así que se comporta como tal, pero no compite con el título de la rama —
+     por eso el nombre va en el tono de texto normal y no en negrita grande. */
+  .fs-sigue {
+    display: none;                     /* en el teléfono se come el título */
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+    max-width: 220px;
+    padding: 4px 11px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--card);
+    font: inherit;
+    cursor: pointer;
+    text-align: right;
+  }
+  .fs-sigue:hover { border-color: var(--mint); }
+  .fs-sigue .k { font-size: 8.5px; font-weight: 800; letter-spacing: 0.1em; color: var(--faint); }
+  .fs-sigue .v {
+    font-size: 12px; font-weight: 700; color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+  }
+  @media (min-width: 760px) { .fs-sigue { display: flex; } }
+
+  /* ---- La línea de avance ----
+     Pegada al borde de abajo de la barra, encima de su propio borde. Tres
+     píxeles: dice cuánto llevas sin pedir atención, porque la cifra exacta ya
+     está en el chip de al lado. */
+  .fs-avance {
+    position: absolute;
+    left: 0; bottom: -1px;
+    height: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--mint);
+    transition: width 0.35s ease;
+  }
   .fs-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
   /* Aquí sí se recorre en los dos ejes: es el modo que existe para eso */
   .fs-overlay .const-wrap {
@@ -3038,22 +3078,68 @@
     padding: 4px 18px 8px;
   }
   .const-legend b { color: var(--muted); font-weight: 600; }
+  /* ---- La rama plegada ----
+     Deja de ser doce rombitos que no se distinguen y pasa a decir en qué
+     punto está: una barra para el vistazo, los números para el detalle y
+     qué toca después. Plegar tiene que ahorrar sitio SIN esconder lo que
+     hace falta para decidir si merece la pena abrirla. */
   .branch-collapsed {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 2px 18px 10px;
+    flex-direction: column;
+    gap: 7px;
+    padding: 0 18px 13px;
     font-size: 12.5px;
     color: var(--muted);
   }
-  .branch-collapsed .pips { display: flex; gap: 5px; }
-  .branch-collapsed .pips i {
-    width: 9px; height: 9px;
-    border-radius: 3px;
-    transform: rotate(45deg);
-    display: inline-block;
-    background: var(--pip);
+  .bc-barra {
+    height: 4px;
+    border-radius: 999px;
+    background: var(--carril);
+    overflow: hidden;
   }
+  .bc-barra i { display: block; height: 100%; border-radius: 999px; background: var(--mint); }
+  .bc-datos { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .bc-d {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--card2);
+    color: var(--muted);
+  }
+  .bc-d.curso { color: var(--fire); background: var(--fire-soft); }
+  .bc-d.abre { color: var(--mint); background: var(--mint-soft); }
+  .bc-sigue {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px;
+    color: var(--text);
+    min-width: 0;
+  }
+  .bc-sigue b { color: var(--faint); font-weight: 700; flex: none; }
+  .bc-sigue svg { width: 13px; height: 13px; flex: none; stroke: var(--muted); fill: none; stroke-width: 1.9; }
+
+  /* ---- Plegar y desplegar todas ----
+     A la derecha del rótulo de la sección, que es donde ya está la vista
+     puesta al decidir por dónde empezar. */
+  /* `order: 1` para que caigan DESPUÉS de la línea que rellena el rótulo
+     (`sec-label::after`, que es flex:1). Sin esto quedaban pegados al texto
+     y la línea los empujaba a media fila, no a la esquina. */
+  .sec-acciones { display: flex; gap: 4px; order: 1; flex: none; }
+  .sec-acciones button {
+    font: inherit;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 10px;
+    cursor: pointer;
+  }
+  .sec-acciones button:hover:not(:disabled) { color: var(--mint); border-color: var(--mint); }
+  .sec-acciones button:disabled { opacity: 0.35; cursor: default; }
   @keyframes dashFlow { to { stroke-dashoffset: -24; } }
   .edge-flow { animation: dashFlow 1.1s linear infinite; }
   @media (prefers-reduced-motion: reduce) { .edge-flow { animation: none; } }

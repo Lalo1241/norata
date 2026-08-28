@@ -11,7 +11,7 @@ causa no eran las ramas: era compartir un solo árbol de trabajo y un solo
 | --- | --- |
 | Carpeta | `Desktop/norata-mapa` |
 | Rama | `mapa` |
-| Servidor | `python -m http.server 8124` |
+| Servidor | `python -m http.server 8130` |
 | De qué se ocupa | el lienzo, Talentos, Proyectos, el zoom y los controles del mapa |
 
 La carpeta original (`Proyecto Main Quest`) se queda en `main` y con el 8123,
