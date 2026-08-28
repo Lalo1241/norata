@@ -1247,7 +1247,13 @@ function renderTree() {
       onclick: focus.id ? `openPerk('${focus.id}')` : null,
       pct: inProgress.length ? avgProgress : undefined
     })
-  }) + `<div class="sec-label">Tus ramas de talentos</div>`;
+  }) + `<div class="sec-label">Tus ramas de talentos${
+    ramasT.length > 1 ? `<span class="sec-acciones">
+      <button type="button" onclick="plegarTodasLasRamas(true)"${
+        ramasT.every(b => isCollapsed(b)) ? " disabled" : ""}>Plegar todas</button>
+      <button type="button" onclick="plegarTodasLasRamas(false)"${
+        ramasT.every(b => !isCollapsed(b)) ? " disabled" : ""}>Desplegar todas</button>
+    </span>` : ""}</div>`;
 
   branches.forEach((b, bi) => {
     // Lo que se dibuja: talentos sueltos y cajas cerradas. La cuenta de la
@@ -1271,14 +1277,33 @@ function renderTree() {
          sino como lo que es: un sitio esperando su primer talento. */
       body = `<p class="col-vacia">Todavía no hay talentos en esta rama. Créale el primero con el ＋.</p>`;
     } else if (collapsed) {
+      /* ---- La rama plegada ----
+         Antes eran doce rombitos de color y la cuenta. Los rombos no decían
+         nada: a ese tamaño el estado no se distingue, y dos ramas distintas
+         se veían igual. Plegar servía para ahorrar sitio y costaba saber qué
+         había dentro, así que había que desplegar para enterarse — es decir,
+         plegar no ahorraba nada.
+
+         Ahora dice lo que se preguntaría uno antes de desplegarla: cuánto
+         llevas, qué tienes en marcha y qué toca después. La barra da el
+         vistazo y los números el detalle. */
+      const enCurso = reales.filter(n => { const e = perkStatus(n); return e === "active" || e === "due"; }).length;
+      const porAbrir = reales.filter(n => perkStatus(n) === "available").length;
+      const trabados = reales.filter(n => perkStatus(n) === "locked").length;
+      const pct = reales.length ? Math.round(doneN / reales.length * 100) : 0;
+      const sigue = frontNode(nodes);
+      const sigueVale = sigue && !["completed", "expired"].includes(perkStatus(sigue));
       body = `
       <div class="branch-collapsed">
-        <span class="pips">${nodes.slice(0, 12).map(n => {
-          const st = perkStatus(n);
-          const c = pinta(st === "completed" ? (n.color || "#5fe0b0") : (st === "active" || st === "due" ? "var(--fire)" : "var(--pip)"));
-          return `<i style="background:${c}${tipoDe(n) === "hito" ? ";border-radius:999px" : ""}"></i>`;
-        }).join("")}${nodes.length > 12 ? `<span style="font-size:11px">+${nodes.length - 12}</span>` : ""}</span>
-        <span>${nodes.length} talento${nodes.length === 1 ? "" : "s"}</span>
+        <div class="bc-barra"><i style="width:${pct}%"></i></div>
+        <div class="bc-datos">
+          ${enCurso ? `<span class="bc-d curso">${enCurso} en curso</span>` : ""}
+          ${porAbrir ? `<span class="bc-d abre">${porAbrir} por abrir</span>` : ""}
+          ${trabados ? `<span class="bc-d">${trabados} por desbloquear</span>` : ""}
+          ${!enCurso && !porAbrir && !trabados ? `<span class="bc-d">${
+            reales.length ? "todo conseguido" : "sin talentos todavía"}</span>` : ""}
+        </div>
+        ${sigueVale ? `<div class="bc-sigue">${icon(sigue.icon || "star", 13)} <b>Sigue:</b> ${escapeHtml(sigue.name)}</div>` : ""}
       </div>`;
     } else {
       body = `
