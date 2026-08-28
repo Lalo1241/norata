@@ -52,6 +52,47 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.36 · 28 ago 2026
+La racha dice a dónde va y de qué está hecha.
+
+**«Los últimos meses» se va, y con razón.** Eran seis renglones con los días
+activos de cada mes; Eduardo los leyó y dijo que no le decían nada, y mirándolo
+con esa pregunta encima la tenía: es una tabla que casi siempre son ceros o
+números parecidos, no contesta nada que se pueda hacer hoy, y compararte con tu
+marzo no cambia tu jueves. En su sitio van las dos cosas que sí importan de una
+racha, y las dos son de ahora:
+
+- **A dónde va.** Norata ya celebra hitos de racha —3, 7, 14, 30…— pero el
+  número de la tarjeta no decía nunca cuál viene ni cuánto falta: **el premio
+  existía y era invisible.** Ahora se ve el siguiente, lo recorrido desde el
+  anterior y «te faltan 2 días». Sale de `HITOS_RACHA`, la misma lista que
+  dispara la celebración, así que la tarjeta y el festejo no pueden decir cosas
+  distintas.
+- **De qué está hecha.** Casi todas las rachas largas se sostienen sobre una o
+  dos cosas concretas. Ahora se nombran, con sus días: «Caminar 20 minutos ·
+  18». Es lo único de esta tarjeta que sirve para decidir algo — si tu racha
+  vive de una sola misión, ya sabes qué proteger. Se cuenta en **días** y no en
+  veces (una misión cumplida tres veces el martes sostiene un día, no tres) y
+  sobre los últimos treinta, no sobre la racha viva: con una racha de tres días
+  saldrían tres empates de uno.
+
+**El acomodo de tres columnas, reordenado:** identidad, luego lo que sostiene
+la racha, y el calendario al final. El calendario es la pieza más grande y la
+más densa, y en el centro partía la tarjeta en dos mitades que no se hablaban.
+El orden lo pone el CSS y no el marcado, para no tener que mover la tercera
+columna también en los otros dos acomodos.
+
+**Y la identidad va centrada en su columna**, en dos y en tres. Alineada a la
+izquierda se quedaba pegada a la esquina con todo el hueco a su derecha, y en
+una tarjeta que es sobre todo un calendario eso se leía como un descuido.
+
+**El fallo del tirón, arreglado de raíz.** La tarjeta tenía alto automático y
+un suelo de 252 px, así que cuando se le asignaba menos hueco —mientras se
+arrastra el asa de tamaño— **crecía por fuera de su hueco y se quedaba montada
+encima de la de abajo**. Ahora llena su hueco exacto y lo que no cabe se
+recorta, con el fundido que ya usa cualquier otra tarjeta del tablero.
+Comprobado forzando un hueco de dos filas: la tarjeta se queda dentro.
+
 ### 0.7.35.1 · 28 ago 2026
 El acomodo se mide en píxeles, y a esa hora te llamamos por tu nombre.
 
