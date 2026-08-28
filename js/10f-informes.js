@@ -332,6 +332,64 @@ function pruebaInformes() {
   return document.documentElement.classList.contains("informes");
 }
 
+/* ---- Y una segunda puerta: `?informes=demo` ----
+
+   La prueba no se podía juzgar. En una cuenta sin historia no sale ninguna
+   flecha —no hay periodo anterior con el que comparar, y un cero contra otro
+   cero se calla a propósito—, así que la primera vez que se miró parecía que
+   no había cambiado nada. Con datos inventados sí se ve de qué va.
+
+   Los números de abajo NO tocan tus datos: no se guardan, no pasan por
+   `state` y solo existen mientras se dibuja. Y el rótulo de la pantalla lo
+   dice mientras están puestos, porque un panel enseñando cifras que no son
+   tuyas sin avisar es peor que no poder probarlo. */
+function pruebaDemo() {
+  return document.documentElement.classList.contains("informes-demo");
+}
+
+/* Elegidos para que se vean las cuatro caras de una comparación: sube, baja,
+   se queda igual, y no hay nada que comparar. Con todo en verde no se puede
+   opinar sobre si el coral molesta o si el «=» sobra. */
+const DEMO = {
+  misiones: { hoy: 5, marcasA: 23, marcasB: 18, constA: 86, constB: 71, racha: 11 },
+  habilidades: { cuantas: 9, xpA: 1240, xpB: 1580, nivA: 3, nivB: 3, decayendo: 2 },
+  talentos: { enCurso: 3, compA: 1, compB: 0, invA: 1890, invB: 4200, vencen: 1 },
+  proyectos: { vivos: 6, estancados: 2, etapasA: 9, etapasB: 14, terA: 2, terB: 1 }
+};
+
+function statsDemo(modulo) {
+  const d = DEMO[modulo];
+  const f = (a, b, t, op) => flechaHTML(variacion(a, b, op), t + " " + CONTRA);
+
+  if (modulo === "misiones") return [
+    { n: d.hoy, t: "Hoy" },
+    { n: d.marcasA, t: `Cumplidas · ${PANEL_DIAS} días`, tone: "mint", d: f(d.marcasA, d.marcasB, "Marcas de misión") },
+    { n: d.constA + "%", t: "Constancia", d: f(d.constA, d.constB, "Cumplidas de las que tocaban,") },
+    { n: d.racha, t: "Racha", d: `<i class="sh-var mejor" title="Es la racha más larga que has tenido">récord</i>` }
+  ];
+
+  if (modulo === "habilidades") return [
+    { n: d.cuantas, t: "Habilidades" },
+    { n: fmtXp(d.xpA), t: `XP · ${PANEL_DIAS} días`, tone: "mint", d: f(d.xpA, d.xpB, "XP ganada") },
+    { n: d.nivA, t: "Niveles subidos", d: f(d.nivA, d.nivB, "Niveles subidos") },
+    { n: d.decayendo, t: "Decayendo", tone: "fire" }
+  ];
+
+  if (modulo === "talentos") return [
+    { n: d.enCurso, t: "En curso", tone: "fire" },
+    { n: d.compA, t: `Asegurados · ${PANEL_DIAS} días`, tone: "mint", d: f(d.compA, d.compB, "Talentos asegurados") },
+    { n: money(d.invA), t: `Invertido · ${PANEL_DIAS} días`, d: f(d.invA, d.invB, "Invertido", { dinero: true }) },
+    { n: d.vencen, t: "Por vencer", tone: "coral" }
+  ];
+
+  return [
+    { n: d.vivos, t: "Vivos", tone: "mint" },
+    { n: d.estancados, t: "Estancados", tone: "coral" },
+    { n: d.etapasA, t: `Etapas · ${PANEL_DIAS} días`, d: f(d.etapasA, d.etapasB, "Etapas cerradas") },
+    { n: d.terA, t: `Terminados · ${PANEL_DIAS} días`, d: f(d.terA, d.terB, "Encargos terminados") }
+  ];
+}
+
 /* ================= Los cuatro huecos del panel =================
 
    Una función por módulo, y todas devuelven lo mismo: la lista de
@@ -355,6 +413,7 @@ function ventanasPanel() {
 }
 
 function statsPanelMisiones(ctx) {
+  if (pruebaDemo()) return statsDemo("misiones");
   const { a, b } = ventanasPanel();
   const m = metricasMisiones(a), p = metricasMisiones(b);
   const rachas = streakInfo();
@@ -371,19 +430,20 @@ function statsPanelMisiones(ctx) {
     /* Un guion y no un cero cuando no tocaba nada: cero por ciento es haber
        fallado, y no tener nada que hacer no es fallar. */
     { n: m.constancia === null ? "—" : m.constancia + "%", t: "Constancia",
-      d: flechaHTML(variacion(m.constancia, p.constancia, { unidad: "pts" }), `Cumplidas de las que tocaban, ${CONTRA}`) },
+      d: flechaHTML(variacion(m.constancia, p.constancia), `Cumplidas de las que tocaban, ${CONTRA}`) },
     { n: rachas.cur, t: "Racha", d: record }
   ];
 }
 
 function statsPanelHabilidades(ctx) {
+  if (pruebaDemo()) return statsDemo("habilidades");
   const { a, b } = ventanasPanel();
   const m = metricasHabilidades(a), p = metricasHabilidades(b);
 
   return [
     { n: state.skills.length, t: "Habilidades" },
     { n: fmtXp(m.ganada), t: `XP · ${PANEL_DIAS} días`, tone: "mint",
-      d: flechaHTML(variacion(m.ganada, p.ganada, { unidad: "XP" }), `XP ganada ${CONTRA}`) },
+      d: flechaHTML(variacion(m.ganada, p.ganada), `XP ganada ${CONTRA}`) },
     { n: m.niveles, t: "Niveles subidos",
       d: flechaHTML(variacion(m.niveles, p.niveles), `Niveles subidos ${CONTRA}`) },
     /* Sin flecha a propósito: no es un resultado del periodo, es una alarma
@@ -394,6 +454,7 @@ function statsPanelHabilidades(ctx) {
 }
 
 function statsPanelTalentos(ctx) {
+  if (pruebaDemo()) return statsDemo("talentos");
   const { a, b } = ventanasPanel();
   const m = metricasTalentos(a), p = metricasTalentos(b);
   const vencen = talentosPorVencer(PANEL_DIAS).length;
@@ -412,6 +473,7 @@ function statsPanelTalentos(ctx) {
 }
 
 function statsPanelProyectos(ctx) {
+  if (pruebaDemo()) return statsDemo("proyectos");
   const { a, b } = ventanasPanel();
   const m = metricasProyectos(a), p = metricasProyectos(b);
 

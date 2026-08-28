@@ -72,13 +72,22 @@
      nadie se queda mirando una prueba creyendo que es la app.
 
      Aquí arriba y no en el script principal por lo mismo que el modo claro:
-     abajo se vería un instante el panel viejo y luego el cambio. */
+     abajo se vería un instante el panel viejo y luego el cambio.
+
+     Y hay un tercer valor, `?informes=demo`, que enseña los paneles con
+     números INVENTADOS. Existe porque la prueba no se podía juzgar: en una
+     cuenta sin historia no aparece ninguna flecha —no hay con qué comparar—,
+     así que la primera vez que se miró parecía que no había cambiado nada.
+     Los números falsos no tocan tus datos: no se guardan, no pasan por
+     `state` y viven solo en lo que se está dibujando. */
   try {
     var qi = new URLSearchParams(location.search).get("informes");
-    if (qi === "si" || qi === "no") sessionStorage.setItem("norata-prueba-informes", qi);
-    if (sessionStorage.getItem("norata-prueba-informes") === "si") {
+    if (qi === "si" || qi === "no" || qi === "demo") sessionStorage.setItem("norata-prueba-informes", qi);
+    var modoInformes = sessionStorage.getItem("norata-prueba-informes");
+    if (modoInformes === "si" || modoInformes === "demo") {
       document.documentElement.classList.add("informes");
     }
+    if (modoInformes === "demo") document.documentElement.classList.add("informes-demo");
   } catch (e) {}
 
   /* ---- Red de seguridad ----
@@ -212,7 +221,11 @@
      lo que se ve aquí. Se borra entero al quitar la prueba; ver VERSIONES.md,
      que lleva la lista exacta de qué hay que borrar y dónde. -->
 <div class="rotulo-prueba" id="rotulo-informes">
-  Prueba: los paneles con flechas de comparación
+  <!-- Dos rótulos y no uno: con números inventados hay que decirlo en el
+       sitio donde se está mirando. Un panel que enseña datos que no son tuyos
+       sin avisarlo es peor que no poder probarlo. -->
+  <span class="rp-real">Prueba: los paneles con flechas de comparación</span>
+  <span class="rp-demo">Prueba con números inventados: no son tus datos</span>
   <a href="?informes=no">apagar</a>
 </div>
 
