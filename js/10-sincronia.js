@@ -418,7 +418,7 @@ function renderSync() {
      escondido detrás de un menú. */
   panelEl.innerHTML =
     '<div class="stack">' +
-    '<button class="btn btn-primary btn-block" onclick="mostrarPortada()">Iniciar sesión o crear cuenta</button>' +
+    '<button class="btn btn-primary btn-block" onclick="irALaPuerta()">Iniciar sesión o crear cuenta</button>' +
     '</div>' +
     '<p class="field-hint" style="margin-top:10px">Mientras tanto tu progreso se guarda solo en este dispositivo. Al entrar, lo que ya tienes aquí sube a tu cuenta.</p>';
 }
@@ -468,8 +468,9 @@ async function syncDisconnect() {
   syncError = null;
   renderSync();
   pintarAvisoPruebas();
-  mostrarPortada();
-  toast("Sesión cerrada", "deshecho");
+  /* A la puerta, que ya no está aquí dentro. Dejar la app abierta con los
+     datos de quien acaba de salir sería justo lo contrario de lo que pidió. */
+  irALaPuerta();
 }
 
 /* ---- Borrar la cuenta entera ----

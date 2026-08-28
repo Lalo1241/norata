@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#10151d">
+<meta name="color-scheme" content="dark light">
+<!-- La misma muralla que la app. `connect-src` es lo que de verdad aporta:
+     aunque algún día se colara código ajeno, solo podría hablar con este sitio
+     y con nuestro servidor — y esta página maneja contraseñas, así que aquí
+     importa incluso más que en el resto. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: blob:;
+  font-src 'self' data:;
+  connect-src 'self' https://wifffghnyrqfuwqlatci.supabase.co;
+  form-action 'self';
+  base-uri 'none';
+  object-src 'none'">
+<title>Entrar · Norata</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Norata">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- Sin `manifest` a propósito: el que se instala es la app, no la puerta. Con
+     el manifest aquí, quien instalara desde esta pantalla se llevaría un acceso
+     directo que abre el login para siempre, incluso con la sesión ya puesta. -->
+<link rel="stylesheet" href="../css/fuente.css">
+<link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+<script>
+  /* El modo claro, antes de pintar nada. Si esperara al script principal, cada
+     carga empezaría de noche y daría un fogonazo oscuro antes de aclararse.
+     Es la misma llave que usa la app: la preferencia es del aparato y esta
+     pantalla vive en el mismo origen, así que se comparte sola. */
+  try {
+    if (localStorage.getItem("norata-tema") === "claro") {
+      document.documentElement.classList.add("claro");
+      var mtc = document.querySelector('meta[name="theme-color"]');
+      if (mtc) mtc.setAttribute("content", "#f2f4f8");
+    }
+  } catch (e) {}
+</script>
+
+<!-- Los tres huecos que la portada necesita para hablar: la pantalla de
+     esperar, el cuadro de confirmar y los avisos de abajo. Son los mismos
+     ids que en la app porque los usan las MISMAS funciones de `01-base.js`;
+     cambiarlos aquí obligaría a mantener dos versiones de cada una. -->
+<div class="carga" id="carga" role="status" aria-live="polite">
+  <div class="carga-marca">
+    <span class="carga-anillo"></span>
+    <svg viewBox="0 0 250 250" aria-hidden="true"><path d="M224.919,110.004h-5.319c-2.476,0-4.487-2.011-4.487-4.487V25.081c0-4.947-4.027-8.973-8.973-8.973h-87.162c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487H31.811c-8.658,0-15.703,7.046-15.703,15.703v80.436c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v80.432c0,4.947,4.027,8.973,8.973,8.973h87.166c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h55.755c18.556,0,33.65-15.094,33.65-33.65v-62.485c0-4.947-4.027-8.973-8.973-8.973ZM55.91,128.783h-5.319c-2.476,0-4.487-2.011-4.487-4.487v-54.927c0-2.476,2.011-4.487,4.487-4.487h61.657c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h54.923c2.476,0,4.487,2.011,4.487,4.487v61.657c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v45.949c0,7.422-6.038,13.46-13.46,13.46h-52.679c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487h-54.927c-2.476,0-4.487-2.011-4.487-4.487v-61.653c0-4.947-4.027-8.973-8.973-8.973Z"/></svg>
+  </div>
+  <p class="carga-msg" id="carga-msg">Abriendo Norata…</p>
+</div>
+
+<!-- Las tres luces de fondo. Son lo que hace que esta pantalla se reconozca
+     como Norata antes de leer nada. -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="modal-backdrop" id="modal" onclick="modalClicFuera(event, this)">
+  <div class="modal-card">
+    <div class="modal-ic" id="modal-ic" hidden></div>
+    <h3 class="modal-titulo" id="modal-titulo" hidden></h3>
+    <p id="modal-msg"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modal-cancel" onclick="modalDone(false)">Cancelar</button>
+      <button class="btn btn-primary" id="modal-ok" onclick="modalDone(true)">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ============ LOS ARCHIVOS ============
+     CINCO de los diecisiete que carga la app, y ni uno más. Se pudo hacer
+     porque ninguno de ellos ejecuta nada al cargarse: todos son declaraciones,
+     así que traerlos aquí no arranca la app por accidente.
+
+     Lo que NO está es lo que dibuja la app —las vistas, el árbol, el resumen,
+     los ajustes— y `11-arranque.js`, que es lo que la enciende. Esta pantalla
+     no los necesita porque su trabajo termina en cuanto hay sesión: a partir
+     de ahí manda a la raíz y es la app la que se ocupa (ver `portadaEntrada`).
+
+     El ORDEN importa igual que en `index.html`, y `12-login.js` va el último
+     porque es el que arranca. Al tocar esta lista hay que tocar también los
+     ASSETS de `sw.js`. -->
+<script src="../js/01-base.js"></script>
+<script src="../js/10-sincronia.js"></script>
+<script src="../js/10a-perfil.js"></script>
+<script src="../js/10b-supabase.js"></script>
+<script src="../js/10c-portada.js"></script>
+<script src="../js/12-login.js"></script>
+</body>
+</html>

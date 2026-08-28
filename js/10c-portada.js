@@ -253,7 +253,7 @@ function portadaPintar(modo) {
        <p class="portada-lema">Tu cuenta quedó programada para borrarse${fecha ? " el <b>" + escapeHtml(fecha) + "</b>" : ""}. Hasta ese día puedes recuperarla entera —con tu progreso, tus rachas y tu XP— entrando otra vez con tu correo.</p>
        <p class="portada-lema">Gracias por el tiempo que le diste a Norata. Lo que aprendiste jugando a esto sigue siendo tuyo, esté o no la app de por medio.</p>
        <div class="stack">
-         <button class="btn btn-soft btn-block" onclick="portadaIrA('entrar')">Volver a entrar</button>
+         <button class="btn btn-soft btn-block" onclick="irALaPuerta()">Volver a entrar</button>
          <a class="btn btn-ghost btn-block" href="https://www.norata.app">Ir a norata.app</a>
        </div>`;
 
@@ -376,7 +376,11 @@ function cerrarPortada(seca) {
   if (!cap) return;
   /* El título se repone DESPUÉS de quitarla del documento, no antes: mientras
      siga ahí, `titularPestana` la ve y contesta "Norata". */
-  const reponerTitulo = () => titularPestana(activeMainView || "summary");
+  /* En la puerta no hay app que titular, y `titularPestana` vive en un archivo
+     que allí no se carga. */
+  const reponerTitulo = () => {
+    if (typeof titularPestana === "function") titularPestana(activeMainView || "summary");
+  };
   if (seca) { cap.remove(); reponerTitulo(); return; }
   cap.classList.add("fuera");
   setTimeout(() => { cap.remove(); reponerTitulo(); }, 260);
@@ -527,13 +531,71 @@ async function portadaRegistrar() {
    la contraseña, y lo que quedaba a la vista era la app con los datos de
    antes hasta que bajaba lo de la cuenta: la pantalla cambiaba dos veces
    seguidas y eso se lee como un fallo. */
+/* ¿Estamos en la puerta o ya dentro de la app?
+
+   La puerta es una página aparte —`/login/`— y se reconoce sin banderas ni
+   variables globales que haya que acordarse de poner: allí no existe la app.
+   Una bandera se olvida en algún camino; esto no puede desincronizarse porque
+   pregunta por lo que de verdad hay delante. */
+function enLaPuerta() {
+  return !document.getElementById("view-summary");
+}
+
+/* Ir a entrar. Desde la app es un viaje de verdad —la puerta vive en otra
+   dirección desde 0.7.14— y desde la puerta es solo repintar. Un solo sitio
+   con esa decisión, para que ningún botón acabe sabiendo dónde está el login:
+   el día que se mueva otra vez, se mueve aquí. */
+function irALaPuerta() {
+  if (enLaPuerta()) { portadaPintar("entrar"); return; }
+  location.assign("login/");
+}
+
+/* Alguien acaba de entrar. Lo que pasa después depende de dónde estemos, y el
+   reparto es la clave de que el login pueda vivir en su propia página:
+
+     en la puerta   se guarda la sesión y se manda a la raíz. Nada más.
+     en la app      se adopta la sesión: se baja el progreso, se aparta lo de
+                    otra cuenta si la hubiera, y se pinta.
+
+   Todo lo que necesita `state`, `syncRun` o las vistas está en la segunda
+   mitad, que es justo lo que la puerta no tiene cargado. Por eso se pudo
+   partir sin duplicar una sola línea. */
 async function portadaEntrada(correo, mensaje) {
   /* Lo primero, antes de dar la sesión por buena: ¿esta cuenta está esperando
      a borrarse? Quien pidió borrarla y vuelve no viene a usar la app, viene a
-     decidir. Entrar como si nada le escondería justo eso. */
+     decidir. Entrar como si nada le escondería justo eso. Se pregunta en los
+     dos sitios: mandarle a la app para que se entere allí sería enseñarle su
+     progreso un segundo antes de decirle que se va a borrar. */
   const pendiente = await sbBorradoPendiente();
   if (pendiente) { mostrarRescate(pendiente); return; }
 
+  if (enLaPuerta()) {
+    /* La sesión ya está escrita en el aparato (la escribió `sbEntrar`). Lo que
+       queda es avisar a la app de que llega alguien recién entrado, para que
+       haga la adopción, y salir de aquí.
+
+       El aviso va en `sessionStorage` y no en la dirección: por la dirección
+       viajaría a la barra, al historial y a lo que se copie al compartir, y lo
+       que hay que pasar es «acaba de entrar», que no es asunto de nadie más.
+
+       `replace` y no `assign`: el botón de atrás desde la app no puede
+       devolver al formulario de entrar de una sesión que ya está abierta. */
+    try {
+      sessionStorage.setItem("norata-recien", "1");
+      if (mensaje) sessionStorage.setItem("norata-recien-aviso", mensaje);
+    } catch (e) { /* sin esto solo se pierde el saludo, no la sesión */ }
+    cargaMostrar(mensaje || "Entrando…");
+    location.replace("../");
+    return;
+  }
+
+  await adoptarSesion(mensaje);
+}
+
+/* La segunda mitad: hacer sitio en ESTE dispositivo a la sesión que ya está
+   guardada. La llama `portadaEntrada` cuando se entra desde dentro de la app,
+   y el arranque cuando se llega rebotado desde la puerta. */
+async function adoptarSesion(mensaje) {
   const uid = ((sync.cfg || {}).sesion || {}).uid || null;
 
   if (sync.dueño && uid && sync.dueño !== uid) {
@@ -661,6 +723,17 @@ function salirDelRescate() {
 function portadaSinCuenta() {
   sync.entrada = "local";
   saveSync();
+
+  /* Desde la puerta esto es un viaje: detrás de esta pantalla no hay app que
+     destapar —es una página aparte—, así que cerrar la portada dejaría un
+     fondo vacío. La marca `entrada: "local"` ya está guardada, que es lo único
+     que la app necesita para no volver a mandar aquí. */
+  if (enLaPuerta()) {
+    cargaMostrar("Abriendo Norata…");
+    location.replace("../");
+    return;
+  }
+
   cerrarPortada();
   toast("Guardando solo en este dispositivo", "calma");
   // Con retraso: la portada tarda un cuarto de segundo en irse

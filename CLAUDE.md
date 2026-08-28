@@ -13,6 +13,13 @@ navegador entiende tal cual. Tres consecuencias que muerden si se olvidan:
 1. **El orden de los `<script>` importa.** Están numerados (`01-base.js` →
    `11-arranque.js`) y el último es el que arranca. Al añadir un archivo hay
    que registrarlo en DOS sitios: `index.html` y la lista `ASSETS` de `sw.js`.
+   **Y hay DOS páginas desde 0.7.14:** `index.html` es la app (los diecisiete
+   archivos) y `login/index.html` es la puerta (seis: `01-base`, `10-sincronia`,
+   `10a-perfil`, `10b-supabase`, `10c-portada` y `12-login.js`, que es el que
+   arranca allí). La puerta funciona porque **ninguno de esos seis ejecuta nada
+   al cargarse**; si algún día uno empieza a hacerlo, la puerta arrancará media
+   app sin querer. Sus rutas van con `../`, y `logotipoSrc()` lo resuelve mirando
+   si existe la app.
 2. **Hay que subir la versión al tocar cualquier archivo de `ASSETS`** (ver
    abajo). Si no, los aparatos ya instalados siguen sirviendo la copia vieja.
 3. **Hace falta servirla por HTTP.** `python -m http.server 8123`. Abrir

@@ -127,8 +127,43 @@ showView("summary");
   /* El atajo de los correos de aviso (`#olvide`) va después de recoger la
      sesión y antes de decidir si hace falta portada: no es una sesión que
      recoger, pero sí abre la portada por su cuenta, y preguntar después
-     «¿hace falta?» la abriría dos veces o ninguna. */
+     «¿hace falta?» la abriría dos veces o ninguna.
+
+     Los dos siguen viviendo aquí y no solo en la puerta: los enlaces de los
+     correos ya mandados apuntan a la raíz, y van a seguir llegando durante
+     meses. Aterrizan aquí, se recoge la sesión, y desde 0.7.14 lo que no
+     traiga sesión se va a `/login/` unas líneas más abajo. */
   const veniaAOlvidar = !veniaDeGoogle && portadaAtajoOlvide();
+
+  /* ---- La puerta está en otra dirección ----
+     Quien no tenga sesión ni haya elegido usar la app sin cuenta no pinta nada
+     aquí: se va a `/login/`, que es donde vive ese formulario desde 0.7.14.
+     `replace` para que el botón de atrás no le devuelva a una app vacía.
+
+     `veniaAOlvidar` frena el reboto a propósito: ese camino abre la portada en
+     esta misma página con el correo puesto, y mandarlo a la puerta perdería
+     por el camino lo que el enlace traía. */
+  if (!veniaAOlvidar && portadaHaceFalta()) { location.replace("login/"); return; }
+
+  /* Y quien llega rebotado DESDE la puerta trae una marca: la sesión ya está
+     guardada, pero este dispositivo todavía no ha hecho sitio para ella —bajar
+     el progreso, apartar lo de otra cuenta si la hubiera—. Eso es
+     `adoptarSesion`, la segunda mitad de lo que antes hacía `portadaEntrada`. */
+  let recien = null;
+  try {
+    if (sessionStorage.getItem("norata-recien")) {
+      recien = sessionStorage.getItem("norata-recien-aviso") || "";
+      sessionStorage.removeItem("norata-recien");
+      sessionStorage.removeItem("norata-recien-aviso");
+    }
+  } catch (e) { /* sin esto solo se pierde el saludo */ }
+
+  if (recien !== null && syncReady()) {
+    await adoptarSesion(recien || undefined);
+    pintarAvisoPruebas();
+    return;
+  }
+
   if (!veniaDeGoogle && !veniaAOlvidar && portadaHaceFalta()) mostrarPortada();
   pintarAvisoPruebas();
 
