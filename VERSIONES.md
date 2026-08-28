@@ -52,6 +52,42 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.35.1 · 28 ago 2026
+El acomodo se mide en píxeles, y a esa hora te llamamos por tu nombre.
+
+**«Una columna» no quiere decir «estrecha», y ese era el error de fondo.** El
+acomodo de 0.7.35 se decidía por el número de columnas del tablero, así que la
+misma etiqueta describía dos cosas muy distintas: una columna en escritorio son
+unos 470 px —sitio de sobra para poner la identidad al lado del mes— y en el
+teléfono son 340, donde no cabe ninguno. Resultado: una tarjeta estrecha en la
+computadora se apilaba y acaparaba media pantalla de alto.
+
+Ahora manda el ancho real de la tarjeta, con `@container`, que es exactamente
+lo que hace falta aquí y no una consulta de ventana: dos tarjetas de la misma
+pantalla pueden medir la mitad una que la otra.
+
+- Por debajo de 430 px, apilada y con la casilla topada a 44 —el caso del
+  teléfono—.
+- A partir de 430, los dos bloques lado a lado con casillas de 30. Es lo que
+  devuelve la tarjeta de una columna a **cinco filas** de alto en vez de nueve,
+  que es como estaba antes de todo esto y estaba bien.
+- A partir de 760, las casillas vuelven a 42.
+- A partir de 1150, la tercera columna con los últimos meses.
+
+**Y el tirón para cambiar el tamaño deja de mentir.** La racha decide su alto
+por su ancho, pero el arrastre seguía dejando estirarla hacia abajo y al soltar
+volvía de golpe a su sitio: el tirón funcionaba, la tarjeta no obedecía, y eso
+no se lee como una regla sino como algo roto. Ahora el alto sigue al ancho
+mientras se arrastra, así que lo que se ve es lo que se guarda.
+
+**El saludo de madrugada, otra vez.** Los dos intentos fallaron por el mismo
+sitio: «trasnochador» le pone género a quien lee, y «madrugada» acaba saludando
+al reloj. A esa hora se usa lo único que siempre es correcto: **su nombre** —el
+apodo si lo puso, y si no el primero de su nombre, que es la misma respuesta
+que usan los correos y el menú de la cuenta—. Sin cuenta no hay nombre, y
+entonces «buenas noches», que a las cuatro de la mañana es lo que dice
+cualquiera en México.
+
 ### 0.7.35 · 28 ago 2026
 La racha sabe de qué ancho es, y el alto deja de ser una decisión.
 

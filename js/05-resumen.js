@@ -1,14 +1,22 @@
 /* Resumen, tablero, catálogo y el motor de sugerencia */
 /* ================= Render: resumen ================= */
 
-/* El saludo de la madrugada saluda a la HORA y no a la persona, y esa es toda
-   la idea: «trasnochador» le pone género a quien lee —y una «a» detrás no lo
-   arregla, lo alarga— además de sonar a reproche amable. La hora no tiene
-   género y aquí sí hay algo bonito que decir: son las cuatro de la mañana y
-   la tarjeta es un cielo estrellado. */
+/* La madrugada no tiene saludo propio en español, y los dos intentos lo
+   demostraron: «trasnochador» le pone género a quien lee —y una «a» detrás no
+   lo arregla, lo alarga— y «madrugada» acaba saludando al reloj, que además de
+   raro no le habla a nadie.
+
+   Así que a esa hora se usa lo único que siempre es correcto: **su nombre.**
+   El apodo si lo puso, y si no el primero de su nombre —eso es `saludoActual`,
+   la misma respuesta que usan los correos y el menú de la cuenta—. Sin cuenta
+   no hay nombre, y entonces «buenas noches», que a las cuatro de la mañana es
+   lo que dice cualquiera en México. */
 function greeting() {
   const h = hourNow();
-  if (h < 6) return "Hola, madrugada";
+  if (h < 6) {
+    const q = typeof saludoActual === "function" ? saludoActual() : "";
+    return q ? "Hola, " + q : "Buenas noches";
+  }
   if (h < 12) return "Buenos días";
   if (h < 19) return "Buenas tardes";
   return "Buenas noches";
@@ -351,7 +359,7 @@ function renderSummary() {
       const sz = dashSize(id);
       const p = sitio[id];
       return `
-      <div class="widget" data-w="${id}" data-ancho="${sz.w}" style="--w:${sz.w};--h:${sz.h}${
+      <div class="widget" data-w="${id}" style="--w:${sz.w};--h:${sz.h}${
         p ? `;--c:${p.c + 1};--f:${p.f + 1}` : ""}">
         ${body}
         <div class="w-edit">
@@ -764,11 +772,18 @@ function altoMinimo(id) { return DASH_MIN_H[id] || 2; }
 
    Se aplica al leer Y al escribir: al leer, para que un tablero guardado con
    la altura vieja se corrija solo sin que nadie tenga que tocar nada. */
-/* Medido con el peor mes posible —uno de seis semanas, como agosto de 2026—
-   más un poco de aire: apilada pide 606 px y en dos o tres columnas 372. Una
-   fila del tablero son 56 px con 24 de hueco, así que 9 filas dan 696 y 6 dan
-   456. Lo que sobre lo reparte el propio cuerpo, que va centrado. */
-const ALTO_RACHA = { 1: 9, 2: 6, 3: 6 };
+/* Cinco filas de una columna, seis de dos o de tres. Las nueve de antes eran
+   demasiado —una tarjeta de una columna acaparaba media pantalla— y salían de
+   dar por hecho que estrecha significaba apilada. No: una columna del tablero
+   son unos 470 px, sitio de sobra para poner la identidad al lado del mes con
+   las casillas más pequeñas. Quien de verdad apila es el teléfono, y ahí el
+   alto lo pone el contenido y no esta tabla.
+
+   Medido con el peor mes posible, uno de seis semanas como agosto de 2026:
+   308 px de una columna y 372 de dos. Una fila del tablero son 56 px con 24
+   de hueco, así que 5 filas dan 376 y 6 dan 456. Lo que sobre lo reparte el
+   cuerpo, que va centrado. */
+const ALTO_RACHA = { 1: 5, 2: 6, 3: 6 };
 function altoDeRacha(w) { return ALTO_RACHA[w] || ALTO_RACHA[2]; }
 
 /* El suelo se aplica al LEER, no solo al arrastrar. Si no, un tablero
@@ -1072,7 +1087,14 @@ function attachDashHandlers() {
       const dw = Math.round((e.clientX - sizeStart.x) / (cellW + ROW_GAP));
       const dh = Math.round((e.clientY - sizeStart.y) / ROW_H);
       const w = clamp(sizeStart.w + dw, 1, sizeStart.max);
-      const h = clamp(sizeStart.h + dh, altoMinimo(sizeId), DASH_MAX_H);
+      /* El alto de la racha no se arrastra: lo decide su ancho. Antes se
+         dejaba estirar y al soltar volvía de golpe a su sitio — el tirón
+         funcionaba, la tarjeta no obedecía, y eso no se lee como una regla
+         sino como algo roto. Ahora la altura sigue al ancho mientras se
+         arrastra, así que lo que se ve es lo que se guarda. */
+      const h = sizeId === "racha"
+        ? altoDeRacha(w)
+        : clamp(sizeStart.h + dh, altoMinimo(sizeId), DASH_MAX_H);
       el.style.setProperty("--w", w);
       el.style.setProperty("--h", h);
       return;
