@@ -52,6 +52,33 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.27.1 · 27 ago 2026
+El botón de reportar se muda a la barra, y pregunta con una caja de verdad.
+
+- **Estaba flotando en la esquina de abajo a la derecha y Eduardo no lo
+  encontraba** —«sigo sin ver el botón por ninguna parte»—, dos veces. Y tenía
+  razón: un botón suelto en el borde de la pantalla no se busca, se descubre
+  por accidente o no se descubre. Ahora vive donde la gente ya va a buscar «lo
+  de la app»: **en la barra, entre Ajustes y el número de versión**. En el
+  teléfono, que no tiene barra, va al pie de Ajustes junto al número — el
+  mismo sitio equivalente, igual que ya hacía la versión.
+- **Y pregunta con una caja de comentario, no con un renglón.** Contar un
+  fallo son dos o tres frases —qué hacías, qué esperabas, qué pasó— y en un
+  campo de una línea que se desplaza de lado la gente escribe cuatro palabras
+  y se rinde. Es la misma caja que la de despedirse de la cuenta, a propósito:
+  en los dos sitios lo que hay es una persona escribiéndonos con sus palabras.
+  Nace `askComentario`, que enseña solo el área de texto con su contador —
+  `askText` ya sabía hacerlo, pero únicamente debajo de un campo de nombre, y
+  aquí ese campo no existe.
+- **Sin Enter para enviar**, al revés que el campo de una línea: aquí el salto
+  de línea es parte de lo que se escribe, y robárselo mandaría el mensaje a la
+  mitad de la primera frase. El tope sube de 280 a 500.
+- El botón del teléfono se escondía en la computadora con una regla de clase,
+  y perdía: `.btn` declara `display` trescientas líneas más abajo con la misma
+  especificidad, así que ganaba por orden y el botón salía en los dos sitios.
+  Va por el id, que gana siempre y no depende de dónde caiga el bloque el día
+  que alguien reordene el archivo.
+
 ### 0.7.27 · 27 ago 2026
 El informe deja de enseñar y empieza a decir.
 

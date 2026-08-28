@@ -1433,38 +1433,35 @@
   /* En la computadora el número ya vive al pie de la barra lateral */
   @media (min-width: 900px) { .version-pie { display: none; } }
 
-  /* ---------- El botón de reportar un fallo ----------
-     Abajo a la derecha, pequeño y apagado. Es un botón que casi nadie va a
-     pulsar y que TIENE que estar cuando haga falta: si llamara la atención
-     como el de crear, competiría todo el día con lo que la gente viene a
-     hacer, y si se escondiera en Ajustes no serviría para lo único que
-     sirve — avisar en el momento en que algo se rompió.
+  /* ---------- Reportar un fallo ----------
+     Empezó siendo una pastilla flotando en la esquina de abajo a la derecha y
+     Eduardo no la encontraba: «sigo sin ver el botón por ninguna parte». Y
+     tenía razón — un botón suelto en el borde de la pantalla no se busca, se
+     descubre por accidente. Ahora vive donde la gente ya va a buscar «lo de
+     la app»: en la barra, entre Ajustes y el número de versión.
 
-     Por encima de la barra pero por debajo de todo lo que se abre: con un
-     cuadro de confirmar en pantalla no puede quedar un bicho flotando encima.
+     En la barra hereda todo de `.c-nav`, así que aquí solo queda el color: no
+     es navegación, es una salida, y en el mismo tono que Misiones competiría
+     con ellas todo el día.
 
-     En el teléfono sube por encima de la barra de navegación, que ocupa el
-     fondo entero; en la computadora la barra vive a la izquierda y la esquina
-     de abajo a la derecha está libre. Los dos casos salen de la misma regla
-     con distinto `bottom`, y ninguno usa `right` distinto: la esquina es la
-     misma en los dos. */
-  .bug-btn {
-    position: fixed;
-    right: calc(14px + env(safe-area-inset-right));
-    bottom: calc(92px + env(safe-area-inset-bottom));
-    z-index: var(--piso-flotante);
-    width: 38px; height: 38px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 999px;
-    background: var(--card2);
-    border: 1px solid var(--line);
-    color: var(--muted);
-    cursor: pointer;
-    /* Sin transición: el color sale de una variable y Chrome lo deja clavado
-       en el inicial al cambiar de modo (ver la nota del modo claro). */
+     El del teléfono es un botón normal de los de Ajustes (`btn-linea`), que
+     es lo que corresponde: no escribe nada tuyo, abre una caja para contar
+     algo. */
+  #bug-btn { color: var(--faint); }
+  #bug-btn:hover { color: var(--fire); border-color: var(--fire); }
+  #bug-ic, #bug-ic-pie { display: flex; }
+
+  /* Por el id y no por la clase, a propósito: `.btn` declara `display` unas
+     trescientas líneas más abajo con la misma especificidad, así que una regla
+     `.bug-pie` pierde por orden y el botón se seguía viendo en la computadora,
+     donde ya vive en la barra. El id gana siempre, sin depender de dónde caiga
+     este bloque el día que alguien reordene el archivo. */
+  #bug-pie {
+    margin-top: 22px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
   }
-  .bug-btn:hover { color: var(--fire); border-color: var(--fire); }
-  .bug-btn .ic { display: flex; }
+  /* En la computadora el botón ya vive en la barra, igual que el número */
+  @media (min-width: 900px) { #bug-pie { display: none; } }
 
   /* ---------- El mini menú del engrane ----------
      Mismo lenguaje que el menú del clic derecho del árbol: una tarjeta que
@@ -5206,10 +5203,6 @@
        de él. */
     .side-version .sv-etapa { color: var(--mint); font-weight: 800; }
 
-    /* En la computadora la barra vive a la izquierda, así que la esquina de
-       abajo a la derecha está libre y el bicho baja del todo. En el teléfono
-       se queda a 92 px, por encima de la barra de navegación. */
-    .bug-btn { bottom: calc(18px + env(safe-area-inset-bottom)); }
     /* Plegada, la barra son 84 px: solo cabe el número, y centrado. La fecha
        se va antes que el número porque la pregunta que se contesta aquí es
        "¿cuál está puesta?", no "¿de cuándo es?". */

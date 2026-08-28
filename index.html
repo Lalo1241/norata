@@ -770,6 +770,13 @@
     <!-- El mismo dato que la barra lateral, para el teléfono, que no tiene
          barra. En la computadora se esconde por CSS: allí el número ya vive
          al pie de la barra y saldría dos veces. -->
+    <!-- El equivalente del botón de la barra, para el teléfono. Va junto al
+         número de versión por el mismo motivo que allí va junto a Ajustes:
+         es donde alguien busca «lo de la app». En la computadora se esconde
+         igual que el número, que allí ya vive en la barra. -->
+    <button class="btn btn-linea btn-block bug-pie" id="bug-pie" onclick="reportarFallo()">
+      <span id="bug-ic-pie"></span> Reportar un fallo
+    </button>
     <div class="version-pie" id="version-pie"></div>
   </div>
 
@@ -839,20 +846,21 @@
     <svg viewBox="0 0 24 24"><path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/></svg>
     <span class="nav-label">Ajustes</span>
   </button>
+  <!-- Reportar un fallo, en la barra y no flotando en una esquina. Vive
+       aquí porque es donde la gente ya viene a buscar «lo de la app» —Ajustes
+       está justo encima y la versión justo debajo—, y una pastilla suelta en
+       el borde de la pantalla no se encuentra: se descubre por accidente o no
+       se descubre. Con la barra plegada queda solo el bicho, como los demás. -->
+  <button class="c-nav side-only" id="bug-btn" onclick="reportarFallo()"
+          aria-label="Reportar un fallo" title="Reportar un fallo">
+    <span id="bug-ic"></span>
+    <span class="nav-label">Reportar un fallo</span>
+  </button>
   <!-- En qué versión va lo que estás viendo AHORA MISMO. Debajo de Ajustes y
        no dentro: es un dato de la app, no algo que se pueda tocar. Lo escribe
        el JS desde VERSION para que no haya dos números que puedan discrepar. -->
   <div class="side-version side-only" id="side-version" title="Versión de la app"></div>
 </div>
-
-<!-- ============ REPORTAR UN FALLO ============
-     Abajo a la derecha y fuera de la barra de navegación a propósito: no es
-     una sección de la app, es una salida de emergencia. Tiene que estar en la
-     misma esquina en todas las pantallas, incluida aquella en la que algo se
-     acaba de romper — y si viviera dentro de la barra, la pantalla que la
-     tapa se llevaría también el botón para avisar de que la tapa. -->
-<button class="bug-btn" id="bug-btn" onclick="reportarFallo()"
-        aria-label="Reportar un fallo" title="Reportar un fallo"></button>
 
 <!-- ============ RAMA A PANTALLA COMPLETA ============ -->
 <div class="fs-overlay" id="fs-overlay">

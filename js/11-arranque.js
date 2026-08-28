@@ -46,7 +46,8 @@ vigilarCapas();
    Los tres de siempre nunca lo notaron porque llevan meses en el HTML. El
    riesgo es exactamente el de los NUEVOS, que es cuando las dos copias
    discrepan. Por eso el bucle: el día que se añada el cuarto, ya está. */
-[["bug-btn", "bicho", 20],
+[["bug-ic", "bicho", 20],
+ ["bug-ic-pie", "bicho", 16],
  ["settings-btn", "settings", 19],
  ["dash-btn", "gamepad", 19],
  ["perm-shield", "shield", 16]].forEach(([id, nombre, tam]) => {
