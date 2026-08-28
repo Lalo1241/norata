@@ -1023,21 +1023,27 @@ document.addEventListener("pointerdown", (e) => {
    puede entrar es justo quien más necesita poder avisar de que no puede
    entrar. */
 async function reportarFallo() {
-  const texto = await askText(
+  /* Caja de comentario y no un campo de una línea: contar un fallo son dos o
+     tres frases —qué hacías, qué esperabas, qué pasó— y en un renglón que se
+     desplaza de lado la gente escribe cuatro palabras y se rinde. Es la misma
+     caja que la de despedirse de la cuenta, a propósito: en los dos sitios lo
+     que hay es una persona escribiéndonos con sus palabras. */
+  const texto = await askComentario(
     "¿Qué salió mal?",
-    "",
+    "Cuéntamelo como se lo contarías a alguien: qué hacías y qué pasó.",
     "Enviar",
-    "Cuéntamelo como se lo contarías a alguien: qué hacías y qué pasó. Si sabes en qué pantalla fue, dímelo — con eso lo encuentro mucho más rápido.",
-    /* 280 y no 300, que es el tope del servidor: los últimos veinte se los
-       come la pantalla que se añade abajo, y un mensaje recortado a la mitad
-       por culpa de una etiqueta que puso la app sería peor que no tenerla. */
-    280);
+    "Al abrir un talento se queda la pantalla en blanco…");
   if (texto === null) return;
   const limpio = String(texto).trim();
   if (!limpio) { toast("No mandé nada: el mensaje venía vacío.", "atencion"); return; }
 
   /* La pantalla desde la que se reporta, pegada al final. Es el dato que más
-     ahorra al buscarlo y el que nadie escribe por su cuenta. */
+     ahorra al buscarlo y el que nadie escribe por su cuenta.
+
+     El recorte a 300 lo hace el servidor (ver `apuntar_tropiezo`), así que la
+     etiqueta se pone ANTES de que él corte y puede perderse en un mensaje muy
+     largo. Se acepta: si alguien llenó los 500 caracteres contando el fallo,
+     lo que ha escrito vale más que saber en qué pestaña estaba. */
   const donde = (typeof activeMainView !== "undefined" && activeMainView) ? activeMainView : "";
   const mensaje = limpio + (donde ? ` [en: ${donde}]` : "");
 
