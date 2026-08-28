@@ -246,37 +246,57 @@ function renderFullscreen() {
 
   const b = fullscreenBranch;
   const nodes = branchNodes(b);
-  // Si la rama desapareció (por ejemplo, al borrarla) no hay nada que abrir
-  if (!nodes.length && !state.perks.some(p => (p.branch || "General") === b)) {
+  /* Vacía y desaparecida no son lo mismo, y confundirlas costó el fallo que no
+     se podía diagnosticar mirando: una rama recién creada —que todavía no
+     tiene ningún talento— salía por aquí, así que tocar «Ver en pantalla
+     completa» no hacía absolutamente nada. Ni se abría, ni avisaba, ni
+     fallaba: el modo se encendía y se apagaba en la misma vuelta. Y es justo
+     cuando más se toca esa opción, porque acabas de crear la rama y vas a
+     llenarla.
+
+     Ahora solo se cierra si la rama YA NO EXISTE —se borró estando dentro—.
+     Una rama vacía se abre y enseña qué hacer, igual que en la lista. */
+  if (!ramasDe("perks").includes(b)) {
     closeBranchFullscreen();
     return;
   }
   const ba = escapeAttr(b);
+  /* `ba` para los atributos normales y `bj` para lo que va dentro de las
+     comillas simples de un `onclick`. Ver `enJS`. */
+  const bj = enJS(b);
   const editing = editBranch === b;
   const doneN = nodes.filter(n => n.status === "completed").length;
 
   document.getElementById("fs-name").textContent = b;
   document.getElementById("fs-count").textContent = `${doneN} de ${nodes.length}`;
   document.getElementById("fs-tools").innerHTML = `
-    ${editing ? "" : `<button class="badd solid" onclick="focusBranchFront('${ba}')" aria-label="Centrar en lo que sigue" title="Centrar en lo que sigue"><svg viewBox="0 0 24 24">${BM_ICONS.flecha}</svg></button>`}
-    <button class="badd solid ${editing ? "on" : ""}" onclick="toggleEditBranch('${ba}')" aria-label="Editar el mapa"><svg viewBox="0 0 24 24">${BM_ICONS.lapiz}</svg></button>
-    <button class="badd solid ${modoElegir ? "on" : ""}" onclick="toggleElegirVarios('${ba}')" aria-label="Elegir varios talentos" title="Elegir varios talentos"><svg viewBox="0 0 24 24">${BM_ICONS.caja}</svg></button>
-    <button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>`;
+    ${editing ? "" : `<button class="badd solid" onclick="focusBranchFront('${bj}')" aria-label="Centrar en lo que sigue" title="Centrar en lo que sigue"><svg viewBox="0 0 24 24">${BM_ICONS.flecha}</svg></button>`}
+    <button class="badd solid ${editing ? "on" : ""}" onclick="toggleEditBranch('${bj}')" aria-label="Editar el mapa"><svg viewBox="0 0 24 24">${BM_ICONS.lapiz}</svg></button>
+    <button class="badd solid ${modoElegir ? "on" : ""}" onclick="toggleElegirVarios('${bj}')" aria-label="Elegir varios talentos" title="Elegir varios talentos"><svg viewBox="0 0 24 24">${BM_ICONS.caja}</svg></button>
+    <button class="badd" onclick="openPerkForm(null, '${bj}')" aria-label="Añadir talento a ${ba}">＋</button>`;
 
   /* La clave del SVG es distinta de la que usa la lista: si coincidiera,
      los dos lienzos compartirían los ids de los filtros y el brillo se
      aplicaría al equivocado. */
-  document.getElementById("fs-body").innerHTML = `
+  /* Sin talentos no se pinta un lienzo en blanco —parecería roto— sino el
+     mismo mensaje que la lista, con la salida a mano: el ＋ está arriba. */
+  document.getElementById("fs-body").innerHTML = !nodes.length
+    ? `<p class="col-vacia" style="margin:auto;text-align:center;max-width:34ch">Todavía no hay talentos en esta rama. Créale el primero con el ＋ de arriba.</p>`
+    : `
     <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, 900, editing, b)}</div>
     <div class="fs-hint">${editing
       ? "Arrastra para acomodar · <b>Shift</b> y clic (o Shift y arrastra un recuadro) elige varios · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia la regla de entrada"
       : "Arrastra el fondo para recorrer la rama · toca un nodo para abrirlo y arrástralo para acomodarlo"}${atajosLegend()}</div>`;
 
   ov.classList.add("show");
-  if (editing) attachEditHandlers(ov);
-  else attachPanHandlers(ov);
-  attachCtxHandlers(ov);
-  encuadrarLienzos(ov);
+  /* Los manejadores del lienzo solo si hay lienzo: sin él, `encuadrarLienzos`
+     mide un elemento que no existe. */
+  if (nodes.length) {
+    if (editing) attachEditHandlers(ov);
+    else attachPanHandlers(ov);
+    attachCtxHandlers(ov);
+    encuadrarLienzos(ov);
+  }
 }
 
 /* ================= Editor del árbol: teclado, deshacer y creación rápida =================
@@ -381,6 +401,10 @@ function atajosLegend(compacta) {
 function crearTalentoRapido(branch, tipo, pos) {
   const t = TIPOS[tipo];
   if (!branch || !t) return;
+  /* El tope del plan se mira aquí y no dentro del atajo de teclado: por esta
+     puerta se entra también desde el menú del clic derecho, y un tope que solo
+     vigila una de las dos entradas no es un tope. */
+  if (!cabeUnoMas("talentos", talentosDeRama(branch).length)) { topeAlcanzado("talentos"); return; }
   pushUndo(`crear ${t.nombre.toLowerCase()}`);
   fijarPosiciones(branch);
   const n = state.perks.length;
@@ -411,6 +435,9 @@ function duplicarTalento(id, pos) {
   const orig = state.perks.find(p => p.id === id);
   if (!orig) return;
   const branch = orig.branch || "General";
+  /* Duplicar es crear: si no se mirara aquí, el tope se saltaría con el atajo
+     más cómodo que tiene la app. */
+  if (!cabeUnoMas("talentos", talentosDeRama(branch).length)) { topeAlcanzado("talentos"); return; }
   pushUndo("duplicar un talento");
   fijarPosiciones(branch);
 
@@ -488,6 +515,31 @@ function posDeAtajo(branch) {
   return (cursorRama && cursorRama.branch === branch) ? { x: cursorRama.x, y: cursorRama.y } : null;
 }
 
+/* ---- Enfriamiento de las teclas que crean ----
+   `e.repeat` solo para la tecla SOSTENIDA. Repicándola —que es lo que hace
+   cualquiera al probar el atajo— el navegador manda pulsaciones de verdad, y
+   con Q, W y E se sembraba la rama de decenas de talentos en dos segundos.
+   Cada uno arrastra un guardado, un repintado del árbol completo, una entrada
+   en la pila de deshacer y un aviso; y luego hay que borrarlos de uno en uno.
+
+   Medio segundo: por debajo de eso ya no es una decisión, es un repique. Crear
+   dos talentos seguidos a propósito cuesta un parpadeo más y no se nota; el
+   repique se corta entero.
+
+   No lleva aviso. Un atajo que no hizo nada porque fue demasiado rápido se
+   entiende solo al segundo intento, y llenar la pantalla de mensajes por algo
+   que el usuario ni pretendía sería más molesto que el problema. Lo que sí
+   hay es una pista visible: el aviso de creación no aparece. */
+const ATAJO_ENFRIAMIENTO = 500;
+let atajoUltimo = 0;
+
+function atajoEnfriado() {
+  const ahora = Date.now();
+  if (ahora - atajoUltimo < ATAJO_ENFRIAMIENTO) return false;
+  atajoUltimo = ahora;
+  return true;
+}
+
 function escribiendo(el) {
   if (!el) return false;
   const t = (el.tagName || "").toUpperCase();
@@ -524,10 +576,15 @@ document.addEventListener("keydown", (e) => {
   if (!rama) return;
 
   const k = e.key.toLowerCase();
-  if (k === "c") { e.preventDefault(); toggleEditBranch(rama); }
-  else if (k === "q") { e.preventDefault(); crearTalentoRapido(rama, "hito", posDeAtajo(rama)); }
-  else if (k === "w") { e.preventDefault(); crearTalentoRapido(rama, "meta", posDeAtajo(rama)); }
-  else if (k === "e") { e.preventDefault(); crearTalentoRapido(rama, "compra", posDeAtajo(rama)); }
+  /* La C no se enfría: alternar el modo de edición no crea nada, y llevar la
+     cuenta de las tres que sí crean por separado de la que no lo hace es lo
+     que evita que pulsar C gaste el turno de la Q. */
+  if (k === "c") { e.preventDefault(); toggleEditBranch(rama); return; }
+  const tipo = k === "q" ? "hito" : k === "w" ? "meta" : k === "e" ? "compra" : null;
+  if (!tipo) return;
+  e.preventDefault();
+  if (!atajoEnfriado()) return;
+  crearTalentoRapido(rama, tipo, posDeAtajo(rama));
 });
 
 /* ---- Menú de clic derecho sobre el lienzo ---- */
@@ -580,12 +637,12 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId) {
        formulario para que la mano aprenda una sola disposición. */
     /* La figura acompana al nombre, igual que en la linea de ayuda: es la
        misma pista en los dos sitios, asi que se aprende una sola vez. */
-    item(`${TIPOS.meta.glifo} ${TIPOS.meta.nombre}`, "Se sostiene en el tiempo y avanza por etapas", "W", `ctxCrear('${escapeAttr(branch)}','meta')`) +
-    item(`${TIPOS.compra.glifo} ${TIPOS.compra.nombre}`, "Una llave que se paga y abre el paso", "E", `ctxCrear('${escapeAttr(branch)}','compra')`) +
-    item(`${TIPOS.hito.glifo} ${TIPOS.hito.nombre}`, "Una acción puntual que se cierra en sí misma", "Q", `ctxCrear('${escapeAttr(branch)}','hito')`) +
+    item(`${TIPOS.meta.glifo} ${TIPOS.meta.nombre}`, "Se sostiene en el tiempo y avanza por etapas", "W", `ctxCrear('${enJS(branch)}','meta')`) +
+    item(`${TIPOS.compra.glifo} ${TIPOS.compra.nombre}`, "Una llave que se paga y abre el paso", "E", `ctxCrear('${enJS(branch)}','compra')`) +
+    item(`${TIPOS.hito.glifo} ${TIPOS.hito.nombre}`, "Una acción puntual que se cierra en sí misma", "Q", `ctxCrear('${enJS(branch)}','hito')`) +
     `<div class="ctx-sep"></div>` +
-    item(editando ? "Salir de edición" : "Editar el mapa", editando ? "Vuelve al modo normal" : "Conecta y corta hilos", "C", `cerrarCtxMenu();toggleEditBranch('${escapeAttr(branch)}')`) +
-    item("Ver en pantalla completa", "Recorre la rama con sitio de sobra", "", `cerrarCtxMenu();openBranchFullscreen('${escapeAttr(branch)}')`, BM_ICONS.expandir) +
+    item(editando ? "Salir de edición" : "Editar el mapa", editando ? "Vuelve al modo normal" : "Conecta y corta hilos", "C", `cerrarCtxMenu();toggleEditBranch('${enJS(branch)}')`) +
+    item("Ver en pantalla completa", "Recorre la rama con sitio de sobra", "", `cerrarCtxMenu();openBranchFullscreen('${enJS(branch)}')`, BM_ICONS.expandir) +
     (undoStack.length ? item("Deshacer", undoStack[undoStack.length - 1].etiqueta, "Ctrl Z", `cerrarCtxMenu();undoEditor()`) : "");
 
   colocarCtxMenu(el, clientX, clientY);
@@ -930,7 +987,18 @@ function constellation(nodes, key, editing, branch) {
      interruptor. Vive en una función porque las cajas del ático también los
      llevan desde que se pueden conectar, y antes solo los tenían los
      talentos. */
-  const puertos = (n, x, y, R, col) => {
+  /* `colL` llega YA pasado por `trazo()`: es color de LÍNEA, y el puerto es
+     un aro de 2 px con una flecha diminuta dentro. Se recibe hecho y no se
+     calcula aquí porque los dos que llaman ya lo tenían calculado, y volver a
+     hundir un color hundido daría un tono distinto en cada sitio.
+
+     El nombre importa: el parámetro se llamaba `col` y las dos líneas de
+     abajo usaban `colT`, que no existe en este ámbito —vive dentro del
+     dibujado de un nodo, cien líneas más abajo—. Nadie lo vio porque solo se
+     ejecuta con el mapa EN EDICIÓN: al entrar a editar una rama, el dibujado
+     reventaba con «colT is not defined» a medio SVG, y con él se caía el
+     resto de la pantalla de Talentos. Se cazó midiendo, no mirando. */
+  const puertos = (n, x, y, R, colL) => {
     let out = "";
     const reqs = requisitosDe(n);
     /* Solo con DOS o más. Con uno, el hilo que llega ya lo cuenta todo y el
@@ -976,8 +1044,8 @@ function constellation(nodes, key, editing, branch) {
 
     if (editing) {
       out += `<g class="port" data-from="${n.id}">
-        <circle cx="${x + R + 11}" cy="${y}" r="9" fill="var(--lienzo-ficha)" stroke="${colT}" stroke-width="2"/>
-        <path d="M${x + R + 8} ${y - 3.5} L${x + R + 14} ${y} L${x + R + 8} ${y + 3.5} Z" fill="${colT}"/>
+        <circle cx="${x + R + 11}" cy="${y}" r="9" fill="var(--lienzo-ficha)" stroke="${colL}" stroke-width="2"/>
+        <path d="M${x + R + 8} ${y - 3.5} L${x + R + 14} ${y} L${x + R + 8} ${y + 3.5} Z" fill="${colL}"/>
       </g>`;
     }
     return out;
@@ -1122,7 +1190,7 @@ function constellation(nodes, key, editing, branch) {
        Por la izquierda entra lo que hace falta —y esa letra, "Y" u "O", es
        además el interruptor de la regla—, por la derecha sale lo que este
        talento habilita. Ver `puertos`, arriba. */
-    ports += puertos(n, x, y, R, col);
+    ports += puertos(n, x, y, R, colT);
 
     // Lo que ocupa este talento con todo lo que le cuelga
     const hayFueraAqui = requisitosVivos(n).some(r => (r.branch || "General") !== (n.branch || "General"));

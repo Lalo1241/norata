@@ -310,13 +310,13 @@ function renderProjects() {
     <div class="branch-card" data-rid="${escapeAttr(b)}" style="padding-bottom:14px">
       <div class="branch-head" style="margin-bottom:12px">
         <!-- Igual que en Talentos: el nombre se reescribe tocándolo -->
-        <h3 class="renombrable" onclick="renombrarRamaProyectos('${escapeAttr(b)}')" title="Toca el nombre para renombrar la rama">${escapeHtml(b)}${icon("pen", 11)}</h3>
+        <h3 class="renombrable" onclick="renombrarRamaProyectos('${enJS(b)}')" title="Toca el nombre para renombrar la rama">${escapeHtml(b)}${icon("pen", 11)}</h3>
         <span class="count">${liveN} de ${list.length}</span>
         <div class="bhead-btns">
-          ${branchMenu("p:" + escapeAttr(b), [
-            { title: "Borrar esta rama", hint: list.length === 0 ? "Está vacía" : (list.length === 1 ? "Se va también su único encargo" : `Se van también sus ${list.length} encargos`), icon: "bote", danger: true, onclick: `deleteBranch('projects','${escapeAttr(b)}')` }
+          ${branchMenu("p:" + b, [
+            { title: "Borrar esta rama", hint: list.length === 0 ? "Está vacía" : (list.length === 1 ? "Se va también su único encargo" : `Se van también sus ${list.length} encargos`), icon: "bote", danger: true, onclick: `deleteBranch('projects','${enJS(b)}')` }
           ])}
-          <button class="badd" onclick="openProjectForm(null, '${escapeAttr(b)}')" aria-label="Añadir encargo a ${escapeAttr(b)}">＋</button>
+          <button class="badd" onclick="openProjectForm(null, '${enJS(b)}')" aria-label="Añadir encargo a ${escapeAttr(b)}">＋</button>
         </div>
       </div>
       <div class="proj-list" data-branch="${escapeAttr(b)}" data-soltar=".proj-card">
@@ -939,6 +939,11 @@ function renderTree() {
 
   // Una rama recién creada, aunque esté vacía, ya es algo que enseñar
   if (perks.length === 0 && ramasT.length === 0) {
+    /* Antes de la salida rápida, no después: `renderFullscreen()` vive al
+       final de esta función, así que borrar la última rama estando a pantalla
+       completa dejaba la capa encima mostrando una rama que ya no existía.
+       Se salía con Escape, pero lo que se veía era mentira. */
+    renderFullscreen();
     el.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("map", 34)}</div>
@@ -1005,6 +1010,11 @@ function renderTree() {
     const editing = editBranch === b;
     const doneN = reales.filter(n => n.status === "completed").length;
     const ba = escapeAttr(b);
+    /* Dos escapes para el mismo nombre, y no es redundancia: `ba` va en
+       atributos normales y `bj` dentro de las comillas simples de un
+       `onclick`. Ver `enJS` — con uno solo, una rama con apóstrofo dejaba
+       muertos todos los botones de su tarjeta. */
+    const bj = enJS(b);
 
     let body;
     if (!nodes.length) {
@@ -1024,7 +1034,7 @@ function renderTree() {
     } else {
       body = `
       <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, bi, editing, b)}</div>
-      <button class="fs-open" onclick="openBranchFullscreen('${ba}')">
+      <button class="fs-open" onclick="openBranchFullscreen('${bj}')">
         <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> Ver la rama completa
       </button>
       ${/* Una sola línea, y que diga lo que la mano puede hacer AHORA. Fuera
@@ -1038,37 +1048,37 @@ function renderTree() {
     html += `
     <div class="branch-card">
       <div class="branch-head">
-        <button class="badd solid" onclick="toggleBranch('${ba}')" aria-label="${collapsed ? "Desplegar" : "Plegar"} ${ba}" style="margin-right:2px">
+        <button class="badd solid" onclick="toggleBranch('${bj}')" aria-label="${collapsed ? "Desplegar" : "Plegar"} ${ba}" style="margin-right:2px">
           <svg viewBox="0 0 24 24"><path d="${collapsed ? "M9 6l6 6-6 6" : "M6 9l6 6 6-6"}"/></svg>
         </button>
         <!-- El nombre abre el renombrado, no el plegado: plegar ya tiene su
              flecha justo al lado, y escribir encima de un título es el gesto
              que todo el mundo prueba primero. -->
-        <h3 class="renombrable" onclick="renombrarRama('${ba}')" title="Toca el nombre para renombrar la rama">${escapeHtml(b)}${icon("pen", 11)}</h3>
+        <h3 class="renombrable" onclick="renombrarRama('${bj}')" title="Toca el nombre para renombrar la rama">${escapeHtml(b)}${icon("pen", 11)}</h3>
         <span class="count">${doneN} de ${reales.length}</span>
         <div class="bhead-btns">
           ${editing ? `
-          <button class="badd solid on" onclick="toggleEditBranch('${ba}')" aria-label="Salir del modo edición" title="Salir de edición${isDesktop() ? " (C)" : ""}">
+          <button class="badd solid on" onclick="toggleEditBranch('${bj}')" aria-label="Salir del modo edición" title="Salir de edición${isDesktop() ? " (C)" : ""}">
             <svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>
           </button>` : ""}
-          ${branchMenu("t:" + ba, [
+          ${branchMenu("t:" + b, [
             /* Fuera del bloque de "no plegada" a propósito: entrar a pantalla
                completa despliega la rama de todos modos, y quien la tiene
                plegada es justo quien no tiene a mano el botón de debajo del
                lienzo. */
-            { title: "Ver en pantalla completa", hint: "Recorre la rama con sitio de sobra", icon: "expandir", onclick: `openBranchFullscreen('${ba}')` },
+            { title: "Ver en pantalla completa", hint: "Recorre la rama con sitio de sobra", icon: "expandir", onclick: `openBranchFullscreen('${bj}')` },
             ...(collapsed ? [] : [
               /* Elegir varios sin teclado: en el teléfono es la única forma
                  de juntar talentos, y en la computadora convive con Shift. */
               { title: modoElegir ? "Salir de elegir" : "Elegir varios talentos",
                 hint: modoElegir ? "Vuelve a tocar para abrir fichas" : "Tócalos y agrúpalos o muévelos juntos",
-                icon: "caja", onclick: `toggleElegirVarios('${ba}')` },
+                icon: "caja", onclick: `toggleElegirVarios('${bj}')` },
               /* "Reacomodar solos" queda fuera a propósito hasta pulir cómo
                  decide el orden; la función sigue existiendo, sin puerta. */
-              ...(editing ? [] : [{ title: "Centrar en lo que sigue", hint: "Te lleva al talento en curso o al siguiente por abrir", icon: "flecha", onclick: `focusBranchFront('${ba}')` }]),
+              ...(editing ? [] : [{ title: "Centrar en lo que sigue", hint: "Te lleva al talento en curso o al siguiente por abrir", icon: "flecha", onclick: `focusBranchFront('${bj}')` }]),
               editing
-                ? { title: "Terminar de editar", hint: "Vuelve al modo normal", icon: "lapiz", onclick: `toggleEditBranch('${ba}')` }
-                : { title: "Editar el mapa", hint: "Mueve y conecta los talentos", icon: "lapiz", onclick: `toggleEditBranch('${ba}')` }
+                ? { title: "Terminar de editar", hint: "Vuelve al modo normal", icon: "lapiz", onclick: `toggleEditBranch('${bj}')` }
+                : { title: "Editar el mapa", hint: "Mueve y conecta los talentos", icon: "lapiz", onclick: `toggleEditBranch('${bj}')` }
             ]),
             /* Una entrada por trimestre cerrable, y ninguna opción de
                cerrarlos todos de golpe: es justo el atajo que un día mueve
@@ -1076,14 +1086,14 @@ function renderTree() {
             ...trimestresGuardables(b).map(t => ({
               title: `Guardar el ${tituloTrimestre(t.id)}`,
               hint: `${t.n} talento${t.n === 1 ? "" : "s"} al ático`,
-              icon: "caja", onclick: `guardarTrimestre('${ba}','${t.id}')`
+              icon: "caja", onclick: `guardarTrimestre('${bj}','${t.id}')`
             })),
-            { title: "Borrar esta rama", hint: reales.length === 0 ? "Está vacía" : (reales.length === 1 ? "Se va también su único talento" : `Se van también sus ${reales.length} talentos`), icon: "bote", danger: true, onclick: `deleteBranch('perks','${ba}')` }
+            { title: "Borrar esta rama", hint: reales.length === 0 ? "Está vacía" : (reales.length === 1 ? "Se va también su único talento" : `Se van también sus ${reales.length} talentos`), icon: "bote", danger: true, onclick: `deleteBranch('perks','${bj}')` }
           ])}
           ${/* En PC no hay botón de crear: el clic derecho y las teclas
                 Q, W y E lo hacen mejor y sin ocupar la cabecera. En táctil
                 no existe ninguna de las dos cosas, así que ahí se queda. */
-            `<button class="badd" onclick="openPerkForm(null, '${ba}')" aria-label="Añadir talento a ${ba}">＋</button>`}
+            `<button class="badd" onclick="openPerkForm(null, '${bj}')" aria-label="Añadir talento a ${ba}">＋</button>`}
         </div>
       </div>
       ${body}

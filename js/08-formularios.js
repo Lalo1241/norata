@@ -536,6 +536,26 @@ function savePerk() {
     document.getElementById("p-cost").focus();
     return;
   }
+  /* Los topes del plan, y solo al CREAR. Editar uno que ya existe no se toca
+     nunca —«congelar, nunca quitar»—: quien se pasó del tope antes de que el
+     plan cambiara sigue pudiendo corregirle el nombre a lo que tiene.
+
+     Se mira antes de `aprenderAlGuardar`, que ya deja rastro en las
+     habilidades: parar después habría enseñado una habilidad de un talento que
+     no llegó a existir. */
+  if (!editingPerkId) {
+    /* La rama la escribe el usuario a mano en este formulario, así que aquí se
+       puede crear una rama sin pasar por el botón de «Nueva rama». */
+    if (!ramasDe("perks").includes(branch) && !cabeUnoMas("ramas", ramasDe("perks").length)) {
+      topeAlcanzado("ramas");
+      return;
+    }
+    if (!cabeUnoMas("talentos", talentosDeRama(branch).length)) {
+      topeAlcanzado("talentos");
+      return;
+    }
+  }
+
   aprenderAlGuardar("p", name, skillId);
 
   if (editingPerkId) {

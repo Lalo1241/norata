@@ -1202,7 +1202,7 @@ function renderHome() {
   const cats = ["Todas", ...new Set(skills.map(s => s.category).filter(Boolean))];
   if (!cats.includes(activeCategory)) activeCategory = "Todas";
   document.getElementById("chips").innerHTML = skills.length === 0 ? "" : cats.map(c =>
-    `<button class="chip ${c === activeCategory ? "active" : ""}" onclick="setCategory('${escapeAttr(c)}')">${escapeHtml(c)}</button>`
+    `<button class="chip ${c === activeCategory ? "active" : ""}" onclick="setCategory('${enJS(c)}')">${escapeHtml(c)}</button>`
   ).join("");
 
   const list = document.getElementById("skill-list");
@@ -1636,7 +1636,7 @@ function renderCatalogo() {
       <div class="cat-group">
         <div class="cat-head">
           <h3>${escapeHtml(cat)}</h3>
-          ${libres.length ? `<button class="cat-all" onclick="toggleCatalogoCat('${escapeAttr(cat)}')">
+          ${libres.length ? `<button class="cat-all" onclick="toggleCatalogoCat('${enJS(cat)}')">
             ${libres.every(x => catalogoSel.has(x.n)) ? "Quitar todas" : "Todas"}
           </button>` : `<span class="cat-done">ya las tienes</span>`}
         </div>
@@ -1646,7 +1646,7 @@ function renderCatalogo() {
             const sel = catalogoSel.has(x.n);
             return `
             <button class="cat-chip ${tengo ? "tengo" : ""} ${sel ? "sel" : ""}"
-              ${tengo ? "disabled" : `onclick="toggleCatalogo('${escapeAttr(x.n)}')"`}>
+              ${tengo ? "disabled" : `onclick="toggleCatalogo('${enJS(x.n)}')"`}>
               <span class="cc-ic" style="background:${velo(x.k, "26")};color:${tinta(x.k)}">${icon(x.i, 18)}</span>
               <span class="cc-n">${escapeHtml(x.n)}</span>
               ${tengo ? `<span class="cc-ok">${icon("check", 15)}</span>` : `<span class="cc-box">${sel ? icon("check", 13) : ""}</span>`}
@@ -1760,14 +1760,19 @@ const BM_ICONS = {
 
 let openBranchMenu = null;
 
+/* `key` llega EN CRUDO, sin escapar por fuera. Es a propósito: viaja a dos
+   sitios que necesitan escapes distintos —dentro de una cadena de JavaScript
+   y dentro de un atributo que luego se compara con `dataset.menu`— y si el
+   que llama lo escapaba, los dos acababan con textos distintos y el menú de
+   una rama con apóstrofo no se abría nunca. */
 function branchMenu(key, items) {
   if (!items.length) return "";
   return `
     <div class="bmenu-wrap">
-      <button class="badd solid" onclick="toggleBranchMenu('${key}', event)" aria-label="Más opciones de esta rama" aria-haspopup="true">
+      <button class="badd solid" onclick="toggleBranchMenu('${enJS(key)}', event)" aria-label="Más opciones de esta rama" aria-haspopup="true">
         <svg viewBox="0 0 24 24">${BM_ICONS.puntos}</svg>
       </button>
-      <div class="bmenu" data-menu="${key}">
+      <div class="bmenu" data-menu="${escapeAttr(key)}">
         ${items.map(it => `
           <button class="${it.danger ? "danger" : ""}" onclick="closeBranchMenus();${it.onclick}">
             <span class="bm-tx"><b>${escapeHtml(it.title)}</b><span>${escapeHtml(it.hint)}</span></span>
@@ -1840,6 +1845,13 @@ function ramasDe(kind) {
 
 async function crearRama(kind) {
   const esTalentos = kind === "perks";
+  /* El tope de ramas es solo de Talentos: `LIMITES.ramas` habla del árbol, y
+     las ramas de Proyectos no tienen tope en ningún plan. Se pregunta ANTES de
+     pedir el nombre, para no hacer escribir algo que se va a tirar. */
+  if (esTalentos && !cabeUnoMas("ramas", ramasDe("perks").length)) {
+    topeAlcanzado("ramas");
+    return;
+  }
   const nombre = await askText(
     esTalentos ? "Nueva rama de talentos" : "Nueva rama de Proyectos", "", "Crear",
     esTalentos
@@ -1895,6 +1907,9 @@ async function deleteBranch(kind, b) {
       if (r.some(id => ids.has(id))) p.requiere = r.filter(id => !ids.has(id));
     });
     if (editBranch === b) editBranch = null;
+    /* Y si se estaba viendo a pantalla completa, se sale: quedarse dentro de
+       una rama borrada es lo que dejaba la capa encima con datos fantasma. */
+    if (typeof fullscreenBranch !== "undefined" && fullscreenBranch === b) closeBranchFullscreen();
   } else {
     state.projects = state.projects.filter(p => !ids.has(p.id));
   }

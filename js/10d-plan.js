@@ -402,6 +402,26 @@ function planMensaje(clave) {
   return "Esto viene con Pro.";
 }
 
+/* Lo que se HACE cuando alguien topa con un límite, y el único sitio desde el
+   que se hace. Existe porque durante varias versiones `cabeUnoMas` y
+   `planMensaje` estaban escritas y funcionando pero NADIE las llamaba: los
+   topes del plan Gratuito estaban decididos, documentados y pintados en la
+   tabla comparativa, y la app dejaba crear sin mirar. Se descubrió probando,
+   no leyendo, que es como se descubren siempre estas cosas.
+
+   Devuelve una promesa que nadie tiene que esperar: quien llama ya decidió
+   parar, y lo que pasa después —el aviso, e ir o no a ver Pro— no cambia lo
+   que hace el que llamó.
+
+   Es un aviso, no una regañina: dice qué hay y por dónde se sigue. Y no es
+   seguridad —eso vive en `supabase/planes.sql`—; es no ofrecer una puerta que
+   no está abierta. */
+function topeAlcanzado(clave) {
+  return ask(planMensaje(clave), "Ver Pro", false, false, "Ahora no").then(ok => {
+    if (ok && typeof abrirAjustes === "function") abrirAjustes("plan");
+  });
+}
+
 /* ---- Cómo se ve el plan, de un vistazo ----
 
    Cuatro ayudantes que contestan la misma pregunta —«¿qué plan tiene esta
@@ -836,10 +856,23 @@ function planCabeceraHTML() {
     }
   }
 
+  /* El precio ya NO va en la cabecera cuando debajo hay un recibo que lo dice:
+     salía «$890 MXN, una sola vez» aquí y «Qué pagas · $890 MXN, una sola vez»
+     tres centímetros más abajo. Repetido así no informa dos veces, ensucia una
+     — el ojo lo lee, lo reconoce y no sabe por qué está otra vez.
+
+     La cabecera se queda con lo suyo: qué plan es y qué le pasa. La cifra vive
+     en los renglones de recibo, que es donde se buscan las cifras.
+
+     Sigue saliendo aquí en los dos casos que NO tienen recibo debajo: el plan
+     Gratuito («Sin costo») y la cuenta de casa («Cuenta administradora»), que
+     no son precios sino la respuesta a «¿y esto qué me cuesta?». */
+  const conRecibo = PLAN.pro && !PLAN.deCasa;
+
   return `<div class="${clases}">
       <span class="plan-hoy-ic">${icon(planIcono(), 22)}</span>
       <span class="plan-hoy-tx">
-        <span class="plan-hoy-t">${escapeHtml(titulo)}<i>${escapeHtml(precio)}</i></span>
+        <span class="plan-hoy-t">${escapeHtml(titulo)}${conRecibo ? "" : `<i>${escapeHtml(precio)}</i>`}</span>
         <span class="plan-hoy-s">${escapeHtml(nota)}</span>
       </span>
     </div>`;
@@ -901,7 +934,7 @@ function planActivoHTML() {
        suscripción que cancelar—, pero sí recibos que mirar, así que el botón
        se queda para todos y solo cambia lo que promete. */
     (PLAN.deCasa ? "" :
-      `<button class="btn btn-soft btn-block" style="margin-top:14px" onclick="irAlPortal(this)">${
+      `<button class="btn ${PLAN.plan === "fundador" ? "btn-linea" : "btn-aviso"} btn-block" style="margin-top:14px" onclick="irAlPortal(this)">${
         PLAN.plan === "fundador" ? "Ver mi recibo" : "Editar suscripción"
       }</button>
        ` + planPortalNotaHTML());
@@ -1001,7 +1034,7 @@ function planAlternarComparacion() {
 }
 
 function planCompararHTML() {
-  return `<button class="btn btn-soft btn-block plan-vs-btn" onclick="planAlternarComparacion()">${
+  return `<button class="btn btn-linea btn-block plan-vs-btn" onclick="planAlternarComparacion()">${
     planComparando ? "Ocultar la comparación" : "Comparar los planes"
   }</button>` + (planComparando ? planTablaHTML() : "");
 }

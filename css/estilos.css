@@ -1694,8 +1694,31 @@
     font-family: inherit;
     transition: transform 0.12s ease;
   }
+  /* ---------- Qué color lleva cada botón ----------
+     Antes casi todos eran verdes, y un verde que lo mismo guarda que te lleva
+     a cambiar tu tarjeta deja de decir nada: el color pasa a ser decoración y
+     hay que leerse el rótulo entero para saber en qué te estás metiendo.
+
+     Seis niveles, y la pregunta que los separa es «¿qué me pasa si lo pulso
+     sin querer?»:
+
+       btn-primary       lo que has venido a hacer aquí. UNA por pantalla — dos
+                         primarios juntos no destacan, se anulan.   menta maciza
+       btn-soft          una acción más, normal y sin consecuencias. menta tenue
+       btn-linea         mirar, consultar, salir a otro sitio. No cambia nada de
+                         lo tuyo.                        fondo oscuro, borde menta
+       btn-aviso         toca dinero o algo delicado, pero se deshace. Ni verde
+                         —engaña— ni coral —exagera—.               luciérnaga
+       btn-danger-ghost  destruye, o no tiene vuelta atrás.               coral
+       btn-ghost         neutro: cancelar, cerrar, atrás. No es una acción, es
+                         una salida.                        fondo y borde apagados
+
+     La regla al añadir un botón: si dudas entre `soft` y `linea`, pregúntate si
+     ese botón ESCRIBE algo. Si solo enseña o lleva, es `linea`. */
   .btn-primary { background: var(--mint-macizo); color: var(--sobre-macizo); box-shadow: 0 10px 26px rgba(95, 224, 176, 0.25); }
   .btn-soft { background: var(--mint-soft); color: var(--mint); }
+  .btn-linea { background: var(--card); color: var(--mint); border: 1px solid var(--mint); }
+  .btn-aviso { background: var(--fire-soft); color: var(--fire); }
   .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--line); }
   .btn-danger-ghost { background: var(--coral-soft); color: var(--coral); }
   .btn-block { width: 100%; }
@@ -5321,7 +5344,12 @@
 .plan-cupo { font-size: 12px; font-weight: 600; color: var(--fire); }
 .plan-card .btn { margin-top: 8px; }
 
-.plan-pie { margin-top: 12px; }
+/* Los avisos del pie, centrados. Es lo contrario que la tabla y por el mismo
+   motivo: aquí no hay columnas con las que alinearse, son dos frases sueltas
+   debajo de un botón que ocupa todo el ancho. A la izquierda quedaban
+   colgando de un borde que no era de nadie; centradas se leen como lo que
+   son, la letra pequeña de lo de arriba. */
+.plan-pie { margin-top: 12px; text-align: center; }
 
 /* ---------- La rueda del botón que espera ----------
    Sale al pedirle a Stripe la dirección del portal. La palabra sola no basta:
@@ -5427,13 +5455,16 @@
    la chapa del menú y al anillo del avatar. */
 .plan-vs thead th.t-lila { color: var(--lila); }
 
-/* Las piedras encima de las columnas. En bloque y centradas sobre el nombre:
-   al lado, en una columna de 130 px, empujaban el rótulo a dos renglones. */
-.plan-vs thead th { text-align: center; }
-.plan-vs thead th:first-child { text-align: left; }
+/* Las piedras encima de las columnas, en bloque para no empujar el rótulo a
+   dos renglones en una columna estrecha.
+
+   TODO a la izquierda, encabezado incluido. Estuvieron centrados y se veía
+   mal por una razón concreta: los valores de debajo van a la izquierda —son
+   frases de largo muy distinto («Sin tope» y «Solo las paletas de color») y
+   centradas hacen un zigzag—, así que un encabezado centrado no cae encima de
+   su columna, cae en medio de la nada. Cada rótulo empieza donde empiezan sus
+   respuestas y la columna se lee como una columna. */
+.plan-vs thead th { text-align: left; }
 .vs-piedra { display: block; margin-bottom: 3px; }
 .vs-piedra .ic { display: inline-flex; }
-/* Los valores se quedan a la izquierda aunque el encabezado esté centrado: son
-   frases de largo distinto («Sin tope» y «Solo las paletas de color») y
-   centradas se convierten en un zigzag que cuesta recorrer con la vista. */
 .plan-vs tbody td { text-align: left; }

@@ -223,7 +223,7 @@ function renderPanelAdmin() {
     caja.innerHTML = panelPruebasHTML() + `<div class="panel">
         <h3>Los números</h3>
         <p class="settings-note">Se piden al servidor cuando abres esta sección.</p>
-        <button class="btn btn-soft btn-block" onclick="cargarMetricas()">Cargar los números</button>
+        <button class="btn btn-linea btn-block" onclick="cargarMetricas()">Cargar los números</button>
       </div>`;
     return;
   }
@@ -288,7 +288,7 @@ function renderPanelAdmin() {
 
     <div class="panel">
       <p class="settings-note" style="margin:0">Números tomados ${escapeHtml(String(m.al_momento || "").slice(0, 16).replace("T", " a las "))}.</p>
-      <button class="btn btn-soft btn-block" style="margin-top:10px" onclick="cargarMetricas()">Volver a pedirlos</button>
+      <button class="btn btn-linea btn-block" style="margin-top:10px" onclick="cargarMetricas()">Volver a pedirlos</button>
     </div>`;
 }
 
@@ -305,7 +305,7 @@ async function cargarMetricas() {
       caja.innerHTML = `<div class="panel">
           <h3>No pude traer los números</h3>
           <p class="settings-note">${escapeHtml(e.message || String(e))}</p>
-          <button class="btn btn-soft btn-block" onclick="cargarMetricas()">Intentar otra vez</button>
+          <button class="btn btn-linea btn-block" onclick="cargarMetricas()">Intentar otra vez</button>
         </div>`;
     }
   }
