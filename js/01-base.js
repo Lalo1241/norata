@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.29";
+const VERSION = "0.7.30";
 const VERSION_FECHA = "28 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -961,6 +961,21 @@ function keyToDate(key) {
 function money(n) {
   const cod = monedaActual();
   return formateadorMoneda(cod).format(n || 0) + " " + cod;
+}
+
+/* El mismo importe, pero con el código en su propia etiqueta para poder
+   pintarlo más pequeño. «$5,000 MXN» con las dos partes al mismo tamaño le da
+   al código el peso de una cifra, y no lo es: es la unidad. Lo cazó Eduardo
+   viendo el panel de Talentos.
+
+   Va aparte de `money()` y no lo sustituye porque la mitad de los sitios que
+   piden un importe no admiten HTML —un `title`, un aviso de abajo, el texto de
+   una confirmación— y ahí una etiqueta se vería tal cual, escrita. La regla
+   para elegir: si el importe se inserta como HTML, `moneyHTML`; si viaja como
+   texto, `money`. */
+function moneyHTML(n) {
+  const cod = monedaActual();
+  return formateadorMoneda(cod).format(n || 0) + '<i class="mny">' + cod + '</i>';
 }
 
 /* ================= Modal de confirmación =================

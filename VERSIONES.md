@@ -52,6 +52,62 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.30 · 28 ago 2026
+Talentos deja de encabezar con el dinero, y el informe gratuito dice qué abre.
+
+**Una persona vale por lo que es, no por lo que gastó.** El panel de Talentos
+abría con «Invertido en ti» y el total gastado, en la cifra más grande de la
+pantalla, y eso decía justo lo contrario de por qué existe el módulo. Ahora
+encabeza lo que ya conseguiste y no se puede perder —un talento completado no
+decae nunca—: «Ya son tuyos · 4 talentos». El dinero no desaparece; baja a la
+fila de estadísticas, al informe y al Resumen, pero deja de presidir. La misma
+corrección en la tarjeta «Invertido» del Resumen, que ahora encabeza con los
+permanentes.
+
+- **El código de la moneda se pinta más pequeño que la cifra.** «$5,000 MXN»
+  con las dos partes al mismo tamaño le daba a MXN el peso de un número, y no
+  lo es: es la unidad. Para eso está `moneyHTML()`, que va aparte de `money()`
+  y no lo sustituye — la mitad de los sitios que piden un importe no admiten
+  HTML (un `title`, un aviso, una confirmación) y ahí la etiqueta se vería
+  escrita. La regla: si el importe se inserta como HTML, `moneyHTML`; si viaja
+  como texto, `money`.
+- **Y las cifras dejan de flotar.** Reservar dos renglones para las cifras
+  largas alineó los rótulos (0.7.29) pero dejó las cortas pegadas al techo de
+  su caja, con todo el aire debajo. Ahora se centran en el hueco.
+
+**El informe del plan Gratuito, reescrito.** Tenía tres problemas y los tenía a
+la vez: decía en una frase lo mismo que los tres números de debajo, no dejaba
+claro que le estuvieran invitando a pagar, y los cinco filtros de módulo se
+podían tocar sin que cambiara nada.
+
+- **Fuera la frase que repetía las cifras.** Decía «cumpliste 33 misiones,
+  ganaste 1310 XP y cerraste 6 cosas» con esos tres números en grande justo
+  debajo. Ahora la frase dice lo único que las cifras no pueden decir solas:
+  cómo se compara con el periodo anterior. El rango de fechas tampoco se
+  repite, que ya está en su rótulo arriba.
+- **Lo que abre Pro se cuenta, no se narra.** Cinco renglones, uno por
+  pregunta que el informe contesta, en vez de un párrafo con todo dentro.
+- **Los cuatro módulos se apagan** cuando no llevan a ninguna parte, igual que
+  los periodos cerrados: se ven, y al tocarlos dicen por qué. Solo «Todo» queda
+  encendido. Y el periodo que está puesto nunca sale apagado aunque el plan no
+  lo incluya —«Semana» seleccionada y gris a la vez se contradecía—, ni abre el
+  cuadro de Pro al tocar la pestaña en la que ya estás.
+
+**Los filtros siguen la escala de botones de la app**, no una suya: el que está
+puesto es un `btn-linea` —fondo oscuro y borde menta—, porque eso es lo que
+hace, llevarte a mirar sin escribir nada. Menta maciza habría dicho «esta es LA
+acción de la pantalla», y no lo es.
+
+**Y la gema donde se nombra el plan.** El cuadro del tope cambia la corona por
+la gema, y la lleva también su lista y el botón del informe: repetir el mismo
+símbolo hace que los tres se lean como el mismo sitio al que te llevan.
+
+**En Resumen**, la tarjeta de Niveles cambia «XP TOTAL» por «XP · 7 días» con
+su flecha — un acumulado que solo sube no cambia nada de lo que haces hoy, que
+es la misma regla que rige los cuatro paneles grandes. No se añadieron tarjetas
+nuevas: las siete que hay ya cubren los cuatro módulos y una más habría
+repetido lo que la racha o el informe dicen mejor.
+
 ### 0.7.29 · 28 ago 2026
 Los informes dejan de ser una prueba y pasan a ser la app.
 

@@ -1226,9 +1226,18 @@ function renderTree() {
 
   let html = sectionHero({
     scene: topoScene(820, 168, 31),
+    /* Aquí ponía «Invertido en ti» y el total gastado, en la cifra más grande
+       de la pantalla. Lo cambió Eduardo, y el motivo es de marca antes que de
+       diseño: **una persona vale por lo que es, no por lo que gastó.** Que el
+       dinero fuera lo primero que se ve al entrar en Talentos decía justo lo
+       contrario de por qué existe el módulo.
+
+       Lo que encabeza ahora es lo que ya conseguiste y no se puede perder: un
+       talento completado no decae nunca. El dinero no desaparece —sigue en la
+       fila de abajo, en el informe y en el Resumen—, pero deja de presidir. */
     lead: `<div>
-      <div class="label">Invertido en ti</div>
-      <div class="big"><b>${money(invested)}</b></div>
+      <div class="label">Ya son tuyos</div>
+      <div class="big"><b>${completed}</b><span> ${completed === 1 ? "talento" : "talentos"}</span></div>
     </div>`,
     /* «Por abrir» era un inventario que no pide nada: dejó sitio al dinero de
        la semana y a lo que se vence, que sí. */

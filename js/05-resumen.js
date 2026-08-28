@@ -168,7 +168,17 @@ function renderSummary() {
         <div class="n">${totalLevels}</div>
         <div class="t">niveles en ${skills.length} habilidad${skills.length === 1 ? "" : "es"}</div>
         <div class="sc-rows">
-          <div><b>${totalXp.toLocaleString("es-MX")}</b><span>XP TOTAL</span></div>
+          ${/* «XP TOTAL» era un acumulado que solo sube: enseñarlo cada día en
+                el Resumen no cambia nada de lo que haces. Lo sustituye lo que
+                se movió esta semana, con su flecha contra la anterior — la
+                misma regla y el mismo motor que los cuatro paneles grandes
+                (js/10f-informes.js). El total sigue en el informe. */
+             (() => {
+               const a = metricasHabilidades(ventanaDe(7, 0));
+               const b = metricasHabilidades(ventanaDe(7, 1));
+               return `<div><b>${fmtXp(a.ganada)}</b><span>XP · 7 DÍAS</span>${
+                 flechaHTML(variacion(a.ganada, b.ganada), "XP ganada frente a los 7 días anteriores")}</div>`;
+             })()}
           ${decayingList.length ? `<div><b style="color:var(--fire)">${decayingList.length}</b><span>DECAYENDO</span></div>` : ""}
         </div>
         ${cerca ? `<div class="sc-near">
@@ -182,7 +192,6 @@ function renderSummary() {
     invertido: () => {
       const enCurso = activeList.length + dueList.length;
       const permanentes = state.perks.filter(p => p.status === "completed").length;
-      const porAbrir = Math.max(0, state.perks.length - permanentes - enCurso);
       // El talento en curso que más cerca está de cerrarse
       let cerca = null;
       [...activeList, ...dueList].forEach(p => {
@@ -192,12 +201,16 @@ function renderSummary() {
       return `
       <button class="sum-card b" onclick="showView('tree')" style="width:100%">
         ${icon("map", 22)}
-        <div class="n">${money(invested)}</div>
-        <div class="t">invertido en ti</div>
+        ${/* Encabeza lo que ya conseguiste y no lo que gastaste, igual que el
+              panel de Talentos desde 0.7.30: una persona vale por lo que es,
+              no por su gasto, y el dinero presidiendo decía lo contrario. El
+              importe no desaparece, baja a la fila —con el código de la
+              moneda más pequeño, que es la unidad y no una cifra—. */""}
+        <div class="n">${permanentes}</div>
+        <div class="t">${permanentes === 1 ? "talento ya es tuyo" : "talentos ya son tuyos"}</div>
         <div class="sc-rows">
-          <div><b style="color:var(--mint)">${permanentes}</b><span>PERMANENTES</span></div>
           <div><b${enCurso ? ` style="color:var(--fire)"` : ""}>${enCurso}</b><span>EN CURSO</span></div>
-          <div><b>${porAbrir}</b><span>POR ABRIR</span></div>
+          <div><b>${moneyHTML(invested)}</b><span>INVERTIDO</span></div>
         </div>
         ${cerca ? `<div class="sc-near">
           <span>${cerca.pct}% hecho, lo más avanzado</span>
