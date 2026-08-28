@@ -143,6 +143,10 @@ function ajustarZoom(wrap, b) {
   if (!svg || !svg.dataset.bw) return;
   const bw = +svg.dataset.bw, bh = +svg.dataset.bh;
   if (!bw || !bh) return;
+  /* Con el lienzo sin medir todavía —una tarjeta plegada, una pestaña que aún
+     no compone— la división daba cero y "ajustar" mandaba el mapa al 25 %.
+     Mejor no hacer nada: un ajuste imposible no es un ajuste al mínimo. */
+  if (!wrap.clientWidth || !wrap.clientHeight) return;
   const z = limitarZoom(Math.min(wrap.clientWidth / bw, wrap.clientHeight / bh) * 0.94);
   zoomRama[llaveDeLienzo(wrap, b)] = z;
   aplicarZoom(wrap, b);
@@ -151,6 +155,68 @@ function ajustarZoom(wrap, b) {
   recordarEncuadre(wrap, b);
   pintarMandoZoom(wrap, b);
 }
+
+/* ---- El mando: − % + ----
+   Vive FUERA del lienzo aunque se vea encima. Dentro se iría con el
+   recorrido: al arrastrar el mapa el mando se habría ido de la pantalla.
+
+   El porcentaje no es un rótulo, es un botón: tocarlo ajusta todo el dibujo a
+   lo que se ve. Es la salida de emergencia de quien se perdió acercándose, y
+   ponerla en el sitio donde ya estás mirando el zoom ahorra un control más. */
+function pintarMandoZoom(wrap, b) {
+  const svg = wrap.querySelector("svg");
+  const padre = wrap.parentElement;
+  if (!padre) return;
+  let mando = padre.querySelector(":scope > .zoom-mando");
+  if (!svg) { if (mando) mando.remove(); return; }
+  if (!mando) {
+    mando = document.createElement("div");
+    mando.className = "zoom-mando";
+    mando.innerHTML = `
+      <button type="button" data-z="menos" aria-label="Alejar">−</button>
+      <button type="button" data-z="ajustar" class="pct" aria-label="Ajustar todo a la pantalla"></button>
+      <button type="button" data-z="mas" aria-label="Acercar">+</button>`;
+    mando.addEventListener("pointerdown", (e) => e.stopPropagation());
+    mando.addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      const rama = wrap.dataset.branch;
+      if (btn.dataset.z === "ajustar") ajustarZoom(wrap, rama);
+      else zoomEn(wrap, rama, zoomDe(wrap, rama) * (btn.dataset.z === "mas" ? ZOOM_PASO : 1 / ZOOM_PASO), null, null);
+    });
+    padre.insertBefore(mando, wrap.nextSibling);
+  }
+  /* ---- Dónde se planta ----
+     En la esquina del LIENZO, no en la de su contenedor. No es lo mismo: en
+     la tarjeta de la lista, debajo del mapa viven el botón de pantalla
+     completa y la línea de ayuda, así que un mando pegado al fondo de la
+     tarjeta caía encima del texto en vez de sobre el mapa. Se mide la
+     distancia entre un fondo y el otro y se descuenta. */
+  colocarMando(mando, wrap);
+
+  const z = zoomDe(wrap, b === undefined ? wrap.dataset.branch : b);
+  mando.querySelector(".pct").textContent = Math.round(z * 100) + "%";
+  mando.querySelector('[data-z="menos"]').disabled = z <= ZOOM_MIN + 0.001;
+  mando.querySelector('[data-z="mas"]').disabled = z >= ZOOM_MAX - 0.001;
+}
+
+function colocarMando(mando, wrap) {
+  const padre = mando.parentElement;
+  if (!padre) return;
+  const rw = wrap.getBoundingClientRect(), rp = padre.getBoundingClientRect();
+  if (!rw.height || !rp.height) return;       // sin medir aún: se deja como esté
+  mando.style.bottom = Math.max(10, Math.round(rp.bottom - rw.bottom) + 12) + "px";
+  mando.style.right = Math.max(10, Math.round(rp.right - rw.right) + 12) + "px";
+}
+
+/* Al girar el teléfono o acoplar la ventana, lo que hay debajo del mapa
+   cambia de alto y el mando se quedaría flotando donde ya no toca. */
+window.addEventListener("resize", () => {
+  document.querySelectorAll(".zoom-mando").forEach(m => {
+    const w = m.parentElement && m.parentElement.querySelector(".const-wrap");
+    if (w) colocarMando(m, w);
+  });
+});
 
 function recordarEncuadre(wrap, b) {
   scrollRama[llaveDeLienzo(wrap, b)] = { x: wrap.scrollLeft, y: wrap.scrollTop };
@@ -221,6 +287,9 @@ function encuadreDe(wrap, foco) {
 function encuadrarLienzo(wrap, b) {
   const svg = wrap.querySelector("svg");
   if (!svg) return;
+  /* Antes de medir nada: el encuadre se calcula sobre el tamaño ya escalado,
+     así que escalar después dejaría la cámara donde no toca. */
+  aplicarZoom(wrap, b);
   /* La tarjeta mide lo que mide el DIBUJO, no el lienzo con su sitio libre:
      si no, cada rama arrastraría trescientos píxeles de hueco a la vista y la
      página del árbol se haría el doble de larga. El máximo y el mínimo los
@@ -240,6 +309,7 @@ function encuadrarLienzo(wrap, b) {
   wrap.addEventListener("scroll", () => {
     scrollRama[llaveDeLienzo(wrap, b)] = { x: wrap.scrollLeft, y: wrap.scrollTop };
   }, { passive: true });
+  pintarMandoZoom(wrap, b);
 }
 
 /* Redibuja una rama conservando lo que se está viendo. Cuando alguien lleva
@@ -250,14 +320,26 @@ function redibujarLienzo(wrap, html) {
   const vb = (v => v && v.viewBox && v.viewBox.baseVal)(wrap.querySelector("svg"));
   const ax = vb ? vb.x : 0, ay = vb ? vb.y : 0;
   wrap.innerHTML = html;
+  /* El SVG es nuevo, así que nace a tamaño natural: hay que volver a
+     escalarlo antes de compensar el desplazamiento, o el mapa daría un salto
+     de vuelta al 100 % en mitad de un arrastre. */
+  aplicarZoom(wrap);
   const nvb = (v => v && v.viewBox && v.viewBox.baseVal)(wrap.querySelector("svg"));
   if (nvb) {
-    wrap.scrollLeft += ax - nvb.x;
-    wrap.scrollTop += ay - nvb.y;
+    /* Por la escala: `ax` y `nvb.x` son coordenadas del DIBUJO y el recorrido
+       va en píxeles. Al 100 % coinciden y por eso nunca se notó; al 40 % la
+       compensación se pasaba de largo más del doble y el mapa pegaba un tirón
+       justo mientras se arrastraba un nodo. */
+    const z = zoomDe(wrap, wrap.dataset.branch);
+    wrap.scrollLeft += (ax - nvb.x) * z;
+    wrap.scrollTop += (ay - nvb.y) * z;
   }
 }
 
 function encuadrarLienzos(scope) {
+  /* El zoom va antes del encuadre y con todos los lienzos del ámbito: es lo
+     que hace que un mapa recién pintado nazca ya al nivel en que lo dejaste. */
+  attachZoomHandlers(scope);
   (scope || document).querySelectorAll(".const-wrap").forEach(wrap => {
     encuadrarLienzo(wrap, wrap.dataset.branch);
   });
@@ -1503,10 +1585,10 @@ function constellation(nodes, key, editing, branch, mod) {
       ${nodeShape(n, x, y, conf, fid)}
       <g transform="translate(${x - 12 * isc}, ${y - 12 * isc}) scale(${isc})"
          stroke="${cerrado ? "var(--faint)" : conf.stroke}" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[iname] || ICONS.star}</g>
-      ${conf.mark ? `<circle cx="${x + markR.dx}" cy="${y + markR.dy}" r="9.5" fill="${conf.badge}"/>
+      ${conf.mark ? `<g class="nod-chapa"><circle cx="${x + markR.dx}" cy="${y + markR.dy}" r="9.5" fill="${conf.badge}"/>
         <g transform="translate(${x + markR.dx - 6}, ${y + markR.dy - 6}) scale(0.5)"
-           stroke="var(--sobre-macizo)" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g>` : ""}
-      <text x="${x}" y="${topY}" text-anchor="middle" font-size="${esHito ? 9.5 : 10.5}" fill="var(--lienzo-rotulo)" font-weight="500">
+           stroke="var(--sobre-macizo)" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g></g>` : ""}
+      <text class="nod-nombre" x="${x}" y="${topY}" text-anchor="middle" font-size="${esHito ? 9.5 : 10.5}" fill="var(--lienzo-rotulo)" font-weight="500">
         ${lines.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 12}">${escapeHtml(ln)}</tspan>`).join("")}
       </text>
       ${/* El avance de una meta en curso, en el propio mapa. Sin esto el
@@ -1515,7 +1597,7 @@ function constellation(nodes, key, editing, branch, mod) {
             adelantada. Se dice en etapas y no en porcentaje porque es lo que
             se marca: "2/4" es accionable, "50%" es un resumen. */
         (verEtapas && (n.steps || []).length)
-          ? `<text x="${x}" y="${topY + (lines.length - 1) * 12 + 13}" text-anchor="middle" font-size="9" fill="var(--fire)" font-weight="700">${
+          ? `<text class="nod-etapas" x="${x}" y="${topY + (lines.length - 1) * 12 + 13}" text-anchor="middle" font-size="9" fill="var(--fire)" font-weight="700">${
               n.steps.filter(s2 => s2.done).length}/${n.steps.length} etapas</text>`
           : ""}
     </g>`;
@@ -1783,6 +1865,32 @@ function removeLink(par) {
    puntero capturado el navegador entrega el clic al lienzo y no al nodo. Ese
    era el motivo de que tocar un talento no abriera nada. */
 
+/* ---- El deslizamiento al soltar ----
+   «Al soltar se desliza levemente para dar sensación de suavidad, pero poco,
+   para que no se vuelva impreciso» (Eduardo, 27 ago 2026). De ahí los tres
+   números: se frena rápido (0.86 por fotograma, o sea la mitad cada cinco),
+   se para en cuanto baja de medio píxel, y la velocidad de salida tiene tope
+   — un manotazo no puede mandar el mapa a la otra punta.
+
+   Solo desliza el RECORRIDO del fondo. Un nodo arrastrado se queda donde lo
+   soltaste: ahí el deslizamiento no sería suavidad, sería el mapa
+   desobedeciendo. */
+const ROCE = 0.86, PARADA = 0.5, VEL_TOPE = 2.6;
+
+function deslizar(wrap, vx, vy) {
+  if (Math.abs(vx) < PARADA && Math.abs(vy) < PARADA) return;
+  let x = Math.max(-VEL_TOPE, Math.min(VEL_TOPE, vx)) * 16;
+  let y = Math.max(-VEL_TOPE, Math.min(VEL_TOPE, vy)) * 16;
+  const paso = () => {
+    if (!wrap.isConnected) return;
+    wrap.scrollLeft += x;
+    wrap.scrollTop += y;
+    x *= ROCE; y *= ROCE;
+    if (Math.abs(x) > PARADA || Math.abs(y) > PARADA) requestAnimationFrame(paso);
+  };
+  requestAnimationFrame(paso);
+}
+
 const UMBRAL_ARRASTRE = 5;    // px de pantalla que separan un clic de un arrastre
 const ESPERA_TACTIL = 240;    // ms sostenidos en pantalla táctil, donde no hay ratón
 
@@ -1913,6 +2021,16 @@ function attachPanHandlers(scope) {
       if (!from.movido && Math.hypot(dx, dy) > 3) { from.movido = true; wrap.classList.add("panning"); }
       wrap.scrollLeft = from.sl - dx;
       wrap.scrollTop = from.st - dy;
+      /* Cuánto se movía justo antes de soltar, para el deslizamiento. Se
+         guardan los dos últimos puntos y no una media larga: lo que importa
+         es el último gesto, no el recorrido entero. Un arrastre que acaba
+         parado tiene que quedarse parado. */
+      const ahora = performance.now();
+      if (from.tPrev) {
+        const dt = ahora - from.tPrev;
+        if (dt > 0) { from.vx = (from.pxPrev - e.clientX) / dt; from.vy = (from.pyPrev - e.clientY) / dt; }
+      }
+      from.tPrev = ahora; from.pxPrev = e.clientX; from.pyPrev = e.clientY;
     });
 
     /* Mientras se arrastra un nodo con el dedo, la página no puede irse detrás
@@ -1925,6 +2043,9 @@ function attachPanHandlers(scope) {
     const fin = () => {
       cancelarEspera();
       const g = gesto;
+      /* El deslizamiento va antes de soltar `from`, que es donde vive la
+         velocidad, y solo si de verdad se estuvo recorriendo el fondo. */
+      if (from && from.movido && !g) deslizar(wrap, from.vx || 0, from.vy || 0);
       gesto = null;
       from = null;
       wrap.classList.remove("panning", "moviendo");
@@ -2000,6 +2121,67 @@ function nodoDibujado(id) {
 
 /* Clic derecho sobre cualquier lienzo: crear un talento justo ahí y llegar
    a las herramientas sin pasar por el menú de la rama. */
+/* ================= Los gestos del zoom =================
+   Se enganchan a TODOS los lienzos, estén en edición o no: acercar no es una
+   herramienta de edición, es mirar.
+
+     Alt + rueda    en PC, el gesto oficial. Alt y no Ctrl porque Ctrl+rueda
+                    es el zoom del propio navegador y pelearía con él.
+     Ctrl + rueda   también, y no es una contradicción: el pellizco de un
+                    trackpad NO llega como pellizco, llega como Ctrl+rueda.
+                    Atenderlo aquí hace que pellizcar en el portátil acerque
+                    el mapa —lo que cualquiera esperaría— en vez de agrandar
+                    la página entera.
+     rueda sola     se queda como estaba: recorre el lienzo.
+     dos dedos      pellizco en pantalla táctil.
+
+   El zoom del navegador solo se anula DENTRO del mapa. Anularlo en todo el
+   sitio ni se puede del todo —iOS ignora `user-scalable=no`— ni conviene:
+   quien necesita agrandar la letra para leer se quedaría sin poder. */
+function attachZoomHandlers(scope) {
+  (scope || document).querySelectorAll(".const-wrap").forEach(wrap => {
+    if (wrap.dataset.zoom) return;          // ya enganchado
+    wrap.dataset.zoom = "1";
+    const b = wrap.dataset.branch;
+
+    wrap.addEventListener("wheel", (e) => {
+      if (!e.altKey && !e.ctrlKey && !e.metaKey) return;   // rueda sola: recorrer
+      e.preventDefault();
+      /* Por pasos y no por píxeles del evento: una rueda de ratón manda
+         saltos de 100 y un trackpad de 3, así que usar el número crudo hace
+         que el mismo gesto acerque muchísimo en uno y nada en el otro. */
+      const paso = Math.sign(e.deltaY) > 0 ? 1 / ZOOM_PASO : ZOOM_PASO;
+      const suave = e.ctrlKey && Math.abs(e.deltaY) < 30 ? Math.pow(paso, 0.45) : paso;
+      zoomEn(wrap, b, zoomDe(wrap, b) * suave, e.clientX, e.clientY);
+    }, { passive: false });
+
+    /* ---- El pellizco ----
+       Dos dedos: el zoom sigue a la distancia entre ellos, sin escalones, que
+       es lo que pidió Eduardo — «el tacto debe seguir al dedo». El punto medio
+       hace de ancla, así que el pellizco también desplaza, como en un mapa. */
+    let pinza = null;
+    const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    const medio = (t) => ({ x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 });
+
+    wrap.addEventListener("touchstart", (e) => {
+      if (e.touches.length !== 2) { pinza = null; return; }
+      const t = [e.touches[0], e.touches[1]];
+      pinza = { d: dist(t), z: zoomDe(wrap, b) };
+    }, { passive: true });
+
+    wrap.addEventListener("touchmove", (e) => {
+      if (e.touches.length !== 2 || !pinza || !pinza.d) return;
+      e.preventDefault();
+      const t = [e.touches[0], e.touches[1]];
+      const m = medio(t);
+      zoomEn(wrap, b, pinza.z * (dist(t) / pinza.d), m.x, m.y);
+    }, { passive: false });
+
+    wrap.addEventListener("touchend", () => { pinza = null; }, { passive: true });
+    wrap.addEventListener("touchcancel", () => { pinza = null; }, { passive: true });
+  });
+}
+
 function attachCtxHandlers(scope) {
   (scope || document).querySelectorAll(".const-wrap").forEach(wrap => {
     wrap.addEventListener("contextmenu", (e) => {
