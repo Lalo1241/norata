@@ -240,6 +240,11 @@ function editandoRama(b, mod) {
    el resto de la interfaz alrededor. */
 
 let fullscreenBranch = null;
+/* De qué módulo es la rama que está a pantalla completa. Por lo mismo que
+   `editMod`: las dos pantallas pueden tener una rama con el mismo nombre, y
+   la capa es una sola para las dos. Sin esto, abrir un proyecto a pantalla
+   completa pintaba encima la rama de Talentos que se llamara igual. */
+let fullscreenMod = "talentos";
 
 /* Con el modo abierto hay DOS lienzos de la misma rama en el documento: el
    de la lista (tapado) y el de la pantalla completa. Todo lo que busque el
@@ -249,16 +254,21 @@ function constWrapFor(b) {
     || document.querySelector(`.const-wrap[data-branch="${cssEscape(b)}"]`);
 }
 
-function openBranchFullscreen(b) {
-  // Una rama plegada no tendría nada que enseñar: se despliega al entrar
-  if (isCollapsed(b)) {
+function openBranchFullscreen(b, mod) {
+  mod = mod || "talentos";
+  /* Plegar es cosa de Talentos: en Proyectos no existe. Y no es un detalle
+     cosmético — `state.ui.collapsed` va por NOMBRE, así que abrir a pantalla
+     completa un proyecto llamado igual que una rama de talentos le habría
+     desplegado la rama del otro módulo sin que nadie lo pidiera. */
+  if (mod === "talentos" && isCollapsed(b)) {
     delete state.ui.collapsed[b];
     save();
   }
   fullscreenBranch = b;
+  fullscreenMod = mod;
   document.body.classList.add("fs-on");
-  renderTree();
-  requestAnimationFrame(() => focusBranchFront(b, true));
+  repintarModulo(mod);
+  requestAnimationFrame(() => focusBranchFront(b, true, mod));
 }
 
 /* No cierra el modo, solo lo esconde: el usuario sigue "dentro" de la rama
@@ -267,17 +277,21 @@ function syncFullscreenForView(name) {
   if (!fullscreenBranch) return;
   const ov = document.getElementById("fs-overlay");
   if (!ov) return;
-  const enElArbol = name === "tree";
-  ov.classList.toggle("show", enElArbol);
-  document.body.classList.toggle("fs-on", enElArbol);
+  /* Cada capa pertenece a su pantalla: la de un proyecto solo se enseña
+     dentro de Proyectos, y la de una rama de talentos dentro del árbol. */
+  const enSuPantalla = fullscreenMod === "proyectos" ? name === "projects" : name === "tree";
+  ov.classList.toggle("show", enSuPantalla);
+  document.body.classList.toggle("fs-on", enSuPantalla);
 }
 
 function closeBranchFullscreen() {
   if (!fullscreenBranch) return;
+  const mod = fullscreenMod;
   fullscreenBranch = null;
+  fullscreenMod = "talentos";
   document.body.classList.remove("fs-on");
   document.getElementById("fs-overlay").classList.remove("show");
-  renderTree();
+  repintarModulo(mod);
 }
 
 /* La ventana de una caja se cierra primero: Escape cierra lo de encima, no
@@ -291,13 +305,19 @@ document.addEventListener("keydown", (e) => {
   if (fullscreenBranch && !ventanaCajaId) closeBranchFullscreen();
 });
 
-function renderFullscreen() {
+/* `mod` dice quién está llamando. Cada pantalla pinta SOLO su propia rama a
+   pantalla completa: sin esto, repintar Proyectos con una rama de Talentos
+   abierta le metía dentro de la capa el mapa equivocado. Sin argumento pinta
+   la que haya, que es lo que hacía antes. */
+function renderFullscreen(mod) {
   const ov = document.getElementById("fs-overlay");
   if (!ov) return;
   if (!fullscreenBranch) { ov.classList.remove("show"); return; }
+  if (mod && mod !== fullscreenMod) return;
 
   const b = fullscreenBranch;
-  const nodes = branchNodes(b);
+  const esProy = fullscreenMod === "proyectos";
+  const nodes = branchNodes(b, fullscreenMod);
   /* Vacía y desaparecida no son lo mismo, y confundirlas costó el fallo que no
      se podía diagnosticar mirando: una rama recién creada —que todavía no
      tiene ningún talento— salía por aquí, así que tocar «Ver en pantalla
@@ -308,7 +328,7 @@ function renderFullscreen() {
 
      Ahora solo se cierra si la rama YA NO EXISTE —se borró estando dentro—.
      Una rama vacía se abre y enseña qué hacer, igual que en la lista. */
-  if (!ramasDe("perks").includes(b)) {
+  if (!ramasDe(esProy ? "projects" : "perks").includes(b)) {
     closeBranchFullscreen();
     return;
   }
@@ -316,16 +336,21 @@ function renderFullscreen() {
   /* `ba` para los atributos normales y `bj` para lo que va dentro de las
      comillas simples de un `onclick`. Ver `enJS`. */
   const bj = enJS(b);
-  const editing = editandoRama(b, "talentos");
-  const doneN = nodes.filter(n => n.status === "completed").length;
+  const editing = editandoRama(b, fullscreenMod);
+  const doneN = esProy
+    ? nodes.filter(n => n.status === "done").length
+    : nodes.filter(n => n.status === "completed").length;
 
   document.getElementById("fs-name").textContent = b;
   document.getElementById("fs-count").textContent = `${doneN} de ${nodes.length}`;
+  /* Elegir varios y agrupar no salen en Proyectos: agrupar mete lo elegido en
+     una caja del ático, y el ático es del árbol de Talentos. Ofrecer el botón
+     y que no hiciera nada sería peor que no tenerlo. */
   document.getElementById("fs-tools").innerHTML = `
-    ${editing ? "" : `<button class="badd solid" onclick="focusBranchFront('${bj}')" aria-label="Centrar en lo que sigue" title="Centrar en lo que sigue"><svg viewBox="0 0 24 24">${BM_ICONS.flecha}</svg></button>`}
-    <button class="badd solid ${editing ? "on" : ""}" onclick="toggleEditBranch('${bj}')" aria-label="Editar el mapa"><svg viewBox="0 0 24 24">${BM_ICONS.lapiz}</svg></button>
-    <button class="badd solid ${modoElegir ? "on" : ""}" onclick="toggleElegirVarios('${bj}')" aria-label="Elegir varios talentos" title="Elegir varios talentos"><svg viewBox="0 0 24 24">${BM_ICONS.caja}</svg></button>
-    <button class="badd" onclick="openPerkForm(null, '${bj}')" aria-label="Añadir talento a ${ba}">＋</button>`;
+    ${editing ? "" : `<button class="badd solid" onclick="focusBranchFront('${bj}', false, '${fullscreenMod}')" aria-label="Centrar en lo que sigue" title="Centrar en lo que sigue"><svg viewBox="0 0 24 24">${BM_ICONS.flecha}</svg></button>`}
+    <button class="badd solid ${editing ? "on" : ""}" onclick="toggleEditBranch('${bj}', '${fullscreenMod}')" aria-label="Editar el mapa"><svg viewBox="0 0 24 24">${BM_ICONS.lapiz}</svg></button>
+    ${esProy ? "" : `<button class="badd solid ${modoElegir ? "on" : ""}" onclick="toggleElegirVarios('${bj}')" aria-label="Elegir varios talentos" title="Elegir varios talentos"><svg viewBox="0 0 24 24">${BM_ICONS.caja}</svg></button>`}
+    <button class="badd" onclick="${esProy ? `openProjectForm(null, '${bj}')` : `openPerkForm(null, '${bj}')`}" aria-label="Añadir ${esProy ? "encargo" : "talento"} a ${ba}">＋</button>`;
 
   /* La clave del SVG es distinta de la que usa la lista: si coincidiera,
      los dos lienzos compartirían los ids de los filtros y el brillo se
@@ -333,12 +358,19 @@ function renderFullscreen() {
   /* Sin talentos no se pinta un lienzo en blanco —parecería roto— sino el
      mismo mensaje que la lista, con la salida a mano: el ＋ está arriba. */
   document.getElementById("fs-body").innerHTML = !nodes.length
-    ? `<p class="col-vacia" style="margin:auto;text-align:center;max-width:34ch">Todavía no hay talentos en esta rama. Créale el primero con el ＋ de arriba.</p>`
+    ? `<p class="col-vacia" style="margin:auto;text-align:center;max-width:34ch">Todavía no hay ${
+        esProy ? "encargos en este proyecto" : "talentos en esta rama"}. Créale el primero con el ＋ de arriba.</p>`
     : `
-    <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, 900, editing, b)}</div>
-    <div class="fs-hint">${editing
-      ? "Arrastra para acomodar · <b>Shift</b> y clic (o Shift y arrastra un recuadro) elige varios · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia la regla de entrada"
-      : "Arrastra el fondo para recorrer la rama · toca un nodo para abrirlo y arrástralo para acomodarlo"}${atajosLegend()}</div>`;
+    <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}"${
+        esProy ? ` data-mod="proyectos"` : ""}>${constellation(nodes, 900, editing, b, fullscreenMod)}</div>
+    <div class="fs-hint">${esProy
+      ? (editing
+        ? "Arrastra para acomodar · tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno"
+        : "Arrastra el fondo para recorrer el proyecto · toca un encargo para abrirlo y arrástralo para acomodarlo")
+      : (editing
+        ? "Arrastra para acomodar · <b>Shift</b> y clic (o Shift y arrastra un recuadro) elige varios · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia la regla de entrada"
+        : "Arrastra el fondo para recorrer la rama · toca un nodo para abrirlo y arrástralo para acomodarlo")}${
+      esProy ? "" : atajosLegend()}</div>`;
 
   ov.classList.add("show");
   /* Los manejadores del lienzo solo si hay lienzo: sin él, `encuadrarLienzos`
@@ -631,7 +663,7 @@ document.addEventListener("mousemove", (e) => {
    la que esté a pantalla completa o en edición. */
 function ramaDeAtajo() {
   // A pantalla completa solo hay una rama en juego, señale donde señale
-  if (fullscreenBranch) return fullscreenBranch;
+  if (fullscreenBranch) return fullscreenMod === "talentos" ? fullscreenBranch : null;
   if (cursorRama && cursorRama.branch) return cursorRama.branch;
   return editBranch;
 }
@@ -696,7 +728,10 @@ document.addEventListener("keydown", (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
 
   // Solo dentro del árbol (o de una rama a pantalla completa)
-  if (!fullscreenBranch && activeMainView !== "tree") return;
+  /* Los atajos crean TALENTOS. Con un proyecto a pantalla completa,
+     `fullscreenBranch` está puesto pero la rama es de otro módulo: sin esta
+     comprobación, pulsar Q sembraba un talento dentro de un proyecto. */
+  if (fullscreenBranch ? fullscreenMod !== "talentos" : activeMainView !== "tree") return;
   const rama = ramaDeAtajo();
   if (!rama) return;
 
@@ -752,6 +787,8 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
       item(editando ? "Salir de edición" : "Editar el mapa",
         editando ? "Vuelve al modo normal" : "Conecta y corta hilos", "",
         `cerrarCtxMenu();toggleEditBranch('${enJS(branch)}','proyectos')`) +
+      (fullscreenBranch ? "" : item("Ver en pantalla completa", "Recorre el proyecto con sitio de sobra", "",
+        `cerrarCtxMenu();openBranchFullscreen('${enJS(branch)}','proyectos')`, BM_ICONS.expandir)) +
       (undoStack.length ? item("Deshacer", undoStack[undoStack.length - 1].etiqueta, "Ctrl Z", `cerrarCtxMenu();undoEditor()`) : "");
     colocarCtxMenu(el, clientX, clientY);
     return;

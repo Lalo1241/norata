@@ -238,6 +238,12 @@ function renderProjects() {
   /* El vacío es no tener NADA, ni siquiera un proyecto esperando: con un
      proyecto creado hay que enseñarlo, aunque todavía no lleve encargos. */
   if (all.length === 0 && ramas.length === 0) {
+    /* Antes de la salida rápida, no después, por lo mismo que en Talentos:
+       `renderFullscreen` vive al final de esta función, así que borrar el
+       último proyecto estando a pantalla completa dejaba la capa encima
+       enseñando algo que ya no existía. Se salía con Escape, pero lo que se
+       veía era mentira. */
+    renderFullscreen("proyectos");
     el.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("flag", 34)}</div>
@@ -397,6 +403,10 @@ function renderProjects() {
     </div>`;
   }
   el.innerHTML = html;
+  /* Antes de los manejadores, igual que en renderTree: la capa se dibuja la
+     última para que las posiciones que deja apuntadas `constellation` sean
+     las del lienzo que se está viendo, no las del que quedó debajo. */
+  renderFullscreen("proyectos");
   /* Las tarjetas se arrastran, y no solo dentro de su rama: soltarlas en
      otra las muda. Es la operación que antes obligaba a abrir el encargo,
      entrar a editarlo y cambiar un desplegable — tres pantallas para algo
@@ -421,7 +431,7 @@ function renderProjects() {
   /* Los mapas se enganchan igual que los de Talentos y en el mismo orden:
      primero el editor (que solo hay uno a la vez), luego el arrastre normal y
      el clic derecho, y al final el encuadre. Ver renderTree. */
-  if (editMod === "proyectos" && editBranch && enMapaProyectos(editBranch)) attachEditHandlers(el);
+  if (editMod === "proyectos" && editBranch && enMapaProyectos(editBranch) && !fullscreenBranch) attachEditHandlers(el);
   attachPanHandlers(el);
   attachCtxHandlers(el);
   encuadrarLienzos(el);
@@ -473,6 +483,9 @@ function mapaDeProyecto(b, editando, clave) {
   return `
     <div class="const-wrap ${editando ? "editing" : ""}" data-branch="${escapeAttr(b)}" data-mod="proyectos">${
       constellation(nodes, clave, editando, b, "proyectos")}</div>
+    <button class="fs-open" onclick="openBranchFullscreen('${enJS(b)}','proyectos')">
+      <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> Ver el proyecto completo
+    </button>
     ${editando
       ? `<div class="const-hint edit">Arrastra para acomodar · tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno</div>`
       : `<div class="const-hint">Toca un encargo para abrirlo · arrástralo para acomodarlo · clic derecho para conectar, crear y más</div>`}`;
@@ -1183,7 +1196,7 @@ function renderTree() {
        final de esta función, así que borrar la última rama estando a pantalla
        completa dejaba la capa encima mostrando una rama que ya no existía.
        Se salía con Escape, pero lo que se veía era mentira. */
-    renderFullscreen();
+    renderFullscreen("talentos");
     el.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("map", 34)}</div>
@@ -1347,7 +1360,7 @@ function renderTree() {
      constellation() deja apuntadas en variables globales las posiciones del
      último lienzo dibujado, y las que deben quedar vigentes son las del
      lienzo que el usuario está tocando. */
-  renderFullscreen();
+  renderFullscreen("talentos");
   if (editBranch && !fullscreenBranch) attachEditHandlers();
   /* En escritorio el lienzo de la lista también se arrastra con el botón
      izquierdo: la rama puede ser más ancha que la tarjeta y no hay por qué
