@@ -502,7 +502,7 @@ function topeAlcanzado(clave) {
        decía de QUÉ eran: se leían como características sueltas del cuadro y
        no como lo que abre pagar. Un renglón lo arregla, y de paso es donde
        el nombre del producto aparece por primera vez. */
-    '<span class="tope-tit">Lo que abre ' + escapeHtml(NOMBRE_PRO) + '</span>' +
+    '<span class="tope-tit">' + icon("gem", 15) + 'Lo que abre ' + escapeHtml(NOMBRE_PRO) + '</span>' +
     '<span class="tope-lista">' +
       ventajasPro().map(function (v) {
         return '<span class="tope-item">' + icon("check", 15) +
@@ -520,7 +520,11 @@ function topeAlcanzado(clave) {
      este cuadro: aquí no se rompió nada. Alguien llenó una rama, que es un
      logro. El temblor y el coral son para lo que se pierde. */
   return askBase(cuerpo, true, "Quiero " + NOMBRE_PRO, false, false, "Ahora no",
-                 { icono: "crown", titulo: t.titulo, tono: "menta" }).then(ok => {
+                 /* La gema y no la corona: es el símbolo que la app usa para
+                    lo premium, y repetirlo en el cuadro del tope, en la lista
+                    y en el botón hace que los tres se lean como el mismo
+                    sitio al que te llevan. */
+                 { icono: "gem", titulo: t.titulo, tono: "menta" }).then(ok => {
     if (ok && typeof abrirAjustes === "function") abrirAjustes("plan");
   });
 }

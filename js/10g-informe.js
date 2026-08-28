@@ -48,6 +48,9 @@ function volverDeInforme() {
 }
 
 function informeVerRama(rama) {
+  /* Sin plan solo abre la portada. Se avisa igual que en cualquier otro tope
+     de la app: se dice qué hay detrás, no se ignora el toque. */
+  if (rama !== "todo" && !planIncluyeResumen("semana")) { topeAlcanzado("resumen"); return; }
   informeRamaActual = rama;
   renderInforme();
   const c = document.getElementById("informe-cuerpo");
@@ -58,6 +61,10 @@ function informeVerRama(rama) {
    en el mes. Cambiarlo por debajo obligaría a volver a elegirlo cinco veces
    para leer el mismo mes en las cinco ramas. */
 function informeVerPeriodo(p) {
+  /* Tocar el periodo que ya estás viendo no es toparse con nada: sin esto, en
+     el plan Gratuito pulsar «Semana» —la que está puesta— abría el cuadro de
+     Pro, que es la peor forma de contestar a alguien que no pidió nada. */
+  if (p === informePeriodoActual) return;
   if (!planIncluyeResumen(p)) { topeAlcanzado("resumen"); return; }
   informePeriodoActual = p;
   renderInforme();
@@ -278,6 +285,7 @@ function renderInforme() {
   const el = document.getElementById("informe-cuerpo");
   if (!el) return;
 
+  const conPlan = planIncluyeResumen("semana");
   const periodo = planIncluyeResumen(informePeriodoActual) ? informePeriodoActual : "semana";
   const r = rangoDe(periodo, 0);
   const rAntes = rangoDe(periodo, 1);
@@ -287,13 +295,25 @@ function renderInforme() {
     <div class="inf-mandos">
       <div class="inf-periodos" role="tablist" aria-label="Periodo del informe">
         ${["semana", "mes", "ano"].map(p => `
-          <button role="tab" class="${p === periodo ? "on" : ""}${planIncluyeResumen(p) ? "" : " bajo-llave"}"
+          ${/* El que está puesto nunca sale apagado, aunque el plan no lo
+                incluya: en el plan Gratuito la portada que se ve ES la de la
+                semana, así que enseñar «Semana» seleccionada y gris a la vez
+                se contradice consigo misma. Gris es lo que no está abierto Y
+                no estás viendo. */""}
+          <button role="tab" class="${p === periodo ? "on" : (planIncluyeResumen(p) ? "" : "bajo-llave")}"
             aria-selected="${p === periodo}" onclick="informeVerPeriodo('${p}')">${escapeHtml(PERIODOS[p].nombre)}</button>`).join("")}
       </div>
       <div class="inf-ramas" role="tablist" aria-label="Módulo del informe">
-        ${INFORME_RAMAS.map(x => `
-          <button role="tab" class="${x.id === informeRamaActual ? "on" : ""}"
-            aria-selected="${x.id === informeRamaActual}" onclick="informeVerRama('${x.id}')">${escapeHtml(x.nombre)}</button>`).join("")}
+        ${/* Sin plan, las cuatro ramas no llevan a ninguna parte: el informe
+              que se ve es la portada, y tocarlas no cambiaba nada en pantalla.
+              Se apagan igual que los periodos cerrados —se ven, dicen por qué
+              al tocarlas— en vez de fingir que funcionan. */
+          INFORME_RAMAS.map(x => {
+            const abierta = conPlan || x.id === "todo";
+            return `
+          <button role="tab" class="${x.id === informeRamaActual ? "on" : ""}${abierta ? "" : " bajo-llave"}"
+            aria-selected="${x.id === informeRamaActual}" onclick="informeVerRama('${x.id}')">${escapeHtml(x.nombre)}</button>`;
+          }).join("")}
       </div>
     </div>`;
 
@@ -301,8 +321,9 @@ function renderInforme() {
      plan ve su propia portada y ahí se acaba el informe. Y ve sus números de
      verdad, no un ejemplo — verlos una vez es lo que explica para qué sirve
      pagar, y son suyos. */
-  if (!planIncluyeResumen("semana")) {
-    el.innerHTML = mandos + portadaHTML(r, rAntes, D) + antesalaHTML();
+  if (!conPlan) {
+    el.innerHTML = mandos + `<p class="inf-rango">${escapeHtml(tituloDeRango(r))}</p>` +
+      portadaHTML(r, rAntes, D) + antesalaHTML();
     return;
   }
 
@@ -331,14 +352,19 @@ function portadaHTML(r, rAntes, D) {
   const pro = metricasProyectos(r, D);
   const cerradas = pro.etapas + pro.terminados + tal.completados;
 
+  /* La frase decía «Del 23 al 29 de agosto: cumpliste 33 misiones, ganaste
+     1310 XP y cerraste 6 cosas», y justo debajo estaban esos tres números en
+     grande. Era la misma información dos veces, y en la parte más visible de
+     la pantalla. Ahora la frase dice lo único que las cifras no pueden decir
+     solas —cómo se compara con el periodo anterior— y las cifras dicen cuánto.
+     El rango de fechas tampoco se repite: ya está arriba, en su rótulo. */
   const v = variacion(mis.marcas, misA.marcas);
-  const cola = v.dir === "nueva" ? "Es tu primer periodo con datos."
-    : v.dir === "igual" ? "Igual que el periodo anterior."
-    : v.dir === "mejor" ? "Mejor que el periodo anterior." : "Menos que el periodo anterior.";
-
-  const frase = mis.marcas || hab.ganada || cerradas
-    ? `${tituloDeRango(r)}: cumpliste ${fraseCantidad2(mis.marcas, "misión", "misiones")}, ganaste ${fmtXp(hab.ganada)} XP y cerraste ${fraseCantidad2(cerradas, "cosa", "cosas")}. ${cola}`
-    : `${tituloDeRango(r)}: todavía sin movimiento. Esto se llena solo en cuanto empieces a marcar.`;
+  const frase = !(mis.marcas || hab.ganada || cerradas)
+    ? "Todavía sin movimiento. Esto se llena solo en cuanto empieces a marcar."
+    : v.dir === "nueva" ? "Es tu primer periodo con datos: a partir de aquí ya hay con qué comparar."
+    : v.dir === "igual" ? "Igual que el periodo anterior. Sostener también es un resultado."
+    : v.dir === "mejor" ? "Fue mejor que el periodo anterior."
+    : "Fue más flojo que el periodo anterior, y eso no borra lo de antes.";
 
   /* El repaso de diciembre. Un año no se resume con los mismos tres números
      que una semana: lo que se recuerda de un año es cuánto subiste, cuánto
@@ -348,7 +374,7 @@ function portadaHTML(r, rAntes, D) {
       <div class="inf-tres inf-repaso">
         <div><b>${hab.niveles}</b><span>Niveles subidos</span></div>
         <div><b>${rachaMasLarga(r, D)}</b><span>Tu racha más larga</span></div>
-        <div><b>${money(tal.invertido)}</b><span>Invertido en ti</span></div>
+        <div><b>${moneyHTML(tal.invertido)}</b><span>Invertido en ti</span></div>
       </div>` : "";
 
   return `
@@ -410,20 +436,34 @@ function accesosHTML(r, D) {
     </div>`;
 }
 
+/* Lo que abre el informe completo, dicho de uno en uno. Antes era un párrafo
+   con las cinco cosas metidas en la misma frase: se leía como relleno y no
+   como una lista de lo que ganas. Cada renglón nombra una pregunta que el
+   informe contesta y ninguna repite lo de arriba. */
+const INFORME_ABRE = [
+  "En qué día de la semana se te cae el ritmo",
+  "De dónde sale tu XP: misiones, talentos, proyectos o práctica",
+  "En qué se te va el dinero y qué se te vence",
+  "Qué encargos llevan semanas quietos",
+  "El mes y el año enteros, con el mapa de tus días"
+];
+
 function antesalaHTML() {
   return `
     <section class="panel inf-antesala">
-      <h3>Tu semana entera, con ${escapeHtml(NOMBRE_PRO)}</h3>
-      <p class="settings-note">
-        Arriba están tus números de verdad, los de este periodo. El informe
-        completo abre el resto: en qué día te caes, de dónde sale tu XP, en
-        qué se va el dinero y qué encargos llevan semanas quietos.
+      <h3>${icon("gem", 19)}El informe completo, con ${escapeHtml(NOMBRE_PRO)}</h3>
+      <p class="settings-note" style="margin:0">
+        Los números de arriba son tuyos y los ves siempre, igual que el panel
+        de cada módulo. Lo que abre ${escapeHtml(NOMBRE_PRO)} es todo lo demás:
       </p>
+      <ul class="inf-abre">
+        ${INFORME_ABRE.map(x => `<li>${icon("check", 16)}<span>${escapeHtml(x)}</span></li>`).join("")}
+      </ul>
       <div class="inf-siluetas" aria-hidden="true">
         ${[62, 88, 40, 74, 55, 90].map(h => `<i style="height:${h}%"></i>`).join("")}
       </div>
       <div class="stack">
-        <button class="btn btn-primary" onclick="abrirAjustes('plan')">Ver ${escapeHtml(NOMBRE_PRO)}</button>
+        <button class="btn btn-primary" onclick="abrirAjustes('plan')">${icon("gem", 17)}Ver ${escapeHtml(NOMBRE_PRO)}</button>
       </div>
     </section>`;
 }
@@ -601,7 +641,7 @@ function infTalentos(r, rAntes, D) {
 
   html += bloque("Cómo va lo que abriste", "",
     `<div class="inf-cifras tres">
-      <div><b>${money(t.invertido)}</b><span>Invertido</span>${flechaHTML(variacion(t.invertido, p.invertido, { dinero: true }), "Frente al periodo anterior")}</div>
+      <div><b>${moneyHTML(t.invertido)}</b><span>Invertido</span>${flechaHTML(variacion(t.invertido, p.invertido, { dinero: true }), "Frente al periodo anterior")}</div>
       <div><b>${t.completados}</b><span>Asegurados</span>${flechaHTML(variacion(t.completados, p.completados), "Frente al periodo anterior")}</div>
       <div><b class="${t.vencidos ? "coral" : ""}">${t.vencidos}</b><span>Se les pasó el plazo</span></div>
     </div>`);

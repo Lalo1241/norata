@@ -1069,6 +1069,10 @@
   .sc-rows > div { display: flex; align-items: baseline; gap: 5px; }
   .sc-rows b { font-size: 13.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
   .sc-rows span { font-size: 10.5px; color: var(--faint); letter-spacing: 0.3px; }
+  /* La flecha de comparación también en el Resumen, y es la misma pieza que
+     en los paneles: aquí va en línea con su cifra en vez de debajo, porque
+     esta fila se lee de lado y no en columnas. */
+  .sc-rows .sh-var { display: inline; min-height: 0; margin: 0; font-size: 10.5px; }
   /* Lo siguiente que se puede desbloquear: la parte accionable */
   .sc-near { margin-top: 10px; }
   .sc-near span { display: block; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--mint); }
@@ -2216,8 +2220,27 @@
   /* Dos renglones reservados cuando alguna cifra del grupo es larga —un
      importe con su moneda—, para que la que parte en dos no arrastre su
      rótulo hacia abajo y descuadre las otras tres. La pone `sectionHero`
-     mirando el largo del texto; el CSS solo guarda el sitio. */
-  .sh-stats .n.alto { min-height: 46px; }
+     mirando el largo del texto; el CSS solo guarda el sitio.
+
+     Y centrado, no pegado arriba: reservando el hueco sin más, las cifras
+     cortas quedaban flotando en el techo de su caja con todo el aire debajo,
+     que es exactamente lo que se veía descuadrado aunque los rótulos ya
+     estuvieran a la misma altura. */
+  .sh-stats .n.alto {
+    min-height: 46px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* El código de la moneda dentro de una cifra. Más pequeño y sin tanto peso:
+     es la unidad, no un número. */
+  .mny {
+    font-style: normal;
+    font-size: 0.58em;
+    font-weight: 700;
+    opacity: 0.7;
+    margin-left: 0.3em;
+    letter-spacing: 0.03em;
+  }
   .sh-stats .n.mint { color: var(--mint); }
   .sh-stats .n.fire { color: var(--fire); }
   .sh-stats .n.coral { color: var(--coral); }
@@ -3478,7 +3501,11 @@
      pequeño porque no compite con el titular del cuadro, solo dice de qué es
      la lista de abajo. */
   .modal-card.menta .tope-tit {
-    display: block;
+    /* Flex y no block desde que lleva la gema delante: con `display:block` el
+       svg se apoyaba en la línea base del texto y quedaba tres píxeles bajo. */
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.07em;
@@ -3486,6 +3513,7 @@
     color: var(--mint);
     margin-bottom: 7px;
   }
+  .modal-card.menta .tope-tit svg { width: 15px; height: 15px; flex: none; }
   .modal-card.menta .tope-lista {
     display: grid;
     gap: 9px;
@@ -4847,19 +4875,24 @@
     padding-bottom: 2px;
   }
   .inf-periodos::-webkit-scrollbar, .inf-ramas::-webkit-scrollbar { display: none; }
+  /* Los mandos siguen la escala de botones de la app y no una suya: el que
+     está puesto es un `btn-linea` —fondo oscuro y borde menta—, porque eso es
+     exactamente lo que hace, llevarte a mirar sin escribir nada. Menta maciza
+     habría sido decir «esta es LA acción de la pantalla», y no lo es.
+
+     Sin transición en el fondo ni en el color: los dos salen de variables y
+     Chrome deja el valor congelado en el inicial (ver las trampas). */
   .inf-periodos button, .inf-ramas button {
     flex: none; font: inherit; font-size: 13px; font-weight: 650;
     color: var(--muted); background: var(--card); cursor: pointer;
     border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px;
   }
-  /* Sin transición en el fondo ni en el color: los dos salen de variables y
-     Chrome deja el valor congelado en el inicial (ver las trampas). */
   .inf-periodos button.on, .inf-ramas button.on {
-    color: var(--sobre-macizo); background: var(--mint-macizo); border-color: transparent;
+    color: var(--mint); background: var(--card); border-color: var(--mint);
   }
-  /* Un periodo que todavía no abre no se esconde: se ve y dice por qué al
+  /* Lo que todavía no abre no se esconde: se ve apagado y dice por qué al
      tocarlo. Esconderlo haría creer que no existe. */
-  .inf-periodos button.bajo-llave { opacity: 0.55; }
+  .inf-periodos button.bajo-llave, .inf-ramas button.bajo-llave { opacity: 0.45; }
 
   .inf-rango {
     margin: 0 0 12px; font-size: 12px; letter-spacing: 0.06em;
@@ -4965,6 +4998,20 @@
     mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
   }
   .inf-siluetas i { flex: 1; background: var(--mint-soft); border-radius: 8px; display: block; }
+
+  /* ---- La invitación a Pro dentro del informe ----
+     Antes era un párrafo con cinco cosas metidas en una frase, y encima
+     repetía lo que los tres números de arriba ya decían. Ahora la lista dice
+     una cosa por renglón: lo que se abre se cuenta, no se narra. */
+  .inf-antesala h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 17px; }
+  .inf-antesala h3 svg { width: 19px; height: 19px; flex: none; color: var(--fire); }
+  .inf-abre { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .inf-abre li {
+    display: flex; align-items: flex-start; gap: 9px;
+    font-size: 14px; line-height: 1.45;
+  }
+  .inf-abre li svg { width: 16px; height: 16px; flex: none; margin-top: 2px; color: var(--mint); }
+  .inf-antesala .btn svg { width: 17px; height: 17px; margin-right: 7px; vertical-align: -3px; }
 
 
 

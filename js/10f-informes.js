@@ -582,7 +582,10 @@ function statsPanelTalentos(ctx) {
     { n: enCurso, t: "En curso", tone: enCurso ? "fire" : "" },
     { n: m.completados, t: `Asegurados · ${PANEL_DIAS} días`, tone: "mint",
       d: flechaHTML(variacion(m.completados, p.completados), `Talentos asegurados ${CONTRA}`) },
-    { n: money(m.invertido), t: `Invertido · ${PANEL_DIAS} días`,
+    /* `moneyHTML` y no `money`: aquí el importe se inserta como HTML, así que
+       el código de la moneda puede ir en su etiqueta y pintarse más pequeño.
+       Con las dos partes al mismo tamaño, «MXN» pesaba como una cifra. */
+    { n: moneyHTML(m.invertido), t: `Invertido · ${PANEL_DIAS} días`,
       d: flechaHTML(variacion(m.invertido, p.invertido, { dinero: true }), `Invertido ${CONTRA}`) },
     /* «Por vencer» y no «Vencen esta semana»: medido a 375 px, el rótulo
        largo se partía en TRES renglones y dejaba esa columna más alta que las
