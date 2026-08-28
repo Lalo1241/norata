@@ -2213,6 +2213,11 @@
   .sh-stats { display: flex; gap: 8px; }
   .sh-stats > div { flex: 1; text-align: center; }
   .sh-stats .n { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  /* Dos renglones reservados cuando alguna cifra del grupo es larga —un
+     importe con su moneda—, para que la que parte en dos no arrastre su
+     rótulo hacia abajo y descuadre las otras tres. La pone `sectionHero`
+     mirando el largo del texto; el CSS solo guarda el sitio. */
+  .sh-stats .n.alto { min-height: 46px; }
   .sh-stats .n.mint { color: var(--mint); }
   .sh-stats .n.fire { color: var(--fire); }
   .sh-stats .n.coral { color: var(--coral); }
@@ -2263,9 +2268,8 @@
      de qué periodo hablan— y en un teléfono unos caben en un renglón y otros
      en dos. Con alturas distintas, las cuatro columnas quedaban desalineadas y
      el bloque se leía roto. Dos renglones de sitio para todos: medido a 375 px,
-     ninguno pide tres. Va dentro de `html.informes` para no meterle aire de
-     más al panel de siempre, que sigue teniendo rótulos de una palabra. */
-  html.informes .sh-stats .t { min-height: 30px; }
+     ninguno pide tres. */
+  .sh-stats .t { min-height: 30px; }
 
   .sh-var.mejor { color: var(--mint); }
   .sh-var.peor { color: var(--coral); }
@@ -4798,10 +4802,9 @@
      de navegación del teléfono (64 px) más el borde seguro.
 
      No se dibuja salvo que la clase esté puesta en `<html>`, que es lo que
-     hace el script de arriba de index.html al ver `?informes=si`. Cuando se
-     quite la prueba se borra este bloque entero, por nombre. */
+     hace el script de arriba de index.html al ver `?informes=demo`. */
   .rotulo-prueba { display: none; }
-  html.informes .rotulo-prueba {
+  html.informes-demo .rotulo-prueba {
     display: flex; align-items: center; gap: 8px;
     position: fixed;
     left: 12px;
@@ -4814,7 +4817,7 @@
     letter-spacing: 0.06em; text-transform: uppercase;
     max-width: calc(100vw - 24px);
   }
-  html.informes .rotulo-prueba a {
+  html.informes-demo .rotulo-prueba a {
     color: inherit;
     background: rgba(16, 21, 29, 0.14);
     border: 1px solid rgba(16, 21, 29, 0.28);
@@ -4823,14 +4826,10 @@
   }
   /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
      deja congelado en el inicial. */
-  html.informes .rotulo-prueba a:hover { background: rgba(16, 21, 29, 0.24); }
-  /* Cuál de los dos rótulos se ve. Con números inventados manda el otro. */
-  .rotulo-prueba .rp-demo { display: none; }
-  html.informes-demo .rotulo-prueba .rp-real { display: none; }
-  html.informes-demo .rotulo-prueba .rp-demo { display: inline; }
+  html.informes-demo .rotulo-prueba a:hover { background: rgba(16, 21, 29, 0.24); }
   @media (min-width: 900px) {
     /* En pantalla ancha la barra de navegación no está abajo. */
-    html.informes .rotulo-prueba { bottom: calc(env(safe-area-inset-bottom) + 14px); }
+    html.informes-demo .rotulo-prueba { bottom: calc(env(safe-area-inset-bottom) + 14px); }
   }
 
 

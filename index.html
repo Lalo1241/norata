@@ -62,32 +62,33 @@
     }
   } catch (e) {}
 
-  /* ---- Prueba de las flechas de los paneles (0.7.20) ----
-     Las flechas de comparación cambian los cuatro paneles grandes a la vez, y
-     qué número merece estar arriba lo decide Eduardo. Así que van apagadas:
-     se encienden con `?informes=si` y se apagan con `?informes=no`.
+  /* ---- El escaparate: `?informes=demo` ----
+     Aquí vivía el interruptor de la reforma de los paneles (0.7.20 a 0.7.27),
+     y se fue en 0.7.28 cuando Eduardo la dio por buena: las flechas y el botón
+     del informe son ya la app, sin condición.
 
-     En sessionStorage y no en localStorage a propósito: un ajuste se queda
-     puesto, y esto no es un ajuste. Al cerrar la pestaña desaparece, así que
-     nadie se queda mirando una prueba creyendo que es la app.
+     Lo que se queda es el escaparate, y a sabiendas. Con `?informes=demo` la
+     pestaña enseña los paneles y el informe con un mes de vida INVENTADA. No
+     es una función a medias: es la única forma de mirar el diseño sin esperar
+     semanas a tener historia, y sin ella no se habría podido decidir nada de
+     lo que se decidió. Se paga que el código viaje en la app de todo el
+     mundo, igual que el panel de administración.
+
+     Nadie que no escriba el parámetro se lo encuentra, los números no tocan
+     `state` ni se guardan, y mientras están puestos un rótulo fijo dice que
+     no son tus datos. `?informes=no` lo apaga.
+
+     En sessionStorage y no en localStorage: al cerrar la pestaña desaparece,
+     así que nadie se queda mirando datos falsos creyendo que son suyos.
 
      Aquí arriba y no en el script principal por lo mismo que el modo claro:
-     abajo se vería un instante el panel viejo y luego el cambio.
-
-     Y hay un tercer valor, `?informes=demo`, que enseña los paneles con
-     números INVENTADOS. Existe porque la prueba no se podía juzgar: en una
-     cuenta sin historia no aparece ninguna flecha —no hay con qué comparar—,
-     así que la primera vez que se miró parecía que no había cambiado nada.
-     Los números falsos no tocan tus datos: no se guardan, no pasan por
-     `state` y viven solo en lo que se está dibujando. */
+     abajo se vería un instante la app de verdad y luego el cambio. */
   try {
     var qi = new URLSearchParams(location.search).get("informes");
-    if (qi === "si" || qi === "no" || qi === "demo") sessionStorage.setItem("norata-prueba-informes", qi);
-    var modoInformes = sessionStorage.getItem("norata-prueba-informes");
-    if (modoInformes === "si" || modoInformes === "demo") {
-      document.documentElement.classList.add("informes");
+    if (qi === "demo" || qi === "no") sessionStorage.setItem("norata-prueba-informes", qi);
+    if (sessionStorage.getItem("norata-prueba-informes") === "demo") {
+      document.documentElement.classList.add("informes-demo");
     }
-    if (modoInformes === "demo") document.documentElement.classList.add("informes-demo");
   } catch (e) {}
 
   /* ---- Red de seguridad ----
@@ -220,13 +221,12 @@
      que la pestaña está en modo prueba y acabar juzgando la app de verdad por
      lo que se ve aquí. Se borra entero al quitar la prueba; ver VERSIONES.md,
      que lleva la lista exacta de qué hay que borrar y dónde. -->
+<!-- El rótulo del escaparate. Solo se dibuja con `?informes=demo` puesto, y
+     tiene que estar: una pantalla enseñando datos que no son tuyos sin
+     avisarlo es peor que no poder mirarla. -->
 <div class="rotulo-prueba" id="rotulo-informes">
-  <!-- Dos rótulos y no uno: con números inventados hay que decirlo en el
-       sitio donde se está mirando. Un panel que enseña datos que no son tuyos
-       sin avisarlo es peor que no poder probarlo. -->
-  <span class="rp-real">Prueba: los paneles con flechas de comparación</span>
-  <span class="rp-demo">Prueba con números inventados: no son tus datos</span>
-  <a href="?informes=no">apagar</a>
+  Estás viendo números inventados, no son tus datos
+  <a href="?informes=no">salir</a>
 </div>
 
 <div class="orb orb-1"></div>

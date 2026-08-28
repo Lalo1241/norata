@@ -52,6 +52,44 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.29 · 28 ago 2026
+Los informes dejan de ser una prueba y pasan a ser la app.
+
+Eduardo la dio por buena, así que **se quita el interruptor**. Las flechas de
+comparación están en los cuatro paneles y el botón «Ver el informe» está
+puesto, sin condición y sin escribir nada en la dirección. Borrado por nombre y
+no por rango, que es como toca:
+
+1. `index.html` — el bloque del interruptor en el script de arriba.
+2. `css/estilos.css` — el `html.informes` que envolvía la altura de los
+   rótulos, que ahora vale para los cuatro heroes siempre.
+3. `js/10f-informes.js` — `pruebaInformes()`.
+4. Los cuatro `pruebaInformes() ? … : …` de `05-resumen.js` y `06-detalle.js`:
+   se queda la rama nueva y se va la vieja con su comentario.
+
+**El escaparate se queda, y a sabiendas.** `?informes=demo` sigue enseñando los
+paneles y el informe con un mes de vida inventada. No es una función a medias:
+es la única forma de mirar estas pantallas sin esperar semanas a tener
+historia, y sin ella no se habría podido decidir nada de lo que se decidió —la
+primera vez que se miró la reforma en una cuenta vacía, parecía que no había
+cambiado nada—. Se paga que su código viaje en la app de todo el mundo, igual
+que el panel de administración. Nadie que no escriba el parámetro se lo
+encuentra, los números no tocan `state` ni se guardan, y mientras están puestos
+el rótulo dice que no son tus datos. El rótulo cambia de texto: ahora habla de
+números inventados y su botón dice «salir», que es lo que hace.
+
+**Y un fallo que causó la moneda de 0.7.24.** Al escribirle el código a todos
+los importes, `$5,340 MXN` dejó de caber en una columna de 78 px del panel de
+Talentos: partía en dos renglones y arrastraba su rótulo 23 px hacia abajo,
+descuadrando las otras tres columnas. Ni recortar el número ni quitarle el
+código eran salida —las dos pierden el dato justo donde hay que
+desambiguar—, así que se reserva la segunda línea en las cuatro columnas
+cuando alguna cifra del grupo es larga, igual que se hizo con la fila de las
+flechas: o la hay para todas o no la hay para ninguna. Solo paga esa altura el
+panel que enseña dinero. Medido a 375 px: Talentos pasa de 332 a 355 px de
+alto y los otros tres se quedan igual; a 320 px, donde las columnas van en dos
+filas de dos, cada fila queda alineada consigo misma.
+
 ### 0.7.28 · 28 ago 2026
 El bicho es una bolita, y el reporte pregunta tres cosas.
 

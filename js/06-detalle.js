@@ -148,15 +148,9 @@ function renderMissions() {
         <div class="label">${dayName}</div>
         <div class="big" style="font-size:30px"><b>${pct}%</b><span> del día</span></div>
       </div>`,
-    /* Con la prueba encendida manda el motor de informes (js/10f-informes.js):
-       los números pasan a ser de los últimos siete días y cada uno trae su
-       flecha. Apagada, el panel de siempre. */
-    stats: pruebaInformes() ? statsPanelMisiones({ due }) : [
-      { n: due.length, t: "Hoy" },
-      { n: done.length, t: "Cumplidas", tone: "mint" },
-      { n: pending.length, t: "Pendientes", tone: pending.length ? "fire" : "" },
-      { n: state.missions.reduce((a, m) => Math.max(a, missionStreak(m)), 0), t: "Mejor racha" }
-    ],
+    /* Los números son de los últimos siete días y cada uno trae su flecha
+       (js/10f-informes.js). Lo de hoy sigue arriba, en el anillo y en «Hoy». */
+    stats: statsPanelMisiones({ due }),
     informe: "misiones",
     focus: pending[0]
       ? { k: "Lo siguiente para hoy", v: pending[0].name, color: "var(--mint)", onclick: `logMission('${pending[0].id}', 1)` }
@@ -300,14 +294,9 @@ function renderProjects() {
       <div class="label">Avance de lo que construyes</div>
       <div class="big"><b>${avgProg}%</b><span> promedio</span></div>
     </div>`,
-    /* Con la prueba encendida, «Etapas hechas» —un acumulado que solo sube—
-       deja sitio a las etapas y los cierres de esta semana, con su flecha. */
-    stats: pruebaInformes() ? statsPanelProyectos({ live, stalled }) : [
-      { n: live.length, t: "Vivos", tone: "mint" },
-      { n: stalled.length, t: "Estancados", tone: stalled.length ? "coral" : "" },
-      { n: done.length, t: "Terminados" },
-      { n: all.reduce((a, p) => a + (p.steps || []).filter(s => s.done).length, 0), t: "Etapas hechas" }
-    ],
+    /* «Etapas hechas» era un acumulado que solo sube: dejó sitio a las etapas
+       y los cierres de la semana, con su flecha. */
+    stats: statsPanelProyectos({ live, stalled }),
     informe: "proyectos",
     focus: pFocus
   });
@@ -1241,14 +1230,9 @@ function renderTree() {
       <div class="label">Invertido en ti</div>
       <div class="big"><b>${money(invested)}</b></div>
     </div>`,
-    /* Con la prueba encendida se va «Por abrir» —un inventario que no pide
-       nada— y entran el dinero de la semana y lo que se vence. */
-    stats: pruebaInformes() ? statsPanelTalentos({ activeN }) : [
-      { n: completed, t: "Permanentes", tone: "mint" },
-      { n: activeN, t: "En curso", tone: activeN ? "fire" : "" },
-      { n: total - completed - activeN, t: "Por abrir" },
-      ...(inProgress.length ? [{ n: avgProgress + "%", t: "Avance medio" }] : [])
-    ],
+    /* «Por abrir» era un inventario que no pide nada: dejó sitio al dinero de
+       la semana y a lo que se vence, que sí. */
+    stats: statsPanelTalentos({ activeN }),
     informe: "talentos",
     focus: Object.assign(focus, {
       onclick: focus.id ? `openPerk('${focus.id}')` : null,

@@ -325,28 +325,23 @@ function flechaHTML(v, titulo) {
   return `<i class="sh-var ${clase}" title="${escapeAttr(titulo || "")}">${escapeHtml(v.txt)}</i>`;
 }
 
-/* ================= La prueba con enlace =================
+/* ================= El escaparate: `?informes=demo` =================
 
-   Las flechas cambian los cuatro paneles de la app a la vez, y qué número
-   merece estar arriba lo decide Eduardo, no yo. Así que se sube apagado: la
-   pestaña entra en modo prueba con `?informes=si` y sale con `?informes=no`.
-   El interruptor se lee en el script de arriba de index.html —ahí y no aquí,
-   o se vería el panel viejo un instante antes de cambiar—. */
-function pruebaInformes() {
-  return document.documentElement.classList.contains("informes");
-}
+   Aquí hubo un interruptor —`pruebaInformes()`— que mantuvo toda esta reforma
+   apagada mientras Eduardo la miraba, de 0.7.20 a 0.7.27. Se fue en 0.7.28:
+   las flechas y el botón del informe son ya la app y no una prueba.
 
-/* ---- Y una segunda puerta: `?informes=demo` ----
-
-   La prueba no se podía juzgar. En una cuenta sin historia no sale ninguna
+   Lo que se queda es esto, y por un motivo que costó descubrir: **en una
+   cuenta sin historia el trabajo entero es invisible.** No sale ninguna
    flecha —no hay periodo anterior con el que comparar, y un cero contra otro
    cero se calla a propósito—, así que la primera vez que se miró parecía que
-   no había cambiado nada. Con datos inventados sí se ve de qué va.
+   no había cambiado nada. Sin un mes de vida inventada delante no se puede
+   opinar de ninguna de estas pantallas.
 
-   Los números de abajo NO tocan tus datos: no se guardan, no pasan por
-   `state` y solo existen mientras se dibuja. Y el rótulo de la pantalla lo
-   dice mientras están puestos, porque un panel enseñando cifras que no son
-   tuyas sin avisar es peor que no poder probarlo. */
+   Los números NO tocan tus datos: no se guardan, no pasan por `state` y solo
+   existen mientras se dibuja. Y el rótulo de la pantalla lo dice mientras
+   están puestos, porque enseñar cifras que no son tuyas sin avisar es peor
+   que no poder mirarlas. */
 function pruebaDemo() {
   return document.documentElement.classList.contains("informes-demo");
 }
