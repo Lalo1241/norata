@@ -54,6 +54,21 @@
     --celeste: #8ecdf5;
     --celeste-soft: rgba(142, 205, 245, 0.1);
 
+    /* ---------- Los tres tonos de un aro ----------
+       Un aro de nueve píxeles no es texto ni es un relleno: es un trazo
+       gordo. Pintado con `--mint` sale verde bosque de día —ese tono es el de
+       escribir, `#007046`, 5,46 sobre la tarjeta— y con el macizo se pierde
+       —`#00cc7f` da 1,87—. Estos tres están medidos para pasar de 3 sobre 1
+       contra la tarjeta clara siendo todavía el color que dicen ser.
+
+       Y el de en medio es celeste y no luciérnaga porque el amarillo no
+       llega: lo más claro que pasa de 3 ya es el dorado apagado que Eduardo
+       rechazó por leerse como una alerta interna. De noche los tres son los
+       acentos de siempre, que ahí ya contrastan de sobra. */
+    --aro-alto: #5fe0b0;
+    --aro-medio: #8ecdf5;
+    --aro-bajo: #ff8a70;
+
     /* ---------- El lila: el color de Fundador ----------
        Fundador iba en luciérnaga y había que sacarlo de ahí: el amarillo ya
        significa «mira esto» en toda la app —un plan que se cancela, un recibo
@@ -325,6 +340,10 @@
     --coral-vivo: #991b00;
     --celeste: #0f688f;
     --celeste-soft: #e5eef3;
+    /* Medidos contra la tarjeta clara (#f2f0f9): 3,36 · 3,77 · 3,82. */
+    --aro-alto: #009663;
+    --aro-medio: #1583b3;
+    --aro-bajo: #e03e18;
     /* Ver la nota larga del lila en el bloque de noche. Para escribir, hundido
        hasta pasar el 4,5; el velo levanta hacia el blanco como los demás. */
     --lila: #5b32c0;
@@ -2332,6 +2351,18 @@
   .shf-v { font-size: 13.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .shf-bar { display: block; height: 4px; border-radius: 999px; background: rgba(234,241,239,0.14); margin-top: 5px; overflow: hidden; }
   .shf-bar i { display: block; height: 100%; border-radius: 999px; }
+  /* El botón del informe vive DENTRO de la escena, que se queda de noche en
+     los dos modos. `btn-linea` le daba `var(--card)` de fondo, y esa variable
+     NO está entre las que la escena vuelve a declarar: de día salía una
+     pastilla blanca pegada sobre un fondo oscuro. Toma el mismo vidrio que el
+     recuadro del foco, que es su vecino, y así los dos se leen como parte de
+     la misma escena. */
+  .sh-informe {
+    background: rgba(20, 27, 37, 0.55);
+    backdrop-filter: blur(8px);
+    border-color: var(--mint);
+    color: var(--mint);
+  }
 
   /* ---------- Rama: el contenedor que se repite en toda la app ---------- */
   .sec-label {
@@ -3449,6 +3480,16 @@
   }
   .modal-card.alarm.oro p { color: var(--fire); }
   .modal-card.oro .modal-titulo { color: var(--fire); }
+  /* ---- El tono oro, completo ----
+     Al oro le faltaban las dos piezas que la menta sí tenía: el borde de la
+     tarjeta y el icono en su color. Las tenía solo `.alarm.oro` —el aviso de
+     borrar una cuenta—, así que un cuadro oro que no fuera una alarma salía
+     con el borde gris y el icono apagado, y el «oro» se quedaba en el título.
+     Lo destapó el cuadro de reportar un fallo, que es oro y no advierte de
+     nada. `.riesgo.oro`, unas líneas más abajo, sigue ganando por
+     especificidad y pinta lo mismo: no hay nada que cambie en los avisos. */
+  .modal-card.oro { border-color: var(--fire); }
+  .modal-ic.oro { background: var(--fire-soft); color: var(--fire); }
   .modal-ic.riesgo.oro { background: var(--fire-soft); color: var(--fire); }
   .modal-card.oro .btn-danger-ghost {
     background: var(--fire-macizo);
@@ -3476,7 +3517,8 @@
   /* El cuerpo, alineado a la izquierda. Centrada se lee bien una frase suelta
      y se lee mal un párrafo seguido de una lista: los renglones cortos quedan
      flotando y la vista pierde por dónde arranca cada uno. */
-  .modal-card.menta #modal-msg { text-align: left; }
+  .modal-card.menta #modal-msg,
+  .modal-card.reporte #modal-msg { text-align: left; }
   .modal-card.menta .tope-frase {
     display: block;
     font-size: 15px;
@@ -3538,13 +3580,35 @@
      Tres campos con el mismo lenguaje que el resto de la app: rótulo encima,
      campo debajo. Alineado a la izquierda porque un formulario centrado
      obliga a buscar dónde empieza cada renglón. */
-  .modal-card.menta .rep-campo {
+  /* ---------- El cuadro de reportar un fallo ----------
+     Va en oro —el tono de «esto tiene un coste que quizá no ves»— y no en
+     menta: un fallo no es un logro ni una venta. Lo eligió Eduardo.
+
+     Y el título en BLANCO aunque la tarjeta sea oro. `.modal-card.oro` lo pinta
+     de amarillo, que es lo correcto cuando el título ES la advertencia; aquí
+     el amarillo ya lo lleva el icono, y dos amarillos seguidos en la misma
+     columna se anulan. El blanco deja que el icono sea lo único que llame. */
+  .modal-card.reporte .modal-titulo { color: var(--text); }
+
+  /* El párrafo de entrada: dice para qué sirve lo que se va a escribir, antes
+     de la primera casilla. Alineado a la izquierda como los campos, y con aire
+     abajo para que no se lea como el rótulo del primero. */
+  .modal-card.reporte .rep-intro {
+    display: block;
+    text-align: left;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+
+  .modal-card.reporte .rep-campo {
     display: block;
     text-align: left;
     margin-bottom: 14px;
   }
-  .modal-card.menta .rep-campo:last-of-type { margin-bottom: 4px; }
-  .modal-card.menta .rep-rot {
+  .modal-card.reporte .rep-campo:last-of-type { margin-bottom: 4px; }
+  .modal-card.reporte .rep-rot {
     display: block;
     font-size: 12.5px; font-weight: 700;
     color: var(--muted);
@@ -3553,12 +3617,12 @@
   /* «Opcional» en el mismo renglón y más apagado: dice que se puede saltar
      sin gritarlo, que es justo lo que hace falta en un formulario que la
      gente abandona si le parece largo. */
-  .modal-card.menta .rep-rot i {
+  .modal-card.reporte .rep-rot i {
     font-style: normal; font-weight: 500; color: var(--faint);
   }
-  .modal-card.menta .rep-campo select,
-  .modal-card.menta .rep-campo input,
-  .modal-card.menta .rep-campo textarea {
+  .modal-card.reporte .rep-campo select,
+  .modal-card.reporte .rep-campo input,
+  .modal-card.reporte .rep-campo textarea {
     width: 100%;
     box-sizing: border-box;
     background: var(--bg2);
@@ -3569,11 +3633,11 @@
     font: inherit;
     font-size: 14px;
   }
-  .modal-card.menta .rep-campo textarea { resize: vertical; line-height: 1.5; }
-  .modal-card.menta .rep-campo ::placeholder { color: var(--faint); }
-  .modal-card.menta .rep-campo select:focus-visible,
-  .modal-card.menta .rep-campo input:focus-visible,
-  .modal-card.menta .rep-campo textarea:focus-visible {
+  .modal-card.reporte .rep-campo textarea { resize: vertical; line-height: 1.5; }
+  .modal-card.reporte .rep-campo ::placeholder { color: var(--faint); }
+  .modal-card.reporte .rep-campo select:focus-visible,
+  .modal-card.reporte .rep-campo input:focus-visible,
+  .modal-card.reporte .rep-campo textarea:focus-visible {
     outline: none; border-color: var(--mint);
   }
 
@@ -3599,7 +3663,8 @@
      Solo en `.menta`: es el único cuadro largo de verdad. Los de confirmar
      caben enteros y ahí `sticky` no cambiaría nada, pero tampoco hace falta
      probarlo en catorce sitios para ganar cero. */
-  .modal-card.menta .modal-actions {
+  .modal-card.menta .modal-actions,
+  .modal-card.reporte .modal-actions {
     position: sticky;
     bottom: calc(-1 * env(safe-area-inset-bottom));
     background: var(--card);
@@ -4917,19 +4982,33 @@
     font-size: 13px; line-height: 1.5; text-align: center;
   }
 
-  /* ---- Barras verticales ---- */
-  .inf-barras { display: flex; gap: 6px; align-items: flex-end; overflow-x: auto; scrollbar-width: none; }
-  .inf-barras::-webkit-scrollbar { display: none; }
-  .ib-col { flex: 1; min-width: 26px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-  .ib-v { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; min-height: 14px; }
-  /* La barra crece desde abajo, así que el carril se apila al revés. */
-  .ib-barra {
-    width: 100%; height: var(--inf-alto, 110px); border-radius: 6px;
-    background: var(--carril);
-    display: flex; align-items: flex-end; overflow: hidden;
+  /* ---- Barras verticales ----
+     Antes cada columna era un bloque del ancho entero con su carril gris
+     detrás, así que la gráfica se leía como una fila de ladrillos —siete
+     rectángulos grandes, y los días sin nada seguían ocupando un bloque
+     macizo de gris—. Ahora la barra es una columna delgada apoyada en una
+     línea de base, sin carril: lo que no pasó no dibuja nada, que es
+     exactamente lo que significa.
+
+     La línea de base sí se queda: sin ella las barras flotan y no se sabe
+     desde dónde crecen. */
+  .inf-barras {
+    display: flex; gap: 6px; align-items: flex-end;
+    overflow-x: auto; scrollbar-width: none;
   }
-  .ib-barra i { display: block; width: 100%; border-radius: 6px; }
-  .ib-k { font-size: 10.5px; color: var(--muted); letter-spacing: 0.04em; }
+  .inf-barras::-webkit-scrollbar { display: none; }
+  .ib-col { flex: 1; min-width: 24px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .ib-v { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; min-height: 14px; color: var(--muted); }
+  .ib-barra {
+    width: 100%; height: var(--inf-alto, 110px);
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .ib-barra i { display: block; width: 100%; max-width: 20px; border-radius: 4px 4px 0 0; }
+  .ib-k {
+    font-size: 10.5px; color: var(--muted); letter-spacing: 0.04em;
+    width: 100%; text-align: center;
+    padding-top: 6px; border-top: 1px solid var(--line);
+  }
 
   /* ---- Barras horizontales (rankings) ---- */
   .inf-rank { display: flex; flex-direction: column; gap: 10px; }
@@ -5035,21 +5114,44 @@
      casilla hasta volverla ilegible ni se enseñan menos días: la caja se
      desplaza de lado, que es la regla de la casa —la pantalla decide la
      forma, nunca el contenido—. */
-  .inf-calor-caja { overflow-x: auto; scrollbar-width: thin; padding-bottom: 4px; }
-  .inf-calor {
-    display: grid;
-    grid-template-rows: repeat(7, 13px);
-    grid-auto-flow: column;
-    grid-auto-columns: 13px;
-    gap: 3px;
-    width: max-content;
+  /* Un mes: siete columnas, las iniciales arriba y una casilla por día. Las
+     casillas se estiran con la tarjeta —`1fr` y `aspect-ratio`— en vez de
+     medir 13 px fijos, que es lo que dejaba el calendario del mes hecho un
+     sello en una tarjeta ancha. */
+  .cal-mes { max-width: 420px; }
+  .cal-dow, .cal-rejilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-dow { margin-bottom: 6px; }
+  .cal-dow span {
+    text-align: center; font-size: 10px; font-weight: 700;
+    color: var(--faint); letter-spacing: 0.04em;
   }
-  .inf-calor i { display: block; border-radius: 3px; }
-  /* Los huecos del principio de la primera semana: sin ellos el calendario
-     entero queda corrido y un martes aparece en la fila del jueves. */
+  .cal-rejilla i { display: block; aspect-ratio: 1; border-radius: 4px; }
+  /* Los huecos del principio del mes: sin ellos el calendario entero queda
+     corrido y el día 1 aparece en el día de la semana que no es. */
   .mc-hueco { background: transparent; }
-  .inf-escala { display: flex; align-items: center; gap: 5px; margin-top: 12px; font-size: 11px; color: var(--muted); }
-  .inf-escala i { width: 13px; height: 13px; border-radius: 3px; display: block; }
+  /* Lo que aún no ha llegado se ve, pero no se cuenta como fallado: un
+     recuadro apenas marcado en vez de una casilla vacía del todo, que se
+     leería como un día en blanco. */
+  .mc-futuro { background: transparent; box-shadow: inset 0 0 0 1px var(--line); opacity: 0.5; }
+
+  /* Un año: los doce meses en pequeño. Ni una cinta de 53 columnas que hay
+     que empujar de lado, ni un bloque medio vacío. */
+  .cal-ano { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 16px; }
+  .cal-mini-mes b {
+    display: block; font-size: 10.5px; font-weight: 700; margin-bottom: 5px;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .cal-rejilla.mini { gap: 2px; }
+  .cal-rejilla.mini i { border-radius: 2px; }
+
+  .inf-escala {
+    display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+    margin-top: 14px; font-size: 11px; color: var(--muted);
+  }
+  .inf-escala i { width: 12px; height: 12px; border-radius: 3px; display: block; }
+  /* Lo que dice qué es una casilla va primero y separado de la escala: sin
+     esa frase, el dibujo era bonito y no se sabía qué contaba. */
+  .inf-escala .ie-sep { margin-left: auto; }
 
   /* ---- Curvas acumuladas ----
      Sin ejes a propósito: la pregunta es la FORMA —si algo se despegó o se
@@ -5060,6 +5162,12 @@
   /* El repaso del año, debajo de los tres números de siempre. */
   .inf-repaso { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
   .inf-repaso b { font-size: 20px; }
+
+  @media (min-width: 700px) {
+    /* Los doce meses en cuatro columnas en cuanto hay sitio: en dos, el año
+       se convierte en una tira larguísima que hay que bajar entera. */
+    .cal-ano { grid-template-columns: repeat(4, 1fr); }
+  }
 
   @media (min-width: 900px) {
     /* En pantalla ancha los dos mandos caben en una fila y el informe se lee
@@ -5947,6 +6055,17 @@
 /* Lo ya visto se apaga en vez de desaparecer: un error que vuelve después de
    darlo por visto es información, y esconderlo la perdería. */
 .pn-error.visto { border-left-color: var(--carril); opacity: .55; }
+
+/* Lo que escribió una persona, con la raya en oro y no en coral. El coral dice
+   «esto se rompió»; un reporte no se rompió solo, alguien se paró a contarlo, y
+   eso vale más que un volcado de JavaScript: trae el contexto de lo que estaba
+   intentando hacer. La raya de color es lo que deja verlos de un vistazo en una
+   lista larga, sin tener que leer el pie de cada fila.
+   Y el bicho del título hereda ese oro, para que las dos señales digan lo
+   mismo en vez de repartirse el mensaje. */
+.pn-error.dicho { border-left-color: var(--fire); }
+.pn-error.dicho .pn-error-tit .ic { color: var(--fire); vertical-align: -2px; }
+.pn-error.dicho.visto { border-left-color: var(--carril); }
 
 .pn-error-tit { display: flex; gap: 10px; align-items: baseline; justify-content: space-between; }
 .pn-error-tit b { font-size: .84rem; font-weight: 600; color: var(--text); word-break: break-word; }

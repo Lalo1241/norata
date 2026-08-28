@@ -54,6 +54,108 @@ function repintarModulo(mod) {
    pulso contra la app. */
 const scrollRama = {};
 
+/* ================= El zoom =================
+   El dibujo se escala cambiando el TAMAÑO del SVG y dejando su `viewBox`
+   quieto. Suena raro y es lo que lo hace barato: todo lo que traduce píxeles
+   a coordenadas del dibujo —el arrastre, el corte, las conexiones, el
+   encuadre— ya sacaba la escala de la proporción entre lo que mide el SVG en
+   pantalla y lo que dice su viewBox. Al agrandar el SVG esa proporción sube
+   sola y los gestos siguen cayendo donde deben, sin tocar una línea de ellos.
+
+   La alternativa —mover el viewBox— habría dejado los trazos con el mismo
+   grosor a cualquier zoom, que es justo lo que no se quiere: alejarse tiene
+   que adelgazar las líneas, no dejarlas gruesas sobre un dibujo diminuto.
+
+   El nivel se guarda por rama y por sitio (lista o pantalla completa), con la
+   misma llave que el encuadre: volver a una rama tiene que devolverte donde
+   la dejaste, y eso incluye cuánto habías acercado. */
+const zoomRama = {};
+
+const ZOOM_MIN = 0.25, ZOOM_MAX = 2, ZOOM_PASO = 1.25;
+
+function zoomDe(wrap, b) {
+  const z = zoomRama[llaveDeLienzo(wrap, b)];
+  return typeof z === "number" ? z : 1;
+}
+
+function limitarZoom(z) { return Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z)); }
+
+/* Escribe el tamaño del SVG. El alto de la TARJETA no se toca aquí: en la
+   lista lo fija `encuadrarLienzo` a partir de lo que mide el dibujo, y si
+   creciera con el zoom, acercarte estiraría la página entera. Dentro de la
+   tarjeta se acerca y se recorre; la tarjeta se queda quieta. */
+function aplicarZoom(wrap, b) {
+  const svg = wrap.querySelector("svg");
+  if (!svg) return 1;
+  const z = zoomDe(wrap, b === undefined ? wrap.dataset.branch : b);
+  const w = +svg.getAttribute("width"), h = +svg.getAttribute("height");
+  if (!w || !h) return z;
+  svg.style.width = Math.round(w * z) + "px";
+  svg.style.height = Math.round(h * z) + "px";
+  ponerDetalle(wrap, z);
+  return z;
+}
+
+/* ---- El nivel de detalle, como el LOD de un videojuego ----
+   Al alejarse no se encoge todo por igual: primero se van las etapas y la
+   chapa de estado, luego el nombre, y lo último que queda es la figura con su
+   icono — que es lo que deja reconocer un nodo de un vistazo. Lo hace el CSS
+   con una clase, así que cambiar de nivel no vuelve a dibujar nada. */
+function ponerDetalle(wrap, z) {
+  wrap.classList.toggle("z-medio", z < 0.8 && z >= 0.45);
+  wrap.classList.toggle("z-lejos", z < 0.45);
+}
+
+/* Acercar o alejar dejando quieto el punto que se está señalando. Sin esto el
+   zoom se va siempre al origen del dibujo y uno acaba persiguiendo el mapa. */
+function zoomEn(wrap, b, nuevo, clientX, clientY) {
+  const z0 = zoomDe(wrap, b);
+  const z1 = limitarZoom(nuevo);
+  if (Math.abs(z1 - z0) < 0.0005) return z0;
+
+  const r = wrap.getBoundingClientRect();
+  // Si no se señala nada, el ancla es el centro de lo que se está viendo
+  const cx = clientX == null ? r.left + wrap.clientWidth / 2 : clientX;
+  const cy = clientY == null ? r.top + wrap.clientHeight / 2 : clientY;
+  const antes = puntoEnLienzo(wrap, cx, cy);
+
+  zoomRama[llaveDeLienzo(wrap, b)] = z1;
+  aplicarZoom(wrap, b);
+
+  /* Y se recoloca el recorrido para que ese mismo punto del dibujo vuelva a
+     caer bajo el dedo. Se hace DESPUÉS de escalar, con el tamaño ya nuevo. */
+  if (antes) {
+    const px = pixelEnLienzo(wrap, antes.x, antes.y);
+    if (px) {
+      wrap.scrollLeft += px.x - (cx - r.left);
+      wrap.scrollTop += px.y - (cy - r.top);
+    }
+  }
+  recordarEncuadre(wrap, b);
+  pintarMandoZoom(wrap, b);
+  return z1;
+}
+
+/* Todo el dibujo dentro de lo que se ve. Es el "doble toque" y el botón de
+   ajustar: la salida de emergencia cuando uno se ha perdido. */
+function ajustarZoom(wrap, b) {
+  const svg = wrap.querySelector("svg");
+  if (!svg || !svg.dataset.bw) return;
+  const bw = +svg.dataset.bw, bh = +svg.dataset.bh;
+  if (!bw || !bh) return;
+  const z = limitarZoom(Math.min(wrap.clientWidth / bw, wrap.clientHeight / bh) * 0.94);
+  zoomRama[llaveDeLienzo(wrap, b)] = z;
+  aplicarZoom(wrap, b);
+  const enc = encuadreDe(wrap, null);
+  if (enc) { wrap.scrollLeft = enc.left; wrap.scrollTop = enc.top; }
+  recordarEncuadre(wrap, b);
+  pintarMandoZoom(wrap, b);
+}
+
+function recordarEncuadre(wrap, b) {
+  scrollRama[llaveDeLienzo(wrap, b)] = { x: wrap.scrollLeft, y: wrap.scrollTop };
+}
+
 function llaveDeLienzo(wrap, b) {
   return (wrap.closest("#fs-overlay") ? "fs:" : "lista:") + b;
 }

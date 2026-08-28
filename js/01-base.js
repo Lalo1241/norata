@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.31.1";
+const VERSION = "0.7.32";
 const VERSION_FECHA = "28 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -1107,6 +1107,8 @@ function askText(titulo, valor, okLabel, pista, max, motivo) {
      fijo    el clic fuera NO cierra
      soloOk  sin boton de cancelar: es un aviso, no una pregunta
      tono    "oro" para el amarillo luciernaga; por defecto, coral
+     clase   una clase suelta en la tarjeta, para un cuadro con estilo propio
+     okClase la clase del boton de confirmar, cuando `btn-primary` no toca
 
    El tono no es decoracion: el coral dice "esto rompe algo" y el oro dice
    "esto tiene un coste que quiza no ves". Un fundador que borra su cuenta no
@@ -1141,7 +1143,12 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
 
     const ok = document.getElementById("modal-ok");
     ok.textContent = okLabel || "Confirmar";
-    ok.className = "btn " + (danger ? "btn-danger-ghost" : "btn-primary");
+    /* `okClase` para los cuadros donde el verde macizo no dice la verdad. El
+       de reportar un fallo es el caso: `btn-primary` es "lo que has venido a
+       hacer", y ahi nadie ha venido a nada — enviar un reporte es un favor,
+       no la accion principal de una pantalla. Ver la tabla de botones en
+       CLAUDE.md. */
+    ok.className = "btn " + (ex.okClase || (danger ? "btn-danger-ghost" : "btn-primary"));
     const cancelar = document.getElementById("modal-cancel");
     cancelar.textContent = cancelLabel || "Cancelar";
     cancelar.hidden = !!ex.soloOk;
@@ -1168,6 +1175,13 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
        cuadro con tres campos acababa con tres lineas vacias repartidas por
        dentro sin que nada en el codigo las pidiera. */
     card.classList.toggle("cuerpo-html", !!esHtml);
+    /* La clase suelta se limpia y se vuelve a poner en cada apertura, por lo
+       mismo que los tonos: el modal es UNO y lo que no se quita reaparece en
+       la siguiente pregunta que no lo pidio. Se guarda cual fue la ultima
+       para poder quitarla sin saber que clases lleva la tarjeta. */
+    if (card.dataset.claseSuelta) card.classList.remove(card.dataset.claseSuelta);
+    if (ex.clase) { card.classList.add(ex.clase); card.dataset.claseSuelta = ex.clase; }
+    else delete card.dataset.claseSuelta;
     if (alarm) { void card.offsetWidth; card.classList.add("alarm"); }
     const fondo = document.getElementById("modal");
     fondo.classList.toggle("fijo", !!ex.fijo);

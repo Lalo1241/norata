@@ -148,11 +148,31 @@ function gApilada(partes, opciones) {
     </div>`;
 }
 
-/* Un aro con su cifra dentro. El arco va en `trazo()` y no en `pinta()`
-   aunque parezca relleno: son cuatro píxeles de ancho, y con el tono pastel
-   sobre papel se pierde. */
+/* El color de un aro según lo lleno que esté. Tres tramos y no una rampa: un
+   aro que cambia de tono poco a poco no dice nada en ningún punto.
+
+   Los tramos van del mismo lado que las lecturas —bajo por debajo de 40, alto
+   por encima de 85— para que el color y la frase de abajo nunca se
+   contradigan.
+
+   Y el de en medio es celeste y no luciérnaga a propósito: el amarillo no
+   llega a 3 sobre 1 contra la tarjeta clara sin volverse el dorado apagado
+   que Eduardo ya rechazó una vez (`#755c05`, 5,66 pero color de alerta
+   interna). El celeste llega a 3,77 siendo celeste. */
+function colorDeAvance(pct) {
+  if (pct === null || pct === undefined) return "var(--aro-medio)";
+  if (pct >= 85) return "var(--aro-alto)";
+  if (pct < 40) return "var(--aro-bajo)";
+  return "var(--aro-medio)";
+}
+
+/* Un aro con su cifra dentro. El arco NO usa `--mint` a secas: de día ese
+   tono es el de escribir (`#007046`), pensado para texto, y un aro de nueve
+   píxeles pintado con él sale verde bosque sobre lavanda. Los tres tonos de
+   `--aro-*` están medidos para pasar de 3 sobre 1 contra la tarjeta clara
+   siendo todavía el color que dicen ser. */
 function gAro(pct, texto, pie, color) {
-  const c = color || "var(--mint)";
+  const c = color || colorDeAvance(pct);
   const p = Math.max(0, Math.min(100, pct || 0));
   return `
     <div class="inf-aro">
@@ -175,45 +195,111 @@ function gAro(pct, texto, pie, color) {
    que solo salen cuando el periodo da para ellas. Es la otra mitad del tope de
    seis: no se trata de tener seis siempre, sino de que ninguna sobre. */
 
-/* El mapa de calor. Una casilla por día, en columnas de semana —cada columna
-   es un domingo-a-sábado, igual que el resto de la app— y las filas son los
-   días de la semana.
+/* El calendario de tus días.
 
-   La primera columna casi nunca empieza en domingo, así que se rellena con
-   huecos: sin ellos, todo el calendario queda corrido y un martes aparece en
-   la fila del jueves. Es el fallo clásico de esta gráfica. */
-function gMapaCalor(dias, cuentas, opciones) {
-  const op = opciones || {};
-  if (!dias.length) return gVacia(op.vacia || "Todavía no hay días que pintar.");
-  const valores = dias.map(k => cuentas.get(k) || 0);
-  const max = Math.max(...valores, 1);
-  if (!valores.some(v => v > 0)) return gVacia(op.vacia || "En cuanto cumplas misiones, aquí se llena el calendario.");
+   Antes esto era una parrilla de columnas-semana que empezaba donde empezara
+   el rango: 53 columnas para un año, 5 para un mes, y ninguna referencia. No
+   se entendía qué era una casilla, ni si el patrón seguía un calendario o caía
+   donde le tocaba —lo dijo Eduardo mirándolo, y tenía razón—.
 
-  /* Cinco escalones y no una rampa continua: con un degradado, dos días de
-     esfuerzo muy distinto acaban del mismo color y el mapa deja de contar
-     nada. El cero usa el carril, que es el tono pensado justo para dejar ver
-     por dónde va lo lleno. */
-  const ESCALA = ["var(--carril)", velo("#5fe0b0", "44"), velo("#5fe0b0", "77"),
+   Ahora es un calendario de verdad, y por eso se entiende sin leer nada:
+
+   - Un MES se dibuja como el mes se dibuja en cualquier sitio: siete columnas
+     con las iniciales de los días arriba, el 1 en su día de la semana real y
+     tantas filas como semanas tenga. Los meses de 30, de 31 y los febreros de
+     29 salen solos, porque los días se cuentan con `Date.UTC(a, m, 0)`, que
+     es el último día del mes anterior y ya sabe de años bisiestos.
+   - Un AÑO son los doce meses en pequeño, cada uno con su nombre. Ni una
+     cinta de 53 columnas que hay que desplazar de lado, ni un bloque enorme
+     medio vacío: doce piezas que se reparten en cuatro columnas en pantalla
+     ancha y en dos en el teléfono.
+
+   Los días que todavía no han llegado se dibujan vacíos y sin borde: se ve
+   que el mes sigue, pero no se cuentan como fallados. */
+
+const CAL_DOW = ["D", "L", "M", "M", "J", "V", "S"];
+const CAL_MES_CORTO = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+
+/* Cinco escalones y no una rampa continua: con un degradado, dos días de
+   esfuerzo muy distinto acaban del mismo color y el mapa deja de contar nada.
+   El cero usa el carril, que es el tono pensado justo para dejar ver por dónde
+   va lo lleno. */
+function calEscala() {
+  return ["var(--carril)", velo("#5fe0b0", "44"), velo("#5fe0b0", "77"),
     velo("#5fe0b0", "bb"), pinta("#5fe0b0")];
+}
+
+/* Cuántos días tiene un mes. Sale de la aritmética de fechas y no de una tabla
+   escrita a mano: el día 0 del mes siguiente es el último del actual, así que
+   febrero de un año bisiesto se cuenta solo. */
+function diasDelMes(anio, mes) {
+  return new Date(Date.UTC(anio, mes, 0)).getUTCDate();
+}
+
+function calRejilla(anio, mes, cuentas, max, mini) {
+  const escala = calEscala();
   const nivel = (n) => n <= 0 ? 0 : Math.min(4, Math.ceil(n / max * 4));
+  const total = diasDelMes(anio, mes);
+  const primero = new Date(Date.UTC(anio, mes - 1, 1)).getUTCDay();
+  const hoy = todayKey();
+  const mm = String(mes).padStart(2, "0");
 
-  const huecos = weekdayOfKey(dias[0]);
-  const celdas =
-    Array.from({ length: huecos }, () => `<i class="mc-hueco"></i>`).join("") +
-    dias.map((k, i) => {
-      const n = valores[i];
-      return `<i style="background:${ESCALA[nivel(n)]}" title="${escapeAttr(k + ": " + n + (n === 1 ? " marca" : " marcas"))}"></i>`;
-    }).join("");
+  let out = "";
+  for (let i = 0; i < primero; i++) out += `<i class="mc-hueco"></i>`;
+  for (let d = 1; d <= total; d++) {
+    const k = anio + "-" + mm + "-" + String(d).padStart(2, "0");
+    if (k > hoy) { out += `<i class="mc-futuro"></i>`; continue; }
+    const n = cuentas.get(k) || 0;
+    const titulo = d + " de " + MESES[mes - 1] + ": " + (n ? n + (n === 1 ? " marca" : " marcas") : "nada");
+    out += `<i style="background:${escala[nivel(n)]}" title="${escapeAttr(titulo)}"></i>`;
+  }
+  return `<div class="cal-rejilla${mini ? " mini" : ""}">${out}</div>`;
+}
 
+function calCabecera() {
+  /* `aria-hidden` en las iniciales: para quien lee la pantalla en voz alta,
+     siete letras sueltas no son información, y cada casilla ya dice su fecha
+     completa en el título. */
+  return `<div class="cal-dow" aria-hidden="true">${CAL_DOW.map(d => `<span>${d}</span>`).join("")}</div>`;
+}
+
+function calLeyenda() {
+  const escala = calEscala();
   return `
-    <div class="inf-calor-caja">
-      <div class="inf-calor">${celdas}</div>
-    </div>
     <div class="inf-escala">
-      <span>Menos</span>
-      ${ESCALA.map(c => `<i style="background:${c}"></i>`).join("")}
+      <span>Cada casilla es un día</span>
+      <span class="ie-sep">Menos</span>
+      ${escala.map(c => `<i style="background:${c}"></i>`).join("")}
       <span>Más</span>
     </div>`;
+}
+
+function gCalendario(r, cuentas, opciones) {
+  const op = opciones || {};
+  const dias = diasDe(r);
+  if (!dias.length) return gVacia(op.vacia || "Todavía no hay días que pintar.");
+  const max = Math.max(...dias.map(k => cuentas.get(k) || 0), 1);
+  if (!dias.some(k => (cuentas.get(k) || 0) > 0)) return gVacia(op.vacia || "En cuanto cumplas misiones, aquí se llena el calendario.");
+
+  const anio = Number(r.desde.slice(0, 4));
+
+  if (r.periodo === "ano") {
+    return `
+      <div class="cal-ano">
+        ${CAL_MES_CORTO.map((nombre, i) => `
+          <div class="cal-mini-mes">
+            <b>${nombre}</b>
+            ${calRejilla(anio, i + 1, cuentas, max, true)}
+          </div>`).join("")}
+      </div>` + calLeyenda();
+  }
+
+  const mes = Number(r.desde.slice(5, 7));
+  return `
+    <div class="cal-mes">
+      ${calCabecera()}
+      ${calRejilla(anio, mes, cuentas, max, false)}
+    </div>` + calLeyenda();
 }
 
 /* Líneas acumuladas. La pregunta es la forma de la curva —si una habilidad se
@@ -498,9 +584,15 @@ function infMisiones(r, rAntes, D) {
     });
     const conAlgo = cuentas.size;
     const total = diasDe(r).length;
+    /* «de los 240 días de este periodo» era raro en el año en curso: el año
+       tiene 365 y nadie lleva 240 de periodo. Se dice lo que es —los días que
+       van— y en el mes se nombra el mes, que es lo que se está mirando. */
+    const cuantos = r.periodo === "ano"
+      ? `de los ${total} días que llevas de ${r.desde.slice(0, 4)}`
+      : `de los ${total} días que llevas de ${MESES[Number(r.desde.slice(5, 7)) - 1]}`;
     html += bloque("Tus días",
-      conAlgo ? `Hiciste algo ${conAlgo} de los ${total} días de este periodo.` : "",
-      gMapaCalor(diasDe(r), cuentas, { vacia: "En cuanto cumplas misiones, aquí se llena el calendario." }));
+      conAlgo ? `Hiciste algo ${conAlgo} ${cuantos}.` : "",
+      gCalendario(r, cuentas, { vacia: "En cuanto cumplas misiones, aquí se llena el calendario." }));
   }
 
   /* Por día de la semana. La pregunta no es cuánto hiciste, es DÓNDE se te
