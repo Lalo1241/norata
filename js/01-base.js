@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.13";
+const VERSION = "0.7.14";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -260,7 +260,15 @@ function temaEsClaro() {
    no para qué fondo sirve —el claro es el que se usa sobre fondo oscuro—,
    que es justo al revés de lo que uno lee con prisa. */
 function logotipoSrc() {
-  return temaEsClaro() ? "marca/logotipo-oscuro.svg" : "marca/logotipo-claro.svg";
+  const archivo = temaEsClaro() ? "logotipo-oscuro.svg" : "logotipo-claro.svg";
+  /* Con `../` desde la puerta, que vive en `/login/` y no en la raíz. La ruta
+     era relativa a secas y ahí resolvía a `/login/marca/…`: un 404 y el logo
+     roto justo en la primera pantalla que ve alguien. No se usa una ruta
+     absoluta (`/marca/…`) porque el proyecto se puede servir desde una
+     subcarpeta —así se prueba en local— y ahí la absoluta se saldría del
+     sitio. */
+  const raiz = document.getElementById("view-summary") ? "" : "../";
+  return raiz + "marca/" + archivo;
 }
 
 function ponerTema(cual) {

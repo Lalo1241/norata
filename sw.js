@@ -9,10 +9,16 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.13";
+const CACHE = "norata-0.7.14";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
+  /* La puerta es una página aparte desde 0.7.14. Las DOS direcciones, porque
+     se llega por las dos: `./login/` la escribe la app al rebotar, y
+     `./login/index.html` es lo que pide el navegador al recargar estando ahí.
+     Con una sola, la otra se quedaba sin copia y sin conexión daba un error de
+     red en mitad del inicio de sesión. */
+  "./login/", "./login/index.html",
   "./icon.svg", "./favicon.svg", "./icon-192.png", "./icon-512.png",
   "./icon-maskable-512.png", "./apple-touch-icon.png",
   "./css/fuente.css", "./css/estilos.css",
@@ -20,7 +26,7 @@ const ASSETS = [
   "./js/04-misiones.js", "./js/05-resumen.js", "./js/06-detalle.js",
   "./js/07-lienzo.js", "./js/08-formularios.js", "./js/09-inicio.js",
   "./js/10-fusion.js", "./js/10-sincronia.js", "./js/10a-perfil.js", "./js/10b-supabase.js", "./js/10c-portada.js", "./js/10d-plan.js", "./js/10e-panel.js",
-  "./js/11-arranque.js",
+  "./js/11-arranque.js", "./js/12-login.js",
   /* Los dos logotipos, porque desde el modo claro la portada usa uno u otro
      según cómo esté la app. Sin el segundo aquí, quien entre de día y sin red
      se queda con el hueco de una imagen que no llegó. */

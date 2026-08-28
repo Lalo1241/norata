@@ -52,6 +52,48 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.14 · 27 ago 2026
+La puerta se muda a su propia dirección.
+
+- **El login vive en `/login/`** y ya no es una capa encima de la app. Antes se
+  cargaban los diecisiete archivos y se dibujaban las cinco pantallas para
+  poner encima una tapa con dos campos: quien todavía no tenía cuenta pagaba el
+  arranque entero de una aplicación que no podía usar. La puerta carga **seis
+  archivos**, y se pudo hacer porque ninguno de ellos ejecuta nada al cargarse
+  —todos son declaraciones—, así que traerlos no enciende la app por accidente.
+- **`portadaEntrada` se partió en dos, y ahí está toda la gracia.** La primera
+  mitad —comprobar si la cuenta está pendiente de borrado y guardar la sesión—
+  no necesita nada de la app. La segunda —`adoptarSesion`: bajar el progreso,
+  apartar lo de otra cuenta con `stashConflict`, pintar— necesita `state`,
+  `syncRun` y las vistas. La puerta hace la primera y manda a la raíz; la app
+  hace la segunda al recibir la marca. **No se duplicó una sola línea.**
+- **La marca del reboto va en `sessionStorage`, no en la dirección.** Por la
+  dirección viajaría a la barra, al historial y a lo que se copie al compartir,
+  y lo que hay que pasar es «acaba de entrar», que no es asunto de nadie más.
+- **`sync.dueño` NO se toca en la puerta**, y esto era una trampa fina: si la
+  puerta lo escribiera, la app encontraría el dueño ya puesto y no detectaría
+  que se está entrando con otra cuenta — se mezclarían los datos de las dos en
+  vez de apartarlos. Lo escribe `adoptarSesion`, que es quien puede hacer algo
+  al respecto.
+- **`irALaPuerta()`**, un solo sitio que sabe dónde está el login. Lo usan
+  cerrar sesión, el botón de Ajustes sin cuenta y la despedida. Ningún botón
+  conoce la dirección: el día que se mueva otra vez, se mueve ahí.
+- **Los enlaces de los correos ya mandados siguen funcionando.** Apuntan a la
+  raíz y van a seguir llegando durante meses: `sbVolverDeEnlace` y el atajo
+  `#olvide` se quedan también en el arranque de la app, y el reboto a la puerta
+  se frena cuando el que llega viene de un enlace —mandarlo a `/login/`
+  perdería por el camino lo que el enlace traía.
+- **Dos arreglos que solo se ven desde la puerta.** El logotipo se pedía con
+  ruta relativa y desde `/login/` resolvía a `/login/marca/…`: un 404 y el logo
+  roto en la primera pantalla que ve alguien. Y «Probar sin cuenta» cerraba la
+  portada para destapar una app que allí no existe, dejando el fondo vacío;
+  ahora viaja a la raíz.
+- **Sin `manifest` en la puerta**, a propósito: el que se instala es la app. Con
+  el manifest allí, quien instalara desde el login se llevaría un acceso directo
+  que abre el formulario de entrar para siempre, incluso con la sesión puesta.
+- Requiere `https://mi.norata.app/login/` en *Redirect URLs* de Supabase.
+  Eduardo lo añadió antes de subir esto.
+
 ### 0.7.13 · 27 ago 2026
 Fundador tiene color propio, y dos pantallas que faltaban.
 
