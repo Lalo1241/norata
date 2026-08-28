@@ -52,6 +52,31 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.31.1 · 28 ago 2026
+La barra deja de escalonarse al desplegarse, y la bolita se alinea.
+
+- **El escalón al plegar y desplegar.** La bolita de reportar vivía dentro de
+  la fila de la versión con `flex-wrap`, y ahí estaba el defecto: el ancho de
+  la barra se anima entre 84 y 246 px, y a mitad de camino el texto y la
+  bolita dejaban de caber en una línea. La bolita saltaba a un segundo
+  renglón, la fila crecía de 43 a 60 px de alto, y al terminar la animación
+  volvía a subir. Ese ida y vuelta era el escalón — y que se corrigiera solo
+  al acabar es justo lo que lo hacía parecer un misterio.
+- **Sacada del flujo con `position: absolute`, no hay nada que envolver.**
+  Medido recorriendo los 82 anchos intermedios de 84 a 246 px: la fila mide
+  43 px en todos ellos y la bolita no envuelve ni una vez. Y de paso se
+  comprobaron los cinco hijos de la barra: ninguno cambia de alto en todo el
+  recorrido.
+- **Alineada con el botón de plegar la barra.** Los 4 px del anclaje salen de
+  una medición y no de la vista: ese botón termina en 223 y la fila de la
+  versión en 227. Antes la bolita quedaba 10 px más a la izquierda que él, y
+  esos 10 px eran todo lo que rompía la columna de la derecha.
+- El anclaje se suelta al plegar (`inset: 0` y `margin: 0`), o la bolita se
+  quedaría pegada al borde en vez de centrarse para el cambio con el número.
+  Y usa `margin-top` negativo en vez de `translateY(-50%)` porque plegada la
+  bolita necesita `transform` para su escala, y las dos cosas no pueden
+  compartir la misma propiedad.
+
 ### 0.7.31 · 28 ago 2026
 Las tarjetas de precio dicen mejor lo que venden, y respiran.
 
