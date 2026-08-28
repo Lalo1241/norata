@@ -1417,7 +1417,13 @@
     margin-top: 26px;
     padding-top: 16px;
     border-top: 1px solid var(--line);
-    text-align: center;
+    /* Flex con `gap` igual que el de la barra lateral, y por el mismo
+       motivo: así los dos sitios donde se lee la versión se separan con la
+       misma regla y no pueden acabar diciéndolo distinto. */
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 5px;
     font-size: 11.5px;
     font-weight: 600;
     color: var(--muted);
@@ -5162,6 +5168,11 @@
     .side-version {
       display: flex;
       align-items: baseline;
+      /* La separación entre «Alpha», el número y la fecha sale de aquí y no
+         de espacios escritos dentro de cada trozo: en un flex, el espacio al
+         principio o al final de un hijo se colapsa y las tres piezas salían
+         pegadas. */
+      gap: 5px;
       padding: 9px 14px 2px;
       font-size: 10.5px;
       font-weight: 650;
@@ -5187,7 +5198,12 @@
        se va antes que el número porque la pregunta que se contesta aquí es
        "¿cuál está puesta?", no "¿de cuándo es?". */
     html.sc .side-version { justify-content: center; padding-left: 0; padding-right: 0; }
-    html.sc .side-version .sv-fecha { display: none; }
+    /* Y «Alpha» se va con ella, por el mismo motivo: en 84 px no cabe
+       «Alpha V0.7.24», y de las tres piezas la que contesta la pregunta que
+       trae a alguien a mirar este renglón —«¿cuál tengo puesta?»— es el
+       número. Desplegada la barra vuelven las tres. */
+    html.sc .side-version .sv-fecha,
+    html.sc .side-version .sv-etapa { display: none; }
 
     .thumb-cluster .c-main {
       width: 100%;
@@ -5906,6 +5922,128 @@
 @media (prefers-reduced-motion: reduce) {
   .btn-rueda { display: none; }
 }
+
+/* ---------- Dónde vas contra el tope ----------
+   El bloque que sustituye a la cabecera cuando ya aprieta un límite. Lo que
+   había aquí antes eran barras de progreso, y una barra de progreso es el
+   recurso por defecto de cualquier tablero: no dice nada que sea de Norata y
+   además obliga a traducir una longitud a un número. Ahora se cuenta con lo
+   que la app ya es —el mapa de la rama y las ramas con su nombre— y la cifra
+   se escribe. */
+.plan-topes {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 14px; padding: 14px;
+}
+.plan-tope-rot {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 12px; font-size: 13.5px; font-weight: 600; color: var(--text);
+  margin-bottom: 10px;
+}
+.plan-tope-rot.alto { margin-top: 16px; }
+.plan-tope-rot em {
+  font-style: normal; font-size: 12.5px; font-weight: 700;
+  color: var(--fire); white-space: nowrap;
+}
+.plan-tope-cierre {
+  font-size: 12.5px; color: var(--muted); line-height: 1.5; margin: 12px 0 0;
+}
+
+/* La fila que se recorta. El degradado va a la IZQUIERDA y se come lo lleno,
+   que es lo que ya no hay que contar; a la derecha se ve entero lo que queda.
+   Sin esto, con el tope en 12 se pintaban doce cuadritos y el día que suba a
+   30 serían treinta: el bloque crecería con el tope en vez de decirlo.
+
+   Con `mask-image` y no con un degradado encima: un degradado sólido tendría
+   que saber de qué color es el fondo, y este bloque vive sobre `--card`, que
+   cambia con el modo. La máscara recorta y deja pasar lo que haya detrás, así
+   que funciona igual de día y de noche sin declarar ningún color. */
+.plan-fila { display: flex; align-items: center; gap: 6px; overflow: hidden; }
+.plan-fila.mas {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 54px);
+  mask-image: linear-gradient(to right, transparent 0, #000 54px);
+}
+.plan-fila i {
+  flex: none; display: block;
+  width: 16px; height: 16px; border-radius: 5px;
+  background: var(--fire-macizo);
+}
+.plan-fila i.off { background: none; border: 1.5px dashed var(--carril); }
+
+/* Las ramas llevan su nombre dentro: son pocas y es el único dato que las
+   distingue. Un cuadrito anónimo obligaba a preguntar «¿cuál rama?». */
+.plan-chip {
+  flex: none; white-space: nowrap;
+  font-size: 11.5px; font-weight: 700;
+  padding: 4px 9px; border-radius: 8px;
+  background: var(--mint-soft); color: var(--mint);
+  border: 1.5px solid transparent;
+}
+.plan-chip.off {
+  background: none; border: 1.5px dashed var(--carril);
+  min-width: 52px; min-height: 25px;
+}
+
+/* El mapa de la rama, en pequeño. Mismo recorte y por el mismo motivo. */
+.plan-lienzo { position: relative; }
+.plan-lienzo.mas {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 62px);
+  mask-image: linear-gradient(to right, transparent 0, #000 62px);
+}
+.plan-lienzo svg { display: block; }
+/* La cuenta se cambia de esquina cuando el mapa se recorta: en la izquierda
+   quedaría justo debajo del degradado, medio borrada. */
+.plan-cuenta {
+  position: absolute; top: 0; left: 0; z-index: 1;
+  font-size: 12.5px; font-weight: 700; color: var(--fire);
+  background: var(--card); padding: 0 7px 2px 0; border-radius: 6px;
+}
+.plan-lienzo.mas .plan-cuenta { left: auto; right: 0; padding: 0 0 2px 7px; }
+
+/* ---------- Cada cuánto se cobra Pro ----------
+   Vive DENTRO de la tarjeta de Pro, no encima de las dos: solo Pro se cobra de
+   dos maneras, y puesto fuera parecía que también cambiaba el precio de
+   Fundador. */
+.plan-per-wrap {
+  display: flex; gap: 3px; margin-bottom: 10px;
+  background: var(--bg); border: 1px solid var(--line);
+  border-radius: 99px; padding: 3px;
+}
+.plan-per {
+  flex: 1; min-width: 0;
+  font: inherit; font-size: 12px; font-weight: 600;
+  padding: 6px 8px; border-radius: 99px;
+  border: 1px solid transparent; background: none; color: var(--muted);
+  cursor: pointer; text-align: center;
+  display: flex; flex-direction: column; line-height: 1.2;
+}
+/* Sin transición. El fondo sale de una variable, y una transición sobre una
+   propiedad cuyo valor viene de `var()` se queda congelada en el valor
+   inicial — es la trampa que ya mordió en los selectores y en el botón de
+   Ajustes. */
+.plan-per.on { background: var(--card2); color: var(--text); }
+.plan-per i {
+  font-style: normal; font-size: 10.5px; font-weight: 500; color: var(--mint);
+}
+.plan-per.on i { color: var(--mint); }
+
+/* Las ventajas dentro de la tarjeta. Antes vivían en una lista aparte encima
+   de los precios —y otra vez en la tabla comparativa—, así que lo que se
+   compra se decía dos veces y en ninguno de los dos sitios estaba junto a su
+   precio. */
+.plan-vent { list-style: none; margin: 6px 0 4px; padding: 0; display: grid; gap: 6px; }
+.plan-vent li {
+  position: relative; padding-left: 18px;
+  font-size: 12.5px; color: var(--text); line-height: 1.4;
+}
+.plan-vent li::before {
+  content: "✓"; position: absolute; left: 0; top: 0;
+  font-size: 12px; color: var(--mint);
+}
+.plan-card.limitada .plan-vent li::before { color: var(--lila); }
+
+/* Dos tarjetas y no tres, porque no hay tres planes. */
+.plan-cards.dos { margin-top: 4px; }
+@media (min-width: 900px) { .plan-cards.dos { grid-template-columns: repeat(2, 1fr); } }
 
 /* ---------- El pie legal ----------
    Tres hechos sueltos, no una frase. Las bolitas van con `::before` entre

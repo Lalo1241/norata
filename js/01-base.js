@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.24";
+const VERSION = "0.7.25";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -134,10 +134,11 @@ const ICONS = {
      todos los demás —nada de relleno— para que herede el color de quien lo
      use, y con las patas separadas del cuerpo para que a 16 px no se
      empasten en una mancha. */
-  bicho: '<ellipse cx="12" cy="13" rx="5" ry="6.2"/><path d="M12 6.8V19"/>' +
-         '<path d="M9.2 7.6a3.2 3.2 0 015.6 0"/>' +
-         '<path d="M7 9.2L3.6 7.4M7 13H3.2M7.2 16.8L4 18.9"/>' +
-         '<path d="M17 9.2l3.4-1.8M17 13h3.8M16.8 16.8l3.2 2.1"/>',
+  bicho: '<ellipse cx="12" cy="13.5" rx="5.6" ry="6.5"/>' +
+         '<path d="M12 7v13"/>' +
+         '<path d="M9.4 4.6L10.8 7M14.6 4.6L13.2 7"/>' +
+         '<path d="M6.4 10.5L3.4 9M6.4 13.5H3.2M6.6 16.8L3.8 18.6"/>' +
+         '<path d="M17.6 10.5l3-1.5M17.6 13.5h3.2M17.4 16.8l2.8 1.8"/>',
   close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
   settings: '<path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/>',
   /* Sol y luna: los dos modos de la app. Ocho rayos y no doce, porque a
