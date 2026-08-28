@@ -922,6 +922,10 @@ function renderPanelPlan() {
     planTarjetasHTML() +
     planLegalHTML() +
     planCompararHTML();
+
+  /* El mapa de la rama se termina de encuadrar aquí, cuando ya está en la
+     página y se le puede medir el hueco. Ver `planAjustarLienzos`. */
+  planAjustarLienzos(caja);
 }
 
 /* ---- La cabecera: qué plan, cuánto cuesta y qué le pasa ----
@@ -1115,16 +1119,22 @@ function planTarjetasHTML() {
         <span class="plan-d">${escapeHtml(p.pie)}</span>
         ${vent(ventajasPro())}
         <button class="btn btn-primary btn-block"
-          onclick="irAPagarDesdeAjustes('${planPeriodo}', this)">Pasar a Pro</button>
+          onclick="irAPagarDesdeAjustes('${planPeriodo}', this)">Pasar a Plan Pro</button>
       </div>
       <div class="plan-card limitada">
         <span class="plan-tag lila">${escapeHtml(f.tag)}</span>
+        <!-- El hueco del conmutador. Fundador no se cobra de dos maneras, pero
+             si no se le reserva la fila, su nombre y su precio quedan una
+             franja mas arriba que los de Pro y las dos tarjetas dejan de
+             leerse como una comparacion. Solo cuando estan lado a lado: en el
+             telefono van una debajo de otra y ahi el hueco seria un vacio. -->
+        <span class="plan-hueco" aria-hidden="true"></span>
         <span class="plan-n">${escapeHtml(f.nombre)}</span>
         <span class="plan-p">${escapeHtml(f.precio)} <i>${escapeHtml(f.periodo)}</i></span>
         <span class="plan-d">${escapeHtml(f.pie)}</span>
         ${vent(["Todo lo de Pro, sin fecha", "Anillo lila y piedra con corona"])}
         <button class="btn btn-primary btn-block"
-          onclick="irAPagarDesdeAjustes('fundador', this)">Ser fundador</button>
+          onclick="irAPagarDesdeAjustes('fundador', this)">Pasar a ser Fundador</button>
       </div>
     </div>`;
 }
@@ -1230,19 +1240,26 @@ function planChipsRamasHTML(ramas, quedan) {
    Se apoya en `branchLayout` de `07-lienzo.js`, que es quien decide dónde cae
    cada nodo en el mapa de verdad. Copiar aquí ese reparto habría creado un
    dibujo que se parece al árbol hasta el día que el árbol cambie. */
-const PLAN_SVG_H = 108;
+/* La franja es baja a proposito. Empezo en 108 px y ocupaba mas que el
+   argumento que ilustra: el mapa es la prueba de que la rama es tuya, no el
+   protagonista de la pantalla. Bajarla no encoge los nodos —el radio se
+   calcula en pixeles y se convierte a unidades del mapa, asi que un nodo mide
+   lo mismo con cualquier altura—; lo que cambia es cuanto mapa se ve. */
+const PLAN_SVG_H = 76;
 
-/* El ancho del recuadro tiene que parecerse al del hueco donde va a caber,
-   porque de ahí sale cuánto mapa se enseña. Un SVG nunca estira su contenido
-   —`preserveAspectRatio` lo impide, y estirarlo es justo lo que deformaría la
-   rama—, así que si el número miente el dibujo no se rompe: se queda pequeño
-   contra un borde con la mitad del recuadro vacía.
+/* El ancho del recuadro NO se adivina: se mide.
 
-   `isDesktop()` es el mismo interruptor que usa `branchLayout` para separar
-   los nodos, así que las dos mitades del dibujo cambian de idea a la vez. */
-function planSvgAncho() {
-  return (typeof isDesktop === "function" && isDesktop()) ? 620 : 264;
-}
+   Estuvo adivinado —620 px en escritorio, 264 en teléfono— y el fallo fue
+   justo el que avisaba el comentario de entonces: en una ventana de 1100 px
+   el hueco real era bastante más estrecho que 620, y como un SVG nunca estira
+   su contenido, `meet` encogía el mapa entero para que cupiera. Los nodos
+   salían a 3,4 px en vez de a 5,5 y la rama se leía como polvo.
+
+   Así que se pinta con un ancho provisional y `planAjustarLienzos` rehace el
+   `viewBox` con el ancho de verdad en cuanto el navegador lo ha colocado. La
+   escala no depende del ancho —sale de la altura, que es fija— así que los
+   nodos miden lo mismo siempre y lo único que cambia es cuánto mapa se ve. */
+const PLAN_SVG_ANCHO_PROVISIONAL = 264;
 const PLAN_SVG_ESC = 0.30;   // cuánto se encoge el mapa real
 const PLAN_SVG_PAD = 34;     // aire alrededor, en unidades del mapa
 const PLAN_SVG_PASO = 168;   // a qué distancia cuelgan los nodos por abrir
@@ -1292,7 +1309,7 @@ function planRamaSVG(b, quedan) {
   /* De alto SIEMPRE cabe todo: cortar un nodo por arriba sin avisar es
      mentir sobre cuántos hay. De ancho es donde se recorta. */
   const esc = Math.min(PLAN_SVG_ESC, PLAN_SVG_H / alto);
-  const caja = planSvgAncho();
+  const caja = PLAN_SVG_ANCHO_PROVISIONAL;
   const VW = caja / esc, VH = PLAN_SVG_H / esc;
   const recorta = ancho > VW;
   const vbX = recorta ? (maxX + PLAN_SVG_PAD - VW) : ((minX + maxX) / 2 - VW / 2);
@@ -1310,8 +1327,13 @@ function planRamaSVG(b, quedan) {
   /* Anclado a la DERECHA cuando se recorta: si el hueco resulta ser más ancho
      de lo previsto, lo que sobra se queda del lado del degradado —vacío y sin
      verse— y las puntas de la rama siguen pegadas al borde donde se buscan. */
+  /* Las cuatro esquinas del contenido y la escala viajan con el dibujo: son
+     lo que `planAjustarLienzos` necesita para rehacer el `viewBox` sin tener
+     que volver a recorrer los nodos. */
   const svg = `<svg viewBox="${Math.round(vbX)} ${Math.round(vbY)} ${Math.round(VW)} ${Math.round(VH)}"
       preserveAspectRatio="${recorta ? "xMaxYMid" : "xMidYMid"} meet"
+      data-esc="${esc}" data-x0="${Math.round(minX)}" data-x1="${Math.round(maxX)}"
+      data-y0="${Math.round(minY)}" data-y1="${Math.round(maxY)}"
       width="100%" height="${PLAN_SVG_H}" role="img" aria-hidden="true" focusable="false">
       ${linea.length ? `<path class="plan-linea" d="${linea.join(" ")}" fill="none" stroke="var(--mint)" stroke-width="${GR}"></path>` : ""}
       ${futuros.map(f => f.de
@@ -1322,6 +1344,32 @@ function planRamaSVG(b, quedan) {
     </svg>`;
 
   return { svg, recorta };
+}
+
+/* Rehace el `viewBox` con el ancho que el recuadro tiene de verdad. Se llama
+   justo después de pintar; leer `clientWidth` fuerza al navegador a colocar
+   la página, que es exactamente lo que hace falta aquí y una sola vez.
+
+   Si el mapa cabe entero se centra; si no, se ancla a la derecha y se enciende
+   el degradado. Que la decisión de recortar se tome AQUÍ y no al pintar es lo
+   que evita el otro fallo posible: un degradado encendido sobre un dibujo que
+   sí cabía, tapando nodos por gusto. */
+function planAjustarLienzos(caja) {
+  (caja || document).querySelectorAll(".plan-lienzo svg[data-esc]").forEach(svg => {
+    const wrap = svg.parentElement;
+    const ancho = wrap.clientWidth;
+    if (!ancho) return;                      // todavía no se ve: se deja como está
+    const esc = parseFloat(svg.dataset.esc);
+    const x0 = +svg.dataset.x0, x1 = +svg.dataset.x1;
+    const y0 = +svg.dataset.y0, y1 = +svg.dataset.y1;
+    const VW = ancho / esc, VH = PLAN_SVG_H / esc;
+    const recorta = (x1 - x0) + PLAN_SVG_PAD * 2 > VW;
+    const vbX = recorta ? (x1 + PLAN_SVG_PAD - VW) : ((x0 + x1) / 2 - VW / 2);
+    const vbY = (y0 + y1) / 2 - VH / 2;
+    svg.setAttribute("viewBox", Math.round(vbX) + " " + Math.round(vbY) + " " + Math.round(VW) + " " + Math.round(VH));
+    svg.setAttribute("preserveAspectRatio", (recorta ? "xMaxYMid" : "xMidYMid") + " meet");
+    wrap.classList.toggle("mas", recorta);
+  });
 }
 
 /* El bloque entero, o cadena vacía si no hay nada que decir. Devuelve texto y
