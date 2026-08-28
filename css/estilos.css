@@ -944,48 +944,11 @@
      de rgba): esta tira ya se descuadró una vez en un navegador que no
      digirió algo más moderno, y una racha ilegible es peor que una racha
      sencilla. */
-  .wk { display: flex; justify-content: space-between; gap: 4px; margin-top: 13px; }
-  .wk-d { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .wk-l {
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    color: rgba(234, 241, 239, 0.5);
-    line-height: 1;
-  }
-  .wk-c {
-    width: 30px;
-    height: 30px;
-    box-sizing: border-box;
-    border-radius: 999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11.5px;
-    font-weight: 700;
-    line-height: 1;
-    background: rgba(234, 241, 239, 0.09);
-    color: rgba(234, 241, 239, 0.45);
-  }
-  .wk-c svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
-  /* Los estados del día van con prefijo. Uno de ellos se llamaba `empty`, y
-     `.empty` es además el bloque de "aquí no hay nada todavía" que existe en
-     media app: en escritorio ese bloque mide 54vh de alto y lleva 40px de
-     relleno, así que un perfil recién creado —donde TODOS los días pasados
-     son "antes de empezar"— estiraba cada casilla de la semana hasta 389px y
-     la tira se salía de la tarjeta por arriba. Con datos de ejemplo no se
-     veía nunca, porque ahí ningún día lleva esa clase. */
-  .wk-d.wk-done .wk-c { background: var(--mint); color: var(--sobre-acento); box-shadow: 0 0 12px rgba(95, 224, 176, 0.45); }
-  .wk-d.wk-missed .wk-c { background: rgba(255, 138, 112, 0.14); color: var(--coral); }
-  .wk-d.wk-hoy .wk-c { background: rgba(95, 224, 176, 0.1); color: var(--mint); box-shadow: inset 0 0 0 2px var(--mint); }
-  /* Un día que todavía no llega no se juzga: ni verde ni rojo */
-  .wk-d.wk-futuro .wk-c, .wk-d.wk-empty .wk-c { background: rgba(234, 241, 239, 0.05); color: rgba(234, 241, 239, 0.26); }
-  .wk-d.wk-done.wk-hoy .wk-c { box-shadow: 0 0 0 3px rgba(95, 224, 176, 0.35), 0 0 14px rgba(95, 224, 176, 0.5); }
-  .wk-d.wk-done .wk-l, .wk-d.wk-hoy .wk-l { color: var(--mint); }
-
-  @media (max-width: 360px) {
-    .wk-c { width: 27px; height: 27px; }
-  }
+  /* Aquí vivía `.wk`, la tira de siete días con sus palomitas de la tarjeta
+     de la racha. Se fue en 0.7.34 con el rediseño: el calendario del mes la
+     contiene entera, y tener las dos era decir lo mismo dos veces en la misma
+     tarjeta. Se borran también sus reglas para no dejar CSS que no dibuja
+     nada. */
 
   /* ---------- Celebración de un hito de racha ----------
      Ocupa la pantalla entera a propósito: es el único momento en que la app
@@ -5298,33 +5261,76 @@
      casilla hasta volverla ilegible ni se enseñan menos días: la caja se
      desplaza de lado, que es la regla de la casa —la pantalla decide la
      forma, nunca el contenido—. */
-  /* ---- El mes dentro de la tarjeta de la racha ----
-     Más apretado que en el informe: aquí acompaña a la semana, no es el
-     protagonista. Y sin las iniciales de los días arriba, que ya están en la
-     tira de la semana justo encima — repetirlas dos veces seguidas sobra. */
-  .streak-mes { margin-top: 16px; }
-  .sm-rot {
+  /* La tarjeta de la racha crece con lo que lleva dentro. `.scene-card` mide
+     252 px fijos y pone su cuerpo en absoluto pegado abajo: nació para una
+     escena decorativa con un pie de dos líneas, y el cielo vacío de arriba era
+     el dibujo. Con el mes dentro eso dejó de servir —la rejilla medía 259 px
+     en una caja de 252 y se salía por abajo sin que nada lo dijera—. Es el
+     mismo arreglo que ya lleva `.sec-hero`: alto automático y el cuerpo en
+     flujo normal, con la escena de fondo detrás. */
+  .streak-card { height: auto; min-height: 252px; }
+  .streak-card .scene-body { position: relative; inset: auto; justify-content: flex-start; }
+
+  /* ==================== La tarjeta de la racha ====================
+     Dos columnas en cuanto hay sitio: a la izquierda quién eres hoy, a la
+     derecha el mes. Antes todo iba en una columna pegada al borde de abajo y
+     la mitad de arriba de la escena quedaba vacía. */
+  .streak-grid { display: flex; flex-direction: column; gap: 18px; margin-top: 12px; }
+  .sg-izq { display: flex; flex-direction: column; gap: 12px; }
+
+  /* La frase de hoy. Menta cuando ya cuenta y texto normal cuando falta: el
+     amarillo de avisar no toca aquí —no hay nada que corregir, solo algo por
+     hacer— y el coral menos todavía. */
+  .sg-hoy { margin: 0; font-size: 13px; line-height: 1.45; color: var(--text); opacity: 0.85; max-width: 34ch; }
+  .sg-hoy.si { color: var(--mint); opacity: 1; font-weight: 650; }
+
+  .sg-cifras { display: flex; gap: 22px; }
+  .sg-cifras b { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  /* El denominador, más chico: «4/7» con los dos números iguales se lee como
+     una fracción que hay que resolver; con el segundo pequeño se lee como
+     «cuatro de siete», que es lo que dice. */
+  .sg-cifras b span { font-size: 13px; font-weight: 700; color: var(--muted); }
+  .sg-cifras > div > span { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ---- El calendario de la racha ----
+     Las casillas se estiran con su columna hasta un tope: en el teléfono usan
+     el ancho entero de la tarjeta —que es donde peor se veía antes— y en
+     escritorio dejan de crecer para no volverse ladrillos. */
+  .rc { max-width: 330px; }
+  .rc-rot {
     font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
     text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
   }
-  .streak-mes .cal-mes { max-width: 100%; margin: 0; }
-  .streak-mes .cal-dow { display: none; }
-  /* ---- El mes dentro de la racha: casillas con tope ----
-     Las casillas del calendario son `1fr` con proporción cuadrada, que es lo
-     que evita que se queden hechas un sello. Pero dentro de la tarjeta de la
-     racha —que en escritorio mide 728 px— eso las estiraba a 101×101 y el mes
-     ocupaba 624 px de alto: la tarjeta se volvía una parrilla gigante.
-
-     El tope va en la CASILLA y no en el ancho del calendario: así se encoge
-     sola en un teléfono estrecho y deja de crecer en cuanto hay sitio de
-     sobra, sin que nadie tenga que acertar un ancho máximo. */
-  .streak-mes .cal-rejilla {
-    gap: 3px;
-    grid-template-columns: repeat(7, minmax(0, 30px));
-    justify-content: start;
+  .rc-dow, .rc-rejilla { display: grid; grid-template-columns: repeat(7, minmax(0, 42px)); gap: 4px; }
+  .rc-dow { margin-bottom: 4px; }
+  .rc-dow span { text-align: center; font-size: 10px; font-weight: 700; color: var(--faint); }
+  .rc-d, .rc-hueco { aspect-ratio: 1; border-radius: 8px; }
+  .rc-hueco { background: transparent; }
+  .rc-d {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 650; font-style: normal;
+    font-variant-numeric: tabular-nums;
+    background: var(--carril); color: var(--text);
   }
-  .streak-mes .cal-rejilla i { border-radius: 3px; }
-  .streak-mes .inf-escala { display: none; }
+  /* Un día que no pasó no lleva cruz ni rojo: un mes marcado de fallos es un
+     mes que no se quiere volver a abrir. Se queda en el carril y ya. */
+  .rc-futuro { background: transparent; color: var(--faint); box-shadow: inset 0 0 0 1px var(--carril); }
+  /* La semana en curso, por detrás. Es lo que sustituye a la tira de siete
+     días que había antes: dice dónde estás sin repetir el calendario. */
+  .rc-semana { box-shadow: inset 0 0 0 1px rgba(234, 241, 239, 0.14); }
+  .rc-hoy { box-shadow: inset 0 0 0 2px var(--mint); }
+  /* Sobre el relleno macizo la tinta es oscura: es el único nivel pintado con
+     el color entero, y encima de él un número claro desaparece. */
+  .rc-tinta { color: var(--sobre-macizo); font-weight: 800; }
+
+  @media (min-width: 640px) {
+    /* Las dos columnas solo cuando caben de verdad. Por debajo se apilan y el
+       calendario se lleva el ancho entero, que es lo que hacía falta en el
+       teléfono. */
+    .streak-grid { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 28px; }
+    .sg-izq { flex: 1; min-width: 0; }
+    .sg-der { flex: none; }
+  }
 
   /* Un mes: siete columnas, las iniciales arriba y una casilla por día. Las
      casillas se estiran con la tarjeta —`1fr` y `aspect-ratio`— en vez de
