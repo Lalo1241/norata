@@ -256,6 +256,7 @@
        cualquiera de los de abajo —la portada incluida— y nunca abre nada.
        Encima solo quedan las dos pantallas que no preguntan: la de cargar y
        la de "esta versión ya no vale". */
+    --piso-mando: 30;      /* el − % + del mapa, flotando sobre el lienzo */
     --piso-rama: 40;       /* el menú de una rama, colgado de su fila */
     --piso-barra: 60;      /* la barra de navegación */
     --piso-lienzo: 90;     /* la rama a pantalla completa */
@@ -2699,6 +2700,73 @@
   /* Fuera de edición el lienzo se arrastra para recorrerlo */
   .fs-overlay .const-wrap:not(.editing) { cursor: grab; }
   .const-wrap.panning { cursor: grabbing !important; }
+
+  /* ================= El mando del zoom =================
+     Flota sobre el lienzo, en la esquina donde todo el mundo lo busca. Va
+     dentro del contenedor del lienzo y no dentro del lienzo mismo: ahí se
+     iría con el recorrido y desaparecería al arrastrar el mapa. */
+  .branch-card, .fs-body { position: relative; }
+  .zoom-mando {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    z-index: var(--piso-mando);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--flotante);
+    border: 1px solid var(--line);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  }
+  .zoom-mando button {
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--muted);
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    width: 30px; height: 30px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .zoom-mando button:hover:not(:disabled) { background: var(--card2); color: var(--text); }
+  .zoom-mando button:disabled { opacity: 0.32; cursor: default; }
+  /* El porcentaje es un botón, no un rótulo: tocarlo ajusta todo a la
+     pantalla. Por eso mide más y lleva la letra del texto normal. */
+  .zoom-mando .pct {
+    width: auto;
+    padding: 0 9px;
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  /* ================= El nivel de detalle =================
+     Como el LOD de un videojuego: al alejarse no se encoge todo por igual,
+     se va cayendo lo que ya no se puede leer. Primero las etapas y la chapa
+     de estado, luego el nombre. Lo último que queda es la figura con su
+     icono, que es lo que deja reconocer un nodo de un vistazo.
+
+     Se hace con una clase en el contenedor y no volviendo a dibujar: cambiar
+     de nivel a mitad de un pellizco tiene que costar cero. */
+  .const-wrap.z-medio .nod-etapas,
+  .const-wrap.z-medio .nod-chapa { display: none; }
+  .const-wrap.z-lejos .nod-etapas,
+  .const-wrap.z-lejos .nod-chapa,
+  .const-wrap.z-lejos .nod-nombre,
+  .const-wrap.z-lejos .grupo-tag,
+  .const-wrap.z-lejos .cnode.caja text { display: none; }
+  /* Las líneas adelgazan al alejarse: a tamaño pequeño un trazo de 3 px se
+     come el nodo al que llega y el mapa se lee como una maraña. */
+  .const-wrap.z-lejos .edges path { stroke-width: 1.4px; }
+  /* Y el pulso del nodo disponible se apaga: docenas de aros latiendo a la
+     vez, en pequeño, es ruido y no una llamada. */
+  .const-wrap.z-medio .node-pulse,
+  .const-wrap.z-lejos .node-pulse { display: none; }
 
   /* El recuadro con el que se eligen varios talentos. Celeste y punteado: es
      una herramienta que pasa, no una figura del mapa, y ningún estado del
