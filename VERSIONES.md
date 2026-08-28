@@ -52,6 +52,52 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.33 · 28 ago 2026
+La flecha se pone encima, el mes entra en la racha, y el informe deja de bailar.
+
+**La flecha de comparación va ARRIBA de la cifra**, y lo cazó Eduardo mirando
+el hero de Habilidades. Debajo, el hueco vacío que reservan las columnas sin
+comparación se abría entre la cifra y su rótulo —justo donde se lee como un
+agujero—. Arriba, ese mismo hueco queda contra el borde de la caja, donde pasa
+por aire, y las cifras y los rótulos de las cuatro columnas se alinean solos.
+Medido en los cuatro heroes: una sola altura para todas las cifras y una sola
+para todos los rótulos.
+
+**El mes entra en la tarjeta de la racha.** Enseñaba siete días y nada más, así
+que el dato que le da sentido —cuántos días del mes llevas moviéndote— había
+que ir a buscarlo al informe. Es el mismo calendario de «Tus días», pero
+leyendo los días con actividad de verdad: práctica, misiones y talentos, que es
+lo que la racha cuenta. Va más apretado y sin las iniciales de los días, que ya
+están en la tira de la semana justo encima.
+
+- La tarjeta pasa de 5 a 8 filas de alto por defecto. **Quien ya tenga su
+  tablero acomodado la verá con el fundido de abajo** hasta que la estire: es
+  lo que hace `marcarDesbordes` con cualquier tarjeta a la que no le cabe lo
+  que lleva dentro.
+
+**Y un fallo que solo salió al meter el calendario ahí.** `--carril` y `--line`
+faltaban en la lista de variables que la escena vuelve a declarar en oscuro, y
+no se había notado nunca porque nada de lo que vivía dentro las usaba: de día,
+las casillas sin actividad salían gris papel (`#dadce7`) sobre el carbón de la
+escena, y el recuadro de los días que aún no llegan igual. Dentro de una escena
+todo tiene que ser de noche, no solo los acentos.
+
+**El informe deja de bailar al cambiar de filtro.** Tenía un `scrollIntoView`
+que arrastraba el cuerpo hasta el borde de arriba, y como los mandos están
+justo ahí, la página se movía aunque ya estuvieras mirando el principio. Fuera:
+ahora el contenido se despliega hacia abajo y quien mira se queda donde estaba.
+Comprobado saltando entre las cinco ramas desde arriba del todo: el
+desplazamiento no se mueve ni un píxel.
+
+**El calendario del mes, más pequeño y centrado.** A 420 px las casillas salían
+de casi sesenta píxeles y pesaban más que la gráfica que las acompaña; y pegado
+a la izquierda dejaba media tarjeta vacía. Ahora mide 290 y va al medio.
+
+**Y «Hiciste algo N días» pasa a «Cumpliste misiones N días».** Reducir a
+«algo» lo que costó hacerse quita valor a lo que se hizo, y lo que se hizo
+importa tanto como que se hiciera. Estas casillas cuentan misiones cumplidas,
+así que se nombran.
+
 ### 0.7.32.1 · 28 ago 2026
 El descuento del anual vuelve a verse, y Fundador deja de empezar con un vacío.
 

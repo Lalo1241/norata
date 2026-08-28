@@ -52,9 +52,12 @@ function informeVerRama(rama) {
      de la app: se dice qué hay detrás, no se ignora el toque. */
   if (rama !== "todo" && !planIncluyeResumen("semana")) { topeAlcanzado("resumen"); return; }
   informeRamaActual = rama;
+  /* Sin `scrollIntoView`. Lo tenía, y era lo que hacía bailar la pantalla al
+     cambiar de filtro: los mandos están arriba del todo, así que arrastrar el
+     cuerpo hasta el borde superior movía la página aunque ya estuvieras
+     mirando ahí. Ahora el contenido se despliega hacia abajo y quien mira se
+     queda donde estaba. */
   renderInforme();
-  const c = document.getElementById("informe-cuerpo");
-  if (c) c.scrollIntoView({ block: "start", behavior: "auto" });
 }
 
 /* El periodo se conserva al saltar de rama: si estabas mirando el mes, sigues
@@ -590,8 +593,11 @@ function infMisiones(r, rAntes, D) {
     const cuantos = r.periodo === "ano"
       ? `de los ${total} días que llevas de ${r.desde.slice(0, 4)}`
       : `de los ${total} días que llevas de ${MESES[Number(r.desde.slice(5, 7)) - 1]}`;
+    /* «Hiciste algo N días» no: reduce a «algo» lo que costó hacerse, y lo
+       que se hizo importa tanto como que se hiciera. Estas casillas cuentan
+       misiones cumplidas, así que se nombran. */
     html += bloque("Tus días",
-      conAlgo ? `Hiciste algo ${conAlgo} ${cuantos}.` : "",
+      conAlgo ? `Cumpliste misiones ${conAlgo} ${cuantos}.` : "",
       gCalendario(r, cuentas, { vacia: "En cuanto cumplas misiones, aquí se llena el calendario." }));
   }
 
