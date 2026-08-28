@@ -99,14 +99,20 @@ function panelConstelacion(dias) {
     return `<p class="settings-note">Todavía no hay ni un día con actividad. Aparecerá en cuanto alguien abra la app con su cuenta.</p>`;
   }
 
-  const W = 340, H = 152;
-  const izq = 14, der = 14, arr = 14, aba = 34;
+  /* Más alto y con sitio a la izquierda para la escala. Antes eran 152 con 14
+     de margen: la línea flotaba en el centro y los números del eje no cabían,
+     así que el único sitio donde se decía cuánto valía un punto era una frase
+     debajo del dibujo. Una gráfica que hay que leer por debajo no es una
+     gráfica. */
+  const W = 340, H = 190;
+  const izq = 30, der = 16, arr = 16, aba = 34;
   const util = W - izq - der;
   const alto = H - arr - aba;
   const suelo = arr + alto;
 
   const n = dias.length;
-  const tope = Math.max(...dias.map(d => Number(d.personas) || 0), 1);
+  const valores = dias.map(d => Number(d.personas) || 0);
+  const tope = Math.max(...valores, 1);
   const topeAltas = Math.max(...dias.map(d => Number(d.altas) || 0), 1);
   const hayAltas = dias.some(d => (Number(d.altas) || 0) > 0);
 
@@ -117,9 +123,26 @@ function panelConstelacion(dias) {
 
   const fecha = (s) => new Date(String(s) + "T00:00:00");
 
-  const reja = [0, 0.5, 1].map(f =>
-    `<line x1="${izq}" y1="${(arr + f * alto).toFixed(1)}" x2="${W - der}" y2="${(arr + f * alto).toFixed(1)}" class="pn-reja"/>`
-  ).join("");
+  /* ---- La escala, escrita ----
+     Tres renglones con su número al lado: cero, la mitad y el máximo. Es lo
+     que faltaba. Antes había tres rayas sin decir qué valían, así que un punto
+     a media altura podía ser 3 personas o 300 y no había forma de saberlo sin
+     pasar el ratón por encima — y el único número escrito estaba en una frase
+     DEBAJO del dibujo, que es donde nadie busca la escala de una gráfica.
+
+     Se redondea a entero y se quitan los repetidos: con un máximo de 1, la
+     serie «0 · 0,5 · 1» sobra por la mitad y además inventa medias personas.
+
+     El renglón del máximo va más marcado que los otros dos: es la referencia
+     contra la que se lee todo lo demás, y en el mismo gris se perdía entre
+     ellos. */
+  const escalones = [...new Set([0, Math.round(tope / 2), tope])].sort((a, b) => a - b);
+  const reja = escalones.map(v => {
+    const yy = y(v);
+    const cima = v === tope && tope > 0;
+    return `<line x1="${izq}" y1="${yy.toFixed(1)}" x2="${W - der}" y2="${yy.toFixed(1)}" class="pn-reja${cima ? " cima" : ""}"/>
+            <text x="${izq - 7}" y="${(yy + 3.2).toFixed(1)}" class="pn-eje-y${cima ? " cima" : ""}" text-anchor="end">${v}</text>`;
+  }).join("");
 
   /* Las líneas de referencia caen en LUNES, no cada tres días sueltos: lo que
      se quiere leer aquí es «esta semana contra la anterior», y una marca que
@@ -181,8 +204,52 @@ function panelConstelacion(dias) {
        </div>`
     : "";
 
-  return `<svg class="pn-cielo" viewBox="0 0 ${W} ${H}" role="img"
-            aria-label="Personas activas y cuentas nuevas cada día durante los últimos catorce días">
+  /* ---- Las cifras que la línea no dice ----
+     Una serie de catorce puntos enseña la FORMA —si sube o baja— y esconde
+     todo lo demás: cuánto suma, cuánto es un día normal, y si esta semana fue
+     mejor que la anterior. Eran justo las preguntas que había que contestar
+     mirando fijamente el dibujo, y dos de ellas no se podían contestar.
+
+     La comparación va contra los SIETE DÍAS ANTERIORES y no contra la semana
+     natural: la ventana es de catorce, así que parte por la mitad y las dos
+     mitades miden lo mismo. Comparar «esta semana» con «la pasada» un lunes
+     sería comparar un día contra siete.
+
+     Solo aparece con las dos mitades completas. Con menos de catorce días de
+     historia el porcentaje sería ruido, y un número inventado en un panel que
+     existe para decidir es peor que un hueco. */
+  const suma = (a) => a.reduce((t, v) => t + v, 0);
+  const total = suma(valores);
+  const media = n ? Math.round((total / n) * 10) / 10 : 0;
+  const iCima = valores.indexOf(tope);
+  const diaCima = dias[iCima] ? fecha(dias[iCima].dia) : null;
+
+  let tendencia = "";
+  if (n >= 14) {
+    const ult = suma(valores.slice(-7)), prev = suma(valores.slice(-14, -7));
+    if (prev > 0 || ult > 0) {
+      const dif = prev === 0 ? null : Math.round(((ult - prev) / prev) * 100);
+      const sube = ult >= prev;
+      tendencia = `<span class="pn-tend ${sube ? "sube" : "baja"}">
+          ${sube ? "▲" : "▼"} ${dif === null ? "nuevo" : Math.abs(dif) + "%"}
+        </span><span class="pn-tend-pie">${ult} contra ${prev} los 7 días de antes</span>`;
+    }
+  }
+
+  const resumen = `<div class="pn-graf-cifras">
+      <div class="pn-gc"><b>${media}</b><span>personas al día</span></div>
+      <div class="pn-gc"><b>${tope}</b><span>el mejor día${
+        diaCima ? " · " + diaCima.getDate() + " " + MESES_CORTOS[diaCima.getMonth()] : ""}</span></div>
+      <div class="pn-gc"><b>${total}</b><span>aperturas con cuenta</span></div>
+      ${tendencia ? `<div class="pn-gc tend">${tendencia}</div>` : ""}
+    </div>`;
+
+  /* Las cifras van ARRIBA del dibujo y no debajo. Es donde cae el ojo al
+     entrar en la caja, y son la respuesta corta; la línea es el detalle de
+     esa respuesta. Al revés —como estaba— había que mirar una forma sin
+     escala, no entenderla, y encontrar el único número al final. */
+  return resumen + `<svg class="pn-cielo" viewBox="0 0 ${W} ${H}" role="img"
+            aria-label="Personas activas y cuentas nuevas cada día durante los últimos catorce días. Media de ${media} al día, máximo de ${tope}.">
       ${reja}
       ${marcas}
       ${barrasAltas}
@@ -190,8 +257,7 @@ function panelConstelacion(dias) {
       ${estrellas}
       ${fechas}
     </svg>
-    ${pie}
-    <p class="settings-note" style="margin-top:6px">Máximo del periodo: ${tope} ${tope === 1 ? "persona" : "personas"} en un día.</p>`;
+    ${pie}`;
 }
 
 /* ---- La dona ----
@@ -279,18 +345,130 @@ function panelEmbudo(pasos) {
 }
 
 /* Barras horizontales para lo que es una lista con pesos: versiones, planes. */
-function panelListaBarras(filas, claveNombre, claveValor, vacio) {
+/* `nombra` traduce la clave cruda a lo que se lee en pantalla, y `tono` da
+   color a la barra. Los dos son opcionales: las listas que ya se entendían
+   —los tramos de antigüedad, las versiones— siguen llamando igual que antes.
+
+   Nacieron por «El cobro», donde las filas decían `mensual` y `anual` a
+   secas. Un renglón que pone «anual» al lado de un número no dice si eso son
+   personas, pesos o meses; y sin color, tres planes con precios muy distintos
+   se leen como tres barras iguales. */
+function panelListaBarras(filas, claveNombre, claveValor, vacio, nombra, tono) {
   if (!filas || !filas.length) return `<p class="settings-note">${escapeHtml(vacio)}</p>`;
   const tope = Math.max(...filas.map(f => Number(f[claveValor]) || 0), 1);
   return `<div class="pn-lista">` + filas.map(f => {
     const v = Number(f[claveValor]) || 0;
-    const nombre = String(f[claveNombre] || "—") || "(sin dato)";
+    const crudo = String(f[claveNombre] || "—") || "(sin dato)";
+    const nombre = nombra ? nombra(crudo) : crudo;
+    const t = tono ? tono(crudo) : "";
     return `<div class="pn-fila">
         <span class="pn-nom">${escapeHtml(nombre)}</span>
-        <span class="pn-riel"><i style="width:${Math.round((v / tope) * 100)}%"></i></span>
-        <span class="pn-val">${v}</span>
+        <span class="pn-riel"><i class="${t}" style="width:${Math.round((v / tope) * 100)}%"></i></span>
+        <span class="pn-val ${t}">${v}</span>
       </div>`;
   }).join("") + `</div>`;
+}
+
+/* ================= Lo que se rompe =================
+
+   Dos cosas muy distintas caen en la misma tabla del servidor: los errores que
+   la app caza sola —un volcado de JavaScript, siempre igual— y los reportes
+   que escribe una persona. El servidor los junta por mensaje idéntico, que es
+   lo correcto para los primeros: un fallo dentro de un bucle escribiría miles
+   de filas iguales.
+
+   Para los reportes esa regla no sirve, y lo dijo Eduardo: «no se pueden sumar
+   en uno mismo si el contexto es distinto». Dos personas contando dos cosas
+   distintas de la misma pantalla no son «2×» de nada — son dos historias, y
+   sumarlas borra justo lo que las hace útiles.
+
+   Así que se agrupan por el ÚNICO dato que de verdad tienen en común: el lugar
+   donde dicen que pasó. Ese lugar lo escribe `reportarFallo` al principio del
+   mensaje entre corchetes (`[Talentos] …`), así que se lee de ahí. Lo que no
+   traiga corchetes —un reporte de antes de que existiera el formulario— cae en
+   «Sin ubicar», que es honesto y no lo esconde. */
+
+function lugarDelReporte(mensaje) {
+  const m = String(mensaje || "").match(/^\s*\[([^\]]{1,40})\]\s*/);
+  return m ? m[1].trim() : "Sin ubicar";
+}
+
+/* El mensaje sin la etiqueta del lugar: dentro del grupo ya se sabe dónde fue,
+   y repetir «[Talentos]» en las seis filas es ruido. */
+function reporteSinLugar(mensaje) {
+  return String(mensaje || "").replace(/^\s*\[[^\]]{1,40}\]\s*/, "");
+}
+
+/* Qué grupos están abiertos. En memoria y no en `state`: es una preferencia de
+   este rato mirando el panel, no un dato de nadie.
+
+   `reportesAbiertos` y no `gruposAbiertos` a secas: ese nombre ya lo usa una
+   FUNCIÓN de Talentos (`gruposAbiertos(rama)`, las cajas del ático), y los
+   archivos de la app comparten un único ámbito global — todos son `<script>`
+   sueltos, sin módulos. Declararlo repetido con `let` no da un aviso: parte el
+   archivo entero con «Identifier has already been declared», y con él se cayó
+   el panel completo. */
+let reportesAbiertos = {};
+
+function alternarGrupoReporte(clave) {
+  reportesAbiertos[clave] = !reportesAbiertos[clave];
+  renderPanelAdmin();
+}
+
+/* Los reportes de gente, agrupados por lugar y ordenados por cuántos hay. Cada
+   grupo trae sus mensajes enteros dentro, que es lo que se despliega al tocar:
+   la lista de lo que dijo cada quien, sin sumar ni resumir. */
+function agruparReportes(tropiezos) {
+  const mapa = new Map();
+  (tropiezos || []).forEach(t => {
+    if (t.donde !== "reporte") return;
+    const lugar = lugarDelReporte(t.mensaje);
+    if (!mapa.has(lugar)) mapa.set(lugar, { lugar, cuantos: 0, sinVer: 0, dia: "", filas: [] });
+    const g = mapa.get(lugar);
+    /* `cuantos` del servidor puede ser mayor que uno si dos personas
+       escribieron LO MISMO letra por letra. Es raro y no se pierde: se suma. */
+    g.cuantos += Number(t.cuantos) || 1;
+    if (!t.visto) g.sinVer++;
+    if (String(t.dia) > g.dia) g.dia = String(t.dia);
+    g.filas.push(t);
+  });
+  return [...mapa.values()]
+    .map(g => { g.filas.sort((a, b) => String(b.dia).localeCompare(String(a.dia))); return g; })
+    .sort((a, b) => (b.sinVer - a.sinVer) || String(b.dia).localeCompare(String(a.dia)) || (b.cuantos - a.cuantos));
+}
+
+function panelReportesHTML(tropiezos) {
+  const grupos = agruparReportes(tropiezos);
+  if (!grupos.length) return "";
+  const total = grupos.reduce((t, g) => t + g.cuantos, 0);
+  const sinVer = grupos.reduce((t, g) => t + g.sinVer, 0);
+
+  return `<div class="panel">
+      <div class="pn-cab">
+        <h3>Lo que la gente reporta</h3>
+        <span class="pn-cuenta${sinVer ? " nuevo" : ""}">${total} ${total === 1 ? "reporte" : "reportes"}</span>
+      </div>
+      <p class="settings-note">Agrupados por dónde dicen que pasó, no por el texto: dos personas contando dos cosas distintas de la misma pantalla son dos historias, y sumarlas borraría lo que las hace útiles. Toca un grupo para leerlos.</p>
+      <div class="pn-grupos">` + grupos.map(g => {
+    const abierto = !!reportesAbiertos[g.lugar];
+    return `<div class="pn-grupo ${abierto ? "abierto" : ""}">
+        <button class="pn-grupo-cab" onclick="alternarGrupoReporte('${enJS(g.lugar)}')"
+                aria-expanded="${abierto}">
+          <span class="pn-grupo-ic">${icon("bicho", 15)}</span>
+          <span class="pn-grupo-nom">${escapeHtml(g.lugar)}</span>
+          ${g.sinVer ? `<span class="pn-globo">${g.sinVer}</span>` : ""}
+          <span class="pn-grupo-n">${g.cuantos}</span>
+          <span class="pn-grupo-flecha">${abierto ? "▾" : "▸"}</span>
+        </button>
+        ${abierto ? `<div class="pn-grupo-lista">` + g.filas.map(t => `
+            <div class="pn-dicho ${t.visto ? "visto" : ""}">
+              <p>${escapeHtml(reporteSinLugar(t.mensaje))}</p>
+              <span>${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")}${
+                (Number(t.cuantos) || 1) > 1 ? " · lo dijeron " + t.cuantos + " veces" : ""}</span>
+            </div>`).join("") + `</div>` : ""}
+      </div>`;
+  }).join("") + `</div>
+    </div>`;
 }
 
 /* ---- El modo de pruebas ----
@@ -366,6 +544,10 @@ function renderPanelAdmin() {
   const c = m.cobro || {};
   const tropiezos = m.tropiezos || [];
   const sinVer = tropiezos.filter(t => !t.visto).length;
+  /* Los automáticos por un lado y lo que escribe una persona por otro: son
+     dos cosas distintas y se leen distinto. Ver `panelReportesHTML`. */
+  const autos = tropiezos.filter(t => t.donde !== "reporte");
+  const autoSinVer = autos.some(t => !t.visto);
 
   /* Los avisos solo aparecen si hay algo que mirar. Una fila de ceros
      permanente enseña a no mirarla, y entonces el día que deja de ser cero
@@ -445,7 +627,19 @@ function renderPanelAdmin() {
              ${panelCifra("$" + (c.mrr || 0), "Al mes", "sin contar fundador")}
              ${panelCifra(c.lugares_fundador == null ? "—" : c.lugares_fundador, "Lugares de fundador", "de 200")}
            </div>
-           ${panelListaBarras(c.planes, "plan", "personas", "Todavía no hay ninguna suscripción.")}`}
+           ${panelListaBarras(c.planes, "plan", "personas", "Todavía no hay ninguna suscripción.",
+               /* «Plan mensual» y no «mensual». La palabra suelta obliga a
+                  adivinar de qué se está hablando, y en la única caja de la
+                  app donde se cuenta dinero eso no puede pasar. Fundador
+                  lleva su nombre sin «Plan» delante porque no es una
+                  suscripción: es un pago único, y llamarlo plan lo mete en el
+                  mismo saco que los otros dos. */
+               (k) => ({ mensual: "Plan mensual", anual: "Plan anual", fundador: "Fundador" })[k] || k,
+               /* Cada uno con su color, el mismo que ya usa la app: menta los
+                  que se renuevan y lila el fundador, que es el color de su
+                  anillo y de su piedra desde 0.7.15. Así la barra se reconoce
+                  antes de leer el rótulo. */
+               (k) => k === "fundador" ? "t-lila" : "t-menta")}`}
     </div>
 
     <div class="panel">
@@ -454,29 +648,25 @@ function renderPanelAdmin() {
       ${panelListaBarras(m.versiones, "version", "personas", "Nadie ha abierto la app en los últimos treinta días.")}
     </div>
 
+    ${panelReportesHTML(tropiezos)}
+
     <div class="panel">
-      <h3>Lo que se rompe${sinVer ? ` <span class="pn-globo">${sinVer}</span>` : ""}</h3>
-      <p class="settings-note">Cada fila es un error distinto de un día, con las veces que pasó. Se agrupan a propósito: un fallo dentro de un bucle escribiría miles de filas iguales. Los que llevan el bicho los escribió una persona: ésos van primero y valen más — traen contexto de lo que estaba intentando hacer, que es lo que un volcado de JavaScript nunca dice.</p>
-      ${tropiezos.length
-        ? `<div class="pn-errores">` + [...tropiezos].sort((a, b) => {
-            /* Los reportes de gente arriba; dentro de cada grupo se respeta el
-               orden que ya trae el servidor (por día y por veces). Sin esto se
-               enterraban entre cien errores automáticos, que es exactamente lo
-               que no le puede pasar a un mensaje que alguien se tomó la
-               molestia de escribir. */
-            const ra = a.donde === "reporte" ? 0 : 1, rb = b.donde === "reporte" ? 0 : 1;
-            return ra - rb;
-          }).map(t => `
-            <div class="pn-error ${t.visto ? "visto" : ""}${t.donde === "reporte" ? " dicho" : ""}">
+      <div class="pn-cab">
+        <h3>Lo que se rompe solo</h3>
+        <span class="pn-cuenta${autos.length && autoSinVer ? " nuevo" : ""}">${autos.length} ${autos.length === 1 ? "error" : "errores"}</span>
+      </div>
+      <p class="settings-note">Los que caza la app por su cuenta. Cada fila es un error distinto de un día, con las veces que pasó: se agrupan a propósito, porque un fallo dentro de un bucle escribiría miles de filas iguales. Lo que escribe una persona va arriba, en su propia caja.</p>
+      ${autos.length
+        ? `<div class="pn-errores">` + autos.map(t => `
+            <div class="pn-error ${t.visto ? "visto" : ""}">
               <div class="pn-error-tit">
-                <b>${t.donde === "reporte" ? icon("bicho", 14) + " " : ""}${escapeHtml(String(t.mensaje))}</b>
+                <b>${escapeHtml(String(t.mensaje))}</b>
                 <span>${t.cuantos}×</span>
               </div>
-              <div class="pn-error-pie">${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")} · ${
-                t.donde === "reporte" ? "lo escribió alguien" : escapeHtml(String(t.donde) || "?")}</div>
-            </div>`).join("") + `</div>
-           ${sinVer ? `<button class="btn btn-soft btn-block" style="margin-top:12px" onclick="marcarTropiezosVistos()">Dar por vistos los ${sinVer} nuevos</button>` : ""}`
+              <div class="pn-error-pie">${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")} · ${escapeHtml(String(t.donde) || "?")}</div>
+            </div>`).join("") + `</div>`
         : `<p class="settings-note">Ni un error en los últimos treinta días.</p>`}
+      ${sinVer ? `<button class="btn btn-soft btn-block" style="margin-top:12px" onclick="marcarTropiezosVistos()">Dar por vistos los ${sinVer} nuevos</button>` : ""}
     </div>
 
     <div class="panel">

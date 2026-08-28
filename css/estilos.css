@@ -6167,6 +6167,120 @@
    necesidad de resplandor — de día una copia borrosa se ve como una mancha. */
 .pn-estrella.cima { stroke: var(--card); stroke-width: 2; }
 
+/* ---------- La escala del eje vertical ----------
+   El número al lado de cada renglón, que es lo que la gráfica no decía. El del
+   máximo va en el color del texto y con más peso: es la referencia contra la
+   que se lee todo, y en el gris de los otros dos se perdía entre ellos. */
+.pn-eje-y {
+  fill: var(--faint);
+  font-size: 9.5px;
+  font-variant-numeric: tabular-nums;
+}
+.pn-eje-y.cima { fill: var(--muted); font-weight: 700; }
+.pn-reja.cima { opacity: .9; stroke-dasharray: none; }
+
+/* ---------- Las cifras de encima de la gráfica ----------
+   La respuesta corta, antes del dibujo. Una serie de catorce puntos enseña la
+   forma y esconde todo lo demás: cuánto suma, cuánto es un día normal y si
+   esta semana fue mejor que la anterior. */
+.pn-graf-cifras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  align-items: flex-end;
+  margin-bottom: 14px;
+}
+.pn-gc { display: flex; flex-direction: column; gap: 1px; }
+.pn-gc b {
+  font-size: 22px; font-weight: 800; line-height: 1;
+  color: var(--mint); font-variant-numeric: tabular-nums;
+}
+.pn-gc span { font-size: 11px; color: var(--muted); }
+/* La tendencia se aparta del resto y se va al final: no es una cifra del
+   periodo, es una comparación con otro. */
+.pn-gc.tend { margin-left: auto; align-items: flex-end; text-align: right; }
+.pn-tend { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+/* Verde y coral, no por bonito: aquí el color ES el dato. Subir es bueno y
+   bajar es malo, y esta es la única gráfica de la app donde eso es cierto sin
+   matices — en las demás un número que baja puede ser una buena noticia. */
+.pn-tend.sube { color: var(--mint); }
+.pn-tend.baja { color: var(--coral); }
+.pn-tend-pie { display: block; font-size: 10.5px; color: var(--faint); }
+
+/* ---------- Cabecera de una caja con su cuenta a la derecha ----------
+   El título a la izquierda y cuántos hay a la derecha, que es donde el ojo
+   busca un total. Lo pidió Eduardo para los reportes y sirve igual para los
+   errores automáticos. */
+.pn-cab {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; margin-bottom: 6px;
+}
+.pn-cab h3 { margin: 0; }
+.pn-cuenta {
+  flex: none;
+  font-size: 12px; font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+/* Con algo sin ver, la cuenta se enciende: es la diferencia entre «hay cosas»
+   y «hay cosas que no has mirado». */
+.pn-cuenta.nuevo { color: var(--fire); }
+
+/* ---------- Los reportes, agrupados por dónde pasó ----------
+   Cada grupo es una fila que se abre. Cerrada dice el lugar y cuántos hay;
+   abierta, la lista de lo que escribió cada quien, entero y sin resumir —
+   sumar dos mensajes distintos en un «2×» borra justo lo que los hace
+   útiles. */
+.pn-grupos { display: grid; gap: 8px; }
+.pn-grupo {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--fire);
+  border-radius: 0 9px 9px 0;
+  background: var(--card2);
+  overflow: hidden;
+}
+.pn-grupo-cab {
+  width: 100%;
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 12px;
+  background: none; border: none;
+  font: inherit; color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+.pn-grupo-cab:hover { background: var(--bg2); }
+.pn-grupo-ic { display: flex; color: var(--fire); flex: none; }
+.pn-grupo-nom { font-weight: 700; font-size: 13.5px; flex: 1; min-width: 0; }
+.pn-grupo-n {
+  flex: none; font-size: 12.5px; font-weight: 700;
+  color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.pn-grupo-flecha { flex: none; color: var(--faint); font-size: 11px; }
+
+.pn-grupo-lista {
+  display: grid; gap: 1px;
+  background: var(--line);
+  border-top: 1px solid var(--line);
+}
+.pn-dicho { background: var(--card2); padding: 10px 12px 10px 36px; }
+/* Lo ya visto se apaga en vez de esconderse, igual que en los errores: un
+   reporte que vuelve a aparecer después de darlo por visto dice algo. */
+.pn-dicho.visto { opacity: .55; }
+.pn-dicho p {
+  margin: 0 0 4px;
+  font-size: 13px; line-height: 1.5; color: var(--text);
+  /* Los saltos que escribió la persona se respetan: si separó en párrafos, es
+     porque son dos cosas. */
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.pn-dicho span { font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
+
+/* Los tonos de las barras de una lista, cuando la lista los pide. */
+.pn-riel i.t-lila { background: var(--lila-macizo); }
+.pn-val.t-lila { color: var(--lila); }
+.pn-val.t-menta { color: var(--mint); }
+
 .pn-eje {
   fill: var(--muted);
   font-size: 10px;
