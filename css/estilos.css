@@ -243,6 +243,119 @@
        lean el mismo número — así no se pueden desincronizar. */
     --sidebar-w: 246px;
 
+    /* ============ El material: de qué está hecha la app ============
+       Hasta aquí arriba todo es COLOR, y el color ya estaba resuelto: el
+       modo claro se hace cambiando estas variables y nada más. Lo que no
+       estaba resuelto es de qué está hecha una superficie —si es papel, si
+       es piedra, si tiene grano— ni qué forma tiene su borde.
+
+       Se midió antes de escribir esto, y el número que lo decidió: en todo
+       el archivo había UN solo `url(...)`, y era la tipografía. O sea que la
+       app no tenía ninguna noción de material: todo era relleno plano con
+       las esquinas redondeadas a mano, 221 radios escritos uno por uno.
+
+       Así que aquí vive la segunda familia. Los valores por defecto son
+       EXACTAMENTE los que ya estaban escritos sueltos —esto no cambia ni un
+       píxel, está medido elemento por elemento—, y lo que aportan es un
+       sitio donde agarrarlos. Una apariencia con carácter propio se escribe
+       cambiando estas y las de arriba, sin tocar una sola regla.
+
+       La regla para no romperlo, la misma de siempre: si al añadir algo hace
+       falta un radio, una superficie o un marco nuevo, el sitio donde se
+       declara es este. Escribirlo suelto dentro de la regla lo deja fuera
+       del alcance de cualquier apariencia, que es como estaba todo antes. */
+
+    /* ---------- La forma ----------
+       Cuatro tokens para lo que hoy es el mismo `999px`, porque son cuatro
+       cosas distintas y una apariencia no las trata igual. Un tema forjado
+       quiere las etiquetas y los botones con la esquina viva; lo que NO
+       quiere es cuadrar el aro de una misión ni los puntitos del tutorial,
+       que son redondos porque son redondos. Con un solo token para los
+       cuatro, cuadrar las pastillas cuadraba también el círculo de marcar
+       una misión — y eso ya no es una apariencia, es otra app. */
+    --r-redondo: 999px;    /* controles y puntos circulares: el aro de marcar */
+    --r-disco: 50%;        /* lo que es un círculo entero */
+    /* Estos cuatro pasan por el factor de abajo; los dos de arriba no. Un
+       círculo es redondo porque es redondo, y ninguna apariencia lo endereza
+       sin querer. */
+    --r-barra: calc(999px * var(--r-factor));      /* extremos de un carril */
+    --r-pastilla: calc(999px * var(--r-factor));   /* etiquetas, chips */
+    --r-boton: calc(999px * var(--r-factor));      /* los botones */
+
+    /* La escala de las superficies. Son los seis valores que se repetían de
+       verdad —16, 14, 12, 10, 8 y 6— y no una escala inventada encima. */
+    /* El factor es el interruptor grueso: una apariencia forjada pone `0` y
+       toda la vajilla que pasa por aquí sale con la esquina viva, en una
+       línea y sin tocar una regla. En `1` —lo de siempre— `calc(14px * 1)`
+       vale exactamente `14px`, así que esto no mueve nada. */
+    --r-factor: 1;
+    --r-grande: calc(16px * var(--r-factor));   /* ventanas y hojas grandes */
+    --r-tarjeta: calc(14px * var(--r-factor));  /* la tarjeta, la pieza de la casa */
+    --r-caja: calc(12px * var(--r-factor));     /* cajas dentro de una tarjeta */
+    --r-chico: calc(10px * var(--r-factor));    /* campos, celdas, iconos */
+    --r-mini: calc(8px * var(--r-factor));      /* lo pequeño */
+    --r-micro: calc(6px * var(--r-factor));     /* el detalle */
+    /* Esta se usaba en dos sitios SIN estar declarada en ninguno —el hueco de
+       una columna vacía y el contorno al reacomodar el tablero—. Un
+       `var(...)` sin valor ni respaldo no es que herede: invalida la
+       declaración entera, así que esas dos esquinas llevaban desde siempre
+       en cuadrado sin que nadie lo hubiera pedido. Al declararla se
+       enderezan, y es el único sitio donde este cambio mueve un píxel. */
+    --r-md: var(--r-tarjeta);
+
+    /* Las siluetas compuestas. No son un radio: son el perfil de una pieza
+       —la tarjeta de una misión entra por la izquierda casi recta y sale
+       redonda por la derecha— y una apariencia que las quiera cambiar tiene
+       que poder cambiarlas enteras, no esquina por esquina. */
+    --r-mision: calc(8px * var(--r-factor)) calc(18px * var(--r-factor)) calc(18px * var(--r-factor)) calc(8px * var(--r-factor));
+    --r-burbuja: calc(26px * var(--r-factor)) calc(26px * var(--r-factor)) calc(26px * var(--r-factor)) calc(10px * var(--r-factor));
+    --r-burbuja-alta: calc(34px * var(--r-factor)) calc(34px * var(--r-factor)) calc(34px * var(--r-factor)) calc(12px * var(--r-factor));
+
+    /* ---------- La superficie ----------
+       El color de un fondo y el MATERIAL de ese fondo no son lo mismo, y
+       hasta ahora eran la misma variable. `--card` sigue siendo el color
+       —se usa también en bordes y en `color-mix`, donde una textura no cabe—
+       y estas de aquí son lo que se pinta: por defecto ese mismo color, y en
+       una apariencia, el color con su grano encima:
+
+           --sup-tarjeta: url(piedra.webp) center/240px, #241b14;
+
+       Van en `background`, que es la forma corta y admite varias capas. Por
+       eso el valor por defecto no lleva nada más: sustituye igual. */
+    --sup-pagina: var(--fondo-pagina);
+    --sup-panel: var(--bg2);
+    --sup-tarjeta: var(--card);
+    --sup-tarjeta2: var(--card2);
+    --sup-flotante: var(--flotante);
+
+    /* ---------- El marco ----------
+       Un borde de un píxel es lo que tiene una app de hoy; una pieza forjada
+       tiene un marco con esquinas, y eso en CSS es `border-image` con un
+       borde ancho debajo. Las dos cosas hacen falta: con la imagen puesta y
+       el borde en un píxel no se ve nada.
+
+       Por defecto: ningún marco y el mismo píxel de siempre. */
+    --borde-fino: 1px;     /* el borde de casi todo */
+    --borde-tarjeta: 1px;  /* el de una tarjeta, que un marco engorda */
+    --marco-tarjeta: none;
+
+    /* ---------- La letra ----------
+       La familia ya salía de `--sans` en el único sitio donde se declara
+       (todo lo demás hereda), así que cambiarla entera ya se podía. Lo que
+       no se podía era cambiar SOLO los títulos o SOLO las cifras, que es
+       justo lo que le da carácter a una apariencia: una display de titular
+       con el cuerpo de texto intacto y legible. Por defecto, la misma. */
+    --tipo-titulo: var(--sans);
+    --tipo-cifra: var(--sans);
+
+    /* ---------- El movimiento ----------
+       Una app ligera se mueve rápido y sale sin inercia; una pesada tarda y
+       frena al llegar. Son los dos valores que ya se repetían. */
+    --dur-corta: 0.15s;
+    --dur-media: 0.22s;
+    --curva: ease;
+    --curva-rebote: cubic-bezier(0.34, 1.56, 0.64, 1);
+
     /* ---------- Los pisos ----------
        Cada cosa que se pone encima de la app tenía su número suelto, escrito
        donde tocaba y sin mirar a los demás. Así aparecieron ventanas que se
@@ -602,7 +715,7 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
     background: var(--pulgar);
-    border-radius: 999px;
+    border-radius: var(--r-barra);
     border: 3px solid transparent;
     background-clip: padding-box;
   }
@@ -621,7 +734,7 @@
   }
   body {
     font-family: var(--sans);
-    background: var(--fondo-pagina);
+    background: var(--sup-pagina);
     background-attachment: fixed;
     color: var(--text);
     min-height: 100vh;
@@ -630,7 +743,7 @@
   }
   .orb {
     position: fixed;
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     pointer-events: none;
     z-index: 0;
     filter: blur(2px);
@@ -657,15 +770,22 @@
     text-transform: uppercase;
     margin-bottom: 4px;
   }
+  /* Los títulos y las cifras se declaran aquí, aunque por defecto sean la
+     misma letra del cuerpo. Sin esto una apariencia solo podía cambiar la
+     tipografía ENTERA —incluido el texto corrido, que es donde una display
+     se vuelve ilegible— y eso no es una opción: es la app rota con estilo. */
+  h1, h2, h3 { font-family: var(--tipo-titulo); }
+
   .page-head h1 {
     font-size: 30px;
     font-weight: 700;
     letter-spacing: -0.5px;
   }
   .icon-btn {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 999px;
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-boton);
     width: 42px; height: 42px;
     font-size: 16px;
     cursor: pointer;
@@ -695,7 +815,7 @@
   .scene-card {
     position: relative;
     overflow: hidden;
-    border-radius: 34px 34px 34px 12px;
+    border-radius: var(--r-burbuja-alta);
     height: 252px;
     margin-bottom: 20px;
     box-shadow: 0 22px 50px var(--sombra-m);
@@ -728,7 +848,7 @@
     letter-spacing: -1.5px;
     line-height: 1.12;
     margin: 1px 0 8px;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
   }
   .scene-body .big b { font-weight: 700; }
   .scene-body .big span { font-size: 19px; font-weight: 500; color: rgba(234, 241, 239, 0.8); letter-spacing: 0; }
@@ -737,12 +857,12 @@
     flex: 1;
     background: rgba(20, 27, 37, 0.55);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(234, 241, 239, 0.1);
-    border-radius: 16px;
+    border: var(--borde-fino) solid rgba(234, 241, 239, 0.1);
+    border-radius: var(--r-grande);
     padding: 9px 6px;
     text-align: center;
   }
-  .glass-chip .n { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .glass-chip .n { font-size: 17px; font-weight: 700; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .glass-chip .n.warn { color: var(--fire); }
   .glass-chip .n.okc { color: var(--mint); }
   .glass-chip .t { font-size: 10px; color: var(--muted); margin-top: 1px; }
@@ -797,7 +917,7 @@
     right: -8px; bottom: -8px;
     width: 28px; height: 28px;
     border-radius: 9px;
-    background: var(--card2);
+    background: var(--sup-tarjeta2);
     border: 2px solid var(--mint);
     color: var(--mint);
     cursor: nwse-resize;
@@ -818,7 +938,7 @@
     text-transform: uppercase;
     background: var(--mint-macizo);
     color: var(--sobre-macizo);
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     padding: 4px 11px;
     box-shadow: 0 4px 14px var(--sombra-m);
   }
@@ -826,7 +946,7 @@
   /* Pegado al título: en la esquina derecha chocaba con el asa de tamaño */
   .w-hide {
     width: 26px; height: 26px;
-    border-radius: 999px;
+    border-radius: var(--r-boton);
     border: none;
     background: var(--coral-macizo);
     color: var(--sobre-macizo);
@@ -853,8 +973,9 @@
   /* La bandeja del Modo Editor. Ya no es una celda del tablero: es un panel
      encima, y por eso mide lo que mide su contenido sin cuentas de filas. */
   .dash-tray {
-    background: var(--card);
-    border: 1px solid var(--mint);
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--mint);
+    border-image: var(--marco-tarjeta);
     border-radius: 20px;
     padding: 16px 18px;
     margin-bottom: 26px;
@@ -871,10 +992,10 @@
     font-family: inherit;
     font-size: 12.5px;
     font-weight: 650;
-    background: var(--bg2);
-    border: 1px dashed var(--line);
+    background: var(--sup-panel);
+    border: var(--borde-fino) dashed var(--line);
     color: var(--muted);
-    border-radius: 999px;
+    border-radius: var(--r-pastilla);
     padding: 8px 14px;
     cursor: pointer;
   }
@@ -893,8 +1014,8 @@
   .acomodo {
     display: flex; align-items: center; gap: 11px; text-align: left;
     font-family: inherit; cursor: pointer;
-    background: var(--bg2); border: 1px dashed var(--line);
-    border-radius: 14px; padding: 10px 12px;
+    background: var(--sup-panel); border: var(--borde-fino) dashed var(--line);
+    border-radius: var(--r-tarjeta); padding: 10px 12px;
   }
   .acomodo:hover { border-color: var(--mint); }
   /* La plantilla que está puesta se queda encendida. Se apaga sola en cuanto
@@ -910,10 +1031,10 @@
   .acomodo.on .ac-tx span { color: var(--muted); }
   .acomodo:active { border-style: solid; border-color: var(--mint); }
   .ac-n {
-    flex: none; width: 24px; height: 24px; border-radius: 8px;
+    flex: none; width: 24px; height: 24px; border-radius: var(--r-mini);
     display: grid; place-items: center;
     background: rgba(95, 224, 176, 0.12); color: var(--mint);
-    font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums;
+    font-size: 12px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
   }
   .ac-tx { min-width: 0; }
   .ac-tx b { display: block; font-size: 13px; color: var(--text); }
@@ -929,7 +1050,7 @@
   }
   .streak-row .flame { color: var(--fire); }
   .streak-row .flame svg { width: 30px; height: 30px; stroke-width: 1.6; }
-  .streak-row .num { font-size: 34px; font-weight: 700; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .streak-row .num { font-size: 34px; font-weight: 700; letter-spacing: -1px; line-height: 1; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .streak-row .lbl { font-size: 12px; color: rgba(234, 241, 239, 0.8); line-height: 1.3; }
   /* ---------- Los últimos 14 días ----------
      Antes eran barritas de dos estados. Ahora cada día es un disco que dice
@@ -986,7 +1107,7 @@
     letter-spacing: -3px;
     line-height: 1;
     color: var(--fire);
-    font-variant-numeric: tabular-nums;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
     text-shadow: 0 6px 34px rgba(245, 215, 110, 0.55);
     margin-top: 4px;
   }
@@ -1010,7 +1131,7 @@
     position: absolute;
     top: 50%; left: 50%;
     width: 9px; height: 9px;
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     background: var(--fire);
     opacity: 0;
   }
@@ -1029,8 +1150,9 @@
   /* ---------- Resumen: tarjetas ---------- */
   .sum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
   .sum-card {
-    background: var(--card);
-    border: 1px solid var(--borde-panel);
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--borde-panel);
+    border-image: var(--marco-tarjeta);
     padding: 16px;
     text-align: left;
     font-family: inherit;
@@ -1038,12 +1160,12 @@
     cursor: pointer;
   }
   .sum-card.a { border-radius: 26px 26px 10px 26px; }
-  .sum-card.b { border-radius: 26px 26px 26px 10px; }
-  .sum-card:active { background: var(--card2); }
+  .sum-card.b { border-radius: var(--r-burbuja); }
+  .sum-card:active { background: var(--sup-tarjeta2); }
   .sum-card .ic { color: var(--mint); margin-bottom: 10px; }
   .sum-card .ic svg { width: 22px; height: 22px; }
   .sum-card.b .ic { color: var(--fire); }
-  .sum-card .n { font-size: 23px; font-weight: 700; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+  .sum-card .n { font-size: 23px; font-weight: 700; letter-spacing: -0.5px; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .sum-card .t { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
 
   /* Cifras de apoyo dentro de una tarjeta pequeña. Existen porque "6
@@ -1057,7 +1179,7 @@
     border-top: 1px dashed var(--line);
   }
   .sc-rows > div { display: flex; align-items: baseline; gap: 5px; }
-  .sc-rows b { font-size: 13.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .sc-rows b { font-size: 13.5px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .sc-rows span { font-size: 10.5px; color: var(--faint); letter-spacing: 0.3px; }
   /* La flecha de comparación también en el Resumen, y es la misma pieza que
      en los paneles: aquí va en línea con su cifra en vez de debajo, porque
@@ -1070,7 +1192,7 @@
   .sc-near i {
     display: block;
     height: 4px;
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     /* El carril, no `--line`: aquí encima va un color del usuario y hay que
        verlo avanzar. Antes era un blanco al 10% —pensado para carbón— y sobre
        una tarjeta clara no era ningún carril. */
@@ -1085,7 +1207,7 @@
     inset: 0 auto 0 0;
     width: var(--p, 0%);
     background: var(--c-l, var(--c, var(--mint)));
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
   }
 
   /* ---------- Sugerencias de habilidad en los formularios ---------- */
@@ -1097,9 +1219,9 @@
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    background: var(--bg2);
+    background: var(--sup-panel);
     border: 1.5px solid var(--line);
-    border-radius: 999px;
+    border-radius: var(--r-pastilla);
     padding: 5px 11px;
     font-family: inherit;
     font-size: 12px;
@@ -1122,9 +1244,9 @@
     align-items: center;
     gap: 12px;
     width: 100%;
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 14px;
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-tarjeta);
     padding: 11px 13px;
     margin-bottom: 8px;
     font-family: inherit;
@@ -1139,7 +1261,7 @@
   .mod-sw {
     flex: none;
     width: 40px; height: 23px;
-    border-radius: 999px;
+    border-radius: var(--r-boton);
     background: var(--line);
     position: relative;
     transition: background 0.16s ease;
@@ -1148,7 +1270,7 @@
     position: absolute;
     top: 3px; left: 3px;
     width: 17px; height: 17px;
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     background: var(--faint);
     transition: transform 0.16s ease, background 0.16s ease;
   }
@@ -1170,11 +1292,11 @@
   /* Con el contenedor delante: `.btn` vive más abajo en este archivo y, a
      igual especificidad, ganaba él — el relleno se quedaba en el de un botón
      grande por mucho que aquí dijera otra cosa. */
-  .hb-tools .hb-b { flex: none; padding: 7px 14px; font-size: 12.5px; border-radius: 999px; }
+  .hb-tools .hb-b { flex: none; padding: 7px 14px; font-size: 12.5px; border-radius: var(--r-boton); }
   .hb-tools .hb-b + .hb-b { margin-left: auto; }
   /* Borde invisible en la de menta: la otra lleva uno y sin esto quedaban
      dos pastillas de altura distinta pegadas. */
-  .hb-tools .btn-soft { border: 1px solid transparent; }
+  .hb-tools .btn-soft { border: var(--borde-fino) solid transparent; }
   .hb-hint { font-size: 10.5px; color: var(--faint); text-align: right; padding: 0 4px 9px; }
   .hb-hint:empty { display: none; }
   .skill-card.marcada { border-color: var(--mint); background: var(--mint-soft); }
@@ -1201,7 +1323,7 @@
   .cat-all {
     margin-left: auto;
     background: var(--mint-soft); color: var(--mint);
-    border: none; border-radius: 999px;
+    border: none; border-radius: var(--r-pastilla);
     padding: 4px 11px; font-size: 11px; font-weight: 700;
     font-family: inherit; cursor: pointer;
   }
@@ -1209,9 +1331,9 @@
   .cat-grid { display: grid; grid-template-columns: 1fr; gap: 7px; }
   .cat-chip {
     display: flex; align-items: center; gap: 10px;
-    background: var(--card);
+    background: var(--sup-tarjeta);
     border: 1.5px solid var(--line);
-    border-radius: 14px;
+    border-radius: var(--r-tarjeta);
     padding: 9px 11px;
     font-family: inherit;
     color: var(--text);
@@ -1220,7 +1342,7 @@
   }
   .cat-chip.sel { border-color: var(--mint); background: var(--mint-soft); }
   .cat-chip.tengo { opacity: 0.45; cursor: default; }
-  .cc-ic { flex: none; width: 32px; height: 32px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; }
+  .cc-ic { flex: none; width: 32px; height: 32px; border-radius: var(--r-chico); display: inline-flex; align-items: center; justify-content: center; }
   .cc-n { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .cc-box {
     flex: none; width: 21px; height: 21px; border-radius: 7px;
@@ -1235,10 +1357,10 @@
     position: sticky;
     bottom: calc(12px + env(safe-area-inset-bottom));
     display: flex; gap: 9px;
-    background: var(--flotante);
+    background: var(--sup-flotante);
     backdrop-filter: blur(10px);
-    border: 1px solid var(--line);
-    border-radius: 16px;
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-grande);
     padding: 9px;
     margin-top: 16px;
   }
@@ -1270,7 +1392,7 @@
   .att-item:last-child { border-bottom: none; }
   .att-item .dot {
     width: 34px; height: 34px;
-    border-radius: 12px;
+    border-radius: var(--r-caja);
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
@@ -1278,7 +1400,7 @@
   .att-item .tx { flex: 1; min-width: 0; }
   .att-item .tx b { display: block; font-size: 14px; }
   .att-item .tx span { font-size: 12px; color: var(--muted); }
-  .att-item .go { color: var(--faint); transition: color 0.15s ease, transform 0.15s ease; }
+  .att-item .go { color: var(--faint); transition: color var(--dur-corta) ease, transform var(--dur-corta) ease; }
 
   /* ---------- Ajustes por secciones ----------
      En el teléfono la lista y la sección se turnan; en la computadora conviven
@@ -1293,15 +1415,16 @@
     text-align: left;
     font-family: inherit;
     color: var(--text);
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 16px;
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-grande);
     padding: 12px 14px;
     cursor: pointer;
   }
   .aj-item .aj-ic {
     width: 34px; height: 34px;
-    border-radius: 12px;
+    border-radius: var(--r-caja);
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
     background: var(--mint-soft);
@@ -1328,7 +1451,7 @@
   .aj-item.t-oro .aj-ic { background: var(--fire-soft); color: var(--fire); }
   .aj-item.t-lila .aj-ic { background: var(--lila-soft); color: var(--lila); }
   .aj-item.t-coral .aj-ic { background: var(--coral-soft); color: var(--coral); }
-  .aj-item.on { border-color: var(--mint); background: var(--card2); }
+  .aj-item.on { border-color: var(--mint); background: var(--sup-tarjeta2); }
   .aj-item.t-oro.on { border-color: var(--fire); }
   .aj-item.t-lila.on { border-color: var(--lila); }
   .aj-item.t-coral.on { border-color: var(--coral); }
@@ -1348,9 +1471,10 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 16px;
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-grande);
     padding: 10px 12px;
   }
   .tema-tit {
@@ -1362,9 +1486,9 @@
     flex: none;
     display: flex;
     gap: 3px;
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 999px;
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-boton);
     padding: 3px;
   }
   .ts-op {
@@ -1377,7 +1501,7 @@
     font-family: inherit;
     font-size: 12px;
     font-weight: 700;
-    border-radius: 999px;
+    border-radius: var(--r-boton);
     /* Alto final 33 px, del tamaño del botón de añadir (`.badd`, 32) y del
        icono de una fila de Ajustes (34). Con menos relleno quedaba en 27 y
        en el teléfono el pulgar se comía la mitad del otro. */
@@ -1439,9 +1563,9 @@
   .sv-bug {
     flex-shrink: 0;
     width: 32px; height: 32px;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    background: var(--bg2);
+    border-radius: var(--r-boton);
+    border: var(--borde-fino) solid var(--line);
+    background: var(--sup-panel);
     color: var(--muted);
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
@@ -1471,8 +1595,9 @@
     position: fixed;
     z-index: var(--piso-menucito);
     width: 296px;
-    background: var(--card);
-    border: 1px solid var(--line);
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta);
     border-radius: 18px;
     padding: 8px;
     box-shadow: 0 26px 60px var(--sombra-l);
@@ -1487,9 +1612,9 @@
     text-align: left;
     font-family: inherit;
     color: var(--text);
-    background: var(--card2);
-    border: 1px solid var(--line);
-    border-radius: 14px;
+    background: var(--sup-tarjeta2);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-tarjeta);
     padding: 10px 11px;
     /* Antes la separaba el rótulo "AJUSTES"; sin él, el aire lo pone ella. */
     margin-bottom: 8px;
@@ -1512,7 +1637,7 @@
   }
   .mm-ic {
     width: 30px; height: 30px;
-    border-radius: 10px;
+    border-radius: var(--r-chico);
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
     background: var(--mint-soft);
@@ -1538,7 +1663,7 @@
      Y `:focus-visible` con lo mismo, para quien lo recorra con el tabulador. */
   .mm-item:hover,
   .mm-item:focus-visible {
-    background: var(--card2);
+    background: var(--sup-tarjeta2);
     outline: none;
   }
   .mm-item:hover .mm-ic,
@@ -1591,7 +1716,7 @@
     gap: 5px;
     margin-top: 4px;
     padding: 2px 8px 2px 6px;
-    border-radius: 999px;
+    border-radius: var(--r-pastilla);
     font-size: 11px;
     font-weight: 650;
     line-height: 1.5;
@@ -1621,10 +1746,10 @@
   .chips::-webkit-scrollbar { display: none; }
   .chip {
     flex-shrink: 0;
-    border: 1px solid var(--line);
+    border: var(--borde-fino) solid var(--line);
     background: transparent;
     color: var(--muted);
-    border-radius: 999px;
+    border-radius: var(--r-pastilla);
     padding: 8px 16px;
     font-size: 13px;
     font-weight: 600;
@@ -1646,8 +1771,9 @@
     text-align: left;
     font-family: inherit;
     color: var(--text);
-    background: var(--card);
-    border: 1px solid var(--borde-panel);
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--borde-panel);
+    border-image: var(--marco-tarjeta);
     padding: 14px 16px;
     margin-bottom: 12px;
     cursor: pointer;
@@ -1655,7 +1781,7 @@
   }
   .skill-card.r-a { border-radius: 28px 14px 28px 14px; }
   .skill-card.r-b { border-radius: 14px 28px 14px 28px; }
-  .skill-card:active { background: var(--card2); }
+  .skill-card:active { background: var(--sup-tarjeta2); }
   .skill-tab {
     position: absolute;
     top: -9px;
@@ -1665,7 +1791,7 @@
     letter-spacing: 0.6px;
     text-transform: uppercase;
     padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: var(--r-pastilla);
     color: var(--sobre-macizo);
   }
   .skill-tab.warn { background: var(--fire-macizo); }
@@ -1695,7 +1821,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 13.5px;
     font-weight: 800;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
   }
 
   /* ---------- Estado vacío ---------- */
@@ -1723,7 +1849,7 @@
     justify-content: center;
     gap: 6px;
     border: none;
-    border-radius: 999px;
+    border-radius: var(--r-boton);
     padding: 14px 22px;
     font-size: 14px;
     font-weight: 700;
@@ -1754,9 +1880,9 @@
      ese botón ESCRIBE algo. Si solo enseña o lleva, es `linea`. */
   .btn-primary { background: var(--mint-macizo); color: var(--sobre-macizo); box-shadow: 0 10px 26px rgba(95, 224, 176, 0.25); }
   .btn-soft { background: var(--mint-soft); color: var(--mint); }
-  .btn-linea { background: var(--card); color: var(--mint); border: 1px solid var(--mint); }
+  .btn-linea { background: var(--sup-tarjeta); color: var(--mint); border: var(--borde-tarjeta) solid var(--mint); border-image: var(--marco-tarjeta); }
   .btn-aviso { background: var(--fire-soft); color: var(--fire); }
-  .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--line); }
+  .btn-ghost { background: var(--sup-tarjeta); color: var(--text); border: var(--borde-tarjeta) solid var(--line); border-image: var(--marco-tarjeta); }
   .btn-danger-ghost { background: var(--coral-soft); color: var(--coral); }
   .btn-block { width: 100%; }
   .btn:active { transform: scale(0.97); opacity: 0.9; }
@@ -1800,8 +1926,9 @@
      momento de pagar es lo que convierte el cobro en algo recibido. */
   .compra-lista {
     text-align: left;
-    border: 1px solid var(--line); border-radius: 14px;
-    background: var(--card); padding: 6px 14px; margin-bottom: 20px;
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta); border-radius: var(--r-tarjeta);
+    background: var(--sup-tarjeta); padding: 6px 14px; margin-bottom: 20px;
   }
   .compra-lista div {
     display: flex; align-items: center; gap: 10px;
@@ -1816,7 +1943,7 @@
   }
   /* Mientras el aviso de Stripe todavía no ha llegado. La rueda es la misma
      del botón que espera. */
-  .compra-esperando .compra-ic { background: var(--card2); color: var(--muted); }
+  .compra-esperando .compra-ic { background: var(--sup-tarjeta2); color: var(--muted); }
 
   /* ---------- Cluster del pulgar ---------- */
   .thumb-cluster {
@@ -1845,15 +1972,15 @@
   }
   .thumb-cluster .c-nav {
     width: 44px; height: 44px;
-    border-radius: 999px;
-    background: var(--flotante);
+    border-radius: var(--r-redondo);
+    background: var(--sup-flotante);
     backdrop-filter: blur(10px);
-    border: 1px solid var(--line);
+    border: var(--borde-fino) solid var(--line);
     color: var(--faint);
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 8px 20px var(--sombra-m);
-    transition: 0.15s ease;
+    transition: var(--dur-corta) ease;
   }
   .thumb-cluster .c-nav svg {
     width: 19px; height: 19px;
@@ -1872,7 +1999,7 @@
     pointer-events: auto;
     flex-shrink: 0;
     width: 58px; height: 58px;
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     background: var(--mint-macizo);
     color: var(--sobre-macizo);
     border: none;
@@ -1883,7 +2010,7 @@
     box-shadow: 0 12px 32px rgba(95, 224, 176, 0.4);
     display: flex; align-items: center; justify-content: center;
     line-height: 1;
-    transition: transform 0.15s ease, opacity 0.2s ease;
+    transition: transform var(--dur-corta) ease, opacity 0.2s ease;
   }
   .thumb-cluster .c-main:active { transform: scale(0.92); }
   .thumb-cluster .c-main.hidden { opacity: 0; pointer-events: none; transform: scale(0.6); }
@@ -1904,12 +2031,13 @@
   .back-row h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; flex: 1; }
   /* La acción alterna de una cabecera: existe, se encuentra, y no compite con
      lo que la pantalla propone. Pequeña y en gris, nunca en menta. */
-  .back-row .bck-alt { flex: none; padding: 7px 14px; font-size: 12.5px; border-radius: 999px; }
+  .back-row .bck-alt { flex: none; padding: 7px 14px; font-size: 12.5px; border-radius: var(--r-boton); }
 
   .panel {
-    background: var(--card);
-    border: 1px solid var(--borde-panel);
-    border-radius: 26px 26px 26px 10px;
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--borde-panel);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-burbuja);
     padding: 20px;
     margin-bottom: 14px;
   }
@@ -1986,7 +2114,7 @@
     align-items: center; justify-content: center;
     text-align: center;
   }
-  .ring-center .v { font-size: 27px; font-weight: 300; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+  .ring-center .v { font-size: 27px; font-weight: 300; letter-spacing: -0.5px; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .ring-center .v b { font-weight: 700; }
   .ring-center .k { font-size: 11px; color: var(--muted); margin-top: 1px; }
 
@@ -1994,8 +2122,9 @@
   .detail-hero {
     position: relative;
     overflow: hidden;
-    background: var(--card);
-    border: 1px solid var(--borde-panel);
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--borde-panel);
+    border-image: var(--marco-tarjeta);
     border-radius: 34px 34px 12px 34px;
     margin-bottom: 14px;
     text-align: center;
@@ -2032,7 +2161,7 @@
     cursor: pointer;
     font-family: inherit;
     -webkit-tap-highlight-color: transparent;
-    transition: transform 0.15s ease;
+    transition: transform var(--dur-corta) ease;
   }
   .perk-hero .skill-emoji.editable:active,
   .detail-hero .skill-emoji.editable:active { transform: scale(0.94); }
@@ -2041,8 +2170,8 @@
     position: absolute;
     right: -2px; bottom: -2px;
     width: 21px; height: 21px;
-    border-radius: 999px;
-    background: var(--bg2);
+    border-radius: var(--r-pastilla);
+    background: var(--sup-panel);
     border: 1.5px solid var(--card);
     color: var(--muted);
     display: flex; align-items: center; justify-content: center;
@@ -2052,12 +2181,12 @@
   .detail-hero h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.4px; }
   .detail-hero .cat {
     display: inline-block;
-    background: var(--bg2);
-    border: 1px solid var(--line);
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
     color: var(--muted);
     font-size: 12px;
     font-weight: 600;
-    border-radius: 999px;
+    border-radius: var(--r-pastilla);
     padding: 4px 13px;
     margin-top: 8px;
   }
@@ -2075,8 +2204,8 @@
   }
   .quick-xp button {
     width: 76px; height: 76px;
-    border-radius: 999px;
-    background: var(--bg2);
+    border-radius: var(--r-boton);
+    background: var(--sup-panel);
     border: 2px solid var(--line);
     cursor: pointer;
     font-family: inherit;
@@ -2086,7 +2215,7 @@
     align-items: center;
     justify-content: center;
     gap: 1px;
-    transition: 0.15s ease;
+    transition: var(--dur-corta) ease;
   }
   .quick-xp button .xp { font-size: 16.5px; font-weight: 800; }
   .quick-xp button .t { font-size: 9.5px; color: var(--muted); }
@@ -2111,13 +2240,13 @@
   .dz-count {
     font-size: 11px; font-weight: 800;
     color: var(--coral); background: var(--coral-soft);
-    border-radius: 999px; padding: 3px 10px;
+    border-radius: var(--r-pastilla); padding: 3px 10px;
   }
   .dz-list { display: flex; flex-direction: column; gap: 7px; }
   .dz-row {
     display: flex; align-items: center; gap: 11px;
     width: 100%; text-align: left;
-    background: var(--bg2); border: 1px solid var(--line);
+    background: var(--sup-panel); border: var(--borde-fino) solid var(--line);
     border-radius: 13px; padding: 9px 12px;
     font-family: inherit; color: var(--text); cursor: pointer;
   }
@@ -2131,10 +2260,10 @@
 
   /* Modo selección del historial */
   .history-item.selectable { cursor: pointer; padding-left: 4px; }
-  .history-item.picked { background: var(--mint-soft); border-radius: 10px; }
+  .history-item.picked { background: var(--mint-soft); border-radius: var(--r-chico); }
   .hcheck {
     flex: none; width: 20px; height: 20px; margin-right: 9px;
-    border-radius: 6px; border: 1.5px solid var(--line);
+    border-radius: var(--r-micro); border: 1.5px solid var(--line);
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 800; color: var(--mint);
     align-self: center;
@@ -2149,9 +2278,9 @@
     font-weight: 700;
     letter-spacing: 0.3px;
     color: var(--muted);
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 999px;
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-pastilla);
     padding: 2px 8px;
     vertical-align: 1px;
   }
@@ -2169,7 +2298,7 @@
   .history-item:last-child { border-bottom: none; }
   .history-item .note { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   .history-item .when { font-size: 11.5px; color: var(--faint); display: block; margin-top: 1px; }
-  .history-item .gain { font-weight: 800; color: var(--mint); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .history-item .gain { font-weight: 800; color: var(--mint); flex-shrink: 0; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .history-item .gain.loss { color: var(--fire); }
 
   /* ---------- Árbol / constelación ---------- */
@@ -2180,7 +2309,7 @@
     margin-top: 14px;
   }
   .tree-stats > div { text-align: center; }
-  .tree-stats .n { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .tree-stats .n { font-size: 18px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .tree-stats .n.mint { color: var(--mint); }
   .tree-stats .n.fire { color: var(--fire); }
   .tree-stats .t { font-size: 10px; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-top: 2px; }
@@ -2206,7 +2335,7 @@
   .sh-lead .big { margin-bottom: 0; }
   .sh-stats { display: flex; gap: 8px; }
   .sh-stats > div { flex: 1; text-align: center; }
-  .sh-stats .n { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .sh-stats .n { font-size: 18px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   /* Dos renglones reservados cuando alguna cifra del grupo es larga —un
      importe con su moneda—, para que la que parte en dos no arrastre su
      rótulo hacia abajo y descuadre las otras tres. La pone `sectionHero`
@@ -2272,7 +2401,7 @@
     font-weight: 800;
     min-height: 15px;
     margin-top: 3px;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2310,8 +2439,8 @@
     font-family: inherit;
     background: rgba(20, 27, 37, 0.55);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(234, 241, 239, 0.1);
-    border-radius: 16px;
+    border: var(--borde-fino) solid rgba(234, 241, 239, 0.1);
+    border-radius: var(--r-grande);
     padding: 11px 14px;
     color: var(--text);
     cursor: pointer;
@@ -2320,8 +2449,8 @@
   .sh-focus:active { background: rgba(20, 27, 37, 0.75); }
   .shf-k { font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
   .shf-v { font-size: 13.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .shf-bar { display: block; height: 4px; border-radius: 999px; background: rgba(234,241,239,0.14); margin-top: 5px; overflow: hidden; }
-  .shf-bar i { display: block; height: 100%; border-radius: 999px; }
+  .shf-bar { display: block; height: 4px; border-radius: var(--r-barra); background: rgba(234,241,239,0.14); margin-top: 5px; overflow: hidden; }
+  .shf-bar i { display: block; height: 100%; border-radius: var(--r-barra); }
   /* El botón del informe vive DENTRO de la escena, que se queda de noche en
      los dos modos. `btn-linea` le daba `var(--card)` de fondo, y esa variable
      NO está entre las que la escena vuelve a declarar: de día salía una
@@ -2384,9 +2513,9 @@
     font-size: 12px;
     font-weight: 650;
     color: var(--muted);
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 999px;
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-pastilla);
     padding: 4px 11px;
     font-family: inherit;
     cursor: pointer;
@@ -2416,8 +2545,8 @@
     text-align: left;
     font-family: inherit;
     color: var(--text);
-    background: var(--bg2);
-    border: 1px solid var(--line);
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
     border-left: 3px solid var(--lc, var(--mint));
     border-radius: 6px 14px 14px 6px;
     padding: 10px 12px;
@@ -2425,7 +2554,7 @@
     margin-bottom: 7px;
     font-size: 13.5px;
   }
-  .linked-row:active { background: var(--card2); }
+  .linked-row:active { background: var(--sup-tarjeta2); }
   .linked-row .lr-ic { color: color-mix(in srgb, var(--lc), var(--tinta-fondo) var(--hundir)); display: inline-flex; flex-shrink: 0; }
   .linked-row .lr-tx { flex: 1; min-width: 0; }
   .linked-row .lr-tx b { display: block; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -2433,9 +2562,10 @@
   .linked-row .lr-go { color: var(--faint); flex-shrink: 0; }
 
   .branch-card {
-    background: var(--card);
-    border: 1px solid var(--borde-panel);
-    border-radius: 26px 26px 26px 10px;
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--borde-panel);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-burbuja);
     padding: 16px 0 6px;
     margin-bottom: 16px;
     overflow: hidden;
@@ -2453,11 +2583,11 @@
     font-weight: 800;
     color: var(--mint);
     background: var(--mint-soft);
-    border-radius: 999px;
+    border-radius: var(--r-pastilla);
     padding: 3px 10px;
     white-space: nowrap;
     flex-shrink: 0;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
   }
   .branch-head h3 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* El lápiz solo aparece al acercarse: el nombre tiene que leerse como un
@@ -2472,7 +2602,7 @@
     flex: none;
     opacity: 0;
     color: var(--muted);
-    transition: opacity 0.15s;
+    transition: opacity var(--dur-corta);
   }
   h3.renombrable:hover .ic { opacity: 1; }
   /* Sin ratón no hay "acercarse", así que ahí el lápiz se queda puesto en
@@ -2494,9 +2624,9 @@
     right: 0; top: calc(100% + 8px);
     width: max-content;
     max-width: min(280px, calc(100vw - 44px));
-    background: var(--card2);
-    border: 1px solid var(--line);
-    border-radius: 16px;
+    background: var(--sup-tarjeta2);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-grande);
     padding: 6px;
     box-shadow: 0 18px 42px var(--sombra-l);
     /* Vive DENTRO de la página, no encima de ella: cuelga de la fila de su
@@ -2519,14 +2649,14 @@
     padding: 9px 10px;
     border-radius: 11px;
   }
-  .bmenu button:hover { background: var(--bg2); }
+  .bmenu button:hover { background: var(--sup-panel); }
   .bm-tx { flex: 1; min-width: 0; }
   .bm-tx b { display: block; font-size: 13.5px; font-weight: 650; line-height: 1.25; }
   .bm-tx span { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
   .bm-ic {
     flex: none;
     width: 32px; height: 32px;
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     border: 1.5px solid var(--line);
     display: flex; align-items: center; justify-content: center;
     color: var(--muted);
@@ -2539,7 +2669,7 @@
   .bm-ic svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
   .badd {
     width: 32px; height: 32px;
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     border: 1.5px dashed var(--linea-guion);
     background: transparent;
     color: var(--muted);
@@ -2595,9 +2725,9 @@
     width: calc(100% - 36px);
     margin: 10px 18px 2px;
     padding: 9px 12px;
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 12px;
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-caja);
     color: var(--muted);
     font-family: inherit;
     font-size: 12.5px;
@@ -2644,15 +2774,16 @@
     align-items: center;
     gap: 10px;
     padding: calc(11px + env(safe-area-inset-top)) 14px 11px;
-    background: var(--flotante);
+    background: var(--sup-flotante);
     border-bottom: 1px solid var(--line);
   }
   .fs-close {
     flex: none;
     width: 36px; height: 36px;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    background: var(--card);
+    border-radius: var(--r-redondo);
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta);
+    background: var(--sup-tarjeta);
     color: var(--text);
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
@@ -2664,8 +2795,8 @@
     flex: none;
     font-size: 11px; font-weight: 800;
     color: var(--mint); background: var(--mint-soft);
-    border-radius: 999px; padding: 3px 9px;
-    font-variant-numeric: tabular-nums;
+    border-radius: var(--r-pastilla); padding: 3px 9px;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
   }
   .fs-tools { flex: none; display: flex; gap: 7px; }
   .fs-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
@@ -2701,16 +2832,16 @@
     align-items: center;
     gap: 3px;
     padding: 4px;
-    border-radius: 999px;
-    background: var(--flotante);
-    border: 1px solid var(--line);
+    border-radius: var(--r-boton);
+    background: var(--sup-flotante);
+    border: var(--borde-fino) solid var(--line);
     box-shadow: 0 6px 22px rgba(0, 0, 0, 0.3);
   }
   .mt-btn {
     width: 42px; height: 42px;
     display: inline-flex; align-items: center; justify-content: center;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--r-boton);
     background: transparent;
     color: var(--muted);
     cursor: pointer;
@@ -2719,7 +2850,7 @@
     line-height: 1;
   }
   .mt-btn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-  .mt-btn:hover:not(:disabled) { background: var(--card2); color: var(--text); }
+  .mt-btn:hover:not(:disabled) { background: var(--sup-tarjeta2); color: var(--text); }
   .mt-btn.on { background: var(--mint-soft); color: var(--mint); }
   .mt-btn.crear { color: var(--mint); font-weight: 700; }
   /* Apagado, no ausente: si los iconos se recorren, la mano tiene que volver
@@ -2743,7 +2874,7 @@
   .fs-title .fs-rama i { font-style: normal; font-size: 10px; color: var(--muted); }
   .fs-title .fs-mod:hover { color: var(--mint); }
   .fs-title .fs-sep { color: var(--faint); margin: 0 5px; }
-  #ctx button.aqui { background: var(--card2); }
+  #ctx button.aqui { background: var(--sup-tarjeta2); }
 
   @media (min-width: 900px) {
     /* En PC a la izquierda y en columna, como una caja de herramientas: hay
@@ -2771,9 +2902,9 @@
     align-items: center;
     gap: 2px;
     padding: 3px;
-    border-radius: 999px;
-    background: var(--flotante);
-    border: 1px solid var(--line);
+    border-radius: var(--r-boton);
+    background: var(--sup-flotante);
+    border: var(--borde-fino) solid var(--line);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
   }
   .zoom-mando button {
@@ -2784,12 +2915,12 @@
     color: var(--muted);
     background: transparent;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--r-boton);
     width: 30px; height: 30px;
     cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center;
   }
-  .zoom-mando button:hover:not(:disabled) { background: var(--card2); color: var(--text); }
+  .zoom-mando button:hover:not(:disabled) { background: var(--sup-tarjeta2); color: var(--text); }
   .zoom-mando button:disabled { opacity: 0.32; cursor: default; }
   /* El porcentaje es un botón, no un rótulo: tocarlo ajusta todo a la
      pantalla. Por eso mide más y lleva la letra del texto normal. */
@@ -2802,7 +2933,7 @@
     gap: 1px;
     padding: 0 4px 0 7px;
     font-size: 11.5px;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
     color: var(--text);
   }
   .zoom-mando .pct input {
@@ -2894,9 +3025,10 @@
     position: fixed;
     z-index: var(--piso-flotante);
     min-width: 258px;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-tarjeta);
     padding: 6px;
     box-shadow: 0 20px 50px var(--sombra-l);
   }
@@ -2913,14 +3045,14 @@
     width: 100%;
     background: none;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--r-chico);
     padding: 8px 10px;
     color: var(--text);
     font-family: inherit;
     text-align: left;
     cursor: pointer;
   }
-  .ctx button:hover { background: var(--bg2); }
+  .ctx button:hover { background: var(--sup-panel); }
   .ctx-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
   .ctx-tx b { font-size: 13.5px; font-weight: 650; }
   .ctx-tx span { font-size: 11px; color: var(--muted); }
@@ -2930,9 +3062,9 @@
     font-size: 10.5px;
     font-weight: 800;
     color: var(--muted);
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 6px;
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-micro);
     padding: 3px 7px;
   }
   .ctx-ic { flex: none; color: var(--muted); display: inline-flex; }
@@ -2957,8 +3089,8 @@
     font-size: 9.5px;
     font-weight: 800;
     color: var(--muted);
-    background: var(--bg2);
-    border: 1px solid var(--line);
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
     border-radius: 5px;
     padding: 1.5px 5px;
     margin-right: 2px;
@@ -2998,7 +3130,7 @@
   /* El círculo de la letra es un interruptor, no un adorno: se comporta como
      un botón para que la mano lo pruebe sin que nadie se lo explique. */
   .port-in.switch { cursor: pointer; }
-  .port-in.switch circle:not(.halo) { transition: 0.15s; }
+  .port-in.switch circle:not(.halo) { transition: var(--dur-corta); }
   .port-in.switch:hover circle:not(.halo) { stroke-width: 3.2; }
   .grupo-tag { cursor: pointer; }
   .grupo-tag:hover rect { fill: var(--hueco); }
@@ -3074,9 +3206,9 @@
     font-weight: 800;
     letter-spacing: 0.6px;
     text-transform: uppercase;
-    background: var(--bg2);
+    background: var(--sup-panel);
     color: var(--muted);
-    border-radius: 999px;
+    border-radius: var(--r-pastilla);
     padding: 5px 14px;
     margin-bottom: 12px;
   }
@@ -3092,8 +3224,8 @@
     gap: 10px;
   }
   .fact {
-    background: var(--bg2);
-    border: 1px solid var(--line);
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
     border-radius: 18px 18px 18px 6px;
     padding: 12px 14px;
   }
@@ -3103,19 +3235,19 @@
     font-size: 16.5px;
     font-weight: 700;
     margin-top: 3px;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
     letter-spacing: -0.2px;
   }
   .fact .v.acc { color: var(--mint); }
   .bar {
     height: 6px;
-    background: var(--bg2);
-    border-radius: 999px;
+    background: var(--sup-panel);
+    border-radius: var(--r-barra);
     overflow: hidden;
   }
   .bar-fill {
     height: 100%;
-    border-radius: 999px;
+    border-radius: var(--r-barra);
     transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
     min-width: 6px;
   }
@@ -3138,9 +3270,9 @@
   input[type="search"], select, textarea {
     width: 100%;
     max-width: 100%;
-    background: var(--bg2);
+    background: var(--sup-panel);
     border: 2px solid var(--line);
-    border-radius: 16px;
+    border-radius: var(--r-grande);
     padding: 13px 15px;
     font-size: 15px;
     font-family: inherit;
@@ -3174,9 +3306,9 @@
   .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
   .icon-grid button {
     padding: 10px 0;
-    background: var(--bg2);
+    background: var(--sup-panel);
     border: 2px solid transparent;
-    border-radius: 12px;
+    border-radius: var(--r-caja);
     cursor: pointer;
     color: var(--muted);
     display: flex;
@@ -3218,9 +3350,9 @@
   .switch input { opacity: 0; width: 0; height: 0; }
   .switch .track {
     position: absolute; inset: 0;
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 999px;
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-barra);
     transition: 0.2s;
     cursor: pointer;
   }
@@ -3230,7 +3362,7 @@
     width: 20px; height: 20px;
     left: 3px; top: 3px;
     background: var(--faint);
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     transition: 0.2s;
   }
   .switch input:checked + .track { background: var(--mint-soft); border-color: var(--mint); }
@@ -3267,8 +3399,9 @@
   #modal { z-index: var(--piso-confirmar); }
   #tuto { z-index: var(--piso-encima); }
   .modal-card {
-    background: var(--card);
-    border: 1px solid var(--line);
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta);
     border-bottom: none;
     border-radius: 30px 30px 0 0;
     padding: 26px 20px calc(26px + env(safe-area-inset-bottom));
@@ -3344,8 +3477,8 @@
     top: 12px; right: 12px;
     width: 32px; height: 32px;
     border: none;
-    border-radius: 999px;
-    background: var(--bg2);
+    border-radius: var(--r-redondo);
+    background: var(--sup-panel);
     color: var(--muted);
     font-family: inherit;
     font-size: 13px;
@@ -3406,7 +3539,7 @@
   .tuto-dots { display: flex; justify-content: center; gap: 7px; margin-bottom: 18px; }
   .tuto-dots i {
     width: 7px; height: 7px;
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     background: var(--line);
     transition: 0.25s;
   }
@@ -3427,7 +3560,7 @@
     cursor: text;
     color: var(--text);
   }
-  .caja-nombre .ic { opacity: 0; color: var(--muted); transition: opacity 0.15s; }
+  .caja-nombre .ic { opacity: 0; color: var(--muted); transition: opacity var(--dur-corta); }
   .caja-nombre:hover .ic { opacity: 1; }
   .caja-sub {
     display: block;
@@ -3442,12 +3575,12 @@
     margin-bottom: 14px;
   }
   .caja-stats > div {
-    background: var(--bg2);
-    border-radius: 14px;
+    background: var(--sup-panel);
+    border-radius: var(--r-tarjeta);
     padding: 9px 4px;
     text-align: center;
   }
-  .caja-stats b { display: block; font-size: 19px; font-variant-numeric: tabular-nums; }
+  .caja-stats b { display: block; font-size: 19px; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .caja-stats span { font-size: 10.5px; color: var(--faint); }
   .caja-lista { display: flex; flex-direction: column; gap: 6px; max-height: 40vh; overflow-y: auto; }
   .caja-row { display: flex; align-items: stretch; gap: 6px; }
@@ -3457,9 +3590,9 @@
     align-items: center;
     gap: 10px;
     text-align: left;
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 14px;
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-tarjeta);
     padding: 9px 12px;
     color: var(--text);
     font: inherit;
@@ -3475,9 +3608,9 @@
   .caja-sacar {
     flex: none;
     width: 38px;
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 14px;
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-tarjeta);
     color: var(--muted);
     font-size: 15px;
     cursor: pointer;
@@ -3494,8 +3627,8 @@
     width: 46px;
     height: 46px;
     margin: 0 auto 14px;
-    border-radius: 50%;
-    background: var(--card2);
+    border-radius: var(--r-disco);
+    background: var(--sup-tarjeta2);
     color: var(--text);
   }
   .modal-ic.riesgo {
@@ -3546,7 +3679,7 @@
     text-transform: uppercase;
     padding: 2px 7px;
     border-radius: 99px;
-    background: var(--card2);
+    background: var(--sup-tarjeta2);
     /* `--muted` y no `--faint`: medido, el apagado daba 2,58 sobre 1 dentro de
        la pastilla. Es texto de 10,5px, o sea del que mas contraste necesita
        justo cuando mas tienta bajarlo. */
@@ -3560,9 +3693,9 @@
        el texto cortado sin forma de volver. */
     resize: vertical;
     padding: 11px 13px;
-    border-radius: 12px;
-    border: 1px solid var(--line);
-    background: var(--bg2);
+    border-radius: var(--r-caja);
+    border: var(--borde-fino) solid var(--line);
+    background: var(--sup-panel);
     color: var(--text);
     font-family: inherit;
     font-size: 14px;
@@ -3579,7 +3712,7 @@
     display: block;
     text-align: right;
     font-size: 11.5px;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
     /* `--muted` y no `--faint`: medido, el apagado daba 2,82 sobre 1 en modo
        oscuro. Un contador de 11,5px es de lo que menos margen tiene, y
        ademas es un dato que se consulta —cuanto me queda—, no un adorno. */
@@ -3708,10 +3841,10 @@
     gap: 9px;
     padding: 14px;
     margin-bottom: 16px;
-    border-radius: 14px;
+    border-radius: var(--r-tarjeta);
     background: var(--mint-soft);
   }
-  html.claro .modal-card.menta .tope-lista { background: var(--card2); }
+  html.claro .modal-card.menta .tope-lista { background: var(--sup-tarjeta2); }
   .modal-card.menta .tope-item {
     display: flex;
     align-items: center;
@@ -3772,9 +3905,9 @@
   .modal-card.reporte .rep-campo textarea {
     width: 100%;
     box-sizing: border-box;
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 10px;
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-chico);
     padding: 10px 12px;
     color: var(--text);
     font: inherit;
@@ -3814,7 +3947,7 @@
   .modal-card.reporte .modal-actions {
     position: sticky;
     bottom: calc(-1 * env(safe-area-inset-bottom));
-    background: var(--card);
+    background: var(--sup-tarjeta);
     padding-bottom: calc(4px + env(safe-area-inset-bottom));
   }
 
@@ -3863,7 +3996,7 @@
   .cel-ring {
     position: absolute;
     width: 180px; height: 180px;
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     border: 2px solid var(--cel, #5fe0b0);
     opacity: 0;
   }
@@ -3935,7 +4068,7 @@
     border-left-width: 3px;
     color: var(--text);
     padding: 11px 15px;
-    border-radius: 14px;
+    border-radius: var(--r-tarjeta);
     font-size: 13.5px;
     font-weight: 600;
     line-height: 1.35;
@@ -3943,7 +4076,7 @@
     backdrop-filter: blur(10px);
     opacity: 0;
     transform: translateY(14px) scale(0.97);
-    transition: opacity 0.22s ease, transform 0.22s cubic-bezier(.34,1.4,.64,1);
+    transition: opacity var(--dur-media) ease, transform var(--dur-media) cubic-bezier(.34,1.4,.64,1);
     max-width: 100%;
     pointer-events: auto;
   }
@@ -3958,9 +4091,9 @@
   .t-act {
     flex: none;
     background: none;
-    border: 1px solid var(--tc, var(--line));
+    border: var(--borde-fino) solid var(--tc, var(--line));
     color: var(--tc, var(--text));
-    border-radius: 999px;
+    border-radius: var(--r-boton);
     padding: 4px 11px;
     font-family: inherit;
     font-size: 11.5px;
@@ -4005,19 +4138,20 @@
   .sw-bar {
     width: 74px;
     height: 5px;
-    border-radius: 999px;
-    background: var(--bg2);
+    border-radius: var(--r-barra);
+    background: var(--sup-panel);
     overflow: hidden;
     flex-shrink: 0;
   }
-  .sw-bar i { display: block; height: 100%; border-radius: 999px; }
-  .sw-pct { font-weight: 700; font-variant-numeric: tabular-nums; width: 34px; text-align: right; flex-shrink: 0; }
+  .sw-bar i { display: block; height: 100%; border-radius: var(--r-barra); }
+  .sw-pct { font-weight: 700; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; width: 34px; text-align: right; flex-shrink: 0; }
 
   /* ---------- Bienvenida ---------- */
   .ob-q {
-    background: var(--card);
-    border: 1px solid var(--borde-panel);
-    border-radius: 26px 26px 26px 10px;
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--borde-panel);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-burbuja);
     padding: 24px 22px;
   }
   .ob-num {
@@ -4030,7 +4164,7 @@
     display: flex; align-items: center; gap: 10px;
     text-align: left; font-family: inherit; font-size: 13.5px; font-weight: 650;
     color: var(--muted);
-    background: var(--bg2);
+    background: var(--sup-panel);
     border: 2px solid transparent;
     border-radius: 15px;
     padding: 13px 14px;
@@ -4041,7 +4175,7 @@
   .ob-pace { display: flex; flex-direction: column; gap: 9px; margin-top: 6px; }
   .ob-pace-opt {
     text-align: left; font-family: inherit;
-    background: var(--bg2);
+    background: var(--sup-panel);
     border: 2px solid transparent;
     border-radius: 15px;
     padding: 13px 15px;
@@ -4054,7 +4188,7 @@
   .ob-nav { display: flex; gap: 10px; margin-top: 14px; }
   .ob-nav .btn { flex: 1; }
   .ob-dots { display: flex; justify-content: center; gap: 7px; margin-top: 18px; }
-  .ob-dots i { width: 7px; height: 7px; border-radius: 999px; background: var(--line); display: block; }
+  .ob-dots i { width: 7px; height: 7px; border-radius: var(--r-redondo); background: var(--line); display: block; }
   .ob-dots i.on { background: var(--mint); width: 22px; }
 
   /* ---------- Misiones ---------- */
@@ -4070,9 +4204,10 @@
     display: flex;
     align-items: center;
     gap: 18px;
-    background: var(--card);
-    border: 1px solid var(--borde-panel);
-    border-radius: 34px 34px 34px 12px;
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--borde-panel);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-burbuja-alta);
     padding: 18px 20px;
     margin-bottom: 16px;
   }
@@ -4094,10 +4229,10 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    background: var(--bg2);
-    border: 1px solid var(--line);
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
     border-left: 3px solid var(--mc-l, var(--mc));
-    border-radius: 8px 18px 18px 8px;
+    border-radius: var(--r-mision);
     padding: 11px 13px;
   }
   .ms-card.done { opacity: 0.62; }
@@ -4105,7 +4240,7 @@
   .ms-check {
     width: 38px; height: 38px;
     flex-shrink: 0;
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     border: 2px solid var(--mc-l, var(--mc));
     background: transparent;
     cursor: pointer;
@@ -4157,7 +4292,7 @@
      para que el círculo relleno siga siendo lo primero que se ve. */
   .ms-card.done .ms-ic { opacity: 0.75; }
 
-  .ms-count { font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .ms-count { font-size: 13px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .ms-count i { font-style: normal; font-size: 10px; color: var(--faint); }
   .ms-body { flex: 1; min-width: 0; cursor: pointer; }
   .ms-name { font-size: 14.5px; font-weight: 650; overflow-wrap: anywhere; }
@@ -4175,7 +4310,7 @@
   .ms-espera {
     color: var(--fire);
     background: var(--fire-soft);
-    border-radius: 999px;
+    border-radius: var(--r-pastilla);
     padding: 1px 7px;
     font-weight: 600;
   }
@@ -4191,7 +4326,7 @@
     text-align: center;
     font-size: 12px;
     color: var(--faint);
-    border: 1px dashed var(--line);
+    border: var(--borde-fino) dashed var(--line);
     border-radius: var(--r-md);
   }
   .ms-side { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -4202,7 +4337,7 @@
     font-size: 12px;
     font-weight: 800;
     color: var(--fire);
-    font-variant-numeric: tabular-nums;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
   }
   /* Deshacer: ahora es una etiqueta dentro de la misión, con flecha de
      retroceso. El círculo con "−" pegado a la racha se leía como restar la
@@ -4211,9 +4346,9 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    background: var(--bg2);
+    border-radius: var(--r-boton);
+    border: var(--borde-fino) solid var(--line);
+    background: var(--sup-panel);
     color: var(--muted);
     font-family: inherit;
     font-size: 10.5px;
@@ -4243,16 +4378,16 @@
   .req-list { display: flex; flex-wrap: wrap; gap: 7px; }
   .req-chip {
     display: inline-flex; align-items: center; gap: 6px;
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 999px;
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-pastilla);
     padding: 7px 13px 7px 10px;
     font-family: inherit;
     font-size: 12.5px;
     color: var(--muted);
     cursor: pointer;
     max-width: 100%;
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: background var(--dur-corta) ease, border-color var(--dur-corta) ease, color var(--dur-corta) ease;
   }
   .req-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .req-chip i { font-style: normal; font-size: 10px; color: var(--faint); }
@@ -4267,7 +4402,7 @@
   .req-chip.hecho .ic { color: var(--mint); }
   .req-chip.no { opacity: 0.35; cursor: not-allowed; }
   @media (hover: hover) and (pointer: fine) {
-    .req-chip:not(.no):hover { border-color: var(--faint); background: var(--card2); }
+    .req-chip:not(.no):hover { border-color: var(--faint); background: var(--sup-tarjeta2); }
   }
 
   /* ---------- Tipo y etapas de un talento ---------- */
@@ -4296,8 +4431,8 @@
     display: flex; align-items: center; gap: 10px;
     width: 100%;
     text-align: left;
-    background: var(--bg2);
-    border: 1px solid var(--line);
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
     border-left: 3px solid var(--pc-l, var(--pc));
     border-radius: 8px 14px 14px 8px;
     padding: 10px 12px;
@@ -4305,13 +4440,13 @@
     font-size: 14px;
     color: var(--text);
     cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    transition: background var(--dur-corta) ease, border-color var(--dur-corta) ease;
   }
   .pk-step[disabled] { cursor: default; opacity: 0.72; }
   .pk-box {
     flex: none;
     width: 20px; height: 20px;
-    border-radius: 6px;
+    border-radius: var(--r-micro);
     border: 2px solid var(--line);
     display: inline-flex; align-items: center; justify-content: center;
     color: #0e131b;
@@ -4381,9 +4516,9 @@
   .seg { display: flex; gap: 7px; }
   .seg button {
     flex: 1;
-    background: var(--bg2);
+    background: var(--sup-panel);
     border: 2px solid transparent;
-    border-radius: 14px;
+    border-radius: var(--r-tarjeta);
     padding: 11px 6px;
     font-size: 12.5px;
     font-weight: 650;
@@ -4413,8 +4548,8 @@
     font-size: 12.5px; font-weight: 650;
     padding: 9px 10px;
     border-radius: 11px;
-    border: 1px solid var(--line);
-    background: var(--card2);
+    border: var(--borde-fino) solid var(--line);
+    background: var(--sup-tarjeta2);
     color: var(--muted);
     cursor: pointer;
     text-align: center;
@@ -4428,9 +4563,9 @@
   .daypick button {
     flex: 1;
     aspect-ratio: 1;
-    background: var(--bg2);
+    background: var(--sup-panel);
     border: 2px solid transparent;
-    border-radius: 999px;
+    border-radius: var(--r-boton);
     font-size: 13px;
     font-weight: 700;
     font-family: inherit;
@@ -4447,19 +4582,19 @@
     text-align: left;
     font-family: inherit;
     color: var(--text);
-    background: var(--bg2);
-    border: 1px solid var(--line);
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
     border-left: 3px solid var(--pc-l, var(--pc));
     border-radius: 8px 20px 20px 8px;
     padding: 13px 15px;
     cursor: pointer;
   }
-  .proj-card:active { background: var(--card2); }
+  .proj-card:active { background: var(--sup-tarjeta2); }
   .proj-card.dim { opacity: 0.5; }
   .proj-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
   .proj-ic {
     width: 32px; height: 32px;
-    border-radius: 10px;
+    border-radius: var(--r-chico);
     display: inline-flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
@@ -4478,7 +4613,7 @@
     font-size: 10.5px;
     font-weight: 800;
     padding: 3px 9px;
-    border-radius: 999px;
+    border-radius: var(--r-pastilla);
     white-space: nowrap;
   }
   .proj-bar .bar { height: 5px; }
@@ -4507,7 +4642,7 @@
   /* La zona que abre el encargo. La tarjeta dejó de ser un <button> porque
      ahora lleva botones dentro, así que el papel de "esto abre" baja aquí. */
   .proj-abre { cursor: pointer; }
-  .proj-abre:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; border-radius: 10px; }
+  .proj-abre:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; border-radius: var(--r-chico); }
   .pstep {
     display: inline-flex;
     align-items: center;
@@ -4520,9 +4655,10 @@
     cursor: pointer;
     font-size: 11.5px;
     color: var(--muted);
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 999px;
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-pastilla);
     padding: 4px 11px 4px 8px;
     max-width: 100%;
     overflow: hidden;
@@ -4533,7 +4669,7 @@
     font-style: normal;
     width: 13px; height: 13px;
     flex-shrink: 0;
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     border: 1.5px solid var(--line);
     display: inline-flex;
     align-items: center;
@@ -4582,7 +4718,7 @@
   .step-check {
     width: 24px; height: 24px;
     flex-shrink: 0;
-    border-radius: 8px;
+    border-radius: var(--r-mini);
     border: 2px solid var(--line);
     background: transparent;
     cursor: pointer;
@@ -4596,8 +4732,8 @@
   .step-num {
     width: 24px; height: 24px;
     flex-shrink: 0;
-    border-radius: 8px;
-    border: 1px solid var(--line);
+    border-radius: var(--r-mini);
+    border: var(--borde-fino) solid var(--line);
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 11px;
     color: var(--faint);
@@ -4630,14 +4766,14 @@
     text-align: left;
     font-family: inherit;
     color: var(--text);
-    background: var(--bg2);
-    border: 1px solid var(--line);
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
     border-left: 3px solid var(--rc-l, var(--rc));
     border-radius: 8px 16px 16px 8px;
     padding: 11px 13px;
     cursor: pointer;
   }
-  .ready-chip:active { background: var(--card2); }
+  .ready-chip:active { background: var(--sup-tarjeta2); }
   .ready-chip .rc-ic {
     color: color-mix(in srgb, var(--rc), var(--tinta-fondo) var(--hundir));
     display: inline-flex;
@@ -4648,7 +4784,7 @@
     content: "";
     position: absolute;
     inset: -7px;
-    border-radius: 999px;
+    border-radius: var(--r-redondo);
     border: 1.5px solid var(--rc-l, var(--rc));
     animation: pulseRing 2.6s ease-out infinite;
   }
@@ -4672,8 +4808,8 @@
      la derecha: uno de los dos borra un respaldo y no debe quedar a tiro de
      un dedo distraído. */
   .copia-item {
-    padding: 12px 13px; border-radius: 12px; margin-bottom: 10px;
-    background: var(--vidrio); border: 1px solid var(--line);
+    padding: 12px 13px; border-radius: var(--r-caja); margin-bottom: 10px;
+    background: var(--vidrio); border: var(--borde-fino) solid var(--line);
   }
   .copia-item:last-child { margin-bottom: 0; }
   .copia-info b { display: block; font-size: 14px; }
@@ -4713,8 +4849,8 @@
   .portada .field { margin-bottom: 12px; }
   .portada .stack { margin-top: 18px; }
   .portada-error {
-    background: rgba(245, 215, 110, 0.1); border: 1px solid rgba(245, 215, 110, 0.4);
-    color: var(--fire); border-radius: 12px; padding: 11px 13px;
+    background: rgba(245, 215, 110, 0.1); border: var(--borde-fino) solid rgba(245, 215, 110, 0.4);
+    color: var(--fire); border-radius: var(--r-caja); padding: 11px 13px;
     font-size: 13px; line-height: 1.55; margin-bottom: 14px;
   }
   .portada-o { display: flex; align-items: center; gap: 10px; margin: 18px 0 12px; color: var(--faint); font-size: 12px; }
@@ -4736,7 +4872,7 @@
     position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
     width: 38px; height: 38px; display: grid; place-items: center;
     background: none; border: 0; cursor: pointer; color: var(--faint);
-    border-radius: 10px;
+    border-radius: var(--r-chico);
   }
   .clave-ojo:hover { color: var(--mint); }
   .clave-ojo svg {
@@ -4747,8 +4883,8 @@
   .portada-sin.sutil:hover { color: var(--mint); }
   .portada-accion {
     display: block; margin-top: 10px; padding: 7px 13px;
-    background: rgba(245, 215, 110, 0.14); border: 1px solid var(--fire);
-    border-radius: 999px; color: var(--fire); cursor: pointer;
+    background: rgba(245, 215, 110, 0.14); border: var(--borde-fino) solid var(--fire);
+    border-radius: var(--r-boton); color: var(--fire); cursor: pointer;
     font-family: inherit; font-size: 12.5px; font-weight: 700;
   }
   .portada-nota { text-align: center; color: var(--faint); font-size: 12px; line-height: 1.55; margin: 6px 0 0; }
@@ -4765,7 +4901,7 @@
   .portada-cab h2 { font-size: 19px; }
   .portada-volver {
     width: 38px; height: 38px; flex: none; display: grid; place-items: center;
-    background: none; border: 1px solid var(--line); border-radius: 11px;
+    background: none; border: var(--borde-fino) solid var(--line); border-radius: 11px;
     color: var(--text); cursor: pointer; font-size: 17px; font-family: inherit;
   }
   .portada-volver:hover { border-color: var(--mint); color: var(--mint); }
@@ -4783,7 +4919,7 @@
      esa pantalla se lee de reojo, ya con el buzón medio abierto en la cabeza. */
   .portada-sello {
     width: 62px; height: 62px; margin: 0 auto 18px; display: grid; place-items: center;
-    border-radius: 50%; background: var(--mint-soft); color: var(--mint);
+    border-radius: var(--r-disco); background: var(--mint-soft); color: var(--mint);
   }
   /* El mismo sello, en amarillo, cuando lo que anuncia no es bueno ni malo
      sino que hay algo que decidir. */
@@ -4803,7 +4939,7 @@
     color: var(--fire);
     font-weight: 600;
     background: var(--fire-soft);
-    border-radius: 12px;
+    border-radius: var(--r-caja);
   }
 
   /* ---------- El nombre de quien usa la app ----------
@@ -4815,7 +4951,7 @@
      cuenta y aquí no se puede saber cuál es. Lo de aquí es solo la forma. */
   .avatar {
     display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 999px; flex: none;
+    border-radius: var(--r-redondo); flex: none;
     font-weight: 700; line-height: 1;
     /* Oscuro sobre el color, siempre: los ocho tonos de la lista se eligieron
        para que esta letra se lea en todos. Con texto claro habría que ir
@@ -4858,7 +4994,7 @@
   .perfil-ficha {
     display: flex; align-items: center; gap: 13px;
     padding: 13px; margin-bottom: 16px;
-    background: var(--card2); border: 1px solid var(--line); border-radius: 16px;
+    background: var(--sup-tarjeta2); border: var(--borde-fino) solid var(--line); border-radius: var(--r-grande);
   }
   .perfil-quien { min-width: 0; }
   .perfil-quien b { display: block; font-size: 15.5px; }
@@ -4898,7 +5034,7 @@
      que congele la animación se lee como app colgada. */
   .carga-marca { position: relative; width: 96px; height: 96px; display: grid; place-items: center; }
   .carga-anillo {
-    position: absolute; inset: 0; border-radius: 50%;
+    position: absolute; inset: 0; border-radius: var(--r-disco);
     border: 2px solid var(--mint-soft);
     border-top-color: var(--mint-macizo);
     animation: cargaGira 0.95s linear infinite;
@@ -4914,7 +5050,7 @@
      botón, así que sirve igual sobre el menta y sobre el gris. */
   .giro {
     display: inline-block; width: 14px; height: 14px; margin-right: 9px;
-    vertical-align: -2px; border-radius: 50%;
+    vertical-align: -2px; border-radius: var(--r-disco);
     border: 2px solid currentColor; border-top-color: transparent;
     animation: cargaGira 0.8s linear infinite;
   }
@@ -4938,14 +5074,14 @@
        estado y no se veía empezar. */
     position: fixed; top: env(safe-area-inset-top); left: 50%; z-index: var(--piso-tirar);
     transform: translate(-50%, 0);
-    background: var(--card2); border: 1px solid var(--line);
-    border-radius: 999px; padding: 7px 15px;
+    background: var(--sup-tarjeta2); border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-pastilla); padding: 7px 15px;
     font-size: 12.5px; font-weight: 700; color: var(--muted);
     white-space: nowrap; pointer-events: none;
     box-shadow: 0 6px 18px var(--sombra-s);
   }
   .tirar-aviso.listo { color: var(--mint); border-color: var(--mint); }
-  .tirar-aviso.fuera { opacity: 0; transition: opacity 0.22s ease; }
+  .tirar-aviso.fuera { opacity: 0; transition: opacity var(--dur-media) ease; }
 
   /* ---------- Aviso de cuenta de pruebas ----------
      Una pastilla colgada del centro de arriba, y nada más. Antes era un
@@ -5011,8 +5147,8 @@
     font: inherit; letter-spacing: inherit; text-transform: inherit;
     color: inherit; cursor: pointer;
     background: rgba(16, 21, 29, 0.14);
-    border: 1px solid rgba(16, 21, 29, 0.28);
-    border-radius: 999px; padding: 5px 11px 6px;
+    border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
+    border-radius: var(--r-boton); padding: 5px 11px 6px;
   }
   /* Sin transición en el fondo: el color sale de una variable y Chrome deja
      el valor congelado en el inicial (ver la nota del modo claro). */
@@ -5028,7 +5164,7 @@
      botón— y los dos rótulos seguían montados seis píxeles. */
   body.ejemplo-on .aviso-pruebas .ap-tag {
     top: calc(env(safe-area-inset-top) + 38px);
-    border-radius: 10px;
+    border-radius: var(--r-chico);
   }
 
   /* ---------- Rótulo de una prueba con enlace (0.7.20) ----------
@@ -5051,7 +5187,7 @@
     bottom: calc(env(safe-area-inset-bottom) + 64px);
     z-index: var(--piso-rotulo-prueba);
     background: var(--fire-macizo); color: var(--sobre-macizo);
-    border-radius: 999px;
+    border-radius: var(--r-pastilla);
     padding: 5px 8px 5px 13px;
     font-size: 10.5px; font-weight: 800;
     letter-spacing: 0.06em; text-transform: uppercase;
@@ -5060,8 +5196,8 @@
   html.informes-demo .rotulo-prueba a {
     color: inherit;
     background: rgba(16, 21, 29, 0.14);
-    border: 1px solid rgba(16, 21, 29, 0.28);
-    border-radius: 999px; padding: 4px 10px 5px;
+    border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
+    border-radius: var(--r-boton); padding: 4px 10px 5px;
     text-decoration: none;
   }
   /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
@@ -5096,11 +5232,12 @@
      Chrome deja el valor congelado en el inicial (ver las trampas). */
   .inf-periodos button, .inf-ramas button {
     flex: none; font: inherit; font-size: 13px; font-weight: 650;
-    color: var(--muted); background: var(--card); cursor: pointer;
-    border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px;
+    color: var(--muted); background: var(--sup-tarjeta); cursor: pointer;
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta); border-radius: var(--r-boton); padding: 7px 14px;
   }
   .inf-periodos button.on, .inf-ramas button.on {
-    color: var(--mint); background: var(--card); border-color: var(--mint);
+    color: var(--mint); background: var(--sup-tarjeta); border-color: var(--mint);
   }
   /* Lo que todavía no abre no se esconde: se ve apagado y dice por qué al
      tocarlo. Esconderlo haría creer que no existe. */
@@ -5115,7 +5252,7 @@
   .inf-frase { margin: 0 0 16px; font-size: 15.5px; line-height: 1.6; }
   .inf-tres { display: flex; gap: 10px; }
   .inf-tres > div { flex: 1; text-align: center; }
-  .inf-tres b { display: block; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .inf-tres b { display: block; font-size: 24px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .inf-tres span { display: block; font-size: 11px; margin-top: 3px; color: var(--muted); }
 
   .inf-bloque { margin-bottom: 14px; }
@@ -5124,8 +5261,8 @@
      que un dibujo sirva para decidir algo en vez de para mirarlo. */
   .inf-pregunta { margin: 0 0 14px; font-size: 13px; line-height: 1.5; color: var(--muted); }
   .inf-vacia {
-    margin: 0; padding: 16px; border-radius: 12px;
-    border: 1px dashed var(--line); color: var(--muted);
+    margin: 0; padding: 16px; border-radius: var(--r-caja);
+    border: var(--borde-fino) dashed var(--line); color: var(--muted);
     font-size: 13px; line-height: 1.5; text-align: center;
   }
 
@@ -5145,7 +5282,7 @@
   }
   .inf-barras::-webkit-scrollbar { display: none; }
   .ib-col { flex: 1; min-width: 24px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .ib-v { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; min-height: 14px; color: var(--muted); }
+  .ib-v { font-size: 11px; font-weight: 700; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; min-height: 14px; color: var(--muted); }
   .ib-barra {
     width: 100%; height: var(--inf-alto, 110px);
     display: flex; align-items: flex-end; justify-content: center;
@@ -5161,9 +5298,9 @@
   .inf-rank { display: flex; flex-direction: column; gap: 10px; }
   .ir-fila { display: grid; grid-template-columns: minmax(0, 1fr) 2fr auto; gap: 10px; align-items: center; }
   .ir-k { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .ir-barra { height: 10px; border-radius: 999px; background: var(--carril); overflow: hidden; }
-  .ir-barra i { display: block; height: 100%; border-radius: 999px; }
-  .ir-v { font-size: 12px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ir-barra { height: 10px; border-radius: var(--r-barra); background: var(--carril); overflow: hidden; }
+  .ir-barra i { display: block; height: 100%; border-radius: var(--r-barra); }
+  .ir-v { font-size: 12px; font-weight: 700; color: var(--muted); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; white-space: nowrap; }
   @media (max-width: 480px) {
     /* En el teléfono el nombre se lleva su propio renglón entero: en tres
        columnas se quedaba en «Repasar voca…» y el ranking dejaba de decir de
@@ -5173,7 +5310,7 @@
   }
 
   /* ---- Barra apilada al 100% ---- */
-  .inf-apilada { display: flex; height: 18px; border-radius: 999px; overflow: hidden; }
+  .inf-apilada { display: flex; height: 18px; border-radius: var(--r-pastilla); overflow: hidden; }
   .inf-apilada i { display: block; height: 100%; }
   .inf-leyenda { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; }
   .il-item { display: flex; align-items: center; gap: 7px; font-size: 12.5px; }
@@ -5188,7 +5325,7 @@
 
   .inf-cifras { display: flex; gap: 14px; flex: 1; min-width: 180px; }
   .inf-cifras > div { flex: 1; }
-  .inf-cifras b { display: block; font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .inf-cifras b { display: block; font-size: 22px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .inf-cifras b.mint { color: var(--mint); }
   .inf-cifras b.coral { color: var(--coral); }
   .inf-cifras span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
@@ -5199,7 +5336,7 @@
 
   .inf-balance { display: flex; gap: 14px; }
   .ib-lado { flex: 1; }
-  .ib-lado b { display: block; font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .ib-lado b { display: block; font-size: 22px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .ib-lado b.mint { color: var(--mint); }
   .ib-lado b.coral { color: var(--coral); }
   .ib-lado span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
@@ -5208,8 +5345,8 @@
   .inf-accesos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .inf-acceso {
     font: inherit; text-align: left; cursor: pointer; color: var(--text);
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: 14px; padding: 14px 16px;
+    background: var(--sup-tarjeta); border: var(--borde-tarjeta) solid var(--line); border-image: var(--marco-tarjeta);
+    border-radius: var(--r-tarjeta); padding: 14px 16px;
   }
   .inf-acceso b { display: block; font-size: 14.5px; }
   .inf-acceso span { display: block; font-size: 11.5px; color: var(--mint); margin-top: 3px; }
@@ -5223,7 +5360,7 @@
     -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
     mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
   }
-  .inf-siluetas i { flex: 1; background: var(--mint-soft); border-radius: 8px; display: block; }
+  .inf-siluetas i { flex: 1; background: var(--mint-soft); border-radius: var(--r-mini); display: block; }
 
   /* ---- La invitación a Pro dentro del informe ----
      Antes era un párrafo con cinco cosas metidas en una frase, y encima
@@ -5306,7 +5443,7 @@
   .sg-hoy.si { color: var(--mint); opacity: 1; font-weight: 650; }
 
   .sg-cifras { display: flex; gap: 22px; }
-  .sg-cifras b { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .sg-cifras b { font-size: 20px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   /* El denominador, más chico: «4/7» con los dos números iguales se lee como
      una fracción que hay que resolver; con el segundo pequeño se lee como
      «cuatro de siete», que es lo que dice. */
@@ -5325,12 +5462,12 @@
   .rc-dow, .rc-rejilla { display: grid; grid-template-columns: repeat(7, minmax(0, 42px)); gap: 4px; }
   .rc-dow { margin-bottom: 4px; }
   .rc-dow span { text-align: center; font-size: 10px; font-weight: 700; color: var(--faint); }
-  .rc-d, .rc-hueco { aspect-ratio: 1; border-radius: 8px; }
+  .rc-d, .rc-hueco { aspect-ratio: 1; border-radius: var(--r-mini); }
   .rc-hueco { background: transparent; }
   .rc-d {
     display: flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 650; font-style: normal;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
     background: var(--carril); color: var(--text);
   }
   /* Un día que no pasó no lleva cruz ni rojo: un mes marcado de fallos es un
@@ -5348,10 +5485,10 @@
   .sg-extra { display: flex; flex-direction: column; gap: 20px; }
 
   .sgh-n { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
-  .sgh-n b { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .sgh-n b { font-size: 26px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .sgh-n span { font-size: 12px; color: var(--muted); }
-  .sgh-b { height: 8px; border-radius: 999px; background: var(--carril); overflow: hidden; }
-  .sgh-b i { display: block; height: 100%; border-radius: 999px; background: var(--mint); }
+  .sgh-b { height: 8px; border-radius: var(--r-boton); background: var(--carril); overflow: hidden; }
+  .sgh-b i { display: block; height: 100%; border-radius: var(--r-barra); background: var(--mint); }
   .sgh-p { margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.45; }
 
   .sg-sostiene { display: flex; flex-direction: column; gap: 8px; }
@@ -5360,9 +5497,9 @@
      manda que la columna no crezca: se recorta con puntos suspensivos y el
      título completo sigue estando al pasar el dedo. */
   .sgs-n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .sgs-b { height: 6px; border-radius: 999px; background: var(--carril); overflow: hidden; }
-  .sgs-b i { display: block; height: 100%; border-radius: 999px; }
-  .sgs-v { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .sgs-b { height: 6px; border-radius: var(--r-boton); background: var(--carril); overflow: hidden; }
+  .sgs-b i { display: block; height: 100%; border-radius: var(--r-barra); }
+  .sgs-v { text-align: right; font-weight: 700; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; color: var(--muted); }
   .sgs-pie { margin: 4px 0 0; font-size: 11px; color: var(--faint); line-height: 1.4; }
 
   /* ---- Un acomodo por ancho, medido en PÍXELES ----
@@ -5404,7 +5541,7 @@
     /* Con sitio de sobra, las casillas vuelven a su tamaño cómodo. */
     .streak-grid { gap: 28px; }
     .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, 42px); }
-    .rc-d { font-size: 12px; border-radius: 8px; }
+    .rc-d { font-size: 12px; border-radius: var(--r-mini); }
   }
 
   @container (min-width: 1150px) {
@@ -5495,7 +5632,7 @@
   }
   .futuro-card {
     max-width: 420px; padding: 24px; border-radius: 18px;
-    background: var(--card); border: 1px solid var(--line);
+    background: var(--sup-tarjeta); border: var(--borde-tarjeta) solid var(--line); border-image: var(--marco-tarjeta);
   }
   .futuro-card h3 { margin: 0 0 12px; font-size: 18px; }
   .futuro-card p { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: var(--muted); }
@@ -5505,10 +5642,10 @@
      si tus datos están a salvo en otro lado o solo viven en este aparato. */
   .sync-status {
     display: flex; align-items: center; gap: 10px;
-    padding: 11px 13px; border-radius: 12px; margin-bottom: 12px;
-    background: var(--vidrio); border: 1px solid var(--line);
+    padding: 11px 13px; border-radius: var(--r-caja); margin-bottom: 12px;
+    background: var(--vidrio); border: var(--borde-fino) solid var(--line);
   }
-  .sync-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--faint); }
+  .sync-dot { width: 9px; height: 9px; border-radius: var(--r-disco); flex: none; background: var(--faint); }
   .sync-dot.ok { background: var(--mint); box-shadow: 0 0 0 3px rgba(95,224,176,.16); }
   .sync-dot.busy { background: var(--fire); animation: syncPulse 1s ease-in-out infinite; }
   .sync-dot.bad { background: var(--coral); box-shadow: 0 0 0 3px var(--coral-soft); }
@@ -5532,7 +5669,7 @@
      La misma app: el cluster del pulgar se convierte en barra lateral
      y el contenido se reparte en dos columnas. */
   @media (min-width: 900px) {
-    body { padding-bottom: 40px; padding-left: var(--sidebar-w); transition: padding-left 0.22s ease; }
+    body { padding-bottom: 40px; padding-left: var(--sidebar-w); transition: padding-left var(--dur-media) ease; }
     .orb-1 { left: 220px; }
 
     /* Centrado dentro del espacio libre, con aire a ambos lados. Al variar
@@ -5564,7 +5701,7 @@
       backdrop-filter: blur(12px);
       overflow-y: auto;
       overflow-x: hidden;
-      transition: width 0.22s ease;
+      transition: width var(--dur-media) ease;
     }
     .side-top {
       display: flex;
@@ -5587,9 +5724,9 @@
       color: inherit;
       padding: 4px;
       margin: -4px;
-      border-radius: 8px;
+      border-radius: var(--r-mini);
     }
-    .side-brand:hover { background: var(--bg2); }
+    .side-brand:hover { background: var(--sup-panel); }
     /* Colapsado muestra solo el isotipo; desplegado, el logo completo tal
        cual se diseñó (icono + texto en un solo trazado, dos colores fijos:
        no es de los íconos que heredan el color del tema). */
@@ -5607,9 +5744,9 @@
     .side-toggle {
       flex-shrink: 0;
       width: 32px; height: 32px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: var(--bg2);
+      border-radius: var(--r-pastilla);
+      border: var(--borde-fino) solid var(--line);
+      background: var(--sup-panel);
       color: var(--muted);
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
@@ -5649,7 +5786,7 @@
          la transición. Un botón de menú quiere responder, no bailar. */
       transition: none;
     }
-    .thumb-cluster .c-nav:hover { background: var(--bg2); color: var(--text); }
+    .thumb-cluster .c-nav:hover { background: var(--sup-panel); color: var(--text); }
     .thumb-cluster .c-nav.active,
     /* Con el mini menú desplegado, Ajustes se enciende igual que la sección
        en la que estás. Es lo que ata el menú al botón del que sale: sin eso
@@ -5970,8 +6107,9 @@
       flex: 1 1 302px;
       min-width: 272px;
       max-width: 480px;
-      background: var(--card);
-      border: 1px solid var(--line);
+      background: var(--sup-tarjeta);
+      border: var(--borde-tarjeta) solid var(--line);
+      border-image: var(--marco-tarjeta);
       border-radius: 20px;
       padding: 14px 13px 13px;
       display: flex;
@@ -5998,8 +6136,8 @@
     .col-head .count {
       font-size: 11px;
       color: var(--faint);
-      background: var(--card2);
-      border-radius: 999px;
+      background: var(--sup-tarjeta2);
+      border-radius: var(--r-pastilla);
       padding: 2px 8px;
     }
     /* Alto mínimo para que una columna vacía siga siendo un blanco al que
@@ -6157,11 +6295,11 @@
   .skill-card, .sum-card, .linked-row, .proj-card, .ready-chip, .cat-chip,
   .ms-card, .dz-row, .chip, .tray-chip, .xlink, .badd, .fs-open, .cat-all,
   .t-act, .icon-btn, .history-item, .att-item, .att-item .tx b {
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: background var(--dur-corta) ease, border-color var(--dur-corta) ease, color var(--dur-corta) ease;
   }
   /* El botón ya animaba su encogido al pulsarse; se le añade el brillo sin
      perderlo, que es lo que pasaría al redeclarar la propiedad entera. */
-  .btn { transition: transform 0.12s ease, filter 0.15s ease, background 0.15s ease, border-color 0.15s ease; }
+  .btn { transition: transform 0.12s ease, filter var(--dur-corta) ease, background var(--dur-corta) ease, border-color var(--dur-corta) ease; }
 
   /* ---------- Respuesta al cursor ----------
      Con ratón hay un estado que en el teléfono no existe: el de estar
@@ -6186,19 +6324,19 @@
     .proj-card:hover,
     .ready-chip:hover,
     .cat-chip:hover,
-    .history-item.selectable:hover { background: var(--card2); }
+    .history-item.selectable:hover { background: var(--sup-tarjeta2); }
 
     /* Las filas de "Atención hoy" llevan a una ficha igual que las demás, pero
        eran las únicas que no se enteraban del cursor: parecían texto suelto en
        vez de algo que se puede pulsar. */
-    .att-item:hover { background: var(--card2); border-radius: 14px; }
-    .aj-item:hover { background: var(--card2); border-color: var(--faint); }
+    .att-item:hover { background: var(--sup-tarjeta2); border-radius: var(--r-tarjeta); }
+    .aj-item:hover { background: var(--sup-tarjeta2); border-color: var(--faint); }
     .aj-item.on:hover { border-color: var(--mint); }
     .att-item:hover .go { color: var(--text); transform: translateX(3px); }
     .att-item:hover .tx b { color: var(--mint); }
 
     .ms-card:hover,
-    .dz-row:hover { background: var(--card); }
+    .dz-row:hover { background: var(--sup-tarjeta); }
 
     /* La tarjeta de misión se ilumina entera, pero lo que abre la ficha es
        el cuerpo: el círculo y la racha tienen lo suyo. */
@@ -6212,7 +6350,7 @@
     .fs-open:hover,
     .cat-all:hover,
     .t-act:hover,
-    .icon-btn:hover { background: var(--card2); border-color: var(--faint); }
+    .icon-btn:hover { background: var(--sup-tarjeta2); border-color: var(--faint); }
 
     .icon-btn:hover { color: var(--text); }
     .chip.active:hover { background: var(--mint-macizo); border-color: var(--mint-macizo); }
@@ -6220,7 +6358,7 @@
     /* Botones de acción: el color ya los identifica, así que basta
        aclararlos un punto en vez de cambiarles el fondo. */
     .btn:hover { filter: brightness(1.09); }
-    .btn-ghost:hover { background: var(--card2); border-color: var(--faint); }
+    .btn-ghost:hover { background: var(--sup-tarjeta2); border-color: var(--faint); }
 
     /* Lo que borra o revierte avisa en rojo antes de pulsarse */
     .step-del:hover { color: var(--coral); }
@@ -6262,9 +6400,9 @@
 }
 
 .pn-kpi {
-  background: var(--card2);
-  border: 1px solid var(--line);
-  border-radius: 12px;
+  background: var(--sup-tarjeta2);
+  border: var(--borde-fino) solid var(--line);
+  border-radius: var(--r-caja);
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
@@ -6276,7 +6414,7 @@
   font-weight: 700;
   line-height: 1.1;
   color: var(--mint);
-  font-variant-numeric: tabular-nums;
+  font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
 }
 
 .pn-kpi span { font-size: .82rem; color: var(--text); }
@@ -6324,7 +6462,7 @@
 .pn-eje-y {
   fill: var(--faint);
   font-size: 9.5px;
-  font-variant-numeric: tabular-nums;
+  font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
 }
 .pn-eje-y.cima { fill: var(--muted); font-weight: 700; }
 .pn-reja.cima { opacity: .9; stroke-dasharray: none; }
@@ -6347,13 +6485,13 @@
 .pn-gc { display: flex; flex-direction: column; gap: 1px; }
 .pn-gc b {
   font-size: 22px; font-weight: 800; line-height: 1;
-  color: var(--mint); font-variant-numeric: tabular-nums;
+  color: var(--mint); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
 }
 .pn-gc span { font-size: 11px; color: var(--muted); }
 /* La tendencia se aparta del resto y se va al final: no es una cifra del
    periodo, es una comparación con otro. */
 .pn-gc.tend { margin-left: auto; align-items: flex-end; text-align: right; }
-.pn-tend { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.pn-tend { font-size: 15px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
 /* Verde y coral, no por bonito: aquí el color ES el dato. Subir es bueno y
    bajar es malo, y esta es la única gráfica de la app donde eso es cierto sin
    matices — en las demás un número que baja puede ser una buena noticia. */
@@ -6374,7 +6512,7 @@
   flex: none;
   font-size: 12px; font-weight: 700;
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
+  font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
 }
 /* Con algo sin ver, la cuenta se enciende: es la diferencia entre «hay cosas»
    y «hay cosas que no has mirado». */
@@ -6387,10 +6525,10 @@
    útiles. */
 .pn-grupos { display: grid; gap: 8px; }
 .pn-grupo {
-  border: 1px solid var(--line);
+  border: var(--borde-fino) solid var(--line);
   border-left: 3px solid var(--fire);
   border-radius: 0 9px 9px 0;
-  background: var(--card2);
+  background: var(--sup-tarjeta2);
   overflow: hidden;
 }
 .pn-grupo-cab {
@@ -6402,12 +6540,12 @@
   cursor: pointer;
   text-align: left;
 }
-.pn-grupo-cab:hover { background: var(--bg2); }
+.pn-grupo-cab:hover { background: var(--sup-panel); }
 .pn-grupo-ic { display: flex; color: var(--fire); flex: none; }
 .pn-grupo-nom { font-weight: 700; font-size: 13.5px; flex: 1; min-width: 0; }
 .pn-grupo-n {
   flex: none; font-size: 12.5px; font-weight: 700;
-  color: var(--muted); font-variant-numeric: tabular-nums;
+  color: var(--muted); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
 }
 .pn-grupo-flecha { flex: none; color: var(--faint); font-size: 11px; }
 
@@ -6416,7 +6554,7 @@
   background: var(--line);
   border-top: 1px solid var(--line);
 }
-.pn-dicho { background: var(--card2); padding: 10px 12px 10px 36px; }
+.pn-dicho { background: var(--sup-tarjeta2); padding: 10px 12px 10px 36px; }
 /* Lo ya visto se apaga en vez de esconderse, igual que en los errores: un
    reporte que vuelve a aparecer después de darlo por visto dice algo. */
 .pn-dicho.visto { opacity: .55; }
@@ -6428,7 +6566,7 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
-.pn-dicho span { font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.pn-dicho span { font-size: 11px; color: var(--faint); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
 
 /* Los tonos de las barras de una lista, cuando la lista los pide. */
 .pn-riel i.t-lila { background: var(--lila-macizo); }
@@ -6439,7 +6577,7 @@
   fill: var(--muted);
   font-size: 10px;
   text-anchor: middle;
-  font-variant-numeric: tabular-nums;
+  font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
 }
 
 .pn-lista { display: flex; flex-direction: column; gap: 7px; }
@@ -6456,20 +6594,20 @@
 
 .pn-riel {
   height: 8px;
-  border-radius: 999px;
+  border-radius: var(--r-barra);
   background: var(--carril);
   overflow: hidden;
 }
 
-.pn-riel i { display: block; height: 100%; background: var(--mint-macizo); border-radius: 999px; }
+.pn-riel i { display: block; height: 100%; background: var(--mint-macizo); border-radius: var(--r-barra); }
 
-.pn-val { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
+.pn-val { color: var(--muted); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
 
 .pn-globo {
   display: inline-block;
   min-width: 20px;
   padding: 1px 7px;
-  border-radius: 999px;
+  border-radius: var(--r-pastilla);
   background: var(--coral-macizo);
   color: var(--sobre-macizo);
   font-size: .72rem;
@@ -6481,11 +6619,11 @@
 .pn-errores { display: flex; flex-direction: column; gap: 8px; }
 
 .pn-error {
-  border: 1px solid var(--line);
+  border: var(--borde-fino) solid var(--line);
   border-left: 3px solid var(--coral);
   border-radius: 0 9px 9px 0;
   padding: 9px 12px;
-  background: var(--card2);
+  background: var(--sup-tarjeta2);
 }
 
 /* Lo ya visto se apaga en vez de desaparecer: un error que vuelve después de
@@ -6505,7 +6643,7 @@
 
 .pn-error-tit { display: flex; gap: 10px; align-items: baseline; justify-content: space-between; }
 .pn-error-tit b { font-size: .84rem; font-weight: 600; color: var(--text); word-break: break-word; }
-.pn-error-tit span { font-size: .76rem; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+.pn-error-tit span { font-size: .76rem; color: var(--muted); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; flex: none; }
 .pn-error-pie { font-size: .72rem; color: var(--muted); margin-top: 3px; }
 
 /* ================= Mi plan =================
@@ -6516,8 +6654,8 @@
    pregunta de quien entra es «¿qué tengo?», no «¿qué me venden?». */
 .plan-hoy {
   display: flex; align-items: flex-start; gap: 12px;
-  padding: 13px 15px; border-radius: 12px;
-  background: var(--card2); border: 1px solid var(--line);
+  padding: 13px 15px; border-radius: var(--r-caja);
+  background: var(--sup-tarjeta2); border: var(--borde-fino) solid var(--line);
   margin-bottom: 14px;
 }
 .plan-hoy-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
@@ -6526,9 +6664,9 @@
 .plan-hoy-ic {
   flex: none;
   width: 38px; height: 38px;
-  border-radius: 12px;
+  border-radius: var(--r-caja);
   display: flex; align-items: center; justify-content: center;
-  background: var(--card); color: var(--muted);
+  background: var(--sup-tarjeta); color: var(--muted);
 }
 .plan-hoy.activo { border-color: var(--mint); background: var(--mint-soft); }
 .plan-hoy.activo .plan-hoy-ic { background: var(--mint-soft); color: var(--mint); }
@@ -6597,8 +6735,8 @@
 
 .plan-card {
   display: flex; flex-direction: column; gap: 4px;
-  padding: 15px; border-radius: 12px;
-  background: var(--card2); border: 1px solid var(--line);
+  padding: 15px; border-radius: var(--r-caja);
+  background: var(--sup-tarjeta2); border: var(--borde-fino) solid var(--line);
   position: relative;
 }
 /* El borde y no un fondo de color: son tres tarjetas juntas y teñir una
@@ -6666,7 +6804,7 @@
   vertical-align: -2px;
   border: 2px solid currentColor;
   border-top-color: transparent;
-  border-radius: 50%;
+  border-radius: var(--r-disco);
   animation: btn-rueda 0.7s linear infinite;
 }
 @keyframes btn-rueda { to { transform: rotate(360deg); } }
@@ -6684,8 +6822,8 @@
    que la app ya es —el mapa de la rama y las ramas con su nombre— y la cifra
    se escribe. */
 .plan-topes {
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: 14px; padding: 14px;
+  background: var(--sup-tarjeta); border: var(--borde-tarjeta) solid var(--line); border-image: var(--marco-tarjeta);
+  border-radius: var(--r-tarjeta); padding: 14px;
 }
 .plan-tope-rot {
   display: flex; justify-content: space-between; align-items: baseline;
@@ -6738,7 +6876,7 @@
   flex: none; white-space: nowrap;
   max-width: 46%; overflow: hidden; text-overflow: ellipsis;
   font-size: 11.5px; font-weight: 700;
-  padding: 4px 9px; border-radius: 8px;
+  padding: 4px 9px; border-radius: var(--r-mini);
   background: var(--mint-soft); color: var(--mint);
   border: 1.5px solid transparent;
 }
@@ -6767,7 +6905,7 @@ html.claro .plan-linea { stroke-opacity: .85; }
 .plan-cuenta {
   position: absolute; top: 0; left: 0; z-index: 1;
   font-size: 12.5px; font-weight: 700; color: var(--fire);
-  background: var(--card); padding: 0 7px 2px 0; border-radius: 6px;
+  background: var(--sup-tarjeta); padding: 0 7px 2px 0; border-radius: var(--r-micro);
 }
 .plan-lienzo.mas .plan-cuenta { left: auto; right: 0; padding: 0 0 2px 7px; }
 
@@ -6782,21 +6920,21 @@ html.claro .plan-linea { stroke-opacity: .85; }
    estabas leyendo. El gancho del anual se mudó a su propio renglón debajo. */
 .plan-per-wrap {
   display: flex; gap: 3px;
-  background: var(--bg); border: 1px solid var(--line);
+  background: var(--bg); border: var(--borde-fino) solid var(--line);
   border-radius: 99px; padding: 3px;
 }
 .plan-per {
   flex: 1; min-width: 0;
   font: inherit; font-size: 12.5px; font-weight: 600;
   padding: 7px 8px; border-radius: 99px;
-  border: 1px solid transparent; background: none; color: var(--muted);
+  border: var(--borde-fino) solid transparent; background: none; color: var(--muted);
   cursor: pointer; text-align: center; line-height: 1.2;
 }
 /* Sin transición. El fondo sale de una variable, y una transición sobre una
    propiedad cuyo valor viene de `var()` se queda congelada en el valor
    inicial — es la trampa que ya mordió en los selectores y en el botón de
    Ajustes. */
-.plan-per.on { background: var(--card2); color: var(--text); }
+.plan-per.on { background: var(--sup-tarjeta2); color: var(--text); }
 
 /* El renglón de debajo del conmutador. Habla siempre, en las dos tarjetas y
    en los dos estados de Pro: es donde vive el argumento de cada forma de
@@ -6908,9 +7046,9 @@ html.claro .plan-linea { stroke-opacity: .85; }
 .plan-vs {
   margin-top: 12px;
   overflow-x: auto;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--card2);
+  border: var(--borde-fino) solid var(--line);
+  border-radius: var(--r-caja);
+  background: var(--sup-tarjeta2);
 }
 .plan-vs table {
   width: 100%;
@@ -6930,7 +7068,7 @@ html.claro .plan-linea { stroke-opacity: .85; }
    tabla ya no se sabe qué columna es cuál. */
 .plan-vs thead th {
   position: sticky; top: 0;
-  background: var(--card2);
+  background: var(--sup-tarjeta2);
   font-weight: 700; font-size: 12px;
   letter-spacing: .04em; text-transform: uppercase;
   color: var(--muted);
@@ -6939,7 +7077,7 @@ html.claro .plan-linea { stroke-opacity: .85; }
    quieta mientras las otras tres pasan por debajo. */
 .plan-vs tbody th {
   position: sticky; left: 0;
-  background: var(--card2);
+  background: var(--sup-tarjeta2);
   font-weight: 600;
   color: var(--muted);
   min-width: 190px;
@@ -6980,8 +7118,8 @@ html.claro .plan-linea { stroke-opacity: .85; }
 }
 
 .pn-aviso {
-  background: var(--card2);
-  border: 1px solid var(--line);
+  background: var(--sup-tarjeta2);
+  border: var(--borde-fino) solid var(--line);
   border-left: 3px solid var(--fire);
   border-radius: 0 12px 12px 0;
   padding: 11px 14px;
@@ -6995,7 +7133,7 @@ html.claro .plan-linea { stroke-opacity: .85; }
   font-weight: 700;
   line-height: 1.1;
   color: var(--fire);
-  font-variant-numeric: tabular-nums;
+  font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
 }
 
 .pn-aviso span { font-size: .82rem; color: var(--text); }
@@ -7015,16 +7153,16 @@ html.claro .plan-linea { stroke-opacity: .85; }
   color: var(--text);
 }
 
-.pn-paso-tit b { font-variant-numeric: tabular-nums; color: var(--mint); }
+.pn-paso-tit b { font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; color: var(--mint); }
 
 .pn-paso-riel {
   height: 10px;
-  border-radius: 999px;
+  border-radius: var(--r-barra);
   background: var(--carril);
   overflow: hidden;
 }
 
-.pn-paso-riel i { display: block; height: 100%; background: var(--mint-macizo); border-radius: 999px; }
+.pn-paso-riel i { display: block; height: 100%; background: var(--mint-macizo); border-radius: var(--r-barra); }
 
 .pn-caida { font-size: .74rem; color: var(--fire); }
 .pn-caida.ok { color: var(--muted); }
@@ -7064,7 +7202,7 @@ html.claro .plan-linea { stroke-opacity: .85; }
   font-size: 20px;
   font-weight: 700;
   text-anchor: middle;
-  font-variant-numeric: tabular-nums;
+  font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
 }
 
 .pn-dona-pie { fill: var(--muted); font-size: 8px; text-anchor: middle; }
@@ -7081,7 +7219,7 @@ html.claro .plan-linea { stroke-opacity: .85; }
 }
 
 .pn-ley i { width: 10px; height: 10px; border-radius: 3px; }
-.pn-ley b { color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 600; }
+.pn-ley b { color: var(--muted); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; font-weight: 600; }
 
 .pn-ley i.pn-gajo-1 { background: var(--mint-macizo); }
 .pn-ley i.pn-gajo-2 { background: var(--celeste); }
@@ -7115,5 +7253,5 @@ html.claro .plan-linea { stroke-opacity: .85; }
 }
 
 .pn-pie-graf span { display: inline-flex; align-items: center; gap: 6px; }
-.pn-mu-punto { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); }
+.pn-mu-punto { width: 8px; height: 8px; border-radius: var(--r-disco); background: var(--mint); }
 .pn-mu-barra { width: 6px; height: 11px; border-radius: 1px; background: var(--celeste); opacity: .5; }
