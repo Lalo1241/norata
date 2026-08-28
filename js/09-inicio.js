@@ -1022,33 +1022,111 @@ document.addEventListener("pointerdown", (e) => {
    Funciona SIN sesión, igual que los automáticos. Es deliberado: quien no
    puede entrar es justo quien más necesita poder avisar de que no puede
    entrar. */
+/* Dónde puede haber pasado. Sale de `MODULOS` para no tener dos listas de
+   pantallas que se separen el día que se añada una, más las tres que no son
+   módulos: la entrada, Ajustes y un cajón para lo que no encaje.
+
+   Se ofrece como lista y no como campo libre por lo mismo que existe el
+   formulario: escribir cansa. Un toque contesta la pregunta que más ahorra al
+   buscar el fallo. */
+function lugaresDeFallo() {
+  const mods = (typeof MODULOS !== "undefined" ? MODULOS : []).map(m => [m.id, m.label]);
+  return mods.concat([
+    ["settings", "Ajustes"],
+    ["entrada", "Al entrar o cerrar sesión"],
+    ["otro", "Otra parte"]
+  ]);
+}
+
+/* ---- El formulario de reportar ----
+   Tres campos y ni uno más, y el número es la decisión: «no extenso que si no
+   no lo van a querer reportar», palabras de Eduardo. Los tres son los que
+   convierten un aviso inservible en uno accionable:
+
+     dónde   una lista, un toque, cero escritura
+     antes   qué hacías justo antes — es lo que permite REPRODUCIRLO
+     qué     lo que salió mal, con sitio para contarlo
+
+   Solo el último es obligatorio: quien está enfadado escribe una línea y se
+   va, y perder ese reporte por exigirle dos casillas más sería cambiar un
+   dato por ninguno.
+
+   El bicho va ARRIBA DEL TÍTULO y no dentro del cuerpo: es el mismo sitio
+   donde el resto de la app pone el icono de un cuadro (ver `askBase`), y
+   además ata visualmente el cuadro con la bolita que se acaba de pulsar. */
 async function reportarFallo() {
-  /* Caja de comentario y no un campo de una línea: contar un fallo son dos o
-     tres frases —qué hacías, qué esperabas, qué pasó— y en un renglón que se
-     desplaza de lado la gente escribe cuatro palabras y se rinde. Es la misma
-     caja que la de despedirse de la cuenta, a propósito: en los dos sitios lo
-     que hay es una persona escribiéndonos con sus palabras. */
-  const texto = await askComentario(
-    "¿Qué salió mal?",
-    "Cuéntamelo como se lo contarías a alguien: qué hacías y qué pasó.",
-    "Enviar",
-    "Al abrir un talento se queda la pantalla en blanco…");
-  if (texto === null) return;
-  const limpio = String(texto).trim();
-  if (!limpio) { toast("No mandé nada: el mensaje venía vacío.", "atencion"); return; }
+  const aqui = (typeof activeMainView !== "undefined" && activeMainView) ? activeMainView : "otro";
+  const lugares = lugaresDeFallo();
+  /* La pantalla en la que está ahora viene marcada de partida: nueve de cada
+     diez veces el fallo se reporta donde acaba de pasar, y así el campo ya
+     está contestado antes de leerlo. */
+  const porDefecto = lugares.some(([id]) => id === aqui) ? aqui : "otro";
 
-  /* La pantalla desde la que se reporta, pegada al final. Es el dato que más
-     ahorra al buscarlo y el que nadie escribe por su cuenta.
+  const cuerpo =
+    '<label class="rep-campo">' +
+      '<span class="rep-rot">¿Dónde pasó?</span>' +
+      '<select id="rep-donde">' +
+        lugares.map(([id, txt]) =>
+          '<option value="' + escapeAttr(id) + '"' + (id === porDefecto ? " selected" : "") + '>' +
+          escapeHtml(txt) + '</option>').join("") +
+      '</select>' +
+    '</label>' +
+    '<label class="rep-campo">' +
+      '<span class="rep-rot">¿Qué hacías justo antes? <i>Opcional</i></span>' +
+      '<input type="text" id="rep-antes" maxlength="80" placeholder="Ej. Abrí un talento desde el mapa">' +
+    '</label>' +
+    '<label class="rep-campo">' +
+      '<span class="rep-rot">¿Qué salió mal?</span>' +
+      '<textarea id="rep-que" rows="3" maxlength="' + MOTIVO_MAX + '" placeholder="La pantalla se quedó en blanco y no volvió."></textarea>' +
+      '<span class="modal-cuenta" id="modal-cuenta">0 / ' + MOTIVO_MAX + '</span>' +
+    '</label>';
 
-     El recorte a 300 lo hace el servidor (ver `apuntar_tropiezo`), así que la
-     etiqueta se pone ANTES de que él corte y puede perderse en un mensaje muy
-     largo. Se acepta: si alguien llenó los 500 caracteres contando el fallo,
-     lo que ha escrito vale más que saber en qué pestaña estaba. */
-  const donde = (typeof activeMainView !== "undefined" && activeMainView) ? activeMainView : "";
-  const mensaje = limpio + (donde ? ` [en: ${donde}]` : "");
+  const p = askBase(cuerpo, true, "Enviar", false, false, "Cancelar",
+                    { icono: "bicho", titulo: "¿Qué salió mal?", tono: "menta" });
 
-  const ok = await sbTropiezo("reporte", mensaje);
-  if (ok) {
+  /* `setTimeout` y no `requestAnimationFrame`, igual que en `askText`: el
+     cuadro tiene que quedar listo aunque la pestaña esté en segundo plano, y
+     ahí los cuadros de animación no llegan. */
+  setTimeout(() => {
+    const ta = document.getElementById("rep-que");
+    const cuenta = document.getElementById("modal-cuenta");
+    if (ta) ta.focus();
+    if (ta && cuenta) {
+      const pintar = () => {
+        cuenta.textContent = ta.value.length + " / " + MOTIVO_MAX;
+        cuenta.classList.toggle("lleno", ta.value.length >= MOTIVO_MAX);
+      };
+      ta.addEventListener("input", pintar);
+      pintar();
+    }
+  }, 0);
+
+  const ok = await p;
+  /* Los tres se leen ANTES de que el modal se reutilice: el siguiente cuadro
+     reescribe el cuerpo y para entonces vuelven vacíos. */
+  const selDonde = document.getElementById("rep-donde");
+  const elAntes = document.getElementById("rep-antes");
+  const elQue = document.getElementById("rep-que");
+  if (!ok) return;
+
+  const que = elQue ? limpiarLibre(elQue.value) : "";
+  if (!que) { toast("No mandé nada: falta contar qué salió mal.", "atencion"); return; }
+
+  const idDonde = selDonde ? selDonde.value : "otro";
+  const nombreDonde = (lugares.find(([id]) => id === idDonde) || [null, idDonde])[1];
+  const antes = elAntes ? limpiarLibre(elAntes.value) : "";
+
+  /* Un solo renglón por campo y con etiqueta delante: esto acaba en una lista
+     del panel donde cada fila se lee de un vistazo, y un párrafo corrido
+     obligaría a leerlo entero para saber dónde fue.
+
+     El servidor recorta a 300 (ver `apuntar_tropiezo`), así que lo primero que
+     se escribe es lo que más ahorra al buscar —el dónde—, y lo que se pierde
+     si el mensaje es largo es la cola, no la cabecera. */
+  const mensaje = "[" + nombreDonde + "] " + que + (antes ? " · antes: " + antes : "");
+
+  const enviado = await sbTropiezo("reporte", mensaje);
+  if (enviado) {
     toast("Gracias. Ya me llegó y lo voy a revisar.", "hecho");
   } else {
     /* Ni «error» ni una disculpa larga: se dice qué pasó y qué se puede

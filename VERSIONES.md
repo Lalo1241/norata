@@ -52,6 +52,37 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.28 · 28 ago 2026
+El bicho es una bolita, y el reporte pregunta tres cosas.
+
+- **La bolita, del tamaño del botón que pliega el menú** (32 px). Antes era una
+  fila entera con su rótulo, y pesaba más que Ajustes por algo que se usa una
+  vez al mes. Vive con el número de versión: el texto a la izquierda y ella a
+  la derecha.
+- **Plegada la barra, el número se convierte en el bicho al pasar el ratón.**
+  Es el mismo gesto que ya hace el isotipo de arriba para volverse el botón de
+  desplegar —mismos tiempos, misma escala, comprobado declaración por
+  declaración—, y se copia a propósito: dos transformaciones distintas en la
+  misma barra se leerían como dos mecanismos que hay que aprender por separado.
+- **El reporte es un formulario de tres campos** y el número es la decisión:
+  «no extenso que si no no lo van a querer reportar». **Dónde pasó** es una
+  lista que llega ya contestada con la pantalla en la que estás —nueve de cada
+  diez veces se reporta donde acaba de pasar—; **qué hacías justo antes** es
+  opcional y es lo que permite reproducirlo; y **qué salió mal** es el único
+  obligatorio, porque quien está enfadado escribe una línea y se va, y perder
+  ese reporte por exigir dos casillas más sería cambiar un dato por ninguno.
+  Llega al panel como `[Talentos] lo que pasó · antes: lo que hacía`.
+- **El bicho va encima del título** del cuadro, que es donde el resto de la app
+  pone el icono de un modal, y de paso ata el cuadro con la bolita que se acaba
+  de pulsar.
+- **Y una trampa nueva en CLAUDE.md, que costó media hora:** en este entorno el
+  panel no compone fotogramas, así que **las transiciones no avanzan nunca** —
+  se quedan en `running` y `getComputedStyle` devuelve el valor de partida. Se
+  ve exactamente como un CSS que no se aplica: el `opacity: 0` de una regla
+  parecía no llegar mientras el `background` de esa MISMA declaración sí,
+  porque el fondo no tenía transición y la opacidad sí. La receta para medirlo
+  —saltar las animaciones al final— queda escrita junto a las demás.
+
 ### 0.7.27.2 · 28 ago 2026
 Los retoques de la pantalla del plan, después de verla funcionando.
 

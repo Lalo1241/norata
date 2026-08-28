@@ -50,6 +50,25 @@ getComputedStyle(el).backgroundColor                // el color, leído, no supu
 caja.getBoundingClientRect().top - cap.getBoundingClientRect().top  // >= 0
 ```
 
+**Y la trampa que sale de ahí: sin componer fotogramas, las TRANSICIONES no
+avanzan nunca.** Se quedan en `playState: "running"` para siempre y
+`getComputedStyle` devuelve el valor de PARTIDA, no el de destino. Da igual
+cuánto se espere. Se ve como un CSS que no se aplica: al plegar la barra, el
+`opacity: 0` de una regla parecía no llegar mientras el `background` de esa
+MISMA declaración sí — porque el fondo no tenía transición y la opacidad sí.
+Media hora buscando un problema de especificidad que no existía.
+
+Antes de dudar del CSS, saltar las animaciones al final y volver a medir:
+
+```js
+document.querySelectorAll("*").forEach(e =>
+  e.getAnimations && e.getAnimations().forEach(a => { try { a.finish(); } catch (x) {} }));
+```
+
+La pista que lo delata: `el.getAnimations()` devuelve transiciones `running`
+que no terminan. Y afecta a todo lo que se anime — el ancho de la barra
+plegada medía 246 px en vez de 84 por lo mismo.
+
 Y contrastar con un control conocido: al comprobar si algo ya está publicado,
 pedir también un archivo que ya funcionaba. Si el control falla, lo que está
 roto es la prueba, no el archivo.
