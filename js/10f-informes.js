@@ -117,7 +117,14 @@ function metricasMisiones(r) {
         if (h) { m0.porHora[Number(h.slice(0, 2))]++; m0.conHora++; }
       }
 
-      if (m.cadence !== "once" && missionScheduledOn(m, k)) {
+      /* HOY no se juzga, y por eso se salta: el día sigue en marcha. Con hoy
+         dentro, una cuenta recién creada a las ocho de la tarde veía
+         «Constancia 0%» antes de haber tenido ocasión de fallar a nada —el
+         único número del panel que la estaba regañando por existir—. Las
+         marcas del día sí cuentan, arriba: eso es lo que hiciste, no una nota.
+
+         La partida se cierra cuando el día termina, no mientras se juega. */
+      if (k !== todayKey() && m.cadence !== "once" && missionScheduledOn(m, k)) {
         m0.tocaban++;
         if (missionDone(m, k)) m0.completas++;
       }
@@ -169,6 +176,20 @@ function metricasHabilidades(r) {
         if (fam !== "sistema") out.porFuente[fam] += xp;
       } else {
         out.perdida += -xp;
+        /* Un negativo CON fuente no es desgaste: es una vuelta atrás —reabrir
+           un encargo, deshacer un talento, descumplir una misión— y tiene que
+           descontarse de la MISMA familia que lo dio. Sin esto, cerrar y
+           reabrir el mismo encargo tres veces dejaba «300 XP de proyectos» en
+           el reparto cuando lo ganado de verdad era cero: `neta` salía bien y
+           el desglose mentía, que es peor que fallar en los dos.
+
+           El desgaste por inactividad no lleva fuente (ver `applyDecay`) y por
+           eso se queda solo en `perdida`: no viene de ninguna parte, así que no
+           hay a quién restárselo. Esa es justo la diferencia que decide. */
+        if (e.fuente) {
+          const famNeg = familiaDeFuente(e);
+          if (famNeg !== "sistema") out.porFuente[famNeg] += xp;   // xp ya es negativo
+        }
       }
     }
 
