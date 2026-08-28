@@ -27,7 +27,9 @@ vigilarCapas();
   const html = `<span class="sv-etapa">Alpha</span>` +
                `<span class="sv-num">V${VERSION}</span>` +
                `<span class="sv-fecha">· ${VERSION_FECHA}</span>`;
-  ["side-version", "version-pie"].forEach(id => {
+  /* «sv-txt» y no «side-version»: desde que la bolita de reportar vive
+     dentro de esa caja, escribir en el contenedor la borraría. */
+  ["sv-txt", "version-pie"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = html;
   });

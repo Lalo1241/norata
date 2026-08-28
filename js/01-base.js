@@ -48,8 +48,8 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.27.2";
-const VERSION_FECHA = "27 ago 2026";
+const VERSION = "0.7.28";
+const VERSION_FECHA = "28 ago 2026";
 
 /* ================= Iconografía propia =================
    Iconos de trazo (24x24) dibujados a mano; nada de emojis. */
@@ -1079,59 +1079,6 @@ function askText(titulo, valor, okLabel, pista, max, motivo) {
     const texto = ok ? (el ? el.value.trim() : "") : null;
     if (!motivo) return texto;
     return { texto: texto, motivo: (ok && mot) ? limpiarLibre(mot.value) : "" };
-  });
-}
-
-/* ---- Pedir un texto LARGO, sin campo de una línea encima ----
-   `askText` ya sabe enseñar una caja de comentario, pero solo debajo de un
-   campo de nombre: nació para las despedidas, donde primero se escribe el
-   correo y luego se cuenta por qué te vas. Para reportar un fallo ese campo
-   de arriba no existe —lo único que hace falta es el párrafo—, y dejarlo
-   vacío le pediría a alguien que rellene una casilla que no significa nada.
-
-   Comparte el mismo `.modal-motivo` que la despedida a propósito: es la misma
-   cosa —una persona escribiéndonos con sus palabras— y tiene que verse igual
-   en los dos sitios. Del contador para abajo, todo es el mismo código.
-
-   Devuelve el texto ya limpio, o `null` si se canceló. */
-function askComentario(titulo, pista, okLabel, marcador) {
-  const p = askHtml(
-    `<b style="display:block;margin-bottom:12px">${escapeHtml(titulo)}</b>
-     <label class="modal-motivo" style="margin-top:0">
-       ${pista ? `<span class="modal-motivo-t">${escapeHtml(pista)}</span>` : ""}
-       <textarea id="modal-motivo" rows="4" maxlength="${MOTIVO_MAX}"
-         placeholder="${escapeAttr(marcador || "")}"></textarea>
-       <span class="modal-cuenta" id="modal-cuenta">0 / ${MOTIVO_MAX}</span>
-     </label>`,
-    okLabel || "Enviar");
-
-  /* Mismo `setTimeout` que `askText` y por el mismo motivo: el cuadro tiene
-     que quedar listo para escribir aunque la pestaña esté en segundo plano, y
-     ahí los cuadros de animación no llegan.
-
-     Sin `Enter` para confirmar, al revés que el campo de una línea: aquí el
-     salto de línea es parte de lo que se está escribiendo, y robárselo para
-     enviar mandaría el mensaje a la mitad de la primera frase. */
-  setTimeout(() => {
-    const mot = document.getElementById("modal-motivo");
-    const cuenta = document.getElementById("modal-cuenta");
-    if (!mot) return;
-    mot.focus();
-    if (cuenta) {
-      const pintar = () => {
-        cuenta.textContent = mot.value.length + " / " + MOTIVO_MAX;
-        cuenta.classList.toggle("lleno", mot.value.length >= MOTIVO_MAX);
-      };
-      mot.addEventListener("input", pintar);
-      pintar();
-    }
-  }, 0);
-
-  return p.then(ok => {
-    const mot = document.getElementById("modal-motivo");
-    /* Se lee ANTES de que el modal se reutilice, igual que en `askText`: el
-       siguiente cuadro reescribe el cuerpo y para entonces vuelve vacío. */
-    return (ok && mot) ? limpiarLibre(mot.value) : null;
   });
 }
 
