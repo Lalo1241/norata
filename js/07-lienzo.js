@@ -1,4 +1,45 @@
-/* El lienzo de talentos: encuadre, editor y gestos */
+/* El lienzo: encuadre, editor y gestos */
+/* ================= De que modulo es lo que se dibuja =================
+   Este archivo nacio dibujando solo talentos y ahora dibuja tambien los
+   encargos de Proyectos. En vez de duplicarlo —dos mil lineas de geometria
+   que habria que arreglar dos veces cada vez— se pasa por estas funciones
+   todo lo que cambia de un modulo a otro.
+
+   La regla que se siguio, y que conviene mantener: cuando el nodo NO es de
+   Proyectos, cada una devuelve exactamente lo que devolvia la llamada de
+   antes. Asi el dibujo de Talentos no cambia ni una letra.
+
+   `mod` viaja en el propio nodo. No se pasa por parametro a todas partes
+   porque media docena de caminos llegan aqui con un objeto suelto y sin
+   contexto: un arrastre, el menu del clic derecho, deshacer. */
+
+/* La figura y su radio. */
+function figuraDe(p) { return esNodoDeProyecto(p) ? FIGURA_ENCARGO : metaDe(p); }
+
+/* El estado con el que se pinta. Los nombres coinciden a proposito
+   (completed, active, expired...) para que la tabla de colores sea una sola. */
+function estadoDeNodo(n) { return esNodoDeProyecto(n) ? estadoDeEncargo(n) : perkStatus(n); }
+
+/* La rama tal como se dibuja. */
+function vistaDeRamaDe(mod, b) {
+  return mod === "proyectos" ? vistaDeRamaProyectos(b) : vistaDeRama(b);
+}
+
+/* La coleccion que se guarda y se deshace. */
+function listaDe(mod) {
+  return mod === "proyectos" ? state.projects : state.perks;
+}
+
+/* De que modulo es un nodo cualquiera. Para las acciones que llegan con un
+   id y nada mas: cortar una conexion, cambiar la regla de entrada. */
+function modDe(n) { return esNodoDeProyecto(n) ? "proyectos" : "talentos"; }
+
+/* Repintar la pantalla que toque. Media docena de acciones del lienzo
+   terminaban en renderTree() a secas; hechas desde el mapa de encargos eso
+   redibujaba Talentos y dejaba Proyectos con lo de antes en pantalla. */
+function repintarModulo(mod) {
+  if (mod === "proyectos") renderProjects(); else renderTree();
+}
 /* ================= El encuadre del lienzo =================
    Desde que alrededor del dibujo hay sitio libre —y desde que un nodo puede
    vivir antes del cero—, la esquina del contenedor ya no es donde está el
@@ -128,19 +169,19 @@ let focusPending = false;
 
 function frontNode(nodes) {
   const byDepth = (a, b) => (b.x || 0) - (a.x || 0);
-  const due = nodes.filter(n => perkStatus(n) === "due").sort(byDepth);
+  const due = nodes.filter(n => estadoDeNodo(n) === "due").sort(byDepth);
   if (due.length) return due[0];
-  const active = nodes.filter(n => perkStatus(n) === "active").sort(byDepth);
+  const active = nodes.filter(n => estadoDeNodo(n) === "active").sort(byDepth);
   if (active.length) return active[0];
-  const avail = nodes.filter(n => perkStatus(n) === "available").sort(byDepth);
+  const avail = nodes.filter(n => estadoDeNodo(n) === "available").sort(byDepth);
   if (avail.length) return avail[0];
   return [...nodes].sort(byDepth)[0];
 }
 
-function focusBranchFront(b, silent) {
+function focusBranchFront(b, silent, mod) {
   const wrap = constWrapFor(b);
   if (!wrap) return;
-  const nodes = branchNodes(b);
+  const nodes = branchNodes(b, mod);
   if (!nodes.length) return;
   const { pos } = branchLayout(nodes);
   const target = frontNode(nodes);
@@ -157,19 +198,19 @@ function focusBranchFront(b, silent) {
   if (!silent) toast(`Centrado en: ${target.name}`, "hecho");
 }
 
-async function resetBranchLayout(b) {
+async function resetBranchLayout(b, mod) {
   if (!await ask(`Esto va a reordenar automáticamente todos los talentos de "${b}". Si habías acomodado esta rama a mano, ese orden se pierde.`, "Reacomodar")) return;
-  pushUndo("reacomodar la rama");
+  pushUndo("reacomodar la rama", null, mod);
   /* Sobre los objetos REALES: branchNodes devuelve copias de los talentos
      (con sus requisitos ya traducidos a las cajas), y borrarles ahí las
      coordenadas no borraba nada. */
-  branchNodes(b).forEach(n => {
+  branchNodes(b, mod).forEach(n => {
     const real = nodoPorId(n.id);
     if (real) { delete real.x; delete real.y; }
   });
   save();
-  renderTree();
-  toast("Talentos reacomodados", "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
+  repintarModulo(mod);
+  toast(mod === "proyectos" ? "Encargos reacomodados" : "Talentos reacomodados", "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
 }
 
 function cssEscape(s) {
@@ -179,6 +220,17 @@ function cssEscape(s) {
 /* ================= Plegado y modo edición de ramas ================= */
 
 let editBranch = null;
+/* De que modulo es la rama que se esta editando. Hace falta desde que
+   Proyectos tambien tiene mapa: los dos modulos pueden tener una rama con el
+   MISMO nombre, y con solo el nombre guardado, entrar a editar el mapa de un
+   proyecto llamado "Dibujo" ponia en edicion la rama "Dibujo" de Talentos a
+   la vez. Se compara siempre el par, nunca el nombre solo. */
+let editMod = "talentos";
+
+/* Es ESTA rama de ESTE modulo la que esta en edicion? */
+function editandoRama(b, mod) {
+  return editBranch === b && editMod === (mod || "talentos");
+}
 
 /* ================= Rama a pantalla completa =================
    En el móvil la rama de la lista es solo una vista previa (no se recorre
@@ -264,7 +316,7 @@ function renderFullscreen() {
   /* `ba` para los atributos normales y `bj` para lo que va dentro de las
      comillas simples de un `onclick`. Ver `enJS`. */
   const bj = enJS(b);
-  const editing = editBranch === b;
+  const editing = editandoRama(b, "talentos");
   const doneN = nodes.filter(n => n.status === "completed").length;
 
   document.getElementById("fs-name").textContent = b;
@@ -318,12 +370,18 @@ let undoStack = [];
 /* La copia incluye las cajas desde que son nodos del mapa: mover una caja o
    sacarle un talento son acciones del editor como cualquier otra, y deshacer
    solo la mitad del estado sería peor que no poder deshacer. */
-function snapshotPerks() {
-  return JSON.stringify({ perks: state.perks, cajas: state.cajas || [] });
+/* En Proyectos no hay cajas y la coleccion es otra, asi que la copia dice de
+   que es. Sin el modulo, deshacer un movimiento hecho en el mapa de encargos
+   habria restaurado los TALENTOS y borrado el trabajo del otro lado sin que
+   nada avisara. */
+function snapshotPerks(mod) {
+  return (mod || "talentos") === "proyectos"
+    ? JSON.stringify({ mod: "proyectos", projects: state.projects })
+    : JSON.stringify({ perks: state.perks, cajas: state.cajas || [] });
 }
 
-function pushUndo(etiqueta, snap) {
-  undoStack.push({ perks: snap || snapshotPerks(), etiqueta });
+function pushUndo(etiqueta, snap, mod) {
+  undoStack.push({ perks: snap || snapshotPerks(mod), etiqueta });
   if (undoStack.length > UNDO_MAX) undoStack.shift();
 }
 
@@ -331,6 +389,13 @@ function undoEditor() {
   if (!undoStack.length) { toast("No hay nada que deshacer", "atencion"); return; }
   const prev = undoStack.pop();
   const antes = JSON.parse(prev.perks);
+  if (antes.mod === "proyectos") {
+    state.projects = antes.projects;
+    save();
+    renderProjects();
+    toast(`Deshecho: ${prev.etiqueta}`, "deshecho");
+    return;
+  }
   state.perks = antes.perks;
   state.cajas = antes.cajas || [];
   save();
@@ -352,13 +417,14 @@ function clearUndo() { undoStack = []; }
    efecto era el que se veía: cada talento nuevo recolocaba a los demás,
    porque los de antes seguían sin coordenadas propias y el reparto
    automático los volvía a centrar con una fila más. */
-function fijarPosiciones(b) {
-  const nodes = branchNodes(b);
+function fijarPosiciones(b, mod) {
+  const nodes = branchNodes(b, mod);
   const { pos } = branchLayout(nodes);
+  const lista = listaDe(mod || "talentos");
   nodes.forEach(n => {
     const real = n.esCaja
       ? (state.cajas || []).find(c => c.id === n.cajaId)
-      : state.perks.find(p => p.id === n.id);
+      : lista.find(p => p.id === n.id);
     if (!real || (typeof real.x === "number" && typeof real.y === "number")) return;
     real.x = pos[n.id].x;
     real.y = pos[n.id].y;
@@ -464,6 +530,65 @@ function duplicarTalento(id, pos) {
   save();
   renderTree();
   toast(`Duplicado: ${copia.name}`, "hecho");
+}
+
+/* ---- Crear un encargo desde el propio mapa ----
+   El equivalente de crearTalentoRapido, mucho mas corto porque un encargo no
+   tiene tres tipos entre los que elegir ni tope de plan que vigilar. Nace con
+   nombre provisional y sin etapas: se abre y se le pone lo suyo. */
+function crearEncargoRapido(branch, pos) {
+  if (!branch) return;
+  pushUndo("crear un encargo", null, "proyectos");
+  fijarPosiciones(branch, "proyectos");
+  const n = state.projects.length;
+  const nuevo = {
+    id: uid(), name: "Encargo", branch, desc: "",
+    mod: "proyectos", status: "active", steps: [], skillId: null, xpReward: 0,
+    requiere: [], modo: "todos", espera: false,
+    icon: ICON_LIST[(n * 4 + 1) % ICON_LIST.length],
+    color: COLORS[n % COLORS.length],
+    createdAt: todayKey(), lastActivity: todayKey(), completedAt: null,
+    history: [{ date: todayKey(), at: stamp(), event: `Encargo creado en el proyecto ${branch}` }]
+  };
+  if (pos) {
+    nuevo.x = enLienzoX(pos.x);
+    nuevo.y = enLienzoY(pos.y);
+  }
+  state.projects.push(nuevo);
+  save();
+  renderProjects();
+  toast("Encargo creado · ábrelo para ponerle nombre", "hecho");
+}
+
+/* El interruptor que separa las dos clases de flecha. Vive en el ENCARGO y no
+   en cada linea (Eduardo, 27 ago 2026): una flecha siempre dice "esto va
+   despues de aquello", y esto dice si ademas hay que esperar. */
+function alternarEspera(id) {
+  const pr = state.projects.find(x => x.id === id);
+  if (!pr) return;
+  pushUndo(pr.espera ? "dejar de esperar" : "esperar el turno", null, "proyectos");
+  pr.espera = !pr.espera;
+  /* A mano y no con projectLog: ese ayudante pone `lastActivity` en hoy, y
+     cambiar como se comporta un encargo no es haberlo avanzado. Con el, dar
+     al interruptor le habria borrado los dias de estancado a un encargo
+     parado, que es justo el numero que la app usa para decirte la verdad. */
+  pr.history = pr.history || [];
+  pr.history.unshift({ date: todayKey(), at: stamp(), event: pr.espera
+    ? "Espera a que terminen sus requisitos"
+    : "Ya no espera: se puede avanzar antes de tiempo" });
+  save();
+  if (typeof currentProjectId !== "undefined" && currentProjectId === pr.id) renderProjectDetail();
+  renderProjects();
+  toast(pr.espera
+    ? `${pr.name} no se abrirá hasta que terminen sus requisitos`
+    : `${pr.name} se puede avanzar aunque lo anterior no esté`,
+    "hecho", { label: "Deshacer", onclick: "undoEditor()" });
+}
+
+function ctxCrearEncargo(branch) {
+  const pos = ctxPos;
+  cerrarCtxMenu();
+  crearEncargoRapido(branch, pos);
 }
 
 function ctxDuplicar(id) {
@@ -589,18 +714,48 @@ document.addEventListener("keydown", (e) => {
 
 /* ---- Menú de clic derecho sobre el lienzo ---- */
 let ctxPos = null;
+let ctxMod = "talentos";
 
-function abrirCtxMenu(clientX, clientY, branch, pos, nodoId) {
+function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
   const el = document.getElementById("ctx");
   if (!el) return;
   closeBranchMenus();       // y al revés: el de la rama se aparta
   ctxPos = pos;
-  const editando = editBranch === branch;
+  ctxMod = mod || "talentos";
+  const editando = editandoRama(branch, ctxMod);
   const item = (titulo, pista, tecla, onclick, icono) => `
     <button onclick="${onclick}">
       <span class="ctx-tx"><b>${escapeHtml(titulo)}</b><span>${escapeHtml(pista)}</span></span>
       ${tecla ? `<kbd>${tecla}</kbd>` : (icono ? `<span class="ctx-ic"><svg viewBox="0 0 24 24">${icono}</svg></span>` : "")}
     </button>`;
+
+  /* ---- El menu del mapa de encargos ----
+     Sale antes que nada porque casi ninguna accion de Talentos vale aqui: no
+     hay tres tipos que crear, ni cajas del atico, ni duplicado que copie "la
+     forma sin el progreso" —un encargo es su progreso—. Compartir el menu y
+     esconder la mitad de sus lineas habria dejado un menu lleno de huecos. */
+  if (ctxMod === "proyectos") {
+    const enc = nodoId ? state.projects.find(x => x.id === nodoId) : null;
+    el.innerHTML =
+      (enc ? (
+        `<div class="ctx-head">${escapeHtml(enc.name)}</div>` +
+        item("Abrir el encargo", "Sus etapas, su ritmo y su historial", "",
+          `cerrarCtxMenu();openProject('${escapeAttr(enc.id)}')`, BM_ICONS.lapiz) +
+        item(enc.espera ? "Dejar de esperar" : "Que espere su turno",
+          enc.espera ? "Podrás avanzarlo aunque lo anterior no esté" : "No se abrirá hasta que terminen sus requisitos",
+          "", `cerrarCtxMenu();alternarEspera('${escapeAttr(enc.id)}')`, BM_ICONS.caja) +
+        `<div class="ctx-sep"></div>`
+      ) : "") +
+      item("Nuevo encargo aquí", "Se crea donde hiciste clic", "",
+        `ctxCrearEncargo('${enJS(branch)}')`, BM_ICONS.copiar) +
+      `<div class="ctx-sep"></div>` +
+      item(editando ? "Salir de edición" : "Editar el mapa",
+        editando ? "Vuelve al modo normal" : "Conecta y corta hilos", "",
+        `cerrarCtxMenu();toggleEditBranch('${enJS(branch)}','proyectos')`) +
+      (undoStack.length ? item("Deshacer", undoStack[undoStack.length - 1].etiqueta, "Ctrl Z", `cerrarCtxMenu();undoEditor()`) : "");
+    colocarCtxMenu(el, clientX, clientY);
+    return;
+  }
 
   // Si el clic cayó sobre una caja del ático, manda ella
   const caja = nodoId ? (state.cajas || []).find(c => c.id === nodoId) : null;
@@ -679,27 +834,31 @@ function toggleBranch(b) {
   state.ui = state.ui || {};
   state.ui.collapsed = state.ui.collapsed || {};
   if (state.ui.collapsed[b]) { delete state.ui.collapsed[b]; focusPending = true; }
-  else { state.ui.collapsed[b] = true; if (editBranch === b) editBranch = null; }
+  else { state.ui.collapsed[b] = true; if (editandoRama(b, "talentos")) editBranch = null; }
   save();
   renderTree();
 }
 
-function toggleEditBranch(b) {
+function toggleEditBranch(b, mod) {
+  mod = mod || "talentos";
   // Fuera del editor la selección no puede hacer nada, así que no sobrevive
   limpiarSeleccion();
-  if (editBranch === b) {
+  if (editandoRama(b, mod)) {
     editBranch = null;
     clearUndo();   // deshacer un cambio de hace tres sesiones sorprendería más de lo que ayuda
-    renderTree();
+    repintarModulo(mod);
     toast("Listo, modo edición cerrado", "hecho");
     return;
   }
   editBranch = b;
+  editMod = mod;
   clearUndo();
-  fijarPosiciones(b);
+  fijarPosiciones(b, mod);
   save();
-  renderTree();
-  toast(isDesktop() ? "Edición: Q, W y E crean · C para salir" : "Modo edición: arrastra y conecta", "hecho");
+  repintarModulo(mod);
+  toast(mod === "proyectos"
+    ? "Edición: arrastra, conecta y corta"
+    : (isDesktop() ? "Edición: Q, W y E crean · C para salir" : "Modo edición: arrastra y conecta"), "hecho");
 }
 
 /* ================= Constelación =================
@@ -790,7 +949,7 @@ function branchLayout(nodes) {
    El rombo mide más en diagonal que de lado, de ahí el √2. */
 function nodeRadius(p) {
   if (p.esCaja) return CAJA_W / 2;
-  const t = metaDe(p);
+  const t = figuraDe(p);
   return t.forma === "rombo" ? Math.round(t.radio * Math.SQRT2) : t.radio;
 }
 
@@ -804,7 +963,13 @@ function nodeShape(p, x, y, conf, fid) {
   if (p.esCaja) {
     return `<rect x="${x - CAJA_W / 2}" y="${y - CAJA_H / 2}" width="${CAJA_W}" height="${CAJA_H}" rx="11" stroke-dasharray="6 4" ${common}/>`;
   }
-  const t = metaDe(p);
+  const t = figuraDe(p);
+  /* El encargo: un rectangulo ancho de esquinas suaves. No se parece a
+     ninguna figura de Talentos, y esa es toda su gracia — con los dos mapas
+     hechos de rombos y hexagonos nadie sabria en cual esta. */
+  if (t.forma === "encargo") {
+    return `<rect x="${x - t.ancho / 2}" y="${y - t.alto / 2}" width="${t.ancho}" height="${t.alto}" rx="13" ${common}/>`;
+  }
   if (t.forma === "circulo") {
     return `<circle cx="${x}" cy="${y}" r="${t.radio}" ${common}/>`;
   }
@@ -857,7 +1022,7 @@ function rumbosDe(p, saliendo) {
   if (p.esCaja) return saliendo ? SALIDAS : ENTRADAS;
   // Al nodo pequeno se le permiten los ocho rumbos porque suele colgar a un
   // lado del tronco. Es cosa de su tamano, no de que tipo sea.
-  return metaDe(p).forma === "circulo" ? TODOS_LOS_RUMBOS : (saliendo ? SALIDAS : ENTRADAS);
+  return figuraDe(p).forma === "circulo" ? TODOS_LOS_RUMBOS : (saliendo ? SALIDAS : ENTRADAS);
 }
 
 function elegirRumbo(candidatos, dx, dy) {
@@ -891,8 +1056,13 @@ function radioEnRumbo(p, rumbo) {
     const c = Math.abs(Math.cos(th)), sn = Math.abs(Math.sin(th));
     return Math.min(c ? (CAJA_W / 2) / c : 1e9, sn ? (CAJA_H / 2) / sn : 1e9);
   }
-  const t = metaDe(p);
+  const t = figuraDe(p);
   if (t.forma === "circulo") return t.radio;
+  if (t.forma === "encargo") {
+    // Rectangulo: la misma cuenta que la caja, con la medida del encargo
+    const c = Math.abs(Math.cos(th)), sn = Math.abs(Math.sin(th));
+    return Math.min(c ? (t.ancho / 2) / c : 1e9, sn ? (t.alto / 2) / sn : 1e9);
+  }
   if (t.forma === "hexagono") return radioPoligono(t.radio, 6, Math.PI / 6, th);
   return radioPoligono(t.radio * Math.SQRT2, 4, 0, th);
 }
@@ -927,7 +1097,12 @@ function edgePath(a, b, pa, pb) {
   };
 }
 
-function constellation(nodes, key, editing, branch) {
+/* `mod` decide de que modulo es este mapa. Va por parametro y no se adivina
+   mirando los nodos porque una rama VACIA no tiene ninguno a quien
+   preguntar, y una rama de Proyectos que se llame igual que una de Talentos
+   habria pintado el recinto de grupo del otro modulo. Por omision, talentos:
+   asi ninguna de las llamadas de antes cambia. */
+function constellation(nodes, key, editing, branch, mod) {
   const { pos, order, childrenOf, H, W, minX, minY } = branchLayout(nodes);
   const fid = "glow" + key;
   if (editing) { editPos = pos; editKey = key; }
@@ -956,7 +1131,9 @@ function constellation(nodes, key, editing, branch) {
      siendo un grupo, y aquí se dibuja el recinto que los rodea con su nombre
      en el borde. Sin esto, abrir una caja era perderla —no quedaba ni rastro
      de qué había ido junto ni forma de volver a cerrarla desde el mapa. */
-  (branch ? gruposAbiertos(branch) : []).forEach(c => {
+  /* Los recintos de grupo son del atico de Talentos. En Proyectos el pasado
+     se guarda con el estado del encargo, no empaquetandolo. */
+  ((branch && mod !== "proyectos") ? gruposAbiertos(branch) : []).forEach(c => {
     const pts = c.perkIds.map(id => pos[id]).filter(Boolean);
     if (!pts.length) return;
     const M = 40;
@@ -1009,7 +1186,7 @@ function constellation(nodes, key, editing, branch) {
       const letra = modo === "cualquiera" ? "O" : "Y";
       const listo = requisitosCumplidos(n);
       const cE = tinta(listo ? (n.color || "#5fe0b0") : "var(--lienzo-apagado)");
-      const cumplidos = requisitosVivos(n).filter(r => r.status === "completed").length;
+      const cumplidos = requisitosVivos(n).filter(r => nodoHecho(r, esNodoDeProyecto(n))).length;
       out += `<g class="port-in switch" data-modo="${n.id}">
         <title>${modo === "cualquiera"
           ? `Basta con completar CUALQUIERA de los ${reqs.length} requisitos. Toca para exigirlos todos.`
@@ -1034,7 +1211,7 @@ function constellation(nodes, key, editing, branch) {
        editando: es la única señal de una dependencia que no se ve. */
     const fuera = requisitosVivos(n).filter(r => (r.branch || "General") !== (n.branch || "General"));
     if (fuera.length) {
-      const cF = tinta(fuera.every(r => r.status === "completed") ? (n.color || "#5fe0b0") : "var(--lienzo-apagado)");
+      const cF = tinta(fuera.every(r => nodoHecho(r, esNodoDeProyecto(n))) ? (n.color || "#5fe0b0") : "var(--lienzo-apagado)");
       const x0 = x - R - 21, x1 = x0 - 26;
       out += `<path d="M${x1} ${y} H${x0}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
         <circle cx="${x1}" cy="${y}" r="3" fill="${cF}"/>
@@ -1073,8 +1250,8 @@ function constellation(nodes, key, editing, branch) {
       /* Una caja no tiene estado propio: cuenta como hecha si todo lo que
          guarda está hecho, para que el hilo que llega a ella se lea igual
          que el que llegaría a los talentos que representa. */
-      const cst = c.esCaja ? (c.todoHecho ? "completed" : "available") : perkStatus(c);
-      const done = c.esCaja ? c.todoHecho : c.status === "completed";
+      const cst = c.esCaja ? (c.todoHecho ? "completed" : "available") : estadoDeNodo(c);
+      const done = c.esCaja ? c.todoHecho : nodoHecho(c, esNodoDeProyecto(c));
       const inProgress = !c.esCaja && (cst === "active" || cst === "due");
       const lit = done || inProgress;
       const col = trazo(done ? (c.color || "#5fe0b0") : (inProgress ? "var(--fire)" : "var(--lienzo-hilo)"));
@@ -1137,7 +1314,7 @@ function constellation(nodes, key, editing, branch) {
       return;
     }
 
-    const st = perkStatus(n);
+    const st = estadoDeNodo(n);
     const col = n.color || "#5fe0b0";
     /* Tres papeles para el mismo color: el contorno y el icono se TRAZAN
        —basta con 3 sobre 1, y asi el tono se sigue reconociendo—, el relleno
@@ -1150,13 +1327,31 @@ function constellation(nodes, key, editing, branch) {
       due:       { stroke: "var(--fire)", fill: velo("#f5d76e", "33"), glow: true, badge: "var(--fire-macizo)", mark: "alert" },
       expired:   { stroke: "var(--coral)", fill: velo("#ff8a70", "1a"), glow: false, badge: "var(--coral-macizo)", mark: "close" },
       locked:    { stroke: "var(--pip)", fill: "var(--lienzo-bloqueado)", glow: false },
-      available: { stroke: colT, fill: velo(col, "12"), glow: false, sop: 0.55 }
+      available: { stroke: colT, fill: velo(col, "12"), glow: false, sop: 0.55 },
+      /* Los dos que solo usa Proyectos. Van en la misma tabla para que los
+         estados se lean de un vistazo y nadie invente otro color sin ver los
+         que ya hay. `esperando` comparte aspecto con `available` a proposito:
+         los dos significan "todavia no", y el que ademas este cerrado con
+         llave lo dice el candado, no un color distinto. `paused` es gris del
+         todo, porque una pausa la pediste tu y no espera a nada. */
+      esperando: { stroke: colT, fill: velo(col, "10"), glow: false, sop: 0.45 },
+      paused:    { stroke: "var(--pip)", fill: "var(--lienzo-bloqueado)", glow: false }
     }[st];
-    const iname = st === "locked" ? "lock" : (n.icon || "star");
-    const esHito = metaDe(n).forma === "circulo";   // el nodo pequeno
+    /* El candado. En Talentos lo pone el estado "locked"; en Proyectos lo
+       pone el interruptor del propio encargo, porque alli un nodo apagado
+       casi siempre SI deja pasar y el candado tiene que significar que este
+       en concreto no. */
+    const cerrado = st === "locked" || (esNodoDeProyecto(n) && encargoBloqueado(n));
+    const iname = cerrado ? "lock" : (n.icon || "star");
+    const esHito = figuraDe(n).forma === "circulo";   // el nodo pequeno
     const isc = esHito ? 0.62 : 0.8;
     const markR = esHito ? { dx: 13, dy: -13 } : { dx: 21, dy: -21 };
     const R = nodeRadius(n);
+    /* Cuando se enseña la cuenta de etapas debajo del nombre. En Talentos,
+       solo mientras la meta esta en curso. En Proyectos tambien cuando el
+       encargo espera su turno: saber cuanto lleva hecho lo que viene despues
+       es justo la pregunta que uno se hace mirando el mapa. */
+    const verEtapas = st === "active" || (esNodoDeProyecto(n) && st === "esperando");
     const lines = wrapName(n.name);
     const topY = y + (esHito ? 32 : 44);
 
@@ -1168,7 +1363,7 @@ function constellation(nodes, key, editing, branch) {
       ${st === "available" && !editing ? `<circle class="node-pulse" cx="${x}" cy="${y}" r="${R + 4}" fill="none" stroke="${colT}" stroke-width="2.5"/>` : ""}
       ${nodeShape(n, x, y, conf, fid)}
       <g transform="translate(${x - 12 * isc}, ${y - 12 * isc}) scale(${isc})"
-         stroke="${st === "locked" ? "var(--faint)" : conf.stroke}" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[iname] || ICONS.star}</g>
+         stroke="${cerrado ? "var(--faint)" : conf.stroke}" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[iname] || ICONS.star}</g>
       ${conf.mark ? `<circle cx="${x + markR.dx}" cy="${y + markR.dy}" r="9.5" fill="${conf.badge}"/>
         <g transform="translate(${x + markR.dx - 6}, ${y + markR.dy - 6}) scale(0.5)"
            stroke="var(--sobre-macizo)" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g>` : ""}
@@ -1180,7 +1375,7 @@ function constellation(nodes, key, editing, branch) {
             —que es donde se decide qué tocar hoy— no decía cuál va más
             adelantada. Se dice en etapas y no en porcentaje porque es lo que
             se marca: "2/4" es accionable, "50%" es un resumen. */
-        (st === "active" && (n.steps || []).length)
+        (verEtapas && (n.steps || []).length)
           ? `<text x="${x}" y="${topY + (lines.length - 1) * 12 + 13}" text-anchor="middle" font-size="9" fill="var(--fire)" font-weight="700">${
               n.steps.filter(s2 => s2.done).length}/${n.steps.length} etapas</text>`
           : ""}
@@ -1198,7 +1393,7 @@ function constellation(nodes, key, editing, branch) {
       x - R - (requisitosDe(n).length > 1 ? 26 : 0) - (hayFueraAqui ? 76 : 0),
       y - R - (conf.mark ? 12 : 0),
       x + R + (editing ? 22 : 0),
-      topY + (lines.length - 1) * 12 + ((st === "active" && (n.steps || []).length) ? 18 : 6));
+      topY + (lines.length - 1) * 12 + ((verEtapas && (n.steps || []).length) ? 18 : 6));
   });
 
   const padRight = editing ? 46 : 0;
@@ -1284,8 +1479,8 @@ function isDesktop() { return window.matchMedia("(min-width: 900px)").matches; }
 /* Lo que se DIBUJA de una rama: los talentos sueltos más las cajas
    cerradas como un nodo cada una. Los de dentro de una caja no salen: los
    representa ella. Ver vistaDeRama. */
-function branchNodes(b) {
-  return vistaDeRama(b);
+function branchNodes(b, mod) {
+  return vistaDeRamaDe(mod || "talentos", b);
 }
 
 /* Y los talentos de verdad, para contar y para las listas. */
@@ -1410,7 +1605,8 @@ function removeLink(par) {
   const [childId, parentId] = String(par).split("|");
   if (!parentId) return;
   const padres = new Set(idsRepresentados(parentId));
-  const snap = snapshotPerks();
+  const mod = modDe(nodoPorId(childId));
+  const snap = snapshotPerks(mod);
   let tocado = false;
   idsRepresentados(childId).forEach(id => {
     const n = nodoPorId(id);
@@ -1420,9 +1616,9 @@ function removeLink(par) {
     if (quedan.length !== reqs.length) { n.requiere = quedan; tocado = true; }
   });
   if (!tocado) return;
-  pushUndo("cortar una conexión", snap);
+  pushUndo("cortar una conexión", snap, mod);
   save();
-  renderTree();
+  repintarModulo(mod);
   toast("Conexión eliminada", "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
 }
 
@@ -1455,6 +1651,12 @@ function attachPanHandlers(scope) {
   (scope || document).querySelectorAll(".const-wrap:not(.editing)").forEach(wrap => {
     let from = null, gesto = null, espera = null;
     const b = wrap.dataset.branch;
+    /* De que modulo es ESTE lienzo. Se lee del propio elemento y no de una
+       variable global: las dos pantallas pueden tener sus mapas en el DOM a
+       la vez —una escondida— y los manejadores se enganchan en las dos. Con
+       una global, el ultimo mapa dibujado habria decidido a que coleccion
+       escribia un arrastre hecho en el otro. */
+    const mod = wrap.dataset.mod || "talentos";
 
     const svgPt = (e) => {
       const svg = wrap.querySelector("svg");
@@ -1473,7 +1675,7 @@ function attachPanHandlers(scope) {
       cancelarEspera();
       if (!gesto || gesto.tipo !== "nodo" || gesto.moviendo) return;
       gesto.moviendo = true;
-      fijarPosiciones(b);
+      fijarPosiciones(b, mod);
       /* El desfase se calcula AQUÍ y no al pulsar: hasta que no se congela el
          reparto, un nodo colocado en automático no tiene coordenadas propias
          y el desfase salía cero, así que al primer movimiento la figura
@@ -1481,7 +1683,7 @@ function attachPanHandlers(scope) {
       const n = nodoPorId(gesto.id);
       const p = pt || gesto.pt0;
       if (n && typeof n.x === "number" && p) { gesto.dx = n.x - p.x; gesto.dy = n.y - p.y; }
-      pushUndo(gesto.esCaja ? "mover una caja" : "mover un talento");
+      pushUndo(gesto.esCaja ? "mover una caja" : (mod === "proyectos" ? "mover un encargo" : "mover un talento"), null, mod);
       wrap.classList.add("moviendo");
       if (userHasTapped && navigator.vibrate) navigator.vibrate(12);
     };
@@ -1561,7 +1763,7 @@ function attachPanHandlers(scope) {
         gesto.movido = true;
         n.x = enLienzoX(pt.x + gesto.dx);
         n.y = enLienzoY(pt.y + gesto.dy);
-        redibujarLienzo(wrap, constellation(branchNodes(b), 0, false, b));
+        redibujarLienzo(wrap, constellation(branchNodes(b, mod), 0, false, b, mod));
         e.preventDefault();
         return;
       }
@@ -1606,11 +1808,13 @@ function attachPanHandlers(scope) {
          hace falta en el teléfono, donde no hay Shift. */
       if (modoElegir) {
         alternarSeleccion(g.id, b);
-        redibujarLienzo(wrap, constellation(branchNodes(b), 0, false, b));
+        redibujarLienzo(wrap, constellation(branchNodes(b, mod), 0, false, b, mod));
         pintarBarraSeleccion(wrap);
         return;
       }
-      if (g.esCaja) verCaja(g.id); else openPerk(g.id);
+      if (g.esCaja) verCaja(g.id);
+      else if (mod === "proyectos") openProject(g.id);
+      else openPerk(g.id);
     };
     wrap.addEventListener("pointerup", fin);
     wrap.addEventListener("pointercancel", fin);
@@ -1633,10 +1837,10 @@ function alternarModo(id) {
      ahí la regla no tiene nada que decidir. */
   const cuenta = (dib.requiere || []).length;
   if (cuenta < 2) return;
-  pushUndo("cambiar la regla de entrada");
+  pushUndo("cambiar la regla de entrada", null, modDe(n));
   n.modo = modoDe(n) === "todos" ? "cualquiera" : "todos";
   save();
-  renderTree();
+  repintarModulo(modDe(n));
   toast(modoDe(n) === "todos"
     ? `${dib.name}: ahora hacen falta los ${cuenta} requisitos`
     : `${dib.name}: ahora basta con cualquiera de los ${cuenta}`,
@@ -1646,13 +1850,13 @@ function alternarModo(id) {
 /* El nodo TAL COMO SE DIBUJA: una caja cerrada suma a sus conexiones propias
    las que heredó de lo que guarda, así que su número de requisitos no está en
    ningún sitio del estado — se calcula al dibujar. */
-function nodoDeVista(b, id) {
-  return branchNodes(b).find(n => n.id === id) || null;
+function nodoDeVista(b, id, mod) {
+  return branchNodes(b, mod).find(n => n.id === id) || null;
 }
 
 function nodoDibujado(id) {
   const n = nodoPorId(id);
-  return n ? nodoDeVista(n.branch || "General", id) : null;
+  return n ? nodoDeVista(n.branch || "General", id, modDe(n)) : null;
 }
 
 /* Clic derecho sobre cualquier lienzo: crear un talento justo ahí y llegar
@@ -1665,7 +1869,8 @@ function attachCtxHandlers(scope) {
       e.stopPropagation();
       const p = puntoEnLienzo(wrap, e.clientX, e.clientY);
       const nodo = e.target.closest ? e.target.closest(".cnode") : null;
-      abrirCtxMenu(e.clientX, e.clientY, wrap.dataset.branch, p, nodo && nodo.dataset.id);
+      abrirCtxMenu(e.clientX, e.clientY, wrap.dataset.branch, p, nodo && nodo.dataset.id,
+                   wrap.dataset.mod || "talentos");
     });
   });
 }
@@ -1750,8 +1955,9 @@ function repintarSeleccion() {
   const sel = modoElegir ? ".const-wrap" : ".const-wrap.editing";
   document.querySelectorAll(sel).forEach(w => {
     const b = w.dataset.branch;
+    const mod = w.dataset.mod || "talentos";
     const editando = w.classList.contains("editing");
-    redibujarLienzo(w, constellation(branchNodes(b), editando ? editKey : 0, editando, b));
+    redibujarLienzo(w, constellation(branchNodes(b, mod), editando ? editKey : 0, editando, b, mod));
     pintarBarraSeleccion(w);
   });
 }
@@ -1792,6 +1998,8 @@ function attachEditHandlers(scope) {
   const wrap = (scope || document).querySelector(".const-wrap.editing");
   if (!wrap) return;
   const b = wrap.dataset.branch;
+  // Ver la nota de attachPanHandlers: el modulo se lee del elemento
+  const mod = wrap.dataset.mod || "talentos";
 
   let mode = null, curId = null, offset = null, raf = null, panFrom = null;
   // Recuadro de selección: esquina donde empezó y posiciones de lo que se
@@ -1814,7 +2022,7 @@ function attachEditHandlers(scope) {
   };
 
   const redraw = () => {
-    redibujarLienzo(wrap, constellation(branchNodes(b), editKey, true, b));
+    redibujarLienzo(wrap, constellation(branchNodes(b, mod), editKey, true, b, mod));
   };
 
   wrap.addEventListener("pointerdown", (e) => {
@@ -1848,11 +2056,11 @@ function attachEditHandlers(scope) {
     } else if (port) {
       mode = "link";
       curId = port.dataset.from;
-      snapAntes = snapshotPerks();
+      snapAntes = snapshotPerks(mod);
     } else if (node) {
       mode = "drag";
       curId = node.dataset.id;
-      snapAntes = snapshotPerks();
+      snapAntes = snapshotPerks(mod);
       const pt = svgPoint(e);
       const cur = editPos[curId] || { x: pt.x, y: pt.y };
       offset = { dx: cur.x - pt.x, dy: cur.y - pt.y };
@@ -1974,7 +2182,7 @@ function attachEditHandlers(scope) {
          entera obligaría a rodearlo con holgura, y con nodos grandes eso es
          casi imposible sin arrastrar media rama de paso. */
       if (selRama !== b) { selNodos = new Set(); selRama = b; }
-      branchNodes(b).forEach(n => {
+      branchNodes(b, mod).forEach(n => {
         const q = editPos[n.id];
         if (q && q.x >= x0 && q.x <= x1 && q.y >= y0 && q.y <= y1) selNodos.add(n.id);
       });
@@ -1997,11 +2205,11 @@ function attachEditHandlers(scope) {
       if (moved < 10) {
         // El color se toma ANTES de cortar: al soltar el hijo se queda sin
         // padre y su estado (y por tanto su color) puede cambiar.
-        const c = state.perks.find(x => x.id === String(curId).split("|")[0]);
+        const c = listaDe(mod).find(x => x.id === String(curId).split("|")[0]);
         let color = "var(--lienzo-hilo)";
         if (c) {
-          const cst = perkStatus(c);
-          color = tinta(c.status === "completed" ? (c.color || "#5fe0b0")
+          const cst = estadoDeNodo(c);
+          color = tinta(nodoHecho(c, mod === "proyectos") ? (c.color || "#5fe0b0")
             : ((cst === "active" || cst === "due") ? "var(--fire)" : "var(--lienzo-hilo)"));
         }
         removeLink(curId);
@@ -2020,7 +2228,7 @@ function attachEditHandlers(scope) {
       const pt = svgPoint(e);
       const HIT_PAD = 34;
       let toId = null, bestDist = Infinity;
-      branchNodes(b).forEach(p => {
+      branchNodes(b, mod).forEach(p => {
         if (p.id === curId) return;
         const pp = editPos[p.id];
         if (!pp) return;
@@ -2036,15 +2244,15 @@ function attachEditHandlers(scope) {
           toast("Ya estaban conectados", "calma");
         } else {
           const esCaja = !!cajaPorId(toId) || !!cajaPorId(curId);
-          pushUndo("conectar dos nodos", snapAntes);
+          pushUndo("conectar dos nodos", snapAntes, mod);
           /* Se AÑADE a la lista en vez de reemplazarla: conectar un
              segundo padre es justo lo que hace posible el nodo que corona,
              y sustituir en silencio el requisito anterior sería deshacer
              trabajo que el usuario no pidió deshacer. */
           t.requiere = [...requisitosDe(t), curId];
           save();
-          const nom = nodoDeVista(b, toId);
-          const n = (nodoDeVista(b, toId) || { requiere: t.requiere }).requiere.length;
+          const nom = nodoDeVista(b, toId, mod);
+          const n = (nodoDeVista(b, toId, mod) || { requiere: t.requiere }).requiere.length;
           /* Con una caja de por medio el hilo es SIMBÓLICO: dice de dónde
              viene una cosa, pero no bloquea a nadie —lo que está guardado en
              el ático ya no está en juego—. Decirlo aquí evita esperar un
@@ -2060,9 +2268,11 @@ function attachEditHandlers(scope) {
     if (mode === "drag") {
       // Solo cuenta como acción si de verdad cambió algo: un clic sin
       // arrastre llenaría la pila de pasos vacíos que no deshacen nada.
-      if (snapAntes && snapAntes !== snapshotPerks()) {
-        pushUndo(grupoIni ? `mover ${grupoIni.size} talentos`
-          : (cajaPorId(curId) ? "mover una caja" : "mover un talento"), snapAntes);
+      if (snapAntes && snapAntes !== snapshotPerks(mod)) {
+        const uno = mod === "proyectos" ? "un encargo" : "un talento";
+        const varios = mod === "proyectos" ? "encargos" : "talentos";
+        pushUndo(grupoIni ? `mover ${grupoIni.size} ${varios}`
+          : (cajaPorId(curId) ? "mover una caja" : `mover ${uno}`), snapAntes, mod);
       }
       save();
     }

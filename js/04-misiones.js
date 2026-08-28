@@ -758,6 +758,14 @@ function projectHealth(pr) {
   if (pr.status === "done") return { key: "done", label: "Terminado", color: "var(--mint)", note: "Cerrado y guardado en tu historial." };
   if (pr.status === "dropped") return { key: "dropped", label: "Descartado", color: "var(--coral)", note: "Lo soltaste. Puedes retomarlo cuando quieras." };
   if (pr.status === "paused") return { key: "paused", label: "En pausa", color: "var(--muted)", note: "Congelado a propósito: no cuenta como abandonado." };
+  /* Ver esperandoTurno: los dias empiezan a contar cuando se abre el paso */
+  if (esperandoTurno(pr)) {
+    const faltan = requisitosVivos(pr).filter(r => r.status !== "done");
+    return { key: "waiting", label: "Espera su turno", color: "var(--celeste)",
+      note: faltan.length === 1
+        ? `Va despues de "${faltan[0].name}". ${pr.espera ? "No se abre hasta que termine." : "Puedes adelantarlo si quieres."}`
+        : `Va despues de ${faltan.length} encargos. ${pr.espera ? "No se abre hasta que terminen." : "Puedes adelantarlo si quieres."}` };
+  }
   const idle = daysIdle(pr);
   const prog = projectProgress(pr);
   if (idle >= 45 && prog < 60) {
@@ -776,6 +784,74 @@ function projectHealth(pr) {
     note: idle === 0 ? "Le diste avance hoy." : `Último avance hace ${idle} día${idle === 1 ? "" : "s"}.` };
 }
 
+/* ================= El encargo como nodo del mapa =================
+   Proyectos gana una segunda vista: la misma rama, dibujada como mapa de
+   nodos. El nodo es el ENCARGO —no la etapa— porque un encargo ya trae rama,
+   etapas, color, icono y estado; lo unico que le faltaba era de que depende.
+
+   Lo que NO se copia de Talentos, y es a proposito:
+
+   · Un talento tiene tres figuras porque tiene tres tipos. Un encargo es
+     siempre lo mismo, asi que hay una sola figura.
+   · Un talento esta o no esta. Un encargo esta a medias casi siempre, y por
+     eso el nodo lleva su cuenta de etapas.
+   · Una flecha de Talentos es un candado. Aqui solo ordena, salvo que el
+     encargo tenga encendido «espera a sus requisitos». */
+
+/* Rectangulo redondeado: no se parece a ninguna de las tres figuras de
+   Talentos, que es justo lo que hace que las dos pantallas no se confundan
+   de un vistazo. */
+const FIGURA_ENCARGO = { forma: "encargo", radio: 31, ancho: 62, alto: 42 };
+
+/* Los estados que el mapa sabe pintar. «esperando» nace con el mapa: es un
+   encargo cuyos requisitos no estan listos. Si `espera` esta apagado se
+   dibuja apagado pero deja pasar; si esta encendido, ademas cierra. Los dos
+   comparten estado para que el mapa no explique dos apagados distintos. */
+function estadoDeEncargo(pr) {
+  if (pr.status === "done") return "completed";
+  if (pr.status === "dropped") return "expired";
+  if (pr.status === "paused") return "paused";
+  if (!requisitosCumplidos(pr)) return "esperando";
+  return "active";
+}
+
+/* Este encargo esta cerrado con llave? Solo si el mismo lo pidio. */
+function encargoBloqueado(pr) {
+  return pr.espera === true && !requisitosCumplidos(pr);
+}
+
+/* Esa etapa ya estaba marcada? Se pregunta antes de tocarla para saber si el
+   gesto es avanzar (se puede bloquear) o deshacer (nunca se bloquea). */
+function etapaHecha(pr, stepId) {
+  const s = (pr.steps || []).find(x => x.id === stepId);
+  return !!(s && s.done);
+}
+
+/* ---- Los dias sin avance de algo que espera su turno ----
+   Sin esto el mapa empeoraria Proyectos en vez de mejorarlo: projectHealth
+   marca "Estancado" a los 45 dias sin tocar, asi que un encargo que espera
+   —correctamente— a que termine el anterior acabaria en «Decision
+   pendiente» pidiendote que lo retomes o lo sueltes. Seria la app
+   regañandote por hacerle caso al mapa. */
+function esperandoTurno(pr) {
+  return (pr.status === "active" || pr.status === "paused") && !requisitosCumplidos(pr);
+}
+
+/* La rama tal como se dibuja. El equivalente de vistaDeRama, mucho mas corto
+   porque en Proyectos no hay cajas del atico que contraer. Se devuelven
+   COPIAS —el dibujo no debe poder escribir en los datos— con la etiqueta
+   `mod` puesta. Los requisitos de otra rama NO se quitan: el reparto en
+   capas ya se queda con los de casa y el dibujo les pinta su cabo suelto. */
+function vistaDeRamaProyectos(b) {
+  return state.projects
+    .filter(p => (p.branch || "General") === b)
+    .map(p => Object.assign({}, p, { mod: "proyectos" }));
+}
+
+function encargosDeRama(b) {
+  return state.projects.filter(p => (p.branch || "General") === b);
+}
+
 function projectLog(pr, event) {
   pr.history = pr.history || [];
   pr.history.unshift({ date: todayKey(), at: stamp(), event });
@@ -785,6 +861,17 @@ function projectLog(pr, event) {
 function toggleStep(prId, stepId) {
   const pr = state.projects.find(x => x.id === prId);
   if (!pr) return;
+  /* La llave del mapa, aplicada donde de verdad importa: marcar una etapa es
+     la unica forma de avanzar un encargo, asi que si aqui no para, el
+     interruptor «espera su turno» no significaria nada. Reabrir una etapa ya
+     hecha si se permite: deshacer nunca se bloquea. */
+  if (!etapaHecha(pr, stepId) && encargoBloqueado(pr)) {
+    const faltan = requisitosVivos(pr).filter(r => r.status !== "done");
+    toast(faltan.length === 1
+      ? `Espera a que termine "${faltan[0].name}"`
+      : `Espera a que terminen sus ${faltan.length} requisitos`, "atencion");
+    return;
+  }
   const s = pr.steps.find(x => x.id === stepId);
   if (!s) return;
   s.done = !s.done;

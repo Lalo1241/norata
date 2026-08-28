@@ -52,6 +52,47 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.21 · 27 ago 2026
+Un proyecto se puede dibujar como mapa, y sus etapas se marcan sin entrar.
+
+- **Los proyectos ganan una segunda vista: el mapa.** Los mismos encargos,
+  dibujados como nodos y unidos por en qué orden van. No sustituye a la lista:
+  el menú ··· de cada proyecto cambia de una a otra cuando quieras, así que
+  quien no lo pida no se encuentra nodos nunca. **El nodo es el encargo** y no
+  la etapa, porque un encargo ya traía rama, etapas, color y estado — solo le
+  faltaba de qué depende y dónde está puesto.
+- **Dos clases de flecha, y hacían falta las dos.** Una flecha siempre dice
+  *esto va después de aquello*; lo que cambia es si el encargo además espera.
+  «Va después» se ve apagado y la app deja de sugerírtelo, pero lo puedes
+  adelantar. «Espera su turno» no deja marcar etapas hasta que terminen sus
+  requisitos, y lo dice con un candado. El interruptor vive en el ENCARGO y no
+  en cada línea: tocar la línea ya sirve para cortarla, y meter otro blanco
+  encima se pelea en el teléfono.
+- **Un encargo que espera su turno deja de contar días de estancado.** Sin
+  esto el mapa habría vuelto la app injusta: a los 45 días sin tocarlo, un
+  encargo que espera —correctamente— a que termine el anterior aparecía en
+  «Decisión pendiente» pidiéndote que lo retomaras o lo soltaras. Era la app
+  regañándote por hacerle caso al mapa que ella misma dibuja.
+- **Las etapas de la lista se ven también en el teléfono.** No es que se
+  hubieran perdido: nunca estuvieron. El CSS las apagaba (`.proj-steps`) y
+  solo las encendía en escritorio, así que la lista del teléfono decía «1 de 4
+  etapas» y para saber cuáles había que entrar al encargo. Ahora salen en fila,
+  recortadas a cuatro —las pendientes primero— y el resto en «+N más».
+- **Un toque marca una etapa, y otro la desmarca**, desde la propia lista.
+  Antes eran cuatro pasos: abrir el encargo, buscarla, marcarla, volver.
+- **Y un ＋ etapa que se convierte en un campo ahí mismo.** Al dar Enter la
+  etapa se crea y el campo vuelve a quedar listo, porque las etapas se piensan
+  en tanda y no de una en una. Sin cuadro y sin cambiar de pantalla.
+
+**Por dentro:** el lienzo no se duplicó. Todo lo que cambia de un módulo a
+otro pasa por `figuraDe`, `estadoDeNodo`, `vistaDeRamaDe` y `listaDe`, con una
+regla que hay que mantener — si el nodo NO es de Proyectos, cada una devuelve
+lo que devolvía antes. Se comprobó midiendo la huella del SVG que dibuja
+Talentos antes y después: idéntica, letra por letra, en las seis escenas de
+prueba. Y la tarjeta de un encargo dejó de ser un `<button>` (no puede llevar
+botones dentro) para pasar a `<div>` con una zona que abre, el mismo reparto
+que ya usaban las misiones.
+
 ### 0.7.20.2 · 27 ago 2026
 Los datos del hero se leen y se alinean, y la prueba se puede juzgar.
 

@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.20.2";
+const VERSION = "0.7.21";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -605,6 +605,26 @@ function load() {
     if (!p.color) p.color = COLORS[i % COLORS.length];
     if (!p.icon) p.icon = ICON_LIST[(i * 4 + 1) % ICON_LIST.length];
     if (!Array.isArray(p.steps)) p.steps = [];
+    if (!p.status) p.status = "active";
+    /* ---- El encargo como nodo del mapa ----
+       Un encargo y un talento se parecen tanto que el lienzo puede dibujar
+       los dos; lo unico que le faltaba al encargo era de que depende y donde
+       esta puesto. Los campos nacen aqui y no en el formulario porque los
+       encargos de antes tambien tienen que poder entrar al mapa.
+
+       `mod` es la etiqueta que dice de que modulo es este nodo, y existe por
+       una razon concreta: el lienzo recibe objetos sueltos (desde un
+       arrastre, desde un menu, desde deshacer) y necesita saber en que
+       coleccion buscarlos y con que regla leer su estado — un talento esta
+       hecho con "completed" y un encargo con "done". */
+    p.mod = "proyectos";
+    if (!Array.isArray(p.requiere)) p.requiere = [];
+    if (p.modo !== "cualquiera") p.modo = "todos";
+    /* Si espera o no es del ENCARGO y no de cada flecha (Eduardo, 27 ago
+       2026): una flecha siempre dice "esto va despues de aquello", y este
+       interruptor dice si ademas hay que esperar. Apagado por defecto: el
+       mapa ordena, no encierra. */
+    p.espera = p.espera === true;
     if (!p.status) p.status = "active";
   });
   data.skills.forEach((s, i) => {

@@ -321,10 +321,22 @@ function renderProjects() {
   const branches = ramas;
   html += `<div class="sec-label full-row">Tus proyectos${
     branches.length > 1 ? `<span class="hint-hold">${pistaReordenarRamas()}</span>` : ""}</div>`;
+  let iRama = 0;
   for (const b of branches) {
     const list = all.filter(p => (p.branch || "General") === b)
       .sort((a, c) => (a.status === "dropped" || a.status === "done" ? 1 : 0) - (c.status === "dropped" || c.status === "done" ? 1 : 0));
     const liveN = list.filter(p => p.status === "active" || p.status === "paused").length;
+    /* Lista o mapa, y lo decide cada proyecto por separado (Eduardo, 27 ago
+       2026): un boton cambia la vista cuando quieras y ninguno de los dos
+       modos encierra al otro. Quien no lo toque no se encuentra nodos. */
+    const enMapa = enMapaProyectos(b);
+    /* Un numero y no el nombre de la rama: la clave acaba dentro del id de un
+       filtro del SVG, y un nombre con espacios o acentos da un id invalido
+       que Chrome ignora en silencio — el resplandor de los nodos desaparecia
+       sin ningun error a la vista. Los 500 son para no chocar con las claves
+       que reparte Talentos. */
+    const claveMapa = 500 + (iRama++);
+    const editandoMapa = enMapa && editandoRama(b, "proyectos");
     html += `
     <div class="branch-card" data-rid="${escapeAttr(b)}" style="padding-bottom:14px">
       <div class="branch-head" style="margin-bottom:12px">
@@ -333,11 +345,22 @@ function renderProjects() {
         <span class="count">${liveN} de ${list.length}</span>
         <div class="bhead-btns">
           ${branchMenu("p:" + b, [
+            { title: enMapa ? "Verlo como lista" : "Verlo como mapa",
+              hint: enMapa ? "Vuelve a las tarjetas de siempre" : "Dibuja los encargos y en qué orden van",
+              icon: enMapa ? "caja" : "expandir", onclick: `alternarMapaProyectos('${enJS(b)}')` },
+            ...(enMapa ? [
+              { title: editandoMapa ? "Salir de edición" : "Editar el mapa",
+                hint: editandoMapa ? "Vuelve al modo normal" : "Conecta y corta hilos",
+                icon: "lapiz", onclick: `toggleEditBranch('${enJS(b)}','proyectos')` },
+              { title: "Reacomodar el mapa", hint: "Recoloca los encargos según su orden",
+                icon: "expandir", onclick: `resetBranchLayout('${enJS(b)}','proyectos')` }
+            ] : []),
             { title: "Borrar este proyecto", hint: list.length === 0 ? "Está vacío" : (list.length === 1 ? "Se va también su único encargo" : `Se van también sus ${list.length} encargos`), icon: "bote", danger: true, onclick: `deleteBranch('projects','${enJS(b)}')` }
           ])}
           <button class="badd" onclick="openProjectForm(null, '${enJS(b)}')" aria-label="Añadir encargo a ${escapeAttr(b)}">＋</button>
         </div>
       </div>
+      ${enMapa ? mapaDeProyecto(b, editandoMapa, claveMapa) : `
       <div class="proj-list" data-branch="${escapeAttr(b)}" data-soltar=".proj-card">
         ${!list.length ? `<p class="col-vacia">Arrastra aquí el encargo que quieras, o crea uno con el ＋.</p>` : ""}
         ${list.map(p => {
@@ -347,7 +370,9 @@ function renderProjects() {
           const col = p.color || "#5fe0b0";
           const doneN = (p.steps || []).filter(s => s.done).length;
           return `
-          <button class="proj-card ${dim ? "dim" : ""}" data-rid="${p.id}" onclick="openProject('${p.id}')" style="${tonos("pc", col)}">
+          <div class="proj-card ${dim ? "dim" : ""}" data-rid="${p.id}" style="${tonos("pc", col)}">
+            <div class="proj-abre" role="button" tabindex="0" onclick="openProject('${p.id}')"
+                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProject('${p.id}')}">
             <div class="proj-top">
               <span class="proj-ic" style="background:${velo(col, "22")};color:${tinta(col)}">${icon(p.icon, 19)}</span>
               <span class="proj-name">${escapeHtml(p.name)}</span>
@@ -358,16 +383,11 @@ function renderProjects() {
               <span>${doneN} de ${(p.steps || []).length} etapas · <b>${prog}%</b></span>
               <span style="color:${h.color}">${h.label}</span>
             </div>
-            ${(p.steps || []).length ? `
-            <div class="proj-steps">
-              ${p.steps.map(s => `
-                <span class="pstep ${s.done ? "ok" : ""}">
-                  <i>${s.done ? icon("check", 11) : ""}</i>${escapeHtml(s.name)}
-                </span>`).join("")}
-            </div>` : ""}
-          </button>`;
+            </div>
+            ${etapasEnLista(p)}
+          </div>`;
         }).join("")}
-      </div>
+      </div>`}
     </div>`;
   }
   el.innerHTML = html;
@@ -385,10 +405,71 @@ function renderProjects() {
      cabecera ya es una franja ancha y vacía, y es justo donde la mano va a
      agarrar una columna entera. Los botones que viven ahí (el ＋ y el menú)
      quedan fuera para que sigan siendo botones. */
+  /* Las pastillas y el campo quedan fuera del arrastre: agarrar una etapa
+     para marcarla no puede empezar a mover la tarjeta, y en el teléfono un
+     campo de texto que se arrastra no se puede escribir. */
   hacerReordenable(el, ".proj-card", reacomodarEncargos,
-    (e) => !e.target.closest(".branch-head"));
+    (e) => !e.target.closest(".branch-head") && !e.target.closest(".proj-steps"));
   hacerReordenable(el, ".branch-card", reacomodarRamas,
     (e) => !!e.target.closest(".branch-head") && !e.target.closest("button"));
+  /* Los mapas se enganchan igual que los de Talentos y en el mismo orden:
+     primero el editor (que solo hay uno a la vez), luego el arrastre normal y
+     el clic derecho, y al final el encuadre. Ver renderTree. */
+  if (editMod === "proyectos" && editBranch && enMapaProyectos(editBranch)) attachEditHandlers(el);
+  attachPanHandlers(el);
+  attachCtxHandlers(el);
+  encuadrarLienzos(el);
+  /* Y si se estaba escribiendo una etapa, el campo vuelve. Va al final, con
+     el DOM ya puesto. */
+  if (etapaAbiertaEn) {
+    const sigue = etapaAbiertaEn;
+    etapaAbiertaEn = null;
+    nuevaEtapaEnLista(sigue);
+  }
+}
+
+/* ================= El mapa de un proyecto =================
+   La segunda vista de un proyecto: los mismos encargos, dibujados como nodos
+   y unidos por en que orden van. No sustituye a la lista — el boton del menu
+   cambia de una a otra cuando quieras — y por eso quien no lo pida no se topa
+   con nodos nunca.
+
+   Lo que el mapa enseña y la lista no puede: que encargos pueden ir en
+   paralelo y cuales estan esperando a otro. Si algun dia una conexion deja de
+   cambiar lo que la app te sugiere como siguiente paso, este mapa se habra
+   convertido en un dibujo bonito y habra que quitarlo. */
+
+function enMapaProyectos(b) {
+  return !!(state.ui && state.ui.mapaProyectos && state.ui.mapaProyectos[b]);
+}
+
+function alternarMapaProyectos(b) {
+  state.ui = state.ui || {};
+  state.ui.mapaProyectos = state.ui.mapaProyectos || {};
+  if (!state.ui.mapaProyectos[b]) state.ui.mapaProyectos[b] = true;
+  else {
+    delete state.ui.mapaProyectos[b];
+    // Salir de la vista no puede dejar el modo edicion encendido a ciegas
+    if (editandoRama(b, "proyectos")) editBranch = null;
+  }
+  save();
+  renderProjects();
+}
+
+function mapaDeProyecto(b, editando, clave) {
+  const nodes = vistaDeRamaProyectos(b);
+  if (!nodes.length) {
+    return `<p class="col-vacia">Todavía no hay encargos en este proyecto. Créale el primero con el ＋.</p>`;
+  }
+  /* `data-mod` es lo que le dice al lienzo de que coleccion es este mapa. Sin
+     el, un arrastre hecho aqui habria ido a buscar el nodo entre los talentos
+     y no habria encontrado nada. Ver attachPanHandlers. */
+  return `
+    <div class="const-wrap ${editando ? "editing" : ""}" data-branch="${escapeAttr(b)}" data-mod="proyectos">${
+      constellation(nodes, clave, editando, b, "proyectos")}</div>
+    ${editando
+      ? `<div class="const-hint edit">Arrastra para acomodar · tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno</div>`
+      : `<div class="const-hint">Toca un encargo para abrirlo · arrástralo para acomodarlo · clic derecho para conectar, crear y más</div>`}`;
 }
 
 /* ---- Orden de las ramas de Proyectos ----
@@ -437,6 +518,105 @@ function reacomodarEncargos() {
   save();
   renderProjects();
   if (mudados.length === 1) toast(`${mudados[0].name} ahora vive en ${mudados[0].branch}`, "hecho");
+}
+
+/* ================= Las etapas dentro de la tarjeta =================
+   En escritorio salen todas, como salían. En el teléfono se recortan, que
+   era la condición de Eduardo: «sin hacer el scroll demasiado largo». Cuatro
+   y el resto en «+N más», que abre el encargo.
+
+   Cuáles se enseñan cuando hay que recortar: las que FALTAN, en su orden. Una
+   etapa ya hecha en un encargo a medias interesa menos que la siguiente que
+   toca, y el avance ya lo cuenta la barra de arriba. Si no falta ninguna se
+   enseñan las últimas hechas, que ahí el mensaje es «esto ya está».
+
+   Un encargo terminado o descartado no lleva el ＋: sus etapas ya no son una
+   decisión, y ofrecer añadir una invitaría a reabrirlo por la puerta de
+   atrás. Marcarlas sigue permitido, para poder corregir. */
+const ETAPAS_EN_MOVIL = 4;
+
+function etapasEnLista(p) {
+  const st = p.steps || [];
+  const cerrado = p.status === "done" || p.status === "dropped";
+  const pj = enJS(p.id);
+  if (!st.length && cerrado) return "";
+
+  let ver = st, resto = 0;
+  if (!isDesktop() && st.length > ETAPAS_EN_MOVIL) {
+    const faltan = st.filter(s => !s.done);
+    const base = faltan.length ? faltan : st.slice(-ETAPAS_EN_MOVIL);
+    ver = base.slice(0, ETAPAS_EN_MOVIL);
+    resto = st.length - ver.length;
+  }
+
+  const chips = ver.map(s => `
+    <button class="pstep ${s.done ? "ok" : ""}" aria-pressed="${s.done}"
+      onclick="event.stopPropagation();toggleStep('${pj}','${enJS(s.id)}')"
+      aria-label="${s.done ? "Desmarcar" : "Marcar"} la etapa ${escapeAttr(s.name)}">
+      <i>${s.done ? icon("check", 11) : ""}</i>${escapeHtml(s.name)}
+    </button>`).join("");
+
+  const mas = resto
+    ? `<button class="pstep more" onclick="event.stopPropagation();openProject('${pj}')"
+         aria-label="Ver las otras ${resto} etapas">+${resto} más</button>`
+    : "";
+
+  const anadir = cerrado ? "" : `
+    <button class="pstep add" data-add="${escapeAttr(p.id)}"
+      onclick="event.stopPropagation();nuevaEtapaEnLista('${pj}')"
+      aria-label="Añadir una etapa a ${escapeAttr(p.name)}">＋ etapa</button>`;
+
+  return `<div class="proj-steps">${chips}${mas}${anadir}</div>`;
+}
+
+/* ---- Escribir la etapa donde estás ----
+   El ＋ se convierte en un campo en su propio sitio. No abre un cuadro ni
+   cambia de pantalla: el teclado sube y ya estás escribiendo.
+
+   Al dar Enter la etapa se crea y el campo VUELVE a quedar abierto, porque
+   las etapas casi nunca se añaden de una en una — se piensan en tanda. Esa
+   es la razón de `etapaAbiertaEn`: renderProjects rehace la tarjeta entera y
+   se llevaría el campo por delante. */
+let etapaAbiertaEn = null;
+
+function nuevaEtapaEnLista(prId) {
+  const btn = document.querySelector(`.pstep.add[data-add="${cssEscape(prId)}"]`);
+  if (!btn) return;
+  const pr = state.projects.find(x => x.id === prId);
+  if (!pr) return;
+  etapaAbiertaEn = prId;
+  const caja = document.createElement("span");
+  caja.className = "pstep escribiendo";
+  caja.innerHTML = `<i></i><input type="text" maxlength="70" placeholder="Nueva etapa…"
+    aria-label="Nombre de la etapa nueva de ${escapeAttr(pr.name)}">`;
+  btn.replaceWith(caja);
+  const input = caja.querySelector("input");
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); guardarEtapaEnLista(prId, input.value); }
+    if (e.key === "Escape") { e.preventDefault(); etapaAbiertaEn = null; renderProjects(); }
+  });
+  /* Al salir se cierra sola si está vacía. Con texto NO se descarta: perder
+     lo escrito por tocar fuera sin querer es lo que hace que la gente deje de
+     confiar en escribir aquí. Se guarda. */
+  input.addEventListener("blur", () => {
+    if (!input.isConnected) return;
+    if (input.value.trim()) guardarEtapaEnLista(prId, input.value);
+    else { etapaAbiertaEn = null; renderProjects(); }
+  });
+  input.focus();
+}
+
+function guardarEtapaEnLista(prId, valor) {
+  const pr = state.projects.find(x => x.id === prId);
+  const name = (valor || "").trim();
+  if (!pr) return;
+  if (!name) { etapaAbiertaEn = null; renderProjects(); return; }
+  pr.steps = pr.steps || [];
+  pr.steps.push({ id: uid(), name, done: false, at: null });
+  projectLog(pr, `Etapa añadida: ${name}`);
+  save();
+  etapaAbiertaEn = prId;      // el campo vuelve a abrirse tras el repintado
+  renderProjects();
 }
 
 function openProject(id) {
@@ -504,7 +684,42 @@ function renderProjectDetail() {
       </div>
     </div>`;
 
-  const panelesHtml = `
+  /* ---- De que va despues ----
+     Solo aparece cuando el encargo tiene requisitos. Sin ellos, un panel
+     vacio explicando una funcion que no se esta usando seria ruido en la
+     ficha de todo el mundo — y a los mapas se entra por gusto.
+
+     El interruptor vive AQUI y no en cada flecha (Eduardo, 27 ago 2026): una
+     flecha siempre dice "esto va despues de aquello", y esto dice si ademas
+     hay que esperar a que termine. */
+  const antes = requisitosVivos(pr);
+  const faltan = antes.filter(r => r.status !== "done");
+  const ordenHtml = !antes.length ? "" : `
+    <div class="panel alt">
+      <h3>Va después de</h3>
+      ${antes.map(r => `
+        <button class="att-item" onclick="openProject('${r.id}')">
+          <span class="dot" style="background:${velo(r.color || "#5fe0b0", "22")};color:${tinta(r.color || "#5fe0b0")}">${icon(r.icon, 17)}</span>
+          <span class="tx"><b>${escapeHtml(r.name)}</b><span>${
+            r.status === "done" ? "Terminado" : `${projectProgress(r)}% hecho`}</span></span>
+          <span class="go">→</span>
+        </button>`).join("")}
+      ${antes.length > 1 ? `<p class="settings-note">${
+        modoDe(pr) === "cualquiera"
+          ? "Basta con que termine cualquiera de ellos."
+          : "Hacen falta todos."} Se cambia en el mapa, con el círculo <b>Y/O</b>.</p>` : ""}
+      <p class="settings-note">${
+        pr.espera
+          ? (faltan.length
+              ? "Este encargo <b>espera su turno</b>: no lo puedes avanzar hasta que termine lo de arriba."
+              : "Este encargo esperaba su turno, y ya le toca.")
+          : "Este encargo <b>solo va después</b>: la app deja de sugerírtelo hasta que toque, pero puedes adelantarlo cuando quieras."}</p>
+      <button class="btn ${pr.espera ? "btn-ghost" : "btn-linea"} btn-block" onclick="alternarEspera('${pr.id}')">${
+        pr.espera ? "Dejar que lo adelante" : "Que espere su turno"}</button>
+    </div>
+`;
+
+  const panelesHtml = ordenHtml + `
     <div class="panel alt" style="border-color:${h.key === "stalled" ? "rgba(255,138,112,0.45)" : "var(--borde-panel)"}">
       <h3 style="color:${h.color}">${h.label}</h3>
       <p class="settings-note" style="margin:0">${escapeHtml(h.note)}</p>
@@ -1028,7 +1243,7 @@ function renderTree() {
     const nodes = branchNodes(b);
     const reales = talentosDeRama(b);
     const collapsed = isCollapsed(b);
-    const editing = editBranch === b;
+    const editing = editandoRama(b, "talentos");
     const doneN = reales.filter(n => n.status === "completed").length;
     const ba = escapeAttr(b);
     /* Dos escapes para el mismo nombre, y no es redundancia: `ba` va en

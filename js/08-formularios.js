@@ -799,6 +799,11 @@ function saveProject() {
     state.projects.push({
       id: uid(), name, branch, desc, icon: prIcon, color: prColor,
       status: "active", steps: formSteps, skillId, xpReward,
+      /* Los campos del mapa, tambien aqui y no solo en la migracion de la
+         carga: un encargo creado por este formulario vivia sin la etiqueta
+         `mod` hasta la siguiente recarga, y sin ella el lienzo lo buscaba
+         entre los talentos y no lo encontraba. */
+      mod: "proyectos", requiere: [], modo: "todos", espera: false,
       createdAt: todayKey(), lastActivity: todayKey(), completedAt: null,
       history: [{ date: todayKey(), at: stamp(), event: `Encargo creado en el proyecto ${branch}` }]
     });
