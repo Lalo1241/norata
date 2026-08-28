@@ -257,9 +257,34 @@ function planNombreSimulado() {
    marzo de 2026" clavado en el código empieza a mentir en cuanto pasa esa
    fecha, y lo que se está revisando aquí es precisamente cómo se cuentan los
    días que quedan. */
+/* El plan de la cuenta administradora. No se compró: se tiene por ser quien
+   sostiene esto, y por un motivo práctico —hay que poder mirar la app entera
+   sin toparse con los topes cada dos pantallas—.
+
+   NO se le pone una fila en `suscripciones`, que sería la otra forma de
+   hacerlo, y el motivo es que ensuciaría los números del propio negocio: esa
+   fila contaría como una venta en el MRR, sumaría uno a «pagando ahora» y
+   **gastaría uno de los 200 lugares de fundador**. Un plan regalado no es una
+   venta y no puede parecerlo en el panel donde se mira si esto se sostiene.
+
+   `deCasa` lo distingue de un fundador de verdad, para que la pantalla del
+   plan no le diga que pagó $890 cuando no los pagó. */
+const PLAN_DE_CASA = {
+  plan: "fundador", pro: true, estado: "activa",
+  vence_el: null, renueva: false, compro: "fundador", deCasa: true
+};
+
 function planConSimulacion(real) {
   const cual = planLeerSimulado();
-  if (!cual) return real;
+
+  /* Sin simulación puesta, la cuenta administradora ve Fundador. Va DESPUÉS de
+     mirar la simulación a propósito: si está probando cómo se ve el plan
+     Gratuito, lo que manda es la prueba — si no, la trastienda no podría
+     mirar nunca la app como la ve todo el mundo. */
+  if (!cual) {
+    if (typeof esAdmin !== "undefined" && esAdmin && !real.pro) return PLAN_DE_CASA;
+    return real;
+  }
   const en = (dias) => new Date(Date.now() + dias * 864e5).toISOString();
 
   if (cual === "libre") {
@@ -284,6 +309,19 @@ function planConSimulacion(real) {
     return { plan: "fundador", pro: true, estado: "activa", vence_el: null, renueva: false, compro: "fundador" };
   }
   return real;
+}
+
+/* Volver a decidir qué plan se enseña, sin preguntarle nada al servidor. La
+   llama `revisarAdmin` cuando el servidor contesta que sí: esa respuesta llega
+   después de `planCargar`, así que sin esto la cuenta administradora se
+   quedaba con el plan que tuviera hasta la siguiente recarga. */
+function planRefrescar() {
+  PLAN = planConSimulacion(PLAN_REAL || PLAN);
+  if (typeof renderAjustes === "function") renderAjustes();
+  if (typeof renderPanelPlan === "function") renderPanelPlan();
+  if (typeof showView === "function" && typeof activeMainView !== "undefined") {
+    showView(activeMainView || "summary");
+  }
 }
 
 /* Cambiar de plan simulado. No vuelve a preguntar al servidor: `PLAN_REAL` ya
@@ -779,7 +817,12 @@ function planCabeceraHTML() {
   } else {
     titulo = p.nombre || PLAN.plan;
     precio = PLAN.plan === "fundador" ? p.precio + ", una sola vez" : p.precio + " " + p.periodo;
-    if (PLAN.estado === "impago") {
+    if (PLAN.deCasa) {
+      /* Ni «lo pagaste» ni un precio: no lo pagó. Decírselo bien cuesta una
+         línea y evita que la única pantalla que habla de dinero mienta. */
+      precio = "Cuenta administradora";
+      nota = "Tienes Norata entera abierta por sostenerla, no por una compra. No hay ningún cobro asociado a esta cuenta.";
+    } else if (PLAN.estado === "impago") {
       nota = "No pudimos cobrar tu último recibo. Revisa tu tarjeta para que no se interrumpa; hay tres días de margen desde la fecha de cobro.";
     } else if (PLAN.plan === "fundador") {
       nota = "Lo pagaste una vez y es para siempre. No hay nada que renovar ni que cancelar.";
@@ -835,8 +878,14 @@ function planActivoHTML() {
   /* Los dos datos que se buscan al entrar: cuánto se paga y cuándo toca. Van
      en su propia lista y no dentro del párrafo de la cabecera, porque un dato
      metido en una frase hay que leerse la frase entera para encontrarlo. */
-  const filas = [["Qué pagas", PLAN.plan === "fundador" ? p.precio + ", una sola vez" : p.precio + " " + p.periodo]];
-  if (PLAN.plan === "fundador") {
+  /* La cuenta de casa no tiene recibo que enseñar ni fecha que mirar, así que
+     no se le pinta la lista: dos renglones diciendo «—» ocupan lo mismo que
+     dos renglones diciendo algo. */
+  const filas = PLAN.deCasa ? [] :
+    [["Qué pagas", PLAN.plan === "fundador" ? p.precio + ", una sola vez" : p.precio + " " + p.periodo]];
+  if (PLAN.deCasa) {
+    /* nada */
+  } else if (PLAN.plan === "fundador") {
     filas.push(["Hasta cuándo", "Para siempre"]);
   } else if (PLAN.vence_el) {
     filas.push([PLAN.renueva ? "Siguiente cobro" : "Termina el", fechaCorta(PLAN.vence_el)]);
@@ -851,10 +900,11 @@ function planActivoHTML() {
     /* Fundador no tiene nada que gestionar —ni tarjeta que cambiar ni
        suscripción que cancelar—, pero sí recibos que mirar, así que el botón
        se queda para todos y solo cambia lo que promete. */
-    `<button class="btn btn-soft btn-block" style="margin-top:14px" onclick="irAlPortal(this)">${
-      PLAN.plan === "fundador" ? "Ver mi recibo" : "Editar suscripción"
-    }</button>
-     ` + planPortalNotaHTML();
+    (PLAN.deCasa ? "" :
+      `<button class="btn btn-soft btn-block" style="margin-top:14px" onclick="irAlPortal(this)">${
+        PLAN.plan === "fundador" ? "Ver mi recibo" : "Editar suscripción"
+      }</button>
+       ` + planPortalNotaHTML());
 }
 
 /* El rótulo de la tarjeta destacada. "El que sale mejor" sonaba a rebaja de
