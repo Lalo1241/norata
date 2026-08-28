@@ -21,3 +21,8 @@ desktop.ini
 # Basura que genera la CLI de Supabase al conectarse con el proyecto.
 # No es del proyecto y se rehace sola.
 supabase/.temp/
+
+# Banco de pruebas local del lienzo. Vive fuera de la app para poder mirar
+# un cambio antes de subirlo, y NO se publica: no está en index.html ni en
+# la lista ASSETS de sw.js.
+pruebas/

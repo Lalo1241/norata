@@ -800,7 +800,7 @@ function saveProject() {
       id: uid(), name, branch, desc, icon: prIcon, color: prColor,
       status: "active", steps: formSteps, skillId, xpReward,
       createdAt: todayKey(), lastActivity: todayKey(), completedAt: null,
-      history: [{ date: todayKey(), at: stamp(), event: `Proyecto creado en la rama ${branch}` }]
+      history: [{ date: todayKey(), at: stamp(), event: `Encargo creado en el proyecto ${branch}` }]
     });
     save();
     toast(`Encargo "${name}" creado 🚩`);

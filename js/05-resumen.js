@@ -1149,7 +1149,11 @@ function renderHome() {
       <div class="label">Nivel de tu personaje</div>
       <div class="big"><b>${totalLevels}</b><span> niveles</span></div>
     </div>`,
-    stats: [
+    /* Con la prueba encendida, los cuatro huecos los decide el motor de
+       informes: cambian los acumulados por lo que se movió esta semana y cada
+       uno trae su flecha. Apagada, el panel de siempre — que es lo que ve
+       quien no pidió la prueba (ver el script de arriba de index.html). */
+    stats: pruebaInformes() ? statsPanelHabilidades({ decaying }) : [
       { n: skills.length, t: "Habilidades" },
       { n: fmtXp(totalXp), t: "XP total" },
       { n: skills.filter(s => s.permanent).length, t: "Blindadas", tone: "mint" },
@@ -1730,7 +1734,11 @@ function sectionHero({ scene, lead, stats, focus }) {
         <div class="sh-main">
           <div class="sh-lead">${lead}</div>
           <div class="sh-stats">
-            ${stats.map(s => `<div><div class="n ${s.tone || ""}">${s.n}</div><div class="t">${s.t}</div></div>`).join("")}
+            ${/* `s.d` es la flecha de comparación, y llega ya como HTML porque
+                  la arma `flechaHTML` en js/10f-informes.js — quien pinta no
+                  decide contra qué se compara. Va entre el número y el rótulo:
+                  debajo del rótulo se leía como parte del nombre del dato. */
+              stats.map(s => `<div><div class="n ${s.tone || ""}">${s.n}</div>${s.d || ""}<div class="t">${s.t}</div></div>`).join("")}
           </div>
           <${focus.onclick ? `button class="sh-focus" onclick="${focus.onclick}"` : `div class="sh-focus"`}>
             <span class="shf-k" style="color:${focus.color}">${escapeHtml(focus.k)}</span>
@@ -1846,25 +1854,47 @@ function ramasDe(kind) {
 async function crearRama(kind) {
   const esTalentos = kind === "perks";
   /* El tope de ramas es solo de Talentos: `LIMITES.ramas` habla del árbol, y
-     las ramas de Proyectos no tienen tope en ningún plan. Se pregunta ANTES de
+     los proyectos no tienen tope en ningún plan. Se pregunta ANTES de
      pedir el nombre, para no hacer escribir algo que se va a tirar. */
   if (esTalentos && !cabeUnoMas("ramas", ramasDe("perks").length)) {
     topeAlcanzado("ramas");
     return;
   }
   const nombre = await askText(
-    esTalentos ? "Nueva rama de talentos" : "Nueva rama de Proyectos", "", "Crear",
+    esTalentos ? "Nueva rama de talentos" : "Nueva rama de proyectos", "", "Crear",
     esTalentos
       ? "Un ámbito donde agrupar talentos: un oficio, un instrumento, un plan."
-      : "Un ámbito donde agrupar proyectos: un cliente, la casa, un negocio.",
+      : "Algo que estás construyendo: una mudanza, un lanzamiento, un trámite largo. Dentro van los encargos que lo hacen avanzar.",
     30);
   if (!nombre) return;
   const ramas = ramasDe(kind);
-  if (ramas.includes(nombre)) { toast(`Ya tienes una rama "${nombre}"`, "atencion"); return; }
+  /* ---- Cómo se llama cada cosa en Proyectos ----
+     La jerarquía, tal como la fijó Eduardo el 27 ago 2026:
+
+       rama de proyectos  →  encargos  →  etapas
+
+     Y el detalle que parece un capricho y no lo es: **la rama de proyectos,
+     una vez creada, se llama PROYECTO**. Se crean ramas y se tienen
+     proyectos. Por eso este cuadro dice «Nueva rama de proyectos» y el aviso
+     de dos líneas más abajo dice «Proyecto X creado»: no es una
+     inconsistencia, es el ciclo de vida de la misma cosa.
+
+     Los encargos son las tarjetas de dentro —«son como quests», palabras
+     suyas— y las etapas son los pasos de cada quest.
+
+     Él mismo avisó de que suena raro y de que parece faltar un eslabón. Se
+     queda así a propósito: es como entiende hoy el asunto, y el vocabulario
+     de la app tiene que ser el suyo y no uno más ordenado que nadie usa. Si
+     algún día aparece el eslabón que falta, este comentario es el sitio por
+     donde empezar. */
+  if (ramas.includes(nombre)) {
+    toast(`Ya tienes ${esTalentos ? "una rama" : "un proyecto"} "${nombre}"`, "atencion");
+    return;
+  }
   state.ui[claveRamas(kind)] = [...ramas, nombre];
   save();
   if (esTalentos) renderTree(); else renderProjects();
-  toast(`Rama "${nombre}" creada`, "hecho");
+  toast(`${esTalentos ? "Rama" : "Proyecto"} "${nombre}" ${esTalentos ? "creada" : "creado"}`, "hecho");
 }
 
 /* Al renombrar, la rama conserva su sitio en la lista. Si se juntó con otra,
@@ -1886,13 +1916,19 @@ async function deleteBranch(kind, b) {
   const n = lista.length;
 
   const arrastra = fraseCantidad(n, singular, plural);
+  /* Cada módulo llama a su contenedor por su nombre: en Talentos es una rama y
+     en Proyectos es el proyecto entero. Un cuadro que dice «se borrará la
+     rama» cuando lo que se borra es un proyecto con sus encargos dentro le
+     pide a la persona que traduzca, y justo antes de confirmar algo que no se
+     deshace. */
+  const cont = esTalentos ? "la rama" : "el proyecto";
   const ok = await ask(
     (arrastra
-      ? `Se borrará la rama "${b}" y con ella ${arrastra}.`
-      : `Se borrará la rama "${b}", que está vacía.`) + "\n\n" +
+      ? `Se borrará ${cont} "${b}" y con ${esTalentos ? "ella" : "él"} ${arrastra}.`
+      : `Se borrará ${cont} "${b}", que está ${esTalentos ? "vacía" : "vacío"}.`) + "\n\n" +
     (esTalentos && n ? "También se pierden las conexiones que llegaban a esos talentos desde otras ramas.\n\n" : "") +
     "Esto no se puede deshacer.",
-    "Borrar la rama", true);
+    esTalentos ? "Borrar la rama" : "Borrar el proyecto", true);
   if (!ok) return;
 
   state.ui[claveRamas(kind)] = ramasDe(kind).filter(n => n !== b);
@@ -1958,20 +1994,20 @@ async function renombrarRama(b) {
    modo edición abierto— y unificarlas dejaría una función con dos mitades que
    nunca se ejecutan juntas. */
 async function renombrarRamaProyectos(b) {
-  const nuevo = await askText(`Renombrar la rama "${b}"`, b, "Renombrar",
+  const nuevo = await askText(`Renombrar el proyecto "${b}"`, b, "Renombrar",
     "Se reescribe en todos sus encargos.");
   if (nuevo === null || !nuevo || nuevo === b) return;
 
   const existe = state.projects.some(p => (p.branch || "General") === nuevo);
   if (existe && !await ask(
-    `Ya tienes una rama llamada "${nuevo}". Los encargos de "${b}" se van a juntar con los suyos en una sola rama.`,
-    "Juntarlas")) return;
+    `Ya tienes un proyecto llamado "${nuevo}". Los encargos de "${b}" se van a juntar con los suyos en uno solo.`,
+    "Juntarlos")) return;
 
   state.projects.forEach(p => { if ((p.branch || "General") === b) p.branch = nuevo; });
   renombrarEnRamas("projects", b, nuevo);
   save();
   renderProjects();
-  toast(existe ? `Ramas juntadas en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
+  toast(existe ? `Proyectos juntados en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
 }
 
 /* Etiqueta de rama reutilizable: el mismo concepto en todas las secciones. */

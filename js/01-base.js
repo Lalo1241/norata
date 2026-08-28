@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.18.1";
+const VERSION = "0.7.20";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -817,6 +817,37 @@ function hourNow() {
   const p = tzParts(new Date(), { hour: "2-digit", hour12: false });
   const h = parseInt((p.find(x => x.type === "hour") || {}).value, 10);
   return isNaN(h) ? new Date().getHours() : h % 24;
+}
+
+/* Hora y minuto en la zona del perfil, como "HHMM".
+   Es lo que se le pega a cada marca de misión al nacer. Se empieza a guardar
+   ahora aunque la gráfica que la usa llegue después, y el motivo es que la
+   hora es el único dato de esta app que NO se puede reconstruir más tarde:
+   el día se sabe siempre, la hora solo si estaba puesta cuando pasó. Cada
+   semana sin esto es una semana que nunca podrá contestar "¿a qué hora
+   cumples?". */
+function hhmmNow() {
+  const p = tzParts(new Date(), { hour: "2-digit", minute: "2-digit", hour12: false });
+  const get = (t) => (p.find(x => x.type === t) || {}).value || "";
+  const h = String(get("hour")).padStart(2, "0");
+  /* Intl da "24" a medianoche en algunos entornos y "24:10" no es una hora. */
+  return (h === "24" ? "00" : h) + String(get("minute")).padStart(2, "0");
+}
+
+/* La hora de una marca de misión ("14:35"), o null si nació antes de que se
+   guardara. Las marcas son cadenas opacas que la sincronía une por igualdad
+   de texto (ver `fusionarMarcas`), así que la hora viaja DENTRO de la cadena
+   y no en una lista paralela: dos listas que hay que mantener a la par acaban
+   desincronizándose, y aquí la que manda es la de marcas — el número del día
+   sale de contarlas. Añadir un sufijo no rompe nada de eso, porque dos marcas
+   distintas siguen siendo dos cadenas distintas. */
+function horaDeMarca(marca) {
+  const m = /@(\d{4})$/.exec(String(marca || ""));
+  if (!m) return null;
+  const h = Number(m[1].slice(0, 2));
+  const min = Number(m[1].slice(2));
+  if (h > 23 || min > 59) return null;
+  return m[1].slice(0, 2) + ":" + m[1].slice(2);
 }
 
 /* Aritmética sobre claves de día: independiente de husos horarios. */

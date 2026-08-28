@@ -647,7 +647,14 @@ function activityDayCounts() {
     for (const e of (p.history || [])) if (e.date) add(e.date);
   }
   for (const ms of state.missions) {
-    for (const k of Object.keys(ms.log || {})) if (ms.log[k] > 0) add(k);
+    /* Con `missionCount` y no comparando el valor con cero: desde que una
+       marca es una lista con identidad propia en vez de un contador,
+       `ms.log[k] > 0` compara un array con un número y da falso SIEMPRE. El
+       efecto era invisible porque una misión enlazada a una habilidad sigue
+       marcando el día por su movimiento de XP; las que no tienen habilidad
+       —que son muchas— dejaron de contar para la racha sin que nadie lo
+       notara. */
+    for (const k of Object.keys(ms.log || {})) if (missionCount(ms, k) > 0) add(k);
   }
   return m;
 }
