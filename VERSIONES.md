@@ -53,7 +53,57 @@ Cuatro sitios, y son cuatro a propósito:
 ## La lista
 
 ### 0.7.33 · 28 ago 2026
-La flecha se pone encima, el mes entra en la racha, y el informe deja de bailar.
+La flecha se pone encima, el mes entra en la racha, el informe deja de bailar,
+y el panel de números empieza a decir algo.
+
+**La gráfica de los catorce días no tenía escala.** Tres rayas sin decir qué
+valían: un punto a media altura podía ser 3 personas o 300, y el único número
+escrito estaba en una frase DEBAJO del dibujo — que es donde nadie busca la
+escala de una gráfica. Ahora cada renglón lleva su cifra al lado (cero, la
+mitad y el máximo, redondeados y sin repetidos), y el del máximo va más marcado
+porque es la referencia contra la que se lee todo lo demás.
+
+**Y encima del dibujo, las cifras que una línea no puede decir:** la media
+diaria, el mejor día con su fecha, el total del periodo y **cómo va contra los
+siete días anteriores**, en verde o en coral. La comparación es contra los siete
+días previos y no contra la semana natural: la ventana es de catorce, así que
+parte por la mitad y las dos mitades miden lo mismo — comparar «esta semana»
+con «la pasada» un lunes sería comparar un día contra siete. Solo sale con las
+dos mitades completas: con menos historia el porcentaje es ruido, y un número
+inventado en un panel que existe para decidir es peor que un hueco.
+
+**El cobro decía «anual» a secas.** Una palabra suelta al lado de un número no
+dice si eso son personas, pesos o meses, y en la única caja de la app donde se
+cuenta dinero eso no puede pasar: ahora son «Plan mensual» y «Plan anual».
+Fundador se queda sin «Plan» delante a propósito — no es una suscripción, es un
+pago único, y meterlo en el mismo saco lo cuenta mal. Cada barra con su color:
+menta los que se renuevan y lila el fundador, el mismo lila de su anillo y su
+piedra desde 0.7.15.
+
+**Los reportes de gente salen de «Lo que se rompe» y tienen su propia caja.**
+Eran dos cosas distintas en una misma lista: un volcado de JavaScript siempre
+igual, y un mensaje que alguien se paró a escribir. Ahora:
+
+- **Se agrupan por dónde dicen que pasó**, no por el texto. Lo pidió Eduardo:
+  «no se pueden sumar en uno mismo si el contexto es distinto». Dos personas
+  contando dos cosas distintas de la misma pantalla no son «2×» de nada — son
+  dos historias, y sumarlas borra justo lo que las hace útiles. El lugar sale
+  del `[Talentos]` que escribe el propio formulario; lo que no lo traiga cae en
+  «Sin ubicar», que es honesto y no lo esconde.
+- **Al tocar un grupo se despliega la lista** con cada mensaje entero, su día y
+  su versión, sin sumar ni resumir. Se pueden abrir varios a la vez.
+- **La cuenta va a la derecha del título** y dice «5 reportes», y se enciende en
+  oro cuando hay algo sin ver.
+
+Y «Lo que se rompe» pasa a llamarse **«Lo que se rompe solo»**, con su propia
+cuenta de errores a la derecha: ahora que la otra caja existe, el nombre tiene
+que decir cuál de las dos es.
+
+**Una trampa que costó el panel entero:** `gruposAbiertos` ya era una función de
+Talentos, y los archivos de la app comparten un único ámbito global —son
+`<script>` sueltos, sin módulos—. Redeclararlo con `let` no da un aviso: parte
+el archivo con «Identifier has already been declared» y se lleva por delante
+todo lo que venía después. Ahora se llama `reportesAbiertos`.
 
 **La flecha de comparación va ARRIBA de la cifra**, y lo cazó Eduardo mirando
 el hero de Habilidades. Debajo, el hueco vacío que reservan las columnas sin
