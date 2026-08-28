@@ -570,11 +570,24 @@ async function portadaEntrada(correo, mensaje) {
   if (pendiente) { mostrarRescate(pendiente); return; }
 
   if (enLaPuerta()) {
-    /* La sesión ya está escrita en el aparato (la escribió `sbEntrar`). Lo que
-       queda es avisar a la app de que llega alguien recién entrado, para que
-       haga la adopción, y salir de aquí.
+    /* GUARDAR LA SESIÓN, y esta es la línea que faltaba en 0.7.14.
+       `portadaEntrar` deja la credencial en `sync.cfg` y nada más: quien la
+       escribía en el aparato era `saveSync()` desde el final de lo que hoy es
+       `adoptarSesion`, y eso ya no corre aquí. Sin esto la puerta mandaba a la
+       app, la app no encontraba sesión, rebotaba de vuelta a la puerta, y así
+       para siempre — el bucle que dejó a todo el mundo atorado en el login.
 
-       El aviso va en `sessionStorage` y no en la dirección: por la dirección
+       Se guarda lo MÍNIMO para que `syncReady()` diga que sí. Todo lo demás
+       —el dueño, la marca, la revisión, el nombre del aparato— lo pone
+       `adoptarSesion` al otro lado, y `sync.dueño` en particular NO se toca
+       aquí a propósito: es lo que le permite a la app darse cuenta de que se
+       está entrando con otra cuenta y apartar los datos de la anterior. */
+    sync.enabled = true;
+    sync.entrada = "cuenta";
+    saveSync();
+
+    /* Y el aviso de que llega alguien recién entrado, para que la app haga la
+       adopción. Va en `sessionStorage` y no en la dirección: por la dirección
        viajaría a la barra, al historial y a lo que se copie al compartir, y lo
        que hay que pasar es «acaba de entrar», que no es asunto de nadie más.
 

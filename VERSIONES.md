@@ -52,6 +52,30 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.14.1 · 27 ago 2026
+La puerta se olvidaba de guardar la sesión.
+
+- **Entrar dejaba a todo el mundo atorado en el login**, y la causa cabe en una
+  línea: `portadaEntrar` deja la credencial en `sync.cfg` **y nada más**. Quien
+  la escribía en el aparato era `saveSync()`, desde el final de lo que en
+  0.7.14 pasó a ser `adoptarSesion` — o sea, del otro lado del reboto. Así que
+  la puerta mandaba a la app, la app no encontraba sesión guardada, rebotaba de
+  vuelta a la puerta, y así para siempre. Ahora la puerta guarda **lo mínimo
+  para que `syncReady()` diga que sí** (`enabled` y `entrada`) antes de mandar;
+  el resto lo sigue poniendo `adoptarSesion`, y **`sync.dueño` se sigue sin
+  tocar allí**, que es lo que le permite a la app darse cuenta de que se entra
+  con otra cuenta.
+- **Y el fallo estaba escrito en un comentario que decía lo contrario:** «la
+  sesión ya está escrita en el aparato (la escribió `sbEntrar`)». No era
+  verdad, no se comprobó, y era la línea que sostenía todo el reboto.
+- **Cortafuegos del rebote.** Esta es la puerta de la app y no puede quedarse
+  dando vueltas pase lo que pase: al tercer viaje se deja de rebotar y el
+  formulario se pinta dentro de la app, como antes de 0.7.14. Se pierde la
+  separación de pantallas, que es un lujo; no se pierde la forma de entrar, que
+  no lo es. La cuenta se borra en cuanto se llega a algún sitio.
+- Cerrar sesión sí llevaba a `/login/` — probado en el ciclo completo. Lo que
+  se vio antes era la pestaña con la versión anterior todavía cargada.
+
 ### 0.7.14 · 27 ago 2026
 La puerta se muda a su propia dirección.
 

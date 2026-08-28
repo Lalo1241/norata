@@ -143,7 +143,31 @@ showView("summary");
      `veniaAOlvidar` frena el reboto a propósito: ese camino abre la portada en
      esta misma página con el correo puesto, y mandarlo a la puerta perdería
      por el camino lo que el enlace traía. */
-  if (!veniaAOlvidar && portadaHaceFalta()) { location.replace("login/"); return; }
+  if (!veniaAOlvidar && portadaHaceFalta()) {
+    /* ---- Cortafuegos del rebote ----
+       Esta es la puerta de la app y no puede quedarse dando vueltas pase lo
+       que pase. Si la puerta manda aquí y aquí se decide devolverla, hay un
+       bucle: la persona ve el login parpadear y no entra nunca — que es
+       exactamente lo que pasó en 0.7.14, cuando la puerta se olvidaba de
+       guardar la sesión antes de mandar.
+
+       Aquel fallo ya está arreglado en su sitio. Esto es la red de debajo: al
+       tercer viaje se deja de rebotar y se pinta el formulario AQUÍ, en la
+       app. Se pierde la separación de pantallas, que es un lujo; no se pierde
+       la forma de entrar, que no lo es. */
+    let vueltas = 0;
+    try { vueltas = Number(sessionStorage.getItem("norata-rebotes") || 0) || 0; } catch (e) {}
+    if (vueltas < 2) {
+      try { sessionStorage.setItem("norata-rebotes", String(vueltas + 1)); } catch (e) {}
+      location.replace("login/");
+      return;
+    }
+    /* Se cae a la portada de aquí abajo, como se hacía antes de 0.7.14. */
+  } else {
+    /* Se llegó a algún sitio: la cuenta de rebotes vuelve a cero para que un
+       cierre de sesión más tarde tenga sus tres viajes otra vez. */
+    try { sessionStorage.removeItem("norata-rebotes"); } catch (e) {}
+  }
 
   /* Y quien llega rebotado DESDE la puerta trae una marca: la sesión ya está
      guardada, pero este dispositivo todavía no ha hecho sitio para ella —bajar
