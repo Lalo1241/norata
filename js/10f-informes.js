@@ -100,11 +100,12 @@ function diaDeSello(at) {
      muchos pendientes sueltos sin haber fallado a nada.
    - `porHora`: solo las marcas que llevan hora. Las de antes del 27 de agosto
      de 2026 no la llevan y no se pueden inventar. */
-function metricasMisiones(r) {
+function metricasMisiones(r, D) {
+  const datos = D || state;
   const dias = diasDe(r);
   const m0 = { marcas: 0, tocaban: 0, completas: 0, porHora: new Array(24).fill(0), porDiaSemana: new Array(7).fill(0), conHora: 0 };
 
-  for (const m of state.missions) {
+  for (const m of datos.missions) {
     for (const k of dias) {
       if (m.createdAt && k < m.createdAt) continue;
       const n = missionCount(m, k);
@@ -151,14 +152,15 @@ function familiaDeFuente(e) {
   return "practica";
 }
 
-function metricasHabilidades(r) {
+function metricasHabilidades(r, D) {
+  const datos = D || state;
   const out = {
     ganada: 0, perdida: 0, minutos: 0, niveles: 0, sesiones: 0,
     porFuente: { misiones: 0, talentos: 0, proyectos: 0, practica: 0 },
     porHabilidad: new Map()
   };
 
-  for (const s of state.skills) {
+  for (const s of datos.skills) {
     let enPeriodo = 0;   // lo que se movió dentro del rango
     let despues = 0;     // lo que se movió DESPUÉS del rango
 
@@ -219,10 +221,11 @@ function diaDeInversion(p) {
   return p.startDate || p.completedAt || p.createdAt || null;
 }
 
-function metricasTalentos(r) {
+function metricasTalentos(r, D) {
+  const datos = D || state;
   const out = { invertido: 0, completados: 0, abiertos: 0, vencidos: 0, invertidoPorRama: new Map() };
 
-  for (const p of state.perks) {
+  for (const p of datos.perks) {
     const dia = diaDeInversion(p);
     if ((p.cost > 0) && enRango(dia, r)) {
       out.invertido += p.cost;
@@ -240,17 +243,18 @@ function metricasTalentos(r) {
 
 /* Los que se vencen dentro de `dias` días contando desde hoy. Es dato de
    panel, no de informe: contesta «¿qué tengo que mirar ya?». */
-function talentosPorVencer(dias) {
+function talentosPorVencer(dias, D) {
   const tope = addDaysKey(todayKey(), dias);
-  return state.perks.filter(p => p.status === "active" && p.endDate && p.endDate >= todayKey() && p.endDate <= tope);
+  return (D || state).perks.filter(p => p.status === "active" && p.endDate && p.endDate >= todayKey() && p.endDate <= tope);
 }
 
 /* ================= Proyectos ================= */
 
-function metricasProyectos(r) {
+function metricasProyectos(r, D) {
+  const datos = D || state;
   const out = { etapas: 0, terminados: 0, soltados: 0, creados: 0 };
 
-  for (const pr of state.projects) {
+  for (const pr of datos.projects) {
     for (const s of (pr.steps || [])) {
       if (s.done && enRango(diaDeSello(s.at), r)) out.etapas++;
     }
@@ -347,47 +351,161 @@ function pruebaDemo() {
   return document.documentElement.classList.contains("informes-demo");
 }
 
-/* Elegidos para que se vean las cuatro caras de una comparación: sube, baja,
-   se queda igual, y no hay nada que comparar. Con todo en verde no se puede
-   opinar sobre si el coral molesta o si el «=» sobra. */
-const DEMO = {
-  misiones: { hoy: 5, marcasA: 23, marcasB: 18, constA: 86, constB: 71, racha: 11 },
-  habilidades: { cuantas: 9, xpA: 1240, xpB: 1580, nivA: 3, nivB: 3, decayendo: 2 },
-  talentos: { enCurso: 3, compA: 1, compB: 0, invA: 1890, invB: 4200, vencen: 1 },
-  proyectos: { vivos: 6, estancados: 2, etapasA: 9, etapasB: 14, terA: 2, terB: 1 }
-};
+/* ---- Un mes de vida inventada ----
 
-function statsDemo(modulo) {
-  const d = DEMO[modulo];
-  const f = (a, b, t, op) => flechaHTML(variacion(a, b, op), t + " " + CONTRA);
+   Antes esto eran ocho cifras escritas a mano, y servían para mirar el panel
+   pero no para nada más: el informe necesita historia de verdad —días, horas,
+   orígenes del XP, etapas con su fecha—. Así que el demo pasa a ser un juego
+   de datos completo con la misma forma que `state`, y todo lo demás lo
+   calculan las mismas funciones que leen tus datos. Es lo único que garantiza
+   que lo que se ve en la prueba sea lo que se verá de verdad.
 
-  if (modulo === "misiones") return [
-    { n: d.hoy, t: "Hoy" },
-    { n: d.marcasA, t: `Cumplidas · ${PANEL_DIAS} días`, tone: "mint", d: f(d.marcasA, d.marcasB, "Marcas de misión") },
-    { n: d.constA + "%", t: "Constancia", d: f(d.constA, d.constB, "Cumplidas de las que tocaban,") },
-    { n: d.racha, t: "Racha", d: `<i class="sh-var mejor" title="Es la racha más larga que has tenido">récord</i>` }
+   Sin azar y con las cuentas escritas: si los números cambiaran en cada
+   dibujo, la pantalla se movería sola al cambiar de pestaña y no habría forma
+   de opinar sobre nada. Se construye una vez y se recuerda.
+
+   No se guarda, no pasa por `state` y no sobrevive a cerrar la pestaña. */
+let _demoCache = null;
+
+/* Cuántas de las cinco misiones se cumplieron cada día, de hoy hacia atrás.
+   Escrito a mano para que las comparaciones digan algo: los últimos 7 días
+   suman 23 y los 7 anteriores 18, así que esa flecha sube; y el único día en
+   blanco está en el 27, que es lo que hace que la racha valga 27. */
+const DEMO_DIAS = [3, 4, 3, 5, 2, 3, 3,  2, 3, 3, 2, 3, 2, 3,  4, 3, 2, 3, 3, 4, 2,
+                   3, 2, 3, 2, 3, 2, 0,  2, 3, 2, 3, 2, 3, 2];
+
+function datosDemo() {
+  if (_demoCache) return _demoCache;
+
+  const dia = (n) => addDaysKey(todayKey(), -n);
+  const sello = (n, hora) => new Date(Date.parse(dia(n) + "T" + hora + ":00Z")).toISOString();
+
+  /* Las cinco habilidades que entrenan las misiones. Su XP se rellena abajo
+     sumando sus propios movimientos: una habilidad cuyo total no cuadre con
+     su historial mentiría justo en la gráfica que reparte el XP por origen. */
+  const skills = [
+    { id: "d-s1", name: "Dibujo",    category: "Creatividad", icon: "pen",    color: "#c7a6ff", xp: 0, log: [], permanent: false, graceDays: 7, createdAt: dia(34), lastActivity: dia(0) },
+    { id: "d-s2", name: "Ejercicio", category: "Cuerpo",      icon: "heart",  color: "#5fe0b0", xp: 0, log: [], permanent: false, graceDays: 7, createdAt: dia(34), lastActivity: dia(0) },
+    { id: "d-s3", name: "Idiomas",   category: "Mente",       icon: "book",   color: "#8ecdf5", xp: 0, log: [], permanent: false, graceDays: 7, createdAt: dia(34), lastActivity: dia(1) },
+    { id: "d-s4", name: "Cocina",    category: "Casa",        icon: "coffee", color: "#f5d76e", xp: 0, log: [], permanent: false, graceDays: 7, createdAt: dia(34), lastActivity: dia(2) },
+    { id: "d-s5", name: "Finanzas",  category: "Dinero",      icon: "chart",  color: "#ff8a70", xp: 0, log: [], permanent: false, graceDays: 5, createdAt: dia(34), lastActivity: dia(21) }
   ];
 
-  if (modulo === "habilidades") return [
-    { n: d.cuantas, t: "Habilidades" },
-    { n: fmtXp(d.xpA), t: `XP · ${PANEL_DIAS} días`, tone: "mint", d: f(d.xpA, d.xpB, "XP ganada") },
-    { n: d.nivA, t: "Niveles subidos", d: f(d.nivA, d.nivB, "Niveles subidos") },
-    { n: d.decayendo, t: "Decayendo", tone: "fire" }
+  /* Cada misión a una hora distinta: es lo que hace que la gráfica de «a qué
+     hora cumples» tenga algo que enseñar. */
+  const defs = [
+    { id: "d-m1", name: "Dibujar 15 minutos",  skillId: "d-s1", xp: 20, hora: "21" },
+    { id: "d-m2", name: "Caminar 20 minutos",  skillId: "d-s2", xp: 20, hora: "07" },
+    { id: "d-m3", name: "Repasar vocabulario", skillId: "d-s3", xp: 15, hora: "13" },
+    { id: "d-m4", name: "Cocinar en casa",     skillId: "d-s4", xp: 25, hora: "19" },
+    { id: "d-m5", name: "Anotar mis gastos",   skillId: "d-s5", xp: 15, hora: "22" }
   ];
 
-  if (modulo === "talentos") return [
-    { n: d.enCurso, t: "En curso", tone: "fire" },
-    { n: d.compA, t: `Asegurados · ${PANEL_DIAS} días`, tone: "mint", d: f(d.compA, d.compB, "Talentos asegurados") },
-    { n: money(d.invA), t: `Invertido · ${PANEL_DIAS} días`, d: f(d.invA, d.invB, "Invertido", { dinero: true }) },
-    { n: d.vencen, t: "Por vencer", tone: "coral" }
+  const missions = defs.map(d => ({
+    id: d.id, name: d.name, skillId: d.skillId, xp: d.xp, icon: "check", color: "#5fe0b0",
+    cadence: "daily", target: 1, log: {}, archived: false, completedAt: null, createdAt: dia(34)
+  }));
+
+  const porId = (id) => skills.find(x => x.id === id);
+
+  DEMO_DIAS.forEach((cuantas, i) => {
+    const fecha = dia(i);
+    for (let j = 0; j < cuantas; j++) {
+      const m = missions[j];
+      const d = defs[j];
+      const min = String(10 + ((i * 7 + j * 13) % 50)).padStart(2, "0");
+      m.log[fecha] = ["demo." + fecha + "." + j + "@" + d.hora + min];
+      const s = porId(d.skillId);
+      s.xp += d.xp;
+      s.log.unshift({ date: fecha, at: sello(i, d.hora + ":" + min), xp: d.xp,
+        note: "Misión cumplida: " + d.name, fuente: "Misión · " + d.name, min: 15 });
+    }
+  });
+
+  /* Práctica suelta, un talento y un proyecto: las otras tres porciones del
+     reparto de XP. Los dos grandes caen en la semana ANTERIOR a propósito,
+     que es lo que hace que el XP de ésta baje: con todo subiendo no se puede
+     opinar sobre si el coral molesta o si sobra. */
+  const extra = (skillId, i, xp, note, fuente, min) => {
+    const s = porId(skillId);
+    s.xp += xp;
+    s.log.unshift({ date: dia(i), at: sello(i, "18:20"), xp, note, fuente, min: min || 0 });
+  };
+  extra("d-s1", 2, 60, "Práctica libre", null, 45);
+  extra("d-s3", 5, 40, "Práctica libre", null, 30);
+  /* Uno de cada familia DENTRO del periodo, además de los dos gordos de la
+     semana pasada: sin ellos, el reparto de «de dónde sale tu XP» se quedaba
+     en dos porciones y no se podía ver si cuatro colores juntos se leen. */
+  extra("d-s2", 4, 120, "Talento completado: Bici de ciudad", "Talento · Bici de ciudad");
+  extra("d-s4", 3, 90, "Proyecto terminado: Regalo de mamá", "Proyecto · Regalo de mamá");
+  extra("d-s2", 9, 300, "Talento completado: Curso de acuarela", "Talento · Curso de acuarela");
+  extra("d-s4", 11, 250, "Proyecto terminado: Ordenar la cocina", "Proyecto · Ordenar la cocina");
+  extra("d-s1", 16, 80, "Práctica libre", null, 60);
+
+  /* Y algo cayéndose: sin XP perdido, la mitad de lo que el informe tiene que
+     saber contar no se ve nunca. Sin fuente, que es lo que lo distingue de
+     una vuelta atrás (ver el reparto por familias). */
+  skills[4].log.unshift({ date: dia(1), at: sello(1, "03:00"), xp: -12, note: "Decaimiento por inactividad", fuente: null });
+  skills[4].xp -= 12;
+  skills[2].log.unshift({ date: dia(8), at: sello(8, "03:00"), xp: -9, note: "Decaimiento por inactividad", fuente: null });
+  skills[2].xp -= 9;
+
+  const perks = [
+    { id: "d-p1", name: "Curso de acuarela", branch: "Oficio", icon: "pen",    color: "#c7a6ff", tipo: "meta",   status: "active",    cost: 1890, startDate: dia(3),  endDate: addDaysKey(todayKey(), 4),  planDays: 7,  completedAt: null, createdAt: dia(30), steps: [{ id: "e1", name: "Materiales", done: true, at: sello(2, "10:00") }, { id: "e2", name: "Primeras láminas", done: false, at: null }], history: [] },
+    { id: "d-p2", name: "Bici de ciudad",    branch: "Cuerpo", icon: "heart",  color: "#5fe0b0", tipo: "compra", status: "active",    cost: 4200, startDate: dia(10), endDate: addDaysKey(todayKey(), 20), planDays: 30, completedAt: null, createdAt: dia(40), steps: [], history: [] },
+    { id: "d-p3", name: "Teclado partido",   branch: "Oficio", icon: "chart",  color: "#8ecdf5", tipo: "compra", status: "completed", cost: 990,  startDate: dia(25), endDate: null, completedAt: dia(2),  createdAt: dia(28), steps: [], history: [] },
+    { id: "d-p4", name: "Certificado B2",    branch: "Mente",  icon: "book",   color: "#8ecdf5", tipo: "meta",   status: "active",    cost: 0,    startDate: dia(6),  endDate: addDaysKey(todayKey(), 40), planDays: 46, completedAt: null, createdAt: dia(20), steps: [], history: [] },
+    { id: "d-p5", name: "Sartén de hierro",  branch: "Casa",   icon: "coffee", color: "#f5d76e", tipo: "compra", status: "completed", cost: 1200, startDate: dia(60), endDate: null, completedAt: dia(58), createdAt: dia(62), steps: [], history: [] },
+    { id: "d-p6", name: "Curso de finanzas", branch: "Dinero", icon: "chart",  color: "#ff8a70", tipo: "meta",   status: "completed", cost: 2400, startDate: dia(90), endDate: dia(60), completedAt: dia(64), createdAt: dia(95), steps: [], history: [] }
   ];
 
-  return [
-    { n: d.vivos, t: "Vivos", tone: "mint" },
-    { n: d.estancados, t: "Estancados", tone: "coral" },
-    { n: d.etapasA, t: `Etapas · ${PANEL_DIAS} días`, d: f(d.etapasA, d.etapasB, "Etapas cerradas") },
-    { n: d.terA, t: `Terminados · ${PANEL_DIAS} días`, d: f(d.terA, d.terB, "Encargos terminados") }
+  /* Nueve encargos: seis vivos —dos parados desde hace mes y medio, que es lo
+     que dispara «estancado»— y tres cerrados. Las etapas llevan su sello de
+     tiempo porque el ritmo del informe se cuenta con él. */
+  const etapas = (dias) => dias.map((n, i) => ({
+    id: "e" + i, name: "Etapa " + (i + 1), done: n !== null, at: n === null ? null : sello(n, "16:00")
+  }));
+
+  const projects = [
+    { id: "d-x1", name: "Mudanza",           branch: "Casa",     icon: "flag", color: "#5fe0b0", status: "active", createdAt: dia(30), lastActivity: dia(0),  completedAt: null,   steps: etapas([0, 1, 3, 5, null, null]), history: [] },
+    { id: "d-x2", name: "Portafolio nuevo",  branch: "Oficio",   icon: "flag", color: "#c7a6ff", status: "active", createdAt: dia(45), lastActivity: dia(2),  completedAt: null,   steps: etapas([2, 4, 6, 9, 11, null]), history: [] },
+    { id: "d-x3", name: "Huerto del patio",  branch: "Casa",     icon: "flag", color: "#f5d76e", status: "paused", createdAt: dia(60), lastActivity: dia(12), completedAt: null,   steps: etapas([8, 10, 12, 13, null]), history: [] },
+    { id: "d-x4", name: "Trámite del coche", branch: "Trámites", icon: "flag", color: "#8ecdf5", status: "active", createdAt: dia(80), lastActivity: dia(52), completedAt: null,   steps: etapas([52, 60, null, null, null]), history: [] },
+    { id: "d-x5", name: "Libro a medias",    branch: "Mente",    icon: "flag", color: "#ff8a70", status: "active", createdAt: dia(90), lastActivity: dia(55), completedAt: null,   steps: etapas([55, 70, null, null, null, null]), history: [] },
+    { id: "d-x6", name: "Cambiar de banco",  branch: "Dinero",   icon: "flag", color: "#5fe0b0", status: "active", createdAt: dia(25), lastActivity: dia(4),  completedAt: null,   steps: etapas([4, 7, 8, null]), history: [] },
+    { id: "d-x7", name: "Ordenar la cocina", branch: "Casa",     icon: "flag", color: "#f5d76e", status: "done",   createdAt: dia(40), lastActivity: dia(1),  completedAt: dia(1), steps: etapas([1, 6, 10, 14]), history: [] },
+    { id: "d-x8", name: "Regalo de mamá",    branch: "Casa",     icon: "flag", color: "#c7a6ff", status: "done",   createdAt: dia(35), lastActivity: dia(5),  completedAt: dia(5), steps: etapas([5, 9, 13]), history: [] },
+    { id: "d-x9", name: "Impuestos",         branch: "Dinero",   icon: "flag", color: "#8ecdf5", status: "done",   createdAt: dia(50), lastActivity: dia(9),  completedAt: dia(9), steps: etapas([9, 10, 11, 12]), history: [] }
   ];
+
+  _demoCache = { skills, missions, perks, projects };
+  return _demoCache;
+}
+
+/* La racha del demo. `streakInfo` lee `state` por dentro y no tiene forma de
+   mirar otra cosa, así que aquí se cuenta lo mismo sobre los días con alguna
+   misión cumplida: seguidos desde hoy, y la mejor de toda la historia. */
+function rachaDemo(D) {
+  const dias = new Set();
+  D.missions.forEach(m => Object.keys(m.log || {}).forEach(k => { if (missionCount(m, k) > 0) dias.add(k); }));
+  let cur = 0, k = todayKey();
+  if (!dias.has(k)) k = addDaysKey(k, -1);
+  while (dias.has(k) && cur < 4000) { cur++; k = addDaysKey(k, -1); }
+  let best = 0, run = 0, prev = null;
+  [...dias].sort().forEach(x => {
+    run = (prev && daysBetween(prev, x) === 1) ? run + 1 : 1;
+    if (run > best) best = run;
+    prev = x;
+  });
+  return { cur, best };
+}
+
+/* La fuente de datos de todo lo que se dibuja: tus cosas, o el mes inventado
+   cuando la pestaña está en modo demo. Una sola función para no tener que
+   acordarse en cada sitio; devuelve null con tus datos, que es lo que las
+   funciones de métricas entienden como «usa `state`». */
+function datosDeAhora() {
+  return pruebaDemo() ? datosDemo() : null;
 }
 
 /* ================= Los cuatro huecos del panel =================
@@ -413,10 +531,13 @@ function ventanasPanel() {
 }
 
 function statsPanelMisiones(ctx) {
-  if (pruebaDemo()) return statsDemo("misiones");
+  const D = datosDeAhora();
   const { a, b } = ventanasPanel();
-  const m = metricasMisiones(a), p = metricasMisiones(b);
-  const rachas = streakInfo();
+  const m = metricasMisiones(a, D), p = metricasMisiones(b, D);
+  const rachas = D ? rachaDemo(D) : streakInfo();
+  const hoy = D
+    ? D.missions.filter(x => !x.archived && missionScheduledOn(x, todayKey())).length
+    : ctx.due.length;
 
   /* «Récord» y no una flecha: una racha no se compara con la de la semana
      pasada —es la misma cuenta, solo más larga—, se compara con tu mejor. */
@@ -424,7 +545,7 @@ function statsPanelMisiones(ctx) {
     ? `<i class="sh-var mejor" title="Es la racha más larga que has tenido">récord</i>` : "";
 
   return [
-    { n: ctx.due.length, t: "Hoy" },
+    { n: hoy, t: "Hoy" },
     { n: m.marcas, t: `Cumplidas · ${PANEL_DIAS} días`, tone: "mint",
       d: flechaHTML(variacion(m.marcas, p.marcas), `Marcas de misión ${CONTRA}`) },
     /* Un guion y no un cero cuando no tocaba nada: cero por ciento es haber
@@ -436,12 +557,14 @@ function statsPanelMisiones(ctx) {
 }
 
 function statsPanelHabilidades(ctx) {
-  if (pruebaDemo()) return statsDemo("habilidades");
+  const D = datosDeAhora();
   const { a, b } = ventanasPanel();
-  const m = metricasHabilidades(a), p = metricasHabilidades(b);
+  const m = metricasHabilidades(a, D), p = metricasHabilidades(b, D);
+  const cuantas = (D || state).skills.length;
+  const decayendo = D ? D.skills.filter(isDecaying).length : ctx.decaying;
 
   return [
-    { n: state.skills.length, t: "Habilidades" },
+    { n: cuantas, t: "Habilidades" },
     { n: fmtXp(m.ganada), t: `XP · ${PANEL_DIAS} días`, tone: "mint",
       d: flechaHTML(variacion(m.ganada, p.ganada), `XP ganada ${CONTRA}`) },
     { n: m.niveles, t: "Niveles subidos",
@@ -449,18 +572,19 @@ function statsPanelHabilidades(ctx) {
     /* Sin flecha a propósito: no es un resultado del periodo, es una alarma
        de ahora mismo. Compararla con la semana pasada invitaría a leerla como
        «voy mejorando» cuando lo único que importa es que hay algo cayéndose. */
-    { n: ctx.decaying, t: "Decayendo", tone: ctx.decaying ? "fire" : "" }
+    { n: decayendo, t: "Decayendo", tone: decayendo ? "fire" : "" }
   ];
 }
 
 function statsPanelTalentos(ctx) {
-  if (pruebaDemo()) return statsDemo("talentos");
+  const D = datosDeAhora();
   const { a, b } = ventanasPanel();
-  const m = metricasTalentos(a), p = metricasTalentos(b);
-  const vencen = talentosPorVencer(PANEL_DIAS).length;
+  const m = metricasTalentos(a, D), p = metricasTalentos(b, D);
+  const vencen = talentosPorVencer(PANEL_DIAS, D).length;
+  const enCurso = D ? D.perks.filter(x => x.status === "active").length : ctx.activeN;
 
   return [
-    { n: ctx.activeN, t: "En curso", tone: ctx.activeN ? "fire" : "" },
+    { n: enCurso, t: "En curso", tone: enCurso ? "fire" : "" },
     { n: m.completados, t: `Asegurados · ${PANEL_DIAS} días`, tone: "mint",
       d: flechaHTML(variacion(m.completados, p.completados), `Talentos asegurados ${CONTRA}`) },
     { n: money(m.invertido), t: `Invertido · ${PANEL_DIAS} días`,
@@ -473,13 +597,15 @@ function statsPanelTalentos(ctx) {
 }
 
 function statsPanelProyectos(ctx) {
-  if (pruebaDemo()) return statsDemo("proyectos");
+  const D = datosDeAhora();
   const { a, b } = ventanasPanel();
-  const m = metricasProyectos(a), p = metricasProyectos(b);
+  const m = metricasProyectos(a, D), p = metricasProyectos(b, D);
+  const vivos = D ? D.projects.filter(x => x.status === "active" || x.status === "paused") : ctx.live;
+  const parados = D ? vivos.filter(x => projectHealth(x).key === "stalled") : ctx.stalled;
 
   return [
-    { n: ctx.live.length, t: "Vivos", tone: "mint" },
-    { n: ctx.stalled.length, t: "Estancados", tone: ctx.stalled.length ? "coral" : "" },
+    { n: vivos.length, t: "Vivos", tone: "mint" },
+    { n: parados.length, t: "Estancados", tone: parados.length ? "coral" : "" },
     { n: m.etapas, t: `Etapas · ${PANEL_DIAS} días`,
       d: flechaHTML(variacion(m.etapas, p.etapas), `Etapas cerradas ${CONTRA}`) },
     { n: m.terminados, t: `Terminados · ${PANEL_DIAS} días`,

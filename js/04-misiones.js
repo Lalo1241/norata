@@ -1178,7 +1178,11 @@ function showView(name) {
     (name === "detail" || name === "form" || name === "catalog" ? "nav-home" :
      (name === "perk" || name === "perk-form" ? "nav-tree" :
      (name === "project" || name === "project-form" ? "nav-projects" :
-     (name === "mission-form" ? "nav-missions" : "nav-summary"))));
+     (name === "mission-form" ? "nav-missions" :
+     /* El informe no es de ningún módulo: se llega a él desde los cuatro. Sin
+        este caso caía en el comodín y encendía "Resumen", diciendo que estabas
+        en una pantalla en la que no estabas. */
+     (name === "informe" ? null : "nav-summary")))));
   if (navId) document.getElementById(navId).classList.add("active");
 
   if (NAV_VIEWS[name]) activeMainView = name;

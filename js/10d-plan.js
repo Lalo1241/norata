@@ -110,7 +110,9 @@ const PLANES = {
    Cómo se leen los nombres:
      ramas      cuántas ramas del árbol de Talentos puede tener
      talentos   cuántos talentos caben DENTRO de cada rama
-     resumen    qué resúmenes ve (el semanal es de todos, a propósito)
+     resumen    qué informes ve. La llave se sigue llamando `resumen`
+                porque así nació y renombrarla obligaría a migrar los planes
+                ya guardados; en pantalla se llaman informes
      apariencia si puede usar las apariencias completas */
 const LIMITES = {
   libre: {
@@ -120,7 +122,14 @@ const LIMITES = {
        en doce a sabiendas. Los dos límites van juntos porque limitar ramas
        sin limitar talentos invita a meter todo en una y no pagar nunca. */
     talentos: 12,
-    resumen: ["semana"],
+    /* Vacío, y es un cambio de reparto que Eduardo cerró el 27 ago 2026: el
+       panel de cada módulo ya ES el informe del día, así que un informe
+       diario no añadiría nada; y de la semana en adelante se paga. Antes esta
+       lista decía `["semana"]` y la tabla de precios prometía el resumen
+       semanal gratis — una promesa que nunca llegó a existir en pantalla, así
+       que nadie pierde nada al moverla. Quien no paga no se topa con un muro:
+       ve la portada de su propia semana con sus números de verdad. */
+    resumen: [],
     apariencia: false
   },
   pro: {
@@ -414,8 +423,8 @@ function topeTexto(clave) {
   }
   if (clave === "resumen") {
     return {
-      titulo: "El mes entero, de un vistazo",
-      frase: "El resumen de la semana es de todos. Con " + NOMBRE_PRO + " llegan también el del mes y el del año."
+      titulo: "Tu semana, de un vistazo",
+      frase: "Tu día lo ves siempre en el panel de cada módulo. Los informes empiezan en la semana y vienen con " + NOMBRE_PRO + "."
     };
   }
   if (clave === "apariencia") {
@@ -452,7 +461,7 @@ function ventajasPro() {
      decir lo que ganas. */
   if (p.ramas > l.ramas) v.push("Ramas de talentos ilimitadas");
   if (p.talentos > l.talentos) v.push("Talentos ilimitados en cada rama");
-  if (p.resumen.length > l.resumen.length) v.push("Resúmenes del mes y del año");
+  if (p.resumen.length > l.resumen.length) v.push("Informes de la semana, del mes y del año");
   if (p.apariencia && !l.apariencia) v.push("Todas las apariencias");
   return v;
 }
@@ -983,7 +992,7 @@ function planIncluyeHTML(pro) {
   const filas = [
     ["Ramas de talentos", l.ramas === Infinity ? "Ilimitadas" : (l.ramas === 1 ? "Una" : String(l.ramas))],
     ["Talentos por rama", l.talentos === Infinity ? "Ilimitados" : String(l.talentos)],
-    ["Resúmenes", l.resumen.length > 1 ? "De la semana, del mes y del año" : "Solo el de la semana"],
+    ["Informes", l.resumen.length ? "De la semana, del mes y del año" : "El panel de tu día"],
     ["Apariencias", l.apariencia ? "Todas" : "Las paletas de color"],
     /* Estas dos no salen de `LIMITES` porque no tienen tope en ningún plan, y
        decirlo aquí es la mitad del mensaje: lo que se cobra no es la app, son
@@ -1148,13 +1157,13 @@ function planFilasComparadas() {
   const l = LIMITES.libre, p = LIMITES.pro;
   const ramas = (x) => x === Infinity ? "Ilimitadas" : (x === 1 ? "Una" : String(x));
   const tope = (x) => x === Infinity ? "Ilimitados" : String(x);
-  const resu = (x) => x.length > 1 ? "Semana, mes y año" : "Solo el de la semana";
+  const resu = (x) => x.length ? "Semana, mes y año" : "Solo el panel del día";
   const apar = (x) => x ? "Todas" : "Solo las paletas de color";
 
   return [
     ["Ramas de talentos", ramas(l.ramas), ramas(p.ramas), ramas(p.ramas)],
     ["Talentos por rama", tope(l.talentos), tope(p.talentos), tope(p.talentos)],
-    ["Resúmenes", resu(l.resumen), resu(p.resumen), resu(p.resumen)],
+    ["Informes", resu(l.resumen), resu(p.resumen), resu(p.resumen)],
     ["Apariencias", apar(l.apariencia), apar(p.apariencia), apar(p.apariencia)],
     ["Misiones, habilidades y proyectos", "Ilimitados", "Ilimitados", "Ilimitados"],
     ["Sincronía entre dispositivos", "Incluida", "Incluida", "Incluida"],

@@ -52,6 +52,63 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.22 · 27 ago 2026
+La app tiene informes: una pantalla, cinco lecturas cortas.
+
+Fase 2 de la reforma de los paneles. Se llega con «Ver el informe», el botón
+nuevo del panel de cada módulo, y se entra por la rama de la que vienes:
+nunca se cae en un índice a buscar lo que ibas a ver.
+
+- **Una pantalla, cinco informes cortos, y ninguno es el general.** Con datos
+  de un año, un informe que sumara los cuatro módulos sería ilegible; y cuatro
+  pantallas serían cuatro sitios donde arreglar el mismo fallo. Así que es una
+  sola pantalla con informes por rama y **tope duro de seis gráficas** cada
+  uno. «Todo» no suma: es la portada —una frase, tres números, en qué módulo
+  pusiste la energía— y cuatro accesos. Medido a 375 px: ninguna rama pasa de
+  dos pantallas de teléfono.
+- **Trece gráficas, y cada una arranca de una pregunta.** Misiones: tu
+  constancia, en qué día se te cae la semana, qué misiones la sostienen y a
+  qué hora cumples. Habilidades: de dónde sale tu XP, si ganas o pierdes,
+  dónde creciste y cuánto tiempo llevas puesto. Talentos: en qué se te va el
+  dinero, cómo va lo que abriste y qué se te vence. Proyectos: cómo está lo
+  que llevas, tu ritmo, y lo que cerraste frente a lo que soltaste. Las que no
+  tenían una pregunta detrás no están.
+- **Ninguna gráfica se dibuja vacía.** Cuando no hay datos suficientes sale una
+  frase que dice que eso se llena solo. Un dibujo hueco parece una app rota y
+  encima no se puede leer. Probado con un perfil recién creado: las trece salen
+  con su frase y ninguna revienta.
+- **Los números no se calculan aquí.** Salen todos del motor de 0.7.20, el
+  mismo que alimenta las flechas del panel. Si cada pantalla hiciera sus
+  cuentas, acabarían discutiendo entre ellas delante del usuario.
+- **El modo claro sale gratis** porque ningún color se escribe suelto: las
+  barras usan `pinta()` y los carriles `var(--carril)`, así que de día la
+  menta pasa sola a la saturada (`#00cc7f`) y el carril al gris de papel.
+
+**Y el reparto del cobro, que cambia con esto.** Lo cerró Eduardo: el panel de
+cada módulo YA es el informe del día, así que un informe diario no añadiría
+nada; de la semana en adelante se paga.
+
+- `LIMITES.libre.resumen` pasa de `["semana"]` a vacío, y con él los cuatro
+  textos que anunciaban el resumen semanal gratis: el cuadro del tope, la lista
+  de lo que abre Pro, el «qué tienes ahora» de Ajustes y la tabla comparativa.
+  En pantalla se llaman **informes** y no «resúmenes»; la llave interna sigue
+  diciendo `resumen` porque renombrarla obligaría a migrar los planes ya
+  guardados.
+- Como esa promesa nunca llegó a existir en pantalla, nadie pierde nada.
+- **Quien no paga no se topa con un muro:** ve la portada de su propia semana
+  con sus números de verdad —la frase y los tres números— y debajo las
+  gráficas insinuadas, sin cifras. Esos datos son suyos, y verlos una vez es lo
+  que explica para qué sirve pagar. Las siluetas no llevan números a propósito:
+  serían datos inventados sobre su vida.
+
+**El demo pasa a ser un mes entero.** `?informes=demo` ya no son ocho cifras
+escritas a mano: es un juego de datos completo con la misma forma que `state`
+—cinco habilidades, cinco misiones con 35 días de marcas y sus horas, seis
+talentos y nueve encargos—, y todo lo demás lo calculan las mismas funciones
+que leen tus datos. Es lo único que garantiza que lo que se ve en la prueba sea
+lo que se verá de verdad. Sin azar y con las cuentas escritas, para que la
+pantalla no se mueva sola al cambiar de pestaña.
+
 ### 0.7.21.2 · 27 ago 2026
 El arranque aguanta que el HTML vaya una carga por detrás.
 
