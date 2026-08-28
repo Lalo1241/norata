@@ -28,11 +28,26 @@ vigilarCapas();
   });
 })();
 
-document.getElementById("bug-btn").innerHTML = icon("bicho", 18);
+/* ---- Los iconos que se pintan al arrancar ----
+   Con `if (el)` y no a pelo, y esto costó un despliegue: al añadir el botón
+   del bicho, la primera carga después de subirlo reventaba con «Cannot set
+   properties of null». El motivo es el service worker, y es la trampa de la
+   casa: sirve el `index.html` que tenía en la caché mientras se trae el
+   nuevo, así que durante UNA carga conviven el HTML viejo y el JavaScript
+   nuevo. El elemento todavía no existe y el `.innerHTML` mata el arranque —
+   con él, todo lo que este archivo hace más abajo: los oyentes del arrastre,
+   los atajos, la sincronía.
 
-document.getElementById("settings-btn").innerHTML = icon("settings", 19);
-document.getElementById("dash-btn").innerHTML = icon("gamepad", 19);
-document.getElementById("perm-shield").innerHTML = icon("shield", 16);
+   Los tres de siempre nunca lo notaron porque llevan meses en el HTML. El
+   riesgo es exactamente el de los NUEVOS, que es cuando las dos copias
+   discrepan. Por eso el bucle: el día que se añada el cuarto, ya está. */
+[["bug-btn", "bicho", 18],
+ ["settings-btn", "settings", 19],
+ ["dash-btn", "gamepad", 19],
+ ["perm-shield", "shield", 16]].forEach(([id, nombre, tam]) => {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = icon(nombre, tam);
+});
 
 /* Los oyentes del arrastre, una sola vez para toda la app: las listas se
    rehacen enteras a cada rato y colgarlos en cada una los duplicaría. */

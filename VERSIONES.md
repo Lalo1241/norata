@@ -52,6 +52,22 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.21.2 · 27 ago 2026
+El arranque aguanta que el HTML vaya una carga por detrás.
+
+- **La primera carga tras subir 0.7.21.1 reventaba**, y el culpable era el
+  botón nuevo: `document.getElementById("bug-btn").innerHTML` con el elemento
+  todavía ausente. El motivo es el service worker y es la trampa de la casa —
+  sirve el `index.html` que tiene en la caché mientras se trae el nuevo, así
+  que durante UNA carga conviven el HTML viejo y el JavaScript nuevo. El
+  `.innerHTML` sobre `null` mataba el arranque, y con él todo lo que
+  `11-arranque.js` hace más abajo: los oyentes del arrastre, los atajos, la
+  sincronía. A la segunda carga se curaba solo, que es lo que lo hacía difícil
+  de ver.
+- Los cuatro iconos del arranque pasan a un bucle con `if (el)`. Los tres de
+  siempre nunca lo notaron porque llevan meses en el HTML; el riesgo es
+  exactamente el de los nuevos, que es cuando las dos copias discrepan.
+
 ### 0.7.21.1 · 27 ago 2026
 Alpha en la esquina, y un bicho para avisar.
 
