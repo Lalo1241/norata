@@ -52,6 +52,39 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.15 · 27 ago 2026
+La cuenta de casa es fundadora, y el lila enciende.
+
+- **La cuenta administradora tiene Fundador puesto**, sin haber pagado. Hacía
+  falta por lo práctico —no se puede revisar la app entera topando con los
+  límites cada dos pantallas— y se hace en el navegador y no con una fila en
+  `suscripciones`. **El motivo de no tocar la base de datos es de negocio, no
+  de código:** esa fila contaría como una venta en el MRR, sumaría uno a
+  «pagando ahora» y **gastaría uno de los 200 lugares de fundador**. Un plan
+  regalado no es una venta y no puede parecerlo en el panel donde se mira si
+  esto se sostiene.
+- **`deCasa` lo distingue de un fundador de verdad**, y eso cambia lo que dice
+  la pantalla: donde iría «$890 MXN, una sola vez» pone «Cuenta
+  administradora», y la nota dice que no hay ningún cobro asociado. Sin eso, la
+  única pantalla de la app que habla de dinero le estaría diciendo que pagó
+  algo que no pagó. Tampoco se le pintan los renglones de recibo ni el botón
+  del portal de Stripe: no hay recibo que ver.
+- **El modo de pruebas manda sobre esto.** Si hay un plan simulado puesto, gana
+  la simulación — si no, la trastienda no podría mirar nunca la app como la ve
+  todo el mundo.
+- **`planRefrescar()`**, porque el orden no ayudaba: `planCargar` corre antes de
+  que el servidor conteste quién es administrador, así que decidía el plan sin
+  saberlo. Ahora `revisarAdmin` vuelve a decidirlo cuando llega la respuesta.
+- **Resplandor lila** detrás del aro del avatar y de la tarjeta del plan. Es el
+  de los cuadros de borrar cuenta —mismo tamaño, misma suavidad— pero
+  **quieto**: allí late porque avisa de algo que hay que decidir; aquí es una
+  insignia que está siempre en pantalla, y algo que parpadea sin parar delante
+  de los ojos deja de leerse como un premio y empieza a leerse como un
+  problema.
+- **De día no hay resplandor**, que es la regla de la casa y no un olvido: una
+  copia borrosa sobre carbón es luz, sobre papel es una mancha. `--lila-halo`
+  pasa a `transparent` en claro, así la regla que lo usa es una sola.
+
 ### 0.7.14.2 · 27 ago 2026
 El plan, en la primera carga y no en la segunda.
 

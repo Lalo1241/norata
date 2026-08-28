@@ -37,6 +37,12 @@ async function revisarAdmin() {
   }
 
   if (!esAdmin) return;
+
+  /* La cuenta administradora tiene Fundador puesto (ver `PLAN_DE_CASA`), y
+     esto es lo que lo enciende: `planCargar` ya corrió antes de que el
+     servidor contestara quién es, así que decidió sin saberlo. */
+  if (typeof planRefrescar === "function") planRefrescar();
+
   if (typeof renderAjustes === "function") renderAjustes();
   /* Y el rótulo de pruebas, que también cuelga de esto. Sin esta línea no
      aparecía nunca: cuando la sesión se abre, `esAdmin` todavía vale false, y

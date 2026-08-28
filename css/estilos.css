@@ -74,6 +74,12 @@
     --lila: #b7a2ea;
     --lila-soft: rgba(183, 162, 234, 0.13);
     --lila-macizo: #b7a2ea;
+    /* El resplandor del fundador. Va en su propia variable y no escrito dentro
+       de la regla porque a un `var(...)` no se le puede pegar una
+       transparencia detrás — el mismo motivo por el que existe `velo()` en el
+       JavaScript. Los resplandores de alarma (`alarmGlow`, `oroGlow`) lo
+       escriben suelto y son la excepción que quedó; esta no la amplía. */
+    --lila-halo: rgba(183, 162, 234, 0.42);
 
     /* ---------- Los tonos que cambian de bando ----------
        Cada uno estaba escrito suelto donde hacía falta, y así el modo claro
@@ -321,6 +327,12 @@
        hasta pasar el 4,5; el velo levanta hacia el blanco como los demás. */
     --lila: #5b32c0;
     --lila-soft: #eeeaf7;
+    /* SIN resplandor de día, y no es un olvido: es la regla de la casa. Una
+       copia borrosa de algo sobre carbón es luz; sobre papel es una mancha, y
+       por eso los nodos del árbol y los motivos también lo apagan en claro.
+       Transparente en vez de quitar la sombra, para que la regla que la usa
+       sea una sola y no dos. */
+    --lila-halo: transparent;
 
     --sobre-acento: #ffffff;
     --sobre-acento-coral: #ffffff;
@@ -507,6 +519,7 @@
     --lila: #b7a2ea;
     --lila-soft: rgba(183, 162, 234, 0.13);
     --lila-macizo: #b7a2ea;
+    --lila-halo: rgba(183, 162, 234, 0.42);
     --motivo-cielo-1: #1c2534;
     --motivo-cielo-2: #141b26;
     --motivo-chispa: #e9f2f5;
@@ -4255,8 +4268,14 @@
      por dentro, y el diámetro lo fija el JavaScript en píxeles porque el mismo
      avatar sale grande en Ajustes y pequeño en el menú. Y sin transición, que
      el valor sale de una variable (ver la nota del modo claro). */
+  /* Tres capas: el hueco del color de la tarjeta, el aro lila, y la luz
+     detrás de los dos. El resplandor es el de los cuadros de borrar cuenta
+     —mismo tamaño y misma suavidad— pero QUIETO, sin latir: allí late porque
+     avisa de algo que va a pasar y hay que decidir; aquí es una insignia que
+     está siempre en pantalla, y algo que parpadea sin parar delante de los
+     ojos deja de leerse como un premio y empieza a leerse como un problema. */
   .avatar.es-fundador {
-    box-shadow: 0 0 0 2px var(--card2), 0 0 0 4px var(--lila);
+    box-shadow: 0 0 0 2px var(--card2), 0 0 0 4px var(--lila), 0 0 22px 2px var(--lila-halo);
   }
 
   /* La bienvenida de la pantalla de entrada: sustituye al logo cuando ya
@@ -5211,7 +5230,13 @@
    se renueva. */
 .plan-hoy.t-oro { border-color: var(--fire); background: var(--fire-soft); }
 .plan-hoy.t-oro .plan-hoy-ic { background: var(--fire-soft); color: var(--fire); }
-.plan-hoy.t-lila { border-color: var(--lila); background: var(--lila-soft); }
+/* La misma luz que el aro, por lo mismo: las dos cosas dicen «fundador» y
+   tienen que decirlo igual. */
+.plan-hoy.t-lila {
+  border-color: var(--lila);
+  background: var(--lila-soft);
+  box-shadow: 0 0 26px 1px var(--lila-halo);
+}
 .plan-hoy.t-lila .plan-hoy-ic { background: var(--lila-soft); color: var(--lila); }
 .plan-hoy.t-coral { border-color: var(--coral); background: var(--coral-soft); }
 .plan-hoy.t-coral .plan-hoy-ic { background: var(--coral-soft); color: var(--coral); }
