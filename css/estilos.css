@@ -2175,7 +2175,24 @@
   .sh-stats .n.mint { color: var(--mint); }
   .sh-stats .n.fire { color: var(--fire); }
   .sh-stats .n.coral { color: var(--coral); }
-  .sh-stats .t { font-size: 10px; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-top: 2px; }
+  /* El rótulo de un dato pasó de 10 a 11,5 px y de `--muted` a `--text` a
+     media luz. A 10 px, en mayúsculas y con el gris de los textos apagados,
+     era la letra más pequeña de toda la app puesta sobre la ilustración del
+     hero —donde el fondo además no es plano—, y se leía como decoración en
+     vez de como el nombre de la cifra que tiene encima. La prueba: se cambió
+     «Pendientes» por «Constancia» en los cuatro paneles y no se notó.
+
+     Sube en los CUATRO heroes, con la prueba puesta o sin ella: el problema
+     no era de las flechas, era del bloque entero. */
+  .sh-stats .t {
+    font-size: 11.5px;
+    color: var(--text);
+    opacity: 0.72;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    margin-top: 2px;
+    font-weight: 650;
+  }
 
   /* La flecha de comparación. Vive dentro de la escena, que se queda de noche
      en los dos modos, así que usa la paleta oscura sin pareja clara.
@@ -2183,12 +2200,19 @@
      Sin transición y a propósito: el color sale de una variable, y una
      transición sobre una propiedad cuyo valor viene de un `var()` se queda
      congelada en el tono inicial para siempre (ver la lista de trampas). */
+  /* `min-height` es lo que mantiene las cuatro columnas alineadas, y no es
+     un ajuste fino: las columnas SIN flecha no reservaban esta fila, así que
+     su rótulo subía 14 px y la fila de nombres quedaba escalonada —medido en
+     el panel de Misiones: «HOY» a 170 y «CUMPLIDAS» a 184—. Por eso
+     `sectionHero` dibuja el hueco vacío cuando alguna columna del grupo sí
+     lleva flecha: la fila existe siempre o no existe para nadie. */
   .sh-var {
     display: block;
     font-style: normal;
-    font-size: 9.5px;
-    font-weight: 700;
-    margin-top: 2px;
+    font-size: 11.5px;
+    font-weight: 800;
+    min-height: 15px;
+    margin-top: 3px;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     overflow: hidden;
@@ -2200,11 +2224,26 @@
      el bloque se leía roto. Dos renglones de sitio para todos: medido a 375 px,
      ninguno pide tres. Va dentro de `html.informes` para no meterle aire de
      más al panel de siempre, que sigue teniendo rótulos de una palabra. */
-  html.informes .sh-stats .t { min-height: 26px; }
+  html.informes .sh-stats .t { min-height: 30px; }
 
   .sh-var.mejor { color: var(--mint); }
   .sh-var.peor { color: var(--coral); }
   .sh-var.igual { color: var(--muted); }
+
+  /* ---------- Cuatro columnas no caben en un teléfono estrecho ----------
+     Medido a 320 px: la fila pedía 31 px más de los que hay, así que la
+     última columna se cortaba. No es culpa de los rótulos nuevos —ya pasaba
+     antes con «Habilidades», y se veía «Habilidade»—: es que a 320 px cada
+     columna se queda en 59 px y ninguna palabra de once letras cabe ahí.
+
+     Encogerles la letra sería tapar el problema haciendo ilegible justo lo
+     que hay que leer. Se reparten en dos filas de dos: cada dato recibe 120
+     px, todo cabe en un renglón y no se pierde nada. La tarjeta crece un
+     poco, que en la pantalla más pequeña es exactamente el intercambio
+     correcto. Vale para los cuatro heroes, con la prueba puesta o sin ella. */
+  @media (max-width: 360px) {
+    .sh-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 8px; }
+  }
   .sh-focus {
     display: flex;
     flex-direction: column;
@@ -4654,6 +4693,10 @@
   /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
      deja congelado en el inicial. */
   html.informes .rotulo-prueba a:hover { background: rgba(16, 21, 29, 0.24); }
+  /* Cuál de los dos rótulos se ve. Con números inventados manda el otro. */
+  .rotulo-prueba .rp-demo { display: none; }
+  html.informes-demo .rotulo-prueba .rp-real { display: none; }
+  html.informes-demo .rotulo-prueba .rp-demo { display: inline; }
   @media (min-width: 900px) {
     /* En pantalla ancha la barra de navegación no está abajo. */
     html.informes .rotulo-prueba { bottom: calc(env(safe-area-inset-bottom) + 14px); }

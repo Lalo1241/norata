@@ -52,6 +52,53 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.20.2 · 27 ago 2026
+Los datos del hero se leen y se alinean, y la prueba se puede juzgar.
+
+- **La fila de nombres estaba escalonada, y era culpa de la fila de flechas.**
+  Las columnas sin flecha no reservaban ese renglón, así que su rótulo subía
+  14 px: medido en Misiones, «HOY» a 170 y «CUMPLIDAS» a 184. Ahora, si una
+  columna del grupo lleva flecha, las demás llevan el hueco vacío — la fila
+  existe para las cuatro o para ninguna. Los cuatro heroes quedan con sus
+  rótulos al mismo alto, comprobado a 1280, 375 y 320 px.
+- **El rótulo de cada dato pasa de 10 a 11,5 px**, de `--muted` a texto normal
+  a media luz, y con algo de peso. A 10 px, en mayúsculas, con el gris de lo
+  apagado y encima de una ilustración, era la letra más pequeña de la app y se
+  leía como decoración. La prueba de que no se leía: se cambió «Pendientes»
+  por «Constancia» en los cuatro paneles y no se notó. La flecha sube igual,
+  de 9,5 a 11,5, y suelta las unidades («▲ 5» en vez de «▲ 5 XP») para ganar
+  ese sitio; lo que compara se sigue leyendo al dejar el dedo encima.
+- **Cuatro columnas no caben en un teléfono de 320 px**, y no cabían desde
+  antes: la fila pedía 31 px de más y se veía «Habilidade». Por debajo de
+  360 px se reparten en dos filas de dos, y cada dato recibe 120 px en vez de
+  59. Vale para los cuatro heroes, con la prueba puesta o sin ella.
+- **Constancia deja de contar el día de hoy.** Una cuenta creada por la tarde
+  veía «0%» antes de haber tenido ocasión de fallar a nada. La partida se
+  cierra cuando el día termina, no mientras se juega; hasta que haya un día
+  cerrado dice «—». Las marcas de hoy sí siguen contando arriba.
+
+**Y la prueba gana un tercer valor: `?informes=demo`.** Con datos inventados,
+porque no se podía juzgar: en una cuenta sin historia no sale ninguna flecha
+—no hay periodo anterior con el que comparar, y un cero contra otro cero se
+calla— así que la primera vez que se miró parecía que no había cambiado nada.
+
+- Con datos: `https://mi.norata.app/?informes=demo`
+- Con los tuyos: `https://mi.norata.app/?informes=si`
+- Apagar: `https://mi.norata.app/?informes=no`
+
+Los números falsos no tocan nada tuyo: no se guardan, no pasan por `state` y
+solo existen mientras se dibuja. Están elegidos para que se vean las cuatro
+caras de una comparación —sube, baja, se queda igual, y no hay con qué
+comparar—, y mientras están puestos el rótulo de la pantalla dice que no son
+tus datos.
+
+**Al quitar la prueba**, además de lo que ya dice 0.7.20: en `index.html`, el
+tercer valor y el `<span class="rp-demo">`; en `css/estilos.css`, las tres
+reglas de `.rp-real` / `.rp-demo`; y en `js/10f-informes.js`, `pruebaDemo()`,
+`DEMO`, `statsDemo()` y los cuatro `if (pruebaDemo())`. **No** se borran el
+tamaño de `.sh-stats .t`, el hueco de `.sh-var` ni las dos filas de 320 px:
+ésos arreglan los cuatro heroes, no la prueba.
+
 ### 0.7.20.1 · 27 ago 2026
 El reparto del XP deja de contar dos veces lo que se devolvió.
 

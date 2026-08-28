@@ -1737,8 +1737,19 @@ function sectionHero({ scene, lead, stats, focus }) {
             ${/* `s.d` es la flecha de comparación, y llega ya como HTML porque
                   la arma `flechaHTML` en js/10f-informes.js — quien pinta no
                   decide contra qué se compara. Va entre el número y el rótulo:
-                  debajo del rótulo se leía como parte del nombre del dato. */
-              stats.map(s => `<div><div class="n ${s.tone || ""}">${s.n}</div>${s.d || ""}<div class="t">${s.t}</div></div>`).join("")}
+                  debajo del rótulo se leía como parte del nombre del dato.
+
+                  Y cuando UNA columna del grupo lleva flecha, las demás llevan
+                  el hueco vacío. Sin eso, las columnas sin flecha subían su
+                  rótulo 14 px y la fila de nombres quedaba escalonada: se veía
+                  «HOY» a una altura y «CUMPLIDAS» a otra. La fila de la
+                  comparación existe para las cuatro o para ninguna. */
+              (() => {
+                const conVar = stats.some(s => s.d);
+                return stats.map(s => `<div><div class="n ${s.tone || ""}">${s.n}</div>${
+                  conVar ? (s.d || `<i class="sh-var"></i>`) : ""
+                }<div class="t">${s.t}</div></div>`).join("");
+              })()}
           </div>
           <${focus.onclick ? `button class="sh-focus" onclick="${focus.onclick}"` : `div class="sh-focus"`}>
             <span class="shf-k" style="color:${focus.color}">${escapeHtml(focus.k)}</span>
