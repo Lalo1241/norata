@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.21";
+const VERSION = "0.7.21.1";
 const VERSION_FECHA = "27 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -129,6 +129,15 @@ const ICONS = {
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   play: '<path d="M8 5.5l11 6.5-11 6.5z" stroke-linejoin="round"/>',
   alert: '<path d="M12 7v7M12 17.4v.2"/>',
+  /* El bicho de reportar fallos. Un escarabajo visto desde arriba: cuerpo,
+     cabeza, la raya de la espalda y tres patas por lado. Dibujado a trazo como
+     todos los demás —nada de relleno— para que herede el color de quien lo
+     use, y con las patas separadas del cuerpo para que a 16 px no se
+     empasten en una mancha. */
+  bicho: '<ellipse cx="12" cy="13" rx="5" ry="6.2"/><path d="M12 6.8V19"/>' +
+         '<path d="M9.2 7.6a3.2 3.2 0 015.6 0"/>' +
+         '<path d="M7 9.2L3.6 7.4M7 13H3.2M7.2 16.8L4 18.9"/>' +
+         '<path d="M17 9.2l3.4-1.8M17 13h3.8M16.8 16.8l3.2 2.1"/>',
   close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
   settings: '<path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/>',
   /* Sol y luna: los dos modos de la app. Ocho rayos y no doce, porque a

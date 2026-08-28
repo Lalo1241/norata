@@ -832,6 +832,15 @@
   <div class="side-version side-only" id="side-version" title="Versión de la app"></div>
 </div>
 
+<!-- ============ REPORTAR UN FALLO ============
+     Abajo a la derecha y fuera de la barra de navegación a propósito: no es
+     una sección de la app, es una salida de emergencia. Tiene que estar en la
+     misma esquina en todas las pantallas, incluida aquella en la que algo se
+     acaba de romper — y si viviera dentro de la barra, la pantalla que la
+     tapa se llevaría también el botón para avisar de que la tapa. -->
+<button class="bug-btn" id="bug-btn" onclick="reportarFallo()"
+        aria-label="Reportar un fallo" title="Reportar un fallo"></button>
+
 <!-- ============ RAMA A PANTALLA COMPLETA ============ -->
 <div class="fs-overlay" id="fs-overlay">
   <div class="fs-bar">
