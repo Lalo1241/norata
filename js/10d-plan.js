@@ -859,7 +859,7 @@ function compraPintar(estado) {
     "Los resúmenes del mes y del año",
     "Todas las apariencias"
   ];
-  if (fundador) abiertas.push("Tu distintivo: el anillo lila y la piedra con corona");
+  if (fundador) abiertas.push("Tu distintivo: el anillo lila y tu propia piedra");
 
   lista.className = "compra-lista";
   lista.innerHTML = abiertas.map(t =>
@@ -1094,12 +1094,26 @@ function planCambiarPeriodo(cual) {
    29% hay que traducirlo antes de que signifique algo, y «dos meses gratis»
    se entiende sin hacer ninguna cuenta. */
 function planConmutadorHTML() {
-  const uno = (k, texto, extra) =>
+  const uno = (k, texto) =>
     `<button type="button" class="plan-per${planPeriodo === k ? " on" : ""}"
        onclick="planCambiarPeriodo('${k}')"${planPeriodo === k ? ` aria-current="true"` : ""}>${
-      escapeHtml(texto)}${extra ? `<i>${escapeHtml(extra)}</i>` : ""}</button>`;
+      escapeHtml(texto)}</button>`;
+
+  /* El gancho del anual va DEBAJO y no dentro del botón. Metido dentro
+     obligaba a dos renglones —«Anual» y «2 meses gratis»—, y un conmutador de
+     dos alturas distintas dentro de una tarjeta estrecha se comía la mitad
+     del sitio del precio. Fuera cabe en una línea, el control vuelve a ser
+     una sola franja, y el argumento se sigue leyendo antes de tocarlo, que es
+     lo único que tenía que pasar.
+
+     Solo cuando está puesto el mensual: con el anual ya elegido, el pie de la
+     tarjeta lo dice, y decirlo dos veces a tres centímetros no informa dos
+     veces, ensucia una. */
   return `<div class="plan-per-wrap" role="group" aria-label="Cada cuánto se cobra Pro">${
-    uno("mensual", "Mensual")}${uno("anual", "Anual", "2 meses gratis")}</div>`;
+    uno("mensual", "Mensual")}${uno("anual", "Anual")}</div>` +
+    (planPeriodo === "mensual"
+      ? `<span class="plan-gancho">El anual sale dos meses más barato.</span>`
+      : `<span class="plan-gancho"></span>`);
 }
 
 /* Las dos tarjetas. Las ventajas van DENTRO y salen de `ventajasPro()`, que
@@ -1115,10 +1129,37 @@ function planTarjetasHTML() {
   const vent = (lista) => `<ul class="plan-vent">` +
     lista.map(t => `<li>${escapeHtml(t)}</li>`).join("") + `</ul>`;
 
+  /* La piedra del plan, al lado de su nombre. Es la MISMA que sale en la
+     cabecera, en la fila del índice, en la chapa del mini menú y encima de su
+     columna en la tabla comparativa: quien haya visto una la reconoce aquí sin
+     leer, y quien la vea aquí primero la reconocerá después en su cuenta.
+     Sale de `icon("plan-*")`, igual que en los otros cuatro sitios, para que
+     el día que cambie el dibujo cambien los cinco a la vez. */
+  const conPiedra = (nivel, nombre) =>
+    `<span class="plan-n">${icon("plan-" + nivel, 19)}${escapeHtml(nombre)}</span>`;
+
+  /* Las tres de Fundador, y por qué dicen lo que dicen:
+
+     · «Todo lo de Pro, sin fecha» no decía **qué** pasaba con la fecha: se
+       leía como una carencia, como si le faltara algo. Ahora dice que no
+       caduca, que es lo contrario.
+     · Lo que venga después va incluido, y hay que decirlo: es la mitad del
+       valor de un pago único y no estaba escrito en ningún sitio. Se promete
+       sobre **Pro** y no sobre «Norata entera» a propósito: es lo que el plan
+       abre de verdad, y una promesa más ancha sería una que algún día habría
+       que romper.
+     · «Piedra con corona» era la pieza descrita por dentro. Lo que la persona
+       ve es un anillo en su foto y una piedra distinta a la de los demás. */
+  const ventajasFundador = [
+    "Pro entero y sin límites, para siempre",
+    "Todo lo que Norata añada a Pro, sin volver a pagar",
+    "Anillo lila en tu perfil y tu propia piedra"
+  ];
+
   return `<div class="plan-cards dos">
       <div class="plan-card destacada">
         ${planConmutadorHTML()}
-        <span class="plan-n">${escapeHtml(NOMBRE_PRO)}</span>
+        ${conPiedra("pro", NOMBRE_PRO)}
         <span class="plan-p">${escapeHtml(p.precio)} <i>${escapeHtml(p.periodo)}</i></span>
         <span class="plan-d">${escapeHtml(p.pie)}</span>
         ${vent(ventajasPro())}
@@ -1131,12 +1172,29 @@ function planTarjetasHTML() {
              si no se le reserva la fila, su nombre y su precio quedan una
              franja mas arriba que los de Pro y las dos tarjetas dejan de
              leerse como una comparacion. Solo cuando estan lado a lado: en el
-             telefono van una debajo de otra y ahi el hueco seria un vacio. -->
-        <span class="plan-hueco" aria-hidden="true"></span>
-        <span class="plan-n">${escapeHtml(f.nombre)}</span>
+             telefono van una debajo de otra y ahi el hueco seria un vacio.
+
+             Y es una COPIA del conmutador de verdad, escondida, en vez de una
+             altura escrita a mano. Con un numero fijo se quedaba ocho pixeles
+             corto, y peor: cualquier retoque futuro al conmutador —una letra
+             mas grande, otro relleno— lo habria vuelto a descuadrar sin que
+             nada avisara. Copiado, las dos tarjetas miden igual por
+             construccion. Van SPAN y no BUTTON para que no se puedan enfocar,
+             y visibility:hidden los saca ademas del lector de pantalla.
+
+             Ojo con las comillas invertidas aqui dentro: esto es un comentario
+             de HTML, pero vive dentro de una plantilla de JavaScript, asi que
+             una comilla invertida la corta y el archivo entero deja de
+             cargarse. Costo un rato averiguarlo porque el sintoma es que
+             desaparecen funciones sueltas, no un error a la vista. -->
+        <div class="plan-hueco" aria-hidden="true">
+          <div class="plan-per-wrap"><span class="plan-per on">Mensual</span><span class="plan-per">Anual</span></div>
+          <span class="plan-gancho">El anual sale dos meses más barato.</span>
+        </div>
+        ${conPiedra("fundador", f.nombre)}
         <span class="plan-p">${escapeHtml(f.precio)} <i>${escapeHtml(f.periodo)}</i></span>
         <span class="plan-d">${escapeHtml(f.pie)}</span>
-        ${vent(["Todo lo de Pro, sin fecha", "Anillo lila y piedra con corona"])}
+        ${vent(ventajasFundador)}
         <button class="btn btn-primary btn-block"
           onclick="irAPagarDesdeAjustes('fundador', this)">Pasar a ser Fundador</button>
       </div>
@@ -1545,10 +1603,14 @@ function planFilasComparadas() {
        sola vez" era una tercera forma de decir lo mismo. */
     ["Cómo se paga", "Es gratis", "Suscripción", ojo("Pago único")],
     /* El distintivo de fundador existe hoy y no es una promesa: el anillo
-       alrededor del círculo de la cuenta y la piedra con corona en vez de la
+       alrededor del círculo de la cuenta y su propia piedra en vez de la
        tallada. El anillo es LILA desde 0.7.13 — si vuelve a cambiar de color,
-       esta línea cambia con él o pasa a describir algo que no se ve. */
-    ["Distintivo de fundador", "—", "—", ojo("Anillo lila y piedra con corona")]
+       esta línea cambia con él o pasa a describir algo que no se ve.
+
+       "Piedra con corona" describía la pieza por dentro; lo que la persona ve
+       es que la suya no se parece a la de nadie más. Esta celda y la ventaja
+       de la tarjeta dicen lo mismo a propósito: son la misma promesa. */
+    ["Distintivo de fundador", "—", "—", ojo("Anillo lila y piedra propia")]
   ];
 }
 
