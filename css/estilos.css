@@ -5346,37 +5346,49 @@
   .sgm.actual .sgm-n, .sgm.actual .sgm-v { color: var(--text); }
   .sgm.actual .sgm-b i { background: var(--mint); }
 
-  /* ---- Un acomodo por ancho ----
-     La tarjeta puede ocupar una, dos o tres columnas del tablero, y estirar
-     el mismo acomodo en los tres deja o el calendario ahogado o media
-     tarjeta de cielo vacío. El ancho llega en , que lo escribe
-     el propio tablero al dibujar la pieza.
+  /* ---- Un acomodo por ancho, medido en PÍXELES ----
+     Primero se hizo con el número de columnas del tablero, y estaba mal
+     planteado: «una columna» no quiere decir «estrecha». Una columna del
+     tablero son unos 470 px en escritorio —sitio de sobra para dos bloques
+     lado a lado— y en el teléfono son 340, donde no cabe ninguno. La misma
+     tarjeta de "una columna" describía las dos cosas, y por eso una tarjeta
+     estrecha en la computadora acababa acaparando media pantalla de alto.
 
-     Se lee del contenedor y no de la ventana: la misma pantalla de 1700 px
-     puede tener esta tarjeta de una columna o de tres, y una consulta de
-     ventana no sabe distinguirlas. */
-  .widget[data-ancho="2"] .streak-grid,
-  .widget[data-ancho="3"] .streak-grid {
-    flex-direction: row; align-items: flex-start; gap: 28px;
+     Ahora manda el ancho real de la tarjeta, con `@container`. Es lo que hace
+     falta aquí y no una consulta de ventana: dos tarjetas de la misma
+     pantalla pueden medir la mitad una que la otra. */
+  .streak-card { container-type: inline-size; }
+
+  /* Apilada, que es el caso del teléfono: el calendario se lleva el ancho
+     entero con la casilla topada — `1fr` sin límite lo convierte en seis
+     filas de ladrillos, y ya pasó una vez con este mismo calendario. */
+  .rc { max-width: 100%; }
+  .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, minmax(0, 44px)); }
+
+  @container (min-width: 430px) {
+    /* Dos bloques lado a lado en cuanto caben, con las casillas pequeñas. Es
+       lo que devuelve la tarjeta de una columna a cinco filas de alto en vez
+       de nueve. */
+    .streak-grid { flex-direction: row; align-items: flex-start; gap: 24px; }
+    .sg-izq { flex: 1; min-width: 0; }
+    .sg-der { flex: none; }
+    .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, 30px); gap: 4px; }
+    .rc-d { font-size: 11px; border-radius: 7px; }
   }
-  .widget[data-ancho="2"] .sg-izq,
-  .widget[data-ancho="3"] .sg-izq { flex: 1; min-width: 0; }
-  .widget[data-ancho="2"] .sg-der,
-  .widget[data-ancho="3"] .sg-der { flex: none; }
-  /* La tercera columna se lleva el resto del ancho y no más de lo que
-     necesita: con `flex: 1` sin tope, en una pantalla muy ancha las barras se
-     estiraban medio metro y dejaban de compararse entre ellas. */
-  .widget[data-ancho="3"] .sg-extra { flex: 1; min-width: 0; max-width: 320px; }
 
-  /* Apilada —una sola columna— el calendario se lleva el ancho entero, que es
-     donde peor se veía antes. */
-  .widget[data-ancho="1"] .rc { max-width: 100%; }
-  /* Con tope, aunque se lleve el ancho entero: `1fr` sin límite convierte una
-     columna ancha en seis filas de ladrillos —ya pasó una vez con este mismo
-     calendario—. En un teléfono la casilla se queda en unos 45 px, que es lo
-     que hay; en una columna ancha deja de crecer a 56. */
-  .widget[data-ancho="1"] .rc-dow,
-  .widget[data-ancho="1"] .rc-rejilla { grid-template-columns: repeat(7, minmax(0, 56px)); }
+  @container (min-width: 760px) {
+    /* Con sitio de sobra, las casillas vuelven a su tamaño cómodo. */
+    .streak-grid { gap: 28px; }
+    .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, 42px); }
+    .rc-d { font-size: 12px; border-radius: 8px; }
+  }
+
+  @container (min-width: 1150px) {
+    /* La tercera columna se lleva el resto y no más de lo que necesita: con
+       `flex: 1` sin tope, en una pantalla muy ancha las barras se estiraban
+       medio metro y dejaban de compararse entre ellas. */
+    .sg-extra { flex: 1; min-width: 0; max-width: 320px; }
+  }
 
   /* Un mes: siete columnas, las iniciales arriba y una casilla por día. Las
      casillas se estiran con la tarjeta —`1fr` y `aspect-ratio`— en vez de
