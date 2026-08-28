@@ -5966,20 +5966,31 @@
   flex: none; display: block;
   width: 16px; height: 16px; border-radius: 5px;
   background: var(--fire-macizo);
+  /* El borde en el tono de trazar, por dentro para no mover nada de sitio.
+     De noche los dos tonos valen lo mismo y no se ve; de día el relleno es
+     amarillo vivo sobre papel casi blanco —1,4 sobre 1— y sin el filo el
+     cuadrado desaparece. Es la misma razón por la que un acento se parte en
+     dos: rellenar y dibujar no son el mismo trabajo. */
+  box-shadow: inset 0 0 0 1.5px var(--fire);
 }
-.plan-fila i.off { background: none; border: 1.5px dashed var(--carril); }
+.plan-fila i.off { background: none; box-shadow: none; border: 1.5px dashed var(--faint); }
 
 /* Las ramas llevan su nombre dentro: son pocas y es el único dato que las
    distingue. Un cuadrito anónimo obligaba a preguntar «¿cuál rama?». */
 .plan-chip {
+  /* Un nombre de rama puede ser tan largo como se quiera. Sin el tope se
+     comía la fila entera y se cortaba a mitad de palabra contra el borde,
+     que parece un fallo de pintado; con los puntos suspensivos se lee como
+     lo que es, un nombre que no cabe. */
   flex: none; white-space: nowrap;
+  max-width: 46%; overflow: hidden; text-overflow: ellipsis;
   font-size: 11.5px; font-weight: 700;
   padding: 4px 9px; border-radius: 8px;
   background: var(--mint-soft); color: var(--mint);
   border: 1.5px solid transparent;
 }
 .plan-chip.off {
-  background: none; border: 1.5px dashed var(--carril);
+  background: none; border: 1.5px dashed var(--faint);
   min-width: 52px; min-height: 25px;
 }
 
@@ -5990,6 +6001,14 @@
   mask-image: linear-gradient(to right, transparent 0, #000 62px);
 }
 .plan-lienzo svg { display: block; }
+/* Las líneas de la rama, más apagadas que los nodos: son el hueso, no el
+   dato. La opacidad va aquí y no en el atributo del SVG porque de día hay
+   que subirla — el tono de trazar sobre papel es oscuro y a la mitad de
+   opacidad una línea de 1,5 px se pierde. Un atributo de presentación pierde
+   contra una regla, así que no hay que volver a dibujar nada al cambiar de
+   modo (misma razón por la que el resplandor se apaga desde el CSS). */
+.plan-linea { stroke-opacity: .5; }
+html.claro .plan-linea { stroke-opacity: .85; }
 /* La cuenta se cambia de esquina cuando el mapa se recorta: en la izquierda
    quedaría justo debajo del degradado, medio borrada. */
 .plan-cuenta {

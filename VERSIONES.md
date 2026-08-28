@@ -52,6 +52,22 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.26 · 27 ago 2026
+La pantalla del plan sale de verdad.
+
+**El número, y por qué hay dos.** Lo de esta pantalla está contado entero en
+la entrada de 0.7.25, de abajo —ahí se escribió—, pero **el código no iba
+dentro de ese commit**: 0.7.25 subió con el renglón de la versión y el bicho,
+y `js/10d-plan.js` y su CSS se quedaron sin subir. Como los aparatos ya
+instalados tienen guardado `norata-0.7.25`, volver a subir con ese número les
+habría dejado la copia vieja para siempre: el `CACHE` de `sw.js` es lo único
+que les dice que hay algo nuevo que pedir.
+
+De ahí la regla, que ya estaba escrita y esta vez se notó por qué: **el número
+sube cuando sube el archivo, no cuando se escribe el cambio.**
+
+Aquí van `js/10d-plan.js` y `css/estilos.css`. Nada más.
+
 ### 0.7.25 · 27 ago 2026
 La pantalla del plan deja de contestar dos preguntas a la vez, Alpha se
 despega del número y el bicho parece un bicho.

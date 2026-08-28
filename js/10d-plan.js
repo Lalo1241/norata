@@ -894,22 +894,34 @@ function renderPanelPlan() {
     return;
   }
 
-  /* La versión libre también es un plan y se pinta como tal: la cabecera con
-     su piedra, y debajo el detalle de lo que hay abierto ahora mismo. Antes
-     aquí solo había un rótulo y un renglón, y las tres tarjetas de venta se
-     llevaban la pantalla entera — así que la sección contestaba «qué te
-     vendemos» y no «qué tienes», que es a lo que se entra. */
+  /* La versión libre contesta UNA pregunta, no dos.
+
+     Aquí había cuatro bloques seguidos: la cabecera, la lista de seis
+     renglones con los topes, el botón de comparar y las tarjetas de precio.
+     Entre la lista y la tabla comparativa se decía lo MISMO dos veces con
+     otras palabras, y el precio —lo único que hay que decidir en esta
+     pantalla— quedaba al final, después de dos bloques de lectura.
+
+     Ahora: dónde vas contra el tope, el precio, y la tabla al pie para quien
+     quiera el detalle. `planIncluyeHTML` sigue viva y sigue pintándose para
+     quien YA paga, que es donde contesta la pregunta correcta —qué tengo
+     abierto—; aquí sus datos viven dentro de las tarjetas, dichos como lo que
+     ganas y no como inventario de lo que te falta.
+
+     El bloque de topes manda sobre la cabecera y no se suma a ella: dice el
+     plan en el que estás dentro de su propio cierre, así que las dos juntas
+     serían el nombre del plan escrito dos veces con dos centímetros de
+     separación. Cuando no aprieta ningún tope no sale, y entonces la cabecera
+     vuelve a su sitio. */
+  const topes = planTopesHTML();
   caja.innerHTML =
     `<h3>Tu plan</h3>` +
-    planCabeceraHTML() +
-    planIncluyeHTML(false) +
-    planCompararHTML() +
-    `<h4 class="plan-h">Qué se desbloquea con ${NOMBRE_PRO}</h4>
-     <p class="settings-note">Las ramas que quieras y sin tope de talentos dentro de cada una. Lo que ya escribiste no se toca nunca: al cambiar de plan no se borra nada.</p>
-     <div class="plan-cards">` +
-    Object.keys(PLANES).map(k => planTarjetaHTML(k)).join("") +
-    `</div>` +
-    planLegalHTML();
+    (topes || planCabeceraHTML()) +
+    `<h4 class="plan-h">Quita los topes</h4>
+     <p class="settings-note">Las ramas que quieras y sin tope de talentos dentro de cada una. Lo que ya escribiste no se toca nunca: al cambiar de plan no se borra nada.</p>` +
+    planTarjetasHTML() +
+    planLegalHTML() +
+    planCompararHTML();
 }
 
 /* ---- La cabecera: qué plan, cuánto cuesta y qué le pasa ----
@@ -1050,16 +1062,323 @@ function planActivoHTML() {
    número al servidor y lo pintaba. Se retira: el cupo no se hace público por
    ahora. `lugaresDeFundador()` se queda viva —la landing la usa— y la tarjeta
    sigue diciendo que el cupo existe, que es verdad, sin dar la cifra. */
-function planTarjetaHTML(k) {
-  const p = PLANES[k];
-  const marcada = p.destacado || p.limitado;
-  return `<div class="plan-card${p.destacado ? " destacada" : ""}${p.limitado ? " limitada" : ""}">
-      ${p.tag ? `<span class="plan-tag${p.limitado ? " lila" : ""}">${escapeHtml(p.tag)}</span>` : ""}
-      <span class="plan-n">${escapeHtml(p.nombre)}</span>
-      <span class="plan-p">${escapeHtml(p.precio)} <i>${escapeHtml(p.periodo)}</i></span>
-      <span class="plan-d">${escapeHtml(p.pie)}</span>
-      <button class="btn ${marcada ? "btn-primary" : "btn-soft"} btn-block"
-        onclick="irAPagarDesdeAjustes('${k}', this)">Elegir</button>
+/* Cada cuánto se cobra Pro. En una variable y no en tres tarjetas, porque
+   mensual y anual NO son dos planes: son el mismo Pro cobrado con otro ritmo,
+   y eso ya lo dice `LIMITES`, que tiene dos entradas y no tres. Puestos como
+   tres tarjetas iguales, la pantalla contaba tres cosas que elegir cuando solo
+   hay dos, y la tercera decisión —¿me conviene el anual?— se resolvía
+   comparando dos precios que no estaban en la misma frase.
+
+   Arranca en MENSUAL a propósito, aunque el anual salga mejor y sea el que
+   recomendamos de los dos: una pantalla que aparece con la opción más cara ya
+   elegida es la clase de detalle que se nota y que hace desconfiar del resto.
+   El incentivo se dice en el conmutador —dos meses gratis— y quien lo quiera
+   lo toca. */
+let planPeriodo = "mensual";
+
+function planCambiarPeriodo(cual) {
+  if (planPeriodo === cual) return;
+  planPeriodo = cual;
+  renderPanelPlan();
+}
+
+/* El ahorro del anual va en MESES y no en porcentaje. Lo eligió Eduardo: el
+   29% hay que traducirlo antes de que signifique algo, y «dos meses gratis»
+   se entiende sin hacer ninguna cuenta. */
+function planConmutadorHTML() {
+  const uno = (k, texto, extra) =>
+    `<button type="button" class="plan-per${planPeriodo === k ? " on" : ""}"
+       onclick="planCambiarPeriodo('${k}')"${planPeriodo === k ? ` aria-current="true"` : ""}>${
+      escapeHtml(texto)}${extra ? `<i>${escapeHtml(extra)}</i>` : ""}</button>`;
+  return `<div class="plan-per-wrap" role="group" aria-label="Cada cuánto se cobra Pro">${
+    uno("mensual", "Mensual")}${uno("anual", "Anual", "2 meses gratis")}</div>`;
+}
+
+/* Las dos tarjetas. Las ventajas van DENTRO y salen de `ventajasPro()`, que
+   las calcula comparando `LIMITES.pro` con `LIMITES.libre`: son las mismas que
+   ya usaba el aviso de tope, así que no pueden acabar prometiendo cosas
+   distintas en dos pantallas.
+
+   Fundador no lleva ventajas calculadas porque las suyas no son topes: es Pro
+   con otra forma de pagarse, más lo que se ve. Por eso su lista es corta y
+   escrita, y por eso su etiqueta dice otra cosa que la de Pro. */
+function planTarjetasHTML() {
+  const p = PLANES[planPeriodo], f = PLANES.fundador;
+  const vent = (lista) => `<ul class="plan-vent">` +
+    lista.map(t => `<li>${escapeHtml(t)}</li>`).join("") + `</ul>`;
+
+  return `<div class="plan-cards dos">
+      <div class="plan-card destacada">
+        ${planConmutadorHTML()}
+        <span class="plan-n">${escapeHtml(NOMBRE_PRO)}</span>
+        <span class="plan-p">${escapeHtml(p.precio)} <i>${escapeHtml(p.periodo)}</i></span>
+        <span class="plan-d">${escapeHtml(p.pie)}</span>
+        ${vent(ventajasPro())}
+        <button class="btn btn-primary btn-block"
+          onclick="irAPagarDesdeAjustes('${planPeriodo}', this)">Pasar a Pro</button>
+      </div>
+      <div class="plan-card limitada">
+        <span class="plan-tag lila">${escapeHtml(f.tag)}</span>
+        <span class="plan-n">${escapeHtml(f.nombre)}</span>
+        <span class="plan-p">${escapeHtml(f.precio)} <i>${escapeHtml(f.periodo)}</i></span>
+        <span class="plan-d">${escapeHtml(f.pie)}</span>
+        ${vent(["Todo lo de Pro, sin fecha", "Anillo lila y piedra con corona"])}
+        <button class="btn btn-primary btn-block"
+          onclick="irAPagarDesdeAjustes('fundador', this)">Ser fundador</button>
+      </div>
+    </div>`;
+}
+
+/* ================= Dónde vas contra el tope =================
+
+   El argumento más fuerte para pagar no está en el folleto: está en los datos
+   de quien mira. «Ya llenaste tu única rama» pesa más que «ramas ilimitadas»,
+   porque lo segundo hay que imaginárselo y lo primero ya te pasó.
+
+   Tres decisiones que no se deshacen sin volver a discutirlas:
+
+   1. **Solo sale cuando aprieta.** Con 2 de 12 el mensaje sería «te falta
+      mucho»: verdad, pero no dice nada, y ocupa el sitio del precio. Peor
+      todavía, una cuenta recién creada estrenaría Norata mirando un contador
+      de lo que no tiene. Sale a partir de `PLAN_AVISA_DESDE`.
+
+   2. **El conteo dice lo que QUEDA, nunca lo gastado.** «Te quedan 3», y que
+      llegue a cero es el mensaje, no un caso raro que haya que esquivar.
+
+   3. **Un hueco vacío solo se dibuja si existe.** Esto empezó siendo un fallo:
+      se pintaban dos cuadros de rama —uno lleno y uno por abrir— cuando el
+      plan Gratuito da UNA. Ese hueco prometía una rama que no está. Con una
+      sola rama se pinta un cuadro, lleno, con su nombre dentro, y el conteo
+      dice cero. */
+
+/* Cuántos huecos tienen que quedar para que valga la pena decirlo. */
+const PLAN_AVISA_DESDE = 3;
+
+/* Cuántos llenos se ven cuando hay muchos. El resto se los come el degradado
+   de la izquierda, que es lo que dice «hay más» sin tener que dibujarlos: con
+   el tope en 12 se pintaban doce cuadritos, y el día que el tope suba a 30
+   serían treinta. Lo que hay que contar es siempre lo de la derecha. */
+const PLAN_NODOS_VISTOS = 3;
+const PLAN_NODOS_SIN_RECORTE = 6;
+
+/* Lo que sabemos del tope ahora mismo, o `null` si no hay nada que decir.
+   Devuelve la rama MÁS LLENA y no todas: enseñar seis ramas con sus seis
+   cuentas convierte un argumento en una tabla, y la que aprieta es una sola. */
+function planTopeDatos() {
+  if (PLAN.pro) return null;
+  if (typeof ramasDe !== "function" || typeof talentosDeRama !== "function") return null;
+
+  const ramas = ramasDe("perks");
+  if (!ramas.length) return null;      // sin árbol no hay tope que doler
+
+  let rama = null, llenos = -1;
+  ramas.forEach(b => {
+    const n = talentosDeRama(b).length;
+    if (n > llenos) { rama = b; llenos = n; }
+  });
+
+  const topeT = LIMITES.libre.talentos, topeR = LIMITES.libre.ramas;
+  const quedanT = topeT === Infinity ? Infinity : Math.max(0, topeT - llenos);
+  const quedanR = topeR === Infinity ? Infinity : Math.max(0, topeR - ramas.length);
+
+  /* Dispara SOLO el tope de talentos. El de ramas está a cero desde el primer
+     día —el plan da una— así que si contara, el bloque saldría siempre y
+     dejaría de significar nada. Que no haya sitio para otra rama se dice
+     cuando alguien intenta crearla, que es `topeAlcanzado("ramas")`. */
+  if (!(quedanT <= PLAN_AVISA_DESDE)) return null;
+
+  return { ramas, rama, llenos, quedanT, quedanR, topeT, topeR };
+}
+
+/* La fila de cuadritos. `recorta` no depende del tope sino de cuántos hay:
+   con seis o menos caben todos y el degradado sobraría. */
+function planNodosHTML(llenos, quedan) {
+  const recorta = llenos > PLAN_NODOS_SIN_RECORTE;
+  const dibuja = recorta ? PLAN_NODOS_VISTOS : llenos;
+  const huecos = quedan === Infinity ? 0 : quedan;
+  return `<div class="plan-fila${recorta ? " mas" : ""}" aria-hidden="true">` +
+    `<i></i>`.repeat(dibuja) +
+    `<i class="off"></i>`.repeat(huecos) +
+    `</div>`;
+}
+
+/* Las ramas no son cuadritos anónimos: son pocas y tienen nombre, y un
+   cuadrado sin nombre desperdicia el único dato que las distingue. */
+function planChipsRamasHTML(ramas, quedan) {
+  const recorta = ramas.length > PLAN_NODOS_VISTOS;
+  const ver = recorta ? ramas.slice(-PLAN_NODOS_VISTOS) : ramas;
+  const huecos = quedan === Infinity ? 0 : quedan;
+  return `<div class="plan-fila${recorta ? " mas" : ""}">` +
+    ver.map(b => `<b class="plan-chip">${escapeHtml(b)}</b>`).join("") +
+    `<b class="plan-chip off" aria-hidden="true"></b>`.repeat(huecos) +
+    `</div>`;
+}
+
+/* ---- El dibujo de la rama ----
+   El mismo mapa de Talentos, en pequeño. No es una ilustración de «un árbol»:
+   son TUS nodos en las posiciones en las que los dejaste, así que una rama
+   ancha y una rama alta no se ven igual y la tuya se reconoce.
+
+   Dos reglas que lo mantienen honesto:
+
+   · **Nunca se estira.** Se elige una escala y se recorta lo que no cabe,
+     porque una rama larga metida a la fuerza en un recuadro apaisado sale
+     deformada y deja de parecerse a la que la persona conoce.
+   · **Se recorta por la IZQUIERDA**, que es donde ya no hay nada que decidir.
+     A la derecha se quedan las puntas y los sitios donde todavía puede crecer.
+
+   Se apoya en `branchLayout` de `07-lienzo.js`, que es quien decide dónde cae
+   cada nodo en el mapa de verdad. Copiar aquí ese reparto habría creado un
+   dibujo que se parece al árbol hasta el día que el árbol cambie. */
+const PLAN_SVG_H = 108;
+
+/* El ancho del recuadro tiene que parecerse al del hueco donde va a caber,
+   porque de ahí sale cuánto mapa se enseña. Un SVG nunca estira su contenido
+   —`preserveAspectRatio` lo impide, y estirarlo es justo lo que deformaría la
+   rama—, así que si el número miente el dibujo no se rompe: se queda pequeño
+   contra un borde con la mitad del recuadro vacía.
+
+   `isDesktop()` es el mismo interruptor que usa `branchLayout` para separar
+   los nodos, así que las dos mitades del dibujo cambian de idea a la vez. */
+function planSvgAncho() {
+  return (typeof isDesktop === "function" && isDesktop()) ? 620 : 264;
+}
+const PLAN_SVG_ESC = 0.30;   // cuánto se encoge el mapa real
+const PLAN_SVG_PAD = 34;     // aire alrededor, en unidades del mapa
+const PLAN_SVG_PASO = 168;   // a qué distancia cuelgan los nodos por abrir
+
+function planRamaSVG(b, quedan) {
+  if (typeof branchNodes !== "function" || typeof branchLayout !== "function") return null;
+  let nodes, lay;
+  try {
+    nodes = branchNodes(b) || [];
+    if (!nodes.length) return null;
+    lay = branchLayout(nodes);
+  } catch (e) {
+    /* El dibujo es un adorno del argumento, no el argumento. Si el mapa no se
+       puede calcular, el bloque sigue en pie con sus cuadritos y su cuenta. */
+    return null;
+  }
+
+  const pos = lay.pos;
+  const puestos = nodes.filter(n => pos[n.id]);
+  if (!puestos.length) return null;
+
+  const xs = puestos.map(n => pos[n.id].x), ys = puestos.map(n => pos[n.id].y);
+  let minX = Math.min(...xs), maxX = Math.max(...xs);
+  let minY = Math.min(...ys), maxY = Math.max(...ys);
+
+  /* Los que faltan cuelgan de la derecha, repartidos alrededor de la altura
+     de los nodos más profundos: es hacia donde crecería la rama si hubiera
+     sitio, y es lo que el degradado deja siempre a la vista. */
+  const faltan = quedan === Infinity ? 0 : Math.min(quedan, 3);
+  const puntas = puestos.filter(n => pos[n.id].x > maxX - 1);
+  const cy = puntas.length
+    ? puntas.reduce((s, n) => s + pos[n.id].y, 0) / puntas.length
+    : (minY + maxY) / 2;
+  const futuros = [];
+  for (let i = 0; i < faltan; i++) {
+    const y = cy + (i - (faltan - 1) / 2) * (PLAN_SVG_PASO * 0.62);
+    futuros.push({ x: maxX + PLAN_SVG_PASO, y, de: puntas[i % Math.max(1, puntas.length)] });
+  }
+  if (futuros.length) {
+    maxX = Math.max(maxX, ...futuros.map(f => f.x));
+    minY = Math.min(minY, ...futuros.map(f => f.y));
+    maxY = Math.max(maxY, ...futuros.map(f => f.y));
+  }
+
+  const ancho = (maxX - minX) + PLAN_SVG_PAD * 2;
+  const alto = (maxY - minY) + PLAN_SVG_PAD * 2;
+  /* De alto SIEMPRE cabe todo: cortar un nodo por arriba sin avisar es
+     mentir sobre cuántos hay. De ancho es donde se recorta. */
+  const esc = Math.min(PLAN_SVG_ESC, PLAN_SVG_H / alto);
+  const caja = planSvgAncho();
+  const VW = caja / esc, VH = PLAN_SVG_H / esc;
+  const recorta = ancho > VW;
+  const vbX = recorta ? (maxX + PLAN_SVG_PAD - VW) : ((minX + maxX) / 2 - VW / 2);
+  const vbY = ((minY + maxY) / 2 - VH / 2);
+
+  const R = Math.round(5.5 / esc), GR = Math.round(1.5 / esc);
+  const linea = [];
+  puestos.forEach(n => {
+    (lay.padresDe[n.id] || []).forEach(pid => {
+      if (!pos[pid]) return;
+      linea.push(`M${Math.round(pos[pid].x)} ${Math.round(pos[pid].y)} L${Math.round(pos[n.id].x)} ${Math.round(pos[n.id].y)}`);
+    });
+  });
+
+  /* Anclado a la DERECHA cuando se recorta: si el hueco resulta ser más ancho
+     de lo previsto, lo que sobra se queda del lado del degradado —vacío y sin
+     verse— y las puntas de la rama siguen pegadas al borde donde se buscan. */
+  const svg = `<svg viewBox="${Math.round(vbX)} ${Math.round(vbY)} ${Math.round(VW)} ${Math.round(VH)}"
+      preserveAspectRatio="${recorta ? "xMaxYMid" : "xMidYMid"} meet"
+      width="100%" height="${PLAN_SVG_H}" role="img" aria-hidden="true" focusable="false">
+      ${linea.length ? `<path class="plan-linea" d="${linea.join(" ")}" fill="none" stroke="var(--mint)" stroke-width="${GR}"></path>` : ""}
+      ${futuros.map(f => f.de
+        ? `<path d="M${Math.round(pos[f.de.id].x)} ${Math.round(pos[f.de.id].y)} L${Math.round(f.x)} ${Math.round(f.y)}" fill="none" stroke="var(--faint)" stroke-width="${GR}" stroke-dasharray="${GR * 2} ${GR * 2.6}"></path>`
+        : "").join("")}
+      ${puestos.map(n => `<circle cx="${Math.round(pos[n.id].x)}" cy="${Math.round(pos[n.id].y)}" r="${R}" fill="var(--mint)"></circle>`).join("")}
+      ${futuros.map(f => `<circle cx="${Math.round(f.x)}" cy="${Math.round(f.y)}" r="${R}" fill="none" stroke="var(--faint)" stroke-width="${GR}" stroke-dasharray="${GR * 2} ${GR * 2}"></circle>`).join("")}
+    </svg>`;
+
+  return { svg, recorta };
+}
+
+/* El bloque entero, o cadena vacía si no hay nada que decir. Devuelve texto y
+   no `null` porque quien lo llama lo concatena. */
+function planTopesHTML() {
+  const d = planTopeDatos();
+  if (!d) return "";
+
+  const cuenta = (n) => n === Infinity ? "Sin tope" : "Te quedan " + n;
+  const dibujo = planRamaSVG(d.rama, d.quedanT);
+
+  /* El cierre dice en qué plan estás, porque este bloque sustituye a la
+     cabecera. Tres finales, y el tercero es el que se olvidaba:
+
+     · con sitio libre no se menciona el tope de ramas, porque sería un aviso
+       de algo que todavía no pasa;
+     · justo en el tope, se dice;
+     · y **por encima del tope** —alguien que tuvo Pro y lo dejó— hay que decir
+       otra cosa. Aquí se leía «una rama, y ya la tienes» a quien tiene tres, y
+       eso no es una frase mal escrita: es la única pantalla que habla de
+       dinero diciéndole a alguien que tiene menos de lo que tiene. Lo que toca
+       decir ahí es que nada se borró, que es la promesa de la app. */
+  const cuantas = (n) => n === 1 ? "una rama" : n + " ramas";
+  const deMas = d.topeR === Infinity ? 0 : d.ramas.length - d.topeR;
+  let cierre;
+  if (deMas > 0) {
+    cierre = "Estás en Gratuito, que incluye " + cuantas(d.topeR) + ". " +
+      (deMas === 1 ? "La otra sigue" : "Las otras " + deMas + " siguen") +
+      " a la vista y en solo lectura; no se borró nada. Pro " +
+      (deMas === 1 ? "la vuelve" : "las vuelve") +
+      " a poner en marcha y deja de contar los talentos de cada una.";
+  } else if (d.quedanR === 0) {
+    cierre = "Estás en Gratuito: " + cuantas(d.topeR) +
+      (d.topeR === 1 ? ", y ya la tienes. " : ", y ya las tienes. ") +
+      "Pro abre las que quieras y deja de contar los talentos de cada una.";
+  } else {
+    cierre = "Estás en Gratuito. Pro abre las ramas que quieras y deja de " +
+      "contar los talentos de cada una.";
+  }
+
+  /* Cada cosa con el dibujo que le toca, y una sola vez. Los talentos van en
+     el mapa de la rama; las ramas, en pastillas con su nombre. Estuvieron los
+     dos contando talentos —una fila de cuadritos encima del mapa— y era otra
+     vez lo mismo dicho dos veces, que es justo lo que esta pantalla venía a
+     arreglar.
+
+     Los cuadritos se quedan de reserva: si el mapa no se puede dibujar, la
+     cuenta sigue viéndose y no queda un hueco donde había un argumento. */
+  return `<div class="plan-topes">
+      <div class="plan-tope-rot"><span>Tu rama «${escapeHtml(d.rama)}»</span>${
+        dibujo ? "" : `<em>${cuenta(d.quedanT)}</em>`}</div>
+      ${dibujo
+        ? `<div class="plan-lienzo${dibujo.recorta ? " mas" : ""}"><span class="plan-cuenta">${cuenta(d.quedanT)}</span>${dibujo.svg}</div>`
+        : planNodosHTML(d.llenos, d.quedanT)}
+      <div class="plan-tope-rot alto"><span>${d.ramas.length === 1 ? "Tu única rama" : "Tus ramas"}</span><em>${cuenta(d.quedanR)}</em></div>
+      ${planChipsRamasHTML(d.ramas, d.quedanR)}
+      <p class="plan-tope-cierre">${escapeHtml(cierre)}</p>
     </div>`;
 }
 
