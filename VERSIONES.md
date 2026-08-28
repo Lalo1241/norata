@@ -52,8 +52,151 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.18.1 · 27 ago 2026
+El tope del plan deja de parecer un borrado, y el ático deja de venderse.
+
+- **Fuera el ático de todo lo que se cobra.** Se prometía en cinco sitios —la
+  tabla comparativa, «qué tienes ahora», la lista de lo que abre Pro, la
+  pantalla de volver de pagar y el párrafo de Ajustes— y **la función no
+  existe**: el ático no filtra por año ni tiene por dónde hacerlo. Era la
+  única fila que además restringía VER en vez de CREAR, justo lo que el
+  encabezado de este archivo dice que nunca debe existir («si algún día
+  aparece un `puedeVer(...)`, algo se torció»). Se va también `LIMITES.atico`,
+  no solo la fila: un tope que no lee nadie es la segunda verdad de la que
+  avisa `LIMITES`, esperando a que alguien la cablee sin preguntar. Lo decidió
+  Eduardo al verlo. Quedan cuatro promesas y dos están construidas —ramas y
+  talentos—; los resúmenes del mes y del año y las apariencias siguen
+  pendientes, y él está en ello.
+- **El cuadro que aparece al topar con un límite era el mismo `ask()` que
+  confirma un borrado**: misma caja, mismos dos botones, y una frase que
+  describía el tope. Aparece en el instante de mayor intención de compra que
+  tiene la app —alguien que está usando Norata y quiere seguir ahora— y lo
+  contestaba con una ficha técnica. Ahora lleva **título, icono, lo que abre
+  Pro y el precio**, y el título habla de lo que la persona acaba de hacer
+  («Llenaste esta rama») y no de lo que no puede hacer. Los botones pasan de
+  «Ver Pro» a «Quiero Pro».
+- **Las cuatro ventajas salen de comparar `LIMITES.pro` con `LIMITES.libre`**,
+  no escritas a mano: es el único texto de la app que se lee con la cartera en
+  la mano y no puede contradecir a la tabla comparativa.
+- **Tercer tono para el modal, `menta`**, junto a coral y oro. No tiembla ni
+  brilla a propósito: el temblor es para lo que se rompe. El tono ya no se
+  comprueba con un `=== "oro"` sino que viaja como clase, así que el siguiente
+  no obliga a volver a tocar `askBase`.
+- **La pastilla de la lista se hundía en el modo claro** y lo cazó la medición,
+  no la vista: `--mint-soft` levanta respecto al fondo de la página pero no
+  respecto a la tarjeta, que es donde se apoya. De día usa `--card2`, el único
+  tono que levanta en los dos modos. El verde lo ponen las palomitas.
+- El cuerpo del cuadro va todo en `<span>` aunque sea un párrafo y una lista:
+  `#modal-msg` es un `<p>`, y un `<p>` o un `<ul>` dentro de otro `<p>` los
+  saca fuera el navegador y desarma la caja sin dejar rastro en el CSS.
+
+### 0.7.18 · 27 ago 2026
+El panel de números, mucho más informativo. Cinco cosas nuevas y un arreglo
+que cambia lo que decía una cifra.
+
+**El arreglo: «qué versión corre la gente» estaba mintiendo.** Contaba los
+pulsos de siete días agrupados por versión, y eso daba un retrato falso: una
+sola persona que hubiera abierto la app en tres aparatos aparecía tres veces,
+y seguía apareciendo en aparatos donde ya había cerrado la sesión — el pulso
+quedó escrito ese día y no se borra. Lo cazó Eduardo mirando sus propios
+números. Ahora es **una fila por persona: la última versión que vio**.
+
+**El embudo**, de registrarse a seguir esta semana. Cada paso es un trozo del
+anterior y lleva escrito cuánta gente se pierde respecto al de arriba, en vez
+de dejarlo deducir: «de 41 a 33» obliga a hacer la cuenta cada vez que se mira.
+
+**Dos donas**: desde qué aparato y si está instalada o en el navegador. Se
+dibujan con `stroke-dasharray` sobre un círculo y no con arcos calculados a
+mano — son cuatro números en vez de trigonometría, y no hay redondeo que deje
+una rendija entre dos gajos. Con más de cuatro trozos habría que usar barras:
+un pastel de ocho gajos no lo lee nadie.
+
+**La constelación gana una segunda serie y sus referencias.** Las barras del
+fondo son cuentas nuevas y los puntos personas que abrieron; las líneas
+verticales caen en **lunes**, que es lo que permite comparar una semana con la
+anterior — una marca cada tres días sueltos no sirve para eso. La de hoy va
+entera y las demás punteadas, porque el último día casi siempre está a medias.
+
+**Los catorce días van siempre completos**, ceros incluidos, con
+`generate_series`. Antes solo llegaban los días con actividad y la gráfica
+mentió sin que se notara: dos días sueltos con una semana de silencio en medio
+se dibujaban pegados, como si fueran consecutivos.
+
+**Cifras nuevas**: cuentas sin confirmar el correo, cuentas que nunca abrieron
+la app, cuentas que pidieron borrarse, días de uso por persona y aperturas de
+la semana. Las tres primeras salen en una tira de avisos **que solo aparece si
+hay algo que mirar**: una fila de ceros permanente enseña a no mirarla, y
+entonces el día que deja de ser cero tampoco se mira.
+
+**Antes de escribir un solo color se comprobó cada variable contra
+`css/estilos.css`.** Es la leccion de 0.7.6.3, donde un `var(--menta)` que aqui
+se llama `--mint` pintó la gráfica entera de negro sin dar ningún error.
+
+### 0.7.17 · 27 ago 2026
+El ejemplo se mira y ya no se instala, un encargo no se cobra dos veces, y una
+rama recién creada deja de perderse al sincronizar.
+
+La segunda mitad de la revisión: Misiones, Habilidades, Proyectos, el ático,
+el resumen y la sincronía. Dos fallos, los dos de los que se llevan progreso
+por delante — y el ejemplo, que dejó de escribir.
+
+- **«Ver un ejemplo completo» es ahora un previsualizador de verdad.** Antes
+  escribía: metía catorce talentos, tres ramas, seis habilidades y cuatro
+  misiones en la cuenta, guardaba, y **las subía al servidor**. Sin vuelta
+  atrás: para deshacerlo había que ir a Ajustes y borrarlo todo, que se lleva
+  por delante también lo que fuera tuyo. Y en plan Gratuito te dejaba con tres
+  ramas cuando el tope es una, así que arrancabas pasado del límite el primer
+  día. Ahora el estado real se aparta en memoria, el ejemplo se enseña encima
+  con lienzo limpio —sin mezclarse con lo tuyo— y al salir vuelve todo como
+  estaba. Lo decidió Eduardo: *«nunca altera lo que ya está en la memoria de la
+  cuenta del usuario, ya que solo es un previsualizador»*.
+- **El candado está en las dos puertas de salida, no en cada botón.** En
+  `guardarLocal` (el disco) y en `syncTouch` y `syncRun` (el servidor). Es a
+  propósito: dentro del ejemplo se puede tocar TODO —cumplir misiones, mover el
+  árbol, abrir cajas—, que es justamente lo que se viene a probar, y taparlo
+  acción por acción sería una lista que se queda corta en la primera pantalla
+  nueva. `syncRun` importaba más de lo que parecía: por ahí pasan las siete
+  puertas de la sincronía, y cerrando solo `syncTouch` bastaba con entrar al
+  ejemplo y cambiar de pestaña para que se subiera.
+- **Un rótulo amarillo arriba con el botón de salir**, el mismo trato que el de
+  «Cuenta de pruebas» y el mismo color a propósito: es el color con el que la
+  app avisa de que lo que se ve no es real, e inventarle otro haría creer que
+  son avisos de distinta clase. Si están los dos puestos, el de pruebas baja
+  38 px para no quedar montado. Y el botón se agrandó a 27 px de alto: es la
+  única salida, y fallar el toque ahí deja a alguien mirando datos ajenos.
+- **Recargar a media prueba también sale.** No hace falta nada especial: como
+  nunca se escribió, lo que carga del disco es lo real.
+
+- **Terminar un encargo pagaba el XP CADA VEZ.** Reabrirlo y volver a cerrarlo
+  lo cobraba otra vez, sin límite: uno de 300 XP daba 600 con una sola vuelta
+  y 3.000 con diez. Era el atajo más cómodo que tenía la app para inflar una
+  habilidad sin hacer nada. Los otros dos módulos ya lo hacían bien y este se
+  había quedado atrás —`revertirTalento` devuelve el XP y el dinero, y sacar
+  una misión de las terminadas deshace lo cumplido—, así que ahora los tres
+  siguen la misma regla: **deshacer dice que aquello no llegó a pasar.** Y se
+  avisa en el propio cuadro de confirmación, antes de decidir, no después.
+  De paso, la fecha de término se limpia al reabrir: un encargo activo con
+  fecha de cierre se colaba en el historial como si siguiera cerrado.
+- **Una rama vacía creada en un aparato desaparecía al sincronizar.** La
+  fusión clona el lado que guardó después, así que `ui` entero venía del más
+  nuevo y lo del otro se tiraba. Solo se notaba con las vacías —en cuanto una
+  rama tiene un talento dentro, `ramasDe()` la vuelve a apuntar—, y era justo
+  la recién creada: la haces en el teléfono, abres la computadora, y ya no
+  está. En silencio. Ahora las dos listas de ramas se unen, como todo lo demás
+  en ese archivo. El precio, aceptado a sabiendas: una rama vacía borrada
+  puede reaparecer si el otro aparato aún no se había enterado. Resucitar una
+  rama vacía cuesta un clic; perder una recién creada cuesta trabajo. Los
+  talentos que llevaba dentro no vuelven — ésos sí tienen lápida.
+- **Lo que se revisó y está bien**, para no volver a mirarlo: el XP de las
+  misiones no se fuga al arrastrarlas entre columnas ni al terminarlas y
+  sacarlas (probado con tres vueltas); las habilidades respetan el techo del
+  nivel 10, no bajan de cero, y las permanentes no decaen; el ático conserva
+  el XP al guardar y al desplegar; exportar e importar es ida y vuelta sin
+  pérdida; y la fusión sigue siendo idempotente, simétrica y con las lápidas
+  intactas después del cambio.
+
 ### 0.7.16 · 27 ago 2026
-Los botones dejan de ser todos verdes.
+Los botones dejan de ser todos verdes, y Talentos vuelve a dejarse editar.
 
 - **Nomenclatura de color, seis niveles**, y la pregunta que los separa es «¿qué
   me pasa si lo pulso sin querer?». Dos clases nuevas: **`btn-linea`** (fondo
@@ -86,6 +229,47 @@ Los botones dejan de ser todos verdes.
 - **Y los avisos del pie, centrados**, que es lo contrario y por el mismo
   motivo: ahí no hay columnas con las que alinearse, son dos frases sueltas
   debajo de un botón que ocupa todo el ancho.
+
+Una revisión a fondo de Talentos que empezó por «no puedo entrar a pantalla
+completa» y acabó encontrando tres fallos más, dos de ellos gordos. Todos se
+cazaron **midiendo el DOM**, ninguno mirando la pantalla.
+
+- **Editar el mapa reventaba.** El dibujado del puerto ▸ —el punto del que se
+  tira para conectar dos talentos— usaba una variable que no existe en ese
+  ámbito (`colT`, que vive cien líneas más abajo). Solo se ejecuta con el mapa
+  EN EDICIÓN, así que al entrar a editar una rama el SVG se cortaba a medias y
+  se llevaba por delante el resto de la pantalla. El parámetro se llama ahora
+  `colL` y dice lo que es: un color de línea, ya pasado por `trazo()`.
+- **Pantalla completa en una rama vacía no hacía nada.** Ni se abría, ni
+  avisaba, ni fallaba: se encendía y se apagaba en la misma vuelta, porque el
+  dibujado confundía «vacía» con «borrada». Y es justo cuando más se toca esa
+  opción — acabas de crear la rama y vas a llenarla. Ahora se abre y enseña
+  qué hacer, igual que en la lista; solo se cierra si la rama ya no existe.
+- **Y al borrar la última rama estando dentro**, la capa se quedaba encima
+  enseñando una rama fantasma: `renderFullscreen()` vivía después de la salida
+  rápida de `renderTree`. Se salía con Escape, pero lo que se veía era mentira.
+- **Un apóstrofo en el nombre de una rama dejaba muerta su tarjeta entera.**
+  `escapeAttr` convierte la comilla en `&#39;`, el navegador la deshace ANTES
+  de leer el JavaScript, y `abrirRama('Rock'n'roll')` es un error de sintaxis:
+  dejaban de funcionar a la vez pantalla completa, renombrar, plegar, editar,
+  borrar y crear, sin que nada avisara. Nace `enJS()` para el texto que va
+  dentro de las comillas simples de un `onclick`, y `escapeAttr` se queda para
+  los atributos normales. Vale también para Proyectos y para las categorías.
+- **Los topes del plan Gratuito no los aplicaba nadie.** `cabeUnoMas` y
+  `planMensaje` estaban escritas, documentadas y pintadas en la tabla
+  comparativa desde 0.7.13, y **ninguna pantalla las llamaba**: se podía crear
+  sin límite en las cuatro puertas —el teclado, el menú del clic derecho,
+  duplicar y el formulario— y abrir todas las ramas que se quisiera. Ahora las
+  cuatro preguntan, y `topeAlcanzado()` es el único sitio desde el que se
+  avisa: dice qué hay y ofrece ir a ver Pro. Editar lo que ya existe no se
+  toca nunca — congelar, nunca quitar.
+- **Enfriamiento de medio segundo en Q, W y E.** `e.repeat` solo frenaba la
+  tecla sostenida; repicándola —que es lo que hace cualquiera al probar el
+  atajo— se sembraba la rama de decenas de talentos en dos segundos, cada uno
+  con su guardado, su repintado y su paso de deshacer. Sin aviso a propósito:
+  un atajo que no hizo nada por ir demasiado rápido se entiende al segundo
+  intento, y un mensaje por cada tecla sería peor que el problema. La C no se
+  enfría, que no crea nada.
 
 ### 0.7.15 · 27 ago 2026
 La cuenta de casa es fundadora, y el lila enciende.

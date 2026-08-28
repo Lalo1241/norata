@@ -13,7 +13,7 @@ function renderMissions() {
         <p>Las misiones son lo que haces hoy: pequeñas, repetibles y con recompensa. Son las que mantienen viva tu racha y hacen subir tus habilidades sin que lo notes.</p>
         <div class="stack" style="align-items:center">
           <button class="btn btn-primary" onclick="openMissionForm()">Crear mi primera misión</button>
-          <button class="btn btn-ghost" onclick="loadExamples()">Ver un ejemplo completo</button>
+          <button class="btn btn-ghost" onclick="verElEjemplo()">Ver un ejemplo completo</button>
         </div>
       </div>`;
     return;

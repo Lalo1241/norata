@@ -33,7 +33,7 @@ function renderSummary() {
         <p>Convierte tu vida en un videojuego: misiones que haces hoy, habilidades que suben con la práctica, talentos que compras con dinero real y proyectos que avanzan por etapas.</p>
         <div class="stack" style="align-items:center">
           <button class="btn btn-primary" onclick="startOnboarding()">Armar mi tablero en 3 preguntas</button>
-          <button class="btn btn-ghost" onclick="loadExamples()">Ver un ejemplo completo</button>
+          <button class="btn btn-ghost" onclick="verElEjemplo()">Ver un ejemplo completo</button>
           <button class="btn btn-ghost" onclick="openSkillForm()">Empezar de cero</button>
         </div>
       </div>`;

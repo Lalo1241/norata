@@ -91,27 +91,61 @@ function panelDeCada(parte, total, rotulo, pista) {
  *    existe, porque aquí se llama `--mint`. Un `fill` que no resuelve no
  *    avisa: pinta negro. Por eso ahora el color va en clases y no a mano.
  */
+const MESES_CORTOS = ["ene", "feb", "mar", "abr", "may", "jun",
+                      "jul", "ago", "sep", "oct", "nov", "dic"];
+
 function panelConstelacion(dias) {
   if (!dias || !dias.length) {
     return `<p class="settings-note">Todavía no hay ni un día con actividad. Aparecerá en cuanto alguien abra la app con su cuenta.</p>`;
   }
 
-  const W = 340, H = 132;
-  const izq = 12, der = 12, arr = 16, aba = 28;
+  const W = 340, H = 152;
+  const izq = 14, der = 14, arr = 14, aba = 34;
   const util = W - izq - der;
   const alto = H - arr - aba;
+  const suelo = arr + alto;
 
   const n = dias.length;
   const tope = Math.max(...dias.map(d => Number(d.personas) || 0), 1);
+  const topeAltas = Math.max(...dias.map(d => Number(d.altas) || 0), 1);
+  const hayAltas = dias.some(d => (Number(d.altas) || 0) > 0);
 
   /* Con un solo día no hay recta que trazar: el punto va al centro, que es
      donde se lee como «esto es lo que hay» y no como el principio de algo. */
   const x = (i) => n === 1 ? izq + util / 2 : izq + (i * util) / (n - 1);
   const y = (v) => arr + (1 - (Number(v) || 0) / tope) * alto;
 
+  const fecha = (s) => new Date(String(s) + "T00:00:00");
+
   const reja = [0, 0.5, 1].map(f =>
     `<line x1="${izq}" y1="${(arr + f * alto).toFixed(1)}" x2="${W - der}" y2="${(arr + f * alto).toFixed(1)}" class="pn-reja"/>`
   ).join("");
+
+  /* Las líneas de referencia caen en LUNES, no cada tres días sueltos: lo que
+     se quiere leer aquí es «esta semana contra la anterior», y una marca que
+     no coincide con el principio de la semana no ayuda a compararlas. La de
+     hoy va aparte y con su propio trazo, porque el último punto casi siempre
+     es un día a medias y conviene que se note. */
+  const marcas = dias.map((d, i) => {
+    const dw = fecha(d.dia).getDay();
+    const hoy = i === n - 1;
+    if (!hoy && dw !== 1) return "";
+    return `<line x1="${x(i).toFixed(1)}" y1="${arr - 4}" x2="${x(i).toFixed(1)}" y2="${suelo}"
+              class="pn-guia ${hoy ? "hoy" : ""}"/>`;
+  }).join("");
+
+  /* Las altas del día, al fondo y en su propia escala. Van detrás de la
+     constelación porque son el contexto —de dónde salió la gente— y no la
+     cifra que se viene a mirar. */
+  const barrasAltas = !hayAltas ? "" : dias.map((d, i) => {
+    const v = Number(d.altas) || 0;
+    if (v <= 0) return "";
+    const h = Math.max((v / topeAltas) * (alto * 0.42), 3);
+    const an = Math.max(util / n * 0.42, 2.5);
+    return `<rect x="${(x(i) - an / 2).toFixed(1)}" y="${(suelo - h).toFixed(1)}"
+              width="${an.toFixed(1)}" height="${h.toFixed(1)}" rx="1.2"
+              class="pn-alta"><title>${escapeHtml(String(d.dia))}: ${v} ${v === 1 ? "cuenta nueva" : "cuentas nuevas"}</title></rect>`;
+  }).join("");
 
   const pts = dias.map((d, i) => [x(i), y(d.personas)]);
   const hilo = pts.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
@@ -123,25 +157,125 @@ function panelConstelacion(dias) {
        que es lo que de verdad pasó. */
     const clase = v === 0 ? "vacia" : (v === tope ? "cima" : "");
     const r = v === 0 ? 2.2 : (v === tope ? 4.6 : 3.4);
-    return `<circle cx="${pts[i][0].toFixed(1)}" cy="${pts[i][1].toFixed(1)}" r="${r}" class="pn-estrella ${clase}"><title>${escapeHtml(String(d.dia))}: ${v}</title></circle>`;
+    return `<circle cx="${pts[i][0].toFixed(1)}" cy="${pts[i][1].toFixed(1)}" r="${r}" class="pn-estrella ${clase}"><title>${escapeHtml(String(d.dia))}: ${v} ${v === 1 ? "persona" : "personas"}</title></circle>`;
   }).join("");
 
-  /* El día se escribe solo cada tres, o en un teléfono los números se
-     encaraman unos sobre otros y no se lee ninguno. */
-  const fechas = dias.map((d, i) =>
-    (i % 3 === 0 || i === n - 1)
-      ? `<text x="${x(i).toFixed(1)}" y="${H - 9}" class="pn-eje">${escapeHtml(String(d.dia).slice(8, 10))}</text>`
-      : ""
-  ).join("");
+  /* La fecha se escribe solo donde hay una marca, y con el mes puesto: un «26»
+     suelto no dice de qué mes es, y a fin de mes la serie cruza dos. */
+  const fechas = dias.map((d, i) => {
+    const f = fecha(d.dia);
+    const hoy = i === n - 1;
+    if (!hoy && f.getDay() !== 1) return "";
+    const txt = hoy ? "hoy" : (f.getDate() + " " + MESES_CORTOS[f.getMonth()]);
+    /* Pegada al borde, la etiqueta se sale del lienzo. Se ancla al principio o
+       al final según de qué lado esté, en vez de centrarse siempre. */
+    const px = x(i);
+    const ancla = px < izq + 22 ? "start" : (px > W - der - 22 ? "end" : "middle");
+    return `<text x="${px.toFixed(1)}" y="${H - 12}" class="pn-eje" text-anchor="${ancla}">${escapeHtml(txt)}</text>`;
+  }).join("");
+
+  const pie = hayAltas
+    ? `<div class="pn-pie-graf">
+         <span><i class="pn-mu-punto"></i> personas que abrieron</span>
+         <span><i class="pn-mu-barra"></i> cuentas nuevas</span>
+       </div>`
+    : "";
 
   return `<svg class="pn-cielo" viewBox="0 0 ${W} ${H}" role="img"
-            aria-label="Personas activas cada día durante los últimos catorce días">
+            aria-label="Personas activas y cuentas nuevas cada día durante los últimos catorce días">
       ${reja}
+      ${marcas}
+      ${barrasAltas}
       <polyline points="${hilo}" class="pn-hilo"/>
       ${estrellas}
       ${fechas}
     </svg>
+    ${pie}
     <p class="settings-note" style="margin-top:6px">Máximo del periodo: ${tope} ${tope === 1 ? "persona" : "personas"} en un día.</p>`;
+}
+
+/* ---- La dona ----
+   Para un reparto que suma un todo y tiene pocas partes: teléfono contra
+   computadora, instalada contra navegador. Con más de cuatro trozos deja de
+   leerse y hay que usar barras — un pastel de ocho gajos no lo lee nadie.
+
+   Se dibuja con `stroke-dasharray` sobre un círculo y no con arcos calculados
+   a mano: son cuatro números en vez de trigonometría, y no hay forma de que
+   un redondeo deje una rendija blanca entre dos gajos. */
+function panelDona(filas, claveNombre, claveValor, vacio) {
+  const datos = (filas || []).filter(f => (Number(f[claveValor]) || 0) > 0);
+  if (!datos.length) return `<p class="settings-note">${escapeHtml(vacio)}</p>`;
+
+  const total = datos.reduce((s, f) => s + (Number(f[claveValor]) || 0), 0);
+  const R = 42, GRUESO = 15, C = 2 * Math.PI * R;
+
+  let acumulado = 0;
+  const gajos = datos.map((f, i) => {
+    const v = Number(f[claveValor]) || 0;
+    const frac = v / total;
+    const largo = frac * C;
+    /* El desfase va en negativo porque el trazo avanza en sentido horario
+       desde donde lo dejó el gajo anterior. */
+    const off = -acumulado * C;
+    acumulado += frac;
+    return `<circle cx="60" cy="60" r="${R}" class="pn-gajo pn-gajo-${(i % 4) + 1}"
+              stroke-width="${GRUESO}"
+              stroke-dasharray="${largo.toFixed(2)} ${(C - largo).toFixed(2)}"
+              stroke-dashoffset="${off.toFixed(2)}"><title>${escapeHtml(String(f[claveNombre]))}: ${v}</title></circle>`;
+  }).join("");
+
+  const leyenda = datos.map((f, i) => {
+    const v = Number(f[claveValor]) || 0;
+    return `<div class="pn-ley">
+        <i class="pn-gajo-${(i % 4) + 1}"></i>
+        <span>${escapeHtml(String(f[claveNombre]))}</span>
+        <b>${Math.round((v / total) * 100)}%</b>
+      </div>`;
+  }).join("");
+
+  return `<div class="pn-dona-caja">
+      <svg class="pn-dona" viewBox="0 0 120 120" role="img"
+           aria-label="Reparto: ${escapeHtml(datos.map(f => f[claveNombre] + " " + f[claveValor]).join(", "))}">
+        <g transform="rotate(-90 60 60)">
+          <circle cx="60" cy="60" r="${R}" class="pn-dona-riel" stroke-width="${GRUESO}"/>
+          ${gajos}
+        </g>
+        <text x="60" y="58" class="pn-dona-num">${total}</text>
+        <text x="60" y="70" class="pn-dona-pie">${total === 1 ? "persona" : "personas"}</text>
+      </svg>
+      <div class="pn-leyenda">${leyenda}</div>
+    </div>`;
+}
+
+/* ---- El embudo ----
+   Cada paso es un subconjunto del anterior, así que se lee de arriba abajo y
+   el escalón que más cae es el que hay que arreglar. La caída se escribe al
+   lado en vez de dejarla deducir: «de 40 a 12» obliga a hacer la cuenta
+   mentalmente cada vez que se mira. */
+function panelEmbudo(pasos) {
+  const ps = (pasos || []).map(p => ({ paso: String(p.paso), n: Number(p.personas) || 0 }));
+  if (!ps.length || ps[0].n === 0) {
+    return `<p class="settings-note">Todavía no hay nadie registrado, así que no hay embudo que mirar.</p>`;
+  }
+  const tope = ps[0].n;
+
+  return `<div class="pn-embudo">` + ps.map((p, i) => {
+    const ancho = Math.max((p.n / tope) * 100, p.n > 0 ? 4 : 0);
+    const antes = i > 0 ? ps[i - 1].n : null;
+    /* Solo se marca la caída cuando hay gente que perder. Escribir «−0%»
+       debajo de un cero es ruido con aire de dato. */
+    const cae = (antes && antes > 0) ? Math.round(((antes - p.n) / antes) * 100) : 0;
+    return `<div class="pn-paso">
+        <div class="pn-paso-tit">
+          <span>${escapeHtml(p.paso)}</span>
+          <b>${p.n}</b>
+        </div>
+        <div class="pn-paso-riel"><i style="width:${ancho.toFixed(1)}%"></i></div>
+        ${(i > 0 && cae > 0)
+          ? `<div class="pn-caida">se pierde el ${cae}% del paso anterior</div>`
+          : (i > 0 ? `<div class="pn-caida ok">no se pierde nadie</div>` : "")}
+      </div>`;
+  }).join("") + `</div>`;
 }
 
 /* Barras horizontales para lo que es una lista con pesos: versiones, planes. */
@@ -233,7 +367,39 @@ function renderPanelAdmin() {
   const tropiezos = m.tropiezos || [];
   const sinVer = tropiezos.filter(t => !t.visto).length;
 
+  /* Los avisos solo aparecen si hay algo que mirar. Una fila de ceros
+     permanente enseña a no mirarla, y entonces el día que deja de ser cero
+     tampoco se mira. */
+  const avisos = [
+    (r.sin_confirmar || 0) > 0
+      ? { n: r.sin_confirmar, t: "sin confirmar el correo", d: "se registraron y nunca pulsaron el enlace" }
+      : null,
+    (r.nunca_abrieron || 0) > 0
+      ? { n: r.nunca_abrieron, t: "nunca abrieron la app", d: "tienen cuenta y jamás entraron" }
+      : null,
+    (r.pidieron_borrado || 0) > 0
+      ? { n: r.pidieron_borrado, t: "pidieron borrar su cuenta", d: "en el plazo de 30 días para arrepentirse" }
+      : null
+  ].filter(Boolean);
+
   caja.innerHTML = panelPruebasHTML() + `
+    ${avisos.length ? `<div class="panel">
+      <h3>Para mirar</h3>
+      <div class="pn-avisos">
+        ${avisos.map(a => `<div class="pn-aviso">
+            <b>${a.n}</b>
+            <span>${escapeHtml(a.t)}</span>
+            <i>${escapeHtml(a.d)}</i>
+          </div>`).join("")}
+      </div>
+    </div>` : ""}
+
+    <div class="panel">
+      <h3>El embudo</h3>
+      <p class="settings-note">Cada paso es un trozo del anterior. El escalón donde más gente se cae es el que hay que arreglar primero — y casi nunca es el que uno cree.</p>
+      ${panelEmbudo(m.embudo)}
+    </div>
+
     <div class="panel">
       <h3>La gente</h3>
       <div class="pn-kpis">
@@ -241,15 +407,33 @@ function renderPanelAdmin() {
         ${panelCifra(r.activos7 || 0, "Activos esta semana", "abrieron en 7 días")}
         ${panelDeCada(r.siguen30 || 0, r.maduros || 0, "Siguen tras 30 días", "señal buena: 20%")}
         ${panelDeCada(r.volvieron || 0, r.abrieron || 0, "Volvieron otro día", "señal buena: 40%")}
-        ${panelDeCada(r.instalaron || 0, r.abrieron || 0, "La instalaron", "señal buena: 30%")}
-        ${panelDeCada(r.dos_aparatos || 0, r.abrieron || 0, "Teléfono y compu", "señal buena: 25%")}
+        ${panelCifra(r.dias_medios || 0, "Días de uso por persona", "cuántos días distintos abre cada quien")}
+        ${panelCifra(r.aperturas7 || 0, "Aperturas esta semana", "veces que se abrió, en total")}
       </div>
     </div>
 
     <div class="panel">
       <h3>Los últimos 14 días</h3>
-      <p class="settings-note">Cuántas personas distintas abrieron la app cada día. Aquí se ve si una tanda de invitaciones movió algo, y si el movimiento duró más de dos días.</p>
+      <p class="settings-note">Los puntos son personas que abrieron la app; las barras del fondo, cuentas nuevas. Las líneas verticales marcan cada lunes, para comparar una semana con otra.</p>
       ${panelConstelacion(m.dias)}
+    </div>
+
+    <div class="panel">
+      <h3>Cómo la usan</h3>
+      <div class="pn-donas">
+        <div>
+          <h4 class="pn-sub">Desde qué aparato</h4>
+          ${panelDona(m.aparatos, "grupo", "personas", "Nadie ha abierto la app todavía.")}
+          <p class="settings-note" style="margin-top:8px">Sale del ancho de la ventana, no de fichar el aparato: dos teléfonos distintos cuentan como uno.</p>
+        </div>
+        <div>
+          <h4 class="pn-sub">Instalada o en el navegador</h4>
+          ${panelDona(m.instalacion, "grupo", "personas", "Nadie ha abierto la app todavía.")}
+          <p class="settings-note" style="margin-top:8px">Instalada se abre sola; en una pestaña se olvida. Señal buena: 30 de cada 100.</p>
+        </div>
+      </div>
+      <h4 class="pn-sub" style="margin-top:18px">Cuánto llevan con cuenta</h4>
+      ${panelListaBarras(m.antiguedad, "tramo", "personas", "Todavía no hay ninguna cuenta.")}
     </div>
 
     <div class="panel">
@@ -265,9 +449,9 @@ function renderPanelAdmin() {
     </div>
 
     <div class="panel">
-      <h3>Qué versión corre la gente</h3>
-      <p class="settings-note">Si aquí aparece una versión que ya no existe, hay un aparato pegado a una copia vieja — casi siempre porque no se subió el número de <code>CACHE</code> en <code>sw.js</code>.</p>
-      ${panelListaBarras(m.versiones, "version", "personas", "Nadie ha abierto la app en los últimos siete días.")}
+      <h3>Con qué versión se quedó cada quien</h3>
+      <p class="settings-note">Una fila por persona: <strong>la última versión que vio</strong>, no todas las que ha usado nunca. Si aquí aparece una que ya no existe, hay alguien pegado a una copia vieja — casi siempre porque no se subió el número de <code>CACHE</code> en <code>sw.js</code>.</p>
+      ${panelListaBarras(m.versiones, "version", "personas", "Nadie ha abierto la app en los últimos treinta días.")}
     </div>
 
     <div class="panel">

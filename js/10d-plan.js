@@ -93,7 +93,6 @@ const PLANES = {
    Cómo se leen los nombres:
      ramas      cuántas ramas del árbol de Talentos puede tener
      talentos   cuántos talentos caben DENTRO de cada rama
-     atico      cuántos años atrás puede consultar del ático
      resumen    qué resúmenes ve (el semanal es de todos, a propósito)
      apariencia si puede usar las apariencias completas */
 const LIMITES = {
@@ -104,14 +103,12 @@ const LIMITES = {
        en doce a sabiendas. Los dos límites van juntos porque limitar ramas
        sin limitar talentos invita a meter todo en una y no pagar nunca. */
     talentos: 12,
-    atico: 0,          // solo el año en curso
     resumen: ["semana"],
     apariencia: false
   },
   pro: {
     ramas: Infinity,
     talentos: Infinity,
-    atico: Infinity,
     resumen: ["semana", "mes", "ano"],
     apariencia: true
   }
@@ -214,8 +211,8 @@ async function planDelServidor(antes) {
    Esto NO abre nada. Lo dice el archivo entero desde su primera línea, pero
    aquí conviene repetirlo porque parece lo contrario: escribir "fundador" en
    `PLAN` cambia lo que la app DIBUJA y no lo que el servidor CREE. Las ramas
-   de más siguen sin poder crearse contra la base de datos, el ático sigue sin
-   contestar, y al recargar sin la marca puesta la mentira se cae sola. Quien
+   de más siguen sin poder crearse contra la base de datos, y al recargar sin
+   la marca puesta la mentira se cae sola. Quien
    quiera engañarse a sí mismo ya podía hacerlo desde la consola en diez
    segundos; esto solo lo hace cómodo para quien tiene que revisarlo.
 
@@ -329,8 +326,7 @@ function planRefrescar() {
    viaje por nada.
 
    Repinta TODO y no solo la sección del plan: lo que se viene a mirar aquí es
-   cómo se comporta la app entera —el árbol con una rama, el ático cerrado,
-   los resúmenes que faltan—, y dejar el Resumen dibujado con el plan anterior
+   cómo se comporta la app entera —el árbol con una rama, los avisos de tope—, y dejar el Resumen dibujado con el plan anterior
    es exactamente el error que este botón trata de evitar. */
 function planSimular(cual) {
   try {
@@ -382,24 +378,55 @@ function planIncluyeResumen(cual) {
    pantalla porque el tono de este mensaje es delicado: no puede sonar a
    castigo ni a puerta cerrada. Nada de «no puedes»; se dice qué hay y por
    dónde se sigue. */
-function planMensaje(clave) {
+function topeTexto(clave) {
   if (clave === "ramas") {
-    return "Tu árbol tiene una rama en el plan Gratuito. Con Pro puedes abrir las que quieras.";
+    return {
+      titulo: "Tu árbol pide otra rama",
+      frase: "Llenaste la primera. Con Pro abres las ramas que quieras, y cada una lleva su propio camino."
+    };
   }
   if (clave === "talentos") {
-    return "Caben " + LIMITES.libre.talentos + " talentos por rama en el plan Gratuito. " +
-      "Con Pro no hay tope.";
-  }
-  if (clave === "atico") {
-    return "El plan Gratuito guarda el año en curso. Con Pro puedes volver a cualquier año.";
+    /* El número sale de `LIMITES` y no escrito a mano. Es donde más tienta
+       copiarlo —está dentro de una frase, no de una tabla— y por eso se dice:
+       el día que doce sean quince, esta frase seguiría diciendo doce. */
+    return {
+      titulo: "Llenaste esta rama",
+      frase: "Los " + LIMITES.libre.talentos + " talentos del plan Gratuito, completos. " +
+        "Con Pro esta rama sigue creciendo sin contar."
+    };
   }
   if (clave === "resumen") {
-    return "El resumen de la semana es de todos. El del mes y el del año vienen con Pro.";
+    return {
+      titulo: "El mes entero, de un vistazo",
+      frase: "El resumen de la semana es de todos. Con Pro llegan también el del mes y el del año."
+    };
   }
   if (clave === "apariencia") {
-    return "Las paletas de color son de todos. Las apariencias completas vienen con Pro.";
+    return {
+      titulo: "Norata con otra piel",
+      frase: "Las paletas de color son de todos. Las apariencias completas vienen con Pro."
+    };
   }
-  return "Esto viene con Pro.";
+  return { titulo: "Esto viene con Pro", frase: "Tu plan Gratuito no incluye esta parte." };
+}
+
+/* La frase suelta, sin título, para quien solo necesite el texto. Se queda
+   porque el mensaje sigue siendo uno y este sigue siendo su sitio. */
+function planMensaje(clave) {
+  return topeTexto(clave).frase;
+}
+
+/* Lo que se abre al pagar, en cuatro renglones. No está escrito a mano: sale
+   de comparar `LIMITES.pro` con `LIMITES.libre`, igual que la tabla
+   comparativa. Escribirlo suelto habría creado la segunda verdad de la que
+   avisa `LIMITES` allá arriba, y de todos los sitios donde puede aparecer una
+   mentira este es el peor: es el único que se lee con la cartera en la mano. */
+function ventajasPro() {
+  const l = LIMITES.libre, p = LIMITES.pro, v = [];
+  if (p.ramas > l.ramas && p.talentos > l.talentos) v.push("Ramas y talentos sin tope");
+  if (p.resumen.length > l.resumen.length) v.push("Resúmenes del mes y del año");
+  if (p.apariencia && !l.apariencia) v.push("Apariencias completas");
+  return v;
 }
 
 /* Lo que se HACE cuando alguien topa con un límite, y el único sitio desde el
@@ -415,9 +442,43 @@ function planMensaje(clave) {
 
    Es un aviso, no una regañina: dice qué hay y por dónde se sigue. Y no es
    seguridad —eso vive en `supabase/planes.sql`—; es no ofrecer una puerta que
-   no está abierta. */
+   no está abierta.
+
+   Lo que cambió en 0.7.18.1: este cuadro aparece en el instante de mayor
+   intención de compra que va a tener Norata —alguien que está usando la app,
+   tiene un plan en la cabeza y quiere seguir AHORA— y lo contestaba con una
+   ficha técnica dentro del mismo `ask()` que confirma un borrado. La misma
+   caja y los mismos dos botones para "¿seguro que quieres eliminar esto?" y
+   para pedir dinero. Ahora trae título, lo que abre y el precio. */
 function topeAlcanzado(clave) {
-  return ask(planMensaje(clave), "Ver Pro", false, false, "Ahora no").then(ok => {
+  const t = topeTexto(clave);
+  /* Todo va en `<span>` y ninguno es `<p>` ni `<ul>`, aunque un párrafo y una
+     lista sea exactamente lo que son. El motivo es del marcado, no del
+     diseño: `#modal-msg` ES un `<p>` —vive en index.html—, y un `<p>` o un
+     `<ul>` dentro de otro `<p>` el navegador los saca fuera al vuelo: el
+     cuadro se desarma solo y no hay nada en el CSS que lo explique. El truco
+     ya estaba en casa, `askText` mete su título con `<b style="display:block">`
+     por lo mismo. */
+  const cuerpo =
+    '<span class="tope-frase">' + escapeHtml(t.frase) + '</span>' +
+    '<span class="tope-lista">' +
+      ventajasPro().map(function (v) {
+        return '<span class="tope-item">' + icon("check", 15) +
+               '<span>' + escapeHtml(v) + '</span></span>';
+      }).join("") +
+    '</span>' +
+    /* El precio va DENTRO del cuadro y no al otro lado del botón. Un botón que
+       dice "Ver Pro" sin decir cuánto cuesta se lee como "te llevo a una
+       página donde por fin te digo la cifra", y esa sospecha frena más que el
+       propio precio. Sale de `PLANES` por lo mismo que las ventajas salen de
+       `LIMITES`. */
+    '<span class="tope-precio">Desde ' + escapeHtml(PLANES.mensual.precio) +
+    ' al mes. Cancelas cuando quieras.</span>';
+  /* `danger` y `alarm` en false a propósito, y es la decisión de fondo de todo
+     este cuadro: aquí no se rompió nada. Alguien llenó una rama, que es un
+     logro. El temblor y el coral son para lo que se pierde. */
+  return askBase(cuerpo, true, "Quiero Pro", false, false, "Ahora no",
+                 { icono: "crown", titulo: t.titulo, tono: "menta" }).then(ok => {
     if (ok && typeof abrirAjustes === "function") abrirAjustes("plan");
   });
 }
@@ -749,7 +810,6 @@ function compraPintar(estado) {
   const abiertas = [
     l.ramas === Infinity ? "Las ramas de talentos que quieras" : "Más ramas de talentos",
     l.talentos === Infinity ? "Talentos sin tope dentro de cada rama" : "Más talentos por rama",
-    "El ático entero, año por año",
     "Los resúmenes del mes y del año",
     "Todas las apariencias"
   ];
@@ -803,7 +863,7 @@ function renderPanelPlan() {
     planIncluyeHTML(false) +
     planCompararHTML() +
     `<h4 class="plan-h">Qué se desbloquea con Pro</h4>
-     <p class="settings-note">Las ramas que quieras, sin tope de talentos, el ático entero y los resúmenes del mes y del año. Lo que ya escribiste no se toca nunca: al cambiar de plan no se borra nada.</p>
+     <p class="settings-note">Las ramas que quieras y sin tope de talentos dentro de cada una. Lo que ya escribiste no se toca nunca: al cambiar de plan no se borra nada.</p>
      <div class="plan-cards">` +
     Object.keys(PLANES).map(k => planTarjetaHTML(k)).join("") +
     `</div>` +
@@ -890,7 +950,6 @@ function planIncluyeHTML(pro) {
   const filas = [
     ["Ramas de talentos", l.ramas === Infinity ? "Las que quieras" : (l.ramas === 1 ? "Una" : String(l.ramas))],
     ["Talentos por rama", l.talentos === Infinity ? "Sin tope" : String(l.talentos)],
-    ["El ático", l.atico === Infinity ? "Todos los años" : "El año en curso"],
     ["Resúmenes", l.resumen.length > 1 ? "De la semana, del mes y del año" : "Solo el de la semana"],
     ["Apariencias", l.apariencia ? "Todas" : "Las paletas de color"],
     /* Estas dos no salen de `LIMITES` porque no tienen tope en ningún plan, y
@@ -1056,14 +1115,12 @@ function planFilasComparadas() {
   const l = LIMITES.libre, p = LIMITES.pro;
   const ramas = (x) => x === Infinity ? "Las que quieras" : (x === 1 ? "Una" : String(x));
   const tope = (x) => x === Infinity ? "Sin tope" : String(x);
-  const atico = (x) => x === Infinity ? "Todos los años" : "El año en curso";
   const resu = (x) => x.length > 1 ? "Semana, mes y año" : "Solo el de la semana";
   const apar = (x) => x ? "Todas" : "Solo las paletas de color";
 
   return [
     ["Ramas de talentos", ramas(l.ramas), ramas(p.ramas), ramas(p.ramas)],
     ["Talentos por rama", tope(l.talentos), tope(p.talentos), tope(p.talentos)],
-    ["El ático", atico(l.atico), atico(p.atico), atico(p.atico)],
     ["Resúmenes", resu(l.resumen), resu(p.resumen), resu(p.resumen)],
     ["Apariencias", apar(l.apariencia), apar(p.apariencia), apar(p.apariencia)],
     ["Misiones, habilidades y proyectos", "Sin tope", "Sin tope", "Sin tope"],

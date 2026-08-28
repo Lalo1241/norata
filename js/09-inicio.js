@@ -378,6 +378,81 @@ document.addEventListener("keydown", (e) => {
 
 /* ================= Ejemplos ================= */
 
+/* ---- El ejemplo se MIRA, no se carga ----
+   Antes esto escribía: metía catorce talentos, tres ramas, seis habilidades y
+   cuatro misiones en la cuenta de verdad, guardaba y las subía al servidor. Y
+   no había vuelta atrás — para deshacerlo había que ir a Ajustes y borrarlo
+   todo, que se lleva por delante también lo que fuera tuyo.
+
+   Ahora es lo que dice el botón: un previsualizador. Se aparta el estado real
+   en memoria, se enseña el ejemplo encima, y al salir vuelve todo como
+   estaba. Nada toca el disco ni el servidor mientras dure (ver `modoEjemplo`
+   en 01-base.js), así que dentro se puede tocar TODO sin miedo: cumplir
+   misiones, mover el árbol, abrir cajas. Eso es justamente lo que se viene a
+   probar, y una demo que no se deja tocar no demuestra nada.
+
+   Se parte de un lienzo limpio en vez de añadir el ejemplo encima de lo que
+   hubiera. Hoy da igual —el botón solo sale con la app vacía—, pero mezclar
+   catorce talentos inventados con los tuyos haría imposible saber cuál era
+   cuál, y deja el botón listo para ponerlo donde haga falta. */
+let estadoAntesDelEjemplo = null;
+
+function verElEjemplo() {
+  if (modoEjemplo) return;
+  estadoAntesDelEjemplo = JSON.parse(JSON.stringify(state));
+  modoEjemplo = true;
+
+  /* La zona horaria y los ajustes se quedan: son de la persona, no de los
+     datos, y con otra zona el ejemplo enseñaría las rachas movidas. */
+  COLECCIONES.forEach(c => { state[c] = []; });
+  state.borrados = {};
+  state.ui = Object.assign({}, state.ui || {}, { ramasTalentos: [], ramasProyectos: [] });
+
+  loadExamples();
+  pintarAvisoEjemplo();
+}
+
+function salirDelEjemplo() {
+  if (!modoEjemplo) return;
+  state = estadoAntesDelEjemplo;
+  estadoAntesDelEjemplo = null;
+  modoEjemplo = false;
+  pintarAvisoEjemplo();
+
+  /* Si había algo pendiente de subir de ANTES de entrar, se vuelve a poner en
+     cola. No se llama a `syncTouch` —eso pisaría `dirtyAt` con la hora de
+     ahora y le mentiría al desempate de la fusión sobre cuándo se tocó de
+     verdad—: se rearma el temporizador y nada más. */
+  try {
+    if (syncReady() && sync.dirty) {
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(() => syncRun({ silent: true }), SYNC_DELAY);
+    }
+  } catch (e) { /* sin sincronía no hay nada que rearmar */ }
+
+  showView("summary");
+  toast("Saliste del ejemplo. Tus datos están como los dejaste.", "hecho");
+}
+
+/* El rótulo, y la única salida. Es el mismo trato que el de «Cuenta de
+   pruebas»: si la app enseña algo que no es real, tiene que decirlo en
+   pantalla y no en un menú. La diferencia es que éste lleva botón, porque
+   aquí sí hay de dónde salir. */
+function pintarAvisoEjemplo() {
+  const previo = document.getElementById("aviso-ejemplo");
+  if (previo) previo.remove();
+  document.body.classList.toggle("ejemplo-on", modoEjemplo);
+  if (!modoEjemplo) return;
+
+  const marco = document.createElement("div");
+  marco.id = "aviso-ejemplo";
+  marco.className = "aviso-ejemplo";
+  marco.innerHTML =
+    '<div class="ae-tag"><span>Estás viendo un ejemplo</span>' +
+    '<button type="button" onclick="salirDelEjemplo()">Salir</button></div>';
+  document.body.appendChild(marco);
+}
+
 /* Ejemplo pensado para que cualquiera entienda el sistema de un vistazo:
    habilidades cotidianas y una rama que muestra los tres tipos de talento
    encadenados, del primer paso a la meta grande. */
@@ -557,9 +632,16 @@ function loadExamples() {
 
   loadProjectExamples(true);
   loadMissionExamples(true);
-  save();
+  /* `save()` estaba aquí y es lo que había que quitar. En modo ejemplo no
+     escribiría igualmente —`guardarLocal` lo para—, pero dejarlo puesto haría
+     creer que el ejemplo se guarda, que es justo la confusión que se está
+     arreglando. Lo que sí hace falta es repintar: sin `save()` nadie lo hacía.
+
+     Sigue siendo una función aparte de `verElEjemplo` porque construir el
+     ejemplo y decidir dónde ponerlo son dos cosas: si algún día hay que
+     enseñarlo en otro sitio, se reusa esto sin arrastrar el modo. */
   showView("summary");
-  toast("Ejemplo cargado: explora Misiones, Árbol y Proyectos");
+  toast("Así se ve Norata en uso. Nada de esto se guarda: sal cuando quieras.");
   quizaTutorial(700);
 }
 
