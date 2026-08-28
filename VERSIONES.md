@@ -52,6 +52,58 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.27 · 27 ago 2026
+El informe deja de enseñar y empieza a decir.
+
+Fase 4 y última de la reforma de los paneles: **las lecturas**. Una gráfica
+enseña; una lectura dice. «El 70% de tu XP viene de misiones» es lo que
+alguien repetiría en voz alta, y es lo que hace que un informe se vuelva a
+abrir. Van al final de cada rama —primero se ve, después se lee lo que se ha
+visto— y como mucho salen cuatro.
+
+Se dejaron para el final del plan a propósito: se escriben mucho mejor mirando
+las gráficas ya dibujadas con datos reales que imaginándolas. Viven en
+`js/10h-lecturas.js`, una función por regla, y añadir una es escribir otra
+función y ponerla donde toque.
+
+**Cuatro reglas las gobiernan, y ninguna es negociable:**
+
+1. **Ninguna aparece sin datos suficientes detrás.** Cada una lleva su propio
+   mínimo escrito, y por debajo de tres días con actividad no se interpreta
+   nada: sale «todavía es pronto», que además de ser verdad es una promesa.
+   Una frase inventada sobre tres días de uso se lleva por delante la
+   confianza en las otras veinte.
+2. **No regañan.** Dicen lo que se ve y por dónde se sale. La de constancia
+   baja no acusa: propone quitar misiones, que es lo que de verdad la sube. La
+   del XP perdido lleva la salida pegada en la misma frase.
+3. **No repiten la gráfica.** Si la barra ya dice que el martes es el día más
+   flojo, la lectura tiene que añadir qué significa o qué hacer.
+4. **Se ordenan por lo que importa.** En Proyectos, lo estancado va primero:
+   es la única decisión que la app pide de verdad.
+
+Veintiséis reglas repartidas entre las cinco ramas. Algunas de las que más
+dicen: el día de la semana en que se te cae el ritmo (pide dos semanas de
+historia, porque con una el «día flojo» es simplemente el día que estabas
+ocupado), la misión que sostiene todas las demás, la franja horaria en la que
+ya sabes que funcionas, la habilidad que lleva más tiempo parada con su nombre
+—un número no dice a cuál ir, un nombre sí—, y el cierre del informe general,
+que va en aspiracional como todos los cierres de la app.
+
+Tres cosas que salieron de leerlas ya escritas en pantalla, y que no se habrían
+visto de otra forma:
+
+- **«son 1 día completo … puestos»**: la frase de las horas armaba el plural
+  por partes y no concordaba. Ahora se arma entera. Una falta de concordancia
+  en la frase que más se relee se lleva por delante todo lo demás.
+- **«7 de cada 10 de las veces que tocaba»** tenía un «de» de sobra.
+- **La constancia de en medio se callaba.** Solo hablaba por encima del 85% o
+  por debajo del 40%, así que quien va normal —que es casi todo el mundo— no
+  leía ni una frase sobre ella. Ahora la banda de en medio también dice su
+  número, sin adjetivos.
+
+Con esto el plan de la reforma queda completo: motor y flechas (0.7.20), la
+pantalla y la semana (0.7.22), el mes y el año (0.7.24) y las lecturas.
+
 ### 0.7.26 · 27 ago 2026
 La pantalla del plan sale de verdad.
 

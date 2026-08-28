@@ -4924,6 +4924,22 @@
   .inf-siluetas i { flex: 1; background: var(--mint-soft); border-radius: 8px; display: block; }
 
 
+
+  /* ---- Las lecturas (0.7.27) ----
+     Van al final de cada rama y se leen como frases, no como datos: por eso
+     el renglón es más ancho y más suelto que el resto del informe. */
+  .inf-lecturas { margin-bottom: 14px; }
+  .inf-lecturas h3 { margin: 0 0 12px; font-size: 16px; }
+  .inf-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .inf-lista li {
+    position: relative; padding-left: 18px;
+    font-size: 14.5px; line-height: 1.6; max-width: 62ch;
+  }
+  /* Un guion largo y no una viñeta redonda: son frases dichas, no una lista
+     de la compra. */
+  .inf-lista li::before { content: "—"; position: absolute; left: 0; color: var(--mint); }
+  .inf-pronto { margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); max-width: 62ch; }
+
   /* ---- Mapa de calor (0.7.24) ----
      Un año son 53 columnas y no caben en ningún teléfono. No se encoge la
      casilla hasta volverla ilegible ni se enseñan menos días: la caja se

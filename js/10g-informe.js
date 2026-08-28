@@ -313,6 +313,11 @@ function renderInforme() {
   else if (informeRamaActual === "talentos") html += infTalentos(r, rAntes, D);
   else html += infProyectos(r, rAntes, D);
 
+  /* Las lecturas van SIEMPRE al final y nunca en medio: primero se ve, luego
+     se lee lo que se ha visto. Puestas arriba, la gráfica de debajo se
+     convierte en la prueba de una frase en vez de en el dato. */
+  html += lecturasHTML(informeRamaActual, r, rAntes, D);
+
   el.innerHTML = html;
 }
 
