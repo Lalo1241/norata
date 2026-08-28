@@ -52,6 +52,36 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.32.1 · 28 ago 2026
+El descuento del anual vuelve a verse, y Fundador deja de empezar con un vacío.
+
+- **El renglón de debajo del conmutador habla siempre.** Estaba callado con el
+  anual puesto —«ya lo dice el pie de la tarjeta»— y con eso el descuento
+  desapareció justo de la pantalla que lo vende: quien llegaba con el anual ya
+  elegido no veía por ningún lado que estaba ahorrando. Ahora lo dice en los
+  dos estados, y **el pie del anual pasó a contar lo suyo** —cada cuánto se
+  cobra y que se puede cancelar—, que es lo que le faltaba y solo tenía el
+  mensual.
+- **El hueco de Fundador deja de ser un hueco.** Era una copia escondida del
+  conmutador, puesta solo para alinear; funcionaba y se veía vacío, que es peor
+  que desalineado: en la tarjeta más cara, lo primero que encontraba el ojo era
+  nada. Esa fila es donde Pro contesta «cada cuánto se cobra», y Fundador tiene
+  una respuesta a esa misma pregunta que además es su mejor argumento:
+  **«Un solo pago»**, con «Cuesta menos que dos años del plan anual» debajo.
+  Las dos tarjetas se leen fila por fila y la comparación se hace sola.
+- **Esa cuenta se calcula, no se escribe.** Sale de `PLANES` —890 contra 590—
+  porque una cuenta a mano sobrevive al cambio de precio que la deja mintiendo,
+  y de todas las mentiras posibles esta se lee con la cartera en la mano. Si
+  algún día los números no dan, no inventa nada: se calla.
+
+**Y una franja estrecha que se arregló midiendo:** con las tarjetas lado a lado
+y unas 250 px cada una, la frase de Pro cabía en un renglón y la de Fundador
+pedía dos, así que el nombre y el precio de una bajaban 17 px respecto a la
+otra. `planNivelarGanchos` las iguala después de pintar, y **solo cuando están
+en la misma fila**: apiladas, igualar alturas no alinea nada y añade aire donde
+no hace falta. Un `min-height` fijo de dos renglones lo arreglaba igual, pero
+dejaba hueco muerto en todos los demás anchos, que son casi todos.
+
 ### 0.7.32 · 28 ago 2026
 El informe se dibuja, y el cuadro de reportar un fallo se viste de oro.
 

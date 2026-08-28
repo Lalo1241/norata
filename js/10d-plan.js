@@ -76,7 +76,10 @@ const PLANES = {
     nombre: "Pro anual",
     precio: "$590 MXN",
     periodo: "al año",
-    pie: "Dos meses de regalo frente al mensual.",
+    /* Ya no cuenta el ahorro: eso lo dice el gancho del conmutador, en los dos
+       estados. Aqui se dice lo que faltaba y solo tenia el mensual: cada
+       cuanto se cobra y que se puede cancelar. */
+    pie: "Se renueva cada año. Cancelas cuando quieras.",
     /* El recomendado vuelve a ser este. De los que se renuevan es el que sale
        mejor, y esa es una comparación que se puede hacer: mes contra mes. */
     tag: "Recomendado",
@@ -927,9 +930,11 @@ function renderPanelPlan() {
     planLegalHTML() +
     planCompararHTML();
 
-  /* El mapa de la rama se termina de encuadrar aquí, cuando ya está en la
-     página y se le puede medir el hueco. Ver `planAjustarLienzos`. */
+  /* Lo que hay que medir para terminarlo, ahora que ya está en la página:
+     el encuadre del mapa de la rama y la altura de los dos renglones de
+     debajo del conmutador. */
   planAjustarLienzos(caja);
+  planNivelarGanchos(caja);
 }
 
 /* ---- La cabecera: qué plan, cuánto cuesta y qué le pasa ----
@@ -1070,6 +1075,22 @@ function planActivoHTML() {
    número al servidor y lo pintaba. Se retira: el cupo no se hace público por
    ahora. `lugaresDeFundador()` se queda viva —la landing la usa— y la tarjeta
    sigue diciendo que el cupo existe, que es verdad, sin dar la cifra. */
+/* «Cuesta menos que dos años del anual»: 890 contra 1180. Se calcula en vez
+   de escribirse porque los tres precios viven en `PLANES` y una cuenta escrita
+   a mano aquí sobreviviría al cambio de precio que la deja mintiendo —y de
+   todas las mentiras posibles, esta se lee con la cartera en la mano.
+
+   Si algún día los números dejan de dar, no se inventa nada: se calla. */
+function planFundadorGancho() {
+  const n = (t) => Number(String(t).replace(/[^0-9]/g, ""));
+  const f = n(PLANES.fundador.precio), a = n(PLANES.anual.precio);
+  if (!f || !a) return "";
+  const anos = Math.floor(f / a) + 1;
+  if (anos < 2) return "Cuesta menos que un año del anual.";
+  return "Cuesta menos que " + (anos === 2 ? "dos" : anos === 3 ? "tres" : anos) +
+    " años del plan anual.";
+}
+
 /* Cada cuánto se cobra Pro. En una variable y no en tres tarjetas, porque
    mensual y anual NO son dos planes: son el mismo Pro cobrado con otro ritmo,
    y eso ya lo dice `LIMITES`, que tiene dos entradas y no tres. Puestos como
@@ -1099,21 +1120,23 @@ function planConmutadorHTML() {
        onclick="planCambiarPeriodo('${k}')"${planPeriodo === k ? ` aria-current="true"` : ""}>${
       escapeHtml(texto)}</button>`;
 
-  /* El gancho del anual va DEBAJO y no dentro del botón. Metido dentro
-     obligaba a dos renglones —«Anual» y «2 meses gratis»—, y un conmutador de
-     dos alturas distintas dentro de una tarjeta estrecha se comía la mitad
-     del sitio del precio. Fuera cabe en una línea, el control vuelve a ser
-     una sola franja, y el argumento se sigue leyendo antes de tocarlo, que es
-     lo único que tenía que pasar.
+  /* El gancho va DEBAJO y no dentro del botón. Metido dentro obligaba a dos
+     renglones —«Anual» y «2 meses gratis»— y con eso el conmutador medía 62 px:
+     dentro de una tarjeta de 207 se comía el sitio del precio.
 
-     Solo cuando está puesto el mensual: con el anual ya elegido, el pie de la
-     tarjeta lo dice, y decirlo dos veces a tres centímetros no informa dos
-     veces, ensucia una. */
+     Y habla SIEMPRE, con el mensual puesto y con el anual puesto. Estuvo
+     callado con el anual —«ya lo dice el pie de la tarjeta»— y el descuento
+     desapareció justo de la pantalla que lo está vendiendo: quien llega con el
+     anual ya elegido no veía por ningún lado que está ahorrando. Ahora lo dice
+     aquí en los dos casos, y el pie del anual pasó a contar lo suyo —cada
+     cuánto se cobra—, que es lo que le faltaba. */
+  const gancho = planPeriodo === "mensual"
+    ? "El plan anual sale dos meses más barato."
+    : "Estás ahorrando dos meses frente al mensual.";
+
   return `<div class="plan-per-wrap" role="group" aria-label="Cada cuánto se cobra Pro">${
     uno("mensual", "Mensual")}${uno("anual", "Anual")}</div>` +
-    (planPeriodo === "mensual"
-      ? `<span class="plan-gancho">El anual sale dos meses más barato.</span>`
-      : `<span class="plan-gancho"></span>`);
+    `<span class="plan-gancho">${escapeHtml(gancho)}</span>`;
 }
 
 /* Las dos tarjetas. Las ventajas van DENTRO y salen de `ventajasPro()`, que
@@ -1168,29 +1191,30 @@ function planTarjetasHTML() {
       </div>
       <div class="plan-card limitada">
         <span class="plan-tag lila">${escapeHtml(f.tag)}</span>
-        <!-- El hueco del conmutador. Fundador no se cobra de dos maneras, pero
-             si no se le reserva la fila, su nombre y su precio quedan una
-             franja mas arriba que los de Pro y las dos tarjetas dejan de
-             leerse como una comparacion. Solo cuando estan lado a lado: en el
-             telefono van una debajo de otra y ahi el hueco seria un vacio.
+        <!-- Aquí había un HUECO: una copia escondida del conmutador, puesta
+             solo para que el nombre y el precio de las dos tarjetas cayeran a
+             la misma altura. Funcionaba y se veía vacío, que es peor que
+             desalineado: en la tarjeta más cara, lo primero que encontraba el
+             ojo era nada.
 
-             Y es una COPIA del conmutador de verdad, escondida, en vez de una
-             altura escrita a mano. Con un numero fijo se quedaba ocho pixeles
-             corto, y peor: cualquier retoque futuro al conmutador —una letra
-             mas grande, otro relleno— lo habria vuelto a descuadrar sin que
-             nada avisara. Copiado, las dos tarjetas miden igual por
-             construccion. Van SPAN y no BUTTON para que no se puedan enfocar,
-             y visibility:hidden los saca ademas del lector de pantalla.
+             Y sobraba pensarlo como un hueco. Esa fila es donde Pro contesta
+             «cada cuánto se cobra», y Fundador tiene una respuesta a esa misma
+             pregunta que además es su mejor argumento: una sola vez. Puesta
+             ahí, las dos tarjetas se leen fila por fila y la comparación se
+             hace sola.
 
-             Ojo con las comillas invertidas aqui dentro: esto es un comentario
-             de HTML, pero vive dentro de una plantilla de JavaScript, asi que
-             una comilla invertida la corta y el archivo entero deja de
-             cargarse. Costo un rato averiguarlo porque el sintoma es que
-             desaparecen funciones sueltas, no un error a la vista. -->
-        <div class="plan-hueco" aria-hidden="true">
-          <div class="plan-per-wrap"><span class="plan-per on">Mensual</span><span class="plan-per">Anual</span></div>
-          <span class="plan-gancho">El anual sale dos meses más barato.</span>
+             Como lleva la misma estructura que el conmutador —la franja y su
+             renglón debajo—, las dos tarjetas siguen alineadas por
+             construcción, sin alturas escritas a mano y sin depender de que
+             estén lado a lado. -->
+        <div class="plan-per-wrap unica">
+          <span class="plan-per on">Un solo pago</span>
         </div>
+        <!-- El dato y no el adjetivo. «Sale a cuenta» no se puede comprobar;
+             esto sí: 890 contra 590 al año. Sale de los precios de arriba y no
+             escrito a mano, para que el día que cambie uno de los dos no quede
+             aquí una cuenta que ya no sale. -->
+        <span class="plan-gancho">${escapeHtml(planFundadorGancho())}</span>
         ${conPiedra("fundador", f.nombre)}
         <span class="plan-p">${escapeHtml(f.precio)} <i>${escapeHtml(f.periodo)}</i></span>
         <span class="plan-d">${escapeHtml(f.pie)}</span>
@@ -1432,6 +1456,30 @@ function planAjustarLienzos(caja) {
     svg.setAttribute("preserveAspectRatio", (recorta ? "xMaxYMid" : "xMidYMid") + " meet");
     wrap.classList.toggle("mas", recorta);
   });
+}
+
+/* Deja los dos renglones de debajo del conmutador a la misma altura.
+
+   Hace falta por un tramo estrecho y concreto: con las tarjetas lado a lado y
+   unos 250 px cada una, la frase de Pro cabía en un renglón y la de Fundador
+   pedía dos, así que el nombre y el precio de una tarjeta bajaban 17 px
+   respecto a los de la otra y la comparación se torcía. Un `min-height` fijo
+   de dos renglones lo arregla igual pero deja un hueco muerto en todos los
+   demás anchos, que son casi todos.
+
+   Solo cuando están en la MISMA fila: apiladas, igualar alturas no alinea
+   nada y solo añade aire donde no hace falta. Y se limpia antes de medir, o
+   la segunda pasada mediría lo que dejó la primera. */
+function planNivelarGanchos(caja) {
+  const g = [...(caja || document).querySelectorAll(".plan-cards .plan-gancho")];
+  g.forEach(x => { x.style.minHeight = ""; });
+  if (g.length < 2) return;
+  const tarjetas = g.map(x => x.closest(".plan-card"));
+  if (!tarjetas[0] || !tarjetas[1]) return;
+  const arriba = tarjetas.map(c => Math.round(c.getBoundingClientRect().top));
+  if (arriba[0] !== arriba[1]) return;          // apiladas: cada una a lo suyo
+  const alto = Math.max(...g.map(x => x.getBoundingClientRect().height));
+  if (alto) g.forEach(x => { x.style.minHeight = alto + "px"; });
 }
 
 /* El bloque entero, o cadena vacía si no hay nada que decir. Devuelve texto y
