@@ -182,13 +182,41 @@ showView("summary");
     }
   } catch (e) { /* sin esto solo se pierde el saludo */ }
 
-  if (recien !== null && syncReady()) {
-    await adoptarSesion(recien || undefined);
-    pintarAvisoPruebas();
-    return;
-  }
+  /* SIN `return`, y esto costó un fallo en 0.7.14: aquí había un `return` que
+     cortaba el arranque entero después de adoptar la sesión, así que en la
+     primera carga tras entrar no corrían **ni el plan ni el panel de números**
+     —quien pagaba veía «Gratuito» hasta que recargaba a mano—. Lo de abajo
+     tiene que correr en los dos caminos; lo único que cambia es cómo se llega
+     a tener la app pintada. */
+  const recienEntrado = (recien !== null && syncReady());
 
-  if (!veniaDeGoogle && !veniaAOlvidar && portadaHaceFalta()) mostrarPortada();
+  if (recienEntrado) {
+    /* EL PLAN, ANTES DE PINTAR NADA. En el arranque normal se pide sin esperar
+       —hay una copia guardada de la vez anterior y sirve para pintar ya—, pero
+       quien acaba de entrar puede estar estrenando este dispositivo: ahí no hay
+       copia, `PLAN` vale «libre» de fábrica, y enseñarle eso a alguien que
+       acaba de entrar con una cuenta de pago es decirle que no tiene lo que
+       pagó.
+
+       Se espera de verdad, y se puede: la pantalla de carga ya está puesta
+       —la puso la puerta al mandarnos— así que el viaje no añade una espera
+       nueva, se mete dentro de una que ya estaba.
+
+       CON TOPE, que es lo que hace que esperar aquí sea seguro. `fetch` no
+       trae ninguno, así que una petición que ni contesta ni falla —el wifi de
+       un aeropuerto que en realidad pide una contraseña— dejaría a alguien
+       mirando «Entrando…» para siempre, y encima justo después de escribir su
+       contraseña. Cumplido el plazo se entra igual: `planCargar` sigue su
+       camino y enciende lo que toque cuando llegue. Seis segundos, la mitad
+       que el tope de la sincronía, porque esto es una consulta diminuta. */
+    await Promise.race([
+      planCargar(),
+      new Promise(listo => setTimeout(listo, 6000))
+    ]);
+    await adoptarSesion(recien || undefined);
+  } else {
+    if (!veniaDeGoogle && !veniaAOlvidar && portadaHaceFalta()) mostrarPortada();
+  }
   pintarAvisoPruebas();
 
   /* El desgaste se aplica DESPUÉS de traer lo del otro dispositivo, y esto no
@@ -208,15 +236,23 @@ showView("summary");
   /* La condición del enlace no es por el desgaste, sino para no pedir lo
      mismo dos veces: si venimos de un correo o de Google, la entrada ya
      sincronizó al terminar. */
-  if (!veniaDeGoogle && syncReady()) await syncRun({ silent: true });
+  /* Todo este bloque lo hace `adoptarSesion` por su cuenta cuando se llega
+     desde la puerta —bajar el progreso, pintar, destapar, ofrecer el tutorial—,
+     así que por ese camino se salta entero. El desgaste no: ese lo hace nadie
+     más y tiene que correr en los dos. */
+  if (!recienEntrado) {
+    if (!veniaDeGoogle && syncReady()) await syncRun({ silent: true });
+  }
   applyDecay();
-  showView(activeMainView || "summary");
+  if (!recienEntrado) {
+    showView(activeMainView || "summary");
 
-  /* Y hasta aquí la pantalla de carga: ya se sabe qué hay que enseñar y está
-     dibujado. Es lo último de todo a propósito — destaparla antes es
-     justamente lo que hacía parpadear la app al abrirla. */
-  cargaCerrar();
-  quizaTutorialDeEntrada();
+    /* Y hasta aquí la pantalla de carga: ya se sabe qué hay que enseñar y está
+       dibujado. Es lo último de todo a propósito — destaparla antes es
+       justamente lo que hacía parpadear la app al abrirla. */
+    cargaCerrar();
+    quizaTutorialDeEntrada();
+  }
 
   /* El latido va aquí, lo último de todo y sin esperarlo: es una libreta para
      saber si la gente vuelve, no una pieza de la app, y no tiene por qué
@@ -243,11 +279,13 @@ showView("summary");
      mirando la pantalla de carga por culpa de una pregunta de negocio. Ver
      `js/10d-plan.js`, que empieza explicando por qué nada de esto es
      seguridad. */
-  planCargar().then(() => {
-    /* Solo se repinta si resultó que sí paga: para quien no, ya está bien
-       dibujado y un repintado de más hace parpadear la pantalla. */
-    if (esPro()) showView(activeMainView || "summary");
-  });
+  if (!recienEntrado) {
+    planCargar().then(() => {
+      /* Solo se repinta si resultó que sí paga: para quien no, ya está bien
+         dibujado y un repintado de más hace parpadear la pantalla. */
+      if (esPro()) showView(activeMainView || "summary");
+    });
+  }
 
   /* Y lo que traiga la dirección: vuelvo de pagar, o vengo de la landing con
      un plan elegido. Se atiende aquí y no en la portada porque la landing

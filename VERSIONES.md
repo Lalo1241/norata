@@ -52,6 +52,28 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.14.2 · 27 ago 2026
+El plan, en la primera carga y no en la segunda.
+
+- **Entrar con una cuenta de pago mostraba «Gratuito» hasta recargar a mano.**
+  Misma cirugía mal rematada que el fallo anterior: el `return` que puse en
+  0.7.14 para la adopción de la sesión **cortaba el arranque entero**, así que
+  en esa primera carga no corrían **ni `planCargar()` ni `revisarAdmin()`** —el
+  plan se quedaba en el «libre» de fábrica y la sección de administración
+  tampoco aparecía—. Fuera el `return`: ahora la adopción es una rama, no una
+  salida, y todo lo que va detrás corre por los dos caminos.
+- **Y el plan se espera ANTES de pintar**, solo por ese camino. En el arranque
+  normal se pide sin esperar porque hay una copia guardada de la vez anterior
+  que sirve para dibujar ya; pero quien acaba de entrar puede estar estrenando
+  dispositivo, y ahí no hay copia. La espera se mete dentro de una que ya
+  estaba —la pantalla de carga la puso la puerta al mandarnos—, así que no
+  añade tiempo.
+- **Con tope de seis segundos**, que es lo que hace que esperar ahí sea seguro:
+  `fetch` no trae ninguno y una petición que ni contesta ni falla dejaría a
+  alguien mirando «Entrando…» para siempre, justo después de escribir su
+  contraseña. Cumplido el plazo se entra igual y el plan se enciende al llegar.
+- El desgaste (`applyDecay`) también se había quedado fuera de ese camino.
+
 ### 0.7.14.1 · 27 ago 2026
 La puerta se olvidaba de guardar la sesión.
 
