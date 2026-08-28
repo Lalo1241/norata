@@ -456,15 +456,24 @@ function renderPanelAdmin() {
 
     <div class="panel">
       <h3>Lo que se rompe${sinVer ? ` <span class="pn-globo">${sinVer}</span>` : ""}</h3>
-      <p class="settings-note">Cada fila es un error distinto de un día, con las veces que pasó. Se agrupan a propósito: un fallo dentro de un bucle escribiría miles de filas iguales.</p>
+      <p class="settings-note">Cada fila es un error distinto de un día, con las veces que pasó. Se agrupan a propósito: un fallo dentro de un bucle escribiría miles de filas iguales. Los que llevan el bicho los escribió una persona: ésos van primero y valen más — traen contexto de lo que estaba intentando hacer, que es lo que un volcado de JavaScript nunca dice.</p>
       ${tropiezos.length
-        ? `<div class="pn-errores">` + tropiezos.map(t => `
-            <div class="pn-error ${t.visto ? "visto" : ""}">
+        ? `<div class="pn-errores">` + [...tropiezos].sort((a, b) => {
+            /* Los reportes de gente arriba; dentro de cada grupo se respeta el
+               orden que ya trae el servidor (por día y por veces). Sin esto se
+               enterraban entre cien errores automáticos, que es exactamente lo
+               que no le puede pasar a un mensaje que alguien se tomó la
+               molestia de escribir. */
+            const ra = a.donde === "reporte" ? 0 : 1, rb = b.donde === "reporte" ? 0 : 1;
+            return ra - rb;
+          }).map(t => `
+            <div class="pn-error ${t.visto ? "visto" : ""}${t.donde === "reporte" ? " dicho" : ""}">
               <div class="pn-error-tit">
-                <b>${escapeHtml(String(t.mensaje))}</b>
+                <b>${t.donde === "reporte" ? icon("bicho", 14) + " " : ""}${escapeHtml(String(t.mensaje))}</b>
                 <span>${t.cuantos}×</span>
               </div>
-              <div class="pn-error-pie">${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")} · ${escapeHtml(String(t.donde) || "?")}</div>
+              <div class="pn-error-pie">${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")} · ${
+                t.donde === "reporte" ? "lo escribió alguien" : escapeHtml(String(t.donde) || "?")}</div>
             </div>`).join("") + `</div>
            ${sinVer ? `<button class="btn btn-soft btn-block" style="margin-top:12px" onclick="marcarTropiezosVistos()">Dar por vistos los ${sinVer} nuevos</button>` : ""}`
         : `<p class="settings-note">Ni un error en los últimos treinta días.</p>`}

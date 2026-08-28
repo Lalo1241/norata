@@ -52,6 +52,87 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.32 · 28 ago 2026
+El informe se dibuja, y el cuadro de reportar un fallo se viste de oro.
+
+**El cuadro de reportar un fallo.**
+
+- **Oro y no menta**, que es lo que pidió Eduardo: un fallo no es un logro ni
+  una venta. El oro es el tono de «esto tiene un coste que quizá no ves», y
+  aquí el coste es el rato que alguien acaba de perder.
+- **Al oro le faltaban dos piezas** que la menta sí tenía: el borde de la
+  tarjeta y el icono en su color. Las tenía solo `.alarm.oro` —el aviso de
+  borrar una cuenta—, así que un cuadro oro que no fuera una alarma salía con
+  el borde gris y el icono apagado, y el «oro» se quedaba en el título. Lo
+  destapó justo este cuadro, que es oro y no advierte de nada.
+- **El título va en blanco** aunque la tarjeta sea oro: el amarillo ya lo lleva
+  el icono, y dos amarillos seguidos en la misma columna se anulan.
+- **Un párrafo de entrada antes de la primera casilla.** Quien acaba de
+  tropezar con un fallo está molesto, y lo primero que lee no puede ser un
+  campo: dice que alguien lo lee y lo arregla, y que no hace falta saber nada
+  técnico. Dos frases; la tercera ya no se lee.
+- **El botón de enviar pasa a `btn-linea`** —fondo oscuro, borde menta—. El
+  verde macizo es «lo que has venido a hacer», y aquí nadie ha venido a esto:
+  mandar un reporte es un favor, no la acción de la pantalla. Nacen `clase` y
+  `okClase` en `askBase` para poder decirlo sin manosear el modal por fuera.
+- **Al enviar sale una ventana de agradecimiento**, y no un aviso de los de
+  abajo: quien acaba de rellenar tres campos ha hecho un trabajo, y un mensaje
+  que se desvanece en tres segundos lo trata como si hubiera pulsado un botón
+  cualquiera. Va con `askBase` y no con `avisar`, que nació para advertir —con
+  coral y sacudida de pantalla—: un «gracias» que tiembla es un susto.
+
+**Y los reportes se distinguen de los errores automáticos.** En el panel iban
+mezclados y solo los separaba un `· reporte` diminuto en el pie. Ahora van
+**primero**, con la raya lateral en oro en vez de coral y el bicho junto al
+mensaje, y el pie dice «lo escribió alguien». No es adorno: un mensaje que una
+persona se paró a escribir trae el contexto de lo que estaba intentando hacer,
+que es lo que un volcado de JavaScript nunca dice, y enterrarlo entre cien
+errores automáticos es la forma más segura de no leerlo nunca.
+
+**El informe se dibuja: un calendario de verdad, barras que no son ladrillos.**
+
+**«Tus días» pasa a ser un calendario.** Era una parrilla de columnas-semana
+que empezaba donde empezara el rango —53 columnas para un año, cinco para un
+mes— y no se entendía qué era una casilla ni si el patrón seguía un calendario
+o caía donde le tocaba. Lo dijo Eduardo mirándolo y tenía razón.
+
+- **Un mes** se dibuja como un mes: siete columnas con las iniciales de los
+  días arriba, el 1 en su día de la semana real y tantas filas como semanas
+  tenga. Los de 30, los de 31 y los febreros de 29 salen solos, porque los días
+  se cuentan con `Date.UTC(a, m, 0)` —el día 0 del mes siguiente— y eso ya sabe
+  de bisiestos. Comprobado: 2024 y 2028 dan 29, 2100 da 28 y 2000 da 29.
+- **Un año** son los doce meses en pequeño, cada uno con su nombre: cuatro
+  columnas en pantalla ancha y dos en el teléfono. Ni una cinta que hay que
+  empujar de lado ni un bloque medio vacío.
+- **Los días que aún no llegaron** se ven como un recuadro apenas marcado: se
+  nota que el mes sigue y no se cuentan como fallados.
+- Y la leyenda dice **«Cada casilla es un día»**, que es lo que faltaba: el
+  dibujo era bonito y no se sabía qué contaba.
+
+**Las barras dejan de ser ladrillos.** Cada columna era un bloque del ancho
+entero con un carril gris detrás, así que la gráfica se leía como una fila de
+rectángulos —y los días sin nada seguían ocupando un bloque macizo de gris—.
+Ahora la barra es una columna delgada (20 px) apoyada en una línea de base, sin
+carril: lo que no pasó no dibuja nada, que es exactamente lo que significa.
+
+**El aro cambia de color según lo lleno que esté**, y sus tres tonos están
+medidos, no elegidos a ojo. Un aro de nueve píxeles no es texto ni es un
+relleno: con `--mint` salía verde bosque de día (ese tono es el de escribir,
+5,46 sobre la tarjeta) y con el macizo se perdía (1,87). Los nuevos `--aro-*`
+pasan de 3 sobre 1 siendo todavía el color que dicen ser: **3,36 · 3,77 ·
+3,82**. Los tramos van del mismo lado que las lecturas —bajo por debajo de 40,
+alto por encima de 85— para que el color y la frase nunca se contradigan.
+
+Y el de en medio es **celeste y no luciérnaga**: el amarillo no llega a 3 sobre
+1 contra la tarjeta clara sin volverse el dorado apagado que ya se rechazó una
+vez por leerse como una alerta interna.
+
+**El botón «Ver el informe» en modo claro.** Vive dentro de la escena, que se
+queda de noche en los dos modos, y `btn-linea` le daba `var(--card)` de fondo
+—una variable que la escena NO vuelve a declarar—, así que de día salía una
+pastilla blanca pegada sobre un fondo oscuro. Ahora toma el mismo vidrio que el
+recuadro del foco, que es su vecino.
+
 ### 0.7.31.1 · 28 ago 2026
 La barra deja de escalonarse al desplegarse, y la bolita se alinea.
 

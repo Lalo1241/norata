@@ -1062,7 +1062,13 @@ async function reportarFallo() {
      está contestado antes de leerlo. */
   const porDefecto = lugares.some(([id]) => id === aqui) ? aqui : "otro";
 
+  /* El párrafo de entrada, y va antes de los tres campos por una razón que
+     no es de adorno: alguien que acaba de tropezar con un fallo está molesto,
+     y lo primero que lee no puede ser una casilla. Dice para qué sirve lo que
+     va a escribir —que alguien lo lee y lo arregla— y que no hace falta saber
+     nada técnico. Dos frases: la tercera ya no se lee. */
   const cuerpo =
+    '<span class="rep-intro">Cuéntame qué pasó y lo reviso. No necesitas saber nada técnico: con lo que recuerdes me basta para encontrarlo.</span>' +
     '<label class="rep-campo">' +
       '<span class="rep-rot">¿Dónde pasó?</span>' +
       '<select id="rep-donde">' +
@@ -1081,8 +1087,21 @@ async function reportarFallo() {
       '<span class="modal-cuenta" id="modal-cuenta">0 / ' + MOTIVO_MAX + '</span>' +
     '</label>';
 
+  /* Oro y no menta, y lo eligió Eduardo: un fallo no es un logro ni una venta.
+     El oro es el tono de «esto tiene un coste que quizá no ves» (ver la nota
+     de `askBase`), y aquí el coste es el rato que alguien acaba de perder.
+
+     El título va en BLANCO aunque el cuadro sea oro: en amarillo competía con
+     el icono, que es lo único que debe llamar la atención ahí arriba. Lo pone
+     la clase `reporte`, junto con el resto del estilo propio del cuadro.
+
+     Y el botón de enviar es `btn-linea` —fondo oscuro, borde menta— en vez del
+     verde macizo: el macizo es «lo que has venido a hacer», y aquí nadie ha
+     venido a esto. Mandar un reporte es un favor, no la acción de la
+     pantalla. */
   const p = askBase(cuerpo, true, "Enviar", false, false, "Cancelar",
-                    { icono: "bicho", titulo: "¿Qué salió mal?", tono: "menta" });
+                    { icono: "bicho", titulo: "¿Qué salió mal?", tono: "oro",
+                      clase: "reporte", okClase: "btn-linea" });
 
   /* `setTimeout` y no `requestAnimationFrame`, igual que en `askText`: el
      cuadro tiene que quedar listo aunque la pestaña esté en segundo plano, y
@@ -1127,7 +1146,20 @@ async function reportarFallo() {
 
   const enviado = await sbTropiezo("reporte", mensaje);
   if (enviado) {
-    toast("Gracias. Ya me llegó y lo voy a revisar.", "hecho");
+    /* Una ventana y no un aviso de los de abajo, y es lo que pidió Eduardo:
+       quien acaba de escribir tres campos ha hecho un trabajo, y un mensajito
+       que se desvanece en tres segundos lo trata como si hubiera pulsado un
+       botón cualquiera. La ventana le da acuse de recibo de verdad y dice las
+       dos cosas que quiere saber: que llegó, y que alguien lo va a leer. */
+    /* Con `askBase` y no con `avisar`/`avisarOro`: los dos nacieron para
+       advertir —van con `danger` y `alarm`, o sea coral y sacudida de
+       pantalla— y aquí no se advierte de nada. Un «gracias» que tiembla es un
+       susto. Sin cancelar, porque no hay nada que cancelar, y sin `fijo`:
+       quien ya leyó las dos líneas puede cerrar tocando fuera. */
+    await askBase(
+      "Ya me llegó y lo voy a revisar. Cosas como ésta son las que hacen que Norata deje de fallar donde falla.",
+      false, "De nada", false, false, null,
+      { icono: "bicho", titulo: "Gracias por avisarme", tono: "oro", soloOk: true });
   } else {
     /* Ni «error» ni una disculpa larga: se dice qué pasó y qué se puede
        hacer. Lo escrito se ha perdido, y eso también se dice — dejar creer
