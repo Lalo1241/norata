@@ -1,9 +1,14 @@
 /* Resumen, tablero, catálogo y el motor de sugerencia */
 /* ================= Render: resumen ================= */
 
+/* El saludo de la madrugada saluda a la HORA y no a la persona, y esa es toda
+   la idea: «trasnochador» le pone género a quien lee —y una «a» detrás no lo
+   arregla, lo alarga— además de sonar a reproche amable. La hora no tiene
+   género y aquí sí hay algo bonito que decir: son las cuatro de la mañana y
+   la tarjeta es un cielo estrellado. */
 function greeting() {
   const h = hourNow();
-  if (h < 6) return "Hola, trasnochador";
+  if (h < 6) return "Hola, madrugada";
   if (h < 12) return "Buenos días";
   if (h < 19) return "Buenas tardes";
   return "Buenas noches";
@@ -94,28 +99,28 @@ function renderSummary() {
        hace volver, no el número.** Ver el mes llenándose es lo que engancha;
        el número solo lo resume.
 
-       Así que el mes pasa al centro, con sus fechas escritas, y la tarjeta se
-       reparte en dos columnas: a la izquierda quién eres hoy —la llama, la
-       racha, lo que llevas del mes—, a la derecha el mes. En el teléfono se
-       apilan y el calendario ocupa el ancho entero, que es donde antes peor
-       se veía.
+       Y desde 0.7.35 la tarjeta **sabe de qué ancho es**: puede ocupar una,
+       dos o tres columnas del tablero, y cada ancho tiene su acomodo en vez de
+       estirar el mismo. Ancha de una, todo apilado; de dos, la identidad a la
+       izquierda y el mes a la derecha; de tres, se abre una tercera columna
+       con los últimos meses, que es la pregunta que sigue naturalmente a la
+       racha: ¿voy mejorando mes a mes?
 
-       Lo que NO se copia, y es a propósito: ni las cápsulas de colores por
-       semana, ni los congeladores, ni las flechas para pasear por meses
-       viejos, ni el susto de «te quedan 2 días para recuperar tu racha». Un
-       aviso en Norata informa y da la salida; no mete prisa.
+       El alto NO se elige: sale del ancho (ver `ALTO_RACHA`). Estirarla hacia
+       abajo solo añadía cielo vacío, que es justo el problema del que venimos.
 
-       Y la tira de siete días con sus palomitas se va: el mes la contiene
-       entera, y tenerlas las dos era decir lo mismo dos veces en la misma
-       tarjeta —que es justo lo que dejaba el cielo vacío arriba—. Lo que
-       hacía falta de ella, «cómo voy esta semana», queda dicho en una cifra. */
+       Lo que NO se copia de Duolingo, y es a propósito: ni las cápsulas de
+       colores por semana, ni los congeladores, ni las flechas para pasear por
+       meses viejos, ni el susto de «te quedan 2 días para recuperar tu racha».
+       Un aviso en Norata informa y da la salida; no mete prisa. */
     racha: () => {
       const cuentas = activityDayCounts();
       const hoy = todayKey();
       const anio = Number(hoy.slice(0, 4));
       const mes = Number(hoy.slice(5, 7));
-      const desdeMes = hoy.slice(0, 8) + "01";
-      const delMes = { periodo: "mes", desde: desdeMes, hasta: hoy };
+      const ancho = dashSize("racha").w;
+
+      const delMes = { periodo: "mes", desde: hoy.slice(0, 8) + "01", hasta: hoy };
       const diasMes = diasDe(delMes);
       const activosMes = diasMes.filter(k => (cuentas.get(k) || 0) > 0).length;
 
@@ -148,7 +153,12 @@ function renderSummary() {
               <div class="streak-row">
                 <span class="flame ic"><svg viewBox="0 0 24 24">${ICONS.flame}</svg></span>
                 <span class="num">${stk.cur}</span>
-                <span class="lbl">día${stk.cur === 1 ? "" : "s"} de racha<br>mejor: ${stk.best}</span>
+                ${/* Sin «mejor: N». La gracia está en la racha que tienes
+                      viva, no en una que ya se rompió: al lado del número de
+                      hoy, el récord viejo solo puede hacer dos cosas, y las
+                      dos sobran — recordarte que ya lo hiciste mejor, o
+                      encogerse cuando el de hoy lo supera. */""}
+                <span class="lbl">día${stk.cur === 1 ? "" : "s"}<br>de racha</span>
               </div>
               <p class="sg-hoy${hoyCuenta ? " si" : ""}">${escapeHtml(frase)}</p>
               <div class="sg-cifras">
@@ -159,6 +169,7 @@ function renderSummary() {
             <div class="sg-der">
               ${calendarioRacha(anio, mes, cuentas, hoy)}
             </div>
+            ${ancho >= 3 ? `<div class="sg-extra">${mesesRecientes(cuentas, anio, mes)}</div>` : ""}
           </div>
         </div>
       </div>`;
@@ -340,7 +351,7 @@ function renderSummary() {
       const sz = dashSize(id);
       const p = sitio[id];
       return `
-      <div class="widget" data-w="${id}" style="--w:${sz.w};--h:${sz.h}${
+      <div class="widget" data-w="${id}" data-ancho="${sz.w}" style="--w:${sz.w};--h:${sz.h}${
         p ? `;--c:${p.c + 1};--f:${p.f + 1}` : ""}">
         ${body}
         <div class="w-edit">
@@ -746,6 +757,20 @@ function guardarPosiciones(pos) {
 
 function altoMinimo(id) { return DASH_MIN_H[id] || 2; }
 
+/* ---- El alto de la racha no se elige: sale de su ancho ----
+   La tarjeta tiene un acomodo por cada ancho posible, y cada acomodo pide lo
+   que pide: apilada necesita diez filas, en dos columnas ocho, en tres siete.
+   Estirarla más solo añadía cielo vacío, que es el problema del que venía.
+
+   Se aplica al leer Y al escribir: al leer, para que un tablero guardado con
+   la altura vieja se corrija solo sin que nadie tenga que tocar nada. */
+/* Medido con el peor mes posible —uno de seis semanas, como agosto de 2026—
+   más un poco de aire: apilada pide 606 px y en dos o tres columnas 372. Una
+   fila del tablero son 56 px con 24 de hueco, así que 9 filas dan 696 y 6 dan
+   456. Lo que sobre lo reparte el propio cuerpo, que va centrado. */
+const ALTO_RACHA = { 1: 9, 2: 6, 3: 6 };
+function altoDeRacha(w) { return ALTO_RACHA[w] || ALTO_RACHA[2]; }
+
 /* El suelo se aplica al LEER, no solo al arrastrar. Si no, un tablero
    guardado con la altura vieja se seguiría pintando por debajo del mínimo
    para siempre: el usuario nunca vuelve a tocar esa tarjeta y el valor
@@ -753,9 +778,14 @@ function altoMinimo(id) { return DASH_MIN_H[id] || 2; }
 function dashSize(id) {
   const { sizes } = dashLayout();
   const s = sizes[id] || {};
+  /* El ancho nunca puede pasar de las columnas que hay. Sin este tope, una
+     tarjeta guardada de tres columnas en la computadora llegaba al teléfono
+     diciendo que era de tres —y la racha, que ahora tiene un acomodo por
+     ancho, sacaba en una pantalla de 375 px el reparto pensado para 1500—. */
+  const w = Math.min(s.w || DASH_META[id].w, dashCols());
   return {
-    w: s.w || DASH_META[id].w,
-    h: clamp(s.h || DASH_META[id].h, altoMinimo(id), DASH_MAX_H)
+    w,
+    h: id === "racha" ? altoDeRacha(w) : clamp(s.h || DASH_META[id].h, altoMinimo(id), DASH_MAX_H)
   };
 }
 
@@ -777,7 +807,7 @@ function saveDash(order, hidden, sizes, pos) {
    del suelo, venga del arrastre o de donde venga. */
 function setWidgetSize(id, w, h) {
   const { sizes } = dashLayout();
-  sizes[id] = { w, h: clamp(h, altoMinimo(id), DASH_MAX_H) };
+  sizes[id] = { w, h: id === "racha" ? altoDeRacha(w) : clamp(h, altoMinimo(id), DASH_MAX_H) };
   marcarAcomodo(null);
   saveDash(null, null, sizes);
 }
@@ -1355,6 +1385,37 @@ function renderHome() {
 
    Hoy lleva un aro, y la semana en curso una banda por detrás: es lo que
    contesta «¿cómo voy AHORA?» sin necesitar una tira aparte. */
+/* Los últimos seis meses, uno por renglón. Es lo que aparece cuando la
+   tarjeta se hace de tres columnas, y contesta la pregunta que sigue
+   naturalmente a la racha: ¿voy mejorando mes a mes? Un mes con cero días no
+   se esconde —esconderlo dejaría una tabla que solo enseña lo bueno— pero
+   tampoco se subraya: su barra simplemente no está. */
+function mesesRecientes(cuentas, anio, mes) {
+  const filas = [];
+  let max = 1;
+  for (let i = 5; i >= 0; i--) {
+    const total = anio * 12 + (mes - 1) - i;
+    const a = Math.floor(total / 12), m = (total % 12) + 1;
+    const dias = new Date(Date.UTC(a, m, 0)).getUTCDate();
+    let n = 0;
+    for (let d = 1; d <= dias; d++) {
+      if ((cuentas.get(a + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0")) || 0) > 0) n++;
+    }
+    max = Math.max(max, n);
+    filas.push({ nombre: MESES[m - 1], n, actual: i === 0 });
+  }
+  return `
+    <div class="rc-rot">Los últimos meses</div>
+    <div class="sg-meses">
+      ${filas.map(f => `
+        <div class="sgm${f.actual ? " actual" : ""}">
+          <span class="sgm-n">${escapeHtml(f.nombre)}</span>
+          <span class="sgm-b"><i style="width:${Math.round(f.n / max * 100)}%"></i></span>
+          <span class="sgm-v">${f.n}</span>
+        </div>`).join("")}
+    </div>`;
+}
+
 function calendarioRacha(anio, mes, cuentas, hoy) {
   const total = new Date(Date.UTC(anio, mes, 0)).getUTCDate();
   const primero = new Date(Date.UTC(anio, mes - 1, 1)).getUTCDay();
@@ -1386,7 +1447,12 @@ function calendarioRacha(anio, mes, cuentas, hoy) {
 
   return `
     <div class="rc">
-      <div class="rc-rot">${escapeHtml(MESES[mes - 1])}</div>
+      ${/* Con el año escrito. Sin él, un calendario suelto no dice de
+            cuándo es —y esta tarjeta va a llevar años abierta—: en enero, un
+            mes de treinta y un días que empieza en jueves puede ser
+            perfectamente el de hace tres años. Lo preguntó Eduardo y no había
+            ninguna razón para no ponerlo. */""}
+      <div class="rc-rot">${escapeHtml(MESES[mes - 1])} ${anio}</div>
       <div class="rc-dow" aria-hidden="true">${["D", "L", "M", "M", "J", "V", "S"].map(x => `<span>${x}</span>`).join("")}</div>
       <div class="rc-rejilla">${celdas}</div>
     </div>`;
