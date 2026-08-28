@@ -1149,16 +1149,11 @@ function renderHome() {
       <div class="label">Nivel de tu personaje</div>
       <div class="big"><b>${totalLevels}</b><span> niveles</span></div>
     </div>`,
-    /* Con la prueba encendida, los cuatro huecos los decide el motor de
-       informes: cambian los acumulados por lo que se movió esta semana y cada
-       uno trae su flecha. Apagada, el panel de siempre — que es lo que ve
-       quien no pidió la prueba (ver el script de arriba de index.html). */
-    stats: pruebaInformes() ? statsPanelHabilidades({ decaying }) : [
-      { n: skills.length, t: "Habilidades" },
-      { n: fmtXp(totalXp), t: "XP total" },
-      { n: skills.filter(s => s.permanent).length, t: "Blindadas", tone: "mint" },
-      { n: decaying, t: "Decayendo", tone: decaying ? "fire" : "" }
-    ],
+    /* Los cuatro huecos los decide el motor de informes: números del periodo
+       con su flecha, en vez de acumulados que solo suben. Aquí estaban «XP
+       total» y «Blindadas», que no pasan la regla del panel —ninguno de los
+       dos te hace tocar nada hoy—. */
+    stats: statsPanelHabilidades({ decaying }),
     informe: "habilidades",
     focus: hFocus
   });
@@ -1747,7 +1742,19 @@ function sectionHero({ scene, lead, stats, focus, informe }) {
                   comparación existe para las cuatro o para ninguna. */
               (() => {
                 const conVar = stats.some(s => s.d);
-                return stats.map(s => `<div><div class="n ${s.tone || ""}">${s.n}</div>${
+                /* Un importe con su moneda —«$5,340 MXN»— no cabe en una
+                   columna de 78 px y parte en dos renglones, y entonces esa
+                   columna baja su rótulo 23 px y desalinea la fila entera.
+                   Se vio al poner la moneda a todos los montos (0.7.24).
+
+                   La salida NO es recortar el número ni quitarle el código:
+                   los dos serían perder el dato justo donde hay que
+                   desambiguar. Se reserva la segunda línea en las CUATRO
+                   columnas, igual que con la fila de las flechas: o la hay
+                   para todas o no la hay para ninguna. Solo se paga la altura
+                   en el panel que enseña dinero. */
+                const alto = stats.some(s => String(s.n).length >= 9);
+                return stats.map(s => `<div><div class="n ${alto ? "alto " : ""}${s.tone || ""}">${s.n}</div>${
                   conVar ? (s.d || `<i class="sh-var"></i>`) : ""
                 }<div class="t">${s.t}</div></div>`).join("");
               })()}
@@ -1759,11 +1766,9 @@ function sectionHero({ scene, lead, stats, focus, informe }) {
           </${focus.onclick ? "button" : "div"}>
           ${/* La puerta al informe. En `btn-linea` y no en menta maciza porque
                 no escribe nada: solo lleva a mirar (ver los seis niveles de
-                botón). Y solo con la prueba encendida, que es lo que mantiene
-                el panel de siempre intacto para quien no la pidió. */
-             informe && typeof pruebaInformes === "function" && pruebaInformes()
-               ? `<button class="btn btn-linea sh-informe" onclick="abrirInforme('${informe}')">Ver el informe</button>`
-               : ""}
+                botón). Es lo que permite que el panel se quede pequeño: todo
+                lo que no cabe arriba vive detrás de este botón. */
+             informe ? `<button class="btn btn-linea sh-informe" onclick="abrirInforme('${informe}')">Ver el informe</button>` : ""}
         </div>
       </div>
     </div>`;
