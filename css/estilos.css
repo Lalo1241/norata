@@ -523,6 +523,13 @@
      arreglando rótulo por rótulo: vuelven a declarar las variables que usan
      sus hijos, y lo que se añada dentro ya nace con el tono correcto. */
   .scene-card, .celebrate {
+    /* `--carril` y `--line` faltaban en esta lista, y no se notó hasta que
+       el calendario del mes entró en la tarjeta de la racha: de día, las
+       casillas sin actividad salían gris papel (#dadce7) sobre el carbón de
+       la escena, y el recuadro de los días que aún no llegan igual. Dentro de
+       una escena TODO tiene que ser de noche, no solo los acentos. */
+    --carril: #2a3441;
+    --line: #2a3441;
     --text: #eaf1ef;
     --muted: #8b99a5;
     --faint: #5d6b77;
@@ -2700,6 +2707,80 @@
   /* Fuera de edición el lienzo se arrastra para recorrerlo */
   .fs-overlay .const-wrap:not(.editing) { cursor: grab; }
   .const-wrap.panning { cursor: grabbing !important; }
+
+  /* ================= La tira de herramientas del mapa =================
+     Flota sobre el lienzo: abajo en el teléfono —donde llega el pulgar sin
+     recolocar la mano— y a la izquierda en PC. Estaba arriba a la derecha, que
+     es la esquina más lejos del dedo y la barra que más se toca.
+
+     No cuesta espacio nuevo: ocupa el sitio de la línea de ayuda fija, que
+     eran 54 px de los 812 de un teléfono repitiendo para siempre algo que se
+     lee una vez. */
+  .mapa-tira {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    z-index: var(--piso-mando);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--flotante);
+    border: 1px solid var(--line);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.3);
+  }
+  .mt-btn {
+    width: 42px; height: 42px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font: inherit;
+    font-size: 19px;
+    line-height: 1;
+  }
+  .mt-btn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .mt-btn:hover:not(:disabled) { background: var(--card2); color: var(--text); }
+  .mt-btn.on { background: var(--mint-soft); color: var(--mint); }
+  .mt-btn.crear { color: var(--mint); font-weight: 700; }
+  /* Apagado, no ausente: si los iconos se recorren, la mano tiene que volver
+     a aprender dónde estaba cada cosa. */
+  .mt-btn:disabled { opacity: 0.28; cursor: default; }
+  .mt-btn:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+
+  /* ---- Dónde estás ----
+     El módulo devuelve a su lista y el nombre abre las otras ramas. */
+  .fs-title .fs-mod, .fs-title .fs-rama {
+    font: inherit;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .fs-title .fs-rama { color: var(--text); font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+  .fs-title .fs-rama:not(.saltable) { cursor: default; }
+  .fs-title .fs-rama i { font-style: normal; font-size: 10px; color: var(--muted); }
+  .fs-title .fs-mod:hover { color: var(--mint); }
+  .fs-title .fs-sep { color: var(--faint); margin: 0 5px; }
+  #ctx button.aqui { background: var(--card2); }
+
+  @media (min-width: 900px) {
+    /* En PC a la izquierda y en columna, como una caja de herramientas: hay
+       sitio de sobra a los lados y ninguno abajo, que es donde cae la vista. */
+    .mapa-tira {
+      left: 16px;
+      bottom: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      flex-direction: column;
+    }
+  }
 
   /* ================= El mando del zoom =================
      Flota sobre el lienzo, en la esquina donde todo el mundo lo busca. Va
@@ -5182,11 +5263,30 @@
      casilla hasta volverla ilegible ni se enseñan menos días: la caja se
      desplaza de lado, que es la regla de la casa —la pantalla decide la
      forma, nunca el contenido—. */
+  /* ---- El mes dentro de la tarjeta de la racha ----
+     Más apretado que en el informe: aquí acompaña a la semana, no es el
+     protagonista. Y sin las iniciales de los días arriba, que ya están en la
+     tira de la semana justo encima — repetirlas dos veces seguidas sobra. */
+  .streak-mes { margin-top: 16px; }
+  .sm-rot {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+  .streak-mes .cal-mes { max-width: 100%; margin: 0; }
+  .streak-mes .cal-dow { display: none; }
+  .streak-mes .cal-rejilla { gap: 3px; }
+  .streak-mes .cal-rejilla i { border-radius: 3px; }
+  .streak-mes .inf-escala { display: none; }
+
   /* Un mes: siete columnas, las iniciales arriba y una casilla por día. Las
      casillas se estiran con la tarjeta —`1fr` y `aspect-ratio`— en vez de
      medir 13 px fijos, que es lo que dejaba el calendario del mes hecho un
      sello en una tarjeta ancha. */
-  .cal-mes { max-width: 420px; }
+  /* Más estrecho y centrado. A 420 px las casillas de un mes salían de casi
+     sesenta píxeles y el calendario pesaba más que la gráfica que lo
+     acompaña; y pegado a la izquierda dejaba media tarjeta vacía a la
+     derecha. Un mes se lee de un vistazo, no hace falta que sea grande. */
+  .cal-mes { max-width: 290px; margin: 0 auto; }
   .cal-dow, .cal-rejilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
   .cal-dow { margin-bottom: 6px; }
   .cal-dow span {

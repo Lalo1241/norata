@@ -207,6 +207,20 @@ function colocarMando(mando, wrap) {
   if (!rw.height || !rp.height) return;       // sin medir aún: se deja como esté
   mando.style.bottom = Math.max(10, Math.round(rp.bottom - rw.bottom) + 12) + "px";
   mando.style.right = Math.max(10, Math.round(rp.right - rw.right) + 12) + "px";
+
+  /* ---- Y que no se pise con la tira ----
+     En el teléfono la tira va centrada abajo y el mando en la esquina: a 375
+     px de ancho no caben los dos en la misma línea y se solapaban justo en el
+     botón de acercar. En PC la tira está a la izquierda y no se tocan.
+
+     Se comprueba midiendo en vez de con un ancho de corte, porque lo que
+     decide si chocan no es el tamaño de la pantalla sino cuánto ocupa cada
+     uno — y la tira crece si algún día lleva un botón más. */
+  const tira = padre.querySelector(":scope > .mapa-tira");
+  if (!tira) return;
+  const rt = tira.getBoundingClientRect(), rm = mando.getBoundingClientRect();
+  const chocan = !(rm.bottom <= rt.top || rm.top >= rt.bottom || rm.right <= rt.left || rm.left >= rt.right);
+  if (chocan) mando.style.bottom = Math.round(rp.bottom - rt.top) + 10 + "px";
 }
 
 /* Al girar el teléfono o acoplar la ventana, lo que hay debajo del mapa
@@ -468,6 +482,38 @@ function syncFullscreenForView(name) {
   document.body.classList.toggle("fs-on", enSuPantalla);
 }
 
+/* ---- Saltar a otra rama sin salir ----
+   Se cuelga del propio nombre, que es donde uno mira cuando se pregunta "¿y
+   las otras?". Reutiliza el menú del clic derecho para no inventar una
+   ventana más: es la misma capa, la misma forma de cerrarse y el mismo piso. */
+function abrirSaltoDeRama(e) {
+  e.stopPropagation();
+  const el = document.getElementById("ctx");
+  if (!el || !fullscreenBranch) return;
+  const esProy = fullscreenMod === "proyectos";
+  const otras = ramasDe(esProy ? "projects" : "perks");
+  el.innerHTML = `<div class="ctx-head">${esProy ? "Tus proyectos" : "Tus ramas"}</div>` +
+    otras.map(n => {
+      const cuantos = esProy ? encargosDeRama(n).length : talentosDeRama(n).length;
+      const aqui = n === fullscreenBranch;
+      return `<button${aqui ? ' class="aqui"' : ""} onclick="cerrarCtxMenu();saltarARama('${enJS(n)}')">
+        <span class="ctx-tx"><b>${escapeHtml(n)}</b><span>${cuantos} ${
+          esProy ? (cuantos === 1 ? "encargo" : "encargos") : (cuantos === 1 ? "talento" : "talentos")}</span></span>
+        ${aqui ? `<span class="ctx-ic">✓</span>` : ""}
+      </button>`;
+    }).join("");
+  const r = e.currentTarget.getBoundingClientRect();
+  colocarCtxMenu(el, r.left, r.bottom + 6);
+}
+
+function saltarARama(b) {
+  if (!fullscreenBranch || b === fullscreenBranch) return;
+  /* Se abre como si se entrara de nuevo: eso despliega la rama si estaba
+     plegada, la encuadra en su frente de avance y deja el zoom que tuviera
+     guardado. Saltar tiene que sentirse igual que entrar. */
+  openBranchFullscreen(b, fullscreenMod);
+}
+
 function closeBranchFullscreen() {
   if (!fullscreenBranch) return;
   const mod = fullscreenMod;
@@ -525,36 +571,75 @@ function renderFullscreen(mod) {
     ? nodes.filter(n => n.status === "done").length
     : nodes.filter(n => n.status === "completed").length;
 
-  document.getElementById("fs-name").textContent = b;
-  document.getElementById("fs-count").textContent = `${doneN} de ${nodes.length}`;
-  /* Elegir varios y agrupar no salen en Proyectos: agrupar mete lo elegido en
-     una caja del ático, y el ático es del árbol de Talentos. Ofrecer el botón
-     y que no hiciera nada sería peor que no tenerlo. */
-  document.getElementById("fs-tools").innerHTML = `
-    ${editing ? "" : `<button class="badd solid" onclick="focusBranchFront('${bj}', false, '${fullscreenMod}')" aria-label="Centrar en lo que sigue" title="Centrar en lo que sigue"><svg viewBox="0 0 24 24">${BM_ICONS.flecha}</svg></button>`}
-    <button class="badd solid ${editing ? "on" : ""}" onclick="toggleEditBranch('${bj}', '${fullscreenMod}')" aria-label="Editar el mapa"><svg viewBox="0 0 24 24">${BM_ICONS.lapiz}</svg></button>
-    ${esProy ? "" : `<button class="badd solid ${modoElegir ? "on" : ""}" onclick="toggleElegirVarios('${bj}')" aria-label="Elegir varios talentos" title="Elegir varios talentos"><svg viewBox="0 0 24 24">${BM_ICONS.caja}</svg></button>`}
-    <button class="badd" onclick="${esProy ? `openProjectForm(null, '${bj}')` : `openPerkForm(null, '${bj}')`}" aria-label="Añadir ${esProy ? "encargo" : "talento"} a ${ba}">＋</button>`;
+  /* ---- Dónde estás ----
+     Antes esta barra decía solo el nombre de la rama. Quien entraba a
+     pantalla completa perdía de vista en qué parte de la app estaba y no
+     tenía forma de ir a otra sin salir. Ahora dice el módulo —que devuelve a
+     su lista— y el nombre abre las demás para saltar sin salir. */
+  const hermanas = ramasDe(esProy ? "projects" : "perks");
+  document.getElementById("fs-name").innerHTML = `
+    <button type="button" class="fs-mod" onclick="closeBranchFullscreen()">${
+      esProy ? "Proyectos" : "Talentos"}</button>
+    <span class="fs-sep">›</span>
+    <button type="button" class="fs-rama${hermanas.length > 1 ? " saltable" : ""}"${
+      hermanas.length > 1 ? ` onclick="abrirSaltoDeRama(event)"` : ""}>${escapeHtml(b)}${
+      hermanas.length > 1 ? `<i>▾</i>` : ""}</button>`;
+  document.getElementById("fs-count").textContent =
+    `${doneN} de ${nodes.length} ${esProy ? "terminados" : "logrados"}`;
+  /* Arriba solo queda cerrar y saber dónde estás. Las herramientas bajan a
+     la tira flotante: en el teléfono el pulgar no llega a la esquina superior
+     derecha, y es justo la barra que más se toca. */
+  document.getElementById("fs-tools").innerHTML = "";
 
   /* La clave del SVG es distinta de la que usa la lista: si coincidiera,
      los dos lienzos compartirían los ids de los filtros y el brillo se
      aplicaría al equivocado. */
   /* Sin talentos no se pinta un lienzo en blanco —parecería roto— sino el
      mismo mensaje que la lista, con la salida a mano: el ＋ está arriba. */
+  /* ---- La tira de herramientas ----
+     Flota: abajo en el teléfono, a la izquierda en PC. Los mismos botones y
+     en el mismo orden en los dos módulos; lo que no aplica se APAGA en su
+     sitio en vez de quitarse, porque si los iconos se recorren la mano tiene
+     que volver a aprender dónde estaba cada cosa.
+
+     Elegir varios no aplica en Proyectos: agrupa lo elegido en una caja del
+     ático, que es del árbol de Talentos. */
+  const tira = `
+    <div class="mapa-tira" role="toolbar" aria-label="Herramientas del mapa">
+      <button type="button" class="mt-btn" ${editing ? "disabled" : ""}
+        onclick="focusBranchFront('${bj}', false, '${fullscreenMod}')"
+        aria-label="Centrar en lo que sigue" title="Centrar en lo que sigue"><svg viewBox="0 0 24 24">${BM_ICONS.flecha}</svg></button>
+      <button type="button" class="mt-btn ${editing ? "on" : ""}"
+        onclick="toggleEditBranch('${bj}', '${fullscreenMod}')"
+        aria-label="${editing ? "Salir de edición" : "Editar el mapa"}" aria-pressed="${editing}"
+        title="${editing ? "Salir de edición" : "Editar el mapa: conectar y cortar"}"><svg viewBox="0 0 24 24">${BM_ICONS.lapiz}</svg></button>
+      <button type="button" class="mt-btn ${modoElegir ? "on" : ""}" ${esProy ? "disabled" : ""}
+        onclick="toggleElegirVarios('${bj}')"
+        aria-label="Elegir varios" aria-pressed="${!esProy && modoElegir}"
+        title="${esProy ? "Elegir varios es del árbol de Talentos" : "Elegir varios para moverlos juntos o agruparlos"}"><svg viewBox="0 0 24 24">${BM_ICONS.caja}</svg></button>
+      <button type="button" class="mt-btn crear"
+        onclick="${esProy ? `openProjectForm(null, '${bj}')` : `openPerkForm(null, '${bj}')`}"
+        aria-label="Añadir ${esProy ? "encargo" : "talento"} a ${ba}"
+        title="Añadir ${esProy ? "un encargo" : "un talento"}">＋</button>
+    </div>`;
+
   document.getElementById("fs-body").innerHTML = !nodes.length
     ? `<p class="col-vacia" style="margin:auto;text-align:center;max-width:34ch">Todavía no hay ${
         esProy ? "encargos en este proyecto" : "talentos en esta rama"}. Créale el primero con el ＋ de arriba.</p>`
     : `
     <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}"${
         esProy ? ` data-mod="proyectos"` : ""}>${constellation(nodes, 900, editing, b, fullscreenMod)}</div>
-    <div class="fs-hint">${esProy
-      ? (editing
-        ? "Arrastra para acomodar · tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno"
-        : "Arrastra el fondo para recorrer el proyecto · toca un encargo para abrirlo y arrástralo para acomodarlo")
-      : (editing
-        ? "Arrastra para acomodar · <b>Shift</b> y clic (o Shift y arrastra un recuadro) elige varios · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia la regla de entrada"
-        : "Arrastra el fondo para recorrer la rama · toca un nodo para abrirlo y arrástralo para acomodarlo")}${
-      esProy ? "" : atajosLegend()}</div>`;
+    ${tira}
+    ${/* La ayuda solo mientras se edita, y no siempre. Ocupaba 54 px fijos —de
+          812 que tiene un teléfono— para repetir eternamente algo que se lee
+          una vez: "arrastra el fondo para recorrer". Ahí es donde va ahora la
+          tira, así que las herramientas no cuestan un píxel nuevo. Dentro de
+          la edición sí se queda: tirar del punto ▸ y tocar una línea para
+          cortarla no se adivinan solos. */
+      !editing ? "" : `<div class="fs-hint">${esProy
+        ? "Tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno"
+        : "Tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · <b>Shift</b> y clic elige varios · el círculo <b>Y/O</b> cambia la regla de entrada"}${
+        esProy ? "" : atajosLegend()}</div>`}`;
 
   ov.classList.add("show");
   /* Los manejadores del lienzo solo si hay lienzo: sin él, `encuadrarLienzos`

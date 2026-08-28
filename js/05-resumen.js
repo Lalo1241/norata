@@ -105,6 +105,28 @@ function renderSummary() {
               <span class="wk-l">${d.letra}</span><span class="wk-c">${marca}</span>
             </div>`;
           }).join("")}</div>
+          ${/* El mes entero debajo de la semana. La tarjeta de la racha
+                enseñaba siete días y nada más, así que el dato que le da
+                sentido —cuántos días del mes llevas moviéndote— había que ir
+                a buscarlo al informe. Es el mismo calendario de "Tus días"
+                (js/10g-informe.js) leyendo los días con actividad de verdad,
+                que es lo que cuenta la racha: práctica, misiones y talentos,
+                no solo misiones.
+
+                La escena se queda de noche en los dos modos, y el calendario
+                saca sus tonos de `velo()` y `pinta()`, así que no hay que
+                declararle nada aparte. */
+             (() => {
+               const cuentas = activityDayCounts();
+               const hoy = todayKey();
+               const mes = { periodo: "mes", desde: hoy.slice(0, 8) + "01", hasta: hoy };
+               const conAlgo = diasDe(mes).filter(k => (cuentas.get(k) || 0) > 0).length;
+               return `
+                 <div class="streak-mes">
+                   <div class="sm-rot">${MESES[Number(hoy.slice(5, 7)) - 1].toUpperCase()} · ${conAlgo} día${conAlgo === 1 ? "" : "s"} con actividad</div>
+                   ${gCalendario(mes, cuentas, { vacia: "" })}
+                 </div>`;
+             })()}
         </div>
       </div>`,
 
@@ -324,7 +346,8 @@ function renderSummary() {
    (mantén pulsado para entrar en modo edición) y se pueden quitar o volver a añadir. */
 
 const DASH_META = {
-  racha:     { title: "Racha", w: 2, h: 5 },
+  /* Más alta desde que lleva el mes debajo de la semana (0.7.33). */
+  racha:     { title: "Racha", w: 2, h: 8 },
   misiones:  { title: "Misiones de hoy", w: 1, h: 8 },
   atencion:  { title: "Atención hoy", w: 1, h: 3 },
   niveles:   { title: "Niveles", w: 1, h: 3 },
@@ -351,7 +374,7 @@ const ROW_PITCH = ROW_H + ROW_GAP_V;
    —"Listos para empezar" es una lista y necesita cuatro; "Proyectos" es un
    dato suelto y se apaña con dos—. El techo sigue siendo el mismo para
    todas: encoger estropea, agrandar no. */
-const DASH_MIN_H = { racha: 3, misiones: 3, atencion: 2, niveles: 3, invertido: 3, proyectos: 2, listos: 4 };
+const DASH_MIN_H = { racha: 5, misiones: 3, atencion: 2, niveles: 3, invertido: 3, proyectos: 2, listos: 4 };
 /* Techo generoso: son 40 filas de la cuadrícula, más de dos pantallas de
    alto. Existe solo para que un tirón desbocado del asa no deje una tarjeta
    de mil filas imposible de volver a encoger. */
@@ -1767,9 +1790,16 @@ function sectionHero({ scene, lead, stats, focus, informe }) {
                    para todas o no la hay para ninguna. Solo se paga la altura
                    en el panel que enseña dinero. */
                 const alto = stats.some(s => String(s.n).length >= 9);
-                return stats.map(s => `<div><div class="n ${alto ? "alto " : ""}${s.tone || ""}">${s.n}</div>${
+                /* La flecha va ARRIBA de la cifra, y esto lo cazó Eduardo
+                   mirando el hero de Habilidades. Debajo, el hueco vacío de
+                   las columnas sin comparación se abría entre la cifra y su
+                   rótulo, que es justo donde se lee como un agujero. Arriba,
+                   ese mismo hueco queda contra el borde de la caja —donde
+                   pasa por aire— y las cifras y los rótulos de las cuatro
+                   columnas se alinean solos. */
+                return stats.map(s => `<div>${
                   conVar ? (s.d || `<i class="sh-var"></i>`) : ""
-                }<div class="t">${s.t}</div></div>`).join("");
+                }<div class="n ${alto ? "alto " : ""}${s.tone || ""}">${s.n}</div><div class="t">${s.t}</div></div>`).join("");
               })()}
           </div>
           <${focus.onclick ? `button class="sh-focus" onclick="${focus.onclick}"` : `div class="sh-focus"`}>
