@@ -1964,9 +1964,14 @@ async function deleteBranch(kind, b) {
     if (editandoRama(b, "talentos")) editBranch = null;
     /* Y si se estaba viendo a pantalla completa, se sale: quedarse dentro de
        una rama borrada es lo que dejaba la capa encima con datos fantasma. */
-    if (typeof fullscreenBranch !== "undefined" && fullscreenBranch === b) closeBranchFullscreen();
+    if (typeof fullscreenBranch !== "undefined" && fullscreenBranch === b
+        && fullscreenMod === "talentos") closeBranchFullscreen();
   } else {
     state.projects = state.projects.filter(p => !ids.has(p.id));
+    /* Igual que en Talentos: quedarse dentro de un proyecto borrado deja la
+       capa encima enseñando algo que ya no existe. */
+    if (typeof fullscreenBranch !== "undefined" && fullscreenBranch === b
+        && fullscreenMod === "proyectos") closeBranchFullscreen();
     /* La misma trampa que en Talentos, y ahora tambien aqui porque un
        encargo puede depender de otro: sin limpiar, los que apuntaban a uno
        borrado se quedarian esperando un turno que no va a llegar nunca. */
@@ -2011,7 +2016,7 @@ async function renombrarRama(b) {
     state.ui.collapsed[nuevo] = true;
   }
   if (editandoRama(b, "talentos")) editBranch = nuevo;
-  if (fullscreenBranch === b) fullscreenBranch = nuevo;
+  if (fullscreenBranch === b && fullscreenMod === "talentos") fullscreenBranch = nuevo;
   save();
   renderTree();
   toast(existe ? `Ramas juntadas en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
@@ -2041,6 +2046,7 @@ async function renombrarRamaProyectos(b) {
     state.ui.mapaProyectos[nuevo] = true;
   }
   if (editandoRama(b, "proyectos")) editBranch = nuevo;
+  if (fullscreenBranch === b && fullscreenMod === "proyectos") fullscreenBranch = nuevo;
   save();
   renderProjects();
   toast(existe ? `Proyectos juntados en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");

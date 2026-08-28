@@ -52,6 +52,29 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.23 · 27 ago 2026
+El mapa de un proyecto también se ve a pantalla completa.
+
+- **La pantalla completa deja de ser solo de Talentos.** El mapa de un
+  proyecto se abre igual, con «Ver el proyecto completo» debajo del lienzo o
+  desde el clic derecho, y trae sus herramientas arriba: centrar en lo que
+  sigue, editar el mapa y ＋ para un encargo nuevo. En el teléfono es donde de
+  verdad se recorre un mapa, porque en la tarjeta de la lista no cabe.
+- **Elegir varios no sale en Proyectos.** Ese botón sirve para agrupar lo
+  elegido en una caja del ático, y el ático es del árbol de Talentos. Un botón
+  que no hace nada es peor que un botón que no está.
+- **La capa sabe de qué módulo es.** Los dos módulos pueden tener una rama con
+  el mismo nombre y la capa es una sola, así que ahora se compara el par y no
+  el nombre: abrir un proyecto llamado «La casa» ya no pinta encima la rama de
+  talentos que se llame igual, ni le despliega la suya —que iba por nombre en
+  `state.ui.collapsed`—. Por lo mismo, las teclas Q, W y E dejan de crear
+  talentos cuando lo que está abierto es un proyecto.
+- **Y borrar el último proyecto estando dentro ya cierra la capa.** Se colaba
+  por la salida rápida del caso vacío, que va antes del repintado: la capa se
+  quedaba encima enseñando algo que ya no existía. Es el mismo fallo que
+  Talentos había tenido y que su código ya avisaba; aquí se repitió por copiar
+  la estructura sin copiar la lección.
+
 ### 0.7.22 · 27 ago 2026
 La app tiene informes: una pantalla, cinco lecturas cortas.
 
