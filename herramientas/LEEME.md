@@ -43,3 +43,34 @@ Antes de fiarse de un «no cambió nada», dos comprobaciones:
 - **Un cambio de un píxel tiene que verse.** Mover una esquina de `18px` a
   `17px` en `.ms-card` salta 106 veces. Si no salta, lo que está roto es la
   prueba.
+
+## Medir cuánto tarda en abrirse
+
+`servidor-lento.py` es un GitHub Pages de mentira: comprime como el de verdad,
+pone las mismas cabeceras de caché, va tan lento como se le diga y **apunta cada
+petición en una bitácora**. Sin esas cuatro cosas la medición engaña.
+
+```sh
+openssl req -x509 -newkey rsa:2048 -keyout llave.pem -out cert.pem \
+  -days 2 -nodes -subj "/CN=127.0.0.1" -addext "subjectAltName=IP:127.0.0.1"
+python3 servidor-lento.py 8152 1200 0.18     # puerto, kbps, latencia en segundos
+```
+
+Las tres trampas que hacen que una medición de carga salga falsa, y que este
+servidor resuelve:
+
+1. **Con TLS, no sin él.** El service worker solo se registra en `https:` (ver
+   `js/11-arranque.js`), así que midiendo por `http://` nunca se toca su camino
+   y las visitas repetidas salen falsamente rápidas.
+2. **La lentitud va en el SERVIDOR, no en el panel del navegador.** El service
+   worker pide por su cuenta y la simulación de red del panel no le alcanza.
+3. **Comprimido.** Sin gzip la app «pesa» 1,35 MB en vez de 460 KB y todos los
+   números salen al triple.
+
+Y una cuarta que no es del servidor: **el ancho de banda es uno y se reparte**.
+Con un límite por hilo, seis descargas en paralelo van a seis veces la
+velocidad; la primera versión de esto medía tres veces más rápido de lo real.
+
+La verdad de cuántas veces se pidió cada cosa está en `bitacora-<puerto>.txt`,
+no en el navegador: una respuesta que sirve el service worker se anota con
+`transferSize` 0 aunque por debajo haya ido a la red.

@@ -405,4 +405,23 @@ window.addEventListener("online", () => syncRun({ silent: true }));
 
 if ("serviceWorker" in navigator && location.protocol === "https:") {
   navigator.serviceWorker.register("sw.js").catch(() => {});
+
+  /* ---- «Hay una versión nueva» ----
+     Desde 0.7.38 la app se sirve de su propia copia, así que abrirla no espera
+     a la red. El precio es que quien abra justo después de una publicación ve
+     una vez la anterior: mientras la mira, el service worker se baja la nueva
+     por detrás y avisa aquí.
+
+     No es obligatorio hacer caso. Si no se pulsa, la versión nueva entra sola
+     en la siguiente apertura, que es lo que pasaría igual sin este aviso. Por
+     eso es un toast y no una ventana: informa, no interrumpe.
+
+     `location.reload()` a secas y no `reload(true)`: lo segundo lleva años sin
+     hacer nada en ningún navegador, y aquí además sobra — la copia buena ya es
+     la nueva antes de que este mensaje llegue. */
+  navigator.serviceWorker.addEventListener("message", (ev) => {
+    if (!ev.data || ev.data.norata !== "version-nueva") return;
+    toast("Hay una versión nueva de Norata", "atencion",
+          { label: "Actualizar", onclick: "location.reload()" });
+  });
 }
