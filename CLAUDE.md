@@ -21,7 +21,12 @@ navegador entiende tal cual. Tres consecuencias que muerden si se olvidan:
    app sin querer. Sus rutas van con `../`, y `logotipoSrc()` lo resuelve mirando
    si existe la app.
 2. **Hay que subir la versión al tocar cualquier archivo de `ASSETS`** (ver
-   abajo). Si no, los aparatos ya instalados siguen sirviendo la copia vieja.
+   abajo). Desde 0.7.38 esto no es una buena práctica: es el ÚNICO mecanismo
+   por el que una versión llega a un aparato. La app se sirve de su propia
+   copia y no pide nada a la red; lo único que el navegador vuelve a pedir en
+   cada apertura es `sw.js`, y si su `CACHE` no cambió, ese aparato **se queda
+   en esa versión para siempre**. Antes, olvidarlo servía una copia vieja pero
+   la red acababa trayendo lo nuevo; ahora no hay quien lo rescate.
 3. **Hace falta servirla por HTTP.** `python -m http.server 8123`. Abrir
    `index.html` con doble clic no funciona.
 
@@ -275,6 +280,47 @@ estilos calculados de toda la app —siete pantallas, los dos modos, con
 24 326 elementos y cambiaron 10, todos a propósito. Dos fotos de la app sin
 tocar salen idénticas, así que un «no cambió nada» significa algo. Ver la
 entrada de 0.7.37 en `VERSIONES.md`.
+
+## Cómo llega la app: de la copia primero
+
+Desde 0.7.38 abrir la app **no espera a la red**: se sirve de la copia que el
+service worker guardó. Un día cualquiera son **1 petición y ~120 ms**, contra
+las 24 peticiones y 460 KB que se bajaban enteros cada mañana antes.
+
+Se hizo antes de las apariencias porque una apariencia con carácter pesa 150-250
+KB de tipografía y texturas, y con lo de antes eso se habría vuelto a bajar cada
+vez que se abre la app.
+
+**Cómo llega entonces una versión nueva.** El navegador vuelve a pedir `sw.js`
+en cada navegación, y sin pasar por su caché. Como `CACHE` lleva el número de
+versión, ese archivo cambia siempre que hay algo nuevo: se instala el worker
+nuevo, se baja todo por detrás, se activa, y avisa a la app —un toast con un
+botón de recargar—. Quien abra justo después de una publicación ve **una vez**
+la versión anterior; la nueva entra sola en la siguiente apertura.
+
+Tres cosas del `sw.js` que no se pueden tocar sin entender por qué están:
+
+- **`install` pide con `cache: "reload"`.** Sin eso el `addAll` llena la caché
+  nueva con los bytes viejos que el navegador tuviera guardados, y subir la
+  versión no cambia nada de lo que se ve.
+- **Cada worker sirve de SU caché** (`caches.open(CACHE).then(c => c.match(…))`,
+  no `caches.match` a secas). Mientras se instala una versión conviven dos
+  almacenes, y el de a secas busca en todos: el worker viejo podía servir un
+  archivo del nuevo y otro del viejo en la misma carga.
+- **El aviso mira `viejas`, no `keys`.** Cuando corre `activate`, la caché de
+  esta versión ya existe —la crea `install`—, así que `keys` nunca está vacío y
+  el aviso saltaba en una instalación recién hecha.
+
+**Lo que esto pide de las apariencias:** las texturas y tipografías de un mundo
+**no van en `ASSETS`**. Eso es la lista de la instalación, y meterlas ahí le
+haría bajar el mundo entero a quien nunca lo va a encender. Van aparte, se
+piden cuando se enciende el mundo, y se quedan cacheadas por nombre.
+
+**Y lo que no se hizo:** bajar tarde el lienzo del árbol, los informes y los
+planes (119 KB, el 26% del arranque). Con la red ya resuelta, compilar y
+ejecutar TODO el JavaScript cuesta 12-17 ms en un teléfono de gama media.
+Partir archivos que se pasan globales entre ellos para ganar milisegundos es
+mal negocio. Está apuntado en `VERSIONES.md` por si algún día cambia.
 
 ## Los botones
 

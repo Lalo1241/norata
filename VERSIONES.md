@@ -52,6 +52,95 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.38 · 29 ago 2026
+Abrir la app deja de esperar a la red.
+
+Se hace ANTES de que existan las apariencias y a propósito: una apariencia con
+carácter pesa entre 150 y 250 KB de tipografía y texturas, y con lo que había
+eso se habría vuelto a bajar cada mañana. La apariencia bonita habría sido la
+razón por la que la app tarda.
+
+**Lo que pasaba.** `sw.js` pedía a la RED PRIMERO para todo menos la
+tipografía, y con `no-store`, así que no pasaba ni por la caché del navegador.
+Medido contando las peticiones en el servidor, con TLS puesto —el service
+worker solo se registra en `https:`, así que sin eso no se estaba midiendo su
+camino y la segunda visita salía falsamente rápida—:
+
+| Al abrir | ¿manda el sw? | peticiones |
+| --- | --- | --- |
+| 1ª vez en la vida | no | 39 |
+| la reabro ahora mismo | sí | 23 |
+| a la mañana siguiente | sí | 24 |
+| a la otra mañana | sí | 24 |
+
+Nunca bajaba de ahí: **460 KB comprimidos, enteros, antes de que se viera
+nada, todos los días.** La mitad de ese peso son los comentarios del código
+(209 de 412 KB), y no se van a quitar: son lo que impide deshacer por error
+algo que costó horas, y quitarlos pediría un paso de compilación que esta app
+no tiene a propósito. Con esto, se pagan una vez en la vida en vez de cada día.
+
+**Lo que hay ahora.** De la copia primero. En el mismo laboratorio, a 1,2 Mbps:
+
+| | antes | ahora |
+| --- | --- | --- |
+| abrir un día cualquiera | 24 peticiones · 1 570 ms | **1 petición · 120 ms** |
+
+Con el CPU frenado cuatro veces —un teléfono de gama media— la app queda
+utilizable en **435 ms**, y de ahí solo 12-17 ms son JavaScript. La red era
+todo el problema.
+
+**Y no se pierde la red de seguridad.** El aviso de que hay versión nueva no
+venía de re-descargar la app: viene de `sw.js`, que el navegador vuelve a pedir
+en CADA navegación y sin pasar por su caché. Si cambió —y cambia siempre,
+porque `CACHE` lleva el número de versión— se instala el nuevo, se baja todo
+por detrás, se activa y se avisa a la app con un toast que ofrece recargar.
+Probado de punta a punta: se publica una versión con alguien ya instalado, la
+1ª apertura enseña la anterior, la 2ª ya es la nueva, y llega **un** aviso.
+
+Lo único que se cede es esa primera apertura. Es exactamente el precio que
+`CLAUDE.md` decía que se pagaba a conciencia, cobrado al revés.
+
+**Tres cosas que se arreglaron por el camino, ninguna visible:**
+
+- **`install` baja copias frescas** (`cache: "reload"` en cada una). Sin eso el
+  `addAll` puede llenar la caché NUEVA con los bytes viejos que el navegador
+  tuviera guardados, y entonces subir la versión no cambia nada de lo que se ve.
+- **Cada worker sirve solo su propia caché.** `caches.match` a secas busca en
+  todas las que haya, y mientras se instala una versión nueva conviven dos: el
+  worker viejo podía servir un archivo del nuevo y otro del viejo en la misma
+  carga. Una app a medias entre dos versiones es peor que una app vieja.
+- **El aviso ya no salta en una instalación recién hecha.** Se miraba si había
+  cachés, pero para cuando corre `activate` la de esta versión ya existe —la
+  crea `install`—, así que a quien acababa de entrar se le decía que su app
+  estaba anticuada.
+
+**El susto de la publicación a medias no puede repetirse**, y es mejor que
+antes: durante ese minuto no se pide nada a la red, y si el `addAll` de la
+instalación pilla un 404, la instalación falla ENTERA y se sigue con la copia
+buena. Fallar así es lo correcto.
+
+**`defer` en los veinte `<script>`** (y en los seis de la puerta). Vale unos
+68 ms en la primera carga y nada en las demás —ya estaban al final del
+cuerpo—, pero no cuesta nada y deja de bloquear el análisis del HTML. Nada
+depende de `readyState` ni de `DOMContentLoaded`, así que no cambia el orden de
+nada. Comprobado con la foto de estilos: 25 480 elementos, idénticos.
+
+**Lo que NO se hizo, y por qué.** Estaba previsto bajar tarde lo que no se ve
+al abrir —el lienzo del árbol, los informes, el panel, los planes: unos 119 KB,
+el 26% del arranque—. Medido después de lo de arriba, compilar y ejecutar TODO
+el JavaScript cuesta 12-17 ms. Partir archivos que se pasan variables globales
+entre ellos, con ese riesgo, para ganar milisegundos, sería mal negocio. Queda
+apuntado por si algún día la primera carga vuelve a importar.
+
+### ⚠️ Lo que esto endurece
+
+Subir el número al tocar un archivo de `ASSETS` ya era obligatorio. **Ahora es
+lo único que hace que una versión llegue.** Antes, olvidarlo servía una copia
+vieja pero la red acababa trayendo los archivos nuevos. Ahora, si `CACHE` no
+cambia, el aparato instalado **no vuelve a pedir nada nunca**: se queda en esa
+versión para siempre. Los cuatro sitios de «Al subir la versión» dejaron de ser
+una buena práctica y son el mecanismo.
+
 ### 0.7.37 · 28 ago 2026
 El material de la app deja de estar escrito a mano.
 
