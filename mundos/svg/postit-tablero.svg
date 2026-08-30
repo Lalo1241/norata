@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="200" viewBox="0 0 240 200">
+  <!-- El escritorio: cuadrícula muy tenue de carpeta y tres notas pequeñas
+       torcidas, cada una con su propio doblez. Nada toca los bordes, así que
+       el mosaico no deja costura. -->
+  <g stroke="#c9c2ae" stroke-width=".6" opacity=".45">
+    <path d="M0 40h240M0 80h240M0 120h240M0 160h240M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200"/>
+  </g>
+  <g opacity=".5">
+    <g transform="rotate(-4 46 44)">
+      <path d="M22 22h48v44H22z" fill="#f2a516"/>
+      <path d="M70 54c-4 7-9 11-16 12h16z" fill="#d18d10"/>
+      <g stroke="#c98c1a" stroke-width="1.4" opacity=".6"><path d="M30 34h30M30 42h24M30 50h28"/></g>
+    </g>
+    <g transform="rotate(5 160 60)">
+      <path d="M138 38h44v40h-44z" fill="#8fd0c4"/>
+      <path d="M182 66c-3.5 6-8 10-14 11h14z" fill="#69b0a3"/>
+      <g stroke="#5fa79a" stroke-width="1.3" opacity=".6"><path d="M146 50h26M146 58h20"/></g>
+    </g>
+    <g transform="rotate(-6 96 152)">
+      <path d="M72 130h46v42H72z" fill="#f0a8bd"/>
+      <path d="M118 158c-3.5 7-9 11-15 12h15z" fill="#d1849b"/>
+      <g stroke="#cf8298" stroke-width="1.3" opacity=".6"><path d="M80 142h28M80 150h22M80 158h25"/></g>
+    </g>
+  </g>
+</svg>

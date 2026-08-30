@@ -3,10 +3,10 @@
 <head>
 <meta charset='utf-8'>
 <meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>Trece mundos</title>
+<title>Catorce mundos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Alegreya+Sans:wght@700;800&family=Archivo+Black&family=Baloo+2:wght@600;700&family=Big+Shoulders+Display:wght@700&family=Chakra+Petch:wght@600;700&family=Cinzel:wght@700&family=Grenze+Gotisch:wght@600;700&family=JetBrains+Mono:wght@700&family=Julius+Sans+One&family=Michroma&family=Rajdhani:wght@600;700&family=Sora:wght@600;700&family=Bevan&family=Bungee&family=Monoton&family=Poppins:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Alegreya+Sans:wght@700;800&family=Archivo+Black&family=Baloo+2:wght@600;700&family=Big+Shoulders+Display:wght@700&family=Chakra+Petch:wght@600;700&family=Cinzel:wght@700&family=Grenze+Gotisch:wght@600;700&family=JetBrains+Mono:wght@700&family=Julius+Sans+One&family=Michroma&family=Patrick+Hand&family=Rajdhani:wght@600;700&family=Sora:wght@600;700&family=Bevan&family=Bungee&family=Monoton&family=Poppins:wght@700&display=swap">
 <style>
 :root{
   color-scheme: light dark;
@@ -84,16 +84,22 @@ section{ padding-top:62px; }
 .lienzo::after{ content:""; position:absolute; inset:0; z-index:-1; background:var(--m-grano,none); opacity:var(--m-grano-op,0); pointer-events:none; }
 .ficha{ background:var(--m-tarjeta); border:var(--m-borde) solid var(--m-borde-color); border-image:var(--m-marco,none); border-radius:var(--m-r-tarjeta); box-shadow:var(--m-sombra,none); padding:14px 15px; display:flex; align-items:center; gap:12px; position:relative; margin-bottom:var(--m-fleco-alto,0); }
 .ficha::before{ content:""; position:absolute; left:0; right:0; top:0; height:var(--m-cenefa-alto,0); background:var(--m-cenefa,none); pointer-events:none; }
-/* El fleco cuelga POR DEBAJO del borde: una hoja de papel picado no acaba
-   en línea recta, y recortarla por dentro no se vería sobre su propio blanco. */
-.ficha::after{ content:""; position:absolute; left:0; right:0; bottom:calc(-1 * var(--m-fleco-alto,0px)); height:var(--m-fleco-alto,0); background:var(--m-fleco,none); pointer-events:none; }
+/* `::after` queda LIBRE para el adorno de cada mundo, y esto no es un detalle:
+   aquí vivía una regla global de fleco con `left:0; right:0`, y los adornos
+   que declaran solo `right` heredaban ese `left:0`. Un elemento absoluto con
+   `left`, `right` Y `width` a la vez está sobredeterminado, y el navegador
+   descarta el `right`: los anillos de Averno y la voluta de Forja se pegaban
+   a la IZQUIERDA por eso, no por estar mal medidos. Costó tres rondas.
+   El fleco se lo lleva ahora el mundo que lo usa, en su propio bloque. */
 /* Al pasar el cursor, cada mundo se mueve a SU velocidad y con SU curva.
    Por defecto la ficha se levanta; el que declare `--m-empuje` hace lo
    contrario —se apoya y cierra su sombra—, que es el gesto de bajar una
    plancha sobre el papel. Un solo par de reglas para los catorce. */
-.ficha{ transition:transform var(--m-dur,.4s) var(--m-curva,ease), box-shadow var(--m-dur,.4s) var(--m-curva,ease); }
-.mundo:hover .ficha{ transform:translate(var(--m-empuje,0px), var(--m-empuje,-3px)); box-shadow:var(--m-sombra-encima, var(--m-sombra,none)); }
-@media (prefers-reduced-motion:reduce){ .ficha{ transition:none; } .mundo:hover .ficha{ transform:none; } }
+.ficha{ transform:rotate(var(--m-giro,0deg)); transition:transform var(--m-dur,.4s) var(--m-curva,ease), box-shadow var(--m-dur,.4s) var(--m-curva,ease); }
+/* El giro va también en el hover: sin repetirlo, la nota se endereza sola al
+   pasar el cursor, que es lo contrario de lo que hace un papel pegado. */
+.mundo:hover .ficha{ transform:translate(var(--m-empuje,0px), var(--m-empuje,-3px)) rotate(var(--m-giro,0deg)); box-shadow:var(--m-sombra-encima, var(--m-sombra,none)); }
+@media (prefers-reduced-motion:reduce){ .ficha{ transition:none; } .mundo:hover .ficha{ transform:rotate(var(--m-giro,0deg)); } }
 .aro{ width:38px; height:38px; border-radius:999px; flex:none; border:2px solid var(--m-acento); background:transparent; box-shadow:var(--m-halo,none); }
 .ic{ width:28px; height:28px; flex:none; border-radius:var(--m-r-mini); background:var(--m-icono); }
 .ficha .med{ flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
@@ -210,7 +216,7 @@ tbody tr:last-child td{ border-bottom:0; }
 
 .picado {
   --m-pagina: #f5eee1;
-  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E %3Cpath d='M0 18q75 14 150 6t150 8' fill='none' stroke='%23c9b8a0' stroke-width='1'/%3E %3Cpath d='M0 128q80 16 160 4t140 10' fill='none' stroke='%23c9b8a0' stroke-width='1' opacity='.8'/%3E %3Cg opacity='.5'%3E %3Cpath d='M22 22h54v44l-6-6-6 6-6-6-6 6-6-6-6 6-6-6-6 6z' fill='%23e6187c'/%3E %3Cg fill='%23f5eee1'%3E%3Ccircle cx='49' cy='36' r='6'/%3E%3Cpath d='M36 48h26v3H36z'/%3E%3Ccircle cx='36' cy='40' r='2.4'/%3E%3Ccircle cx='62' cy='40' r='2.4'/%3E%3C/g%3E %3C/g%3E %3Cg opacity='.42'%3E %3Cpath d='M128 26h40v32l-5-4-5 4-5-4-5 4-5-4-5 4-5-4-5 4z' fill='%232aa9a0'/%3E %3Cg fill='%23f5eee1'%3E%3Cpath d='M148 32l7 8-7 8-7-8z'/%3E%3Ccircle cx='148' cy='52' r='2'/%3E%3C/g%3E %3C/g%3E %3Cg opacity='.46'%3E %3Cpath d='M214 24h62v50l-7-6-7 6-7-6-7 6-7-6-7 6-7-6-6 6z' fill='%23f2a516'/%3E %3Cg fill='%23f5eee1'%3E%3Cpath d='M232 38a13 13 0 0 0 26 0z'/%3E%3Ccircle cx='245' cy='58' r='4'/%3E%3Ccircle cx='228' cy='52' r='2.2'/%3E%3Ccircle cx='262' cy='52' r='2.2'/%3E%3C/g%3E %3C/g%3E %3Cg opacity='.4'%3E %3Cpath d='M62 134h46v38l-6-5-5 5-6-5-5 5-6-5-5 5-6-5-7 5z' fill='%236d3fb8'/%3E %3Cg fill='%23f5eee1'%3E%3Ccircle cx='85' cy='148' r='5.5'/%3E%3Cpath d='M74 160h22v3H74z'/%3E%3C/g%3E %3C/g%3E %3Cg opacity='.44'%3E %3Cpath d='M186 138h56v44l-7-6-6 6-7-6-6 6-7-6-6 6-7-6-10 6z' fill='%23e6187c'/%3E %3Cg fill='%23f5eee1'%3E%3Cpath d='M214 148l8 9-8 9-8-9z'/%3E%3Ccircle cx='199' cy='156' r='2.6'/%3E%3Ccircle cx='229' cy='156' r='2.6'/%3E%3C/g%3E %3C/g%3E %3C/svg%3E");
+  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='240' viewBox='0 0 360 240'%3E %3Cpath d='M0 22C60 36 120 38 180 30 240 22 300 34 360 22' fill='none' stroke='%23c9b8a0' stroke-width='1'/%3E %3Cpath d='M0 146C70 160 140 158 210 150 280 142 320 154 360 146' fill='none' stroke='%23c9b8a0' stroke-width='1' opacity='.85'/%3E %3Cg opacity='.5'%3E %3Cpath d='M30 30h54v44l-6-6-6 6-6-6-6 6-6-6-6 6-6-6-6 6z' fill='%23e6187c'/%3E %3Cg fill='%23f5eee1'%3E%3Ccircle cx='57' cy='44' r='6'/%3E%3Cpath d='M44 56h26v3H44z'/%3E%3Ccircle cx='44' cy='48' r='2.4'/%3E%3Ccircle cx='70' cy='48' r='2.4'/%3E%3C/g%3E %3C/g%3E %3Cg opacity='.42'%3E %3Cpath d='M140 32h40v32l-5-4-5 4-5-4-5 4-5-4-5 4-5-4-5 4z' fill='%232aa9a0'/%3E %3Cg fill='%23f5eee1'%3E%3Cpath d='M160 38l7 8-7 8-7-8z'/%3E%3Ccircle cx='160' cy='58' r='2'/%3E%3C/g%3E %3C/g%3E %3Cg opacity='.46'%3E %3Cpath d='M238 28h62v50l-7-6-7 6-7-6-7 6-7-6-7 6-7-6-6 6z' fill='%23f2a516'/%3E %3Cg fill='%23f5eee1'%3E%3Cpath d='M256 42a13 13 0 0 0 26 0z'/%3E%3Ccircle cx='269' cy='62' r='4'/%3E%3Ccircle cx='252' cy='56' r='2.2'/%3E%3Ccircle cx='286' cy='56' r='2.2'/%3E%3C/g%3E %3C/g%3E %3Cg opacity='.44'%3E %3Cpath d='M336 24h48v42l-6-5-6 5-6-5-6 5-6-5-6 5-6-5-6 5z' fill='%236d3fb8'/%3E %3Cpath d='M-24 24h48v42l-6-5-6 5-6-5-6 5-6-5-6 5-6-5-6 5z' fill='%236d3fb8'/%3E %3Cg fill='%23f5eee1'%3E%3Ccircle cx='360' cy='40' r='5.5'/%3E%3Ccircle cx='0' cy='40' r='5.5'/%3E%3C/g%3E %3C/g%3E %3Cg opacity='.4'%3E %3Cpath d='M74 154h46v38l-6-5-5 5-6-5-5 5-6-5-5 5-6-5-7 5z' fill='%236d3fb8'/%3E %3Cg fill='%23f5eee1'%3E%3Ccircle cx='97' cy='168' r='5.5'/%3E%3Cpath d='M86 180h22v3H86z'/%3E%3C/g%3E %3C/g%3E %3Cg opacity='.44'%3E %3Cpath d='M206 152h56v44l-7-6-6 6-7-6-6 6-7-6-6 6-7-6-10 6z' fill='%23e6187c'/%3E %3Cg fill='%23f5eee1'%3E%3Cpath d='M234 162l8 9-8 9-8-9z'/%3E%3Ccircle cx='219' cy='170' r='2.6'/%3E%3Ccircle cx='249' cy='170' r='2.6'/%3E%3C/g%3E %3C/g%3E %3Cg opacity='.38'%3E %3Cpath d='M300 150h40v30l-5-4-5 4-5-4-5 4-5-4-5 4-5-4-5 4z' fill='%232aa9a0'/%3E %3Cg fill='%23f5eee1'%3E%3Ccircle cx='320' cy='164' r='4.5'/%3E%3C/g%3E %3C/g%3E %3C/svg%3E");
   --m-grano-op: .38;
   --m-tarjeta: #fffdf8;
   --m-borde: 1px;
@@ -244,7 +250,10 @@ tbody tr:last-child td{ border-bottom:0; }
   --m-dur: .5s;
   --m-curva: cubic-bezier(.34,1.45,.64,1);
 }
-.picado .ficha{ padding-bottom:24px; }
+.picado .ficha::after{
+    content:""; position:absolute; left:0; right:0; top:100%%; height:var(--m-fleco-alto);
+    background:var(--m-fleco); pointer-events:none;
+  }
 
 .consola {
   --m-pagina: #000;
@@ -406,7 +415,7 @@ tbody tr:last-child td{ border-bottom:0; }
 
 .forja {
   --m-pagina: #16110c;
-  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cg fill='none' stroke-linejoin='miter'%3E %3Cpath d='M10 22h26l8-8h32l8 8h26' stroke='%233a2d1c' stroke-width='4'/%3E %3Cpath d='M10 21h26l8-8h32l8 8h26' stroke='%236b5636' stroke-width='1.2' opacity='.7'/%3E %3Cpath d='M10 98h26l8 8h32l8-8h26' stroke='%233a2d1c' stroke-width='4'/%3E %3Cpath d='M10 99h26l8 8h32l8-8h26' stroke='%231a130c' stroke-width='1.2' opacity='.8'/%3E %3Cpath d='M22 34v52M98 34v52' stroke='%233a2d1c' stroke-width='3'/%3E %3Cpath d='M23 34v52M99 34v52' stroke='%235a482c' stroke-width='.9' opacity='.5'/%3E %3C/g%3E %3Cg fill='none' stroke='%234a3a22' stroke-width='2' opacity='.55'%3E %3Cpath d='M44 46h32M44 74h32M52 46v28M68 46v28'/%3E %3C/g%3E %3Cg fill='%235c4626'%3E%3Ccircle cx='22' cy='22' r='3'/%3E%3Ccircle cx='98' cy='22' r='3'/%3E%3Ccircle cx='22' cy='98' r='3'/%3E%3Ccircle cx='98' cy='98' r='3'/%3E%3C/g%3E %3Cg fill='%23a08551' opacity='.8'%3E%3Ccircle cx='21.2' cy='21.2' r='1.3'/%3E%3Ccircle cx='97.2' cy='21.2' r='1.3'/%3E%3Ccircle cx='21.2' cy='97.2' r='1.3'/%3E%3Ccircle cx='97.2' cy='97.2' r='1.3'/%3E%3C/g%3E %3C/svg%3E");
+  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E %3Cg stroke='%236b5636' stroke-width='.6' opacity='.2'%3E %3Cpath d='M0 12h160M0 27h160M0 41h160M0 58h160M0 73h160M0 89h160M0 104h160M0 121h160M0 137h160M0 152h160'/%3E %3C/g%3E %3Cg stroke='%23241a10' stroke-width='.7' opacity='.28'%3E %3Cpath d='M0 19h160M0 49h160M0 81h160M0 112h160M0 145h160'/%3E %3C/g%3E %3Cg opacity='.3'%3E %3Cellipse cx='34' cy='38' rx='13' ry='8' fill='%233a2d1c'/%3E %3Cpath d='M21 38a13 8 0 0 1 26 0' fill='none' stroke='%238a6f3f' stroke-width='1'/%3E %3Cellipse cx='106' cy='70' rx='16' ry='9' fill='%233a2d1c'/%3E %3Cpath d='M90 70a16 9 0 0 1 32 0' fill='none' stroke='%238a6f3f' stroke-width='1'/%3E %3Cellipse cx='58' cy='118' rx='11' ry='7' fill='%233a2d1c'/%3E %3Cpath d='M47 118a11 7 0 0 1 22 0' fill='none' stroke='%238a6f3f' stroke-width='.9'/%3E %3Cellipse cx='132' cy='136' rx='14' ry='8' fill='%233a2d1c'/%3E %3Cpath d='M118 136a14 8 0 0 1 28 0' fill='none' stroke='%238a6f3f' stroke-width='.9'/%3E %3C/g%3E %3C/svg%3E");
   --m-grano-op: .5;
   --m-tarjeta: linear-gradient(163deg, #2a2016 0%, #1d1710 55%, #241b13 100%);
   --m-borde: 3px;
@@ -443,9 +452,49 @@ tbody tr:last-child td{ border-bottom:0; }
 }
 .forja .ficha{ padding-top:26px; overflow:hidden; }
   .forja .ficha::after{
-    content:""; position:absolute; right:6px; top:50%; width:38px; height:38px;
-    margin-top:-19px; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46' viewBox='0 0 46 46'%3E %3Cg fill='none' stroke='%238a6f3f' stroke-width='3.2' stroke-linecap='round'%3E %3Cpath d='M2 2h13c0 0 3 12-6 16C1 21.5 3 32 11 31c6-.8 6-8 1.5-8.6'/%3E %3C/g%3E %3Cg fill='none' stroke='%23d8b978' stroke-width='1.1' stroke-linecap='round' opacity='.75'%3E %3Cpath d='M3 3.2h11.4c0 0 2.6 10.6-5.4 14.2'/%3E %3C/g%3E %3Ccircle cx='15.5' cy='3' r='2.4' fill='%235c4626'/%3E%3Ccircle cx='14.8' cy='2.3' r='1.1' fill='%23d8b978'/%3E %3C/svg%3E") center/contain no-repeat;
+    content:""; position:absolute; left:auto; right:8px; top:50%; width:40px; height:40px;
+    margin-top:-20px; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46' viewBox='0 0 46 46'%3E %3Cg fill='none' stroke='%238a6f3f' stroke-width='3.2' stroke-linecap='round'%3E %3Cpath d='M2 2h13c0 0 3 12-6 16C1 21.5 3 32 11 31c6-.8 6-8 1.5-8.6'/%3E %3C/g%3E %3Cg fill='none' stroke='%23d8b978' stroke-width='1.1' stroke-linecap='round' opacity='.75'%3E %3Cpath d='M3 3.2h11.4c0 0 2.6 10.6-5.4 14.2'/%3E %3C/g%3E %3Ccircle cx='15.5' cy='3' r='2.4' fill='%235c4626'/%3E%3Ccircle cx='14.8' cy='2.3' r='1.1' fill='%23d8b978'/%3E %3C/svg%3E") center/contain no-repeat;
     transform:rotate(180deg); pointer-events:none; opacity:.75;
+  }
+
+.postit {
+  --m-pagina: #e9e4d6;
+  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='200' viewBox='0 0 240 200'%3E %3Cg stroke='%23c9c2ae' stroke-width='.6' opacity='.45'%3E %3Cpath d='M0 40h240M0 80h240M0 120h240M0 160h240M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200'/%3E %3C/g%3E %3Cg opacity='.5'%3E %3Cg transform='rotate(-4 46 44)'%3E %3Cpath d='M22 22h48v44H22z' fill='%23f2a516'/%3E %3Cpath d='M70 54c-4 7-9 11-16 12h16z' fill='%23d18d10'/%3E %3Cg stroke='%23c98c1a' stroke-width='1.4' opacity='.6'%3E%3Cpath d='M30 34h30M30 42h24M30 50h28'/%3E%3C/g%3E %3C/g%3E %3Cg transform='rotate(5 160 60)'%3E %3Cpath d='M138 38h44v40h-44z' fill='%238fd0c4'/%3E %3Cpath d='M182 66c-3.5 6-8 10-14 11h14z' fill='%2369b0a3'/%3E %3Cg stroke='%235fa79a' stroke-width='1.3' opacity='.6'%3E%3Cpath d='M146 50h26M146 58h20'/%3E%3C/g%3E %3C/g%3E %3Cg transform='rotate(-6 96 152)'%3E %3Cpath d='M72 130h46v42H72z' fill='%23f0a8bd'/%3E %3Cpath d='M118 158c-3.5 7-9 11-15 12h15z' fill='%23d1849b'/%3E %3Cg stroke='%23cf8298' stroke-width='1.3' opacity='.6'%3E%3Cpath d='M80 142h28M80 150h22M80 158h25'/%3E%3C/g%3E %3C/g%3E %3C/g%3E %3C/svg%3E");
+  --m-grano-op: 1;
+  --m-tarjeta: linear-gradient(168deg,#fdf5a8 0%,#fbee92 100%);
+  --m-borde: 0;
+  --m-borde-color: transparent;
+  --m-sombra: 0 7px 16px rgba(120,102,28,.3), 0 1px 2px rgba(0,0,0,.14);
+  --m-sombra-encima: 0 12px 24px rgba(120,102,28,.34), 0 2px 4px rgba(0,0,0,.16);
+  --m-giro: -0.7deg;
+  --m-r-tarjeta: 2px;
+  --m-r-mini: 2px;
+  --m-r-barra: 3px;
+  --m-r-chip: 3px;
+  --m-tinta: #332c12;
+  --m-tinta-2: #6b5d2e;
+  --m-acento: #1f5fa8;
+  --m-acento-velo: rgba(31,95,168,.13);
+  --m-aviso: #8a5500;
+  --m-aviso-velo: rgba(138,85,0,.14);
+  --m-peligro: #b3201b;
+  --m-peligro-velo: rgba(179,32,27,.12);
+  --m-carril: #ecdf7c;
+  --m-icono: linear-gradient(135deg,#f2a9be 0 68%,#cf7f96 68%);
+  --m-titulo: "Patrick Hand",cursive;
+  --m-titulo-px: 19px;
+  --m-titulo-peso: 400;
+  --m-cifra: "Patrick Hand",cursive;
+  --m-cifra-peso: 400;
+  --m-cifra-esp: 0;
+  --m-chip-fuente: "Patrick Hand",cursive;
+  --m-chip-esp: .02em;
+  --m-dur: .26s;
+  --m-curva: cubic-bezier(.3,.9,.35,1);
+}
+.postit .ficha::after{
+    content:""; position:absolute; left:auto; right:0; bottom:0; width:44px; height:44px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E %3Cdefs%3E %3ClinearGradient id='rev' x1='1' y1='0' x2='0' y2='1'%3E %3Cstop offset='0' stop-color='%23efe08a'/%3E%3Cstop offset='.55' stop-color='%23ddcd72'/%3E%3Cstop offset='1' stop-color='%23c9b95e'/%3E %3C/linearGradient%3E %3ClinearGradient id='som' x1='1' y1='0' x2='0' y2='1'%3E %3Cstop offset='0' stop-color='%238a7a2a' stop-opacity='.38'/%3E%3Cstop offset='1' stop-color='%238a7a2a' stop-opacity='0'/%3E %3C/linearGradient%3E %3C/defs%3E %3Cpath d='M44 4C40 24 24 40 4 44L44 44Z' fill='url(%23som)' transform='translate(-4,-4)'/%3E %3Cpath d='M44 6C39.5 25 25 39.5 6 44L44 44Z' fill='url(%23rev)'/%3E %3Cpath d='M44 6C39.5 25 25 39.5 6 44' fill='none' stroke='%23b8a84f' stroke-width='1'/%3E %3C/svg%3E") right bottom/contain no-repeat; pointer-events:none;
   }
 
 .obsidiana {
@@ -560,7 +609,7 @@ tbody tr:last-child td{ border-bottom:0; }
 }
 .averno .ficha{ overflow:hidden; }
   .averno .ficha::after{
-    content:""; position:absolute; right:0; top:0; width:46%; height:100%;
+    content:""; position:absolute; left:auto; right:0; top:0; width:46%; height:100%;
     background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cg fill='none' stroke-linecap='round'%3E %3Cpath d='M120 6A114 114 0 0 0 6 120' stroke='%235a3524' stroke-width='2.6' opacity='.9'/%3E %3Cpath d='M120 26A94 94 0 0 0 26 120' stroke='%236b3d24' stroke-width='2.2' opacity='.8'/%3E %3Cpath d='M120 46A74 74 0 0 0 46 120' stroke='%238a4522' stroke-width='1.9' opacity='.75'/%3E %3Cpath d='M120 66A54 54 0 0 0 66 120' stroke='%23b45420' stroke-width='1.6' opacity='.7'/%3E %3Cpath d='M120 86A34 34 0 0 0 86 120' stroke='%23ff7a3d' stroke-width='1.4' opacity='.6'/%3E %3C/g%3E %3Cg fill='%23ff7a3d' opacity='.5'%3E %3Ccircle cx='103' cy='103' r='1.8'/%3E%3Ccircle cx='88' cy='63' r='1.2'/%3E%3Ccircle cx='63' cy='88' r='1.2'/%3E %3C/g%3E %3C/svg%3E") right center/contain no-repeat; opacity:.8; pointer-events:none;
   }
 
@@ -657,9 +706,9 @@ tbody tr:last-child td{ border-bottom:0; }
 <div class="hoja">
 <header>
   <div class="serie"><i></i><span class="rotulo">Norata · catálogo completo</span></div>
-  <h1>Trece mundos</h1>
+  <h1>Catorce mundos</h1>
   <p class="tesis">Todo lo aprobado hasta hoy, junto: los de relato, los de aquí, los de pantalla y los de materia. <b>Cada uno con su letra medida y su escala comprobada.</b></p>
-  <p class="entradilla">La misma pieza trece veces, con el CSS que se copiaría tal cual. Ninguno toca una regla de la app: todos son variables.</p>
+  <p class="entradilla">La misma pieza catorce veces, con el CSS que se copiaría tal cual. Ninguno toca una regla de la app: todos son variables.</p>
 </header>
 
 <section>
@@ -693,6 +742,10 @@ tbody tr:last-child td{ border-bottom:0; }
       <div class="quien"><b>Grenze Gotisch</b><span>AVERNO · −17%</span></div>
       <div class="medida"><div class="caja"><div class="txt" style="font-family:'Grenze Gotisch',Georgia,serif;font-size:30px;font-weight:700">Árbol de talentos</div></div></div>
       <div class="veredicto pasa">195,3 px<br>sobran 71</div></div>
+<div class="carril">
+      <div class="quien"><b>Patrick Hand</b><span>POST-IT · −22%</span></div>
+      <div class="medida"><div class="caja"><div class="txt" style="font-family:'Patrick Hand',cursive;font-size:30px;font-weight:400">Árbol de talentos</div></div></div>
+      <div class="veredicto pasa">185,6 px<br>sobran 80</div></div>
 <div class="carril">
       <div class="quien"><b>Rajdhani</b><span>BLUEPRINT · −10%</span></div>
       <div class="medida"><div class="caja"><div class="txt" style="font-family:'Rajdhani',system-ui;font-size:30px;font-weight:700">Árbol de talentos</div></div></div>
@@ -762,7 +815,7 @@ tbody tr:last-child td{ border-bottom:0; }
 </section>
 
 <section>
-  <div class="cabeza"><span class="rotulo">Los once</span><h2>Cuatro familias, trece mundos</h2>
+  <div class="cabeza"><span class="rotulo">Los once</span><h2>Cuatro familias, catorce mundos</h2>
   <p style="color:var(--tinta-2);font-size:1rem;">La misma pieza en todos: el aro de marcar, el icono, el título, la barra, las tres pastillas y una cifra. Es a propósito — así se comparan materiales y no maquetas distintas. Los especímenes no cambian con el modo de tu pantalla: un mundo trae su propia luz.</p><div class="raya"></div></div>
   <div class="familia">
   <div class="familia-cab"><span class="n">01</span><h3>De relato</h3><span class="d">No salen de una materia sino de un género: cuentan algo antes de que hagas nada. Inspirados, nunca calcados — el nombre, el marco, la letra y los dibujos son de casa.</span></div>
@@ -991,7 +1044,7 @@ tbody tr:last-child td{ border-bottom:0; }
   </div>
 </article>
 </div><div class="familia">
-  <div class="familia-cab"><span class="n">04</span><h3>De materia</h3><span class="d">Piedra, metal y vidrio. Los oscuros con cuerpo, y los más caros de hacer bien.</span></div>
+  <div class="familia-cab"><span class="n">04</span><h3>De materia</h3><span class="d">Piedra, metal, vidrio y papel: lo que se puede tocar, y donde el material manda sobre el color.</span></div>
   <article class="mundo forja" id="m-forja">
   <div class="mundo-cab">
     <div class="txt"><h3>Forja</h3><span class="premisa">Taller de herrería enana: el fondo dejó de ser ruido y ahora es geometría ANGULAR —marcos escalonados encajados, la esquina cortada en plano, bisel claro arriba y sombra abajo, que es lo que hace que el metal parezca golpeado y no dibujado—. Arriba, banda remachada con los remaches a intervalos irregulares, que uno cada 16 px exactos parece tornillería de mueble. Esquina viva en todo y la letra grabada en vez de escrita.</span></div>
@@ -1010,6 +1063,28 @@ tbody tr:last-child td{ border-bottom:0; }
         <div class="hecho"><dt>Esquinas</dt><dd>0 px · vivas</dd></div>
         <div class="hecho"><dt>Peso</dt><dd><b>~180 KB</b></dd></div>
         <div class="hecho"><dt>Horas</dt><dd><b>Noche</b></dd></div>
+      </dl>
+    </div>
+  </div>
+</article>
+<article class="mundo postit" id="m-postit">
+  <div class="mundo-cab">
+    <div class="txt"><h3>Post-it</h3><span class="premisa">Una nota pegada en el escritorio. Lo que lo vende es la ESQUINA LEVANTADA, y el detalle está en que el pliegue no es una diagonal recta: el papel se enrolla, así que la línea del doblez va curva y lo que asoma es el revés de la hoja, más apagado, con su sombra cayendo encima de la propia nota. La tarjeta va un poco torcida —una nota nunca se pega derecha— y detrás hay más notas en el corcho. Letra escrita a mano, pero de las que se leen.</span></div>
+    <span class="llave" style="color:#c08a10;">Podría sustituir a Papel picado</span>
+  </div>
+  <div class="cuerpo">
+    <div class="lienzo">
+  <div class="ficha"><span class="aro"></span><span class="ic"></span>
+    <div class="med"><span class="nombre">Correr 5 km</span><span class="barra"><i></i></span><span class="pie">Resistencia · nivel 4</span></div></div>
+  <div class="tira"><span class="chip c-ok">Hecho</span><span class="chip c-av">Vence hoy</span><span class="chip c-no">Perdida</span></div>
+  <div class="cifra">1 840<span>XP</span></div>
+</div>
+    <div class="datos">
+      <dl class="hechos">
+        <div class="hecho"><dt>Letra</dt><dd><b>Patrick Hand</b> · −22% de ancho</dd></div>
+        <div class="hecho"><dt>Esquinas</dt><dd>2 px · papel</dd></div>
+        <div class="hecho"><dt>Peso</dt><dd><b>~45 KB</b></dd></div>
+        <div class="hecho"><dt>Horas</dt><dd><b>Día</b></dd></div>
       </dl>
     </div>
   </div>
@@ -1065,15 +1140,15 @@ tbody tr:last-child td{ border-bottom:0; }
   <div class="cabeza"><span class="rotulo">Que no se nos olviden</span><h2>Las esquinas también son el material</h2>
   <p style="color:var(--tinta-2);font-size:1rem;">La baraja recorre toda la escala, y no por variar: cada material se comporta como se comporta. Un bloque de imprenta no tiene curva; un tubo de neón no tiene otra cosa.</p><div class="raya"></div></div>
   <div class="esquinas"><div class='esq'><div class='cuadro' style='border-radius:0'></div><b>Grabado · Consola · Obsidiana · Forja · Blueprint · Cyberpunk</b><span>0 px</span></div>
-<div class='esq'><div class='cuadro' style='border-radius:2px'></div><b>Averno</b><span>2 px</span></div>
 <div class='esq'><div class='cuadro' style='border-radius:3px'></div><b>Vitral · Ventisca</b><span>3 px</span></div>
 <div class='esq'><div class='cuadro' style='border-radius:5px'></div><b>Bastión · Papel picado</b><span>4-5 px</span></div>
+<div class='esq'><div class='cuadro' style='border-radius:2px'></div><b>Averno · Post-it</b><span>2 px</span></div>
 <div class='esq'><div class='cuadro' style='border-radius:14px'></div><b>Talavera</b><span>14 px</span></div>
 <div class='esq'><div class='cuadro' style='border-radius:999px'></div><b>Neón</b><span>Del todo</span></div></div>
 </section>
 
 <section>
-  <div class="cabeza"><span class="rotulo">De un vistazo</span><h2>Los trece, con su letra y su escala</h2><div class="raya"></div></div>
+  <div class="cabeza"><span class="rotulo">De un vistazo</span><h2>Los catorce, con su letra y su escala</h2><div class="raya"></div></div>
   <div class='tabla-caja'><table><thead><tr><th>Mundo</th><th>Qué es</th><th>Letra</th><th>Ancho</th><th>Escala</th><th>Esquinas</th><th>Peso</th><th>Horas</th></tr></thead><tbody><tr><td><b>Talavera</b></td><td>Loza vidriada</td><td>Alegreya Sans</td><td class='num'>−14%</td><td class='num'>1</td><td>14 px · suaves</td><td class='num'>~110 KB</td><td>Las dos</td></tr>
 <tr><td><b>Grabado</b></td><td>El de las calaveras</td><td>Outfit</td><td class='num'>+0%</td><td class='num'>1</td><td>0 px · vivas</td><td class='num'>~35 KB</td><td>Día</td></tr>
 <tr><td><b>Papel picado</b></td><td>El de fiesta</td><td>Archivo Black</td><td class='num'>+19%</td><td class='num'>0.94</td><td>5 px · casi vivas</td><td class='num'>~85 KB</td><td>Día</td></tr>
@@ -1082,6 +1157,7 @@ tbody tr:last-child td{ border-bottom:0; }
 <tr><td><b>Cyberpunk</b></td><td>Visor, no marco</td><td>Chakra Petch</td><td class='num'>+4%</td><td class='num'>1</td><td>0 px + chaflán</td><td class='num'>~70 KB</td><td>Noche</td></tr>
 <tr><td><b>Blueprint</b></td><td>Nada está terminado</td><td>Rajdhani</td><td class='num'>−10%</td><td class='num'>1</td><td>0 px · vivas</td><td class='num'>~65 KB</td><td>Noche</td></tr>
 <tr><td><b>Forja</b></td><td>El buque insignia</td><td>Cinzel</td><td class='num'>+28%</td><td class='num'>0.88</td><td>0 px · vivas</td><td class='num'>~180 KB</td><td>Noche</td></tr>
+<tr><td><b>Post-it</b></td><td>Podría sustituir a Papel picado</td><td>Patrick Hand</td><td class='num'>−22%</td><td class='num'>1</td><td>2 px · papel</td><td class='num'>~45 KB</td><td>Día</td></tr>
 <tr><td><b>Obsidiana</b></td><td>El oscuro elegante</td><td>Sora</td><td class='num'>+13%</td><td class='num'>0.99</td><td>0 px · vivas</td><td class='num'>~80 KB</td><td>Noche</td></tr>
 <tr><td><b>Vitral</b></td><td>Rosetón</td><td>Julius Sans One</td><td class='num'>+23%</td><td class='num'>0.91</td><td>3 px · casi vivas</td><td class='num'>~85 KB</td><td>Noche</td></tr>
 <tr><td><b>Averno</b></td><td>El oscuro de verdad</td><td>Grenze Gotisch</td><td class='num'>−17%</td><td class='num'>1</td><td>2 px · piedra tallada</td><td class='num'>~95 KB</td><td>Noche</td></tr>
@@ -1099,7 +1175,7 @@ Estamos en la rama <b>claude/norata-apariencias-skins-p52cpj</b>.</pre>
   </div>
 </section>
 
-<p class="cierre">Trece mundos, una sola pieza para compararlos, y ninguno pide tocar una regla de la app. Lo que falta no es otro lote: es elegir tres y hacerlos de verdad.</p>
+<p class="cierre">Catorce mundos, una sola pieza para compararlos, y ninguno pide tocar una regla de la app. Lo que falta no es otro lote: es elegir tres y hacerlos de verdad.</p>
 </div>
 
 <script>

@@ -90,3 +90,18 @@ la cabecera del archivo para que nadie las repita: leer `backgroundColor` tal
 cual reprueba lo semitransparente, componer sin leer degradados reprueba lo
 degradado, y fotografiar el TEXTO reprueba todo porque una captura de elemento
 viene sobre transparente.
+
+## Dónde está de verdad un adorno
+
+`donde.js` responde a "este dibujo no está donde lo puse". Fotografía la
+tarjeta con el adorno y sin él, resta las dos imágenes y dice en qué
+porcentaje del ancho cae lo que cambió.
+
+```sh
+node donde.js                 # sobre mundos/vista.html
+```
+
+Dos cosas que aprendió a la mala: hay que **congelar las animaciones** antes
+de las dos fotos —si no, la barra de avance se mueve entre una y otra y el
+diff la señala a ella—, y hay que apagar **solo el pseudoelemento**, no el
+fondo de la tarjeta, o cambia todo y el resultado no dice nada.

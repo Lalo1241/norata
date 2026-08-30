@@ -70,7 +70,10 @@ MUNDOS = [
    "--m-cifra":'"Archivo Black",system-ui,sans-serif',"--m-cifra-peso":"400","--m-cifra-esp":"-.03em",
    "--m-chip-fuente":'"Archivo Black",system-ui,sans-serif',"--m-chip-esp":".04em",
    "--m-dur":".5s","--m-curva":"cubic-bezier(.34,1.45,.64,1)"},
-  extra=".picado .ficha{ padding-bottom:24px; }"),
+  extra=""".picado .ficha::after{
+    content:""; position:absolute; left:0; right:0; top:100%%; height:var(--m-fleco-alto);
+    background:var(--m-fleco); pointer-events:none;
+  }"""),
 
  dict(id="consola", nombre="Consola", familia="de-pantalla", llave="Gratis, siempre", color="#3bff9e",
   premisa="Fósforo sobre negro, todo en monoespaciada, cero adornos y el movimiento a saltos en vez de suave. Es el único que no necesita ni una imagen: la textura son dos líneas de CSS. Y de paso es la red de seguridad para quien no distingue bien los tonos.",
@@ -189,10 +192,35 @@ MUNDOS = [
   # pieza.
   extra=""".forja .ficha{ padding-top:26px; overflow:hidden; }
   .forja .ficha::after{
-    content:""; position:absolute; right:6px; top:50%%; width:38px; height:38px;
-    margin-top:-19px; background:url("%s") center/contain no-repeat;
+    content:""; position:absolute; left:auto; right:8px; top:50%%; width:40px; height:40px;
+    margin-top:-20px; background:url("%s") center/contain no-repeat;
     transform:rotate(180deg); pointer-events:none; opacity:.75;
   }""" % svg("forja-voluta.svg")),
+
+ dict(id="postit", nombre="Post-it", familia="de-materia", llave="Podría sustituir a Papel picado", color="#c08a10",
+  premisa="Una nota pegada en el escritorio. Lo que lo vende es la ESQUINA LEVANTADA, y el detalle está en que el pliegue no es una diagonal recta: el papel se enrolla, así que la línea del doblez va curva y lo que asoma es el revés de la hoja, más apagado, con su sombra cayendo encima de la propia nota. La tarjeta va un poco torcida —una nota nunca se pega derecha— y detrás hay más notas en el corcho. Letra escrita a mano, pero de las que se leen.",
+  letra="Patrick Hand", ancho="−22%", escala="1", esquinas="2 px · papel", peso="~45 KB", horas="Día",
+  tokens={"--m-pagina":"#e9e4d6",
+   "--m-grano":f'url("{svg("postit-tablero.svg")}")',"--m-grano-op":"1",
+   "--m-tarjeta":"linear-gradient(168deg,#fdf5a8 0%,#fbee92 100%)",
+   "--m-borde":"0","--m-borde-color":"transparent",
+   "--m-sombra":"0 7px 16px rgba(120,102,28,.3), 0 1px 2px rgba(0,0,0,.14)",
+   "--m-sombra-encima":"0 12px 24px rgba(120,102,28,.34), 0 2px 4px rgba(0,0,0,.16)",
+   "--m-giro":"-0.7deg",
+   "--m-r-tarjeta":"2px","--m-r-mini":"2px","--m-r-barra":"3px","--m-r-chip":"3px",
+   "--m-tinta":"#332c12","--m-tinta-2":"#6b5d2e",
+   "--m-acento":"#1f5fa8","--m-acento-velo":"rgba(31,95,168,.13)",
+   "--m-aviso":"#8a5500","--m-aviso-velo":"rgba(138,85,0,.14)",
+   "--m-peligro":"#b3201b","--m-peligro-velo":"rgba(179,32,27,.12)","--m-carril":"#ecdf7c",
+   "--m-icono":"linear-gradient(135deg,#f2a9be 0 68%,#cf7f96 68%)",
+   "--m-titulo":'"Patrick Hand",cursive',"--m-titulo-px":"19px","--m-titulo-peso":"400",
+   "--m-cifra":'"Patrick Hand",cursive',"--m-cifra-peso":"400","--m-cifra-esp":"0",
+   "--m-chip-fuente":'"Patrick Hand",cursive',"--m-chip-esp":".02em",
+   "--m-dur":".26s","--m-curva":"cubic-bezier(.3,.9,.35,1)"},
+  extra=""".postit .ficha::after{
+    content:""; position:absolute; left:auto; right:0; bottom:0; width:44px; height:44px;
+    background:url("%s") right bottom/contain no-repeat; pointer-events:none;
+  }""" % svg("postit-doblez.svg")),
 
  dict(id="obsidiana", nombre="Obsidiana", familia="de-materia", llave="El oscuro elegante", color="#3fd0c9",
   premisa="Grises y negros, y el color contado con los dedos. El fondo de ondas cansaba, así que ahora es una marca grabada en la piedra —un círculo, un rombo inscrito y cuatro hilos que salen— y casi todo lo demás está vacío: se ve cuando la buscas y desaparece cuando lees. El icono es una esquirla de tres planos con un solo filo brillante, y la iridiscencia son dos destellos, uno verde y uno violeta, nada más.",
@@ -260,7 +288,7 @@ MUNDOS = [
   # el dibujo se ajusta dentro, pegado al borde derecho.
   extra=""".averno .ficha{ overflow:hidden; }
   .averno .ficha::after{
-    content:""; position:absolute; right:0; top:0; width:46%%; height:100%%;
+    content:""; position:absolute; left:auto; right:0; top:0; width:46%%; height:100%%;
     background:url("%s") right center/contain no-repeat; opacity:.8; pointer-events:none;
   }""" % svg("averno-anillos.svg")),
 
@@ -322,5 +350,5 @@ FAMILIAS = [
  ("de-relato","De relato","No salen de una materia sino de un género: cuentan algo antes de que hagas nada. Inspirados, nunca calcados — el nombre, el marco, la letra y los dibujos son de casa."),
  ("de-aqui","De aquí","Materiales que se pueden tocar en este país. Es el hilo que ningún paquete de temas genérico puede copiar."),
  ("de-pantalla","De pantalla","No imitan una materia: imitan un aparato. Son los más baratos de todos porque casi no llevan imagen."),
- ("de-materia","De materia","Piedra, metal y vidrio. Los oscuros con cuerpo, y los más caros de hacer bien."),
+ ("de-materia","De materia","Piedra, metal, vidrio y papel: lo que se puede tocar, y donde el material manda sobre el color."),
 ]
