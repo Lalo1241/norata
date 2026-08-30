@@ -52,6 +52,201 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.39 · 29 ago 2026
+La app aprende qué forma tiene la ventana, los cinco carteles de bienvenida
+dejan de bailar, el bicho de reportar fallos se ve igual con la barra plegada
+que desplegada, y la tarjeta de la racha reparte su sitio donde toca.
+
+### Los cinco carteles, a la misma altura
+
+Al pasar de Resumen a Habilidades la burbuja daba un salto de **68 px** —de
+311 a 379 en una ventana de 957— y se nota, porque el ojo no se ancla en el
+centro del cartel, que sí coincidía, sino en la burbuja y el título. Dos
+causas, las dos medidas:
+
+- **Lo que cuelga debajo mueve la cabeza.** Resumen ofrece tres botones,
+  Misiones y Habilidades dos, Talentos y Proyectos uno; y el párrafo tiene
+  tres renglones en cuatro pantallas y dos en Habilidades. Centrando el
+  bloque entero, cuanto más cuelga más arriba empieza. Ahora el cartel más
+  alto marca el sitio y los otros cuatro le reservan el mismo hueco: la
+  burbuja cae al mismo píxel en las cinco y lo que sobra queda al pie, sobre
+  fondo vacío, donde nadie lo mide.
+- **Habilidades empezaba 28 px más abajo que las demás.** Sin habilidades no
+  hay nada que reordenar ni que filtrar, pero las dos filas vacías seguían
+  ocupando: 10 px de margen la de herramientas y 18 de relleno la de
+  categorías. Ahora desaparecen cuando están vacías, igual que ya hacía la
+  línea de la pista.
+
+El resultado es que **suben**, que es lo que pedía el encargo: el título queda
+en el 43 % del alto de la ventana en vez de entre el 44 y el 53 % según la
+pantalla. Medido en 1867×957, 1366×657, 1024×700, 1024×1300 y 1366×480, en los
+dos modos: **salto de 0 px** en todas. En el teléfono no se toca nada —ahí el
+cartel no se centra en ningún hueco, lo empuja el contenido—.
+
+### El bicho enseña su círculo también con la barra plegada
+
+Desplegada, «Reportar un fallo» es un círculo con borde: se ve que se puede
+pulsar. Plegada, una regla le quitaba el fondo y el borde a propósito —el
+argumento era que ahí la bolita ES la fila entera y un círculo dentro de otra
+caja se leería como un botón dentro de otro— y el bicho quedaba flotando
+sobre el fondo, con pinta de dibujo y no de botón. La misma cosa no puede
+verse de dos maneras según cómo tengas la barra.
+
+Ahora lleva su círculo en los dos estados: 32 × 32 centrados en la fila, con
+el mismo fondo y el mismo aro, y el aro se enciende en luciérnaga con el
+icono al pasar el ratón (plegada quien recibe el ratón es la fila, así que el
+aro se quedaba gris mientras el bicho ya era amarillo). La fila plegada pasa
+de 34 a 40 px de alto para que al círculo le quede aire en vez de rozar los
+bordes. El gesto no cambia: el número de versión y el bicho siguen ocupando
+la misma caja y fundiéndose uno en otro.
+
+### La forma de la ventana
+
+Hasta ahora solo había dos: teléfono por debajo de 900 px y escritorio por
+encima. Entre las dos caben todas las laptops y todas las tabletas, y ahí es
+donde estaban los fallos — ninguno se veía en un monitor, que es donde se
+prueba siempre.
+
+**Tres cosas se salían de la pantalla, y una se comía el calendario.**
+
+- **El encabezado de las cuatro secciones se cortaba** entre 900 y 1300 px de
+  ventana. Se puso en una fila a los 900, pero el ancho que decide no es el de
+  la ventana sino el que queda después de la barra lateral: en una tableta
+  apaisada de 1024 quedan 644 y la fila pide 922. No se partía en dos, se
+  cortaba, y el recuadro del foco y el botón «Ver el informe» desaparecían en
+  Misiones, Habilidades, Talentos y Proyectos a la vez. Ahora envuelve: cuando
+  no caben los cuatro bloques, los dos últimos bajan a un segundo renglón.
+- **Las tres fichas empujaban la página de lado** entre 900 y 917 px. La ficha
+  mide 360 px fijos, así que a la columna de al lado le quedaban 186 para una
+  rejilla de datos que no baja de 252. La ficha en dos columnas ahora empieza a
+  los 1000, que es donde de verdad caben las dos.
+- **La tarjeta de la racha perdía cinco días de calendario en toda tableta.**
+  Su alto salía de una tabla —«una columna, cinco filas»— escrita dando por
+  hecho que una columna son unos 470 px. En un iPad son 333: la tarjeta cae por
+  debajo del umbral de su propio `@container`, se apila y pide 518 px. Recibía
+  376. Ahora el alto se decide midiendo el ancho de verdad contra el mismo 430
+  que usa el CSS.
+- **El Resumen vacío se quedaba metido en una fila de 56 px** y se salía por
+  abajo: ocupaba 429 y decía medir 155.
+
+La tableta en VERTICAL, por debajo de 900 px, se queda con el diseño del
+teléfono, y eso no cambia: de 768 px no se puede sacar una barra lateral de
+246 sin dejar menos sitio que en un teléfono. Se probó ensancharle la columna
+de 560 a 700 px y se descartó por medida: el Resumen bajaba 21 px de alto,
+Habilidades y Misiones ni uno, y la racha se veía idéntica. Lo único que
+crecía era el largo del renglón.
+
+**Y el Resumen tiene acomodos para cada forma.** Los tres de siempre están
+escritos con las alturas de un monitor, y en una laptop de 1366 × 657 salían
+2,6 pantallas de tablero —3,3 con «Panorama»— y con tarjetas cortadas. Ahora hay tres listas: la de
+siempre para ventana alta, una de **laptop** —columnas anchas y poco alto— y
+una de **tableta** —columnas de menos de 430 px, donde la racha solo se ve
+entera a lo ancho—. Los tres nombres se repiten a propósito: elegir «Mirador»
+tiene que significar lo mismo en las tres pantallas; lo que no puede ser igual
+son las alturas con las que se consigue. La forma se guarda junto al acomodo,
+para que el botón encendido no señale un reparto que ya no está.
+
+**Y «encajar en pantalla» dejó de recortar.** Su suelo era una tabla fija, y en
+una ventana baja eso no encogía: destrozaba —«Misiones de hoy» se quedaba con
+283 px de lista cortada a cambio de una pantalla que no se ganaba igual—. Ahora
+el suelo es lo que la tarjeta MIDE que necesita, así que quita el aire que
+sobra y se para donde empezaría a esconder algo. En un monitor de 1920 × 950
+el acomodo «Columnas» cabe ahora entero en una pantalla —0,94— y ninguno de
+los tres corta nada.
+
+Medido en trece proporciones —900×620, 1024×700, 1180×720, 1280×620, 1366×657,
+1440×790, 1512×860, 1920×950, 2560×1300, 768×1024, 820×1100, 390×844 y
+360×640— por once pantallas cada una, en modo oscuro y en modo claro, y
+aplicando los tres acomodos en cada una: cero desbordes de lado y cero
+tarjetas cortadas. También
+con el perfil vacío, con la ventana a 480 px de alto y con nombres de cien
+letras.
+
+Quedaba uno fuera, y no era de proporciones: **el rótulo de una caja del árbol
+de Talentos se salía por los lados con un nombre largo**, igual en todos los
+tamaños. Vive en el lienzo, y se arregla más abajo.
+
+### La racha reparte su sitio donde toca
+
+En una tarjeta ancha siempre sobra espacio, y lo que decide si se ve bien no es
+cuánto sobra sino DÓNDE cae. Caía en el peor sitio posible. Medido en la tarjeta
+de tres columnas, 1710 px de ancho:
+
+| | antes | ahora |
+| --- | --- | --- |
+| margen izquierdo | 18 | 344 |
+| hueco entre el número y «Próximo hito» | **460** | **72** |
+| junta entre «Próximo hito» y el calendario | **28** | **191** |
+
+Estaba justo del revés. La columna del número era flexible y medía mil píxeles
+con ciento treinta y cinco de contenido flotando en medio, así que el hueco
+quedaba ENTRE dos bloques —que se lee como algo roto— mientras la columna de
+texto se pegaba a la rejilla del calendario. El mismo hueco en el borde se lee
+como margen, que es lo que es.
+
+Las juntas dejan de ser un `gap` igual para todas y pasan a ser columnas propias
+de una rejilla, con tres reglas:
+
+1. **Cada bloque se apoya en el siguiente.** El número ya no flota en mitad de
+   su columna: se va al final de ella y toca la junta corta. Conserva su
+   alineación de siempre —todo centrado entre sí—; lo único que cambia es dónde
+   se apoya el grupo.
+2. **La junta contra el calendario es la ancha.** Una rejilla densa y una
+   columna de texto piden más aire entre sí que dos bloques de texto, o el texto
+   se lee como el pie de la rejilla. Y ahí cae la luna del dibujo, que hasta
+   ahora quedaba tapada por la cabecera del mes.
+3. **Margen de fuera > junta ancha > junta corta.** Es el orden de cualquier
+   página impresa.
+
+Y el número crece de 34 a 46 px cuando hay sitio: un bloque pequeño rodeado de
+espacio se lee como un hueco por mucho que se le deslice. Lo que no ocupa su
+sitio no se arregla moviéndolo, se arregla escalándolo.
+
+**Dos trampas por el camino, las dos medidas.** La primera: en el marcado la
+tercera columna va DESPUÉS del calendario, así que el colocador automático de la
+rejilla llegaba a ella con el cursor pasado el último hueco de la fila y la
+mandaba a una segunda fila — 87 px desbordados por abajo. Se arregla escribiendo
+la fila, no reordenando el marcado, que en los otros dos acomodos es el bueno.
+La segunda: los dos huecos crecen con la tarjeta, y en un monitor de 2560 salían
+596 px de sangría y 415 de junta, tres piezas que ya no se hablan. Hay tope, y
+pasado el tope lo que sobra se reparte por los dos bordes.
+
+**Y un umbral que estaba escrito dos veces.** El JavaScript decidía si había
+tercera columna contando columnas del tablero y el CSS repartía el sitio
+contando píxeles. No son lo mismo: una racha de DOS columnas en pantalla grande
+mide 1510 px, o sea que se repartía como si hubiera tres bloques y solo había
+dos. De ahí medio metro de hueco. Ahora la tercera columna se escribe siempre y
+la enciende el ancho real, con un único umbral.
+
+Medido de 300 a 2400 px de tarjeta, en los tres anchos del tablero, en teléfono,
+en los dos modos y con la frase corta y la larga: sin desbordes, sin segunda
+fila, y el alto sigue sin poder arrastrarse.
+
+### Un rótulo se mide, no se cuenta
+
+Es el que quedaba fuera en la lista de arriba. **El nombre de una caja del ático
+se salía por los lados**, y la causa era contar letras en vez de medirlas: se
+permitían veinte caracteres por renglón, pero veinte caracteres miden 55 px
+escritos con íes y 180 con emes. «EQUIPO FOTOGRÁFICO» son dieciocho y **119 px
+dentro de una caja de 104**, colgando siete por cada lado. Con el nombre por
+defecto —«3º trim. 2026»— no se notaba nunca; con uno escrito a mano, sí.
+
+Ahora el texto se mide de verdad antes de partirlo, con un lienzo de mapa de
+bits aunque el dibujo sea SVG: misma familia y mismo tamaño, y a cambio no hay
+que meter nada en la página ni esperar a que se recalcule el diseño. Una palabra
+más ancha que el renglón se recorta letra a letra hasta que ella y sus puntos
+suspensivos caben, y se queda sola en su renglón — pegarle la palabra siguiente
+detrás de unos puntos suspensivos se lee como una errata, no como un recorte.
+
+El tamaño de letra se decide al partir y no contando renglones después: un
+nombre puede caber en uno solo a 10,5 y no a 12, y preguntando «¿es una línea?»
+al final se le volvía a poner el grande y se salía por la misma puerta.
+
+Probado con seis nombres —el corto, el largo, veinte emes seguidas, una palabra
+impronunciable de una pieza—: los seis caben, y el más ancho ocupa 85 de los
+104. Los rótulos de los talentos no se tocan: esos no viven dentro de ninguna
+caja, y medidos uno a uno no se pisan entre ellos ni se salen del lienzo.
+
 ### 0.7.38 · 29 ago 2026
 Abrir la app deja de esperar a la red.
 
