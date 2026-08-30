@@ -95,21 +95,31 @@ const EXP_RANGOS = [
 
    Los ambientes de verdad los define el catálogo `AMBIENTES` cuando exista
    (lo construye otra sesión). Aquí solo se dice EN QUÉ NIVEL cuelga cada
-   hueco, para no duplicar el trabajo ni clavar nombres que no son de aquí. */
+   hueco, para no duplicar el trabajo ni clavar nombres que no son de aquí.
+
+   **`listo` es lo que impide prometer lo que no existe.** La escalera entera
+   está escrita aquí porque es el plan y el plan vive mejor en el código que en
+   la cabeza de nadie — pero la app solo enseña las filas que ya se pueden
+   cumplir. Los ambientes se construyen en otra rama y las celebraciones nuevas
+   no existen todavía: anunciarlas antes de tiempo es la misma deuda que ya
+   costó quitar la fila de «Todas las apariencias» de la tabla de planes.
+
+   El día que un ambiente esté puesto, se le pone `listo: true` y aparece. Es
+   una palabra por fila y no hay nada más que tocar. */
 const EXP_ESCALERA = [
-  { nivel: 1,  tipo: "rango",       nombre: "Rango Nodo" },
+  { nivel: 1,  tipo: "rango",       nombre: "Rango Nodo", listo: true },
   { nivel: 2,  tipo: "ambiente",    nombre: "Un ambiente nuevo" },
   { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión" },
-  { nivel: 4,  tipo: "rango",       nombre: "Rango Enlace" },
+  { nivel: 4,  tipo: "rango",       nombre: "Rango Enlace", listo: true },
   { nivel: 6,  tipo: "celebracion", nombre: "Escena nueva de racha" },
   { nivel: 8,  tipo: "ambiente",    nombre: "Un ambiente nuevo" },
-  { nivel: 10, tipo: "rango",       nombre: "Rango Rama" },
+  { nivel: 10, tipo: "rango",       nombre: "Rango Rama", listo: true },
   { nivel: 10, tipo: "ambiente",    nombre: "Un ambiente nuevo" },
   { nivel: 12, tipo: "ambiente",    nombre: "Un ambiente nuevo", pro: true },
   { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true },
-  { nivel: 18, tipo: "rango",       nombre: "Rango Trama" },
+  { nivel: 18, tipo: "rango",       nombre: "Rango Trama", listo: true },
   { nivel: 22, tipo: "ambiente",    nombre: "Un ambiente nuevo", pro: true },
-  { nivel: 28, tipo: "rango",       nombre: "Rango Red" }
+  { nivel: 28, tipo: "rango",       nombre: "Rango Red", listo: true }
 ];
 
 /* ================= Contar =================
@@ -253,7 +263,7 @@ function rangoExpedicion(nivel) {
    también los que piden Pro —a la vista y con candado, nunca escondidos—. */
 function proximoDesbloqueo(nivel) {
   const n = typeof nivel === "number" ? nivel : nivelExpedicion().nivel;
-  return EXP_ESCALERA.find(x => x.nivel > n) || null;
+  return EXP_ESCALERA.find(x => x.nivel > n && x.listo) || null;
 }
 
 /* ================= La insignia, dibujada =================
@@ -291,8 +301,99 @@ function insigniaExpedicionHTML(diam) {
     '</span>';
 }
 
+/* ================= La colección =================
+   El inventario del recorrido, no una vitrina de trofeos. La diferencia la
+   marcó Eduardo y es la que hace que tenga sentido sin más gente mirando: lo
+   que guarda no son medallas, son cosas que se usan —los ambientes se ponen—,
+   y la pantalla es donde eliges cuál llevas y ves cuál viene.
+
+   Hoy enseña lo que EXISTE: tu nivel, los cinco rangos y de dónde salen tus
+   puntos. Los ambientes entran el día que existan; hasta entonces no se
+   anuncian, ni siquiera en gris. Casillas vacías de lo que no hay es una lista
+   de lo que te falta, y eso ya se descartó. */
+const EXP_ETIQUETAS = {
+  dias:     "Días con actividad",
+  misiones: "Misiones cumplidas",
+  niveles:  "Niveles de habilidad",
+  talentos: "Talentos logrados",
+  encargos: "Encargos terminados",
+  etapas:   "Etapas hechas",
+  hitos:    "Hitos conseguidos",
+  rachas:   "Hitos de racha",
+  estrenos: "Estrenos"
+};
+
+/* A dónde vuelve la flecha. Se abre desde dos sitios y volver siempre al
+   Resumen dejaba a quien venía de Ajustes en otra pantalla sin saber por qué. */
+let coleccionVuelve = "summary";
+
+function abrirColeccion(desde) {
+  coleccionVuelve = desde || activeMainView || "summary";
+  renderColeccion();
+  showView("coleccion");
+}
+
+function volverDeColeccion() {
+  if (coleccionVuelve === "settings") { showView("settings"); return; }
+  showView(coleccionVuelve || "summary");
+}
+
+function renderColeccion() {
+  const el = document.getElementById("coleccion-cuerpo");
+  if (!el) return;
+  const info = nivelExpedicion();
+  const actual = rangoExpedicion(info.nivel);
+  const d = expDesglose();
+
+  /* De mayor a menor: lo que más te ha traído hasta aquí, primero. Las que
+     están a cero no se dibujan — un cero no cuenta nada de tu recorrido. */
+  const fuentes = Object.keys(d)
+    .filter(k => d[k] > 0)
+    .sort((a, b) => d[b] - d[a]);
+  const mayor = fuentes.length ? d[fuentes[0]] : 1;
+
+  el.innerHTML = `
+    <div class="col-cab">
+      ${insigniaExpedicionHTML(64)}
+      <div class="col-quien">
+        <div class="col-nivel">Nivel ${info.nivel}</div>
+        <div class="col-rango">${actual ? escapeHtml(actual.nombre) : "Antes del primer nivel"}</div>
+      </div>
+    </div>
+    <div class="col-barra"><i style="--p:${info.pct}%"></i></div>
+    <p class="settings-note">${info.puntos} puntos de expedición.
+      Te faltan <b>${info.faltan}</b> para el nivel ${info.nivel + 1}.</p>
+
+    <div class="panel">
+      <h3>Tu recorrido</h3>
+      <p class="settings-note">Cinco rangos en toda la vida de una cuenta. Se celebran la primera vez que llegas y se quedan puestos.</p>
+      <div class="col-rangos">
+        ${EXP_RANGOS.map(r => {
+          const tuyo = actual && actual.id === r.id;
+          const abierto = info.nivel >= r.desde;
+          return `<div class="col-rango-uno ${tuyo ? "tuyo" : ""} ${abierto ? "abierto" : ""}">
+            ${icon(r.icon, 26)}
+            <b>${escapeHtml(r.nombre)}</b>
+            <span>${abierto ? (tuyo ? "Ahora" : "Pasado") : "Nivel " + r.desde}</span>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>De dónde salen tus puntos</h3>
+      ${fuentes.length ? `<div class="col-fuentes">
+        ${fuentes.map(k => `<div class="col-fuente">
+          <span>${EXP_ETIQUETAS[k] || k}</span>
+          <b>${d[k]}</b>
+          <i style="--p:${Math.round((d[k] / mayor) * 100)}%"></i>
+        </div>`).join("")}
+      </div>` : `<p class="settings-note">Todavía nada. Cumple una misión o registra una práctica y esto empieza a llenarse.</p>`}
+    </div>`;
+}
+
 /* Todo lo abierto hasta ahora, para la colección. En orden de cuándo llegó. */
 function desbloqueosDeExpedicion(nivel) {
   const n = typeof nivel === "number" ? nivel : nivelExpedicion().nivel;
-  return EXP_ESCALERA.filter(x => x.nivel <= n);
+  return EXP_ESCALERA.filter(x => x.nivel <= n && x.listo);
 }
