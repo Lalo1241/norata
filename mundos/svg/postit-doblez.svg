@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
+  <!-- La esquina levantada: el papel se enrolla, así que el pliegue NO es una
+       diagonal recta sino una curva, y lo que se ve es el REVÉS de la hoja,
+       más apagado. Debajo va la sombra que proyecta sobre la propia nota. -->
+  <defs>
+    <linearGradient id="rev" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#efe08a"/><stop offset=".55" stop-color="#ddcd72"/><stop offset="1" stop-color="#c9b95e"/>
+    </linearGradient>
+    <linearGradient id="som" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a7a2a" stop-opacity=".38"/><stop offset="1" stop-color="#8a7a2a" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <path d="M44 4C40 24 24 40 4 44L44 44Z" fill="url(#som)" transform="translate(-4,-4)"/>
+  <path d="M44 6C39.5 25 25 39.5 6 44L44 44Z" fill="url(#rev)"/>
+  <path d="M44 6C39.5 25 25 39.5 6 44" fill="none" stroke="#b8a84f" stroke-width="1"/>
+</svg>

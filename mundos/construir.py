@@ -9,7 +9,7 @@ FUENTES = ("Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;60
  "&family=Alegreya+Sans:wght@700;800&family=Archivo+Black&family=Baloo+2:wght@600;700"
  "&family=Big+Shoulders+Display:wght@700&family=Chakra+Petch:wght@600;700&family=Cinzel:wght@700"
  "&family=Grenze+Gotisch:wght@600;700&family=JetBrains+Mono:wght@700&family=Julius+Sans+One"
- "&family=Michroma&family=Rajdhani:wght@600;700&family=Sora:wght@600;700"
+ "&family=Michroma&family=Patrick+Hand&family=Rajdhani:wght@600;700&family=Sora:wght@600;700"
  # solo para la pista de pruebas, no las usa ningún mundo
  "&family=Bevan&family=Bungee&family=Monoton&family=Poppins:wght@700")
 
@@ -49,6 +49,7 @@ CARAS_PISTA = [
  ("Big Shoulders Display","VENTISCA","−26%","174,2","sobran 92","pasa","'Big Shoulders Display',Impact","30px","700"),
  ("Alegreya Sans","TALAVERA","−14%","204,2","sobran 62","pasa","'Alegreya Sans',system-ui","30px","800"),
  ("Grenze Gotisch","AVERNO","−17%","195,3","sobran 71","pasa","'Grenze Gotisch',Georgia,serif","30px","700"),
+ ("Patrick Hand","POST-IT","−22%","185,6","sobran 80","pasa","'Patrick Hand',cursive","30px","400"),
  ("Rajdhani","BLUEPRINT","−10%","212,5","sobran 54","pasa","'Rajdhani',system-ui","30px","700"),
  ("Outfit","GRABADO · LA DE CASA","+0%","236,5","sobran 30","pasa","'Outfit',sans-serif","30px","700"),
  ("Chakra Petch","CYBERPUNK","+4%","245,4","sobran 21","pasa","'Chakra Petch',system-ui","30px","700"),
@@ -88,9 +89,9 @@ def tabla_html():
             f"<tbody>{fil}</tbody></table></div>")
 
 ESQ = [("0 px","Grabado · Consola · Obsidiana · Forja · Blueprint · Cyberpunk","0"),
-       ("2 px","Averno","2px"),("3 px","Vitral · Ventisca","3px"),
+       ("3 px","Vitral · Ventisca","3px"),
        ("4-5 px","Bastión · Papel picado","5px"),
-       ("14 px","Talavera","14px"),
+       ("2 px","Averno · Post-it","2px"),("14 px","Talavera","14px"),
        ("Del todo","Neón","999px")]
 
 def esquinas_html():
@@ -176,16 +177,22 @@ section{ padding-top:62px; }
 .lienzo::after{ content:""; position:absolute; inset:0; z-index:-1; background:var(--m-grano,none); opacity:var(--m-grano-op,0); pointer-events:none; }
 .ficha{ background:var(--m-tarjeta); border:var(--m-borde) solid var(--m-borde-color); border-image:var(--m-marco,none); border-radius:var(--m-r-tarjeta); box-shadow:var(--m-sombra,none); padding:14px 15px; display:flex; align-items:center; gap:12px; position:relative; margin-bottom:var(--m-fleco-alto,0); }
 .ficha::before{ content:""; position:absolute; left:0; right:0; top:0; height:var(--m-cenefa-alto,0); background:var(--m-cenefa,none); pointer-events:none; }
-/* El fleco cuelga POR DEBAJO del borde: una hoja de papel picado no acaba
-   en línea recta, y recortarla por dentro no se vería sobre su propio blanco. */
-.ficha::after{ content:""; position:absolute; left:0; right:0; bottom:calc(-1 * var(--m-fleco-alto,0px)); height:var(--m-fleco-alto,0); background:var(--m-fleco,none); pointer-events:none; }
+/* `::after` queda LIBRE para el adorno de cada mundo, y esto no es un detalle:
+   aquí vivía una regla global de fleco con `left:0; right:0`, y los adornos
+   que declaran solo `right` heredaban ese `left:0`. Un elemento absoluto con
+   `left`, `right` Y `width` a la vez está sobredeterminado, y el navegador
+   descarta el `right`: los anillos de Averno y la voluta de Forja se pegaban
+   a la IZQUIERDA por eso, no por estar mal medidos. Costó tres rondas.
+   El fleco se lo lleva ahora el mundo que lo usa, en su propio bloque. */
 /* Al pasar el cursor, cada mundo se mueve a SU velocidad y con SU curva.
    Por defecto la ficha se levanta; el que declare `--m-empuje` hace lo
    contrario —se apoya y cierra su sombra—, que es el gesto de bajar una
    plancha sobre el papel. Un solo par de reglas para los catorce. */
-.ficha{ transition:transform var(--m-dur,.4s) var(--m-curva,ease), box-shadow var(--m-dur,.4s) var(--m-curva,ease); }
-.mundo:hover .ficha{ transform:translate(var(--m-empuje,0px), var(--m-empuje,-3px)); box-shadow:var(--m-sombra-encima, var(--m-sombra,none)); }
-@media (prefers-reduced-motion:reduce){ .ficha{ transition:none; } .mundo:hover .ficha{ transform:none; } }
+.ficha{ transform:rotate(var(--m-giro,0deg)); transition:transform var(--m-dur,.4s) var(--m-curva,ease), box-shadow var(--m-dur,.4s) var(--m-curva,ease); }
+/* El giro va también en el hover: sin repetirlo, la nota se endereza sola al
+   pasar el cursor, que es lo contrario de lo que hace un papel pegado. */
+.mundo:hover .ficha{ transform:translate(var(--m-empuje,0px), var(--m-empuje,-3px)) rotate(var(--m-giro,0deg)); box-shadow:var(--m-sombra-encima, var(--m-sombra,none)); }
+@media (prefers-reduced-motion:reduce){ .ficha{ transition:none; } .mundo:hover .ficha{ transform:rotate(var(--m-giro,0deg)); } }
 .aro{ width:38px; height:38px; border-radius:999px; flex:none; border:2px solid var(--m-acento); background:transparent; box-shadow:var(--m-halo,none); }
 .ic{ width:28px; height:28px; flex:none; border-radius:var(--m-r-mini); background:var(--m-icono); }
 .ficha .med{ flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
@@ -236,7 +243,7 @@ def pagina():
   <div class="familia-cab"><span class="n">{i:02d}</span><h3>{fnombre}</h3><span class="d">{fdesc}</span></div>
   {fichas}
 </div>""")
-    return f"""<title>Trece mundos</title>
+    return f"""<title>Catorce mundos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={FUENTES}&display=swap">
@@ -248,9 +255,9 @@ def pagina():
 <div class="hoja">
 <header>
   <div class="serie"><i></i><span class="rotulo">Norata · catálogo completo</span></div>
-  <h1>Trece mundos</h1>
+  <h1>Catorce mundos</h1>
   <p class="tesis">Todo lo aprobado hasta hoy, junto: los de relato, los de aquí, los de pantalla y los de materia. <b>Cada uno con su letra medida y su escala comprobada.</b></p>
-  <p class="entradilla">La misma pieza trece veces, con el CSS que se copiaría tal cual. Ninguno toca una regla de la app: todos son variables.</p>
+  <p class="entradilla">La misma pieza catorce veces, con el CSS que se copiaría tal cual. Ninguno toca una regla de la app: todos son variables.</p>
 </header>
 
 <section>
@@ -278,7 +285,7 @@ def pagina():
 </section>
 
 <section>
-  <div class="cabeza"><span class="rotulo">Los once</span><h2>Cuatro familias, trece mundos</h2>
+  <div class="cabeza"><span class="rotulo">Los once</span><h2>Cuatro familias, catorce mundos</h2>
   <p style="color:var(--tinta-2);font-size:1rem;">La misma pieza en todos: el aro de marcar, el icono, el título, la barra, las tres pastillas y una cifra. Es a propósito — así se comparan materiales y no maquetas distintas. Los especímenes no cambian con el modo de tu pantalla: un mundo trae su propia luz.</p><div class="raya"></div></div>
   {"".join(fam_html)}
 </section>
@@ -290,7 +297,7 @@ def pagina():
 </section>
 
 <section>
-  <div class="cabeza"><span class="rotulo">De un vistazo</span><h2>Los trece, con su letra y su escala</h2><div class="raya"></div></div>
+  <div class="cabeza"><span class="rotulo">De un vistazo</span><h2>Los catorce, con su letra y su escala</h2><div class="raya"></div></div>
   {tabla_html()}
 </section>
 
@@ -304,7 +311,7 @@ Estamos en la rama <b>claude/norata-apariencias-skins-p52cpj</b>.</pre>
   </div>
 </section>
 
-<p class="cierre">Trece mundos, una sola pieza para compararlos, y ninguno pide tocar una regla de la app. Lo que falta no es otro lote: es elegir tres y hacerlos de verdad.</p>
+<p class="cierre">Catorce mundos, una sola pieza para compararlos, y ninguno pide tocar una regla de la app. Lo que falta no es otro lote: es elegir tres y hacerlos de verdad.</p>
 </div>
 
 <script>
