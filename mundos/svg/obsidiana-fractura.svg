@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+  <!-- Fractura concoidea: la obsidiana no se parte en líneas rectas, se
+       parte en ondas de concha que salen del punto del golpe. Arcos
+       anidados desde una esquina, cada uno un poco desplazado del anterior
+       para que no parezcan curvas de nivel de un mapa. -->
+  <g fill="none" stroke="#3a4249" stroke-width="1" opacity=".55">
+    <path d="M-6 40C22 46 44 66 52 96c8 30 2 58-14 84"/>
+    <path d="M-6 68C30 74 58 98 68 132c6 22 5 36 0 54"/>
+    <path d="M-6 96C36 102 70 128 84 166"/>
+    <path d="M-6 14C16 20 34 36 44 60c12 30 10 62-6 92"/>
+  </g>
+  <g fill="none" stroke="#5b666e" stroke-width="1.4" opacity=".8">
+    <path d="M-6 54C26 60 51 82 60 114c6 22 3 42-8 64"/>
+    <path d="M-6 122C30 128 62 152 76 182"/>
+  </g>
+  <!-- El filo, que es lo único que brilla -->
+  <g fill="none" stroke="#aebac2" stroke-width="1.1" opacity=".5">
+    <path d="M-6 54C26 60 51 82 60 114"/>
+  </g>
+  <g fill="none" stroke="#2a3036" stroke-width="2.4" opacity=".7">
+    <path d="M186 20C158 34 140 58 136 88c-4 30 6 56 28 76"/>
+    <path d="M186 62C164 74 150 94 148 118"/>
+  </g>
+  <!-- Iridiscencia: dos destellos y nada más. La obsidiana no es de colores. -->
+  <g opacity=".22">
+    <path d="M60 114C56 130 50 146 40 160" fill="none" stroke="#4fd6cc" stroke-width="1.2"/>
+    <path d="M136 88c-2 16 2 30 10 42" fill="none" stroke="#8f7ad6" stroke-width="1.1"/>
+  </g>
+</svg>

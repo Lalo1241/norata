@@ -6,11 +6,12 @@ import datos, html, os
 M, FAM = datos.MUNDOS, datos.FAMILIAS
 
 FUENTES = ("Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600"
- "&family=Alegreya:wght@500;700;800&family=Baloo+2:wght@600;700&family=Bevan"
- "&family=Bodoni+Moda:opsz,wght@6..96,700&family=Bungee&family=Chakra+Petch:wght@600;700"
- "&family=Cinzel:wght@700&family=Fraunces:opsz,wght@9..144,800&family=JetBrains+Mono:wght@700"
- "&family=Marcellus&family=Poppins:wght@700&family=Rajdhani:wght@600;700"
- "&family=Grenze+Gotisch:wght@600;700&family=Big+Shoulders+Display:wght@700&family=Michroma")
+ "&family=Alegreya+Sans:wght@700;800&family=Anton&family=Archivo+Black&family=Baloo+2:wght@600;700"
+ "&family=Big+Shoulders+Display:wght@700&family=Chakra+Petch:wght@600;700&family=Cinzel:wght@700"
+ "&family=Grenze+Gotisch:wght@600;700&family=JetBrains+Mono:wght@700&family=Julius+Sans+One"
+ "&family=Michroma&family=Rajdhani:wght@600;700&family=Sora:wght@600;700"
+ # solo para la pista de pruebas, no las usa ningún mundo
+ "&family=Bevan&family=Bungee&family=Monoton&family=Poppins:wght@700")
 
 def bloque_css(m):
     cuerpo = "\n".join(f"  {k}: {v};" for k, v in m["tokens"].items())
@@ -39,33 +40,32 @@ def ficha_html(m):
         <div class="hecho"><dt>Esquinas</dt><dd>{e(m['esquinas'])}</dd></div>
         <div class="hecho"><dt>Peso</dt><dd><b>{e(m['peso'])}</b></dd></div>
         <div class="hecho"><dt>Horas</dt><dd><b>{e(m['horas'])}</b></dd></div>
-      </dl>
+      </dl>{('<p class="apunte">' + e(m['nota']) + '</p>') if m.get('nota') else ''}
     </div>
   </div>
 </article>"""
 
 CARAS_PISTA = [
  ("Big Shoulders Display","VENTISCA","−26%","174,2","sobran 92","pasa","'Big Shoulders Display',Impact","30px","700"),
+ ("Anton","RÓTULO","−13%","205,0","sobran 61","pasa","'Anton',Impact","30px","400"),
+ ("Alegreya Sans","TALAVERA","−14%","204,2","sobran 62","pasa","'Alegreya Sans',system-ui","30px","800"),
  ("Grenze Gotisch","AVERNO","−17%","195,3","sobran 71","pasa","'Grenze Gotisch',Georgia,serif","30px","700"),
- ("Alegreya","TALAVERA","−10%","212,8","sobran 53","pasa","'Alegreya',Georgia,serif","30px","800"),
  ("Rajdhani","BLUEPRINT","−10%","212,5","sobran 54","pasa","'Rajdhani',system-ui","30px","700"),
- ("Baloo 2","NEÓN","−2%","232,1","sobran 34","pasa","'Baloo 2',system-ui","30px","700"),
- ("Marcellus","VITRAL","−1%","235,0","sobran 31","pasa","'Marcellus',Georgia,serif","30px","400"),
- ("Outfit","LA DE CASA HOY","+0%","236,5","sobran 30","pasa","'Outfit',sans-serif","30px","700"),
+ ("Outfit","GRABADO · LA DE CASA","+0%","236,5","sobran 30","pasa","'Outfit',sans-serif","30px","700"),
  ("Chakra Petch","CYBERPUNK","+4%","245,4","sobran 21","pasa","'Chakra Petch',system-ui","30px","700"),
- ("Bodoni Moda","OBSIDIANA","+6%","250,1","justo, 16","justo","'Bodoni Moda',Georgia,serif","30px","700"),
- ("Fraunces","PAPEL PICADO","+8%","255,5","justo, 11","justo","'Fraunces',Georgia,serif","30px","800"),
+ ("Sora","OBSIDIANA","+13%","268,1","se pasa 2","falla","'Sora',system-ui","30px","600"),
+ ("Sora","CON SU ESCALA · 0.99","","265,3","entra","pasa","'Sora',system-ui","29.7px","600"),
  ("Poppins","LA QUE PROPUSISTE","+11%","263,0","justo, 3","justo","'Poppins',sans-serif","30px","700"),
- ("Bevan","GRABADO","+21%","285,9","se pasa 20","falla","'Bevan',Georgia,serif","30px","400"),
- ("Bevan","CON SU ESCALA · 0.93","","265,8","entra","pasa","'Bevan',Georgia,serif","27.9px","400"),
- ("Cinzel","FORJA","+28%","301,8","se pasa 36","falla","'Cinzel',Georgia,serif","30px","700"),
- ("Cinzel","CON SU ESCALA · 0.88","","265,5","entra","pasa","'Cinzel',Georgia,serif","26.4px","700"),
- ("JetBrains Mono","CONSOLA","+29%","306,0","se pasa 40","falla","'JetBrains Mono',monospace","30px","700"),
- ("JetBrains Mono","CON SU ESCALA · 0.86","","263,1","entra","pasa","'JetBrains Mono',monospace","25.8px","700"),
- ("Bungee","RÓTULO","+39%","328,4","se pasa 62","falla","'Bungee',Impact","30px","400"),
- ("Bungee","CON SU ESCALA · 0.80","","262,7","entra","pasa","'Bungee',Impact","24px","400"),
+ ("Archivo Black","PAPEL PICADO","+19%","281,7","se pasa 16","falla","'Archivo Black',system-ui","30px","400"),
+ ("Archivo Black","CON SU ESCALA · 0.94","","264,7","entra","pasa","'Archivo Black',system-ui","28.2px","400"),
+ ("Julius Sans One","CÉNIT","+23%","290,9","se pasa 25","falla","'Julius Sans One',system-ui","30px","400"),
+ ("Julius Sans One","CON SU ESCALA · 0.91","","264,7","entra","pasa","'Julius Sans One',system-ui","27.3px","400"),
  ("Michroma","BASTIÓN","+38%","326,8","se pasa 61","falla","'Michroma',system-ui","30px","400"),
  ("Michroma","CON SU ESCALA · 0.81","","264,7","entra","pasa","'Michroma',system-ui","24.3px","400"),
+ ("Cinzel","FORJA · con 0.88","+28%","265,5","entra","pasa","'Cinzel',Georgia,serif","26.4px","700"),
+ ("JetBrains Mono","CONSOLA · con 0.86","+29%","263,1","entra","pasa","'JetBrains Mono',monospace","25.8px","700"),
+ ("Bungee","DESCARTADA · ilegible","+39%","328,4","se pasa 62","falla","'Bungee',Impact","30px","400"),
+ ("Monoton","DESCARTADA · +42%","+42%","335,5","se pasa 70","falla","'Monoton',cursive","30px","400"),
 ]
 
 def pista_html():
@@ -89,7 +89,7 @@ def tabla_html():
             f"<tbody>{fil}</tbody></table></div>")
 
 ESQ = [("0 px","Grabado · Consola · Obsidiana · Forja · Blueprint · Cyberpunk","0"),
-       ("2 px","Averno","2px"),("3 px","Vitral · Ventisca","3px"),
+       ("2 px","Averno","2px"),("3 px","Cénit · Ventisca","3px"),
        ("4-5 px","Bastión · Papel picado","5px"),
        ("14 px","Talavera","14px"),("16 px","Rótulo","16px"),
        ("Del todo","Neón","999px")]
@@ -175,8 +175,18 @@ section{ padding-top:62px; }
 @media (max-width:780px){ .cuerpo{ grid-template-columns:1fr; } }
 .lienzo{ background:var(--m-pagina); padding:26px 24px 28px; display:flex; flex-direction:column; gap:15px; position:relative; isolation:isolate; }
 .lienzo::after{ content:""; position:absolute; inset:0; z-index:-1; background:var(--m-grano,none); opacity:var(--m-grano-op,0); pointer-events:none; }
-.ficha{ background:var(--m-tarjeta); border:var(--m-borde) solid var(--m-borde-color); border-image:var(--m-marco,none); border-radius:var(--m-r-tarjeta); box-shadow:var(--m-sombra,none); padding:14px 15px; display:flex; align-items:center; gap:12px; position:relative; }
+.ficha{ background:var(--m-tarjeta); border:var(--m-borde) solid var(--m-borde-color); border-image:var(--m-marco,none); border-radius:var(--m-r-tarjeta); box-shadow:var(--m-sombra,none); padding:14px 15px; display:flex; align-items:center; gap:12px; position:relative; margin-bottom:var(--m-fleco-alto,0); }
 .ficha::before{ content:""; position:absolute; left:0; right:0; top:0; height:var(--m-cenefa-alto,0); background:var(--m-cenefa,none); pointer-events:none; }
+/* El fleco cuelga POR DEBAJO del borde: una hoja de papel picado no acaba
+   en línea recta, y recortarla por dentro no se vería sobre su propio blanco. */
+.ficha::after{ content:""; position:absolute; left:0; right:0; bottom:calc(-1 * var(--m-fleco-alto,0px)); height:var(--m-fleco-alto,0); background:var(--m-fleco,none); pointer-events:none; }
+/* Al pasar el cursor, cada mundo se mueve a SU velocidad y con SU curva.
+   Por defecto la ficha se levanta; el que declare `--m-empuje` hace lo
+   contrario —se apoya y cierra su sombra—, que es el gesto de bajar una
+   plancha sobre el papel. Un solo par de reglas para los catorce. */
+.ficha{ transition:transform var(--m-dur,.4s) var(--m-curva,ease), box-shadow var(--m-dur,.4s) var(--m-curva,ease); }
+.mundo:hover .ficha{ transform:translate(var(--m-empuje,0px), var(--m-empuje,-3px)); box-shadow:var(--m-sombra-encima, var(--m-sombra,none)); }
+@media (prefers-reduced-motion:reduce){ .ficha{ transition:none; } .mundo:hover .ficha{ transform:none; } }
 .aro{ width:38px; height:38px; border-radius:999px; flex:none; border:2px solid var(--m-acento); background:transparent; box-shadow:var(--m-halo,none); }
 .ic{ width:28px; height:28px; flex:none; border-radius:var(--m-r-mini); background:var(--m-icono); }
 .ficha .med{ flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
@@ -187,7 +197,7 @@ section{ padding-top:62px; }
 @media (prefers-reduced-motion:reduce){ .barra i{ transition:none; transform:scaleX(1); } }
 .pie{ font-size:11.5px; color:var(--m-tinta-2); }
 .tira{ display:flex; gap:7px; flex-wrap:wrap; align-items:center; }
-.chip{ font-size:11px; font-weight:600; padding:4px 11px; border-radius:var(--m-r-chip); font-family:var(--m-chip-fuente,inherit); letter-spacing:var(--m-chip-esp,0); text-transform:var(--m-chip-caja,none); }
+.chip{ font-size:11px; font-weight:var(--m-chip-peso,600); padding:4px 11px; border-radius:var(--m-r-chip); font-family:var(--m-chip-fuente,inherit); letter-spacing:var(--m-chip-esp,0); text-transform:var(--m-chip-caja,none); }
 .c-ok{ color:var(--m-acento-tinta,var(--m-acento)); background:var(--m-acento-velo); }
 .c-av{ color:var(--m-aviso); background:var(--m-aviso-velo); }
 .c-no{ color:var(--m-peligro); background:var(--m-peligro-velo); }
@@ -201,6 +211,7 @@ section{ padding-top:62px; }
 .hecho dt{ font-family:var(--mono); font-size:.66rem; letter-spacing:.12em; text-transform:uppercase; color:var(--tinta-3); padding-top:4px; }
 .hecho dd{ margin:0; color:var(--tinta-2); line-height:1.45; }
 .hecho dd b{ color:var(--tinta); font-weight:600; }
+.apunte{ font-size:.83rem; line-height:1.5; color:var(--tinta-3); border-left:2px solid var(--hilo-fuerte); padding-left:11px; margin:0; }
 .esquinas{ display:grid; grid-template-columns:repeat(auto-fit,minmax(124px,1fr)); gap:12px; }
 .esq{ display:flex; flex-direction:column; gap:9px; align-items:center; text-align:center; }
 .esq .cuadro{ width:100%; height:58px; background:var(--menta-viva); opacity:.24; border:2px solid var(--menta); }
