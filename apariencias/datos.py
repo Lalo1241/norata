@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Los ocho ambientes, la escalera y los cinco rangos, en un solo sitio.
+"""Los siete ambientes, la escalera y los cinco rangos, en un solo sitio.
 
 Vienen del chat que Eduardo llevó en el teléfono los días 29 y 30 de agosto y
 que estaba solo en artifacts. Se recuperaron leyendo esos artifacts —«Recolores
@@ -11,6 +11,12 @@ CONTRASTES. De aquí salen `ambientes.css` y la lámina del conjunto."""
 
 # grado 0 = el de casa · 1 = solo el suelo · 2 = suelo y acento · 3 = además
 # invierte algo que ningún otro toca
+#
+# Eran ocho. Reliquia se fue a `mundos/` el 30 de agosto: era lo único que
+# Fundador tenía además de Pro —LIMITES no tiene entrada de fundador, así que
+# Fundador ES Pro sin fecha— y un recolor no se vende. Un pago único de $890
+# necesita algo que se vea, así que dejó de ser un color estirado por la app y
+# pasó a ser un material. El lila vuelve a ser lo que era: la insignia.
 AMBIENTES = [
  dict(id="casa", nombre="Noche de expedición", grado=0, abre="Desde el día uno",
   premisa="El punto cero. No se desbloquea porque es donde empiezas.",
@@ -67,14 +73,6 @@ AMBIENTES = [
    "--line":"#a5bfc3","--carril":"#b9d2d4","--text":"#06232a","--muted":"#4f717a","--faint":"#6d8b93",
    "--mint":"#006b62","--mint-macizo":"#00d4bd","--aro-alto":"#009083"}),
 
- dict(id="reliquia", nombre="Reliquia", grado=2, abre="Fundador",
-  premisa="El lila que ya es el color de Fundador, extendido a toda la app. No se gana con el uso: es lo único de la lista que no se puede alcanzar con tiempo, y por eso funciona.",
-  noche={"--bg":"#0e0d16","--bg2":"#141322","--card":"#1a1826","--card2":"#211f30",
-   "--line":"#2c2940","--carril":"#2c2940","--text":"#efecf7","--muted":"#948fae","--faint":"#656080",
-   "--mint":"#b7a2ea","--mint-macizo":"#b7a2ea","--aro-alto":"#b7a2ea"},
-  dia={"--bg":"#dad0f2","--bg2":"#e6dff7","--card":"#efeafb","--card2":"#f7f4fd",
-   "--line":"#b0a4cd","--carril":"#c4b8de","--text":"#191426","--muted":"#5e587a","--faint":"#7e7899",
-   "--mint":"#5b32c0","--mint-macizo":"#9b6bff","--aro-alto":"#7c4fe0"}),
 ]
 
 # Cara de día, que es la que aprieta. Umbral 4,5 para escribir y 3 para trazar.

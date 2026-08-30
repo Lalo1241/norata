@@ -14,7 +14,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
 | --- | --- |
 | **Ya está en la app** (0.7.37) | La capa de material: `--r-*`, `--sup-*`, `--marco-*`, `--tipo-titulo`, `--tipo-cifra`, `--dur-*`. Ver la sección «El material» de `CLAUDE.md`. |
 | **Ya está en la app** (0.7.38) | Servir de la copia primero, para que un mundo se baje UNA vez y no cada mañana. |
-| **Diseñado y medido, sin construir** | Los catorce mundos de este documento (revisados tres veces). |
+| **Diseñado y medido, sin construir** | Los quince mundos de este documento (revisados tres veces). |
 | **Ya está en la app** (antes de todo esto) | La caja registradora: `js/10d-plan.js` ya tiene la llave `apariencia` —Gratuito «las paletas de color», Pro «todas las apariencias»—. El cobro está resuelto; lo que no existe es qué vender. |
 | **Propuesto, NO existe** | `--tipo-titulo-escala`, el selector de mundo en Ajustes, la clase en `<html>`, guardar la elección y la carga diferida de las tipografías y texturas de un mundo. **Comprobado el 30 ago sobre `origin/main` en 0.7.39.1**: no hay cargador, ni `--m-*`, ni `mundos.css` servido, en ninguna rama ni en ningún commit del repositorio. |
 
@@ -24,7 +24,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
    tono —en Neón son ámbar y rosa; en Cyberpunk, magenta— pero no de
    significado. Un mundo cambia con qué se celebra, no con qué se avisa.
 2. **Un círculo es redondo porque es redondo.** El aro de marcar una misión
-   está en 999 px en los catorce, incluso donde todo lo demás tiene la esquina
+   está en 999 px en los quince, incluso donde todo lo demás tiene la esquina
    viva. Por eso `--r-redondo` vive separado de `--r-pastilla` y no pasa por
    `--r-factor`.
 3. **El cuerpo de texto no lo toca nadie.** Un mundo solo llega a `h1/h2/h3`
@@ -44,6 +44,7 @@ Sobran 38: **un 16% de holgura**, y eso es toda la pista.
 | Alegreya Sans | −14% | 204,2 | 1 | Talavera |
 | Rajdhani | −10% | 212,5 | 1 | Blueprint |
 | Patrick Hand | −22% | 185,6 | 1 | Post-it |
+| Syne | +18% | 279,0 | **0.95** | Reliquia |
 | Amaranth | −4% | 226,1 | 1 | Arboleda |
 | **Outfit** | **+0%** | **236,5** | 1 | Grabado · *y la app* |
 | Chakra Petch | +4% | 245,4 | 1 | Cyberpunk |
@@ -56,7 +57,7 @@ Sobran 38: **un 16% de holgura**, y eso es toda la pista.
 | Bungee | +39% | 328,4 | — | *descartada: ilegible* |
 | Monoton | +42% | 335,5 | — | *descartada* |
 
-**Serif, las justas.** De catorce mundos solo dos llevan serif —Forja (Cinzel,
+**Serif, las justas.** De quince mundos solo dos llevan serif —Forja (Cinzel,
 inscripcional, que es piedra tallada) y Averno (Grenze Gotisch, que es gótica—.
 Todo lo demás va en sans. Una serif de titular a 15 px dentro de una tarjeta se
 lee peor y envejece antes.
@@ -82,7 +83,7 @@ Dos avisos que cuestan tiempo si se ignoran:
   pedir `document.fonts.load()` cara por cara. La señal de que no cargó
   ninguna: las doce miden **exactamente** lo mismo.
 
-## Los catorce mundos
+## Los quince mundos
 
 Cuatro familias. **De relato** son los que vienen de un género en vez de una
 materia: inspirados, nunca calcados — nombre, marco, letra e ilustración son de
@@ -101,6 +102,7 @@ casa, y ninguno lleva marca, icono ni tipografía de nadie.
 | **Arboleda** | Madera y hoja | Amaranth | −4% | 1 | 12 px · sin filo | ~70 KB | Noche |
 | **Obsidiana** | El oscuro elegante | Sora | +13% | 0.99 | 0 px · vivas | ~80 KB | Noche |
 | **Cénit** | Vidriera de cielo | Julius Sans One | +23% | 0.91 | 3 px · casi vivas | ~85 KB | Noche |
+| **Reliquia** | El de Fundador | Syne | +18% | 0.95 | 4 px · vitrina | ~75 KB | Noche |
 | **Averno** | El oscuro de verdad | Grenze Gotisch | −17% | 1 | 2 px · piedra tallada | ~95 KB | Noche |
 | **Ventisca** | Frío con una hoguera | Big Shoulders Display | −26% | 1 | 3 px · chapa | ~90 KB | Noche |
 | **Bastión** | Blindaje | Michroma | +9% | 0.81 | 4 px · placa | ~105 KB | Noche |
@@ -266,7 +268,7 @@ medidas y ninguna es «se ve bien»:
    pinta el mosaico dos veces y compara la columna del borde con la del
    siguiente mosaico. Cero es que casa.
 
-Los catorce de este documento pasan las siete. La medida más apretada es la
+Los quince de este documento pasan las siete. La medida más apretada es la
 barra de Grabado (4,3 sobre un mínimo de 3) y el chip de aviso de Post-it
 (5,12 sobre 4,5); los tres mosaicos nuevos casan con 0 de diferencia, y lo más
 cerca del límite de «escrito sobre dibujo» son Consola y Post-it con 1,35 y
