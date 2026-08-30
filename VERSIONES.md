@@ -52,6 +52,53 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.41 · 30 ago 2026
+**El motor del nivel de expedición**, que es el nivel de la CUENTA. Todavía no
+se ve por ningún lado: es a propósito, primero lo que no se ve. Archivo nuevo,
+`js/02b-expedicion.js`, dado de alta en `index.html` y en `ASSETS`.
+
+**La decisión que lo sostiene: los puntos no se guardan, se cuentan.** No hay
+ningún contador en `state` y no debe haberlo. El motivo ya estaba escrito en
+`js/10-fusion.js` y vale igual aquí —«el XP no se suma a mano: se recalcula
+contando los movimientos»—: un contador se rompe al fusionar dos aparatos, y
+este número decide qué tienes desbloqueado. Tres cosas salen gratis: **es
+retroactivo** (el día que se encienda, cada cuenta ya tiene su nivel, sacado de
+meses de datos que ya existen), la sincronía no lo puede inflar ni perder, y no
+hay dos verdades que puedan desalinearse.
+
+**Los dos primeros días de cada semana valen 40 puntos; los siguientes, 5.** No
+es un adorno: con un valor fijo por día, quien entra dos veces por semana
+tardaba **4,4 años** en llegar al último rango y quien entra cinco tardaba 1,7.
+Así son 2,3 contra 1,3. Y deja de tener sentido abrir la app diez segundos para
+no perder el punto del día. La semana empieza en domingo, igual que la tira de
+la racha: dos formas de contar la semana en la misma app se notan en cuanto
+alguien compara.
+
+**El nivel de una habilidad cuenta el MÁS ALTO que tuvo, no el de ahora.** El
+decaimiento no quita el punto: lo aprendido pasó, y para castigar el abandono
+ya está la propia habilidad, que baja. Se reconstruye del historial, que es
+donde está todo.
+
+Sin tope, con cada nivel 30 puntos más caro que el anterior y los tres primeros
+en rampa (15, 35, 60) para que la primera tarde tenga premio. Todo calibrado
+simulando ocho años de uso día por día con tres perfiles, no a ojo.
+
+**Cinco rangos**, que son la cara del nivel y no una colección de trofeos:
+Nodo, Enlace, Rama, Trama y Red, en `ICONS`. Ninguno lleva candado — si el
+rango es la cara del nivel y el nivel sube para todos, ponerle candado sería
+topar el número por la puerta de atrás. **Se topan los premios, nunca el
+número.**
+
+Probado con ocho comprobaciones de lógica sobre datos hechos a mano: cinco días
+en la misma semana dan 95, el corte de semana cae en domingo, una habilidad que
+subió a 900 XP y decayó a 100 sigue contando su nivel 4, y el acumulado hasta
+el nivel 10 da 1 475 — el mismo número que la simulación en Python, que es lo
+que confirma que el código y la calibración dicen lo mismo.
+
+El número salta a `0.7.41` porque la rama de ambientes tiene apartada la
+`0.7.40`, y dos tandas con el mismo `CACHE` dejan a medio mundo con la copia
+vieja.
+
 ### 0.7.39.4 · 30 ago 2026
 La exigencia deja de perderse. Es una sección de Ajustes —**Mi exigencia**— y
 por primera vez se puede ver cuál tienes puesta, cambiarla y aplicarla a lo que
