@@ -195,7 +195,18 @@ haya nada que comprar.
 
 ## El motor
 
-No existe. Comprobado el 30 de agosto sobre `origin/main` en 0.7.39.1: no hay
+**Construido y publicado apagado en 0.7.40.** `js/10i-apariencia.js`,
+`css/ambientes.css`, el atributo, `--tipo-titulo-escala` y el guardado. Se
+enciende con `?apariencia=musgo` y se apaga con `?apariencia=casa`; vive en
+`sessionStorage`, así que con la pestaña cerrada desaparece, y la pestaña
+lleva su rótulo de modo prueba. Medido: **con la apariencia de casa puesta no
+se movió un píxel de 25 848**, y las únicas ocho propiedades que cambiaron son
+el ancho del número de versión en Ajustes.
+
+Falta la pantalla de Ajustes y falta el nivel que los desbloquea. Lo de abajo
+es el contrato con el que se construyó.
+
+Antes de eso no existía. Comprobado el 30 de agosto sobre `origin/main` en 0.7.39.1: no hay
 cargador, ni `--m-*`, ni CSS de apariencia servido, en ninguna rama ni en ningún
 commit. Lo que sí existe y se le parece son dos cosas distintas: **la capa de
 material** de 0.7.37, que es el camino por donde entra un mundo, y **la llave

@@ -40,6 +40,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="css/fuente.css">
 <link rel="stylesheet" href="css/estilos.css">
+<link rel="stylesheet" href="css/ambientes.css">
 </head>
 <body>
 <script>
@@ -60,6 +61,23 @@
       var mtc = document.querySelector('meta[name="theme-color"]');
       if (mtc) mtc.setAttribute("content", "#f2f4f8");
     }
+  } catch (e) {}
+
+  /* Y lo mismo para la apariencia, por el mismo motivo que el modo claro: si
+     esperara al script principal, cada carga empezaría con la apariencia de
+     casa y daría un fogonazo antes de cambiarse. Aquí solo se pone el
+     atributo; comprobar si se puede usar es cosa de `js/10i-apariencia.js`,
+     que corre después y la quita si ya no.
+
+     `?apariencia=` la enciende solo en esta pestaña, guardada en
+     sessionStorage para que no se quede pegada como si fuera un ajuste. Es la
+     misma receta con la que se probaron los tonos del modo claro. */
+  try {
+    var apr = new URLSearchParams(location.search).get("apariencia");
+    if (apr) sessionStorage.setItem("norata-apariencia-prueba", apr);
+    var puesta = sessionStorage.getItem("norata-apariencia-prueba")
+              || localStorage.getItem("norata-apariencia");
+    if (puesta && puesta !== "casa") document.documentElement.setAttribute("data-apariencia", puesta);
   } catch (e) {}
 
   /* ---- El escaparate: `?informes=demo` ----
@@ -978,6 +996,7 @@
 <script defer src="js/10f-informes.js"></script>
 <script defer src="js/10g-informe.js"></script>
 <script defer src="js/10h-lecturas.js"></script>
+<script defer src="js/10i-apariencia.js"></script>
 <script defer src="js/11-arranque.js"></script>
 </body>
 </html>

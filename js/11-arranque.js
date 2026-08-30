@@ -6,6 +6,13 @@
    arrancarla antes solo vigilaría a la mitad. */
 vigilarCapas();
 
+/* La apariencia. El atributo ya lo puso el script de arriba de `index.html`
+   antes de pintar; esto es lo de después — el rótulo de la pestaña de prueba,
+   el color de la barra del navegador, y quitar una apariencia que se guardó
+   cuando se podía y ahora ya no. Va aquí arriba, antes de dibujar nada, para
+   que lo que se pinte se pinte una sola vez y con los colores buenos. */
+arrancarApariencia();
+
 /* El número de versión, en los dos sitios donde se enseña, escrito desde la
    misma constante: dos números a mano acaban discrepando el día que uno se
    cambie y el otro no, y entonces el dato deja de servir para lo único que
