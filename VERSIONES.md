@@ -52,6 +52,39 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.42 · 30 ago 2026
+**El nivel ya se ve.** La insignia del rango aparece en la fila de la cuenta
+—en el menú del engrane y en la ficha de «Mi perfil»— con el aro de lo que
+llevas del nivel alrededor. Es lo primero que se ve del motor de 0.7.41.
+
+**Es su propio círculo y no cuelga del avatar**, y eso lo decidió Eduardo con
+el argumento que lo cierra: el perímetro de la cara tiene que quedar libre para
+lo cosmético —hoy lo ocupa el anillo lila de Fundador, mañana un marco que
+alguien compre— así que el aro que informa rodea la insignia. **Cada aro
+pertenece a su propio objeto** y así no vuelven a chocar. La fila queda con dos
+círculos y tres renglones en medio: a la izquierda quién eres, a la derecha por
+dónde vas.
+
+Y de paso resuelve el tamaño, que fue lo que lo decidió del todo: colgando del
+avatar la insignia solo puede medir 20 px, y el aro deja el dibujo en **11** —
+por debajo de los 13 que es el suelo de la iconografía de la app, donde las
+tres piezas de un rango empiezan a juntarse—. Como círculo propio mide 30 y el
+dibujo respira a 18. Se comparó a tamaño real:
+`https://claude.ai/code/artifact/011961aa-54a5-4e6c-8926-17d92d57e70d`
+
+El avatar del menú sube de 38 a 48 para equilibrar la pareja, que es la
+proporción que él eligió mirando las dos familias juntas.
+
+Detalles que están así a propósito: **antes del nivel 1 no se dibuja nada** —un
+aro vacío se lee como algo roto—, el aro engorda de 2 a 3 píxeles a partir de
+40 px de diámetro porque a ese tamaño uno de 2 desaparece, y `.perfil-quien`
+estrena `flex: 1` para que la insignia se vaya al otro extremo en vez de
+pegarse al correo.
+
+Medido en las dos pantallas y en los dos anchos: insignia de 30 con dibujo de
+18, a 12-14 px del borde y a 11-13 del texto, sin desbordes; en un teléfono de
+390 px con un correo que ocupa dos renglones sigue en su sitio.
+
 ### 0.7.41 · 30 ago 2026
 **El motor del nivel de expedición**, que es el nivel de la CUENTA. Todavía no
 se ve por ningún lado: es a propósito, primero lo que no se ve. Archivo nuevo,

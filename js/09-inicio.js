@@ -991,12 +991,22 @@ function abrirMenuAjustes(btn) {
      dentro del mismo botón obligan a apuntar, y a este tamaño el renglón del
      plan mide once píxeles de alto. */
   const chapa = typeof planChapaHTML === "function" ? planChapaHTML() : "";
+  /* La insignia del nivel, al otro extremo de la fila. Dos círculos con tres
+     renglones de texto en medio: el de la izquierda dice quién eres y el de la
+     derecha por dónde vas. El avatar sube de 38 a 48 para que la pareja se
+     equilibre —lo eligió Eduardo comparando las dos familias a tamaño real—.
+
+     El `typeof` es la misma guarda que usa `avatarHTML` con el plan: este
+     archivo se carga antes que el resto y la fila se dibuja desde varios
+     sitios. Un adorno no puede tumbar el menú de la cuenta. */
+  const insignia = typeof insigniaExpedicionHTML === "function" ? insigniaExpedicionHTML(30) : "";
   const ficha = dentro
     ? `<button class="mm-perfil" onclick="abrirAjustes('cuenta')">
-         ${avatarHTML(38)}
+         ${avatarHTML(48)}
          <span class="mm-tx"><b>${escapeHtml(perfilActual().saludo || "Sin nombre")}</b>
          <span>${escapeHtml(cfg.correo || "")}</span>
          ${chapa}</span>
+         ${insignia}
        </button>`
     : `<button class="mm-perfil" onclick="abrirAjustes('cuenta')">
          <span class="mm-ic">${icon("shield", 16)}</span>

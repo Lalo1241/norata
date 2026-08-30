@@ -1628,6 +1628,28 @@
     cursor: pointer;
   }
   .mm-perfil .avatar { flex: none; }
+  /* ---------- La insignia del nivel de expedición ----------
+     Su propio círculo al final de la fila, nunca colgada del avatar: el
+     perímetro de la cara queda libre para lo cosmético —el anillo lila de
+     Fundador hoy, un marco comprado mañana— y este aro rodea solo lo suyo.
+     Cada aro pertenece a su objeto y así no vuelven a chocar.
+
+     El dibujo va centrado con posición absoluta y no con un grid porque el
+     aro es un SVG del mismo tamaño que la caja: los dos ocupan todo y se
+     superponen a propósito. */
+  .exp-insignia {
+    position: relative;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mint);
+  }
+  .exp-insignia svg { display: block; }
+  .exp-insignia .exp-emb {
+    position: absolute;
+    display: inline-flex;
+  }
   .mm-item {
     display: flex;
     align-items: center;
@@ -5057,7 +5079,10 @@
     padding: 13px; margin-bottom: 16px;
     background: var(--sup-tarjeta2); border: var(--borde-fino) solid var(--line); border-radius: var(--r-grande);
   }
-  .perfil-quien { min-width: 0; }
+  /* `flex: 1` desde que hay insignia al final: sin él, el círculo del nivel se
+     pega al correo en vez de irse al otro extremo, y la pareja de círculos
+     —cara a un lado, nivel al otro— deja de leerse como pareja. */
+  .perfil-quien { min-width: 0; flex: 1; }
   .perfil-quien b { display: block; font-size: 15.5px; }
   /* El correo se parte por donde sea: los hay largos, y sin esto la ficha
      estira el panel entero y aparece una barra horizontal en el teléfono. */
