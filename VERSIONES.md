@@ -52,6 +52,40 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.43 · 30 ago 2026
+**La tarjeta de expedición en el Resumen.** Una más del tablero, con las mismas
+reglas que las otras siete: se mueve, se quita y se puede volver a poner.
+
+Lleva tres cosas y en este orden: la insignia con el número del nivel, los
+puntos que faltan para el siguiente, y —lo único que la hace útil— **el próximo
+desbloqueo con lo que falta escrito al lado**. Un premio sorpresa no mueve a
+nadie; uno que se ve venir, sí. Los de Pro salen igual, con su etiqueta: a la
+vista y deseables, nunca escondidos.
+
+**No lleva `onclick`.** El sitio al que debe llevar es la colección, que
+todavía no existe, y antes de inventarle un destino se queda sin ninguno — con
+`cursor: default`, para que no finja ser un botón.
+
+Dada de alta donde había que darla: el registro, el suelo de altura, el orden
+de fábrica y **los doce acomodos** —tres por cada forma de ventana, aunque los
+del teléfono solo llevan orden porque en una columna no hay anchos que repartir—.
+Se hizo con un guion a propósito: a mano se olvida uno, y ese fallo no se ve
+hasta que alguien aplica justo ese acomodo y su tarjeta se va al fondo.
+
+**Y un fallo cazado midiendo, que no venía de esta tanda pero lo destapó.**
+Una tarjeta sin sitio guardado —cualquiera que se añada a la app después de que
+alguien haya acomodado su tablero— caía en la esquina de arriba y empujaba
+todo lo demás hacia abajo, justo lo que promete no hacer el comentario de
+`dashLayout`: «nadie ve su tablero cambiar al actualizar». Ahora se coloca en
+la primera fila libre por debajo de lo que ya tiene sitio.
+
+El primer intento de eso fue peor y también se midió: con un centinela de
+`f: 9999`, el buscador de hueco encontraba esa fila libre y dejaba la tarjeta
+**en la fila 9999 de la cuadrícula**, con 800.000 px de vacío detrás que sí se
+podían recorrer. La cuenta buena es el fondo de verdad: `fila + alto` de la
+tarjeta más baja. Comprobado sobre un tablero ya acomodado: la nueva cae en la
+fila 17, ninguna de las otras se mueve, y el tablero mide 1.576 px.
+
 ### 0.7.42 · 30 ago 2026
 **El nivel ya se ve.** La insignia del rango aparece en la fila de la cuenta
 —en el menú del engrane y en la ficha de «Mi perfil»— con el aro de lo que
