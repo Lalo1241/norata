@@ -12,7 +12,7 @@ el DOM. A mano eso no se sostiene: son veinticuatro mil elementos.
 
 ```sh
 python3 -m http.server 8123           # la app tiene que ir por HTTP
-npm install playwright                 # fuera del repositorio, donde sea
+npm install playwright pngjs           # fuera del repositorio, donde sea
 
 node foto.js antes.json                # con el código SIN tocar
 #   ... aquí se hace el cambio ...
