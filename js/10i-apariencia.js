@@ -39,6 +39,63 @@ const AMBIENTES = [
   { id: "duna",     nombre: "Duna",     grado: 1, abre: 20 }
 ];
 
+/* ================= Los mundos =================
+   Un mundo cambia el MATERIAL, no la luz — y desde el 30 de agosto cambia una
+   cosa más: **te renombra el camino**. Los cinco rangos de la casa —Nodo,
+   Enlace, Rama, Trama, Red— son de la app; un mundo trae los suyos, con sus
+   nombres y sus dibujos, alineados a su tema. Eso es lo que separa una piel de
+   un mundo, y es lo que se vende: un recolor te cambia la luz; un mundo te
+   cambia hasta cómo se llama lo que llevas recorrido.
+
+   Los NIVELES de entrada no se tocan nunca, y es a propósito: si cada mundo
+   moviera los peldaños, dos personas con el mismo nivel estarían en sitios
+   distintos de la escalera. Una sola escalera, muchos vocabularios.
+
+   Ningún mundo está construido todavía —esto es solo el catálogo—, así que hoy
+   `rangosDeApariencia()` devuelve null y manda la casa. Los dibujos de los
+   rangos viajan con su mundo y no con la app: meter en ICONS los cinco rangos
+   de quince mundos serían setenta y cinco dibujos que se baja todo el mundo
+   para no usar ninguno. */
+const MUNDOS = [
+  {
+    id: "arboleda", nombre: "Arboleda",
+    /* Los cinco que se habían dibujado para la app y que Eduardo movió aquí:
+       de la tierra al cielo, que es lo que hace que cada uno se le ocurra solo
+       al anterior. En un bosque no eres un nodo de una red: eres lo que crece. */
+    rangos: [
+      { nombre: "Semilla", trazo: '<path d="M12 3.4c4 3.4 6.3 7 6.3 10.6 0 3.8-2.8 6.8-6.3 6.8s-6.3-3-6.3-6.8c0-3.6 2.3-7.2 6.3-10.6z"/><path d="M12 9.4v8.4"/>' },
+      { nombre: "Brote",   trazo: '<path d="M12 20.6v-8"/><path d="M12 15.4c-3.6 0-6-2.3-6-5.8 3.9-.4 6 2.2 6 5.8z"/><path d="M12 13.2c0-3.7 2.4-6.2 6.2-5.9 0 3.6-2.5 5.9-6.2 5.9z"/><path d="M6 20.6h12"/>' },
+      { nombre: "Refugio", trazo: '<path d="M12 4.6L2.8 19.6h18.4z"/><path d="M12 4.6L8.4 19.6 12 15.2l3.6 4.4z"/>' },
+      { nombre: "Cima",    trazo: '<path d="M3 19.2l7-11.2 4 5.7 2.2-2.9 5.8 8.4z"/><path d="M10 8V3.4"/><path d="M10 3.9l4.4 1.5L10 7z"/>' },
+      { nombre: "Norte",   trazo: '<path d="M12 2.6l2.5 6.9 6.9 2.5-6.9 2.5-2.5 6.9-2.5-6.9L2.6 12l6.9-2.5z"/>' }
+    ]
+  },
+  /* Los nombres de estos cuatro están decididos; sus dibujos se hacen cuando
+     se construya cada mundo, con el resto de sus vectores. Escribirlos ahora
+     sin dibujo no es una promesa a medias: mientras el mundo no exista, esta
+     lista no la lee nadie. */
+  { id: "averno",   nombre: "Averno",
+    rangos: ["Ceniza", "Chispa", "Brasa", "Llama", "Hoguera"].map(n => ({ nombre: n })) },
+  { id: "plano",    nombre: "Blueprint",
+    rangos: ["Boceto", "Trazo", "Plano", "Corte", "Obra"].map(n => ({ nombre: n })) },
+  { id: "consola",  nombre: "Consola",
+    rangos: ["Bit", "Byte", "Proceso", "Núcleo", "Sistema"].map(n => ({ nombre: n })) },
+  { id: "reliquia", nombre: "Reliquia",
+    rangos: ["Hallazgo", "Pieza", "Colección", "Sala", "Legado"].map(n => ({ nombre: n })) }
+];
+
+function mundoPorId(id) {
+  return MUNDOS.filter(m => m.id === id)[0] || null;
+}
+
+/* Lo que `js/02b-expedicion.js` pregunta antes de dibujar un rango. Devuelve
+   null cuando la apariencia puesta es la casa o un ambiente — **un ambiente
+   NUNCA renombra los rangos**: cambia la luz, no el vocabulario. */
+function rangosDeApariencia() {
+  const m = mundoPorId(apariencia());
+  return m ? m.rangos : null;
+}
+
 function ambientePorId(id) {
   return AMBIENTES.filter((a) => a.id === id)[0] || null;
 }

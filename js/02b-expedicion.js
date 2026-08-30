@@ -256,10 +256,35 @@ function nivelExpedicion(puntos) {
 
 /* El rango que te toca: el último cuyo nivel de entrada ya pasaste. Antes del
    nivel 1 no hay rango, y no se inventa uno: la barra tampoco se enseña. */
+/* ---- Los rangos que tocan HOY ----
+   Los cinco de arriba son los de la casa y no se tocan. Pero un mundo puede
+   traer los suyos, y esa es la decisión de Eduardo del 30 de agosto: un mundo
+   no solo cambia de qué está hecha la app — **te renombra el camino**. En
+   Arboleda no eres Nodo, eres Semilla; y el que llega arriba no es Red, es
+   Norte.
+
+   Es lo que separa una piel de un mundo, y es lo que se vende: un recolor te
+   cambia la luz, un mundo te cambia hasta cómo se llama lo que llevas
+   recorrido.
+
+   Cambian el NOMBRE y el DIBUJO. **Los niveles de entrada no**, y eso es a
+   propósito: si cada mundo moviera los peldaños, dos personas con el mismo
+   nivel estarían en sitios distintos de la escalera y la escalera dejaría de
+   significar nada. Una sola escalera, muchos vocabularios. */
+function rangosVigentes() {
+  if (typeof rangosDeApariencia === "function") {
+    const propios = rangosDeApariencia();
+    if (propios && propios.length === EXP_RANGOS.length) {
+      return EXP_RANGOS.map((r, i) => Object.assign({}, r, propios[i]));
+    }
+  }
+  return EXP_RANGOS;
+}
+
 function rangoExpedicion(nivel) {
   const n = typeof nivel === "number" ? nivel : nivelExpedicion().nivel;
   let cual = null;
-  for (const r of EXP_RANGOS) if (n >= r.desde) cual = r;
+  for (const r of rangosVigentes()) if (n >= r.desde) cual = r;
   return cual;
 }
 
@@ -302,7 +327,11 @@ function insigniaExpedicionHTML(diam) {
     ' title="Nivel ' + info.nivel + ' · ' + r.nombre + ' · ' + info.pct + '% del nivel"' +
     ' aria-label="Nivel ' + info.nivel + ', rango ' + r.nombre + '">' +
     ring(d, grosor, [{ pct: info.pct / 100, color: "var(--mint)" }], "var(--carril)") +
-    '<span class="exp-emb">' + icon(r.icon, dibujo) + '</span>' +
+    /* Un rango de la casa nombra un icono de ICONS; uno de mundo trae su
+       trazo entero, porque sus dibujos viajan con el mundo y no con la app —
+       meter en ICONS los cinco rangos de quince mundos serían setenta y cinco
+       dibujos que baja todo el mundo para no usar ninguno. */
+    '<span class="exp-emb">' + (r.trazo ? svgDeTrazo(r.trazo, dibujo) : icon(r.icon, dibujo)) + '</span>' +
     '</span>';
 }
 
@@ -310,4 +339,11 @@ function insigniaExpedicionHTML(diam) {
 function desbloqueosDeExpedicion(nivel) {
   const n = typeof nivel === "number" ? nivel : nivelExpedicion().nivel;
   return escaleraDeExpedicion().filter(x => x.nivel <= n);
+}
+
+/* El mismo envoltorio que `icon()`, para un trazo que no vive en ICONS. */
+function svgDeTrazo(d, tam) {
+  return '<svg width="' + tam + '" height="' + tam + '" viewBox="0 0 24 24" fill="none" ' +
+    'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" ' +
+    'stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
 }

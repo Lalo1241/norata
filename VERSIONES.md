@@ -52,91 +52,119 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.44 · 30 ago 2026
+Un mundo te renombra el camino. Los cinco rangos de la casa siguen siendo los de
+la casa; **un mundo trae los suyos**, con sus nombres y sus dibujos.
+
+Es la decisión que cierra un choque de dos sesiones y, de paso, la que separa
+una piel de un mundo: un recolor te cambia la luz — un mundo te cambia hasta
+cómo se llama lo que llevas recorrido. En Arboleda no eres Nodo: eres Semilla,
+y el que llega arriba no es Red, es Norte.
+
+**Lo que cambia es el nombre y el dibujo. Los niveles de entrada no**, y eso es
+a propósito: si cada mundo moviera los peldaños, dos personas con el mismo
+nivel estarían en sitios distintos de la escalera y la escalera dejaría de
+significar nada. Una sola escalera, muchos vocabularios.
+
+| | 1 | 4 | 10 | 18 | 28 |
+| --- | --- | --- | --- | --- | --- |
+| **La casa** | Nodo | Enlace | Rama | Trama | Red |
+| **Arboleda** | Semilla | Brote | Refugio | Cima | Norte |
+| **Averno** | Ceniza | Chispa | Brasa | Llama | Hoguera |
+| **Blueprint** | Boceto | Trazo | Plano | Corte | Obra |
+| **Consola** | Bit | Byte | Proceso | Núcleo | Sistema |
+| **Reliquia** | Hallazgo | Pieza | Colección | Sala | Legado |
+
+Arboleda estrena los cinco dibujos que se habían hecho para la app y que ahora
+viven donde tienen sentido. Los otros cuatro tienen nombre y tendrán dibujo el
+día que se construya cada mundo, con el resto de sus vectores.
+
+**Un ambiente NUNCA renombra los rangos**: cambia la luz, no el vocabulario.
+Eso es exactamente lo que separa un ambiente de un mundo.
+
+### Dónde vive cada cosa
+
+Los dibujos de los rangos **viajan con su mundo y no con la app**. Meter en
+`ICONS` los cinco rangos de quince mundos serían setenta y cinco dibujos que se
+baja todo el mundo para no usar ninguno. Por eso un rango de mundo trae su
+trazo entero y uno de la casa nombra un icono de `ICONS`; `insigniaExpedicionHTML`
+sabe dibujar los dos.
+
+### La reconciliación de dos sesiones
+
+Esto sale de un choque que conviene tener escrito, porque volverá a pasar.
+
+**Había dos motores de nivel.** Mientras esta rama escribía
+`js/10j-expedicion.js`, la otra sesión publicaba `js/02b-expedicion.js`: los
+dos contaban lo mismo, con los mismos pesos y la misma curva, y hasta con la
+misma cita de `js/10-fusion.js` para justificar que los puntos se cuentan y no
+se guardan. Dos personas llegando por su cuenta a la misma conclusión es buena
+señal del diseño y pésima del proceso.
+
+Se queda `02b`, y no solo por llegar antes: **su semana es la de la app**.
+`expSemanaDe` usa `weekdayOfKey` —domingo, igual que la tira de la racha—; el
+otro contaba semanas desde la época, y dos formas de contar la semana en la
+misma app se notan en cuanto alguien compara.
+
+**Y no era solo duplicación: era un fallo de arranque.** Los dos declaraban
+`const EXP_PUNTOS` y `const EXP_RAMPA` en el ámbito global. Dos `const` con el
+mismo nombre en el mismo ámbito es un SyntaxError, así que con los dos cargados
+**la app entera dejaba de arrancar**. La regla que sale de aquí: antes de crear
+un archivo de motor, buscar si ya existe uno.
+
+**También había dos tarjetas de expedición en el Resumen.** Se queda la de la
+otra sesión, que es mejor —lleva la insignia dentro y va al lado de «Niveles»,
+que son primos—. Lo único que se le añade es el destino: Ajustes → Apariencia,
+que no existía cuando ellos la escribieron y ahora sí. La colección, que sería
+el destino ideal, sigue sin existir y no se inventa.
+
+**Un peldaño no puede tener dos verdades.** La escalera de `02b` decía «un
+ambiente nuevo en el nivel 8» mientras el catálogo abría Adobe en el 7. Su
+propio comentario ya lo preveía —«los ambientes de verdad los define el
+catálogo cuando exista»—, así que la escalera se arma al vuelo juntando sus
+rangos y celebraciones con los ambientes del catálogo. Al vuelo y no en la
+constante porque `02b` carga **antes** que el catálogo.
+
+Y con eso los ambientes dejan de estar apagados: `APARIENCIA_PUBLICA` pasa a
+`true` y la pantalla de Apariencia es de todos. Las dos puertas de un ambiente,
+en este orden: primero el **nivel**, que es lo que se gana, y después el
+**plan**, que es lo que se paga. A quien todavía no llega al nivel no se le
+ofrece pagar, se le dice cuánto le falta — cobrar por saltarse la escalera es
+justo lo que rompería la escalera.
+
 ### 0.7.43 · 30 ago 2026
-Las apariencias se enganchan al nivel de cuenta, y los ambientes dejan de estar
-apagados: la pantalla de Apariencia es de todos.
+**La tarjeta de expedición en el Resumen.** Una más del tablero, con las mismas
+reglas que las otras siete: se mueve, se quita y se puede volver a poner.
 
-**Y esta versión es, sobre todo, la reconciliación de dos sesiones que
-construyeron lo mismo sin verse.** Vale la pena que quede escrito, porque
-volverá a pasar.
+Lleva tres cosas y en este orden: la insignia con el número del nivel, los
+puntos que faltan para el siguiente, y —lo único que la hace útil— **el próximo
+desbloqueo con lo que falta escrito al lado**. Un premio sorpresa no mueve a
+nadie; uno que se ve venir, sí. Los de Pro salen igual, con su etiqueta: a la
+vista y deseables, nunca escondidos.
 
-### Había dos motores de nivel, y uno tenía que irse
+**No lleva `onclick`.** El sitio al que debe llevar es la colección, que
+todavía no existe, y antes de inventarle un destino se queda sin ninguno — con
+`cursor: default`, para que no finja ser un botón.
 
-Mientras esta rama construía `js/10j-expedicion.js`, otra sesión publicaba
-`js/02b-expedicion.js` en `main`. **Los dos contaban lo mismo, con los mismos
-pesos y la misma curva**, hasta con la misma cita de `js/10-fusion.js` para
-justificar que los puntos se cuentan y no se guardan. Dos personas llegando a
-la misma conclusión por su cuenta es buena señal del diseño y pésima del
-proceso.
+Dada de alta donde había que darla: el registro, el suelo de altura, el orden
+de fábrica y **los doce acomodos** —tres por cada forma de ventana, aunque los
+del teléfono solo llevan orden porque en una columna no hay anchos que repartir—.
+Se hizo con un guion a propósito: a mano se olvida uno, y ese fallo no se ve
+hasta que alguien aplica justo ese acomodo y su tarjeta se va al fondo.
 
-Se queda **`02b-expedicion.js`**, que es el que ya estaba publicado, y por un
-motivo técnico además del cronológico: **su semana es la de la app**.
-`expSemanaDe` usa `weekdayOfKey` —domingo, igual que la tira de la racha—;
-la de aquí contaba semanas desde la época, y dos formas de contar la semana en
-la misma app se notan en cuanto alguien compara. El de esta rama se borra
-entero.
+**Y un fallo cazado midiendo, que no venía de esta tanda pero lo destapó.**
+Una tarjeta sin sitio guardado —cualquiera que se añada a la app después de que
+alguien haya acomodado su tablero— caía en la esquina de arriba y empujaba
+todo lo demás hacia abajo, justo lo que promete no hacer el comentario de
+`dashLayout`: «nadie ve su tablero cambiar al actualizar». Ahora se coloca en
+la primera fila libre por debajo de lo que ya tiene sitio.
 
-**Y no era solo una duplicación, era un fallo de arranque esperando:** los dos
-archivos declaraban `const EXP_PUNTOS` y `const EXP_RAMPA` en el ámbito global.
-Dos `const` con el mismo nombre en el mismo ámbito es un SyntaxError, y con los
-dos cargados **la app entera dejaba de arrancar**. La regla que sale de aquí:
-antes de crear un archivo de motor, buscar si ya existe uno.
-
-### Un peldaño no puede tener dos verdades
-
-La escalera de `02b` decía «un ambiente nuevo en el nivel 8» y el catálogo
-`AMBIENTES` abría Adobe en el 7. Su propio comentario ya lo había previsto —
-«los ambientes de verdad los define el catálogo cuando exista»—, así que se
-hizo lo que pedía: la escalera se arma al vuelo juntando sus rangos y
-celebraciones con los ambientes del catálogo.
-
-Al vuelo y no en la constante porque `02b` carga **antes** que el catálogo:
-leerlo al declarar la lista daría `undefined`.
-
-Ahora la escalera se lee entera y con nombres de verdad: Nodo · Destello ·
-Musgo · Enlace · Marea (Pro) · Escena de racha · Adobe · Rama · Escarcha (Pro)
-· Pantalla completa (Pro) · Trama · Duna · Red.
-
-### La tarjeta del Resumen, que no repite la insignia
-
-La otra sesión puso la insignia del rango en la fila de la cuenta: dice **qué
-eres**. Esta tarjeta dice **cuánto falta y para qué**, con el próximo
-desbloqueo escrito antes de llegar. Enseñar dos veces lo mismo en la misma
-pantalla es lo que hace que se deje de mirar.
-
-**Y un widget nuevo hay que darlo de alta en `DASH_META` además de en
-`DASH_DEFAULT`.** Sin esa entrada `dashSize` revienta leyendo
-`DASH_META[id].w` y deja de dibujarse **el tablero entero**, no la tarjeta
-nueva. Costó una pantalla en blanco descubrirlo.
-
-### Las dos puertas de un ambiente, y su orden
-
-Primero el **nivel**, que es lo que se gana; después el **plan**, que es lo que
-se paga. El orden importa por lo que se le dice a la persona: a quien todavía
-no llega al nivel no se le ofrece pagar, se le dice cuánto le falta. Cobrar por
-saltarse la escalera es justo lo que rompería la escalera.
-
-`APARIENCIA_PUBLICA` pasa a `true`. El parámetro `?apariencia=` sigue vivo para
-probar un ambiente sin quedárselo.
-
-### Lo que queda sin decidir, y no lo decide el código
-
-Las dos sesiones dibujaron **rangos distintos**, y las dos versiones son
-defendibles:
-
-| | En `main` | En esta rama |
-| --- | --- | --- |
-| Nombres | Nodo · Enlace · Rama · Trama · Red | Semilla · Brote · Refugio · Cima · Norte |
-| Niveles | 1 · 4 · 10 · 18 · 28 | 1 · 3 · 7 · 12 · 20 |
-| Idea | una red que crece | un camino de la tierra al cielo |
-| Ambiente | sueltos | cada rango trae el suyo |
-
-Se quedan **los de `main`**, que son los que están publicados y los que tienen
-icono dibujado. Queda anotado que con esto **se rompe el emparejamiento** que
-se había aprobado —cada rango con su ambiente—: Brote llega en el 4 y Musgo en
-el 3, Rama en el 10 y Adobe en el 7. Los dos sistemas conviven bien, pero ya no
-son cinco capítulos: son dos escaleras entrelazadas. Es de Eduardo decidir si
-se vuelven a alinear.
+El primer intento de eso fue peor y también se midió: con un centinela de
+`f: 9999`, el buscador de hueco encontraba esa fila libre y dejaba la tarjeta
+**en la fila 9999 de la cuadrícula**, con 800.000 px de vacío detrás que sí se
+podían recorrer. La cuenta buena es el fondo de verdad: `fila + alto` de la
+tarjeta más baja. Comprobado sobre un tablero ya acomodado: la nueva cae en la
+fila 17, ninguna de las otras se mueve, y el tablero mide 1.576 px.
 
 ### 0.7.42 · 30 ago 2026
 **El nivel ya se ve.** La insignia del rango aparece en la fila de la cuenta

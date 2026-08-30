@@ -238,42 +238,6 @@ function renderSummary() {
       </div>`;
     },
 
-    /* ---- La expedición ----
-       La única cifra de la app que habla de TI y no de una habilidad suelta.
-       El motor es `js/02b-expedicion.js`; esta tarjeta solo pregunta.
-
-       Lo que la hace servir para algo no es el número: es **el próximo
-       desbloqueo escrito antes de llegar**. Un premio sorpresa no mueve a
-       nadie; uno que se ve venir, sí — por eso la línea de abajo es la parte
-       importante y no un adorno.
-
-       Y no repite la insignia de la fila de la cuenta: allí se dice QUÉ ERES
-       —el rango, con su aro— y aquí CUÁNTO FALTA y para qué. Enseñar dos
-       veces lo mismo en la misma pantalla es lo que hace que se deje de mirar.
-
-       Lleva a Ajustes → Apariencia, que es donde se recoge lo que se abre. */
-    expedicion: () => {
-      if (typeof nivelExpedicion !== "function") return "";
-      const e = nivelExpedicion();
-      const r = typeof rangoExpedicion === "function" ? rangoExpedicion(e.nivel) : null;
-      const sig = typeof proximoDesbloqueo === "function" ? proximoDesbloqueo(e.nivel) : null;
-      return `
-      <button class="sum-card a" onclick="abrirApariencia()" style="width:100%">
-        ${icon("compass", 22)}
-        <div class="n">${e.nivel}</div>
-        <div class="t">${r ? escapeHtml(r.nombre) : "tu expedición"}</div>
-        <div class="sc-rows">
-          <div><b>${fmtXp(e.puntos)}</b><span>PUNTOS</span></div>
-          <div><b>${e.faltan}</b><span>PARA SUBIR</span></div>
-        </div>
-        ${sig ? `<div class="sc-near">
-          <span>En el nivel ${sig.nivel}${sig.pro ? " · con Pro" : ""}</span>
-          <b>${escapeHtml(sig.nombre)}</b>
-          <i style="--p:${e.pct}%"></i>
-        </div>` : ""}
-      </button>`;
-    },
-
     niveles: () => {
       const totalXp = skills.reduce((a, s) => a + (s.xp || 0), 0);
       // La habilidad más cerca de subir: es lo único accionable de la tarjeta
@@ -308,6 +272,45 @@ function renderSummary() {
           <span>A ${cerca.falta} XP del nivel ${cerca.nivel}</span>
           <b>${escapeHtml(cerca.s.name)}</b>
           <i style="--p:${cerca.pct}%;${tonos("c", cerca.s.color)}"></i>
+        </div>` : ""}
+      </button>`;
+    },
+
+    /* La expedición: el nivel de la CUENTA, que no es el de ninguna habilidad.
+       Va al lado de "Niveles" a propósito —son primos y conviene que se lean
+       juntos— pero dicen cosas distintas: aquella suma lo que practicas, esta
+       cuenta lo que has recorrido en la app entera.
+
+       Lo que la hace útil no es la cifra, es la última línea: **el próximo
+       desbloqueo, con lo que falta escrito**. Un premio sorpresa no mueve a
+       nadie; uno que se ve venir, sí. Y los de Pro salen igual, con su
+       etiqueta: a la vista y deseables, nunca escondidos.
+
+       Y sí lleva destino desde 0.7.43: Ajustes → Apariencia, que es donde se
+       recoge lo que se abre. La tarjeta anuncia un premio, y sin destino no
+       diría dónde se recoge. La colección —que sería el destino ideal— sigue
+       sin existir y no se inventa. */
+    expedicion: () => {
+      const info = nivelExpedicion();
+      const r = rangoExpedicion(info.nivel);
+      const prox = proximoDesbloqueo(info.nivel);
+      const faltan = prox ? prox.nivel - info.nivel : 0;
+      return `
+      <button class="sum-card a" onclick="abrirApariencia()" style="width:100%;text-align:left">
+        <div class="exp-cab">
+          ${insigniaExpedicionHTML(38) || `<span class="ic">${icon("compass", 22)}</span>`}
+          <div class="exp-cifra">
+            <div class="n">${info.nivel}</div>
+            <div class="t">de expedición${r ? " · " + escapeHtml(r.nombre) : ""}</div>
+          </div>
+        </div>
+        <div class="sc-rows">
+          <div><b>${info.faltan}</b><span>PUNTOS PARA EL ${info.nivel + 1}</span></div>
+        </div>
+        ${prox ? `<div class="sc-near">
+          <span>${faltan === 1 ? "En el siguiente nivel" : "A " + faltan + " niveles"}${prox.pro ? " · con Pro" : ""}</span>
+          <b>${escapeHtml(prox.nombre)}</b>
+          <i style="--p:${info.pct}%"></i>
         </div>` : ""}
       </button>`;
     },
@@ -449,19 +452,18 @@ function renderSummary() {
 const DASH_META = {
   /* Más alta desde que lleva el mes debajo de la semana (0.7.33). */
   racha:     { title: "Racha", w: 2, h: 8 },
-  /* La expedición va del ancho de una columna y baja: es una cifra con una
-     línea debajo, no una lista. Sin esta entrada `dashSize` reventaba al
-     leer `DASH_META[id].w` — un widget nuevo hay que darlo de alta AQUÍ
-     además de en DASH_DEFAULT, o el tablero entero deja de dibujarse. */
-  expedicion:{ title: "Expedición", w: 1, h: 3 },
   misiones:  { title: "Misiones de hoy", w: 1, h: 8 },
   atencion:  { title: "Atención hoy", w: 1, h: 3 },
   niveles:   { title: "Niveles", w: 1, h: 3 },
+  /* El nivel de la CUENTA. Una fila más alta que sus vecinas porque lleva
+     tres cosas y no dos: la cifra con su insignia, los puntos que faltan y
+     el próximo desbloqueo. */
+  expedicion: { title: "Expedición", w: 1, h: 4 },
   invertido: { title: "Invertido", w: 1, h: 3 },
   proyectos: { title: "Proyectos", w: 1, h: 3 },
   listos:    { title: "Listos para empezar", w: 1, h: 4 }
 };
-const DASH_DEFAULT = ["racha", "expedicion", "misiones", "atencion", "niveles", "invertido", "proyectos", "listos"];
+const DASH_DEFAULT = ["racha", "misiones", "atencion", "expedicion", "niveles", "invertido", "proyectos", "listos"];
 /* Qué módulo alimenta cada tarjeta del tablero. "racha" y "atencion" no
    aparecen porque se nutren de todo y siguen teniendo sentido con
    cualquier combinación encendida. */
@@ -480,7 +482,7 @@ const ROW_PITCH = ROW_H + ROW_GAP_V;
    —"Listos para empezar" es una lista y necesita cuatro; "Proyectos" es un
    dato suelto y se apaña con dos—. El techo sigue siendo el mismo para
    todas: encoger estropea, agrandar no. */
-const DASH_MIN_H = { racha: 5, expedicion: 3, misiones: 3, atencion: 2, niveles: 3, invertido: 3, proyectos: 2, listos: 4 };
+const DASH_MIN_H = { racha: 5, misiones: 3, atencion: 2, expedicion: 3, niveles: 3, invertido: 3, proyectos: 2, listos: 4 };
 /* Techo generoso: son 40 filas de la cuadrícula, más de dos pantallas de
    alto. Existe solo para que un tirón desbocado del asa no deje una tarjeta
    de mil filas imposible de volver a encoger. */
@@ -529,14 +531,14 @@ const DASH_ACOMODOS = [
   {
     nombre: "Columnas",
     sub: "Tres columnas parejas, las misiones al centro",
-    order: ["atencion", "misiones", "racha", "expedicion", "proyectos", "niveles", "listos", "invertido"],
+    order: ["atencion", "misiones", "racha", "proyectos", "expedicion", "niveles", "listos", "invertido"],
     sizes: {
       /* Misiones va deliberadamente más alta de lo que su contenido pide: es
          lo que mantiene ocupada la columna del centro y obliga a "Invertido"
          a caer en la tercera. Con la altura justa, el reparto automático lo
          mete debajo de Misiones y la tercera columna queda coja. */
       atencion: { w: 1, h: 3 }, misiones: { w: 1, h: 12 }, racha: { w: 1, h: 5 },
-      proyectos: { w: 1, h: 3 }, niveles: { w: 1, h: 3 }, listos: { w: 1, h: 5 },
+      proyectos: { w: 1, h: 3 }, niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 5 },
       invertido: { w: 1, h: 3 }
     }
   },
@@ -546,20 +548,20 @@ const DASH_ACOMODOS = [
     /* El orden importa más que los tamaños: "Listos" tiene que ir DESPUÉS de
        Atención y Niveles para que caiga bajo Misiones y no se cuele en la
        columna del medio. */
-    order: ["misiones", "racha", "expedicion", "atencion", "niveles", "listos", "proyectos", "invertido"],
+    order: ["misiones", "racha", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
     sizes: {
       misiones: { w: 1, h: 8 }, racha: { w: 2, h: 6 }, listos: { w: 1, h: 5 },
-      atencion: { w: 1, h: 4 }, niveles: { w: 1, h: 4 },
+      atencion: { w: 1, h: 4 }, niveles: { w: 1, h: 4 }, expedicion: { w: 1, h: 5 },
       proyectos: { w: 1, h: 4 }, invertido: { w: 1, h: 4 }
     }
   },
   {
     nombre: "Mirador",
     sub: "La escena grande, presidiendo el tablero",
-    order: ["racha", "expedicion", "misiones", "atencion", "niveles", "listos", "proyectos", "invertido"],
+    order: ["racha", "misiones", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
     sizes: {
       racha: { w: 2, h: 7 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 4 },
-      niveles: { w: 1, h: 4 }, listos: { w: 1, h: 5 },
+      niveles: { w: 1, h: 4 }, expedicion: { w: 1, h: 5 }, listos: { w: 1, h: 5 },
       proyectos: { w: 1, h: 4 }, invertido: { w: 1, h: 4 }
     }
   }
@@ -587,10 +589,10 @@ const DASH_ACOMODOS_LAPTOP = [
   {
     nombre: "Columnas",
     sub: "Las dos columnas parejas, y el día arriba",
-    order: ["misiones", "racha", "expedicion", "atencion", "niveles", "listos", "proyectos", "invertido"],
+    order: ["misiones", "racha", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
     sizes: {
       misiones: { w: 1, h: 7 }, racha: { w: 1, h: 5 }, atencion: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, listos: { w: 1, h: 4 },
+      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 4 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
   },
@@ -601,20 +603,20 @@ const DASH_ACOMODOS_LAPTOP = [
        ocupa seis filas de las DOS columnas y deja el resto para las otras
        seis tarjetas. Es un intercambio, no un descuido — se paga alto para
        ver el mes grande, que es de lo que va este acomodo. */
-    order: ["racha", "expedicion", "misiones", "atencion", "niveles", "listos", "proyectos", "invertido"],
+    order: ["racha", "misiones", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
     sizes: {
       racha: { w: 2, h: 6 }, misiones: { w: 1, h: 7 }, atencion: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, listos: { w: 1, h: 4 },
+      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 4 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
   },
   {
     nombre: "Mirador",
     sub: "Proyectos y talentos al frente; el día, después",
-    order: ["listos", "proyectos", "invertido", "niveles", "misiones", "racha", "expedicion", "atencion"],
+    order: ["listos", "proyectos", "invertido", "expedicion", "niveles", "misiones", "racha", "atencion"],
     sizes: {
       listos: { w: 1, h: 4 }, proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, misiones: { w: 1, h: 7 }, racha: { w: 1, h: 5 },
+      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, misiones: { w: 1, h: 7 }, racha: { w: 1, h: 5 },
       atencion: { w: 1, h: 3 }
     }
   }
@@ -646,9 +648,9 @@ const DASH_ACOMODOS_TABLETA = [
        quita el aire que no necesita, que es su trabajo—. Una fila de 56 px
        en un tablero de diecinueve es un precio honesto por tener el mes
        entero a lo ancho. */
-    order: ["misiones", "atencion", "niveles", "racha", "expedicion", "listos", "proyectos", "invertido"],
+    order: ["misiones", "atencion", "expedicion", "niveles", "racha", "listos", "proyectos", "invertido"],
     sizes: {
-      misiones: { w: 1, h: 7 }, atencion: { w: 1, h: 3 }, niveles: { w: 1, h: 3 },
+      misiones: { w: 1, h: 7 }, atencion: { w: 1, h: 3 }, niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 },
       racha: { w: 2, h: 6 }, listos: { w: 1, h: 5 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
@@ -656,10 +658,10 @@ const DASH_ACOMODOS_TABLETA = [
   {
     nombre: "Panorama",
     sub: "El mes preside, y debajo lo que lo llena",
-    order: ["racha", "expedicion", "misiones", "atencion", "niveles", "listos", "proyectos", "invertido"],
+    order: ["racha", "misiones", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
     sizes: {
       racha: { w: 2, h: 6 }, misiones: { w: 1, h: 7 }, atencion: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, listos: { w: 1, h: 5 },
+      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 5 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
   },
@@ -676,10 +678,10 @@ const DASH_ACOMODOS_TABLETA = [
        la racha al final se sentaba en la columna izquierda y dejaba cinco
        filas vacías en la derecha; poniéndola aquí cae en la derecha y
        "Misiones" ocupa las que quedaban. Dos filas menos de tablero. */
-    order: ["listos", "proyectos", "invertido", "niveles", "racha", "expedicion", "misiones", "atencion"],
+    order: ["listos", "proyectos", "invertido", "expedicion", "niveles", "racha", "misiones", "atencion"],
     sizes: {
       listos: { w: 1, h: 5 }, proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, racha: { w: 1, h: 7 }, misiones: { w: 1, h: 7 },
+      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, racha: { w: 1, h: 7 }, misiones: { w: 1, h: 7 },
       atencion: { w: 1, h: 3 }
     }
   }
@@ -698,12 +700,12 @@ const DASH_ACOMODOS_MOVIL = [
   {
     nombre: "El día",
     sub: "Lo de hoy primero: misiones, racha y lo que urge",
-    order: ["misiones", "racha", "expedicion", "atencion", "proyectos", "niveles", "invertido", "listos"]
+    order: ["misiones", "racha", "atencion", "proyectos", "expedicion", "niveles", "invertido", "listos"]
   },
   {
     nombre: "Constancia",
     sub: "La racha arriba, y debajo lo que la alimenta",
-    order: ["racha", "expedicion", "misiones", "niveles", "atencion", "listos", "invertido", "proyectos"]
+    order: ["racha", "misiones", "expedicion", "niveles", "atencion", "listos", "invertido", "proyectos"]
   },
   {
     nombre: "Lo que construyo",
@@ -1007,9 +1009,21 @@ function disposicionTablero(ids, cols, extra) {
   const { pos, sizes, order, hidden } = dashLayout();
   // Las escondidas no ocupan sitio en el reparto de estreno
   const base = pos || empaquetar(order.filter(id => !hidden.includes(id)), sizes, cols);
+  /* La primera fila libre por debajo de todo lo que YA tiene sitio. Es dónde
+     va a parar una tarjeta que no existía cuando esta persona acomodó su
+     tablero: al fondo, sin tocar nada de lo suyo.
+
+     Y es una fila de verdad, no un número gordo de centinela: con `f: 9999` la
+     tarjeta se plantaba en la fila 9999 de la cuadrícula —el buscador de hueco
+     la encontraba libre y la dejaba ahí— y el tablero se llevaba detrás
+     800.000 px de vacío que sí se podían recorrer. */
+  const fondo = Object.keys(base).reduce((max, id) => {
+    const p = base[id], s = dashSize(id);
+    return p ? Math.max(max, (p.f || 0) + (s ? s.h : 1)) : max;
+  }, 0);
   const piezas = ids.map(id => {
     const s = dashSize(id);
-    const p = (extra && extra[id]) || base[id] || { c: 0, f: 0 };
+    const p = (extra && extra[id]) || base[id] || { c: 0, f: fondo };
     return { id, w: Math.min(s.w, cols), h: s.h, c: clamp(p.c, 0, Math.max(0, cols - Math.min(s.w, cols))), f: Math.max(0, p.f) };
   });
   piezas.sort((a, b) => (a.f - b.f) || (a.c - b.c));
