@@ -52,6 +52,46 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.39.3 · 30 ago 2026
+Dos retoques en las dos primeras pantallas que ve alguien que llega: el cartel
+vacío del Resumen deja de ofrecer tres caminos iguales, y las áreas del
+asistente enseñan lo que traen dentro.
+
+**«Empezar de cero» baja a enlace.** Eran tres botones del mismo peso en la
+pantalla más vacía de la app, y el tercero es justo el que se salta lo único
+que ahí enseña algo. No se quita —hay quien no quiere asistentes, y quitarlo
+obligaría a pasar por un asistente que crea hasta doce habilidades a quien
+venía por un hábito— pero pasa a pesar como lo que es: una salida, no una
+opción a la par.
+
+Eso obliga a recalcular el hueco que `.empty .stack` reserva en escritorio,
+que no es «tres botones» sino **el cartel más alto de las cinco pantallas**:
+existe para que la burbuja caiga al mismo píxel en Resumen, Misiones,
+Habilidades, Talentos y Proyectos. El Resumen sigue siendo el más alto, ahora
+con 46 + 48 + 20 + 20 = 134 en vez de 162, y el enlace va **dentro** del
+`stack` justo para entrar en esa cuenta. Medido: la burbuja cae a 272 px en
+las cinco.
+
+El enlace va en `--muted` y no en `--faint`, que sería el tono natural de lo
+secundario: sobre el fondo de la página `--faint` da 3,34 sobre 1 de noche y
+3,97 de día, las dos por debajo del 4,5 que pide un texto normal. Lo que lo
+baja de rango es que mide 13 px, va subrayado y está debajo de dos botones.
+
+**Las áreas pasan a tarjetas horizontales, y con eso dejan de ser una
+apuesta a ciegas.** Cada área ya sabía qué tres habilidades iba a crear —lo
+dice `ONBOARD_AREAS` desde siempre— y esa lista no se veía por ningún lado:
+elegir «Salud y cuerpo» y encontrarse tres líneas nuevas es una sorpresa, y
+leer «Ejercicio · Correr · Yoga» antes de tocarla es una decisión. La tarjeta
+ancha existe para que quepa esa línea; que además se vea mejor es la
+consecuencia, no el motivo.
+
+El icono va en una teja rellena del color del área, y encima **tinta oscura**
+(`--sobre-macizo`), que es oscura en los dos modos porque los ocho tonos del
+usuario son claros en los dos. Con `--oc-l` —el tono de escribir— el dibujo
+se perdía dentro de su propio color. Las columnas salen de `auto-fit` con un
+mínimo de 250 px: una por fila en el teléfono y dos desde 540, sin declarar el
+corte a mano.
+
 ### 0.7.39.2 · 30 ago 2026
 Dos retoques de la tanda anterior: los carteles de bienvenida suben un poco y
 el bicho de reportar fallos deja de deslizarse al aparecer.
