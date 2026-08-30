@@ -184,3 +184,29 @@ html.claro[data-apariencia="marea"] {
   --mint-macizo: #00d4bd;
   --aro-alto: #009083;
 }
+
+
+/* ---------- Las muestras de la pantalla de Ajustes ----------
+   Los mismos tonos de arriba, expuestos en una clase para poder pintar cada
+   ambiente EN PEQUEÑO sin ponérselo a la app entera. Salen del mismo sitio
+   que los de verdad, así que no pueden discrepar: el día que cambie un tono
+   cambian los dos.
+
+   Una muestra enseña TRES cosas —fondo, tarjeta y acento— y no un círculo de
+   color, porque un ambiente cambia tres cosas y un círculo solo enseña una.
+   Es la diferencia entre elegir un color y elegir cómo se va a ver la app. */
+
+.mues-casa { --mu-bg: #10151d; --mu-card: #1d2530; --mu-acento: #5fe0b0; }
+html.claro .mues-casa { --mu-bg: #dcdef0; --mu-card: #f2f0f9; --mu-acento: #00cc7f; }
+.mues-tinta { --mu-bg: #16181b; --mu-card: #23272c; --mu-acento: #f0ece2; }
+html.claro .mues-tinta { --mu-bg: #e7e9ee; --mu-card: #f7f9fc; --mu-acento: #16181b; }
+.mues-musgo { --mu-bg: #0d1611; --mu-card: #18241c; --mu-acento: #5fe0b0; }
+html.claro .mues-musgo { --mu-bg: #e8ebe6; --mu-card: #f4f7f3; --mu-acento: #00cc7f; }
+.mues-adobe { --mu-bg: #1b1512; --mu-card: #30231e; --mu-acento: #5fe0b0; }
+html.claro .mues-adobe { --mu-bg: #e3d4ca; --mu-card: #f4ebe4; --mu-acento: #00cc7f; }
+.mues-duna { --mu-bg: #1d1220; --mu-card: #36203a; --mu-acento: #5fe0b0; }
+html.claro .mues-duna { --mu-bg: #e0cbdb; --mu-card: #f4ecf2; --mu-acento: #00cc7f; }
+.mues-escarcha { --mu-bg: #0c141c; --mu-card: #18222d; --mu-acento: #8ecdf5; }
+html.claro .mues-escarcha { --mu-bg: #dcdef0; --mu-card: #f2f0f9; --mu-acento: #3ab0e0; }
+.mues-marea { --mu-bg: #04161c; --mu-card: #0d2c37; --mu-acento: #4fe0d0; }
+html.claro .mues-marea { --mu-bg: #d3e4e6; --mu-card: #ebf4f4; --mu-acento: #00d4bd; }

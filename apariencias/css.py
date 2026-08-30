@@ -52,8 +52,33 @@ def bloque(m):
         fuera.append("   el acento, y por eso su bloque de día está vacío de neutros. */")
     return "\n".join(fuera) + "\n"
 
+MUESTRAS = """
+/* ---------- Las muestras de la pantalla de Ajustes ----------
+   Los mismos tonos de arriba, expuestos en una clase para poder pintar cada
+   ambiente EN PEQUEÑO sin ponérselo a la app entera. Salen del mismo sitio
+   que los de verdad, así que no pueden discrepar: el día que cambie un tono
+   cambian los dos.
+
+   Una muestra enseña TRES cosas —fondo, tarjeta y acento— y no un círculo de
+   color, porque un ambiente cambia tres cosas y un círculo solo enseña una.
+   Es la diferencia entre elegir un color y elegir cómo se va a ver la app. */
+"""
+
+def muestra(m):
+    """El acento de un grado 1 es el de la casa: no lo mueve, así que la
+       muestra tiene que decir la verdad y enseñar la menta."""
+    def toma(dia):
+        casa = datos.CASA_DIA if dia else datos.CASA_NOCHE
+        tabla = m["dia"] if dia else m["noche"]
+        pon = lambda k: tabla.get(k, casa[k])
+        return (pon("--bg"), pon("--card"), pon("--mint-macizo"))
+    n = toma(False); d = toma(True)
+    return (f'.mues-{m["id"]} {{ --mu-bg: {n[0]}; --mu-card: {n[1]}; --mu-acento: {n[2]}; }}\n'
+            f'html.claro .mues-{m["id"]} {{ --mu-bg: {d[0]}; --mu-card: {d[1]}; --mu-acento: {d[2]}; }}')
+
 if __name__ == "__main__":
     partes = [CAB] + [bloque(m) for m in datos.AMBIENTES if m["grado"] > 0]
+    partes += [MUESTRAS] + [muestra(m) for m in datos.AMBIENTES]
     txt = "\n".join(partes)
     open(os.path.join(AQUI, "ambientes.css"), "w", encoding="utf-8").write(txt)
     print("ambientes.css", len(txt.encode()), "bytes ·",
