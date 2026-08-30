@@ -53,8 +53,8 @@ Cuatro sitios, y son cuatro a propósito:
 ## La lista
 
 ### 0.7.40 · 30 ago 2026
-El motor de las apariencias, apagado. Norata ya sabe ponerse otra piel; nadie
-la ve todavía.
+El motor de las apariencias y su pantalla, apagados. Norata ya sabe ponerse
+otra piel y ya tiene dónde elegirla; nadie la ve todavía.
 
 Es la primera pieza de lo que estaba diseñado y medido en `apariencias/` sin
 una sola línea de código: siete ambientes con sus tonos, y la máquina que los
@@ -77,16 +77,22 @@ aparte: cada ambiente tiene sus dos caras.
 ### Lo que cambió con la apariencia de casa puesta: nada
 
 Medido, que es lo que vale. La foto de los estilos calculados de las siete
-pantallas en los dos modos, antes y después: **25 848 elementos, y las únicas
-ocho propiedades que se movieron son el ancho del número de versión en
-Ajustes**, que pasó de `0.7.39.1` a `0.7.40` y es más corto.
+pantallas en los dos modos, antes y después: **25 846 elementos idénticos, cero
+huérfanos, y exactamente dos propiedades movidas: el ancho del número de
+versión en Ajustes**, que pasó de `0.7.39.1` a `0.7.40` y es más corto.
 
-Los otros 56 elementos que el diff señalaba resultaron ser contabilidad y no
-pintura: el arnés numera cada elemento por su sitio entre los hermanos, y
-meter un `<script>` en el cuerpo corre de índice a todos los que van detrás.
-Comparados uno a uno contra su nuevo número, los 56 salen **idénticos
-propiedad a propiedad**. Nuevos de verdad hay dos, y ninguno se ve: el
-`<link>` de la hoja y el `<script>` del motor.
+El resto de lo que el diff señalaba resultó ser contabilidad y no pintura: el
+arnés numera cada elemento por su sitio entre los hermanos, así que meter un
+`<script>` en el cuerpo y una `<section>` en Ajustes corre de índice a todos
+los que van detrás. Comparados contra su número nuevo salen idénticos.
+
+**Y ahí hubo una trampa que merece quedar escrita**, porque la primera versión
+de esa comparación decía que 274 propiedades habían cambiado. Emparejaba así:
+«usa la clave vieja, y si no existe, prueba la corrida». El problema es que la
+clave vieja **sí existe** en la foto nueva — apuntando a otra sección—, así
+que nunca llegaba a probar el desplazamiento y comparaba «Almacenamiento»
+contra «Administración». Donde algo se corre de sitio hay que usar la clave
+corrida SIEMPRE, no como respaldo.
 
 El control también se corrió, porque una prueba que no falla nunca no prueba
 nada: dos fotos del mismo código salen idénticas.
@@ -118,12 +124,41 @@ apariencia con letra ancha desborda el titular y no hay forma de rescatarla
 sin tocar reglas de la app — que es justo lo que una apariencia no puede
 hacer. La casa se queda en 1, así que hoy no mueve nada.
 
+### La pantalla, en Ajustes
+
+Una sección nueva, **Apariencia**, entre «Mis módulos» y «Mi almacenamiento».
+Dentro de Ajustes y no en una pantalla nueva ni en una pestaña de la barra:
+una tienda con su propio botón abajo es un mostrador en la recámara. Y la app
+ya tenía el sitio natural — el interruptor de sol y luna vive en el índice de
+Ajustes, y elegir ambiente es la misma familia de decisión.
+
+**El sol y la luna no se movieron.** Están dos centímetros más arriba en la
+misma pantalla, y sacarlos de su sitio para hacerle hueco a esto sería
+cobrarle el cambio a quien no viene a comprar.
+
+**Cada muestra es la app en pequeño** —fondo, tarjeta y acento— y no un
+círculo de color: un ambiente cambia tres cosas y un círculo enseña una. Los
+tonos de las muestras se generan de los mismos datos que los ambientes de
+verdad, así que no pueden discrepar el día que cambie uno.
+
+**Los que no tienes se ven enteros y apagados, con su nivel escrito al lado.**
+No tapados y no en gris: enseñar lo que se puede tener es la mitad de la razón
+para quererlo, y el nivel al lado es lo que convierte «no lo tienes» en «lo
+tendrás». Los de Pro dicen con qué plan vienen, y tocarlos contesta en vez de
+no hacer nada — un botón que no responde parece roto.
+
 ### Lo que este archivo NO hace
 
-No hay pantalla en Ajustes todavía, y ningún ambiente se puede ganar: el
-**nivel de expedición** no existe, así que un ambiente que se desbloquea no
-sabe cuándo se desbloqueó. La puerta está escrita en `AMBIENTES` con el nivel
-de cada uno; el día que exista la cifra, lo que cambia es una línea.
+Ningún ambiente se puede desbloquear: el **nivel de expedición** no existe,
+así que un ambiente que se desbloquea no sabe cuándo se desbloqueó. Por eso la
+sección entera va detrás de `?apariencia=` y no es de todos todavía — enseñar
+cinco premios que nadie puede ganarse los regala antes de que la escalera
+exista. La puerta está escrita en `AMBIENTES` con el nivel de cada uno, y el
+día que haya cifra se cambia `APARIENCIA_PUBLICA` a `true` y ya está.
+
+Tampoco hay **mundos** en la pantalla, y es a propósito: todavía no existe
+ninguno construido, y una lista de quince cosas que no se pueden encender es
+justo lo que la Tanda 1 está para quitar.
 
 Y los **mundos** no van en `ASSETS` y no deben ir: esa es la lista de la
 instalación, y meterlos le haría bajar más de un mega a quien no va a encender

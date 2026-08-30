@@ -780,6 +780,7 @@ const AJUSTES_SECS = [
   { id: "cuenta", nombre: "Mi perfil",         icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
   { id: "plan",   nombre: "Mi plan",           icon: "gem",     sub: "Tu plan, qué incluye y hasta cuándo va" },
   { id: "menu",   nombre: "Mis módulos",       icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
+  { id: "aspecto", nombre: "Apariencia",       icon: "brush",   sub: "Con qué luz se ve Norata" },
   { id: "datos",  nombre: "Mi almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" }
 ];
 
@@ -791,7 +792,14 @@ const AJUSTES_SECS = [
    una pantalla vacía, porque los números los da el servidor tras comprobar
    quién pregunta (ver `supabase/administracion.sql`). */
 function seccionesAjustes() {
-  const secs = AJUSTES_SECS.map(sec => Object.assign({}, sec));
+  let secs = AJUSTES_SECS.map(sec => Object.assign({}, sec));
+
+  /* Apariencia todavía no es de todos: mientras el nivel de expedición no
+     exista, ningún ambiente se puede desbloquear, y enseñar cinco premios que
+     nadie puede ganarse los regala antes de que la escalera exista. Va detrás
+     de `?apariencia=`, igual que el motor. */
+  if (typeof aparienciaVisibleEnAjustes === "function" && !aparienciaVisibleEnAjustes())
+    secs = secs.filter(x => x.id !== "aspecto");
 
   /* La fila del plan no puede decir lo mismo a todo el mundo: es la única de
      las cuatro cuyo contenido cambia de una cuenta a otra, y decía "Qué
@@ -866,6 +874,7 @@ function renderAjustes() {
   /* El panel de números se dibuja al abrir su sección y no al arrancar: pedir
      las métricas cuesta una llamada al servidor, y no tiene sentido pagarla
      cada vez que alguien entra a Ajustes a cambiar la zona horaria. */
+  if (ajusteAbierto === "aspecto" && typeof renderPanelApariencia === "function") renderPanelApariencia();
   if (ajusteAbierto === "admin" && typeof renderPanelAdmin === "function") renderPanelAdmin();
   if (ajusteAbierto === "plan" && typeof renderPanelPlan === "function") renderPanelPlan();
 

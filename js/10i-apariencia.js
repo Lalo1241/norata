@@ -164,3 +164,77 @@ function arrancarApariencia() {
   }
   pintarColorDeBarra();
 }
+
+/* ================= La pantalla de Apariencia =================
+   Vive DENTRO de Ajustes y no en una pantalla nueva ni en una pestaña de la
+   barra: una tienda con su propio botón abajo es un mostrador en la recámara.
+   Y la app ya tenía el sitio natural — el interruptor de sol y luna vive en el
+   índice de Ajustes, y elegir ambiente es la misma familia de decisión. El sol
+   y la luna NO se mueven de ahí: están dos centímetros más arriba en la misma
+   pantalla, y sacarlos de su sitio para hacerle hueco a esto sería cobrarle el
+   cambio a quien no viene a comprar. */
+
+/* Mientras el nivel de expedición no exista, ningún ambiente se puede
+   desbloquear — y enseñar cinco premios que nadie puede ganarse los regala
+   antes de que la escalera exista. Así que la sección sigue detrás de
+   `?apariencia=`, igual que el motor. El día que haya nivel, esto pasa a
+   `true` y ya está. */
+const APARIENCIA_PUBLICA = false;
+
+function aparienciaVisibleEnAjustes() {
+  return APARIENCIA_PUBLICA || !!aparienciaDePrueba();
+}
+
+/* Por qué no se puede, dicho como lo diría una persona. Un candado sin motivo
+   al lado es una lista de lo que te falta; con el motivo es una meta. */
+function motivoApariencia(a) {
+  const puede = aparienciaDisponible(a.id);
+  if (puede === true) return null;
+  if (puede === "pro" && typeof NOMBRE_PRO === "string") return "Con " + NOMBRE_PRO;
+  return "Con Pro";
+}
+
+function renderPanelApariencia() {
+  const caja = document.getElementById("panel-apariencia");
+  if (!caja) return;
+  const puesta = apariencia();
+
+  const muestras = AMBIENTES.map((a) => {
+    const bloqueado = aparienciaDisponible(a.id) !== true;
+    const motivo = motivoApariencia(a);
+    /* El nivel se escribe AL LADO aunque todavía no desbloquee nada: es lo que
+       convierte «no lo tienes» en «lo tendrás», y es la mitad del premio. */
+    const pie = motivo || (a.abre ? "Nivel " + a.abre : "");
+    return `
+      <button type="button" class="amb-m mues-${a.id}${puesta === a.id ? " on" : ""}${bloqueado ? " cerrado" : ""}"
+        onclick="elegirApariencia('${a.id}')"
+        aria-pressed="${puesta === a.id}"
+        title="${escapeHtml(a.nombre)}${pie ? " · " + escapeHtml(pie) : ""}">
+        <span class="amb-mini" aria-hidden="true">
+          <span class="amb-tarj"></span><span class="amb-pt"></span>
+        </span>
+        <span class="amb-n">${escapeHtml(a.nombre)}</span>
+        ${pie ? `<span class="amb-p">${escapeHtml(pie)}</span>` : ""}
+      </button>`;
+  }).join("");
+
+  caja.innerHTML = `
+    <h3>Ambientes</h3>
+    <p class="settings-note">El mismo Norata con otra luz. Se van desbloqueando conforme avanzas, y el modo de día y de noche sigue arriba: cada ambiente tiene sus dos caras.</p>
+    <div class="amb-rej">${muestras}</div>`;
+}
+
+/* Un toque: se pone, se guarda y se vuelve a dibujar la rejilla para que la
+   marca de «puesta» se mueva. Si no se puede, no se pone y se dice por qué en
+   vez de no hacer nada — un botón que no contesta parece roto. */
+function elegirApariencia(id) {
+  const a = ambientePorId(id);
+  if (!a) return;
+  const motivo = motivoApariencia(a);
+  if (motivo) {
+    if (typeof toast === "function") toast(a.nombre + " viene con " + motivo.replace(/^Con /, ""), "atencion");
+    return;
+  }
+  ponerApariencia(id);
+  renderPanelApariencia();
+}
