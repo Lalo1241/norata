@@ -256,6 +256,41 @@ function proximoDesbloqueo(nivel) {
   return EXP_ESCALERA.find(x => x.nivel > n) || null;
 }
 
+/* ================= La insignia, dibujada =================
+   Un círculo con el rango dentro y el aro de lo que llevas del nivel
+   alrededor. Es SU PROPIO círculo y no cuelga del avatar, y esa diferencia la
+   puso Eduardo con el argumento bueno: el perímetro de la cara tiene que
+   quedar libre para lo cosmético —hoy lo ocupa el anillo lila de Fundador,
+   mañana un marco que alguien compre—, así que el aro que informa rodea la
+   insignia. **Cada aro pertenece a su propio objeto** y no se pelean nunca.
+
+   Y de paso resuelve el tamaño, que fue lo que lo decidió: colgando del avatar
+   la insignia solo puede medir 20 px, y el aro deja el dibujo en 11 —por
+   debajo de los 13 que es el suelo de la iconografía de la app—. Como círculo
+   propio mide 30 y el dibujo respira a 18.
+
+   Devuelve "" antes del primer nivel: sin nada que enseñar no se enseña un
+   aro vacío, que se leería como algo roto. */
+function insigniaExpedicionHTML(diam) {
+  const d = diam || 30;
+  const info = nivelExpedicion();
+  if (info.nivel < 1) return "";
+  const r = rangoExpedicion(info.nivel);
+  if (!r) return "";
+
+  /* El grosor crece con el diámetro pero no linealmente: a 30 px un aro de 2
+     se lee, y a 48 uno de 2 desaparece. */
+  const grosor = d >= 40 ? 3 : 2;
+  const dibujo = Math.round(d * 0.6);
+
+  return '<span class="exp-insignia" style="width:' + d + 'px;height:' + d + 'px"' +
+    ' title="Nivel ' + info.nivel + ' · ' + r.nombre + ' · ' + info.pct + '% del nivel"' +
+    ' aria-label="Nivel ' + info.nivel + ', rango ' + r.nombre + '">' +
+    ring(d, grosor, [{ pct: info.pct / 100, color: "var(--mint)" }], "var(--carril)") +
+    '<span class="exp-emb">' + icon(r.icon, dibujo) + '</span>' +
+    '</span>';
+}
+
 /* Todo lo abierto hasta ahora, para la colección. En orden de cuándo llegó. */
 function desbloqueosDeExpedicion(nivel) {
   const n = typeof nivel === "number" ? nivel : nivelExpedicion().nivel;
