@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.41";
+const VERSION = "0.7.43";
 const VERSION_FECHA = "30 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -92,6 +92,23 @@ const ICONS = {
   "plan-pro": '<path d="M7.5 3.5h9l4 5.5-8.5 11.5L3.5 9z"/><path d="M3.5 9h17M9.8 9L12 3.5l2.2 5.5-2.2 11.5z"/>',
   "plan-fundador": '<path d="M8.5 10h7l3 4-6.5 7.5L5.5 14z"/><path d="M5.5 14h12"/><path d="M6.2 7.4l-1.2-5.2 3.9 2.6L12 1.4l3.1 3.4 3.9-2.6-1.2 5.2z"/>',
   gamepad: '<path d="M6 12h4M8 10v4M15.5 11h.01M18 13.5h.01"/><path d="M17.3 5H6.7a4.7 4.7 0 00-4.6 5.6l1 5A3 3 0 006 18c1 0 1.7-.4 2.3-1l1-1h5.4l1 1c.6.6 1.4 1 2.3 1a3 3 0 002.9-2.4l1-5A4.7 4.7 0 0017.3 5z"/>',
+  /* Los cinco rangos de la expedición, en orden: un nodo suelto que acaba
+     siendo una red. Son piezas ortogonales de esquina redondeada porque ese es
+     el idioma de la casa —el isotipo son dos de ellas trabadas— y porque es lo
+     que ya dibuja el lienzo de Talentos.
+
+     La primera tanda iba de semillas y montañas y la tumbó Eduardo con el
+     argumento bueno: una escalera de naturaleza se lee como un MUNDO, y un
+     rango no puede pertenecer a una apariencia que alguien se quita. Están
+     dibujados y descartados en la lámina, con su motivo, por si vuelven.
+
+     Crecen de silueta y no de cantidad —cuadrado, mancuerna, horquilla, rombo,
+     cruz— justo para que a 20 px no haya que contar piezas. */
+  "rango-nodo": '<rect x="7.4" y="7.4" width="9.2" height="9.2" rx="2.6"/>',
+  "rango-enlace": '<rect x="2.8" y="8.6" width="6.8" height="6.8" rx="2.2"/><rect x="14.4" y="8.6" width="6.8" height="6.8" rx="2.2"/><path d="M9.6 12h4.8"/>',
+  "rango-rama": '<rect x="2.4" y="8.8" width="6.4" height="6.4" rx="2.1"/><rect x="15.2" y="2.8" width="6.4" height="6.4" rx="2.1"/><rect x="15.2" y="14.8" width="6.4" height="6.4" rx="2.1"/><path d="M8.8 11.2l6.4-3.6M8.8 12.8l6.4 3.6"/>',
+  "rango-trama": '<rect x="9.2" y="1.9" width="5.6" height="5.6" rx="1.9"/><rect x="1.9" y="9.2" width="5.6" height="5.6" rx="1.9"/><rect x="16.5" y="9.2" width="5.6" height="5.6" rx="1.9"/><rect x="9.2" y="16.5" width="5.6" height="5.6" rx="1.9"/><path d="M8.6 8.6L7 7M15.4 8.6L17 7M8.6 15.4L7 17M15.4 15.4L17 17"/>',
+  "rango-red": '<rect x="9.4" y="9.4" width="5.2" height="5.2" rx="1.8"/><rect x="9.4" y="1.4" width="5.2" height="5.2" rx="1.8"/><rect x="1.4" y="9.4" width="5.2" height="5.2" rx="1.8"/><rect x="17.4" y="9.4" width="5.2" height="5.2" rx="1.8"/><rect x="9.4" y="17.4" width="5.2" height="5.2" rx="1.8"/><path d="M12 6.6v2.8M12 14.6v2.8M6.6 12h2.8M14.6 12h2.8"/>',
   star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 5.9-5.3-3-5.3 3 1.2-5.9L3.4 9.3l6-.7z"/>',
   bolt: '<path d="M13 2L5 14h6l-1 8 8-12h-6l1-8z"/>',
   /* Escudo: lo que no se pierde. Se usa junto a "Habilidad blindada" y está
@@ -580,6 +597,38 @@ const MONEDAS = {
 };
 const MONEDA_POR_DEFECTO = "MXN";
 
+/* ================= La exigencia =================
+   Cuánto aguanta una habilidad sin práctica antes de empezar a bajar, y a qué
+   ritmo baja. Es lo que la pregunta 2 del asistente llama "qué tan exigente lo
+   quieres".
+
+   Vivía repartida en tres sitios y por eso la respuesta se perdía: el
+   asistente tenía sus tres pares de números, el formulario tenía otro par
+   escrito a mano (7 y 10) y el catálogo un tercero. Quien elegía "Tranquilo"
+   y creaba una habilidad al día siguiente se la encontraba en "Equilibrado"
+   sin que nada se lo dijera, y no había forma de ver qué había elegido ni de
+   cambiarlo. Ahora es un ajuste, y estos son los únicos números que existen.
+
+   Sigue siendo el VALOR POR DEFECTO y no una ley: cada habilidad guarda los
+   suyos y se pueden afinar una por una desde su formulario. Cambiar el ajuste
+   no toca lo que ya existe salvo que se pida expresamente. */
+const EXIGENCIAS = {
+  suave: { id: "suave", nombre: "Tranquilo",   grace: 14, decay: 5,
+           dicho: "14 días de gracia. Para empezar sin presión." },
+  medio: { id: "medio", nombre: "Equilibrado", grace: 7,  decay: 10,
+           dicho: "7 días de gracia. El punto medio recomendado." },
+  duro:  { id: "duro",  nombre: "Exigente",    grace: 3,  decay: 18,
+           dicho: "3 días de gracia. Si fallas, se nota rápido." }
+};
+const EXIGENCIA_POR_DEFECTO = "medio";
+
+/* Como `monedaActual`: tolera un ajuste corrupto o de una versión más nueva
+   antes que romper la pantalla, y cae al punto medio. */
+function exigenciaActual() {
+  const e = state && state.settings && state.settings.exigencia;
+  return EXIGENCIAS[e] || EXIGENCIAS[EXIGENCIA_POR_DEFECTO];
+}
+
 /* Los formateadores se guardan al vuelo: construir un Intl.NumberFormat es
    caro, y el informe llama a money() decenas de veces por dibujo. */
 const _fmtMoneda = {};
@@ -644,6 +693,10 @@ function load() {
      importe que cambia de código solo lo lee como que la app perdió sus
      datos. */
   if (!MONEDAS[data.settings.moneda]) data.settings.moneda = MONEDA_POR_DEFECTO;
+  /* Igual que la moneda: un valor que no existe —de una versión más nueva o
+     de un respaldo editado a mano— cae al punto medio en vez de dejar sin
+     valores por defecto a la siguiente habilidad que se cree. */
+  if (!EXIGENCIAS[data.settings.exigencia]) data.settings.exigencia = EXIGENCIA_POR_DEFECTO;
   if (!data.settings.timezone) {
     try { data.settings.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
     catch (e) { data.settings.timezone = "UTC"; }

@@ -1635,6 +1635,28 @@
     cursor: pointer;
   }
   .mm-perfil .avatar { flex: none; }
+  /* ---------- La insignia del nivel de expedición ----------
+     Su propio círculo al final de la fila, nunca colgada del avatar: el
+     perímetro de la cara queda libre para lo cosmético —el anillo lila de
+     Fundador hoy, un marco comprado mañana— y este aro rodea solo lo suyo.
+     Cada aro pertenece a su objeto y así no vuelven a chocar.
+
+     El dibujo va centrado con posición absoluta y no con un grid porque el
+     aro es un SVG del mismo tamaño que la caja: los dos ocupan todo y se
+     superponen a propósito. */
+  .exp-insignia {
+    position: relative;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mint);
+  }
+  .exp-insignia svg { display: block; }
+  .exp-insignia .exp-emb {
+    position: absolute;
+    display: inline-flex;
+  }
   .mm-item {
     display: flex;
     align-items: center;
@@ -1856,6 +1878,24 @@
   .empty .bubble svg { width: 34px; height: 34px; }
   .empty h2 { color: var(--text); font-size: 21px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
   .empty p { font-size: 14px; line-height: 1.6; margin-bottom: 22px; }
+  /* La salida del cartel: sigue estando, pero deja de competir con los dos
+     botones que sí enseñan la app. Alto fijo de 20 px a propósito — el hueco
+     que `.empty .stack` reserva en escritorio lo cuenta pieza por pieza, y un
+     enlace que crezca con la letra descuadraría las cinco pantallas.
+
+     Y va en `--muted` y no en `--faint`, aunque `--faint` sea el tono de lo
+     secundario: medido sobre el fondo de la página da 3,34 de noche y 3,97 de
+     día, las dos por debajo del 4,5 que pide un texto normal. Lo que lo baja
+     de rango es que mide 13 px, va subrayado y está debajo de dos botones —no
+     que apenas se lea. */
+  .empty .suelto {
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    line-height: 20px; height: 20px; padding: 0;
+    background: none; border: none; cursor: pointer;
+    color: var(--muted);
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .empty .suelto:hover { color: var(--text); }
 
   /* ---------- Botones ---------- */
   .btn {
@@ -4174,19 +4214,54 @@
     text-transform: uppercase; color: var(--mint); margin-bottom: 8px;
   }
   .ob-q h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 8px; }
-  .ob-areas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 6px; }
+  /* Las áreas van en tarjetas HORIZONTALES y no en dos columnas de etiquetas.
+     El motivo no es que sea más bonito: cada área ya sabe qué tres habilidades
+     va a crear, y esa lista estaba escondida en `ONBOARD_AREAS` sin que nadie
+     la viera. Elegir "Salud y cuerpo" a ciegas y encontrarse tres líneas nuevas
+     es una sorpresa; leer "Ejercicio · Correr · Yoga" antes de tocarla es una
+     decisión. La tarjeta ancha existe para que quepa esa línea.
+
+     `auto-fit` y no un número de columnas: en el teléfono cae una por fila y
+     desde 540 px caben dos, sin tener que declarar el corte a mano. */
+  .ob-areas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 9px; margin-top: 6px;
+  }
   .ob-area {
-    display: flex; align-items: center; gap: 10px;
-    text-align: left; font-family: inherit; font-size: 13.5px; font-weight: 650;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 18px;
+    align-items: center; gap: 12px;
+    text-align: left; font-family: inherit;
     color: var(--muted);
     background: var(--sup-panel);
     border: 2px solid transparent;
-    border-radius: 15px;
-    padding: 13px 14px;
+    border-radius: var(--r-tarjeta);
+    padding: 11px 13px;
     cursor: pointer;
   }
-  .ob-area .oa-ic { color: var(--oc-l, var(--oc)); flex-shrink: 0; display: inline-flex; }
-  .ob-area.on { border-color: var(--oc-l, var(--oc)); background: color-mix(in srgb, var(--oc) 12%, transparent); color: var(--text); }
+  /* La teja es un RELLENO macizo, así que el icono encima va con tinta oscura
+     —`--sobre-macizo`, que es oscura en los dos modos porque los ocho tonos
+     del usuario son claros en los dos—. Con `--oc-l`, que es el tono de
+     escribir, el dibujo desaparecía sobre su propio color. */
+  .ob-area .oa-ic {
+    width: 44px; height: 44px;
+    border-radius: var(--r-caja);
+    background: var(--oc);
+    color: var(--sobre-macizo);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ob-area .oa-tx { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .ob-area .oa-tx b { font-size: 14.5px; font-weight: 700; color: var(--text); letter-spacing: -0.2px; }
+  /* Las tres habilidades en una sola línea: si no caben se cortan, porque dos
+     renglones aquí descuadran la fila de tarjetas de al lado. */
+  .ob-area .oa-tx span {
+    font-size: 12px; line-height: 1.35;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ob-area .oa-check { display: flex; color: var(--oc-l, var(--oc)); opacity: 0; }
+  .ob-area.on { border-color: var(--oc-l, var(--oc)); background: color-mix(in srgb, var(--oc) 12%, transparent); }
+  .ob-area.on .oa-check { opacity: 1; }
   .ob-pace { display: flex; flex-direction: column; gap: 9px; margin-top: 6px; }
   .ob-pace-opt {
     text-align: left; font-family: inherit;
@@ -5011,7 +5086,10 @@
     padding: 13px; margin-bottom: 16px;
     background: var(--sup-tarjeta2); border: var(--borde-fino) solid var(--line); border-radius: var(--r-grande);
   }
-  .perfil-quien { min-width: 0; }
+  /* `flex: 1` desde que hay insignia al final: sin él, el círculo del nivel se
+     pega al correo en vez de irse al otro extremo, y la pareja de círculos
+     —cara a un lado, nivel al otro— deja de leerse como pareja. */
+  .perfil-quien { min-width: 0; flex: 1; }
   .perfil-quien b { display: block; font-size: 15.5px; }
   /* El correo se parte por donde sea: los hay largos, y sin esto la ficha
      estira el panel entero y aparece una barra horizontal en el teléfono. */
@@ -6048,10 +6126,22 @@
        siempre y cierra la pregunta. Mismo tropiezo que `#bug-pie` unas líneas
        más arriba: en este archivo, cuando algo tiene id, se usa el id. */
     html.sc #bug-btn {
-      opacity: 0; transform: scale(0.84);
+      opacity: 0;
+      /* ---- Y el bicho no escala: solo aparece ----
+         Aquí había un `scale(0.84)` que crecía hasta 1 al pasar el ratón. Con
+         el bicho suelto no se notaba —escalaba un icono de 17 px—, pero desde
+         que tiene aro lo que crece es un disco de 32, y esos cinco píxeles de
+         diámetro se ven como un desliz justo cuando el ojo acaba de llegar
+         ahí. El disco se queda quieto y se limita a aparecer; el número, que
+         no lleva caja, conserva su encogido.
+
+         Las dos piezas siguen fundiéndose una en otra en la misma caja, que
+         es lo que hacía este gesto. Lo que se retira es el movimiento de la
+         que ahora tiene forma propia. */
+      transform: none;
       /* `inset: 0` + `margin: auto` con el tamaño puesto: centrado en los dos
-         ejes sin gastar el `transform`. Repetir los 32 aquí es lo que devuelve
-         la caja que la regla de arriba suelta con `width: auto`. */
+         ejes. Repetir los 32 aquí es lo que devuelve la caja que la regla de
+         arriba suelta con `width: auto`. */
       inset: 0; margin: auto;
       width: 32px; height: 32px;
     }
@@ -6060,7 +6150,7 @@
        —el ratón está sobre el botón—; plegada quien recibe el ratón es la fila
        entera, así que el aro se quedaba gris mientras el bicho ya era amarillo. */
     html.sc #side-version:hover #bug-btn {
-      opacity: 1; transform: scale(1);
+      opacity: 1;
       color: var(--fire); border-color: var(--fire);
     }
     @media (prefers-reduced-motion: reduce) {
@@ -6358,7 +6448,22 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 40px;
+      /* ---- Y un pelo por encima del centro ----
+         El hueco donde se centra arranca 111 px por debajo del borde, bajo el
+         título de la pantalla, así que centrarse en él deja el cartel más
+         abajo que el centro de lo que se ve. Sale de cuadrar bien y aun así
+         se lee hundido, que es la razón de que el centrado óptico exista.
+
+         Los 48 px de más al pie lo suben 24 —con `justify-content: center`,
+         el relleno de abajo desplaza el contenido la MITAD de lo que crece—,
+         y con eso el título pasa del 43 % al 40 % del alto de la ventana. Es
+         el ajuste entero: si alguna vez hay que moverlo otra vez, es este
+         número y ningún otro.
+
+         En una ventana tan baja que el cartel ya no quepa, esto no lo sube:
+         ahí el bloque pasa del `min-height`, el centrado deja de actuar y los
+         48 px solo son aire al final. */
+      padding: 40px 40px 88px;
     }
     .empty p { max-width: 46ch; }
 
@@ -6377,12 +6482,16 @@
        lo que sobra queda al pie, sobre fondo vacío, donde nadie lo mide.
 
        Las dos piezas que variaban:
-       - Las acciones. El cartel más largo es el de Resumen: un botón de menta
-         y dos apagados, con 10 px de hueco entre ellos. Los dos tipos NO
-         miden lo mismo —el apagado lleva borde y sale 2 px más alto—, así que
-         la cuenta va desglosada: 46 + 48 + 48 + 20 = 162. Redondearlo a tres
-         de 48 dejaba dos píxeles de aire de más justo en la pantalla que
-         marca el sitio.
+       - Las acciones. El cartel más largo es el de Resumen: un botón de menta,
+         uno apagado y un enlace suelto, con 10 px de hueco entre ellos. Las
+         tres piezas NO miden lo mismo —el apagado lleva borde y sale 2 px más
+         alto que el macizo, y el enlace mide 20 fijos—, así que la cuenta va
+         desglosada: 46 + 48 + 20 + 20 = 134. Redondear a tres de 48 dejaba
+         aire de más justo en la pantalla que marca el sitio.
+
+         Bajó de 162 a 134 el día que el tercer botón se volvió enlace. Si
+         alguna vez vuelve a ser botón, esta cuenta vuelve a 162 — está aquí
+         desglosada justo para eso.
        - El párrafo: tres renglones en cuatro pantallas y dos en Habilidades,
          que son 22 px de diferencia. Va en `em` para que siga a la letra si
          algún día cambia, y no en píxeles medidos hoy.
@@ -6390,7 +6499,7 @@
        Solo en escritorio. En el teléfono el cartel no se centra en nada —lo
        empuja el contenido— y reservar hueco solo añadiría aire muerto. */
     .empty p { min-height: calc(3 * 1.6em); }
-    .empty .stack { min-height: calc(46px + 2 * 48px + 2 * 10px); justify-content: flex-start; }
+    .empty .stack { min-height: calc(46px + 48px + 20px + 2 * 10px); justify-content: flex-start; }
 
     /* ---------- Encabezado de sección: una fila SI CABE ----------
        Deja de robar altura, que es para lo que se puso en fila. Pero el ancho

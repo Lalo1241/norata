@@ -47,7 +47,11 @@ function renderSummary() {
         <div class="stack" style="align-items:center">
           <button class="btn btn-primary" onclick="startOnboarding()">Armar mi tablero en 3 preguntas</button>
           <button class="btn btn-ghost" onclick="verElEjemplo()">Ver un ejemplo completo</button>
-          <button class="btn btn-ghost" onclick="openSkillForm()">Empezar de cero</button>
+          <!-- Tres botones del mismo peso en la pantalla más vacía es una
+               decisión de más, y encima la tercera se salta lo único que aquí
+               enseña algo. Sigue estando —hay quien no quiere asistentes— pero
+               pesa como lo que es: una salida, no una opción a la par. -->
+          <button class="suelto" onclick="openSkillForm()">Empezar de cero</button>
         </div>
       </div>`;
     return;
@@ -236,34 +240,37 @@ function renderSummary() {
 
     /* ---- La expedición ----
        La única cifra de la app que habla de TI y no de una habilidad suelta.
+       El motor es `js/02b-expedicion.js`; esta tarjeta solo pregunta.
+
        Lo que la hace servir para algo no es el número: es **el próximo
        desbloqueo escrito antes de llegar**. Un premio sorpresa no mueve a
-       nadie; uno que se ve venir, sí — y por eso la línea de abajo es la
-       parte importante de la tarjeta y no un adorno.
+       nadie; uno que se ve venir, sí — por eso la línea de abajo es la parte
+       importante y no un adorno.
+
+       Y no repite la insignia de la fila de la cuenta: allí se dice QUÉ ERES
+       —el rango, con su aro— y aquí CUÁNTO FALTA y para qué. Enseñar dos
+       veces lo mismo en la misma pantalla es lo que hace que se deje de mirar.
 
        Lleva a Ajustes → Apariencia, que es donde se recoge lo que se abre. */
     expedicion: () => {
-      if (typeof expedicion !== "function") return "";
-      const e = expedicion();
-      const sig = e.siguiente;
+      if (typeof nivelExpedicion !== "function") return "";
+      const e = nivelExpedicion();
+      const r = typeof rangoExpedicion === "function" ? rangoExpedicion(e.nivel) : null;
+      const sig = typeof proximoDesbloqueo === "function" ? proximoDesbloqueo(e.nivel) : null;
       return `
       <button class="sum-card a" onclick="abrirApariencia()" style="width:100%">
         ${icon("compass", 22)}
-        <div class="n">${e.alcanzado}</div>
-        <div class="t">${e.rango ? escapeHtml(e.rango.nombre) : "tu expedición"}</div>
+        <div class="n">${e.nivel}</div>
+        <div class="t">${r ? escapeHtml(r.nombre) : "tu expedición"}</div>
         <div class="sc-rows">
           <div><b>${fmtXp(e.puntos)}</b><span>PUNTOS</span></div>
-          <div><b>${e.falta}</b><span>PARA SUBIR</span></div>
+          <div><b>${e.faltan}</b><span>PARA SUBIR</span></div>
         </div>
         ${sig ? `<div class="sc-near">
           <span>En el nivel ${sig.nivel}${sig.pro ? " · con Pro" : ""}</span>
-          <b>${escapeHtml(sig.que)}</b>
-          <i style="--p:${Math.round(e.pct * 100)}%"></i>
-        </div>` : `<div class="sc-near">
-          <span>Nada por delante en la lista</span>
-          <b>Sigues sumando</b>
-          <i style="--p:${Math.round(e.pct * 100)}%"></i>
-        </div>`}
+          <b>${escapeHtml(sig.nombre)}</b>
+          <i style="--p:${e.pct}%"></i>
+        </div>` : ""}
       </button>`;
     },
 
@@ -2195,9 +2202,12 @@ let catalogoSel = new Set();
 let seleccionHab = null;   // null = fuera del modo selección
 
 function nuevaHabilidad(nombre, categoria, icono, color) {
+  /* La exigencia elegida, no el par fijo de antes: las que salen del catálogo
+     tienen que nacer igual que las del formulario. */
+  const ex = exigenciaActual();
   return {
     id: uid(), name: nombre, category: categoria, icon: icono, color: color,
-    xp: 0, log: [], permanent: false, graceDays: 7, decayPerDay: 10,
+    xp: 0, log: [], permanent: false, graceDays: ex.grace, decayPerDay: ex.decay,
     lastActivity: null, createdAt: todayKey()
   };
 }
