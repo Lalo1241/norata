@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+  <!-- Una esquirla: tres planos que se cortan en filo. Sin curvas. -->
+  <path d="M14 1.5L25 11l-4.5 15.5H8L3 11z" fill="#161a1e"/>
+  <path d="M14 1.5L25 11l-11 6.5z" fill="#333c43"/>
+  <path d="M14 1.5L3 11l11 6.5z" fill="#20262b"/>
+  <path d="M14 17.5L25 11l-4.5 15.5z" fill="#0e1114"/>
+  <path d="M14 1.5L25 11" fill="none" stroke="#c3ced5" stroke-width="1.3"/>
+  <path d="M14 1.5L3 11" fill="none" stroke="#6e7a83" stroke-width="1"/>
+  <path d="M14 17.5L20.5 26.5" fill="none" stroke="#4fd6cc" stroke-width=".9" opacity=".55"/>
+</svg>

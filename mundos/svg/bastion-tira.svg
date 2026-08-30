@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="14" viewBox="0 0 140 14">
+  <!-- Antes esto era una franja de galones de lado a lado y cansaba en diez
+       segundos. Ahora es una tira de identificación: la regla de marcas
+       calla, y el peligro se concentra en un solo galón a la izquierda. Un
+       aviso que está en todas partes deja de ser un aviso. -->
+  <rect width="140" height="14" fill="#161c22"/>
+  <path d="M0 13.4h140" stroke="#05070a" stroke-width="1.2"/>
+  <g fill="#ffc233"><path d="M4 2h7l-5 5 5 5H4z"/></g>
+  <g stroke="#5f7181" stroke-width="1">
+    <path d="M20 4v6M28 5.5v3M36 5.5v3M44 5.5v3M52 4v6M60 5.5v3M68 5.5v3M76 5.5v3M84 4v6"/>
+  </g>
+  <g stroke="#4db8ff" stroke-width="1.4" opacity=".85"><path d="M96 4v6M100 6v2"/></g>
+  <g fill="#5f7181"><rect x="118" y="6" width="16" height="2"/></g>
+</svg>

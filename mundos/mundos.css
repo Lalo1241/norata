@@ -9,21 +9,19 @@
 
 /* ---------- Talavera · Loza vidriada ---------- */
 .talavera {
-  --m-pagina: #eee7d8;
+  --m-pagina: #e4d9c1;
   --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E %3Cdefs%3E %3Cpath id='petalo' d='M70 70 C60 60 52 44 62 30 C66 24 74 24 78 30 C88 44 80 60 70 70 Z'/%3E %3Cpath id='nervio' d='M70 66 C68 54 68 42 70 33'/%3E %3Cpath id='rizo' d='M70 70 C84 68 96 58 97 45 C97.6 37 90 33 86 38 C82 43 87 49 93 46'/%3E %3Cpath id='hoja' d='M70 70 C79 72 88 79 89 88 C89.6 93 84 95 81 91 C77 86 74 78 70 70 Z'/%3E %3C/defs%3E %3Cg fill='none' stroke='%231e3f8f' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'%3E %3Cuse href='%23rizo'/%3E%3Cuse href='%23rizo' transform='rotate(90 70 70)'/%3E %3Cuse href='%23rizo' transform='rotate(180 70 70)'/%3E%3Cuse href='%23rizo' transform='rotate(270 70 70)'/%3E %3C/g%3E %3Cg fill='%231e3f8f' fill-opacity='.16' stroke='%231e3f8f' stroke-width='2.3' stroke-linejoin='round'%3E %3Cuse href='%23petalo'/%3E%3Cuse href='%23petalo' transform='rotate(45 70 70)'/%3E %3Cuse href='%23petalo' transform='rotate(90 70 70)'/%3E%3Cuse href='%23petalo' transform='rotate(135 70 70)'/%3E %3Cuse href='%23petalo' transform='rotate(180 70 70)'/%3E%3Cuse href='%23petalo' transform='rotate(225 70 70)'/%3E %3Cuse href='%23petalo' transform='rotate(270 70 70)'/%3E%3Cuse href='%23petalo' transform='rotate(315 70 70)'/%3E %3C/g%3E %3Cg fill='none' stroke='%231e3f8f' stroke-width='1.1' stroke-linecap='round' opacity='.85'%3E %3Cuse href='%23nervio'/%3E%3Cuse href='%23nervio' transform='rotate(45 70 70)'/%3E %3Cuse href='%23nervio' transform='rotate(90 70 70)'/%3E%3Cuse href='%23nervio' transform='rotate(135 70 70)'/%3E %3Cuse href='%23nervio' transform='rotate(180 70 70)'/%3E%3Cuse href='%23nervio' transform='rotate(225 70 70)'/%3E %3Cuse href='%23nervio' transform='rotate(270 70 70)'/%3E%3Cuse href='%23nervio' transform='rotate(315 70 70)'/%3E %3C/g%3E %3Ccircle cx='70' cy='70' r='7.5' fill='%23faf6ec' stroke='%231e3f8f' stroke-width='2.3'/%3E %3Ccircle cx='70' cy='70' r='2.6' fill='%231e3f8f'/%3E %3Cg fill='%231e3f8f' fill-opacity='.14' stroke='%231e3f8f' stroke-width='2.1' stroke-linejoin='round'%3E %3Cuse href='%23hoja' transform='translate(-70 -70)'/%3E %3Cuse href='%23hoja' transform='translate(70 -70) rotate(90 70 70)'/%3E %3Cuse href='%23hoja' transform='translate(-70 70) rotate(270 70 70)'/%3E %3Cuse href='%23hoja' transform='translate(70 70) rotate(180 70 70)'/%3E %3C/g%3E %3C/svg%3E");
-  --m-grano-op: .26;
-  --m-tarjeta: #faf6ec;
+  --m-grano-op: .3;
+  --m-tarjeta: #fdfbf5;
   --m-borde: 1.5px;
   --m-borde-color: #1e3f8f;
-  --m-sombra: inset 0 0 0 3px #faf6ec, inset 0 0 0 4.5px rgba(30,63,143,.5), 0 4px 14px rgba(30,63,143,.16);
+  --m-sombra: inset 0 0 0 3px #fdfbf5, inset 0 0 0 4.5px rgba(30,63,143,.55), 0 5px 16px rgba(30,63,143,.2);
   --m-r-tarjeta: 14px;
   --m-r-mini: 999px;
   --m-r-barra: 999px;
   --m-r-chip: 999px;
-  --m-cenefa-alto: 24px;
-  --m-cenefa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='24' viewBox='0 0 72 24'%3E %3Cg fill='none' stroke='%231e3f8f' stroke-width='2.2' stroke-linecap='round'%3E %3Cpath d='M0 12 C9 3 18 21 27 12 C36 3 45 21 54 12 C63 3 68 8 72 12'/%3E %3C/g%3E %3Cg fill='%231e3f8f'%3E %3Cpath d='M13 12 C13 5 19 1 24 3 C23 10 18 13 13 12 Z'/%3E %3Cpath d='M40 12 C40 19 34 23 29 21 C30 14 35 11 40 12 Z' fill-opacity='.62'/%3E %3Ccircle cx='58' cy='7' r='2.4'/%3E %3Ccircle cx='66' cy='17' r='1.7' fill-opacity='.7'/%3E %3Ccircle cx='5' cy='18' r='1.7' fill-opacity='.7'/%3E %3C/g%3E %3C/svg%3E") repeat-x;
-  --m-tinta: #132a52;
-  --m-tinta-2: #5a6a86;
+  --m-tinta: #0d2044;
+  --m-tinta-2: #465a76;
   --m-acento: #1e3f8f;
   --m-acento-velo: rgba(30,63,143,.11);
   --m-aviso: #7a5a00;
@@ -32,17 +30,17 @@
   --m-peligro-velo: rgba(158,47,20,.12);
   --m-carril: #d7ddea;
   --m-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Cdefs%3E %3Cpath id='p' d='M14 14 C10.5 10.5 9 6 12 3.4 C13.2 2.4 14.8 2.4 16 3.4 C19 6 17.5 10.5 14 14 Z'/%3E %3C/defs%3E %3Cg fill='%231e3f8f'%3E %3Cuse href='%23p'/%3E%3Cuse href='%23p' transform='rotate(72 14 14)'/%3E%3Cuse href='%23p' transform='rotate(144 14 14)'/%3E %3Cuse href='%23p' transform='rotate(216 14 14)'/%3E%3Cuse href='%23p' transform='rotate(288 14 14)'/%3E %3C/g%3E %3Ccircle cx='14' cy='14' r='3.6' fill='%23faf6ec'/%3E %3Ccircle cx='14' cy='14' r='1.5' fill='%231e3f8f'/%3E %3C/svg%3E") center/contain no-repeat;
-  --m-titulo: "Alegreya",Georgia,serif;
-  --m-titulo-px: 17px;
-  --m-titulo-peso: 700;
-  --m-cifra: "Alegreya",Georgia,serif;
+  --m-titulo: "Alegreya Sans",system-ui,sans-serif;
+  --m-titulo-px: 16px;
+  --m-titulo-peso: 800;
+  --m-cifra: "Alegreya Sans",system-ui,sans-serif;
   --m-cifra-peso: 800;
   --m-cifra-esp: -.02em;
-  --m-chip-fuente: "Alegreya",Georgia,serif;
+  --m-chip-fuente: "Alegreya Sans",system-ui,sans-serif;
+  --m-chip-peso: 700;
   --m-dur: .7s;
   --m-curva: cubic-bezier(.25,.9,.35,1);
 }
-.talavera .ficha{ padding-top:34px; }
 
 /* ---------- Grabado · El de las calaveras ---------- */
 .grabado {
@@ -52,7 +50,9 @@
   --m-tarjeta: #efe9da;
   --m-borde: 2px;
   --m-borde-color: #181410;
-  --m-sombra: 3px 3px 0 #181410;
+  --m-sombra: 7px 7px 0 #181410;
+  --m-sombra-encima: 2px 2px 0 #181410;
+  --m-empuje: 5px;
   --m-r-tarjeta: 0;
   --m-r-mini: 0;
   --m-r-barra: 0;
@@ -67,17 +67,19 @@
   --m-peligro-velo: rgba(24,20,16,.13);
   --m-carril: #cec5b0;
   --m-icono: repeating-linear-gradient(45deg,#181410 0 2px,#efe9da 2px 4px);
-  --m-titulo: "Bevan",Georgia,serif;
-  --m-titulo-px: 15px;
-  --m-titulo-peso: 400;
-  --m-cifra: "Bevan",Georgia,serif;
-  --m-cifra-peso: 400;
-  --m-cifra-esp: -.01em;
-  --m-chip-fuente: "Bevan",Georgia,serif;
-  --m-chip-esp: .04em;
+  --m-titulo: "Outfit",system-ui,sans-serif;
+  --m-titulo-px: 16px;
+  --m-titulo-peso: 700;
+  --m-titulo-esp: -.01em;
+  --m-cifra: "Outfit",system-ui,sans-serif;
+  --m-cifra-peso: 700;
+  --m-cifra-esp: -.03em;
+  --m-chip-fuente: "Outfit",system-ui,sans-serif;
+  --m-chip-peso: 700;
+  --m-chip-esp: .06em;
   --m-chip-caja: uppercase;
-  --m-dur: .2s;
-  --m-curva: steps(6,end);
+  --m-dur: .16s;
+  --m-curva: cubic-bezier(.2,.8,.3,1);
 }
 
 /* ---------- Rótulo · El de la calle ---------- */
@@ -93,9 +95,11 @@
   --m-r-mini: 999px;
   --m-r-barra: 999px;
   --m-r-chip: 999px;
+  --m-cenefa-alto: 20px;
+  --m-cenefa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='20' viewBox='0 0 60 20'%3E %3Crect y='2' width='60' height='4' fill='%23f2e7cf'/%3E %3Cpath d='M0 11.5q15 -.9 30 0t30 -.6' fill='none' stroke='%23f2e7cf' stroke-width='1.3' opacity='.85'/%3E %3Cg fill='%23ff3d8b'%3E%3Ccircle cx='12' cy='16' r='1.7'/%3E%3Ccircle cx='30' cy='16.4' r='1.4'/%3E%3Ccircle cx='48' cy='16' r='1.7'/%3E%3C/g%3E %3C/svg%3E") repeat-x;
   --m-tinta: #fdf6e6;
-  --m-tinta-2: #a8c2ce;
-  --m-titulo-sombra: 2px 2px 0 rgba(0,0,0,.5);
+  --m-tinta-2: #adc6d2;
+  --m-titulo-sombra: 2px 2px 0 rgba(0,0,0,.65);
   --m-acento: #ff3d8b;
   --m-acento-tinta: #ffa3cd;
   --m-acento-velo: rgba(255,61,139,.17);
@@ -105,23 +109,26 @@
   --m-peligro-velo: rgba(255,138,112,.16);
   --m-carril: #0a2634;
   --m-icono: radial-gradient(circle at 36% 30%,#ff85b6,#d4145a);
-  --m-titulo: "Bungee",Impact,sans-serif;
-  --m-titulo-px: 13px;
+  --m-titulo: "Anton",Impact,sans-serif;
+  --m-titulo-px: 18px;
   --m-titulo-peso: 400;
-  --m-cifra: "Bungee",Impact,sans-serif;
+  --m-titulo-esp: .01em;
+  --m-cifra: "Anton",Impact,sans-serif;
   --m-cifra-peso: 400;
-  --m-cifra-esp: 0;
-  --m-chip-fuente: "Bungee",Impact,sans-serif;
-  --m-chip-esp: .03em;
+  --m-cifra-esp: .01em;
+  --m-chip-fuente: "Anton",Impact,sans-serif;
+  --m-chip-esp: .08em;
+  --m-chip-caja: uppercase;
   --m-dur: .34s;
   --m-curva: cubic-bezier(.34,1.5,.64,1);
 }
+.rotulo .ficha{ padding-top:32px; }
 
 /* ---------- Papel picado · El de fiesta ---------- */
 .picado {
   --m-pagina: #f5eee1;
-  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='90'%3E%3Cg opacity='.5'%3E%3Cpath d='M0 14h150' stroke='%23c8b9a2' stroke-width='1' stroke-dasharray='2 4'/%3E%3Cg fill='%23e6187c' opacity='.16'%3E%3Crect x='6' y='16' width='58' height='40' rx='3'/%3E%3C/g%3E%3Cg fill='%232aa9a0' opacity='.16'%3E%3Crect x='78' y='16' width='58' height='40' rx='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  --m-grano-op: 1;
+  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='96' viewBox='0 0 120 96'%3E %3Cpath d='M0 4h120' stroke='%23b9a68c' stroke-width='1.2' fill='none'/%3E %3Cg%3E %3Cpath d='M4 4h50v66l-6-7-6 7-6-7-6 7-6-7-6 7-6-7-8 7z' fill='%23e6187c' opacity='.9'/%3E %3Cg fill='%23f5eee1'%3E %3Cpath d='M29 16l9 10-9 10-9-10z'/%3E %3Ccircle cx='14' cy='30' r='3.4'/%3E%3Ccircle cx='44' cy='30' r='3.4'/%3E %3Cpath d='M20 48a9 9 0 0 0 18 0z'/%3E %3Ccircle cx='29' cy='56' r='2.2'/%3E %3C/g%3E %3C/g%3E %3Cg%3E %3Cpath d='M66 4h50v62l-7-7-6 7-6-7-6 7-6-7-6 7-6-7-7 7z' fill='%232aa9a0' opacity='.9'/%3E %3Cg fill='%23f5eee1'%3E %3Ccircle cx='91' cy='24' r='6.5'/%3E %3Cpath d='M78 38h26v4H78z'/%3E %3Cpath d='M84 48l7 8 7-8z'/%3E %3Ccircle cx='76' cy='30' r='2.6'/%3E%3Ccircle cx='106' cy='30' r='2.6'/%3E %3C/g%3E %3C/g%3E %3C/svg%3E");
+  --m-grano-op: .5;
   --m-tarjeta: #fffdf8;
   --m-borde: 1px;
   --m-borde-color: #e0d3bd;
@@ -130,8 +137,8 @@
   --m-r-mini: 999px;
   --m-r-barra: 999px;
   --m-r-chip: 999px;
-  --m-cenefa-alto: 16px;
-  --m-cenefa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16'%3E%3Crect width='40' height='16' fill='%23e6187c'/%3E%3Cg fill='%23fffdf8'%3E%3Ccircle cx='10' cy='16' r='7'/%3E%3Ccircle cx='30' cy='16' r='7'/%3E%3Ccircle cx='20' cy='5' r='3.4'/%3E%3Ccircle cx='0' cy='5' r='3.4'/%3E%3Ccircle cx='40' cy='5' r='3.4'/%3E%3C/g%3E%3C/svg%3E") repeat-x;
+  --m-fleco-alto: 14px;
+  --m-fleco: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='14' viewBox='0 0 36 14'%3E %3Cpath d='M0 0h36v6l-4.5 8-4.5-8-4.5 8-4.5-8-4.5 7.4-4.5-7.4-4.5 8L0 5.4z' fill='%23fffdf8'/%3E %3C/svg%3E") repeat-x;
   --m-tinta: #3a2438;
   --m-tinta-2: #7a6070;
   --m-acento: #c2145f;
@@ -142,17 +149,19 @@
   --m-peligro-velo: rgba(160,42,18,.12);
   --m-carril: #e7dcc9;
   --m-icono: conic-gradient(#e6187c 0 25%, #2aa9a0 0 50%, #f2a516 0 75%, #6d3fb8 0);
-  --m-titulo: "Fraunces",Georgia,serif;
-  --m-titulo-px: 17px;
-  --m-titulo-peso: 800;
-  --m-cifra: "Fraunces",Georgia,serif;
-  --m-cifra-peso: 800;
-  --m-cifra-esp: -.02em;
-  --m-chip-fuente: "Fraunces",Georgia,serif;
+  --m-titulo: "Archivo Black",system-ui,sans-serif;
+  --m-titulo-px: 14px;
+  --m-titulo-peso: 400;
+  --m-titulo-esp: -.01em;
+  --m-cifra: "Archivo Black",system-ui,sans-serif;
+  --m-cifra-peso: 400;
+  --m-cifra-esp: -.03em;
+  --m-chip-fuente: "Archivo Black",system-ui,sans-serif;
+  --m-chip-esp: .04em;
   --m-dur: .5s;
   --m-curva: cubic-bezier(.34,1.45,.64,1);
 }
-.picado .ficha{ padding-top:26px; }
+.picado .ficha{ padding-bottom:24px; }
 
 /* ---------- Consola · Gratis, siempre ---------- */
 .consola {
@@ -231,9 +240,9 @@
 /* ---------- Cyberpunk · Visor, no marco ---------- */
 .cyber {
   --m-pagina: #05070c;
-  --m-grano: repeating-linear-gradient(180deg, rgba(0,240,255,.06) 0 1px, transparent 1px 4px), radial-gradient(ellipse at 78% 18%, rgba(255,47,142,.16), transparent 58%);
+  --m-grano: repeating-linear-gradient(180deg, rgba(252,238,10,.05) 0 1px, transparent 1px 4px), radial-gradient(ellipse at 78% 16%, rgba(0,229,255,.16), transparent 56%), radial-gradient(ellipse at 14% 84%, rgba(252,238,10,.12), transparent 52%);
   --m-grano-op: 1;
-  --m-tarjeta: linear-gradient(180deg,#0b1018 0%,#070a10 100%);
+  --m-tarjeta: linear-gradient(180deg,#12130a 0%,#080905 100%);
   --m-borde: 0;
   --m-borde-color: transparent;
   --m-sombra: none;
@@ -241,16 +250,16 @@
   --m-r-mini: 0;
   --m-r-barra: 0;
   --m-r-chip: 0;
-  --m-tinta: #dffbff;
-  --m-tinta-2: #6f97a6;
-  --m-titulo-sombra: 1.5px 0 0 rgba(255,47,142,.85), -1.5px 0 0 rgba(0,240,255,.85);
-  --m-acento: #00f0ff;
-  --m-acento-velo: rgba(0,240,255,.12);
-  --m-aviso: #ffd21f;
-  --m-aviso-velo: rgba(255,210,31,.13);
-  --m-peligro: #ff2f8e;
-  --m-peligro-velo: rgba(255,47,142,.14);
-  --m-carril: #0f1a24;
+  --m-tinta: #f2f7d8;
+  --m-tinta-2: #93a06a;
+  --m-titulo-sombra: 1.5px 0 0 rgba(255,46,110,.8), -1.5px 0 0 rgba(0,229,255,.8);
+  --m-acento: #fcee0a;
+  --m-acento-velo: rgba(252,238,10,.13);
+  --m-aviso: #ff7a1a;
+  --m-aviso-velo: rgba(255,122,26,.15);
+  --m-peligro: #ff2e6e;
+  --m-peligro-velo: rgba(255,46,110,.15);
+  --m-carril: #1a1a08;
   --m-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Ccircle cx='14' cy='14' r='9.5' fill='none' stroke='%2300f0ff' stroke-width='1.6' stroke-dasharray='5.5 3.2'/%3E %3Ccircle cx='14' cy='14' r='3.4' fill='none' stroke='%23ff2f8e' stroke-width='1.6'/%3E %3Cpath d='M14 0v6M14 22v6M0 14h6M22 14h6' stroke='%2300f0ff' stroke-width='1.4'/%3E %3Ccircle cx='14' cy='14' r='1.2' fill='%23ff2f8e'/%3E %3C/svg%3E") center/contain no-repeat;
   --m-titulo: "Chakra Petch",system-ui,sans-serif;
   --m-titulo-px: 15px;
@@ -267,7 +276,7 @@
   --m-curva: steps(9,end);
 }
 .cyber .ficha{
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E %3Cg stroke='%2300f0ff' fill='none' stroke-width='2' stroke-linecap='square'%3E %3Cpath d='M2 16V2h18M118 16V2h-18M2 44v14h18M118 44v14h-18'/%3E %3C/g%3E %3Cg stroke='%2300f0ff' stroke-width='1' opacity='.55'%3E %3Cpath d='M30 2v4M36 2v6M42 2v4M48 2v4M54 2v6M60 2v4M66 2v4M72 2v6M78 2v4M84 2v4'/%3E %3C/g%3E %3Cg fill='%23ff2f8e' opacity='.9'%3E%3Crect x='30' y='56' width='14' height='2'/%3E%3Crect x='48' y='56' width='6' height='2'/%3E%3C/g%3E %3C/svg%3E"), linear-gradient(180deg,#0b1018 0%,#070a10 100%);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E %3Cg stroke='%2300f0ff' fill='none' stroke-width='2' stroke-linecap='square'%3E %3Cpath d='M2 16V2h18M118 16V2h-18M2 44v14h18M118 44v14h-18'/%3E %3C/g%3E %3Cg stroke='%2300f0ff' stroke-width='1' opacity='.55'%3E %3Cpath d='M30 2v4M36 2v6M42 2v4M48 2v4M54 2v6M60 2v4M66 2v4M72 2v6M78 2v4M84 2v4'/%3E %3C/g%3E %3Cg fill='%23ff2f8e' opacity='.9'%3E%3Crect x='30' y='56' width='14' height='2'/%3E%3Crect x='48' y='56' width='6' height='2'/%3E%3C/g%3E %3C/svg%3E"), linear-gradient(180deg,#12130a 0%,#080905 100%);
     background-size:100% 100%, auto; background-repeat:no-repeat;
     clip-path:polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
     padding:20px 18px 18px;
@@ -278,10 +287,10 @@
   --m-pagina: #0d2b52;
   --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E %3Cg stroke='%237fb4e8' fill='none'%3E %3Cg stroke-width='.5' opacity='.26'%3E %3Cpath d='M8 0v80M16 0v80M24 0v80M32 0v80M48 0v80M56 0v80M64 0v80M72 0v80'/%3E %3Cpath d='M0 8h80M0 16h80M0 24h80M0 32h80M0 48h80M0 56h80M0 64h80M0 72h80'/%3E %3C/g%3E %3Cg stroke-width='.9' opacity='.5'%3E%3Cpath d='M40 0v80M0 40h80M0 0h80M0 0v80'/%3E%3C/g%3E %3Cg stroke-width='1.1' opacity='.75'%3E%3Cpath d='M36 40h8M40 36v8M-4 0h8M0 -4v8'/%3E%3C/g%3E %3C/g%3E %3C/svg%3E");
   --m-grano-op: 1;
-  --m-tarjeta: rgba(255,255,255,.035);
+  --m-tarjeta: rgba(6,26,52,.9);
   --m-borde: 1px;
-  --m-borde-color: #5e93cc;
-  --m-sombra: inset 0 0 0 4px rgba(13,43,82,.7), inset 0 0 0 5px rgba(94,147,204,.45);
+  --m-borde-color: #6ea2d8;
+  --m-sombra: inset 0 0 0 4px rgba(6,26,52,.95), inset 0 0 0 5px rgba(110,162,216,.5), 0 8px 22px rgba(0,0,0,.35);
   --m-r-tarjeta: 0;
   --m-r-mini: 0;
   --m-r-barra: 0;
@@ -361,73 +370,74 @@
 /* ---------- Obsidiana · El oscuro elegante ---------- */
 .obsidiana {
   --m-pagina: #07080a;
-  --m-grano: linear-gradient(118deg, rgba(63,208,201,.07) 0 30%, transparent 34% 66%, rgba(140,120,255,.06) 72%);
-  --m-grano-op: 1;
-  --m-tarjeta: linear-gradient(124deg,#15191f 0 34%,#0b0e12 34% 63%,#12161d 63%);
+  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E %3Cg fill='none' stroke='%233a4249' stroke-width='1' opacity='.55'%3E %3Cpath d='M-6 40C22 46 44 66 52 96c8 30 2 58-14 84'/%3E %3Cpath d='M-6 68C30 74 58 98 68 132c6 22 5 36 0 54'/%3E %3Cpath d='M-6 96C36 102 70 128 84 166'/%3E %3Cpath d='M-6 14C16 20 34 36 44 60c12 30 10 62-6 92'/%3E %3C/g%3E %3Cg fill='none' stroke='%235b666e' stroke-width='1.4' opacity='.8'%3E %3Cpath d='M-6 54C26 60 51 82 60 114c6 22 3 42-8 64'/%3E %3Cpath d='M-6 122C30 128 62 152 76 182'/%3E %3C/g%3E %3Cg fill='none' stroke='%23aebac2' stroke-width='1.1' opacity='.5'%3E %3Cpath d='M-6 54C26 60 51 82 60 114'/%3E %3C/g%3E %3Cg fill='none' stroke='%232a3036' stroke-width='2.4' opacity='.7'%3E %3Cpath d='M186 20C158 34 140 58 136 88c-4 30 6 56 28 76'/%3E %3Cpath d='M186 62C164 74 150 94 148 118'/%3E %3C/g%3E %3Cg opacity='.22'%3E %3Cpath d='M60 114C56 130 50 146 40 160' fill='none' stroke='%234fd6cc' stroke-width='1.2'/%3E %3Cpath d='M136 88c-2 16 2 30 10 42' fill='none' stroke='%238f7ad6' stroke-width='1.1'/%3E %3C/g%3E %3C/svg%3E");
+  --m-grano-op: .85;
+  --m-tarjeta: linear-gradient(124deg,#1a1e23 0 32%,#0a0c0f 32% 61%,#141820 61%);
   --m-borde: 1px;
-  --m-borde-color: #2b333d;
-  --m-sombra: inset 0 1px 0 rgba(190,240,240,.16), 0 14px 34px rgba(0,0,0,.6);
+  --m-borde-color: #333c44;
+  --m-sombra: inset 0 1px 0 rgba(215,228,235,.22), inset 0 -1px 0 rgba(0,0,0,.8), 0 16px 38px rgba(0,0,0,.72);
   --m-r-tarjeta: 0;
   --m-r-mini: 0;
   --m-r-barra: 0;
   --m-r-chip: 0;
-  --m-tinta: #e8f2f3;
-  --m-tinta-2: #8fa0a8;
-  --m-acento: #3fd0c9;
-  --m-acento-velo: rgba(63,208,201,.13);
-  --m-aviso: #f5d76e;
-  --m-aviso-velo: rgba(245,215,110,.14);
-  --m-peligro: #ff8a70;
-  --m-peligro-velo: rgba(255,138,112,.14);
-  --m-carril: #1a2026;
-  --m-icono: linear-gradient(128deg,#3fd0c9 0 42%,#0f4f52 42%);
-  --m-titulo: "Bodoni Moda",Didot,Georgia,serif;
-  --m-titulo-px: 17px;
-  --m-titulo-peso: 700;
-  --m-titulo-esp: .01em;
-  --m-cifra: "Bodoni Moda",Didot,Georgia,serif;
-  --m-cifra-peso: 700;
-  --m-cifra-esp: -.01em;
-  --m-chip-fuente: "Bodoni Moda",Didot,Georgia,serif;
-  --m-chip-esp: .08em;
+  --m-tinta: #eef3f5;
+  --m-tinta-2: #8d979e;
+  --m-acento: #c3ced5;
+  --m-acento-velo: rgba(195,206,213,.1);
+  --m-aviso: #d8c07a;
+  --m-aviso-velo: rgba(216,192,122,.12);
+  --m-peligro: #d98a7c;
+  --m-peligro-velo: rgba(217,138,124,.13);
+  --m-carril: #191d22;
+  --m-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Cpath d='M14 1.5L25 11l-4.5 15.5H8L3 11z' fill='%23161a1e'/%3E %3Cpath d='M14 1.5L25 11l-11 6.5z' fill='%23333c43'/%3E %3Cpath d='M14 1.5L3 11l11 6.5z' fill='%2320262b'/%3E %3Cpath d='M14 17.5L25 11l-4.5 15.5z' fill='%230e1114'/%3E %3Cpath d='M14 1.5L25 11' fill='none' stroke='%23c3ced5' stroke-width='1.3'/%3E %3Cpath d='M14 1.5L3 11' fill='none' stroke='%236e7a83' stroke-width='1'/%3E %3Cpath d='M14 17.5L20.5 26.5' fill='none' stroke='%234fd6cc' stroke-width='.9' opacity='.55'/%3E %3C/svg%3E") center/contain no-repeat;
+  --m-titulo: "Sora",system-ui,sans-serif;
+  --m-titulo-px: 14px;
+  --m-titulo-peso: 600;
+  --m-titulo-esp: -.01em;
+  --m-cifra: "Sora",system-ui,sans-serif;
+  --m-cifra-peso: 600;
+  --m-cifra-esp: -.04em;
+  --m-chip-fuente: "Sora",system-ui,sans-serif;
+  --m-chip-peso: 600;
+  --m-chip-esp: .07em;
   --m-chip-caja: uppercase;
   --m-dur: 1.2s;
   --m-curva: cubic-bezier(.2,.9,.25,1);
 }
 
-/* ---------- Vitral · El más caro de hacer ---------- */
-.vitral {
+/* ---------- Cénit · Antes «Vitral» ---------- */
+.cenit {
   --m-pagina: #0c1030;
-  --m-grano: radial-gradient(circle at 30% 18%, rgba(120,150,255,.2), transparent 55%), radial-gradient(circle at 78% 72%, rgba(255,190,90,.13), transparent 50%);
+  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E %3Cg stroke='%23d8b878' stroke-width='.8' opacity='.45' fill='none'%3E %3Cpath d='M28 34L64 58L58 104L96 126L142 108L168 142'/%3E %3Cpath d='M64 58L112 44L142 108'/%3E %3Cpath d='M58 104L22 132L46 176'/%3E %3Cpath d='M96 126L112 172'/%3E %3C/g%3E %3Cg fill='%23f0dcb4'%3E %3Ccircle cx='28' cy='34' r='1.9'/%3E%3Ccircle cx='64' cy='58' r='2.6'/%3E%3Ccircle cx='112' cy='44' r='1.6'/%3E %3Ccircle cx='58' cy='104' r='2.2'/%3E%3Ccircle cx='96' cy='126' r='2.9'/%3E%3Ccircle cx='142' cy='108' r='2'/%3E %3Ccircle cx='168' cy='142' r='1.7'/%3E%3Ccircle cx='22' cy='132' r='1.5'/%3E%3Ccircle cx='46' cy='176' r='1.8'/%3E %3Ccircle cx='112' cy='172' r='1.4'/%3E %3C/g%3E %3Cg fill='%238f9ad8' opacity='.7'%3E %3Ccircle cx='150' cy='26' r='1'/%3E%3Ccircle cx='182' cy='72' r='.9'/%3E%3Ccircle cx='10' cy='72' r='.9'/%3E %3Ccircle cx='128' cy='88' r='.8'/%3E%3Ccircle cx='76' cy='150' r='1'/%3E%3Ccircle cx='188' cy='184' r='.9'/%3E %3Ccircle cx='40' cy='12' r='.8'/%3E%3Ccircle cx='160' cy='196' r='.8'/%3E%3Ccircle cx='88' cy='14' r='.9'/%3E %3C/g%3E %3Cg stroke='%23ffeccb' stroke-width='.9' opacity='.8'%3E %3Cpath d='M96 118v16M88 126h16'/%3E%3Cpath d='M64 50v16M56 58h16'/%3E %3C/g%3E %3C/svg%3E");
   --m-grano-op: 1;
-  --m-tarjeta: linear-gradient(158deg, #191f4c 0%, #12163a 60%, #1c1f52 100%);
-  --m-borde: 4px;
-  --m-borde-color: #3a3f6b;
-  --m-marco: linear-gradient(140deg,#2a2e55,#8f97c8 20%,#1a1d3d 42%,#d8bd7e 58%,#6f77a8 78%,#20244a) 1;
-  --m-sombra: inset 0 0 0 1px rgba(210,180,110,.34), 0 12px 30px rgba(0,0,0,.5);
+  --m-tarjeta: linear-gradient(158deg, #171d46 0%, #0f1332 62%, #191e4e 100%);
+  --m-borde: 1px;
+  --m-borde-color: #d8b878;
+  --m-sombra: inset 0 0 0 4px rgba(15,19,50,.9), inset 0 0 0 5px rgba(216,184,120,.35), 0 14px 34px rgba(0,0,0,.55);
   --m-r-tarjeta: 3px;
   --m-r-mini: 3px;
   --m-r-barra: 0;
   --m-r-chip: 3px;
-  --m-tinta: #eae7ff;
-  --m-tinta-2: #9a9ccb;
-  --m-acento: #ffd98a;
-  --m-acento-velo: rgba(255,217,138,.14);
-  --m-aviso: #f5d76e;
-  --m-aviso-velo: rgba(245,215,110,.15);
-  --m-peligro: #ff8a70;
-  --m-peligro-velo: rgba(255,138,112,.15);
-  --m-carril: #262b58;
-  --m-icono: linear-gradient(150deg,#7d5cff,#2f3fa8);
-  --m-titulo: "Marcellus",Georgia,serif;
-  --m-titulo-px: 16px;
+  --m-tinta: #eeecff;
+  --m-tinta-2: #a0a3d2;
+  --m-acento: #f0dcb4;
+  --m-acento-velo: rgba(240,220,180,.13);
+  --m-aviso: #ffd98a;
+  --m-aviso-velo: rgba(255,217,138,.14);
+  --m-peligro: #ff9db0;
+  --m-peligro-velo: rgba(255,157,176,.15);
+  --m-carril: #20254e;
+  --m-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Cpath d='M14 0.5C15.4 8 20 12.6 27.5 14 20 15.4 15.4 20 14 27.5 12.6 20 8 15.4 .5 14 8 12.6 12.6 8 14 .5Z' fill='%23f0dcb4'/%3E %3Cpath d='M14 5.5c.8 4.3 4.2 7.7 8.5 8.5-4.3.8-7.7 4.2-8.5 8.5-.8-4.3-4.2-7.7-8.5-8.5 4.3-.8 7.7-4.2 8.5-8.5Z' fill='%230f1338' opacity='.55'/%3E %3Ccircle cx='14' cy='14' r='2.2' fill='%23ffeccb'/%3E %3Cg stroke='%23d8b878' stroke-width='.9' opacity='.7'%3E %3Cpath d='M22.5 5.5l2.6-2.6M5.5 22.5l-2.6 2.6M22.5 22.5l2.6 2.6M5.5 5.5L2.9 2.9'/%3E %3C/g%3E %3C/svg%3E") center/contain no-repeat;
+  --m-titulo: "Julius Sans One",system-ui,sans-serif;
+  --m-titulo-px: 15px;
   --m-titulo-peso: 400;
-  --m-titulo-esp: .03em;
-  --m-cifra: "Marcellus",Georgia,serif;
+  --m-titulo-esp: .08em;
+  --m-titulo-caja: uppercase;
+  --m-cifra: "Julius Sans One",system-ui,sans-serif;
   --m-cifra-peso: 400;
-  --m-cifra-esp: 0;
-  --m-chip-fuente: "Marcellus",Georgia,serif;
-  --m-chip-esp: .09em;
+  --m-cifra-esp: .01em;
+  --m-chip-fuente: "Julius Sans One",system-ui,sans-serif;
+  --m-chip-esp: .13em;
   --m-chip-caja: uppercase;
   --m-dur: 1.4s;
   --m-curva: cubic-bezier(.22,1,.36,1);
@@ -435,10 +445,10 @@
 
 /* ---------- Averno · El oscuro de verdad ---------- */
 .averno {
-  --m-pagina: radial-gradient(ellipse 120% 60% at 50% 118%, #4a1c0c 0%, #1c0d07 55%, #120a07 100%);
+  --m-pagina: radial-gradient(ellipse 115% 58% at 50% 120%, #5a2109 0%, #180b06 52%, #050302 100%);
   --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E %3Cg fill='%238a7566' opacity='.55'%3E %3Ccircle cx='14' cy='23' r='1.1'/%3E%3Ccircle cx='47' cy='9' r='.8'/%3E%3Ccircle cx='71' cy='38' r='1.3'/%3E %3Ccircle cx='103' cy='17' r='.9'/%3E%3Ccircle cx='131' cy='44' r='1.1'/%3E%3Ccircle cx='26' cy='61' r='.9'/%3E %3Ccircle cx='58' cy='79' r='1.2'/%3E%3Ccircle cx='92' cy='66' r='.8'/%3E%3Ccircle cx='145' cy='83' r='1'/%3E %3Ccircle cx='11' cy='102' r='1.2'/%3E%3Ccircle cx='44' cy='121' r='.9'/%3E%3Ccircle cx='79' cy='109' r='1.1'/%3E %3Ccircle cx='117' cy='133' r='.8'/%3E%3Ccircle cx='149' cy='118' r='1.2'/%3E%3Ccircle cx='33' cy='148' r='1'/%3E %3Ccircle cx='68' cy='151' r='.8'/%3E%3Ccircle cx='126' cy='96' r='.9'/%3E%3Ccircle cx='97' cy='141' r='1.1'/%3E %3C/g%3E %3Cg fill='%23ff7a3d' opacity='.85'%3E %3Ccircle cx='120' cy='28' r='1.5'/%3E%3Ccircle cx='38' cy='93' r='1.3'/%3E%3Ccircle cx='88' cy='127' r='1.6'/%3E %3C/g%3E %3Cg stroke='%23ff7a3d' stroke-width='.7' opacity='.3' fill='none'%3E %3Cpath d='M120 28c-2 7-1 13 2 19'/%3E%3Cpath d='M38 93c2 6 1 11-2 16'/%3E %3C/g%3E %3C/svg%3E");
   --m-grano-op: .9;
-  --m-tarjeta: linear-gradient(180deg,#251410 0%,#170c09 100%);
+  --m-tarjeta: linear-gradient(180deg,#1d0f0b 0%,#0a0605 100%);
   --m-borde: 1px;
   --m-borde-color: #4a2418;
   --m-sombra: inset 0 1px 0 rgba(255,150,80,.16), 0 12px 30px rgba(0,0,0,.62);
@@ -454,7 +464,7 @@
   --m-aviso-velo: rgba(240,194,74,.14);
   --m-peligro: #ff3b6b;
   --m-peligro-velo: rgba(255,59,107,.15);
-  --m-carril: #2e1710;
+  --m-carril: #1a0c08;
   --m-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Cg stroke='%23ff7a3d' stroke-width='1.5' stroke-linecap='round'%3E %3Cpath d='M14 1.5v3.6M14 22.9v3.6M1.5 14h3.6M22.9 14h3.6'/%3E %3Cpath d='M5.2 5.2l2.6 2.6M20.2 20.2l2.6 2.6M22.8 5.2l-2.6 2.6M7.8 20.2l-2.6 2.6' opacity='.7'/%3E %3C/g%3E %3Ccircle cx='14' cy='14' r='8' fill='none' stroke='%23ff7a3d' stroke-width='2.6'/%3E %3Ccircle cx='14' cy='14' r='4.6' fill='%23160b06'/%3E %3Cpath d='M14 5.9a8 8 0 0 1 7.6 5.5' fill='none' stroke='%23ffc07a' stroke-width='1.5' stroke-linecap='round'/%3E %3C/svg%3E") center/contain no-repeat;
   --m-titulo: "Grenze Gotisch",Georgia,serif;
   --m-titulo-px: 17px;
@@ -532,8 +542,8 @@
   --m-r-mini: 4px;
   --m-r-barra: 2px;
   --m-r-chip: 2px;
-  --m-cenefa-alto: 16px;
-  --m-cenefa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='16' viewBox='0 0 56 16'%3E %3Crect width='56' height='16' fill='%2315191e'/%3E %3Cg fill='%23ffc233'%3E %3Cpath d='M0 0h10l-8 8 8 8H0z'/%3E%3Cpath d='M18 0h10l-8 8 8 8H18z'/%3E%3Cpath d='M36 0h10l-8 8 8 8H36z'/%3E %3C/g%3E %3Cg fill='%2315191e' opacity='.55'%3E %3Crect x='0' y='0' width='56' height='2'/%3E%3Crect x='6' y='2' width='3' height='1'/%3E%3Crect x='27' y='2' width='5' height='1'/%3E %3C/g%3E %3Crect y='15' width='56' height='1' fill='%2305070a' opacity='.8'/%3E %3C/svg%3E") repeat-x;
+  --m-cenefa-alto: 14px;
+  --m-cenefa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='14' viewBox='0 0 140 14'%3E %3Crect width='140' height='14' fill='%23161c22'/%3E %3Cpath d='M0 13.4h140' stroke='%2305070a' stroke-width='1.2'/%3E %3Cg fill='%23ffc233'%3E%3Cpath d='M4 2h7l-5 5 5 5H4z'/%3E%3C/g%3E %3Cg stroke='%235f7181' stroke-width='1'%3E %3Cpath d='M20 4v6M28 5.5v3M36 5.5v3M44 5.5v3M52 4v6M60 5.5v3M68 5.5v3M76 5.5v3M84 4v6'/%3E %3C/g%3E %3Cg stroke='%234db8ff' stroke-width='1.4' opacity='.85'%3E%3Cpath d='M96 4v6M100 6v2'/%3E%3C/g%3E %3Cg fill='%235f7181'%3E%3Crect x='118' y='6' width='16' height='2'/%3E%3C/g%3E %3C/svg%3E") repeat-x;
   --m-tinta: #e6f0f7;
   --m-tinta-2: #8fa2b1;
   --m-acento: #4db8ff;

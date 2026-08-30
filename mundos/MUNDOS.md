@@ -10,7 +10,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
 | --- | --- |
 | **Ya está en la app** (0.7.37) | La capa de material: `--r-*`, `--sup-*`, `--marco-*`, `--tipo-titulo`, `--tipo-cifra`, `--dur-*`. Ver la sección «El material» de `CLAUDE.md`. |
 | **Ya está en la app** (0.7.38) | Servir de la copia primero, para que un mundo se baje UNA vez y no cada mañana. |
-| **Diseñado y medido, sin construir** | Los catorce mundos de este documento. |
+| **Diseñado y medido, sin construir** | Los catorce mundos de este documento (revisados). |
 | **Propuesto, NO existe** | `--tipo-titulo-escala`, el selector de mundo en Ajustes, y la carga diferida de las tipografías y texturas de un mundo. |
 
 ## Las tres reglas
@@ -34,23 +34,27 @@ Sobran 38: **un 16% de holgura**, y eso es toda la pista.
 
 | Cara | vs Outfit | Ancho | Escala | Mundo |
 | --- | --- | --- | --- | --- |
-| Alegreya | −10% | 212,8 | 1 | Talavera |
+| Big Shoulders Display | −26% | 174,2 | 1 | Ventisca |
+| Grenze Gotisch | −17% | 195,3 | 1 | Averno |
+| Alegreya Sans | −14% | 204,2 | 1 | Talavera |
+| Anton | −13% | 205,0 | 1 | Rótulo |
 | Rajdhani | −10% | 212,5 | 1 | Blueprint |
-| Baloo 2 | −2% | 232,1 | 1 | Neón |
-| Marcellus | −1% | 235,0 | 1 | Vitral |
-| **Outfit** | **+0%** | **236,5** | 1 | *la de casa hoy* |
+| **Outfit** | **+0%** | **236,5** | 1 | Grabado · *y la app* |
 | Chakra Petch | +4% | 245,4 | 1 | Cyberpunk |
-| Bodoni Moda | +6% | 250,1 | 1 | Obsidiana |
-| Fraunces | +8% | 255,5 | 1 | Papel picado |
 | Poppins | +11% | 263,0 | 1 | *deja 3 px* |
-| Bevan | +21% | 285,9 | **0.93** | Grabado |
+| Sora | +13% | 268,1 | **0.99** | Obsidiana |
+| Archivo Black | +19% | 281,7 | **0.94** | Papel picado |
+| Julius Sans One | +23% | 290,9 | **0.91** | Cénit |
 | Cinzel | +28% | 301,8 | **0.88** | Forja |
 | JetBrains Mono | +29% | 306,0 | **0.86** | Consola |
-| Bungee | +39% | 328,4 | **0.80** | Rótulo |
 | Michroma | +38% | 326,8 | **0.81** | Bastión |
-| Grenze Gotisch | −17% | 195,3 | 1 | Averno |
-| Big Shoulders Display | −26% | 174,2 | 1 | Ventisca |
-| Monoton | +42% | 335,5 | 0.79 | *descartada* |
+| Bungee | +39% | 328,4 | — | *descartada: ilegible* |
+| Monoton | +42% | 335,5 | — | *descartada* |
+
+**Serif, las justas.** De catorce mundos solo dos llevan serif —Forja (Cinzel,
+inscripcional, que es piedra tallada) y Averno (Grenze Gotisch, que es gótica—.
+Todo lo demás va en sans. Una serif de titular a 15 px dentro de una tarjeta se
+lee peor y envejece antes.
 
 **La regla no es «una sola letra para siempre».** Es: *ninguna cara se descarta
 por ancha; se le declara su escala*, y ese número se comprueba midiendo otra
@@ -77,17 +81,17 @@ casa, y ninguno lleva marca, icono ni tipografía de nadie.
 
 | Mundo | Qué es | Letra | Ancho | Escala | Esquinas | Peso | Horas |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **Talavera** | Loza vidriada | Alegreya | −10% | 1 | 14 px · suaves | ~120 KB | Las dos |
-| **Grabado** | El de las calaveras | Bevan | +21% | 0.93 | 0 px · vivas | ~75 KB | Día |
-| **Rótulo** | El de la calle | Bungee | +39% | 0.80 | 16 px · redondeadas | ~90 KB | Noche |
-| **Papel picado** | El de fiesta | Fraunces | +8% | 1 | 5 px · casi vivas | ~95 KB | Día |
+| **Talavera** | Loza vidriada | Alegreya Sans | −14% | 1 | 14 px · suaves | ~110 KB | Las dos |
+| **Grabado** | El de las calaveras | Outfit | +0% | 1 | 0 px · vivas | ~35 KB | Día |
+| **Rótulo** | El de la calle | Anton | −13% | 1 | 16 px · redondeadas | ~80 KB | Noche |
+| **Papel picado** | El de fiesta | Archivo Black | +19% | 0.94 | 5 px · casi vivas | ~85 KB | Día |
 | **Consola** | Gratis, siempre | JetBrains Mono | +29% | 0.86 | 0 px · vivas | ~28 KB | Noche |
 | **Neón** | Todo redondo | Baloo 2 | −2% | 1 | Redondas del todo | ~60 KB | Noche |
 | **Cyberpunk** | Visor, no marco | Chakra Petch | +4% | 1 | 0 px + chaflán | ~70 KB | Noche |
 | **Blueprint** | Nada está terminado | Rajdhani | −10% | 1 | 0 px · vivas | ~65 KB | Noche |
 | **Forja** | El buque insignia | Cinzel | +28% | 0.88 | 0 px · vivas | ~180 KB | Noche |
-| **Obsidiana** | El oscuro elegante | Bodoni Moda | +6% | 1 | 0 px · vivas | ~85 KB | Noche |
-| **Vitral** | El más caro de hacer | Marcellus | −1% | 1 | 3 px · casi vivas | ~240 KB | Noche |
+| **Obsidiana** | El oscuro elegante | Sora | +13% | 0.99 | 0 px · vivas | ~80 KB | Noche |
+| **Cénit** | Antes «Vitral» | Julius Sans One | +23% | 0.91 | 3 px · casi vivas | ~80 KB | Noche |
 | **Averno** | El oscuro de verdad | Grenze Gotisch | −17% | 1 | 2 px · piedra tallada | ~95 KB | Noche |
 | **Ventisca** | Frío con una hoguera | Big Shoulders Display | −26% | 1 | 3 px · chapa | ~90 KB | Noche |
 | **Bastión** | Blindaje | Michroma | +9% | 0.81 | 4 px · placa | ~105 KB | Noche |
@@ -153,6 +157,9 @@ Los catorce de este documento pasan las tres.
 
 - **Cuáles tres se construyen primero.** Con catorce sobre la mesa, la lista
   corta hay que rehacerla.
+- **Si Bungee y Monoton se archivan del todo.** Las dos entran con escala, pero
+  a tamaño de tarjeta son ilegibles. Están fuera de los mundos y solo quedan en
+  la pista de pruebas, de contraejemplo.
 - **Con qué letra va la app.** Hoy la pantalla va en **Outfit** (incrustada en
   `css/fuente.css`) y los seis correos van en **Poppins**, que sí se carga de
   Google. La marca está partida en dos y conviene cerrarlo antes de que haya
