@@ -785,8 +785,7 @@ const AJUSTES_SECS = [
   { id: "cuenta", nombre: "Mi perfil",         icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
   { id: "plan",   nombre: "Mi plan",           icon: "gem",     sub: "Tu plan, qué incluye y hasta cuándo va" },
   { id: "menu",   nombre: "Mis módulos",       icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
-  { id: "aspecto", nombre: "Apariencia",      icon: "brush",   sub: "Con qué luz se ve Norata" },
-  { id: "ritmo",  nombre: "Mi exigencia",      icon: "bolt",    sub: "" },
+  { id: "aspecto", nombre: "Apariencia",       icon: "brush",   sub: "Con qué luz se ve Norata" },
   { id: "datos",  nombre: "Mi almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" }
 ];
 
@@ -813,16 +812,6 @@ function seccionesAjustes() {
      enterarse de nada—. Ahora dice qué plan hay y hasta cuándo, que es
      exactamente lo que trae aquí a la gente; entrar deja de ser la única
      forma de saberlo. */
-  /* La fila de la exigencia dice cuál tienes puesta, por la misma razón que la
-     del plan: la queja que la trajo aquí era justamente que no se veía por
-     ningún lado qué habías elegido, y entrar no puede ser la única forma de
-     enterarse. */
-  const ritmo = secs.find(x => x.id === "ritmo");
-  if (ritmo) {
-    const ex = exigenciaActual();
-    ritmo.sub = ex.nombre + " · " + ex.grace + " días de gracia";
-  }
-
   const plan = secs.find(x => x.id === "plan");
   if (plan && typeof planSub === "function") {
     plan.sub = planSub();
@@ -893,7 +882,10 @@ function renderAjustes() {
   if (ajusteAbierto === "aspecto" && typeof renderPanelApariencia === "function") renderPanelApariencia();
   if (ajusteAbierto === "admin" && typeof renderPanelAdmin === "function") renderPanelAdmin();
   if (ajusteAbierto === "plan" && typeof renderPanelPlan === "function") renderPanelPlan();
-  if (ajusteAbierto === "ritmo") renderPanelRitmo();
+  /* La exigencia se dibuja al abrir «Mi perfil», que es donde vive desde que
+     dejó de ser sección propia: quien viene a cambiarla viene a cambiar algo
+     suyo, y ahí es donde están las otras cosas suyas. */
+  if (ajusteAbierto === "cuenta") renderPanelRitmo();
 
   const abierta = seccionesAjustes().find(x => x.id === ajusteAbierto);
   const titulo = document.getElementById("ajustes-titulo");
@@ -946,7 +938,6 @@ function ponerExigencia(id) {
   state.settings.exigencia = id;
   save();
   renderPanelRitmo();
-  renderAjustes();          // la fila del índice dice cuál está puesta
   toast(`Exigencia: ${EXIGENCIAS[id].nombre}`, "hecho");
 }
 
@@ -1009,8 +1000,12 @@ function abrirMenuAjustes(btn) {
      archivo se carga antes que el resto y la fila se dibuja desde varios
      sitios. Un adorno no puede tumbar el menú de la cuenta. */
   const insignia = typeof insigniaExpedicionHTML === "function" ? insigniaExpedicionHTML(30) : "";
+  /* La fila lleva a la COLECCIÓN y no a «Mi perfil», que tiene su propio
+     botón tres renglones más abajo — o sea que no se pierde nada. Es el
+     sitio natural: aquí es donde vive la insignia, y tocar tu insignia
+     tiene que llevar a tu recorrido. */
   const ficha = dentro
-    ? `<button class="mm-perfil" onclick="abrirAjustes('cuenta')">
+    ? `<button class="mm-perfil" onclick="abrirColeccion()">
          ${avatarHTML(48)}
          <span class="mm-tx"><b>${escapeHtml(perfilActual().saludo || "Sin nombre")}</b>
          <span>${escapeHtml(cfg.correo || "")}</span>

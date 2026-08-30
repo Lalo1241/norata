@@ -90,9 +90,6 @@ COLUMNAS_CONTRASTE = ("Tinta sobre relleno", "Escribir", "Trazar", "Trazo vs car
 # Los trazos son los que se aprobaron en la lámina del teléfono, recuperados
 # tal cual: viewBox 0 0 24 24, trazo 1,7 y remates redondos, que es el formato
 # de ICONS en js/01-base.js.
-# Los trazos son los que se aprobaron en la lámina del teléfono, recuperados
-# tal cual: viewBox 0 0 24 24, trazo 1,7 y remates redondos, que es el formato
-# de ICONS en js/01-base.js.
 #
 # Desde el reparto nuevo, un rango NO viene solo: trae su ambiente y toma su
 # color. Eso convierte la escalera en cinco capítulos en vez de en doce

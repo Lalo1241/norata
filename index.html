@@ -679,6 +679,17 @@
        informe" del panel de cada módulo, y se entra por la rama de la que
        vienes: nunca se cae en un índice a buscar lo que ibas a ver.
        El cuerpo lo dibuja renderInforme() en js/10g-informe.js. -->
+  <!-- La colección: el inventario del recorrido. Se llega desde la fila de la
+       cuenta —el menú del engrane y la ficha de Mi perfil—, que es donde vive
+       la insignia. La dibuja `renderColeccion` en js/02b-expedicion.js. -->
+  <div class="view form-view" id="view-coleccion">
+    <div class="back-row">
+      <button class="icon-btn" onclick="volverDeColeccion()" aria-label="Volver">←</button>
+      <h2>Mi expedición</h2>
+    </div>
+    <div id="coleccion-cuerpo"></div>
+  </div>
+
   <div class="view form-view" id="view-informe">
     <div class="back-row">
       <button class="icon-btn" onclick="volverDeInforme()" aria-label="Volver">←</button>
@@ -704,6 +715,15 @@
             <div class="sync-status" id="sync-status"></div>
             <div id="sync-panel"></div>
           </div>
+          <!-- La exigencia vive aquí y no en una sección propia: quien viene a
+               cambiarla viene a cambiar algo SUYO, y aquí es donde están las
+               otras cosas suyas. Lo dibuja `renderPanelRitmo`. -->
+          <div class="panel">
+            <h3>Qué tan exigente lo quieres</h3>
+            <p class="settings-note">Cuánto aguanta una habilidad sin que la practiques antes de empezar a bajar, y a qué ritmo baja. Es lo que eliges al armar tu tablero, y aquí se cambia cuando quieras.</p>
+            <div id="ritmo-opciones"></div>
+            <div id="ritmo-aplicar"></div>
+          </div>
         </section>
 
         <section class="ajuste-bloque" data-sec="plan">
@@ -726,19 +746,6 @@
             <!-- Aquí y no en otro sitio: quien cierra el tutorial sin querer viene
                  a buscarlo justo donde están los módulos que explicaba. -->
             <button class="btn btn-linea btn-block" style="margin-top:14px" onclick="verTutorialOtraVez()">Ver otra vez qué hace cada sección</button>
-          </div>
-        </section>
-
-        <!-- La exigencia tiene sección propia y no vive dentro de otra porque
-             es lo único que se elige una vez y luego no se puede ni ver: quien
-             venga a cambiarla la va a buscar por su nombre, no dentro de
-             "Mi almacenamiento". Lo dibuja `renderPanelRitmo`. -->
-        <section class="ajuste-bloque" data-sec="ritmo">
-          <div class="panel">
-            <h3>Qué tan exigente lo quieres</h3>
-            <p class="settings-note">Cuánto aguanta una habilidad sin que la practiques antes de empezar a bajar, y a qué ritmo baja. Es lo que eliges al armar tu tablero, y aquí se cambia cuando quieras.</p>
-            <div id="ritmo-opciones"></div>
-            <div id="ritmo-aplicar"></div>
           </div>
         </section>
 

@@ -401,11 +401,13 @@ function renderSync() {
          que la fila del menú de la cuenta —quién eres a la izquierda, por
          dónde vas a la derecha—. Con `typeof` porque esta ficha se dibuja
          también en la puerta, donde no hay datos que contar. */
-      '<div class="perfil-ficha">' + avatarHTML(48) +
+      /* La ficha entera es la puerta de la colección, igual que la fila del
+         menú del engrane: donde está la insignia, se toca la insignia. */
+      '<button class="perfil-ficha" onclick="abrirColeccion(\'settings\')">' + avatarHTML(48) +
       '<div class="perfil-quien"><b>' + escapeHtml(p.saludo || "Sin nombre") + '</b>' +
       '<span>' + escapeHtml((sync.cfg || {}).correo || "") + '</span></div>' +
       (typeof insigniaExpedicionHTML === "function" ? insigniaExpedicionHTML(30) : "") +
-      '</div>' +
+      '</button>' +
       '<label class="field"><span>Tu nombre</span>' +
       '<input type="text" id="perfil-nombre" maxlength="' + NOMBRE_MAX + '" autocomplete="name"' +
       ' value="' + escapeAttr(p.nombre) + '" onchange="perfilGuardarAqui()"></label>' +
