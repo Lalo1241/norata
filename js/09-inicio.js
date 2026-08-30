@@ -59,8 +59,12 @@ function renderOnboarding() {
         <div class="ob-areas">
           ${ONBOARD_AREAS.map(a => `
             <button class="ob-area ${onboardPick.areas.includes(a.id) ? "on" : ""}" style="${tonos("oc", a.color)}" onclick="toggleArea('${a.id}')">
-              <span class="oa-ic">${icon(a.icon, 20)}</span>
-              <span>${a.label}</span>
+              <span class="oa-ic">${icon(a.icon, 22)}</span>
+              <span class="oa-tx">
+                <b>${a.label}</b>
+                <span>${a.skills.join(" · ")}</span>
+              </span>
+              <span class="oa-check">${icon("check", 15)}</span>
             </button>`).join("")}
         </div>
       </div>`,

@@ -47,7 +47,11 @@ function renderSummary() {
         <div class="stack" style="align-items:center">
           <button class="btn btn-primary" onclick="startOnboarding()">Armar mi tablero en 3 preguntas</button>
           <button class="btn btn-ghost" onclick="verElEjemplo()">Ver un ejemplo completo</button>
-          <button class="btn btn-ghost" onclick="openSkillForm()">Empezar de cero</button>
+          <!-- Tres botones del mismo peso en la pantalla más vacía es una
+               decisión de más, y encima la tercera se salta lo único que aquí
+               enseña algo. Sigue estando —hay quien no quiere asistentes— pero
+               pesa como lo que es: una salida, no una opción a la par. -->
+          <button class="suelto" onclick="openSkillForm()">Empezar de cero</button>
         </div>
       </div>`;
     return;
