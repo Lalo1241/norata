@@ -81,18 +81,26 @@ def pagina():
     ICO = {"rango":"◆", "ambiente":"●", "celebracion":"✦"}
     def peldano(n, que, tipo, nota):
         clases = " ".join("t-" + t for t in tipo.split("+"))
-        marcas = "".join(f'<span class="pt {t}">{ICO[t]}</span>' for t in tipo.split("+"))
+        marcas = "".join(f'<span class="pt m-{t}">{ICO[t]}</span>' for t in tipo.split("+"))
         pro = '<span class="etiq pro">Pro</span>' if nota == "Pro" else (
               f'<span class="pel-nota">{esc(nota)}</span>' if nota else "")
-        return (f'<li class="pel {clases}"><span class="pel-n">{n}</span>'
+        dia1 = n == "dia1"
+        etiqueta = "día 1" if dia1 else n
+        return (f'<li class="pel {clases}"><span class="pel-n{" dia" if dia1 else ""}">{etiqueta}</span>'
                 f'<span class="pel-m">{marcas}</span>'
                 f'<span class="pel-q">{esc(que)} {pro}</span></li>')
     escalera = "\n".join(peldano(*p) for p in datos.ESCALERA)
 
+    nom_amb = {m["id"]: m["nombre"] for m in datos.AMBIENTES}
     rangos = "\n".join(
-        f'<li class="rango"><span class="rango-ic">{rango_svg(r["trazo"])}</span>'
+        f'<li class="rango">'
+        f'<span class="rango-ic" style="--n:{r["color"][0]};--d:{r["color"][1]}">{rango_svg(r["trazo"])}</span>'
         f'<span class="rango-n">Nivel {r["nivel"]}</span>'
         f'<b>{esc(r["nombre"])}</b>'
+        f'<span class="rango-par">abre <b>{esc(nom_amb[r["ambiente"]])}</b>'
+        + ('<span class="etiq pro">Pro</span>' if r.get("plan") == "Pro" else '') +
+        f'<span class="par-t" style="background:{r["color"][0]}"></span>'
+        f'<span class="par-t" style="background:{r["color"][1]}"></span></span>'
         f'<span class="rango-c">{esc(r["cuando"])}</span>'
         f'<span class="rango-q">{esc(r["que"])}</span></li>' for r in datos.RANGOS)
 
@@ -266,15 +274,17 @@ table.ancha td:last-child{{white-space:normal; min-width:22rem; color:var(--tint
   display:flex; flex-direction:column}}
 .pel{{display:flex; align-items:baseline; gap:.8rem; padding:.55rem 0 .55rem 1.2rem;
   position:relative}}
-.pel-n{{font-family:var(--disp); font-weight:800; font-size:1.05rem; min-width:1.8rem;
+.pel-n{{font-family:var(--disp); font-weight:800; font-size:1.05rem; min-width:3.1rem;
   font-variant-numeric:tabular-nums; letter-spacing:-.02em}}
 .pel-m{{display:flex; gap:.2rem; min-width:2.6rem}}
 .pt{{font-size:.72rem; line-height:1.6}}
-.pt.rango{{color:var(--tinta-2)}} .pt.ambiente{{color:var(--marca)}}
-.pt.celebracion{{color:var(--aviso)}}
+.pt.m-rango{{color:var(--tinta-2)}} .pt.m-ambiente{{color:var(--marca)}}
+.pt.m-celebracion{{color:var(--aviso)}}
 .pel-q{{color:var(--tinta-2); font-size:.95rem}}
 .pel-q b{{color:var(--tinta)}}
 .pel-nota{{font-size:.8rem; color:var(--tinta-3); font-style:italic}}
+.pel-n.dia{{font-family:var(--mono); font-size:.68rem; font-weight:500; letter-spacing:.06em;
+  color:var(--tinta-3); text-transform:uppercase}}
 .corte{{display:flex; align-items:center; gap:.8rem; margin:.9rem 0 .3rem 1.2rem;
   font-family:var(--mono); font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
   color:var(--aviso)}}
@@ -283,16 +293,23 @@ table.ancha td:last-child{{white-space:normal; min-width:22rem; color:var(--tint
 /* --- rangos --- */
 .rangos{{list-style:none; padding:0; margin:1.4rem 0 0; display:flex;
   flex-direction:column; gap:.5rem}}
-.rango{{display:grid; grid-template-columns:auto 5.2rem 6rem 10rem minmax(0,1fr);
+.rango{{display:grid; grid-template-columns:auto 5.2rem 6rem 13rem 8rem minmax(0,1fr);
   align-items:center; gap:1rem; background:var(--sup); border:1px solid var(--hilo);
   border-radius:11px; padding:.7rem 1rem}}
 @media (max-width:760px){{.rango{{grid-template-columns:auto 1fr; gap:.4rem 1rem}}
   .rango-q{{grid-column:1/-1}} }}
-.rango-ic{{color:var(--marca); display:flex}}
+.rango-ic{{color:var(--d); display:flex}}   /* dos caras, como todo lo demás:
+   el tono de noche sobre papel da 2,35 y el de día sobre carbón 3,15. Por eso
+   cada rango lleva su par y no un color único. */
+@media (prefers-color-scheme: dark){{ :root:not([data-theme="light"]) .rango-ic{{color:var(--n)}} }}
+:root[data-theme="dark"] .rango-ic{{color:var(--n)}}
 .rango-n{{font-family:var(--mono); font-size:.72rem; color:var(--tinta-3);
   font-variant-numeric:tabular-nums}}
 .rango b{{font-family:var(--disp); font-size:1.05rem; font-weight:700}}
 .rango-c{{font-size:.82rem; color:var(--tinta-3)}}
+.rango-par{{font-size:.82rem; color:var(--tinta-3); display:flex; align-items:center; gap:.3rem}}
+.rango-par b{{font-family:var(--sans); font-size:.85rem; font-weight:600; color:var(--tinta-2)}}
+.par-t{{width:11px; height:11px; border-radius:3px; border:1px solid var(--hilo-2)}}
 .rango-q{{font-size:.88rem; color:var(--tinta-2)}}
 .caidas{{list-style:none; padding:0; margin:1.2rem 0 0; display:flex;
   flex-wrap:wrap; gap:.5rem 1.6rem}}
@@ -368,6 +385,8 @@ ul.reglas li::marker{{color:var(--tinta-3)}}
     <a href="#pantalla">La pantalla</a>
     <a href="#tienda">La tiendita</a>
     <a href="#nivel">El nivel de expedición</a>
+    <a href="#abre">Qué abre el nivel</a>
+    <a href="#canta">Cómo se canta</a>
     <a href="#rangos">Los rangos</a>
     <a href="#choque">Lo que no cuadraba</a>
     <a href="#orden">El orden</a>
@@ -596,6 +615,93 @@ ul.reglas li::marker{{color:var(--tinta-3)}}
       nadie, uno que se ve venir sí. Y <b>la celebración al subir</b>, con el
       ambiente ya puesto.</p>
   </div>
+</section>
+
+<section id="abre">
+  <p class="rotulo">La pregunta cara</p>
+  <h2>Qué abre el nivel, y qué no</h2>
+  <p class="sub">Preguntaste si subir de nivel debería desbloquear también
+    funcionalidad, para no destapar la app entera el primer día. Son <b>dos cosas
+    distintas</b> y separarlas es toda la respuesta: una es un problema real y la
+    otra es una solución cara.</p>
+  <p class="sub" style="margin-top:1rem"><b>El problema es real.</b> Norata enseña
+    el primer día cuatro módulos, un árbol de talentos, rachas, informes y un panel
+    de plan. Es mucho, y no todo sirve el primer día: un árbol de talentos con cero
+    habilidades no es una promesa, es una pantalla vacía.</p>
+  <p class="sub" style="margin-top:1rem"><b>Pero poner funciones detrás del nivel se
+    paga en dos sitios.</b> Una función ganada por nivel <b>deja de poder
+    venderse</b>, y ya hay un plan que vive exactamente de eso —<code>LIMITES</code>
+    cobra por crear ramas, talentos e informes—. Y choca de frente con <b>congelar,
+    nunca quitar</b>: un usuario al que la app le dice «esto lo tendrás en el nivel
+    14» está siendo castigado por el tiempo, no premiado por el uso. Es la misma
+    frase que se rechazó al decidir no topar el número.</p>
+  <div class="bloque">
+    <h3>Lo que sí resuelve el problema, sin pagar nada</h3>
+    <p class="sub"><b>Revelar por estado, no por nivel.</b> La app ya sabe cuándo un
+      módulo tiene sentido, y lo sabe mejor que el nivel.</p>
+    <div class="tabla"><table class="ancha">
+      <thead><tr><th>Se enseña</th><th>Cuando</th><th>Por qué el nivel no sirve</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">El árbol de talentos</th><td>Hay una habilidad con historial</td><td>Con cero habilidades el árbol está vacío, tengas el nivel que tengas</td></tr>
+        <tr><th scope="row">Los informes de semana</th><td>Hay siete días de datos</td><td>Un informe de dos días no es un informe</td></tr>
+        <tr><th scope="row">La racha</th><td>Se cumple la primera misión dos días seguidos</td><td>Antes no hay racha que enseñar</td></tr>
+        <tr><th scope="row">Los encargos</th><td>Hay un talento con etapas, o se pide a mano</td><td>Es el módulo que menos gente necesita el primer día</td></tr>
+      </tbody>
+    </table></div>
+    <p class="sub" style="margin-top:1.2rem">La diferencia es la que importa:
+      <b>revelar por nivel es revelar por tiempo; revelar por estado es revelar
+      cuando de verdad sirve</b>. Y no le quita nada a nadie — todo sigue
+      existiendo, funcionando y accesible desde el menú; lo que cambia es cuándo la
+      app lo pone <b>delante</b>. Una cosa es no gritar el primer día y otra es
+      cerrar la puerta.</p>
+  </div>
+  <p class="sub" style="margin-top:1.4rem"><b>Y hay un premio de nivel que sí es
+    funcionalidad y no canibaliza nada:</b> las celebraciones. No cambian lo que
+    puedes hacer, cambian cómo te lo cuenta la app, así que pueden regalarse y
+    venderse sin tocar <code>LIMITES</code>. Ya están en la escalera, en los niveles
+    2, 9, 14 y 16.</p>
+  <p class="sub" style="margin-top:1rem">La regla para el día que aparezca una
+    función candidata es una sola pregunta: <b>¿esto lo pondrías alguna vez en la
+    tabla de precios?</b> Si la respuesta es sí, no puede ser un premio de nivel.</p>
+</section>
+
+<section id="canta">
+  <p class="rotulo">Cuando sube</p>
+  <h2>Cómo se canta un nivel</h2>
+  <p class="sub">Hoy hay <b>un solo tamaño de fiesta</b>:
+    <code>celebrate(title, sub, color, icono)</code>, siete llamadas, y el nivel de
+    una habilidad usa exactamente la misma que un hito. Subir de expedición tiene
+    que ser más que eso, y cuando además abre algo, tiene que decirlo ahí mismo.</p>
+  <div class="tabla"><table class="ancha">
+    <thead><tr><th>Cuándo</th><th>Qué</th><th>Se sale</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Sube una habilidad</th><td>Lo de hoy, sin tocar</td><td>Solo</td></tr>
+      <tr><th scope="row">Sube la expedición</th><td>La misma escena, más grande y más lenta, con el número al centro y el aro del avatar llenándose</td><td>Solo, a los pocos segundos</td></tr>
+      <tr><th scope="row">Sube y abre algo</th><td>Una ventana con lo que se abrió <b>ya puesto</b></td><td>Con un botón, y solo con el botón</td></tr>
+    </tbody>
+  </table></div>
+  <div class="bloque">
+    <h3>La ventana no se cierra por accidente</h3>
+    <ul class="reglas">
+      <li><b>No se cierra tocando fuera.</b> Es la forma número uno de saltarse sin
+        querer lo único que la app te iba a enseñar en semanas.</li>
+      <li><b>Un solo botón</b>, grande y explícito, que dice qué hace: «Ver cómo
+        queda» si abrió un ambiente, «Seguir» si no.</li>
+      <li><b>Escape sí cierra.</b> Parece contradecir lo anterior y no lo hace:
+        tocar fuera es un gesto que se hace sin querer, y pulsar Escape es una
+        decisión. Quitarlo dejaría atrapado a quien usa teclado.</li>
+    </ul>
+  </div>
+  <p class="sub" style="margin-top:1.4rem"><b>Y lo que hace que la ventana valga la
+    pena existir: el ambiente ya está puesto detrás.</b> No se enseña una muestra de
+    lo que ganaste — se aplica, y la ventana aparece encima de la app ya
+    recoloreada. Si lo que se abrió es un rango, detrás está el aro del avatar con
+    su color nuevo. Un premio que hay que ir a buscar a Ajustes no es un premio, es
+    una tarea.</p>
+  <p class="sub" style="margin-top:1rem"><b>Antes que nada de esto:</b> sacar el
+    verde de las cinco llamadas a <code>celebrate()</code>. El menta
+    <code>#5fe0b0</code> está escrito a mano, y mientras siga ahí la fiesta que
+    anuncia un ambiente saldría celebrándolo en el color del ambiente anterior.</p>
 </section>
 
 <section id="rangos">
