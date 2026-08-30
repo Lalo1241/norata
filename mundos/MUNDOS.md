@@ -1,5 +1,9 @@
 # Los mundos de Norata
 
+> **El documento que manda es `apariencias/LEEME.md`.** Ahí están los ocho
+> ambientes, el motor, la pantalla de Ajustes, la tiendita, el nivel de
+> expedición y los rangos. Este es el catálogo de los mundos y nada más.
+
 Paquete de contexto para seguir esto en la computadora. **Léelo entero antes
 de tocar nada**: aquí está lo decidido, lo medido y —sobre todo— lo que
 todavía NO existe en la app, para no dar por hecho lo que aún no está.
