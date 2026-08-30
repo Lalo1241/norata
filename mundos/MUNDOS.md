@@ -10,7 +10,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
 | --- | --- |
 | **Ya está en la app** (0.7.37) | La capa de material: `--r-*`, `--sup-*`, `--marco-*`, `--tipo-titulo`, `--tipo-cifra`, `--dur-*`. Ver la sección «El material» de `CLAUDE.md`. |
 | **Ya está en la app** (0.7.38) | Servir de la copia primero, para que un mundo se baje UNA vez y no cada mañana. |
-| **Diseñado y medido, sin construir** | Los catorce mundos de este documento (revisados dos veces). |
+| **Diseñado y medido, sin construir** | Los trece mundos de este documento (revisados tres veces). |
 | **Propuesto, NO existe** | `--tipo-titulo-escala`, el selector de mundo en Ajustes, y la carga diferida de las tipografías y texturas de un mundo. |
 
 ## Las tres reglas
@@ -19,7 +19,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
    tono —en Neón son ámbar y rosa; en Cyberpunk, magenta— pero no de
    significado. Un mundo cambia con qué se celebra, no con qué se avisa.
 2. **Un círculo es redondo porque es redondo.** El aro de marcar una misión
-   está en 999 px en los catorce, incluso donde todo lo demás tiene la esquina
+   está en 999 px en los trece, incluso donde todo lo demás tiene la esquina
    viva. Por eso `--r-redondo` vive separado de `--r-pastilla` y no pasa por
    `--r-factor`.
 3. **El cuerpo de texto no lo toca nadie.** Un mundo solo llega a `h1/h2/h3`
@@ -43,15 +43,14 @@ Sobran 38: **un 16% de holgura**, y eso es toda la pista.
 | Chakra Petch | +4% | 245,4 | 1 | Cyberpunk |
 | Poppins | +11% | 263,0 | 1 | *deja 3 px* |
 | Sora | +13% | 268,1 | **0.99** | Obsidiana |
-| Archivo Black | +19% | 281,7 | **0.94** | Papel picado |
-| Julius Sans One | +23% | 290,9 | **0.91** | Vitral |
+| Julius Sans One | +23% | 290,9 | **0.91** | Cénit |
 | Cinzel | +28% | 301,8 | **0.88** | Forja |
 | JetBrains Mono | +29% | 306,0 | **0.86** | Consola |
 | Michroma | +38% | 326,8 | **0.81** | Bastión |
 | Bungee | +39% | 328,4 | — | *descartada: ilegible* |
 | Monoton | +42% | 335,5 | — | *descartada* |
 
-**Serif, las justas.** De catorce mundos solo dos llevan serif —Forja (Cinzel,
+**Serif, las justas.** De trece mundos solo dos llevan serif —Forja (Cinzel,
 inscripcional, que es piedra tallada) y Averno (Grenze Gotisch, que es gótica—.
 Todo lo demás va en sans. Una serif de titular a 15 px dentro de una tarjeta se
 lee peor y envejece antes.
@@ -73,7 +72,7 @@ Dos avisos que cuestan tiempo si se ignoran:
 - **Poppins es un 11% más ancha que Outfit** y deja 3 px. Fijar la app a
   Poppins no quita el riesgo: se queda con el menor margen de las que pasan.
 
-## Los catorce mundos
+## Los trece mundos
 
 Cuatro familias. **De relato** son los que vienen de un género en vez de una
 materia: inspirados, nunca calcados — nombre, marco, letra e ilustración son de
@@ -81,20 +80,30 @@ casa, y ninguno lleva marca, icono ni tipografía de nadie.
 
 | Mundo | Qué es | Letra | Ancho | Escala | Esquinas | Peso | Horas |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **Talavera** | Loza vidriada | Alegreya Sans | −14% | 1 | 14 px · suaves | ~110 KB | Las dos |
+| **Talavera** | Loza vidriada | Alegreya Sans | −14% | 1 | 14 px · suaves | ~95 KB | Las dos |
 | **Grabado** | El de las calaveras | Outfit | +0% | 1 | 0 px · vivas | ~35 KB | Día |
-| **Papel picado** | El de fiesta | Archivo Black | +19% | 0.94 | 5 px · casi vivas | ~85 KB | Día |
 | **Consola** | Gratis, siempre | JetBrains Mono | +29% | 0.86 | 0 px · vivas | ~28 KB | Noche |
 | **Neón** | Todo redondo | Baloo 2 | −2% | 1 | Redondas del todo | ~60 KB | Noche |
 | **Cyberpunk** | Visor, no marco | Chakra Petch | +4% | 1 | 0 px + chaflán | ~70 KB | Noche |
 | **Blueprint** | Nada está terminado | Rajdhani | −10% | 1 | 0 px · vivas | ~65 KB | Noche |
 | **Forja** | El buque insignia | Cinzel | +28% | 0.88 | 0 px · vivas | ~180 KB | Noche |
-| **Post-it** | Podría sustituir a Papel picado | Patrick Hand | −22% | 1 | 2 px · papel | ~45 KB | Día |
+| **Post-it** | Una nota en el corcho | Patrick Hand | −22% | 1 | 2 px · papel | ~45 KB | Día |
 | **Obsidiana** | El oscuro elegante | Sora | +13% | 0.99 | 0 px · vivas | ~80 KB | Noche |
-| **Vitral** | Rosetón | Julius Sans One | +23% | 0.91 | 3 px · casi vivas | ~85 KB | Noche |
+| **Cénit** | Vidriera de cielo | Julius Sans One | +23% | 0.91 | 3 px · casi vivas | ~85 KB | Noche |
 | **Averno** | El oscuro de verdad | Grenze Gotisch | −17% | 1 | 2 px · piedra tallada | ~95 KB | Noche |
 | **Ventisca** | Frío con una hoguera | Big Shoulders Display | −26% | 1 | 3 px · chapa | ~90 KB | Noche |
 | **Bastión** | Blindaje | Michroma | +9% | 0.81 | 4 px · placa | ~105 KB | Noche |
+
+**Descartado: Papel picado.** Tres rondas y en cada una se veía peor. El
+motivo no era el dibujo sino el encargo: el papel picado es una guirnalda que
+cruza un patio de lado a lado, y aquí tenía que caber en un mosaico de 160 px
+que casara consigo mismo por los cuatro costados. Lo que en un patio es una
+tira larga, en un mosaico es un cordel que se repite cada palmo. Post-it cubre
+el mismo hueco —papel, día, alegre— y no pelea con su propio formato.
+
+**Vitral es ahora Cénit**, con el mismo plomo, el mismo vidrio añil y el mismo
+icono; lo que cambió tres veces fue el fondo, hasta llegar a algo que se lee
+sin que nadie lo explique.
 
 Las variables de cada uno están en **`mundos/mundos.css`**, los vectores
 editables en **`mundos/svg/`**, y la vista comparada en **`mundos/vista.html`**
@@ -125,23 +134,40 @@ no vuelve a pedir nada nunca.
 
 ## Cómo se comprueba que un mundo está bien
 
-En `herramientas/` está el arnés, con su `LEEME.md`. Para un mundo, tres
+En `herramientas/` está el arnés, con su `LEEME.md`. Para un mundo, cinco
 medidas y ninguna es «se ve bien»:
 
 1. **Contraste sobre el píxel pintado.** Texto por encima de 4,5 sobre 1;
    trazos (aro, barra, contorno) por encima de 3. La forma correcta de medirlo
-   se equivocó tres veces antes de quedar bien, y las tres merecen recordarse:
+   se equivocó CUATRO veces antes de quedar bien, y las cuatro merecen
+   recordarse:
 
    | Cómo se midió | Qué reprobaba mal |
    | --- | --- |
    | Leyendo `backgroundColor` tal cual | Blueprint: su `rgba(255,255,255,.035)` se tomaba por blanco opaco |
    | Componiendo la transparencia, pero sin saber leer degradados | Averno y Ventisca, cuyo fondo es un degradado |
    | Fotografiando el TEXTO | todos: una captura de elemento viene sobre transparente |
+| Leyendo la tinta con una expresión que solo entiende `rgb()` | todos otra vez, al aparecer `color-mix()` |
 
    Lo que funciona: **fotografiar la superficie** (`.ficha`, `.lienzo`), que sí
    tiene fondo, y tomar de ahí el color más repetido —degradado y textura
    incluidos—; la tinta sale del CSS, compuesta si es semitransparente. Está
    implementado en el arnés.
+
+   **Y la cuarta, que es la que más engaña: `color-mix()` no se serializa como
+   `rgb()`.** Sale `color(srgb 0.39 1 0.70)`, con los canales de 0 a 1. Una
+   expresión que saca los tres primeros números y los toma por 0-255 convierte
+   cualquier tinta en casi negro, y el arnés devuelve 1,1 donde de verdad hay
+   12,6. Un número imposible en la dirección equivocada —el arreglo empujaba la
+   tinta HACIA el color legible— es lo que delató que fallaba la medida y no el
+   mundo.
+
+   **Lo que faltaba medir: los chips.** Van sobre su propio velo, no sobre la
+   tarjeta, y hasta ahora el arnés ni los miraba. Al mirarlos, **nueve chips de
+   cinco mundos** estaban por debajo de 4,5 sin que ninguna otra medida lo
+   notara. El arreglo es de una línea y vale para los trece: la tinta del chip
+   se mezcla con la del mundo, `color-mix(in srgb, var(--m-acento) 70%,
+   var(--m-tinta))`, en vez de ser el acento a secas.
 2. **La tipografía cabe.** Con la fuente descargada e incrustada, no fiándose
    de `getComputedStyle().fontFamily`, que solo repite lo declarado y da el
    mismo ancho para todas aunque ninguna haya cargado. Ese fallo también se
@@ -174,11 +200,13 @@ medidas y ninguna es «se ve bien»:
    Un motivo de retícula es la excepción: su costura lleva la línea gruesa a
    propósito y NO debe casar.
 
-Los catorce de este documento pasan las tres.
+Los trece de este documento pasan las cinco. La medida más apretada es la
+barra de Grabado (4,3 sobre un mínimo de 3) y el chip de aviso de Post-it
+(5,12 sobre 4,5).
 
 ## Lo que falta decidir
 
-- **Cuáles tres se construyen primero.** Con catorce sobre la mesa, la lista
+- **Cuáles tres se construyen primero.** Con trece sobre la mesa, la lista
   corta hay que rehacerla.
 - **Si Bungee y Monoton se archivan del todo.** Las dos entran con escala, pero
   a tamaño de tarjeta son ilegibles. Están fuera de los mundos y solo quedan en
@@ -188,7 +216,6 @@ Los catorce de este documento pasan las tres.
   Google. La marca está partida en dos y conviene cerrarlo antes de que haya
   mundos encima.
 - **Cuáles se ganan y cuáles se compran**, y si las dos listas se cruzan.
-- **Si un mundo puede ser de temporada** (lo pide Papel picado).
 - **Si el nivel de expedición** —la cifra que sumaría todo el progreso, que hoy
   no existe— es de dónde cuelgan los desbloqueos.
 

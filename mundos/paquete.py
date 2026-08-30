@@ -8,11 +8,21 @@ RAIZ = "/home/user/norata/mundos"
 os.makedirs(RAIZ + "/svg", exist_ok=True)
 
 # --- los vectores, en fuente editable y no solo incrustados ---------------
-for f in os.listdir("svg"):
-    shutil.copy("svg/" + f, RAIZ + "/svg/" + f)
+# La lista sale de datos.py y no del directorio: al descartar un mundo, sus
+# vectores se quedaban en disco y algo seguía apuntando a ellos. Se copian los
+# que se usan y se borra lo que sobra.
+import re
+usados = set(re.findall(r'svg\(\s*"([^"]+)"', open(datos.__file__, encoding="utf-8").read()))
+for f in usados:
+    orig, dest = os.path.join(datos.AQUI, "svg", f), RAIZ + "/svg/" + f
+    if os.path.abspath(orig) != os.path.abspath(dest):
+        shutil.copy(orig, dest)
+for f in os.listdir(RAIZ + "/svg"):
+    if f not in usados:
+        os.remove(RAIZ + "/svg/" + f)
 
-# --- el CSS de los once, listo para usar ---------------------------------
-css = ["""/* Los once mundos de Norata, en variables.
+# --- el CSS de los trece, listo para usar --------------------------------
+css = ["""/* Los trece mundos de Norata, en variables.
    NADA de aquí toca una regla de la app: un mundo es un bloque de
    variables y punto. Los nombres --m-* son los del BORRADOR; al llevarlos
    a la app se traducen a los de `:root` en css/estilos.css (--sup-*,
