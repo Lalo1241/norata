@@ -3,10 +3,10 @@
 <head>
 <meta charset='utf-8'>
 <meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>Once mundos</title>
+<title>Catorce mundos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Alegreya:wght@500;700;800&family=Baloo+2:wght@600;700&family=Bevan&family=Bodoni+Moda:opsz,wght@6..96,700&family=Bungee&family=Chakra+Petch:wght@600;700&family=Cinzel:wght@700&family=Fraunces:opsz,wght@9..144,800&family=JetBrains+Mono:wght@700&family=Marcellus&family=Poppins:wght@700&family=Rajdhani:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Alegreya:wght@500;700;800&family=Baloo+2:wght@600;700&family=Bevan&family=Bodoni+Moda:opsz,wght@6..96,700&family=Bungee&family=Chakra+Petch:wght@600;700&family=Cinzel:wght@700&family=Fraunces:opsz,wght@9..144,800&family=JetBrains+Mono:wght@700&family=Marcellus&family=Poppins:wght@700&family=Rajdhani:wght@600;700&family=Grenze+Gotisch:wght@600;700&family=Big+Shoulders+Display:wght@700&family=Michroma&display=swap">
 <style>
 :root{
   color-scheme: light dark;
@@ -538,14 +538,143 @@ tbody tr:last-child td{ border-bottom:0; }
   --m-dur: 1.4s;
   --m-curva: cubic-bezier(.22,1,.36,1);
 }
+
+.averno {
+  --m-pagina: radial-gradient(ellipse 120% 60% at 50% 118%, #4a1c0c 0%, #1c0d07 55%, #120a07 100%);
+  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E %3Cg fill='%238a7566' opacity='.55'%3E %3Ccircle cx='14' cy='23' r='1.1'/%3E%3Ccircle cx='47' cy='9' r='.8'/%3E%3Ccircle cx='71' cy='38' r='1.3'/%3E %3Ccircle cx='103' cy='17' r='.9'/%3E%3Ccircle cx='131' cy='44' r='1.1'/%3E%3Ccircle cx='26' cy='61' r='.9'/%3E %3Ccircle cx='58' cy='79' r='1.2'/%3E%3Ccircle cx='92' cy='66' r='.8'/%3E%3Ccircle cx='145' cy='83' r='1'/%3E %3Ccircle cx='11' cy='102' r='1.2'/%3E%3Ccircle cx='44' cy='121' r='.9'/%3E%3Ccircle cx='79' cy='109' r='1.1'/%3E %3Ccircle cx='117' cy='133' r='.8'/%3E%3Ccircle cx='149' cy='118' r='1.2'/%3E%3Ccircle cx='33' cy='148' r='1'/%3E %3Ccircle cx='68' cy='151' r='.8'/%3E%3Ccircle cx='126' cy='96' r='.9'/%3E%3Ccircle cx='97' cy='141' r='1.1'/%3E %3C/g%3E %3Cg fill='%23ff7a3d' opacity='.85'%3E %3Ccircle cx='120' cy='28' r='1.5'/%3E%3Ccircle cx='38' cy='93' r='1.3'/%3E%3Ccircle cx='88' cy='127' r='1.6'/%3E %3C/g%3E %3Cg stroke='%23ff7a3d' stroke-width='.7' opacity='.3' fill='none'%3E %3Cpath d='M120 28c-2 7-1 13 2 19'/%3E%3Cpath d='M38 93c2 6 1 11-2 16'/%3E %3C/g%3E %3C/svg%3E");
+  --m-grano-op: .9;
+  --m-tarjeta: linear-gradient(180deg,#251410 0%,#170c09 100%);
+  --m-borde: 1px;
+  --m-borde-color: #4a2418;
+  --m-sombra: inset 0 1px 0 rgba(255,150,80,.16), 0 12px 30px rgba(0,0,0,.62);
+  --m-r-tarjeta: 2px;
+  --m-r-mini: 2px;
+  --m-r-barra: 2px;
+  --m-r-chip: 2px;
+  --m-tinta: #f2ded1;
+  --m-tinta-2: #a68873;
+  --m-acento: #ff7a3d;
+  --m-acento-velo: rgba(255,122,61,.14);
+  --m-aviso: #f0c24a;
+  --m-aviso-velo: rgba(240,194,74,.14);
+  --m-peligro: #ff3b6b;
+  --m-peligro-velo: rgba(255,59,107,.15);
+  --m-carril: #2e1710;
+  --m-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Cg stroke='%23ff7a3d' stroke-width='1.5' stroke-linecap='round'%3E %3Cpath d='M14 1.5v3.6M14 22.9v3.6M1.5 14h3.6M22.9 14h3.6'/%3E %3Cpath d='M5.2 5.2l2.6 2.6M20.2 20.2l2.6 2.6M22.8 5.2l-2.6 2.6M7.8 20.2l-2.6 2.6' opacity='.7'/%3E %3C/g%3E %3Ccircle cx='14' cy='14' r='8' fill='none' stroke='%23ff7a3d' stroke-width='2.6'/%3E %3Ccircle cx='14' cy='14' r='4.6' fill='%23160b06'/%3E %3Cpath d='M14 5.9a8 8 0 0 1 7.6 5.5' fill='none' stroke='%23ffc07a' stroke-width='1.5' stroke-linecap='round'/%3E %3C/svg%3E") center/contain no-repeat;
+  --m-titulo: "Grenze Gotisch",Georgia,serif;
+  --m-titulo-px: 17px;
+  --m-titulo-peso: 700;
+  --m-titulo-esp: .01em;
+  --m-cifra: "Grenze Gotisch",Georgia,serif;
+  --m-cifra-peso: 700;
+  --m-cifra-esp: 0;
+  --m-chip-fuente: "Grenze Gotisch",Georgia,serif;
+  --m-chip-esp: .05em;
+  --m-dur: 1.3s;
+  --m-curva: cubic-bezier(.15,.8,.25,1);
+}
+.averno .ficha{ overflow:hidden; }
+  .averno .ficha::after{
+    content:""; position:absolute; right:0; bottom:0; width:120px; height:120px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cg fill='none' stroke-linecap='round'%3E %3Cpath d='M120 6A114 114 0 0 0 6 120' stroke='%235a3524' stroke-width='2.6' opacity='.9'/%3E %3Cpath d='M120 26A94 94 0 0 0 26 120' stroke='%236b3d24' stroke-width='2.2' opacity='.8'/%3E %3Cpath d='M120 46A74 74 0 0 0 46 120' stroke='%238a4522' stroke-width='1.9' opacity='.75'/%3E %3Cpath d='M120 66A54 54 0 0 0 66 120' stroke='%23b45420' stroke-width='1.6' opacity='.7'/%3E %3Cpath d='M120 86A34 34 0 0 0 86 120' stroke='%23ff7a3d' stroke-width='1.4' opacity='.6'/%3E %3C/g%3E %3Cg fill='%23ff7a3d' opacity='.5'%3E %3Ccircle cx='103' cy='103' r='1.8'/%3E%3Ccircle cx='88' cy='63' r='1.2'/%3E%3Ccircle cx='63' cy='88' r='1.2'/%3E %3C/g%3E %3C/svg%3E") right bottom/contain no-repeat; opacity:.75; pointer-events:none;
+  }
+
+.ventisca {
+  --m-pagina: radial-gradient(ellipse 130% 55% at 50% 112%, #6b3a12 0%, #17222c 48%, #0d151d 100%);
+  --m-grano: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(190,230,255,.14), transparent 60%);
+  --m-grano-op: 1;
+  --m-tarjeta: linear-gradient(180deg,#1e2833 0%,#141c25 100%);
+  --m-borde: 1px;
+  --m-borde-color: #354654;
+  --m-sombra: inset 0 1px 0 rgba(190,230,255,.18), 0 10px 26px rgba(0,0,0,.5);
+  --m-r-tarjeta: 3px;
+  --m-r-mini: 3px;
+  --m-r-barra: 999px;
+  --m-r-chip: 3px;
+  --m-cenefa-alto: 18px;
+  --m-cenefa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='18' viewBox='0 0 80 18'%3E %3Crect width='80' height='4' fill='%238fd4ff' opacity='.35'/%3E %3Cg fill='%23bfe6ff' opacity='.7'%3E %3Cpath d='M6 3l2.4 9L10.8 3z'/%3E%3Cpath d='M19 3l1.6 5.5L22.2 3z'/%3E%3Cpath d='M31 3l3 13 3-13z'/%3E %3Cpath d='M46 3l1.9 7L49.8 3z'/%3E%3Cpath d='M58 3l2.6 10.5L63.2 3z'/%3E%3Cpath d='M71 3l1.7 6L74.4 3z'/%3E %3C/g%3E %3Cg fill='%23eaf7ff' opacity='.55'%3E %3Cpath d='M13 3l1.2 3.5L15.4 3z'/%3E%3Cpath d='M40 3l1 3L42 3z'/%3E%3Cpath d='M66 3l1.1 3.2L68.2 3z'/%3E %3C/g%3E %3C/svg%3E") repeat-x;
+  --m-tinta: #eaf5fc;
+  --m-tinta-2: #93aabc;
+  --m-acento: #8fd4ff;
+  --m-acento-velo: rgba(143,212,255,.13);
+  --m-aviso: #ffc24a;
+  --m-aviso-velo: rgba(255,194,74,.14);
+  --m-peligro: #ff7a6b;
+  --m-peligro-velo: rgba(255,122,107,.14);
+  --m-carril: #1c2733;
+  --m-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Cg stroke='%238fd4ff' stroke-width='1.7' stroke-linecap='round' fill='none'%3E %3Cpath d='M14 2v24M3.6 8v12M24.4 8v12' transform='rotate(0 14 14)'/%3E %3C/g%3E %3Cg stroke='%238fd4ff' stroke-width='1.7' stroke-linecap='round' fill='none'%3E %3Cpath d='M14 2v24'/%3E%3Cpath d='M14 2v24' transform='rotate(60 14 14)'/%3E%3Cpath d='M14 2v24' transform='rotate(120 14 14)'/%3E %3C/g%3E %3Cg stroke='%23bfe6ff' stroke-width='1.2' stroke-linecap='round' fill='none'%3E %3Cpath d='M14 6l-3.2 3.4M14 6l3.2 3.4M14 22l-3.2-3.4M14 22l3.2-3.4'/%3E %3Cg transform='rotate(60 14 14)'%3E%3Cpath d='M14 6l-3.2 3.4M14 6l3.2 3.4M14 22l-3.2-3.4M14 22l3.2-3.4'/%3E%3C/g%3E %3Cg transform='rotate(120 14 14)'%3E%3Cpath d='M14 6l-3.2 3.4M14 6l3.2 3.4M14 22l-3.2-3.4M14 22l3.2-3.4'/%3E%3C/g%3E %3C/g%3E %3Ccircle cx='14' cy='14' r='2.1' fill='%23eaf7ff'/%3E %3C/svg%3E") center/contain no-repeat;
+  --m-titulo: "Big Shoulders Display",Impact,sans-serif;
+  --m-titulo-px: 19px;
+  --m-titulo-peso: 700;
+  --m-titulo-esp: .02em;
+  --m-cifra: "Big Shoulders Display",Impact,sans-serif;
+  --m-cifra-peso: 700;
+  --m-cifra-esp: .01em;
+  --m-chip-fuente: "Big Shoulders Display",Impact,sans-serif;
+  --m-chip-esp: .07em;
+  --m-chip-caja: uppercase;
+  --m-dur: .8s;
+  --m-curva: cubic-bezier(.25,.85,.3,1);
+}
+.ventisca .ficha{
+    overflow:hidden; padding-top:28px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='110' height='70' viewBox='0 0 110 70'%3E %3Cg stroke='%23bfe6ff' fill='none' stroke-linecap='round' opacity='.8'%3E %3Cpath d='M0 0 L44 34' stroke-width='1.6'/%3E %3Cg stroke-width='1.1'%3E %3Cpath d='M9 7l-6 8M9 7l8-6M18 14l-5 7M18 14l7-5M27 21l-4.5 6.5M27 21l6.5-4.5M36 28l-4 5.5M36 28l5.5-4'/%3E %3C/g%3E %3Cg stroke-width='.7' opacity='.75'%3E %3Cpath d='M3 15l-3.5 4M17 1l4-3.5M13 21l-3 4M25 16l4-3M22.5 27.5l-2.5 3.5M33.5 16.5l3.5-2.5M32 33.5l-2 3M41.5 24l3-2'/%3E %3C/g%3E %3C/g%3E %3Cg stroke='%238fd4ff' fill='none' stroke-linecap='round' opacity='.45' stroke-width='1.2'%3E %3Cpath d='M110 0 L74 28'/%3E %3Cpath d='M103 5.5l5 7M96 11l6.5 5.5M89 16.5l5 7M82 22l6.5 5.5'/%3E %3C/g%3E %3Cg fill='%23eaf7ff' opacity='.5'%3E %3Ccircle cx='52' cy='9' r='1'/%3E%3Ccircle cx='66' cy='18' r='.8'/%3E%3Ccircle cx='59' cy='43' r='.9'/%3E %3C/g%3E %3C/svg%3E"), linear-gradient(180deg,#1e2833 0%,#141c25 100%);
+    background-position:center top, center; background-repeat:no-repeat, no-repeat;
+    background-size:110px 70px, auto;
+  }
+
+.bastion {
+  --m-pagina: #0e1216;
+  --m-grano: repeating-linear-gradient(90deg, rgba(120,160,190,.05) 0 1px, transparent 1px 58px), repeating-linear-gradient(0deg, rgba(120,160,190,.05) 0 1px, transparent 1px 58px);
+  --m-grano-op: 1;
+  --m-tarjeta: linear-gradient(180deg,#222b34 0%,#161d24 58%,#1a222a 100%);
+  --m-borde: 1px;
+  --m-borde-color: #3c4854;
+  --m-sombra: inset 0 1.5px 0 rgba(160,200,225,.22), inset 0 -1.5px 0 rgba(0,0,0,.55), 0 10px 26px rgba(0,0,0,.5);
+  --m-r-tarjeta: 4px;
+  --m-r-mini: 4px;
+  --m-r-barra: 2px;
+  --m-r-chip: 2px;
+  --m-cenefa-alto: 16px;
+  --m-cenefa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='16' viewBox='0 0 56 16'%3E %3Crect width='56' height='16' fill='%2315191e'/%3E %3Cg fill='%23ffc233'%3E %3Cpath d='M0 0h10l-8 8 8 8H0z'/%3E%3Cpath d='M18 0h10l-8 8 8 8H18z'/%3E%3Cpath d='M36 0h10l-8 8 8 8H36z'/%3E %3C/g%3E %3Cg fill='%2315191e' opacity='.55'%3E %3Crect x='0' y='0' width='56' height='2'/%3E%3Crect x='6' y='2' width='3' height='1'/%3E%3Crect x='27' y='2' width='5' height='1'/%3E %3C/g%3E %3Crect y='15' width='56' height='1' fill='%2305070a' opacity='.8'/%3E %3C/svg%3E") repeat-x;
+  --m-tinta: #e6f0f7;
+  --m-tinta-2: #8fa2b1;
+  --m-acento: #4db8ff;
+  --m-acento-velo: rgba(77,184,255,.13);
+  --m-aviso: #ffc233;
+  --m-aviso-velo: rgba(255,194,51,.14);
+  --m-peligro: #ff5a4d;
+  --m-peligro-velo: rgba(255,90,77,.14);
+  --m-carril: #131a21;
+  --m-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Cpath d='M14 1.6l10.7 6.2v12.4L14 26.4 3.3 20.2V7.8z' fill='%231d242b' stroke='%234db8ff' stroke-width='1.6' stroke-linejoin='round'/%3E %3Cpath d='M14 1.6l10.7 6.2-10.7 6.2L3.3 7.8z' fill='%234db8ff' opacity='.22'/%3E %3Ccircle cx='14' cy='14' r='3' fill='none' stroke='%234db8ff' stroke-width='1.5'/%3E %3Cpath d='M14 17v4.6' stroke='%234db8ff' stroke-width='1.5' stroke-linecap='round'/%3E %3C/svg%3E") center/contain no-repeat;
+  --m-titulo: "Michroma",system-ui,sans-serif;
+  --m-titulo-px: 11.5px;
+  --m-titulo-peso: 400;
+  --m-titulo-esp: .02em;
+  --m-cifra: "Michroma",system-ui,sans-serif;
+  --m-cifra-peso: 400;
+  --m-cifra-esp: -.02em;
+  --m-chip-fuente: "Michroma",system-ui,sans-serif;
+  --m-chip-esp: .06em;
+  --m-chip-caja: uppercase;
+  --m-dur: .3s;
+  --m-curva: cubic-bezier(.2,.8,.2,1);
+}
+.bastion .ficha{
+    padding:30px 22px 18px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E %3Ccircle cx='9' cy='9' r='7.4' fill='%23232b33'/%3E %3Ccircle cx='9' cy='9' r='7.4' fill='none' stroke='%230a0d11' stroke-width='1.2'/%3E %3Ccircle cx='9' cy='9' r='5' fill='%2339434e'/%3E %3Cpath d='M9 4.4a4.6 4.6 0 0 1 4 2.4' fill='none' stroke='%236f7d8c' stroke-width='1.5' stroke-linecap='round'/%3E %3Cpath d='M6.6 6.6l4.8 4.8M11.4 6.6l-4.8 4.8' stroke='%230d1116' stroke-width='1.3' stroke-linecap='round'/%3E %3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E %3Ccircle cx='9' cy='9' r='7.4' fill='%23232b33'/%3E %3Ccircle cx='9' cy='9' r='7.4' fill='none' stroke='%230a0d11' stroke-width='1.2'/%3E %3Ccircle cx='9' cy='9' r='5' fill='%2339434e'/%3E %3Cpath d='M9 4.4a4.6 4.6 0 0 1 4 2.4' fill='none' stroke='%236f7d8c' stroke-width='1.5' stroke-linecap='round'/%3E %3Cpath d='M6.6 6.6l4.8 4.8M11.4 6.6l-4.8 4.8' stroke='%230d1116' stroke-width='1.3' stroke-linecap='round'/%3E %3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E %3Ccircle cx='9' cy='9' r='7.4' fill='%23232b33'/%3E %3Ccircle cx='9' cy='9' r='7.4' fill='none' stroke='%230a0d11' stroke-width='1.2'/%3E %3Ccircle cx='9' cy='9' r='5' fill='%2339434e'/%3E %3Cpath d='M9 4.4a4.6 4.6 0 0 1 4 2.4' fill='none' stroke='%236f7d8c' stroke-width='1.5' stroke-linecap='round'/%3E %3Cpath d='M6.6 6.6l4.8 4.8M11.4 6.6l-4.8 4.8' stroke='%230d1116' stroke-width='1.3' stroke-linecap='round'/%3E %3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E %3Ccircle cx='9' cy='9' r='7.4' fill='%23232b33'/%3E %3Ccircle cx='9' cy='9' r='7.4' fill='none' stroke='%230a0d11' stroke-width='1.2'/%3E %3Ccircle cx='9' cy='9' r='5' fill='%2339434e'/%3E %3Cpath d='M9 4.4a4.6 4.6 0 0 1 4 2.4' fill='none' stroke='%236f7d8c' stroke-width='1.5' stroke-linecap='round'/%3E %3Cpath d='M6.6 6.6l4.8 4.8M11.4 6.6l-4.8 4.8' stroke='%230d1116' stroke-width='1.3' stroke-linecap='round'/%3E %3C/svg%3E"),
+      linear-gradient(180deg,#222b34 0%,#161d24 58%,#1a222a 100%);
+    background-position:7px 22px, right 7px top 22px, 7px bottom 7px, right 7px bottom 7px, center;
+    background-repeat:no-repeat; background-size:11px 11px, 11px 11px, 11px 11px, 11px 11px, auto;
+  }
 </style>
 
 <div class="hoja">
 <header>
   <div class="serie"><i></i><span class="rotulo">Norata · catálogo completo</span></div>
-  <h1>Once mundos</h1>
-  <p class="tesis">Todo lo aprobado hasta hoy, junto: los de aquí, los de pantalla y los de materia. <b>Cada uno con su letra medida y su escala comprobada.</b></p>
-  <p class="entradilla">La misma pieza once veces, con el CSS que se copiaría tal cual. Ninguno toca una regla de la app: todos son variables.</p>
+  <h1>Catorce mundos</h1>
+  <p class="tesis">Todo lo aprobado hasta hoy, junto: los de relato, los de aquí, los de pantalla y los de materia. <b>Cada uno con su letra medida y su escala comprobada.</b></p>
+  <p class="entradilla">La misma pieza catorce veces, con el CSS que se copiaría tal cual. Ninguno toca una regla de la app: todos son variables.</p>
 </header>
 
 <section>
@@ -568,6 +697,14 @@ tbody tr:last-child td{ border-bottom:0; }
   <div class="pista">
     <div class="carril-cab"><span>Tipografía</span><span>«Árbol de talentos» · la raya roja es el límite</span><span>Veredicto</span></div>
     <div class="carril">
+      <div class="quien"><b>Big Shoulders Display</b><span>VENTISCA · −26%</span></div>
+      <div class="medida"><div class="caja"><div class="txt" style="font-family:'Big Shoulders Display',Impact;font-size:30px;font-weight:700">Árbol de talentos</div></div></div>
+      <div class="veredicto pasa">174,2 px<br>sobran 92</div></div>
+<div class="carril">
+      <div class="quien"><b>Grenze Gotisch</b><span>AVERNO · −17%</span></div>
+      <div class="medida"><div class="caja"><div class="txt" style="font-family:'Grenze Gotisch',Georgia,serif;font-size:30px;font-weight:700">Árbol de talentos</div></div></div>
+      <div class="veredicto pasa">195,3 px<br>sobran 71</div></div>
+<div class="carril">
       <div class="quien"><b>Alegreya</b><span>TALAVERA · −10%</span></div>
       <div class="medida"><div class="caja"><div class="txt" style="font-family:'Alegreya',Georgia,serif;font-size:30px;font-weight:800">Árbol de talentos</div></div></div>
       <div class="veredicto pasa">212,8 px<br>sobran 53</div></div>
@@ -635,15 +772,91 @@ tbody tr:last-child td{ border-bottom:0; }
       <div class="quien"><b>Bungee</b><span>CON SU ESCALA · 0.80</span></div>
       <div class="medida"><div class="caja"><div class="txt" style="font-family:'Bungee',Impact;font-size:24px;font-weight:400">Árbol de talentos</div></div></div>
       <div class="veredicto pasa">262,7 px<br>entra</div></div>
+<div class="carril">
+      <div class="quien"><b>Michroma</b><span>BASTIÓN · +38%</span></div>
+      <div class="medida"><div class="caja"><div class="txt" style="font-family:'Michroma',system-ui;font-size:30px;font-weight:400">Árbol de talentos</div></div></div>
+      <div class="veredicto falla">326,8 px<br>se pasa 61</div></div>
+<div class="carril escalada">
+      <div class="quien"><b>Michroma</b><span>CON SU ESCALA · 0.81</span></div>
+      <div class="medida"><div class="caja"><div class="txt" style="font-family:'Michroma',system-ui;font-size:24.3px;font-weight:400">Árbol de talentos</div></div></div>
+      <div class="veredicto pasa">264,7 px<br>entra</div></div>
   </div>
   <p class="nota" style="margin-top:16px;">Hay un resultado incómodo: <strong>Poppins es un 11% más ancha que la letra que la app usa hoy</strong> y deja 3 px de margen. Fijarlo todo a Poppins no quitaría el riesgo — sería quedarse con el menor margen de las que pasan. Por eso la regla es otra: <strong>ninguna cara se descarta por ancha, se le declara su escala</strong>, y ese número está comprobado midiendo otra vez.</p>
 </section>
 
 <section>
-  <div class="cabeza"><span class="rotulo">Los once</span><h2>Tres familias, once materiales</h2>
+  <div class="cabeza"><span class="rotulo">Los once</span><h2>Cuatro familias, catorce mundos</h2>
   <p style="color:var(--tinta-2);font-size:1rem;">La misma pieza en todos: el aro de marcar, el icono, el título, la barra, las tres pastillas y una cifra. Es a propósito — así se comparan materiales y no maquetas distintas. Los especímenes no cambian con el modo de tu pantalla: un mundo trae su propia luz.</p><div class="raya"></div></div>
   <div class="familia">
-  <div class="familia-cab"><span class="n">01</span><h3>De aquí</h3><span class="d">Materiales que se pueden tocar en este país. Es el hilo que ningún paquete de temas genérico puede copiar.</span></div>
+  <div class="familia-cab"><span class="n">01</span><h3>De relato</h3><span class="d">No salen de una materia sino de un género: cuentan algo antes de que hagas nada. Inspirados, nunca calcados — el nombre, el marco, la letra y los dibujos son de casa.</span></div>
+  <article class="mundo averno" id="m-averno">
+  <div class="mundo-cab">
+    <div class="txt"><h3>Averno</h3><span class="premisa">Piedra quemada con la brasa debajo. Del poema se cita lo único que hay que citar —los círculos—: arcos concéntricos que se estrechan al bajar y solo el de dentro sigue ardiendo. Cae ceniza en el fondo, con tres motas que todavía no se han apagado, y el icono es un sol eclipsado: anillo encendido y centro muerto. Nada de cuernos ni pentagramas — el infierno de ese libro es un lugar, no un disfraz.</span></div>
+    <span class="llave" style="color:#ff7a3d;">El oscuro de verdad</span>
+  </div>
+  <div class="cuerpo">
+    <div class="lienzo">
+  <div class="ficha"><span class="aro"></span><span class="ic"></span>
+    <div class="med"><span class="nombre">Correr 5 km</span><span class="barra"><i></i></span><span class="pie">Resistencia · nivel 4</span></div></div>
+  <div class="tira"><span class="chip c-ok">Hecho</span><span class="chip c-av">Vence hoy</span><span class="chip c-no">Perdida</span></div>
+  <div class="cifra">1 840<span>XP</span></div>
+</div>
+    <div class="datos">
+      <dl class="hechos">
+        <div class="hecho"><dt>Letra</dt><dd><b>Grenze Gotisch</b> · −17% de ancho</dd></div>
+        <div class="hecho"><dt>Esquinas</dt><dd>2 px · piedra tallada</dd></div>
+        <div class="hecho"><dt>Peso</dt><dd><b>~95 KB</b></dd></div>
+        <div class="hecho"><dt>Horas</dt><dd><b>Noche</b></dd></div>
+      </dl>
+    </div>
+  </div>
+</article>
+<article class="mundo ventisca" id="m-ventisca">
+  <div class="mundo-cab">
+    <div class="txt"><h3>Ventisca</h3><span class="premisa">Chapa de hierro a la intemperie y el hielo ganándole terreno: dendritas de verdad creciendo desde las esquinas —tallo que avanza y ramas al mismo ángulo a los dos lados, que es lo que hace el hielo— y un filo de agujas colgando del borde de arriba. La interfaz es de hielo; el calor está detrás, en el resplandor ámbar que sube desde abajo de la pantalla. Esa tensión ES el mundo.</span></div>
+    <span class="llave" style="color:#8fd4ff;">Frío con una hoguera</span>
+  </div>
+  <div class="cuerpo">
+    <div class="lienzo">
+  <div class="ficha"><span class="aro"></span><span class="ic"></span>
+    <div class="med"><span class="nombre">Correr 5 km</span><span class="barra"><i></i></span><span class="pie">Resistencia · nivel 4</span></div></div>
+  <div class="tira"><span class="chip c-ok">Hecho</span><span class="chip c-av">Vence hoy</span><span class="chip c-no">Perdida</span></div>
+  <div class="cifra">1 840<span>XP</span></div>
+</div>
+    <div class="datos">
+      <dl class="hechos">
+        <div class="hecho"><dt>Letra</dt><dd><b>Big Shoulders Display</b> · −26% de ancho</dd></div>
+        <div class="hecho"><dt>Esquinas</dt><dd>3 px · chapa</dd></div>
+        <div class="hecho"><dt>Peso</dt><dd><b>~90 KB</b></dd></div>
+        <div class="hecho"><dt>Horas</dt><dd><b>Noche</b></dd></div>
+      </dl>
+    </div>
+  </div>
+</article>
+<article class="mundo bastion" id="m-bastion">
+  <div class="mundo-cab">
+    <div class="txt"><h3>Bastión</h3><span class="premisa">Ciencia ficción militar: placa blindada con bisel arriba, pernos remachados en las cuatro esquinas y una franja de galones de peligro cruzando el borde. Galones y no rayas diagonales — un galón apunta a un lado y con eso ya dice «cuidado»; una raya solo decora. El icono es una placa hexagonal con su mira. Es lo que se atornilla a una nave, no lo que se proyecta en un visor.</span></div>
+    <span class="llave" style="color:#4db8ff;">Blindaje</span>
+  </div>
+  <div class="cuerpo">
+    <div class="lienzo">
+  <div class="ficha"><span class="aro"></span><span class="ic"></span>
+    <div class="med"><span class="nombre">Correr 5 km</span><span class="barra"><i></i></span><span class="pie">Resistencia · nivel 4</span></div></div>
+  <div class="tira"><span class="chip c-ok">Hecho</span><span class="chip c-av">Vence hoy</span><span class="chip c-no">Perdida</span></div>
+  <div class="cifra">1 840<span>XP</span></div>
+</div>
+    <div class="datos">
+      <dl class="hechos">
+        <div class="hecho"><dt>Letra</dt><dd><b>Michroma</b> · +9% de ancho · escala <b>0.81</b></dd></div>
+        <div class="hecho"><dt>Esquinas</dt><dd>4 px · placa</dd></div>
+        <div class="hecho"><dt>Peso</dt><dd><b>~105 KB</b></dd></div>
+        <div class="hecho"><dt>Horas</dt><dd><b>Noche</b></dd></div>
+      </dl>
+    </div>
+  </div>
+</article>
+</div><div class="familia">
+  <div class="familia-cab"><span class="n">02</span><h3>De aquí</h3><span class="d">Materiales que se pueden tocar en este país. Es el hilo que ningún paquete de temas genérico puede copiar.</span></div>
   <article class="mundo talavera" id="m-talavera">
   <div class="mundo-cab">
     <div class="txt"><h3>Talavera</h3><span class="premisa">Loza vidriada con la cenefa corriendo por arriba: una vid con hoja, capullo y gotas, ninguna en la misma posición dos veces. El icono es una flor de cinco pétalos y el borde va doble —cobalto, respiro blanco, cobalto— como el filo pintado de un plato. Esquinas suaves: la loza se moldea, no se corta.</span></div>
@@ -733,7 +946,7 @@ tbody tr:last-child td{ border-bottom:0; }
   </div>
 </article>
 </div><div class="familia">
-  <div class="familia-cab"><span class="n">02</span><h3>De pantalla</h3><span class="d">No imitan una materia: imitan un aparato. Son los más baratos de todos porque casi no llevan imagen.</span></div>
+  <div class="familia-cab"><span class="n">03</span><h3>De pantalla</h3><span class="d">No imitan una materia: imitan un aparato. Son los más baratos de todos porque casi no llevan imagen.</span></div>
   <article class="mundo consola" id="m-consola">
   <div class="mundo-cab">
     <div class="txt"><h3>Consola</h3><span class="premisa">Fósforo sobre negro, todo en monoespaciada, cero adornos y el movimiento a saltos en vez de suave. Es el único que no necesita ni una imagen: la textura son dos líneas de CSS. Y de paso es la red de seguridad para quien no distingue bien los tonos.</span></div>
@@ -823,7 +1036,7 @@ tbody tr:last-child td{ border-bottom:0; }
   </div>
 </article>
 </div><div class="familia">
-  <div class="familia-cab"><span class="n">03</span><h3>De materia</h3><span class="d">Piedra, metal y vidrio. Los oscuros con cuerpo, y los más caros de hacer bien.</span></div>
+  <div class="familia-cab"><span class="n">04</span><h3>De materia</h3><span class="d">Piedra, metal y vidrio. Los oscuros con cuerpo, y los más caros de hacer bien.</span></div>
   <article class="mundo forja" id="m-forja">
   <div class="mundo-cab">
     <div class="txt"><h3>Forja</h3><span class="premisa">Hierro golpeado con la brasa todavía dentro: banda remachada arriba —remaches a intervalos irregulares, que uno cada 16 px exactos parece tornillería de mueble— y una voluta de herrería en la esquina, de esas que salen cuando al herrero le sobra hierro. Esquina viva en todo y la letra grabada en vez de escrita.</span></div>
@@ -896,16 +1109,17 @@ tbody tr:last-child td{ border-bottom:0; }
 <section>
   <div class="cabeza"><span class="rotulo">Que no se nos olviden</span><h2>Las esquinas también son el material</h2>
   <p style="color:var(--tinta-2);font-size:1rem;">La baraja recorre toda la escala, y no por variar: cada material se comporta como se comporta. Un bloque de imprenta no tiene curva; un tubo de neón no tiene otra cosa.</p><div class="raya"></div></div>
-  <div class="esquinas"><div class='esq'><div class='cuadro' style='border-radius:0'></div><b>Grabado · Consola · Obsidiana · Forja · Blueprint</b><span>0 px</span></div>
-<div class='esq'><div class='cuadro' style='border-radius:3px'></div><b>Vitral</b><span>3 px</span></div>
-<div class='esq'><div class='cuadro' style='border-radius:5px'></div><b>Papel picado</b><span>5 px</span></div>
+  <div class="esquinas"><div class='esq'><div class='cuadro' style='border-radius:0'></div><b>Grabado · Consola · Obsidiana · Forja · Blueprint · Cyberpunk</b><span>0 px</span></div>
+<div class='esq'><div class='cuadro' style='border-radius:2px'></div><b>Averno</b><span>2 px</span></div>
+<div class='esq'><div class='cuadro' style='border-radius:3px'></div><b>Vitral · Ventisca</b><span>3 px</span></div>
+<div class='esq'><div class='cuadro' style='border-radius:5px'></div><b>Bastión · Papel picado</b><span>4-5 px</span></div>
 <div class='esq'><div class='cuadro' style='border-radius:14px'></div><b>Talavera</b><span>14 px</span></div>
 <div class='esq'><div class='cuadro' style='border-radius:16px'></div><b>Rótulo</b><span>16 px</span></div>
 <div class='esq'><div class='cuadro' style='border-radius:999px'></div><b>Neón</b><span>Del todo</span></div></div>
 </section>
 
 <section>
-  <div class="cabeza"><span class="rotulo">De un vistazo</span><h2>Los once, con su letra y su escala</h2><div class="raya"></div></div>
+  <div class="cabeza"><span class="rotulo">De un vistazo</span><h2>Los catorce, con su letra y su escala</h2><div class="raya"></div></div>
   <div class='tabla-caja'><table><thead><tr><th>Mundo</th><th>Qué es</th><th>Letra</th><th>Ancho</th><th>Escala</th><th>Esquinas</th><th>Peso</th><th>Horas</th></tr></thead><tbody><tr><td><b>Talavera</b></td><td>Loza vidriada</td><td>Alegreya</td><td class='num'>−10%</td><td class='num'>1</td><td>14 px · suaves</td><td class='num'>~120 KB</td><td>Las dos</td></tr>
 <tr><td><b>Grabado</b></td><td>El de las calaveras</td><td>Bevan</td><td class='num'>+21%</td><td class='num'>0.93</td><td>0 px · vivas</td><td class='num'>~75 KB</td><td>Día</td></tr>
 <tr><td><b>Rótulo</b></td><td>El de la calle</td><td>Bungee</td><td class='num'>+39%</td><td class='num'>0.80</td><td>16 px · redondeadas</td><td class='num'>~90 KB</td><td>Noche</td></tr>
@@ -916,7 +1130,10 @@ tbody tr:last-child td{ border-bottom:0; }
 <tr><td><b>Blueprint</b></td><td>Nada está terminado</td><td>Rajdhani</td><td class='num'>−10%</td><td class='num'>1</td><td>0 px · vivas</td><td class='num'>~65 KB</td><td>Noche</td></tr>
 <tr><td><b>Forja</b></td><td>El buque insignia</td><td>Cinzel</td><td class='num'>+28%</td><td class='num'>0.88</td><td>0 px · vivas</td><td class='num'>~180 KB</td><td>Noche</td></tr>
 <tr><td><b>Obsidiana</b></td><td>El oscuro elegante</td><td>Bodoni Moda</td><td class='num'>+6%</td><td class='num'>1</td><td>0 px · vivas</td><td class='num'>~85 KB</td><td>Noche</td></tr>
-<tr><td><b>Vitral</b></td><td>El más caro de hacer</td><td>Marcellus</td><td class='num'>−1%</td><td class='num'>1</td><td>3 px · casi vivas</td><td class='num'>~240 KB</td><td>Noche</td></tr></tbody></table></div>
+<tr><td><b>Vitral</b></td><td>El más caro de hacer</td><td>Marcellus</td><td class='num'>−1%</td><td class='num'>1</td><td>3 px · casi vivas</td><td class='num'>~240 KB</td><td>Noche</td></tr>
+<tr><td><b>Averno</b></td><td>El oscuro de verdad</td><td>Grenze Gotisch</td><td class='num'>−17%</td><td class='num'>1</td><td>2 px · piedra tallada</td><td class='num'>~95 KB</td><td>Noche</td></tr>
+<tr><td><b>Ventisca</b></td><td>Frío con una hoguera</td><td>Big Shoulders Display</td><td class='num'>−26%</td><td class='num'>1</td><td>3 px · chapa</td><td class='num'>~90 KB</td><td>Noche</td></tr>
+<tr><td><b>Bastión</b></td><td>Blindaje</td><td>Michroma</td><td class='num'>+9%</td><td class='num'>0.81</td><td>4 px · placa</td><td class='num'>~105 KB</td><td>Noche</td></tr></tbody></table></div>
 </section>
 
 <section>
@@ -929,7 +1146,7 @@ Estamos en la rama <b>claude/norata-apariencias-skins-p52cpj</b>.</pre>
   </div>
 </section>
 
-<p class="cierre">Once materiales, una sola pieza para compararlos, y ninguno pide tocar una regla de la app. Lo que falta no es otro lote: es elegir tres y hacerlos de verdad.</p>
+<p class="cierre">Catorce mundos, una sola pieza para compararlos, y ninguno pide tocar una regla de la app. Lo que falta no es otro lote: es elegir tres y hacerlos de verdad.</p>
 </div>
 
 <script>

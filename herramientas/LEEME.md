@@ -74,3 +74,19 @@ velocidad; la primera versión de esto medía tres veces más rápido de lo real
 La verdad de cuántas veces se pidió cada cosa está en `bitacora-<puerto>.txt`,
 no en el navegador: una respuesta que sirve el service worker se anota con
 `transferSize` 0 aunque por debajo haya ido a la red.
+
+## Y el contraste de un mundo
+
+`contraste.js` mide los mundos de `mundos/vista.html`: fotografía la superficie
+—que sí tiene fondo— y saca de ahí el color más repetido, con degradado y
+textura incluidos; la tinta sale del CSS, compuesta si es semitransparente.
+
+```sh
+node contraste.js ../mundos/vista.html
+```
+
+Se llegó ahí después de equivocarse tres veces, y las tres están anotadas en
+la cabecera del archivo para que nadie las repita: leer `backgroundColor` tal
+cual reprueba lo semitransparente, componer sin leer degradados reprueba lo
+degradado, y fotografiar el TEXTO reprueba todo porque una captura de elemento
+viene sobre transparente.

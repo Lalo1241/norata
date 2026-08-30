@@ -9,7 +9,8 @@ FUENTES = ("Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;60
  "&family=Alegreya:wght@500;700;800&family=Baloo+2:wght@600;700&family=Bevan"
  "&family=Bodoni+Moda:opsz,wght@6..96,700&family=Bungee&family=Chakra+Petch:wght@600;700"
  "&family=Cinzel:wght@700&family=Fraunces:opsz,wght@9..144,800&family=JetBrains+Mono:wght@700"
- "&family=Marcellus&family=Poppins:wght@700&family=Rajdhani:wght@600;700")
+ "&family=Marcellus&family=Poppins:wght@700&family=Rajdhani:wght@600;700"
+ "&family=Grenze+Gotisch:wght@600;700&family=Big+Shoulders+Display:wght@700&family=Michroma")
 
 def bloque_css(m):
     cuerpo = "\n".join(f"  {k}: {v};" for k, v in m["tokens"].items())
@@ -44,6 +45,8 @@ def ficha_html(m):
 </article>"""
 
 CARAS_PISTA = [
+ ("Big Shoulders Display","VENTISCA","−26%","174,2","sobran 92","pasa","'Big Shoulders Display',Impact","30px","700"),
+ ("Grenze Gotisch","AVERNO","−17%","195,3","sobran 71","pasa","'Grenze Gotisch',Georgia,serif","30px","700"),
  ("Alegreya","TALAVERA","−10%","212,8","sobran 53","pasa","'Alegreya',Georgia,serif","30px","800"),
  ("Rajdhani","BLUEPRINT","−10%","212,5","sobran 54","pasa","'Rajdhani',system-ui","30px","700"),
  ("Baloo 2","NEÓN","−2%","232,1","sobran 34","pasa","'Baloo 2',system-ui","30px","700"),
@@ -61,6 +64,8 @@ CARAS_PISTA = [
  ("JetBrains Mono","CON SU ESCALA · 0.86","","263,1","entra","pasa","'JetBrains Mono',monospace","25.8px","700"),
  ("Bungee","RÓTULO","+39%","328,4","se pasa 62","falla","'Bungee',Impact","30px","400"),
  ("Bungee","CON SU ESCALA · 0.80","","262,7","entra","pasa","'Bungee',Impact","24px","400"),
+ ("Michroma","BASTIÓN","+38%","326,8","se pasa 61","falla","'Michroma',system-ui","30px","400"),
+ ("Michroma","CON SU ESCALA · 0.81","","264,7","entra","pasa","'Michroma',system-ui","24.3px","400"),
 ]
 
 def pista_html():
@@ -83,8 +88,9 @@ def tabla_html():
             "<th>Ancho</th><th>Escala</th><th>Esquinas</th><th>Peso</th><th>Horas</th></tr></thead>"
             f"<tbody>{fil}</tbody></table></div>")
 
-ESQ = [("0 px","Grabado · Consola · Obsidiana · Forja · Blueprint","0"),
-       ("3 px","Vitral","3px"),("5 px","Papel picado","5px"),
+ESQ = [("0 px","Grabado · Consola · Obsidiana · Forja · Blueprint · Cyberpunk","0"),
+       ("2 px","Averno","2px"),("3 px","Vitral · Ventisca","3px"),
+       ("4-5 px","Bastión · Papel picado","5px"),
        ("14 px","Talavera","14px"),("16 px","Rótulo","16px"),
        ("Del todo","Neón","999px")]
 
@@ -220,7 +226,7 @@ def pagina():
   <div class="familia-cab"><span class="n">{i:02d}</span><h3>{fnombre}</h3><span class="d">{fdesc}</span></div>
   {fichas}
 </div>""")
-    return f"""<title>Once mundos</title>
+    return f"""<title>Catorce mundos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={FUENTES}&display=swap">
@@ -232,9 +238,9 @@ def pagina():
 <div class="hoja">
 <header>
   <div class="serie"><i></i><span class="rotulo">Norata · catálogo completo</span></div>
-  <h1>Once mundos</h1>
-  <p class="tesis">Todo lo aprobado hasta hoy, junto: los de aquí, los de pantalla y los de materia. <b>Cada uno con su letra medida y su escala comprobada.</b></p>
-  <p class="entradilla">La misma pieza once veces, con el CSS que se copiaría tal cual. Ninguno toca una regla de la app: todos son variables.</p>
+  <h1>Catorce mundos</h1>
+  <p class="tesis">Todo lo aprobado hasta hoy, junto: los de relato, los de aquí, los de pantalla y los de materia. <b>Cada uno con su letra medida y su escala comprobada.</b></p>
+  <p class="entradilla">La misma pieza catorce veces, con el CSS que se copiaría tal cual. Ninguno toca una regla de la app: todos son variables.</p>
 </header>
 
 <section>
@@ -262,7 +268,7 @@ def pagina():
 </section>
 
 <section>
-  <div class="cabeza"><span class="rotulo">Los once</span><h2>Tres familias, once materiales</h2>
+  <div class="cabeza"><span class="rotulo">Los once</span><h2>Cuatro familias, catorce mundos</h2>
   <p style="color:var(--tinta-2);font-size:1rem;">La misma pieza en todos: el aro de marcar, el icono, el título, la barra, las tres pastillas y una cifra. Es a propósito — así se comparan materiales y no maquetas distintas. Los especímenes no cambian con el modo de tu pantalla: un mundo trae su propia luz.</p><div class="raya"></div></div>
   {"".join(fam_html)}
 </section>
@@ -274,7 +280,7 @@ def pagina():
 </section>
 
 <section>
-  <div class="cabeza"><span class="rotulo">De un vistazo</span><h2>Los once, con su letra y su escala</h2><div class="raya"></div></div>
+  <div class="cabeza"><span class="rotulo">De un vistazo</span><h2>Los catorce, con su letra y su escala</h2><div class="raya"></div></div>
   {tabla_html()}
 </section>
 
@@ -288,7 +294,7 @@ Estamos en la rama <b>claude/norata-apariencias-skins-p52cpj</b>.</pre>
   </div>
 </section>
 
-<p class="cierre">Once materiales, una sola pieza para compararlos, y ninguno pide tocar una regla de la app. Lo que falta no es otro lote: es elegir tres y hacerlos de verdad.</p>
+<p class="cierre">Catorce mundos, una sola pieza para compararlos, y ninguno pide tocar una regla de la app. Lo que falta no es otro lote: es elegir tres y hacerlos de verdad.</p>
 </div>
 
 <script>

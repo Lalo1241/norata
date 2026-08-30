@@ -10,7 +10,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
 | --- | --- |
 | **Ya está en la app** (0.7.37) | La capa de material: `--r-*`, `--sup-*`, `--marco-*`, `--tipo-titulo`, `--tipo-cifra`, `--dur-*`. Ver la sección «El material» de `CLAUDE.md`. |
 | **Ya está en la app** (0.7.38) | Servir de la copia primero, para que un mundo se baje UNA vez y no cada mañana. |
-| **Diseñado y medido, sin construir** | Los once mundos de este documento. |
+| **Diseñado y medido, sin construir** | Los catorce mundos de este documento. |
 | **Propuesto, NO existe** | `--tipo-titulo-escala`, el selector de mundo en Ajustes, y la carga diferida de las tipografías y texturas de un mundo. |
 
 ## Las tres reglas
@@ -19,7 +19,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
    tono —en Neón son ámbar y rosa; en Cyberpunk, magenta— pero no de
    significado. Un mundo cambia con qué se celebra, no con qué se avisa.
 2. **Un círculo es redondo porque es redondo.** El aro de marcar una misión
-   está en 999 px en los once, incluso donde todo lo demás tiene la esquina
+   está en 999 px en los catorce, incluso donde todo lo demás tiene la esquina
    viva. Por eso `--r-redondo` vive separado de `--r-pastilla` y no pasa por
    `--r-factor`.
 3. **El cuerpo de texto no lo toca nadie.** Un mundo solo llega a `h1/h2/h3`
@@ -47,6 +47,9 @@ Sobran 38: **un 16% de holgura**, y eso es toda la pista.
 | Cinzel | +28% | 301,8 | **0.88** | Forja |
 | JetBrains Mono | +29% | 306,0 | **0.86** | Consola |
 | Bungee | +39% | 328,4 | **0.80** | Rótulo |
+| Michroma | +38% | 326,8 | **0.81** | Bastión |
+| Grenze Gotisch | −17% | 195,3 | 1 | Averno |
+| Big Shoulders Display | −26% | 174,2 | 1 | Ventisca |
 | Monoton | +42% | 335,5 | 0.79 | *descartada* |
 
 **La regla no es «una sola letra para siempre».** Es: *ninguna cara se descarta
@@ -66,7 +69,11 @@ Dos avisos que cuestan tiempo si se ignoran:
 - **Poppins es un 11% más ancha que Outfit** y deja 3 px. Fijar la app a
   Poppins no quita el riesgo: se queda con el menor margen de las que pasan.
 
-## Los once mundos
+## Los catorce mundos
+
+Cuatro familias. **De relato** son los que vienen de un género en vez de una
+materia: inspirados, nunca calcados — nombre, marco, letra e ilustración son de
+casa, y ninguno lleva marca, icono ni tipografía de nadie.
 
 | Mundo | Qué es | Letra | Ancho | Escala | Esquinas | Peso | Horas |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -81,6 +88,9 @@ Dos avisos que cuestan tiempo si se ignoran:
 | **Forja** | El buque insignia | Cinzel | +28% | 0.88 | 0 px · vivas | ~180 KB | Noche |
 | **Obsidiana** | El oscuro elegante | Bodoni Moda | +6% | 1 | 0 px · vivas | ~85 KB | Noche |
 | **Vitral** | El más caro de hacer | Marcellus | −1% | 1 | 3 px · casi vivas | ~240 KB | Noche |
+| **Averno** | El oscuro de verdad | Grenze Gotisch | −17% | 1 | 2 px · piedra tallada | ~95 KB | Noche |
+| **Ventisca** | Frío con una hoguera | Big Shoulders Display | −26% | 1 | 3 px · chapa | ~90 KB | Noche |
+| **Bastión** | Blindaje | Michroma | +9% | 0.81 | 4 px · placa | ~105 KB | Noche |
 
 Las variables de cada uno están en **`mundos/mundos.css`**, los vectores
 editables en **`mundos/svg/`**, y la vista comparada en **`mundos/vista.html`**
@@ -114,11 +124,20 @@ no vuelve a pedir nada nunca.
 En `herramientas/` está el arnés, con su `LEEME.md`. Para un mundo, tres
 medidas y ninguna es «se ve bien»:
 
-1. **Contraste compuesto.** Texto por encima de 4,5 sobre 1; trazos (aro,
-   barra, contorno) por encima de 3. Ojo: hay que **componer la transparencia
-   sobre lo que hay debajo** — un fondo `rgba(255,255,255,.035)` tratado como
-   blanco opaco reprueba a Blueprint, que en pantalla está perfecto. Ese fallo
-   ya se cometió una vez.
+1. **Contraste sobre el píxel pintado.** Texto por encima de 4,5 sobre 1;
+   trazos (aro, barra, contorno) por encima de 3. La forma correcta de medirlo
+   se equivocó tres veces antes de quedar bien, y las tres merecen recordarse:
+
+   | Cómo se midió | Qué reprobaba mal |
+   | --- | --- |
+   | Leyendo `backgroundColor` tal cual | Blueprint: su `rgba(255,255,255,.035)` se tomaba por blanco opaco |
+   | Componiendo la transparencia, pero sin saber leer degradados | Averno y Ventisca, cuyo fondo es un degradado |
+   | Fotografiando el TEXTO | todos: una captura de elemento viene sobre transparente |
+
+   Lo que funciona: **fotografiar la superficie** (`.ficha`, `.lienzo`), que sí
+   tiene fondo, y tomar de ahí el color más repetido —degradado y textura
+   incluidos—; la tinta sale del CSS, compuesta si es semitransparente. Está
+   implementado en el arnés.
 2. **La tipografía cabe.** Con la fuente descargada e incrustada, no fiándose
    de `getComputedStyle().fontFamily`, que solo repite lo declarado y da el
    mismo ancho para todas aunque ninguna haya cargado. Ese fallo también se
@@ -128,13 +147,16 @@ medidas y ninguna es «se ve bien»:
    Un motivo de retícula es la excepción: su costura lleva la línea gruesa a
    propósito y NO debe casar.
 
-Los once de este documento pasan las tres.
+Los catorce de este documento pasan las tres.
 
 ## Lo que falta decidir
 
-- **Cuáles tres se construyen primero.** La propuesta sobre la mesa era
-  Talavera, Neón y Grabado; con Cyberpunk y Blueprint encima, vuelve a estar
-  abierta.
+- **Cuáles tres se construyen primero.** Con catorce sobre la mesa, la lista
+  corta hay que rehacerla.
+- **Con qué letra va la app.** Hoy la pantalla va en **Outfit** (incrustada en
+  `css/fuente.css`) y los seis correos van en **Poppins**, que sí se carga de
+  Google. La marca está partida en dos y conviene cerrarlo antes de que haya
+  mundos encima.
 - **Cuáles se ganan y cuáles se compran**, y si las dos listas se cruzan.
 - **Si un mundo puede ser de temporada** (lo pide Papel picado).
 - **Si el nivel de expedición** —la cifra que sumaría todo el progreso, que hoy
