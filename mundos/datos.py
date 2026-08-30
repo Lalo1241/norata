@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Los catorce mundos, en un solo sitio. De aquí salen el borrador y el paquete
+"""Los quince mundos, en un solo sitio. De aquí salen el borrador y el paquete
 que se lleva al repositorio, así que no pueden decirse cosas distintas."""
 import re, os
 
@@ -271,6 +271,37 @@ MUNDOS = [
    "--m-cifra":'"Julius Sans One",system-ui,sans-serif',"--m-cifra-peso":"400","--m-cifra-esp":".01em",
    "--m-chip-fuente":'"Julius Sans One",system-ui,sans-serif',"--m-chip-esp":".13em","--m-chip-caja":"uppercase",
    "--m-dur":"1.4s","--m-curva":"cubic-bezier(.22,1,.36,1)"}),
+
+ dict(id="reliquia", nombre="Reliquia", familia="de-materia", llave="El de Fundador", color="#b7a2ea",
+  plan="Fundador",
+  premisa="Una pieza guardada en su vitrina: forro de terciopelo, marco de latón y vidrio de museo por encima, con el polvo cogido por la luz. No es el mundo más caro de hacer ni el más vistoso, y es a propósito — el distintivo de Fundador tiene que ser distinto en especie, no superior en calidad, o el que paga cada mes se queda sin el mundo que mejor vende. El lila deja de ser un color estirado por la app y vuelve a ser lo que era: la luz que atraviesa la piedra.",
+  letra="Syne", ancho="+18%", escala="0.95", esquinas="4 px · canto de vitrina", peso="~75 KB", horas="Noche",
+  nota="Era un ambiente y se promovió a mundo. Un recolor no se vende —lo dijo Eduardo desde el primer día— y era lo único que Fundador tenía además de Pro: LIMITES no tiene entrada de fundador, así que Fundador ES Pro sin fecha. Un pago único de $890 necesita algo que se vea. El icono no se inventó: la app ya llama «piedra» a la insignia de Fundador en js/10d-plan.js, así que el mundo hereda ese dibujo.",
+  extra=""".reliquia .ficha{
+    background-image:linear-gradient(112deg, rgba(233,226,255,.09) 0%, rgba(233,226,255,0) 34%, rgba(233,226,255,0) 66%, rgba(233,226,255,.05) 100%);
+  }""",
+  tokens={"--m-pagina":"radial-gradient(126% 82% at 50% -6%, #241c38 0%, #1a1429 44%, #100c1a 100%)",
+   "--m-grano":f'url("{svg("reliquia-terciopelo.svg")}") center / 150px 150px repeat',
+   "--m-grano-op":".85",
+   "--m-tarjeta":"#1e1930","--m-borde":"2px","--m-borde-color":"#8a6d2f",
+   # El marco de latón necesita las DOS variables: con `--marco` puesto y el
+   # borde en un píxel no se ve nada, porque un border-image solo se dibuja
+   # sobre el ancho del borde.
+   "--m-marco":"linear-gradient(158deg,#6b5326 0%,#c8a24e 24%,#8a6d2f 48%,#e0c072 64%,#7a5f2a 100%) 1",
+   "--m-sombra":"inset 0 1px 0 rgba(233,226,255,.16), 0 8px 22px rgba(0,0,0,.5)",
+   "--m-r-tarjeta":"4px","--m-r-mini":"999px","--m-r-barra":"999px","--m-r-chip":"3px",
+   "--m-tinta":"#efeafb","--m-tinta-2":"#a99fc4",
+   "--m-acento":"#b7a2ea","--m-acento-velo":"rgba(183,162,234,.14)",
+   "--m-aviso":"#f5d76e","--m-aviso-velo":"rgba(245,215,110,.13)",
+   "--m-peligro":"#ff8a70","--m-peligro-velo":"rgba(255,138,112,.13)","--m-carril":"#332b4a",
+   "--m-halo":"0 0 12px rgba(183,162,234,.34)",
+   "--m-icono":f'url("{svg("reliquia-piedra.svg")}") center/contain no-repeat',
+   "--m-titulo":'"Syne",system-ui,sans-serif',"--m-titulo-px":"15px","--m-titulo-peso":"700",
+   "--m-titulo-esp":".01em",
+   "--m-cifra":'"Syne",system-ui,sans-serif',"--m-cifra-peso":"700",
+   "--m-chip-fuente":'"Syne",system-ui,sans-serif',"--m-chip-peso":"600","--m-chip-esp":".08em",
+   "--m-chip-caja":"uppercase",
+   "--m-dur":".9s","--m-curva":"cubic-bezier(.2,.7,.25,1)"}),
 
  dict(id="averno", nombre="Averno", familia="de-relato", llave="El oscuro de verdad", color="#ff7a3d",
   premisa="Piedra quemada con la brasa debajo. Del poema se cita lo único que hay que citar —los círculos—: arcos concéntricos que se estrechan al bajar y solo el de dentro sigue ardiendo. Cae ceniza en el fondo, con tres motas que todavía no se han apagado, y el icono es un sol eclipsado: anillo encendido y centro muerto. Nada de cuernos ni pentagramas — el infierno de ese libro es un lugar, no un disfraz.",

@@ -76,7 +76,9 @@ def pagina():
     mundos = "\n".join(
         f'<li class="mu"><span class="mu-p" style="background:{w["color"]}"></span>'
         f'<b>{esc(w["nombre"])}</b><span class="mu-l">{esc(w["llave"])}</span>'
-        f'<span class="mu-k">{esc(w["peso"])}</span></li>' for w in mdatos.MUNDOS)
+        f'<span class="mu-k">{esc(w["peso"])}</span>'
+        + ('<span class="etiq fund">Fund</span>' if w.get("plan") == "Fundador" else '')
+        + '</li>' for w in mdatos.MUNDOS)
 
     ICO = {"rango":"◆", "ambiente":"●", "celebracion":"✦"}
     def peldano(n, que, tipo, nota):
@@ -372,8 +374,8 @@ ul.reglas li::marker{{color:var(--tinta-3)}}
     sitio. Estaba repartido entre dos conversaciones y seis láminas; aquí está
     junto, y con la contradicción que había entre dos de ellas resuelta.</p>
   <div class="cifras">
-    <span class="cifra"><b>8</b><span>ambientes, medidos</span></span>
-    <span class="cifra"><b>14</b><span>mundos, diseñados</span></span>
+    <span class="cifra"><b>7</b><span>ambientes, medidos</span></span>
+    <span class="cifra"><b>15</b><span>mundos, diseñados</span></span>
     <span class="cifra"><b>5</b><span>rangos</span></span>
     <span class="cifra"><b>0</b><span>de esto, construido</span></span>
   </div>
@@ -447,7 +449,7 @@ ul.reglas li::marker{{color:var(--tinta-3)}}
 
 <section id="mundos">
   <p class="rotulo">La otra mitad</p>
-  <h2>Los catorce mundos</h2>
+  <h2>Los quince mundos</h2>
   <p class="sub">Aquí solo la lista: viven en <code>mundos/MUNDOS.md</code>, con sus
     variables, sus vectores y su vista comparada. Son <b>de pago</b>, menos Consola,
     que es gratis por lo mismo que Tinta. Los cuatro autorizados, por orden:

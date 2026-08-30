@@ -29,8 +29,8 @@ para cosas distintas** y eso solo termina en un bug. Queda así:
 | Palabra | Qué es | Cuántos | Cómo se consigue |
 | --- | --- | --- | --- |
 | **Apariencia** | El paraguas. Es la palabra que ya usa la app en `js/10d-plan.js` | — | — |
-| **Ambiente** | Un **recolor**: reusa el material que ya hay y le cambia la luz | 8 | Se ganan con el nivel; dos piden Pro |
-| **Mundo** | Cambia el **material**: otra superficie, otro marco, otra letra, otro peso al moverse | 14 diseñados | De pago |
+| **Ambiente** | Un **recolor**: reusa el material que ya hay y le cambia la luz | 7 | Se ganan con el nivel; dos piden Pro |
+| **Mundo** | Cambia el **material**: otra superficie, otro marco, otra letra, otro peso al moverse | 15 diseñados | De pago · uno de ellos solo de Fundador |
 
 Un ambiente y un mundo **son excluyentes**: un mundo declara sus propios
 colores, así que un ambiente por debajo no se vería. Se elige una apariencia,
@@ -40,7 +40,7 @@ Y muere una palabra: **«grado 3» ya no se llama «mundo»**. Tinta es un ambie
 de grado 3 —invierte `--sobre-macizo`, que ningún otro toca— y sigue siendo un
 recolor. Los mundos son las otras catorce cosas.
 
-## Los ocho ambientes
+## Los siete ambientes
 
 Los tonos están en `apariencias/datos.py` y salen ya escritos en
 `apariencias/ambientes.css`. Aquí solo el reparto.
@@ -54,10 +54,13 @@ Los tonos están en `apariencias/datos.py` y salen ya escritos en
 | Adobe | 1 | Nivel 7 · con **Refugio** | Barro cocido con cal. La cálida amable |
 | Escarcha | 2 | Nivel 12 · con **Cima** · **Pro** | La menta se vuelve celeste; la app acompaña en vez de festejar |
 | Duna | 1 | Nivel 20 · con **Norte** | Desierto de noche: violeta y lavanda, no café |
-| Reliquia | 2 | **Fundador** | El lila de Fundador extendido a toda la app |
 
 **Grado 1** solo mueve el suelo; **grado 2** además mueve las tres variables del
 acento; **grado 3** rompe una regla que ningún otro rompe.
+
+**Eran ocho: Reliquia se fue a `mundos/`.** Era lo único que Fundador tenía
+además de Pro, y un recolor no se vende — que es lo primero que se dijo de todo
+esto. Está contado abajo, en «El mundo de Fundador».
 
 **Contraste, cara de día, que es la que aprieta.** Umbral 4,5 para escribir y 3
 para trazar. Los siete pasan y Musgo pasa mejor que el clásico.
@@ -85,12 +88,51 @@ que el descarte: **gris es en lo que se convierte cualquier ambiente al bajarle
 la saturación**, así que un ambiente gris no es un ambiente, es la versión
 desteñida de todos los demás. Ese hueco ya lo llena Tinta, que además hace algo.
 
-## Los catorce mundos
+## Los quince mundos
 
 Viven en **`mundos/MUNDOS.md`**, con sus variables en `mundos/mundos.css`, sus
 vectores en `mundos/svg/` y la vista comparada en `mundos/vista.html`. Aquí solo
 lo que hace falta para el negocio: **son de pago**, pesan entre 28 y 180 KB, y
 los cuatro autorizados por orden son **Averno, Blueprint, Consola y Arboleda**.
+
+### El mundo de Fundador
+
+**Fundador no abre hoy nada que Pro no abra.** `LIMITES` tiene dos entradas,
+`libre` y `pro`; no hay entrada de fundador. Fundador **es** Pro sin fecha de
+vencimiento, pagado una sola vez. Su único extra era Reliquia —un recolor— y un
+recolor no se vende: es lo primero que se dijo de todo esto.
+
+Así que **Reliquia se promueve de ambiente a mundo**, el decimoquinto, y es el
+único de los quince que no abre Pro.
+
+- **Es distinto en especie, no superior en calidad**, y eso es deliberado. Si el
+  buque insignia —Forja— fuera de Fundador, el plan que paga cada mes se
+  quedaría sin el mundo que mejor lo vende. El de Fundador tiene que ser
+  *inconfundible*, no *el mejor*.
+- **Una pieza guardada en su vitrina:** forro de terciopelo, marco de latón,
+  vidrio de museo por encima y el polvo cogido por la luz. El polvo es lo que
+  dice «esto lleva aquí un tiempo».
+- **El icono no se inventó.** La app ya llama «piedra» a la insignia de Fundador
+  en `js/10d-plan.js`, así que el mundo hereda ese dibujo: la piedra en su
+  montura. El distintivo que ya estaba prometido y el mundo que lo amplía
+  hablan de lo mismo.
+- **El lila deja de ser un uniforme.** En vez de estirarse por toda la app como
+  recolor, vuelve a ser lo que era —la insignia— y dentro del mundo es la luz
+  que atraviesa la piedra.
+
+**Y arrastra un cambio de promesa, que hay que hacer a propósito.** La tabla de
+precios dice hoy *«Anillo lila e insignia propia»* (`js/10d-plan.js`, tres
+sitios). Eso se queda **y se le suma el mundo**: el anillo se ve siempre, el
+mundo solo cuando lo enciendes, así que sustituirlo dejaría sin distintivo a un
+fundador que prefiera Averno. La fila pasa a decir las dos cosas.
+
+**Cómo conviven el anillo y la barra de expedición, que quieren el mismo sitio.**
+Los dos van al aro del avatar y ninguno de los dos existe todavía, así que se
+resuelve ahora y gratis: **una sola circunferencia con dos oficios**. El carril
+—lo que no está lleno— es el lila de Fundador; lo lleno es el avance del nivel.
+`ring(size, stroke, segments, trackColor)` ya recibe el color del carril aparte
+del de los segmentos: la función estaba hecha para esto. Así el fundador tiene
+su marca visible incluso al 0% y nunca se pisa con el avance.
 
 Consola es la excepción del negocio: **gratis siempre**, por lo mismo que Tinta
 —no necesita ni una imagen y es la red de seguridad para quien no distingue bien
@@ -216,7 +258,8 @@ Apariencia, y funciona así:
   nueva cada vez que sale uno; con Pro hay una sola frase: *todas las
   apariencias*. Es además lo que la tabla de precios ya promete.
 - **Los ambientes no se venden nunca**, ni siquiera los de grado 2: se ganan con
-  el nivel, y dos de ellos además piden Pro. Lo que se gana no se vende y lo que
+  el nivel, y dos de ellos además piden Pro. El único que se compra sin ganarse
+  es **el mundo de Fundador**, y se compra con el plan, no suelto. Lo que se gana no se vende y lo que
   se vende no se gana — si se cruzan, el nivel deja de valer para quien pueda
   pagar.
 

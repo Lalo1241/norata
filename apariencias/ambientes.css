@@ -49,7 +49,7 @@ html.claro[data-apariencia="tinta"] {
   --sobre-macizo: #f7f9fc;
 }
 
-/* ---------- Musgo · grado 1 · Nivel 2 ---------- */
+/* ---------- Musgo · grado 1 · Nivel 3 · con el rango Brote ---------- */
 /* El verde de día se corrigió una vez: estaba demasiado oscuro y saturado para ser papel, y a ese nivel deja de leerse como una hoja y se lee como una pared pintada. Se le subió la luz y se le bajó la saturación sin cambiar el matiz. La noche no se tocó. */
 html[data-apariencia="musgo"] {
   --bg: #0d1611;
@@ -74,7 +74,7 @@ html.claro[data-apariencia="musgo"] {
   --faint: #78877c;
 }
 
-/* ---------- Adobe · grado 1 · Nivel 8 ---------- */
+/* ---------- Adobe · grado 1 · Nivel 7 · con el rango Refugio ---------- */
 html[data-apariencia="adobe"] {
   --bg: #1b1512;
   --bg2: #241c18;
@@ -98,7 +98,7 @@ html.claro[data-apariencia="adobe"] {
   --faint: #8c7a70;
 }
 
-/* ---------- Duna · grado 1 · Nivel 10 ---------- */
+/* ---------- Duna · grado 1 · Nivel 20 · con el rango Norte ---------- */
 /* La primera versión era café oscuro con crema, que es la paleta cálida por defecto —la que sale sola al pensar «desierto» sin mirar ninguno—. El error de fondo resultó más útil que el descarte: el desierto solo es café en las fotos de la hora dorada; de noche es violeta y frío. De ahí salieron Duna y Adobe, que son ambientes distintos. */
 html[data-apariencia="duna"] {
   --bg: #1d1220;
@@ -123,7 +123,7 @@ html.claro[data-apariencia="duna"] {
   --faint: #8b7488;
 }
 
-/* ---------- Escarcha · grado 2 · Nivel 12 · con Pro ---------- */
+/* ---------- Escarcha · grado 2 · Nivel 12 · con el rango Cima · Pro ---------- */
 html[data-apariencia="escarcha"] {
   --bg: #0c141c;
   --bg2: #121b24;
@@ -144,7 +144,7 @@ html.claro[data-apariencia="escarcha"] {
   --aro-alto: #1a8cbe;
 }
 
-/* ---------- Marea · grado 2 · Nivel 22 · con Pro ---------- */
+/* ---------- Marea · grado 2 · Nivel 5 · Pro ---------- */
 /* La primera versión era la casa con otro azul, y con razón: el clásico ya es un carbón azulado, así que ponerle más azul no lo aleja, lo confirma. Se arregló en dos movimientos — la tarjeta dejó de ser gris azulado y se volvió verdiazul de verdad, y el acento se corrió hacia el agua. Eso lo subió a grado 2. */
 html[data-apariencia="marea"] {
   --bg: #04161c;
@@ -173,34 +173,4 @@ html.claro[data-apariencia="marea"] {
   --mint: #006b62;
   --mint-macizo: #00d4bd;
   --aro-alto: #009083;
-}
-
-/* ---------- Reliquia · grado 2 · Fundador ---------- */
-html[data-apariencia="reliquia"] {
-  --bg: #0e0d16;
-  --bg2: #141322;
-  --card: #1a1826;
-  --card2: #211f30;
-  --line: #2c2940;
-  --carril: #2c2940;
-  --text: #efecf7;
-  --muted: #948fae;
-  --faint: #656080;
-  --mint: #b7a2ea;
-  --mint-macizo: #b7a2ea;
-  --aro-alto: #b7a2ea;
-}
-html.claro[data-apariencia="reliquia"] {
-  --bg: #dad0f2;
-  --bg2: #e6dff7;
-  --card: #efeafb;
-  --card2: #f7f4fd;
-  --line: #b0a4cd;
-  --carril: #c4b8de;
-  --text: #191426;
-  --muted: #5e587a;
-  --faint: #7e7899;
-  --mint: #5b32c0;
-  --mint-macizo: #9b6bff;
-  --aro-alto: #7c4fe0;
 }

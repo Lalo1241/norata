@@ -10,7 +10,7 @@ FUENTES = ("Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;60
  "&family=Big+Shoulders+Display:wght@700&family=Chakra+Petch:wght@600;700&family=Cinzel:wght@700"
  "&family=Grenze+Gotisch:wght@600;700&family=JetBrains+Mono:wght@700&family=Julius+Sans+One"
  "&family=Michroma&family=Patrick+Hand&family=Rajdhani:wght@600;700&family=Sora:wght@600;700"
- "&family=Amaranth:wght@700"
+ "&family=Amaranth:wght@700&family=Syne:wght@600;700;800"
  # solo para la pista de pruebas, no las usa ningún mundo
  "&family=Bevan&family=Bungee&family=Monoton&family=Poppins:wght@700")
 
