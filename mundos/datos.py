@@ -18,17 +18,20 @@ def svg(ruta):
 # familia: de-aqui | de-pantalla | de-materia
 MUNDOS = [
  dict(id="talavera", nombre="Talavera", familia="de-aqui", llave="Loza vidriada", color="#1e3f8f",
-  premisa="Loza de Puebla: el campo lleva la flor y el filo lleva la greca, que es como se compone una pieza de verdad. Las flores volvieron —más grandes y más separadas, para que se vea el dibujo en vez de la repetición— y la cenefa se volvió geométrica: escalones y rombos. Antes eran dos capas de plantas a la vez y el conjunto se sentía un jardín, no una pieza. La tarjeta no lleva nada añadido: su borde doble ya es la pieza.",
+  premisa="Un plato de Talavera está compuesto, no estampado: la cenefa vive en el filo, el campo va de esmalte liso y sobre el liso es donde se escribe. Aquí la loza es blanca —no crema—, la greca geométrica cierra arriba y abajo, y el friso de azulejos con la flor a plena tinta va en la cabecera, detrás de la barra opaca, que es el único sitio de un teléfono donde un dibujo fuerte no le cae encima a nada. En el campo la misma flor sigue estando, grande y con todo su detalle, pero al peso de una filigrana en el esmalte. Sobre ella se lee igual que sobre papel liso.",
   letra="Alegreya Sans", ancho="−14%", escala="1", esquinas="14 px · suaves", peso="~95 KB", horas="Las dos",
-  nota="Dos lecciones de la misma pieza. Una: a la tarjeta no se le añade nada, porque se repite veinte veces por pantalla y todo lo que se le cuelgue se multiplica por veinte; el carácter va en lo que aparece UNA vez. Y dos: el empacho no venía de la cantidad de dibujo sino de que TODO el dibujo era vegetal. Con la greca en geometría, el mismo campo de flores respira.",
-  tokens={"--m-pagina":"#e4d9c1",
-   # Dos capas y sólo UNA es vegetal: el campo de flores —que estaba bien
-   # dibujado y volvió— y una greca escalonada, geométrica, en los dos filos.
-   # Antes las dos eran de plantas y el conjunto se sentía un jardín.
-   "--m-grano":f'url("{svg("talavera-greca.svg")}") top left repeat-x, url("{svg("talavera-greca.svg")}") bottom left repeat-x, url("{svg("azulejo.svg")}") center / 168px 168px repeat',
-   "--m-grano-op":".55",
-   "--m-tarjeta":"#fdfbf5","--m-borde":"1.5px","--m-borde-color":"#1e3f8f",
-   "--m-sombra":"inset 0 0 0 3px #fdfbf5, inset 0 0 0 4.5px rgba(30,63,143,.55), 0 5px 16px rgba(30,63,143,.2)",
+  nota="Tercera vuelta, y la lección no es de dibujo sino de dónde cabe. En un teléfono el campo ES la página: cualquier dibujo con fuerza acaba debajo de una cifra o de un chip, porque la columna de contenido ocupa todo el ancho y no deja margen. Sólo hay dos sitios donde un dibujo puede ir a plena tinta —detrás de una barra opaca, y en lo que aparece una sola vez—; en todo lo demás tiene que ser filigrana. Medido con herramientas/debajo.js: antes las flores daban 1,76 debajo del XP y de los chips; ahora dan 1,05.",
+  extra=""".talavera .lienzo{ padding-top:122px; }""",
+  tokens={"--m-pagina":"#f4f1e8",
+   # Cuatro capas y cada una en su sitio. Las dos grecas son geométricas y van
+   # en el filo; el friso de flores va a plena tinta SÓLO en la cabecera, donde
+   # no se escribe; y el campo lleva la misma flor de siempre, grande, pero de
+   # filigrana. Lo que rompía el mundo no era la flor: era la flor a plena
+   # tinta debajo de una cifra.
+   "--m-grano":f'url("{svg("talavera-greca.svg")}") top left repeat-x, url("{svg("talavera-friso.svg")}") top 26px left 0 / 62px 62px repeat-x, url("{svg("talavera-greca.svg")}") top 88px left 0 repeat-x, url("{svg("talavera-greca.svg")}") bottom left repeat-x, url("{svg("azulejo.svg")}") center / 168px 168px repeat',
+   "--m-grano-op":"1",
+   "--m-tarjeta":"#fffefb","--m-borde":"1.5px","--m-borde-color":"#1e3f8f",
+   "--m-sombra":"inset 0 0 0 3px #fffefb, inset 0 0 0 4.5px rgba(30,63,143,.55), 0 5px 16px rgba(30,63,143,.18)",
    "--m-r-tarjeta":"14px","--m-r-mini":"999px","--m-r-barra":"999px","--m-r-chip":"999px",
    "--m-tinta":"#0d2044","--m-tinta-2":"#465a76",
    "--m-acento":"#1e3f8f","--m-acento-velo":"rgba(30,63,143,.11)",
@@ -133,7 +136,10 @@ MUNDOS = [
   letra="Rajdhani", ancho="−10%", escala="1", esquinas="0 px · vivas", peso="~65 KB", horas="Noche",
   nota="La tarjeta era casi transparente y el texto se peleaba con la retícula del fondo. Ahora es un panel opaco: la retícula se ve alrededor, no por debajo de lo que hay que leer.",
   tokens={"--m-pagina":"#0d2b52",
-   "--m-grano":f'url("{svg("plano-rejilla.svg")}")',"--m-grano-op":"1",
+   "--m-grano":f'url("{svg("plano-rejilla.svg")}")',# La retícula es el mundo, pero a plena tinta pasaba por DEBAJO del XP y de
+   # los chips, que no tienen superficie propia: medido, 1,53-1,58 cuando el
+   # resto de los mundos no pasa de 1,35. Se ve alrededor, no debajo.
+   "--m-grano-op":".52",
    "--m-tarjeta":"rgba(6,26,52,.9)","--m-borde":"1px","--m-borde-color":"#6ea2d8",
    "--m-sombra":"inset 0 0 0 4px rgba(6,26,52,.95), inset 0 0 0 5px rgba(110,162,216,.5), 0 8px 22px rgba(0,0,0,.35)",
    "--m-r-tarjeta":"0","--m-r-mini":"0","--m-r-barra":"0","--m-r-chip":"0",

@@ -100,20 +100,33 @@ casa, y ninguno lleva marca, icono ni tipografía de nadie.
 | **Ventisca** | Frío con una hoguera | Big Shoulders Display | −26% | 1 | 3 px · chapa | ~90 KB | Noche |
 | **Bastión** | Blindaje | Michroma | +9% | 0.81 | 4 px · placa | ~105 KB | Noche |
 
-**Talavera, la segunda vuelta.** Las flores volvieron: estaban bien
-dibujadas y el problema nunca fue el dibujo. Lo que empachaba era que **las dos
-capas eran vegetales** —campo de flores y greca de hoja, tallo y flor—, y dos
-familias orgánicas encima se leen como un jardín en vez de como una pieza. Una
-pieza de Talavera de verdad reparte el trabajo: **la flor va en el campo y la
-greca va en el filo**, orgánico contra geométrico. Ahora la cenefa son escalones
-y rombos, las flores van más grandes y más separadas (168 px en vez de 140) y
-llevan su propia opacidad.
+**Talavera, tercera vuelta — y la lección no es de dibujo.** Las dos primeras
+fallaron por sitios distintos y la tercera contesta a las dos. El campo de
+flores estaba bien dibujado; lo que estaba mal era DÓNDE iba. En un teléfono el
+campo **es** la página: la columna de contenido ocupa todo el ancho y no deja
+margen, así que cualquier dibujo con fuerza acaba debajo de una cifra o de un
+chip. Medido, las flores daban **1,76** de dibujo justo debajo del XP y de los
+tres chips, cuando ningún otro mundo pasaba de 1,35.
 
-Medido, el empacho también era de intensidad: el fondo de Talavera daba **2,70**
-de contraste en el percentil 90 del lienzo, contra 1,1–1,5 de todos los demás.
-Con las flores al 60% baja a **1,76**, en la banda de Grabado (1,52) y Blueprint
-(1,53) y todavía el más presente de los mundos de día, que es lo que se quería.
-Está en `herramientas/campo.js`.
+Un plato de Talavera está **compuesto**, no estampado: cenefa en el filo, campo
+de esmalte liso, y sobre el liso es donde se escribe. Así queda:
+
+| Franja | Qué lleva | Se escribe ahí |
+| --- | --- | --- |
+| 0–26 px | greca escalonada, geométrica | no |
+| 26–88 px | friso de azulejos, la flor a **plena tinta** | no — va detrás de la barra opaca |
+| 88–114 px | greca de cierre | no |
+| el resto | esmalte liso con la misma flor de **filigrana** | sí, y se lee como sobre papel liso |
+
+La loza además es **blanca** (`#f4f1e8`), no crema, que es lo primero que se
+pidió y se había ido perdiendo. Debajo del XP y de los chips ahora hay 1,11-1,25.
+
+**La regla general que sale de aquí**, y vale para los catorce: en un teléfono
+sólo hay **dos sitios** donde un dibujo puede ir a plena tinta — detrás de algo
+opaco (la barra de arriba, la de abajo, una tarjeta) y en lo que aparece una
+sola vez. En todo lo demás tiene que ser filigrana. Blueprint tenía la misma
+enfermedad sin que nadie la señalara —su retícula daba 1,53 debajo de lo
+suelto— y se atemperó al 52%.
 
 **Descartado: Papel picado.** Tres rondas y en cada una se veía peor. El
 motivo no era el dibujo sino el encargo: el papel picado es una guirnalda que
@@ -155,7 +168,7 @@ no vuelve a pedir nada nunca.
 
 ## Cómo se comprueba que un mundo está bien
 
-En `herramientas/` está el arnés, con su `LEEME.md`. Para un mundo, seis
+En `herramientas/` está el arnés, con su `LEEME.md`. Para un mundo, siete
 medidas y ninguna es «se ve bien»:
 
 1. **Contraste sobre el píxel pintado.** Texto por encima de 4,5 sobre 1;
@@ -207,7 +220,18 @@ medidas y ninguna es «se ve bien»:
    `herramientas/donde.js` lo comprueba: fotografía la tarjeta con el adorno y
    sin él, resta las dos imágenes y dice en qué porcentaje del ancho está.
 
-4. **Dos capas orgánicas empachan; una orgánica y una ordenada, no.** No es
+4. **Nada legible se escribe encima de un dibujo.** La tarjeta tiene
+   superficie propia y protege lo que lleva dentro; el XP, los títulos de
+   sección y los chips **no la tienen** y se apoyan directamente en la página.
+   `herramientas/debajo.js` lo mide sin razonar sobre el DOM: oculta sólo ese
+   elemento —con `visibility`, que no mueve nada—, fotografía su rectángulo
+   exacto y mira el reparto de lo que hay detrás. Una superficie lisa da 1,0;
+   un dibujo da 1,5 y más. **El límite es 1,35.** Encontró dos mundos rotos que
+   ninguna otra medida veía, y uno de ellos nadie había señalado.
+   `herramientas/bandas.js` completa la foto: dice a qué altura está el dibujo,
+   que es lo que separa «cenefa arriba y campo liso» de «estampado por todas
+   partes».
+5. **Dos capas orgánicas empachan; una orgánica y una ordenada, no.** No es
    cuestión de cantidad de dibujo. Talavera con flores en el campo Y greca de
    hoja en el filo se sentía un jardín; con la misma cantidad de flor y la
    cenefa en geometría, respira. Arboleda nació con la regla puesta: el dosel
@@ -215,7 +239,7 @@ medidas y ninguna es «se ve bien»:
    rectos o concéntricos. **Se mide** con `herramientas/campo.js`, que da el
    contraste del fondo contra la página en el percentil 90: por debajo de ~1,6
    el fondo susurra, por encima de ~2 compite con lo que hay que leer.
-5. **Un adorno tiene que caber en la tarjeta.** Costó dos rondas: un dibujo
+6. **Un adorno tiene que caber en la tarjeta.** Costó dos rondas: un dibujo
    de 120x120 anclado abajo a la derecha, sobre una tarjeta de 88 px de alto,
    se recorta — y lo que queda a la vista es la parte de ARRIBA del dibujo,
    que en un arco cae hacia la izquierda. Parece que el adorno se cambió de
@@ -224,7 +248,7 @@ medidas y ninguna es «se ve bien»:
    como rayas largas. La regla: **caja del tamaño de la tarjeta, o cuatro
    dibujos anclados a sus cuatro esquinas, y nunca `background-size:100% 100%`
    en algo que tiene esquinas.**
-6. **Los vectores.** Densidad de tinta (ni vacíos ni manchones), reparto por
+7. **Los vectores.** Densidad de tinta (ni vacíos ni manchones), reparto por
    cuadrantes, y si el motivo se repite, que case consigo mismo en los bordes — un cordel que sale por la derecha a una altura y entra por la izquierda a otra deja un escalón visible en cada costura, y una hoja cortada por el borde deja un hueco. Si algo cruza la costura, se dibuja DOS veces, a los dos lados.
    Un motivo de retícula es la excepción: su costura lleva la línea gruesa a
    propósito y NO debe casar.
@@ -237,9 +261,16 @@ medidas y ninguna es «se ve bien»:
    pinta el mosaico dos veces y compara la columna del borde con la del
    siguiente mosaico. Cero es que casa.
 
-Los catorce de este documento pasan las seis. La medida más apretada es la
+Los catorce de este documento pasan las siete. La medida más apretada es la
 barra de Grabado (4,3 sobre un mínimo de 3) y el chip de aviso de Post-it
-(5,12 sobre 4,5); los tres mosaicos nuevos casan con 0 de diferencia.
+(5,12 sobre 4,5); los tres mosaicos nuevos casan con 0 de diferencia, y lo más
+cerca del límite de «escrito sobre dibujo» son Consola y Post-it con 1,35 y
+1,31, los dos por rayado fino y no por figura.
+
+**Un aviso sobre `campo.js`:** mide TODO el lienzo, así que un mundo compuesto
+—cenefa fuerte arriba, campo liso abajo— le sale alto por la cenefa. Talavera
+da 2,58 y está bien: lo que decide es `debajo.js`, que mira sólo lo que hay
+bajo el texto. Las dos medidas no dicen lo mismo y no se sustituyen.
 
 ## Lo que falta decidir
 

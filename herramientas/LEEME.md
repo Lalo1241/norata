@@ -149,3 +149,30 @@ si el motivo está vacío o si se apelmaza en una esquina.
 repetirlo con `<use>` en las nueve posiciones vecinas (0 y ±lado en las dos
 direcciones). Lo que sale por un lado entra por el otro por construcción. Contar
 a mano qué figura cruza qué borde es lo que dejó el escalón de Papel picado.
+
+## ¿Hay dibujo debajo de lo que hay que leer?
+
+La medida que faltaba, y encontró dos mundos rotos que ninguna otra veía.
+`debajo.js` oculta **sólo** un elemento —con `visibility`, que no mueve nada—,
+fotografía su rectángulo exacto y mira el reparto de lo que hay detrás.
+
+```sh
+node debajo.js /ruta/mundos/vista.html
+```
+
+Una superficie lisa da **1,0**; un dibujo da **1,5 y más**. El límite es
+**1,35**. La tarjeta protege lo que lleva dentro, pero el XP, los títulos de
+sección y los chips se apoyan directamente en la página y ahí es donde se rompe.
+
+`bandas.js` completa la foto: perfil de tinta por franjas horizontales del
+lienzo, con el contenido oculto. Dice **a qué altura** está el dibujo, que es lo
+que separa una composición —cenefa arriba, campo liso— de un estampado.
+
+```sh
+node bandas.js /ruta/mundos/vista.html m-talavera
+```
+
+**Y por qué hacen falta las tres.** `campo.js` mide todo el lienzo y a un mundo
+compuesto le sale alto por la cenefa; `debajo.js` mira sólo bajo el texto;
+`bandas.js` dice dónde está cada cosa. Talavera da 2,58 en campo y 1,25 en
+debajo, y las dos cifras son correctas.

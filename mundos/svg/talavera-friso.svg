@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="62" height="62" viewBox="0 0 62 62">
+  <!-- La misma flor del campo, pero AQUÍ va a plena tinta: este friso vive en
+       la cabecera, detrás de la barra opaca de la app, y ahí no se escribe
+       nada. La junta del azulejo se dibuja a propósito — un friso de Talavera
+       son piezas cuadradas, y la junta es lo que lo delata como loza y no como
+       estampado. La junta además es recta, que es la contraparte geométrica de
+       la flor: la misma regla de siempre. -->
+  <rect width="62" height="62" fill="#f7f4ec"/>
+  <path d="M0 .5h62M.5 0v62" stroke="#c9cede" stroke-width="1" fill="none"/>
+  <g fill="none" stroke="#1e3f8f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M31 31C37.2 30.1 42.5 25.7 42.9 19.9 43.2 16.4 39.8 14.6 38 16.8c-1.8 2.2.4 4.9 3.1 3.6"/>
+    <path d="M31 31C24.8 30.1 19.5 25.7 19.1 19.9c-.3-3.5 3.1-5.3 4.9-3.1 1.8 2.2-.4 4.9-3.1 3.6"/>
+    <path d="M31 31c-6.2.9-11.5 5.3-11.9 11.1-.3 3.5 3.1 5.3 4.9 3.1 1.8-2.2-.4-4.9-3.1-3.6"/>
+    <path d="M31 31c6.2.9 11.5 5.3 11.9 11.1.3 3.5-3.1 5.3-4.9 3.1-1.8-2.2.4-4.9 3.1-3.6"/>
+  </g>
+  <g fill="#1e3f8f" fill-opacity=".18" stroke="#1e3f8f" stroke-width="1.7" stroke-linejoin="round">
+    <path id="tf-p" d="M31 31C26.6 26.6 23.1 19.5 27.5 13.3 29.3 10.7 32.7 10.7 34.5 13.3 38.9 19.5 35.4 26.6 31 31Z"/>
+    <use href="#tf-p" transform="rotate(60 31 31)"/><use href="#tf-p" transform="rotate(120 31 31)"/>
+    <use href="#tf-p" transform="rotate(180 31 31)"/><use href="#tf-p" transform="rotate(240 31 31)"/>
+    <use href="#tf-p" transform="rotate(300 31 31)"/>
+  </g>
+  <circle cx="31" cy="31" r="4.6" fill="#f7f4ec" stroke="#1e3f8f" stroke-width="1.7"/>
+  <circle cx="31" cy="31" r="1.7" fill="#1e3f8f"/>
+</svg>
