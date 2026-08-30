@@ -120,11 +120,65 @@ Así que **Reliquia se promueve de ambiente a mundo**, el decimoquinto, y es el
   recolor, vuelve a ser lo que era —la insignia— y dentro del mundo es la luz
   que atraviesa la piedra.
 
-**Y arrastra un cambio de promesa, que hay que hacer a propósito.** La tabla de
-precios dice hoy *«Anillo lila e insignia propia»* (`js/10d-plan.js`, tres
-sitios). Eso se queda **y se le suma el mundo**: el anillo se ve siempre, el
+**Y arrastra un cambio en la tabla de precios**, decidido el 30 de agosto: lo
+que ya dice **se queda, y se le suma el mundo**. El anillo se ve siempre y el
 mundo solo cuando lo enciendes, así que sustituirlo dejaría sin distintivo a un
-fundador que prefiera Averno. La fila pasa a decir las dos cosas.
+fundador que prefiera Averno.
+
+Son tres sitios de `js/10d-plan.js`, y **entra el día que entre Reliquia, no
+antes**: hasta que el mundo exista, escribirlo sería justo lo que la Tanda 1
+está para quitar — que la app prometa algo que no tiene. Queda escrito aquí
+para que ese día sea pegar.
+
+**1 · La comparativa deja de decir lo mismo para Pro y para Fundador**, y esa
+es exactamente la diferencia que se compra. Hoy la fila `Apariencias` usa
+`apar()` para las tres columnas:
+
+```js
+const apar = (x) => x ? "Todas" : "Solo las paletas de color";
+```
+
+Pasa a haber un valor propio para la última columna:
+
+```js
+/* Fundador deja de decir lo mismo que Pro, y esa es la diferencia que se
+   compra: Reliquia es el único de los quince mundos que no abre Pro. */
+const apar = (x) => x ? "Todas" : "Solo las paletas de color";
+const aparFundador = "Todas, y Reliquia";
+```
+
+y la fila:
+
+```js
+["Apariencias", apar(l.apariencia), apar(p.apariencia), aparFundador],
+```
+
+**2 · La tarjeta de Fundador gana una ventaja**, encima del anillo, porque un
+mundo pesa más que una marca:
+
+```js
+const ventajasFundador = [
+  "Pro entero y sin límites, para siempre",
+  "Todo lo que Norata añada a Pro",
+  "Reliquia, el mundo que solo tienen los fundadores",
+  "Anillo lila en tu perfil y tu propia insignia"
+];
+```
+
+**3 · La lista de lo que se acaba de abrir**, tras comprar:
+
+```js
+if (fundador) abiertas.push("Tu distintivo: Reliquia, el anillo lila y tu propia insignia");
+```
+
+**La fila «Distintivo de fundador» de la comparativa no se toca.** Sigue
+diciendo «Anillo lila e insignia propia», porque el mundo ya vive en la fila de
+Apariencias y repetirlo en dos filas de la misma tabla lo abarata.
+
+**Y de paso, un arreglo que ya estaba pendiente y va en el mismo viaje.**
+`apar(false)` dice hoy *«Solo las paletas de color»*, y con el reparto nuevo eso
+dejó de ser cierto: Escarcha y Marea son paletas y piden Pro. Tiene que decir
+qué se abre de verdad — algo como *«Las paletas que vayas ganando»*.
 
 **Cómo conviven el anillo y la barra de expedición, que quieren el mismo sitio.**
 Los dos van al aro del avatar y ninguno de los dos existe todavía, así que se
@@ -561,8 +615,13 @@ queda **sin sitio para Cima**: su ventana de azul es donde vive el celeste, con
 el lila pegado al lado. Bajando el croma hasta que quepan, los cinco se
 vuelven grises — la lección de Niebla.
 
-**Las tres salidas, y la decisión es de Eduardo.** Los tonos de la tabla de
-arriba siguen puestos hasta que él diga:
+**Decidido: se quedan como están.** Eduardo lo cerró el 30 de agosto —«por mí
+deja Brote así, si me molesta luego lo cambio»—. El peor caso, el de Norte
+contra el lila, se alivió solo al irse Reliquia a `mundos/`: el lila deja de
+vestir toda la app y vuelve a ser la insignia. Los otros cuatro se quedan
+medidos y anotados por si algún día molestan.
+
+Las tres salidas, por si se retoma:
 
 | | Qué implica | Coste |
 | --- | --- | --- |

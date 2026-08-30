@@ -716,10 +716,13 @@ ul.reglas li::marker{{color:var(--tinta-3)}}
     de diez a cinco.</p>
   <ul class="rangos">{rangos}</ul>
   <div class="choque">
-    <h3>Pendiente: el color de los rangos</h3>
+    <h3>Cerrado: los colores de rango se quedan</h3>
     <p>La pregunta era si Norte y Duna se acaban pareciendo al lila de Fundador y a
       Reliquia. Medido con <b>dE2000</b>: sí, y no son los únicos. Los tonos de
-      arriba siguen puestos — <b>esto es la medida, no un cambio</b>.</p>
+      arriba <b>se quedan</b>: Eduardo lo cerró el 30 de agosto. El peor caso —Norte
+      contra el lila— se alivió solo al irse Reliquia a los mundos: el lila deja de
+      vestir toda la app y vuelve a ser la insignia. Los otros cuatro quedan medidos
+      y anotados por si algún día molestan.</p>
     <div class="tabla" style="margin-top:1rem"><table>
       <thead><tr><th>Rango</th><th>Contra</th><th>dE</th><th></th></tr></thead>
       <tbody>
@@ -736,9 +739,9 @@ ul.reglas li::marker{{color:var(--tinta-3)}}
       es donde vive el celeste, con el lila pegado al lado. Bajando el croma hasta
       que quepan, los cinco se vuelven grises — la lección de Niebla.</p>
     <div class="tabla" style="margin-top:1rem"><table class="ancha">
-      <thead><tr><th>Salida</th><th>Qué implica</th><th>Coste</th></tr></thead>
+      <thead><tr><th>Si se retoma</th><th>Qué implica</th><th>Coste</th></tr></thead>
       <tbody>
-        <tr><th scope="row">A · dejarlo</th><td>Cinco tonos propios, como están arriba</td><td>Un usuario Fundador ve su lila y el rango Norte casi iguales</td></tr>
+        <tr><th scope="row">A · dejarlo <b>(elegido)</b></th><td>Cinco tonos propios, como están arriba</td><td>Brote sigue a 6,0 de la menta de la marca</td></tr>
         <tr><th scope="row">B · mover Norte</th><td>Alejarlo del lila; los otros cuatro se quedan</td><td>Los otros cuatro choques siguen, y Brote a 6,0 de la menta es el peor</td></tr>
         <tr><th scope="row">C · sin color propio</th><td>El rango es su dibujo y el color se lo pone su ambiente</td><td>Los de grado 1 no mueven el acento: <b>tres de cinco rangos se verían en menta</b></td></tr>
       </tbody>
