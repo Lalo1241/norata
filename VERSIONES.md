@@ -52,6 +52,122 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.41 · 30 ago 2026
+El nivel de expedición. Norata tiene por fin **una cifra que habla de ti** y no
+de una habilidad suelta — y con ella los ambientes dejan de estar apagados: la
+pantalla de Apariencia es de todos desde hoy.
+
+El nombre ya estaba puesto sin darnos cuenta: la pantalla de bienvenida dice
+«Tu expedición empieza aquí».
+
+### Los puntos no se guardan: se cuentan
+
+Es la decisión que sostiene todo lo demás y no es un capricho técnico. Es la
+regla que ya rige la sincronía, escrita en `js/10-fusion.js`: «El XP no se suma
+a mano: se recalcula contando los movimientos. Así una fusión no puede inflarlo
+aunque se repita mil veces.» Un contador guardado se rompe justo ahí — dos
+aparatos que suman 100 cada uno se juntan y se quedan con 100.
+
+Tres cosas salen gratis por decidirlo así:
+
+- **Es retroactivo.** El día que esto llegue a un aparato, esa cuenta ya tiene
+  su nivel, sacado de meses de datos que ya existían. Nadie empieza en cero por
+  haber llegado antes.
+- **La sincronía no lo puede inflar ni perder**, porque no hay nada que
+  fusionar.
+- **Nunca se desalinea**, porque no hay un número guardado que pueda
+  contradecir a los datos.
+
+Lo único que se guarda es un **piso** —el nivel más alto que hayas tenido—, y
+existe por un solo borde: borrar historial a mano bajaría los puntos. Se guarda
+como MÁXIMO justamente para que la sincronía lo fusione sin pensar: gana el
+mayor de los dos lados, siempre, sin importar el orden.
+
+### De qué se hace un punto
+
+Todo lo que la app ya celebra, y nada más. Un punto se paga por lo que cuesta
+conseguir algo, no por lo que cuesta hacerle clic.
+
+| | Puntos | |
+| --- | --- | --- |
+| Los dos primeros días de la semana | 40 | con que aparezcas cuenta |
+| Cada día más de esa semana | 5 | |
+| Misión cumplida | 2 | hasta cinco al día |
+| Etapa hecha | 5 | de un talento o de un encargo |
+| Hito conseguido | 20 | |
+| Hito de racha | 25 | los que la app ya festeja |
+| Cada nivel que alcanzó una habilidad | 30 | el decaimiento no te lo quita |
+| Talento logrado | 50 | |
+| Encargo terminado | 50 | |
+| Estreno | 15 | la primera habilidad, misión, talento y encargo |
+
+**Por qué la semana se parte en dos.** Con un valor fijo por día el sistema
+medía frecuencia y no constancia: quien entra dos veces por semana tardaba 4,4
+años en llegar al último rango y quien entra cinco tardaba 1,7. Pagando fuerte
+las dos primeras veces de cada semana esa distancia se cierra — y deja de tener
+sentido abrir la app diez segundos para no perder el punto del día.
+
+**Y el decaimiento no te quita puntos**: cuenta el nivel más alto que cada
+habilidad llegó a tener, reconstruido recorriendo su historial. Lo aprendido
+pasó, aunque hoy esté oxidado.
+
+### La escalera, medida
+
+La curva no tiene tope: los tres primeros niveles van en rampa aparte —15, 35 y
+60 puntos— y del cuarto en adelante cada nivel cuesta `30 × nivel + 15`. Es una
+recta y no una explosión: con la curva de las habilidades el nivel 40 pediría
+cuatro millones de puntos.
+
+Comprobado que **las 61 fronteras del nivel 0 al 60 caen exactamente donde
+deben**, por los dos lados. Y simulando día por día cinco años de uso:
+
+| Peldaño | Ligero | Normal | Intenso |
+| --- | --- | --- | --- |
+| 1 · Semilla + Tinta | el primer día | el primer día | el primer día |
+| 3 · Brote + Musgo | 5 días | 2 días | 2 días |
+| 7 · Refugio + Adobe | 2 meses | 1 mes | 15 días |
+| 12 · Cima + Escarcha | 7 meses | 3 meses | 2 meses |
+| 20 · Norte + Duna | 1,5 años | 8 meses | 5 meses |
+
+Que es lo que el reparto prometía. **Y el caso que más importa, comprobado
+aparte:** una cuenta en la que se acaba de crear UNA habilidad da 15 puntos —el
+estreno—, que es exactamente lo que cuesta el nivel 1. El primer premio llega
+el primer día, que era la condición para que hubiera un segundo.
+
+### Lo que se abre, y lo que ya no está apagado
+
+`APARIENCIA_PUBLICA` pasa a `true`: la sección de Apariencia en Ajustes es de
+todos. Ya no hace falta `?apariencia=` — aunque el parámetro sigue vivo para
+probar un ambiente sin quedárselo.
+
+Y las muestras cerradas ya dicen la verdad, con **dos puertas y en este
+orden**: primero el nivel, que es lo que se gana, y después el plan, que es lo
+que se paga. El orden importa por lo que se le dice a la persona: a quien
+todavía no llega al nivel no se le ofrece pagar, se le dice cuánto le falta.
+Cobrar por saltarse la escalera es justo lo que rompería la escalera.
+
+### La tarjeta del Resumen
+
+Con el nivel, el rango, los puntos y lo que falta — pero **lo que la hace
+servir para algo es la última línea: el próximo desbloqueo escrito antes de
+llegar**. Un premio sorpresa no mueve a nadie; uno que se ve venir, sí. Lleva
+directo a Ajustes → Apariencia, que es donde se recoge.
+
+Solo anuncia lo que EXISTE: si el siguiente peldaño del documento es una
+celebración que todavía no está construida, la tarjeta salta al siguiente que
+sí, en vez de prometerla.
+
+**Y un widget nuevo hay que darlo de alta en `DASH_META` además de en
+`DASH_DEFAULT`.** Sin esa entrada, `dashSize` revienta leyendo
+`DASH_META[id].w` y **el tablero entero deja de dibujarse** — no la tarjeta
+nueva: el tablero entero. Costó una pantalla en blanco descubrirlo.
+
+### Lo que falta
+
+El **aro del avatar** con el avance, y la **celebración al subir de nivel** con
+su ventana que no se cierra por accidente. Las dos están especificadas en
+`apariencias/LEEME.md` y ninguna de las dos existe todavía.
+
 ### 0.7.40 · 30 ago 2026
 El motor de las apariencias y su pantalla, apagados. Norata ya sabe ponerse
 otra piel y ya tiene dónde elegirla; nadie la ve todavía.

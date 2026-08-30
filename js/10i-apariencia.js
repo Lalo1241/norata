@@ -57,15 +57,20 @@ function aparienciaGuardada() {
 }
 
 /* ---- Quién puede usar qué ----
-   Devuelve `true`, o el motivo por el que todavía no. Hoy solo sabe contestar
-   por el plan: el nivel de expedición no existe, así que un ambiente que se
-   gana no puede saber si ya se ganó. Mientras tanto, todo lo que no sea de
-   pago está abierto y la app entera va detrás de `?apariencia=`, así que
-   nadie que no la pida se la encuentra. El día que exista el nivel, la única
-   línea que cambia es la del `abre`. */
+   Devuelve `true`, o el motivo por el que todavía no. Dos puertas y en este
+   orden: primero el NIVEL, que es lo que se gana, y después el PLAN, que es
+   lo que se paga. El orden importa para lo que se le dice a la persona — a
+   quien todavía no llega al nivel no se le ofrece pagar, se le dice cuánto
+   le falta. Cobrar por saltarse la escalera es justo lo que rompería la
+   escalera. */
 function aparienciaDisponible(id) {
   const a = ambientePorId(id);
   if (!a) return "no existe";
+  if (a.abre && typeof expedicion === "function") {
+    /* El nivel que vale es el ALCANZADO —el más alto que hayas tenido— y no
+       el de hoy: nadie pierde un ambiente por haber borrado historial. */
+    if (expedicion().alcanzado < a.abre) return "nivel";
+  }
   if (a.pro && typeof planPermite === "function" && !planPermite("apariencia")) return "pro";
   return true;
 }
@@ -174,12 +179,11 @@ function arrancarApariencia() {
    pantalla, y sacarlos de su sitio para hacerle hueco a esto sería cobrarle el
    cambio a quien no viene a comprar. */
 
-/* Mientras el nivel de expedición no exista, ningún ambiente se puede
-   desbloquear — y enseñar cinco premios que nadie puede ganarse los regala
-   antes de que la escalera exista. Así que la sección sigue detrás de
-   `?apariencia=`, igual que el motor. El día que haya nivel, esto pasa a
-   `true` y ya está. */
-const APARIENCIA_PUBLICA = false;
+/* Desde 0.7.41 la sección es de todos: el nivel de expedición existe, así que
+   un ambiente que se desbloquea ya sabe cuándo se desbloqueó y la escalera
+   significa algo. Antes iba detrás de `?apariencia=` justamente porque
+   enseñar cinco premios que nadie podía ganarse los regalaba. */
+const APARIENCIA_PUBLICA = true;
 
 function aparienciaVisibleEnAjustes() {
   return APARIENCIA_PUBLICA || !!aparienciaDePrueba();
@@ -190,6 +194,7 @@ function aparienciaVisibleEnAjustes() {
 function motivoApariencia(a) {
   const puede = aparienciaDisponible(a.id);
   if (puede === true) return null;
+  if (puede === "nivel") return "Nivel " + a.abre;
   if (puede === "pro" && typeof NOMBRE_PRO === "string") return "Con " + NOMBRE_PRO;
   return "Con Pro";
 }
@@ -202,9 +207,10 @@ function renderPanelApariencia() {
   const muestras = AMBIENTES.map((a) => {
     const bloqueado = aparienciaDisponible(a.id) !== true;
     const motivo = motivoApariencia(a);
-    /* El nivel se escribe AL LADO aunque todavía no desbloquee nada: es lo que
-       convierte «no lo tienes» en «lo tendrás», y es la mitad del premio. */
-    const pie = motivo || (a.abre ? "Nivel " + a.abre : "");
+    /* El motivo se escribe AL LADO: es lo que convierte «no lo tienes» en «lo
+       tendrás», y es la mitad del premio. Los que ya tienes no llevan pie —
+       decirle a alguien el nivel de algo que ya se ganó es ruido. */
+    const pie = motivo || "";
     return `
       <button type="button" class="amb-m mues-${a.id}${puesta === a.id ? " on" : ""}${bloqueado ? " cerrado" : ""}"
         onclick="elegirApariencia('${a.id}')"
@@ -237,4 +243,13 @@ function elegirApariencia(id) {
   }
   ponerApariencia(id);
   renderPanelApariencia();
+}
+
+/* Desde la tarjeta del Resumen: lleva a Ajustes con la sección ya abierta. Es
+   el único camino corto que hay a lo que se acaba de desbloquear, y sin él la
+   tarjeta anuncia un premio sin decir dónde se recoge. */
+function abrirApariencia() {
+  if (typeof showView === "function") showView("settings");
+  if (typeof ajusteAbierto !== "undefined") ajusteAbierto = "aspecto";
+  if (typeof renderAjustes === "function") renderAjustes();
 }
