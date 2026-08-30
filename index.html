@@ -705,6 +705,19 @@
           </div>
         </section>
 
+        <!-- La exigencia tiene sección propia y no vive dentro de otra porque
+             es lo único que se elige una vez y luego no se puede ni ver: quien
+             venga a cambiarla la va a buscar por su nombre, no dentro de
+             "Mi almacenamiento". Lo dibuja `renderPanelRitmo`. -->
+        <section class="ajuste-bloque" data-sec="ritmo">
+          <div class="panel">
+            <h3>Qué tan exigente lo quieres</h3>
+            <p class="settings-note">Cuánto aguanta una habilidad sin que la practiques antes de empezar a bajar, y a qué ritmo baja. Es lo que eliges al armar tu tablero, y aquí se cambia cuando quieras.</p>
+            <div id="ritmo-opciones"></div>
+            <div id="ritmo-aplicar"></div>
+          </div>
+        </section>
+
         <!-- Todo lo que trata de TUS DATOS vive junto: con qué día se cuentan,
              cómo se respaldan, qué copias se guardan solas y cómo se borran.
              Estaban repartidos en tres entradas del menú que decían lo mismo. -->

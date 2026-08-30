@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.39.3";
+const VERSION = "0.7.39.4";
 const VERSION_FECHA = "30 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -580,6 +580,38 @@ const MONEDAS = {
 };
 const MONEDA_POR_DEFECTO = "MXN";
 
+/* ================= La exigencia =================
+   Cuánto aguanta una habilidad sin práctica antes de empezar a bajar, y a qué
+   ritmo baja. Es lo que la pregunta 2 del asistente llama "qué tan exigente lo
+   quieres".
+
+   Vivía repartida en tres sitios y por eso la respuesta se perdía: el
+   asistente tenía sus tres pares de números, el formulario tenía otro par
+   escrito a mano (7 y 10) y el catálogo un tercero. Quien elegía "Tranquilo"
+   y creaba una habilidad al día siguiente se la encontraba en "Equilibrado"
+   sin que nada se lo dijera, y no había forma de ver qué había elegido ni de
+   cambiarlo. Ahora es un ajuste, y estos son los únicos números que existen.
+
+   Sigue siendo el VALOR POR DEFECTO y no una ley: cada habilidad guarda los
+   suyos y se pueden afinar una por una desde su formulario. Cambiar el ajuste
+   no toca lo que ya existe salvo que se pida expresamente. */
+const EXIGENCIAS = {
+  suave: { id: "suave", nombre: "Tranquilo",   grace: 14, decay: 5,
+           dicho: "14 días de gracia. Para empezar sin presión." },
+  medio: { id: "medio", nombre: "Equilibrado", grace: 7,  decay: 10,
+           dicho: "7 días de gracia. El punto medio recomendado." },
+  duro:  { id: "duro",  nombre: "Exigente",    grace: 3,  decay: 18,
+           dicho: "3 días de gracia. Si fallas, se nota rápido." }
+};
+const EXIGENCIA_POR_DEFECTO = "medio";
+
+/* Como `monedaActual`: tolera un ajuste corrupto o de una versión más nueva
+   antes que romper la pantalla, y cae al punto medio. */
+function exigenciaActual() {
+  const e = state && state.settings && state.settings.exigencia;
+  return EXIGENCIAS[e] || EXIGENCIAS[EXIGENCIA_POR_DEFECTO];
+}
+
 /* Los formateadores se guardan al vuelo: construir un Intl.NumberFormat es
    caro, y el informe llama a money() decenas de veces por dibujo. */
 const _fmtMoneda = {};
@@ -644,6 +676,10 @@ function load() {
      importe que cambia de código solo lo lee como que la app perdió sus
      datos. */
   if (!MONEDAS[data.settings.moneda]) data.settings.moneda = MONEDA_POR_DEFECTO;
+  /* Igual que la moneda: un valor que no existe —de una versión más nueva o
+     de un respaldo editado a mano— cae al punto medio en vez de dejar sin
+     valores por defecto a la siguiente habilidad que se cree. */
+  if (!EXIGENCIAS[data.settings.exigencia]) data.settings.exigencia = EXIGENCIA_POR_DEFECTO;
   if (!data.settings.timezone) {
     try { data.settings.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
     catch (e) { data.settings.timezone = "UTC"; }

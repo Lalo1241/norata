@@ -52,6 +52,43 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.39.4 · 30 ago 2026
+La exigencia deja de perderse. Es una sección de Ajustes —**Mi exigencia**— y
+por primera vez se puede ver cuál tienes puesta, cambiarla y aplicarla a lo que
+ya existe.
+
+**El fallo, que lo cazó Eduardo:** la pregunta 2 del asistente sí hacía algo
+—convertía tu respuesta en los `graceDays` y el `decayPerDay` de cada habilidad
+que se creaba en ese momento— pero solo una vez. Después desaparecía. Toda
+habilidad nueva nacía con 7 y 10 elijas lo que elijas, porque ese par estaba
+escrito a mano en el formulario, y había **tres puertas** que ni siquiera
+preguntaban: «Empezar de cero», «＋ Crear habilidad» y «Crear una a mano».
+Encima no se veía en ningún lado: la única forma de saber qué elegiste era
+abrir una habilidad y leer sus dos campos numéricos. O sea que no era una
+preferencia tuya, eran datos sueltos por habilidad sin valor por defecto.
+
+**Ahora hay un solo sitio de donde salen los números:** `EXIGENCIAS` en
+`js/01-base.js`, con los tres pares que ya usaba el asistente. De ahí beben el
+asistente, el formulario y el catálogo. `state.settings.exigencia` guarda la
+elección y `exigenciaActual()` la lee tolerando un valor corrupto o de una
+versión más nueva, igual que hace `monedaActual()` con la moneda.
+
+**La regla que separa las dos cosas, y conviene no borrarla:** cambiar el
+ajuste **no toca ni una habilidad**. Es el valor con el que NACEN las nuevas,
+igual que cambiar de moneda no convierte los importes ya escritos. Tocar lo que
+ya existe se pide aparte, con un botón que dice cuántas van a cambiar — porque
+ahí sí se pisan los números que alguien pudo haber afinado en una habilidad
+concreta. Las blindadas no se cuentan ni se tocan: no pierden XP nunca, así que
+sus dos números no significan nada.
+
+Y la fila del índice dice cuál tienes puesta —«Tranquilo · 14 días de gracia»—
+por la misma razón que la del plan: la queja que trajo todo esto era que no se
+veía, y entrar no puede ser la única forma de enterarse.
+
+El número va en el cuarto tramo y no en el tercero por una razón de fuera: la
+rama de ambientes ya tiene apartada la `0.7.40`, y dos tandas con el mismo
+número dejan a medio mundo con la copia vieja.
+
 ### 0.7.39.3 · 30 ago 2026
 Dos retoques en las dos primeras pantallas que ve alguien que llega: el cartel
 vacío del Resumen deja de ofrecer tres caminos iguales, y las áreas del
