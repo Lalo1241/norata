@@ -5320,6 +5320,12 @@
      el valor congelado en el inicial (ver la nota del modo claro). */
   .aviso-ejemplo .ae-tag button:hover { background: rgba(16, 21, 29, 0.24); }
 
+  /* Callado: en la cuenta de pruebas la pastilla pierde el texto y se queda en
+     la salida. El relleno de la izquierda guardaba sitio para el rótulo y
+     sobra sin él; el alto NO se toca, porque lo marca el área de toque del
+     botón y ése es el suelo del dedo. */
+  .aviso-ejemplo.callado .ae-tag { padding-left: 6px; }
+
   /* Con los dos rótulos puestos —la cuenta de pruebas de Eduardo mirando el
      ejemplo—, el de pruebas baja para no quedar debajo del otro. Es raro y
      dura un rato, pero dos pastillas superpuestas no se leen ninguna.

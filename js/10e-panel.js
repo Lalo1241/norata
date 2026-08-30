@@ -48,6 +48,11 @@ async function revisarAdmin() {
      aparecía nunca: cuando la sesión se abre, `esAdmin` todavía vale false, y
      `pintarAvisoPruebas` ya había pasado por ahí decidiendo que no. */
   if (typeof pintarAvisoPruebas === "function") pintarAvisoPruebas();
+  /* Y el del ejemplo por lo mismo: en la cuenta de pruebas se dibuja callado,
+     y esa decisión también cuelga de una respuesta que llega tarde. Sin esta
+     línea, entrar al ejemplo antes de que el servidor conteste dejaba el
+     rótulo hablando hasta la siguiente recarga. */
+  if (typeof pintarAvisoEjemplo === "function") pintarAvisoEjemplo();
 }
 
 /* ---- Piezas de dibujo ----
