@@ -276,6 +276,43 @@ function renderSummary() {
       </button>`;
     },
 
+    /* La expedición: el nivel de la CUENTA, que no es el de ninguna habilidad.
+       Va al lado de "Niveles" a propósito —son primos y conviene que se lean
+       juntos— pero dicen cosas distintas: aquella suma lo que practicas, esta
+       cuenta lo que has recorrido en la app entera.
+
+       Lo que la hace útil no es la cifra, es la última línea: **el próximo
+       desbloqueo, con lo que falta escrito**. Un premio sorpresa no mueve a
+       nadie; uno que se ve venir, sí. Y los de Pro salen igual, con su
+       etiqueta: a la vista y deseables, nunca escondidos.
+
+       No lleva `onclick` todavía: el sitio al que debe llevar es la colección,
+       que aún no existe. Antes de inventarle un destino, ninguno. */
+    expedicion: () => {
+      const info = nivelExpedicion();
+      const r = rangoExpedicion(info.nivel);
+      const prox = proximoDesbloqueo(info.nivel);
+      const faltan = prox ? prox.nivel - info.nivel : 0;
+      return `
+      <div class="sum-card a quieta">
+        <div class="exp-cab">
+          ${insigniaExpedicionHTML(38) || `<span class="ic">${icon("compass", 22)}</span>`}
+          <div class="exp-cifra">
+            <div class="n">${info.nivel}</div>
+            <div class="t">de expedición${r ? " · " + escapeHtml(r.nombre) : ""}</div>
+          </div>
+        </div>
+        <div class="sc-rows">
+          <div><b>${info.faltan}</b><span>PUNTOS PARA EL ${info.nivel + 1}</span></div>
+        </div>
+        ${prox ? `<div class="sc-near">
+          <span>${faltan === 1 ? "En el siguiente nivel" : "A " + faltan + " niveles"}${prox.pro ? " · con Pro" : ""}</span>
+          <b>${escapeHtml(prox.nombre)}</b>
+          <i style="--p:${info.pct}%"></i>
+        </div>` : ""}
+      </div>`;
+    },
+
     invertido: () => {
       const enCurso = activeList.length + dueList.length;
       const permanentes = state.perks.filter(p => p.status === "completed").length;
@@ -416,11 +453,15 @@ const DASH_META = {
   misiones:  { title: "Misiones de hoy", w: 1, h: 8 },
   atencion:  { title: "Atención hoy", w: 1, h: 3 },
   niveles:   { title: "Niveles", w: 1, h: 3 },
+  /* El nivel de la CUENTA. Una fila más alta que sus vecinas porque lleva
+     tres cosas y no dos: la cifra con su insignia, los puntos que faltan y
+     el próximo desbloqueo. */
+  expedicion: { title: "Expedición", w: 1, h: 4 },
   invertido: { title: "Invertido", w: 1, h: 3 },
   proyectos: { title: "Proyectos", w: 1, h: 3 },
   listos:    { title: "Listos para empezar", w: 1, h: 4 }
 };
-const DASH_DEFAULT = ["racha", "misiones", "atencion", "niveles", "invertido", "proyectos", "listos"];
+const DASH_DEFAULT = ["racha", "misiones", "atencion", "expedicion", "niveles", "invertido", "proyectos", "listos"];
 /* Qué módulo alimenta cada tarjeta del tablero. "racha" y "atencion" no
    aparecen porque se nutren de todo y siguen teniendo sentido con
    cualquier combinación encendida. */
@@ -439,7 +480,7 @@ const ROW_PITCH = ROW_H + ROW_GAP_V;
    —"Listos para empezar" es una lista y necesita cuatro; "Proyectos" es un
    dato suelto y se apaña con dos—. El techo sigue siendo el mismo para
    todas: encoger estropea, agrandar no. */
-const DASH_MIN_H = { racha: 5, misiones: 3, atencion: 2, niveles: 3, invertido: 3, proyectos: 2, listos: 4 };
+const DASH_MIN_H = { racha: 5, misiones: 3, atencion: 2, expedicion: 3, niveles: 3, invertido: 3, proyectos: 2, listos: 4 };
 /* Techo generoso: son 40 filas de la cuadrícula, más de dos pantallas de
    alto. Existe solo para que un tirón desbocado del asa no deje una tarjeta
    de mil filas imposible de volver a encoger. */
@@ -488,14 +529,14 @@ const DASH_ACOMODOS = [
   {
     nombre: "Columnas",
     sub: "Tres columnas parejas, las misiones al centro",
-    order: ["atencion", "misiones", "racha", "proyectos", "niveles", "listos", "invertido"],
+    order: ["atencion", "misiones", "racha", "proyectos", "expedicion", "niveles", "listos", "invertido"],
     sizes: {
       /* Misiones va deliberadamente más alta de lo que su contenido pide: es
          lo que mantiene ocupada la columna del centro y obliga a "Invertido"
          a caer en la tercera. Con la altura justa, el reparto automático lo
          mete debajo de Misiones y la tercera columna queda coja. */
       atencion: { w: 1, h: 3 }, misiones: { w: 1, h: 12 }, racha: { w: 1, h: 5 },
-      proyectos: { w: 1, h: 3 }, niveles: { w: 1, h: 3 }, listos: { w: 1, h: 5 },
+      proyectos: { w: 1, h: 3 }, niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 5 },
       invertido: { w: 1, h: 3 }
     }
   },
@@ -505,20 +546,20 @@ const DASH_ACOMODOS = [
     /* El orden importa más que los tamaños: "Listos" tiene que ir DESPUÉS de
        Atención y Niveles para que caiga bajo Misiones y no se cuele en la
        columna del medio. */
-    order: ["misiones", "racha", "atencion", "niveles", "listos", "proyectos", "invertido"],
+    order: ["misiones", "racha", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
     sizes: {
       misiones: { w: 1, h: 8 }, racha: { w: 2, h: 6 }, listos: { w: 1, h: 5 },
-      atencion: { w: 1, h: 4 }, niveles: { w: 1, h: 4 },
+      atencion: { w: 1, h: 4 }, niveles: { w: 1, h: 4 }, expedicion: { w: 1, h: 5 },
       proyectos: { w: 1, h: 4 }, invertido: { w: 1, h: 4 }
     }
   },
   {
     nombre: "Mirador",
     sub: "La escena grande, presidiendo el tablero",
-    order: ["racha", "misiones", "atencion", "niveles", "listos", "proyectos", "invertido"],
+    order: ["racha", "misiones", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
     sizes: {
       racha: { w: 2, h: 7 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 4 },
-      niveles: { w: 1, h: 4 }, listos: { w: 1, h: 5 },
+      niveles: { w: 1, h: 4 }, expedicion: { w: 1, h: 5 }, listos: { w: 1, h: 5 },
       proyectos: { w: 1, h: 4 }, invertido: { w: 1, h: 4 }
     }
   }
@@ -546,10 +587,10 @@ const DASH_ACOMODOS_LAPTOP = [
   {
     nombre: "Columnas",
     sub: "Las dos columnas parejas, y el día arriba",
-    order: ["misiones", "racha", "atencion", "niveles", "listos", "proyectos", "invertido"],
+    order: ["misiones", "racha", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
     sizes: {
       misiones: { w: 1, h: 7 }, racha: { w: 1, h: 5 }, atencion: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, listos: { w: 1, h: 4 },
+      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 4 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
   },
@@ -560,20 +601,20 @@ const DASH_ACOMODOS_LAPTOP = [
        ocupa seis filas de las DOS columnas y deja el resto para las otras
        seis tarjetas. Es un intercambio, no un descuido — se paga alto para
        ver el mes grande, que es de lo que va este acomodo. */
-    order: ["racha", "misiones", "atencion", "niveles", "listos", "proyectos", "invertido"],
+    order: ["racha", "misiones", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
     sizes: {
       racha: { w: 2, h: 6 }, misiones: { w: 1, h: 7 }, atencion: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, listos: { w: 1, h: 4 },
+      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 4 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
   },
   {
     nombre: "Mirador",
     sub: "Proyectos y talentos al frente; el día, después",
-    order: ["listos", "proyectos", "invertido", "niveles", "misiones", "racha", "atencion"],
+    order: ["listos", "proyectos", "invertido", "expedicion", "niveles", "misiones", "racha", "atencion"],
     sizes: {
       listos: { w: 1, h: 4 }, proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, misiones: { w: 1, h: 7 }, racha: { w: 1, h: 5 },
+      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, misiones: { w: 1, h: 7 }, racha: { w: 1, h: 5 },
       atencion: { w: 1, h: 3 }
     }
   }
@@ -605,9 +646,9 @@ const DASH_ACOMODOS_TABLETA = [
        quita el aire que no necesita, que es su trabajo—. Una fila de 56 px
        en un tablero de diecinueve es un precio honesto por tener el mes
        entero a lo ancho. */
-    order: ["misiones", "atencion", "niveles", "racha", "listos", "proyectos", "invertido"],
+    order: ["misiones", "atencion", "expedicion", "niveles", "racha", "listos", "proyectos", "invertido"],
     sizes: {
-      misiones: { w: 1, h: 7 }, atencion: { w: 1, h: 3 }, niveles: { w: 1, h: 3 },
+      misiones: { w: 1, h: 7 }, atencion: { w: 1, h: 3 }, niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 },
       racha: { w: 2, h: 6 }, listos: { w: 1, h: 5 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
@@ -615,10 +656,10 @@ const DASH_ACOMODOS_TABLETA = [
   {
     nombre: "Panorama",
     sub: "El mes preside, y debajo lo que lo llena",
-    order: ["racha", "misiones", "atencion", "niveles", "listos", "proyectos", "invertido"],
+    order: ["racha", "misiones", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
     sizes: {
       racha: { w: 2, h: 6 }, misiones: { w: 1, h: 7 }, atencion: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, listos: { w: 1, h: 5 },
+      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 5 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
   },
@@ -635,10 +676,10 @@ const DASH_ACOMODOS_TABLETA = [
        la racha al final se sentaba en la columna izquierda y dejaba cinco
        filas vacías en la derecha; poniéndola aquí cae en la derecha y
        "Misiones" ocupa las que quedaban. Dos filas menos de tablero. */
-    order: ["listos", "proyectos", "invertido", "niveles", "racha", "misiones", "atencion"],
+    order: ["listos", "proyectos", "invertido", "expedicion", "niveles", "racha", "misiones", "atencion"],
     sizes: {
       listos: { w: 1, h: 5 }, proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, racha: { w: 1, h: 7 }, misiones: { w: 1, h: 7 },
+      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, racha: { w: 1, h: 7 }, misiones: { w: 1, h: 7 },
       atencion: { w: 1, h: 3 }
     }
   }
@@ -657,17 +698,17 @@ const DASH_ACOMODOS_MOVIL = [
   {
     nombre: "El día",
     sub: "Lo de hoy primero: misiones, racha y lo que urge",
-    order: ["misiones", "racha", "atencion", "proyectos", "niveles", "invertido", "listos"]
+    order: ["misiones", "racha", "atencion", "proyectos", "expedicion", "niveles", "invertido", "listos"]
   },
   {
     nombre: "Constancia",
     sub: "La racha arriba, y debajo lo que la alimenta",
-    order: ["racha", "misiones", "niveles", "atencion", "listos", "invertido", "proyectos"]
+    order: ["racha", "misiones", "expedicion", "niveles", "atencion", "listos", "invertido", "proyectos"]
   },
   {
     nombre: "Lo que construyo",
     sub: "Proyectos y talentos al frente; el día, después",
-    order: ["proyectos", "listos", "invertido", "misiones", "atencion", "racha", "niveles"]
+    order: ["proyectos", "listos", "invertido", "misiones", "atencion", "racha", "expedicion", "niveles"]
   }
 ];
 
@@ -966,9 +1007,21 @@ function disposicionTablero(ids, cols, extra) {
   const { pos, sizes, order, hidden } = dashLayout();
   // Las escondidas no ocupan sitio en el reparto de estreno
   const base = pos || empaquetar(order.filter(id => !hidden.includes(id)), sizes, cols);
+  /* La primera fila libre por debajo de todo lo que YA tiene sitio. Es dónde
+     va a parar una tarjeta que no existía cuando esta persona acomodó su
+     tablero: al fondo, sin tocar nada de lo suyo.
+
+     Y es una fila de verdad, no un número gordo de centinela: con `f: 9999` la
+     tarjeta se plantaba en la fila 9999 de la cuadrícula —el buscador de hueco
+     la encontraba libre y la dejaba ahí— y el tablero se llevaba detrás
+     800.000 px de vacío que sí se podían recorrer. */
+  const fondo = Object.keys(base).reduce((max, id) => {
+    const p = base[id], s = dashSize(id);
+    return p ? Math.max(max, (p.f || 0) + (s ? s.h : 1)) : max;
+  }, 0);
   const piezas = ids.map(id => {
     const s = dashSize(id);
-    const p = (extra && extra[id]) || base[id] || { c: 0, f: 0 };
+    const p = (extra && extra[id]) || base[id] || { c: 0, f: fondo };
     return { id, w: Math.min(s.w, cols), h: s.h, c: clamp(p.c, 0, Math.max(0, cols - Math.min(s.w, cols))), f: Math.max(0, p.f) };
   });
   piezas.sort((a, b) => (a.f - b.f) || (a.c - b.c));
