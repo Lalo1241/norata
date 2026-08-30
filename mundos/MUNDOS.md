@@ -11,7 +11,8 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
 | **Ya está en la app** (0.7.37) | La capa de material: `--r-*`, `--sup-*`, `--marco-*`, `--tipo-titulo`, `--tipo-cifra`, `--dur-*`. Ver la sección «El material» de `CLAUDE.md`. |
 | **Ya está en la app** (0.7.38) | Servir de la copia primero, para que un mundo se baje UNA vez y no cada mañana. |
 | **Diseñado y medido, sin construir** | Los catorce mundos de este documento (revisados tres veces). |
-| **Propuesto, NO existe** | `--tipo-titulo-escala`, el selector de mundo en Ajustes, y la carga diferida de las tipografías y texturas de un mundo. |
+| **Ya está en la app** (antes de todo esto) | La caja registradora: `js/10d-plan.js` ya tiene la llave `apariencia` —Gratuito «las paletas de color», Pro «todas las apariencias»—. El cobro está resuelto; lo que no existe es qué vender. |
+| **Propuesto, NO existe** | `--tipo-titulo-escala`, el selector de mundo en Ajustes, la clase en `<html>`, guardar la elección y la carga diferida de las tipografías y texturas de un mundo. **Comprobado el 30 ago sobre `origin/main` en 0.7.39.1**: no hay cargador, ni `--m-*`, ni `mundos.css` servido, en ninguna rama ni en ningún commit del repositorio. |
 
 ## Las tres reglas
 
@@ -272,17 +273,23 @@ cerca del límite de «escrito sobre dibujo» son Consola y Post-it con 1,35 y
 da 2,58 y está bien: lo que decide es `debajo.js`, que mira sólo lo que hay
 bajo el texto. Las dos medidas no dicen lo mismo y no se sustituyen.
 
+## Lo decidido
+
+- **La app se queda en Outfit.** Eduardo homologa los demás sitios —los seis
+  correos van en Poppins— para que la marca deje de estar partida en dos. Con
+  esto, el banco de titular sigue anclado en 236,5 px de 266 y las escalas de
+  la tabla de arriba no se mueven.
+- **Los cuatro primeros, y en este orden: Averno, Blueprint, Consola,
+  Arboleda**, con Averno y Blueprint por delante. Uno de cada familia, y de
+  paso el reparto de peso más cómodo que había: Consola no lleva ni una imagen
+  (~28 KB) y Blueprint casi ninguna (~65 KB), así que el motor se estrena con
+  los baratos aunque los caros vayan primero en la lista.
+
 ## Lo que falta decidir
 
-- **Cuáles tres se construyen primero.** Con catorce sobre la mesa, la lista
-  corta hay que rehacerla.
 - **Si Bungee y Monoton se archivan del todo.** Las dos entran con escala, pero
   a tamaño de tarjeta son ilegibles. Están fuera de los mundos y solo quedan en
   la pista de pruebas, de contraejemplo.
-- **Con qué letra va la app.** Hoy la pantalla va en **Outfit** (incrustada en
-  `css/fuente.css`) y los seis correos van en **Poppins**, que sí se carga de
-  Google. La marca está partida en dos y conviene cerrarlo antes de que haya
-  mundos encima.
 - **Cuáles se ganan y cuáles se compran**, y si las dos listas se cruzan.
 - **Si el nivel de expedición** —la cifra que sumaría todo el progreso, que hoy
   no existe— es de dónde cuelgan los desbloqueos.
