@@ -286,17 +286,18 @@ function renderSummary() {
        nadie; uno que se ve venir, sí. Y los de Pro salen igual, con su
        etiqueta: a la vista y deseables, nunca escondidos.
 
-       Y sí lleva destino desde 0.7.43: Ajustes → Apariencia, que es donde se
-       recoge lo que se abre. La tarjeta anuncia un premio, y sin destino no
-       diría dónde se recoge. La colección —que sería el destino ideal— sigue
-       sin existir y no se inventa. */
+       Y lleva a «Mi expedición», que es el destino que esta misma nota pedía
+       cuando todavía no existía: la tarjeta habla de tu nivel, y la pantalla
+       de tu nivel es esa. Antes iba a Ajustes → Mi apariencia por falta de
+       sitio mejor, que es un buen atajo para recoger un premio y un mal
+       destino para «¿por dónde voy?». */
     expedicion: () => {
       const info = nivelExpedicion();
       const r = rangoExpedicion(info.nivel);
       const prox = proximoDesbloqueo(info.nivel);
       const faltan = prox ? prox.nivel - info.nivel : 0;
       return `
-      <button class="sum-card a" onclick="abrirApariencia()" style="width:100%;text-align:left">
+      <button class="sum-card a" onclick="abrirColeccion('summary')" style="width:100%;text-align:left">
         <div class="exp-cab">
           ${insigniaExpedicionHTML(38) || `<span class="ic">${icon("compass", 22)}</span>`}
           <div class="exp-cifra">

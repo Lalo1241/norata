@@ -785,7 +785,7 @@ const AJUSTES_SECS = [
   { id: "cuenta", nombre: "Mi perfil",         icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
   { id: "plan",   nombre: "Mi plan",           icon: "gem",     sub: "Tu plan, qué incluye y hasta cuándo va" },
   { id: "menu",   nombre: "Mis módulos",       icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
-  { id: "aspecto", nombre: "Apariencia",       icon: "brush",   sub: "Con qué luz se ve Norata" },
+  { id: "aspecto", nombre: "Mi apariencia",    icon: "brush",   sub: "Con qué luz se ve Norata" },
   { id: "datos",  nombre: "Mi almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" }
 ];
 
@@ -799,10 +799,11 @@ const AJUSTES_SECS = [
 function seccionesAjustes() {
   let secs = AJUSTES_SECS.map(sec => Object.assign({}, sec));
 
-  /* Apariencia todavía no es de todos: mientras el nivel de expedición no
-     exista, ningún ambiente se puede desbloquear, y enseñar cinco premios que
-     nadie puede ganarse los regala antes de que la escalera exista. Va detrás
-     de `?apariencia=`, igual que el motor. */
+  /* «Mi apariencia» estuvo detrás de `?apariencia=` mientras el nivel de
+     expedición no existía: sin escalera, ningún ambiente se puede desbloquear
+     y enseñar cinco premios que nadie puede ganarse los regala. Desde que la
+     escalera existe la sección es de todos, y el interruptor se queda por si
+     hay que volver a apagarla (ver `APARIENCIA_PUBLICA`). */
   if (typeof aparienciaVisibleEnAjustes === "function" && !aparienciaVisibleEnAjustes())
     secs = secs.filter(x => x.id !== "aspecto");
 

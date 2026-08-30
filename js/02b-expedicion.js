@@ -357,9 +357,14 @@ function insigniaExpedicionHTML(diam) {
    y la pantalla es donde eliges cuál llevas y ves cuál viene.
 
    Hoy enseña lo que EXISTE: tu nivel, los cinco rangos y de dónde salen tus
-   puntos. Los ambientes entran el día que existan; hasta entonces no se
-   anuncian, ni siquiera en gris. Casillas vacías de lo que no hay es una lista
-   de lo que te falta, y eso ya se descartó. */
+   puntos. Nada se anuncia en gris antes de existir: casillas vacías de lo que
+   no hay son una lista de lo que te falta, y eso ya se descartó.
+
+   Los ambientes NO se eligen aquí. Lo decidió Eduardo al cerrar el choque de
+   las dos sesiones: la pantalla de elegir es «Mi apariencia», en Ajustes,
+   junto a las otras cosas tuyas. Esta cuenta el recorrido; aquella lo viste.
+   Lo único que las une es el botón de abajo, que es lo que evita tener que
+   buscar dónde se recoge lo que acabas de ganar. */
 const EXP_ETIQUETAS = {
   dias:     "Días con actividad",
   misiones: "Misiones cumplidas",
@@ -427,6 +432,7 @@ function renderColeccion() {
           </div>`;
         }).join("")}
       </div>
+      ${typeof abrirApariencia === "function" ? `<button class="btn btn-linea btn-block" onclick="abrirApariencia()">Ver Mi apariencia</button>` : ""}
     </div>
 
     <div class="panel">
