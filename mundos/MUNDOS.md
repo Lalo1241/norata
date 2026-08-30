@@ -10,7 +10,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
 | --- | --- |
 | **Ya está en la app** (0.7.37) | La capa de material: `--r-*`, `--sup-*`, `--marco-*`, `--tipo-titulo`, `--tipo-cifra`, `--dur-*`. Ver la sección «El material» de `CLAUDE.md`. |
 | **Ya está en la app** (0.7.38) | Servir de la copia primero, para que un mundo se baje UNA vez y no cada mañana. |
-| **Diseñado y medido, sin construir** | Los trece mundos de este documento (revisados tres veces). |
+| **Diseñado y medido, sin construir** | Los catorce mundos de este documento (revisados tres veces). |
 | **Propuesto, NO existe** | `--tipo-titulo-escala`, el selector de mundo en Ajustes, y la carga diferida de las tipografías y texturas de un mundo. |
 
 ## Las tres reglas
@@ -19,7 +19,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
    tono —en Neón son ámbar y rosa; en Cyberpunk, magenta— pero no de
    significado. Un mundo cambia con qué se celebra, no con qué se avisa.
 2. **Un círculo es redondo porque es redondo.** El aro de marcar una misión
-   está en 999 px en los trece, incluso donde todo lo demás tiene la esquina
+   está en 999 px en los catorce, incluso donde todo lo demás tiene la esquina
    viva. Por eso `--r-redondo` vive separado de `--r-pastilla` y no pasa por
    `--r-factor`.
 3. **El cuerpo de texto no lo toca nadie.** Un mundo solo llega a `h1/h2/h3`
@@ -39,6 +39,7 @@ Sobran 38: **un 16% de holgura**, y eso es toda la pista.
 | Alegreya Sans | −14% | 204,2 | 1 | Talavera |
 | Rajdhani | −10% | 212,5 | 1 | Blueprint |
 | Patrick Hand | −22% | 185,6 | 1 | Post-it |
+| Amaranth | −4% | 226,1 | 1 | Arboleda |
 | **Outfit** | **+0%** | **236,5** | 1 | Grabado · *y la app* |
 | Chakra Petch | +4% | 245,4 | 1 | Cyberpunk |
 | Poppins | +11% | 263,0 | 1 | *deja 3 px* |
@@ -50,7 +51,7 @@ Sobran 38: **un 16% de holgura**, y eso es toda la pista.
 | Bungee | +39% | 328,4 | — | *descartada: ilegible* |
 | Monoton | +42% | 335,5 | — | *descartada* |
 
-**Serif, las justas.** De trece mundos solo dos llevan serif —Forja (Cinzel,
+**Serif, las justas.** De catorce mundos solo dos llevan serif —Forja (Cinzel,
 inscripcional, que es piedra tallada) y Averno (Grenze Gotisch, que es gótica—.
 Todo lo demás va en sans. Una serif de titular a 15 px dentro de una tarjeta se
 lee peor y envejece antes.
@@ -71,8 +72,12 @@ Dos avisos que cuestan tiempo si se ignoran:
   encabezados.
 - **Poppins es un 11% más ancha que Outfit** y deja 3 px. Fijar la app a
   Poppins no quita el riesgo: se queda con el menor margen de las que pasan.
+- **`document.fonts.ready` no carga nada.** Se resuelve antes de que nadie use
+  la cara, y `document.fonts.check()` devuelve `false` para todas. Hay que
+  pedir `document.fonts.load()` cara por cara. La señal de que no cargó
+  ninguna: las doce miden **exactamente** lo mismo.
 
-## Los trece mundos
+## Los catorce mundos
 
 Cuatro familias. **De relato** son los que vienen de un género en vez de una
 materia: inspirados, nunca calcados — nombre, marco, letra e ilustración son de
@@ -88,11 +93,27 @@ casa, y ninguno lleva marca, icono ni tipografía de nadie.
 | **Blueprint** | Nada está terminado | Rajdhani | −10% | 1 | 0 px · vivas | ~65 KB | Noche |
 | **Forja** | El buque insignia | Cinzel | +28% | 0.88 | 0 px · vivas | ~180 KB | Noche |
 | **Post-it** | Una nota en el corcho | Patrick Hand | −22% | 1 | 2 px · papel | ~45 KB | Día |
+| **Arboleda** | Madera y hoja | Amaranth | −4% | 1 | 12 px · sin filo | ~70 KB | Noche |
 | **Obsidiana** | El oscuro elegante | Sora | +13% | 0.99 | 0 px · vivas | ~80 KB | Noche |
 | **Cénit** | Vidriera de cielo | Julius Sans One | +23% | 0.91 | 3 px · casi vivas | ~85 KB | Noche |
 | **Averno** | El oscuro de verdad | Grenze Gotisch | −17% | 1 | 2 px · piedra tallada | ~95 KB | Noche |
 | **Ventisca** | Frío con una hoguera | Big Shoulders Display | −26% | 1 | 3 px · chapa | ~90 KB | Noche |
 | **Bastión** | Blindaje | Michroma | +9% | 0.81 | 4 px · placa | ~105 KB | Noche |
+
+**Talavera, la segunda vuelta.** Las flores volvieron: estaban bien
+dibujadas y el problema nunca fue el dibujo. Lo que empachaba era que **las dos
+capas eran vegetales** —campo de flores y greca de hoja, tallo y flor—, y dos
+familias orgánicas encima se leen como un jardín en vez de como una pieza. Una
+pieza de Talavera de verdad reparte el trabajo: **la flor va en el campo y la
+greca va en el filo**, orgánico contra geométrico. Ahora la cenefa son escalones
+y rombos, las flores van más grandes y más separadas (168 px en vez de 140) y
+llevan su propia opacidad.
+
+Medido, el empacho también era de intensidad: el fondo de Talavera daba **2,70**
+de contraste en el percentil 90 del lienzo, contra 1,1–1,5 de todos los demás.
+Con las flores al 60% baja a **1,76**, en la banda de Grabado (1,52) y Blueprint
+(1,53) y todavía el más presente de los mundos de día, que es lo que se quería.
+Está en `herramientas/campo.js`.
 
 **Descartado: Papel picado.** Tres rondas y en cada una se veía peor. El
 motivo no era el dibujo sino el encargo: el papel picado es una guirnalda que
@@ -134,7 +155,7 @@ no vuelve a pedir nada nunca.
 
 ## Cómo se comprueba que un mundo está bien
 
-En `herramientas/` está el arnés, con su `LEEME.md`. Para un mundo, cinco
+En `herramientas/` está el arnés, con su `LEEME.md`. Para un mundo, seis
 medidas y ninguna es «se ve bien»:
 
 1. **Contraste sobre el píxel pintado.** Texto por encima de 4,5 sobre 1;
@@ -165,7 +186,7 @@ medidas y ninguna es «se ve bien»:
    **Lo que faltaba medir: los chips.** Van sobre su propio velo, no sobre la
    tarjeta, y hasta ahora el arnés ni los miraba. Al mirarlos, **nueve chips de
    cinco mundos** estaban por debajo de 4,5 sin que ninguna otra medida lo
-   notara. El arreglo es de una línea y vale para los trece: la tinta del chip
+   notara. El arreglo es de una línea y vale para todos: la tinta del chip
    se mezcla con la del mundo, `color-mix(in srgb, var(--m-acento) 70%,
    var(--m-tinta))`, en vez de ser el acento a secas.
 2. **La tipografía cabe.** Con la fuente descargada e incrustada, no fiándose
@@ -186,7 +207,15 @@ medidas y ninguna es «se ve bien»:
    `herramientas/donde.js` lo comprueba: fotografía la tarjeta con el adorno y
    sin él, resta las dos imágenes y dice en qué porcentaje del ancho está.
 
-4. **Un adorno tiene que caber en la tarjeta.** Costó dos rondas: un dibujo
+4. **Dos capas orgánicas empachan; una orgánica y una ordenada, no.** No es
+   cuestión de cantidad de dibujo. Talavera con flores en el campo Y greca de
+   hoja en el filo se sentía un jardín; con la misma cantidad de flor y la
+   cenefa en geometría, respira. Arboleda nació con la regla puesta: el dosel
+   es el único motivo curvo y la veta de la tarjeta, la barra y los anillos son
+   rectos o concéntricos. **Se mide** con `herramientas/campo.js`, que da el
+   contraste del fondo contra la página en el percentil 90: por debajo de ~1,6
+   el fondo susurra, por encima de ~2 compite con lo que hay que leer.
+5. **Un adorno tiene que caber en la tarjeta.** Costó dos rondas: un dibujo
    de 120x120 anclado abajo a la derecha, sobre una tarjeta de 88 px de alto,
    se recorta — y lo que queda a la vista es la parte de ARRIBA del dibujo,
    que en un arco cae hacia la izquierda. Parece que el adorno se cambió de
@@ -195,18 +224,26 @@ medidas y ninguna es «se ve bien»:
    como rayas largas. La regla: **caja del tamaño de la tarjeta, o cuatro
    dibujos anclados a sus cuatro esquinas, y nunca `background-size:100% 100%`
    en algo que tiene esquinas.**
-5. **Los vectores.** Densidad de tinta (ni vacíos ni manchones), reparto por
+6. **Los vectores.** Densidad de tinta (ni vacíos ni manchones), reparto por
    cuadrantes, y si el motivo se repite, que case consigo mismo en los bordes — un cordel que sale por la derecha a una altura y entra por la izquierda a otra deja un escalón visible en cada costura, y una hoja cortada por el borde deja un hueco. Si algo cruza la costura, se dibuja DOS veces, a los dos lados.
    Un motivo de retícula es la excepción: su costura lleva la línea gruesa a
    propósito y NO debe casar.
 
-Los trece de este documento pasan las cinco. La medida más apretada es la
+   **Y la forma de no equivocarse nunca con la costura:** dibujar el motivo UNA
+   vez, en un `<g>`, y repetirlo con `<use>` en las nueve posiciones vecinas
+   (0, ±lado en x y en y). Lo que sale por un borde entra por el otro por
+   construcción, sin contar a mano qué hoja cruza qué lado — que es justo lo
+   que dejó el escalón de Papel picado. `herramientas/costura.js` lo comprueba:
+   pinta el mosaico dos veces y compara la columna del borde con la del
+   siguiente mosaico. Cero es que casa.
+
+Los catorce de este documento pasan las seis. La medida más apretada es la
 barra de Grabado (4,3 sobre un mínimo de 3) y el chip de aviso de Post-it
-(5,12 sobre 4,5).
+(5,12 sobre 4,5); los tres mosaicos nuevos casan con 0 de diferencia.
 
 ## Lo que falta decidir
 
-- **Cuáles tres se construyen primero.** Con trece sobre la mesa, la lista
+- **Cuáles tres se construyen primero.** Con catorce sobre la mesa, la lista
   corta hay que rehacerla.
 - **Si Bungee y Monoton se archivan del todo.** Las dos entran con escala, pero
   a tamaño de tarjeta son ilegibles. Están fuera de los mundos y solo quedan en

@@ -1,15 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="88" height="26" viewBox="0 0 88 26">
-  <!-- La decoración se va del campo al BORDE, que es donde la lleva una pieza
-       de loza de verdad: el plato es liso y la cenefa vive en el filo. Una
-       greca corrida —hoja, tallo, flor, tallo— con dos rayas que la encierran.
-       Empieza y acaba a la misma altura, así que se puede repetir sin costura. -->
-  <g stroke="#1e3f8f" fill="none">
+  <!-- La cenefa es GEOMÉTRICA a propósito. Antes era hoja, tallo y flor, y
+       encima el campo iba lleno de flores: dos capas vegetales a la vez
+       empachan, que es exactamente lo que se sintió. En una pieza de Talavera
+       de verdad el campo lleva la flor y el filo lleva la greca escalonada —
+       una cosa orgánica y una geométrica, nunca dos orgánicas.
+       Empieza y acaba a la misma altura, así que se repite sin costura. -->
+  <g stroke="#1e3f8f" fill="none" stroke-linecap="square" stroke-linejoin="miter">
     <path d="M0 3h88M0 23h88" stroke-width="1.6"/>
-    <path d="M0 13C11 4 22 22 33 13S55 4 66 13s16 4 22 0" stroke-width="1.8"/>
+    <!-- Pirámide escalonada de periodo 44: sale a y=20 y vuelve a y=20 -->
+    <path d="M0 20h7v-6h6V7.5h18V14h6v6h7v-6h6V7.5h18V14h6v6h7" stroke-width="2"/>
   </g>
-  <g fill="#1e3f8f">
-    <path d="M17 13c0-5 4-8 8-7-1 5-4 8-8 7z"/>
-    <path d="M50 13c0 5-4 8-8 7 1-5 4-8 8-7z" fill-opacity=".7"/>
-    <circle cx="72" cy="8" r="2.2"/><circle cx="6" cy="18" r="1.8" fill-opacity=".7"/>
+  <!-- Rombos en el hueco de arriba, para que la banda no quede coja -->
+  <g fill="#1e3f8f" fill-opacity=".8">
+    <path d="M4 9l2.6 2.6L4 14.2 1.4 11.6z"/>
+    <path d="M39 9l2.6 2.6L39 14.2l-2.6-2.6z"/>
+    <path d="M48 9l2.6 2.6L48 14.2l-2.6-2.6z"/>
+    <path d="M83 9l2.6 2.6L83 14.2l-2.6-2.6z"/>
   </g>
 </svg>

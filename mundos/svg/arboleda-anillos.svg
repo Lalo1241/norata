@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+  <!-- Anillos de crecimiento, no una hoja. Una hoja dice «planta»; los anillos
+       dicen «un año, y otro, y otro», que es de lo que va la app entera. Van
+       excéntricos —la médula nunca está en el centro— y con una grieta radial,
+       porque un corte de tronco siempre se raja al secarse. -->
+  <g fill="none" stroke="#8fe36a" stroke-linecap="round">
+    <ellipse cx="13.6" cy="13.6" rx="12.4" ry="12.8" stroke-width="1.6"/>
+    <ellipse cx="14.4" cy="14.4" rx="9.9" ry="10.2" stroke-width="1.4"/>
+    <ellipse cx="15.1" cy="15.1" rx="7.6" ry="7.7" stroke-width="1.3"/>
+    <ellipse cx="15.7" cy="15.7" rx="5.4" ry="5.5" stroke-width="1.2"/>
+    <ellipse cx="16.1" cy="16.1" rx="3.4" ry="3.5" stroke-width="1.1"/>
+    <circle cx="16.4" cy="16.4" r="1.5" stroke-width="1"/>
+  </g>
+  <path d="M16.4 16.4 22 9.6l1.4-2.4" fill="none" stroke="#8fe36a" stroke-width="1.2" stroke-linecap="round" opacity=".75"/>
+</svg>

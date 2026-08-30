@@ -10,8 +10,8 @@
 /* ---------- Talavera · Loza vidriada ---------- */
 .talavera {
   --m-pagina: #e4d9c1;
-  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='26' viewBox='0 0 88 26'%3E %3Cg stroke='%231e3f8f' fill='none'%3E %3Cpath d='M0 3h88M0 23h88' stroke-width='1.6'/%3E %3Cpath d='M0 13C11 4 22 22 33 13S55 4 66 13s16 4 22 0' stroke-width='1.8'/%3E %3C/g%3E %3Cg fill='%231e3f8f'%3E %3Cpath d='M17 13c0-5 4-8 8-7-1 5-4 8-8 7z'/%3E %3Cpath d='M50 13c0 5-4 8-8 7 1-5 4-8 8-7z' fill-opacity='.7'/%3E %3Ccircle cx='72' cy='8' r='2.2'/%3E%3Ccircle cx='6' cy='18' r='1.8' fill-opacity='.7'/%3E %3C/g%3E %3C/svg%3E") top left repeat-x, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='26' viewBox='0 0 88 26'%3E %3Cg stroke='%231e3f8f' fill='none'%3E %3Cpath d='M0 3h88M0 23h88' stroke-width='1.6'/%3E %3Cpath d='M0 13C11 4 22 22 33 13S55 4 66 13s16 4 22 0' stroke-width='1.8'/%3E %3C/g%3E %3Cg fill='%231e3f8f'%3E %3Cpath d='M17 13c0-5 4-8 8-7-1 5-4 8-8 7z'/%3E %3Cpath d='M50 13c0 5-4 8-8 7 1-5 4-8 8-7z' fill-opacity='.7'/%3E %3Ccircle cx='72' cy='8' r='2.2'/%3E%3Ccircle cx='6' cy='18' r='1.8' fill-opacity='.7'/%3E %3C/g%3E %3C/svg%3E") bottom left repeat-x;
-  --m-grano-op: .6;
+  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='26' viewBox='0 0 88 26'%3E %3Cg stroke='%231e3f8f' fill='none' stroke-linecap='square' stroke-linejoin='miter'%3E %3Cpath d='M0 3h88M0 23h88' stroke-width='1.6'/%3E %3Cpath d='M0 20h7v-6h6V7.5h18V14h6v6h7v-6h6V7.5h18V14h6v6h7' stroke-width='2'/%3E %3C/g%3E %3Cg fill='%231e3f8f' fill-opacity='.8'%3E %3Cpath d='M4 9l2.6 2.6L4 14.2 1.4 11.6z'/%3E %3Cpath d='M39 9l2.6 2.6L39 14.2l-2.6-2.6z'/%3E %3Cpath d='M48 9l2.6 2.6L48 14.2l-2.6-2.6z'/%3E %3Cpath d='M83 9l2.6 2.6L83 14.2l-2.6-2.6z'/%3E %3C/g%3E %3C/svg%3E") top left repeat-x, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='26' viewBox='0 0 88 26'%3E %3Cg stroke='%231e3f8f' fill='none' stroke-linecap='square' stroke-linejoin='miter'%3E %3Cpath d='M0 3h88M0 23h88' stroke-width='1.6'/%3E %3Cpath d='M0 20h7v-6h6V7.5h18V14h6v6h7v-6h6V7.5h18V14h6v6h7' stroke-width='2'/%3E %3C/g%3E %3Cg fill='%231e3f8f' fill-opacity='.8'%3E %3Cpath d='M4 9l2.6 2.6L4 14.2 1.4 11.6z'/%3E %3Cpath d='M39 9l2.6 2.6L39 14.2l-2.6-2.6z'/%3E %3Cpath d='M48 9l2.6 2.6L48 14.2l-2.6-2.6z'/%3E %3Cpath d='M83 9l2.6 2.6L83 14.2l-2.6-2.6z'/%3E %3C/g%3E %3C/svg%3E") bottom left repeat-x, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E %3Cdefs%3E %3Cpath id='petalo' d='M70 70 C60 60 52 44 62 30 C66 24 74 24 78 30 C88 44 80 60 70 70 Z'/%3E %3Cpath id='nervio' d='M70 66 C68 54 68 42 70 33'/%3E %3Cpath id='rizo' d='M70 70 C84 68 96 58 97 45 C97.6 37 90 33 86 38 C82 43 87 49 93 46'/%3E %3Cpath id='hoja' d='M70 70 C79 72 88 79 89 88 C89.6 93 84 95 81 91 C77 86 74 78 70 70 Z'/%3E %3C/defs%3E %3Cg id='campo' opacity='0.6'%3E %3Cg fill='none' stroke='%231e3f8f' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'%3E %3Cuse href='%23rizo'/%3E%3Cuse href='%23rizo' transform='rotate(90 70 70)'/%3E %3Cuse href='%23rizo' transform='rotate(180 70 70)'/%3E%3Cuse href='%23rizo' transform='rotate(270 70 70)'/%3E %3C/g%3E %3Cg fill='%231e3f8f' fill-opacity='.16' stroke='%231e3f8f' stroke-width='2.3' stroke-linejoin='round'%3E %3Cuse href='%23petalo'/%3E%3Cuse href='%23petalo' transform='rotate(45 70 70)'/%3E %3Cuse href='%23petalo' transform='rotate(90 70 70)'/%3E%3Cuse href='%23petalo' transform='rotate(135 70 70)'/%3E %3Cuse href='%23petalo' transform='rotate(180 70 70)'/%3E%3Cuse href='%23petalo' transform='rotate(225 70 70)'/%3E %3Cuse href='%23petalo' transform='rotate(270 70 70)'/%3E%3Cuse href='%23petalo' transform='rotate(315 70 70)'/%3E %3C/g%3E %3Cg fill='none' stroke='%231e3f8f' stroke-width='1.1' stroke-linecap='round' opacity='.85'%3E %3Cuse href='%23nervio'/%3E%3Cuse href='%23nervio' transform='rotate(45 70 70)'/%3E %3Cuse href='%23nervio' transform='rotate(90 70 70)'/%3E%3Cuse href='%23nervio' transform='rotate(135 70 70)'/%3E %3Cuse href='%23nervio' transform='rotate(180 70 70)'/%3E%3Cuse href='%23nervio' transform='rotate(225 70 70)'/%3E %3Cuse href='%23nervio' transform='rotate(270 70 70)'/%3E%3Cuse href='%23nervio' transform='rotate(315 70 70)'/%3E %3C/g%3E %3Ccircle cx='70' cy='70' r='7.5' fill='%23faf6ec' stroke='%231e3f8f' stroke-width='2.3'/%3E %3Ccircle cx='70' cy='70' r='2.6' fill='%231e3f8f'/%3E %3Cg fill='%231e3f8f' fill-opacity='.14' stroke='%231e3f8f' stroke-width='2.1' stroke-linejoin='round'%3E %3Cuse href='%23hoja' transform='translate(-70 -70)'/%3E %3Cuse href='%23hoja' transform='translate(70 -70) rotate(90 70 70)'/%3E %3Cuse href='%23hoja' transform='translate(-70 70) rotate(270 70 70)'/%3E %3Cuse href='%23hoja' transform='translate(70 70) rotate(180 70 70)'/%3E %3C/g%3E %3C/g%3E %3C/svg%3E") center / 168px 168px repeat;
+  --m-grano-op: .55;
   --m-tarjeta: #fdfbf5;
   --m-borde: 1.5px;
   --m-borde-color: #1e3f8f;
@@ -323,6 +323,47 @@
 .postit .ficha::after{
     content:""; position:absolute; left:auto; right:0; bottom:0; width:44px; height:44px;
     background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E %3Cdefs%3E %3ClinearGradient id='rev' x1='1' y1='0' x2='0' y2='1'%3E %3Cstop offset='0' stop-color='%23efe08a'/%3E%3Cstop offset='.55' stop-color='%23ddcd72'/%3E%3Cstop offset='1' stop-color='%23c9b95e'/%3E %3C/linearGradient%3E %3ClinearGradient id='som' x1='1' y1='0' x2='0' y2='1'%3E %3Cstop offset='0' stop-color='%238a7a2a' stop-opacity='.38'/%3E%3Cstop offset='1' stop-color='%238a7a2a' stop-opacity='0'/%3E %3C/linearGradient%3E %3C/defs%3E %3Cpath d='M44 4C40 24 24 40 4 44L44 44Z' fill='url(%23som)' transform='translate(-4,-4)'/%3E %3Cpath d='M44 6C39.5 25 25 39.5 6 44L44 44Z' fill='url(%23rev)'/%3E %3Cpath d='M44 6C39.5 25 25 39.5 6 44' fill='none' stroke='%23b8a84f' stroke-width='1'/%3E %3C/svg%3E") right bottom/contain no-repeat; pointer-events:none;
+  }
+
+/* ---------- Arboleda · Madera y hoja ---------- */
+.arboleda {
+  --m-pagina: radial-gradient(132% 76% at 50% -14%, #243c2c 0%, #16281c 32%, #0e1b13 62%, #08110c 100%);
+  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170' viewBox='0 0 170 170'%3E %3Cdefs%3E %3Cpath id='ab-hoja' d='M0 0C9 13 10 32 0 50C-10 32 -9 13 0 0Z'/%3E %3Cpath id='ab-vena' d='M0 5V45'/%3E %3Cg id='ab-ramo'%3E %3Cg fill='none' stroke='%2316281c' stroke-width='1.6' stroke-linecap='round'%3E %3Cpath d='M-6 30C24 40 58 34 84 16'/%3E %3Cpath d='M60 168C92 150 118 126 130 96'/%3E %3C/g%3E %3Cg fill='%230b170f' fill-opacity='.72' stroke='%2316281c' stroke-width='1'%3E %3Cuse href='%23ab-hoja' transform='translate(26 10) rotate(28)'/%3E %3Cuse href='%23ab-hoja' transform='translate(104 2) rotate(-40) scale(1.15)'/%3E %3Cuse href='%23ab-hoja' transform='translate(158 52) rotate(10) scale(.9)'/%3E %3Cuse href='%23ab-hoja' transform='translate(8 86) rotate(-15) scale(1.05)'/%3E %3Cuse href='%23ab-hoja' transform='translate(76 74) rotate(72) scale(.85)'/%3E %3Cuse href='%23ab-hoja' transform='translate(136 110) rotate(-25)'/%3E %3Cuse href='%23ab-hoja' transform='translate(48 132) rotate(45) scale(.95)'/%3E %3Cuse href='%23ab-hoja' transform='translate(168 140) rotate(80) scale(.8)'/%3E %3C/g%3E %3Cg fill='none' stroke='%232f5138' stroke-width='1.1' stroke-linecap='round' opacity='.9'%3E %3Cuse href='%23ab-hoja' transform='translate(104 2) rotate(-40) scale(1.15)'/%3E %3Cuse href='%23ab-hoja' transform='translate(8 86) rotate(-15) scale(1.05)'/%3E %3Cuse href='%23ab-hoja' transform='translate(136 110) rotate(-25)'/%3E %3C/g%3E %3Cg fill='none' stroke='%2320372a' stroke-width='.8' stroke-linecap='round' opacity='.8'%3E %3Cuse href='%23ab-vena' transform='translate(26 10) rotate(28)'/%3E %3Cuse href='%23ab-vena' transform='translate(104 2) rotate(-40) scale(1.15)'/%3E %3Cuse href='%23ab-vena' transform='translate(8 86) rotate(-15) scale(1.05)'/%3E %3Cuse href='%23ab-vena' transform='translate(136 110) rotate(-25)'/%3E %3Cuse href='%23ab-vena' transform='translate(48 132) rotate(45) scale(.95)'/%3E %3C/g%3E %3C/g%3E %3C/defs%3E %3Cuse href='%23ab-ramo'/%3E %3Cuse href='%23ab-ramo' x='-170'/%3E%3Cuse href='%23ab-ramo' x='170'/%3E %3Cuse href='%23ab-ramo' y='-170'/%3E%3Cuse href='%23ab-ramo' y='170'/%3E %3Cuse href='%23ab-ramo' x='-170' y='-170'/%3E%3Cuse href='%23ab-ramo' x='170' y='-170'/%3E %3Cuse href='%23ab-ramo' x='-170' y='170'/%3E%3Cuse href='%23ab-ramo' x='170' y='170'/%3E %3C/svg%3E") center / 210px 210px repeat;
+  --m-grano-op: .62;
+  --m-tarjeta: #17251b;
+  --m-borde: 1px;
+  --m-borde-color: #2e4633;
+  --m-sombra: 0 6px 18px rgba(0,0,0,.45), inset 0 1px 0 rgba(176,226,160,.10);
+  --m-r-tarjeta: 12px;
+  --m-r-mini: 999px;
+  --m-r-barra: 999px;
+  --m-r-chip: 999px;
+  --m-tinta: #e9f3e3;
+  --m-tinta-2: #9bb5a1;
+  --m-acento: #8fe36a;
+  --m-acento-velo: rgba(143,227,106,.13);
+  --m-aviso: #f2c14e;
+  --m-aviso-velo: rgba(242,193,78,.14);
+  --m-peligro: #f0705a;
+  --m-peligro-velo: rgba(240,112,90,.14);
+  --m-carril: #26372b;
+  --m-halo: 0 0 10px rgba(143,227,106,.30);
+  --m-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Cg fill='none' stroke='%238fe36a' stroke-linecap='round'%3E %3Cellipse cx='13.6' cy='13.6' rx='12.4' ry='12.8' stroke-width='1.6'/%3E %3Cellipse cx='14.4' cy='14.4' rx='9.9' ry='10.2' stroke-width='1.4'/%3E %3Cellipse cx='15.1' cy='15.1' rx='7.6' ry='7.7' stroke-width='1.3'/%3E %3Cellipse cx='15.7' cy='15.7' rx='5.4' ry='5.5' stroke-width='1.2'/%3E %3Cellipse cx='16.1' cy='16.1' rx='3.4' ry='3.5' stroke-width='1.1'/%3E %3Ccircle cx='16.4' cy='16.4' r='1.5' stroke-width='1'/%3E %3C/g%3E %3Cpath d='M16.4 16.4 22 9.6l1.4-2.4' fill='none' stroke='%238fe36a' stroke-width='1.2' stroke-linecap='round' opacity='.75'/%3E %3C/svg%3E") center/contain no-repeat;
+  --m-titulo: "Amaranth",system-ui,sans-serif;
+  --m-titulo-px: 16px;
+  --m-titulo-peso: 700;
+  --m-cifra: "Amaranth",system-ui,sans-serif;
+  --m-cifra-peso: 700;
+  --m-cifra-esp: -.01em;
+  --m-chip-fuente: "Amaranth",system-ui,sans-serif;
+  --m-chip-peso: 700;
+  --m-dur: .5s;
+  --m-curva: cubic-bezier(.22,.85,.3,1);
+}
+.arboleda .ficha{
+    background-image:
+      repeating-linear-gradient(0deg, rgba(214,240,204,.030) 0 1px, transparent 1px 7px),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 1px, transparent 1px 13px);
   }
 
 /* ---------- Obsidiana · El oscuro elegante ---------- */
