@@ -117,3 +117,35 @@ Dos cosas que aprendió a la mala: hay que **congelar las animaciones** antes
 de las dos fotos —si no, la barra de avance se mueve entre una y otra y el
 diff la señala a ella—, y hay que apagar **solo el pseudoelemento**, no el
 fondo de la tarjeta, o cambia todo y el resultado no dice nada.
+
+## Cuánto pesa el fondo de un mundo
+
+`campo.js` contesta lo que a ojo se contesta mal: si el fondo susurra o compite.
+Fotografía el lienzo, saca el color de la página y da el contraste del resto
+contra él en el percentil 90.
+
+```sh
+node campo.js /ruta/mundos/vista.html
+```
+
+Por debajo de **~1,6** el fondo acompaña; por encima de **~2** pelea con lo que
+hay que leer. Sirvió para poner número a algo que se había dicho a ojo: el campo
+de flores de Talavera daba 2,70 cuando ningún otro mundo pasaba de 1,53.
+
+## ¿Casa un mosaico consigo mismo?
+
+`costura.js` pinta el motivo dos veces seguidas y compara la columna del borde
+con la del mosaico siguiente, y la fila de abajo con la de más abajo. **Cero es
+que casa.**
+
+```sh
+node costura.js /ruta/mundos/svg/arboleda-dosel.svg 170
+```
+
+De paso da la densidad de tinta y su reparto por cuadrantes, que es como se ve
+si el motivo está vacío o si se apelmaza en una esquina.
+
+**Y la forma de que casen siempre:** dibujar el motivo una vez en un `<g>` y
+repetirlo con `<use>` en las nueve posiciones vecinas (0 y ±lado en las dos
+direcciones). Lo que sale por un lado entra por el otro por construcción. Contar
+a mano qué figura cruza qué borde es lo que dejó el escalón de Papel picado.

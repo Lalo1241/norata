@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="170" height="170" viewBox="0 0 170 170">
+  <!-- El dosel visto desde abajo: hojas en sombra y la luz colándose entre
+       ellas. Un solo motivo, hoja, y nada más — la lección de Talavera es que
+       lo que empacha no es la cantidad de dibujo sino tener DOS familias
+       orgánicas encima. Aquí la contraparte ordenada es la veta de la tarjeta,
+       que es recta.
+
+       Cómo casa consigo mismo sin pensarlo: el ramo se dibuja UNA vez y se
+       repite en las nueve posiciones vecinas; lo que se sale por un lado entra
+       por el otro por construcción. Contar a mano qué hoja cruza qué borde es
+       lo que dejó el escalón del papel picado. -->
+  <defs>
+    <path id="ab-hoja" d="M0 0C9 13 10 32 0 50C-10 32 -9 13 0 0Z"/>
+    <path id="ab-vena" d="M0 5V45"/>
+    <g id="ab-ramo">
+      <g fill="none" stroke="#16281c" stroke-width="1.6" stroke-linecap="round">
+        <path d="M-6 30C24 40 58 34 84 16"/>
+        <path d="M60 168C92 150 118 126 130 96"/>
+      </g>
+      <g fill="#0b170f" fill-opacity=".72" stroke="#16281c" stroke-width="1">
+        <use href="#ab-hoja" transform="translate(26 10) rotate(28)"/>
+        <use href="#ab-hoja" transform="translate(104 2) rotate(-40) scale(1.15)"/>
+        <use href="#ab-hoja" transform="translate(158 52) rotate(10) scale(.9)"/>
+        <use href="#ab-hoja" transform="translate(8 86) rotate(-15) scale(1.05)"/>
+        <use href="#ab-hoja" transform="translate(76 74) rotate(72) scale(.85)"/>
+        <use href="#ab-hoja" transform="translate(136 110) rotate(-25)"/>
+        <use href="#ab-hoja" transform="translate(48 132) rotate(45) scale(.95)"/>
+        <use href="#ab-hoja" transform="translate(168 140) rotate(80) scale(.8)"/>
+      </g>
+      <!-- Tres hojas cogen la luz por el filo: es lo que hace que el dosel
+           parezca iluminado por detrás y no un estampado negro. -->
+      <g fill="none" stroke="#2f5138" stroke-width="1.1" stroke-linecap="round" opacity=".9">
+        <use href="#ab-hoja" transform="translate(104 2) rotate(-40) scale(1.15)"/>
+        <use href="#ab-hoja" transform="translate(8 86) rotate(-15) scale(1.05)"/>
+        <use href="#ab-hoja" transform="translate(136 110) rotate(-25)"/>
+      </g>
+      <g fill="none" stroke="#20372a" stroke-width=".8" stroke-linecap="round" opacity=".8">
+        <use href="#ab-vena" transform="translate(26 10) rotate(28)"/>
+        <use href="#ab-vena" transform="translate(104 2) rotate(-40) scale(1.15)"/>
+        <use href="#ab-vena" transform="translate(8 86) rotate(-15) scale(1.05)"/>
+        <use href="#ab-vena" transform="translate(136 110) rotate(-25)"/>
+        <use href="#ab-vena" transform="translate(48 132) rotate(45) scale(.95)"/>
+      </g>
+    </g>
+  </defs>
+  <use href="#ab-ramo"/>
+  <use href="#ab-ramo" x="-170"/><use href="#ab-ramo" x="170"/>
+  <use href="#ab-ramo" y="-170"/><use href="#ab-ramo" y="170"/>
+  <use href="#ab-ramo" x="-170" y="-170"/><use href="#ab-ramo" x="170" y="-170"/>
+  <use href="#ab-ramo" x="-170" y="170"/><use href="#ab-ramo" x="170" y="170"/>
+</svg>

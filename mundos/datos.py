@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Los once mundos, en un solo sitio. De aquí salen el borrador y el paquete
+"""Los catorce mundos, en un solo sitio. De aquí salen el borrador y el paquete
 que se lleva al repositorio, así que no pueden decirse cosas distintas."""
 import re, os
 
@@ -18,12 +18,15 @@ def svg(ruta):
 # familia: de-aqui | de-pantalla | de-materia
 MUNDOS = [
  dict(id="talavera", nombre="Talavera", familia="de-aqui", llave="Loza vidriada", color="#1e3f8f",
-  premisa="La decoración se fue del campo al BORDE, que es donde la lleva una pieza de loza de verdad: el plato es liso y la cenefa vive en el filo. El azulejo de flores por todas partes empachaba; ahora hay una greca corrida arriba y abajo —hoja, tallo, flor— y en medio, esmalte limpio. La tarjeta no lleva nada añadido: su borde doble ya es la pieza.",
+  premisa="Loza de Puebla: el campo lleva la flor y el filo lleva la greca, que es como se compone una pieza de verdad. Las flores volvieron —más grandes y más separadas, para que se vea el dibujo en vez de la repetición— y la cenefa se volvió geométrica: escalones y rombos. Antes eran dos capas de plantas a la vez y el conjunto se sentía un jardín, no una pieza. La tarjeta no lleva nada añadido: su borde doble ya es la pieza.",
   letra="Alegreya Sans", ancho="−14%", escala="1", esquinas="14 px · suaves", peso="~95 KB", horas="Las dos",
-  nota="Preguntaste qué añadirle a la tarjeta: nada. Una tarjeta se repite veinte veces en una pantalla y todo lo que se le cuelgue se multiplica por veinte. El carácter de un mundo va en lo que aparece UNA vez —el borde de la página, la cabecera, las escenas—, no en la pieza que más se repite.",
+  nota="Dos lecciones de la misma pieza. Una: a la tarjeta no se le añade nada, porque se repite veinte veces por pantalla y todo lo que se le cuelgue se multiplica por veinte; el carácter va en lo que aparece UNA vez. Y dos: el empacho no venía de la cantidad de dibujo sino de que TODO el dibujo era vegetal. Con la greca en geometría, el mismo campo de flores respira.",
   tokens={"--m-pagina":"#e4d9c1",
-   "--m-grano":f'url("{svg("talavera-greca.svg")}") top left repeat-x, url("{svg("talavera-greca.svg")}") bottom left repeat-x',
-   "--m-grano-op":".6",
+   # Dos capas y sólo UNA es vegetal: el campo de flores —que estaba bien
+   # dibujado y volvió— y una greca escalonada, geométrica, en los dos filos.
+   # Antes las dos eran de plantas y el conjunto se sentía un jardín.
+   "--m-grano":f'url("{svg("talavera-greca.svg")}") top left repeat-x, url("{svg("talavera-greca.svg")}") bottom left repeat-x, url("{svg("azulejo.svg")}") center / 168px 168px repeat',
+   "--m-grano-op":".55",
    "--m-tarjeta":"#fdfbf5","--m-borde":"1.5px","--m-borde-color":"#1e3f8f",
    "--m-sombra":"inset 0 0 0 3px #fdfbf5, inset 0 0 0 4.5px rgba(30,63,143,.55), 0 5px 16px rgba(30,63,143,.2)",
    "--m-r-tarjeta":"14px","--m-r-mini":"999px","--m-r-barra":"999px","--m-r-chip":"999px",
@@ -196,6 +199,32 @@ MUNDOS = [
     background:url("%s") right bottom/contain no-repeat; pointer-events:none;
   }""" % svg("postit-doblez.svg")),
 
+ dict(id="arboleda", nombre="Arboleda", familia="de-materia", llave="Madera y hoja", color="#8fe36a",
+  premisa="El bosque por dentro, con la luz cayendo desde arriba entre las hojas. El dosel es de un solo motivo —hoja— y la contraparte ordenada es la tarjeta: un plano de madera con la veta recta, que es lo que evita que todo sea curva encima de curva. El icono no es una hoja sino los ANILLOS de un tronco cortado: una hoja dice «planta», los anillos dicen un año, y otro, y otro, que es de lo que va la app. El verde vivo se guarda para lo que crece; el amarillo es sol entre las ramas y el rojo es fruto pasado.",
+  letra="Amaranth", ancho="−4%", escala="1", esquinas="12 px · vivo pero sin filo", peso="~70 KB", horas="Noche",
+  nota="El mundo verde que faltaba, y el que más fácil se vuelve una ensalada: en una arboleda TODO es orgánico. Se sostiene porque la única capa curva es el dosel; la veta de la tarjeta, la barra y los anillos son rectos o concéntricos. Es la misma regla que arregló Talavera, aplicada antes de romperla.",
+  extra=""".arboleda .ficha{
+    background-image:
+      repeating-linear-gradient(0deg, rgba(214,240,204,.030) 0 1px, transparent 1px 7px),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 1px, transparent 1px 13px);
+  }""",
+  tokens={"--m-pagina":"radial-gradient(132% 76% at 50% -14%, #243c2c 0%, #16281c 32%, #0e1b13 62%, #08110c 100%)",
+   "--m-grano":f'url("{svg("arboleda-dosel.svg")}") center / 210px 210px repeat',
+   "--m-grano-op":".62",
+   "--m-tarjeta":"#17251b","--m-borde":"1px","--m-borde-color":"#2e4633",
+   "--m-sombra":"0 6px 18px rgba(0,0,0,.45), inset 0 1px 0 rgba(176,226,160,.10)",
+   "--m-r-tarjeta":"12px","--m-r-mini":"999px","--m-r-barra":"999px","--m-r-chip":"999px",
+   "--m-tinta":"#e9f3e3","--m-tinta-2":"#9bb5a1",
+   "--m-acento":"#8fe36a","--m-acento-velo":"rgba(143,227,106,.13)",
+   "--m-aviso":"#f2c14e","--m-aviso-velo":"rgba(242,193,78,.14)",
+   "--m-peligro":"#f0705a","--m-peligro-velo":"rgba(240,112,90,.14)","--m-carril":"#26372b",
+   "--m-halo":"0 0 10px rgba(143,227,106,.30)",
+   "--m-icono":f'url("{svg("arboleda-anillos.svg")}") center/contain no-repeat',
+   "--m-titulo":'"Amaranth",system-ui,sans-serif',"--m-titulo-px":"16px","--m-titulo-peso":"700",
+   "--m-cifra":'"Amaranth",system-ui,sans-serif',"--m-cifra-peso":"700","--m-cifra-esp":"-.01em",
+   "--m-chip-fuente":'"Amaranth",system-ui,sans-serif',"--m-chip-peso":"700",
+   "--m-dur":".5s","--m-curva":"cubic-bezier(.22,.85,.3,1)"}),
+
  dict(id="obsidiana", nombre="Obsidiana", familia="de-materia", llave="El oscuro elegante", color="#3fd0c9",
   premisa="Grises y negros, y el color contado con los dedos. El fondo de ondas cansaba, así que ahora es una marca grabada en la piedra —un círculo, un rombo inscrito y cuatro hilos que salen— y casi todo lo demás está vacío: se ve cuando la buscas y desaparece cuando lees. El icono es una esquirla de tres planos con un solo filo brillante, y la iridiscencia son dos destellos, uno verde y uno violeta, nada más.",
   letra="Sora", ancho="+13%", escala="0.99", esquinas="0 px · vivas", peso="~80 KB", horas="Noche",
@@ -324,5 +353,5 @@ FAMILIAS = [
  ("de-relato","De relato","No salen de una materia sino de un género: cuentan algo antes de que hagas nada. Inspirados, nunca calcados — el nombre, el marco, la letra y los dibujos son de casa."),
  ("de-aqui","De aquí","Materiales que se pueden tocar en este país. Es el hilo que ningún paquete de temas genérico puede copiar."),
  ("de-pantalla","De pantalla","No imitan una materia: imitan un aparato. Son los más baratos de todos porque casi no llevan imagen."),
- ("de-materia","De materia","Piedra, metal, vidrio y papel: lo que se puede tocar, y donde el material manda sobre el color."),
+ ("de-materia","De materia","Piedra, metal, vidrio, papel y madera: lo que se puede tocar, y donde el material manda sobre el color."),
 ]
