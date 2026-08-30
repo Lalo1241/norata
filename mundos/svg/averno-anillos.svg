@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <!-- Los círculos, que en este poema es lo único que hay que citar: arcos
+       concéntricos que se estrechan al bajar, cada uno un poco más apagado
+       que el de fuera. El de dentro es el que arde. -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M120 6A114 114 0 0 0 6 120" stroke="#5a3524" stroke-width="2.6" opacity=".9"/>
+    <path d="M120 26A94 94 0 0 0 26 120" stroke="#6b3d24" stroke-width="2.2" opacity=".8"/>
+    <path d="M120 46A74 74 0 0 0 46 120" stroke="#8a4522" stroke-width="1.9" opacity=".75"/>
+    <path d="M120 66A54 54 0 0 0 66 120" stroke="#b45420" stroke-width="1.6" opacity=".7"/>
+    <path d="M120 86A34 34 0 0 0 86 120" stroke="#ff7a3d" stroke-width="1.4" opacity=".6"/>
+  </g>
+  <g fill="#ff7a3d" opacity=".5">
+    <circle cx="103" cy="103" r="1.8"/><circle cx="88" cy="63" r="1.2"/><circle cx="63" cy="88" r="1.2"/>
+  </g>
+</svg>

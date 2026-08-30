@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="56" height="16" viewBox="0 0 56 16">
+  <!-- Franja de peligro: galones, no rayas rectas. Un galón apunta a un
+       lado y eso ya dice "cuidado, aquí pasa algo"; una raya diagonal solo
+       decora. Y va desgastada arriba, que el blindaje no sale de fábrica. -->
+  <rect width="56" height="16" fill="#15191e"/>
+  <g fill="#ffc233">
+    <path d="M0 0h10l-8 8 8 8H0z"/><path d="M18 0h10l-8 8 8 8H18z"/><path d="M36 0h10l-8 8 8 8H36z"/>
+  </g>
+  <g fill="#15191e" opacity=".55">
+    <rect x="0" y="0" width="56" height="2"/><rect x="6" y="2" width="3" height="1"/><rect x="27" y="2" width="5" height="1"/>
+  </g>
+  <rect y="15" width="56" height="1" fill="#05070a" opacity=".8"/>
+</svg>

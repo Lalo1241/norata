@@ -234,9 +234,87 @@ MUNDOS = [
    "--m-cifra":'"Marcellus",Georgia,serif',"--m-cifra-peso":"400","--m-cifra-esp":"0",
    "--m-chip-fuente":'"Marcellus",Georgia,serif',"--m-chip-esp":".09em","--m-chip-caja":"uppercase",
    "--m-dur":"1.4s","--m-curva":"cubic-bezier(.22,1,.36,1)"}),
+
+ dict(id="averno", nombre="Averno", familia="de-relato", llave="El oscuro de verdad", color="#ff7a3d",
+  premisa="Piedra quemada con la brasa debajo. Del poema se cita lo único que hay que citar —los círculos—: arcos concéntricos que se estrechan al bajar y solo el de dentro sigue ardiendo. Cae ceniza en el fondo, con tres motas que todavía no se han apagado, y el icono es un sol eclipsado: anillo encendido y centro muerto. Nada de cuernos ni pentagramas — el infierno de ese libro es un lugar, no un disfraz.",
+  letra="Grenze Gotisch", ancho="−17%", escala="1", esquinas="2 px · piedra tallada", peso="~95 KB", horas="Noche",
+  tokens={"--m-pagina":"radial-gradient(ellipse 120% 60% at 50% 118%, #4a1c0c 0%, #1c0d07 55%, #120a07 100%)",
+   "--m-grano":f'url("{svg("averno-ceniza.svg")}")',"--m-grano-op":".9",
+   "--m-tarjeta":"linear-gradient(180deg,#251410 0%,#170c09 100%)",
+   "--m-borde":"1px","--m-borde-color":"#4a2418",
+   "--m-sombra":"inset 0 1px 0 rgba(255,150,80,.16), 0 12px 30px rgba(0,0,0,.62)",
+   "--m-r-tarjeta":"2px","--m-r-mini":"2px","--m-r-barra":"2px","--m-r-chip":"2px",
+   "--m-tinta":"#f2ded1","--m-tinta-2":"#a68873",
+   "--m-acento":"#ff7a3d","--m-acento-velo":"rgba(255,122,61,.14)",
+   "--m-aviso":"#f0c24a","--m-aviso-velo":"rgba(240,194,74,.14)",
+   "--m-peligro":"#ff3b6b","--m-peligro-velo":"rgba(255,59,107,.15)","--m-carril":"#2e1710",
+   "--m-icono":f'url("{svg("averno-sello.svg")}") center/contain no-repeat',
+   "--m-titulo":'"Grenze Gotisch",Georgia,serif',"--m-titulo-px":"17px","--m-titulo-peso":"700","--m-titulo-esp":".01em",
+   "--m-cifra":'"Grenze Gotisch",Georgia,serif',"--m-cifra-peso":"700","--m-cifra-esp":"0",
+   "--m-chip-fuente":'"Grenze Gotisch",Georgia,serif',"--m-chip-esp":".05em",
+   "--m-dur":"1.3s","--m-curva":"cubic-bezier(.15,.8,.25,1)"},
+  extra=""".averno .ficha{ overflow:hidden; }
+  .averno .ficha::after{
+    content:""; position:absolute; right:0; bottom:0; width:120px; height:120px;
+    background:url("%s") right bottom/contain no-repeat; opacity:.75; pointer-events:none;
+  }""" % svg("averno-anillos.svg")),
+
+ dict(id="ventisca", nombre="Ventisca", familia="de-relato", llave="Frío con una hoguera", color="#8fd4ff",
+  premisa="Chapa de hierro a la intemperie y el hielo ganándole terreno: dendritas de verdad creciendo desde las esquinas —tallo que avanza y ramas al mismo ángulo a los dos lados, que es lo que hace el hielo— y un filo de agujas colgando del borde de arriba. La interfaz es de hielo; el calor está detrás, en el resplandor ámbar que sube desde abajo de la pantalla. Esa tensión ES el mundo.",
+  letra="Big Shoulders Display", ancho="−26%", escala="1", esquinas="3 px · chapa", peso="~90 KB", horas="Noche",
+  tokens={"--m-pagina":"radial-gradient(ellipse 130% 55% at 50% 112%, #6b3a12 0%, #17222c 48%, #0d151d 100%)",
+   "--m-grano":"radial-gradient(ellipse 90% 60% at 50% -10%, rgba(190,230,255,.14), transparent 60%)",
+   "--m-grano-op":"1","--m-tarjeta":"linear-gradient(180deg,#1e2833 0%,#141c25 100%)",
+   "--m-borde":"1px","--m-borde-color":"#354654",
+   "--m-sombra":"inset 0 1px 0 rgba(190,230,255,.18), 0 10px 26px rgba(0,0,0,.5)",
+   "--m-r-tarjeta":"3px","--m-r-mini":"3px","--m-r-barra":"999px","--m-r-chip":"3px",
+   "--m-cenefa-alto":"18px","--m-cenefa":f'url("{svg("ventisca-cristales.svg")}") repeat-x',
+   "--m-tinta":"#eaf5fc","--m-tinta-2":"#93aabc",
+   "--m-acento":"#8fd4ff","--m-acento-velo":"rgba(143,212,255,.13)",
+   "--m-aviso":"#ffc24a","--m-aviso-velo":"rgba(255,194,74,.14)",
+   "--m-peligro":"#ff7a6b","--m-peligro-velo":"rgba(255,122,107,.14)","--m-carril":"#1c2733",
+   "--m-icono":f'url("{svg("ventisca-copo.svg")}") center/contain no-repeat',
+   "--m-titulo":'"Big Shoulders Display",Impact,sans-serif',"--m-titulo-px":"19px","--m-titulo-peso":"700","--m-titulo-esp":".02em",
+   "--m-cifra":'"Big Shoulders Display",Impact,sans-serif',"--m-cifra-peso":"700","--m-cifra-esp":".01em",
+   "--m-chip-fuente":'"Big Shoulders Display",Impact,sans-serif',"--m-chip-esp":".07em","--m-chip-caja":"uppercase",
+   "--m-dur":".8s","--m-curva":"cubic-bezier(.25,.85,.3,1)"},
+  extra=""".ventisca .ficha{
+    overflow:hidden; padding-top:28px;
+    background-image:url("%s"), linear-gradient(180deg,#1e2833 0%%,#141c25 100%%);
+    background-position:center top, center; background-repeat:no-repeat, no-repeat;
+    background-size:110px 70px, auto;
+  }""" % svg("ventisca-escarcha.svg")),
+
+ dict(id="bastion", nombre="Bastión", familia="de-relato", llave="Blindaje", color="#4db8ff",
+  premisa="Ciencia ficción militar: placa blindada con bisel arriba, pernos remachados en las cuatro esquinas y una franja de galones de peligro cruzando el borde. Galones y no rayas diagonales — un galón apunta a un lado y con eso ya dice «cuidado»; una raya solo decora. El icono es una placa hexagonal con su mira. Es lo que se atornilla a una nave, no lo que se proyecta en un visor.",
+  letra="Michroma", ancho="+9%", escala="0.81", esquinas="4 px · placa", peso="~105 KB", horas="Noche",
+  tokens={"--m-pagina":"#0e1216",
+   "--m-grano":"repeating-linear-gradient(90deg, rgba(120,160,190,.05) 0 1px, transparent 1px 58px), repeating-linear-gradient(0deg, rgba(120,160,190,.05) 0 1px, transparent 1px 58px)",
+   "--m-grano-op":"1","--m-tarjeta":"linear-gradient(180deg,#222b34 0%,#161d24 58%,#1a222a 100%)",
+   "--m-borde":"1px","--m-borde-color":"#3c4854",
+   "--m-sombra":"inset 0 1.5px 0 rgba(160,200,225,.22), inset 0 -1.5px 0 rgba(0,0,0,.55), 0 10px 26px rgba(0,0,0,.5)",
+   "--m-r-tarjeta":"4px","--m-r-mini":"4px","--m-r-barra":"2px","--m-r-chip":"2px",
+   "--m-cenefa-alto":"16px","--m-cenefa":f'url("{svg("bastion-chevron.svg")}") repeat-x',
+   "--m-tinta":"#e6f0f7","--m-tinta-2":"#8fa2b1",
+   "--m-acento":"#4db8ff","--m-acento-velo":"rgba(77,184,255,.13)",
+   "--m-aviso":"#ffc233","--m-aviso-velo":"rgba(255,194,51,.14)",
+   "--m-peligro":"#ff5a4d","--m-peligro-velo":"rgba(255,90,77,.14)","--m-carril":"#131a21",
+   "--m-icono":f'url("{svg("bastion-placa.svg")}") center/contain no-repeat',
+   "--m-titulo":'"Michroma",system-ui,sans-serif',"--m-titulo-px":"11.5px","--m-titulo-peso":"400","--m-titulo-esp":".02em",
+   "--m-cifra":'"Michroma",system-ui,sans-serif',"--m-cifra-peso":"400","--m-cifra-esp":"-.02em",
+   "--m-chip-fuente":'"Michroma",system-ui,sans-serif',"--m-chip-esp":".06em","--m-chip-caja":"uppercase",
+   "--m-dur":".3s","--m-curva":"cubic-bezier(.2,.8,.2,1)"},
+  extra=""".bastion .ficha{
+    padding:30px 22px 18px;
+    background-image:url("%s"), url("%s"), url("%s"), url("%s"),
+      linear-gradient(180deg,#222b34 0%%,#161d24 58%%,#1a222a 100%%);
+    background-position:7px 22px, right 7px top 22px, 7px bottom 7px, right 7px bottom 7px, center;
+    background-repeat:no-repeat; background-size:11px 11px, 11px 11px, 11px 11px, 11px 11px, auto;
+  }""" % (svg("bastion-perno.svg"), svg("bastion-perno.svg"), svg("bastion-perno.svg"), svg("bastion-perno.svg"))),
 ]
 
 FAMILIAS = [
+ ("de-relato","De relato","No salen de una materia sino de un género: cuentan algo antes de que hagas nada. Inspirados, nunca calcados — el nombre, el marco, la letra y los dibujos son de casa."),
  ("de-aqui","De aquí","Materiales que se pueden tocar en este país. Es el hilo que ningún paquete de temas genérico puede copiar."),
  ("de-pantalla","De pantalla","No imitan una materia: imitan un aparato. Son los más baratos de todos porque casi no llevan imagen."),
  ("de-materia","De materia","Piedra, metal y vidrio. Los oscuros con cuerpo, y los más caros de hacer bien."),
