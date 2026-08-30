@@ -236,6 +236,27 @@ Cuatro cosas que hay que saber antes de tocarlo:
   `logotipoSrc()` elige entre los dos de `marca/`. Ojo con los nombres, que
   dicen de qué color es el dibujo: el *claro* va sobre fondo oscuro.
 
+## Las apariencias
+
+**Lo de apariencias se decide en `apariencias/LEEME.md`, y ese documento manda.**
+Estuvo repartido entre dos conversaciones y seis láminas, y de esa partición
+salió una contradicción que estuvo a punto de convertirse en un bug: dos
+documentos daban repartos distintos de qué ambiente es gratis y cuál pide Pro.
+Si algo de esto se vuelve a trabajar en otro sitio, se trae ahí antes de
+construirlo.
+
+Tres palabras y ninguna es intercambiable:
+
+| | Qué es | Cuántos |
+| --- | --- | --- |
+| **Apariencia** | El paraguas, y la palabra que ya usa `js/10d-plan.js` | — |
+| **Ambiente** | Un recolor: el mismo material con otra luz | 8, en `apariencias/` |
+| **Mundo** | Otro material: superficie, marco, letra y peso al moverse | 14, en `mundos/` |
+
+Son **excluyentes** —un mundo declara sus propios colores— y el modo claro es
+un eje aparte. Nada de esto existe todavía en la app: lo que hay es el camino
+(la capa de material de 0.7.37) y la caja registradora (la llave `apariencia`).
+
 ## El material
 
 La paleta de arriba resuelve el COLOR. Desde 0.7.37 hay una segunda familia al

@@ -1,0 +1,206 @@
+/* Los ambientes de Norata. Un ambiente NO es un mundo: reusa el material que
+   ya hay y solo le cambia la luz. Por eso son los que pueden ser gratis y los
+   que pueden salir de uno en uno sin volver a revisar la app entera.
+
+   Cómo se aplica: `<html data-apariencia="musgo">`, y el modo claro sigue
+   siendo la clase `claro` de siempre. Los dos ejes son independientes — un
+   ambiente tiene sus dos caras, igual que la casa.
+
+   Ningún tono se eligió a ojo. La cara de día de los siete está medida y pasa
+   4,5 para escribir y 3 para trazar; la tabla está en `apariencias/LEEME.md`.
+
+   OJO al cambiar de ambiente desde JavaScript: hay que apagar las
+   transiciones un turno, igual que hace `ponerTema` con `cambiando-modo`. Una
+   transición sobre una propiedad cuyo valor sale de una variable se queda
+   congelada en Chrome, y cambiar de ambiente cambia veinte variables de
+   golpe. Está contado en CLAUDE.md y ya mordió cuatro veces.
+
+   Generado desde `apariencias/datos.py`. No editar a mano. */
+
+/* ---------- Tinta · grado 3 · Desde el día uno · gratis siempre ---------- */
+/* No es negro puro a propósito. El negro absoluto solo se luce en OLED y en una pantalla normal se ve gris apagado y triste, así que la idea cambió de «apagar la pantalla» a «tinta sobre papel»: un monocromo elegido, no la ausencia de color. */
+html[data-apariencia="tinta"] {
+  --bg: #16181b;
+  --bg2: #1c1f23;
+  --card: #23272c;
+  --card2: #2a2f35;
+  --line: #3b4149;
+  --carril: #3b4149;
+  --text: #eceff2;
+  --muted: #98a1aa;
+  --faint: #6b737c;
+  --mint: #f0ece2;
+  --mint-macizo: #f0ece2;
+  --aro-alto: #f0ece2;
+}
+html.claro[data-apariencia="tinta"] {
+  --bg: #e7e9ee;
+  --bg2: #f0f1f5;
+  --card: #f7f9fc;
+  --card2: #ffffff;
+  --line: #b0b3ba;
+  --carril: #c6c9d0;
+  --text: #16181b;
+  --muted: #54575c;
+  --faint: #797d84;
+  --mint: #16181b;
+  --mint-macizo: #16181b;
+  --aro-alto: #16181b;
+  --sobre-macizo: #f7f9fc;
+}
+
+/* ---------- Musgo · grado 1 · Nivel 2 ---------- */
+/* El verde de día se corrigió una vez: estaba demasiado oscuro y saturado para ser papel, y a ese nivel deja de leerse como una hoja y se lee como una pared pintada. Se le subió la luz y se le bajó la saturación sin cambiar el matiz. La noche no se tocó. */
+html[data-apariencia="musgo"] {
+  --bg: #0d1611;
+  --bg2: #131f18;
+  --card: #18241c;
+  --card2: #1e2c22;
+  --line: #2a3a2e;
+  --carril: #2a3a2e;
+  --text: #e8f1e9;
+  --muted: #87998c;
+  --faint: #5c6b60;
+}
+html.claro[data-apariencia="musgo"] {
+  --bg: #e8ebe6;
+  --bg2: #eef1ec;
+  --card: #f4f7f3;
+  --card2: #fcfdfb;
+  --line: #c2c9c0;
+  --carril: #ccd4cb;
+  --text: #16211a;
+  --muted: #57655b;
+  --faint: #78877c;
+}
+
+/* ---------- Adobe · grado 1 · Nivel 8 ---------- */
+html[data-apariencia="adobe"] {
+  --bg: #1b1512;
+  --bg2: #241c18;
+  --card: #30231e;
+  --card2: #3a2b25;
+  --line: #4d3931;
+  --carril: #4d3931;
+  --text: #f4ebe4;
+  --muted: #ab958a;
+  --faint: #7c6a60;
+}
+html.claro[data-apariencia="adobe"] {
+  --bg: #e3d4ca;
+  --bg2: #ece0d8;
+  --card: #f4ebe4;
+  --card2: #faf5f0;
+  --line: #c2ad9f;
+  --carril: #d0bdaf;
+  --text: #241a14;
+  --muted: #6b5a50;
+  --faint: #8c7a70;
+}
+
+/* ---------- Duna · grado 1 · Nivel 10 ---------- */
+/* La primera versión era café oscuro con crema, que es la paleta cálida por defecto —la que sale sola al pensar «desierto» sin mirar ninguno—. El error de fondo resultó más útil que el descarte: el desierto solo es café en las fotos de la hora dorada; de noche es violeta y frío. De ahí salieron Duna y Adobe, que son ambientes distintos. */
+html[data-apariencia="duna"] {
+  --bg: #1d1220;
+  --bg2: #251829;
+  --card: #36203a;
+  --card2: #402944;
+  --line: #553a5c;
+  --carril: #553a5c;
+  --text: #f6e9f4;
+  --muted: #b48fae;
+  --faint: #836781;
+}
+html.claro[data-apariencia="duna"] {
+  --bg: #e0cbdb;
+  --bg2: #ebdde8;
+  --card: #f4ecf2;
+  --card2: #faf6f9;
+  --line: #c0a5b8;
+  --carril: #cdb4c6;
+  --text: #251728;
+  --muted: #6a5468;
+  --faint: #8b7488;
+}
+
+/* ---------- Escarcha · grado 2 · Nivel 12 · con Pro ---------- */
+html[data-apariencia="escarcha"] {
+  --bg: #0c141c;
+  --bg2: #121b24;
+  --card: #18222d;
+  --card2: #1e2933;
+  --line: #27333f;
+  --carril: #27333f;
+  --text: #e7f0f5;
+  --muted: #8496a3;
+  --faint: #5a6b78;
+  --mint: #8ecdf5;
+  --mint-macizo: #8ecdf5;
+  --aro-alto: #8ecdf5;
+}
+html.claro[data-apariencia="escarcha"] {
+  --mint: #0f688f;
+  --mint-macizo: #3ab0e0;
+  --aro-alto: #1a8cbe;
+}
+
+/* ---------- Marea · grado 2 · Nivel 22 · con Pro ---------- */
+/* La primera versión era la casa con otro azul, y con razón: el clásico ya es un carbón azulado, así que ponerle más azul no lo aleja, lo confirma. Se arregló en dos movimientos — la tarjeta dejó de ser gris azulado y se volvió verdiazul de verdad, y el acento se corrió hacia el agua. Eso lo subió a grado 2. */
+html[data-apariencia="marea"] {
+  --bg: #04161c;
+  --bg2: #072028;
+  --card: #0d2c37;
+  --card2: #123642;
+  --line: #1a4553;
+  --carril: #1a4553;
+  --text: #dff2f5;
+  --muted: #79a3ae;
+  --faint: #4f7784;
+  --mint: #4fe0d0;
+  --mint-macizo: #4fe0d0;
+  --aro-alto: #4fe0d0;
+}
+html.claro[data-apariencia="marea"] {
+  --bg: #d3e4e6;
+  --bg2: #e2eeef;
+  --card: #ebf4f4;
+  --card2: #f5fafa;
+  --line: #a5bfc3;
+  --carril: #b9d2d4;
+  --text: #06232a;
+  --muted: #4f717a;
+  --faint: #6d8b93;
+  --mint: #006b62;
+  --mint-macizo: #00d4bd;
+  --aro-alto: #009083;
+}
+
+/* ---------- Reliquia · grado 2 · Fundador ---------- */
+html[data-apariencia="reliquia"] {
+  --bg: #0e0d16;
+  --bg2: #141322;
+  --card: #1a1826;
+  --card2: #211f30;
+  --line: #2c2940;
+  --carril: #2c2940;
+  --text: #efecf7;
+  --muted: #948fae;
+  --faint: #656080;
+  --mint: #b7a2ea;
+  --mint-macizo: #b7a2ea;
+  --aro-alto: #b7a2ea;
+}
+html.claro[data-apariencia="reliquia"] {
+  --bg: #dad0f2;
+  --bg2: #e6dff7;
+  --card: #efeafb;
+  --card2: #f7f4fd;
+  --line: #b0a4cd;
+  --carril: #c4b8de;
+  --text: #191426;
+  --muted: #5e587a;
+  --faint: #7e7899;
+  --mint: #5b32c0;
+  --mint-macizo: #9b6bff;
+  --aro-alto: #7c4fe0;
+}
