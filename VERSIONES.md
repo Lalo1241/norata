@@ -52,6 +52,84 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.40 · 30 ago 2026
+El motor de las apariencias, apagado. Norata ya sabe ponerse otra piel; nadie
+la ve todavía.
+
+Es la primera pieza de lo que estaba diseñado y medido en `apariencias/` sin
+una sola línea de código: siete ambientes con sus tonos, y la máquina que los
+enciende. **Se sube apagado**, detrás de `?apariencia=`, como se probaron los
+tonos del modo claro en 0.7.3.1.
+
+Para verlo: `?apariencia=musgo` —o `tinta`, `adobe`, `duna`, `escarcha`,
+`marea`— y `?apariencia=casa` para volver. Vive en `sessionStorage`, así que
+con la pestaña cerrada desaparece y no se queda pegado como un ajuste. La
+pestaña lleva un rótulo fijo recordando que está en modo prueba.
+
+### Un atributo, y no una clase
+
+`<html data-apariencia="musgo">`. Un ambiente y un mundo son EXCLUYENTES —un
+mundo declara sus propios colores, así que un ambiente por debajo no se
+vería—, y con un atributo el modelo se hace cumplir solo: no puede llevar dos
+valores a la vez. El modo claro sigue siendo la clase `claro` y es un eje
+aparte: cada ambiente tiene sus dos caras.
+
+### Lo que cambió con la apariencia de casa puesta: nada
+
+Medido, que es lo que vale. La foto de los estilos calculados de las siete
+pantallas en los dos modos, antes y después: **25 848 elementos, y las únicas
+ocho propiedades que se movieron son el ancho del número de versión en
+Ajustes**, que pasó de `0.7.39.1` a `0.7.40` y es más corto.
+
+Los otros 56 elementos que el diff señalaba resultaron ser contabilidad y no
+pintura: el arnés numera cada elemento por su sitio entre los hermanos, y
+meter un `<script>` en el cuerpo corre de índice a todos los que van detrás.
+Comparados uno a uno contra su nuevo número, los 56 salen **idénticos
+propiedad a propiedad**. Nuevos de verdad hay dos, y ninguno se ve: el
+`<link>` de la hoja y el `<script>` del motor.
+
+El control también se corrió, porque una prueba que no falla nunca no prueba
+nada: dos fotos del mismo código salen idénticas.
+
+### El fallo que salió al medir el modo claro
+
+Escarcha se quedaba **de noche en modo claro**: fondo oscuro con el texto
+oscuro encima. Y no era suyo, era del selector.
+
+`html[data-apariencia="x"]` y `html.claro` tienen la **misma especificidad**
+—un tipo y un selector simple cada uno—, así que decide el orden de los
+archivos, y `ambientes.css` se carga después de `estilos.css`. Los tonos de
+noche del ambiente le ganaban a los de día de la casa. Solo se veía en
+Escarcha porque es el único cuyo bloque de día no redeclara los neutros: de
+día solo mueve el acento y hereda el resto. Los otros seis lo tapaban
+escribiendo sus propios fondos.
+
+Se arregla con `html:not(.claro)[data-apariencia="x"]` en el bloque de noche.
+Así ese bloque deja de existir de día y la casa vuelve a mandar, que es lo que
+el archivo prometía desde su primera línea: **un ambiente a medias cae en los
+colores de la casa y no en el vacío.**
+
+### `--tipo-titulo-escala`, que no existía
+
+Una cara de titular puede ser un 29% más ancha que Outfit —Consola lo es—, y
+en una pantalla de 320 px la cabecera solo deja 266 px para «Árbol de
+talentos», que en Outfit ocupa 236,5. Sin una escala declarable, una
+apariencia con letra ancha desborda el titular y no hay forma de rescatarla
+sin tocar reglas de la app — que es justo lo que una apariencia no puede
+hacer. La casa se queda en 1, así que hoy no mueve nada.
+
+### Lo que este archivo NO hace
+
+No hay pantalla en Ajustes todavía, y ningún ambiente se puede ganar: el
+**nivel de expedición** no existe, así que un ambiente que se desbloquea no
+sabe cuándo se desbloqueó. La puerta está escrita en `AMBIENTES` con el nivel
+de cada uno; el día que exista la cifra, lo que cambia es una línea.
+
+Y los **mundos** no van en `ASSETS` y no deben ir: esa es la lista de la
+instalación, y meterlos le haría bajar más de un mega a quien no va a encender
+ninguno. `ambientes.css` sí va —seis kilobytes entre los siete—, porque
+cualquiera puede desbloquear uno.
+
 ### 0.7.39.1 · 30 ago 2026
 La fecha de debajo de Ajustes dice el día que salió.
 

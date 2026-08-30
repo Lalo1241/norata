@@ -346,6 +346,13 @@
        justo lo que le da carácter a una apariencia: una display de titular
        con el cuerpo de texto intacto y legible. Por defecto, la misma. */
     --tipo-titulo: var(--sans);
+    /* Una cara de titular puede ser un 29% más ancha que Outfit —Consola lo
+       es—, y en una pantalla de 320 px la cabecera solo deja 266 para «Árbol
+       de talentos», que en Outfit ocupa 236,5. Sin esta escala, una apariencia
+       con letra ancha desborda el titular y no hay forma de rescatarla sin
+       tocar reglas de la app, que es justo lo que una apariencia no puede
+       hacer. La declara cada apariencia; la casa se queda en 1. */
+    --tipo-titulo-escala: 1;
     --tipo-cifra: var(--sans);
 
     /* ---------- El movimiento ----------
@@ -777,7 +784,7 @@
   h1, h2, h3 { font-family: var(--tipo-titulo); }
 
   .page-head h1 {
-    font-size: 30px;
+    font-size: calc(30px * var(--tipo-titulo-escala));
     font-weight: 700;
     letter-spacing: -0.5px;
   }
@@ -6113,7 +6120,7 @@
     html.sc #nav-settings-side { justify-content: center; padding-left: 0; padding-right: 0; }
     html.sc .thumb-cluster .c-main { gap: 0; }
     .page-head { padding: 34px 4px 22px; }
-    .page-head h1 { font-size: 34px; }
+    .page-head h1 { font-size: calc(34px * var(--tipo-titulo-escala)); }
     #settings-btn { display: none; }
 
     #summary-content, #missions-content, #projects-content,
@@ -7449,3 +7456,24 @@ html.claro .plan-linea { stroke-opacity: .85; }
 .pn-pie-graf span { display: inline-flex; align-items: center; gap: 6px; }
 .pn-mu-punto { width: 8px; height: 8px; border-radius: var(--r-disco); background: var(--mint); }
 .pn-mu-barra { width: 6px; height: 11px; border-radius: 1px; background: var(--celeste); opacity: .5; }
+
+  /* El rótulo de una apariencia de prueba. Es parte de la receta de subir algo
+     apagado detrás de un parámetro: sin él es fácil olvidar que la pestaña
+     está en modo prueba y acabar juzgando la app de verdad por lo que se ve
+     ahí. Se va al cerrar la pestaña, con la propia apariencia. */
+  #aparienciaPrueba {
+    position: fixed;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    z-index: var(--piso-brindis);
+    background: var(--fire);
+    color: var(--sobre-macizo);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 5px 12px;
+    border-radius: var(--r-pastilla);
+    pointer-events: none;
+    box-shadow: var(--sombra-m);
+  }

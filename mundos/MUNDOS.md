@@ -16,7 +16,8 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
 | **Ya está en la app** (0.7.38) | Servir de la copia primero, para que un mundo se baje UNA vez y no cada mañana. |
 | **Diseñado y medido, sin construir** | Los quince mundos de este documento (revisados tres veces). |
 | **Ya está en la app** (antes de todo esto) | La caja registradora: `js/10d-plan.js` ya tiene la llave `apariencia` —Gratuito «las paletas de color», Pro «todas las apariencias»—. El cobro está resuelto; lo que no existe es qué vender. |
-| **Propuesto, NO existe** | `--tipo-titulo-escala`, el selector de mundo en Ajustes, la clase en `<html>`, guardar la elección y la carga diferida de las tipografías y texturas de un mundo. **Comprobado el 30 ago sobre `origin/main` en 0.7.39.1**: no hay cargador, ni `--m-*`, ni `mundos.css` servido, en ninguna rama ni en ningún commit del repositorio. |
+| **Ya está en la app** (0.7.40) | **El motor**, apagado detrás de `?apariencia=`: `data-apariencia`, los siete ambientes, `--tipo-titulo-escala` y el guardado. Con la apariencia de casa puesta no se movió un píxel de 25 848. |
+| **Propuesto, NO existe** | La pantalla de Apariencia en Ajustes, el nivel de expedición —sin él nada se desbloquea—, la carga diferida de los mundos y las tres intensidades de fiesta. |
 
 ## Las tres reglas
 
