@@ -10,7 +10,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
 | --- | --- |
 | **Ya está en la app** (0.7.37) | La capa de material: `--r-*`, `--sup-*`, `--marco-*`, `--tipo-titulo`, `--tipo-cifra`, `--dur-*`. Ver la sección «El material» de `CLAUDE.md`. |
 | **Ya está en la app** (0.7.38) | Servir de la copia primero, para que un mundo se baje UNA vez y no cada mañana. |
-| **Diseñado y medido, sin construir** | Los catorce mundos de este documento (revisados). |
+| **Diseñado y medido, sin construir** | Los trece mundos de este documento (revisados dos veces). |
 | **Propuesto, NO existe** | `--tipo-titulo-escala`, el selector de mundo en Ajustes, y la carga diferida de las tipografías y texturas de un mundo. |
 
 ## Las tres reglas
@@ -19,7 +19,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
    tono —en Neón son ámbar y rosa; en Cyberpunk, magenta— pero no de
    significado. Un mundo cambia con qué se celebra, no con qué se avisa.
 2. **Un círculo es redondo porque es redondo.** El aro de marcar una misión
-   está en 999 px en los catorce, incluso donde todo lo demás tiene la esquina
+   está en 999 px en los trece, incluso donde todo lo demás tiene la esquina
    viva. Por eso `--r-redondo` vive separado de `--r-pastilla` y no pasa por
    `--r-factor`.
 3. **El cuerpo de texto no lo toca nadie.** Un mundo solo llega a `h1/h2/h3`
@@ -37,14 +37,13 @@ Sobran 38: **un 16% de holgura**, y eso es toda la pista.
 | Big Shoulders Display | −26% | 174,2 | 1 | Ventisca |
 | Grenze Gotisch | −17% | 195,3 | 1 | Averno |
 | Alegreya Sans | −14% | 204,2 | 1 | Talavera |
-| Anton | −13% | 205,0 | 1 | Rótulo |
 | Rajdhani | −10% | 212,5 | 1 | Blueprint |
 | **Outfit** | **+0%** | **236,5** | 1 | Grabado · *y la app* |
 | Chakra Petch | +4% | 245,4 | 1 | Cyberpunk |
 | Poppins | +11% | 263,0 | 1 | *deja 3 px* |
 | Sora | +13% | 268,1 | **0.99** | Obsidiana |
 | Archivo Black | +19% | 281,7 | **0.94** | Papel picado |
-| Julius Sans One | +23% | 290,9 | **0.91** | Cénit |
+| Julius Sans One | +23% | 290,9 | **0.91** | Vitral |
 | Cinzel | +28% | 301,8 | **0.88** | Forja |
 | JetBrains Mono | +29% | 306,0 | **0.86** | Consola |
 | Michroma | +38% | 326,8 | **0.81** | Bastión |
@@ -73,7 +72,7 @@ Dos avisos que cuestan tiempo si se ignoran:
 - **Poppins es un 11% más ancha que Outfit** y deja 3 px. Fijar la app a
   Poppins no quita el riesgo: se queda con el menor margen de las que pasan.
 
-## Los catorce mundos
+## Los trece mundos
 
 Cuatro familias. **De relato** son los que vienen de un género en vez de una
 materia: inspirados, nunca calcados — nombre, marco, letra e ilustración son de
@@ -83,7 +82,6 @@ casa, y ninguno lleva marca, icono ni tipografía de nadie.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | **Talavera** | Loza vidriada | Alegreya Sans | −14% | 1 | 14 px · suaves | ~110 KB | Las dos |
 | **Grabado** | El de las calaveras | Outfit | +0% | 1 | 0 px · vivas | ~35 KB | Día |
-| **Rótulo** | El de la calle | Anton | −13% | 1 | 16 px · redondeadas | ~80 KB | Noche |
 | **Papel picado** | El de fiesta | Archivo Black | +19% | 0.94 | 5 px · casi vivas | ~85 KB | Día |
 | **Consola** | Gratis, siempre | JetBrains Mono | +29% | 0.86 | 0 px · vivas | ~28 KB | Noche |
 | **Neón** | Todo redondo | Baloo 2 | −2% | 1 | Redondas del todo | ~60 KB | Noche |
@@ -91,7 +89,7 @@ casa, y ninguno lleva marca, icono ni tipografía de nadie.
 | **Blueprint** | Nada está terminado | Rajdhani | −10% | 1 | 0 px · vivas | ~65 KB | Noche |
 | **Forja** | El buque insignia | Cinzel | +28% | 0.88 | 0 px · vivas | ~180 KB | Noche |
 | **Obsidiana** | El oscuro elegante | Sora | +13% | 0.99 | 0 px · vivas | ~80 KB | Noche |
-| **Cénit** | Antes «Vitral» | Julius Sans One | +23% | 0.91 | 3 px · casi vivas | ~80 KB | Noche |
+| **Vitral** | Rosetón | Julius Sans One | +23% | 0.91 | 3 px · casi vivas | ~85 KB | Noche |
 | **Averno** | El oscuro de verdad | Grenze Gotisch | −17% | 1 | 2 px · piedra tallada | ~95 KB | Noche |
 | **Ventisca** | Frío con una hoguera | Big Shoulders Display | −26% | 1 | 3 px · chapa | ~90 KB | Noche |
 | **Bastión** | Blindaje | Michroma | +9% | 0.81 | 4 px · placa | ~105 KB | Noche |
@@ -146,12 +144,21 @@ medidas y ninguna es «se ve bien»:
    de `getComputedStyle().fontFamily`, que solo repite lo declarado y da el
    mismo ancho para todas aunque ninguna haya cargado. Ese fallo también se
    cometió.
-3. **Los vectores.** Densidad de tinta (ni vacíos ni manchones), reparto por
+3. **Un adorno tiene que caber en la tarjeta.** Costó dos rondas: un dibujo
+   de 120x120 anclado abajo a la derecha, sobre una tarjeta de 88 px de alto,
+   se recorta — y lo que queda a la vista es la parte de ARRIBA del dibujo,
+   que en un arco cae hacia la izquierda. Parece que el adorno se cambió de
+   lado y en realidad está entero, fuera de cuadro. Lo mismo con estirar un
+   dibujo de 120 px a `100%` del ancho: las escuadras de una esquina salen
+   como rayas largas. La regla: **caja del tamaño de la tarjeta, o cuatro
+   dibujos anclados a sus cuatro esquinas, y nunca `background-size:100% 100%`
+   en algo que tiene esquinas.**
+4. **Los vectores.** Densidad de tinta (ni vacíos ni manchones), reparto por
    cuadrantes, y si el motivo se repite, que case consigo mismo en los bordes.
    Un motivo de retícula es la excepción: su costura lleva la línea gruesa a
    propósito y NO debe casar.
 
-Los catorce de este documento pasan las tres.
+Los trece de este documento pasan las tres.
 
 ## Lo que falta decidir
 
