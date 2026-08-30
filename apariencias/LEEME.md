@@ -49,11 +49,11 @@ Los tonos están en `apariencias/datos.py` y salen ya escritos en
 | --- | --- | --- | --- |
 | Noche de expedición | 0 | Desde el día uno | El de casa. No se desbloquea porque es donde empiezas |
 | **Tinta** | 3 | Desde el día uno · **gratis siempre** | Tinta china sobre papel. Para quien no distingue bien los colores es la única forma de usar la app, así que cobrarla sería cobrar por entrar |
-| Musgo | 1 | Nivel 2 | Bosque cerrado de noche, luz entre hojas de día |
-| Adobe | 1 | Nivel 8 | Barro cocido con cal. La cálida amable |
-| Duna | 1 | Nivel 10 | Desierto de noche: violeta y lavanda, no café |
-| Escarcha | 2 | Nivel 12 · **Pro** | La menta se vuelve celeste; la app acompaña en vez de festejar |
-| Marea | 2 | Nivel 22 · **Pro** | Verdiazul de agua honda, con la menta vista bajo el agua |
+| Musgo | 1 | Nivel 3 · con **Brote** | Bosque cerrado de noche, luz entre hojas de día |
+| Marea | 2 | Nivel 5 · **Pro** | Verdiazul de agua honda, con la menta vista bajo el agua |
+| Adobe | 1 | Nivel 7 · con **Refugio** | Barro cocido con cal. La cálida amable |
+| Escarcha | 2 | Nivel 12 · con **Cima** · **Pro** | La menta se vuelve celeste; la app acompaña en vez de festejar |
+| Duna | 1 | Nivel 20 · con **Norte** | Desierto de noche: violeta y lavanda, no café |
 | Reliquia | 2 | **Fundador** | El lila de Fundador extendido a toda la app |
 
 **Grado 1** solo mueve el suelo; **grado 2** además mueve las tres variables del
@@ -302,32 +302,47 @@ calibró la curva de las habilidades.
 
 ### La escalera
 
-| Nivel | Qué abre | |
+**El reparto nuevo, con dos reglas que antes no estaban.** La primera: *cada
+rango trae su ambiente*, así que la escalera son cinco capítulos y no doce
+premios sueltos. La segunda: *nada dura más de seis niveles sin pasar algo*, y
+**el primer premio de pagar llega en la primera semana**, no a los dos meses y
+medio.
+
+| Nivel | Qué abre | Para quién |
 | --- | --- | --- |
-| 1 | Rango **Semilla**, y aparece la barra | |
-| 2 | Ambiente **Musgo** | |
-| 3 | Destello propio al cumplir una misión | |
-| 4 | Rango **Brote** | |
-| 6 | Escena nueva de racha | |
-| 8 | Ambiente **Adobe** | |
-| 10 | Rango **Refugio**, ambiente **Duna** y escena grande | el último que se da solo por usarla |
-| 12 | Ambiente **Escarcha** | Pro |
-| 15 | Celebración de pantalla completa | Pro |
-| 18 | Rango **Cima** | |
-| 22 | Ambiente **Marea** | Pro |
-| 28 | Rango **Norte** | |
-| 28+ | Ahí cuelgan los mundos y los ambientes que entren después | |
+| **día 1** | **Tinta**, y con ella el rango Semilla | todos |
+| **día 1** | **Los catorce mundos** | Pro |
+| 1 | Rango **Semilla**, y aparece la barra | todos |
+| 2 | Destello propio al cumplir una misión | todos |
+| 3 | Rango **Brote**, y con él el ambiente **Musgo** | todos |
+| 5 | Ambiente **Marea** | **Pro** |
+| 7 | Rango **Refugio**, y con él el ambiente **Adobe** | todos |
+| 9 | Escena nueva de racha | todos |
+| 12 | Rango **Cima**, y con él el ambiente **Escarcha** | rango: todos · ambiente: **Pro** |
+| 14 | Escena grande de racha | todos |
+| 16 | Celebración de pantalla completa | **Pro** |
+| 20 | Rango **Norte**, y con él el ambiente **Duna** | todos |
+| 20+ | Ahí cuelgan los mundos y los ambientes que entren después | |
 
-**Los rangos nunca llevan candado**, y es la única regla nueva: un rango es la
-cara del nivel, y el nivel sube para todos. Ponerle candado sería topar el
-número por la puerta de atrás. Lo que pide Pro son los ambientes y las
-celebraciones.
+**Qué cambió y por qué.** El reparto viejo tenía todo tarde y en el orden
+equivocado: el usuario gratuito no tocaba nada entre el 2 y el 8, y el que
+paga no recibía nada del nivel **hasta el 12 — dos meses y medio después de
+haber pagado**. Ahora:
 
-**Y el número nunca se topa.** Una cuenta gratuita clavada en el nivel 12
-mientras sigue cumpliendo misiones todos los días está diciendo «lo que haces ya
-no cuenta», que es lo contrario de para qué existe la app. Lo que se topa son
-los premios. El 12 no es redondo por gusto: es donde llega el usuario normal a
-los dos meses y medio, y para entonces la app ya se ganó el derecho a pedir algo.
+| | Cuándo llega lo suyo |
+| --- | --- |
+| **Gratuito** | 1, 2, 3, 7, 9, 14, 20 — siete cosas, y tres de ellas en los dos primeros días |
+| **Pro** | los catorce mundos el día que paga, y además 5, 12 y 16 |
+
+El hueco más largo es de seis niveles, y ahí es donde trabaja la tarjeta del
+Resumen: **el próximo desbloqueo escrito antes de llegar**.
+
+**El nivel 12 es a propósito el que más pesa.** Es donde el usuario normal
+llega a los dos meses y medio, ya con el hábito hecho, y es donde recibe un
+rango que es suyo —**Cima**, sin candado, como los otros cuatro— con un
+ambiente al lado que dice «con Pro». No se le quita nada; se le enseña lo que
+hay. Ese es el único momento de venta de toda la escalera, y llega cuando la
+app ya se ganó el derecho a pedir algo.
 
 ### Dónde se ve
 
@@ -343,6 +358,101 @@ Tres sitios, y ninguno es una pantalla nueva.
 - **La celebración al subir**, y al desbloquear un ambiente, **con el ambiente
   ya puesto**.
 
+## Qué abre el nivel, y qué no
+
+Eduardo preguntó si subir de nivel debería desbloquear también funcionalidad,
+«así no te avientas a descubrir toda la app de buenas a primeras y te satures
+de golpe». Son **dos cosas distintas** y separarlas es toda la respuesta,
+porque una es un problema real y la otra es una solución cara.
+
+**El problema es real.** Norata enseña el primer día cuatro módulos, un árbol
+de talentos, rachas, informes y un panel de plan. Es mucho, y no todo sirve el
+primer día: un árbol de talentos con cero habilidades no es una promesa, es una
+pantalla vacía.
+
+**Pero poner funciones detrás del nivel lo paga caro, y en dos sitios.**
+
+1. **Una función ganada por nivel deja de poder venderse.** Y ya hay un plan
+   que vive exactamente de eso: `LIMITES` cobra por CREAR —ramas, talentos,
+   informes—. Si el nivel 14 regala lo que Pro vende, Pro vale menos; si el
+   nivel 14 regala algo que Pro no vendía, es una función que se estaba
+   escondiendo sin motivo.
+2. **Choca de frente con «congelar, nunca quitar».** Un usuario al que la app
+   le dice «esto lo tendrás en el nivel 14» está siendo castigado por el
+   tiempo, no premiado por el uso. Es la misma frase que se rechazó al decidir
+   no topar el número: *lo que haces ya no cuenta*.
+
+**Lo que sí resuelve el problema, sin pagar nada: revelar por ESTADO, no por
+nivel.** La app ya sabe cuándo un módulo tiene sentido, y lo sabe mejor que el
+nivel:
+
+| Se enseña | Cuando | Por qué el nivel no sirve |
+| --- | --- | --- |
+| El árbol de talentos | Hay una habilidad con historial | Con cero habilidades el árbol está vacío, tengas el nivel que tengas |
+| Los informes de semana | Hay siete días de datos | Un informe de dos días no es un informe |
+| La racha | Se cumple la primera misión dos días seguidos | Antes no hay racha que enseñar |
+| Los encargos | Hay un talento con etapas, o se pide a mano | Es el módulo que menos gente necesita el primer día |
+
+La diferencia es la que importa: **revelar por nivel es revelar por tiempo;
+revelar por estado es revelar cuando de verdad sirve.** Y no le quita nada a
+nadie — todo sigue existiendo, funcionando y accesible desde el menú; lo que
+cambia es cuándo la app lo pone **delante**. Una cosa es no gritar el primer
+día y otra es cerrar la puerta.
+
+**Y hay un premio de nivel que sí es funcionalidad y no canibaliza nada:** las
+**celebraciones**. No cambian lo que puedes hacer, cambian cómo te lo cuenta la
+app, y por eso pueden regalarse y venderse sin tocar `LIMITES`. Ya están en la
+escalera, en los niveles 2, 9, 14 y 16.
+
+**Lo que queda abierto:** si algún día aparece una función que no se vende ni
+se vendería —algo puramente expresivo, como poner un nombre a tu expedición o
+elegir el icono del avatar—, esa sí puede colgar del nivel. La regla para
+saberlo es una pregunta: *¿esto lo pondrías alguna vez en la tabla de precios?*
+Si la respuesta es sí, no puede ser un premio de nivel.
+
+## Cómo se canta un nivel
+
+Hoy hay **un solo tamaño de fiesta**: `celebrate(title, sub, color, iconName)`,
+siete llamadas, y el nivel de una habilidad usa exactamente la misma que un
+hito. Subir de expedición tiene que ser **más** que eso, y cuando además abre
+algo, tiene que decirlo ahí mismo.
+
+**Tres intensidades, y la tercera es una ventana de verdad:**
+
+| Cuándo | Qué | Se sale |
+| --- | --- | --- |
+| Sube una habilidad | Lo de hoy, sin tocar | Solo |
+| **Sube la expedición** | La misma escena, más grande y más lenta, con el número al centro y el aro del avatar llenándose | Solo, a los pocos segundos |
+| **Sube la expedición y abre algo** | Una ventana con lo que se abrió **ya puesto** | Con un botón, y solo con el botón |
+
+**La ventana no se cierra por accidente, y esa es la petición.** Tres reglas:
+
+- **No se cierra tocando fuera.** Es la forma número uno de saltarse sin querer
+  lo único que la app te iba a enseñar en semanas.
+- **Un solo botón**, grande y explícito, que dice qué hace: «Ver cómo queda» si
+  abrió un ambiente, «Seguir» si no.
+- **Escape sí cierra.** Parece contradecir lo anterior y no lo hace: tocar
+  fuera es un gesto que se hace sin querer, y pulsar Escape es una decisión.
+  Quitarlo dejaría a quien usa teclado atrapado en la ventana.
+
+**Y lo que hace que la ventana valga la pena existir: el ambiente ya está
+puesto detrás.** No se enseña una muestra de lo que ganaste — se aplica, y la
+ventana aparece encima de la app ya recoloreada. Si lo que se abrió es un
+rango, lo que hay detrás es el aro del avatar con su color nuevo. Un premio
+que hay que ir a buscar a Ajustes no es un premio, es una tarea.
+
+**Lo que hay que tocar para construirla**, y son dos líneas que ya están
+escritas en `CLAUDE.md`: un `--piso-*` nuevo en `:root` de `css/estilos.css` —
+ningún `z-index` se escribe a mano— y una línea en `CAPAS_QUE_TAPAN` de
+`js/01-base.js`, que es lo que para la página de detrás. Con eso no hay que
+acordarse de parar ni de soltar.
+
+**Antes que nada de esto: sacar el verde de las cinco llamadas a
+`celebrate()`.** El menta `#5fe0b0` está escrito a mano en `03-talentos.js`,
+`04-misiones.js` y `09-inicio.js`. Mientras siga ahí, **ningún ambiente llega a
+la fiesta** — y la fiesta que anuncia un ambiente saldría celebrándolo en el
+color del ambiente anterior.
+
 ## Los cinco rangos
 
 No son una colección para presumir: son **la cara y el nombre del nivel**. Como
@@ -352,13 +462,32 @@ alguien más la ve, y sin eso es una lista de lo que te falta—. Como nombre s�
 capítulo. Por eso bajaron de diez a cinco: un rango que cambia cada dos niveles
 es ruido; uno que dura medio año es algo que recuerdas haber sido.
 
-| Nivel | Rango | Cuándo, en uso normal | Qué es |
-| --- | --- | --- | --- |
-| 1 | **Semilla** | El primer día | Una gota cerrada |
-| 4 | **Brote** | Tres días | La misma planta después: tallo con dos hojas |
-| 10 | **Refugio** | Mes y medio | Se acampa |
-| 18 | **Cima** | Seis meses | Se llega arriba |
-| 28 | **Norte** | Año y tres meses | Ya solo queda la estrella que orienta |
+| Nivel | Rango | Abre | Color de noche | Color de día | Cuándo |
+| --- | --- | --- | --- | --- | --- |
+| 1 | **Semilla** | Tinta | `#b6a370` | `#837143` | El primer día |
+| 3 | **Brote** | Musgo | `#23b37e` | `#19805a` | Dos días |
+| 7 | **Refugio** | Adobe | `#dc925d` | `#a15923` | Tres semanas |
+| 12 | **Cima** | Escarcha · Pro | `#37a6ed` | `#1073b2` | Dos meses y medio |
+| 20 | **Norte** | Duna | `#c194e4` | `#9345d1` | Ocho meses |
+
+**Cada rango trae su ambiente y toma su color**, y el emparejamiento no es
+decorativo: un refugio está hecho de barro, en una cima hay escarcha, y el
+norte es la estrella que se ve en el cielo violeta de Duna. Eso convierte doce
+premios sueltos en cinco capítulos, y le da al aro del avatar un color que
+significa algo en vez de ser siempre menta.
+
+**El único sitio donde el emparejamiento aprieta**, y conviene saberlo: en el
+nivel 12 el ambiente pide Pro y el rango no. No es una excepción — es la regla
+funcionando: **los rangos nunca llevan candado** porque son la cara del nivel,
+y el nivel sube para todos. Llegas a Cima, es tuya, y al lado está Escarcha
+con su etiqueta.
+
+**Los dos tonos están calculados, no elegidos.** De noche, el más saturado que
+ya está cómodo sobre la tarjeta (6 sobre 1); de día, el que apenas llega a 4,5
+hundiéndose lo mínimo, que es lo que conserva el matiz. Y hacen falta los dos:
+**usar el tono de noche sobre papel da 2,10-2,49**, por debajo del 3 que pide
+un trazo. Medidos ya puestos en la lámina: 4,50-5,00 de día y 6,51-7,18 de
+noche.
 
 Van de la tierra al cielo, que es lo que hace que cada dibujo se le ocurra solo
 al anterior. Dibujados en `viewBox="0 0 24 24"`, trazo de 1,7 y remates
@@ -387,10 +516,12 @@ No es un detalle de reparto: en la primera lista **Escarcha y Marea son gratis**
 y en la segunda **piden Pro**. Es la diferencia entre regalar dos ambientes y
 venderlos.
 
-**Se resuelve por la segunda**, y por tres motivos: es la más reciente; es la
-única cuya curva está simulada día por día en vez de estimada; y es la que hace
-que «grado 2 = Pro» sea una regla y no una excepción por ambiente. La tabla de
-arriba ya está resuelta así. **Si prefieres la primera, dilo: es una línea.**
+**Resuelta, y superada.** Eduardo pidió un reparto nuevo que contemplara
+progreso temprano para los dos planes, y la tabla de la escalera es ese
+reparto: se queda la regla de la segunda —**grado 2 = Pro**, que es una regla y
+no una excepción por ambiente— y se corrige lo que las dos tenían mal, que era
+poner todo tarde. Ahora el gratuito recibe tres cosas en los dos primeros días
+y el que paga recibe algo en la primera semana.
 
 **Y arrastra un arreglo de texto.** `js/10d-plan.js` dice hoy *«Las paletas de
 color son de todos. Las apariencias completas vienen con Pro.»* Con este reparto
@@ -429,17 +560,15 @@ ambiente ya puesto.
 
 ## Lo que solo puede decidir Eduardo
 
-1. **El reparto en disputa** de arriba: ¿Escarcha y Marea gratis en 4 y 10, o de
-   Pro en 12 y 22? Mi recomendación es la segunda y ya está escrita así.
-2. **Los nombres de los rangos.** Semilla, Brote, Refugio, Cima y Norte son de
+1. **Los nombres de los rangos.** Semilla, Brote, Refugio, Cima y Norte son de
    relleno para que la escalera se lea. Son cinco y nombrarlos bien sale barato.
-3. **¿El rango se dice siempre o solo el día que cambia?** Escrito junto al
+2. **¿El rango se dice siempre o solo el día que cambia?** Escrito junto al
    nivel —«Nivel 12 · Refugio»— se vuelve parte de tu identidad; enseñado solo
    cuando cambia se vuelve un acontecimiento. Con cinco rangos en toda la vida
    de una cuenta, lo segundo se defiende.
-4. **¿El rango es también un color?** Cinco aguantan cinco tonos sin volverse un
-   arcoíris. Ojo con el lila, que es de Fundador, y con el amarillo y el coral,
-   que significan aviso y peligro.
+3. **Si el nivel debe abrir además alguna funcionalidad**, más allá de lo que
+   está escrito en «Qué abre el nivel, y qué no». Mi lectura está ahí, con su
+   motivo; la decisión es tuya.
 
 ## Lo que se queda fuera a propósito
 
