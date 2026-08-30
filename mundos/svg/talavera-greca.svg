@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="88" height="26" viewBox="0 0 88 26">
+  <!-- La decoración se va del campo al BORDE, que es donde la lleva una pieza
+       de loza de verdad: el plato es liso y la cenefa vive en el filo. Una
+       greca corrida —hoja, tallo, flor, tallo— con dos rayas que la encierran.
+       Empieza y acaba a la misma altura, así que se puede repetir sin costura. -->
+  <g stroke="#1e3f8f" fill="none">
+    <path d="M0 3h88M0 23h88" stroke-width="1.6"/>
+    <path d="M0 13C11 4 22 22 33 13S55 4 66 13s16 4 22 0" stroke-width="1.8"/>
+  </g>
+  <g fill="#1e3f8f">
+    <path d="M17 13c0-5 4-8 8-7-1 5-4 8-8 7z"/>
+    <path d="M50 13c0 5-4 8-8 7 1-5 4-8 8-7z" fill-opacity=".7"/>
+    <circle cx="72" cy="8" r="2.2"/><circle cx="6" cy="18" r="1.8" fill-opacity=".7"/>
+  </g>
+</svg>

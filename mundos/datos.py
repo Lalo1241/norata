@@ -18,9 +18,12 @@ def svg(ruta):
 # familia: de-aqui | de-pantalla | de-materia
 MUNDOS = [
  dict(id="talavera", nombre="Talavera", familia="de-aqui", llave="Loza vidriada", color="#1e3f8f",
-  premisa="Loza vidriada. Fuera la vid de arriba: no terminaba de conectar y le robaba sitio al texto. Lo que hace la pieza es el BORDE DOBLE —cobalto, respiro blanco, cobalto— como el filo pintado de un plato. El azulejo de flores se queda en el fondo, que es donde no estorba, y el icono es una flor de cinco pétalos. Sin serif: Alegreya Sans conserva el calor de la familia y se lee mejor a tamaño pequeño.",
-  letra="Alegreya Sans", ancho="−14%", escala="1", esquinas="14 px · suaves", peso="~110 KB", horas="Las dos",
-  tokens={"--m-pagina":"#e4d9c1","--m-grano":f'url("{svg("azulejo.svg")}")',"--m-grano-op":".3",
+  premisa="La decoración se fue del campo al BORDE, que es donde la lleva una pieza de loza de verdad: el plato es liso y la cenefa vive en el filo. El azulejo de flores por todas partes empachaba; ahora hay una greca corrida arriba y abajo —hoja, tallo, flor— y en medio, esmalte limpio. La tarjeta no lleva nada añadido: su borde doble ya es la pieza.",
+  letra="Alegreya Sans", ancho="−14%", escala="1", esquinas="14 px · suaves", peso="~95 KB", horas="Las dos",
+  nota="Preguntaste qué añadirle a la tarjeta: nada. Una tarjeta se repite veinte veces en una pantalla y todo lo que se le cuelgue se multiplica por veinte. El carácter de un mundo va en lo que aparece UNA vez —el borde de la página, la cabecera, las escenas—, no en la pieza que más se repite.",
+  tokens={"--m-pagina":"#e4d9c1",
+   "--m-grano":f'url("{svg("talavera-greca.svg")}") top left repeat-x, url("{svg("talavera-greca.svg")}") bottom left repeat-x',
+   "--m-grano-op":".6",
    "--m-tarjeta":"#fdfbf5","--m-borde":"1.5px","--m-borde-color":"#1e3f8f",
    "--m-sombra":"inset 0 0 0 3px #fdfbf5, inset 0 0 0 4.5px rgba(30,63,143,.55), 0 5px 16px rgba(30,63,143,.2)",
    "--m-r-tarjeta":"14px","--m-r-mini":"999px","--m-r-barra":"999px","--m-r-chip":"999px",
@@ -51,29 +54,6 @@ MUNDOS = [
    "--m-cifra":'"Outfit",system-ui,sans-serif',"--m-cifra-peso":"700","--m-cifra-esp":"-.03em",
    "--m-chip-fuente":'"Outfit",system-ui,sans-serif',"--m-chip-peso":"700","--m-chip-esp":".06em","--m-chip-caja":"uppercase",
    "--m-dur":".16s","--m-curva":"cubic-bezier(.2,.8,.3,1)"}),
-
- dict(id="picado", nombre="Papel picado", familia="de-aqui", llave="El de fiesta", color="#c2145f",
-  premisa="El fondo dejó de ser cuadrícula: ahora es una composición —dos cordeles colgando a alturas distintas, hojas de cuatro tamaños y colores, y mucho papel vacío entre ellas—, y a la mitad de tinta, para que no compita con lo que hay que leer. La tarjeta termina en FLECO recortado, porque una hoja de papel picado no acaba en línea recta. Letra de bloque, que es como se recorta una letra a tijera.",
-  letra="Archivo Black", ancho="+19%", escala="0.94", esquinas="5 px · casi vivas", peso="~85 KB", horas="Día",
-  tokens={"--m-pagina":"#f5eee1",
-   "--m-grano":f'url("{svg("picado-composicion.svg")}")',
-   "--m-grano-op":".38","--m-tarjeta":"#fffdf8","--m-borde":"1px","--m-borde-color":"#e0d3bd",
-   "--m-sombra":"0 6px 16px rgba(120,90,60,.15)",
-   "--m-r-tarjeta":"5px","--m-r-mini":"999px","--m-r-barra":"999px","--m-r-chip":"999px",
-   "--m-fleco-alto":"14px","--m-fleco":f'url("{svg("picado-fleco.svg")}") repeat-x',
-   "--m-tinta":"#3a2438","--m-tinta-2":"#7a6070",
-   "--m-acento":"#c2145f","--m-acento-velo":"rgba(194,20,95,.11)",
-   "--m-aviso":"#7d5a00","--m-aviso-velo":"rgba(125,90,0,.13)",
-   "--m-peligro":"#a02a12","--m-peligro-velo":"rgba(160,42,18,.12)","--m-carril":"#e7dcc9",
-   "--m-icono":"conic-gradient(#e6187c 0 25%, #2aa9a0 0 50%, #f2a516 0 75%, #6d3fb8 0)",
-   "--m-titulo":'"Archivo Black",system-ui,sans-serif',"--m-titulo-px":"14px","--m-titulo-peso":"400","--m-titulo-esp":"-.01em",
-   "--m-cifra":'"Archivo Black",system-ui,sans-serif',"--m-cifra-peso":"400","--m-cifra-esp":"-.03em",
-   "--m-chip-fuente":'"Archivo Black",system-ui,sans-serif',"--m-chip-esp":".04em",
-   "--m-dur":".5s","--m-curva":"cubic-bezier(.34,1.45,.64,1)"},
-  extra=""".picado .ficha::after{
-    content:""; position:absolute; left:0; right:0; top:100%%; height:var(--m-fleco-alto);
-    background:var(--m-fleco); pointer-events:none;
-  }"""),
 
  dict(id="consola", nombre="Consola", familia="de-pantalla", llave="Gratis, siempre", color="#3bff9e",
   premisa="Fósforo sobre negro, todo en monoespaciada, cero adornos y el movimiento a saltos en vez de suave. Es el único que no necesita ni una imagen: la textura son dos líneas de CSS. Y de paso es la red de seguridad para quien no distingue bien los tonos.",
@@ -167,7 +147,7 @@ MUNDOS = [
   extra=".plano .ficha{ padding-top:36px; }"),
 
  dict(id="forja", nombre="Forja", familia="de-materia", llave="El buque insignia", color="#ff9d3d",
-  premisa="Taller de herrería enana: el fondo dejó de ser ruido y ahora es geometría ANGULAR —marcos escalonados encajados, la esquina cortada en plano, bisel claro arriba y sombra abajo, que es lo que hace que el metal parezca golpeado y no dibujado—. Arriba, banda remachada con los remaches a intervalos irregulares, que uno cada 16 px exactos parece tornillería de mueble. Esquina viva en todo y la letra grabada en vez de escrita.",
+  premisa="Acero de taller: pasadas de pulido y huellas de martillo, cada una con su ceja clara arriba y su sombra abajo, que es lo que hace que el metal parezca golpeado y no dibujado. Arriba, banda remachada con los remaches a intervalos irregulares —uno cada 16 px exactos parece tornillería de mueble—. Sin adornos: a 40 px una voluta se lee como un número, no como hierro. Esquina viva en todo y la letra grabada en vez de escrita.",
   letra="Cinzel", ancho="+28%", escala="0.88", esquinas="0 px · vivas", peso="~180 KB", horas="Noche",
   tokens={"--m-pagina":"#16110c",
    "--m-grano":f'url("{svg("forja-acero.svg")}")',
@@ -186,16 +166,10 @@ MUNDOS = [
    "--m-cifra":'"Cinzel",Georgia,serif',"--m-cifra-peso":"700","--m-cifra-esp":"0",
    "--m-chip-fuente":'"Cinzel",Georgia,serif',"--m-chip-esp":".07em",
    "--m-dur":"1.1s","--m-curva":"cubic-bezier(.16,.84,.28,1)"},
-  # La voluta iba en 46x46 anclada abajo a la derecha y acababa colgando por
-  # fuera de la tarjeta, debajo del aro. Ahora va DENTRO, pegada al borde
-  # derecho y centrada en vertical, que es donde un herrero remataría la
-  # pieza.
-  extra=""".forja .ficha{ padding-top:26px; overflow:hidden; }
-  .forja .ficha::after{
-    content:""; position:absolute; left:auto; right:8px; top:50%%; width:40px; height:40px;
-    margin-top:-20px; background:url("%s") center/contain no-repeat;
-    transform:rotate(180deg); pointer-events:none; opacity:.75;
-  }""" % svg("forja-voluta.svg")),
+  # La voluta se fue. A 40 px una espiral deja de leerse como hierro forjado y
+  # se lee como un número; ya bien colocada seguía sin funcionar, así que el
+  # problema no era la posición sino la forma.
+  extra=".forja .ficha{ padding-top:26px; }"),
 
  dict(id="postit", nombre="Post-it", familia="de-materia", llave="Podría sustituir a Papel picado", color="#c08a10",
   premisa="Una nota pegada en el escritorio. Lo que lo vende es la ESQUINA LEVANTADA, y el detalle está en que el pliegue no es una diagonal recta: el papel se enrolla, así que la línea del doblez va curva y lo que asoma es el revés de la hoja, más apagado, con su sombra cayendo encima de la propia nota. La tarjeta va un poco torcida —una nota nunca se pega derecha— y detrás hay más notas en el corcho. Letra escrita a mano, pero de las que se leen.",
@@ -241,13 +215,13 @@ MUNDOS = [
    "--m-chip-fuente":'"Sora",system-ui,sans-serif',"--m-chip-peso":"600","--m-chip-esp":".07em","--m-chip-caja":"uppercase",
    "--m-dur":"1.2s","--m-curva":"cubic-bezier(.2,.9,.25,1)"}),
 
- dict(id="vitral", nombre="Vitral", familia="de-materia", llave="Rosetón", color="#f0dcb4",
-  premisa="Vuelve el plomo y el pan de oro que ya tenía —el marco de cuatro píxeles con el filo dorado, el vidrio añil— y el cielo entra por donde tenía que entrar: por la FORMA. Un rosetón es a la vez una ventana y una rueda de estrellas, así que el fondo es su tracería, dibujada con una cuarta parte de la tinta que tenía antes: dos circunferencias, sus lóbulos y cuatro estrellas sueltas. El icono es una estrella de cuatro brazos con cintura, la del cielo antiguo.",
+ dict(id="cenit", nombre="Cénit", familia="de-materia", llave="Plomo y cielo", color="#f0dcb4",
+  premisa="El plomo y el pan de oro se quedan —el marco de cuatro píxeles con el filo dorado, el vidrio añil— y el cielo entra por detrás, dicho en una sola frase: rayos que salen de un punto, largos y cortos alternados, y cuatro estrellas. La tracería anterior tenía circunferencias y lóbulos y había que descifrarla; esto se lee de un vistazo. El icono es la estrella de cuatro brazos con cintura, que se queda tal cual.",
   letra="Julius Sans One", ancho="+23%", escala="0.91", esquinas="3 px · casi vivas", peso="~85 KB", horas="Noche",
-  nota="El cambio anterior tiró el plomo y el oro para poner constelaciones, y eso no era alinear un estilo: era cambiarlo. Vuelve lo que ya funcionaba; el cielo se queda, pero como tracería del rosetón y a un cuarto de tinta.",
+  nota="Tercer intento del fondo. Constelación con líneas: demasiado. Tracería de rosetón: no se entendía. Rayos desde un punto: se lee sin explicarlo. El marco de plomo y el icono no se tocaron en ninguno de los tres.",
   tokens={"--m-pagina":"#0c1030",
-   "--m-grano":f'url("{svg("vitral-rosa.svg")}") center/300px no-repeat',
-   "--m-grano-op":".85","--m-tarjeta":"linear-gradient(158deg, #191f4c 0%, #12163a 60%, #1c1f52 100%)",
+   "--m-grano":f'url("{svg("cenit-rayos.svg")}") center/330px no-repeat',
+   "--m-grano-op":".9","--m-tarjeta":"linear-gradient(158deg, #191f4c 0%, #12163a 60%, #1c1f52 100%)",
    "--m-borde":"4px","--m-borde-color":"#3a3f6b",
    "--m-marco":"linear-gradient(140deg,#2a2e55,#8f97c8 20%,#1a1d3d 42%,#d8bd7e 58%,#6f77a8 78%,#20244a) 1",
    "--m-sombra":"inset 0 0 0 1px rgba(210,180,110,.34), 0 12px 30px rgba(0,0,0,.5)",

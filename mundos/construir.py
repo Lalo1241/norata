@@ -6,7 +6,7 @@ import datos, html, os
 M, FAM = datos.MUNDOS, datos.FAMILIAS
 
 FUENTES = ("Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600"
- "&family=Alegreya+Sans:wght@700;800&family=Archivo+Black&family=Baloo+2:wght@600;700"
+ "&family=Alegreya+Sans:wght@700;800&family=Baloo+2:wght@600;700"
  "&family=Big+Shoulders+Display:wght@700&family=Chakra+Petch:wght@600;700&family=Cinzel:wght@700"
  "&family=Grenze+Gotisch:wght@600;700&family=JetBrains+Mono:wght@700&family=Julius+Sans+One"
  "&family=Michroma&family=Patrick+Hand&family=Rajdhani:wght@600;700&family=Sora:wght@600;700"
@@ -56,9 +56,7 @@ CARAS_PISTA = [
  ("Sora","OBSIDIANA","+13%","268,1","se pasa 2","falla","'Sora',system-ui","30px","600"),
  ("Sora","CON SU ESCALA · 0.99","","265,3","entra","pasa","'Sora',system-ui","29.7px","600"),
  ("Poppins","LA QUE PROPUSISTE","+11%","263,0","justo, 3","justo","'Poppins',sans-serif","30px","700"),
- ("Archivo Black","PAPEL PICADO","+19%","281,7","se pasa 16","falla","'Archivo Black',system-ui","30px","400"),
- ("Archivo Black","CON SU ESCALA · 0.94","","264,7","entra","pasa","'Archivo Black',system-ui","28.2px","400"),
- ("Julius Sans One","VITRAL","+23%","290,9","se pasa 25","falla","'Julius Sans One',system-ui","30px","400"),
+ ("Julius Sans One","CÉNIT","+23%","290,9","se pasa 25","falla","'Julius Sans One',system-ui","30px","400"),
  ("Julius Sans One","CON SU ESCALA · 0.91","","264,7","entra","pasa","'Julius Sans One',system-ui","27.3px","400"),
  ("Michroma","BASTIÓN","+38%","326,8","se pasa 61","falla","'Michroma',system-ui","30px","400"),
  ("Michroma","CON SU ESCALA · 0.81","","264,7","entra","pasa","'Michroma',system-ui","24.3px","400"),
@@ -89,8 +87,8 @@ def tabla_html():
             f"<tbody>{fil}</tbody></table></div>")
 
 ESQ = [("0 px","Grabado · Consola · Obsidiana · Forja · Blueprint · Cyberpunk","0"),
-       ("3 px","Vitral · Ventisca","3px"),
-       ("4-5 px","Bastión · Papel picado","5px"),
+       ("3 px","Cénit · Ventisca","3px"),
+       ("4 px","Bastión","4px"),
        ("2 px","Averno · Post-it","2px"),("14 px","Talavera","14px"),
        ("Del todo","Neón","999px")]
 
@@ -204,9 +202,16 @@ section{ padding-top:62px; }
 .pie{ font-size:11.5px; color:var(--m-tinta-2); }
 .tira{ display:flex; gap:7px; flex-wrap:wrap; align-items:center; }
 .chip{ font-size:11px; font-weight:var(--m-chip-peso,600); padding:4px 11px; border-radius:var(--m-r-chip); font-family:var(--m-chip-fuente,inherit); letter-spacing:var(--m-chip-esp,0); text-transform:var(--m-chip-caja,none); }
-.c-ok{ color:var(--m-acento-tinta,var(--m-acento)); background:var(--m-acento-velo); }
-.c-av{ color:var(--m-aviso); background:var(--m-aviso-velo); }
-.c-no{ color:var(--m-peligro); background:var(--m-peligro-velo); }
+/* La tinta de un chip NO puede ser del mismo tono que su velo. El velo tiñe
+   el fondo hacia ese mismo color, así que el texto y lo que hay detrás se
+   acercan y el contraste se hunde: medidos, nueve chips de cinco mundos
+   estaban por debajo de 4,5 y ninguno se veía en las otras medidas, porque
+   hasta ahora el arnés no miraba los chips. Se empujan hacia la tinta del
+   mundo —clara u oscura, la que sea— que es la misma idea de `--mint` y
+   `--mint-macizo` en la app. */
+.c-ok{ color:color-mix(in srgb, var(--m-acento-tinta,var(--m-acento)) 70%, var(--m-tinta)); background:var(--m-acento-velo); }
+.c-av{ color:color-mix(in srgb, var(--m-aviso) 70%, var(--m-tinta)); background:var(--m-aviso-velo); }
+.c-no{ color:color-mix(in srgb, var(--m-peligro) 70%, var(--m-tinta)); background:var(--m-peligro-velo); }
 .cifra{ font-family:var(--m-cifra); font-variant-numeric:tabular-nums; font-size:30px; font-weight:var(--m-cifra-peso,700); letter-spacing:var(--m-cifra-esp,-.02em); color:var(--m-acento-tinta,var(--m-acento)); line-height:1; }
 .cifra span{ font-size:12px; font-weight:500; color:var(--m-tinta-2); letter-spacing:.12em; margin-left:7px; font-family:var(--sans); }
 .datos{ padding:22px 22px 24px; display:flex; flex-direction:column; gap:16px; border-left:1px solid var(--hilo); }
@@ -243,7 +248,7 @@ def pagina():
   <div class="familia-cab"><span class="n">{i:02d}</span><h3>{fnombre}</h3><span class="d">{fdesc}</span></div>
   {fichas}
 </div>""")
-    return f"""<title>Catorce mundos</title>
+    return f"""<title>Trece mundos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={FUENTES}&display=swap">
@@ -255,9 +260,9 @@ def pagina():
 <div class="hoja">
 <header>
   <div class="serie"><i></i><span class="rotulo">Norata · catálogo completo</span></div>
-  <h1>Catorce mundos</h1>
+  <h1>Trece mundos</h1>
   <p class="tesis">Todo lo aprobado hasta hoy, junto: los de relato, los de aquí, los de pantalla y los de materia. <b>Cada uno con su letra medida y su escala comprobada.</b></p>
-  <p class="entradilla">La misma pieza catorce veces, con el CSS que se copiaría tal cual. Ninguno toca una regla de la app: todos son variables.</p>
+  <p class="entradilla">La misma pieza trece veces, con el CSS que se copiaría tal cual. Ninguno toca una regla de la app: todos son variables.</p>
 </header>
 
 <section>
@@ -285,7 +290,7 @@ def pagina():
 </section>
 
 <section>
-  <div class="cabeza"><span class="rotulo">Los once</span><h2>Cuatro familias, catorce mundos</h2>
+  <div class="cabeza"><span class="rotulo">Los once</span><h2>Cuatro familias, trece mundos</h2>
   <p style="color:var(--tinta-2);font-size:1rem;">La misma pieza en todos: el aro de marcar, el icono, el título, la barra, las tres pastillas y una cifra. Es a propósito — así se comparan materiales y no maquetas distintas. Los especímenes no cambian con el modo de tu pantalla: un mundo trae su propia luz.</p><div class="raya"></div></div>
   {"".join(fam_html)}
 </section>
@@ -297,7 +302,7 @@ def pagina():
 </section>
 
 <section>
-  <div class="cabeza"><span class="rotulo">De un vistazo</span><h2>Los catorce, con su letra y su escala</h2><div class="raya"></div></div>
+  <div class="cabeza"><span class="rotulo">De un vistazo</span><h2>Los trece, con su letra y su escala</h2><div class="raya"></div></div>
   {tabla_html()}
 </section>
 
@@ -311,7 +316,7 @@ Estamos en la rama <b>claude/norata-apariencias-skins-p52cpj</b>.</pre>
   </div>
 </section>
 
-<p class="cierre">Catorce mundos, una sola pieza para compararlos, y ninguno pide tocar una regla de la app. Lo que falta no es otro lote: es elegir tres y hacerlos de verdad.</p>
+<p class="cierre">Trece mundos, una sola pieza para compararlos, y ninguno pide tocar una regla de la app. Lo que falta no es otro lote: es elegir tres y hacerlos de verdad.</p>
 </div>
 
 <script>

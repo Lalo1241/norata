@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280" viewBox="0 0 280 280">
+  <!-- La tracería del rosetón no se entendía: demasiadas circunferencias y
+       lóbulos para leerse de un vistazo. Esto es lo mismo dicho en una frase:
+       rayos que salen de un punto, largos y cortos alternados, y cuatro
+       estrellas. Se lee como cielo sin que haya que descifrarlo. -->
+  <g stroke="#d8b878" stroke-linecap="round" opacity=".3">
+    <g stroke-width="1.1">
+      <path d="M140 140V22M140 140v118M140 140H22M140 140h118"/>
+      <path d="M140 140L57 57M140 140l83 83M140 140l83-83M140 140L57 223"/>
+    </g>
+    <g stroke-width=".7" opacity=".7">
+      <path d="M140 140L95 28M140 140l90 -112M140 140l112 90M140 140l-112 90M140 140l45 112M140 140l-45 112M140 140L28 95M140 140l112 -45"/>
+    </g>
+  </g>
+  <circle cx="140" cy="140" r="34" fill="none" stroke="#d8b878" stroke-width="1" opacity=".35"/>
+  <g fill="#f0dcb4" opacity=".9">
+    <circle cx="140" cy="140" r="2.6"/>
+    <circle cx="44" cy="52" r="1.8"/><circle cx="238" cy="86" r="1.5"/>
+    <circle cx="58" cy="232" r="1.6"/><circle cx="224" cy="220" r="1.9"/>
+  </g>
+  <g stroke="#ffeccb" stroke-width=".8" opacity=".75">
+    <path d="M224 214v12M218 220h12"/>
+  </g>
+</svg>

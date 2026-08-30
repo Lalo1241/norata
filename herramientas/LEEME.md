@@ -80,16 +80,28 @@ no en el navegador: una respuesta que sirve el service worker se anota con
 `contraste.js` mide los mundos de `mundos/vista.html`: fotografía la superficie
 —que sí tiene fondo— y saca de ahí el color más repetido, con degradado y
 textura incluidos; la tinta sale del CSS, compuesta si es semitransparente.
+Ocho medidas por mundo: título, secundario, cifra, aro, barra y los tres chips.
 
 ```sh
 node contraste.js ../mundos/vista.html
 ```
 
-Se llegó ahí después de equivocarse tres veces, y las tres están anotadas en
-la cabecera del archivo para que nadie las repita: leer `backgroundColor` tal
-cual reprueba lo semitransparente, componer sin leer degradados reprueba lo
-degradado, y fotografiar el TEXTO reprueba todo porque una captura de elemento
-viene sobre transparente.
+Se llegó ahí después de equivocarse CUATRO veces, y las cuatro están anotadas
+en la cabecera del archivo para que nadie las repita: leer `backgroundColor`
+tal cual reprueba lo semitransparente, componer sin leer degradados reprueba lo
+degradado, fotografiar el TEXTO reprueba todo porque una captura de elemento
+viene sobre transparente, y leer la tinta con una expresión que solo entiende
+`rgb()` reprueba todo otra vez en cuanto aparece un `color-mix()`, que se
+serializa como `color(srgb 0.39 1 0.70)` —canales de 0 a 1, no de 0 a 255—.
+
+**Los chips se añadieron tarde y por eso hacían falta.** Van sobre su propio
+velo y no sobre la tarjeta, así que ninguna de las otras medidas los tocaba: al
+mirarlos por primera vez, nueve chips de cinco mundos estaban por debajo de
+4,5. Lo que no se mide no está bien; solo no se sabe.
+
+**Cómo distinguir un fallo del arnés de un fallo del mundo:** el número sale
+imposible *en la dirección contraria* al cambio. Si un arreglo empuja la tinta
+hacia el color legible y la medida EMPEORA, la rota es la medida.
 
 ## Dónde está de verdad un adorno
 
