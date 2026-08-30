@@ -132,6 +132,21 @@ en este orden: primero el **nivel**, que es lo que se gana, y después el
 ofrece pagar, se le dice cuánto le falta — cobrar por saltarse la escalera es
 justo lo que rompería la escalera.
 
+**«Apariencia» pasa a llamarse «Mi apariencia»**, que es como se llaman las
+otras cuatro entradas de Ajustes: Mi perfil, Mi plan, Mis módulos, Mi
+almacenamiento. Los nombres de ese índice dicen de quién es la cosa, no de qué
+va el panel, y esta era la única que se había quedado fuera de la familia.
+
+**Y las dos pantallas dejan de discutir.** «Mi expedición» cuenta el recorrido
+—tu nivel, los cinco rangos, de dónde salen tus puntos—; «Mi apariencia» es
+donde se elige lo que llevas puesto. Lo decidió Eduardo, y lo que sobraba era
+tener dos respuestas a la misma pregunta. De ahí salen dos hilos que se atan:
+la tarjeta del Resumen deja de llevar a Ajustes y lleva a «Mi expedición», que
+es el destino que su propio comentario pedía cuando esa pantalla todavía no
+existía —la tarjeta habla de tu nivel—; y «Mi expedición» gana el único enlace
+a «Mi apariencia», para no tener que buscar dónde se recoge lo que se acaba de
+ganar.
+
 **Y el número, que llegaba repetido.** Esta entrada nació siendo 0.7.44 al
 mismo tiempo que la de abajo, en dos sesiones que no se veían: dos árboles
 distintos con el mismo `VERSION` y el mismo `CACHE`. Con el `sw.js` de 0.7.38
