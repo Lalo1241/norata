@@ -713,6 +713,39 @@ ul.reglas li::marker{{color:var(--tinta-3)}}
     «Refugio» sí. Es la diferencia entre un contador y un capítulo, y por eso bajaron
     de diez a cinco.</p>
   <ul class="rangos">{rangos}</ul>
+  <div class="choque">
+    <h3>Pendiente: el color de los rangos</h3>
+    <p>La pregunta era si Norte y Duna se acaban pareciendo al lila de Fundador y a
+      Reliquia. Medido con <b>dE2000</b>: sí, y no son los únicos. Los tonos de
+      arriba siguen puestos — <b>esto es la medida, no un cambio</b>.</p>
+    <div class="tabla" style="margin-top:1rem"><table>
+      <thead><tr><th>Rango</th><th>Contra</th><th>dE</th><th></th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Norte</th><td>el lila de FUNDADOR</td><td class="num">5,4</td><td>indistinguible</td></tr>
+        <tr><th scope="row">Brote</th><td>la menta de la marca</td><td class="num">6,0</td><td>indistinguible</td></tr>
+        <tr><th scope="row">Cima</th><td>el celeste</td><td class="num">6,8</td><td>indistinguible</td></tr>
+        <tr><th scope="row">Semilla</th><td>el amarillo de AVISO</td><td class="num">10,2</td><td>se confunde</td></tr>
+        <tr><th scope="row">Refugio</th><td>el coral de PELIGRO</td><td class="num">12,7</td><td>se confunde</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:1.1rem"><b>Rederivarlos con separación no cabe.</b> Un
+      buscador que exige 18 de dE contra los cinco significados que ya existen
+      encuentra sitio para cuatro y se queda sin sitio para Cima: su ventana de azul
+      es donde vive el celeste, con el lila pegado al lado. Bajando el croma hasta
+      que quepan, los cinco se vuelven grises — la lección de Niebla.</p>
+    <div class="tabla" style="margin-top:1rem"><table class="ancha">
+      <thead><tr><th>Salida</th><th>Qué implica</th><th>Coste</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">A · dejarlo</th><td>Cinco tonos propios, como están arriba</td><td>Un usuario Fundador ve su lila y el rango Norte casi iguales</td></tr>
+        <tr><th scope="row">B · mover Norte</th><td>Alejarlo del lila; los otros cuatro se quedan</td><td>Los otros cuatro choques siguen, y Brote a 6,0 de la menta es el peor</td></tr>
+        <tr><th scope="row">C · sin color propio</th><td>El rango es su dibujo y el color se lo pone su ambiente</td><td>Los de grado 1 no mueven el acento: <b>tres de cinco rangos se verían en menta</b></td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:1.1rem">El aviso ya estaba escrito en la lámina de rangos:
+      «cinco rangos aguantan cinco tonos sin volverse un arcoíris. Ojo con el lila,
+      que es de Fundador, y con el amarillo y el coral».</p>
+  </div>
+
   <p class="sub" style="margin-top:1.4rem">Van de la tierra al cielo, que es lo que
     hace que cada dibujo se le ocurra solo al anterior. En
     <code>viewBox="0 0 24 24"</code>, trazo de 1,7 y remates redondos: el formato de

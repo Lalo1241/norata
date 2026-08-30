@@ -493,6 +493,44 @@ Van de la tierra al cielo, que es lo que hace que cada dibujo se le ocurra solo
 al anterior. Dibujados en `viewBox="0 0 24 24"`, trazo de 1,7 y remates
 redondos: el mismo formato de `ICONS` en `js/01-base.js`.
 
+### Pendiente de decidir: el color de los rangos
+
+**La medida, que es lo que se preguntó.** ¿Se parecen Norte y Duna al lila de
+Fundador y a Reliquia? Con **dE2000** —la distancia como la ve el ojo—: sí, y
+no son los únicos.
+
+| Rango | Contra | dE | |
+| --- | --- | --- | --- |
+| Norte | el lila de **Fundador** | 5,4 | indistinguible |
+| Brote | la menta de **la marca** | 6,0 | indistinguible |
+| Cima | el **celeste** | 6,8 | indistinguible |
+| Semilla | el amarillo de **AVISO** | 10,2 | se confunde |
+| Refugio | el coral de **PELIGRO** | 12,7 | se confunde |
+
+Por debajo de 10 son el mismo color con un empujón. El origen es cómo se
+derivaron: buscar «el matiz del ambiente a la luminosidad que pasa» los deja
+encima de la paleta que ya significa algo, porque esa paleta sale de las
+mismas familias y está igual de saturada.
+
+**Y rederivarlos con separación no cabe.** Un buscador que exige 18 de dE
+contra los cinco significados que ya existen encuentra sitio para cuatro y se
+queda **sin sitio para Cima**: su ventana de azul es donde vive el celeste, con
+el lila pegado al lado. Bajando el croma hasta que quepan, los cinco se
+vuelven grises — la lección de Niebla.
+
+**Las tres salidas, y la decisión es de Eduardo.** Los tonos de la tabla de
+arriba siguen puestos hasta que él diga:
+
+| | Qué implica | Coste |
+| --- | --- | --- |
+| **A · dejarlo como está** | Cinco tonos propios, con Norte a 5,4 del lila de Fundador | Un usuario Fundador ve su lila y el rango Norte casi iguales |
+| **B · mover solo Norte** | Alejarlo del lila; los otros cuatro se quedan | Los otros cuatro choques siguen ahí, y Brote a 6,0 de la menta es el peor |
+| **C · sin color propio** | El rango es su dibujo y el color se lo pone su ambiente, vía `--aro-alto` | Los ambientes de grado 1 no mueven el acento, así que **tres de los cinco rangos se verían en menta** |
+
+**El aviso ya estaba escrito** en la lámina de rangos del teléfono: *«cinco
+rangos aguantan cinco tonos sin volverse un arcoíris. Ojo con el lila, que es
+de Fundador, y con el amarillo y el coral.»*
+
 **Los cinco que se cayeron y por qué.** *Puente*: a tamaño real el arco con el
 agua debajo no se lee como un puente sino como un bicho — un puente necesita ver
 los dos lados que une y eso no cabe en 24 píxeles; no se arregla dibujándolo
