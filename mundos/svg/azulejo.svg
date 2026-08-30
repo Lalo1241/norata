@@ -15,7 +15,7 @@
        ocupa poca área y necesita verse. Medido: con el campo a plena tinta el
        fondo de Talavera daba 2,70 de contraste en el percentil 90, el doble
        que cualquier otro mundo. Eso era el empacho, en número. -->
-  <g id="campo" opacity="0.6">
+  <g id="campo" opacity="0.13">
 
   <g fill="none" stroke="#1e3f8f" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
     <use href="#rizo"/><use href="#rizo" transform="rotate(90 70 70)"/>
