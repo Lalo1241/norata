@@ -8,7 +8,7 @@
    degradado y textura incluidos—. La tinta sale del CSS, compuesta si es
    semitransparente. */
 const { chromium } = require("playwright");
-const { PNG } = require("pngjs");
+const { PNG } = require("pngjs");   // npm install pngjs playwright
 const ARCHIVO = process.argv[2] || "../mundos/vista.html";
 const BASE = process.cwd() + "/";
 
