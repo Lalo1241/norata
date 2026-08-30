@@ -26,3 +26,4 @@ supabase/.temp/
 # un cambio antes de subirlo, y NO se publica: no está en index.html ni en
 # la lista ASSETS de sw.js.
 pruebas/
+lote2.html
