@@ -91,23 +91,16 @@ def pagina():
                 f'<span class="pel-q">{esc(que)} {pro}</span></li>')
     escalera = "\n".join(peldano(*p) for p in datos.ESCALERA)
 
-    amb = {m["id"]: m for m in datos.AMBIENTES}
-    nom_amb = {k: v["nombre"] for k, v in amb.items()}
-    def aro(idamb, dia):
-        """El color del aro NO es del rango: es el `--aro-alto` de su ambiente,
-           que ya está declarado y ya está medido. Los de grado 1 no lo mueven,
-           así que ahí sigue en menta — y eso es correcto."""
-        casa = datos.CASA_DIA if dia else datos.CASA_NOCHE
-        return (amb[idamb]["dia"] if dia else amb[idamb]["noche"]).get("--aro-alto", casa["--aro-alto"])
+    nom_amb = {m["id"]: m["nombre"] for m in datos.AMBIENTES}
     rangos = "\n".join(
         f'<li class="rango">'
-        f'<span class="rango-ic" style="--n:{aro(r["ambiente"],False)};--d:{aro(r["ambiente"],True)}">{rango_svg(r["trazo"])}</span>'
+        f'<span class="rango-ic" style="--n:{r["color"][0]};--d:{r["color"][1]}">{rango_svg(r["trazo"])}</span>'
         f'<span class="rango-n">Nivel {r["nivel"]}</span>'
         f'<b>{esc(r["nombre"])}</b>'
         f'<span class="rango-par">abre <b>{esc(nom_amb[r["ambiente"]])}</b>'
         + ('<span class="etiq pro">Pro</span>' if r.get("plan") == "Pro" else '') +
-        f'<span class="par-t" style="background:{aro(r["ambiente"],False)}"></span>'
-        f'<span class="par-t" style="background:{aro(r["ambiente"],True)}"></span></span>'
+        f'<span class="par-t" style="background:{r["color"][0]}"></span>'
+        f'<span class="par-t" style="background:{r["color"][1]}"></span></span>'
         f'<span class="rango-c">{esc(r["cuando"])}</span>'
         f'<span class="rango-q">{esc(r["que"])}</span></li>' for r in datos.RANGOS)
 
@@ -720,47 +713,6 @@ ul.reglas li::marker{{color:var(--tinta-3)}}
     «Refugio» sí. Es la diferencia entre un contador y un capítulo, y por eso bajaron
     de diez a cinco.</p>
   <ul class="rangos">{rangos}</ul>
-  <p class="sub" style="margin-top:1.4rem"><b>Cada rango trae su ambiente</b>, y
-    el emparejamiento no es decorativo: un refugio está hecho de barro, en una cima
-    hay escarcha, y el norte es la estrella que se ve en el cielo violeta de Duna.
-    Eso convierte doce premios sueltos en cinco capítulos.</p>
-
-  <div class="choque" style="border-color:var(--marca)">
-    <h3 style="color:var(--marca)">Un rango no tiene color propio, y costó una vuelta descubrirlo</h3>
-    <p>La primera versión le daba a cada rango un tono derivado del matiz de su
-      ambiente. Preguntaste si Norte y Duna no se acabarían pareciendo demasiado al
-      lila de Fundador. Medido con dE2000, <b>sí — y no era el único</b>:</p>
-    <div class="tabla" style="margin-top:1rem"><table>
-      <thead><tr><th>Rango</th><th>Chocaba con</th><th>dE</th><th></th></tr></thead>
-      <tbody>
-        <tr><th scope="row">Norte</th><td>el lila de Fundador</td><td class="num">5,4</td><td>indistinguible</td></tr>
-        <tr><th scope="row">Brote</th><td>la menta de la marca</td><td class="num">6,0</td><td>indistinguible</td></tr>
-        <tr><th scope="row">Cima</th><td>el celeste</td><td class="num">6,8</td><td>indistinguible</td></tr>
-        <tr><th scope="row">Semilla</th><td>el amarillo de AVISO</td><td class="num">10,2</td><td>se confunde</td></tr>
-        <tr><th scope="row">Refugio</th><td>el coral de PELIGRO</td><td class="num">12,7</td><td>se confunde</td></tr>
-      </tbody>
-    </table></div>
-    <p style="margin-top:1.1rem"><b>Y no se arregla moviendo los hex.</b> En la rueda
-      ya viven cinco significados —marca, aviso, peligro, Fundador, informativo—;
-      meter cinco rangos más, cada uno con dos caras y con suelo de contraste, son
-      nueve significados en un círculo. Un buscador que exige 18 de separación
-      encuentra sitio para cuatro y se queda <b>sin sitio para Cima</b>: su ventana
-      de azul es donde vive el celeste, con el lila pegado al lado. Y bajando el
-      croma hasta que quepan, los cinco se vuelven grises — la lección de Niebla
-      otra vez.</p>
-    <p style="margin-top:.9rem"><b>Así que el rango es su dibujo, y el color se lo
-      pone el ambiente.</b> Como el rango llega con su ambiente, encender ese
-      ambiente cambia <code>--aro-alto</code> y el aro del avatar toma su color solo:
-      sin un token nuevo, sin una paleta nueva y sin nada que medir, porque ese
-      contraste ya está en la tabla de los ambientes. Los de grado 1 no mueven el
-      acento, así que ahí el aro sigue en menta — y está bien: <b>el color es del
-      ambiente y la identidad del rango es la forma</b>. Arriba, cada rango va
-      pintado con el acento del suyo.</p>
-    <p style="margin-top:.9rem">El aviso ya estaba escrito en la lámina de rangos, y
-      lo pasé por alto: «cinco rangos aguantan cinco tonos sin volverse un arcoíris.
-      Ojo con el lila, que es de Fundador, y con el amarillo y el coral».</p>
-  </div>
-
   <p class="sub" style="margin-top:1.4rem">Van de la tierra al cielo, que es lo que
     hace que cada dibujo se le ocurra solo al anterior. En
     <code>viewBox="0 0 24 24"</code>, trazo de 1,7 y remates redondos: el formato de

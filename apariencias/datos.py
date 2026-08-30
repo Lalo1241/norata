@@ -96,45 +96,27 @@ COLUMNAS_CONTRASTE = ("Tinta sobre relleno", "Escribir", "Trazar", "Trazo vs car
 # tal cual: viewBox 0 0 24 24, trazo 1,7 y remates redondos, que es el formato
 # de ICONS en js/01-base.js.
 #
-# Un rango NO viene solo: trae su ambiente. Eso convierte la escalera en cinco
-# capítulos en vez de en doce premios sueltos.
-#
-# Lo que un rango NO tiene es color propio, y costó una vuelta entera
-# descubrirlo. La primera versión le daba a cada uno un tono derivado del
-# matiz de su ambiente, y medido con dE2000 los cinco aterrizaban encima de la
-# paleta que ya significa algo: Norte a 5,4 del lila de Fundador —que es justo
-# lo que preguntó Eduardo—, Brote a 6,0 de la menta de la marca, Cima a 6,8
-# del celeste, Semilla a 10,2 del amarillo de AVISO y Refugio a 12,7 del coral
-# de PELIGRO. Por debajo de 10 son el mismo color con un empujón.
-#
-# No se arregla moviendo los hex. En la rueda ya viven cinco significados
-# —marca, aviso, peligro, Fundador, informativo—; meter cinco rangos más, cada
-# uno con dos caras y con suelo de contraste, son NUEVE significados en un
-# círculo. Un buscador que exige 18 de separación encuentra sitio para cuatro
-# y se queda SIN SITIO para Cima: su ventana de azul es donde vive celeste,
-# con lila pegado al lado. Y bajando el croma hasta que quepan, los cinco se
-# vuelven grises — que es la lección de Niebla otra vez.
-#
-# Así que el rango es su DIBUJO, y el color se lo pone el ambiente. Como el
-# rango llega con su ambiente, encender ese ambiente cambia `--aro-alto` y el
-# aro del avatar toma su color solo, sin un token nuevo y sin nada que medir:
-# ese contraste ya está en la tabla de los ambientes. Los de grado 1 no mueven
-# el acento, así que ahí el aro sigue en menta — y está bien: el color es del
-# ambiente, la identidad del rango es la forma.
+# Desde el reparto nuevo, un rango NO viene solo: trae su ambiente y toma su
+# color. Eso convierte la escalera en cinco capítulos en vez de en doce
+# premios sueltos, y de paso le da al aro del avatar un color que significa
+# algo. Los dos tonos de cada rango están CALCULADOS, no elegidos: de noche el
+# más saturado que ya está cómodo sobre la tarjeta (6 sobre 1) y de día el que
+# apenas llega a 4,5 hundiéndose lo mínimo, que es lo que conserva el matiz.
+# Usar el tono de una cara en la otra da 2,10-3,27 — por eso son dos y no uno.
 RANGOS = [
- dict(nivel=1,  nombre="Semilla", ambiente="tinta",   
+ dict(nivel=1,  nombre="Semilla", ambiente="tinta",    color=("#b6a370", "#837143"),
   trazo='<path d="M12 3.4c4 3.4 6.3 7 6.3 10.6 0 3.8-2.8 6.8-6.3 6.8s-6.3-3-6.3-6.8c0-3.6 2.3-7.2 6.3-10.6z"/><path d="M12 9.4v8.4"/>',
   cuando="El primer día", que="Una gota cerrada. Cae la semilla y aparece la barra: antes del primer nivel no hay nada que enseñar."),
- dict(nivel=3,  nombre="Brote",   ambiente="musgo",   
+ dict(nivel=3,  nombre="Brote",   ambiente="musgo",    color=("#23b37e", "#19805a"),
   trazo='<path d="M12 20.6v-8"/><path d="M12 15.4c-3.6 0-6-2.3-6-5.8 3.9-.4 6 2.2 6 5.8z"/><path d="M12 13.2c0-3.7 2.4-6.2 6.2-5.9 0 3.6-2.5 5.9-6.2 5.9z"/><path d="M6 20.6h12"/>',
   cuando="Dos días", que="La misma planta después: un tallo con dos hojas. Llega pronto a propósito — la gracia de desbloquear algo es descubrir que se desbloquean cosas."),
- dict(nivel=7,  nombre="Refugio", ambiente="adobe",   
+ dict(nivel=7,  nombre="Refugio", ambiente="adobe",    color=("#dc925d", "#a15923"),
   trazo='<path d="M12 4.6L2.8 19.6h18.4z"/><path d="M12 4.6L8.4 19.6 12 15.2l3.6 4.4z"/>',
   cuando="Tres semanas", que="Se acampa. Y el barro de Adobe es exactamente de lo que está hecho un refugio."),
- dict(nivel=12, nombre="Cima",    ambiente="escarcha", plan="Pro",
+ dict(nivel=12, nombre="Cima",    ambiente="escarcha", color=("#37a6ed", "#1073b2"), plan="Pro",
   cuando="Dos meses y medio", que="Se llega arriba, y arriba hace frío: la escarcha es la de la cima. De las tres montañas que había sobrevive una, la que dice más.",
   trazo='<path d="M3 19.2l7-11.2 4 5.7 2.2-2.9 5.8 8.4z"/><path d="M10 8V3.4"/><path d="M10 3.9l4.4 1.5L10 7z"/>'),
- dict(nivel=20, nombre="Norte",   ambiente="duna",    
+ dict(nivel=20, nombre="Norte",   ambiente="duna",     color=("#c194e4", "#9345d1"),
   trazo='<path d="M12 2.6l2.5 6.9 6.9 2.5-6.9 2.5-2.5 6.9-2.5-6.9L2.6 12l6.9-2.5z"/>',
   cuando="Ocho meses", que="Arriba ya solo queda la estrella que orienta, y el cielo violeta de Duna es donde se ve. El último: quien llega, se queda ahí."),
 ]
