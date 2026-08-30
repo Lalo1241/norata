@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200">
+  <!-- Composición, no cuadrícula: dos cordeles que cuelgan a alturas
+       distintas, hojas de tamaños distintos y mucho papel vacío entre
+       ellas. Antes era una retícula de dos rectángulos iguales y se leía
+       como papel tapiz. -->
+  <path d="M0 18q75 14 150 6t150 8" fill="none" stroke="#c9b8a0" stroke-width="1"/>
+  <path d="M0 128q80 16 160 4t140 10" fill="none" stroke="#c9b8a0" stroke-width="1" opacity=".8"/>
+  <g opacity=".5">
+    <path d="M22 22h54v44l-6-6-6 6-6-6-6 6-6-6-6 6-6-6-6 6z" fill="#e6187c"/>
+    <g fill="#f5eee1"><circle cx="49" cy="36" r="6"/><path d="M36 48h26v3H36z"/><circle cx="36" cy="40" r="2.4"/><circle cx="62" cy="40" r="2.4"/></g>
+  </g>
+  <g opacity=".42">
+    <path d="M128 26h40v32l-5-4-5 4-5-4-5 4-5-4-5 4-5-4-5 4z" fill="#2aa9a0"/>
+    <g fill="#f5eee1"><path d="M148 32l7 8-7 8-7-8z"/><circle cx="148" cy="52" r="2"/></g>
+  </g>
+  <g opacity=".46">
+    <path d="M214 24h62v50l-7-6-7 6-7-6-7 6-7-6-7 6-7-6-6 6z" fill="#f2a516"/>
+    <g fill="#f5eee1"><path d="M232 38a13 13 0 0 0 26 0z"/><circle cx="245" cy="58" r="4"/><circle cx="228" cy="52" r="2.2"/><circle cx="262" cy="52" r="2.2"/></g>
+  </g>
+  <g opacity=".4">
+    <path d="M62 134h46v38l-6-5-5 5-6-5-5 5-6-5-5 5-6-5-7 5z" fill="#6d3fb8"/>
+    <g fill="#f5eee1"><circle cx="85" cy="148" r="5.5"/><path d="M74 160h22v3H74z"/></g>
+  </g>
+  <g opacity=".44">
+    <path d="M186 138h56v44l-7-6-6 6-7-6-6 6-7-6-6 6-7-6-10 6z" fill="#e6187c"/>
+    <g fill="#f5eee1"><path d="M214 148l8 9-8 9-8-9z"/><circle cx="199" cy="156" r="2.6"/><circle cx="229" cy="156" r="2.6"/></g>
+  </g>
+</svg>

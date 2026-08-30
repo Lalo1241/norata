@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 """Los once mundos, en un solo sitio. De aquí salen el borrador y el paquete
 que se lleva al repositorio, así que no pueden decirse cosas distintas."""
-import re
+import re, os
+
+AQUI = os.path.dirname(os.path.abspath(__file__))
 
 def svg(ruta):
-    s = open("svg/" + ruta, encoding="utf-8").read()
+    # Ruta relativa a ESTE archivo y no al directorio desde el que se llame:
+    # importarlo desde la raíz del repositorio reventaba con FileNotFoundError.
+    s = open(os.path.join(AQUI, "svg", ruta), encoding="utf-8").read()
     s = re.sub(r"<!--.*?-->", "", s, flags=re.S)
     s = re.sub(r"\s+", " ", s).strip().replace('"', "'")
     for a, b in [("%","%25"),("#","%23"),("<","%3C"),(">","%3E"),("&","%26"),("?","%3F")]:
@@ -48,33 +52,12 @@ MUNDOS = [
    "--m-chip-fuente":'"Outfit",system-ui,sans-serif',"--m-chip-peso":"700","--m-chip-esp":".06em","--m-chip-caja":"uppercase",
    "--m-dur":".16s","--m-curva":"cubic-bezier(.2,.8,.3,1)"}),
 
- dict(id="rotulo", nombre="Rótulo", familia="de-aqui", llave="El de la calle", color="#ff3d8b",
-  premisa="Rehecho entero. La letra anterior era redonda y blanda y el mundo salía a goma de mascar; ahora va condensada y pesada con sombra dura, que es como se rotula de verdad sobre lámina. Y arriba, en vez de adorno, el FILETE: raya gorda, respiro, raya fina pintada a pulso con su temblor, y tres puntos. Esmalte sobre metal, rosa mexicano contra azul petróleo.",
-  letra="Anton", ancho="−13%", escala="1", esquinas="16 px · redondeadas", peso="~80 KB", horas="Noche",
-  tokens={"--m-pagina":"#0e3040",
-   "--m-grano":"linear-gradient(103deg, rgba(255,255,255,.09) 0 16%, transparent 20% 76%, rgba(255,255,255,.05) 82%)",
-   "--m-grano-op":"1","--m-tarjeta":"linear-gradient(168deg,#14455a 0%,#0f3548 60%,#134256 100%)",
-   "--m-borde":"3px","--m-borde-color":"#f2e7cf",
-   "--m-sombra":"4px 4px 0 rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.14)",
-   "--m-r-tarjeta":"16px","--m-r-mini":"999px","--m-r-barra":"999px","--m-r-chip":"999px",
-   "--m-cenefa-alto":"20px","--m-cenefa":f'url("{svg("rotulo-marco.svg")}") repeat-x',
-   "--m-tinta":"#fdf6e6","--m-tinta-2":"#adc6d2","--m-titulo-sombra":"2px 2px 0 rgba(0,0,0,.65)",
-   "--m-acento":"#ff3d8b","--m-acento-tinta":"#ffa3cd","--m-acento-velo":"rgba(255,61,139,.17)",
-   "--m-aviso":"#ffd447","--m-aviso-velo":"rgba(255,212,71,.16)",
-   "--m-peligro":"#ff8a70","--m-peligro-velo":"rgba(255,138,112,.16)","--m-carril":"#0a2634",
-   "--m-icono":"radial-gradient(circle at 36% 30%,#ff85b6,#d4145a)",
-   "--m-titulo":'"Anton",Impact,sans-serif',"--m-titulo-px":"18px","--m-titulo-peso":"400","--m-titulo-esp":".01em",
-   "--m-cifra":'"Anton",Impact,sans-serif',"--m-cifra-peso":"400","--m-cifra-esp":".01em",
-   "--m-chip-fuente":'"Anton",Impact,sans-serif',"--m-chip-esp":".08em","--m-chip-caja":"uppercase",
-   "--m-dur":".34s","--m-curva":"cubic-bezier(.34,1.5,.64,1)"},
-  extra=".rotulo .ficha{ padding-top:32px; }"),
-
  dict(id="picado", nombre="Papel picado", familia="de-aqui", llave="El de fiesta", color="#c2145f",
-  premisa="Ahora sí es papel picado y no una idea de papel picado: el fondo son las hojas colgando del hilo, con su calado por dentro —rombo, medias lunas, agujeros— y su FLECO recortado abajo, en rosa y turquesa como en la calle. La tarjeta también termina en fleco, porque una hoja de papel picado no acaba en línea recta. Letra de bloque, que es como se recorta una letra a tijera.",
+  premisa="El fondo dejó de ser cuadrícula: ahora es una composición —dos cordeles colgando a alturas distintas, hojas de cuatro tamaños y colores, y mucho papel vacío entre ellas—, y a la mitad de tinta, para que no compita con lo que hay que leer. La tarjeta termina en FLECO recortado, porque una hoja de papel picado no acaba en línea recta. Letra de bloque, que es como se recorta una letra a tijera.",
   letra="Archivo Black", ancho="+19%", escala="0.94", esquinas="5 px · casi vivas", peso="~85 KB", horas="Día",
   tokens={"--m-pagina":"#f5eee1",
-   "--m-grano":f'url("{svg("picado-banda.svg")}")',
-   "--m-grano-op":".5","--m-tarjeta":"#fffdf8","--m-borde":"1px","--m-borde-color":"#e0d3bd",
+   "--m-grano":f'url("{svg("picado-composicion.svg")}")',
+   "--m-grano-op":".38","--m-tarjeta":"#fffdf8","--m-borde":"1px","--m-borde-color":"#e0d3bd",
    "--m-sombra":"0 6px 16px rgba(120,90,60,.15)",
    "--m-r-tarjeta":"5px","--m-r-mini":"999px","--m-r-barra":"999px","--m-r-chip":"999px",
    "--m-fleco-alto":"14px","--m-fleco":f'url("{svg("picado-fleco.svg")}") repeat-x',
@@ -145,12 +128,19 @@ MUNDOS = [
    "--m-cifra":'"Chakra Petch",system-ui,sans-serif',"--m-cifra-peso":"700","--m-cifra-esp":"0",
    "--m-chip-fuente":'"Chakra Petch",system-ui,sans-serif',"--m-chip-esp":".1em","--m-chip-caja":"uppercase",
    "--m-dur":".18s","--m-curva":"steps(9,end)"},
+  # Antes era UN dibujo de 120 px estirado a 100%% del ancho: las escuadras
+  # salían como rayas largas y la regla de marcas se quedaba flotando en
+  # medio. Ahora son cuatro dibujos independientes, cada uno clavado a su
+  # esquina y a tamaño fijo. El chaflán de abajo a la derecha se queda.
   extra=""".cyber .ficha{
-    background-image:url("%s"), linear-gradient(180deg,#12130a 0%%,#080905 100%%);
-    background-size:100%% 100%%, auto; background-repeat:no-repeat;
-    clip-path:polygon(0 0, 100%% 0, 100%% calc(100%% - 14px), calc(100%% - 14px) 100%%, 0 100%%);
-    padding:20px 18px 18px;
-  }""" % svg("hud-esquinas.svg")),
+    background-image:url("%s"), url("%s"), url("%s"), url("%s"),
+      linear-gradient(180deg,#12130a 0%%,#080905 100%%);
+    background-position:left top, right top, left bottom, right bottom, center;
+    background-size:30px 26px, 30px 26px, 30px 26px, 30px 26px, auto;
+    background-repeat:no-repeat;
+    clip-path:polygon(0 0, 100%% 0, 100%% calc(100%% - 15px), calc(100%% - 15px) 100%%, 0 100%%);
+    padding:18px 22px;
+  }""" % (svg("hud-esq-tl.svg"), svg("hud-esq-tr.svg"), svg("hud-esq-bl.svg"), svg("hud-esq-br.svg"))),
 
  dict(id="plano", nombre="Blueprint", familia="de-pantalla", llave="Nada está terminado", color="#9fd0ff",
   premisa="El plano azul de toda la vida: retícula de dos pesos, cotas con puntas de flecha y marcas de sección. Aquí la tarjeta no es una tarjeta: es una PIEZA ACOTADA, con su línea de medida cruzando por encima y el hueco donde iría la cifra. Dice algo que ningún otro mundo dice — que lo tuyo todavía se está construyendo.",
@@ -174,11 +164,11 @@ MUNDOS = [
   extra=".plano .ficha{ padding-top:36px; }"),
 
  dict(id="forja", nombre="Forja", familia="de-materia", llave="El buque insignia", color="#ff9d3d",
-  premisa="Hierro golpeado con la brasa todavía dentro: banda remachada arriba —remaches a intervalos irregulares, que uno cada 16 px exactos parece tornillería de mueble— y una voluta de herrería en la esquina, de esas que salen cuando al herrero le sobra hierro. Esquina viva en todo y la letra grabada en vez de escrita.",
+  premisa="Taller de herrería enana: el fondo dejó de ser ruido y ahora es geometría ANGULAR —marcos escalonados encajados, la esquina cortada en plano, bisel claro arriba y sombra abajo, que es lo que hace que el metal parezca golpeado y no dibujado—. Arriba, banda remachada con los remaches a intervalos irregulares, que uno cada 16 px exactos parece tornillería de mueble. Esquina viva en todo y la letra grabada en vez de escrita.",
   letra="Cinzel", ancho="+28%", escala="0.88", esquinas="0 px · vivas", peso="~180 KB", horas="Noche",
   tokens={"--m-pagina":"#16110c",
-   "--m-grano":"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.035 0.09' numOctaves='4'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23f)'/%3E%3C/svg%3E\")",
-   "--m-grano-op":".16","--m-tarjeta":"linear-gradient(163deg, #2a2016 0%, #1d1710 55%, #241b13 100%)",
+   "--m-grano":f'url("{svg("forja-acero.svg")}")',
+   "--m-grano-op":".5","--m-tarjeta":"linear-gradient(163deg, #2a2016 0%, #1d1710 55%, #241b13 100%)",
    "--m-borde":"3px","--m-borde-color":"#6b5636",
    "--m-marco":"linear-gradient(150deg,#8a6f3f,#d8b978 18%,#3a2e1c 48%,#a08551 78%,#40331e) 1",
    "--m-sombra":"inset 0 1px 0 rgba(255,214,150,.13), 0 10px 24px rgba(0,0,0,.5)",
@@ -193,19 +183,23 @@ MUNDOS = [
    "--m-cifra":'"Cinzel",Georgia,serif',"--m-cifra-peso":"700","--m-cifra-esp":"0",
    "--m-chip-fuente":'"Cinzel",Georgia,serif',"--m-chip-esp":".07em",
    "--m-dur":"1.1s","--m-curva":"cubic-bezier(.16,.84,.28,1)"},
-  extra=""".forja .ficha{ padding-top:26px; }
+  # La voluta iba en 46x46 anclada abajo a la derecha y acababa colgando por
+  # fuera de la tarjeta, debajo del aro. Ahora va DENTRO, pegada al borde
+  # derecho y centrada en vertical, que es donde un herrero remataría la
+  # pieza.
+  extra=""".forja .ficha{ padding-top:26px; overflow:hidden; }
   .forja .ficha::after{
-    content:""; position:absolute; right:-2px; bottom:-2px; width:46px; height:46px;
-    background:url("%s") center/contain no-repeat; transform:scaleX(-1) rotate(-90deg);
-    transform-origin:center; pointer-events:none; opacity:.9;
+    content:""; position:absolute; right:6px; top:50%%; width:38px; height:38px;
+    margin-top:-19px; background:url("%s") center/contain no-repeat;
+    transform:rotate(180deg); pointer-events:none; opacity:.75;
   }""" % svg("forja-voluta.svg")),
 
  dict(id="obsidiana", nombre="Obsidiana", familia="de-materia", llave="El oscuro elegante", color="#3fd0c9",
-  premisa="Rehecho a lo que es la piedra: grises y negros, y el color contado con los dedos. La obsidiana no se parte en rectas, se parte en ondas de concha que salen del punto del golpe — eso es el fondo, arcos anidados desde una esquina. El icono es una esquirla de tres planos con un solo filo brillante, y la iridiscencia son DOS destellos, uno verde y uno violeta, y nada más. La serif se fue: aquí va una geométrica fría, que es lo que pide un vidrio.",
+  premisa="Grises y negros, y el color contado con los dedos. El fondo de ondas cansaba, así que ahora es una marca grabada en la piedra —un círculo, un rombo inscrito y cuatro hilos que salen— y casi todo lo demás está vacío: se ve cuando la buscas y desaparece cuando lees. El icono es una esquirla de tres planos con un solo filo brillante, y la iridiscencia son dos destellos, uno verde y uno violeta, nada más.",
   letra="Sora", ancho="+13%", escala="0.99", esquinas="0 px · vivas", peso="~80 KB", horas="Noche",
   tokens={"--m-pagina":"#07080a",
-   "--m-grano":f'url("{svg("obsidiana-fractura.svg")}")',
-   "--m-grano-op":".85","--m-tarjeta":"linear-gradient(124deg,#1a1e23 0 32%,#0a0c0f 32% 61%,#141820 61%)",
+   "--m-grano":f'url("{svg("obsidiana-sigilo.svg")}") center/300px no-repeat',
+   "--m-grano-op":".7","--m-tarjeta":"linear-gradient(124deg,#1a1e23 0 32%,#0a0c0f 32% 61%,#141820 61%)",
    "--m-borde":"1px","--m-borde-color":"#333c44",
    "--m-sombra":"inset 0 1px 0 rgba(215,228,235,.22), inset 0 -1px 0 rgba(0,0,0,.8), 0 16px 38px rgba(0,0,0,.72)",
    "--m-r-tarjeta":"0","--m-r-mini":"0","--m-r-barra":"0","--m-r-chip":"0",
@@ -219,20 +213,23 @@ MUNDOS = [
    "--m-chip-fuente":'"Sora",system-ui,sans-serif',"--m-chip-peso":"600","--m-chip-esp":".07em","--m-chip-caja":"uppercase",
    "--m-dur":"1.2s","--m-curva":"cubic-bezier(.2,.9,.25,1)"}),
 
- dict(id="cenit", nombre="Cénit", familia="de-materia", llave="Antes «Vitral»", color="#f0dcb4",
-  premisa="El vitral se fue al cielo, que es donde el estilo quería estar: los mismos añiles y el mismo oro, pero ahora son ESTRELLAS y las líneas que las unen. Y unen solo algunas, con huecos a propósito — si se unieran todas sería una malla; una constelación es un dibujo que alguien decidió ver. El icono es una estrella de cuatro brazos con cintura, la del cielo antiguo. Pesa un tercio de lo que pesaba el plomo.",
-  letra="Julius Sans One", ancho="+23%", escala="0.91", esquinas="3 px · casi vivas", peso="~80 KB", horas="Noche",
+ dict(id="vitral", nombre="Vitral", familia="de-materia", llave="Rosetón", color="#f0dcb4",
+  premisa="Vuelve el plomo y el pan de oro que ya tenía —el marco de cuatro píxeles con el filo dorado, el vidrio añil— y el cielo entra por donde tenía que entrar: por la FORMA. Un rosetón es a la vez una ventana y una rueda de estrellas, así que el fondo es su tracería, dibujada con una cuarta parte de la tinta que tenía antes: dos circunferencias, sus lóbulos y cuatro estrellas sueltas. El icono es una estrella de cuatro brazos con cintura, la del cielo antiguo.",
+  letra="Julius Sans One", ancho="+23%", escala="0.91", esquinas="3 px · casi vivas", peso="~85 KB", horas="Noche",
+  nota="El cambio anterior tiró el plomo y el oro para poner constelaciones, y eso no era alinear un estilo: era cambiarlo. Vuelve lo que ya funcionaba; el cielo se queda, pero como tracería del rosetón y a un cuarto de tinta.",
   tokens={"--m-pagina":"#0c1030",
-   "--m-grano":f'url("{svg("cenit-constelacion.svg")}")',
-   "--m-grano-op":"1","--m-tarjeta":"linear-gradient(158deg, #171d46 0%, #0f1332 62%, #191e4e 100%)",
-   "--m-borde":"1px","--m-borde-color":"#d8b878",
-   "--m-sombra":"inset 0 0 0 4px rgba(15,19,50,.9), inset 0 0 0 5px rgba(216,184,120,.35), 0 14px 34px rgba(0,0,0,.55)",
+   "--m-grano":f'url("{svg("vitral-rosa.svg")}") center/300px no-repeat',
+   "--m-grano-op":".85","--m-tarjeta":"linear-gradient(158deg, #191f4c 0%, #12163a 60%, #1c1f52 100%)",
+   "--m-borde":"4px","--m-borde-color":"#3a3f6b",
+   "--m-marco":"linear-gradient(140deg,#2a2e55,#8f97c8 20%,#1a1d3d 42%,#d8bd7e 58%,#6f77a8 78%,#20244a) 1",
+   "--m-sombra":"inset 0 0 0 1px rgba(210,180,110,.34), 0 12px 30px rgba(0,0,0,.5)",
    "--m-r-tarjeta":"3px","--m-r-mini":"3px","--m-r-barra":"0","--m-r-chip":"3px",
    "--m-tinta":"#eeecff","--m-tinta-2":"#a0a3d2",
    "--m-acento":"#f0dcb4","--m-acento-velo":"rgba(240,220,180,.13)",
    "--m-aviso":"#ffd98a","--m-aviso-velo":"rgba(255,217,138,.14)",
-   "--m-peligro":"#ff9db0","--m-peligro-velo":"rgba(255,157,176,.15)","--m-carril":"#20254e",
+   "--m-peligro":"#ff9db0","--m-peligro-velo":"rgba(255,157,176,.15)","--m-carril":"#262b58",
    "--m-icono":f'url("{svg("cenit-astro.svg")}") center/contain no-repeat',
+   "--m-carril-2":"#262b58",
    "--m-titulo":'"Julius Sans One",system-ui,sans-serif',"--m-titulo-px":"15px","--m-titulo-peso":"400","--m-titulo-esp":".08em","--m-titulo-caja":"uppercase",
    "--m-cifra":'"Julius Sans One",system-ui,sans-serif',"--m-cifra-peso":"400","--m-cifra-esp":".01em",
    "--m-chip-fuente":'"Julius Sans One",system-ui,sans-serif',"--m-chip-esp":".13em","--m-chip-caja":"uppercase",
@@ -256,10 +253,15 @@ MUNDOS = [
    "--m-cifra":'"Grenze Gotisch",Georgia,serif',"--m-cifra-peso":"700","--m-cifra-esp":"0",
    "--m-chip-fuente":'"Grenze Gotisch",Georgia,serif',"--m-chip-esp":".05em",
    "--m-dur":"1.3s","--m-curva":"cubic-bezier(.15,.8,.25,1)"},
+  # Los anillos iban en una caja de 120x120 anclada abajo a la derecha, y la
+  # tarjeta mide 88 de alto: se recortaban y lo que quedaba a la vista era la
+  # parte de arriba del dibujo, que cae hacia la IZQUIERDA. Por eso parecía
+  # que se habían mudado de lado. Ahora la caja mide lo que mide la tarjeta y
+  # el dibujo se ajusta dentro, pegado al borde derecho.
   extra=""".averno .ficha{ overflow:hidden; }
   .averno .ficha::after{
-    content:""; position:absolute; right:0; bottom:0; width:120px; height:120px;
-    background:url("%s") right bottom/contain no-repeat; opacity:.75; pointer-events:none;
+    content:""; position:absolute; right:0; top:0; width:46%%; height:100%%;
+    background:url("%s") right center/contain no-repeat; opacity:.8; pointer-events:none;
   }""" % svg("averno-anillos.svg")),
 
  dict(id="ventisca", nombre="Ventisca", familia="de-relato", llave="Frío con una hoguera", color="#8fd4ff",
