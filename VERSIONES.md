@@ -52,7 +52,22 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
-### 0.7.39 · 29 ago 2026
+### 0.7.39.1 · 30 ago 2026
+La fecha de debajo de Ajustes dice el día que salió.
+
+Decía 29 de agosto, que es el día en que se empezó la tanda; salió el 30. La
+fecha está ahí para contestar «¿esto que estoy viendo es lo último?», y para eso
+sirve la de publicación, no la del primer archivo tocado.
+
+**Y por eso lleva número propio en vez de ser una corrección callada.** Cambiar
+un rótulo es cambiar `js/01-base.js`, que está en la lista de la instalación, y
+desde 0.7.38 el único camino por el que una versión llega a un aparato es que
+cambie el `CACHE` de `sw.js`. Sin subir el número, quien ya tuviera 0.7.39
+instalada se quedaría con «29 ago» para siempre y quien la instalara después
+vería «30 ago»: la misma versión diciendo dos cosas distintas. La entrada de
+arriba también pasa a decir 30.
+
+### 0.7.39 · 30 ago 2026
 La app aprende qué forma tiene la ventana, los cinco carteles de bienvenida
 dejan de bailar, el bicho de reportar fallos se ve igual con la barra plegada
 que desplegada, y la tarjeta de la racha reparte su sitio donde toca.
