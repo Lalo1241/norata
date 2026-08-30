@@ -52,6 +52,39 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.44 · 30 ago 2026
+**Mi expedición**, la pantalla del recorrido. Se llega tocando la fila de la
+cuenta —el menú del engrane y la ficha de «Mi perfil»—, que es donde vive la
+insignia: donde está tu insignia, se toca tu insignia.
+
+Enseña tres cosas: tu nivel con su rango y lo que falta para el siguiente, los
+**cinco rangos** con el tuyo marcado y el nivel de los que vienen, y **de dónde
+salen tus puntos** —de mayor a menor, que es leer tu propio recorrido—.
+
+**Es un inventario, no una vitrina.** La diferencia importa y es lo que hace
+que tenga sentido sin nadie más mirando: lo que guarda no son medallas, son
+cosas que se usan. Los ambientes entrarán aquí el día que existan, y esa es la
+pantalla donde se elegirá cuál llevas puesto.
+
+**La fila de la cuenta deja de llevar a «Mi perfil»** y lleva aquí. No se
+pierde nada: «Mi perfil» tiene su propio botón tres renglones más abajo, que es
+justo lo que hace que este cambio salga gratis.
+
+**Y «Mi exigencia» deja de ser sección: se muda dentro de «Mi perfil».** Tenía
+sección propia desde 0.7.39.4 y sobraba — quien viene a cambiarla viene a
+cambiar algo suyo, y ahí es donde están las otras cosas suyas. El índice de
+Ajustes vuelve a tener cuatro entradas.
+
+**Un fallo mío de 0.7.43, corregido antes de que se viera en la calle.** La
+tarjeta del Resumen anunciaba «Destello propio al cumplir una misión» para el
+nivel 3 y un ambiente para el 2, y **ninguna de las dos cosas existe todavía**.
+Es exactamente la deuda que costó quitar la fila de «Todas las apariencias» de
+la tabla de planes: prometer lo que la app no tiene. Ahora cada peldaño de la
+escalera lleva `listo`, y solo se anuncia lo que ya se puede cumplir — hoy, los
+cinco rangos. La escalera entera sigue escrita en el código porque es el plan y
+ahí es donde se conserva; el día que un ambiente esté puesto se le pone una
+palabra y aparece.
+
 ### 0.7.43 · 30 ago 2026
 **La tarjeta de expedición en el Resumen.** Una más del tablero, con las mismas
 reglas que las otras siete: se mueve, se quita y se puede volver a poner.

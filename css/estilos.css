@@ -1165,9 +1165,70 @@
   .sum-card .ic { color: var(--mint); margin-bottom: 10px; }
   .sum-card .ic svg { width: 22px; height: 22px; }
   .sum-card.b .ic { color: var(--fire); }
-  /* La de expedición informa y no lleva a ningún sitio todavía —el suyo es la
-     colección, que aún no existe—, así que no finge ser un botón. */
+  /* La de expedición informa desde el tablero; para entrar al detalle está la
+     fila de la cuenta, que es donde vive la insignia. */
   .sum-card.quieta { cursor: default; }
+
+  /* ---------- La colección ----------
+     El inventario del recorrido: quién eres en la expedición, los cinco rangos
+     y de dónde salieron tus puntos. */
+  .col-cab { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .col-quien { min-width: 0; }
+  .col-nivel {
+    font-size: 26px; font-weight: 700; letter-spacing: -0.5px;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
+  }
+  .col-rango { font-size: 13.5px; color: var(--mint); font-weight: 650; margin-top: 1px; }
+  /* El mismo carril que las barras del Resumen: encima va menta y hay que
+     verla avanzar. */
+  .col-barra {
+    height: 6px; border-radius: var(--r-redondo); background: var(--carril);
+    overflow: hidden; position: relative;
+  }
+  .col-barra i {
+    position: absolute; inset: 0 auto 0 0; width: var(--p, 0%);
+    background: var(--mint); border-radius: var(--r-redondo);
+  }
+
+  .col-rangos {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+    gap: 8px; margin-top: 12px;
+  }
+  .col-rango-uno {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    text-align: center; padding: 12px 6px;
+    border-radius: var(--r-caja); border: 1px solid var(--line);
+    background: var(--sup-panel);
+    /* Los que no has alcanzado se apagan, pero no se esconden: son cinco en
+       toda una vida de cuenta y saber cuáles vienen es la mitad de la gracia.
+       No es lo mismo que dibujar casillas de cosas que NO EXISTEN. */
+    color: var(--faint);
+  }
+  .col-rango-uno.abierto { color: var(--muted); }
+  .col-rango-uno.tuyo {
+    color: var(--mint); border-color: var(--mint);
+    background: var(--mint-soft);
+  }
+  .col-rango-uno b { font-size: 12.5px; font-weight: 650; color: inherit; }
+  .col-rango-uno span { font-size: 10.5px; letter-spacing: 0.6px; text-transform: uppercase; }
+
+  .col-fuentes { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .col-fuente {
+    display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: baseline;
+  }
+  .col-fuente span { font-size: 12.5px; color: var(--muted); }
+  .col-fuente b {
+    font-size: 13px; font-weight: 700;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
+  }
+  .col-fuente i {
+    grid-column: 1 / -1; height: 4px; border-radius: var(--r-redondo);
+    background: var(--carril); position: relative; overflow: hidden; margin-top: 3px;
+  }
+  .col-fuente i::after {
+    content: ""; position: absolute; inset: 0 auto 0 0;
+    width: var(--p, 0%); background: var(--mint-deep); border-radius: var(--r-redondo);
+  }
   /* La insignia y la cifra en fila: el círculo dice el rango de un vistazo y
      el número dice cuánto llevas. Juntos son una sola respuesta. */
   .exp-cab { display: flex; align-items: center; gap: 11px; }
@@ -5085,6 +5146,10 @@
   .perfil-ficha {
     display: flex; align-items: center; gap: 13px;
     padding: 13px; margin-bottom: 16px;
+    /* Es un botón desde que abre la colección: sin esto hereda la letra del
+       navegador y se queda a la mitad del ancho. */
+    width: 100%; text-align: left; font-family: inherit; color: var(--text);
+    cursor: pointer;
     background: var(--sup-tarjeta2); border: var(--borde-fino) solid var(--line); border-radius: var(--r-grande);
   }
   /* `flex: 1` desde que hay insignia al final: sin él, el círculo del nivel se
