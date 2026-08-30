@@ -462,65 +462,32 @@ alguien más la ve, y sin eso es una lista de lo que te falta—. Como nombre s�
 capítulo. Por eso bajaron de diez a cinco: un rango que cambia cada dos niveles
 es ruido; uno que dura medio año es algo que recuerdas haber sido.
 
-| Nivel | Rango | Abre | Cuándo |
-| --- | --- | --- | --- |
-| 1 | **Semilla** | Tinta | El primer día |
-| 3 | **Brote** | Musgo | Dos días |
-| 7 | **Refugio** | Adobe | Tres semanas |
-| 12 | **Cima** | Escarcha · **Pro** | Dos meses y medio |
-| 20 | **Norte** | Duna | Ocho meses |
+| Nivel | Rango | Abre | Color de noche | Color de día | Cuándo |
+| --- | --- | --- | --- | --- | --- |
+| 1 | **Semilla** | Tinta | `#b6a370` | `#837143` | El primer día |
+| 3 | **Brote** | Musgo | `#23b37e` | `#19805a` | Dos días |
+| 7 | **Refugio** | Adobe | `#dc925d` | `#a15923` | Tres semanas |
+| 12 | **Cima** | Escarcha · Pro | `#37a6ed` | `#1073b2` | Dos meses y medio |
+| 20 | **Norte** | Duna | `#c194e4` | `#9345d1` | Ocho meses |
 
-**Cada rango trae su ambiente**, y el emparejamiento no es decorativo: un
-refugio está hecho de barro, en una cima hay escarcha, y el norte es la
-estrella que se ve en el cielo violeta de Duna. Eso convierte doce premios
-sueltos en cinco capítulos.
+**Cada rango trae su ambiente y toma su color**, y el emparejamiento no es
+decorativo: un refugio está hecho de barro, en una cima hay escarcha, y el
+norte es la estrella que se ve en el cielo violeta de Duna. Eso convierte doce
+premios sueltos en cinco capítulos, y le da al aro del avatar un color que
+significa algo en vez de ser siempre menta.
 
-**El único sitio donde aprieta**, y conviene saberlo: en el nivel 12 el
-ambiente pide Pro y el rango no. No es una excepción — es la regla
+**El único sitio donde el emparejamiento aprieta**, y conviene saberlo: en el
+nivel 12 el ambiente pide Pro y el rango no. No es una excepción — es la regla
 funcionando: **los rangos nunca llevan candado** porque son la cara del nivel,
-y el nivel sube para todos. Llegas a Cima, es tuya, y al lado está Escarcha con
-su etiqueta.
+y el nivel sube para todos. Llegas a Cima, es tuya, y al lado está Escarcha
+con su etiqueta.
 
-### Un rango no tiene color propio
-
-Costó una vuelta entera descubrirlo, y lo destapó una pregunta de Eduardo:
-*¿Duna y Norte no se acaban pareciendo demasiado a Reliquia y Fundador?*
-
-La primera versión le daba a cada rango un tono derivado del matiz de su
-ambiente. Medido con **dE2000** —la distancia como la ve el ojo—, los cinco
-aterrizaban encima de la paleta que ya significa algo:
-
-| Rango | Chocaba con | dE | |
-| --- | --- | --- | --- |
-| Norte | el lila de **Fundador** | 5,4 | indistinguible |
-| Brote | la menta de **la marca** | 6,0 | indistinguible |
-| Cima | el **celeste** | 6,8 | indistinguible |
-| Semilla | el amarillo de **AVISO** | 10,2 | se confunde |
-| Refugio | el coral de **PELIGRO** | 12,7 | se confunde |
-
-**Y no se arregla moviendo los hex.** En la rueda ya viven cinco significados
-—marca, aviso, peligro, Fundador, informativo—; meter cinco rangos más, cada
-uno con dos caras y con suelo de contraste, son **nueve significados en un
-círculo**. Un buscador que exige 18 de separación encuentra sitio para cuatro y
-se queda **sin sitio para Cima**: su ventana de azul es donde vive el celeste,
-con el lila pegado al lado. Y bajando el croma hasta que quepan todos, los cinco
-se vuelven grises — que es la lección de Niebla otra vez.
-
-**Así que el rango es su DIBUJO, y el color se lo pone el ambiente.** Como el
-rango llega con su ambiente, encender ese ambiente cambia `--aro-alto` y el aro
-del avatar toma su color solo: sin un token nuevo, sin una paleta nueva y sin
-nada que medir, porque ese contraste ya está en la tabla de los ambientes. Los
-ambientes de grado 1 no mueven el acento, así que ahí el aro sigue en menta — y
-está bien: **el color es del ambiente y la identidad del rango es la forma.**
-
-Y es más fuerte que lo que se pretendía: llegas a Norte, se abre Duna, lo
-enciendes, y **toda la app** —aro incluido— se vuelve violeta. El rango y el
-recolor no solo llegan juntos: se ven juntos.
-
-**El aviso ya estaba escrito** en la lámina de rangos del teléfono, y lo pasé
-por alto: *«cinco rangos aguantan cinco tonos sin volverse un arcoíris. Ojo con
-el lila, que es de Fundador, y con el amarillo y el coral, que significan aviso
-y peligro.»* La pregunta de Eduardo lo cazó antes de construirlo.
+**Los dos tonos están calculados, no elegidos.** De noche, el más saturado que
+ya está cómodo sobre la tarjeta (6 sobre 1); de día, el que apenas llega a 4,5
+hundiéndose lo mínimo, que es lo que conserva el matiz. Y hacen falta los dos:
+**usar el tono de noche sobre papel da 2,10-2,49**, por debajo del 3 que pide
+un trazo. Medidos ya puestos en la lámina: 4,50-5,00 de día y 6,51-7,18 de
+noche.
 
 Van de la tierra al cielo, que es lo que hace que cada dibujo se le ocurra solo
 al anterior. Dibujados en `viewBox="0 0 24 24"`, trazo de 1,7 y remates
