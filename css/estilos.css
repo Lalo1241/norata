@@ -6041,10 +6041,22 @@
        siempre y cierra la pregunta. Mismo tropiezo que `#bug-pie` unas líneas
        más arriba: en este archivo, cuando algo tiene id, se usa el id. */
     html.sc #bug-btn {
-      opacity: 0; transform: scale(0.84);
+      opacity: 0;
+      /* ---- Y el bicho no escala: solo aparece ----
+         Aquí había un `scale(0.84)` que crecía hasta 1 al pasar el ratón. Con
+         el bicho suelto no se notaba —escalaba un icono de 17 px—, pero desde
+         que tiene aro lo que crece es un disco de 32, y esos cinco píxeles de
+         diámetro se ven como un desliz justo cuando el ojo acaba de llegar
+         ahí. El disco se queda quieto y se limita a aparecer; el número, que
+         no lleva caja, conserva su encogido.
+
+         Las dos piezas siguen fundiéndose una en otra en la misma caja, que
+         es lo que hacía este gesto. Lo que se retira es el movimiento de la
+         que ahora tiene forma propia. */
+      transform: none;
       /* `inset: 0` + `margin: auto` con el tamaño puesto: centrado en los dos
-         ejes sin gastar el `transform`. Repetir los 32 aquí es lo que devuelve
-         la caja que la regla de arriba suelta con `width: auto`. */
+         ejes. Repetir los 32 aquí es lo que devuelve la caja que la regla de
+         arriba suelta con `width: auto`. */
       inset: 0; margin: auto;
       width: 32px; height: 32px;
     }
@@ -6053,7 +6065,7 @@
        —el ratón está sobre el botón—; plegada quien recibe el ratón es la fila
        entera, así que el aro se quedaba gris mientras el bicho ya era amarillo. */
     html.sc #side-version:hover #bug-btn {
-      opacity: 1; transform: scale(1);
+      opacity: 1;
       color: var(--fire); border-color: var(--fire);
     }
     @media (prefers-reduced-motion: reduce) {
@@ -6351,7 +6363,22 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 40px;
+      /* ---- Y un pelo por encima del centro ----
+         El hueco donde se centra arranca 111 px por debajo del borde, bajo el
+         título de la pantalla, así que centrarse en él deja el cartel más
+         abajo que el centro de lo que se ve. Sale de cuadrar bien y aun así
+         se lee hundido, que es la razón de que el centrado óptico exista.
+
+         Los 48 px de más al pie lo suben 24 —con `justify-content: center`,
+         el relleno de abajo desplaza el contenido la MITAD de lo que crece—,
+         y con eso el título pasa del 43 % al 40 % del alto de la ventana. Es
+         el ajuste entero: si alguna vez hay que moverlo otra vez, es este
+         número y ningún otro.
+
+         En una ventana tan baja que el cartel ya no quepa, esto no lo sube:
+         ahí el bloque pasa del `min-height`, el centrado deja de actuar y los
+         48 px solo son aire al final. */
+      padding: 40px 40px 88px;
     }
     .empty p { max-width: 46ch; }
 
