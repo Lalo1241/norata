@@ -256,8 +256,12 @@ function openSkillForm(id) {
   document.getElementById("f-name").value = s ? s.name : "";
   document.getElementById("f-cat").value = s ? (s.category || "") : "";
   document.getElementById("f-perm").checked = s ? !!s.permanent : false;
-  document.getElementById("f-grace").value = s ? s.graceDays : 7;
-  document.getElementById("f-decay").value = s ? s.decayPerDay : 10;
+  /* Una habilidad nueva nace con la exigencia que la persona eligió, no con
+     el 7 y el 10 que estaban escritos aquí. Ese par fijo era lo que hacía que
+     la respuesta del asistente se perdiera al día siguiente. */
+  const ex = exigenciaActual();
+  document.getElementById("f-grace").value = s ? s.graceDays : ex.grace;
+  document.getElementById("f-decay").value = s ? s.decayPerDay : ex.decay;
   document.getElementById("f-delete").style.display = s ? "block" : "none";
   fIcon = s ? s.icon : ICON_LIST[state.skills.length % ICON_LIST.length];
   fColor = s ? s.color : COLORS[state.skills.length % COLORS.length];
@@ -302,8 +306,9 @@ function saveSkill() {
   if (!name) { toast("Ponle un nombre a la habilidad", "atencion"); return; }
   const category = document.getElementById("f-cat").value.trim();
   const permanent = document.getElementById("f-perm").checked;
-  const graceDays = Math.max(1, parseInt(document.getElementById("f-grace").value) || 7);
-  const decayPerDay = Math.max(1, parseInt(document.getElementById("f-decay").value) || 10);
+  const ex = exigenciaActual();
+  const graceDays = Math.max(1, parseInt(document.getElementById("f-grace").value) || ex.grace);
+  const decayPerDay = Math.max(1, parseInt(document.getElementById("f-decay").value) || ex.decay);
 
   if (editingSkillId) {
     const s = state.skills.find(x => x.id === editingSkillId);

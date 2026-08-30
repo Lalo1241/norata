@@ -2161,9 +2161,12 @@ let catalogoSel = new Set();
 let seleccionHab = null;   // null = fuera del modo selección
 
 function nuevaHabilidad(nombre, categoria, icono, color) {
+  /* La exigencia elegida, no el par fijo de antes: las que salen del catálogo
+     tienen que nacer igual que las del formulario. */
+  const ex = exigenciaActual();
   return {
     id: uid(), name: nombre, category: categoria, icon: icono, color: color,
-    xp: 0, log: [], permanent: false, graceDays: 7, decayPerDay: 10,
+    xp: 0, log: [], permanent: false, graceDays: ex.grace, decayPerDay: ex.decay,
     lastActivity: null, createdAt: todayKey()
   };
 }
