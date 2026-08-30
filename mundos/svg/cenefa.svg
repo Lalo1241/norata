@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="24" viewBox="0 0 72 24">
+  <!-- Una vid que corre: tallo ondulado, hoja arriba, capullo abajo, y una
+       gota entre medias. Nada se repite en la misma posición dos veces, que
+       es lo que hace que parezca pintado y no estampado. -->
+  <g fill="none" stroke="#1e3f8f" stroke-width="2.2" stroke-linecap="round">
+    <path d="M0 12 C9 3 18 21 27 12 C36 3 45 21 54 12 C63 3 68 8 72 12"/>
+  </g>
+  <g fill="#1e3f8f">
+    <path d="M13 12 C13 5 19 1 24 3 C23 10 18 13 13 12 Z"/>
+    <path d="M40 12 C40 19 34 23 29 21 C30 14 35 11 40 12 Z" fill-opacity=".62"/>
+    <circle cx="58" cy="7" r="2.4"/>
+    <circle cx="66" cy="17" r="1.7" fill-opacity=".7"/>
+    <circle cx="5" cy="18" r="1.7" fill-opacity=".7"/>
+  </g>
+</svg>

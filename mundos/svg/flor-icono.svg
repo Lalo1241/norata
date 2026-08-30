@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+  <defs>
+    <path id="p" d="M14 14 C10.5 10.5 9 6 12 3.4 C13.2 2.4 14.8 2.4 16 3.4 C19 6 17.5 10.5 14 14 Z"/>
+  </defs>
+  <g fill="#1e3f8f">
+    <use href="#p"/><use href="#p" transform="rotate(72 14 14)"/><use href="#p" transform="rotate(144 14 14)"/>
+    <use href="#p" transform="rotate(216 14 14)"/><use href="#p" transform="rotate(288 14 14)"/>
+  </g>
+  <circle cx="14" cy="14" r="3.6" fill="#faf6ec"/>
+  <circle cx="14" cy="14" r="1.5" fill="#1e3f8f"/>
+</svg>
