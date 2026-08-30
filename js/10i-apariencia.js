@@ -66,10 +66,13 @@ function aparienciaGuardada() {
 function aparienciaDisponible(id) {
   const a = ambientePorId(id);
   if (!a) return "no existe";
-  if (a.abre && typeof expedicion === "function") {
-    /* El nivel que vale es el ALCANZADO —el más alto que hayas tenido— y no
-       el de hoy: nadie pierde un ambiente por haber borrado historial. */
-    if (expedicion().alcanzado < a.abre) return "nivel";
+  /* El nivel sale de `js/02b-expedicion.js`, que es el motor de la casa. Este
+     archivo NO cuenta puntos: hubo un momento en que existieron dos motores a
+     la vez —uno aquí y otro allá— y los dos declaraban `EXP_PUNTOS` en el
+     ámbito global, que es un SyntaxError y la app entera dejaba de arrancar.
+     Un solo motor, y las apariencias solo le preguntan. */
+  if (a.abre && typeof nivelExpedicion === "function") {
+    if (nivelExpedicion().nivel < a.abre) return "nivel";
   }
   if (a.pro && typeof planPermite === "function" && !planPermite("apariencia")) return "pro";
   return true;

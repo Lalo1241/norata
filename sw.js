@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.41";
+const CACHE = "norata-0.7.43";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -21,17 +21,12 @@ const ASSETS = [
   "./login/", "./login/index.html",
   "./icon.svg", "./favicon.svg", "./icon-192.png", "./icon-512.png",
   "./icon-maskable-512.png", "./apple-touch-icon.png",
-    /* `ambientes.css` sí viaja con la app: son seis kilobytes entre los siete
-     y cualquiera puede ganarse uno. Los MUNDOS no van aquí y no deben ir:
-     esta es la lista de la instalación, y meterlos le haría bajar más de un
-     mega a quien no va a encender ninguno. Se piden el día que se encienden
-     y se quedan cacheados por nombre. */
   "./css/fuente.css", "./css/estilos.css", "./css/ambientes.css",
-  "./js/01-base.js", "./js/02-progreso.js", "./js/03-talentos.js",
+  "./js/01-base.js", "./js/02-progreso.js", "./js/02b-expedicion.js", "./js/03-talentos.js",
   "./js/04-misiones.js", "./js/05-resumen.js", "./js/06-detalle.js",
   "./js/07-lienzo.js", "./js/08-formularios.js", "./js/09-inicio.js",
   "./js/10-fusion.js", "./js/10-sincronia.js", "./js/10a-perfil.js", "./js/10b-supabase.js", "./js/10c-portada.js", "./js/10d-plan.js", "./js/10e-panel.js", "./js/10f-informes.js", "./js/10g-informe.js", "./js/10h-lecturas.js",
-  "./js/10i-apariencia.js", "./js/10j-expedicion.js",
+  "./js/10i-apariencia.js",
   "./js/11-arranque.js", "./js/12-login.js",
   /* Los dos logotipos, porque desde el modo claro la portada usa uno u otro
      según cómo esté la app. Sin el segundo aquí, quien entre de día y sin red

@@ -52,121 +52,277 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
-### 0.7.41 · 30 ago 2026
-El nivel de expedición. Norata tiene por fin **una cifra que habla de ti** y no
-de una habilidad suelta — y con ella los ambientes dejan de estar apagados: la
-pantalla de Apariencia es de todos desde hoy.
+### 0.7.43 · 30 ago 2026
+Las apariencias se enganchan al nivel de cuenta, y los ambientes dejan de estar
+apagados: la pantalla de Apariencia es de todos.
 
-El nombre ya estaba puesto sin darnos cuenta: la pantalla de bienvenida dice
-«Tu expedición empieza aquí».
+**Y esta versión es, sobre todo, la reconciliación de dos sesiones que
+construyeron lo mismo sin verse.** Vale la pena que quede escrito, porque
+volverá a pasar.
 
-### Los puntos no se guardan: se cuentan
+### Había dos motores de nivel, y uno tenía que irse
 
-Es la decisión que sostiene todo lo demás y no es un capricho técnico. Es la
-regla que ya rige la sincronía, escrita en `js/10-fusion.js`: «El XP no se suma
-a mano: se recalcula contando los movimientos. Así una fusión no puede inflarlo
-aunque se repita mil veces.» Un contador guardado se rompe justo ahí — dos
-aparatos que suman 100 cada uno se juntan y se quedan con 100.
+Mientras esta rama construía `js/10j-expedicion.js`, otra sesión publicaba
+`js/02b-expedicion.js` en `main`. **Los dos contaban lo mismo, con los mismos
+pesos y la misma curva**, hasta con la misma cita de `js/10-fusion.js` para
+justificar que los puntos se cuentan y no se guardan. Dos personas llegando a
+la misma conclusión por su cuenta es buena señal del diseño y pésima del
+proceso.
 
-Tres cosas salen gratis por decidirlo así:
+Se queda **`02b-expedicion.js`**, que es el que ya estaba publicado, y por un
+motivo técnico además del cronológico: **su semana es la de la app**.
+`expSemanaDe` usa `weekdayOfKey` —domingo, igual que la tira de la racha—;
+la de aquí contaba semanas desde la época, y dos formas de contar la semana en
+la misma app se notan en cuanto alguien compara. El de esta rama se borra
+entero.
 
-- **Es retroactivo.** El día que esto llegue a un aparato, esa cuenta ya tiene
-  su nivel, sacado de meses de datos que ya existían. Nadie empieza en cero por
-  haber llegado antes.
-- **La sincronía no lo puede inflar ni perder**, porque no hay nada que
-  fusionar.
-- **Nunca se desalinea**, porque no hay un número guardado que pueda
-  contradecir a los datos.
+**Y no era solo una duplicación, era un fallo de arranque esperando:** los dos
+archivos declaraban `const EXP_PUNTOS` y `const EXP_RAMPA` en el ámbito global.
+Dos `const` con el mismo nombre en el mismo ámbito es un SyntaxError, y con los
+dos cargados **la app entera dejaba de arrancar**. La regla que sale de aquí:
+antes de crear un archivo de motor, buscar si ya existe uno.
 
-Lo único que se guarda es un **piso** —el nivel más alto que hayas tenido—, y
-existe por un solo borde: borrar historial a mano bajaría los puntos. Se guarda
-como MÁXIMO justamente para que la sincronía lo fusione sin pensar: gana el
-mayor de los dos lados, siempre, sin importar el orden.
+### Un peldaño no puede tener dos verdades
 
-### De qué se hace un punto
+La escalera de `02b` decía «un ambiente nuevo en el nivel 8» y el catálogo
+`AMBIENTES` abría Adobe en el 7. Su propio comentario ya lo había previsto —
+«los ambientes de verdad los define el catálogo cuando exista»—, así que se
+hizo lo que pedía: la escalera se arma al vuelo juntando sus rangos y
+celebraciones con los ambientes del catálogo.
 
-Todo lo que la app ya celebra, y nada más. Un punto se paga por lo que cuesta
-conseguir algo, no por lo que cuesta hacerle clic.
+Al vuelo y no en la constante porque `02b` carga **antes** que el catálogo:
+leerlo al declarar la lista daría `undefined`.
 
-| | Puntos | |
-| --- | --- | --- |
-| Los dos primeros días de la semana | 40 | con que aparezcas cuenta |
-| Cada día más de esa semana | 5 | |
-| Misión cumplida | 2 | hasta cinco al día |
-| Etapa hecha | 5 | de un talento o de un encargo |
-| Hito conseguido | 20 | |
-| Hito de racha | 25 | los que la app ya festeja |
-| Cada nivel que alcanzó una habilidad | 30 | el decaimiento no te lo quita |
-| Talento logrado | 50 | |
-| Encargo terminado | 50 | |
-| Estreno | 15 | la primera habilidad, misión, talento y encargo |
+Ahora la escalera se lee entera y con nombres de verdad: Nodo · Destello ·
+Musgo · Enlace · Marea (Pro) · Escena de racha · Adobe · Rama · Escarcha (Pro)
+· Pantalla completa (Pro) · Trama · Duna · Red.
 
-**Por qué la semana se parte en dos.** Con un valor fijo por día el sistema
-medía frecuencia y no constancia: quien entra dos veces por semana tardaba 4,4
-años en llegar al último rango y quien entra cinco tardaba 1,7. Pagando fuerte
-las dos primeras veces de cada semana esa distancia se cierra — y deja de tener
-sentido abrir la app diez segundos para no perder el punto del día.
+### La tarjeta del Resumen, que no repite la insignia
 
-**Y el decaimiento no te quita puntos**: cuenta el nivel más alto que cada
-habilidad llegó a tener, reconstruido recorriendo su historial. Lo aprendido
-pasó, aunque hoy esté oxidado.
-
-### La escalera, medida
-
-La curva no tiene tope: los tres primeros niveles van en rampa aparte —15, 35 y
-60 puntos— y del cuarto en adelante cada nivel cuesta `30 × nivel + 15`. Es una
-recta y no una explosión: con la curva de las habilidades el nivel 40 pediría
-cuatro millones de puntos.
-
-Comprobado que **las 61 fronteras del nivel 0 al 60 caen exactamente donde
-deben**, por los dos lados. Y simulando día por día cinco años de uso:
-
-| Peldaño | Ligero | Normal | Intenso |
-| --- | --- | --- | --- |
-| 1 · Semilla + Tinta | el primer día | el primer día | el primer día |
-| 3 · Brote + Musgo | 5 días | 2 días | 2 días |
-| 7 · Refugio + Adobe | 2 meses | 1 mes | 15 días |
-| 12 · Cima + Escarcha | 7 meses | 3 meses | 2 meses |
-| 20 · Norte + Duna | 1,5 años | 8 meses | 5 meses |
-
-Que es lo que el reparto prometía. **Y el caso que más importa, comprobado
-aparte:** una cuenta en la que se acaba de crear UNA habilidad da 15 puntos —el
-estreno—, que es exactamente lo que cuesta el nivel 1. El primer premio llega
-el primer día, que era la condición para que hubiera un segundo.
-
-### Lo que se abre, y lo que ya no está apagado
-
-`APARIENCIA_PUBLICA` pasa a `true`: la sección de Apariencia en Ajustes es de
-todos. Ya no hace falta `?apariencia=` — aunque el parámetro sigue vivo para
-probar un ambiente sin quedárselo.
-
-Y las muestras cerradas ya dicen la verdad, con **dos puertas y en este
-orden**: primero el nivel, que es lo que se gana, y después el plan, que es lo
-que se paga. El orden importa por lo que se le dice a la persona: a quien
-todavía no llega al nivel no se le ofrece pagar, se le dice cuánto le falta.
-Cobrar por saltarse la escalera es justo lo que rompería la escalera.
-
-### La tarjeta del Resumen
-
-Con el nivel, el rango, los puntos y lo que falta — pero **lo que la hace
-servir para algo es la última línea: el próximo desbloqueo escrito antes de
-llegar**. Un premio sorpresa no mueve a nadie; uno que se ve venir, sí. Lleva
-directo a Ajustes → Apariencia, que es donde se recoge.
-
-Solo anuncia lo que EXISTE: si el siguiente peldaño del documento es una
-celebración que todavía no está construida, la tarjeta salta al siguiente que
-sí, en vez de prometerla.
+La otra sesión puso la insignia del rango en la fila de la cuenta: dice **qué
+eres**. Esta tarjeta dice **cuánto falta y para qué**, con el próximo
+desbloqueo escrito antes de llegar. Enseñar dos veces lo mismo en la misma
+pantalla es lo que hace que se deje de mirar.
 
 **Y un widget nuevo hay que darlo de alta en `DASH_META` además de en
-`DASH_DEFAULT`.** Sin esa entrada, `dashSize` revienta leyendo
-`DASH_META[id].w` y **el tablero entero deja de dibujarse** — no la tarjeta
-nueva: el tablero entero. Costó una pantalla en blanco descubrirlo.
+`DASH_DEFAULT`.** Sin esa entrada `dashSize` revienta leyendo
+`DASH_META[id].w` y deja de dibujarse **el tablero entero**, no la tarjeta
+nueva. Costó una pantalla en blanco descubrirlo.
 
-### Lo que falta
+### Las dos puertas de un ambiente, y su orden
 
-El **aro del avatar** con el avance, y la **celebración al subir de nivel** con
-su ventana que no se cierra por accidente. Las dos están especificadas en
-`apariencias/LEEME.md` y ninguna de las dos existe todavía.
+Primero el **nivel**, que es lo que se gana; después el **plan**, que es lo que
+se paga. El orden importa por lo que se le dice a la persona: a quien todavía
+no llega al nivel no se le ofrece pagar, se le dice cuánto le falta. Cobrar por
+saltarse la escalera es justo lo que rompería la escalera.
+
+`APARIENCIA_PUBLICA` pasa a `true`. El parámetro `?apariencia=` sigue vivo para
+probar un ambiente sin quedárselo.
+
+### Lo que queda sin decidir, y no lo decide el código
+
+Las dos sesiones dibujaron **rangos distintos**, y las dos versiones son
+defendibles:
+
+| | En `main` | En esta rama |
+| --- | --- | --- |
+| Nombres | Nodo · Enlace · Rama · Trama · Red | Semilla · Brote · Refugio · Cima · Norte |
+| Niveles | 1 · 4 · 10 · 18 · 28 | 1 · 3 · 7 · 12 · 20 |
+| Idea | una red que crece | un camino de la tierra al cielo |
+| Ambiente | sueltos | cada rango trae el suyo |
+
+Se quedan **los de `main`**, que son los que están publicados y los que tienen
+icono dibujado. Queda anotado que con esto **se rompe el emparejamiento** que
+se había aprobado —cada rango con su ambiente—: Brote llega en el 4 y Musgo en
+el 3, Rama en el 10 y Adobe en el 7. Los dos sistemas conviven bien, pero ya no
+son cinco capítulos: son dos escaleras entrelazadas. Es de Eduardo decidir si
+se vuelven a alinear.
+
+### 0.7.42 · 30 ago 2026
+**El nivel ya se ve.** La insignia del rango aparece en la fila de la cuenta
+—en el menú del engrane y en la ficha de «Mi perfil»— con el aro de lo que
+llevas del nivel alrededor. Es lo primero que se ve del motor de 0.7.41.
+
+**Es su propio círculo y no cuelga del avatar**, y eso lo decidió Eduardo con
+el argumento que lo cierra: el perímetro de la cara tiene que quedar libre para
+lo cosmético —hoy lo ocupa el anillo lila de Fundador, mañana un marco que
+alguien compre— así que el aro que informa rodea la insignia. **Cada aro
+pertenece a su propio objeto** y así no vuelven a chocar. La fila queda con dos
+círculos y tres renglones en medio: a la izquierda quién eres, a la derecha por
+dónde vas.
+
+Y de paso resuelve el tamaño, que fue lo que lo decidió del todo: colgando del
+avatar la insignia solo puede medir 20 px, y el aro deja el dibujo en **11** —
+por debajo de los 13 que es el suelo de la iconografía de la app, donde las
+tres piezas de un rango empiezan a juntarse—. Como círculo propio mide 30 y el
+dibujo respira a 18. Se comparó a tamaño real:
+`https://claude.ai/code/artifact/011961aa-54a5-4e6c-8926-17d92d57e70d`
+
+El avatar del menú sube de 38 a 48 para equilibrar la pareja, que es la
+proporción que él eligió mirando las dos familias juntas.
+
+Detalles que están así a propósito: **antes del nivel 1 no se dibuja nada** —un
+aro vacío se lee como algo roto—, el aro engorda de 2 a 3 píxeles a partir de
+40 px de diámetro porque a ese tamaño uno de 2 desaparece, y `.perfil-quien`
+estrena `flex: 1` para que la insignia se vaya al otro extremo en vez de
+pegarse al correo.
+
+Medido en las dos pantallas y en los dos anchos: insignia de 30 con dibujo de
+18, a 12-14 px del borde y a 11-13 del texto, sin desbordes; en un teléfono de
+390 px con un correo que ocupa dos renglones sigue en su sitio.
+
+### 0.7.41 · 30 ago 2026
+**El motor del nivel de expedición**, que es el nivel de la CUENTA. Todavía no
+se ve por ningún lado: es a propósito, primero lo que no se ve. Archivo nuevo,
+`js/02b-expedicion.js`, dado de alta en `index.html` y en `ASSETS`.
+
+**La decisión que lo sostiene: los puntos no se guardan, se cuentan.** No hay
+ningún contador en `state` y no debe haberlo. El motivo ya estaba escrito en
+`js/10-fusion.js` y vale igual aquí —«el XP no se suma a mano: se recalcula
+contando los movimientos»—: un contador se rompe al fusionar dos aparatos, y
+este número decide qué tienes desbloqueado. Tres cosas salen gratis: **es
+retroactivo** (el día que se encienda, cada cuenta ya tiene su nivel, sacado de
+meses de datos que ya existen), la sincronía no lo puede inflar ni perder, y no
+hay dos verdades que puedan desalinearse.
+
+**Los dos primeros días de cada semana valen 40 puntos; los siguientes, 5.** No
+es un adorno: con un valor fijo por día, quien entra dos veces por semana
+tardaba **4,4 años** en llegar al último rango y quien entra cinco tardaba 1,7.
+Así son 2,3 contra 1,3. Y deja de tener sentido abrir la app diez segundos para
+no perder el punto del día. La semana empieza en domingo, igual que la tira de
+la racha: dos formas de contar la semana en la misma app se notan en cuanto
+alguien compara.
+
+**El nivel de una habilidad cuenta el MÁS ALTO que tuvo, no el de ahora.** El
+decaimiento no quita el punto: lo aprendido pasó, y para castigar el abandono
+ya está la propia habilidad, que baja. Se reconstruye del historial, que es
+donde está todo.
+
+Sin tope, con cada nivel 30 puntos más caro que el anterior y los tres primeros
+en rampa (15, 35, 60) para que la primera tarde tenga premio. Todo calibrado
+simulando ocho años de uso día por día con tres perfiles, no a ojo.
+
+**Cinco rangos**, que son la cara del nivel y no una colección de trofeos:
+Nodo, Enlace, Rama, Trama y Red, en `ICONS`. Ninguno lleva candado — si el
+rango es la cara del nivel y el nivel sube para todos, ponerle candado sería
+topar el número por la puerta de atrás. **Se topan los premios, nunca el
+número.**
+
+Probado con ocho comprobaciones de lógica sobre datos hechos a mano: cinco días
+en la misma semana dan 95, el corte de semana cae en domingo, una habilidad que
+subió a 900 XP y decayó a 100 sigue contando su nivel 4, y el acumulado hasta
+el nivel 10 da 1 475 — el mismo número que la simulación en Python, que es lo
+que confirma que el código y la calibración dicen lo mismo.
+
+El número salta a `0.7.41` porque la rama de ambientes tiene apartada la
+`0.7.40`, y dos tandas con el mismo `CACHE` dejan a medio mundo con la copia
+vieja.
+
+### 0.7.39.4 · 30 ago 2026
+La exigencia deja de perderse. Es una sección de Ajustes —**Mi exigencia**— y
+por primera vez se puede ver cuál tienes puesta, cambiarla y aplicarla a lo que
+ya existe.
+
+**El fallo, que lo cazó Eduardo:** la pregunta 2 del asistente sí hacía algo
+—convertía tu respuesta en los `graceDays` y el `decayPerDay` de cada habilidad
+que se creaba en ese momento— pero solo una vez. Después desaparecía. Toda
+habilidad nueva nacía con 7 y 10 elijas lo que elijas, porque ese par estaba
+escrito a mano en el formulario, y había **tres puertas** que ni siquiera
+preguntaban: «Empezar de cero», «＋ Crear habilidad» y «Crear una a mano».
+Encima no se veía en ningún lado: la única forma de saber qué elegiste era
+abrir una habilidad y leer sus dos campos numéricos. O sea que no era una
+preferencia tuya, eran datos sueltos por habilidad sin valor por defecto.
+
+**Ahora hay un solo sitio de donde salen los números:** `EXIGENCIAS` en
+`js/01-base.js`, con los tres pares que ya usaba el asistente. De ahí beben el
+asistente, el formulario y el catálogo. `state.settings.exigencia` guarda la
+elección y `exigenciaActual()` la lee tolerando un valor corrupto o de una
+versión más nueva, igual que hace `monedaActual()` con la moneda.
+
+**La regla que separa las dos cosas, y conviene no borrarla:** cambiar el
+ajuste **no toca ni una habilidad**. Es el valor con el que NACEN las nuevas,
+igual que cambiar de moneda no convierte los importes ya escritos. Tocar lo que
+ya existe se pide aparte, con un botón que dice cuántas van a cambiar — porque
+ahí sí se pisan los números que alguien pudo haber afinado en una habilidad
+concreta. Las blindadas no se cuentan ni se tocan: no pierden XP nunca, así que
+sus dos números no significan nada.
+
+Y la fila del índice dice cuál tienes puesta —«Tranquilo · 14 días de gracia»—
+por la misma razón que la del plan: la queja que trajo todo esto era que no se
+veía, y entrar no puede ser la única forma de enterarse.
+
+El número va en el cuarto tramo y no en el tercero por una razón de fuera: la
+rama de ambientes ya tiene apartada la `0.7.40`, y dos tandas con el mismo
+número dejan a medio mundo con la copia vieja.
+
+### 0.7.39.3 · 30 ago 2026
+Dos retoques en las dos primeras pantallas que ve alguien que llega: el cartel
+vacío del Resumen deja de ofrecer tres caminos iguales, y las áreas del
+asistente enseñan lo que traen dentro.
+
+**«Empezar de cero» baja a enlace.** Eran tres botones del mismo peso en la
+pantalla más vacía de la app, y el tercero es justo el que se salta lo único
+que ahí enseña algo. No se quita —hay quien no quiere asistentes, y quitarlo
+obligaría a pasar por un asistente que crea hasta doce habilidades a quien
+venía por un hábito— pero pasa a pesar como lo que es: una salida, no una
+opción a la par.
+
+Eso obliga a recalcular el hueco que `.empty .stack` reserva en escritorio,
+que no es «tres botones» sino **el cartel más alto de las cinco pantallas**:
+existe para que la burbuja caiga al mismo píxel en Resumen, Misiones,
+Habilidades, Talentos y Proyectos. El Resumen sigue siendo el más alto, ahora
+con 46 + 48 + 20 + 20 = 134 en vez de 162, y el enlace va **dentro** del
+`stack` justo para entrar en esa cuenta. Medido: la burbuja cae a 272 px en
+las cinco.
+
+El enlace va en `--muted` y no en `--faint`, que sería el tono natural de lo
+secundario: sobre el fondo de la página `--faint` da 3,34 sobre 1 de noche y
+3,97 de día, las dos por debajo del 4,5 que pide un texto normal. Lo que lo
+baja de rango es que mide 13 px, va subrayado y está debajo de dos botones.
+
+**Las áreas pasan a tarjetas horizontales, y con eso dejan de ser una
+apuesta a ciegas.** Cada área ya sabía qué tres habilidades iba a crear —lo
+dice `ONBOARD_AREAS` desde siempre— y esa lista no se veía por ningún lado:
+elegir «Salud y cuerpo» y encontrarse tres líneas nuevas es una sorpresa, y
+leer «Ejercicio · Correr · Yoga» antes de tocarla es una decisión. La tarjeta
+ancha existe para que quepa esa línea; que además se vea mejor es la
+consecuencia, no el motivo.
+
+El icono va en una teja rellena del color del área, y encima **tinta oscura**
+(`--sobre-macizo`), que es oscura en los dos modos porque los ocho tonos del
+usuario son claros en los dos. Con `--oc-l` —el tono de escribir— el dibujo
+se perdía dentro de su propio color. Las columnas salen de `auto-fit` con un
+mínimo de 250 px: una por fila en el teléfono y dos desde 540, sin declarar el
+corte a mano.
+
+### 0.7.39.2 · 30 ago 2026
+Dos retoques de la tanda anterior: los carteles de bienvenida suben un poco y
+el bicho de reportar fallos deja de deslizarse al aparecer.
+
+**Los carteles, 24 px más arriba.** Cuadraban bien y aun así se leían hundidos,
+y la razón es que el hueco donde se centran arranca 111 px por debajo del
+borde, bajo el título de la pantalla: centrarse ahí deja el bloque más abajo
+que el centro de lo que se ve. Es justo para lo que existe el centrado
+óptico. Con 48 px más de relleno al pie el contenido sube la mitad, y el
+título pasa del 43 % al 40 % del alto de la ventana. En una ventana tan baja
+que el cartel ya no quepa esto no lo sube: ahí el centrado no actúa y los 48
+px solo son aire al final.
+
+**Y el bicho ya no se desliza.**
+
+Con la barra plegada, el botón entraba con un `scale(0.84)` que crecía hasta 1.
+Ese gesto se copió del isotipo de arriba cuando el bicho era un icono suelto de
+17 px, y ahí no se notaba. Desde que tiene aro lo que crece es un disco de 32,
+y esos cinco píxeles de diámetro se leen como un desliz justo cuando el ojo
+acaba de llegar ahí. Ahora el disco se queda quieto y se limita a aparecer; el
+número de versión, que no lleva caja, conserva su encogido, así que las dos
+piezas siguen fundiéndose una en otra.
+
+Medido muestreando la posición cada 16 ms durante todo el paso del ratón: la
+caja no se mueve ni un píxel —**un solo valor** de X, de Y y de ancho en las 64
+muestras— y su centro coincide exactamente con el de la fila. Antes de esto la
+sospecha era una traslación; el `transform-origin` de las dos piezas está en su
+propio centro, así que trasladar no podía, y lo que se veía era el tamaño.
 
 ### 0.7.40 · 30 ago 2026
 El motor de las apariencias y su pantalla, apagados. Norata ya sabe ponerse

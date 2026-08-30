@@ -397,9 +397,15 @@ function renderSync() {
        perdido entre el estado de la sincronía; ahora hay una cara —el círculo
        con la inicial y su color— que se reconoce sin leer. */
     panelEl.innerHTML =
+      /* Y al otro extremo, la insignia del nivel: la misma pareja de círculos
+         que la fila del menú de la cuenta —quién eres a la izquierda, por
+         dónde vas a la derecha—. Con `typeof` porque esta ficha se dibuja
+         también en la puerta, donde no hay datos que contar. */
       '<div class="perfil-ficha">' + avatarHTML(48) +
       '<div class="perfil-quien"><b>' + escapeHtml(p.saludo || "Sin nombre") + '</b>' +
-      '<span>' + escapeHtml((sync.cfg || {}).correo || "") + '</span></div></div>' +
+      '<span>' + escapeHtml((sync.cfg || {}).correo || "") + '</span></div>' +
+      (typeof insigniaExpedicionHTML === "function" ? insigniaExpedicionHTML(30) : "") +
+      '</div>' +
       '<label class="field"><span>Tu nombre</span>' +
       '<input type="text" id="perfil-nombre" maxlength="' + NOMBRE_MAX + '" autocomplete="name"' +
       ' value="' + escapeAttr(p.nombre) + '" onchange="perfilGuardarAqui()"></label>' +

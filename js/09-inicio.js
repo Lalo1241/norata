@@ -59,8 +59,12 @@ function renderOnboarding() {
         <div class="ob-areas">
           ${ONBOARD_AREAS.map(a => `
             <button class="ob-area ${onboardPick.areas.includes(a.id) ? "on" : ""}" style="${tonos("oc", a.color)}" onclick="toggleArea('${a.id}')">
-              <span class="oa-ic">${icon(a.icon, 20)}</span>
-              <span>${a.label}</span>
+              <span class="oa-ic">${icon(a.icon, 22)}</span>
+              <span class="oa-tx">
+                <b>${a.label}</b>
+                <span>${a.skills.join(" · ")}</span>
+              </span>
+              <span class="oa-check">${icon("check", 15)}</span>
             </button>`).join("")}
         </div>
       </div>`,
@@ -70,13 +74,9 @@ function renderOnboarding() {
         <h2>¿Qué tan exigente lo quieres?</h2>
         <p class="settings-note">Esto define cuánto tiempo puedes dejar una habilidad sin practicar antes de que empiece a bajar.</p>
         <div class="ob-pace">
-          ${[
-            { id: "suave", t: "Tranquilo", d: "14 días de gracia. Para empezar sin presión." },
-            { id: "medio", t: "Equilibrado", d: "7 días de gracia. El punto medio recomendado." },
-            { id: "duro",  t: "Exigente", d: "3 días de gracia. Si fallas, se nota rápido." }
-          ].map(p => `
+          ${Object.values(EXIGENCIAS).map(p => `
             <button class="ob-pace-opt ${onboardPick.pace === p.id ? "on" : ""}" onclick="pickPace('${p.id}')">
-              <b>${p.t}</b><span>${p.d}</span>
+              <b>${p.nombre}</b><span>${p.dicho}</span>
             </button>`).join("")}
         </div>
       </div>`,
@@ -132,8 +132,13 @@ function obNext() {
 
 function buildFromOnboarding() {
   const today = todayKey();
-  const grace = { suave: 14, medio: 7, duro: 3 }[onboardPick.pace];
-  const decay = { suave: 5, medio: 10, duro: 18 }[onboardPick.pace];
+  /* La respuesta se GUARDA, no solo se aplica a lo que se crea ahora. Antes
+     se usaba aquí y se perdía: la habilidad que crearas mañana volvía al punto
+     medio sin avisar, y no había ninguna pantalla donde ver qué elegiste. */
+  state.settings.exigencia = EXIGENCIAS[onboardPick.pace] ? onboardPick.pace : EXIGENCIA_POR_DEFECTO;
+  const ex = exigenciaActual();
+  const grace = ex.grace;
+  const decay = ex.decay;
   const areas = ONBOARD_AREAS.filter(a => onboardPick.areas.includes(a.id));
 
   areas.forEach((a, i) => {
@@ -780,7 +785,8 @@ const AJUSTES_SECS = [
   { id: "cuenta", nombre: "Mi perfil",         icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
   { id: "plan",   nombre: "Mi plan",           icon: "gem",     sub: "Tu plan, qué incluye y hasta cuándo va" },
   { id: "menu",   nombre: "Mis módulos",       icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
-  { id: "aspecto", nombre: "Apariencia",       icon: "brush",   sub: "Con qué luz se ve Norata" },
+  { id: "aspecto", nombre: "Apariencia",      icon: "brush",   sub: "Con qué luz se ve Norata" },
+  { id: "ritmo",  nombre: "Mi exigencia",      icon: "bolt",    sub: "" },
   { id: "datos",  nombre: "Mi almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" }
 ];
 
@@ -807,6 +813,16 @@ function seccionesAjustes() {
      enterarse de nada—. Ahora dice qué plan hay y hasta cuándo, que es
      exactamente lo que trae aquí a la gente; entrar deja de ser la única
      forma de saberlo. */
+  /* La fila de la exigencia dice cuál tienes puesta, por la misma razón que la
+     del plan: la queja que la trajo aquí era justamente que no se veía por
+     ningún lado qué habías elegido, y entrar no puede ser la única forma de
+     enterarse. */
+  const ritmo = secs.find(x => x.id === "ritmo");
+  if (ritmo) {
+    const ex = exigenciaActual();
+    ritmo.sub = ex.nombre + " · " + ex.grace + " días de gracia";
+  }
+
   const plan = secs.find(x => x.id === "plan");
   if (plan && typeof planSub === "function") {
     plan.sub = planSub();
@@ -877,10 +893,78 @@ function renderAjustes() {
   if (ajusteAbierto === "aspecto" && typeof renderPanelApariencia === "function") renderPanelApariencia();
   if (ajusteAbierto === "admin" && typeof renderPanelAdmin === "function") renderPanelAdmin();
   if (ajusteAbierto === "plan" && typeof renderPanelPlan === "function") renderPanelPlan();
+  if (ajusteAbierto === "ritmo") renderPanelRitmo();
 
   const abierta = seccionesAjustes().find(x => x.id === ajusteAbierto);
   const titulo = document.getElementById("ajustes-titulo");
   if (titulo) titulo.textContent = (!escritorio && abierta) ? abierta.nombre : "Ajustes";
+}
+
+/* ================= Mi exigencia =================
+   Tres botones y, si hace falta, uno más para aplicarlo a lo que ya existe.
+
+   La regla que separa las dos cosas: **cambiar el ajuste no toca ni una
+   habilidad**. Es el valor con el que NACEN las nuevas, igual que la moneda no
+   convierte los importes que ya escribiste. Tocar lo que ya existe se pide
+   aparte y se dice cuántas van a cambiar, porque ahí sí se pisan los números
+   que alguien pudo haber afinado a mano en una habilidad concreta. */
+function renderPanelRitmo() {
+  const wrap = document.getElementById("ritmo-opciones");
+  if (!wrap) return;
+  const actual = exigenciaActual();
+
+  wrap.innerHTML = `<div class="ob-pace">${Object.values(EXIGENCIAS).map(p => `
+    <button class="ob-pace-opt ${actual.id === p.id ? "on" : ""}" onclick="ponerExigencia('${p.id}')">
+      <b>${p.nombre}</b><span>${p.dicho}</span>
+    </button>`).join("")}</div>`;
+
+  /* Solo las que decaen: una habilidad blindada no pierde XP nunca, así que
+     sus dos números no significan nada y contarla infla el botón. */
+  const desalineadas = state.skills.filter(s =>
+    !s.permanent && (s.graceDays !== actual.grace || s.decayPerDay !== actual.decay));
+  const zona = document.getElementById("ritmo-aplicar");
+  if (!zona) return;
+
+  if (!desalineadas.length) {
+    zona.innerHTML = `<p class="settings-note" style="margin-top:14px">
+      Las habilidades que crees a partir de ahora nacen así.${
+      state.skills.length ? " Las que ya tienes también van con esta exigencia." : ""}</p>`;
+    return;
+  }
+
+  zona.innerHTML = `
+    <p class="settings-note" style="margin-top:14px">Esto es con lo que nacen las habilidades nuevas.
+      ${desalineadas.length} de las tuyas van con otros números, porque las creaste antes o las
+      ajustaste una por una.</p>
+    <button class="btn btn-aviso btn-block" onclick="aplicarExigenciaATodas()">
+      Aplicarlo también a ${desalineadas.length === 1 ? "esa habilidad" : `esas ${desalineadas.length} habilidades`}
+    </button>`;
+}
+
+function ponerExigencia(id) {
+  if (!EXIGENCIAS[id]) return;
+  state.settings.exigencia = id;
+  save();
+  renderPanelRitmo();
+  renderAjustes();          // la fila del índice dice cuál está puesta
+  toast(`Exigencia: ${EXIGENCIAS[id].nombre}`, "hecho");
+}
+
+function aplicarExigenciaATodas() {
+  const ex = exigenciaActual();
+  let n = 0;
+  state.skills.forEach(s => {
+    if (s.permanent) return;
+    if (s.graceDays === ex.grace && s.decayPerDay === ex.decay) return;
+    s.graceDays = ex.grace;
+    s.decayPerDay = ex.decay;
+    n++;
+  });
+  if (!n) return;
+  save();
+  renderPanelRitmo();
+  renderHome();
+  toast(`${n} habilidad${n === 1 ? "" : "es"} con la exigencia ${ex.nombre.toLowerCase()}`, "hecho");
 }
 
 /* ---- El engrane ----
@@ -916,12 +1000,22 @@ function abrirMenuAjustes(btn) {
      dentro del mismo botón obligan a apuntar, y a este tamaño el renglón del
      plan mide once píxeles de alto. */
   const chapa = typeof planChapaHTML === "function" ? planChapaHTML() : "";
+  /* La insignia del nivel, al otro extremo de la fila. Dos círculos con tres
+     renglones de texto en medio: el de la izquierda dice quién eres y el de la
+     derecha por dónde vas. El avatar sube de 38 a 48 para que la pareja se
+     equilibre —lo eligió Eduardo comparando las dos familias a tamaño real—.
+
+     El `typeof` es la misma guarda que usa `avatarHTML` con el plan: este
+     archivo se carga antes que el resto y la fila se dibuja desde varios
+     sitios. Un adorno no puede tumbar el menú de la cuenta. */
+  const insignia = typeof insigniaExpedicionHTML === "function" ? insigniaExpedicionHTML(30) : "";
   const ficha = dentro
     ? `<button class="mm-perfil" onclick="abrirAjustes('cuenta')">
-         ${avatarHTML(38)}
+         ${avatarHTML(48)}
          <span class="mm-tx"><b>${escapeHtml(perfilActual().saludo || "Sin nombre")}</b>
          <span>${escapeHtml(cfg.correo || "")}</span>
          ${chapa}</span>
+         ${insignia}
        </button>`
     : `<button class="mm-perfil" onclick="abrirAjustes('cuenta')">
          <span class="mm-ic">${icon("shield", 16)}</span>
