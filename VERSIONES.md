@@ -52,6 +52,35 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.39.2 · 30 ago 2026
+Dos retoques de la tanda anterior: los carteles de bienvenida suben un poco y
+el bicho de reportar fallos deja de deslizarse al aparecer.
+
+**Los carteles, 24 px más arriba.** Cuadraban bien y aun así se leían hundidos,
+y la razón es que el hueco donde se centran arranca 111 px por debajo del
+borde, bajo el título de la pantalla: centrarse ahí deja el bloque más abajo
+que el centro de lo que se ve. Es justo para lo que existe el centrado
+óptico. Con 48 px más de relleno al pie el contenido sube la mitad, y el
+título pasa del 43 % al 40 % del alto de la ventana. En una ventana tan baja
+que el cartel ya no quepa esto no lo sube: ahí el centrado no actúa y los 48
+px solo son aire al final.
+
+**Y el bicho ya no se desliza.**
+
+Con la barra plegada, el botón entraba con un `scale(0.84)` que crecía hasta 1.
+Ese gesto se copió del isotipo de arriba cuando el bicho era un icono suelto de
+17 px, y ahí no se notaba. Desde que tiene aro lo que crece es un disco de 32,
+y esos cinco píxeles de diámetro se leen como un desliz justo cuando el ojo
+acaba de llegar ahí. Ahora el disco se queda quieto y se limita a aparecer; el
+número de versión, que no lleva caja, conserva su encogido, así que las dos
+piezas siguen fundiéndose una en otra.
+
+Medido muestreando la posición cada 16 ms durante todo el paso del ratón: la
+caja no se mueve ni un píxel —**un solo valor** de X, de Y y de ancho en las 64
+muestras— y su centro coincide exactamente con el de la fila. Antes de esto la
+sospecha era una traslación; el `transform-origin` de las dos piezas está en su
+propio centro, así que trasladar no podía, y lo que se veía era el tamaño.
+
 ### 0.7.39.1 · 30 ago 2026
 La fecha de debajo de Ajustes dice el día que salió.
 
