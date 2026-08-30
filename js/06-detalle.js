@@ -1191,7 +1191,14 @@ function renderTree() {
         <div class="bubble">${icon("map", 34)}</div>
         <h2>Tu mapa está por trazarse</h2>
         <p>Un talento es una meta con inversión real: un curso, un equipo, una certificación. Al pagarla arranca un plan con fecha límite — si logras la meta, el talento es tuyo para siempre.</p>
-        <button class="btn btn-primary" onclick="openPerkForm()">Crear mi primer talento</button>
+        <!-- El botón va dentro de un "stack" aunque sea uno solo, como en las
+             otras cuatro pantallas vacías. No es orden por el orden: el CSS le
+             reserva a esa caja el alto del cartel más alto para que la burbuja y
+             el título caigan a la misma altura en las cinco, y suelto se quedaba
+             fuera de esa cuenta. -->
+        <div class="stack" style="align-items:center">
+          <button class="btn btn-primary" onclick="openPerkForm()">Crear mi primer talento</button>
+        </div>
       </div>`;
     return;
   }

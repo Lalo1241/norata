@@ -1289,6 +1289,13 @@
      La acción principal de esta pantalla no está aquí: es tocar una
      habilidad, y crear una tiene su botón flotante. */
   .hb-tools { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 0 2px; }
+  /* Sin habilidades no hay nada que reordenar ni que filtrar, y las dos
+     filas vacías seguían ocupando: 10 px de margen ésta y 18 de relleno
+     los chips. Veintiocho píxeles que empujaban el cartel de «Sin
+     habilidades todavía» más abajo que el de las otras cuatro pantallas,
+     y eso es exactamente lo que se ve al pasar de una a otra. Mismo trato
+     que `.hb-hint`, que ya lo tenía. */
+  .hb-tools:empty { display: none; }
   /* Con el contenedor delante: `.btn` vive más abajo en este archivo y, a
      igual especificidad, ganaba él — el relleno se quedaba en el de un botón
      grande por mucho que aquí dijera otra cosa. */
@@ -1743,6 +1750,7 @@
     padding: 2px 2px 16px;
     scrollbar-width: none;
   }
+  .chips:empty { display: none; }
   .chips::-webkit-scrollbar { display: none; }
   .chip {
     flex-shrink: 0;
@@ -5482,7 +5490,14 @@
   .rc-tinta { color: var(--sobre-macizo); font-weight: 800; }
 
   /* ---- La tercera columna: el hito que viene y qué sostiene la racha ---- */
-  .sg-extra { display: flex; flex-direction: column; gap: 20px; }
+  /* Se escribe siempre y la enciende el ancho REAL de la tarjeta, no el
+     numero de columnas del tablero. Antes la decidia el JavaScript con
+     `ancho >= 3` mientras el acomodo de al lado la decidia en pixeles, y
+     los dos no coincidian: una tarjeta de dos columnas en una pantalla
+     grande mide 1510 px, o sea que se repartia como si hubiera tercera
+     columna y luego no habia ninguna que poner. De ahi medio metro de
+     hueco en el sitio equivocado. Ahora manda un solo umbral. */
+  .sg-extra { display: none; flex-direction: column; gap: 20px; }
 
   .sgh-n { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
   .sgh-n b { font-size: 26px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
@@ -5521,40 +5536,102 @@
   .rc { max-width: 100%; }
   .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, minmax(0, 44px)); }
 
+  /* ---- Dónde cae el hueco ----
+     En una tarjeta ancha siempre sobra sitio, y lo que decide si se ve bien
+     no es cuánto sobra sino DÓNDE cae. Antes caía en medio: `.sg-izq` era una
+     columna flexible de mil píxeles con ciento treinta y cinco de contenido
+     centrados dentro, así que entre el número y la columna de al lado
+     quedaban 460 px de nada mientras «Próximo hito» se pegaba al calendario
+     con 28. Un hueco ENTRE dos bloques se lee como algo roto; el mismo hueco
+     en el borde se lee como margen, que es lo que es.
+
+     De ahí las tres reglas de este acomodo, que es una rejilla con las juntas
+     escritas como columnas propias en vez de un `gap` igual para todas:
+
+       1. **Cada bloque se pega al siguiente.** El número no flota en mitad de
+          su columna: se va al final de ella (`justify-self: end`) y toca la
+          junta corta. Lo que sobra sale por el borde de fuera.
+       2. **La junta contra el calendario es la ancha.** Una rejilla densa y
+          una columna de texto necesitan más aire entre sí que dos bloques de
+          texto, o el texto se lee como el pie de la rejilla. Y de paso ahí es
+          donde cae la luna del dibujo, que hasta ahora quedaba tapada por la
+          cabecera del mes.
+       3. **Margen de fuera > junta ancha > junta corta.** Es el orden de
+          cualquier página impresa, y es lo que hace que las tres piezas se
+          lean como una tarjeta y no como tres islas. */
+
   @container (min-width: 430px) {
-    /* Dos bloques lado a lado en cuanto caben, con las casillas pequeñas. Es
-       lo que devuelve la tarjeta de una columna a cinco filas de alto en vez
-       de nueve. */
-    .streak-grid { flex-direction: row; align-items: center; gap: 24px; }
-    /* La identidad, centrada en su columna. Alineada a la izquierda se
-       quedaba pegada a la esquina con todo el hueco a su derecha, y en una
-       tarjeta que es sobre todo un calendario eso se leía como un descuido. */
-    .sg-izq { flex: 1; min-width: 0; align-items: center; text-align: center; }
+    /* Dos bloques en cuanto caben, con las casillas pequeñas. Es lo que
+       devuelve la tarjeta de una columna a cinco filas de alto en vez de
+       nueve. */
+    .streak-grid {
+      display: grid; gap: 0; align-items: center;
+      /* la marca, pegada a la derecha · junta · el mes */
+      grid-template-columns: minmax(min-content, 1fr) minmax(24px, 0.45fr) auto;
+    }
+    /* La identidad conserva su alineación de siempre —todo centrado entre
+       sí— y lo único que cambia es dónde se apoya el grupo: al final de su
+       columna, no en mitad de ella. */
+    .sg-izq { grid-column: 1; justify-self: end; align-items: center; text-align: center; }
     .sg-izq .streak-row { justify-content: center; }
     .sg-cifras { justify-content: center; }
-    .sg-der { flex: none; }
+    .sg-der { grid-column: 3; }
     .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, 30px); gap: 4px; }
     .rc-d { font-size: 11px; border-radius: 7px; }
   }
 
   @container (min-width: 760px) {
     /* Con sitio de sobra, las casillas vuelven a su tamaño cómodo. */
-    .streak-grid { gap: 28px; }
     .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, 42px); }
     .rc-d { font-size: 12px; border-radius: var(--r-mini); }
   }
 
   @container (min-width: 1150px) {
-    /* Tres columnas, y el calendario se va al final. El orden lo pone el CSS
-       y no el marcado a propósito: en el HTML la tercera columna va después
-       del calendario porque solo existe a este ancho, y reordenar el marcado
-       obligaría a moverla también en los otros dos acomodos.
+    /* Tres bloques, y el calendario al final. Es la pieza más grande y la más
+       densa: en el centro parte la tarjeta en dos mitades que no se hablan, y
+       al borde lo demás se lee como una columna de lectura seguida.
 
-       Por qué el calendario al final y no en medio: es la pieza más grande y
-       la más densa, y en el centro parte la tarjeta en dos mitades que no se
-       hablan. Al borde, lo demás se lee como una columna de lectura seguida.  */
-    .sg-extra { order: 2; flex: 1; min-width: 0; max-width: 300px; }
-    .sg-der { order: 3; }
+       Los pesos, medidos en una tarjeta de 1464: la sangría de la izquierda
+       sale de 326 px, la junta ancha de 191 y la corta de 72. Ese 4,5 : 2,6 : 1
+       es el reparto que antes estaba justo al revés —18 : 460 : 28—, y por eso
+       la misma tarjeta con el mismo contenido se veía rota. */
+    .streak-grid {
+      /* sangría + marca · junta corta · lectura · junta ancha · el mes */
+      grid-template-columns: minmax(min-content, 1.15fr) 72px minmax(0, 0.85fr) minmax(72px, 0.45fr) auto;
+      /* Y un tope, porque los dos huecos crecen con la tarjeta y arriba de
+         cierto ancho dejan de ser aire para ser distancia: en un monitor de
+         2560 la sangría salía de 596 px y la junta ancha de 415, o sea tres
+         piezas que ya no se hablan. Pasado el tope, lo que sobra se reparte
+         por los dos bordes y el ritmo de dentro se queda quieto.
+
+         Con `width: 100%` por delante, y hace falta: un margen automatico
+         horizontal sobre un hijo de una caja flexible en columna apaga el
+         estirado, y la rejilla se encogia a su contenido —la columna de
+         lectura pasaba de 360 px a 200 y las juntas se quedaban clavadas—. */
+      width: 100%;
+      max-width: 1560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    /* La fila, escrita. Sin ella el marcado manda: en el HTML la tercera
+       columna va DESPUES del calendario, asi que el colocador automatico
+       llegaba a ella con el cursor ya pasado el ultimo hueco de la fila y la
+       mandaba a una segunda fila —87 px de tarjeta desbordados por abajo—.
+       Reordenar el marcado no vale: en los otros dos acomodos el orden que
+       hay es el bueno. */
+    .sg-izq, .sg-extra, .sg-der { grid-row: 1; }
+    .sg-extra { display: flex; grid-column: 3; max-width: 420px; }
+    .sg-der { grid-column: 5; }
+
+    /* Y el número crece con la tarjeta. A 34 px se perdía en metro y medio de
+       ancho, y un bloque pequeño rodeado de sitio se lee como un hueco por
+       mucho que se le mueva: lo que no ocupa su espacio no se arregla
+       deslizándolo, se arregla escalándolo. */
+    .streak-row .flame svg { width: 38px; height: 38px; }
+    .streak-row .num { font-size: 46px; }
+    .streak-row .lbl { font-size: 13px; }
+    .sg-hoy { font-size: 14px; }
+    .sg-cifras b { font-size: 24px; }
   }
 
   /* Un mes: siete columnas, las iniciales arriba y una casilla por día. Las
@@ -5664,6 +5741,20 @@
   /* Elementos que solo existen en el diseño de escritorio */
   .side-top, .nav-label, .fab-label { display: none; }
   .side-only { display: none !important; }
+
+  /* ---- La tableta en vertical se queda con el diseño del teléfono ----
+     Y es a propósito, no un olvido: de 768 px no se puede sacar la barra
+     lateral —246 dejarían 522 para todo lo demás, menos que un teléfono—, así
+     que por debajo de 900 hay una sola forma posible.
+
+     Se probó ensancharle la columna de contenido de 560 a 700 px para
+     aprovechar el ancho de más, y se quitó porque no compraba nada: medido en
+     un iPad de 768 x 1024, el Resumen bajaba 21 px de alto, Habilidades y
+     Misiones ni uno, y la tarjeta de la racha se veía exactamente igual —a
+     524 px ya pasa del umbral de 430 de su `@container` y ya está en dos
+     bloques—. Lo único que cambiaba era el largo del renglón, y más largo no
+     es mejor. Queda escrito para que no se vuelva a intentar sin un motivo
+     medido. */
 
   /* ============ ESCRITORIO ============
      La misma app: el cluster del pulgar se convierte en barra lateral
@@ -5904,9 +5995,13 @@
        arregló arriba. */
     html.sc .side-version {
       justify-content: center;
-      padding-left: 0; padding-right: 0;
+      /* Relleno simétrico, no el 9/2 de la fila desplegada: aquí dentro va un
+         círculo de 32 px que tiene que quedar centrado, y con el relleno
+         desigual quedaba pegado abajo. Y 40 px de alto en vez de 34 para que
+         al círculo le quede aire a los lados en vez de rozar los bordes. */
+      padding: 4px 0;
       position: relative;
-      min-height: 34px;
+      min-height: 40px;
       flex-wrap: nowrap;
     }
     html.sc .side-version .sv-txt,
@@ -5924,8 +6019,20 @@
       justify-content: center;
       transition: opacity 0.16s ease, transform 0.16s ease;
     }
-    /* Sin caja: plegada, la bolita ES la fila entera, y un círculo de 32 px
-       dibujado dentro de una fila de 84 se vería como un botón dentro de otro. */
+    /* ---- Y con su círculo, también plegada ----
+       Aquí no había caja: el argumento era que plegada la bolita ES la fila
+       entera, y que un círculo de 32 px dentro de una fila de 84 se leería
+       como un botón dentro de otro. En pantalla no funciona así: sin el
+       círculo el bicho aparece flotando sobre el fondo y no parece pulsable,
+       mientras que desplegado sí lo parece. Lo cazó Eduardo comparando las dos
+       barras, y tiene razón — la misma cosa no puede verse como un botón de un
+       lado y como un dibujo del otro.
+
+       Así que se le devuelve el fondo y el borde de `.sv-bug`, y con ellos la
+       caja: `inset: 0` con `margin: auto` y 32×32 la centra en la fila sin
+       tocar el `transform`, que plegada lo usa la escala del cambio. Lo que NO
+       cambia es el gesto: el número y el bicho siguen ocupando la misma caja y
+       fundiéndose uno en otro al pasar el ratón. */
     /* POR ID y no por clase, y costó un rato entenderlo: con `.sv-bug` esta
        regla tiene la MISMA especificidad que la de arriba —que también acaba
        en `.sv-bug`— y el navegador se quedaba con la primera para `opacity` y
@@ -5935,10 +6042,20 @@
        más arriba: en este archivo, cuando algo tiene id, se usa el id. */
     html.sc #bug-btn {
       opacity: 0; transform: scale(0.84);
-      background: transparent; border-color: transparent;
+      /* `inset: 0` + `margin: auto` con el tamaño puesto: centrado en los dos
+         ejes sin gastar el `transform`. Repetir los 32 aquí es lo que devuelve
+         la caja que la regla de arriba suelta con `width: auto`. */
+      inset: 0; margin: auto;
+      width: 32px; height: 32px;
     }
     html.sc #side-version:hover #sv-txt { opacity: 0; transform: scale(0.84); }
-    html.sc #side-version:hover #bug-btn { opacity: 1; transform: scale(1); color: var(--fire); }
+    /* El borde se enciende con el icono. Desplegada eso lo hace `.sv-bug:hover`
+       —el ratón está sobre el botón—; plegada quien recibe el ratón es la fila
+       entera, así que el aro se quedaba gris mientras el bicho ya era amarillo. */
+    html.sc #side-version:hover #bug-btn {
+      opacity: 1; transform: scale(1);
+      color: var(--fire); border-color: var(--fire);
+    }
     @media (prefers-reduced-motion: reduce) {
       html.sc .side-version .sv-txt, html.sc .side-version .sv-bug { transition: none; }
     }
@@ -6034,6 +6151,19 @@
       grid-row: var(--f, auto) / span var(--h, 2);
     }
     .widget > *:not(.w-edit):not(.w-resize) { height: 100%; overflow: hidden; }
+    /* El Resumen sin nada dentro no es una tarjeta: es el cartel de estreno, y
+       ocupa lo que pida. La cuadrícula reparte filas de 56 px fijos, así que
+       el cartel se quedaba metido en una sola y se salía por abajo —330 px
+       dentro de 56—. No se veía roto porque no hay nada más en pantalla, pero
+       la pantalla medía 155 px de alto cuando en realidad ocupaba 429, y lo
+       que se apoye ahí debajo el día de mañana se le montaría encima. */
+    .dash:has(> .empty) { grid-auto-rows: minmax(56px, auto); }
+
+    /* El instante en que se mide cuánto alto pide cada tarjeta de verdad (ver
+       `filasQuePide`). Se pone y se quita dentro de la misma función, sin
+       soltar el hilo, así que nunca llega a pintarse: es una regla para
+       preguntar, no para verse. */
+    .dash.midiendo .widget > *:not(.w-edit):not(.w-resize) { height: auto; overflow: visible; }
 
     /* Lo que no cabe se desvanece en lugar de cortarse. El velo va sobre la
        tarjeta, toma su color y su redondeo de ella (los pone marcarDesbordes)
@@ -6156,36 +6286,50 @@
       padding-right: 2px;
     }
 
-    /* Detalles: ficha a la izquierda, acciones a la derecha */
-    #detail-content, #perk-content, #project-content {
-      display: grid;
-      grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
-      gap: 0 18px;
-      align-items: start;
-    }
-    #detail-content > .detail-hero, #perk-content > .detail-hero, #project-content > .detail-hero {
-      grid-row: span 3;
-      position: sticky;
-      top: 26px;
-    }
+    /* ---- Detalles: ficha a la izquierda, acciones a la derecha ----
+       A partir de 1000 px y no de 900, que es cuando empieza el escritorio.
+       La ficha mide 360 px fijos y no encoge, así que lo que se lleva el
+       recorte es la columna de al lado: a 900 px de ventana le quedaban 186
+       —la barra lateral se come 246 y el aire de los lados otros 80— y ahí
+       dentro hay una rejilla de datos que no baja de 252. No se apretaba: se
+       salía de la página, y la app entera se podía empujar de lado en las
+       tres fichas. Se veía solo entre 900 y 917 px de ventana, que es
+       justamente el ancho al que nadie prueba.
 
-    /* El encargo reparte su contenido en dos contenedores en vez de fiarlo
-       todo a la rejilla (ver renderProjectDetail). Cada columna mide lo suyo,
-       así que los botones de cerrarlo se quedan pegados a la ficha aunque la
-       lista de etapas de al lado crezca.
+       De 1000 en adelante la columna de al lado recibe 296 y sobra sitio. Por
+       debajo, la ficha se queda en una sola columna, que es como se ve en el
+       teléfono y funciona igual de bien. */
+    @media (min-width: 1000px) {
+      #detail-content, #perk-content, #project-content {
+        display: grid;
+        grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+        gap: 0 18px;
+        align-items: start;
+      }
+      #detail-content > .detail-hero, #perk-content > .detail-hero, #project-content > .detail-hero {
+        grid-row: span 3;
+        position: sticky;
+        top: 26px;
+      }
 
-       Aquí no hay pegado al desplazar: la ficha del encargo es alta —dibujo,
-       nombre, anillo— y con los botones debajo pasa de largo el alto de la
-       pantalla. Pegada, el final se quedaría fuera y los botones no habría
-       forma de alcanzarlos. */
-    #project-content > .detail-side {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      min-width: 0;
+      /* El encargo reparte su contenido en dos contenedores en vez de fiarlo
+         todo a la rejilla (ver renderProjectDetail). Cada columna mide lo
+         suyo, así que los botones de cerrarlo se quedan pegados a la ficha
+         aunque la lista de etapas de al lado crezca.
+
+         Aquí no hay pegado al desplazar: la ficha del encargo es alta
+         —dibujo, nombre, anillo— y con los botones debajo pasa de largo el
+         alto de la pantalla. Pegada, el final se quedaría fuera y los botones
+         no habría forma de alcanzarlos. */
+      #project-content > .detail-side {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        min-width: 0;
+      }
+      #project-content > .detail-main { min-width: 0; }
+      #project-content > .detail-side > .detail-hero { position: static; margin-bottom: 0; }
     }
-    #project-content > .detail-main { min-width: 0; }
-    #project-content > .detail-side > .detail-hero { position: static; margin-bottom: 0; }
 
     /* Las habilidades sí llenan el ancho completo de su vista */
     #skill-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
@@ -6211,11 +6355,61 @@
     }
     .empty p { max-width: 46ch; }
 
-    /* Encabezado de sección en una sola fila: deja de robar altura */
+    /* ---- Y las cinco a la misma altura, sin estarlo ----
+       Estaban centradas cada una en su hueco, que es lo correcto, y aun así
+       al pasar de una pantalla a otra la burbuja daba un salto de 68 px: en
+       Resumen caía a 311 y en Habilidades a 379. La razón es que el ojo no se
+       ancla en el centro del bloque —que sí coincidía— sino en la burbuja y
+       el título, y esos dos suben o bajan según lo que lleven debajo. Resumen
+       ofrece tres botones, Misiones y Habilidades dos, Talentos y Proyectos
+       uno; cuantos más, más arriba empieza el cartel.
+
+       Se arregla al revés de como parece: no moviendo la cabeza, sino dándole
+       a lo de abajo el MISMO alto en las cinco. El cartel más alto marca el
+       sitio y los demás lo respetan, así que la burbuja cae a 311 en todas y
+       lo que sobra queda al pie, sobre fondo vacío, donde nadie lo mide.
+
+       Las dos piezas que variaban:
+       - Las acciones. El cartel más largo es el de Resumen: un botón de menta
+         y dos apagados, con 10 px de hueco entre ellos. Los dos tipos NO
+         miden lo mismo —el apagado lleva borde y sale 2 px más alto—, así que
+         la cuenta va desglosada: 46 + 48 + 48 + 20 = 162. Redondearlo a tres
+         de 48 dejaba dos píxeles de aire de más justo en la pantalla que
+         marca el sitio.
+       - El párrafo: tres renglones en cuatro pantallas y dos en Habilidades,
+         que son 22 px de diferencia. Va en `em` para que siga a la letra si
+         algún día cambia, y no en píxeles medidos hoy.
+
+       Solo en escritorio. En el teléfono el cartel no se centra en nada —lo
+       empuja el contenido— y reservar hueco solo añadiría aire muerto. */
+    .empty p { min-height: calc(3 * 1.6em); }
+    .empty .stack { min-height: calc(46px + 2 * 48px + 2 * 10px); justify-content: flex-start; }
+
+    /* ---------- Encabezado de sección: una fila SI CABE ----------
+       Deja de robar altura, que es para lo que se puso en fila. Pero el ancho
+       que decide no es el de la ventana: es el que queda DESPUÉS de la barra
+       lateral, y esa cuenta se olvidó. En una tableta apaisada de 1024 px
+       quedan 644, y esta fila pide 922 con sus cuatro bloques puestos —el
+       rótulo, los cuatro números, el recuadro del foco y el botón del
+       informe—. No se partía en dos: se CORTABA, porque la escena recorta lo
+       que se sale, y el foco y el botón desaparecían de la pantalla en las
+       cuatro secciones a la vez.
+
+       Medido a 900, 1024 y 1280 px de ventana; a 1366 ya cabía de una, y por
+       eso no se había visto nunca en un monitor. La salida no es mover el
+       corte a otro número —el ancho que pide depende de lo largos que sean
+       los rótulos y de cuántos datos haya— sino dejar que envuelva: cuando no
+       quepan los cuatro bloques, el foco y el botón bajan a un segundo
+       renglón y no se pierde nada. */
     .sec-hero .scene-body { padding: 20px 22px; }
-    .sh-main { flex-direction: row; align-items: center; gap: 26px; }
-    .sh-stats { flex: 1; gap: 4px; }
-    .sh-focus { width: auto; min-width: 250px; max-width: 330px; flex-shrink: 0; }
+    .sh-main { flex-direction: row; align-items: center; gap: 16px 26px; flex-wrap: wrap; }
+    /* El rótulo no encoge —dentro lleva un aro de tamaño fijo—, así que lo
+       que hace sitio es el salto de renglón, no el apretujarse. */
+    .sh-lead { flex: 0 0 auto; }
+    .sh-stats { flex: 1 1 280px; gap: 4px; min-width: 0; }
+    .sh-focus { width: auto; flex: 1 1 250px; min-width: 230px; max-width: 330px; }
+    /* Pegado a la derecha, quede en el primer renglón o baje al segundo */
+    .sh-informe { margin-left: auto; flex: 0 0 auto; }
 
     /* En escritorio, una debajo de otra y sin recortes. Encenderlas ya no
        hace falta: desde que se ven también en el teléfono, aquí solo cambia

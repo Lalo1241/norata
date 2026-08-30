@@ -1656,13 +1656,24 @@ function constellation(nodes, key, editing, branch, mod) {
       const cc = n.colorPropio || (n.todoHecho ? "#5fe0b0" : "#f5d76e");
       const ccT = tinta(cc), ccZ = trazo(cc);   // ver la nota del recinto
       /* Dos líneas como mucho: la caja tiene una altura fija y un nombre
-         largo se saldría por abajo, encima del texto que dice qué guarda. */
-      const todo = wrapName(n.name);
-      const nom = todo.slice(0, 2);
-      if (todo.length > 2) nom[1] = nom[1].slice(0, 17) + "…";
+         largo se saldría por abajo, encima del texto que dice qué guarda.
+
+         Y se parten por ANCHO medido, no por número de letras, que es lo
+         que dejaba el rótulo colgando fuera: «EQUIPO FOTOGRÁFICO» son
+         dieciocho caracteres —de los veinte que se permitían— y 119 px en
+         una caja de 104. Ver `partirPorAncho`.
+
+         El tamaño se decide aquí y no contando renglones después: un
+         nombre puede caber en uno solo a 10,5 y no a 12, y preguntando
+         «¿es una línea?» al final se le volvía a poner el grande y se
+         salía otra vez. */
+      const anchoUtil = CAJA_W - 14;
+      const unaLinea = anchoDeTexto(n.name, 12, 700) <= anchoUtil;
+      const tamNom = unaLinea ? 12 : 10.5;
+      const nom = unaLinea ? [n.name] : partirPorAncho(n.name, anchoUtil, 2, tamNom, 700);
       nds += `<g class="cnode caja" data-id="${n.id}">
         ${nodeShape(n, x, y, { stroke: ccZ, fill: velo(cc, "14") }, fid)}
-        <text x="${x}" y="${y - (nom.length > 1 ? 9 : 4)}" text-anchor="middle" font-size="${nom.length > 1 ? 10.5 : 12}" font-weight="700" fill="${ccT}">
+        <text x="${x}" y="${y - (nom.length > 1 ? 9 : 4)}" text-anchor="middle" font-size="${tamNom}" font-weight="700" fill="${ccT}">
           ${nom.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 11}">${escapeHtml(ln)}</tspan>`).join("")}
         </text>
         <text x="${x}" y="${y + (nom.length > 1 ? 14 : 12)}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${escapeHtml(n.resumen)}</text>
@@ -2750,6 +2761,58 @@ function attachEditHandlers(scope) {
 
 /* Nombre en hasta dos líneas centradas: nada de puntos suspensivos salvo
    que ni en dos líneas quepa. */
+/* ---- Cuánto ocupa de verdad un texto ----
+   Contar letras no sirve para saber si algo cabe: veinte caracteres miden 55
+   px escritos con íes y 180 con emes. Con el nombre por defecto de una caja
+   —«3º trim. 2026»— no se notaba nunca; con uno escrito a mano sí, y «EQUIPO
+   FOTOGRÁFICO» medía 119 px dentro de una caja de 104, colgando siete por
+   cada lado.
+
+   Se mide con un lienzo de mapa de bits aunque el dibujo sea SVG: es la misma
+   familia y el mismo tamaño, y a cambio no hay que meter nada en la página ni
+   esperar a que el navegador recalcule el diseño. El contexto se guarda porque
+   esto se llama una vez por renglón y por repintado. */
+let _reglaTexto = null, _reglaFamilia = "";
+function anchoDeTexto(txt, px, peso) {
+  if (!_reglaTexto) {
+    _reglaTexto = document.createElement("canvas").getContext("2d");
+    /* La familia se pregunta una vez. No cambia nunca —ni con el modo
+       claro— y preguntarla obliga a resolver estilos, que es justo lo que
+       no se hace dentro del bucle que dibuja el mapa. */
+    _reglaFamilia = getComputedStyle(document.body).fontFamily;
+  }
+  _reglaTexto.font = (peso || 400) + " " + px + "px " + _reglaFamilia;
+  return _reglaTexto.measureText(txt).width;
+}
+
+/* Parte un nombre en renglones que QUEPAN en `maxPx`. Una palabra más ancha
+   que el renglón se recorta letra a letra hasta que ella y sus puntos
+   suspensivos caben, y se queda sola en su renglón: pegarle la palabra
+   siguiente detrás de unos puntos suspensivos —«Electroencefalog… mío»— se
+   lee como un error de escritura, no como un recorte. */
+function partirPorAncho(name, maxPx, maxLines, px, peso) {
+  const cabe = s => anchoDeTexto(s, px, peso) <= maxPx;
+  const recortar = s => {
+    let r = s;
+    while (r.length > 1 && !cabe(r + "…")) r = r.slice(0, -1);
+    return r + "…";
+  };
+  const lineas = [];
+  let cur = "";
+  for (const w of String(name || "").split(/\s+/).filter(Boolean)) {
+    const test = cur ? cur + " " + w : w;
+    if (cabe(test)) { cur = test; continue; }
+    if (cur) lineas.push(cur);
+    if (cabe(w)) { cur = w; } else { lineas.push(recortar(w)); cur = ""; }
+  }
+  if (cur) lineas.push(cur);
+  if (!lineas.length) return [""];
+  if (lineas.length <= maxLines) return lineas;
+  const keep = lineas.slice(0, maxLines);
+  keep[maxLines - 1] = recortar(keep[maxLines - 1]);
+  return keep;
+}
+
 function wrapName(name) {
   const MAX = 20, MAX_LINES = 3;
   if (name.length <= MAX) return [name];
