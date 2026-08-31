@@ -129,7 +129,10 @@ def escena(m):
     # ambiente que solo mueve el suelo tiene que teñir menos que uno que
     # cambia el carácter entero. Tinta va al 100%: es un monocromo, y dejarle
     # un paisaje a color por debajo sería justo lo que no es.
-    fuerza = {1: "0.55", 2: "0.75", 3: "1"}[m["grado"]]
+    # Subida en 0.7.49: con 0,55 el paisaje se quedaba a medio teñir y el
+    # encabezado seguía leyéndose de la casa. Ahora el dibujo se va del todo al
+    # tono del ambiente, que es lo que pidió Eduardo.
+    fuerza = {1: "0.85", 2: "0.95", 3: "1"}[m["grado"]]
     v.append(("--escena-tinte-modo", "block"))
     v.append(("--escena-tinte", pon("--card")))
     v.append(("--escena-tinte-fuerza", fuerza))

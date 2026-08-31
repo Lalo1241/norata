@@ -922,7 +922,7 @@ function compraPintar(estado) {
     "Los resúmenes del mes y del año",
     "Todas las apariencias"
   ];
-  if (fundador) abiertas.push("Tu distintivo: el anillo lila y tu propia insignia");
+  if (fundador) abiertas.push("Tu distintivo: Reliquia, el anillo lila y tu propia insignia");
 
   lista.className = "compra-lista";
   lista.innerHTML = abiertas.map(t =>
@@ -1238,6 +1238,7 @@ function planTarjetasHTML() {
   const ventajasFundador = [
     "Pro entero y sin límites, para siempre",
     "Todo lo que Norata añada a Pro",
+    "Reliquia, el mundo que solo tienen los fundadores",
     "Anillo lila en tu perfil y tu propia insignia"
   ];
 
@@ -1725,12 +1726,17 @@ function planFilasComparadas() {
      Gratuito algo que Gratuito no tiene entero. Ahora dice lo que de verdad
      se abre — las que te vayas ganando, que además es la invitación buena. */
   const apar = (x) => x ? "Todas" : "Las paletas que vayas desbloqueando";
+  /* Fundador deja de decir lo mismo que Pro, y esa es exactamente la diferencia
+     que se compra: Reliquia es el único mundo que no abre Pro. Entra hoy y no
+     antes porque hasta hoy el mundo no existía, y escribirlo sin él sería la
+     misma deuda que costó quitar la fila de «Todas las apariencias». */
+  const aparFundador = "Todas, y Reliquia";
 
   return [
     ["Ramas de talentos", ramas(l.ramas), ramas(p.ramas), ramas(p.ramas)],
     ["Talentos por rama", tope(l.talentos), tope(p.talentos), tope(p.talentos)],
     ["Informes", resu(l.resumen), resu(p.resumen), resu(p.resumen)],
-    ["Apariencias", apar(l.apariencia), apar(p.apariencia), apar(p.apariencia)],
+    ["Apariencias", apar(l.apariencia), apar(p.apariencia), aparFundador],
     ["Misiones, habilidades y proyectos", "Ilimitados", "Ilimitados", "Ilimitados"],
     ["Sincronía entre dispositivos", "Incluida", "Incluida", "Incluida"],
     ["Tu progreso y tu XP", "Tuyos", "Tuyos", "Tuyos"],

@@ -945,9 +945,9 @@
   .glass-row { display: flex; gap: 8px; }
   .glass-chip {
     flex: 1;
-    background: rgba(var(--escena-vidrio), 0.55);
+    background: color-mix(in srgb, var(--mint) 12%, rgba(var(--escena-vidrio), 0.62));
     backdrop-filter: blur(8px);
-    border: var(--borde-fino) solid rgba(var(--escena-tinta), 0.1);
+    border: var(--borde-fino) solid color-mix(in srgb, var(--mint) 22%, transparent);
     border-radius: var(--r-grande);
     padding: 9px 6px;
     text-align: center;
@@ -1249,6 +1249,36 @@
   .pn-fiestas .btn span {
     display: block; font-size: 11.5px; color: var(--muted);
     font-weight: 500; margin-top: 2px; white-space: normal;
+  }
+
+  /* ---------- Los mundos, en Mi apariencia ----------
+     Una lista de renglones y no una reja de muestras, y es a propósito: una
+     muestra de tres tonos dice lo que hace un AMBIENTE —cambia la luz— y de un
+     mundo no diría casi nada, porque lo que cambia es el material. Un renglón
+     con su nombre y su frase dice más, y la prueba de verdad es ponérselo. */
+  .amb-h2 { margin-top: 22px; }
+  .mun-rej { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .mun-m {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    text-align: left; font-family: inherit; cursor: pointer;
+    background: var(--sup-tarjeta); color: var(--text);
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-caja); padding: 12px 14px;
+  }
+  .mun-m.on { border-color: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
+  .mun-m.cerrado { opacity: 0.62; }
+  .mun-tx { min-width: 0; flex: 1; }
+  .mun-tx b { display: block; font-size: 14px; font-weight: 700; }
+  .mun-tx span {
+    display: block; font-size: 11.5px; color: var(--muted);
+    line-height: 1.4; margin-top: 2px;
+  }
+  .mun-p {
+    flex-shrink: 0; font-size: 10px; font-weight: 800; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--lila);
+    background: var(--lila-soft); border-radius: var(--r-pastilla);
+    padding: 4px 9px;
   }
 
   /* ---------- Subir de nivel de expedición ----------
@@ -2649,7 +2679,17 @@
      entero, quitándole toda la vida a la tarjeta. Este es más suave y
      parejo (nunca baja de la mitad de oscuro, ni sube de dos tercios), y
      el contraste que falta lo pone la sombra del texto, no el fondo. */
-  .sec-hero .scene-fade { background: linear-gradient(165deg, rgba(var(--escena-fondo), 0.5) 0%, rgba(var(--escena-fondo), 0.7) 100%); }
+  /* El velo, más fino desde 0.7.49 (0,5→0,7 antes, 0,3→0,52 ahora). Lo pidió
+     Eduardo: «los banners se comen la presencia de los módulos y dan la
+     impresión de que no cambió nada». Tenía razón y el número lo confirma —
+     con el velo espeso, el 65% de lo que se ve del encabezado es el velo, y el
+     velo es casi negro en cualquier ambiente, así que el color del ambiente
+     quedaba debajo de una manta.
+
+     Se puede bajar porque el contraste sobraba: medido, el peor rótulo estaba
+     en 9,5 contra un umbral de 4,5. La sombra del texto sigue puesta y es la
+     que de verdad lo sostiene. */
+  .sec-hero .scene-fade { background: linear-gradient(165deg, rgba(var(--escena-fondo), 0.3) 0%, rgba(var(--escena-fondo), 0.52) 100%); }
   .sec-hero .scene-body { text-shadow: 0 1px 3px rgba(10, 15, 22, 0.9), 0 4px 16px rgba(10, 15, 22, 0.6); }
   .sh-main { display: flex; flex-direction: column; gap: 14px; }
   .sh-lead { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
@@ -2753,25 +2793,31 @@
   @media (max-width: 360px) {
     .sh-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 8px; }
   }
+  /* El vidrio del foco lleva el ACENTO del ambiente y no solo su carbón, que
+     es lo segundo que pidió Eduardo: los botones del encabezado también tienen
+     que cambiar. Un 14% del acento mezclado en el vidrio basta para que se lea
+     de qué ambiente es sin volverlo un botón de color, y el borde sube del 10%
+     de tinta al acento a un cuarto, que es donde empieza a verse el contorno
+     sobre un dibujo. */
   .sh-focus {
     display: flex;
     flex-direction: column;
     gap: 3px;
     text-align: left;
     font-family: inherit;
-    background: rgba(var(--escena-vidrio), 0.55);
+    background: color-mix(in srgb, var(--mint) 14%, rgba(var(--escena-vidrio), 0.62));
     backdrop-filter: blur(8px);
-    border: var(--borde-fino) solid rgba(var(--escena-tinta), 0.1);
+    border: var(--borde-fino) solid color-mix(in srgb, var(--mint) 26%, transparent);
     border-radius: var(--r-grande);
     padding: 11px 14px;
     color: var(--text);
     cursor: pointer;
     width: 100%;
   }
-  .sh-focus:active { background: rgba(var(--escena-vidrio), 0.75); }
+  .sh-focus:active { background: color-mix(in srgb, var(--mint) 22%, rgba(var(--escena-vidrio), 0.8)); }
   .shf-k { font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
   .shf-v { font-size: 13.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .shf-bar { display: block; height: 4px; border-radius: var(--r-barra); background: rgba(234,241,239,0.14); margin-top: 5px; overflow: hidden; }
+  .shf-bar { display: block; height: 4px; border-radius: var(--r-barra); background: rgba(var(--escena-tinta), 0.14); margin-top: 5px; overflow: hidden; }
   .shf-bar i { display: block; height: 100%; border-radius: var(--r-barra); }
   /* El botón del informe vive DENTRO de la escena, que se queda de noche en
      los dos modos. `btn-linea` le daba `var(--card)` de fondo, y esa variable
@@ -6969,7 +7015,7 @@
 
     /* La tarjeta de misión se ilumina entera, pero lo que abre la ficha es
        el cuerpo: el círculo y la racha tienen lo suyo. */
-    .sh-focus:hover { background: rgba(var(--escena-vidrio), 0.75); }
+    .sh-focus:hover { background: color-mix(in srgb, var(--mint) 22%, rgba(var(--escena-vidrio), 0.8)); }
 
     /* Píldoras y botones pequeños: suben tono y marcan el borde */
     .chip:hover,
