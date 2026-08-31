@@ -58,8 +58,12 @@
   try {
     if (localStorage.getItem("norata-tema") === "claro") {
       document.documentElement.classList.add("claro");
+      /* El MISMO valor que `--bg` en `html.claro`, no uno parecido: es el
+         color que el navegador lee al abrir, y si no coincide con lo que la
+         app pinta debajo se ve un escalón en el borde de arriba. Era
+         #f2f4f8 —el fondo de los correos— y el de la app es éste. */
       var mtc = document.querySelector('meta[name="theme-color"]');
-      if (mtc) mtc.setAttribute("content", "#f2f4f8");
+      if (mtc) mtc.setAttribute("content", "#dcdef0");
     }
   } catch (e) {}
 
