@@ -13,6 +13,12 @@ vigilarCapas();
    que lo que se pinte se pinte una sola vez y con los colores buenos. */
 arrancarApariencia();
 
+/* Hasta qué nivel de expedición se festejó ya. Se siembra aquí, al arrancar, y
+   no en la primera vez que alguien registra algo: si se sembrara ahí, la
+   primera llamada de una cuenta nueva sería justo la del primer nivel, y la
+   fiesta más importante de todas —la primera— no saldría nunca. */
+if (typeof revisarNivelExpedicion === "function") revisarNivelExpedicion();
+
 /* El número de versión, en los dos sitios donde se enseña, escrito desde la
    misma constante: dos números a mano acaban discrepando el día que uno se
    cambie y el otro no, y entonces el dato deja de servir para lo único que

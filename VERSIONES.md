@@ -52,6 +52,80 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.47 · 31 ago 2026
+**Subir de nivel se celebra, y son dos celebraciones y no una.** Lo pidió
+Eduardo así: que te lo cante como cuando sube una habilidad pero más llamativo,
+y que si el nivel abre algo, lo anuncie ahí mismo con una ventana que no se
+salte por accidente.
+
+- **Un nivel a secas** es una fiesta que pasa: se va sola a los ocho segundos y
+  se corta tocando fuera. No se interrumpe una tarde por un número.
+- **Un nivel que abre algo** es una ventana de verdad: no se cierra tocando
+  fuera, no se cierra sola, dice qué se abrió y lleva ahí con un botón. Un
+  premio que se anuncia y desaparece antes de leerlo es peor que no anunciarlo.
+
+El nivel no se guarda —los puntos se cuentan, nunca se escriben—; lo que se
+guarda es hasta qué nivel se festejó ya, igual que `rachaFestejada`. Y el
+marcador se siembra al ARRANCAR y no en el primer registro: sembrándolo ahí, la
+primera llamada de una cuenta nueva sería justo la del primer nivel y la fiesta
+más importante de todas no saldría nunca.
+
+**Y un escaparate en la trastienda para verlas.** Cinco botones que disparan
+cada celebración: las tres de nivel, el hito de racha y el destello chico.
+Existe porque algunas pasan una vez en la vida de una cuenta —el rango Red pide
+veintiocho niveles— y porque una animación no se puede MEDIR: sin componer
+fotogramas se queda en el valor de partida, así que la única prueba real de una
+fiesta es mirarla. Antes de dibujarla se sale de Ajustes: las celebraciones
+viven en el piso de las fiestas y Ajustes en el de las ventanas, y disparada
+desde dentro se dibujaba debajo del panel.
+
+**Los ambientes ya llegan a los encabezados de los módulos.** Lo cazó Eduardo:
+la app entera de otro color y sus cuatro cabeceras en el azul de la casa. Eran
+tres agujeros distintos y ninguno era el mismo:
+
+1. **Quince transparencias con el color escrito a mano** dentro de las escenas
+   —el velo, las pastillas de vidrio, los rótulos a media tinta—. Ahora salen
+   de tres tripletas (`--escena-fondo`, `--escena-vidrio`, `--escena-tinta`).
+   Tripletas y no colores hechos porque a un `var()` no se le pega la
+   transparencia detrás: la misma trampa que obligó a inventar `velo()`.
+2. **El paisaje está DIBUJADO con hexes en el JavaScript.** Reescribir sus
+   cuatro paletas por ambiente serían veinticuatro tonos a ojo cada uno. En vez
+   de eso, una capa del color del ambiente en `mix-blend-mode: color`: se queda
+   con su tono y respeta la luz de lo que hay debajo, así que el dibujo no
+   cambia —la luna sigue siendo lo más claro— pero cambia de qué está hecho.
+   Apagada con `display` y no con un color transparente, para que la casa quede
+   exactamente igual.
+3. **Las superficies faltaban en la lista de la noche.** Esa lista se escribió
+   cuando `--card` era a la vez el color y lo que se pinta; desde 0.7.37 son dos
+   cosas. Lo destapó el primer botón dentro de una escena: en modo claro,
+   `.btn-ghost` cogía el papel de la página y la tinta clara de la noche —blanco
+   sobre blanco, 1,24 de contraste—. Y hay que escribir los `--sup-*` uno por
+   uno: un `var()` dentro de una variable se resuelve donde la variable se
+   DECLARA, no donde se usa, así que redeclarar `--card` no arrastraba a
+   `--sup-tarjeta`.
+
+Medido con dE2000, que es lo que hay que usar en tonos oscuros: de día los
+cuatro encabezados se mueven entre 1,7 y 12,2 según el ambiente; de noche, entre
+0,4 y 5,6. **De noche se mueve poco y es honesto decirlo**: el velo del
+encabezado deja el banner casi negro, y en casi negro no hay color que mover.
+Escarcha sale en 0,0 y también es correcto —de noche no toca ningún neutro, solo
+el acento—.
+
+Y la prueba de que no se rompió nada por el camino: la foto de los estilos
+calculados de siete pantallas en los dos modos, 26 524 elementos, **cero
+cambios** con la apariencia de la casa puesta.
+
+**Un arreglo pendiente, de paso.** La tabla de planes decía «Solo las paletas de
+color» para Gratuito, y con el reparto nuevo dejó de ser cierto: Escarcha y
+Marea son paletas y piden Pro. Ahora dice «Las paletas que vayas
+desbloqueando», que además es la invitación buena.
+
+**Lo que NO entra todavía**, y a propósito: las tres líneas de la tabla de
+precios que anuncian el mundo de Fundador. Están escritas palabra por palabra en
+`apariencias/LEEME.md` y entran **el día que entre Reliquia**, no antes.
+Escribirlas ahora sería prometer un mundo que la app no tiene — exactamente la
+deuda que costó quitar la fila de «Todas las apariencias».
+
 ### 0.7.46 · 30 ago 2026
 **La trastienda ya puede mirar lo que abre la escalera.** El plan de fundador
 simulado trae ahora también el nivel: 50, que está por encima de todo lo que

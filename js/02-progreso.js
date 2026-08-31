@@ -20,6 +20,137 @@ function celebrate(title, sub, color, iconName) {
   celTimer = setTimeout(() => el.classList.remove("show"), 2200);
 }
 
+/* ================= Subir de nivel de expedición =================
+   Lo pidió Eduardo así: «te lo canta como cuando subes de nivel una habilidad,
+   pero más llamativo aún, y si llega a servir para desbloquear algo,
+   anunciarlo ahí mismo con una ventana que no se salte por accidente».
+
+   Son DOS celebraciones y no una, y la diferencia es la que pidió:
+
+   - **Un nivel a secas** es una fiesta que pasa. Se va sola a los ocho
+     segundos y se puede cortar tocando. No interrumpe una tarde de trabajo por
+     un número.
+   - **Un nivel que ABRE algo** es una ventana de verdad: no se cierra tocando
+     fuera, no se cierra sola, y lleva un botón que va a donde está lo que
+     acabas de ganar. Un premio que se anuncia y desaparece antes de que lo
+     leas es peor que no anunciarlo, porque deja la sensación de haberse
+     perdido algo.
+
+   El nivel NO se guarda —los puntos se cuentan, nunca se escriben—; lo que se
+   guarda es hasta qué nivel se festejó ya, que es otra cosa. Es el mismo trato
+   que `rachaFestejada` y por el mismo motivo: sin él la fiesta se repetiría en
+   cada recarga. */
+let ncelTimer = null;
+
+function celebrarNivel(nivel, abre) {
+  const el = document.getElementById("ncel");
+  if (!el) return;
+  abre = abre || [];
+  const r = typeof rangoExpedicion === "function" ? rangoExpedicion(nivel) : null;
+
+  document.getElementById("ncel-num").textContent = nivel;
+  const ins = document.getElementById("ncel-insignia");
+  /* El dibujo del rango y no un icono genérico: el nivel 4 y el 5 son el mismo
+     número más uno, y lo que de verdad cambia al llegar a un rango es el
+     símbolo que llevas puesto. */
+  ins.innerHTML = r ? icon(r.icon, 78) : icon("compass", 78);
+
+  const rango = document.getElementById("ncel-rango");
+  const traeRango = abre.some(x => x.tipo === "rango");
+  rango.innerHTML = r
+    ? (traeRango ? `Ahora eres <b>${escapeHtml(r.nombre)}</b>` : `Rango ${escapeHtml(r.nombre)}`)
+    : "";
+  rango.classList.toggle("nuevo", traeRango);
+
+  /* Lo que se abre, escrito. Los rangos no entran en la lista: ya los dice el
+     renglón de arriba, y repetir la misma noticia dos veces en la misma
+     pantalla la abarata. */
+  const premios = abre.filter(x => x.tipo !== "rango");
+  const caja = document.getElementById("ncel-abre");
+  caja.innerHTML = premios.length
+    ? `<div class="ncel-tit">Se abre</div>` + premios.map(x =>
+        `<div class="ncel-uno">${icon(x.tipo === "ambiente" ? "brush" : "star", 18)}<span>${escapeHtml(x.nombre)}</span></div>`).join("")
+    : "";
+
+  /* El botón que lleva a donde está el premio. Un anuncio sin destino obliga a
+     buscarlo, y buscar un regalo lo estropea. */
+  const hayVentana = premios.length > 0;
+  const pies = document.getElementById("ncel-pies");
+  const aAmbiente = premios.some(x => x.tipo === "ambiente");
+  pies.innerHTML = hayVentana
+    ? `<button class="btn btn-primary btn-block" onclick="cerrarNivelCel(); ${aAmbiente ? "abrirApariencia()" : "abrirColeccion('summary')"}">${aAmbiente ? "Ver Mi apariencia" : "Ver Mi expedición"}</button>
+       <button class="btn btn-ghost btn-block" onclick="cerrarNivelCel()">Ahora no</button>`
+    : `<button class="btn btn-primary btn-block" onclick="cerrarNivelCel()">Seguir</button>`;
+
+  /* La clase decide las dos diferencias de comportamiento en un solo sitio:
+     con `abierta` no hay cierre por tocar fuera ni cuenta atrás. */
+  el.classList.toggle("abierta", hayVentana);
+  chispasDeNivel();
+  el.classList.remove("show");
+  void el.offsetWidth;                 // reiniciar las animaciones
+  el.classList.add("show");
+  if (userHasTapped && navigator.vibrate) navigator.vibrate(hayVentana ? [40, 60, 40, 60, 140] : [30, 50, 90]);
+
+  clearTimeout(ncelTimer);
+  /* La red de seguridad es solo para la fiesta que pasa. La ventana con premio
+     NO se va sola: se cierra a propósito o no se cierra, que es justo lo que
+     se pidió. */
+  if (!hayVentana) ncelTimer = setTimeout(cerrarNivelCel, 8000);
+}
+
+function chispasDeNivel() {
+  const sp = document.getElementById("ncel-chispas");
+  if (!sp) return;
+  let ch = "";
+  for (let i = 0; i < 22; i++) {
+    const ang = (i / 22) * Math.PI * 2 + Math.random() * 0.3;
+    const dist = 130 + Math.random() * 210;
+    ch += `<i style="--dx:${(Math.cos(ang) * dist).toFixed(0)}px;--dy:${(Math.sin(ang) * dist).toFixed(0)}px;animation-delay:${(Math.random() * 0.4).toFixed(2)}s"></i>`;
+  }
+  sp.innerHTML = ch;
+}
+
+function cerrarNivelCel() {
+  clearTimeout(ncelTimer);
+  const el = document.getElementById("ncel");
+  if (el) el.classList.remove("show");
+}
+
+/* Tocar el fondo cierra la fiesta que pasa y NO la ventana con premio. Va aquí
+   y no en el marcado porque el mismo elemento hace las dos cosas. */
+function tocarFondoNivel(ev) {
+  const el = document.getElementById("ncel");
+  if (!el || el.classList.contains("abierta")) return;
+  if (ev.target === el) cerrarNivelCel();
+}
+
+/* Se llama después de cualquier registro que pueda dar puntos, y una vez al
+   arrancar. Ese arranque no es un detalle: sin él, la PRIMERA llamada de una
+   cuenta nueva sería justo la del primer nivel, se sembraría el marcador y la
+   fiesta más importante de todas —la primera— no saldría nunca. */
+function revisarNivelExpedicion() {
+  if (typeof nivelExpedicion !== "function") return;
+  state.ui = state.ui || {};
+  const ahora = nivelExpedicion().nivel;
+  const visto = state.ui.expNivelVisto;
+
+  if (typeof visto !== "number") { state.ui.expNivelVisto = ahora; guardarLocal(state); return; }
+  /* Hacia abajo también se apunta, sin fiesta: borrar una habilidad puede
+     quitar puntos, y si el marcador se quedara arriba, recuperar ese nivel no
+     se celebraría nunca. */
+  if (ahora <= visto) {
+    if (ahora < visto) { state.ui.expNivelVisto = ahora; guardarLocal(state); }
+    return;
+  }
+
+  const abre = typeof desbloqueosDeExpedicion === "function"
+    ? desbloqueosDeExpedicion(ahora).filter(x => x.nivel > visto)
+    : [];
+  state.ui.expNivelVisto = ahora;
+  guardarLocal(state);
+  celebrarNivel(ahora, abre);
+}
+
 /* ================= Racha: celebrar los hitos =================
    El punto de una racha es dar una razón para volver mañana. Por eso los
    días redondos se celebran a lo grande y una sola vez: si la app festejara
@@ -208,7 +339,11 @@ function topoScene(w, h, seed) {
   const rnd = mulberry32(seed);
   const cx = w * 0.72, cy = h * 0.42;
   let s = `<svg class="scene" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">`;
-  s += `<rect width="${w}" height="${h}" fill="#16202c"/>`;
+  /* El lienzo y las curvas salen de las variables de la escena y no de dos
+     hexes: dentro de `.scene-card` las declara la casa, y un ambiente las
+     vuelve a declarar con las suyas. Es lo único de este dibujo que no
+     necesita el tinte para cambiar de color. */
+  s += `<rect width="${w}" height="${h}" fill="var(--motivo-lienzo)"/>`;
   const ph1 = rnd() * 6.28, ph2 = rnd() * 6.28;
   for (let r = 24; r < w * 0.72; r += 26) {
     const pts = [];
@@ -217,9 +352,9 @@ function topoScene(w, h, seed) {
       const rr = r * (1 + 0.16 * Math.sin(ang * 3 + ph1 + r * 0.02) + 0.07 * Math.sin(ang * 5 + ph2));
       pts.push((cx + rr * Math.cos(ang)).toFixed(1) + "," + (cy + rr * Math.sin(ang)).toFixed(1));
     }
-    s += `<polygon points="${pts.join(" ")}" fill="none" stroke="#2c3b4c" stroke-width="1.2" opacity="${Math.max(0.15, 0.9 - r / (w * 0.85)).toFixed(2)}"/>`;
+    s += `<polygon points="${pts.join(" ")}" fill="none" stroke="var(--motivo-curva)" stroke-width="1.2" opacity="${Math.max(0.15, 0.9 - r / (w * 0.85)).toFixed(2)}"/>`;
   }
-  s += `<circle cx="${cx}" cy="${cy}" r="12" fill="rgba(245,215,110,0.22)"/><circle cx="${cx}" cy="${cy}" r="5" fill="#f5d76e"/>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="12" fill="var(--motivo-halo)"/><circle cx="${cx}" cy="${cy}" r="5" fill="var(--fire)"/>`;
   s += `</svg>`;
   return s;
 }

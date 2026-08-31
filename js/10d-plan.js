@@ -1077,7 +1077,7 @@ function planIncluyeHTML(pro) {
     ["Ramas de talentos", l.ramas === Infinity ? "Ilimitadas" : (l.ramas === 1 ? "Una" : String(l.ramas))],
     ["Talentos por rama", l.talentos === Infinity ? "Ilimitados" : String(l.talentos)],
     ["Informes", l.resumen.length ? "De la semana, del mes y del año" : "El panel de tu día"],
-    ["Apariencias", l.apariencia ? "Todas" : "Las paletas de color"],
+    ["Apariencias", l.apariencia ? "Todas" : "Las paletas que vayas desbloqueando"],
     /* Estas dos no salen de `LIMITES` porque no tienen tope en ningún plan, y
        decirlo aquí es la mitad del mensaje: lo que se cobra no es la app, son
        los topes. Sin ellas la lista del plan libre parece una lista de peros. */
@@ -1720,7 +1720,11 @@ function planFilasComparadas() {
   const ramas = (x) => x === Infinity ? "Ilimitadas" : (x === 1 ? "Una" : String(x));
   const tope = (x) => x === Infinity ? "Ilimitados" : String(x);
   const resu = (x) => x.length ? "Semana, mes y año" : "Solo el panel del día";
-  const apar = (x) => x ? "Todas" : "Solo las paletas de color";
+  /* «Solo las paletas de color» dejó de ser cierto con el reparto nuevo:
+     Escarcha y Marea SON paletas y piden Pro, así que la frase prometía en
+     Gratuito algo que Gratuito no tiene entero. Ahora dice lo que de verdad
+     se abre — las que te vayas ganando, que además es la invitación buena. */
+  const apar = (x) => x ? "Todas" : "Las paletas que vayas desbloqueando";
 
   return [
     ["Ramas de talentos", ramas(l.ramas), ramas(p.ramas), ramas(p.ramas)],

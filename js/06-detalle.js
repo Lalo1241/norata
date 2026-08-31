@@ -131,7 +131,7 @@ function renderMissions() {
     : "";
 
   const hero = sectionHero({
-    scene: motifScene(820, 168, 55, "waves", trazo("#5fe0b0")),
+    scene: motifScene(820, 168, 55, "waves", "var(--mint)"),
     lead: `
       <div class="ring-wrap" style="width:92px;height:92px">
         ${/* Animado, no fijo: cumplir una misión mueve este anillo, y verlo
@@ -289,7 +289,7 @@ function renderProjects() {
   }
 
   let html = sectionHero({
-    scene: motifScene(820, 168, 77, "peaks", trazo("#5fe0b0")),
+    scene: motifScene(820, 168, 77, "peaks", "var(--mint)"),
     lead: `<div>
       <div class="label">Avance de lo que construyes</div>
       <div class="big"><b>${avgProg}%</b><span> promedio</span></div>
@@ -1123,6 +1123,11 @@ async function logActivity() {
   const real = addXp(s, p.xp, note || "Práctica", null, { min: p.min, nivel: p.nivel });
   save();
   checkStreakMilestone();
+  /* Y el nivel de cuenta, que sube de las mismas cosas. Va junto a la racha
+     porque son la misma pregunta —«¿esto que acabo de hacer merece fiesta?»—
+     y separarlas garantizaba que una de las dos se olvidara en el siguiente
+     sitio que registre algo. */
+  revisarNivelExpedicion();
   const after = levelInfo(s.xp).level;
   renderDetail();
   if (real === 0) {

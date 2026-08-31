@@ -330,6 +330,11 @@ function logMission(id, delta, opciones) {
   if (op.silencioso) return;
 
   if (delta > 0) checkStreakMilestone();
+  /* Y el nivel de cuenta, que sube de las mismas cosas. Va junto a la racha
+     porque son la misma pregunta —«¿esto que acabo de hacer merece fiesta?»—
+     y separarlas garantizaba que una de las dos se olvidara en el siguiente
+     sitio que registre algo. */
+  revisarNivelExpedicion();
 
   if (nowDone && !wasDone) {
     const st = missionStreak(m);
