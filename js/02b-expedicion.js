@@ -204,6 +204,20 @@ function expNivelMaximo(s) {
 }
 
 function expDesglose() {
+  /* La trastienda puede pedir un nivel alto para MIRAR lo que abre la escalera
+     —los ambientes del 12 y del 20— sin tener que ganárselo, que son años. Se
+     engancha aquí y no en `puntosExpedicion()` a propósito: todo lo demás sale
+     de este reparto, así que el nivel, el rango, la insignia, la barra y los
+     candados quedan de acuerdo entre ellos, y la pantalla del recorrido enseña
+     una sola fuente en vez de un total que no cuadra con sus renglones.
+
+     Sigue sin guardarse nada: los puntos se cuentan, nunca se escriben (la
+     regla de `js/10-fusion.js`), y esto es una cuenta más. */
+  if (typeof puntosDeExpedicionSimulados === "function") {
+    const fingidos = puntosDeExpedicionSimulados();
+    if (typeof fingidos === "number") return { pruebas: fingidos };
+  }
+
   const perks = state.perks || [];
   const proyectos = state.projects || [];
 
@@ -374,7 +388,8 @@ const EXP_ETIQUETAS = {
   etapas:   "Etapas hechas",
   hitos:    "Hitos conseguidos",
   rachas:   "Hitos de racha",
-  estrenos: "Estrenos"
+  estrenos: "Estrenos",
+  pruebas:  "Nivel de pruebas"
 };
 
 /* A dónde vuelve la flecha. Se abre desde dos sitios y volver siempre al

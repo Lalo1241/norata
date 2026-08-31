@@ -52,6 +52,41 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.46 · 30 ago 2026
+**La trastienda ya puede mirar lo que abre la escalera.** El plan de fundador
+simulado trae ahora también el nivel: 50, que está por encima de todo lo que
+hay escrito hoy y deja sitio para lo que venga. Sin esto, revisar cómo se ve un
+ambiente del nivel 20 pedía ganárselo —años de uso—, y lo único que quedaba era
+mirar el CSS y suponer.
+
+Tres decisiones dentro:
+
+- **Va enganchado al reparto de puntos y no al nivel.** Todo lo demás sale de
+  ahí, así que el nivel, el rango, la insignia, la barra y los candados de los
+  ambientes quedan de acuerdo entre ellos, y «Mi expedición» enseña una sola
+  fuente —«Nivel de pruebas»— en vez de un total que no cuadra con sus
+  renglones. Y se sigue sin guardar nada: los puntos se cuentan, nunca se
+  escriben.
+- **Solo con la simulación explícita**, no con el `PLAN_DE_CASA` que la cuenta
+  administradora tiene puesto por serlo. Sin simular nada hay que poder ver la
+  app con el nivel de verdad, que es el que ve todo el mundo.
+- **La curva se suma, no se escribe.** Hoy son 37 475 puntos; un 37475 clavado
+  en el código empieza a mentir el día que alguien mueva un peso.
+
+Y de paso, un fallo que estaba ahí desde antes: `planSimular` decía en su propio
+comentario que repintaba TODO y repintaba solo Ajustes — el Resumen se quedaba
+con el plan anterior puesto. Ahora redibuja la vista de abajo, como ya hacía
+`planRefrescar`. Importaba poco cuando solo cambiaba el plan; con el nivel
+dentro, importa el doble.
+
+**Y en la cuenta de pruebas, el rótulo del ejemplo se calla.** Existe para que
+nadie confunda datos inventados con los suyos, y quien acaba de pulsar «Ver un
+ejemplo» desde la trastienda no puede confundirse: ya lo sabe. Lo que sí
+estorbaba era la pastilla encima de la cabecera justo mientras se juzga cómo se
+ve la app. **El botón de salir no se quita**, y esa parte no es negociable: es
+la única puerta del ejemplo, y apagarla dejaría a alguien encerrado mirando
+datos que no son suyos.
+
 ### 0.7.45 · 30 ago 2026
 Un mundo te renombra el camino. Los cinco rangos de la casa siguen siendo los de
 la casa; **un mundo trae los suyos**, con sus nombres y sus dibujos.

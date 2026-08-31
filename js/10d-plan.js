@@ -356,6 +356,37 @@ function planConSimulacion(real) {
   return real;
 }
 
+/* ---- El nivel que trae el fundador simulado ----
+   Con el plan puesto no basta: la mitad de lo que abre la escalera —los
+   ambientes del 12 y del 20, y lo que venga detrás— no se puede MIRAR sin
+   haberlo ganado, y ganarlo de verdad son años de uso. Así que el fundador
+   simulado trae también el nivel, que es lo que hace que la trastienda pueda
+   revisar de una sentada todo lo que existe.
+
+   Cincuenta porque está por encima de todo lo escrito hoy y deja sitio de
+   sobra para lo que se añada. Y va solo con la simulación EXPLÍCITA, no con
+   `PLAN_DE_CASA`: la cuenta administradora sin simular nada tiene que poder
+   ver la app con su nivel de verdad, que es el que ve todo el mundo.
+
+   Devuelve null —y no 0— cuando no toca: 0 es un número de puntos legítimo y
+   quien pregunta distingue «no hay simulación» de «cero puntos». */
+const NIVEL_DE_PRUEBAS = 50;
+
+function puntosDeExpedicionSimulados() {
+  if (typeof esCuentaDePruebas !== "function" || !esCuentaDePruebas()) return null;
+  if (planLeerSimulado() !== "fundador") return null;
+  if (typeof expCosto !== "function") return null;
+
+  /* Se SUMA la curva en vez de escribir el número: hoy son 37 475 puntos, pero
+     un 37475 clavado aquí empieza a mentir el día que alguien mueva un peso de
+     `EXP_PUNTOS` o la rampa. */
+  let t = 0;
+  for (let n = 0; n < NIVEL_DE_PRUEBAS; n++) t += expCosto(n);
+  /* Y medio nivel dentro, no justo en el borde: con la barra a 0% no se ve si
+     pinta, y la barra es parte de lo que se viene a revisar. */
+  return t + Math.round(expCosto(NIVEL_DE_PRUEBAS) / 2);
+}
+
 /* Volver a decidir qué plan se enseña, sin preguntarle nada al servidor. La
    llama `revisarAdmin` cuando el servidor contesta que sí: esa respuesta llega
    después de `planCargar`, así que sin esto la cuenta administradora se
@@ -389,6 +420,16 @@ function planSimular(cual) {
   if (typeof renderAjustes === "function") renderAjustes();
   if (typeof renderPanelAdmin === "function") renderPanelAdmin();
   if (typeof renderPanelPlan === "function") renderPanelPlan();
+  /* Y la vista de debajo, que es donde de verdad se nota. El comentario de
+     arriba decía «repinta TODO» y no era cierto: repintaba Ajustes y se dejaba
+     el Resumen con lo anterior puesto. Ahora importa el doble, porque el
+     fundador simulado también cambia el nivel —y con él la insignia, la
+     tarjeta de expedición y los candados de los ambientes—. Es la misma línea
+     que ya usa `planRefrescar`: redibuja la vista de ahora, no lleva a otra. */
+  if (typeof showView === "function" && typeof activeMainView !== "undefined") {
+    showView(activeMainView || "summary");
+  }
+  if (typeof renderPanelApariencia === "function") renderPanelApariencia();
   if (typeof toast === "function") {
     toast(cual ? "Viendo la app como " + planNombreSimulado() : "De vuelta a tu plan de verdad", "hecho");
   }

@@ -447,18 +447,31 @@ function salirDelEjemplo() {
 /* El rótulo, y la única salida. Es el mismo trato que el de «Cuenta de
    pruebas»: si la app enseña algo que no es real, tiene que decirlo en
    pantalla y no en un menú. La diferencia es que éste lleva botón, porque
-   aquí sí hay de dónde salir. */
+   aquí sí hay de dónde salir.
+
+   **En la cuenta de pruebas el aviso se calla y deja solo la salida.** Lo pidió
+   Eduardo y el motivo es bueno: el rótulo existe para que nadie confunda datos
+   inventados con los suyos, y quien acaba de pulsar «Ver un ejemplo» desde la
+   trastienda no puede confundirse — ya lo sabe. Lo que sí estorba es tener una
+   pastilla encima de la cabecera mientras se juzga cómo se ve la app, que es
+   justo para lo que se entra al ejemplo desde ahí.
+
+   El botón NO se quita, y esa parte no es negociable: es la única forma de
+   salir del ejemplo. Sin él, apagar el rótulo dejaría a alguien encerrado
+   mirando datos que no son suyos. */
 function pintarAvisoEjemplo() {
   const previo = document.getElementById("aviso-ejemplo");
   if (previo) previo.remove();
   document.body.classList.toggle("ejemplo-on", modoEjemplo);
   if (!modoEjemplo) return;
 
+  const callado = typeof esCuentaDePruebas === "function" && esCuentaDePruebas();
   const marco = document.createElement("div");
   marco.id = "aviso-ejemplo";
-  marco.className = "aviso-ejemplo";
+  marco.className = "aviso-ejemplo" + (callado ? " callado" : "");
   marco.innerHTML =
-    '<div class="ae-tag"><span>Estás viendo un ejemplo</span>' +
+    '<div class="ae-tag">' +
+    (callado ? '' : '<span>Estás viendo un ejemplo</span>') +
     '<button type="button" onclick="salirDelEjemplo()">Salir</button></div>';
   document.body.appendChild(marco);
 }
