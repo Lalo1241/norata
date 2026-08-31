@@ -102,6 +102,9 @@ def bloque(m):
     v.append(("--r-factor", str(factor)))
     if t.get("--m-r-barra"):    v.append(("--r-barra", t["--m-r-barra"]))
     if t.get("--m-r-chip"):     v += [("--r-pastilla", t["--m-r-chip"]), ("--r-boton", t["--m-r-chip"])]
+    # La gota —la silueta irregular detrás de un icono— va en porcentajes, así
+    # que el factor no la alcanza: un mundo que se cuadra tiene que decirlo.
+    if t.get("--m-r-gota"):     v.append(("--r-gota", t["--m-r-gota"]))
 
     sel = 'html[data-apariencia="%s"]' % m["id"]
     salida = ["/* ---------- %s · %s ---------- */" % (m["nombre"], m["llave"]),
@@ -121,12 +124,64 @@ def bloque(m):
            ("--mint-soft", t["--m-acento-velo"]),
            ("--motivo-cielo-1", tarj_plana), ("--motivo-cielo-2", mezcla(fondo, tarj_plana, 0.6)),
            ("--motivo-chispa", tinta),
-           ("--motivo-lienzo", mezcla(fondo, tarj_plana, 0.6)), ("--motivo-curva", t["--m-borde-color"]),
+           ("--motivo-lienzo", mezcla(fondo, tarj_plana, 0.6)),
+           # Las curvas del encabezado de Talentos NO salen del color del borde:
+           # en un mundo con marco dorado eso son líneas de oro brillante justo
+           # detrás del texto. Salen del suelo, apenas por encima del lienzo,
+           # que es lo que son: relieve, no dibujo.
+           ("--motivo-curva", mezcla(mezcla(fondo, tarj_plana, 0.6), tinta, 0.16)),
            ("--escena-fondo", ", ".join(str(x) for x in _hex(fondo))),
            ("--escena-vidrio", ", ".join(str(x) for x in _hex(tarj_plana))),
            ("--escena-tinta", ", ".join(str(x) for x in _hex(tinta))),
            ("--escena-tinte-modo", "block"), ("--escena-tinte", tarj_plana),
            ("--escena-tinte-fuerza", "1")]
+    # ---- El marco, con freno ----
+    # Un `border-image` en `--marco-tarjeta` lo hereda TODO lo que dibuje un
+    # borde de tarjeta: los paneles, las tarjetas, cada misión de una lista y
+    # cada habilidad de un catálogo. Con el latón de Reliquia eso son cuarenta
+    # marcos dorados en una pantalla, y Eduardo lo dijo con la frase justa: «se
+    # gasta el recurso muy rápido».
+    #
+    # El marco se queda donde significa algo —el panel y la tarjeta, que son las
+    # piezas grandes— y las FILAS de una lista vuelven a un borde liso y apagado.
+    # Así el dorado sigue siendo el marco de la vitrina y no el contorno de todo
+    # lo que hay dentro.
+    if t.get("--m-marco"):
+        liso = mezcla(t["--m-borde-color"], tarj_plana, 0.55)
+        # La lista salió MEDIDA y no de memoria: se contó qué elementos llevaban
+        # `border-image` en las siete pantallas con Reliquia puesta. Los que
+        # se repiten son los que sobraban —quince etapas de proyecto, diez
+        # tarjetas de habilidad, ocho botones— y los que se quedan son los dos
+        # que de verdad enmarcan: el panel y la tarjeta del Resumen. Once
+        # marcos en siete pantallas se leen como un marco; cincuenta y tres, no.
+        filas = [".ms-card", ".skill-card", ".branch-card", ".pstep", ".cat-item",
+                 ".aj-item", ".history-item", ".col-rango-uno", ".amb-m", ".mun-m",
+                 ".glass-chip", ".sh-focus", ".btn", ".icon-btn", ".tema-fila",
+                 ".seg", ".chip", ".pill"]
+        salida += ["",
+          "/* El marco solo en las piezas grandes: dentro de una lista vuelve a ser",
+          "   un borde liso, o el latón deja de ser un marco y pasa a ser el",
+          "   contorno de todo lo que hay dentro. */",
+          ",\n".join("%s %s" % (sel, f) for f in filas) + " {",
+          "  border-image: none;",
+          "  border-width: 1px;",
+          "  border-color: %s;" % liso,
+          "}"]
+
+    # ---- El techo del peso ----
+    # Syne es variable de 600 a 800, y a 800 se ESTIRA: la letra se alarga y
+    # descuadra los renglones. La app pide 800 en varios sitios, así que el techo
+    # se pone una vez aquí en vez de ir a por cada regla. Lo cazó Eduardo.
+    if t.get("--m-peso-max"):
+        gordos = ["h1", "h2", "h3", "b", "strong", ".big", ".n", ".num",
+                  ".sh-stats .n", ".cel-title", ".scel-num", ".ncel-num",
+                  ".ms-count", ".sum-n", ".tree-stats .n"]
+        salida += ["",
+          "/* El techo del peso de la letra: por encima de esto Syne se estira. */",
+          ",\n".join("%s %s" % (sel, g) for g in gordos) + " {",
+          "  font-weight: %s;" % t["--m-peso-max"],
+          "}"]
+
     salida += ["", "%s .scene-card,\n%s .celebrate,\n%s .ncel {" % (sel, sel, sel)]
     salida += ["  %s: %s;" % kv for kv in esc]
     salida.append("}")

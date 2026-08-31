@@ -419,7 +419,21 @@ function renderPanelApariencia() {
      haría parecer catorce opciones del mismo tipo, que es justo la confusión
      que `apariencias/LEEME.md` existe para evitar. */
   const listos = MUNDOS.filter((m) => m.listo);
-  const mundos = listos.map((m) => {
+  /* La primera fila es la salida, y existe porque Eduardo preguntó lo obvio:
+     con un mundo puesto, ¿cómo se vuelve? Hasta ahora había que tocar un
+     RECOLOR, que es pedir una cosa para conseguir otra — se lee como «elegir
+     Musgo», no como «quitar Reliquia». Ahora la puerta de vuelta está en la
+     misma lista por la que se entró, que es donde uno la busca. */
+  const salida = `
+      <button type="button" class="mun-m mun-salida${esMundo(puesta) ? "" : " on"}"
+        onclick="elegirApariencia('casa')" aria-pressed="${!esMundo(puesta)}">
+        <span class="mun-ic">${icon("compass", 20)}</span>
+        <span class="mun-tx">
+          <b>Norata clásico</b>
+          <span>Sin mundo: el material de siempre, con el ambiente que lleves puesto.</span>
+        </span>
+      </button>`;
+  const mundos = salida + listos.map((m) => {
     const bloqueado = aparienciaDisponible(m.id) !== true;
     const pie = motivoApariencia(m) || "";
     return `
@@ -478,7 +492,10 @@ function elegirApariencia(id) {
      es el único sitio donde la mezcla se puede tolerar — lo que se está
      mirando son datos inventados. */
   if (typeof modoEjemplo !== "undefined" && modoEjemplo) return;
-  if (typeof toast === "function") toast("Poniendo " + a.nombre + "…", "calma");
+  /* Sin el nombre: lo pidió Eduardo y tiene razón — el nombre ya está en la
+     tarjeta que acabas de tocar, y repetirlo en el aviso es decir dos veces lo
+     mismo medio segundo antes de que la app se recargue y lo enseñe. */
+  if (typeof toast === "function") toast("Cambiando tema…", "calma");
   /* Un respiro para que el aviso se vea y para que `localStorage` haya
      escrito de verdad antes de irse. */
   setTimeout(() => location.reload(), 420);

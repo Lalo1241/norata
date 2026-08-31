@@ -316,6 +316,16 @@
        —la tarjeta de una misión entra por la izquierda casi recta y sale
        redonda por la derecha— y una apariencia que las quiera cambiar tiene
        que poder cambiarlas enteras, no esquina por esquina. */
+    /* La GOTA: la silueta irregular que va detrás de un icono —la de una
+       habilidad, la de la celebración, la de los colores—. Era el mismo
+       `border-radius` de ocho valores escrito a mano en cinco sitios, y por eso
+       un mundo no llegaba: lo cazó Eduardo mirando Reliquia, donde la app se
+       cuadra entera y esas cinco siluetas se quedaban de gota.
+
+       Va en porcentajes y no en píxeles, así que NO pasa por `--r-factor`: un
+       factor sobre un porcentaje no significa nada. Un mundo la vuelve a
+       declarar entera, y cuadrarla es escribir un solo valor. */
+    --r-gota: 58% 42% 55% 45% / 52% 48% 60% 40%;
     --r-mision: calc(8px * var(--r-factor)) calc(18px * var(--r-factor)) calc(18px * var(--r-factor)) calc(8px * var(--r-factor));
     --r-burbuja: calc(26px * var(--r-factor)) calc(26px * var(--r-factor)) calc(26px * var(--r-factor)) calc(10px * var(--r-factor));
     --r-burbuja-alta: calc(34px * var(--r-factor)) calc(34px * var(--r-factor)) calc(34px * var(--r-factor)) calc(12px * var(--r-factor));
@@ -1267,6 +1277,11 @@
     border-radius: var(--r-caja); padding: 12px 14px;
   }
   .mun-m.on { border-color: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
+  /* La salida no es un mundo y no se pinta como uno: su icono va en el gris de
+     la app y no en el lila de Fundador, para que la lista se lea como «esto es
+     lo que hay puesto» y no como «aquí hay dos mundos». */
+  .mun-salida .mun-ic { background: var(--sup-panel); color: var(--muted); }
+  .mun-salida.on .mun-ic { color: var(--mint); }
   .mun-m.cerrado { opacity: 0.62; }
   /* Y el del mundo, que aquí sí es una pieza suya: la piedra de Reliquia es el
      mismo dibujo con el que la app ya nombra la insignia de Fundador. */
@@ -2153,7 +2168,7 @@
     width: 50px; height: 50px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    border-radius: 58% 42% 55% 45% / 52% 48% 60% 40%;
+    border-radius: var(--r-gota);
   }
   .skill-emoji svg { width: 23px; height: 23px; }
   .skill-info { flex: 1; min-width: 0; }
@@ -2185,7 +2200,7 @@
   .empty .bubble {
     width: 82px; height: 82px;
     margin: 0 auto 16px;
-    border-radius: 58% 42% 55% 45% / 52% 48% 60% 40%;
+    border-radius: var(--r-gota);
     background: var(--mint-soft);
     color: var(--mint);
     display: flex; align-items: center; justify-content: center;
@@ -2687,7 +2702,15 @@
   /* ---------- Encabezado común de sección ----------
      Misiones, Habilidades, Talentos y Proyectos comparten este esqueleto:
      una cifra que resume, indicadores y el foco de lo que urge. */
-  .sec-hero { height: auto; min-height: 0; border-radius: 12px 34px 34px 34px; }
+  /* Las esquinas del encabezado pasan por el factor como todo lo demás. Iban
+     escritas a mano —`12px 34px 34px 34px`— y eran las únicas de la app que un
+     mundo no podía tocar: con Reliquia la app entera se cuadraba y los cuatro
+     banners seguían con la burbuja de la casa. Lo cazó Eduardo. */
+  .sec-hero {
+    height: auto; min-height: 0;
+    border-radius: calc(12px * var(--r-factor)) calc(34px * var(--r-factor))
+                   calc(34px * var(--r-factor)) calc(34px * var(--r-factor));
+  }
   .sec-hero .scene-body { position: relative; inset: auto; padding: 18px; }
   /* El degradado de .scene-fade da por hecho un fondo alto con el texto
      pegado abajo (como la tarjeta de racha): abajo casi opaco, arriba casi
@@ -3391,7 +3414,7 @@
   .caja-color .color-grid { margin-top: 8px; }
   .caja-color .cc-auto {
     width: 38px; height: 38px;
-    border-radius: 58% 42% 55% 45% / 52% 48% 60% 40%;
+    border-radius: var(--r-gota);
     border: 2px dashed var(--line);
     outline: 2px solid transparent;
     outline-offset: 2px;
@@ -3711,7 +3734,7 @@
   .color-grid { display: flex; gap: 9px; flex-wrap: wrap; }
   .color-grid button {
     width: 38px; height: 38px;
-    border-radius: 58% 42% 55% 45% / 52% 48% 60% 40%;
+    border-radius: var(--r-gota);
     border: 2px solid transparent;
     outline: 2px solid transparent;
     outline-offset: 2px;
@@ -4438,7 +4461,7 @@
   .cel-icon {
     width: 84px; height: 84px;
     margin: 0 auto 16px;
-    border-radius: 58% 42% 55% 45% / 52% 48% 60% 40%;
+    border-radius: var(--r-gota);
     background: color-mix(in srgb, var(--cel, #5fe0b0) 18%, transparent);
     border: 2px solid var(--cel, #5fe0b0);
     color: var(--cel, #5fe0b0);
@@ -4753,7 +4776,9 @@
      teñido de su color—, para que se lea como lo que es, la identidad de la
      cosa, y no como otro botón al lado del que sí lo es. */
   .ms-ic {
-    flex: none; width: 28px; height: 28px; border-radius: 9px;
+    /* `calc(9px * factor)` y no `--r-mini`, que son 8: pasa por el factor —que
+       es lo que faltaba— sin cambiarle un píxel a la casa. */
+    flex: none; width: 28px; height: 28px; border-radius: calc(9px * var(--r-factor));
     display: inline-flex; align-items: center; justify-content: center;
   }
   .ms-ic svg { width: 16px; height: 16px; }
