@@ -146,6 +146,11 @@ function pedirLosMundos() {
   const l = document.createElement("link");
   l.rel = "stylesheet";
   l.href = "css/mundos.css";
+  /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
+     leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
+     casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
+     Medido con Reliquia: la etiqueta decía #10151d y su fondo es #100c1a. */
+  l.addEventListener("load", () => pintarColorDeBarra());
   document.head.appendChild(l);
 }
 
@@ -233,10 +238,34 @@ function ponerApariencia(cual, opciones) {
    catorce parejas que mantener a mano. Se LEE el fondo ya calculado, que
    siempre dice la verdad aunque mañana entre un mundo nuevo. */
 function pintarColorDeBarra() {
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (!meta) return;
-  const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
-  if (bg && bg.indexOf("(") === -1) meta.setAttribute("content", bg);
+  const viejo = document.querySelector('meta[name="theme-color"]');
+  if (!viejo) return;
+
+  /* El color se lee del fondo YA CALCULADO y no de la variable en crudo: una
+     apariencia puede declarar su página como degradado, y un degradado no vale
+     para esta etiqueta. Antes se leía `--bg` y se abandonaba si traía un
+     paréntesis, y abandonar quería decir dejar puesto el color de otra cosa. */
+  const raiz = document.documentElement;
+  let color = getComputedStyle(raiz).getPropertyValue("--bg").trim();
+  if (!color || color.indexOf("(") !== -1) {
+    const c = getComputedStyle(document.body || raiz).backgroundColor;
+    if (c && !/rgba\(0, 0, 0, 0\)/.test(c)) color = c;
+  }
+  if (!color || color.indexOf("(") !== -1) return;
+
+  /* Y se REEMPLAZA la etiqueta en vez de cambiarle el atributo. Parece lo
+     mismo y no lo es: Chrome en Android elige el color de los iconos del
+     sistema —la hora, la señal, la batería— al leer esta etiqueta, y cambiando
+     solo el `content` hay versiones que repintan el fondo de la barra y NO
+     vuelven a elegir el color de los iconos. Resultado: iconos claros sobre una
+     barra que acaba de ponerse clara, o sea una barra ilegible, que es
+     exactamente lo que Eduardo veía al pasar la app a modo día. Quitar y poner
+     el elemento la obliga a decidir otra vez. */
+  if (viejo.getAttribute("content") === color) return;
+  const nuevo = document.createElement("meta");
+  nuevo.setAttribute("name", "theme-color");
+  nuevo.setAttribute("content", color);
+  viejo.parentNode.replaceChild(nuevo, viejo);
 }
 
 /* ---- La prueba con enlace ----

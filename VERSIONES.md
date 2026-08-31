@@ -52,6 +52,41 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.50.1 · 31 ago 2026
+**La franja del navegador, terminada.** La 0.7.50 dejó de pintarla con los dos
+colores de la casa, pero preguntando Eduardo salió lo que de verdad le pasaba:
+**en modo día no se leía la barra de notificaciones del teléfono.**
+
+Tres cosas, y la del medio es la que lo explica:
+
+- **La etiqueta se REEMPLAZA en vez de cambiarle el atributo.** Parece lo mismo
+  y no lo es: Chrome en Android elige el color de los iconos del sistema —la
+  hora, la señal, la batería— al leer `theme-color`, y cambiando solo su
+  `content` hay versiones que repintan el fondo de la barra y **no vuelven a
+  elegir el color de los iconos**. El resultado es iconos claros sobre una barra
+  que acaba de ponerse clara: una barra ilegible, que es exactamente el
+  síntoma. Quitar y poner el elemento la obliga a decidir otra vez.
+- **El color se lee del fondo ya calculado** y no de la variable en crudo. Antes
+  se leía `--bg` y se abandonaba si traía un paréntesis —o sea, ante cualquier
+  degradado—, y abandonar quería decir dejar puesto el color de otra cosa.
+- **Y el mundo repinta la franja cuando su archivo llega.** `css/mundos.css` se
+  pide al encenderlo, y hasta que carga `--bg` sigue siendo el de la casa:
+  medido, Reliquia declaraba `#10151d` teniendo `#100c1a` de fondo.
+
+De paso, el valor que el navegador lee AL ABRIR en modo día pasa de `#f2f4f8`
+—que es el fondo de los correos, no el de la app— a `#dcdef0`, que es lo que la
+app pinta de verdad.
+
+Comprobado en las doce combinaciones de modo y apariencia: la etiqueta coincide
+con el fondo pintado (contraste 1,00-1,03, o sea el mismo color), sigue al
+alternar de modo en los dos sentidos, y nunca queda más de una etiqueta. Los
+mundos no cambian con el modo y eso es correcto: un mundo declara sus propios
+colores y Reliquia es de noche.
+
+**Lo que no se puede comprobar desde aquí:** cómo pinta Android la barra de
+verdad. Lo que sí se garantiza es que el color que la app declara es el que la
+app pinta, en toda combinación.
+
 ### 0.7.50 · 31 ago 2026
 **Tres fallos que vio Eduardo en su teléfono, y los tres tenían un número
 detrás.**
