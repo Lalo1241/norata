@@ -270,6 +270,12 @@ function logMission(id, delta, opciones) {
   const before = missionCount(m, key);
   const after = clamp(before + delta, 0, target);
   if (after === before) return;
+  /* Dónde estaba el botón ANTES de repintar, que es donde está tu dedo. Al
+     cumplir una misión la fila cambia de columna —medido: 286 px a la
+     derecha—, así que celebrar en su sitio nuevo es soltar la luz lejos de
+     donde estás mirando. */
+  const donde = document.querySelector(`.view.active .ms-check[data-m="${m.id}"]`);
+  const dondeCaja = donde ? donde.getBoundingClientRect() : null;
   /* Cada vez que se marca nace una marca con identidad propia, y al
      desmarcar se retira la última. El número sale de contarlas, no se guarda:
      un contador y una lista pueden desincronizarse, y entonces la fusión
@@ -330,6 +336,17 @@ function logMission(id, delta, opciones) {
   if (op.silencioso) return;
 
   if (delta > 0) checkStreakMilestone();
+
+  /* El destello va en CUALQUIER avance, no solo al cumplir: una misión de tres
+     veces al día se toca tres veces, y las dos primeras también son algo que
+     hiciste. Se busca el botón después de repintar porque el que pulsaste ya
+     no existe. */
+  /* Con la caja de ANTES del repintado (ver arriba). Y se busca dentro de la
+     vista activa: la misma misión tiene botón en el Resumen y en Misiones, y
+     un `querySelector` a secas devuelve el primero del árbol —el del Resumen—,
+     que cuando estás en Misiones está escondido y mide 0×0. Así el destello
+     se disparaba contra un elemento sin caja y no salía nunca, en silencio. */
+  if (delta > 0) destello(dondeCaja, pinta(m.color));
 
   if (nowDone && !wasDone) {
     const st = missionStreak(m);
@@ -438,7 +455,11 @@ function botonMision(m, c, t, opciones) {
     etiqueta = `Cumplir ${m.name}`;
   }
 
-  return `<button class="ms-check ${sobre ? "muda" : ""}" ${apagado ? "disabled" : `onclick="${accion}"`}
+  /* `data-m` no es decorado: al marcar, la lista se vuelve a dibujar entera y
+     el botón que pulsaste deja de existir. Es lo que permite encontrar el
+     nuevo para ponerle el destello encima. */
+  return `<button class="ms-check ${sobre ? "muda" : ""}" data-m="${escapeAttr(m.id)}"
+    ${apagado ? "disabled" : `onclick="${accion}"`}
     aria-label="${escapeAttr(etiqueta)}" title="${escapeAttr(etiqueta)}">
     <span class="ms-base">${base}</span>
     ${sobre ? `<span class="ms-sobre">${sobre}</span>` : ""}
