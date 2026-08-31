@@ -282,16 +282,43 @@ function arrancarApariencia() {
      fogonazo, así que sin esto la app arrancaría con el atributo puesto y sin
      ninguna regla que lo lea — o sea, con la casa pintada y el nombre de otro. */
   if (esMundo(puesta)) pedirLosMundos();
-  /* Congelar, nunca quitar: si ya no se puede, se vuelve a la casa en vez de
-     dejar la app pintada con algo que el servidor no reconoce. La elección
-     guardada NO se borra — el día que vuelva a pagar, vuelve su apariencia. */
-  if (puesta !== "casa" && aparienciaDisponible(puesta) !== true) {
-    const raiz = document.documentElement;
-    raiz.classList.add("cambiando-modo");
-    raiz.removeAttribute("data-apariencia");
-    getComputedStyle(raiz).backgroundColor;
-    setTimeout(() => raiz.classList.remove("cambiando-modo"), 0);
-  }
+  /* AQUÍ NO SE QUITA NADA, y esto costó un fallo que Eduardo vio en su
+     teléfono: «no cambia el tema y quita el recolor».
+
+     Antes se preguntaba aquí si la apariencia guardada seguía estando
+     permitida, y se quitaba si no. El problema es CUÁNDO corre esto: al
+     arrancar, antes de que el servidor haya contestado quién eres. En ese
+     instante tu nivel es 0 y tu plan es el libre, así que la puerta decía que
+     no y la apariencia se caía — y no había segunda mirada. Medido: con
+     `norata-apariencia = duna` guardado, el atributo salía en null y seguía en
+     null aunque después el nivel llegara a 50.
+
+     Ahora se pinta lo guardado y la puerta se revisa en `refrescarApariencia()`,
+     cuando el servidor ya contestó. */
+  pintarColorDeBarra();
+}
+
+/* Volver a mirar si la apariencia puesta sigue permitida. La llaman
+   `revisarAdmin` cuando el servidor contesta y los dos sitios que mueven el
+   plan, que es exactamente cuando la respuesta puede cambiar.
+
+   Congelar, nunca quitar: si ya no se puede, se vuelve a la casa en vez de
+   dejar la app pintada con algo que el servidor no reconoce, pero la elección
+   guardada NO se borra — el día que vuelva a pagar, vuelve su apariencia. */
+function refrescarApariencia() {
+  const puesta = apariencia();
+  const raiz = document.documentElement;
+  const puedo = puesta === "casa" || aparienciaDisponible(puesta) === true;
+  const ahora = raiz.getAttribute("data-apariencia") || "casa";
+  const debe = puedo ? puesta : "casa";
+  if (ahora === debe) return;
+
+  if (debe !== "casa" && esMundo(debe)) pedirLosMundos();
+  raiz.classList.add("cambiando-modo");
+  if (debe === "casa") raiz.removeAttribute("data-apariencia");
+  else raiz.setAttribute("data-apariencia", debe);
+  getComputedStyle(raiz).backgroundColor;
+  setTimeout(() => raiz.classList.remove("cambiando-modo"), 0);
   pintarColorDeBarra();
 }
 

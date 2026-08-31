@@ -393,6 +393,7 @@ function puntosDeExpedicionSimulados() {
    quedaba con el plan que tuviera hasta la siguiente recarga. */
 function planRefrescar() {
   PLAN = planConSimulacion(PLAN_REAL || PLAN);
+  if (typeof refrescarApariencia === "function") refrescarApariencia();
   if (typeof renderAjustes === "function") renderAjustes();
   if (typeof renderPanelPlan === "function") renderPanelPlan();
   if (typeof showView === "function" && typeof activeMainView !== "undefined") {
@@ -429,6 +430,10 @@ function planSimular(cual) {
   if (typeof showView === "function" && typeof activeMainView !== "undefined") {
     showView(activeMainView || "summary");
   }
+  /* El plan manda sobre lo que se puede llevar puesto: cambiarlo puede abrir un
+     ambiente de Pro o cerrarlo, y el nivel simulado del fundador mueve además
+     los que piden nivel. */
+  if (typeof refrescarApariencia === "function") refrescarApariencia();
   if (typeof renderPanelApariencia === "function") renderPanelApariencia();
   if (typeof toast === "function") {
     toast(cual ? "Viendo la app como " + planNombreSimulado() : "De vuelta a tu plan de verdad", "hecho");

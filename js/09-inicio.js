@@ -460,20 +460,12 @@ function salirDelEjemplo() {
    salir del ejemplo. Sin él, apagar el rótulo dejaría a alguien encerrado
    mirando datos que no son suyos. */
 function pintarAvisoEjemplo() {
-  const previo = document.getElementById("aviso-ejemplo");
-  if (previo) previo.remove();
+  /* El rótulo del ejemplo y el de la cuenta de pruebas son la misma barra desde
+     0.7.50 (ver `pintarAvisos` en `js/10c-portada.js`): dos pastillas apiladas
+     tapaban el título de la pantalla. Aquí solo queda la puerta de entrada, con
+     su guarda por si este archivo corre antes que aquél. */
+  if (typeof pintarAvisos === "function") { pintarAvisos(); return; }
   document.body.classList.toggle("ejemplo-on", modoEjemplo);
-  if (!modoEjemplo) return;
-
-  const callado = typeof esCuentaDePruebas === "function" && esCuentaDePruebas();
-  const marco = document.createElement("div");
-  marco.id = "aviso-ejemplo";
-  marco.className = "aviso-ejemplo" + (callado ? " callado" : "");
-  marco.innerHTML =
-    '<div class="ae-tag">' +
-    (callado ? '' : '<span>Estás viendo un ejemplo</span>') +
-    '<button type="button" onclick="salirDelEjemplo()">Salir</button></div>';
-  document.body.appendChild(marco);
 }
 
 /* Ejemplo pensado para que cualquiera entienda el sistema de un vistazo:

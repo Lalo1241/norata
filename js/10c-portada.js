@@ -1051,19 +1051,58 @@ function marcarCuentaDePruebas(si) {
   if (typeof renderPanelAdmin === "function") renderPanelAdmin();
 }
 
-function pintarAvisoPruebas() {
-  const previo = document.getElementById("aviso-pruebas");
-  if (previo) previo.remove();
-  if (!esCuentaDePruebas()) return;
+/* ---- El rótulo de arriba, que es UNO ----
+   Eran dos pastillas flotando, apiladas una sobre otra, y entre las dos tapaban
+   el título de la pantalla: medido a 412 px, la de «cuenta de pruebas» caía
+   justo encima de «Resumen». Lo pidió Eduardo y tenía razón — dos avisos
+   sueltos encima del contenido no son dos avisos, son un estorbo.
 
-  /* El rótulo dice las dos cosas cuando hay dos que decir. Con el plan
-     simulado, «Cuenta de pruebas» a secas se queda corto: lo que engaña no es
-     la cuenta, es el plan, y hay que poder leerlo sin abrir Ajustes. */
-  const simulado = typeof planNombreSimulado === "function" ? planNombreSimulado() : "";
+   Ahora es UNA barra de ancho completo, y el contenido de la app baja lo que
+   ella mide (`--alto-aviso`). Una barra de sistema se lee como parte del marco
+   y no como algo pegado encima; una pastilla flotante siempre tapa algo.
+
+   Qué dice, en orden: la cuenta de pruebas con el plan que está fingiendo, y el
+   ejemplo. En una cuenta de pruebas el ejemplo se calla y solo deja la salida —
+   quien acaba de pulsar «Ver un ejemplo» desde la trastienda ya lo sabe—, pero
+   el botón NO se quita nunca: es la única puerta de vuelta. */
+function pintarAvisos() {
+  const previo = document.getElementById("aviso-modo");
+  if (previo) previo.remove();
+
+  const pruebas = typeof esCuentaDePruebas === "function" && esCuentaDePruebas();
+  const ejemplo = typeof modoEjemplo !== "undefined" && modoEjemplo;
+  document.body.classList.toggle("ejemplo-on", !!ejemplo);
+  document.documentElement.classList.toggle("con-aviso", !!(pruebas || ejemplo));
+  if (!pruebas && !ejemplo) {
+    document.documentElement.style.removeProperty("--alto-aviso");
+    return;
+  }
+
+  const partes = [];
+  if (pruebas) {
+    const simulado = typeof planNombreSimulado === "function" ? planNombreSimulado() : "";
+    partes.push("Cuenta de pruebas" + (simulado ? " · viendo como " + escapeHtml(simulado) : ""));
+  }
+  if (ejemplo && !pruebas) partes.push("Estás viendo un ejemplo");
+
   const marco = document.createElement("div");
-  marco.id = "aviso-pruebas";
-  marco.className = "aviso-pruebas";
-  marco.innerHTML = '<span class="ap-tag">Cuenta de pruebas' +
-    (simulado ? ' · viendo como ' + escapeHtml(simulado) : '') + '</span>';
+  marco.id = "aviso-modo";
+  marco.className = "aviso-modo";
+  marco.innerHTML =
+    '<span class="av-tx">' + partes.join(" · ") + '</span>' +
+    (ejemplo ? '<button type="button" onclick="salirDelEjemplo()">Salir</button>' : "");
   document.body.appendChild(marco);
+
+  /* El hueco que la app tiene que dejarle, MEDIDO y no clavado a un número: en
+     una pantalla estrecha el texto se parte en dos renglones y la barra mide
+     otra cosa. Se guarda en `<html>` para que lo lean tanto la app como la
+     barra lateral de la computadora. */
+  document.documentElement.style.setProperty(
+    "--alto-aviso", Math.ceil(marco.getBoundingClientRect().height) + "px");
 }
+
+/* Los dos nombres de antes siguen vivos y llaman al mismo sitio: se les llama
+   desde seis lugares —el arranque, el panel de administración, entrar y salir
+   del ejemplo, cambiar de plan simulado— y renombrarlos en todos ellos para no
+   ganar nada era pedir que se olvidara uno. */
+function pintarAvisoPruebas() { pintarAvisos(); }

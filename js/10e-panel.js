@@ -53,6 +53,11 @@ async function revisarAdmin() {
      línea, entrar al ejemplo antes de que el servidor conteste dejaba el
      rótulo hablando hasta la siguiente recarga. */
   if (typeof pintarAvisoEjemplo === "function") pintarAvisoEjemplo();
+  /* Y la apariencia. Al arrancar, el nivel es 0 y el plan es el libre porque el
+     servidor todavía no ha contestado; si la puerta se preguntara solo ahí,
+     quien tiene puesto un ambiente que pide nivel o plan lo perdería en cada
+     apertura. Aquí es donde se sabe la verdad. */
+  if (typeof refrescarApariencia === "function") refrescarApariencia();
 }
 
 /* ---- Piezas de dibujo ----

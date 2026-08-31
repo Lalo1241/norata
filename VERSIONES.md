@@ -52,6 +52,55 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.50 · 31 ago 2026
+**Tres fallos que vio Eduardo en su teléfono, y los tres tenían un número
+detrás.**
+
+**1 · «No cambia el tema y quita el recolor».** El ambiente elegido se caía sola
+en cada apertura. La causa es CUÁNDO se preguntaba: `arrancarApariencia()` corre
+al arrancar, antes de que el servidor haya contestado quién eres, y en ese
+instante tu nivel es 0 y tu plan es el libre — así que la puerta decía que no y
+la apariencia se quitaba. Y no había segunda mirada. Medido: con
+`norata-apariencia = duna` guardado, el atributo salía en `null` y **seguía en
+null aunque después el nivel llegara a 50**.
+
+Ahora el arranque solo PINTA lo guardado, y la puerta se revisa en
+`refrescarApariencia()` — que llaman `revisarAdmin` cuando el servidor contesta,
+y los dos sitios que mueven el plan. Sigue valiendo «congelar, nunca quitar»: si
+de verdad ya no se puede, se vuelve a la casa y la elección guardada no se
+borra.
+
+Y de paso, la ceja del navegador: `ponerTema` la pintaba con los dos colores de
+la CASA, así que una app morada se quedaba con una franja azul encima. Ahora lee
+el fondo ya calculado, que siempre dice la verdad sea cual sea la apariencia.
+
+**2 · El aviso de versión nueva salía en seis renglones.** `#toast` declaraba
+`max-width` pero no `width`, y una caja fija que solo declara `left: 50%` se
+encoge a lo que le quepa DESDE ese 50% hasta el borde derecho — media pantalla.
+En una computadora sobra y no se veía; en un teléfono de 412 px el aviso medía
+201 px y el texto se quedaba en una columna de 49. Con `width` en vez de
+`max-width`: **de 6 renglones a 1** a 412 px, y a 2 en uno de 360.
+
+**3 · El encabezado deja de ser dos pastillas y pasa a ser una barra.** Eran dos
+—«cuenta de pruebas» y «estás viendo un ejemplo»— apiladas y flotando encima del
+contenido, y entre las dos tapaban el título: medido a 412 px, la de pruebas
+caía justo sobre «Resumen». Ahora es **una sola barra de ancho completo** y la
+app baja lo que ella mide. Una barra de sistema se lee como parte del marco; una
+pastilla flotante siempre tapa algo.
+
+Tres detalles que salieron al medirla: el hueco se mide en JavaScript sobre la
+barra ya dibujada y no se clava a un número, porque en una pantalla estrecha el
+texto se parte en dos renglones; el texto se PARTE en vez de recortarse, porque
+lo que se perdería con los puntos suspensivos es justo el final —qué plan estás
+fingiendo—; y el relleno de arriba hay que escribirlo también en la regla de la
+computadora, porque esa viene después y su `padding` corto borraba el
+`padding-top` de la de antes. Sin esa línea el fallo seguía vivo en la
+computadora y arreglado en el teléfono.
+
+Comprobado en las seis combinaciones —412, 360 y 1280 px, con las dos, con una y
+con ninguna—: la barra nunca toca el título, no recorta, el botón de salir mide
+27 px de alto y el contraste del rótulo es 12,9.
+
 ### 0.7.49 · 31 ago 2026
 **Reliquia, el primer mundo.** Un mundo no es un ambiente: un ambiente reusa el
 material y le cambia la luz; un mundo cambia de qué está hecha la app. Reliquia
