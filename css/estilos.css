@@ -4308,6 +4308,48 @@
     opacity: 0;
     background: radial-gradient(circle at 50% 46%, rgba(var(--escena-fondo), 0.55), rgba(var(--escena-fondo), 0.92));
   }
+  /* ---------- El destello ----------
+     La fiesta pequeña: 420 ms encima de lo que tocaste, sin tapar ni parar
+     nada. `pointer-events: none` es lo que lo hace inofensivo — cae justo
+     sobre el botón que acabas de pulsar, y sin esto se comería el segundo
+     toque de una misión de varias veces al día.
+
+     Posición fija y centrada en su punto: lo coloca `destello()` con las
+     coordenadas de pantalla del elemento, así que no depende de dónde cuelgue
+     en el árbol ni de si su contenedor se desplaza. */
+  .destello {
+    position: fixed;
+    z-index: var(--piso-confeti);
+    pointer-events: none;
+    width: 0; height: 0;
+  }
+  .destello .ds-aro {
+    position: absolute;
+    left: -19px; top: -19px;
+    width: 38px; height: 38px;
+    border-radius: var(--r-redondo);
+    border: 2px solid var(--ds, var(--mint));
+    opacity: 0;
+    animation: dsAro 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes dsAro {
+    0% { transform: scale(0.45); opacity: 0.95; }
+    100% { transform: scale(1.75); opacity: 0; }
+  }
+  .destello i {
+    position: absolute;
+    left: -2px; top: -2px;
+    width: 4px; height: 4px;
+    border-radius: var(--r-disco);
+    background: var(--ds, var(--mint));
+    opacity: 0;
+    animation: dsChispa 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes dsChispa {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0.3); opacity: 0; }
+  }
+
   .celebrate.show { animation: celFade 2.1s ease forwards; }
   @keyframes celFade {
     0% { opacity: 0; }

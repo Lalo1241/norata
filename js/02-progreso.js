@@ -151,6 +151,56 @@ function revisarNivelExpedicion() {
   celebrarNivel(ahora, abre);
 }
 
+/* ================= El destello =================
+   La fiesta pequeña, y la que más veces se ve. Faltaba: la app tenía dos
+   tamaños —la tarjeta de 2,2 s y la escena de pantalla completa de la racha—
+   y los dos INTERRUMPEN. Con solo esos, o se festeja poco o se festeja
+   tapando lo que estabas haciendo, así que se acababa festejando poco.
+
+   Este dura 420 ms, sale ENCIMA de lo que tocaste y no para nada: ni tapa, ni
+   se puede pulsar, ni mueve un píxel de la página. Es lo que convierte marcar
+   una misión en algo que se siente, sin convertirlo en un acontecimiento.
+
+   Va en `--piso-confeti`, que ya existía y dice exactamente esto: «la luz de
+   celebrar, que no se toca». */
+/* `objetivo` puede ser un elemento o una caja ya medida. Lo segundo hace falta
+   cuando la lista se repinta entre el toque y la celebración: entonces el
+   elemento que pulsaste ya no existe, y lo único que se conserva es dónde
+   estaba. */
+function destello(objetivo, color) {
+  if (!objetivo) return;
+  /* Quien pidió menos movimiento no recibe ninguno. Aquí no se pierde
+     información: el aviso de siempre sigue saliendo igual. */
+  try {
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  } catch (e) {}
+
+  const r = typeof objetivo.getBoundingClientRect === "function"
+    ? objetivo.getBoundingClientRect() : objetivo;
+  if (!r || (!r.width && !r.height)) return;   // no está en pantalla: nada que celebrar
+
+  const d = document.createElement("div");
+  d.className = "destello";
+  d.style.left = (r.left + r.width / 2) + "px";
+  d.style.top = (r.top + r.height / 2) + "px";
+  d.style.setProperty("--ds", color || "var(--mint)");
+
+  /* Seis chispas y no dieciocho como la escena de la racha: esto tiene que
+     leerse de reojo, no mirarse. Los ángulos se sortean para que dos toques
+     seguidos no salgan calcados. */
+  let chispas = "";
+  for (let i = 0; i < 6; i++) {
+    const ang = (i / 6) * Math.PI * 2 + Math.random() * 0.5;
+    const dist = 15 + Math.random() * 11;
+    chispas += '<i style="--dx:' + (Math.cos(ang) * dist).toFixed(0) + 'px;--dy:' +
+      (Math.sin(ang) * dist).toFixed(0) + 'px"></i>';
+  }
+  d.innerHTML = '<span class="ds-aro"></span>' + chispas;
+  document.body.appendChild(d);
+  /* Se quita solo. Sin esto, una tarde de misiones deja cien nodos muertos
+     colgando del body. */
+  setTimeout(() => d.remove(), 520);}
+
 /* ================= Racha: celebrar los hitos =================
    El punto de una racha es dar una razón para volver mañana. Por eso los
    días redondos se celebran a lo grande y una sola vez: si la app festejara

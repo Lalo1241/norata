@@ -52,7 +52,7 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
-### 0.7.47 · 31 ago 2026
+### 0.7.48 · 31 ago 2026
 **Subir de nivel se celebra, y son dos celebraciones y no una.** Lo pidió
 Eduardo así: que te lo cante como cuando sube una habilidad pero más llamativo,
 y que si el nivel abre algo, lo anuncie ahí mismo con una ventana que no se
@@ -126,6 +126,47 @@ precios que anuncian el mundo de Fundador. Están escritas palabra por palabra e
 Escribirlas ahora sería prometer un mundo que la app no tiene — exactamente la
 deuda que costó quitar la fila de «Todas las apariencias».
 
+**Y el número, otra vez repetido.** La otra sesión y ésta volvimos a coger el
+mismo —0.7.47— el mismo día. Se corrigió mirando `main` antes de escribirlo,
+que es la regla que ellos mismos apuntaron en su entrada: el número se toma en
+el momento de publicar, no al empezar la tanda. Ésta sube a 0.7.48 y la suya se
+queda como salió.
+
+### 0.7.47 · 30 ago 2026
+**El destello: la fiesta pequeña, que es la que más se ve.**
+
+La app tenía dos tamaños de celebración y **los dos interrumpen**: la tarjeta de
+2,2 s (`celebrate`) y la escena de pantalla completa de la racha
+(`celebrateStreak`). Con solo esos, o se festeja poco o se festeja tapando lo
+que estabas haciendo — así que se acababa festejando poco. Faltaba el pequeño.
+
+Dura 420 ms, sale encima de lo que tocaste y no para nada: ni tapa, ni se puede
+pulsar, ni mueve un píxel de la página. Seis chispas y un aro, con el color de
+la misión. Va en `--piso-confeti`, que ya existía y dice exactamente esto: «la
+luz de celebrar, que no se toca».
+
+**Dos cosas que salieron midiendo y que no se veían de ninguna otra forma:**
+
+1. **Buscaba el botón en todo el documento y encontraba el del Resumen**, que
+   cuando estás en Misiones está escondido y mide 0×0. El destello se disparaba
+   contra un elemento sin caja y no salía nunca, sin dar ningún error. Ahora se
+   busca dentro de `.view.active`.
+2. **La caja se toma ANTES de repintar.** Al cumplir una misión la fila cambia
+   de columna —medido: 286 px a la derecha—, así que celebrar en su sitio nuevo
+   es soltar la luz lejos de donde tienes el dedo y la mirada. Comprobado: cae
+   a 0,0 de donde tocaste y a 286 de donde acabó la misión.
+
+Sale en **cualquier avance** y no solo al cumplir: una misión de tres veces al
+día se toca tres veces, y las dos primeras también son algo que hiciste.
+Respeta `prefers-reduced-motion`, y ahí no se pierde nada porque el aviso de
+siempre sigue saliendo igual.
+
+Probado el ciclo entero: un toque deja el destello y a los 700 ms no queda
+nada; cinco toques seguidos conviven los cinco y se limpian los cinco.
+
+**Lo que todavía no tiene destello:** registrar una práctica y marcar una etapa.
+Cada sitio necesita decir a qué elemento se engancha la luz, y eso va cuando se
+decida si esas dos también lo llevan.
 ### 0.7.46 · 30 ago 2026
 **La trastienda ya puede mirar lo que abre la escalera.** El plan de fundador
 simulado trae ahora también el nivel: 50, que está por encima de todo lo que
