@@ -52,6 +52,90 @@ def bloque(m):
         fuera.append("   el acento, y por eso su bloque de día está vacío de neutros. */")
     return "\n".join(fuera) + "\n"
 
+ESCENAS = """
+/* ---------- Y dentro de las escenas ----------
+   La tarjeta de la racha, los encabezados de los cuatro módulos y la
+   celebración NO cambian de modo: son un dibujo de una noche, no interfaz, y
+   por eso `estilos.css` les vuelve a declarar la paleta oscura entera dentro.
+   Esa relectura es la que dejaba a los ambientes fuera: cambiaban :root y la
+   escena seguía pintada con los hexes de la casa escritos a mano. Se veía
+   clarísimo en los banners de los módulos — la app entera de otro color y sus
+   cuatro cabeceras en azul.
+
+   Aquí cada ambiente vuelve a declarar SU noche dentro de la escena. Sin
+   `:not(.claro)` a propósito, y es la única regla de este archivo que no lo
+   lleva: la escena se queda de noche en los dos modos, así que su bloque
+   también.
+
+   Lo que se toca y por qué: los neutros y el acento salen del propio ambiente;
+   el cielo del motivo y las tres bases de la escena se DERIVAN de su fondo y
+   su tinta, porque son el mismo material visto con otra transparencia y
+   dejarlos fijos volvería a poner el azul de la casa por debajo del dibujo. */
+"""
+
+def _tripleta(hexa):
+    h = hexa.lstrip("#")
+    return ", ".join(str(int(h[i:i+2], 16)) for i in (0, 2, 4))
+
+def _rgba(hexa, a):
+    return "rgba(" + _tripleta(hexa) + ", " + a + ")"
+
+def escena(m):
+    """El bloque de un ambiente DENTRO de una escena. Solo se escribe lo que el
+       ambiente mueve de verdad: lo que no declare sigue saliendo del bloque de
+       la casa, que es lo que hace que un ambiente a medias no rompa nada."""
+    if m["grado"] == 0: return ""
+    n = m["noche"]
+    pon = lambda k: n.get(k, datos.CASA_NOCHE[k])
+    v = []
+    # Los cuatro suelos van SIEMPRE, aunque el ambiente no los mueva: de ellos
+    # cuelga toda la familia `--sup-*` —lo que de verdad se pinta— y dejarlos
+    # sin declarar hacía que un botón dentro de una escena cogiera el papel del
+    # modo claro con la tinta clara de la noche encima.
+    for k in ("--bg", "--bg2", "--card", "--card2"):
+        v.append((k, pon(k)))
+    # Y la familia del material, escrita entera: un `var()` dentro de una
+    # variable se resuelve donde la variable se declara, no donde se usa, asi
+    # que redeclarar `--card` aqui no arrastra a `--sup-tarjeta`.
+    for k, base in (("--sup-pagina", "--bg"), ("--sup-panel", "--bg2"),
+                    ("--sup-tarjeta", "--card"), ("--sup-tarjeta2", "--card2")):
+        v.append((k, "var(%s)" % base))
+    for k in ("--line", "--carril", "--text", "--muted", "--faint"):
+        if k in n: v.append((k, n[k]))
+    if "--mint" in n:
+        v.append(("--mint", n["--mint"]))
+        v.append(("--mint-macizo", n.get("--mint-macizo", n["--mint"])))
+        v.append(("--mint-soft", _rgba(n["--mint"], "0.13")))
+        # La tinta sobre un acento macizo: el fondo del propio ambiente, que es
+        # lo más oscuro que tiene. Con el de la casa, el acento claro de Tinta
+        # se quedaba con un azul que no es suyo debajo.
+        v.append(("--sobre-acento", pon("--bg")))
+    # El cielo del motivo y las tres bases, derivados del suelo del ambiente.
+    v.append(("--motivo-cielo-1", pon("--card")))
+    v.append(("--motivo-cielo-2", pon("--bg2")))
+    v.append(("--motivo-chispa", pon("--text")))
+    v.append(("--motivo-humo", _rgba(pon("--text"), "0.3")))
+    v.append(("--motivo-humo-tenue", _rgba(pon("--text"), "0.2")))
+    v.append(("--motivo-espuma", _rgba(pon("--text"), "0.6")))
+    # El lienzo y las curvas del encabezado de Talentos, que son las dos unicas
+    # piezas del dibujo que no dependen del tinte.
+    v.append(("--motivo-lienzo", pon("--bg2")))
+    v.append(("--motivo-curva", pon("--line")))
+    v.append(("--escena-fondo", _tripleta(pon("--bg"))))
+    v.append(("--escena-vidrio", _tripleta(pon("--card"))))
+    v.append(("--escena-tinta", _tripleta(pon("--text"))))
+    # Y el tinte del dibujo. El color es el del suelo del ambiente —su tarjeta,
+    # que es su tono a media luz—; la fuerza sube con el grado, porque un
+    # ambiente que solo mueve el suelo tiene que teñir menos que uno que
+    # cambia el carácter entero. Tinta va al 100%: es un monocromo, y dejarle
+    # un paisaje a color por debajo sería justo lo que no es.
+    fuerza = {1: "0.55", 2: "0.75", 3: "1"}[m["grado"]]
+    v.append(("--escena-tinte-modo", "block"))
+    v.append(("--escena-tinte", pon("--card")))
+    v.append(("--escena-tinte-fuerza", fuerza))
+    sel = 'html[data-apariencia="%s"] .scene-card,\nhtml[data-apariencia="%s"] .celebrate {' % (m["id"], m["id"])
+    return "\n".join(["/* " + m["nombre"] + " */", sel] + ["  %s: %s;" % kv for kv in v] + ["}"]) + "\n"
+
 MUESTRAS = """
 /* ---------- Las muestras de la pantalla de Ajustes ----------
    Los mismos tonos de arriba, expuestos en una clase para poder pintar cada
@@ -78,6 +162,7 @@ def muestra(m):
 
 if __name__ == "__main__":
     partes = [CAB] + [bloque(m) for m in datos.AMBIENTES if m["grado"] > 0]
+    partes += [ESCENAS] + [escena(m) for m in datos.AMBIENTES if m["grado"] > 0]
     partes += [MUESTRAS] + [muestra(m) for m in datos.AMBIENTES]
     txt = "\n".join(partes)
     open(os.path.join(AQUI, "ambientes.css"), "w", encoding="utf-8").write(txt)

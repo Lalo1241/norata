@@ -179,6 +179,15 @@
     --motivo-humo: rgba(233, 242, 245, 0.3);
     --motivo-humo-tenue: rgba(233, 242, 245, 0.2);
     --motivo-espuma: rgba(233, 242, 245, 0.6);
+    /* El lienzo, las curvas de nivel y el halo de la lámpara del encabezado de
+       Talentos. Estaban escritos como hexes dentro de `topoScene`, que es por
+       donde un ambiente no puede entrar. Son variables propias y no un reuso
+       de `--bg2` y `--line`: los tonos parecidos NO son los mismos —medido, la
+       diferencia era de dos y de once puntos por canal— y cambiar el dibujo de
+       la casa no era el encargo. */
+    --motivo-lienzo: #16202c;
+    --motivo-curva: #2c3b4c;
+    --motivo-halo: rgba(245, 215, 110, 0.22);
 
     /* El fondo de todo. `--esquema` es lo que le dice al navegador de qué
        color pintar LO SUYO —barra de direcciones, menús de un <select>, los
@@ -382,6 +391,7 @@
     --piso-lienzo: 90;     /* la rama a pantalla completa */
     --piso-flotante: 100;  /* menús pegados a algo: clic derecho, rama */
     --piso-fiesta: 120;    /* celebraciones que ocupan la pantalla */
+    --piso-nivel: 130;     /* subir de nivel: encima de la fiesta de racha */
     --piso-arrastre: 200;  /* la copia que sigue al dedo al reordenar */
     --piso-confeti: 300;   /* la luz de celebrar, que no se toca */
     --piso-ventana: 400;   /* ventanas: la caja del ático, Ajustes */
@@ -642,7 +652,47 @@
      se vuelve ilegible. Se resuelve aquí, en un sitio, en vez de ir
      arreglando rótulo por rótulo: vuelven a declarar las variables que usan
      sus hijos, y lo que se añada dentro ya nace con el tono correcto. */
-  .scene-card, .celebrate {
+  .scene-card, .celebrate, .ncel {
+    /* Las tres bases de la escena, como TRIPLETAS y no como colores hechos.
+       Existen porque dentro de una escena hay quince transparencias —el velo
+       del degradado, las pastillas de vidrio, los rótulos a media tinta— y
+       cada una llevaba su rgba() escrito a mano. Con el color suelto, un
+       ambiente no llega aquí: cambia veinte variables de :root y la escena
+       sigue pintada del azul de la casa, que es exactamente lo que se veía en
+       los encabezados de los módulos.
+
+       Tripleta y no color porque a un `var(--x)` no se le puede pegar la
+       transparencia detrás — es la misma trampa que ya obligó a inventar
+       `velo()` en JavaScript. Así `rgba(var(--escena-fondo), 0.62)` sí compone. */
+    --escena-fondo: 14, 19, 27;
+    --escena-vidrio: 20, 27, 37;
+    --escena-tinta: 234, 241, 239;
+    /* Y las SUPERFICIES de noche, que faltaban desde que existe la capa de
+       material (0.7.37). Esta lista se escribió cuando `--card` era a la vez
+       el color y lo que se pinta; hoy son dos cosas, y lo que un botón o un
+       panel pinta de fondo sale de `--sup-*`, no de `--card`.
+
+       El agujero lo destapó el primer botón dentro de una escena: en modo
+       claro, `.btn-ghost` cogía `--sup-tarjeta` de la página —papel— y `--text`
+       de aquí —tinta clara—, y salía blanco sobre blanco. Medido, 1,24 de
+       contraste.
+
+       Y hay que declarar los `--sup-*` uno por uno, aunque estén escritos como
+       `var(--card)`: un `var()` dentro de una variable se resuelve en el
+       elemento donde la variable se DECLARA —`:root`—, no donde se usa. Con
+       solo redeclarar `--card` aquí, `--sup-tarjeta` seguía trayendo el papel
+       del modo claro ya resuelto desde arriba. Medido: el botón seguía en
+       1,24 hasta escribir las cinco líneas de abajo. */
+    --bg: #10151d;
+    --bg2: #151b25;
+    --card: #1d2530;
+    --card2: #222c39;
+    --flotante: rgba(29, 37, 48, 0.92);
+    --sup-pagina: var(--bg);
+    --sup-panel: var(--bg2);
+    --sup-tarjeta: var(--card);
+    --sup-tarjeta2: var(--card2);
+    --sup-flotante: var(--flotante);
     /* `--carril` y `--line` faltaban en esta lista, y no se notó hasta que
        el calendario del mes entró en la tarjeta de la racha: de día, las
        casillas sin actividad salían gris papel (#dadce7) sobre el carbón de
@@ -831,7 +881,40 @@
   .scene-fade {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, transparent 20%, rgba(14, 19, 27, 0.62) 60%, rgba(14, 19, 27, 0.96) 100%);
+    background: linear-gradient(180deg, transparent 20%, rgba(var(--escena-fondo), 0.62) 60%, rgba(var(--escena-fondo), 0.96) 100%);
+  }
+  /* ---------- El tinte de la escena ----------
+     El paisaje de una escena —el cielo con sus fases, las cordilleras, los
+     abetos, las curvas de nivel— está DIBUJADO con hexes escritos en el
+     JavaScript, no con variables. Por eso un ambiente cambiaba la app entera y
+     dejaba los cuatro encabezados de módulo en el azul de la casa: lo cazó
+     Eduardo mirándolos.
+
+     Reescribir las cuatro paletas del paisaje por ambiente serían veinticuatro
+     tonos a mano por cada uno, y a ojo. Esto hace lo mismo con una regla: una
+     capa del color del ambiente en `mix-blend-mode: color`, que se queda con
+     su TONO y respeta la LUZ de lo que hay debajo. El dibujo no cambia —la
+     luna sigue siendo lo más claro, las cordilleras siguen escalonadas—, cambia
+     de qué color está hecho.
+
+     Va en el `::before` del velo y no en una capa nueva porque el velo ya está
+     encima del dibujo y no crea contexto de apilado: así el `::before` mezcla
+     contra el paisaje sin tener que tocar el marcado de los cuatro sitios que
+     arman una escena.
+
+     Apagado por defecto con `display`, no con un color transparente: mezclar
+     un transparente en modo `color` no es garantía de no hacer nada, y la casa
+     tiene que quedar EXACTAMENTE como estaba —es lo que se comprueba con la
+     foto de los estilos. */
+  .scene-fade::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    display: var(--escena-tinte-modo, none);
+    background: var(--escena-tinte, transparent);
+    opacity: var(--escena-tinte-fuerza, 1);
+    mix-blend-mode: color;
+    pointer-events: none;
   }
   .scene-body {
     position: absolute;
@@ -847,7 +930,7 @@
     font-weight: 700;
     letter-spacing: 2.5px;
     text-transform: uppercase;
-    color: rgba(234, 241, 239, 0.82);
+    color: rgba(var(--escena-tinta), 0.82);
   }
   .scene-body .big {
     font-size: 42px;
@@ -858,13 +941,13 @@
     font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
   }
   .scene-body .big b { font-weight: 700; }
-  .scene-body .big span { font-size: 19px; font-weight: 500; color: rgba(234, 241, 239, 0.8); letter-spacing: 0; }
+  .scene-body .big span { font-size: 19px; font-weight: 500; color: rgba(var(--escena-tinta), 0.8); letter-spacing: 0; }
   .glass-row { display: flex; gap: 8px; }
   .glass-chip {
     flex: 1;
-    background: rgba(20, 27, 37, 0.55);
+    background: rgba(var(--escena-vidrio), 0.55);
     backdrop-filter: blur(8px);
-    border: var(--borde-fino) solid rgba(234, 241, 239, 0.1);
+    border: var(--borde-fino) solid rgba(var(--escena-tinta), 0.1);
     border-radius: var(--r-grande);
     padding: 9px 6px;
     text-align: center;
@@ -1058,7 +1141,7 @@
   .streak-row .flame { color: var(--fire); }
   .streak-row .flame svg { width: 30px; height: 30px; stroke-width: 1.6; }
   .streak-row .num { font-size: 34px; font-weight: 700; letter-spacing: -1px; line-height: 1; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
-  .streak-row .lbl { font-size: 12px; color: rgba(234, 241, 239, 0.8); line-height: 1.3; }
+  .streak-row .lbl { font-size: 12px; color: rgba(var(--escena-tinta), 0.8); line-height: 1.3; }
   /* ---------- Los últimos 14 días ----------
      Antes eran barritas de dos estados. Ahora cada día es un disco que dice
      qué día de la semana fue, qué número era, y —por la intensidad del
@@ -1152,6 +1235,121 @@
     .scel.show .scel-sub, .scel.show .scel-unit, .scel.show #scel-btn,
     .scel.show .scel-sparks i { animation: none; }
     .scel-sparks { display: none; }
+  }
+
+  /* Los botones del escaparate de celebraciones: dos renglones cada uno —qué
+     es y cómo se comporta—, porque la diferencia entre las dos ventanas de
+     nivel no está en cómo se ven sino en si se cierran solas. */
+  .pn-fiestas { display: flex; flex-direction: column; gap: 8px; }
+  .pn-fiestas .btn {
+    display: block; text-align: left; height: auto;
+    padding: 10px 14px; line-height: 1.35;
+  }
+  .pn-fiestas .btn b { display: block; font-size: 13.5px; font-weight: 700; }
+  .pn-fiestas .btn span {
+    display: block; font-size: 11.5px; color: var(--muted);
+    font-weight: 500; margin-top: 2px; white-space: normal;
+  }
+
+  /* ---------- Subir de nivel de expedición ----------
+     La misma familia que la fiesta de racha —ocupa la pantalla, con rayos y
+     chispas— pero en menta y con la insignia del rango dentro. Se parece a
+     propósito: son los dos momentos en que la app interrumpe, y que se
+     parezcan es lo que hace que los dos se lean como «has llegado a algo».
+
+     Y una diferencia que sí importa: esta lee las variables de la escena en
+     vez de escribir hexes. Así el ambiente que lleves puesto también teñe la
+     fiesta, y no se queda de otro color justo en el momento en que la app se
+     pone delante de todo. */
+  .ncel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: var(--piso-nivel);
+    background: radial-gradient(circle at 50% 42%,
+      color-mix(in srgb, var(--mint) 12%, rgb(var(--escena-vidrio))) 0%,
+      rgb(var(--escena-vidrio)) 42%,
+      rgb(var(--escena-fondo)) 100%);
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .ncel.show { display: flex; }
+  .ncel-rayos {
+    position: absolute;
+    width: 150vmax; height: 150vmax;
+    background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--mint) 13%, transparent) 0deg 7deg, transparent 7deg 20deg);
+    animation: ncelGiro 26s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes ncelGiro { to { transform: rotate(360deg); } }
+  .ncel-core { position: relative; text-align: center; padding: 24px; max-width: 340px; width: 100%; }
+  .ncel-insignia { color: var(--mint); filter: drop-shadow(0 0 28px color-mix(in srgb, var(--mint) 70%, transparent)); }
+  .ncel-insignia svg { width: 78px; height: 78px; stroke-width: 1.5; }
+  .ncel.show .ncel-insignia { animation: ncelLatido 1.8s ease-in-out infinite; }
+  @keyframes ncelLatido {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+  .ncel-num {
+    font-size: 76px; font-weight: 800; letter-spacing: -3px; line-height: 1;
+    color: var(--mint);
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
+    text-shadow: 0 6px 34px color-mix(in srgb, var(--mint) 55%, transparent);
+    margin-top: 6px;
+  }
+  .ncel.show .ncel-num { animation: ncelPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s backwards; }
+  @keyframes ncelPop { from { transform: scale(0.3); opacity: 0; } }
+  .ncel-unit {
+    font-size: 15px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: color-mix(in srgb, var(--mint) 85%, transparent); margin-top: 2px;
+  }
+  .ncel-rango { font-size: 15px; color: var(--text); opacity: 0.9; margin-top: 12px; }
+  .ncel-rango b { font-weight: 800; color: var(--mint); }
+  /* El renglón del rango crece cuando el rango es NUEVO: es la noticia gorda
+     de esa pantalla y con el mismo tamaño que «Rango Nodo» de siempre pasaba
+     desapercibida entre el número y la lista. */
+  .ncel-rango.nuevo { font-size: 19px; margin-top: 14px; }
+  .ncel-abre { margin-top: 18px; text-align: left; }
+  .ncel-tit {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 2.2px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px; text-align: center;
+  }
+  .ncel-uno {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(var(--escena-vidrio), 0.55);
+    border: var(--borde-fino) solid rgba(var(--escena-tinta), 0.12);
+    border-radius: var(--r-grande);
+    padding: 11px 13px; margin-bottom: 8px;
+    font-size: 14px; color: var(--text);
+  }
+  .ncel-uno svg { width: 18px; height: 18px; color: var(--mint); flex-shrink: 0; }
+  .ncel-pies { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .ncel.show .ncel-unit, .ncel.show .ncel-rango,
+  .ncel.show .ncel-abre, .ncel.show .ncel-pies {
+    animation: ncelSube 0.5s ease 0.3s backwards;
+  }
+  @keyframes ncelSube { from { transform: translateY(12px); opacity: 0; } }
+  .ncel-chispas { position: absolute; inset: 0; pointer-events: none; }
+  .ncel-chispas i {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 9px; height: 9px;
+    border-radius: var(--r-redondo);
+    background: var(--mint);
+    opacity: 0;
+  }
+  .ncel.show .ncel-chispas i { animation: ncelChispa 1.6s ease-out backwards; }
+  @keyframes ncelChispa {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ncel-rayos, .ncel.show .ncel-insignia, .ncel.show .ncel-num,
+    .ncel.show .ncel-unit, .ncel.show .ncel-rango,
+    .ncel.show .ncel-abre, .ncel.show .ncel-pies,
+    .ncel.show .ncel-chispas i { animation: none; }
+    .ncel-chispas { display: none; }
   }
 
   /* ---------- Resumen: tarjetas ---------- */
@@ -2451,7 +2649,7 @@
      entero, quitándole toda la vida a la tarjeta. Este es más suave y
      parejo (nunca baja de la mitad de oscuro, ni sube de dos tercios), y
      el contraste que falta lo pone la sombra del texto, no el fondo. */
-  .sec-hero .scene-fade { background: linear-gradient(165deg, rgba(14, 19, 27, 0.5) 0%, rgba(14, 19, 27, 0.7) 100%); }
+  .sec-hero .scene-fade { background: linear-gradient(165deg, rgba(var(--escena-fondo), 0.5) 0%, rgba(var(--escena-fondo), 0.7) 100%); }
   .sec-hero .scene-body { text-shadow: 0 1px 3px rgba(10, 15, 22, 0.9), 0 4px 16px rgba(10, 15, 22, 0.6); }
   .sh-main { display: flex; flex-direction: column; gap: 14px; }
   .sh-lead { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
@@ -2561,16 +2759,16 @@
     gap: 3px;
     text-align: left;
     font-family: inherit;
-    background: rgba(20, 27, 37, 0.55);
+    background: rgba(var(--escena-vidrio), 0.55);
     backdrop-filter: blur(8px);
-    border: var(--borde-fino) solid rgba(234, 241, 239, 0.1);
+    border: var(--borde-fino) solid rgba(var(--escena-tinta), 0.1);
     border-radius: var(--r-grande);
     padding: 11px 14px;
     color: var(--text);
     cursor: pointer;
     width: 100%;
   }
-  .sh-focus:active { background: rgba(20, 27, 37, 0.75); }
+  .sh-focus:active { background: rgba(var(--escena-vidrio), 0.75); }
   .shf-k { font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
   .shf-v { font-size: 13.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .shf-bar { display: block; height: 4px; border-radius: var(--r-barra); background: rgba(234,241,239,0.14); margin-top: 5px; overflow: hidden; }
@@ -2582,7 +2780,7 @@
      recuadro del foco, que es su vecino, y así los dos se leen como parte de
      la misma escena. */
   .sh-informe {
-    background: rgba(20, 27, 37, 0.55);
+    background: rgba(var(--escena-vidrio), 0.55);
     backdrop-filter: blur(8px);
     border-color: var(--mint);
     color: var(--mint);
@@ -4108,7 +4306,7 @@
     z-index: var(--piso-confeti);
     pointer-events: none;
     opacity: 0;
-    background: radial-gradient(circle at 50% 46%, rgba(14, 19, 27, 0.55), rgba(14, 19, 27, 0.92));
+    background: radial-gradient(circle at 50% 46%, rgba(var(--escena-fondo), 0.55), rgba(var(--escena-fondo), 0.92));
   }
   .celebrate.show { animation: celFade 2.1s ease forwards; }
   @keyframes celFade {
@@ -5647,7 +5845,7 @@
   .rc-futuro { background: transparent; color: var(--faint); box-shadow: inset 0 0 0 1px var(--carril); }
   /* La semana en curso, por detrás. Es lo que sustituye a la tira de siete
      días que había antes: dice dónde estás sin repetir el calendario. */
-  .rc-semana { box-shadow: inset 0 0 0 1px rgba(234, 241, 239, 0.14); }
+  .rc-semana { box-shadow: inset 0 0 0 1px rgba(var(--escena-tinta), 0.14); }
   .rc-hoy { box-shadow: inset 0 0 0 2px var(--mint); }
   /* Sobre el relleno macizo la tinta es oscura: es el único nivel pintado con
      el color entero, y encima de él un número claro desaparece. */
@@ -6729,7 +6927,7 @@
 
     /* La tarjeta de misión se ilumina entera, pero lo que abre la ficha es
        el cuerpo: el círculo y la racha tienen lo suyo. */
-    .sh-focus:hover { background: rgba(20, 27, 37, 0.75); }
+    .sh-focus:hover { background: rgba(var(--escena-vidrio), 0.75); }
 
     /* Píldoras y botones pequeños: suben tono y marcan el borde */
     .chip:hover,

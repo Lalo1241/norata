@@ -186,6 +186,230 @@ html.claro[data-apariencia="marea"] {
 }
 
 
+/* ---------- Y dentro de las escenas ----------
+   La tarjeta de la racha, los encabezados de los cuatro módulos y la
+   celebración NO cambian de modo: son un dibujo de una noche, no interfaz, y
+   por eso `estilos.css` les vuelve a declarar la paleta oscura entera dentro.
+   Esa relectura es la que dejaba a los ambientes fuera: cambiaban :root y la
+   escena seguía pintada con los hexes de la casa escritos a mano. Se veía
+   clarísimo en los banners de los módulos — la app entera de otro color y sus
+   cuatro cabeceras en azul.
+
+   Aquí cada ambiente vuelve a declarar SU noche dentro de la escena. Sin
+   `:not(.claro)` a propósito, y es la única regla de este archivo que no lo
+   lleva: la escena se queda de noche en los dos modos, así que su bloque
+   también.
+
+   Lo que se toca y por qué: los neutros y el acento salen del propio ambiente;
+   el cielo del motivo y las tres bases de la escena se DERIVAN de su fondo y
+   su tinta, porque son el mismo material visto con otra transparencia y
+   dejarlos fijos volvería a poner el azul de la casa por debajo del dibujo. */
+
+/* Tinta */
+html[data-apariencia="tinta"] .scene-card,
+html[data-apariencia="tinta"] .celebrate {
+  --bg: #16181b;
+  --bg2: #1c1f23;
+  --card: #23272c;
+  --card2: #2a2f35;
+  --sup-pagina: var(--bg);
+  --sup-panel: var(--bg2);
+  --sup-tarjeta: var(--card);
+  --sup-tarjeta2: var(--card2);
+  --line: #3b4149;
+  --carril: #3b4149;
+  --text: #eceff2;
+  --muted: #98a1aa;
+  --faint: #6b737c;
+  --mint: #f0ece2;
+  --mint-macizo: #f0ece2;
+  --mint-soft: rgba(240, 236, 226, 0.13);
+  --sobre-acento: #16181b;
+  --motivo-cielo-1: #23272c;
+  --motivo-cielo-2: #1c1f23;
+  --motivo-chispa: #eceff2;
+  --motivo-humo: rgba(236, 239, 242, 0.3);
+  --motivo-humo-tenue: rgba(236, 239, 242, 0.2);
+  --motivo-espuma: rgba(236, 239, 242, 0.6);
+  --motivo-lienzo: #1c1f23;
+  --motivo-curva: #3b4149;
+  --escena-fondo: 22, 24, 27;
+  --escena-vidrio: 35, 39, 44;
+  --escena-tinta: 236, 239, 242;
+  --escena-tinte-modo: block;
+  --escena-tinte: #23272c;
+  --escena-tinte-fuerza: 1;
+}
+
+/* Musgo */
+html[data-apariencia="musgo"] .scene-card,
+html[data-apariencia="musgo"] .celebrate {
+  --bg: #0d1611;
+  --bg2: #131f18;
+  --card: #18241c;
+  --card2: #1e2c22;
+  --sup-pagina: var(--bg);
+  --sup-panel: var(--bg2);
+  --sup-tarjeta: var(--card);
+  --sup-tarjeta2: var(--card2);
+  --line: #2a3a2e;
+  --carril: #2a3a2e;
+  --text: #e8f1e9;
+  --muted: #87998c;
+  --faint: #5c6b60;
+  --motivo-cielo-1: #18241c;
+  --motivo-cielo-2: #131f18;
+  --motivo-chispa: #e8f1e9;
+  --motivo-humo: rgba(232, 241, 233, 0.3);
+  --motivo-humo-tenue: rgba(232, 241, 233, 0.2);
+  --motivo-espuma: rgba(232, 241, 233, 0.6);
+  --motivo-lienzo: #131f18;
+  --motivo-curva: #2a3a2e;
+  --escena-fondo: 13, 22, 17;
+  --escena-vidrio: 24, 36, 28;
+  --escena-tinta: 232, 241, 233;
+  --escena-tinte-modo: block;
+  --escena-tinte: #18241c;
+  --escena-tinte-fuerza: 0.55;
+}
+
+/* Adobe */
+html[data-apariencia="adobe"] .scene-card,
+html[data-apariencia="adobe"] .celebrate {
+  --bg: #1b1512;
+  --bg2: #241c18;
+  --card: #30231e;
+  --card2: #3a2b25;
+  --sup-pagina: var(--bg);
+  --sup-panel: var(--bg2);
+  --sup-tarjeta: var(--card);
+  --sup-tarjeta2: var(--card2);
+  --line: #4d3931;
+  --carril: #4d3931;
+  --text: #f4ebe4;
+  --muted: #ab958a;
+  --faint: #7c6a60;
+  --motivo-cielo-1: #30231e;
+  --motivo-cielo-2: #241c18;
+  --motivo-chispa: #f4ebe4;
+  --motivo-humo: rgba(244, 235, 228, 0.3);
+  --motivo-humo-tenue: rgba(244, 235, 228, 0.2);
+  --motivo-espuma: rgba(244, 235, 228, 0.6);
+  --motivo-lienzo: #241c18;
+  --motivo-curva: #4d3931;
+  --escena-fondo: 27, 21, 18;
+  --escena-vidrio: 48, 35, 30;
+  --escena-tinta: 244, 235, 228;
+  --escena-tinte-modo: block;
+  --escena-tinte: #30231e;
+  --escena-tinte-fuerza: 0.55;
+}
+
+/* Duna */
+html[data-apariencia="duna"] .scene-card,
+html[data-apariencia="duna"] .celebrate {
+  --bg: #1d1220;
+  --bg2: #251829;
+  --card: #36203a;
+  --card2: #402944;
+  --sup-pagina: var(--bg);
+  --sup-panel: var(--bg2);
+  --sup-tarjeta: var(--card);
+  --sup-tarjeta2: var(--card2);
+  --line: #553a5c;
+  --carril: #553a5c;
+  --text: #f6e9f4;
+  --muted: #b48fae;
+  --faint: #836781;
+  --motivo-cielo-1: #36203a;
+  --motivo-cielo-2: #251829;
+  --motivo-chispa: #f6e9f4;
+  --motivo-humo: rgba(246, 233, 244, 0.3);
+  --motivo-humo-tenue: rgba(246, 233, 244, 0.2);
+  --motivo-espuma: rgba(246, 233, 244, 0.6);
+  --motivo-lienzo: #251829;
+  --motivo-curva: #553a5c;
+  --escena-fondo: 29, 18, 32;
+  --escena-vidrio: 54, 32, 58;
+  --escena-tinta: 246, 233, 244;
+  --escena-tinte-modo: block;
+  --escena-tinte: #36203a;
+  --escena-tinte-fuerza: 0.55;
+}
+
+/* Escarcha */
+html[data-apariencia="escarcha"] .scene-card,
+html[data-apariencia="escarcha"] .celebrate {
+  --bg: #0c141c;
+  --bg2: #121b24;
+  --card: #18222d;
+  --card2: #1e2933;
+  --sup-pagina: var(--bg);
+  --sup-panel: var(--bg2);
+  --sup-tarjeta: var(--card);
+  --sup-tarjeta2: var(--card2);
+  --line: #27333f;
+  --carril: #27333f;
+  --text: #e7f0f5;
+  --muted: #8496a3;
+  --faint: #5a6b78;
+  --mint: #8ecdf5;
+  --mint-macizo: #8ecdf5;
+  --mint-soft: rgba(142, 205, 245, 0.13);
+  --sobre-acento: #0c141c;
+  --motivo-cielo-1: #18222d;
+  --motivo-cielo-2: #121b24;
+  --motivo-chispa: #e7f0f5;
+  --motivo-humo: rgba(231, 240, 245, 0.3);
+  --motivo-humo-tenue: rgba(231, 240, 245, 0.2);
+  --motivo-espuma: rgba(231, 240, 245, 0.6);
+  --motivo-lienzo: #121b24;
+  --motivo-curva: #27333f;
+  --escena-fondo: 12, 20, 28;
+  --escena-vidrio: 24, 34, 45;
+  --escena-tinta: 231, 240, 245;
+  --escena-tinte-modo: block;
+  --escena-tinte: #18222d;
+  --escena-tinte-fuerza: 0.75;
+}
+
+/* Marea */
+html[data-apariencia="marea"] .scene-card,
+html[data-apariencia="marea"] .celebrate {
+  --bg: #04161c;
+  --bg2: #072028;
+  --card: #0d2c37;
+  --card2: #123642;
+  --sup-pagina: var(--bg);
+  --sup-panel: var(--bg2);
+  --sup-tarjeta: var(--card);
+  --sup-tarjeta2: var(--card2);
+  --line: #1a4553;
+  --carril: #1a4553;
+  --text: #dff2f5;
+  --muted: #79a3ae;
+  --faint: #4f7784;
+  --mint: #4fe0d0;
+  --mint-macizo: #4fe0d0;
+  --mint-soft: rgba(79, 224, 208, 0.13);
+  --sobre-acento: #04161c;
+  --motivo-cielo-1: #0d2c37;
+  --motivo-cielo-2: #072028;
+  --motivo-chispa: #dff2f5;
+  --motivo-humo: rgba(223, 242, 245, 0.3);
+  --motivo-humo-tenue: rgba(223, 242, 245, 0.2);
+  --motivo-espuma: rgba(223, 242, 245, 0.6);
+  --motivo-lienzo: #072028;
+  --motivo-curva: #1a4553;
+  --escena-fondo: 4, 22, 28;
+  --escena-vidrio: 13, 44, 55;
+  --escena-tinta: 223, 242, 245;
+  --escena-tinte-modo: block;
+  --escena-tinte: #0d2c37;
+  --escena-tinte-fuerza: 0.75;
+}
+
+
 /* ---------- Las muestras de la pantalla de Ajustes ----------
    Los mismos tonos de arriba, expuestos en una clase para poder pintar cada
    ambiente EN PEQUEÑO sin ponérselo a la app entera. Salen del mismo sitio

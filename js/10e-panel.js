@@ -527,6 +527,69 @@ function panelPruebasHTML() {
     </div>`;
 }
 
+/* ---- El escaparate de las celebraciones ----
+   Las fiestas de la app solo se ven cuando pasan de verdad, y algunas pasan una
+   vez en la vida de una cuenta: llegar al rango Red pide veintiocho niveles.
+   Revisar cómo se ven a base de esperarlas es imposible, así que aquí se
+   disparan a mano.
+
+   Lo pidió Eduardo, y de paso resuelve una trampa vieja: sin componer
+   fotogramas no hay forma de MEDIR una animación —se queda en el valor de
+   partida—, así que la única prueba real de una celebración es mirarla. */
+const FIESTAS = [
+  { id: "nivel", rotulo: "Nivel a secas",
+    nota: "La que pasa: se va sola a los ocho segundos y se corta tocando fuera." },
+  { id: "rango", rotulo: "Nivel con rango",
+    nota: "Cuando el nivel además te cambia el nombre del camino." },
+  { id: "premio", rotulo: "Nivel con premio",
+    nota: "La ventana que NO se cierra tocando fuera ni sola. Lleva a lo que abriste." },
+  { id: "racha", rotulo: "Hito de racha",
+    nota: "La de los días seguidos, en amarillo." },
+  { id: "chica", rotulo: "La chica",
+    nota: "El destello de subir una habilidad o cumplir un talento." }
+];
+
+function verLaFiesta(cual) {
+  /* Primero se sale de Ajustes. Las celebraciones viven en el piso de las
+     fiestas (120-130) y Ajustes en el de las ventanas (400): disparada desde
+     aquí, la fiesta se dibujaba DEBAJO del panel y solo asomaba por los huecos
+     —medido: a media pantalla el fondo era la tarjeta clara de Ajustes—.
+     Subirle el piso arreglaría el escaparate y rompería la regla de las capas;
+     volver a la app enseña además la fiesta donde de verdad va a salir. */
+  if (typeof showView === "function") showView("summary");
+
+  if (cual === "racha") { celebrateStreak(30); return; }
+  if (cual === "chica") { celebrate("Nivel 7", "Guitarra sube de nivel", "#f5d76e", "music"); return; }
+
+  /* Se toma un nivel de verdad de la escalera para que lo que se vea sea lo
+     que va a ver la gente, no un ejemplo inventado: los nombres, los iconos y
+     los premios salen del catálogo. */
+  const escalera = typeof escaleraDeExpedicion === "function" ? escaleraDeExpedicion() : [];
+  if (cual === "rango") {
+    const r = escalera.find(x => x.tipo === "rango" && x.listo && x.nivel > 1) || { nivel: 4 };
+    celebrarNivel(r.nivel, [r]);
+    return;
+  }
+  if (cual === "premio") {
+    const a = escalera.find(x => x.tipo === "ambiente" && x.listo);
+    celebrarNivel(a ? a.nivel : 3, a ? [a] : [{ nivel: 3, tipo: "ambiente", nombre: "Un ambiente nuevo" }]);
+    return;
+  }
+  celebrarNivel(Math.max(2, (typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 2)), []);
+}
+
+function panelFiestasHTML() {
+  return `<div class="panel">
+      <h3>Ver una celebración</h3>
+      <p class="settings-note">Se disparan aquí porque algunas pasan una vez en la vida de una cuenta y no hay forma de revisarlas esperándolas. No tocan tus datos ni tu nivel: solo dibujan.</p>
+      <div class="pn-fiestas">
+        ${FIESTAS.map(f => `<button class="btn btn-linea btn-block" onclick="verLaFiesta('${f.id}')">
+          <b>${escapeHtml(f.rotulo)}</b><span>${escapeHtml(f.nota)}</span>
+        </button>`).join("")}
+      </div>
+    </div>`;
+}
+
 /* ---- La pantalla ---- */
 
 function renderPanelAdmin() {
@@ -540,7 +603,7 @@ function renderPanelAdmin() {
      métricas hayan llegado: dejarlo debajo de una tabla que todavía se está
      pidiendo lo escondía justo cuando hace falta. */
   if (!m) {
-    caja.innerHTML = panelPruebasHTML() + `<div class="panel">
+    caja.innerHTML = panelPruebasHTML() + panelFiestasHTML() + `<div class="panel">
         <h3>Los números</h3>
         <p class="settings-note">Se piden al servidor cuando abres esta sección.</p>
         <button class="btn btn-linea btn-block" onclick="cargarMetricas()">Cargar los números</button>
@@ -572,7 +635,7 @@ function renderPanelAdmin() {
       : null
   ].filter(Boolean);
 
-  caja.innerHTML = panelPruebasHTML() + `
+  caja.innerHTML = panelPruebasHTML() + panelFiestasHTML() + `
     ${avisos.length ? `<div class="panel">
       <h3>Para mirar</h3>
       <div class="pn-avisos">
