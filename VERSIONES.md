@@ -52,6 +52,81 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.49 · 31 ago 2026
+**Reliquia, el primer mundo.** Un mundo no es un ambiente: un ambiente reusa el
+material y le cambia la luz; un mundo cambia de qué está hecha la app. Reliquia
+es una pieza en su vitrina —forro de terciopelo, marco de latón, la letra Syne y
+el vidrio por encima—, y va antes que Averno y Blueprint porque lo decidió
+Eduardo: es lo único que Fundador tiene además de Pro, y un pago único de $890
+necesita algo que se vea.
+
+**El traductor, que es la parte que sirve para los catorce.** Los mundos se
+diseñaron en `mundos/` con su propio vocabulario (`--m-*`), nacido en la lámina
+que los enseña a los catorce juntos. La app lleva desde 0.7.37 el suyo
+(`--sup-*`, `--r-*`, `--tipo-*`, `--marco-*`). Con dos vocabularios sueltos,
+cada mundo sería una traducción a mano y el número catorce no se parecería al
+primero; ahora `mundos/app.py` traduce, y el siguiente mundo es correr un
+comando.
+
+**`css/mundos.css` no va en `ASSETS` ni en `index.html`**, y eso es la regla que
+dejó escrita la caché de 0.7.38: lleva la tipografía y las texturas —51 KB— y
+bajárselo a quien nunca va a encender un mundo es justo lo que se vino a evitar.
+Lo pide el motor la primera vez que se enciende uno, y el service worker lo
+guarda solo cuando pasa por ahí. Syne va incrustada y no traída de un servidor
+de fuentes: la app se sirve de su propia copia y no pide nada a la red, y una
+fuente de fuera es una petición a un tercero que sabe quién la hizo. Licencia
+SIL OFL 1.1, que permite incrustarla.
+
+Medido con el mundo puesto: la letra carga, el marco de latón se dibuja sobre
+sus 2 px de borde —hacen falta las DOS variables—, las esquinas bajan a canto de
+vitrina por `--r-factor`, los rangos pasan a llamarse Hallazgo, Pieza,
+Colección, Sala y Legado, y el texto sobre tarjeta da 14,4 de contraste. Sin un
+error y sin desbordes, a 430 y a 1280.
+
+**Y con Reliquia entran por fin las tres líneas de la tabla de precios** que
+llevaban escritas desde el 30 de agosto esperando a que el mundo existiera: la
+comparativa deja de decir lo mismo para Pro y para Fundador («Todas, y
+Reliquia»), la tarjeta de Fundador gana su ventaja, y la lista de lo que se
+acaba de abrir lo nombra.
+
+---
+
+**Los ambientes se notan mucho más, que es lo que faltaba.** Lo dijo Eduardo con
+dos frases exactas: «los banners se comen la presencia de los módulos y dan la
+impresión de que no cambió nada» y «en PC los fondos casi no se notan de noche».
+Las dos tenían un número detrás.
+
+1. **Los suelos de noche tenían MENOS color que el carbón de la casa.** Medido
+   en OKLCh: Musgo 0,0168 de croma y Adobe 0,0114 contra los 0,0180 del azul de
+   casa. O sea que el ambiente sí llegaba — y lo que llegaba era más gris que lo
+   que sustituía. Ahora los suelos de los cinco suben al perfil de croma de
+   Duna, que es el único que Eduardo dijo que sí se distingue. **Se sube el
+   croma y NO la luz**, y ese es todo el truco: el contraste se calcula con la
+   luminancia, así que dejando la L quieta los treinta y dos contrastes ya
+   aprobados siguen valiendo. Comprobado: el que más se movió lo hizo 0,12.
+   Tinta no se toca — es un monocromo elegido, y darle color sería convertirlo
+   en otro ambiente.
+2. **El velo del encabezado pasa de 0,5→0,7 a 0,3→0,52.** Con el velo espeso, la
+   mayor parte de lo que se ve de un banner es el velo, y el velo es casi negro
+   en cualquier ambiente: el color quedaba debajo de una manta. Se puede bajar
+   porque el contraste sobraba —el peor rótulo estaba en 9,5 contra un umbral de
+   4,5— y lo que de verdad sostiene el texto es su sombra.
+3. **Los botones del banner llevan el acento**, que es lo segundo que pidió: el
+   vidrio del foco y las pastillas de la racha se mezclan con un 14% del acento
+   y su borde sube a un cuarto de acento.
+4. Y el tinte del paisaje sube de 0,55 a 0,85 en los ambientes de grado 1.
+
+Los números, en dE2000 —que es lo que hay que usar en tonos oscuros—: la
+pantalla entera de una computadora de noche pasa a moverse **hasta 7,4** (Musgo
+y Adobe) y en un teléfono **hasta 14,0**; los cuatro encabezados, de 0,4-5,6 a
+**1,2-7,6** de noche y a **2,4-15,2** de día.
+
+**Lo que sigue sin moverse mucho, y es honesto decirlo:** Tinta (1,1 en una
+computadora) y Escarcha (2,5). Tinta es un monocromo a propósito. Escarcha
+comparte matiz con el azul de la casa —249° contra 259°— y su premisa es
+justamente ésa: la casa con el acento celeste. Moverla más sería cambiarle el
+concepto, y eso no se hace sin decirlo.
+
 ### 0.7.48 · 31 ago 2026
 **Subir de nivel se celebra, y son dos celebraciones y no una.** Lo pidió
 Eduardo así: que te lo cante como cuando sube una habilidad pero más llamativo,

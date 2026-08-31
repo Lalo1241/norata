@@ -80,8 +80,23 @@ const MUNDOS = [
     rangos: ["Boceto", "Trazo", "Plano", "Corte", "Obra"].map(n => ({ nombre: n })) },
   { id: "consola",  nombre: "Consola",
     rangos: ["Bit", "Byte", "Proceso", "Núcleo", "Sistema"].map(n => ({ nombre: n })) },
-  { id: "reliquia", nombre: "Reliquia",
-    rangos: ["Hallazgo", "Pieza", "Colección", "Sala", "Legado"].map(n => ({ nombre: n })) }
+  /* Reliquia es el primero construido, y va antes que Averno y Blueprint
+     porque lo decidió Eduardo: es lo único que Fundador tiene además de Pro
+     —`LIMITES` no tiene entrada de fundador, así que Fundador ES Pro sin
+     fecha— y un pago único de $890 necesita algo que se vea.
+
+     `listo: true` es lo que lo separa de los otros cuatro: sus nombres están
+     decididos, pero sin mundo detrás no se ofrecen. `plan: "fundador"` no es
+     lo mismo que `pro`: éste NO se abre pagando cada mes. */
+  { id: "reliquia", nombre: "Reliquia", listo: true, plan: "fundador",
+    premisa: "Una pieza en su vitrina: forro de terciopelo, marco de latón y el vidrio por encima.",
+    rangos: [
+      { nombre: "Hallazgo", trazo: '<path d="M11 3.6l7.4 4.3v8.2L11 20.4 3.6 16.1V7.9z"/><path d="M11 3.6v16.8"/>' },
+      { nombre: "Pieza",    trazo: '<path d="M12 3.4l3.1 5.1 5.7 1.3-3.9 4.5.5 5.9-5.4-2.4-5.4 2.4.5-5.9L3.2 9.8l5.7-1.3z"/>' },
+      { nombre: "Colección", trazo: '<rect x="3.2" y="4.2" width="7" height="7" rx="1"/><rect x="13.8" y="4.2" width="7" height="7" rx="1"/><rect x="3.2" y="12.8" width="7" height="7" rx="1"/><rect x="13.8" y="12.8" width="7" height="7" rx="1"/>' },
+      { nombre: "Sala",     trazo: '<path d="M3 20V9.6L12 4l9 5.6V20z"/><path d="M8 20v-6.4h8V20"/><path d="M3 20h18"/>' },
+      { nombre: "Legado",   trazo: '<path d="M12 2.8l2.2 4.6 5 .7-3.6 3.6.9 5-4.5-2.4-4.5 2.4.9-5L4.8 8.1l5-.7z"/><path d="M8.4 15.8L7 21.2l5-2.6 5 2.6-1.4-5.4"/>' }
+    ] }
 ];
 
 function mundoPorId(id) {
@@ -98,6 +113,40 @@ function rangosDeApariencia() {
 
 function ambientePorId(id) {
   return AMBIENTES.filter((a) => a.id === id)[0] || null;
+}
+
+/* Un ambiente o un mundo, que para casi todo el motor son lo mismo: una
+   apariencia. Solo se separan donde importa —un mundo renombra los rangos y un
+   ambiente no, y un mundo trae su propio archivo—. Los mundos sin `listo` no
+   cuentan: sus nombres están escritos porque el plan vive mejor en el código
+   que en la cabeza de nadie, pero mientras no exista el mundo no se ofrece. */
+function aparienciaPorId(id) {
+  return ambientePorId(id) || MUNDOS.filter((m) => m.id === id && m.listo)[0] || null;
+}
+
+function esMundo(id) {
+  const m = mundoPorId(id);
+  return !!(m && m.listo);
+}
+
+/* ---- El archivo de los mundos, que se pide cuando hace falta ----
+   `css/mundos.css` no está en `index.html` ni en `ASSETS` a propósito: lleva la
+   tipografía y las texturas del mundo, y eso son decenas de kilobytes que no
+   tiene por qué bajarse quien nunca va a encenderlo. Es la regla que dejó
+   escrita la caché de 0.7.38.
+
+   Se engancha una sola vez y se deja puesto: quitarlo al volver a la casa
+   obligaría a bajarlo otra vez en el siguiente vistazo, y probar dos mundos
+   seguidos es exactamente lo que alguien hace la primera tarde. */
+let mundosPedidos = false;
+
+function pedirLosMundos() {
+  if (mundosPedidos) return;
+  mundosPedidos = true;
+  const l = document.createElement("link");
+  l.rel = "stylesheet";
+  l.href = "css/mundos.css";
+  document.head.appendChild(l);
 }
 
 /* ---- Qué apariencia está puesta ---- */
@@ -121,8 +170,15 @@ function aparienciaGuardada() {
    le falta. Cobrar por saltarse la escalera es justo lo que rompería la
    escalera. */
 function aparienciaDisponible(id) {
-  const a = ambientePorId(id);
+  const a = aparienciaPorId(id);
   if (!a) return "no existe";
+  /* Un mundo de fundador NO se abre pagando cada mes, y ésa es toda la
+     diferencia que se compra. Va antes que la pregunta del nivel porque no hay
+     nivel que lo abra: no es una escalera, es una compra. */
+  if (a.plan === "fundador") {
+    const p = typeof PLAN !== "undefined" && PLAN ? PLAN.plan : "";
+    return p === "fundador" ? true : "fundador";
+  }
   /* El nivel sale de `js/02b-expedicion.js`, que es el motor de la casa. Este
      archivo NO cuenta puntos: hubo un momento en que existieron dos motores a
      la vez —uno aquí y otro allá— y los dos declaraban `EXP_PUNTOS` en el
@@ -139,9 +195,13 @@ function aparienciaDisponible(id) {
 
 function ponerApariencia(cual, opciones) {
   const op = opciones || {};
-  const a = ambientePorId(cual) ? cual : "casa";
+  const a = aparienciaPorId(cual) ? cual : "casa";
   const raiz = document.documentElement;
   if (a !== "casa" && aparienciaDisponible(a) !== true && !op.forzar) return false;
+  /* El archivo del mundo, antes de poner el atributo. Si llegara después se
+     vería un parpadeo con el mundo a medias: los colores puestos y la letra y
+     la textura todavía en camino. */
+  if (esMundo(a)) pedirLosMundos();
 
   /* Un instante sin transiciones, y por el mismo motivo exacto que
      `ponerTema`: en esta app una transición sobre una propiedad cuyo valor
@@ -190,13 +250,13 @@ function aparienciaDePrueba() {
   let cual = null;
   try { cual = sessionStorage.getItem(APARIENCIA_PRUEBA); } catch (e) {}
   if (!cual) return null;
-  if (!ambientePorId(cual)) return null;
+  if (!aparienciaPorId(cual)) return null;
   return cual;
 }
 
 function rotuloDePrueba(cual) {
   if (document.getElementById("aparienciaPrueba")) return;
-  const n = ambientePorId(cual);
+  const n = aparienciaPorId(cual);
   const d = document.createElement("div");
   d.id = "aparienciaPrueba";
   d.textContent = "Apariencia de prueba: " + (n ? n.nombre : cual);
@@ -217,6 +277,11 @@ function arrancarApariencia() {
     return;
   }
   const puesta = apariencia();
+  /* Si lo guardado es un mundo, su archivo hace falta ANTES de nada: el
+     atributo ya lo puso el script de arriba de `index.html` para que no haya
+     fogonazo, así que sin esto la app arrancaría con el atributo puesto y sin
+     ninguna regla que lo lea — o sea, con la casa pintada y el nombre de otro. */
+  if (esMundo(puesta)) pedirLosMundos();
   /* Congelar, nunca quitar: si ya no se puede, se vuelve a la casa en vez de
      dejar la app pintada con algo que el servidor no reconoce. La elección
      guardada NO se borra — el día que vuelva a pagar, vuelve su apariencia. */
@@ -255,6 +320,7 @@ function motivoApariencia(a) {
   const puede = aparienciaDisponible(a.id);
   if (puede === true) return null;
   if (puede === "nivel") return "Nivel " + a.abre;
+  if (puede === "fundador") return "Solo Fundador";
   if (puede === "pro" && typeof NOMBRE_PRO === "string") return "Con " + NOMBRE_PRO;
   return "Con Pro";
 }
@@ -284,10 +350,37 @@ function renderPanelApariencia() {
       </button>`;
   }).join("");
 
+  /* Los mundos van en su PROPIA reja y no mezclados con los ambientes, y no es
+     una cuestión de orden: son cosas de distinta especie. Un ambiente le cambia
+     la luz al mismo material; un mundo cambia el material —la superficie, el
+     marco, la letra y el peso al moverse— y por eso declara sus propios
+     colores y es excluyente con los ambientes. Mezclarlos en una lista los
+     haría parecer catorce opciones del mismo tipo, que es justo la confusión
+     que `apariencias/LEEME.md` existe para evitar. */
+  const listos = MUNDOS.filter((m) => m.listo);
+  const mundos = listos.map((m) => {
+    const bloqueado = aparienciaDisponible(m.id) !== true;
+    const pie = motivoApariencia(m) || "";
+    return `
+      <button type="button" class="mun-m mues-${m.id}${puesta === m.id ? " on" : ""}${bloqueado ? " cerrado" : ""}"
+        onclick="elegirApariencia('${m.id}')"
+        aria-pressed="${puesta === m.id}"
+        title="${escapeHtml(m.nombre)}${pie ? " · " + escapeHtml(pie) : ""}">
+        <span class="mun-tx">
+          <b>${escapeHtml(m.nombre)}</b>
+          <span>${escapeHtml(m.premisa || "")}</span>
+        </span>
+        ${pie ? `<span class="mun-p">${escapeHtml(pie)}</span>` : ""}
+      </button>`;
+  }).join("");
+
   caja.innerHTML = `
     <h3>Ambientes</h3>
     <p class="settings-note">El mismo Norata con otra luz. Se van desbloqueando conforme avanzas, y el modo de día y de noche sigue arriba: cada ambiente tiene sus dos caras.</p>
-    <div class="amb-rej">${muestras}</div>`;
+    <div class="amb-rej">${muestras}</div>
+    ${listos.length ? `<h3 class="amb-h2">Mundos</h3>
+    <p class="settings-note">Un mundo no es otra luz: es otro material. Cambia la superficie, el marco, la letra y hasta cómo se llama tu camino. Van aparte de los ambientes porque no se combinan — llevas uno o llevas el otro.</p>
+    <div class="mun-rej">${mundos}</div>` : ""}`;
 }
 
 /* Un toque: se pone, se guarda y se vuelve a dibujar la rejilla para que la
