@@ -52,6 +52,62 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.52 · 31 ago 2026
+**La primera revisión de Reliquia, y la mitad de lo que salió no era de
+Reliquia: era de la app.** Eduardo miró el mundo puesto y encontró siete cosas.
+Cinco eran huecos del sistema —sitios donde una esquina o un color estaban
+escritos a mano y por eso un mundo no llegaba— y dos eran del mundo.
+
+**Del sistema:**
+
+- **La GOTA es una variable.** La silueta irregular que va detrás de un icono
+  —la de una habilidad, la de la celebración, la de los colores— era el mismo
+  `border-radius` de ocho valores escrito a mano en cinco sitios. Con la app
+  cuadrada por Reliquia, esas cinco seguían siendo gotas. Ahora es `--r-gota`;
+  va en porcentajes, así que NO pasa por el factor y un mundo que se cuadra
+  tiene que decirlo — Reliquia la pone en 7 px.
+- **Las esquinas del encabezado de sección pasan por el factor.** Iban escritas
+  `12px 34px 34px 34px` y eran las únicas de la app que un mundo no podía
+  tocar: la app entera se cuadraba y los cuatro banners seguían con la burbuja
+  de la casa.
+- **El icono de una misión** llevaba `9px` a pelo; ahora es `calc(9px ×
+  factor)`, que pasa por el sistema sin cambiarle un píxel a la casa.
+- **Las curvas del encabezado de Talentos salían del color del BORDE**, y en un
+  mundo con marco dorado eso son líneas de oro brillante justo detrás del texto.
+  Ahora salen del suelo, apenas por encima del lienzo: relieve, no dibujo.
+  Medido, el peor rótulo de ese banner pasa a **8,79** de contraste.
+- Y **una salida a «Norata clásico»** en la lista de mundos. Lo preguntó
+  Eduardo y la pregunta era la buena: con un mundo puesto, había que tocar un
+  RECOLOR para volver, que se lee como «elegir Musgo» y no como «quitar
+  Reliquia». La puerta de vuelta va donde uno la busca — en la misma lista por
+  la que entró.
+
+**Del mundo:**
+
+- **Las esquinas dejan de estar en punta.** «Ni muy redondas como el clásico,
+  pero tampoco tan en punta», y tenía razón: 4 px es un canto, no una esquina.
+  El factor sube de 0,29 a 0,57 —la tarjeta pasa de 4 a 8, el panel de 7 a 15—
+  y los chips de 3 a 6.
+- **El latón deja de ser el contorno de todo.** «Se gasta el recurso muy
+  rápido», y el número lo confirma: contados en las siete pantallas, **53
+  elementos** llevaban el marco dorado —quince etapas de proyecto, diez
+  tarjetas de habilidad, ocho botones—. Ahora son **11**, y solo en las dos
+  piezas que de verdad enmarcan: el panel y la tarjeta del Resumen. Todo lo
+  demás vuelve a un borde liso del latón apagado. Once marcos en siete
+  pantallas se leen como un marco; cincuenta y tres, no.
+- **Syne se frena en 700.** Es variable de 600 a 800 y a 800 se ESTIRA —es lo
+  característico de esa familia—, lo que alarga los rótulos y descuadra los
+  renglones. El freno se pone en el propio `@font-face`, declarándolo de 600 a
+  700: el navegador recorta al techo cualquier petición de 800 sin tener que ir
+  a buscar una por una las reglas de la app que la piden.
+
+**Y el aviso al cambiar de tema ya no dice el nombre**, solo «Cambiando tema…».
+El nombre ya está en la tarjeta que acabas de tocar.
+
+La prueba de que ninguno de los cinco arreglos del sistema le movió nada a la
+casa: la foto de los estilos calculados de siete pantallas en los dos modos,
+**25 645 elementos, cero cambios**.
+
 ### 0.7.51 · 31 ago 2026
 **Reliquia no se ponía, y la causa era una línea.** `elegirApariencia` —la
 función por la que se entra al tocar una tarjeta— seguía preguntando por
