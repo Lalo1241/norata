@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.49";
+const VERSION = "0.7.50";
 const VERSION_FECHA = "31 ago 2026";
 
 /* ================= Iconografía propia =================
@@ -325,8 +325,16 @@ function ponerTema(cual) {
   /* La franja del navegador de arriba —y en Android la barra de estado de la
      app instalada— no la pinta el CSS: sale de esta etiqueta, y sin
      cambiarla la app clara se queda con una ceja negra encima. */
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", claro ? "#f2f4f8" : "#10151d");
+  /* Con una apariencia puesta, esos dos colores son los de la CASA y no los
+     suyos: la ceja del navegador se quedaba azul encima de una app morada.
+     `pintarColorDeBarra` lee el fondo ya calculado, que siempre dice la verdad
+     sea cual sea la apariencia; los dos hexes de aquí son el respaldo para
+     cuando ese archivo todavía no ha cargado. */
+  if (typeof pintarColorDeBarra === "function") pintarColorDeBarra();
+  else {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", claro ? "#f2f4f8" : "#10151d");
+  }
   pintarTema();
 }
 
