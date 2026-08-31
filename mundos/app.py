@@ -64,7 +64,11 @@ def bloque(m):
         ("--sup-flotante", tarj_plana),
         ("--line", t["--m-borde-color"]),
         ("--carril", t["--m-carril"]),
-        ("--borde-tarjeta", t.get("--m-borde", "1px")),
+        # Un solo grosor para toda la app. Reliquia pedía 2 px porque el
+        # `border-image` necesitaba ancho para dibujarse; sin él, dos grosores
+        # distintos son solo dos grosores distintos —«homologar el grosor», lo
+        # dijo Eduardo viendo que esas líneas eran más gordas que las demás—.
+        ("--borde-tarjeta", "1px"),
         ("--text", tinta),
         ("--muted", tinta2),
         ("--faint", mezcla(tinta2, tarj_plana, 0.42)),
@@ -89,8 +93,16 @@ def bloque(m):
         ("--dur-media", t.get("--m-dur", ".3s")),
         ("--curva", t.get("--m-curva", "ease")),
     ]
+    # El marco NO se declara como `border-image`, y esto es un arreglo de
+    # verdad: **un `border-image` ignora el `border-radius`**. Está en la
+    # especificación y no hay forma de pedirle que lo respete, así que un mundo
+    # con esquinas redondeadas y marco dibujado enseñaba una tarjeta redonda con
+    # un marco CUADRADO. Se ve poco y se nota, que es como lo describió Eduardo.
+    #
+    # Se dibuja abajo como un aro en un `::before` con máscara, que sí hereda el
+    # radio. Y aquí `--marco-tarjeta` se apaga para que nada más lo herede.
     if t.get("--m-marco"):
-        v.append(("--marco-tarjeta", t["--m-marco"]))
+        v.append(("--marco-tarjeta", "none"))
     if t.get("--m-titulo"):
         v += [("--tipo-titulo", t["--m-titulo"]), ("--tipo-cifra", t.get("--m-cifra", t["--m-titulo"]))]
 
@@ -105,6 +117,7 @@ def bloque(m):
     # La gota —la silueta irregular detrás de un icono— va en porcentajes, así
     # que el factor no la alcanza: un mundo que se cuadra tiene que decirlo.
     if t.get("--m-r-gota"):     v.append(("--r-gota", t["--m-r-gota"]))
+    if t.get("--m-r-gota-alt"): v.append(("--r-gota-alt", t["--m-r-gota-alt"]))
 
     sel = 'html[data-apariencia="%s"]' % m["id"]
     salida = ["/* ---------- %s · %s ---------- */" % (m["nombre"], m["llave"]),
@@ -167,6 +180,32 @@ def bloque(m):
           "  border-width: 1px;",
           "  border-color: %s;" % liso,
           "}"]
+
+    # ---- El aro de metal, que SÍ se redondea ----
+    # La receta es la de siempre para un borde con degradado: una capa del
+    # tamaño de la caja, con el degradado pintado hasta el borde, y una máscara
+    # que le quita todo menos el anillo del ancho del borde. `border-radius:
+    # inherit` es lo que hace que siga la esquina de su tarjeta, sea la que sea.
+    if t.get("--m-marco"):
+        grad = t["--m-marco"].rsplit(" ", 1)[0]   # el degradado, sin el `1` del border-image
+        salida += ["",
+          "/* El aro de metal. Va en un `::before` con máscara y no en un",
+          "   `border-image`, porque un border-image ignora el border-radius: la",
+          "   tarjeta salía redonda con el marco cuadrado. Así hereda la esquina. */",
+          "%s .panel::before,\n%s .sum-card::before {" % (sel, sel),
+          "  content: \"\";",
+          "  position: absolute;",
+          "  inset: 0;",
+          "  border-radius: inherit;",
+          "  padding: 1px;",
+          "  background: %s;" % grad,
+          "  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);",
+          "  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);",
+          "  -webkit-mask-composite: xor;",
+          "  mask-composite: exclude;",
+          "  pointer-events: none;",
+          "}",
+          "%s .panel,\n%s .sum-card { position: relative; }" % (sel, sel)]
 
     # ---- El techo del peso ----
     # Syne es variable de 600 a 800, y a 800 se ESTIRA: la letra se alarga y

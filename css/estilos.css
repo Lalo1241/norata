@@ -326,6 +326,11 @@
        factor sobre un porcentaje no significa nada. Un mundo la vuelve a
        declarar entera, y cuadrarla es escribir un solo valor. */
     --r-gota: 58% 42% 55% 45% / 52% 48% 60% 40%;
+    /* Y la misma silueta VOLTEADA, para alternar. Una lista de diez iconos con
+       la misma figura repetida se lee como una plantilla; alternando la
+       orientación se lee como diez piezas. Lo pidió Eduardo mirando el
+       catálogo de habilidades. */
+    --r-gota-alt: 42% 58% 45% 55% / 48% 52% 40% 60%;
     --r-mision: calc(8px * var(--r-factor)) calc(18px * var(--r-factor)) calc(18px * var(--r-factor)) calc(8px * var(--r-factor));
     --r-burbuja: calc(26px * var(--r-factor)) calc(26px * var(--r-factor)) calc(26px * var(--r-factor)) calc(10px * var(--r-factor));
     --r-burbuja-alta: calc(34px * var(--r-factor)) calc(34px * var(--r-factor)) calc(34px * var(--r-factor)) calc(12px * var(--r-factor));
@@ -1420,7 +1425,7 @@
     color: var(--text);
     cursor: pointer;
   }
-  .sum-card.a { border-radius: 26px 26px 10px 26px; }
+  .sum-card.a { border-radius: calc(26px * var(--r-factor)) calc(26px * var(--r-factor)) calc(10px * var(--r-factor)) calc(26px * var(--r-factor)); }
   .sum-card.b { border-radius: var(--r-burbuja); }
   .sum-card:active { background: var(--sup-tarjeta2); }
   .sum-card .ic { color: var(--mint); margin-bottom: 10px; }
@@ -2164,6 +2169,11 @@
   .skill-tab.warn { background: var(--fire-macizo); }
   .skill-tab.perm { background: var(--mint-macizo); display: inline-flex; align-items: center; gap: 4px; }
   .skill-tab .ic svg { width: 10px; height: 10px; stroke-width: 2.6; }
+  /* Los pares llevan la silueta volteada. `nth-of-type` sobre el contenedor y
+     no una clase desde JavaScript: quien pinta la lista no tiene por qué saber
+     nada de la forma de un icono. */
+  .skill-card:nth-of-type(even) .skill-emoji,
+  .cat-item:nth-of-type(even) .skill-emoji { border-radius: var(--r-gota-alt); }
   .skill-emoji {
     width: 50px; height: 50px;
     display: flex; align-items: center; justify-content: center;
@@ -2426,7 +2436,7 @@
     padding: 20px;
     margin-bottom: 14px;
   }
-  .panel.alt { border-radius: 10px 26px 26px 26px; }
+  .panel.alt { border-radius: calc(10px * var(--r-factor)) calc(26px * var(--r-factor)) calc(26px * var(--r-factor)) calc(26px * var(--r-factor)); }
 
   /* ---------- El recinto de lo que no se deshace ----------
      Se llamaba "Zona de peligro" y se veía igual que el panel de los
@@ -3297,11 +3307,36 @@
     }
   }
 
+  /* ---------- En el teléfono, los dos mandos en la misma línea ----------
+     Antes la tira iba centrada abajo y el mando del zoom en su esquina, y como
+     se pisaban había una función que subía el zoom a media pantalla. El
+     resultado es lo que Eduardo describió: se veía mal colocado, flotando
+     donde no toca.
+
+     Repartidos —herramientas a la izquierda, zoom a la derecha— dejan de
+     chocar, no hace falta esquivar nada y el pulgar llega a los dos. */
+  @media (max-width: 899px) {
+    .fs-body .mapa-tira {
+      left: calc(12px + env(safe-area-inset-left));
+      transform: none;
+    }
+    .fs-body .zoom-mando {
+      right: calc(12px + env(safe-area-inset-right));
+      bottom: calc(14px + env(safe-area-inset-bottom));
+    }
+  }
+
   /* ================= El mando del zoom =================
      Flota sobre el lienzo, en la esquina donde todo el mundo lo busca. Va
      dentro del contenedor del lienzo y no dentro del lienzo mismo: ahí se
      iría con el recorrido y desaparecería al arrastrar el mapa. */
   .branch-card, .fs-body { position: relative; }
+  /* El mando NO sale en el previsualizador de una rama, solo a pantalla
+     completa. Lo pidió Eduardo y el motivo se ve al mirarlo: la vista previa es
+     una MUESTRA —cabe medio mapa y se entra tocándola—, así que un control de
+     zoom ahí ni cabe ni hace falta, y encima chocaba con la tira de
+     herramientas y se subía sola a media tarjeta. */
+  .branch-card .zoom-mando { display: none; }
   .zoom-mando {
     position: absolute;
     right: 14px;

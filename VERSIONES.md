@@ -52,6 +52,50 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.53 · 31 ago 2026
+**El marco dorado no seguía la esquina, y no era un descuido: era una regla del
+navegador.** Un `border-image` IGNORA el `border-radius` — está en la
+especificación y no hay forma de pedirle que lo respete—, así que un mundo con
+esquinas redondeadas enseñaba una tarjeta redonda con un marco CUADRADO. «No se
+percibe mucho a simple vista pero sí se nota», y era exactamente eso.
+
+Ahora el metal se dibuja como un **aro en un `::before` con máscara**: una capa
+del tamaño de la caja con el degradado pintado hasta el borde y una máscara que
+le quita todo menos el anillo. `border-radius: inherit` hace que siga la esquina
+de su tarjeta, sea la que sea. Medido: el aro y la tarjeta comparten los 14,86
+px de radio, y en toda la app no queda **ni un solo `border-image`**.
+
+Y de paso el grosor se homologa: Reliquia pedía 2 px porque el `border-image`
+necesitaba ancho para dibujarse. Sin él, dos grosores distintos son solo dos
+grosores distintos. Todo a 1 px.
+
+**Dos esquinas más que el factor no alcanzaba** —`.panel.alt` y `.sum-card.a`,
+escritas a mano— ya pasan por él.
+
+**La gota deja de ser un cuadrado y se vuelve una hoja**, con dos esquinas
+redondas y dos rectas, y **se alterna**: los elementos pares llevan la silueta
+volteada (`--r-gota-alt`). Una lista de diez iconos con la misma figura repetida
+se lee como una plantilla; alternando la orientación se lee como diez piezas. Va
+por `nth-of-type` en el CSS y no por una clase desde JavaScript, porque quien
+pinta una lista no tiene por qué saber nada de la forma de un icono.
+
+**Y el mapa de talentos, tres cosas:**
+
+1. **El mando del zoom desaparece del previsualizador.** Una vista previa es una
+   MUESTRA —cabe medio mapa y se entra tocándola—, así que un control de zoom
+   ahí ni cabe ni hace falta. A pantalla completa sigue.
+2. **A pantalla completa y en el teléfono, los dos mandos se reparten**:
+   herramientas a la izquierda, zoom a la derecha, en la misma línea. Antes la
+   tira iba centrada abajo, chocaba con el zoom, y había una función que subía
+   el zoom a media pantalla para esquivarla — que es justo lo que se veía mal
+   colocado. Se borra esa función: un reparto fijo se entiende; uno que se mueve
+   solo, no. Medido a 412 px: tira en x=12, zoom en x=243, sin solaparse.
+3. **El previsualizador es más alto en el teléfono**, de 261 a 414 px. La regla
+   de «la tarjeta mide lo que mide el dibujo» es buena para no arrastrar hueco
+   vacío, pero en una pantalla estrecha el dibujo es mucho más ancho que alto:
+   cabía por los lados recortado y la ventana quedaba en una rendija por la que
+   no se entiende la forma de la rama. En la computadora no se toca.
+
 ### 0.7.52 · 31 ago 2026
 **La primera revisión de Reliquia, y la mitad de lo que salió no era de
 Reliquia: era de la app.** Eduardo miró el mundo puesto y encontró siete cosas.
