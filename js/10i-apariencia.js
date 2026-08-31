@@ -27,16 +27,16 @@ const APARIENCIA_PRUEBA = "norata-apariencia-prueba";
    `aparienciaDisponible`. Los tonos de cada uno están en `css/ambientes.css`
    y salen medidos de `apariencias/datos.py`. */
 const AMBIENTES = [
-  { id: "casa",     nombre: "Noche de expedición", grado: 0, abre: 0 },
+  { id: "casa",     nombre: "Noche de expedición", grado: 0, abre: 0,  icon: "compass" },
   /* Gratis siempre y no por generosidad: para quien no distingue bien los
      colores, un monocromo no es un adorno — es la única manera de usar la
      app. Cobrarlo sería cobrar por entrar. */
-  { id: "tinta",    nombre: "Tinta",    grado: 3, abre: 0 },
-  { id: "musgo",    nombre: "Musgo",    grado: 1, abre: 3 },
-  { id: "marea",    nombre: "Marea",    grado: 2, abre: 5,  pro: true },
-  { id: "adobe",    nombre: "Adobe",    grado: 1, abre: 7 },
-  { id: "escarcha", nombre: "Escarcha", grado: 2, abre: 12, pro: true },
-  { id: "duna",     nombre: "Duna",     grado: 1, abre: 20 }
+  { id: "tinta",    nombre: "Tinta",    grado: 3, abre: 0,  icon: "pen" },
+  { id: "musgo",    nombre: "Musgo",    grado: 1, abre: 3,  icon: "plant" },
+  { id: "marea",    nombre: "Marea",    grado: 2, abre: 5,  pro: true, icon: "globe" },
+  { id: "adobe",    nombre: "Adobe",    grado: 1, abre: 7,  icon: "sol" },
+  { id: "escarcha", nombre: "Escarcha", grado: 2, abre: 12, pro: true, icon: "luna" },
+  { id: "duna",     nombre: "Duna",     grado: 1, abre: 20, icon: "star" }
 ];
 
 /* ================= Los mundos =================
@@ -88,7 +88,7 @@ const MUNDOS = [
      `listo: true` es lo que lo separa de los otros cuatro: sus nombres están
      decididos, pero sin mundo detrás no se ofrecen. `plan: "fundador"` no es
      lo mismo que `pro`: éste NO se abre pagando cada mes. */
-  { id: "reliquia", nombre: "Reliquia", listo: true, plan: "fundador",
+  { id: "reliquia", nombre: "Reliquia", listo: true, plan: "fundador", icon: "gem",
     premisa: "Una pieza en su vitrina: forro de terciopelo, marco de latón y el vidrio por encima.",
     rangos: [
       { nombre: "Hallazgo", trazo: '<path d="M11 3.6l7.4 4.3v8.2L11 20.4 3.6 16.1V7.9z"/><path d="M11 3.6v16.8"/>' },
@@ -143,6 +143,10 @@ let mundosPedidos = false;
 function pedirLosMundos() {
   if (mundosPedidos) return;
   mundosPedidos = true;
+  /* Puede venir ya enganchada desde el script de arriba de `index.html`, que la
+     pide cuando lo guardado es un mundo para que no haya fogonazo. Engancharla
+     dos veces no rompe nada pero la pide dos veces. */
+  if (document.querySelector('link[href="css/mundos.css"]')) { pintarColorDeBarra(); return; }
   const l = document.createElement("link");
   l.rel = "stylesheet";
   l.href = "css/mundos.css";
@@ -400,6 +404,7 @@ function renderPanelApariencia() {
         title="${escapeHtml(a.nombre)}${pie ? " · " + escapeHtml(pie) : ""}">
         <span class="amb-mini" aria-hidden="true">
           <span class="amb-tarj"></span><span class="amb-pt"></span>
+          ${a.icon ? `<span class="amb-ic">${icon(a.icon, 15)}</span>` : ""}
         </span>
         <span class="amb-n">${escapeHtml(a.nombre)}</span>
         ${pie ? `<span class="amb-p">${escapeHtml(pie)}</span>` : ""}
@@ -422,6 +427,7 @@ function renderPanelApariencia() {
         onclick="elegirApariencia('${m.id}')"
         aria-pressed="${puesta === m.id}"
         title="${escapeHtml(m.nombre)}${pie ? " · " + escapeHtml(pie) : ""}">
+        ${m.icon ? `<span class="mun-ic">${icon(m.icon, 20)}</span>` : ""}
         <span class="mun-tx">
           <b>${escapeHtml(m.nombre)}</b>
           <span>${escapeHtml(m.premisa || "")}</span>
@@ -443,15 +449,39 @@ function renderPanelApariencia() {
    marca de «puesta» se mueva. Si no se puede, no se pone y se dice por qué en
    vez de no hacer nada — un botón que no contesta parece roto. */
 function elegirApariencia(id) {
-  const a = ambientePorId(id);
+  /* `aparienciaPorId` y no `ambientePorId`, que es lo que había y por lo que
+     tocar Reliquia no hacía absolutamente nada: la lista de mundos no está en
+     `AMBIENTES`, así que esto salía por el `return` de la línea siguiente sin
+     un error, sin un aviso y sin cambiar nada. Se corrigieron `disponible`,
+     `poner` y `motivo` al construir el mundo, y se quedó justo la función por
+     la que se entra. */
+  const a = aparienciaPorId(id);
   if (!a) return;
   const motivo = motivoApariencia(a);
   if (motivo) {
     if (typeof toast === "function") toast(a.nombre + " viene con " + motivo.replace(/^Con /, ""), "atencion");
     return;
   }
-  ponerApariencia(id);
+  if (!ponerApariencia(id)) return;
   renderPanelApariencia();
+
+  /* Y se recarga la página. Lo pidió Eduardo y resuelve de raíz una clase
+     entera de problemas: un mundo trae su propio archivo de estilos, que llega
+     por la red DESPUÉS de que el atributo ya esté puesto, y el árbol de
+     talentos y las escenas se dibujan una vez con los colores que había al
+     dibujarlas. Aplicarlo en caliente deja media app con lo nuevo y media con
+     lo viejo; recargar la deja entera, y el arranque ya sabe pintar la
+     apariencia guardada antes del primer fotograma.
+
+     Dentro del EJEMPLO no se recarga: el ejemplo vive en memoria y una recarga
+     lo borraría sin avisar. Ahí se aplica en caliente, que es lo que había, y
+     es el único sitio donde la mezcla se puede tolerar — lo que se está
+     mirando son datos inventados. */
+  if (typeof modoEjemplo !== "undefined" && modoEjemplo) return;
+  if (typeof toast === "function") toast("Poniendo " + a.nombre + "…", "calma");
+  /* Un respiro para que el aviso se vea y para que `localStorage` haya
+     escrito de verdad antes de irse. */
+  setTimeout(() => location.reload(), 420);
 }
 
 /* Desde la tarjeta del Resumen: lleva a Ajustes con la sección ya abierta. Es

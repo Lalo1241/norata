@@ -52,6 +52,42 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.51 · 31 ago 2026
+**Reliquia no se ponía, y la causa era una línea.** `elegirApariencia` —la
+función por la que se entra al tocar una tarjeta— seguía preguntando por
+`ambientePorId`, y un mundo no está en la lista de ambientes. Así que tocar
+Reliquia salía por el `return` de la línea siguiente: sin un error, sin un aviso
+y sin cambiar nada. Al construir el mundo se corrigieron `aparienciaDisponible`,
+`ponerApariencia` y `motivoApariencia`, y se quedó justo la puerta de entrada.
+
+**Y elegir una apariencia recarga la app.** Lo propuso Eduardo y resuelve de raíz
+una clase entera de problemas: un mundo trae su propio archivo de estilos, que
+llega por la red DESPUÉS de que el atributo ya esté puesto, y el árbol de
+talentos y las escenas se dibujan una vez con los colores que había al
+dibujarlas. Aplicarlo en caliente deja media app con lo nuevo y media con lo
+viejo. Dentro del ejemplo NO se recarga: el ejemplo vive en memoria y una
+recarga lo borraría sin avisar — comprobado, ahí se aplica en caliente y el
+ejemplo sigue puesto.
+
+Y para que la recarga no enseñe un fogonazo, **la hoja del mundo se pide desde
+el script de arriba de `index.html`**, a la vez que el resto, en vez de esperar
+a que arranque el motor. La lista de mundos va escrita a mano ahí porque ese
+script corre antes que todo; si algún día discrepa de la de verdad, lo que se ve
+es el fogonazo, no un error.
+
+**Cada apariencia lleva su icono**, que era lo otro que pidió: dentro de la
+muestra y del color de su acento. Dice cuál es cuál sin leer el nombre, que es
+justo lo que tres tonos de fondo no pueden decir. Brújula para la casa de noche,
+pluma para Tinta, planta para Musgo, globo para Marea, sol para Adobe, luna para
+Escarcha, estrella para Duna. Y la piedra para Reliquia, que no se inventó: es
+el mismo dibujo con el que la app ya nombra la insignia de Fundador.
+
+**El botón de reportar un fallo dejó de salir cinco veces.** Vive al pie del
+ÍNDICE de Ajustes junto al número de versión, pero los dos cuelgan FUERA del
+envoltorio de las secciones: en el teléfono, al abrir una sección el índice
+desaparece y estos dos se quedaban debajo de cualquier panel. Comprobado en las
+cinco secciones y en el índice, a 412 y a 1280.
+
 ### 0.7.50.1 · 31 ago 2026
 **La franja del navegador, terminada.** La 0.7.50 dejó de pintarla con los dos
 colores de la casa, pero preguntando Eduardo salió lo que de verdad le pasaba:

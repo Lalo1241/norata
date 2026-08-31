@@ -1268,6 +1268,17 @@
   }
   .mun-m.on { border-color: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
   .mun-m.cerrado { opacity: 0.62; }
+  /* Y el del mundo, que aquí sí es una pieza suya: la piedra de Reliquia es el
+     mismo dibujo con el que la app ya nombra la insignia de Fundador. */
+  .mun-ic {
+    flex: none;
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px;
+    border-radius: var(--r-chico);
+    background: var(--lila-soft);
+    color: var(--lila);
+  }
+  .mun-ic svg { width: 20px; height: 20px; stroke-width: 1.6; }
   .mun-tx { min-width: 0; flex: 1; }
   .mun-tx b { display: block; font-size: 14px; font-weight: 700; }
   .mun-tx span {
@@ -1895,6 +1906,13 @@
     display: flex; align-items: center; justify-content: center; gap: 8px;
   }
   @media (min-width: 900px) { #bug-pie { display: none; } }
+  /* Y dentro de una sección tampoco: el botón y el número de versión viven al
+     pie del ÍNDICE de Ajustes, que es donde alguien busca «lo de la app». En el
+     teléfono, al abrir una sección el índice desaparece y estos dos se
+     quedaban colgando debajo de cualquier panel —lo cazó Eduardo—, así que
+     salían cinco veces en vez de una. */
+  #view-settings.en-seccion #bug-pie,
+  #view-settings.en-seccion .version-pie { display: none; }
 
   /* ---------- El mini menú del engrane ----------
      Mismo lenguaje que el menú del clic derecho del árbol: una tarjeta que
@@ -7968,6 +7986,18 @@ html.claro .plan-linea { stroke-opacity: .85; }
     border-radius: var(--r-redondo);
     background: var(--mu-acento);
   }
+  /* El icono va DENTRO de la muestra, en la esquina de abajo, y del color del
+     acento de ese ambiente. Lo pidió Eduardo y resuelve algo que la muestra de
+     tres tonos no dice: cuál es cuál de un vistazo, sin leer el nombre. Va
+     sobre la tarjeta pequeña —que es la zona más clara de la muestra— para que
+     tenga fondo debajo en los siete. */
+  .amb-ic {
+    position: absolute;
+    right: 13%; bottom: 17%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--mu-acento);
+  }
+  .amb-ic svg { width: 15px; height: 15px; stroke-width: 1.7; }
   .amb-m:hover .amb-mini { box-shadow: var(--sombra-s); }
   .amb-m.on .amb-mini { outline: 2px solid var(--mint); outline-offset: 2px; }
   .amb-m:focus-visible .amb-mini { outline: 2px solid var(--mint); outline-offset: 2px; }

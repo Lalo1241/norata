@@ -875,6 +875,11 @@ function renderAjustes() {
     </button>`).join("");
 
   wrap.classList.toggle("en-seccion", !!ajusteAbierto);
+  /* Y la vista entera, para lo que vive FUERA del envoltorio: el botón de
+     reportar un fallo y el número de versión, que cuelgan al pie del índice.
+     Sin esta línea salían debajo de cada sección abierta. */
+  const vista = document.getElementById("view-settings");
+  if (vista) vista.classList.toggle("en-seccion", !!ajusteAbierto);
   document.querySelectorAll("#ajustes-cuerpo .ajuste-bloque").forEach(b => {
     b.classList.toggle("visible", b.dataset.sec === ajusteAbierto);
   });

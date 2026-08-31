@@ -82,6 +82,22 @@
     var puesta = sessionStorage.getItem("norata-apariencia-prueba")
               || localStorage.getItem("norata-apariencia");
     if (puesta && puesta !== "casa") document.documentElement.setAttribute("data-apariencia", puesta);
+    /* Y si lo puesto es un MUNDO, su hoja de estilos se pide aquí mismo. Los
+       mundos no viajan con la app —pesan lo que pesan una tipografía y unas
+       texturas— y `js/10i-apariencia.js` la engancha cuando arranca; el
+       problema es que arranca después de pintar, así que la primera imagen
+       salía con los colores de la casa y el nombre del mundo. Enganchándola
+       aquí el navegador la pide a la vez que el resto y no hay fogonazo.
+
+       La lista va escrita a mano porque este script corre antes que todo, y
+       tiene que decir lo mismo que los mundos con `listo` de ese archivo: hoy,
+       uno. Si algún día discrepan, lo que se ve es el fogonazo, no un error. */
+    if (["reliquia"].indexOf(puesta) >= 0) {
+      var lm = document.createElement("link");
+      lm.rel = "stylesheet";
+      lm.href = "css/mundos.css";
+      document.head.appendChild(lm);
+    }
   } catch (e) {}
 
   /* ---- El escaparate: `?informes=demo` ----
