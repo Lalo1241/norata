@@ -259,22 +259,19 @@ function colocarMando(mando, wrap) {
   if (!padre) return;
   const rw = wrap.getBoundingClientRect(), rp = padre.getBoundingClientRect();
   if (!rw.height || !rp.height) return;       // sin medir aún: se deja como esté
+
+  /* Aquí vivía además una comprobación que subía el mando cuando chocaba con la
+     tira de herramientas. Se fue en 0.7.53: la tira y el mando ya no comparten
+     sitio —herramientas a la izquierda, zoom a la derecha, en la misma línea—,
+     así que no hay nada que esquivar. Y esquivar era justo lo que se veía mal:
+     el mando acababa flotando a media pantalla, que es como lo describió
+     Eduardo. Un reparto fijo se entiende; uno que se mueve solo, no.
+
+     Lo que se queda es pegarlo al borde del LIENZO y no al del contenedor: el
+     lienzo puede ser más pequeño que su caja, y ahí el mando quedaba separado
+     del dibujo al que pertenece. */
   mando.style.bottom = Math.max(10, Math.round(rp.bottom - rw.bottom) + 12) + "px";
   mando.style.right = Math.max(10, Math.round(rp.right - rw.right) + 12) + "px";
-
-  /* ---- Y que no se pise con la tira ----
-     En el teléfono la tira va centrada abajo y el mando en la esquina: a 375
-     px de ancho no caben los dos en la misma línea y se solapaban justo en el
-     botón de acercar. En PC la tira está a la izquierda y no se tocan.
-
-     Se comprueba midiendo en vez de con un ancho de corte, porque lo que
-     decide si chocan no es el tamaño de la pantalla sino cuánto ocupa cada
-     uno — y la tira crece si algún día lleva un botón más. */
-  const tira = padre.querySelector(":scope > .mapa-tira");
-  if (!tira) return;
-  const rt = tira.getBoundingClientRect(), rm = mando.getBoundingClientRect();
-  const chocan = !(rm.bottom <= rt.top || rm.top >= rt.bottom || rm.right <= rt.left || rm.left >= rt.right);
-  if (chocan) mando.style.bottom = Math.round(rp.bottom - rt.top) + 10 + "px";
 }
 
 /* Al girar el teléfono o acoplar la ventana, lo que hay debajo del mapa
@@ -364,7 +361,16 @@ function encuadrarLienzo(wrap, b) {
      sigue poniendo el CSS. En pantalla completa no se toca: ahí el lienzo
      ocupa lo que le deje la pantalla. */
   if (!wrap.closest("#fs-overlay") && svg.dataset.dh) {
-    wrap.style.height = svg.dataset.dh + "px";
+    /* Con un SUELO en el teléfono. La regla de arriba —la tarjeta mide lo que
+       mide el dibujo— es buena para no arrastrar hueco vacío, pero en una
+       pantalla estrecha el dibujo es mucho más ancho que alto: cabe por los
+       lados recortado y la ventana queda en 261 px, una rendija por la que no
+       se entiende la forma de la rama. Y entender la forma es para lo que
+       sirve una vista previa. Lo pidió Eduardo.
+       En la computadora no se toca: ahí el dibujo cabe y el hueco sobraría. */
+    const dh = Number(svg.dataset.dh) || 0;
+    const suelo = innerWidth < 900 ? Math.min(Math.round(innerHeight * 0.46), 420) : 0;
+    wrap.style.height = Math.max(dh, suelo) + "px";
   }
   const memo = scrollRama[llaveDeLienzo(wrap, b)];
   if (memo) {
