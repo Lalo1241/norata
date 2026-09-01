@@ -75,6 +75,18 @@ AMBIENTES = [
 
 ]
 
+# ---- Y aquí se hunden los suelos, una sola vez y para todos ----
+# Los tonos de arriba son los ELEGIDOS; estos son los que se pintan. La
+# separación entre los dos existe porque el ajuste es aritmético y con una
+# regla escrita —hundir la página, dejar la tarjeta, bajarle el croma al campo
+# grande— y baquearla a mano en veintiocho hexes sería perder el motivo.
+# El porqué está entero en `croma.HONDURA_NOCHE`.
+import croma as _c
+for _m in AMBIENTES:
+    if _m["grado"] == 0: continue
+    _m["noche"] = _c.hondear(_m["noche"], _c.HONDURA_NOCHE)
+    _m["dia"] = _c.hondear(_m["dia"], _c.HONDURA_DIA)
+
 # Cara de día, que es la que aprieta. Umbral 4,5 para escribir y 3 para trazar.
 CONTRASTES = {
  "casa":     (8.67, 5.46, 3.17, 2.22),

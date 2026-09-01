@@ -52,6 +52,96 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.55 · 1 sep 2026
+**El fondo ya no se queda a medias: un ambiente pinta también el suelo.** Era
+el fallo de «que lo del fondo abarque todo, no solo en medio», y medido resultó
+literal: `--sup-pagina` vale `var(--fondo-pagina)`, y ningún ambiente declaraba
+esa variable — solo `--bg`. Así que las tarjetas, los banners y los acentos
+cambiaban de color y el SUELO de la página seguía siendo el carbón azulado de
+la casa. Con la columna de contenido en 560 px, en una computadora eso se veía
+exactamente como lo dijo Eduardo: el ambiente en el centro y la casa a los dos
+lados. Ahora cada ambiente y cada mundo declaran su `--fondo-pagina` y su
+`--fondo-raiz` —la franja que asoma al rebotar el scroll—, derivados de su
+propio suelo con la misma forma que el degradado de la casa.
+
+**Los suelos se hunden y dejan de leerse como una plasta.** «Muy cargados de un
+tono, a tal punto que se ven monótonos.» Medido en OKLCh, el salto de la página
+a la tarjeta era de 0,056 a 0,068 en los siete ambientes; ese salto es lo que
+hace que una tarjeta se vea APOYADA encima y no pintada al lado. Se arregla por
+abajo —la página baja, la tarjeta se queda— y al fondo se le baja además el
+croma mientras a la tarjeta no: un campo enorme muy teñido es lo que se lee
+como plasta; la tarjeta, que es la pieza pequeña, es la que puede permitirse el
+color. El salto queda entre 0,10 y 0,14. La casa no se toca. La receta está en
+`apariencias/croma.py`, en `HONDURA_NOCHE`.
+
+**Los resplandores verdes donde no aplica: eran treinta y seis.** Tres orbes de
+fondo (`.orb-1/2/3`) con la menta, la luciérnaga y el coral de la casa escritos
+dentro de la regla, y treinta y tres más repartidos por el archivo —anillos de
+foco, sombras de botón, bordes encendidos— como `rgba(95, 224, 176, 0.25)`. Los
+orbes salen ahora del acento de cada apariencia (en Adobe son ámbar, en Duna
+violeta, en Tinta el blanco de papel de su premisa); los otros treinta y tres
+pasan por `color-mix` sobre `--mint-macizo`, así que además de seguir al
+ambiente, en modo claro dejan de ser la menta de NOCHE, que es lo que eran.
+
+**Reliquia tiene cara de día, y la de noche baja tres escalones.** El modo claro
+estaba roto de una forma concreta: el bloque del mundo le gana a `html.claro`
+porque `css/mundos.css` se carga después, pero solo en lo que declara — así que
+salía la noche del mundo con los tonos de papel de la casa metidos por los
+huecos. Ahora un mundo declara sus dos caras (`dia={...}` en `mundos/datos.py`)
+y el bloque de noche lleva `:not(.claro)`, igual que los ambientes desde que
+Escarcha destapó lo mismo. La vitrina de día no es la noche aclarada: el latón
+no se mueve —un metal es el mismo a cualquier hora— y el lila se parte en dos,
+porque sobre papel el mismo tono no puede rellenar y escribir.
+
+**El mapa de talentos, tematizado.** Las ocho `--lienzo-*` que dibujan los
+cables, los rótulos y los nodos con candado tampoco las declaraba nadie: el
+mapa seguía entero en el gris azulado de la casa por debajo de cualquier
+ambiente. Salen del suelo de cada apariencia con los MISMOS desplazamientos que
+tiene la casa, medidos en OKLCh, y con el croma recortado al del propio suelo —
+un cable es una raya de 2 px y no puede llevar más color que el suelo que lo
+sostiene; el primer intento pintaba los hilos de Musgo de un verde encendido.
+Los redondeos del mapa, que se dibujan desde JavaScript como atributos `rx`,
+pasan ahora por `--r-factor`: con Reliquia puesta la app entera se cuadraba y el
+mapa seguía con las esquinas blandas de la casa. Y el forro de un mundo también
+va debajo del lienzo. **La letra del mapa se queda en Outfit**, escrito en la
+regla para que un mundo futuro no se lleve por delante veinte rótulos de 10 px.
+
+**Y tres arreglos que salieron de medir, no de mirar:**
+
+- **El recorte del hilo era del color viejo del suelo.** `--lienzo-halo` es lo
+  que separa un cable del fondo, y valía `#1d2530` —la tarjeta— desde antes de
+  que el lienzo pasara a ser `--bg` en 0.7.54. O sea que cada hilo iba rodeado
+  de una línea de otro color. Ahora vale `var(--bg)` y vuelve a ser invisible,
+  que es su trabajo.
+- **La tinta sobre un relleno vivo se separa de la del acento.** Lo destapó
+  Tinta de día: su acento es tinta china, casi negro, así que su bloque pone la
+  tinta de encima en claro — y esa misma variable inkaba también el amarillo y
+  el coral, que en Tinta siguen siendo vivos y claros. Salía claro sobre claro:
+  el rótulo «Estás viendo un ejemplo» daba **1,57** y el chip de una habilidad,
+  **1,00**. Llevaba así desde que existe el ambiente. Ahora hay `--sobre-vivo`.
+- **El isotipo de la barra plegada.** Se quedó fuera del arreglo de 0.7.54
+  porque pinta con `currentColor` desde el CSS y el de la portada lleva el
+  `fill` escrito en el SVG: dos caminos al mismo dibujo, y solo se arregló uno.
+- **`.scel` entra en la lista de escenas que se quedan de noche.** Es una
+  pantalla entera con un degradado oscuro escrito a mano, igual que las otras
+  tres, y llevaba fuera desde que existe: en modo claro sus rótulos tomaban los
+  tonos de papel.
+
+**Lo que NO se tocó, a propósito:** el peso del movimiento de Reliquia
+(`--m-dur` y `--m-curva`). Eduardo lo pidió explícitamente — «ese deslizamiento
+me encantó, no lo cambies ni lo apliques aún en otro lado».
+
+**Cómo se comprobó.** Foto de estilos calculados de las siete pantallas en los
+dos modos, antes y después: 25 447 elementos, 449 diferencias reales y todas a
+propósito (las otras 282 eran `color-mix` escribiendo el mismo color de otra
+forma). Y una medida de legibilidad sobre PÍXELES —el color más repetido dentro
+de la caja de cada rótulo, que es el fondo de verdad con degradado y textura
+incluidos— para las ocho apariencias en los dos modos. La primera versión de esa
+medida subía por los padres buscando un `background-color` opaco y se saltaba
+los degradados, así que reprobaba media tarjeta de la racha en la app **sin
+tocar**: la pista fue la de siempre, el número salía imposible también en el
+estado de partida.
+
 ### 0.7.54 · 31 ago 2026
 **El isotipo se queda menta pase lo que pase con el tema.** Iba pintado con
 `--mint-macizo`, que es el acento de la APP — y Escarcha lo pone celeste, así

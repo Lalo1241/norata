@@ -36,27 +36,31 @@
 
 /* ---------- Reliquia · El de Fundador ---------- */
 /* Una pieza guardada en su vitrina: forro de terciopelo, marco de latón y vidrio de museo por encima, con el polvo cogido por la luz. No es el mundo más caro de hacer ni el más vistoso, y es a propósito — el distintivo de Fundador tiene que ser distinto en especie, no superior en calidad, o el que paga cada mes se queda sin el mundo que mejor vende. El lila deja de ser un color estirado por la app y vuelve a ser lo que era: la luz que atraviesa la piedra. */
-html[data-apariencia="reliquia"] {
-  --bg: #100c1a;
-  --bg2: #181427;
+html:not(.claro)[data-apariencia="reliquia"] {
+  --bg: #090612;
+  --bg2: #161124;
   --card: #1e1930;
-  --card2: #2f2a40;
+  --card2: #231e36;
   --flotante: #1e1930;
-  --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cdefs%3E %3Cg id='rq-forro'%3E %3Cg stroke='%232a2140' stroke-width='.9' opacity='.55'%3E %3Cpath d='M-20 20 60-60M0 40 80-40M20 60 100-20M40 80 120 0M60 100 140 20M80 120 160 40M100 140 180 60'/%3E %3C/g%3E %3Cg stroke='%231a1428' stroke-width='.7' opacity='.5'%3E %3Cpath d='M-20 40 60-40M0 60 80-20M20 80 100 0M40 100 120 20M60 120 140 40M80 140 160 60'/%3E %3C/g%3E %3Cg fill='%23cbb8f0'%3E %3Ccircle cx='26' cy='34' r='1.1' opacity='.5'/%3E %3Ccircle cx='88' cy='62' r='.8' opacity='.38'/%3E %3Ccircle cx='54' cy='97' r='.9' opacity='.3'/%3E %3C/g%3E %3C/g%3E %3C/defs%3E %3Cuse href='%23rq-forro'/%3E %3Cuse href='%23rq-forro' x='-120'/%3E%3Cuse href='%23rq-forro' x='120'/%3E %3Cuse href='%23rq-forro' y='-120'/%3E%3Cuse href='%23rq-forro' y='120'/%3E %3Cuse href='%23rq-forro' x='-120' y='-120'/%3E%3Cuse href='%23rq-forro' x='120' y='-120'/%3E %3Cuse href='%23rq-forro' x='-120' y='120'/%3E%3Cuse href='%23rq-forro' x='120' y='120'/%3E %3C/svg%3E") center / 150px 150px repeat, radial-gradient(126% 82% at 50% -6%, #241c38 0%, #1a1429 44%, #100c1a 100%);
-  --fondo-pagina: radial-gradient(126% 82% at 50% -6%, #241c38 0%, #1a1429 44%, #100c1a 100%);
-  --sup-panel: #181427;
+  --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cdefs%3E %3Cg id='rq-forro'%3E %3Cg stroke='%232a2140' stroke-width='.9' opacity='.55'%3E %3Cpath d='M-20 20 60-60M0 40 80-40M20 60 100-20M40 80 120 0M60 100 140 20M80 120 160 40M100 140 180 60'/%3E %3C/g%3E %3Cg stroke='%231a1428' stroke-width='.7' opacity='.5'%3E %3Cpath d='M-20 40 60-40M0 60 80-20M20 80 100 0M40 100 120 20M60 120 140 40M80 140 160 60'/%3E %3C/g%3E %3Cg fill='%23cbb8f0'%3E %3Ccircle cx='26' cy='34' r='1.1' opacity='.5'/%3E %3Ccircle cx='88' cy='62' r='.8' opacity='.38'/%3E %3Ccircle cx='54' cy='97' r='.9' opacity='.3'/%3E %3C/g%3E %3C/g%3E %3C/defs%3E %3Cuse href='%23rq-forro'/%3E %3Cuse href='%23rq-forro' x='-120'/%3E%3Cuse href='%23rq-forro' x='120'/%3E %3Cuse href='%23rq-forro' y='-120'/%3E%3Cuse href='%23rq-forro' y='120'/%3E %3Cuse href='%23rq-forro' x='-120' y='-120'/%3E%3Cuse href='%23rq-forro' x='120' y='-120'/%3E %3Cuse href='%23rq-forro' x='-120' y='120'/%3E%3Cuse href='%23rq-forro' x='120' y='120'/%3E %3C/svg%3E") center / 150px 150px repeat, radial-gradient(126% 82% at 50% -6%, #1c1530 0%, #130e22 44%, #090612 100%);
+  --fondo-pagina: radial-gradient(126% 82% at 50% -6%, #1c1530 0%, #130e22 44%, #090612 100%);
+  --fondo-raiz: #090612;
+  --orbe-1: rgba(183, 162, 234, 0.18);
+  --orbe-2: rgba(245, 215, 110, 0.13);
+  --orbe-3: rgba(183, 162, 234, 0.10);
+  --sup-panel: #161124;
   --sup-tarjeta: #1e1930;
-  --sup-tarjeta2: #2f2a40;
+  --sup-tarjeta2: #231e36;
   --sup-flotante: #1e1930;
   --line: #8a6d2f;
   --carril: #332b4a;
   --borde-tarjeta: 1px;
   --text: #efeafb;
   --muted: #a99fc4;
-  --faint: #6f6786;
+  --faint: #665f7d;
   --mint: #b7a2ea;
   --mint-macizo: #b7a2ea;
-  --mint-deep: #8272a7;
+  --mint-deep: #9883c9;
   --mint-soft: rgba(183,162,234,.14);
   --aro-alto: #b7a2ea;
   --fire: #f5d76e;
@@ -65,12 +69,14 @@ html[data-apariencia="reliquia"] {
   --coral: #ff8a70;
   --coral-macizo: #ff8a70;
   --coral-soft: rgba(255,138,112,.13);
-  --sobre-macizo: #100c1a;
-  --sobre-acento: #100c1a;
+  --sobre-macizo: #090612;
+  --sobre-acento: #090612;
+  --sobre-vivo: #090612;
   --dur-corta: .9s;
   --dur-media: .9s;
   --curva: cubic-bezier(.2,.7,.25,1);
   --marco-tarjeta: none;
+  --aro-metal: linear-gradient(158deg,#6b5326 0%,#c8a24e 24%,#8a6d2f 48%,#e0c072 64%,#7a5f2a 100%);
   --tipo-titulo: "Syne",system-ui,sans-serif;
   --tipo-cifra: "Syne",system-ui,sans-serif;
   --r-factor: 0.5714;
@@ -79,6 +85,76 @@ html[data-apariencia="reliquia"] {
   --r-boton: 6px;
   --r-gota: 18px 9px 18px 9px;
   --r-gota-alt: 9px 18px 9px 18px;
+  --lienzo-apagado: #474256;
+  --lienzo-hilo: #3b364a;
+  --lienzo-rotulo: #a19dac;
+  --lienzo-ficha: #100d19;
+  --lienzo-caja: #0b0912;
+  --lienzo-bloqueado: #151120;
+  --lienzo-flujo: #fef3cf;
+  --lienzo-punto: rgba(161, 157, 172, 0.09);
+  --lienzo-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cdefs%3E %3Cg id='rq-forro'%3E %3Cg stroke='%232a2140' stroke-width='.9' opacity='.55'%3E %3Cpath d='M-20 20 60-60M0 40 80-40M20 60 100-20M40 80 120 0M60 100 140 20M80 120 160 40M100 140 180 60'/%3E %3C/g%3E %3Cg stroke='%231a1428' stroke-width='.7' opacity='.5'%3E %3Cpath d='M-20 40 60-40M0 60 80-20M20 80 100 0M40 100 120 20M60 120 140 40M80 140 160 60'/%3E %3C/g%3E %3Cg fill='%23cbb8f0'%3E %3Ccircle cx='26' cy='34' r='1.1' opacity='.5'/%3E %3Ccircle cx='88' cy='62' r='.8' opacity='.38'/%3E %3Ccircle cx='54' cy='97' r='.9' opacity='.3'/%3E %3C/g%3E %3C/g%3E %3C/defs%3E %3Cuse href='%23rq-forro'/%3E %3Cuse href='%23rq-forro' x='-120'/%3E%3Cuse href='%23rq-forro' x='120'/%3E %3Cuse href='%23rq-forro' y='-120'/%3E%3Cuse href='%23rq-forro' y='120'/%3E %3Cuse href='%23rq-forro' x='-120' y='-120'/%3E%3Cuse href='%23rq-forro' x='120' y='-120'/%3E %3Cuse href='%23rq-forro' x='-120' y='120'/%3E%3Cuse href='%23rq-forro' x='120' y='120'/%3E %3C/svg%3E") center / 150px 150px repeat;
+  --lienzo-grano-tam: 150px 150px;
+}
+html.claro[data-apariencia="reliquia"] {
+  --bg: #cdc5de;
+  --bg2: #e4dfef;
+  --card: #f4f1fa;
+  --card2: #fbf8ff;
+  --flotante: #f4f1fa;
+  --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cdefs%3E %3Cg id='rq-forro-d'%3E %3Cg stroke='%239a8cb8' stroke-width='.9' opacity='.34'%3E %3Cpath d='M-20 20 60-60M0 40 80-40M20 60 100-20M40 80 120 0M60 100 140 20M80 120 160 40M100 140 180 60'/%3E %3C/g%3E %3Cg stroke='%238579a4' stroke-width='.7' opacity='.26'%3E %3Cpath d='M-20 40 60-40M0 60 80-20M20 80 100 0M40 100 120 20M60 120 140 40M80 140 160 60'/%3E %3C/g%3E %3Cg fill='%235b4d7d'%3E %3Ccircle cx='26' cy='34' r='1.1' opacity='.34'/%3E %3Ccircle cx='88' cy='62' r='.8' opacity='.26'/%3E %3Ccircle cx='54' cy='97' r='.9' opacity='.2'/%3E %3C/g%3E %3C/g%3E %3C/defs%3E %3Cuse href='%23rq-forro-d'/%3E %3Cuse href='%23rq-forro-d' x='-120'/%3E%3Cuse href='%23rq-forro-d' x='120'/%3E %3Cuse href='%23rq-forro-d' y='-120'/%3E%3Cuse href='%23rq-forro-d' y='120'/%3E %3Cuse href='%23rq-forro-d' x='-120' y='-120'/%3E%3Cuse href='%23rq-forro-d' x='120' y='-120'/%3E %3Cuse href='%23rq-forro-d' x='-120' y='120'/%3E%3Cuse href='%23rq-forro-d' x='120' y='120'/%3E %3C/svg%3E") center / 150px 150px repeat, radial-gradient(126% 82% at 50% -6%, #eae4f6 0%, #ded7ec 44%, #cdc5de 100%);
+  --fondo-pagina: radial-gradient(126% 82% at 50% -6%, #eae4f6 0%, #ded7ec 44%, #cdc5de 100%);
+  --fondo-raiz: #cdc5de;
+  --orbe-1: rgba(162, 120, 228, 0.18);
+  --orbe-2: rgba(245, 195, 20, 0.13);
+  --orbe-3: rgba(162, 120, 228, 0.10);
+  --sup-panel: #e4dfef;
+  --sup-tarjeta: #f4f1fa;
+  --sup-tarjeta2: #fbf8ff;
+  --sup-flotante: #f4f1fa;
+  --line: #8a6d2f;
+  --carril: #a7a0b6;
+  --borde-tarjeta: 1px;
+  --text: #241c33;
+  --muted: #5c5273;
+  --faint: #716785;
+  --mint: #5a2a94;
+  --mint-macizo: #a278e4;
+  --mint-deep: #8459c2;
+  --mint-soft: rgba(90,42,148,.11);
+  --aro-alto: #a278e4;
+  --fire: #755c05;
+  --fire-macizo: #f5c314;
+  --fire-soft: rgba(117,92,5,.12);
+  --coral: #bd2200;
+  --coral-macizo: #ff603d;
+  --coral-soft: rgba(189,34,0,.11);
+  --sobre-macizo: #241c33;
+  --sobre-acento: #241c33;
+  --sobre-vivo: #241c33;
+  --dur-corta: .9s;
+  --dur-media: .9s;
+  --curva: cubic-bezier(.2,.7,.25,1);
+  --marco-tarjeta: none;
+  --aro-metal: linear-gradient(158deg,#6b5326 0%,#c8a24e 24%,#8a6d2f 48%,#d9b55f 64%,#6b5326 100%);
+  --tipo-titulo: "Syne",system-ui,sans-serif;
+  --tipo-cifra: "Syne",system-ui,sans-serif;
+  --r-factor: 0.5714;
+  --r-barra: 999px;
+  --r-pastilla: 6px;
+  --r-boton: 6px;
+  --r-gota: 18px 9px 18px 9px;
+  --r-gota-alt: 9px 18px 9px 18px;
+  --lienzo-apagado: #8b839a;
+  --lienzo-hilo: #a59db5;
+  --lienzo-rotulo: #362f43;
+  --lienzo-ficha: #e2e1e4;
+  --lienzo-caja: #e2e1e4;
+  --lienzo-bloqueado: #d5d2dc;
+  --lienzo-flujo: #b89100;
+  --lienzo-punto: rgba(54, 47, 67, 0.09);
+  --lienzo-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cdefs%3E %3Cg id='rq-forro-d'%3E %3Cg stroke='%239a8cb8' stroke-width='.9' opacity='.34'%3E %3Cpath d='M-20 20 60-60M0 40 80-40M20 60 100-20M40 80 120 0M60 100 140 20M80 120 160 40M100 140 180 60'/%3E %3C/g%3E %3Cg stroke='%238579a4' stroke-width='.7' opacity='.26'%3E %3Cpath d='M-20 40 60-40M0 60 80-20M20 80 100 0M40 100 120 20M60 120 140 40M80 140 160 60'/%3E %3C/g%3E %3Cg fill='%235b4d7d'%3E %3Ccircle cx='26' cy='34' r='1.1' opacity='.34'/%3E %3Ccircle cx='88' cy='62' r='.8' opacity='.26'/%3E %3Ccircle cx='54' cy='97' r='.9' opacity='.2'/%3E %3C/g%3E %3C/g%3E %3C/defs%3E %3Cuse href='%23rq-forro-d'/%3E %3Cuse href='%23rq-forro-d' x='-120'/%3E%3Cuse href='%23rq-forro-d' x='120'/%3E %3Cuse href='%23rq-forro-d' y='-120'/%3E%3Cuse href='%23rq-forro-d' y='120'/%3E %3Cuse href='%23rq-forro-d' x='-120' y='-120'/%3E%3Cuse href='%23rq-forro-d' x='120' y='-120'/%3E %3Cuse href='%23rq-forro-d' x='-120' y='120'/%3E%3Cuse href='%23rq-forro-d' x='120' y='120'/%3E %3C/svg%3E") center / 150px 150px repeat;
+  --lienzo-grano-tam: 150px 150px;
 }
 
 /* El marco solo en las piezas grandes: dentro de una lista vuelve a ser
@@ -104,7 +180,7 @@ html[data-apariencia="reliquia"] .chip,
 html[data-apariencia="reliquia"] .pill {
   border-image: none;
   border-width: 1px;
-  border-color: #4f3f30;
+  border-color: color-mix(in srgb, var(--line), var(--card) 55%);
 }
 
 /* El aro de metal. Va en un `::before` con máscara y no en un
@@ -117,7 +193,7 @@ html[data-apariencia="reliquia"] .sum-card::before {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(158deg,#6b5326 0%,#c8a24e 24%,#8a6d2f 48%,#e0c072 64%,#7a5f2a 100%);
+  background: var(--aro-metal);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
@@ -148,11 +224,12 @@ html[data-apariencia="reliquia"] .tree-stats .n {
 
 html[data-apariencia="reliquia"] .scene-card,
 html[data-apariencia="reliquia"] .celebrate,
-html[data-apariencia="reliquia"] .ncel {
-  --bg: #100c1a;
-  --bg2: #181427;
+html[data-apariencia="reliquia"] .ncel,
+html[data-apariencia="reliquia"] .scel {
+  --bg: #090612;
+  --bg2: #161124;
   --card: #1e1930;
-  --card2: #2f2a40;
+  --card2: #231e36;
   --sup-pagina: var(--bg);
   --sup-panel: var(--bg2);
   --sup-tarjeta: var(--card);
@@ -161,27 +238,19 @@ html[data-apariencia="reliquia"] .ncel {
   --carril: #332b4a;
   --text: #efeafb;
   --muted: #a99fc4;
-  --faint: #6f6786;
+  --faint: #665f7d;
   --mint: #b7a2ea;
   --mint-macizo: #b7a2ea;
   --mint-soft: rgba(183,162,234,.14);
   --motivo-cielo-1: #1e1930;
-  --motivo-cielo-2: #181427;
+  --motivo-cielo-2: #161124;
   --motivo-chispa: #efeafb;
-  --motivo-lienzo: #181427;
-  --motivo-curva: #3a3649;
-  --escena-fondo: 16, 12, 26;
+  --motivo-lienzo: #161124;
+  --motivo-curva: #393446;
+  --escena-fondo: 9, 6, 18;
   --escena-vidrio: 30, 25, 48;
   --escena-tinta: 239, 234, 251;
   --escena-tinte-modo: block;
   --escena-tinte: #1e1930;
   --escena-tinte-fuerza: 1;
-}
-
-/* El vidrio de la vitrina: un reflejo diagonal por encima de la tarjeta. Es la
-   única regla de este archivo que no sale de una variable, y se paga a gusto —
-   es lo que convierte una tarjeta oscura en una pieza detrás de un cristal. */
-html[data-apariencia="reliquia"] .card,
-html[data-apariencia="reliquia"] .panel {
-  background-image: linear-gradient(112deg, rgba(233,226,255,.09) 0%, rgba(233,226,255,0) 34%, rgba(233,226,255,0) 66%, rgba(233,226,255,.05) 100%);
 }

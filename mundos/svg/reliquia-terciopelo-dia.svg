@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <!-- El mismo forro con la luz del día. No vale el de noche con otra
+       opacidad: sus diagonales son casi negras y sus motas de polvo son
+       lila claro, o sea que sobre papel las líneas se ven como rayas y el
+       polvo no se ve. Aquí las diagonales se aclaran hasta ser un tejido y
+       las motas se oscurecen hasta volver a verse — es la misma sarga, no
+       otro dibujo. -->
+  <defs>
+    <g id="rq-forro-d">
+      <g stroke="#9a8cb8" stroke-width=".9" opacity=".34">
+        <path d="M-20 20 60-60M0 40 80-40M20 60 100-20M40 80 120 0M60 100 140 20M80 120 160 40M100 140 180 60"/>
+      </g>
+      <g stroke="#8579a4" stroke-width=".7" opacity=".26">
+        <path d="M-20 40 60-40M0 60 80-20M20 80 100 0M40 100 120 20M60 120 140 40M80 140 160 60"/>
+      </g>
+      <g fill="#5b4d7d">
+        <circle cx="26" cy="34" r="1.1" opacity=".34"/>
+        <circle cx="88" cy="62" r=".8" opacity=".26"/>
+        <circle cx="54" cy="97" r=".9" opacity=".2"/>
+      </g>
+    </g>
+  </defs>
+  <use href="#rq-forro-d"/>
+  <use href="#rq-forro-d" x="-120"/><use href="#rq-forro-d" x="120"/>
+  <use href="#rq-forro-d" y="-120"/><use href="#rq-forro-d" y="120"/>
+  <use href="#rq-forro-d" x="-120" y="-120"/><use href="#rq-forro-d" x="120" y="-120"/>
+  <use href="#rq-forro-d" x="-120" y="120"/><use href="#rq-forro-d" x="120" y="120"/>
+</svg>
