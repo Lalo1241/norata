@@ -193,6 +193,40 @@ Consola es la excepción del negocio: **gratis siempre**, por lo mismo que Tinta
 los tonos—, y porque conviene que se vea que los mundos existen antes de que
 haya nada que comprar.
 
+## Qué declara una apariencia, de verdad
+
+**Actualizado en 0.7.55, y esta lista manda sobre cualquier otra.** Un ambiente
+son tonos y un mundo es material; las dos cosas se sirven de las MISMAS cuatro
+familias de variables, y tres de ellas se descubrieron una a una porque nadie
+las declaraba:
+
+| Familia | Cuántas | Qué se veía cuando faltaba |
+| --- | --- | --- |
+| Los tonos (`--bg`, `--card`, `--text`, los acentos) | ~20 | — |
+| El suelo (`--fondo-pagina`, `--fondo-raiz`) | 2 | El ambiente en el centro y la casa a los lados |
+| Los orbes (`--orbe-1/2/3`) | 3 | Un resplandor verde encima de cualquier ambiente |
+| El lienzo (`--lienzo-*`) | 8 | El mapa de talentos en el gris azulado de la casa |
+
+Ninguna se elige a ojo. Los tonos están en `datos.py` y `mundos/datos.py`; las
+otras tres se DERIVAN de esos tonos en `croma.py` con los mismos
+desplazamientos que tiene la casa, medidos en OKLCh, para que un ambiente nuevo
+no estrene una relación que nadie aprobó. Añadir un ambiente sigue siendo
+escribir un `dict` de tonos: lo demás sale solo.
+
+**Tres reglas que costaron una tanda cada una:**
+
+1. **Un `var()` dentro de una variable se resuelve donde la variable se
+   DECLARA.** `--sup-pagina: var(--fondo-pagina)` vive en `:root`; cambiar
+   `--bg` no lo mueve.
+2. **El croma de un cable se recorta al del suelo.** Los suelos de los
+   ambientes llevan 2,3 veces el color del carbón de casa, así que una
+   fracción daba hilos de neón. Una raya de 2 px no puede llevar más color que
+   el suelo que la sostiene.
+3. **Un tono tenue no se saca con una fracción fija, sino con un contraste.**
+   La misma fracción hacia la tarjeta llega mucho más lejos cuando la tarjeta
+   está pegada al blanco: de noche salía bien y de día se quedaba en 2,57
+   contra los 4,69 de la casa.
+
 ## El motor
 
 **Construido y publicado apagado en 0.7.40.** `js/10i-apariencia.js`,

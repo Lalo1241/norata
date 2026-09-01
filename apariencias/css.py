@@ -3,7 +3,7 @@
 para pegar. Un ambiente es una clase en <html> que cambia variables y nada
 más — todo lo que no declare lo hereda de :root, así que un ambiente a medias
 cae en los colores de la casa y no en el vacío."""
-import datos, os
+import datos, croma, os
 AQUI = os.path.dirname(os.path.abspath(__file__))
 
 CAB = """/* Los ambientes de Norata. Un ambiente NO es un mundo: reusa el material que
@@ -36,16 +36,57 @@ CAB = """/* Los ambientes de Norata. Un ambiente NO es un mundo: reusa el materi
    Generado desde `apariencias/datos.py`. No editar a mano. */
 """
 
+def suelo(m, dia):
+    """Lo que un ambiente tiene que declarar ADEMÁS de sus tonos, y que hasta
+       ahora no declaraba ninguno:
+
+       - `--fondo-pagina` y `--fondo-raiz`. `--sup-pagina` vale
+         `var(--fondo-pagina)` y un ambiente solo movía `--bg`, así que el
+         suelo de la página seguía siendo el de la casa. Con la columna de
+         contenido en 560 px, en una computadora eso se veía como el ambiente
+         puesto en el centro y el carbón de siempre a los dos lados — «que lo
+         del fondo abarque todo, no solo en medio».
+       - Los tres orbes, que eran los únicos colores de la casa escritos a mano
+         dentro de una regla: menta, luciérnaga y coral, encima de cualquier
+         ambiente.
+
+       Si el ambiente no declara `--bg` en esa cara —Escarcha de día solo mueve
+       el acento— no se escribe nada: la casa es la que manda."""
+    tabla = m["dia"] if dia else m["noche"]
+    casa = datos.CASA_DIA if dia else datos.CASA_NOCHE
+    v = []
+    if "--bg" in tabla:
+        bg = tabla["--bg"]
+        v += [("--fondo-raiz", croma.raiz(bg)), ("--fondo-pagina", croma.fondo_pagina(bg))]
+    # Los orbes SÍ se escriben aunque el ambiente no mueva los suelos, y esto lo
+    # destapó Escarcha de día: su bloque solo corre el acento, así que se quedaba
+    # con el papel de la casa —correcto— y con la mancha VERDE de la casa encima
+    # de una app celeste, que es justo el resplandor fuera de sitio.
+    acento = tabla.get("--mint-macizo", tabla.get("--mint"))
+    if acento or "--card" in tabla:
+        o = croma.orbes(acento, tabla.get("--card", casa["--card"]), dia)
+        v += [("--orbe-1", o[0]), ("--orbe-2", o[1]), ("--orbe-3", o[2])]
+    # Y el mapa de talentos, que es la pantalla que más se mira y la única que
+    # seguía entera en los tonos de la casa por debajo de cualquier ambiente.
+    # Solo si el ambiente mueve el suelo: si no lo mueve, el mapa de la casa ya
+    # es el correcto.
+    if "--bg" in tabla:
+        v += croma.lienzo(tabla["--bg"], tabla.get("--card", casa["--card"]),
+                          tabla.get("--fire", casa["--fire"]), dia)
+    return v
+
 def bloque(m):
     if m["grado"] == 0: return ""
     fuera = [f'/* ---------- {m["nombre"]} · grado {m["grado"]} · {m["abre"]} ---------- */']
     if m.get("nota"): fuera.append("/* " + m["nota"] + " */")
     fuera.append(f'html:not(.claro)[data-apariencia="{m["id"]}"] {{')
     for k, v in m["noche"].items(): fuera.append(f"  {k}: {v};")
+    for k, v in suelo(m, False): fuera.append(f"  {k}: {v};")
     fuera.append("}")
     if m["dia"]:
         fuera.append(f'html.claro[data-apariencia="{m["id"]}"] {{')
         for k, v in m["dia"].items(): fuera.append(f"  {k}: {v};")
+        for k, v in suelo(m, True): fuera.append(f"  {k}: {v};")
         fuera.append("}")
     else:
         fuera.append(f"/* De día, los neutros son los de la casa: {m['nombre']} solo mueve")
@@ -136,7 +177,8 @@ def escena(m):
     v.append(("--escena-tinte-modo", "block"))
     v.append(("--escena-tinte", pon("--card")))
     v.append(("--escena-tinte-fuerza", fuerza))
-    sel = 'html[data-apariencia="%s"] .scene-card,\nhtml[data-apariencia="%s"] .celebrate {' % (m["id"], m["id"])
+    partes = [".scene-card", ".celebrate", ".ncel", ".scel"]
+    sel = ",\n".join('html[data-apariencia="%s"] %s' % (m["id"], q) for q in partes) + " {"
     return "\n".join(["/* " + m["nombre"] + " */", sel] + ["  %s: %s;" % kv for kv in v] + ["}"]) + "\n"
 
 MUESTRAS = """

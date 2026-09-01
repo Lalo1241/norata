@@ -30,26 +30,39 @@
 /* ---------- Tinta · grado 3 · Desde el día uno · gratis siempre ---------- */
 /* No es negro puro a propósito. El negro absoluto solo se luce en OLED y en una pantalla normal se ve gris apagado y triste, así que la idea cambió de «apagar la pantalla» a «tinta sobre papel»: un monocromo elegido, no la ausencia de color. */
 html:not(.claro)[data-apariencia="tinta"] {
-  --bg: #16181b;
-  --bg2: #1c1f23;
-  --card: #23272c;
-  --card2: #2a2f35;
-  --line: #3b4149;
-  --carril: #3b4149;
+  --bg: #0d0f11;
+  --bg2: #16181b;
+  --card: #25292e;
+  --card2: #2c3238;
+  --line: #41474f;
+  --carril: #41474f;
   --text: #eceff2;
   --muted: #98a1aa;
   --faint: #6b737c;
   --mint: #f0ece2;
   --mint-macizo: #f0ece2;
   --aro-alto: #f0ece2;
+  --fondo-raiz: #080a0c;
+  --fondo-pagina: linear-gradient(180deg, #080a0c 0%, #101214 55%, #0d0f11 100%);
+  --orbe-1: rgba(240, 236, 226, 0.18);
+  --orbe-2: rgba(245, 215, 110, 0.13);
+  --orbe-3: rgba(255, 138, 112, 0.12);
+  --lienzo-apagado: #4a4f54;
+  --lienzo-hilo: #3d4247;
+  --lienzo-rotulo: #a5abb0;
+  --lienzo-ficha: #13171b;
+  --lienzo-caja: #0e1216;
+  --lienzo-bloqueado: #181c20;
+  --lienzo-flujo: #fef3cf;
+  --lienzo-punto: rgba(165, 171, 176, 0.09);
 }
 html.claro[data-apariencia="tinta"] {
-  --bg: #e7e9ee;
-  --bg2: #f0f1f5;
+  --bg: #dfe1e6;
+  --bg2: #ebecf0;
   --card: #f7f9fc;
   --card2: #ffffff;
-  --line: #b0b3ba;
-  --carril: #c6c9d0;
+  --line: #abaeb5;
+  --carril: #c1c4cb;
   --text: #16181b;
   --muted: #54575c;
   --faint: #797d84;
@@ -57,132 +70,265 @@ html.claro[data-apariencia="tinta"] {
   --mint-macizo: #16181b;
   --aro-alto: #16181b;
   --sobre-macizo: #f7f9fc;
+  --fondo-raiz: #d8dadf;
+  --fondo-pagina: linear-gradient(180deg, #d8dadf 0%, #e4e6eb 55%, #dfe1e6 100%);
+  --orbe-1: rgba(22, 24, 27, 0.18);
+  --orbe-2: rgba(245, 195, 20, 0.13);
+  --orbe-3: rgba(255, 96, 61, 0.12);
+  --lienzo-apagado: #9b9da2;
+  --lienzo-hilo: #b6b8bd;
+  --lienzo-rotulo: #44464a;
+  --lienzo-ficha: #f9fafc;
+  --lienzo-caja: #f9fafc;
+  --lienzo-bloqueado: #e9ebf0;
+  --lienzo-flujo: #b79100;
+  --lienzo-punto: rgba(68, 70, 74, 0.09);
 }
 
 /* ---------- Musgo · grado 1 · Nivel 3 · con el rango Brote ---------- */
 /* El verde de día se corrigió una vez: estaba demasiado oscuro y saturado para ser papel, y a ese nivel deja de leerse como una hoja y se lee como una pared pintada. Se le subió la luz y se le bajó la saturación sin cambiar el matiz. La noche no se tocó. */
 html:not(.claro)[data-apariencia="musgo"] {
-  --bg: #05180f;
-  --bg2: #0b2115;
-  --card: #042815;
-  --card2: #0e301b;
-  --line: #233c2a;
-  --carril: #233c2a;
+  --bg: #030e08;
+  --bg2: #081910;
+  --card: #062a17;
+  --card2: #11331d;
+  --line: #294230;
+  --carril: #294230;
   --text: #e8f1e9;
   --muted: #87998c;
   --faint: #5c6b60;
+  --fondo-raiz: #010905;
+  --fondo-pagina: linear-gradient(180deg, #010905 0%, #05110b 55%, #030e08 100%);
+  --orbe-1: rgba(92, 195, 136, 0.18);
+  --orbe-2: rgba(245, 215, 110, 0.13);
+  --orbe-3: rgba(255, 138, 112, 0.12);
+  --lienzo-apagado: #3a4f44;
+  --lienzo-hilo: #2c4337;
+  --lienzo-rotulo: #99a9a0;
+  --lienzo-ficha: #08160f;
+  --lienzo-caja: #06100b;
+  --lienzo-bloqueado: #0a1b13;
+  --lienzo-flujo: #fef3cf;
+  --lienzo-punto: rgba(153, 169, 160, 0.09);
 }
 html.claro[data-apariencia="musgo"] {
-  --bg: #e8ebe6;
-  --bg2: #eef1ec;
+  --bg: #e0e3de;
+  --bg2: #e9ece7;
   --card: #f4f7f3;
   --card2: #fcfdfb;
-  --line: #c2c9c0;
-  --carril: #ccd4cb;
+  --line: #bdc4bb;
+  --carril: #c7cfc6;
   --text: #16211a;
   --muted: #57655b;
   --faint: #78877c;
+  --fondo-raiz: #d9dcd7;
+  --fondo-pagina: linear-gradient(180deg, #d9dcd7 0%, #e5e8e3 55%, #e0e3de 100%);
+  --orbe-1: rgba(117, 177, 95, 0.18);
+  --orbe-2: rgba(245, 195, 20, 0.13);
+  --orbe-3: rgba(255, 96, 61, 0.12);
+  --lienzo-apagado: #9c9f9a;
+  --lienzo-hilo: #b7bab5;
+  --lienzo-rotulo: #454844;
+  --lienzo-ficha: #fafbf9;
+  --lienzo-caja: #fafbf9;
+  --lienzo-bloqueado: #eaede8;
+  --lienzo-flujo: #b79100;
+  --lienzo-punto: rgba(69, 72, 68, 0.09);
 }
 
 /* ---------- Adobe · grado 1 · Nivel 7 · con el rango Refugio ---------- */
 html:not(.claro)[data-apariencia="adobe"] {
-  --bg: #170802;
-  --bg2: #210e05;
-  --card: #301105;
-  --card2: #3a1a0c;
-  --line: #462a20;
-  --carril: #462a20;
+  --bg: #0b0301;
+  --bg2: #180903;
+  --card: #321306;
+  --card2: #3d1c0e;
+  --line: #4c3025;
+  --carril: #4c3025;
   --text: #f4ebe4;
   --muted: #ab958a;
   --faint: #7c6a60;
+  --fondo-raiz: #070100;
+  --fondo-pagina: linear-gradient(180deg, #070100 0%, #0e0502 55%, #0b0301 100%);
+  --orbe-1: rgba(239, 142, 102, 0.18);
+  --orbe-2: rgba(245, 215, 110, 0.13);
+  --orbe-3: rgba(255, 138, 112, 0.12);
+  --lienzo-apagado: #4f3b32;
+  --lienzo-hilo: #432e25;
+  --lienzo-rotulo: #a5968e;
+  --lienzo-ficha: #130804;
+  --lienzo-caja: #0d0502;
+  --lienzo-bloqueado: #1a0b05;
+  --lienzo-flujo: #fef3cf;
+  --lienzo-punto: rgba(165, 150, 142, 0.09);
 }
 html.claro[data-apariencia="adobe"] {
-  --bg: #e3d4ca;
-  --bg2: #ece0d8;
+  --bg: #dbccc2;
+  --bg2: #e7dbd3;
   --card: #f4ebe4;
   --card2: #faf5f0;
-  --line: #c2ad9f;
-  --carril: #d0bdaf;
+  --line: #bda89a;
+  --carril: #cbb8aa;
   --text: #241a14;
   --muted: #6b5a50;
   --faint: #8c7a70;
+  --fondo-raiz: #d4c5bb;
+  --fondo-pagina: linear-gradient(180deg, #d4c5bb 0%, #e0d1c6 55%, #dbccc2 100%);
+  --orbe-1: rgba(216, 137, 65, 0.18);
+  --orbe-2: rgba(245, 195, 20, 0.13);
+  --orbe-3: rgba(255, 96, 61, 0.12);
+  --lienzo-apagado: #988a80;
+  --lienzo-hilo: #b2a49a;
+  --lienzo-rotulo: #41352d;
+  --lienzo-ficha: #e9e7e6;
+  --lienzo-caja: #e9e7e6;
+  --lienzo-bloqueado: #e2d7d0;
+  --lienzo-flujo: #b79100;
+  --lienzo-punto: rgba(65, 53, 45, 0.09);
 }
 
 /* ---------- Duna · grado 1 · Nivel 20 · con el rango Norte ---------- */
 /* La primera versión era café oscuro con crema, que es la paleta cálida por defecto —la que sale sola al pensar «desierto» sin mirar ninguno—. El error de fondo resultó más útil que el descarte: el desierto solo es café en las fotos de la hora dorada; de noche es violeta y frío. De ahí salieron Duna y Adobe, que son ambientes distintos. */
 html:not(.claro)[data-apariencia="duna"] {
-  --bg: #1d1220;
-  --bg2: #251829;
-  --card: #36203a;
-  --card2: #402944;
-  --line: #553a5c;
-  --carril: #553a5c;
+  --bg: #120a14;
+  --bg2: #1d1220;
+  --card: #38223c;
+  --card2: #432c47;
+  --line: #5b4062;
+  --carril: #5b4062;
   --text: #f6e9f4;
   --muted: #b48fae;
   --faint: #836781;
+  --fondo-raiz: #0d060f;
+  --fondo-pagina: linear-gradient(180deg, #0d060f 0%, #150d17 55%, #120a14 100%);
+  --orbe-1: rgba(208, 142, 220, 0.18);
+  --orbe-2: rgba(245, 215, 110, 0.13);
+  --orbe-3: rgba(255, 138, 112, 0.12);
+  --lienzo-apagado: #554758;
+  --lienzo-hilo: #483a4c;
+  --lienzo-rotulo: #aea4b1;
+  --lienzo-ficha: #1a121c;
+  --lienzo-caja: #140d16;
+  --lienzo-bloqueado: #201623;
+  --lienzo-flujo: #fef3cf;
+  --lienzo-punto: rgba(174, 164, 177, 0.09);
 }
 html.claro[data-apariencia="duna"] {
-  --bg: #e0cbdb;
-  --bg2: #ebdde8;
+  --bg: #d8c3d3;
+  --bg2: #e6d8e3;
   --card: #f4ecf2;
   --card2: #faf6f9;
-  --line: #c0a5b8;
-  --carril: #cdb4c6;
+  --line: #bba0b3;
+  --carril: #c8afc1;
   --text: #251728;
   --muted: #6a5468;
   --faint: #8b7488;
+  --fondo-raiz: #d1bccc;
+  --fondo-pagina: linear-gradient(180deg, #d1bccc 0%, #ddc7d8 55%, #d8c3d3 100%);
+  --orbe-1: rgba(207, 126, 192, 0.18);
+  --orbe-2: rgba(245, 195, 20, 0.13);
+  --orbe-3: rgba(255, 96, 61, 0.12);
+  --lienzo-apagado: #958190;
+  --lienzo-hilo: #af9bab;
+  --lienzo-rotulo: #3e2e3b;
+  --lienzo-ficha: #e4e2e3;
+  --lienzo-caja: #e4e2e3;
+  --lienzo-bloqueado: #dbd1d8;
+  --lienzo-flujo: #b79100;
+  --lienzo-punto: rgba(62, 46, 59, 0.09);
 }
 
 /* ---------- Escarcha · grado 2 · Nivel 12 · con el rango Cima · Pro ---------- */
 html:not(.claro)[data-apariencia="escarcha"] {
-  --bg: #071421;
-  --bg2: #0b1b2a;
-  --card: #0a223a;
-  --card2: #0c2a41;
-  --line: #1f3448;
-  --carril: #1f3448;
+  --bg: #040b13;
+  --bg2: #081420;
+  --card: #0c243c;
+  --card2: #0f2d44;
+  --line: #253a4e;
+  --carril: #253a4e;
   --text: #e7f0f5;
   --muted: #8496a3;
   --faint: #5a6b78;
   --mint: #8ecdf5;
   --mint-macizo: #8ecdf5;
   --aro-alto: #8ecdf5;
+  --fondo-raiz: #02070e;
+  --fondo-pagina: linear-gradient(180deg, #02070e 0%, #060e16 55%, #040b13 100%);
+  --orbe-1: rgba(142, 205, 245, 0.18);
+  --orbe-2: rgba(245, 215, 110, 0.13);
+  --orbe-3: rgba(255, 138, 112, 0.12);
+  --lienzo-apagado: #3b4a5a;
+  --lienzo-hilo: #2e3e4e;
+  --lienzo-rotulo: #99a5b1;
+  --lienzo-ficha: #09131c;
+  --lienzo-caja: #060e15;
+  --lienzo-bloqueado: #0b1823;
+  --lienzo-flujo: #fef3cf;
+  --lienzo-punto: rgba(153, 165, 177, 0.09);
 }
 html.claro[data-apariencia="escarcha"] {
   --mint: #0f688f;
   --mint-macizo: #3ab0e0;
   --aro-alto: #1a8cbe;
+  --orbe-1: rgba(58, 176, 224, 0.18);
+  --orbe-2: rgba(245, 195, 20, 0.13);
+  --orbe-3: rgba(255, 96, 61, 0.12);
 }
 
 /* ---------- Marea · grado 2 · Nivel 5 · Pro ---------- */
 /* La primera versión era la casa con otro azul, y con razón: el clásico ya es un carbón azulado, así que ponerle más azul no lo aleja, lo confirma. Se arregló en dos movimientos — la tarjeta dejó de ser gris azulado y se volvió verdiazul de verdad, y el acento se corrió hacia el agua. Eso lo subió a grado 2. */
 html:not(.claro)[data-apariencia="marea"] {
-  --bg: #01161d;
-  --bg2: #042029;
-  --card: #002d3c;
-  --card2: #043746;
-  --line: #1a4553;
-  --carril: #1a4553;
+  --bg: #010c11;
+  --bg2: #041820;
+  --card: #022f3e;
+  --card2: #073a49;
+  --line: #204b59;
+  --carril: #204b59;
   --text: #dff2f5;
   --muted: #79a3ae;
   --faint: #4f7784;
   --mint: #4fe0d0;
   --mint-macizo: #4fe0d0;
   --aro-alto: #4fe0d0;
+  --fondo-raiz: #00080c;
+  --fondo-pagina: linear-gradient(180deg, #00080c 0%, #020f14 55%, #010c11 100%);
+  --orbe-1: rgba(79, 224, 208, 0.18);
+  --orbe-2: rgba(245, 215, 110, 0.13);
+  --orbe-3: rgba(255, 138, 112, 0.12);
+  --lienzo-apagado: #354c55;
+  --lienzo-hilo: #274049;
+  --lienzo-rotulo: #95a6ad;
+  --lienzo-ficha: #051419;
+  --lienzo-caja: #040f13;
+  --lienzo-bloqueado: #051920;
+  --lienzo-flujo: #fef3cf;
+  --lienzo-punto: rgba(149, 166, 173, 0.09);
 }
 html.claro[data-apariencia="marea"] {
-  --bg: #d3e4e6;
-  --bg2: #e2eeef;
+  --bg: #cbdcde;
+  --bg2: #dde9ea;
   --card: #ebf4f4;
   --card2: #f5fafa;
-  --line: #a5bfc3;
-  --carril: #b9d2d4;
+  --line: #a0babe;
+  --carril: #b4cdcf;
   --text: #06232a;
   --muted: #4f717a;
   --faint: #6d8b93;
   --mint: #006b62;
   --mint-macizo: #00d4bd;
   --aro-alto: #009083;
+  --fondo-raiz: #c4d5d7;
+  --fondo-pagina: linear-gradient(180deg, #c4d5d7 0%, #d0e1e3 55%, #cbdcde 100%);
+  --orbe-1: rgba(0, 212, 189, 0.18);
+  --orbe-2: rgba(245, 195, 20, 0.13);
+  --orbe-3: rgba(255, 96, 61, 0.12);
+  --lienzo-apagado: #89999a;
+  --lienzo-hilo: #a3b3b5;
+  --lienzo-rotulo: #344244;
+  --lienzo-ficha: #eff1f2;
+  --lienzo-caja: #eff1f2;
+  --lienzo-bloqueado: #d8e6e7;
+  --lienzo-flujo: #b79100;
+  --lienzo-punto: rgba(52, 66, 68, 0.09);
 }
 
 
@@ -207,205 +353,217 @@ html.claro[data-apariencia="marea"] {
 
 /* Tinta */
 html[data-apariencia="tinta"] .scene-card,
-html[data-apariencia="tinta"] .celebrate {
-  --bg: #16181b;
-  --bg2: #1c1f23;
-  --card: #23272c;
-  --card2: #2a2f35;
+html[data-apariencia="tinta"] .celebrate,
+html[data-apariencia="tinta"] .ncel,
+html[data-apariencia="tinta"] .scel {
+  --bg: #0d0f11;
+  --bg2: #16181b;
+  --card: #25292e;
+  --card2: #2c3238;
   --sup-pagina: var(--bg);
   --sup-panel: var(--bg2);
   --sup-tarjeta: var(--card);
   --sup-tarjeta2: var(--card2);
-  --line: #3b4149;
-  --carril: #3b4149;
+  --line: #41474f;
+  --carril: #41474f;
   --text: #eceff2;
   --muted: #98a1aa;
   --faint: #6b737c;
   --mint: #f0ece2;
   --mint-macizo: #f0ece2;
   --mint-soft: rgba(240, 236, 226, 0.13);
-  --sobre-acento: #16181b;
-  --motivo-cielo-1: #23272c;
-  --motivo-cielo-2: #1c1f23;
+  --sobre-acento: #0d0f11;
+  --motivo-cielo-1: #25292e;
+  --motivo-cielo-2: #16181b;
   --motivo-chispa: #eceff2;
   --motivo-humo: rgba(236, 239, 242, 0.3);
   --motivo-humo-tenue: rgba(236, 239, 242, 0.2);
   --motivo-espuma: rgba(236, 239, 242, 0.6);
-  --motivo-lienzo: #1c1f23;
-  --motivo-curva: #3b4149;
-  --escena-fondo: 22, 24, 27;
-  --escena-vidrio: 35, 39, 44;
+  --motivo-lienzo: #16181b;
+  --motivo-curva: #41474f;
+  --escena-fondo: 13, 15, 17;
+  --escena-vidrio: 37, 41, 46;
   --escena-tinta: 236, 239, 242;
   --escena-tinte-modo: block;
-  --escena-tinte: #23272c;
+  --escena-tinte: #25292e;
   --escena-tinte-fuerza: 1;
 }
 
 /* Musgo */
 html[data-apariencia="musgo"] .scene-card,
-html[data-apariencia="musgo"] .celebrate {
-  --bg: #05180f;
-  --bg2: #0b2115;
-  --card: #042815;
-  --card2: #0e301b;
+html[data-apariencia="musgo"] .celebrate,
+html[data-apariencia="musgo"] .ncel,
+html[data-apariencia="musgo"] .scel {
+  --bg: #030e08;
+  --bg2: #081910;
+  --card: #062a17;
+  --card2: #11331d;
   --sup-pagina: var(--bg);
   --sup-panel: var(--bg2);
   --sup-tarjeta: var(--card);
   --sup-tarjeta2: var(--card2);
-  --line: #233c2a;
-  --carril: #233c2a;
+  --line: #294230;
+  --carril: #294230;
   --text: #e8f1e9;
   --muted: #87998c;
   --faint: #5c6b60;
-  --motivo-cielo-1: #042815;
-  --motivo-cielo-2: #0b2115;
+  --motivo-cielo-1: #062a17;
+  --motivo-cielo-2: #081910;
   --motivo-chispa: #e8f1e9;
   --motivo-humo: rgba(232, 241, 233, 0.3);
   --motivo-humo-tenue: rgba(232, 241, 233, 0.2);
   --motivo-espuma: rgba(232, 241, 233, 0.6);
-  --motivo-lienzo: #0b2115;
-  --motivo-curva: #233c2a;
-  --escena-fondo: 5, 24, 15;
-  --escena-vidrio: 4, 40, 21;
+  --motivo-lienzo: #081910;
+  --motivo-curva: #294230;
+  --escena-fondo: 3, 14, 8;
+  --escena-vidrio: 6, 42, 23;
   --escena-tinta: 232, 241, 233;
   --escena-tinte-modo: block;
-  --escena-tinte: #042815;
+  --escena-tinte: #062a17;
   --escena-tinte-fuerza: 0.85;
 }
 
 /* Adobe */
 html[data-apariencia="adobe"] .scene-card,
-html[data-apariencia="adobe"] .celebrate {
-  --bg: #170802;
-  --bg2: #210e05;
-  --card: #301105;
-  --card2: #3a1a0c;
+html[data-apariencia="adobe"] .celebrate,
+html[data-apariencia="adobe"] .ncel,
+html[data-apariencia="adobe"] .scel {
+  --bg: #0b0301;
+  --bg2: #180903;
+  --card: #321306;
+  --card2: #3d1c0e;
   --sup-pagina: var(--bg);
   --sup-panel: var(--bg2);
   --sup-tarjeta: var(--card);
   --sup-tarjeta2: var(--card2);
-  --line: #462a20;
-  --carril: #462a20;
+  --line: #4c3025;
+  --carril: #4c3025;
   --text: #f4ebe4;
   --muted: #ab958a;
   --faint: #7c6a60;
-  --motivo-cielo-1: #301105;
-  --motivo-cielo-2: #210e05;
+  --motivo-cielo-1: #321306;
+  --motivo-cielo-2: #180903;
   --motivo-chispa: #f4ebe4;
   --motivo-humo: rgba(244, 235, 228, 0.3);
   --motivo-humo-tenue: rgba(244, 235, 228, 0.2);
   --motivo-espuma: rgba(244, 235, 228, 0.6);
-  --motivo-lienzo: #210e05;
-  --motivo-curva: #462a20;
-  --escena-fondo: 23, 8, 2;
-  --escena-vidrio: 48, 17, 5;
+  --motivo-lienzo: #180903;
+  --motivo-curva: #4c3025;
+  --escena-fondo: 11, 3, 1;
+  --escena-vidrio: 50, 19, 6;
   --escena-tinta: 244, 235, 228;
   --escena-tinte-modo: block;
-  --escena-tinte: #301105;
+  --escena-tinte: #321306;
   --escena-tinte-fuerza: 0.85;
 }
 
 /* Duna */
 html[data-apariencia="duna"] .scene-card,
-html[data-apariencia="duna"] .celebrate {
-  --bg: #1d1220;
-  --bg2: #251829;
-  --card: #36203a;
-  --card2: #402944;
+html[data-apariencia="duna"] .celebrate,
+html[data-apariencia="duna"] .ncel,
+html[data-apariencia="duna"] .scel {
+  --bg: #120a14;
+  --bg2: #1d1220;
+  --card: #38223c;
+  --card2: #432c47;
   --sup-pagina: var(--bg);
   --sup-panel: var(--bg2);
   --sup-tarjeta: var(--card);
   --sup-tarjeta2: var(--card2);
-  --line: #553a5c;
-  --carril: #553a5c;
+  --line: #5b4062;
+  --carril: #5b4062;
   --text: #f6e9f4;
   --muted: #b48fae;
   --faint: #836781;
-  --motivo-cielo-1: #36203a;
-  --motivo-cielo-2: #251829;
+  --motivo-cielo-1: #38223c;
+  --motivo-cielo-2: #1d1220;
   --motivo-chispa: #f6e9f4;
   --motivo-humo: rgba(246, 233, 244, 0.3);
   --motivo-humo-tenue: rgba(246, 233, 244, 0.2);
   --motivo-espuma: rgba(246, 233, 244, 0.6);
-  --motivo-lienzo: #251829;
-  --motivo-curva: #553a5c;
-  --escena-fondo: 29, 18, 32;
-  --escena-vidrio: 54, 32, 58;
+  --motivo-lienzo: #1d1220;
+  --motivo-curva: #5b4062;
+  --escena-fondo: 18, 10, 20;
+  --escena-vidrio: 56, 34, 60;
   --escena-tinta: 246, 233, 244;
   --escena-tinte-modo: block;
-  --escena-tinte: #36203a;
+  --escena-tinte: #38223c;
   --escena-tinte-fuerza: 0.85;
 }
 
 /* Escarcha */
 html[data-apariencia="escarcha"] .scene-card,
-html[data-apariencia="escarcha"] .celebrate {
-  --bg: #071421;
-  --bg2: #0b1b2a;
-  --card: #0a223a;
-  --card2: #0c2a41;
+html[data-apariencia="escarcha"] .celebrate,
+html[data-apariencia="escarcha"] .ncel,
+html[data-apariencia="escarcha"] .scel {
+  --bg: #040b13;
+  --bg2: #081420;
+  --card: #0c243c;
+  --card2: #0f2d44;
   --sup-pagina: var(--bg);
   --sup-panel: var(--bg2);
   --sup-tarjeta: var(--card);
   --sup-tarjeta2: var(--card2);
-  --line: #1f3448;
-  --carril: #1f3448;
+  --line: #253a4e;
+  --carril: #253a4e;
   --text: #e7f0f5;
   --muted: #8496a3;
   --faint: #5a6b78;
   --mint: #8ecdf5;
   --mint-macizo: #8ecdf5;
   --mint-soft: rgba(142, 205, 245, 0.13);
-  --sobre-acento: #071421;
-  --motivo-cielo-1: #0a223a;
-  --motivo-cielo-2: #0b1b2a;
+  --sobre-acento: #040b13;
+  --motivo-cielo-1: #0c243c;
+  --motivo-cielo-2: #081420;
   --motivo-chispa: #e7f0f5;
   --motivo-humo: rgba(231, 240, 245, 0.3);
   --motivo-humo-tenue: rgba(231, 240, 245, 0.2);
   --motivo-espuma: rgba(231, 240, 245, 0.6);
-  --motivo-lienzo: #0b1b2a;
-  --motivo-curva: #1f3448;
-  --escena-fondo: 7, 20, 33;
-  --escena-vidrio: 10, 34, 58;
+  --motivo-lienzo: #081420;
+  --motivo-curva: #253a4e;
+  --escena-fondo: 4, 11, 19;
+  --escena-vidrio: 12, 36, 60;
   --escena-tinta: 231, 240, 245;
   --escena-tinte-modo: block;
-  --escena-tinte: #0a223a;
+  --escena-tinte: #0c243c;
   --escena-tinte-fuerza: 0.95;
 }
 
 /* Marea */
 html[data-apariencia="marea"] .scene-card,
-html[data-apariencia="marea"] .celebrate {
-  --bg: #01161d;
-  --bg2: #042029;
-  --card: #002d3c;
-  --card2: #043746;
+html[data-apariencia="marea"] .celebrate,
+html[data-apariencia="marea"] .ncel,
+html[data-apariencia="marea"] .scel {
+  --bg: #010c11;
+  --bg2: #041820;
+  --card: #022f3e;
+  --card2: #073a49;
   --sup-pagina: var(--bg);
   --sup-panel: var(--bg2);
   --sup-tarjeta: var(--card);
   --sup-tarjeta2: var(--card2);
-  --line: #1a4553;
-  --carril: #1a4553;
+  --line: #204b59;
+  --carril: #204b59;
   --text: #dff2f5;
   --muted: #79a3ae;
   --faint: #4f7784;
   --mint: #4fe0d0;
   --mint-macizo: #4fe0d0;
   --mint-soft: rgba(79, 224, 208, 0.13);
-  --sobre-acento: #01161d;
-  --motivo-cielo-1: #002d3c;
-  --motivo-cielo-2: #042029;
+  --sobre-acento: #010c11;
+  --motivo-cielo-1: #022f3e;
+  --motivo-cielo-2: #041820;
   --motivo-chispa: #dff2f5;
   --motivo-humo: rgba(223, 242, 245, 0.3);
   --motivo-humo-tenue: rgba(223, 242, 245, 0.2);
   --motivo-espuma: rgba(223, 242, 245, 0.6);
-  --motivo-lienzo: #042029;
-  --motivo-curva: #1a4553;
-  --escena-fondo: 1, 22, 29;
-  --escena-vidrio: 0, 45, 60;
+  --motivo-lienzo: #041820;
+  --motivo-curva: #204b59;
+  --escena-fondo: 1, 12, 17;
+  --escena-vidrio: 2, 47, 62;
   --escena-tinta: 223, 242, 245;
   --escena-tinte-modo: block;
-  --escena-tinte: #002d3c;
+  --escena-tinte: #022f3e;
   --escena-tinte-fuerza: 0.95;
 }
 
@@ -422,15 +580,15 @@ html[data-apariencia="marea"] .celebrate {
 
 .mues-casa { --mu-bg: #10151d; --mu-card: #1d2530; --mu-acento: #5fe0b0; }
 html.claro .mues-casa { --mu-bg: #dcdef0; --mu-card: #f2f0f9; --mu-acento: #00cc7f; }
-.mues-tinta { --mu-bg: #16181b; --mu-card: #23272c; --mu-acento: #f0ece2; }
-html.claro .mues-tinta { --mu-bg: #e7e9ee; --mu-card: #f7f9fc; --mu-acento: #16181b; }
-.mues-musgo { --mu-bg: #05180f; --mu-card: #042815; --mu-acento: #5fe0b0; }
-html.claro .mues-musgo { --mu-bg: #e8ebe6; --mu-card: #f4f7f3; --mu-acento: #00cc7f; }
-.mues-adobe { --mu-bg: #170802; --mu-card: #301105; --mu-acento: #5fe0b0; }
-html.claro .mues-adobe { --mu-bg: #e3d4ca; --mu-card: #f4ebe4; --mu-acento: #00cc7f; }
-.mues-duna { --mu-bg: #1d1220; --mu-card: #36203a; --mu-acento: #5fe0b0; }
-html.claro .mues-duna { --mu-bg: #e0cbdb; --mu-card: #f4ecf2; --mu-acento: #00cc7f; }
-.mues-escarcha { --mu-bg: #071421; --mu-card: #0a223a; --mu-acento: #8ecdf5; }
+.mues-tinta { --mu-bg: #0d0f11; --mu-card: #25292e; --mu-acento: #f0ece2; }
+html.claro .mues-tinta { --mu-bg: #dfe1e6; --mu-card: #f7f9fc; --mu-acento: #16181b; }
+.mues-musgo { --mu-bg: #030e08; --mu-card: #062a17; --mu-acento: #5fe0b0; }
+html.claro .mues-musgo { --mu-bg: #e0e3de; --mu-card: #f4f7f3; --mu-acento: #00cc7f; }
+.mues-adobe { --mu-bg: #0b0301; --mu-card: #321306; --mu-acento: #5fe0b0; }
+html.claro .mues-adobe { --mu-bg: #dbccc2; --mu-card: #f4ebe4; --mu-acento: #00cc7f; }
+.mues-duna { --mu-bg: #120a14; --mu-card: #38223c; --mu-acento: #5fe0b0; }
+html.claro .mues-duna { --mu-bg: #d8c3d3; --mu-card: #f4ecf2; --mu-acento: #00cc7f; }
+.mues-escarcha { --mu-bg: #040b13; --mu-card: #0c243c; --mu-acento: #8ecdf5; }
 html.claro .mues-escarcha { --mu-bg: #dcdef0; --mu-card: #f2f0f9; --mu-acento: #3ab0e0; }
-.mues-marea { --mu-bg: #01161d; --mu-card: #002d3c; --mu-acento: #4fe0d0; }
-html.claro .mues-marea { --mu-bg: #d3e4e6; --mu-card: #ebf4f4; --mu-acento: #00d4bd; }
+.mues-marea { --mu-bg: #010c11; --mu-card: #022f3e; --mu-acento: #4fe0d0; }
+html.claro .mues-marea { --mu-bg: #cbdcde; --mu-card: #ebf4f4; --mu-acento: #00d4bd; }

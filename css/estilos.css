@@ -106,6 +106,21 @@
        poner "#10151d" a mano: sería un botón verde oscuro con letra negra. */
     --sobre-acento: #10151d;
     --sobre-acento-coral: #3a1009;
+    /* Y la tinta que va encima de un relleno VIVO —luciérnaga, coral, lila y
+       los ocho colores del usuario—, que hasta 0.7.55 era la misma variable
+       que la del acento y no puede serlo.
+
+       Lo destapó Tinta de día, midiendo píxeles: su acento es tinta china, o
+       sea casi negro, así que su bloque tiene que poner la tinta de encima en
+       CLARO. Pero esa misma variable inkaba también el amarillo y el coral,
+       que en Tinta siguen siendo vivos y claros —es su premisa—, y salía claro
+       sobre claro: el rótulo «Estás viendo un ejemplo» daba 1,57 y el chip de
+       una habilidad, 1,00. Llevaba así desde que existe el ambiente.
+
+       Esta es oscura SIEMPRE en los dos modos, porque los tres vivos y los
+       ocho de la paleta son claros en los dos modos, y ningún ambiente la
+       toca. Un mundo sí: ahí «lo oscuro» es su propio suelo. */
+    --sobre-vivo: #10151d;
 
     --borde-panel: rgba(42, 52, 65, 0.7);
     --linea-guion: #3a4757;   /* el punteado del botón de añadir */
@@ -165,11 +180,24 @@
     --lienzo-apagado: #4a5768;  /* un requisito que aún no se cumple */
     --lienzo-hilo: #3d4a5c;     /* el hilo entre dos talentos, apagado */
     --lienzo-rotulo: #a8b4c0;   /* el nombre debajo de cada nodo */
-    --lienzo-halo: #1d2530;     /* el recorte que separa un hilo del fondo */
+    /* El recorte que separa un hilo del fondo. Vale el LIENZO y no un tono
+       escrito, y eso es un arreglo: hasta 0.7.54 el mapa se dibujaba sobre la
+       tarjeta y aquí ponía el color de la tarjeta; desde que el lienzo es
+       `--bg` —el tono hondo que a Eduardo le gustaba del modo a pantalla
+       completa— cada hilo iba rodeado de una línea del color VIEJO del suelo.
+       Con `var(--bg)` el recorte vuelve a ser invisible, que es su trabajo, y
+       de paso vale para cualquier apariencia sin declararlo otra vez. */
+    --lienzo-halo: var(--bg);
     --lienzo-ficha: #161d28;    /* los discos pequeños que cuelgan del nodo */
     --lienzo-caja: #121821;     /* la etiqueta de un grupo */
     --lienzo-bloqueado: #1a2230;/* el relleno de un talento con candado */
     --lienzo-flujo: #fff3cf;    /* los guiones que corren por un hilo vivo */
+    /* El punto de la cuadricula del lienzo. Estaba escrito dentro de la regla
+       como un gris azulado de la casa, asi que el papel cuadriculado seguia
+       siendo azul debajo de cualquier ambiente. Aqui vale exactamente lo que
+       valia escrito dentro de la regla —la casa no se mueve— y cada apariencia
+       declara el suyo. */
+    --lienzo-punto: rgba(139, 153, 165, 0.09);
 
     /* ---------- La franja ilustrada de una ficha ----------
        El mismo dibujo aparece dentro de una tarjeta de escena —que se queda
@@ -250,6 +278,25 @@
     --esquema: dark;
     --fondo-raiz: #0e131b;
     --fondo-pagina: linear-gradient(180deg, #0e131b 0%, #131924 55%, #10151d 100%);
+    /* Las tres manchas de luz del fondo. Llevan la transparencia DENTRO del
+       valor a proposito: a un `var(--x)` no se le pueden pegar dos digitos
+       detras —la misma trampa que obligo a inventar `velo()`—, asi que lo que
+       se declara es el rgba entero y no el tono. */
+    /* Y una nota sobre los TREINTA Y TRES resplandores que había repartidos
+       por el archivo —anillos de foco, sombras de botón, bordes encendidos—
+       escritos como `rgba(95, 224, 176, 0.25)`. Eran el mismo fallo que los
+       orbes, pero repartido: la app entera cambiaba de color y esas manchas
+       seguían siendo menta. Ahora salen del acento que esté puesto:
+
+           box-shadow: 0 0 0 1px color-mix(in srgb, var(--mint-macizo) 25%, transparent);
+
+       `color-mix` y no una variable con la transparencia dentro, porque cada
+       uno lleva la suya —del 3% al 85%— y serían treinta variables. Y sobre
+       `--mint-macizo` y no `--mint`: un resplandor RELLENA, no escribe, y de
+       día esos dos ya no son el mismo tono. */
+    --orbe-1: rgba(95, 224, 176, 0.18);
+    --orbe-2: rgba(245, 215, 110, 0.13);
+    --orbe-3: rgba(255, 138, 112, 0.12);
 
     --sans: 'Outfit', 'Segoe UI', system-ui, sans-serif;
     /* Solo se usa en escritorio (ver @media min-width:900px), pero vive
@@ -508,6 +555,7 @@
 
     --sobre-acento: #ffffff;
     --sobre-acento-coral: #ffffff;
+    --sobre-vivo: #10151d;
 
     /* Los tres vivos de la lámina, para rellenar. La tinta que va encima
        sigue siendo oscura (--sobre-macizo), igual que de noche. */
@@ -558,11 +606,12 @@
     --lienzo-apagado: #949ab8;
     --lienzo-hilo: #b0b5d0;
     --lienzo-rotulo: #3e435c;
-    --lienzo-halo: #e7e9f4;
+    --lienzo-halo: var(--bg);
     --lienzo-ficha: #f7f8fa;
     --lienzo-caja: #f7f8fa;
     --lienzo-bloqueado: #e7e9f4;
     --lienzo-flujo: #c08c00;
+    --lienzo-punto: rgba(139, 153, 165, 0.09);
 
     /* El cielo se da la vuelta: arranca en el tono levantado y baja hasta la
        tarjeta, así que la franja no es un parche pegado encima sino el borde
@@ -628,6 +677,9 @@
        degradado tiene que quedarse por debajo de las tarjetas en toda su
        altura, o al bajar la pagina las tarjetas dejan de levantarse. */
     --fondo-pagina: linear-gradient(180deg, #e3e5f2 0%, #dcdef0 55%, #e0e2f1 100%);
+    --orbe-1: rgba(0, 204, 127, 0.18);
+    --orbe-2: rgba(245, 195, 20, 0.13);
+    --orbe-3: rgba(255, 96, 61, 0.12);
   }
 
   /* Los orbes son manchas de luz: sobre carbón dan atmósfera y sobre papel
@@ -675,7 +727,13 @@
      se vuelve ilegible. Se resuelve aquí, en un sitio, en vez de ir
      arreglando rótulo por rótulo: vuelven a declarar las variables que usan
      sus hijos, y lo que se añada dentro ya nace con el tono correcto. */
-  .scene-card, .celebrate, .ncel {
+  /* `.scel` —la celebración de un hito de racha— entró en esta lista en
+     0.7.55, y llevaba fuera desde que existe. Es una pantalla entera con un
+     degradado oscuro escrito a mano, o sea un dibujo de una noche igual que
+     las otras tres, pero como no estaba aquí, en modo claro sus rótulos
+     tomaban los tonos de papel: la luciérnaga de día sobre su cielo casi
+     negro. Lo destapó la foto de estilos al revisar los resplandores. */
+  .scene-card, .celebrate, .ncel, .scel {
     /* Las tres bases de la escena, como TRIPLETAS y no como colores hechos.
        Existen porque dentro de una escena hay quince transparencias —el velo
        del degradado, las pastillas de vidrio, los rótulos a media tinta— y
@@ -735,6 +793,7 @@
     --coral-soft: rgba(255, 138, 112, 0.13);
     --sobre-acento: #10151d;
     --sobre-acento-coral: #3a1009;
+    --sobre-vivo: #10151d;
     --mint-macizo: #5fe0b0;
     --fire-macizo: #f5d76e;
     --coral-macizo: #ff8a70;
@@ -828,9 +887,16 @@
     z-index: 0;
     filter: blur(2px);
   }
-  .orb-1 { width: 90px; height: 90px; top: 12%; left: -34px; background: radial-gradient(circle, rgba(95,224,176,0.18), transparent 70%); }
-  .orb-2 { width: 140px; height: 140px; top: 42%; right: -60px; background: radial-gradient(circle, rgba(245,215,110,0.13), transparent 70%); }
-  .orb-3 { width: 70px; height: 70px; bottom: 18%; left: -20px; background: radial-gradient(circle, rgba(255,138,112,0.12), transparent 70%); }
+  /* Los tres colores salen de variables y NO escritos aqui, que es como
+     estaban: menta, luciernaga y coral de la casa, clavados. Un ambiente
+     cambia la app entera y estas tres manchas seguian siendo las de siempre,
+     asi que sobre el barro de Adobe o el violeta de Duna quedaba un
+     resplandor VERDE flotando — «he visto resplandores verde donde no
+     aplica», y era literal: son el unico sitio del CSS donde el acento de la
+     casa estaba escrito a mano dentro de una regla. */
+  .orb-1 { width: 90px; height: 90px; top: 12%; left: -34px; background: radial-gradient(circle, var(--orbe-1), transparent 70%); }
+  .orb-2 { width: 140px; height: 140px; top: 42%; right: -60px; background: radial-gradient(circle, var(--orbe-2), transparent 70%); }
+  .orb-3 { width: 70px; height: 70px; bottom: 18%; left: -20px; background: radial-gradient(circle, var(--orbe-3), transparent 70%); }
 
   .app { max-width: 560px; margin: 0 auto; padding: var(--alto-aviso, 0) 18px 0; position: relative; z-index: 1; }
 
@@ -1062,7 +1128,7 @@
     border-radius: var(--r-boton);
     border: none;
     background: var(--coral-macizo);
-    color: var(--sobre-macizo);
+    color: var(--sobre-vivo);
     font-size: 13px;
     font-weight: 800;
     font-family: inherit;
@@ -1138,7 +1204,7 @@
     border-style: solid;
     border-color: var(--mint);
     background: var(--mint-soft);
-    box-shadow: 0 0 0 1px rgba(95, 224, 176, 0.25);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--mint-macizo) 25%, transparent);
   }
   .acomodo.on .ac-n { background: var(--mint-macizo); color: var(--sobre-macizo); }
   .acomodo.on .ac-tx span { color: var(--muted); }
@@ -1146,7 +1212,7 @@
   .ac-n {
     flex: none; width: 24px; height: 24px; border-radius: var(--r-mini);
     display: grid; place-items: center;
-    background: rgba(95, 224, 176, 0.12); color: var(--mint);
+    background: color-mix(in srgb, var(--mint-macizo) 12%, transparent); color: var(--mint);
     font-size: 12px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
   }
   .ac-tx { min-width: 0; }
@@ -1201,14 +1267,14 @@
   .scel-rays {
     position: absolute;
     width: 150vmax; height: 150vmax;
-    background: repeating-conic-gradient(from 0deg, rgba(245, 215, 110, 0.13) 0deg 7deg, transparent 7deg 20deg);
+    background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--fire-macizo) 13%, transparent) 0deg 7deg, transparent 7deg 20deg);
     animation: scelSpin 24s linear infinite;
     pointer-events: none;
   }
   @keyframes scelSpin { to { transform: rotate(360deg); } }
   .scel-core { position: relative; text-align: center; padding: 24px; }
-  .scel-flame { color: var(--fire); filter: drop-shadow(0 0 26px rgba(245, 215, 110, 0.75)); }
-  .scel-flame svg { width: 96px; height: 96px; stroke: currentColor; fill: rgba(245, 215, 110, 0.22); stroke-width: 1.4; stroke-linejoin: round; }
+  .scel-flame { color: var(--fire); filter: drop-shadow(0 0 26px color-mix(in srgb, var(--fire-macizo) 75%, transparent)); }
+  .scel-flame svg { width: 96px; height: 96px; stroke: currentColor; fill: color-mix(in srgb, var(--fire-macizo) 22%, transparent); stroke-width: 1.4; stroke-linejoin: round; }
   .scel.show .scel-flame { animation: scelFlame 1.5s ease-in-out infinite; }
   @keyframes scelFlame {
     0%, 100% { transform: scale(1) rotate(-1.5deg); }
@@ -1221,14 +1287,14 @@
     line-height: 1;
     color: var(--fire);
     font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
-    text-shadow: 0 6px 34px rgba(245, 215, 110, 0.55);
+    text-shadow: 0 6px 34px color-mix(in srgb, var(--fire-macizo) 55%, transparent);
     margin-top: 4px;
   }
   .scel.show .scel-num { animation: scelPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s backwards; }
   @keyframes scelPop { from { transform: scale(0.3); opacity: 0; } }
   .scel-unit {
     font-size: 15px; font-weight: 700; letter-spacing: 3px;
-    text-transform: uppercase; color: rgba(245, 215, 110, 0.85); margin-top: 2px;
+    text-transform: uppercase; color: color-mix(in srgb, var(--fire-macizo) 85%, transparent); margin-top: 2px;
   }
   .scel-sub {
     font-size: 15px; line-height: 1.55; color: var(--text);
@@ -2053,17 +2119,17 @@
   .mm-item.t-oro:hover .mm-ic,
   .mm-item.t-oro:focus-visible .mm-ic {
     background: var(--fire-macizo);
-    color: var(--sobre-macizo);
+    color: var(--sobre-vivo);
   }
   .mm-item.t-lila:hover .mm-ic,
   .mm-item.t-lila:focus-visible .mm-ic {
     background: var(--lila-macizo);
-    color: var(--sobre-macizo);
+    color: var(--sobre-vivo);
   }
   .mm-item.t-coral:hover .mm-ic,
   .mm-item.t-coral:focus-visible .mm-ic {
     background: var(--coral-macizo);
-    color: var(--sobre-macizo);
+    color: var(--sobre-vivo);
   }
   /* La ficha de la cuenta ya tiene fondo propio, así que sube al tono de
      encima para que el salto se note igual que en las filas. */
@@ -2174,7 +2240,7 @@
     border-radius: var(--r-pastilla);
     color: var(--sobre-macizo);
   }
-  .skill-tab.warn { background: var(--fire-macizo); }
+  .skill-tab.warn { background: var(--fire-macizo); color: var(--sobre-vivo); }
   .skill-tab.perm { background: var(--mint-macizo); display: inline-flex; align-items: center; gap: 4px; }
   .skill-tab .ic svg { width: 10px; height: 10px; stroke-width: 2.6; }
   /* Los pares llevan la silueta volteada. `nth-of-type` sobre el contenedor y
@@ -2281,7 +2347,7 @@
 
      La regla al añadir un botón: si dudas entre `soft` y `linea`, pregúntate si
      ese botón ESCRIBE algo. Si solo enseña o lleva, es `linea`. */
-  .btn-primary { background: var(--mint-macizo); color: var(--sobre-macizo); box-shadow: 0 10px 26px rgba(95, 224, 176, 0.25); }
+  .btn-primary { background: var(--mint-macizo); color: var(--sobre-macizo); box-shadow: 0 10px 26px color-mix(in srgb, var(--mint-macizo) 25%, transparent); }
   .btn-soft { background: var(--mint-soft); color: var(--mint); }
   .btn-linea { background: var(--sup-tarjeta); color: var(--mint); border: var(--borde-tarjeta) solid var(--mint); border-image: var(--marco-tarjeta); }
   .btn-aviso { background: var(--fire-soft); color: var(--fire); }
@@ -2342,7 +2408,7 @@
   .compra-lista .ic { color: var(--mint); flex: none; }
   .compra-caja.lila .compra-lista .ic { color: var(--lila); }
   .compra-caja.lila .btn-primary {
-    background: var(--lila-macizo); color: var(--sobre-macizo); box-shadow: none;
+    background: var(--lila-macizo); color: var(--sobre-vivo); box-shadow: none;
   }
   /* Mientras el aviso de Stripe todavía no ha llegado. La rueda es la misma
      del botón que espera. */
@@ -2396,7 +2462,7 @@
   .thumb-cluster .c-nav.active {
     color: var(--mint);
     border-color: var(--mint);
-    box-shadow: 0 0 0 4px rgba(95, 224, 176, 0.12), 0 8px 20px var(--sombra-m);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--mint-macizo) 12%, transparent), 0 8px 20px var(--sombra-m);
   }
   .thumb-cluster .c-main {
     pointer-events: auto;
@@ -2410,7 +2476,7 @@
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    box-shadow: 0 12px 32px rgba(95, 224, 176, 0.4);
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--mint-macizo) 40%, transparent);
     display: flex; align-items: center; justify-content: center;
     line-height: 1;
     transition: transform var(--dur-corta) ease, opacity 0.2s ease;
@@ -2459,8 +2525,8 @@
      delicada. Fuera de aquí siguen igual que siempre, que es donde ese tono
      sí está bien medido. */
   .panel.peligro {
-    border-color: rgba(255, 138, 112, 0.55);
-    background: linear-gradient(180deg, rgba(255, 138, 112, 0.07), rgba(255, 138, 112, 0.03));
+    border-color: color-mix(in srgb, var(--coral-macizo) 55%, transparent);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--coral-macizo) 7%, transparent), color-mix(in srgb, var(--coral-macizo) 3%, transparent));
   }
   .panel.peligro h3 { color: var(--coral); }
   .panel.peligro .settings-note {
@@ -2488,13 +2554,13 @@
   .panel.peligro #zona-cuenta .peligro-t {
     margin-top: 22px;
     padding-top: 18px;
-    border-top: 1px solid rgba(255, 138, 112, 0.28);
+    border-top: 1px solid color-mix(in srgb, var(--coral-macizo) 28%, transparent);
   }
   .panel.peligro .btn-danger-ghost {
     background: var(--coral-macizo);
     /* Texto oscuro sobre coral: en blanco se queda en 2,4 sobre 1 y no se lee.
        Este da de sobra. */
-    color: var(--sobre-macizo);
+    color: var(--sobre-vivo);
     font-weight: 750;
   }
   .panel.peligro .btn-danger-ghost:hover { background: var(--coral-vivo); }
@@ -2625,7 +2691,7 @@
   .quick-xp button.selected {
     border-color: var(--mint);
     background: var(--mint-soft);
-    box-shadow: 0 0 0 5px rgba(95, 224, 176, 0.08), 0 8px 22px rgba(95, 224, 176, 0.18);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--mint-macizo) 8%, transparent), 0 8px 22px color-mix(in srgb, var(--mint-macizo) 18%, transparent);
   }
   .quick-xp button.selected .xp { color: var(--mint); }
 
@@ -2639,7 +2705,7 @@
   .icon-btn.on { border-color: var(--coral); color: var(--coral); }
 
   /* ---------- Zona de decaimiento ---------- */
-  .decay-panel { border-color: rgba(255, 138, 112, 0.3); }
+  .decay-panel { border-color: color-mix(in srgb, var(--coral-macizo) 30%, transparent); }
   .dz-count {
     font-size: 11px; font-weight: 800;
     color: var(--coral); background: var(--coral-soft);
@@ -2687,7 +2753,7 @@
     padding: 2px 8px;
     vertical-align: 1px;
   }
-  .history-item .tag.src { color: var(--mint); border-color: rgba(95, 224, 176, 0.35); background: var(--mint-soft); }
+  .history-item .tag.src { color: var(--mint); border-color: color-mix(in srgb, var(--mint-macizo) 35%, transparent); background: var(--mint-soft); }
 
   .history-item {
     display: flex;
@@ -3090,7 +3156,7 @@
   }
   .bmenu button:hover .bm-ic { color: var(--text); }
   .bmenu button.danger .bm-tx b { color: var(--coral); }
-  .bmenu button.danger .bm-ic { color: var(--coral); border-color: rgba(255, 138, 112, 0.35); }
+  .bmenu button.danger .bm-ic { color: var(--coral); border-color: color-mix(in srgb, var(--coral-macizo) 35%, transparent); }
   .bmenu button.danger:hover { background: var(--coral-soft); }
   .bmenu button.danger:hover .bm-ic { color: var(--coral); }
   .bm-ic svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
@@ -3146,9 +3212,16 @@
        `--bg` — y vale igual para las ramas de proyectos, que usan este mismo
        lienzo. */
     background:
-      radial-gradient(circle at 1px 1px, rgba(139, 153, 165, 0.09) 1px, transparent 1.6px),
+      var(--lienzo-grano, none),
+      radial-gradient(circle at 1px 1px, var(--lienzo-punto) 1px, transparent 1.6px),
       var(--bg);
-    background-size: 26px 26px, auto;
+    background-size: var(--lienzo-grano-tam, auto), 26px 26px, auto;
+    /* La letra del mapa se queda en Outfit pase lo que pase. Un mundo cambia
+       `--tipo-titulo` y `--tipo-cifra`, no `--sans`, así que hoy ya sale así;
+       esto lo deja escrito para que un mundo futuro no se lleve por delante
+       veinte rótulos de 10 px, donde una letra de carácter no se lee. Lo pidió
+       Eduardo mirando el borrador: «la fuente se queda en Outfit». */
+    font-family: var(--sans);
   }
   /* Aviso de que la vista previa está recortada, y atajo para abrirla */
   .fs-open {
@@ -4058,7 +4131,7 @@
     cursor: pointer;
     min-width: 0;
   }
-  .caja-row.ok .caja-ir { border-color: rgba(95, 224, 176, 0.32); }
+  .caja-row.ok .caja-ir { border-color: color-mix(in srgb, var(--mint-macizo) 32%, transparent); }
   .caja-ir .ct { min-width: 0; }
   .caja-ir .ct b { display: block; font-size: 13.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .caja-ir .ct span { font-size: 10.5px; color: var(--faint); }
@@ -4232,11 +4305,11 @@
   .modal-ic.riesgo.oro { background: var(--fire-soft); color: var(--fire); }
   .modal-card.oro .btn-danger-ghost {
     background: var(--fire-macizo);
-    color: var(--sobre-macizo);
+    color: var(--sobre-vivo);
   }
   @keyframes oroGlow {
-    0%, 100% { box-shadow: 0 0 0 1px var(--fire), 0 0 22px rgba(245, 215, 110, 0.22); }
-    50% { box-shadow: 0 0 0 2px var(--fire), 0 0 46px rgba(245, 215, 110, 0.5); }
+    0%, 100% { box-shadow: 0 0 0 1px var(--fire), 0 0 22px color-mix(in srgb, var(--fire-macizo) 22%, transparent); }
+    50% { box-shadow: 0 0 0 2px var(--fire), 0 0 46px color-mix(in srgb, var(--fire-macizo) 50%, transparent); }
   }
 
   /* ---------- El mismo aviso, en menta: un tope del plan ----------
@@ -4425,12 +4498,12 @@
     84% { transform: translateX(2px); }
   }
   @keyframes alarmGlow {
-    0%, 100% { box-shadow: 0 0 0 1px var(--coral), 0 0 22px rgba(255, 138, 112, 0.22); }
-    50% { box-shadow: 0 0 0 2px var(--coral), 0 0 46px rgba(255, 138, 112, 0.5); }
+    0%, 100% { box-shadow: 0 0 0 1px var(--coral), 0 0 22px color-mix(in srgb, var(--coral-macizo) 22%, transparent); }
+    50% { box-shadow: 0 0 0 2px var(--coral), 0 0 46px color-mix(in srgb, var(--coral-macizo) 50%, transparent); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .modal-card.alarm { animation: none; box-shadow: 0 0 0 2px var(--coral), 0 0 40px rgba(255, 138, 112, 0.4); }
-    .modal-card.alarm.oro { animation: none; box-shadow: 0 0 0 2px var(--fire), 0 0 40px rgba(245, 215, 110, 0.4); }
+    .modal-card.alarm { animation: none; box-shadow: 0 0 0 2px var(--coral), 0 0 40px color-mix(in srgb, var(--coral-macizo) 40%, transparent); }
+    .modal-card.alarm.oro { animation: none; box-shadow: 0 0 0 2px var(--fire), 0 0 40px color-mix(in srgb, var(--fire-macizo) 40%, transparent); }
   }
 
   /* ---------- Celebración ---------- */
@@ -4615,7 +4688,7 @@
   .toast.t-atencion { --tc: var(--coral); border-left-color: var(--coral); }
   .toast.t-calma    { --tc: var(--muted); border-left-color: var(--muted); }
   /* Solo el logro se permite brillar: es el único que celebra algo */
-  .toast.t-logro { box-shadow: 0 14px 34px var(--sombra-l), 0 0 0 1px rgba(95,224,176,.12); }
+  .toast.t-logro { box-shadow: 0 14px 34px var(--sombra-l), 0 0 0 1px color-mix(in srgb, var(--mint-macizo) 12%, transparent); }
 
   @media (prefers-reduced-motion: reduce) { .toast { transition: opacity 0.2s ease; transform: none; } }
 
@@ -4700,7 +4773,7 @@
     width: 44px; height: 44px;
     border-radius: var(--r-caja);
     background: var(--oc);
-    color: var(--sobre-macizo);
+    color: var(--sobre-vivo);
     display: flex; align-items: center; justify-content: center;
   }
   .ob-area .oa-tx { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
@@ -4734,7 +4807,7 @@
   .ob-dots i.on { background: var(--mint); width: 22px; }
 
   /* ---------- Misiones ---------- */
-  .ms-today { border-color: rgba(95, 224, 176, 0.3); }
+  .ms-today { border-color: color-mix(in srgb, var(--mint-macizo) 30%, transparent); }
   .mt-head { display: flex; align-items: center; gap: 14px; }
   .mt-head .ring-wrap { margin: 0; flex-shrink: 0; }
   .mt-tx { flex: 1; min-width: 0; }
@@ -5300,7 +5373,7 @@
   .perk-desc { font-size: 14px; color: var(--muted); line-height: 1.55; margin-top: 12px; }
 
   /* Listos para empezar */
-  .ready-panel { border-color: rgba(95, 224, 176, 0.35); }
+  .ready-panel { border-color: color-mix(in srgb, var(--mint-macizo) 35%, transparent); }
   .ready-grid { display: flex; flex-direction: column; gap: 8px; }
   .ready-chip {
     display: flex;
@@ -5393,7 +5466,7 @@
   .portada .field { margin-bottom: 12px; }
   .portada .stack { margin-top: 18px; }
   .portada-error {
-    background: rgba(245, 215, 110, 0.1); border: var(--borde-fino) solid rgba(245, 215, 110, 0.4);
+    background: color-mix(in srgb, var(--fire-macizo) 10%, transparent); border: var(--borde-fino) solid color-mix(in srgb, var(--fire-macizo) 40%, transparent);
     color: var(--fire); border-radius: var(--r-caja); padding: 11px 13px;
     font-size: 13px; line-height: 1.55; margin-bottom: 14px;
   }
@@ -5427,7 +5500,7 @@
   .portada-sin.sutil:hover { color: var(--mint); }
   .portada-accion {
     display: block; margin-top: 10px; padding: 7px 13px;
-    background: rgba(245, 215, 110, 0.14); border: var(--borde-fino) solid var(--fire);
+    background: color-mix(in srgb, var(--fire-macizo) 14%, transparent); border: var(--borde-fino) solid var(--fire);
     border-radius: var(--r-boton); color: var(--fire); cursor: pointer;
     font-family: inherit; font-size: 12.5px; font-weight: 700;
   }
@@ -5679,7 +5752,7 @@
   .aviso-modo .av-caja {
     display: flex; align-items: center; justify-content: center; gap: 10px;
     max-width: min(92vw, 560px);
-    background: var(--fire-macizo); color: var(--sobre-macizo);
+    background: var(--fire-macizo); color: var(--sobre-vivo);
     padding: 5px 14px 6px;
     border-radius: 0 0 var(--r-caja) var(--r-caja);
     font-size: 10.5px; font-weight: 800;
@@ -5732,7 +5805,7 @@
     left: 12px;
     bottom: calc(env(safe-area-inset-bottom) + 64px);
     z-index: var(--piso-rotulo-prueba);
-    background: var(--fire-macizo); color: var(--sobre-macizo);
+    background: var(--fire-macizo); color: var(--sobre-vivo);
     border-radius: var(--r-pastilla);
     padding: 5px 8px 5px 13px;
     font-size: 10.5px; font-weight: 800;
@@ -6261,7 +6334,7 @@
     background: var(--vidrio); border: var(--borde-fino) solid var(--line);
   }
   .sync-dot { width: 9px; height: 9px; border-radius: var(--r-disco); flex: none; background: var(--faint); }
-  .sync-dot.ok { background: var(--mint); box-shadow: 0 0 0 3px rgba(95,224,176,.16); }
+  .sync-dot.ok { background: var(--mint); box-shadow: 0 0 0 3px color-mix(in srgb, var(--mint-macizo) 16%, transparent); }
   .sync-dot.busy { background: var(--fire); animation: syncPulse 1s ease-in-out infinite; }
   .sync-dot.bad { background: var(--coral); box-shadow: 0 0 0 3px var(--coral-soft); }
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
@@ -6364,7 +6437,13 @@
        cual se diseñó (icono + texto en un solo trazado, dos colores fijos:
        no es de los íconos que heredan el color del tema). */
     .side-brand .sb-mark, .side-brand .sb-expand { display: none; flex-shrink: 0; }
-    .side-brand .sb-mark { color: var(--mint-macizo); }
+    /* El isotipo de la barra plegada va en `--marca-iso` y NO en `--mint-macizo`,
+       por lo mismo que el de la portada: un tema puede cambiarlo todo menos
+       quien eres. Con el acento, en Escarcha la marca salia azul y en Reliquia
+       lila. Se quedo fuera del arreglo de 0.7.54 porque este isotipo pinta con
+       `currentColor` desde el CSS y el otro lleva el `fill` escrito en el SVG:
+       son dos caminos distintos al mismo dibujo, y solo se arreglo uno. */
+    .side-brand .sb-mark { color: var(--marca-iso); }
     .side-brand .sb-mark svg { width: 22px; height: 22px; display: block; }
     .side-brand .sb-expand { color: var(--muted); }
     /* Dos píxeles menos que el isotipo: uno es una silueta maciza y el otro
@@ -7376,7 +7455,7 @@
   padding: 1px 7px;
   border-radius: var(--r-pastilla);
   background: var(--coral-macizo);
-  color: var(--sobre-macizo);
+  color: var(--sobre-vivo);
   font-size: .72rem;
   font-weight: 700;
   text-align: center;
@@ -7527,7 +7606,7 @@
    sombra se apaga: la de `.btn-primary` es menta y aquí cantaría. */
 .plan-card.limitada .btn-primary {
   background: var(--lila-macizo);
-  color: var(--sobre-macizo);
+  color: var(--sobre-vivo);
   box-shadow: none;
 }
 .plan-n { font-weight: 700; font-size: 15px; color: var(--text); }
@@ -8110,7 +8189,7 @@ html.claro .plan-linea { stroke-opacity: .85; }
     transform: translateX(-50%);
     z-index: var(--piso-brindis);
     background: var(--fire);
-    color: var(--sobre-macizo);
+    color: var(--sobre-vivo);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.04em;

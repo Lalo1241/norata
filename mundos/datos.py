@@ -280,7 +280,12 @@ MUNDOS = [
   extra=""".reliquia .ficha{
     background-image:linear-gradient(112deg, rgba(233,226,255,.09) 0%, rgba(233,226,255,0) 34%, rgba(233,226,255,0) 66%, rgba(233,226,255,.05) 100%);
   }""",
-  tokens={"--m-pagina":"radial-gradient(126% 82% at 50% -6%, #241c38 0%, #1a1429 44%, #100c1a 100%)",
+  # El degradado bajó tres escalones en 0.7.55. Con el anterior, la vitrina y
+  # su forro quedaban casi a la misma luz y la pantalla se leía como una sola
+  # mancha lila; hundiendo la página, la tarjeta vuelve a estar APOYADA encima
+  # y el lila deja de ser un baño para volver a ser la luz que atraviesa la
+  # piedra. Es el mismo movimiento que se le hizo a los siete ambientes.
+  tokens={"--m-pagina":"radial-gradient(126% 82% at 50% -6%, #1c1530 0%, #130e22 44%, #090612 100%)",
    "--m-grano":f'url("{svg("reliquia-terciopelo.svg")}") center / 150px 150px repeat',
    "--m-grano-op":".85",
    "--m-tarjeta":"#1e1930","--m-borde":"2px","--m-borde-color":"#8a6d2f",
@@ -301,7 +306,32 @@ MUNDOS = [
    "--m-cifra":'"Syne",system-ui,sans-serif',"--m-cifra-peso":"700",
    "--m-chip-fuente":'"Syne",system-ui,sans-serif',"--m-chip-peso":"600","--m-chip-esp":".08em",
    "--m-chip-caja":"uppercase",
-   "--m-dur":".9s","--m-curva":"cubic-bezier(.2,.7,.25,1)"}),
+   "--m-dur":".9s","--m-curva":"cubic-bezier(.2,.7,.25,1)"},
+  # ---- Y la vitrina de día ----
+  # Un mundo declaraba una sola cara y eso bastaba mientras ninguno estuviera
+  # encendido. Con Reliquia puesta, el modo claro se rompía de una forma
+  # concreta: su bloque gana a `html.claro` porque `css/mundos.css` se carga
+  # después, pero SOLO en lo que declara — así que salía la noche del mundo con
+  # los tonos de papel de la casa metidos por los huecos. Texto claro sobre
+  # tarjeta clara, y fondos que no cambiaban. Lo describió Eduardo tal cual.
+  #
+  # No es la noche aclarada: es la misma vitrina con la luz encendida. El latón
+  # no se mueve —un metal es el mismo a cualquier hora— y el lila se parte en
+  # dos como manda la casa, porque el mismo tono no puede rellenar y escribir
+  # sobre papel: `--m-acento` rellena y `--m-acento-tinta` escribe.
+  dia={"--m-pagina":"radial-gradient(126% 82% at 50% -6%, #eae4f6 0%, #ded7ec 44%, #cdc5de 100%)",
+   "--m-grano":f'url("{svg("reliquia-terciopelo-dia.svg")}") center / 150px 150px repeat',
+   "--m-tarjeta":"#f4f1fa","--m-borde-color":"#8a6d2f",
+   "--m-marco":"linear-gradient(158deg,#6b5326 0%,#c8a24e 24%,#8a6d2f 48%,#d9b55f 64%,#6b5326 100%) 1",
+   "--m-tinta":"#241c33","--m-tinta-2":"#5c5273",
+   # El lila de escribir sale MEDIDO y no elegido: tiene que llegar a 4,5 sobre la
+   # tarjeta —da 8,6— y además leerse encima del propio relleno lila, que es donde
+   # vive el rótulo de estado de un proyecto. Con el primer tono ahí daba 2,41
+   # contra los 2,92 de la casa; hundiéndolo un escalón se pone en 2,89.
+   "--m-acento":"#a278e4","--m-acento-tinta":"#5a2a94","--m-acento-velo":"rgba(90,42,148,.11)",
+   "--m-aviso":"#f5c314","--m-aviso-tinta":"#755c05","--m-aviso-velo":"rgba(117,92,5,.12)",
+   "--m-peligro":"#ff603d","--m-peligro-tinta":"#bd2200","--m-peligro-velo":"rgba(189,34,0,.11)",
+   "--m-carril":"#a7a0b6"}),
 
  dict(id="averno", nombre="Averno", familia="de-relato", llave="El oscuro de verdad", color="#ff7a3d",
   premisa="Piedra quemada con la brasa debajo. Del poema se cita lo único que hay que citar —los círculos—: arcos concéntricos que se estrechan al bajar y solo el de dentro sigue ardiendo. Cae ceniza en el fondo, con tres motas que todavía no se han apagado, y el icono es un sol eclipsado: anillo encendido y centro muerto. Nada de cuernos ni pentagramas — el infierno de ese libro es un lugar, no un disfraz.",

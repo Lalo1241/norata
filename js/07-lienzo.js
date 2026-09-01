@@ -1397,20 +1397,48 @@ function nodeRadius(p) {
 
 const CAJA_W = 104, CAJA_H = 52;
 
+/* ---- Las esquinas del mapa, que también son material ----
+   Los redondeos del lienzo se dibujan desde JavaScript como atributos `rx` del
+   SVG, así que `--r-factor` —el interruptor grueso que endereza el 79% de las
+   esquinas de la app— no llegaba hasta aquí: con Reliquia puesta, la app
+   entera se cuadraba y el mapa de talentos seguía con las esquinas blandas de
+   la casa. Se veía como si el mapa fuera de otra app, que es justo lo que
+   Eduardo señaló del borrador.
+
+   El valor se guarda en vez de preguntarlo por nodo: `getComputedStyle` obliga
+   al navegador a recalcular estilos, y un mapa grande dibuja doscientas
+   figuras. Se vuelve a preguntar cuando cambia la apariencia, que es lo único
+   que puede moverlo.
+
+   Un círculo NO pasa por aquí, y es la misma regla de `--r-redondo`: un
+   círculo es redondo porque es redondo. */
+let esqFactor = null, esqDe = null;
+function factorEsquina() {
+  const ap = document.documentElement.getAttribute("data-apariencia") || "casa";
+  if (esqFactor === null || esqDe !== ap) {
+    const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--r-factor"));
+    esqFactor = Number.isFinite(v) && v >= 0 ? v : 1;
+    esqDe = ap;
+  }
+  return esqFactor;
+}
+/* Un radio del lienzo, con el factor de la apariencia aplicado. */
+function rLienzo(px) { return Math.round(px * factorEsquina() * 10) / 10; }
+
 function nodeShape(p, x, y, conf, fid) {
   const common = `fill="${conf.fill}" stroke="${conf.stroke}" stroke-width="2"${conf.sop ? ` stroke-opacity="${conf.sop}"` : ""}${conf.glow ? ` filter="url(#${fid})"` : ""}`;
   /* La caja no es una figura más del juego: es un contenedor, y por eso es
      un rectángulo de borde punteado. Que no se parezca a ningún tipo de
      talento es justo lo que la hace legible de un vistazo. */
   if (p.esCaja) {
-    return `<rect x="${x - CAJA_W / 2}" y="${y - CAJA_H / 2}" width="${CAJA_W}" height="${CAJA_H}" rx="11" stroke-dasharray="6 4" ${common}/>`;
+    return `<rect x="${x - CAJA_W / 2}" y="${y - CAJA_H / 2}" width="${CAJA_W}" height="${CAJA_H}" rx="${rLienzo(11)}" stroke-dasharray="6 4" ${common}/>`;
   }
   const t = figuraDe(p);
   /* El encargo: un rectangulo ancho de esquinas suaves. No se parece a
      ninguna figura de Talentos, y esa es toda su gracia — con los dos mapas
      hechos de rombos y hexagonos nadie sabria en cual esta. */
   if (t.forma === "encargo") {
-    return `<rect x="${x - t.ancho / 2}" y="${y - t.alto / 2}" width="${t.ancho}" height="${t.alto}" rx="13" ${common}/>`;
+    return `<rect x="${x - t.ancho / 2}" y="${y - t.alto / 2}" width="${t.ancho}" height="${t.alto}" rx="${rLienzo(13)}" ${common}/>`;
   }
   if (t.forma === "circulo") {
     return `<circle cx="${x}" cy="${y}" r="${t.radio}" ${common}/>`;
@@ -1423,7 +1451,7 @@ function nodeShape(p, x, y, conf, fid) {
     }
     return `<polygon points="${pts.join(" ")}" stroke-linejoin="round" ${common}/>`;
   }
-  return `<rect x="${x - t.radio}" y="${y - t.radio}" width="${t.radio * 2}" height="${t.radio * 2}" rx="9" transform="rotate(45 ${x} ${y})" ${common}/>`;
+  return `<rect x="${x - t.radio}" y="${y - t.radio}" width="${t.radio * 2}" height="${t.radio * 2}" rx="${rLienzo(9)}" transform="rotate(45 ${x} ${y})" ${common}/>`;
 }
 
 /* ---- Los ocho rumbos de un talento (el asterisco) ----
@@ -1591,10 +1619,10 @@ function constellation(nodes, key, editing, branch, mod) {
     alto = Math.max(alto, 18 - (y0 - 11));   // la etiqueta no puede quedar cortada
     abarcar(x0, y0 - 11, x1, y1);
     recintos += `<g class="grupo">
-      <rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" rx="22"
+      <rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" rx="${rLienzo(22)}"
         fill="${velo(cc, "0a")}" stroke="${ccZ}" stroke-opacity="0.35" stroke-width="1.6" stroke-dasharray="9 7" pointer-events="none"/>
       <g class="grupo-tag" data-grupo="${c.id}">
-        <rect x="${x0 + 12}" y="${y0 - 11}" width="${Math.max(96, nombreCaja(c).length * 6.6 + 30)}" height="22" rx="11"
+        <rect x="${x0 + 12}" y="${y0 - 11}" width="${Math.max(96, nombreCaja(c).length * 6.6 + 30)}" height="22" rx="${rLienzo(11)}"
           fill="var(--lienzo-caja)" stroke="${ccZ}" stroke-opacity="0.5" stroke-width="1.4"/>
         <text x="${x0 + 24}" y="${y0 + 4}" font-size="10.5" font-weight="700" fill="${ccT}">${
           escapeHtml(nombreCaja(c))} · ${hechos}/${c.perkIds.length}</text>
@@ -1682,7 +1710,7 @@ function constellation(nodes, key, editing, branch, mod) {
       const rw = nodeRadius(n) + 13;
       const rh = (n.esCaja ? CAJA_H / 2 : nodeRadius(n)) + 13;
       nds += `<rect class="sel-marca" x="${x - rw}" y="${y - rh}" width="${rw * 2}" height="${rh * 2}"
-        rx="15" fill="none" stroke="var(--celeste)" stroke-width="2" stroke-dasharray="6 5" pointer-events="none"/>`;
+        rx="${rLienzo(15)}" fill="none" stroke="var(--celeste)" stroke-width="2" stroke-dasharray="6 5" pointer-events="none"/>`;
     });
   }
 

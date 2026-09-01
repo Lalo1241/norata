@@ -36,8 +36,30 @@ def paradas(valor):
        se usa en sitios donde una textura no cabe (bordes, `color-mix`)."""
     return re.findall(r"#[0-9a-fA-F]{3,8}", valor)
 
-def bloque(m):
-    t = m["tokens"]
+def _rgba(hexa, a):
+    return "rgba(%d, %d, %d, %s)" % tuple(_hex(hexa) + [a])
+
+def mover(hexa, dL, fc=1.0):
+    """El mismo matiz con otra luz. Se apoya en `apariencias/croma.py`, que es
+       donde vive el OKLCh: mover la luz sin mover el matiz es lo que deja los
+       contrastes ya medidos donde estaban."""
+    import sys, os as _os
+    sys.path.insert(0, _os.path.join(_os.path.dirname(AQUI), "apariencias"))
+    import croma
+    return croma.mover(hexa, dL, fc)
+
+def _faint(tinta2, card, dia):
+    import sys, os as _os
+    sys.path.insert(0, _os.path.join(_os.path.dirname(AQUI), "apariencias"))
+    import croma
+    return croma.a_contraste(tinta2, card, card, 4.69 if dia else 2.82)
+
+def variables(m, t, dia):
+    """Los tokens de UNA cara del mundo, traducidos. Se llama dos veces —noche
+       y día— porque desde 0.7.55 un mundo declara las dos: con una sola, el
+       modo claro salía a medias (el bloque del mundo gana a `html.claro` por
+       orden de carga, pero solo en lo que declara, así que por los huecos se
+       colaba el papel de la casa debajo de la tinta clara del mundo)."""
     pag = t["--m-pagina"]
     ps = paradas(pag)
     fondo = ps[-1] if ps else "#000000"      # la parada más honda del degradado
@@ -45,12 +67,18 @@ def bloque(m):
     tps = paradas(tarj)
     tarj_plana = tps[0] if tps else "#000000"
     tinta, tinta2 = t["--m-tinta"], t["--m-tinta-2"]
+    oscuro = min((fondo, tinta), key=lambda c: sum(_hex(c)))
 
     v = [
         ("--bg", fondo),
         ("--bg2", mezcla(fondo, tarj_plana, 0.6)),
         ("--card", tarj_plana),
-        ("--card2", mezcla(tarj_plana, tinta, 0.08)),
+        # `--card2` es «levantado», y levantar es SUBIR LA LUZ, no acercarse a
+        # la tinta: mezclándolo con la tinta funcionaba de noche —donde la tinta
+        # es clara— y de día hacía lo contrario, dejando la pieza levantada más
+        # oscura que la tarjeta sobre la que se apoya. Con la luz, las dos caras
+        # salen bien de la misma línea.
+        ("--card2", mover(tarj_plana, 0.022)),
         ("--flotante", tarj_plana),
         # Las superficies, que son lo que de verdad se pinta. La página lleva su
         # degradado Y su grano; la tarjeta, el color plano —un grano repetido en
@@ -58,9 +86,21 @@ def bloque(m):
         # entero en el fondo, que es donde un forro se ve.
         ("--sup-pagina", (t.get("--m-grano","") + ", " if t.get("--m-grano") else "") + pag),
         ("--fondo-pagina", pag),
+        # La franja que asoma al rebotar el scroll en el móvil. La pinta <html>
+        # y no <body>, así que sale de su propia variable: sin declararla, un
+        # mundo con la vitrina puesta enseñaba el carbón azulado de la casa cada
+        # vez que se llegaba al final de una lista.
+        ("--fondo-raiz", fondo),
+        # Las tres manchas de luz del fondo, que hasta 0.7.55 eran las de la
+        # casa escritas dentro de la regla: menta, luciérnaga y coral encima de
+        # cualquier mundo. En un mundo salen de SUS acentos, que es lo que
+        # convierte tres manchas sueltas en la atmósfera de la vitrina.
+        ("--orbe-1", _rgba(t["--m-acento"], "0.18")),
+        ("--orbe-2", _rgba(t["--m-aviso"], "0.13")),
+        ("--orbe-3", _rgba(t["--m-acento"], "0.10")),
         ("--sup-panel", mezcla(fondo, tarj_plana, 0.6)),
         ("--sup-tarjeta", tarj),
-        ("--sup-tarjeta2", mezcla(tarj_plana, tinta, 0.08)),
+        ("--sup-tarjeta2", mover(tarj_plana, 0.022)),
         ("--sup-flotante", tarj_plana),
         ("--line", t["--m-borde-color"]),
         ("--carril", t["--m-carril"]),
@@ -71,22 +111,42 @@ def bloque(m):
         ("--borde-tarjeta", "1px"),
         ("--text", tinta),
         ("--muted", tinta2),
-        ("--faint", mezcla(tinta2, tarj_plana, 0.42)),
-        ("--mint", t["--m-acento"]),
+        # El tenue no sale de una fracción fija sino del CONTRASTE que tiene el
+        # de la casa sobre su tarjeta: 2,82 de noche y 4,69 de día. Con la
+        # fracción, la cara de día de Reliquia se quedaba en 2,57 —medido sobre
+        # píxeles— porque su tarjeta está pegada al blanco y el mismo 0,42 se
+        # lleva el tono mucho más lejos. Cinco rótulos de la app viven en este
+        # tono; con este cambio dejan de ser adivinables.
+        ("--faint", _faint(tinta2, tarj_plana, dia)),
+        # El acento partido en dos, que es la regla de la casa: escribir con un
+        # acento no es rellenar con él. De noche el mismo tono hace las dos
+        # cosas y por eso un mundo declara uno solo; sobre papel no puede, así
+        # que la cara de día trae `--m-*-tinta` para lo que se escribe. Si no
+        # lo declara, se usa el mismo — que es exactamente lo que pasaba antes.
+        ("--mint", t.get("--m-acento-tinta", t["--m-acento"])),
         ("--mint-macizo", t["--m-acento"]),
-        ("--mint-deep", mezcla(t["--m-acento"], fondo, 0.32)),
+        # Y `--mint-deep` es el acento HUNDIDO. Mezclarlo con el fondo lo hundía
+        # de noche y lo aclaraba de día, que es justo lo contrario de lo que
+        # dice su nombre.
+        ("--mint-deep", mover(t["--m-acento"], -0.10)),
         ("--mint-soft", t["--m-acento-velo"]),
         ("--aro-alto", t["--m-acento"]),
-        ("--fire", t["--m-aviso"]),
+        ("--fire", t.get("--m-aviso-tinta", t["--m-aviso"])),
         ("--fire-macizo", t["--m-aviso"]),
         ("--fire-soft", t["--m-aviso-velo"]),
-        ("--coral", t["--m-peligro"]),
+        ("--coral", t.get("--m-peligro-tinta", t["--m-peligro"])),
         ("--coral-macizo", t["--m-peligro"]),
         ("--coral-soft", t["--m-peligro-velo"]),
-        # Sobre un relleno macizo la tinta es oscura en los dos modos, porque
-        # los tres acentos son claros. En un mundo, «lo oscuro» es su fondo.
-        ("--sobre-macizo", fondo),
-        ("--sobre-acento", fondo),
+        # Sobre un relleno macizo la tinta es OSCURA en los dos modos, porque
+        # los tres acentos son claros en los dos. Cuál de los dos tonos del
+        # mundo es «lo oscuro» cambia con la cara: de noche es su fondo, de día
+        # es su tinta. Se elige midiendo y no con un `if dia`, para que un mundo
+        # que invierta la luz —los hay— siga cayendo del lado correcto.
+        ("--sobre-macizo", oscuro),
+        ("--sobre-acento", oscuro),
+        # Y la tinta sobre un relleno vivo (aviso, peligro, los ocho del
+        # usuario), que desde 0.7.55 es una variable aparte de la del acento.
+        ("--sobre-vivo", oscuro),
         # El movimiento. `--dur-*` son tres y salen del mismo número: un mundo
         # declara UN peso, no una tabla de tiempos.
         ("--dur-corta", t.get("--m-dur", ".22s")),
@@ -103,6 +163,7 @@ def bloque(m):
     # radio. Y aquí `--marco-tarjeta` se apaga para que nada más lo herede.
     if t.get("--m-marco"):
         v.append(("--marco-tarjeta", "none"))
+        v.append(("--aro-metal", t["--m-marco"].rsplit(" ", 1)[0]))
     if t.get("--m-titulo"):
         v += [("--tipo-titulo", t["--m-titulo"]), ("--tipo-cifra", t.get("--m-cifra", t["--m-titulo"]))]
 
@@ -119,20 +180,62 @@ def bloque(m):
     if t.get("--m-r-gota"):     v.append(("--r-gota", t["--m-r-gota"]))
     if t.get("--m-r-gota-alt"): v.append(("--r-gota-alt", t["--m-r-gota-alt"]))
 
+    # ---- El mapa de talentos ----
+    # Las ocho `--lienzo-*` dibujan los cables, los rótulos y los nodos con
+    # candado, y ninguna apariencia las declaraba: el mapa se quedaba con el
+    # gris azulado de la casa por debajo de cualquier mundo. Salen del suelo
+    # del mundo con los mismos desplazamientos que tiene la casa, así que el
+    # mapa de Reliquia es al violeta de Reliquia lo que el de la casa es a su
+    # carbón. Lo pidió Eduardo: «tematizar los talentos, los nodos y los
+    # cables, sin perder su forma característica» — la FORMA no se toca aquí,
+    # solo el material.
+    import sys, os as _os
+    sys.path.insert(0, _os.path.join(_os.path.dirname(AQUI), "apariencias"))
+    import croma
+    v += croma.lienzo(fondo, tarj_plana, t["--m-aviso"], dia)
+    # Y el forro también debajo del mapa. El lienzo es la superficie más grande
+    # de la app —una rama ocupa la pantalla entera— y dejarlo liso mientras el
+    # resto lleva textura era lo que hacía que el mapa se viera de otra app.
+    if t.get("--m-grano"):
+        v += [("--lienzo-grano", t["--m-grano"]), ("--lienzo-grano-tam", "150px 150px")]
+    return v
+
+def bloque(m):
+    t = m["tokens"]
     sel = 'html[data-apariencia="%s"]' % m["id"]
+    ps = paradas(t["--m-pagina"])
+    fondo = ps[-1] if ps else "#000000"
+    tps = paradas(t["--m-tarjeta"])
+    tarj_plana = tps[0] if tps else "#000000"
+    tinta, tinta2 = t["--m-tinta"], t["--m-tinta-2"]
+
     salida = ["/* ---------- %s · %s ---------- */" % (m["nombre"], m["llave"]),
-              "/* " + m["premisa"] + " */", sel + " {"]
-    salida += ["  %s: %s;" % kv for kv in v]
-    salida.append("}")
+              "/* " + m["premisa"] + " */"]
+
+    # POR QUÉ EL BLOQUE DE NOCHE LLEVA `:not(.claro)` en cuanto el mundo tiene
+    # cara de día, y no lo llevaba antes: `html[data-apariencia="x"]` y
+    # `html.claro` tienen la MISMA especificidad, así que decide el orden de los
+    # archivos y este se carga el último. Con una sola cara eso era justo lo que
+    # se quería —el mundo manda en los dos modos—; con dos caras, el bloque de
+    # noche le ganaba al de día. Es el mismo arreglo que ya llevan los ambientes
+    # desde que Escarcha lo destapó.
+    noche_sel = (sel.replace("html[", "html:not(.claro)[") if m.get("dia") else sel)
+    salida += [noche_sel + " {"] + ["  %s: %s;" % kv for kv in variables(m, t, False)] + ["}"]
+    if m.get("dia"):
+        # La cara de día hereda del mundo todo lo que no vuelva a decir: las
+        # esquinas, la letra y el peso al moverse no cambian con la luz.
+        td = dict(t); td.update(m["dia"])
+        salida += ['html.claro[data-apariencia="%s"] {' % m["id"]]
+        salida += ["  %s: %s;" % kv for kv in variables(m, td, True)] + ["}"]
 
     # Y la escena, con el mismo trato que un ambiente: se queda de noche en los
     # dos modos, así que su bloque va sin `:not(.claro)`.
     esc = [("--bg", fondo), ("--bg2", mezcla(fondo, tarj_plana, 0.6)),
-           ("--card", tarj_plana), ("--card2", mezcla(tarj_plana, tinta, 0.08)),
+           ("--card", tarj_plana), ("--card2", mover(tarj_plana, 0.022)),
            ("--sup-pagina", "var(--bg)"), ("--sup-panel", "var(--bg2)"),
            ("--sup-tarjeta", "var(--card)"), ("--sup-tarjeta2", "var(--card2)"),
            ("--line", t["--m-borde-color"]), ("--carril", t["--m-carril"]),
-           ("--text", tinta), ("--muted", tinta2), ("--faint", mezcla(tinta2, tarj_plana, 0.42)),
+           ("--text", tinta), ("--muted", tinta2), ("--faint", _faint(tinta2, tarj_plana, False)),
            ("--mint", t["--m-acento"]), ("--mint-macizo", t["--m-acento"]),
            ("--mint-soft", t["--m-acento-velo"]),
            ("--motivo-cielo-1", tarj_plana), ("--motivo-cielo-2", mezcla(fondo, tarj_plana, 0.6)),
@@ -160,7 +263,10 @@ def bloque(m):
     # Así el dorado sigue siendo el marco de la vitrina y no el contorno de todo
     # lo que hay dentro.
     if t.get("--m-marco"):
-        liso = mezcla(t["--m-borde-color"], tarj_plana, 0.55)
+        # El color sale de `color-mix` y no de una mezcla calculada aquí: con el
+        # hex escrito, la cara de día se quedaba con el borde apagado de la
+        # noche. Así lo apaga contra la tarjeta de la cara que esté puesta.
+        liso = "color-mix(in srgb, var(--line), var(--card) 55%)"
         # La lista salió MEDIDA y no de memoria: se contó qué elementos llevaban
         # `border-image` en las siete pantallas con Reliquia puesta. Los que
         # se repiten son los que sobraban —quince etapas de proyecto, diez
@@ -187,7 +293,9 @@ def bloque(m):
     # que le quita todo menos el anillo del ancho del borde. `border-radius:
     # inherit` es lo que hace que siga la esquina de su tarjeta, sea la que sea.
     if t.get("--m-marco"):
-        grad = t["--m-marco"].rsplit(" ", 1)[0]   # el degradado, sin el `1` del border-image
+        # El degradado va en una variable propia y no escrito en la regla: la
+        # cara de día puede traer el suyo —un metal se ve distinto con otra
+        # luz— y así el aro es UNA regla, no una por cara.
         salida += ["",
           "/* El aro de metal. Va en un `::before` con máscara y no en un",
           "   `border-image`, porque un border-image ignora el border-radius: la",
@@ -198,7 +306,7 @@ def bloque(m):
           "  inset: 0;",
           "  border-radius: inherit;",
           "  padding: 1px;",
-          "  background: %s;" % grad,
+          "  background: var(--aro-metal);",
           "  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);",
           "  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);",
           "  -webkit-mask-composite: xor;",
@@ -221,7 +329,66 @@ def bloque(m):
           "  font-weight: %s;" % t["--m-peso-max"],
           "}"]
 
-    salida += ["", "%s .scene-card,\n%s .celebrate,\n%s .ncel {" % (sel, sel, sel)]
+    salida += ["", ",\n".join("%s %s" % (sel, q) for q in
+                               (".scene-card", ".celebrate", ".ncel", ".scel")) + " {"]
     salida += ["  %s: %s;" % kv for kv in esc]
     salida.append("}")
     return "\n".join(salida) + "\n"
+
+
+CAB = """/* Los mundos de Norata, ya traducidos al vocabulario de la app.
+
+   Un mundo NO es un ambiente. Un ambiente reusa el material y le cambia la luz;
+   un mundo cambia de qué está hecha la app —la superficie, el marco, la letra y
+   el peso al moverse—. Por eso un ambiente puede ser gratis y salir de uno en
+   uno, y un mundo se construye entero.
+
+   ESTE ARCHIVO NO VA EN `ASSETS` NI EN `index.html`, y eso no es un descuido:
+   pesa lo que pesa un mundo, y bajárselo a quien nunca va a encender uno es
+   justo lo que la caché de 0.7.38 vino a evitar. Lo pide el motor la primera vez
+   que se enciende uno —y el script de arriba de `index.html` cuando ya hay uno
+   guardado, para que no haya fogonazo—, y el service worker lo guarda cuando
+   pasa por ahí.
+
+   Generado por `mundos/app.py` desde `mundos/datos.py`. No editar a mano. */
+
+/* Syne, la letra de Reliquia. Va incrustada y no traída de un servidor de
+   fuentes por dos motivos: la app se sirve de su propia copia y no pide nada a
+   la red, y una tipografía de fuera es una petición a un tercero que sabe quién
+   la pidió. Licencia SIL Open Font 1.1 (Bonjour Monde), que permite
+   incrustarla; pesa 34 KB.
+
+   **Se declara de 600 a 700 y no de 600 a 800, que es su rango real.** Syne a
+   800 se ESTIRA —es lo característico de esa familia— y a tamaños de interfaz
+   eso alarga los rótulos y descuadra los renglones. La app pide 800 en varios
+   sitios; declarando el techo aquí, el navegador recorta esas peticiones al
+   700 sin que haya que ir a buscarlas una por una. El bloque de reglas de más
+   abajo hace lo mismo por si alguna se cuela con otra familia detrás. */
+@font-face {
+  font-family: "Syne";
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+  src: url(data:font/woff2;base64,%s) format("woff2");
+}
+"""
+
+if __name__ == "__main__":
+    # Los mundos LISTOS y solo esos: `datos.MUNDOS` tiene los catorce, y trece
+    # de ellos todavía son un borrador de la lámina. Meter sus variables aquí
+    # sería servir trece mundos que nadie puede encender.
+    fuente = base64.b64encode(open(os.path.join(AQUI, "fuentes", "syne.woff2"), "rb").read()).decode()
+    partes = [CAB % fuente]
+    # La lista está aquí y no en `datos.py` porque quien manda sobre qué mundo
+    # existe para el usuario es `MUNDOS` en `js/10i-apariencia.js` —el `listo:
+    # true` de ahí—; esto es su reflejo, y al dar de alta un mundo se tocan los
+    # dos. `datos.py` tiene los catorce y trece siguen siendo lámina.
+    LISTOS = ("reliquia",)
+    listos = [m for m in D.MUNDOS if m["id"] in LISTOS]
+    for m in listos:
+        partes.append(bloque(m))
+    txt = "\n".join(partes)
+    destino = os.path.join(os.path.dirname(AQUI), "css", "mundos.css")
+    open(destino, "w", encoding="utf-8").write(txt)
+    print("css/mundos.css", len(txt.encode()), "bytes ·",
+          ", ".join(m["nombre"] for m in listos))

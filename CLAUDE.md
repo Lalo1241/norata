@@ -157,8 +157,13 @@ mismo tono vivo —mismo matiz, misma saturación, distinta luz—:
 | Coral | `#ff8a70` | `#ff603d` | `#bd2200` |
 | Celeste | `#8ecdf5` | — | `#0f688f` |
 
-Sobre un relleno macizo la tinta es **oscura** (`--sobre-macizo`) en los dos
-modos, porque los tres tonos vivos son claros en los dos modos. Los correos
+Sobre un relleno macizo la tinta es **oscura** en los dos modos, porque los
+tres tonos vivos son claros en los dos modos — y son DOS variables, no una:
+`--sobre-macizo` va encima del ACENTO y `--sobre-vivo` encima de la luciérnaga,
+el coral, el lila y los ocho del usuario. Se partieron en 0.7.55 porque Tinta
+tiene un acento casi negro: su bloque tiene que poner clara la tinta de encima,
+y con una sola variable eso dejaba claro sobre claro el amarillo y el coral,
+que en Tinta siguen siendo vivos. Los correos
 siguen con la menta `#136b4e` que ya tenían.
 
 **`--carril` no es `--line`.** Un borde tiene que apenas notarse; el carril de
@@ -184,6 +189,21 @@ variables de `:root` en `css/estilos.css`, y el modo claro se hace cambiando
 esas variables y nada más — incluido el árbol de talentos, que se dibuja
 desde JavaScript y lee `var(--...)` en los atributos del SVG. Al añadir un
 tono nuevo: se declara arriba, con su pareja clara en `html.claro`.
+
+**Una apariencia no cambia solo los tonos: cambia CUATRO familias**, y las
+tres últimas se descubrieron una por una porque nadie las declaraba y el fallo
+se veía como «no cambió nada» o «cambió solo en medio»:
+
+| Familia | Qué pinta | Ojo |
+| --- | --- | --- |
+| `--bg`, `--card`, `--text`… | los tonos | lo que ya se declaraba |
+| `--fondo-pagina`, `--fondo-raiz` | el SUELO de la página | `--sup-pagina` sale de aquí, no de `--bg` |
+| `--orbe-1/2/3` | las tres manchas de luz | llevan la transparencia dentro |
+| `--lienzo-*` | el mapa de talentos entero | ocho, y la pantalla que más se mira |
+
+**Un tono que sale de una variable no llega solo a donde se usa.** `--sup-pagina`
+vale `var(--fondo-pagina)`; cambiar `--bg` no cambia el suelo. Al inventar un
+tono, buscar quién lo lee de verdad.
 
 Cuatro cosas que hay que saber antes de tocarlo:
 
