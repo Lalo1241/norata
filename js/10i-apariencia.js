@@ -51,7 +51,8 @@ const AMBIENTES = [
    moviera los peldaños, dos personas con el mismo nivel estarían en sitios
    distintos de la escalera. Una sola escalera, muchos vocabularios.
 
-   Ningún mundo está construido todavía —esto es solo el catálogo—, así que hoy
+   De los quince, dos están construidos —Reliquia y Blueprint— y son los que
+   llevan `listo: true`. Con cualquier otra apariencia puesta,
    `rangosDeApariencia()` devuelve null y manda la casa. Los dibujos de los
    rangos viajan con su mundo y no con la app: meter en ICONS los cinco rangos
    de quince mundos serían setenta y cinco dibujos que se baja todo el mundo
@@ -70,16 +71,43 @@ const MUNDOS = [
       { nombre: "Norte",   trazo: '<path d="M12 2.6l2.5 6.9 6.9 2.5-6.9 2.5-2.5 6.9-2.5-6.9L2.6 12l6.9-2.5z"/>' }
     ]
   },
-  /* Los nombres de estos cuatro están decididos; sus dibujos se hacen cuando
-     se construya cada mundo, con el resto de sus vectores. Escribirlos ahora
-     sin dibujo no es una promesa a medias: mientras el mundo no exista, esta
-     lista no la lee nadie. */
+  /* Los nombres de estos dos están decididos; sus dibujos se hacen cuando se
+     construya cada mundo, con el resto de sus vectores. Escribirlos ahora sin
+     dibujo no es una promesa a medias: mientras el mundo no exista, esta lista
+     no la lee nadie. */
   { id: "averno",   nombre: "Averno",
     rangos: ["Ceniza", "Chispa", "Brasa", "Llama", "Hoguera"].map(n => ({ nombre: n })) },
-  { id: "plano",    nombre: "Blueprint",
-    rangos: ["Boceto", "Trazo", "Plano", "Corte", "Obra"].map(n => ({ nombre: n })) },
   { id: "consola",  nombre: "Consola",
     rangos: ["Bit", "Byte", "Proceso", "Núcleo", "Sistema"].map(n => ({ nombre: n })) },
+  /* Blueprint es el segundo construido, y el orden lo dejó escrito
+     `mundos/MUNDOS.md`: Averno y Blueprint por delante, pero el motor se
+     estrena con los baratos, y Blueprint casi no lleva imágenes. Va con Pro y
+     no con Fundador: de los quince mundos, el único que no abre Pro es
+     Reliquia.
+
+     Los cinco rangos son el camino de un plano hasta que deja de serlo —de la
+     mancha a mano hasta el edificio en pie—, que es lo que este mundo dice y
+     ningún otro: que lo tuyo todavía se está construyendo. Y los dibujos van
+     sin relleno a propósito: `svgDeTrazo` los pinta con `fill="none"` y
+     `stroke-width="1.7"`, así que una figura maciza saldría como un borrón. */
+  { id: "plano", nombre: "Blueprint", listo: true, pro: true, icon: "map",
+    premisa: "El papel de plano: retícula de dos pesos, cotas con puntas de flecha y marcas de sección. Todo lo tuyo, todavía en obra.",
+    rangos: [
+      /* El cuadrado a mano alzada: las cuatro rayas se pasan de largo y se
+         cruzan en las esquinas. Es lo que separa un boceto de un dibujo, y a
+         20 px se lee antes que cualquier garabato. */
+      { nombre: "Boceto", trazo: '<path d="M5.6 6.4h13.2M5 17.6h13.4"/><path d="M6.4 5.4v13.2M17.6 5v13.4"/>' },
+      /* La escuadra apoyada en la línea que acaba de trazar. */
+      { nombre: "Trazo",  trazo: '<path d="M3.6 20.4h16.8"/><path d="M6.2 17.6V7L16.8 17.6z"/>' },
+      /* La hoja entera: dos divisiones y el cajetín en la esquina de abajo. */
+      { nombre: "Plano",  trazo: '<path d="M3.4 4.8h17.2v14.4H3.4z"/><path d="M3.4 9.2h17.2M8.8 4.8v14.4"/><path d="M15.4 19.2v-3.6h5.2"/>' },
+      /* La marca de sección: el círculo partido por la línea de corte y la
+         punta que dice hacia dónde se mira. */
+      { nombre: "Corte",  trazo: '<circle cx="12" cy="12" r="8.2"/><path d="M3.8 12h16.4"/><path d="M8.8 8.4L12 5.2l3.2 3.2"/>' },
+      /* Y lo que ya está en pie, que es donde acaba un plano. Sin tejado a dos
+         aguas: esa silueta ya es "Sala" en Reliquia. */
+      { nombre: "Obra",   trazo: '<path d="M4.6 20.6h14.8"/><path d="M6.8 20.6V5.4h10.4v15.2"/><path d="M6.8 10.2h10.4M6.8 15.4h10.4"/><path d="M11 20.6v-3.2h2v3.2"/>' }
+    ] },
   /* Reliquia es el primero construido, y va antes que Averno y Blueprint
      porque lo decidió Eduardo: es lo único que Fundador tiene además de Pro
      —`LIMITES` no tiene entrada de fundador, así que Fundador ES Pro sin

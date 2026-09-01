@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="26" viewBox="0 0 200 26">
+  <!-- La cota de día. Va en el tono con el que se ESCRIBE (#0c4677) y no en
+       el de rellenar: es una línea fina sobre papel, y el azul de relleno a
+       este grosor se pierde. -->
+  <g stroke="#0c4677" fill="none" stroke-width="1">
+    <path d="M4 4v18M196 4v18"/>
+    <path d="M4 13h74M122 13h74"/>
+  </g>
+  <g fill="#0c4677">
+    <path d="M4 13l9-3.4v6.8z"/><path d="M196 13l-9-3.4v6.8z"/>
+  </g>
+  <g stroke="#0c4677" stroke-width=".8" fill="none" opacity=".8">
+    <path d="M86 6.5h28M86 19.5h28M86 6.5v13M114 6.5v13"/>
+  </g>
+</svg>
