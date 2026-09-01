@@ -4,12 +4,21 @@
        cruces de registro no se tocan —son lo que distingue un plano de una
        hoja cuadriculada— y las opacidades tampoco: lo único que cambia es el
        tono de la tinta. -->
+  <!-- Las opacidades ya llevan dentro el 62% con el que la lamina dibuja
+       esta reticula (`--m-grano-op`). Va HORNEADO en el vector y no en el
+       token porque **`--m-grano-op` no cruza a la app**: `app.py` mete el
+       grano en `--sup-pagina` como una capa de `background`, y a una capa de
+       fondo no se le puede poner opacidad por CSS. Sin esto, en la app las
+       cruces de registro daban 4,32 contra la pagina —nivel de TEXTO para una
+       textura, justo donde van el XP y los chips— contra los 2,17 de la
+       lamina; la sarga de Reliquia, que es la referencia aprobada, esta en
+       1,03. Es el mismo apano que ya lleva Reliquia. -->
   <g stroke="#3b6f9e" fill="none">
-    <g stroke-width=".5" opacity=".26">
+    <g stroke-width=".5" opacity="0.161">
       <path d="M8 0v80M16 0v80M24 0v80M32 0v80M48 0v80M56 0v80M64 0v80M72 0v80"/>
       <path d="M0 8h80M0 16h80M0 24h80M0 32h80M0 48h80M0 56h80M0 64h80M0 72h80"/>
     </g>
-    <g stroke-width=".9" opacity=".5"><path d="M40 0v80M0 40h80M0 0h80M0 0v80"/></g>
-    <g stroke-width="1.1" opacity=".75"><path d="M36 40h8M40 36v8M-4 0h8M0 -4v8"/></g>
+    <g stroke-width=".9" opacity="0.31"><path d="M40 0v80M0 40h80M0 0h80M0 0v80"/></g>
+    <g stroke-width="1.1" opacity="0.465"><path d="M36 40h8M40 36v8M-4 0h8M0 -4v8"/></g>
   </g>
 </svg>

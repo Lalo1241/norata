@@ -207,6 +207,39 @@ def variables(m, t, dia):
     v.append(("--borde-panel", croma.borde_panel(t["--m-borde-color"], dia)))
     return v
 
+# ---- Lo que NO cruza del borrador a la app ----
+# Un mundo declara en `datos.py` mas tokens de los que este traductor lee, y eso
+# no se ve por ningun lado: el mundo se enciende, casi todo esta bien, y lo que
+# falta se echa de menos sin saber que se echa de menos. La lista, medida
+# comparando lo que declara Blueprint contra lo que lee este archivo:
+#
+#   --m-grano-op      NO se puede: `app.py` mete el grano en `--sup-pagina` como
+#                     una capa de `background`, y a una capa de fondo no se le
+#                     pone opacidad por CSS. Se HORNEA en el vector —lo hacen ya
+#                     Reliquia y Blueprint—. Olvidarlo no es cosmetico: la
+#                     reticula de Blueprint saltaba de 2,17 a 4,32 contra su
+#                     pagina, que es contraste de TEXTO para una textura.
+#   --m-cenefa        la franja de arriba de una tarjeta —la cota de Blueprint,
+#   --m-cenefa-alto   los remaches de Forja—. No llega a ninguna regla de la
+#                     app: hoy es cosa de la lamina y de `extra=`.
+#   --m-icono         el dibujo del icono de un mundo. La app pone el suyo desde
+#                     `ICONS` con el `icon:` de `js/10i-apariencia.js`.
+#   --m-borde         el grosor. La app homologa todo a 1px a proposito, para
+#                     que dos mundos no tengan dos grosores distintos.
+#   --m-r-mini        --r-mini no existe en la app.
+#   --m-sombra        la app tiene sus propias `--sombra-*`.
+#   --m-titulo-px     --m-titulo-peso  --m-titulo-esp
+#   --m-cifra-peso    --m-cifra-esp
+#   --m-chip-fuente   --m-chip-esp     --m-chip-caja
+#                     el tamano, el peso, el espaciado y la caja de la letra.
+#                     La app se queda con los suyos y solo cambia la FAMILIA
+#                     (`--tipo-titulo` y `--tipo-cifra`). El unico que si cruza
+#                     es `--m-peso-max`, que existe porque Syne se estiraba.
+#
+# Al construir un mundo nuevo: pasar esta comprobacion y decidir uno por uno si
+# el hueco importa. No es una lista de tareas —casi todos son a proposito—, es
+# la lista de lo que hay que mirar antes de decir que el mundo esta terminado.
+
 def plano_o_muere(valor, quien, mundo):
     """El color PLANO de una superficie, o un error con nombre y apellido.
 
