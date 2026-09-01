@@ -228,6 +228,8 @@
        que separa «el mapa recoloreado» de «el mapa de este mundo». */
     --nodo-engaste: none;
     --nodo-engaste-sep: 4.5;
+    --relleno-base: transparent;
+    --relleno-fuerza: 1;
 
     /* ---------- La franja ilustrada de una ficha ----------
        El mismo dibujo aparece dentro de una tarjeta de escena —que se queda
@@ -634,7 +636,12 @@
     --pulgar-vivo: #9ba2c4;
 
     --lienzo-apagado: #949ab8;
-    --lienzo-hilo: #b0b5d0;
+    /* El hilo apagado y el contorno de un candado bajaron un escalón en
+       0.7.55.5. Medidos sobre el lienzo de día daban 1,39 y 1,23: sobre papel
+       eso no es «apagado», es que no está. Ahora 2,2 y 2,4 — sigue siendo lo
+       más callado del mapa, pero se ve. Los recolores y los mundos ya salían
+       de esta misma relación calculada; la casa era la que se había quedado. */
+    --lienzo-hilo: #8a8ea8;
     --lienzo-rotulo: #3e435c;
     --lienzo-halo: var(--bg);
     --lienzo-ficha: #f7f8fa;
@@ -643,9 +650,27 @@
     --lienzo-flujo: #c08c00;
     --lienzo-punto: rgba(110, 120, 140, 0.075);
     --sup-hondo: #d3d5e8;
-    --lienzo-candado: #bcc1d6;
+    --lienzo-candado: #84889c;
     --nodo-engaste: none;
     --nodo-engaste-sep: 4.5;
+    /* ---------- El relleno de una figura del mapa ----------
+       De noche es un VELO: el color a un 20% sobre el lienzo, y encima del
+       carbón eso ya se lee como una pieza encendida. De día no: el mismo velo
+       sobre un lienzo claro deja la figura casi del color del suelo, y con
+       ocho colores en el mismo mapa no se distingue cuál es cuál. Lo pidió
+       Eduardo mirando un nodo con candado, que ese sí se ve — «sólidos sin
+       transparencia, como en la imagen 3 pero con sus colores».
+
+       Así que de día el velo se apoya en una base OPACA —la superficie
+       levantada, que es casi papel— y se le sube la fuerza: la figura pasa de
+       ser un tinte del suelo a ser una pastilla de su color puesta encima.
+
+       Va en dos variables y no en un `if` de JavaScript a propósito: el mapa
+       se dibuja una vez y NO se vuelve a dibujar al cambiar de modo —eso lo
+       hace `ponerTema`, que solo cambia variables—, así que un color decidido
+       en JS se quedaría con la cara del modo en que se dibujó. */
+    --relleno-base: var(--sup-tarjeta2);
+    --relleno-fuerza: 1.7;
 
     /* El cielo se da la vuelta: arranca en el tono levantado y baja hasta la
        tarjeta, así que la franja no es un parche pegado encima sino el borde

@@ -238,6 +238,7 @@ Cuatro cosas que hay que saber antes de tocarlo:
   | `tinta(c)` | escribir | 4,5 | un número, un rótulo |
   | `trazo(c)` | dibujar una LÍNEA | 3 | un aro, un contorno, una barra |
   | `velo(c, "22")` | el fondo tenue de una pastilla | — | `.ms-ic` |
+  | `relleno(c, "22")` | el relleno de una FIGURA del mapa | — | un nodo del árbol |
   | `tonos("mc", c)` | las dos primeras de golpe | — | `style="${tonos(…)}"` |
 
   **La regla que decide entre `pinta` y `trazo`: cuánta superficie ocupa.** Un
@@ -255,6 +256,12 @@ Cuatro cosas que hay que saber antes de tocarlo:
   la cara de noche, porque a un `var(...)` no se le pueden pegar dos dígitos
   detrás. Para eso está `velo()`.
 
+- **`relleno()` no es `velo()`.** Un velo es transparente siempre; el relleno de
+  una figura del mapa es un velo de noche y una pastilla OPACA de día, porque
+  sobre un lienzo claro un velo del 20% deja la figura casi del color del suelo.
+  Lo deciden dos variables (`--relleno-base`, `--relleno-fuerza`) y no un `if`
+  en JavaScript: **el mapa no se vuelve a dibujar al cambiar de modo**, así que
+  un color decidido en JS se queda con la cara del modo en que se dibujó.
 - **Los tonos `*-soft` levantan hacia el blanco en el modo claro**, no hunden
   hacia el color. Sobre carbón un velo del tono aclara la zona; sobre una
   página ya teñida el mismo velo la oscurece y la pastilla se lee como un

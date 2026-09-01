@@ -147,16 +147,16 @@ html.claro[data-apariencia="reliquia"] {
   --r-boton: 6px;
   --r-gota: 18px 9px 18px 9px;
   --r-gota-alt: 9px 18px 9px 18px;
-  --lienzo-apagado: #8b839a;
-  --lienzo-hilo: #a59db5;
+  --lienzo-apagado: #7d758c;
+  --lienzo-hilo: #817a90;
   --lienzo-rotulo: #362f43;
   --lienzo-ficha: #e2e1e4;
   --lienzo-caja: #e2e1e4;
   --lienzo-bloqueado: #d5d2dc;
-  --lienzo-candado: #b0a9be;
+  --lienzo-candado: #7c7689;
   --lienzo-flujo: #b89100;
   --lienzo-punto: rgba(54, 47, 67, 0.075);
-  --sup-hondo: #c5bdd5;
+  --sup-hondo: #cdc5de;
   --nodo-engaste: #8a6d2f;
   --borde-panel: #ac8e50;
 }

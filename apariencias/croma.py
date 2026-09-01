@@ -195,13 +195,17 @@ LIENZO_NOCHE = {
  "--lienzo-candado":   (+0.1461, 0.0288),
 }
 LIENZO_DIA = {
- "--lienzo-apagado":   (-0.2128, 0.0445),
- "--lienzo-hilo":      (-0.1266, 0.0388),
+ # Los tres de dibujar bajaron otro escalón en 0.7.55.5. Con los de la casa,
+ # medido sobre el lienzo de Reliquia de día: el hilo daba 1,44 y el contorno
+ # de un candado 1,25, o sea que sobre papel no existían. Ahora 2,4 y 2,6 — un
+ # hilo apagado tiene que verse poco, pero VERSE.
+ "--lienzo-apagado":   (-0.2600, 0.0445),
+ "--lienzo-hilo":      (-0.2450, 0.0388),
  "--lienzo-rotulo":    (-0.5155, 0.0430),
  "--lienzo-ficha":     (+0.0745, 0.0029),
  "--lienzo-caja":      (+0.0745, 0.0029),
  "--lienzo-bloqueado": (+0.0312, 0.0150),
- "--lienzo-candado":   (-0.0909, 0.0300),
+ "--lienzo-candado":   (-0.2600, 0.0300),
 }
 
 def lienzo(bg, card, aviso, dia=False):
@@ -231,7 +235,18 @@ def lienzo(bg, card, aviso, dia=False):
     # es el fondo de la página: se separa de él en la dirección que deja ver el
     # marco, un pelo más claro de noche y un pelo más oscuro de día. De día
     # valiendo lo mismo que el papel, el encuadre de una rama desaparecía.
-    v.append(("--sup-hondo", mover(bg, -0.026 if dia else +0.018)))
+    # El suelo hondo. De día se hunde 0,026 respecto de la página, PERO con un
+    # suelo: nunca por debajo de 0,845 de luz. Sin ese tope, una apariencia
+    # cuya página ya es oscura para ser un modo claro —Reliquia, que es una
+    # vitrina— acababa con las ramas casi grises: 0,81 de luz, y Eduardo lo
+    # dijo con la frase exacta, «siguen demasiado oscuras». Y si el tope
+    # dejara el suelo más claro que la propia página, se usa la página: el
+    # encuadre lo hace el marco, que en un mundo con latón se ve solo.
+    if dia:
+        objetivo = max(a_oklch(bg)[0] - 0.026, min(a_oklch(bg)[0], 0.845))
+        v.append(("--sup-hondo", mover(bg, objetivo - a_oklch(bg)[0])))
+    else:
+        v.append(("--sup-hondo", mover(bg, +0.018)))
     return v
 
 def borde_panel(line, dia=False):
