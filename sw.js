@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.55.3";
+const CACHE = "norata-0.7.55.4";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -143,6 +143,86 @@ function seguardase(res) {
   return !!res && (res.ok || res.type === "opaque");
 }
 
+/* ---- Lo que NO está en la lista de la instalación ----
+   `css/mundos.css` y, el día que existan, las texturas y la letra de un mundo.
+   No van en ASSETS a propósito: pesan lo que pesa un mundo y bajárselos a
+   quien nunca va a encender uno es justo lo que la caché vino a evitar.
+
+   Pero eso les quita la única red que tiene todo lo demás. La instalación pide
+   cada archivo de ASSETS con `cache: "reload"` y falla entera si alguno viene
+   mal; estos, en cambio, se piden sueltos cuando hacen falta, y lo que llegue
+   se guarda en la caché de esta versión — y a partir de ahí ya es un acierto y
+   no se vuelve a pedir NUNCA.
+
+   Ahí estaba el fallo, y está reproducido: GitHub Pages tarda un minuto largo
+   en publicar y su CDN no cambia todos los archivos a la vez, así que hay una
+   ventana en la que `sw.js` ya es el nuevo y `css/mundos.css` todavía es el
+   viejo. Quien abra la app en esa ventana instala el worker nuevo, pide el
+   mundo, recibe el archivo VIEJO con un 200 —o sea, bueno— y se lo queda
+   congelado para toda la versión. El número de Ajustes sale nuevo, porque
+   `01-base.js` sí está en ASSETS; el mundo se queda como estaba, y no hay
+   recarga que lo arregle. Es exactamente lo que vio Eduardo: «la versión sí
+   está subida y no veo ningún cambio».
+
+   La cura es servir la copia y PEDIR OTRA por detrás: se sigue viendo al
+   instante, y si lo que llega es distinto queda guardado para la siguiente
+   apertura. Es el mismo trato que ya tiene la app entera —quien abre justo
+   después de publicar ve una vez la anterior—, aplicado a lo que se pide bajo
+   demanda. Lo que no puede volver a pasar es «nunca». */
+const EN_ASSETS = new Set(ASSETS.map((u) => new URL(u, self.location.href).href));
+function esBajoDemanda(req) {
+  try {
+    const u = new URL(req.url);
+    return !EN_ASSETS.has(u.origin + u.pathname);
+  } catch (e) {
+    return false;
+  }
+}
+
+/* ---- La huella, comprobada ----
+   Una dirección con `?h=<huella>` promete un contenido concreto: la huella es
+   los diez primeros dígitos del sha-256 del archivo, y la estampa
+   `mundos/app.py` al generarlo. Aquí se comprueba antes de guardar nada.
+
+   Hace falta porque cambiar la dirección, por sí solo, no basta: GitHub Pages
+   sirve el archivo sin mirar la parte de la dirección que va tras la
+   interrogación, así que durante el minuto que tarda en publicar contesta al
+   `?h=nuevo` con el archivo VIEJO y con un 200 — o sea, con algo que parece
+   bueno—. Guardarlo sería congelarlo otra vez, que es justo lo que se está
+   arreglando.
+
+   Comprobando la huella, ese archivo se sirve esta vez —no hay otro— pero no
+   se guarda, así que la siguiente apertura vuelve a pedirlo y ya llega el
+   bueno. Lo que no puede volver a pasar es «nunca». */
+function cuadraLaHuella(req, res) {
+  let huella;
+  try { huella = new URL(req.url).searchParams.get("h"); } catch (e) { return Promise.resolve(true); }
+  if (!huella || !self.crypto || !self.crypto.subtle) return Promise.resolve(true);
+  return res.clone().arrayBuffer()
+    .then((b) => self.crypto.subtle.digest("SHA-256", b))
+    .then((d) => {
+      const hex = Array.from(new Uint8Array(d)).map((x) => x.toString(16).padStart(2, "0")).join("");
+      return hex.slice(0, huella.length) === huella;
+    })
+    .catch(() => true);   // si no se puede comprobar, se guarda: peor es no tener nada
+}
+
+function guardarSiCuadra(req, res) {
+  return cuadraLaHuella(req, res).then((bien) => {
+    if (!bien) return;
+    return caches.open(CACHE).then((c) => c.put(req, res));
+  });
+}
+
+function renovarPorDetras(req) {
+  return fetch(new Request(req.url, { cache: "no-store", credentials: "same-origin" }))
+    .then((res) => {
+      if (!seguardase(res)) return;
+      return guardarSiCuadra(req, res);
+    })
+    .catch(() => {});   // sin red no pasa nada: la copia sigue estando
+}
+
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   if (!esNuestro(e.request)) return;
@@ -161,15 +241,48 @@ self.addEventListener("fetch", (e) => {
      vieja: la vieja al menos es coherente consigo misma. */
   e.respondWith(
     caches.open(CACHE).then((c) => c.match(e.request, opciones)).then((hit) => {
-      if (hit) return hit;
+      if (hit) {
+        /* Lo de ASSETS lo renueva la instalación; lo de fuera, esto. */
+        if (esBajoDemanda(e.request)) {
+          try { e.waitUntil(renovarPorDetras(e.request)); } catch (x) { renovarPorDetras(e.request); }
+        }
+        return hit;
+      }
       /* No estaba: se pide, y se guarda si vino bien. Cubre lo que no está en
-         ASSETS —una imagen de la marca, un icono suelto— y la primerísima
-         apertura, cuando la instalación todavía no ha terminado. */
-      return fetch(e.request)
+         ASSETS —`css/mundos.css`, las texturas y la letra de un mundo, una
+         imagen de la marca— y la primerísima apertura, cuando la instalación
+         todavía no ha terminado.
+
+         ---- Y SE PIDE CON `cache: "no-store"`, que NO es lo mismo que el
+         `cache: "reload"` de la instalación, y la diferencia es todo. ----
+         `reload` se salta la caché HTTP del navegador para LEER, pero lo que
+         llega lo GUARDA ahí igual. Y eso importa muchísimo por algo que hubo
+         que medir para creérselo: **el navegador solo le pasa la petición al
+         service worker la PRIMERA vez.** Mientras el archivo siga fresco en su
+         caché HTTP —GitHub Pages manda `max-age=600`—, las cargas siguientes
+         se sirven de ahí sin preguntarle nada a este archivo. Medido con un
+         contador guardado en el propio almacén de cachés: cuatro cargas
+         seguidas y el worker vio la petición del mundo UNA vez.
+
+         O sea que con `reload`, lo que se colara una vez en la caché del
+         navegador mandaba durante diez minutos por encima de cualquier cosa
+         que este worker decidiera. Con `no-store` el navegador no se queda
+         copia, así que TODAS las cargas pasan por aquí y la única copia es la
+         de este archivo, que es la que sabe comprobar la huella.
+
+         Una navegación se pide tal cual: `mode: "navigate"` no se puede
+         reconstruir en un `Request`, y además `./` y `./index.html` están en
+         ASSETS, así que por aquí no pasan. */
+      const peticion = e.request.mode === "navigate"
+        ? e.request
+        : new Request(e.request.url, { cache: "no-store", credentials: "same-origin" });
+      return fetch(peticion)
         .then((res) => {
           if (!seguardase(res)) return res;
-          const copia = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copia));
+          /* Se guarda solo si cuadra la huella que pedía la dirección. Y se
+             sirve igualmente: es lo único que hay, y una app con el mundo de
+             ayer se ve; una app sin hoja de estilos, no. */
+          guardarSiCuadra(e.request, res.clone());
           return res;
         })
         .catch(() => caches.open(CACHE)

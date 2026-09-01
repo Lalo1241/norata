@@ -52,6 +52,56 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.55.4 · 1 sep 2026
+**El mundo se quedaba congelado, y el número de versión decía que no.** Eduardo
+lo vio tal cual: «no veo ningún cambio y la versión sí está subida». Tenía toda
+la razón, y no era el CSS: era la caché.
+
+`css/mundos.css` no va en `ASSETS` a propósito —pesa lo que pesa un mundo y
+bajárselo a quien nunca va a encender uno es justo lo que la caché vino a
+evitar—, pero eso le quita la única red que tiene todo lo demás: la instalación
+pide cada archivo de `ASSETS` con `cache: "reload"` y falla entera si alguno
+viene mal. Este se pide suelto cuando hace falta, y **lo que llegue se guarda en
+la caché de esa versión y a partir de ahí ya es un acierto: no se vuelve a pedir
+nunca**. Como GitHub Pages tarda un minuto largo en publicar y su CDN no cambia
+todos los archivos a la vez, hay una ventana en la que `sw.js` ya es el nuevo y
+el mundo todavía es el viejo. Quien abra ahí se lo queda congelado — con el
+número de versión nuevo puesto, porque `js/01-base.js` sí está en `ASSETS`.
+
+Reproducido de punta a punta con un navegador de verdad, un servidor que manda
+`max-age=600` como Pages y un perfil que sobrevive a las recargas: se instala la
+.2, se sirve la .3 con el mundo de la .2, y el aparato se queda en «versión .3,
+mundo .2» para siempre. Exactamente lo que él veía.
+
+**Tres piezas lo cierran, y hacen falta las tres:**
+
+1. **Una huella en la dirección.** `css/mundos.css?h=<sha-256 del contenido>`,
+   estampada por `mundos/app.py` al generar el archivo — así se actualiza sola
+   y no hay un quinto sitio que acordarse de tocar al subir la versión.
+2. **El worker comprueba esa huella antes de guardar.** Cambiar la dirección no
+   basta: Pages sirve el archivo sin mirar lo que va tras la interrogación, así
+   que durante la ventana contesta al `?h=nuevo` con el archivo viejo y con un
+   200. Si no cuadra la huella, se sirve —es lo único que hay— pero no se
+   guarda, y la siguiente apertura vuelve a pedirlo.
+3. **`cache: "no-store"` en lo que se pide bajo demanda**, para que el navegador
+   no se quede una copia propia que mande por encima de la del worker.
+
+Y de paso, lo que no estaba: **lo que no está en `ASSETS` ahora se renueva por
+detrás**. Se sigue sirviendo la copia al instante, y si lo que llega es distinto
+queda guardado para la siguiente apertura. El trato pasa de «nunca» a «la
+próxima vez», que es el mismo que ya tenía la app entera.
+
+**Dos cosas que aprendí midiendo, y que están apuntadas en `CLAUDE.md`:**
+
+- **Recargar la misma pestaña no es abrir la app.** En una recarga las hojas de
+  estilo salen de la caché del navegador **sin pasar por el service worker**
+  (`workerStart` en cero); en una pestaña nueva sí pasan por él
+  (`deliveryType: "cache-storage"`). Media tarde midiendo con recargas decía
+  que el arreglo no funcionaba, y lo que no funcionaba era la prueba.
+- **Una sonda con un contador dentro del worker no cuenta nada**: el worker se
+  apaga entre carga y carga y el contador vuelve a cero, así que todas las
+  peticiones se escribían encima de la primera. Parecía «solo vio una».
+
 ### 0.7.55.3 · 1 sep 2026
 **La sarga del terciopelo de Reliquia baja a un tercio.** Es la misma historia
 que los puntitos del lienzo, en la otra textura: el tejido se dibujó cuando la

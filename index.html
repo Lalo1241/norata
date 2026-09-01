@@ -91,11 +91,20 @@
 
        La lista va escrita a mano porque este script corre antes que todo, y
        tiene que decir lo mismo que los mundos con `listo` de ese archivo: hoy,
-       uno. Si algún día discrepan, lo que se ve es el fogonazo, no un error. */
+       uno. Si algún día discrepan, lo que se ve es el fogonazo, no un error.
+
+       Y la dirección lleva una HUELLA del contenido (`?h=…`) que estampa
+       `mundos/app.py` al generar el archivo. No es un adorno: este archivo no
+       va en ASSETS, así que no lo renueva la instalación del service worker;
+       se pide suelto y lo que llegue se queda guardado para toda esa versión.
+       Con GitHub Pages tardando un minuto en publicar hay una ventana en la
+       que `sw.js` ya es el nuevo y esto todavía es lo viejo, y quien abra ahí
+       se queda con el mundo congelado y el número de versión nuevo puesto.
+       Cambiando la dirección, una copia vieja ni siquiera es la misma cosa. */
     if (["reliquia"].indexOf(puesta) >= 0) {
       var lm = document.createElement("link");
       lm.rel = "stylesheet";
-      lm.href = "css/mundos.css";
+      lm.href = "css/mundos.css?h=2c618b54aa";
       document.head.appendChild(lm);
     }
   } catch (e) {}

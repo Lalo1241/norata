@@ -146,10 +146,24 @@ function pedirLosMundos() {
   /* Puede venir ya enganchada desde el script de arriba de `index.html`, que la
      pide cuando lo guardado es un mundo para que no haya fogonazo. Engancharla
      dos veces no rompe nada pero la pide dos veces. */
-  if (document.querySelector('link[href="css/mundos.css"]')) { pintarColorDeBarra(); return; }
+  /* Con `^=` y no con `=`: la dirección lleva una huella detrás (`?h=…`) que
+     cambia cada vez que cambia el archivo, y con la igualdad exacta este
+     ancla dejaba de reconocer el `link` que ya puso el script de arriba y lo
+     pedía dos veces. */
+  if (document.querySelector('link[href^="css/mundos.css"]')) { pintarColorDeBarra(); return; }
   const l = document.createElement("link");
   l.rel = "stylesheet";
-  l.href = "css/mundos.css";
+  /* La HUELLA del contenido va en la dirección, y la pone `mundos/app.py` al
+     generar el archivo. Sin ella, un aparato podía quedarse con una copia
+     vieja PARA SIEMPRE: este archivo no está en ASSETS —pesa lo que pesa un
+     mundo—, así que no lo renueva la instalación; se pide suelto y lo que
+     llegue se guarda en la caché de esa versión, y a partir de ahí ya es un
+     acierto. Con GitHub Pages tardando un minuto en publicar, hay una ventana
+     en la que `sw.js` ya es el nuevo y esto todavía es lo viejo: quien abra
+     ahí se queda el archivo viejo con el número de versión nuevo puesto.
+     Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
+     una copia vieja ni siquiera es la misma cosa. */
+  l.href = "css/mundos.css?h=2c618b54aa";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
