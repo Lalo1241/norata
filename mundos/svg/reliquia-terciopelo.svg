@@ -4,19 +4,27 @@
        que dice «esto lleva aquí un tiempo», que es de lo que va una reliquia.
 
        Casa consigo mismo por construcción: el motivo se dibuja UNA vez y se
-       repite en las nueve posiciones vecinas. -->
+       repite en las nueve posiciones vecinas.
+
+       LAS OPACIDADES BAJARON A UN TERCIO en 0.7.55.3, y no fue un capricho:
+       la sarga se dibujó cuando la página del mundo era tres escalones más
+       clara. Al hundir el fondo, el mismo trazo pasó de sumar 13 puntos de luz
+       sobre el suelo a sumar 25, y una sarga que se ve deja de ser tejido y
+       pasa a ser rayas encima del contenido. Medido: ahora suma 4-7, que es lo
+       que hace un forro — se nota si lo buscas y no antes. Si algún día se
+       vuelve a aclarar la página, esto se puede subir; mientras no, no. -->
   <defs>
     <g id="rq-forro">
-      <g stroke="#2a2140" stroke-width=".9" opacity=".55">
+      <g stroke="#2a2140" stroke-width=".9" opacity=".16">
         <path d="M-20 20 60-60M0 40 80-40M20 60 100-20M40 80 120 0M60 100 140 20M80 120 160 40M100 140 180 60"/>
       </g>
-      <g stroke="#1a1428" stroke-width=".7" opacity=".5">
+      <g stroke="#1a1428" stroke-width=".7" opacity=".18">
         <path d="M-20 40 60-40M0 60 80-20M20 80 100 0M40 100 120 20M60 120 140 40M80 140 160 60"/>
       </g>
       <g fill="#cbb8f0">
-        <circle cx="26" cy="34" r="1.1" opacity=".5"/>
-        <circle cx="88" cy="62" r=".8" opacity=".38"/>
-        <circle cx="54" cy="97" r=".9" opacity=".3"/>
+        <circle cx="26" cy="34" r="1.1" opacity=".34"/>
+        <circle cx="88" cy="62" r=".8" opacity=".26"/>
+        <circle cx="54" cy="97" r=".9" opacity=".2"/>
       </g>
     </g>
   </defs>

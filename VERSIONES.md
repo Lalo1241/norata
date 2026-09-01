@@ -52,6 +52,22 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.55.3 · 1 sep 2026
+**La sarga del terciopelo de Reliquia baja a un tercio.** Es la misma historia
+que los puntitos del lienzo, en la otra textura: el tejido se dibujó cuando la
+página del mundo era tres escalones más clara, y al hundir el fondo el mismo
+trazo pasó de sumar 13 puntos de luz sobre el suelo a sumar 25. Una sarga que
+se ve deja de ser tejido y pasa a ser rayas encima del contenido.
+
+Medido sobre píxeles, en la variación entre vecinos —que es donde se ve una
+textura fina y no en el mínimo y el máximo de una zona, porque ahí lo que se
+mide es el degradado—: el percentil 95 baja de **14 a 5** de noche y de **17 a
+6** de día. Las motas de polvo se quedan: son puntos sueltos, no líneas, y son
+lo que dice que la pieza lleva un tiempo ahí.
+
+La nota de por qué están tan bajas va escrita dentro del propio SVG, para que
+nadie las vuelva a subir sin saber que el suelo cambió.
+
 ### 0.7.55.2 · 1 sep 2026
 Cuatro retoques de tono, y uno de ellos destapó otra variable que nadie
 declaraba.
