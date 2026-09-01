@@ -139,7 +139,14 @@ MUNDOS = [
    "--m-grano":f'url("{svg("plano-rejilla.svg")}")',# La retícula es el mundo, pero a plena tinta pasaba por DEBAJO del XP y de
    # los chips, que no tienen superficie propia: medido, 1,53-1,58 cuando el
    # resto de los mundos no pasa de 1,35. Se ve alrededor, no debajo.
-   "--m-grano-op":".52",
+   # Ese 52% vive ahora DENTRO del vector y no aquí, y por eso esto vale 1:
+   # `--m-grano-op` no cruza a la app —`app.py` mete el grano en `--sup-pagina`
+   # como una capa de `background`, y a una capa de fondo no se le puede poner
+   # opacidad por CSS—, así que lo que se escriba aquí solo lo ve la lámina.
+   # Sin hornearlo, en la app las cruces de registro daban 4,32 contra la
+   # página, que es contraste de TEXTO para una textura. Con el factor a los
+   # dos lados se multiplicaba dos veces, así que aquí queda en 1.
+   "--m-grano-op":"1",
    # La tarjeta se escribe como HEX y no como rgba, y no es cosmetica:
    # `app.py` saca `--card` —que la app usa en bordes y en `color-mix`, donde
    # una transparencia no cabe— buscando el primer hex del valor. Con
