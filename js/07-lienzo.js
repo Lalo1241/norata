@@ -435,23 +435,34 @@ function imantarNodo(n, b, mod) {
    motivos: van en coordenadas del dibujo —así no hay que convertir nada ni
    rehacerlo al cambiar el zoom— y desaparecen solas en el siguiente repintado,
    que es exactamente lo que tiene que pasar al soltar. */
+/* Quitar las reglas de alinear. Se llama al soltar y antes de volver a
+   pintarlas, para que no se acumulen si un repintado no las llevó por delante. */
+function borrarGuias(wrap) {
+  const svg = wrap && wrap.querySelector("svg");
+  if (!svg) return;
+  svg.querySelectorAll(".guia-iman").forEach((g) => g.remove());
+}
+
 function pintarGuias(wrap, guias) {
   const svg = wrap.querySelector("svg");
+  borrarGuias(wrap);
   if (!svg || !guias || (guias.gx === null && guias.gy === null)) return;
   const vb = svg.viewBox && svg.viewBox.baseVal;
   if (!vb) return;
   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  g.setAttribute("class", "guia-imán");
+  g.setAttribute("class", "guia-iman");
   const linea = (x1, y1, x2, y2) => {
     const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
     l.setAttribute("x1", x1); l.setAttribute("y1", y1);
     l.setAttribute("x2", x2); l.setAttribute("y2", y2);
-    /* El color sale del acento del tema y el trazo va en una variable, así que
-       un mundo puede cambiarlos sin tocar esto. Punteado fino: es una ayuda,
-       no una pieza del mapa. */
+    /* El color sale del acento del tema, así que un mundo lo cambia sin tocar
+       esto. CONTINUA y no punteada: en este mapa el punteado ya significa algo
+       —un hilo apagado, un requisito que aún no se cumple, el contorno de una
+       caja— y una regla de alinear que se dibuja igual se lee como una pieza
+       más del dibujo en vez de como el instrumento que es. Lo pidió Eduardo
+       viéndolas: «líneas continuas». */
     l.setAttribute("stroke", "var(--mint)");
     l.setAttribute("stroke-width", "1.2");
-    l.setAttribute("stroke-dasharray", "5 5");
     l.setAttribute("opacity", "0.62");
     g.appendChild(l);
   };
@@ -1425,33 +1436,62 @@ function factorEsquina() {
 /* Un radio del lienzo, con el factor de la apariencia aplicado. */
 function rLienzo(px) { return Math.round(px * factorEsquina() * 10) / 10; }
 
-function nodeShape(p, x, y, conf, fid) {
-  const common = `fill="${conf.fill}" stroke="${conf.stroke}" stroke-width="2"${conf.sop ? ` stroke-opacity="${conf.sop}"` : ""}${conf.glow ? ` filter="url(#${fid})"` : ""}`;
+/* ---- El engaste: el metal en el que va montada una pieza ----
+   Un mapa recoloreado sigue siendo el mismo mapa, y eso es exactamente lo que
+   dijo Eduardo mirando Reliquia: «los talentos no les cambiaste el diseño, se
+   ven igual que antes». Tenía razón — cambiaban los cables y los rótulos, que
+   es el suelo del dibujo, y las figuras seguían siendo las mismas.
+
+   Esto es lo que cambia la FIGURA sin cambiar la forma: un aro fino por fuera,
+   separado, del material del mundo. En una vitrina es el metal que sujeta la
+   pieza; la pieza sigue siendo la que era. La casa lo tiene apagado (`none`),
+   así que un talento de siempre se dibuja exactamente igual que antes.
+
+   Se lee del CSS y no se escribe aquí por lo de siempre: un mundo se declara
+   entero en variables y ningún archivo de JavaScript se entera de que existe. */
+let engasteDe = null, engasteCache = null;
+function engasteNodo() {
+  const ap = document.documentElement.getAttribute("data-apariencia") || "casa";
+  if (engasteCache === null || engasteDe !== ap) {
+    const cs = getComputedStyle(document.documentElement);
+    const col = (cs.getPropertyValue("--nodo-engaste") || "").trim();
+    const sep = parseFloat(cs.getPropertyValue("--nodo-engaste-sep")) || 4.5;
+    engasteCache = (!col || col === "none") ? null : { col, sep };
+    engasteDe = ap;
+  }
+  return engasteCache;
+}
+
+function nodeShape(p, x, y, conf, fid, crecer) {
+  const c = crecer || 0;
+  const gw = conf.ancho || 2;
+  const common = `fill="${conf.fill}" stroke="${conf.stroke}" stroke-width="${gw}"${conf.sop ? ` stroke-opacity="${conf.sop}"` : ""}${conf.glow ? ` filter="url(#${fid})"` : ""}`;
   /* La caja no es una figura más del juego: es un contenedor, y por eso es
      un rectángulo de borde punteado. Que no se parezca a ningún tipo de
      talento es justo lo que la hace legible de un vistazo. */
   if (p.esCaja) {
-    return `<rect x="${x - CAJA_W / 2}" y="${y - CAJA_H / 2}" width="${CAJA_W}" height="${CAJA_H}" rx="${rLienzo(11)}" stroke-dasharray="6 4" ${common}/>`;
+    return `<rect x="${x - CAJA_W / 2 - c}" y="${y - CAJA_H / 2 - c}" width="${CAJA_W + c * 2}" height="${CAJA_H + c * 2}" rx="${rLienzo(11) + c}" stroke-dasharray="6 4" ${common}/>`;
   }
   const t = figuraDe(p);
   /* El encargo: un rectangulo ancho de esquinas suaves. No se parece a
      ninguna figura de Talentos, y esa es toda su gracia — con los dos mapas
      hechos de rombos y hexagonos nadie sabria en cual esta. */
   if (t.forma === "encargo") {
-    return `<rect x="${x - t.ancho / 2}" y="${y - t.alto / 2}" width="${t.ancho}" height="${t.alto}" rx="${rLienzo(13)}" ${common}/>`;
+    return `<rect x="${x - t.ancho / 2 - c}" y="${y - t.alto / 2 - c}" width="${t.ancho + c * 2}" height="${t.alto + c * 2}" rx="${rLienzo(13) + c}" ${common}/>`;
   }
   if (t.forma === "circulo") {
-    return `<circle cx="${x}" cy="${y}" r="${t.radio}" ${common}/>`;
+    return `<circle cx="${x}" cy="${y}" r="${t.radio + c}" ${common}/>`;
   }
   if (t.forma === "hexagono") {
     const pts = [];
     for (let i = 0; i < 6; i++) {
       const a = Math.PI / 6 + i * Math.PI / 3;
-      pts.push((x + t.radio * Math.cos(a)).toFixed(1) + "," + (y + t.radio * Math.sin(a)).toFixed(1));
+      const r = t.radio + c;
+      pts.push((x + r * Math.cos(a)).toFixed(1) + "," + (y + r * Math.sin(a)).toFixed(1));
     }
     return `<polygon points="${pts.join(" ")}" stroke-linejoin="round" ${common}/>`;
   }
-  return `<rect x="${x - t.radio}" y="${y - t.radio}" width="${t.radio * 2}" height="${t.radio * 2}" rx="${rLienzo(9)}" transform="rotate(45 ${x} ${y})" ${common}/>`;
+  return `<rect x="${x - t.radio - c}" y="${y - t.radio - c}" width="${t.radio * 2 + c * 2}" height="${t.radio * 2 + c * 2}" rx="${rLienzo(9) + c}" transform="rotate(45 ${x} ${y})" ${common}/>`;
 }
 
 /* ---- Los ocho rumbos de un talento (el asterisco) ----
@@ -1807,7 +1847,7 @@ function constellation(nodes, key, editing, branch, mod) {
       active:    { stroke: colT, fill: velo(col, "1f"), glow: true, badge: "var(--fire-macizo)", mark: "play" },
       due:       { stroke: "var(--fire)", fill: velo("#f5d76e", "33"), glow: true, badge: "var(--fire-macizo)", mark: "alert" },
       expired:   { stroke: "var(--coral)", fill: velo("#ff8a70", "1a"), glow: false, badge: "var(--coral-macizo)", mark: "close" },
-      locked:    { stroke: "var(--pip)", fill: "var(--lienzo-bloqueado)", glow: false },
+      locked:    { stroke: "var(--lienzo-candado)", fill: "var(--lienzo-bloqueado)", glow: false },
       available: { stroke: colT, fill: velo(col, "12"), glow: false, sop: 0.55 },
       /* Los dos que solo usa Proyectos. Van en la misma tabla para que los
          estados se lean de un vistazo y nadie invente otro color sin ver los
@@ -1816,7 +1856,7 @@ function constellation(nodes, key, editing, branch, mod) {
          llave lo dice el candado, no un color distinto. `paused` es gris del
          todo, porque una pausa la pediste tu y no espera a nada. */
       esperando: { stroke: colT, fill: velo(col, "10"), glow: false, sop: 0.45 },
-      paused:    { stroke: "var(--pip)", fill: "var(--lienzo-bloqueado)", glow: false }
+      paused:    { stroke: "var(--lienzo-candado)", fill: "var(--lienzo-bloqueado)", glow: false }
     }[st];
     /* El candado. En Talentos lo pone el estado "locked"; en Proyectos lo
        pone el interruptor del propio encargo, porque alli un nodo apagado
@@ -1840,8 +1880,10 @@ function constellation(nodes, key, editing, branch, mod) {
        attachPanHandlers). Con el puntero capturado por el lienzo, el clic
        que sintetiza el navegador llega al lienzo y no al nodo, así que un
        onclick aquí no se disparaba nunca. */
+    const eng = engasteNodo();
     nds += `<g class="cnode" data-id="${n.id}">
       ${st === "available" && !editing ? `<circle class="node-pulse" cx="${x}" cy="${y}" r="${R + 4}" fill="none" stroke="${colT}" stroke-width="2.5"/>` : ""}
+      ${eng ? nodeShape(n, x, y, { fill: "none", stroke: eng.col, ancho: 1, sop: cerrado ? 0.42 : 0.9 }, fid, eng.sep) : ""}
       ${nodeShape(n, x, y, conf, fid)}
       <g transform="translate(${x - 12 * isc}, ${y - 12 * isc}) scale(${isc})"
          stroke="${cerrado ? "var(--faint)" : conf.stroke}" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[iname] || ICONS.star}</g>
@@ -2321,6 +2363,12 @@ function attachPanHandlers(scope) {
       if (g.tipo === "grupo") { verCaja(g.id); return; }
 
       if (g.moviendo) {
+        /* Las reglas de alinear se van EN CUANTO se suelta. Se pintaban en
+           cada movimiento y el último dibujo se quedaba puesto, porque soltar
+           guarda pero no vuelve a dibujar el mapa: la regla se quedaba
+           colgada hasta el siguiente repintado, y una regla que sobrevive al
+           gesto ya no es una ayuda, es una raya en el mapa. */
+        borrarGuias(wrap);
         if (g.movido) save();
         else undoStack.pop();       // se armó el arrastre pero no llegó a moverse
         /* Soltar no debe abrir la ficha del que acabas de agarrar: el filtro

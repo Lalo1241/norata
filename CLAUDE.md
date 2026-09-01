@@ -201,6 +201,15 @@ se veía como «no cambió nada» o «cambió solo en medio»:
 | `--orbe-1/2/3` | las tres manchas de luz | llevan la transparencia dentro |
 | `--lienzo-*` | el mapa de talentos entero | ocho, y la pantalla que más se mira |
 
+**El fondo de un mapa es SIEMPRE un tono liso más los puntitos de
+orientación.** Donde se vean nodos —el árbol de talentos, las ramas de
+proyectos, el previsualizador y la pantalla completa—, nunca una textura ni un
+dibujo: sobre un lienzo eso no es carácter, es suciedad, y compite con lo único
+que hay que leer ahí. Un mundo cambia el TONO de ese suelo (`--lienzo-suelo`),
+no le pone forro encima. Y **la tarjeta de una rama es de una pieza**: la barra
+de arriba y la tira de abajo llevan el mismo suelo que el centro, o se ve
+parcheada. Las dos cosas las paró Eduardo en la primera mirada (0.7.55.1).
+
 **Un tono que sale de una variable no llega solo a donde se usa.** `--sup-pagina`
 vale `var(--fondo-pagina)`; cambiar `--bg` no cambia el suelo. Al inventar un
 tono, buscar quién lo lee de verdad.

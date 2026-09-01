@@ -300,6 +300,12 @@ MUNDOS = [
    "--m-aviso":"#f5d76e","--m-aviso-velo":"rgba(245,215,110,.13)",
    "--m-peligro":"#ff8a70","--m-peligro-velo":"rgba(255,138,112,.13)","--m-carril":"#332b4a",
    "--m-halo":"0 0 12px rgba(183,162,234,.34)",
+   # El ENGASTE: el aro de metal por fuera de cada nodo del mapa. Es lo que
+   # convierte «el mapa recoloreado» en «el mapa de la vitrina» sin tocar la
+   # forma de ninguna figura. Más vivo que el borde de una tarjeta a propósito:
+   # ahí es una línea de 1 px sobre el suelo más hondo del mundo, y con el latón
+   # apagado daba 4,12 contra los 5,76 de este.
+   "--m-engaste":"#a8843c",
    "--m-icono":f'url("{svg("reliquia-piedra.svg")}") center/contain no-repeat',
    "--m-titulo":'"Syne",system-ui,sans-serif',"--m-titulo-px":"15px","--m-titulo-peso":"700","--m-peso-max":"700",
    "--m-titulo-esp":".01em",
@@ -331,7 +337,7 @@ MUNDOS = [
    "--m-acento":"#a278e4","--m-acento-tinta":"#5a2a94","--m-acento-velo":"rgba(90,42,148,.11)",
    "--m-aviso":"#f5c314","--m-aviso-tinta":"#755c05","--m-aviso-velo":"rgba(117,92,5,.12)",
    "--m-peligro":"#ff603d","--m-peligro-tinta":"#bd2200","--m-peligro-velo":"rgba(189,34,0,.11)",
-   "--m-carril":"#a7a0b6"}),
+   "--m-carril":"#a7a0b6","--m-engaste":"#8a6d2f"}),
 
  dict(id="averno", nombre="Averno", familia="de-relato", llave="El oscuro de verdad", color="#ff7a3d",
   premisa="Piedra quemada con la brasa debajo. Del poema se cita lo único que hay que citar —los círculos—: arcos concéntricos que se estrechan al bajar y solo el de dentro sigue ardiendo. Cae ceniza en el fondo, con tres motas que todavía no se han apagado, y el icono es un sol eclipsado: anillo encendido y centro muerto. Nada de cuernos ni pentagramas — el infierno de ese libro es un lugar, no un disfraz.",

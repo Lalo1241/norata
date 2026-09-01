@@ -198,6 +198,22 @@
        valia escrito dentro de la regla —la casa no se mueve— y cada apariencia
        declara el suyo. */
     --lienzo-punto: rgba(139, 153, 165, 0.09);
+    /* El suelo sobre el que se dibuja un mapa. Sale aparte de `--bg` para que
+       un mundo pueda darle su propio tono sin arrastrar la página entera, y
+       para que la tarjeta de una rama pueda pedir EL MISMO y no verse
+       parcheada. */
+    --lienzo-suelo: var(--bg);
+    /* El contorno de un talento con candado. Valía `--pip` —los rombitos de
+       una rama plegada—, que ninguna apariencia mueve: con Reliquia puesta,
+       los nodos cerrados seguían siendo del gris azulado de la casa encima de
+       un lienzo violeta. Aquí vale exactamente lo que valía. */
+    --lienzo-candado: #2e3947;
+    /* El ENGASTE: un aro fino por fuera de cada figura, como el metal en el
+       que va montada una pieza. Apagado en la casa —un talento es una figura
+       limpia— y encendido por un mundo que tenga material que decir. Es lo
+       que separa «el mapa recoloreado» de «el mapa de este mundo». */
+    --nodo-engaste: none;
+    --nodo-engaste-sep: 4.5;
 
     /* ---------- La franja ilustrada de una ficha ----------
        El mismo dibujo aparece dentro de una tarjeta de escena —que se queda
@@ -612,6 +628,14 @@
     --lienzo-bloqueado: #e7e9f4;
     --lienzo-flujo: #c08c00;
     --lienzo-punto: rgba(139, 153, 165, 0.09);
+    /* El suelo sobre el que se dibuja un mapa. Sale aparte de `--bg` para que
+       un mundo pueda darle su propio tono sin arrastrar la página entera, y
+       para que la tarjeta de una rama pueda pedir EL MISMO y no verse
+       parcheada. */
+    --lienzo-suelo: var(--bg);
+    --lienzo-candado: #bcc1d6;
+    --nodo-engaste: none;
+    --nodo-engaste-sep: 4.5;
 
     /* El cielo se da la vuelta: arranca en el tono levantado y baja hasta la
        tarjeta, así que la franja no es un parche pegado encima sino el borde
@@ -3054,8 +3078,13 @@
   .linked-row .lr-tx span { font-size: 11.5px; color: var(--muted); }
   .linked-row .lr-go { color: var(--faint); flex-shrink: 0; }
 
+  /* La tarjeta de una rama es de UNA pieza: la barra de arriba, el lienzo y la
+     tira de atajos de abajo llevan el mismo suelo. Antes la barra y la tira
+     iban en la tarjeta y el centro en el lienzo, y con un tono muy distinto en
+     medio eso se ve parcheado — lo dijo Eduardo mirando Reliquia: «que la
+     barra superior e inferior mantengan ese morado oscuro». */
   .branch-card {
-    background: var(--sup-tarjeta);
+    background: var(--lienzo-suelo);
     border: var(--borde-tarjeta) solid var(--borde-panel);
     border-image: var(--marco-tarjeta);
     border-radius: var(--r-burbuja);
@@ -3211,11 +3240,17 @@
        el mismo en los dos sitios y en todas las apariencias, porque sale de
        `--bg` — y vale igual para las ramas de proyectos, que usan este mismo
        lienzo. */
+    /* ---- REGLA DE LA CASA, y esta no admite excepciones ----
+       Donde se vean nodos, el fondo es UN TONO LISO más los puntitos de
+       orientación. Nada más. En 0.7.55 se le puso encima el forro de
+       terciopelo del mundo y Eduardo lo paró en la primera mirada: sobre un
+       lienzo, una textura no es carácter, es suciedad — compite con lo único
+       que hay que leer ahí, que son los nodos y los cables. Un mundo cambia
+       el TONO de este suelo; no le pone dibujo encima. */
     background:
-      var(--lienzo-grano, none),
       radial-gradient(circle at 1px 1px, var(--lienzo-punto) 1px, transparent 1.6px),
-      var(--bg);
-    background-size: var(--lienzo-grano-tam, auto), 26px 26px, auto;
+      var(--lienzo-suelo);
+    background-size: 26px 26px, auto;
     /* La letra del mapa se queda en Outfit pase lo que pase. Un mundo cambia
        `--tipo-titulo` y `--tipo-cifra`, no `--sans`, así que hoy ya sale así;
        esto lo deja escrito para que un mundo futuro no se lleve por delante
