@@ -1088,9 +1088,10 @@ function pintarAvisos() {
   const marco = document.createElement("div");
   marco.id = "aviso-modo";
   marco.className = "aviso-modo";
-  marco.innerHTML =
+  marco.innerHTML = '<span class="av-caja">' +
     '<span class="av-tx">' + partes.join(" · ") + '</span>' +
-    (ejemplo ? '<button type="button" onclick="salirDelEjemplo()">Salir</button>' : "");
+    (ejemplo ? '<button type="button" onclick="salirDelEjemplo()">Salir</button>' : "") +
+    '</span>';
   document.body.appendChild(marco);
 
   /* El hueco que la app tiene que dejarle, MEDIDO y no clavado a un número: en

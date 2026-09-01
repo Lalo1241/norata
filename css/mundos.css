@@ -77,8 +77,8 @@ html[data-apariencia="reliquia"] {
   --r-barra: 999px;
   --r-pastilla: 6px;
   --r-boton: 6px;
-  --r-gota: 16px 5px 16px 5px;
-  --r-gota-alt: 5px 16px 5px 16px;
+  --r-gota: 18px 9px 18px 9px;
+  --r-gota-alt: 9px 18px 9px 18px;
 }
 
 /* El marco solo en las piezas grandes: dentro de una lista vuelve a ser

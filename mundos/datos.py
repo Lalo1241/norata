@@ -289,7 +289,7 @@ MUNDOS = [
    # sobre el ancho del borde.
    "--m-marco":"linear-gradient(158deg,#6b5326 0%,#c8a24e 24%,#8a6d2f 48%,#e0c072 64%,#7a5f2a 100%) 1",
    "--m-sombra":"inset 0 1px 0 rgba(233,226,255,.16), 0 8px 22px rgba(0,0,0,.5)",
-   "--m-r-tarjeta":"8px","--m-r-mini":"999px","--m-r-gota":"16px 5px 16px 5px","--m-r-gota-alt":"5px 16px 5px 16px","--m-r-barra":"999px","--m-r-chip":"6px",
+   "--m-r-tarjeta":"8px","--m-r-mini":"999px","--m-r-gota":"18px 9px 18px 9px","--m-r-gota-alt":"9px 18px 9px 18px","--m-r-barra":"999px","--m-r-chip":"6px",
    "--m-tinta":"#efeafb","--m-tinta-2":"#a99fc4",
    "--m-acento":"#b7a2ea","--m-acento-velo":"rgba(183,162,234,.14)",
    "--m-aviso":"#f5d76e","--m-aviso-velo":"rgba(245,215,110,.13)",

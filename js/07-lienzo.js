@@ -390,6 +390,76 @@ function encuadrarLienzo(wrap, b) {
    un nodo hacia atrás, el lienzo crece por la izquierda: todo el dibujo se
    corre dentro del SVG, y sin compensar el desplazamiento el mapa daría un
    salto justo mientras se arrastra, que es el peor momento posible. */
+/* ================= El imán de alinear =================
+   Lo pidió Eduardo: «que se puedan alinear como una regla al arrastrarlos, y
+   que aparezca una ligera línea para quien quiera verse perfeccionista».
+
+   Seis unidades del dibujo de margen. El número no es a ojo: un nodo mide 44,
+   así que seis es poco más de un décimo de nodo — lo bastante para que no
+   salte solo mientras recorres el lienzo, y lo bastante para que no haya que
+   afinar al píxel con el dedo. Y se compara contra el CENTRO de cada nodo, que
+   es lo que la gente alinea aunque las siluetas sean distintas.
+
+   Devuelve las coordenadas donde hay que pintar la línea, o null: quien dibuja
+   no vuelve a calcular nada. */
+const GUIA_IMAN = 6;
+
+/* Dónde quedó cada nodo en el último dibujo. Lo llena `constellation`. */
+let posLienzo = null;
+
+function imantarNodo(n, b, mod) {
+  /* Se compara contra `posLienzo` —el mapa de posiciones del último dibujo— y
+     NO contra `nodo.x`. Es la diferencia entre que funcione y que no: un nodo solo
+     tiene `x` e `y` propias si alguien lo movió a mano; los demás los coloca el
+     acomodo automático, y contra ellos `o.x` es `undefined`. Con `ctxPos` se
+     alinea igual de bien con uno movido que con uno que nunca se tocó, que es
+     justo lo que uno espera de una regla. */
+  const pos = posLienzo;
+  if (!pos) return { gx: null, gy: null };
+  let gx = null, gy = null, mejorX = GUIA_IMAN, mejorY = GUIA_IMAN;
+  for (const id in pos) {
+    if (id === n.id) continue;
+    const o = pos[id];
+    if (!o) continue;
+    const dx = Math.abs(o.x - n.x);
+    if (dx <= mejorX) { mejorX = dx; gx = o.x; }
+    const dy = Math.abs(o.y - n.y);
+    if (dy <= mejorY) { mejorY = dy; gy = o.y; }
+  }
+  if (gx !== null) n.x = gx;
+  if (gy !== null) n.y = gy;
+  return { gx, gy };
+}
+
+/* Las líneas se dibujan DENTRO del SVG y no encima con un div, y por dos
+   motivos: van en coordenadas del dibujo —así no hay que convertir nada ni
+   rehacerlo al cambiar el zoom— y desaparecen solas en el siguiente repintado,
+   que es exactamente lo que tiene que pasar al soltar. */
+function pintarGuias(wrap, guias) {
+  const svg = wrap.querySelector("svg");
+  if (!svg || !guias || (guias.gx === null && guias.gy === null)) return;
+  const vb = svg.viewBox && svg.viewBox.baseVal;
+  if (!vb) return;
+  const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.setAttribute("class", "guia-imán");
+  const linea = (x1, y1, x2, y2) => {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", x1); l.setAttribute("y1", y1);
+    l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+    /* El color sale del acento del tema y el trazo va en una variable, así que
+       un mundo puede cambiarlos sin tocar esto. Punteado fino: es una ayuda,
+       no una pieza del mapa. */
+    l.setAttribute("stroke", "var(--mint)");
+    l.setAttribute("stroke-width", "1.2");
+    l.setAttribute("stroke-dasharray", "5 5");
+    l.setAttribute("opacity", "0.62");
+    g.appendChild(l);
+  };
+  if (guias.gx !== null) linea(guias.gx, vb.y, guias.gx, vb.y + vb.height);
+  if (guias.gy !== null) linea(vb.x, guias.gy, vb.x + vb.width, guias.gy);
+  svg.appendChild(g);
+}
+
 function redibujarLienzo(wrap, html) {
   const vb = (v => v && v.viewBox && v.viewBox.baseVal)(wrap.querySelector("svg"));
   const ax = vb ? vb.x : 0, ay = vb ? vb.y : 0;
@@ -1298,6 +1368,12 @@ function branchLayout(nodes) {
     });
   });
 
+  /* Y se guarda dónde quedó cada uno. Lo usa el imán de alinear, que necesita
+     las posiciones REALES: un nodo solo tiene `x` e `y` propias si alguien lo
+     movió a mano, y los demás los coloca el acomodo automático de aquí arriba.
+     Sin esto, arrastrar un nodo solo se alineaba con otros ya movidos. */
+  posLienzo = pos;
+
   // El lienzo se ajusta a lo que ocupen los nodos (incluidos los movidos a mano)
   const xs = order.map(n => pos[n.id].x);
   const ys = order.map(n => pos[n.id].y);
@@ -2166,7 +2242,13 @@ function attachPanHandlers(scope) {
         gesto.movido = true;
         n.x = enLienzoX(pt.x + gesto.dx);
         n.y = enLienzoY(pt.y + gesto.dy);
+        /* Y el imán, que es lo que pidió Eduardo: si el nodo queda CERCA de
+           estar alineado con otro, se alinea del todo y aparece la línea que
+           lo dice. Nadie coloca dos nodos a la misma altura a ojo con el
+           dedo; con seis unidades de margen sale solo. */
+        const guias = imantarNodo(n, b, mod);
         redibujarLienzo(wrap, constellation(branchNodes(b, mod), 0, false, b, mod));
+        pintarGuias(wrap, guias);
         e.preventDefault();
         return;
       }

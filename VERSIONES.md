@@ -52,6 +52,47 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.54 · 31 ago 2026
+**El isotipo se queda menta pase lo que pase con el tema.** Iba pintado con
+`--mint-macizo`, que es el acento de la APP — y Escarcha lo pone celeste, así
+que la marca acababa azul. Ahora sale de `--marca-iso`, una variable que se
+declara en los dos modos y que **ningún ambiente ni mundo toca**. Es la única
+cosa de la app que un tema no puede cambiar, y creo que es la correcta: un tema
+puede cambiarlo todo menos quién eres.
+
+**El rótulo de arriba vuelve a ser una pastilla.** Fue tira de lado a lado en la
+0.7.50 para acabar con dos pastillas apiladas que tapaban el título; el problema
+eran las dos, no la forma. Con una sola pastilla se resuelven las dos cosas:
+ocupa lo que mide su texto —medido, 215 px de 412— y el hueco de abajo sigue
+reservado, así que no tapa nada.
+
+**El lienzo de talentos usa el fondo hondo también en el previsualizador.** Antes
+solo lo tenía a pantalla completa y fuera dejaba ver la tarjeta de debajo, así
+que el mapa cambiaba de suelo al abrirlo. Ahora sale de `--bg` en los dos
+sitios, en todas las apariencias, y vale igual para las ramas de proyectos —que
+usan este mismo lienzo—.
+
+**El imán de alinear.** Al arrastrar un nodo, si queda a menos de seis unidades
+de estar alineado con otro, se alinea del todo y aparece una línea punteada que
+lo dice. Seis no es a ojo: un nodo mide 44, así que es poco más de un décimo —lo
+bastante para no saltar solo mientras recorres el mapa y lo bastante para no
+tener que afinar al píxel con el dedo—.
+
+Lo que hizo que funcionara: se compara contra **el mapa de posiciones del último
+dibujo** y no contra `nodo.x`. Un nodo solo tiene coordenadas propias si alguien
+lo movió a mano; los demás los coloca el acomodo automático. Con `nodo.x` el
+imán solo se pegaba a nodos ya movidos, que es casi nunca. Comprobado: a 4
+unidades se imanta en los dos ejes y salen las dos líneas; a 20 no se imanta y
+no sale ninguna.
+
+**Adobe, más oscuro.** Se veía cargado por CLARO, no por saturado, así que se le
+baja la luz 0,045 en OKLCh dejando el matiz y el croma donde estaban. Medido
+después: texto sobre tarjeta 14,78, secundario 6,12, apagado 3,38 —que además
+sube—, acento 10,58. Ninguno baja de su umbral.
+
+**Y la hoja de los iconos, más redonda** en sus cuatro esquinas (18/9 en vez de
+16/5).
+
 ### 0.7.53 · 31 ago 2026
 **El marco dorado no seguía la esquina, y no era un descuido: era una regla del
 navegador.** Un `border-image` IGNORA el `border-radius` — está en la

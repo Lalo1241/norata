@@ -43,8 +43,8 @@ AMBIENTES = [
 
  dict(id="adobe", nombre="Adobe", grado=1, abre="Nivel 7 · con el rango Refugio",
   premisa="Barro cocido, no arena dorada. Terracota apagada con cal encima — el color de una pared vieja, que es cálido sin ser oro. La cálida amable, y la más fácil de querer.",
-  noche={"--bg":"#221209","--bg2":"#2c180e","--card":"#3c1c0f","--card2":"#462517",
-   "--line":"#53362b","--carril":"#53362b","--text":"#f4ebe4","--muted":"#ab958a","--faint":"#7c6a60"},
+  noche={"--bg":"#170802","--bg2":"#210e05","--card":"#301105","--card2":"#3a1a0c",
+   "--line":"#462a20","--carril":"#462a20","--text":"#f4ebe4","--muted":"#ab958a","--faint":"#7c6a60"},
   dia={"--bg":"#e3d4ca","--bg2":"#ece0d8","--card":"#f4ebe4","--card2":"#faf5f0",
    "--line":"#c2ad9f","--carril":"#d0bdaf","--text":"#241a14","--muted":"#6b5a50","--faint":"#8c7a70"}),
 
