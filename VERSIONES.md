@@ -52,6 +52,44 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.55.5 · 1 sep 2026
+El modo claro de Reliquia, que era donde se veía todo lo que faltaba. **En modo
+oscuro no se movió ni un píxel** — medido: de las 107 diferencias de la foto de
+estilos, las 107 son de la cara de día.
+
+**Las ramas ya no salen casi grises.** El suelo hondo se hunde 0,026 respecto de
+la página, y eso está bien mientras la página sea papel; Reliquia es una vitrina
+y su página ya es oscura para ser un modo claro, así que las ramas acababan en
+0,81 de luz. Ahora ese hundimiento tiene un tope —nunca por debajo de 0,845— y,
+si el tope dejara el suelo más claro que la propia página, se usa la página: el
+encuadre lo hace el marco, que en un mundo con latón se ve solo.
+
+**El amarillo de la caja de un grupo era el de la CASA.** Estaba escrito dentro
+de `js/07-lienzo.js` (`"#f5d76e"`, y `"#5fe0b0"` para una caja terminada), así
+que sobrevivía a cualquier apariencia. Sobre el lienzo claro de Reliquia daba
+**1,28** de contraste: el rótulo y el contorno no se veían. Ahora sale del
+acento de la apariencia, que ahí da **3,84**. De noche los dos valen lo mismo
+que valían, así que no cambia nada.
+
+**Los hilos apagados y los candados, un escalón más abajo.** Medidos sobre el
+lienzo de día daban **1,39** y **1,23**: sobre papel eso no es «apagado», es que
+no está. Ahora 2,2 y 2,4. Los recolores y los mundos ya salían de esta relación
+calculada; la casa era la que se había quedado con los tonos viejos.
+
+**Y las figuras del mapa son SÓLIDAS de día.** De noche un velo del color a un
+20% sobre el carbón ya se lee como una pieza encendida; de día el mismo velo
+deja la figura casi del color del suelo, y con ocho colores en el mismo mapa no
+se distingue cuál es cuál. Lo pidió Eduardo señalando un nodo con candado, que
+ese sí se ve. Ahora el velo se apoya en una base opaca —la superficie levantada,
+casi papel— y con más fuerza: la figura pasa de ser un tinte del suelo a ser una
+pastilla de su color puesta encima.
+
+Va en dos variables (`--relleno-base` y `--relleno-fuerza`) y no en un `if` de
+JavaScript, y el motivo no es elegancia: el mapa se dibuja una vez y **no se
+vuelve a dibujar al cambiar de modo** —`ponerTema` solo cambia variables—, así
+que un color decidido en JavaScript se quedaría con la cara del modo en que se
+dibujó.
+
 ### 0.7.55.4 · 1 sep 2026
 **El mundo se quedaba congelado, y el número de versión decía que no.** Eduardo
 lo vio tal cual: «no veo ningún cambio y la versión sí está subida». Tenía toda
