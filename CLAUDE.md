@@ -200,13 +200,17 @@ se veía como «no cambió nada» o «cambió solo en medio»:
 | `--fondo-pagina`, `--fondo-raiz` | el SUELO de la página | `--sup-pagina` sale de aquí, no de `--bg` |
 | `--orbe-1/2/3` | las tres manchas de luz | llevan la transparencia dentro |
 | `--lienzo-*` | el mapa de talentos entero | ocho, y la pantalla que más se mira |
+| `--sup-hondo`, `--borde-panel` | el suelo y el marco de lo GRANDE | el lienzo, la tarjeta de una rama, las columnas del tablero |
 
 **El fondo de un mapa es SIEMPRE un tono liso más los puntitos de
 orientación.** Donde se vean nodos —el árbol de talentos, las ramas de
 proyectos, el previsualizador y la pantalla completa—, nunca una textura ni un
 dibujo: sobre un lienzo eso no es carácter, es suciedad, y compite con lo único
 que hay que leer ahí. Un mundo cambia el TONO de ese suelo (`--lienzo-suelo`),
-no le pone forro encima. Y **la tarjeta de una rama es de una pieza**: la barra
+no le pone forro encima. **Ese suelo (`--sup-hondo`) no vale lo mismo que el
+fondo de la página**: se separa de él en la dirección que deja ver el marco —de
+noche un pelo más claro, de día un pelo más oscuro—, porque valiendo lo mismo
+el encuadre desaparece. Y **la tarjeta de una rama es de una pieza**: la barra
 de arriba y la tira de abajo llevan el mismo suelo que el centro, o se ve
 parcheada. Las dos cosas las paró Eduardo en la primera mirada (0.7.55.1).
 

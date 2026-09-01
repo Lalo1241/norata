@@ -193,12 +193,18 @@ def variables(m, t, dia):
     sys.path.insert(0, _os.path.join(_os.path.dirname(AQUI), "apariencias"))
     import croma
     v += croma.lienzo(fondo, tarj_plana, t["--m-aviso"], dia)
-    # El suelo del mapa ya lo pone `croma.lienzo`: SOLO el tono, nunca el forro.
+    # El suelo hondo ya lo pone `croma.lienzo`: SOLO el tono, nunca el forro.
     # Se probó poniéndole el terciopelo debajo y Eduardo lo paró en la primera
     # mirada — sobre un lienzo una textura no es carácter, es suciedad, y
     # compite con lo único que hay que leer ahí. La regla, en `.const-wrap`.
     if t.get("--m-engaste"):
         v.append(("--nodo-engaste", t["--m-engaste"]))
+    # El marco de un panel: `--line` apagada de noche y aclarada de día. Sin
+    # esto, el encuadre de una rama seguía siendo el gris azulado de la casa.
+    import sys, os as _os
+    sys.path.insert(0, _os.path.join(_os.path.dirname(AQUI), "apariencias"))
+    import croma
+    v.append(("--borde-panel", croma.borde_panel(t["--m-borde-color"], dia)))
     return v
 
 def bloque(m):

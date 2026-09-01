@@ -93,9 +93,10 @@ html:not(.claro)[data-apariencia="reliquia"] {
   --lienzo-bloqueado: #151120;
   --lienzo-candado: #2a2636;
   --lienzo-flujo: #fef3cf;
-  --lienzo-punto: rgba(161, 157, 172, 0.09);
-  --lienzo-suelo: #090612;
+  --lienzo-punto: rgba(161, 157, 172, 0.055);
+  --sup-hondo: #0d0916;
   --nodo-engaste: #a8843c;
+  --borde-panel: rgba(138, 109, 47, 0.7);
 }
 html.claro[data-apariencia="reliquia"] {
   --bg: #cdc5de;
@@ -154,9 +155,10 @@ html.claro[data-apariencia="reliquia"] {
   --lienzo-bloqueado: #d5d2dc;
   --lienzo-candado: #b0a9be;
   --lienzo-flujo: #b89100;
-  --lienzo-punto: rgba(54, 47, 67, 0.09);
-  --lienzo-suelo: #cdc5de;
+  --lienzo-punto: rgba(54, 47, 67, 0.075);
+  --sup-hondo: #c5bdd5;
   --nodo-engaste: #8a6d2f;
+  --borde-panel: #ac8e50;
 }
 
 /* El marco solo en las piezas grandes: dentro de una lista vuelve a ser

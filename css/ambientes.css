@@ -55,8 +55,9 @@ html:not(.claro)[data-apariencia="tinta"] {
   --lienzo-bloqueado: #181c20;
   --lienzo-candado: #2d3236;
   --lienzo-flujo: #fef3cf;
-  --lienzo-punto: rgba(165, 171, 176, 0.09);
-  --lienzo-suelo: #0d0f11;
+  --lienzo-punto: rgba(165, 171, 176, 0.055);
+  --sup-hondo: #111315;
+  --borde-panel: rgba(65, 71, 79, 0.7);
 }
 html.claro[data-apariencia="tinta"] {
   --bg: #dfe1e6;
@@ -85,8 +86,9 @@ html.claro[data-apariencia="tinta"] {
   --lienzo-bloqueado: #e9ebf0;
   --lienzo-candado: #c2c4c8;
   --lienzo-flujo: #b79100;
-  --lienzo-punto: rgba(68, 70, 74, 0.09);
-  --lienzo-suelo: #dfe1e6;
+  --lienzo-punto: rgba(68, 70, 74, 0.075);
+  --sup-hondo: #d7d8dd;
+  --borde-panel: #ced1d8;
 }
 
 /* ---------- Musgo · grado 1 · Nivel 3 · con el rango Brote ---------- */
@@ -114,8 +116,9 @@ html:not(.claro)[data-apariencia="musgo"] {
   --lienzo-bloqueado: #0a1b13;
   --lienzo-candado: #1f3128;
   --lienzo-flujo: #fef3cf;
-  --lienzo-punto: rgba(153, 169, 160, 0.09);
-  --lienzo-suelo: #030e08;
+  --lienzo-punto: rgba(153, 169, 160, 0.055);
+  --sup-hondo: #05120c;
+  --borde-panel: rgba(41, 66, 48, 0.7);
 }
 html.claro[data-apariencia="musgo"] {
   --bg: #e0e3de;
@@ -140,8 +143,9 @@ html.claro[data-apariencia="musgo"] {
   --lienzo-bloqueado: #eaede8;
   --lienzo-candado: #c3c5c1;
   --lienzo-flujo: #b79100;
-  --lienzo-punto: rgba(69, 72, 68, 0.09);
-  --lienzo-suelo: #e0e3de;
+  --lienzo-punto: rgba(69, 72, 68, 0.075);
+  --sup-hondo: #d7dad6;
+  --borde-panel: #e0e8de;
 }
 
 /* ---------- Adobe · grado 1 · Nivel 7 · con el rango Refugio ---------- */
@@ -168,8 +172,9 @@ html:not(.claro)[data-apariencia="adobe"] {
   --lienzo-bloqueado: #1a0b05;
   --lienzo-candado: #302018;
   --lienzo-flujo: #fef3cf;
-  --lienzo-punto: rgba(165, 150, 142, 0.09);
-  --lienzo-suelo: #0b0301;
+  --lienzo-punto: rgba(165, 150, 142, 0.055);
+  --sup-hondo: #0f0502;
+  --borde-panel: rgba(76, 48, 37, 0.7);
 }
 html.claro[data-apariencia="adobe"] {
   --bg: #dbccc2;
@@ -194,8 +199,9 @@ html.claro[data-apariencia="adobe"] {
   --lienzo-bloqueado: #e2d7d0;
   --lienzo-candado: #beafa5;
   --lienzo-flujo: #b79100;
-  --lienzo-punto: rgba(65, 53, 45, 0.09);
-  --lienzo-suelo: #dbccc2;
+  --lienzo-punto: rgba(65, 53, 45, 0.075);
+  --sup-hondo: #d3c4ba;
+  --borde-panel: #e0cbbc;
 }
 
 /* ---------- Duna · grado 1 · Nivel 20 · con el rango Norte ---------- */
@@ -223,8 +229,9 @@ html:not(.claro)[data-apariencia="duna"] {
   --lienzo-bloqueado: #201623;
   --lienzo-candado: #362b39;
   --lienzo-flujo: #fef3cf;
-  --lienzo-punto: rgba(174, 164, 177, 0.09);
-  --lienzo-suelo: #120a14;
+  --lienzo-punto: rgba(174, 164, 177, 0.055);
+  --sup-hondo: #160e18;
+  --borde-panel: rgba(91, 64, 98, 0.7);
 }
 html.claro[data-apariencia="duna"] {
   --bg: #d8c3d3;
@@ -249,8 +256,9 @@ html.claro[data-apariencia="duna"] {
   --lienzo-bloqueado: #dbd1d8;
   --lienzo-candado: #baa7b5;
   --lienzo-flujo: #b79100;
-  --lienzo-punto: rgba(62, 46, 59, 0.09);
-  --lienzo-suelo: #d8c3d3;
+  --lienzo-punto: rgba(62, 46, 59, 0.075);
+  --sup-hondo: #d0bbcb;
+  --borde-panel: #dec2d6;
 }
 
 /* ---------- Escarcha · grado 2 · Nivel 12 · con el rango Cima · Pro ---------- */
@@ -280,8 +288,9 @@ html:not(.claro)[data-apariencia="escarcha"] {
   --lienzo-bloqueado: #0b1823;
   --lienzo-candado: #202d3a;
   --lienzo-flujo: #fef3cf;
-  --lienzo-punto: rgba(153, 165, 177, 0.09);
-  --lienzo-suelo: #040b13;
+  --lienzo-punto: rgba(153, 165, 177, 0.055);
+  --sup-hondo: #070f17;
+  --borde-panel: rgba(37, 58, 78, 0.7);
 }
 html.claro[data-apariencia="escarcha"] {
   --mint: #0f688f;
@@ -320,8 +329,9 @@ html:not(.claro)[data-apariencia="marea"] {
   --lienzo-bloqueado: #051920;
   --lienzo-candado: #1b2f36;
   --lienzo-flujo: #fef3cf;
-  --lienzo-punto: rgba(149, 166, 173, 0.09);
-  --lienzo-suelo: #010c11;
+  --lienzo-punto: rgba(149, 166, 173, 0.055);
+  --sup-hondo: #031015;
+  --borde-panel: rgba(32, 75, 89, 0.7);
 }
 html.claro[data-apariencia="marea"] {
   --bg: #cbdcde;
@@ -349,8 +359,9 @@ html.claro[data-apariencia="marea"] {
   --lienzo-bloqueado: #d8e6e7;
   --lienzo-candado: #aebfc1;
   --lienzo-flujo: #b79100;
-  --lienzo-punto: rgba(52, 66, 68, 0.09);
-  --lienzo-suelo: #cbdcde;
+  --lienzo-punto: rgba(52, 66, 68, 0.075);
+  --sup-hondo: #c3d4d6;
+  --borde-panel: #c3dde1;
 }
 
 

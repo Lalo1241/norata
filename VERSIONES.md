@@ -52,6 +52,42 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.55.2 · 1 sep 2026
+Cuatro retoques de tono, y uno de ellos destapó otra variable que nadie
+declaraba.
+
+**Los puntitos del lienzo, más tenues** (del 9% al 5,5% de noche, 7,5% de día).
+El punto no se movió; lo que se movió fue el suelo de debajo al pasar el lienzo
+al tono hondo, y con más contraste debajo la cuadrícula empezó a robar
+atención. Un punto de orientación tiene que estar cuando lo buscas y no antes.
+
+**El encuadre de una rama vuelve a verse en modo claro.** La tarjeta pedía el
+mismo tono que la página y sobre papel eso es invisible: el marco desaparecía
+del todo. Ahora el suelo hondo se separa del fondo en la dirección que deja ver
+el marco — de noche un pelo MÁS CLARO (la página es lo más hondo que hay) y de
+día un pelo MÁS OSCURO (la página es papel) —, que de paso es el «un tic más
+claros, pero muy poco» que pidió Eduardo para las ramas de noche.
+
+**Y ahí salió `--borde-panel`**, que ninguna apariencia declaraba: el marco de
+un panel y de una tarjeta de rama seguía siendo el gris azulado de la casa
+encima de cualquier ambiente. Ahora se deriva de la línea de cada apariencia —
+apagada al 70% de noche, aclarada +0,11 de luz de día, que es la relación
+medida en la casa.
+
+**Las columnas de Misiones pasan al suelo hondo.** Son tres cajas de 345×518 y
+con el tono de una tarjeta el tablero entero se leía como una plasta del mismo
+color, con las misiones encima sin escalón que las levante. Es el mismo trato
+que ya tenía la tarjeta de un encargo, que es justo lo que Eduardo señaló como
+ejemplo. Y con la mudanza, el rótulo de una columna vacía y la cuenta de la
+cabecera suben de `--faint` a `--muted`: sobre la tarjeta clara el tenue daba
+4,69 y sobre el suelo nuevo cae a 3,64.
+
+La variable dejó de llamarse `--lienzo-suelo` y pasó a `--sup-hondo`: ya no es
+solo el lienzo de un mapa, es el fondo de toda superficie que se come media
+pantalla.
+
+Foto de estilos: 96 diferencias, todas de estas cuatro.
+
 ### 0.7.55.1 · 1 sep 2026
 Lo que Eduardo paró en la primera mirada de 0.7.55, y una cosa que faltaba.
 

@@ -73,6 +73,9 @@ def suelo(m, dia):
     if "--bg" in tabla:
         v += croma.lienzo(tabla["--bg"], tabla.get("--card", casa["--card"]),
                           tabla.get("--fire", casa["--fire"]), dia)
+    # Y el marco de un panel, que tampoco declaraba nadie.
+    if "--line" in tabla:
+        v.append(("--borde-panel", croma.borde_panel(tabla["--line"], dia)))
     return v
 
 def bloque(m):
