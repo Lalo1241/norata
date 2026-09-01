@@ -219,15 +219,31 @@ def lienzo(bg, card, aviso, dia=False):
     La, Ca, ha = a_oklch(aviso)
     v.append(("--lienzo-flujo", a_hex(0.9645 if not dia else 0.6728,
                                      0.0485 if not dia else 0.1386, ha)))
-    # Y el punto de la cuadrícula: el rótulo a un 9%, que es de donde salía el
-    # gris azulado que estaba escrito dentro de la regla.
+    # El punto de la cuadrícula: el rótulo a un 5,5% de noche y un 7,5% de día.
+    # Salía al 9% —copiado del gris que estaba escrito dentro de la regla— y con
+    # el suelo hondo debajo pasó a tener bastante más contraste del que tenía:
+    # la cuadrícula empezó a robar atención. Un punto de orientación tiene que
+    # estar cuando lo buscas y no antes.
     rot = dict(v)["--lienzo-rotulo"]
-    v.append(("--lienzo-punto", _rgba(rot, "0.09")))
-    # Y el suelo, que es el propio fondo del ambiente. Va explícito porque la
-    # tarjeta de una rama lo pide para no verse parcheada, y porque un mundo
-    # puede querer un suelo distinto del de su página.
-    v.append(("--lienzo-suelo", bg))
+    v.append(("--lienzo-punto", _rgba(rot, "0.075" if dia else "0.055")))
+    # Y el SUELO HONDO: el fondo de las superficies grandes —el lienzo de un
+    # mapa, la tarjeta de una rama, las columnas del tablero de misiones—. No
+    # es el fondo de la página: se separa de él en la dirección que deja ver el
+    # marco, un pelo más claro de noche y un pelo más oscuro de día. De día
+    # valiendo lo mismo que el papel, el encuadre de una rama desaparecía.
+    v.append(("--sup-hondo", mover(bg, -0.026 if dia else +0.018)))
     return v
+
+def borde_panel(line, dia=False):
+    """El marco de un panel y de la tarjeta de una rama. No es `--line`: de
+       noche es esa misma línea a un 70%, y de día es bastante MÁS CLARA
+       (+0,11 de luz medido sobre la casa), porque sobre papel un borde tiene
+       que apenas notarse.
+
+       Ninguna apariencia la declaraba, así que el encuadre de una rama en Duna
+       de día seguía siendo el gris azulado de la casa: un marco de otro tema
+       alrededor del contenido de este."""
+    return mover(line, 0.1095) if dia else _rgba(line, "0.7")
 
 
 def _lum(hexa):

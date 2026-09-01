@@ -197,12 +197,26 @@
        siendo azul debajo de cualquier ambiente. Aqui vale exactamente lo que
        valia escrito dentro de la regla —la casa no se mueve— y cada apariencia
        declara el suyo. */
-    --lienzo-punto: rgba(139, 153, 165, 0.09);
-    /* El suelo sobre el que se dibuja un mapa. Sale aparte de `--bg` para que
-       un mundo pueda darle su propio tono sin arrastrar la página entera, y
-       para que la tarjeta de una rama pueda pedir EL MISMO y no verse
-       parcheada. */
-    --lienzo-suelo: var(--bg);
+    /* Los puntitos de orientación del lienzo. Bajaron del 9% al 5,5% en
+       0.7.55.2: el punto no se movió, pero el suelo debajo sí —el lienzo pasó
+       a ser el tono hondo—, y con más contraste debajo la cuadrícula empezó a
+       robar atención. Un punto de orientación tiene que estar cuando lo buscas
+       y no antes. */
+    --lienzo-punto: rgba(139, 153, 165, 0.055);
+    /* ---------- El suelo HONDO ----------
+       El fondo de las superficies GRANDES: el lienzo de un mapa, la tarjeta de
+       una rama y las columnas del tablero de misiones. Una superficie que se
+       come media pantalla no puede llevar el mismo tono que una tarjeta de
+       lista: pintada del color de la tarjeta se convierte en una plasta, y lo
+       que va encima —que es lo que hay que leer— pierde el escalón que lo
+       levanta.
+
+       Se separa del fondo de la página en la dirección que deja ver el marco:
+       de noche un pelo MÁS CLARA (la página es lo más hondo que hay) y de día
+       un pelo MÁS OSCURA (la página es papel). Sin eso, de día la tarjeta de
+       una rama y el papel valían lo mismo y el encuadre desaparecía —
+       «se pierde por completo el diseño de los encuadres». */
+    --sup-hondo: #161c26;
     /* El contorno de un talento con candado. Valía `--pip` —los rombitos de
        una rama plegada—, que ninguna apariencia mueve: con Reliquia puesta,
        los nodos cerrados seguían siendo del gris azulado de la casa encima de
@@ -627,12 +641,8 @@
     --lienzo-caja: #f7f8fa;
     --lienzo-bloqueado: #e7e9f4;
     --lienzo-flujo: #c08c00;
-    --lienzo-punto: rgba(139, 153, 165, 0.09);
-    /* El suelo sobre el que se dibuja un mapa. Sale aparte de `--bg` para que
-       un mundo pueda darle su propio tono sin arrastrar la página entera, y
-       para que la tarjeta de una rama pueda pedir EL MISMO y no verse
-       parcheada. */
-    --lienzo-suelo: var(--bg);
+    --lienzo-punto: rgba(110, 120, 140, 0.075);
+    --sup-hondo: #d3d5e8;
     --lienzo-candado: #bcc1d6;
     --nodo-engaste: none;
     --nodo-engaste-sep: 4.5;
@@ -3084,7 +3094,7 @@
      medio eso se ve parcheado — lo dijo Eduardo mirando Reliquia: «que la
      barra superior e inferior mantengan ese morado oscuro». */
   .branch-card {
-    background: var(--lienzo-suelo);
+    background: var(--sup-hondo);
     border: var(--borde-tarjeta) solid var(--borde-panel);
     border-image: var(--marco-tarjeta);
     border-radius: var(--r-burbuja);
@@ -3249,7 +3259,7 @@
        el TONO de este suelo; no le pone dibujo encima. */
     background:
       radial-gradient(circle at 1px 1px, var(--lienzo-punto) 1px, transparent 1.6px),
-      var(--lienzo-suelo);
+      var(--sup-hondo);
     background-size: 26px 26px, auto;
     /* La letra del mapa se queda en Outfit pase lo que pase. Un mundo cambia
        `--tipo-titulo` y `--tipo-cifra`, no `--sans`, así que hoy ya sale así;
@@ -4977,7 +4987,12 @@
     padding: 16px 12px;
     text-align: center;
     font-size: 12px;
-    color: var(--faint);
+    /* En `--muted` y no en `--faint` desde que la columna lleva el suelo
+       hondo: sobre la tarjeta clara el tenue daba 4,69 y sobre el suelo nuevo
+       cae a 3,64, que ya no es leíble. En `--muted` da 4,78. Lo mismo que le
+       pasa a cualquier rótulo secundario que se mude a una superficie más
+       oscura — no es del tablero, es de la mudanza. */
+    color: var(--muted);
     border: var(--borde-fino) dashed var(--line);
     border-radius: var(--r-md);
   }
@@ -6905,7 +6920,12 @@
       flex: 1 1 302px;
       min-width: 272px;
       max-width: 480px;
-      background: var(--sup-tarjeta);
+      /* El suelo hondo, como la tarjeta de una rama y por el mismo motivo: son
+         tres cajas de 345×518 y con el tono de una tarjeta el tablero entero
+         se leía como una plasta del mismo color, con las misiones encima sin
+         escalón que las levante. Lo pidió Eduardo señalando lo que ya se había
+         hecho en la tarjeta de un encargo. */
+      background: var(--sup-hondo);
       border: var(--borde-tarjeta) solid var(--line);
       border-image: var(--marco-tarjeta);
       border-radius: 20px;
@@ -6933,7 +6953,7 @@
     .col-head h3.renombrable { overflow: hidden; }
     .col-head .count {
       font-size: 11px;
-      color: var(--faint);
+      color: var(--muted);
       background: var(--sup-tarjeta2);
       border-radius: var(--r-pastilla);
       padding: 2px 8px;
