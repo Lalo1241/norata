@@ -140,7 +140,14 @@ MUNDOS = [
    # los chips, que no tienen superficie propia: medido, 1,53-1,58 cuando el
    # resto de los mundos no pasa de 1,35. Se ve alrededor, no debajo.
    "--m-grano-op":".52",
-   "--m-tarjeta":"rgba(6,26,52,.9)","--m-borde":"1px","--m-borde-color":"#6ea2d8",
+   # La tarjeta se escribe como HEX y no como rgba, y no es cosmetica:
+   # `app.py` saca `--card` —que la app usa en bordes y en `color-mix`, donde
+   # una transparencia no cabe— buscando el primer hex del valor. Con
+   # `rgba(6,26,52,.9)` no encontraba ninguno y `--card` salia NEGRO, en
+   # silencio y solo en este mundo. Este tono es el compuesto exacto de aquel
+   # rgba sobre la pagina, asi que no cambia lo que se ve; ademas cumple lo que
+   # ya decia la nota de arriba, que el panel es opaco.
+   "--m-tarjeta":"#071c37","--m-borde":"1px","--m-borde-color":"#6ea2d8",
    "--m-sombra":"inset 0 0 0 4px rgba(6,26,52,.95), inset 0 0 0 5px rgba(110,162,216,.5), 0 8px 22px rgba(0,0,0,.35)",
    "--m-r-tarjeta":"0","--m-r-mini":"0","--m-r-barra":"0","--m-r-chip":"0",
    "--m-cenefa-alto":"26px","--m-cenefa":f'url("{svg("plano-cota.svg")}") center/200px 26px no-repeat',
@@ -153,6 +160,40 @@ MUNDOS = [
    "--m-cifra":'"Rajdhani",system-ui,sans-serif',"--m-cifra-peso":"700","--m-cifra-esp":"0",
    "--m-chip-fuente":'"Rajdhani",system-ui,sans-serif',"--m-chip-esp":".1em","--m-chip-caja":"uppercase",
    "--m-dur":".4s","--m-curva":"cubic-bezier(.4,0,.2,1)"},
+  # ---- Y el plano de dia ----
+  # No es la noche aclarada: es la COPIA HELIOGRAFICA, que es lo que un plano
+  # ha sido siempre a la luz —papel claro, linea azul—. La inversion es del
+  # oficio, no un apano para el modo claro, y por eso este mundo gana de dia en
+  # vez de sobrevivir: de noche el plano es el negativo, de dia es la copia.
+  #
+  # La leccion de Reliquia es la que obliga a declararla: el bloque del mundo
+  # gana a `html.claro` porque `css/mundos.css` se carga despues, pero SOLO en
+  # lo que declara. Sin esta cara saldria la noche del plano con los tonos de
+  # papel de la casa colados por los huecos.
+  #
+  # El acento se parte en dos como manda la casa, y los dos tonos salen MEDIDOS:
+  # `--m-acento` rellena y `--m-acento-tinta` escribe. El de escribir llega a
+  # 9,06 sobre la tarjeta y a 3,24 encima del propio relleno azul, que es donde
+  # vive el rotulo de estado de un proyecto —la casa da 2,92 ahi—.
+  dia={"--m-pagina":"#e4eaf2",
+   "--m-grano":f'url("{svg("plano-rejilla-dia.svg")}")',
+   # Un pelin mas presente que de noche (.52) porque sobre papel la misma
+   # reticula se ve menos, y sigue siendo filigrana: se ve ALREDEDOR de lo que
+   # hay que leer, no por debajo. Es la regla que Talavera dejo escrita.
+   "--m-grano-op":".62",
+   "--m-tarjeta":"#f4f7fb","--m-borde-color":"#93aac4",
+   "--m-sombra":"inset 0 0 0 4px #f4f7fb, inset 0 0 0 5px rgba(147,170,196,.75), 0 8px 22px rgba(21,42,69,.12)",
+   "--m-cenefa":f'url("{svg("plano-cota-dia.svg")}") center/200px 26px no-repeat',
+   "--m-tinta":"#14294a","--m-tinta-2":"#54708f",
+   "--m-acento":"#4c9ade","--m-acento-tinta":"#0c4677","--m-acento-velo":"rgba(12,70,119,.10)",
+   "--m-aviso":"#f5c314","--m-aviso-tinta":"#755c05","--m-aviso-velo":"rgba(117,92,5,.12)",
+   "--m-peligro":"#ff603d","--m-peligro-tinta":"#bd2200","--m-peligro-velo":"rgba(189,34,0,.11)",
+   # El carril de dia sale hex y no rgba porque hay que MEDIRLO: encima se
+   # distinguen los ocho colores del usuario. Da 1,22 sobre la tarjeta —la casa
+   # da 1,21— y el peor de los ocho encima da 1,91, por encima del 1,84 de la
+   # casa. Mas oscuro se comia lo lleno; mas claro desaparecia.
+   "--m-carril":"#dbe1ea",
+   "--m-icono":f'url("{svg("plano-marca-dia.svg")}") center/contain no-repeat'},
   extra=".plano .ficha{ padding-top:36px; }"),
 
  dict(id="forja", nombre="Forja", familia="de-materia", llave="El buque insignia", color="#ff9d3d",

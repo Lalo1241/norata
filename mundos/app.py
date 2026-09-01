@@ -61,11 +61,11 @@ def variables(m, t, dia):
        orden de carga, pero solo en lo que declara, así que por los huecos se
        colaba el papel de la casa debajo de la tinta clara del mundo)."""
     pag = t["--m-pagina"]
-    ps = paradas(pag)
-    fondo = ps[-1] if ps else "#000000"      # la parada más honda del degradado
+    ps = plano_o_muere(pag, "--m-pagina", m["id"])
+    fondo = ps[-1]                           # la parada más honda del degradado
     tarj = t["--m-tarjeta"]
-    tps = paradas(tarj)
-    tarj_plana = tps[0] if tps else "#000000"
+    tps = plano_o_muere(tarj, "--m-tarjeta", m["id"])
+    tarj_plana = tps[0]
     tinta, tinta2 = t["--m-tinta"], t["--m-tinta-2"]
     oscuro = min((fondo, tinta), key=lambda c: sum(_hex(c)))
 
@@ -207,13 +207,34 @@ def variables(m, t, dia):
     v.append(("--borde-panel", croma.borde_panel(t["--m-borde-color"], dia)))
     return v
 
+def plano_o_muere(valor, quien, mundo):
+    """El color PLANO de una superficie, o un error con nombre y apellido.
+
+    Antes esto era `ps[-1] if ps else "#000000"`, y ese `else` no era una
+    salvaguarda: era una trampa. Blueprint declaraba su tarjeta como
+    `rgba(6,26,52,.9)` —un valor de CSS perfectamente valido— y aqui no hay
+    ningun hex que encontrar, asi que `--card` salia NEGRO. En silencio, solo
+    en ese mundo, y sin que nada fallara: `--card` no se pinta casi nunca, se
+    usa en bordes y en `color-mix`, asi que el resultado era un puñado de
+    lineas y de mezclas mal calculadas repartidas por la app.
+
+    Un mundo que no dice de que color es su tarjeta es un mundo mal escrito, y
+    lo que hay que hacer con eso es parar el generador, no inventarle negro."""
+    cs = paradas(valor)
+    if not cs:
+        raise SystemExit(
+            "%s: %s no lleva ningun color escrito en hex (%r).\n"
+            "  `--card` y `--bg` salen de aqui y la app los usa donde una\n"
+            "  transparencia no cabe. Escribelo como #rrggbb." % (mundo, quien, valor))
+    return cs
+
 def bloque(m):
     t = m["tokens"]
     sel = 'html[data-apariencia="%s"]' % m["id"]
-    ps = paradas(t["--m-pagina"])
-    fondo = ps[-1] if ps else "#000000"
-    tps = paradas(t["--m-tarjeta"])
-    tarj_plana = tps[0] if tps else "#000000"
+    ps = plano_o_muere(t["--m-pagina"], "--m-pagina", m["id"])
+    fondo = ps[-1]
+    tps = plano_o_muere(t["--m-tarjeta"], "--m-tarjeta", m["id"])
+    tarj_plana = tps[0]
     tinta, tinta2 = t["--m-tinta"], t["--m-tinta-2"]
 
     salida = ["/* ---------- %s · %s ---------- */" % (m["nombre"], m["llave"]),
@@ -358,40 +379,98 @@ CAB = """/* Los mundos de Norata, ya traducidos al vocabulario de la app.
    pasa por ahí.
 
    Generado por `mundos/app.py` desde `mundos/datos.py`. No editar a mano. */
+"""
 
-/* Syne, la letra de Reliquia. Va incrustada y no traída de un servidor de
-   fuentes por dos motivos: la app se sirve de su propia copia y no pide nada a
-   la red, y una tipografía de fuera es una petición a un tercero que sabe quién
-   la pidió. Licencia SIL Open Font 1.1 (Bonjour Monde), que permite
-   incrustarla; pesa 34 KB.
+# ---- Las letras de los mundos ----
+# Cada tipografía va INCRUSTADA y no traída de un servidor de fuentes, por dos
+# motivos que no han cambiado: la app se sirve de su propia copia y no pide nada
+# a la red, y una tipografía de fuera es una petición a un tercero que sabe
+# quién la pidió.
+#
+# Esta tabla existía antes escrita a mano dentro de la cabecera, con el base64 de
+# Syne metido con un `%s`. Con un solo mundo construído eso se sostenía; con el
+# segundo, no: la cabecera habría tenido que llevar dos `%s` y saber cuál va con
+# cuál. Aquí cada mundo dice su letra y solo se incrustan las de los mundos
+# LISTOS —embeber la letra de un mundo que nadie puede encender es exactamente
+# el peso que la caché de 0.7.38 vino a evitar—.
+#
+# `pesos` es lo que se declara en el `@font-face`, y no siempre es lo que la
+# familia trae de fábrica: ver la nota de Syne.
+FUENTES = {
+  "reliquia": dict(
+    familia="Syne",
+    nota=u"""Syne, la letra de Reliquia. Licencia SIL Open Font 1.1 (Bonjour Monde),
+   que permite incrustarla; pesa 34 KB.
 
    **Se declara de 600 a 700 y no de 600 a 800, que es su rango real.** Syne a
    800 se ESTIRA —es lo característico de esa familia— y a tamaños de interfaz
    eso alarga los rótulos y descuadra los renglones. La app pide 800 en varios
    sitios; declarando el techo aquí, el navegador recorta esas peticiones al
-   700 sin que haya que ir a buscarlas una por una. El bloque de reglas de más
-   abajo hace lo mismo por si alguna se cuela con otra familia detrás. */
-@font-face {
-  font-family: "Syne";
-  font-style: normal;
-  font-weight: 600 700;
-  font-display: swap;
-  src: url(data:font/woff2;base64,%s) format("woff2");
+   700 sin que haya que ir a buscarlas una por una. El bloque de reglas de
+   `--m-peso-max` hace lo mismo por si alguna se cuela con otra familia detrás.""",
+    caras=[("syne.woff2", "600 700")]),
+  "plano": dict(
+    familia="Rajdhani",
+    nota=u"""Rajdhani, la letra de Blueprint. Licencia SIL Open Font 1.1 (Indian Type
+   Foundry), que permite incrustarla; pesan 15 KB cada una.
+
+   **Son DOS archivos y no uno, y no se puede hacer como con Syne.** Syne es
+   una fuente variable y un solo archivo cubre todo el rango con `600 700`;
+   Rajdhani no lo es, así que cada peso es su propio archivo y cada uno se
+   declara con su número exacto. Declarando solo el 700, el navegador NO baja
+   a 600: sintetiza —adelgaza el 700 a ojo— y la letra pierde justo el filo
+   de trazo técnico que es todo el motivo de elegirla para un plano.
+
+   **Y solo el subconjunto latino**, que es el que Google sirve para
+   `U+0000-00FF`. Rajdhani trae además devanágari, que en una app en español
+   no se dibuja nunca y multiplica por tres el peso del mundo. Los acentos del
+   español —á é í ó ú ñ ü— caen todos dentro del latino.""",
+    caras=[("rajdhani-600.woff2", "600"), ("rajdhani-700.woff2", "700")]),
 }
-"""
+
+def fuentes_de(ids):
+    """Los `@font-face` de los mundos que se van a construir, y solo de esos."""
+    salida = []
+    for i in ids:
+        f = FUENTES.get(i)
+        if not f:
+            raise SystemExit(
+                "%s no tiene letra en FUENTES. Un mundo sin su `@font-face`\n"
+                "  arranca con la letra de la casa y se ve casi bien, que es\n"
+                "  peor que verse mal." % i)
+        salida.append("/* " + f["nota"] + " */")
+        for archivo, peso in f["caras"]:
+            ruta = os.path.join(AQUI, "fuentes", archivo)
+            if not os.path.exists(ruta):
+                raise SystemExit("falta mundos/fuentes/%s" % archivo)
+            b64 = base64.b64encode(open(ruta, "rb").read()).decode()
+            salida.append(
+                "@font-face {\n"
+                '  font-family: "%s";\n'
+                "  font-style: normal;\n"
+                "  font-weight: %s;\n"
+                "  font-display: swap;\n"
+                '  src: url(data:font/woff2;base64,%s) format("woff2");\n'
+                "}" % (f["familia"], peso, b64))
+    return "\n".join(salida)
+
 
 if __name__ == "__main__":
-    # Los mundos LISTOS y solo esos: `datos.MUNDOS` tiene los catorce, y trece
-    # de ellos todavía son un borrador de la lámina. Meter sus variables aquí
-    # sería servir trece mundos que nadie puede encender.
-    fuente = base64.b64encode(open(os.path.join(AQUI, "fuentes", "syne.woff2"), "rb").read()).decode()
-    partes = [CAB % fuente]
     # La lista está aquí y no en `datos.py` porque quien manda sobre qué mundo
     # existe para el usuario es `MUNDOS` en `js/10i-apariencia.js` —el `listo:
     # true` de ahí—; esto es su reflejo, y al dar de alta un mundo se tocan los
-    # dos. `datos.py` tiene los catorce y trece siguen siendo lámina.
-    LISTOS = ("reliquia",)
+    # dos. `datos.py` tiene los quince y trece siguen siendo lámina.
+    #
+    # Blueprint entra el segundo, y el orden lo decidió `mundos/MUNDOS.md`:
+    # Averno y Blueprint por delante, pero el motor se estrena con los baratos
+    # —Blueprint casi no lleva imágenes—. Reliquia se quedó antes que los dos
+    # por otra razón, que es de negocio y no de dibujo: es lo único que
+    # Fundador tiene además de Pro.
+    LISTOS = ("reliquia", "plano")
     listos = [m for m in D.MUNDOS if m["id"] in LISTOS]
+    # Solo se incrusta la letra de los mundos que se construyen: la de un mundo
+    # que nadie puede encender es peso muerto en un archivo que ya pesa.
+    partes = [CAB, fuentes_de([m["id"] for m in listos])]
     for m in listos:
         partes.append(bloque(m))
     txt = "\n".join(partes)

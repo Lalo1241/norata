@@ -4,7 +4,11 @@ que el borrador. Si alguno cambia, cambian los dos."""
 import datos, construir, os, shutil
 
 M = datos.MUNDOS
-RAIZ = "/home/user/norata/mundos"
+# La ruta sale de donde esta ESTE archivo y no escrita a mano. Estaba clavada
+# a "/home/user/norata/mundos", que es la maquina donde se escribio: en
+# cualquier otra el guion no regeneraba la lamina, se la inventaba en una
+# carpeta nueva —y el paso que borra vectores sin usar apuntaba ahi tambien—.
+RAIZ = datos.AQUI
 os.makedirs(RAIZ + "/svg", exist_ok=True)
 
 # --- los vectores, en fuente editable y no solo incrustados ---------------

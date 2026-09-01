@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+  <!-- La marca de sección de día. Mismo dibujo, tinta de escribir. -->
+  <circle cx="14" cy="14" r="11" fill="none" stroke="#0c4677" stroke-width="1.6"/>
+  <path d="M3 14h22" stroke="#0c4677" stroke-width="1.2"/>
+  <path d="M14 3v3.4M14 21.6V25" stroke="#0c4677" stroke-width="1.2"/>
+  <path d="M14 3.4l3.4 3.6h-6.8z" fill="#0c4677"/>
+  <circle cx="14" cy="14" r="2" fill="#0c4677"/>
+</svg>
