@@ -52,6 +52,45 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.55.1 · 1 sep 2026
+Lo que Eduardo paró en la primera mirada de 0.7.55, y una cosa que faltaba.
+
+**El lienzo vuelve a ser un tono liso.** Se le había puesto debajo el forro de
+terciopelo de Reliquia, con el argumento de que el mapa es la superficie más
+grande de la app. Era un error y la regla que sale de ahí queda escrita en el
+CSS y en `CLAUDE.md`: **donde se vean nodos, el fondo es un tono liso más los
+puntitos de orientación, nunca un dibujo.** Una textura ahí no es carácter, es
+suciedad — compite con lo único que hay que leer en esa pantalla.
+
+**Y la tarjeta de una rama es de una pieza.** La barra de arriba y la tira de
+atajos de abajo iban en el tono de la tarjeta y el centro en el del lienzo; con
+dos tonos muy distintos eso se ve parcheado. Ahora las tres llevan el mismo
+suelo (`--lienzo-suelo`), que es el tono hondo que ya se usaba en el centro. Es
+lo que pedía de verdad «que el fondo abarque todo»: no era la página, era esta
+tarjeta.
+
+**Los talentos, ahora sí, se ven distintos.** «No les cambiaste el diseño, se
+ven igual que antes», y tenía razón: lo que cambió en 0.7.55 fueron los cables y
+los rótulos —el suelo del dibujo— y las figuras seguían siendo las mismas.
+Ahora hay **engaste**: un aro fino por fuera de cada figura, del material del
+mundo, como el metal en el que va montada una pieza de vitrina. No toca la
+forma —un rombo sigue siendo un rombo, que es lo que se pidió desde el primer
+día— y en la casa está apagado (`--nodo-engaste: none`), así que un talento de
+siempre se dibuja exactamente igual. De paso, el contorno de un nodo con
+candado deja de salir de `--pip` —que ninguna apariencia mueve, así que los
+talentos cerrados seguían siendo gris azulado sobre el lienzo violeta— y pasa a
+`--lienzo-candado`, derivado como las otras siete.
+
+**Las reglas de alinear: continuas y que se van al soltar.** Iban punteadas, y
+en este mapa el punteado ya significa algo —un hilo apagado, un requisito sin
+cumplir, el contorno de una caja—, así que se leían como una pieza más del
+dibujo. Y se quedaban puestas después de soltar, porque soltar guarda pero no
+vuelve a dibujar el mapa: la última regla sobrevivía al gesto. Medido: durante
+el arrastre salen dos líneas sin `stroke-dasharray`, y al soltar quedan cero.
+
+Foto de estilos: 102 diferencias, todas de estas dos (`.branch-card` y las capas
+de `.const-wrap`).
+
 ### 0.7.55 · 1 sep 2026
 **El fondo ya no se queda a medias: un ambiente pinta también el suelo.** Era
 el fallo de «que lo del fondo abarque todo, no solo en medio», y medido resultó

@@ -187,6 +187,12 @@ LIENZO_NOCHE = {
  "--lienzo-ficha":     (+0.0347, 0.0239),
  "--lienzo-caja":      (+0.0129, 0.0202),
  "--lienzo-bloqueado": (+0.0565, 0.0291),
+ # El contorno de un nodo con candado. Salía de `--pip`, que es el tono de los
+ # rombitos de una rama plegada y NO lo mueve ninguna apariencia: sobre el
+ # lienzo violeta de Reliquia, los talentos cerrados seguían siendo gris azul
+ # de la casa. Los valores son los de `--pip` medidos, así que la casa no se
+ # mueve un punto.
+ "--lienzo-candado":   (+0.1461, 0.0288),
 }
 LIENZO_DIA = {
  "--lienzo-apagado":   (-0.2128, 0.0445),
@@ -195,6 +201,7 @@ LIENZO_DIA = {
  "--lienzo-ficha":     (+0.0745, 0.0029),
  "--lienzo-caja":      (+0.0745, 0.0029),
  "--lienzo-bloqueado": (+0.0312, 0.0150),
+ "--lienzo-candado":   (-0.0909, 0.0300),
 }
 
 def lienzo(bg, card, aviso, dia=False):
@@ -216,6 +223,10 @@ def lienzo(bg, card, aviso, dia=False):
     # gris azulado que estaba escrito dentro de la regla.
     rot = dict(v)["--lienzo-rotulo"]
     v.append(("--lienzo-punto", _rgba(rot, "0.09")))
+    # Y el suelo, que es el propio fondo del ambiente. Va explícito porque la
+    # tarjeta de una rama lo pide para no verse parcheada, y porque un mundo
+    # puede querer un suelo distinto del de su página.
+    v.append(("--lienzo-suelo", bg))
     return v
 
 
