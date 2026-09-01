@@ -86,12 +86,12 @@ html.claro[data-apariencia="musgo"] {
 
 /* ---------- Adobe · grado 1 · Nivel 7 · con el rango Refugio ---------- */
 html:not(.claro)[data-apariencia="adobe"] {
-  --bg: #221209;
-  --bg2: #2c180e;
-  --card: #3c1c0f;
-  --card2: #462517;
-  --line: #53362b;
-  --carril: #53362b;
+  --bg: #170802;
+  --bg2: #210e05;
+  --card: #301105;
+  --card2: #3a1a0c;
+  --line: #462a20;
+  --carril: #462a20;
   --text: #f4ebe4;
   --muted: #ab958a;
   --faint: #7c6a60;
@@ -276,32 +276,32 @@ html[data-apariencia="musgo"] .celebrate {
 /* Adobe */
 html[data-apariencia="adobe"] .scene-card,
 html[data-apariencia="adobe"] .celebrate {
-  --bg: #221209;
-  --bg2: #2c180e;
-  --card: #3c1c0f;
-  --card2: #462517;
+  --bg: #170802;
+  --bg2: #210e05;
+  --card: #301105;
+  --card2: #3a1a0c;
   --sup-pagina: var(--bg);
   --sup-panel: var(--bg2);
   --sup-tarjeta: var(--card);
   --sup-tarjeta2: var(--card2);
-  --line: #53362b;
-  --carril: #53362b;
+  --line: #462a20;
+  --carril: #462a20;
   --text: #f4ebe4;
   --muted: #ab958a;
   --faint: #7c6a60;
-  --motivo-cielo-1: #3c1c0f;
-  --motivo-cielo-2: #2c180e;
+  --motivo-cielo-1: #301105;
+  --motivo-cielo-2: #210e05;
   --motivo-chispa: #f4ebe4;
   --motivo-humo: rgba(244, 235, 228, 0.3);
   --motivo-humo-tenue: rgba(244, 235, 228, 0.2);
   --motivo-espuma: rgba(244, 235, 228, 0.6);
-  --motivo-lienzo: #2c180e;
-  --motivo-curva: #53362b;
-  --escena-fondo: 34, 18, 9;
-  --escena-vidrio: 60, 28, 15;
+  --motivo-lienzo: #210e05;
+  --motivo-curva: #462a20;
+  --escena-fondo: 23, 8, 2;
+  --escena-vidrio: 48, 17, 5;
   --escena-tinta: 244, 235, 228;
   --escena-tinte-modo: block;
-  --escena-tinte: #3c1c0f;
+  --escena-tinte: #301105;
   --escena-tinte-fuerza: 0.85;
 }
 
@@ -426,7 +426,7 @@ html.claro .mues-casa { --mu-bg: #dcdef0; --mu-card: #f2f0f9; --mu-acento: #00cc
 html.claro .mues-tinta { --mu-bg: #e7e9ee; --mu-card: #f7f9fc; --mu-acento: #16181b; }
 .mues-musgo { --mu-bg: #05180f; --mu-card: #042815; --mu-acento: #5fe0b0; }
 html.claro .mues-musgo { --mu-bg: #e8ebe6; --mu-card: #f4f7f3; --mu-acento: #00cc7f; }
-.mues-adobe { --mu-bg: #221209; --mu-card: #3c1c0f; --mu-acento: #5fe0b0; }
+.mues-adobe { --mu-bg: #170802; --mu-card: #301105; --mu-acento: #5fe0b0; }
 html.claro .mues-adobe { --mu-bg: #e3d4ca; --mu-card: #f4ebe4; --mu-acento: #00cc7f; }
 .mues-duna { --mu-bg: #1d1220; --mu-card: #36203a; --mu-acento: #5fe0b0; }
 html.claro .mues-duna { --mu-bg: #e0cbdb; --mu-card: #f4ecf2; --mu-acento: #00cc7f; }

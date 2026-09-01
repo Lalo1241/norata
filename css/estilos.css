@@ -120,6 +120,11 @@
        que es como esta hecho el logotipo oficial para fondo claro
        (marca/logotipo-oscuro.svg). */
     --marca: #f7f8fa;
+    /* Y la menta de la MARCA, que NO es `--mint`. Un ambiente cambia el acento
+       de la app —Escarcha lo pone celeste— y el isotipo acababa azul: la marca
+       dejaba de ser la marca. Un tema puede cambiarlo todo menos quién eres.
+       Se declara aquí y en `html.claro`, y NINGÚN ambiente ni mundo la toca. */
+    --marca-iso: #5fe0b0;
 
     /* El velo claro con el que se marca lo pulsado. Sobre papel blanco un
        blanco al 4% no existe, así que en claro se vuelve tinta. */
@@ -521,6 +526,9 @@
     --tag-fondo: #f7f8fa;
     --peligro-nota: #4f5b67;
     --marca: #131823;
+    /* La cara de día de la menta de la marca. Es el mismo tono con el que
+       Norata se firma sobre papel; no lo mueve ningún ambiente. */
+    --marca-iso: #00cc7f;
 
     --vidrio: rgba(22, 32, 43, 0.045);
     --vidrio-fuerte: rgba(22, 32, 43, 0.08);
@@ -3131,9 +3139,16 @@
     overflow: hidden;
     touch-action: auto;
     scrollbar-width: none;
+    /* El fondo HONDO también aquí, no solo a pantalla completa. Antes el
+       previsualizador dejaba ver la tarjeta que hay debajo y el mapa cambiaba
+       de suelo al abrirlo; lo cazó Eduardo, y le gustaba el de dentro. Ahora es
+       el mismo en los dos sitios y en todas las apariencias, porque sale de
+       `--bg` — y vale igual para las ramas de proyectos, que usan este mismo
+       lienzo. */
     background:
-      radial-gradient(circle at 1px 1px, rgba(139, 153, 165, 0.09) 1px, transparent 1.6px);
-    background-size: 26px 26px;
+      radial-gradient(circle at 1px 1px, rgba(139, 153, 165, 0.09) 1px, transparent 1.6px),
+      var(--bg);
+    background-size: 26px 26px, auto;
   }
   /* Aviso de que la vista previa está recortada, y atajo para abrirla */
   .fs-open {
@@ -5644,21 +5659,38 @@
      `env(safe-area-inset-top)` va como relleno y no como posición, porque en un
      teléfono con muesca la barra tiene que llegar hasta el borde de verdad y su
      texto quedar por debajo de la muesca. */
+  /* Una PASTILLA centrada y no una tira de lado a lado. Fue tira en 0.7.50
+     para acabar con dos pastillas apiladas que tapaban el título; el problema
+     eran las dos, no la forma, y de lado a lado acapara media cabecera —lo
+     dijo Eduardo—. Con una sola pastilla se resuelven las dos cosas: ocupa lo
+     que mide su texto y el hueco de abajo sigue reservado, así que no tapa
+     nada.
+
+     El contenedor va de lado a lado y sin fondo, solo para centrarla y para
+     que el relleno de la muesca del teléfono se pague arriba. */
   .aviso-modo {
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: var(--piso-ejemplo);
+    display: flex; align-items: flex-start; justify-content: center;
+    padding-top: env(safe-area-inset-top);
+    pointer-events: none;
+  }
+  .aviso-modo .av-caja {
     display: flex; align-items: center; justify-content: center; gap: 10px;
+    max-width: min(92vw, 560px);
     background: var(--fire-macizo); color: var(--sobre-macizo);
-    padding: calc(env(safe-area-inset-top) + 5px) 12px 6px;
+    padding: 5px 14px 6px;
+    border-radius: 0 0 var(--r-caja) var(--r-caja);
     font-size: 10.5px; font-weight: 800;
     letter-spacing: 0.06em; text-transform: uppercase;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.34);
+    pointer-events: auto;
   }
   .aviso-modo .av-tx { min-width: 0; }
   /* El botón se dibuja pequeño porque la barra lo es, pero la zona que recibe
      el dedo no puede serlo: a 19 px de alto se falla en un teléfono. */
-  .aviso-modo button {
+  .aviso-modo .av-caja button {
     flex: none;
     font: inherit; letter-spacing: inherit; text-transform: inherit;
     color: inherit; cursor: pointer;
@@ -5668,7 +5700,7 @@
   }
   /* Sin transición en el fondo: el color sale de una variable y Chrome deja el
      valor congelado en el inicial (ver la nota del modo claro). */
-  .aviso-modo button:hover { background: rgba(16, 21, 29, 0.24); }
+  .aviso-modo .av-caja button:hover { background: rgba(16, 21, 29, 0.24); }
 
   /* El texto se PARTE en vez de recortarse. A 360 px, «Cuenta de pruebas ·
      viendo como Fundador» no cabe en un renglón, y cortarlo con puntos
