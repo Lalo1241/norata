@@ -14,7 +14,7 @@ que pesa un mundo —tipografía y texturas— y bajárselo a quien nunca va a
 encenderlo es justo lo que la caché de 0.7.38 vino a evitar. Lo pide
 `js/10i-apariencia.js` cuando se enciende un mundo, y el service worker lo
 guarda solo la primera vez que pasa por ahí."""
-import os, re, sys, base64
+import os, re, sys, base64, hashlib
 AQUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, AQUI)
 import datos as D
@@ -395,7 +395,49 @@ if __name__ == "__main__":
     for m in listos:
         partes.append(bloque(m))
     txt = "\n".join(partes)
-    destino = os.path.join(os.path.dirname(AQUI), "css", "mundos.css")
+    raiz = os.path.dirname(AQUI)
+    destino = os.path.join(raiz, "css", "mundos.css")
     open(destino, "w", encoding="utf-8").write(txt)
-    print("css/mundos.css", len(txt.encode()), "bytes ·",
+
+    # ---- Y la HUELLA, que es lo que impide que un aparato se quede con una
+    # copia vieja para siempre ----
+    #
+    # `css/mundos.css` no va en ASSETS, así que no lo renueva la instalación:
+    # se pide suelto cuando hace falta y lo que llegue se guarda en la caché de
+    # esa versión — y a partir de ahí ya es un acierto y no se vuelve a pedir.
+    # GitHub Pages tarda un minuto largo en publicar y su CDN no cambia todos
+    # los archivos a la vez, así que hay una ventana en la que `sw.js` ya es el
+    # nuevo y este archivo todavía es el viejo. Quien abra ahí se queda el
+    # archivo viejo congelado con el número de versión nuevo puesto, y no hay
+    # recarga que lo arregle. Está reproducido; pasó con la 0.7.55.3.
+    #
+    # La cura es que la DIRECCIÓN cambie cuando cambia el archivo. Con
+    # `?h=<huella>` una copia vieja no puede reutilizarse ni desde la caché del
+    # service worker ni desde la del navegador, porque ya no es la misma
+    # dirección. Y la huella sale del contenido, así que se actualiza sola al
+    # generar el archivo: no hay un quinto sitio que acordarse de tocar.
+    huella = hashlib.sha256(txt.encode()).hexdigest()[:10]
+    # Se sella LÍNEA A LÍNEA y solo donde se pide el archivo de verdad: con una
+    # sustitución sobre el archivo entero, los comentarios que lo nombran
+    # acababan diciendo `css/mundos.css?h=…`, que no es falso pero es ruido.
+    # El selector que comprueba si ya está enganchada NO se sella: mira por
+    # prefijo (`href^=`) justo para no depender de la huella. Sellándolo también
+    # funcionaba, pero el día que un sellado alcance a un sitio y no al otro,
+    # la app pediría el mundo dos veces sin que nada lo delate.
+    marcas = ('.href = "css/mundos.css',)
+    tocados = []
+    for rel in ("index.html", os.path.join("js", "10i-apariencia.js")):
+        ruta = os.path.join(raiz, rel)
+        lineas = open(ruta, encoding="utf-8").read().split("\n")
+        cambio = False
+        for i, l in enumerate(lineas):
+            if any(m in l for m in marcas):
+                nueva = re.sub(r"css/mundos\.css(\?h=[0-9a-f]+)?", "css/mundos.css?h=" + huella, l)
+                if nueva != l: lineas[i] = nueva; cambio = True
+        if cambio:
+            open(ruta, "w", encoding="utf-8").write("\n".join(lineas))
+            tocados.append(rel)
+
+    print("css/mundos.css", len(txt.encode()), "bytes · huella", huella, "·",
           ", ".join(m["nombre"] for m in listos))
+    if tocados: print("  sellado en:", ", ".join(tocados))

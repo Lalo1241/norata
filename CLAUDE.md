@@ -55,6 +55,13 @@ getComputedStyle(el).backgroundColor                // el color, leído, no supu
 caja.getBoundingClientRect().top - cap.getBoundingClientRect().top  // >= 0
 ```
 
+**Recargar la misma pestaña NO es abrir la app**, y creerlo cuesta una tarde.
+Medido con `performance.getEntriesByType("resource")`: en una recarga, las
+hojas de estilo salen de la caché del navegador con `workerStart` en cero —o
+sea, sin pasar por el service worker—; en una pestaña nueva sí pasan por él y
+salen de su almacén (`deliveryType: "cache-storage"`). Cualquier prueba sobre
+la caché tiene que abrir pestaña nueva, o mide otra cosa.
+
 **Y la trampa que sale de ahí: sin componer fotogramas, las TRANSICIONES no
 avanzan nunca.** Se quedan en `playState: "running"` para siempre y
 `getComputedStyle` devuelve el valor de PARTIDA, no el de destino. Da igual
@@ -365,10 +372,26 @@ Tres cosas del `sw.js` que no se pueden tocar sin entender por qué están:
   esta versión ya existe —la crea `install`—, así que `keys` nunca está vacío y
   el aviso saltaba en una instalación recién hecha.
 
+- **Lo que NO está en `ASSETS` se pide con `cache: "no-store"` y con una
+  HUELLA en la dirección.** Un archivo que no está en la lista de la
+  instalación no lo renueva nadie: se pide suelto y lo que llegue se guarda en
+  la caché de esa versión, y a partir de ahí ya es un acierto y no se vuelve a
+  pedir NUNCA. GitHub Pages tarda un minuto en publicar y su CDN no cambia
+  todos los archivos a la vez, así que hay una ventana en la que `sw.js` ya es
+  el nuevo y `css/mundos.css` todavía es el viejo: quien abra ahí se queda el
+  mundo congelado con el número de versión nuevo puesto. Pasó de verdad con la
+  0.7.55.3. Tres piezas lo cierran, y hacen falta las tres:
+  `?h=<huella>` en la dirección (la estampa `mundos/app.py` con el sha-256 del
+  contenido, así que no hay un quinto sitio que tocar), el worker
+  **comprobando** esa huella antes de guardar —el servidor contesta al `?h=`
+  nuevo con el archivo viejo, y con un 200— y `no-store`, para que el
+  navegador no se quede una copia propia por encima.
+
 **Lo que esto pide de las apariencias:** las texturas y tipografías de un mundo
 **no van en `ASSETS`**. Eso es la lista de la instalación, y meterlas ahí le
 haría bajar el mundo entero a quien nunca lo va a encender. Van aparte, se
-piden cuando se enciende el mundo, y se quedan cacheadas por nombre.
+piden cuando se enciende el mundo, y se quedan cacheadas **por dirección, con
+su huella dentro**.
 
 **Y lo que no se hizo:** bajar tarde el lienzo del árbol, los informes y los
 planes (119 KB, el 26% del arranque). Con la red ya resuelta, compilar y
