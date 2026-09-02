@@ -76,6 +76,57 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.72.5 · 2 sep 2026
+**Segunda tanda sobre las celebraciones, otra vez de la mano de Eduardo.**
+
+**1. En un monitor, el texto a la izquierda y la constelación a la derecha.**
+Es el orden en que se lee: primero qué pasó, luego el dibujo que lo celebra.
+Va con `row-reverse` y no reordenando el marcado, porque en columna —el
+teléfono— el orden correcto es el contrario, el dibujo arriba. Y con AIRE: las
+dos columnas se juntaban en medio y se pegaban a los bordes, que es lo que hace
+que una pantalla completa parezca un recorte. Medido en 1920×1080: 115 px a la
+izquierda, 260 a la derecha, 150 arriba y abajo.
+
+**2. La medalla no había crecido.** Un fallo tonto que él vio y yo no: la
+0.7.72.3 subió la constante de escala a 0,16 y las dos llamadas que la usan
+seguían pasando el `0.1` escrito a mano, así que la medalla se quedó igual de
+diminuta. Arreglado y subido a 0,18, con el hueco entre medallas a 19: la
+medalla pasó de ~40 px a 83-100, y con las cinco la fila ocupa 88 de las 100
+unidades del cuadro —entra justa—. De paso el tope de la constelación sube a
+780 px en los DOS lados: la figura se dibuja en un cuadro, así que subir solo
+el ancho no la agrandaba ni un píxel.
+
+**3. La tarjeta enseña la miniatura de VERDAD.** Había un dibujo propio —fondo,
+una tarjeta y un punto— con sus propias medidas; ahora son las cuatro piezas de
+`.amb-mini`, las del escaparate de «Mi apariencia», con las mismas
+proporciones: suelo, tarjeta, acento e icono del ambiente. La vista de un
+premio tiene que ser la que vas a reconocer cuando llegues a buscarlo. Y el
+hueco que deja la miniatura cuadrada dentro de la caja apaisada se pinta con el
+suelo de ese ambiente, en vez de dejarlo en el gris de la escena.
+
+**4. El humo de la racha dejaba ver el suelo.** Termina de subir en
+`translateY(-4vmin)`, y con el borde del degradado pegado a `bottom: 0` esos
+4 vmin descubrían la franja de abajo: un corte horizontal a lo ancho de la
+pantalla. Ahora el degradado sobresale 18 vmin por debajo y sigue tapando
+durante todo el recorrido. Aprovechando, el ancho del humo y el cerco de la
+brasa pasan de `vmin` a `vmax`: en un monitor apaisado 120 vmin son 120
+unidades del lado CORTO y no llegaban a los bordes.
+
+**5. El velo de la fiesta pequeña tapa de verdad.** Arrancaba en 0,55 en el
+centro, así que la app se leía entera por debajo y el rótulo competía con lo
+que hubiera detrás. Ahora va de 0,86 a 0,985, y el modo claro tiene su propio
+par —0,92 a 0,995— porque de día lo de debajo es más luminoso y se cuela más.
+
+**6. Cada rango con SU color.** Los cinco ya lo tenían elegido en `EXP_RANGOS`
+—menta, celeste, rosa, astro y coral— y la celebración los pintaba todos de
+menta: las cinco constelaciones se veían la misma. Ahora el trazo, las
+estrellas, el halo, la insignia, la cifra y el nombre salen de `--rango`, que
+`ncelPintarMapa` escribe en el contenedor; y **cada medalla del estante lleva
+la suya propia**, porque una colección de cinco cosas del mismo color es una
+sola cosa repetida. Sin transición en ninguna, que es la trampa conocida de la
+casa. Los botones se quedan en menta: eso es el lenguaje de los botones y no
+el color de la fiesta.
+
 ### 0.7.72.4 · 2 sep 2026
 
 **«Aplicar» en vez de «Ponérmelo».**

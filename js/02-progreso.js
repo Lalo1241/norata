@@ -178,6 +178,19 @@ function ncelCielo() {
   return s;
 }
 
+/* El color de un rango, para pintarlo en el SVG. Los cinco YA lo tienen
+   elegido en `EXP_RANGOS` (menta, celeste, rosa, astro y coral) y hasta ahora
+   la celebración los pintaba todos de menta, así que las cinco constelaciones
+   se veían iguales. Devuelve el atributo entero —vacío si no hay rango— para
+   que quien lo use no tenga que acordarse de las comillas. */
+function ncelColorRango(i) {
+  const r = typeof EXP_RANGOS !== "undefined" && EXP_RANGOS[i];
+  return r && r.color ? "var(" + r.color + ")" : "var(--mint)";
+}
+function ncelEstiloRango(i) {
+  return ` style="--rango:${ncelColorRango(i)}"`;
+}
+
 function ncelPintarMapa(nivel) {
   const cielo = document.getElementById("ncel-cielo");
   const mapa = document.getElementById("ncel-mapa");
@@ -186,15 +199,22 @@ function ncelPintarMapa(nivel) {
 
   const iR = ncelIndiceRango(nivel), fig = NCEL_FIGURAS[iR], k = ncelEstrella(nivel);
   const nuevoRango = k === 1 && nivel > 1;
+  /* Toda la escena —trazo, estrellas, halo, insignia, cifra y el nombre del
+     rango— sale de esta variable. Se pone en el contenedor y no en cada regla
+     para que un solo sitio decida el color de la fiesta. */
+  document.getElementById("ncel").style.setProperty("--rango", ncelColorRango(iR));
   /* Hasta dónde llega el dibujo con este nivel, y desde dónde es nuevo. */
   const hasta = ncelHasta(fig, k), desde = k > 1 ? ncelHasta(fig, k - 1) : 0;
   /* Coordenadas del cuadro de la franja (viewBox 0 0 100 100). La figura llena
      lo que puede sin tocar el estante de medallas, que vive arriba del todo. */
   const CX = 50, CY = 58, ESC = 0.74;
-  /* El estante de medallas: 0,105 lo dejaba en 54 px en un monitor —cuatro
-     rayas que no se leen como nada—. A 0,16 son 83 px y se distingue qué
-     figura es cada una, que es lo único que hace que una colección funcione. */
-  const ESC_MEDALLA = 0.16, ANCHO = 18;
+  /* El estante de medallas. Aquí hubo un fallo tonto que Eduardo vio y yo no:
+     la constante se subió a 0,16 y las DOS llamadas de abajo seguían pasando
+     el 0,1 escrito a mano, así que la medalla nunca creció. A 0,18 mide 100 px
+     en un monitor y se distingue qué figura es cada una, que es lo único que
+     hace que una colección signifique algo. Con cinco, la fila ocupa 88 de las
+     100 unidades del cuadro: entra justa y no hay sitio para más. */
+  const ESC_MEDALLA = 0.18, ANCHO = 19;
 
   /* El estante de arriba: las figuras ya cerradas, en pequeño. El total
      incluye la que se cierra en ESTE nivel — sin contarla, la fila quedaba
@@ -206,8 +226,11 @@ function ncelPintarMapa(nivel) {
   let estante = "";
   for (let i = 0; i < cerradas; i++) {
     const recien = nuevoRango && i === cerradas - 1;
-    estante += `<g class="${recien ? "ncel-med-nueva" : ""}">` +
-      ncelFigura(NCEL_FIGURAS[i], NCEL_FIGURAS[i].p.length, x0 + i * ANCHO, 11, 0.1, medalla) + `</g>`;
+    /* Cada medalla con el color de SU rango y no con el de la escena: el
+       estante es una colección, y una colección de cinco cosas del mismo color
+       es una sola cosa repetida. */
+    estante += `<g class="${recien ? "ncel-med-nueva" : ""}"${ncelEstiloRango(i)}>` +
+      ncelFigura(NCEL_FIGURAS[i], NCEL_FIGURAS[i].p.length, x0 + i * ANCHO, 12, ESC_MEDALLA, medalla) + `</g>`;
   }
 
   const viva = { linea: "ncel-linea", astro: "ncel-astro" };
@@ -222,7 +245,7 @@ function ncelPintarMapa(nivel) {
   if (nuevoRango) {
     /* La figura anterior se cierra a la vista y se va al estante, y solo
        entonces nace la nueva. Ese relevo ES la noticia del cambio de rango. */
-    cuerpo += `<g class="ncel-viva cerrando">` +
+    cuerpo += `<g class="ncel-viva cerrando"${ncelEstiloRango(iR - 1)}>` +
       ncelFigura(NCEL_FIGURAS[iR - 1], NCEL_FIGURAS[iR - 1].p.length, CX, CY, ESC, viva) + `</g>`;
     cuerpo += `<g class="ncel-naciendo">` +
       ncelFigura(fig, hasta, CX, CY, ESC, viva, desde) + halo(fig.p[hasta - 1], true) + `</g>`;
@@ -230,8 +253,8 @@ function ncelPintarMapa(nivel) {
     cuerpo += `<g class="ncel-viva${ncelCierra(nivel) ? " cerrando" : ""}">` +
       ncelFigura(fig, hasta, CX, CY, ESC, viva, desde) + halo(fig.p[hasta - 1], false) + `</g>`;
     if (ncelCierra(nivel)) {
-      estante += `<g class="ncel-med-nueva">` +
-        ncelFigura(fig, fig.p.length, x0 + cerradas * ANCHO, 11, 0.1, medalla) + `</g>`;
+      estante += `<g class="ncel-med-nueva"${ncelEstiloRango(iR)}>` +
+        ncelFigura(fig, fig.p.length, x0 + cerradas * ANCHO, 12, ESC_MEDALLA, medalla) + `</g>`;
     }
   }
   mapa.innerHTML = `<g class="ncel-estante">${estante}</g>${cuerpo}`;
@@ -358,8 +381,21 @@ function ncelTarjetaPremio(x, i) {
        `color-mix` del marco se volvía inválido y la tarjeta salía con el
        borde blanco de fábrica en vez del acento del ambiente. */
     const completo = t && t.bg && t.card && t.acento;
+    /* **La misma miniatura del escaparate**, no una versión propia. Aquí había
+       un dibujo aparte —fondo, una tarjeta y un punto— con sus propias
+       proporciones, y Eduardo lo notó enseguida: la vista de la recompensa
+       tiene que ser la que ya enseña «Mi apariencia», o el premio no se
+       reconoce cuando llegas a buscarlo. Son las mismas cuatro piezas de
+       `.amb-mini` (suelo, tarjeta, acento e icono del ambiente) con las mismas
+       medidas; lo único que cambia es que los tonos entran por variables en
+       línea, porque la escena se queda de noche en los dos modos y las reglas
+       `.mues-*` cambian con el modo claro. */
+    const amb = typeof AMBIENTES !== "undefined" && AMBIENTES.find(a => a.id === x.id);
     vista = completo
-      ? '<span class="ncel-swatch"><i class="sw-card"></i><i class="sw-punto"></i></span>'
+      ? '<span class="ncel-swatch">' +
+          '<i class="sw-card"></i><i class="sw-punto"></i>' +
+          (amb && amb.icon ? '<i class="sw-ic">' + icon(amb.icon, 22) + '</i>' : '') +
+        '</span>'
       : icon("brush", 22);
     if (completo) estilo = ' style="--sw-bg:' + t.bg + ';--sw-card:' + t.card + ';--sw-ac:' + t.acento + '"';
   } else {

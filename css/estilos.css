@@ -1459,9 +1459,20 @@
      —son los días seguidos—, así que se queda; lo que cambia es que el humo
      sube UNA vez y se asienta. */
   .scel-rays {
-    position: absolute; left: 50%; bottom: 0;
-    width: 120vmin; height: 110vmin; margin-left: -60vmin;
-    background: radial-gradient(ellipse 50% 60% at 50% 100%,
+    /* **Sobresale por abajo de la pantalla, y eso no es un margen de más.**
+       El humo termina de subir en `translateY(-4vmin)`, así que con el borde
+       del degradado pegado a `bottom: 0` esos 4vmin dejaban al descubierto la
+       franja de debajo —el fondo pelado de la escena— y se veía un corte
+       horizontal a lo ancho de la pantalla. Lo cazó Eduardo en la primera
+       pasada. Con 18vmin por debajo y el alto compensado, el degradado sigue
+       tapando el suelo durante todo el recorrido.
+
+       El ancho va en `vmax` y no en `vmin` por lo mismo, pero de lado: en un
+       monitor apaisado 120vmin son 120 unidades del lado CORTO, y el humo no
+       llegaba a los bordes izquierdo y derecho. */
+    position: absolute; left: 50%; bottom: -18vmin;
+    width: 130vmax; height: 128vmin; margin-left: -65vmax;
+    background: radial-gradient(ellipse 50% 60% at 50% 86%,
       color-mix(in srgb, var(--fire-macizo) 16%, transparent), transparent 70%);
     animation: scelHumo 3.4s ease-out forwards;
     pointer-events: none;
@@ -1861,32 +1872,59 @@
      apaisado—, porque una tableta vertical de 1024 tiene el ancho pero no
      tiene el alto que sobra, y ahí la columna sigue siendo lo correcto. */
   @media (min-width: 900px) and (min-aspect-ratio: 1/1) {
+    /* **El texto a la izquierda y el dibujo a la derecha**, que es el orden en
+       que se lee: primero qué pasó, luego el dibujo que lo celebra. Va con
+       `row-reverse` y no reordenando el HTML porque en columna —el teléfono—
+       el orden correcto es el contrario, el dibujo arriba; el marcado sirve a
+       los dos y el sentido lo pone la maqueta.
+
+       Y con AIRE. Antes las dos columnas se juntaban en medio y se pegaban a
+       los bordes de la pantalla, que es lo que hace que una escena a pantalla
+       completa parezca un recorte mal hecho. El acolchado crece con la
+       pantalla y el `gap` los separa entre sí. */
     .ncel.show {
-      flex-direction: row; align-items: center;
-      justify-content: center; gap: clamp(24px, 4vw, 72px);
+      flex-direction: row-reverse; align-items: center;
+      justify-content: center; gap: clamp(40px, 6vw, 110px);
+      padding: clamp(32px, 5vh, 72px) clamp(40px, 6vw, 120px);
     }
     /* Con `.ncel.show` delante y no a secas: las reglas de la columna viven
        MÁS ABAJO en el archivo, y a igual especificidad gana la última. Sin
        esto el ancho del núcleo se quedaba en los 380 px del teléfono y la
        fila de botín no aprovechaba nada. */
+    /* El tope va en los DOS lados y sube junto: la figura se dibuja en un
+       cuadro, así que el lado que mande es el corto y subir solo el ancho no
+       la agranda ni un píxel. A 1920×1080 esto son 780 px de constelación. */
     .ncel.show .ncel-mapa {
-      flex: 0 0 min(46vw, 580px);
-      height: min(80vh, 640px); width: auto;
+      flex: 0 1 min(44vw, 780px);
+      height: min(78vh, 780px); width: auto;
     }
-    .ncel.show .ncel-core { max-width: 520px; margin-bottom: 0; }
+    .ncel.show .ncel-core { max-width: 520px; margin-bottom: 0; padding: 0; }
   }
   .ncel-cielo circle { fill: #cfe6ff; }
-  .ncel-linea { stroke: var(--mint); fill: none; opacity: .45; }
+  /* ---------- El color de la fiesta lo pone el RANGO ----------
+     Los cinco rangos ya tenían su color elegido en `EXP_RANGOS` —menta,
+     celeste, rosa, astro y coral— y la celebración los pintaba todos de menta,
+     así que las cinco constelaciones se veían la misma. `--rango` la escribe
+     `ncelPintarMapa` en el contenedor, y cada medalla del estante lleva la
+     suya propia en línea, porque el estante es una colección de rangos
+     distintos. El respaldo es la menta: un mundo que no declare color no
+     rompe nada.
+
+     Sin transición en ninguna de estas, y a propósito: es la trampa conocida
+     de la casa —una transición sobre una propiedad cuyo valor sale de una
+     variable se queda congelada en el color inicial para siempre—. */
+  .ncel { --rango: var(--mint); }
+  .ncel-linea { stroke: var(--rango); fill: none; opacity: .45; }
   .ncel-linea.nueva { animation: ncelTrazar .55s cubic-bezier(.4,0,.2,1) .45s backwards; }
   @keyframes ncelTrazar { from { stroke-dashoffset: var(--l); } to { stroke-dashoffset: 0; } }
-  .ncel-astro { fill: var(--mint); opacity: .9; }
+  .ncel-astro { fill: var(--rango); opacity: .9; }
   .ncel-nueva { fill: #fff; animation: ncelNace .9s ease-out .95s backwards; transform-origin: center; }
   @keyframes ncelNace {
     0%   { opacity: 0; transform: scale(0); }
     45%  { opacity: 1; transform: scale(2.1); }
     100% { opacity: 1; transform: scale(1); }
   }
-  .ncel-brillo { fill: var(--mint); animation: ncelHalo 1.6s ease-out 1s backwards; transform-origin: center; }
+  .ncel-brillo { fill: var(--rango); animation: ncelHalo 1.6s ease-out 1s backwards; transform-origin: center; }
   @keyframes ncelHalo { 0% { opacity: .75; transform: scale(.2); } 100% { opacity: 0; transform: scale(4); } }
 
   /* Cerrar la figura es la noticia del cambio de rango: el dibujo respira una
@@ -1906,8 +1944,8 @@
   .ncel-naciendo { animation: ncelNaceFig .9s ease 3.8s backwards; transform-origin: 50% 30%; }
   @keyframes ncelNaceFig { from { opacity: 0; transform: scale(.7); } }
 
-  .ncel-estante .ncel-med-linea { stroke: var(--mint); fill: none; opacity: .3; }
-  .ncel-estante .ncel-med-astro { fill: var(--mint); opacity: .5; }
+  .ncel-estante .ncel-med-linea { stroke: var(--rango); fill: none; opacity: .38; }
+  .ncel-estante .ncel-med-astro { fill: var(--rango); opacity: .58; }
   .ncel-estante .ncel-med-nueva { animation: ncelMedalla .7s ease 3.7s backwards; }
   @keyframes ncelMedalla { from { opacity: 0; } }
   /* El texto baja y la constelación se queda arriba. Centrados los dos, el
@@ -1917,7 +1955,7 @@
     position: relative; text-align: center; padding: 24px;
     max-width: 380px; width: 100%; flex: 0 0 auto; margin-bottom: 2vh;
   }
-  .ncel-insignia { color: var(--mint); filter: drop-shadow(0 0 28px color-mix(in srgb, var(--mint) 70%, transparent)); }
+  .ncel-insignia { color: var(--rango); filter: drop-shadow(0 0 28px color-mix(in srgb, var(--rango) 70%, transparent)); }
   .ncel-insignia svg { width: 78px; height: 78px; stroke-width: 1.5; }
   /* Dos latidos y para. En infinito, la insignia competía con la constelación
      que se está tejiendo detrás, que es lo que hay que mirar. */
@@ -1928,19 +1966,19 @@
   }
   .ncel-num {
     font-size: 76px; font-weight: 800; letter-spacing: -3px; line-height: 1;
-    color: var(--mint);
+    color: var(--rango);
     font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
-    text-shadow: 0 6px 34px color-mix(in srgb, var(--mint) 55%, transparent);
+    text-shadow: 0 6px 34px color-mix(in srgb, var(--rango) 55%, transparent);
     margin-top: 6px;
   }
   .ncel.show .ncel-num { animation: ncelPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s backwards; }
   @keyframes ncelPop { from { transform: scale(0.3); opacity: 0; } }
   .ncel-unit {
     font-size: 15px; font-weight: 700; letter-spacing: 3px;
-    text-transform: uppercase; color: color-mix(in srgb, var(--mint) 85%, transparent); margin-top: 2px;
+    text-transform: uppercase; color: color-mix(in srgb, var(--rango) 85%, transparent); margin-top: 2px;
   }
   .ncel-rango { font-size: 15px; color: var(--text); opacity: 0.9; margin-top: 12px; }
-  .ncel-rango b { font-weight: 800; color: var(--mint); }
+  .ncel-rango b { font-weight: 800; color: var(--rango); }
   /* El renglón del rango crece cuando el rango es NUEVO: es la noticia gorda
      de esa pantalla y con el mismo tamaño que «Rango Nodo» de siempre pasaba
      desapercibida entre el número y la lista. */
@@ -2052,6 +2090,18 @@
     background: rgba(var(--escena-fondo), 0.62);
     color: var(--premio, var(--mint));
   }
+  /* La miniatura de un ambiente es cuadrada —lo es en el escaparate y ahí se
+     queda—, así que en la caja apaisada de la tarjeta le sobra sitio a los
+     lados. Ese sitio se pinta con el SUELO de ese ambiente en vez de dejarlo
+     en el gris de la escena: el hueco pasa de ser un margen muerto a ser más
+     de lo mismo que estás premiando. */
+  .ncel-premio.es-amb .ncel-vista {
+    background:
+      linear-gradient(180deg,
+        color-mix(in srgb, var(--sw-ac, var(--mint)) 10%, transparent),
+        transparent 70%),
+      var(--sw-bg, rgba(var(--escena-fondo), .62));
+  }
   .ncel-vista svg { width: 100%; height: 100%; display: block; }
   .ncel-pie { padding: 0 4px; }
   .ncel-quees {
@@ -2066,22 +2116,43 @@
     min-height: 2.48em;
   }
 
-  /* La miniatura de un ambiente es la app en pequeño: su suelo, una tarjeta
-     encima y el punto de su acento. Los tres tonos salen del propio CSS de ese
-     ambiente, así que nadie mantiene una segunda tabla de colores. */
+  /* ---- La miniatura de un ambiente: LA MISMA que el escaparate ----
+     Es la app en pequeño —su suelo, una tarjeta encima, el punto del acento y
+     el icono del ambiente—, y las cuatro piezas van con las MEDIDAS de
+     `.amb-mini` en «Mi apariencia», no con unas propias. Lo pidió Eduardo y es
+     obvio en cuanto se dice: la vista del premio tiene que ser la que vas a
+     reconocer cuando llegues a buscarlo.
+
+     Va en un cuadrado centrado y no estirada a la vista entera: la miniatura
+     del escaparate es 1:1, y con la caja de 16:10 de la tarjeta la proporción
+     se falseaba y la «tarjeta» de dentro salía chata. Los tonos entran por
+     variables en línea porque la escena se queda de noche en los dos modos y
+     las reglas `.mues-*` cambian con el modo claro. */
   .ncel-swatch {
-    position: relative; display: block; width: 100%; height: 100%;
+    position: relative; display: block;
+    height: 100%; aspect-ratio: 1 / 1;
+    border-radius: var(--r-caja);
     background: var(--sw-bg, #10151d);
+    box-shadow: 0 0 0 1px rgba(var(--escena-tinta), .12);
+    overflow: hidden;
   }
   .ncel-swatch .sw-card {
-    position: absolute; left: 14%; right: 14%; top: 26%; height: 46%;
-    border-radius: 10px; background: var(--sw-card, #1d2530);
+    position: absolute; left: 12%; right: 12%; bottom: 14%; height: 34%;
+    border-radius: var(--r-mini); background: var(--sw-card, #1d2530);
   }
   .ncel-swatch .sw-punto {
-    position: absolute; left: 21%; top: 38%;
-    width: 24px; height: 24px; border-radius: var(--r-redondo);
+    position: absolute; left: 18%; top: 20%;
+    width: 22%; height: 22%; border-radius: var(--r-redondo);
     background: var(--sw-ac, #5fe0b0);
   }
+  /* El icono va sobre la tarjeta pequeña —la zona más clara de los siete
+     ambientes—, que es lo que le garantiza fondo debajo. */
+  .ncel-swatch .sw-ic {
+    position: absolute; right: 13%; bottom: 17%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--sw-ac, #5fe0b0);
+  }
+  .ncel-swatch .sw-ic svg { width: 22px; height: 22px; stroke-width: 1.7; }
   /* ---- Y en un teléfono, la misma tarjeta más corta ----
      La tarjeta grande se comió el alto de la columna: medido en 375×812, la
      constelación pasó de 203 px a 94, o sea que arreglar el monitor rompió el
@@ -5586,7 +5657,22 @@
     z-index: var(--piso-confeti);
     pointer-events: none;
     opacity: 0;
-    background: radial-gradient(circle at 50% 46%, rgba(var(--escena-fondo), 0.55), rgba(var(--escena-fondo), 0.92));
+    /* **El velo tapa, no insinúa.** Con 0,55 en el centro se leía la app
+       entera por debajo y el rótulo competía con lo que hubiera detrás; en el
+       modo claro era peor, porque el velo oscuro sobre una página clara deja
+       el contraste a medias en las dos direcciones. Ahora arranca en 0,86 y
+       cierra opaco, y el modo claro tiene su propio par —más alto todavía,
+       porque de día lo de debajo es más luminoso y se cuela más—.
+
+       Va en `background` y no en un `opacity` del contenedor: la opacidad del
+       elemento la maneja `celFade`, que es lo que hace entrar y salir la
+       fiesta, y tocarla aquí se pelearía con esa animación. */
+    background: radial-gradient(circle at 50% 46%,
+      rgba(var(--escena-fondo), 0.86), rgba(var(--escena-fondo), 0.985));
+  }
+  html.claro .celebrate {
+    background: radial-gradient(circle at 50% 46%,
+      rgba(var(--escena-fondo), 0.92), rgba(var(--escena-fondo), 0.995));
   }
   /* ---------- El destello ----------
      La fiesta pequeña: 420 ms encima de lo que tocaste, sin tapar ni parar
@@ -5715,7 +5801,10 @@
   .scel.avivada .scel-cerco {
     display: block; position: absolute;
     left: 50%; top: 42%;
-    width: 92vmin; height: 92vmin; margin: -46vmin 0 0 -46vmin;
+    /* En `vmax`, por lo mismo que el humo: en un monitor apaisado un cerco de
+       92vmin se quedaba muy corto del ancho y se leía como un círculo pegado
+       en medio en vez de como luz que llena la escena. */
+    width: 96vmax; height: 96vmax; margin: -48vmax 0 0 -48vmax;
     border-radius: var(--r-redondo);
     background: radial-gradient(circle at 50% 50%,
       color-mix(in srgb, var(--fire-macizo) 26%, transparent) 0%,
