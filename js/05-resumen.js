@@ -259,8 +259,42 @@ function renderSummary() {
 
     misiones: () => {
       const { due, done, pct } = todayMissionStats();
-      if (!due.length) return "";
       const key = todayKey();
+      /* ---- El día sin misiones también es un día ----
+         Aquí había un `return ""`, y una tarjeta que devuelve vacío se cae del
+         tablero entera (ver `visibles`, más abajo). Eso convertía un martes sin
+         nada programado en lo que parece un fallo: la tarjeta que pusiste tú
+         desaparece sola y deja su hueco en el acomodo.
+
+         Y llegar a cero es fácil sin haberlo buscado: apartar todo a
+         "Pendientes de la semana" o a un tablero propio lo hace, archivarlo
+         todo lo hace, y tener solo semanales que no caen hoy lo hace.
+
+         Así que la tarjeta se queda y dice lo que pasa. Son dos vacíos
+         distintos y piden cosas distintas: quien todavía no tiene ninguna
+         necesita saber qué es una misión; quien las tiene pero hoy no le toca
+         ninguna solo necesita el camino para adelantar algo. */
+      if (!due.length) {
+        const tiene = missions.some(m => !m.archived);
+        return `
+        <div class="panel ms-today ms-hueca">
+          <div class="mt-head">
+            <div class="mt-tx">
+              <b>Misiones de hoy</b>
+              <span>${tiene ? "Hoy no te toca ninguna" : "Todavía no tienes ninguna"}</span>
+            </div>
+            <button class="btn ${tiene ? "btn-linea" : "btn-soft"} btn-sm" onclick="${
+              tiene ? "showView('missions')" : "openMissionForm()"}">${
+              tiene ? "Ver misiones" : "Crear una"}</button>
+          </div>
+          ${/* La nota se centra en lo que sobre de tarjeta: el alto lo eligió
+                el acomodo pensando en una lista de misiones, y con dos frases
+                pegadas arriba el resto se lee como un panel roto. */""}
+          <p class="settings-note mt-hueco">${tiene
+            ? "Un día sin misiones programadas también cuenta. Si quieres adelantar algo, tráelo a hoy desde Misiones."
+            : "Una misión es algo que haces hoy y que suma a una habilidad. La primera es la que echa a andar la racha."}</p>
+        </div>`;
+      }
       const pend = due.filter(m => !missionDone(m, key));
       return `
       <div class="panel ms-today">
@@ -1219,6 +1253,36 @@ function disposicionTablero(ids, cols, extra) {
     const p = base[id], s = dashSize(id);
     return p ? Math.max(max, (p.f || 0) + (s ? s.h : 1)) : max;
   }, 0);
+  /* ---- La columna que perdió una tarjeta se cierra ----
+     Desde 0.7.56 el sitio de cada tarjeta está escrito, así que una que no se
+     dibuja deja su rectángulo vacío: nadie vuelve a empaquetar en un
+     repintado normal. Se ve como un agujero en medio del Resumen, y se lee
+     como un fallo. Lo cazó Eduardo con el módulo de Misiones apagado: 640 px
+     de nada en la columna del centro, con "Invertido" solo al fondo.
+
+     Son TRES puertas al mismo hueco y las tres pasan por aquí: un módulo
+     apagado se lleva su tarjeta, la ✕ del Modo Editor la quita, y una tarjeta
+     puede no tener nada que decir hoy. En los tres casos el sitio se conserva
+     en `pos` —esa parte sí está bien y es lo que hace que la tarjeta vuelva
+     donde estaba al encender el módulo o al devolverla con el chip ＋—; lo
+     único que sobra es el agujero mientras tanto.
+
+     Solo suben las columnas que perdieron algo, y solo esas: en las demás
+     cada tarjeta se queda exactamente donde la dejaste, que es la regla de
+     este tablero. Y no se guarda nada: cambia cómo se dibuja hoy, no dónde
+     vive cada tarjeta.
+
+     Con `extra` puesto no se toca: eso es un arrastre en curso, y mover el
+     resto del tablero debajo del dedo es justo lo que esta cuadrícula
+     existe para no hacer. */
+  const dibujadas = new Set(ids);
+  const suben = new Set();
+  if (!extra) order.forEach(id => {
+    if (dibujadas.has(id) || !DASH_META[id] || !base[id]) return;
+    const s = dashSize(id);
+    for (let c = base[id].c; c < base[id].c + Math.min(s.w, cols); c++) suben.add(c);
+  });
+
   const piezas = ids.map(id => {
     const s = dashSize(id);
     const p = (extra && extra[id]) || base[id] || { c: 0, f: fondo };
@@ -1242,7 +1306,13 @@ function disposicionTablero(ids, cols, extra) {
   };
   const fin = {};
   piezas.forEach(p => {
-    let f = p.f;
+    /* Las piezas se recorren en orden de lectura, así que empezar por arriba
+       en una columna tocada sube cada una hasta el primer hueco libre sin que
+       dos se crucen: la de más arriba se coloca antes y las de abajo ya la
+       encuentran ocupando su sitio. */
+    let sube = false;
+    for (let i = 0; i < p.w; i++) if (suben.has(p.c + i)) sube = true;
+    let f = sube ? 0 : p.f;
     while (f < 600 && !libre(p.c, f, p.w, p.h)) f++;
     marcar(p.c, f, p.w, p.h);
     fin[p.id] = { c: p.c, f, w: p.w, h: p.h };

@@ -76,6 +76,37 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.72.6 · 2 sep 2026
+
+**La 0.7.71.5 se publicó a medias, y la mitad que llegó era la inerte.** Salió
+al live la regla `.ms-hueca` —que no la usaba nadie, porque la clase se escribe
+desde JavaScript— y la entrada de esta lista contando un arreglo que no
+existía. Los dos cambios de `js/05-resumen.js` se perdieron entre sesiones antes
+de commitear: el árbol de trabajo se comparte y lo que no ha pasado por
+`git add` no existe para git.
+
+Esta versión repone el arreglo entero, tal cual estaba medido:
+
+- **La tarjeta de Misiones deja de borrarse sola cuando hoy no toca ninguna.**
+  Devolvía vacío, y una tarjeta que devuelve vacío se cae del tablero. Ahora se
+  queda y dice lo que pasa, con dos vacíos distintos —quien no tiene ninguna
+  necesita saber qué es una misión; quien las tiene solo necesita el camino
+  para adelantar algo—.
+- **La columna que pierde una tarjeta se cierra.** Son TRES puertas al mismo
+  agujero y ninguna se había tapado: un módulo apagado, la ✕ del Modo Editor y
+  una tarjeta sin nada que decir. Que el módulo apagado se lleve su tarjeta sí
+  está decidido así; lo que sobraba era el hueco. Suben solo las columnas que
+  perdieron algo, no se guarda nada —el sitio sigue en `pos`, y por eso la
+  tarjeta vuelve exacta al encender el módulo— y con un arrastre en curso no se
+  toca.
+
+**La lección, que es de cómo se trabaja y no de código:** al repasar el diff
+final, `css/estilos.css` no aparecía en `git status`. Eso ya era la señal —un
+archivo que tocaste y no sale modificado no es que el cambio fuera trivial, es
+que ya no está—. Se reescribió y esa mitad sí llegó; la otra se detectó un
+día después, preguntando si estaba en el live. Lo que salvó el trabajo fue la
+copia en el scratchpad, que ningún `git` toca.
+
 ### 0.7.72.5 · 2 sep 2026
 **Segunda tanda sobre las celebraciones, otra vez de la mano de Eduardo.**
 
