@@ -76,6 +76,50 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.72 · 2 sep 2026
+
+**Las escenas dejan de aparecer de golpe, dejan de estirarse en un monitor y
+dejan de ser una pared de color. Y lo que se desbloquea se ENSEÑA.**
+
+Cuatro cosas que se vieron al mirarlo en PC, y las cuatro estaban medidas:
+
+**1. Entraban como un screamer.** Ahora entran en tres tiempos: lo que tenías
+puesto se aleja un poco y se apaga (`.app.escena-detras`, 0,42 s), el velo se
+hace encima, y solo entonces sale lo de dentro. La escena tiene ahora dos
+fases —`entrando` y `show`— porque con una sola clase el número y la
+constelación arrancaban a la vez que el velo. El zoom va sobre `.app`, que no
+contiene las escenas —están fuera, al final del `body`—, así que no se escalan
+a sí mismas.
+
+**2. Se estiraban.** En un monitor de 1600 la franja de la constelación medía
+1590 de ancho y la figura salía a **234 px: el 15% de la pantalla**, perdida
+arriba. La escena vive ahora en una columna de `min(520px, 92vw)` centrada, y
+la misma figura ocupa el 45% de esa columna.
+
+**3. Eran una pared de color.** El fondo ERA el tono del ambiente y encima
+llevaba un 12% de menta: con Musgo puesto, verde de borde a borde; con Adobe
+—que es el que la propia escena se pone al abrirlo en el nivel 7—, naranja. En
+un teléfono se pasaba; en un monitor no. Ahora se parte del negro de escena y
+el ambiente entra como un rescoldo en el centro, que es lo que hacían los
+borradores aprobados.
+
+**4. «Se abre: Musgo» no decía nada.** Los premios eran renglones con un icono
+y un nombre. Ahora cada uno es una **tarjeta con una vista de lo que es**, y
+van en fila con arrastre horizontal — lo que hace un juego al enseñarte un
+botín, y lo que permite que quepan tres sin apretar la pantalla. El carrusel se
+sale del padding del núcleo a propósito: así la tarjeta de la derecha asoma
+cortada y se ve que hay más.
+
+**La vista de un ambiente sale de SUS PROPIOS tonos**, leídos de la hoja de
+estilos con `ncelTonosDe()`: su suelo, una tarjeta encima y el punto de su
+acento. Nadie mantiene una segunda tabla de colores — el día que alguien
+retoque Musgo, la miniatura cambia con él. Las de celebración son el propio
+gesto dibujado quieto.
+
+Y los peldaños de celebración estrenan `corto`, el nombre que cabe en una
+tarjeta: «Destello propio al cumplir una misión» en 132 px son cuatro líneas y
+descuadraba la fila.
+
 ### 0.7.71.5 · 2 sep 2026
 
 **El escaparate vuelve arriba, y el camino de pago pierde dos ventanas.**
