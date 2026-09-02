@@ -76,6 +76,55 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.66 · 2 sep 2026
+**Averno: el banner deja de tener un hueco de 200 px, y el modo claro se limpia.**
+
+Cinco cosas que salieron de mirarlo puesto, y la primera es un bug mío.
+
+**El banner.** Al sustituir la ilustración de la banda por los anillos la apagué
+con `opacity` en vez de `display`, razonando que «así conserva su alto y la
+banda no se encoge». El razonamiento estaba al revés: ese `<svg class="scene">`
+va EN FLUJO y aporta 193 px, así que apagarlo sin quitarlo dejaba una banda de
+**376 px con 177 de contenido**. Doscientos píxeles de nada. Ahora mide 179 con
+177 — dos de hueco. Y los anillos dejan de escalar con ella: con `contain`
+crecían hasta 574x349 porque seguían a la caja.
+
+**Y dejan de ser transparentes**, que es lo mismo por otro lado: sin
+ilustración debajo, lo que se veía por el hueco era la ceniza de la página
+compitiendo con las cifras. La superficie la pone el panel, y el velo —que
+existía para tapar un paisaje— se apaga porque ya no hay paisaje.
+
+**Las cifras salen de la gótica.** Grenze Gotisch tiene numerales muy
+dibujados: un titular en esa cara es carácter, pero un «3» a 18 px dentro de un
+banner es un acertijo. Pasan a Outfit y los títulos se quedan góticos — es lo
+único del mundo que usa la letra de la casa, y a propósito: una cifra se LEE y
+un título se MIRA.
+
+**El fondo, aligerado.** «Demasiado cargado de elementos y agobia con el
+tiempo», que es la frase clave: un fondo se mira mil veces, así que lo que en la
+primera pasada es atmósfera en la décima es ruido. La ceniza pasa de 18 motas,
+3 brasas y 2 volutas a 10, 2 y 1, con las opacidades de .495 a .34 y de .765 a .5.
+
+**Y el modo claro deja de ser barro.** El diagnóstico no era el croma sino la
+LUZ: la página de día estaba en L 0,852 contra el 0,904 de la casa, y el suelo
+de los mapas —que se deriva hundiéndola— caía en 0,821. Ahí es donde un cálido
+con algo de color deja de ser beige y pasa a ser barro; la casa se salva porque
+su gris es AZUL, y un azul sucio no se ve sucio. La página sube a 0,900 y el
+suelo pasa de `#cdc2bc` a `#d8d4d1`.
+
+**Tres arreglos que salieron de quitar la ilustración.** La banda ya no es una
+escena, así que en modo claro se quedaba como una losa negra sobre el papel:
+ahora sigue al modo. Con eso la pastilla de foco se quedó con el vidrio de noche
+y la tinta de día —1,30 de contraste— y los deltas verdes se quedaron claros
+sobre papel; los dos se arreglan trayendo sus variables, no con reglas aparte.
+Y la pastilla pierde su tinte en los dos modos: se pinta con `color-mix(--mint
+14%, …)` y su rótulo es de ese mismo `--mint`, así que el tinte empujaba el
+fondo justo hacia donde está la tinta.
+
+Medido con el barrido de control sobre 427 elementos: **cero fallas de contraste
+exclusivas de Averno en los dos modos**. De día Averno falla 11 y la casa 70; de
+noche 24 contra 25.
+
 ### 0.7.65 · 1 sep 2026
 
 **La constelación deja de contar niveles y pasa a dibujar el objeto del rango,
