@@ -50,7 +50,83 @@ Cuatro sitios, y son cuatro a propósito:
    ya instalados a soltar la copia vieja
 4. Una línea en esta lista
 
+## Las fechas van en hora de México. Siempre.
+
+No en UTC, no en la del reloj de la máquina que tocó subirlo: **en la de quien
+desarrolla, que es de aquí.** Vale para las dos fechas, la de `VERSION_FECHA` y
+la de esta lista.
+
+No es una manía: ya se coló. Una sesión que commiteaba en UTC fechó tres
+entradas un día por delante —la 0.7.56.1 decía «2 sep» y se escribió a las 20:33
+del 1; la 0.7.49 y la 0.7.50 decían «31 ago» y son del 30—. Con eso la lista
+deja de leerse en orden: una entrada nueva puede quedar encima de otra fechada
+un día **después**, y a partir de ahí nadie sabe qué se hizo cuándo.
+
+Solo se nota entre las 00:00 y las 06:00 UTC, que en México son las seis horas
+anteriores del día de antes. Justo la franja en la que se trabaja de noche.
+
+**Cómo salir de dudas** cuando no se esté seguro de en qué huso va el reloj:
+
+```
+TZ=America/Mexico_City date "+%-d %b %Y"
+```
+
+México es **UTC-6 todo el año**: el país quitó el horario de verano en 2022, así
+que no hay que acordarse de ningún cambio de estación.
+
 ## La lista
+
+### 0.7.58 · 1 sep 2026
+**El aviso de versión nueva deja de pedir que adivines que hay versión nueva.**
+
+Había que recargar **dos veces**: una a mano para que apareciera el aviso, y otra
+al pulsar «Actualizar». O sea que el aviso solo servía si ya habías hecho por tu
+cuenta lo que el aviso te iba a pedir.
+
+La causa es de manual y estaba a la vista: **el navegador vuelve a pedir `sw.js`
+al navegar, y nada más.** Una pestaña abierta desde hace horas no navega nunca,
+así que no se enteraba de nada. El mecanismo de la 0.7.38 estaba bien montado
+para quien abre la app; no para quien la tiene abierta.
+
+Ahora se pregunta desde la app con `registration.update()`, que es exactamente
+lo que hace el navegador al navegar, pero sin navegar. Se pregunta:
+
+- **cada quince minutos** mientras la pestaña esté a la vista;
+- **al volver a ella** — cambiar de pestaña o de ventana no dispara lo anterior,
+  y volver es justo cuando se agradece encontrarlo;
+- **al recuperar la conexión**, porque sin red la pregunta no vale nada.
+
+Y nunca con la pestaña escondida: preguntar por una versión que nadie está
+mirando gasta batería y datos para nada, y al volver se pregunta igual. Hay un
+suelo de un minuto entre preguntas, porque volver a la pestaña y recuperar la
+conexión pueden pasar en el mismo segundo.
+
+**El aviso también se recuerda.** Un toast dura doce segundos —eran seis— y el
+service worker avisa UNA vez, al activarse. Si eso pasaba mientras estabas en
+otra ventana, el aviso se lo llevaba el viento y no volvía. Ahora, mientras no
+se actualice, vuelve a salir al regresar a la pestaña, como mucho una vez cada
+cinco minutos. Informa cuando estás delante; no persigue.
+
+De paso, `toast()` acepta `ms` en su acción. Es el único que lo usa hoy y no
+cambia ninguna llamada de las que ya había.
+
+**Comprobado de verdad, y no razonando sobre el código:** con la app abierta en
+`0.7.57` y sin tocarla, se publicó la `0.7.58` y se simuló volver a la pestaña.
+El worker nuevo se instaló solo, la caché pasó de `norata-0.7.57` a
+`norata-0.7.58`, llegó el mensaje y salió el toast con su botón — **sin una sola
+recarga por delante**. Y pulsar «Actualizar» ya es la única recarga que hace
+falta.
+
+### Y las fechas de esta lista van en hora de México
+
+Se coló tres veces desde una sesión que commitea en UTC: la `0.7.56.1` decía
+«2 sep» y se escribió a las 20:33 del 1, y la `0.7.49` y la `0.7.50` decían
+«31 ago» siendo del 30. Con eso la lista deja de leerse en orden — una entrada
+nueva puede quedar encima de otra fechada un día después.
+
+Corregidas las tres, y la regla escrita arriba y en `CLAUDE.md` para que no
+vuelva a pasar. Solo muerde entre las 00:00 y las 06:00 UTC, que es la franja en
+la que se trabaja de noche.
 
 ### 0.7.57 · 1 sep 2026
 **El saludo sale de la racha y se pone donde vive el día.**
@@ -92,7 +168,7 @@ apilada. Los tres acomodos en cuatro ventanas, sin huecos y sin cifras apiladas.
 El saludo sale igual con el perfil vacío, y en el teléfono el título dice
 «RACHA» a secas mientras el calendario conserva su «SEPTIEMBRE 2026».
 
-### 0.7.56.1 · 2 sep 2026
+### 0.7.56.1 · 1 sep 2026
 **Los encabezados de módulo y la tarjeta de la racha también llevan marco en
 Reliquia.** Lo preguntó Eduardo: «siento que desentonan mucho en comparación
 con todo lo demás». Y era eso exactamente — no es que les sobrara nada, es que
@@ -723,7 +799,7 @@ colores y Reliquia es de noche.
 verdad. Lo que sí se garantiza es que el color que la app declara es el que la
 app pinta, en toda combinación.
 
-### 0.7.50 · 31 ago 2026
+### 0.7.50 · 30 ago 2026
 **Tres fallos que vio Eduardo en su teléfono, y los tres tenían un número
 detrás.**
 
@@ -772,7 +848,7 @@ Comprobado en las seis combinaciones —412, 360 y 1280 px, con las dos, con una
 con ninguna—: la barra nunca toca el título, no recorta, el botón de salir mide
 27 px de alto y el contraste del rótulo es 12,9.
 
-### 0.7.49 · 31 ago 2026
+### 0.7.49 · 30 ago 2026
 **Reliquia, el primer mundo.** Un mundo no es un ambiente: un ambiente reusa el
 material y le cambia la luz; un mundo cambia de qué está hecha la app. Reliquia
 es una pieza en su vitrina —forro de terciopelo, marco de latón, la letra Syne y
