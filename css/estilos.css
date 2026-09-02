@@ -2079,6 +2079,11 @@
      opacidad de base cubre el instante anterior a que la animación exista. */
   .exp-fugaz { opacity: 0; animation: expFugaz 13s linear infinite backwards; }
 
+  /* El segundo párrafo de «Qué es tu expedición» necesita separarse del
+     primero: `.settings-note` no lleva margen entre hermanos porque casi
+     siempre va sola debajo de un título. */
+  .exp-quees-2 { margin-top: 9px; }
+
   .exp-hero { padding: 2px 16px 15px; }
   .exp-hero-fila { display: flex; align-items: center; gap: 12px; }
   .exp-hero-tx { min-width: 0; }
