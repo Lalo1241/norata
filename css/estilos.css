@@ -967,6 +967,21 @@
     justify-content: space-between;
     gap: 12px;
   }
+  /* El saludo y la fecha, encima del título del Resumen (0.7.57). En tono
+     normal y no en versalitas de menta como `.kicker`: una fecha en mayúsculas
+     y con tres píxeles de entreletra deja de leerse como un saludo y pasa a
+     leerse como una etiqueta de sección. Aquí lo que se busca es lo contrario.
+
+     Solo se pinta cuando tiene texto: `renderSummary` lo escribe, y en las
+     demás vistas el elemento no existe. */
+  .page-saludo {
+    margin: 0 0 3px;
+    font-size: 13px;
+    line-height: 1.35;
+    color: var(--muted);
+  }
+  .page-saludo:empty { display: none; }
+
   .page-head .kicker {
     font-size: 11px;
     font-weight: 700;
@@ -6234,6 +6249,9 @@
      son tres filas más con su barra y su nombre largo, y por debajo de 680 px
      no caben sin apretar el mes, que es la pieza que manda. */
   .sg-extra { display: flex; flex-direction: column; gap: 18px; }
+  /* Apilada, el mes lleva su propio rótulo y el título de la tarjeta no lo
+     repite. En cuanto hay dos bloques se intercambian (ver más abajo). */
+  .streak-card .lab-mes { display: none; }
   .sg-sostiene { display: none; flex-direction: column; gap: 8px; }
 
   /* ---- Dos bloques, y el mes manda (0.7.56) ----
@@ -6290,6 +6308,12 @@
     .sg-extra { grid-column: 2; grid-row: 2; }
     .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, 30px); gap: 4px; }
     .rc-d { font-size: 11px; border-radius: 7px; }
+    /* El mes sube al título y suelta el suyo. Con los dos puestos había un
+       rótulo de 10,5 px y otro de 10 a doce píxeles de distancia, los dos
+       en el borde izquierdo: se leían como dos etiquetas y no como un
+       título con su sección. De paso devuelve 26 px de alto. */
+    .streak-card .lab-mes { display: inline; }
+    .rc > .rc-rot { display: none; }
   }
 
   /* ---- Con sitio de sobra, el mes crece y entra «qué la sostiene» ----
