@@ -407,7 +407,21 @@ MUNDOS = [
   premisa="Piedra quemada con la brasa debajo. Del poema se cita lo único que hay que citar —los círculos—: arcos concéntricos que se estrechan al bajar y solo el de dentro sigue ardiendo. Cae ceniza en el fondo, con tres motas que todavía no se han apagado, y el icono es un sol eclipsado: anillo encendido y centro muerto. El concepto es demonología cristiana leída, no disfrazada: la referencia es el texto y el glifo —el sello, Leviatán, la legión, Abadón—, nunca el cuerno ni el tridente. Esa es la línea que separa esto de una caricatura, y la pidió Eduardo con esas palabras: que no se vea infantil.",
   letra="Grenze Gotisch", ancho="−17%", escala="1", esquinas="2 px · piedra tallada", peso="~95 KB", horas="Noche",
   nota="Tercero construido, después de Reliquia y Blueprint. Lo que cambió al pasar de la lámina a la app fue todo de MEDIDA y nada de dibujo: la tarjeta subió de #1d0f0b a #2e1e18 —contra la parte plana de la página daba 1,10 y contra la de en medio 1,03, o sea que desaparecía—, el carril subió de #1a0c08 a #422c23 —daba 1,02, que es no verlo— y el peligro pasó de #ff3b6b a #ff5c80 porque su chip se quedaba en 3,95 sobre su propio velo. Los tres son fallos que la lámina no enseña: ahí la tarjeta se ve sola sobre un recorte de página, no en una lista de veinte.",
-  tokens={"--m-pagina":"radial-gradient(ellipse 115% 58% at 50% 120%, #5a2109 0%, #180b06 52%, #050302 100%)",
+  # ---- El balance, después de mirarlo puesto ----
+  # Lo paró Eduardo con la frase justa: «usas demasiado naranja/rojo y nada de
+  # negros cálidos como el tono que tienes en el menú». Medido en OKLCh, tenía
+  # razón y se veía dónde: **el problema era el CROMA, no la luz.** La brasa
+  # del degradado llevaba 0,091 de croma sobre el 38% de abajo de cada
+  # pantalla, el borde de las tarjetas 0,059 —el doble que el de la casa,
+  # multiplicado por las cuarenta piezas con borde que hay en una pantalla— y
+  # la tarjeta 0,028. Nada de eso es naranja de acento: es naranja de fondo.
+  #
+  # Así que baja el color y no la luz, que es lo que deja los contrastes donde
+  # estaban: la tarjeta pasa a 0,017 —por debajo del 0,024 de la casa, o sea un
+  # negro cálido de verdad y no un marrón—, el borde a 0,020 y la brasa a
+  # 0,048. El acento sigue en 0,178: lo que se enciende no se toca, lo que se
+  # apagó es el fondo sobre el que se enciende.
+  tokens={"--m-pagina":"radial-gradient(ellipse 115% 58% at 50% 120%, #391d12 0%, #130a06 52%, #050302 100%)",
    # El 0,9 vive DENTRO del vector y por eso esto vale 1. `--m-grano-op` no
    # cruza a la app —`app.py` mete el grano en `--sup-pagina` como una capa de
    # `background`, y a una capa de fondo no se le pone opacidad por CSS—, así
@@ -423,7 +437,7 @@ MUNDOS = [
    # tinta sigue en 12,28. El degradado se fue porque en una lista de veinte
    # misiones se lee como un manchón y no como relieve: el relieve lo pone la
    # sombra de dentro, que sí se ve una vez por tarjeta.
-   "--m-tarjeta":"#2e1e18","--m-borde":"1px","--m-borde-color":"#4c2620",
+   "--m-tarjeta":"#261c18","--m-borde":"1px","--m-borde-color":"#382c28",
    "--m-sombra":"inset 0 1px 0 rgba(255,150,80,.16), 0 12px 30px rgba(0,0,0,.62)",
    "--m-r-tarjeta":"2px","--m-r-mini":"2px","--m-r-barra":"2px","--m-r-chip":"2px",
    "--m-tinta":"#f2ded1","--m-tinta-2":"#a68873",
@@ -439,7 +453,7 @@ MUNDOS = [
    # dejar ver por dónde va lo lleno —no es un borde— y encima suyo hay que
    # distinguir los ocho colores del usuario. Éste da 1,23, igual que la casa,
    # y el peor de los ocho encima da 5,32 contra los 5,16 de la casa.
-   "--m-carril":"#422c23",
+   "--m-carril":"#372b26",
    "--m-icono":f'url("{svg("averno-sello.svg")}") center/contain no-repeat',
    "--m-titulo":'"Grenze Gotisch",Georgia,serif',"--m-titulo-px":"17px","--m-titulo-peso":"700","--m-titulo-esp":".01em",
    "--m-cifra":'"Grenze Gotisch",Georgia,serif',"--m-cifra-peso":"700","--m-cifra-esp":"0",
