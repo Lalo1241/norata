@@ -76,6 +76,468 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.70 · 2 sep 2026
+
+**Mi apariencia se vuelve una galería: cada mundo se enseña solo.**
+
+Era una reja de muestras y una lista de renglones, y de un mundo no decían casi
+nada — tres tonos y una frase describen un RECOLOR, y lo que un mundo cambia es
+el material. La única prueba de verdad era ponérselo, que además recarga la app.
+
+Ahora cada mundo es su propia vista previa **viva**, en su tarjeta, y se ven
+todas a la vez: su tipografía, su textura, su marco y el nombre que ese mundo le
+da a tu rango. Averno sale en gótica sobre piedra quemada y te llama *Leviatán*;
+Blueprint en papel de plano y te llama *Proyectista*; Reliquia en terciopelo con
+marcos de latón y te llama *Colección*. Tocar una abre su ventana, con la
+premisa, los cinco nombres del camino y —si está cerrado— por qué y por dónde se
+abre. La referencia es la tienda de Discord y la puso Eduardo.
+
+#### Por qué un documento por tarjeta, y por qué no se montan todos
+
+El CSS de un mundo cuelga de `html[data-apariencia="…"]`, así que la única
+manera de que dos mundos se vean a la vez en la misma pantalla es que cada uno
+tenga su propio `<html>`. No hay truco que lo evite. Lo que sí se puede es no
+pagarlo hasta que haga falta: un `IntersectionObserver` los monta al entrar en
+pantalla y los deja puestos. Con quince mundos, quien no baje monta tres.
+
+Antes de esto hubo un intento de **un solo escenario compartido** arriba del
+panel, que enseñaba el mundo que tocabas. Escalaba mejor y estaba mal: obliga a
+elegir antes de ver, y lo que esta pantalla tiene que hacer es lo contrario.
+
+#### Las cápsulas del candado
+
+- **Llevan la insignia del plan**: `plan-pro` (la gema) y `plan-fundador` (la
+  gema con corona), las mismas que la app ya usa en la chapa del menú, en la
+  fila de Ajustes y en el cuadro del tope. Cuatro sitios, un símbolo.
+- **Son tres colores y no uno.** Iban las tres en lila, que en esta app es el
+  color de Fundador: «Con Norata Pro» pintado de Fundador dice que Pro y
+  Fundador son lo mismo, que es justo lo que la pantalla del plan existe para
+  separar. Menta lo que abre el plan, lila lo que solo abre Fundador, y
+  luciérnaga lo que todavía se está ganando — que no se compra, y por eso no
+  puede ir del color de lo que se paga. Medidos los tres pares en modo claro:
+  5,33 · 5,35 · el lila ya estaba medido.
+- **Y son pequeñas.** Iban a 10 px con peso 800 y espaciado ancho, y al lado de
+  «Averno» se leían antes que el mundo. En una tienda la etiqueta del precio no
+  puede gritar más que el producto. Ahora pesan 700, van a 9 px, y en la tarjeta
+  el texto va corto («Pro», no «Con Norata Pro»); entero solo en la ventana.
+- **`NIVEL 5` no lleva insignia de plan**, y es la misma regla de siempre: el
+  nivel no se compra, y la piedra ahí diría lo contrario del texto de al lado.
+
+#### Lo cerrado ya dice por qué
+
+Un candado decía «Nivel 5» o «Con Norata Pro» y se acababa ahí; al tocarlo salía
+un toast de cuatro segundos. Eso es contestar el instante de más intención de
+compra que tiene la app con un aviso que desaparece antes de que a nadie le dé
+tiempo a decidir.
+
+Ahora la ventana dice el motivo entero, y **saca el cuadro del plan** cuando lo
+que falta es pagar — `topeAlcanzado("apariencia")`, el mismo que sale al llenar
+una rama, con lo que abre y el precio dentro. El orden de las dos puertas no
+cambia: primero el NIVEL, que se gana, y después el PLAN, que se paga; a quien
+todavía no llega al nivel no se le ofrece pagar, se le dice cuánto le falta.
+Fundador no pasa por ese cuadro y va directo al panel del plan: ese cuadro vende
+Pro, y Reliquia no se abre con Pro.
+
+De paso, la frase de `topeTexto("apariencia")` dejó de hablar de «paletas de
+color» y «apariencias completas», que eran dos nombres para cosas que ya se
+llaman **ambiente** y **mundo** en toda la app. Era el peor sitio para llamarlas
+de otro modo: es el único que se lee con la cartera en la mano.
+
+#### «Nuevo» durante mes y medio
+
+Cada apariencia lleva `estrena`, la fecha en que se publicó, y sale marcada
+**Nuevo** durante `NOVEDAD_DIAS = 45`. Se apaga sola, así que lo viejo no
+necesita que nadie vaya a limpiarlo. La fecha se escribe a mano al soltar el
+tema y no sale de la versión: una apariencia puede estar en el código tandas
+antes de que se exhiba, y lo que cuenta es el día que apareció en la pantalla de
+alguien. Va con la hora pegada (`+"T00:00:00"`) porque una fecha sola la lee el
+navegador como UTC y el estreno empezaría seis horas antes.
+
+#### El interruptor del lanzamiento
+
+`APARIENCIAS_EXHIBIDAS`, una sola línea en `js/10i-apariencia.js`. En `null`
+—como está— se enseña todo lo que esté listo. Con una lista se enseña solo eso,
+y ése es el plan de Eduardo: ir soltando los temas conforme se compruebe que
+funcionan, y salir a la calle enseñando únicamente el clásico y el de Fundador.
+
+```js
+const APARIENCIAS_EXHIBIDAS = ["casa", "reliquia"];
+```
+
+Va aquí y no como un `oculta: true` repartido por las quince entradas por eso
+mismo: apagar ocho cosas de una en una son ocho sitios donde olvidarse uno.
+Quien ya tenga un tema puesto lo conserva aunque se deje de exhibir — congelar,
+nunca quitar.
+
+#### Los nombres del punto cero
+
+El recolor de partida es **Norata Clásico** y el mundo de partida es **Noche de
+expedición**. Son dos ejes y `casa` es el punto cero de los dos, así que lleva
+un nombre en cada reja y la ventana usa el de la reja por la que entraste.
+
+Separarlo destapó una mentira que llevaba puesta la fila de los mundos: decía
+«Sin mundo: el material de siempre, con el ambiente que lleves puesto», y
+elegirla te quitaba también el recolor. Claro que te lo quita — ambiente y mundo
+comparten UN atributo, son excluyentes a propósito. Ahora lo dice: «Elegirlo te
+quita el mundo y el recolor que lleves puestos.»
+
+#### `css/muestras.css`, un archivo nuevo
+
+Tres tonos por mundo —suelo, tarjeta y acento—, generados por `mundos/app.py`
+desde los mismos datos que el mundo de verdad, así que no pueden discrepar. Va
+suelto y **sí** en `ASSETS`, al contrario que `css/mundos.css`: son 3,3 KB
+contra 180, y el catálogo tiene que verse entero sin haberse bajado ningún
+mundo, que es el caso de todo el mundo la primera vez que abre esa pantalla.
+Lleva los quince y no solo los tres construidos, para que el día que un mundo
+pase a `listo` nadie tenga que acordarse de volver ahí.
+
+Con eso, el icono de cada mundo va con **su** acento y no con el lila de
+Fundador que llevaban los tres: con un solo color, catorce mundos distintos
+entraban todos por la misma puerta morada.
+
+#### Un fallo de caché que salió por el camino
+
+El preview pedía `css/mundos.css` **sin la huella `?h=`** cuando lo que se
+miraba no era un mundo. Eso es la copia vieja congelada para siempre de la
+0.7.55.3 entrando por una puerta nueva: ese archivo no está en `ASSETS`, así que
+no lo renueva la instalación; se pide suelto, lo que llegue se guarda bajo esa
+dirección, y a partir de ahí ya es un acierto que no se vuelve a pedir nunca.
+Ahora, sin `link` con huella no se pide nada — de un mundo no hay nada que
+enseñar hasta que la haya.
+
+Y `css/mundos.css` se pide al **abrir el catálogo** y no al encender un mundo:
+quien llega a esa pantalla vino a mirarlos, y la galería no puede enseñar
+ninguno sin él. Quien nunca la abre sigue sin bajárselo.
+
+#### Cómo se comprobó, y lo que no se pudo
+
+Comprobado midiendo el DOM: los cuatro previews con material distinto lado a
+lado (tipografía, radio de esquina, color de tarjeta, acento y nombre de rango),
+los dos modos con sus dos caras, el paywall desde la ventana, ponerse un tema,
+la palomita de «puesta», y sin desbordes a 375 y a 320 px. Y una comprobación
+que importaba: **cargar `css/mundos.css` en la app no cambia nada** cuando no
+hay mundo puesto — 654 elementos, 0 diferencias de estilo calculado, medido
+encendiendo y apagando el `link`.
+
+**Lo que no se pudo comprobar aquí: el camino de bajar en la galería.** La carga
+perezosa se montó con `IntersectionObserver` y la galería salía entera en
+blanco. Se cambió por un oído de `scroll` y tampoco: **ese panel no despacha
+eventos de scroll en absoluto** —comprobado con un oído recién puesto y un
+`scrollTop += 200`: cero avisos—, porque los dos dependen de que el navegador
+componga fotogramas. Es la misma familia de trampa que deja las transiciones
+congeladas para siempre, la que ya está en CLAUDE.md. O sea que el cambio se
+había hecho por un artefacto del entorno y no por un fallo, y se deshizo.
+
+Se queda el observador, que es la herramienta correcta, y al lado
+`montarLasVisibles()`: una medición síncrona de rectángulos, que sí funciona sin
+dibujar nada y garantiza que la primera pantalla nunca salga vacía en ningún
+sitio. Con tres mundos todos caben en la primera pantalla y da igual; **conviene
+mirar el scroll en un teléfono de verdad cuando haya ocho.**
+
+#### Al añadir un mundo, ahora hay una trampa más
+
+El sellador de la huella busca por TEXTO la línea donde se asigna el `href` del
+archivo de los mundos. Un comentario que cite esa marca se sella también, y se
+queda con una huella vieja dentro para siempre. Pasó al escribir el comentario
+de `direccionDeLosMundos()` en esta misma tanda.
+
+### 0.7.69 · 2 sep 2026
+
+**Las estrellas fugaces se rehacen con cabeza y cola, y la barra del nivel se
+muda a la racha.**
+
+Las dos cosas las pidió Eduardo mirando la 0.7.68.
+
+**La fugaz ahora es luz y no una raya.** Lo corrigió con una captura delante:
+«un punto destelleante y un degradado en la cola para simular la animación de
+la luz, y que se atenúe todo para desaparecer en el cielo». Así que son dos
+piezas:
+
+- la **cabeza**, un disco de 1,15 con su halo — es lo que se ve, y lo que hace
+  que parezca luz y no un círculo pintado;
+- la **cola**, un triángulo de 19 de largo con un degradado que se apaga hacia
+  atrás. Triángulo y no línea: una línea tiene grosor constante, y una estela
+  que no se estrecha es un palo.
+
+El degradado se declara una vez en `<defs>` y lo usan las tres. Va en
+`userSpaceOnUse` porque en el sistema de la caja un degradado horizontal sobre
+un triángulo casi plano sale impredecible; como las tres colas viven en las
+mismas coordenadas locales, con una definición basta. El halo va en la cabeza
+sola y no en el grupo: sobre la cola lo ensucia. Y la atenuación se lleva los
+últimos catorce puntos de la vuelta, para que se apague en vez de cortarse.
+
+**Y la barra se comparte.** «Me enamoré de tu barra de carga… se podría sacar
+provecho en otras áreas, como en Racha». Ya no vive en Mi expedición: es
+`.barra-viva`, con su llenado de entrada, su punta encendida y su estela, y la
+usan cuatro sitios. El alto se pide con `--alto` porque ninguno lo quiere
+igual: 5 px debajo del nivel, 4 en las cifras de la racha y 8 en el próximo
+hito.
+
+En la tarjeta de la racha entran tres:
+
+| Dónde | Color | Por qué |
+| --- | --- | --- |
+| esta semana | luciérnaga | es el color de la llama, que ya manda en esa tarjeta |
+| en \<mes\> | menta | el acento, que es el del calendario de al lado |
+| próximo hito | menta | la barra grande, y donde más paga |
+
+«4/7» dice el dato y no dice de un vistazo si vas bien: una fracción hay que
+resolverla, una barra se ve. Y el próximo hito era un carril muerto debajo de
+lo único de esa tarjeta que mueve a volver hoy.
+
+**El día en curso deja de estar quieto.** También lo pidió. Es un pulso que
+sale del borde de la casilla y se abre, como el eco de un radar: dice «este es»
+sin robarle la atención a las casillas llenas, que son las que cuentan la
+racha. Va en un `::after` y no en el `box-shadow` de la casilla porque lo que
+se anima es una escala, y escalar la casilla movería su número. **Y la llama
+respira** mientras la racha esté viva —tres segundos y medio, un halo que crece
+poco—; con la racha rota se queda quieta, porque una llama que late encima de
+un cero anima algo que no está pasando.
+
+`.sgh-b` pierde su `overflow: hidden`: la punta encendida tiene que poder
+salirse del carril, que es justo lo que la hace parecer luz.
+
+**Comprobado midiendo el DOM:** las tres barras de la racha con su alto, su
+color y sus tres animaciones (`expLlena`, `expPunta`, `expEstela`); el pulso de
+hoy y el de la llama; las tres colas con su degradado y sus tres cabezas con su
+halo, congeladas a media travesía para verlas. En los dos modos —la tarjeta de
+la racha es una escena y se queda de noche, así que sus tonos no cambian— y sin
+desbordar a 375 px.
+
+### 0.7.68 · 2 sep 2026
+
+**Mi expedición se rehace entera: el cielo sube a la pantalla y se mueve, los
+rangos dejan de decir «Pasado», la barra del nivel se enciende y la letra chica
+se pliega.**
+
+La pantalla existía desde el nivel de expedición y no había vuelto a tocarse.
+Eduardo la miró y la resumió: «cero informativo, cero interesante y bastante
+olvidable».
+
+**1. El cielo, que ya estaba dibujado y no se veía.** Las cinco constelaciones
+—la bota, la huella, el farol, el mapa y la brújula— solo salían durante los dos
+segundos de la celebración de subir de nivel. Ahora encabezan la pantalla, con
+la misma composición de la celebración porque es lo que hace que las dos sean el
+mismo sitio: la que estás cerrando en grande, y las cerradas en un estante
+arriba, titilando. Las estrellas que faltan quedan como **aros vacíos que se
+cuentan**, que es lo que convierte «te faltan 235 puntos» en «te falta media
+figura».
+
+Cuántas van encendidas lo decide `ncelHasta()` y no una cuenta propia: desde la
+0.7.65 cada figura tiene las que pide el dibujo, y dos verdades sobre lo mismo
+es justo lo que no puede haber.
+
+Tres altos y no uno —con altar (190), vitrina (150) y vacío (118)—: con un alto
+fijo, los dos extremos de la vida de una cuenta dejaban media tarjeta de negro.
+Y una primera versión con las cinco en hilera y del mismo tamaño no se sostuvo:
+a esa escala una constelación son cuatro rayas de medio píxel.
+
+**2. El cielo se mueve.** Lo pidió Eduardo: «que reaccione al paso del mouse y
+que se anime ligeramente, como leves estrellas fugaces». Dos cosas:
+
+- **Paralaje de tres capas.** El polvo se mueve a favor del puntero (+4,3 px
+  medidos), las medallas en contra (−2,9) y la figura viva más (−6,2). Solo
+  donde hay puntero de verdad: en un teléfono `pointermove` llega con el dedo y
+  dejaría el cielo torcido sin forma de enderezarlo.
+- **Tres estrellas fugaces**, y la palabra que manda es *leves*: cada una cruza
+  en 1,7 s y pasa otros once quieta y a opacidad cero. Pasa una cada cuatro
+  segundos y medio y nunca dos a la vez. Es lo que separa esto de los rayos
+  giratorios que se quitaron en la 0.7.48 —«algo que gira sin final es
+  decoración de fondo, no un acontecimiento»—.
+
+Señalar una constelación la acerca, la enciende y dice de qué rango es.
+
+**3. La barra del nivel, con estela.** Se llena al entrar, lleva una punta
+encendida en la cabeza y un brillo que la recorre cada dos segundos y medio,
+todo del color del rango que llevas puesto. Se anima con `transform` y
+`opacity` y nunca con un color: un color que sale de una variable se queda
+congelado en Chrome, y esa trampa ya mordió cuatro veces en esta app.
+
+**4. Un color por rango — y ni lila ni luciérnaga.** El primer reparto usaba los
+cinco acentos de la casa y Eduardo lo paró en la primera mirada: el **lila** es
+de Fundador y de nada más —se sacó del amarillo justo para que dijera una sola
+cosa— y la **luciérnaga** es «mira esto», el color de un cobro que falló o de la
+trastienda. Un rango pintado con cualquiera de los dos no es variedad de color,
+es un mensaje equivocado.
+
+En su sitio entran dos tonos propios que no dicen nada más:
+
+| | Noche | Día (sobre la tarjeta clara) |
+| --- | --- | --- |
+| `--rosa` | `#f2a0c4` | `#ad2e74` · 5,44 |
+| `--astro` | `#cfe2f7` | `#2f4d7a` · 7,55 |
+
+El rosa se queda en la banda de los otros tres (menta 5,46, celeste 5,48, coral
+5,48) para que los cinco se lean como una familia. **`--astro` es la excepción a
+propósito**: es el último de los cinco, de noche es luz de estrella —que es lo
+que tiene que ser el color del final del camino— y de día eso no existe, así que
+se convierte en la tinta más honda. Va saturado porque con `--faint` al lado
+(4,69 y sin saturación) un azul apagado se habría leído como «desactivado».
+
+El reparto queda menta (160°), celeste (204°), rosa (330°), astro (sin matiz) y
+coral (12°): el único par cercano sería rosa-coral, y entre los dos va el astro.
+
+Y el candado de un peldaño sigue la misma regla: **lila solo si lo que cierra es
+Fundador**; lo que cierra Pro va en celeste, que aquí no significa nada más.
+
+**5. Los rangos ya no se apagan.** Decían «Pasado» en gris —más apagado incluso
+que los que ni has alcanzado—, y un logro escrito en pasado y en gris se lee
+como algo que se te fue. Ahora dice **Conseguido** con su palomita, conserva su
+color, y los cinco pasan de una reja de pastillas a filas: en 84 px no cabe la
+línea que explica de qué va ese tramo del camino. Las notas están escritas sin
+nombrar el rango, para que un mundo pueda renombrarlos sin romperlas.
+
+**6. Lo que abre el nivel, que nunca se enseñó.** `EXP_ESCALERA` existe desde el
+primer día y esta pantalla no la pintaba, con el archivo diciendo al lado que
+«un premio sorpresa no mueve a nadie y uno que se ve venir, sí». Salen los cinco
+ambientes con su nivel, su propio dibujo y su estado, y por qué no lo tienes se
+lo pregunta a `aparienciaDisponible()`: un solo dato por chip.
+
+**7. De dónde salen tus puntos se pliega.** Cerrada de inicio y sin recordar
+estado. Al abrirla **explica cómo se gana cada fuente** —las reglas estaban
+medidas en `EXP_PUNTOS` desde siempre y nunca se le habían dicho a quien las
+está viviendo— y cada una lleva su color.
+
+**Tres arreglos que salieron por el camino:**
+
+- **`--celeste` faltaba en la lista de la escena** (`.scene-card, .celebrate,
+  .ncel, .scel`) desde que esa lista existe. No se había notado porque ninguna
+  escena lo usaba; el cielo sí, y en modo claro una constelación tomaba el
+  celeste de día —`#0f688f`— encima de un cielo casi negro. Medido, 1,6 sobre 1.
+- **El nivel 31 en adelante.** El cielo pregunta por `desde + EXP_POR_RANGO` y
+  no por `ncelIndiceRango()`, que cuenta sin techo y en el 31 devolvía la quinta
+  figura recién empezada cuando ya está cerrada.
+- **El paralaje no se movía aunque el oyente funcionaba.** El `0` de reserva
+  estaba declarado en cada capa, y una propiedad personalizada declarada en el
+  propio elemento gana a la que hereda: pisaba el valor que se escribe arriba.
+  Medido: `--mx` llegaba a 0,477 y el `transform` seguía en la matriz identidad.
+  El valor de reserva va en el elemento de fuera.
+
+**La insignia toma el color del rango solo dentro del cielo.** Fuera —el
+Resumen, la fila de la cuenta— sigue en menta: ahí cae sobre papel en modo claro,
+donde los cinco se hunden a tinta y un aro de dos píxeles ya no dice de qué color
+es. Se enciende con un segundo argumento.
+
+**Comprobado midiendo el DOM** en quince niveles (0, 1, 5, 6, 7, 12, 13, 18, 19,
+24, 25, 30, 31, 50 y 120): medallas y altar cuadran con el nivel en los quince,
+los cinco rangos siempre están, las tres fugaces se siembran siempre y no
+desborda de lado en ninguno. En los dos modos, con paralaje medido en las tres
+capas y su vuelta al centro, y a 320×480 sin cortar un solo rótulo.
+### 0.7.67 · 1 sep 2026
+
+**Un rango se consigue al cerrar su constelación, no al estrenarla.**
+
+Lo paró Eduardo mirando los textos: la escena decía «Ahora eres Rastreador» el
+día que se enciende su PRIMERA estrella, cuando lo que hay ahí es un dibujo por
+hacer. Empezar y conseguir son dos momentos y ahora se dicen distinto:
+
+| Cuándo | Qué dice |
+| --- | --- |
+| El primero del tramo | Empiezas a trazar **Rastreador** |
+| Los de en medio | Alcanzaste el nivel 9 de tu expedición |
+| El sexto, que la cierra | Rango **Rastreador** conseguido |
+
+Y arrastra tres cosas más, que son las que hacen que el cambio sea de verdad y
+no de rótulo:
+
+- **`EXP_ESCALERA` anuncia los rangos donde se ganan**, en 6, 12, 18, 24 y 30
+  y no en 1, 7, 13, 19 y 25. Con lo de antes, la tarjeta del Resumen prometía
+  «Rango Rastreador» para el nivel 7 — el nivel en que ese rango empieza a
+  dibujarse. Los peldaños de celebración se corren a los huecos: 3, 9 y 15.
+- **El emparejado de `escaleraDeExpedicion()` va por el nivel donde se
+  consigue** (`desde + EXP_POR_RANGO - 1`) y no por `desde`, para que un mundo
+  con sus propios nombres siga cuadrando.
+- **La cita del rango sale al conseguirlo.** La añadió otra sesión colgada de
+  «estrenar»; puesta ahí coronaba un nombre que aún no era tuyo.
+
+### 0.7.66 · 2 sep 2026
+**Averno: el banner deja de tener un hueco de 200 px, y el modo claro se limpia.**
+
+Cinco cosas que salieron de mirarlo puesto, y la primera es un bug mío.
+
+**El banner.** Al sustituir la ilustración de la banda por los anillos la apagué
+con `opacity` en vez de `display`, razonando que «así conserva su alto y la
+banda no se encoge». El razonamiento estaba al revés: ese `<svg class="scene">`
+va EN FLUJO y aporta 193 px, así que apagarlo sin quitarlo dejaba una banda de
+**376 px con 177 de contenido**. Doscientos píxeles de nada. Ahora mide 179 con
+177 — dos de hueco. Y los anillos dejan de escalar con ella: con `contain`
+crecían hasta 574x349 porque seguían a la caja.
+
+**Y dejan de ser transparentes**, que es lo mismo por otro lado: sin
+ilustración debajo, lo que se veía por el hueco era la ceniza de la página
+compitiendo con las cifras. La superficie la pone el panel, y el velo —que
+existía para tapar un paisaje— se apaga porque ya no hay paisaje.
+
+**Las cifras salen de la gótica.** Grenze Gotisch tiene numerales muy
+dibujados: un titular en esa cara es carácter, pero un «3» a 18 px dentro de un
+banner es un acertijo. Pasan a Outfit y los títulos se quedan góticos — es lo
+único del mundo que usa la letra de la casa, y a propósito: una cifra se LEE y
+un título se MIRA.
+
+**El fondo, aligerado.** «Demasiado cargado de elementos y agobia con el
+tiempo», que es la frase clave: un fondo se mira mil veces, así que lo que en la
+primera pasada es atmósfera en la décima es ruido. La ceniza pasa de 18 motas,
+3 brasas y 2 volutas a 10, 2 y 1, con las opacidades de .495 a .34 y de .765 a .5.
+
+**Y el modo claro deja de ser barro.** El diagnóstico no era el croma sino la
+LUZ: la página de día estaba en L 0,852 contra el 0,904 de la casa, y el suelo
+de los mapas —que se deriva hundiéndola— caía en 0,821. Ahí es donde un cálido
+con algo de color deja de ser beige y pasa a ser barro; la casa se salva porque
+su gris es AZUL, y un azul sucio no se ve sucio. La página sube a 0,900 y el
+suelo pasa de `#cdc2bc` a `#d8d4d1`.
+
+**Tres arreglos que salieron de quitar la ilustración.** La banda ya no es una
+escena, así que en modo claro se quedaba como una losa negra sobre el papel:
+ahora sigue al modo. Con eso la pastilla de foco se quedó con el vidrio de noche
+y la tinta de día —1,30 de contraste— y los deltas verdes se quedaron claros
+sobre papel; los dos se arreglan trayendo sus variables, no con reglas aparte.
+Y la pastilla pierde su tinte en los dos modos: se pinta con `color-mix(--mint
+14%, …)` y su rótulo es de ese mismo `--mint`, así que el tinte empujaba el
+fondo justo hacia donde está la tinta.
+
+Medido con el barrido de control sobre 427 elementos: **cero fallas de contraste
+exclusivas de Averno en los dos modos**. De día Averno falla 11 y la casa 70; de
+noche 24 contra 25.
+
+### 0.7.65 · 1 sep 2026
+
+**La constelación deja de contar niveles y pasa a dibujar el objeto del rango,
+y la escena dice lo que acaba de pasar.**
+
+Atar una estrella a un nivel parecía elegante y era una jaula: obligaba a seis
+puntos por rango, y con seis puntos no se dibuja una bota —salían formas
+abstractas que nadie leía como su oficio—. Ahora **cada figura tiene las
+estrellas que pide el dibujo** (doce la bota, catorce la huella y el mapa) y el
+progreso se reparte: `ncelHasta()` enciende el tramo que toca en cada uno de
+los seis niveles del rango. Lo que se ve es que cada nivel AVANZA el dibujo,
+no que cada nivel valga un punto.
+
+**Los textos dicen lo que pasó, no un rótulo.** «Rango Andante» era una
+etiqueta cierta siempre, y por eso no era noticia en ninguno de los seis
+niveles. Ahora hay tres frases y cada una solo vale en su momento:
+
+| Cuándo | Qué dice |
+| --- | --- |
+| Un nivel cualquiera | Alcanzaste el nivel 4 de tu expedición |
+| El sexto del rango | Rango **Andante** completado |
+| El primero del siguiente | Ahora eres **Rastreador** |
+
+Y el botón pasa de «Seguir» a **«Continuar»**.
+
+**La escena se reparte el alto en columna**, y eso no es cosmética. Con el
+dibujo y el texto superpuestos, la escena con premio —que trae la lista de lo
+que se abre y dos botones— subía el texto hasta dentro de la constelación:
+medido, **98 px de solape**. En columna el mapa ocupa lo que sobra: 467 px sin
+premio y 329 con él, sin tocarse en ninguno de los nueve niveles probados.
+
+**Una trampa nueva para la lista, y ya costó media hora:** al medir esto, el
+banco de pruebas seguía aplicando la hoja de estilos ANTERIOR aunque el
+servidor mandara `Cache-Control: no-store`, aunque el `fetch` a esa misma URL
+devolviera la versión nueva y aunque se cerrara la pestaña. Lo que lo delata
+es leer `document.styleSheets` del iframe y comparar su regla con lo que
+responde el servidor: si difieren, lo que está mal es la prueba. La salida es
+inyectar las declaraciones con un `<style>` y medir eso.
+
 ### 0.7.64 · 1 sep 2026
 **Averno cambia de concepto, baja el naranja y por fin trae sus anillos.**
 

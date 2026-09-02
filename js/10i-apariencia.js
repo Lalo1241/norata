@@ -177,7 +177,7 @@ const MUNDOS = [
      concepto: es el mismo fallo que costó cambiar «Arquitecto» en Blueprint.
 
      **Los dibujos son glifos, no criaturas.** Un caput mortuum, un sello
-     hexagonal, la cruz de Leviatán, tres siluetas encapuchadas y el pentagrama
+     inscrito, la cruz de Leviatán, tres siluetas encapuchadas y el pentagrama
      invertido. Cinco siluetas que no se parecen entre sí, que es la prueba que
      hay que pasar antes de mirar si cada una es bonita. Una criatura dibujada a 20 px —que es el tamaño al que se pintan—
      solo puede salir caricatura; un glifo a ese tamaño se lee, y además es lo
@@ -437,7 +437,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=646251f00a";
+  l.href = "css/mundos.css?h=33d06fd2a3";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
@@ -866,10 +866,13 @@ const ESCENA_CSS = `
 
 /* La dirección de `css/mundos.css` se LEE del `link` que ya está puesto y no se
    escribe aquí, y es a propósito: lleva una huella detrás (`?h=…`) que estampa
-   `mundos/app.py` buscando la línea `.href = "css/mundos.css?h=646251f00a`. Escribiéndola
-   otra vez habría un segundo sitio que sellar, y el día que el sellado alcance
-   a uno y no al otro, la galería enseñaría mundos viejos sin que nada lo
-   delate.
+   `mundos/app.py` buscando la línea donde se le asigna el `href` al `link` del
+   archivo de los mundos. (Esa marca no se escribe aquí ni de ejemplo: el
+   sellador la busca por texto, así que un comentario que la cite se sella
+   también y se queda con una huella vieja dentro para siempre. Pasó al
+   escribir este mismo párrafo.) Escribiendo la dirección otra vez habría un
+   segundo sitio que sellar, y el día que el sellado alcance a uno y no al
+   otro, la galería enseñaría mundos viejos sin que nada lo delate.
 
    Y devuelve VACÍO cuando todavía no hay `link`, en vez de la dirección pelada.
    Escribir `css/mundos.css` a secas estuvo puesto media hora y estaba mal: el
