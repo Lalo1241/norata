@@ -54,6 +54,34 @@
     --celeste: #8ecdf5;
     --celeste-soft: rgba(142, 205, 245, 0.1);
 
+    /* ---------- Los dos tonos de los rangos ----------
+       Existen porque los cinco rangos necesitan cinco colores y en Norata solo
+       había tres libres. Los otros dos ya significaban algo, y usarlos lo paró
+       Eduardo en la primera mirada:
+
+         · el LILA es de Fundador y de nada más — se sacó del amarillo justo
+           para que dijera una sola cosa;
+         · la LUCIÉRNAGA es «mira esto»: un cobro que falló, un plan que se
+           cancela, la trastienda.
+
+       Un rango pintado con cualquiera de los dos no es variedad de color, es
+       un mensaje equivocado. Estos dos son suyos y no dicen nada más.
+
+       De día se hunden hasta la banda en la que ya están los otros tres
+       —menta 5,46, celeste 5,48, coral 5,48 sobre la tarjeta clara— para que
+       los cinco se lean como una familia y no como cinco decisiones sueltas.
+
+       `--astro` es la excepción de la banda a propósito. Es el último de los
+       cinco: de noche es LUZ DE ESTRELLA, que es justo lo que tiene que ser el
+       color del final del camino, y de día eso no existe —un plata sobre papel
+       es invisible— así que se convierte en la tinta más honda de las cinco
+       (7,55). Es el mismo reparto que ya hacen los acentos, un tono por cada
+       luz; aquí el salto es más grande porque el punto de partida es blanco.
+       Y va saturado a propósito: con `--faint` al lado (4,69 y sin
+       saturación) un azul apagado se habría leído como «desactivado». */
+    --rosa: #f2a0c4;
+    --astro: #cfe2f7;
+
     /* ---------- Los tres tonos de un aro ----------
        Un aro de nueve píxeles no es texto ni es un relleno: es un trazo
        gordo. Pintado con `--mint` sale verde bosque de día —ese tono es el de
@@ -593,6 +621,9 @@
     --coral-vivo: #991b00;
     --celeste: #0f688f;
     --celeste-soft: #e5eef3;
+    /* Ver arriba: los dos tonos propios de los rangos. */
+    --rosa: #ad2e74;
+    --astro: #2f4d7a;
     /* Medidos contra la tarjeta clara (#f2f0f9): 3,36 · 3,77 · 3,82. */
     --aro-alto: #009663;
     --aro-medio: #1583b3;
@@ -882,6 +913,16 @@
     --fire-soft: rgba(245, 215, 110, 0.13);
     --coral: #ff8a70;
     --coral-soft: rgba(255, 138, 112, 0.13);
+    /* El celeste y los dos tonos de los rangos faltaban en esta lista. El
+       celeste llevaba fuera desde que la lista existe y no se había notado
+       porque ninguna escena lo usaba; el cielo de Mi expedición sí, y en modo
+       claro una de las cinco constelaciones tomaba el celeste de día
+       —#0f688f, el de escribir sobre papel— encima de un cielo casi negro.
+       Medido, 1,6 sobre 1. */
+    --celeste: #8ecdf5;
+    --celeste-soft: rgba(142, 205, 245, 0.1);
+    --rosa: #f2a0c4;
+    --astro: #cfe2f7;
     --sobre-acento: #10151d;
     --sobre-acento-coral: #3a1009;
     --sobre-vivo: #10151d;
@@ -1345,6 +1386,15 @@
     margin: 4px 0 10px;
   }
   .streak-row .flame { color: var(--fire); }
+  /* La llama respira mientras la racha está viva. Tres segundos y medio y un
+     halo que crece muy poco: tiene que verse encendida, no parpadear. Con la
+     racha rota se queda quieta —lo decide el JavaScript con la clase—, porque
+     una llama que late encima de un cero anima algo que no está pasando. */
+  @keyframes flameLatido {
+    0%, 100% { filter: drop-shadow(0 0 3px color-mix(in srgb, var(--fire) 45%, transparent)); }
+    50%      { filter: drop-shadow(0 0 9px color-mix(in srgb, var(--fire) 70%, transparent)); }
+  }
+  .streak-row .flame.viva { animation: flameLatido 3.5s ease-in-out infinite; }
   .streak-row .flame svg { width: 30px; height: 30px; stroke-width: 1.6; }
   .streak-row .num { font-size: 34px; font-weight: 700; letter-spacing: -1px; line-height: 1; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .streak-row .lbl { font-size: 12px; color: rgba(var(--escena-tinta), 0.8); line-height: 1.3; }
@@ -1719,13 +1769,25 @@
     justify-content: center;
     overflow: hidden;
   }
-  .ncel.show { display: flex; }
+  /* En COLUMNA, y esto no es cosmética: el dibujo y el texto se reparten el
+     alto en vez de superponerse. Con las dos capas absolutas y una franja
+     fija, la escena con premio —lista de lo que se abre y dos botones— subía
+     el texto hasta dentro de la constelación: medido, 49 px de solape. Así el
+     mapa ocupa lo que sobra, lleve el texto lo que lleve. */
+  .ncel.show { display: flex; flex-direction: column; justify-content: flex-end; }
   /* ---------- El cielo y la constelación ----------
      Sustituyen a los rayos giratorios. El motivo, medido: eran las únicas
      animaciones `infinite` de toda la app, y algo que gira sin final es
      decoración de fondo y no un acontecimiento. */
-  .ncel-cielo, .ncel-mapa {
-    position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+  .ncel-cielo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  /* La constelación tiene SU franja, la mitad de arriba, y no todo el fondo.
+     Con las dos capas a pantalla completa, la escena con premio —que trae la
+     lista de lo que se abre y dos botones— subía el texto hasta encima de la
+     figura: medido, 62 px de solape. Con la franja, el dibujo ocupa lo mismo
+     lleve el texto lo que lleve. */
+  .ncel-mapa {
+    position: relative; flex: 1 1 auto; min-height: 0;
+    width: 100%; pointer-events: none;
   }
   .ncel-cielo circle { fill: #cfe6ff; }
   .ncel-linea { stroke: var(--mint); fill: none; opacity: .45; }
@@ -1756,7 +1818,13 @@
   .ncel-estante .ncel-med-astro { fill: var(--mint); opacity: .5; }
   .ncel-estante .ncel-med-nueva { animation: ncelMedalla .7s ease 2.6s backwards; }
   @keyframes ncelMedalla { from { opacity: 0; } }
-  .ncel-core { position: relative; text-align: center; padding: 24px; max-width: 340px; width: 100%; }
+  /* El texto baja y la constelación se queda arriba. Centrados los dos, el
+     número de 76 px se comía la figura: en la captura del nivel 6 solo se
+     veían los puntitos del cielo asomando por los lados. */
+  .ncel-core {
+    position: relative; text-align: center; padding: 24px;
+    max-width: 340px; width: 100%; flex: 0 0 auto; margin-bottom: 2vh;
+  }
   .ncel-insignia { color: var(--mint); filter: drop-shadow(0 0 28px color-mix(in srgb, var(--mint) 70%, transparent)); }
   .ncel-insignia svg { width: 78px; height: 78px; stroke-width: 1.5; }
   /* Dos latidos y para. En infinito, la insignia competía con la constelación
@@ -1867,66 +1935,414 @@
      fila de la cuenta, que es donde vive la insignia. */
   .sum-card.quieta { cursor: default; }
 
-  /* ---------- La colección ----------
-     El inventario del recorrido: quién eres en la expedición, los cinco rangos
-     y de dónde salieron tus puntos. */
-  .col-cab { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
-  .col-quien { min-width: 0; }
-  .col-nivel {
-    font-size: 26px; font-weight: 700; letter-spacing: -0.5px;
+  /* ---------- Mi expedición ----------
+     El inventario del recorrido: el cielo con las constelaciones, los cinco
+     rangos, lo que abre el nivel y —plegada— de dónde salieron tus puntos.
+
+     La versión anterior era una insignia, una barra, cinco pastillas y nueve
+     barritas, todo del mismo verde. Eduardo: «cero informativo, cero
+     interesante y bastante olvidable». Lo que cambia aquí es eso: un dibujo
+     que se queda arriba y que se mueve, un color por rango y la letra chica
+     fuera de la vista hasta que se pida.
+
+     El cielo lleva `.scene-card` y por eso se queda de NOCHE en los dos modos.
+     No es un descuido del modo claro: es la misma regla que la escena de la
+     racha y la celebración —no son interfaz, son un dibujo— y aquí además es
+     lo único que funciona. Una constelación sobre papel no es una
+     constelación. */
+  .exp-cielo {
+    /* `.scene-card` clava 252 px porque sus escenas son ilustraciones de alto
+       fijo; ésta se compone de dos piezas —el cielo, que escala con el ancho,
+       y el rótulo, que mide lo que mide— así que la marca su contenido.
+       El suelo lo pone la tarjeta y no el SVG: así el rótulo de abajo se apoya
+       en la misma noche aunque el dibujo ya haya terminado. */
+    height: auto;
+    margin-bottom: 16px;
+    background: rgb(var(--escena-fondo));
+  }
+  .exp-sky-wrap { position: relative; }
+  .exp-sky { display: block; width: 100%; height: auto; overflow: visible; }
+  /* La costura entre el cielo y el rótulo. Sin ella el dibujo termina en una
+     raya recta y se ve el borde de la foto; con ella el polvo de estrellas se
+     apaga hacia abajo y el nivel parece escrito sobre el mismo cielo. */
+  .exp-velo {
+    position: absolute; inset: auto 0 0 0; height: 22px; pointer-events: none;
+    background: linear-gradient(180deg, transparent, rgb(var(--escena-fondo)));
+  }
+
+  /* ---------- El cielo reacciona al puntero ----------
+     Paralaje de tres capas: el polvo se mueve poco y a favor, las medallas más
+     y en contra, y la figura viva la que más. De ahí sale la profundidad. Los
+     números son pequeños a propósito —doce píxeles en el peor caso— porque
+     esto tiene que notarse de reojo, no marearte.
+
+     `--mx` y `--my` los escribe `expCieloVivo()` en el elemento de fuera, y
+     valen entre -0,5 y 0,5. Con `0` de reserva, que es lo que hace que el
+     cielo salga derecho en un teléfono, donde el oyente ni se cuelga. */
+  /* El valor de reserva va en el elemento de FUERA y no en cada capa, y no es
+     un detalle de estilo: una propiedad personalizada declarada en el propio
+     elemento gana a la que hereda. Puesto en `.exp-polvo` y compañía, el `0`
+     de aquí pisaba el valor que `expCieloVivo()` escribe arriba y el cielo no
+     se movía nunca — el oyente funcionaba y el paralaje no. Medido: `--mx`
+     llegaba a 0,477 y el `transform` seguía en la matriz identidad. */
+  .exp-cielo { --mx: 0; --my: 0; }
+  .exp-polvo { transform: translate(calc(var(--mx) * 9px), calc(var(--my) * 5px)); }
+  .exp-fugaces { transform: translate(calc(var(--mx) * 5px), calc(var(--my) * 3px)); }
+  /* Un solo `transform` por capa: la propiedad no se puede escribir dos veces,
+     así que el paralaje y el acercamiento del hover van en la misma
+     declaración y lo que cambia es `--z`. */
+  .exp-const {
+    transform-box: fill-box; transform-origin: center;
+    transform: translate(calc(var(--mx) * var(--pz) * 1px), calc(var(--my) * var(--pz) * 0.6px)) scale(var(--z, 1));
+  }
+  .exp-const.cerrada { --pz: -6; }
+  .exp-const.viva { --pz: -13; }
+  /* La vuelta al centro sí necesita transición —si no, el cielo pega un salto
+     al salir el puntero—, pero solo entonces: moviendo, `pointermove` ya llega
+     sesenta veces por segundo y una transición encima añade retraso. La clase
+     la pone y la quita `expCieloVivo()`. */
+  .exp-cielo.volviendo .exp-const,
+  .exp-cielo.volviendo .exp-polvo,
+  .exp-cielo.volviendo .exp-fugaces {
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Los hilos y los astros. Todo sale de `--c`, que cada constelación se pone
+     en su propio `<g>`: así los tres estados se escriben una vez y valen para
+     los cinco colores. */
+  .exp-const .exp-hilo { stroke: var(--c); fill: none; stroke-linecap: round; }
+  .exp-const.cerrada .exp-hilo { opacity: 0.5; }
+  .exp-const.viva .exp-hilo { opacity: 0.68; }
+  .exp-const .exp-astro.puesta { fill: var(--c); }
+  /* Las que faltan, como aros vacíos: dejan ver cuánto le queda al dibujo. */
+  .exp-const .exp-astro.hueca { fill: none; stroke: var(--c); opacity: 0.3; }
+  /* El resplandor de lo que está vivo. Es lo que pidió Eduardo —que el cielo
+     destelle como si fueran logros— y aquí se puede: esta tarjeta es una
+     escena y se queda de noche, así que nunca cae sobre papel. */
+  .exp-const.viva { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--c) 60%, transparent)); }
+  .exp-const.cerrada { filter: drop-shadow(0 0 3px color-mix(in srgb, var(--c) 45%, transparent)); }
+  .exp-polvo circle { fill: #cfe6ff; }
+  /* La zona de toque: invisible, pero es lo que hace que se pueda señalar una
+     figura sin acertarle a una línea de un píxel. */
+  .exp-toque { fill: transparent; }
+
+  /* El titileo de lo conseguido. Lo pidió Eduardo —«que destellen luz como si
+     de logros se tratasen»— y es de las pocas animaciones sin final de la app,
+     a sabiendas: 4,4 s y entre 55% y 100% de opacidad es un cielo, no un
+     parpadeo. El retardo de cada estrella lo sortea el JavaScript para que una
+     figura no destelle entera a la vez. */
+  @keyframes expTitila { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+  .exp-const.cerrada .exp-astro.puesta { animation: expTitila 4.4s ease-in-out infinite; }
+
+  /* ---------- Las estrellas fugaces ----------
+     Trece segundos de vuelta y solo 1,7 s de cruce: el resto del tiempo el
+     elemento está quieto y a opacidad cero. Es lo que separa esto de los rayos
+     giratorios que se quitaron en la 0.7.48 —«algo que gira sin final es
+     decoración de fondo, no un acontecimiento»—: aquí lo que se ve es un
+     acontecimiento pequeño que pasa y se acaba.
+
+     Los valores van escritos y no salen de variables a propósito: el sitio y
+     el giro de cada una los pone un `transform` de atributo en el `<g>` de
+     fuera, así que aquí solo hace falta una animación y vale para las tres. */
+  /* La cola: un triángulo con el degradado que se apaga hacia atrás, no una
+     raya. Una raya tiene grosor constante y una estela que no se estrecha es
+     un palo — se vio en la primera versión y lo corrigió Eduardo con una
+     captura delante. */
+  .exp-cola { fill: url(#exp-cola-luz); }
+  /* Y la cabeza: el punto que destella. Su halo es lo que la hace parecer luz
+     y no un círculo pintado, y por eso el filtro va en la cabeza sola y no en
+     el grupo entero: sobre la cola, un halo la ensucia. */
+  .exp-cabeza {
+    fill: #f4faff;
+    filter: drop-shadow(0 0 2.4px rgba(234, 244, 255, 0.95));
+  }
+  /* Entra de golpe y se apaga despacio, que es como se ve una de verdad: el
+     brillo llega antes que el ojo y lo que queda es el rastro perdiéndose. Los
+     últimos catorce puntos de la vuelta son la atenuación, no un corte. */
+  @keyframes expFugaz {
+    0%, 86%  { transform: translateX(0);     opacity: 0; }
+    87%      { opacity: 1; }
+    93%      { opacity: 0.75; }
+    97%      { opacity: 0.3; }
+    100%     { transform: translateX(104px); opacity: 0; }
+  }
+  .exp-fugaz { animation: expFugaz 13s linear infinite; }
+
+  .exp-hero { padding: 2px 16px 15px; }
+  .exp-hero-fila { display: flex; align-items: center; gap: 12px; }
+  .exp-hero-tx { min-width: 0; }
+  .exp-hero-nivel {
+    font-size: 25px; font-weight: 700; letter-spacing: -0.5px;
     font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
   }
-  .col-rango { font-size: 13.5px; color: var(--mint); font-weight: 650; margin-top: 1px; }
-  /* El mismo carril que las barras del Resumen: encima va menta y hay que
-     verla avanzar. */
-  .col-barra {
-    height: 6px; border-radius: var(--r-redondo); background: var(--carril);
-    overflow: hidden; position: relative;
+  /* El color lo pone el JavaScript con el del rango que llevas: es lo que ata
+     este renglón con su constelación de arriba sin escribirlo. */
+  .exp-hero-rango { font-size: 12.5px; font-weight: 650; margin-top: 1px; }
+
+  /* ---------- `.barra-viva`: la barra con estela ----------
+     Lo pidió Eduardo para el nivel —«animada, con una estela del color del
+     momento»— y al verla pidió llevarla a más sitios: «me enamoré de tu barra
+     de carga… se podría sacar provecho en otras áreas, como en Racha». Así que
+     vive aquí, sola, y la usan Mi expedición y las dos cifras de la racha. Dos
+     copias del mismo efecto se separan a la tercera vez que alguien toca una.
+
+     Son tres cosas y cada una hace algo distinto:
+
+       1. la barra se LLENA al entrar, así que ves cuánto llevas en vez de
+          encontrártelo ya puesto;
+       2. una PUNTA encendida en la cabeza, que es de donde saldría el resto;
+       3. y la ESTELA, un brillo que recorre lo lleno cada dos segundos y
+          medio.
+
+     Todo se anima con `transform` y `opacity`, nunca con un color: un color
+     que sale de una variable se queda congelado en Chrome, y esa trampa ya
+     mordió cuatro veces en esta app. El color entra por `--c`, que lo escribe
+     el JavaScript, y se queda quieto.
+
+     El carril es `--carril` y no una transparencia de la tinta de la escena:
+     así la barra funciona igual dentro de una escena —donde `--carril` vuelve
+     a su valor de noche— y fuera, sobre una tarjeta de papel. */
+  .barra-viva {
+    /* El alto se pide con `--alto` porque los tres sitios que la usan no lo
+       quieren igual: 5 px debajo del nivel, 4 en las cifras de la racha y 8 en
+       el próximo hito, que es la barra grande de esa tarjeta. Lo demás —punta,
+       estela y llenado— no cambia. */
+    height: var(--alto, 5px); border-radius: var(--r-redondo);
+    background: var(--carril); position: relative;
   }
-  .col-barra i {
+  .exp-hero-barra { margin-top: 12px; }
+  .barra-viva i {
     position: absolute; inset: 0 auto 0 0; width: var(--p, 0%);
-    background: var(--mint); border-radius: var(--r-redondo);
+    background: var(--c, var(--mint)); border-radius: var(--r-redondo);
+    transform-origin: left center;
+    animation: expLlena 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--c, var(--mint)) 55%, transparent);
+  }
+  @keyframes expLlena { from { transform: scaleX(0); } }
+  /* La punta. Va fuera del recorte para que el halo se salga de la barra, que
+     es lo que la hace parecer encendida y no pintada. */
+  .barra-viva i::before {
+    content: ""; position: absolute; right: -2px; top: 50%;
+    width: 7px; height: 7px; margin-top: -3.5px;
+    border-radius: var(--r-redondo); background: var(--c, var(--mint));
+    box-shadow: 0 0 7px var(--c, var(--mint)),
+                0 0 15px color-mix(in srgb, var(--c, var(--mint)) 65%, transparent);
+    animation: expPunta 2.4s ease-in-out 0.9s infinite backwards;
+  }
+  @keyframes expPunta {
+    0%, 100% { opacity: 0.7; transform: scale(0.85); }
+    50%      { opacity: 1;   transform: scale(1.2); }
+  }
+  /* Y la estela, recortada a lo lleno. El `overflow` va en un envoltorio
+     propio y no en la barra, porque la punta tiene que poder salirse. */
+  .barra-viva i::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    overflow: hidden;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(var(--escena-tinta), 0.65) 45%,
+      rgba(var(--escena-tinta), 0.9) 50%,
+      rgba(var(--escena-tinta), 0.65) 55%,
+      transparent 100%);
+    background-size: 45% 100%; background-repeat: no-repeat;
+    animation: expEstela 2.6s cubic-bezier(0.5, 0, 0.5, 1) 1.2s infinite;
+  }
+  @keyframes expEstela {
+    0%        { background-position: -60% 0; }
+    55%, 100% { background-position: 160% 0; }
   }
 
-  .col-rangos {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
-    gap: 8px; margin-top: 12px;
+  .exp-hero-pie {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+    font-size: 11.5px; color: var(--muted); margin-top: 7px;
   }
+  .exp-hero-pie b {
+    color: var(--text); font-weight: 700;
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Los cinco rangos ----------
+     Filas y no una reja de pastillas: en una pastilla de 84 px no cabe la
+     línea que explica de qué va ese tramo del camino, y sin esa línea los
+     cinco rangos son cinco palabras sueltas.
+
+     Y el que ya conseguiste NO se apaga. Antes decía «Pasado» en gris —más
+     apagado incluso que los que no has alcanzado—, y un logro escrito en
+     pasado y en gris se lee como algo que se te fue. Ahora conserva su color y
+     lo dice con su palomita. */
+  .col-rangos { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
   .col-rango-uno {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    text-align: center; padding: 12px 6px;
+    display: grid; grid-template-columns: auto 1fr; gap: 11px;
+    align-items: center; padding: 11px 13px;
     border-radius: var(--r-caja); border: 1px solid var(--line);
+    border-left: 3px solid var(--line);
     background: var(--sup-panel);
-    /* Los que no has alcanzado se apagan, pero no se esconden: son cinco en
-       toda una vida de cuenta y saber cuáles vienen es la mitad de la gracia.
-       No es lo mismo que dibujar casillas de cosas que NO EXISTEN. */
-    color: var(--faint);
   }
-  .col-rango-uno.abierto { color: var(--muted); }
-  .col-rango-uno.tuyo {
-    color: var(--mint); border-color: var(--mint);
-    background: var(--mint-soft);
+  .col-rango-uno.cerrada { border-left-color: var(--c); }
+  .col-rango-uno.viva { border-color: var(--c); }
+  .crx-disco {
+    display: grid; place-items: center; width: 40px; height: 40px;
+    border-radius: var(--r-redondo); color: var(--c);
+    background: color-mix(in srgb, var(--c) 14%, transparent);
   }
-  .col-rango-uno b { font-size: 12.5px; font-weight: 650; color: inherit; }
-  .col-rango-uno span { font-size: 10.5px; letter-spacing: 0.6px; text-transform: uppercase; }
+  /* Los que no has alcanzado se apagan, pero no se esconden: son cinco en toda
+     una vida de cuenta y saber cuáles vienen es la mitad de la gracia. */
+  .col-rango-uno.porvenir .crx-disco { color: var(--faint); background: var(--carril); }
+  .crx-tx { min-width: 0; }
+  .crx-cab { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .crx-cab b { font-size: 13.5px; font-weight: 700; }
+  .col-rango-uno.porvenir .crx-cab b { color: var(--muted); }
+  .crx-nota { display: block; font-size: 11.5px; color: var(--muted); line-height: 1.4; margin-top: 2px; }
+  .crx-estado {
+    display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+    font-size: 10.5px; letter-spacing: 0.6px; text-transform: uppercase;
+    font-weight: 700; color: var(--c); white-space: nowrap;
+  }
+  .col-rango-uno.porvenir .crx-estado { color: var(--faint); }
+  .crx-estado svg { width: 13px; height: 13px; }
 
-  .col-fuentes { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  /* ---------- Lo que abre el nivel ----------
+     La escalera existía en `EXP_ESCALERA` desde el primer día y esta pantalla
+     no la enseñaba: el archivo dice «un premio sorpresa no mueve a nadie y uno
+     que se ve venir, sí», y aun así no se veía venir ninguno. */
+  .col-peldanos { display: flex; flex-direction: column; gap: 7px; margin: 12px 0 14px; }
+  .col-peldano {
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+    padding: 9px 11px; border-radius: var(--r-caja);
+    border: 1px solid var(--line); background: var(--sup-panel);
+  }
+  .cpx-disco {
+    display: grid; place-items: center; width: 30px; height: 30px;
+    border-radius: var(--r-redondo); color: var(--faint); background: var(--carril);
+  }
+  .col-peldano.tuyo .cpx-disco,
+  .col-peldano.cerrado .cpx-disco {
+    color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent);
+  }
+  .col-peldano b { font-size: 13px; font-weight: 650; color: var(--muted); min-width: 0; }
+  .col-peldano.tuyo b, .col-peldano.cerrado b { color: var(--text); }
+  .cpx-estado {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10.5px; letter-spacing: 0.6px; text-transform: uppercase;
+    font-weight: 700; color: var(--faint); white-space: nowrap;
+  }
+  .col-peldano.tuyo .cpx-estado { color: var(--mint); }
+  /* Lo que ya alcanzaste y sigue cerrado toma su `--c`, que el JavaScript
+     reparte según QUIÉN lo cierra: lila solo si es Fundador —ese tono no dice
+     nada más en Norata— y celeste si es Pro. De decir que está cerrado ya se
+     encarga el candado. */
+  .col-peldano.cerrado { border-color: color-mix(in srgb, var(--c) 34%, var(--line)); }
+  .col-peldano.cerrado .cpx-estado { color: var(--c); }
+  .cpx-estado svg { width: 12px; height: 12px; }
+
+  /* ---------- El acordeón de los puntos ----------
+     Cerrado de inicio, y por eso el panel no lleva su relleno de siempre: lo
+     pone el botón, que así ocupa la fila entera y se pulsa desde cualquier
+     sitio. Plegado porque es la letra chica —el reparto exacto no le interesa
+     a casi nadie— y ocupaba media pantalla de la que sí importa. */
+  .panel-plegable { padding: 0; overflow: hidden; }
+  .exp-plegable {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 17px 20px; background: none; border: 0; cursor: pointer;
+    color: var(--text); font-family: inherit; font-size: 14px;
+    font-weight: 700; text-align: left;
+  }
+  .exp-plegable > span { flex: 1; min-width: 0; }
+  .exp-plegable em { font-style: normal; font-size: 11.5px; font-weight: 600; color: var(--muted); }
+  /* La flecha sí puede llevar transición: lo que se anima es `transform`, no un
+     color que salga de una variable —eso se queda congelado en Chrome y ya
+     mordió cuatro veces—. */
+  .exp-plegable svg {
+    width: 16px; height: 16px; color: var(--muted); flex-shrink: 0;
+    transition: transform var(--dur-corta) var(--curva);
+  }
+  .exp-plegable.abierto svg { transform: rotate(180deg); }
+  .panel-plegable > div { padding: 0 20px 18px; }
+
+  /* Cada fuente con su color y con su pista. Nueve barritas del mismo verde no
+     son nueve cosas, son una mancha; y nueve cifras sin explicación son un
+     recibo. La pista es la regla que ya estaba medida en `EXP_PUNTOS` y que
+     nunca se le había dicho a quien la está viviendo. */
+  .col-fuentes { display: flex; flex-direction: column; gap: 15px; }
   .col-fuente {
     display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: baseline;
   }
-  .col-fuente span { font-size: 12.5px; color: var(--muted); }
+  .col-fuente > span { font-size: 12.5px; color: var(--text); font-weight: 600; }
   .col-fuente b {
-    font-size: 13px; font-weight: 700;
+    font-size: 13px; font-weight: 700; color: var(--c);
     font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
   }
   .col-fuente i {
     grid-column: 1 / -1; height: 4px; border-radius: var(--r-redondo);
-    background: var(--carril); position: relative; overflow: hidden; margin-top: 3px;
+    background: var(--carril); position: relative; overflow: hidden; margin-top: 4px;
   }
   .col-fuente i::after {
     content: ""; position: absolute; inset: 0 auto 0 0;
-    width: var(--p, 0%); background: var(--mint-deep); border-radius: var(--r-redondo);
+    width: var(--p, 0%); background: var(--c); border-radius: var(--r-redondo);
+    transform-origin: left center;
+    animation: expLlena 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   }
+  .col-fuente em {
+    grid-column: 1 / -1; font-style: normal; font-size: 11px;
+    color: var(--muted); line-height: 1.45; margin-top: 5px;
+  }
+  .col-fuente em:empty { display: none; }
+
+  /* ---------- Lo que reacciona al puntero ----------
+     Va dentro de `(hover: hover)` porque en un teléfono el hover se queda
+     PEGADO después de tocar: sin esto, la última fila que tocaste se queda
+     levantada hasta que toques otra.
+
+     Y solo se anima `transform`. Los colores cambian de golpe a propósito:
+     una transición sobre un valor que sale de una variable se queda congelada
+     en Chrome —el fallo que ya costó los selectores, el botón de Ajustes, el
+     de confirmar un borrado y el cambio de modo— y aquí TODOS los colores
+     salen de `--c`. */
+  @media (hover: hover) {
+    .col-rango-uno, .col-peldano {
+      transition: transform var(--dur-corta) var(--curva);
+    }
+    .col-rango-uno:hover, .col-peldano:hover { transform: translateY(-2px); }
+    .col-rango-uno:hover { border-color: var(--c); }
+    .col-rango-uno:hover .crx-disco { background: color-mix(in srgb, var(--c) 26%, transparent); }
+    .col-rango-uno.porvenir:hover { border-color: var(--muted); }
+    .col-rango-uno.porvenir:hover .crx-disco { color: var(--muted); }
+    .col-peldano:hover { border-color: color-mix(in srgb, var(--c) 45%, var(--line)); }
+    .col-peldano:hover .cpx-disco { background: color-mix(in srgb, var(--c) 24%, transparent); color: var(--c); }
+
+    .exp-plegable:hover { background: var(--sup-tarjeta2); }
+    .exp-plegable:hover svg { color: var(--text); }
+
+    /* Señalar una constelación la acerca y la enciende. Es lo que convierte el
+       cielo en algo que se puede mirar de cerca en vez de un fondo: cada una
+       lleva además su `<title>`, así que al pararte encima te dice de qué
+       rango es. */
+    .exp-const { transition: transform var(--dur-media) var(--curva); }
+    .exp-const:hover { --z: 1.12; }
+    .exp-const.cerrada:hover .exp-hilo { opacity: 0.85; }
+    .exp-const.viva:hover .exp-hilo { opacity: 0.95; }
+    .exp-const:hover .exp-astro.hueca { opacity: 0.55; }
+    /* Y el polvo del fondo sube un punto con el puntero dentro, que es lo que
+       hace que el cielo entero conteste y no solo la figura. */
+    .exp-cielo:hover .exp-polvo circle { opacity: 0.55; }
+  }
+
+  /* Quien pidió menos movimiento no pierde nada: el cielo sigue diciendo lo
+     mismo quieto, porque ni el titileo ni las fugaces ni la estela son
+     información. El paralaje ni siquiera se cuelga (ver `expCieloVivo`). */
+  @media (prefers-reduced-motion: reduce) {
+    .exp-const.cerrada .exp-astro.puesta,
+    .exp-fugaz,
+    .barra-viva i,
+    .barra-viva i::before,
+    .barra-viva i::after,
+    .rc-hoy::after,
+    .streak-row .flame.viva,
+    .col-fuente i::after { animation: none; }
+    .exp-fugaz { opacity: 0; }
+    .exp-plegable svg, .col-rango-uno, .col-peldano, .exp-const { transition: none; }
+  }
+
   /* La insignia y la cifra en fila: el círculo dice el rango de un vistazo y
      el número dice cuánto llevas. Juntos son una sola respuesta. */
   .exp-cab { display: flex; align-items: center; gap: 11px; }
@@ -6445,6 +6861,32 @@
      «cuatro de siete», que es lo que dice. */
   .sg-cifras b span { font-size: 13px; font-weight: 700; color: var(--muted); }
   .sg-cifras > div > span { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+  /* La barra debajo de cada cifra. Existe porque «4/7» dice el dato y no dice
+     de un vistazo si vas bien: una fracción hay que resolverla, una barra se
+     ve. Ancho fijo y no `100%` porque las dos cifras están en una fila
+     flexible y sin tope la barra las estiraba hasta descolgar el calendario. */
+  .sg-barra { width: 74px; margin: 7px 0 1px; --alto: 4px; }
+
+  /* ---- Hoy no se queda quieto ----
+     Lo pidió Eduardo: «que el día en curso igual tenga algún efecto y no se
+     vea todo estático». Es un pulso que sale del borde y se abre, como el eco
+     de un radar: dice «este es» sin robarle la atención a las casillas
+     llenas, que son las que cuentan la racha.
+
+     Va en un `::after` y no en el `box-shadow` de la casilla porque lo que se
+     anima es una ESCALA, y escalar la casilla movería su número. */
+  .rc-hoy { position: relative; }
+  .rc-hoy::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    box-shadow: 0 0 0 2px var(--mint);
+    animation: rcLatido 2.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+    pointer-events: none;
+  }
+  @keyframes rcLatido {
+    0%   { opacity: 0.6; transform: scale(1); }
+    65%  { opacity: 0;   transform: scale(1.5); }
+    100% { opacity: 0;   transform: scale(1.5); }
+  }
 
   /* ---- El calendario de la racha ----
      Las casillas se estiran con su columna hasta un tope: en el teléfono usan
@@ -6487,8 +6929,9 @@
      hueco en el sitio equivocado. Ahora manda un solo umbral. */
   .sg-extra { display: none; flex-direction: column; gap: 20px; }
 
-  .sgh-b { margin-top: 9px; height: 8px; border-radius: var(--r-boton); background: var(--carril); overflow: hidden; }
-  .sgh-b i { display: block; height: 100%; border-radius: var(--r-barra); background: var(--mint); }
+  /* Sin `overflow: hidden`: la punta encendida de `.barra-viva` tiene que
+     poder salirse del carril, que es lo que la hace parecer luz. */
+  .sgh-b { margin-top: 9px; --alto: 8px; border-radius: var(--r-boton); }
   .sgh-p { margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.45; }
 
   .sg-sostiene { display: flex; flex-direction: column; gap: 8px; }

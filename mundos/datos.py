@@ -566,6 +566,10 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
    # `background`, y a una capa de fondo no se le pone opacidad por CSS—, así
    # que lo que se escriba aquí solo lo ve la lámina. Es la lección que dejó
    # Blueprint, cuya retícula saltaba de 2,17 a 4,32 por no hornearla.
+   # La ceniza se aligeró: «el fondo está demasiado cargado de elementos y
+   # agobia con el tiempo». Un fondo se mira mil veces, así que lo que en la
+   # primera pasada es atmósfera en la décima es ruido. Menos motas y más
+   # apagadas — ver el vector, que lleva la cuenta.
    "--m-grano":f'url("{svg("averno-ceniza.svg")}")',"--m-grano-op":"1",
    # La tarjeta es PLANA y no un degradado, y subió tres escalones desde la
    # lámina. Los dos cambios salen de lo mismo: medida contra la página, la
@@ -600,7 +604,13 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
    # única pieza que sale UNA vez por pantalla.
    "--m-anillos":f'url("{svg("averno-anillos.svg")}")',
    "--m-titulo":'"Grenze Gotisch",Georgia,serif',"--m-titulo-px":"17px","--m-titulo-peso":"700","--m-titulo-esp":".01em",
-   "--m-cifra":'"Grenze Gotisch",Georgia,serif',"--m-cifra-peso":"700","--m-cifra-esp":"0",
+   # **Las cifras NO van en la gótica**, y es lo único del mundo que usa la
+   # letra de la casa a propósito. Grenze Gotisch tiene numerales de estilo
+   # antiguo y muy dibujados: un titular en esa cara es carácter, pero un «3»
+   # a 18 px dentro de un banner es un acertijo. Lo pidió Eduardo —«haz que
+   # los números en los banners sean más legibles»— y el arreglo no es
+   # agrandarlos: es que una cifra se lee y un título se mira.
+   "--m-cifra":'"Outfit",system-ui,sans-serif',"--m-cifra-peso":"700","--m-cifra-esp":"-.01em",
    "--m-chip-fuente":'"Grenze Gotisch",Georgia,serif',"--m-chip-esp":".05em",
    # La lámina decía 1,3 s, y ahí se entiende: se mira UNA tarjeta y el peso de
    # la piedra se lee como carácter. En la app este número es `--dur-media`, o
@@ -625,7 +635,19 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
   # `--m-acento-tinta` escribe— y los dos salen medidos: la tinta llega a 8,34
   # sobre la tarjeta y a 2,92 encima de su propio relleno, que es exactamente
   # lo que da la casa ahí y es donde vive el rótulo de estado de un proyecto.
-  dia={"--m-pagina":"radial-gradient(ellipse 115% 58% at 50% 120%, #f2dcc6 0%, #e5d8ce 52%, #d7ccc6 100%)",
+  # ---- Y la cara de día, levantada ----
+  # «Corrige los fondos que usen este tono de gris oscuro y sucio, se pierde
+  # mucho y se ve mal en pantalla.» El diagnóstico no era el croma sino la
+  # LUZ: la página de día estaba en L 0,852 y la de la casa está en 0,904, o
+  # sea que todo el modo claro era un beige oscuro. Y el suelo de los mapas,
+  # que se deriva de la página hundiéndola, caía en L 0,821 — ahí es donde un
+  # cálido con algo de croma deja de ser beige y pasa a ser barro. La casa se
+  # salva de eso porque su gris es AZUL, y un azul sucio no se ve sucio.
+  #
+  # Sube la luz y baja el croma: la página a 0,900 y el suelo a #d8d4d1, que
+  # es un gris cálido limpio. La tarjeta no se movió —ya estaba en 0,961— y
+  # sigue apoyada encima con 1,21, que es lo que da la casa (1,18).
+  dia={"--m-pagina":"radial-gradient(ellipse 115% 58% at 50% 120%, #fde5d0 0%, #ebe0d8 52%, #e4dcd6 100%)",
    "--m-grano":f'url("{svg("averno-ceniza-dia.svg")}")',
    # Horneado al 0,7 y no al 0,9 de la noche: una mota oscura sobre papel se ve
    # más que una clara sobre negro. Sigue siendo filigrana —1,4 contra la
@@ -637,7 +659,7 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
    # que es la única que `app.py` traduce a `--bg`. Con una página en degradado
    # eso hay que comprobarlo parada por parada: si una sola queda por encima,
    # las tarjetas se hunden en esa franja de la pantalla y flotan en el resto.
-   "--m-tarjeta":"#f7f1ea","--m-borde-color":"#c9b8ab",
+   "--m-tarjeta":"#f7f1ea","--m-borde-color":"#c4bcb7",
    "--m-sombra":"inset 0 1px 0 #fffdfa, 0 8px 22px rgba(74,36,24,.14)",
    # El apagado se mide contra la PÁGINA y no contra la tarjeta, que es lo
    # que lo hizo bajar de #725442. Media docena de rótulos —los chips sin
@@ -652,7 +674,10 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
    # El carril de día sale hex y no rgba porque hay que MEDIRLO por los dos
    # lados: da 1,21 sobre la tarjeta —la casa da 1,21— y el peor de los ocho
    # colores del usuario encima da 1,86, por encima del 1,84 de la casa.
-   "--m-carril":"#e6dcd2",
+   # El carril de día se vuelve a medir contra la página nueva: 1,21 sobre la
+   # tarjeta —igual que la casa— y el peor de los ocho colores del usuario
+   # encima da 1,85, por encima del 1,84 de la casa.
+   "--m-carril":"#e3dcd7",
    "--m-icono":f'url("{svg("averno-sello-dia.svg")}") center/contain no-repeat'},
   # Los anillos iban en una caja de 120x120 anclada abajo a la derecha, y la
   # tarjeta mide 88 de alto: se recortaban y lo que quedaba a la vista era la

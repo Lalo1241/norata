@@ -1,29 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
-  <!-- La misma ceniza, a plena luz. Las motas están EN LAS MISMAS POSICIONES
-       que las de noche a propósito: lo que cambia con la luz es de qué color
-       se ve la ceniza, no dónde cayó.
+  <!-- La misma ceniza, a plena luz, y en las MISMAS posiciones que la de
+       noche: lo que cambia con la luz es de qué color se ve la ceniza, no
+       dónde cayó.
 
-       Y cambia de signo: sobre carbón la ceniza es lo CLARO, sobre ceniza
-       apagada es lo OSCURO — el hollín. Pintarla clara aquí la borraba, que
-       es el error de aclarar la noche en vez de volver a mirar el material.
+       Cambia de signo: sobre carbón la ceniza es lo CLARO, sobre ceniza
+       apagada es lo OSCURO —el hollín—. Pintarla clara aquí la borraba.
 
-       Opacidad horneada al 0,7 y no al 0,9 de la noche (.55→.385, .85→.595,
-       .3→.21): una mota oscura sobre papel se ve más que una mota clara sobre
-       negro, y esto tiene que quedarse en filigrana. Medido, el campo da 1,4
-       contra la página, por debajo del 1,6 en que un fondo empieza a competir
-       con lo que hay que leer. -->
-  <g fill="#6b5a4e" opacity=".385">
-    <circle cx="14" cy="23" r="1.1"/><circle cx="47" cy="9" r=".8"/><circle cx="71" cy="38" r="1.3"/>
-    <circle cx="103" cy="17" r=".9"/><circle cx="131" cy="44" r="1.1"/><circle cx="26" cy="61" r=".9"/>
-    <circle cx="58" cy="79" r="1.2"/><circle cx="92" cy="66" r=".8"/><circle cx="145" cy="83" r="1"/>
-    <circle cx="11" cy="102" r="1.2"/><circle cx="44" cy="121" r=".9"/><circle cx="79" cy="109" r="1.1"/>
-    <circle cx="117" cy="133" r=".8"/><circle cx="149" cy="118" r="1.2"/><circle cx="33" cy="148" r="1"/>
-    <circle cx="68" cy="151" r=".8"/><circle cx="126" cy="96" r=".9"/><circle cx="97" cy="141" r="1.1"/>
+       Aligerada igual que la de noche —diez motas, dos brasas, una voluta— y
+       con las opacidades horneadas más bajas todavía, porque una mota oscura
+       sobre papel se ve más que una clara sobre negro. -->
+  <g fill="#6b5a4e" opacity=".26">
+    <circle cx="14" cy="23" r="1.1"/><circle cx="71" cy="38" r="1.2"/>
+    <circle cx="131" cy="44" r="1"/><circle cx="26" cy="61" r=".9"/>
+    <circle cx="92" cy="66" r=".8"/><circle cx="145" cy="83" r="1"/>
+    <circle cx="44" cy="121" r=".9"/><circle cx="117" cy="133" r=".8"/>
+    <circle cx="33" cy="148" r="1"/><circle cx="97" cy="141" r="1"/>
   </g>
-  <g fill="#c2440e" opacity=".595">
-    <circle cx="120" cy="28" r="1.5"/><circle cx="38" cy="93" r="1.3"/><circle cx="88" cy="127" r="1.6"/>
+  <g fill="#c2440e" opacity=".38">
+    <circle cx="120" cy="28" r="1.3"/><circle cx="38" cy="93" r="1.2"/>
   </g>
-  <g stroke="#c2440e" stroke-width=".7" opacity=".21" fill="none">
-    <path d="M120 28c-2 7-1 13 2 19"/><path d="M38 93c2 6 1 11-2 16"/>
+  <g stroke="#c2440e" stroke-width=".7" opacity=".14" fill="none">
+    <path d="M120 28c-2 7-1 13 2 19"/>
   </g>
 </svg>

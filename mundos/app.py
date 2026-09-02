@@ -568,22 +568,100 @@ def bloque(m):
           "/* Los anillos SUSTITUYEN la ilustración de la banda, no se le encima.",
           "   La banda pinta la suya en un `<svg class=\"scene\">` hijo, y un motivo",
           "   encima de otro motivo es exactamente la suciedad que CLAUDE.md",
-          "   prohíbe. Se apaga con `opacity` y no con `display` a propósito: así",
-          "   el svg sigue ocupando su alto y la banda no se encoge. */",
-          "%s .scene-card.sec-hero .scene { opacity: 0; }" % sel,
-          "%s .scene-card.sec-hero { position: relative; overflow: hidden; }" % sel,
+          "   prohíbe.",
+          "",
+          "   Y se quita con `display` y NO con `opacity`, que es lo que estaba",
+          "   primero. El razonamiento de entonces —«así conserva su alto y la",
+          "   banda no se encoge»— estaba justo al revés: ese svg va EN FLUJO y",
+          "   aporta 193 px, así que apagarlo sin quitarlo dejaba una banda de",
+          "   376 px con 177 de contenido. Doscientos píxeles de nada, que es",
+          "   como se veía. Una banda vale lo que vale lo que lleva dentro; los",
+          "   anillos son un motivo de esquina, no un paisaje que pida sitio. */",
+          "%s .scene-card.sec-hero .scene { display: none; }" % sel,
+          "/* Y la banda deja de ser TRANSPARENTE. Lo pidió Eduardo, y el motivo",
+          "   es exactamente el de arriba: sin ilustración debajo, lo que se veía",
+          "   por el hueco era la ceniza de la página, o sea el fondo del tema",
+          "   compitiendo con las cifras que hay que leer. Con la ilustración",
+          "   puesta ese velo tenía sentido —tapaba un paisaje—; sin ella sobra,",
+          "   así que se apaga y la superficie la pone el panel. */",
+          "%s .scene-card.sec-hero { position: relative; overflow: hidden; background: var(--sup-panel); }" % sel,
+          "%s .scene-card.sec-hero .scene-fade { background: none; }" % sel,
           "%s .scene-card.sec-hero::after {" % sel,
           '  content: "";',
           "  position: absolute;",
           "  left: auto; right: 0; top: 0;",
           "  width: 52%; height: 100%;",
-          "  background: %s right top/contain no-repeat;" % t["--m-anillos"],
-          "  opacity: .85;",
+          "  /* El TAMAÑO del dibujo se ata a la altura de la banda con un tope y",
+          "     no a `contain`: la banda la estira el grid de la pantalla —medido,",
+          "     376 px con 177 de contenido—, y con `contain` los anillos crecían",
+          "     hasta 574x349. Un motivo de esquina no puede depender de cuánto",
+          "     mida su caja. Con `auto 92%` acompañan a la banda —ya ajustada a",
+          "     su contenido— sin mandar sobre ella. */",
+          "  background: %s right top/auto 92%% no-repeat;" % t["--m-anillos"],
+          "  opacity: .6;",
           "  pointer-events: none;",
           "}",
           "/* Y lo que va dentro se levanta por encima. Sin esto el motivo tapa",
           "   las cifras, que es lo único que hay que leer ahí. */",
-          "%s .scene-card.sec-hero > * { position: relative; z-index: 1; }" % sel]
+          "%s .scene-card.sec-hero > * { position: relative; z-index: 1; }" % sel,
+          "",
+          "/* La pastilla de foco pierde su TINTE. Se pinta con `color-mix(--mint",
+          "   14%, …)` y su rótulo es de ese mismo `--mint`: el tinte empuja el",
+          "   fondo justo hacia donde está la tinta, así que el rótulo se quedaba",
+          "   en 4,1 — por debajo del 4,5 que pide un texto. Sin tinte sube por",
+          "   encima y la pastilla se sigue leyendo como pastilla, porque lo que",
+          "   la separa de la banda es el tono LEVANTADO y no el color. */",
+          "%s .scene-card.sec-hero .sh-focus { background: var(--card2); }" % sel]
+        # ---- Y la banda vuelve al MODO ----
+        # `.scene-card` está en la lista de piezas que se quedan de noche en los
+        # dos modos, y con razón: una escena es un dibujo. Pero esta banda ya no
+        # lo es —le acabamos de quitar la ilustración—, así que en modo claro se
+        # quedaba como una losa negra encima del papel. Se le devuelven los
+        # tokens de la cara de día, que es lo que la vuelve una superficie más.
+        if m.get("dia"):
+            td = dict(t); td.update(m["dia"])
+            dv = dict(variables(m, td, True))
+            quiere = ("--sup-panel", "--card", "--card2", "--text", "--muted", "--faint",
+                      "--line", "--carril", "--mint", "--mint-macizo", "--mint-soft",
+                      "--fire", "--fire-macizo", "--fire-soft",
+                      "--coral", "--coral-macizo", "--coral-soft", "--aro-alto")
+            salida += ["",
+              "/* La banda deja de ser una escena en cuanto pierde su ilustración,",
+              "   así que en modo claro sigue al modo en vez de quedarse de noche.",
+              "   Sin esto era una losa negra sobre el papel. */",
+              'html.claro[data-apariencia="%s"] .scene-card.sec-hero {' % m["id"]]
+            salida += ["  %s: %s;" % (k, dv[k]) for k in quiere if k in dv]
+            # Y las dos de la ESCENA, que son las que de verdad muerden: la
+            # pastilla de foco se pinta con `color-mix(--mint 14%, rgba(
+            # --escena-vidrio, .62))` y la barra con `rgba(--escena-tinta,.14)`.
+            # Sin traerlas, la pastilla se quedaba con el vidrio de NOCHE y la
+            # tinta ya en modo día: medido, 1,30 de contraste — oscuro sobre
+            # oscuro. Se arreglan por la variable y no con una regla aparte,
+            # que es lo que hace que valga para cualquier mundo con cara de día.
+            dtarj = plano_o_muere(td["--m-tarjeta"], "--m-tarjeta", m["id"])[0]
+            salida += [
+              # Los dos deltas —el «▲ 1.310» que sube y el que baja— no los
+              # declara ningún mundo: son de la casa y viven dentro de la
+              # escena, donde se dan por hechos CLAROS porque la escena es
+              # oscura. Con la banda ya en modo día se quedaban claros sobre
+              # papel. Se traen sus tonos de día, que es lo que la casa usa
+              # fuera de la escena.
+              "  --var-sube: #1a6b25;",
+              "  --var-baja: #bd2200;",
+              "  --escena-vidrio: %s;" % ", ".join(str(x) for x in _hex(dtarj)),
+              "  --escena-tinta: %s;"  % ", ".join(str(x) for x in _hex(td["--m-tinta"])),
+              "  background: %s;" % dv["--sup-panel"], "}"]
+            # Y la pastilla de foco pierde su TINTE en modo día. Se pinta con
+            # `color-mix(--mint 14%, …)`, y su rótulo es de ese mismo `--mint`:
+            # sobre una banda oscura eso funciona porque el tinte apenas se
+            # nota, pero sobre papel el acento tiñe la pastilla justo hacia
+            # donde está la tinta y el rótulo se queda en 4,1. Sin tinte, el
+            # mismo rótulo sube por encima del 4,5 y la pastilla sigue
+            # leyéndose como pastilla porque la separa el tono levantado.
+            salida += [
+              'html.claro[data-apariencia="%s"] .scene-card.sec-hero .sh-focus {' % m["id"],
+              "  background: %s;" % dv["--card2"],
+              "}"]
 
     # ---- Lo que el mundo trae escrito para la app ----
     # `app_extra` es CSS crudo que un mundo aporta cuando lo suyo no cabe en un

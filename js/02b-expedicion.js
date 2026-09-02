@@ -89,12 +89,59 @@ function expCosto(nivel) {
    nivel y el nivel sube para todos, ponerle candado sería topar el número por
    la puerta de atrás. Lo que pide Pro son los ambientes y las celebraciones. */
 const EXP_POR_RANGO = 6;
+/* **Cada rango tiene SU color.** No es adorno: la pantalla de Mi expedición
+   estaba pintada entera de menta —la insignia, la barra, los cinco rótulos,
+   las nueve barritas del desglose— y con un solo color no se distingue lo que
+   ya conseguiste de lo que te falta ni de lo que estás mirando. Con cinco, el
+   cielo se lee de un vistazo: cada constelación es de su color y sabes cuál
+   llevas puesta sin leer una palabra.
+
+   **Y no valen los cinco acentos de la casa**, que era el reparto de la
+   primera versión. Dos de ellos ya significan otra cosa, y lo paró Eduardo en
+   la primera mirada:
+
+     · el LILA es de Fundador y de nada más — se sacó del amarillo justo para
+       que dijera una sola cosa;
+     · la LUCIÉRNAGA es «mira esto»: un cobro que falló, un plan que se
+       cancela, la trastienda del negocio.
+
+   Un rango pintado con cualquiera de los dos no es variedad de color, es un
+   mensaje equivocado. En su sitio van `--rosa` y `--astro`, dos tonos propios
+   que no dicen nada más (declarados en `css/estilos.css`, con su pareja de
+   día medida contra la tarjeta clara).
+
+   El reparto evita además que dos tonos vecinos caigan juntos en el estante:
+   menta (160°), celeste (204°), rosa (330°), astro (sin matiz: es luz) y
+   coral (12°). El único par cercano quedaría rosa-coral, y entre los dos va
+   el astro.
+
+   Van como NOMBRE de variable y no como hex, que es la regla de la casa
+   (ningún color suelto dentro de una regla). Y los cinco existen en los dos
+   modos: dentro del cielo —que es una escena y se queda de noche— vuelven a
+   sus tonos vivos, y fuera toman su cara de día.
+
+   Un mundo NO los mueve. `rangosVigentes()` pisa `nombre` y `trazo` con los
+   suyos y el color se queda: un mundo ya cambia la superficie, el marco y la
+   letra, y si además cambiara los cinco acentos habría que medir el contraste
+   de cada uno contra cada mundo. Quince mundos por cinco colores son setenta
+   y cinco medidas para ganar muy poco.
+
+   `nota` explica de qué va ese tramo del camino, que es lo que la pantalla no
+   decía. Está escrita sin nombrar el rango a propósito: un mundo renombra los
+   cinco —en Arboleda no eres Andante, eres Semilla— y una nota que dijera «el
+   andante camina» se rompería en catorce sitios. Habla del TRAMO, que es lo
+   único que ningún mundo mueve. */
 const EXP_RANGOS = [
-  { id: "andante",    nombre: "Andante",    desde: 1,  icon: "rango-bota" },
-  { id: "rastreador", nombre: "Rastreador", desde: 7,  icon: "rango-huella" },
-  { id: "explorador", nombre: "Explorador", desde: 13, icon: "rango-farol" },
-  { id: "cartografo", nombre: "Cartógrafo", desde: 19, icon: "rango-mapa" },
-  { id: "navegante",  nombre: "Navegante",  desde: 25, icon: "rango-brujula" }
+  { id: "andante",    nombre: "Andante",    desde: 1,  icon: "rango-bota",    color: "--mint",
+    nota: "El principio. Se cruza en semanas y casi todo lo que haces suma." },
+  { id: "rastreador", nombre: "Rastreador", desde: 7,  icon: "rango-huella",  color: "--celeste",
+    nota: "Ya hay un rastro que seguir: se nota a qué le dedicas los días." },
+  { id: "explorador", nombre: "Explorador", desde: 13, icon: "rango-farol",   color: "--rosa",
+    nota: "Aquí se ve lo que sostienes, no lo que empezaste." },
+  { id: "cartografo", nombre: "Cartógrafo", desde: 19, icon: "rango-mapa",    color: "--astro",
+    nota: "El mapa ya es tuyo: habilidades, talentos y proyectos con historia detrás." },
+  { id: "navegante",  nombre: "Navegante",  desde: 25, icon: "rango-brujula", color: "--coral",
+    nota: "El último de los cinco. El nivel sigue subiendo después: la cuenta no se acaba." }
 ];
 
 /* ================= La escalera =================
@@ -122,19 +169,23 @@ const EXP_RANGOS = [
 
    El día que un ambiente esté puesto, se le pone `listo: true` y aparece. Es
    una palabra por fila y no hay nada más que tocar. */
-/* Los peldaños de celebración se mueven con los rangos: al pasar éstos a cada
-   seis niveles, dejarlos en 3, 6 y 15 los ponía justo encima de un cambio de
-   rango, y dos noticias en la misma pantalla se estorban. Ahora caen en los
-   huecos: 4, 10 y 16. */
+/* **Un rango se anuncia donde se CONSIGUE: al cerrar su constelación.**
+   Estaban en 1, 7, 13, 19 y 25 —el primer nivel de cada tramo— y con eso la
+   tarjeta del Resumen prometía «Rango Rastreador» para el nivel 7, cuando en
+   el 7 lo que empieza es el dibujo. Lo paró Eduardo, y tiene razón: el rango
+   se gana al rellenar la constelación, no al estrenarla.
+
+   Los peldaños de celebración caen en los huecos que quedan: encima de un
+   cambio de rango serían dos noticias en la misma pantalla. */
 const EXP_ESCALERA = [
-  { nivel: 1,  tipo: "rango",       nombre: "Rango Andante", listo: true },
-  { nivel: 4,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión" },
-  { nivel: 7,  tipo: "rango",       nombre: "Rango Rastreador", listo: true },
-  { nivel: 10, tipo: "celebracion", nombre: "Escena nueva de racha" },
-  { nivel: 13, tipo: "rango",       nombre: "Rango Explorador", listo: true },
-  { nivel: 16, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true },
-  { nivel: 19, tipo: "rango",       nombre: "Rango Cartógrafo", listo: true },
-  { nivel: 25, tipo: "rango",       nombre: "Rango Navegante", listo: true }
+  { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión" },
+  { nivel: 6,  tipo: "rango",       nombre: "Rango Andante", listo: true },
+  { nivel: 9,  tipo: "celebracion", nombre: "Escena nueva de racha" },
+  { nivel: 12, tipo: "rango",       nombre: "Rango Rastreador", listo: true },
+  { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true },
+  { nivel: 18, tipo: "rango",       nombre: "Rango Explorador", listo: true },
+  { nivel: 24, tipo: "rango",       nombre: "Rango Cartógrafo", listo: true },
+  { nivel: 30, tipo: "rango",       nombre: "Rango Navegante", listo: true }
 ];
 
 /* Los ambientes ya NO se escriben aquí, y esta es la línea que lo pedía arriba:
@@ -160,7 +211,9 @@ function escaleraDeExpedicion() {
   const propios = typeof rangosVigentes === "function" ? rangosVigentes() : null;
   const filas = EXP_ESCALERA.map(f => {
     if (f.tipo !== "rango" || !propios) return f;
-    const r = propios.filter(x => x.desde === f.nivel)[0];
+    /* Se empareja por el nivel donde el rango se CONSIGUE —el sexto de su
+       tramo— y no por `desde`, que es donde empieza a dibujarse. */
+    const r = propios.filter(x => x.desde + EXP_POR_RANGO - 1 === f.nivel)[0];
     return r ? Object.assign({}, f, { nombre: "Rango " + r.nombre }) : f;
   });
   if (typeof AMBIENTES !== "undefined") {
@@ -173,7 +226,11 @@ function escaleraDeExpedicion() {
       /* El `id` viaja con la fila para que la celebración pueda ponerse el
          ambiente antes de anunciarlo. Buscarlo luego por el nombre sería atar
          una función a un rótulo que se traduce. */
-      filas.push({ nivel: a.abre, id: a.id, tipo: "ambiente", nombre: a.nombre, pro: !!a.pro, listo: true });
+      /* El `icon` viaja con la fila para que la lista de «Lo que abre el
+         nivel» pueda pintar el dibujo del ambiente —la planta de Musgo, el
+         sol de Adobe— en vez de cinco brochas iguales. El catálogo ya lo
+         tenía; solo no llegaba hasta aquí. */
+      filas.push({ nivel: a.abre, id: a.id, tipo: "ambiente", nombre: a.nombre, icon: a.icon, pro: !!a.pro, listo: true });
     }
   }
   return filas.sort((x, y) => x.nivel - y.nivel);
@@ -377,7 +434,19 @@ function proximoDesbloqueo(nivel) {
 
    Devuelve "" antes del primer nivel: sin nada que enseñar no se enseña un
    aro vacío, que se leería como algo roto. */
-function insigniaExpedicionHTML(diam) {
+/* `conColor` pinta la insignia del color del RANGO en vez de la menta de la
+   casa. No va siempre puesto, y el motivo es de contraste: dentro del cielo
+   —que es una escena y se queda de noche— los cinco tonos son sus caras vivas
+   y el aro se lee de sobra; en el Resumen y en la fila de la cuenta la
+   insignia cae sobre papel en modo claro, donde los cinco se hunden a tinta y
+   un aro de dos píxeles en tinta oscura ya no dice de qué color es. Dentro
+   del cielo hay otras cuatro piezas del mismo color dándole contexto; sola
+   sobre una tarjeta blanca, no.
+
+   Así que el color entra donde está medido y se queda fuera donde no. El día
+   que se quiera en toda la app, se enciende aquí y hay que medir los cinco
+   tonos de día como TRAZO (umbral 3) y no como texto. */
+function insigniaExpedicionHTML(diam, conColor) {
   const d = diam || 30;
   const info = nivelExpedicion();
   if (info.nivel < 1) return "";
@@ -388,11 +457,14 @@ function insigniaExpedicionHTML(diam) {
      se lee, y a 48 uno de 2 desaparece. */
   const grosor = d >= 40 ? 3 : 2;
   const dibujo = Math.round(d * 0.6);
+  /* Con `--mint` de reserva, porque un mundo puede traer sus cinco rangos y
+     no está obligado a traer colores. */
+  const col = conColor ? "var(" + (r.color || "--mint") + ")" : "var(--mint)";
 
-  return '<span class="exp-insignia" style="width:' + d + 'px;height:' + d + 'px"' +
+  return '<span class="exp-insignia" style="width:' + d + 'px;height:' + d + 'px;color:' + col + '"' +
     ' title="Nivel ' + info.nivel + ' · ' + r.nombre + ' · ' + info.pct + '% del nivel"' +
     ' aria-label="Nivel ' + info.nivel + ', rango ' + r.nombre + '">' +
-    ring(d, grosor, [{ pct: info.pct / 100, color: "var(--mint)" }], "var(--carril)") +
+    ring(d, grosor, [{ pct: info.pct / 100, color: col }], "var(--carril)") +
     /* Un rango de la casa nombra un icono de ICONS; uno de mundo trae su
        trazo entero, porque sus dibujos viajan con el mundo y no con la app —
        meter en ICONS los cinco rangos de quince mundos serían setenta y cinco
@@ -429,6 +501,363 @@ const EXP_ETIQUETAS = {
   pruebas:  "Nivel de pruebas"
 };
 
+/* Cómo se gana cada una, en una línea. Faltaba, y era lo que hacía que la
+   lista pareciera un recibo: nueve renglones con nueve cifras y ninguna
+   explicación de por qué «Días con actividad» vale más que todo lo demás
+   junto. Las reglas ya estaban decididas y medidas arriba en `EXP_PUNTOS`;
+   lo único que no existía era decírselas a quien las está viviendo. */
+const EXP_PISTAS = {
+  dias:     "Los dos primeros días de cada semana valen mucho más que los siguientes. Premia volver, no marcar.",
+  misiones: "Hasta cinco misiones distintas por día. Doce no valen seis veces más que dos.",
+  niveles:  "Cuenta el nivel más alto que alcanzó cada habilidad, aunque hoy haya bajado.",
+  talentos: "Cada talento que cierras.",
+  encargos: "Cada proyecto que das por terminado.",
+  etapas:   "Cada etapa marcada, en talentos y en proyectos.",
+  hitos:    "Los hitos que cierras en el árbol de talentos.",
+  rachas:   "Los días redondos de racha que ya cruzaste. No se pierden al romperse.",
+  estrenos: "Por estrenar cada módulo: tu primera habilidad, tu primera misión, tu primer talento, tu primer proyecto.",
+  pruebas:  "Un nivel fingido desde la trastienda. No es tu recorrido real."
+};
+
+/* Un color por fuente, del mismo juego de cinco de los rangos —y por el mismo
+   motivo por el que ahí no hay lila ni luciérnaga—. Nueve barritas del mismo
+   verde no son nueve cosas, son una mancha. */
+const EXP_COLOR_FUENTE = {
+  dias: "--mint", misiones: "--celeste", niveles: "--astro", talentos: "--rosa",
+  encargos: "--coral", etapas: "--celeste", hitos: "--rosa", rachas: "--coral",
+  estrenos: "--mint", pruebas: "--astro"
+};
+
+/* ================= El cielo =================
+   El altar del recorrido, y la pieza que faltaba. La app ya dibujaba estas
+   cinco constelaciones —la bota, la huella, el farol, el mapa y la brújula—
+   pero solo durante los dos segundos de la celebración de subir de nivel. Se
+   veían una vez y no volvían nunca.
+
+   Aquí se quedan. La composición es la de la celebración, y eso no es pereza:
+   es lo que hace que las dos pantallas sean el mismo sitio. Allí, la figura
+   que estás cerrando ocupa el centro y las ya cerradas se quedan «en pequeño
+   arriba: esa fila es la colección». Aquí la colección se mira, así que esa
+   fila es la razón de entrar.
+
+   La primera versión ponía las cinco en hilera y del mismo tamaño. Medida y
+   mirada, no servía: a esa escala una constelación son cuatro rayas de medio
+   píxel, y cinco de ésas en fila es un cielo sucio, no un altar. Caben 320
+   unidades de ancho y no más, así que o hay una grande o hay cinco pequeñas;
+   y la que importa es la que estás cerrando.
+
+   Tres estados:
+
+     · **cerrada**   — el rango ya lo pasaste entero: la figura completa, a
+                       todo color y titilando. Es un logro, y se ve como uno.
+     · **viva**      — el rango que llevas puesto, en grande y con resplandor.
+                       Las estrellas que faltan quedan como aros vacíos: se
+                       CUENTAN, y eso es lo que convierte «te faltan 235
+                       puntos» en «te falta media figura».
+     · **por venir** — no se dibuja. Un hueco gris de algo que no has tocado
+                       es una lista de lo que te falta, y eso ya se descartó.
+
+   Se sabe cerrada por `desde + EXP_POR_RANGO` y no por `ncelIndiceRango()`,
+   que es lo que usa la celebración: aquella cuenta niveles sin techo y en el
+   31 devolvía otra vez la quinta figura recién empezada, cuando en realidad ya
+   está cerrada. En una fiesta de dos segundos no se nota; en una pantalla que
+   se queda, sí.
+
+   Cuántas estrellas van encendidas lo decide `ncelHasta()` y no una cuenta de
+   aquí: desde la 0.7.65 cada figura tiene las que pide el dibujo —doce la
+   bota, catorce la huella— y repartir el progreso es trabajo suyo. Dos
+   verdades sobre lo mismo es justo lo que no puede haber. */
+const EXP_ALTO_CON_ALTAR = 190;
+const EXP_ALTO_VITRINA = 150;
+const EXP_ALTO_VACIO = 118;
+const EXP_ALTAR = { esc: 1.2, cx: 160, cy: 110, sw: 1.3, r: 2.6 };
+/* El estante mientras hay algo debajo: pequeño y arriba, como en la
+   celebración. */
+const EXP_ESTANTE = { esc: 0.3, y: 28, paso: 44, sw: 0.66, r: 1.15 };
+/* Y la vitrina: lo mismo cuando ya no queda nada que cerrar. Entonces la
+   colección ES la pantalla, así que ocupa el centro y crece. */
+const EXP_VITRINA = { esc: 0.46, y: 70, paso: 60, sw: 0.9, r: 1.7 };
+
+/* DÓNDE está la figura: en el altar o en el estante. Se pasa al estante en
+   cuanto empieza la siguiente, no antes: el nivel que la cierra todavía es
+   suyo y es cuando más merece estar en grande. */
+function expEstadoRango(r, nivel) {
+  if (nivel >= r.desde + EXP_POR_RANGO) return "cerrada";
+  if (nivel >= r.desde) return "viva";
+  return "porvenir";
+}
+
+/* Y si ya lo TIENES, que es otra pregunta. **Un rango se consigue al cerrar su
+   constelación, no al estrenarla** —lo paró Eduardo en la 0.7.67— así que se
+   gana en el sexto nivel de su tramo: 6, 12, 18, 24 y 30.
+
+   Son dos predicados y no uno a propósito. En el nivel que lo cierra las dos
+   respuestas son distintas y las dos son ciertas: la figura sigue en el altar
+   porque es la que estás mirando, y el rango ya es tuyo porque acabas de
+   rellenarla. Con un solo predicado, o la pantalla decía «Aquí estás» el día
+   que la celebración cantaba «conseguido», o la figura se iba al estante en
+   cuanto la terminas y el altar se quedaba vacío justo en su mejor momento. */
+function expConseguido(r, nivel) {
+  return nivel >= r.desde + EXP_POR_RANGO - 1;
+}
+
+/* El nivel en el que se consigue, que es el que hay que escribirle a un rango
+   que aún no tienes. Antes decía `desde` —dónde EMPIEZA a dibujarse— y eso
+   dejaba dos números para lo mismo: la escalera anunciaba «Rango Rastreador»
+   en el 12 y esta lista ponía «Nivel 7» debajo del mismo nombre. */
+function expNivelDeRango(r) {
+  return r.desde + EXP_POR_RANGO - 1;
+}
+
+/* En cuál de los seis niveles del rango estás. */
+function expEscalonDe(r, nivel) {
+  return Math.max(0, Math.min(EXP_POR_RANGO, nivel - r.desde + 1));
+}
+
+/* Una figura, con `hasta` estrellas puestas. Las que faltan salen como aros
+   vacíos, que es lo que deja ver cuánto le queda al dibujo. */
+function expFiguraHTML(fig, hasta, cx, cy, m, huecas) {
+  const X = q => (cx + (q[0] - 50) * m.esc).toFixed(1);
+  const Y = q => (cy + (q[1] - 50) * m.esc).toFixed(1);
+  let s = "";
+  for (const [a, b] of fig.l) {
+    if (Math.max(a, b) + 1 > hasta) continue;
+    s += '<line class="exp-hilo" x1="' + X(fig.p[a]) + '" y1="' + Y(fig.p[a]) +
+      '" x2="' + X(fig.p[b]) + '" y2="' + Y(fig.p[b]) +
+      '" stroke-width="' + m.sw + '"/>';
+  }
+  for (let k = 0; k < fig.p.length; k++) {
+    if (k >= hasta && !huecas) continue;
+    const puesta = k < hasta;
+    /* El retardo se sortea por estrella para que una figura no parpadee
+       entera a la vez, que se leería como un fallo de dibujo y no como un
+       cielo. */
+    const tarde = ' style="animation-delay:' + (Math.random() * 3.6).toFixed(2) + 's"';
+    s += '<circle class="exp-astro ' + (puesta ? "puesta" : "hueca") + '" cx="' + X(fig.p[k]) +
+      '" cy="' + Y(fig.p[k]) + '" r="' + (puesta ? m.r : m.r * 0.78).toFixed(2) + '"' +
+      (puesta ? tarde : ' stroke-width="' + (m.sw * 0.8).toFixed(2) + '"') + '/>';
+  }
+  /* Una zona de toque del tamaño de la figura entera. Sin ella hay que acertarle
+     a una línea de un píxel para que el cielo reaccione, y entonces no
+     reacciona nunca. */
+  const R = 52 * m.esc;
+  s += '<rect class="exp-toque" x="' + (cx - R).toFixed(1) + '" y="' + (cy - R).toFixed(1) +
+    '" width="' + (R * 2).toFixed(1) + '" height="' + (R * 2).toFixed(1) + '"/>';
+  return s;
+}
+
+/* ---- Las estrellas fugaces ----
+   Lo pidió Eduardo: «que el cielo se mueva y se anime ligeramente para darle
+   más vida, como leves estrellas fugaces en el fondo». La palabra que manda es
+   LEVES — el archivo de la celebración ya dice por qué se quitaron los rayos
+   giratorios de la 0.7.48: «algo que gira sin final es decoración de fondo, no
+   un acontecimiento».
+
+   Así que una fugaz no es una animación que corre todo el rato: cruza en 1,7 s
+   y luego el elemento pasa once segundos quieto y a opacidad cero. Con tres
+   sembradas y sus retardos escalonados, pasa una cada cuatro segundos y medio
+   y nunca dos a la vez.
+
+   **Son DOS piezas y no una raya**, y ésa fue la corrección de Eduardo con una
+   captura delante: «un punto destelleante y un degradado en la cola para
+   simular la animación de la luz, y que se atenúe todo para desaparecer».
+
+     · la CABEZA es un disco pequeño con su halo — es lo que se ve, y lo que
+       hace que parezca luz y no una línea pintada;
+     · la COLA es un triángulo, ancho en la cabeza y en punta al final, con un
+       degradado que se apaga hacia atrás. Un triángulo y no una línea porque
+       una línea tiene grosor constante: se estrecha o no se estrecha, y una
+       estela que no se estrecha es un palo.
+
+   El degradado se declara UNA vez en `<defs>` y lo usan las tres. Va en
+   `userSpaceOnUse` y no en el sistema de la caja: la cola es un triángulo de
+   19 de largo y 1,7 de alto, y en `objectBoundingBox` un degradado horizontal
+   sobre una caja casi plana sale impredecible. Como las tres colas viven en
+   las mismas coordenadas locales —de (-19,0) a (0,0)— con una definición basta.
+
+   El giro y el sitio van en un `transform` de ATRIBUTO en el `<g>` de fuera y
+   la animación en un `<g>` de dentro. Si fueran el mismo elemento, el
+   `transform` del CSS pisaría al del atributo y las tres saldrían del mismo
+   sitio: una propiedad no se puede escribir dos veces. */
+const EXP_COLA = 19;
+
+function expFugacesHTML(alto) {
+  let s = "";
+  for (let i = 0; i < 3; i++) {
+    const x = 24 + Math.random() * 250;
+    const y = 8 + Math.random() * (alto * 0.45);
+    const ang = 18 + Math.random() * 22;          // siempre hacia abajo y a la derecha
+    const esc = 0.7 + Math.random() * 0.6;
+    const espera = (i * 4.4 + Math.random() * 1.6).toFixed(1);
+    s += '<g transform="translate(' + x.toFixed(1) + ',' + y.toFixed(1) +
+      ') rotate(' + ang.toFixed(0) + ') scale(' + esc.toFixed(2) + ')">' +
+      '<g class="exp-fugaz" style="animation-delay:' + espera + 's">' +
+      '<path class="exp-cola" d="M-' + EXP_COLA + ' 0 L0 -0.9 L0 0.9 Z"/>' +
+      '<circle class="exp-cabeza" cx="0" cy="0" r="1.15"/>' +
+      '</g></g>';
+  }
+  return s;
+}
+
+/* El degradado de la cola, declarado una vez para las tres. */
+function expDefsHTML() {
+  return '<defs><linearGradient id="exp-cola-luz" gradientUnits="userSpaceOnUse"' +
+    ' x1="-' + EXP_COLA + '" y1="0" x2="0" y2="0">' +
+    '<stop offset="0" stop-color="#eaf4ff" stop-opacity="0"/>' +
+    '<stop offset="0.6" stop-color="#eaf4ff" stop-opacity="0.28"/>' +
+    '<stop offset="1" stop-color="#eaf4ff" stop-opacity="0.9"/>' +
+    '</linearGradient></defs>';
+}
+
+function expCieloHTML(nivel) {
+  const rangos = rangosVigentes();
+
+  /* El altar: la que estás cerrando ahora, en grande. Puede no haber ninguna,
+     y son los dos extremos de la vida de una cuenta: antes del nivel 1 no has
+     empezado, y pasado el 30 están las cinco cerradas. En los dos casos el
+     cielo se queda solo con lo que hay, sin inventarse un hueco.
+
+     De ahí los tres altos: con un alto fijo, esos dos extremos dejaban media
+     tarjeta de negro debajo del estante. */
+  const viva = rangos.filter(r => expEstadoRango(r, nivel) === "viva")[0];
+  const cerradas = rangos.filter(r => expEstadoRango(r, nivel) === "cerrada");
+  const m = viva ? EXP_ESTANTE : EXP_VITRINA;
+  const alto = viva ? EXP_ALTO_CON_ALTAR
+    : cerradas.length ? EXP_ALTO_VITRINA : EXP_ALTO_VACIO;
+
+  /* El polvo del fondo: aleatorio y distinto cada vez, igual que en la
+     celebración. No es información, es profundidad — las constelaciones sí son
+     siempre las mismas. Se siembra sobre el alto de VERDAD y con un suelo,
+     porque el cielo más corto es el de quien no ha empezado y ése es justo el
+     que no puede parecer roto: sin estrellas se lee como que no cargó. */
+  let fondo = "";
+  const cuantas = Math.max(66, Math.round(alto / 2.4));
+  for (let i = 0; i < cuantas; i++) {
+    fondo += '<circle cx="' + (Math.random() * 320).toFixed(1) +
+      '" cy="' + (Math.random() * alto).toFixed(1) +
+      '" r="' + (0.35 + Math.random() * 0.85).toFixed(2) +
+      '" opacity="' + (0.12 + Math.random() * 0.3).toFixed(2) + '"/>';
+  }
+
+  /* Las que ya cerraste, centradas. Es la colección, y es lo único de esta
+     pantalla que solo se consigue con años. */
+  const x0 = 160 - (cerradas.length - 1) * m.paso / 2;
+  let estante = "";
+  cerradas.forEach((r, i) => {
+    estante += '<g class="exp-const cerrada" style="--c:var(' + r.color + ')">' +
+      '<title>' + escapeHtml(r.nombre) + ' · conseguido</title>' +
+      expFiguraHTML(NCEL_FIGURAS[rangos.indexOf(r)], NCEL_FIGURAS[rangos.indexOf(r)].p.length,
+        x0 + i * m.paso, m.y, m, false) + '</g>';
+  });
+
+  let altar = "";
+  if (viva) {
+    const fig = NCEL_FIGURAS[rangos.indexOf(viva)];
+    const k = expEscalonDe(viva, nivel);
+    altar = '<g class="exp-const viva" style="--c:var(' + viva.color + ')">' +
+      '<title>' + escapeHtml(viva.nombre) + (k >= EXP_POR_RANGO ? ' · conseguido' : ' · nivel ' + k + ' de ' + EXP_POR_RANGO) + '</title>' +
+      expFiguraHTML(fig, ncelHasta(fig, k), EXP_ALTAR.cx, EXP_ALTAR.cy, EXP_ALTAR, true) + '</g>';
+  }
+
+  return '<svg class="exp-sky" viewBox="0 0 320 ' + alto + '" role="img"' +
+    ' aria-label="Tu cielo: ' + cerradas.length + ' de 5 constelaciones cerradas">' +
+    expDefsHTML() +
+    '<g class="exp-polvo">' + fondo + '</g>' +
+    '<g class="exp-fugaces">' + expFugacesHTML(alto) + '</g>' +
+    estante + altar + '</svg>';
+}
+
+/* ---- El cielo reacciona al puntero ----
+   Lo pidió Eduardo. Es paralaje y no un efecto de hover: las tres capas se
+   mueven distinto —el polvo poco y al favor, las constelaciones más y en
+   contra— y de ahí sale la sensación de profundidad. La cuenta se hace aquí y
+   el movimiento lo pinta el CSS leyendo `--mx` y `--my`.
+
+   Dos cosas que no son adorno:
+
+   1. **Solo donde hay puntero de verdad.** En un teléfono `pointermove` llega
+      con el dedo encima y dejaría el cielo torcido en el sitio donde tocaste,
+      sin forma de enderezarlo. `(hover: hover)` es la pregunta correcta.
+   2. **La transición se pone solo al SALIR.** Moviendo, `pointermove` ya llega
+      sesenta veces por segundo y una transición encima añade retraso; al
+      salir hace falta, o el cielo pega un salto. Y va como clase y no en la
+      regla de siempre por la trampa de la casa: una transición sobre un valor
+      que sale de una variable se queda congelada en Chrome, así que cuanto
+      menos rato esté puesta, mejor. */
+function expCieloVivo() {
+  const caja = document.querySelector(".exp-cielo");
+  if (!caja) return;
+  try {
+    if (!window.matchMedia || !matchMedia("(hover: hover)").matches) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  } catch (e) { return; }
+
+  caja.addEventListener("pointermove", ev => {
+    const r = caja.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    caja.classList.remove("volviendo");
+    caja.style.setProperty("--mx", ((ev.clientX - r.left) / r.width - 0.5).toFixed(3));
+    caja.style.setProperty("--my", ((ev.clientY - r.top) / r.height - 0.5).toFixed(3));
+  });
+  caja.addEventListener("pointerleave", () => {
+    caja.classList.add("volviendo");
+    caja.style.setProperty("--mx", "0");
+    caja.style.setProperty("--my", "0");
+  });
+}
+
+/* Lo que dice el renglón de debajo del nivel. Tres frases y no una porque son
+   tres momentos distintos, y el que faltaba era el último: quien pasa el
+   nivel 30 tiene las cinco figuras cerradas y la pantalla le seguía diciendo
+   que estaba «en» un rango. */
+function expLecturaCielo(nivel) {
+  if (nivel < 1) return "Tu cielo está por escribirse";
+  const rangos = rangosVigentes();
+  const viva = rangos.filter(r => expEstadoRango(r, nivel) === "viva")[0];
+  if (!viva) return "Cielo completo · las cinco constelaciones";
+  const k = expEscalonDe(viva, nivel);
+  /* En el sexto la frase cambia porque el momento cambia: la figura quedó
+     cerrada y el rango ya es tuyo. Decir «nivel 6 de 6» ahí sería contar el
+     avance de algo que ya terminó. */
+  if (k >= EXP_POR_RANGO) return escapeHtml(viva.nombre) + " · conseguido";
+  return escapeHtml(viva.nombre) + " · nivel " + k + " de " + EXP_POR_RANGO;
+}
+
+/* ================= La colección =================
+   El inventario del recorrido, no una vitrina de trofeos. La diferencia la
+   marcó Eduardo y es la que hace que tenga sentido sin más gente mirando: lo
+   que guarda no son medallas, son cosas que se usan —los ambientes se ponen—,
+   y la pantalla es donde eliges cuál llevas y ves cuál viene.
+
+   La versión anterior tenía casi todo lo que hay aquí menos lo que la hacía
+   valer la pena, y Eduardo la resumió en una frase: «cero informativo, cero
+   interesante y bastante olvidable». Los cuatro arreglos, en orden:
+
+   1. **El cielo arriba.** Las constelaciones ya existían y solo se veían dos
+      segundos al subir de nivel. Puestas aquí, la pantalla se abre con un
+      dibujo que dice tu recorrido entero de un vistazo, los rangos que ya
+      pasaste titilan, cruzan estrellas fugaces y el conjunto se mueve con el
+      puntero.
+   2. **Los rangos ya no se apagan.** Decían «Pasado» en gris —más apagado
+      incluso que los que aún no alcanzas—, y un logro escrito en pasado y en
+      gris se lee como algo que se te fue. Ahora cada uno lleva su color, un
+      renglón que explica de qué va ese tramo, y el conseguido dice
+      «Conseguido» con su palomita.
+   3. **Lo que abre el nivel, que nunca se enseñó.** `EXP_ESCALERA` existe
+      desde el primer día y esta pantalla no la pintaba, con el archivo
+      diciendo al lado que «un premio sorpresa no mueve a nadie y uno que se ve
+      venir, sí».
+   4. **De dónde salen tus puntos se pliega.** Es la letra chica —a casi nadie
+      le interesa el reparto exacto— y ocupaba media pantalla. Cerrada de
+      inicio, y al abrirla ahora explica CÓMO se gana cada una, que es lo que
+      de verdad le faltaba.
+
+   Los ambientes NO se eligen aquí. Lo decidió Eduardo al cerrar el choque de
+   las dos sesiones: la pantalla de elegir es «Mi apariencia», en Ajustes,
+   junto a las otras cosas tuyas. Esta cuenta el recorrido; aquella lo viste.
+   Lo único que las une es el botón, que es lo que evita tener que buscar
+   dónde se recoge lo que acabas de ganar. */
+
 /* A dónde vuelve la flecha. Se abre desde dos sitios y volver siempre al
    Resumen dejaba a quien venía de Ajustes en otra pantalla sin saber por qué. */
 let coleccionVuelve = "summary";
@@ -444,11 +873,27 @@ function volverDeColeccion() {
   showView(coleccionVuelve || "summary");
 }
 
+/* El acordeón. Cerrado siempre al entrar y sin recordar nada: lo que se pliega
+   es la letra chica, y una pantalla que abre de forma distinta según lo que
+   hiciste la última vez es una pantalla que no se reconoce.
+
+   Se toca `hidden` y no `style.display`, y el `aria-expanded` va con él para
+   que un lector de pantalla no anuncie abierto lo que está cerrado. */
+function expPlegar(boton) {
+  const caja = boton.nextElementSibling;
+  if (!caja) return;
+  const abierto = !caja.hidden;
+  caja.hidden = abierto;
+  boton.setAttribute("aria-expanded", String(!abierto));
+  boton.classList.toggle("abierto", !abierto);
+}
+
 function renderColeccion() {
   const el = document.getElementById("coleccion-cuerpo");
   if (!el) return;
   const info = nivelExpedicion();
-  const actual = rangoExpedicion(info.nivel);
+  const nivel = info.nivel;
+  const actual = rangoExpedicion(nivel);
   const d = expDesglose();
 
   /* De mayor a menor: lo que más te ha traído hasta aquí, primero. Las que
@@ -458,55 +903,145 @@ function renderColeccion() {
     .sort((a, b) => d[b] - d[a]);
   const mayor = fuentes.length ? d[fuentes[0]] : 1;
 
+  /* El color de la barra del nivel es el del rango que llevas puesto, no la
+     menta de siempre. Es lo que ata el renglón de arriba con su constelación
+     de abajo sin tener que escribirlo. */
+  const tono = actual ? "var(" + actual.color + ")" : "var(--mint)";
+
+  /* Los peldaños que NO son rangos —hoy, los ambientes—. Los rangos se quedan
+     fuera de esta lista a propósito: los cuenta el panel de arriba entero, con
+     su nota y su color, y repetirlos aquí sería decir dos veces la misma
+     noticia en la misma pantalla. Es la misma regla que ya sigue la
+     celebración de subir de nivel. */
+  const peldanos = escaleraDeExpedicion().filter(x => x.listo && x.tipo !== "rango");
+
   el.innerHTML = `
-    <div class="col-cab">
-      ${insigniaExpedicionHTML(64)}
-      <div class="col-quien">
-        <div class="col-nivel">Nivel ${info.nivel}</div>
-        <div class="col-rango">${actual ? escapeHtml(actual.nombre) : "Antes del primer nivel"}</div>
+    <div class="scene-card exp-cielo">
+      ${/* El cielo va ARRIBA y el rótulo DEBAJO, no encima. Se probó
+           superpuesto y no se sostiene: el rótulo mide 108 px fijos de CSS y
+           el cielo escala con el ancho, así que en un teléfono de 375 px la
+           insignia se comía la constelación más baja y en una pantalla de 524
+           quedaba media tarjeta de cielo vacío. Separados, cada uno pide lo
+           suyo y el degradado de abajo cose los dos. */""}
+      <div class="exp-sky-wrap">
+        ${expCieloHTML(nivel)}
+        <div class="exp-velo"></div>
+      </div>
+      <div class="exp-hero">
+        <div class="exp-hero-fila">
+          ${insigniaExpedicionHTML(52, true)}
+          <div class="exp-hero-tx">
+            <div class="exp-hero-nivel">Nivel ${nivel}</div>
+            <div class="exp-hero-rango" style="color:${tono}">${expLecturaCielo(nivel)}</div>
+          </div>
+        </div>
+        ${/* La misma barra que ahora usa la racha. Le gustó a Eduardo —«me
+             enamoré de tu barra de carga… se podría sacar provecho en otras
+             áreas»— así que vive en `.barra-viva` y no aquí: dos copias del
+             mismo efecto se separan a la tercera vez que alguien toca una. */""}
+        <div class="barra-viva exp-hero-barra"><i style="--p:${info.pct}%;--c:${tono}"></i></div>
+        <div class="exp-hero-pie">
+          <b>${info.faltan}</b> ${info.faltan === 1 ? "punto" : "puntos"} para el nivel ${nivel + 1}
+          <span>${info.puntos} en total</span>
+        </div>
       </div>
     </div>
-    <div class="col-barra"><i style="--p:${info.pct}%"></i></div>
-    <p class="settings-note">${info.puntos} puntos de expedición.
-      Te faltan <b>${info.faltan}</b> para el nivel ${info.nivel + 1}.</p>
 
     <div class="panel">
-      <h3>Tu recorrido</h3>
-      <p class="settings-note">Cinco rangos en toda la vida de una cuenta. Se celebran la primera vez que llegas y se quedan puestos.</p>
+      <h3>Tus rangos</h3>
+      <p class="settings-note">Cinco en toda la vida de una cuenta. Cada uno son seis niveles, y cada nivel avanza un tramo de su constelación. El rango se consigue al cerrarla, y se queda puesto.</p>
       <div class="col-rangos">
-        ${/* `rangosVigentes()` y no `EXP_RANGOS` a secas, que era lo que había:
-            con un mundo puesto, la insignia de arriba decía el rango del mundo
-            —Arquitecto— y esta misma reja, dos dedos más abajo, seguía
-            escribiendo los cinco de la casa —Nodo, Enlace, Rama, Trama, Red—.
-            La pantalla se contradecía a sí misma. Los NIVELES siguen saliendo
-            de `EXP_RANGOS`, que es lo que un mundo no mueve. */
+        ${/* `rangosVigentes()` y no `EXP_RANGOS` a secas: con un mundo puesto,
+             la insignia de arriba decía el rango del mundo —Arquitecto— y esta
+             lista, dos dedos más abajo, seguía escribiendo los cinco de la
+             casa. La pantalla se contradecía a sí misma. Los NIVELES y los
+             COLORES siguen saliendo de `EXP_RANGOS`, que es lo que un mundo no
+             mueve. */
           rangosVigentes().map(r => {
-          const tuyo = actual && actual.id === r.id;
-          const abierto = info.nivel >= r.desde;
-          return `<div class="col-rango-uno ${tuyo ? "tuyo" : ""} ${abierto ? "abierto" : ""}">
-            ${/* El mismo reparto que la insignia: un rango de la casa nombra un
-                 icono de ICONS y uno de mundo trae su trazo entero. Sin esto,
-                 la reja escribía los nombres del mundo con los DIBUJOS de la
-                 casa —«Arquitecto» debajo del nudo de una red—. */
-              r.trazo ? svgDeTrazo(r.trazo, 26) : icon(r.icon, 26)}
-            <b>${escapeHtml(r.nombre)}</b>
-            <span>${abierto ? (tuyo ? "Ahora" : "Pasado") : "Nivel " + r.desde}</span>
+          const estado = expEstadoRango(r, nivel);
+          const tuyo = expConseguido(r, nivel);
+          const hasta = expNivelDeRango(r);
+          return `<div class="col-rango-uno ${estado}" style="--c:var(${r.color})">
+            <span class="crx-disco">${r.trazo ? svgDeTrazo(r.trazo, 22) : icon(r.icon, 22)}</span>
+            <div class="crx-tx">
+              <div class="crx-cab">
+                <b>${escapeHtml(r.nombre)}</b>
+                <span class="crx-estado">${
+                  tuyo ? icon("check", 13) + "Conseguido"
+                  : estado === "viva" ? "Aquí estás"
+                  : "Nivel " + hasta}</span>
+              </div>
+              <span class="crx-nota">${escapeHtml(r.nota || ("Niveles " + r.desde + " a " + hasta + "."))}</span>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>
+
+    ${peldanos.length ? `<div class="panel">
+      <h3>Lo que abre el nivel</h3>
+      <p class="settings-note">El nivel sube solo con lo que ya haces. Esto es lo que va apareciendo por el camino.</p>
+      <div class="col-peldanos">
+        ${peldanos.map(x => {
+          /* Por qué no lo tienes se lo pregunta a `aparienciaDisponible()`, que
+             es quien lo decide de verdad, en vez de mirar la bandera `pro` a
+             secas: a quien ya paga, un candado al lado de algo que sí puede
+             usar le dice que no puede. Devuelve `true`, "nivel", "pro" o
+             "fundador". Los peldaños sin `id` —las celebraciones, que todavía
+             no existen— no son una apariencia y se resuelven por el nivel. */
+          const razon = (x.id && typeof aparienciaDisponible === "function")
+            ? aparienciaDisponible(x.id)
+            : (nivel >= x.nivel ? true : "nivel");
+          const tuyo = razon === true;
+          /* Un solo dato por chip. Al que aún no llegas le importa el nivel
+             —el candado ya lo verá cuando llegue—; al que ya alcanzaste y
+             sigue cerrado le importa qué lo cierra. Los dos a la vez no se
+             leen. */
+          const porNivel = razon === "nivel";
+          /* El LILA solo cuando lo que cierra es Fundador. Es la regla de la
+             casa y no una preferencia: ese tono se sacó del amarillo justo
+             para que dijera una sola cosa, y un candado de Pro pintado de lila
+             la rompe. Lo que cierra Pro va en celeste, que aquí no significa
+             nada más — y de decir que está cerrado ya se encarga el candado. */
+          const col = tuyo || porNivel
+            ? (x.tipo === "ambiente" ? "--celeste" : "--rosa")
+            : (razon === "fundador" ? "--lila" : "--celeste");
+          return `<div class="col-peldano ${tuyo ? "tuyo" : porNivel ? "" : "cerrado"}" style="--c:var(${col})">
+            <span class="cpx-disco">${icon(x.icon || (x.tipo === "ambiente" ? "brush" : "star"), 17)}</span>
+            <b>${escapeHtml(x.nombre)}</b>
+            <span class="cpx-estado">${
+              porNivel ? "Nivel " + x.nivel
+              : tuyo ? icon("check", 13) + "Tuyo"
+              : icon("lock", 12) + (razon === "fundador" ? "Fundador" : "Pro")}</span>
           </div>`;
         }).join("")}
       </div>
       ${typeof abrirApariencia === "function" ? `<button class="btn btn-linea btn-block" onclick="abrirApariencia()">Ver Mi apariencia</button>` : ""}
-    </div>
+    </div>` : (typeof abrirApariencia === "function" ? `<div class="panel">
+      <button class="btn btn-linea btn-block" onclick="abrirApariencia()">Ver Mi apariencia</button>
+    </div>` : "")}
 
-    <div class="panel">
-      <h3>De dónde salen tus puntos</h3>
-      ${fuentes.length ? `<div class="col-fuentes">
-        ${fuentes.map(k => `<div class="col-fuente">
-          <span>${EXP_ETIQUETAS[k] || k}</span>
-          <b>${d[k]}</b>
-          <i style="--p:${Math.round((d[k] / mayor) * 100)}%"></i>
-        </div>`).join("")}
-      </div>` : `<p class="settings-note">Todavía nada. Cumple una misión o registra una práctica y esto empieza a llenarse.</p>`}
+    <div class="panel panel-plegable">
+      <button class="exp-plegable" aria-expanded="false" onclick="expPlegar(this)">
+        <span>De dónde salen tus puntos</span>
+        <em>${fuentes.length ? fuentes.length + (fuentes.length === 1 ? " fuente" : " fuentes") : "Todavía nada"}</em>
+        ${svgDeTrazo('<path d="M6 9.5l6 6 6-6"/>', 16)}
+      </button>
+      <div hidden>
+        ${fuentes.length ? `<div class="col-fuentes">
+          ${fuentes.map(k => `<div class="col-fuente" style="--c:var(${EXP_COLOR_FUENTE[k] || "--mint"})">
+            <span>${EXP_ETIQUETAS[k] || k}</span>
+            <b>${d[k]}</b>
+            <i style="--p:${Math.round((d[k] / mayor) * 100)}%"></i>
+            <em>${EXP_PISTAS[k] || ""}</em>
+          </div>`).join("")}
+        </div>` : `<p class="settings-note">Todavía nada. Cumple una misión o registra una práctica y esto empieza a llenarse.</p>`}
+      </div>
     </div>`;
+
+  /* Después de pintar, no antes: el oyente cuelga de un nodo que acaba de
+     nacer con el `innerHTML` de arriba. */
+  expCieloVivo();
 }
 
 /* Todo lo abierto hasta ahora, para la colección. En orden de cuándo llegó. */

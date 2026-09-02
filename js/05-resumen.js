@@ -202,7 +202,10 @@ function renderSummary() {
                   y se coloca con `grid-column` en el CSS. */""}
             <div class="sg-izq">
               <div class="streak-row">
-                <span class="flame ic"><svg viewBox="0 0 24 24">${ICONS.flame}</svg></span>
+                ${/* La llama respira mientras la racha esté viva. Con la
+                      racha rota se queda quieta: una llama que late encima de
+                      un cero anima algo que no está pasando. */""}
+                <span class="flame ic${stk.cur > 0 ? " viva" : ""}"><svg viewBox="0 0 24 24">${ICONS.flame}</svg></span>
                 <span class="num">${stk.cur}</span>
                 ${/* Sin «mejor: N». La gracia está en la racha que tienes
                       viva, no en una que ya se rompió: al lado del número de
@@ -210,9 +213,28 @@ function renderSummary() {
                       dos sobran — recordarte que ya lo hiciste mejor, o
                       encogerse cuando el de hoy lo supera. */""}
                 <span class="lbl">día${stk.cur === 1 ? "" : "s"}<br>de racha</span>
+                ${/* Cada cifra con su barra. Es la de Mi expedición
+                      —`.barra-viva`, con su punta encendida y su estela— y
+                      está aquí porque le gustó a Eduardo y porque estas dos
+                      cifras eran justo lo más estático de la tarjeta: dos
+                      fracciones que no dicen de un vistazo si vas bien.
+
+                      La semana va en el color de la LLAMA y el mes en el
+                      acento: son las dos cosas que ya distinguen esta tarjeta,
+                      y así la barra dice de cuál de las dos cifras es sin
+                      leer el rótulo. Dentro de una escena los dos tonos
+                      vuelven a su cara de noche solos. */""}
                 <div class="sg-cifras">
-                  <div><b>${activosSemana}<span>/${diasCorridos}</span></b><span>esta semana</span></div>
-                  <div><b>${activosMes}<span>/${diasMes.length}</span></b><span>en ${MESES[mes - 1]}</span></div>
+                  <div>
+                    <b>${activosSemana}<span>/${diasCorridos}</span></b>
+                    <div class="barra-viva sg-barra"><i style="--p:${Math.round(activosSemana / Math.max(1, diasCorridos) * 100)}%;--c:var(--fire)"></i></div>
+                    <span>esta semana</span>
+                  </div>
+                  <div>
+                    <b>${activosMes}<span>/${diasMes.length}</span></b>
+                    <div class="barra-viva sg-barra"><i style="--p:${Math.round(activosMes / Math.max(1, diasMes.length) * 100)}%;--c:var(--mint)"></i></div>
+                    <span>en ${MESES[mes - 1]}</span>
+                  </div>
                 </div>
               </div>
               <p class="sg-hoy${hoyCuenta ? " si" : ""}">${escapeHtml(frase)}</p>
@@ -2042,7 +2064,11 @@ function loQueSostiene(cur) {
             33 px son exactamente los que separan cinco filas de seis. */""}
       <div class="sg-hito">
         <div class="rc-rot">Próximo hito · ${hito.sig} días</div>
-        <div class="sgh-b"><i style="width:${Math.max(3, hito.pct)}%"></i></div>
+        ${/* La misma barra que el nivel y las dos cifras de arriba. Aquí es
+              donde más paga: «te faltan 4 días» es lo único de esta tarjeta
+              que mueve a volver hoy, y estaba dibujado como un carril
+              muerto. */""}
+        <div class="barra-viva sgh-b"><i style="--p:${Math.max(3, hito.pct)}%;--c:var(--mint)"></i></div>
         <div class="sgh-p">Te ${hito.faltan === 1 ? "falta 1 día" : "faltan " + hito.faltan + " días"}</div>
       </div>` : `
       <div class="sg-hito">
