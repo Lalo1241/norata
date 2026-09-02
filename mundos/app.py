@@ -296,6 +296,42 @@ def plano_o_muere(valor, quien, mundo):
             "  transparencia no cabe. Escribelo como #rrggbb." % (mundo, quien, valor))
     return cs
 
+MUESTRAS_CAB = """/* Las muestras de los mundos, para la pantalla de Ajustes.
+
+   Los mismos tonos que el bloque de cada mundo, expuestos en una clase para
+   poder pintar una tarjeta CON EL COLOR DE SU MUNDO sin ponérselo a la app y
+   sin bajarse el mundo. Salen del mismo sitio que los de verdad, así que no
+   pueden discrepar: el día que cambie un tono cambian los dos. Es el mismo
+   truco que `apariencias/css.py` ya usa con los ambientes.
+
+   POR QUÉ ESTO ES UN ARCHIVO APARTE Y NO VA EN `css/mundos.css`: el catálogo
+   de mundos tiene que verse ENTERO sin haberse bajado ninguno. `mundos.css`
+   pesa lo que pesan sus tipografías y sus texturas y solo se pide al mirar un
+   mundo; esto son doscientos bytes y viaja con la app, en `ASSETS`. Si las
+   muestras vivieran allí, la reja saldría gris hasta que el archivo llegara.
+
+   Generado desde `mundos/datos.py`. No editar a mano. */
+"""
+
+def muestra(m):
+    """Los tres tonos que enseña una tarjeta: el suelo, la tarjeta y el acento.
+
+       Un mundo SIN cara de día no lleva `:not(.claro)` en su bloque, así que
+       manda en los dos modos — y su muestra tiene que hacer lo mismo. Por eso
+       la cara de día se calcula sobre `tokens` actualizado con `dia`, que sin
+       `dia` devuelve exactamente lo de noche."""
+    def toma(dia):
+        t = dict(m["tokens"])
+        if dia and m.get("dia"): t.update(m["dia"])
+        fondo = plano_o_muere(t["--m-pagina"], "--m-pagina", m["id"])[-1]
+        tarj = plano_o_muere(t["--m-tarjeta"], "--m-tarjeta", m["id"])[0]
+        return (fondo, tarj, t["--m-acento"])
+    n = toma(False); d = toma(True)
+    return ('.mues-%s { --mu-bg: %s; --mu-card: %s; --mu-acento: %s; }\n'
+            'html.claro .mues-%s { --mu-bg: %s; --mu-card: %s; --mu-acento: %s; }'
+            % (m["id"], n[0], n[1], n[2], m["id"], d[0], d[1], d[2]))
+
+
 def bloque(m):
     t = m["tokens"]
     sel = 'html[data-apariencia="%s"]' % m["id"]
@@ -376,7 +412,7 @@ def bloque(m):
         # que de verdad enmarcan: el panel y la tarjeta del Resumen. Once
         # marcos en siete pantallas se leen como un marco; cincuenta y tres, no.
         filas = [".ms-card", ".skill-card", ".branch-card", ".pstep", ".cat-item",
-                 ".aj-item", ".history-item", ".col-rango-uno", ".amb-m", ".mun-m",
+                 ".aj-item", ".history-item", ".col-rango-uno", ".amb-m", ".mun-t",
                  ".glass-chip", ".sh-focus", ".btn", ".icon-btn", ".tema-fila",
                  ".seg", ".chip", ".pill"]
         salida += ["",
@@ -726,6 +762,16 @@ if __name__ == "__main__":
     destino = os.path.join(raiz, "css", "mundos.css")
     open(destino, "w", encoding="utf-8").write(txt)
 
+    # ---- Y las muestras, que van en OTRO archivo y con los QUINCE ----
+    #
+    # Con los quince y no solo con los tres listos, aunque hoy solo se pinten
+    # tres: el día que un mundo pase a `listo` nadie tiene que acordarse de
+    # volver aquí, y doscientos bytes por mundo que no se enseña es un precio
+    # que no se nota. Por qué es un archivo aparte y no va dentro de
+    # `mundos.css`, en `MUESTRAS_CAB`.
+    mues = "\n".join([MUESTRAS_CAB] + [muestra(m) for m in D.MUNDOS]) + "\n"
+    open(os.path.join(raiz, "css", "muestras.css"), "w", encoding="utf-8").write(mues)
+
     # ---- Y la HUELLA, que es lo que impide que un aparato se quede con una
     # copia vieja para siempre ----
     #
@@ -767,4 +813,5 @@ if __name__ == "__main__":
 
     print("css/mundos.css", len(txt.encode()), "bytes · huella", huella, "·",
           ", ".join(m["nombre"] for m in listos))
+    print("css/muestras.css", len(mues.encode()), "bytes ·", len(D.MUNDOS), "muestras")
     if tocados: print("  sellado en:", ", ".join(tocados))
