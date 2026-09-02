@@ -76,6 +76,78 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.71.5 · 2 sep 2026
+
+**El escaparate vuelve arriba, y el camino de pago pierde dos ventanas.**
+
+#### Un escenario arriba, y todo lo de abajo se ve igual
+
+Vuelve el preview a lo alto del panel: un escenario que enseña lo que estás
+mirando —ambiente o mundo, los dos entran igual— y debajo las dos rejas. Tocar
+una tarjeta MIRA; ponérsela es un botón aparte.
+
+Es la tercera forma que ha tenido esta pantalla en dos días y la que se queda.
+Hubo una galería de tarjetas con un preview vivo cada una (0.7.70) y luego una
+ventana emergente por mundo (0.7.71.3), y las dos fallaban por lo mismo: le
+daban a los mundos un peso que los ambientes no tienen, cuando en esta pantalla
+las dos cosas son opciones de lo mismo. «Se ejecutaba mejor cuando arriba se
+veían todos igual y no solo los mundos aparte» — y con un solo escenario arriba,
+lo que cambia es lo que enseña el de arriba y no el tamaño de las cosas de
+abajo.
+
+Se retira la ventana emergente entera: `#mundo-modal` de `index.html`, su
+`--piso-mundo`, su línea en `CAPAS_QUE_TAPAN` y las reglas `.mv-*` y
+`.mundo-card`. Y con ella `abrirMundo()` y `cerrarMundo()`.
+
+#### «Predeterminado»
+
+Noche de expedición lleva su etiqueta. Va en el gris de la app y no en un color
+de plan, porque es lo que dice: el mundo original, no algo que se abra pagando
+ni subiendo de nivel.
+
+#### La insignia se queda; el texto, no
+
+Lo que ya tienes y **sigue siendo de plan** conserva su piedra —la gema de Pro,
+la gema con corona de Fundador— pero sin una palabra al lado. Lo pidió Eduardo y
+resuelve las dos mitades del problema: una cápsula que dice «PRO» sobre algo que
+ya es tuyo es ruido, pero borrarla del todo hace que un tema de plan y uno
+gratis se vean idénticos en cuanto pagas, y entonces lo que compraste deja de
+notarse. La piedra sola dice «esto viene con tu plan» sin sonar a candado.
+
+#### Un paywall, no tres
+
+El botón de la ficha va **directo al panel del plan**, que es donde están los dos
+precios, lo que abre cada uno y los botones de pagar.
+
+Antes pasaba por `topeAlcanzado("apariencia")`. O sea que para comprar había que
+atravesar la ficha —que ya explica por qué está cerrado—, luego un cuadro que
+vuelve a explicarlo con otras palabras, y solo entonces llegabas a la tabla:
+tres pantallas diciendo lo mismo antes de poder decidir. «Hay demasiadas
+ventanas emergentes.»
+
+`topeAlcanzado` sigue viva y sigue siendo la buena para los otros topes —una
+rama llena, un informe—, y ahí no sobra: en esos caminos no hay ninguna ficha
+que haya explicado nada antes, así que el cuadro es la primera y única
+explicación. Aquí era la segunda.
+
+**Ojo con una consecuencia honesta:** sin cuenta, ese botón lleva a «Crear mi
+cuenta» y no a la tabla de precios. Es correcto —sin cuenta no hay plan, porque
+es donde se guarda— pero conviene saberlo antes de mirarlo.
+
+#### Dos fallos que salieron al medir
+
+- **El nombre de la ficha se salía por encima de la cápsula de al lado.** A 375
+  px el flex lo aplastaba a 32 px y el `overflow` estaba en `visible`, así que
+  «Averno» se pintaba encima de «NUEVO». Se arregló con la cápsula corta también
+  aquí —la frase entera sigue justo debajo, en el bloque del motivo— y acotando
+  el nombre con puntos suspensivos, que es el freno para el día que un mundo
+  tenga el nombre largo.
+- **El modo claro no llegaba dentro del preview.** `sincronizarVistas` buscaba
+  `iframe[data-mundo][data-puesto]`, que era el reparto de cuando había una
+  galería con un iframe por mundo; con uno solo, `data-puesto` ya no lo pone
+  nadie. Ningún error y ninguna pista: el preview simplemente se quedaba de
+  noche mientras la app se ponía de día. Ahora va por el `id`.
+
 ### 0.7.71.4 · 2 sep 2026
 
 **Mi expedición por fin dice qué es.** Lo cazó Eduardo: la pantalla explicaba
