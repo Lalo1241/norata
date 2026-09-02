@@ -157,7 +157,18 @@ MUNDOS = [
    "--m-tarjeta":"#071c37","--m-borde":"1px","--m-borde-color":"#6ea2d8",
    "--m-sombra":"inset 0 0 0 4px rgba(6,26,52,.95), inset 0 0 0 5px rgba(110,162,216,.5), 0 8px 22px rgba(0,0,0,.35)",
    "--m-r-tarjeta":"0","--m-r-mini":"0","--m-r-barra":"0","--m-r-chip":"0",
-   "--m-cenefa-alto":"26px","--m-cenefa":f'url("{svg("plano-cota.svg")}") center/200px 26px no-repeat',
+   # La cota SE ESTIRA al ancho de la pieza, y por eso va por capas en vez
+   # de ser un dibujo. Era un SVG de 200 px centrado: en una ficha estrecha
+   # colaba, pero sobre una tarjeta ancha las puntas de flecha se quedaban
+   # flotando en medio sin tocar nada —y una cota que no llega a los
+   # extremos no mide, solo adorna—. Las puntas van a tamaño fijo en su
+   # propio archivo: estiradas se deformaban.
+   "--m-cenefa-alto":"26px",
+   "--m-cenefa":f'url("{svg("plano-flecha-i.svg")}") left 4px center/10px 7px no-repeat,'
+   f'url("{svg("plano-flecha-d.svg")}") right 4px center/10px 7px no-repeat,'
+   'linear-gradient(#9fd0ff,#9fd0ff) left 4px top 4px/1px 18px no-repeat,'
+   'linear-gradient(#9fd0ff,#9fd0ff) right 4px top 4px/1px 18px no-repeat,'
+   'linear-gradient(#9fd0ff,#9fd0ff) left 4px center/calc(100% - 8px) 1px no-repeat',
    "--m-tinta":"#eaf4ff","--m-tinta-2":"#8fb6db",
    "--m-acento":"#9fd0ff","--m-acento-velo":"rgba(159,208,255,.13)",
    "--m-aviso":"#ffd98a","--m-aviso-velo":"rgba(255,217,138,.14)",
@@ -190,7 +201,11 @@ MUNDOS = [
    "--m-grano-op":".62",
    "--m-tarjeta":"#f4f7fb","--m-borde-color":"#93aac4",
    "--m-sombra":"inset 0 0 0 4px #f4f7fb, inset 0 0 0 5px rgba(147,170,196,.75), 0 8px 22px rgba(21,42,69,.12)",
-   "--m-cenefa":f'url("{svg("plano-cota-dia.svg")}") center/200px 26px no-repeat',
+   "--m-cenefa":f'url("{svg("plano-flecha-i-dia.svg")}") left 4px center/10px 7px no-repeat,'
+   f'url("{svg("plano-flecha-d-dia.svg")}") right 4px center/10px 7px no-repeat,'
+   'linear-gradient(#0c4677,#0c4677) left 4px top 4px/1px 18px no-repeat,'
+   'linear-gradient(#0c4677,#0c4677) right 4px top 4px/1px 18px no-repeat,'
+   'linear-gradient(#0c4677,#0c4677) left 4px center/calc(100% - 8px) 1px no-repeat',
    "--m-tinta":"#14294a","--m-tinta-2":"#54708f",
    "--m-acento":"#4c9ade","--m-acento-tinta":"#0c4677","--m-acento-velo":"rgba(12,70,119,.10)",
    "--m-aviso":"#f5c314","--m-aviso-tinta":"#755c05","--m-aviso-velo":"rgba(117,92,5,.12)",

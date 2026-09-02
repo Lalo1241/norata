@@ -432,6 +432,66 @@ def bloque(m):
           "}",
           ",\n".join("%s %s" % (sel, q) for q in PIEZAS_CON_ARO) + " { position: relative; }"]
 
+    # ---- La cota ----
+    # `--m-cenefa` es la franja del borde de arriba de una pieza. Hasta ahora no
+    # cruzaba a la app y era uno de los huecos apuntados más arriba; cruza aquí,
+    # pero con una regla que NO es la de la lámina.
+    #
+    # En la lámina hay UNA ficha y la cenefa se le pone y ya. En la app hay
+    # `.panel`, `.sum-card`, `.branch-card`, `.ms-card`… y se contó: **nueve
+    # paneles en Ajustes** y siete piezas entre paneles y tarjetas en el Resumen.
+    # Ponerla por clase habría repetido exactamente el error del marco de latón
+    # de Reliquia —«se gasta el recurso muy rápido», lo paró Eduardo—.
+    #
+    # Así que el disparador no es una clase: **es el atributo `data-cota`, que
+    # lleva dentro la cifra**. Una cota existe para medir algo, de modo que sin
+    # número no hay cota. La consecuencia es que nunca puede ser decorativa y que
+    # ninguna pantalla se llena sola: solo aparece donde alguien decidió escribir
+    # qué se está midiendo.
+    #
+    # La cifra va en `::after` y no dibujada: así es texto de verdad, sale en la
+    # letra del mundo y la lee un lector de pantalla. Su fondo opaco es lo que
+    # INTERRUMPE la línea, que es como se acota en un plano de verdad.
+    if t.get("--m-cenefa"):
+        alto = t.get("--m-cenefa-alto", "22px")
+        salida += ["",
+          "/* La cota. El disparador es `data-cota` y no una clase: una cota existe",
+          "   para medir algo, así que sin cifra no hay cota. Contado antes de",
+          "   decidirlo: `.panel` sale nueve veces en Ajustes. */",
+          "%s [data-cota] {" % sel,
+          "  position: relative;",
+          "  padding-top: calc(%s + 12px);" % alto,
+          "}",
+          "%s [data-cota]::before {" % sel,
+          '  content: "";',
+          "  position: absolute;",
+          "  left: 0; right: 0; top: 0;",
+          "  height: %s;" % alto,
+          "  background: %s;" % t["--m-cenefa"],
+          "  pointer-events: none;",
+          "}",
+          "%s [data-cota]::after {" % sel,
+          "  content: attr(data-cota);",
+          "  position: absolute;",
+          "  left: 50%%; top: calc(%s / 2);" % alto,
+          "  transform: translate(-50%, -50%);",
+          "  padding: 0 7px;",
+          "  background: var(--card);",
+          "  font-family: var(--tipo-cifra);",
+          "  font-weight: 700;",
+          "  font-size: 12.5px;",
+          "  letter-spacing: .06em;",
+          "  color: var(--mint);",
+          "  font-variant-numeric: tabular-nums;",
+          "  white-space: nowrap;",
+          "  pointer-events: none;",
+          "}",
+          "",
+          "/* Y la pastilla de la cuenta se apaga en la pieza que lleva cota: la",
+          "   cota NO añade un dato, se queda con el que ya había. Con las dos",
+          "   puestas, «4 de 10» salía dos veces en la misma tarjeta. */",
+          "%s [data-cota] .branch-head .count { display: none; }" % sel]
+
     # ---- El techo del peso ----
     # Syne es variable de 600 a 800, y a 800 se ESTIRA: la letra se alarga y
     # descuadra los renglones. La app pide 800 en varios sitios, así que el techo

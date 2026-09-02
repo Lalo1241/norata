@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="10" height="7" viewBox="0 0 10 7">
+  <!-- La derecha. Es la misma figura al revés, y son dos archivos porque a una
+       capa de fondo no se le puede aplicar una transformación. -->
+  <path d="M10 3.5L0 0v7z" fill="#9fd0ff"/>
+</svg>
