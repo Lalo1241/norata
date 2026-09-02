@@ -98,22 +98,27 @@ const MUNDOS = [
        Sello    el sello con el que se ata y se nombra (Apocalipsis 20:1-3,
                 y los sellos de la Llave Menor de Salomón)
        Legión   «Legión me llamo, porque somos muchos» (Marcos 5:9)
-       Abismo   «la llave del pozo del abismo» (Apocalipsis 9:1)
+       Abadón   el ángel del abismo, rey de las langostas del pozo
+                (Apocalipsis 9:11)
 
      Suben, y cada uno solo se le puede ocurrir al anterior: eres lo que quedó,
      luego hueles al lugar, luego tienes un nombre que se puede escribir, luego
-     eres muchos, y al final eres el pozo. Y pasan las otras dos pruebas que
-     dejó escrita la tanda de Blueprint: de todos se puede decir «soy», y
-     **ninguno lleva género** —son cosas y no oficios—, así que «Ahora eres
-     Legión» le dice lo mismo a todo el mundo. Los títulos de la Goetia —Duque,
-     Marqués, Conde— se descartaron por eso mismo y no por el tema.
+     eres muchos, y al final eres a quien esos muchos responden.
 
-     **Los dibujos son glifos, no criaturas.** Cinco siluetas geométricas que
-     no se parecen entre sí: un montón, el signo alquímico del azufre, un sello
-     inscrito, una formación y un pozo que se estrecha. Una figura demoníaca
-     dibujada a 20 px —que es el tamaño al que se pintan— solo puede salir
-     caricatura; un glifo a ese tamaño se lee y además es lo que de verdad
-     usaba la tradición.
+     Y pasan las otras dos pruebas que dejó escrita la tanda de Blueprint: de
+     todos se puede decir «soy», y **ninguno inflexiona** —cuatro son cosas y
+     el quinto es un nombre propio—, así que «Ahora eres Abadón» le dice lo
+     mismo a todo el mundo. Los títulos de la Goetia —Duque, Marqués, Conde—
+     eran lo primero que pedía el tema y se descartaron por eso, no por el
+     concepto: es el mismo fallo que costó cambiar «Arquitecto» en Blueprint.
+
+     **Los dibujos son glifos, no criaturas.** Un montón, la cruz de Leviatán,
+     un sello inscrito, tres siluetas encapuchadas y una corona sobre lo
+     oscuro. Una criatura dibujada a 20 px —que es el tamaño al que se pintan—
+     solo puede salir caricatura; un glifo a ese tamaño se lee, y además es lo
+     que de verdad usaba la tradición. Lo que da el miedo en los dos que llevan
+     figura es el HUECO RELLENO, no el detalle: un vacío pintado se lee a
+     cualquier tamaño.
 
      **Ceniza va primero y se queda, decidido por Eduardo.** Queda escrito
      porque el reparo se le ocurre a cualquiera que lo mire: la ceniza es lo
@@ -128,30 +133,54 @@ const MUNDOS = [
          dibujo que no se levanta del suelo, y eso es lo que lo hace primero. */
       { nombre: "Ceniza", trazo: '<path d="M4.4 18.8c1.2-3.9 4-6.1 7.6-6.1s6.4 2.2 7.6 6.1z"/><path d="M2.6 18.8h18.8"/><path d="M12 12.4c-1.9-1.9-1.7-3.9.5-5.4-.7 1.9.4 2.6 1.1 3.9"/>',
         linea: { texto: "Me arrepiento en polvo y ceniza.", fuente: "Job 42:6" } },
-      /* El signo alquímico del azufre —triángulo sobre cruz— con el triángulo
-         MACIZO y la tierra abierta debajo. Dibujado a línea el signo salía
-         limpio de laboratorio; relleno y sobre una grieta pesa, que es lo que
-         hay que sentir. Lo pidió Eduardo: más tétrico. */
-      { nombre: "Azufre", trazo: '<path d="M12 2.8l4.8 8.2H7.2z" fill="currentColor" stroke="none"/><path d="M12 11v6.2"/><path d="M8.8 14.4h6.4"/><path d="M2.8 20.8l3.3-1 2.5 1.4 3.4-1.7 2.7 1.4 3-1.2 3.1 1.1"/>',
+      /* **La cruz de Leviatán**, que es el signo del AZUFRE en su forma de cruz:
+         doble travesaño sobre una lemniscata. Viene de la alquimía —el azufre
+         es uno de los tres principios, con el mercurio y la sal— y de ahí pasó
+         al ocultismo, que es por donde casi todo el mundo lo ha visto.
+
+         Se cambió dos veces. El triángulo sobre cruz es el signo alquímico
+         más literal del azufre, pero no se reconoce: dibujado a línea sale
+         limpio de laboratorio y relleno sale pesado pero mudo. Éste sí se
+         reconoce, y esa era la petición de Eduardo: «que se entienda que es
+         con qué». Tiene nombre y se puede buscar. */
+      { nombre: "Azufre", trazo: '<path d="M12 2.4v12.8"/><path d="M6.6 6h10.8M8.8 9.8h6.4"/><path d="M12 18.4c-1.5-2-2.7-2.9-4.1-2.9-1.5 0-2.6 1.2-2.6 2.7s1.1 2.7 2.6 2.7c1.4 0 2.6-.9 4.1-2.5z"/><path d="M12 18.4c1.5-2 2.7-2.9 4.1-2.9 1.5 0 2.6 1.2 2.6 2.7s-1.1 2.7-2.6 2.7c-1.4 0-2.6-.9-4.1-2.5z"/>',
         linea: { texto: "Un lago que arde con fuego y azufre.", fuente: "Apocalipsis 19:20" } },
       /* El sello: el anillo y la figura inscrita dentro. En esa tradición nada
          existe hasta que su sello está trazado, así que éste es el peldaño en
          el que dejas de ser un montón y pasas a tener nombre. */
       { nombre: "Sello", trazo: '<circle cx="12" cy="12" r="9.2"/><path d="M12 18.7L5.7 8.1h12.6z"/><circle cx="12" cy="11.4" r="1.7"/>',
         linea: { texto: "Lo ató, y puso su sello sobre él.", fuente: "Apocalipsis 20:2-3" } },
-      /* Tres siluetas encapuchadas, la de en medio delante. Antes eran cinco
-         trazos verticales sobre una línea y el problema no era el estilo: se
-         leía como una GRÁFICA DE BARRAS. Una silueta con hombros se lee como
-         alguien, y tres solapadas se leen como muchos. Sin cara: una cara a
-         20 px es una caricatura, y sin ella es una presencia. */
-      { nombre: "Legión", trazo: '<path d="M6.2 21.4v-3.2c0-1.9.9-3.2 2.4-3.9-.4-.5-.6-1.2-.6-2 0-1.6 1-2.8 2.5-2.8s2.5 1.2 2.5 2.8c0 .8-.2 1.5-.6 2 1.5.7 2.4 2 2.4 3.9v3.2z"/><path d="M2 21.4v-2.6c0-1.6.7-2.7 2-3.3-.3-.4-.5-1-.5-1.7 0-1.3.8-2.3 2-2.3.5 0 .9.2 1.3.4"/><path d="M22 21.4v-2.6c0-1.6-.7-2.7-2-3.3.3-.4.5-1 .5-1.7 0-1.3-.8-2.3-2-2.3-.5 0-.9.2-1.3.4"/>',
+      /* Tres siluetas encapuchadas, LAS TRES IGUALES y la de en medio delante,
+         con el hueco de la cara relleno. Dos correcciones seguidas:
+
+         Primero eran cinco trazos verticales sobre una línea, y el problema no
+         era el estilo: se leía como una GRÁFICA DE BARRAS. Después eran tres
+         siluetas pero las de los lados iban abiertas y a otra escala, y la de
+         la derecha «se veía muy distinta» — con razón: eran otro dibujo. Ahora
+         es la MISMA figura tres veces, y lo único que cambia es el tamaño.
+
+         El hueco relleno donde va la cara es lo que la vuelve demoníaca sin
+         dibujar un demonio. Una cara a 20 px es una caricatura; un hueco a
+         20 px es una presencia. */
+      { nombre: "Legión", trazo: '<path d="M5.6 12.9c1.14 0 1.9.91 1.9 2.13 0 .61-.15 1.14-.46 1.52 1.14.53 1.82 1.52 1.82 2.96v1.9H2.34v-1.9c0-1.44.68-2.43 1.82-2.96-.3-.38-.46-.91-.46-1.52 0-1.22.76-2.13 1.9-2.13z"/><path d="M18.4 12.9c1.14 0 1.9.91 1.9 2.13 0 .61-.15 1.14-.46 1.52 1.14.53 1.82 1.52 1.82 2.96v1.9h-6.52v-1.9c0-1.44.68-2.43 1.82-2.96-.3-.38-.46-.91-.46-1.52 0-1.22.76-2.13 1.9-2.13z"/><path d="M12 10.2c1.5 0 2.5 1.2 2.5 2.8 0 .8-.2 1.5-.6 2 1.5.7 2.4 2 2.4 3.9v2.5H7.7v-2.5c0-1.9.9-3.2 2.4-3.9-.4-.5-.6-1.2-.6-2 0-1.6 1-2.8 2.5-2.8z"/><ellipse cx="12" cy="12.9" rx="1.35" ry="1.75" fill="currentColor" stroke="none"/>',
         linea: { texto: "Legión me llamo, porque somos muchos.", fuente: "Marcos 5:9" } },
-      /* La garganta: el brocal ancho que se estrecha hasta un punto, y dentro
-         el relleno macizo. Eran tres anillos concéntricos y se leían como una
-         diana. Lo que da el miedo es el HUECO LLENO — un vacío pintado se lee
-         a cualquier tamaño—, no la cantidad de anillos. */
-      { nombre: "Abismo", trazo: '<ellipse cx="12" cy="5.2" rx="9.2" ry="2.5"/><path d="M2.8 5.2c0 2.6 1 5 3 7.6 2 2.6 4 4.9 6.2 8.2 2.2-3.3 4.2-5.6 6.2-8.2 2-2.6 3-5 3-7.6"/><path d="M7.2 9.2c.5 1.9 1.4 3.5 2.6 5.1 1 1.4 1.6 2.5 2.2 3.6.6-1.1 1.2-2.2 2.2-3.6 1.2-1.6 2.1-3.2 2.6-5.1" fill="currentColor" stroke="none"/>',
-        linea: { texto: "Le fue dada la llave del pozo del abismo.", fuente: "Apocalipsis 9:1" } }
+      /* **Abadón**, y el quinto rango deja de ser un sitio para ser ALGUIEN.
+         Era «Abismo» y su dibujo —el brocal que se estrecha con el hueco
+         relleno— «parecía un paliacate de boca de vaquero», que es exactamente
+         lo que era. Cambiar el dibujo no bastaba: el problema venía del
+         concepto, porque un agujero no tiene silueta.
+
+         Abadón sí. Apocalipsis 9:11 le pone nombre al rey de las langostas del
+         pozo: «tienen por rey al ángel del abismo, cuyo nombre en hebreo es
+         Abadón, y en griego Apolión». Es un ser y no un lugar, y además cierra
+         mejor la escalera: de Legión —eres muchos— a Abadón —eres a quien esos
+         muchos responden—.
+
+         El dibujo es la corona sobre la masa oscura. La corona se lee a
+         cualquier tamaño y el relleno hace el resto; ninguna figura con cara
+         sobrevive a los 20 px a los que esto se pinta. */
+      { nombre: "Abadón", trazo: '<path d="M12 2.4l2.4 3.6 3-2.4-.8 4 3.8-.4-2.6 3.2H6.2L3.6 7.2l3.8.4-.8-4 3 2.4z"/><path d="M6.2 12.6h11.6v2.2c0 3.4-2.6 6-5.8 6.6-3.2-.6-5.8-3.2-5.8-6.6z" fill="currentColor" stroke="none"/>',
+        linea: { texto: "Su rey es el ángel del abismo, cuyo nombre es Abadón.", fuente: "Apocalipsis 9:11" } }
     ] },
   /* El nombre de éste está decidido; sus dibujos se hacen cuando se construya
      el mundo, con el resto de sus vectores. Escribirlo ahora sin dibujo no es
