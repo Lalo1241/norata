@@ -338,8 +338,17 @@ function renderProjects() {
        que reparte Talentos. */
     const claveMapa = 500 + (iRama++);
     const editandoMapa = enMapa && editandoRama(b, "proyectos");
+    /* `data-cota` es la cifra de la cota de Blueprint, y lleva LO MISMO que la
+       pastilla de la cuenta a propósito: la cota no añade un dato, se queda con
+       el que ya había. Repetir la misma cifra dos veces en la misma tarjeta la
+       abarata, así que el mundo que enciende la cota esconde la pastilla
+       (`css/mundos.css`). Inerte para los demás mundos y para la casa.
+
+       Y va aquí fuera y no dentro de la plantilla: este comentario lleva
+       backticks, y un backtick dentro de un template literal lo CIERRA. Con él
+       dentro, la app entera dejaba de arrancar. */
     html += `
-    <div class="branch-card" data-rid="${escapeAttr(b)}" style="padding-bottom:14px">
+    <div class="branch-card" data-rid="${escapeAttr(b)}" data-cota="${liveN} de ${list.length}" style="padding-bottom:14px">
       <div class="branch-head" style="margin-bottom:12px">
         <!-- Igual que en Talentos: el nombre se reescribe tocándolo -->
         <h3 class="renombrable" onclick="renombrarRamaProyectos('${enJS(b)}')" title="Toca el nombre para renombrar el proyecto">${escapeHtml(b)}${icon("pen", 11)}</h3>
@@ -1306,8 +1315,17 @@ function renderTree() {
         : `<div class="const-hint">Toca un nodo para abrirlo · arrástralo para acomodarlo · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno${atajosLegend(true)}</div>`}`;
     }
 
+    /* `data-cota` es la cifra de la cota de Blueprint, y lleva LO MISMO que la
+       pastilla de la cuenta a propósito: la cota no añade un dato, se queda con
+       el que ya había. Repetir la misma cifra dos veces en la misma tarjeta la
+       abarata, así que el mundo que enciende la cota esconde la pastilla
+       (`css/mundos.css`). Inerte para los demás mundos y para la casa.
+
+       Y va aquí fuera y no dentro de la plantilla: este comentario lleva
+       backticks, y un backtick dentro de un template literal lo CIERRA. Con él
+       dentro, la app entera dejaba de arrancar. */
     html += `
-    <div class="branch-card">
+    <div class="branch-card" data-cota="${doneN} de ${reales.length}">
       <div class="branch-head">
         <button class="badd solid" onclick="toggleBranch('${bj}')" aria-label="${collapsed ? "Desplegar" : "Plegar"} ${ba}" style="margin-right:2px">
           <svg viewBox="0 0 24 24"><path d="${collapsed ? "M9 6l6 6-6 6" : "M6 9l6 6 6-6"}"/></svg>

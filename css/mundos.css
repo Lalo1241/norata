@@ -195,6 +195,43 @@ html.claro[data-apariencia="plano"] {
   --borde-panel: #b5cde8;
 }
 
+/* La cota. El disparador es `data-cota` y no una clase: una cota existe
+   para medir algo, así que sin cifra no hay cota. Contado antes de
+   decidirlo: `.panel` sale nueve veces en Ajustes. */
+html[data-apariencia="plano"] [data-cota] {
+  position: relative;
+  padding-top: calc(26px + 12px);
+}
+html[data-apariencia="plano"] [data-cota]::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 26px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E %3Cpath d='M0 3.5l10-3.5v7z' fill='%239fd0ff'/%3E %3C/svg%3E") left 4px center/10px 7px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E %3Cpath d='M10 3.5L0 0v7z' fill='%239fd0ff'/%3E %3C/svg%3E") right 4px center/10px 7px no-repeat,linear-gradient(#9fd0ff,#9fd0ff) left 4px top 4px/1px 18px no-repeat,linear-gradient(#9fd0ff,#9fd0ff) right 4px top 4px/1px 18px no-repeat,linear-gradient(#9fd0ff,#9fd0ff) left 4px center/calc(100% - 8px) 1px no-repeat;
+  pointer-events: none;
+}
+html[data-apariencia="plano"] [data-cota]::after {
+  content: attr(data-cota);
+  position: absolute;
+  left: 50%; top: calc(26px / 2);
+  transform: translate(-50%, -50%);
+  padding: 0 7px;
+  background: var(--card);
+  font-family: var(--tipo-cifra);
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: .06em;
+  color: var(--mint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Y la pastilla de la cuenta se apaga en la pieza que lleva cota: la
+   cota NO añade un dato, se queda con el que ya había. Con las dos
+   puestas, «4 de 10» salía dos veces en la misma tarjeta. */
+html[data-apariencia="plano"] [data-cota] .branch-head .count { display: none; }
+
 html[data-apariencia="plano"] .scene-card,
 html[data-apariencia="plano"] .celebrate,
 html[data-apariencia="plano"] .ncel,
