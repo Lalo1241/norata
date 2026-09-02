@@ -76,6 +76,71 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.61 · 1 sep 2026
+
+**Los cinco rangos dejan de ser piezas de un grafo y pasan a ser oficios, y la
+celebración de subir de nivel deja de girar.**
+
+`EXP_RANGOS` era Nodo, Enlace, Rama, Trama y Red, y falla por tres motivos que
+conviene dejar escritos para que nadie los deshaga:
+
+1. **La app escribe «Ahora eres X»**, así que X tiene que ser algo que una
+   persona pueda SER. «Ahora eres Trama» no significa nada. Ésta es la regla
+   que manda al nombrar los rangos de cualquier mundo, y deja fuera igual los
+   estados de Averno y las etapas de Blueprint.
+2. **«Rama» ya estaba ocupada**: el lienzo de Talentos dice «Tus ramas» en
+   pantalla.
+3. Nombraban las piezas del dibujo, no a quien lo recorre.
+
+Ahora son **Andante, Rastreador, Explorador, Cartógrafo y Navegante**, y van
+**cada seis niveles** (1, 7, 13, 19, 25). Eso no es un número redondo, es el
+ritmo: con el reparto viejo el primer rango se cerraba en semana y media y el
+cuarto tardaba **11,6 meses** —medido con `EXP_PUNTOS` y la curva real, perfil
+de cuatro días por semana—. Cada seis da 5 semanas, 3 meses, 4,8, 6,6 y 8,4.
+
+Los peldaños de celebración de `EXP_ESCALERA` se mueven a 4, 10 y 16: donde
+estaban caían justo encima de un cambio de rango, y dos noticias en la misma
+pantalla se estorban.
+
+**Los cinco iconos, rehechos.** Son objetos de una expedición —bota, huella,
+farol, mapa y brújula— y no formas geométricas: una figura abstracta no se lee
+como «Andante», se lee como una raya. Dos cosas que hay que respetar al
+tocarlos:
+
+- **Un solo dibujo a cualquier tamaño.** Hubo una versión que se simplificaba
+  por debajo de 30 px y sobra: el aro de la insignia (18 px) y la lista de «Mi
+  expedición» (26) se ven A LA VEZ en la misma pantalla, así que el mismo
+  rango salía dibujado de dos maneras. Lo que no se lee a 18 px tampoco entra
+  en el de 78 — por eso la llama del farol va siempre y la brújula perdió el
+  aro interior y los cardinales.
+- **Ni un relleno.** `.ic svg` impone `fill: none` y le gana a cualquier
+  atributo, así que los cinco son solo trazo y no hubo que tocar el CSS.
+
+La brújula del Navegante no choca con `compass`, que ya existe y lo lleva
+«Noche de expedición»: aquélla es un aro con la aguja suelta, ésta tiene
+anilla. Y el mapa no choca con `map`, que es el plegado en tres paneles.
+
+**Y las dos escenas dejan de girar.** Los rayos de `.ncel` y `.scel` eran
+`repeating-conic-gradient` en `infinite` — el recurso de la tragamonedas, y
+las únicas animaciones sin final de toda la app. Lo que las sustituye:
+
+- **Subir de nivel: la constelación del rango.** Seis estrellas, una por
+  nivel, y la sexta cierra la figura justo al cambiar de rango. Las cerradas
+  se quedan de medallas arriba: esa fila es la colección. Al estrenar rango,
+  la figura anterior se cierra a la vista y se va al estante antes de que nazca
+  la nueva, y el texto espera a que termine ese relevo (clase `estrena`).
+- **Hito de racha: la brasa.** El fuego se queda, que ahí sí significa algo,
+  pero el humo sube UNA vez y las chispas pasan de estallar en abanico desde
+  el centro a subir como pavesas desde el borde. Dos fiestas distintas tienen
+  que moverse distinto.
+
+Con esto **no queda ninguna animación `infinite` en las celebraciones**: la
+llama de la racha late cuatro veces y para, y la insignia de nivel dos.
+
+**Lo que hay que revisar y no se toca aquí:** el catálogo `AMBIENTES` abre en
+los niveles 3, 5, 7, 12 y 20, y el 7 cae ahora encima del rango Rastreador.
+Ese archivo es de otra sesión.
+
 ### 0.7.60 · 1 sep 2026
 **La cota de Blueprint cruza a la app, y el disparador no es una clase: es la
 cifra.**

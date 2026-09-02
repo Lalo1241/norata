@@ -1343,18 +1343,30 @@
     overflow: hidden;
   }
   .scel.show { display: flex; }
+  /* ---------- El humo de la brasa ----------
+     Ocupa el sitio de los rayos giratorios, y por el mismo motivo que en la
+     escena de nivel: giraban para siempre. Aquí el fuego sí significa algo
+     —son los días seguidos—, así que se queda; lo que cambia es que el humo
+     sube UNA vez y se asienta. */
   .scel-rays {
-    position: absolute;
-    width: 150vmax; height: 150vmax;
-    background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--fire-macizo) 13%, transparent) 0deg 7deg, transparent 7deg 20deg);
-    animation: scelSpin 24s linear infinite;
+    position: absolute; left: 50%; bottom: 0;
+    width: 120vmin; height: 110vmin; margin-left: -60vmin;
+    background: radial-gradient(ellipse 50% 60% at 50% 100%,
+      color-mix(in srgb, var(--fire-macizo) 16%, transparent), transparent 70%);
+    animation: scelHumo 3.4s ease-out forwards;
     pointer-events: none;
   }
-  @keyframes scelSpin { to { transform: rotate(360deg); } }
+  @keyframes scelHumo {
+    0%   { transform: translateY(14vmin); opacity: 0; }
+    40%  { opacity: 1; }
+    100% { transform: translateY(-4vmin); opacity: .5; }
+  }
   .scel-core { position: relative; text-align: center; padding: 24px; }
   .scel-flame { color: var(--fire); filter: drop-shadow(0 0 26px color-mix(in srgb, var(--fire-macizo) 75%, transparent)); }
   .scel-flame svg { width: 96px; height: 96px; stroke: currentColor; fill: color-mix(in srgb, var(--fire-macizo) 22%, transparent); stroke-width: 1.4; stroke-linejoin: round; }
-  .scel.show .scel-flame { animation: scelFlame 1.5s ease-in-out infinite; }
+  /* Cuatro latidos y para: seis segundos, que es de sobra para leer la
+     escena. En infinito era la última animación sin final de toda la app. */
+  .scel.show .scel-flame { animation: scelFlame 1.5s ease-in-out 4; }
   @keyframes scelFlame {
     0%, 100% { transform: scale(1) rotate(-1.5deg); }
     50% { transform: scale(1.07) rotate(1.5deg); }
@@ -1387,16 +1399,20 @@
   .scel-sparks { position: absolute; inset: 0; pointer-events: none; }
   .scel-sparks i {
     position: absolute;
-    top: 50%; left: 50%;
-    width: 9px; height: 9px;
+    bottom: -12px;
+    width: 7px; height: 7px;
     border-radius: var(--r-redondo);
     background: var(--fire);
     opacity: 0;
   }
-  .scel.show .scel-sparks i { animation: scelSpark 1.5s ease-out backwards; }
-  @keyframes scelSpark {
-    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
-    100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity: 0; }
+  .scel.show .scel-sparks i { animation: scelPavesa var(--t, 2.2s) ease-out backwards; }
+  /* Pavesas, no confeti: suben desde abajo y se apagan. Un abanico que
+     estalla desde el centro es el mismo gesto que la escena de nivel, y dos
+     fiestas distintas tienen que moverse distinto. */
+  @keyframes scelPavesa {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0; }
+    12%  { opacity: .95; }
+    100% { transform: translate(var(--dx), calc(-1 * var(--h))) scale(.25); opacity: 0; }
   }
   @media (prefers-reduced-motion: reduce) {
     .scel-rays, .scel.show .scel-flame, .scel.show .scel-num,
@@ -1489,18 +1505,48 @@
     overflow: hidden;
   }
   .ncel.show { display: flex; }
-  .ncel-rayos {
-    position: absolute;
-    width: 150vmax; height: 150vmax;
-    background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--mint) 13%, transparent) 0deg 7deg, transparent 7deg 20deg);
-    animation: ncelGiro 26s linear infinite;
-    pointer-events: none;
+  /* ---------- El cielo y la constelación ----------
+     Sustituyen a los rayos giratorios. El motivo, medido: eran las únicas
+     animaciones `infinite` de toda la app, y algo que gira sin final es
+     decoración de fondo y no un acontecimiento. */
+  .ncel-cielo, .ncel-mapa {
+    position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
   }
-  @keyframes ncelGiro { to { transform: rotate(360deg); } }
+  .ncel-cielo circle { fill: #cfe6ff; }
+  .ncel-linea { stroke: var(--mint); fill: none; opacity: .45; }
+  .ncel-linea.nueva { animation: ncelTrazar .55s cubic-bezier(.4,0,.2,1) .45s backwards; }
+  @keyframes ncelTrazar { from { stroke-dashoffset: var(--l); } to { stroke-dashoffset: 0; } }
+  .ncel-astro { fill: var(--mint); opacity: .9; }
+  .ncel-nueva { fill: #fff; animation: ncelNace .9s ease-out .95s backwards; transform-origin: center; }
+  @keyframes ncelNace {
+    0%   { opacity: 0; transform: scale(0); }
+    45%  { opacity: 1; transform: scale(2.1); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  .ncel-brillo { fill: var(--mint); animation: ncelHalo 1.6s ease-out 1s backwards; transform-origin: center; }
+  @keyframes ncelHalo { 0% { opacity: .75; transform: scale(.2); } 100% { opacity: 0; transform: scale(4); } }
+
+  /* Cerrar la figura es la noticia del cambio de rango: el dibujo respira una
+     vez, se apaga y se va al estante de arriba. */
+  .ncel-viva.cerrando { animation: ncelCierra 1.5s cubic-bezier(.4,0,.2,1) 1.5s forwards; transform-origin: 50% 33%; }
+  @keyframes ncelCierra {
+    0%   { opacity: 1; transform: scale(1); }
+    22%  { opacity: 1; transform: scale(1.07); }
+    100% { opacity: 0; transform: scale(.35) translateY(-34px); }
+  }
+  .ncel-naciendo { animation: ncelNaceFig .9s ease 2.7s backwards; transform-origin: 50% 33%; }
+  @keyframes ncelNaceFig { from { opacity: 0; transform: scale(.7); } }
+
+  .ncel-estante .ncel-med-linea { stroke: var(--mint); fill: none; opacity: .3; }
+  .ncel-estante .ncel-med-astro { fill: var(--mint); opacity: .5; }
+  .ncel-estante .ncel-med-nueva { animation: ncelMedalla .7s ease 2.6s backwards; }
+  @keyframes ncelMedalla { from { opacity: 0; } }
   .ncel-core { position: relative; text-align: center; padding: 24px; max-width: 340px; width: 100%; }
   .ncel-insignia { color: var(--mint); filter: drop-shadow(0 0 28px color-mix(in srgb, var(--mint) 70%, transparent)); }
   .ncel-insignia svg { width: 78px; height: 78px; stroke-width: 1.5; }
-  .ncel.show .ncel-insignia { animation: ncelLatido 1.8s ease-in-out infinite; }
+  /* Dos latidos y para. En infinito, la insignia competía con la constelación
+     que se está tejiendo detrás, que es lo que hay que mirar. */
+  .ncel.show .ncel-insignia { animation: ncelLatido 1.8s ease-in-out 2; }
   @keyframes ncelLatido {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.06); }
@@ -1543,27 +1589,22 @@
   .ncel.show .ncel-abre, .ncel.show .ncel-pies {
     animation: ncelSube 0.5s ease 0.3s backwards;
   }
+  /* Cuando el nivel estrena rango, el número y el texto esperan a que la
+     figura anterior se haya ido: si salen antes, la noticia gorda pasa
+     desapercibida debajo de un relevo que todavía se está moviendo. */
+  .ncel.estrena.show .ncel-num { animation-delay: 3s; }
+  .ncel.estrena.show .ncel-unit, .ncel.estrena.show .ncel-rango,
+  .ncel.estrena.show .ncel-abre, .ncel.estrena.show .ncel-pies { animation-delay: 3.1s; }
   @keyframes ncelSube { from { transform: translateY(12px); opacity: 0; } }
-  .ncel-chispas { position: absolute; inset: 0; pointer-events: none; }
-  .ncel-chispas i {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 9px; height: 9px;
-    border-radius: var(--r-redondo);
-    background: var(--mint);
-    opacity: 0;
-  }
-  .ncel.show .ncel-chispas i { animation: ncelChispa 1.6s ease-out backwards; }
-  @keyframes ncelChispa {
-    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
-    100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity: 0; }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .ncel-rayos, .ncel.show .ncel-insignia, .ncel.show .ncel-num,
+    .ncel.show .ncel-insignia, .ncel.show .ncel-num,
     .ncel.show .ncel-unit, .ncel.show .ncel-rango,
     .ncel.show .ncel-abre, .ncel.show .ncel-pies,
-    .ncel.show .ncel-chispas i { animation: none; }
-    .ncel-chispas { display: none; }
+    .ncel-linea, .ncel-nueva, .ncel-naciendo, .ncel-med-nueva { animation: none; }
+    /* Quien pidió menos movimiento ve la constelación puesta, no tejiéndose:
+       la figura que se retira desaparece y el trazo sale entero. */
+    .ncel-brillo, .ncel-viva.cerrando { display: none; }
+    .ncel-linea { stroke-dashoffset: 0 !important; }
   }
 
   /* ---------- Resumen: tarjetas ---------- */
