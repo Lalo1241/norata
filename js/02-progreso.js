@@ -158,6 +158,44 @@ function ncelPintarMapa(nivel) {
   document.getElementById("ncel").classList.toggle("estrena", nuevoRango);
 }
 
+/* ---- El ambiente, puesto antes de anunciarlo ----
+   Lo pide `apariencias/LEEME.md`: «la celebración al desbloquear un ambiente,
+   con el ambiente ya puesto». Y tiene sentido — un color que se anuncia con
+   su nombre no dice nada; puesto, se ve.
+
+   Va en `soloVista`, que es la puerta que ya deja abierta `ponerApariencia`:
+   cambia el aspecto sin guardarlo. Si la persona dice «Ahora no» o cierra, la
+   app vuelve a lo que llevaba. Sin eso sería quedarse un ambiente por no
+   haber pulsado nada, que es justo lo contrario de «se avisa, no se hace en
+   silencio». */
+let ncelAmbientePrevio = null;
+
+function ncelPreverAmbiente(premios) {
+  ncelAmbientePrevio = null;
+  if (typeof ponerApariencia !== "function" || typeof apariencia !== "function") return;
+  const amb = premios.filter(x => x.tipo === "ambiente" && x.id)[0];
+  if (!amb) return;
+  /* Uno que pide Pro y no se tiene NO se pone: enseñar puesto lo que no puede
+     quedarse es prometer y quitar en la misma pantalla. */
+  if (typeof aparienciaDisponible === "function" && aparienciaDisponible(amb.id) !== true) return;
+  const antes = apariencia();
+  if (antes === amb.id) return;
+  if (ponerApariencia(amb.id, { soloVista: true })) ncelAmbientePrevio = antes;
+}
+
+/* Al pulsar el botón que lleva a Mi apariencia, lo puesto se queda puesto. */
+function ncelQuedarseAmbiente() {
+  if (ncelAmbientePrevio === null) return;
+  if (typeof ponerApariencia === "function") ponerApariencia(apariencia());
+  ncelAmbientePrevio = null;
+}
+
+function ncelDevolverAmbiente() {
+  if (ncelAmbientePrevio === null) return;
+  if (typeof ponerApariencia === "function") ponerApariencia(ncelAmbientePrevio, { soloVista: true });
+  ncelAmbientePrevio = null;
+}
+
 let ncelTimer = null;
 
 function celebrarNivel(nivel, abre) {
@@ -202,13 +240,14 @@ function celebrarNivel(nivel, abre) {
   const pies = document.getElementById("ncel-pies");
   const aAmbiente = premios.some(x => x.tipo === "ambiente");
   pies.innerHTML = hayVentana
-    ? `<button class="btn btn-primary btn-block" onclick="cerrarNivelCel(); ${aAmbiente ? "abrirApariencia()" : "abrirColeccion('summary')"}">${aAmbiente ? "Ver Mi apariencia" : "Ver Mi expedición"}</button>
+    ? `<button class="btn btn-primary btn-block" onclick="${aAmbiente ? "ncelQuedarseAmbiente(); " : ""}cerrarNivelCel(); ${aAmbiente ? "abrirApariencia()" : "abrirColeccion('summary')"}">${aAmbiente ? "Ver Mi apariencia" : "Ver Mi expedición"}</button>
        <button class="btn btn-ghost btn-block" onclick="cerrarNivelCel()">Ahora no</button>`
     : `<button class="btn btn-primary btn-block" onclick="cerrarNivelCel()">Seguir</button>`;
 
   /* La clase decide las dos diferencias de comportamiento en un solo sitio:
      con `abierta` no hay cierre por tocar fuera ni cuenta atrás. */
   el.classList.toggle("abierta", hayVentana);
+  ncelPreverAmbiente(premios);
   ncelPintarMapa(nivel);
   el.classList.remove("show");
   void el.offsetWidth;                 // reiniciar las animaciones
@@ -225,6 +264,7 @@ function celebrarNivel(nivel, abre) {
 
 function cerrarNivelCel() {
   clearTimeout(ncelTimer);
+  ncelDevolverAmbiente();
   const el = document.getElementById("ncel");
   if (el) el.classList.remove("show");
 }
