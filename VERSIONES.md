@@ -76,6 +76,46 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.72.2 · 2 sep 2026
+**El suelo de donde salen nodos, más claro en el modo claro de la casa.**
+
+Las ramas de talentos y las de proyectos puestas en «Verlo como mapa» son la
+misma clase de pantalla —un lienzo con nodos encima— y salían con dos grises
+distintos según por dónde entrabas. Ahora las dos van en `#e7e9f4`, que eligió
+Eduardo.
+
+**Se apunta a «la tarjeta que TIENE un lienzo dentro»** (`:has(.const-wrap)`) y
+no a `.branch-card` a secas, y esa es toda la precisión que hacía falta: en
+Proyectos el lienzo solo se dibuja en modo mapa, así que la misma regla deja la
+vista de lista como estaba **sin una clase nueva y sin tocar el JavaScript**. Una
+rama de talentos plegada tampoco lo pinta —dibuja `.branch-collapsed`—, y ahí
+tampoco hay ningún nodo que apoyar.
+
+**El alcance, que es lo que se pidió expresamente:** solo el modo claro y solo la
+casa — el mundo que en el código se llama «Noche de expedición». Un mundo o un
+ambiente ponen `data-apariencia` en `<html>` y con eso quedan fuera por
+construcción, cada uno con el suelo que declaró. De noche la regla no existe.
+
+**No se toca `--sup-hondo` global**, y por eso: ese suelo lo comparten dos cosas
+que NO son mapas —las columnas del tablero de Misiones y el marco del
+previsualizador de mundos—. Tocarlo ahí cambiaría tres pantallas para arreglar
+dos. Va en una variable propia, `--lienzo-suelo`.
+
+**Medido, no mirado.** Talentos y el mapa de Proyectos en claro+casa dan
+`rgb(231,233,244)`; la rama de Proyectos en vista de lista se queda en
+`rgb(211,213,232)`, y las columnas del tablero también. Comprobado que la regla
+no alcanza ni a `.col-mis` ni a `.ms-card` —`matches()` da `false` en las dos— y
+que `--sup-hondo` global sigue en `#d3d5e8`. Por apariencia: oscuro+casa
+`22,28,38`; claro+tinta `215,216,221`; claro+reliquia `205,197,222`;
+claro+averno `217,210,204`; oscuro+reliquia `13,9,22`. **Solo cambió
+claro+casa.**
+
+**Y una regla de la casa que ahora tiene excepción**, anotada en `CLAUDE.md`: el
+suelo hondo iba «de día un pelo más oscuro» que la página. Este es más claro. No
+rompe lo que esa regla pide —que se SEPAREN—, porque separa igual: **1,10 contra
+el 1,07 de antes**. Y deja una escala de tres peldaños que antes no existía:
+página `#dcdef0` → lienzo `#e7e9f4` → tarjeta `#f2f0f9`.
+
 ### 0.7.72.1 · 2 sep 2026
 
 **Fundador vuelve al lila, y «Predeterminado» deja de estorbar en el teléfono.**
