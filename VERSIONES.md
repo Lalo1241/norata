@@ -76,7 +76,7 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
-### 0.7.67 · 2 sep 2026
+### 0.7.68 · 2 sep 2026
 
 **Mi expedición se rehace entera: el cielo sube a la pantalla y se mueve, los
 rangos dejan de decir «Pasado», la barra del nivel se enciende y la letra chica
@@ -195,6 +195,32 @@ es. Se enciende con un segundo argumento.
 los cinco rangos siempre están, las tres fugaces se siembran siempre y no
 desborda de lado en ninguno. En los dos modos, con paralaje medido en las tres
 capas y su vuelta al centro, y a 320×480 sin cortar un solo rótulo.
+### 0.7.67 · 1 sep 2026
+
+**Un rango se consigue al cerrar su constelación, no al estrenarla.**
+
+Lo paró Eduardo mirando los textos: la escena decía «Ahora eres Rastreador» el
+día que se enciende su PRIMERA estrella, cuando lo que hay ahí es un dibujo por
+hacer. Empezar y conseguir son dos momentos y ahora se dicen distinto:
+
+| Cuándo | Qué dice |
+| --- | --- |
+| El primero del tramo | Empiezas a trazar **Rastreador** |
+| Los de en medio | Alcanzaste el nivel 9 de tu expedición |
+| El sexto, que la cierra | Rango **Rastreador** conseguido |
+
+Y arrastra tres cosas más, que son las que hacen que el cambio sea de verdad y
+no de rótulo:
+
+- **`EXP_ESCALERA` anuncia los rangos donde se ganan**, en 6, 12, 18, 24 y 30
+  y no en 1, 7, 13, 19 y 25. Con lo de antes, la tarjeta del Resumen prometía
+  «Rango Rastreador» para el nivel 7 — el nivel en que ese rango empieza a
+  dibujarse. Los peldaños de celebración se corren a los huecos: 3, 9 y 15.
+- **El emparejado de `escaleraDeExpedicion()` va por el nivel donde se
+  consigue** (`desde + EXP_POR_RANGO - 1`) y no por `desde`, para que un mundo
+  con sus propios nombres siga cuadrando.
+- **La cita del rango sale al conseguirlo.** La añadió otra sesión colgada de
+  «estrenar»; puesta ahí coronaba un nombre que aún no era tuyo.
 
 ### 0.7.66 · 2 sep 2026
 **Averno: el banner deja de tener un hueco de 200 px, y el modo claro se limpia.**

@@ -252,17 +252,19 @@ function celebrarNivel(nivel, abre) {
     ? (r.trazo && typeof svgDeTrazo === "function" ? svgDeTrazo(r.trazo, 78) : icon(r.icon, 78))
     : icon("compass", 78);
 
-  /* El renglón dice lo que ACABA de pasar, no un rótulo. «Rango Andante» era
-     una etiqueta: cierta siempre, y por eso no era noticia en ninguno de los
-     seis niveles. Ahora hay tres frases y cada una solo vale en su momento. */
+  /* El renglón dice lo que ACABA de pasar, no un rótulo. Y **un rango se
+     consigue al CERRAR su constelación, no al empezarla**: lo paró Eduardo
+     porque las frases decían «ahora eres Rastreador» el día que se enciende su
+     primera estrella, cuando lo que hay ahí es un dibujo por hacer. Empezar y
+     conseguir son dos momentos distintos y ahora se dicen distinto. */
   const rango = document.getElementById("ncel-rango");
-  const traeRango = abre.some(x => x.tipo === "rango");
-  const cierraRango = typeof ncelCierra === "function" && ncelCierra(nivel) && !traeRango;
+  const estrena = typeof ncelEstrella === "function" && ncelEstrella(nivel) === 1;
+  const cierraRango = typeof ncelCierra === "function" && ncelCierra(nivel);
   rango.innerHTML = !r ? `Alcanzaste el nivel ${nivel} de tu expedición`
-    : traeRango   ? `Ahora eres <b>${escapeHtml(r.nombre)}</b>`
-    : cierraRango ? `Rango <b>${escapeHtml(r.nombre)}</b> completado`
+    : cierraRango ? `Rango <b>${escapeHtml(r.nombre)}</b> conseguido`
+    : estrena     ? `Empiezas a trazar <b>${escapeHtml(r.nombre)}</b>`
     : `Alcanzaste el nivel ${nivel} de tu expedición`;
-  rango.classList.toggle("nuevo", traeRango || cierraRango);
+  rango.classList.toggle("nuevo", cierraRango);
 
   /* La LÍNEA del rango, y solo al estrenarlo. Es un campo de un rango
      cualquiera y no una cosa de Averno: la casa no trae ninguna, Averno trae
@@ -270,16 +272,18 @@ function celebrarNivel(nivel, abre) {
      la escribe y ya. Por eso se lee de `r.linea` y no hay ningún `if` con el
      nombre de un mundo dentro.
 
-     Va solo cuando `traeRango`, que pasa cinco veces en toda la vida de una
-     cuenta —niveles 1, 4, 10, 18 y 28—. Puesta en cada subida de nivel sería
-     un adorno que se ve cuarenta veces; puesta aquí es lo que le da sentido al
-     nombre que se acaba de estrenar.
+     Va solo al CONSEGUIR el rango, que pasa cinco veces en toda la vida de una
+     cuenta —niveles 6, 12, 18, 24 y 30, el sexto de cada tramo—. Puesta en
+     cada subida de nivel sería un adorno que se ve cuarenta veces; puesta aquí
+     es lo que corona el nombre que se acaba de ganar.
 
      La referencia va en su propio `<cite>` y no pegada al final de la frase:
      una cita tiene que verse citada, o parece que la escribió la app. */
   const cita = document.getElementById("ncel-cita");
   if (cita) {
-    cita.innerHTML = (traeRango && r && r.linea)
+    /* Con `cierraRango` y no al estrenarlo: la cita corona el momento en que
+       el rango se consigue, que es cuando la constelación queda cerrada. */
+    cita.innerHTML = (cierraRango && r && r.linea)
       ? `${escapeHtml(r.linea.texto)}<cite>${escapeHtml(r.linea.fuente)}</cite>`
       : "";
   }
