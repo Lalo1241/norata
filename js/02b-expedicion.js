@@ -128,7 +128,22 @@ const EXP_ESCALERA = [
    catálogo abría Adobe en el 7. Dos verdades sobre lo mismo, que es justo lo
    que un peldaño no puede tener. */
 function escaleraDeExpedicion() {
-  const filas = EXP_ESCALERA.slice();
+  /* Los nombres de los peldaños de RANGO se vuelven a escribir con los del
+     mundo puesto, por el mismo motivo por el que se juntan aquí los ambientes:
+     arriba están escritos a mano —«Rango Rama»— y con un mundo encima eso era
+     una tercera verdad sobre lo mismo. Se veía en la tarjeta del Resumen, que
+     con Blueprint puesto anunciaba «A 3 niveles · Rango Rama» debajo de una
+     insignia que decía Dibujante.
+
+     Se emparejan por NIVEL y no por posición: es lo único que un mundo no
+     mueve, y así la fila sigue cuadrando aunque mañana se meta un peldaño
+     nuevo en medio. */
+  const propios = typeof rangosVigentes === "function" ? rangosVigentes() : null;
+  const filas = EXP_ESCALERA.map(f => {
+    if (f.tipo !== "rango" || !propios) return f;
+    const r = propios.filter(x => x.desde === f.nivel)[0];
+    return r ? Object.assign({}, f, { nombre: "Rango " + r.nombre }) : f;
+  });
   if (typeof AMBIENTES !== "undefined") {
     for (const a of AMBIENTES) {
       if (!a.abre) continue;
