@@ -169,19 +169,23 @@ const EXP_RANGOS = [
 
    El día que un ambiente esté puesto, se le pone `listo: true` y aparece. Es
    una palabra por fila y no hay nada más que tocar. */
-/* Los peldaños de celebración se mueven con los rangos: al pasar éstos a cada
-   seis niveles, dejarlos en 3, 6 y 15 los ponía justo encima de un cambio de
-   rango, y dos noticias en la misma pantalla se estorban. Ahora caen en los
-   huecos: 4, 10 y 16. */
+/* **Un rango se anuncia donde se CONSIGUE: al cerrar su constelación.**
+   Estaban en 1, 7, 13, 19 y 25 —el primer nivel de cada tramo— y con eso la
+   tarjeta del Resumen prometía «Rango Rastreador» para el nivel 7, cuando en
+   el 7 lo que empieza es el dibujo. Lo paró Eduardo, y tiene razón: el rango
+   se gana al rellenar la constelación, no al estrenarla.
+
+   Los peldaños de celebración caen en los huecos que quedan: encima de un
+   cambio de rango serían dos noticias en la misma pantalla. */
 const EXP_ESCALERA = [
-  { nivel: 1,  tipo: "rango",       nombre: "Rango Andante", listo: true },
-  { nivel: 4,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión" },
-  { nivel: 7,  tipo: "rango",       nombre: "Rango Rastreador", listo: true },
-  { nivel: 10, tipo: "celebracion", nombre: "Escena nueva de racha" },
-  { nivel: 13, tipo: "rango",       nombre: "Rango Explorador", listo: true },
-  { nivel: 16, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true },
-  { nivel: 19, tipo: "rango",       nombre: "Rango Cartógrafo", listo: true },
-  { nivel: 25, tipo: "rango",       nombre: "Rango Navegante", listo: true }
+  { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión" },
+  { nivel: 6,  tipo: "rango",       nombre: "Rango Andante", listo: true },
+  { nivel: 9,  tipo: "celebracion", nombre: "Escena nueva de racha" },
+  { nivel: 12, tipo: "rango",       nombre: "Rango Rastreador", listo: true },
+  { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true },
+  { nivel: 18, tipo: "rango",       nombre: "Rango Explorador", listo: true },
+  { nivel: 24, tipo: "rango",       nombre: "Rango Cartógrafo", listo: true },
+  { nivel: 30, tipo: "rango",       nombre: "Rango Navegante", listo: true }
 ];
 
 /* Los ambientes ya NO se escriben aquí, y esta es la línea que lo pedía arriba:
@@ -207,7 +211,9 @@ function escaleraDeExpedicion() {
   const propios = typeof rangosVigentes === "function" ? rangosVigentes() : null;
   const filas = EXP_ESCALERA.map(f => {
     if (f.tipo !== "rango" || !propios) return f;
-    const r = propios.filter(x => x.desde === f.nivel)[0];
+    /* Se empareja por el nivel donde el rango se CONSIGUE —el sexto de su
+       tramo— y no por `desde`, que es donde empieza a dibujarse. */
+    const r = propios.filter(x => x.desde + EXP_POR_RANGO - 1 === f.nivel)[0];
     return r ? Object.assign({}, f, { nombre: "Rango " + r.nombre }) : f;
   });
   if (typeof AMBIENTES !== "undefined") {
@@ -572,10 +578,35 @@ const EXP_ESTANTE = { esc: 0.3, y: 28, paso: 44, sw: 0.66, r: 1.15 };
    colección ES la pantalla, así que ocupa el centro y crece. */
 const EXP_VITRINA = { esc: 0.46, y: 70, paso: 60, sw: 0.9, r: 1.7 };
 
+/* DÓNDE está la figura: en el altar o en el estante. Se pasa al estante en
+   cuanto empieza la siguiente, no antes: el nivel que la cierra todavía es
+   suyo y es cuando más merece estar en grande. */
 function expEstadoRango(r, nivel) {
   if (nivel >= r.desde + EXP_POR_RANGO) return "cerrada";
   if (nivel >= r.desde) return "viva";
   return "porvenir";
+}
+
+/* Y si ya lo TIENES, que es otra pregunta. **Un rango se consigue al cerrar su
+   constelación, no al estrenarla** —lo paró Eduardo en la 0.7.67— así que se
+   gana en el sexto nivel de su tramo: 6, 12, 18, 24 y 30.
+
+   Son dos predicados y no uno a propósito. En el nivel que lo cierra las dos
+   respuestas son distintas y las dos son ciertas: la figura sigue en el altar
+   porque es la que estás mirando, y el rango ya es tuyo porque acabas de
+   rellenarla. Con un solo predicado, o la pantalla decía «Aquí estás» el día
+   que la celebración cantaba «conseguido», o la figura se iba al estante en
+   cuanto la terminas y el altar se quedaba vacío justo en su mejor momento. */
+function expConseguido(r, nivel) {
+  return nivel >= r.desde + EXP_POR_RANGO - 1;
+}
+
+/* El nivel en el que se consigue, que es el que hay que escribirle a un rango
+   que aún no tienes. Antes decía `desde` —dónde EMPIEZA a dibujarse— y eso
+   dejaba dos números para lo mismo: la escalera anunciaba «Rango Rastreador»
+   en el 12 y esta lista ponía «Nivel 7» debajo del mismo nombre. */
+function expNivelDeRango(r) {
+  return r.desde + EXP_POR_RANGO - 1;
 }
 
 /* En cuál de los seis niveles del rango estás. */
@@ -694,7 +725,7 @@ function expCieloHTML(nivel) {
     const fig = NCEL_FIGURAS[rangos.indexOf(viva)];
     const k = expEscalonDe(viva, nivel);
     altar = '<g class="exp-const viva" style="--c:var(' + viva.color + ')">' +
-      '<title>' + escapeHtml(viva.nombre) + ' · nivel ' + k + ' de ' + EXP_POR_RANGO + '</title>' +
+      '<title>' + escapeHtml(viva.nombre) + (k >= EXP_POR_RANGO ? ' · conseguido' : ' · nivel ' + k + ' de ' + EXP_POR_RANGO) + '</title>' +
       expFiguraHTML(fig, ncelHasta(fig, k), EXP_ALTAR.cx, EXP_ALTAR.cy, EXP_ALTAR, true) + '</g>';
   }
 
@@ -753,7 +784,12 @@ function expLecturaCielo(nivel) {
   const rangos = rangosVigentes();
   const viva = rangos.filter(r => expEstadoRango(r, nivel) === "viva")[0];
   if (!viva) return "Cielo completo · las cinco constelaciones";
-  return escapeHtml(viva.nombre) + " · nivel " + expEscalonDe(viva, nivel) + " de " + EXP_POR_RANGO;
+  const k = expEscalonDe(viva, nivel);
+  /* En el sexto la frase cambia porque el momento cambia: la figura quedó
+     cerrada y el rango ya es tuyo. Decir «nivel 6 de 6» ahí sería contar el
+     avance de algo que ya terminó. */
+  if (k >= EXP_POR_RANGO) return escapeHtml(viva.nombre) + " · conseguido";
+  return escapeHtml(viva.nombre) + " · nivel " + k + " de " + EXP_POR_RANGO;
 }
 
 /* ================= La colección =================
@@ -878,7 +914,7 @@ function renderColeccion() {
 
     <div class="panel">
       <h3>Tus rangos</h3>
-      <p class="settings-note">Cinco en toda la vida de una cuenta. Cada uno son seis niveles, y cada nivel avanza un tramo de su constelación. Se celebran la primera vez que llegas y se quedan puestos.</p>
+      <p class="settings-note">Cinco en toda la vida de una cuenta. Cada uno son seis niveles, y cada nivel avanza un tramo de su constelación. El rango se consigue al cerrarla, y se queda puesto.</p>
       <div class="col-rangos">
         ${/* `rangosVigentes()` y no `EXP_RANGOS` a secas: con un mundo puesto,
              la insignia de arriba decía el rango del mundo —Arquitecto— y esta
@@ -888,17 +924,17 @@ function renderColeccion() {
              mueve. */
           rangosVigentes().map(r => {
           const estado = expEstadoRango(r, nivel);
-          const hecho = estado !== "porvenir";
-          const hasta = r.desde + EXP_POR_RANGO - 1;
+          const tuyo = expConseguido(r, nivel);
+          const hasta = expNivelDeRango(r);
           return `<div class="col-rango-uno ${estado}" style="--c:var(${r.color})">
             <span class="crx-disco">${r.trazo ? svgDeTrazo(r.trazo, 22) : icon(r.icon, 22)}</span>
             <div class="crx-tx">
               <div class="crx-cab">
                 <b>${escapeHtml(r.nombre)}</b>
                 <span class="crx-estado">${
-                  estado === "viva" ? "Aquí estás"
-                  : hecho ? icon("check", 13) + "Conseguido"
-                  : "Nivel " + r.desde}</span>
+                  tuyo ? icon("check", 13) + "Conseguido"
+                  : estado === "viva" ? "Aquí estás"
+                  : "Nivel " + hasta}</span>
               </div>
               <span class="crx-nota">${escapeHtml(r.nota || ("Niveles " + r.desde + " a " + hasta + "."))}</span>
             </div>
