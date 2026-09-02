@@ -81,27 +81,27 @@
 /* ---------- Blueprint · Nada está terminado ---------- */
 /* El plano azul de toda la vida: retícula de dos pesos, cotas con puntas de flecha y marcas de sección. Aquí la tarjeta no es una tarjeta: es una PIEZA ACOTADA, con su línea de medida cruzando por encima y el hueco donde iría la cifra. Dice algo que ningún otro mundo dice — que lo tuyo todavía se está construyendo. */
 html:not(.claro)[data-apariencia="plano"] {
-  --bg: #0d2b52;
-  --bg2: #092242;
-  --card: #071c37;
-  --card2: #0c213d;
-  --flotante: #071c37;
-  --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E %3Cg stroke='%237fb4e8' fill='none'%3E %3Cg stroke-width='.5' opacity='0.135'%3E %3Cpath d='M8 0v80M16 0v80M24 0v80M32 0v80M48 0v80M56 0v80M64 0v80M72 0v80'/%3E %3Cpath d='M0 8h80M0 16h80M0 24h80M0 32h80M0 48h80M0 56h80M0 64h80M0 72h80'/%3E %3C/g%3E %3Cg stroke-width='.9' opacity='0.26'%3E%3Cpath d='M40 0v80M0 40h80M0 0h80M0 0v80'/%3E%3C/g%3E %3Cg stroke-width='1.1' opacity='0.39'%3E%3Cpath d='M36 40h8M40 36v8M-4 0h8M0 -4v8'/%3E%3C/g%3E %3C/g%3E %3C/svg%3E"), #0d2b52;
-  --fondo-pagina: #0d2b52;
-  --fondo-raiz: #0d2b52;
+  --bg: #080d14;
+  --bg2: #0e1824;
+  --card: #12202f;
+  --card2: #172535;
+  --flotante: #12202f;
+  --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E %3Cg stroke='%237fb4e8' fill='none'%3E %3Cg stroke-width='.5' opacity='0.156'%3E %3Cpath d='M8 0v80M16 0v80M24 0v80M32 0v80M48 0v80M56 0v80M64 0v80M72 0v80'/%3E %3Cpath d='M0 8h80M0 16h80M0 24h80M0 32h80M0 48h80M0 56h80M0 64h80M0 72h80'/%3E %3C/g%3E %3Cg stroke-width='.9' opacity='0.272'%3E%3Cpath d='M40 0v80M0 40h80M0 0h80M0 0v80'/%3E%3C/g%3E %3Cg stroke-width='1.1' opacity='0.374'%3E%3Cpath d='M36 40h8M40 36v8M-4 0h8M0 -4v8'/%3E%3C/g%3E %3C/g%3E %3C/svg%3E"), #080d14;
+  --fondo-pagina: #080d14;
+  --fondo-raiz: #080d14;
   --orbe-1: rgba(159, 208, 255, 0.18);
   --orbe-2: rgba(255, 217, 138, 0.13);
   --orbe-3: rgba(159, 208, 255, 0.10);
-  --sup-panel: #092242;
-  --sup-tarjeta: #071c37;
-  --sup-tarjeta2: #0c213d;
-  --sup-flotante: #071c37;
+  --sup-panel: #0e1824;
+  --sup-tarjeta: #12202f;
+  --sup-tarjeta2: #172535;
+  --sup-flotante: #12202f;
   --line: #6ea2d8;
   --carril: rgba(159,208,255,.16);
   --borde-tarjeta: 1px;
   --text: #eaf4ff;
   --muted: #8fb6db;
-  --faint: #486585;
+  --faint: #4e6881;
   --mint: #9fd0ff;
   --mint-macizo: #9fd0ff;
   --mint-deep: #80b0dd;
@@ -113,9 +113,9 @@ html:not(.claro)[data-apariencia="plano"] {
   --coral: #ff9c86;
   --coral-macizo: #ff9c86;
   --coral-soft: rgba(255,156,134,.14);
-  --sobre-macizo: #0d2b52;
-  --sobre-acento: #0d2b52;
-  --sobre-vivo: #0d2b52;
+  --sobre-macizo: #080d14;
+  --sobre-acento: #080d14;
+  --sobre-vivo: #080d14;
   --dur-corta: .4s;
   --dur-media: .4s;
   --curva: cubic-bezier(.4,0,.2,1);
@@ -125,16 +125,16 @@ html:not(.claro)[data-apariencia="plano"] {
   --r-barra: 0;
   --r-pastilla: 0;
   --r-boton: 0;
-  --lienzo-apagado: #657284;
-  --lienzo-hilo: #576578;
-  --lienzo-rotulo: #c8d2e0;
-  --lienzo-ficha: #2c3541;
-  --lienzo-caja: #282f39;
-  --lienzo-bloqueado: #303b49;
-  --lienzo-candado: #485362;
+  --lienzo-apagado: #404d5e;
+  --lienzo-hilo: #334052;
+  --lienzo-rotulo: #9ea8b5;
+  --lienzo-ficha: #0d151f;
+  --lienzo-caja: #0a1018;
+  --lienzo-bloqueado: #101a26;
+  --lienzo-candado: #252f3d;
   --lienzo-flujo: #fff1cf;
-  --lienzo-punto: rgba(200, 210, 224, 0.055);
-  --sup-hondo: #143259;
+  --lienzo-punto: rgba(158, 168, 181, 0.055);
+  --sup-hondo: #11161d;
   --borde-panel: rgba(110, 162, 216, 0.7);
 }
 html.claro[data-apariencia="plano"] {
@@ -232,14 +232,116 @@ html[data-apariencia="plano"] [data-cota]::after {
    puestas, «4 de 10» salía dos veces en la misma tarjeta. */
 html[data-apariencia="plano"] [data-cota] .branch-head .count { display: none; }
 
+
+/* --- 1 · El barrido del ploter. Fuera el giro infinito: nada gira eternamente
+       en un plano, y una rotacion detras de un texto es ruido. --- */
+html[data-apariencia="plano"] .ncel-rayos {
+  width: 100%; height: 100%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E %3Cg stroke='%237fb4e8' fill='none'%3E %3Cg stroke-width='.5' opacity='0.156'%3E %3Cpath d='M8 0v80M16 0v80M24 0v80M32 0v80M48 0v80M56 0v80M64 0v80M72 0v80'/%3E %3Cpath d='M0 8h80M0 16h80M0 24h80M0 32h80M0 48h80M0 56h80M0 64h80M0 72h80'/%3E %3C/g%3E %3Cg stroke-width='.9' opacity='0.272'%3E%3Cpath d='M40 0v80M0 40h80M0 0h80M0 0v80'/%3E%3C/g%3E %3Cg stroke-width='1.1' opacity='0.374'%3E%3Cpath d='M36 40h8M40 36v8M-4 0h8M0 -4v8'/%3E%3C/g%3E %3C/g%3E %3C/svg%3E");
+  animation: none;
+}
+html[data-apariencia="plano"] .ncel.show .ncel-rayos { animation: plano-plot .34s var(--curva) both; }
+@keyframes plano-plot { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* --- 2 · La insignia se traza. Sin resplandor (sobre papel azul una mancha) y
+       sin latido: un dibujo tecnico no respira, y quedarse quieto es lo que lo
+       hace parecer definitivo. --- */
+html[data-apariencia="plano"] .ncel-insignia { filter: none; }
+html[data-apariencia="plano"] .ncel.show .ncel-insignia { animation: none; }
+html[data-apariencia="plano"] .ncel-insignia svg > * { stroke-dasharray: 60; stroke-dashoffset: 60; }
+html[data-apariencia="plano"] .ncel.show .ncel-insignia svg > * { animation: plano-traza .52s var(--curva) .18s forwards; }
+html[data-apariencia="plano"] .ncel.show .ncel-insignia svg > *:nth-child(2) { animation-delay: .34s; }
+html[data-apariencia="plano"] .ncel.show .ncel-insignia svg > *:nth-child(3) { animation-delay: .46s; }
+html[data-apariencia="plano"] .ncel.show .ncel-insignia svg > *:nth-child(4) { animation-delay: .56s; }
+@keyframes plano-traza { to { stroke-dashoffset: 0; } }
+
+/* --- 3 · El numero llega ACOTADO. La casa lo trae con un rebote elastico
+       (.34,1.56,.64,1); aqui no hay goma. Dos cotas entran desde los lados y el
+       numero esta cuando las puntas de flecha se tocan. --- */
+html[data-apariencia="plano"] .ncel-num { position: relative; text-shadow: none; }
+html[data-apariencia="plano"] .ncel.show .ncel-num { animation: plano-cifra .26s var(--curva) .98s both; }
+@keyframes plano-cifra { from { opacity: 0; } to { opacity: 1; } }
+html[data-apariencia="plano"] .ncel-num::before, html[data-apariencia="plano"] .ncel-num::after {
+  content: ""; position: absolute; top: 50%; width: 58px; height: 18px; opacity: 0;
+}
+html[data-apariencia="plano"] .ncel-num::before {
+  right: calc(100% + 16px);
+  background:
+    linear-gradient(var(--mint),var(--mint)) left 0 top 0/1px 18px no-repeat,
+    linear-gradient(var(--mint),var(--mint)) left 0 center/100% 1px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E %3Cpath d='M10 3.5L0 0v7z' fill='%239fd0ff'/%3E %3C/svg%3E") right 0 center/10px 7px no-repeat;
+}
+html[data-apariencia="plano"] .ncel-num::after {
+  left: calc(100% + 16px);
+  background:
+    linear-gradient(var(--mint),var(--mint)) right 0 top 0/1px 18px no-repeat,
+    linear-gradient(var(--mint),var(--mint)) right 0 center/100% 1px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E %3Cpath d='M0 3.5l10-3.5v7z' fill='%239fd0ff'/%3E %3C/svg%3E") left 0 center/10px 7px no-repeat;
+}
+html[data-apariencia="plano"] .ncel.show .ncel-num::before { animation: plano-cota-i .38s var(--curva) .72s both; }
+html[data-apariencia="plano"] .ncel.show .ncel-num::after  { animation: plano-cota-d .38s var(--curva) .72s both; }
+@keyframes plano-cota-i { from { opacity: 0; transform: translate(-34px,-50%); } to { opacity: .85; transform: translate(0,-50%); } }
+@keyframes plano-cota-d { from { opacity: 0; transform: translate(34px,-50%); }  to { opacity: .85; transform: translate(0,-50%); } }
+
+/* --- 4 · Cruces de registro, no chispas. Un ploter no lanza chispas: pone
+       MARCAS, y se quedan. Se reusan los mismos nodos y su --dx/--dy, asi que
+       esto no toca JavaScript: lo unico que cambia es que ya no vuelan desde
+       el centro, aparecen donde les toca. --- */
+html[data-apariencia="plano"] .ncel-chispas i {
+  width: 12px; height: 12px; border-radius: 0;
+  background:
+    linear-gradient(var(--mint),var(--mint)) center/100% 1.2px no-repeat,
+    linear-gradient(var(--mint),var(--mint)) center/1.2px 100% no-repeat;
+}
+html[data-apariencia="plano"] .ncel.show .ncel-chispas i { animation: plano-cruz .5s var(--curva) backwards; }
+@keyframes plano-cruz {
+  0%   { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.5); opacity: 0; }
+  45%  { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1);  opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1);  opacity: .34; }
+}
+
+/* --- 5 · El sello. SOLO con rango nuevo, o sea cinco veces en la vida de una
+       cuenta. Es el unico golpe de la secuencia y es mecanico: una prensa que
+       baja y no rebota, con la marca de seccion apareciendo detras. --- */
+html[data-apariencia="plano"] .ncel-rango.nuevo { position: relative; }
+html[data-apariencia="plano"] .ncel-rango.nuevo::before {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 132px; height: 132px; transform: translate(-50%,-50%);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Ccircle cx='14' cy='14' r='11' fill='none' stroke='%239fd0ff' stroke-width='1.6'/%3E %3Cpath d='M3 14h22' stroke='%239fd0ff' stroke-width='1.2'/%3E %3Cpath d='M14 3v3.4M14 21.6V25' stroke='%239fd0ff' stroke-width='1.2'/%3E %3Cpath d='M14 3.4l3.4 3.6h-6.8z' fill='%239fd0ff'/%3E %3Ccircle cx='14' cy='14' r='2' fill='%239fd0ff'/%3E %3C/svg%3E") center/contain no-repeat;
+  opacity: 0; pointer-events: none; z-index: -1;
+}
+html[data-apariencia="plano"] .ncel.show .ncel-rango.nuevo { animation: plano-sello .3s var(--curva) 1.42s both; }
+html[data-apariencia="plano"] .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(--curva) 1.42s both; }
+@keyframes plano-sello { 0% { opacity: 0; transform: scale(1.16); } 60% { opacity: 1; } 100% { opacity: 1; transform: scale(1); } }
+@keyframes plano-marca {
+  0%   { opacity: 0;   transform: translate(-50%,-50%) scale(.86); }
+  45%  { opacity: .28; }
+  100% { opacity: .14; transform: translate(-50%,-50%) scale(1); }
+}
+
+/* Y con `prefers-reduced-motion` todo aparece sin dibujarse. La regla de la
+   casa ya existe, pero no conoce estos nombres. */
+@media (prefers-reduced-motion: reduce) {
+  html[data-apariencia="plano"] .ncel.show .ncel-rayos,
+  html[data-apariencia="plano"] .ncel.show .ncel-insignia svg > *,
+  html[data-apariencia="plano"] .ncel.show .ncel-num,
+  html[data-apariencia="plano"] .ncel.show .ncel-num::before,
+  html[data-apariencia="plano"] .ncel.show .ncel-num::after,
+  html[data-apariencia="plano"] .ncel.show .ncel-chispas i,
+  html[data-apariencia="plano"] .ncel.show .ncel-rango.nuevo,
+  html[data-apariencia="plano"] .ncel.show .ncel-rango.nuevo::before { animation: none; }
+  html[data-apariencia="plano"] .ncel-insignia svg > * { stroke-dashoffset: 0; }
+  html[data-apariencia="plano"] .ncel-num::before, html[data-apariencia="plano"] .ncel-num::after { opacity: .85; }
+}
+
 html[data-apariencia="plano"] .scene-card,
 html[data-apariencia="plano"] .celebrate,
 html[data-apariencia="plano"] .ncel,
 html[data-apariencia="plano"] .scel {
-  --bg: #0d2b52;
-  --bg2: #092242;
-  --card: #071c37;
-  --card2: #0c213d;
+  --bg: #080d14;
+  --bg2: #0e1824;
+  --card: #12202f;
+  --card2: #172535;
   --sup-pagina: var(--bg);
   --sup-panel: var(--bg2);
   --sup-tarjeta: var(--card);
@@ -248,20 +350,20 @@ html[data-apariencia="plano"] .scel {
   --carril: rgba(159,208,255,.16);
   --text: #eaf4ff;
   --muted: #8fb6db;
-  --faint: #486585;
+  --faint: #4e6881;
   --mint: #9fd0ff;
   --mint-macizo: #9fd0ff;
   --mint-soft: rgba(159,208,255,.13);
-  --motivo-cielo-1: #071c37;
-  --motivo-cielo-2: #092242;
+  --motivo-cielo-1: #12202f;
+  --motivo-cielo-2: #0e1824;
   --motivo-chispa: #eaf4ff;
-  --motivo-lienzo: #092242;
-  --motivo-curva: #2d4460;
-  --escena-fondo: 13, 43, 82;
-  --escena-vidrio: 7, 28, 55;
+  --motivo-lienzo: #0e1824;
+  --motivo-curva: #313b47;
+  --escena-fondo: 8, 13, 20;
+  --escena-vidrio: 18, 32, 47;
   --escena-tinta: 234, 244, 255;
   --escena-tinte-modo: block;
-  --escena-tinte: #071c37;
+  --escena-tinte: #12202f;
   --escena-tinte-fuerza: 1;
 }
 

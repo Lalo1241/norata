@@ -76,6 +76,149 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.63 · 1 sep 2026
+
+**El ambiente que abre un nivel se pone antes de anunciarlo.**
+
+La 0.7.62 dejó apuntado que el ambiente Adobe, que abre en el nivel 7, «caía
+encima» del rango Rastreador. **Ese aviso estaba equivocado y conviene
+borrarlo de la cabeza de todos:** `apariencias/LEEME.md` empareja rango y
+ambiente a propósito en cuatro peldaños —«Rango Brote, y con él el ambiente
+Musgo»— y pide justo lo contrario de separarlos: «la celebración al
+desbloquear un ambiente, **con el ambiente ya puesto**».
+
+Eso es lo que faltaba, y es lo que se construye aquí. Al subir a un nivel que
+abre un ambiente, la escena se lo pone antes de enseñarlo: un color anunciado
+por su nombre no dice nada; puesto, se ve. Tres reglas que lo hacen seguro:
+
+- **Va en `soloVista`**, la puerta que ya dejaba abierta `ponerApariencia`:
+  cambia el aspecto sin escribir la elección. Mientras la escena está abierta,
+  lo guardado sigue siendo lo de antes.
+- **Si se cierra sin aceptar, vuelve lo que había.** Quedarse un ambiente por
+  no haber pulsado nada es lo contrario de «se avisa, no se hace en silencio».
+  El botón que lleva a Mi apariencia es el que lo deja puesto de verdad.
+- **Un ambiente que pide Pro y no se tiene NO se pone**, aunque sí se anuncia.
+  Enseñar puesto lo que no puede quedarse sería prometer y quitar en la misma
+  pantalla, y la regla del cobro es la contraria: se enseña lo que hay.
+
+Y las filas de tipo `ambiente` de `escaleraDeExpedicion()` ahora llevan su
+`id`. Sin él habría que buscar el ambiente por el nombre, que es atar una
+función a un rótulo.
+
+### 0.7.62 · 1 sep 2026
+
+**Los cinco rangos dejan de ser piezas de un grafo y pasan a ser oficios, y la
+celebración de subir de nivel deja de girar.**
+
+`EXP_RANGOS` era Nodo, Enlace, Rama, Trama y Red, y falla por tres motivos que
+conviene dejar escritos para que nadie los deshaga:
+
+1. **La app escribe «Ahora eres X»**, así que X tiene que ser algo que una
+   persona pueda SER. «Ahora eres Trama» no significa nada. Ésta es la regla
+   que manda al nombrar los rangos de cualquier mundo, y deja fuera igual los
+   estados de Averno y las etapas de Blueprint.
+2. **«Rama» ya estaba ocupada**: el lienzo de Talentos dice «Tus ramas» en
+   pantalla.
+3. Nombraban las piezas del dibujo, no a quien lo recorre.
+
+Ahora son **Andante, Rastreador, Explorador, Cartógrafo y Navegante**, y van
+**cada seis niveles** (1, 7, 13, 19, 25). Eso no es un número redondo, es el
+ritmo: con el reparto viejo el primer rango se cerraba en semana y media y el
+cuarto tardaba **11,6 meses** —medido con `EXP_PUNTOS` y la curva real, perfil
+de cuatro días por semana—. Cada seis da 5 semanas, 3 meses, 4,8, 6,6 y 8,4.
+
+Los peldaños de celebración de `EXP_ESCALERA` se mueven a 4, 10 y 16: donde
+estaban caían justo encima de un cambio de rango, y dos noticias en la misma
+pantalla se estorban.
+
+**Los cinco iconos, rehechos.** Son objetos de una expedición —bota, huella,
+farol, mapa y brújula— y no formas geométricas: una figura abstracta no se lee
+como «Andante», se lee como una raya. Dos cosas que hay que respetar al
+tocarlos:
+
+- **Un solo dibujo a cualquier tamaño.** Hubo una versión que se simplificaba
+  por debajo de 30 px y sobra: el aro de la insignia (18 px) y la lista de «Mi
+  expedición» (26) se ven A LA VEZ en la misma pantalla, así que el mismo
+  rango salía dibujado de dos maneras. Lo que no se lee a 18 px tampoco entra
+  en el de 78 — por eso la llama del farol va siempre y la brújula perdió el
+  aro interior y los cardinales.
+- **Ni un relleno.** `.ic svg` impone `fill: none` y le gana a cualquier
+  atributo, así que los cinco son solo trazo y no hubo que tocar el CSS.
+
+La brújula del Navegante no choca con `compass`, que ya existe y lo lleva
+«Noche de expedición»: aquélla es un aro con la aguja suelta, ésta tiene
+anilla. Y el mapa no choca con `map`, que es el plegado en tres paneles.
+
+**Y las dos escenas dejan de girar.** Los rayos de `.ncel` y `.scel` eran
+`repeating-conic-gradient` en `infinite` — el recurso de la tragamonedas, y
+las únicas animaciones sin final de toda la app. Lo que las sustituye:
+
+- **Subir de nivel: la constelación del rango.** Seis estrellas, una por
+  nivel, y la sexta cierra la figura justo al cambiar de rango. Las cerradas
+  se quedan de medallas arriba: esa fila es la colección. Al estrenar rango,
+  la figura anterior se cierra a la vista y se va al estante antes de que nazca
+  la nueva, y el texto espera a que termine ese relevo (clase `estrena`).
+- **Hito de racha: la brasa.** El fuego se queda, que ahí sí significa algo,
+  pero el humo sube UNA vez y las chispas pasan de estallar en abanico desde
+  el centro a subir como pavesas desde el borde. Dos fiestas distintas tienen
+  que moverse distinto.
+
+Con esto **no queda ninguna animación `infinite` en las celebraciones**: la
+llama de la racha late cuatro veces y para, y la insignia de nivel dos.
+
+**Lo que hay que revisar y no se toca aquí:** el catálogo `AMBIENTES` abre en
+los niveles 3, 5, 7, 12 y 20, y el 7 cae ahora encima del rango Rastreador.
+Ese archivo es de otra sesión.
+### 0.7.61 · 1 sep 2026
+**Blueprint deja de gritar azul, y su celebración deja de hablar en fuegos
+artificiales.**
+
+**El azul era demasiado, y no era cuestión de gusto.** Medido en croma, la
+página de Blueprint estaba en 0,079 contra el 0,018 de la casa —más de cuatro
+veces la saturación, en la superficie más grande que tiene la app—. Reliquia
+anda por 0,028 y Averno por 0,009: el raro era él. La página pasa a un negro
+FRÍO (0,017, como la casa) y el azul se queda donde dice algo: la retícula, el
+marco, el acento y la cota. Un plano no es un campo de color, es un dibujo — y
+sobre negro el dibujo se lee mejor. La tarjeta se pone ENCIMA del fondo como en
+toda la app (1,18 contra el 1,19 de la casa) y la retícula se recalibra para
+pesar lo mismo que antes. La cara de día no se toca: medida, es la MENOS
+saturada de los cuatro mundos.
+
+**La celebración de subir de nivel, en el idioma del mundo.** La de la casa
+habla en rayos que giran 26 s, resplandor, un rebote elástico y chispas
+redondas saliendo del centro. Un plano no se ilumina: se traza. Cinco tiempos,
+todos con la curva mecánica del mundo y sin rebote — la retícula se plotea de
+izquierda a derecha; la insignia SE DIBUJA sola trazo a trazo; el número llega
+acotado entre dos cotas que entran desde los lados; las chispas se vuelven
+cruces de registro que aparecen en su sitio y se quedan; y con rango nuevo, el
+sello. Los cinco dibujos de rango ya eran trazo puro, así que dibujarse solos
+salió gratis: un solo `stroke-dasharray: 60` para los cinco. Las cruces reusan
+los mismos nodos y su `--dx/--dy`, o sea que no toca JavaScript.
+
+Entra por `app_extra`, un campo nuevo para el CSS que un mundo aporta cuando lo
+suyo no cabe en un token. La casa y los otros dos mundos siguen exactamente
+igual: comprobado, con Blueprint puesto no queda ni un `ncelGiro`, y con la
+casa puesta no aparece ni una regla de `plano-`.
+
+**Y cuatro cosas más que vio Eduardo:**
+
+- **Los banners no tenían borde.** Eran la única pieza grande de la app sin
+  marco, y sobre un mundo con superficie propia se les desdibujaba el canto.
+  Sale del mismo par que el resto, así que cada mundo pone el suyo.
+- **Cinco radios escritos a mano no pasaban por el factor**, y por eso Proyectos
+  en el Resumen seguía con la burbuja de la casa teniendo Blueprint puesto. Se
+  barrieron las siete pantallas: eran seis sitios —esa tarjeta, los chips de
+  «Listos para empezar», las tarjetas de proyecto, el menú de una rama y las
+  casillas de color—. Ahora no queda ni uno resistiendo.
+- **Un delta con triángulo no es un acento, es un signo.** Estaban pintados con
+  el acento del mundo: un «▲ 33» salía AZUL en Blueprint y naranja en Averno.
+  Ahora verde si sube y rojo si baja, en todos los temas, con sus dos caras
+  —porque «siempre verde» es del matiz, no de la luz—. Medido en los cuatro
+  mundos y las dos luces: el peor caso da 5,16 sobre un umbral de 4,5. El verde
+  se eligió a 21° de matiz de la menta a propósito: pegado a ella, «subió» y
+  «es un acento» se confundían. Solo el delta; los totales no se tocan.
+- Y la misma flecha del panel de números, que tenía el fallo idéntico.
+
 ### 0.7.60 · 1 sep 2026
 **La cota de Blueprint cruza a la app, y el disparador no es una clase: es la
 cifra.**
