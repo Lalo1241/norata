@@ -7361,19 +7361,49 @@
     #nav-update-side { color: var(--fire); }
     #nav-update-side:hover { background: var(--fire-soft); color: var(--fire); }
 
-    /* El anclaje abajo y la línea de separación son de quien encabece el grupo.
-       Con el de actualizar puesto pasan a ser suyos; si no, salían dos rayas
-       seguidas y Ajustes se quedaba pegado al resto del menú. */
-    #nav-update-side { margin-top: auto; position: relative; }
-    #nav-update-side::before {
-      content: "";
-      position: absolute;
-      left: 0; right: 0; top: -9px;
-      height: 1px;
-      background: var(--line);
-    }
+    /* ---- Dónde cae, y qué se queda cada uno ----
+       La línea de separación sigue siendo de Ajustes y el botón va ENCIMA de
+       ella: al otro lado de la raya está lo que se toca todos los días, y de
+       este lado lo de la app. Lo que sí se muda es el anclaje al fondo: con el
+       botón puesto es suyo, porque si se lo quedara Ajustes el hueco entero se
+       metería ENTRE los dos y el botón se iría a hacer compañía a Proyectos. */
+    #nav-update-side { margin-top: auto; }
     #nav-update-side:not([hidden]) ~ #nav-settings-side { margin-top: 0; }
-    #nav-update-side:not([hidden]) ~ #nav-settings-side::before { display: none; }
+    /* Y la línea baja dos píxeles. Estaba a -9 porque encima solo había el
+       hueco elástico y flotaba sola; con el botón justo arriba el hueco es de
+       8 px, así que -9 la metía un píxel DENTRO del botón — invisible en
+       reposo y visible al pasar el ratón, cortando su fondo. Centrada. */
+    #nav-update-side:not([hidden]) ~ #nav-settings-side::before { top: -4px; }
+
+    /* ---- Y dice qué versión entra ----
+       Un botón que solo dice «Actualizar» pide un acto de fe: no sabes si es la
+       tanda que estabas esperando o un retoque de un rótulo. El número lo manda
+       el service worker en el mismo mensaje —es el de la caché que ya está
+       bajada—, así que es exactamente lo que vas a tener al pulsar, no una
+       promesa. Se escribe como en el pie de la barra, con la V delante.
+
+       Si por lo que sea llegara sin número, el renglón se va y el botón se
+       queda como estaba: `:empty` y ya. */
+    #nav-update-side .nav-label {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1px;
+      line-height: 1.2;
+    }
+    #nav-update-side .nu-ver {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    #nav-update-side .nu-ver:empty { display: none; }
+    /* Plegada se esconde como los demás rótulos, y hay que escribirlo: la regla
+       de aquí arriba lleva un id, y un id le gana a `html.sc .nav-label` por
+       especificidad. Sin esta línea el rótulo sobrevivía al plegado y se salía
+       de una barra de 84 px. */
+    html.sc #nav-update-side .nav-label { display: none; }
 
     /* Ajustes no se toca a cada rato: se separa del resto de la navegación
        y se ancla abajo del todo, en vez de competir por atención junto a
