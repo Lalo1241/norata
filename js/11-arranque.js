@@ -461,6 +461,10 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
   let ultimaPregunta = Date.now();   // registrarse ya cuenta como una
   let ultimoToast = 0;
   let hayVersionNueva = false;
+  /* El número que va a entrar al pulsar. Lo manda el service worker en el mismo
+     mensaje: es el de la caché que ya está bajada, así que no es una promesa
+     sino lo que ya está ahí esperando. Llega como «norata-0.7.60». */
+  let versionQueEntra = "";
 
   /* ---- Dónde sale el aviso (0.7.59.1) ----
      En un botón de la barra lateral, encima de Ajustes, y no en un toast. Un
@@ -481,6 +485,9 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
   function avisarDeLaVersion() {
     const btn = document.getElementById("nav-update-side");
     if (btn) {
+      const num = document.getElementById("nav-update-ver");
+      if (num) num.textContent = versionQueEntra ? "V" + versionQueEntra : "";
+      if (versionQueEntra) btn.title = "Actualizar a la versión " + versionQueEntra;
       btn.hidden = false;
       // `offsetParent` es null cuando algo no se está pintando: barra escondida.
       if (btn.offsetParent !== null) return;
@@ -488,13 +495,16 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
     const ahora = Date.now();
     if (ahora - ultimoToast < ENTRE_TOASTS) return;
     ultimoToast = ahora;
-    toast("Hay una versión nueva de Norata", "atencion",
+    toast(versionQueEntra ? "Ya está lista la versión " + versionQueEntra
+                          : "Hay una versión nueva de Norata", "atencion",
           { label: "Actualizar", onclick: "location.reload()", ms: 12000 });
   }
 
   navigator.serviceWorker.addEventListener("message", (ev) => {
     if (!ev.data || ev.data.norata !== "version-nueva") return;
     hayVersionNueva = true;
+    /* La caché se llama «norata-0.7.60»; lo que se enseña es el número. */
+    versionQueEntra = String(ev.data.version || "").replace(/^norata-/, "");
     avisarDeLaVersion();
   });
 
