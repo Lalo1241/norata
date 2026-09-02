@@ -76,6 +76,45 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.65 · 1 sep 2026
+
+**La constelación deja de contar niveles y pasa a dibujar el objeto del rango,
+y la escena dice lo que acaba de pasar.**
+
+Atar una estrella a un nivel parecía elegante y era una jaula: obligaba a seis
+puntos por rango, y con seis puntos no se dibuja una bota —salían formas
+abstractas que nadie leía como su oficio—. Ahora **cada figura tiene las
+estrellas que pide el dibujo** (doce la bota, catorce la huella y el mapa) y el
+progreso se reparte: `ncelHasta()` enciende el tramo que toca en cada uno de
+los seis niveles del rango. Lo que se ve es que cada nivel AVANZA el dibujo,
+no que cada nivel valga un punto.
+
+**Los textos dicen lo que pasó, no un rótulo.** «Rango Andante» era una
+etiqueta cierta siempre, y por eso no era noticia en ninguno de los seis
+niveles. Ahora hay tres frases y cada una solo vale en su momento:
+
+| Cuándo | Qué dice |
+| --- | --- |
+| Un nivel cualquiera | Alcanzaste el nivel 4 de tu expedición |
+| El sexto del rango | Rango **Andante** completado |
+| El primero del siguiente | Ahora eres **Rastreador** |
+
+Y el botón pasa de «Seguir» a **«Continuar»**.
+
+**La escena se reparte el alto en columna**, y eso no es cosmética. Con el
+dibujo y el texto superpuestos, la escena con premio —que trae la lista de lo
+que se abre y dos botones— subía el texto hasta dentro de la constelación:
+medido, **98 px de solape**. En columna el mapa ocupa lo que sobra: 467 px sin
+premio y 329 con él, sin tocarse en ninguno de los nueve niveles probados.
+
+**Una trampa nueva para la lista, y ya costó media hora:** al medir esto, el
+banco de pruebas seguía aplicando la hoja de estilos ANTERIOR aunque el
+servidor mandara `Cache-Control: no-store`, aunque el `fetch` a esa misma URL
+devolviera la versión nueva y aunque se cerrara la pestaña. Lo que lo delata
+es leer `document.styleSheets` del iframe y comparar su regla con lo que
+responde el servidor: si difieren, lo que está mal es la prueba. La salida es
+inyectar las declaraciones con un `<style>` y medir eso.
+
 ### 0.7.64 · 1 sep 2026
 **Averno cambia de concepto, baja el naranja y por fin trae sus anillos.**
 
