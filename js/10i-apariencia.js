@@ -88,11 +88,12 @@ const MUNDOS = [
      nombre. Medidos, los cinco caben dentro del cuadro de 24 con margen: el
      más ancho ocupa 17,6 y el más alto 18,4.
 
-     La única duda que queda es de Eduardo y no mía: **Ceniza va primero**, y
-     la ceniza es lo que queda DESPUÉS del fuego, no lo que hay antes. Se lee
-     bien como «de las cenizas», que es una imagen que se entiende sola; se
-     lee mal como escalera, porque de una ceniza no sale una chispa. Si algún
-     día se cambia, la palabra que encaja en ese peldaño es Yesca. */
+     **Ceniza va primero y se queda, decidido por Eduardo.** Queda escrito
+     porque el reparo se le ocurre a cualquiera que lo mire: la ceniza es lo
+     que queda DESPUÉS del fuego, así que como escalera parece del revés. No
+     lo es — el arco es «de las cenizas», que se entiende solo y es el que hace
+     que el primer peldaño signifique algo: no empiezas en nada, empiezas en lo
+     que quedó. Se propuso Yesca y se descartó. No volver a proponerlo. */
   { id: "averno", nombre: "Averno", listo: true, pro: true, icon: "flame",
     premisa: "Piedra quemada con la brasa debajo: los círculos del poema, ceniza cayendo y un sol eclipsado. Un lugar, no un disfraz.",
     rangos: [
