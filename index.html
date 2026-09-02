@@ -101,14 +101,10 @@
        que `sw.js` ya es el nuevo y esto todavía es lo viejo, y quien abra ahí
        se queda con el mundo congelado y el número de versión nuevo puesto.
        Cambiando la dirección, una copia vieja ni siquiera es la misma cosa. */
-    if (["reliquia"].indexOf(puesta) >= 0) {
+    if (["reliquia", "plano", "averno"].indexOf(puesta) >= 0) {
       var lm = document.createElement("link");
       lm.rel = "stylesheet";
-<<<<<<< HEAD
-      lm.href = "css/mundos.css?h=00cf1766fe";
-=======
-      lm.href = "css/mundos.css?h=00cf1766fe";
->>>>>>> origin/main
+      lm.href = "css/mundos.css?h=8cb8004f1d";
       document.head.appendChild(lm);
     }
   } catch (e) {}
@@ -1061,8 +1057,11 @@
      una ventana con premio que solo se cierra a propósito. Lo que cambia entre
      las dos lo escribe `celebrarNivel` en `js/02-progreso.js`. -->
 <div class="ncel" id="ncel" onclick="tocarFondoNivel(event)">
-  <div class="ncel-rayos"></div>
-  <div class="ncel-chispas" id="ncel-chispas"></div>
+  <!-- El cielo de fondo y la constelación del rango. Sustituyen a los rayos
+       giratorios de 0.7.48: eran las únicas animaciones `infinite` de la app y
+       se leían como una tragamonedas. Los dos SVG los rellena `celebrarNivel`. -->
+  <svg class="ncel-cielo" id="ncel-cielo" viewBox="0 0 100 187" preserveAspectRatio="none" aria-hidden="true"></svg>
+  <svg class="ncel-mapa" id="ncel-mapa" viewBox="0 0 100 187" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
   <div class="ncel-core">
     <div class="ncel-insignia" id="ncel-insignia"></div>
     <div class="ncel-num" id="ncel-num">0</div>

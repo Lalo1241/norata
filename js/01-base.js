@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.60";
+const VERSION = "0.7.63";
 const VERSION_FECHA = "1 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -104,11 +104,27 @@ const ICONS = {
 
      Crecen de silueta y no de cantidad —cuadrado, mancuerna, horquilla, rombo,
      cruz— justo para que a 20 px no haya que contar piezas. */
-  "rango-nodo": '<rect x="7.4" y="7.4" width="9.2" height="9.2" rx="2.6"/>',
-  "rango-enlace": '<rect x="2.8" y="8.6" width="6.8" height="6.8" rx="2.2"/><rect x="14.4" y="8.6" width="6.8" height="6.8" rx="2.2"/><path d="M9.6 12h4.8"/>',
-  "rango-rama": '<rect x="2.4" y="8.8" width="6.4" height="6.4" rx="2.1"/><rect x="15.2" y="2.8" width="6.4" height="6.4" rx="2.1"/><rect x="15.2" y="14.8" width="6.4" height="6.4" rx="2.1"/><path d="M8.8 11.2l6.4-3.6M8.8 12.8l6.4 3.6"/>',
-  "rango-trama": '<rect x="9.2" y="1.9" width="5.6" height="5.6" rx="1.9"/><rect x="1.9" y="9.2" width="5.6" height="5.6" rx="1.9"/><rect x="16.5" y="9.2" width="5.6" height="5.6" rx="1.9"/><rect x="9.2" y="16.5" width="5.6" height="5.6" rx="1.9"/><path d="M8.6 8.6L7 7M15.4 8.6L17 7M8.6 15.4L7 17M15.4 15.4L17 17"/>',
-  "rango-red": '<rect x="9.4" y="9.4" width="5.2" height="5.2" rx="1.8"/><rect x="9.4" y="1.4" width="5.2" height="5.2" rx="1.8"/><rect x="1.4" y="9.4" width="5.2" height="5.2" rx="1.8"/><rect x="17.4" y="9.4" width="5.2" height="5.2" rx="1.8"/><rect x="9.4" y="17.4" width="5.2" height="5.2" rx="1.8"/><path d="M12 6.6v2.8M12 14.6v2.8M6.6 12h2.8M14.6 12h2.8"/>',
+  /* ---- Los cinco rangos de la expedición ----
+     Son OBJETOS del estuche de una expedición y no formas abstractas, que fue
+     lo que tumbó dos tandas: una figura geométrica no se lee como «Andante»,
+     se lee como una raya. Y por eso mismo llevan el nombre del objeto y no el
+     del rango — el día que cambie el vocabulario, el dibujo sigue valiendo.
+
+     UN SOLO DIBUJO a cualquier tamaño. Hubo una versión que se simplificaba
+     por debajo de 30 px y la paró Eduardo con el argumento bueno: el aro de la
+     insignia (18 px) y la lista de «Mi expedición» (26) se ven A LA VEZ en la
+     misma pantalla, así que el mismo rango salía dibujado de dos maneras. La
+     regla que queda: lo que no se lee a 18 px tampoco entra en el de 78.
+
+     Ni un relleno en los cinco: `.ic svg` impone `fill: none` y le gana a
+     cualquier atributo, así que todo es trazo y no hace falta tocar el CSS. */
+  "rango-bota": '<path d="M6.2 3.3h6.4v6.8c0 1.2.7 2.1 1.8 2.6l3.6 1.7c1.6.7 2.4 1.6 2.4 2.9v.6H4.7z"/><path d="M4.4 18.4h16.2a1.9 1.9 0 01-1.9 2.7H6.3a1.9 1.9 0 01-1.9-2.1z"/><path d="M7.6 6.6l4 1.7M7.6 9.6l4 1.7M14.3 13.1l2.4-2.1"/>',
+  "rango-huella": '<path d="M9 2c1.2 1.6 1.7 2.7 1.7 3.7a1.7 1.7 0 11-3.4 0c0-1 .5-2.1 1.7-3.7z"/><path d="M15 2c1.2 1.6 1.7 2.7 1.7 3.7a1.7 1.7 0 11-3.4 0c0-1 .5-2.1 1.7-3.7z"/><path d="M3.2 4.6c1.2 1.6 1.7 2.7 1.7 3.7a1.7 1.7 0 11-3.4 0c0-1 .5-2.1 1.7-3.7z"/><path d="M20.8 4.6c1.2 1.6 1.7 2.7 1.7 3.7a1.7 1.7 0 11-3.4 0c0-1 .5-2.1 1.7-3.7z"/><path d="M12 12.4a3 3 0 013 3c0 .5.4.9.9 1a3.4 3.4 0 11-3.6 4.4.35.35 0 00-.6 0 3.4 3.4 0 11-3.6-4.4c.5-.1.9-.5.9-1a3 3 0 013-3z"/>',
+  "rango-farol": '<path d="M9 5.2a3 3 0 016 0"/><path d="M6 7.6h12"/><path d="M7.5 7.6l-1.3 12.8h11.6L16.5 7.6"/><path d="M12 10.4c1.7 1.5 2.5 2.7 2.5 4a2.5 2.5 0 11-5 0c0-1.3.8-2.5 2.5-4z"/>',
+  "rango-mapa": '<rect x="1" y="2" width="2.6" height="20" rx="1.3"/><rect x="20.4" y="2" width="2.6" height="20" rx="1.3"/><path d="M3.6 4.8h16.8M3.6 19.9h16.8"/><path d="M8.2 10.6h2.2a1.8 1.8 0 010 3.6H8.6a1.8 1.8 0 000 3.6h2.4"/><path d="M16.6 7.8l1.6 1.6-1.6 1.6-1.6-1.6z"/><path d="M15.3 14.2l2.6 2.6M17.9 14.2l-2.6 2.6"/>',
+  /* Brújula distinta de `compass`, que ya existe y lo lleva «Noche de
+     expedición»: aquélla es un aro con la aguja suelta, ésta tiene anilla. */
+  "rango-brujula": '<ellipse cx="12" cy="3.4" rx="2.6" ry="1.3"/><path d="M10.8 4.6v1.6M13.2 4.6v1.6"/><circle cx="12" cy="14.3" r="7.6"/><path d="M15.9 10.5l-2.2 5.4-5.6 2.2 2.2-5.4z"/>',
   star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 5.9-5.3-3-5.3 3 1.2-5.9L3.4 9.3l6-.7z"/>',
   bolt: '<path d="M13 2L5 14h6l-1 8 8-12h-6l1-8z"/>',
   /* Escudo: lo que no se pierde. Se usa junto a "Habilidad blindada" y está
