@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+  <!-- El mismo sol eclipsado, a plena luz. El dibujo no cambia — un sello es
+       un sello— y lo que cambia es de qué lado está la luz: de noche el centro
+       muerto se rellena con lo OSCURO de la página y aquí con lo CLARO de la
+       tarjeta, o el eclipse se pierde dentro de su propio anillo.
+
+       Y el trazo se hunde: el naranja de la noche sobre papel se queda en 1,9
+       sobre 1, que para una LÍNEA de 1,5 px es no verla. Éste da 5,42, y el
+       arco encendido 3,07 — los dos por encima del 3 que pide un trazo. -->
+  <g stroke="#b03a08" stroke-width="1.5" stroke-linecap="round">
+    <path d="M14 1.5v3.6M14 22.9v3.6M1.5 14h3.6M22.9 14h3.6"/>
+    <path d="M5.2 5.2l2.6 2.6M20.2 20.2l2.6 2.6M22.8 5.2l-2.6 2.6M7.8 20.2l-2.6 2.6" opacity=".7"/>
+  </g>
+  <circle cx="14" cy="14" r="8" fill="none" stroke="#b03a08" stroke-width="2.6"/>
+  <circle cx="14" cy="14" r="4.6" fill="#f7f1ea"/>
+  <path d="M14 5.9a8 8 0 0 1 7.6 5.5" fill="none" stroke="#ec5c16" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

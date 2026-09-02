@@ -51,8 +51,8 @@ const AMBIENTES = [
    moviera los peldaños, dos personas con el mismo nivel estarían en sitios
    distintos de la escalera. Una sola escalera, muchos vocabularios.
 
-   De los quince, dos están construidos —Reliquia y Blueprint— y son los que
-   llevan `listo: true`. Con cualquier otra apariencia puesta,
+   De los quince, tres están construidos —Reliquia, Blueprint y Averno— y son
+   los que llevan `listo: true`. Con cualquier otra apariencia puesta,
    `rangosDeApariencia()` devuelve null y manda la casa. Los dibujos de los
    rangos viajan con su mundo y no con la app: meter en ICONS los cinco rangos
    de quince mundos serían setenta y cinco dibujos que se baja todo el mundo
@@ -71,12 +71,49 @@ const MUNDOS = [
       { nombre: "Norte",   trazo: '<path d="M12 2.6l2.5 6.9 6.9 2.5-6.9 2.5-2.5 6.9-2.5-6.9L2.6 12l6.9-2.5z"/>' }
     ]
   },
-  /* Los nombres de estos dos están decididos; sus dibujos se hacen cuando se
-     construya cada mundo, con el resto de sus vectores. Escribirlos ahora sin
-     dibujo no es una promesa a medias: mientras el mundo no exista, esta lista
-     no la lee nadie. */
-  { id: "averno",   nombre: "Averno",
-    rangos: ["Ceniza", "Chispa", "Brasa", "Llama", "Hoguera"].map(n => ({ nombre: n })) },
+  /* Averno es el tercero construido, y con él se cierra la pareja que
+     `mundos/MUNDOS.md` puso por delante. Va con Pro como los otros doce: de
+     los quince, el único que no abre Pro es Reliquia, que es de Fundador.
+
+     Los cinco rangos son los ESTADOS DEL FUEGO y pasan las dos pruebas que
+     dejó escritas Blueprint. Suben —cada uno es más que el anterior y sólo se
+     le puede ocurrir a él— y de todos se puede decir «soy»: soy nivel Brasa
+     se dice, soy nivel Corte no.
+
+     Y los dibujos crecen con ellos, que es lo que hace que se distingan a los
+     20 px a los que se pintan: un montón bajo y liso, un punto de luz sin
+     cuerpo, un bulto con la grieta encendida, una llama con otra dentro, y la
+     llama ya apoyada sobre dos leños. Ninguno se parece al de al lado —montón,
+     estrella, bulto, llama, llama con leños—, así que se leen sin llegar al
+     nombre. Medidos, los cinco caben dentro del cuadro de 24 con margen: el
+     más ancho ocupa 17,6 y el más alto 18,4.
+
+     La única duda que queda es de Eduardo y no mía: **Ceniza va primero**, y
+     la ceniza es lo que queda DESPUÉS del fuego, no lo que hay antes. Se lee
+     bien como «de las cenizas», que es una imagen que se entiende sola; se
+     lee mal como escalera, porque de una ceniza no sale una chispa. Si algún
+     día se cambia, la palabra que encaja en ese peldaño es Yesca. */
+  { id: "averno", nombre: "Averno", listo: true, pro: true, icon: "flame",
+    premisa: "Piedra quemada con la brasa debajo: los círculos del poema, ceniza cayendo y un sol eclipsado. Un lugar, no un disfraz.",
+    rangos: [
+      /* El montón de ceniza, con tres motas todavía cayendo. Es el único
+         dibujo que no se levanta del suelo, y eso es lo que lo hace primero. */
+      { nombre: "Ceniza",  trazo: '<path d="M5 18.4c0-3.2 3.1-5.6 7-5.6s7 2.4 7 5.6z"/><path d="M3.2 18.4h17.6"/><path d="M8.6 8.4h.01M12.6 5.2h.01M16.2 9.2h.01"/>' },
+      /* La chispa: un solo punto de luz, sin masa ninguna todavía. */
+      { nombre: "Chispa",  trazo: '<path d="M12 3.4c0 4 1.8 5.8 5.8 5.8-4 0-5.8 1.8-5.8 5.8 0-4-1.8-5.8-5.8-5.8 4 0 5.8-1.8 5.8-5.8z"/><path d="M18.6 16.8h.01M6.4 18.2h.01M13 20.2h.01"/>' },
+      /* La brasa: ya hay cuerpo, y la grieta de dentro es por donde se ve que
+         sigue encendido. */
+      { nombre: "Brasa",   trazo: '<path d="M12 7.6c3.4 0 6.2 2.5 6.2 5.5s-2.8 5.5-6.2 5.5-6.2-2.5-6.2-5.5S8.6 7.6 12 7.6z"/><path d="M9.4 13.6l2.1-2.3 1.4 1.8 1.7-1.5"/><path d="M3.4 21h17.2"/>' },
+      /* La llama, con otra llama dentro: el fuego ya se sostiene solo. */
+      { nombre: "Llama",   trazo: '<path d="M12 2.6c3.4 4 6.4 6.7 6.4 10.4a6.4 6.4 0 11-12.8 0c0-3.7 3-6.4 6.4-10.4z"/><path d="M12 12.4c1.5 1.8 2.6 2.9 2.6 4.4a2.6 2.6 0 11-5.2 0c0-1.5 1.1-2.6 2.6-4.4z"/>' },
+      /* La hoguera: la misma llama, puesta encima de algo que la mantiene. Los
+         dos leños cruzados son lo que separa un fuego de una fogata. */
+      { nombre: "Hoguera", trazo: '<path d="M12 2.4c2.6 3.2 4.8 5.2 4.8 8a4.8 4.8 0 11-9.6 0c0-2.8 2.2-4.8 4.8-8z"/><path d="M3.6 20.8L20.4 17M20.4 20.8L3.6 17"/>' }
+    ] },
+  /* El nombre de éste está decidido; sus dibujos se hacen cuando se construya
+     el mundo, con el resto de sus vectores. Escribirlo ahora sin dibujo no es
+     una promesa a medias: mientras el mundo no exista, esta lista no la lee
+     nadie. */
   { id: "consola",  nombre: "Consola",
     rangos: ["Bit", "Byte", "Proceso", "Núcleo", "Sistema"].map(n => ({ nombre: n })) },
   /* Blueprint es el segundo construido, y el orden lo dejó escrito
@@ -204,7 +241,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=1d4da92fdb";
+  l.href = "css/mundos.css?h=a560f82d90";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
