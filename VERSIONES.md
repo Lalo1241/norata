@@ -76,6 +76,35 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.70.1 · 2 sep 2026
+
+**El cielo de Mi expedición se ensancha, y las fugaces dejan de verse antes de
+tiempo.** Las dos las cazó Eduardo mirando la 0.7.69.
+
+**El fallo de las fugaces:** «muestra las estrellas caer antes de tiempo y sin
+animación». **Una animación con retardo no pinta su primer fotograma mientras
+espera — pinta el estilo BASE del elemento**, que era opacidad 1. Así que las
+tres se quedaban quietas y visibles en su punto de partida durante los primeros
+segundos: 0,4 s la primera, 5,7 la segunda y 10,2 la tercera. Se arregla con
+`backwards` —que hace que el retardo use el 0% del keyframe— más `opacity: 0`
+de base, que cubre el instante anterior a que la animación exista. Medido: en
+el instante 0 y a mitad del retardo, las tres a opacidad 0; cruzando, 0,875.
+
+**Y el cielo se siembra por fuera del encuadre.** Lo pidió así: «que sea más
+amplio hacia los bordes y esté enmascarado dentro de su espacio, para que se
+vean más estrellas que no se ven cuando uno mueve el cursor». Sembrado justo en
+el encuadre, el paralaje arrastraba el borde a la vista y por ese lado no había
+nada: el cielo se acababa, que es lo contrario de la profundidad que se
+buscaba.
+
+Ahora hay `EXP_MARGEN` de 44 unidades de más por los cuatro lados y el SVG pasa
+a `overflow: hidden`, que es lo que lo enmascara. **De 79 estrellas a 145, con
+76 de ellas fuera del cuadro esperando a que muevas el cursor.** El paralaje
+del polvo sube de 9 a 16 px para que de verdad entren.
+
+El margen tiene que ser mayor que lo que el paralaje mueve el polvo o se vería
+el borde del sembrado, que es el mismo fallo con otro tamaño.
+
 ### 0.7.70 · 2 sep 2026
 
 **Mi apariencia se vuelve una galería: cada mundo se enseña solo.**
