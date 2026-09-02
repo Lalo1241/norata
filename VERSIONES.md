@@ -76,6 +76,126 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.67 · 2 sep 2026
+
+**Mi expedición se rehace entera: el cielo sube a la pantalla y se mueve, los
+rangos dejan de decir «Pasado», la barra del nivel se enciende y la letra chica
+se pliega.**
+
+La pantalla existía desde el nivel de expedición y no había vuelto a tocarse.
+Eduardo la miró y la resumió: «cero informativo, cero interesante y bastante
+olvidable».
+
+**1. El cielo, que ya estaba dibujado y no se veía.** Las cinco constelaciones
+—la bota, la huella, el farol, el mapa y la brújula— solo salían durante los dos
+segundos de la celebración de subir de nivel. Ahora encabezan la pantalla, con
+la misma composición de la celebración porque es lo que hace que las dos sean el
+mismo sitio: la que estás cerrando en grande, y las cerradas en un estante
+arriba, titilando. Las estrellas que faltan quedan como **aros vacíos que se
+cuentan**, que es lo que convierte «te faltan 235 puntos» en «te falta media
+figura».
+
+Cuántas van encendidas lo decide `ncelHasta()` y no una cuenta propia: desde la
+0.7.65 cada figura tiene las que pide el dibujo, y dos verdades sobre lo mismo
+es justo lo que no puede haber.
+
+Tres altos y no uno —con altar (190), vitrina (150) y vacío (118)—: con un alto
+fijo, los dos extremos de la vida de una cuenta dejaban media tarjeta de negro.
+Y una primera versión con las cinco en hilera y del mismo tamaño no se sostuvo:
+a esa escala una constelación son cuatro rayas de medio píxel.
+
+**2. El cielo se mueve.** Lo pidió Eduardo: «que reaccione al paso del mouse y
+que se anime ligeramente, como leves estrellas fugaces». Dos cosas:
+
+- **Paralaje de tres capas.** El polvo se mueve a favor del puntero (+4,3 px
+  medidos), las medallas en contra (−2,9) y la figura viva más (−6,2). Solo
+  donde hay puntero de verdad: en un teléfono `pointermove` llega con el dedo y
+  dejaría el cielo torcido sin forma de enderezarlo.
+- **Tres estrellas fugaces**, y la palabra que manda es *leves*: cada una cruza
+  en 1,7 s y pasa otros once quieta y a opacidad cero. Pasa una cada cuatro
+  segundos y medio y nunca dos a la vez. Es lo que separa esto de los rayos
+  giratorios que se quitaron en la 0.7.48 —«algo que gira sin final es
+  decoración de fondo, no un acontecimiento»—.
+
+Señalar una constelación la acerca, la enciende y dice de qué rango es.
+
+**3. La barra del nivel, con estela.** Se llena al entrar, lleva una punta
+encendida en la cabeza y un brillo que la recorre cada dos segundos y medio,
+todo del color del rango que llevas puesto. Se anima con `transform` y
+`opacity` y nunca con un color: un color que sale de una variable se queda
+congelado en Chrome, y esa trampa ya mordió cuatro veces en esta app.
+
+**4. Un color por rango — y ni lila ni luciérnaga.** El primer reparto usaba los
+cinco acentos de la casa y Eduardo lo paró en la primera mirada: el **lila** es
+de Fundador y de nada más —se sacó del amarillo justo para que dijera una sola
+cosa— y la **luciérnaga** es «mira esto», el color de un cobro que falló o de la
+trastienda. Un rango pintado con cualquiera de los dos no es variedad de color,
+es un mensaje equivocado.
+
+En su sitio entran dos tonos propios que no dicen nada más:
+
+| | Noche | Día (sobre la tarjeta clara) |
+| --- | --- | --- |
+| `--rosa` | `#f2a0c4` | `#ad2e74` · 5,44 |
+| `--astro` | `#cfe2f7` | `#2f4d7a` · 7,55 |
+
+El rosa se queda en la banda de los otros tres (menta 5,46, celeste 5,48, coral
+5,48) para que los cinco se lean como una familia. **`--astro` es la excepción a
+propósito**: es el último de los cinco, de noche es luz de estrella —que es lo
+que tiene que ser el color del final del camino— y de día eso no existe, así que
+se convierte en la tinta más honda. Va saturado porque con `--faint` al lado
+(4,69 y sin saturación) un azul apagado se habría leído como «desactivado».
+
+El reparto queda menta (160°), celeste (204°), rosa (330°), astro (sin matiz) y
+coral (12°): el único par cercano sería rosa-coral, y entre los dos va el astro.
+
+Y el candado de un peldaño sigue la misma regla: **lila solo si lo que cierra es
+Fundador**; lo que cierra Pro va en celeste, que aquí no significa nada más.
+
+**5. Los rangos ya no se apagan.** Decían «Pasado» en gris —más apagado incluso
+que los que ni has alcanzado—, y un logro escrito en pasado y en gris se lee
+como algo que se te fue. Ahora dice **Conseguido** con su palomita, conserva su
+color, y los cinco pasan de una reja de pastillas a filas: en 84 px no cabe la
+línea que explica de qué va ese tramo del camino. Las notas están escritas sin
+nombrar el rango, para que un mundo pueda renombrarlos sin romperlas.
+
+**6. Lo que abre el nivel, que nunca se enseñó.** `EXP_ESCALERA` existe desde el
+primer día y esta pantalla no la pintaba, con el archivo diciendo al lado que
+«un premio sorpresa no mueve a nadie y uno que se ve venir, sí». Salen los cinco
+ambientes con su nivel, su propio dibujo y su estado, y por qué no lo tienes se
+lo pregunta a `aparienciaDisponible()`: un solo dato por chip.
+
+**7. De dónde salen tus puntos se pliega.** Cerrada de inicio y sin recordar
+estado. Al abrirla **explica cómo se gana cada fuente** —las reglas estaban
+medidas en `EXP_PUNTOS` desde siempre y nunca se le habían dicho a quien las
+está viviendo— y cada una lleva su color.
+
+**Tres arreglos que salieron por el camino:**
+
+- **`--celeste` faltaba en la lista de la escena** (`.scene-card, .celebrate,
+  .ncel, .scel`) desde que esa lista existe. No se había notado porque ninguna
+  escena lo usaba; el cielo sí, y en modo claro una constelación tomaba el
+  celeste de día —`#0f688f`— encima de un cielo casi negro. Medido, 1,6 sobre 1.
+- **El nivel 31 en adelante.** El cielo pregunta por `desde + EXP_POR_RANGO` y
+  no por `ncelIndiceRango()`, que cuenta sin techo y en el 31 devolvía la quinta
+  figura recién empezada cuando ya está cerrada.
+- **El paralaje no se movía aunque el oyente funcionaba.** El `0` de reserva
+  estaba declarado en cada capa, y una propiedad personalizada declarada en el
+  propio elemento gana a la que hereda: pisaba el valor que se escribe arriba.
+  Medido: `--mx` llegaba a 0,477 y el `transform` seguía en la matriz identidad.
+  El valor de reserva va en el elemento de fuera.
+
+**La insignia toma el color del rango solo dentro del cielo.** Fuera —el
+Resumen, la fila de la cuenta— sigue en menta: ahí cae sobre papel en modo claro,
+donde los cinco se hunden a tinta y un aro de dos píxeles ya no dice de qué color
+es. Se enciende con un segundo argumento.
+
+**Comprobado midiendo el DOM** en quince niveles (0, 1, 5, 6, 7, 12, 13, 18, 19,
+24, 25, 30, 31, 50 y 120): medallas y altar cuadran con el nivel en los quince,
+los cinco rangos siempre están, las tres fugaces se siembran siempre y no
+desborda de lado en ninguno. En los dos modos, con paralaje medido en las tres
+capas y su vuelta al centro, y a 320×480 sin cortar un solo rótulo.
+
 ### 0.7.66 · 2 sep 2026
 **Averno: el banner deja de tener un hueco de 200 px, y el modo claro se limpia.**
 
