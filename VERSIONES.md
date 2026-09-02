@@ -52,6 +52,123 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.56 · 1 sep 2026
+**El mes manda en la racha, y el tablero deja de tener agujeros.**
+
+Expedición entró al tablero en la 0.7.44 y se dio de alta en los doce acomodos
+con un guion. Eso evitó el olvido, pero ninguna de las doce decisiones se volvió
+a tomar: **once de los doce quedaron con al menos una celda vacía**, y en siete
+de ellos dos de las tres tarjetas de cifra acabaron pegadas.
+
+**Cuatro cosas, y las cuatro salieron de medir.**
+
+#### 1. La racha recibía una fila de más en todos los anchos
+
+`ALTO_RACHA` era `7 / 5 / 6` y el contenido medía 486, 266 y 326 px, o sea que
+recibía 536, 376 y 456. Como `.scene-body` centra en vertical, eso salía como
+cielo vacío repartido arriba y abajo: **166 px de los 456 de una tarjeta de
+1176 de ancho, el 36 %** — justo el problema del que venía la 0.7.33. Y no lo
+recuperaba nadie, porque `encajarEnPantalla` se salta la racha a propósito.
+
+Ahora es `7 / 4 / 5`, y lo que sobra pasó de 110-130 px a 7-30.
+
+#### 2. La tarjeta de la racha: dos bloques en vez de tres
+
+Eran tres en fila —la marca, el hito, el mes— y ese reparto tenía tres
+problemas que se veían y ninguno era de color:
+
+- **217 px de sangría a la izquierda contra 18 a la derecha.** Doce veces más
+  aire de un lado que del otro; se lee como un agujero, no como margen.
+- **Cada bloque empezaba a una altura distinta**: 166, 125 y 109.
+- **El saludo arrancaba en el borde** y el contenido 217 px más adentro.
+
+Ahora el mes va a la izquierda y todo lo demás baja a un solo carril a su
+derecha. Medido después: márgenes de 18 y 18, saludo y mes empezando en la
+misma vertical, y 25 px arriba y 25 abajo, que es el relleno de la tarjeta y no
+un hueco. El carril tiene tope de 820 px y lo que sobra cae a la derecha, donde
+está la luna del dibujo.
+
+**Y el hito se ve siempre.** «Próximo hito · 7 días» vivía detrás de un
+`@container` de 1150 px, o sea que la pieza que más mueve a volver no aparecía
+en teléfono, ni en tableta, ni en laptop — exactamente los aparatos donde se
+mira una racha. Se escribía en el HTML y se tiraba con `display: none`. Ahora lo
+único que espera a que haya sitio es «qué la sostiene», que son tres filas más.
+
+Dos números que costaron una vuelta cada uno:
+
+- **El hito pasó a una línea.** Con la cifra en 26 px competía con el número de
+  la racha —que es el número de esta tarjeta— y costaba 33 px de alto. Esos
+  33 px son exactamente los que separan cinco filas de seis.
+- **El segundo umbral es 900 y no 680.** A 688 px —la racha de dos columnas en
+  una tableta— el carril se queda en 294, la frase y las cifras parten en varias
+  líneas, y la tarjeta pedía 459 px cuando recibía 376. Se salía por abajo sin
+  que nada lo dijera.
+
+#### 3. Una forma de ventana que no tenía lista
+
+`formaTablero` daba el segundo salto por el ALTO de la ventana (`VENTANA_BAJA`,
+860), y esa cuenta dejaba fuera una forma entera: **una ventana alta de menos de
+1700 px de ancho tiene DOS columnas y recibía la lista de tres.** Una MacBook
+Pro de 14 pulgadas abre la app a 1512 x 950 y veía un primer botón que prometía
+«tres columnas parejas, las misiones al centro» delante de dos columnas sin
+centro. Medido y ya encogido: 1096 px «Columnas», y 1416 —1.72 pantallas— los
+otros dos.
+
+Ahora el salto es el número de columnas, que es lo que de verdad cambia el
+reparto. `VENTANA_BAJA` desaparece; el alto lo sigue resolviendo
+`encajarEnPantalla`, que mide en vez de suponer.
+
+#### 4. Los doce acomodos, rehechos con dos reglas
+
+1. **Ninguna columna termina antes que las otras.**
+2. **Dos tarjetas de cifra no se tocan.** Expedición, Niveles e Invertido son
+   la misma pieza; dos iguales apiladas no se leen como dos datos, se leen como
+   una repetición. Entre dos va siempre una lista.
+
+Se buscó el reparto por fuerza bruta sobre las 40.320 ordenaciones posibles de
+cada acomodo, con el empaquetador de verdad. Once de los doce salen ya sin un
+solo hueco.
+
+**Pero las alturas escritas a mano no son la garantía, y esto es lo importante:**
+cambian después de escribirlas. `encajarEnPantalla` las encoge, quien quitó una
+tarjeta reparte de otra manera, y «Misiones de hoy» mide lo que midan las
+misiones de esa persona. Así que hay dos piezas nuevas que lo sostienen pase lo
+que pase:
+
+- **`emparejarColumnas`** rellena los huecos DESPUÉS de colocar: busca cada
+  celda vacía y estira hacia abajo la tarjeta que tiene justo encima. Como solo
+  ocupa celdas que ya estaban vacías, nadie se mueve y el tablero no crece ni
+  una fila.
+- **`compactarEnSuColumna`** sustituye a `empaquetar` dentro de
+  `encajarEnPantalla`. Antes se recolocaba todo desde cero, y eso deshacía el
+  acomodo recién elegido: al encoger «Misiones de hoy», «Invertido» se colaba en
+  su columna y el tablero dejaba de tener las misiones al centro, que es lo que
+  promete el botón que se acaba de pulsar.
+
+**Comprobado:** los tres acomodos en seis ventanas —2560x1400, 1920x1000,
+1512x950, 1366x657, 1024x700 y 768x1024— más el teléfono a 375, más el modo
+claro, más el caso vacío, más quitando una tarjeta cualquiera del tablero. En
+las dieciocho combinaciones: **cero huecos, cero cifras apiladas, ninguna
+tarjeta desbordada y ningún desplazamiento lateral.** «Columnas» en tres
+columnas mide 856 px y cabe entero en una pantalla de 1000.
+
+**Y con las apariencias puestas**, que es lo que obligaba a medirlo otra vez:
+esta tanda se escribió sobre la 0.7.47 y se reaplicó encima de la 0.7.55.3, con
+Reliquia y los siete ambientes ya dentro. Un mundo cambia la tipografía de las
+cifras —Reliquia pone Syne— y el alto de esta tarjeta está medido al píxel, así
+que un tipo más ancho podía sacarla de su hueco. Comprobado: **22 anchos entre
+340 y 2200 px, por los ocho ambientes y mundos, en los dos modos.** Ninguno se
+sale, y el margen más apretado es de 6 px. Los ambientes solo declaran color
+dentro de `.scene-card`, y la tipografía del mundo sí llega pero no mueve nada
+porque las casillas del mes son cuadradas por `aspect-ratio` y las cifras
+llevan `line-height` escrito.
+
+**Lo que NO se hizo, y sigue abierto:** sacar el saludo y la fecha de la tarjeta
+de la racha. Hoy `greeting()` se escribe en un solo sitio de todo el código y es
+ahí dentro, así que quien quite la racha del tablero se queda sin fecha en el
+Resumen. Se arregla llevándolo a la cabecera del Resumen, pero es un cambio que
+se ve en la primera pantalla de todo el mundo y esa decisión es de Eduardo.
+
 ### 0.7.55.5 · 1 sep 2026
 El modo claro de Reliquia, que era donde se veía todo lo que faltaba. **En modo
 oscuro no se movió ni un píxel** — medido: de las 107 diferencias de la foto de
