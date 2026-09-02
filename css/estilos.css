@@ -6604,6 +6604,39 @@
     .thumb-cluster .c-nav svg { width: 20px; height: 20px; flex-shrink: 0; }
     .nav-label { display: inline; font-size: 14px; font-weight: 650; letter-spacing: -0.1px; white-space: nowrap; }
     .side-only { display: flex !important; }
+    /* Y `hidden` tiene que poder ganarle. `.side-only` declara su display con
+       `!important`, y el `display: none` que el navegador le pone a un elemento
+       con `hidden` es una regla normal: pierde. Sin esta línea el botón de
+       actualizar sale siempre, desde el primer arranque. */
+    .side-only[hidden] { display: none !important; }
+
+    /* ---------- "Hay una versión nueva" ----------
+       En luciérnaga, que es el amarillo de avisar: entre cinco botones grises
+       que llevan a sitios, este no lleva a ningún sitio — dice que hay algo
+       que hacer. No es coral porque no se rompe nada si lo ignoras: la versión
+       nueva entra sola en la siguiente apertura. Es exactamente el hueco de
+       `btn-aviso`.
+
+       Solo está mientras hace falta, así que no compite con nada de forma
+       permanente. Y como es un `.c-nav` como los demás, plegada la barra se
+       queda en su icono sin una sola regla más: de eso ya se encarga
+       `html.sc .nav-label`. */
+    #nav-update-side { color: var(--fire); }
+    #nav-update-side:hover { background: var(--fire-soft); color: var(--fire); }
+
+    /* El anclaje abajo y la línea de separación son de quien encabece el grupo.
+       Con el de actualizar puesto pasan a ser suyos; si no, salían dos rayas
+       seguidas y Ajustes se quedaba pegado al resto del menú. */
+    #nav-update-side { margin-top: auto; position: relative; }
+    #nav-update-side::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; top: -9px;
+      height: 1px;
+      background: var(--line);
+    }
+    #nav-update-side:not([hidden]) ~ #nav-settings-side { margin-top: 0; }
+    #nav-update-side:not([hidden]) ~ #nav-settings-side::before { display: none; }
 
     /* Ajustes no se toca a cada rato: se separa del resto de la navegación
        y se ancla abajo del todo, en vez de competir por atención junto a

@@ -76,6 +76,50 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.59.1 · 1 sep 2026
+**«Actualizar» deja de ser un aviso que pasa y se vuelve un botón que espera.**
+
+La 0.7.58 arregló *cuándo* se entera la app de que hay versión nueva. Faltaba
+*dónde* se dice: seguía siendo un toast, y un toast tiene un problema que ningún
+retoque de duración arregla — **el momento en que aparece lo elige el servidor,
+no tú.** O estabas mirando la pantalla justo entonces, o te lo perdiste.
+
+Ahora es un botón en la barra lateral, encima de Ajustes, que es donde ya se
+busca «lo de la app». Espera lo que haga falta y no tapa nada. En luciérnaga,
+que es el amarillo de avisar: entre cinco botones grises que llevan a sitios,
+este no lleva a ningún sitio — dice que hay algo que hacer. No es coral porque
+no se rompe nada si lo ignoras; la versión nueva entra sola en la siguiente
+apertura. Es exactamente el hueco de `btn-aviso`.
+
+**Se lleva consigo el anclaje abajo y la línea de separación.** Las tenía
+Ajustes; con el botón puesto delante pasan a ser suyas, o salían dos rayas
+seguidas y Ajustes se quedaba pegado al resto del menú.
+
+**Plegada la barra no hace falta ni una regla más:** es un `.c-nav` como los
+otros cinco, así que de esconder el rótulo ya se encarga `html.sc .nav-label`.
+Medido con las animaciones saltadas —en el panel de pruebas las transiciones no
+avanzan nunca y la barra parecía medir 209 px—: desplegada 209 × 52 con su
+rótulo, plegada 47 × 52 con solo el icono de 20, y en las dos por encima de
+Ajustes y sin salirse de la barra.
+
+**Y una línea de CSS que no es obvia:**
+
+```css
+.side-only[hidden] { display: none !important; }
+```
+
+`.side-only` declara su `display` con `!important`, y el `display: none` que el
+navegador le pone a un elemento con `hidden` es una regla normal: pierde. Sin
+esa línea el botón de actualizar sale siempre, desde el primer arranque, en
+todas las sesiones.
+
+**En el teléfono sigue saliendo el toast**, porque ahí no hay barra lateral y no
+hay otro sitio donde ponerlo. No se decide por el ancho de la ventana sino
+preguntándole al botón si de verdad se está pintando (`offsetParent`): la regla
+que lo esconde vive en el CSS, y duplicar aquí ese umbral es tener dos números
+que algún día dejarían de decir lo mismo. Ese toast conserva su suelo de cinco
+minutos entre apariciones; el botón no lo necesita, porque se queda puesto.
+
 ### 0.7.59 · 1 sep 2026
 **Dos mundos más: Blueprint y Averno.** De quince, ya se pueden encender tres.
 
