@@ -52,6 +52,46 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.57 · 1 sep 2026
+**El saludo sale de la racha y se pone donde vive el día.**
+
+Era lo único que quedaba abierto de la 0.7.56. «Buenas noches · martes, 1 de
+septiembre» se escribía dentro de la tarjeta de la racha, y ahí `greeting()`
+tenía **su única aparición en todo el código**: quien quitaba esa tarjeta del
+tablero —cosa que el Modo Editor permite y que hacen los tres acomodos que no
+la ponen delante— se quedaba sin saludo y sin fecha en el Resumen entero.
+
+Y no era solo un accidente de colocación: **la fecha no es un dato de la racha.**
+Es de hoy, y hoy es de la pantalla.
+
+Ahora va encima del título del Resumen, en tono normal y no en las versalitas de
+menta de `.kicker` —que existía sin usarse desde hace tiempo—: una fecha en
+mayúsculas y con tres píxeles de entreletra deja de leerse como un saludo y pasa
+a leerse como una etiqueta de sección, y aquí se busca lo contrario. Se escribe
+**antes** del caso vacío a propósito: un perfil recién creado no tiene tablero
+que pintar, pero sí tiene día, y esa pantalla es justo la que más agradece que
+alguien la salude.
+
+**Y en su sitio, el nombre de la tarjeta.** Sin él empezaba directamente por un
+número grande y no decía de qué era. Se llama «Racha», que es como se llama en
+`DASH_META` y en la bandeja del Modo Editor: una cosa, un nombre.
+
+**El mes viaja con el título cuando hay dos bloques**, y esto salió de mirar el
+resultado. Con «RACHA» puesto, el rótulo del calendario quedaba doce píxeles más
+abajo, en el mismo borde izquierdo y con el mismo tamaño —10,5 px contra 10—:
+dos etiquetas apiladas, no un título con su sección. Así que a partir de 430 px
+el título dice «RACHA · SEPTIEMBRE 2026» y el calendario suelta el suyo. Apilada
+no puede mudarse —allí el mes queda lejos del título y necesita decir de cuándo
+es—, así que se escribe siempre y lo esconde el CSS. El año sigue incluido: un
+calendario suelto no dice de cuándo es, y esta tarjeta va a llevar años abierta.
+
+**Comprobado:** el alto de la tarjeta en 22 anchos entre 340 y 2200 px, por los
+ocho ambientes y mundos, en los dos modos —352 medidas—: ninguna se sale, y el
+margen más apretado sigue siendo el de 6 px del píxel exacto donde deja de estar
+apilada. Los tres acomodos en cuatro ventanas, sin huecos y sin cifras apiladas.
+El saludo sale igual con el perfil vacío, y en el teléfono el título dice
+«RACHA» a secas mientras el calendario conserva su «SEPTIEMBRE 2026».
+
 ### 0.7.56.1 · 2 sep 2026
 **Los encabezados de módulo y la tarjeta de la racha también llevan marco en
 Reliquia.** Lo preguntó Eduardo: «siento que desentonan mucho en comparación
