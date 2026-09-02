@@ -76,6 +76,69 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.69 · 2 sep 2026
+
+**Las estrellas fugaces se rehacen con cabeza y cola, y la barra del nivel se
+muda a la racha.**
+
+Las dos cosas las pidió Eduardo mirando la 0.7.68.
+
+**La fugaz ahora es luz y no una raya.** Lo corrigió con una captura delante:
+«un punto destelleante y un degradado en la cola para simular la animación de
+la luz, y que se atenúe todo para desaparecer en el cielo». Así que son dos
+piezas:
+
+- la **cabeza**, un disco de 1,15 con su halo — es lo que se ve, y lo que hace
+  que parezca luz y no un círculo pintado;
+- la **cola**, un triángulo de 19 de largo con un degradado que se apaga hacia
+  atrás. Triángulo y no línea: una línea tiene grosor constante, y una estela
+  que no se estrecha es un palo.
+
+El degradado se declara una vez en `<defs>` y lo usan las tres. Va en
+`userSpaceOnUse` porque en el sistema de la caja un degradado horizontal sobre
+un triángulo casi plano sale impredecible; como las tres colas viven en las
+mismas coordenadas locales, con una definición basta. El halo va en la cabeza
+sola y no en el grupo: sobre la cola lo ensucia. Y la atenuación se lleva los
+últimos catorce puntos de la vuelta, para que se apague en vez de cortarse.
+
+**Y la barra se comparte.** «Me enamoré de tu barra de carga… se podría sacar
+provecho en otras áreas, como en Racha». Ya no vive en Mi expedición: es
+`.barra-viva`, con su llenado de entrada, su punta encendida y su estela, y la
+usan cuatro sitios. El alto se pide con `--alto` porque ninguno lo quiere
+igual: 5 px debajo del nivel, 4 en las cifras de la racha y 8 en el próximo
+hito.
+
+En la tarjeta de la racha entran tres:
+
+| Dónde | Color | Por qué |
+| --- | --- | --- |
+| esta semana | luciérnaga | es el color de la llama, que ya manda en esa tarjeta |
+| en \<mes\> | menta | el acento, que es el del calendario de al lado |
+| próximo hito | menta | la barra grande, y donde más paga |
+
+«4/7» dice el dato y no dice de un vistazo si vas bien: una fracción hay que
+resolverla, una barra se ve. Y el próximo hito era un carril muerto debajo de
+lo único de esa tarjeta que mueve a volver hoy.
+
+**El día en curso deja de estar quieto.** También lo pidió. Es un pulso que
+sale del borde de la casilla y se abre, como el eco de un radar: dice «este es»
+sin robarle la atención a las casillas llenas, que son las que cuentan la
+racha. Va en un `::after` y no en el `box-shadow` de la casilla porque lo que
+se anima es una escala, y escalar la casilla movería su número. **Y la llama
+respira** mientras la racha esté viva —tres segundos y medio, un halo que crece
+poco—; con la racha rota se queda quieta, porque una llama que late encima de
+un cero anima algo que no está pasando.
+
+`.sgh-b` pierde su `overflow: hidden`: la punta encendida tiene que poder
+salirse del carril, que es justo lo que la hace parecer luz.
+
+**Comprobado midiendo el DOM:** las tres barras de la racha con su alto, su
+color y sus tres animaciones (`expLlena`, `expPunta`, `expEstela`); el pulso de
+hoy y el de la llama; las tres colas con su degradado y sus tres cabezas con su
+halo, congeladas a media travesía para verlas. En los dos modos —la tarjeta de
+la racha es una escena y se queda de noche, así que sus tonos no cambian— y sin
+desbordar a 375 px.
+
 ### 0.7.68 · 2 sep 2026
 
 **Mi expedición se rehace entera: el cielo sube a la pantalla y se mueve, los

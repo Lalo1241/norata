@@ -656,13 +656,31 @@ function expFiguraHTML(fig, hasta, cx, cy, m, huecas) {
    Así que una fugaz no es una animación que corre todo el rato: cruza en 1,7 s
    y luego el elemento pasa once segundos quieto y a opacidad cero. Con tres
    sembradas y sus retardos escalonados, pasa una cada cuatro segundos y medio
-   y nunca dos a la vez. Es lo que hace que el cielo parezca vivo sin pedir que
-   lo mires.
+   y nunca dos a la vez.
+
+   **Son DOS piezas y no una raya**, y ésa fue la corrección de Eduardo con una
+   captura delante: «un punto destelleante y un degradado en la cola para
+   simular la animación de la luz, y que se atenúe todo para desaparecer».
+
+     · la CABEZA es un disco pequeño con su halo — es lo que se ve, y lo que
+       hace que parezca luz y no una línea pintada;
+     · la COLA es un triángulo, ancho en la cabeza y en punta al final, con un
+       degradado que se apaga hacia atrás. Un triángulo y no una línea porque
+       una línea tiene grosor constante: se estrecha o no se estrecha, y una
+       estela que no se estrecha es un palo.
+
+   El degradado se declara UNA vez en `<defs>` y lo usan las tres. Va en
+   `userSpaceOnUse` y no en el sistema de la caja: la cola es un triángulo de
+   19 de largo y 1,7 de alto, y en `objectBoundingBox` un degradado horizontal
+   sobre una caja casi plana sale impredecible. Como las tres colas viven en
+   las mismas coordenadas locales —de (-19,0) a (0,0)— con una definición basta.
 
    El giro y el sitio van en un `transform` de ATRIBUTO en el `<g>` de fuera y
    la animación en un `<g>` de dentro. Si fueran el mismo elemento, el
    `transform` del CSS pisaría al del atributo y las tres saldrían del mismo
    sitio: una propiedad no se puede escribir dos veces. */
+const EXP_COLA = 19;
+
 function expFugacesHTML(alto) {
   let s = "";
   for (let i = 0; i < 3; i++) {
@@ -674,9 +692,21 @@ function expFugacesHTML(alto) {
     s += '<g transform="translate(' + x.toFixed(1) + ',' + y.toFixed(1) +
       ') rotate(' + ang.toFixed(0) + ') scale(' + esc.toFixed(2) + ')">' +
       '<g class="exp-fugaz" style="animation-delay:' + espera + 's">' +
-      '<line x1="-15" y1="0" x2="0" y2="0"/></g></g>';
+      '<path class="exp-cola" d="M-' + EXP_COLA + ' 0 L0 -0.9 L0 0.9 Z"/>' +
+      '<circle class="exp-cabeza" cx="0" cy="0" r="1.15"/>' +
+      '</g></g>';
   }
   return s;
+}
+
+/* El degradado de la cola, declarado una vez para las tres. */
+function expDefsHTML() {
+  return '<defs><linearGradient id="exp-cola-luz" gradientUnits="userSpaceOnUse"' +
+    ' x1="-' + EXP_COLA + '" y1="0" x2="0" y2="0">' +
+    '<stop offset="0" stop-color="#eaf4ff" stop-opacity="0"/>' +
+    '<stop offset="0.6" stop-color="#eaf4ff" stop-opacity="0.28"/>' +
+    '<stop offset="1" stop-color="#eaf4ff" stop-opacity="0.9"/>' +
+    '</linearGradient></defs>';
 }
 
 function expCieloHTML(nivel) {
@@ -731,6 +761,7 @@ function expCieloHTML(nivel) {
 
   return '<svg class="exp-sky" viewBox="0 0 320 ' + alto + '" role="img"' +
     ' aria-label="Tu cielo: ' + cerradas.length + ' de 5 constelaciones cerradas">' +
+    expDefsHTML() +
     '<g class="exp-polvo">' + fondo + '</g>' +
     '<g class="exp-fugaces">' + expFugacesHTML(alto) + '</g>' +
     estante + altar + '</svg>';
@@ -904,7 +935,11 @@ function renderColeccion() {
             <div class="exp-hero-rango" style="color:${tono}">${expLecturaCielo(nivel)}</div>
           </div>
         </div>
-        <div class="exp-hero-barra"><i style="--p:${info.pct}%;--c:${tono}"></i></div>
+        ${/* La misma barra que ahora usa la racha. Le gustó a Eduardo —«me
+             enamoré de tu barra de carga… se podría sacar provecho en otras
+             áreas»— así que vive en `.barra-viva` y no aquí: dos copias del
+             mismo efecto se separan a la tercera vez que alguien toca una. */""}
+        <div class="barra-viva exp-hero-barra"><i style="--p:${info.pct}%;--c:${tono}"></i></div>
         <div class="exp-hero-pie">
           <b>${info.faltan}</b> ${info.faltan === 1 ? "punto" : "puntos"} para el nivel ${nivel + 1}
           <span>${info.puntos} en total</span>

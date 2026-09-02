@@ -1385,6 +1385,15 @@
     margin: 4px 0 10px;
   }
   .streak-row .flame { color: var(--fire); }
+  /* La llama respira mientras la racha está viva. Tres segundos y medio y un
+     halo que crece muy poco: tiene que verse encendida, no parpadear. Con la
+     racha rota se queda quieta —lo decide el JavaScript con la clase—, porque
+     una llama que late encima de un cero anima algo que no está pasando. */
+  @keyframes flameLatido {
+    0%, 100% { filter: drop-shadow(0 0 3px color-mix(in srgb, var(--fire) 45%, transparent)); }
+    50%      { filter: drop-shadow(0 0 9px color-mix(in srgb, var(--fire) 70%, transparent)); }
+  }
+  .streak-row .flame.viva { animation: flameLatido 3.5s ease-in-out infinite; }
   .streak-row .flame svg { width: 30px; height: 30px; stroke-width: 1.6; }
   .streak-row .num { font-size: 34px; font-weight: 700; letter-spacing: -1px; line-height: 1; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .streak-row .lbl { font-size: 12px; color: rgba(var(--escena-tinta), 0.8); line-height: 1.3; }
@@ -1857,19 +1866,29 @@
      Los valores van escritos y no salen de variables a propósito: el sitio y
      el giro de cada una los pone un `transform` de atributo en el `<g>` de
      fuera, así que aquí solo hace falta una animación y vale para las tres. */
-  .exp-fugaz line {
-    stroke: #eaf4ff; stroke-width: 0.9; stroke-linecap: round;
+  /* La cola: un triángulo con el degradado que se apaga hacia atrás, no una
+     raya. Una raya tiene grosor constante y una estela que no se estrecha es
+     un palo — se vio en la primera versión y lo corrigió Eduardo con una
+     captura delante. */
+  .exp-cola { fill: url(#exp-cola-luz); }
+  /* Y la cabeza: el punto que destella. Su halo es lo que la hace parecer luz
+     y no un círculo pintado, y por eso el filtro va en la cabeza sola y no en
+     el grupo entero: sobre la cola, un halo la ensucia. */
+  .exp-cabeza {
+    fill: #f4faff;
+    filter: drop-shadow(0 0 2.4px rgba(234, 244, 255, 0.95));
   }
+  /* Entra de golpe y se apaga despacio, que es como se ve una de verdad: el
+     brillo llega antes que el ojo y lo que queda es el rastro perdiéndose. Los
+     últimos catorce puntos de la vuelta son la atenuación, no un corte. */
   @keyframes expFugaz {
-    0%, 86%  { transform: translateX(0); opacity: 0; }
-    88%      { opacity: 0.9; }
-    96%      { opacity: 0.5; }
-    100%     { transform: translateX(96px); opacity: 0; }
+    0%, 86%  { transform: translateX(0);     opacity: 0; }
+    87%      { opacity: 1; }
+    93%      { opacity: 0.75; }
+    97%      { opacity: 0.3; }
+    100%     { transform: translateX(104px); opacity: 0; }
   }
-  .exp-fugaz {
-    animation: expFugaz 13s linear infinite;
-    filter: drop-shadow(0 0 2px rgba(234, 244, 255, 0.7));
-  }
+  .exp-fugaz { animation: expFugaz 13s linear infinite; }
 
   .exp-hero { padding: 2px 16px 15px; }
   .exp-hero-fila { display: flex; align-items: center; gap: 12px; }
@@ -1882,9 +1901,14 @@
      este renglón con su constelación de arriba sin escribirlo. */
   .exp-hero-rango { font-size: 12.5px; font-weight: 650; margin-top: 1px; }
 
-  /* ---------- La barra del nivel, con estela ----------
-     Lo pidió Eduardo: «animada, con una estela del color del momento». Son
-     tres cosas y cada una hace algo distinto:
+  /* ---------- `.barra-viva`: la barra con estela ----------
+     Lo pidió Eduardo para el nivel —«animada, con una estela del color del
+     momento»— y al verla pidió llevarla a más sitios: «me enamoré de tu barra
+     de carga… se podría sacar provecho en otras áreas, como en Racha». Así que
+     vive aquí, sola, y la usan Mi expedición y las dos cifras de la racha. Dos
+     copias del mismo efecto se separan a la tercera vez que alguien toca una.
+
+     Son tres cosas y cada una hace algo distinto:
 
        1. la barra se LLENA al entrar, así que ves cuánto llevas en vez de
           encontrártelo ya puesto;
@@ -1894,14 +1918,22 @@
 
      Todo se anima con `transform` y `opacity`, nunca con un color: un color
      que sale de una variable se queda congelado en Chrome, y esa trampa ya
-     mordió cuatro veces en esta app. El color del momento entra por `--c`, que
-     lo escribe el JavaScript, y se queda quieto. */
-  .exp-hero-barra {
-    height: 5px; border-radius: var(--r-redondo); margin-top: 12px;
-    background: rgba(var(--escena-tinta), 0.14);
-    position: relative;
+     mordió cuatro veces en esta app. El color entra por `--c`, que lo escribe
+     el JavaScript, y se queda quieto.
+
+     El carril es `--carril` y no una transparencia de la tinta de la escena:
+     así la barra funciona igual dentro de una escena —donde `--carril` vuelve
+     a su valor de noche— y fuera, sobre una tarjeta de papel. */
+  .barra-viva {
+    /* El alto se pide con `--alto` porque los tres sitios que la usan no lo
+       quieren igual: 5 px debajo del nivel, 4 en las cifras de la racha y 8 en
+       el próximo hito, que es la barra grande de esa tarjeta. Lo demás —punta,
+       estela y llenado— no cambia. */
+    height: var(--alto, 5px); border-radius: var(--r-redondo);
+    background: var(--carril); position: relative;
   }
-  .exp-hero-barra i {
+  .exp-hero-barra { margin-top: 12px; }
+  .barra-viva i {
     position: absolute; inset: 0 auto 0 0; width: var(--p, 0%);
     background: var(--c, var(--mint)); border-radius: var(--r-redondo);
     transform-origin: left center;
@@ -1911,7 +1943,7 @@
   @keyframes expLlena { from { transform: scaleX(0); } }
   /* La punta. Va fuera del recorte para que el halo se salga de la barra, que
      es lo que la hace parecer encendida y no pintada. */
-  .exp-hero-barra i::before {
+  .barra-viva i::before {
     content: ""; position: absolute; right: -2px; top: 50%;
     width: 7px; height: 7px; margin-top: -3.5px;
     border-radius: var(--r-redondo); background: var(--c, var(--mint));
@@ -1925,7 +1957,7 @@
   }
   /* Y la estela, recortada a lo lleno. El `overflow` va en un envoltorio
      propio y no en la barra, porque la punta tiene que poder salirse. */
-  .exp-hero-barra i::after {
+  .barra-viva i::after {
     content: ""; position: absolute; inset: 0; border-radius: inherit;
     overflow: hidden;
     background: linear-gradient(90deg,
@@ -2123,9 +2155,11 @@
   @media (prefers-reduced-motion: reduce) {
     .exp-const.cerrada .exp-astro.puesta,
     .exp-fugaz,
-    .exp-hero-barra i,
-    .exp-hero-barra i::before,
-    .exp-hero-barra i::after,
+    .barra-viva i,
+    .barra-viva i::before,
+    .barra-viva i::after,
+    .rc-hoy::after,
+    .streak-row .flame.viva,
     .col-fuente i::after { animation: none; }
     .exp-fugaz { opacity: 0; }
     .exp-plegable svg, .col-rango-uno, .col-peldano, .exp-const { transition: none; }
@@ -6649,6 +6683,32 @@
      «cuatro de siete», que es lo que dice. */
   .sg-cifras b span { font-size: 13px; font-weight: 700; color: var(--muted); }
   .sg-cifras > div > span { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+  /* La barra debajo de cada cifra. Existe porque «4/7» dice el dato y no dice
+     de un vistazo si vas bien: una fracción hay que resolverla, una barra se
+     ve. Ancho fijo y no `100%` porque las dos cifras están en una fila
+     flexible y sin tope la barra las estiraba hasta descolgar el calendario. */
+  .sg-barra { width: 74px; margin: 7px 0 1px; --alto: 4px; }
+
+  /* ---- Hoy no se queda quieto ----
+     Lo pidió Eduardo: «que el día en curso igual tenga algún efecto y no se
+     vea todo estático». Es un pulso que sale del borde y se abre, como el eco
+     de un radar: dice «este es» sin robarle la atención a las casillas
+     llenas, que son las que cuentan la racha.
+
+     Va en un `::after` y no en el `box-shadow` de la casilla porque lo que se
+     anima es una ESCALA, y escalar la casilla movería su número. */
+  .rc-hoy { position: relative; }
+  .rc-hoy::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    box-shadow: 0 0 0 2px var(--mint);
+    animation: rcLatido 2.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+    pointer-events: none;
+  }
+  @keyframes rcLatido {
+    0%   { opacity: 0.6; transform: scale(1); }
+    65%  { opacity: 0;   transform: scale(1.5); }
+    100% { opacity: 0;   transform: scale(1.5); }
+  }
 
   /* ---- El calendario de la racha ----
      Las casillas se estiran con su columna hasta un tope: en el teléfono usan
@@ -6691,8 +6751,9 @@
      hueco en el sitio equivocado. Ahora manda un solo umbral. */
   .sg-extra { display: none; flex-direction: column; gap: 20px; }
 
-  .sgh-b { margin-top: 9px; height: 8px; border-radius: var(--r-boton); background: var(--carril); overflow: hidden; }
-  .sgh-b i { display: block; height: 100%; border-radius: var(--r-barra); background: var(--mint); }
+  /* Sin `overflow: hidden`: la punta encendida de `.barra-viva` tiene que
+     poder salirse del carril, que es lo que la hace parecer luz. */
+  .sgh-b { margin-top: 9px; --alto: 8px; border-radius: var(--r-boton); }
   .sgh-p { margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.45; }
 
   .sg-sostiene { display: flex; flex-direction: column; gap: 8px; }
