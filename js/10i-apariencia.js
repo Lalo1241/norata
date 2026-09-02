@@ -159,16 +159,17 @@ const MUNDOS = [
          reconoce, y esa era la petición de Eduardo: «que se entienda que es
          con qué». Tiene nombre y se puede buscar.
 
-         El sello, en marco HEXAGONAL y no redondo. La forma viene del hexagrama
-         de Salomón de la Llave Menor, que es el que se usa para constreñir; y
-         la razón de cambiarlo es que Abadón pasó a ser un pentagrama dentro de
-         un círculo, y dos glifos que son «un círculo con una figura dentro» se
-         confunden a 20 px. Cinco siluetas distintas o no hay familia.
+         El sello: el anillo y la figura inscrita dentro. En esa tradición nada
+         existe hasta que su sello está trazado, así que éste es el peldaño en
+         el que dejas de ser un residuo y pasas a tener nombre.
 
-         En esa tradición nada existe hasta que su sello está trazado, así que
-         éste es el peldaño en el que dejas de ser un residuo y pasas a tener
-         nombre. */
-      { nombre: "Sello", trazo: '<path d="M12 2.6l8.4 4.6v9.6L12 21.4 3.6 16.8V7.2z"/><path d="M8.4 9.4l7.2 5.2M15.6 9.4l-7.2 5.2"/>',
+         **Éste no se toca.** Llegó a ser un hexágono durante un rato: al pasar
+         Abadón a pentagrama-en-círculo me pareció que dos glifos «redondos con
+         figura dentro» se confundirían, y lo cambié por mi cuenta. Eduardo lo
+         devolvió — el encargo era Ceniza, no éste—, y visto puesto tenía razón:
+         un pentagrama y un triángulo dentro de un aro no se confunden, porque
+         lo que separa un glifo de otro es la FIGURA y no el marco. */
+      { nombre: "Sello", trazo: '<circle cx="12" cy="12" r="9.2"/><path d="M12 18.7L5.7 8.1h12.6z"/><circle cx="12" cy="11.4" r="1.7"/>',
         linea: { texto: "Lo ató, y puso su sello sobre él.", fuente: "Apocalipsis 20:2-3" } },
       /* **Leviatán**, y el dibujo pasó a llamarse como lo que ya era. El glifo
          no cambió ni un punto: es la cruz de Leviatán, que entró aquí como el
@@ -378,7 +379,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=d99ab602f9";
+  l.href = "css/mundos.css?h=00cf1766fe";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.

@@ -455,6 +455,11 @@ MUNDOS = [
    # y el peor de los ocho encima da 5,32 contra los 5,16 de la casa.
    "--m-carril":"#372b26",
    "--m-icono":f'url("{svg("averno-sello.svg")}") center/contain no-repeat',
+   # Los anillos, que son la firma del mundo y hasta ahora solo vivían en
+   # `extra=` —o sea, solo en la lámina—. Cruzan a la app desde aquí; dónde se
+   # ponen lo decide `app.py`, y la respuesta corta es: en la escena, que es la
+   # única pieza que sale UNA vez por pantalla.
+   "--m-anillos":f'url("{svg("averno-anillos.svg")}")',
    "--m-titulo":'"Grenze Gotisch",Georgia,serif',"--m-titulo-px":"17px","--m-titulo-peso":"700","--m-titulo-esp":".01em",
    "--m-cifra":'"Grenze Gotisch",Georgia,serif',"--m-cifra-peso":"700","--m-cifra-esp":"0",
    "--m-chip-fuente":'"Grenze Gotisch",Georgia,serif',"--m-chip-esp":".05em",

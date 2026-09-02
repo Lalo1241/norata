@@ -611,6 +611,26 @@ html.claro[data-apariencia="averno"] {
   --borde-panel: #eddbce;
 }
 
+/* Los anillos SUSTITUYEN la ilustración de la banda, no se le encima.
+   La banda pinta la suya en un `<svg class="scene">` hijo, y un motivo
+   encima de otro motivo es exactamente la suciedad que CLAUDE.md
+   prohíbe. Se apaga con `opacity` y no con `display` a propósito: así
+   el svg sigue ocupando su alto y la banda no se encoge. */
+html[data-apariencia="averno"] .scene-card.sec-hero .scene { opacity: 0; }
+html[data-apariencia="averno"] .scene-card.sec-hero { position: relative; overflow: hidden; }
+html[data-apariencia="averno"] .scene-card.sec-hero::after {
+  content: "";
+  position: absolute;
+  left: auto; right: 0; top: 0;
+  width: 52%; height: 100%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cg fill='none' stroke-linecap='round'%3E %3Cpath d='M120 6A114 114 0 0 0 6 120' stroke='%235a3524' stroke-width='2.6' opacity='.9'/%3E %3Cpath d='M120 26A94 94 0 0 0 26 120' stroke='%236b3d24' stroke-width='2.2' opacity='.8'/%3E %3Cpath d='M120 46A74 74 0 0 0 46 120' stroke='%238a4522' stroke-width='1.9' opacity='.75'/%3E %3Cpath d='M120 66A54 54 0 0 0 66 120' stroke='%23b45420' stroke-width='1.6' opacity='.7'/%3E %3Cpath d='M120 86A34 34 0 0 0 86 120' stroke='%23ff7a3d' stroke-width='1.4' opacity='.6'/%3E %3C/g%3E %3Cg fill='%23ff7a3d' opacity='.5'%3E %3Ccircle cx='103' cy='103' r='1.8'/%3E%3Ccircle cx='88' cy='63' r='1.2'/%3E%3Ccircle cx='63' cy='88' r='1.2'/%3E %3C/g%3E %3C/svg%3E") right top/contain no-repeat;
+  opacity: .85;
+  pointer-events: none;
+}
+/* Y lo que va dentro se levanta por encima. Sin esto el motivo tapa
+   las cifras, que es lo único que hay que leer ahí. */
+html[data-apariencia="averno"] .scene-card.sec-hero > * { position: relative; z-index: 1; }
+
 html[data-apariencia="averno"] .scene-card,
 html[data-apariencia="averno"] .celebrate,
 html[data-apariencia="averno"] .ncel,
