@@ -53,18 +53,43 @@ function celebrate(title, sub, color, iconName) {
    Sustituye a los rayos giratorios de 0.7.48. El motivo, medido: eran las
    únicas animaciones `infinite` de toda la app, y algo que gira sin final es
    decoración de fondo, no un acontecimiento. */
+/* Cada figura tiene las estrellas que PIDE EL DIBUJO, no las que dicta la
+   escalera. Atar una estrella a un nivel obligaba a seis puntos por rango, y
+   con seis puntos no se dibuja una bota: salían formas abstractas. Ahora el
+   progreso se reparte —cada nivel enciende una o varias— y la figura puede
+   ser lo que tenga que ser. */
 const NCEL_FIGURAS = [
-  { p: [[28,8],[28,44],[54,60],[82,68],[82,84],[14,84]],
-    l: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0]] },
-  { p: [[50,8],[20,26],[80,26],[20,88],[80,88],[50,58]],
-    l: [[0,1],[0,2],[1,2],[1,3],[2,4],[3,4],[1,5],[5,2]] },
-  { p: [[50,8],[30,26],[70,26],[26,86],[74,86],[50,58]],
-    l: [[0,1],[0,2],[1,2],[1,3],[2,4],[3,4],[3,5],[5,4]] },
-  { p: [[26,14],[74,14],[74,86],[26,86],[40,44],[60,62]],
-    l: [[0,1],[1,2],[2,3],[3,0],[4,5]] },
-  { p: [[50,50],[50,8],[92,50],[50,92],[8,50],[74,26]],
-    l: [[0,1],[0,2],[0,3],[0,4],[1,5],[5,2]] }
+  /* La bota: el contorno, empezando por la caña y cerrando por el empeine. */
+  { p: [[30,10],[30,32],[30,54],[22,74],[24,86],[46,88],[70,88],[86,86],[84,72],[62,64],[48,52],[50,10]],
+    l: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,0]] },
+
+  /* La huella: cuatro dedos de dos estrellas y la almohadilla de seis. */
+  { p: [[16,30],[12,46],[36,16],[32,32],[64,16],[68,32],[84,30],[88,46],
+        [50,48],[26,60],[22,80],[50,94],[78,80],[74,60]],
+    l: [[0,1],[2,3],[4,5],[6,7],
+        [8,9],[9,10],[10,11],[11,12],[12,13],[13,8]] },
+
+  /* El farol: asa, tapa, cuerpo y la llama dentro. */
+  { p: [[38,10],[50,4],[62,10],[28,20],[72,20],[34,34],[66,34],[30,78],[70,78],[24,90],[76,90],[50,58]],
+    l: [[0,1],[1,2],[3,4],[3,5],[4,6],[5,7],[6,8],[7,8],[7,9],[8,10],[9,10]] },
+
+  /* El mapa: los dos rollos, el papel y la X. */
+  { p: [[10,12],[10,50],[10,88],[90,12],[90,50],[90,88],
+        [32,22],[68,22],[32,82],[68,82],[38,44],[58,60],[58,44],[38,60]],
+    l: [[0,1],[1,2],[3,4],[4,5],[6,7],[8,9],[0,6],[3,7],[2,8],[5,9],[10,11],[12,13]] },
+
+  /* La brújula: la anilla, el aro y la aguja. */
+  { p: [[50,4],[50,20],[76,30],[86,56],[76,82],[50,92],[24,82],[14,56],[24,30],[50,56],[38,68],[62,44]],
+    l: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,1],[9,10],[9,11]] }
 ];
+
+/* Cuántas estrellas van encendidas al llegar a `k` de los seis niveles del
+   rango. Se reparten proporcionalmente, así que un rango con catorce enciende
+   de dos en dos y uno con doce de dos en dos justas: lo que se ve es que cada
+   nivel AVANZA el dibujo, no que cada nivel vale un punto. */
+function ncelHasta(fig, k) {
+  return Math.max(1, Math.round(fig.p.length * k / EXP_POR_RANGO));
+}
 
 function ncelIndiceRango(n) {
   return Math.max(0, Math.min(NCEL_FIGURAS.length - 1, Math.floor((n - 1) / EXP_POR_RANGO)));
@@ -75,20 +100,26 @@ function ncelCierra(n) { return ncelEstrella(n) === EXP_POR_RANGO; }
 /* Dibuja una figura hasta `hasta` estrellas. Los grosores y los radios se
    multiplican por la escala para que una medalla del estante no salga con
    líneas de dos píxeles. */
-function ncelFigura(fig, hasta, cx, cy, esc, cls, ultimaAparte) {
+function ncelFigura(fig, hasta, cx, cy, esc, cls, desde) {
   let s = "";
+  const nuevas = typeof desde === "number" ? desde : hasta;   // sin tramo, nada es nuevo
   const X = q => (cx + (q[0] - 50) * esc).toFixed(1);
   const Y = q => (cy + (q[1] - 50) * esc).toFixed(1);
+  /* Una línea entra con la última de sus dos estrellas, y es NUEVA si esa
+     estrella cae dentro del tramo que enciende este nivel. Así el trazo se
+     dibuja solo en lo que acabas de ganar y el resto ya está puesto. */
   for (const [a, b] of fig.l) {
-    if (Math.max(a, b) + 1 > hasta) continue;
-    const nueva = ultimaAparte && Math.max(a, b) + 1 === hasta;
+    const ult = Math.max(a, b) + 1;
+    if (ult > hasta) continue;
+    const nueva = ult > nuevas;
     const L = Math.hypot(fig.p[a][0] - fig.p[b][0], fig.p[a][1] - fig.p[b][1]) * esc;
     s += `<line class="${cls.linea}${nueva ? " nueva" : ""}" x1="${X(fig.p[a])}" y1="${Y(fig.p[a])}"` +
          ` x2="${X(fig.p[b])}" y2="${Y(fig.p[b])}" stroke-width="${(0.85 * esc).toFixed(2)}"` +
          (nueva ? ` style="--l:${L.toFixed(1)};stroke-dasharray:${L.toFixed(1)}"` : "") + `/>`;
   }
   for (let i = 0; i < hasta && i < fig.p.length; i++) {
-    if (ultimaAparte && i + 1 === hasta) continue;   // la nueva va encima de todo
+    /* La última del tramo se dibuja aparte, con su halo y encima de todo. */
+    if (i + 1 === hasta && hasta > nuevas) continue;
     s += `<circle class="${cls.astro}" cx="${X(fig.p[i])}" cy="${Y(fig.p[i])}" r="${(1.9 * esc).toFixed(2)}"/>`;
   }
   return s;
@@ -98,7 +129,7 @@ function ncelFigura(fig, hasta, cx, cy, esc, cls, ultimaAparte) {
    información, es profundidad. La constelación sí es siempre la misma. */
 function ncelCielo(n) {
   let s = "";
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 70; i++) {
     s += `<circle cx="${(Math.random() * 100).toFixed(1)}" cy="${(Math.random() * 187).toFixed(1)}"` +
          ` r="${(0.25 + Math.random() * 0.6).toFixed(2)}" opacity="${(0.2 + Math.random() * 0.25).toFixed(2)}"/>`;
   }
@@ -113,7 +144,11 @@ function ncelPintarMapa(nivel) {
 
   const iR = ncelIndiceRango(nivel), fig = NCEL_FIGURAS[iR], k = ncelEstrella(nivel);
   const nuevoRango = k === 1 && nivel > 1;
-  const CX = 50, CY = 62, ESC = 0.46, ANCHO = 15;
+  /* Hasta dónde llega el dibujo con este nivel, y desde dónde es nuevo. */
+  const hasta = ncelHasta(fig, k), desde = k > 1 ? ncelHasta(fig, k - 1) : 0;
+  /* Coordenadas del cuadro de la franja (viewBox 0 0 100 100). La figura llena
+     lo que puede sin tocar el estante de medallas, que vive arriba del todo. */
+  const CX = 50, CY = 58, ESC = 0.74, ANCHO = 15;
 
   /* El estante de arriba: las figuras ya cerradas, en pequeño. El total
      incluye la que se cierra en ESTE nivel — sin contarla, la fila quedaba
@@ -126,7 +161,7 @@ function ncelPintarMapa(nivel) {
   for (let i = 0; i < cerradas; i++) {
     const recien = nuevoRango && i === cerradas - 1;
     estante += `<g class="${recien ? "ncel-med-nueva" : ""}">` +
-      ncelFigura(NCEL_FIGURAS[i], 6, x0 + i * ANCHO, 16, 0.105, medalla, false) + `</g>`;
+      ncelFigura(NCEL_FIGURAS[i], NCEL_FIGURAS[i].p.length, x0 + i * ANCHO, 11, 0.1, medalla) + `</g>`;
   }
 
   const viva = { linea: "ncel-linea", astro: "ncel-astro" };
@@ -142,15 +177,15 @@ function ncelPintarMapa(nivel) {
     /* La figura anterior se cierra a la vista y se va al estante, y solo
        entonces nace la nueva. Ese relevo ES la noticia del cambio de rango. */
     cuerpo += `<g class="ncel-viva cerrando">` +
-      ncelFigura(NCEL_FIGURAS[iR - 1], 6, CX, CY, ESC, viva, false) + `</g>`;
+      ncelFigura(NCEL_FIGURAS[iR - 1], NCEL_FIGURAS[iR - 1].p.length, CX, CY, ESC, viva) + `</g>`;
     cuerpo += `<g class="ncel-naciendo">` +
-      ncelFigura(fig, k, CX, CY, ESC, viva, true) + halo(fig.p[k - 1], true) + `</g>`;
+      ncelFigura(fig, hasta, CX, CY, ESC, viva, desde) + halo(fig.p[hasta - 1], true) + `</g>`;
   } else {
     cuerpo += `<g class="ncel-viva${ncelCierra(nivel) ? " cerrando" : ""}">` +
-      ncelFigura(fig, k, CX, CY, ESC, viva, true) + halo(fig.p[k - 1], false) + `</g>`;
+      ncelFigura(fig, hasta, CX, CY, ESC, viva, desde) + halo(fig.p[hasta - 1], false) + `</g>`;
     if (ncelCierra(nivel)) {
       estante += `<g class="ncel-med-nueva">` +
-        ncelFigura(fig, 6, x0 + cerradas * ANCHO, 16, 0.105, medalla, false) + `</g>`;
+        ncelFigura(fig, fig.p.length, x0 + cerradas * ANCHO, 11, 0.1, medalla) + `</g>`;
     }
   }
   mapa.innerHTML = `<g class="ncel-estante">${estante}</g>${cuerpo}`;
@@ -217,12 +252,17 @@ function celebrarNivel(nivel, abre) {
     ? (r.trazo && typeof svgDeTrazo === "function" ? svgDeTrazo(r.trazo, 78) : icon(r.icon, 78))
     : icon("compass", 78);
 
+  /* El renglón dice lo que ACABA de pasar, no un rótulo. «Rango Andante» era
+     una etiqueta: cierta siempre, y por eso no era noticia en ninguno de los
+     seis niveles. Ahora hay tres frases y cada una solo vale en su momento. */
   const rango = document.getElementById("ncel-rango");
   const traeRango = abre.some(x => x.tipo === "rango");
-  rango.innerHTML = r
-    ? (traeRango ? `Ahora eres <b>${escapeHtml(r.nombre)}</b>` : `Rango ${escapeHtml(r.nombre)}`)
-    : "";
-  rango.classList.toggle("nuevo", traeRango);
+  const cierraRango = typeof ncelCierra === "function" && ncelCierra(nivel) && !traeRango;
+  rango.innerHTML = !r ? `Alcanzaste el nivel ${nivel} de tu expedición`
+    : traeRango   ? `Ahora eres <b>${escapeHtml(r.nombre)}</b>`
+    : cierraRango ? `Rango <b>${escapeHtml(r.nombre)}</b> completado`
+    : `Alcanzaste el nivel ${nivel} de tu expedición`;
+  rango.classList.toggle("nuevo", traeRango || cierraRango);
 
   /* La LÍNEA del rango, y solo al estrenarlo. Es un campo de un rango
      cualquiera y no una cosa de Averno: la casa no trae ninguna, Averno trae
@@ -262,7 +302,7 @@ function celebrarNivel(nivel, abre) {
   pies.innerHTML = hayVentana
     ? `<button class="btn btn-primary btn-block" onclick="${aAmbiente ? "ncelQuedarseAmbiente(); " : ""}cerrarNivelCel(); ${aAmbiente ? "abrirApariencia()" : "abrirColeccion('summary')"}">${aAmbiente ? "Ver Mi apariencia" : "Ver Mi expedición"}</button>
        <button class="btn btn-ghost btn-block" onclick="cerrarNivelCel()">Ahora no</button>`
-    : `<button class="btn btn-primary btn-block" onclick="cerrarNivelCel()">Seguir</button>`;
+    : `<button class="btn btn-primary btn-block" onclick="cerrarNivelCel()">Continuar</button>`;
 
   /* La clase decide las dos diferencias de comportamiento en un solo sitio:
      con `abierta` no hay cierre por tocar fuera ni cuenta atrás. */
