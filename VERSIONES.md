@@ -76,7 +76,7 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
-### 0.7.61 · 1 sep 2026
+### 0.7.62 · 1 sep 2026
 
 **Los cinco rangos dejan de ser piezas de un grafo y pasan a ser oficios, y la
 celebración de subir de nivel deja de girar.**
@@ -140,6 +140,55 @@ llama de la racha late cuatro veces y para, y la insignia de nivel dos.
 **Lo que hay que revisar y no se toca aquí:** el catálogo `AMBIENTES` abre en
 los niveles 3, 5, 7, 12 y 20, y el 7 cae ahora encima del rango Rastreador.
 Ese archivo es de otra sesión.
+### 0.7.61 · 1 sep 2026
+**Blueprint deja de gritar azul, y su celebración deja de hablar en fuegos
+artificiales.**
+
+**El azul era demasiado, y no era cuestión de gusto.** Medido en croma, la
+página de Blueprint estaba en 0,079 contra el 0,018 de la casa —más de cuatro
+veces la saturación, en la superficie más grande que tiene la app—. Reliquia
+anda por 0,028 y Averno por 0,009: el raro era él. La página pasa a un negro
+FRÍO (0,017, como la casa) y el azul se queda donde dice algo: la retícula, el
+marco, el acento y la cota. Un plano no es un campo de color, es un dibujo — y
+sobre negro el dibujo se lee mejor. La tarjeta se pone ENCIMA del fondo como en
+toda la app (1,18 contra el 1,19 de la casa) y la retícula se recalibra para
+pesar lo mismo que antes. La cara de día no se toca: medida, es la MENOS
+saturada de los cuatro mundos.
+
+**La celebración de subir de nivel, en el idioma del mundo.** La de la casa
+habla en rayos que giran 26 s, resplandor, un rebote elástico y chispas
+redondas saliendo del centro. Un plano no se ilumina: se traza. Cinco tiempos,
+todos con la curva mecánica del mundo y sin rebote — la retícula se plotea de
+izquierda a derecha; la insignia SE DIBUJA sola trazo a trazo; el número llega
+acotado entre dos cotas que entran desde los lados; las chispas se vuelven
+cruces de registro que aparecen en su sitio y se quedan; y con rango nuevo, el
+sello. Los cinco dibujos de rango ya eran trazo puro, así que dibujarse solos
+salió gratis: un solo `stroke-dasharray: 60` para los cinco. Las cruces reusan
+los mismos nodos y su `--dx/--dy`, o sea que no toca JavaScript.
+
+Entra por `app_extra`, un campo nuevo para el CSS que un mundo aporta cuando lo
+suyo no cabe en un token. La casa y los otros dos mundos siguen exactamente
+igual: comprobado, con Blueprint puesto no queda ni un `ncelGiro`, y con la
+casa puesta no aparece ni una regla de `plano-`.
+
+**Y cuatro cosas más que vio Eduardo:**
+
+- **Los banners no tenían borde.** Eran la única pieza grande de la app sin
+  marco, y sobre un mundo con superficie propia se les desdibujaba el canto.
+  Sale del mismo par que el resto, así que cada mundo pone el suyo.
+- **Cinco radios escritos a mano no pasaban por el factor**, y por eso Proyectos
+  en el Resumen seguía con la burbuja de la casa teniendo Blueprint puesto. Se
+  barrieron las siete pantallas: eran seis sitios —esa tarjeta, los chips de
+  «Listos para empezar», las tarjetas de proyecto, el menú de una rama y las
+  casillas de color—. Ahora no queda ni uno resistiendo.
+- **Un delta con triángulo no es un acento, es un signo.** Estaban pintados con
+  el acento del mundo: un «▲ 33» salía AZUL en Blueprint y naranja en Averno.
+  Ahora verde si sube y rojo si baja, en todos los temas, con sus dos caras
+  —porque «siempre verde» es del matiz, no de la luz—. Medido en los cuatro
+  mundos y las dos luces: el peor caso da 5,16 sobre un umbral de 4,5. El verde
+  se eligió a 21° de matiz de la menta a propósito: pegado a ella, «subió» y
+  «es un acento» se confundían. Solo el delta; los totales no se tocan.
+- Y la misma flecha del panel de números, que tenía el fallo idéntico.
 
 ### 0.7.60 · 1 sep 2026
 **La cota de Blueprint cruza a la app, y el disparador no es una clase: es la
