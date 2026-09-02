@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.55.3";
+const VERSION = "0.7.56";
 const VERSION_FECHA = "1 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -275,6 +275,21 @@ function tonos(nombre, col) {
 function velo(col, alfa) {
   const pct = Math.round((parseInt(alfa, 16) / 255) * 100);
   return `color-mix(in srgb, ${pinta(col)} ${pct}%, transparent)`;
+}
+
+/* El relleno de una FIGURA DEL MAPA, que no es lo mismo que el velo de una
+   pastilla. De noche los dos coinciden —la base es `transparent` y la fuerza
+   es 1, así que sale exactamente el mismo `color-mix` de antes—; de día la
+   base pasa a ser la superficie levantada y la fuerza sube, y la figura deja
+   de ser un tinte del suelo para ser una pastilla opaca de su color.
+
+   Las dos van en variables y no se deciden aquí porque el mapa se dibuja una
+   vez y no se vuelve a dibujar al cambiar de modo: lo que se decida en
+   JavaScript se queda con la cara del modo en que se dibujó. El porqué entero
+   está junto a `--relleno-base` en `css/estilos.css`. */
+function relleno(col, alfa) {
+  const pct = Math.round((parseInt(alfa, 16) / 255) * 100);
+  return `color-mix(in srgb, ${pinta(col)} calc(${pct}% * var(--relleno-fuerza)), var(--relleno-base))`;
 }
 
 function temaEsClaro() {

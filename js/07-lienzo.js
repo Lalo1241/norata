@@ -1803,7 +1803,13 @@ function constellation(nodes, key, editing, branch, mod) {
        dentro, que es toda la información que hace falta para decidir si
        merece la pena abrirla. */
     if (n.esCaja) {
-      const cc = n.colorPropio || (n.todoHecho ? "#5fe0b0" : "#f5d76e");
+      /* Sin color propio, la caja toma el acento de la APARIENCIA y no el
+         verde y el amarillo de la casa escritos aquí. Encima del lienzo claro
+         de Reliquia, ese amarillo de la casa daba 1,28 de contraste — el
+         rótulo y el contorno de la caja no se veían, que es lo que Eduardo
+         señaló como «el amarillo tiene mal contraste». El del propio mundo da
+         3,84, y de noche los dos valen lo mismo que valían. */
+      const cc = n.colorPropio || (n.todoHecho ? "var(--mint)" : "var(--fire)");
       const ccT = tinta(cc), ccZ = trazo(cc);   // ver la nota del recinto
       /* Dos líneas como mucho: la caja tiene una altura fija y un nombre
          largo se saldría por abajo, encima del texto que dice qué guarda.
@@ -1822,7 +1828,7 @@ function constellation(nodes, key, editing, branch, mod) {
       const tamNom = unaLinea ? 12 : 10.5;
       const nom = unaLinea ? [n.name] : partirPorAncho(n.name, anchoUtil, 2, tamNom, 700);
       nds += `<g class="cnode caja" data-id="${n.id}">
-        ${nodeShape(n, x, y, { stroke: ccZ, fill: velo(cc, "14") }, fid)}
+        ${nodeShape(n, x, y, { stroke: ccZ, fill: relleno(cc, "14") }, fid)}
         <text x="${x}" y="${y - (nom.length > 1 ? 9 : 4)}" text-anchor="middle" font-size="${tamNom}" font-weight="700" fill="${ccT}">
           ${nom.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 11}">${escapeHtml(ln)}</tspan>`).join("")}
         </text>
@@ -1843,19 +1849,23 @@ function constellation(nodes, key, editing, branch, mod) {
        vivo, porque lleva tinta oscura encima y tiene que resaltar. */
     const colT = trazo(col);
     const conf = {
-      completed: { stroke: colT, fill: velo(col, "33"), glow: true, badge: "var(--mint-macizo)", mark: "check" },
-      active:    { stroke: colT, fill: velo(col, "1f"), glow: true, badge: "var(--fire-macizo)", mark: "play" },
-      due:       { stroke: "var(--fire)", fill: velo("#f5d76e", "33"), glow: true, badge: "var(--fire-macizo)", mark: "alert" },
-      expired:   { stroke: "var(--coral)", fill: velo("#ff8a70", "1a"), glow: false, badge: "var(--coral-macizo)", mark: "close" },
+      completed: { stroke: colT, fill: relleno(col, "33"), glow: true, badge: "var(--mint-macizo)", mark: "check" },
+      active:    { stroke: colT, fill: relleno(col, "1f"), glow: true, badge: "var(--fire-macizo)", mark: "play" },
+      /* Los dos avisos salen del acento de la apariencia y no del amarillo y
+         el coral de la casa escritos aquí, que es lo que había: sobre el
+         lienzo claro de Reliquia el `#f5d76e` de la casa daba 1,28 —o sea,
+         invisible— mientras que el aviso del propio mundo da 3,84. */
+      due:       { stroke: "var(--fire)", fill: relleno("var(--fire-macizo)", "33"), glow: true, badge: "var(--fire-macizo)", mark: "alert" },
+      expired:   { stroke: "var(--coral)", fill: relleno("var(--coral-macizo)", "1a"), glow: false, badge: "var(--coral-macizo)", mark: "close" },
       locked:    { stroke: "var(--lienzo-candado)", fill: "var(--lienzo-bloqueado)", glow: false },
-      available: { stroke: colT, fill: velo(col, "12"), glow: false, sop: 0.55 },
+      available: { stroke: colT, fill: relleno(col, "12"), glow: false, sop: 0.55 },
       /* Los dos que solo usa Proyectos. Van en la misma tabla para que los
          estados se lean de un vistazo y nadie invente otro color sin ver los
          que ya hay. `esperando` comparte aspecto con `available` a proposito:
          los dos significan "todavia no", y el que ademas este cerrado con
          llave lo dice el candado, no un color distinto. `paused` es gris del
          todo, porque una pausa la pediste tu y no espera a nada. */
-      esperando: { stroke: colT, fill: velo(col, "10"), glow: false, sop: 0.45 },
+      esperando: { stroke: colT, fill: relleno(col, "10"), glow: false, sop: 0.45 },
       paused:    { stroke: "var(--lienzo-candado)", fill: "var(--lienzo-bloqueado)", glow: false }
     }[st];
     /* El candado. En Talentos lo pone el estado "locked"; en Proyectos lo
