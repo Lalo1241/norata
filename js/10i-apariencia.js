@@ -21,22 +21,80 @@
 const APARIENCIA_LLAVE = "norata-apariencia";
 const APARIENCIA_PRUEBA = "norata-apariencia-prueba";
 
+/* ---- Qué se ENSEÑA hoy, que no es lo mismo que qué está construido ----
+
+   `null` significa «todas las que estén listas», y es lo que hay que dejar
+   puesto mientras se trabaja. Una lista de ids significa «solo éstas», y ése
+   es el interruptor del lanzamiento: el plan de Eduardo es ir soltando los
+   temas conforme se compruebe que funcionan, y salir a la calle enseñando
+   únicamente el clásico y el de Fundador. Ese día esto se escribe así, y es
+   la ÚNICA línea que se toca:
+
+     const APARIENCIAS_EXHIBIDAS = ["casa", "reliquia"];
+
+   Va aquí y no como un `oculta: true` repartido por las quince entradas por
+   eso mismo: apagar ocho cosas de una en una son ocho sitios donde olvidarse
+   uno, y volver a encenderlas después son otros ocho. Lo que está construido
+   lo sigue diciendo `listo`, que es otra pregunta: un mundo puede estar
+   terminado y todavía no exhibirse. */
+const APARIENCIAS_EXHIBIDAS = null;
+
+function seExhibe(id) {
+  return !APARIENCIAS_EXHIBIDAS || APARIENCIAS_EXHIBIDAS.indexOf(id) !== -1;
+}
+
+/* ---- Lo que acaba de llegar ----
+
+   Mes y medio. Lo pidió Eduardo y el número es suyo: lo bastante para que lo
+   vea quien abre la app una vez cada dos semanas, y lo bastante poco para que
+   la palabra siga significando algo — con seis meses, «nuevo» es un adorno
+   pegado a media lista.
+
+   La fecha es la de PUBLICACIÓN y se escribe a mano al soltar el tema, no sale
+   de la versión: una apariencia puede estar en el código tandas antes de que
+   se exhiba, y lo que cuenta para quien la mira es el día que apareció en su
+   pantalla. Sin `estrena` no hay novedad, así que lo viejo no necesita que
+   nadie vaya a limpiarlo. */
+const NOVEDAD_DIAS = 45;
+
+function esNovedad(a) {
+  if (!a || !a.estrena) return false;
+  /* Con la hora pegada, y no `Date.parse("2026-09-01")` a secas: una fecha
+     sola la lee el navegador como UTC y la app trabaja en hora de México, así
+     que el estreno empezaba seis horas antes de lo escrito. */
+  const dias = (Date.now() - Date.parse(a.estrena + "T00:00:00")) / 86400000;
+  return dias >= 0 && dias < NOVEDAD_DIAS;
+}
+
 /* Los siete ambientes. `abre` es el nivel de expedición que los desbloquea, y
    hoy ese nivel NO EXISTE —la app da niveles por habilidad y nadie suma el
    total—, así que la puerta está escrita pero todavía no la guarda nadie: ver
    `aparienciaDisponible`. Los tonos de cada uno están en `css/ambientes.css`
-   y salen medidos de `apariencias/datos.py`. */
+   y salen medidos de `apariencias/datos.py`.
+
+   La `premisa` es la versión de PANTALLA de la que vive en `apariencias/datos.py`,
+   y son dos textos a propósito: la de allá es de lámina y explica por qué el
+   ambiente existe —«el primero que se gana, y llega pronto a propósito»—, que
+   es exactamente lo que a nadie le importa mientras elige un color. Aquí va lo
+   que se ve: a qué se parece. Un mundo trae la suya en `MUNDOS`. */
 const AMBIENTES = [
-  { id: "casa",     nombre: "Noche de expedición", grado: 0, abre: 0,  icon: "compass" },
+  { id: "casa",     nombre: "Norata Clásico", grado: 0, abre: 0,  icon: "compass",
+    premisa: "El carbón azulado y la menta de siempre. Es donde empiezas, y es lo que queda al quitarte un recolor." },
   /* Gratis siempre y no por generosidad: para quien no distingue bien los
      colores, un monocromo no es un adorno — es la única manera de usar la
      app. Cobrarlo sería cobrar por entrar. */
-  { id: "tinta",    nombre: "Tinta",    grado: 3, abre: 0,  icon: "pen" },
-  { id: "musgo",    nombre: "Musgo",    grado: 1, abre: 3,  icon: "plant" },
-  { id: "marea",    nombre: "Marea",    grado: 2, abre: 5,  pro: true, icon: "globe" },
-  { id: "adobe",    nombre: "Adobe",    grado: 1, abre: 7,  icon: "sol" },
-  { id: "escarcha", nombre: "Escarcha", grado: 2, abre: 12, pro: true, icon: "luna" },
-  { id: "duna",     nombre: "Duna",     grado: 1, abre: 20, icon: "star" }
+  { id: "tinta",    nombre: "Tinta",    grado: 3, abre: 0,  icon: "pen",
+    premisa: "Tinta china sobre papel. Sin más color que el amarillo y el coral, para que lo que avisa se vea desde la otra punta del cuarto." },
+  { id: "musgo",    nombre: "Musgo",    grado: 1, abre: 3,  icon: "plant",
+    premisa: "Verde hondo de bosque cerrado de noche, y luz entre hojas de día." },
+  { id: "marea",    nombre: "Marea",    grado: 2, abre: 5,  pro: true, icon: "globe",
+    premisa: "Verdiazul de agua honda, con la menta de la casa vista desde el fondo." },
+  { id: "adobe",    nombre: "Adobe",    grado: 1, abre: 7,  icon: "sol",
+    premisa: "Barro cocido: terracota apagada con cal encima, el color de una pared vieja." },
+  { id: "escarcha", nombre: "Escarcha", grado: 2, abre: 12, pro: true, icon: "luna",
+    premisa: "La menta se vuelve celeste y la app pasa de festejar a acompañar." },
+  { id: "duna",     nombre: "Duna",     grado: 1, abre: 20, icon: "star",
+    premisa: "El desierto cuando se mete el sol: el cielo en violeta y la arena en lavanda." }
 ];
 
 /* ================= Los mundos =================
@@ -133,7 +191,7 @@ const MUNDOS = [
      lo es — el arco es «de las cenizas», que se entiende solo y es el que hace
      que el primer peldaño signifique algo: no empiezas en nada, empiezas en lo
      que quedó. Se propuso Yesca y se descartó. No volver a proponerlo. */
-  { id: "averno", nombre: "Averno", listo: true, pro: true, icon: "eclipse",
+  { id: "averno", nombre: "Averno", listo: true, pro: true, icon: "eclipse", estrena: "2026-09-01",
     premisa: "Piedra quemada con la brasa debajo, y los círculos del poema. Demonología de la que se lee, no de la que se disfraza.",
     rangos: [
       /* **Caput mortuum**, la «cabeza muerta»: el nombre que la alquimia le dio
@@ -280,7 +338,7 @@ const MUNDOS = [
      solos: se te da el lápiz, luego la regla, luego decides tú, luego
      respondes por la obra entera, y al final eres la línea con la que se
      alinean los demás. */
-  { id: "plano", nombre: "Blueprint", listo: true, pro: true, icon: "map",
+  { id: "plano", nombre: "Blueprint", listo: true, pro: true, icon: "map", estrena: "2026-09-01",
     premisa: "El papel de plano: retícula de dos pesos, cotas con puntas de flecha y marcas de sección. Todo lo tuyo, todavía en obra.",
     rangos: [
       /* El lápiz: lo primero que te dan y lo único que sabes usar. */
@@ -304,7 +362,7 @@ const MUNDOS = [
      `listo: true` es lo que lo separa de los otros cuatro: sus nombres están
      decididos, pero sin mundo detrás no se ofrecen. `plan: "fundador"` no es
      lo mismo que `pro`: éste NO se abre pagando cada mes. */
-  { id: "reliquia", nombre: "Reliquia", listo: true, plan: "fundador", icon: "gem",
+  { id: "reliquia", nombre: "Reliquia", listo: true, plan: "fundador", icon: "gem", estrena: "2026-09-01",
     premisa: "Una pieza en su vitrina: forro de terciopelo, marco de latón y el vidrio por encima.",
     rangos: [
       { nombre: "Hallazgo", trazo: '<path d="M11 3.6l7.4 4.3v8.2L11 20.4 3.6 16.1V7.9z"/><path d="M11 3.6v16.8"/>' },
@@ -379,7 +437,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=28e3f8e4db";
+  l.href = "css/mundos.css?h=33d06fd2a3";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
@@ -604,37 +662,518 @@ function aparienciaVisibleEnAjustes() {
   return APARIENCIA_PUBLICA || !!aparienciaDePrueba();
 }
 
-/* Por qué no se puede, dicho como lo diría una persona. Un candado sin motivo
-   al lado es una lista de lo que te falta; con el motivo es una meta. */
-function motivoApariencia(a) {
+/* ---- Por qué no se puede, dicho como lo diría una persona ----
+
+   Devuelve las CUATRO cosas que hacen falta para contarlo y no solo la chapa:
+   la chapa que va en la tarjeta, el título y el párrafo que se leen en el
+   escaparate, y qué botón ofrecer. Antes esto devolvía dos palabras —«Nivel
+   5»— y con esas dos palabras se pintaba todo: una tarjeta que dice «Nivel 5»
+   no explica que ese nivel se gana usando la app y no se compra, ni que Marea
+   además viene con el plan. Un candado sin motivo es una lista de lo que te
+   falta; con el motivo entero es una meta.
+
+   El ORDEN de las dos puertas no cambia, y es la decisión de fondo: primero el
+   NIVEL, que se gana, y después el PLAN, que se paga. A quien todavía no llega
+   al nivel no se le ofrece pagar — cobrar por saltarse la escalera es
+   exactamente lo que rompería la escalera. Por eso el caso `nivel` nombra el
+   plan dentro del texto cuando también hace falta, pero no saca botón. */
+function estadoApariencia(a) {
   const puede = aparienciaDisponible(a.id);
-  if (puede === true) return null;
-  if (puede === "nivel") return "Nivel " + a.abre;
-  if (puede === "fundador") return "Solo Fundador";
-  if (puede === "pro" && typeof NOMBRE_PRO === "string") return "Con " + NOMBRE_PRO;
-  return "Con Pro";
+  if (puede === true) return { ok: true };
+
+  const pro = typeof NOMBRE_PRO === "string" ? NOMBRE_PRO : "Norata Pro";
+  const fun = typeof NOMBRE_FUNDADOR === "string" ? NOMBRE_FUNDADOR : "Norata Fundador";
+
+  if (puede === "nivel") {
+    /* El nivel de verdad, para poder decir cuánto falta y no solo dónde está la
+       meta. «Te faltan dos» mueve a alguien; «Nivel 5» a secas es un número. */
+    const n = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 0;
+    const faltan = Math.max(1, a.abre - n);
+    return {
+      ok: false, clase: "nivel", chapa: "Nivel " + a.abre, corta: "Nivel " + a.abre, insignia: null,
+      titulo: faltan === 1 ? "Te falta un nivel" : "Te faltan " + faltan + " niveles",
+      texto: a.nombre + " se abre en el nivel " + a.abre + " de expedición y vas en el " +
+        n + ". Ese nivel no se compra: sube solo con lo que haces en la app." +
+        (a.pro ? " Al llegar arriba se enciende con " + pro + "." : ""),
+      /* Sin botón, y es lo mismo que dice el comentario de arriba: aquí no se
+         ofrece pagar. La salida de este candado es usar la app. */
+      accion: null
+    };
+  }
+
+  if (puede === "fundador") {
+    const precio = (typeof PLANES !== "undefined" && PLANES.fundador) ? PLANES.fundador.precio : "";
+    return {
+      ok: false, clase: "fundador", chapa: "Solo Fundador", corta: "Fundador", insignia: "plan-fundador",
+      titulo: a.nombre + " es de " + fun,
+      texto: a.nombre + " es lo único que " + fun + " tiene además de Pro" +
+        (precio ? ": un pago único de " + precio + ", sin fecha y sin renovaciones." : ".") +
+        " No se abre con el plan mensual ni con el anual.",
+      accion: { texto: "Ver " + fun, como: "fundador", insignia: "plan-fundador" }
+    };
+  }
+
+  return {
+    ok: false, clase: "pro", chapa: "Con " + pro, corta: "Pro", insignia: "plan-pro",
+    titulo: a.nombre + " viene con " + pro,
+    /* Un mundo y un ambiente no se venden con la misma frase porque no son lo
+       mismo, y decir «viene con Pro» de los dos es justo la confusión que
+       `apariencias/LEEME.md` existe para evitar. */
+    texto: esMundo(a.id)
+      ? "Un mundo es la app hecha de otro material: su tipografía, sus texturas, su marco y sus propios nombres para cada rango del camino. Con " + pro + " se abren los tres construidos y los que lleguen después."
+      : "El nivel ya lo tienes; lo que falta es el plan. Con " + pro + " se abren todas las apariencias, las de hoy y las que vengan.",
+    accion: { texto: "Ver " + pro, como: "pro", insignia: "plan-pro" }
+  };
+}
+
+/* Se queda porque la chapa suelta sigue haciendo falta en la reja, y porque
+   es el nombre por el que se entra desde fuera de este archivo. */
+function motivoApariencia(a) {
+  const e = estadoApariencia(a);
+  return e.ok ? null : e.chapa;
+}
+
+/* La chapa del candado, escrita UNA vez porque sale en tres sitios —la tarjeta
+   de la galería, la ventana de detalle y el pie de un ambiente— y los tres
+   tienen que decir lo mismo. La insignia solo la llevan las dos que se pagan:
+   «Nivel 5» con la piedra de Pro al lado diría que el nivel se compra, que es
+   justo lo que el texto de al lado se esfuerza en negar.
+
+   Y va en DOS largos. En la tarjeta, corto —«Pro», «Fundador»— porque ahí
+   compite con el nombre del mundo y no puede ganarle: una cápsula que dice
+   «CON NORATA PRO» en negrita al lado de «Averno» se lee antes que el mundo,
+   que es lo contrario de lo que hace una tienda. Lo paró Eduardo. En la ventana
+   va entero, que es donde hay sitio y donde de verdad se está decidiendo. */
+function chapaApariencia(e, corta) {
+  if (e.ok) return "";
+  return `<span class="mun-p ap-${e.clase}">` +
+    (e.insignia ? icon(e.insignia, 10) : "") +
+    `<span>${escapeHtml(corta ? (e.corta || e.chapa) : e.chapa)}</span></span>`;
+}
+
+/* Y la marca de lo recién llegado. Va en menta y sin insignia: no dice nada de
+   planes, dice «esto no estaba la última vez». */
+function novedadApariencia(a) {
+  return esNovedad(a) ? '<span class="ap-nueva">Nuevo</span>' : "";
+}
+
+/* ---- `casa` tiene DOS nombres, y no es un descuido ----
+
+   Ambiente y mundo son dos ejes, y `casa` es el punto de partida de los dos: es
+   el recolor de partida —**Norata Clásico**— y además el mundo de partida
+   —**Noche de expedición**—. Lo separó Eduardo, y separarlo arregla de paso una
+   mentira que llevaba puesta la fila de los mundos: decía «con el ambiente que
+   lleves puesto», y elegirla te quitaba también el recolor. Claro que te lo
+   quita: ambiente y mundo comparten UN atributo —son excluyentes a propósito,
+   está arriba— así que volver al mundo de partida es volver entero.
+
+   Lo que se enseña depende de por cuál de las dos rejas entraste, y por eso
+   `mirarApariencia` recuerda cuál fue. Es el único sitio de la app donde un id
+   se llama de dos maneras, y por eso está escrito aquí y no repartido. */
+const CASA_MUNDO = {
+  nombre: "Noche de expedición",
+  premisa: "El mundo de partida: el material original de Norata, sin forro ni marco. Elegirlo te quita el mundo y el recolor que lleves puestos."
+};
+
+function nombreApariencia(a, comoMundo) {
+  return (comoMundo && a.id === "casa") ? CASA_MUNDO.nombre : a.nombre;
+}
+
+/* ---- Y lo que pasa al tocar un candado de los que se pagan ----
+
+   El cuadro que sale es el que YA EXISTE: `topeAlcanzado("apariencia")` es el
+   mismo que aparece al llenar una rama de talentos, con su título, lo que abre
+   el plan, el precio dentro y un botón que lleva a Ajustes. Hasta ahora esto
+   era un `toast` de cuatro segundos —«Averno viene con Pro»— que se iba solo:
+   el instante de más intención de compra que tiene esta pantalla, contestado
+   con un aviso que desaparece antes de que a nadie le dé tiempo a decidir.
+
+   Fundador NO pasa por ese cuadro y va directo al panel del plan, y no es un
+   descuido: ese cuadro vende Pro y termina en un botón que dice «Quiero Norata
+   Pro». Reliquia no se abre con Pro, así que llevar ahí a quien la quiere sería
+   venderle lo que no le sirve. */
+function aparienciaAPagar(como) {
+  if (como === "pro" && typeof topeAlcanzado === "function") { topeAlcanzado("apariencia"); return; }
+  if (typeof abrirAjustes === "function") abrirAjustes("plan");
+}
+
+/* ================= La galería =================
+
+   Cada mundo es su PROPIA vista previa, viva, en su tarjeta. No un escenario
+   compartido que enseña el que tocaste: eso obliga a elegir antes de ver, y lo
+   que tiene que hacer esta pantalla es lo contrario — enseñar los quince a la
+   vez para que uno te llame. Es la tienda de Discord, y la referencia la puso
+   Eduardo.
+
+   Por qué hace falta un documento por tarjeta: el CSS de un mundo cuelga de
+   `html[data-apariencia="…"]`, así que la única manera de que dos mundos se
+   vean a la vez en la misma pantalla es que cada uno tenga su `<html>`. No hay
+   truco que lo evite; lo que sí se puede es no pagarlo hasta que haga falta,
+   y de eso se encarga `VIGIA` — un documento se monta cuando su tarjeta entra
+   en pantalla y no antes. Con quince mundos, quien no baje ve tres.
+
+   Y no lleva ni una línea de JavaScript dentro: lo que cambia —la apariencia y
+   el modo claro— se lo pone esta página desde fuera tocando su `<html>`, que
+   es del mismo origen. Un documento tonto es un documento que no se
+   desincroniza. */
+
+/* La hoja del preview. Va aparte de `estilos.css` y encima: lo que se pinta son
+   las cinco cosas que un mundo cambia y un color no —el suelo, el material de
+   la tarjeta, el marco, la letra y el nombre del rango—, y con eso basta para
+   reconocerlo. Un trozo de app de verdad enseñaría lo mismo con veinte veces
+   más reglas. */
+const ESCENA_CSS = `
+  body { min-height: 0; padding: 13px 12px; overflow: hidden; }
+  /* Ni una transición ni una animación, y no es por ahorrar: en esta app una
+     transición sobre una propiedad cuyo valor sale de una variable se queda
+     CONGELADA en el color de partida para siempre —está contado en CLAUDE.md y
+     ya mordió cuatro veces—. Aquí se cambian veinte variables de golpe cada vez
+     que alguien cambia de modo, así que sería el caso peor. */
+  * { transition: none !important; animation: none !important; }
+  .vp-cab { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  .vp-tit { font-family: var(--tipo-titulo); font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+  .vp-chapa {
+    font-family: var(--tipo-cifra); font-size: 10px; font-weight: 700;
+    color: var(--sobre-macizo); background: var(--mint-macizo);
+    border-radius: var(--r-pastilla); padding: 2px 8px; white-space: nowrap;
+  }
+  .vp-caja {
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-caja);
+    padding: 10px 11px; margin-bottom: 8px;
+  }
+  .vp-caja:last-child { margin-bottom: 0; }
+  .vp-fila { display: flex; align-items: center; gap: 10px; }
+  .vp-aro {
+    flex: none; width: 20px; height: 20px; border-radius: var(--r-redondo);
+    border: 2px solid var(--mint);
+  }
+  .vp-tx { min-width: 0; }
+  .vp-tx b { display: block; font-size: 12.5px; font-weight: 650; line-height: 1.25; }
+  .vp-tx i { display: block; font-style: normal; font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+  .vp-carril { height: 5px; border-radius: var(--r-barra); background: var(--carril); margin-top: 10px; overflow: hidden; }
+  .vp-carril span { display: block; height: 100%; border-radius: var(--r-barra); background: var(--mint); }
+  .vp-rango { display: flex; align-items: center; gap: 10px; }
+  .vp-glifo {
+    flex: none; display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: var(--r-chico);
+    background: var(--mint-soft); color: var(--mint);
+  }
+  .vp-glifo svg { stroke: currentColor; fill: none; }
+`;
+
+/* La dirección de `css/mundos.css` se LEE del `link` que ya está puesto y no se
+   escribe aquí, y es a propósito: lleva una huella detrás (`?h=…`) que estampa
+   `mundos/app.py` buscando la línea donde se le asigna el `href` al `link` del
+   archivo de los mundos. (Esa marca no se escribe aquí ni de ejemplo: el
+   sellador la busca por texto, así que un comentario que la cite se sella
+   también y se queda con una huella vieja dentro para siempre. Pasó al
+   escribir este mismo párrafo.) Escribiendo la dirección otra vez habría un
+   segundo sitio que sellar, y el día que el sellado alcance a uno y no al
+   otro, la galería enseñaría mundos viejos sin que nada lo delate.
+
+   Y devuelve VACÍO cuando todavía no hay `link`, en vez de la dirección pelada.
+   Escribir `css/mundos.css` a secas estuvo puesto media hora y estaba mal: el
+   service worker guardaba esa respuesta bajo una dirección sin huella, y a
+   partir de ahí ya es un acierto que no se renueva NUNCA. Es el fallo de la
+   0.7.55.3 entrando por una puerta nueva. */
+function direccionDeLosMundos() {
+  const l = document.querySelector('link[href^="css/mundos.css"]');
+  return l ? l.getAttribute("href") : "";
+}
+
+/* El rango del medio, que es el que mejor cuenta un mundo: ni el primero, que
+   suena a empezar, ni el último, que no le toca a casi nadie. */
+function escenaRango(id) {
+  const m = mundoPorId(id);
+  const propios = m && m.listo && m.rangos ? m.rangos : null;
+  const casa = typeof EXP_RANGOS !== "undefined" ? EXP_RANGOS : null;
+  const r = propios ? propios[2] : (casa ? casa[2] : null);
+  if (!r) return { nombre: "Explorador", glifo: "" };
+  const glifo = r.trazo && typeof svgDeTrazo === "function"
+    ? svgDeTrazo(r.trazo, 19)
+    : (r.icon && typeof icon === "function" ? icon(r.icon, 19) : "");
+  return { nombre: r.nombre || "", glifo: glifo };
+}
+
+/* Dos tamaños del mismo escenario. En la tarjeta cabe lo justo —el rótulo, el
+   rango y una barra— porque de una miniatura lo que hay que sacar es «¿este me
+   gusta?»; en la ventana de detalle entra además una misión, que es donde se
+   ve cómo queda el material en una tarjeta de verdad. */
+function escenaCuerpo(id, grande) {
+  const r = escenaRango(id);
+  const m = mundoPorId(id);
+  const mision = `
+    <div class="vp-caja">
+      <div class="vp-fila">
+        <span class="vp-aro"></span>
+        <span class="vp-tx"><b>Leer veinte páginas</b><i>Hoy · todos los días</i></span>
+      </div>
+      <div class="vp-carril"><span style="width:64%"></span></div>
+    </div>`;
+  return `
+    <div class="vp-cab">
+      <span class="vp-tit">Tu expedición</span>
+      <span class="vp-chapa">Nivel 14</span>
+    </div>
+    ${grande ? mision : ""}
+    <div class="vp-caja vp-rango">
+      <span class="vp-glifo">${r.glifo}</span>
+      <span class="vp-tx"><b>${escapeHtml(r.nombre)}</b><i>${m && m.listo ? "Tu rango en " + escapeHtml(m.nombre) : "Tu rango"}</i></span>
+    </div>
+    ${grande ? "" : `<div class="vp-caja"><div class="vp-carril" style="margin-top:0"><span style="width:64%"></span></div></div>`}`;
+}
+
+function escenaDoc(id, grande) {
+  const claro = document.documentElement.classList.contains("claro");
+  const attr = (id && id !== "casa" ? ` data-apariencia="${id}"` : "") + (claro ? ' class="claro"' : "");
+  const mundos = direccionDeLosMundos();
+  return `<!doctype html><html lang="es"${attr}><head><meta charset="utf-8">` +
+    `<meta name="viewport" content="width=device-width,initial-scale=1">` +
+    `<link rel="stylesheet" href="css/fuente.css">` +
+    `<link rel="stylesheet" href="css/estilos.css">` +
+    `<link rel="stylesheet" href="css/ambientes.css">` +
+    (mundos ? `<link rel="stylesheet" href="${mundos}">` : "") +
+    `<style>${ESCENA_CSS}</style></head><body>${escenaCuerpo(id, grande)}</body></html>`;
+}
+
+/* ---- Montarlos tarde ----
+
+   Un documento por tarjeta es el precio de que dos mundos se vean a la vez;
+   montarlos todos al abrir la sección sería pagarlo quince veces por adelantado
+   para enseñar tres. Se montan al entrar en pantalla y se quedan puestos:
+   volver a subir no vuelve a costar, y probar dos mundos seguidos es
+   exactamente lo que alguien hace la primera tarde.
+
+   El observador se crea una vez y se reusa: el panel se vuelve a dibujar cada
+   vez que se abre Ajustes, y crear uno nuevo ahí serían diez observadores
+   mirando lo mismo. */
+let VIGIA = null;
+
+function montarVista(marco) {
+  if (!marco || marco.dataset.puesto) return;
+  marco.dataset.puesto = "1";
+  marco.srcdoc = escenaDoc(marco.dataset.mundo, marco.dataset.grande === "1");
+}
+
+/* Lo que ya se ve, MEDIDO, y nada más. La herramienta obvia para esto es
+   `IntersectionObserver` y estuvo puesta; se cambió por un fallo real: un
+   observador de intersección solo avisa cuando el navegador COMPONE un
+   fotograma, y hay entornos donde eso no pasa —el panel de pruebas es uno, y es
+   la misma familia de trampa que deja las transiciones congeladas para siempre,
+   contada en CLAUDE.md—. Ahí la galería salía entera en blanco: cuatro marcos
+   vacíos, ningún error y nada en la consola.
+
+   Un rectángulo sí se puede preguntar sin dibujar nada. Así que se pregunta, y
+   se vuelve a preguntar al mover la página. Es una herramienta más tonta que la
+   buena, pero funciona en todas partes y se puede comprobar. */
+function montarLasVisibles() {
+  const pendientes = document.querySelectorAll("#panel-apariencia iframe[data-mundo]:not([data-puesto])");
+  if (!pendientes.length) return;
+  const alto = window.innerHeight || 0;
+  pendientes.forEach((f) => {
+    const r = f.getBoundingClientRect();
+    /* Un pantallazo de margen por arriba y por abajo: lo que está a punto de
+       asomar se monta antes de asomar, para que bajar no enseñe huecos. */
+    if (r.bottom > -220 && r.top < alto + 220) montarVista(f);
+  });
+}
+
+/* Y para lo que aparece al bajar, el observador de intersección, que es la
+   herramienta que existe para esto. Llegó a estar cambiado por un oído de
+   `scroll` cuando se vio que el observador no disparaba en el panel de
+   pruebas; el cambio estaba mal y se deshizo al medirlo mejor: **ahí tampoco
+   llegan los eventos de scroll** —comprobado con un oído recién puesto y un
+   `scrollTop += 200`: cero avisos—, porque los dos dependen de lo mismo, de que
+   el navegador componga fotogramas. No era un fallo del observador; era que ese
+   entorno no dibuja.
+
+   Así que la herramienta buena se queda, y lo que la acompaña es
+   `montarLasVisibles()` de arriba: eso sí funciona sin dibujar, y es lo que
+   garantiza que la primera pantalla nunca salga en blanco en ningún sitio. Lo
+   que no se puede comprobar desde aquí es el camino de bajar. */
+function vigilarVistas() {
+  montarLasVisibles();
+  if (!("IntersectionObserver" in window)) {
+    /* Sin observador —un navegador viejo— se montan todas y ya. Vale más una
+       galería que pesa que una galería vacía. */
+    document.querySelectorAll("#panel-apariencia iframe[data-mundo]").forEach(montarVista);
+    return;
+  }
+  if (!VIGIA) {
+    VIGIA = new IntersectionObserver((entradas) => {
+      entradas.forEach((e) => {
+        if (!e.isIntersecting) return;
+        montarVista(e.target);
+        VIGIA.unobserve(e.target);
+      });
+    }, { rootMargin: "220px" });
+  }
+  document.querySelectorAll("#panel-apariencia iframe[data-mundo]:not([data-puesto])")
+    .forEach((f) => VIGIA.observe(f));
+}
+
+/* El modo claro y los previews son dos ejes independientes, y los de dentro
+   tienen que seguir al de fuera: sin esto, cambiar a modo día dejaba la galería
+   entera en su noche, enseñando una cara que no es la que se va a llevar. Se
+   mira el atributo de `<html>` en vez de engancharse a `ponerTema`, que vive en
+   otro archivo — así esto sigue funcionando el día que el modo cambie desde un
+   sitio nuevo. */
+function sincronizarVistas() {
+  document.querySelectorAll("iframe[data-mundo][data-puesto]").forEach((f) => {
+    const d = f.contentDocument;
+    if (!d || !d.documentElement) return;
+    d.documentElement.classList.toggle("claro", document.documentElement.classList.contains("claro"));
+  });
+}
+
+new MutationObserver(sincronizarVistas)
+  .observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+/* ================= Una tarjeta de la galería ================= */
+
+function tarjetaMundo(m) {
+  const e = estadoApariencia(m);
+  const puesta = apariencia() === m.id;
+  return `
+    <button type="button" class="mun-t${e.ok ? "" : " cerrado"}${puesta ? " on" : ""}"
+      data-ap="${m.id}" onclick="abrirMundo('${m.id}')"
+      title="${escapeHtml(m.nombre)}${e.ok ? "" : " · " + escapeHtml(e.chapa)}">
+      <span class="mun-vista">
+        <iframe data-mundo="${m.id}" title="Vista previa de ${escapeHtml(m.nombre)}"
+          scrolling="no" tabindex="-1" aria-hidden="true"></iframe>
+      </span>
+      <span class="mun-pie">
+        <b>${escapeHtml(m.nombre)}</b>
+        ${novedadApariencia(m)}
+        ${chapaApariencia(e, true)}
+        <span class="mun-ok" aria-hidden="true">${icon("check", 12)}</span>
+      </span>
+    </button>`;
+}
+
+/* ================= Un mundo, de cerca =================
+   La ventana que se abre al tocar una tarjeta: el mismo preview en grande y
+   todo lo que la tarjeta no puede decir —la premisa, los cinco nombres del
+   camino, y si está cerrado, por qué y por dónde se abre—. Es donde vive ahora
+   lo que antes cabía en un toast de cuatro segundos. */
+let mundoAbierto = null;
+
+function abrirMundo(id) {
+  const caja = document.getElementById("mundo-modal");
+  const cuerpo = document.getElementById("mundo-body");
+  if (!caja || !cuerpo) return;
+  const a = aparienciaPorId(id);
+  if (!a) return;
+  mundoAbierto = id;
+
+  const m = mundoPorId(id);
+  const e = estadoApariencia(a);
+  const puesta = apariencia() === id;
+  const comoMundo = !!(m || id === "casa");
+  const nombre = nombreApariencia(a, comoMundo);
+  const premisa = (comoMundo && id === "casa") ? CASA_MUNDO.premisa : (a.premisa || "");
+
+  /* Los cinco nombres del camino, que es lo que de verdad separa un mundo de un
+     recolor: un ambiente te cambia la luz, un mundo te renombra lo que llevas
+     recorrido. */
+  const rangos = m && m.listo && m.rangos
+    ? `<div class="mv-rangos"><span class="mv-rot">Tu camino en ${escapeHtml(m.nombre)}</span>
+       <p>${m.rangos.map(r => escapeHtml(r.nombre)).join(" · ")}</p></div>` : "";
+
+  const abajo = !e.ok
+    ? `<div class="ap-cerrado ap-${e.clase}">
+         <b>${escapeHtml(e.titulo)}</b>
+         <span>${escapeHtml(e.texto)}</span>
+       </div>` +
+       /* `btn-primary` y no `btn-aviso`: el amarillo es para lo que toca dinero
+          y aquí no se cobra nada — este botón abre el cuadro que EXPLICA el
+          plan. Y es la única acción de la ventana cuando está cerrada, que es
+          justo lo que `btn-primary` significa en esta app. */
+       (e.accion ? `<button type="button" class="btn btn-primary btn-block ap-btn" onclick="aparienciaAPagar('${e.accion.como}')">${e.accion.insignia ? icon(e.accion.insignia, 16) : ""}<span>${escapeHtml(e.accion.texto)}</span></button>` : "")
+    : (puesta
+        ? `<p class="ap-yaesta">${icon("check", 15)}<span>Es la que llevas puesta.</span></p>`
+        : `<button type="button" class="btn btn-primary btn-block" onclick="elegirApariencia('${id}')">Ponérmelo</button>`);
+
+  cuerpo.innerHTML = `
+    <button type="button" class="mv-x" onclick="cerrarMundo()" aria-label="Cerrar">${icon("close", 18)}</button>
+    <div class="mv-marco">
+      <iframe data-mundo="${id}" data-grande="1" title="Vista previa de ${escapeHtml(nombre)}"
+        scrolling="no" tabindex="-1" aria-hidden="true"></iframe>
+    </div>
+    <div class="mv-cuerpo">
+      <div class="ap-cab">
+        <span class="ap-ic mues-${id}">${icon((m && m.icon) || (ambientePorId(id) || {}).icon || "compass", 20)}</span>
+        <b class="ap-nom">${escapeHtml(nombre)}</b>
+        ${novedadApariencia(a)}
+        ${chapaApariencia(e)}
+      </div>
+      <p class="ap-premisa">${escapeHtml(premisa)}</p>
+      ${rangos}
+      ${abajo}
+    </div>`;
+
+  caja.classList.add("show");
+  /* El de la ventana se monta en el acto y no por el vigía: ya está en
+     pantalla, y esperar a que un observador se entere se ve como un hueco. */
+  if (esMundo(id)) pedirLosMundos();
+  montarVista(cuerpo.querySelector("iframe[data-mundo]"));
+}
+
+function cerrarMundo() {
+  const caja = document.getElementById("mundo-modal");
+  if (caja) caja.classList.remove("show");
+  mundoAbierto = null;
+}
+
+/* ================= El panel de Ajustes ================= */
+
+function pintarSeleccion() {
+  const puesta = apariencia();
+  document.querySelectorAll("#panel-apariencia [data-ap]").forEach((b) => {
+    const on = b.getAttribute("data-ap") === puesta;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", String(on));
+  });
 }
 
 function renderPanelApariencia() {
   const caja = document.getElementById("panel-apariencia");
   if (!caja) return;
-  const puesta = apariencia();
 
-  const muestras = AMBIENTES.map((a) => {
-    const bloqueado = aparienciaDisponible(a.id) !== true;
-    const motivo = motivoApariencia(a);
-    /* El motivo se escribe AL LADO: es lo que convierte «no lo tienes» en «lo
+  /* El archivo de los mundos se pide al ABRIR el catálogo y no al encender un
+     mundo, que es lo que se hacía antes. Quien llega a esta pantalla vino a
+     mirarlos, y sin él la galería no puede enseñar ninguno. Quien nunca la abre
+     sigue sin bajárselo, que es la regla que dejó escrita la caché de 0.7.38:
+     `css/mundos.css` no está en `ASSETS` y pesa 180 KB.
+
+     Va antes de montar nada porque el `link` tiene que existir cuando se
+     escriba el documento de una vista — se engancha en el acto aunque tarde en
+     llegar, así que la huella ya está disponible en esta misma línea. */
+  if (typeof pedirLosMundos === "function") pedirLosMundos();
+
+  /* Un ambiente NO lleva vista previa viva, y no es por ahorrar: un recolor
+     queda descrito entero por sus tres tonos —fondo, tarjeta y acento—, que es
+     justo lo que enseña su muestra. Lo que no cabe en tres tonos es un MUNDO,
+     porque lo que cambia es el material. Poner un documento por recolor sería
+     pagar catorce veces por enseñar lo mismo que ya se ve. */
+  const muestras = AMBIENTES.filter((a) => seExhibe(a.id)).map((a) => {
+    const e = estadoApariencia(a);
+    /* La chapa se escribe AL LADO: es lo que convierte «no lo tienes» en «lo
        tendrás», y es la mitad del premio. Los que ya tienes no llevan pie —
        decirle a alguien el nivel de algo que ya se ganó es ruido. */
-    const pie = motivo || "";
+    const pie = e.ok ? "" : e.chapa;
     return `
-      <button type="button" class="amb-m mues-${a.id}${puesta === a.id ? " on" : ""}${bloqueado ? " cerrado" : ""}"
-        onclick="elegirApariencia('${a.id}')"
-        aria-pressed="${puesta === a.id}"
+      <button type="button" class="amb-m mues-${a.id}${e.ok ? "" : " cerrado"}"
+        data-ap="${a.id}" onclick="abrirMundo('${a.id}')"
         title="${escapeHtml(a.nombre)}${pie ? " · " + escapeHtml(pie) : ""}">
         <span class="amb-mini" aria-hidden="true">
           <span class="amb-tarj"></span><span class="amb-pt"></span>
           ${a.icon ? `<span class="amb-ic">${icon(a.icon, 15)}</span>` : ""}
+          <span class="amb-ok" aria-hidden="true">${icon("check", 12)}</span>
+          ${esNovedad(a) ? '<span class="amb-nueva">Nuevo</span>' : ""}
         </span>
         <span class="amb-n">${escapeHtml(a.nombre)}</span>
         ${pie ? `<span class="amb-p">${escapeHtml(pie)}</span>` : ""}
@@ -645,69 +1184,55 @@ function renderPanelApariencia() {
      una cuestión de orden: son cosas de distinta especie. Un ambiente le cambia
      la luz al mismo material; un mundo cambia el material —la superficie, el
      marco, la letra y el peso al moverse— y por eso declara sus propios
-     colores y es excluyente con los ambientes. Mezclarlos en una lista los
-     haría parecer catorce opciones del mismo tipo, que es justo la confusión
-     que `apariencias/LEEME.md` existe para evitar. */
-  const listos = MUNDOS.filter((m) => m.listo);
-  /* La primera fila es la salida, y existe porque Eduardo preguntó lo obvio:
-     con un mundo puesto, ¿cómo se vuelve? Hasta ahora había que tocar un
-     RECOLOR, que es pedir una cosa para conseguir otra — se lee como «elegir
-     Musgo», no como «quitar Reliquia». Ahora la puerta de vuelta está en la
-     misma lista por la que se entró, que es donde uno la busca. */
-  const salida = `
-      <button type="button" class="mun-m mun-salida${esMundo(puesta) ? "" : " on"}"
-        onclick="elegirApariencia('casa')" aria-pressed="${!esMundo(puesta)}">
-        <span class="mun-ic">${icon("compass", 20)}</span>
-        <span class="mun-tx">
-          <b>Norata clásico</b>
-          <span>Sin mundo: el material de siempre, con el ambiente que lleves puesto.</span>
-        </span>
-      </button>`;
-  const mundos = salida + listos.map((m) => {
-    const bloqueado = aparienciaDisponible(m.id) !== true;
-    const pie = motivoApariencia(m) || "";
-    return `
-      <button type="button" class="mun-m mues-${m.id}${puesta === m.id ? " on" : ""}${bloqueado ? " cerrado" : ""}"
-        onclick="elegirApariencia('${m.id}')"
-        aria-pressed="${puesta === m.id}"
-        title="${escapeHtml(m.nombre)}${pie ? " · " + escapeHtml(pie) : ""}">
-        ${m.icon ? `<span class="mun-ic">${icon(m.icon, 20)}</span>` : ""}
-        <span class="mun-tx">
-          <b>${escapeHtml(m.nombre)}</b>
-          <span>${escapeHtml(m.premisa || "")}</span>
-        </span>
-        ${pie ? `<span class="mun-p">${escapeHtml(pie)}</span>` : ""}
-      </button>`;
-  }).join("");
+     colores y es excluyente con los ambientes. */
+  const listos = MUNDOS.filter((m) => m.listo && seExhibe(m.id));
+  /* La primera tarjeta es el MUNDO DE PARTIDA, y existe porque Eduardo preguntó
+     lo obvio: con un mundo puesto, ¿cómo se vuelve? Antes había que tocar un
+     recolor, que es pedir una cosa para conseguir otra.
+
+     Se llama «Noche de expedición» y no «Norata clásico»: ése es el nombre del
+     RECOLOR de partida, que está en la otra reja. Ver `CASA_MUNDO`. */
+  const salida = seExhibe("casa")
+    ? tarjetaMundo({ id: "casa", nombre: CASA_MUNDO.nombre, listo: true })
+    : "";
+  const mundos = salida + listos.map(tarjetaMundo).join("");
 
   caja.innerHTML = `
     <h3>Ambientes</h3>
     <p class="settings-note">El mismo Norata con otra luz. Se van desbloqueando conforme avanzas, y el modo de día y de noche sigue arriba: cada ambiente tiene sus dos caras.</p>
     <div class="amb-rej">${muestras}</div>
-    ${listos.length ? `<h3 class="amb-h2">Mundos</h3>
+    ${listos.length || salida ? `<h3 class="amb-h2">Mundos</h3>
     <p class="settings-note">Un mundo no es otra luz: es otro material. Cambia la superficie, el marco, la letra y hasta cómo se llama tu camino. Van aparte de los ambientes porque no se combinan — llevas uno o llevas el otro.</p>
     <div class="mun-rej">${mundos}</div>` : ""}`;
+
+  /* La palomita de "esto es lo que llevas puesto", que la escribe un solo
+     sitio para las dos rejas. Sin esta linea las tarjetas de mundo salian
+     marcadas —lo llevan escrito al construirse— y las muestras de ambiente
+     no: ponerse Tinta se veia como que no habia pasado nada. */
+  pintarSeleccion();
+  vigilarVistas();
 }
 
-/* Un toque: se pone, se guarda y se vuelve a dibujar la rejilla para que la
-   marca de «puesta» se mueva. Si no se puede, no se pone y se dice por qué en
-   vez de no hacer nada — un botón que no contesta parece roto. */
+/* Ponérsela de verdad: se guarda y se recarga. Si no se puede, sale el cuadro
+   del plan en vez de un aviso que se va solo. */
 function elegirApariencia(id) {
   /* `aparienciaPorId` y no `ambientePorId`, que es lo que había y por lo que
      tocar Reliquia no hacía absolutamente nada: la lista de mundos no está en
      `AMBIENTES`, así que esto salía por el `return` de la línea siguiente sin
-     un error, sin un aviso y sin cambiar nada. Se corrigieron `disponible`,
-     `poner` y `motivo` al construir el mundo, y se quedó justo la función por
-     la que se entra. */
+     un error, sin un aviso y sin cambiar nada. */
   const a = aparienciaPorId(id);
   if (!a) return;
-  const motivo = motivoApariencia(a);
-  if (motivo) {
-    if (typeof toast === "function") toast(a.nombre + " viene con " + motivo.replace(/^Con /, ""), "atencion");
+  const e = estadoApariencia(a);
+  if (!e.ok) {
+    /* Lo que se paga saca el cuadro del plan; lo que se gana se queda en la
+       ventana, que ya dice cuánto falta y no tiene nada más que ofrecer. */
+    if (e.accion) aparienciaAPagar(e.accion.como);
+    else if (typeof toast === "function") toast(e.titulo, "atencion");
     return;
   }
   if (!ponerApariencia(id)) return;
-  renderPanelApariencia();
+  cerrarMundo();
+  pintarSeleccion();
 
   /* Y se recarga la página. Lo pidió Eduardo y resuelve de raíz una clase
      entera de problemas: un mundo trae su propio archivo de estilos, que llega
@@ -718,12 +1243,10 @@ function elegirApariencia(id) {
      apariencia guardada antes del primer fotograma.
 
      Dentro del EJEMPLO no se recarga: el ejemplo vive en memoria y una recarga
-     lo borraría sin avisar. Ahí se aplica en caliente, que es lo que había, y
-     es el único sitio donde la mezcla se puede tolerar — lo que se está
-     mirando son datos inventados. */
-  if (typeof modoEjemplo !== "undefined" && modoEjemplo) return;
+     lo borraría sin avisar. */
+  if (typeof modoEjemplo !== "undefined" && modoEjemplo) { renderPanelApariencia(); return; }
   /* Sin el nombre: lo pidió Eduardo y tiene razón — el nombre ya está en la
-     tarjeta que acabas de tocar, y repetirlo en el aviso es decir dos veces lo
+     ventana que acabas de cerrar, y repetirlo en el aviso es decir dos veces lo
      mismo medio segundo antes de que la app se recargue y lo enseñe. */
   if (typeof toast === "function") toast("Cambiando tema…", "calma");
   /* Un respiro para que el aviso se vea y para que `localStorage` haya

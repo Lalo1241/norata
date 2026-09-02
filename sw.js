@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.69";
+const CACHE = "norata-0.7.70";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -22,6 +22,12 @@ const ASSETS = [
   "./icon.svg", "./favicon.svg", "./icon-192.png", "./icon-512.png",
   "./icon-maskable-512.png", "./apple-touch-icon.png",
   "./css/fuente.css", "./css/estilos.css", "./css/ambientes.css",
+  /* Las muestras de los mundos SÍ viajan con la app y `css/mundos.css` no: son
+     tres tonos por mundo y pesan tres kilobytes, mientras que un mundo entero
+     —con su letra y sus texturas— pesa ciento ochenta. Sin ellas aquí, la reja
+     del catálogo saldría gris para quien nunca se haya bajado un mundo, que es
+     todo el mundo la primera vez que abre esa pantalla. */
+  "./css/muestras.css",
   "./js/01-base.js", "./js/02-progreso.js", "./js/02b-expedicion.js", "./js/03-talentos.js",
   "./js/04-misiones.js", "./js/05-resumen.js", "./js/06-detalle.js",
   "./js/07-lienzo.js", "./js/08-formularios.js", "./js/09-inicio.js",
