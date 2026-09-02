@@ -1055,6 +1055,13 @@
 <!-- ============ RACHA: CELEBRACIÓN DE HITO ============ -->
 <div class="scel" id="scel">
   <div class="scel-rays"></div>
+  <!-- El amanecer, la segunda escena de racha (nivel 9). Vive aquí apagado y
+       lo enciende la clase `alba`: crearlo desde el JS lo haría llegar tarde,
+       justo en el instante en que la escena tapa la pantalla. -->
+  <div class="scel-alba"></div>
+  <svg class="scel-abetos" viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 22V14l5-6 4 6 6-9 5 9 5-4 6 7 5-11 6 11 5-5 5 5 4-8 6 8 5-3 5 3 5-6 5 6 4-4 5 4 4-2v6z"/>
+  </svg>
   <div class="scel-sparks" id="scel-sparks"></div>
   <div class="scel-core">
     <div class="scel-flame"><svg viewBox="0 0 24 24"><path d="M12 22c4.4 0 7-2.9 7-6.5 0-4.5-4-6.3-4.5-10C13 7 11 8.5 11 11c-1.5-.6-2-2.3-1.8-4C6.5 8.8 5 11.5 5 15.5 5 19.1 7.6 22 12 22z"/></svg></div>
