@@ -76,6 +76,35 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.63 · 1 sep 2026
+
+**El ambiente que abre un nivel se pone antes de anunciarlo.**
+
+La 0.7.62 dejó apuntado que el ambiente Adobe, que abre en el nivel 7, «caía
+encima» del rango Rastreador. **Ese aviso estaba equivocado y conviene
+borrarlo de la cabeza de todos:** `apariencias/LEEME.md` empareja rango y
+ambiente a propósito en cuatro peldaños —«Rango Brote, y con él el ambiente
+Musgo»— y pide justo lo contrario de separarlos: «la celebración al
+desbloquear un ambiente, **con el ambiente ya puesto**».
+
+Eso es lo que faltaba, y es lo que se construye aquí. Al subir a un nivel que
+abre un ambiente, la escena se lo pone antes de enseñarlo: un color anunciado
+por su nombre no dice nada; puesto, se ve. Tres reglas que lo hacen seguro:
+
+- **Va en `soloVista`**, la puerta que ya dejaba abierta `ponerApariencia`:
+  cambia el aspecto sin escribir la elección. Mientras la escena está abierta,
+  lo guardado sigue siendo lo de antes.
+- **Si se cierra sin aceptar, vuelve lo que había.** Quedarse un ambiente por
+  no haber pulsado nada es lo contrario de «se avisa, no se hace en silencio».
+  El botón que lleva a Mi apariencia es el que lo deja puesto de verdad.
+- **Un ambiente que pide Pro y no se tiene NO se pone**, aunque sí se anuncia.
+  Enseñar puesto lo que no puede quedarse sería prometer y quitar en la misma
+  pantalla, y la regla del cobro es la contraria: se enseña lo que hay.
+
+Y las filas de tipo `ambiente` de `escaleraDeExpedicion()` ahora llevan su
+`id`. Sin él habría que buscar el ambiente por el nombre, que es atar una
+función a un rótulo.
+
 ### 0.7.62 · 1 sep 2026
 
 **Los cinco rangos dejan de ser piezas de un grafo y pasan a ser oficios, y la

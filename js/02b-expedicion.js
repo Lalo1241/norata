@@ -170,7 +170,10 @@ function escaleraDeExpedicion() {
          en `css/ambientes.css` y se pone desde Ajustes—. La bandera es lo que
          separa lo que ya se puede cumplir de lo que solo está planeado, y
          estos ya no están planeados. */
-      filas.push({ nivel: a.abre, tipo: "ambiente", nombre: a.nombre, pro: !!a.pro, listo: true });
+      /* El `id` viaja con la fila para que la celebración pueda ponerse el
+         ambiente antes de anunciarlo. Buscarlo luego por el nombre sería atar
+         una función a un rótulo que se traduce. */
+      filas.push({ nivel: a.abre, id: a.id, tipo: "ambiente", nombre: a.nombre, pro: !!a.pro, listo: true });
     }
   }
   return filas.sort((x, y) => x.nivel - y.nivel);
