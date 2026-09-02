@@ -1280,9 +1280,14 @@
   @media (prefers-reduced-motion: reduce) { .dash.editing .widget { animation: none; } }
 
   /* ---------- Resumen: racha ---------- */
+  /* Las dos cifras de la semana y del mes viven DENTRO de esta fila desde
+     la 0.7.56, empujadas al borde con `margin-left: auto`: la marca a un
+     lado y el resumen al otro, que es lo que llena la fila en una tarjeta
+     ancha. `wrap` para que en el teléfono caigan debajo en vez de salirse. */
   .streak-row {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
     margin: 4px 0 10px;
   }
@@ -6136,7 +6141,7 @@
   .sg-hoy { margin: 0; font-size: 13px; line-height: 1.45; color: var(--text); opacity: 0.85; max-width: 34ch; }
   .sg-hoy.si { color: var(--mint); opacity: 1; font-weight: 650; }
 
-  .sg-cifras { display: flex; gap: 22px; }
+  .sg-cifras { display: flex; gap: 22px; margin-left: auto; }
   .sg-cifras b { font-size: 20px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   /* El denominador, más chico: «4/7» con los dos números iguales se lee como
      una fracción que hay que resolver; con el segundo pequeño se lee como
@@ -6185,10 +6190,7 @@
      hueco en el sitio equivocado. Ahora manda un solo umbral. */
   .sg-extra { display: none; flex-direction: column; gap: 20px; }
 
-  .sgh-n { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
-  .sgh-n b { font-size: 26px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
-  .sgh-n span { font-size: 12px; color: var(--muted); }
-  .sgh-b { height: 8px; border-radius: var(--r-boton); background: var(--carril); overflow: hidden; }
+  .sgh-b { margin-top: 9px; height: 8px; border-radius: var(--r-boton); background: var(--carril); overflow: hidden; }
   .sgh-b i { display: block; height: 100%; border-radius: var(--r-barra); background: var(--mint); }
   .sgh-p { margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.45; }
 
@@ -6222,94 +6224,85 @@
   .rc { max-width: 100%; }
   .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, minmax(0, 44px)); }
 
-  /* ---- Dónde cae el hueco ----
-     En una tarjeta ancha siempre sobra sitio, y lo que decide si se ve bien
-     no es cuánto sobra sino DÓNDE cae. Antes caía en medio: `.sg-izq` era una
-     columna flexible de mil píxeles con ciento treinta y cinco de contenido
-     centrados dentro, así que entre el número y la columna de al lado
-     quedaban 460 px de nada mientras «Próximo hito» se pegaba al calendario
-     con 28. Un hueco ENTRE dos bloques se lee como algo roto; el mismo hueco
-     en el borde se lee como margen, que es lo que es.
+  /* ---- El hito se ve SIEMPRE, también en el teléfono (0.7.56) ----
+     Vivía detrás de un umbral de 1150 px de tarjeta, o sea que la pieza que
+     más mueve a volver —cuánto falta para el siguiente hito— no se veía en
+     teléfono, ni en tableta, ni en laptop: exactamente los aparatos donde se
+     mira una racha. Se escribía en el HTML y se tiraba con `display: none`.
 
-     De ahí las tres reglas de este acomodo, que es una rejilla con las juntas
-     escritas como columnas propias en vez de un `gap` igual para todas:
+     Lo que sí se queda fuera de las tarjetas estrechas es «qué la sostiene»:
+     son tres filas más con su barra y su nombre largo, y por debajo de 680 px
+     no caben sin apretar el mes, que es la pieza que manda. */
+  .sg-extra { display: flex; flex-direction: column; gap: 18px; }
+  .sg-sostiene { display: none; flex-direction: column; gap: 8px; }
 
-       1. **Cada bloque se pega al siguiente.** El número no flota en mitad de
-          su columna: se va al final de ella (`justify-self: end`) y toca la
-          junta corta. Lo que sobra sale por el borde de fuera.
-       2. **La junta contra el calendario es la ancha.** Una rejilla densa y
-          una columna de texto necesitan más aire entre sí que dos bloques de
-          texto, o el texto se lee como el pie de la rejilla. Y de paso ahí es
-          donde cae la luna del dibujo, que hasta ahora quedaba tapada por la
-          cabecera del mes.
-       3. **Margen de fuera > junta ancha > junta corta.** Es el orden de
-          cualquier página impresa, y es lo que hace que las tres piezas se
-          lean como una tarjeta y no como tres islas. */
+  /* ---- Dos bloques, y el mes manda (0.7.56) ----
+     El mes entero es la superficie que hace volver —eso se decidió en la
+     0.7.33 y sigue en pie—, así que desde aquí es también la pieza que fija
+     el alto de la tarjeta: va a la izquierda, y todo lo demás baja a un solo
+     carril a su derecha, uno debajo de otro.
 
+     Lo que arregla, medido sobre la 0.7.47 en una tarjeta de 1176 x 456:
+
+       - **Tres bloques en fila dejaban 217 px de sangría a la izquierda
+         contra 18 a la derecha.** Con dos no hay junta interior que repartir:
+         hay un margen igual a los dos lados y ya está.
+       - **Cada bloque empezaba a una altura distinta** —166, 125 y 109—.
+         Ahora los dos arrancan en la misma línea, la de arriba del mes.
+       - **166 px de los 456 estaban vacíos**, el 36 % de la tarjeta. El alto
+         lo pone lo que mide el mes y no un número escrito a mano.
+       - **Desaparece el precipicio de 1150 px**: no hay un tercer bloque que
+         aparezca de golpe, así que la tarjeta se comporta igual de 430 a
+         2000 px de ancho. */
   @container (min-width: 430px) {
-    /* Dos bloques en cuanto caben, con las casillas pequeñas. Es lo que
-       devuelve la tarjeta de una columna a cinco filas de alto en vez de
-       nueve. */
     .streak-grid {
-      display: grid; gap: 0; align-items: center;
-      /* la marca, pegada a la derecha · junta · el mes */
-      grid-template-columns: minmax(min-content, 1fr) minmax(24px, 0.45fr) auto;
+      display: grid;
+      /* El carril tiene tope, y lo que sobra sale por los DOS bordes. En la
+         racha de tres columnas de "Mirador" la tarjeta mide 1820 px: sin tope,
+         el carril se llevaba 1.400 y la barra del próximo hito cruzaba metro y
+         medio de pantalla. Un hueco ENTRE dos bloques se lee como algo roto;
+         el mismo hueco al borde de una escena con estrellas se lee como
+         margen, que es lo que es.
+
+         Y el sobrante cae a la DERECHA, sin centrar: así el mes arranca en la
+         misma vertical que el saludo de arriba —que en la 0.7.47 empezaba en
+         el borde mientras el contenido empezaba 217 px más adentro— y el hueco
+         queda justo donde está la luna del dibujo. */
+      grid-template-columns: max-content minmax(0, 820px);
+      /* `start` y no el reparto de siempre: sin esto la columna del mes se
+         come todo lo que le sobra al carril —el calendario mide 318 px y la
+         columna salía de 688— y el hueco vuelve a caer en medio de la
+         tarjeta en vez de al borde. */
+      justify-content: start;
+      gap: 16px 34px;
+      align-items: start;
     }
-    /* La identidad conserva su alineación de siempre —todo centrado entre
-       sí— y lo único que cambia es dónde se apoya el grupo: al final de su
-       columna, no en mitad de ella. */
-    .sg-izq { grid-column: 1; justify-self: end; align-items: center; text-align: center; }
-    .sg-izq .streak-row { justify-content: center; }
-    .sg-cifras { justify-content: center; }
-    .sg-der { grid-column: 3; }
+    /* El mes ocupa las dos filas de la izquierda; a la derecha, la marca
+       arriba y el carril debajo. Va escrito y no deducido: en el marcado el
+       carril viene DESPUÉS del mes, y el colocador automático lo mandaría a
+       una tercera fila. */
+    .sg-der   { grid-column: 1; grid-row: 1 / span 2; }
+    /* La fila de la marca tiene su propio tope, más corto que el del carril:
+       las dos cifras van empujadas al final con `margin-left: auto`, y en un
+       carril de 820 px acababan en el borde derecho de la escena, justo encima
+       de la luna del dibujo. */
+    .sg-izq   { grid-column: 2; grid-row: 1; max-width: 520px; }
+    .sg-extra { grid-column: 2; grid-row: 2; }
     .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, 30px); gap: 4px; }
     .rc-d { font-size: 11px; border-radius: 7px; }
   }
 
-  @container (min-width: 760px) {
-    /* Con sitio de sobra, las casillas vuelven a su tamaño cómodo. */
+  /* ---- Con sitio de sobra, el mes crece y entra «qué la sostiene» ----
+     900 es el MISMO número que usa `altoDeRacha` en js/05-resumen.js para
+     pasar de cuatro filas a cinco. Las dos cuentas tienen que decidir lo
+     mismo o la tarjeta sale cortada; si algún día se mueve este umbral, se
+     mueve `RACHA_MES_GRANDE` con él. */
+  @container (min-width: 900px) {
     .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, 42px); }
     .rc-d { font-size: 12px; border-radius: var(--r-mini); }
-  }
-
-  @container (min-width: 1150px) {
-    /* Tres bloques, y el calendario al final. Es la pieza más grande y la más
-       densa: en el centro parte la tarjeta en dos mitades que no se hablan, y
-       al borde lo demás se lee como una columna de lectura seguida.
-
-       Los pesos, medidos en una tarjeta de 1464: la sangría de la izquierda
-       sale de 326 px, la junta ancha de 191 y la corta de 72. Ese 4,5 : 2,6 : 1
-       es el reparto que antes estaba justo al revés —18 : 460 : 28—, y por eso
-       la misma tarjeta con el mismo contenido se veía rota. */
-    .streak-grid {
-      /* sangría + marca · junta corta · lectura · junta ancha · el mes */
-      grid-template-columns: minmax(min-content, 1.15fr) 72px minmax(0, 0.85fr) minmax(72px, 0.45fr) auto;
-      /* Y un tope, porque los dos huecos crecen con la tarjeta y arriba de
-         cierto ancho dejan de ser aire para ser distancia: en un monitor de
-         2560 la sangría salía de 596 px y la junta ancha de 415, o sea tres
-         piezas que ya no se hablan. Pasado el tope, lo que sobra se reparte
-         por los dos bordes y el ritmo de dentro se queda quieto.
-
-         Con `width: 100%` por delante, y hace falta: un margen automatico
-         horizontal sobre un hijo de una caja flexible en columna apaga el
-         estirado, y la rejilla se encogia a su contenido —la columna de
-         lectura pasaba de 360 px a 200 y las juntas se quedaban clavadas—. */
-      width: 100%;
-      max-width: 1560px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    /* La fila, escrita. Sin ella el marcado manda: en el HTML la tercera
-       columna va DESPUES del calendario, asi que el colocador automatico
-       llegaba a ella con el cursor ya pasado el ultimo hueco de la fila y la
-       mandaba a una segunda fila —87 px de tarjeta desbordados por abajo—.
-       Reordenar el marcado no vale: en los otros dos acomodos el orden que
-       hay es el bueno. */
-    .sg-izq, .sg-extra, .sg-der { grid-row: 1; }
-    .sg-extra { display: flex; grid-column: 3; max-width: 420px; }
-    .sg-der { grid-column: 5; }
-
-    /* Y el número crece con la tarjeta. A 34 px se perdía en metro y medio de
+    .sg-sostiene { display: flex; }
+    .streak-grid { gap: 18px 40px; }
+    /* Y la marca crece con la tarjeta. A 34 px se perdía en metro y medio de
        ancho, y un bloque pequeño rodeado de sitio se lee como un hueco por
        mucho que se le mueva: lo que no ocupa su espacio no se arregla
        deslizándolo, se arregla escalándolo. */
