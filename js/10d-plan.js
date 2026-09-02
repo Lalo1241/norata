@@ -496,9 +496,19 @@ function topeTexto(clave) {
     };
   }
   if (clave === "apariencia") {
+    /* «Paletas de color» y «apariencias completas» eran dos nombres para cosas
+       que ya se llaman de otra manera en toda la app: un AMBIENTE es un
+       recolor y un MUNDO es otro material, y están así en
+       `apariencias/LEEME.md`, que es el documento que manda. Este cuadro es
+       además el único sitio donde alguien lee la diferencia con la cartera en
+       la mano, así que era el peor sitio para llamarlas de otro modo.
+
+       Y sin números: decir «cinco de los siete» sería una segunda verdad que
+       mantener el día que entre el octavo. */
     return {
-      titulo: "Norata con otra piel",
-      frase: "Las paletas de color son de todos. Las apariencias completas vienen con " + NOMBRE_PRO + "."
+      titulo: "Norata con otro material",
+      frase: "Subir de nivel abre ambientes: la misma Norata con otra luz. Con " +
+        NOMBRE_PRO + " se abren todos, y además los mundos, que cambian el material entero — la letra, las texturas y hasta cómo se llama tu camino."
     };
   }
   return { titulo: "Esto viene con " + NOMBRE_PRO, frase: "Tu plan Gratuito no incluye esta parte." };

@@ -76,6 +76,171 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.70 · 2 sep 2026
+
+**Mi apariencia se vuelve una galería: cada mundo se enseña solo.**
+
+Era una reja de muestras y una lista de renglones, y de un mundo no decían casi
+nada — tres tonos y una frase describen un RECOLOR, y lo que un mundo cambia es
+el material. La única prueba de verdad era ponérselo, que además recarga la app.
+
+Ahora cada mundo es su propia vista previa **viva**, en su tarjeta, y se ven
+todas a la vez: su tipografía, su textura, su marco y el nombre que ese mundo le
+da a tu rango. Averno sale en gótica sobre piedra quemada y te llama *Leviatán*;
+Blueprint en papel de plano y te llama *Proyectista*; Reliquia en terciopelo con
+marcos de latón y te llama *Colección*. Tocar una abre su ventana, con la
+premisa, los cinco nombres del camino y —si está cerrado— por qué y por dónde se
+abre. La referencia es la tienda de Discord y la puso Eduardo.
+
+#### Por qué un documento por tarjeta, y por qué no se montan todos
+
+El CSS de un mundo cuelga de `html[data-apariencia="…"]`, así que la única
+manera de que dos mundos se vean a la vez en la misma pantalla es que cada uno
+tenga su propio `<html>`. No hay truco que lo evite. Lo que sí se puede es no
+pagarlo hasta que haga falta: un `IntersectionObserver` los monta al entrar en
+pantalla y los deja puestos. Con quince mundos, quien no baje monta tres.
+
+Antes de esto hubo un intento de **un solo escenario compartido** arriba del
+panel, que enseñaba el mundo que tocabas. Escalaba mejor y estaba mal: obliga a
+elegir antes de ver, y lo que esta pantalla tiene que hacer es lo contrario.
+
+#### Las cápsulas del candado
+
+- **Llevan la insignia del plan**: `plan-pro` (la gema) y `plan-fundador` (la
+  gema con corona), las mismas que la app ya usa en la chapa del menú, en la
+  fila de Ajustes y en el cuadro del tope. Cuatro sitios, un símbolo.
+- **Son tres colores y no uno.** Iban las tres en lila, que en esta app es el
+  color de Fundador: «Con Norata Pro» pintado de Fundador dice que Pro y
+  Fundador son lo mismo, que es justo lo que la pantalla del plan existe para
+  separar. Menta lo que abre el plan, lila lo que solo abre Fundador, y
+  luciérnaga lo que todavía se está ganando — que no se compra, y por eso no
+  puede ir del color de lo que se paga. Medidos los tres pares en modo claro:
+  5,33 · 5,35 · el lila ya estaba medido.
+- **Y son pequeñas.** Iban a 10 px con peso 800 y espaciado ancho, y al lado de
+  «Averno» se leían antes que el mundo. En una tienda la etiqueta del precio no
+  puede gritar más que el producto. Ahora pesan 700, van a 9 px, y en la tarjeta
+  el texto va corto («Pro», no «Con Norata Pro»); entero solo en la ventana.
+- **`NIVEL 5` no lleva insignia de plan**, y es la misma regla de siempre: el
+  nivel no se compra, y la piedra ahí diría lo contrario del texto de al lado.
+
+#### Lo cerrado ya dice por qué
+
+Un candado decía «Nivel 5» o «Con Norata Pro» y se acababa ahí; al tocarlo salía
+un toast de cuatro segundos. Eso es contestar el instante de más intención de
+compra que tiene la app con un aviso que desaparece antes de que a nadie le dé
+tiempo a decidir.
+
+Ahora la ventana dice el motivo entero, y **saca el cuadro del plan** cuando lo
+que falta es pagar — `topeAlcanzado("apariencia")`, el mismo que sale al llenar
+una rama, con lo que abre y el precio dentro. El orden de las dos puertas no
+cambia: primero el NIVEL, que se gana, y después el PLAN, que se paga; a quien
+todavía no llega al nivel no se le ofrece pagar, se le dice cuánto le falta.
+Fundador no pasa por ese cuadro y va directo al panel del plan: ese cuadro vende
+Pro, y Reliquia no se abre con Pro.
+
+De paso, la frase de `topeTexto("apariencia")` dejó de hablar de «paletas de
+color» y «apariencias completas», que eran dos nombres para cosas que ya se
+llaman **ambiente** y **mundo** en toda la app. Era el peor sitio para llamarlas
+de otro modo: es el único que se lee con la cartera en la mano.
+
+#### «Nuevo» durante mes y medio
+
+Cada apariencia lleva `estrena`, la fecha en que se publicó, y sale marcada
+**Nuevo** durante `NOVEDAD_DIAS = 45`. Se apaga sola, así que lo viejo no
+necesita que nadie vaya a limpiarlo. La fecha se escribe a mano al soltar el
+tema y no sale de la versión: una apariencia puede estar en el código tandas
+antes de que se exhiba, y lo que cuenta es el día que apareció en la pantalla de
+alguien. Va con la hora pegada (`+"T00:00:00"`) porque una fecha sola la lee el
+navegador como UTC y el estreno empezaría seis horas antes.
+
+#### El interruptor del lanzamiento
+
+`APARIENCIAS_EXHIBIDAS`, una sola línea en `js/10i-apariencia.js`. En `null`
+—como está— se enseña todo lo que esté listo. Con una lista se enseña solo eso,
+y ése es el plan de Eduardo: ir soltando los temas conforme se compruebe que
+funcionan, y salir a la calle enseñando únicamente el clásico y el de Fundador.
+
+```js
+const APARIENCIAS_EXHIBIDAS = ["casa", "reliquia"];
+```
+
+Va aquí y no como un `oculta: true` repartido por las quince entradas por eso
+mismo: apagar ocho cosas de una en una son ocho sitios donde olvidarse uno.
+Quien ya tenga un tema puesto lo conserva aunque se deje de exhibir — congelar,
+nunca quitar.
+
+#### Los nombres del punto cero
+
+El recolor de partida es **Norata Clásico** y el mundo de partida es **Noche de
+expedición**. Son dos ejes y `casa` es el punto cero de los dos, así que lleva
+un nombre en cada reja y la ventana usa el de la reja por la que entraste.
+
+Separarlo destapó una mentira que llevaba puesta la fila de los mundos: decía
+«Sin mundo: el material de siempre, con el ambiente que lleves puesto», y
+elegirla te quitaba también el recolor. Claro que te lo quita — ambiente y mundo
+comparten UN atributo, son excluyentes a propósito. Ahora lo dice: «Elegirlo te
+quita el mundo y el recolor que lleves puestos.»
+
+#### `css/muestras.css`, un archivo nuevo
+
+Tres tonos por mundo —suelo, tarjeta y acento—, generados por `mundos/app.py`
+desde los mismos datos que el mundo de verdad, así que no pueden discrepar. Va
+suelto y **sí** en `ASSETS`, al contrario que `css/mundos.css`: son 3,3 KB
+contra 180, y el catálogo tiene que verse entero sin haberse bajado ningún
+mundo, que es el caso de todo el mundo la primera vez que abre esa pantalla.
+Lleva los quince y no solo los tres construidos, para que el día que un mundo
+pase a `listo` nadie tenga que acordarse de volver ahí.
+
+Con eso, el icono de cada mundo va con **su** acento y no con el lila de
+Fundador que llevaban los tres: con un solo color, catorce mundos distintos
+entraban todos por la misma puerta morada.
+
+#### Un fallo de caché que salió por el camino
+
+El preview pedía `css/mundos.css` **sin la huella `?h=`** cuando lo que se
+miraba no era un mundo. Eso es la copia vieja congelada para siempre de la
+0.7.55.3 entrando por una puerta nueva: ese archivo no está en `ASSETS`, así que
+no lo renueva la instalación; se pide suelto, lo que llegue se guarda bajo esa
+dirección, y a partir de ahí ya es un acierto que no se vuelve a pedir nunca.
+Ahora, sin `link` con huella no se pide nada — de un mundo no hay nada que
+enseñar hasta que la haya.
+
+Y `css/mundos.css` se pide al **abrir el catálogo** y no al encender un mundo:
+quien llega a esa pantalla vino a mirarlos, y la galería no puede enseñar
+ninguno sin él. Quien nunca la abre sigue sin bajárselo.
+
+#### Cómo se comprobó, y lo que no se pudo
+
+Comprobado midiendo el DOM: los cuatro previews con material distinto lado a
+lado (tipografía, radio de esquina, color de tarjeta, acento y nombre de rango),
+los dos modos con sus dos caras, el paywall desde la ventana, ponerse un tema,
+la palomita de «puesta», y sin desbordes a 375 y a 320 px. Y una comprobación
+que importaba: **cargar `css/mundos.css` en la app no cambia nada** cuando no
+hay mundo puesto — 654 elementos, 0 diferencias de estilo calculado, medido
+encendiendo y apagando el `link`.
+
+**Lo que no se pudo comprobar aquí: el camino de bajar en la galería.** La carga
+perezosa se montó con `IntersectionObserver` y la galería salía entera en
+blanco. Se cambió por un oído de `scroll` y tampoco: **ese panel no despacha
+eventos de scroll en absoluto** —comprobado con un oído recién puesto y un
+`scrollTop += 200`: cero avisos—, porque los dos dependen de que el navegador
+componga fotogramas. Es la misma familia de trampa que deja las transiciones
+congeladas para siempre, la que ya está en CLAUDE.md. O sea que el cambio se
+había hecho por un artefacto del entorno y no por un fallo, y se deshizo.
+
+Se queda el observador, que es la herramienta correcta, y al lado
+`montarLasVisibles()`: una medición síncrona de rectángulos, que sí funciona sin
+dibujar nada y garantiza que la primera pantalla nunca salga vacía en ningún
+sitio. Con tres mundos todos caben en la primera pantalla y da igual; **conviene
+mirar el scroll en un teléfono de verdad cuando haya ocho.**
+
+#### Al añadir un mundo, ahora hay una trampa más
+
+El sellador de la huella busca por TEXTO la línea donde se asigna el `href` del
+archivo de los mundos. Un comentario que cite esa marca se sella también, y se
+queda con una huella vieja dentro para siempre. Pasó al escribir el comentario
+de `direccionDeLosMundos()` en esta misma tanda.
+
 ### 0.7.69 · 2 sep 2026
 
 **Las estrellas fugaces se rehacen con cabeza y cola, y la barra del nivel se

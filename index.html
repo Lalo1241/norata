@@ -41,6 +41,11 @@
 <link rel="stylesheet" href="css/fuente.css">
 <link rel="stylesheet" href="css/estilos.css">
 <link rel="stylesheet" href="css/ambientes.css">
+<!-- Las muestras de los quince mundos: tres tonos por mundo y nada mas. Va
+     suelto y no dentro de `css/mundos.css` porque el catalogo tiene que verse
+     entero sin haberse bajado ningun mundo — mundos.css pesa 180 KB y solo se
+     pide al mirar uno. Lo genera `mundos/app.py`. -->
+<link rel="stylesheet" href="css/muestras.css">
 </head>
 <body>
 <script>
@@ -104,7 +109,7 @@
     if (["reliquia", "plano", "averno"].indexOf(puesta) >= 0) {
       var lm = document.createElement("link");
       lm.rel = "stylesheet";
-      lm.href = "css/mundos.css?h=28e3f8e4db";
+      lm.href = "css/mundos.css?h=33d06fd2a3";
       document.head.appendChild(lm);
     }
   } catch (e) {}
@@ -1009,6 +1014,15 @@
      se saca uno suelto, con la caja todavía cerrada. -->
 <div class="modal-backdrop" id="caja-modal" onclick="if(event.target===this)cerrarVentanaCaja()">
   <div class="modal-card caja-card" id="caja-body"></div>
+</div>
+
+<!-- ============ UN MUNDO, DE CERCA ============
+     La abre una tarjeta de la galeria de Mi apariencia: el preview en grande y
+     lo que la tarjeta no puede decir. Va por encima de Ajustes (--piso-ventana)
+     porque Ajustes es quien la abre, y por debajo del cuadro del plan, que sale
+     desde aqui. -->
+<div class="modal-backdrop" id="mundo-modal" onclick="if(event.target===this)cerrarMundo()">
+  <div class="modal-card mundo-card" id="mundo-body"></div>
 </div>
 
 <!-- ============ CELEBRACIÓN ============ -->

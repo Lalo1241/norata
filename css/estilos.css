@@ -546,6 +546,7 @@
     --piso-ventana: 400;   /* ventanas: la caja del ático, Ajustes */
     --piso-menucito: 420;  /* el mini menú del engrane */
     --piso-encima: 500;    /* lo que una ventana abre y la reemplaza */
+    --piso-mundo: 505;     /* un mundo de cerca: lo abre Ajustes, va encima */
     --piso-tirar: 7000;    /* deslizar para actualizar */
     --piso-pruebas: 7500;  /* el marco de "cuenta de pruebas" */
     --piso-ejemplo: 7600;  /* el rótulo de "estás viendo un ejemplo" */
@@ -1522,51 +1523,228 @@
     font-weight: 500; margin-top: 2px; white-space: normal;
   }
 
-  /* ---------- Los mundos, en Mi apariencia ----------
-     Una lista de renglones y no una reja de muestras, y es a propósito: una
-     muestra de tres tonos dice lo que hace un AMBIENTE —cambia la luz— y de un
-     mundo no diría casi nada, porque lo que cambia es el material. Un renglón
-     con su nombre y su frase dice más, y la prueba de verdad es ponérselo. */
+  /* ---------- La ficha de un mundo ----------
+     Vive dentro de la ventana que abre una tarjeta de la galería. */
+  .ap-cab { display: flex; align-items: center; gap: 11px; }
+  /* El icono se pinta con el ACENTO DE SU MUNDO —`--mu-acento`, de
+     `css/muestras.css`— y no con el lila de Fundador que llevaban todos. Con
+     un solo color, catorce mundos distintos entraban por la misma puerta
+     morada. El velo sale de `color-mix` y no de pegarle dos dígitos al hex:
+     `--mu-acento` es una variable, y a un `var(...)` no se le pega un alfa
+     detrás (es la trampa que `velo()` existe para evitar, en JavaScript). */
+  .ap-ic {
+    flex: none; display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: var(--r-chico);
+    background: color-mix(in srgb, var(--mu-acento, var(--mint)) 15%, transparent);
+    color: var(--mu-acento, var(--mint));
+  }
+  .ap-ic svg { width: 20px; height: 20px; stroke-width: 1.6; }
+  .ap-nom { min-width: 0; flex: 1; font-size: 15px; font-weight: 700; line-height: 1.2; }
+  .ap-premisa {
+    margin: 9px 0 0; font-size: 12px; color: var(--muted); line-height: 1.5;
+  }
+  /* El motivo entero, que antes era un toast de cuatro segundos. El borde de
+     la izquierda lleva el color del candado: menta lo que se paga con el plan,
+     lila lo de Fundador y luciérnaga lo que todavía se está ganando. */
+  .ap-cerrado {
+    margin-top: 11px; padding: 10px 12px;
+    border-left: 3px solid var(--muted);
+    border-radius: 0 var(--r-mini) var(--r-mini) 0;
+    background: var(--sup-panel);
+  }
+  .ap-cerrado b { display: block; font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .ap-cerrado span { display: block; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+  .ap-cerrado.ap-pro { border-left-color: var(--mint); }
+  .ap-cerrado.ap-fundador { border-left-color: var(--lila); }
+  .ap-cerrado.ap-nivel { border-left-color: var(--fire); }
+  .ap-cerrado + .btn { margin-top: 10px; }
+  .ap-yaesta {
+    display: flex; align-items: center; gap: 7px;
+    margin: 12px 0 0; font-size: 12px; color: var(--mint);
+  }
+  .ap-yaesta svg { stroke-width: 2.2; }
+  .mv-cuerpo .btn { margin-top: 12px; }
+  /* El botón que lleva al plan, con su insignia delante. Es la cuarta vez que
+     aparece la misma piedra —la chapa del menú, la fila de Ajustes, el cuadro
+     del tope y aquí—, y repetirla es lo que hace que las cuatro se lean como el
+     mismo sitio al que te llevan. */
+  .ap-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  .ap-btn .ic svg { width: 16px; height: 16px; stroke-width: 1.8; }
+
+  /* ---------- Lo que acaba de llegar ----------
+     Mes y medio y se apaga solo, desde la fecha de estreno de cada apariencia
+     (ver `NOVEDAD_DIAS`). Va en menta maciza y no en un velo: compite en la
+     misma fila con la chapa del candado, que sí es un velo, y de las dos la
+     que tiene que ganar es ésta — el candado se lee igual estando más apagado,
+     y lo nuevo deja de verse en cuanto se parece a lo de al lado. */
+  .ap-nueva, .amb-nueva {
+    font-size: 8.5px; font-weight: 700; letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--sobre-macizo); background: var(--mint-macizo);
+    border-radius: var(--r-pastilla); padding: 2px 6px;
+    white-space: nowrap;
+  }
+  /* En el pie de una tarjeta va justo después del nombre y antes de la cápsula
+     del candado: primero qué es, luego que acaba de llegar, y al final qué
+     hace falta para tenerlo. */
+  .ap-nueva { flex: none; }
+  /* Y en la muestra de un ambiente, encima: los 88 px de la muestra no dan para
+     un tercer renglón de texto debajo del nombre y la chapa. Arriba a la
+     derecha, que es la única esquina libre —el acento va arriba a la izquierda,
+     el icono abajo a la derecha y la palomita abajo a la izquierda—. */
+  .amb-nueva {
+    position: absolute; top: 6px; right: 6px;
+    font-size: 8.5px; padding: 2px 5px;
+  }
+
+  /* ---------- La galería de mundos, en Mi apariencia ----------
+     Cada mundo es su propia vista previa VIVA, en su tarjeta, y las tarjetas se
+     ven todas a la vez. Antes eran renglones de texto con un escenario
+     compartido arriba: eso obliga a elegir antes de ver, y lo que tiene que
+     hacer esta pantalla es lo contrario — enseñar los quince para que uno te
+     llame. La referencia es la tienda de Discord y la puso Eduardo.
+
+     El detalle de por qué cada tarjeta necesita su propio documento, y de por
+     qué no se montan todos de golpe, está en `js/10i-apariencia.js`. */
   .amb-h2 { margin-top: 22px; }
-  .mun-rej { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-  .mun-m {
-    display: flex; align-items: center; gap: 12px; width: 100%;
+  .mun-rej {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(216px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .mun-t {
+    display: flex; flex-direction: column; width: 100%; padding: 0;
     text-align: left; font-family: inherit; cursor: pointer;
     background: var(--sup-tarjeta); color: var(--text);
     border: var(--borde-tarjeta) solid var(--line);
     border-image: var(--marco-tarjeta);
-    border-radius: var(--r-caja); padding: 12px 14px;
+    border-radius: var(--r-caja);
+    overflow: hidden;
   }
-  .mun-m.on { border-color: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
-  /* La salida no es un mundo y no se pinta como uno: su icono va en el gris de
-     la app y no en el lila de Fundador, para que la lista se lea como «esto es
-     lo que hay puesto» y no como «aquí hay dos mundos». */
-  .mun-salida .mun-ic { background: var(--sup-panel); color: var(--muted); }
-  .mun-salida.on .mun-ic { color: var(--mint); }
-  .mun-m.cerrado { opacity: 0.62; }
-  /* Y el del mundo, que aquí sí es una pieza suya: la piedra de Reliquia es el
-     mismo dibujo con el que la app ya nombra la insignia de Fundador. */
-  .mun-ic {
-    flex: none;
+  .mun-t.on { border-color: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
+  /* Cerrado se ve ENTERO y solo un poco apagado: enseñar lo que se puede tener
+     es la mitad de la razón para quererlo, y un mundo tapado no vende nada.
+     Sube a opacidad completa al pasar por encima, que es cuando alguien lo
+     está mirando de verdad. */
+  .mun-t.cerrado { opacity: 0.74; }
+  .mun-t.cerrado:hover, .mun-t.cerrado:focus-visible { opacity: 1; }
+  .mun-t:hover { box-shadow: var(--sombra-s); }
+  /* El suelo hondo por debajo del preview y no el de la tarjeta: lo de dentro
+     es OTRA app, y sin un tono que la separe se lee como si fuera ésta. Es la
+     misma razón por la que el lienzo del árbol no vale el fondo de la página. */
+  .mun-vista { display: block; background: var(--sup-hondo); }
+  /* 158 y no 132, que es donde estaba: medido contra el borde de abajo de la
+     última pieza de dentro, el más alto de los cuatro pide 150 y la barra se
+     quedaba cortada por la mitad. Ojo con el `scrollHeight` del `body` para
+     comprobarlo — con `overflow: hidden` puesto devuelve el alto de la caja y
+     no el del contenido, así que decía que cabía. Se mide con
+     `lastElementChild.getBoundingClientRect().bottom`. */
+  .mun-vista iframe {
+    display: block; width: 100%; height: 158px; border: 0;
+    background: transparent;
+    /* El preview se MIRA, no se usa: sin esto, un toque dentro del iframe cae
+       en una app de mentira con datos inventados y no en la tarjeta que lo
+       contiene, que es lo que la persona cree estar tocando. */
+    pointer-events: none;
+  }
+  .mun-pie {
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 11px 10px;
+    border-top: 1px solid var(--line);
+  }
+  /* El nombre manda y por eso se lleva el hueco: las cápsulas de al lado no
+     crecen ni se parten, y el que se corta si no cabe es él. */
+  .mun-pie b {
+    flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  /* La palomita dice «esto ya es tuyo» sin depender de un color, y solo sale en
+     la que llevas puesta. */
+  .mun-ok, .amb-ok { display: none; }
+  .mun-t.on .mun-ok {
+    flex: none; display: flex; align-items: center; justify-content: center;
+    width: 19px; height: 19px; border-radius: var(--r-redondo);
+    background: var(--mint-macizo); color: var(--sobre-macizo);
+  }
+  .mun-t.on .mun-ok svg { stroke-width: 2.6; }
+
+  /* ---------- Un mundo, de cerca ----------
+     La ventana que abre una tarjeta: el mismo preview en grande y lo que la
+     tarjeta no cabe decir. */
+  #mundo-modal { z-index: var(--piso-mundo); }
+  /* `text-align: left` porque `.modal-card` centra: ahí dentro hay un párrafo
+     de tres renglones, una lista de cinco rangos y un motivo, y centrado eso se
+     lee como una lápida. Un cuadro de confirmar centra bien porque es una
+     frase; una ficha, no. */
+  .mundo-card {
+    padding: 0; overflow: hidden; max-width: 460px;
+    position: relative; text-align: left;
+  }
+  /* Y los párrafos aparte, con las DOS clases delante. `.modal-card p` centra,
+     y `.mundo-card p` a secas empata en especificidad con ella: gana la que
+     esté más abajo en el archivo, que resultó ser la otra. Con
+     `.modal-card.mundo-card p` ya no depende del orden. Es el mismo apaño que
+     llevan las variantes `reporte` y `menta`. */
+  .modal-card.mundo-card p { text-align: left; }
+  .mv-marco { background: var(--sup-hondo); }
+  .mv-marco iframe {
+    display: block; width: 100%; height: 214px; border: 0;
+    background: transparent; pointer-events: none;
+  }
+  .mv-cuerpo { padding: 14px 16px 16px; }
+  /* La equis va FLOTANDO sobre el preview y no en una barra propia: una barra
+     de título encima le robaría al preview lo único que esta ventana viene a
+     enseñar. Lleva su propio fondo porque debajo hay un mundo cualquiera y no
+     se puede contar con que contraste. */
+  .mv-x {
+    position: absolute; top: 10px; right: 10px;
     display: flex; align-items: center; justify-content: center;
-    width: 38px; height: 38px;
-    border-radius: var(--r-chico);
-    background: var(--lila-soft);
-    color: var(--lila);
+    width: 32px; height: 32px; padding: 0;
+    border: 0; border-radius: var(--r-redondo); cursor: pointer;
+    background: rgba(16, 21, 29, 0.62); color: #eaf1ef;
+    backdrop-filter: blur(3px);
   }
-  .mun-ic svg { width: 20px; height: 20px; stroke-width: 1.6; }
-  .mun-tx { min-width: 0; flex: 1; }
-  .mun-tx b { display: block; font-size: 14px; font-weight: 700; }
-  .mun-tx span {
-    display: block; font-size: 11.5px; color: var(--muted);
-    line-height: 1.4; margin-top: 2px;
+  .mv-x:hover { background: rgba(16, 21, 29, 0.82); }
+  .mv-rangos { margin-top: 12px; }
+  .mv-rot {
+    display: block; font-size: 9.5px; font-weight: 800; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--faint);
   }
+  .mv-rangos p {
+    margin: 4px 0 0; font-size: 12px; color: var(--muted); line-height: 1.5;
+  }
+
+  /* ---------- Las cápsulas del candado ----------
+     Tres colores porque son tres candados distintos, y hasta la 0.7.64 iban las
+     tres en lila — que en esta app es el color de Fundador—: «Con Norata Pro»
+     pintado de Fundador dice que Pro y Fundador son lo mismo, que es justo lo
+     que la pantalla del plan existe para separar. Menta lo que abre el plan,
+     lila lo que solo abre Fundador, y luciérnaga lo que todavía se está
+     ganando — que no se compra, y por eso no puede ir del color de lo que se
+     paga.
+
+     Y son PEQUEÑAS. Iban a 10 px con peso 800 y espaciado ancho, y al lado de
+     «Averno» se leían antes que el mundo: en una tienda, la etiqueta del precio
+     no puede gritar más que el producto. Lo paró Eduardo. Ahora pesan 700, van
+     a 9 px y el texto de la tarjeta es corto —«Pro», no «Con Norata Pro»—. */
   .mun-p {
-    flex-shrink: 0; font-size: 10px; font-weight: 800; letter-spacing: 0.06em;
-    text-transform: uppercase; color: var(--lila);
-    background: var(--lila-soft); border-radius: var(--r-pastilla);
-    padding: 4px 9px;
+    flex: none; display: inline-flex; align-items: center; gap: 4px;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--muted);
+    background: var(--sup-panel); border-radius: var(--r-pastilla);
+    padding: 3px 7px 3px 6px; white-space: nowrap;
   }
+  .mun-p .ic svg { width: 10px; height: 10px; stroke-width: 2; }
+  /* Sin insignia el hueco de la izquierda sobra y la pastilla queda
+     descentrada. */
+  .mun-p.ap-nivel { padding-left: 7px; }
+  .mun-p.ap-pro { color: var(--mint); background: var(--mint-soft); }
+  .mun-p.ap-fundador { color: var(--lila); background: var(--lila-soft); }
+  .mun-p.ap-nivel { color: var(--fire); background: var(--fire-soft); }
+  /* En la ventana la cápsula va entera y con un poco más de aire: ahí no
+     compite por el ancho con nada. */
+  .ap-cab .mun-p { font-size: 9.5px; padding: 4px 8px 4px 7px; }
 
   /* ---------- Subir de nivel de expedición ----------
      La misma familia que la fiesta de racha —ocupa la pantalla, con rayos y
@@ -8862,8 +9040,18 @@ html.claro .plan-linea { stroke-opacity: .85; }
   }
   .amb-ic svg { width: 15px; height: 15px; stroke-width: 1.7; }
   .amb-m:hover .amb-mini { box-shadow: var(--sombra-s); }
-  .amb-m.on .amb-mini { outline: 2px solid var(--mint); outline-offset: 2px; }
+  /* El aro es MIRAR y la palomita es LLEVARLO PUESTO, igual que en la reja de
+     los mundos: desde el escaparate son dos cosas y antes eran una sola,
+     porque tocar una muestra te la ponía. */
+  .amb-m.mirando .amb-mini { outline: 2px solid var(--mint); outline-offset: 2px; }
   .amb-m:focus-visible .amb-mini { outline: 2px solid var(--mint); outline-offset: 2px; }
+  .amb-m.on .amb-ok {
+    position: absolute; left: 13%; bottom: 17%;
+    display: flex; align-items: center; justify-content: center;
+    width: 17px; height: 17px; border-radius: var(--r-redondo);
+    background: var(--mint-macizo); color: var(--sobre-macizo);
+  }
+  .amb-m.on .amb-ok svg { stroke-width: 2.8; }
   .amb-n { font-size: 12.5px; font-weight: 600; line-height: 1.15; }
   .amb-p { font-size: 11px; color: var(--muted); line-height: 1.15; }
   /* Cerrado se ve ENTERO y apagado, no tapado: enseñar lo que se puede tener

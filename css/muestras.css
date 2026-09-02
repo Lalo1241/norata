@@ -1,0 +1,46 @@
+/* Las muestras de los mundos, para la pantalla de Ajustes.
+
+   Los mismos tonos que el bloque de cada mundo, expuestos en una clase para
+   poder pintar una tarjeta CON EL COLOR DE SU MUNDO sin ponérselo a la app y
+   sin bajarse el mundo. Salen del mismo sitio que los de verdad, así que no
+   pueden discrepar: el día que cambie un tono cambian los dos. Es el mismo
+   truco que `apariencias/css.py` ya usa con los ambientes.
+
+   POR QUÉ ESTO ES UN ARCHIVO APARTE Y NO VA EN `css/mundos.css`: el catálogo
+   de mundos tiene que verse ENTERO sin haberse bajado ninguno. `mundos.css`
+   pesa lo que pesan sus tipografías y sus texturas y solo se pide al mirar un
+   mundo; esto son doscientos bytes y viaja con la app, en `ASSETS`. Si las
+   muestras vivieran allí, la reja saldría gris hasta que el archivo llegara.
+
+   Generado desde `mundos/datos.py`. No editar a mano. */
+
+.mues-talavera { --mu-bg: #f4f1e8; --mu-card: #fffefb; --mu-acento: #1e3f8f; }
+html.claro .mues-talavera { --mu-bg: #f4f1e8; --mu-card: #fffefb; --mu-acento: #1e3f8f; }
+.mues-grabado { --mu-bg: #e3ddcd; --mu-card: #efe9da; --mu-acento: #a32615; }
+html.claro .mues-grabado { --mu-bg: #e3ddcd; --mu-card: #efe9da; --mu-acento: #a32615; }
+.mues-consola { --mu-bg: #000; --mu-card: #050705; --mu-acento: #3bff9e; }
+html.claro .mues-consola { --mu-bg: #000; --mu-card: #050705; --mu-acento: #3bff9e; }
+.mues-neon { --mu-bg: #08060f; --mu-card: #141024; --mu-acento: #3febff; }
+html.claro .mues-neon { --mu-bg: #08060f; --mu-card: #141024; --mu-acento: #3febff; }
+.mues-cyber { --mu-bg: #05070c; --mu-card: #12130a; --mu-acento: #fcee0a; }
+html.claro .mues-cyber { --mu-bg: #05070c; --mu-card: #12130a; --mu-acento: #fcee0a; }
+.mues-plano { --mu-bg: #0d2b52; --mu-card: #0b1219; --mu-acento: #9fd0ff; }
+html.claro .mues-plano { --mu-bg: #e4eaf2; --mu-card: #f4f7fb; --mu-acento: #4c9ade; }
+.mues-forja { --mu-bg: #16110c; --mu-card: #2a2016; --mu-acento: #ff9d3d; }
+html.claro .mues-forja { --mu-bg: #16110c; --mu-card: #2a2016; --mu-acento: #ff9d3d; }
+.mues-postit { --mu-bg: #e9e4d6; --mu-card: #fdf5a8; --mu-acento: #1f5fa8; }
+html.claro .mues-postit { --mu-bg: #e9e4d6; --mu-card: #fdf5a8; --mu-acento: #1f5fa8; }
+.mues-arboleda { --mu-bg: #08110c; --mu-card: #17251b; --mu-acento: #8fe36a; }
+html.claro .mues-arboleda { --mu-bg: #08110c; --mu-card: #17251b; --mu-acento: #8fe36a; }
+.mues-obsidiana { --mu-bg: #07080a; --mu-card: #1a1e23; --mu-acento: #c3ced5; }
+html.claro .mues-obsidiana { --mu-bg: #07080a; --mu-card: #1a1e23; --mu-acento: #c3ced5; }
+.mues-cenit { --mu-bg: #0c1030; --mu-card: #191f4c; --mu-acento: #f0dcb4; }
+html.claro .mues-cenit { --mu-bg: #0c1030; --mu-card: #191f4c; --mu-acento: #f0dcb4; }
+.mues-reliquia { --mu-bg: #090612; --mu-card: #1e1930; --mu-acento: #b7a2ea; }
+html.claro .mues-reliquia { --mu-bg: #cdc5de; --mu-card: #f4f1fa; --mu-acento: #a278e4; }
+.mues-averno { --mu-bg: #050302; --mu-card: #261c18; --mu-acento: #ff7a3d; }
+html.claro .mues-averno { --mu-bg: #e4dcd6; --mu-card: #f7f1ea; --mu-acento: #f2621f; }
+.mues-ventisca { --mu-bg: #0d151d; --mu-card: #1e2833; --mu-acento: #8fd4ff; }
+html.claro .mues-ventisca { --mu-bg: #0d151d; --mu-card: #1e2833; --mu-acento: #8fd4ff; }
+.mues-bastion { --mu-bg: #0e1216; --mu-card: #222b34; --mu-acento: #4db8ff; }
+html.claro .mues-bastion { --mu-bg: #0e1216; --mu-card: #222b34; --mu-acento: #4db8ff; }
