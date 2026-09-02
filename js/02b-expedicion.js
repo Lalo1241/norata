@@ -199,13 +199,17 @@ function celebracionesAbiertas() {
    se gana al rellenar la constelación, no al estrenarla.
 
    Los peldaños de celebración caen en los huecos que quedan: encima de un
-   cambio de rango serían dos noticias en la misma pantalla. */
+   cambio de rango serían dos noticias en la misma pantalla.
+
+   `corto` es el nombre que cabe en una tarjeta de premio. El largo se sigue
+   usando donde hay renglón entero —«Mi expedición»—, pero «Destello propio al
+   cumplir una misión» en 132 px son cuatro líneas y descuadraba la fila. */
 const EXP_ESCALERA = [
-  { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión", listo: true },
+  { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión", corto: "Destello propio", listo: true },
   { nivel: 6,  tipo: "rango",       nombre: "Rango Andante", listo: true },
-  { nivel: 9,  tipo: "celebracion", nombre: "Escena nueva de racha", listo: true },
+  { nivel: 9,  tipo: "celebracion", nombre: "Escena nueva de racha", corto: "Nueva escena de racha", listo: true },
   { nivel: 12, tipo: "rango",       nombre: "Rango Rastreador", listo: true },
-  { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true, listo: true },
+  { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", corto: "Celebración grande", pro: true, listo: true },
   { nivel: 18, tipo: "rango",       nombre: "Rango Explorador", listo: true },
   { nivel: 24, tipo: "rango",       nombre: "Rango Cartógrafo", listo: true },
   { nivel: 30, tipo: "rango",       nombre: "Rango Navegante", listo: true }

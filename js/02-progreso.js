@@ -237,6 +237,97 @@ function ncelDevolverAmbiente() {
   ncelAmbientePrevio = null;
 }
 
+/* ---- La tarjeta de un premio ----
+   Eran renglones con un icono y un nombre: «Musgo» al lado de una brochita no
+   dice nada de lo que acabas de ganar. Ahora cada premio es una tarjeta con
+   una VISTA de lo que es, y van en fila con arrastre horizontal — que es lo
+   que hace un juego cuando te enseña un botín, y lo que permite que quepan
+   tres sin apretar la pantalla.
+
+   La vista de un ambiente sale de SUS PROPIOS tonos, leídos de la hoja de
+   estilos. Así nadie tiene que mantener una segunda tabla de colores: el día
+   que alguien retoque Musgo, esta miniatura cambia con él. */
+function ncelTonosDe(id) {
+  const claro = document.documentElement.classList.contains("claro");
+  const sel = 'html' + (claro ? ".claro" : ":not(.claro)") + '[data-apariencia="' + id + '"]';
+  for (const hoja of document.styleSheets) {
+    let reglas;
+    /* Una hoja de otro origen lanza al leerla. No pasa hoy —todas son
+       nuestras— pero una fuente de Google metida mañana rompería la escena. */
+    try { reglas = hoja.cssRules; } catch (e) { continue; }
+    for (const r of reglas) {
+      if (r.selectorText !== sel) continue;
+      const v = k => r.style.getPropertyValue(k).trim();
+      if (v("--bg")) return { bg: v("--bg"), card: v("--card") || v("--bg"), acento: v("--mint") };
+    }
+  }
+  return null;
+}
+
+/* Las vistas de las celebraciones son el propio efecto en pequeño y quieto: un
+   dibujo del gesto, no una captura. Se hacen con SVG porque tienen que
+   funcionar a 132×74 sin pedir un archivo. */
+const NCEL_VISTAS = {
+  "destello": '<svg viewBox="0 0 80 44" aria-hidden="true">' +
+    '<circle cx="40" cy="22" r="13" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".45"/>' +
+    '<circle cx="40" cy="22" r="19" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".18"/>' +
+    '<path d="M40 13l2.4 6.6L49 22l-6.6 2.4L40 31l-2.4-6.6L31 22l6.6-2.4z" fill="currentColor"/>' +
+    '<circle cx="21" cy="12" r="1.6" fill="currentColor" opacity=".6"/>' +
+    '<circle cx="60" cy="31" r="1.6" fill="currentColor" opacity=".6"/>' +
+    '<circle cx="59" cy="11" r="1.2" fill="currentColor" opacity=".4"/></svg>',
+  "racha": '<svg viewBox="0 0 80 44" aria-hidden="true">' +
+    '<defs><radialGradient id="ncelAlba" cx="50%" cy="100%" r="70%">' +
+    '<stop offset="0%" stop-color="currentColor" stop-opacity=".75"/>' +
+    '<stop offset="100%" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs>' +
+    '<rect x="0" y="0" width="80" height="44" fill="url(#ncelAlba)"/>' +
+    '<circle cx="16" cy="10" r="1" fill="currentColor" opacity=".5"/>' +
+    '<circle cx="64" cy="8" r="1.2" fill="currentColor" opacity=".5"/>' +
+    '<path d="M0 44V34l6-7 5 7 7-10 6 10 6-5 7 8 6-12 7 12 6-6 6 6 5-9 8 9v7z" fill="currentColor" opacity=".85"/></svg>',
+  "grande": '<svg viewBox="0 0 80 44" aria-hidden="true">' +
+    '<circle cx="40" cy="22" r="19" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".2"/>' +
+    '<circle cx="40" cy="22" r="13" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".38"/>' +
+    '<circle cx="40" cy="22" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/>' +
+    '<path d="M36.6 22h6.8M40 18.6v6.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+};
+
+/* Qué vista le toca a un peldaño de celebración. Se decide por el NIVEL y no
+   por el texto del nombre: un rótulo se reescribe cualquier día. */
+function ncelVistaCelebracion(nivel) {
+  return nivel <= 3 ? NCEL_VISTAS.destello : nivel <= 9 ? NCEL_VISTAS.racha : NCEL_VISTAS.grande;
+}
+
+function ncelTarjetaPremio(x) {
+  const esAmb = x.tipo === "ambiente";
+  let vista, estilo = "";
+  if (esAmb) {
+    const t = x.id ? ncelTonosDe(x.id) : null;
+    /* Sin tonos —un ambiente que aún no tenga su bloque— se cae al icono de
+       siempre en vez de dejar el hueco vacío. */
+    vista = t
+      ? '<span class="ncel-swatch"><i class="sw-card"></i><i class="sw-punto"></i></span>'
+      : icon("brush", 22);
+    if (t) estilo = ' style="--sw-bg:' + t.bg + ';--sw-card:' + t.card + ';--sw-ac:' + t.acento + '"';
+  } else {
+    vista = ncelVistaCelebracion(x.nivel);
+  }
+  return '<article class="ncel-premio' + (esAmb ? " es-amb" : " es-cel") + '"' + estilo + '>' +
+    '<div class="ncel-vista">' + vista + '</div>' +
+    '<div class="ncel-quees">' + (esAmb ? "Ambiente" : "Celebración") + '</div>' +
+    '<div class="ncel-nom">' + escapeHtml(x.corto || x.nombre) + '</div>' +
+    '</article>';
+}
+
+/* ---- Lo que hay detrás de una escena ----
+   Aleja y apaga la app mientras una escena está encima. Vive aquí y no en cada
+   escena porque las dos que interrumpen —subir de nivel y el hito de racha—
+   tienen que hacer exactamente lo mismo: si una se aleja y la otra no, se nota
+   que son dos pantallas distintas en vez de la misma app. */
+function fondoDetras(si) {
+  const app = document.querySelector(".app");
+  if (app) app.classList.toggle("escena-detras", !!si);
+}
+
+let ncelEntra = null;
 let ncelTimer = null;
 
 function celebrarNivel(nivel, abre) {
@@ -300,8 +391,8 @@ function celebrarNivel(nivel, abre) {
   const premios = abre.filter(x => x.tipo !== "rango");
   const caja = document.getElementById("ncel-abre");
   caja.innerHTML = premios.length
-    ? `<div class="ncel-tit">Se abre</div>` + premios.map(x =>
-        `<div class="ncel-uno">${icon(x.tipo === "ambiente" ? "brush" : "star", 18)}<span>${escapeHtml(x.nombre)}</span></div>`).join("")
+    ? `<div class="ncel-tit">Se abre</div><div class="ncel-premios">` +
+      premios.map(ncelTarjetaPremio).join("") + `</div>`
     : "";
 
   /* El botón que lleva a donde está el premio. Un anuncio sin destino obliga a
@@ -319,9 +410,16 @@ function celebrarNivel(nivel, abre) {
   el.classList.toggle("abierta", hayVentana);
   ncelPreverAmbiente(premios);
   ncelPintarMapa(nivel);
-  el.classList.remove("show");
+  /* Dos fases: primero el velo y el fondo alejándose, y solo cuando eso
+     termina sale lo de dentro. Con una sola clase, el número y la
+     constelación arrancaban a la vez que el velo y la escena aparecía de
+     golpe. Los 420 ms son los mismos que dura la transición del velo. */
+  clearTimeout(ncelEntra);
+  el.classList.remove("show", "entrando");
   void el.offsetWidth;                 // reiniciar las animaciones
-  el.classList.add("show");
+  fondoDetras(true);
+  el.classList.add("entrando");
+  ncelEntra = setTimeout(() => el.classList.add("show"), 420);
   if (userHasTapped && navigator.vibrate) navigator.vibrate(hayVentana ? [40, 60, 40, 60, 140] : [30, 50, 90]);
 
   clearTimeout(ncelTimer);
@@ -334,9 +432,11 @@ function celebrarNivel(nivel, abre) {
 
 function cerrarNivelCel() {
   clearTimeout(ncelTimer);
+  clearTimeout(ncelEntra);
+  fondoDetras(false);
   ncelDevolverAmbiente();
   const el = document.getElementById("ncel");
-  if (el) el.classList.remove("show");
+  if (el) el.classList.remove("show", "entrando");
 }
 
 /* Tocar el fondo cierra la fiesta que pasa y NO la ventana con premio. Va aquí
@@ -445,6 +545,7 @@ function mensajeHito(n) {
   return "Tres días seguidos: así es como empieza todo hábito.";
 }
 
+let scelEntra = null;
 let scelTimer = null;
 
 function celebrateStreak(n) {
@@ -474,9 +575,15 @@ function celebrateStreak(n) {
   }
   sp.innerHTML = chispas;
 
-  el.classList.remove("show");
+  /* Igual que la de nivel: primero el velo y la app alejándose, y solo
+     después la escena. Las dos tienen que entrar igual o se nota que son dos
+     pantallas distintas. */
+  clearTimeout(scelEntra);
+  el.classList.remove("show", "entrando");
   void el.offsetWidth;                 // reiniciar las animaciones
-  el.classList.add("show");
+  fondoDetras(true);
+  el.classList.add("entrando");
+  scelEntra = setTimeout(() => el.classList.add("show"), 420);
   if (userHasTapped && navigator.vibrate) navigator.vibrate([40, 60, 40, 60, 120]);
   clearTimeout(scelTimer);
   // Red de seguridad: si el botón se queda sin pulsar, no bloquea la app
@@ -485,8 +592,10 @@ function celebrateStreak(n) {
 
 function closeStreakCel() {
   clearTimeout(scelTimer);
+  clearTimeout(scelEntra);
+  fondoDetras(false);
   const el = document.getElementById("scel");
-  if (el) el.classList.remove("show");
+  if (el) el.classList.remove("show", "entrando");
 }
 
 /* Se llama después de cualquier registro que pueda mantener viva la racha.
