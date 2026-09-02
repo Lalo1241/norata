@@ -76,6 +76,50 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.60 · 1 sep 2026
+**La cota de Blueprint cruza a la app, y el disparador no es una clase: es la
+cifra.**
+
+`--m-cenefa` —la franja del borde de arriba de una pieza, que en Blueprint es
+la línea de cota— se quedó fuera cuando se construyó el mundo. Ya cruza, con dos
+correcciones sobre lo que parecía obvio.
+
+**La cota no medía nada.** Era un SVG de 200 px centrado: en la ficha estrecha
+de la lámina colaba, pero sobre una tarjeta ancha las puntas de flecha se
+quedaban flotando en medio sin tocar los bordes —o sea un adorno con forma de
+cota—. Ahora se arma por capas de `background` y se estira, con las puntas a
+tamaño fijo en su propio archivo porque estiradas se deformaban. Se corrige en
+`mundos/datos.py`, así que la lámina mejora igual.
+
+**Y ponerla por clase habría sido el error de siempre.** Contado con el ejemplo
+puesto: **nueve `.panel` en Ajustes** y siete piezas entre paneles y tarjetas en
+el Resumen. Es exactamente lo que ya pasó con el marco de latón de Reliquia
+—«se gasta el recurso muy rápido»—. Así que el disparador es el atributo
+`data-cota`, que lleva dentro la cifra: **sin número no hay cota**, de modo que
+nunca puede ser decorativa y ninguna pantalla se llena sola.
+
+**Y no añade el dato: se queda con él.** La app ya escribe casi todos los
+totales —«4 de 10» en cada rama— y repetirlo dentro de la cota lo abarataba.
+Así que la cota se lleva esa pastilla y el mundo la esconde. Misma información,
+mejor puesta: deja de ser un chip gris al lado del título y pasa a ser la línea
+que mide la tarjeta.
+
+Queda en las tarjetas de rama de Talentos y Proyectos. Medido: 3 cotas en
+Talentos, 3 en Proyectos y **cero en las otras cinco pantallas**, Ajustes
+incluido. La cifra va en `::after` con `content: attr(data-cota)` y no dibujada,
+así que es texto de verdad, sale en Rajdhani y la lee un lector de pantalla; su
+fondo opaco es lo que INTERRUMPE la línea, que es como se acota en un plano.
+
+Verificado con las cuatro apariencias puestas: Blueprint enseña la cota,
+Averno, Reliquia y la casa no la tienen y su pastilla sigue a la vista —el
+atributo es inerte para ellas—.
+
+**Y una trampa nueva para la lista:** un backtick dentro de un template literal
+lo CIERRA. El comentario que explica todo esto los lleva, se puso dentro de la
+plantilla de `js/06-detalle.js` y la app entera dejó de arrancar con «Unexpected
+identifier 'data'». Los comentarios con backticks van fuera, como comentario de
+JS.
+
 ### 0.7.59.1 · 1 sep 2026
 **«Actualizar» deja de ser un aviso que pasa y se vuelve un botón que espera.**
 
