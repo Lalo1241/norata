@@ -993,6 +993,28 @@ function renderColeccion() {
       </div>
     </div>
 
+    ${/* **Lo primero que se lee: qué es esto.** La pantalla explicaba los
+         rangos, los peldaños y el reparto de los puntos, y en ninguna parte
+         decía qué es una expedición ni de dónde sale el número grande de
+         arriba. Lo cazó Eduardo. Va aquí y no plegado abajo porque es lo que
+         hace falta ANTES de leer lo demás, y va justo debajo del cielo porque
+         responde a lo que acabas de ver.
+
+         Dice dos cosas y ninguna la dicen los otros paneles: que es el nivel
+         de la CUENTA —el error natural es leerlo como el de una habilidad, que
+         es el otro nivel que existe en Norata— y que no hay nada que
+         administrar. Nada de constelaciones ni de rangos: de eso ya habla el
+         panel de abajo, y repetirlo aquí abarataría los dos.
+
+         El último renglón manda al acordeón a propósito: está cerrado de
+         inicio, así que sin una línea que lo nombre casi nadie descubre que el
+         reparto exacto está ahí. */""}
+    <div class="panel">
+      <h3>Qué es tu expedición</h3>
+      <p class="settings-note">Es el nivel de tu <b>cuenta</b>, no el de una habilidad suelta: un solo número para todo lo que haces en Norata — los días que apareces, las misiones que cumples, las habilidades que suben, y los talentos y proyectos que cierras.</p>
+      <p class="settings-note exp-quees-2">No hay nada que administrar: sube solo con lo que ya estás haciendo, y no tiene techo. Más abajo puedes ver el reparto exacto, renglón por renglón.</p>
+    </div>
+
     <div class="panel">
       <h3>Tus rangos</h3>
       <p class="settings-note">Cinco en toda la vida de una cuenta. Cada uno son seis niveles, y cada nivel avanza un tramo de su constelación. El rango se consigue al cerrarla, y se queda puesto.</p>
