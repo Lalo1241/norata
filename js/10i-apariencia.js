@@ -1084,9 +1084,14 @@ function pintarFicha(id) {
           del color del otro plan. El nivel del botón es el mismo —es la única
           acción de la ficha cuando está cerrada—; lo que cambia es el tinte. */
        (e.accion ? `<button type="button" class="btn btn-block ap-btn ${e.clase === "fundador" ? "btn-fundador" : "btn-primary"}" onclick="aparienciaAPagar()">${e.accion.insignia ? icon(e.accion.insignia, 16) : ""}<span>${escapeHtml(e.accion.texto)}</span></button>` : "")
+    /* «Aplicar» y no «Ponérmelo», que es lo que decía y lo paró Eduardo. La app
+       tutea y habla cerca, pero un botón no es una frase: «Ponérmelo» le pone
+       voz de primera persona a algo que solo tiene que decir qué hace, y encima
+       suena a ropa. «Aplicar» es lo que hace y se lee igual para un recolor que
+       para un mundo. */
     : (puesta
         ? `<p class="ap-yaesta">${icon("check", 15)}<span>Es la que llevas puesta.</span></p>`
-        : `<button type="button" class="btn btn-primary btn-block" onclick="elegirApariencia('${id}')">Ponérmelo</button>`);
+        : `<button type="button" class="btn btn-primary btn-block" onclick="elegirApariencia('${id}')">Aplicar</button>`);
 
   /* El nombre y las cápsulas arriba en su renglón, y la premisa ENTERA debajo.
      Los tres iban en la misma fila y en un teléfono la cápsula larga dejaba la
