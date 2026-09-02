@@ -69,17 +69,32 @@ function expCosto(nivel) {
 
 /* ================= Los cinco rangos =================
    La cara y el nombre del nivel. No son una colección de trofeos: «Nivel 12»
-   no se recuerda y «Rama» sí, y ese trabajo no necesita a nadie más mirando.
+   no se recuerda y «Explorador» sí, y ese trabajo no necesita a nadie más
+   mirando.
+
+   **Son OFICIOS, y esa es la regla que manda al nombrar los rangos de
+   cualquier mundo.** La app escribe «Ahora eres X», así que X tiene que ser
+   algo que una persona pueda SER. La tanda anterior —Nodo, Enlace, Rama,
+   Trama, Red— nombraba las piezas de un grafo: «Ahora eres Trama» no
+   significa nada. Y «Rama» además ya estaba ocupada, que el lienzo de
+   Talentos dice «Tus ramas» en pantalla.
+
+   **Van cada seis niveles, y eso no es un número redondo: es el ritmo.** Con
+   el reparto viejo (1, 4, 10, 18, 28) el primer rango se cerraba en semana y
+   media y el cuarto tardaba **11,6 meses** — medido con `EXP_PUNTOS` y la
+   curva de aquí, con un perfil de cuatro días por semana. Cada seis da 5
+   semanas, 3 meses, 4,8, 6,6 y 8,4: sigue creciendo, pero sin el salto.
 
    NINGUNO lleva candado, ni siquiera de refilón. Si el rango es la cara del
    nivel y el nivel sube para todos, ponerle candado sería topar el número por
    la puerta de atrás. Lo que pide Pro son los ambientes y las celebraciones. */
+const EXP_POR_RANGO = 6;
 const EXP_RANGOS = [
-  { id: "nodo",   nombre: "Nodo",   desde: 1,  icon: "rango-nodo" },
-  { id: "enlace", nombre: "Enlace", desde: 4,  icon: "rango-enlace" },
-  { id: "rama",   nombre: "Rama",   desde: 10, icon: "rango-rama" },
-  { id: "trama",  nombre: "Trama",  desde: 18, icon: "rango-trama" },
-  { id: "red",    nombre: "Red",    desde: 28, icon: "rango-red" }
+  { id: "andante",    nombre: "Andante",    desde: 1,  icon: "rango-bota" },
+  { id: "rastreador", nombre: "Rastreador", desde: 7,  icon: "rango-huella" },
+  { id: "explorador", nombre: "Explorador", desde: 13, icon: "rango-farol" },
+  { id: "cartografo", nombre: "Cartógrafo", desde: 19, icon: "rango-mapa" },
+  { id: "navegante",  nombre: "Navegante",  desde: 25, icon: "rango-brujula" }
 ];
 
 /* ================= La escalera =================
@@ -107,15 +122,19 @@ const EXP_RANGOS = [
 
    El día que un ambiente esté puesto, se le pone `listo: true` y aparece. Es
    una palabra por fila y no hay nada más que tocar. */
+/* Los peldaños de celebración se mueven con los rangos: al pasar éstos a cada
+   seis niveles, dejarlos en 3, 6 y 15 los ponía justo encima de un cambio de
+   rango, y dos noticias en la misma pantalla se estorban. Ahora caen en los
+   huecos: 4, 10 y 16. */
 const EXP_ESCALERA = [
-  { nivel: 1,  tipo: "rango",       nombre: "Rango Nodo", listo: true },
-  { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión" },
-  { nivel: 4,  tipo: "rango",       nombre: "Rango Enlace", listo: true },
-  { nivel: 6,  tipo: "celebracion", nombre: "Escena nueva de racha" },
-  { nivel: 10, tipo: "rango",       nombre: "Rango Rama", listo: true },
-  { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true },
-  { nivel: 18, tipo: "rango",       nombre: "Rango Trama", listo: true },
-  { nivel: 28, tipo: "rango",       nombre: "Rango Red", listo: true }
+  { nivel: 1,  tipo: "rango",       nombre: "Rango Andante", listo: true },
+  { nivel: 4,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión" },
+  { nivel: 7,  tipo: "rango",       nombre: "Rango Rastreador", listo: true },
+  { nivel: 10, tipo: "celebracion", nombre: "Escena nueva de racha" },
+  { nivel: 13, tipo: "rango",       nombre: "Rango Explorador", listo: true },
+  { nivel: 16, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true },
+  { nivel: 19, tipo: "rango",       nombre: "Rango Cartógrafo", listo: true },
+  { nivel: 25, tipo: "rango",       nombre: "Rango Navegante", listo: true }
 ];
 
 /* Los ambientes ya NO se escriben aquí, y esta es la línea que lo pedía arriba:
