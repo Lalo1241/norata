@@ -412,7 +412,7 @@ def bloque(m):
         # que de verdad enmarcan: el panel y la tarjeta del Resumen. Once
         # marcos en siete pantallas se leen como un marco; cincuenta y tres, no.
         filas = [".ms-card", ".skill-card", ".branch-card", ".pstep", ".cat-item",
-                 ".aj-item", ".history-item", ".col-rango-uno", ".amb-m", ".mun-t",
+                 ".aj-item", ".history-item", ".col-rango-uno", ".amb-m", ".mun-m",
                  ".glass-chip", ".sh-focus", ".btn", ".icon-btn", ".tema-fila",
                  ".seg", ".chip", ".pill"]
         salida += ["",
