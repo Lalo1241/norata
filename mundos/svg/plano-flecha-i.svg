@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="10" height="7" viewBox="0 0 10 7">
+  <!-- La punta de flecha izquierda de la cota. Va en su propio archivo y a
+       tamaño fijo porque la cota SE ESTIRA al ancho de la tarjeta: metida
+       dentro del dibujo grande, estirarla la deformaba. -->
+  <path d="M0 3.5l10-3.5v7z" fill="#9fd0ff"/>
+</svg>
