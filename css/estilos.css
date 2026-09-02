@@ -1541,13 +1541,25 @@
     justify-content: center;
     overflow: hidden;
   }
-  .ncel.show { display: flex; }
+  /* En COLUMNA, y esto no es cosmética: el dibujo y el texto se reparten el
+     alto en vez de superponerse. Con las dos capas absolutas y una franja
+     fija, la escena con premio —lista de lo que se abre y dos botones— subía
+     el texto hasta dentro de la constelación: medido, 49 px de solape. Así el
+     mapa ocupa lo que sobra, lleve el texto lo que lleve. */
+  .ncel.show { display: flex; flex-direction: column; justify-content: flex-end; }
   /* ---------- El cielo y la constelación ----------
      Sustituyen a los rayos giratorios. El motivo, medido: eran las únicas
      animaciones `infinite` de toda la app, y algo que gira sin final es
      decoración de fondo y no un acontecimiento. */
-  .ncel-cielo, .ncel-mapa {
-    position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+  .ncel-cielo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  /* La constelación tiene SU franja, la mitad de arriba, y no todo el fondo.
+     Con las dos capas a pantalla completa, la escena con premio —que trae la
+     lista de lo que se abre y dos botones— subía el texto hasta encima de la
+     figura: medido, 62 px de solape. Con la franja, el dibujo ocupa lo mismo
+     lleve el texto lo que lleve. */
+  .ncel-mapa {
+    position: relative; flex: 1 1 auto; min-height: 0;
+    width: 100%; pointer-events: none;
   }
   .ncel-cielo circle { fill: #cfe6ff; }
   .ncel-linea { stroke: var(--mint); fill: none; opacity: .45; }
@@ -1578,7 +1590,13 @@
   .ncel-estante .ncel-med-astro { fill: var(--mint); opacity: .5; }
   .ncel-estante .ncel-med-nueva { animation: ncelMedalla .7s ease 2.6s backwards; }
   @keyframes ncelMedalla { from { opacity: 0; } }
-  .ncel-core { position: relative; text-align: center; padding: 24px; max-width: 340px; width: 100%; }
+  /* El texto baja y la constelación se queda arriba. Centrados los dos, el
+     número de 76 px se comía la figura: en la captura del nivel 6 solo se
+     veían los puntitos del cielo asomando por los lados. */
+  .ncel-core {
+    position: relative; text-align: center; padding: 24px;
+    max-width: 340px; width: 100%; flex: 0 0 auto; margin-bottom: 2vh;
+  }
   .ncel-insignia { color: var(--mint); filter: drop-shadow(0 0 28px color-mix(in srgb, var(--mint) 70%, transparent)); }
   .ncel-insignia svg { width: 78px; height: 78px; stroke-width: 1.5; }
   /* Dos latidos y para. En infinito, la insignia competía con la constelación
