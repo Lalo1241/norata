@@ -193,10 +193,39 @@ def variables(m, t, dia):
     sys.path.insert(0, _os.path.join(_os.path.dirname(AQUI), "apariencias"))
     import croma
     v += croma.lienzo(fondo, tarj_plana, t["--m-aviso"], dia)
-    # El suelo hondo ya lo pone `croma.lienzo`: SOLO el tono, nunca el forro.
-    # Se probó poniéndole el terciopelo debajo y Eduardo lo paró en la primera
-    # mirada — sobre un lienzo una textura no es carácter, es suciedad, y
-    # compite con lo único que hay que leer ahí. La regla, en `.const-wrap`.
+    # ---- El suelo hondo, cuando el mundo no tiene marco ----
+    # `croma.lienzo` separa el suelo de la página con un DESPLAZAMIENTO FIJO de
+    # luz (+0,018 de noche, −0,026 de día). Eso funciona sobre el carbón de la
+    # casa, y deja de funcionar en los extremos: el mismo empujón sobre una
+    # página casi negra no mueve casi nada de luminancia. Medido contra la casa
+    # —que separa 1,071 de noche y 1,090 de día—, Averno se quedaba en 1,013 y
+    # 1,020, o sea que el encuadre del lienzo, de una rama y de las columnas
+    # del tablero desaparecía.
+    #
+    # No se arregla dentro de `croma.py`, y eso es a propósito: ese archivo lo
+    # comparten los siete ambientes, y su tope de día está puesto para Reliquia
+    # —que a propósito deja el suelo valiendo lo mismo que la página, porque
+    # SU encuadre lo hace el latón y se ve solo—. Así que la regla se escribe
+    # aquí y sólo para quien no tiene marco: si no hay `--m-marco`, el suelo se
+    # empuja hasta la separación de la casa. Con marco, no se toca nada.
+    #
+    # Medido, esto mueve exactamente un mundo de los tres construidos: Blueprint
+    # ya llegaba solo (1,068 y 1,087) y Reliquia está exento por su latón.
+    if not t.get("--m-marco"):
+        objetivo = 1.071 if not dia else 1.090
+        hondo = dict(v)["--sup-hondo"]
+        if croma.contraste(hondo, fondo) < objetivo:
+            paso = 0.006 if not dia else -0.006
+            for _ in range(60):
+                if croma.contraste(hondo, fondo) >= objetivo: break
+                nuevo = mover(hondo, paso)
+                if nuevo == hondo: break          # ya topó en blanco o en negro
+                hondo = nuevo
+            v = [(k, hondo if k == "--sup-hondo" else val) for k, val in v]
+    # El suelo hondo lleva SOLO el tono, nunca el forro. Se probó poniéndole el
+    # terciopelo debajo y Eduardo lo paró en la primera mirada — sobre un
+    # lienzo una textura no es carácter, es suciedad, y compite con lo único
+    # que hay que leer ahí. La regla, en `.const-wrap`.
     if t.get("--m-engaste"):
         v.append(("--nodo-engaste", t["--m-engaste"]))
     # El marco de un panel: `--line` apagada de noche y aclarada de día. Sin
@@ -459,6 +488,22 @@ FUENTES = {
    no se dibuja nunca y multiplica por tres el peso del mundo. Los acentos del
    español —á é í ó ú ñ ü— caen todos dentro del latino.""",
     caras=[("rajdhani-600.woff2", "600"), ("rajdhani-700.woff2", "700")]),
+  "averno": dict(
+    familia="Grenze Gotisch",
+    nota=u"""Grenze Gotisch, la letra de Averno. Licencia SIL Open Font 1.1 (Omnibus-Type),
+   que permite incrustarla; pesa 42 KB.
+
+   **Es UN archivo y no dos, al revés que Rajdhani**, porque sí es variable: el
+   mismo woff2 cubre el rango entero y aquí se declara de 600 a 700, como Syne.
+   Declarar el rango no es cosmética — es lo que impide que el navegador
+   SINTETICE un peso que no existe en el archivo, que es lo que le pasaba a
+   Rajdhani cuando solo se declaraba el 700.
+
+   **Y solo el subconjunto latino** (`U+0000-00FF`), que es donde caen todos
+   los acentos del español. Es la única cara gótica de los quince mundos, y la
+   segunda serif: la lista de MUNDOS.md deja las serif en dos a propósito,
+   porque una serif de titular a 15 px dentro de una tarjeta se lee peor.""",
+    caras=[("grenze-gotisch.woff2", "600 700")]),
 }
 
 def fuentes_de(ids):
@@ -492,14 +537,19 @@ if __name__ == "__main__":
     # La lista está aquí y no en `datos.py` porque quien manda sobre qué mundo
     # existe para el usuario es `MUNDOS` en `js/10i-apariencia.js` —el `listo:
     # true` de ahí—; esto es su reflejo, y al dar de alta un mundo se tocan los
-    # dos. `datos.py` tiene los quince y trece siguen siendo lámina.
+    # dos. `datos.py` tiene los quince y doce siguen siendo lámina.
     #
     # Blueprint entra el segundo, y el orden lo decidió `mundos/MUNDOS.md`:
     # Averno y Blueprint por delante, pero el motor se estrena con los baratos
     # —Blueprint casi no lleva imágenes—. Reliquia se quedó antes que los dos
     # por otra razón, que es de negocio y no de dibujo: es lo único que
     # Fundador tiene además de Pro.
-    LISTOS = ("reliquia", "plano")
+    #
+    # Averno entra el tercero y cierra la pareja que MUNDOS.md puso por
+    # delante. Es el primero que se construyó SIN inventar nada del generador:
+    # los dos arreglos que costó Blueprint —la tabla `FUENTES` y el freno de
+    # `plano_o_muere`— son justo lo que lo hizo salir en una tanda.
+    LISTOS = ("reliquia", "plano", "averno")
     listos = [m for m in D.MUNDOS if m["id"] in LISTOS]
     # Solo se incrusta la letra de los mundos que se construyen: la de un mundo
     # que nadie puede encender es peso muerto en un archivo que ya pesa.

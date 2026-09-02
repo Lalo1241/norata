@@ -208,9 +208,9 @@
 /* ---------- Blueprint · Nada está terminado ---------- */
 .plano {
   --m-pagina: #0d2b52;
-  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E %3Cg stroke='%237fb4e8' fill='none'%3E %3Cg stroke-width='.5' opacity='.26'%3E %3Cpath d='M8 0v80M16 0v80M24 0v80M32 0v80M48 0v80M56 0v80M64 0v80M72 0v80'/%3E %3Cpath d='M0 8h80M0 16h80M0 24h80M0 32h80M0 48h80M0 56h80M0 64h80M0 72h80'/%3E %3C/g%3E %3Cg stroke-width='.9' opacity='.5'%3E%3Cpath d='M40 0v80M0 40h80M0 0h80M0 0v80'/%3E%3C/g%3E %3Cg stroke-width='1.1' opacity='.75'%3E%3Cpath d='M36 40h8M40 36v8M-4 0h8M0 -4v8'/%3E%3C/g%3E %3C/g%3E %3C/svg%3E");
-  --m-grano-op: .52;
-  --m-tarjeta: rgba(6,26,52,.9);
+  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E %3Cg stroke='%237fb4e8' fill='none'%3E %3Cg stroke-width='.5' opacity='0.135'%3E %3Cpath d='M8 0v80M16 0v80M24 0v80M32 0v80M48 0v80M56 0v80M64 0v80M72 0v80'/%3E %3Cpath d='M0 8h80M0 16h80M0 24h80M0 32h80M0 48h80M0 56h80M0 64h80M0 72h80'/%3E %3C/g%3E %3Cg stroke-width='.9' opacity='0.26'%3E%3Cpath d='M40 0v80M0 40h80M0 0h80M0 0v80'/%3E%3C/g%3E %3Cg stroke-width='1.1' opacity='0.39'%3E%3Cpath d='M36 40h8M40 36v8M-4 0h8M0 -4v8'/%3E%3C/g%3E %3C/g%3E %3C/svg%3E");
+  --m-grano-op: 1;
+  --m-tarjeta: #071c37;
   --m-borde: 1px;
   --m-borde-color: #6ea2d8;
   --m-sombra: inset 0 0 0 4px rgba(6,26,52,.95), inset 0 0 0 5px rgba(110,162,216,.5), 0 8px 22px rgba(0,0,0,.35);
@@ -447,18 +447,20 @@
 
 /* ---------- Reliquia · El de Fundador ---------- */
 .reliquia {
-  --m-pagina: radial-gradient(126% 82% at 50% -6%, #241c38 0%, #1a1429 44%, #100c1a 100%);
-  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cdefs%3E %3Cg id='rq-forro'%3E %3Cg stroke='%232a2140' stroke-width='.9' opacity='.55'%3E %3Cpath d='M-20 20 60-60M0 40 80-40M20 60 100-20M40 80 120 0M60 100 140 20M80 120 160 40M100 140 180 60'/%3E %3C/g%3E %3Cg stroke='%231a1428' stroke-width='.7' opacity='.5'%3E %3Cpath d='M-20 40 60-40M0 60 80-20M20 80 100 0M40 100 120 20M60 120 140 40M80 140 160 60'/%3E %3C/g%3E %3Cg fill='%23cbb8f0'%3E %3Ccircle cx='26' cy='34' r='1.1' opacity='.5'/%3E %3Ccircle cx='88' cy='62' r='.8' opacity='.38'/%3E %3Ccircle cx='54' cy='97' r='.9' opacity='.3'/%3E %3C/g%3E %3C/g%3E %3C/defs%3E %3Cuse href='%23rq-forro'/%3E %3Cuse href='%23rq-forro' x='-120'/%3E%3Cuse href='%23rq-forro' x='120'/%3E %3Cuse href='%23rq-forro' y='-120'/%3E%3Cuse href='%23rq-forro' y='120'/%3E %3Cuse href='%23rq-forro' x='-120' y='-120'/%3E%3Cuse href='%23rq-forro' x='120' y='-120'/%3E %3Cuse href='%23rq-forro' x='-120' y='120'/%3E%3Cuse href='%23rq-forro' x='120' y='120'/%3E %3C/svg%3E") center / 150px 150px repeat;
+  --m-pagina: radial-gradient(126% 82% at 50% -6%, #1c1530 0%, #130e22 44%, #090612 100%);
+  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cdefs%3E %3Cg id='rq-forro'%3E %3Cg stroke='%232a2140' stroke-width='.9' opacity='.16'%3E %3Cpath d='M-20 20 60-60M0 40 80-40M20 60 100-20M40 80 120 0M60 100 140 20M80 120 160 40M100 140 180 60'/%3E %3C/g%3E %3Cg stroke='%231a1428' stroke-width='.7' opacity='.18'%3E %3Cpath d='M-20 40 60-40M0 60 80-20M20 80 100 0M40 100 120 20M60 120 140 40M80 140 160 60'/%3E %3C/g%3E %3Cg fill='%23cbb8f0'%3E %3Ccircle cx='26' cy='34' r='1.1' opacity='.34'/%3E %3Ccircle cx='88' cy='62' r='.8' opacity='.26'/%3E %3Ccircle cx='54' cy='97' r='.9' opacity='.2'/%3E %3C/g%3E %3C/g%3E %3C/defs%3E %3Cuse href='%23rq-forro'/%3E %3Cuse href='%23rq-forro' x='-120'/%3E%3Cuse href='%23rq-forro' x='120'/%3E %3Cuse href='%23rq-forro' y='-120'/%3E%3Cuse href='%23rq-forro' y='120'/%3E %3Cuse href='%23rq-forro' x='-120' y='-120'/%3E%3Cuse href='%23rq-forro' x='120' y='-120'/%3E %3Cuse href='%23rq-forro' x='-120' y='120'/%3E%3Cuse href='%23rq-forro' x='120' y='120'/%3E %3C/svg%3E") center / 150px 150px repeat;
   --m-grano-op: .85;
   --m-tarjeta: #1e1930;
   --m-borde: 2px;
   --m-borde-color: #8a6d2f;
   --m-marco: linear-gradient(158deg,#6b5326 0%,#c8a24e 24%,#8a6d2f 48%,#e0c072 64%,#7a5f2a 100%) 1;
   --m-sombra: inset 0 1px 0 rgba(233,226,255,.16), 0 8px 22px rgba(0,0,0,.5);
-  --m-r-tarjeta: 4px;
+  --m-r-tarjeta: 8px;
   --m-r-mini: 999px;
+  --m-r-gota: 18px 9px 18px 9px;
+  --m-r-gota-alt: 9px 18px 9px 18px;
   --m-r-barra: 999px;
-  --m-r-chip: 3px;
+  --m-r-chip: 6px;
   --m-tinta: #efeafb;
   --m-tinta-2: #a99fc4;
   --m-acento: #b7a2ea;
@@ -469,10 +471,12 @@
   --m-peligro-velo: rgba(255,138,112,.13);
   --m-carril: #332b4a;
   --m-halo: 0 0 12px rgba(183,162,234,.34);
+  --m-engaste: #a8843c;
   --m-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Cdefs%3E %3ClinearGradient id='rq-p' x1='0' y1='0' x2='.4' y2='1'%3E %3Cstop offset='0' stop-color='%23d9c9f5'/%3E%3Cstop offset='.55' stop-color='%23b7a2ea'/%3E %3Cstop offset='1' stop-color='%236f5aa8'/%3E %3C/linearGradient%3E %3ClinearGradient id='rq-m' x1='0' y1='0' x2='.3' y2='1'%3E %3Cstop offset='0' stop-color='%23e0c072'/%3E%3Cstop offset='.45' stop-color='%23a2803a'/%3E %3Cstop offset='1' stop-color='%236b5326'/%3E %3C/linearGradient%3E %3C/defs%3E %3Cpath d='M14 2.6 24.4 8.6v10.8L14 25.4 3.6 19.4V8.6z' fill='none' stroke='url(%23rq-m)' stroke-width='1.7' stroke-linejoin='round'/%3E %3Cg stroke='url(%23rq-m)' stroke-width='1.5' stroke-linecap='round'%3E %3Cpath d='M8.2 9.4 6.4 8M19.8 9.4 21.6 8M8.2 18.6 6.4 20M19.8 18.6 21.6 20'/%3E %3C/g%3E %3Cellipse cx='14' cy='14' rx='5.4' ry='6.2' fill='url(%23rq-p)'/%3E %3Cpath d='M11.4 10.4c1-1.2 2.4-1.8 3.6-1.5-.8 1.1-1.9 2-3.6 2.6z' fill='%23f2ecff' opacity='.85'/%3E %3Cellipse cx='14' cy='14' rx='5.4' ry='6.2' fill='none' stroke='%234a3a72' stroke-width='.9'/%3E %3C/svg%3E") center/contain no-repeat;
   --m-titulo: "Syne",system-ui,sans-serif;
   --m-titulo-px: 15px;
   --m-titulo-peso: 700;
+  --m-peso-max: 700;
   --m-titulo-esp: .01em;
   --m-cifra: "Syne",system-ui,sans-serif;
   --m-cifra-peso: 700;
@@ -490,11 +494,11 @@
 /* ---------- Averno · El oscuro de verdad ---------- */
 .averno {
   --m-pagina: radial-gradient(ellipse 115% 58% at 50% 120%, #5a2109 0%, #180b06 52%, #050302 100%);
-  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E %3Cg fill='%238a7566' opacity='.55'%3E %3Ccircle cx='14' cy='23' r='1.1'/%3E%3Ccircle cx='47' cy='9' r='.8'/%3E%3Ccircle cx='71' cy='38' r='1.3'/%3E %3Ccircle cx='103' cy='17' r='.9'/%3E%3Ccircle cx='131' cy='44' r='1.1'/%3E%3Ccircle cx='26' cy='61' r='.9'/%3E %3Ccircle cx='58' cy='79' r='1.2'/%3E%3Ccircle cx='92' cy='66' r='.8'/%3E%3Ccircle cx='145' cy='83' r='1'/%3E %3Ccircle cx='11' cy='102' r='1.2'/%3E%3Ccircle cx='44' cy='121' r='.9'/%3E%3Ccircle cx='79' cy='109' r='1.1'/%3E %3Ccircle cx='117' cy='133' r='.8'/%3E%3Ccircle cx='149' cy='118' r='1.2'/%3E%3Ccircle cx='33' cy='148' r='1'/%3E %3Ccircle cx='68' cy='151' r='.8'/%3E%3Ccircle cx='126' cy='96' r='.9'/%3E%3Ccircle cx='97' cy='141' r='1.1'/%3E %3C/g%3E %3Cg fill='%23ff7a3d' opacity='.85'%3E %3Ccircle cx='120' cy='28' r='1.5'/%3E%3Ccircle cx='38' cy='93' r='1.3'/%3E%3Ccircle cx='88' cy='127' r='1.6'/%3E %3C/g%3E %3Cg stroke='%23ff7a3d' stroke-width='.7' opacity='.3' fill='none'%3E %3Cpath d='M120 28c-2 7-1 13 2 19'/%3E%3Cpath d='M38 93c2 6 1 11-2 16'/%3E %3C/g%3E %3C/svg%3E");
-  --m-grano-op: .9;
-  --m-tarjeta: linear-gradient(180deg,#1d0f0b 0%,#0a0605 100%);
+  --m-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E %3Cg fill='%238a7566' opacity='.495'%3E %3Ccircle cx='14' cy='23' r='1.1'/%3E%3Ccircle cx='47' cy='9' r='.8'/%3E%3Ccircle cx='71' cy='38' r='1.3'/%3E %3Ccircle cx='103' cy='17' r='.9'/%3E%3Ccircle cx='131' cy='44' r='1.1'/%3E%3Ccircle cx='26' cy='61' r='.9'/%3E %3Ccircle cx='58' cy='79' r='1.2'/%3E%3Ccircle cx='92' cy='66' r='.8'/%3E%3Ccircle cx='145' cy='83' r='1'/%3E %3Ccircle cx='11' cy='102' r='1.2'/%3E%3Ccircle cx='44' cy='121' r='.9'/%3E%3Ccircle cx='79' cy='109' r='1.1'/%3E %3Ccircle cx='117' cy='133' r='.8'/%3E%3Ccircle cx='149' cy='118' r='1.2'/%3E%3Ccircle cx='33' cy='148' r='1'/%3E %3Ccircle cx='68' cy='151' r='.8'/%3E%3Ccircle cx='126' cy='96' r='.9'/%3E%3Ccircle cx='97' cy='141' r='1.1'/%3E %3C/g%3E %3Cg fill='%23ff7a3d' opacity='.765'%3E %3Ccircle cx='120' cy='28' r='1.5'/%3E%3Ccircle cx='38' cy='93' r='1.3'/%3E%3Ccircle cx='88' cy='127' r='1.6'/%3E %3C/g%3E %3Cg stroke='%23ff7a3d' stroke-width='.7' opacity='.27' fill='none'%3E %3Cpath d='M120 28c-2 7-1 13 2 19'/%3E%3Cpath d='M38 93c2 6 1 11-2 16'/%3E %3C/g%3E %3C/svg%3E");
+  --m-grano-op: 1;
+  --m-tarjeta: #2e1e18;
   --m-borde: 1px;
-  --m-borde-color: #4a2418;
+  --m-borde-color: #4c2620;
   --m-sombra: inset 0 1px 0 rgba(255,150,80,.16), 0 12px 30px rgba(0,0,0,.62);
   --m-r-tarjeta: 2px;
   --m-r-mini: 2px;
@@ -506,9 +510,9 @@
   --m-acento-velo: rgba(255,122,61,.14);
   --m-aviso: #f0c24a;
   --m-aviso-velo: rgba(240,194,74,.14);
-  --m-peligro: #ff3b6b;
-  --m-peligro-velo: rgba(255,59,107,.15);
-  --m-carril: #1a0c08;
+  --m-peligro: #ff5c80;
+  --m-peligro-velo: rgba(255,92,128,.10);
+  --m-carril: #422c23;
   --m-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Cg stroke='%23ff7a3d' stroke-width='1.5' stroke-linecap='round'%3E %3Cpath d='M14 1.5v3.6M14 22.9v3.6M1.5 14h3.6M22.9 14h3.6'/%3E %3Cpath d='M5.2 5.2l2.6 2.6M20.2 20.2l2.6 2.6M22.8 5.2l-2.6 2.6M7.8 20.2l-2.6 2.6' opacity='.7'/%3E %3C/g%3E %3Ccircle cx='14' cy='14' r='8' fill='none' stroke='%23ff7a3d' stroke-width='2.6'/%3E %3Ccircle cx='14' cy='14' r='4.6' fill='%23160b06'/%3E %3Cpath d='M14 5.9a8 8 0 0 1 7.6 5.5' fill='none' stroke='%23ffc07a' stroke-width='1.5' stroke-linecap='round'/%3E %3C/svg%3E") center/contain no-repeat;
   --m-titulo: "Grenze Gotisch",Georgia,serif;
   --m-titulo-px: 17px;
@@ -519,7 +523,7 @@
   --m-cifra-esp: 0;
   --m-chip-fuente: "Grenze Gotisch",Georgia,serif;
   --m-chip-esp: .05em;
-  --m-dur: 1.3s;
+  --m-dur: .6s;
   --m-curva: cubic-bezier(.15,.8,.25,1);
 }
 .averno .ficha{ overflow:hidden; }
