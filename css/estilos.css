@@ -1429,6 +1429,12 @@
     justify-content: center;
     overflow: hidden;
   }
+  .scel {
+    opacity: 0;
+    transition: opacity .42s ease;
+  }
+  .scel.entrando { display: flex; opacity: 1; }
+  .scel.entrando:not(.show) .scel-core { opacity: 0; }
   .scel.show { display: flex; }
   /* ---------- El humo de la brasa ----------
      Ocupa el sitio de los rayos giratorios, y por el mismo motivo que en la
@@ -1780,14 +1786,30 @@
     position: fixed;
     inset: 0;
     z-index: var(--piso-nivel);
-    background: radial-gradient(circle at 50% 42%,
-      color-mix(in srgb, var(--mint) 12%, rgb(var(--escena-vidrio))) 0%,
-      rgb(var(--escena-vidrio)) 42%,
-      rgb(var(--escena-fondo)) 100%);
+    /* **El cielo se queda de noche y el ambiente solo lo matiza.** Antes el
+       fondo ERA el color del ambiente y encima llevaba un 12% de menta: con
+       Musgo puesto la pantalla entera se volvía una pared verde, y con Adobe
+       una naranja. En un teléfono se pasaba; en un monitor son 1600 px de
+       color plano. Ahora se parte del negro de escena y el ambiente entra como
+       un rescoldo en el centro, que es lo que hacían los borradores. */
+    background:
+      radial-gradient(ellipse 78% 52% at 50% 34%,
+        color-mix(in srgb, rgb(var(--escena-vidrio)) 42%, transparent) 0%,
+        transparent 72%),
+      linear-gradient(180deg, #0a0f17 0%, #111823 54%, #0b1017 100%);
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    /* La entrada: el velo se hace, y solo después sale lo de dentro. */
+    opacity: 0;
+    transition: opacity .42s ease;
   }
+  .ncel.entrando { display: flex; flex-direction: column; justify-content: flex-end; opacity: 1; }
+  /* Mientras solo está el velo, lo de dentro no se ve: las animaciones usan
+     `backwards`, así que sin la clase `show` sus elementos estarían ya en su
+     sitio y la escena se vería entera antes de tiempo. */
+  .ncel.entrando:not(.show) .ncel-core,
+  .ncel.entrando:not(.show) .ncel-mapa { opacity: 0; }
   /* En COLUMNA, y esto no es cosmética: el dibujo y el texto se reparten el
      alto en vez de superponerse. Con las dos capas absolutas y una franja
      fija, la escena con premio —lista de lo que se abre y dos botones— subía
@@ -1804,9 +1826,12 @@
      lista de lo que se abre y dos botones— subía el texto hasta encima de la
      figura: medido, 62 px de solape. Con la franja, el dibujo ocupa lo mismo
      lleve el texto lo que lleve. */
+  /* La escena vive en una columna del ancho de un teléfono, centrada. Sin
+     esto, en un monitor de 1600 la franja medía 1590 de ancho y la
+     constelación salía a 234 px — el 15% de la pantalla, perdida arriba. */
   .ncel-mapa {
     position: relative; flex: 1 1 auto; min-height: 0;
-    width: 100%; pointer-events: none;
+    width: min(520px, 92vw); margin: 0 auto; pointer-events: none;
   }
   .ncel-cielo circle { fill: #cfe6ff; }
   .ncel-linea { stroke: var(--mint); fill: none; opacity: .45; }
@@ -1842,7 +1867,7 @@
      veían los puntitos del cielo asomando por los lados. */
   .ncel-core {
     position: relative; text-align: center; padding: 24px;
-    max-width: 340px; width: 100%; flex: 0 0 auto; margin-bottom: 2vh;
+    max-width: 380px; width: 100%; flex: 0 0 auto; margin-bottom: 2vh;
   }
   .ncel-insignia { color: var(--mint); filter: drop-shadow(0 0 28px color-mix(in srgb, var(--mint) 70%, transparent)); }
   .ncel-insignia svg { width: 78px; height: 78px; stroke-width: 1.5; }
@@ -1900,15 +1925,65 @@
     font-size: 10.5px; font-weight: 800; letter-spacing: 2.2px;
     text-transform: uppercase; color: var(--muted); margin-bottom: 8px; text-align: center;
   }
-  .ncel-uno {
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(var(--escena-vidrio), 0.55);
-    border: var(--borde-fino) solid rgba(var(--escena-tinta), 0.12);
-    border-radius: var(--r-grande);
-    padding: 11px 13px; margin-bottom: 8px;
-    font-size: 14px; color: var(--text);
+  /* ---- Las tarjetas de lo que se abre ----
+     Eran renglones con un icono y un nombre, y «Musgo» al lado de una brochita
+     no dice nada de lo que acabas de ganar. Ahora cada premio es una tarjeta
+     con una VISTA de lo que es, y van en fila con arrastre horizontal: es lo
+     que hace un juego al enseñarte un botín, y es lo que permite que quepan
+     tres sin apretar la pantalla.
+
+     El carrusel se sale del padding del núcleo a propósito (los -24 px): así
+     la tarjeta de la derecha asoma cortada por el borde y se ve que hay más.
+     Sin eso, tres premios parecen dos. */
+  .ncel-premios {
+    display: flex; gap: 10px;
+    margin: 0 -24px; padding: 2px 24px 6px;
+    overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
   }
-  .ncel-uno svg { width: 18px; height: 18px; color: var(--mint); flex-shrink: 0; }
+  .ncel-premios::-webkit-scrollbar { display: none; }
+  .ncel-premio {
+    flex: 0 0 132px; scroll-snap-align: center;
+    background: rgba(var(--escena-vidrio), 0.5);
+    border: var(--borde-fino) solid rgba(var(--escena-tinta), 0.14);
+    border-radius: var(--r-grande);
+    padding: 8px 8px 10px; text-align: left;
+  }
+  .ncel-vista {
+    height: 74px; border-radius: var(--r-media, 10px);
+    display: grid; place-items: center; overflow: hidden;
+    background: rgba(var(--escena-fondo), 0.55);
+    color: var(--mint);
+  }
+  .ncel-vista svg { width: 100%; height: 100%; display: block; }
+  .ncel-quees {
+    font-size: 9.5px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--muted); margin: 8px 0 1px;
+  }
+  /* Dos líneas fijas: con nombres de largos distintos las tarjetas medían
+     131 y 148 y la fila salía escalonada. */
+  .ncel-nom {
+    font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.25;
+    min-height: 2.5em;
+  }
+
+  /* La miniatura de un ambiente es la app en pequeño: su suelo, una tarjeta
+     encima y el punto de su acento. Los tres tonos salen del propio CSS de ese
+     ambiente, así que nadie mantiene una segunda tabla de colores. */
+  .ncel-swatch {
+    position: relative; display: block; width: 100%; height: 100%;
+    background: var(--sw-bg, #10151d);
+  }
+  .ncel-swatch .sw-card {
+    position: absolute; left: 14%; right: 14%; top: 26%; height: 46%;
+    border-radius: 6px; background: var(--sw-card, #1d2530);
+  }
+  .ncel-swatch .sw-punto {
+    position: absolute; left: 21%; top: 38%;
+    width: 13px; height: 13px; border-radius: 50%;
+    background: var(--sw-ac, #5fe0b0);
+  }
   .ncel-pies { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
   .ncel.show .ncel-unit, .ncel.show .ncel-rango, .ncel.show .ncel-cita,
   .ncel.show .ncel-abre, .ncel.show .ncel-pies {
@@ -5531,6 +5606,36 @@
   @media (prefers-reduced-motion: reduce) {
     .destello .ds-astro, .scel.alba .scel-alba, .celebrate.grande .cel-icon { animation: none; }
     .scel.alba .scel-alba { transform: none; opacity: 1; }
+  }
+
+  /* ================= La entrada de una escena =================
+     Antes una escena aparecía de golpe encima de lo que estuvieras mirando y
+     Eduardo lo describió como «un screamer». Ahora entra en tres tiempos:
+
+       1. lo que tenías puesto se aleja un poco y se apaga  (0,42 s)
+       2. el velo de la escena se hace encima                (0,42 s)
+       3. y solo entonces sale lo de dentro
+
+     El zoom va sobre `.app`, que es todo lo que se ve de la app y NO contiene
+     las escenas —están fuera, al final del `body`—, así que no se escalan a sí
+     mismas. Se hace con `transform` y no con `width`: lo primero lo resuelve la
+     tarjeta gráfica sin volver a maquetar nada.
+
+     Con `prefers-reduced-motion` el zoom no ocurre: se queda el oscurecido, que
+     es lo que hace falta para leer lo de encima. */
+  .app {
+    transition: transform var(--dur-lento, .42s) var(--curva-suave, cubic-bezier(.22, 1, .36, 1)),
+                filter var(--dur-lento, .42s) ease;
+    transform-origin: 50% 46%;
+  }
+  .app.escena-detras {
+    transform: scale(.965);
+    filter: brightness(.42) saturate(.85);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .app { transition: filter .2s ease; }
+    .app.escena-detras { transform: none; }
+    .ncel { transition: none; }
   }
 
   /* ---------- Toast ---------- */
