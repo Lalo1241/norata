@@ -119,7 +119,7 @@ const MUNDOS = [
      concepto: es el mismo fallo que costó cambiar «Arquitecto» en Blueprint.
 
      **Los dibujos son glifos, no criaturas.** Un caput mortuum, un sello
-     hexagonal, la cruz de Leviatán, tres siluetas encapuchadas y el pentagrama
+     inscrito, la cruz de Leviatán, tres siluetas encapuchadas y el pentagrama
      invertido. Cinco siluetas que no se parecen entre sí, que es la prueba que
      hay que pasar antes de mirar si cada una es bonita. Una criatura dibujada a 20 px —que es el tamaño al que se pintan—
      solo puede salir caricatura; un glifo a ese tamaño se lee, y además es lo
@@ -379,7 +379,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=16389bc625";
+  l.href = "css/mundos.css?h=28e3f8e4db";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.

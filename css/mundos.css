@@ -606,7 +606,7 @@ html:not(.claro)[data-apariencia="averno"] {
   --card: #261c18;
   --card2: #2b211d;
   --flotante: #261c18;
-  --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E %3Cg fill='%238a7566' opacity='.495'%3E %3Ccircle cx='14' cy='23' r='1.1'/%3E%3Ccircle cx='47' cy='9' r='.8'/%3E%3Ccircle cx='71' cy='38' r='1.3'/%3E %3Ccircle cx='103' cy='17' r='.9'/%3E%3Ccircle cx='131' cy='44' r='1.1'/%3E%3Ccircle cx='26' cy='61' r='.9'/%3E %3Ccircle cx='58' cy='79' r='1.2'/%3E%3Ccircle cx='92' cy='66' r='.8'/%3E%3Ccircle cx='145' cy='83' r='1'/%3E %3Ccircle cx='11' cy='102' r='1.2'/%3E%3Ccircle cx='44' cy='121' r='.9'/%3E%3Ccircle cx='79' cy='109' r='1.1'/%3E %3Ccircle cx='117' cy='133' r='.8'/%3E%3Ccircle cx='149' cy='118' r='1.2'/%3E%3Ccircle cx='33' cy='148' r='1'/%3E %3Ccircle cx='68' cy='151' r='.8'/%3E%3Ccircle cx='126' cy='96' r='.9'/%3E%3Ccircle cx='97' cy='141' r='1.1'/%3E %3C/g%3E %3Cg fill='%23ff7a3d' opacity='.765'%3E %3Ccircle cx='120' cy='28' r='1.5'/%3E%3Ccircle cx='38' cy='93' r='1.3'/%3E%3Ccircle cx='88' cy='127' r='1.6'/%3E %3C/g%3E %3Cg stroke='%23ff7a3d' stroke-width='.7' opacity='.27' fill='none'%3E %3Cpath d='M120 28c-2 7-1 13 2 19'/%3E%3Cpath d='M38 93c2 6 1 11-2 16'/%3E %3C/g%3E %3C/svg%3E"), radial-gradient(ellipse 115% 58% at 50% 120%, #391d12 0%, #130a06 52%, #050302 100%);
+  --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E %3Cg fill='%238a7566' opacity='.34'%3E %3Ccircle cx='14' cy='23' r='1.1'/%3E%3Ccircle cx='71' cy='38' r='1.2'/%3E %3Ccircle cx='131' cy='44' r='1'/%3E%3Ccircle cx='26' cy='61' r='.9'/%3E %3Ccircle cx='92' cy='66' r='.8'/%3E%3Ccircle cx='145' cy='83' r='1'/%3E %3Ccircle cx='44' cy='121' r='.9'/%3E%3Ccircle cx='117' cy='133' r='.8'/%3E %3Ccircle cx='33' cy='148' r='1'/%3E%3Ccircle cx='97' cy='141' r='1'/%3E %3C/g%3E %3Cg fill='%23ff7a3d' opacity='.5'%3E %3Ccircle cx='120' cy='28' r='1.3'/%3E%3Ccircle cx='38' cy='93' r='1.2'/%3E %3C/g%3E %3Cg stroke='%23ff7a3d' stroke-width='.7' opacity='.18' fill='none'%3E %3Cpath d='M120 28c-2 7-1 13 2 19'/%3E %3C/g%3E %3C/svg%3E"), radial-gradient(ellipse 115% 58% at 50% 120%, #391d12 0%, #130a06 52%, #050302 100%);
   --fondo-pagina: radial-gradient(ellipse 115% 58% at 50% 120%, #391d12 0%, #130a06 52%, #050302 100%);
   --fondo-raiz: #050302;
   --orbe-1: rgba(255, 122, 61, 0.18);
@@ -640,7 +640,7 @@ html:not(.claro)[data-apariencia="averno"] {
   --dur-media: .6s;
   --curva: cubic-bezier(.15,.8,.25,1);
   --tipo-titulo: "Grenze Gotisch",Georgia,serif;
-  --tipo-cifra: "Grenze Gotisch",Georgia,serif;
+  --tipo-cifra: "Outfit",system-ui,sans-serif;
   --r-factor: 0.1429;
   --r-barra: 2px;
   --r-pastilla: 2px;
@@ -658,23 +658,23 @@ html:not(.claro)[data-apariencia="averno"] {
   --borde-panel: rgba(56, 44, 40, 0.7);
 }
 html.claro[data-apariencia="averno"] {
-  --bg: #d7ccc6;
-  --bg2: #eae2dc;
+  --bg: #e4dcd6;
+  --bg2: #efe9e2;
   --card: #f7f1ea;
   --card2: #fef8f1;
   --flotante: #f7f1ea;
-  --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E %3Cg fill='%236b5a4e' opacity='.385'%3E %3Ccircle cx='14' cy='23' r='1.1'/%3E%3Ccircle cx='47' cy='9' r='.8'/%3E%3Ccircle cx='71' cy='38' r='1.3'/%3E %3Ccircle cx='103' cy='17' r='.9'/%3E%3Ccircle cx='131' cy='44' r='1.1'/%3E%3Ccircle cx='26' cy='61' r='.9'/%3E %3Ccircle cx='58' cy='79' r='1.2'/%3E%3Ccircle cx='92' cy='66' r='.8'/%3E%3Ccircle cx='145' cy='83' r='1'/%3E %3Ccircle cx='11' cy='102' r='1.2'/%3E%3Ccircle cx='44' cy='121' r='.9'/%3E%3Ccircle cx='79' cy='109' r='1.1'/%3E %3Ccircle cx='117' cy='133' r='.8'/%3E%3Ccircle cx='149' cy='118' r='1.2'/%3E%3Ccircle cx='33' cy='148' r='1'/%3E %3Ccircle cx='68' cy='151' r='.8'/%3E%3Ccircle cx='126' cy='96' r='.9'/%3E%3Ccircle cx='97' cy='141' r='1.1'/%3E %3C/g%3E %3Cg fill='%23c2440e' opacity='.595'%3E %3Ccircle cx='120' cy='28' r='1.5'/%3E%3Ccircle cx='38' cy='93' r='1.3'/%3E%3Ccircle cx='88' cy='127' r='1.6'/%3E %3C/g%3E %3Cg stroke='%23c2440e' stroke-width='.7' opacity='.21' fill='none'%3E %3Cpath d='M120 28c-2 7-1 13 2 19'/%3E%3Cpath d='M38 93c2 6 1 11-2 16'/%3E %3C/g%3E %3C/svg%3E"), radial-gradient(ellipse 115% 58% at 50% 120%, #f2dcc6 0%, #e5d8ce 52%, #d7ccc6 100%);
-  --fondo-pagina: radial-gradient(ellipse 115% 58% at 50% 120%, #f2dcc6 0%, #e5d8ce 52%, #d7ccc6 100%);
-  --fondo-raiz: #d7ccc6;
+  --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E %3Cg fill='%236b5a4e' opacity='.26'%3E %3Ccircle cx='14' cy='23' r='1.1'/%3E%3Ccircle cx='71' cy='38' r='1.2'/%3E %3Ccircle cx='131' cy='44' r='1'/%3E%3Ccircle cx='26' cy='61' r='.9'/%3E %3Ccircle cx='92' cy='66' r='.8'/%3E%3Ccircle cx='145' cy='83' r='1'/%3E %3Ccircle cx='44' cy='121' r='.9'/%3E%3Ccircle cx='117' cy='133' r='.8'/%3E %3Ccircle cx='33' cy='148' r='1'/%3E%3Ccircle cx='97' cy='141' r='1'/%3E %3C/g%3E %3Cg fill='%23c2440e' opacity='.38'%3E %3Ccircle cx='120' cy='28' r='1.3'/%3E%3Ccircle cx='38' cy='93' r='1.2'/%3E %3C/g%3E %3Cg stroke='%23c2440e' stroke-width='.7' opacity='.14' fill='none'%3E %3Cpath d='M120 28c-2 7-1 13 2 19'/%3E %3C/g%3E %3C/svg%3E"), radial-gradient(ellipse 115% 58% at 50% 120%, #fde5d0 0%, #ebe0d8 52%, #e4dcd6 100%);
+  --fondo-pagina: radial-gradient(ellipse 115% 58% at 50% 120%, #fde5d0 0%, #ebe0d8 52%, #e4dcd6 100%);
+  --fondo-raiz: #e4dcd6;
   --orbe-1: rgba(242, 98, 31, 0.18);
   --orbe-2: rgba(240, 180, 28, 0.13);
   --orbe-3: rgba(242, 98, 31, 0.10);
-  --sup-panel: #eae2dc;
+  --sup-panel: #efe9e2;
   --sup-tarjeta: #f7f1ea;
   --sup-tarjeta2: #fef8f1;
   --sup-flotante: #f7f1ea;
-  --line: #c9b8ab;
-  --carril: #e6dcd2;
+  --line: #c4bcb7;
+  --carril: #e3dcd7;
   --borde-tarjeta: 1px;
   --text: #331911;
   --muted: #654736;
@@ -697,43 +697,103 @@ html.claro[data-apariencia="averno"] {
   --dur-media: .6s;
   --curva: cubic-bezier(.15,.8,.25,1);
   --tipo-titulo: "Grenze Gotisch",Georgia,serif;
-  --tipo-cifra: "Grenze Gotisch",Georgia,serif;
+  --tipo-cifra: "Outfit",system-ui,sans-serif;
   --r-factor: 0.1429;
   --r-barra: 2px;
   --r-pastilla: 2px;
   --r-boton: 2px;
-  --lienzo-apagado: #867c76;
-  --lienzo-hilo: #8a807b;
-  --lienzo-rotulo: #3e3530;
-  --lienzo-ficha: #e8e6e5;
-  --lienzo-caja: #e8e6e5;
-  --lienzo-bloqueado: #e1d6d0;
-  --lienzo-candado: #867c76;
+  --lienzo-apagado: #928a85;
+  --lienzo-hilo: #968f89;
+  --lienzo-rotulo: #48423d;
+  --lienzo-ficha: #f8f6f4;
+  --lienzo-caja: #f8f6f4;
+  --lienzo-bloqueado: #eee6e0;
+  --lienzo-candado: #928a85;
   --lienzo-flujo: #bf8d00;
-  --lienzo-punto: rgba(62, 53, 48, 0.075);
-  --sup-hondo: #cdc2bc;
-  --borde-panel: #eddbce;
+  --lienzo-punto: rgba(72, 66, 61, 0.075);
+  --sup-hondo: #d9d2cc;
+  --borde-panel: #e8dfda;
 }
 
 /* Los anillos SUSTITUYEN la ilustración de la banda, no se le encima.
    La banda pinta la suya en un `<svg class="scene">` hijo, y un motivo
    encima de otro motivo es exactamente la suciedad que CLAUDE.md
-   prohíbe. Se apaga con `opacity` y no con `display` a propósito: así
-   el svg sigue ocupando su alto y la banda no se encoge. */
-html[data-apariencia="averno"] .scene-card.sec-hero .scene { opacity: 0; }
-html[data-apariencia="averno"] .scene-card.sec-hero { position: relative; overflow: hidden; }
+   prohíbe.
+
+   Y se quita con `display` y NO con `opacity`, que es lo que estaba
+   primero. El razonamiento de entonces —«así conserva su alto y la
+   banda no se encoge»— estaba justo al revés: ese svg va EN FLUJO y
+   aporta 193 px, así que apagarlo sin quitarlo dejaba una banda de
+   376 px con 177 de contenido. Doscientos píxeles de nada, que es
+   como se veía. Una banda vale lo que vale lo que lleva dentro; los
+   anillos son un motivo de esquina, no un paisaje que pida sitio. */
+html[data-apariencia="averno"] .scene-card.sec-hero .scene { display: none; }
+/* Y la banda deja de ser TRANSPARENTE. Lo pidió Eduardo, y el motivo
+   es exactamente el de arriba: sin ilustración debajo, lo que se veía
+   por el hueco era la ceniza de la página, o sea el fondo del tema
+   compitiendo con las cifras que hay que leer. Con la ilustración
+   puesta ese velo tenía sentido —tapaba un paisaje—; sin ella sobra,
+   así que se apaga y la superficie la pone el panel. */
+html[data-apariencia="averno"] .scene-card.sec-hero { position: relative; overflow: hidden; background: var(--sup-panel); }
+html[data-apariencia="averno"] .scene-card.sec-hero .scene-fade { background: none; }
 html[data-apariencia="averno"] .scene-card.sec-hero::after {
   content: "";
   position: absolute;
   left: auto; right: 0; top: 0;
   width: 52%; height: 100%;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cg fill='none' stroke-linecap='round'%3E %3Cpath d='M120 6A114 114 0 0 0 6 120' stroke='%235a3524' stroke-width='2.6' opacity='.9'/%3E %3Cpath d='M120 26A94 94 0 0 0 26 120' stroke='%236b3d24' stroke-width='2.2' opacity='.8'/%3E %3Cpath d='M120 46A74 74 0 0 0 46 120' stroke='%238a4522' stroke-width='1.9' opacity='.75'/%3E %3Cpath d='M120 66A54 54 0 0 0 66 120' stroke='%23b45420' stroke-width='1.6' opacity='.7'/%3E %3Cpath d='M120 86A34 34 0 0 0 86 120' stroke='%23ff7a3d' stroke-width='1.4' opacity='.6'/%3E %3C/g%3E %3Cg fill='%23ff7a3d' opacity='.5'%3E %3Ccircle cx='103' cy='103' r='1.8'/%3E%3Ccircle cx='88' cy='63' r='1.2'/%3E%3Ccircle cx='63' cy='88' r='1.2'/%3E %3C/g%3E %3C/svg%3E") right top/contain no-repeat;
-  opacity: .85;
+  /* El TAMAÑO del dibujo se ata a la altura de la banda con un tope y
+     no a `contain`: la banda la estira el grid de la pantalla —medido,
+     376 px con 177 de contenido—, y con `contain` los anillos crecían
+     hasta 574x349. Un motivo de esquina no puede depender de cuánto
+     mida su caja. Con `auto 92%` acompañan a la banda —ya ajustada a
+     su contenido— sin mandar sobre ella. */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cg fill='none' stroke-linecap='round'%3E %3Cpath d='M120 6A114 114 0 0 0 6 120' stroke='%235a3524' stroke-width='2.6' opacity='.9'/%3E %3Cpath d='M120 26A94 94 0 0 0 26 120' stroke='%236b3d24' stroke-width='2.2' opacity='.8'/%3E %3Cpath d='M120 46A74 74 0 0 0 46 120' stroke='%238a4522' stroke-width='1.9' opacity='.75'/%3E %3Cpath d='M120 66A54 54 0 0 0 66 120' stroke='%23b45420' stroke-width='1.6' opacity='.7'/%3E %3Cpath d='M120 86A34 34 0 0 0 86 120' stroke='%23ff7a3d' stroke-width='1.4' opacity='.6'/%3E %3C/g%3E %3Cg fill='%23ff7a3d' opacity='.5'%3E %3Ccircle cx='103' cy='103' r='1.8'/%3E%3Ccircle cx='88' cy='63' r='1.2'/%3E%3Ccircle cx='63' cy='88' r='1.2'/%3E %3C/g%3E %3C/svg%3E") right top/auto 92% no-repeat;
+  opacity: .6;
   pointer-events: none;
 }
 /* Y lo que va dentro se levanta por encima. Sin esto el motivo tapa
    las cifras, que es lo único que hay que leer ahí. */
 html[data-apariencia="averno"] .scene-card.sec-hero > * { position: relative; z-index: 1; }
+
+/* La pastilla de foco pierde su TINTE. Se pinta con `color-mix(--mint
+   14%, …)` y su rótulo es de ese mismo `--mint`: el tinte empuja el
+   fondo justo hacia donde está la tinta, así que el rótulo se quedaba
+   en 4,1 — por debajo del 4,5 que pide un texto. Sin tinte sube por
+   encima y la pastilla se sigue leyendo como pastilla, porque lo que
+   la separa de la banda es el tono LEVANTADO y no el color. */
+html[data-apariencia="averno"] .scene-card.sec-hero .sh-focus { background: var(--card2); }
+
+/* La banda deja de ser una escena en cuanto pierde su ilustración,
+   así que en modo claro sigue al modo en vez de quedarse de noche.
+   Sin esto era una losa negra sobre el papel. */
+html.claro[data-apariencia="averno"] .scene-card.sec-hero {
+  --sup-panel: #efe9e2;
+  --card: #f7f1ea;
+  --card2: #fef8f1;
+  --text: #331911;
+  --muted: #654736;
+  --faint: #806657;
+  --line: #c4bcb7;
+  --carril: #e3dcd7;
+  --mint: #920500;
+  --mint-macizo: #f2621f;
+  --mint-soft: rgba(146,5,0,.10);
+  --fire: #794f00;
+  --fire-macizo: #f0b41c;
+  --fire-soft: rgba(121,79,0,.12);
+  --coral: #b30031;
+  --coral-macizo: #ff3b6b;
+  --coral-soft: rgba(179,0,49,.11);
+  --aro-alto: #f2621f;
+  --var-sube: #1a6b25;
+  --var-baja: #bd2200;
+  --escena-vidrio: 247, 241, 234;
+  --escena-tinta: 51, 25, 17;
+  background: #efe9e2;
+}
+html.claro[data-apariencia="averno"] .scene-card.sec-hero .sh-focus {
+  background: #fef8f1;
+}
 
 html[data-apariencia="averno"] .scene-card,
 html[data-apariencia="averno"] .celebrate,
