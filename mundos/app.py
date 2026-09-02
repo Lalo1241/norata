@@ -36,6 +36,12 @@ def paradas(valor):
        se usa en sitios donde una textura no cabe (bordes, `color-mix`)."""
     return re.findall(r"#[0-9a-fA-F]{3,8}", valor)
 
+# Las piezas que llevan aro de metal. Son las GRANDES y nada más: el panel, la
+# tarjeta del Resumen y la de escena —que es la misma pieza que los cuatro
+# encabezados de módulo y la de la racha—. Dentro de una lista el marco vuelve
+# a ser un borde liso; el porqué está abajo, en el freno de las filas.
+PIEZAS_CON_ARO = (".panel", ".sum-card", ".scene-card")
+
 def _rgba(hexa, a):
     return "rgba(%d, %d, %d, %s)" % tuple(_hex(hexa) + [a])
 
@@ -341,6 +347,12 @@ def bloque(m):
            ("--escena-tinta", ", ".join(str(x) for x in _hex(tinta))),
            ("--escena-tinte-modo", "block"), ("--escena-tinte", tarj_plana),
            ("--escena-tinte-fuerza", "1")]
+    # El metal de una escena es el de NOCHE en los dos modos, como todo lo
+    # demás que hay dentro: la escena es un dibujo de una noche, y un marco de
+    # día alrededor de un paisaje nocturno se ve como lo que sería, una pieza
+    # de otro sitio.
+    if t.get("--m-marco"):
+        esc.append(("--aro-metal", t["--m-marco"].rsplit(" ", 1)[0]))
     # ---- El marco, con freno ----
     # Un `border-image` en `--marco-tarjeta` lo hereda TODO lo que dibuje un
     # borde de tarjeta: los paneles, las tarjetas, cada misión de una lista y
@@ -378,6 +390,17 @@ def bloque(m):
           "}"]
 
     # ---- El aro de metal, que SÍ se redondea ----
+    # Y va en las CINCO piezas grandes, no en dos. `.scene-card` entró en
+    # 0.7.55.6: los cuatro encabezados de módulo y la tarjeta de la racha son
+    # la pieza más grande de cada pantalla, y eran las únicas sin marco
+    # mientras el panel y la tarjeta del Resumen sí lo tenían. «Desentonan
+    # mucho en comparación con todo lo demás», y es exactamente eso: no es que
+    # les sobrara nada, es que les faltaba lo que llevan sus vecinas.
+    #
+    # No amplía el reparto: `.sec-hero` y `.streak-card` SON `.scene-card`, así
+    # que un solo selector cubre los cinco sitios y sigue habiendo como mucho
+    # dos aros por pantalla. La lista está aquí arriba para que se lea de un
+    # vistazo cuántas piezas lo llevan; el día que sean seis, se verá.
     # La receta es la de siempre para un borde con degradado: una capa del
     # tamaño de la caja, con el degradado pintado hasta el borde, y una máscara
     # que le quita todo menos el anillo del ancho del borde. `border-radius:
@@ -390,7 +413,7 @@ def bloque(m):
           "/* El aro de metal. Va en un `::before` con máscara y no en un",
           "   `border-image`, porque un border-image ignora el border-radius: la",
           "   tarjeta salía redonda con el marco cuadrado. Así hereda la esquina. */",
-          "%s .panel::before,\n%s .sum-card::before {" % (sel, sel),
+          ",\n".join("%s %s::before" % (sel, q) for q in PIEZAS_CON_ARO) + " {",
           "  content: \"\";",
           "  position: absolute;",
           "  inset: 0;",
@@ -402,8 +425,12 @@ def bloque(m):
           "  -webkit-mask-composite: xor;",
           "  mask-composite: exclude;",
           "  pointer-events: none;",
+          # Dentro de una escena hay un paisaje y un velo colocados encima con
+          # `position: absolute`, y un `::before` es el primer hijo: sin esto
+          # el aro quedaba pintado DEBAJO del dibujo y no se veía.
+          "  z-index: 2;",
           "}",
-          "%s .panel,\n%s .sum-card { position: relative; }" % (sel, sel)]
+          ",\n".join("%s %s" % (sel, q) for q in PIEZAS_CON_ARO) + " { position: relative; }"]
 
     # ---- El techo del peso ----
     # Syne es variable de 600 a 800, y a 800 se ESTIRA: la letra se alarga y

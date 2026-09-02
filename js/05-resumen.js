@@ -29,6 +29,19 @@ function renderSummary() {
   const projects = state.projects;
   const missions = state.missions;
 
+  /* ---- El saludo y la fecha, en la cabecera del Resumen (0.7.57) ----
+     Vivían dentro de la tarjeta de la racha, y eran la ÚNICA aparición de
+     `greeting()` en toda la app: quien quitaba esa tarjeta del tablero —cosa
+     que el Modo Editor permite— se quedaba sin saludo y sin fecha en el
+     Resumen entero. La fecha no es un dato de la racha; es de hoy.
+
+     Se escribe ANTES del caso vacío a propósito: un perfil recién creado no
+     tiene tablero que pintar, pero sí tiene día, y esa pantalla es justo la
+     que más agradece que alguien la salude. */
+  const dateTxt = keyToDate(todayKey()).toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
+  const elSaludo = document.getElementById("resumen-saludo");
+  if (elSaludo) elSaludo.textContent = greeting() + " · " + dateTxt;
+
   /* Con el tablero vacío no hay tablero que acomodar. El botón de ordenar
      widgets encima de la pantalla de bienvenida ofrecía un modo sin nada
      dentro, justo cuando la única pregunta que importa es por cuál de los
@@ -63,7 +76,6 @@ function renderSummary() {
   const dueList = perks.filter(p => perkStatus(p) === "due");
   const activeList = perks.filter(p => perkStatus(p) === "active");
   const invested = perks.reduce((a, p) => a + (p.investedTotal || 0), 0);
-  const dateTxt = keyToDate(todayKey()).toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
 
   const readyList = perks.filter(p => perkStatus(p) === "available");
   const attention = [
@@ -169,7 +181,20 @@ function renderSummary() {
         ${scene(820, 230, 11)}
         <div class="scene-fade"></div>
         <div class="scene-body">
-          <div class="label">${greeting()} · ${dateTxt}</div>
+          ${/* El nombre de la tarjeta, en el sitio que dejó el saludo. Es el
+                mismo que lleva en `DASH_META` y en la bandeja del Modo Editor:
+                una cosa, un nombre. Sin él la tarjeta empezaba directamente por
+                un número grande y no decía de qué era.
+
+                Y el mes viaja con el título cuando hay dos bloques, porque ahí
+                el calendario queda pegado justo debajo y su propio rótulo era
+                un segundo letrero del mismo tamaño a doce píxeles del primero:
+                dos etiquetas apiladas, no un título y una sección. Apilada no
+                puede mudarse —allí el mes está lejos del título y necesita
+                decir de cuándo es—, así que se escribe siempre y lo esconde el
+                CSS. El año va incluido: un calendario suelto no dice de cuándo
+                es, y esta tarjeta va a llevar años abierta. */""}
+          <div class="label">Racha<span class="lab-mes"> · ${escapeHtml(MESES[mes - 1])} ${anio}</span></div>
           <div class="streak-grid">
             ${/* El mes va PRIMERO en la rejilla y a la izquierda desde la
                   0.7.56. Se escribe después en el marcado —para que apilada
@@ -2046,7 +2071,18 @@ function calendarioRacha(anio, mes, cuentas, hoy) {
 
   let max = 1;
   for (let d = 1; d <= total; d++) max = Math.max(max, cuentas.get(anio + "-" + mm + "-" + String(d).padStart(2, "0")) || 0);
-  const escala = ["", velo("#5fe0b0", "3a"), velo("#5fe0b0", "77"), velo("#5fe0b0", "b4"), pinta("#5fe0b0")];
+  /* La escala sale del acento de la APARIENCIA y no de la menta de la casa
+     escrita aquí, que es lo que había. El calendario vive dentro de la tarjeta
+     de la racha, o sea dentro de una escena, y una escena vuelve a declarar su
+     paleta entera: `var(--mint)` ahí dentro es el acento del ambiente o del
+     mundo que esté puesto. Con el hex escrito, en Reliquia salían cuatro
+     casillas VERDES en mitad de una vitrina violeta. Es el mismo fallo que ya
+     tenía la caja de un grupo en el mapa de talentos, en otro sitio.
+
+     `velo()` y `pinta()` dejan pasar un `var(...)` intacto, así que esto sigue
+     dando exactamente lo mismo que antes en la casa. */
+  const acento = "var(--mint)";
+  const escala = ["", velo(acento, "3a"), velo(acento, "77"), velo(acento, "b4"), pinta(acento)];
 
   let celdas = "";
   for (let i = 0; i < primero; i++) celdas += `<i class="rc-hueco"></i>`;

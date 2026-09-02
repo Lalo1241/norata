@@ -811,8 +811,10 @@ function toast(msg, tipo, accion) {
   cont.appendChild(el);
   requestAnimationFrame(() => el.classList.add("show"));
 
-  // Si hay algo que pulsar, hay que dar tiempo real a verlo y decidir
-  setTimeout(() => cerrarToast(id), accion ? Math.max(t.ms, 6000) : t.ms);
+  /* Si hay algo que pulsar, hay que dar tiempo real a verlo y decidir. Y hay
+     avisos que piden más: el de «hay una versión nueva» puede llegar mientras
+     estabas en otra ventana, así que pide `ms` y se queda doce segundos. */
+  setTimeout(() => cerrarToast(id), accion ? Math.max(t.ms, accion.ms || 6000) : t.ms);
 }
 
 function cerrarToast(id) {
