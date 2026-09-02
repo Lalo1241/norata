@@ -122,19 +122,23 @@ const EXP_RANGOS = [
 
    El día que un ambiente esté puesto, se le pone `listo: true` y aparece. Es
    una palabra por fila y no hay nada más que tocar. */
-/* Los peldaños de celebración se mueven con los rangos: al pasar éstos a cada
-   seis niveles, dejarlos en 3, 6 y 15 los ponía justo encima de un cambio de
-   rango, y dos noticias en la misma pantalla se estorban. Ahora caen en los
-   huecos: 4, 10 y 16. */
+/* **Un rango se anuncia donde se CONSIGUE: al cerrar su constelación.**
+   Estaban en 1, 7, 13, 19 y 25 —el primer nivel de cada tramo— y con eso la
+   tarjeta del Resumen prometía «Rango Rastreador» para el nivel 7, cuando en
+   el 7 lo que empieza es el dibujo. Lo paró Eduardo, y tiene razón: el rango
+   se gana al rellenar la constelación, no al estrenarla.
+
+   Los peldaños de celebración caen en los huecos que quedan: encima de un
+   cambio de rango serían dos noticias en la misma pantalla. */
 const EXP_ESCALERA = [
-  { nivel: 1,  tipo: "rango",       nombre: "Rango Andante", listo: true },
-  { nivel: 4,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión" },
-  { nivel: 7,  tipo: "rango",       nombre: "Rango Rastreador", listo: true },
-  { nivel: 10, tipo: "celebracion", nombre: "Escena nueva de racha" },
-  { nivel: 13, tipo: "rango",       nombre: "Rango Explorador", listo: true },
-  { nivel: 16, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true },
-  { nivel: 19, tipo: "rango",       nombre: "Rango Cartógrafo", listo: true },
-  { nivel: 25, tipo: "rango",       nombre: "Rango Navegante", listo: true }
+  { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión" },
+  { nivel: 6,  tipo: "rango",       nombre: "Rango Andante", listo: true },
+  { nivel: 9,  tipo: "celebracion", nombre: "Escena nueva de racha" },
+  { nivel: 12, tipo: "rango",       nombre: "Rango Rastreador", listo: true },
+  { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true },
+  { nivel: 18, tipo: "rango",       nombre: "Rango Explorador", listo: true },
+  { nivel: 24, tipo: "rango",       nombre: "Rango Cartógrafo", listo: true },
+  { nivel: 30, tipo: "rango",       nombre: "Rango Navegante", listo: true }
 ];
 
 /* Los ambientes ya NO se escriben aquí, y esta es la línea que lo pedía arriba:
@@ -160,7 +164,9 @@ function escaleraDeExpedicion() {
   const propios = typeof rangosVigentes === "function" ? rangosVigentes() : null;
   const filas = EXP_ESCALERA.map(f => {
     if (f.tipo !== "rango" || !propios) return f;
-    const r = propios.filter(x => x.desde === f.nivel)[0];
+    /* Se empareja por el nivel donde el rango se CONSIGUE —el sexto de su
+       tramo— y no por `desde`, que es donde empieza a dibujarse. */
+    const r = propios.filter(x => x.desde + EXP_POR_RANGO - 1 === f.nivel)[0];
     return r ? Object.assign({}, f, { nombre: "Rango " + r.nombre }) : f;
   });
   if (typeof AMBIENTES !== "undefined") {
