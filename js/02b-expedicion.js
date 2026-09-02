@@ -567,6 +567,10 @@ const EXP_COLOR_FUENTE = {
    aquí: desde la 0.7.65 cada figura tiene las que pide el dibujo —doce la
    bota, catorce la huella— y repartir el progreso es trabajo suyo. Dos
    verdades sobre lo mismo es justo lo que no puede haber. */
+/* Cuánto cielo se siembra por fuera del encuadre, por los cuatro lados. Tiene
+   que ser mayor que lo que el paralaje llega a mover el polvo (16 px de 320,
+   o sea 16 unidades) o se vería el borde del sembrado al mover el cursor. */
+const EXP_MARGEN = 44;
 const EXP_ALTO_CON_ALTAR = 190;
 const EXP_ALTO_VITRINA = 150;
 const EXP_ALTO_VACIO = 118;
@@ -727,14 +731,26 @@ function expCieloHTML(nivel) {
 
   /* El polvo del fondo: aleatorio y distinto cada vez, igual que en la
      celebración. No es información, es profundidad — las constelaciones sí son
-     siempre las mismas. Se siembra sobre el alto de VERDAD y con un suelo,
-     porque el cielo más corto es el de quien no ha empezado y ése es justo el
-     que no puede parecer roto: sin estrellas se lee como que no cargó. */
+     siempre las mismas.
+
+     **Se siembra MÁS ALLÁ del encuadre y se recorta.** Lo pidió Eduardo: «que
+     el cielo sea más amplio hacia los bordes y esté enmascarado dentro de su
+     espacio, para que se vean más estrellas que no se ven cuando uno mueve el
+     cursor». Sembrado justo en el encuadre, el paralaje arrastraba el borde a
+     la vista y por ese lado no había nada: el cielo se acababa, que es lo
+     contrario de la profundidad que se buscaba. Con `EXP_MARGEN` de más por
+     los cuatro lados hay reserva de sobra para los dieciséis píxeles que se
+     mueve, y lo que sobra lo recorta el `overflow` del SVG.
+
+     El suelo del número existe porque el cielo más corto es el de quien no ha
+     empezado, y ése es justo el que no puede parecer roto: sin estrellas se
+     lee como que no cargó. */
   let fondo = "";
-  const cuantas = Math.max(66, Math.round(alto / 2.4));
+  const anchoP = 320 + EXP_MARGEN * 2, altoP = alto + EXP_MARGEN * 2;
+  const cuantas = Math.max(112, Math.round(anchoP * altoP / 780));
   for (let i = 0; i < cuantas; i++) {
-    fondo += '<circle cx="' + (Math.random() * 320).toFixed(1) +
-      '" cy="' + (Math.random() * alto).toFixed(1) +
+    fondo += '<circle cx="' + (Math.random() * anchoP - EXP_MARGEN).toFixed(1) +
+      '" cy="' + (Math.random() * altoP - EXP_MARGEN).toFixed(1) +
       '" r="' + (0.35 + Math.random() * 0.85).toFixed(2) +
       '" opacity="' + (0.12 + Math.random() * 0.3).toFixed(2) + '"/>';
   }
