@@ -118,9 +118,10 @@ const MUNDOS = [
      eran lo primero que pedía el tema y se descartaron por eso, no por el
      concepto: es el mismo fallo que costó cambiar «Arquitecto» en Blueprint.
 
-     **Los dibujos son glifos, no criaturas.** Un montón, un sello inscrito, la
-     cruz de Leviatán, tres siluetas encapuchadas y una corona sobre lo
-     oscuro. Una criatura dibujada a 20 px —que es el tamaño al que se pintan—
+     **Los dibujos son glifos, no criaturas.** Un caput mortuum, un sello
+     hexagonal, la cruz de Leviatán, tres siluetas encapuchadas y el pentagrama
+     invertido. Cinco siluetas que no se parecen entre sí, que es la prueba que
+     hay que pasar antes de mirar si cada una es bonita. Una criatura dibujada a 20 px —que es el tamaño al que se pintan—
      solo puede salir caricatura; un glifo a ese tamaño se lee, y además es lo
      que de verdad usaba la tradición. Lo que da el miedo en los dos que llevan
      figura es el HUECO RELLENO, no el detalle: un vacío pintado se lee a
@@ -135,9 +136,17 @@ const MUNDOS = [
   { id: "averno", nombre: "Averno", listo: true, pro: true, icon: "eclipse",
     premisa: "Piedra quemada con la brasa debajo, y los círculos del poema. Demonología de la que se lee, no de la que se disfraza.",
     rangos: [
-      /* El montón de ceniza, con la voluta que todavía sube. Es el único
-         dibujo que no se levanta del suelo, y eso es lo que lo hace primero. */
-      { nombre: "Ceniza", trazo: '<path d="M4.4 18.8c1.2-3.9 4-6.1 7.6-6.1s6.4 2.2 7.6 6.1z"/><path d="M2.6 18.8h18.8"/><path d="M12 12.4c-1.9-1.9-1.7-3.9.5-5.4-.7 1.9.4 2.6 1.1 3.9"/>',
+      /* **Caput mortuum**, la «cabeza muerta»: el nombre que la alquimia le dio
+         al residuo que queda en el fondo después de calcinar, lo que ya no
+         sirve para nada más. Es literalmente el concepto de este peldaño, y
+         por eso sustituye al montón de ceniza que había antes — «no evoca un
+         concepto interesante, ni se entiende», y las dos cosas eran ciertas:
+         un montón con una voluta es un montón de cualquier cosa.
+
+         El cráneo es además memento mori, que es cristiano y viejo, no de
+         película. Y es la silueta más distinta de las cinco, así que se
+         reconoce antes de mirarlo. */
+      { nombre: "Ceniza", trazo: '<path d="M12 3.2c4.3 0 7.4 3.1 7.4 7.3 0 2.2-.9 3.6-1.9 4.5-.5.5-.8 1-.8 1.7v1.5c0 1-.8 1.8-1.8 1.8H9.1c-1 0-1.8-.8-1.8-1.8v-1.5c0-.7-.3-1.2-.8-1.7-1-.9-1.9-2.3-1.9-4.5 0-4.2 3.1-7.3 7.4-7.3z"/><ellipse cx="8.9" cy="11.2" rx="1.9" ry="2.2" fill="currentColor" stroke="none"/><ellipse cx="15.1" cy="11.2" rx="1.9" ry="2.2" fill="currentColor" stroke="none"/><path d="M12 13.6l1.3 2.6h-2.6z" fill="currentColor" stroke="none"/>',
         linea: { texto: "Me arrepiento en polvo y ceniza.", fuente: "Job 42:6" } },
       /* **La cruz de Leviatán**, que es el signo del AZUFRE en su forma de cruz:
          doble travesaño sobre una lemniscata. Viene de la alquimía —el azufre
@@ -150,10 +159,16 @@ const MUNDOS = [
          reconoce, y esa era la petición de Eduardo: «que se entienda que es
          con qué». Tiene nombre y se puede buscar.
 
-         El sello: el anillo y la figura inscrita dentro. En esa tradición nada
-         existe hasta que su sello está trazado, así que éste es el peldaño en
-         el que dejas de ser un montón y pasas a tener nombre. */
-      { nombre: "Sello", trazo: '<circle cx="12" cy="12" r="9.2"/><path d="M12 18.7L5.7 8.1h12.6z"/><circle cx="12" cy="11.4" r="1.7"/>',
+         El sello, en marco HEXAGONAL y no redondo. La forma viene del hexagrama
+         de Salomón de la Llave Menor, que es el que se usa para constreñir; y
+         la razón de cambiarlo es que Abadón pasó a ser un pentagrama dentro de
+         un círculo, y dos glifos que son «un círculo con una figura dentro» se
+         confunden a 20 px. Cinco siluetas distintas o no hay familia.
+
+         En esa tradición nada existe hasta que su sello está trazado, así que
+         éste es el peldaño en el que dejas de ser un residuo y pasas a tener
+         nombre. */
+      { nombre: "Sello", trazo: '<path d="M12 2.6l8.4 4.6v9.6L12 21.4 3.6 16.8V7.2z"/><path d="M8.4 9.4l7.2 5.2M15.6 9.4l-7.2 5.2"/>',
         linea: { texto: "Lo ató, y puso su sello sobre él.", fuente: "Apocalipsis 20:2-3" } },
       /* **Leviatán**, y el dibujo pasó a llamarse como lo que ya era. El glifo
          no cambió ni un punto: es la cruz de Leviatán, que entró aquí como el
@@ -193,10 +208,23 @@ const MUNDOS = [
          mejor la escalera: de Legión —eres muchos— a Abadón —eres a quien esos
          muchos responden—.
 
-         El dibujo es la corona sobre la masa oscura. La corona se lee a
-         cualquier tamaño y el relleno hace el resto; ninguna figura con cara
-         sobrevive a los 20 px a los que esto se pinta. */
-      { nombre: "Abadón", trazo: '<path d="M12 2.4l2.4 3.6 3-2.4-.8 4 3.8-.4-2.6 3.2H6.2L3.6 7.2l3.8.4-.8-4 3 2.4z"/><path d="M6.2 12.6h11.6v2.2c0 3.4-2.6 6-5.8 6.6-3.2-.6-5.8-3.2-5.8-6.6z" fill="currentColor" stroke="none"/>',
+         El dibujo es **el pentagrama invertido en su círculo**, y lo eligió
+         Eduardo enseñando la imagen. Sustituye a la corona sobre la masa
+         oscura, que se leía bien pero era un invento; ésta es la marca que
+         cualquiera reconoce sin que se la expliquen, que es lo que se le pide
+         al último peldaño.
+
+         **El nombre se queda en Abadón** aunque el glifo ya no lo retrate: el
+         pentagrama no es el emblema de un ser concreto sino el de la casa
+         entera, y Abadón es quien reina en ella. Cambiarlo a Bafomet ataría el
+         rango al dibujo, y de paso perdería la cita de Apocalipsis, que es lo
+         que sostiene que esto sea teología y no utilería.
+
+         Y con esto cae la línea que decía «nada de cuernos ni pentagramas» en
+         la premisa del mundo: era mía, es de cuando el concepto era otro, y la
+         decisión de ahora es de Eduardo. Lo que sigue en pie de aquella regla
+         es lo que de verdad importaba: nada de diablillos ni tridentes. */
+      { nombre: "Abadón", trazo: '<circle cx="12" cy="12" r="9.6"/><path d="M12 20.6L6.94 5.04L20.18 14.66L3.82 14.66L17.06 5.04z"/>',
         linea: { texto: "Su rey es el ángel del abismo, cuyo nombre es Abadón.", fuente: "Apocalipsis 9:11" } }
     ] },
   /* El nombre de éste está decidido; sus dibujos se hacen cuando se construya
