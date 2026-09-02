@@ -1079,7 +1079,11 @@ function pintarFicha(id) {
          <b>${escapeHtml(e.titulo)}</b>
          <span>${escapeHtml(e.texto)}</span>
        </div>` +
-       (e.accion ? `<button type="button" class="btn btn-primary btn-block ap-btn" onclick="aparienciaAPagar()">${e.accion.insignia ? icon(e.accion.insignia, 16) : ""}<span>${escapeHtml(e.accion.texto)}</span></button>` : "")
+       /* Menta para Pro y LILA para Fundador: en esta app todo lo de Fundador
+          va en lila, y un botón menta que dice «Ver Norata Fundador» lo pinta
+          del color del otro plan. El nivel del botón es el mismo —es la única
+          acción de la ficha cuando está cerrada—; lo que cambia es el tinte. */
+       (e.accion ? `<button type="button" class="btn btn-block ap-btn ${e.clase === "fundador" ? "btn-fundador" : "btn-primary"}" onclick="aparienciaAPagar()">${e.accion.insignia ? icon(e.accion.insignia, 16) : ""}<span>${escapeHtml(e.accion.texto)}</span></button>` : "")
     : (puesta
         ? `<p class="ap-yaesta">${icon("check", 15)}<span>Es la que llevas puesta.</span></p>`
         : `<button type="button" class="btn btn-primary btn-block" onclick="elegirApariencia('${id}')">Ponérmelo</button>`);

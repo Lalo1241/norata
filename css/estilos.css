@@ -1734,9 +1734,29 @@
   .mun-p.ap-pro { color: var(--mint); background: var(--mint-soft); }
   .mun-p.ap-fundador { color: var(--lila); background: var(--lila-soft); }
   .mun-p.ap-nivel { color: var(--fire); background: var(--fire-soft); }
-  /* «Predeterminado»: ni plan ni nivel, así que va en el gris de la app. Es
-     el mundo original y lo único que dice es eso. */
-  .mun-p.ap-base { color: var(--faint); background: transparent; padding-left: 0; padding-right: 0; }
+  /* «Predeterminado» FLOTA sobre el borde de arriba, a la izquierda, y no va
+     en la fila de las otras cápsulas. En el teléfono ocupando sitio dejaba
+     «Noche de expedición» partido en dos renglones y la premisa en una columna
+     de media pantalla — es la etiqueta más larga de las cuatro y encima le toca
+     a la fila que más texto tiene. Sacándola del flujo, el nombre y la frase
+     recuperan el ancho entero y ella sigue leyéndose. Lo pidió Eduardo con la
+     forma de las etiquetas que ya flotan en la esquina de una tarjeta.
+
+     Lleva el suelo de la tarjeta y su borde para leerse como una pestaña de la
+     pieza y no como algo suelto encima; con fondo transparente se veía la línea
+     del borde cruzándole el texto. Y ni plan ni nivel: va en el gris de la app,
+     porque lo único que dice es que ése es el mundo original. */
+  .mun-m, .ap-ficha { position: relative; }
+  .mun-p.ap-base {
+    position: absolute; top: -8px; left: 14px;
+    color: var(--faint);
+    background: var(--sup-tarjeta);
+    border: 1px solid var(--line);
+    font-size: 8.5px; padding: 2px 7px;
+  }
+  /* La reja necesita ese hueco de arriba: la etiqueta de la primera fila sale
+     ocho píxeles por encima de ella. */
+  .mun-rej { margin-top: 20px; }
   /* Y la insignia sola, para lo que ya tienes y sigue siendo de plan: sin
      texto, sin fondo y del tono de su plan. No es un candado, es una firma. */
   .mun-p.ap-tengo { background: transparent; padding: 0; }
@@ -3143,6 +3163,14 @@
   .btn-aviso { background: var(--fire-soft); color: var(--fire); }
   .btn-ghost { background: var(--sup-tarjeta); color: var(--text); border: var(--borde-tarjeta) solid var(--line); border-image: var(--marco-tarjeta); }
   .btn-danger-ghost { background: var(--coral-soft); color: var(--coral); }
+  /* No es un séptimo nivel: es `btn-primary` teñido de Fundador. El nivel —«lo
+     que has venido a hacer»— es el mismo; lo que cambia es de qué plan habla, y
+     en esta app **todo lo de Fundador va en lila**, sin excepciones. Lo insistió
+     Eduardo dos veces: un botón menta que dice «Ver Norata Fundador» lo pinta
+     del color de Pro, que es justo lo que la pantalla del plan existe para
+     separar. La tinta es `--sobre-vivo` y no `--sobre-macizo` porque el lila es
+     un tono vivo y no el acento (ver la tabla de la paleta en CLAUDE.md). */
+  .btn-fundador { background: var(--lila-macizo); color: var(--sobre-vivo); box-shadow: none; }
   .btn-block { width: 100%; }
   .btn:active { transform: scale(0.97); opacity: 0.9; }
 
