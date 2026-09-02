@@ -1961,7 +1961,11 @@
     background: rgb(var(--escena-fondo));
   }
   .exp-sky-wrap { position: relative; }
-  .exp-sky { display: block; width: 100%; height: auto; overflow: visible; }
+  /* `overflow: hidden` es lo que ENMASCARA el cielo: el polvo se siembra por
+     fuera del encuadre (ver `EXP_MARGEN`) y lo que sobra se recorta aquí, así
+     que al mover el cursor entran estrellas que no estaban a la vista en vez
+     de aparecer un borde vacío. */
+  .exp-sky { display: block; width: 100%; height: auto; overflow: hidden; }
   /* La costura entre el cielo y el rótulo. Sin ella el dibujo termina en una
      raya recta y se ve el borde de la foto; con ella el polvo de estrellas se
      apaga hacia abajo y el nivel parece escrito sobre el mismo cielo. */
@@ -1986,8 +1990,8 @@
      se movía nunca — el oyente funcionaba y el paralaje no. Medido: `--mx`
      llegaba a 0,477 y el `transform` seguía en la matriz identidad. */
   .exp-cielo { --mx: 0; --my: 0; }
-  .exp-polvo { transform: translate(calc(var(--mx) * 9px), calc(var(--my) * 5px)); }
-  .exp-fugaces { transform: translate(calc(var(--mx) * 5px), calc(var(--my) * 3px)); }
+  .exp-polvo { transform: translate(calc(var(--mx) * 16px), calc(var(--my) * 9px)); }
+  .exp-fugaces { transform: translate(calc(var(--mx) * 8px), calc(var(--my) * 5px)); }
   /* Un solo `transform` por capa: la propiedad no se puede escribir dos veces,
      así que el paralaje y el acercamiento del hover van en la misma
      declaración y lo que cambia es `--z`. */
@@ -2066,7 +2070,15 @@
     97%      { opacity: 0.3; }
     100%     { transform: translateX(104px); opacity: 0; }
   }
-  .exp-fugaz { animation: expFugaz 13s linear infinite; }
+  /* **`backwards` y `opacity: 0` de base, y las dos hacen falta.** Sin ellas
+     se veía el fallo que cazó Eduardo: «muestra las estrellas caer antes de
+     tiempo y sin animación». Una animación con retardo no pinta su primer
+     fotograma mientras espera — pinta el estilo BASE del elemento, que era
+     opacidad 1—, así que las tres fugaces se quedaban quietas y visibles en su
+     punto de partida durante los primeros segundos, hasta cuatro y medio en la
+     tercera. `backwards` hace que el retardo use el 0% del keyframe, y la
+     opacidad de base cubre el instante anterior a que la animación exista. */
+  .exp-fugaz { opacity: 0; animation: expFugaz 13s linear infinite backwards; }
 
   .exp-hero { padding: 2px 16px 15px; }
   .exp-hero-fila { display: flex; align-items: center; gap: 12px; }
