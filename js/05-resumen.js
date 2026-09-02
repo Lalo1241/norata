@@ -112,17 +112,25 @@ function renderSummary() {
        el número solo lo resume.
 
        Y desde 0.7.35 la tarjeta **sabe de qué ancho es**, medido en píxeles y
-       no en columnas del tablero: apilada cabe todo en una columna; con sitio
-       se pone la marca al lado del mes; y en cuanto pasa de 1150 se abre la
-       tercera, con el hito que viene y qué sostiene la racha. Todos esos
-       umbrales viven en el CSS —`@container` sobre `.streak-card`—, incluido
-       el de esa tercera columna, que aquí se escribe siempre.
+       no en columnas del tablero. Los umbrales viven en el CSS —`@container`
+       sobre `.streak-card`— y aquí se escribe todo siempre.
 
-       El reparto del sitio que sobra está explicado allí y es lo que más ha
-       costado: el hueco no se quita, se muda al borde.
+       ---- Y en 0.7.56 el mes pasó a mandar ----
+       Hasta la 0.7.47 eran TRES bloques en fila —la marca, el hito, el mes—,
+       y ese reparto tenía tres problemas que se veían y ninguno era de color:
+       217 px de sangría a la izquierda contra 18 a la derecha, cada bloque
+       empezando a una altura distinta, y 166 de los 456 px de la tarjeta
+       vacíos. Encima, el tercer bloque solo aparecía pasados los 1150 px, o
+       sea que el hito no existía en teléfono, tableta ni laptop.
+
+       Ahora son DOS: el mes a la izquierda y un solo carril a su derecha con
+       la marca arriba y el hito debajo. Con dos bloques no hay junta interior
+       que repartir —hay un margen igual a los dos lados—, los dos arrancan en
+       la misma línea, y el alto de la tarjeta es el que pide el mes. El
+       precipicio de 1150 desaparece con el tercer bloque.
 
        El alto NO se elige: sale del ancho (ver `ALTO_RACHA`). Estirarla hacia
-       abajo solo añadía cielo vacío, que es justo el problema del que venimos.
+       abajo solo añade cielo vacío, que es justo el problema del que venimos.
 
        Lo que NO se copia de Duolingo, y es a propósito: ni las cápsulas de
        colores por semana, ni los congeladores, ni las flechas para pasear por
@@ -163,6 +171,10 @@ function renderSummary() {
         <div class="scene-body">
           <div class="label">${greeting()} · ${dateTxt}</div>
           <div class="streak-grid">
+            ${/* El mes va PRIMERO en la rejilla y a la izquierda desde la
+                  0.7.56. Se escribe después en el marcado —para que apilada
+                  quede debajo de la marca, que es como se lee en el teléfono—
+                  y se coloca con `grid-column` en el CSS. */""}
             <div class="sg-izq">
               <div class="streak-row">
                 <span class="flame ic"><svg viewBox="0 0 24 24">${ICONS.flame}</svg></span>
@@ -173,22 +185,25 @@ function renderSummary() {
                       dos sobran — recordarte que ya lo hiciste mejor, o
                       encogerse cuando el de hoy lo supera. */""}
                 <span class="lbl">día${stk.cur === 1 ? "" : "s"}<br>de racha</span>
+                <div class="sg-cifras">
+                  <div><b>${activosSemana}<span>/${diasCorridos}</span></b><span>esta semana</span></div>
+                  <div><b>${activosMes}<span>/${diasMes.length}</span></b><span>en ${MESES[mes - 1]}</span></div>
+                </div>
               </div>
               <p class="sg-hoy${hoyCuenta ? " si" : ""}">${escapeHtml(frase)}</p>
-              <div class="sg-cifras">
-                <div><b>${activosSemana}<span>/${diasCorridos}</span></b><span>esta semana</span></div>
-                <div><b>${activosMes}<span>/${diasMes.length}</span></b><span>en ${MESES[mes - 1]}</span></div>
-              </div>
             </div>
             <div class="sg-der">
               ${calendarioRacha(anio, mes, cuentas, hoy)}
             </div>
-            ${/* Se escribe siempre, y quien decide si se ve es el ancho real de
-                  la tarjeta, desde el CSS. Aqui se decidia con `dashSize("racha").w >= 3`
-                  mientras el acomodo de al lado se decidia en pixeles, y los dos
-                  umbrales no son el mismo: una tarjeta de DOS columnas en una
-                  pantalla grande mide 1510 px, o sea que se repartia el sitio como
-                  si hubiera tres bloques y solo habia dos. Medio metro de hueco. */""}
+            ${/* El hito y qué la sostiene. Se escriben siempre y quien decide
+                  qué se ve es el ancho REAL de la tarjeta, desde el CSS.
+
+                  Hasta la 0.7.47 este bloque entero vivía detrás de un umbral
+                  de 1150 px, y eso quería decir que «te faltan 2 días para el
+                  siguiente hito» —lo único de la tarjeta que mueve a volver
+                  hoy— no se veía en teléfono, ni en tableta, ni en laptop.
+                  Ahora el hito se ve siempre y lo único que espera a que haya
+                  sitio es «qué la sostiene», que son tres filas más. */""}
             <div class="sg-extra">${loQueSostiene(stk.cur)}</div>
           </div>
         </div>
@@ -490,8 +505,8 @@ const DASH_MIN_H = { racha: 5, misiones: 3, atencion: 2, expedicion: 3, niveles:
 const DASH_MAX_H = 40;
 
 /* ================= Acomodos sugeridos =================
-   Acomodar el tablero a mano es lento: siete tarjetas, cada una con su sitio
-   y su tamaño, y hasta que no está entero no se sabe si el reparto funciona.
+   Acomodar el tablero a mano es lento: ocho tarjetas, cada una con su sitio y
+   su tamaño, y hasta que no está entero no se sabe si el reparto funciona.
    Estos tres son puntos de partida ya probados; desde cualquiera de ellos se
    sigue arrastrando a gusto.
 
@@ -500,29 +515,31 @@ const DASH_MAX_H = 40;
    Proyectos, elegir un acomodo no se lo devuelve a la cara. El acomodo dice
    cómo repartir lo que hay, no qué debe haber.
 
-   La diferencia entre los tres es a qué se le da el sitio de honor: al
-   reparto parejo, a la escena a lo ancho, o a la escena presidiendo.
+   La diferencia entre los tres es a qué se le da el sitio de honor: al reparto
+   parejo, a la escena a lo ancho, o a la escena presidiendo.
+
+   ---- Las dos reglas con las que se rehicieron los doce (0.7.56) ----
+
+   1. **Ninguna columna termina antes que las otras.** Se buscó para cada uno
+      el reparto que no deja ni una celda vacía, y once de los doce salen ya
+      sin agujeros del empaquetador. Lo que quede lo tapa `emparejarColumnas`,
+      que es quien lo garantiza de verdad — porque las alturas de aquí abajo
+      cambian en cuanto la pantalla es otra.
+
+   2. **Dos tarjetas de cifra no se tocan.** "Expedición", "Niveles" e
+      "Invertido" son la misma pieza —`.sum-card` con icono, cifra grande,
+      rótulo y barra—, y desde que Expedición entró en la 0.7.44 son TRES de
+      ocho y no dos. Dos iguales pegadas no se leen como dos datos: se leen
+      como una repetición. Así que entre dos de ellas va siempre una lista, y
+      eso vale para arriba y abajo igual que para izquierda y derecha.
 
    ---- Y por qué hay tres listas de escritorio y no una ----
    Un acomodo son alturas escritas a mano, y unas alturas escritas a mano dan
-   por hecho una pantalla. Estas tres daban por hecha la del monitor donde se
-   diseñaron. Puestas en las otras dos formas que existen de verdad, medido
-   con el ejemplo de la app:
+   por hecha una pantalla. La lista se elige por la FORMA de la ventana (ver
+   `formaTablero`), y lo que separa una forma de otra son las columnas: cuántas
+   hay y cómo de anchas. En la tableta la columna baja de 430 px y la racha de
+   una columna se apila, que es el salto más caro de todos.
 
-   - **Laptop de 1366 x 657.** La columna sigue midiendo 504 px, así que las
-     tarjetas caben igual de anchas; lo que falta es alto. "Columnas" salía de
-     2,6 pantallas y "Panorama" de 3,3, las dos con tarjetas cortadas.
-   - **Tableta apaisada de 1024 x 700.** Aquí la columna baja a 333 px, y esa
-     es la diferencia que importa: la racha de una columna se apila y pasa a
-     pedir siete filas. Recibía cinco —376 px para 518— y se comía la última
-     semana del mes.
-
-   Dos cosas cambian respecto del monitor, y ninguna es el número de columnas
-   —las tres formas tienen dos—: en la laptop cambia el ALTO, y en la tableta
-   cambia el ANCHO de cada columna, que es lo que decide si la racha se apila
-   o no.
-
-   Así que la lista se elige por la FORMA de la ventana (ver `formaTablero`).
    Los tres nombres se repiten en las tres listas a propósito: la pregunta que
    contesta un acomodo —a qué se le da el sitio de honor— es la misma en todas
    partes, y lo que cambia es cuánto sitio hay para contestarla. Elegir
@@ -532,108 +549,115 @@ const DASH_ACOMODOS = [
   {
     nombre: "Columnas",
     sub: "Tres columnas parejas, las misiones al centro",
-    order: ["atencion", "misiones", "racha", "proyectos", "expedicion", "niveles", "listos", "invertido"],
-    sizes: {
-      /* Misiones va deliberadamente más alta de lo que su contenido pide: es
-         lo que mantiene ocupada la columna del centro y obliga a "Invertido"
-         a caer en la tercera. Con la altura justa, el reparto automático lo
-         mete debajo de Misiones y la tercera columna queda coja. */
-      atencion: { w: 1, h: 3 }, misiones: { w: 1, h: 12 }, racha: { w: 1, h: 5 },
-      proyectos: { w: 1, h: 3 }, niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 5 },
-      invertido: { w: 1, h: 3 }
-    }
-  },
-  {
-    nombre: "Panorama",
-    sub: "La escena a lo ancho, arriba a la derecha",
-    /* El orden importa más que los tamaños: "Listos" tiene que ir DESPUÉS de
-       Atención y Niveles para que caiga bajo Misiones y no se cuele en la
-       columna del medio. */
-    order: ["misiones", "racha", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
-    sizes: {
-      misiones: { w: 1, h: 8 }, racha: { w: 2, h: 6 }, listos: { w: 1, h: 5 },
-      atencion: { w: 1, h: 4 }, niveles: { w: 1, h: 4 }, expedicion: { w: 1, h: 5 },
-      proyectos: { w: 1, h: 4 }, invertido: { w: 1, h: 4 }
-    }
-  },
-  {
-    nombre: "Mirador",
-    sub: "La escena grande, presidiendo el tablero",
+    /* Once filas justas, sin una celda vacía y sin dos cifras pegadas: 856 px,
+       que es lo único de los tres que cabe entero en una pantalla de 1000. */
     order: ["racha", "misiones", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
     sizes: {
-      racha: { w: 2, h: 7 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 4 },
-      niveles: { w: 1, h: 4 }, expedicion: { w: 1, h: 5 }, listos: { w: 1, h: 5 },
-      proyectos: { w: 1, h: 4 }, invertido: { w: 1, h: 4 }
-    }
-  }
-];
-
-/* ---- Acomodos de laptop (ventana BAJA, columnas anchas) ----
-   La misma laptop de 1366 x 768 deja 504 px por columna —sitio de sobra, la
-   racha no se apila— y 520 px de alto útil, que son seis filas y media. La
-   ventana es el doble de ancha que alta, y los tres de arriba están escritos
-   para una que es más cuadrada: por eso ahí salían 2,4 pantallas.
-
-   Aquí no se persigue que todo quepa de una: no puede. Las siete tarjetas
-   piden 28 filas de contenido, y en dos columnas eso son catorce filas
-   —1.096 px— por poco que se apriete. Perseguirlo es lo que hacía
-   `encajarEnPantalla` cuando su suelo era una tabla: dejaba "Misiones de hoy"
-   con 283 px de lista cortada para ganar una pantalla que igualmente no se
-   ganaba.
-
-   Lo que sí se decide es QUÉ CAE EN LA PRIMERA PANTALLA, y que ninguna
-   tarjeta reciba menos de lo que necesita para leerse. Las alturas de aquí
-   abajo son las medidas: racha 5, misiones 7, listos 4 y tres filas el resto.
-   Si tienes menos misiones de las que caben, `encajarEnPantalla` recorta el
-   sobrante al aplicarlo. */
-const DASH_ACOMODOS_LAPTOP = [
-  {
-    nombre: "Columnas",
-    sub: "Las dos columnas parejas, y el día arriba",
-    order: ["misiones", "racha", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
-    sizes: {
-      misiones: { w: 1, h: 7 }, racha: { w: 1, h: 5 }, atencion: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 4 },
+      /* Misiones va deliberadamente más alta de lo que su contenido pide: es
+         lo que la mantiene en la columna del centro, que es lo que promete el
+         rótulo. Con la altura justa se desliza a la primera columna y el
+         acomodo deja de llamarse como se llama. */
+      racha: { w: 1, h: 4 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 4 },
+      expedicion: { w: 1, h: 4 }, niveles: { w: 1, h: 3 }, listos: { w: 1, h: 4 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
   },
   {
     nombre: "Panorama",
-    sub: "El mes a lo ancho arriba; lo demás, debajo",
-    /* La racha de dos columnas cuesta 320 px más de tablero que la de una:
-       ocupa seis filas de las DOS columnas y deja el resto para las otras
-       seis tarjetas. Es un intercambio, no un descuido — se paga alto para
-       ver el mes grande, que es de lo que va este acomodo. */
-    order: ["racha", "misiones", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
+    sub: "La escena a lo ancho, arriba a la derecha",
+    /* El orden importa más que los tamaños: "Misiones" tiene que ir PRIMERA
+       para quedarse la columna de la izquierda y empujar la racha a las dos de
+       la derecha, que es lo que dice el rótulo. */
+    order: ["misiones", "racha", "expedicion", "listos", "atencion", "niveles", "proyectos", "invertido"],
     sizes: {
-      racha: { w: 2, h: 6 }, misiones: { w: 1, h: 7 }, atencion: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 4 },
+      racha: { w: 2, h: 5 }, misiones: { w: 1, h: 6 }, expedicion: { w: 1, h: 4 },
+      listos: { w: 1, h: 4 }, atencion: { w: 1, h: 3 }, niveles: { w: 1, h: 3 },
+      proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
+    }
+  },
+  {
+    nombre: "Mirador",
+    sub: "La escena grande, presidiendo el tablero",
+    /* La racha ocupa las TRES columnas desde la 0.7.56, y ese es el cambio que
+       hace verdad el rótulo. Con dos se quedaba a un lado, que es exactamente
+       lo que ya hace "Panorama": los dos acomodos se veían casi iguales y solo
+       se distinguían por en qué borde caía la escena.
+
+       Se paga: catorce filas contra las once de "Columnas". Es un intercambio
+       y no un descuido — se baja un poco a cambio de ver el mes a metro y
+       medio de ancho. */
+    order: ["racha", "misiones", "expedicion", "atencion", "proyectos", "listos", "niveles", "invertido"],
+    sizes: {
+      racha: { w: 3, h: 5 }, misiones: { w: 1, h: 6 }, expedicion: { w: 1, h: 4 },
+      atencion: { w: 1, h: 3 }, proyectos: { w: 1, h: 3 }, listos: { w: 1, h: 5 },
+      niveles: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
+    }
+  }
+];
+
+/* ---- Acomodos de DOS columnas anchas ----
+   Sirven para la laptop de 1366 —504 px por columna, sitio de sobra, la racha
+   no se apila— y desde la 0.7.56 también para cualquier ventana de dos
+   columnas que antes recibía la lista de escritorio: un monitor de 1512 x 950,
+   una ventana a media pantalla en un 4K. Ahí se servía un reparto escrito para
+   TRES columnas y salía lo que tenía que salir — agujeros, dos tarjetas de
+   cifra pegadas, y un botón que prometía "tres columnas parejas" delante de
+   dos columnas sin centro. Ver `formaTablero`.
+
+   Aquí no se persigue que todo quepa de una: no puede. Las ocho tarjetas piden
+   31 filas de contenido, y en dos columnas eso son dieciséis por poco que se
+   apriete. Perseguirlo es lo que hacía `encajarEnPantalla` cuando su suelo era
+   una tabla: dejaba "Misiones de hoy" con 283 px de lista cortada para ganar
+   una pantalla que igualmente no se ganaba.
+
+   Lo que sí se decide es QUÉ CAE EN LA PRIMERA PANTALLA, y que ninguna tarjeta
+   reciba menos de lo que necesita para leerse. */
+const DASH_ACOMODOS_LAPTOP = [
+  {
+    nombre: "Columnas",
+    sub: "Las dos columnas parejas, y el día arriba",
+    order: ["misiones", "racha", "niveles", "atencion", "expedicion", "proyectos", "listos", "invertido"],
+    sizes: {
+      misiones: { w: 1, h: 8 }, racha: { w: 1, h: 4 }, niveles: { w: 1, h: 3 },
+      atencion: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, proyectos: { w: 1, h: 3 },
+      listos: { w: 1, h: 4 }, invertido: { w: 1, h: 3 }
+    }
+  },
+  {
+    nombre: "Panorama",
+    sub: "El mes a lo ancho arriba; lo demás, debajo",
+    /* La racha de dos columnas cuesta tres filas de tablero más que la de una:
+       ocupa cinco filas de las DOS columnas y deja el resto para las otras
+       siete tarjetas. Es un intercambio, no un descuido — se paga alto para
+       ver el mes grande, que es de lo que va este acomodo. */
+    order: ["racha", "misiones", "atencion", "expedicion", "listos", "niveles", "proyectos", "invertido"],
+    sizes: {
+      racha: { w: 2, h: 5 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 3 },
+      expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 4 }, niveles: { w: 1, h: 3 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
   },
   {
     nombre: "Mirador",
     sub: "Proyectos y talentos al frente; el día, después",
-    order: ["listos", "proyectos", "invertido", "expedicion", "niveles", "misiones", "racha", "atencion"],
+    /* La racha va la ÚLTIMA de la lista y por eso cae al fondo: aquí el sitio
+       de honor es de lo que construyes, y el día viene detrás. */
+    order: ["listos", "proyectos", "niveles", "misiones", "atencion", "invertido", "expedicion", "racha"],
     sizes: {
-      listos: { w: 1, h: 4 }, proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, misiones: { w: 1, h: 7 }, racha: { w: 1, h: 5 },
-      atencion: { w: 1, h: 3 }
+      listos: { w: 1, h: 4 }, proyectos: { w: 1, h: 3 }, niveles: { w: 1, h: 3 },
+      misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 3 }, invertido: { w: 1, h: 3 },
+      expedicion: { w: 1, h: 4 }, racha: { w: 1, h: 4 }
     }
   }
 ];
 
 /* ---- Acomodos de tableta (dos columnas ESTRECHAS) ----
-   Lo que separa esta forma de la laptop no es el alto: es que la columna baja
-   de 430 px —333 en un iPad apaisado, 411 en uno de 11"— y ahí la racha de
-   una columna se apila y pasa de cinco filas a siete. Ese es el número que
-   manda en toda esta lista.
-
-   De ahí las dos diferencias con la de laptop: la racha va a lo ancho en dos
-   de los tres acomodos —de dos columnas mide 688 px, vuelve a ponerse en dos
-   bloques y cuesta seis filas en vez de siete apilada—, y "Listos para
-   empezar" recibe cinco filas y no cuatro, porque a 333 px sus renglones
-   parten en dos.
+   Lo que separa esta forma de la anterior no es el alto: es que la columna baja
+   de 430 px —333 en un iPad apaisado, 411 en uno de 11 pulgadas— y ahí la racha
+   de una columna se apila y pasa de cuatro filas a siete. Ese es el número que
+   manda en toda esta lista, y por eso la racha va a lo ancho en los TRES: de
+   dos columnas mide 688 px, se pone en dos bloques y cuesta cinco filas en vez
+   de las siete que costaría apilada.
 
    Sirve igual para la tableta en vertical, que tiene las mismas columnas
    estrechas y muchísimo más alto: ahí lo que sobra es sitio, y un acomodo que
@@ -642,48 +666,34 @@ const DASH_ACOMODOS_TABLETA = [
   {
     nombre: "Columnas",
     sub: "El día arriba, y el mes a lo ancho debajo",
-    /* Queda una fila muerta a la derecha de "Misiones": la racha es de dos
-       columnas y espera a que las dos estén libres, y "Atención" y "Niveles"
-       suman seis filas contra las siete de "Misiones". Se probó estirar
-       "Niveles" a cuatro para cuadrarlo y no sirve —`encajarEnPantalla` le
-       quita el aire que no necesita, que es su trabajo—. Una fila de 56 px
-       en un tablero de diecinueve es un precio honesto por tener el mes
-       entero a lo ancho. */
-    order: ["misiones", "atencion", "expedicion", "niveles", "racha", "listos", "proyectos", "invertido"],
+    order: ["misiones", "racha", "expedicion", "listos", "atencion", "niveles", "invertido", "proyectos"],
     sizes: {
-      misiones: { w: 1, h: 7 }, atencion: { w: 1, h: 3 }, niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 },
-      racha: { w: 2, h: 6 }, listos: { w: 1, h: 5 },
-      proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
+      misiones: { w: 1, h: 8 }, racha: { w: 2, h: 5 }, expedicion: { w: 1, h: 4 },
+      listos: { w: 1, h: 4 }, atencion: { w: 1, h: 3 }, niveles: { w: 1, h: 3 },
+      invertido: { w: 1, h: 3 }, proyectos: { w: 1, h: 3 }
     }
   },
   {
     nombre: "Panorama",
     sub: "El mes preside, y debajo lo que lo llena",
-    order: ["racha", "misiones", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
+    order: ["racha", "misiones", "atencion", "expedicion", "listos", "niveles", "proyectos", "invertido"],
     sizes: {
-      racha: { w: 2, h: 6 }, misiones: { w: 1, h: 7 }, atencion: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 5 },
+      racha: { w: 2, h: 5 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 3 },
+      expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 4 }, niveles: { w: 1, h: 3 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
   },
   {
     nombre: "Mirador",
     sub: "Proyectos y talentos al frente; el día, después",
-    /* El único de los tres con la racha en una columna, y por eso lleva siete
-       filas: apilada es como se ve en el teléfono, y en la mitad de abajo del
-       tablero —que es donde la manda este acomodo— ese formato no estorba a
-       nadie.
-
-       Va ANTES que "Misiones" en la lista aunque quede debajo en pantalla. El
-       orden no es lo que se ve: es en qué turno busca hueco cada tarjeta. Con
-       la racha al final se sentaba en la columna izquierda y dejaba cinco
-       filas vacías en la derecha; poniéndola aquí cae en la derecha y
-       "Misiones" ocupa las que quedaban. Dos filas menos de tablero. */
-    order: ["listos", "proyectos", "invertido", "expedicion", "niveles", "racha", "misiones", "atencion"],
+    /* "Niveles" va segunda y no por gusto: es la única tarjeta corta que cabe
+       al lado de "Listos" sin dejar hueco, y con cualquier otra ahí el tablero
+       se descuadra dos filas más abajo. */
+    order: ["listos", "niveles", "misiones", "racha", "proyectos", "expedicion", "atencion", "invertido"],
     sizes: {
-      listos: { w: 1, h: 5 }, proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 },
-      niveles: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, racha: { w: 1, h: 7 }, misiones: { w: 1, h: 7 },
-      atencion: { w: 1, h: 3 }
+      listos: { w: 1, h: 4 }, niveles: { w: 1, h: 3 }, misiones: { w: 1, h: 8 },
+      racha: { w: 2, h: 5 }, proyectos: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 },
+      atencion: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
   }
 ];
@@ -694,6 +704,10 @@ const DASH_ACOMODOS_TABLETA = [
    tres, y no los de la computadora traducidos —allí un acomodo reparte tres
    columnas; aquí decide con qué te encuentras al abrir la app—.
 
+   La regla de las gemelas vale aquí igual, y aquí es más fácil de ver: en una
+   columna "pegadas" quiere decir simplemente "seguidas en la lista". Entre
+   Expedición, Niveles e Invertido va siempre otra cosa.
+
    El arrastre y el resto del Modo Editor están apagados en el teléfono a
    propósito: la personalización de móvil se va a rehacer con otro gesto, y
    mientras tanto es mejor no tener a medias algo que se siente mal. */
@@ -701,40 +715,42 @@ const DASH_ACOMODOS_MOVIL = [
   {
     nombre: "El día",
     sub: "Lo de hoy primero: misiones, racha y lo que urge",
-    order: ["misiones", "racha", "atencion", "proyectos", "expedicion", "niveles", "invertido", "listos"]
+    order: ["misiones", "racha", "atencion", "expedicion", "proyectos", "niveles", "listos", "invertido"]
   },
   {
     nombre: "Constancia",
     sub: "La racha arriba, y debajo lo que la alimenta",
-    order: ["racha", "misiones", "expedicion", "niveles", "atencion", "listos", "invertido", "proyectos"]
+    order: ["racha", "misiones", "expedicion", "atencion", "niveles", "listos", "invertido", "proyectos"]
   },
   {
     nombre: "Lo que construyo",
     sub: "Proyectos y talentos al frente; el día, después",
-    order: ["proyectos", "listos", "invertido", "misiones", "atencion", "racha", "expedicion", "niveles"]
+    order: ["proyectos", "listos", "invertido", "misiones", "atencion", "expedicion", "racha", "niveles"]
   }
 ];
 
 /* ---- Qué forma tiene la ventana ----
-   No basta el ancho y no basta el alto: hacen falta los dos, y además el
-   ancho que cuenta es el de una COLUMNA del tablero, no el de la ventana.
-   Una laptop de 1366 y una tableta apaisada de 1024 tienen las mismas dos
-   columnas y casi el mismo alto, y aun así piden repartos distintos, porque
-   una columna mide 504 px en la primera y 333 en la segunda.
+   No basta el ancho de la ventana: lo que decide el reparto son las COLUMNAS,
+   cuántas hay y cómo de anchas, y eso hay que medirlo.
 
-   Los dos números no son inventados: 430 es el umbral del `@container` de la
-   tarjeta de la racha —por debajo se apila y pide dos filas más—, y 860 de
-   alto es donde se queda una laptop de 768 con su navegador puesto, mientras
-   que un monitor de 1080 pasa de 900. */
-const VENTANA_BAJA = 860;
+   Hasta la 0.7.47 el segundo salto lo daba el ALTO de la ventana —una constante
+   `VENTANA_BAJA` de 860— y esa cuenta dejaba fuera una forma entera: una
+   ventana alta de menos de 1700 px de ancho tiene DOS columnas y recibía la
+   lista de tres. Un monitor de 1512 x 950, que es una MacBook Pro de 14
+   pulgadas cualquiera, veía un primer botón que prometía "tres columnas
+   parejas, las misiones al centro" delante de dos columnas y sin centro; y
+   medido de verdad, "Panorama" y "Mirador" ocupaban 1.72 pantallas.
 
+   Ahora el salto es el número de columnas, que es lo que de verdad cambia el
+   reparto. El alto no elige lista y no hace falta que lo haga: de que quepa ya
+   se encarga `encajarEnPantalla`, que mide en vez de suponer. */
 function formaTablero() {
   if (!isDesktop()) return "telefono";
   const col = anchoDeColumna();
   /* Sin medida se responde lo de siempre. Es lo que había antes de que
      existieran las formas, así que en el peor caso no se empeora nada. */
   if (col && col < RACHA_LADO_A_LADO) return "tableta";
-  return window.innerHeight <= VENTANA_BAJA ? "laptop" : "escritorio";
+  return dashCols() < 3 ? "laptop" : "escritorio";
 }
 
 const ACOMODOS_POR_FORMA = {
@@ -828,7 +844,14 @@ function aplicarAcomodo(i) {
 
      Se hace solo al elegir un acomodo. Si alguien estira una tarjeta a mano
      hasta pasarse de pantalla, eso es su decisión y no hay que corregirla. */
-  requestAnimationFrame(() => encajarEnPantalla());
+  requestAnimationFrame(() => {
+    encajarEnPantalla();
+    /* Y después de encoger, se tapan los huecos. Este orden importa y no es
+       intercambiable: `encajarEnPantalla` cambia alturas y vuelve a
+       empaquetar, así que rellenar antes de que termine deja el tablero con
+       los agujeros de la vuelta anterior. */
+    if (emparejarColumnas()) { save(); renderSummary(); }
+  });
   toast("Acomodo " + a.nombre, "hecho", { label: "Deshacer", onclick: "deshacerTablero()" });
 }
 
@@ -908,10 +931,16 @@ function encajarEnPantalla() {
     if (!cambio) break;                 // todas están ya en lo que piden
     state.ui[ranuraTablero()].sizes = sizes;
     /* Al cambiar los altos, lo que había debajo puede subir: se vuelve a
-       empaquetar para que el acomodo siga siendo el que se eligió y no quede
-       un tablero con agujeros. */
+       colocar para que no queden agujeros. Pero SIN cambiar de columna, y eso
+       es el arreglo de la 0.7.56: aquí se llamaba a `empaquetar`, que coloca
+       desde cero, y eso deshacía el acomodo que se acababa de elegir. Al
+       encoger "Misiones de hoy", "Invertido" se colaba en su columna y el
+       tablero dejaba de tener las misiones al centro, que es exactamente lo
+       que promete el rótulo del botón que se acaba de pulsar. Y de paso dos
+       tarjetas de cifra que el acomodo había separado a propósito acababan
+       una encima de otra. */
     const vis = dashLayout().order.filter(id => !dashLayout().hidden.includes(id) && DASH_META[id]);
-    state.ui[ranuraTablero()].pos = empaquetar(vis, sizes, dashCols());
+    state.ui[ranuraTablero()].pos = compactarEnSuColumna(dashLayout().pos || empaquetar(vis, sizes, dashCols()), vis, dashCols());
     tocado = true;
     renderSummary();
     /* Al encoger una tarjeta cambia su ancho solo si cambió de columna, pero
@@ -920,6 +949,91 @@ function encajarEnPantalla() {
     pide = filasQuePide();
   }
   if (tocado) save();
+  return tocado;
+}
+
+/* ---- Igualar las columnas: un tablero sin agujeros (0.7.56) ----
+   Un acomodo se escribe con alturas a mano y se coloca con `empaquetar`, que
+   busca el primer hueco libre. Casi siempre sobra algo: una columna acaba dos
+   filas más corta que las otras y queda un rectángulo vacío al pie, o en
+   medio si lo que venía detrás era una tarjeta de dos columnas y tuvo que
+   esperar a que las dos estuvieran libres. Con siete tarjetas se notaba poco;
+   con ocho, once de los doce acomodos tenían al menos un agujero.
+
+   **No se arregla escribiendo mejores alturas, y esa es la razón de que esto
+   exista.** Las alturas cambian después de escribirlas: `encajarEnPantalla`
+   las encoge para que quepan, quien haya quitado una tarjeta reparte lo que
+   sobra de otra manera, y "Misiones de hoy" mide lo que midan las misiones de
+   esa persona. Cualquier tabla afinada a mano deja de cuadrar al primer
+   cambio, y el agujero vuelve.
+
+   Así que el hueco se rellena DESPUÉS de colocar: se busca cada celda vacía y
+   se estira hacia abajo la tarjeta que tiene justo encima. Como solo se ocupan
+   celdas que ya estaban vacías, nadie se mueve de sitio y el tablero no crece
+   ni una fila — lo único que cambia es que la tarjeta de abajo de la columna
+   corta llega hasta el fondo.
+
+   Dos tarjetas se quedan fuera y por motivos distintos: la racha, porque su
+   alto sale de su ancho y escribirle uno aquí no haría nada (ver
+   `altoDeRacha`); y cualquiera que ya esté en `DASH_MAX_H`, que es el tope de
+   siempre. Si un hueco no se puede tapar se deja y se sigue con el siguiente:
+   más vale un agujero que un bucle. */
+function emparejarColumnas() {
+  const cols = dashCols();
+  if (cols < 2) return false;              // en una columna no hay nada que igualar
+  const d = dashLayout();
+  const vis = d.order.filter(id => !d.hidden.includes(id) && DASH_META[id]);
+  if (!vis.length) return false;
+
+  /* Las alturas se escriben en el sitio de verdad ANTES de empezar: `dashSize`
+     lee de ahí, y con una copia suelta las vueltas siguientes seguirían viendo
+     los altos viejos. */
+  state.ui = state.ui || {};
+  const ranura = ranuraTablero();
+  state.ui[ranura] = state.ui[ranura] || {};
+  const sizes = state.ui[ranura].sizes = d.sizes || {};
+  const pos = state.ui[ranura].pos = d.pos || empaquetar(vis, sizes, cols);
+
+  const imposibles = new Set();
+  let tocado = false;
+
+  for (let vuelta = 0; vuelta < 60; vuelta++) {
+    const rejilla = [];
+    let fondo = 0;
+    vis.forEach(id => {
+      const p = pos[id];
+      if (!p) return;
+      const { w, h } = dashSize(id);
+      for (let f = p.f; f < p.f + h; f++) {
+        rejilla[f] = rejilla[f] || [];
+        for (let c = p.c; c < p.c + w; c++) rejilla[f][c] = id;
+      }
+      fondo = Math.max(fondo, p.f + h);
+    });
+
+    let hueco = null;
+    for (let f = 0; f < fondo && !hueco; f++)
+      for (let c = 0; c < cols; c++)
+        if (!(rejilla[f] || [])[c] && !imposibles.has(f + ":" + c)) { hueco = { f, c }; break; }
+    if (!hueco) break;
+
+    const marcarImposible = () => imposibles.add(hueco.f + ":" + hueco.c);
+    const arriba = hueco.f > 0 ? (rejilla[hueco.f - 1] || [])[hueco.c] : null;
+    if (!arriba || arriba === "racha") { marcarImposible(); continue; }
+
+    const p = pos[arriba];
+    const { w, h } = dashSize(arriba);
+    /* Tiene que terminar justo donde empieza el hueco —si no, no es la de
+       encima— y todo su ancho tiene que estar libre en esa fila: una tarjeta
+       de dos columnas no puede crecer si solo una de las dos está vacía. */
+    let puede = p.f + h === hueco.f && h < DASH_MAX_H;
+    for (let c = p.c; puede && c < p.c + w; c++) if ((rejilla[hueco.f] || [])[c]) puede = false;
+    if (!puede) { marcarImposible(); continue; }
+
+    sizes[arriba] = { w, h: h + 1 };
+    tocado = true;
+  }
+
   return tocado;
 }
 
@@ -1006,6 +1120,42 @@ function empaquetar(order, sizes, cols) {
 
    Se ordena por fila y luego por columna —el orden en que se lee— para que el
    resultado no dependa de en qué orden estén guardadas las tarjetas. */
+/* ---- Subir lo que quepa, cada una por su columna ----
+   La hermana de `empaquetar` para cuando ya hay un reparto que respetar. Sube
+   cada tarjeta hasta donde llegue sin salirse de la columna en la que estaba,
+   y en el orden en que estaban de arriba abajo, así que dos tarjetas nunca se
+   cruzan ni cambian de vecina. Lo que se conserva es la FORMA del acomodo; lo
+   que se recupera es el hueco que dejó una tarjeta al encogerse. */
+function compactarEnSuColumna(pos, vis, cols) {
+  const usado = [], nueva = {};
+  const libre = (c, f, w, h) => {
+    for (let i = f; i < f + h; i++) {
+      if (!usado[i]) continue;
+      for (let j = c; j < c + w; j++) if (usado[i][j]) return false;
+    }
+    return true;
+  };
+  const marcar = (c, f, w, h) => {
+    for (let i = f; i < f + h; i++) {
+      usado[i] = usado[i] || [];
+      for (let j = c; j < c + w; j++) usado[i][j] = true;
+    }
+  };
+  vis.filter(id => pos[id] && DASH_META[id])
+     .sort((a, b) => pos[a].f - pos[b].f || pos[a].c - pos[b].c)
+     .forEach(id => {
+       const s = dashSize(id);
+       /* El tope por si el tablero perdió una columna desde que se guardó:
+          una tarjeta de la tercera no puede quedarse apuntando a una que ya
+          no existe. */
+       const c = Math.min(pos[id].c, Math.max(0, cols - s.w));
+       for (let f = 0; f < 500; f++) {
+         if (libre(c, f, s.w, s.h)) { nueva[id] = { c, f }; marcar(c, f, s.w, s.h); break; }
+       }
+     });
+  return nueva;
+}
+
 function disposicionTablero(ids, cols, extra) {
   const { pos, sizes, order, hidden } = dashLayout();
   // Las escondidas no ocupan sitio en el reparto de estreno
@@ -1096,7 +1246,30 @@ function altoMinimo(id) { return DASH_MIN_H[id] || 2; }
    tienen que decidir lo mismo o la tarjeta sale cortada; si algún día se
    mueve el `@container` de `.streak-card`, se mueve esta constante con él. */
 const RACHA_LADO_A_LADO = 430;
-const ALTO_RACHA = { apilada: 7, lado: 5, ancha: 6 };
+/* Y el segundo umbral, el que decide si el mes va grande y si entra «qué la
+   sostiene». Vive aquí y en el `@container` de `.streak-card`, y los dos
+   tienen que decir lo mismo: si se mueve uno, se mueve el otro.
+
+   Son 900 y no 680, y el número lo puso una medida: a 688 px —que es lo que
+   mide la racha de dos columnas en una tableta— el carril de la derecha se
+   queda en 294 px, la frase de hoy y las dos cifras parten en varias líneas, y
+   la tarjeta pedía 459 px cuando recibía 376. Se salía por abajo sin que nada
+   lo dijera, que es el mismo fallo que ya tuvo esta tarjeta en la 0.7.35. */
+const RACHA_MES_GRANDE = 900;
+/* ---- Los tres altos, MEDIDOS y no supuestos (0.7.56) ----
+   Eran 7 / 5 / 6 y sobraban 110 y 130 px en escritorio: el contenido mide
+   266 px de lado y 326 ancha, y recibía 376 y 456. Como `.scene-body` centra
+   en vertical, ese sobrante salía como cielo vacío repartido arriba y abajo
+   —83 px de cada lado en una tarjeta de 1176 x 456, el 36 % de la tarjeta—,
+   que es justo el problema del que venía la 0.7.33.
+
+   Y no lo recuperaba nadie: `encajarEnPantalla` se salta la racha a
+   propósito, porque su alto no se elige. Así que la cuenta se arregla aquí o
+   no se arregla.
+
+   Las cifras: apilada el contenido pide 486 px y siete filas son 536; de
+   lado pide 266 y cuatro filas son 296; ancha pide 326 y cinco son 376. */
+const ALTO_RACHA = { apilada: 7, lado: 4, ancha: 5 };
 
 /* Cuánto mide de ancho una columna del tablero AHORA MISMO, en píxeles. Se
    mide y no se calcula: el ancho disponible depende de la barra lateral, de
@@ -1127,6 +1300,12 @@ function anchoDeTarjeta(w) {
   return col ? col * w + ROW_GAP * (w - 1) : 0;
 }
 
+/* Los DOS saltos se deciden en píxeles, y este es el arreglo de la 0.7.56.
+   Antes el segundo preguntaba por el número de columnas —`w >= 2`— mientras
+   el CSS lo decidía midiendo, y las dos cuentas no coinciden: una tarjeta de
+   UNA columna en un tablero ancho puede medir 739 px, más que una de DOS en
+   una tableta, que mide 688. La de 739 recibía el alto de la estrecha y salía
+   cortada. Ahora las dos preguntas son la misma pregunta. */
 function altoDeRacha(w) {
   const px = anchoDeTarjeta(w);
   /* Sin medida —el tablero todavía no se ha pintado— se responde lo de antes.
@@ -1135,7 +1314,7 @@ function altoDeRacha(w) {
      calcula al LEER y no solo al escribir. */
   if (!px) return w >= 2 ? ALTO_RACHA.ancha : ALTO_RACHA.lado;
   if (px < RACHA_LADO_A_LADO) return ALTO_RACHA.apilada;
-  return w >= 2 ? ALTO_RACHA.ancha : ALTO_RACHA.lado;
+  return px < RACHA_MES_GRANDE ? ALTO_RACHA.lado : ALTO_RACHA.ancha;
 }
 
 /* El suelo se aplica al LEER, no solo al arrastrar. Si no, un tablero
@@ -1831,9 +2010,13 @@ function loQueSostiene(cur) {
 
   return `
     ${hito ? `
+      ${/* El hito, en UNA línea desde la 0.7.56. Tenía la cifra en grande
+            —26 px— y eso hacía dos cosas mal: competía con el número de la
+            racha, que es el número de esta tarjeta, y costaba 33 px de alto
+            en una tarjeta cuyo alto se mide en filas de la cuadrícula. Esos
+            33 px son exactamente los que separan cinco filas de seis. */""}
       <div class="sg-hito">
-        <div class="rc-rot">Próximo hito</div>
-        <div class="sgh-n"><b>${hito.sig}</b><span>días</span></div>
+        <div class="rc-rot">Próximo hito · ${hito.sig} días</div>
         <div class="sgh-b"><i style="width:${Math.max(3, hito.pct)}%"></i></div>
         <div class="sgh-p">Te ${hito.faltan === 1 ? "falta 1 día" : "faltan " + hito.faltan + " días"}</div>
       </div>` : `

@@ -52,6 +52,211 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.56 · 1 sep 2026
+**El mes manda en la racha, y el tablero deja de tener agujeros.**
+
+Expedición entró al tablero en la 0.7.44 y se dio de alta en los doce acomodos
+con un guion. Eso evitó el olvido, pero ninguna de las doce decisiones se volvió
+a tomar: **once de los doce quedaron con al menos una celda vacía**, y en siete
+de ellos dos de las tres tarjetas de cifra acabaron pegadas.
+
+**Cuatro cosas, y las cuatro salieron de medir.**
+
+#### 1. La racha recibía una fila de más en todos los anchos
+
+`ALTO_RACHA` era `7 / 5 / 6` y el contenido medía 486, 266 y 326 px, o sea que
+recibía 536, 376 y 456. Como `.scene-body` centra en vertical, eso salía como
+cielo vacío repartido arriba y abajo: **166 px de los 456 de una tarjeta de
+1176 de ancho, el 36 %** — justo el problema del que venía la 0.7.33. Y no lo
+recuperaba nadie, porque `encajarEnPantalla` se salta la racha a propósito.
+
+Ahora es `7 / 4 / 5`, y lo que sobra pasó de 110-130 px a 7-30.
+
+#### 2. La tarjeta de la racha: dos bloques en vez de tres
+
+Eran tres en fila —la marca, el hito, el mes— y ese reparto tenía tres
+problemas que se veían y ninguno era de color:
+
+- **217 px de sangría a la izquierda contra 18 a la derecha.** Doce veces más
+  aire de un lado que del otro; se lee como un agujero, no como margen.
+- **Cada bloque empezaba a una altura distinta**: 166, 125 y 109.
+- **El saludo arrancaba en el borde** y el contenido 217 px más adentro.
+
+Ahora el mes va a la izquierda y todo lo demás baja a un solo carril a su
+derecha. Medido después: márgenes de 18 y 18, saludo y mes empezando en la
+misma vertical, y 25 px arriba y 25 abajo, que es el relleno de la tarjeta y no
+un hueco. El carril tiene tope de 820 px y lo que sobra cae a la derecha, donde
+está la luna del dibujo.
+
+**Y el hito se ve siempre.** «Próximo hito · 7 días» vivía detrás de un
+`@container` de 1150 px, o sea que la pieza que más mueve a volver no aparecía
+en teléfono, ni en tableta, ni en laptop — exactamente los aparatos donde se
+mira una racha. Se escribía en el HTML y se tiraba con `display: none`. Ahora lo
+único que espera a que haya sitio es «qué la sostiene», que son tres filas más.
+
+Dos números que costaron una vuelta cada uno:
+
+- **El hito pasó a una línea.** Con la cifra en 26 px competía con el número de
+  la racha —que es el número de esta tarjeta— y costaba 33 px de alto. Esos
+  33 px son exactamente los que separan cinco filas de seis.
+- **El segundo umbral es 900 y no 680.** A 688 px —la racha de dos columnas en
+  una tableta— el carril se queda en 294, la frase y las cifras parten en varias
+  líneas, y la tarjeta pedía 459 px cuando recibía 376. Se salía por abajo sin
+  que nada lo dijera.
+
+#### 3. Una forma de ventana que no tenía lista
+
+`formaTablero` daba el segundo salto por el ALTO de la ventana (`VENTANA_BAJA`,
+860), y esa cuenta dejaba fuera una forma entera: **una ventana alta de menos de
+1700 px de ancho tiene DOS columnas y recibía la lista de tres.** Una MacBook
+Pro de 14 pulgadas abre la app a 1512 x 950 y veía un primer botón que prometía
+«tres columnas parejas, las misiones al centro» delante de dos columnas sin
+centro. Medido y ya encogido: 1096 px «Columnas», y 1416 —1.72 pantallas— los
+otros dos.
+
+Ahora el salto es el número de columnas, que es lo que de verdad cambia el
+reparto. `VENTANA_BAJA` desaparece; el alto lo sigue resolviendo
+`encajarEnPantalla`, que mide en vez de suponer.
+
+#### 4. Los doce acomodos, rehechos con dos reglas
+
+1. **Ninguna columna termina antes que las otras.**
+2. **Dos tarjetas de cifra no se tocan.** Expedición, Niveles e Invertido son
+   la misma pieza; dos iguales apiladas no se leen como dos datos, se leen como
+   una repetición. Entre dos va siempre una lista.
+
+Se buscó el reparto por fuerza bruta sobre las 40.320 ordenaciones posibles de
+cada acomodo, con el empaquetador de verdad. Once de los doce salen ya sin un
+solo hueco.
+
+**Pero las alturas escritas a mano no son la garantía, y esto es lo importante:**
+cambian después de escribirlas. `encajarEnPantalla` las encoge, quien quitó una
+tarjeta reparte de otra manera, y «Misiones de hoy» mide lo que midan las
+misiones de esa persona. Así que hay dos piezas nuevas que lo sostienen pase lo
+que pase:
+
+- **`emparejarColumnas`** rellena los huecos DESPUÉS de colocar: busca cada
+  celda vacía y estira hacia abajo la tarjeta que tiene justo encima. Como solo
+  ocupa celdas que ya estaban vacías, nadie se mueve y el tablero no crece ni
+  una fila.
+- **`compactarEnSuColumna`** sustituye a `empaquetar` dentro de
+  `encajarEnPantalla`. Antes se recolocaba todo desde cero, y eso deshacía el
+  acomodo recién elegido: al encoger «Misiones de hoy», «Invertido» se colaba en
+  su columna y el tablero dejaba de tener las misiones al centro, que es lo que
+  promete el botón que se acaba de pulsar.
+
+**Comprobado:** los tres acomodos en seis ventanas —2560x1400, 1920x1000,
+1512x950, 1366x657, 1024x700 y 768x1024— más el teléfono a 375, más el modo
+claro, más el caso vacío, más quitando una tarjeta cualquiera del tablero. En
+las dieciocho combinaciones: **cero huecos, cero cifras apiladas, ninguna
+tarjeta desbordada y ningún desplazamiento lateral.** «Columnas» en tres
+columnas mide 856 px y cabe entero en una pantalla de 1000.
+
+**Y con las apariencias puestas**, que es lo que obligaba a medirlo otra vez:
+esta tanda se escribió sobre la 0.7.47 y se reaplicó encima de la 0.7.55.3, con
+Reliquia y los siete ambientes ya dentro. Un mundo cambia la tipografía de las
+cifras —Reliquia pone Syne— y el alto de esta tarjeta está medido al píxel, así
+que un tipo más ancho podía sacarla de su hueco. Comprobado: **22 anchos entre
+340 y 2200 px, por los ocho ambientes y mundos, en los dos modos.** Ninguno se
+sale, y el margen más apretado es de 6 px. Los ambientes solo declaran color
+dentro de `.scene-card`, y la tipografía del mundo sí llega pero no mueve nada
+porque las casillas del mes son cuadradas por `aspect-ratio` y las cifras
+llevan `line-height` escrito.
+
+**Lo que NO se hizo, y sigue abierto:** sacar el saludo y la fecha de la tarjeta
+de la racha. Hoy `greeting()` se escribe en un solo sitio de todo el código y es
+ahí dentro, así que quien quite la racha del tablero se queda sin fecha en el
+Resumen. Se arregla llevándolo a la cabecera del Resumen, pero es un cambio que
+se ve en la primera pantalla de todo el mundo y esa decisión es de Eduardo.
+
+### 0.7.55.5 · 1 sep 2026
+El modo claro de Reliquia, que era donde se veía todo lo que faltaba. **En modo
+oscuro no se movió ni un píxel** — medido: de las 107 diferencias de la foto de
+estilos, las 107 son de la cara de día.
+
+**Las ramas ya no salen casi grises.** El suelo hondo se hunde 0,026 respecto de
+la página, y eso está bien mientras la página sea papel; Reliquia es una vitrina
+y su página ya es oscura para ser un modo claro, así que las ramas acababan en
+0,81 de luz. Ahora ese hundimiento tiene un tope —nunca por debajo de 0,845— y,
+si el tope dejara el suelo más claro que la propia página, se usa la página: el
+encuadre lo hace el marco, que en un mundo con latón se ve solo.
+
+**El amarillo de la caja de un grupo era el de la CASA.** Estaba escrito dentro
+de `js/07-lienzo.js` (`"#f5d76e"`, y `"#5fe0b0"` para una caja terminada), así
+que sobrevivía a cualquier apariencia. Sobre el lienzo claro de Reliquia daba
+**1,28** de contraste: el rótulo y el contorno no se veían. Ahora sale del
+acento de la apariencia, que ahí da **3,84**. De noche los dos valen lo mismo
+que valían, así que no cambia nada.
+
+**Los hilos apagados y los candados, un escalón más abajo.** Medidos sobre el
+lienzo de día daban **1,39** y **1,23**: sobre papel eso no es «apagado», es que
+no está. Ahora 2,2 y 2,4. Los recolores y los mundos ya salían de esta relación
+calculada; la casa era la que se había quedado con los tonos viejos.
+
+**Y las figuras del mapa son SÓLIDAS de día.** De noche un velo del color a un
+20% sobre el carbón ya se lee como una pieza encendida; de día el mismo velo
+deja la figura casi del color del suelo, y con ocho colores en el mismo mapa no
+se distingue cuál es cuál. Lo pidió Eduardo señalando un nodo con candado, que
+ese sí se ve. Ahora el velo se apoya en una base opaca —la superficie levantada,
+casi papel— y con más fuerza: la figura pasa de ser un tinte del suelo a ser una
+pastilla de su color puesta encima.
+
+Va en dos variables (`--relleno-base` y `--relleno-fuerza`) y no en un `if` de
+JavaScript, y el motivo no es elegancia: el mapa se dibuja una vez y **no se
+vuelve a dibujar al cambiar de modo** —`ponerTema` solo cambia variables—, así
+que un color decidido en JavaScript se quedaría con la cara del modo en que se
+dibujó.
+
+### 0.7.55.4 · 1 sep 2026
+**El mundo se quedaba congelado, y el número de versión decía que no.** Eduardo
+lo vio tal cual: «no veo ningún cambio y la versión sí está subida». Tenía toda
+la razón, y no era el CSS: era la caché.
+
+`css/mundos.css` no va en `ASSETS` a propósito —pesa lo que pesa un mundo y
+bajárselo a quien nunca va a encender uno es justo lo que la caché vino a
+evitar—, pero eso le quita la única red que tiene todo lo demás: la instalación
+pide cada archivo de `ASSETS` con `cache: "reload"` y falla entera si alguno
+viene mal. Este se pide suelto cuando hace falta, y **lo que llegue se guarda en
+la caché de esa versión y a partir de ahí ya es un acierto: no se vuelve a pedir
+nunca**. Como GitHub Pages tarda un minuto largo en publicar y su CDN no cambia
+todos los archivos a la vez, hay una ventana en la que `sw.js` ya es el nuevo y
+el mundo todavía es el viejo. Quien abra ahí se lo queda congelado — con el
+número de versión nuevo puesto, porque `js/01-base.js` sí está en `ASSETS`.
+
+Reproducido de punta a punta con un navegador de verdad, un servidor que manda
+`max-age=600` como Pages y un perfil que sobrevive a las recargas: se instala la
+.2, se sirve la .3 con el mundo de la .2, y el aparato se queda en «versión .3,
+mundo .2» para siempre. Exactamente lo que él veía.
+
+**Tres piezas lo cierran, y hacen falta las tres:**
+
+1. **Una huella en la dirección.** `css/mundos.css?h=<sha-256 del contenido>`,
+   estampada por `mundos/app.py` al generar el archivo — así se actualiza sola
+   y no hay un quinto sitio que acordarse de tocar al subir la versión.
+2. **El worker comprueba esa huella antes de guardar.** Cambiar la dirección no
+   basta: Pages sirve el archivo sin mirar lo que va tras la interrogación, así
+   que durante la ventana contesta al `?h=nuevo` con el archivo viejo y con un
+   200. Si no cuadra la huella, se sirve —es lo único que hay— pero no se
+   guarda, y la siguiente apertura vuelve a pedirlo.
+3. **`cache: "no-store"` en lo que se pide bajo demanda**, para que el navegador
+   no se quede una copia propia que mande por encima de la del worker.
+
+Y de paso, lo que no estaba: **lo que no está en `ASSETS` ahora se renueva por
+detrás**. Se sigue sirviendo la copia al instante, y si lo que llega es distinto
+queda guardado para la siguiente apertura. El trato pasa de «nunca» a «la
+próxima vez», que es el mismo que ya tenía la app entera.
+
+**Dos cosas que aprendí midiendo, y que están apuntadas en `CLAUDE.md`:**
+
+- **Recargar la misma pestaña no es abrir la app.** En una recarga las hojas de
+  estilo salen de la caché del navegador **sin pasar por el service worker**
+  (`workerStart` en cero); en una pestaña nueva sí pasan por él
+  (`deliveryType: "cache-storage"`). Media tarde midiendo con recargas decía
+  que el arreglo no funcionaba, y lo que no funcionaba era la prueba.
+- **Una sonda con un contador dentro del worker no cuenta nada**: el worker se
+  apaga entre carga y carga y el contador vuelve a cero, así que todas las
+  peticiones se escribían encima de la primera. Parecía «solo vio una».
+
 ### 0.7.55.3 · 1 sep 2026
 **La sarga del terciopelo de Reliquia baja a un tercio.** Es la misma historia
 que los puntitos del lienzo, en la otra textura: el tejido se dibujó cuando la
