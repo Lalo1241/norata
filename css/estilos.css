@@ -704,6 +704,23 @@
     --lienzo-flujo: #c08c00;
     --lienzo-punto: rgba(110, 120, 140, 0.075);
     --sup-hondo: #d3d5e8;
+    /* ---------- El suelo de donde salen NODOS, de día ----------
+       Un pelo más claro que `--sup-hondo`, y solo para las secciones que
+       dibujan nodos: las ramas de talentos y las de proyectos cuando se ponen
+       en «Verlo como mapa». Lo pidió Eduardo para que las dos se vean iguales,
+       porque son la misma clase de pantalla — un lienzo con cosas encima— y
+       estaban con dos grises distintos según por dónde entrabas.
+
+       Se queda en una variable propia y no se mete en `--sup-hondo` a secas
+       porque ese suelo lo comparten dos cosas más que NO son mapas: las
+       columnas del tablero de Misiones y el marco del previsualizador de
+       mundos. Tocarlo ahí cambiaría tres pantallas para arreglar dos.
+
+       Es el mismo tono que `--lienzo-bloqueado`, y no es casualidad ni copia:
+       en un mapa claro el suelo y el relleno de un talento con candado son la
+       misma idea —lo que todavía no es tuyo—. Se declara aparte porque si
+       algún día uno de los dos se mueve, el otro no tiene por qué. */
+    --lienzo-suelo: #e7e9f4;
     --lienzo-candado: #84889c;
     --nodo-engaste: none;
     --nodo-engaste-sep: 4.5;
@@ -4013,6 +4030,32 @@
        Eduardo mirando el borrador: «la fuente se queda en Outfit». */
     font-family: var(--sans);
   }
+
+  /* ---- El suelo de los nodos, en el modo claro de la casa ----
+     Las ramas de talentos y las de proyectos puestas en «Verlo como mapa» son
+     la misma clase de pantalla —un lienzo con nodos encima— y salían con dos
+     grises distintos según por dónde entrabas. Aquí se igualan.
+
+     Se apunta a «la tarjeta que TIENE un lienzo dentro» y no a `.branch-card` a
+     secas, y esa es toda la precisión que hacía falta: en Proyectos el lienzo
+     solo se dibuja en modo mapa, así que la misma regla deja la vista de lista
+     como estaba sin necesidad de una clase nueva ni de tocar el JavaScript. Una
+     rama de talentos plegada tampoco lo pinta —dibuja `.branch-collapsed`—, y
+     eso también es correcto: ahí no hay ningún nodo que apoyar.
+
+     `.const-wrap` va además por su cuenta para el lienzo a pantalla completa,
+     que no vive dentro de ninguna tarjeta.
+
+     Y el alcance, que es lo que Eduardo pidió expresamente: SOLO el modo claro
+     y SOLO la casa —el mundo que se llama «Noche de expedición»—. Un mundo o un
+     ambiente ponen `data-apariencia` en `<html>` y con eso quedan fuera por
+     construcción, cada uno con el suelo que declaró. De noche esta regla no
+     existe. */
+  html.claro:not([data-apariencia]) .branch-card:has(.const-wrap),
+  html.claro:not([data-apariencia]) .const-wrap {
+    --sup-hondo: var(--lienzo-suelo);
+  }
+
   /* Aviso de que la vista previa está recortada, y atajo para abrirla */
   .fs-open {
     display: none;
@@ -5703,6 +5746,13 @@
   .mt-tx b { display: block; font-size: 14.5px; font-weight: 700; }
   .mt-tx span { font-size: 12.5px; color: var(--muted); }
   .mt-head .btn { flex-shrink: 0; }
+  /* El día sin misiones. El alto de la tarjeta lo eligió el acomodo pensando
+     en una lista, así que la nota se estira por lo que sobre y se queda en
+     medio: pegada arriba, el resto de la tarjeta se lee como un panel a
+     medio pintar. En el teléfono el alto es el del contenido y esto no hace
+     nada, que es lo correcto. */
+  .ms-hueca { display: flex; flex-direction: column; }
+  .mt-hueco { flex: 1; display: flex; align-items: center; margin: 14px 0 0; }
 
   .ms-hero {
     display: flex;
