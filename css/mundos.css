@@ -458,7 +458,7 @@ html[data-apariencia="reliquia"] .scel {
 }
 
 /* ---------- Averno · El oscuro de verdad ---------- */
-/* Piedra quemada con la brasa debajo. Del poema se cita lo único que hay que citar —los círculos—: arcos concéntricos que se estrechan al bajar y solo el de dentro sigue ardiendo. Cae ceniza en el fondo, con tres motas que todavía no se han apagado, y el icono es un sol eclipsado: anillo encendido y centro muerto. El concepto es demonología cristiana leída, no disfrazada: la referencia es el texto y el glifo —el azufre, el sello, la legión, el abismo—, nunca el cuerno ni el tridente. Esa es la línea que separa esto de una caricatura, y la pidió Eduardo con esas palabras: que no se vea infantil. */
+/* Piedra quemada con la brasa debajo. Del poema se cita lo único que hay que citar —los círculos—: arcos concéntricos que se estrechan al bajar y solo el de dentro sigue ardiendo. Cae ceniza en el fondo, con tres motas que todavía no se han apagado, y el icono es un sol eclipsado: anillo encendido y centro muerto. El concepto es demonología cristiana leída, no disfrazada: la referencia es el texto y el glifo —el sello, Leviatán, la legión, Abadón—, nunca el cuerno ni el tridente. Esa es la línea que separa esto de una caricatura, y la pidió Eduardo con esas palabras: que no se vea infantil. */
 html:not(.claro)[data-apariencia="averno"] {
   --bg: #050302;
   --bg2: #1e130f;

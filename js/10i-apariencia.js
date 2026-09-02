@@ -93,27 +93,33 @@ const MUNDOS = [
      cita un texto y ninguno es un cuerno, un tridente ni un diablillo: eso es
      lo que se ve infantil, y es exactamente lo que Eduardo pidió evitar.
 
-       Ceniza   «polvo y ceniza» (Job 42:6)
-       Azufre   el lago que arde con azufre (Apocalipsis 19:20)
-       Sello    el sello con el que se ata y se nombra (Apocalipsis 20:1-3,
-                y los sellos de la Llave Menor de Salomón)
-       Legión   «Legión me llamo, porque somos muchos» (Marcos 5:9)
-       Abadón   el ángel del abismo, rey de las langostas del pozo
-                (Apocalipsis 9:11)
+       Ceniza    «polvo y ceniza» (Job 42:6)
+       Sello     el sello con el que se ata y se nombra (Apocalipsis 20:1-3,
+                 y los sellos de la Llave Menor de Salomón)
+       Leviatán  «no hay sobre la tierra quien se le parezca» (Job 41:33)
+       Legión    «Legión me llamo, porque somos muchos» (Marcos 5:9)
+       Abadón    el ángel del abismo, rey de las langostas del pozo
+                 (Apocalipsis 9:11)
 
-     Suben, y cada uno solo se le puede ocurrir al anterior: eres lo que quedó,
-     luego hueles al lugar, luego tienes un nombre que se puede escribir, luego
-     eres muchos, y al final eres a quien esos muchos responden.
+     El orden lo puso Eduardo, y es el que hace que la escalera suba de verdad:
+     **lo que quedó, lo que tiene nombre, lo que es grande, lo que es muchos y
+     quien reina sobre ellos**. Los dos primeros son cosas y los tres últimos
+     son seres, así que el salto de peldaño 2 a 3 es además el salto de ser
+     algo a ser alguien.
+
+     Antes iba «Azufre» de segundo, y era el único que no encajaba: una
+     sustancia entre cuatro entidades. Su dibujo era ya la cruz de Leviatán, o
+     sea que el glifo llevaba el nombre de otro peldaño puesto encima.
 
      Y pasan las otras dos pruebas que dejó escrita la tanda de Blueprint: de
-     todos se puede decir «soy», y **ninguno inflexiona** —cuatro son cosas y
-     el quinto es un nombre propio—, así que «Ahora eres Abadón» le dice lo
-     mismo a todo el mundo. Los títulos de la Goetia —Duque, Marqués, Conde—
+     todos se puede decir «soy», y **ninguno inflexiona** —dos son cosas y tres
+     son nombres propios—, así que «Ahora eres Leviatán» le dice lo mismo a
+     todo el mundo. Los títulos de la Goetia —Duque, Marqués, Conde—
      eran lo primero que pedía el tema y se descartaron por eso, no por el
      concepto: es el mismo fallo que costó cambiar «Arquitecto» en Blueprint.
 
-     **Los dibujos son glifos, no criaturas.** Un montón, la cruz de Leviatán,
-     un sello inscrito, tres siluetas encapuchadas y una corona sobre lo
+     **Los dibujos son glifos, no criaturas.** Un montón, un sello inscrito, la
+     cruz de Leviatán, tres siluetas encapuchadas y una corona sobre lo
      oscuro. Una criatura dibujada a 20 px —que es el tamaño al que se pintan—
      solo puede salir caricatura; un glifo a ese tamaño se lee, y además es lo
      que de verdad usaba la tradición. Lo que da el miedo en los dos que llevan
@@ -142,14 +148,25 @@ const MUNDOS = [
          más literal del azufre, pero no se reconoce: dibujado a línea sale
          limpio de laboratorio y relleno sale pesado pero mudo. Éste sí se
          reconoce, y esa era la petición de Eduardo: «que se entienda que es
-         con qué». Tiene nombre y se puede buscar. */
-      { nombre: "Azufre", trazo: '<path d="M12 2.4v12.8"/><path d="M6.6 6h10.8M8.8 9.8h6.4"/><path d="M12 18.4c-1.5-2-2.7-2.9-4.1-2.9-1.5 0-2.6 1.2-2.6 2.7s1.1 2.7 2.6 2.7c1.4 0 2.6-.9 4.1-2.5z"/><path d="M12 18.4c1.5-2 2.7-2.9 4.1-2.9 1.5 0 2.6 1.2 2.6 2.7s-1.1 2.7-2.6 2.7c-1.4 0-2.6-.9-4.1-2.5z"/>',
-        linea: { texto: "Un lago que arde con fuego y azufre.", fuente: "Apocalipsis 19:20" } },
-      /* El sello: el anillo y la figura inscrita dentro. En esa tradición nada
+         con qué». Tiene nombre y se puede buscar.
+
+         El sello: el anillo y la figura inscrita dentro. En esa tradición nada
          existe hasta que su sello está trazado, así que éste es el peldaño en
          el que dejas de ser un montón y pasas a tener nombre. */
       { nombre: "Sello", trazo: '<circle cx="12" cy="12" r="9.2"/><path d="M12 18.7L5.7 8.1h12.6z"/><circle cx="12" cy="11.4" r="1.7"/>',
         linea: { texto: "Lo ató, y puso su sello sobre él.", fuente: "Apocalipsis 20:2-3" } },
+      /* **Leviatán**, y el dibujo pasó a llamarse como lo que ya era. El glifo
+         no cambió ni un punto: es la cruz de Leviatán, que entró aquí como el
+         signo del azufre y llevaba el nombre de otro peldaño encima. Con el
+         reorden que pidió Eduardo el nombre y el dibujo por fin coinciden, que
+         es lo que hace que un glifo se entienda sin pie de foto.
+
+         Y de paso el rango deja de ser una sustancia para ser un ser, como los
+         dos que vienen detrás. La escalera de arriba abajo queda: lo que
+         quedó, lo que tiene nombre, lo que es grande, lo que es muchos y quien
+         reina sobre ellos. */
+      { nombre: "Leviatán", trazo: '<path d="M12 2.4v12.8"/><path d="M6.6 6h10.8M8.8 9.8h6.4"/><path d="M12 18.4c-1.5-2-2.7-2.9-4.1-2.9-1.5 0-2.6 1.2-2.6 2.7s1.1 2.7 2.6 2.7c1.4 0 2.6-.9 4.1-2.5z"/><path d="M12 18.4c1.5-2 2.7-2.9 4.1-2.9 1.5 0 2.6 1.2 2.6 2.7s-1.1 2.7-2.6 2.7c-1.4 0-2.6-.9-4.1-2.5z"/>',
+        linea: { texto: "No hay sobre la tierra quien se le parezca.", fuente: "Job 41:33" } },
       /* Tres siluetas encapuchadas, LAS TRES IGUALES y la de en medio delante,
          con el hueco de la cara relleno. Dos correcciones seguidas:
 
@@ -333,7 +350,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=5b2c53d105";
+  l.href = "css/mundos.css?h=cf99f05903";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
