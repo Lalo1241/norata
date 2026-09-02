@@ -437,7 +437,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=33d06fd2a3";
+  l.href = "css/mundos.css?h=28e3f8e4db";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
@@ -767,9 +767,9 @@ function novedadApariencia(a) {
    quita: ambiente y mundo comparten UN atributo —son excluyentes a propósito,
    está arriba— así que volver al mundo de partida es volver entero.
 
-   Lo que se enseña depende de por cuál de las dos rejas entraste, y por eso
-   `mirarApariencia` recuerda cuál fue. Es el único sitio de la app donde un id
-   se llama de dos maneras, y por eso está escrito aquí y no repartido. */
+   Cuál de los dos se enseña lo deduce `abrirMundo` de si el id es un mundo o
+   la salida de la lista. Es el único sitio de la app donde un id se llama de
+   dos maneras, y por eso está escrito aquí y no repartido. */
 const CASA_MUNDO = {
   nombre: "Noche de expedición",
   premisa: "El mundo de partida: el material original de Norata, sin forro ni marco. Elegirlo te quita el mundo y el recolor que lleves puestos."
@@ -797,20 +797,23 @@ function aparienciaAPagar(como) {
   if (typeof abrirAjustes === "function") abrirAjustes("plan");
 }
 
-/* ================= La galería =================
+/* ================= El preview de un mundo =================
 
-   Cada mundo es su PROPIA vista previa, viva, en su tarjeta. No un escenario
-   compartido que enseña el que tocaste: eso obliga a elegir antes de ver, y lo
-   que tiene que hacer esta pantalla es lo contrario — enseñar los quince a la
-   vez para que uno te llame. Es la tienda de Discord, y la referencia la puso
-   Eduardo.
+   Un mundo se ve de verdad, con su material, en la ventana que abre su renglón.
+   Uno cada vez.
 
-   Por qué hace falta un documento por tarjeta: el CSS de un mundo cuelga de
-   `html[data-apariencia="…"]`, así que la única manera de que dos mundos se
-   vean a la vez en la misma pantalla es que cada uno tenga su `<html>`. No hay
-   truco que lo evite; lo que sí se puede es no pagarlo hasta que haga falta,
-   y de eso se encarga `VIGIA` — un documento se monta cuando su tarjeta entra
-   en pantalla y no antes. Con quince mundos, quien no baje ve tres.
+   Por qué hace falta un documento aparte: el CSS de un mundo cuelga de
+   `html[data-apariencia="…"]`, así que enseñarlo sin ponérselo a la app entera
+   pide un `<html>` propio. Con uno solo eso cuesta un documento y nada más.
+
+   HUBO UNA GALERÍA —los quince a la vez, cada uno con su preview vivo en su
+   tarjeta, al estilo de la tienda de Discord— y duró una versión, la 0.7.70.
+   Eduardo la vio publicada y volvió a los renglones: una tarjeta grande por
+   mundo convierte la sección en algo con más peso que los ambientes de arriba,
+   y en esta pantalla las dos cosas son opciones de lo mismo. Con ella se
+   fueron el montaje perezoso y el observador de intersección, que existían solo
+   para no pagar quince documentos de golpe. Queda apuntado porque la idea es
+   buena y puede volver: lo que la hundió fue el peso visual, no el mecanismo.
 
    Y no lleva ni una línea de JavaScript dentro: lo que cambia —la apariencia y
    el modo claro— se lo pone esta página desde fuera tocando su `<html>`, que
@@ -898,35 +901,32 @@ function escenaRango(id) {
   return { nombre: r.nombre || "", glifo: glifo };
 }
 
-/* Dos tamaños del mismo escenario. En la tarjeta cabe lo justo —el rótulo, el
-   rango y una barra— porque de una miniatura lo que hay que sacar es «¿este me
-   gusta?»; en la ventana de detalle entra además una misión, que es donde se
-   ve cómo queda el material en una tarjeta de verdad. */
-function escenaCuerpo(id, grande) {
+/* Un trozo de Norata con las cinco cosas que un mundo cambia y un color no: el
+   suelo, el material de la tarjeta, el marco, la letra y el nombre del rango.
+   Hubo una versión recortada de esto para las miniaturas de la galería; con la
+   galería fuera, queda un solo tamaño. */
+function escenaCuerpo(id) {
   const r = escenaRango(id);
   const m = mundoPorId(id);
-  const mision = `
+  return `
+    <div class="vp-cab">
+      <span class="vp-tit">Tu expedición</span>
+      <span class="vp-chapa">Nivel 14</span>
+    </div>
     <div class="vp-caja">
       <div class="vp-fila">
         <span class="vp-aro"></span>
         <span class="vp-tx"><b>Leer veinte páginas</b><i>Hoy · todos los días</i></span>
       </div>
       <div class="vp-carril"><span style="width:64%"></span></div>
-    </div>`;
-  return `
-    <div class="vp-cab">
-      <span class="vp-tit">Tu expedición</span>
-      <span class="vp-chapa">Nivel 14</span>
     </div>
-    ${grande ? mision : ""}
     <div class="vp-caja vp-rango">
       <span class="vp-glifo">${r.glifo}</span>
       <span class="vp-tx"><b>${escapeHtml(r.nombre)}</b><i>${m && m.listo ? "Tu rango en " + escapeHtml(m.nombre) : "Tu rango"}</i></span>
-    </div>
-    ${grande ? "" : `<div class="vp-caja"><div class="vp-carril" style="margin-top:0"><span style="width:64%"></span></div></div>`}`;
+    </div>`;
 }
 
-function escenaDoc(id, grande) {
+function escenaDoc(id) {
   const claro = document.documentElement.classList.contains("claro");
   const attr = (id && id !== "casa" ? ` data-apariencia="${id}"` : "") + (claro ? ' class="claro"' : "");
   const mundos = direccionDeLosMundos();
@@ -936,88 +936,27 @@ function escenaDoc(id, grande) {
     `<link rel="stylesheet" href="css/estilos.css">` +
     `<link rel="stylesheet" href="css/ambientes.css">` +
     (mundos ? `<link rel="stylesheet" href="${mundos}">` : "") +
-    `<style>${ESCENA_CSS}</style></head><body>${escenaCuerpo(id, grande)}</body></html>`;
+    `<style>${ESCENA_CSS}</style></head><body>${escenaCuerpo(id)}</body></html>`;
 }
 
-/* ---- Montarlos tarde ----
+/* ---- Montar el preview de la ventana ----
 
-   Un documento por tarjeta es el precio de que dos mundos se vean a la vez;
-   montarlos todos al abrir la sección sería pagarlo quince veces por adelantado
-   para enseñar tres. Se montan al entrar en pantalla y se quedan puestos:
-   volver a subir no vuelve a costar, y probar dos mundos seguidos es
-   exactamente lo que alguien hace la primera tarde.
-
-   El observador se crea una vez y se reusa: el panel se vuelve a dibujar cada
-   vez que se abre Ajustes, y crear uno nuevo ahí serían diez observadores
-   mirando lo mismo. */
-let VIGIA = null;
-
+   Uno solo, y se monta al abrirla. Hubo una galería —cada mundo con su preview
+   vivo en su tarjeta, todas a la vez— y se quitó en la 0.7.70.1: Eduardo la vio
+   publicada y prefiere los renglones, porque con las tarjetas grandes los
+   mundos dejaban de leerse como una opción más de la misma pantalla y pasaban a
+   ser una sección aparte con más peso que los ambientes. Con ella se fueron el
+   montaje perezoso y el observador de intersección, que existían solo para no
+   pagar quince documentos de golpe. Con uno, no hay nada que aplazar. */
 function montarVista(marco) {
   if (!marco || marco.dataset.puesto) return;
   marco.dataset.puesto = "1";
-  marco.srcdoc = escenaDoc(marco.dataset.mundo, marco.dataset.grande === "1");
+  marco.srcdoc = escenaDoc(marco.dataset.mundo);
 }
 
-/* Lo que ya se ve, MEDIDO, y nada más. La herramienta obvia para esto es
-   `IntersectionObserver` y estuvo puesta; se cambió por un fallo real: un
-   observador de intersección solo avisa cuando el navegador COMPONE un
-   fotograma, y hay entornos donde eso no pasa —el panel de pruebas es uno, y es
-   la misma familia de trampa que deja las transiciones congeladas para siempre,
-   contada en CLAUDE.md—. Ahí la galería salía entera en blanco: cuatro marcos
-   vacíos, ningún error y nada en la consola.
-
-   Un rectángulo sí se puede preguntar sin dibujar nada. Así que se pregunta, y
-   se vuelve a preguntar al mover la página. Es una herramienta más tonta que la
-   buena, pero funciona en todas partes y se puede comprobar. */
-function montarLasVisibles() {
-  const pendientes = document.querySelectorAll("#panel-apariencia iframe[data-mundo]:not([data-puesto])");
-  if (!pendientes.length) return;
-  const alto = window.innerHeight || 0;
-  pendientes.forEach((f) => {
-    const r = f.getBoundingClientRect();
-    /* Un pantallazo de margen por arriba y por abajo: lo que está a punto de
-       asomar se monta antes de asomar, para que bajar no enseñe huecos. */
-    if (r.bottom > -220 && r.top < alto + 220) montarVista(f);
-  });
-}
-
-/* Y para lo que aparece al bajar, el observador de intersección, que es la
-   herramienta que existe para esto. Llegó a estar cambiado por un oído de
-   `scroll` cuando se vio que el observador no disparaba en el panel de
-   pruebas; el cambio estaba mal y se deshizo al medirlo mejor: **ahí tampoco
-   llegan los eventos de scroll** —comprobado con un oído recién puesto y un
-   `scrollTop += 200`: cero avisos—, porque los dos dependen de lo mismo, de que
-   el navegador componga fotogramas. No era un fallo del observador; era que ese
-   entorno no dibuja.
-
-   Así que la herramienta buena se queda, y lo que la acompaña es
-   `montarLasVisibles()` de arriba: eso sí funciona sin dibujar, y es lo que
-   garantiza que la primera pantalla nunca salga en blanco en ningún sitio. Lo
-   que no se puede comprobar desde aquí es el camino de bajar. */
-function vigilarVistas() {
-  montarLasVisibles();
-  if (!("IntersectionObserver" in window)) {
-    /* Sin observador —un navegador viejo— se montan todas y ya. Vale más una
-       galería que pesa que una galería vacía. */
-    document.querySelectorAll("#panel-apariencia iframe[data-mundo]").forEach(montarVista);
-    return;
-  }
-  if (!VIGIA) {
-    VIGIA = new IntersectionObserver((entradas) => {
-      entradas.forEach((e) => {
-        if (!e.isIntersecting) return;
-        montarVista(e.target);
-        VIGIA.unobserve(e.target);
-      });
-    }, { rootMargin: "220px" });
-  }
-  document.querySelectorAll("#panel-apariencia iframe[data-mundo]:not([data-puesto])")
-    .forEach((f) => VIGIA.observe(f));
-}
-
-/* El modo claro y los previews son dos ejes independientes, y los de dentro
-   tienen que seguir al de fuera: sin esto, cambiar a modo día dejaba la galería
-   entera en su noche, enseñando una cara que no es la que se va a llevar. Se
+/* El modo claro y el preview son dos ejes independientes, y el de dentro tiene
+   que seguir al de fuera: sin esto, cambiar a modo día con la ventana abierta
+   la dejaba en su noche, enseñando una cara que no es la que se va a llevar. Se
    mira el atributo de `<html>` en vez de engancharse a `ponerTema`, que vive en
    otro archivo — así esto sigue funcionando el día que el modo cambie desde un
    sitio nuevo. */
@@ -1032,34 +971,40 @@ function sincronizarVistas() {
 new MutationObserver(sincronizarVistas)
   .observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
-/* ================= Una tarjeta de la galería ================= */
+/* ================= Un mundo, en la lista =================
 
-function tarjetaMundo(m) {
-  const e = estadoApariencia(m);
-  const puesta = apariencia() === m.id;
+   Un renglón con su icono, su nombre y su frase — no una tarjeta con el mundo
+   dibujado dentro. Hubo lo segundo en la 0.7.70 y duró una versión: Eduardo lo
+   vio publicado y prefiere esto, porque una tarjeta grande por mundo convertía
+   la sección en algo con más peso que los ambientes de arriba, y en esta
+   pantalla las dos cosas son opciones de lo mismo. El mundo se sigue viendo
+   entero, pero en su ventana, que es donde uno va cuando ya le interesó uno.
+
+   La chapa va a la DERECHA y con el texto corto —«Pro», no «Con Norata Pro»—,
+   que es lo que hace que quepa sin robarle el ancho a la premisa: con el texto
+   largo a la derecha, la frase caía en media columna y la fila crecía hasta 247
+   px de alto. Medido a 375 px. */
+function filaMundo(m, esSalida) {
+  const e = esSalida ? { ok: true } : estadoApariencia(m);
   return `
-    <button type="button" class="mun-t${e.ok ? "" : " cerrado"}${puesta ? " on" : ""}"
+    <button type="button" class="mun-m mues-${m.id}${esSalida ? " mun-salida" : ""}${e.ok ? "" : " cerrado"}"
       data-ap="${m.id}" onclick="abrirMundo('${m.id}')"
       title="${escapeHtml(m.nombre)}${e.ok ? "" : " · " + escapeHtml(e.chapa)}">
-      <span class="mun-vista">
-        <iframe data-mundo="${m.id}" title="Vista previa de ${escapeHtml(m.nombre)}"
-          scrolling="no" tabindex="-1" aria-hidden="true"></iframe>
+      ${m.icon ? `<span class="mun-ic">${icon(m.icon, 20)}</span>` : ""}
+      <span class="mun-tx">
+        <b>${escapeHtml(m.nombre)}${esSalida ? "" : novedadApariencia(m)}</b>
+        <span>${escapeHtml(m.premisa || "")}</span>
       </span>
-      <span class="mun-pie">
-        <b>${escapeHtml(m.nombre)}</b>
-        ${novedadApariencia(m)}
-        ${chapaApariencia(e, true)}
-        <span class="mun-ok" aria-hidden="true">${icon("check", 12)}</span>
-      </span>
+      ${chapaApariencia(e, true)}
+      <span class="mun-ok" aria-hidden="true">${icon("check", 13)}</span>
     </button>`;
 }
 
 /* ================= Un mundo, de cerca =================
-   La ventana que se abre al tocar una tarjeta: el mismo preview en grande y
-   todo lo que la tarjeta no puede decir —la premisa, los cinco nombres del
-   camino, y si está cerrado, por qué y por dónde se abre—. Es donde vive ahora
-   lo que antes cabía en un toast de cuatro segundos. */
-let mundoAbierto = null;
+   La ventana que se abre al tocar un renglón: el preview en grande y todo lo
+   que la lista no puede decir —la premisa entera, los cinco nombres del camino,
+   y si está cerrado, por qué y por dónde se abre—. Es donde vive lo que antes
+   cabía en un toast de cuatro segundos. */
 
 function abrirMundo(id) {
   const caja = document.getElementById("mundo-modal");
@@ -1067,7 +1012,6 @@ function abrirMundo(id) {
   if (!caja || !cuerpo) return;
   const a = aparienciaPorId(id);
   if (!a) return;
-  mundoAbierto = id;
 
   const m = mundoPorId(id);
   const e = estadoApariencia(a);
@@ -1100,7 +1044,7 @@ function abrirMundo(id) {
   cuerpo.innerHTML = `
     <button type="button" class="mv-x" onclick="cerrarMundo()" aria-label="Cerrar">${icon("close", 18)}</button>
     <div class="mv-marco">
-      <iframe data-mundo="${id}" data-grande="1" title="Vista previa de ${escapeHtml(nombre)}"
+      <iframe data-mundo="${id}" title="Vista previa de ${escapeHtml(nombre)}"
         scrolling="no" tabindex="-1" aria-hidden="true"></iframe>
     </div>
     <div class="mv-cuerpo">
@@ -1125,7 +1069,6 @@ function abrirMundo(id) {
 function cerrarMundo() {
   const caja = document.getElementById("mundo-modal");
   if (caja) caja.classList.remove("show");
-  mundoAbierto = null;
 }
 
 /* ================= El panel de Ajustes ================= */
@@ -1192,10 +1135,10 @@ function renderPanelApariencia() {
 
      Se llama «Noche de expedición» y no «Norata clásico»: ése es el nombre del
      RECOLOR de partida, que está en la otra reja. Ver `CASA_MUNDO`. */
-  const salida = seExhibe("casa")
-    ? tarjetaMundo({ id: "casa", nombre: CASA_MUNDO.nombre, listo: true })
-    : "";
-  const mundos = salida + listos.map(tarjetaMundo).join("");
+  const salida = seExhibe("casa") ? filaMundo({
+    id: "casa", nombre: CASA_MUNDO.nombre, icon: "compass", premisa: CASA_MUNDO.premisa
+  }, true) : "";
+  const mundos = salida + listos.map((m) => filaMundo(m, false)).join("");
 
   caja.innerHTML = `
     <h3>Ambientes</h3>
@@ -1210,7 +1153,6 @@ function renderPanelApariencia() {
      marcadas —lo llevan escrito al construirse— y las muestras de ambiente
      no: ponerse Tinta se veia como que no habia pasado nada. */
   pintarSeleccion();
-  vigilarVistas();
 }
 
 /* Ponérsela de verdad: se guarda y se recarga. Si no se puede, sale el cuadro

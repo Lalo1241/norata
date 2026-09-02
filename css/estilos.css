@@ -1584,10 +1584,11 @@
     border-radius: var(--r-pastilla); padding: 2px 6px;
     white-space: nowrap;
   }
-  /* En el pie de una tarjeta va justo después del nombre y antes de la cápsula
-     del candado: primero qué es, luego que acaba de llegar, y al final qué
-     hace falta para tenerlo. */
+  /* Va justo después del nombre y antes de la cápsula del candado: primero qué
+     es, luego que acaba de llegar, y al final qué hace falta para tenerlo. En
+     la fila va DENTRO del nombre, así que es en línea y no un hermano flex. */
   .ap-nueva { flex: none; }
+  .mun-tx b .ap-nueva { display: inline-block; margin-left: 7px; vertical-align: 1px; }
   /* Y en la muestra de un ambiente, encima: los 88 px de la muestra no dan para
      un tercer renglón de texto debajo del nombre y la chapa. Arriba a la
      derecha, que es la única esquina libre —el acento va arriba a la izquierda,
@@ -1597,77 +1598,64 @@
     font-size: 8.5px; padding: 2px 5px;
   }
 
-  /* ---------- La galería de mundos, en Mi apariencia ----------
-     Cada mundo es su propia vista previa VIVA, en su tarjeta, y las tarjetas se
-     ven todas a la vez. Antes eran renglones de texto con un escenario
-     compartido arriba: eso obliga a elegir antes de ver, y lo que tiene que
-     hacer esta pantalla es lo contrario — enseñar los quince para que uno te
-     llame. La referencia es la tienda de Discord y la puso Eduardo.
-
-     El detalle de por qué cada tarjeta necesita su propio documento, y de por
-     qué no se montan todos de golpe, está en `js/10i-apariencia.js`. */
+  /* ---------- Los mundos, en Mi apariencia ----------
+     Una lista de renglones y no una reja de tarjetas con el mundo dibujado
+     dentro. Hubo lo segundo en la 0.7.70 y duró una versión: Eduardo lo vio
+     publicado y volvió a esto, porque una tarjeta grande por mundo convierte la
+     sección en algo con más peso que los ambientes de arriba, y en esta
+     pantalla las dos cosas son opciones de lo mismo. El mundo se sigue viendo
+     entero, con su material, en la ventana que abre el renglón. */
   .amb-h2 { margin-top: 22px; }
-  .mun-rej {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(216px, 1fr));
-    gap: 12px;
-    margin-top: 12px;
-  }
-  .mun-t {
-    display: flex; flex-direction: column; width: 100%; padding: 0;
+  .mun-rej { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .mun-m {
+    display: flex; align-items: center; gap: 12px; width: 100%;
     text-align: left; font-family: inherit; cursor: pointer;
     background: var(--sup-tarjeta); color: var(--text);
     border: var(--borde-tarjeta) solid var(--line);
     border-image: var(--marco-tarjeta);
-    border-radius: var(--r-caja);
-    overflow: hidden;
+    border-radius: var(--r-caja); padding: 12px 14px;
   }
-  .mun-t.on { border-color: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
+  .mun-m.on { border-color: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
   /* Cerrado se ve ENTERO y solo un poco apagado: enseñar lo que se puede tener
-     es la mitad de la razón para quererlo, y un mundo tapado no vende nada.
-     Sube a opacidad completa al pasar por encima, que es cuando alguien lo
-     está mirando de verdad. */
-  .mun-t.cerrado { opacity: 0.74; }
-  .mun-t.cerrado:hover, .mun-t.cerrado:focus-visible { opacity: 1; }
-  .mun-t:hover { box-shadow: var(--sombra-s); }
-  /* El suelo hondo por debajo del preview y no el de la tarjeta: lo de dentro
-     es OTRA app, y sin un tono que la separe se lee como si fuera ésta. Es la
-     misma razón por la que el lienzo del árbol no vale el fondo de la página. */
-  .mun-vista { display: block; background: var(--sup-hondo); }
-  /* 158 y no 132, que es donde estaba: medido contra el borde de abajo de la
-     última pieza de dentro, el más alto de los cuatro pide 150 y la barra se
-     quedaba cortada por la mitad. Ojo con el `scrollHeight` del `body` para
-     comprobarlo — con `overflow: hidden` puesto devuelve el alto de la caja y
-     no el del contenido, así que decía que cabía. Se mide con
-     `lastElementChild.getBoundingClientRect().bottom`. */
-  .mun-vista iframe {
-    display: block; width: 100%; height: 158px; border: 0;
-    background: transparent;
-    /* El preview se MIRA, no se usa: sin esto, un toque dentro del iframe cae
-       en una app de mentira con datos inventados y no en la tarjeta que lo
-       contiene, que es lo que la persona cree estar tocando. */
-    pointer-events: none;
+     es la mitad de la razón para quererlo, y un mundo tapado no vende nada. */
+  .mun-m.cerrado { opacity: 0.68; }
+  .mun-m.cerrado:hover, .mun-m.cerrado:focus-visible { opacity: 1; }
+  /* La salida no es un mundo y no se pinta como uno: su icono va en el gris de
+     la app, para que la lista se lea como «esto es lo que hay puesto» y no como
+     «aquí hay dos mundos». */
+  .mun-salida .mun-ic { background: var(--sup-panel); color: var(--muted); }
+  .mun-salida.on .mun-ic { color: var(--mint); }
+  /* El icono de cada mundo va con SU acento —`--mu-acento`, que trae
+     `css/muestras.css` desde los mismos datos que el mundo de verdad— y no con
+     el lila de Fundador que llevaban los tres hasta la 0.7.70. Con un solo
+     color, catorce mundos distintos entraban todos por la misma puerta morada,
+     y el lila además ya significa otra cosa en la app: es la insignia de
+     Fundador. El velo sale de `color-mix` y no de pegarle dos dígitos al hex,
+     porque a un `var(...)` no se le pega un alfa detrás. */
+  .mun-ic {
+    flex: none;
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px;
+    border-radius: var(--r-chico);
+    background: color-mix(in srgb, var(--mu-acento, var(--lila)) 15%, transparent);
+    color: var(--mu-acento, var(--lila));
   }
-  .mun-pie {
-    display: flex; align-items: center; gap: 7px;
-    padding: 9px 11px 10px;
-    border-top: 1px solid var(--line);
-  }
-  /* El nombre manda y por eso se lleva el hueco: las cápsulas de al lado no
-     crecen ni se parten, y el que se corta si no cabe es él. */
-  .mun-pie b {
-    flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  .mun-ic svg { width: 20px; height: 20px; stroke-width: 1.6; }
+  .mun-tx { min-width: 0; flex: 1; }
+  .mun-tx b { display: block; font-size: 14px; font-weight: 700; }
+  .mun-tx > span {
+    display: block; font-size: 11.5px; color: var(--muted);
+    line-height: 1.4; margin-top: 2px;
   }
   /* La palomita dice «esto ya es tuyo» sin depender de un color, y solo sale en
-     la que llevas puesta. */
+     el que llevas puesto. */
   .mun-ok, .amb-ok { display: none; }
-  .mun-t.on .mun-ok {
+  .mun-m.on .mun-ok {
     flex: none; display: flex; align-items: center; justify-content: center;
-    width: 19px; height: 19px; border-radius: var(--r-redondo);
+    width: 20px; height: 20px; border-radius: var(--r-redondo);
     background: var(--mint-macizo); color: var(--sobre-macizo);
   }
-  .mun-t.on .mun-ok svg { stroke-width: 2.6; }
+  .mun-m.on .mun-ok svg { stroke-width: 2.6; }
 
   /* ---------- Un mundo, de cerca ----------
      La ventana que abre una tarjeta: el mismo preview en grande y lo que la
