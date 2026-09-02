@@ -39,8 +39,13 @@ retoque suelto, el 3º una tanda, el 2º algo que la app no hacía antes, y el
 **`0.8` está apartado para la beta** y no se coge por acumulación: hasta que
 Eduardo lo diga, la cuenta sigue por dentro de `0.7` (`0.7.1`, `0.7.2`…).
 
-Al subirlo: `VERSION` y `VERSION_FECHA` en `js/01-base.js`, `CACHE` en `sw.js`
+Al subirlo: `VERSION` y `VERSION_FECHA` en `js/01-base.js`, `CACHE` en `sw.js`
 con el mismo número, y una línea en `VERSIONES.md`.
+
+**Las fechas van en hora de México, siempre** — no en UTC ni en la del reloj de
+la máquina que toque. Ya se coló tres veces desde una sesión que commiteaba en
+UTC, y con eso la lista deja de leerse en orden. Solo muerde entre las 00:00 y
+las 06:00 UTC. México es UTC-6 todo el año, sin horario de verano desde 2022.
 
 ## Cómo verificar
 

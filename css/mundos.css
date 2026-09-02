@@ -385,7 +385,8 @@ html[data-apariencia="reliquia"] .pill {
    `border-image`, porque un border-image ignora el border-radius: la
    tarjeta salía redonda con el marco cuadrado. Así hereda la esquina. */
 html[data-apariencia="reliquia"] .panel::before,
-html[data-apariencia="reliquia"] .sum-card::before {
+html[data-apariencia="reliquia"] .sum-card::before,
+html[data-apariencia="reliquia"] .scene-card::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -397,9 +398,11 @@ html[data-apariencia="reliquia"] .sum-card::before {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
+  z-index: 2;
 }
 html[data-apariencia="reliquia"] .panel,
-html[data-apariencia="reliquia"] .sum-card { position: relative; }
+html[data-apariencia="reliquia"] .sum-card,
+html[data-apariencia="reliquia"] .scene-card { position: relative; }
 
 /* El techo del peso de la letra: por encima de esto Syne se estira. */
 html[data-apariencia="reliquia"] h1,
@@ -451,6 +454,7 @@ html[data-apariencia="reliquia"] .scel {
   --escena-tinte-modo: block;
   --escena-tinte: #1e1930;
   --escena-tinte-fuerza: 1;
+  --aro-metal: linear-gradient(158deg,#6b5326 0%,#c8a24e 24%,#8a6d2f 48%,#e0c072 64%,#7a5f2a 100%);
 }
 
 /* ---------- Averno · El oscuro de verdad ---------- */

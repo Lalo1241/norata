@@ -104,7 +104,7 @@
     if (["reliquia"].indexOf(puesta) >= 0) {
       var lm = document.createElement("link");
       lm.rel = "stylesheet";
-      lm.href = "css/mundos.css?h=a560f82d90";
+      lm.href = "css/mundos.css?h=95071285c9";
       document.head.appendChild(lm);
     }
   } catch (e) {}
@@ -286,6 +286,12 @@
   <div class="view active" id="view-summary">
     <div class="page-head">
       <div>
+        <!-- El saludo y la fecha viven AQUI desde 0.7.57, y no dentro de la
+             tarjeta de la racha. Ahi eran la unica aparicion de `greeting()` en
+             toda la app, asi que quien quitaba la racha del tablero -cosa que
+             el Modo Editor permite- se quedaba sin saludo y sin fecha en el
+             Resumen entero. Lo escribe `renderSummary`. -->
+        <p class="page-saludo" id="resumen-saludo"></p>
         <h1>Resumen</h1>
       </div>
       <div style="display:flex;gap:9px">
