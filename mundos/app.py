@@ -492,6 +492,63 @@ def bloque(m):
           "   puestas, «4 de 10» salía dos veces en la misma tarjeta. */",
           "%s [data-cota] .branch-head .count { display: none; }" % sel]
 
+    # ---- Los anillos ----
+    # `--m-anillos` es el motivo grande de un mundo: en Averno, los círculos
+    # del poema que se estrechan al bajar. Vivía en `extra=`, que solo lee la
+    # lámina, así que el mundo llegaba a la app sin su firma.
+    #
+    # DÓNDE se pone es toda la decisión, y sale de la regla que dejó escrita
+    # Talavera: en un teléfono sólo hay dos sitios donde un dibujo puede ir a
+    # plena tinta — detrás de algo opaco, y en lo que aparece UNA sola vez.
+    #
+    # Contado con el ejemplo puesto: `.panel` sale tres veces en el Resumen y
+    # `.sum-card` cuatro, así que las tarjetas quedan descartadas — sería el
+    # error del marco de latón de Reliquia otra vez, cuarenta motivos donde
+    # debía haber uno. `.scene-card` sale una sola vez… pero son DOS piezas con
+    # la misma clase, y sólo una vale:
+    #
+    #   `.sec-hero`      la banda de cabecera de un módulo. Una por pantalla en
+    #                    cuatro de las siete, y es una SUPERFICIE. Aquí va.
+    #   `.streak-card`   la escena de la racha, que no es interfaz sino un
+    #                    DIBUJO — un paisaje de noche con sus estrellas y sus
+    #                    cerros—. Poner el motivo ahí es dibujo sobre dibujo, y
+    #                    se vio en cuanto se miró puesto.
+    #
+    # Y la escena se queda de NOCHE en los dos modos, así que el motivo se
+    # declara una vez y no necesita cara de día.
+    #
+    # Tres detalles que no son estilo, son las trampas ya pagadas:
+    #   `left: auto`   un elemento absoluto con `left`, `right` y `width` a la
+    #                  vez está sobredeterminado y el navegador descarta el
+    #                  `right`. Es lo que pegaba estos mismos anillos a la
+    #                  izquierda, y costó tres rondas descubrirlo.
+    #   la caja mide lo que mide la pieza, no 120 px: un dibujo más alto que su
+    #                  tarjeta se recorta y lo que queda a la vista es la parte
+    #                  de ARRIBA, que en un arco cae hacia el otro lado.
+    #   `overflow: hidden` en la pieza, o el motivo se sale por la esquina
+    #                  redondeada.
+    if t.get("--m-anillos"):
+        salida += ["",
+          "/* Los anillos SUSTITUYEN la ilustración de la banda, no se le encima.",
+          "   La banda pinta la suya en un `<svg class=\"scene\">` hijo, y un motivo",
+          "   encima de otro motivo es exactamente la suciedad que CLAUDE.md",
+          "   prohíbe. Se apaga con `opacity` y no con `display` a propósito: así",
+          "   el svg sigue ocupando su alto y la banda no se encoge. */",
+          "%s .scene-card.sec-hero .scene { opacity: 0; }" % sel,
+          "%s .scene-card.sec-hero { position: relative; overflow: hidden; }" % sel,
+          "%s .scene-card.sec-hero::after {" % sel,
+          '  content: "";',
+          "  position: absolute;",
+          "  left: auto; right: 0; top: 0;",
+          "  width: 52%; height: 100%;",
+          "  background: %s right top/contain no-repeat;" % t["--m-anillos"],
+          "  opacity: .85;",
+          "  pointer-events: none;",
+          "}",
+          "/* Y lo que va dentro se levanta por encima. Sin esto el motivo tapa",
+          "   las cifras, que es lo único que hay que leer ahí. */",
+          "%s .scene-card.sec-hero > * { position: relative; z-index: 1; }" % sel]
+
     # ---- El techo del peso ----
     # Syne es variable de 600 a 800, y a 800 se ESTIRA: la letra se alarga y
     # descuadra los renglones. La app pide 800 en varios sitios, así que el techo
