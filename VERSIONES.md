@@ -76,6 +76,59 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.72.6 · 2 sep 2026
+**La escena de nivel, centrada de verdad; y el fuego dura hasta el final.**
+
+**El conjunto seguía corrido a la izquierda, y eran dos fallos encadenados.**
+
+El primero, de una línea: `.ncel-mapa` lleva `margin: 0 auto`, que es lo que
+lo centra en la columna del teléfono. En fila, **un margen automático se come
+TODO el espacio libre del eje antes de que `justify-content` reparta nada**, así
+que el `center` que puse en la 0.7.72.5 no hacía absolutamente nada. Medido en
+1892 px: 114 de margen a la izquierda contra 246 a la derecha. El margen se
+apaga dentro de la consulta de medios y las cajas quedan simétricas.
+
+El segundo es el que él nombró — *«que prioricen la alineación óptica por
+encima de la matemática»*—, y no se arregla con márgenes. La columna del dibujo
+medía 780 px SIEMPRE, ocupara la constelación 68 px o 500. En el nivel 2, con
+cuatro estrellas encendidas, las cajas estaban centradas al píxel y lo que se
+VE estaba a 524 px de desequilibrio. Dos cambios:
+
+- **La figura se centra por su caja de tinta, no por el 50 de su cuadro.**
+  Ninguna de las cinco está centrada dentro del suyo: la bota va de 22 a 86, el
+  farol de 24 a 76.
+- **Y la caja del mapa abraza lo dibujado** (`ncelAbrazarTinta`). El viewBox se
+  recorta a lo ANCHO y nunca a lo alto, que es el truco para que el dibujo no
+  cambie de tamaño entre niveles: mantiene sus 100 unidades de alto contra un
+  elemento de alto fijo, así que los píxeles por unidad son siempre los mismos
+  —6,08 medidos, idénticos del nivel 2 al 30—. Lo único que encoge es el marco.
+
+Y el TAMAÑO se separa del ENCUADRE, que era la confusión de fondo: el tamaño
+sale de la figura entera —para que las estrellas apagadas ya tengan su sitio y
+el dibujo no se hinche de un nivel al siguiente— y el encuadre sale de lo que
+está dibujado, porque es lo único que se ve. De paso cada figura llena su
+franja en vez de compartir un 0,74 para todas: dibujadas a mano, unas miden 52
+unidades de ancho y otras 80.
+
+Medido en los diez niveles de prueba, los dos márgenes salen **iguales al
+píxel** (521/521, 391/391, 352/352, 288/288…) y lo que cambia entre ellos es
+cuánto ocupa la constelación, que es exactamente lo que se pedía.
+
+**El rótulo del botín, del color del rango.** Estaba en oro y era la única
+palabra de otro color en una pantalla que ya se tiñe entera. Los botones se
+quedan en menta: eso es el lenguaje de los botones de la casa, no el color de
+la fiesta.
+
+**El fuego de la racha dura hasta dos segundos antes del cierre.** Latía seis
+segundos y la escena aguanta doce, así que la mitad del tiempo se miraba una
+llama congelada — que parece un fallo, no una decisión. La cuenta, por si se
+toca: el reloj de los doce arranca al LLAMAR a `celebrateStreak`, y las
+animaciones no arrancan hasta que la escena entra, 0,42 s después; así que
+duran 9,58 s desde ahí —cinco latidos de 1,5 s y un apagado de 2 s que empieza
+en el 7,58— y terminan en el segundo 10,0 del reloj de verdad. El cerco de la
+brasa avivada se apaga en el mismo instante: si se fuera antes, el fuego se
+quedaría un rato flotando sin su luz detrás.
+
 ### 0.7.72.5 · 2 sep 2026
 **Segunda tanda sobre las celebraciones, otra vez de la mano de Eduardo.**
 
