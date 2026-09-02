@@ -135,23 +135,24 @@ MUNDOS = [
   premisa="El plano azul de toda la vida: retícula de dos pesos, cotas con puntas de flecha y marcas de sección. Aquí la tarjeta no es una tarjeta: es una PIEZA ACOTADA, con su línea de medida cruzando por encima y el hueco donde iría la cifra. Dice algo que ningún otro mundo dice — que lo tuyo todavía se está construyendo.",
   letra="Rajdhani", ancho="−10%", escala="1", esquinas="0 px · vivas", peso="~65 KB", horas="Noche",
   nota="La tarjeta era casi transparente y el texto se peleaba con la retícula del fondo. Ahora es un panel opaco: la retícula se ve alrededor, no por debajo de lo que hay que leer.",
-  # ---- El azul, rebajado (0.7.61) ----
-  # Lo paró Eduardo: «el tema de azul es excesivo». Medido en croma, la página
-  # estaba en 0,079 contra el 0,018 de la casa —más de CUATRO VECES la
-  # saturación, y en la superficie más grande que tiene la app—. Reliquia anda
-  # por 0,028 y Averno por 0,009: Blueprint era el raro, no una cuestión de
-  # gusto.
+  # ---- El azul y el negro, repartidos (0.7.61.1) ----
+  # Dos correcciones de Eduardo, y la segunda deshace un exceso mío.
   #
-  # La página pasa a un negro FRÍO (croma 0,017, como la casa) y el azul se
-  # queda donde de verdad dice algo: la retícula, el marco, el acento y la
-  # cota. Un plano no es un campo de color, es un DIBUJO — y sobre negro el
-  # dibujo se lee mejor, que es justo lo que este mundo quería decir.
+  # La primera: la página estaba en croma 0,079 contra el 0,018 de la casa
+  # —cuatro veces la saturación, en la superficie más grande de la app—, y
+  # además la tarjeta era OTRO azul (0,059). Todo el mundo en un solo matiz.
   #
-  # La tarjeta se pone ENCIMA del fondo y no debajo, como en toda la app: da
-  # 1,18 contra el 1,19 de la casa. Antes estaba más oscura que su página.
-  # La cara de día no se toca: medida, es la menos saturada de los cuatro
-  # mundos (0,013), porque es papel.
-  tokens={"--m-pagina":"#080d14",
+  # La segunda, que es la que importa: al arreglarlo puse el negro EN LUGAR del
+  # azul y no JUNTO a él. Con la página en negro y la tarjeta en azul oscuro
+  # todo quedaba en un mismo valor —contraste 1,18— y el mundo se apagó
+  # entero. «Opacaste de más el tema».
+  #
+  # Así queda: la página vuelve a su azul de plano, que es la identidad del
+  # mundo, y el negro frío se va a las TARJETAS. El equilibrio sale del
+  # contraste entre las dos cosas y no de bajarle el tono a las dos: campo
+  # azul, piezas negras, líneas azules encima. Sube de 1,21 a 1,33 y por fin
+  # hay dos matices en pantalla en vez de uno.
+  tokens={"--m-pagina":"#0d2b52",
    "--m-grano":f'url("{svg("plano-rejilla.svg")}")',# La retícula es el mundo, pero a plena tinta pasaba por DEBAJO del XP y de
    # los chips, que no tienen superficie propia: medido, 1,53-1,58 cuando el
    # resto de los mundos no pasa de 1,35. Se ve alrededor, no debajo.
@@ -170,8 +171,8 @@ MUNDOS = [
    # silencio y solo en este mundo. Este tono es el compuesto exacto de aquel
    # rgba sobre la pagina, asi que no cambia lo que se ve; ademas cumple lo que
    # ya decia la nota de arriba, que el panel es opaco.
-   "--m-tarjeta":"#12202f","--m-borde":"1px","--m-borde-color":"#6ea2d8",
-   "--m-sombra":"inset 0 0 0 4px rgba(18,32,47,.95), inset 0 0 0 5px rgba(110,162,216,.5), 0 8px 22px rgba(0,0,0,.35)",
+   "--m-tarjeta":"#0b1219","--m-borde":"1px","--m-borde-color":"#6ea2d8",
+   "--m-sombra":"inset 0 0 0 4px rgba(11,18,25,.95), inset 0 0 0 5px rgba(110,162,216,.5), 0 8px 22px rgba(0,0,0,.35)",
    "--m-r-tarjeta":"0","--m-r-mini":"0","--m-r-barra":"0","--m-r-chip":"0",
    # La cota SE ESTIRA al ancho de la pieza, y por eso va por capas en vez
    # de ser un dibujo. Era un SVG de 200 px centrado: en una ficha estrecha
