@@ -133,11 +133,47 @@ function ncelFigura(fig, hasta, cx, cy, esc, cls, desde) {
 
 /* El cielo de fondo. Aleatorio a propósito y distinto cada vez: no es
    información, es profundidad. La constelación sí es siempre la misma. */
-function ncelCielo(n) {
+/* El cielo de fondo. Aleatorio a propósito y distinto cada vez: no es
+   información, es profundidad. La constelación sí es siempre la misma.
+
+   **El cuadro se hace a la medida de la pantalla, y ahí está todo.** Costó dos
+   intentos:
+
+   1. viewBox 100×187 con `preserveAspectRatio="none"`. En un monitor de
+      1600×900 eso escala 16 en horizontal contra 4,8 en vertical: cada
+      estrella salía como una elipse **tres veces más ancha que alta**.
+   2. viewBox 100×100 con `slice`. Los círculos volvieron a ser círculos, pero
+      100 unidades repartidas en 1600 px dan 16 px por unidad, así que la misma
+      estrella que en un teléfono mide 2 px en un monitor medía 13. Redondas,
+      sí, pero como gotas de lluvia.
+
+   Lo que arregla las dos cosas a la vez es no tener un cuadro fijo: el viewBox
+   se calcula del tamaño real de la ventana, a razón de **una unidad por cada
+   4 px**. Así el aspecto siempre coincide —no hay nada que estirar— y una
+   estrella mide lo mismo en las dos pantallas. Lo único que crece con el
+   monitor es CUÁNTAS hay, que es lo que pedía la pantalla grande. */
+const NCEL_PX_UNIDAD = 4;      // px de pantalla por unidad del viewBox
+const NCEL_UNIDADES_ESTRELLA = 158;  // una estrella por cada tantas unidades²
+
+function ncelCielo() {
+  const cielo = document.getElementById("ncel-cielo");
+  const w = Math.max(60, window.innerWidth / NCEL_PX_UNIDAD);
+  const h = Math.max(60, window.innerHeight / NCEL_PX_UNIDAD);
+  /* El viewBox se escribe aquí y no en el HTML porque depende de la ventana.
+     Con el aspecto ya cuadrado, `slice` no recorta nada; se deja puesto por si
+     alguien gira el teléfono con la escena abierta. */
+  if (cielo) cielo.setAttribute("viewBox", `0 0 ${w.toFixed(1)} ${h.toFixed(1)}`);
+  const cuantas = Math.min(560, Math.round(w * h / NCEL_UNIDADES_ESTRELLA));
   let s = "";
-  for (let i = 0; i < 70; i++) {
-    s += `<circle cx="${(Math.random() * 100).toFixed(1)}" cy="${(Math.random() * 187).toFixed(1)}"` +
-         ` r="${(0.25 + Math.random() * 0.6).toFixed(2)}" opacity="${(0.2 + Math.random() * 0.25).toFixed(2)}"/>`;
+  for (let i = 0; i < cuantas; i++) {
+    /* Tres tamaños, y las pequeñas son la mayoría: un cielo con todas las
+       estrellas iguales se lee como un patrón, no como profundidad. */
+    const g = Math.random();
+    const r = g > 0.95 ? 0.5 + Math.random() * 0.28
+            : g > 0.74 ? 0.3 + Math.random() * 0.2
+            : 0.13 + Math.random() * 0.14;
+    s += `<circle cx="${(Math.random() * w).toFixed(2)}" cy="${(Math.random() * h).toFixed(2)}"` +
+         ` r="${r.toFixed(2)}" opacity="${(0.18 + Math.random() * 0.34).toFixed(2)}"/>`;
   }
   return s;
 }
@@ -154,7 +190,11 @@ function ncelPintarMapa(nivel) {
   const hasta = ncelHasta(fig, k), desde = k > 1 ? ncelHasta(fig, k - 1) : 0;
   /* Coordenadas del cuadro de la franja (viewBox 0 0 100 100). La figura llena
      lo que puede sin tocar el estante de medallas, que vive arriba del todo. */
-  const CX = 50, CY = 58, ESC = 0.74, ANCHO = 15;
+  const CX = 50, CY = 58, ESC = 0.74;
+  /* El estante de medallas: 0,105 lo dejaba en 54 px en un monitor —cuatro
+     rayas que no se leen como nada—. A 0,16 son 83 px y se distingue qué
+     figura es cada una, que es lo único que hace que una colección funcione. */
+  const ESC_MEDALLA = 0.16, ANCHO = 18;
 
   /* El estante de arriba: las figuras ya cerradas, en pequeño. El total
      incluye la que se cierra en ESTE nivel — sin contarla, la fila quedaba
@@ -268,26 +308,35 @@ function ncelTonosDe(id) {
    dibujo del gesto, no una captura. Se hacen con SVG porque tienen que
    funcionar a 132×74 sin pedir un archivo. */
 const NCEL_VISTAS = {
-  "destello": '<svg viewBox="0 0 80 44" aria-hidden="true">' +
-    '<circle cx="40" cy="22" r="13" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".45"/>' +
-    '<circle cx="40" cy="22" r="19" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".18"/>' +
-    '<path d="M40 13l2.4 6.6L49 22l-6.6 2.4L40 31l-2.4-6.6L31 22l6.6-2.4z" fill="currentColor"/>' +
-    '<circle cx="21" cy="12" r="1.6" fill="currentColor" opacity=".6"/>' +
-    '<circle cx="60" cy="31" r="1.6" fill="currentColor" opacity=".6"/>' +
-    '<circle cx="59" cy="11" r="1.2" fill="currentColor" opacity=".4"/></svg>',
-  "racha": '<svg viewBox="0 0 80 44" aria-hidden="true">' +
-    '<defs><radialGradient id="ncelAlba" cx="50%" cy="100%" r="70%">' +
-    '<stop offset="0%" stop-color="currentColor" stop-opacity=".75"/>' +
+  "destello": '<svg viewBox="0 0 80 50" aria-hidden="true">' +
+    '<circle cx="40" cy="25" r="14" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".45"/>' +
+    '<circle cx="40" cy="25" r="21" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".18"/>' +
+    '<path d="M40 15l2.7 7.3L50 25l-7.3 2.7L40 35l-2.7-7.3L30 25l7.3-2.7z" fill="currentColor"/>' +
+    '<circle cx="19" cy="13" r="1.7" fill="currentColor" opacity=".6"/>' +
+    '<circle cx="62" cy="36" r="1.7" fill="currentColor" opacity=".6"/>' +
+    '<circle cx="61" cy="12" r="1.3" fill="currentColor" opacity=".4"/>' +
+    '<circle cx="17" cy="37" r="1.1" fill="currentColor" opacity=".35"/></svg>',
+  /* La brasa avivada. Aquí hubo un amanecer con abetos, dibujado para una
+     escena que Eduardo descartó; la vista tiene que enseñar lo que de verdad
+     va a salir, así que es el fuego con su cerco y sus pavesas. */
+  "racha": '<svg viewBox="0 0 80 50" aria-hidden="true">' +
+    '<defs><radialGradient id="ncelBrasa" cx="50%" cy="62%" r="58%">' +
+    '<stop offset="0%" stop-color="currentColor" stop-opacity=".55"/>' +
     '<stop offset="100%" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs>' +
-    '<rect x="0" y="0" width="80" height="44" fill="url(#ncelAlba)"/>' +
-    '<circle cx="16" cy="10" r="1" fill="currentColor" opacity=".5"/>' +
-    '<circle cx="64" cy="8" r="1.2" fill="currentColor" opacity=".5"/>' +
-    '<path d="M0 44V34l6-7 5 7 7-10 6 10 6-5 7 8 6-12 7 12 6-6 6 6 5-9 8 9v7z" fill="currentColor" opacity=".85"/></svg>',
-  "grande": '<svg viewBox="0 0 80 44" aria-hidden="true">' +
-    '<circle cx="40" cy="22" r="19" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".2"/>' +
-    '<circle cx="40" cy="22" r="13" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".38"/>' +
-    '<circle cx="40" cy="22" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/>' +
-    '<path d="M36.6 22h6.8M40 18.6v6.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+    '<rect x="0" y="0" width="80" height="50" fill="url(#ncelBrasa)"/>' +
+    '<circle cx="40" cy="31" r="17" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".3"/>' +
+    '<path d="M40 44c6.1 0 9.7-4 9.7-9 0-6.2-5.6-8.7-6.2-13.8-2.1 3.2-4.9 5.3-4.9 8.7-2.1-.8-2.8-3.2-2.5-5.5-3.8 2.5-5.8 6.2-5.8 11.7 0 5 3.6 9 9.7 9z"' +
+    ' fill="currentColor" fill-opacity=".28" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>' +
+    '<circle cx="23" cy="20" r="1.5" fill="currentColor" opacity=".75"/>' +
+    '<circle cx="58" cy="15" r="1.8" fill="currentColor" opacity=".75"/>' +
+    '<circle cx="65" cy="28" r="1.2" fill="currentColor" opacity=".5"/>' +
+    '<circle cx="15" cy="33" r="1.2" fill="currentColor" opacity=".5"/>' +
+    '<circle cx="49" cy="9" r="1" fill="currentColor" opacity=".4"/></svg>',
+  "grande": '<svg viewBox="0 0 80 50" aria-hidden="true">' +
+    '<circle cx="40" cy="25" r="22" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".2"/>' +
+    '<circle cx="40" cy="25" r="15" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".38"/>' +
+    '<rect x="30" y="15" width="20" height="20" rx="7" fill="none" stroke="currentColor" stroke-width="1.8"/>' +
+    '<path d="M35.6 25.2l3.1 3.1 5.9-6.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>'
 };
 
 /* Qué vista le toca a un peldaño de celebración. Se decide por el NIVEL y no
@@ -296,24 +345,37 @@ function ncelVistaCelebracion(nivel) {
   return nivel <= 3 ? NCEL_VISTAS.destello : nivel <= 9 ? NCEL_VISTAS.racha : NCEL_VISTAS.grande;
 }
 
-function ncelTarjetaPremio(x) {
+function ncelTarjetaPremio(x, i) {
   const esAmb = x.tipo === "ambiente";
   let vista, estilo = "";
   if (esAmb) {
     const t = x.id ? ncelTonosDe(x.id) : null;
     /* Sin tonos —un ambiente que aún no tenga su bloque— se cae al icono de
        siempre en vez de dejar el hueco vacío. */
-    vista = t
+    /* Los TRES tonos o ninguno. Un ambiente al que le falte uno dejaba la
+       variable declarada y VACÍA, y una variable vacía no cae en el valor de
+       respaldo de `var(...)` —es un valor válido, solo que no vale nada—: el
+       `color-mix` del marco se volvía inválido y la tarjeta salía con el
+       borde blanco de fábrica en vez del acento del ambiente. */
+    const completo = t && t.bg && t.card && t.acento;
+    vista = completo
       ? '<span class="ncel-swatch"><i class="sw-card"></i><i class="sw-punto"></i></span>'
       : icon("brush", 22);
-    if (t) estilo = ' style="--sw-bg:' + t.bg + ';--sw-card:' + t.card + ';--sw-ac:' + t.acento + '"';
+    if (completo) estilo = ' style="--sw-bg:' + t.bg + ';--sw-card:' + t.card + ';--sw-ac:' + t.acento + '"';
   } else {
     vista = ncelVistaCelebracion(x.nivel);
   }
-  return '<article class="ncel-premio' + (esAmb ? " es-amb" : " es-cel") + '"' + estilo + '>' +
+  /* El orden viaja en una variable y no en un `animation-delay` escrito
+     aquí: el CSS es el que decide cuánto tarda cada tarjeta en entrar, y así
+     el ritmo del botín se ajusta en un solo sitio. */
+  const orden = ' style="--i:' + (i || 0) + (estilo ? ';' + estilo.slice(8, -1) : '') + '"';
+  return '<article class="ncel-premio' + (esAmb ? " es-amb" : " es-cel") + '"' + orden + '>' +
+    '<span class="ncel-fulgor" aria-hidden="true"></span>' +
     '<div class="ncel-vista">' + vista + '</div>' +
-    '<div class="ncel-quees">' + (esAmb ? "Ambiente" : "Celebración") + '</div>' +
-    '<div class="ncel-nom">' + escapeHtml(x.corto || x.nombre) + '</div>' +
+    '<div class="ncel-pie">' +
+      '<div class="ncel-quees">' + (esAmb ? "Ambiente nuevo" : "Celebración nueva") + '</div>' +
+      '<div class="ncel-nom">' + escapeHtml(x.corto || x.nombre) + '</div>' +
+    '</div>' +
     '</article>';
 }
 
@@ -391,8 +453,8 @@ function celebrarNivel(nivel, abre) {
   const premios = abre.filter(x => x.tipo !== "rango");
   const caja = document.getElementById("ncel-abre");
   caja.innerHTML = premios.length
-    ? `<div class="ncel-tit">Se abre</div><div class="ncel-premios">` +
-      premios.map(ncelTarjetaPremio).join("") + `</div>`
+    ? `<div class="ncel-tit">Desbloqueaste</div><div class="ncel-premios">` +
+      premios.map((x, i) => ncelTarjetaPremio(x, i)).join("") + `</div>`
     : "";
 
   /* El botón que lleva a donde está el premio. Un anuncio sin destino obliga a
@@ -551,13 +613,14 @@ let scelTimer = null;
 function celebrateStreak(n) {
   const el = document.getElementById("scel");
   if (!el) return;
-  /* La segunda escena de racha, que abre el nivel 9: el amanecer. La brasa
-     mira al fuego que llevas encendido; el alba mira al día que empieza, que
-     es lo que una racha larga se ha ganado decir. Es la misma escena con otra
-     luz y no una pantalla nueva: el número, el mensaje y el botón no se
-     mueven, así que no hay dos maquetas que mantener. */
-  el.classList.toggle("alba",
-    typeof celebracionesAbiertas === "function" && celebracionesAbiertas().racha);
+  /* La segunda escena de racha, que se desbloquea en el nivel 9: la MISMA
+     brasa, avivada. Aquí hubo un amanecer con abetos y duró lo que tardó
+     Eduardo en verlo: la escena de racha aprobada es la brasa, y cambiarla
+     por un bosque no era subirla de nivel, era sustituirla. Lo que sube es
+     la intensidad —el cerco que late y el doble de pavesas—, y por eso el
+     número, el mensaje y el botón no se mueven de sitio. */
+  const avivada = typeof celebracionesAbiertas === "function" && celebracionesAbiertas().racha;
+  el.classList.toggle("avivada", avivada);
   document.getElementById("scel-num").textContent = n;
   document.getElementById("scel-sub").textContent = mensajeHito(n);
 
@@ -567,7 +630,7 @@ function celebrateStreak(n) {
      ritmo. Antes eran dieciocho chispas estallando en abanico desde el centro,
      que es el mismo gesto que la escena de nivel. */
   let chispas = "";
-  for (let i = 0; i < 26; i++) {
+  for (let i = 0; i < (avivada ? 48 : 26); i++) {
     chispas += `<i style="left:${(14 + Math.random() * 72).toFixed(0)}%;` +
       `--dx:${(Math.random() * 60 - 30).toFixed(0)}px;--h:${(180 + Math.random() * 320).toFixed(0)}px;` +
       `--t:${(1.8 + Math.random() * 0.7).toFixed(2)}s;animation-delay:${Math.random().toFixed(2)}s;` +

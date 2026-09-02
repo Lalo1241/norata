@@ -226,6 +226,15 @@ el encuadre desaparece. Y **la tarjeta de una rama es de una pieza**: la barra
 de arriba y la tira de abajo llevan el mismo suelo que el centro, o se ve
 parcheada. Las dos cosas las paró Eduardo en la primera mirada (0.7.55.1).
 
+**Y desde 0.7.71.5 hay una excepción, que es de Eduardo: en el modo claro de la
+CASA, las secciones donde salen nodos van en `--lienzo-suelo` (`#e7e9f4`), más
+claras que la página y no más oscuras.** No rompe la regla de arriba —lo que
+esa regla pide es que se SEPAREN, y separan igual: 1,10 contra el 1,07 que
+daban antes—, solo cambia de dirección, y de paso deja una escala de tres
+peldaños que antes no existía: página `#dcdef0` → lienzo `#e7e9f4` → tarjeta
+`#f2f0f9`. Vale solo ahí: de noche, y en cualquier mundo o ambiente, manda
+`--sup-hondo` como siempre.
+
 **Un tono que sale de una variable no llega solo a donde se usa.** `--sup-pagina`
 vale `var(--fondo-pagina)`; cambiar `--bg` no cambia el suelo. Al inventar un
 tono, buscar quién lo lee de verdad.

@@ -162,7 +162,7 @@ function celebracionesAbiertas() {
   const pro = typeof planPermite === "function" ? planPermite("celebracion") : false;
   return {
     destello: n >= 3,    // el destello propio al cumplir una misión
-    racha: n >= 9,       // la segunda escena de racha: el amanecer
+    racha: n >= 9,       // la brasa avivada: la misma escena de racha, más fuerte
     grande: n >= 15 && pro
   };
 }
@@ -207,7 +207,7 @@ function celebracionesAbiertas() {
 const EXP_ESCALERA = [
   { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión", corto: "Destello propio", listo: true },
   { nivel: 6,  tipo: "rango",       nombre: "Rango Andante", listo: true },
-  { nivel: 9,  tipo: "celebracion", nombre: "Escena nueva de racha", corto: "Nueva escena de racha", listo: true },
+  { nivel: 9,  tipo: "celebracion", nombre: "Racha avivada", corto: "Racha avivada", listo: true },
   { nivel: 12, tipo: "rango",       nombre: "Rango Rastreador", listo: true },
   { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", corto: "Celebración grande", pro: true, listo: true },
   { nivel: 18, tipo: "rango",       nombre: "Rango Explorador", listo: true },
@@ -1051,8 +1051,8 @@ function renderColeccion() {
     </div>
 
     ${peldanos.length ? `<div class="panel">
-      <h3>Lo que abre el nivel</h3>
-      <p class="settings-note">El nivel sube solo con lo que ya haces. Esto es lo que va apareciendo por el camino.</p>
+      <h3>Lo que desbloqueas al subir</h3>
+      <p class="settings-note">El nivel sube solo con lo que ya haces. Esto es lo que vas desbloqueando por el camino.</p>
       <div class="col-peldanos">
         ${peldanos.map(x => {
           /* Por qué no lo tienes se lo pregunta a `aparienciaDisponible()`, que
@@ -1091,7 +1091,7 @@ function renderColeccion() {
             <b>${escapeHtml(x.nombre)}</b>
             <span class="cpx-estado">${
               porNivel ? "Nivel " + x.nivel
-              : tuyo ? icon("check", 13) + "Tuyo"
+              : tuyo ? icon("check", 13) + "Desbloqueado"
               : icon("lock", 12) + (razon === "fundador" ? "Fundador" : "Pro")}</span>
           </div>`;
         }).join("")}

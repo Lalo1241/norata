@@ -52,8 +52,8 @@ function renderPerkDetail() {
           </button>`).join("")}
       </div>
       <p class="settings-note" style="margin:10px 0 0">${modo === "todos"
-        ? `Este talento corona varios caminos: se abre cuando estén completos los ${reqs.length}.`
-        : `Son caminos alternativos: se abre en cuanto completes cualquiera de los ${reqs.length}.`}
+        ? `Este talento corona varios caminos: se desbloquea cuando estén completos los ${reqs.length}.`
+        : `Son caminos alternativos: se desbloquea en cuanto completes cualquiera de los ${reqs.length}.`}
         En el mapa es el círculo con la letra <b>${modo === "todos" ? "Y" : "O"}</b> a su izquierda, y ahí también se cambia de un toque.</p>
     </div>`;
 
@@ -157,10 +157,10 @@ function renderPerkDetail() {
     <div class="panel alt">
       <h3>Bloqueado</h3>
       <p class="settings-note">${reqs.length === 1
-        ? "Se abre al completar:"
+        ? "Se desbloquea al completar:"
         : (modoDe(p) === "todos"
-          ? `Se abre al completar <b>los ${reqs.length}</b> — llevas ${hechos}.`
-          : `Se abre al completar <b>cualquiera</b> de los ${reqs.length}.`)}</p>
+          ? `Se desbloquea al completar <b>los ${reqs.length}</b> — llevas ${hechos}.`
+          : `Se desbloquea al completar <b>cualquiera</b> de los ${reqs.length}.`)}</p>
       <div class="req-list">
         ${reqs.map(r => `<button type="button" class="req-chip ${r.status === "completed" ? "hecho" : ""}" onclick="openPerk('${r.id}')">
           ${r.status === "completed" ? icon("check", 13) : icon(r.icon || "star", 13)}<span>${escapeHtml(r.name)}</span>
