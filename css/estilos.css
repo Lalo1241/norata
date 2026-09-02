@@ -1066,6 +1066,12 @@
   .scene-card {
     position: relative;
     overflow: hidden;
+    /* El marco va aquí y no en `.sec-hero`, que es donde se puso primero:
+       `.scene-card` es lo que comparten los cuatro banners de sección Y la
+       tarjeta de racha del Resumen, y esa se quedó sin borde. Lo cazó
+       Eduardo mirando el Resumen. Sale del mismo par que el resto de las
+       piezas, así que cada mundo pone el suyo sin tocar nada de aquí. */
+    border: var(--borde-tarjeta) solid var(--borde-panel);
     border-radius: var(--r-burbuja-alta);
     height: 252px;
     margin-bottom: 20px;
@@ -2966,12 +2972,6 @@
      banners seguían con la burbuja de la casa. Lo cazó Eduardo. */
   .sec-hero {
     height: auto; min-height: 0;
-    /* El banner llevaba el marco al aire: era la única pieza grande de la
-       app sin borde, y sobre un mundo con superficie propia se le
-       desdibujaba el canto contra la página. Sale del mismo par que el
-       resto —`--borde-tarjeta` y `--borde-panel`—, así que cada mundo le
-       pone el suyo sin tocar nada aquí. Lo pidió Eduardo. */
-    border: var(--borde-tarjeta) solid var(--borde-panel);
     border-radius: calc(12px * var(--r-factor)) calc(34px * var(--r-factor))
                    calc(34px * var(--r-factor)) calc(34px * var(--r-factor));
   }
