@@ -144,6 +144,29 @@ const EXP_RANGOS = [
     nota: "El último de los cinco. El nivel sigue subiendo después: la cuenta no se acaba." }
 ];
 
+/* ================= Las celebraciones que abre el nivel =================
+   Tres peldaños de `EXP_ESCALERA` prometen celebraciones, y hasta la 0.7.71
+   eran promesas: estaban escritas sin `listo` justo para no anunciar lo que no
+   existe. Esto es lo que las cumple.
+
+   **Se derivan del nivel, como todo lo demás.** No hay nada guardado, así que
+   son retroactivas y la sincronía no las puede perder — el mismo trato que los
+   puntos, y por el mismo motivo.
+
+   La de pantalla completa además pide Pro, y por eso se pregunta a `LIMITES` y
+   no se escribe aquí un `if` con el nombre de un plan: el día que cambie el
+   reparto se cambia en un solo sitio. Al dejar de pagar vuelve la de siempre;
+   apagar no es quitar, porque la celebración base sigue saliendo igual. */
+function celebracionesAbiertas() {
+  const n = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 0;
+  const pro = typeof planPermite === "function" ? planPermite("celebracion") : false;
+  return {
+    destello: n >= 3,    // el destello propio al cumplir una misión
+    racha: n >= 9,       // la segunda escena de racha: el amanecer
+    grande: n >= 15 && pro
+  };
+}
+
 /* ================= La escalera =================
    Qué se abre y cuándo. El ritmo baja cuando baja el ritmo de subida: algo
    cada uno o dos niveles hasta el 10, y de ahí en adelante cada vez más
@@ -178,11 +201,11 @@ const EXP_RANGOS = [
    Los peldaños de celebración caen en los huecos que quedan: encima de un
    cambio de rango serían dos noticias en la misma pantalla. */
 const EXP_ESCALERA = [
-  { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión" },
+  { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión", listo: true },
   { nivel: 6,  tipo: "rango",       nombre: "Rango Andante", listo: true },
-  { nivel: 9,  tipo: "celebracion", nombre: "Escena nueva de racha" },
+  { nivel: 9,  tipo: "celebracion", nombre: "Escena nueva de racha", listo: true },
   { nivel: 12, tipo: "rango",       nombre: "Rango Rastreador", listo: true },
-  { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true },
+  { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true, listo: true },
   { nivel: 18, tipo: "rango",       nombre: "Rango Explorador", listo: true },
   { nivel: 24, tipo: "rango",       nombre: "Rango Cartógrafo", listo: true },
   { nivel: 30, tipo: "rango",       nombre: "Rango Navegante", listo: true }
@@ -434,19 +457,28 @@ function proximoDesbloqueo(nivel) {
 
    Devuelve "" antes del primer nivel: sin nada que enseñar no se enseña un
    aro vacío, que se leería como algo roto. */
-/* `conColor` pinta la insignia del color del RANGO en vez de la menta de la
-   casa. No va siempre puesto, y el motivo es de contraste: dentro del cielo
-   —que es una escena y se queda de noche— los cinco tonos son sus caras vivas
-   y el aro se lee de sobra; en el Resumen y en la fila de la cuenta la
-   insignia cae sobre papel en modo claro, donde los cinco se hunden a tinta y
-   un aro de dos píxeles en tinta oscura ya no dice de qué color es. Dentro
-   del cielo hay otras cuatro piezas del mismo color dándole contexto; sola
-   sobre una tarjeta blanca, no.
+/* **La insignia va del color de tu RANGO, en todas partes**: el aro del
+   progreso y el dibujo de dentro. Lo pidió Eduardo al ver que la ruedita del
+   menú de la cuenta seguía en menta mientras Mi expedición ya iba por
+   colores, y tiene razón — es la misma insignia, y donde más paga es
+   justamente ahí: en el Resumen y en la fila de la cuenta es lo ÚNICO que se
+   ve del recorrido, así que un color propio la convierte en algo que se
+   reconoce de lejos.
 
-   Así que el color entra donde está medido y se queda fuera donde no. El día
-   que se quiera en toda la app, se enciende aquí y hay que medir los cinco
-   tonos de día como TRAZO (umbral 3) y no como texto. */
-function insigniaExpedicionHTML(diam, conColor) {
+   Hubo una versión con esto detrás de un interruptor, encendido solo dentro
+   del cielo. El motivo era de contraste y **ya no existe**: entonces uno de
+   los cinco rangos era luciérnaga, que de día tiene que hundirse hasta el
+   dorado apagado que Eduardo rechazó por leerse como una alerta interna. Al
+   sacar la luciérnaga y el lila del reparto —ver `EXP_RANGOS`— la objeción se
+   fue con ellos.
+
+   Medido, porque un aro de dos píxeles es un TRAZO y no texto (umbral 3, no
+   4,5): sobre la tarjeta clara los cinco van de 5,44 a 7,55, y sobre la de
+   noche de 6,71 a 11,68. Pasan los dos umbrales con holgura en los dos modos.
+
+   Con `--mint` de reserva, porque un mundo puede traer sus cinco rangos y no
+   está obligado a traer colores. */
+function insigniaExpedicionHTML(diam) {
   const d = diam || 30;
   const info = nivelExpedicion();
   if (info.nivel < 1) return "";
@@ -457,9 +489,7 @@ function insigniaExpedicionHTML(diam, conColor) {
      se lee, y a 48 uno de 2 desaparece. */
   const grosor = d >= 40 ? 3 : 2;
   const dibujo = Math.round(d * 0.6);
-  /* Con `--mint` de reserva, porque un mundo puede traer sus cinco rangos y
-     no está obligado a traer colores. */
-  const col = conColor ? "var(" + (r.color || "--mint") + ")" : "var(--mint)";
+  const col = "var(" + (r.color || "--mint") + ")";
 
   return '<span class="exp-insignia" style="width:' + d + 'px;height:' + d + 'px;color:' + col + '"' +
     ' title="Nivel ' + info.nivel + ' · ' + r.nombre + ' · ' + info.pct + '% del nivel"' +
@@ -567,6 +597,10 @@ const EXP_COLOR_FUENTE = {
    aquí: desde la 0.7.65 cada figura tiene las que pide el dibujo —doce la
    bota, catorce la huella— y repartir el progreso es trabajo suyo. Dos
    verdades sobre lo mismo es justo lo que no puede haber. */
+/* Cuánto cielo se siembra por fuera del encuadre, por los cuatro lados. Tiene
+   que ser mayor que lo que el paralaje llega a mover el polvo (16 px de 320,
+   o sea 16 unidades) o se vería el borde del sembrado al mover el cursor. */
+const EXP_MARGEN = 44;
 const EXP_ALTO_CON_ALTAR = 190;
 const EXP_ALTO_VITRINA = 150;
 const EXP_ALTO_VACIO = 118;
@@ -727,14 +761,26 @@ function expCieloHTML(nivel) {
 
   /* El polvo del fondo: aleatorio y distinto cada vez, igual que en la
      celebración. No es información, es profundidad — las constelaciones sí son
-     siempre las mismas. Se siembra sobre el alto de VERDAD y con un suelo,
-     porque el cielo más corto es el de quien no ha empezado y ése es justo el
-     que no puede parecer roto: sin estrellas se lee como que no cargó. */
+     siempre las mismas.
+
+     **Se siembra MÁS ALLÁ del encuadre y se recorta.** Lo pidió Eduardo: «que
+     el cielo sea más amplio hacia los bordes y esté enmascarado dentro de su
+     espacio, para que se vean más estrellas que no se ven cuando uno mueve el
+     cursor». Sembrado justo en el encuadre, el paralaje arrastraba el borde a
+     la vista y por ese lado no había nada: el cielo se acababa, que es lo
+     contrario de la profundidad que se buscaba. Con `EXP_MARGEN` de más por
+     los cuatro lados hay reserva de sobra para los dieciséis píxeles que se
+     mueve, y lo que sobra lo recorta el `overflow` del SVG.
+
+     El suelo del número existe porque el cielo más corto es el de quien no ha
+     empezado, y ése es justo el que no puede parecer roto: sin estrellas se
+     lee como que no cargó. */
   let fondo = "";
-  const cuantas = Math.max(66, Math.round(alto / 2.4));
+  const anchoP = 320 + EXP_MARGEN * 2, altoP = alto + EXP_MARGEN * 2;
+  const cuantas = Math.max(112, Math.round(anchoP * altoP / 780));
   for (let i = 0; i < cuantas; i++) {
-    fondo += '<circle cx="' + (Math.random() * 320).toFixed(1) +
-      '" cy="' + (Math.random() * alto).toFixed(1) +
+    fondo += '<circle cx="' + (Math.random() * anchoP - EXP_MARGEN).toFixed(1) +
+      '" cy="' + (Math.random() * altoP - EXP_MARGEN).toFixed(1) +
       '" r="' + (0.35 + Math.random() * 0.85).toFixed(2) +
       '" opacity="' + (0.12 + Math.random() * 0.3).toFixed(2) + '"/>';
   }
@@ -929,7 +975,7 @@ function renderColeccion() {
       </div>
       <div class="exp-hero">
         <div class="exp-hero-fila">
-          ${insigniaExpedicionHTML(52, true)}
+          ${insigniaExpedicionHTML(52)}
           <div class="exp-hero-tx">
             <div class="exp-hero-nivel">Nivel ${nivel}</div>
             <div class="exp-hero-rango" style="color:${tono}">${expLecturaCielo(nivel)}</div>
@@ -991,7 +1037,15 @@ function renderColeccion() {
              no existen— no son una apariencia y se resuelven por el nivel. */
           const razon = (x.id && typeof aparienciaDisponible === "function")
             ? aparienciaDisponible(x.id)
-            : (nivel >= x.nivel ? true : "nivel");
+            : nivel < x.nivel ? "nivel"
+            /* Un peldaño sin `id` no es una apariencia —hoy son las tres
+               celebraciones, que la 0.7.71 pasó a `listo`— así que su plan no
+               lo sabe `aparienciaDisponible`. Se le pregunta a `planPermite`
+               con la misma llave que usa `celebracionesAbiertas()`: sin esto,
+               la de pantalla completa decía «Tuyo» a un plan libre en cuanto
+               pasabas el nivel 15, que es prometer lo que no se abre. */
+            : (x.pro && typeof planPermite === "function" && !planPermite("celebracion")) ? "pro"
+            : true;
           const tuyo = razon === true;
           /* Un solo dato por chip. Al que aún no llegas le importa el nivel
              —el candado ya lo verá cuando llegue—; al que ya alcanzaste y
