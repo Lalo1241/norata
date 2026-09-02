@@ -76,6 +76,56 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.70.2 · 2 sep 2026
+**El botón de actualizar dice qué versión entra, y se pone del lado correcto de
+la línea.**
+
+Dos retoques del botón que estrenó la 0.7.59.1.
+
+**La línea vuelve a ser de Ajustes.** La tenía el botón, y estaba del revés: al
+otro lado de esa raya está lo que se toca todos los días, y de este lado lo de la
+app. Ahora el orden es «Actualizar → línea → Ajustes». Lo que **no** vuelve es el
+anclaje al fondo: ese se queda con el botón, porque si se lo quedara Ajustes todo
+el hueco elástico se metería ENTRE los dos y el botón se iría arriba a hacerle
+compañía a Proyectos.
+
+Y la línea baja dos píxeles, de −9 a −4. Estaba a −9 cuando encima solo tenía el
+hueco elástico y flotaba sola; con el botón justo arriba el hueco es de 8 px, así
+que −9 la metía un píxel **dentro** del botón: invisible en reposo y visible al
+pasar el ratón, cortándole el fondo.
+
+**Y dice el número.** Un botón que solo dice «Actualizar» pide un acto de fe: no
+sabes si lo que entra es la tanda que estabas esperando o el arreglo de un
+rótulo. Ahora lleva debajo `V0.7.70.2`, en el gris de los textos secundarios y
+con la V delante, como el pie de la barra.
+
+El número no se inventa ni se pide aparte: **lo manda el service worker en el
+mismo mensaje que avisa**, y es el nombre de la caché que ya está bajada. O sea
+que no es una promesa de lo que habrá, es lo que ya está ahí esperando a que
+pulses. Si algún día llegara sin número, el renglón desaparece solo (`:empty`) y
+el botón se queda como estaba. El toast del teléfono lo dice también: «Ya está
+lista la versión 0.7.70.2».
+
+**Una línea de CSS que hacía falta escribir:**
+
+```css
+html.sc #nav-update-side .nav-label { display: none; }
+```
+
+El rótulo de dos renglones se estiliza con un selector que lleva un id, y un id
+le gana a `html.sc .nav-label` por especificidad. Sin esa línea el rótulo
+sobrevivía al plegado y se salía de una barra de 84 px.
+
+Medido con las animaciones saltadas: desplegada 209 × 64 —cuatro píxeles más alto
+que antes, por el segundo renglón— con la línea de Ajustes a 767, dentro del
+hueco y no dentro del botón; plegada 47 × 52, solo el icono, sin salirse.
+
+**Y dos fechas más de la lista, corregidas.** La 0.7.65 y la 0.7.67 decían «1
+sep» y se commitearon a la 01:02 y a la 01:26 del 2 en hora de México: quedaban
+por debajo de la 0.7.66, que ya decía «2 sep», o sea una entrada más vieja
+fechada después que una más nueva. Es el caso de trabajar pasada la medianoche, y
+la regla lo resuelve igual: manda el reloj de México.
+
 ### 0.7.70.1 · 2 sep 2026
 
 **El cielo de Mi expedición se ensancha, y las fugaces dejan de verse antes de
@@ -452,7 +502,7 @@ es. Se enciende con un segundo argumento.
 los cinco rangos siempre están, las tres fugaces se siembran siempre y no
 desborda de lado en ninguno. En los dos modos, con paralaje medido en las tres
 capas y su vuelta al centro, y a 320×480 sin cortar un solo rótulo.
-### 0.7.67 · 1 sep 2026
+### 0.7.67 · 2 sep 2026
 
 **Un rango se consigue al cerrar su constelación, no al estrenarla.**
 
@@ -528,7 +578,7 @@ Medido con el barrido de control sobre 427 elementos: **cero fallas de contraste
 exclusivas de Averno en los dos modos**. De día Averno falla 11 y la casa 70; de
 noche 24 contra 25.
 
-### 0.7.65 · 1 sep 2026
+### 0.7.65 · 2 sep 2026
 
 **La constelación deja de contar niveles y pasa a dibujar el objeto del rango,
 y la escena dice lo que acaba de pasar.**
