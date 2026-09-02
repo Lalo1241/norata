@@ -1037,7 +1037,15 @@ function renderColeccion() {
              no existen— no son una apariencia y se resuelven por el nivel. */
           const razon = (x.id && typeof aparienciaDisponible === "function")
             ? aparienciaDisponible(x.id)
-            : (nivel >= x.nivel ? true : "nivel");
+            : nivel < x.nivel ? "nivel"
+            /* Un peldaño sin `id` no es una apariencia —hoy son las tres
+               celebraciones, que la 0.7.71 pasó a `listo`— así que su plan no
+               lo sabe `aparienciaDisponible`. Se le pregunta a `planPermite`
+               con la misma llave que usa `celebracionesAbiertas()`: sin esto,
+               la de pantalla completa decía «Tuyo» a un plan libre en cuanto
+               pasabas el nivel 15, que es prometer lo que no se abre. */
+            : (x.pro && typeof planPermite === "function" && !planPermite("celebracion")) ? "pro"
+            : true;
           const tuyo = razon === true;
           /* Un solo dato por chip. Al que aún no llegas le importa el nivel
              —el candado ya lo verá cuando llegue—; al que ya alcanzaste y
