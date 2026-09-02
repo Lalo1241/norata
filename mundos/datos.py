@@ -135,7 +135,23 @@ MUNDOS = [
   premisa="El plano azul de toda la vida: retícula de dos pesos, cotas con puntas de flecha y marcas de sección. Aquí la tarjeta no es una tarjeta: es una PIEZA ACOTADA, con su línea de medida cruzando por encima y el hueco donde iría la cifra. Dice algo que ningún otro mundo dice — que lo tuyo todavía se está construyendo.",
   letra="Rajdhani", ancho="−10%", escala="1", esquinas="0 px · vivas", peso="~65 KB", horas="Noche",
   nota="La tarjeta era casi transparente y el texto se peleaba con la retícula del fondo. Ahora es un panel opaco: la retícula se ve alrededor, no por debajo de lo que hay que leer.",
-  tokens={"--m-pagina":"#0d2b52",
+  # ---- El azul, rebajado (0.7.61) ----
+  # Lo paró Eduardo: «el tema de azul es excesivo». Medido en croma, la página
+  # estaba en 0,079 contra el 0,018 de la casa —más de CUATRO VECES la
+  # saturación, y en la superficie más grande que tiene la app—. Reliquia anda
+  # por 0,028 y Averno por 0,009: Blueprint era el raro, no una cuestión de
+  # gusto.
+  #
+  # La página pasa a un negro FRÍO (croma 0,017, como la casa) y el azul se
+  # queda donde de verdad dice algo: la retícula, el marco, el acento y la
+  # cota. Un plano no es un campo de color, es un DIBUJO — y sobre negro el
+  # dibujo se lee mejor, que es justo lo que este mundo quería decir.
+  #
+  # La tarjeta se pone ENCIMA del fondo y no debajo, como en toda la app: da
+  # 1,18 contra el 1,19 de la casa. Antes estaba más oscura que su página.
+  # La cara de día no se toca: medida, es la menos saturada de los cuatro
+  # mundos (0,013), porque es papel.
+  tokens={"--m-pagina":"#080d14",
    "--m-grano":f'url("{svg("plano-rejilla.svg")}")',# La retícula es el mundo, pero a plena tinta pasaba por DEBAJO del XP y de
    # los chips, que no tienen superficie propia: medido, 1,53-1,58 cuando el
    # resto de los mundos no pasa de 1,35. Se ve alrededor, no debajo.
@@ -154,8 +170,8 @@ MUNDOS = [
    # silencio y solo en este mundo. Este tono es el compuesto exacto de aquel
    # rgba sobre la pagina, asi que no cambia lo que se ve; ademas cumple lo que
    # ya decia la nota de arriba, que el panel es opaco.
-   "--m-tarjeta":"#071c37","--m-borde":"1px","--m-borde-color":"#6ea2d8",
-   "--m-sombra":"inset 0 0 0 4px rgba(6,26,52,.95), inset 0 0 0 5px rgba(110,162,216,.5), 0 8px 22px rgba(0,0,0,.35)",
+   "--m-tarjeta":"#12202f","--m-borde":"1px","--m-borde-color":"#6ea2d8",
+   "--m-sombra":"inset 0 0 0 4px rgba(18,32,47,.95), inset 0 0 0 5px rgba(110,162,216,.5), 0 8px 22px rgba(0,0,0,.35)",
    "--m-r-tarjeta":"0","--m-r-mini":"0","--m-r-barra":"0","--m-r-chip":"0",
    # La cota SE ESTIRA al ancho de la pieza, y por eso va por capas en vez
    # de ser un dibujo. Era un SVG de 200 px centrado: en una ficha estrecha
@@ -216,6 +232,126 @@ MUNDOS = [
    # casa. Mas oscuro se comia lo lleno; mas claro desaparecia.
    "--m-carril":"#dbe1ea",
    "--m-icono":f'url("{svg("plano-marca-dia.svg")}") center/contain no-repeat'},
+  # ---- La celebracion de subir de nivel ----
+  # Un plano no se ilumina: SE TRAZA. La de la casa habla en rayos que giran
+  # 26 s, resplandor, un rebote elastico y chispas redondas saliendo del
+  # centro; eso es lenguaje de fuegos artificiales y sobre papel de plano no
+  # significa nada. Lo dijo Eduardo: "aca no aplica constelaciones ni nada de
+  # eso".
+  #
+  # Los cinco tiempos, todos con la curva del mundo (mecanica, sin rebote):
+  #   0-340    la reticula se plotea de izquierda a derecha
+  #   180-920  la insignia SE DIBUJA sola, trazo a trazo
+  #   720-1060 dos cotas entran y el numero esta cuando las puntas se tocan
+  #   940-1500 cruces de registro que aparecen en su sitio y se quedan
+  #   1420-1720 el sello, SOLO con rango nuevo
+  #
+  # Lo que hace barata la idea central: los cinco dibujos de rango ya son
+  # TRAZO PURO (fill="none"), asi que se dibujan solos con dasharray sin tocar
+  # un vector. Medido: 2-4 sub-trazos por rango y el mas largo de los cinco
+  # mide 52,3 unidades, asi que un solo `60` sirve para todos.
+  app_extra="""
+/* --- 1 · El barrido del ploter. Fuera el giro infinito: nada gira eternamente
+       en un plano, y una rotacion detras de un texto es ruido. --- */
+SELECTOR .ncel-rayos {
+  width: 100%; height: 100%;
+  background: url("URL_REJILLA");
+  animation: none;
+}
+SELECTOR .ncel.show .ncel-rayos { animation: plano-plot .34s var(--curva) both; }
+@keyframes plano-plot { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* --- 2 · La insignia se traza. Sin resplandor (sobre papel azul una mancha) y
+       sin latido: un dibujo tecnico no respira, y quedarse quieto es lo que lo
+       hace parecer definitivo. --- */
+SELECTOR .ncel-insignia { filter: none; }
+SELECTOR .ncel.show .ncel-insignia { animation: none; }
+SELECTOR .ncel-insignia svg > * { stroke-dasharray: 60; stroke-dashoffset: 60; }
+SELECTOR .ncel.show .ncel-insignia svg > * { animation: plano-traza .52s var(--curva) .18s forwards; }
+SELECTOR .ncel.show .ncel-insignia svg > *:nth-child(2) { animation-delay: .34s; }
+SELECTOR .ncel.show .ncel-insignia svg > *:nth-child(3) { animation-delay: .46s; }
+SELECTOR .ncel.show .ncel-insignia svg > *:nth-child(4) { animation-delay: .56s; }
+@keyframes plano-traza { to { stroke-dashoffset: 0; } }
+
+/* --- 3 · El numero llega ACOTADO. La casa lo trae con un rebote elastico
+       (.34,1.56,.64,1); aqui no hay goma. Dos cotas entran desde los lados y el
+       numero esta cuando las puntas de flecha se tocan. --- */
+SELECTOR .ncel-num { position: relative; text-shadow: none; }
+SELECTOR .ncel.show .ncel-num { animation: plano-cifra .26s var(--curva) .98s both; }
+@keyframes plano-cifra { from { opacity: 0; } to { opacity: 1; } }
+SELECTOR .ncel-num::before, SELECTOR .ncel-num::after {
+  content: ""; position: absolute; top: 50%; width: 58px; height: 18px; opacity: 0;
+}
+SELECTOR .ncel-num::before {
+  right: calc(100% + 16px);
+  background:
+    linear-gradient(var(--mint),var(--mint)) left 0 top 0/1px 18px no-repeat,
+    linear-gradient(var(--mint),var(--mint)) left 0 center/100% 1px no-repeat,
+    url("URL_FLECHA_D") right 0 center/10px 7px no-repeat;
+}
+SELECTOR .ncel-num::after {
+  left: calc(100% + 16px);
+  background:
+    linear-gradient(var(--mint),var(--mint)) right 0 top 0/1px 18px no-repeat,
+    linear-gradient(var(--mint),var(--mint)) right 0 center/100% 1px no-repeat,
+    url("URL_FLECHA_I") left 0 center/10px 7px no-repeat;
+}
+SELECTOR .ncel.show .ncel-num::before { animation: plano-cota-i .38s var(--curva) .72s both; }
+SELECTOR .ncel.show .ncel-num::after  { animation: plano-cota-d .38s var(--curva) .72s both; }
+@keyframes plano-cota-i { from { opacity: 0; transform: translate(-34px,-50%); } to { opacity: .85; transform: translate(0,-50%); } }
+@keyframes plano-cota-d { from { opacity: 0; transform: translate(34px,-50%); }  to { opacity: .85; transform: translate(0,-50%); } }
+
+/* --- 4 · Cruces de registro, no chispas. Un ploter no lanza chispas: pone
+       MARCAS, y se quedan. Se reusan los mismos nodos y su --dx/--dy, asi que
+       esto no toca JavaScript: lo unico que cambia es que ya no vuelan desde
+       el centro, aparecen donde les toca. --- */
+SELECTOR .ncel-chispas i {
+  width: 12px; height: 12px; border-radius: 0;
+  background:
+    linear-gradient(var(--mint),var(--mint)) center/100% 1.2px no-repeat,
+    linear-gradient(var(--mint),var(--mint)) center/1.2px 100% no-repeat;
+}
+SELECTOR .ncel.show .ncel-chispas i { animation: plano-cruz .5s var(--curva) backwards; }
+@keyframes plano-cruz {
+  0%   { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.5); opacity: 0; }
+  45%  { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1);  opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1);  opacity: .34; }
+}
+
+/* --- 5 · El sello. SOLO con rango nuevo, o sea cinco veces en la vida de una
+       cuenta. Es el unico golpe de la secuencia y es mecanico: una prensa que
+       baja y no rebota, con la marca de seccion apareciendo detras. --- */
+SELECTOR .ncel-rango.nuevo { position: relative; }
+SELECTOR .ncel-rango.nuevo::before {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 132px; height: 132px; transform: translate(-50%,-50%);
+  background: url("URL_MARCA") center/contain no-repeat;
+  opacity: 0; pointer-events: none; z-index: -1;
+}
+SELECTOR .ncel.show .ncel-rango.nuevo { animation: plano-sello .3s var(--curva) 1.42s both; }
+SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(--curva) 1.42s both; }
+@keyframes plano-sello { 0% { opacity: 0; transform: scale(1.16); } 60% { opacity: 1; } 100% { opacity: 1; transform: scale(1); } }
+@keyframes plano-marca {
+  0%   { opacity: 0;   transform: translate(-50%,-50%) scale(.86); }
+  45%  { opacity: .28; }
+  100% { opacity: .14; transform: translate(-50%,-50%) scale(1); }
+}
+
+/* Y con `prefers-reduced-motion` todo aparece sin dibujarse. La regla de la
+   casa ya existe, pero no conoce estos nombres. */
+@media (prefers-reduced-motion: reduce) {
+  SELECTOR .ncel.show .ncel-rayos,
+  SELECTOR .ncel.show .ncel-insignia svg > *,
+  SELECTOR .ncel.show .ncel-num,
+  SELECTOR .ncel.show .ncel-num::before,
+  SELECTOR .ncel.show .ncel-num::after,
+  SELECTOR .ncel.show .ncel-chispas i,
+  SELECTOR .ncel.show .ncel-rango.nuevo,
+  SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: none; }
+  SELECTOR .ncel-insignia svg > * { stroke-dashoffset: 0; }
+  SELECTOR .ncel-num::before, SELECTOR .ncel-num::after { opacity: .85; }
+}
+""",
   extra=".plano .ficha{ padding-top:36px; }"),
 
  dict(id="forja", nombre="Forja", familia="de-materia", llave="El buque insignia", color="#ff9d3d",
