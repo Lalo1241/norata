@@ -53,7 +53,13 @@ function celebrarNivel(nivel, abre) {
   /* El dibujo del rango y no un icono genérico: el nivel 4 y el 5 son el mismo
      número más uno, y lo que de verdad cambia al llegar a un rango es el
      símbolo que llevas puesto. */
-  ins.innerHTML = r ? icon(r.icon, 78) : icon("compass", 78);
+  /* El reparto de siempre: un rango de la casa nombra un icono de ICONS y
+     uno de mundo trae su trazo entero. Sin esto, la celebración más grande
+     de la app —la de subir de rango— escribía el nombre del mundo con el
+     dibujo de la casa debajo. Cuarto sitio con el mismo despiste. */
+  ins.innerHTML = r
+    ? (r.trazo && typeof svgDeTrazo === "function" ? svgDeTrazo(r.trazo, 78) : icon(r.icon, 78))
+    : icon("compass", 78);
 
   const rango = document.getElementById("ncel-rango");
   const traeRango = abre.some(x => x.tipo === "rango");
