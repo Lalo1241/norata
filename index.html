@@ -938,7 +938,9 @@
        que alli sigue saliendo el toast: es el unico sitio que hay. -->
   <button class="c-nav side-only" id="nav-update-side" hidden onclick="location.reload()"
           aria-label="Actualizar a la version nueva" title="Hay una version nueva de Norata">
-    <svg viewBox="0 0 24 24"><path d="M12 4v10"/><path d="M8 11l4 4 4-4"/><path d="M5.5 19h13"/></svg>
+    <!-- El icono en su disco: es lo que lo vuelve una insignia en vez de una
+         fila mas del menu, y plegada la barra es lo UNICO que se ve. -->
+    <span class="nu-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4v10"/><path d="M8 11l4 4 4-4"/><path d="M5.5 19h13"/></svg></span>
     <span class="nav-label">Actualizar<span class="nu-ver" id="nav-update-ver"></span></span>
   </button>
   <button class="c-nav side-only" id="nav-settings-side" onclick="ajustesClick(event)" aria-label="Ajustes">

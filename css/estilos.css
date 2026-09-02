@@ -7454,8 +7454,65 @@
        permanente. Y como es un `.c-nav` como los demás, plegada la barra se
        queda en su icono sin una sola regla más: de eso ya se encarga
        `html.sc .nav-label`. */
-    #nav-update-side { color: var(--fire); }
-    #nav-update-side:hover { background: var(--fire-soft); color: var(--fire); }
+    /* ---- Y que se vea como lo que es ----
+       Estaba pintado como un elemento más del menú: transparente, plano, con el
+       rótulo en amarillo y nada más. Pero los otros cinco son SITIOS A LOS QUE
+       IR, y por eso son transparentes — una lista de destinos no necesita caja,
+       y ponérsela sería subrayar cinco cosas a la vez.
+
+       Este no es un destino: es algo que llegó y que está esperando a que
+       decidas. Una cosa que llega tiene cuerpo. Así que tiene fondo, marco y un
+       disco para el icono, los tres de la misma luciérnaga en tres fuerzas
+       distintas — 13 %, 26 % y 20 % —, que es lo que hace que se lea como UNA
+       pieza y no como un botón al que le pegaron un color.
+
+       Todo sale de `--fire`, así que un mundo que la cambie se lo lleva entero
+       y el modo claro pasa solo a la versión de escribir (#755c05) sin una
+       regla más. */
+    #nav-update-side {
+      color: var(--fire);
+      background: var(--fire-soft);
+      border-color: color-mix(in srgb, var(--fire) 26%, transparent);
+      border-radius: var(--r-caja);
+      padding: 12px;
+      gap: 11px;
+      /* Aparece de la nada, en mitad de lo que estabas haciendo: que suba un
+         poco al llegar es lo que lo convierte en algo que ocurrió, y no en algo
+         que llevaba ahí todo el rato y no habías visto. Dura lo que dura un
+         cambio de pantalla; no pide nada. */
+      animation: nu-llega var(--dur-media) var(--curva) both;
+    }
+    #nav-update-side:hover {
+      background: color-mix(in srgb, var(--fire) 18%, transparent);
+      border-color: color-mix(in srgb, var(--fire) 44%, transparent);
+      color: var(--fire);
+    }
+    /* El disco del icono. Plegada la barra es lo único que queda, y sin él ahí
+       había una flecha de trazo fino suelta en mitad de ochenta y cuatro
+       píxeles: no se leía como un aviso, se leía como un icono que se cayó. */
+    #nav-update-side .nu-ic {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+      border-radius: var(--r-disco);
+      background: color-mix(in srgb, var(--fire) 20%, transparent);
+    }
+    .thumb-cluster #nav-update-side svg { width: 17px; height: 17px; }
+    /* Plegada, el relleno horizontal se va como en los demás botones: la regla
+       general lleva dos clases y este selector un id, así que hay que repetirlo
+       o el disco de 30 px no cabe en los 47 que quedan. */
+    html.sc #nav-update-side { padding-left: 0; padding-right: 0; }
+
+    @keyframes nu-llega {
+      from { opacity: 0; transform: translateY(6px) scale(0.97); }
+      to   { opacity: 1; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #nav-update-side { animation: none; }
+    }
 
     /* ---- Dónde cae, y qué se queda cada uno ----
        La línea de separación sigue siendo de Ajustes y el botón va ENCIMA de
@@ -7491,7 +7548,10 @@
       font-size: 11.5px;
       font-weight: 600;
       letter-spacing: 0;
-      color: var(--muted);
+      /* Amarillo apagado y no el gris de siempre: con el gris, el número se leía
+         como una nota que alguien pegó debajo del rótulo. Mezclado con la
+         luciérnaga pertenece al mismo bloque. */
+      color: color-mix(in srgb, var(--fire) 55%, var(--muted));
       font-variant-numeric: tabular-nums;
     }
     #nav-update-side .nu-ver:empty { display: none; }

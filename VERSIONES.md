@@ -76,6 +76,42 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.71.2 · 2 sep 2026
+**El botón de actualizar deja de parecer una fila del menú.**
+
+Estaba pintado como un elemento más de la barra —transparente, plano, con el
+rótulo en amarillo y nada más—, y por eso se veía simple: **los otros cinco son
+sitios a los que ir, y por eso son transparentes.** Una lista de destinos no
+necesita caja, y ponérsela sería subrayar cinco cosas a la vez.
+
+Pero este no es un destino. Es algo que llegó y que está esperando a que
+decidas, y una cosa que llega tiene cuerpo.
+
+Ahora tiene tres: **fondo, marco y un disco para el icono.** Los tres salen de
+la misma luciérnaga en tres fuerzas —13 %, 26 % y 20 %—, que es lo que hace que
+se lea como una pieza y no como un botón al que le pegaron un color encima. El
+número pasa del gris a un amarillo apagado por lo mismo: con el gris parecía una
+nota que alguien dejó pegada debajo del rótulo.
+
+**El disco no es adorno: plegada la barra es lo único que queda.** Ahí antes
+había una flecha de trazo fino suelta en mitad de ochenta y cuatro píxeles, y
+eso no se leía como un aviso — se leía como un icono que se cayó.
+
+**Y sube un poco al aparecer.** Aparece de la nada en mitad de lo que estabas
+haciendo; que llegue moviéndose es lo que lo convierte en algo que ocurrió, y no
+en algo que llevaba ahí todo el rato y no habías visto. Dura lo que un cambio de
+pantalla y respeta `prefers-reduced-motion`.
+
+Todo sale de variables, así que no hay nada que mantener en dos sitios: el modo
+claro pasa solo a la versión de escribir de la luciérnaga (#755c05 sobre el
+papel crema) sin una regla más. Medido componiendo la transparencia sobre el
+fondo real de la barra: **8,94 de contraste el título de noche y 5,35 de día**,
+y el número 6,54 y 5,68. El umbral es 4,5.
+
+Una línea que hacía falta repetir: `html.sc #nav-update-side { padding-left: 0 }`.
+La regla que quita el relleno al plegar lleva dos clases y esta un id, así que
+sin repetirla el disco de 30 px no cabía en los 47 que quedan.
+
 ### 0.7.71.1 · 2 sep 2026
 
 **La insignia va del color de tu rango en todas partes, no solo dentro del
