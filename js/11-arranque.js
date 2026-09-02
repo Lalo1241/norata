@@ -417,24 +417,97 @@ window.addEventListener("online", () => syncRun({ silent: true }));
 })();
 
 if ("serviceWorker" in navigator && location.protocol === "https:") {
-  navigator.serviceWorker.register("sw.js").catch(() => {});
-
   /* ---- «Hay una versión nueva» ----
      Desde 0.7.38 la app se sirve de su propia copia, así que abrirla no espera
-     a la red. El precio es que quien abra justo después de una publicación ve
-     una vez la anterior: mientras la mira, el service worker se baja la nueva
-     por detrás y avisa aquí.
+     a la red. Lo que avisa de que hay algo nuevo es `sw.js`, que el navegador
+     vuelve a pedir sin pasar por su caché.
 
-     No es obligatorio hacer caso. Si no se pulsa, la versión nueva entra sola
-     en la siguiente apertura, que es lo que pasaría igual sin este aviso. Por
-     eso es un toast y no una ventana: informa, no interrumpe.
+     ---- El problema que esto arregla (0.7.58) ----
+     El navegador vuelve a pedir `sw.js` **al navegar**, y nada más. Una pestaña
+     que lleva horas abierta no navega nunca, así que jamás se enteraba: había
+     que recargar A MANO para que apareciera el aviso, y luego pulsar
+     «Actualizar», que recarga otra vez. Dos recargas para una actualización, y
+     la primera la tenías que adivinar tú — o sea que el aviso solo servía si ya
+     habías hecho lo que el aviso te iba a pedir.
 
-     `location.reload()` a secas y no `reload(true)`: lo segundo lleva años sin
-     hacer nada en ningún navegador, y aquí además sobra — la copia buena ya es
-     la nueva antes de que este mensaje llegue. */
+     Ahora se pregunta desde aquí con `registration.update()`, que es lo mismo
+     que hace el navegador al navegar pero sin navegar. Se pregunta:
+
+       - cada quince minutos mientras la pestaña esté a la vista,
+       - al volver a ella —cambiar de pestaña o de ventana no dispara lo
+         anterior, y volver es justo cuando se agradece encontrarlo—,
+       - y al recuperar la conexión, porque sin red la pregunta no vale nada.
+
+     Nunca con la pestaña escondida: preguntar por una versión que nadie está
+     mirando gasta batería y datos para nada, y al volver se pregunta igual.
+
+     ---- Y por qué se vuelve a avisar ----
+     Un toast dura doce segundos. Si llega mientras estabas en otra ventana, se
+     lo lleva el viento y ya no vuelve, porque el service worker avisa UNA vez
+     al activarse. Así que el aviso se recuerda: mientras no se actualice,
+     vuelve a salir al regresar a la pestaña, y como mucho una vez cada cinco
+     minutos. Informa cuando estás delante; no persigue. */
+
+  /* Cada cuánto se pregunta, y el suelo para no preguntar dos veces seguidas
+     —volver a la pestaña y recuperar la conexión pueden pasar en el mismo
+     segundo—. */
+  const CADA = 15 * 60 * 1000;
+  const ENTRE_PREGUNTAS = 60 * 1000;
+  const ENTRE_AVISOS = 5 * 60 * 1000;
+
+  let ultimaPregunta = Date.now();   // registrarse ya cuenta como una
+  let ultimoAviso = 0;
+  let hayVersionNueva = false;
+
+  function avisarDeLaVersion() {
+    const ahora = Date.now();
+    if (ahora - ultimoAviso < ENTRE_AVISOS) return;
+    ultimoAviso = ahora;
+    /* No es obligatorio hacer caso: si no se pulsa, la versión nueva entra sola
+       en la siguiente apertura, que es lo que pasaría igual sin este aviso. Por
+       eso es un toast y no una ventana — informa, no interrumpe.
+
+       `location.reload()` a secas y no `reload(true)`: lo segundo lleva años
+       sin hacer nada en ningún navegador, y aquí además sobra, porque la copia
+       buena ya es la nueva antes de que este mensaje llegue. */
+    toast("Hay una versión nueva de Norata", "atencion",
+          { label: "Actualizar", onclick: "location.reload()", ms: 12000 });
+  }
+
   navigator.serviceWorker.addEventListener("message", (ev) => {
     if (!ev.data || ev.data.norata !== "version-nueva") return;
-    toast("Hay una versión nueva de Norata", "atencion",
-          { label: "Actualizar", onclick: "location.reload()" });
+    hayVersionNueva = true;
+    avisarDeLaVersion();
   });
+
+  navigator.serviceWorker.register("sw.js").then((reg) => {
+    if (!reg) return;
+
+    function preguntar() {
+      /* Con la pestaña escondida o sin red, la pregunta no vale nada. */
+      if (document.hidden || navigator.onLine === false) return;
+      const ahora = Date.now();
+      if (ahora - ultimaPregunta < ENTRE_PREGUNTAS) return;
+      ultimaPregunta = ahora;
+      /* Si falla —sin red, servidor caído, la publicación a medio subir— no
+         pasa nada: se vuelve a preguntar dentro de un rato. */
+      try { reg.update().catch(() => {}); } catch (e) {}
+    }
+
+    function alVolver() {
+      if (document.hidden) return;
+      /* Primero lo que ya se sabe y luego lo que hay que ir a buscar: si la
+         versión llegó mientras no mirabas, el aviso sale ya, sin esperar a que
+         la red conteste. */
+      if (hayVersionNueva) avisarDeLaVersion();
+      preguntar();
+    }
+
+    setInterval(preguntar, CADA);
+    document.addEventListener("visibilitychange", alVolver);
+    /* `focus` además de `visibilitychange`: en escritorio, cambiar de ventana
+       no esconde la pestaña, así que lo primero no se dispara y lo segundo sí. */
+    window.addEventListener("focus", alVolver);
+    window.addEventListener("online", preguntar);
+  }).catch(() => {});
 }
