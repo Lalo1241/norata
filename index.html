@@ -921,6 +921,21 @@
   <button class="c-main hidden" id="fab" onclick="fabAction()" aria-label="Crear">
     <span class="fab-plus">＋</span><span class="fab-label"></span>
   </button>
+  <!-- "Hay una version nueva". Vive aqui y no en un aviso emergente desde
+       0.7.59.1: un toast se va a los doce segundos, y el momento en que aparece
+       lo elige el servidor, no tu. O estabas mirando la pantalla justo
+       entonces, o te lo perdiste. Aqui espera lo que haga falta y no tapa
+       nada, encima de Ajustes, que es donde ya se busca "lo de la app".
+
+       Sale de `hidden` cuando el service worker avisa (js/11-arranque.js), y
+       se lleva consigo el anclaje abajo y la linea de separacion, que sin eso
+       quedarian dos rayas seguidas. En el telefono no hay barra lateral, asi
+       que alli sigue saliendo el toast: es el unico sitio que hay. -->
+  <button class="c-nav side-only" id="nav-update-side" hidden onclick="location.reload()"
+          aria-label="Actualizar a la version nueva" title="Hay una version nueva de Norata">
+    <svg viewBox="0 0 24 24"><path d="M12 4v10"/><path d="M8 11l4 4 4-4"/><path d="M5.5 19h13"/></svg>
+    <span class="nav-label">Actualizar</span>
+  </button>
   <button class="c-nav side-only" id="nav-settings-side" onclick="ajustesClick(event)" aria-label="Ajustes">
     <svg viewBox="0 0 24 24"><path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/></svg>
     <span class="nav-label">Ajustes</span>

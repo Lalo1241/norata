@@ -441,35 +441,53 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
      Nunca con la pestaña escondida: preguntar por una versión que nadie está
      mirando gasta batería y datos para nada, y al volver se pregunta igual.
 
-     ---- Y por qué se vuelve a avisar ----
-     Un toast dura doce segundos. Si llega mientras estabas en otra ventana, se
-     lo lleva el viento y ya no vuelve, porque el service worker avisa UNA vez
-     al activarse. Así que el aviso se recuerda: mientras no se actualice,
-     vuelve a salir al regresar a la pestaña, y como mucho una vez cada cinco
-     minutos. Informa cuando estás delante; no persigue. */
+     ---- Y dónde sale, desde 0.7.59.1 ----
+     En un botón de la barra, no en un aviso emergente. El service worker avisa
+     UNA vez, al activarse, y un toast dura doce segundos: si eso coincidía con
+     que estabas en otra ventana, el aviso se lo llevaba el viento. El botón se
+     queda puesto hasta que se usa. Ver `avisarDeLaVersion`. */
 
   /* Cada cuánto se pregunta, y el suelo para no preguntar dos veces seguidas
      —volver a la pestaña y recuperar la conexión pueden pasar en el mismo
      segundo—. */
   const CADA = 15 * 60 * 1000;
   const ENTRE_PREGUNTAS = 60 * 1000;
-  const ENTRE_AVISOS = 5 * 60 * 1000;
+
+  /* Y un suelo para el toast del teléfono: sin él saldría cada vez que vuelves
+     a la pestaña. El botón de la barra no lo necesita —se queda puesto y no
+     vuelve a anunciarse—, pero un toast que reaparece cada minuto persigue. */
+  const ENTRE_TOASTS = 5 * 60 * 1000;
 
   let ultimaPregunta = Date.now();   // registrarse ya cuenta como una
-  let ultimoAviso = 0;
+  let ultimoToast = 0;
   let hayVersionNueva = false;
 
-  function avisarDeLaVersion() {
-    const ahora = Date.now();
-    if (ahora - ultimoAviso < ENTRE_AVISOS) return;
-    ultimoAviso = ahora;
-    /* No es obligatorio hacer caso: si no se pulsa, la versión nueva entra sola
-       en la siguiente apertura, que es lo que pasaría igual sin este aviso. Por
-       eso es un toast y no una ventana — informa, no interrumpe.
+  /* ---- Dónde sale el aviso (0.7.59.1) ----
+     En un botón de la barra lateral, encima de Ajustes, y no en un toast. Un
+     toast se va a los doce segundos y el momento en que aparece lo elige el
+     servidor: o estabas mirando la pantalla justo entonces, o te lo perdiste y
+     no vuelve. Un botón espera lo que haga falta sin tapar nada.
 
-       `location.reload()` a secas y no `reload(true)`: lo segundo lleva años
-       sin hacer nada en ningún navegador, y aquí además sobra, porque la copia
-       buena ya es la nueva antes de que este mensaje llegue. */
+     El toast se queda para donde NO hay barra lateral —el teléfono y la tableta
+     en vertical, que se quedan con el diseño de móvil por debajo de 900 px—,
+     porque allí no hay otro sitio donde ponerlo. Y no se decide por el ancho de
+     la ventana sino preguntándole al botón si de verdad se está viendo: la
+     regla que lo esconde vive en el CSS, y duplicar aquí ese umbral es tener
+     dos números que algún día dejarán de decir lo mismo.
+
+     `location.reload()` a secas y no `reload(true)`: lo segundo lleva años sin
+     hacer nada en ningún navegador, y aquí además sobra, porque la copia buena
+     ya es la nueva antes de que este mensaje llegue. */
+  function avisarDeLaVersion() {
+    const btn = document.getElementById("nav-update-side");
+    if (btn) {
+      btn.hidden = false;
+      // `offsetParent` es null cuando algo no se está pintando: barra escondida.
+      if (btn.offsetParent !== null) return;
+    }
+    const ahora = Date.now();
+    if (ahora - ultimoToast < ENTRE_TOASTS) return;
+    ultimoToast = ahora;
     toast("Hay una versión nueva de Norata", "atencion",
           { label: "Actualizar", onclick: "location.reload()", ms: 12000 });
   }
@@ -496,9 +514,9 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
 
     function alVolver() {
       if (document.hidden) return;
-      /* Primero lo que ya se sabe y luego lo que hay que ir a buscar: si la
-         versión llegó mientras no mirabas, el aviso sale ya, sin esperar a que
-         la red conteste. */
+      /* El botón se queda puesto solo, así que al volver no hay nada que
+         volver a anunciar: solo se vuelve a preguntar. Esto sigue aquí para el
+         teléfono, donde el aviso es un toast y sí se lo lleva el viento. */
       if (hayVersionNueva) avisarDeLaVersion();
       preguntar();
     }
