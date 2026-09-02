@@ -1524,6 +1524,29 @@
      de esa pantalla y con el mismo tamaño que «Rango Nodo» de siempre pasaba
      desapercibida entre el número y la lista. */
   .ncel-rango.nuevo { font-size: 19px; margin-top: 14px; }
+  /* La línea del rango. Va DEBAJO del nombre y solo cuando el rango es nuevo:
+     es lo que hace que «Ahora eres Legión» signifique algo en vez de sonar a
+     palabra suelta. La trae el mundo, no la app — la casa no tiene ninguna—,
+     así que vacía no ocupa ni un píxel.
+
+     En cursiva y con la referencia aparte a propósito: una frase citada tiene
+     que verse citada, o parece que la escribió la app. */
+  .ncel-cita:empty { display: none; }
+  .ncel-cita {
+    margin: 10px auto 0; max-width: 30ch;
+    font-size: 13.5px; line-height: 1.5; font-style: italic;
+    color: var(--muted);
+  }
+  /* La referencia se separa de la frase por TAMAÑO y caja, no por color. Con
+     el tono tenue puesto daba 3,64 sobre el fondo de la escena a 11 px, por
+     debajo del 4,5 que pide un texto — y una referencia que no se puede leer
+     no es una referencia, es una mancha. Con el apagado da 6,26 y la
+     jerarquía la siguen haciendo los 11 px y las versalitas. */
+  .ncel-cita cite {
+    display: block; margin-top: 5px;
+    font-style: normal; font-size: 11px; letter-spacing: 1.4px;
+    text-transform: uppercase; color: var(--muted);
+  }
   .ncel-abre { margin-top: 18px; text-align: left; }
   .ncel-tit {
     font-size: 10.5px; font-weight: 800; letter-spacing: 2.2px;
@@ -1539,7 +1562,7 @@
   }
   .ncel-uno svg { width: 18px; height: 18px; color: var(--mint); flex-shrink: 0; }
   .ncel-pies { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
-  .ncel.show .ncel-unit, .ncel.show .ncel-rango,
+  .ncel.show .ncel-unit, .ncel.show .ncel-rango, .ncel.show .ncel-cita,
   .ncel.show .ncel-abre, .ncel.show .ncel-pies {
     animation: ncelSube 0.5s ease 0.3s backwards;
   }

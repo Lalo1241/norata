@@ -51,6 +51,14 @@ const AMBIENTES = [
    moviera los peldaños, dos personas con el mismo nivel estarían en sitios
    distintos de la escalera. Una sola escalera, muchos vocabularios.
 
+   **Un rango puede traer además una `linea`**, que es lo que se lee debajo de
+   «Ahora eres X» el día que se estrena — y solo ese día, que son cinco veces
+   en toda la vida de una cuenta. Es un campo opcional de CUALQUIER rango y no
+   una cosa de un mundo: la casa no trae ninguna, Averno trae sus cinco
+   versículos y el día que Reliquia quiera su cédula de museo se la escribe.
+   `{ texto, fuente }`, y la fuente se pinta aparte — una cita tiene que verse
+   citada o parece que la escribió la app. Lo pintó `js/02-progreso.js`.
+
    De los quince, tres están construidos —Reliquia, Blueprint y Averno— y son
    los que llevan `listo: true`. Con cualquier otra apariencia puesta,
    `rangosDeApariencia()` devuelve null y manda la casa. Los dibujos de los
@@ -118,23 +126,32 @@ const MUNDOS = [
     rangos: [
       /* El montón de ceniza, con la voluta que todavía sube. Es el único
          dibujo que no se levanta del suelo, y eso es lo que lo hace primero. */
-      { nombre: "Ceniza", trazo: '<path d="M4.4 18.8c1.2-3.9 4-6.1 7.6-6.1s6.4 2.2 7.6 6.1z"/><path d="M2.6 18.8h18.8"/><path d="M12 12.4c-1.9-1.9-1.7-3.9.5-5.4-.7 1.9.4 2.6 1.1 3.9"/>' },
-      /* El signo alquímico del azufre: triángulo sobre cruz. Se usó tal cual
-         durante siglos y no hay que explicarlo — y a 20 px se lee, que es más
-         de lo que puede decir cualquier figura. */
-      { nombre: "Azufre", trazo: '<path d="M12 2.9l5.6 9.3H6.4z"/><path d="M12 12.2v8.9"/><path d="M8.3 16.7h7.4"/>' },
-      /* El sello: el anillo y la figura inscrita dentro. En esa tradición un
-         demonio no existe hasta que su sello está trazado, así que éste es el
-         peldaño en el que dejas de ser un montón y pasas a tener nombre. */
-      { nombre: "Sello", trazo: '<circle cx="12" cy="12" r="9.2"/><path d="M12 18.7L5.7 8.1h12.6z"/><circle cx="12" cy="11.4" r="1.7"/>' },
-      /* Legión: «somos muchos». Una formación y no una multitud dibujada —
-         cinco trazos en fila se leen como orden, y un montón de figuritas se
-         lee como ruido. */
-      { nombre: "Legión", trazo: '<path d="M2.6 20.6h18.8"/><path d="M4.6 20.6V9.4M8.3 20.6V6.2M12 20.6V4.2M15.7 20.6V6.2M19.4 20.6V9.4"/>' },
-      /* El abismo: los anillos que se estrechan al bajar, que es lo único que
-         hay que citar del poema y la firma del mundo. El último rango es el
-         propio lugar. */
-      { nombre: "Abismo", trazo: '<ellipse cx="12" cy="5.8" rx="9.2" ry="2.7"/><ellipse cx="12" cy="11.6" rx="6.4" ry="1.9"/><ellipse cx="12" cy="16.6" rx="3.6" ry="1.3"/>' }
+      { nombre: "Ceniza", trazo: '<path d="M4.4 18.8c1.2-3.9 4-6.1 7.6-6.1s6.4 2.2 7.6 6.1z"/><path d="M2.6 18.8h18.8"/><path d="M12 12.4c-1.9-1.9-1.7-3.9.5-5.4-.7 1.9.4 2.6 1.1 3.9"/>',
+        linea: { texto: "Me arrepiento en polvo y ceniza.", fuente: "Job 42:6" } },
+      /* El signo alquímico del azufre —triángulo sobre cruz— con el triángulo
+         MACIZO y la tierra abierta debajo. Dibujado a línea el signo salía
+         limpio de laboratorio; relleno y sobre una grieta pesa, que es lo que
+         hay que sentir. Lo pidió Eduardo: más tétrico. */
+      { nombre: "Azufre", trazo: '<path d="M12 2.8l4.8 8.2H7.2z" fill="currentColor" stroke="none"/><path d="M12 11v6.2"/><path d="M8.8 14.4h6.4"/><path d="M2.8 20.8l3.3-1 2.5 1.4 3.4-1.7 2.7 1.4 3-1.2 3.1 1.1"/>',
+        linea: { texto: "Un lago que arde con fuego y azufre.", fuente: "Apocalipsis 19:20" } },
+      /* El sello: el anillo y la figura inscrita dentro. En esa tradición nada
+         existe hasta que su sello está trazado, así que éste es el peldaño en
+         el que dejas de ser un montón y pasas a tener nombre. */
+      { nombre: "Sello", trazo: '<circle cx="12" cy="12" r="9.2"/><path d="M12 18.7L5.7 8.1h12.6z"/><circle cx="12" cy="11.4" r="1.7"/>',
+        linea: { texto: "Lo ató, y puso su sello sobre él.", fuente: "Apocalipsis 20:2-3" } },
+      /* Tres siluetas encapuchadas, la de en medio delante. Antes eran cinco
+         trazos verticales sobre una línea y el problema no era el estilo: se
+         leía como una GRÁFICA DE BARRAS. Una silueta con hombros se lee como
+         alguien, y tres solapadas se leen como muchos. Sin cara: una cara a
+         20 px es una caricatura, y sin ella es una presencia. */
+      { nombre: "Legión", trazo: '<path d="M6.2 21.4v-3.2c0-1.9.9-3.2 2.4-3.9-.4-.5-.6-1.2-.6-2 0-1.6 1-2.8 2.5-2.8s2.5 1.2 2.5 2.8c0 .8-.2 1.5-.6 2 1.5.7 2.4 2 2.4 3.9v3.2z"/><path d="M2 21.4v-2.6c0-1.6.7-2.7 2-3.3-.3-.4-.5-1-.5-1.7 0-1.3.8-2.3 2-2.3.5 0 .9.2 1.3.4"/><path d="M22 21.4v-2.6c0-1.6-.7-2.7-2-3.3.3-.4.5-1 .5-1.7 0-1.3-.8-2.3-2-2.3-.5 0-.9.2-1.3.4"/>',
+        linea: { texto: "Legión me llamo, porque somos muchos.", fuente: "Marcos 5:9" } },
+      /* La garganta: el brocal ancho que se estrecha hasta un punto, y dentro
+         el relleno macizo. Eran tres anillos concéntricos y se leían como una
+         diana. Lo que da el miedo es el HUECO LLENO — un vacío pintado se lee
+         a cualquier tamaño—, no la cantidad de anillos. */
+      { nombre: "Abismo", trazo: '<ellipse cx="12" cy="5.2" rx="9.2" ry="2.5"/><path d="M2.8 5.2c0 2.6 1 5 3 7.6 2 2.6 4 4.9 6.2 8.2 2.2-3.3 4.2-5.6 6.2-8.2 2-2.6 3-5 3-7.6"/><path d="M7.2 9.2c.5 1.9 1.4 3.5 2.6 5.1 1 1.4 1.6 2.5 2.2 3.6.6-1.1 1.2-2.2 2.2-3.6 1.2-1.6 2.1-3.2 2.6-5.1" fill="currentColor" stroke="none"/>',
+        linea: { texto: "Le fue dada la llave del pozo del abismo.", fuente: "Apocalipsis 9:1" } }
     ] },
   /* El nombre de éste está decidido; sus dibujos se hacen cuando se construya
      el mundo, con el resto de sus vectores. Escribirlo ahora sin dibujo no es

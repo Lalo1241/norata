@@ -68,6 +68,26 @@ function celebrarNivel(nivel, abre) {
     : "";
   rango.classList.toggle("nuevo", traeRango);
 
+  /* La LÍNEA del rango, y solo al estrenarlo. Es un campo de un rango
+     cualquiera y no una cosa de Averno: la casa no trae ninguna, Averno trae
+     sus cinco versículos, y el día que Reliquia quiera una cédula de museo se
+     la escribe y ya. Por eso se lee de `r.linea` y no hay ningún `if` con el
+     nombre de un mundo dentro.
+
+     Va solo cuando `traeRango`, que pasa cinco veces en toda la vida de una
+     cuenta —niveles 1, 4, 10, 18 y 28—. Puesta en cada subida de nivel sería
+     un adorno que se ve cuarenta veces; puesta aquí es lo que le da sentido al
+     nombre que se acaba de estrenar.
+
+     La referencia va en su propio `<cite>` y no pegada al final de la frase:
+     una cita tiene que verse citada, o parece que la escribió la app. */
+  const cita = document.getElementById("ncel-cita");
+  if (cita) {
+    cita.innerHTML = (traeRango && r && r.linea)
+      ? `${escapeHtml(r.linea.texto)}<cite>${escapeHtml(r.linea.fuente)}</cite>`
+      : "";
+  }
+
   /* Lo que se abre, escrito. Los rangos no entran en la lista: ya los dice el
      renglón de arriba, y repetir la misma noticia dos veces en la misma
      pantalla la abarata. */
