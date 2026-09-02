@@ -76,6 +76,128 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.64 · 1 sep 2026
+**Averno cambia de concepto, baja el naranja y por fin trae sus anillos.**
+
+El mundo se subió en la 0.7.59 con los rangos equivocados: eran los estados del
+fuego —Ceniza, Chispa, Brasa, Llama, Hoguera— y describían una fogata, que es
+el tema *visual* de Averno pero no su concepto. Eduardo lo corrigió: **el
+concepto es demonología cristiana.**
+
+La línea que separa esto de un disfraz —y es la que hay que sostener al tocar
+cualquier cosa de este mundo— es **teología, no utilería**. Cada peldaño cita
+un texto, y de utilería no hay nada: ni diablillos ni tridentes.
+
+| Nivel | | De dónde sale |
+| --- | --- | --- |
+| 1 | **Ceniza** | «Me arrepiento en polvo y ceniza» · Job 42:6 |
+| 4 | **Sello** | «Lo ató, y puso su sello sobre él» · Apocalipsis 20:2-3 |
+| 10 | **Leviatán** | «No hay sobre la tierra quien se le parezca» · Job 41:33 |
+| 18 | **Legión** | «Legión me llamo, porque somos muchos» · Marcos 5:9 |
+| 28 | **Abadón** | el ángel del abismo, rey de las langostas del pozo · Apocalipsis 9:11 |
+
+El orden lo puso Eduardo y es el que hace que la escalera suba de verdad: lo
+que quedó, lo que tiene nombre, lo que es grande, lo que es muchos y quien
+reina sobre ellos. Los dos primeros son cosas y los tres últimos son seres, así
+que el salto del peldaño 2 al 3 es además el salto de ser *algo* a ser
+*alguien*.
+
+**Ninguno inflexiona**, que es la prueba que dejó escrita Blueprint: dos son
+cosas y tres son nombres propios, así que «Ahora eres Leviatán» le dice lo
+mismo a todo el mundo. Los títulos de la Goetia —Duque, Marqués, Conde— eran lo
+primero que pedía el tema y se descartaron por eso, no por el concepto: es el
+mismo fallo que costó cambiar «Arquitecto».
+
+#### El versículo, al estrenar el rango
+
+Un rango puede traer ahora una **`linea`**, y se lee debajo de «Ahora eres X»
+**sólo el día que ese rango se estrena** — cinco veces en toda la vida de una
+cuenta. En la insignia, en la reja de «Tu recorrido» y en la tarjeta del Resumen
+no va: ésos se leen todos los días, y una frase que se ve cuarenta veces deja de
+ser una frase.
+
+Es un campo opcional de **cualquier** rango y no una cosa de Averno: no hay
+ningún `if` con el nombre de un mundo dentro. La casa no trae ninguna, Averno
+trae sus cinco versículos y el día que Reliquia quiera su cédula de museo se la
+escribe. La referencia va en su propio `<cite>`, porque una cita tiene que verse
+citada o parece que la escribió la app — y se separa de la frase por tamaño y
+caja, no por color: con el tono tenue daba 3,64 sobre el fondo de la escena a
+11 px, por debajo del 4,5 de un texto.
+
+#### El balance: demasiado naranja
+
+Lo paró Eduardo mirándolo puesto, y medido en OKLCh el problema era el **croma**
+y no la luz:
+
+| | Croma | |
+| --- | --- | --- |
+| La brasa del degradado | **0,091** | sobre el 38% de abajo de cada pantalla |
+| El borde de las tarjetas | **0,059** | el doble que el de la casa, × ~40 piezas |
+| La tarjeta | 0,028 | |
+| El acento | 0,178 | — éste sí debe estar |
+
+Los tres primeros no son naranja de acento: son naranja de **fondo**, y se
+suman. El borde era el peor con diferencia — una línea sola no se nota,
+cuarenta sí. Baja el color y no la luz, que es lo que deja los contrastes donde
+estaban: la tarjeta a 0,017 —por debajo del 0,024 de la casa, o sea un negro
+cálido de verdad y no un marrón—, el borde a 0,020 y la brasa a 0,048.
+
+De paso la pila queda mejor repartida: tarjeta/página 1,24 (la casa da 1,19),
+tarjeta/menú 1,11 y menú/página 1,11. Tres escalones parejos donde había dos
+juntos y uno lejos. Y **las líneas del mapa**: el suelo de los mapas y de las
+tarjetas de rama sale derivado de la página, así que cayó en `#120f0e` y las
+líneas dan **1,46** contra el 1,48 de la casa.
+
+#### Los anillos, que era el pendiente más viejo
+
+La firma del mundo —los círculos del poema, que se estrechan al bajar y sólo el
+de dentro sigue ardiendo— vivía en `extra=`, que lee la lámina y no la app.
+
+Lo que costó fue decidir **dónde**, y los dos intentos fallidos valen más que el
+resultado. La regla que dejó escrita Talavera dice que a plena tinta sólo hay
+dos sitios: detrás de algo opaco, y en lo que aparece una sola vez.
+
+1. **En `.scene-card`**, que sale una vez por pantalla. Pero son DOS piezas con
+   la misma clase, y al mirarlo puesto salió que la del Resumen es la escena de
+   la **racha**: no es interfaz, es un dibujo — un paisaje de noche con sus
+   estrellas—. Motivo sobre motivo.
+2. **En `.sec-hero`**, la banda de cabecera de un módulo: una por pantalla en
+   cuatro de las siete, y ésa sí es superficie. Salvo que también trae su propia
+   ilustración, en un `<svg class="scene">` hijo. Otra vez lo mismo.
+
+Así que no se encima: la **sustituye**. Es además lo correcto —un mundo trae su
+propia ilustración a esa banda, no la decora— y sale gratis en CSS: el svg de la
+casa se apaga con `opacity` y no con `display`, para que siga ocupando su alto y
+la banda no se encoja.
+
+Contado antes de decidirlo: `.panel` sale tres veces en el Resumen y `.sum-card`
+cuatro, así que las tarjetas quedaban descartadas de entrada — sería el marco de
+latón de Reliquia otra vez.
+
+#### Los glifos, en tres vueltas
+
+Ninguno falló por estilo. **Legión** eran cinco trazos verticales sobre una
+línea y se leía como una **gráfica de barras**; ahora son tres siluetas
+encapuchadas iguales, la de en medio con el hueco de la cara relleno — una cara
+a 20 px es una caricatura, un hueco a 20 px es una presencia. **Abadón** era un
+pozo que «parecía un paliacate de boca de vaquero», y el problema venía del
+concepto: un agujero no tiene silueta. Ahora es el **pentagrama invertido en su
+círculo**, que eligió Eduardo. Y **Ceniza** era un montón con una voluta, o sea
+un montón de cualquier cosa: ahora es un **caput mortuum**, el nombre que la
+alquimia le dio al residuo que queda tras calcinar — literalmente el concepto de
+ese peldaño.
+
+El mundo estrena además marca propia: el **sol eclipsado** (`eclipse` en
+`ICONS`), que es su mismo sello pasado a trazo. Iba con `flame`, la llamita
+genérica que ya usan las habilidades.
+
+#### Y una que llevaba ahí desde Blueprint
+
+El script de arriba de `index.html` —el que precarga el CSS del mundo para que
+no haya fogonazo— tenía la lista clavada en `["reliquia"]`. Con Blueprint o
+Averno puestos, la app abría con los colores de la casa y saltaba al mundo un
+instante después. Ahora conoce a los tres.
+
 ### 0.7.63.1 · 1 sep 2026
 **El negro va JUNTO al azul, no en su lugar. Y la tarjeta de racha ya tiene
 borde.**
