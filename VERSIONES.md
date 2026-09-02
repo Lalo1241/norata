@@ -76,6 +76,33 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.71.4 · 2 sep 2026
+
+**Mi expedición por fin dice qué es.** Lo cazó Eduardo: la pantalla explicaba
+los rangos, los peldaños que abre el nivel y el reparto de los puntos, y en
+ninguna parte decía qué es una expedición ni de dónde sale el número grande de
+arriba.
+
+Entra un panel corto justo debajo del cielo, que es donde responde a lo que
+acabas de ver, y visible en vez de plegado: es lo que hace falta ANTES de leer
+lo demás.
+
+Dice dos cosas, y ninguna la decían los otros paneles:
+
+- **que es el nivel de la CUENTA**, no el de una habilidad suelta. Ése es el
+  error natural, porque el otro nivel que existe en Norata es justamente el de
+  una habilidad;
+- **que no hay nada que administrar**: sube solo con lo que ya haces y no tiene
+  techo.
+
+Nada de constelaciones ni de rangos: de eso ya habla el panel de abajo, y
+repetirlo aquí abarataría los dos.
+
+El último renglón manda al acordeón a propósito. «De dónde salen tus puntos»
+está cerrado de inicio desde la 0.7.68 —es la letra chica y ocupaba media
+pantalla—, y sin una línea que lo nombre casi nadie descubre que el reparto
+exacto está ahí.
+
 ### 0.7.71.3 · 2 sep 2026
 
 **Los mundos vuelven a ser renglones. La galería duró una versión.**
