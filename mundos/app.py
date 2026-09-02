@@ -492,6 +492,27 @@ def bloque(m):
           "   puestas, «4 de 10» salía dos veces en la misma tarjeta. */",
           "%s [data-cota] .branch-head .count { display: none; }" % sel]
 
+    # ---- Lo que el mundo trae escrito para la app ----
+    # `app_extra` es CSS crudo que un mundo aporta cuando lo suyo no cabe en un
+    # token: hoy, la celebración de subir de nivel de Blueprint. Es distinto de
+    # `extra`, que es para la lámina y no cruza aquí.
+    #
+    # Se sustituye `SELECTOR` por el del mundo —así nada se escapa a otras
+    # apariencias— y los cuatro marcadores de vector, que van con la cara de
+    # NOCHE: la celebración se queda oscura en los dos modos, como manda la app.
+    if m.get("app_extra"):
+        vectores = {
+            "URL_REJILLA":  "plano-rejilla.svg",
+            "URL_FLECHA_I": "plano-flecha-i.svg",
+            "URL_FLECHA_D": "plano-flecha-d.svg",
+            "URL_MARCA":    "plano-marca.svg",
+        }
+        css = m["app_extra"].replace("SELECTOR", sel)
+        for marca, archivo in vectores.items():
+            if marca in css:
+                css = css.replace(marca, D.svg(archivo))
+        salida += ["", css.rstrip()]
+
     # ---- El techo del peso ----
     # Syne es variable de 600 a 800, y a 800 se ESTIRA: la letra se alarga y
     # descuadra los renglones. La app pide 800 en varios sitios, así que el techo
