@@ -101,12 +101,30 @@ const MUNDOS = [
      persona ES. De un oficio sí se puede decir «soy», y esa es toda la
      diferencia entre esta lista y la de antes.
 
+     Y los dos últimos cambiaron OTRA VEZ, y por dos razones que Eduardo vio
+     antes que nadie. La primera: «Maestro de obra» y «Arquitecto» TIENEN
+     GÉNERO, y la app no pregunta el tuyo a propósito — así que a la mitad de
+     la gente le decía el nombre equivocado en la frase «Ahora eres X», que es
+     la celebración más grande que tiene la app. La segunda: «arquitecto» es
+     además un título con cédula, y decírselo a un ingeniero civil es meterse
+     en un pleito de gremios que a Norata no le toca.
+
+     El límite que salió de buscar sustitutos, y conviene saberlo antes de
+     proponer otro: **el español genera con género casi todos los nombres de
+     oficio.** Las únicas familias que no lo llevan son `-ista`, `-ante/-ente`,
+     `-e` y `-az`, y esas terminaciones se concentran en el vocabulario
+     técnico. Los tres primeros caen ahí por suerte y además son palabras
+     cálidas; para la cima de un oficio de la construcción NO EXISTE una
+     palabra española que sea a la vez cálida, cotidiana y sin género. Por eso
+     la cima dejó de ser un puesto.
+
      Y los dibujos son INSTRUMENTOS y no personas, que es la parte que hay que
      entender antes de tocarlos: cinco figuras humanas no se distinguen a 20 px
      —que es el tamaño al que se pintan—, mientras que un lápiz, una escuadra,
-     un compás, una plomada y un sello se leen de un vistazo y además escalan
-     solos: se te da el lápiz, luego la regla, luego decides tú, luego bajas
-     al suelo, y al final firmas. */
+     un compás, un casco y un hilo guía se leen de un vistazo y además escalan
+     solos: se te da el lápiz, luego la regla, luego decides tú, luego
+     respondes por la obra entera, y al final eres la línea con la que se
+     alinean los demás. */
   { id: "plano", nombre: "Blueprint", listo: true, pro: true, icon: "map",
     premisa: "El papel de plano: retícula de dos pesos, cotas con puntas de flecha y marcas de sección. Todo lo tuyo, todavía en obra.",
     rangos: [
@@ -116,10 +134,12 @@ const MUNDOS = [
       { nombre: "Dibujante", trazo: '<path d="M4 19.6h16.4L4 5.4z"/><path d="M7.4 16.6h8L7.4 9.4z"/>' },
       /* El compás: dejas de copiar y empiezas a decidir dónde van las cosas. */
       { nombre: "Proyectista", trazo: '<circle cx="12" cy="4.8" r="1.6"/><path d="M11.2 6.2L6.4 20M12.8 6.2L17.6 20"/><path d="M8 16.4a8.4 8.4 0 008 0"/>' },
-      /* La plomada: el plano se baja del papel al suelo y hay que aplomarlo. */
-      { nombre: "Maestro de obra", trazo: '<path d="M8.6 3.6h6.8"/><path d="M12 3.6v9"/><path d="M12 12.6l3 4.1-3 3.9-3-3.9z"/>' },
-      /* El sello: lo que se pone cuando el plano ya es tuyo y responde por él. */
-      { nombre: "Arquitecto", trazo: '<path d="M6.6 20.4h10.8"/><path d="M8.2 17.4h7.6v-1.5c0-1.3-.9-1.8-.9-3.1V9.9a2.9 2.9 0 00-5.8 0v2.9c0 1.3-.9 1.8-.9 3.1z"/>' }
+      /* El casco: lo que te pones cuando la obra entera es asunto tuyo. */
+      { nombre: "Contratista", trazo: '<path d="M2.8 17.6h18.4"/><path d="M5 17.6v-2.4a7 7 0 0114 0v2.4"/><path d="M9.8 9.4V6.4a1.6 1.6 0 011.6-1.6h1.2a1.6 1.6 0 011.6 1.6v3"/>' },
+      /* El hilo tenso entre dos estacas, con su plomada colgando: en una obra
+         eso ES la guía, la referencia con la que se aploma todo lo demás. Por
+         eso este rango no habla de ti sino de los demás. */
+      { nombre: "Guía", trazo: '<path d="M2.8 7h18.4"/><path d="M6 3.8v6.4M18 3.8v6.4"/><path d="M12 7v6.2"/><path d="M12 13.2l2.2 3-2.2 2.8-2.2-2.8z"/>' }
     ] },
   /* Reliquia es el primero construido, y va antes que Averno y Blueprint
      porque lo decidió Eduardo: es lo único que Fundador tiene además de Pro
