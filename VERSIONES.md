@@ -76,6 +76,236 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.71.3 · 2 sep 2026
+
+**Los mundos vuelven a ser renglones. La galería duró una versión.**
+
+La 0.7.70 convirtió la lista de mundos en una galería: cada uno con su vista
+previa viva en su tarjeta, los cuatro a la vez, al estilo de la tienda de
+Discord. Eduardo la vio publicada y prefiere lo de antes — «se ejecutaba mejor
+cuando arriba se veían todos igual y no solo los mundos aparte».
+
+Y tiene razón en lo que señala: una tarjeta grande por mundo convierte esa
+sección en algo con más peso que los ambientes de arriba, y en esta pantalla las
+dos cosas son opciones de lo mismo. La galería vendía mejor cada mundo por
+separado y peor la pantalla entera.
+
+Así que vuelve el renglón: icono, nombre y frase. **El mundo se sigue viendo
+entero, con su material, en la ventana que abre el renglón** — eso se queda, y
+con ello todo lo demás de la 0.7.70: las insignias del plan en las cápsulas, los
+tres colores de candado, la marca «Nuevo», `APARIENCIAS_EXHIBIDAS`, las razones
+detalladas con su paywall, y los nombres del punto cero (*Norata Clásico* el
+recolor, *Noche de expedición* el mundo).
+
+Las filas bajan de 172 px a 110-126, y la cápsula sigue a la derecha con el
+texto corto —«Pro», no «Con Norata Pro»—, que es lo que la 0.7.70 arregló y lo
+que hace que quepa sin robarle el ancho a la premisa.
+
+#### El andamiaje que se fue con ella
+
+- `vigilarVistas()`, `montarLasVisibles()`, `VIGIA` y el observador de
+  intersección. Existían solo para no montar quince documentos de golpe; con un
+  preview cada vez no hay nada que aplazar.
+- `tarjetaMundo()` y las reglas `.mun-t` / `.mun-vista` / `.mun-pie`.
+- El cuerpo recortado de `escenaCuerpo()`, que era la versión de miniatura.
+- `.mun-t` vuelve a ser `.mun-m` en la lista de piezas con marco de
+  `mundos/app.py`.
+
+Y dos huérfanos que quedaban de antes y que salieron al barrer: `mundoAbierto`,
+que se escribía en dos sitios y no lo leía nadie, y un comentario que nombraba
+`mirarApariencia`, una función que ya se había borrado.
+
+#### `css/muestras.css` NO era andamiaje de la galería
+
+Se queda, y con él su línea en `index.html` y en `ASSETS`. Lo pensé al revés al
+empezar y la comprobación dice lo contrario: lo leen dos sitios que no tienen
+nada que ver con las tarjetas —`.mun-ic`, para pintar el icono de cada mundo en
+la lista con SU acento, y `.ap-ic` en la ventana—. Hasta la 0.7.70 los tres iban
+en lila, que en esta app es el color de Fundador: con un solo color, catorce
+mundos distintos entraban todos por la misma puerta morada. Son 3,3 KB.
+
+#### La idea no estaba mal, el peso sí
+
+Queda apuntado en el comentario de cabecera de la sección por si vuelve: lo que
+hundió la galería fue el peso visual, no el mecanismo. Un documento por mundo
+sigue siendo la única manera de que dos se vean a la vez —el CSS de un mundo
+cuelga de `html[data-apariencia="…"]`—, y el montaje perezoso funcionaba.
+
+### 0.7.71.2 · 2 sep 2026
+**El botón de actualizar deja de parecer una fila del menú.**
+
+Estaba pintado como un elemento más de la barra —transparente, plano, con el
+rótulo en amarillo y nada más—, y por eso se veía simple: **los otros cinco son
+sitios a los que ir, y por eso son transparentes.** Una lista de destinos no
+necesita caja, y ponérsela sería subrayar cinco cosas a la vez.
+
+Pero este no es un destino. Es algo que llegó y que está esperando a que
+decidas, y una cosa que llega tiene cuerpo.
+
+Ahora tiene tres: **fondo, marco y un disco para el icono.** Los tres salen de
+la misma luciérnaga en tres fuerzas —13 %, 26 % y 20 %—, que es lo que hace que
+se lea como una pieza y no como un botón al que le pegaron un color encima. El
+número pasa del gris a un amarillo apagado por lo mismo: con el gris parecía una
+nota que alguien dejó pegada debajo del rótulo.
+
+**El disco no es adorno: plegada la barra es lo único que queda.** Ahí antes
+había una flecha de trazo fino suelta en mitad de ochenta y cuatro píxeles, y
+eso no se leía como un aviso — se leía como un icono que se cayó.
+
+**Y sube un poco al aparecer.** Aparece de la nada en mitad de lo que estabas
+haciendo; que llegue moviéndose es lo que lo convierte en algo que ocurrió, y no
+en algo que llevaba ahí todo el rato y no habías visto. Dura lo que un cambio de
+pantalla y respeta `prefers-reduced-motion`.
+
+Todo sale de variables, así que no hay nada que mantener en dos sitios: el modo
+claro pasa solo a la versión de escribir de la luciérnaga (#755c05 sobre el
+papel crema) sin una regla más. Medido componiendo la transparencia sobre el
+fondo real de la barra: **8,94 de contraste el título de noche y 5,35 de día**,
+y el número 6,54 y 5,68. El umbral es 4,5.
+
+Una línea que hacía falta repetir: `html.sc #nav-update-side { padding-left: 0 }`.
+La regla que quita el relleno al plegar lleva dos clases y esta un id, así que
+sin repetirla el disco de 30 px no cabía en los 47 que quedan.
+
+### 0.7.71.1 · 2 sep 2026
+
+**La insignia va del color de tu rango en todas partes, no solo dentro del
+cielo.** Lo pidió Eduardo al ver que la ruedita del menú de la cuenta seguía en
+menta mientras Mi expedición ya iba por colores. Es la misma insignia, y donde
+más paga es justamente ahí: en el Resumen y en la fila de la cuenta es lo único
+que se ve del recorrido.
+
+Había un interruptor que la dejaba en menta fuera del cielo, y **su motivo ya
+no existe**: entonces uno de los cinco rangos era luciérnaga, que de día tiene
+que hundirse hasta el dorado apagado que Eduardo rechazó por leerse como una
+alerta interna. Al sacar la luciérnaga y el lila del reparto, la objeción se
+fue con ellas, así que el interruptor se quita en vez de quedarse apagado.
+
+Medido antes de encenderlo, porque un aro de dos píxeles es un **trazo** y no
+texto —umbral 3, no 4,5—: sobre la tarjeta clara los cinco van de 5,44 a 7,55 y
+sobre la de noche de 6,71 a 11,68. Pasan los dos umbrales con holgura.
+
+**Y un hueco que destapó la 0.7.71 sin dar conflicto.** Esa versión pasó a
+`listo` las tres celebraciones de la escalera, y en «Lo que abre el nivel» un
+peldaño sin `id` no es una apariencia: su plan no lo sabe
+`aparienciaDisponible`. La de pantalla completa decía «Tuyo» a un plan libre en
+cuanto pasabas el nivel 15. Ahora se le pregunta a `planPermite` con la misma
+llave que usa `celebracionesAbiertas()`.
+
+### 0.7.71 · 2 sep 2026
+
+**Las tres celebraciones que la escalera prometía y nadie había construido.**
+
+Estaban escritas en `EXP_ESCALERA` sin `listo`, que es la bandera que impide
+anunciar lo que no existe — y por eso llevaban meses invisibles. Ya se pueden
+cumplir, así que se marcan y aparecen.
+
+| Nivel | Qué abre | Qué es |
+| --- | --- | --- |
+| 3 | Destello propio al cumplir una misión | El mismo gesto de siempre con una estrella de cuatro puntas naciendo dentro del aro |
+| 9 | Escena nueva de racha | **El amanecer**: la luz sube una vez sobre la línea de abetos, en vez del humo y las pavesas de la brasa |
+| 15 | Celebración de pantalla completa · **Pro** | La misma noticia con el peso del sello: la insignia cae, golpea y la onda se abre |
+
+Ninguna es una pantalla nueva: son variantes de lo que ya hay, encendidas por
+una clase. El marcado, el texto y los tiempos no se mueven, así que no hay tres
+maquetas más que mantener.
+
+**De dónde salen.** El amanecer y el sello son dos de los borradores que
+Eduardo eligió cuando se rediseñaron las escenas y que se quedaron sin sitio:
+la casa se llevó la constelación y la racha la brasa. Aquí encuentran el suyo.
+
+**Tres reglas que las hacen seguras:**
+
+- **Se derivan del nivel, no se guardan.** Mismo trato que los puntos y por el
+  mismo motivo: son retroactivas y la sincronía no las puede perder.
+- **La de pantalla completa pregunta a `LIMITES`** con una llave nueva,
+  `celebracion`, y no lleva escrito el nombre de ningún plan. Al dejar de
+  pagar vuelve la de siempre — **apagar no es quitar**, porque la celebración
+  base sigue saliendo igual y no se pierde nada de lo hecho.
+- **Sigue sin interrumpir.** La grande se va sola a los 2,2 s y no se puede
+  pulsar, que es lo que permite celebrar subir una habilidad cien veces sin
+  cansar.
+
+Con esto, `escaleraDeExpedicion()` **no promete ni un peldaño sin construir**.
+### 0.7.70.2 · 2 sep 2026
+**El botón de actualizar dice qué versión entra, y se pone del lado correcto de
+la línea.**
+
+Dos retoques del botón que estrenó la 0.7.59.1.
+
+**La línea vuelve a ser de Ajustes.** La tenía el botón, y estaba del revés: al
+otro lado de esa raya está lo que se toca todos los días, y de este lado lo de la
+app. Ahora el orden es «Actualizar → línea → Ajustes». Lo que **no** vuelve es el
+anclaje al fondo: ese se queda con el botón, porque si se lo quedara Ajustes todo
+el hueco elástico se metería ENTRE los dos y el botón se iría arriba a hacerle
+compañía a Proyectos.
+
+Y la línea baja dos píxeles, de −9 a −4. Estaba a −9 cuando encima solo tenía el
+hueco elástico y flotaba sola; con el botón justo arriba el hueco es de 8 px, así
+que −9 la metía un píxel **dentro** del botón: invisible en reposo y visible al
+pasar el ratón, cortándole el fondo.
+
+**Y dice el número.** Un botón que solo dice «Actualizar» pide un acto de fe: no
+sabes si lo que entra es la tanda que estabas esperando o el arreglo de un
+rótulo. Ahora lleva debajo `V0.7.70.2`, en el gris de los textos secundarios y
+con la V delante, como el pie de la barra.
+
+El número no se inventa ni se pide aparte: **lo manda el service worker en el
+mismo mensaje que avisa**, y es el nombre de la caché que ya está bajada. O sea
+que no es una promesa de lo que habrá, es lo que ya está ahí esperando a que
+pulses. Si algún día llegara sin número, el renglón desaparece solo (`:empty`) y
+el botón se queda como estaba. El toast del teléfono lo dice también: «Ya está
+lista la versión 0.7.70.2».
+
+**Una línea de CSS que hacía falta escribir:**
+
+```css
+html.sc #nav-update-side .nav-label { display: none; }
+```
+
+El rótulo de dos renglones se estiliza con un selector que lleva un id, y un id
+le gana a `html.sc .nav-label` por especificidad. Sin esa línea el rótulo
+sobrevivía al plegado y se salía de una barra de 84 px.
+
+Medido con las animaciones saltadas: desplegada 209 × 64 —cuatro píxeles más alto
+que antes, por el segundo renglón— con la línea de Ajustes a 767, dentro del
+hueco y no dentro del botón; plegada 47 × 52, solo el icono, sin salirse.
+
+**Y dos fechas más de la lista, corregidas.** La 0.7.65 y la 0.7.67 decían «1
+sep» y se commitearon a la 01:02 y a la 01:26 del 2 en hora de México: quedaban
+por debajo de la 0.7.66, que ya decía «2 sep», o sea una entrada más vieja
+fechada después que una más nueva. Es el caso de trabajar pasada la medianoche, y
+la regla lo resuelve igual: manda el reloj de México.
+
+### 0.7.70.1 · 2 sep 2026
+
+**El cielo de Mi expedición se ensancha, y las fugaces dejan de verse antes de
+tiempo.** Las dos las cazó Eduardo mirando la 0.7.69.
+
+**El fallo de las fugaces:** «muestra las estrellas caer antes de tiempo y sin
+animación». **Una animación con retardo no pinta su primer fotograma mientras
+espera — pinta el estilo BASE del elemento**, que era opacidad 1. Así que las
+tres se quedaban quietas y visibles en su punto de partida durante los primeros
+segundos: 0,4 s la primera, 5,7 la segunda y 10,2 la tercera. Se arregla con
+`backwards` —que hace que el retardo use el 0% del keyframe— más `opacity: 0`
+de base, que cubre el instante anterior a que la animación exista. Medido: en
+el instante 0 y a mitad del retardo, las tres a opacidad 0; cruzando, 0,875.
+
+**Y el cielo se siembra por fuera del encuadre.** Lo pidió así: «que sea más
+amplio hacia los bordes y esté enmascarado dentro de su espacio, para que se
+vean más estrellas que no se ven cuando uno mueve el cursor». Sembrado justo en
+el encuadre, el paralaje arrastraba el borde a la vista y por ese lado no había
+nada: el cielo se acababa, que es lo contrario de la profundidad que se
+buscaba.
+
+Ahora hay `EXP_MARGEN` de 44 unidades de más por los cuatro lados y el SVG pasa
+a `overflow: hidden`, que es lo que lo enmascara. **De 79 estrellas a 145, con
+76 de ellas fuera del cuadro esperando a que muevas el cursor.** El paralaje
+del polvo sube de 9 a 16 px para que de verdad entren.
+
+El margen tiene que ser mayor que lo que el paralaje mueve el polvo o se vería
+el borde del sembrado, que es el mismo fallo con otro tamaño.
+
 ### 0.7.70 · 2 sep 2026
 
 **Mi apariencia se vuelve una galería: cada mundo se enseña solo.**
@@ -423,7 +653,7 @@ es. Se enciende con un segundo argumento.
 los cinco rangos siempre están, las tres fugaces se siembran siempre y no
 desborda de lado en ninguno. En los dos modos, con paralaje medido en las tres
 capas y su vuelta al centro, y a 320×480 sin cortar un solo rótulo.
-### 0.7.67 · 1 sep 2026
+### 0.7.67 · 2 sep 2026
 
 **Un rango se consigue al cerrar su constelación, no al estrenarla.**
 
@@ -499,7 +729,7 @@ Medido con el barrido de control sobre 427 elementos: **cero fallas de contraste
 exclusivas de Averno en los dos modos**. De día Averno falla 11 y la casa 70; de
 noche 24 contra 25.
 
-### 0.7.65 · 1 sep 2026
+### 0.7.65 · 2 sep 2026
 
 **La constelación deja de contar niveles y pasa a dibujar el objeto del rango,
 y la escena dice lo que acaba de pasar.**

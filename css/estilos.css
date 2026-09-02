@@ -1949,7 +1949,11 @@
     background: rgb(var(--escena-fondo));
   }
   .exp-sky-wrap { position: relative; }
-  .exp-sky { display: block; width: 100%; height: auto; overflow: visible; }
+  /* `overflow: hidden` es lo que ENMASCARA el cielo: el polvo se siembra por
+     fuera del encuadre (ver `EXP_MARGEN`) y lo que sobra se recorta aquí, así
+     que al mover el cursor entran estrellas que no estaban a la vista en vez
+     de aparecer un borde vacío. */
+  .exp-sky { display: block; width: 100%; height: auto; overflow: hidden; }
   /* La costura entre el cielo y el rótulo. Sin ella el dibujo termina en una
      raya recta y se ve el borde de la foto; con ella el polvo de estrellas se
      apaga hacia abajo y el nivel parece escrito sobre el mismo cielo. */
@@ -1974,8 +1978,8 @@
      se movía nunca — el oyente funcionaba y el paralaje no. Medido: `--mx`
      llegaba a 0,477 y el `transform` seguía en la matriz identidad. */
   .exp-cielo { --mx: 0; --my: 0; }
-  .exp-polvo { transform: translate(calc(var(--mx) * 9px), calc(var(--my) * 5px)); }
-  .exp-fugaces { transform: translate(calc(var(--mx) * 5px), calc(var(--my) * 3px)); }
+  .exp-polvo { transform: translate(calc(var(--mx) * 16px), calc(var(--my) * 9px)); }
+  .exp-fugaces { transform: translate(calc(var(--mx) * 8px), calc(var(--my) * 5px)); }
   /* Un solo `transform` por capa: la propiedad no se puede escribir dos veces,
      así que el paralaje y el acercamiento del hover van en la misma
      declaración y lo que cambia es `--z`. */
@@ -2054,7 +2058,15 @@
     97%      { opacity: 0.3; }
     100%     { transform: translateX(104px); opacity: 0; }
   }
-  .exp-fugaz { animation: expFugaz 13s linear infinite; }
+  /* **`backwards` y `opacity: 0` de base, y las dos hacen falta.** Sin ellas
+     se veía el fallo que cazó Eduardo: «muestra las estrellas caer antes de
+     tiempo y sin animación». Una animación con retardo no pinta su primer
+     fotograma mientras espera — pinta el estilo BASE del elemento, que era
+     opacidad 1—, así que las tres fugaces se quedaban quietas y visibles en su
+     punto de partida durante los primeros segundos, hasta cuatro y medio en la
+     tercera. `backwards` hace que el retardo use el 0% del keyframe, y la
+     opacidad de base cubre el instante anterior a que la animación exista. */
+  .exp-fugaz { opacity: 0; animation: expFugaz 13s linear infinite backwards; }
 
   .exp-hero { padding: 2px 16px 15px; }
   .exp-hero-fila { display: flex; align-items: center; gap: 12px; }
@@ -5381,6 +5393,102 @@
     animation: celPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.22s backwards;
   }
 
+  /* ================= Las celebraciones que abre el nivel =================
+     Tres variantes de lo que ya existe, y ninguna es una pantalla nueva: el
+     marcado, el texto y los tiempos no se mueven. Lo que cambia es la luz.
+
+     Se encienden con una clase que pone el JS leyendo `celebracionesAbiertas()`
+     — el nivel manda, y la de pantalla completa además pide Pro. */
+
+  /* ---- El destello propio · nivel 3 ----
+     La estrella de cuatro puntas naciendo dentro del aro. Es el mismo gesto de
+     siempre firmado: a 420 ms y visto de reojo, un efecto distinto no se
+     leería, se notaría solo como ruido. */
+  .destello .ds-astro {
+    position: absolute;
+    left: -7px; top: -7px;
+    width: 14px; height: 14px;
+    background: var(--ds, var(--mint));
+    clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+    opacity: 0;
+    animation: dsAstro 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes dsAstro {
+    0%   { transform: scale(0.2) rotate(-40deg); opacity: 0; }
+    45%  { transform: scale(1.15) rotate(0deg); opacity: 1; }
+    100% { transform: scale(0.9) rotate(12deg); opacity: 0; }
+  }
+
+  /* ---- El amanecer · nivel 9 ----
+     La segunda escena de racha. La brasa mira al fuego que llevas encendido;
+     el alba mira al día que empieza. Misma maqueta, otra luz: se apagan el
+     humo y las pavesas y se enciende la línea del horizonte. */
+  .scel-alba, .scel-abetos { display: none; }
+  .scel.alba .scel-rays, .scel.alba .scel-sparks { display: none; }
+  .scel.alba {
+    background: linear-gradient(180deg,
+      rgb(var(--escena-fondo)) 0%,
+      color-mix(in srgb, var(--fire-macizo) 8%, rgb(var(--escena-vidrio))) 58%,
+      rgb(var(--escena-fondo)) 100%);
+  }
+  .scel.alba .scel-alba {
+    display: block; position: absolute;
+    left: -20%; right: -20%; bottom: -8vmin; height: 62vmin;
+    background: radial-gradient(ellipse 62% 100% at 50% 100%,
+      color-mix(in srgb, var(--fire-macizo) 62%, transparent) 0%,
+      color-mix(in srgb, var(--fire-macizo) 20%, transparent) 42%,
+      transparent 74%);
+    pointer-events: none;
+    /* Sube UNA vez y se queda. Es la misma regla que echó a los rayos: una
+       celebración cuenta un momento y termina. */
+    animation: scelAmanece 1.9s cubic-bezier(.22, .7, .3, 1) forwards;
+  }
+  @keyframes scelAmanece {
+    from { transform: translateY(34vmin); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  .scel.alba .scel-abetos {
+    display: block; position: absolute;
+    left: 0; right: 0; bottom: 0; width: 100%;
+    fill: rgb(var(--escena-fondo)); pointer-events: none;
+  }
+
+  /* ---- La de pantalla completa · nivel 15 con Pro ----
+     La misma noticia con el peso del sello: la insignia cae desde arriba,
+     golpea y levanta polvo. Sigue sin interrumpir —se va sola y no se puede
+     pulsar—, que es lo que permite verla cien veces sin cansar. */
+  .celebrate.grande { background: radial-gradient(circle at 50% 46%, rgba(14, 19, 27, .72), rgba(14, 19, 27, .96)); }
+  .celebrate.grande .cel-icon {
+    width: 132px; height: 132px;
+    animation: celSello .46s cubic-bezier(.6, .02, .36, 1) backwards;
+  }
+  .celebrate.grande .cel-icon svg { width: 60px; height: 60px; }
+  @keyframes celSello {
+    0%   { transform: scale(3.2) translateY(-42px); opacity: 0; }
+    55%  { opacity: 1; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .celebrate.grande .cel-title { font-size: 40px; }
+  .celebrate.grande .cel-sub { font-size: 16px; }
+  /* Los dos aros pasan de salir del icono a ser la onda del golpe: esperan al
+     impacto y se abren de una vez. */
+  .celebrate.grande.show .cel-ring {
+    animation: celOnda .8s cubic-bezier(.16, .9, .3, 1) .44s;
+    border-width: 3px;
+  }
+  .celebrate.grande.show .cel-ring.r2 { animation-delay: .56s; opacity: .6; }
+  @keyframes celOnda {
+    0%   { transform: scale(.35); opacity: .9; }
+    100% { transform: scale(3.4); opacity: 0; }
+  }
+  .celebrate.grande.show .cel-title, .celebrate.grande.show .cel-sub {
+    animation: celPop .5s cubic-bezier(.34, 1.56, .64, 1) .5s backwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .destello .ds-astro, .scel.alba .scel-alba, .celebrate.grande .cel-icon { animation: none; }
+    .scel.alba .scel-alba { transform: none; opacity: 1; }
+  }
+
   /* ---------- Toast ---------- */
   /* ---------- Avisos ----------
      Antes eran todos el mismo bloque verde con texto negro, dijeran lo que
@@ -7334,22 +7442,112 @@
        permanente. Y como es un `.c-nav` como los demás, plegada la barra se
        queda en su icono sin una sola regla más: de eso ya se encarga
        `html.sc .nav-label`. */
-    #nav-update-side { color: var(--fire); }
-    #nav-update-side:hover { background: var(--fire-soft); color: var(--fire); }
+    /* ---- Y que se vea como lo que es ----
+       Estaba pintado como un elemento más del menú: transparente, plano, con el
+       rótulo en amarillo y nada más. Pero los otros cinco son SITIOS A LOS QUE
+       IR, y por eso son transparentes — una lista de destinos no necesita caja,
+       y ponérsela sería subrayar cinco cosas a la vez.
 
-    /* El anclaje abajo y la línea de separación son de quien encabece el grupo.
-       Con el de actualizar puesto pasan a ser suyos; si no, salían dos rayas
-       seguidas y Ajustes se quedaba pegado al resto del menú. */
-    #nav-update-side { margin-top: auto; position: relative; }
-    #nav-update-side::before {
-      content: "";
-      position: absolute;
-      left: 0; right: 0; top: -9px;
-      height: 1px;
-      background: var(--line);
+       Este no es un destino: es algo que llegó y que está esperando a que
+       decidas. Una cosa que llega tiene cuerpo. Así que tiene fondo, marco y un
+       disco para el icono, los tres de la misma luciérnaga en tres fuerzas
+       distintas — 13 %, 26 % y 20 % —, que es lo que hace que se lea como UNA
+       pieza y no como un botón al que le pegaron un color.
+
+       Todo sale de `--fire`, así que un mundo que la cambie se lo lleva entero
+       y el modo claro pasa solo a la versión de escribir (#755c05) sin una
+       regla más. */
+    #nav-update-side {
+      color: var(--fire);
+      background: var(--fire-soft);
+      border-color: color-mix(in srgb, var(--fire) 26%, transparent);
+      border-radius: var(--r-caja);
+      padding: 12px;
+      gap: 11px;
+      /* Aparece de la nada, en mitad de lo que estabas haciendo: que suba un
+         poco al llegar es lo que lo convierte en algo que ocurrió, y no en algo
+         que llevaba ahí todo el rato y no habías visto. Dura lo que dura un
+         cambio de pantalla; no pide nada. */
+      animation: nu-llega var(--dur-media) var(--curva) both;
     }
+    #nav-update-side:hover {
+      background: color-mix(in srgb, var(--fire) 18%, transparent);
+      border-color: color-mix(in srgb, var(--fire) 44%, transparent);
+      color: var(--fire);
+    }
+    /* El disco del icono. Plegada la barra es lo único que queda, y sin él ahí
+       había una flecha de trazo fino suelta en mitad de ochenta y cuatro
+       píxeles: no se leía como un aviso, se leía como un icono que se cayó. */
+    #nav-update-side .nu-ic {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+      border-radius: var(--r-disco);
+      background: color-mix(in srgb, var(--fire) 20%, transparent);
+    }
+    .thumb-cluster #nav-update-side svg { width: 17px; height: 17px; }
+    /* Plegada, el relleno horizontal se va como en los demás botones: la regla
+       general lleva dos clases y este selector un id, así que hay que repetirlo
+       o el disco de 30 px no cabe en los 47 que quedan. */
+    html.sc #nav-update-side { padding-left: 0; padding-right: 0; }
+
+    @keyframes nu-llega {
+      from { opacity: 0; transform: translateY(6px) scale(0.97); }
+      to   { opacity: 1; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #nav-update-side { animation: none; }
+    }
+
+    /* ---- Dónde cae, y qué se queda cada uno ----
+       La línea de separación sigue siendo de Ajustes y el botón va ENCIMA de
+       ella: al otro lado de la raya está lo que se toca todos los días, y de
+       este lado lo de la app. Lo que sí se muda es el anclaje al fondo: con el
+       botón puesto es suyo, porque si se lo quedara Ajustes el hueco entero se
+       metería ENTRE los dos y el botón se iría a hacer compañía a Proyectos. */
+    #nav-update-side { margin-top: auto; }
     #nav-update-side:not([hidden]) ~ #nav-settings-side { margin-top: 0; }
-    #nav-update-side:not([hidden]) ~ #nav-settings-side::before { display: none; }
+    /* Y la línea baja dos píxeles. Estaba a -9 porque encima solo había el
+       hueco elástico y flotaba sola; con el botón justo arriba el hueco es de
+       8 px, así que -9 la metía un píxel DENTRO del botón — invisible en
+       reposo y visible al pasar el ratón, cortando su fondo. Centrada. */
+    #nav-update-side:not([hidden]) ~ #nav-settings-side::before { top: -4px; }
+
+    /* ---- Y dice qué versión entra ----
+       Un botón que solo dice «Actualizar» pide un acto de fe: no sabes si es la
+       tanda que estabas esperando o un retoque de un rótulo. El número lo manda
+       el service worker en el mismo mensaje —es el de la caché que ya está
+       bajada—, así que es exactamente lo que vas a tener al pulsar, no una
+       promesa. Se escribe como en el pie de la barra, con la V delante.
+
+       Si por lo que sea llegara sin número, el renglón se va y el botón se
+       queda como estaba: `:empty` y ya. */
+    #nav-update-side .nav-label {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1px;
+      line-height: 1.2;
+    }
+    #nav-update-side .nu-ver {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0;
+      /* Amarillo apagado y no el gris de siempre: con el gris, el número se leía
+         como una nota que alguien pegó debajo del rótulo. Mezclado con la
+         luciérnaga pertenece al mismo bloque. */
+      color: color-mix(in srgb, var(--fire) 55%, var(--muted));
+      font-variant-numeric: tabular-nums;
+    }
+    #nav-update-side .nu-ver:empty { display: none; }
+    /* Plegada se esconde como los demás rótulos, y hay que escribirlo: la regla
+       de aquí arriba lleva un id, y un id le gana a `html.sc .nav-label` por
+       especificidad. Sin esta línea el rótulo sobrevivía al plegado y se salía
+       de una barra de 84 px. */
+    html.sc #nav-update-side .nav-label { display: none; }
 
     /* Ajustes no se toca a cada rato: se separa del resto de la navegación
        y se ancla abajo del todo, en vez de competir por atención junto a

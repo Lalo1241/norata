@@ -7,6 +7,12 @@ document.addEventListener("pointerdown", () => { userHasTapped = true; }, { once
 
 function celebrate(title, sub, color, iconName) {
   const el = document.getElementById("celebrate");
+  /* La de pantalla completa, que abre el nivel 15 con Pro: la misma noticia
+     con el peso del sello —la insignia cae, golpea y levanta polvo—. Sigue sin
+     interrumpir: se va sola a los 2,2 s y no se puede pulsar, que es lo que
+     hace que subir una habilidad se pueda celebrar cien veces sin cansar. */
+  el.classList.toggle("grande",
+    typeof celebracionesAbiertas === "function" && celebracionesAbiertas().grande);
   el.style.setProperty("--cel", color || "#5fe0b0");
   document.getElementById("cel-icon").innerHTML = icon(iconName || "trophy", 38);
   document.getElementById("cel-title").textContent = title;
@@ -396,8 +402,12 @@ function destello(objetivo, color) {
     ? objetivo.getBoundingClientRect() : objetivo;
   if (!r || (!r.width && !r.height)) return;   // no está en pantalla: nada que celebrar
 
+  /* El destello PROPIO, que abre el nivel 3: el mismo gesto con una estrella
+     de cuatro puntas naciendo en el centro. No es otro efecto, es el de
+     siempre firmado — a 420 ms y de reojo, un cambio mayor no se leería. */
+  const propio = typeof celebracionesAbiertas === "function" && celebracionesAbiertas().destello;
   const d = document.createElement("div");
-  d.className = "destello";
+  d.className = "destello" + (propio ? " propio" : "");
   d.style.left = (r.left + r.width / 2) + "px";
   d.style.top = (r.top + r.height / 2) + "px";
   d.style.setProperty("--ds", color || "var(--mint)");
@@ -412,7 +422,8 @@ function destello(objetivo, color) {
     chispas += '<i style="--dx:' + (Math.cos(ang) * dist).toFixed(0) + 'px;--dy:' +
       (Math.sin(ang) * dist).toFixed(0) + 'px"></i>';
   }
-  d.innerHTML = '<span class="ds-aro"></span>' + chispas;
+  d.innerHTML = '<span class="ds-aro"></span>' +
+    (propio ? '<span class="ds-astro"></span>' : "") + chispas;
   document.body.appendChild(d);
   /* Se quita solo. Sin esto, una tarde de misiones deja cien nodos muertos
      colgando del body. */
@@ -439,6 +450,13 @@ let scelTimer = null;
 function celebrateStreak(n) {
   const el = document.getElementById("scel");
   if (!el) return;
+  /* La segunda escena de racha, que abre el nivel 9: el amanecer. La brasa
+     mira al fuego que llevas encendido; el alba mira al día que empieza, que
+     es lo que una racha larga se ha ganado decir. Es la misma escena con otra
+     luz y no una pantalla nueva: el número, el mensaje y el botón no se
+     mueven, así que no hay dos maquetas que mantener. */
+  el.classList.toggle("alba",
+    typeof celebracionesAbiertas === "function" && celebracionesAbiertas().racha);
   document.getElementById("scel-num").textContent = n;
   document.getElementById("scel-sub").textContent = mensajeHito(n);
 
