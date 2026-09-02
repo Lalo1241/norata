@@ -52,6 +52,40 @@ Cuatro sitios, y son cuatro a propósito:
 
 ## La lista
 
+### 0.7.55.6 · 2 sep 2026
+**Los encabezados de módulo y la tarjeta de la racha también llevan marco en
+Reliquia.** Lo preguntó Eduardo: «siento que desentonan mucho en comparación
+con todo lo demás». Y era eso exactamente — no es que les sobrara nada, es que
+les faltaba lo que llevaban sus vecinas: el aro de latón se dibujaba solo en
+`.panel` y `.sum-card`, así que la pieza más grande de cada pantalla era la
+única sin enmarcar.
+
+No amplía el reparto del recurso, que es lo que había que cuidar («se gasta muy
+rápido», 0.7.55): los cuatro encabezados y la racha SON la misma pieza
+(`.scene-card`), así que un selector cubre los cinco sitios y sigue habiendo
+como mucho dos aros por pantalla. Dentro de una lista el marco sigue siendo un
+borde liso.
+
+Dos detalles que hicieron falta y no se ven:
+
+- **El aro va con `z-index: 2`.** Una escena lleva el paisaje y su velo puestos
+  encima con `position: absolute`, y un `::before` es el primer hijo: sin eso,
+  el marco quedaba pintado DEBAJO del dibujo.
+- **El metal de una escena es el de NOCHE en los dos modos**, como todo lo
+  demás que hay dentro. Una escena es el dibujo de una noche, y un marco de día
+  alrededor de un paisaje nocturno se ve como lo que sería: una pieza de otro
+  sitio.
+
+**Y de paso, el calendario de la racha dejó de salir verde.** Verificando lo
+anterior aparecieron cuatro casillas con la menta de la casa en mitad de una
+vitrina violeta: la escala de intensidad estaba escrita con el hex a mano en
+`js/05-resumen.js`. Es el mismo fallo que ya tenía la caja de un grupo en el
+mapa de talentos, en otro sitio. Ahora sale de `var(--mint)`, que dentro de una
+escena es el acento de la apariencia puesta.
+
+Foto de estilos con la apariencia de la casa: **0 diferencias sobre 26 638
+elementos**. Todo el cambio vive dentro de Reliquia.
+
 ### 0.7.55.5 · 1 sep 2026
 El modo claro de Reliquia, que era donde se veía todo lo que faltaba. **En modo
 oscuro no se movió ni un píxel** — medido: de las 107 diferencias de la foto de

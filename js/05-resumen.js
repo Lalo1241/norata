@@ -1863,7 +1863,18 @@ function calendarioRacha(anio, mes, cuentas, hoy) {
 
   let max = 1;
   for (let d = 1; d <= total; d++) max = Math.max(max, cuentas.get(anio + "-" + mm + "-" + String(d).padStart(2, "0")) || 0);
-  const escala = ["", velo("#5fe0b0", "3a"), velo("#5fe0b0", "77"), velo("#5fe0b0", "b4"), pinta("#5fe0b0")];
+  /* La escala sale del acento de la APARIENCIA y no de la menta de la casa
+     escrita aquí, que es lo que había. El calendario vive dentro de la tarjeta
+     de la racha, o sea dentro de una escena, y una escena vuelve a declarar su
+     paleta entera: `var(--mint)` ahí dentro es el acento del ambiente o del
+     mundo que esté puesto. Con el hex escrito, en Reliquia salían cuatro
+     casillas VERDES en mitad de una vitrina violeta. Es el mismo fallo que ya
+     tenía la caja de un grupo en el mapa de talentos, en otro sitio.
+
+     `velo()` y `pinta()` dejan pasar un `var(...)` intacto, así que esto sigue
+     dando exactamente lo mismo que antes en la casa. */
+  const acento = "var(--mint)";
+  const escala = ["", velo(acento, "3a"), velo(acento, "77"), velo(acento, "b4"), pinta(acento)];
 
   let celdas = "";
   for (let i = 0; i < primero; i++) celdas += `<i class="rc-hueco"></i>`;
