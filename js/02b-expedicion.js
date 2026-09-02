@@ -434,19 +434,28 @@ function proximoDesbloqueo(nivel) {
 
    Devuelve "" antes del primer nivel: sin nada que enseñar no se enseña un
    aro vacío, que se leería como algo roto. */
-/* `conColor` pinta la insignia del color del RANGO en vez de la menta de la
-   casa. No va siempre puesto, y el motivo es de contraste: dentro del cielo
-   —que es una escena y se queda de noche— los cinco tonos son sus caras vivas
-   y el aro se lee de sobra; en el Resumen y en la fila de la cuenta la
-   insignia cae sobre papel en modo claro, donde los cinco se hunden a tinta y
-   un aro de dos píxeles en tinta oscura ya no dice de qué color es. Dentro
-   del cielo hay otras cuatro piezas del mismo color dándole contexto; sola
-   sobre una tarjeta blanca, no.
+/* **La insignia va del color de tu RANGO, en todas partes**: el aro del
+   progreso y el dibujo de dentro. Lo pidió Eduardo al ver que la ruedita del
+   menú de la cuenta seguía en menta mientras Mi expedición ya iba por
+   colores, y tiene razón — es la misma insignia, y donde más paga es
+   justamente ahí: en el Resumen y en la fila de la cuenta es lo ÚNICO que se
+   ve del recorrido, así que un color propio la convierte en algo que se
+   reconoce de lejos.
 
-   Así que el color entra donde está medido y se queda fuera donde no. El día
-   que se quiera en toda la app, se enciende aquí y hay que medir los cinco
-   tonos de día como TRAZO (umbral 3) y no como texto. */
-function insigniaExpedicionHTML(diam, conColor) {
+   Hubo una versión con esto detrás de un interruptor, encendido solo dentro
+   del cielo. El motivo era de contraste y **ya no existe**: entonces uno de
+   los cinco rangos era luciérnaga, que de día tiene que hundirse hasta el
+   dorado apagado que Eduardo rechazó por leerse como una alerta interna. Al
+   sacar la luciérnaga y el lila del reparto —ver `EXP_RANGOS`— la objeción se
+   fue con ellos.
+
+   Medido, porque un aro de dos píxeles es un TRAZO y no texto (umbral 3, no
+   4,5): sobre la tarjeta clara los cinco van de 5,44 a 7,55, y sobre la de
+   noche de 6,71 a 11,68. Pasan los dos umbrales con holgura en los dos modos.
+
+   Con `--mint` de reserva, porque un mundo puede traer sus cinco rangos y no
+   está obligado a traer colores. */
+function insigniaExpedicionHTML(diam) {
   const d = diam || 30;
   const info = nivelExpedicion();
   if (info.nivel < 1) return "";
@@ -457,9 +466,7 @@ function insigniaExpedicionHTML(diam, conColor) {
      se lee, y a 48 uno de 2 desaparece. */
   const grosor = d >= 40 ? 3 : 2;
   const dibujo = Math.round(d * 0.6);
-  /* Con `--mint` de reserva, porque un mundo puede traer sus cinco rangos y
-     no está obligado a traer colores. */
-  const col = conColor ? "var(" + (r.color || "--mint") + ")" : "var(--mint)";
+  const col = "var(" + (r.color || "--mint") + ")";
 
   return '<span class="exp-insignia" style="width:' + d + 'px;height:' + d + 'px;color:' + col + '"' +
     ' title="Nivel ' + info.nivel + ' · ' + r.nombre + ' · ' + info.pct + '% del nivel"' +
@@ -945,7 +952,7 @@ function renderColeccion() {
       </div>
       <div class="exp-hero">
         <div class="exp-hero-fila">
-          ${insigniaExpedicionHTML(52, true)}
+          ${insigniaExpedicionHTML(52)}
           <div class="exp-hero-tx">
             <div class="exp-hero-nivel">Nivel ${nivel}</div>
             <div class="exp-hero-rango" style="color:${tono}">${expLecturaCielo(nivel)}</div>
