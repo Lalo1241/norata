@@ -75,18 +75,37 @@ const MUNDOS = [
      `mundos/MUNDOS.md` puso por delante. Va con Pro como los otros doce: de
      los quince, el único que no abre Pro es Reliquia, que es de Fundador.
 
-     Los cinco rangos son los ESTADOS DEL FUEGO y pasan las dos pruebas que
-     dejó escritas Blueprint. Suben —cada uno es más que el anterior y sólo se
-     le puede ocurrir a él— y de todos se puede decir «soy»: soy nivel Brasa
-     se dice, soy nivel Corte no.
+     **El concepto es demonología cristiana, y lo pidió Eduardo.** Los cinco
+     rangos fueron antes los estados del fuego —Ceniza, Chispa, Brasa, Llama,
+     Hoguera— y se cambiaron enteros: describían una fogata, que es el tema
+     visual del mundo pero no su concepto.
 
-     Y los dibujos crecen con ellos, que es lo que hace que se distingan a los
-     20 px a los que se pintan: un montón bajo y liso, un punto de luz sin
-     cuerpo, un bulto con la grieta encendida, una llama con otra dentro, y la
-     llama ya apoyada sobre dos leños. Ninguno se parece al de al lado —montón,
-     estrella, bulto, llama, llama con leños—, así que se leen sin llegar al
-     nombre. Medidos, los cinco caben dentro del cuadro de 24 con margen: el
-     más ancho ocupa 17,6 y el más alto 18,4.
+     La línea que separa esto de un disfraz —y es la que hay que sostener al
+     tocar cualquier cosa de Averno— es **teología, no utilería**. Cada peldaño
+     cita un texto y ninguno es un cuerno, un tridente ni un diablillo: eso es
+     lo que se ve infantil, y es exactamente lo que Eduardo pidió evitar.
+
+       Ceniza   «polvo y ceniza» (Job 42:6)
+       Azufre   el lago que arde con azufre (Apocalipsis 19:20)
+       Sello    el sello con el que se ata y se nombra (Apocalipsis 20:1-3,
+                y los sellos de la Llave Menor de Salomón)
+       Legión   «Legión me llamo, porque somos muchos» (Marcos 5:9)
+       Abismo   «la llave del pozo del abismo» (Apocalipsis 9:1)
+
+     Suben, y cada uno solo se le puede ocurrir al anterior: eres lo que quedó,
+     luego hueles al lugar, luego tienes un nombre que se puede escribir, luego
+     eres muchos, y al final eres el pozo. Y pasan las otras dos pruebas que
+     dejó escrita la tanda de Blueprint: de todos se puede decir «soy», y
+     **ninguno lleva género** —son cosas y no oficios—, así que «Ahora eres
+     Legión» le dice lo mismo a todo el mundo. Los títulos de la Goetia —Duque,
+     Marqués, Conde— se descartaron por eso mismo y no por el tema.
+
+     **Los dibujos son glifos, no criaturas.** Cinco siluetas geométricas que
+     no se parecen entre sí: un montón, el signo alquímico del azufre, un sello
+     inscrito, una formación y un pozo que se estrecha. Una figura demoníaca
+     dibujada a 20 px —que es el tamaño al que se pintan— solo puede salir
+     caricatura; un glifo a ese tamaño se lee y además es lo que de verdad
+     usaba la tradición.
 
      **Ceniza va primero y se queda, decidido por Eduardo.** Queda escrito
      porque el reparo se le ocurre a cualquiera que lo mire: la ceniza es lo
@@ -94,22 +113,28 @@ const MUNDOS = [
      lo es — el arco es «de las cenizas», que se entiende solo y es el que hace
      que el primer peldaño signifique algo: no empiezas en nada, empiezas en lo
      que quedó. Se propuso Yesca y se descartó. No volver a proponerlo. */
-  { id: "averno", nombre: "Averno", listo: true, pro: true, icon: "flame",
-    premisa: "Piedra quemada con la brasa debajo: los círculos del poema, ceniza cayendo y un sol eclipsado. Un lugar, no un disfraz.",
+  { id: "averno", nombre: "Averno", listo: true, pro: true, icon: "eclipse",
+    premisa: "Piedra quemada con la brasa debajo, y los círculos del poema. Demonología de la que se lee, no de la que se disfraza.",
     rangos: [
-      /* El montón de ceniza, con tres motas todavía cayendo. Es el único
+      /* El montón de ceniza, con la voluta que todavía sube. Es el único
          dibujo que no se levanta del suelo, y eso es lo que lo hace primero. */
-      { nombre: "Ceniza",  trazo: '<path d="M5 18.4c0-3.2 3.1-5.6 7-5.6s7 2.4 7 5.6z"/><path d="M3.2 18.4h17.6"/><path d="M8.6 8.4h.01M12.6 5.2h.01M16.2 9.2h.01"/>' },
-      /* La chispa: un solo punto de luz, sin masa ninguna todavía. */
-      { nombre: "Chispa",  trazo: '<path d="M12 3.4c0 4 1.8 5.8 5.8 5.8-4 0-5.8 1.8-5.8 5.8 0-4-1.8-5.8-5.8-5.8 4 0 5.8-1.8 5.8-5.8z"/><path d="M18.6 16.8h.01M6.4 18.2h.01M13 20.2h.01"/>' },
-      /* La brasa: ya hay cuerpo, y la grieta de dentro es por donde se ve que
-         sigue encendido. */
-      { nombre: "Brasa",   trazo: '<path d="M12 7.6c3.4 0 6.2 2.5 6.2 5.5s-2.8 5.5-6.2 5.5-6.2-2.5-6.2-5.5S8.6 7.6 12 7.6z"/><path d="M9.4 13.6l2.1-2.3 1.4 1.8 1.7-1.5"/><path d="M3.4 21h17.2"/>' },
-      /* La llama, con otra llama dentro: el fuego ya se sostiene solo. */
-      { nombre: "Llama",   trazo: '<path d="M12 2.6c3.4 4 6.4 6.7 6.4 10.4a6.4 6.4 0 11-12.8 0c0-3.7 3-6.4 6.4-10.4z"/><path d="M12 12.4c1.5 1.8 2.6 2.9 2.6 4.4a2.6 2.6 0 11-5.2 0c0-1.5 1.1-2.6 2.6-4.4z"/>' },
-      /* La hoguera: la misma llama, puesta encima de algo que la mantiene. Los
-         dos leños cruzados son lo que separa un fuego de una fogata. */
-      { nombre: "Hoguera", trazo: '<path d="M12 2.4c2.6 3.2 4.8 5.2 4.8 8a4.8 4.8 0 11-9.6 0c0-2.8 2.2-4.8 4.8-8z"/><path d="M3.6 20.8L20.4 17M20.4 20.8L3.6 17"/>' }
+      { nombre: "Ceniza", trazo: '<path d="M4.4 18.8c1.2-3.9 4-6.1 7.6-6.1s6.4 2.2 7.6 6.1z"/><path d="M2.6 18.8h18.8"/><path d="M12 12.4c-1.9-1.9-1.7-3.9.5-5.4-.7 1.9.4 2.6 1.1 3.9"/>' },
+      /* El signo alquímico del azufre: triángulo sobre cruz. Se usó tal cual
+         durante siglos y no hay que explicarlo — y a 20 px se lee, que es más
+         de lo que puede decir cualquier figura. */
+      { nombre: "Azufre", trazo: '<path d="M12 2.9l5.6 9.3H6.4z"/><path d="M12 12.2v8.9"/><path d="M8.3 16.7h7.4"/>' },
+      /* El sello: el anillo y la figura inscrita dentro. En esa tradición un
+         demonio no existe hasta que su sello está trazado, así que éste es el
+         peldaño en el que dejas de ser un montón y pasas a tener nombre. */
+      { nombre: "Sello", trazo: '<circle cx="12" cy="12" r="9.2"/><path d="M12 18.7L5.7 8.1h12.6z"/><circle cx="12" cy="11.4" r="1.7"/>' },
+      /* Legión: «somos muchos». Una formación y no una multitud dibujada —
+         cinco trazos en fila se leen como orden, y un montón de figuritas se
+         lee como ruido. */
+      { nombre: "Legión", trazo: '<path d="M2.6 20.6h18.8"/><path d="M4.6 20.6V9.4M8.3 20.6V6.2M12 20.6V4.2M15.7 20.6V6.2M19.4 20.6V9.4"/>' },
+      /* El abismo: los anillos que se estrechan al bajar, que es lo único que
+         hay que citar del poema y la firma del mundo. El último rango es el
+         propio lugar. */
+      { nombre: "Abismo", trazo: '<ellipse cx="12" cy="5.8" rx="9.2" ry="2.7"/><ellipse cx="12" cy="11.6" rx="6.4" ry="1.9"/><ellipse cx="12" cy="16.6" rx="3.6" ry="1.3"/>' }
     ] },
   /* El nombre de éste está decidido; sus dibujos se hacen cuando se construya
      el mundo, con el resto de sus vectores. Escribirlo ahora sin dibujo no es
@@ -262,7 +287,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=95071285c9";
+  l.href = "css/mundos.css?h=5b2c53d105";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
