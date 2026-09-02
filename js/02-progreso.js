@@ -40,6 +40,124 @@ function celebrate(title, sub, color, iconName) {
    guarda es hasta qué nivel se festejó ya, que es otra cosa. Es el mismo trato
    que `rachaFestejada` y por el mismo motivo: sin él la fiesta se repetiría en
    cada recarga. */
+/* ================= La constelación del rango =================
+   Cada rango tiene SU figura, dibujada con seis estrellas —una por nivel— y la
+   sexta la cierra justo al subir de rango. Las ya cerradas se quedan en
+   pequeño arriba: esa fila es la colección.
+
+   La figura de cada rango es la misma forma que su insignia, así que el cielo
+   y lo que llevas puesto dicen lo mismo. La progresión es de DIMENSIÓN y por
+   eso se lee sola: una línea, una punta, un cruce, una retícula, y al final
+   algo radial. De ir en una dirección a orientarse en todas.
+
+   Sustituye a los rayos giratorios de 0.7.48. El motivo, medido: eran las
+   únicas animaciones `infinite` de toda la app, y algo que gira sin final es
+   decoración de fondo, no un acontecimiento. */
+const NCEL_FIGURAS = [
+  { p: [[28,8],[28,44],[54,60],[82,68],[82,84],[14,84]],
+    l: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0]] },
+  { p: [[50,8],[20,26],[80,26],[20,88],[80,88],[50,58]],
+    l: [[0,1],[0,2],[1,2],[1,3],[2,4],[3,4],[1,5],[5,2]] },
+  { p: [[50,8],[30,26],[70,26],[26,86],[74,86],[50,58]],
+    l: [[0,1],[0,2],[1,2],[1,3],[2,4],[3,4],[3,5],[5,4]] },
+  { p: [[26,14],[74,14],[74,86],[26,86],[40,44],[60,62]],
+    l: [[0,1],[1,2],[2,3],[3,0],[4,5]] },
+  { p: [[50,50],[50,8],[92,50],[50,92],[8,50],[74,26]],
+    l: [[0,1],[0,2],[0,3],[0,4],[1,5],[5,2]] }
+];
+
+function ncelIndiceRango(n) {
+  return Math.max(0, Math.min(NCEL_FIGURAS.length - 1, Math.floor((n - 1) / EXP_POR_RANGO)));
+}
+function ncelEstrella(n) { return ((n - 1) % EXP_POR_RANGO) + 1; }
+function ncelCierra(n) { return ncelEstrella(n) === EXP_POR_RANGO; }
+
+/* Dibuja una figura hasta `hasta` estrellas. Los grosores y los radios se
+   multiplican por la escala para que una medalla del estante no salga con
+   líneas de dos píxeles. */
+function ncelFigura(fig, hasta, cx, cy, esc, cls, ultimaAparte) {
+  let s = "";
+  const X = q => (cx + (q[0] - 50) * esc).toFixed(1);
+  const Y = q => (cy + (q[1] - 50) * esc).toFixed(1);
+  for (const [a, b] of fig.l) {
+    if (Math.max(a, b) + 1 > hasta) continue;
+    const nueva = ultimaAparte && Math.max(a, b) + 1 === hasta;
+    const L = Math.hypot(fig.p[a][0] - fig.p[b][0], fig.p[a][1] - fig.p[b][1]) * esc;
+    s += `<line class="${cls.linea}${nueva ? " nueva" : ""}" x1="${X(fig.p[a])}" y1="${Y(fig.p[a])}"` +
+         ` x2="${X(fig.p[b])}" y2="${Y(fig.p[b])}" stroke-width="${(0.85 * esc).toFixed(2)}"` +
+         (nueva ? ` style="--l:${L.toFixed(1)};stroke-dasharray:${L.toFixed(1)}"` : "") + `/>`;
+  }
+  for (let i = 0; i < hasta && i < fig.p.length; i++) {
+    if (ultimaAparte && i + 1 === hasta) continue;   // la nueva va encima de todo
+    s += `<circle class="${cls.astro}" cx="${X(fig.p[i])}" cy="${Y(fig.p[i])}" r="${(1.9 * esc).toFixed(2)}"/>`;
+  }
+  return s;
+}
+
+/* El cielo de fondo. Aleatorio a propósito y distinto cada vez: no es
+   información, es profundidad. La constelación sí es siempre la misma. */
+function ncelCielo(n) {
+  let s = "";
+  for (let i = 0; i < 60; i++) {
+    s += `<circle cx="${(Math.random() * 100).toFixed(1)}" cy="${(Math.random() * 187).toFixed(1)}"` +
+         ` r="${(0.25 + Math.random() * 0.6).toFixed(2)}" opacity="${(0.2 + Math.random() * 0.25).toFixed(2)}"/>`;
+  }
+  return s;
+}
+
+function ncelPintarMapa(nivel) {
+  const cielo = document.getElementById("ncel-cielo");
+  const mapa = document.getElementById("ncel-mapa");
+  if (!cielo || !mapa) return;
+  cielo.innerHTML = ncelCielo();
+
+  const iR = ncelIndiceRango(nivel), fig = NCEL_FIGURAS[iR], k = ncelEstrella(nivel);
+  const nuevoRango = k === 1 && nivel > 1;
+  const CX = 50, CY = 62, ESC = 0.46, ANCHO = 15;
+
+  /* El estante de arriba: las figuras ya cerradas, en pequeño. El total
+     incluye la que se cierra en ESTE nivel — sin contarla, la fila quedaba
+     descentrada justo en los niveles que la estrenan. */
+  const cerradas = iR;
+  const total = cerradas + (ncelCierra(nivel) && !nuevoRango ? 1 : 0);
+  const x0 = 50 - (total - 1) * ANCHO / 2;
+  const medalla = { linea: "ncel-med-linea", astro: "ncel-med-astro" };
+  let estante = "";
+  for (let i = 0; i < cerradas; i++) {
+    const recien = nuevoRango && i === cerradas - 1;
+    estante += `<g class="${recien ? "ncel-med-nueva" : ""}">` +
+      ncelFigura(NCEL_FIGURAS[i], 6, x0 + i * ANCHO, 16, 0.105, medalla, false) + `</g>`;
+  }
+
+  const viva = { linea: "ncel-linea", astro: "ncel-astro" };
+  const halo = (q, tarde) => {
+    const x = (CX + (q[0] - 50) * ESC).toFixed(1), y = (CY + (q[1] - 50) * ESC).toFixed(1);
+    const org = ` style="transform-origin:${x}px ${y}px${tarde ? ";animation-delay:3.2s" : ""}"`;
+    return `<circle class="ncel-brillo" cx="${x}" cy="${y}" r="${(2.2 * ESC).toFixed(2)}"${org}/>` +
+           `<circle class="ncel-nueva" cx="${x}" cy="${y}" r="${(2.1 * ESC).toFixed(2)}"${org}/>`;
+  };
+
+  let cuerpo = "";
+  if (nuevoRango) {
+    /* La figura anterior se cierra a la vista y se va al estante, y solo
+       entonces nace la nueva. Ese relevo ES la noticia del cambio de rango. */
+    cuerpo += `<g class="ncel-viva cerrando">` +
+      ncelFigura(NCEL_FIGURAS[iR - 1], 6, CX, CY, ESC, viva, false) + `</g>`;
+    cuerpo += `<g class="ncel-naciendo">` +
+      ncelFigura(fig, k, CX, CY, ESC, viva, true) + halo(fig.p[k - 1], true) + `</g>`;
+  } else {
+    cuerpo += `<g class="ncel-viva${ncelCierra(nivel) ? " cerrando" : ""}">` +
+      ncelFigura(fig, k, CX, CY, ESC, viva, true) + halo(fig.p[k - 1], false) + `</g>`;
+    if (ncelCierra(nivel)) {
+      estante += `<g class="ncel-med-nueva">` +
+        ncelFigura(fig, 6, x0 + cerradas * ANCHO, 16, 0.105, medalla, false) + `</g>`;
+    }
+  }
+  mapa.innerHTML = `<g class="ncel-estante">${estante}</g>${cuerpo}`;
+  /* El texto espera a que termine el relevo cuando hay rango nuevo. */
+  document.getElementById("ncel").classList.toggle("estrena", nuevoRango);
+}
+
 let ncelTimer = null;
 
 function celebrarNivel(nivel, abre) {
@@ -91,7 +209,7 @@ function celebrarNivel(nivel, abre) {
   /* La clase decide las dos diferencias de comportamiento en un solo sitio:
      con `abierta` no hay cierre por tocar fuera ni cuenta atrás. */
   el.classList.toggle("abierta", hayVentana);
-  chispasDeNivel();
+  ncelPintarMapa(nivel);
   el.classList.remove("show");
   void el.offsetWidth;                 // reiniciar las animaciones
   el.classList.add("show");
@@ -104,17 +222,6 @@ function celebrarNivel(nivel, abre) {
   if (!hayVentana) ncelTimer = setTimeout(cerrarNivelCel, 8000);
 }
 
-function chispasDeNivel() {
-  const sp = document.getElementById("ncel-chispas");
-  if (!sp) return;
-  let ch = "";
-  for (let i = 0; i < 22; i++) {
-    const ang = (i / 22) * Math.PI * 2 + Math.random() * 0.3;
-    const dist = 130 + Math.random() * 210;
-    ch += `<i style="--dx:${(Math.cos(ang) * dist).toFixed(0)}px;--dy:${(Math.sin(ang) * dist).toFixed(0)}px;animation-delay:${(Math.random() * 0.4).toFixed(2)}s"></i>`;
-  }
-  sp.innerHTML = ch;
-}
 
 function cerrarNivelCel() {
   clearTimeout(ncelTimer);
@@ -233,11 +340,15 @@ function celebrateStreak(n) {
 
   // Chispas en abanico, calculadas aquí para que salgan distintas cada vez
   const sp = document.getElementById("scel-sparks");
+  /* Pavesas que suben desde el borde de abajo, cada una con su altura y su
+     ritmo. Antes eran dieciocho chispas estallando en abanico desde el centro,
+     que es el mismo gesto que la escena de nivel. */
   let chispas = "";
-  for (let i = 0; i < 18; i++) {
-    const ang = (i / 18) * Math.PI * 2 + Math.random() * 0.3;
-    const dist = 120 + Math.random() * 190;
-    chispas += `<i style="--dx:${(Math.cos(ang) * dist).toFixed(0)}px;--dy:${(Math.sin(ang) * dist).toFixed(0)}px;animation-delay:${(Math.random() * 0.35).toFixed(2)}s;background:${Math.random() > 0.5 ? "#f5d76e" : "#ffd9a0"}"></i>`;
+  for (let i = 0; i < 26; i++) {
+    chispas += `<i style="left:${(14 + Math.random() * 72).toFixed(0)}%;` +
+      `--dx:${(Math.random() * 60 - 30).toFixed(0)}px;--h:${(180 + Math.random() * 320).toFixed(0)}px;` +
+      `--t:${(1.8 + Math.random() * 0.7).toFixed(2)}s;animation-delay:${Math.random().toFixed(2)}s;` +
+      `background:${Math.random() > 0.5 ? "#f5d76e" : "#ffd9a0"}"></i>`;
   }
   sp.innerHTML = chispas;
 
