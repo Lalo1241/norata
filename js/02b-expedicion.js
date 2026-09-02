@@ -437,11 +437,21 @@ function renderColeccion() {
       <h3>Tu recorrido</h3>
       <p class="settings-note">Cinco rangos en toda la vida de una cuenta. Se celebran la primera vez que llegas y se quedan puestos.</p>
       <div class="col-rangos">
-        ${EXP_RANGOS.map(r => {
+        ${/* `rangosVigentes()` y no `EXP_RANGOS` a secas, que era lo que había:
+            con un mundo puesto, la insignia de arriba decía el rango del mundo
+            —Arquitecto— y esta misma reja, dos dedos más abajo, seguía
+            escribiendo los cinco de la casa —Nodo, Enlace, Rama, Trama, Red—.
+            La pantalla se contradecía a sí misma. Los NIVELES siguen saliendo
+            de `EXP_RANGOS`, que es lo que un mundo no mueve. */
+          rangosVigentes().map(r => {
           const tuyo = actual && actual.id === r.id;
           const abierto = info.nivel >= r.desde;
           return `<div class="col-rango-uno ${tuyo ? "tuyo" : ""} ${abierto ? "abierto" : ""}">
-            ${icon(r.icon, 26)}
+            ${/* El mismo reparto que la insignia: un rango de la casa nombra un
+                 icono de ICONS y uno de mundo trae su trazo entero. Sin esto,
+                 la reja escribía los nombres del mundo con los DIBUJOS de la
+                 casa —«Arquitecto» debajo del nudo de una red—. */
+              r.trazo ? svgDeTrazo(r.trazo, 26) : icon(r.icon, 26)}
             <b>${escapeHtml(r.nombre)}</b>
             <span>${abierto ? (tuyo ? "Ahora" : "Pasado") : "Nivel " + r.desde}</span>
           </div>`;
