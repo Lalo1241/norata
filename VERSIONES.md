@@ -76,6 +76,103 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.59 · 1 sep 2026
+**Dos mundos más: Blueprint y Averno.** De quince, ya se pueden encender tres.
+
+Los dos estaban terminados y esperando número. Se suben juntos porque uno se
+construyó encima del otro: los dos arreglos que costó **Blueprint** —la tabla
+`FUENTES`, que da a cada mundo su tipografía, y el freno `plano_o_muere`, que
+para el generador en vez de inventarle un `--card` negro a quien declara la
+tarjeta sin un hex dentro— son justo lo que hizo que **Averno** saliera en una
+tanda en vez de en tres.
+
+Ninguno cambia nada para quien no entre a Ajustes → Mi apariencia y lo elija, y
+los dos piden Pro. De los quince, el único que no abre Pro es Reliquia.
+
+**Blueprint** es el papel de plano: retícula de dos pesos, cotas con puntas de
+flecha y marcas de sección. De día no es la noche aclarada, es la **copia
+heliográfica** —papel claro y línea azul, que es lo que un plano ha sido siempre
+a la luz—. Sus cinco rangos son los oficios del taller, de Aprendiz a
+Arquitecto.
+
+**Averno** es piedra quemada con la brasa debajo: los círculos del poema, ceniza
+cayendo con tres motas que aún no se han apagado, y un sol eclipsado por icono.
+De día es **la ceniza a plena luz**, y el grano cambia de signo en vez de
+aclararse: de noche la ceniza es lo claro sobre el carbón, de día es el hollín
+sobre la ceniza apagada. Sus cinco rangos son los estados del fuego: Ceniza,
+Chispa, Brasa, Llama, Hoguera.
+
+#### Lo que enseñó Averno: la lámina no enseña los fallos de la app
+
+`mundos/vista.html` enseña una tarjeta sola sobre un recorte de página. La app
+la enseña en una lista de veinte. Tres fallos que solo se ven al medir:
+
+| Qué | Estaba | Quedó | Por qué |
+| --- | --- | --- | --- |
+| La tarjeta | `#1d0f0b` | `#2e1e18` | daba **1,03** contra la parte plana de la página y se INVERTÍA cerca del borde de abajo, donde la brasa la aclara |
+| El carril | `#1a0c08` | `#422c23` | **1,02** sobre la tarjeta, o sea no verlo (la casa da 1,23) |
+| El peligro | `#ff3b6b` | `#ff5c80` | su chip daba **3,95** sobre su propio velo, por debajo del 4,5 que pide un texto |
+
+Y el apagado de día bajó a `#654736` por lo mismo al revés: se medía contra la
+tarjeta, cuando media docena de rótulos —los chips sin elegir, el signo de
+añadir, la leyenda del mapa, la nota de Ajustes— no viven dentro de ninguna.
+Sobre la página daba 4,36.
+
+**La regla que sale de ahí, y vale para los doce que quedan: una página en
+degradado se comprueba parada por parada.** El generador traduce a `--bg` solo
+la parada más honda; si otra queda por encima de la tarjeta, las tarjetas se
+hunden en esa franja de la pantalla y flotan en el resto.
+
+#### El suelo de los mapas, cuando el mundo no tiene marco
+
+`croma.lienzo` separa `--sup-hondo` de la página con un desplazamiento fijo de
+luz. En los extremos eso no separa nada: sobre la página casi negra de Averno
+daba **1,013** contra los 1,071 de la casa, y el encuadre del lienzo, de la
+tarjeta de una rama y de las columnas del tablero desaparecía.
+
+Se arregla en `mundos/app.py` y **no** en `croma.py`, que es la parte que hay
+que entender antes de tocarlo: ese archivo lo comparten los siete ambientes, y
+su tope de día está puesto para Reliquia, que a propósito deja el suelo
+valiendo lo mismo que la página **porque su encuadre lo hace el latón y se ve
+solo**. Así que la regla es: si el mundo no declara `--m-marco`, el suelo se
+empuja hasta la separación de la casa. Movió a Blueprint un pelo (1,068 →
+1,098) y no tocó a Reliquia.
+
+#### Cómo se comprobaron
+
+Un barrido por las **siete pantallas en los dos modos**, midiendo el contraste
+de cada nodo de texto contra su fondo compuesto, **y el mismo barrido con la
+apariencia de la casa puesta como control**. El veredicto no es «Averno falla N
+veces» —la casa también falla, en su tramo tenue y a propósito— sino que **no
+falla ni una que la casa no falle también**: 296 elementos, 15 de noche y 8 de
+día, exactamente los mismos.
+
+Medido además: la tarjeta sobre el fondo 1,29 de noche y 1,40 de día; el carril
+1,23 y 1,21, que es lo que da la casa; el texto 12,28 y 14,54; y el peor de los
+ocho colores del usuario encima del carril 5,32 contra los 5,16 de la casa.
+Grenze Gotisch mide **−17,4%** contra Outfit —lo que decía el catálogo—, así
+que su escala se queda en 1.
+
+Dos cosas hay que saltarse o el barrido miente: **la escena** de la racha, que
+se queda de noche en los dos modos y cuyo fondo no se lee con
+`backgroundColor`, así que mide contra el papel del día y saca números falsos;
+y que **`--bg` es un hex y no un `rgb()`**, así que un lector que solo entiende
+`rgb()` saca los dígitos del hex como si fueran un número y devuelve NaN.
+
+#### Lo que no llega todavía
+
+Los **anillos concéntricos** de Averno —la firma del mundo— viven en `extra=`,
+que solo lee la lámina: el generador no traduce ese bloque. No se resuelve
+escribiendo una regla global sobre `.ficha::after`, que es exactamente lo que ya
+costó tres rondas. Y el logotipo de la barra sigue en el verde de la marca con
+cualquier mundo puesto.
+
+Queda una duda anotada en el código, y es de Eduardo: **«Ceniza» va primero**, y
+la ceniza es lo que queda *después* del fuego. Se lee bien como «de las
+cenizas», que es una imagen que se entiende sola; se lee mal como escalera,
+porque de una ceniza no sale una chispa. La palabra que encajaría en ese peldaño
+es Yesca.
+
 ### 0.7.58 · 1 sep 2026
 **El aviso de versión nueva deja de pedir que adivines que hay versión nueva.**
 
