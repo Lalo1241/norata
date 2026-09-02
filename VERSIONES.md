@@ -76,6 +76,31 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.71.1 · 2 sep 2026
+
+**La insignia va del color de tu rango en todas partes, no solo dentro del
+cielo.** Lo pidió Eduardo al ver que la ruedita del menú de la cuenta seguía en
+menta mientras Mi expedición ya iba por colores. Es la misma insignia, y donde
+más paga es justamente ahí: en el Resumen y en la fila de la cuenta es lo único
+que se ve del recorrido.
+
+Había un interruptor que la dejaba en menta fuera del cielo, y **su motivo ya
+no existe**: entonces uno de los cinco rangos era luciérnaga, que de día tiene
+que hundirse hasta el dorado apagado que Eduardo rechazó por leerse como una
+alerta interna. Al sacar la luciérnaga y el lila del reparto, la objeción se
+fue con ellas, así que el interruptor se quita en vez de quedarse apagado.
+
+Medido antes de encenderlo, porque un aro de dos píxeles es un **trazo** y no
+texto —umbral 3, no 4,5—: sobre la tarjeta clara los cinco van de 5,44 a 7,55 y
+sobre la de noche de 6,71 a 11,68. Pasan los dos umbrales con holgura.
+
+**Y un hueco que destapó la 0.7.71 sin dar conflicto.** Esa versión pasó a
+`listo` las tres celebraciones de la escalera, y en «Lo que abre el nivel» un
+peldaño sin `id` no es una apariencia: su plan no lo sabe
+`aparienciaDisponible`. La de pantalla completa decía «Tuyo» a un plan libre en
+cuanto pasabas el nivel 15. Ahora se le pregunta a `planPermite` con la misma
+llave que usa `celebracionesAbiertas()`.
+
 ### 0.7.71 · 2 sep 2026
 
 **Las tres celebraciones que la escalera prometía y nadie había construido.**
