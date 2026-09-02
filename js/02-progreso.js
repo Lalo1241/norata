@@ -106,11 +106,51 @@ function ncelCierra(n) { return ncelEstrella(n) === EXP_POR_RANGO; }
 /* Dibuja una figura hasta `hasta` estrellas. Los grosores y los radios se
    multiplican por la escala para que una medalla del estante no salga con
    líneas de dos píxeles. */
+/* El centro de una figura, que NO es el centro de su cuadro. Cada
+   constelación está dibujada a mano en un cuadro de 100×100 y ninguna queda
+   centrada dentro de él: la bota ocupa de 22 a 86, el farol de 24 a 76. Al
+   colocarlas todas alrededor del 50 fijo, unas salían corridas a la derecha y
+   otras a la izquierda, y en un monitor eso son cien píxeles de desequilibrio
+   que se leen como «está mal alineado». Se centra por la CAJA DE LA TINTA.
+
+   Acepta un `hasta` porque el TAMAÑO y el ENCUADRE se deciden con cajas
+   distintas, y confundirlas es lo que hacía que la escena se viera torcida:
+
+   - el **tamaño** sale de la figura ENTERA, para que el dibujo no se hinche ni
+     encoja de un nivel al siguiente y las estrellas apagadas ya tengan su
+     sitio reservado;
+   - el **encuadre** sale de lo que está DIBUJADO, porque es lo único que se ve.
+     Con la figura entera centrada, en el nivel 2 las cuatro estrellas
+     encendidas son el borde izquierdo de la bota y se iban al borde izquierdo
+     de la pantalla: medido, 524 px de desequilibrio contra el texto. Esto es
+     exactamente lo que pidió Eduardo — óptica antes que matemática.
+
+   Recentrar por lo dibujado no mueve nada dentro de una celebración: el
+   encuadre se calcula con el tramo YA completo, así que las estrellas que
+   nacen durante la animación aparecen en su sitio definitivo. Lo que cambia de
+   un nivel a otro es el encuadre entero, como una cámara que se abre — y cada
+   celebración se ve sola, nunca dos al lado de la otra.
+
+   Se guarda en la propia figura, por `hasta`, porque no cambia nunca. */
+function ncelCentroDe(fig, hasta) {
+  const n = hasta || fig.p.length;
+  if (!fig._cajas) fig._cajas = {};
+  if (!fig._cajas[n]) {
+    const p = fig.p.slice(0, n);
+    const xs = p.map(q => q[0]), ys = p.map(q => q[1]);
+    const x1 = Math.min(...xs), x2 = Math.max(...xs);
+    const y1 = Math.min(...ys), y2 = Math.max(...ys);
+    fig._cajas[n] = { cx: (x1 + x2) / 2, cy: (y1 + y2) / 2, w: x2 - x1, h: y2 - y1 };
+  }
+  return fig._cajas[n];
+}
+
 function ncelFigura(fig, hasta, cx, cy, esc, cls, desde) {
   let s = "";
+  const c = ncelCentroDe(fig, hasta);
   const nuevas = typeof desde === "number" ? desde : hasta;   // sin tramo, nada es nuevo
-  const X = q => (cx + (q[0] - 50) * esc).toFixed(1);
-  const Y = q => (cy + (q[1] - 50) * esc).toFixed(1);
+  const X = q => (cx + (q[0] - c.cx) * esc).toFixed(1);
+  const Y = q => (cy + (q[1] - c.cy) * esc).toFixed(1);
   /* Una línea entra con la última de sus dos estrellas, y es NUEVA si esa
      estrella cae dentro del tramo que enciende este nivel. Así el trazo se
      dibuja solo en lo que acabas de ganar y el resto ya está puesto. */
@@ -191,6 +231,44 @@ function ncelEstiloRango(i) {
   return ` style="--rango:${ncelColorRango(i)}"`;
 }
 
+/* Dónde cae el centro vertical del dibujo. Se querría en mitad de la franja
+   (25 a 97), pero un tramo que ocupe más de lo que cabe hay que empujarlo
+   hasta que quepa: sin esto, media bota se metía debajo del estante de
+   medallas. Devuelve el centro ya sujeto a los dos topes. */
+function ncelEncuadreY(caja, esc) {
+  const ARRIBA = 25, ABAJO = 97;
+  const medio = caja.h * esc / 2;
+  const centro = (ARRIBA + ABAJO) / 2;
+  if (medio * 2 >= ABAJO - ARRIBA) return centro;    // no cabe: centrado y ya
+  return Math.min(Math.max(centro, ARRIBA + medio), ABAJO - medio);
+}
+
+/* **La caja del mapa abraza la tinta, y esto es lo que iguala los dos lados.**
+   El cuadro era 100×100 siempre, así que en el nivel 2 —cuatro estrellas, 68 px
+   de ancho— la columna del dibujo seguía midiendo 780 px y la escena se leía
+   corrida: 236 px de margen contra el texto y 603 contra la constelación. Las
+   CAJAS estaban centradas al píxel; lo que estaba descentrado era lo que se ve,
+   que es lo único que se mira. Eduardo lo dijo así: óptica antes que
+   matemática.
+
+   Se recorta a lo ANCHO y nunca a lo alto, y ese es el truco para que el
+   dibujo no cambie de tamaño de un nivel a otro: el viewBox mantiene sus 100
+   unidades de alto contra un elemento de alto fijo, así que los píxeles por
+   unidad son siempre los mismos. Lo único que encoge es el marco.
+
+   El suelo de 30 unidades existe para el caso de una figura casi vertical: sin
+   él, dos estrellas en línea dejarían una columna de veinte píxeles al lado de
+   un bloque de texto de quinientos, y eso ya no es equilibrio, es un palo. */
+function ncelAbrazarTinta(mapa, x1, x2) {
+  const MARGEN = 4, MINIMO = 30;
+  const ancho = Math.min(100, Math.max(x2 - x1 + MARGEN * 2, MINIMO));
+  const centro = (x1 + x2) / 2;
+  mapa.setAttribute("viewBox", `${(centro - ancho / 2).toFixed(2)} 0 ${ancho.toFixed(2)} 100`);
+  /* El elemento tiene que seguir a su cuadro o el SVG se acolcharía por los
+     lados y no habríamos ganado nada. Lo lee la proporción en el CSS. */
+  mapa.style.setProperty("--tinta-ancho", ancho.toFixed(2));
+}
+
 function ncelPintarMapa(nivel) {
   const cielo = document.getElementById("ncel-cielo");
   const mapa = document.getElementById("ncel-mapa");
@@ -206,8 +284,23 @@ function ncelPintarMapa(nivel) {
   /* Hasta dónde llega el dibujo con este nivel, y desde dónde es nuevo. */
   const hasta = ncelHasta(fig, k), desde = k > 1 ? ncelHasta(fig, k - 1) : 0;
   /* Coordenadas del cuadro de la franja (viewBox 0 0 100 100). La figura llena
-     lo que puede sin tocar el estante de medallas, que vive arriba del todo. */
-  const CX = 50, CY = 58, ESC = 0.74;
+     lo que puede sin tocar el estante de medallas, que vive arriba del todo.
+
+     La escala sale de la figura y no es un 0,74 para todas: dibujadas a mano,
+     unas miden 52 unidades de ancho y otras 80, así que con una escala común
+     las estrechas salían pequeñas y desaprovechaban la mitad del sitio. Ahora
+     cada una llena su franja —92 de ancho por 72 de alto— y se centra en ella
+     por su caja de tinta. La franja es la MISMA lleve o no lleve medallas
+     encima: si cambiara al aparecer el estante, la figura daría un salto de
+     tamaño justo en el nivel que estrena rango. */
+  const ALTO_FIGURA = 72, ANCHO_FIGURA = 92;
+  const entera = ncelCentroDe(fig);
+  const ESC = Math.min(ANCHO_FIGURA / entera.w, ALTO_FIGURA / entera.h);
+  /* El encuadre, con lo que se ve; y sujeto a la franja, porque un tramo alto
+     centrado a ojo se saldría por arriba y se metería en el estante. */
+  const caja = ncelCentroDe(fig, hasta);
+  const CX = 50;
+  const CY = ncelEncuadreY(caja, ESC);
   /* El estante de medallas. Aquí hubo un fallo tonto que Eduardo vio y yo no:
      la constante se subió a 0,16 y las DOS llamadas de abajo seguían pasando
      el 0,1 escrito a mano, así que la medalla nunca creció. A 0,18 mide 100 px
@@ -223,6 +316,14 @@ function ncelPintarMapa(nivel) {
   const total = cerradas + (ncelCierra(nivel) && !nuevoRango ? 1 : 0);
   const x0 = 50 - (total - 1) * ANCHO / 2;
   const medalla = { linea: "ncel-med-linea", astro: "ncel-med-astro" };
+  /* Los dos extremos de la TINTA, que se van anotando según se dibuja. Sirven
+     para que la caja del mapa abrace lo dibujado en vez de ser un cuadrado
+     fijo — ver `ncelAbrazarTinta` al final. */
+  let tX1 = 50, tX2 = 50;
+  const anota = (centroX, ancho) => {
+    tX1 = Math.min(tX1, centroX - ancho / 2);
+    tX2 = Math.max(tX2, centroX + ancho / 2);
+  };
   let estante = "";
   for (let i = 0; i < cerradas; i++) {
     const recien = nuevoRango && i === cerradas - 1;
@@ -231,11 +332,12 @@ function ncelPintarMapa(nivel) {
        es una sola cosa repetida. */
     estante += `<g class="${recien ? "ncel-med-nueva" : ""}"${ncelEstiloRango(i)}>` +
       ncelFigura(NCEL_FIGURAS[i], NCEL_FIGURAS[i].p.length, x0 + i * ANCHO, 12, ESC_MEDALLA, medalla) + `</g>`;
+    anota(x0 + i * ANCHO, ncelCentroDe(NCEL_FIGURAS[i]).w * ESC_MEDALLA);
   }
 
   const viva = { linea: "ncel-linea", astro: "ncel-astro" };
   const halo = (q, tarde) => {
-    const x = (CX + (q[0] - 50) * ESC).toFixed(1), y = (CY + (q[1] - 50) * ESC).toFixed(1);
+    const x = (CX + (q[0] - caja.cx) * ESC).toFixed(1), y = (CY + (q[1] - caja.cy) * ESC).toFixed(1);
     const org = ` style="transform-origin:${x}px ${y}px${tarde ? ";animation-delay:3.2s" : ""}"`;
     return `<circle class="ncel-brillo" cx="${x}" cy="${y}" r="${(2.2 * ESC).toFixed(2)}"${org}/>` +
            `<circle class="ncel-nueva" cx="${x}" cy="${y}" r="${(2.1 * ESC).toFixed(2)}"${org}/>`;
@@ -245,19 +347,29 @@ function ncelPintarMapa(nivel) {
   if (nuevoRango) {
     /* La figura anterior se cierra a la vista y se va al estante, y solo
        entonces nace la nueva. Ese relevo ES la noticia del cambio de rango. */
+    /* La que se va lleva SU escala y no la de la que entra: son dos dibujos de
+       proporciones distintas y con la escala de la otra salía recortada o
+       diminuta justo en el momento en que hay que mirarla. */
+    const previa = NCEL_FIGURAS[iR - 1], cajaPrevia = ncelCentroDe(previa);
+    const escPrevia = Math.min(ANCHO_FIGURA / cajaPrevia.w, ALTO_FIGURA / cajaPrevia.h);
     cuerpo += `<g class="ncel-viva cerrando"${ncelEstiloRango(iR - 1)}>` +
-      ncelFigura(NCEL_FIGURAS[iR - 1], NCEL_FIGURAS[iR - 1].p.length, CX, CY, ESC, viva) + `</g>`;
+      ncelFigura(previa, previa.p.length, CX, ncelEncuadreY(cajaPrevia, escPrevia), escPrevia, viva) + `</g>`;
+    anota(CX, cajaPrevia.w * escPrevia);
     cuerpo += `<g class="ncel-naciendo">` +
       ncelFigura(fig, hasta, CX, CY, ESC, viva, desde) + halo(fig.p[hasta - 1], true) + `</g>`;
+    anota(CX, caja.w * ESC);
   } else {
     cuerpo += `<g class="ncel-viva${ncelCierra(nivel) ? " cerrando" : ""}">` +
       ncelFigura(fig, hasta, CX, CY, ESC, viva, desde) + halo(fig.p[hasta - 1], false) + `</g>`;
+    anota(CX, caja.w * ESC);
     if (ncelCierra(nivel)) {
       estante += `<g class="ncel-med-nueva"${ncelEstiloRango(iR)}>` +
         ncelFigura(fig, fig.p.length, x0 + cerradas * ANCHO, 12, ESC_MEDALLA, medalla) + `</g>`;
+      anota(x0 + cerradas * ANCHO, entera.w * ESC_MEDALLA);
     }
   }
   mapa.innerHTML = `<g class="ncel-estante">${estante}</g>${cuerpo}`;
+  ncelAbrazarTinta(mapa, tX1, tX2);
   /* El texto espera a que termine el relevo cuando hay rango nuevo. */
   document.getElementById("ncel").classList.toggle("estrena", nuevoRango);
 }
