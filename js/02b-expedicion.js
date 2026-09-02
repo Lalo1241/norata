@@ -144,6 +144,29 @@ const EXP_RANGOS = [
     nota: "El último de los cinco. El nivel sigue subiendo después: la cuenta no se acaba." }
 ];
 
+/* ================= Las celebraciones que abre el nivel =================
+   Tres peldaños de `EXP_ESCALERA` prometen celebraciones, y hasta la 0.7.71
+   eran promesas: estaban escritas sin `listo` justo para no anunciar lo que no
+   existe. Esto es lo que las cumple.
+
+   **Se derivan del nivel, como todo lo demás.** No hay nada guardado, así que
+   son retroactivas y la sincronía no las puede perder — el mismo trato que los
+   puntos, y por el mismo motivo.
+
+   La de pantalla completa además pide Pro, y por eso se pregunta a `LIMITES` y
+   no se escribe aquí un `if` con el nombre de un plan: el día que cambie el
+   reparto se cambia en un solo sitio. Al dejar de pagar vuelve la de siempre;
+   apagar no es quitar, porque la celebración base sigue saliendo igual. */
+function celebracionesAbiertas() {
+  const n = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 0;
+  const pro = typeof planPermite === "function" ? planPermite("celebracion") : false;
+  return {
+    destello: n >= 3,    // el destello propio al cumplir una misión
+    racha: n >= 9,       // la segunda escena de racha: el amanecer
+    grande: n >= 15 && pro
+  };
+}
+
 /* ================= La escalera =================
    Qué se abre y cuándo. El ritmo baja cuando baja el ritmo de subida: algo
    cada uno o dos niveles hasta el 10, y de ahí en adelante cada vez más
@@ -178,11 +201,11 @@ const EXP_RANGOS = [
    Los peldaños de celebración caen en los huecos que quedan: encima de un
    cambio de rango serían dos noticias en la misma pantalla. */
 const EXP_ESCALERA = [
-  { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión" },
+  { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión", listo: true },
   { nivel: 6,  tipo: "rango",       nombre: "Rango Andante", listo: true },
-  { nivel: 9,  tipo: "celebracion", nombre: "Escena nueva de racha" },
+  { nivel: 9,  tipo: "celebracion", nombre: "Escena nueva de racha", listo: true },
   { nivel: 12, tipo: "rango",       nombre: "Rango Rastreador", listo: true },
-  { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true },
+  { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", pro: true, listo: true },
   { nivel: 18, tipo: "rango",       nombre: "Rango Explorador", listo: true },
   { nivel: 24, tipo: "rango",       nombre: "Rango Cartógrafo", listo: true },
   { nivel: 30, tipo: "rango",       nombre: "Rango Navegante", listo: true }

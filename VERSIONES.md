@@ -76,6 +76,41 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.71 · 2 sep 2026
+
+**Las tres celebraciones que la escalera prometía y nadie había construido.**
+
+Estaban escritas en `EXP_ESCALERA` sin `listo`, que es la bandera que impide
+anunciar lo que no existe — y por eso llevaban meses invisibles. Ya se pueden
+cumplir, así que se marcan y aparecen.
+
+| Nivel | Qué abre | Qué es |
+| --- | --- | --- |
+| 3 | Destello propio al cumplir una misión | El mismo gesto de siempre con una estrella de cuatro puntas naciendo dentro del aro |
+| 9 | Escena nueva de racha | **El amanecer**: la luz sube una vez sobre la línea de abetos, en vez del humo y las pavesas de la brasa |
+| 15 | Celebración de pantalla completa · **Pro** | La misma noticia con el peso del sello: la insignia cae, golpea y la onda se abre |
+
+Ninguna es una pantalla nueva: son variantes de lo que ya hay, encendidas por
+una clase. El marcado, el texto y los tiempos no se mueven, así que no hay tres
+maquetas más que mantener.
+
+**De dónde salen.** El amanecer y el sello son dos de los borradores que
+Eduardo eligió cuando se rediseñaron las escenas y que se quedaron sin sitio:
+la casa se llevó la constelación y la racha la brasa. Aquí encuentran el suyo.
+
+**Tres reglas que las hacen seguras:**
+
+- **Se derivan del nivel, no se guardan.** Mismo trato que los puntos y por el
+  mismo motivo: son retroactivas y la sincronía no las puede perder.
+- **La de pantalla completa pregunta a `LIMITES`** con una llave nueva,
+  `celebracion`, y no lleva escrito el nombre de ningún plan. Al dejar de
+  pagar vuelve la de siempre — **apagar no es quitar**, porque la celebración
+  base sigue saliendo igual y no se pierde nada de lo hecho.
+- **Sigue sin interrumpir.** La grande se va sola a los 2,2 s y no se puede
+  pulsar, que es lo que permite celebrar subir una habilidad cien veces sin
+  cansar.
+
+Con esto, `escaleraDeExpedicion()` **no promete ni un peldaño sin construir**.
 ### 0.7.70.2 · 2 sep 2026
 **El botón de actualizar dice qué versión entra, y se pone del lado correcto de
 la línea.**
