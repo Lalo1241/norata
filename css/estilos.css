@@ -5393,6 +5393,102 @@
     animation: celPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.22s backwards;
   }
 
+  /* ================= Las celebraciones que abre el nivel =================
+     Tres variantes de lo que ya existe, y ninguna es una pantalla nueva: el
+     marcado, el texto y los tiempos no se mueven. Lo que cambia es la luz.
+
+     Se encienden con una clase que pone el JS leyendo `celebracionesAbiertas()`
+     — el nivel manda, y la de pantalla completa además pide Pro. */
+
+  /* ---- El destello propio · nivel 3 ----
+     La estrella de cuatro puntas naciendo dentro del aro. Es el mismo gesto de
+     siempre firmado: a 420 ms y visto de reojo, un efecto distinto no se
+     leería, se notaría solo como ruido. */
+  .destello .ds-astro {
+    position: absolute;
+    left: -7px; top: -7px;
+    width: 14px; height: 14px;
+    background: var(--ds, var(--mint));
+    clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+    opacity: 0;
+    animation: dsAstro 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes dsAstro {
+    0%   { transform: scale(0.2) rotate(-40deg); opacity: 0; }
+    45%  { transform: scale(1.15) rotate(0deg); opacity: 1; }
+    100% { transform: scale(0.9) rotate(12deg); opacity: 0; }
+  }
+
+  /* ---- El amanecer · nivel 9 ----
+     La segunda escena de racha. La brasa mira al fuego que llevas encendido;
+     el alba mira al día que empieza. Misma maqueta, otra luz: se apagan el
+     humo y las pavesas y se enciende la línea del horizonte. */
+  .scel-alba, .scel-abetos { display: none; }
+  .scel.alba .scel-rays, .scel.alba .scel-sparks { display: none; }
+  .scel.alba {
+    background: linear-gradient(180deg,
+      rgb(var(--escena-fondo)) 0%,
+      color-mix(in srgb, var(--fire-macizo) 8%, rgb(var(--escena-vidrio))) 58%,
+      rgb(var(--escena-fondo)) 100%);
+  }
+  .scel.alba .scel-alba {
+    display: block; position: absolute;
+    left: -20%; right: -20%; bottom: -8vmin; height: 62vmin;
+    background: radial-gradient(ellipse 62% 100% at 50% 100%,
+      color-mix(in srgb, var(--fire-macizo) 62%, transparent) 0%,
+      color-mix(in srgb, var(--fire-macizo) 20%, transparent) 42%,
+      transparent 74%);
+    pointer-events: none;
+    /* Sube UNA vez y se queda. Es la misma regla que echó a los rayos: una
+       celebración cuenta un momento y termina. */
+    animation: scelAmanece 1.9s cubic-bezier(.22, .7, .3, 1) forwards;
+  }
+  @keyframes scelAmanece {
+    from { transform: translateY(34vmin); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  .scel.alba .scel-abetos {
+    display: block; position: absolute;
+    left: 0; right: 0; bottom: 0; width: 100%;
+    fill: rgb(var(--escena-fondo)); pointer-events: none;
+  }
+
+  /* ---- La de pantalla completa · nivel 15 con Pro ----
+     La misma noticia con el peso del sello: la insignia cae desde arriba,
+     golpea y levanta polvo. Sigue sin interrumpir —se va sola y no se puede
+     pulsar—, que es lo que permite verla cien veces sin cansar. */
+  .celebrate.grande { background: radial-gradient(circle at 50% 46%, rgba(14, 19, 27, .72), rgba(14, 19, 27, .96)); }
+  .celebrate.grande .cel-icon {
+    width: 132px; height: 132px;
+    animation: celSello .46s cubic-bezier(.6, .02, .36, 1) backwards;
+  }
+  .celebrate.grande .cel-icon svg { width: 60px; height: 60px; }
+  @keyframes celSello {
+    0%   { transform: scale(3.2) translateY(-42px); opacity: 0; }
+    55%  { opacity: 1; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .celebrate.grande .cel-title { font-size: 40px; }
+  .celebrate.grande .cel-sub { font-size: 16px; }
+  /* Los dos aros pasan de salir del icono a ser la onda del golpe: esperan al
+     impacto y se abren de una vez. */
+  .celebrate.grande.show .cel-ring {
+    animation: celOnda .8s cubic-bezier(.16, .9, .3, 1) .44s;
+    border-width: 3px;
+  }
+  .celebrate.grande.show .cel-ring.r2 { animation-delay: .56s; opacity: .6; }
+  @keyframes celOnda {
+    0%   { transform: scale(.35); opacity: .9; }
+    100% { transform: scale(3.4); opacity: 0; }
+  }
+  .celebrate.grande.show .cel-title, .celebrate.grande.show .cel-sub {
+    animation: celPop .5s cubic-bezier(.34, 1.56, .64, 1) .5s backwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .destello .ds-astro, .scel.alba .scel-alba, .celebrate.grande .cel-icon { animation: none; }
+    .scel.alba .scel-alba { transform: none; opacity: 1; }
+  }
+
   /* ---------- Toast ---------- */
   /* ---------- Avisos ----------
      Antes eran todos el mismo bloque verde con texto negro, dijeran lo que

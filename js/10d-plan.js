@@ -152,13 +152,19 @@ const LIMITES = {
        que nadie pierde nada al moverla. Quien no paga no se topa con un muro:
        ve la portada de su propia semana con sus números de verdad. */
     resumen: [],
-    apariencia: false
+    apariencia: false,
+    /* La celebración de pantalla completa del nivel 16. No es «crear» como el
+       resto de esta tabla, igual que `apariencia`: es una recompensa que se
+       apaga al dejar de pagar y vuelve a la de siempre. Nadie pierde nada —la
+       celebración base sigue saliendo—, que es lo que separa apagar de quitar. */
+    celebracion: false
   },
   pro: {
     ramas: Infinity,
     talentos: Infinity,
     resumen: ["semana", "mes", "ano"],
-    apariencia: true
+    apariencia: true,
+    celebracion: true
   }
 };
 
