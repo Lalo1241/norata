@@ -252,19 +252,38 @@ MUNDOS = [
   # un vector. Medido: 2-4 sub-trazos por rango y el mas largo de los cinco
   # mide 52,3 unidades, asi que un solo `60` sirve para todos.
   app_extra="""
-/* --- 1 · El barrido del ploter. Fuera el giro infinito: nada gira eternamente
-       en un plano, y una rotacion detras de un texto es ruido. --- */
-SELECTOR .ncel-rayos {
-  width: 100%; height: 100%;
-  background: url("URL_REJILLA");
-  animation: none;
-}
-SELECTOR .ncel.show .ncel-rayos { animation: plano-plot .34s var(--curva) both; }
+/* ================= La celebracion de Blueprint =================
+   La casa teje una CONSTELACION: un cielo de estrellas, una figura por rango
+   que se dibuja sola, y las cerradas van a un estante como medallas. Es un
+   buen sistema y lleva informacion, asi que aqui NO se esconde: se redibuja
+   en el idioma del mundo. \"Aca no aplica constelaciones ni nada de eso\" no
+   pide quitar la figura, pide que deje de ser un cielo.
+   La misma figura, trazada sobre papel de plano en vez de flotando en la
+   noche: fondo de reticula, lineas rectas y finas, marcas sin resplandor.
+   Un plano no se ilumina: SE TRAZA. */
+
+/* --- 1 · El papel, ploteado. El cielo pierde sus estrellas sueltas y gana la
+       reticula, que entra de izquierda a derecha como sale una hoja de un
+       ploter. --- */
+SELECTOR .ncel-cielo { background: url("URL_REJILLA"); }
+SELECTOR .ncel-cielo circle { display: none; }
+SELECTOR .ncel.show .ncel-cielo { animation: plano-plot .34s var(--curva) both; }
 @keyframes plano-plot { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 
-/* --- 2 · La insignia se traza. Sin resplandor (sobre papel azul una mancha) y
-       sin latido: un dibujo tecnico no respira, y quedarse quieto es lo que lo
-       hace parecer definitivo. --- */
+/* --- 2 · La figura, trazada. Se queda la que dibuja la casa —es la noticia
+       del rango— pero sin nada de cielo: fuera el halo que se expande, y el
+       nacer de una marca deja de rebotar hasta 2,1 y solo aparece. Sobre papel
+       azul un resplandor no es luz, es una mancha. --- */
+SELECTOR .ncel-brillo { display: none; }
+SELECTOR .ncel-linea { opacity: .62; }
+SELECTOR .ncel-astro { opacity: 1; }
+SELECTOR .ncel-nueva { fill: var(--mint); animation: plano-marca-nace .34s var(--curva) .95s backwards; }
+@keyframes plano-marca-nace { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+
+/* --- 3 · La insignia se traza sola. Los cinco dibujos de rango son TRAZO PURO
+       (fill=\"none\"), asi que esto sale gratis: 2-4 sub-trazos por rango y el
+       mas largo de los cinco mide 52,3, de ahi el 60 para todos. Fuera el
+       latido —un dibujo tecnico no respira— y fuera el resplandor. --- */
 SELECTOR .ncel-insignia { filter: none; }
 SELECTOR .ncel.show .ncel-insignia { animation: none; }
 SELECTOR .ncel-insignia svg > * { stroke-dasharray: 60; stroke-dashoffset: 60; }
@@ -274,7 +293,7 @@ SELECTOR .ncel.show .ncel-insignia svg > *:nth-child(3) { animation-delay: .46s;
 SELECTOR .ncel.show .ncel-insignia svg > *:nth-child(4) { animation-delay: .56s; }
 @keyframes plano-traza { to { stroke-dashoffset: 0; } }
 
-/* --- 3 · El numero llega ACOTADO. La casa lo trae con un rebote elastico
+/* --- 4 · El numero llega ACOTADO. La casa lo trae con un rebote elastico
        (.34,1.56,.64,1); aqui no hay goma. Dos cotas entran desde los lados y el
        numero esta cuando las puntas de flecha se tocan. --- */
 SELECTOR .ncel-num { position: relative; text-shadow: none; }
@@ -302,23 +321,6 @@ SELECTOR .ncel.show .ncel-num::after  { animation: plano-cota-d .38s var(--curva
 @keyframes plano-cota-i { from { opacity: 0; transform: translate(-34px,-50%); } to { opacity: .85; transform: translate(0,-50%); } }
 @keyframes plano-cota-d { from { opacity: 0; transform: translate(34px,-50%); }  to { opacity: .85; transform: translate(0,-50%); } }
 
-/* --- 4 · Cruces de registro, no chispas. Un ploter no lanza chispas: pone
-       MARCAS, y se quedan. Se reusan los mismos nodos y su --dx/--dy, asi que
-       esto no toca JavaScript: lo unico que cambia es que ya no vuelan desde
-       el centro, aparecen donde les toca. --- */
-SELECTOR .ncel-chispas i {
-  width: 12px; height: 12px; border-radius: 0;
-  background:
-    linear-gradient(var(--mint),var(--mint)) center/100% 1.2px no-repeat,
-    linear-gradient(var(--mint),var(--mint)) center/1.2px 100% no-repeat;
-}
-SELECTOR .ncel.show .ncel-chispas i { animation: plano-cruz .5s var(--curva) backwards; }
-@keyframes plano-cruz {
-  0%   { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.5); opacity: 0; }
-  45%  { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1);  opacity: 1; }
-  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1);  opacity: .34; }
-}
-
 /* --- 5 · El sello. SOLO con rango nuevo, o sea cinco veces en la vida de una
        cuenta. Es el unico golpe de la secuencia y es mecanico: una prensa que
        baja y no rebota, con la marca de seccion apareciendo detras. --- */
@@ -338,15 +340,15 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
   100% { opacity: .14; transform: translate(-50%,-50%) scale(1); }
 }
 
-/* Y con `prefers-reduced-motion` todo aparece sin dibujarse. La regla de la
-   casa ya existe, pero no conoce estos nombres. */
+/* Con `prefers-reduced-motion` todo aparece sin dibujarse. La regla de la casa
+   ya existe, pero no conoce estos nombres. */
 @media (prefers-reduced-motion: reduce) {
-  SELECTOR .ncel.show .ncel-rayos,
+  SELECTOR .ncel.show .ncel-cielo,
   SELECTOR .ncel.show .ncel-insignia svg > *,
   SELECTOR .ncel.show .ncel-num,
   SELECTOR .ncel.show .ncel-num::before,
   SELECTOR .ncel.show .ncel-num::after,
-  SELECTOR .ncel.show .ncel-chispas i,
+  SELECTOR .ncel-nueva,
   SELECTOR .ncel.show .ncel-rango.nuevo,
   SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: none; }
   SELECTOR .ncel-insignia svg > * { stroke-dashoffset: 0; }
