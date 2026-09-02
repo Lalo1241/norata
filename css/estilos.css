@@ -282,6 +282,28 @@
        porque sobre papel un pastel se lava y deja de ser un color.
        El orden es el de `COLORS` en js/01-base.js, y ese orden es el
        contrato: `pinta()` busca por posicion. */
+
+    /* ---------- Sube y baja: verde y rojo, en todos los mundos ----------
+       Un delta con triángulo NO es un acento, es un signo. Estaban pintados
+       con `--mint` y `--coral`, o sea con el acento del mundo: en Blueprint un
+       «▲ 33» salía AZUL y en Averno naranja, y en la casa el verde de subir
+       era el mismo menta que usa media app para cosas neutras. Lo paró
+       Eduardo: verde si sube, rojo si baja, y en todos los temas.
+
+       Por eso son variables propias y no salen de la paleta del mundo —ningún
+       mundo las redefine—. Tienen las dos caras de siempre, porque «siempre
+       verde» es del MATIZ, no de la luz: sobre papel un verde claro no se lee.
+
+       Medidos contra las tarjetas de los cuatro mundos construidos: de noche
+       el peor caso da 8,54 y de día 5,86, con el umbral en 4,5. Y el verde se
+       eligió a 21° de matiz de la menta a propósito: pegado a ella, «subió»
+       y «es un acento» se confundían.
+
+       Solo el DELTA. Los totales siguen con el tono que tenían: son cifras,
+       no juicios. */
+    --var-sube: #5fd968;
+    --var-baja: #ff5f52;
+
     --paleta-1: #5fe0b0;   /* menta */
     --paleta-2: #f5d76e;   /* amarillo luciernaga */
     --paleta-3: #ff8a70;   /* coral */
@@ -694,6 +716,10 @@
     --hundir-trazo: 35%;
 
     /* Los mismos ocho, de dia. Son los que dibujo Eduardo. */
+    /* Sube y baja, de día: mismo matiz, otra luz. */
+    --var-sube: #1a6b25;
+    --var-baja: #bd2200;
+
     --paleta-1: #00cc7f;
     --paleta-2: #f5c314;
     --paleta-3: #ff603d;
@@ -793,6 +819,11 @@
      tomaban los tonos de papel: la luciérnaga de día sobre su cielo casi
      negro. Lo destapó la foto de estilos al revisar los resplandores. */
   .scene-card, .celebrate, .ncel, .scel {
+    /* Una escena se queda de noche en los dos modos, así que sus deltas
+       vuelven a los tonos de noche: con los de día, un «▼ 12» quedaba rojo
+       oscuro sobre el cielo casi negro del banner. */
+    --var-sube: #5fd968;
+    --var-baja: #ff5f52;
     /* Las tres bases de la escena, como TRIPLETAS y no como colores hechos.
        Existen porque dentro de una escena hay quince transparencias —el velo
        del degradado, las pastillas de vidrio, los rótulos a media tinta— y
@@ -1840,7 +1871,7 @@
   .cc-ic { flex: none; width: 32px; height: 32px; border-radius: var(--r-chico); display: inline-flex; align-items: center; justify-content: center; }
   .cc-n { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .cc-box {
-    flex: none; width: 21px; height: 21px; border-radius: 7px;
+    flex: none; width: 21px; height: 21px; border-radius: calc(7px * var(--r-factor));
     border: 2px solid var(--line);
     display: flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 800; color: #0e131b;
@@ -2871,6 +2902,12 @@
      banners seguían con la burbuja de la casa. Lo cazó Eduardo. */
   .sec-hero {
     height: auto; min-height: 0;
+    /* El banner llevaba el marco al aire: era la única pieza grande de la
+       app sin borde, y sobre un mundo con superficie propia se le
+       desdibujaba el canto contra la página. Sale del mismo par que el
+       resto —`--borde-tarjeta` y `--borde-panel`—, así que cada mundo le
+       pone el suyo sin tocar nada aquí. Lo pidió Eduardo. */
+    border: var(--borde-tarjeta) solid var(--borde-panel);
     border-radius: calc(12px * var(--r-factor)) calc(34px * var(--r-factor))
                    calc(34px * var(--r-factor)) calc(34px * var(--r-factor));
   }
@@ -2979,8 +3016,8 @@
      ninguno pide tres. */
   .sh-stats .t { min-height: 30px; }
 
-  .sh-var.mejor { color: var(--mint); }
-  .sh-var.peor { color: var(--coral); }
+  .sh-var.mejor { color: var(--var-sube); }
+  .sh-var.peor { color: var(--var-baja); }
   .sh-var.igual { color: var(--muted); }
 
   /* ---------- Cuatro columnas no caben en un teléfono estrecho ----------
@@ -3224,7 +3261,7 @@
     text-align: left;
     cursor: pointer;
     padding: 9px 10px;
-    border-radius: 11px;
+    border-radius: calc(11px * var(--r-factor));
   }
   .bmenu button:hover { background: var(--sup-panel); }
   .bm-tx { flex: 1; min-width: 0; }
@@ -4784,7 +4821,10 @@
 
   .sum-card.wide {
     width: 100%;
-    border-radius: 26px 10px 26px 26px;
+    /* Por el factor, como todo lo demás: escritos a mano eran de los pocos
+       radios que un mundo no podía cuadrar, y con Blueprint puesto esta
+       tarjeta seguía con la burbuja de la casa. Lo cazó Eduardo. */
+    border-radius: calc(26px * var(--r-factor)) calc(10px * var(--r-factor)) calc(26px * var(--r-factor)) calc(26px * var(--r-factor));
     margin-bottom: 14px;
   }
   .sum-card.wide .sw-head {
@@ -5297,7 +5337,7 @@
     background: var(--sup-panel);
     border: var(--borde-fino) solid var(--line);
     border-left: 3px solid var(--pc-l, var(--pc));
-    border-radius: 8px 20px 20px 8px;
+    border-radius: calc(8px * var(--r-factor)) calc(20px * var(--r-factor)) calc(20px * var(--r-factor)) calc(8px * var(--r-factor));
     padding: 13px 15px;
     cursor: pointer;
   }
@@ -5481,7 +5521,7 @@
     background: var(--sup-panel);
     border: var(--borde-fino) solid var(--line);
     border-left: 3px solid var(--rc-l, var(--rc));
-    border-radius: 8px 16px 16px 8px;
+    border-radius: calc(8px * var(--r-factor)) calc(16px * var(--r-factor)) calc(16px * var(--r-factor)) calc(8px * var(--r-factor));
     padding: 11px 13px;
     cursor: pointer;
   }
@@ -7471,8 +7511,11 @@
 /* Verde y coral, no por bonito: aquí el color ES el dato. Subir es bueno y
    bajar es malo, y esta es la única gráfica de la app donde eso es cierto sin
    matices — en las demás un número que baja puede ser una buena noticia. */
-.pn-tend.sube { color: var(--mint); }
-.pn-tend.baja { color: var(--coral); }
+/* El mismo signo que en los banners: verde si sube, rojo si baja, y en
+   todos los mundos. Con el acento del mundo, esta flecha salía azul en
+   Blueprint y naranja en Averno. */
+.pn-tend.sube { color: var(--var-sube); }
+.pn-tend.baja { color: var(--var-baja); }
 .pn-tend-pie { display: block; font-size: 10.5px; color: var(--faint); }
 
 /* ---------- Cabecera de una caja con su cuenta a la derecha ----------
