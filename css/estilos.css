@@ -546,7 +546,6 @@
     --piso-ventana: 400;   /* ventanas: la caja del ático, Ajustes */
     --piso-menucito: 420;  /* el mini menú del engrane */
     --piso-encima: 500;    /* lo que una ventana abre y la reemplaza */
-    --piso-mundo: 505;     /* un mundo de cerca: lo abre Ajustes, va encima */
     --piso-tirar: 7000;    /* deslizar para actualizar */
     --piso-pruebas: 7500;  /* el marco de "cuenta de pruebas" */
     --piso-ejemplo: 7600;  /* el rótulo de "estás viendo un ejemplo" */
@@ -1539,7 +1538,15 @@
     color: var(--mu-acento, var(--mint));
   }
   .ap-ic svg { width: 20px; height: 20px; stroke-width: 1.6; }
-  .ap-nom { min-width: 0; flex: 1; font-size: 15px; font-weight: 700; line-height: 1.2; }
+  /* Se corta con puntos suspensivos y no se sale. Iba en `overflow: visible`:
+     a 375 px el flex lo aplastaba a 32 px y «Averno» se pintaba por encima de
+     la cápsula de al lado. Con la cápsula corta ya cabe todo; esto es el freno
+     para el día que un mundo tenga el nombre largo. */
+  .ap-nom {
+    min-width: 0; flex: 1 1 auto;
+    font-size: 15px; font-weight: 700; line-height: 1.2;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
   .ap-premisa {
     margin: 9px 0 0; font-size: 12px; color: var(--muted); line-height: 1.5;
   }
@@ -1563,7 +1570,16 @@
     margin: 12px 0 0; font-size: 12px; color: var(--mint);
   }
   .ap-yaesta svg { stroke-width: 2.2; }
-  .mv-cuerpo .btn { margin-top: 12px; }
+  .ap-ficha .btn { margin-top: 12px; }
+  /* Los cinco nombres del camino, con su rótulo encima: es lo que de verdad
+     separa un mundo de un recolor — un ambiente te cambia la luz, un mundo te
+     renombra lo que llevas recorrido. */
+  .ap-rangos { margin-top: 12px; }
+  .ap-rot {
+    display: block; font-size: 9.5px; font-weight: 800; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--faint);
+  }
+  .ap-rangos p { margin: 4px 0 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
   /* El botón que lleva al plan, con su insignia delante. Es la cuarta vez que
      aparece la misma piedra —la chapa del menú, la fila de Ajustes, el cuadro
      del tope y aquí—, y repetirla es lo que hace que las cuatro se lean como el
@@ -1657,51 +1673,39 @@
   }
   .mun-m.on .mun-ok svg { stroke-width: 2.6; }
 
-  /* ---------- Un mundo, de cerca ----------
-     La ventana que abre una tarjeta: el mismo preview en grande y lo que la
-     tarjeta no cabe decir. */
-  #mundo-modal { z-index: var(--piso-mundo); }
-  /* `text-align: left` porque `.modal-card` centra: ahí dentro hay un párrafo
-     de tres renglones, una lista de cinco rangos y un motivo, y centrado eso se
-     lee como una lápida. Un cuadro de confirmar centra bien porque es una
-     frase; una ficha, no. */
-  .mundo-card {
-    padding: 0; overflow: hidden; max-width: 460px;
-    position: relative; text-align: left;
+  /* ---------- El escaparate ----------
+     Un escenario arriba del todo con la apariencia que estás mirando dentro, y
+     debajo las dos rejas. Hubo una ventana emergente por mundo y antes una
+     galería de tarjetas, y las dos le daban a los mundos un peso que los
+     ambientes no tienen — en esta pantalla las dos cosas son opciones de lo
+     mismo. Con un solo escenario arriba, todo lo de abajo se ve igual.
+
+     Lo de dentro es OTRA app: un documento con `data-apariencia` en su propio
+     `<html>`, que es la única manera de enseñar el material de un mundo sin
+     ponérselo a la de verdad. El detalle, en `js/10i-apariencia.js`. */
+  .ap-escena {
+    border: var(--borde-tarjeta) solid var(--line);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-caja);
+    overflow: hidden;
+    margin-bottom: 6px;
   }
-  /* Y los párrafos aparte, con las DOS clases delante. `.modal-card p` centra,
-     y `.mundo-card p` a secas empata en especificidad con ella: gana la que
-     esté más abajo en el archivo, que resultó ser la otra. Con
-     `.modal-card.mundo-card p` ya no depende del orden. Es el mismo apaño que
-     llevan las variantes `reporte` y `menta`. */
-  .modal-card.mundo-card p { text-align: left; }
-  .mv-marco { background: var(--sup-hondo); }
-  .mv-marco iframe {
-    display: block; width: 100%; height: 214px; border: 0;
-    background: transparent; pointer-events: none;
+  /* El marco lleva el suelo hondo por debajo y no el de la tarjeta: sin un tono
+     que separe, lo de dentro se lee como si fuera esta app. Es la misma razón
+     por la que el lienzo del árbol no vale el fondo de la página. */
+  .ap-marco { background: var(--sup-hondo); display: block; }
+  /* El alto de partida, que `ajustarEscena()` corrige en cuanto puede medir lo
+     de dentro. Está aquí y no solo en JavaScript para que el hueco ya tenga su
+     tamaño antes del primer fotograma: sin esto, la ficha y las dos rejas dan
+     un salto hacia abajo al terminar de cargar el escaparate. */
+  #ap-vista {
+    display: block; width: 100%; height: 210px;
+    border: 0; background: transparent;
+    /* Se MIRA, no se usa: sin esto, un toque dentro del iframe cae en una app
+       de mentira con datos inventados y no en la ficha que está debajo. */
+    pointer-events: none;
   }
-  .mv-cuerpo { padding: 14px 16px 16px; }
-  /* La equis va FLOTANDO sobre el preview y no en una barra propia: una barra
-     de título encima le robaría al preview lo único que esta ventana viene a
-     enseñar. Lleva su propio fondo porque debajo hay un mundo cualquiera y no
-     se puede contar con que contraste. */
-  .mv-x {
-    position: absolute; top: 10px; right: 10px;
-    display: flex; align-items: center; justify-content: center;
-    width: 32px; height: 32px; padding: 0;
-    border: 0; border-radius: var(--r-redondo); cursor: pointer;
-    background: rgba(16, 21, 29, 0.62); color: #eaf1ef;
-    backdrop-filter: blur(3px);
-  }
-  .mv-x:hover { background: rgba(16, 21, 29, 0.82); }
-  .mv-rangos { margin-top: 12px; }
-  .mv-rot {
-    display: block; font-size: 9.5px; font-weight: 800; letter-spacing: 0.09em;
-    text-transform: uppercase; color: var(--faint);
-  }
-  .mv-rangos p {
-    margin: 4px 0 0; font-size: 12px; color: var(--muted); line-height: 1.5;
-  }
+  .ap-ficha { padding: 12px 14px 14px; border-top: 1px solid var(--line); }
 
   /* ---------- Las cápsulas del candado ----------
      Tres colores porque son tres candados distintos, y hasta la 0.7.64 iban las
@@ -1730,6 +1734,13 @@
   .mun-p.ap-pro { color: var(--mint); background: var(--mint-soft); }
   .mun-p.ap-fundador { color: var(--lila); background: var(--lila-soft); }
   .mun-p.ap-nivel { color: var(--fire); background: var(--fire-soft); }
+  /* «Predeterminado»: ni plan ni nivel, así que va en el gris de la app. Es
+     el mundo original y lo único que dice es eso. */
+  .mun-p.ap-base { color: var(--faint); background: transparent; padding-left: 0; padding-right: 0; }
+  /* Y la insignia sola, para lo que ya tienes y sigue siendo de plan: sin
+     texto, sin fondo y del tono de su plan. No es un candado, es una firma. */
+  .mun-p.ap-tengo { background: transparent; padding: 0; }
+  .mun-p.ap-tengo .ic svg { width: 15px; height: 15px; stroke-width: 1.7; }
   /* En la ventana la cápsula va entera y con un poco más de aire: ahí no
      compite por el ancho con nada. */
   .ap-cab .mun-p { font-size: 9.5px; padding: 4px 8px 4px 7px; }
