@@ -76,6 +76,40 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.72.1 · 2 sep 2026
+
+**Fundador vuelve al lila, y «Predeterminado» deja de estorbar en el teléfono.**
+
+#### El lila no es negociable
+
+El botón que lleva a Fundador iba en menta, y es la segunda vez que hay que
+corregirlo: en esta app **todo lo de Fundador va en lila**, sin excepciones. Un
+botón menta que dice «Ver Norata Fundador» lo pinta del color de Pro, que es
+justo lo que la pantalla del plan existe para separar — y el mismo error que la
+0.7.70 arregló en las cápsulas ya se había colado otra vez en el botón.
+
+`.btn-fundador` se declara al lado de los otros seis y **no es un séptimo
+nivel**: el nivel es el mismo que `btn-primary` —«lo que has venido a hacer»— y
+lo único que cambia es de qué plan habla. La tinta es `--sobre-vivo` y no
+`--sobre-macizo`, porque el lila es un tono vivo y no el acento. Medido: 5,18
+sobre el lila de día y 8,17 sobre el de noche.
+
+#### La etiqueta que le robaba el ancho a la frase
+
+«Predeterminado» ocupaba sitio en la fila, y es la etiqueta más larga de las
+cuatro — «PRO» son tres letras, ésta son catorce — y encima le toca justo a la
+fila que más texto tiene. En un teléfono el resultado era «Noche de expedición»
+partido en dos renglones y la premisa en una columna de media pantalla.
+
+Ahora **flota sobre el borde de arriba, a la izquierda**, como una pestaña de la
+pieza. Fuera del flujo, el nombre vuelve a caber en un renglón y la frase
+recupera el ancho entero. Lleva el suelo de la tarjeta y su borde para leerse
+pegada a ella; con fondo transparente se veía la línea del borde cruzándole el
+texto por la mitad.
+
+Va igual en los dos sitios donde sale: la fila de la lista y la ficha del
+escaparate.
+
 ### 0.7.72 · 2 sep 2026
 
 **Las escenas dejan de aparecer de golpe, dejan de estirarse en un monitor y
