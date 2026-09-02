@@ -76,6 +76,28 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.63.1 · 1 sep 2026
+**El negro va JUNTO al azul, no en su lugar. Y la tarjeta de racha ya tiene
+borde.**
+
+Dos correcciones de Eduardo sobre la 0.7.61, y la primera deshace un
+exceso mío. Al bajarle el azul a Blueprint puse el negro frío **en la página**
+y dejé la tarjeta en azul: con eso las dos superficies quedaron en el mismo
+valor —contraste 1,18— y el mundo entero se apagó. «Opacaste de más el tema»,
+y «sigues trabajando demasiado cerrado a los monotonos».
+
+Ahora al revés, que era lo que había que hacer desde el principio: **la página
+vuelve a su azul de plano** —es la identidad del mundo— y el negro frío se va
+a las TARJETAS. El equilibrio sale del contraste entre las dos cosas, no de
+bajarle el tono a las dos: campo azul, piezas negras, líneas azules encima.
+La separación sube de 1,21 (como estaba al principio) a **1,33**, y por fin hay
+dos matices en pantalla en vez de uno — la página en croma 0,079 y la tarjeta
+en 0,018. La retícula vuelve a su calibración original.
+
+**Y el borde del banner estaba en el sitio equivocado.** Se puso en `.sec-hero`,
+que son los cuatro encabezados de sección, y la tarjeta de racha del Resumen es
+otra escena: se quedó sin marco. Sube a `.scene-card`, que es lo que las dos
+comparten. Comprobado en las cuatro apariencias y las dos luces.
 ### 0.7.63 · 1 sep 2026
 
 **El ambiente que abre un nivel se pone antes de anunciarlo.**
