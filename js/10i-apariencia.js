@@ -85,28 +85,41 @@ const MUNDOS = [
      no con Fundador: de los quince mundos, el único que no abre Pro es
      Reliquia.
 
-     Los cinco rangos son el camino de un plano hasta que deja de serlo —de la
-     mancha a mano hasta el edificio en pie—, que es lo que este mundo dice y
-     ningún otro: que lo tuyo todavía se está construyendo. Y los dibujos van
-     sin relleno a propósito: `svgDeTrazo` los pinta con `fill="none"` y
-     `stroke-width="1.7"`, así que una figura maciza saldría como un borrón. */
+     Los cinco rangos son los OFICIOS del taller de dibujo, de quien afila
+     lápices a quien firma el plano. Se cambiaron enteros porque los primeros
+     —Boceto, Trazo, Plano, Corte, Obra— fallaban por dos sitios a la vez, y
+     lo cerró Eduardo con una sola pregunta: «¿no te parece raro decir soy
+     nivel Trazo?».
+
+     El primero es que NO SUBEN. Un trazo es más pequeño que un boceto, y un
+     corte no va después de un plano: es una VISTA de ese mismo plano. Una
+     escalera cuyos peldaños no crecen no es una escalera. Compárese con
+     Reliquia —Hallazgo, Pieza, Colección, Sala, Legado— o con Arboleda, donde
+     cada nombre solo se le puede ocurrir al anterior.
+
+     El segundo es que eran MARCAS SOBRE UN PAPEL, y un rango es lo que la
+     persona ES. De un oficio sí se puede decir «soy», y esa es toda la
+     diferencia entre esta lista y la de antes.
+
+     Y los dibujos son INSTRUMENTOS y no personas, que es la parte que hay que
+     entender antes de tocarlos: cinco figuras humanas no se distinguen a 20 px
+     —que es el tamaño al que se pintan—, mientras que un lápiz, una escuadra,
+     un compás, una plomada y un sello se leen de un vistazo y además escalan
+     solos: se te da el lápiz, luego la regla, luego decides tú, luego bajas
+     al suelo, y al final firmas. */
   { id: "plano", nombre: "Blueprint", listo: true, pro: true, icon: "map",
     premisa: "El papel de plano: retícula de dos pesos, cotas con puntas de flecha y marcas de sección. Todo lo tuyo, todavía en obra.",
     rangos: [
-      /* El cuadrado a mano alzada: las cuatro rayas se pasan de largo y se
-         cruzan en las esquinas. Es lo que separa un boceto de un dibujo, y a
-         20 px se lee antes que cualquier garabato. */
-      { nombre: "Boceto", trazo: '<path d="M5.6 6.4h13.2M5 17.6h13.4"/><path d="M6.4 5.4v13.2M17.6 5v13.4"/>' },
-      /* La escuadra apoyada en la línea que acaba de trazar. */
-      { nombre: "Trazo",  trazo: '<path d="M3.6 20.4h16.8"/><path d="M6.2 17.6V7L16.8 17.6z"/>' },
-      /* La hoja entera: dos divisiones y el cajetín en la esquina de abajo. */
-      { nombre: "Plano",  trazo: '<path d="M3.4 4.8h17.2v14.4H3.4z"/><path d="M3.4 9.2h17.2M8.8 4.8v14.4"/><path d="M15.4 19.2v-3.6h5.2"/>' },
-      /* La marca de sección: el círculo partido por la línea de corte y la
-         punta que dice hacia dónde se mira. */
-      { nombre: "Corte",  trazo: '<circle cx="12" cy="12" r="8.2"/><path d="M3.8 12h16.4"/><path d="M8.8 8.4L12 5.2l3.2 3.2"/>' },
-      /* Y lo que ya está en pie, que es donde acaba un plano. Sin tejado a dos
-         aguas: esa silueta ya es "Sala" en Reliquia. */
-      { nombre: "Obra",   trazo: '<path d="M4.6 20.6h14.8"/><path d="M6.8 20.6V5.4h10.4v15.2"/><path d="M6.8 10.2h10.4M6.8 15.4h10.4"/><path d="M11 20.6v-3.2h2v3.2"/>' }
+      /* El lápiz: lo primero que te dan y lo único que sabes usar. */
+      { nombre: "Aprendiz", trazo: '<path d="M5 19l.9-3.7L16.4 4.8a2 2 0 012.8 2.8L8.7 18.1z"/><path d="M14.2 7l2.8 2.8"/>' },
+      /* La escuadra, con su hueco: ya trazas derecho lo que otro pensó. */
+      { nombre: "Dibujante", trazo: '<path d="M4 19.6h16.4L4 5.4z"/><path d="M7.4 16.6h8L7.4 9.4z"/>' },
+      /* El compás: dejas de copiar y empiezas a decidir dónde van las cosas. */
+      { nombre: "Proyectista", trazo: '<circle cx="12" cy="4.8" r="1.6"/><path d="M11.2 6.2L6.4 20M12.8 6.2L17.6 20"/><path d="M8 16.4a8.4 8.4 0 008 0"/>' },
+      /* La plomada: el plano se baja del papel al suelo y hay que aplomarlo. */
+      { nombre: "Maestro de obra", trazo: '<path d="M8.6 3.6h6.8"/><path d="M12 3.6v9"/><path d="M12 12.6l3 4.1-3 3.9-3-3.9z"/>' },
+      /* El sello: lo que se pone cuando el plano ya es tuyo y responde por él. */
+      { nombre: "Arquitecto", trazo: '<path d="M6.6 20.4h10.8"/><path d="M8.2 17.4h7.6v-1.5c0-1.3-.9-1.8-.9-3.1V9.9a2.9 2.9 0 00-5.8 0v2.9c0 1.3-.9 1.8-.9 3.1z"/>' }
     ] },
   /* Reliquia es el primero construido, y va antes que Averno y Blueprint
      porque lo decidió Eduardo: es lo único que Fundador tiene además de Pro
