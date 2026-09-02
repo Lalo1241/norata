@@ -1850,6 +1850,31 @@
     position: relative; flex: 1 1 auto; min-height: 0;
     width: min(520px, 92vw); margin: 0 auto; pointer-events: none;
   }
+  /* ---------- Y en un monitor, en DOS columnas ----------
+     Apilada, la escena reparte el alto entre el dibujo y el texto, y en cuanto
+     el texto trae el botín la constelación se queda con lo que sobra: medido
+     en 1600×900, 187 px de alto para una figura terminada. La noticia del
+     nivel salía en miniatura.
+
+     De lado no hay reparto que hacer: la figura se queda con una columna
+     entera y el texto con la otra. Pide las dos condiciones —ancho Y
+     apaisado—, porque una tableta vertical de 1024 tiene el ancho pero no
+     tiene el alto que sobra, y ahí la columna sigue siendo lo correcto. */
+  @media (min-width: 900px) and (min-aspect-ratio: 1/1) {
+    .ncel.show {
+      flex-direction: row; align-items: center;
+      justify-content: center; gap: clamp(24px, 4vw, 72px);
+    }
+    /* Con `.ncel.show` delante y no a secas: las reglas de la columna viven
+       MÁS ABAJO en el archivo, y a igual especificidad gana la última. Sin
+       esto el ancho del núcleo se quedaba en los 380 px del teléfono y la
+       fila de botín no aprovechaba nada. */
+    .ncel.show .ncel-mapa {
+      flex: 0 0 min(46vw, 580px);
+      height: min(80vh, 640px); width: auto;
+    }
+    .ncel.show .ncel-core { max-width: 520px; margin-bottom: 0; }
+  }
   .ncel-cielo circle { fill: #cfe6ff; }
   .ncel-linea { stroke: var(--mint); fill: none; opacity: .45; }
   .ncel-linea.nueva { animation: ncelTrazar .55s cubic-bezier(.4,0,.2,1) .45s backwards; }
@@ -1866,18 +1891,24 @@
 
   /* Cerrar la figura es la noticia del cambio de rango: el dibujo respira una
      vez, se apaga y se va al estante de arriba. */
-  .ncel-viva.cerrando { animation: ncelCierra 1.5s cubic-bezier(.4,0,.2,1) 1.5s forwards; transform-origin: 50% 33%; }
+  /* La figura terminada RESPIRA Y SE QUEDA antes de irse al estante. Cerrar
+     una constelación es LA noticia de ese nivel, y con el encogido pegado al
+     principio pasaba de grande a medalla en segundo y medio: no daba tiempo a
+     mirar lo que acababas de completar. Ahora se queda casi tres segundos, y
+     el relevo —la figura nueva y la medalla— espera a que termine. */
+  .ncel-viva.cerrando { animation: ncelCierra 2.6s cubic-bezier(.4,0,.2,1) 1.5s forwards; transform-origin: 50% 30%; }
   @keyframes ncelCierra {
     0%   { opacity: 1; transform: scale(1); }
-    22%  { opacity: 1; transform: scale(1.07); }
-    100% { opacity: 0; transform: scale(.35) translateY(-34px); }
+    12%  { opacity: 1; transform: scale(1.06); }
+    58%  { opacity: 1; transform: scale(1.02); }
+    100% { opacity: 0; transform: scale(.4) translateY(-30px); }
   }
-  .ncel-naciendo { animation: ncelNaceFig .9s ease 2.7s backwards; transform-origin: 50% 33%; }
+  .ncel-naciendo { animation: ncelNaceFig .9s ease 3.8s backwards; transform-origin: 50% 30%; }
   @keyframes ncelNaceFig { from { opacity: 0; transform: scale(.7); } }
 
   .ncel-estante .ncel-med-linea { stroke: var(--mint); fill: none; opacity: .3; }
   .ncel-estante .ncel-med-astro { fill: var(--mint); opacity: .5; }
-  .ncel-estante .ncel-med-nueva { animation: ncelMedalla .7s ease 2.6s backwards; }
+  .ncel-estante .ncel-med-nueva { animation: ncelMedalla .7s ease 3.7s backwards; }
   @keyframes ncelMedalla { from { opacity: 0; } }
   /* El texto baja y la constelación se queda arriba. Centrados los dos, el
      número de 76 px se comía la figura: en la captura del nivel 6 solo se
@@ -1937,52 +1968,102 @@
     font-style: normal; font-size: 11px; letter-spacing: 1.4px;
     text-transform: uppercase; color: var(--muted);
   }
-  .ncel-abre { margin-top: 18px; text-align: left; }
+  .ncel-abre { margin-top: 22px; text-align: left; }
   .ncel-tit {
-    font-size: 10.5px; font-weight: 800; letter-spacing: 2.2px;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 8px; text-align: center;
+    font-size: 12px; font-weight: 800; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--fire);
+    margin-bottom: 12px; text-align: center;
   }
-  /* ---- Las tarjetas de lo que se abre ----
-     Eran renglones con un icono y un nombre, y «Musgo» al lado de una brochita
-     no dice nada de lo que acabas de ganar. Ahora cada premio es una tarjeta
-     con una VISTA de lo que es, y van en fila con arrastre horizontal: es lo
-     que hace un juego al enseñarte un botín, y es lo que permite que quepan
-     tres sin apretar la pantalla.
+  /* ---- El botín ----
+     Eran renglones con un icono y un nombre; luego tarjetas de 132 px, y
+     Eduardo las paró igual: «esta app se debe sentir como videojuego». Una
+     recompensa que ocupa lo mismo que un chip no se lee como una recompensa.
+     Así que la tarjeta manda en la pantalla —260 px, la vista a 150— y trae
+     las tres cosas que un juego pone en una carta de botín: un marco que
+     brilla con el color de lo que ganaste, un destello que la barre una vez
+     al aparecer, y la entrada escalonada, que es lo que hace que sean VARIAS
+     cosas y no una lista.
 
      El carrusel se sale del padding del núcleo a propósito (los -24 px): así
      la tarjeta de la derecha asoma cortada por el borde y se ve que hay más.
      Sin eso, tres premios parecen dos. */
   .ncel-premios {
-    display: flex; gap: 10px;
-    margin: 0 -24px; padding: 2px 24px 6px;
+    display: flex; gap: 14px;
+    margin: 0 -24px; padding: 6px 24px 10px;
     overflow-x: auto; overscroll-behavior-x: contain;
     scroll-snap-type: x proximity;
     scrollbar-width: none;
   }
   .ncel-premios::-webkit-scrollbar { display: none; }
+  /* Una sola tarjeta no es un carrusel: se centra y se queda. */
+  .ncel-premios:has(> .ncel-premio:only-child) { justify-content: center; }
   .ncel-premio {
-    flex: 0 0 132px; scroll-snap-align: center;
-    background: rgba(var(--escena-vidrio), 0.5);
-    border: var(--borde-fino) solid rgba(var(--escena-tinta), 0.14);
+    position: relative; overflow: hidden;
+    flex: 0 0 min(260px, 74vw); scroll-snap-align: center;
+    background:
+      linear-gradient(180deg,
+        color-mix(in srgb, var(--premio, var(--mint)) 13%, transparent) 0%,
+        transparent 46%),
+      rgba(var(--escena-vidrio), 0.62);
+    border: 1.5px solid color-mix(in srgb, var(--premio, var(--mint)) 42%, transparent);
     border-radius: var(--r-grande);
-    padding: 8px 8px 10px; text-align: left;
+    padding: 10px 10px 14px; text-align: left;
+    box-shadow:
+      0 0 0 1px rgba(var(--escena-fondo), .5),
+      0 14px 34px rgba(0, 0, 0, .34),
+      0 0 26px color-mix(in srgb, var(--premio, var(--mint)) 18%, transparent);
+  }
+  /* Un ambiente se enmarca con SU acento y no con la menta: la tarjeta tiene
+     que anticipar de qué color va a quedar la app. */
+  .ncel-premio.es-amb { --premio: var(--sw-ac, var(--mint)); }
+  .ncel-premio.es-cel { --premio: var(--fire); }
+  .ncel.show .ncel-premio {
+    animation: ncelBotin .52s cubic-bezier(.34, 1.4, .64, 1) calc(.62s + var(--i, 0) * .11s) backwards;
+  }
+  @keyframes ncelBotin {
+    from { transform: translateY(16px) scale(.92); opacity: 0; }
+  }
+  /* El destello barre la carta UNA vez, cuando ya está puesta. En bucle sería
+     un anuncio; una sola pasada es el gesto de «acabas de sacar esto».
+     Se llama `fulgor` y no `brillo` porque `.ncel-brillo` YA existe: es el halo
+     de la estrella recién encendida, dentro del SVG de la constelación. Con el
+     mismo nombre, estas reglas —que van más abajo— le cambiaban el relleno y
+     la animación al halo, y la regla de movimiento reducido lo escondía. */
+  .ncel-fulgor {
+    position: absolute; inset: -40% -60%;
+    background: linear-gradient(74deg,
+      transparent 42%,
+      color-mix(in srgb, var(--premio, var(--mint)) 34%, transparent) 50%,
+      transparent 58%);
+    pointer-events: none; opacity: 0;
+  }
+  .ncel.show .ncel-fulgor {
+    animation: ncelBarrido .9s ease-out calc(1.05s + var(--i, 0) * .11s) backwards;
+  }
+  @keyframes ncelBarrido {
+    0%   { transform: translateX(-58%); opacity: 0; }
+    22%  { opacity: 1; }
+    100% { transform: translateX(58%); opacity: 0; }
   }
   .ncel-vista {
-    height: 74px; border-radius: var(--r-media, 10px);
+    position: relative;
+    height: 150px; border-radius: var(--r-media, 10px);
     display: grid; place-items: center; overflow: hidden;
-    background: rgba(var(--escena-fondo), 0.55);
-    color: var(--mint);
+    background: rgba(var(--escena-fondo), 0.62);
+    color: var(--premio, var(--mint));
   }
   .ncel-vista svg { width: 100%; height: 100%; display: block; }
+  .ncel-pie { padding: 0 4px; }
   .ncel-quees {
-    font-size: 9.5px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
-    color: var(--muted); margin: 8px 0 1px;
+    font-size: 10px; font-weight: 800; letter-spacing: 1.8px; text-transform: uppercase;
+    color: color-mix(in srgb, var(--premio, var(--mint)) 88%, transparent);
+    margin: 11px 0 2px;
   }
   /* Dos líneas fijas: con nombres de largos distintos las tarjetas medían
      131 y 148 y la fila salía escalonada. */
   .ncel-nom {
-    font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.25;
-    min-height: 2.5em;
+    font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.24;
+    min-height: 2.48em;
   }
 
   /* La miniatura de un ambiente es la app en pequeño: su suelo, una tarjeta
@@ -1994,12 +2075,54 @@
   }
   .ncel-swatch .sw-card {
     position: absolute; left: 14%; right: 14%; top: 26%; height: 46%;
-    border-radius: 6px; background: var(--sw-card, #1d2530);
+    border-radius: 10px; background: var(--sw-card, #1d2530);
   }
   .ncel-swatch .sw-punto {
     position: absolute; left: 21%; top: 38%;
-    width: 13px; height: 13px; border-radius: 50%;
+    width: 24px; height: 24px; border-radius: var(--r-redondo);
     background: var(--sw-ac, #5fe0b0);
+  }
+  /* ---- Y en un teléfono, la misma tarjeta más corta ----
+     La tarjeta grande se comió el alto de la columna: medido en 375×812, la
+     constelación pasó de 203 px a 94, o sea que arreglar el monitor rompió el
+     teléfono. Aquí no sobra alto, así que en vertical la carta encoge lo justo
+     —la vista y la letra, no el ancho, que es lo que la hace sentir carta— y
+     el número y la insignia ceden un poco cuando además hay botín que enseñar.
+     El ancho no se toca: una tarjeta estrecha vuelve a ser un chip. */
+  @media (max-width: 899px) {
+    .ncel-premios { gap: 12px; padding: 4px 24px 8px; }
+    .ncel-premio { flex-basis: min(238px, 72vw); padding: 8px 8px 12px; }
+    .ncel-vista { height: 104px; }
+    .ncel-quees { margin-top: 9px; }
+    .ncel-nom { font-size: 15.5px; }
+    .ncel-tit { margin-bottom: 9px; }
+    /* Solo cuando hay tarjetas: sin ellas la escena tiene sitio de sobra y la
+       insignia grande es lo que da el golpe. */
+    .ncel-abre:has(.ncel-premio) ~ .ncel-pies { margin-top: 14px; }
+    .ncel:has(.ncel-premio) .ncel-insignia svg { width: 62px; height: 62px; }
+    .ncel:has(.ncel-premio) .ncel-num { font-size: 62px; }
+  }
+
+  /* ---- Y en una pantalla baja, todo cede menos el dibujo ----
+     Probado a 360×640, que es el suelo de los teléfonos en uso: con el botín
+     puesto el núcleo medía 603 px de los 640 y a la constelación le quedaban
+     **24**. No es que se viera pequeña, es que no se veía. Aquí ceden todos
+     —insignia, cifra, vista, márgenes— para que el dibujo tenga un alto que
+     merezca la pena, porque el dibujo ES la noticia y el resto la explica. */
+  @media (max-height: 720px) and (max-width: 899px) {
+    .ncel-core { padding: 16px; }
+    .ncel:has(.ncel-premio) .ncel-insignia svg { width: 46px; height: 46px; }
+    .ncel:has(.ncel-premio) .ncel-num { font-size: 46px; }
+    .ncel:has(.ncel-premio) .ncel-abre { margin-top: 14px; }
+    .ncel-vista { height: 76px; }
+    .ncel-nom { font-size: 14px; }
+    .ncel-quees { margin-top: 7px; font-size: 9.5px; }
+    .ncel-pies { margin-top: 14px; gap: 6px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ncel.show .ncel-premio, .ncel.show .ncel-fulgor { animation: none; }
+    .ncel-fulgor { display: none; }
   }
   .ncel-pies { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
   .ncel.show .ncel-unit, .ncel.show .ncel-rango, .ncel.show .ncel-cita,
@@ -2009,9 +2132,9 @@
   /* Cuando el nivel estrena rango, el número y el texto esperan a que la
      figura anterior se haya ido: si salen antes, la noticia gorda pasa
      desapercibida debajo de un relevo que todavía se está moviendo. */
-  .ncel.estrena.show .ncel-num { animation-delay: 3s; }
+  .ncel.estrena.show .ncel-num { animation-delay: 4.1s; }
   .ncel.estrena.show .ncel-unit, .ncel.estrena.show .ncel-rango,
-  .ncel.estrena.show .ncel-abre, .ncel.estrena.show .ncel-pies { animation-delay: 3.1s; }
+  .ncel.estrena.show .ncel-abre, .ncel.estrena.show .ncel-pies { animation-delay: 4.2s; }
   @keyframes ncelSube { from { transform: translateY(12px); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) {
     .ncel.show .ncel-insignia, .ncel.show .ncel-num,
@@ -5581,39 +5704,35 @@
     100% { transform: scale(0.9) rotate(12deg); opacity: 0; }
   }
 
-  /* ---- El amanecer · nivel 9 ----
-     La segunda escena de racha. La brasa mira al fuego que llevas encendido;
-     el alba mira al día que empieza. Misma maqueta, otra luz: se apagan el
-     humo y las pavesas y se enciende la línea del horizonte. */
-  .scel-alba, .scel-abetos { display: none; }
-  .scel.alba .scel-rays, .scel.alba .scel-sparks { display: none; }
-  .scel.alba {
-    background: linear-gradient(180deg,
-      rgb(var(--escena-fondo)) 0%,
-      color-mix(in srgb, var(--fire-macizo) 8%, rgb(var(--escena-vidrio))) 58%,
-      rgb(var(--escena-fondo)) 100%);
-  }
-  .scel.alba .scel-alba {
+  /* ---- La brasa avivada · nivel 9 ----
+     La segunda escena de racha. Aquí hubo un amanecer con abetos y Eduardo lo
+     paró en cuanto lo vio: la escena de racha que él aprobó es la brasa, y un
+     bosque al amanecer no era una versión de esa, era otra cosa. Así que el
+     nivel 9 no cambia de escena — aviva la que ya hay. Mismo fuego, más
+     fuerte: un cerco de brasa que late detrás y el doble de pavesas (eso se
+     cuenta desde el JS, ver `celebrateStreak`). */
+  .scel-cerco { display: none; }
+  .scel.avivada .scel-cerco {
     display: block; position: absolute;
-    left: -20%; right: -20%; bottom: -8vmin; height: 62vmin;
-    background: radial-gradient(ellipse 62% 100% at 50% 100%,
-      color-mix(in srgb, var(--fire-macizo) 62%, transparent) 0%,
-      color-mix(in srgb, var(--fire-macizo) 20%, transparent) 42%,
-      transparent 74%);
+    left: 50%; top: 42%;
+    width: 92vmin; height: 92vmin; margin: -46vmin 0 0 -46vmin;
+    border-radius: var(--r-redondo);
+    background: radial-gradient(circle at 50% 50%,
+      color-mix(in srgb, var(--fire-macizo) 26%, transparent) 0%,
+      color-mix(in srgb, var(--fire-macizo) 9%, transparent) 38%,
+      transparent 66%);
     pointer-events: none;
-    /* Sube UNA vez y se queda. Es la misma regla que echó a los rayos: una
-       celebración cuenta un momento y termina. */
-    animation: scelAmanece 1.9s cubic-bezier(.22, .7, .3, 1) forwards;
+    /* Late tres veces y para, como los cuatro latidos de la llama: en la app
+       no queda ninguna animación sin final. */
+    animation: scelCerco 2.4s ease-in-out 3;
   }
-  @keyframes scelAmanece {
-    from { transform: translateY(34vmin); opacity: 0; }
-    to   { transform: translateY(0); opacity: 1; }
+  @keyframes scelCerco {
+    0%, 100% { transform: scale(.94); opacity: .55; }
+    50%      { transform: scale(1.06); opacity: 1; }
   }
-  .scel.alba .scel-abetos {
-    display: block; position: absolute;
-    left: 0; right: 0; bottom: 0; width: 100%;
-    fill: rgb(var(--escena-fondo)); pointer-events: none;
-  }
+  /* Y el fuego de encima quema más: el mismo dibujo con más halo. */
+  .scel.avivada .scel-flame { filter: drop-shadow(0 0 44px color-mix(in srgb, var(--fire-macizo) 90%, transparent)); }
+  .scel.avivada .scel-flame svg { width: 112px; height: 112px; fill: color-mix(in srgb, var(--fire-macizo) 34%, transparent); }
 
   /* ---- La de pantalla completa · nivel 15 con Pro ----
      La misma noticia con el peso del sello: la insignia cae desde arriba,
@@ -5638,7 +5757,16 @@
     animation: celOnda .8s cubic-bezier(.16, .9, .3, 1) .44s;
     border-width: 3px;
   }
-  .celebrate.grande.show .cel-ring.r2 { animation-delay: .56s; opacity: .6; }
+  /* El segundo aro va más apagado, y eso se dice en el BORDE y no en la
+     opacidad del elemento. Con `opacity: .6` aquí el aro dejaba de ser
+     invisible cuando no corría la animación: se veía un círculo de 180 px
+     clavado en medio de la pantalla antes de empezar (durante los 0,56 s de
+     espera) y otra vez al terminar, porque la animación no rellena hacia
+     ningún lado. Eduardo lo cazó en la primera pasada. */
+  .celebrate.grande.show .cel-ring.r2 {
+    animation-delay: .56s;
+    border-color: color-mix(in srgb, var(--cel, #5fe0b0) 60%, transparent);
+  }
   @keyframes celOnda {
     0%   { transform: scale(.35); opacity: .9; }
     100% { transform: scale(3.4); opacity: 0; }
@@ -5647,8 +5775,7 @@
     animation: celPop .5s cubic-bezier(.34, 1.56, .64, 1) .5s backwards;
   }
   @media (prefers-reduced-motion: reduce) {
-    .destello .ds-astro, .scel.alba .scel-alba, .celebrate.grande .cel-icon { animation: none; }
-    .scel.alba .scel-alba { transform: none; opacity: 1; }
+    .destello .ds-astro, .scel.avivada .scel-cerco, .celebrate.grande .cel-icon { animation: none; }
   }
 
   /* ================= La entrada de una escena =================
