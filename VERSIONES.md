@@ -76,6 +76,112 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.72.3 · 2 sep 2026
+**Seis correcciones de Eduardo sobre las celebraciones.**
+
+Las miró en un monitor y en el teléfono y salieron seis cosas. Van juntas
+porque son la misma pantalla.
+
+**1. El cielo, que seguía saliendo distorsionado.** Iba por el segundo intento
+y el segundo fallaba distinto. El primero era un viewBox de 100×187 con
+`preserveAspectRatio="none"`: en 1600×900 eso escala 16 en horizontal contra
+4,8 en vertical, así que cada estrella salía como una elipse tres veces más
+ancha que alta. El segundo, un cuadro de 100×100 con `slice`, arregló la forma
+y rompió el tamaño: 100 unidades repartidas en 1600 px dan 16 px por unidad, y
+la estrella que en un teléfono medía 2 px en un monitor medía 13. Lo que
+arregla las dos cosas es no tener un cuadro fijo — el viewBox se calcula del
+tamaño de la ventana, a razón de **una unidad por cada 4 px**. Medido: 513
+estrellas en 1440×900 y 120 en 375×812, con el mismo diámetro medio (2,1 px) en
+las dos, y la mayor desviación de la redondez en 0,0001.
+
+**2. La constelación terminada, diminuta en un monitor.** Dos causas. La de la
+maqueta: apilada en columna, el dibujo y el texto se reparten el alto, y en
+cuanto el texto trae botín al dibujo le quedan las sobras — medido, 187 px de
+alto en 1600×900. De lado no hay reparto: **en pantalla ancha y apaisada la
+escena va en dos columnas**, la figura en una y el texto en la otra. La figura
+completa pasó de 187 a 352 px de alto. La de tiempo: la figura terminada se
+encogía hacia el estante 1,5 s después de dibujarse, así que la noticia del
+nivel duraba un suspiro; ahora **se queda 2,6 s** y el relevo espera. Y las
+medallas del estante pasaron de 0,105 a 0,16 de escala: de cuatro rayas a algo
+en lo que se distingue qué figura es cada una.
+
+**3. Las tarjetas de lo que desbloqueas, de verdad grandes.** Eran de 132 px
+—lo mismo que un chip— para anunciar una recompensa. Ahora miden 260×244 y
+traen las tres cosas que un juego pone en una carta de botín: marco del color
+de lo que ganaste, un destello que la barre una vez, y entrada escalonada.
+En vertical la carta encoge lo justo (la vista y la letra, no el ancho) y en
+pantalla baja ceden todos —insignia, cifra, márgenes—, porque el dibujo es la
+noticia: a 360×640 la constelación había quedado en 24 px y ahora son 114.
+
+**4. La escena de racha vuelve a ser la que se aprobó.** El nivel 9 estrenaba
+un amanecer con abetos y un degradado, y esa no es la escena de racha: la
+aprobada es **la brasa**. Cambiarla por un bosque no era subirla de nivel, era
+sustituirla. Ahora el nivel 9 aviva la misma: un cerco de brasa que late tres
+veces, la llama más grande y el doble de pavesas (48 contra 26). El peldaño se
+llama «Racha avivada».
+
+**5. El círculo congelado.** El segundo aro de la celebración grande llevaba
+`opacity: .6` puesta en el elemento para verse más apagado que el primero. Pero
+esa opacidad no es de la animación: es la del aro parado, y la animación no
+rellena hacia ningún lado. Resultado, un círculo de 180 px clavado en medio de
+la pantalla durante los 0,56 s de espera y otra vez al terminar. Lo apagado se
+dice ahora en el **borde**, y los dos aros vuelven a ser invisibles fuera de su
+momento.
+
+**6. El lenguaje.** «Se abre» no es lo que pasa cuando desbloqueas algo. El
+rótulo del botín dice **«Desbloqueaste»**; la lista de la expedición, «Lo que
+desbloqueas al subir», y sus chips «Desbloqueado» en vez de «Tuyo»; las cuatro
+frases del árbol de talentos dicen «se desbloquea al completar». Y el botón de
+la racha decía «Seguir así», que es un consejo: cuando acabas de cruzar un hito
+la app dice **«¡Excelente!»**.
+
+De paso, dos cosas que salieron al medir: `.ncel-brillo` ya existía —es el halo
+de la estrella recién encendida— y el destello nuevo de las tarjetas lo estaba
+pisando; se llama `.ncel-fulgor`. Y un ambiente al que le faltara un tono
+dejaba la variable declarada y vacía, lo que no cae en el respaldo de `var()`:
+el `color-mix` del marco se volvía inválido y la tarjeta salía con el borde
+blanco. Van los tres tonos o ninguno.
+
+### 0.7.72.2 · 2 sep 2026
+**El suelo de donde salen nodos, más claro en el modo claro de la casa.**
+
+Las ramas de talentos y las de proyectos puestas en «Verlo como mapa» son la
+misma clase de pantalla —un lienzo con nodos encima— y salían con dos grises
+distintos según por dónde entrabas. Ahora las dos van en `#e7e9f4`, que eligió
+Eduardo.
+
+**Se apunta a «la tarjeta que TIENE un lienzo dentro»** (`:has(.const-wrap)`) y
+no a `.branch-card` a secas, y esa es toda la precisión que hacía falta: en
+Proyectos el lienzo solo se dibuja en modo mapa, así que la misma regla deja la
+vista de lista como estaba **sin una clase nueva y sin tocar el JavaScript**. Una
+rama de talentos plegada tampoco lo pinta —dibuja `.branch-collapsed`—, y ahí
+tampoco hay ningún nodo que apoyar.
+
+**El alcance, que es lo que se pidió expresamente:** solo el modo claro y solo la
+casa — el mundo que en el código se llama «Noche de expedición». Un mundo o un
+ambiente ponen `data-apariencia` en `<html>` y con eso quedan fuera por
+construcción, cada uno con el suelo que declaró. De noche la regla no existe.
+
+**No se toca `--sup-hondo` global**, y por eso: ese suelo lo comparten dos cosas
+que NO son mapas —las columnas del tablero de Misiones y el marco del
+previsualizador de mundos—. Tocarlo ahí cambiaría tres pantallas para arreglar
+dos. Va en una variable propia, `--lienzo-suelo`.
+
+**Medido, no mirado.** Talentos y el mapa de Proyectos en claro+casa dan
+`rgb(231,233,244)`; la rama de Proyectos en vista de lista se queda en
+`rgb(211,213,232)`, y las columnas del tablero también. Comprobado que la regla
+no alcanza ni a `.col-mis` ni a `.ms-card` —`matches()` da `false` en las dos— y
+que `--sup-hondo` global sigue en `#d3d5e8`. Por apariencia: oscuro+casa
+`22,28,38`; claro+tinta `215,216,221`; claro+reliquia `205,197,222`;
+claro+averno `217,210,204`; oscuro+reliquia `13,9,22`. **Solo cambió
+claro+casa.**
+
+**Y una regla de la casa que ahora tiene excepción**, anotada en `CLAUDE.md`: el
+suelo hondo iba «de día un pelo más oscuro» que la página. Este es más claro. No
+rompe lo que esa regla pide —que se SEPAREN—, porque separa igual: **1,10 contra
+el 1,07 de antes**. Y deja una escala de tres peldaños que antes no existía:
+página `#dcdef0` → lienzo `#e7e9f4` → tarjeta `#f2f0f9`.
+
 ### 0.7.72.1 · 2 sep 2026
 
 **Fundador vuelve al lila, y «Predeterminado» deja de estorbar en el teléfono.**

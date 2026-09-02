@@ -1049,20 +1049,17 @@
 <!-- ============ RACHA: CELEBRACIÓN DE HITO ============ -->
 <div class="scel" id="scel">
   <div class="scel-rays"></div>
-  <!-- El amanecer, la segunda escena de racha (nivel 9). Vive aquí apagado y
-       lo enciende la clase `alba`: crearlo desde el JS lo haría llegar tarde,
-       justo en el instante en que la escena tapa la pantalla. -->
-  <div class="scel-alba"></div>
-  <svg class="scel-abetos" viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0 22V14l5-6 4 6 6-9 5 9 5-4 6 7 5-11 6 11 5-5 5 5 4-8 6 8 5-3 5 3 5-6 5 6 4-4 5 4 4-2v6z"/>
-  </svg>
+  <!-- El cerco de brasa del nivel 9. Vive aquí apagado y lo enciende la clase
+       `avivada`: crearlo desde el JS lo haría llegar tarde, justo en el
+       instante en que la escena tapa la pantalla. -->
+  <div class="scel-cerco"></div>
   <div class="scel-sparks" id="scel-sparks"></div>
   <div class="scel-core">
     <div class="scel-flame"><svg viewBox="0 0 24 24"><path d="M12 22c4.4 0 7-2.9 7-6.5 0-4.5-4-6.3-4.5-10C13 7 11 8.5 11 11c-1.5-.6-2-2.3-1.8-4C6.5 8.8 5 11.5 5 15.5 5 19.1 7.6 22 12 22z"/></svg></div>
     <div class="scel-num" id="scel-num">0</div>
     <div class="scel-unit">días de racha</div>
     <div class="scel-sub" id="scel-sub"></div>
-    <button class="btn btn-primary" id="scel-btn" onclick="closeStreakCel()">Seguir así</button>
+    <button class="btn btn-primary" id="scel-btn" onclick="closeStreakCel()">¡Excelente!</button>
   </div>
 </div>
 
@@ -1075,7 +1072,7 @@
   <!-- El cielo de fondo y la constelación del rango. Sustituyen a los rayos
        giratorios de 0.7.48: eran las únicas animaciones `infinite` de la app y
        se leían como una tragamonedas. Los dos SVG los rellena `celebrarNivel`. -->
-  <svg class="ncel-cielo" id="ncel-cielo" viewBox="0 0 100 187" preserveAspectRatio="none" aria-hidden="true"></svg>
+  <svg class="ncel-cielo" id="ncel-cielo" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
   <svg class="ncel-mapa" id="ncel-mapa" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
   <div class="ncel-core">
     <div class="ncel-insignia" id="ncel-insignia"></div>
