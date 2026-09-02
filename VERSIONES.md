@@ -76,6 +76,18 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.72.4 · 2 sep 2026
+
+**«Aplicar» en vez de «Ponérmelo».**
+
+Lo paró Eduardo mirando el botón de los temas. La app tutea y habla cerca, pero
+un botón no es una frase: «Ponérmelo» le pone voz de primera persona a algo que
+solo tiene que decir qué hace, y encima suena a ropa. «Aplicar» dice lo que hace
+y se lee igual para un recolor que para un mundo.
+
+Es el único sitio donde estaba. Los comentarios que hablan de «ponérsela» se
+quedan: eso es prosa describiendo la acción, no texto de pantalla.
+
 ### 0.7.72.3 · 2 sep 2026
 **Seis correcciones de Eduardo sobre las celebraciones.**
 
