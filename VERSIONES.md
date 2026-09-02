@@ -76,14 +76,50 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.72.8 · 2 sep 2026
+
+**Una pulsación, la última versión.** El botón de actualizar salía, se pulsaba,
+y volvía a salir —a veces tres o cuatro veces seguidas— hasta que por fin se
+quedaba quieto. Lo contó Eduardo y son dos fallos, no uno:
+
+- **Anunciaba sin comparar.** El aviso del service worker llega en `activate`,
+  que ocurre MIENTRAS la página nueva está cargando. Así que la pestaña recién
+  recargada —que ya ES la versión anunciada— recibía el mensaje y volvía a
+  enseñar el botón con el mismo número que acababa de estrenar. Ahora se compara
+  con `VERSION`, que es la constante que esta pestaña está ejecutando y no la
+  que promete el servidor: si coinciden, no hay nada que actualizar y el botón
+  se va solo.
+- **Avanzaba de una en una.** `location.reload()` te lleva a la versión que
+  estaba bajada cuando llegó el aviso, no a la última. Con varias
+  publicaciones en el mismo rato —aquí pasa a diario— hacían falta tantas
+  pulsaciones como versiones hubieran salido. Ahora el botón pregunta primero
+  (`registration.update()`) y espera a que el worker nuevo termine de
+  instalarse, con un tope de seis segundos para que una red que no contesta no
+  lo deje girando. Cumplido el plazo se recarga igual: lo peor que puede pasar
+  entonces es lo que pasaba antes.
+
+El botón dice «Actualizando…» mientras espera, porque seis segundos sin señal
+de vida se leen como que no funcionó.
+
+**Y `norataActualizar` vive fuera del `if` del service worker** a propósito: el
+botón la llama por su nombre, y donde no hay worker —en `http:`, o en un
+navegador que no lo tenga— tiene que seguir recargando como siempre.
+
 ### 0.7.72.7 · 2 sep 2026
 
-**La 0.7.71.5 se publicó a medias, y la mitad que llegó era la inerte.** Salió
-al live la regla `.ms-hueca` —que no la usaba nadie, porque la clase se escribe
-desde JavaScript— y la entrada de esta lista contando un arreglo que no
-existía. Los dos cambios de `js/05-resumen.js` se perdieron entre sesiones antes
-de commitear: el árbol de trabajo se comparte y lo que no ha pasado por
+**De este arreglo solo había llegado al live una regla de CSS que no usaba
+nadie.** `.ms-hueca` y `.mt-hueco` estaban publicadas y las dos sobraban,
+porque la clase que las enciende se escribe desde JavaScript y el JavaScript
+no llegó: los dos cambios de `js/05-resumen.js` se perdieron entre sesiones
+antes de commitear. El árbol de trabajo se comparte, y lo que no ha pasado por
 `git add` no existe para git.
+
+**Y no hay ninguna 0.7.71.5 de esta tanda.** Se le escribió ese número, pero
+la entrada también se perdió en la misma pisada —`git log -S` no la encuentra
+en ningún commit—, y para cuando se fue a buscar, el número ya lo ocupaba otra
+tanda: la del escaparate de apariencias, que no tiene nada que ver con esto y
+que está bien como está. Buscar ahí la explicación de este arreglo manda al
+sitio equivocado: está aquí y en ninguna otra parte.
 
 Esta versión repone el arreglo entero, tal cual estaba medido:
 
@@ -106,6 +142,12 @@ archivo que tocaste y no sale modificado no es que el cambio fuera trivial, es
 que ya no está—. Se reescribió y esa mitad sí llegó; la otra se detectó un
 día después, preguntando si estaba en el live. Lo que salvó el trabajo fue la
 copia en el scratchpad, que ningún `git` toca.
+
+**Y una segunda de propina: contar el daño de memoria sale mal.** Al dar el
+parte se dio por publicada la entrada de la lista porque un `grep` del número
+devolvía uno — y ese uno era la entrada de la otra sesión. Para saber si un
+texto propio sobrevivió hay que buscar el TEXTO (`git log -S`), nunca el
+número: el número lo puede estar usando cualquiera.
 
 ### 0.7.72.6 · 2 sep 2026
 **La escena de nivel, centrada de verdad; y el fuego dura hasta el final.**

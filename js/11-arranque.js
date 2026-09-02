@@ -416,6 +416,61 @@ window.addEventListener("online", () => syncRun({ silent: true }));
   }, { passive: true });
 })();
 
+/* ---- Una pulsación, la última versión (0.7.72.8) ----
+   El botón hacía `location.reload()` a secas, y eso avanza UNA versión: la que
+   estaba bajada cuando llegó el aviso. Aquí se publica varias veces al día
+   —hay varias conversaciones trabajando a la vez— así que la escena normal era
+   pulsarlo, ver aparecer el botón otra vez con el número siguiente, y volver a
+   pulsarlo hasta que dejaba de salir.
+
+   Ahora, antes de recargar, se pregunta si hay algo AÚN más nuevo y se le da un
+   momento para que se instale. Así una pulsación deja la app en lo último
+   publicado, salieran una versión o cuatro.
+
+   **Con tope, y el tope es lo que hace que esperar aquí sea seguro.** Un
+   `fetch` no trae ninguno: sin él, una red que ni contesta ni falla dejaría el
+   botón girando para siempre. Cumplido el plazo se recarga igual, que es lo
+   que se pidió al pulsar; lo peor que puede pasar entonces es lo que pasaba
+   antes de este arreglo.
+
+   Vive fuera del `if` de abajo a propósito: el botón del menú la llama por su
+   nombre, y sin service worker —en `http:`, o en un navegador que no lo
+   tenga— tiene que seguir haciendo lo de siempre. */
+let swRegistro = null;
+
+function esperarAlWorker(reg) {
+  const sw = reg.installing || reg.waiting;
+  if (!sw) return Promise.resolve();
+  return new Promise((listo) => {
+    sw.addEventListener("statechange", () => {
+      /* «redundant» también cierra: quiere decir que ese worker se descartó
+         —normalmente porque llegó otro por encima— y seguir esperándolo sería
+         esperar a alguien que ya no viene. */
+      if (sw.state === "activated" || sw.state === "redundant") listo();
+    });
+  });
+}
+
+async function norataActualizar(btn) {
+  const rotulo = btn && btn.querySelector(".nav-label");
+  const antes = rotulo ? rotulo.innerHTML : null;
+  if (btn) btn.disabled = true;
+  if (rotulo) rotulo.textContent = "Actualizando…";
+  try {
+    if (swRegistro) {
+      await Promise.race([
+        swRegistro.update().then(() => esperarAlWorker(swRegistro)),
+        new Promise((r) => setTimeout(r, 6000))
+      ]);
+    }
+  } catch (e) { /* sin red se recarga igual: la copia buena ya está bajada */ }
+  /* `reload()` a secas y no `reload(true)`: lo segundo lleva años sin hacer
+     nada en ningún navegador, y aquí sobra, porque la copia buena ya es la
+     nueva antes de llegar a esta línea. */
+  if (rotulo && antes !== null) rotulo.innerHTML = antes;
+  location.reload();
+}
+
 if ("serviceWorker" in navigator && location.protocol === "https:") {
   /* ---- «Hay una versión nueva» ----
      Desde 0.7.38 la app se sirve de su propia copia, así que abrirla no espera
@@ -482,8 +537,30 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
      `location.reload()` a secas y no `reload(true)`: lo segundo lleva años sin
      hacer nada en ningún navegador, y aquí además sobra, porque la copia buena
      ya es la nueva antes de que este mensaje llegue. */
+  /* ---- Lo que se anuncia se compara con lo que se está ejecutando ----
+     Sin esto el botón salía después de haber actualizado, y era el motivo de
+     que hubiera que pulsarlo varias veces: anunciaba «hay algo nuevo» sin
+     mirar si ese algo era distinto de la versión que la app ya tiene puesta.
+
+     El aviso llega en `activate`, que ocurre MIENTRAS la página nueva carga.
+     O sea que la pestaña recién recargada —que ya es la versión anunciada—
+     recibía el mensaje y volvía a enseñar el botón, con el mismo número que
+     acababa de estrenar. Se pulsaba otra vez, y otra.
+
+     `VERSION` es la constante de `js/01-base.js`: no la que promete el
+     servidor, sino la que está corriendo en esta pestaña. Si coinciden no hay
+     nada que actualizar, y el botón se va. */
+  function versionAlDia() {
+    return !!versionQueEntra && versionQueEntra === VERSION;
+  }
+
   function avisarDeLaVersion() {
     const btn = document.getElementById("nav-update-side");
+    if (versionAlDia()) {
+      hayVersionNueva = false;
+      if (btn) btn.hidden = true;
+      return;
+    }
     if (btn) {
       const num = document.getElementById("nav-update-ver");
       if (num) num.textContent = versionQueEntra ? "V" + versionQueEntra : "";
@@ -497,7 +574,7 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
     ultimoToast = ahora;
     toast(versionQueEntra ? "Ya está lista la versión " + versionQueEntra
                           : "Hay una versión nueva de Norata", "atencion",
-          { label: "Actualizar", onclick: "location.reload()", ms: 12000 });
+          { label: "Actualizar", onclick: "norataActualizar()", ms: 12000 });
   }
 
   navigator.serviceWorker.addEventListener("message", (ev) => {
@@ -510,6 +587,9 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
 
   navigator.serviceWorker.register("sw.js").then((reg) => {
     if (!reg) return;
+    /* Guardado para que el botón pueda preguntar por su cuenta antes de
+       recargar (ver `norataActualizar`). */
+    swRegistro = reg;
 
     function preguntar() {
       /* Con la pestaña escondida o sin red, la pregunta no vale nada. */
