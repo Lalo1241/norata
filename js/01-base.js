@@ -163,7 +163,17 @@ const ICONS = {
   sol: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.3M12 19.1v2.3M2.6 12h2.3M19.1 12h2.3M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/>',
   /* La luna va con el hueco a la DERECHA, mirando al sol de al lado: al
      revés los dos iconos se dan la espalda y la pareja se lee peor. */
-  luna: '<path d="M20 14.2A8.4 8.4 0 019.8 4 8.4 8.4 0 1020 14.2z"/>'
+  luna: '<path d="M20 14.2A8.4 8.4 0 019.8 4 8.4 8.4 0 1020 14.2z"/>',
+  /* El sol eclipsado: anillo encendido y centro muerto. Es el sello de Averno,
+     y va aquí y no con sus vectores porque el icono de un mundo sale de este
+     mapa —lo pide `js/10i-apariencia.js` por nombre—, igual que Reliquia usa
+     `gem`. Es el MISMO dibujo que `mundos/svg/averno-sello.svg`, pasado a
+     trazo. Con `flame` puesto, Averno se anunciaba con la llamita genérica que
+     ya usan las habilidades: un mundo tiene que traer su propia marca.
+
+     Los rayos van a ocho y no a doce por lo mismo que el sol de arriba: a
+     15 px los doce se empastan. */
+  eclipse: '<circle cx="12" cy="12" r="6.2"/><circle cx="12" cy="12" r="2.4"/><path d="M12 1.9v2.5M12 19.6v2.5M1.9 12h2.5M19.6 12h2.5M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/>'
 };
 
 const ICON_LIST = ["brush","pen","book","dumbbell","code","music","camera","mic","globe","coin","bulb","heart","flame","trophy","target","flag","wrench","coffee","plant","cap","chart","map","compass","crown","gem","gamepad","star","bolt","shield","smile","rod","goggles","key","papelera"];
