@@ -641,23 +641,99 @@ const COLORS = ["#5fe0b0","#f5d76e","#ff8a70","#b7a2ea","#6fc3e8","#8fd18a","#f0
    gastó treinta mil pesos.
 
    La moneda vive en un solo sitio, `state.settings.moneda`, y arranca en MXN
-   —que es la que hay que tener sí o sí—. Está preparada para que un día se
-   pueda elegir USD o EUR desde Ajustes: para añadir una, se pone aquí su
-   línea y no hay que tocar nada más. Lo que todavía NO existe es la pantalla
-   para elegirla, y es a propósito.
+   —que es la que hay que tener sí o sí—. Para añadir una, se pone aquí su
+   línea y su tipo de cambio de referencia, y no hay que tocar nada más.
 
-   Y hay algo que hay que decir el día que se abra esa pantalla, porque no es
-   obvio y muerde: **cambiar de moneda NO convierte nada**. Los importes se
-   guardan como los escribiste, sin tipo de cambio; lo único que cambia es con
-   qué código y con qué formato se leen. Convertirlos de verdad exigiría saber
-   a qué cambio estaba cada compra el día que se hizo, y eso ni se guarda ni
-   se puede reconstruir. */
+   ---- Y sí convierte, desde 0.7.75 ----
+
+   Hasta aquí decía que cambiar de moneda NO convertía nada: los importes se
+   quedaban como estaban y solo cambiaba el código con el que se leían. El
+   argumento era bueno —convertir de verdad exigiría saber a qué cambio estaba
+   cada compra el día que se hizo, y eso ni se guarda ni se puede
+   reconstruir— pero la conclusión estaba mal, y se ve pensando en quién toca
+   este ajuste: alguien que se mudó, o que siempre pensó en dólares y llevaba
+   la app en pesos porque no había otra. Para esa persona, un talento que
+   costó $1,890 pasando a decir «$1,890 USD» no es un dato conservado con
+   honestidad, es un dato falso — treinta mil pesos donde había mil
+   ochocientos.
+
+   Así que se convierte, **una sola vez y en el momento del cambio**, con las
+   tres condiciones que hacen que la aproximación sea defendible:
+
+   1. **Se avisa de que es una aproximación** y se enseña el tipo de cambio
+      antes de tocar nada. No es un ajuste que se cambia sin querer.
+   2. **El tipo de cambio se puede corregir a mano.** El de la tabla es de
+      referencia y envejece; quien sepa el suyo lo escribe.
+   3. **Antes de convertir se guarda una copia entera**, con la máquina de
+      copias que ya existía para los conflictos de sincronía. Si la conversión
+      sale mal, se restaura desde Ajustes.
+
+   Lo que NO se convierte, y hay que saberlo:
+
+   - **El historial de un talento.** «Inversión de $1,890 MXN — plan de 90
+     días iniciado» es texto, ya escrito, y es un registro de lo que pasó ese
+     día: reescribirlo sería falsear el diario. Se queda con la moneda que
+     tenía, que además es la correcta para esa fecha.
+   - **Los precios del plan.** Los cobra Stripe y son precios de verdad, no
+     una conversión: $69 MXN al mes no son «lo que salga de dividir». Viven
+     en `js/10d-plan.js` y no pasan por aquí. */
 const MONEDAS = {
-  MXN: { codigo: "MXN", nombre: "Peso mexicano", locale: "es-MX" },
-  USD: { codigo: "USD", nombre: "Dólar estadounidense", locale: "en-US" },
-  EUR: { codigo: "EUR", nombre: "Euro", locale: "es-ES" }
+  MXN: { codigo: "MXN", nombre: "Peso mexicano",        enIngles: "Mexican peso", locale: "es-MX" },
+  USD: { codigo: "USD", nombre: "Dólar estadounidense", enIngles: "US dollar",    locale: "en-US" },
+  EUR: { codigo: "EUR", nombre: "Euro",                 enIngles: "Euro",         locale: "es-ES" }
 };
 const MONEDA_POR_DEFECTO = "MXN";
+
+/* ---- Los tipos de cambio de referencia ----
+   Cuánto vale UNA unidad de cada moneda en pesos mexicanos. El peso es la
+   base porque es la moneda de casa y la de por defecto, no porque tenga nada
+   de especial: pasar de euros a dólares se hace en dos saltos por aquí en
+   medio, y con importes de tres o cuatro cifras el redondeo del rodeo no se
+   ve.
+
+   **Son de referencia y envejecen.** No se piden a ningún servidor a
+   propósito: la app se sirve de su propia copia y no habla con la red al
+   abrirse (ver CLAUDE.md, «Cómo llega la app»), y meter una llamada a un
+   servicio de divisas por un ajuste que se toca una vez en la vida sería
+   pagar una dependencia nueva —y una que puede caerse— por nada. La pantalla
+   enseña el número y deja corregirlo.
+
+   Al subirlos, cambiar también la fecha: es lo que la pantalla enseña para
+   que quien mire sepa de cuándo son. */
+const CAMBIO_EN_PESOS = { MXN: 1, USD: 18.5, EUR: 21.8 };
+const CAMBIO_FECHA = "septiembre de 2026";
+
+/* Cuántas unidades de `a` vale una de `de`. Es lo que se enseña en la
+   pantalla y lo que se puede corregir a mano. */
+function tipoDeCambio(de, a) {
+  const d = CAMBIO_EN_PESOS[de], h = CAMBIO_EN_PESOS[a];
+  if (!d || !h) return 1;
+  return d / h;
+}
+
+/* ---- La conversión ----
+   Toca DOS campos y solo dos: lo que costó un talento y lo que llevas puesto
+   en él. Se buscó el resto —misiones, habilidades, proyectos, los informes—
+   y no hay más dinero guardado en ninguna parte: los informes suman estos
+   mismos dos campos al vuelo, así que se arreglan solos.
+
+   Se redondea a entero porque toda la app pinta los importes sin decimales
+   (`maximumFractionDigits: 0`): dejar 103.78 guardado y enseñar 104 haría que
+   una suma de diez talentos no cuadrara con la suma de lo que se ve. Y el
+   mínimo es 1 y no 0 para lo que costó: un talento de 15 pesos convertido a
+   euros da 0.69, y un talento comprado que pase a costar cero deja de
+   distinguirse de uno gratis —que es otra cosa, y la app la trata distinto—.
+
+   Devuelve cuántos importes tocó, que es lo que la pantalla dice después. */
+function convertirImportes(tasa) {
+  if (!(tasa > 0) || tasa === 1) return 0;
+  let n = 0;
+  (state.perks || []).forEach(p => {
+    if (p.cost > 0) { p.cost = Math.max(1, Math.round(p.cost * tasa)); n++; }
+    if (p.investedTotal > 0) { p.investedTotal = Math.max(1, Math.round(p.investedTotal * tasa)); n++; }
+  });
+  return n;
+}
 
 /* ================= La exigencia =================
    Cuánto aguanta una habilidad sin práctica antes de empezar a bajar, y a qué
@@ -755,6 +831,31 @@ function load() {
      importe que cambia de código solo lo lee como que la app perdió sus
      datos. */
   if (!MONEDAS[data.settings.moneda]) data.settings.moneda = MONEDA_POR_DEFECTO;
+  /* El idioma, con la misma regla que la moneda y por el mismo motivo: no se
+     adivina por el navegador. Alguien con el teléfono en inglés y la app en
+     español la tiene así porque la eligió, y un respaldo que se abre en otro
+     aparato no debería cambiar de idioma solo. Quien no ha elegido nunca lo
+     elige en la primera pantalla (ver `js/09c-region.js`).
+
+     `IDIOMA_POR_DEFECTO` sale de `js/00-idioma.js`, que carga antes que este
+     archivo. Se comprueba que exista porque este mismo archivo lo carga
+     también la puerta, y ahí conviene no dar nada por hecho. */
+  if (typeof IDIOMAS !== "undefined" && !IDIOMAS[data.settings.idioma])
+    data.settings.idioma = (typeof IDIOMA !== "undefined") ? IDIOMA : IDIOMA_POR_DEFECTO;
+  /* Si ya se contestó la pantalla de idioma y moneda (`js/09c-region.js`).
+     Quien YA tiene datos no la ve nunca: eligió español y pesos por omisión el
+     día que empezó, y sacarle una pantalla de bienvenida a alguien con seis
+     meses de progreso dentro no es darle una opción nueva, es hacerle pensar
+     que la app se reinició.
+
+     Se mira si hay algo dentro y no `schemaVersion` ni una fecha: es la única
+     señal que no depende de por dónde entró esta persona. Un perfil vacío de
+     verdad —recién creado, o recién borrado desde la zona de peligro— sí la
+     ve, y en los dos casos es lo correcto. */
+  if (data.settings.regionLista === undefined) {
+    data.settings.regionLista = (data.skills.length + data.perks.length +
+      data.projects.length + data.missions.length) > 0;
+  }
   /* Igual que la moneda: un valor que no existe —de una versión más nueva o
      de un respaldo editado a mano— cae al punto medio en vez de dejar sin
      valores por defecto a la siguiente habilidad que se cree. */
@@ -1365,6 +1466,7 @@ const CAPAS_QUE_TAPAN = [
   "#ncel.show",             // subir de nivel de expedición
   "#fs-overlay.show",       // una rama a pantalla completa
   "#portada",               // entrar a la app
+  "#region",                // elegir idioma y moneda la primera vez
   "#compra.show",           // volver de pagar
   ".futuro-aviso",          // datos de una versión más nueva
   "#carga:not(.oculta)"     // esperando

@@ -789,7 +789,7 @@ function fechaCorta(iso) {
     const d = new Date(iso);
     const opciones = { day: "numeric", month: "long" };
     if (d.getFullYear() !== new Date().getFullYear()) opciones.year = "numeric";
-    return d.toLocaleDateString("es-MX", opciones);
+    return d.toLocaleDateString(localeActual(), opciones);
   } catch (e) {
     return "";
   }

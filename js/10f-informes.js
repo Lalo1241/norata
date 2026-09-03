@@ -313,7 +313,7 @@ function variacion(ahora, antes, opciones) {
 /* Miles con separador, sin decimales. `fmtXp` ya existe pero abrevia a "1.2k",
    que en una flecha de comparación se lee peor que el número entero. */
 function fmtNumero(n) {
-  return new Intl.NumberFormat("es-MX").format(Math.round(n));
+  return new Intl.NumberFormat(localeActual()).format(Math.round(n));
 }
 
 /* El HTML de una flecha, para el renglón de una estadística del panel.

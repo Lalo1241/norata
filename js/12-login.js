@@ -24,6 +24,18 @@
  * sin cuenta (ver el final de `11-arranque.js`). Entre las dos no hay más
  * caminos que esos dos, a propósito. */
 
+/* El idioma en la puerta. Sale del espejo de `localStorage`, que es
+   exactamente para lo que existe: aquí no hay `state` —la puerta no carga el
+   progreso de nadie— y aun así hay que hablarle a la gente en el idioma que
+   eligió. Quien nunca ha entrado verá español, que es lo correcto: todavía no
+   ha elegido, y la pantalla donde se elige está al otro lado.
+
+   Va lo primero y fuera del `async`, antes de pintar nada, por lo mismo que
+   el modo claro se aplica en el script de arriba de `index.html`: traducir
+   después de pintar es lo que hace parpadear la pantalla. */
+document.documentElement.setAttribute("lang", IDIOMAS[idiomaActual()].lang);
+traducirDOM();
+
 (async () => {
   /* Si ya hay sesión, aquí no se pinta nada: se pasa de largo. Pasa más de lo
      que parece —el enlace del correo, un marcador viejo, el botón de atrás— y

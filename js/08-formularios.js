@@ -492,7 +492,7 @@ function renderPerkTipo() {
      elegir USD, este rótulo tiene que cambiar con ella o estaría pidiendo
      pesos para guardar dólares. */
   const cod = monedaActual();
-  document.getElementById("p-cost-lbl").textContent = t.pideImporte ? "Cuánto costó (" + cod + ")" : "Costo (" + cod + ", opcional)";
+  document.getElementById("p-cost-lbl").textContent = t.pideImporte ? T`Cuánto costó (${cod})` : T`Costo (${cod}, opcional)`;
   document.getElementById("p-cost-hint").textContent = t.pideImporte
     ? "Obligatorio: una compra es una llave que se paga."
     : "Si la meta te costó dinero, anótalo aquí.";

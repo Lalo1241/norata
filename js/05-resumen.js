@@ -38,7 +38,7 @@ function renderSummary() {
      Se escribe ANTES del caso vacío a propósito: un perfil recién creado no
      tiene tablero que pintar, pero sí tiene día, y esa pantalla es justo la
      que más agradece que alguien la salude. */
-  const dateTxt = keyToDate(todayKey()).toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
+  const dateTxt = keyToDate(todayKey()).toLocaleDateString(localeActual(), { weekday: "long", day: "numeric", month: "long" });
   const elSaludo = document.getElementById("resumen-saludo");
   if (elSaludo) elSaludo.textContent = greeting() + " · " + dateTxt;
 
