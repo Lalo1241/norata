@@ -28,9 +28,10 @@ const ASSETS = [
      del catálogo saldría gris para quien nunca se haya bajado un mundo, que es
      todo el mundo la primera vez que abre esa pantalla. */
   "./css/muestras.css",
+  "./js/00-idioma.js", "./js/00b-textos-en.js",
   "./js/01-base.js", "./js/02-progreso.js", "./js/02b-expedicion.js", "./js/03-talentos.js",
   "./js/04-misiones.js", "./js/05-resumen.js", "./js/06-detalle.js",
-  "./js/07-lienzo.js", "./js/08-formularios.js", "./js/09-inicio.js",
+  "./js/07-lienzo.js", "./js/08-formularios.js", "./js/09-inicio.js", "./js/09c-region.js",
   "./js/10-fusion.js", "./js/10-sincronia.js", "./js/10a-perfil.js", "./js/10b-supabase.js", "./js/10c-portada.js", "./js/10d-plan.js", "./js/10e-panel.js", "./js/10f-informes.js", "./js/10g-informe.js", "./js/10h-lecturas.js",
   "./js/10i-apariencia.js",
   "./js/11-arranque.js", "./js/12-login.js",

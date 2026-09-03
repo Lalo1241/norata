@@ -125,16 +125,16 @@ function renderOnboarding() {
   const steps = [
     () => `
       <div class="ob-q">
-        <div class="ob-num">Pregunta 1 de 3</div>
-        <h2>¿Qué partes de tu vida quieres mejorar?</h2>
-        <p class="settings-note">Elige de una a tres. Con eso armo tus primeras habilidades, misiones y ramas — después puedes cambiar todo.</p>
+        <div class="ob-num">${tx("Pregunta 1 de 3")}</div>
+        <h2>${tx("¿Qué partes de tu vida quieres mejorar?")}</h2>
+        <p class="settings-note">${tx("Elige de una a tres. Con eso armo tus primeras habilidades, misiones y ramas — después puedes cambiar todo.")}</p>
         <div class="ob-areas">
           ${ONBOARD_AREAS.map(a => `
             <button class="ob-area ${onboardPick.areas.includes(a.id) ? "on" : ""}" style="${tonos("oc", a.color)}" onclick="toggleArea('${a.id}')">
               <span class="oa-ic">${icon(a.icon, 22)}</span>
               <span class="oa-tx">
-                <b>${a.label}</b>
-                <span>${a.skills.join(" · ")}</span>
+                <b>${tx(a.label)}</b>
+                <span>${a.skills.map(n => tx(n)).join(" · ")}</span>
               </span>
               <span class="oa-check">${icon("check", 15)}</span>
             </button>`).join("")}
@@ -142,31 +142,31 @@ function renderOnboarding() {
       </div>`,
     () => `
       <div class="ob-q">
-        <div class="ob-num">Pregunta 2 de 3</div>
-        <h2>¿Qué tan exigente lo quieres?</h2>
-        <p class="settings-note">Esto define cuánto tiempo puedes dejar una habilidad sin practicar antes de que empiece a bajar.</p>
+        <div class="ob-num">${tx("Pregunta 2 de 3")}</div>
+        <h2>${tx("¿Qué tan exigente lo quieres?")}</h2>
+        <p class="settings-note">${tx("Esto define cuánto tiempo puedes dejar una habilidad sin practicar antes de que empiece a bajar.")}</p>
         <div class="ob-pace">
           ${Object.values(EXIGENCIAS).map(p => `
             <button class="ob-pace-opt ${onboardPick.pace === p.id ? "on" : ""}" onclick="pickPace('${p.id}')">
               <span class="op-ic" data-r="${p.id}">${icon(p.icono, 20)}</span>
-              <span class="op-tx"><b>${p.nombre}</b><span>${p.dicho}</span></span>
+              <span class="op-tx"><b>${tx(p.nombre)}</b><span>${tx(p.dicho)}</span></span>
             </button>`).join("")}
         </div>
       </div>`,
     () => `
       <div class="ob-q">
-        <div class="ob-num">Pregunta 3 de 3</div>
-        <h2>¿Hay algo que estés construyendo ahora?</h2>
-        <p class="settings-note">Un proyecto con etapas: mudarte, lanzar algo, terminar un trámite. Si no hay nada, puedes saltarlo.</p>
+        <div class="ob-num">${tx("Pregunta 3 de 3")}</div>
+        <h2>${tx("¿Hay algo que estés construyendo ahora?")}</h2>
+        <p class="settings-note">${tx("Un proyecto con etapas: mudarte, lanzar algo, terminar un trámite. Si no hay nada, puedes saltarlo.")}</p>
         <label class="field">
-          <span>Nombre del proyecto (opcional)</span>
-          <input type="text" id="ob-project" placeholder="Ej. Renovar mi cuarto" maxlength="60" value="${escapeAttr(onboardPick.project)}">
+          <span>${tx("Nombre del proyecto (opcional)")}</span>
+          <input type="text" id="ob-project" placeholder="${escapeAttr(tx("Ej. Renovar mi cuarto"))}" maxlength="60" value="${escapeAttr(onboardPick.project)}">
         </label>
         ${ideasDeProyecto().length ? `
-          <p class="settings-note ob-ideas-tit">O toca una de estas</p>
+          <p class="settings-note ob-ideas-tit">${tx("O toca una de estas")}</p>
           <div class="ob-ideas">
-            ${ideasDeProyecto().map(t => `
-              <button type="button" class="ob-idea" onclick="usarIdea('${enJS(t)}')">${escapeHtml(t)}</button>`).join("")}
+            ${ideasDeProyecto().map(idea => `
+              <button type="button" class="ob-idea" onclick="usarIdea('${enJS(tx(idea))}')">${escapeHtml(tx(idea))}</button>`).join("")}
           </div>` : ""}
       </div>`
   ];
@@ -175,9 +175,9 @@ function renderOnboarding() {
   el.innerHTML = `
     ${steps[onboardStep]()}
     <div class="ob-nav">
-      ${onboardStep > 0 ? `<button class="btn btn-ghost" onclick="obBack()">Atrás</button>` : `<button class="btn btn-ghost" onclick="showView('summary')">Cancelar</button>`}
+      ${onboardStep > 0 ? `<button class="btn btn-ghost" onclick="obBack()">${tx("Atrás")}</button>` : `<button class="btn btn-ghost" onclick="showView('summary')">${tx("Cancelar")}</button>`}
       <button class="btn btn-primary" onclick="obNext()" ${canNext ? "" : "disabled"}>
-        ${onboardStep === 2 ? "Armar mi tablero" : "Siguiente"}
+        ${onboardStep === 2 ? tx("Armar mi tablero") : tx("Siguiente")}
       </button>
     </div>
     <div class="ob-dots">${[0, 1, 2].map(i => `<i class="${i === onboardStep ? "on" : ""}"></i>`).join("")}</div>`;
@@ -264,11 +264,17 @@ function buildFromOnboarding() {
        en vez de duplicarla. */
     let skill = null;
     a.skills.forEach((nombre, j) => {
-      const yaEsta = state.skills.find(s => s.name.toLowerCase() === nombre.toLowerCase());
+      /* El nombre que se GUARDA se traduce; el que se BUSCA, no. El catálogo
+         (`SKILL_CATALOG`) está escrito en español y es quien decide icono y
+         color, así que buscar por el nombre inglés no encontraría nada y
+         "Reading" nacería con el icono genérico del área. Son dos cosas
+         distintas: una clave interna y un rótulo. */
+      const rotulo = tx(nombre);
+      const yaEsta = state.skills.find(s => s.name.toLowerCase() === rotulo.toLowerCase());
       if (yaEsta) { if (j === 0) skill = yaEsta; return; }
       const cat = SKILL_CATALOG.find(x => x.n === nombre);
       const nueva = {
-        id: uid(), name: nombre,
+        id: uid(), name: rotulo,
         category: cat ? cat.c : "General",
         icon: cat ? cat.i : a.icon,
         color: cat ? cat.k : a.color,
@@ -281,7 +287,7 @@ function buildFromOnboarding() {
     if (!skill) skill = state.skills[0];
 
     state.missions.push({
-      id: uid(), name: a.mission.name, desc: "", icon: a.mission.icon, color: a.color,
+      id: uid(), name: tx(a.mission.name), desc: "", icon: a.mission.icon, color: a.color,
       cadence: "daily", days: [], target: 1,
       skillId: skill.id, xp: a.mission.xp, log: {}, archived: false, completedAt: null,
       createdAt: today
@@ -294,15 +300,20 @@ function buildFromOnboarding() {
        Antes era UN talento suelto por área, y una rama con un solo nodo en
        medio del lienzo no se lee como un comienzo: se lee como un error. */
     let anterior = null;
-    a.perks.forEach(t => {
+    /* `nodo` y no `t`: `t` era el nombre de esta variable y desde que existe
+       el motor de idiomas hay una función global que se llama `tx` —con una
+       variable local llamada igual, la traducción de aquí dentro habría
+       reventado en silencio—. */
+    a.perks.forEach(paso => {
+      const rama = tx(a.branch);
       const nodo = {
-        id: uid(), name: t.name, branch: a.branch, desc: "",
-        tipo: t.tipo, cost: 0, planDays: t.days, steps: [],
-        skillId: skill.id, xpReward: t.xp, requiere: anterior ? [anterior] : [], modo: "todos",
-        icon: t.icon, color: a.color,
+        id: uid(), name: tx(paso.name), branch: rama, desc: "",
+        tipo: paso.tipo, cost: 0, planDays: paso.days, steps: [],
+        skillId: skill.id, xpReward: paso.xp, requiere: anterior ? [anterior] : [], modo: "todos",
+        icon: paso.icon, color: a.color,
         status: null, startDate: null, endDate: null, completedAt: null,
         investedTotal: 0, progress: 0, createdAt: today,
-        history: [{ date: today, at: stamp(), event: `Talento creado en la rama ${a.branch}` }]
+        history: [{ date: today, at: stamp(), event: T`Talento creado en la rama ${rama}` }]
       };
       state.perks.push(nodo);
       anterior = nodo.id;
@@ -312,23 +323,25 @@ function buildFromOnboarding() {
   if (onboardPick.project) {
     const first = areas[0];
     state.projects.push({
-      id: uid(), name: onboardPick.project, branch: "Personal",
+      id: uid(), name: onboardPick.project, branch: tx("Personal"),
       icon: "flag", color: first ? first.color : COLORS[0],
       desc: "", status: "active",
       steps: [
-        { id: uid(), name: "Definir qué significa terminarlo", done: false, at: null },
-        { id: uid(), name: "Primer paso concreto", done: false, at: null },
-        { id: uid(), name: "Revisar avance", done: false, at: null }
+        { id: uid(), name: tx("Definir qué significa terminarlo"), done: false, at: null },
+        { id: uid(), name: tx("Primer paso concreto"), done: false, at: null },
+        { id: uid(), name: tx("Revisar avance"), done: false, at: null }
       ],
       skillId: first ? state.skills[0].id : null, xpReward: 250,
       createdAt: today, lastActivity: today, completedAt: null,
-      history: [{ date: today, at: stamp(), event: "Proyecto creado desde la bienvenida" }]
+      history: [{ date: today, at: stamp(), event: tx("Proyecto creado desde la bienvenida") }]
     });
   }
 
   save();
   showView("summary");
-  celebrate("Tu tablero está listo", `${areas.length} área${areas.length === 1 ? "" : "s"} para empezar`, "#5fe0b0", "compass");
+  celebrate(tx("Tu tablero está listo"),
+    areas.length === 1 ? T`${areas.length} área para empezar` : T`${areas.length} áreas para empezar`,
+    "#5fe0b0", "compass");
   // Después de la celebración, no encima de ella
   quizaTutorial(2600);
 }
@@ -414,6 +427,22 @@ function arrancarTutorial() {
    `tutorialVisto` hace que no se repita, y cubren el caso de llegar a esos
    caminos sin haber pasado por aquí. */
 function quizaTutorialDeEntrada() {
+  /* Idioma y moneda van ANTES que el tutorial, y por eso se enganchan aquí y
+     no en el arranque: esta función es el embudo por el que pasan los TRES
+     caminos de entrada —abrir la app ya dentro, entrar desde la puerta, y
+     seguir sin cuenta—, y el arranque solo cubre el primero. Enganchado allí,
+     quien se creaba una cuenta —que es justo el recién llegado al que hay que
+     preguntarle— no veía nunca la pantalla.
+
+     Va delante de la guarda del tutorial a propósito: son dos cosas distintas
+     y haber visto una no contesta la otra. Al cerrarse, la pantalla vuelve a
+     llamar aquí y entonces sí sale el tutorial, ya en el idioma elegido. */
+  if (typeof regionHaceFalta === "function" && regionHaceFalta()) {
+    if (document.getElementById("portada") || document.querySelector(".futuro-aviso")) return;
+    if (typeof cargaVisible === "function" && cargaVisible()) return;
+    mostrarPantallaRegion();
+    return;
+  }
   if (state.ui && state.ui.tutorialVisto) return;
   if (document.getElementById("portada") || document.querySelector(".futuro-aviso")) return;
   if (typeof cargaVisible === "function" && cargaVisible()) return;
@@ -994,7 +1023,7 @@ function renderAjustes() {
     <button class="aj-item ${ajusteAbierto === sec.id ? "on" : ""} ${sec.tono ? "t-" + sec.tono : ""}"
       onclick="mostrarAjuste('${sec.id}')">
       <span class="aj-ic">${icon(sec.icon, 17)}</span>
-      <span class="aj-tx"><b>${escapeHtml(sec.nombre)}</b><span>${escapeHtml(sec.sub)}</span></span>
+      <span class="aj-tx"><b>${escapeHtml(tx(sec.nombre))}</b><span>${escapeHtml(tx(sec.sub))}</span></span>
       <span class="aj-chev" aria-hidden="true">›</span>
     </button>`).join("");
 
@@ -1020,11 +1049,19 @@ function renderAjustes() {
   /* La exigencia se dibuja al abrir «Mi perfil», que es donde vive desde que
      dejó de ser sección propia: quien viene a cambiarla viene a cambiar algo
      suyo, y ahí es donde están las otras cosas suyas. */
-  if (ajusteAbierto === "cuenta") renderPanelRitmo();
+  if (ajusteAbierto === "cuenta") {
+    renderPanelRitmo();
+    /* Con `typeof` porque `js/09c-region.js` carga DESPUÉS que este
+       archivo, y el service worker puede servir un index.html viejo con
+       un JavaScript nuevo durante una carga (ver la nota de los iconos
+       en `js/11-arranque.js`). */
+    if (typeof renderPanelIdioma === "function") renderPanelIdioma();
+    if (typeof renderPanelMoneda === "function") renderPanelMoneda();
+  }
 
   const abierta = seccionesAjustes().find(x => x.id === ajusteAbierto);
   const titulo = document.getElementById("ajustes-titulo");
-  if (titulo) titulo.textContent = (!escritorio && abierta) ? abierta.nombre : "Ajustes";
+  if (titulo) titulo.textContent = (!escritorio && abierta) ? tx(abierta.nombre) : tx("Ajustes");
 }
 
 /* ================= Mi exigencia =================
@@ -1043,7 +1080,7 @@ function renderPanelRitmo() {
   wrap.innerHTML = `<div class="ob-pace">${Object.values(EXIGENCIAS).map(p => `
     <button class="ob-pace-opt ${actual.id === p.id ? "on" : ""}" onclick="ponerExigencia('${p.id}')">
       <span class="op-ic" data-r="${p.id}">${icon(p.icono, 20)}</span>
-      <span class="op-tx"><b>${p.nombre}</b><span>${p.dicho}</span></span>
+      <span class="op-tx"><b>${tx(p.nombre)}</b><span>${tx(p.dicho)}</span></span>
     </button>`).join("")}</div>`;
 
   /* Solo las que decaen: una habilidad blindada no pierde XP nunca, así que
@@ -1448,7 +1485,7 @@ function renderTimezone() {
   const now = new Date();
   let hora = "";
   try {
-    hora = now.toLocaleTimeString("es-MX", { timeZone: cur, hour: "2-digit", minute: "2-digit" });
+    hora = now.toLocaleTimeString(localeActual(), { timeZone: cur, hour: "2-digit", minute: "2-digit" });
   } catch (e) { hora = "—"; }
   document.getElementById("tz-hint").textContent = `Ahí son las ${hora}. Tu día en la app: ${formatDate(todayKey())}.`;
 }

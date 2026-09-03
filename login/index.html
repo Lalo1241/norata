@@ -91,6 +91,12 @@
      El ORDEN importa igual que en `index.html`, y `12-login.js` va el último
      porque es el que arranca. Al tocar esta lista hay que tocar también los
      ASSETS de `sw.js`. -->
+<!-- La puerta también habla el idioma elegido: lo lee del espejo de
+     localStorage, que es justo para lo que existe (aquí no hay `state`).
+     Ninguno de los dos ejecuta nada al cargarse, que es la condición para
+     poder estar aquí —ver CLAUDE.md, «No hay compilación». -->
+<script defer src="../js/00-idioma.js"></script>
+<script defer src="../js/00b-textos-en.js"></script>
 <script defer src="../js/01-base.js"></script>
 <script defer src="../js/10-sincronia.js"></script>
 <script defer src="../js/10a-perfil.js"></script>

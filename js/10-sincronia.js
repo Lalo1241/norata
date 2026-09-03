@@ -141,7 +141,7 @@ function syncCount(s) {
 function syncFecha(iso) {
   if (!iso) return null;
   try {
-    return new Date(iso).toLocaleString("es-MX", {
+    return new Date(iso).toLocaleString(localeActual(), {
       timeZone: userTZ(), day: "numeric", month: "short",
       hour: "2-digit", minute: "2-digit"
     });
@@ -192,7 +192,16 @@ function renderCopias() {
 
   cont.innerHTML = copias.map(c => {
     const cuando = c.ms ? syncFecha(new Date(c.ms).toISOString()) : null;
-    const de = c.lado === "remoto" ? "la versión del otro dispositivo" : "la versión de este dispositivo";
+    /* El nombre dice de dónde salió la copia. Con un solo ternario, la que
+       guarda un cambio de moneda decía "se apartó la versión de este
+       dispositivo" —cierto y no dice nada—: quien viene a restaurarla viene
+       porque el tipo de cambio estaba mal, y tiene que reconocerla. */
+    const DE_DONDE = {
+      remoto: "la versión del otro dispositivo",
+      local: "la versión de este dispositivo",
+      moneda: "lo que había antes de cambiar de moneda"
+    };
+    const de = DE_DONDE[c.lado] || DE_DONDE.local;
     return `
       <div class="copia-item">
         <div class="copia-info">
@@ -379,7 +388,7 @@ function renderSync() {
     let cuando = "";
     if (sync.lastAt) {
       try {
-        cuando = " · última vez " + new Date(sync.lastAt).toLocaleString("es-MX", {
+        cuando = " · última vez " + new Date(sync.lastAt).toLocaleString(localeActual(), {
           timeZone: userTZ(), day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"
         });
       } catch (e) {}
@@ -703,7 +712,7 @@ async function borrarCuenta() {
 function fechaLarga(iso) {
   if (!iso) return null;
   try {
-    return new Date(iso).toLocaleDateString("es-MX", {
+    return new Date(iso).toLocaleDateString(localeActual(), {
       timeZone: userTZ(), day: "numeric", month: "long", year: "numeric"
     });
   } catch (e) { return null; }
@@ -745,7 +754,7 @@ function enJS(str) {
 
 function formatDate(key) {
   if (!key) return "—";
-  return keyToDate(key).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" });
+  return keyToDate(key).toLocaleDateString(localeActual(), { day: "numeric", month: "short", year: "numeric" });
 }
 
 function stamp() { return new Date().toISOString(); }
@@ -756,10 +765,10 @@ function formatWhen(e) {
     const d = new Date(e.at);
     const tz = userTZ();
     try {
-      return d.toLocaleDateString("es-MX", { timeZone: tz, day: "numeric", month: "short", year: "numeric" }) +
-        " · " + d.toLocaleTimeString("es-MX", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
+      return d.toLocaleDateString(localeActual(), { timeZone: tz, day: "numeric", month: "short", year: "numeric" }) +
+        " · " + d.toLocaleTimeString(localeActual(), { timeZone: tz, hour: "2-digit", minute: "2-digit" });
     } catch (err) {
-      return d.toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" });
+      return d.toLocaleDateString(localeActual(), { day: "numeric", month: "short", year: "numeric" });
     }
   }
   return formatDate(e.date);

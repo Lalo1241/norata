@@ -4,6 +4,16 @@
 /* Que ninguna ventana deje moverse a la app de detrás. Se enciende aquí, con
    el marcado ya entero: la vigilancia se cuelga de los hijos del <body>, y
    arrancarla antes solo vigilaría a la mitad. */
+/* El idioma, lo PRIMERO de todo y antes de dibujar un solo píxel. Junta el
+   dato (`state.settings.idioma`, que viaja con la cuenta) con el espejo de
+   este navegador, y traduce el texto que `index.html` trae escrito a mano.
+
+   Antes de `vigilarCapas()` y de cualquier `render`: traducir después de
+   pintar es lo que hace que la app aparezca un instante en español y salte al
+   inglés —el mismo fogonazo que el modo claro resuelve en el script de arriba
+   de `index.html`—. */
+sincronizarIdioma();
+
 vigilarCapas();
 
 /* La apariencia. El atributo ya lo puso el script de arriba de `index.html`

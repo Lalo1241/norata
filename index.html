@@ -758,6 +758,24 @@
           <!-- La exigencia vive aquí y no en una sección propia: quien viene a
                cambiarla viene a cambiar algo SUYO, y aquí es donde están las
                otras cosas suyas. Lo dibuja `renderPanelRitmo`. -->
+          <!-- El idioma y la moneda viven aquí por lo mismo que la exigencia:
+               son cosas TUYAS, no de la app. Y van juntas y en este orden
+               porque juntas se preguntan la primera vez —ver la pantalla de
+               `js/09c-region.js`—: quien viene a cambiar una se acuerda de
+               dónde vio la otra. -->
+          <div class="panel">
+            <h3>Idioma</h3>
+            <p class="settings-note">En qué idioma te habla Norata. Cambiarlo no toca nada de lo que has escrito tú: tus habilidades, misiones y talentos se quedan como los nombraste.</p>
+            <div id="idioma-opciones"></div>
+          </div>
+
+          <div class="panel">
+            <h3>Moneda</h3>
+            <p class="settings-note">Con la que se escribe lo que te cuesta un talento y lo que llevas invertido. Al cambiarla te pregunto el tipo de cambio y convierto tus importes —guardando antes una copia—.</p>
+            <div id="moneda-opciones"></div>
+            <div id="moneda-cambio"></div>
+          </div>
+
           <div class="panel">
             <h3>Qué tan exigente lo quieres</h3>
             <p class="settings-note">Cuánto aguanta una habilidad sin que la practiques antes de empezar a bajar, y a qué ritmo baja. Es lo que eliges al armar tu tablero, y aquí se cambia cuando quieras.</p>
@@ -1089,6 +1107,12 @@
 
 <div id="toast"></div>
 
+<!-- El motor de idiomas va el PRIMERO de todos, antes que 01-base: ese
+     archivo ya llama a `IDIOMA_POR_DEFECTO` al normalizar los ajustes.
+     El diccionario inglés va detrás del motor pero da igual cuándo llegue:
+     se consulta al dibujar, no al cargarse. -->
+<script defer src="js/00-idioma.js"></script>
+<script defer src="js/00b-textos-en.js"></script>
 <script defer src="js/01-base.js"></script>
 <script defer src="js/02-progreso.js"></script>
 <script defer src="js/02b-expedicion.js"></script>
@@ -1099,6 +1123,7 @@
 <script defer src="js/07-lienzo.js"></script>
 <script defer src="js/08-formularios.js"></script>
 <script defer src="js/09-inicio.js"></script>
+<script defer src="js/09c-region.js"></script>
 <script defer src="js/10-fusion.js"></script>
 <script defer src="js/10-sincronia.js"></script>
 <script defer src="js/10a-perfil.js"></script>

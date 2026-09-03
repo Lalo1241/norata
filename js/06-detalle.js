@@ -21,7 +21,7 @@ function renderMissions() {
 
   const { due, done, pct } = todayMissionStats();
   const pending = due.filter(m => !missionDone(m, key));
-  const dayName = keyToDate(key).toLocaleDateString("es-MX", { weekday: "long" });
+  const dayName = keyToDate(key).toLocaleDateString(localeActual(), { weekday: "long" });
 
   const card = (m) => {
     const guardada = !!m.archived;

@@ -550,6 +550,7 @@
     --piso-pruebas: 7500;  /* el marco de "cuenta de pruebas" */
     --piso-ejemplo: 7600;  /* el rótulo de "estás viendo un ejemplo" */
     --piso-rotulo-prueba: 7700; /* "esta pestaña está en modo prueba" */
+    --piso-region: 7900;   /* elegir idioma y moneda, la primera vez */
     --piso-portada: 8000;  /* entrar a la app */
     --piso-compra: 8200;   /* volver de pagar: tapa la app, no los avisos */
     --piso-brindis: 8500;  /* los avisos de abajo, encima de todo lo anterior */
@@ -7731,6 +7732,84 @@
   .futuro-card h3 { margin: 0 0 12px; font-size: 18px; }
   .futuro-card p { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: var(--muted); }
   .futuro-card .stack { margin-top: 18px; }
+
+  /* ============ Idioma y moneda ============
+     Los botones de elegir son los del ritmo del asistente (`.ob-pace-opt`) y
+     no se redefinen: aquí solo se viste el hueco del icono, que en el ritmo
+     lleva un dibujo y aquí lleva dos letras o una bandera. */
+
+  /* Las dos letras del idioma. Van con la misma caja de 36 que los iconos del
+     ritmo para que las dos listas se lean a la misma altura, y con el mismo
+     menta apagado del ritmo recomendado —ni celeste ni coral: elegir idioma
+     no es ni relajarse ni arriesgarse—. */
+  .rg-ic {
+    font-size: 12.5px; font-weight: 700; letter-spacing: 0.4px;
+    color: var(--mint); background: var(--mint-soft);
+  }
+  /* La bandera trae su propio color, así que el hueco es solo un marco: con
+     el fondo menta de las letras, la bandera mexicana se leía como parte del
+     mismo dibujo. */
+  .rg-bandera { background: var(--sup-panel); border: var(--borde-fino) solid var(--line); }
+  .bnd { display: block; }
+
+  /* El bloque que se abre al elegir otra moneda. Va hundido y no levantado:
+     no es una tarjeta encima del panel, es un pliegue dentro de él —lo que
+     se está mirando sigue siendo la lista de arriba—. */
+  .rg-cambio {
+    margin-top: 14px; padding: 15px;
+    border-radius: var(--r-caja);
+    background: var(--sup-hondo);
+    border: var(--borde-fino) solid var(--line);
+  }
+  .rg-cambio h4 { margin: 0 0 8px; font-size: 14.5px; }
+  .rg-cambio .field { margin-top: 12px; margin-bottom: 0; }
+
+  /* El antes y el después. En fila y con la flecha en medio porque es una
+     transformación, no dos datos: en dos renglones se lee como una lista de
+     dos importes sueltos y hay que averiguar cuál es cuál. Se envuelve en
+     pantalla estrecha —dos importes con su código no caben en 320 px—. */
+  .rg-muestra {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    margin-top: 12px; font-size: 15px;
+  }
+  .rg-muestra b { font-variant-numeric: tabular-nums; }
+  .rg-flecha { color: var(--muted); font-size: 15px; }
+  .rg-mal { color: var(--fire); font-size: 13px; }
+
+  /* ---- La pantalla de la primera vez ----
+     Se desplaza por dentro y no por la página: con las dos preguntas puestas
+     mide más que una pantalla de teléfono tumbado, y el `inset: 0` de la capa
+     dejaría el botón de seguir fuera del alcance para siempre.
+
+     Y se centra con `margin: auto` sobre la tarjeta, NO con `align-items:
+     center` en la capa: centrando así, un hijo más alto que el contenedor
+     pierde su parte de arriba y el desplazamiento no llega a negativos (ver
+     CLAUDE.md, «Trampas que ya costaron horas»). */
+  .region-capa {
+    position: fixed; inset: 0; z-index: var(--piso-region);
+    display: flex; overflow-y: auto;
+    padding: 22px;
+    background: var(--fondo-pagina);
+  }
+  .region-card {
+    margin: auto; width: 100%; max-width: 440px;
+    padding: 26px 24px;
+    border-radius: var(--r-grande);
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--line); border-image: var(--marco-tarjeta);
+  }
+  .region-card h2 { margin: 0 0 6px; font-size: 21px; font-family: var(--tipo-titulo); }
+  .region-card > .settings-note { margin: 0 0 4px; }
+  .region-card .bubble { margin-bottom: 14px; }
+  .region-bloque { margin-top: 22px; }
+  .region-bloque h3 { margin: 0 0 4px; font-size: 15px; }
+  .region-bloque .settings-note { margin: 0 0 10px; }
+  .region-bloque .ob-pace { margin-top: 10px; }
+
+  @media (max-width: 420px) {
+    .region-capa { padding: 14px; }
+    .region-card { padding: 20px 16px; }
+  }
 
   /* Estado de la sincronía: un punto de color dice más rápido que un párrafo
      si tus datos están a salvo en otro lado o solo viven en este aparato. */
