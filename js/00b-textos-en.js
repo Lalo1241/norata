@@ -234,10 +234,14 @@ const TEXTOS_EN = {
   "Es una referencia de {0}. Si sabes el tuyo, escríbelo.":
     "This is a reference rate from {0}. If you know yours, type it in.",
   "Convertir mis importes a {0}": "Convert my amounts to {0}",
+  "Cambio del {0}, según {1}. Puedes escribir el tuyo.":
+    "Rate from {0}, according to {1}. You can type your own.",
+  "Último cambio que pude conseguir, del {0}. Puedes escribir el tuyo.":
+    "The most recent rate I could get, from {0}. You can type your own.",
   /* `CAMBIO_FECHA` (js/01-base.js). Al subir los tipos de cambio hay que
      cambiar esta línea también, o la app en inglés dirá la fecha en español
      dentro de una frase inglesa —que es justo como salió la primera vez. */
-  "septiembre de 2026": "September 2026",
+  "3 de septiembre de 2026": "3 September 2026",
   "Listo: {0} {1} a {2}": "Done: {0} {1} to {2}",
 
   /* ---------- El asistente: las tres preguntas ---------- */

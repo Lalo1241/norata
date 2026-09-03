@@ -325,3 +325,84 @@ avisos empiezan a rebotar con 400, mirar eso primero.
 Los avisos no llegan en orden y se reintentan durante tres días. Un «se
 canceló» que llega tarde dejaría cancelada una suscripción viva. Volver a
 preguntar cuesta una llamada y hace que el orden deje de importar.
+
+## El tipo de cambio (`tipos-de-cambio.sql` + la función `cambio`)
+
+Cuando alguien cambia de moneda en Ajustes, Norata **reescribe los importes
+que esa persona escribió a mano**: lo que costó cada talento y lo que lleva
+invertido. Ese número se queda guardado y ya no hay de dónde recalcularlo, así
+que un tipo de cambio malo no es un error que se ve un rato — es un error
+permanente en el diario de alguien.
+
+Hasta la 0.7.75 el cambio era una tabla escrita en `js/01-base.js` que solo
+cambiaba si alguien se acordaba de subirla al publicar. La primera versión de
+esa tabla decía que el dólar estaba a 18,50 y el euro a 21,80; los dos
+proveedores consultados daban 17,0 y 19,7. Un 9% y un 11% metido para siempre
+en los importes de quien convirtiera. Esto quita de en medio el «si alguien se
+acuerda».
+
+### Los pasos, en orden
+
+1. **La tabla.** Pegar `tipos-de-cambio.sql` entero en el editor SQL. Es
+   idempotente. No hace falta sembrar ninguna fila: la crea la primera
+   llamada.
+
+2. **La función**, y el `--no-verify-jwt` no es un descuido:
+
+   ```
+   supabase functions deploy cambio --no-verify-jwt
+   ```
+
+   Norata se puede usar sin cuenta, y quien la usa así tiene el mismo derecho
+   a cambiar de moneda. Lo que devuelve son tres números públicos que no dicen
+   nada de nadie. **No lleva ningún secreto**: los dos proveedores son
+   gratuitos y sin llave.
+
+3. **Comprobarlo**, que se hace desde cualquier navegador sin sesión:
+
+   ```
+   curl https://<proyecto>.supabase.co/functions/v1/cambio -H "apikey: <la publicable>"
+   ```
+
+   Tiene que contestar `{"tasas":{"MXN":1,"USD":17.0,"EUR":19.7},"fecha":"…"}`
+   con números parecidos a esos. Y en la tabla:
+
+   ```sql
+   select base, tasas, fecha, fuente, actualizado from public.tipos_de_cambio;
+   ```
+
+### Cosas que no son obvias
+
+**Mientras no se despliegue no se rompe nada.** La app llama a una dirección
+que no existe, se traga el error y usa la tabla de referencia que lleva escrita
+en `js/01-base.js`, diciendo en pantalla que es una referencia y de cuándo es.
+Es el mismo trato que tiene la función `bienvenida`.
+
+**Y por eso esa tabla del código hay que seguir subiéndola de vez en cuando**,
+aunque la función exista: es lo que ve quien no tiene red. Se comprueba contra
+`open.er-api.com` o `api.frankfurter.dev` antes de escribirla, nunca de
+memoria. Y al subirla hay que cambiar la fecha en **dos** sitios: la constante
+`CAMBIO_FECHA` y su línea en el diccionario inglés (`js/00b-textos-en.js`), o
+la app en inglés dirá la fecha en español dentro de una frase inglesa.
+
+**Los números se validan tres veces, y no es paranoia de más.** Lo que sale de
+aquí multiplica el dinero guardado de la gente. Se comprueban al recibirlos del
+proveedor, al leerlos de la tabla y otra vez en la app; cualquiera de los tres
+que no cuadre hace caer al siguiente escalón en vez de servir un número raro.
+Un proveedor que un día devuelva `null`, una cadena o un cero no puede llegar a
+los datos de nadie.
+
+**La app no espera a esta llamada nunca.** La pantalla se pinta al momento con
+la tabla del código y el número se refina si la respuesta llega; y si para
+entonces la persona ya escribió el suyo, se queda el suyo. Una pantalla que
+tarda dos segundos en aparecer porque hay una petición detrás es peor que un
+número que se afina solo.
+
+**La tabla no tiene ninguna política de lectura, y es a propósito.** Podría
+parecer excesivo para tres números públicos: lo que se gana abriendo la lectura
+es nada —la app ya los recibe por la función, que además los valida— y lo que
+se pierde es el único cerco alrededor de una fila que multiplica dinero.
+
+**Son dos piezas nuevas que mantener.** Si algún día estorban, quitarlas es
+borrar la función y la tabla: la app vuelve sola a la tabla del código, sin
+tocar una línea.
