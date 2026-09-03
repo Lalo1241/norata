@@ -8599,6 +8599,28 @@
          48 px solo son aire al final. */
       padding: 40px 40px 88px;
     }
+
+    /* ---- Y el Resumen descuenta 21 px más ----
+       Los 150 de arriba están medidos contra una cabecera de 99 px, que es la
+       que tienen Misiones, Habilidades, Talentos y Proyectos. La del Resumen
+       mide 120 desde la 0.7.57: encima del título lleva el saludo y la fecha,
+       que son 18 px de línea más 3 de margen.
+
+       Con el mismo descuento que las otras cuatro, su cartel pedía 10 px más de
+       los que hay y aparecía una barra de desplazamiento que no servía para
+       nada — no había nada debajo que ver, solo movía de sitio lo que está en
+       el centro. Medido con el perfil vacío a 1440 x 900: las otras cuatro
+       daban cero de sobra y esta daba diez.
+
+       Y los 21 no son un número elegido a ojo para que cuadre: son exactamente
+       lo que creció esa cabecera. Si algún día el saludo se va de ahí, este
+       descuento se va con él y no antes.
+
+       Comprobado que deja el cartel donde lo dejaba el desplazamiento hasta
+       abajo, que es la altura que pidió Eduardo: el título caía en 393 con el
+       scroll al fondo y ahora cae en 392 sin scroll ninguno. */
+    #summary-content > .empty { min-height: calc(100vh - 171px); }
+
     .empty p { max-width: 46ch; }
 
     /* ---- Y las cinco a la misma altura, sin estarlo ----
