@@ -140,6 +140,96 @@ function elegirMonedaAjustes(cod) {
   pedirCambioDeMoneda(cod);
 }
 
+/* ================= El cambio del día =================
+
+   La tabla de `js/01-base.js` es la red de abajo; esto es la fuente. Se le
+   pide a la función `cambio` de Supabase, que consulta un servicio de divisas
+   y guarda lo último bueno (ver `supabase/functions/cambio/index.ts`).
+
+   Tres cosas que hacen que esto no pueda estropear nada:
+
+   1. **No se pide al arrancar.** Se pide al abrir el selector de moneda, que
+      es el único instante en que el número importa. La app sigue abriendo de
+      su propia copia sin tocar la red.
+   2. **No se espera a que llegue.** La pantalla se pinta al momento con la
+      tabla del código, y el número se sustituye si la respuesta llega. Una
+      pantalla que tarda dos segundos en aparecer porque hay una petición
+      detrás es peor que un número que se refina solo.
+   3. **Nunca pisa lo que alguien escribió.** Si la respuesta llega tarde y
+      para entonces ya tocaste el campo, se queda lo tuyo. Ver `tasaTocada`.
+
+   Se guarda para toda la sesión: abrir y cerrar el selector tres veces no son
+   tres viajes.
+
+   Y lo que se guarda es la PROMESA, no el resultado. Guardando el resultado,
+   dos aperturas seguidas —que es lo normal: se abre el selector, se cierra
+   con Cancelar, se vuelve a abrir— disparan dos viajes, porque el segundo
+   empieza antes de que el primero haya terminado de contestar. Se vio en la
+   traza de la prueba: dos peticiones para una sola pantalla. Con la promesa,
+   el segundo se cuelga del primero y solo sale un viaje. */
+let _cambioServidor = null;   // null = nadie ha preguntado; una promesa a partir de ahí
+
+function traerCambioDelServidor() {
+  if (_cambioServidor === null) _cambioServidor = pedirCambioAlServidor();
+  return _cambioServidor;
+}
+
+async function pedirCambioAlServidor() {
+  try {
+    /* Con tope, y corto: es un adorno que mejora un número que ya está
+       puesto. Pasados cuatro segundos, lo que hay en pantalla es lo bueno. */
+    const ctl = new AbortController();
+    const corte = setTimeout(() => ctl.abort(), 4000);
+    const res = await fetch(SB_URL + "/functions/v1/cambio", {
+      headers: { "apikey": SB_KEY },
+      signal: ctl.signal
+    });
+    clearTimeout(corte);
+    const b = await res.json().catch(() => null);
+    /* Se comprueba lo que llega antes de creérselo. Es lo mismo que hace la
+       función en el servidor, y se repite aquí a propósito: este número
+       multiplica los importes guardados de quien lo use, así que no hay
+       ningún sitio de la cadena donde valga la pena confiar sin mirar. */
+    if (!res.ok || !b || !b.tasas || b.tasas.MXN !== 1) return null;
+    const malo = Object.keys(MONEDAS).some(c => {
+      const v = b.tasas[c];
+      return typeof v !== "number" || !isFinite(v) || v <= 0 || v > 1000;
+    });
+    if (malo) return null;
+    return b;
+  } catch (e) {
+    /* Sin red, sin función desplegada o tardó demasiado: la tabla del código
+       ya está en pantalla y dice de cuándo es. */
+    return null;
+  }
+}
+
+/* La fecha del cambio, escrita como la escribe una persona. Llega del
+   servidor en «2026-09-03» —que es lo correcto para viajar— y esa forma no se
+   le enseña a nadie: en una frase, un número con guiones se lee como un
+   código y no como un día.
+
+   Se parte a mano en vez de `new Date(iso)`: un ISO sin hora lo interpreta el
+   navegador como medianoche UTC, y en México eso es el día anterior. El
+   cambio del 3 salía como el 2. */
+function fechaDelCambio(iso) {
+  const p = String(iso || "").split("-");
+  if (p.length !== 3) return String(iso || "");
+  try {
+    return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]))
+      .toLocaleDateString(localeActual(), { day: "numeric", month: "long" });
+  } catch (e) { return String(iso); }
+}
+
+/* Cuántas unidades de `a` vale una de `de`, con lo que dijo el servidor. Es
+   `tipoDeCambio()` pero leyendo de otra tabla; se hacen las dos divisiones
+   igual porque el rodeo por el peso es el mismo. */
+function tipoDeCambioServidor(cambio, de, a) {
+  const d = cambio.tasas[de], h = cambio.tasas[a];
+  if (!d || !h) return 0;
+  return d / h;
+}
+
 /* ---- La confirmación, y por qué va dentro del panel y no en una ventana ----
    Hace falta un campo de texto —el tipo de cambio se puede corregir— y el
    cuadro de confirmar de la casa (`ask`) devuelve sí o no, no un número.
@@ -169,8 +259,8 @@ function pedirCambioDeMoneda(cod) {
       <label class="field">
         <span>${escapeHtml(T`Cuántos ${cod} vale un ${de}`)}</span>
         <input type="number" id="rg-tasa" step="0.0001" min="0.0001" value="${tasaTxt}"
-               oninput="previsualizarCambio('${de}','${cod}')">
-        <div class="field-hint">${escapeHtml(T`Es una referencia de ${tx(CAMBIO_FECHA)}. Si sabes el tuyo, escríbelo.`)}</div>
+               oninput="tasaTocada = true; previsualizarCambio('${de}','${cod}')">
+        <div class="field-hint" id="rg-fuente">${escapeHtml(T`Es una referencia de ${tx(CAMBIO_FECHA)}. Si sabes el tuyo, escríbelo.`)}</div>
       </label>
       <div class="rg-muestra" id="rg-muestra"></div>
       <div class="stack" style="margin-top:14px">
@@ -179,7 +269,35 @@ function pedirCambioDeMoneda(cod) {
         <button class="btn btn-ghost btn-block" onclick="renderPanelMoneda()">${escapeHtml(tx("Cancelar"))}</button>
       </div>
     </div>`;
+  tasaTocada = false;
   previsualizarCambio(de, cod);
+  refinarConElServidor(de, cod);
+}
+
+/* Si alguien ya escribió su propio cambio, lo del servidor no entra. Es la
+   diferencia entre una ayuda y una interrupción: nada se siente peor que
+   escribir un número y ver cómo se cambia solo medio segundo después. */
+let tasaTocada = false;
+
+async function refinarConElServidor(de, a) {
+  const cambio = await traerCambioDelServidor();
+  const campo = document.getElementById("rg-tasa");
+  const pista = document.getElementById("rg-fuente");
+  /* El panel pudo cerrarse, o pudo abrirse otro para otra moneda, mientras
+     esto viajaba. Sin esta comprobación, la respuesta de un panel que ya no
+     existe escribiría en el que sí. */
+  if (!cambio || !campo || !pista || tasaTocada) return;
+  const tasa = tipoDeCambioServidor(cambio, de, a);
+  if (!(tasa > 0)) return;
+  campo.value = tasa < 1 ? tasa.toFixed(4) : tasa.toFixed(2);
+  /* Se dice de cuándo es y de dónde salió. Un número sin procedencia no se
+     puede juzgar, y este es justo el que hay que poder juzgar: quien vea una
+     fecha de hace tres semanas sabrá que le conviene escribir el suyo. */
+  const dia = fechaDelCambio(cambio.fecha);
+  pista.textContent = cambio.fresco
+    ? T`Cambio del ${dia}, según ${cambio.fuente}. Puedes escribir el tuyo.`
+    : T`Último cambio que pude conseguir, del ${dia}. Puedes escribir el tuyo.`;
+  previsualizarCambio(de, a);
 }
 
 /* La muestra con un importe DE VERDAD, el del primer talento que tenga

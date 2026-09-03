@@ -691,17 +691,29 @@ const MONEDA_POR_DEFECTO = "MXN";
    medio, y con importes de tres o cuatro cifras el redondeo del rodeo no se
    ve.
 
-   **Son de referencia y envejecen.** No se piden a ningún servidor a
-   propósito: la app se sirve de su propia copia y no habla con la red al
-   abrirse (ver CLAUDE.md, «Cómo llega la app»), y meter una llamada a un
-   servicio de divisas por un ajuste que se toca una vez en la vida sería
-   pagar una dependencia nueva —y una que puede caerse— por nada. La pantalla
-   enseña el número y deja corregirlo.
+   **Esto es la RED DE ABAJO, no la fuente.** El cambio de verdad lo pide la
+   app al abrir el selector de moneda (`traerCambioDelServidor` en
+   `js/09c-region.js`, que habla con la función `cambio` de Supabase). Esta
+   tabla es lo que se usa cuando esa llamada no llega: sin red, con la función
+   sin desplegar, o con el proveedor de divisas caído.
 
-   Al subirlos, cambiar también la fecha: es lo que la pantalla enseña para
-   que quien mire sepa de cuándo son. */
-const CAMBIO_EN_PESOS = { MXN: 1, USD: 18.5, EUR: 21.8 };
-const CAMBIO_FECHA = "septiembre de 2026";
+   No se pide al arrancar y nunca se pedirá: la app se sirve de su propia copia
+   y no habla con la red al abrirse (ver CLAUDE.md, «Cómo llega la app»). Se
+   pide en el único instante en que el número importa, que es cuando alguien
+   está mirando la pantalla de cambiar de moneda.
+
+   **Y estos números hay que subirlos de vez en cuando aunque exista la
+   función**, porque son lo que ve quien no tiene red. La primera versión de
+   esta tabla decía 18,5 y 21,8 a ojo, y los dos proveedores consultados daban
+   17,0 y 19,7: un 9% y un 11% de error metido para siempre en los importes de
+   quien convirtiera. Se comprueban contra `open.er-api.com` o
+   `api.frankfurter.dev` antes de escribirlos, nunca de memoria.
+
+   Al subirlos, cambiar también la fecha en DOS sitios: aquí y en su línea del
+   diccionario inglés (`js/00b-textos-en.js`), o la app en inglés dirá la
+   fecha en español dentro de una frase inglesa. */
+const CAMBIO_EN_PESOS = { MXN: 1, USD: 17.0, EUR: 19.72 };
+const CAMBIO_FECHA = "3 de septiembre de 2026";
 
 /* Cuántas unidades de `a` vale una de `de`. Es lo que se enseña en la
    pantalla y lo que se puede corregir a mano. */
