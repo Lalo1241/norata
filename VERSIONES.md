@@ -76,6 +76,36 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.72.9 · 2 sep 2026
+**El Resumen vacío deja de tener una barra de desplazamiento que no llevaba a
+ninguna parte.**
+
+Con el perfil recién creado, la pantalla del Resumen se podía desplazar diez
+píxeles. No había nada debajo que ver: lo único que hacía ese gesto era mover de
+sitio el cartel que está en el centro.
+
+**Es una regresión de la 0.7.57, y es mía.** Los estados vacíos se centran con
+`min-height: calc(100vh - 150px)`, y esos 150 están medidos contra una cabecera
+de 99 px — la que tienen Misiones, Habilidades, Talentos y Proyectos. Cuando el
+saludo y la fecha se mudaron encima del título del Resumen, esa cabecera pasó a
+medir 120, y nadie volvió a mirar el estado vacío. Medido con el perfil vacío a
+1440 × 900: **las otras cuatro pantallas daban cero de sobra y el Resumen daba
+diez.**
+
+Así que el Resumen descuenta 21 px más, que es exactamente lo que creció su
+cabecera: 18 de la línea del saludo más 3 de margen. No es un número elegido a
+ojo para que cuadre — si algún día el saludo se va de ahí, este descuento se va
+con él y no antes.
+
+**Queda donde Eduardo lo pidió**, que era la composición que daba el
+desplazamiento hasta abajo: el título caía en 393 con el scroll al fondo y ahora
+cae en **392 sin scroll ninguno**. Un píxel.
+
+Comprobado en las cinco pantallas y a cuatro alturas de ventana: 1440 × 900,
+1000 × 700 y 1440 × 1200 dan cero de sobra en las cinco. A 1920 × 560 sigue
+habiendo desplazamiento y está bien que lo haya: ahí el cartel mide 483 px y no
+cabe, que es el caso que el comentario de `.empty` ya contemplaba.
+
 ### 0.7.72.8 · 2 sep 2026
 **El fuego de la racha se apaga un segundo antes del cierre, no dos.**
 
