@@ -73,6 +73,35 @@ const NOMBRE_PRO = "Norata Pro";
    suena a folleto. Es la misma regla que sigue `NOMBRE_PRO`. */
 const NOMBRE_FUNDADOR = "Norata Fundador";
 
+/* ---- La garantía de devolución ----
+
+   Los días viven aquí y no escritos dentro de las frases, por lo mismo que los
+   topes viven en `LIMITES`: son el MISMO dato en dos pantallas —las tarjetas y
+   el cuadro del tope— y también en los términos publicados. Dos de los tres
+   sitios se sirven de aquí; el tercero es un documento legal y se cambia a
+   mano, así que si algún día se mueve un número hay que ir allí también.
+
+   Por qué son distintos y no siete en los dos: Fundador cuesta trece veces más
+   y no tiene renovación de la que arrepentirse. Bajarlo a siete sería recortar
+   la confianza justo en el plan que más confianza pide.
+
+   Y por qué está escrito en el sitio donde se decide pagar, que es de donde
+   salió esto: la garantía existía en los términos y no se veía en ninguna
+   pantalla. Una promesa que solo vive en un documento legal no tranquiliza a
+   nadie, porque nadie lo lee antes de pulsar el botón. Puesta al lado del
+   precio hace el trabajo que haría una prueba gratis —«no te la juegas»— sin
+   pedir la tarjeta por adelantado y sin una fecha que caduque. */
+const GARANTIA = { pro: 7, fundador: 30 };
+
+/* Las dos ventanas en una frase, que es como se leen mejor: puestas juntas se
+   ven como lo que son —generosidad—, y separadas en cada tarjeta se leerían
+   como dos condiciones. */
+function garantiaTexto() {
+  return "Si no es para ti, te devolvemos los primeros " + GARANTIA.pro +
+         " días de Pro o los primeros " + GARANTIA.fundador +
+         " de Fundador. Sin explicaciones.";
+}
+
 const PLANES = {
   mensual: {
     nombre: "Pro mensual",
@@ -659,7 +688,13 @@ function topeAlcanzado(clave) {
        propio precio. Sale de `PLANES` por lo mismo que las ventajas salen de
        `LIMITES`. */
     '<span class="tope-precio">Desde ' + escapeHtml(PLANES.mensual.precio) +
-    ' al mes. Cancelas cuando quieras.</span>';
+    ' al mes. Cancelas cuando quieras.</span>' +
+    /* Y la garantía, que es lo que contesta al miedo que queda después de ver
+       el precio. Aquí en corto —solo el plazo de Pro— porque este cuadro
+       aparece cuando alguien llenó una rama, no cuando está comparando planes:
+       lo que va a pulsar es Pro. */
+    '<span class="tope-garantia">Y si no es para ti, te devolvemos los primeros ' +
+    GARANTIA.pro + ' días.</span>';
   /* `danger` y `alarm` en false a propósito, y es la decisión de fondo de todo
      este cuadro: aquí no se rompió nada. Alguien llenó una rama, que es un
      logro. El temblor y el coral son para lo que se pierde. */
@@ -1366,7 +1401,18 @@ function planTarjetasHTML() {
         <button class="btn btn-primary btn-block"
           onclick="irAPagarDesdeAjustes('fundador', this)">Pasar a Plan Fundador</button>
       </div>
-    </div>`;
+    </div>
+    <!-- Un solo renglón para las dos tarjetas y no uno en cada una: la
+         garantía es la misma promesa con dos plazos, y repetirla dos veces la
+         convierte en letra pequeña. Va DEBAJO de los botones porque es lo
+         último que hace falta leer antes de pulsar, no un argumento más.
+         El día que la página de términos esté publicada, esta frase enlaza
+         allí. (Y ojo con escribir su ruta entre comillas invertidas aquí
+         dentro: este comentario vive DENTRO de una plantilla de JavaScript, y
+         una comilla invertida la corta. Ya pasó al escribir esta misma línea:
+         el síntoma fue «terminos is not defined», que no señala a ningún
+         comentario.) -->
+    <p class="plan-garantia">${escapeHtml(garantiaTexto())}</p>`;
 }
 
 /* ================= Dónde vas contra el tope =================
