@@ -262,7 +262,7 @@ engañar a su propia pantalla, y al recargar la mentira se cae sola.
 
 5. **Dar de alta el webhook en Stripe.** Developers → Webhooks → Add endpoint,
    apuntando a `https://<proyecto>.supabase.co/functions/v1/cobro`, con estos
-   cinco sucesos y no más:
+   seis sucesos y no más:
 
    ```
    checkout.session.completed
@@ -270,7 +270,14 @@ engañar a su propia pantalla, y al recargar la mentira se cae sola.
    customer.subscription.deleted
    invoice.paid
    invoice.payment_failed
+   charge.refunded
    ```
+
+   **El sexto se añadió el 3 de septiembre de 2026.** Si el endpoint ya estaba
+   creado desde antes, hay que **editarlo y marcarlo a mano**: sin ese aviso,
+   devolverle el dinero a un Fundador le deja el plan puesto para siempre y su
+   lugar ocupado en el cupo. No hay ninguna señal de que falte — se descubre el
+   día que se devuelve el primero, que es justo cuando ya es tarde.
 
 6. **Guardar la firma**, que aparece al crear el endpoint del paso anterior:
 
