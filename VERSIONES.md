@@ -76,6 +76,74 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.73 · 3 sep 2026
+**La bienvenida arma tu tablero por áreas, y el plan Gratuito por fin tiene
+todos sus topes puestos.**
+
+La mayor parte de esta tanda llevaba ocho horas escrita y **sin commitear** en el
+árbol de trabajo, de otra sesión que no volvió. Se revisó pieza por pieza, se
+probó entera, se le puso el tope que le faltaba y se publica. Lo que sigue
+distingue lo que ya estaba de lo que se añadió aquí.
+
+#### Lo que ya estaba escrito
+
+**La bienvenida pregunta tres cosas y arma el tablero.** Ocho áreas —salud,
+mente, creativo, dinero, casa, calma, social y trabajo—, se eligen de una a tres,
+y cada una trae **dos habilidades y una cadena de cinco talentos**. Probado de
+punta a punta: eligiendo tres áreas salen 6 habilidades, 15 talentos y 3
+misiones. Elegir una cuarta área no hace nada, que es lo correcto.
+
+**Proyectos gana los topes que nunca tuvo.** No tenía ninguno —ni ramas ni
+encargos, en ningún plan— mientras la tabla de precios ya hablaba de límites.
+Ahora son 2 proyectos y 3 encargos por proyecto en el plan Gratuito, y los dos
+van juntos por lo mismo que en talentos: limitar ramas sin limitar lo de dentro
+invita a meterlo todo en una y no pagar nunca.
+
+**Y el tope se aplica también donde se creaba sin mirar:** el atajo de teclado
+sobre el mapa creaba ramas sin pasar por ninguna puerta, y dejarlo así convertía
+el límite en una sugerencia que se salta quien conozca el atajo.
+
+**Los tres ritmos, con icono.** Un medidor en vez de metáforas: con una tortuga,
+un reloj y un rayo hay que descifrar tres ideas antes de elegir.
+
+#### Lo que se añadió al publicar
+
+**El tope de habilidades, que estaba prometido y no existía.** Un comentario de
+`ONBOARD_AREAS` decía que seis habilidades son «justo el tope del plan
+gratuito» — pero `LIMITES` no tenía ninguna clave que lo aplicara. La frase
+prometía un límite que nadie cumplía y crear la séptima a mano no encontraba
+ninguna puerta.
+
+Seis son dos por área y tres áreas, o sea exactamente lo que reparte la
+bienvenida. Se aplica en los **dos** sitios donde nacen habilidades a mano:
+
+- **El formulario**, y solo al crear — editar lo que ya existe no se toca nunca,
+  que es la regla de «congelar, nunca quitar».
+- **El catálogo**, contra el LOTE entero y no de una en una. Ahí se añaden
+  varias de golpe: con cinco puestas y cuatro marcadas habrían entrado las
+  cuatro, y el plan se saltaría por el sitio más fácil de encontrar.
+
+Lo que **no** se limita, y a propósito: la bienvenida —reparte seis, que es justo
+el tope— y el perfil de ejemplo, que crea diez y no es de nadie.
+
+#### Comprobado
+
+Con la app corriendo, no leyendo el código:
+
+| Prueba | Resultado |
+| --- | --- |
+| Arranque | sin un solo error de consola |
+| Bienvenida desde cero | 6 habilidades, 15 talentos, 3 misiones |
+| Una cuarta área | rechazada |
+| Cuarta rama de talentos | rechazada (tope 3) |
+| Séptima habilidad por el formulario | rechazada, con su cuadro |
+| Tres del catálogo con el tope pasado | lote entero parado |
+| Perfil de ejemplo | **10 habilidades, sin capar** |
+
+El título del cuadro no lleva el número escrito a mano, por lo mismo que avisa
+el comentario de al lado: el día que seis sean ocho, una frase con el número
+dentro seguiría diciendo seis.
+
 ### 0.7.72.10 · 2 sep 2026
 
 **Una pulsación, la última versión.** El botón de actualizar salía, se pulsaba,

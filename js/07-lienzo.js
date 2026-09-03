@@ -975,11 +975,16 @@ function duplicarTalento(id, pos) {
 }
 
 /* ---- Crear un encargo desde el propio mapa ----
-   El equivalente de crearTalentoRapido, mucho mas corto porque un encargo no
-   tiene tres tipos entre los que elegir ni tope de plan que vigilar. Nace con
-   nombre provisional y sin etapas: se abre y se le pone lo suyo. */
+   El equivalente de crearTalentoRapido, mas corto porque un encargo no tiene
+   tres tipos entre los que elegir. Nace con nombre provisional y sin etapas:
+   se abre y se le pone lo suyo.
+
+   El tope SI hay que vigilarlo, y aqui tambien: este es el camino corto —dos
+   teclas sobre el mapa— y dejarlo sin mirar convertiria el limite en una
+   sugerencia que se salta cualquiera que conozca el atajo. */
 function crearEncargoRapido(branch, pos) {
   if (!branch) return;
+  if (!cabeUnoMas("encargos", encargosDeRama(branch).length)) { topeAlcanzado("encargos"); return; }
   pushUndo("crear un encargo", null, "proyectos");
   fijarPosiciones(branch, "proyectos");
   const n = state.projects.length;

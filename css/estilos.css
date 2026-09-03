@@ -6126,6 +6126,10 @@
   .ob-area.on .oa-check { opacity: 1; }
   .ob-pace { display: flex; flex-direction: column; gap: 9px; margin-top: 6px; }
   .ob-pace-opt {
+    /* En fila desde que cada ritmo trae icono: el texto se envuelve en
+       `.op-tx` porque con `<b>` y `<span>` sueltos pasarían a ser hijos del
+       flex y el `display:block` del `<b>` dejaría de partir la línea. */
+    display: flex; align-items: center; gap: 12px;
     text-align: left; font-family: inherit;
     background: var(--sup-panel);
     border: 2px solid transparent;
@@ -6137,6 +6141,35 @@
   .ob-pace-opt b { display: block; font-size: 14.5px; color: var(--text); margin-bottom: 2px; }
   .ob-pace-opt span { font-size: 12.5px; }
   .ob-pace-opt.on { border-color: var(--mint); background: var(--mint-soft); }
+  .op-ic {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    border-radius: var(--r-boton);
+    display: grid; place-items: center;
+  }
+  /* Los tres tonos que la app ya usa para calma, recomendado y aviso. No coral:
+     aquí coral es lo que destruye, y ser exigente es una elección. */
+  .op-ic[data-r="suave"] { color: var(--celeste); background: var(--celeste-soft); }
+  .op-ic[data-r="medio"] { color: var(--mint);    background: var(--mint-soft); }
+  .op-ic[data-r="duro"]  { color: var(--fire);    background: var(--fire-soft); }
+  .op-tx { min-width: 0; }
+
+  /* Los ejemplos de la pregunta 3. Se leen como sugerencias y no como botones
+     de acción: sin relleno macizo, porque tocarlos no decide nada — rellenan un
+     campo que se puede seguir escribiendo. */
+  .ob-ideas-tit { margin-top: 14px; margin-bottom: 8px; }
+  .ob-ideas { display: flex; flex-wrap: wrap; gap: 7px; }
+  .ob-idea {
+    font-family: inherit; font-size: 12.5px;
+    color: var(--muted);
+    background: var(--sup-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--r-pastilla);
+    padding: 7px 12px;
+    cursor: pointer;
+  }
+  .ob-idea:hover { color: var(--text); border-color: var(--mint); }
+
   .ob-nav { display: flex; gap: 10px; margin-top: 14px; }
   .ob-nav .btn { flex: 1; }
   .ob-dots { display: flex; justify-content: center; gap: 7px; margin-top: 18px; }

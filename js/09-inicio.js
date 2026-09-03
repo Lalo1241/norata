@@ -3,39 +3,111 @@
    Tres preguntas para armar un tablero con las cosas que a esa persona
    le importan, en vez de soltarla frente a una app vacía. */
 
+/* Cada área trae DOS habilidades y una cadena de CINCO talentos.
+
+   Las dos habilidades, y no tres: con tres, elegir cuatro áreas dejaba doce
+   habilidades puestas el primer día, y una habilidad no es un adorno --baja si
+   la dejas--, así que doce son doce deudas vivas antes de empezar. Con el
+   máximo en tres áreas salen seis, que es justo el tope del plan gratuito.
+
+   Los cinco talentos encadenados, y no uno: una rama con un solo nodo en medio
+   del lienzo no se lee como un comienzo, se lee como que algo falló. Cinco no
+   son cinco tareas --el lienzo dibuja el primero encendido y los otros cuatro
+   con candado--, así que se leen como un camino con el primer paso iluminado.
+
+   Los primeros peldaños son HITOS, que se cierran en sí mismos y no llevan
+   plazo; los que se sostienen en el tiempo son METAS, las únicas con planDays.
+   Mezclarlos importa: una rama entera de metas es una lista de deberes con
+   fecha, y eso agobia igual que agobiaban las doce habilidades. */
 const ONBOARD_AREAS = [
-  { id: "salud",     label: "Salud y cuerpo",     icon: "dumbbell", color: "#ff8a70",
-    skills: ["Ejercicio", "Correr", "Yoga"],
+  { id: "salud", proyectos: ["Correr mi primera carrera", "Armar mi rutina en casa"],     label: "Salud y cuerpo",     icon: "dumbbell", color: "#ff8a70",
+    skills: ["Ejercicio", "Correr"],
     mission: { name: "Moverme 20 minutos", icon: "bolt", xp: 20 },
-    perk: { branch: "Salud", name: "Rutina que pueda sostener", icon: "flame", days: 90, xp: 250 } },
-  { id: "mente",     label: "Aprender algo",      icon: "book", color: "#6fc3e8",
-    skills: ["Lectura", "Idiomas", "Programación"],
+    branch: "Salud",
+    perks: [
+      { tipo: "hito", name: "Caminar 20 minutos tres días seguidos",   icon: "bolt",   days: 0,   xp: 80 },
+      { tipo: "hito", name: "Aguantar 5 minutos corriendo sin parar",  icon: "flame",  days: 0,   xp: 120 },
+      { tipo: "meta", name: "Moverme tres veces por semana, un mes",   icon: "target", days: 45,  xp: 180 },
+      { tipo: "hito", name: "Correr 5 kilómetros de una tirada",       icon: "trophy", days: 0,   xp: 250 },
+      { tipo: "meta", name: "Una rutina que sostengo sin pensarla",    icon: "shield", days: 180, xp: 400 }
+    ] },
+  { id: "mente", proyectos: ["Terminar el curso que dejé a medias", "Sacar mi certificado"],     label: "Aprender algo",      icon: "book", color: "#6fc3e8",
+    skills: ["Lectura", "Idiomas"],
     mission: { name: "Estudiar 15 minutos", icon: "cap", xp: 20 },
-    perk: { branch: "Aprender", name: "Terminar un curso", icon: "cap", days: 180, xp: 300 } },
-  { id: "creativo",  label: "Crear cosas",        icon: "brush", color: "#b7a2ea",
-    skills: ["Dibujo", "Escritura", "Fotografía"],
+    branch: "Aprender",
+    perks: [
+      { tipo: "hito", name: "Terminar el primer capítulo",             icon: "book",   days: 0,   xp: 80 },
+      { tipo: "hito", name: "Estudiar diez días seguidos",             icon: "flame",  days: 0,   xp: 120 },
+      { tipo: "meta", name: "Llegar a la mitad del curso",             icon: "target", days: 60,  xp: 200 },
+      { tipo: "hito", name: "Explicarle a alguien lo que aprendí",     icon: "mic",    days: 0,   xp: 220 },
+      { tipo: "meta", name: "Terminar el curso entero",                icon: "cap",    days: 180, xp: 400 }
+    ] },
+  { id: "creativo", proyectos: ["Montar mi portafolio", "Publicar mi primer trabajo"],  label: "Crear cosas",        icon: "brush", color: "#b7a2ea",
+    skills: ["Dibujo", "Escritura"],
     mission: { name: "Crear algo pequeño", icon: "pen", xp: 20 },
-    perk: { branch: "Creatividad", name: "Publicar mi primer trabajo", icon: "star", days: 120, xp: 300 } },
-  { id: "dinero",    label: "Ordenar mi dinero",  icon: "coin", color: "#5fe0b0",
-    skills: ["Finanzas", "Organización", "Negociación"],
+    branch: "Creatividad",
+    perks: [
+      { tipo: "hito", name: "Diez bocetos sin borrar ninguno",         icon: "pen",    days: 0,   xp: 80 },
+      { tipo: "hito", name: "Terminar algo y no dejarlo a medias",     icon: "flag",   days: 0,   xp: 130 },
+      { tipo: "meta", name: "Crear algo cada semana, dos meses",       icon: "brush",  days: 60,  xp: 200 },
+      { tipo: "hito", name: "Enseñárselo a alguien que no soy yo",     icon: "smile",  days: 0,   xp: 220 },
+      { tipo: "meta", name: "Publicar mi primer trabajo",              icon: "star",   days: 120, xp: 350 }
+    ] },
+  { id: "dinero", proyectos: ["Salir de una deuda", "Armar mi presupuesto del año"],    label: "Ordenar mi dinero",  icon: "coin", color: "#5fe0b0",
+    skills: ["Finanzas", "Organización"],
     mission: { name: "Anotar mis gastos del día", icon: "chart", xp: 15 },
-    perk: { branch: "Dinero", name: "Fondo de emergencia", icon: "gem", days: 365, xp: 500 } },
-  { id: "casa",      label: "Casa y cocina",      icon: "coffee", color: "#f5d76e",
-    skills: ["Cocina", "Repostería", "Jardinería"],
+    branch: "Dinero",
+    perks: [
+      { tipo: "hito", name: "Saber cuánto entra y cuánto sale",        icon: "chart",  days: 0,   xp: 80 },
+      { tipo: "hito", name: "Un mes entero anotando todo",             icon: "book",   days: 0,   xp: 150 },
+      { tipo: "meta", name: "Recortar un gasto que no echo de menos",  icon: "target", days: 60,  xp: 180 },
+      { tipo: "meta", name: "Ahorrar mi primer mes de gastos",         icon: "coin",   days: 180, xp: 350 },
+      { tipo: "meta", name: "Fondo de emergencia completo",            icon: "gem",    days: 365, xp: 500 }
+    ] },
+  { id: "casa", proyectos: ["Renovar mi cuarto", "Ordenar la casa de una vez"],      label: "Casa y cocina",      icon: "coffee", color: "#f5d76e",
+    skills: ["Cocina", "Repostería"],
     mission: { name: "Cocinar en casa", icon: "coffee", xp: 20 },
-    perk: { branch: "Casa", name: "Diez recetas de memoria", icon: "book", days: 120, xp: 250 } },
-  { id: "calma",     label: "Descanso y calma",   icon: "heart", color: "#f0a5c0",
-    skills: ["Meditación", "Yoga", "Senderismo"],
+    branch: "Casa",
+    perks: [
+      { tipo: "hito", name: "Tres recetas que me salen sin mirar",     icon: "coffee", days: 0,   xp: 80 },
+      { tipo: "hito", name: "Cocinar para alguien más",                icon: "smile",  days: 0,   xp: 130 },
+      { tipo: "meta", name: "Una semana entera cocinando en casa",     icon: "target", days: 60,  xp: 200 },
+      { tipo: "hito", name: "Inventar un plato mío",                   icon: "bulb",   days: 0,   xp: 220 },
+      { tipo: "meta", name: "Diez recetas de memoria",                 icon: "book",   days: 120, xp: 300 }
+    ] },
+  { id: "calma", proyectos: ["Arreglar mis horarios de sueño", "Planear unas vacaciones de verdad"],     label: "Descanso y calma",   icon: "heart", color: "#f0a5c0",
+    skills: ["Meditación", "Yoga"],
     mission: { name: "10 minutos sin pantallas", icon: "heart", xp: 15 },
-    perk: { branch: "Bienestar", name: "Dormir bien un mes seguido", icon: "target", days: 30, xp: 200 } },
-  { id: "social",    label: "Gente que quiero",   icon: "mic", color: "#8fd18a",
-    skills: ["Oratoria", "Baile", "Canto"],
+    branch: "Bienestar",
+    perks: [
+      { tipo: "hito", name: "Siete días acostándome a la misma hora",  icon: "heart",  days: 0,   xp: 80 },
+      { tipo: "hito", name: "Una semana sin pantallas en la cama",     icon: "shield", days: 0,   xp: 120 },
+      { tipo: "meta", name: "Dormir bien un mes seguido",              icon: "target", days: 30,  xp: 200 },
+      { tipo: "hito", name: "Un día entero sin prisa, a propósito",    icon: "plant",  days: 0,   xp: 180 },
+      { tipo: "meta", name: "Parar diez minutos cada día, tres meses", icon: "smile",  days: 90,  xp: 300 }
+    ] },
+  { id: "social", proyectos: ["Organizar una reunión con los míos", "Preparar un regalo que lleve tiempo"],    label: "Gente que quiero",   icon: "mic", color: "#8fd18a",
+    skills: ["Oratoria", "Carisma"],
     mission: { name: "Escribirle a alguien", icon: "mic", xp: 15 },
-    perk: { branch: "Personas", name: "Ver a mis amigos cada mes", icon: "heart", days: 90, xp: 200 } },
-  { id: "trabajo",   label: "Carrera y trabajo",  icon: "wrench", color: "#9aa7b8",
-    skills: ["Organización", "Negociación", "Programación"],
+    branch: "Personas",
+    perks: [
+      { tipo: "hito", name: "Escribirle a tres personas pendientes",   icon: "mic",    days: 0,   xp: 80 },
+      { tipo: "hito", name: "Ver a alguien en persona, no por mensaje", icon: "smile", days: 0,   xp: 120 },
+      { tipo: "meta", name: "Ver a mis amigos una vez al mes",         icon: "heart",  days: 90,  xp: 250 },
+      { tipo: "hito", name: "Organizar yo el plan, sin esperar",       icon: "flag",   days: 0,   xp: 200 },
+      { tipo: "meta", name: "Una costumbre que nos junte sin avisar",  icon: "star",   days: 180, xp: 350 }
+    ] },
+  { id: "trabajo", proyectos: ["Cambiar de trabajo", "Lanzar algo propio"],   label: "Carrera y trabajo",  icon: "wrench", color: "#9aa7b8",
+    skills: ["Organización", "Negociación"],
     mission: { name: "Una hora de trabajo profundo", icon: "bolt", xp: 25 },
-    perk: { branch: "Trabajo", name: "Certificarme en lo mío", icon: "trophy", days: 180, xp: 400 } }
+    branch: "Trabajo",
+    perks: [
+      { tipo: "hito", name: "Una hora sin interrupciones, cinco días", icon: "bolt",   days: 0,   xp: 90 },
+      { tipo: "hito", name: "Terminar eso que llevo aplazando",        icon: "flag",   days: 0,   xp: 130 },
+      { tipo: "meta", name: "Un mes cerrando lo que empiezo",          icon: "target", days: 60,  xp: 200 },
+      { tipo: "hito", name: "Pedir lo que me toca pedir",              icon: "crown",  days: 0,   xp: 250 },
+      { tipo: "meta", name: "Certificarme en lo mío",                  icon: "trophy", days: 180, xp: 400 }
+    ] }
 ];
 
 let onboardStep = 0;
@@ -55,7 +127,7 @@ function renderOnboarding() {
       <div class="ob-q">
         <div class="ob-num">Pregunta 1 de 3</div>
         <h2>¿Qué partes de tu vida quieres mejorar?</h2>
-        <p class="settings-note">Elige de dos a cuatro. Con eso armo tus primeras habilidades y misiones — después puedes cambiar todo.</p>
+        <p class="settings-note">Elige de una a tres. Con eso armo tus primeras habilidades, misiones y ramas — después puedes cambiar todo.</p>
         <div class="ob-areas">
           ${ONBOARD_AREAS.map(a => `
             <button class="ob-area ${onboardPick.areas.includes(a.id) ? "on" : ""}" style="${tonos("oc", a.color)}" onclick="toggleArea('${a.id}')">
@@ -76,7 +148,8 @@ function renderOnboarding() {
         <div class="ob-pace">
           ${Object.values(EXIGENCIAS).map(p => `
             <button class="ob-pace-opt ${onboardPick.pace === p.id ? "on" : ""}" onclick="pickPace('${p.id}')">
-              <b>${p.nombre}</b><span>${p.dicho}</span>
+              <span class="op-ic" data-r="${p.id}">${icon(p.icono, 20)}</span>
+              <span class="op-tx"><b>${p.nombre}</b><span>${p.dicho}</span></span>
             </button>`).join("")}
         </div>
       </div>`,
@@ -89,6 +162,12 @@ function renderOnboarding() {
           <span>Nombre del proyecto (opcional)</span>
           <input type="text" id="ob-project" placeholder="Ej. Renovar mi cuarto" maxlength="60" value="${escapeAttr(onboardPick.project)}">
         </label>
+        ${ideasDeProyecto().length ? `
+          <p class="settings-note ob-ideas-tit">O toca una de estas</p>
+          <div class="ob-ideas">
+            ${ideasDeProyecto().map(t => `
+              <button type="button" class="ob-idea" onclick="usarIdea('${enJS(t)}')">${escapeHtml(t)}</button>`).join("")}
+          </div>` : ""}
       </div>`
   ];
 
@@ -104,11 +183,42 @@ function renderOnboarding() {
     <div class="ob-dots">${[0, 1, 2].map(i => `<i class="${i === onboardStep ? "on" : ""}"></i>`).join("")}</div>`;
 }
 
+/* ---- Los ejemplos de la pregunta 3 ----
+   Salen de lo que la persona acaba de elegir en la pregunta 1, no de una lista
+   general: quien marcó «Casa y cocina» y «Ordenar mi dinero» no tiene por qué
+   ver «Cambiar de trabajo» entre las ideas.
+
+   Existen porque esa pantalla era la única de las tres que pedía ESCRIBIR
+   cuando las otras dos piden elegir, y encima llega cuando la persona ya se
+   cansó de decidir: una caja de texto vacía al final de un formulario se salta
+   sola. Quien quiera escribir lo suyo sigue teniendo el campo delante. */
+function ideasDeProyecto() {
+  return ONBOARD_AREAS
+    .filter(a => onboardPick.areas.includes(a.id))
+    .reduce((t, a) => t.concat(a.proyectos || []), []);
+}
+
+/* Se escribe en el campo Y en `onboardPick`: el valor del input se pierde en
+   cuanto algo repinta la pantalla, y `obBack`/`obNext` leen el campo. */
+function usarIdea(txt) {
+  const campo = document.getElementById("ob-project");
+  if (!campo) return;
+  campo.value = txt;
+  onboardPick.project = txt;
+  campo.focus();
+}
+
 function toggleArea(id) {
   const i = onboardPick.areas.indexOf(id);
   if (i >= 0) onboardPick.areas.splice(i, 1);
-  else if (onboardPick.areas.length < 4) onboardPick.areas.push(id);
-  else { toast("Cuatro es suficiente para empezar", "atencion"); return; }
+  /* El tope sale de `LIMITES` y no de un cuatro escrito aquí: cada área
+     crea UNA rama, así que si los dos números se escriben por separado, el
+     día que uno cambie la bienvenida creará ramas que el plan no deja
+     tener — y la persona se encontraría el tope alcanzado sin haber hecho
+     nada. Se lee el de `libre` incluso para quien paga: la bienvenida es
+     la primera vez para todos, y ya podrá añadir más después. */
+  else if (onboardPick.areas.length < LIMITES.libre.ramas) onboardPick.areas.push(id);
+  else { toast("Tres es suficiente para empezar", "atencion"); return; }
   renderOnboarding();
 }
 
@@ -142,9 +252,12 @@ function buildFromOnboarding() {
   const areas = ONBOARD_AREAS.filter(a => onboardPick.areas.includes(a.id));
 
   areas.forEach((a, i) => {
-    /* Cada área trae tres habilidades afines en vez de una. Elegir "Salud y
+    /* Cada área trae DOS habilidades afines en vez de una. Elegir "Salud y
        cuerpo" y encontrarse una sola línea llamada "Ejercicio" dice poco;
-       ver Ejercicio, Correr y Yoga en cero ya dibuja un terreno. La primera
+       ver Ejercicio y Correr en cero ya dibuja un terreno. Eran tres hasta
+       que se contaron: cuatro áreas dejaban doce habilidades puestas el
+       primer día, y una habilidad baja si la dejas, así que eran doce deudas
+       vivas antes de empezar. La primera
        es la que enlaza con la misión y el talento del área. Los nombres se
        resuelven contra el catálogo para no repetir icono y color en dos
        sitios, y si una ya existe (dos áreas pueden compartirla) se reutiliza
@@ -174,14 +287,25 @@ function buildFromOnboarding() {
       createdAt: today
     });
 
-    state.perks.push({
-      id: uid(), name: a.perk.name, branch: a.perk.branch, desc: "",
-      tipo: "meta", cost: 0, planDays: a.perk.days, steps: [],
-      skillId: skill.id, xpReward: a.perk.xp, requiere: [], modo: "todos",
-      icon: a.perk.icon, color: a.color,
-      status: null, startDate: null, endDate: null, completedAt: null,
-      investedTotal: 0, progress: 0, createdAt: today,
-      history: [{ date: today, at: stamp(), event: `Talento creado en la rama ${a.perk.branch}` }]
+    /* Encadenados, y por eso se crean en orden guardando el id del previo:
+       `uid()` no existe hasta crear el nodo. El primero sale sin requisitos
+       —el único que el lienzo dibuja encendido— y los otros cuatro con
+       candado, que es lo que los vuelve camino en vez de lista de deberes.
+       Antes era UN talento suelto por área, y una rama con un solo nodo en
+       medio del lienzo no se lee como un comienzo: se lee como un error. */
+    let anterior = null;
+    a.perks.forEach(t => {
+      const nodo = {
+        id: uid(), name: t.name, branch: a.branch, desc: "",
+        tipo: t.tipo, cost: 0, planDays: t.days, steps: [],
+        skillId: skill.id, xpReward: t.xp, requiere: anterior ? [anterior] : [], modo: "todos",
+        icon: t.icon, color: a.color,
+        status: null, startDate: null, endDate: null, completedAt: null,
+        investedTotal: 0, progress: 0, createdAt: today,
+        history: [{ date: today, at: stamp(), event: `Talento creado en la rama ${a.branch}` }]
+      };
+      state.perks.push(nodo);
+      anterior = nodo.id;
     });
   });
 
@@ -918,7 +1042,8 @@ function renderPanelRitmo() {
 
   wrap.innerHTML = `<div class="ob-pace">${Object.values(EXIGENCIAS).map(p => `
     <button class="ob-pace-opt ${actual.id === p.id ? "on" : ""}" onclick="ponerExigencia('${p.id}')">
-      <b>${p.nombre}</b><span>${p.dicho}</span>
+      <span class="op-ic" data-r="${p.id}">${icon(p.icono, 20)}</span>
+      <span class="op-tx"><b>${p.nombre}</b><span>${p.dicho}</span></span>
     </button>`).join("")}</div>`;
 
   /* Solo las que decaen: una habilidad blindada no pierde XP nunca, así que

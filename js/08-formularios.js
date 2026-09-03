@@ -318,6 +318,11 @@ function saveSkill() {
     if (currentSkillId === editingSkillId) { renderDetail(); showView("detail"); }
     else showView("home");
   } else {
+    /* El tope, y SOLO al crear, por lo mismo que los otros cuatro: editar lo
+       que ya existe no se toca nunca —«congelar, nunca quitar»—. Va antes del
+       `push` y no después, o la habilidad ya estaría dentro cuando salta el
+       cuadro. */
+    if (!cabeUnoMas("skills", state.skills.length)) { topeAlcanzado("skills"); return; }
     state.skills.push({
       id: uid(), name, category, icon: fIcon, color: fColor,
       xp: 0, permanent, graceDays, decayPerDay,
@@ -789,6 +794,24 @@ function saveProject() {
   const desc = document.getElementById("pr-desc").value.trim();
   const skillId = document.getElementById("pr-skill").value || null;
   const xpReward = Math.max(0, parseInt(document.getElementById("pr-xp").value) || 0);
+  /* Los topes, y solo al CREAR, por lo mismo que en el formulario de
+     talentos: editar lo que ya existe no se toca nunca —«congelar, nunca
+     quitar»—. Y antes de `aprenderAlGuardar`, que ya deja rastro en las
+     habilidades: parar después enseñaría una habilidad de un encargo que no
+     llegó a existir. */
+  if (!editingProjectId) {
+    /* La rama se escribe a mano en este formulario, así que por aquí se puede
+       crear un proyecto sin pasar por el botón de «Nuevo proyecto». */
+    if (!ramasDe("projects").includes(branch) && !cabeUnoMas("ramasProyectos", ramasDe("projects").length)) {
+      topeAlcanzado("ramasProyectos");
+      return;
+    }
+    if (!cabeUnoMas("encargos", encargosDeRama(branch).length)) {
+      topeAlcanzado("encargos");
+      return;
+    }
+  }
+
   aprenderAlGuardar("pr", name, skillId);
 
   if (editingProjectId) {

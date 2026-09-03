@@ -138,12 +138,42 @@ const PLANES = {
      apariencia si puede usar las apariencias completas */
 const LIMITES = {
   libre: {
-    ramas: 1,
-    /* Doce, y no quince o veinte. Le advertí que doce se tocan en semanas y
-       que eso convierte lo gratis en una prueba más que en una app; lo dejó
-       en doce a sabiendas. Los dos límites van juntos porque limitar ramas
-       sin limitar talentos invita a meter todo en una y no pagar nunca. */
+    /* Tres, y es EL MISMO número de áreas que deja elegir la bienvenida —de
+       hecho ella lo lee de aquí, en `toggleArea`, para que no haya dos cifras
+       que se puedan desincronizar—. Era una, y con una sola rama el lienzo no
+       dibuja un árbol: dibuja una lista. La pantalla más trabajada de la app
+       quedaba entera detrás del muro, y lo que hay que enseñar para que
+       alguien quiera pagar es justo eso. */
+    ramas: 3,
+    /* Doce POR RAMA, no doce en total: la cuenta se hace con
+       `talentosDeRama()` en 07 y en 08, así que quien no paga llega a 36. Le
+       advertí que doce se tocan en semanas y que eso convierte lo gratis en
+       una prueba más que en una app; con tres ramas eso ya no muerde igual.
+       Los dos límites van juntos porque limitar ramas sin limitar talentos
+       invita a meter todo en una y no pagar nunca. */
     talentos: 12,
+    /* Proyectos no tenía tope de NINGUNA clase hasta aquí: ni ramas ni
+       encargos, en ningún plan, mientras la tabla de precios ya hablaba de
+       límites. Dos y no una por lo mismo que las tres de talentos: con un
+       solo proyecto el mapa no enseña nada de lo que sabe hacer, y eso es
+       justo lo que tiene que verse para querer más.
+
+       Y los encargos se cuentan POR RAMA, igual que los talentos, porque
+       limitar ramas sin limitar lo de dentro invita a meterlo todo en una y
+       no pagar nunca. Ojo con el vocabulario, que aquí cambia: una «rama» de
+       proyectos se llama PROYECTO en pantalla, y sus hijos ENCARGOS. */
+    ramasProyectos: 2,
+    encargos: 3,
+    /* Seis, y el número no es nuevo: es el que ya reparte la bienvenida. Deja
+       elegir hasta TRES áreas y cada una trae DOS habilidades, así que quien
+       termina el cuestionario sale con seis exactas. El comentario de
+       `ONBOARD_AREAS` lo decía —«el tope del plan gratuito»— pero no había
+       ninguna clave que lo aplicara: la frase prometía un límite que nadie
+       cumplía, y crear la séptima a mano no encontraba ninguna puerta.
+
+       Seis son dos por área y tres áreas, que es justo lo que cabe practicar
+       de verdad; el que quiera más ya sabe que hay un plan que lo abre. */
+    skills: 6,
     /* Vacío, y es un cambio de reparto que Eduardo cerró el 27 ago 2026: el
        panel de cada módulo ya ES el informe del día, así que un informe
        diario no añadiría nada; y de la semana en adelante se paga. Antes esta
@@ -162,6 +192,9 @@ const LIMITES = {
   pro: {
     ramas: Infinity,
     talentos: Infinity,
+    ramasProyectos: Infinity,
+    encargos: Infinity,
+    skills: Infinity,
     resumen: ["semana", "mes", "ano"],
     apariencia: true,
     celebracion: true
@@ -480,9 +513,36 @@ function planIncluyeResumen(cual) {
    dónde se sigue. */
 function topeTexto(clave) {
   if (clave === "ramas") {
+    /* El número sale de `LIMITES`, por lo mismo que el de talentos de aquí
+       abajo: esta frase decía «Llenaste la primera» de cuando el tope era
+       una, y siguió diciéndolo después de pasar a tres. */
     return {
       titulo: "Tu árbol pide otra rama",
-      frase: "Llenaste la primera. Con " + NOMBRE_PRO + " abres las que quieras, y cada una lleva su propio camino."
+      frase: "Las " + LIMITES.libre.ramas + " ramas del plan Gratuito, llenas. " +
+        "Con " + NOMBRE_PRO + " abres las que quieras, y cada una lleva su propio camino."
+    };
+  }
+  if (clave === "ramasProyectos") {
+    return {
+      titulo: "Otro proyecto en marcha",
+      frase: "Los " + LIMITES.libre.ramasProyectos + " proyectos del plan Gratuito, ocupados. " +
+        "Con " + NOMBRE_PRO + " llevas a la vez los que quieras."
+    };
+  }
+  if (clave === "encargos") {
+    return {
+      titulo: "Este proyecto va lleno",
+      frase: "Los " + LIMITES.libre.encargos + " encargos del plan Gratuito, puestos. " +
+        "Con " + NOMBRE_PRO + " este proyecto sigue creciendo sin contar."
+    };
+  }
+  if (clave === "skills") {
+    /* El número sale de `LIMITES`, como en las otras cuatro: el día que seis
+       sean ocho, esta frase no puede seguir diciendo seis. */
+    return {
+      titulo: "Tu lista de habilidades va llena",
+      frase: "Las " + LIMITES.libre.skills + " habilidades del plan Gratuito, en marcha. " +
+        "Con " + NOMBRE_PRO + " añades las que quieras, y todas siguen subiendo igual."
     };
   }
   if (clave === "talentos") {

@@ -2612,6 +2612,15 @@ function renderCatalogo() {
 function añadirDelCatalogo() {
   const elegidas = SKILL_CATALOG.filter(x => catalogoSel.has(x.n) && !yaTengo(x.n));
   if (!elegidas.length) return;
+  /* Aquí no se añade una: se añaden las que estén marcadas. Así que el tope se
+     mira contra el LOTE entero y no de una en una — si no, con cinco puestas y
+     cuatro marcadas entrarían las cuatro y el plan se saltaría por el sitio más
+     fácil de encontrar. Se para el lote completo y se dice por qué; elegir
+     cuáles caben es de quien las eligió, no nuestro. */
+  if (!cabeUnoMas("skills", state.skills.length + elegidas.length - 1)) {
+    topeAlcanzado("skills");
+    return;
+  }
   elegidas.forEach(x => state.skills.push(nuevaHabilidad(x.n, x.c, x.i, x.k)));
   save();
   catalogoSel = new Set();
@@ -2830,11 +2839,14 @@ function ramasDe(kind) {
 
 async function crearRama(kind) {
   const esTalentos = kind === "perks";
-  /* El tope de ramas es solo de Talentos: `LIMITES.ramas` habla del árbol, y
-     los proyectos no tienen tope en ningún plan. Se pregunta ANTES de
+  /* Cada módulo tiene su propia clave de tope porque los números son
+     distintos: tres ramas de talentos y dos proyectos. Antes esto miraba solo
+     Talentos y Proyectos no miraba nada, así que la tabla de precios prometía
+     un límite que la app no aplicaba en ningún sitio. Se pregunta ANTES de
      pedir el nombre, para no hacer escribir algo que se va a tirar. */
-  if (esTalentos && !cabeUnoMas("ramas", ramasDe("perks").length)) {
-    topeAlcanzado("ramas");
+  const claveTope = esTalentos ? "ramas" : "ramasProyectos";
+  if (!cabeUnoMas(claveTope, ramasDe(kind).length)) {
+    topeAlcanzado(claveTope);
     return;
   }
   const nombre = await askText(
