@@ -66,8 +66,47 @@ async function revisarAdmin() {
    a propósito. Cuatro barras y un número grande no necesitan trescientos
    kilobytes. */
 
-function panelCifra(valor, rotulo, pista) {
-  return `<div class="pn-kpi">
+/* ---- La nomenclatura de color, y es la regla de todo el panel ----
+
+   La pidió Eduardo el 28 ago 2026 con una frase que la resume mejor que
+   cualquier explicación: «que todo se vea verde no me dice nada». Y tenía
+   razón por debajo de lo que parecía — no era fealdad, era que el color no
+   estaba diciendo nada: las seis cifras de La gente, las tres de la gráfica,
+   los cuatro escalones del embudo y todas las barras salían en menta, así que
+   el verde solo significaba «esto es un número».
+
+   La regla, y solo hay una: **el color aparece cuando hay un JUICIO, y la
+   tinta normal cuando solo hay un dato.** Un número sin vara contra la que
+   compararse no puede estar bien ni mal, y pintarlo de un color le pone una
+   opinión encima que nadie ha calculado.
+
+     tinta         un dato que solo cuenta: cuentas creadas, aperturas,
+                   versiones, cuánto llevan con cuenta. La mayoría del panel.
+     menta         llega a la vara
+     luciérnaga    hay que mirarlo: va a medias, o es raro
+     coral         se pierde gente, o algo se rompió
+
+   Dos excepciones a propósito, porque ahí el color es IDENTIDAD y no juicio:
+   la línea de la constelación (es la serie, y solo hay una) y los planes del
+   cobro (menta los que se renuevan, lila el fundador, que es su color desde
+   0.7.15). Los gajos de una dona son identidad también, y por eso ninguno
+   puede ser coral: un reparto de aparatos no tiene un lado malo.
+
+   Dónde NO se toca: la tendencia de la gráfica (▲▼) ya usaba `--var-sube` y
+   `--var-baja`, que es esta misma idea escrita antes y en todos los mundos. */
+
+/* De un porcentaje y su vara sale la clase, y de ningún otro sitio. El escalón
+   de en medio existe porque «no llega» no es lo mismo que «se está cayendo»:
+   con la vara en 20 y un 19, pintar coral asusta por un punto. */
+function panelTono(pct, vara) {
+  if (!vara || pct == null) return "";
+  if (pct >= vara) return "bien";
+  if (pct >= vara * 0.6) return "ojo";
+  return "mal";
+}
+
+function panelCifra(valor, rotulo, pista, tono) {
+  return `<div class="pn-kpi${tono ? " " + tono : ""}">
       <b>${escapeHtml(String(valor))}</b>
       <span>${escapeHtml(rotulo)}</span>
       ${pista ? `<i>${escapeHtml(pista)}</i>` : ""}
@@ -75,14 +114,26 @@ function panelCifra(valor, rotulo, pista) {
 }
 
 /* De cuántos, cuántos — con el divisor a la vista. Un «3 siguen» no significa
-   nada sin saber de cuántos: puede ser estupendo o ser un desastre. */
-function panelDeCada(parte, total, rotulo, pista) {
+   nada sin saber de cuántos: puede ser estupendo o ser un desastre.
+
+   `vara` es el número a partir del cual esto va bien, y es UN solo dato para
+   dos cosas: escribe el «señal buena: 20%» del pie y decide el color de la
+   cifra. Iban por separado —el texto a mano en la llamada, el color en ningún
+   sitio— y ahí es donde nacen las dos verdades: cambiar la vara habría dejado
+   el rótulo diciendo una cosa y el color juzgando por otra.
+
+   Sin `vara` la cifra sale en tinta, que es lo correcto: un porcentaje del que
+   no sabemos qué esperar no puede estar bien ni mal. */
+function panelDeCada(parte, total, rotulo, vara) {
   const p = total > 0 ? Math.round((parte / total) * 100) : 0;
   const texto = total > 0 ? p + "%" : "—";
-  return `<div class="pn-kpi">
+  /* Sin datos no hay juicio: cero de cero no es un desastre, es que todavía
+     no ha pasado nada. */
+  const tono = total > 0 ? panelTono(p, vara) : "";
+  return `<div class="pn-kpi${tono ? " " + tono : ""}">
       <b>${texto}</b>
       <span>${escapeHtml(rotulo)}</span>
-      <i>${total > 0 ? parte + " de " + total : "todavía sin datos"}${pista ? " · " + escapeHtml(pista) : ""}</i>
+      <i>${total > 0 ? parte + " de " + total : "todavía sin datos"}${vara ? " · señal buena: " + vara + "%" : ""}</i>
     </div>`;
 }
 
@@ -338,21 +389,44 @@ function panelEmbudo(pasos) {
   }
   const tope = ps[0].n;
 
+  /* Cuánta gente se cae en cada escalón, y cuál es el peor. El panel ya
+     prometía «el escalón donde más gente se cae es el que hay que arreglar
+     primero» y luego pintaba los cuatro iguales, así que había que contarlos a
+     ojo. Ahora se marca UNO solo: si se marcan dos, vuelve a no haber ninguno.
+
+     Se mide en PERSONAS y no en porcentaje, que es lo que dice la frase y
+     además lo que se puede arreglar: un 80% de caída sobre tres personas son
+     dos personas, y un 30% sobre doscientas son sesenta. */
+  const perdidas = ps.map((p, i) => (i > 0 ? Math.max(ps[i - 1].n - p.n, 0) : 0));
+  const maxPerdida = Math.max(...perdidas);
+  const iPeor = maxPerdida > 0 ? perdidas.indexOf(maxPerdida) : -1;
+
   return `<div class="pn-embudo">` + ps.map((p, i) => {
     const ancho = Math.max((p.n / tope) * 100, p.n > 0 ? 4 : 0);
     const antes = i > 0 ? ps[i - 1].n : null;
     /* Solo se marca la caída cuando hay gente que perder. Escribir «−0%»
        debajo de un cero es ruido con aire de dato. */
     const cae = (antes && antes > 0) ? Math.round(((antes - p.n) / antes) * 100) : 0;
-    return `<div class="pn-paso">
+    /* Un escalón MÁS GRANDE que el de arriba no es una buena noticia: es la
+       señal de que este paso no se está calculando como un trozo del anterior
+       —«Siguen esta semana» se cuenta suelto, y por eso puede salir un 3
+       debajo de un 2—. Antes caía en el «no se pierde nadie», que es la
+       lectura más halagadora posible de un dato roto. */
+    const crece = antes != null && p.n > antes;
+    const clase = crece ? "crece" : (i === iPeor ? "peor" : "");
+    return `<div class="pn-paso ${clase}">
         <div class="pn-paso-tit">
           <span>${escapeHtml(p.paso)}</span>
           <b>${p.n}</b>
         </div>
         <div class="pn-paso-riel"><i style="width:${ancho.toFixed(1)}%"></i></div>
-        ${(i > 0 && cae > 0)
-          ? `<div class="pn-caida">se pierde el ${cae}% del paso anterior</div>`
-          : (i > 0 ? `<div class="pn-caida ok">no se pierde nadie</div>` : "")}
+        ${crece
+          ? `<div class="pn-caida ojo">sube en vez de bajar: este paso no se cuenta como un trozo del anterior</div>`
+          : (i === iPeor
+            ? `<div class="pn-caida">aquí se pierde más gente que en ningún otro paso: ${maxPerdida} ${maxPerdida === 1 ? "persona" : "personas"}, el ${cae}% del anterior</div>`
+            : (i > 0 && cae > 0
+              ? `<div class="pn-caida ok">se pierde el ${cae}% del paso anterior</div>`
+              : (i > 0 ? `<div class="pn-caida ok">no se pierde nadie</div>` : "")))}
       </div>`;
   }).join("") + `</div>`;
 }
@@ -628,15 +702,19 @@ function renderPanelAdmin() {
   /* Los avisos solo aparecen si hay algo que mirar. Una fila de ceros
      permanente enseña a no mirarla, y entonces el día que deja de ser cero
      tampoco se mira. */
+  /* Los tres avisos salían del mismo oro, y no son lo mismo: dos son gente que
+     todavía se puede recuperar —un correo sin confirmar se vuelve a mandar— y
+     el tercero es alguien que ya se va. La nomenclatura de color lo separa sin
+     una palabra más: oro lo que hay que mirar, coral lo que se pierde. */
   const avisos = [
     (r.sin_confirmar || 0) > 0
-      ? { n: r.sin_confirmar, t: "sin confirmar el correo", d: "se registraron y nunca pulsaron el enlace" }
+      ? { n: r.sin_confirmar, k: "ojo", t: "sin confirmar el correo", d: "se registraron y nunca pulsaron el enlace" }
       : null,
     (r.nunca_abrieron || 0) > 0
-      ? { n: r.nunca_abrieron, t: "nunca abrieron la app", d: "tienen cuenta y jamás entraron" }
+      ? { n: r.nunca_abrieron, k: "ojo", t: "nunca abrieron la app", d: "tienen cuenta y jamás entraron" }
       : null,
     (r.pidieron_borrado || 0) > 0
-      ? { n: r.pidieron_borrado, t: "pidieron borrar su cuenta", d: "en el plazo de 30 días para arrepentirse" }
+      ? { n: r.pidieron_borrado, k: "mal", t: "pidieron borrar su cuenta", d: "en el plazo de 30 días para arrepentirse" }
       : null
   ].filter(Boolean);
 
@@ -644,7 +722,7 @@ function renderPanelAdmin() {
     ${avisos.length ? `<div class="panel">
       <h3>Para mirar</h3>
       <div class="pn-avisos">
-        ${avisos.map(a => `<div class="pn-aviso">
+        ${avisos.map(a => `<div class="pn-aviso ${a.k}">
             <b>${a.n}</b>
             <span>${escapeHtml(a.t)}</span>
             <i>${escapeHtml(a.d)}</i>
@@ -663,8 +741,8 @@ function renderPanelAdmin() {
       <div class="pn-kpis">
         ${panelCifra(r.cuentas || 0, "Cuentas creadas")}
         ${panelCifra(r.activos7 || 0, "Activos esta semana", "abrieron en 7 días")}
-        ${panelDeCada(r.siguen30 || 0, r.maduros || 0, "Siguen tras 30 días", "señal buena: 20%")}
-        ${panelDeCada(r.volvieron || 0, r.abrieron || 0, "Volvieron otro día", "señal buena: 40%")}
+        ${panelDeCada(r.siguen30 || 0, r.maduros || 0, "Siguen tras 30 días", 20)}
+        ${panelDeCada(r.volvieron || 0, r.abrieron || 0, "Volvieron otro día", 40)}
         ${panelCifra(r.dias_medios || 0, "Días de uso por persona", "cuántos días distintos abre cada quien")}
         ${panelCifra(r.aperturas7 || 0, "Aperturas esta semana", "veces que se abrió, en total")}
       </div>
@@ -721,7 +799,15 @@ function renderPanelAdmin() {
     <div class="panel">
       <h3>Con qué versión se quedó cada quien</h3>
       <p class="settings-note">Una fila por persona: <strong>la última versión que vio</strong>, no todas las que ha usado nunca. Si aquí aparece una que ya no existe, hay alguien pegado a una copia vieja — casi siempre porque no se subió el número de <code>CACHE</code> en <code>sw.js</code>.</p>
-      ${panelListaBarras(m.versiones, "version", "personas", "Nadie ha abierto la app en los últimos treinta días.")}
+      ${panelListaBarras(m.versiones, "version", "personas", "Nadie ha abierto la app en los últimos treinta días.",
+          null,
+          /* Las barras oscuras y solo la de hoy destacada, que es lo que pidió
+             Eduardo. Con todas en menta, la fila que importa —cuánta gente ya
+             estrenó lo último— había que buscarla leyendo los números uno por
+             uno, y son quince o veinte. `VERSION` es la constante que esta
+             pestaña está ejecutando, así que la marca se mueve sola con cada
+             publicación y no hay una segunda lista que actualizar. */
+          (v) => (typeof VERSION !== "undefined" && v === VERSION) ? "t-bien" : "")}
     </div>
 
     ${panelReportesHTML(tropiezos)}
@@ -746,6 +832,17 @@ function renderPanelAdmin() {
     </div>
 
     <div class="panel">
+      <!-- La clave de los colores va al FINAL y no arriba. Es una referencia:
+           se consulta la primera vez y las dos que uno se olvida, y puesta
+           encima de los números sería un bloque de texto antes de lo que se
+           viene a ver — el mismo motivo por el que las cifras de la gráfica
+           bajaron debajo del dibujo. -->
+      <div class="pn-clave">
+        <span><i class="bien"></i>llega a la vara</span>
+        <span><i class="ojo"></i>hay que mirarlo</span>
+        <span><i class="mal"></i>se pierde gente</span>
+      </div>
+      <p class="settings-note">Lo demás va en tinta normal a propósito: es un dato, no un juicio. Un número sin una vara contra la que compararse no puede estar bien ni mal.</p>
       <p class="settings-note" style="margin:0">Números tomados ${escapeHtml(String(m.al_momento || "").slice(0, 16).replace("T", " a las "))}.</p>
       <button class="btn btn-linea btn-block" style="margin-top:10px" onclick="cargarMetricas()">Volver a pedirlos</button>
     </div>`;
