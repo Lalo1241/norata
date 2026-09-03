@@ -228,9 +228,22 @@ function _traducirRanura(leer, escribir, dsOrig, dsPuesto, guardar) {
   if (nuevo !== ahora) escribir(nuevo);
 }
 
+/* Mientras la app esté en español y nunca haya salido de ahí, el barrido no
+   tiene nada que hacer: `tx()` devuelve la entrada tal cual, así que recorrer
+   dos mil nodos para escribir lo mismo que ya había es trabajo puro. Y no es
+   solo el tiempo —que es poco—: sin esto, la app en español amanece con
+   doscientos `data-es` en el marcado que no le sirven a nadie.
+
+   La bandera no se puede quitar: en cuanto se ha traducido una vez, volver al
+   español necesita el barrido para RESTAURAR. Sin ella, «volver a Español»
+   dejaba la pantalla en inglés. */
+let _yaTraducido = false;
+
 function traducirDOM(raiz) {
   const base = raiz || document.body;
   if (!base) return;
+  if (IDIOMA === IDIOMA_POR_DEFECTO && !_yaTraducido) return;
+  if (IDIOMA !== IDIOMA_POR_DEFECTO) _yaTraducido = true;
 
   /* Los nodos de texto, uno por uno y no `textContent` del padre: un
      `<p>Elige <b>una</b> opción</p>` son tres nodos y tres frases; pisar el
