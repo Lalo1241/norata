@@ -8885,12 +8885,19 @@
    viaja con la app como todo lo demás. Ver `js/10e-panel.js`.
 
    Dos decisiones de color que siguen la regla de la paleta:
-   - Las barras RELLENAN superficie, así que van en `--mint-macizo`. Con el
-     tono de escribir se veían apagadas de día.
+   - Las barras RELLENAN superficie, así que van en `-macizo`. Con el tono de
+     escribir se veían apagadas de día.
    - El riel de cada barra es `--carril` y no `--line`: un borde tiene que
      apenas notarse, pero un carril tiene que dejar ver por dónde va lo lleno.
    Y ninguna transición sobre estas propiedades: su valor sale de una
-   variable, y Chrome deja el color congelado en el inicial para siempre. */
+   variable, y Chrome deja el color congelado en el inicial para siempre.
+
+   ---- Y LA REGLA DEL COLOR, que manda sobre todo lo de abajo ----
+   El color aparece cuando hay un JUICIO; un dato que solo cuenta va en tinta.
+   `bien` es menta, `ojo` luciérnaga y `mal` coral, y son las mismas tres
+   clases en las cifras, en los avisos, en el embudo y en las barras. La
+   explicación larga —y por qué la línea de la gráfica y los planes del cobro
+   se quedan de color— está en `js/10e-panel.js`, junto a `panelTono`. */
 
 .pn-kpis {
   display: grid;
@@ -8912,9 +8919,25 @@
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.1;
-  color: var(--mint);
+  /* Tinta y no menta: seis cifras verdes seguidas no dicen que seis cosas
+     vayan bien, dicen que hay seis cifras. Ver la regla del color arriba. */
+  color: var(--text);
   font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
 }
+
+/* Las tres únicas del panel que se comparan contra algo. El borde izquierdo
+   además de la cifra, porque en una rejilla de seis la diferencia de color de
+   un número se pierde entre los rótulos. */
+.pn-kpi.bien b { color: var(--mint); }
+.pn-kpi.ojo  b { color: var(--fire); }
+.pn-kpi.mal  b { color: var(--coral); }
+/* Sin `-macizo`: tres píxeles son una LÍNEA y no una superficie, y de día el
+   tono de rellenar no llega a 3 sobre 1 contra la tarjeta (la menta maciza da
+   1,9). De noche las dos variables valen lo mismo, así que esto no cambia
+   nada ahí. Es la misma variable que ya usaba el borde de `.pn-aviso`. */
+.pn-kpi.bien { border-left: 3px solid var(--mint); }
+.pn-kpi.ojo  { border-left: 3px solid var(--fire); }
+.pn-kpi.mal  { border-left: 3px solid var(--coral); }
 
 .pn-kpi span { font-size: .82rem; color: var(--text); }
 .pn-kpi i { font-size: .72rem; color: var(--muted); font-style: normal; }
@@ -8984,7 +9007,10 @@
 .pn-gc { display: flex; flex-direction: column; gap: 1px; }
 .pn-gc b {
   font-size: 22px; font-weight: 800; line-height: 1;
-  color: var(--mint); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
+  /* En tinta: la media, el mejor día y el total son descripciones de la serie,
+     no un veredicto. El único juicio de esta caja es la tendencia, que ya
+     tenía su color. */
+  color: var(--text); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
 }
 .pn-gc span { font-size: 11px; color: var(--muted); }
 /* La tendencia se aparta del resto y se va al final: no es una cifra del
@@ -9072,8 +9098,18 @@
 
 /* Los tonos de las barras de una lista, cuando la lista los pide. */
 .pn-riel i.t-lila { background: var(--lila-macizo); }
+.pn-riel i.t-menta { background: var(--mint-macizo); }
 .pn-val.t-lila { color: var(--lila); }
 .pn-val.t-menta { color: var(--mint); }
+
+/* Las tres de la nomenclatura, con los mismos nombres que en todo el panel. */
+.pn-riel i.t-bien { background: var(--mint-macizo); }
+.pn-riel i.t-ojo  { background: var(--fire-macizo); }
+.pn-riel i.t-mal  { background: var(--coral-macizo); }
+.pn-val.t-bien { color: var(--mint); }
+.pn-val.t-ojo  { color: var(--fire); }
+.pn-val.t-mal  { color: var(--coral); }
+
 
 .pn-eje {
   fill: var(--muted);
@@ -9101,7 +9137,10 @@
   overflow: hidden;
 }
 
-.pn-riel i { display: block; height: 100%; background: var(--mint-macizo); border-radius: var(--r-barra); }
+/* Neutras por defecto: una lista de versiones o de tramos de antigüedad es un
+   reparto, y ninguno de sus renglones es mejor que otro. El color se pide
+   desde la llamada (`tono`) y solo donde significa algo. */
+.pn-riel i { display: block; height: 100%; background: var(--muted); border-radius: var(--r-barra); }
 
 .pn-val { color: var(--muted); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
 
@@ -9641,6 +9680,12 @@ html.claro .plan-linea { stroke-opacity: .85; }
 .pn-aviso span { font-size: .82rem; color: var(--text); }
 .pn-aviso i { font-size: .72rem; color: var(--muted); font-style: normal; }
 
+/* Oro lo que se puede recuperar, coral lo que ya se va. Los tres salían del
+   mismo oro y «pidieron borrar su cuenta» no es del mismo color que «no han
+   confirmado el correo». */
+.pn-aviso.mal { border-left-color: var(--coral); }
+.pn-aviso.mal b { color: var(--coral); }
+
 /* ---- El embudo ---- */
 .pn-embudo { display: flex; flex-direction: column; gap: 14px; }
 
@@ -9655,7 +9700,7 @@ html.claro .plan-linea { stroke-opacity: .85; }
   color: var(--text);
 }
 
-.pn-paso-tit b { font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; color: var(--mint); }
+.pn-paso-tit b { font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; color: var(--text); }
 
 .pn-paso-riel {
   height: 10px;
@@ -9664,10 +9709,30 @@ html.claro .plan-linea { stroke-opacity: .85; }
   overflow: hidden;
 }
 
-.pn-paso-riel i { display: block; height: 100%; background: var(--mint-macizo); border-radius: var(--r-barra); }
+/* Los escalones, en un gris que no opina. Todos eran menta, y con eso el
+   embudo prometía en su propio texto que el peor escalón es el que hay que
+   arreglar y luego pintaba los cuatro igual de bien. */
+.pn-paso-riel i { display: block; height: 100%; background: var(--muted); border-radius: var(--r-barra); }
 
-.pn-caida { font-size: .74rem; color: var(--fire); }
+/* Uno solo se marca. Con dos vuelve a no haber ninguno. */
+.pn-paso.peor .pn-paso-riel i { background: var(--coral-macizo); }
+.pn-paso.peor .pn-paso-tit b { color: var(--coral); }
+/* Y el escalón que CRECE es oro y no coral: no es que se pierda gente, es que
+   ese paso no se está contando como un trozo del anterior. */
+.pn-paso.crece .pn-paso-riel i { background: var(--fire-macizo); }
+.pn-paso.crece .pn-paso-tit b { color: var(--fire); }
+
+/* El amarillo sobre el carril claro es la trampa que ya está escrita en
+   CLAUDE.md: de día `--fire-macizo` contra `--carril` da 1,21 y lo lleno de la
+   barra deja de verse. Solo lo pisa el amarillo —la menta da 1,63 y el coral
+   2,2, que se separan por matiz—, así que la excepción es de dos selectores y
+   no un cambio de la regla: de día las barras siguen siendo macizas. */
+html.claro .pn-paso.crece .pn-paso-riel i,
+html.claro .pn-riel i.t-ojo { background: var(--fire); }
+
+.pn-caida { font-size: .74rem; color: var(--coral); }
 .pn-caida.ok { color: var(--muted); }
+.pn-caida.ojo { color: var(--fire); }
 
 /* ---- Las donas ---- */
 .pn-donas {
@@ -9696,8 +9761,11 @@ html.claro .plan-linea { stroke-opacity: .85; }
 .pn-gajo { fill: none; }
 .pn-gajo-1 { stroke: var(--mint-macizo); }
 .pn-gajo-2 { stroke: var(--celeste); }
-.pn-gajo-3 { stroke: var(--fire-macizo); }
-.pn-gajo-4 { stroke: var(--coral-macizo); }
+/* Ni oro ni coral aquí: en un reparto de aparatos no hay un lado malo, y con
+   la nomenclatura puesta un gajo coral se leería como una alarma. Identidad,
+   no juicio — por eso lila y gris, que no significan nada en este panel. */
+.pn-gajo-3 { stroke: var(--lila-macizo); }
+.pn-gajo-4 { stroke: var(--muted); }
 
 .pn-dona-num {
   fill: var(--text);
@@ -9725,8 +9793,31 @@ html.claro .plan-linea { stroke-opacity: .85; }
 
 .pn-ley i.pn-gajo-1 { background: var(--mint-macizo); }
 .pn-ley i.pn-gajo-2 { background: var(--celeste); }
-.pn-ley i.pn-gajo-3 { background: var(--fire-macizo); }
-.pn-ley i.pn-gajo-4 { background: var(--coral-macizo); }
+.pn-ley i.pn-gajo-3 { background: var(--lila-macizo); }
+.pn-ley i.pn-gajo-4 { background: var(--muted); }
+
+/* ---- La clave de los colores, al pie de todo ----
+   Tres puntos y tres palabras. Es la nomenclatura escrita: sin ella el color
+   solo funciona para quien lo programó, y este panel lo mira alguien que entra
+   una vez cada varios días. */
+.pn-clave {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  align-items: center;
+  margin: 0 0 8px;
+  font-size: .78rem;
+  color: var(--text);
+}
+
+.pn-clave span { display: inline-flex; align-items: center; gap: 6px; }
+.pn-clave i { width: 9px; height: 9px; border-radius: var(--r-redondo); flex: none; }
+/* Sin `-macizo` por lo mismo que los bordes: son puntos de 9 px sobre una
+   tarjeta clara, y el amarillo macizo ahí da 1,4 — la clave de los colores no
+   puede ser lo único que no se ve. De noche valen igual. */
+.pn-clave i.bien { background: var(--mint); }
+.pn-clave i.ojo  { background: var(--fire); }
+.pn-clave i.mal  { background: var(--coral); }
 
 /* ---- Añadidos a la constelación ---- */
 
