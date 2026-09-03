@@ -76,6 +76,46 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### Sin número · 3 sep 2026 — las diez plantillas
+
+**No lleva versión a propósito, y es la primera entrada de esta lista que no la
+lleva.** Lo que entró es `plantillas/LEEME.md`: documentación, fuera de
+`ASSETS`, que no cambia un byte de lo que sirve la app. Subir `CACHE` habría
+obligado a todos los aparatos instalados a volver a bajarse los 460 KB para
+recibir exactamente lo que ya tienen. Queda anotado aquí porque el trabajo
+importa; el número se reserva para cuando cambie la app.
+
+Diez caminos listos para soltar en el tablero de alguien, con sus peldaños, sus
+pasos, sus plazos y las misiones que los alimentan. Viven fuera de `js/` porque
+**todavía no existe la pantalla que los dispara** — la misma regla que ya se
+saltó una vez con `03-cambio-de-correo.html`.
+
+Tres decisiones que el documento explica con su motivo:
+
+- **El método va DENTRO, no citado al pie.** «Semana 1: correr 1 minuto y
+  caminar 90 segundos, ocho veces» y no «aguantar más corriendo». Si al quitar
+  la línea de la fuente nadie sabría de dónde sale, el método está nombrado
+  pero no usado.
+- **Se revisa la vigencia, no la fecha.** Tres preguntas por método —¿lo
+  reemplazó su autor?, ¿sigue siendo lo recomendado?, ¿hay evidencia
+  posterior?— y una columna «Revisado» para no repetir la investigación entera
+  cada vez. De los cinco métodos con nombre, tres necesitaban algo y dos no.
+- **El método se usa, la marca no.** Norata Pro cobra, y aunque la Ley Federal
+  del Derecho de Autor deja fuera «los métodos, sistemas» y «los esquemas,
+  planes o reglas», los nombres sí son de sus titulares. En pantalla va el
+  principio con palabras propias —«intervalos progresivos»—; la obra se cita en
+  la referencia, y hay descargo de no afiliación.
+
+**Y una dependencia eliminada en vez de gestionada:** el marco europeo de
+idiomas exige permiso escrito y solo lo concede gratis para uso no comercial.
+La plantilla del idioma se ancló a horas acumuladas y a lo que la persona puede
+hacer, y de paso se lee mejor: «sostienes una charla de verdad» dice algo que
+«nivel B1» no dice. El patrón queda escrito: *antes de gestionar un permiso,
+mirar si se puede construir sin él.*
+
+Las plantillas **entran con Pro**, no se venden sueltas: no cuestan nada por
+uso, así que no hay coste que recuperar cobrando aparte.
+
 ### 0.7.74 · 3 sep 2026
 
 **El panel deja de ser todo verde.** Es el punto 5 de los cinco que dictó
