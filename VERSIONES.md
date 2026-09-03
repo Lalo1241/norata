@@ -76,6 +76,71 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.74 · 3 sep 2026
+
+**El panel deja de ser todo verde.** Es el punto 5 de los cinco que dictó
+Eduardo el 28 de agosto, y su frase lo resume mejor que cualquier explicación:
+«que todo se vea verde no me dice nada». Tenía razón por debajo de lo que
+parecía —no era fealdad—: las seis cifras de La gente, las tres de la gráfica,
+los cuatro escalones del embudo y todas las barras salían en menta, así que el
+verde solo significaba «esto es un número».
+
+**La regla, y solo hay una: el color aparece cuando hay un JUICIO, y la tinta
+normal cuando solo hay un dato.** Un número sin vara contra la que compararse no
+puede estar bien ni mal, y pintarlo le pone encima una opinión que nadie ha
+calculado. Menta llega a la vara, luciérnaga hay que mirarlo, coral se pierde
+gente. Vive en `panelTono` (`js/10e-panel.js`) y en las mismas tres clases en
+todo el panel.
+
+Lo que cambia al mirarlo:
+
+- **Las dos cifras que tienen vara** —siguen a los 30 días, volvieron otro día—
+  se pintan solas contra ella, y la vara es UN dato que escribe el pie («señal
+  buena: 20%») y decide el color. Iban por separado: el texto a mano en la
+  llamada y el color en ningún sitio. Ahí es donde nacen las dos verdades.
+- **El embudo marca UN escalón**, el que más gente pierde, que es justo lo que
+  su propio texto prometía y luego no señalaba. Se mide en personas y no en
+  porcentaje, que es lo que dice la frase y además lo que se puede arreglar: un
+  80% sobre tres personas son dos personas. Si se marcan dos, vuelve a no haber
+  ninguno.
+- **Un escalón que CRECE ya no cae en «no se pierde nadie»** —la lectura más
+  halagadora posible de un dato roto—: sale en oro diciendo que ese paso no se
+  cuenta como un trozo del anterior. Es el fallo del embudo no anidado, dicho en
+  vez de escondido. El cálculo sigue igual y sigue pendiente.
+- **Las versiones, oscuras todas menos la de hoy**, que era el punto 4 y sale
+  gratis aquí. La marca la pone `VERSION`, así que se mueve sola con cada
+  publicación y no hay una segunda lista que actualizar.
+- **Los tres avisos ya no salen del mismo oro:** «pidieron borrar su cuenta» es
+  coral, que es una pérdida, y los otros dos son gente que todavía se recupera.
+- **Ningún gajo de una dona puede ser coral.** Un reparto de aparatos no tiene un
+  lado malo, y con la nomenclatura puesta un gajo coral se leería como alarma.
+  Pasan a lila y gris, que aquí no significan nada.
+- **Y una clave al pie**, con los tres puntos y sus tres palabras. Va al final y
+  no arriba porque es una referencia: puesta encima sería un bloque de texto
+  antes de lo que se viene a ver.
+
+**Cómo se verificó**, que aquí no se podía a ojo: el panel solo se dibuja para
+la cuenta administradora y contra datos del servidor, así que se sembraron
+métricas de mentira desde la consola y se midieron los estilos calculados en los
+dos modos. Incluido el caso vacío —una cuenta sin nada: todas las cifras en
+tinta, ningún escalón marcado— y un embudo sin pérdidas, donde tampoco se marca
+nada. Que es lo correcto: sin datos no hay juicio.
+
+**Dos trampas de color que salieron al medir el modo claro:**
+
+- **El oro dentro del carril claro da 1,21.** Es la trampa que ya está escrita en
+  `CLAUDE.md` con otras palabras, y solo la pisa el amarillo: la menta da 1,63 y
+  el coral 2,2, que se separan por matiz. Lleva su excepción de dos selectores
+  (`html.claro`), y de día las barras siguen siendo macizas como manda la regla.
+- **Tres píxeles son una LÍNEA, no una superficie.** Los bordes de las cifras y
+  los puntos de la clave van sin `-macizo`, porque de día el tono de rellenar no
+  llega a 3 sobre 1 contra la tarjeta. De noche las dos variables valen lo mismo,
+  así que ahí no cambia nada. Es la misma variable que ya usaba `.pn-aviso`.
+
+**Va con número propio y no dentro de la 0.7.73** porque son dos tandas de dos
+sesiones distintas trabajando en la misma carpeta a la vez, y cada tanda necesita
+su número: dos publicaciones bajo el mismo `CACHE` dejan a quien abra en medio
+con la copia vieja puesta hasta el siguiente cambio de número.
 ### 0.7.73 · 3 sep 2026
 **La bienvenida arma tu tablero por áreas, y el plan Gratuito por fin tiene
 todos sus topes puestos.**
