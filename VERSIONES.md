@@ -76,6 +76,50 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.74.1 · 3 sep 2026
+
+**La garantía de devolución, escrita donde se decide pagar.** Existía en los
+términos —7 días en Pro, 30 en Fundador— y no se veía en ninguna pantalla. Una
+promesa que solo vive en un documento legal no tranquiliza a nadie, porque nadie
+lo lee antes de pulsar el botón.
+
+Sale de una conversación que empezó por otro lado: Eduardo propuso una **prueba
+gratis de 7 días** y alinear con ella la ventana del reembolso. Se descartó, y
+el motivo es el que ordena todo lo demás: **Norata ya tiene una prueba gratis y
+es mejor, porque no caduca** — el plan Gratuito da tres ramas, doce talentos en
+cada una, dos proyectos y tres encargos. Encima de eso, una prueba de siete días
+sería ofrecer algo peor de lo que ya se da, y además pediría la tarjeta por
+adelantado a alguien que hoy no tiene que darla. Fundador tampoco podría
+tenerla: es un pago único, no una suscripción.
+
+Lo que sí acertaba la idea era el miedo que señalaba —pagar sin conocer—, y eso
+se contesta con la garantía. Dos renglones:
+
+- **Debajo de las dos tarjetas de plan**, uno solo para las dos: la garantía es
+  la misma promesa con dos plazos, y repetida en cada tarjeta se lee como letra
+  pequeña.
+- **En el cuadro que sale al topar con un límite**, en corto y solo con el plazo
+  de Pro: ahí nadie está comparando planes, va a pulsar Pro.
+
+**Los días viven en una constante (`GARANTIA`) y no dentro de las frases**, por
+lo mismo que los topes viven en `LIMITES`: son el mismo dato en dos pantallas.
+El tercer sitio es la página de términos y esa se cambia a mano — queda dicho en
+el comentario, porque una garantía que dice siete en un sitio y cinco en otro es
+la peor clase de segunda verdad.
+
+**Y por qué 7 y 30 y no el mismo número en los dos:** Fundador cuesta trece
+veces más y no tiene renovación de la que arrepentirse. Bajarlo a siete sería
+recortar la confianza justo en el plan que más confianza pide.
+
+**La trampa que volvió a morder, y van dos:** el comentario que dejé encima del
+renglón llevaba la ruta de la página de términos escrita **entre comillas
+invertidas**, y ese comentario vive dentro de una plantilla de JavaScript. La
+comilla invertida corta la plantilla. El síntoma no señala a ningún comentario:
+sale un `ReferenceError` de una palabra que nadie declaró —aquí, «terminos is
+not defined»— y la función entera deja de existir. Ya está anotado en
+`CLAUDE.md` desde la primera vez; esta vez lo cazó la prueba en el navegador
+antes de commitear.
+
 ### Sin número · 3 sep 2026 — el reembolso de un Fundador
 
 **Tampoco lleva versión, y por el mismo motivo que la entrada de abajo:** lo que

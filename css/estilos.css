@@ -5642,6 +5642,19 @@
     font-size: 13px;
     color: var(--muted);
     text-align: center;
+    /* Ya no cierra el bloque: debajo va la garantía, y el aire de abajo lo
+       pone ella. Con el margen aquí, las dos frases se leían como dos cosas. */
+    margin-bottom: 4px;
+  }
+
+  /* La garantía, más apagada que el precio y en el mismo eje. Es lo último que
+     se lee antes de pulsar y no compite con la cifra: contesta al miedo que
+     queda DESPUÉS de verla. */
+  .modal-card.menta .tope-garantia {
+    display: block;
+    font-size: 12.5px;
+    color: var(--faint);
+    text-align: center;
     margin-bottom: 18px;
   }
   /* ---- El botón de comprar no se va bajo el pliegue ----
@@ -9272,6 +9285,18 @@
 }
 
 .plan-cards { display: grid; gap: 10px; margin: 14px 0 4px; }
+
+/* La garantía de devolución, debajo de las dos tarjetas y no dentro de cada
+   una: es la misma promesa con dos plazos, y repetida en las dos se lee como
+   letra pequeña. Centrada y apagada — no es un argumento de venta más, es lo
+   que se lee justo después de decidir. */
+.plan-garantia {
+  margin: 10px 2px 4px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  text-align: center;
+}
 @media (min-width: 900px) { .plan-cards { grid-template-columns: repeat(3, 1fr); } }
 
 .plan-card {
