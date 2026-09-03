@@ -1493,15 +1493,20 @@
      La cuenta, que hay que rehacer si se toca cualquiera de las dos piezas: el
      reloj de los doce segundos arranca al LLAMAR a `celebrateStreak`, pero las
      animaciones no arrancan hasta que entra la escena, 0,42 s después. Así que
-     para apagarse dos segundos antes del cierre tienen que durar 9,58 s desde
-     que entran: cinco latidos de 1,5 s y encima un apagado de 2 s que empieza
-     en el 7,58. Termina en el segundo 10,0 del reloj de verdad.
+     para apagarse UN segundo antes del cierre tienen que durar 10,58 s desde
+     que entran: seis latidos de 1,5 s y encima un apagado de 2 s que empieza
+     en el 8,58. Termina en el segundo 11,0 del reloj de verdad.
+
+     Fueron dos primero, y Eduardo los bajó a uno al verlos: lo que le sobraba
+     no era el hueco entre el apagado y el cierre, sino el rato de llama
+     congelada que había ANTES —eso ya no está—, y con dos segundos de silencio
+     al final la escena se sentía terminada mucho antes de irse.
 
      El apagado va en una animación APARTE y no en más fotogramas de la misma:
      una mueve `transform` y la otra el brillo, así que se componen sin
      pisarse, y cambiar la duración de una no obliga a recalcular la otra. */
   .scel.show .scel-flame {
-    animation: scelFlame 1.5s ease-in-out 5, scelApaga 2s ease-in 7.58s forwards;
+    animation: scelFlame 1.5s ease-in-out 6, scelApaga 2s ease-in 8.58s forwards;
   }
   @keyframes scelFlame {
     0%, 100% { transform: scale(1) rotate(-1.5deg); }
@@ -5850,10 +5855,10 @@
       transparent 66%);
     pointer-events: none;
     /* Late y para —en la app no queda ninguna animación sin final—, y se apaga
-       en el MISMO instante que la llama: tres pulsos de 2,4 s y el mismo
+       en el MISMO instante que la llama: cuatro pulsos de 2,4 s y el mismo
        apagado. Si el cerco se fuera antes, el fuego se quedaría un rato
        flotando sin su luz detrás. */
-    animation: scelCerco 2.4s ease-in-out 3, scelApaga 2s ease-in 7.58s forwards;
+    animation: scelCerco 2.4s ease-in-out 4, scelApaga 2s ease-in 8.58s forwards;
   }
   @keyframes scelCerco {
     0%, 100% { transform: scale(.94); opacity: .55; }

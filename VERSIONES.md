@@ -76,7 +76,7 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
-### 0.7.72.8 · 2 sep 2026
+### 0.7.72.9 · 2 sep 2026
 
 **Una pulsación, la última versión.** El botón de actualizar salía, se pulsaba,
 y volvía a salir —a veces tres o cuatro veces seguidas— hasta que por fin se
@@ -140,6 +140,17 @@ misma que apaga el fulgor de los nodos del árbol. Medido el contraste del
 rótulo sobre el fondo ya compuesto, en el punto más fuerte del degradado y en
 el más débil: **8,99 y 6,51 de noche; 5,35 y 5,49 de día**, con el umbral en
 4,5. De día el degradado levanta (238 → 240), que es justo lo que se buscaba.
+
+### 0.7.72.8 · 2 sep 2026
+**El fuego de la racha se apaga un segundo antes del cierre, no dos.**
+
+Eran dos desde la 0.7.72.6 y Eduardo los bajó a uno al verlos, con el motivo
+apuntado porque explica el error de cálculo: lo que le sobraba no era el hueco
+entre el apagado y el cierre, sino el rato de **llama congelada** que había
+antes de arreglarlo —seis segundos de animación contra doce de escena—. Quitado
+eso, dos segundos de silencio al final dejaban la escena terminada mucho antes
+de irse. Seis latidos de 1,5 s y el apagado desde el 8,58: termina en el
+segundo 11,0 de un reloj de doce.
 
 ### 0.7.72.7 · 2 sep 2026
 
