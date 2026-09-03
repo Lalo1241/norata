@@ -48,13 +48,26 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.72.10";
-const VERSION_FECHA = "2 sep 2026";
+const VERSION = "0.7.73";
+const VERSION_FECHA = "3 sep 2026";
 
 /* ================= Iconografía propia =================
    Iconos de trazo (24x24) dibujados a mano; nada de emojis. */
 
+/* ---- Los tres del ritmo ----
+   La MISMA figura en tres posiciones y no tres dibujos distintos, que es la
+   diferencia entre leer una escala y comparar metáforas: con una tortuga, un
+   reloj y un rayo hay que descifrar tres ideas antes de elegir. Un medidor con
+   la aguja más a la izquierda o más a la derecha se entiende sin leer nada, que
+   es justo lo que hace falta en la segunda pantalla de la bienvenida.
+
+   El color lo pone el CSS y no el dibujo (celeste, menta y luciérnaga), porque
+   son los tres tonos que la app ya usa para calma, recomendado y aviso. Coral
+   no: en esta app coral es lo que destruye, y ser exigente es una elección. */
 const ICONS = {
+  ritmo1: '<path d="M4.5 17.5a7.5 7.5 0 0115 0"/><path d="M12 17.5l-3.8-3.8"/><circle cx="12" cy="17.5" r="1.1"/>',
+  ritmo2: '<path d="M4.5 17.5a7.5 7.5 0 0115 0"/><path d="M12 17.5V12.1"/><circle cx="12" cy="17.5" r="1.1"/>',
+  ritmo3: '<path d="M4.5 17.5a7.5 7.5 0 0115 0"/><path d="M12 17.5l3.8-3.8"/><circle cx="12" cy="17.5" r="1.1"/>',
   brush: '<path d="M9.1 11.9l8.1-8.1a2.85 2.85 0 114 4l-8.1 8.1"/><path d="M7.1 14.9c-1.7 0-3 1.4-3 3 0 1.3-2.5 1.5-2 2 1.1 1.1 2.5 2 4 2 2.2 0 4-1.8 4-4a3 3 0 00-3-3z"/>',
   pen: '<path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5z"/>',
   book: '<path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>',
@@ -662,11 +675,11 @@ const MONEDA_POR_DEFECTO = "MXN";
    suyos y se pueden afinar una por una desde su formulario. Cambiar el ajuste
    no toca lo que ya existe salvo que se pida expresamente. */
 const EXIGENCIAS = {
-  suave: { id: "suave", nombre: "Tranquilo",   grace: 14, decay: 5,
+  suave: { id: "suave", nombre: "Tranquilo",   grace: 14, decay: 5, icono: "ritmo1",
            dicho: "14 días de gracia. Para empezar sin presión." },
-  medio: { id: "medio", nombre: "Equilibrado", grace: 7,  decay: 10,
+  medio: { id: "medio", nombre: "Equilibrado", grace: 7,  decay: 10, icono: "ritmo2",
            dicho: "7 días de gracia. El punto medio recomendado." },
-  duro:  { id: "duro",  nombre: "Exigente",    grace: 3,  decay: 18,
+  duro:  { id: "duro",  nombre: "Exigente",    grace: 3,  decay: 18, icono: "ritmo3",
            dicho: "3 días de gracia. Si fallas, se nota rápido." }
 };
 const EXIGENCIA_POR_DEFECTO = "medio";
