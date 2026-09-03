@@ -76,6 +76,44 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### Sin número · 3 sep 2026 — el reembolso de un Fundador
+
+**Tampoco lleva versión, y por el mismo motivo que la entrada de abajo:** lo que
+cambia es `supabase/functions/cobro/index.ts`, que no viaja en la app. Se
+despliega aparte con `supabase functions deploy cobro --no-verify-jwt`, y hasta
+que eso ocurra este cambio no existe en ningún sitio.
+
+**El agujero que cierra.** La función atendía cinco sucesos de Stripe y ninguno
+era de reembolso. Con una suscripción no se notaba, porque lo que quita el plan
+es la CANCELACIÓN y esa sí avisa. Pero **Fundador es un pago único**: entra por
+`checkout.session.completed` en modo `payment` y no hay nada después que se lo
+quite. Devolverle los $890 a alguien le dejaba el plan puesto **para siempre**.
+
+Y había un segundo agujero debajo del primero: `lugares_fundador()` cuenta las
+filas con `plan = 'fundador'` **sin mirar el estado**, así que marcar la fila
+como cancelada le quitaba el plan pero no devolvía el lugar al cupo. Por eso lo
+que se escribe ahora es el `plan` y no solo el `estado` — es lo único que
+arregla las dos cosas de una vez, y encaja con `mi_plan()`, que tampoco mira el
+estado: su regla es `plan = 'fundador'` o `vence_el` en el futuro.
+
+Tres casos y solo uno toca la base:
+
+| Lo que llega | Qué hace |
+| --- | --- |
+| Reembolso de una factura (suscripción) | Nada. Manda la cancelación, que sí avisa |
+| Reembolso parcial | Nada. Una devolución de buena voluntad no apaga un plan |
+| Pago único devuelto entero | Retira el plan y devuelve el lugar |
+
+**Hay que darlo de alta en Stripe a mano.** El endpoint ya existe desde el 27 de
+agosto con cinco sucesos marcados; `charge.refunded` es el sexto y hay que ir a
+editarlo. Sin eso, el código de aquí no corre nunca y **no hay ninguna señal de
+que falte**: se descubriría el día que se devuelva el primer Fundador, que es
+justo cuando ya es tarde. Los pasos están en `supabase/LEEME.md`.
+
+Sale ahora porque la política de reembolsos que se acaba de escribir da **30
+días** para devolver Fundador, y prometer una devolución que deja el plan puesto
+es peor que no prometerla.
+
 ### Sin número · 3 sep 2026 — las diez plantillas
 
 **No lleva versión a propósito, y es la primera entrada de esta lista que no la

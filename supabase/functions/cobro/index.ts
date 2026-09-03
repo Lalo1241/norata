@@ -48,8 +48,16 @@
      customer.subscription.deleted
      invoice.paid
      invoice.payment_failed
+     charge.refunded
 
-   El `whsec_` sale de ahi mismo, despues de crear el endpoint. */
+   El `whsec_` sale de ahi mismo, despues de crear el endpoint.
+
+   ---- OJO CON EL SEXTO ----
+   `charge.refunded` se anadio despues, el 3 de septiembre de 2026. Si el
+   endpoint ya existia en Stripe hay que ir a editarlo y marcarlo a mano: el
+   codigo de aqui abajo no corre nunca si Stripe no manda el aviso, y no hay
+   ninguna senal de que falte. Se descubriria el dia que se devuelva un
+   Fundador, que es justo cuando ya es tarde. */
 
 const STRIPE = "https://api.stripe.com/v1";
 
@@ -306,6 +314,61 @@ Deno.serve(async (req: Request) => {
           if (typeof quedan === "number" && quedan <= 0) {
             console.log("CUPO DE FUNDADOR AGOTADO O PASADO. Quitarlo de la landing.");
           }
+        }
+      }
+    } else if (tipo === "charge.refunded") {
+      /* ---- Un reembolso, y por que hacia falta esto ----
+
+         Hasta aqui la funcion atendia cinco sucesos y ninguno era de
+         reembolso. Con una suscripcion no se notaba, porque lo que quita el
+         plan es la CANCELACION y esa si avisa. Pero Fundador es un pago unico:
+         entra por `checkout.session.completed` en modo `payment` y no hay
+         nada despues que se lo quite. Devolverle los $890 a alguien le dejaba
+         el plan Fundador puesto para siempre.
+
+         Y hay un segundo agujero, mas escondido: `lugares_fundador()` cuenta
+         las filas con `plan = 'fundador'` sin mirar el estado, asi que marcar
+         la fila como cancelada le quitaba el plan pero NO devolvia el lugar al
+         cupo. Por eso aqui se cambia el `plan` y no solo el `estado`: es lo
+         unico que arregla las dos cosas de una vez. Y `mi_plan()` tampoco mira
+         el estado —su regla es `plan = 'fundador'` o `vence_el` en el futuro—,
+         asi que con `plan` en 'libre' y `vence_el` en NULL la cuenta vuelve al
+         plan Gratuito de verdad.
+
+         Se guarda `estado: 'cancelada'` igualmente, para que al mirar la tabla
+         se distinga una cuenta que compro y se le devolvio de una que nunca
+         compro nada. Y `cliente` NO se toca: es por donde se le encuentra si
+         vuelve. */
+      const total = Number(dato.amount) || 0;
+      const devuelto = Number(dato.amount_refunded) || 0;
+
+      if (dato.invoice) {
+        /* Viene de una factura, o sea de una suscripcion. Aqui NO se toca el
+           plan a proposito: quien manda en una suscripcion son sus propios
+           sucesos, y un reembolso parcial hecho por buena voluntad no puede
+           apagarle el plan a alguien que sigue pagando. El orden correcto para
+           devolver una suscripcion es cancelarla primero y reembolsar despues;
+           la cancelacion es la que avisa. */
+        resultado = "reembolso de suscripcion: manda la cancelacion";
+      } else if (devuelto < total) {
+        resultado = "reembolso parcial: no se toca el plan";
+      } else {
+        /* Pago unico devuelto entero: Fundador. La metadata de la sesion no
+           siempre llega hasta el cargo, asi que se le busca por su cliente de
+           Stripe, que es el camino que `guardar` dejo escrito en la fila. */
+        const cliente = typeof dato.customer === "string" ? dato.customer : dato.customer?.id;
+        const uid = await duenoDe(SB, SERVICIO, dato.metadata, undefined, cliente);
+        if (uid) {
+          await guardar(SB, SERVICIO, uid, {
+            plan: "libre",
+            estado: "cancelada",
+            vence_el: null,
+            renueva: false,
+            suscripcion: null,
+          });
+          resultado = "reembolso de pago unico: plan retirado y lugar devuelto";
+        } else {
+          resultado = "reembolso sin dueno identificable";
         }
       }
     } else if (tipo === "customer.subscription.updated" || tipo === "customer.subscription.deleted") {
