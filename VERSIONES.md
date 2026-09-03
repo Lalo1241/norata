@@ -105,6 +105,42 @@ de vida se leen como que no funcionó.
 botón la llama por su nombre, y donde no hay worker —en `http:`, o en un
 navegador que no lo tenga— tiene que seguir recargando como siempre.
 
+#### Y se viste como una recompensa
+
+Lo pidió Eduardo: el estilo de las tarjetas de lo que desbloqueas al subir de
+nivel (`.ncel-premio`). No es solo un parecido —son la misma cosa: algo que
+llegó solo, que no estabas buscando y que espera a que decidas—, y hasta ahora
+una se veía como un hallazgo y la otra como un botón con un color puesto.
+
+Se traen las cinco señas, con sus mismos números: el degradado del acento
+cayendo desde arriba (13 % → nada al 46 %), el marco al 42 % —estaba al 26—,
+el halo exterior de 26 px al 18 %, el barrido que cruza UNA vez —mismo tiempo
+y misma curva que `ncelBarrido`, en un `::after` para no tocar el HTML por un
+adorno— y la entrada con `--curva-rebote`, que es la del botín. El recorrido
+sí se acorta, de 16 px a 10: esto mide 47 px de alto y aquello 260 de ancho,
+y lo que se copia es el gesto, no la distancia.
+
+**Dos piezas no viajan, y las dos por lo mismo: la tarjeta vive dentro de una
+escena y el botón vive en la barra.** Una escena es de noche siempre —es un
+dibujo—; la barra cambia con el modo claro.
+
+- **El vidrio.** La tarjeta se apoya en `rgba(var(--escena-vidrio), .62)`. Con
+  eso puesto, de día el botón sería un rectángulo carbón en mitad de una barra
+  clara. Se apoya en `--fire-soft`, que ya tiene sus dos caras.
+- **El tono de la luz.** De día `--fire` es `#755c05`, la luciérnaga de
+  escribir: el mismo degradado hundiría la mitad de arriba en vez de
+  levantarla, y el barrido pasaría como una sombra y no como un destello. Así
+  que la luz tiene su propio tono con sus dos caras —`--nu-luz`, declarada en
+  el botón igual que `--premio` en la tarjeta—: de noche el acento, de día el
+  blanco. El BOTÓN sigue saliendo entero de `--fire`; lo único que cambia de
+  tono es lo que le pasa por encima.
+
+Y el halo se apaga de día, escrito y no deducido: es la regla de la casa, la
+misma que apaga el fulgor de los nodos del árbol. Medido el contraste del
+rótulo sobre el fondo ya compuesto, en el punto más fuerte del degradado y en
+el más débil: **8,99 y 6,51 de noche; 5,35 y 5,49 de día**, con el umbral en
+4,5. De día el degradado levanta (238 → 240), que es justo lo que se buscaba.
+
 ### 0.7.72.7 · 2 sep 2026
 
 **De este arreglo solo había llegado al live una regla de CSS que no usaba

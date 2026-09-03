@@ -7912,23 +7912,112 @@
        Todo sale de `--fire`, así que un mundo que la cambie se lo lleva entero
        y el modo claro pasa solo a la versión de escribir (#755c05) sin una
        regla más. */
+    /* ---- Y se viste como una recompensa (0.7.72.8) ----
+       Lo pidió Eduardo: el estilo de las tarjetas de lo que desbloqueas al subir
+       de nivel (`.ncel-premio`). No es solo parecido, es que son la misma cosa
+       —algo que llegó solo, que no estabas buscando y que espera a que
+       decidas—, y hasta ahora una se veía como un hallazgo y la otra como un
+       botón con un color puesto.
+
+       Se traen las cinco señas de aquella tarjeta, con sus mismos números:
+
+       | Qué | De dónde |
+       | el degradado del acento cayendo desde arriba | 13 % → nada al 46 % |
+       | el marco del acento | 42 %, era 26 |
+       | el halo exterior | `0 0 26px` al 18 % |
+       | el barrido que cruza UNA vez | `ncelBarrido`, mismo tiempo y curva |
+       | la entrada con rebote | `--curva-rebote`, la del botín |
+
+       **Lo que NO se trae es el vidrio, y es la única pieza que no viaja.** La
+       tarjeta se apoya en `rgba(var(--escena-vidrio), .62)`, que es de noche
+       SIEMPRE porque vive dentro de una escena —y una escena no cambia de luz,
+       es un dibujo—. El botón vive en la barra, que sí cambia con el modo
+       claro: con el vidrio puesto sería un rectángulo carbón en mitad de una
+       barra clara. Se apoya en `--fire-soft`, que ya tiene sus dos caras.
+
+       Y todo sigue saliendo de `--fire`, así que un mundo que la cambie se lo
+       lleva entero y el modo claro pasa solo a la versión de escribir. */
     #nav-update-side {
+      /* ---- El tono de la LUZ, que no es el del botón ----
+         La tarjeta de premio cae dentro de una escena, y una escena es de noche
+         siempre: allí el acento es claro y su degradado ILUMINA la mitad de
+         arriba. Aquí no. De día `--fire` es `#755c05`, la luciérnaga de
+         escribir, y ese mismo degradado hundiría la mitad de arriba en vez de
+         levantarla —y el barrido pasaría como una sombra, no como un
+         destello—.
+
+         Así que la luz tiene su propio tono y sus dos caras, igual que
+         `--premio` las tiene en la tarjeta: de noche el acento, de día el
+         blanco. Es la misma regla que ya siguen los `*-soft`, que de día
+         levantan hacia el blanco en vez de hundir hacia el color. El BOTÓN
+         sigue saliendo entero de `--fire`; lo único que cambia de tono es lo
+         que le pasa la luz por encima. */
+      --nu-luz: var(--fire);
+      /* Los dos hacen falta para el barrido: el `::after` se coloca contra el
+         botón y lo que se sale se corta en el borde redondeado. */
+      position: relative;
+      overflow: hidden;
       color: var(--fire);
-      background: var(--fire-soft);
-      border-color: color-mix(in srgb, var(--fire) 26%, transparent);
+      background:
+        linear-gradient(180deg,
+          color-mix(in srgb, var(--nu-luz) 13%, transparent) 0%,
+          transparent 46%),
+        var(--fire-soft);
+      border-color: color-mix(in srgb, var(--fire) 42%, transparent);
       border-radius: var(--r-caja);
       padding: 12px;
       gap: 11px;
+      /* El halo de la tarjeta. `overflow: hidden` no lo toca —recorta a los
+         hijos, no a la sombra— así que sigue saliendo por fuera. */
+      box-shadow: 0 0 26px color-mix(in srgb, var(--fire) 18%, transparent);
       /* Aparece de la nada, en mitad de lo que estabas haciendo: que suba un
          poco al llegar es lo que lo convierte en algo que ocurrió, y no en algo
-         que llevaba ahí todo el rato y no habías visto. Dura lo que dura un
-         cambio de pantalla; no pide nada. */
-      animation: nu-llega var(--dur-media) var(--curva) both;
+         que llevaba ahí todo el rato y no habías visto. Ahora con el rebote del
+         botín, que es lo que separa «llegó algo» de «se pintó algo». El
+         recorrido es más corto que el de la tarjeta —10 px y no 16— porque
+         esto mide 47 px de alto y aquello 260 de ancho: lo que se copia es el
+         gesto, no la distancia. */
+      animation: nu-llega 0.52s var(--curva-rebote) both;
+    }
+    /* El barrido. Va en `::after` y no en un elemento propio para no volver a
+       tocar `index.html` por un adorno, y porque `.c-nav` no usa ninguno de los
+       dos pseudos. Una sola pasada: en bucle sería un anuncio, y una vez es el
+       gesto de «acabas de sacar esto». */
+    #nav-update-side::after {
+      content: "";
+      position: absolute;
+      inset: -40% -60%;
+      background: linear-gradient(74deg,
+        transparent 42%,
+        color-mix(in srgb, var(--nu-luz) 34%, transparent) 50%,
+        transparent 58%);
+      pointer-events: none;
+      opacity: 0;
+      animation: nu-barrido 0.9s ease-out 0.45s backwards;
+    }
+    @keyframes nu-barrido {
+      0%   { transform: translateX(-58%); opacity: 0; }
+      22%  { opacity: 1; }
+      100% { transform: translateX(58%); opacity: 0; }
     }
     #nav-update-side:hover {
-      background: color-mix(in srgb, var(--fire) 18%, transparent);
-      border-color: color-mix(in srgb, var(--fire) 44%, transparent);
+      background:
+        linear-gradient(180deg,
+          color-mix(in srgb, var(--nu-luz) 20%, transparent) 0%,
+          transparent 46%),
+        color-mix(in srgb, var(--fire) 18%, transparent);
+      border-color: color-mix(in srgb, var(--fire) 60%, transparent);
       color: var(--fire);
+    }
+    /* ---- De día no hay resplandor ----
+       La regla de la casa, la misma que apaga el fulgor de los nodos del árbol
+       (`html.claro .const-wrap [filter]`): una copia borrosa por debajo es luz
+       sobre carbón y es una mancha sobre papel. El halo se apaga escrito, y no
+       confiando en que un blanco al 18 % no se vea: lo primero se lee al pasar
+       por aquí, lo segundo hay que deducirlo. */
+    html.claro #nav-update-side {
+      --nu-luz: #ffffff;
+      box-shadow: none;
     }
     /* El disco del icono. Plegada la barra es lo único que queda, y sin él ahí
        había una flecha de trazo fino suelta en mitad de ochenta y cuatro
@@ -7942,6 +8031,9 @@
       flex-shrink: 0;
       border-radius: var(--r-disco);
       background: color-mix(in srgb, var(--fire) 20%, transparent);
+      /* El filo de `.ncel-vista`: es lo que despega la vista del premio de su
+         tarjeta, y aquí hace lo mismo con el disco sobre el degradado. */
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fire) 28%, transparent);
     }
     .thumb-cluster #nav-update-side svg { width: 17px; height: 17px; }
     /* Plegada, el relleno horizontal se va como en los demás botones: la regla
@@ -7950,11 +8042,16 @@
     html.sc #nav-update-side { padding-left: 0; padding-right: 0; }
 
     @keyframes nu-llega {
-      from { opacity: 0; transform: translateY(6px) scale(0.97); }
+      from { opacity: 0; transform: translateY(10px) scale(0.94); }
       to   { opacity: 1; transform: none; }
     }
+    /* Quien pidió menos movimiento no recibe ninguno, y el barrido se va
+       entero —no basta con quitarle la animación: sin ella se quedaría el
+       degradado puesto encima del botón—. Es la misma regla que ya tiene
+       `.ncel-fulgor`, y por el mismo motivo. */
     @media (prefers-reduced-motion: reduce) {
       #nav-update-side { animation: none; }
+      #nav-update-side::after { display: none; }
     }
 
     /* ---- Dónde cae, y qué se queda cada uno ----
