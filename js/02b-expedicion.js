@@ -632,7 +632,7 @@ function expEstadoRango(r, nivel) {
    Son dos predicados y no uno a propósito. En el nivel que lo cierra las dos
    respuestas son distintas y las dos son ciertas: la figura sigue en el altar
    porque es la que estás mirando, y el rango ya es tuyo porque acabas de
-   rellenarla. Con un solo predicado, o la pantalla decía «Aquí estás» el día
+   rellenarla. Con un solo predicado, o la pantalla decía «Estás aquí» el día
    que la celebración cantaba «conseguido», o la figura se iba al estante en
    cuanto la terminas y el altar se quedaba vacío justo en su mejor momento. */
 function expConseguido(r, nivel) {
@@ -1040,7 +1040,7 @@ function renderColeccion() {
                 <b>${escapeHtml(r.nombre)}</b>
                 <span class="crx-estado">${
                   tuyo ? icon("check", 13) + "Conseguido"
-                  : estado === "viva" ? "Aquí estás"
+                  : estado === "viva" ? "Estás aquí"
                   : "Nivel " + hasta}</span>
               </div>
               <span class="crx-nota">${escapeHtml(r.nota || ("Niveles " + r.desde + " a " + hasta + "."))}</span>

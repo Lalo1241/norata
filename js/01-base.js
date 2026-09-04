@@ -140,6 +140,12 @@ const ICONS = {
   "rango-brujula": '<ellipse cx="12" cy="3.4" rx="2.6" ry="1.3"/><path d="M10.8 4.6v1.6M13.2 4.6v1.6"/><circle cx="12" cy="14.3" r="7.6"/><path d="M15.9 10.5l-2.2 5.4-5.6 2.2 2.2-5.4z"/>',
   star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 5.9-5.3-3-5.3 3 1.2-5.9L3.4 9.3l6-.7z"/>',
   bolt: '<path d="M13 2L5 14h6l-1 8 8-12h-6l1-8z"/>',
+  /* El más: añadir algo. Dos trazos y nada más — sin círculo alrededor, porque
+     el hueco donde vive ya es una forma (`.mm-ic`, `.aj-ic`) y meterle otra
+     dentro deja un aro apretado contra el borde. Va de 6 a 18 y no de 4 a 20
+     para que pese lo mismo que los demás iconos del menú, que ninguno llega a
+     tocar el marco. */
+  mas: '<path d="M12 6v12M6 12h12"/>',
   /* Escudo: lo que no se pierde. Se usa junto a "Habilidad blindada" y está
      en el catálogo porque sirve igual para defensa, seguridad o constancia. */
   shield: '<path d="M12 2.5l8 3.2v5.8c0 4.6-3.3 8.7-8 10-4.7-1.3-8-5.4-8-10V5.7z"/>',
