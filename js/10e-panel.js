@@ -307,6 +307,23 @@ function panelConstelacion(dias) {
   const suma = (a) => a.reduce((t, v) => t + v, 0);
   const total = suma(valores);
   const media = n ? Math.round((total / n) * 10) / 10 : 0;
+
+  /* ---- Personas y aperturas son DOS cosas, y aquí se llamaban igual ----
+     Es el punto 2 de los cinco de Eduardo: «distinguir usuarios únicos por
+     cuenta, no solo aperturas». En los datos ya estaba bien —la tabla `pulsos`
+     tiene la clave (user_id, dia), así que una fila por cuenta y día, y lo que
+     cuenta la serie son cuentas—, pero esta caja sumaba esas cuentas de los
+     catorce días y al resultado le ponía el rótulo «aperturas con cuenta».
+
+     Eso no eran aperturas: era la suma de cuentas-por-día, que no es ninguna
+     magnitud que interese a nadie —alguien que abrió los catorce días contaba
+     catorce—. Y el número de aperturas de verdad venía en los datos, en su
+     propia columna, sin que ninguna pantalla lo usara.
+
+     Ahora son dos cifras distintas y el par dice algo que ninguna decía sola:
+     cuántas veces se abre la app por cada persona que la abre. */
+  const aperturas = suma(dias.map(d => Number(d.aperturas) || 0));
+  const porPersona = total > 0 ? Math.round((aperturas / total) * 10) / 10 : 0;
   const iCima = valores.indexOf(tope);
   const diaCima = dias[iCima] ? fecha(dias[iCima].dia) : null;
 
@@ -323,10 +340,11 @@ function panelConstelacion(dias) {
   }
 
   const resumen = `<div class="pn-graf-cifras">
-      <div class="pn-gc"><b>${media}</b><span>personas al día</span></div>
+      <div class="pn-gc"><b>${media}</b><span>cuentas al día</span></div>
       <div class="pn-gc"><b>${tope}</b><span>el mejor día${
         diaCima ? " · " + diaCima.getDate() + " " + MESES_CORTOS[diaCima.getMonth()] : ""}</span></div>
-      <div class="pn-gc"><b>${total}</b><span>aperturas con cuenta</span></div>
+      <div class="pn-gc"><b>${aperturas}</b><span>aperturas${
+        porPersona ? " · " + porPersona + " por cuenta al día" : ""}</span></div>
       ${tendencia ? `<div class="pn-gc tend">${tendencia}</div>` : ""}
     </div>`;
 
@@ -434,10 +452,16 @@ function panelEmbudo(pasos) {
        debajo de un cero es ruido con aire de dato. */
     const cae = (antes && antes > 0) ? Math.round(((antes - p.n) / antes) * 100) : 0;
     /* Un escalón MÁS GRANDE que el de arriba no es una buena noticia: es la
-       señal de que este paso no se está calculando como un trozo del anterior
-       —«Siguen esta semana» se cuenta suelto, y por eso puede salir un 3
-       debajo de un 2—. Antes caía en el «no se pierde nadie», que es la
-       lectura más halagadora posible de un dato roto. */
+       señal de que ese paso no se está calculando como un trozo del anterior.
+       Pasaba de verdad —«Siguen esta semana» se contaba suelto y podía salir
+       un 3 debajo de un 2—, y se arregló en el servidor el 3 de septiembre de
+       2026: ahora los tres últimos pasos salen de la misma CTE.
+
+       Esto se queda igualmente, y no por desconfianza: es un centinela. Si
+       algún día alguien vuelve a separar un paso del anterior, la pantalla lo
+       dice en vez de disimularlo — que es lo que hacía antes, cuando un
+       escalón que crecía caía en el «no se pierde nadie», la lectura más
+       halagadora posible de un dato roto. */
     const crece = antes != null && p.n > antes;
     const clase = crece ? "crece" : (i === iPeor ? "peor" : "");
     return `<div class="pn-paso ${clase}">
