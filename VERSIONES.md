@@ -76,6 +76,31 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.89.1 · 4 sep 2026
+
+**Dos claves repetidas del inglés, que tapaban otras.** Salió al verificar la
+tanda anterior, y era mío. En `js/00b-textos-en.js` dos claves iguales no dan
+error: **gana la última, en silencio.**
+
+- `"Color"` la añadí para el `aria-label` del selector sin ver que ya existía
+  más arriba con otra grafía. La mía iba después, así que tapaba la de todo el
+  mundo. Se quita la mía.
+- `"tu cuenta"` la escribí dos veces con el mismo valor. Ruido — pero del que
+  hace perder media hora al siguiente que busque por qué «no le toma el
+  cambio».
+
+Y de paso, mis tres cadenas del selector estaban en inglés británico —«Your
+colour»— mientras la clave de al lado decía «Color». Igualadas a sus vecinas.
+
+**Quedan seis conflictos que no son de esta tanda**, apuntados aquí para quien
+la lleve: cinco frases de hábitos —`servirme el café`, `comer`, `llegar a
+casa`, `lavarme los dientes`, `cerrar la computadora`— que están en gerundio
+arriba y en infinitivo abajo, así que hoy gana el infinitivo en los dos sitios;
+y `Descartado`, que es «Dropped» en un sitio y «Discarded» en otro.
+
+**Cómo se cazan, que no hay aviso ninguno:** recorrer el archivo y agrupar por
+clave. Las que salgan dos veces con valores distintos son las que mienten.
+
 ### 0.7.89 · 4 sep 2026
 
 **Mi perfil: tus datos arriba, la cuenta abajo y junta.** Lo pidió Eduardo con
