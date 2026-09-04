@@ -31,7 +31,7 @@ function campoClave(id, autocompletar, marcador) {
   return `<div class="clave-campo">
       <input type="password" id="${escapeAttr(id)}" autocomplete="${escapeAttr(autocompletar)}"
              placeholder="${escapeAttr(marcador || "••••••••")}">
-      <button type="button" class="clave-ojo" aria-label="Mostrar la contraseña"
+      <button type="button" class="clave-ojo" aria-label="${escapeAttr(tx("Mostrar la contraseña"))}"
               onclick="alternarClave('${escapeAttr(id)}', this)">${ojoIcono(false)}</button>
     </div>`;
 }
@@ -190,29 +190,29 @@ function portadaPintar(modo) {
        nadie escribe un apodo si no sabe qué se evita con él. */
     dentro =
       `<div class="portada-cab">
-         <button class="portada-volver" onclick="portadaIrA('entrar')" aria-label="Volver a iniciar sesión">←</button>
-         <h2>Crear tu cuenta</h2>
+         <button class="portada-volver" onclick="portadaIrA('entrar')" aria-label="${escapeAttr(tx("Volver a iniciar sesión"))}">←</button>
+         <h2>${tx("Crear tu cuenta")}</h2>
        </div>
        <div id="portada-error" class="portada-error" hidden></div>
-       <label class="field"><span>¿Cómo te llamas?</span>
+       <label class="field"><span>${tx("¿Cómo te llamas?")}</span>
          <input type="text" id="portada-nombre" value="${escapeAttr(portadaNombre)}" autocomplete="name"
-                maxlength="${NOMBRE_MAX}" placeholder="Tu nombre"></label>
-       <label class="field"><span>¿Cómo te decimos? <i>opcional</i></span>
+                maxlength="${NOMBRE_MAX}" placeholder="${escapeAttr(tx("Tu nombre"))}"></label>
+       <label class="field"><span>${tx("¿Cómo te decimos?")} <i>opcional</i></span>
          <input type="text" id="portada-apodo" value="${escapeAttr(portadaApodo)}" autocomplete="nickname"
-                maxlength="${APODO_MAX}" placeholder="Tu apodo">
+                maxlength="${APODO_MAX}" placeholder="${escapeAttr(tx("Tu apodo"))}">
          <div class="field-hint" id="portada-apodo-hint"></div></label>
-       <label class="field"><span>Tu correo</span>
-         <input type="email" id="portada-correo" value="${correo}" autocomplete="email" inputmode="email" spellcheck="false" placeholder="tu@correo.com"></label>
-       <div class="field"><span class="lbl">Contraseña</span>
+       <label class="field"><span>${tx("Tu correo")}</span>
+         <input type="email" id="portada-correo" value="${correo}" autocomplete="email" inputmode="email" spellcheck="false" placeholder="${escapeAttr(tx("tu@correo.com"))}"></label>
+       <div class="field"><span class="lbl">${tx("Contraseña")}</span>
          ${campoClave("portada-clave", "new-password")}
          <div class="field-hint">Mínimo ${CLAVE_MIN} caracteres. Cuanto más larga, mejor.</div></div>
-       <div class="field"><span class="lbl">Repítela</span>
+       <div class="field"><span class="lbl">${tx("Repítela")}</span>
          ${campoClave("portada-clave2", "new-password")}</div>
        <div class="stack">
-         <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaRegistrar()">Crear cuenta</button>
+         <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaRegistrar()">${tx("Crear cuenta")}</button>
        </div>
-       <p class="portada-nota">Te mandaré un correo para confirmar que la dirección es tuya. Hasta que lo abras, la cuenta no se activa.</p>
-       <p class="portada-pie">¿Ya tienes una? <button onclick="portadaIrA('entrar')">Entra aquí</button></p>`;
+       <p class="portada-nota">${tx("Te mandaré un correo para confirmar que la dirección es tuya. Hasta que lo abras, la cuenta no se activa.")}</p>
+       <p class="portada-pie">${tx("¿Ya tienes una?")} <button onclick="portadaIrA('entrar')">${tx("Entra aquí")}</button></p>`;
 
   } else if (modo === "rescate") {
     const fecha = fechaLarga(rescateCuando) || "dentro de unos días";
@@ -220,14 +220,14 @@ function portadaPintar(modo) {
       `<div class="portada-sello aviso">
          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.4v5.1l3.2 1.9"/></svg>
        </div>
-       <h2>Esta cuenta se va a borrar</h2>
-       <p class="portada-lema">Pediste borrar <b>${escapeHtml(portadaCorreo)}</b>, y se hará el <b>${escapeHtml(fecha)}</b>. Hasta ese día puedes recuperarla con todo tu progreso intacto.</p>
+       <h2>${tx("Esta cuenta se va a borrar")}</h2>
+       <p class="portada-lema">${tx("Pediste borrar")} <b>${escapeHtml(portadaCorreo)}</b>${tx(", y se hará el")} <b>${escapeHtml(fecha)}</b>${tx(". Hasta ese día puedes recuperarla con todo tu progreso intacto.")}</p>
        <div id="portada-error" class="portada-error" hidden></div>
        <div class="stack">
          <button class="btn btn-primary btn-block" id="portada-ok" onclick="rescatarCuenta()">Recuperar mi cuenta</button>
-         <button class="btn btn-danger-ghost btn-block" onclick="borrarCuentaYa()">Borrarla ahora, sin esperar</button>
+         <button class="btn btn-danger-ghost btn-block" onclick="borrarCuentaYa()">${tx("Borrarla ahora, sin esperar")}</button>
        </div>
-       <button class="portada-sin sutil" onclick="salirDelRescate()">Dejarlo como está y salir</button>`;
+       <button class="portada-sin sutil" onclick="salirDelRescate()">${tx("Dejarlo como está y salir")}</button>`;
 
   } else if (modo === "adios") {
     /* La despedida. Sale EN LUGAR del formulario de entrar, y ese es el punto
@@ -251,9 +251,9 @@ function portadaPintar(modo) {
        </div>
        <h2>Hasta pronto${escapeHtml(coma(portadaSaludo))}</h2>
        <p class="portada-lema">Tu cuenta quedó programada para borrarse${fecha ? " el <b>" + escapeHtml(fecha) + "</b>" : ""}. Hasta ese día puedes recuperarla entera —con tu progreso, tus rachas y tu XP— entrando otra vez con tu correo.</p>
-       <p class="portada-lema">Gracias por el tiempo que le diste a Norata. Lo que aprendiste jugando a esto sigue siendo tuyo, esté o no la app de por medio.</p>
+       <p class="portada-lema">${tx("Gracias por el tiempo que le diste a Norata. Lo que aprendiste jugando a esto sigue siendo tuyo, esté o no la app de por medio.")}</p>
        <div class="stack">
-         <button class="btn btn-soft btn-block" onclick="irALaPuerta()">Volver a entrar</button>
+         <button class="btn btn-soft btn-block" onclick="irALaPuerta()">${tx("Volver a entrar")}</button>
          <a class="btn btn-ghost btn-block" href="https://www.norata.app">Ir a norata.app</a>
        </div>`;
 
@@ -265,14 +265,14 @@ function portadaPintar(modo) {
       `<div class="portada-sello">
          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.6" y="5" width="18.8" height="14" rx="2.6"/><path d="M3.4 7l7.4 5.4a2 2 0 002.4 0L20.6 7"/></svg>
        </div>
-       <h2>Revisa tu correo</h2>
-       <p class="portada-lema">Le mandé un mensaje a <b>${escapeHtml(portadaCorreo)}</b>. Ábrelo, pulsa el enlace, y vuelve aquí a entrar.</p>
+       <h2>${tx("Revisa tu correo")}</h2>
+       <p class="portada-lema">${tx("Le mandé un mensaje a")} <b>${escapeHtml(portadaCorreo)}</b>${tx(". Ábrelo, pulsa el enlace, y vuelve aquí a entrar.")}</p>
        <div id="portada-error" class="portada-error" hidden></div>
        <div class="stack">
-         <button class="btn btn-primary btn-block" onclick="portadaIrA('entrar')">Ya lo confirmé: entrar</button>
-         <button class="btn btn-soft btn-block" id="portada-ok" onclick="portadaReenviarVerificacion()">Reenviar el correo</button>
+         <button class="btn btn-primary btn-block" onclick="portadaIrA('entrar')">${tx("Ya lo confirmé: entrar")}</button>
+         <button class="btn btn-soft btn-block" id="portada-ok" onclick="portadaReenviarVerificacion()">${tx("Reenviar el correo")}</button>
        </div>
-       <p class="portada-nota">Si no aparece en unos minutos, míralo en la carpeta de no deseado.</p>`;
+       <p class="portada-nota">${tx("Si no aparece en unos minutos, míralo en la carpeta de no deseado.")}</p>`;
 
   } else {
     /* Quien ya entró alguna vez en este dispositivo se encuentra su nombre y
@@ -288,23 +288,23 @@ function portadaPintar(modo) {
       ? `<div class="portada-vuelve">
            ${avatarPinta(sync.ultimoUid, sync.ultimoSaludo, sync.ultimoCorreo, 56)}
            <h2>Hola de nuevo, ${escapeHtml(sync.ultimoSaludo)}</h2>
-           <p class="portada-lema">Escribe tu contraseña y sigues donde lo dejaste.</p>
+           <p class="portada-lema">${tx("Escribe tu contraseña y sigues donde lo dejaste.")}</p>
          </div>`
       : `<img class="portada-logo" src="${logotipoSrc()}" alt="Norata">
-         <p class="portada-lema">Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.</p>`;
+         <p class="portada-lema">${tx("Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.")}</p>`;
     dentro +=
       `<div id="portada-error" class="portada-error" hidden></div>
-       <label class="field"><span>Tu correo</span>
-         <input type="email" id="portada-correo" value="${correo || (vuelve ? escapeAttr(sync.ultimoCorreo) : "")}" autocomplete="username" inputmode="email" spellcheck="false" placeholder="tu@correo.com"></label>
-       <div class="field"><span class="lbl">Contraseña</span>
+       <label class="field"><span>${tx("Tu correo")}</span>
+         <input type="email" id="portada-correo" value="${correo || (vuelve ? escapeAttr(sync.ultimoCorreo) : "")}" autocomplete="username" inputmode="email" spellcheck="false" placeholder="${escapeAttr(tx("tu@correo.com"))}"></label>
+       <div class="field"><span class="lbl">${tx("Contraseña")}</span>
          ${campoClave("portada-clave", "current-password")}</div>
        <div class="stack">
          <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaEntrar()">Entrar</button>
        </div>
-       <button class="portada-sin sutil" onclick="portadaOlvide()">¿Olvidaste tu contraseña?</button>
+       <button class="portada-sin sutil" onclick="portadaOlvide()">${tx("¿Olvidaste tu contraseña?")}</button>
        ${vuelve ? '<button class="portada-sin sutil" onclick="portadaNoSoyYo()">No soy ' + escapeHtml(sync.ultimoSaludo) + '</button>' : ""}
        <div id="portada-google"></div>
-       <p class="portada-pie">¿Todavía no tienes cuenta? <button onclick="portadaIrA('crear')">Créala aquí</button></p>
+       <p class="portada-pie">${tx("¿Todavía no tienes cuenta?")} <button onclick="portadaIrA('crear')">${tx("Créala aquí")}</button></p>
        <button class="portada-sin" onclick="portadaSinCuenta()">${yaEntroSinCuenta ? "Volver sin iniciar sesión" : "Probar sin cuenta"}</button>
        <p class="portada-nota">${yaEntroSinCuenta
          ? "Seguirás guardando solo en este dispositivo."
@@ -445,7 +445,7 @@ async function portadaOfrecerGoogle() {
          <path fill="#FBBC05" d="M11.6 28.1c-.4-1.3-.7-2.7-.7-4.1s.2-2.8.7-4.1v-5.7H4.3C2.8 17.1 2 20.4 2 24s.8 6.9 2.3 9.8l7.3-5.7z"/>
          <path fill="#EA4335" d="M24 10.8c3.3 0 6.2 1.1 8.5 3.3l6.3-6.3C35 4.3 30 2 24 2 15.4 2 7.9 6.9 4.3 14.2l7.3 5.7c1.7-5.2 6.6-9.1 12.4-9.1z"/>
        </svg>
-       <span>Continuar con Google</span>
+       <span>${tx("Continuar con Google")}</span>
      </button>`;
 }
 
@@ -835,15 +835,15 @@ function mostrarNuevaClave() {
   cap.innerHTML =
     `<div class="portada-caja">
        <img class="portada-logo" src="${logotipoSrc()}" alt="Norata">
-       <p class="portada-lema">Elige tu contraseña nueva. Con ella entrarás en todos tus dispositivos.</p>
+       <p class="portada-lema">${tx("Elige tu contraseña nueva. Con ella entrarás en todos tus dispositivos.")}</p>
        <div id="nc-error" class="portada-error" hidden></div>
-       <div class="field"><span class="lbl">Contraseña nueva</span>
+       <div class="field"><span class="lbl">${tx("Contraseña nueva")}</span>
          ${campoClave("nc-clave", "new-password")}
          <div class="field-hint">Mínimo ${CLAVE_MIN} caracteres. Cuanto más larga, mejor.</div></div>
-       <div class="field"><span class="lbl">Repítela</span>
+       <div class="field"><span class="lbl">${tx("Repítela")}</span>
          ${campoClave("nc-clave2", "new-password")}</div>
        <div class="stack">
-         <button class="btn btn-primary btn-block" id="nc-ok" onclick="guardarNuevaClave()">Guardar y entrar</button>
+         <button class="btn btn-primary btn-block" id="nc-ok" onclick="guardarNuevaClave()">${tx("Guardar y entrar")}</button>
        </div>
      </div>`;
   document.body.appendChild(cap);
