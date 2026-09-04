@@ -507,13 +507,22 @@ function sbError(r) {
   if (r.status === 401 || r.status === 403) {
     return new Error(tx("Tu sesión ya no vale. Entra otra vez con tu correo y contraseña."));
   }
-  return new Error(T`Supabase respondió: ${sbMensaje(r)}`);
+  return new Error(T`El servidor respondió: ${sbMensaje(r)}`);
 }
 
 /* ---- El almacén ---- */
 
 ALMACENES.supabase = {
-  nombre: "Supabase",
+  /* NO dice de quien es el servidor, y es a proposito: Eduardo lo paró por dos
+     motivos a la vez. Por seguridad —anunciar dónde vive el progreso de la
+     gente no le sirve a nadie salvo a quien vaya a por él— y porque en una
+     frase como «Al día con …» el nombre de un proveedor no le dice nada a
+     quien la lee: lo que quiere saber es que SU cuenta está al día.
+
+     Va como getter y no como cadena para que pase por `tx()`: es un trozo de
+     frase y en inglés tiene que traducirse igual que el resto. Con una cadena
+     fija se colaba «tu cuenta» en medio de una oración en inglés. */
+  get nombre() { return tx("tu cuenta"); },
 
   explicacion() {
     return tx("Guarda tu progreso en tu cuenta para que la computadora y el teléfono vean lo mismo.") + " " +

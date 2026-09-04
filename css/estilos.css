@@ -7391,6 +7391,59 @@
   }
   .cuenta-quitar:hover { color: var(--coral); background: var(--sup-tarjeta2); }
 
+  /* ---------- El bloque de la cuenta, abajo del panel ----------
+     Todo lo de la sesión junto y separado de tus datos por una raya. Antes
+     estaba partido —el estado arriba del todo, las cuentas y los botones al
+     final, y los campos de tu nombre en medio— y no había forma de leerlo
+     como un tema. La raya hace ese trabajo sola: no hace falta una tarjeta
+     dentro de otra tarjeta. */
+  .cuenta-bloque {
+    margin-top: 22px; padding-top: 18px;
+    border-top: var(--borde-fino) solid var(--line);
+  }
+  /* La nota de «solo tú puedes verlo», pegada al estado que acaba de leer. */
+  .cuenta-nota { margin: 10px 2px 0; }
+  .cuenta-bloque .sync-status { margin-top: 8px; }
+  .cuenta-bloque .cuentas-tit { margin-bottom: 10px; }
+  /* Aire antes del segundo rótulo. Dentro del bloque hay dos temas seguidos
+     —la cuenta en la que estás y con cuáles puedes cambiar— y sin esta
+     separación «Cambiar a otra cuenta» quedaba pegado a la nota de arriba,
+     como si fuera su pie. */
+  .cuenta-nota + .cuentas-tit { margin-top: 20px; }
+
+  /* La chapa de «esta es la sesión abierta». Va pegada al nombre y no en una
+     esquina: la pregunta que contesta —«¿cuál de estas cuentas soy ahora?»—
+     se hace mirando los nombres, con las otras cuentas listadas justo debajo.
+     En su propio renglón se leía como un rótulo más del panel. */
+  /* `.perfil-quien .cuenta-actual` y no `.cuenta-actual` a secas: dentro de la
+     ficha ya manda `.perfil-quien span`, que es el estilo del CORREO —gris,
+     12,5 px, en su propio renglón y partido por donde sea— y le gana en
+     especificidad a una clase sola. Con el selector corto la chapa salía gris
+     y del tamaño del correo: medido, la letra era `rgb(139,153,165)` y no
+     menta. Por eso se repiten aquí las cuatro que hay que deshacer. */
+  .perfil-quien .cuenta-actual {
+    display: inline-block;
+    margin: 0 0 0 8px;
+    padding: 2px 7px;
+    border-radius: var(--r-pastilla);
+    background: var(--mint-soft); color: var(--mint);
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: .04em; text-transform: uppercase;
+    word-break: normal; white-space: nowrap;
+  }
+  /* UN NOMBRE LARGO NO PUEDE EMPUJAR LA CHAPA FUERA DE LA FICHA, y por eso el
+     nombre va envuelto en su propio `span` desde el HTML: un nodo de texto
+     suelto dentro de un flex se convierte en un elemento anónimo, y a un
+     anónimo no se le puede poner `min-width: 0` — o sea que no encoge, y lo
+     que se sale es lo de al lado. Medido: con «Eduardo Camarillo» la chapa ya
+     asomaba por el borde derecho. Ahora se recorta el nombre, que es lo que
+     sobra, y la chapa se queda entera. */
+  .es-actual .perfil-quien b { display: flex; align-items: center; min-width: 0; }
+  .perfil-quien .cuenta-nombre {
+    min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .perfil-quien .cuenta-actual { flex: none; }
+
   /* ---------- Elegir el color de tu círculo ----------
      Nueve casillas: «el de siempre» y los ocho. Se envuelven en vez de
      apretarse, porque a 320 px nueve círculos de 30 no caben en una línea y

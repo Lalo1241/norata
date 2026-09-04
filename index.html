@@ -771,9 +771,14 @@
       <div class="ajustes-cuerpo" id="ajustes-cuerpo">
         <section class="ajuste-bloque" data-sec="cuenta">
           <div class="panel">
-            <h3>Sincronizar entre dispositivos</h3>
-            <p class="settings-note" id="sync-nota"></p>
-            <div class="sync-status" id="sync-status"></div>
+            <!-- El titulo dice lo que hay ARRIBA, que son tus datos. Antes
+                 decia «Sincronizar entre dispositivos» y debajo empezaba «Tu
+                 nombre»: el rotulo prometia una cosa y el panel abria con
+                 otra. Lo de la sesion tiene su propio bloque, abajo del todo,
+                 y lo escribe `renderSync` — el estado y la nota vivian aqui
+                 arriba, sueltos y lejos de las cuentas y los botones a los
+                 que pertenecen. Lo paro Eduardo. -->
+            <h3>Tus datos</h3>
             <div id="sync-panel"></div>
           </div>
           <!-- La exigencia vive aquí y no en una sección propia: quien viene a

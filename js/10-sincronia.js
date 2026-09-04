@@ -362,31 +362,27 @@ async function syncRun(opts) {
 
 /* ---- Ajustes: conectar, estado y desconexión ---- */
 
-function renderSync() {
-  const statusEl = document.getElementById("sync-status");
-  const panelEl = document.getElementById("sync-panel");
-  if (!statusEl || !panelEl) return;
+/* El semáforo de la sincronía, como trozo de HTML.
 
+   Antes era un hueco fijo del `index.html` que vivía ARRIBA DEL TODO, encima
+   de tus datos y a media pantalla de las cuentas y los botones a los que se
+   refiere. Eduardo lo paró: «no veo lógico que arriba esté el inicio de sesión
+   actual y hasta abajo otras cuentas y los botones». Ahora lo escribe esta
+   función y se pega dentro del bloque de la cuenta, que es su sitio.
+
+   `bajoLaFicha` quita el correo del renglón de abajo. Cuando el estado va
+   pegado debajo de la ficha, la ficha YA dice el correo, y repetirlo dos
+   veces con dos letras distintas se lee como si fueran dos cosas — se veía en
+   la captura que mandó. Sin ficha delante —cuando no hay sesión— el correo
+   sigue haciendo falta para saber de quién se habla. */
+function estadoSyncHTML(bajoLaFicha) {
   const alm = almacen();
-
-  /* Los textos explicativos los pone el almacén y no están escritos en el
-     HTML: cuando lo estaban, seguían hablando de repositorios y de tokens
-     después de haberse mudado a una cuenta de correo. */
-  const nota = document.getElementById("sync-nota");
-  if (nota) nota.textContent = alm.explicacion();
-  const notaDatos = document.getElementById("datos-nota");
-  if (notaDatos) {
-    notaDatos.textContent = syncReady()
-      ? T`Tu progreso vive en este navegador y en ${alm.nombre}. También puedes guardarlo en un archivo: es tuyo y funciona sin conexión.`
-      : tx("Tu progreso vive en este navegador. También puedes guardarlo en un archivo: es tuyo y funciona sin conexión.");
-  }
-
   let dot = "", titulo = "", detalle = "";
   if (!syncReady()) {
     dot = ""; titulo = tx("Solo en este dispositivo");
     detalle = tx("Tu progreso no sale de este navegador.");
   } else if (syncBusy) {
-    dot = "busy"; titulo = tx("Sincronizando…"); detalle = alm.etiqueta();
+    dot = "busy"; titulo = tx("Sincronizando…"); detalle = bajoLaFicha ? "" : alm.etiqueta();
   } else if (syncError) {
     dot = "bad"; titulo = tx("No pude sincronizar"); detalle = syncError;
   } else {
@@ -395,16 +391,37 @@ function renderSync() {
     let cuando = "";
     if (sync.lastAt) {
       try {
-        cuando = T` · última vez ${new Date(sync.lastAt).toLocaleString(localeActual(), {
+        cuando = new Date(sync.lastAt).toLocaleString(localeActual(), {
           timeZone: userTZ(), day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"
-        })}`;
+        });
       } catch (e) {}
     }
-    detalle = alm.etiqueta() + cuando;
+    /* Con ficha delante el renglón es solo la fecha, y lleva su «última vez»
+       para que no quede una fecha suelta sin decir de qué. */
+    detalle = bajoLaFicha
+      ? (cuando ? T`última vez ${cuando}` : "")
+      : alm.etiqueta() + (cuando ? T` · última vez ${cuando}` : "");
   }
-  statusEl.innerHTML =
-    '<span class="sync-dot ' + dot + '"></span>' +
-    '<span class="sync-text"><b>' + escapeHtml(titulo) + '</b><span>' + escapeHtml(detalle) + '</span></span>';
+  return '<div class="sync-status"><span class="sync-dot ' + dot + '"></span>' +
+    '<span class="sync-text"><b>' + escapeHtml(titulo) + '</b>' +
+    (detalle ? '<span>' + escapeHtml(detalle) + '</span>' : "") + '</span></div>';
+}
+
+function renderSync() {
+  const panelEl = document.getElementById("sync-panel");
+  if (!panelEl) return;
+
+  const alm = almacen();
+
+  /* Los textos explicativos los pone el almacén y no están escritos en el
+     HTML: cuando lo estaban, seguían hablando de repositorios y de tokens
+     después de haberse mudado a una cuenta de correo. */
+  const notaDatos = document.getElementById("datos-nota");
+  if (notaDatos) {
+    notaDatos.textContent = syncReady()
+      ? T`Tu progreso vive en este navegador y en ${alm.nombre}. También puedes guardarlo en un archivo: es tuyo y funciona sin conexión.`
+      : tx("Tu progreso vive en este navegador. También puedes guardarlo en un archivo: es tuyo y funciona sin conexión.");
+  }
 
   if (syncReady()) {
     const p = perfilActual();
@@ -413,17 +430,10 @@ function renderSync() {
        perdido entre el estado de la sincronía; ahora hay una cara —el círculo
        con la inicial y su color— que se reconoce sin leer. */
     panelEl.innerHTML =
-      /* Y al otro extremo, la insignia del nivel: la misma pareja de círculos
-         que la fila del menú de la cuenta —quién eres a la izquierda, por
-         dónde vas a la derecha—. Con `typeof` porque esta ficha se dibuja
-         también en la puerta, donde no hay datos que contar. */
-      /* La ficha entera es la puerta de la colección, igual que la fila del
-         menú del engrane: donde está la insignia, se toca la insignia. */
-      '<button class="perfil-ficha" onclick="abrirColeccion(\'settings\')">' + avatarHTML(48) +
-      '<div class="perfil-quien"><b>' + escapeHtml(p.saludo || tx("Sin nombre")) + '</b>' +
-      '<span>' + escapeHtml((sync.cfg || {}).correo || "") + '</span></div>' +
-      (typeof insigniaExpedicionHTML === "function" ? insigniaExpedicionHTML(30) : "") +
-      '</button>' +
+      /* ---- ARRIBA: tus datos, y nada más ----
+         Los cuatro campos que se escriben o se tocan. La ficha con tu cara ya
+         no vive aquí: se fue al bloque de la cuenta, abajo, porque decir quién
+         eres es parte de decir en qué sesión estás. */
       '<label class="field"><span>' + tx("Tu nombre") + '</span>' +
       '<input type="text" id="perfil-nombre" maxlength="' + NOMBRE_MAX + '" autocomplete="name"' +
       ' value="' + escapeAttr(p.nombre) + '" onchange="perfilGuardarAqui()"></label>' +
@@ -438,12 +448,33 @@ function renderSync() {
          sentido de lectura: los tres de arriba son cosas que se escriben y
          este es lo único que se toca. */
       selectorColorHTML() +
-      /* Aquí estaba «¿Qué es esta cuenta?». Se fue a «Norata por dentro», que
-         solo existe para la cuenta que el servidor reconoce como
-         administradora: nadie más que Eduardo tiene dos cuentas de Norata, así
-         que a todo el mundo le preguntaba algo que no le pasa — y el «sí» de
-         ese botón quita la confirmación de borrar. Ver `esCuentaDePruebas` en
-         `js/10c-portada.js`. */
+
+      /* ---- ABAJO: todo lo de la sesión, junto ----
+         Antes esto estaba partido en dos: el estado y el correo arriba del
+         todo, y las otras cuentas y los botones al final, con los campos de
+         tu nombre en medio. Eduardo lo dijo así: «no veo lógico que arriba
+         esté el inicio de sesión actual y hasta abajo otras cuentas y los
+         botones; yo recomiendo poner todo lo de ese tema abajo». Ahora es un
+         bloque con su raya, y se lee de arriba abajo: quién eres, cómo va la
+         sincronía, con qué otras cuentas puedes entrar, y qué puedes hacer. */
+      '<div class="cuenta-bloque">' +
+      '<p class="cuentas-tit">' + tx("Tu cuenta") + '</p>' +
+      /* LA CHAPA DE «ACTUAL», que es lo otro que faltaba: la ficha enseñaba tu
+         cara y tu correo pero nada decía que ESA es la sesión abierta, y con
+         otras cuentas listadas debajo eso se vuelve una adivinanza. */
+      '<button class="perfil-ficha es-actual" onclick="abrirColeccion(\'settings\')">' + avatarHTML(48) +
+      '<div class="perfil-quien"><b>' +
+      '<span class="cuenta-nombre">' + escapeHtml(p.saludo || tx("Sin nombre")) + '</span>' +
+      '<span class="cuenta-actual">' + tx("Actual") + '</span></b>' +
+      '<span>' + escapeHtml((sync.cfg || {}).correo || "") + '</span></div>' +
+      /* La insignia del nivel, al otro extremo: quién eres a la izquierda, por
+         dónde vas a la derecha. Con `typeof` porque esta ficha se dibuja
+         también en la puerta, donde no hay datos que contar. */
+      (typeof insigniaExpedicionHTML === "function" ? insigniaExpedicionHTML(30) : "") +
+      '</button>' +
+      /* El estado, pegado debajo de la ficha y sin repetir el correo. */
+      estadoSyncHTML(true) +
+      '<p class="field-hint cuenta-nota">' + escapeHtml(alm.explicacion()) + '</p>' +
       cuentasSeccionHTML() +
       /* Dos arriba y una abajo, y no tres en fila: las dos de arriba son
          cosas que no te quitan nada —traer los cambios, entrar con otra
@@ -459,6 +490,7 @@ function renderSync() {
          para volver, cambiar de cuenta lo conserva. */
       '<button class="btn btn-linea" onclick="irAAgregarCuenta()">' + tx("Entrar con otra cuenta") + '</button>' +
       '<button class="btn btn-aviso btn-block" onclick="syncDisconnect()">' + tx("Cerrar sesión en este dispositivo") + '</button>' +
+      '</div>' +
       '</div>';
     return;
   }
@@ -468,7 +500,12 @@ function renderSync() {
      dos veces significaba mantener dos caminos para lo mismo, y el de Ajustes
      era el peor de los dos — sin logo, sin Google, sin "probar sin cuenta" y
      escondido detrás de un menú. */
+  /* El estado también aquí: al no haber ficha delante, esta es la única línea
+     que dice dónde está tu progreso. Antes lo ponía un hueco fijo del HTML que
+     valía para los dos casos; al bajarlo dentro del panel hay que escribirlo
+     en las dos ramas o esta se queda muda. */
   panelEl.innerHTML =
+    estadoSyncHTML(false) +
     '<div class="stack">' +
     '<button class="btn btn-primary btn-block" onclick="irALaPuerta()">' + tx("Iniciar sesión o crear cuenta") + '</button>' +
     '</div>' +
