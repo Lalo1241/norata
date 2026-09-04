@@ -7242,6 +7242,36 @@
   }
   .cuenta-quitar:hover { color: var(--coral); background: var(--sup-tarjeta2); }
 
+  /* ---------- Elegir el color de tu círculo ----------
+     Nueve casillas: «el de siempre» y los ocho. Se envuelven en vez de
+     apretarse, porque a 320 px nueve círculos de 30 no caben en una línea y
+     encogerlos hasta que quepan los deja más pequeños que un dedo. */
+  /* Nueve en una fila, no ocho y uno descolgado. A 412 px el campo mide 334 y
+     nueve círculos de 30 con separación de 10 piden 350: el último se caía solo
+     a un segundo renglón, que se lee como si sobrara. Con 28 y 8 caben los
+     nueve —316— y sigue habiendo aire. */
+  .color-fila { display: flex; flex-wrap: wrap; gap: 8px; }
+  .color-op {
+    width: 28px; height: 28px; padding: 0;
+    border-radius: var(--r-disco);
+    border: 2px solid transparent;
+    cursor: pointer;
+    /* El aro de «este es el tuyo» se dibuja FUERA del círculo, con una sombra,
+       y no con el borde: metido dentro le comería 4 px al color y las casillas
+       elegidas se verían más pequeñas que las demás. */
+    box-shadow: 0 0 0 0 transparent;
+  }
+  .color-op.on {
+    border-color: var(--sup-tarjeta);
+    box-shadow: 0 0 0 2px var(--text);
+  }
+  /* El objetivo del dedo es de 30 px y el mínimo cómodo son 44: se agranda por
+     fuera con un pseudoelemento, que no mueve el dibujo ni la fila. */
+  .color-op { position: relative; }
+  .color-op::after {
+    content: ""; position: absolute; top: -7px; left: -7px; right: -7px; bottom: -7px;
+  }
+
   /* ---------- Las cuentas dentro de un menú ----------
      El bloque que va justo debajo de «quién eres», en el menú del engrane y en
      el índice de Ajustes. La raya de abajo no es adorno: separa «con qué cuenta

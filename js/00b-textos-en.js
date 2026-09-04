@@ -759,8 +759,8 @@ const TEXTOS_EN = {
   "Los puntos son personas que abrieron la app; las barras del fondo, cuentas nuevas. Las líneas verticales marcan cada lunes, para comparar una semana con otra.":
     "The dots are people who opened the app; the bars behind them, new accounts. The vertical lines mark each Monday, so you can compare one week with another.",
   "Cómo la usan": "How they use it",
-  "Desde qué aparato": "From which device",
-  "Sale del ancho de la ventana, no de fichar el aparato: dos teléfonos distintos cuentan como uno.":
+  "Desde qué dispositivo": "From which device",
+  "Sale del ancho de la ventana, no de fichar el dispositivo: dos teléfonos distintos cuentan como uno.":
     "It comes from the window width, not from fingerprinting the device: two different phones count as one.",
   "Instalada o en el navegador": "Installed or in the browser",
   "Instalada se abre sola; en una pestaña se olvida. Señal buena: 30 de cada 100.":
@@ -1091,6 +1091,20 @@ const TEXTOS_EN = {
   "¿Cómo te decimos? <i>opcional</i>": "What should we call you? <i>optional</i>",
   "Es lo que usaremos al saludarte, aquí y en los correos. Hasta {0} letras.":
     "It's what we'll use to greet you, here and in emails. Up to {0} characters.",
+  "Tu color": "Your colour",
+  "Es el círculo con tu inicial. Ponles colores distintos a tus cuentas y se distinguen de un vistazo.":
+    "It is the circle with your initial. Give your accounts different colours and you can tell them apart at a glance.",
+  "El de siempre": "The usual one",
+  "El color de siempre": "The usual colour",
+  "Color": "Colour",
+  "menta": "mint",
+  "amarillo": "yellow",
+  "coral": "coral",
+  "cielo": "sky",
+  "violeta": "violet",
+  "lima": "lime",
+  "rosa": "pink",
+  "ámbar": "amber",
   "Nombre de este dispositivo": "This device's name",
   "Aparece cuando dos dispositivos cambian lo mismo y hay que elegir.":
     "It shows up when two devices change the same thing and you have to choose.",
