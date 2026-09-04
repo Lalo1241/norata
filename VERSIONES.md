@@ -76,6 +76,52 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.89 · 4 sep 2026
+
+**Mi perfil: tus datos arriba, la cuenta abajo y junta.** Lo pidió Eduardo con
+la captura delante: «no veo lógico que arriba esté el inicio de sesión actual,
+lo de Supabase, y hasta abajo otras cuentas y los botones; yo recomiendo poner
+todo lo de ese tema abajo».
+
+Tenía razón, y era peor de lo que parece: **el tema estaba partido en TRES.**
+Arriba el estado de la sincronía y tu correo, en medio los campos de tu nombre,
+y al final las otras cuentas y los tres botones. Además el correo salía dos
+veces —en el estado y en la ficha— con dos letras distintas, que se lee como si
+fueran dos cosas.
+
+Ahora son **dos bloques con una raya en medio**:
+
+| | |
+| --- | --- |
+| **Tus datos** | nombre, apodo, dispositivo, color |
+| **Tu cuenta** | quién eres · cómo va la sincronía · con qué otras cuentas puedes entrar · qué puedes hacer |
+
+**Y la chapa de «Actual»**, que es lo otro que faltaba: la ficha enseñaba tu
+cara y tu correo, pero nada decía que ESA es la sesión abierta — y con otras
+cuentas listadas justo debajo, eso se volvía una adivinanza.
+
+**Fuera el nombre del proveedor.** «Al día con Supabase» pasa a **«Al día con tu
+cuenta»**. Lo pidió por seguridad y por estética, y las dos razones valen:
+anunciar dónde vive el progreso de la gente no le sirve a nadie salvo a quien
+vaya a por él, y a quien lee esa frase el nombre de un proveedor no le dice nada
+— lo que quiere saber es que SU cuenta está al día. Va como getter para que
+pase por `tx()`: con una cadena fija se colaba «tu cuenta» en medio de una
+oración en inglés. Y el error «Supabase respondió: X» pasa a «El servidor
+respondió: X».
+
+**Dos cosas que solo salieron al medir**, y las dos habrían pasado la revisión a
+ojo:
+
+- **La chapa no era menta ni de 10,5 px.** Dentro de la ficha manda
+  `.perfil-quien span`, que es el estilo del CORREO, y le gana en especificidad
+  a una clase sola: la chapa salía gris y del tamaño del correo — medido,
+  `rgb(139,153,165)`. Con el selector largo va a **6,4 de noche y 5,33 de día**.
+- **Un nombre largo empujaba la chapa fuera de la ficha.** El nombre era un nodo
+  de texto suelto dentro de un flex, y a un elemento anónimo no se le puede
+  poner `min-width: 0`: no encoge, y lo que se sale es lo de al lado. Ahora va
+  envuelto en su propio `span` y se recorta él. Probado con 4, 17, 43 y 220
+  letras: la chapa cabe entera en los cuatro y el cuerpo no desborda.
+
 ### 0.7.88.4 · 4 sep 2026
 
 **La revisión de idioma, hasta el fondo.** La pidió Eduardo —«¿ya está todo
