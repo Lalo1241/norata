@@ -1046,7 +1046,7 @@ function expCieloHTML(nivel) {
     const fig = expFiguraDeRango(viva, rangos.indexOf(viva));
     const k = expEscalonDe(viva, nivel);
     altar = '<g class="exp-const viva" style="--c:var(' + viva.color + ')">' +
-      '<title>' + escapeHtml(viva.nombre) + (k >= EXP_POR_RANGO ? ' · conseguido' : ' · nivel ' + k + ' de ' + EXP_POR_RANGO) + '</title>' +
+      '<title>' + escapeHtml(tx(viva.nombre)) + (k >= EXP_POR_RANGO ? tx(' · conseguido') : T` · nivel ${k} de ${EXP_POR_RANGO}`) + '</title>' +
       expFiguraHTML(fig, ncelHasta(fig, k), EXP_ALTAR.cx, EXP_ALTAR.cy, EXP_ALTAR, true) + '</g>';
   }
 
@@ -1111,7 +1111,7 @@ function expLecturaCielo(nivel) {
      cerrada y el rango ya es tuyo. Decir «nivel 6 de 6» ahí sería contar el
      avance de algo que ya terminó. */
   if (k >= EXP_POR_RANGO) return escapeHtml(viva.nombre) + " · conseguido";
-  return escapeHtml(viva.nombre) + " · nivel " + k + " de " + EXP_POR_RANGO;
+  return escapeHtml(tx(viva.nombre)) + T` · nivel ${k} de ${EXP_POR_RANGO}`;
 }
 
 /* ================= La colección =================
@@ -1222,7 +1222,7 @@ function renderColeccion() {
         <div class="exp-hero-fila">
           ${insigniaExpedicionHTML(52)}
           <div class="exp-hero-tx">
-            <div class="exp-hero-nivel">Nivel ${nivel}</div>
+            <div class="exp-hero-nivel">${T`Nivel ${nivel}`}</div>
             <div class="exp-hero-rango" style="color:${tono}">${expLecturaCielo(nivel)}</div>
           </div>
         </div>
@@ -1232,7 +1232,12 @@ function renderColeccion() {
              mismo efecto se separan a la tercera vez que alguien toca una. */""}
         <div class="barra-viva exp-hero-barra"><i style="--p:${info.pct}%;--c:${tono}"></i></div>
         <div class="exp-hero-pie">
-          <b>${info.faltan}</b> ${info.faltan === 1 ? "punto" : "puntos"} para el nivel ${nivel + 1}
+          <!-- Singular y plural son DOS claves y no una con un hueco: hay
+               idiomas que cambian más que la «s», y partir la frase para
+               colar el número dejaría al inglés sin poder moverlo. -->
+          ${info.faltan === 1
+            ? T`<b>${info.faltan}</b> punto para el nivel ${nivel + 1}`
+            : T`<b>${info.faltan}</b> puntos para el nivel ${nivel + 1}`}
           <span>${info.puntos} en total</span>
         </div>
       </div>
@@ -1329,11 +1334,15 @@ function renderColeccion() {
             : (razon === "fundador" ? "--lila" : "--celeste");
           return `<div class="col-peldano ${tuyo ? "tuyo" : porNivel ? "" : "cerrado"}" style="--c:var(${col})">
             <span class="cpx-disco">${icon(x.icon || (x.tipo === "ambiente" ? "brush" : "star"), 17)}</span>
-            <b>${escapeHtml(x.nombre)}</b>
+            <!-- Los cuatro rótulos de aquí abajo NUNCA pedían traducción, así que
+                 el auditor del navegador no podía verlos: solo cuenta lo que pasa
+                 por tx(). Con la app en inglés esta tira decía «Rango Cartógrafo»,
+                 «Nivel 12», «Desbloqueado» y «Fundador» en español. -->
+            <b>${escapeHtml(tx(x.nombre))}</b>
             <span class="cpx-estado">${
-              porNivel ? "Nivel " + x.nivel
-              : tuyo ? icon("check", 13) + "Desbloqueado"
-              : icon("lock", 12) + (razon === "fundador" ? "Fundador" : "Pro")}</span>
+              porNivel ? T`Nivel ${x.nivel}`
+              : tuyo ? icon("check", 13) + tx("Desbloqueado")
+              : icon("lock", 12) + (razon === "fundador" ? tx("Fundador") : tx("Pro"))}</span>
           </div>`;
         }).join("")}
       </div>

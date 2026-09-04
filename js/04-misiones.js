@@ -801,7 +801,7 @@ function projectHealth(pr) {
   const prog = projectProgress(pr);
   if (idle >= 45 && prog < 60) {
     return { key: "stalled", label: tx("Estancado"), color: "var(--coral)",
-      note: `${idle} días sin avance y solo ${prog}% hecho. Sé honesto: ¿lo retomas esta semana o lo sueltas?` };
+      note: T`${idle} días sin avance y solo ${prog}% hecho. Sé honesto: ¿lo retomas esta semana o lo sueltas?` };
   }
   if (idle >= 21) {
     return { key: "cooling", label: tx("Enfriándose"), color: "var(--fire)",
@@ -812,7 +812,8 @@ function projectHealth(pr) {
       note: tx("Estás a nada de cerrarlo. Termina las etapas que faltan.") };
   }
   return { key: "healthy", label: tx("Con ritmo"), color: "var(--mint)",
-    note: idle === 0 ? tx("Le diste avance hoy.") : `Último avance hace ${idle} día${idle === 1 ? "" : "s"}.` };
+    note: idle === 0 ? tx("Le diste avance hoy.")
+      : idle === 1 ? T`Último avance hace ${idle} día.` : T`Último avance hace ${idle} días.` };
 }
 
 /* ================= El encargo como nodo del mapa =================

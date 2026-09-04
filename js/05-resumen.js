@@ -407,7 +407,7 @@ function renderSummary() {
         </div>
         ${prox ? `<div class="sc-near">
           <span>${faltan === 1 ? tx("En el siguiente nivel") : T`A ${faltan} niveles`}${prox.pro ? tx(" · con Pro") : ""}</span>
-          <b>${escapeHtml(prox.nombre)}</b>
+          <b>${escapeHtml(tx(prox.corto || prox.nombre))}</b>
           <i style="--p:${info.pct}%"></i>
         </div>` : ""}
       </button>`;

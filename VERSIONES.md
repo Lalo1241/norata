@@ -76,6 +76,90 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.88.4 · 4 sep 2026
+
+**La revisión de idioma, hasta el fondo.** La pidió Eduardo —«¿ya está todo
+traducido?»— y la respuesta era que no: quedaban **setenta y tantas frases**
+repartidas en tres capas, y cada capa la ve una herramienta distinta. Ninguna de
+las tres sola habría encontrado ni la mitad.
+
+| Herramienta | Qué ve | Qué NO ve |
+| --- | --- | --- |
+| Buscar `tx("...")` en el código | frases escritas ahí mismo | las que se piden con una variable |
+| Recorrer las TABLAS de rótulos | los valores de una tabla | lo que nunca pide traducción |
+| `?i18n=audita` + `faltantesI18n()` | lo que llegó a pedirla | lo que jamás la pide |
+| **Leer la pantalla en inglés** | **todo lo que se ve** | lo que no se dibujó en ese paseo |
+
+La cuarta es la única que cierra: recorrer las diecisiete vistas en inglés y
+buscar palabras españolas en el `innerText`. Las otras miden intención; esta
+mide resultado.
+
+**Capa 1 — las tablas de rótulos.** `tx(STATUS_LABEL[st])`,
+`tx(EXP_ETIQUETAS[k])`, `tx(TIPOS[t].nombre)`: la frase vive en una tabla de
+nivel superior —que es donde tiene que vivir, porque un `tx()` ahí congelaría el
+rótulo en el idioma de arranque— y ninguna búsqueda de literales la mira. En
+inglés se veía «Compra», «Hito», «Meta», «Disponible», «Permanente»,
+«Perdido», «Plan vencido», «Talentos logrados», «Etapas hechas», «Estrenos»,
+«Semana», «Mes», «Año», «Columnas», «Panorama», «Mirador», «Gratuito»,
+«Fundador», «al mes», «Recomendado» y las cinco anclas de ejemplo.
+
+Los nombres de los planes se traducen porque **las frases de al lado ya lo
+hacían**: la columna decía «Gratuito» debajo de un párrafo que decía «You're on
+Free». Los precios no: son importes de verdad y los cobra Stripe.
+
+**Capa 2 — lo que NUNCA pedía traducción**, y por eso el auditor no podía
+verlo. Aquí estaban las peores, porque no fallan: simplemente salen en español.
+
+- Los días de la semana del informe salían de una lista fija: «Tu día más flojo
+  es el lunes» con la app en inglés. Ahora los da `Intl` (`nombreDeDiaLargo`),
+  que además acierta la mayúscula que lleva el inglés y no el español — y por
+  eso se quitó el `toLowerCase()`.
+- La tira de «lo que abre cada nivel» decía «Rango Cartógrafo», «Nivel 12»,
+  «Desbloqueado» y «Fundador».
+- Los contadores que se componían pegando trozos: «2 de 4 etapas», «2/4
+  etapas», «2 hechos · 1 sin terminar», «Permanente desde el…», «0 de 1 hoy»,
+  «Último avance hace 3 días», «puntos para el nivel 8».
+- La tira de atajos del mapa: «editar el mapa», «pantalla completa»,
+  «deshacer».
+- Y una frase MEZCLADA, que es la peor de todas: «Se desbloquea al completar
+  **any** de los 2». La palabra iba traducida suelta dentro de un marco español.
+  Se arregla como manda la regla de las frases con datos dentro: entera, con
+  una sola clave.
+
+**Capa 3 — el contenido del ejemplo.** «Ver un ejemplo completo» sembraba las
+habilidades y las etapas en español mientras sus descripciones sí se traducían:
+la ficha salía con el nombre en español y la explicación en inglés. Ahora
+`mkS()` traduce el nombre y la categoría al guardarlos —son rótulos, no la
+clave del catálogo— y el ejemplo entero nace en el idioma de quien lo pide.
+
+**Y un fallo del motor, no del diccionario: `T` perdía los espacios de los
+extremos.** La clave se busca recortada porque en el código las frases vienen
+sangradas, pero varias plantillas **empiezan por un espacio a propósito** —son
+un trozo que se pega detrás de otro: `` T` · última vez ${x}` ``—. Al encontrar
+la clave recortada, `T` devolvía solo la traducción y ese espacio desaparecía:
+en inglés salía «Synced· last time today». `tx()` ya lo hacía bien desde
+siempre. En español no se veía nunca, porque ahí `T` devuelve el texto crudo sin
+pasar por el diccionario; se cazó midiendo la misma plantilla en los dos
+idiomas. Son seis sitios y se arreglan en el motor, no uno por uno. De paso
+sobra el espacio que alguien le había metido al VALOR de «Al llegar arriba se
+enciende con {0}.» para compensarlo a mano: era el mismo fallo parcheado en el
+sitio equivocado.
+
+**Comprobado al final**, en inglés y con el ejemplo sembrado: las diecisiete
+vistas, la ficha de cada habilidad, cada talento en sus cuatro estados, cada
+proyecto, los informes, la colección, los formularios, el catálogo, Ajustes, el
+plan, el tutorial y el cuestionario. **Cero frases en español en pantalla y
+`faltantesI18n()` vacío.** Y de vuelta en español, ninguna en inglés.
+
+Dos cosas que se aprendieron midiendo, y valen para la próxima:
+
+- **Recargar la pestaña no trae el archivo nuevo.** Los `<script src>` salen de
+  la caché del navegador; media hora persiguiendo un arreglo que ya estaba en
+  disco. Se fuerza con `fetch(src, {cache:"reload"})` sobre la dirección EXACTA
+  —con un `?loquesea` se refresca otra entrada— y luego se recarga.
+- **El auditor necesita un control.** Pedir a propósito una frase que no existe:
+  si no aparece en `faltantesI18n()`, lo que está roto es la prueba.
+
 ### 0.7.88.3 · 4 sep 2026
 
 **Los mundos no reaccionaban al ratón ni marcaban cuál estás mirando.** Tres

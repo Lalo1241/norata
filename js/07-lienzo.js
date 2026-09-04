@@ -1048,13 +1048,13 @@ function atajosLegend(compacta) {
      simbologia aparte y el nombre en la de atajos, asi que los tres tipos se
      listaban dos veces y ninguna de las dos filas se bastaba sola. */
   const crear = ["hito", "meta", "compra"]
-    .map(t => `${k(TIPOS[t].tecla)} <b class="gl">${TIPOS[t].glifo}</b> ${TIPOS[t].nombre.toLowerCase()}`)
+    .map(t => `${k(TIPOS[t].tecla)} <b class="gl">${TIPOS[t].glifo}</b> ${tx(TIPOS[t].nombre).toLowerCase()}`)
     .join('<i class="sep">·</i>');
   const partes = compacta
-    ? [crear, `${k("C")} editar el mapa`, `${k("M")} pantalla completa`,
+    ? [crear, `${k("C")} ${tx("editar el mapa")}`, `${k("M")} ${tx("pantalla completa")}`,
        `${raton} ${tx("clic derecho: crear, editar y pantalla completa")}`]
-    : [crear, `${k("C")} salir de edición`, `${k("M")} pantalla completa`,
-       `${k("Ctrl")}${k("Z")} deshacer`, `${raton} ${tx("clic derecho: crear y más acciones")}`];
+    : [crear, `${k("C")} ${tx("salir de edición")}`, `${k("M")} ${tx("pantalla completa")}`,
+       `${k("Ctrl")}${k("Z")} ${tx("deshacer")}`, `${raton} ${tx("clic derecho: crear y más acciones")}`];
   return `<span class="keys">${partes.join('<i class="sep">·</i>')}</span>`;
 }
 
@@ -1089,7 +1089,7 @@ function crearTalentoRapido(branch, tipo, pos) {
   state.perks.push(nuevo);
   save();
   renderTree();
-  toast(`${t.nombre} creado · ábrelo para ponerle nombre`, "hecho");
+  toast(T`${tx(t.nombre)} creado · ábrelo para ponerle nombre`, "hecho");
 }
 
 /* Copia el PLAN, no lo logrado: el duplicado nace sin progreso, sin dinero
@@ -1417,7 +1417,7 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
     const { total, hechos, pendientes } = resumenCaja(caja);
     el.innerHTML =
       `<div class="ctx-head">${escapeHtml(nombreCaja(caja))}</div>` +
-      item(tx("Ver qué lleva"), pendientes ? `${hechos} hechos y ${pendientes} sin terminar` : `${total} talentos guardados`,
+      item(tx("Ver qué lleva"), pendientes ? T`${hechos} hechos y ${pendientes} sin terminar` : T`${total} talentos guardados`,
         "", `cerrarCtxMenu();verCaja('${escapeAttr(caja.id)}')`, BM_ICONS.caja) +
       item(tx("Renombrar la caja"), tx("Ponle el nombre de lo que fue esa época"), "",
         `cerrarCtxMenu();renombrarCaja('${escapeAttr(caja.id)}')`, BM_ICONS.lapiz) +
@@ -2314,7 +2314,7 @@ function constellation(nodes, key, editing, branch, mod) {
             se marca: "2/4" es accionable, "50%" es un resumen. */
         (verEtapas && (n.steps || []).length)
           ? `<text class="nod-etapas" x="${sitio.anclaX}" y="${topY + (lines.length - 1) * 12 + 13}" text-anchor="${sitio.ancla}" font-size="9" fill="var(--fire)" font-weight="700">${
-              n.steps.filter(s2 => s2.done).length}/${n.steps.length} etapas</text>`
+              T`${n.steps.filter(s2 => s2.done).length}/${n.steps.length} etapas`}</text>`
           : ""}
     </g>`;
 

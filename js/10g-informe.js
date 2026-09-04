@@ -395,7 +395,7 @@ function renderInforme() {
                 se contradice consigo misma. Gris es lo que no está abierto Y
                 no estás viendo. */""}
           <button role="tab" class="${p === periodo ? "on" : (planIncluyeResumen(p) ? "" : "bajo-llave")}"
-            aria-selected="${p === periodo}" onclick="informeVerPeriodo('${p}')">${escapeHtml(PERIODOS[p].nombre)}</button>`).join("")}
+            aria-selected="${p === periodo}" onclick="informeVerPeriodo('${p}')">${escapeHtml(tx(PERIODOS[p].nombre))}</button>`).join("")}
       </div>
       <div class="inf-ramas" role="tablist" aria-label="Módulo del informe">
         ${/* Sin plan, las cuatro ramas no llevan a ninguna parte: el informe
@@ -406,7 +406,7 @@ function renderInforme() {
             const abierta = conPlan || x.id === "todo";
             return `
           <button role="tab" class="${x.id === informeRamaActual ? "on" : ""}${abierta ? "" : " bajo-llave"}"
-            aria-selected="${x.id === informeRamaActual}" onclick="informeVerRama('${x.id}')">${escapeHtml(x.nombre)}</button>`;
+            aria-selected="${x.id === informeRamaActual}" onclick="informeVerRama('${x.id}')">${escapeHtml(tx(x.nombre))}</button>`;
           }).join("")}
       </div>
     </div>`;
@@ -545,7 +545,7 @@ const INFORME_ABRE = [
 function antesalaHTML() {
   return `
     <section class="panel inf-antesala">
-      <h3>${icon("gem", 19)}El informe completo, con ${escapeHtml(NOMBRE_PRO)}</h3>
+      <h3>${icon("gem", 19)}${T`El informe completo, con ${escapeHtml(NOMBRE_PRO)}`}</h3>
       <p class="settings-note" style="margin:0">
         Los números de arriba son tuyos y los ves siempre, igual que el panel
         de cada módulo. Lo que abre ${escapeHtml(NOMBRE_PRO)} es todo lo demás:
@@ -564,7 +564,12 @@ function antesalaHTML() {
 
 /* ================= Misiones ================= */
 
-const DOW_LARGO = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+/* Los días salen de `Intl` (`nombreDeDiaLargo`, js/00-idioma.js) y ya no de
+   una lista fija en español: con la app en inglés esta gráfica decía «Tu día
+   más flojo es el lunes» y sus barras «Dom, Lun, Mar».
+
+   Y sin `toLowerCase()`, que es lo que había: el inglés escribe los días con
+   mayúscula y el español no, y eso lo decide `Intl` solo. */
 
 function infMisiones(r, rAntes, D) {
   const m = metricasMisiones(r, D), p = metricasMisiones(rAntes, D);
@@ -615,11 +620,11 @@ function infMisiones(r, rAntes, D) {
   })();
 
   html += bloque(tx("¿Qué día se te cae la semana?"),
-    flojo === null ? tx("Hace falta más de una semana para que esto signifique algo.") : `Tu día más flojo es el ${DOW_LARGO[flojo].toLowerCase()}.`,
+    flojo === null ? tx("Hace falta más de una semana para que esto signifique algo.") : T`Tu día más flojo es el ${nombreDeDiaLargo(flojo)}.`,
     gBarras(m.porDiaSemana.map((v, i) => ({
-      k: DOW_LARGO[i].slice(0, 3), v,
+      k: nombreDeDiaLargo(i).slice(0, 3), v,
       color: i === flojo ? pinta("#ff8a70") : pinta("#5fe0b0"),
-      titulo: `${DOW_LARGO[i]}: ${v} marcas`
+      titulo: T`${nombreDeDiaLargo(i)}: ${v} marcas`
     })), { vacia: tx("En cuanto cumplas misiones, aquí se verá en qué días.") }));
 
   /* Qué misión sostiene el periodo. */
