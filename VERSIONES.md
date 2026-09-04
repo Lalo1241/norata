@@ -167,6 +167,45 @@ derramaba por encima de la ×: ahora las dos líneas se cortan con puntos
 suspensivos y todas las filas miden lo mismo, que es lo que deja recorrer una
 lista de un vistazo. El tope son cinco.
 
+### Sin número · 3 sep 2026 — una dirección que contesta
+
+**No lleva versión** por lo mismo que las otras dos entradas sin número: nada de
+esto está en `ASSETS`. Los seis correos son plantillas que se sirven del sitio y
+la función de bienvenida se despliega aparte —ya está desplegada—.
+
+**La dirección de contacto de Norata es `norata@hopara.com.mx`**, y la eligió
+Eduardo entre cinco candidatas. El motivo de esa y no otra: va impresa en un
+documento legal, la gente la va a dictar en voz alta y a teclear a mano, así que
+gana la corta y sin separadores. Y la primera palabra que se lee es «norata»,
+que es lo que amortigua el tercer nombre — el aviso dice que el responsable es
+él, la app se llama Norata, y el correo dice Hopara.
+
+Dos datos del DNS que decidieron esto, verificados y no supuestos:
+`norata.app` **no tiene MX**, así que hoy no puede recibir nada; y
+`hopara.com.mx` está en Proton, donde añadir una dirección al dominio propio no
+cuesta nada extra.
+
+Dónde queda puesta:
+
+- **En el aviso de privacidad y en los términos**, que con esto se quedan con un
+  solo hueco: el domicilio.
+- **En el pie de los seis correos.** No es un adorno: el aviso promete una
+  dirección donde ejercer tus derechos, y hasta hoy ninguno de los correos la
+  llevaba.
+- **Como `reply_to` de la bienvenida.** Antes, responder a ese correo era
+  escribirle a `no-reply@norata.app`, que no tiene bandeja: el mensaje se perdía
+  y quien escribió se quedaba esperando.
+
+**Y el remitente NO cambia.** `no-reply@norata.app` está verificado en Resend y
+`hopara.com.mx` no lo está; enviar desde ahí tiraría el correo o lo mandaría a
+spam. Enviar y recibir son dos cosas distintas, y `reply_to` es justo la que las
+junta sin tocar la primera.
+
+Los otros cinco correos los manda Supabase y ahí no se puede poner un
+`reply_to`, así que en esos la dirección vive en el pie y nada más. Es una razón
+más para pegar las plantillas nuevas cuando toque: las que están puestas hoy en
+el panel no llevan la dirección.
+
 ### 0.7.79 · 3 sep 2026
 
 **La cifra de arriba deja de ser un promedio y pasa a decir cuánta gente hay.**
