@@ -76,6 +76,59 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.82 · 3 sep 2026
+
+**Cambiar de cuenta se hace desde donde ya se ve quién eres.** Eduardo abrió el
+menú de Google al lado y dijo lo justo: «siento que está muy escondido y siguen
+siendo muchos pasos». Tenía razón — la lista vivía en Ajustes → Mi perfil, que
+es un buen sitio para administrar y uno malo para cambiar.
+
+Ahora las cuentas salen **justo debajo de la ficha de «quién eres»**, en los dos
+sitios donde la app ya contesta «¿en qué cuenta estoy?»: el menú del engrane en
+la computadora y el índice de Ajustes en el teléfono. **Dos toques en los dos.**
+
+Es una sola función con dos pieles —`mm` para el menú, `aj` para el índice—
+porque los dos renglónes tienen la misma forma: un hueco para el icono y dos
+líneas de texto. Con dos funciones, una se queda atrás a la primera. Y **la ×
+de quitar no va ahí**: en un menú corto, un botón de borrar pegado a uno de
+entrar es un accidente esperando. Quitar sigue en Mi perfil, que es donde se
+administra.
+
+**Y el fallo que salió de tener dos cuentas a mano, que es lo importante de
+esta tanda.** Lo contó exacto: se venía de una cuenta con un mundo puesto, se
+cambiaba a otra que no lo tiene, y **el mundo seguía puesto** hasta elegir otro
+a mano. Lo mismo con los recoloreados que se ganan por nivel.
+
+La causa no estaba en lo nuevo. `refrescarApariencia()` —la única puerta que
+revisa si lo que llevas puesto sigue siendo tuyo— vivía **después de
+`if (!esAdmin) return`** dentro de `revisarAdmin`. O sea que no corría para
+nadie salvo para la cuenta administradora: estaba muerta para el 100% de las
+cuentas desde que se escribió. No se notaba porque el plan y el nivel de una
+persona no bajan solos — al poder cambiar de cuenta en el mismo dispositivo
+bajan de golpe, y ahí se vio.
+
+Tres arreglos, y hacen falta los tres:
+
+- **Sale de detrás del `return`.** La apariencia la lleva puesta todo el mundo.
+- **Mira lo ELEGIDO y no lo que está puesto.** Leyendo el atributo era de un
+  solo sentido: en cuanto una llamada devolvía a la casa —porque en ese
+  instante el nivel era 0, que es lo normal mientras el progreso va llegando—
+  la siguiente veía «casa», decía que casa está permitida, y se quedaba así
+  para siempre. Quitaba y no devolvía. Ahora hace las dos cosas y da igual
+  cuántas veces se pregunte.
+- **Se vuelve a preguntar cuando termina una sincronía.** El plan lo contesta
+  el servidor, pero el NIVEL sale del progreso, y el progreso llega ahí:
+  preguntarlo antes es preguntarlo con el nivel en 0.
+
+Medido, los cuatro casos: un mundo de Fundador con plan libre se cae a la casa;
+un ambiente de nivel 20 con nivel 0 también; lo que sí es tuyo aguanta tres
+llamadas seguidas sin moverse; y subiendo el nivel de 0 a 25 el ambiente
+**vuelve solo**. La elección guardada no se borra nunca, así que volver a la
+otra cuenta devuelve su mundo.
+
+**Y una palabra.** La app entera dice «dispositivo» y la 0.7.80 coló «aparato»
+en seis textos que ve el usuario. Corregido, con su entrada de esta lista.
+
 ### 0.7.81 · 3 sep 2026
 
 **La regla de alinear ya funciona también con el lápiz encendido.** Eduardo la
