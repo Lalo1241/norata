@@ -1255,12 +1255,11 @@ const TEXTOS_EN = {
   "¿Cómo te decimos? <i>opcional</i>": "What should we call you? <i>optional</i>",
   "Es lo que usaremos al saludarte, aquí y en los correos. Hasta {0} letras.":
     "It's what we'll use to greet you, here and in emails. Up to {0} characters.",
-  "Tu color": "Your colour",
+  "Tu color": "Your color",
   "Es el círculo con tu inicial. Ponles colores distintos a tus cuentas y se distinguen de un vistazo.":
-    "It is the circle with your initial. Give your accounts different colours and you can tell them apart at a glance.",
+    "It is the circle with your initial. Give your accounts different colors and you can tell them apart at a glance.",
   "El de siempre": "The usual one",
-  "El color de siempre": "The usual colour",
-  "Color": "Colour",
+  "El color de siempre": "The usual color",
   "menta": "mint",
   "amarillo": "yellow",
   "coral": "coral",
@@ -2187,7 +2186,6 @@ const TEXTOS_EN = {
     "That password doesn't meet the minimum. Use at least {0} characters.",
   "Necesita al menos {0} caracteres.": "It needs at least {0} characters.",
   "El servidor respondió: {0}": "The server replied: {0}",
-  "tu cuenta": "your account",
   "Tus datos": "Your details",
   "Tu cuenta": "Your account",
   "Actual": "Current",
