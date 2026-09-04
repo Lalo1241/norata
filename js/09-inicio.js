@@ -474,7 +474,7 @@ function renderTutorial() {
   document.getElementById("tuto-card").innerHTML = `
     <!-- Salir es una X y no un botón grande: el botón compite con "Siguiente"
          justo cuando lo que queremos es que dé un paso más. -->
-    <button class="tuto-x" onclick="saltarTutorial()" aria-label="Saltar tutorial" title="Saltar tutorial">✕</button>
+    <button class="tuto-x" onclick="saltarTutorial()" aria-label="${escapeAttr(tx("Saltar tutorial"))}" title="${escapeAttr(tx("Saltar tutorial"))}">✕</button>
     ${/* Las cinco filas van SIEMPRE, en el mismo orden y con la misma altura:
           marca, título, texto, resumen gris y puntos. Antes cada tarjeta
           medía lo que midiera su texto y el contenido bailaba de una a otra
@@ -484,9 +484,9 @@ function renderTutorial() {
     <div class="tuto-marca">${p.logo
       ? `<span class="tuto-logo">${logoNorata()}</span>`
       : `<span class="tuto-ic" style="${tonos("tc", p.color)}">${icon(p.icon, 30)}</span>`}</div>
-    <h2 class="tuto-titulo">${escapeHtml(p.titulo)}</h2>
-    <p class="tuto-tx">${p.tx}</p>
-    <p class="tuto-pie">${p.pie}</p>
+    <h2 class="tuto-titulo">${escapeHtml(tx(p.titulo))}</h2>
+    <p class="tuto-tx">${tx(p.tx)}</p>
+    <p class="tuto-pie">${tx(p.pie)}</p>
     <div class="tuto-dots">${pasos.map((_, i) =>
       `<i class="${i === tutoPaso ? "on" : ""}"></i>`).join("")}</div>
     <div class="modal-actions">
@@ -494,7 +494,7 @@ function renderTutorial() {
             a "Siguiente" justo al pasar de la primera a la segunda, y ese es
             el botón que se pulsa cinco veces seguidas. */
         ""}<button class="btn btn-ghost" onclick="tutoAtras()" ${tutoPaso ? "" : "disabled"}>${tx("Atrás")}</button>
-      <button class="btn btn-primary" onclick="tutoSiguiente()">${ultimo ? "Empezar" : "Siguiente"}</button>
+      <button class="btn btn-primary" onclick="tutoSiguiente()">${ultimo ? tx("Empezar") : tx("Siguiente")}</button>
     </div>`;
 }
 
@@ -1301,11 +1301,11 @@ document.addEventListener("pointerdown", (e) => {
    formulario: escribir cansa. Un toque contesta la pregunta que más ahorra al
    buscar el fallo. */
 function lugaresDeFallo() {
-  const mods = (typeof MODULOS !== "undefined" ? MODULOS : []).map(m => [m.id, m.label]);
+  const mods = (typeof MODULOS !== "undefined" ? MODULOS : []).map(m => [m.id, tx(m.label)]);
   return mods.concat([
-    ["settings", "Ajustes"],
-    ["entrada", "Al entrar o cerrar sesión"],
-    ["otro", "Otra parte"]
+    ["settings", tx("Ajustes")],
+    ["entrada", tx("Al entrar o cerrar sesión")],
+    ["otro", tx("Otra parte")]
   ]);
 }
 
@@ -1339,9 +1339,9 @@ async function reportarFallo() {
      va a escribir —que alguien lo lee y lo arregla— y que no hace falta saber
      nada técnico. Dos frases: la tercera ya no se lee. */
   const cuerpo =
-    '<span class="rep-intro">Cuéntame qué pasó y lo reviso. No necesitas saber nada técnico: con lo que recuerdes me basta para encontrarlo.</span>' +
+    '<span class="rep-intro">' + tx("Cuéntame qué pasó y lo reviso. No necesitas saber nada técnico: con lo que recuerdes me basta para encontrarlo.") + '</span>' +
     '<label class="rep-campo">' +
-      '<span class="rep-rot">¿Dónde pasó?</span>' +
+      '<span class="rep-rot">' + tx("¿Dónde pasó?") + '</span>' +
       '<select id="rep-donde">' +
         lugares.map(([id, txt]) =>
           '<option value="' + escapeAttr(id) + '"' + (id === porDefecto ? " selected" : "") + '>' +
@@ -1349,12 +1349,12 @@ async function reportarFallo() {
       '</select>' +
     '</label>' +
     '<label class="rep-campo">' +
-      '<span class="rep-rot">¿Qué hacías justo antes? <i>Opcional</i></span>' +
-      '<input type="text" id="rep-antes" maxlength="80" placeholder="Ej. Abrí un talento desde el mapa">' +
+      '<span class="rep-rot">' + tx("¿Qué hacías justo antes? <i>Opcional</i>") + '</span>' +
+      '<input type="text" id="rep-antes" maxlength="80" placeholder="' + escapeAttr(tx("Ej. Abrí un talento desde el mapa")) + '">' +
     '</label>' +
     '<label class="rep-campo">' +
-      '<span class="rep-rot">¿Qué salió mal?</span>' +
-      '<textarea id="rep-que" rows="3" maxlength="' + MOTIVO_MAX + '" placeholder="La pantalla se quedó en blanco y no volvió."></textarea>' +
+      '<span class="rep-rot">' + tx("¿Qué salió mal?") + '</span>' +
+      '<textarea id="rep-que" rows="3" maxlength="' + MOTIVO_MAX + '" placeholder="' + escapeAttr(tx("La pantalla se quedó en blanco y no volvió.")) + '"></textarea>' +
       '<span class="modal-cuenta" id="modal-cuenta">0 / ' + MOTIVO_MAX + '</span>' +
     '</label>';
 
@@ -1370,8 +1370,8 @@ async function reportarFallo() {
      verde macizo: el macizo es «lo que has venido a hacer», y aquí nadie ha
      venido a esto. Mandar un reporte es un favor, no la acción de la
      pantalla. */
-  const p = askBase(cuerpo, true, "Enviar", false, false, "Cancelar",
-                    { icono: "bicho", titulo: "¿Qué salió mal?", tono: "oro",
+  const p = askBase(cuerpo, true, tx("Enviar"), false, false, tx("Cancelar"),
+                    { icono: "bicho", titulo: tx("¿Qué salió mal?"), tono: "oro",
                       clase: "reporte", okClase: "btn-linea" });
 
   /* `setTimeout` y no `requestAnimationFrame`, igual que en `askText`: el
@@ -1400,7 +1400,7 @@ async function reportarFallo() {
   if (!ok) return;
 
   const que = elQue ? limpiarLibre(elQue.value) : "";
-  if (!que) { toast("No mandé nada: falta contar qué salió mal.", "atencion"); return; }
+  if (!que) { toast(tx("No mandé nada: falta contar qué salió mal."), "atencion"); return; }
 
   const idDonde = selDonde ? selDonde.value : "otro";
   const nombreDonde = (lugares.find(([id]) => id === idDonde) || [null, idDonde])[1];
@@ -1428,14 +1428,14 @@ async function reportarFallo() {
        susto. Sin cancelar, porque no hay nada que cancelar, y sin `fijo`:
        quien ya leyó las dos líneas puede cerrar tocando fuera. */
     await askBase(
-      "Ya me llegó y lo voy a revisar. Cosas como ésta son las que hacen que Norata deje de fallar donde falla.",
-      false, "De nada", false, false, null,
-      { icono: "bicho", titulo: "Gracias por avisarme", tono: "oro", soloOk: true });
+      tx("Ya me llegó y lo voy a revisar. Cosas como ésta son las que hacen que Norata deje de fallar donde falla."),
+      false, tx("De nada"), false, false, null,
+      { icono: "bicho", titulo: tx("Gracias por avisarme"), tono: "oro", soloOk: true });
   } else {
     /* Ni «error» ni una disculpa larga: se dice qué pasó y qué se puede
        hacer. Lo escrito se ha perdido, y eso también se dice — dejar creer
        que quedó guardado en alguna parte es lo único imperdonable aquí. */
-    toast("No pude enviarlo: revisa tu conexión y vuelve a intentarlo.", "atencion");
+    toast(tx("No pude enviarlo: revisa tu conexión y vuelve a intentarlo."), "atencion");
   }
 }
 

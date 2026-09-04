@@ -1016,5 +1016,126 @@ const TEXTOS_EN = {
   "{0} talento": "{0} talent",
   "{0} talentos": "{0} talents",
   "{0} talento al ático": "{0} talent in the attic",
-  "{0} talentos al ático": "{0} talents in the attic"
+  "{0} talentos al ático": "{0} talents in the attic",
+
+  /* ================= Tanda 7: los tres bloques que se concatenan =================
+     El tutorial, el formulario de reportar un fallo y el panel de sincronia
+     —incluido borrar la cuenta—. Los tres construyen su HTML pegando cadenas con
+     comillas simples, asi que ninguna herramienta los pudo tocar: van a mano.
+     Y aqui vive la traduccion que MAS importa de todas: «BORRAR MI CUENTA», la
+     frase que hay que teclear para confirmar. Estaba en una constante de nivel
+     superior, o sea congelada en el idioma de arranque — y eso no es un rotulo
+     feo, es que alguien con la app en ingles tendria que copiar tres palabras en
+     espanol que no significan nada para el, y si las copia mal no puede borrar su
+     cuenta. Ahora es una funcion, y se compara sin distinguir mayusculas.
+  */
+
+  "Saltar tutorial": "Skip the tour",
+  "Empezar": "Get started",
+  "Te doy la bienvenida": "Welcome",
+  "Norata lleva tu vida con la mecánica de un juego de rol: lo que <b>haces</b>, lo que <b>practicas</b>, lo que <b>te propones</b> y lo que <b>construyes</b>.":
+    "Norata runs your life with the mechanics of a role-playing game: what you <b>do</b>, what you <b>practice</b>, what you <b>set out to do</b> and what you <b>build</b>.",
+  "Son cuatro secciones. Te cuento en un minuto qué hace cada una.":
+    "There are four sections. I'll tell you what each one does in a minute.",
+  "Lo que haces <b>hoy</b>. Pequeñas y repetibles: salir a caminar, leer diez páginas. Cada vez que cumples una sube una habilidad y sigue viva tu racha.":
+    "What you do <b>today</b>. Small and repeatable: going for a walk, reading ten pages. Every time you complete one, a skill goes up and your streak stays alive.",
+  "Si dudas por dónde empezar, empieza aquí.": "If you're not sure where to start, start here.",
+  "Lo que <b>practicas</b>. No se marcan como hechas: acumulan XP y suben de nivel con las horas que les dedicas.":
+    "What you <b>practice</b>. You don't check them off: they gather XP and level up with the hours you give them.",
+  "Y si dejas una abandonada mucho tiempo, baja. El progreso se sostiene, no se guarda.":
+    "And if you leave one alone too long, it drops. Progress is held up, not stored away.",
+  "Lo que <b>te propones</b>, en un mapa. Cada nodo es una compra, un hito o una meta, y se encadenan: unos abren el paso a otros.":
+    "What you <b>set out to do</b>, on a map. Each node is a purchase, a milestone or a goal, and they chain together: some open the way to others.",
+  "Es el módulo para lo que cuesta dinero o meses, no para lo de esta tarde.":
+    "This is the module for what costs money or months, not for this afternoon.",
+  "Los <b>proyectos</b> que te haces a ti: cosas que construyes por etapas, con principio y final. La app mide tu ritmo y te dice cuáles siguen vivos.":
+    "The <b>projects</b> you take on: things you build in stages, with a beginning and an end. The app measures your pace and tells you which ones are still alive.",
+  "Un proyecto que lleva semanas quieto te lo dirá, sin regañarte.":
+    "A project that's been still for weeks will tell you, without scolding you.",
+  "Y todo se conecta": "And it all connects",
+  "Una misión cumplida, un talento logrado o una etapa de proyecto terminan en el mismo sitio: <b>XP para tus habilidades</b>.":
+    "A mission completed, a talent achieved or a project stage all end up in the same place: <b>XP for your skills</b>.",
+  "Puedes apagar los módulos que no uses desde Ajustes, y volver a ver esto cuando quieras.":
+    "You can turn off the modules you don't use from Settings, and see this again whenever you want.",
+  "Al entrar o cerrar sesión": "Signing in or out",
+  "Otra parte": "Somewhere else",
+  "Cuéntame qué pasó y lo reviso. No necesitas saber nada técnico: con lo que recuerdes me basta para encontrarlo.":
+    "Tell me what happened and I'll look into it. You don't need to know anything technical: whatever you remember is enough for me to find it.",
+  "¿Dónde pasó?": "Where did it happen?",
+  "¿Qué hacías justo antes? <i>Opcional</i>":
+    "What were you doing just before? <i>Optional</i>",
+  "Ej. Abrí un talento desde el mapa": "e.g. I opened a talent from the map",
+  "¿Qué salió mal?": "What went wrong?",
+  "La pantalla se quedó en blanco y no volvió.": "The screen went blank and never came back.",
+  "Enviar": "Send",
+  "No mandé nada: falta contar qué salió mal.":
+    "I didn't send anything: you still need to say what went wrong.",
+  "Ya me llegó y lo voy a revisar. Cosas como ésta son las que hacen que Norata deje de fallar donde falla.":
+    "It reached me and I'll look into it. Things like this are what make Norata stop failing where it fails.",
+  "De nada": "You're welcome",
+  "Gracias por avisarme": "Thanks for telling me",
+  "No pude enviarlo: revisa tu conexión y vuelve a intentarlo.":
+    "I couldn't send it: check your connection and try again.",
+  "Tu progreso vive en este navegador. También puedes guardarlo en un archivo: es tuyo y funciona sin conexión.":
+    "Your progress lives in this browser. You can also save it to a file: it's yours and it works offline.",
+  "Tu progreso vive en este navegador y en {0}. También puedes guardarlo en un archivo: es tuyo y funciona sin conexión.":
+    "Your progress lives in this browser and in {0}. You can also save it to a file: it's yours and it works offline.",
+  "Solo en este dispositivo": "Only on this device",
+  "Tu progreso no sale de este navegador.": "Your progress doesn't leave this browser.",
+  "Sincronizando…": "Syncing…",
+  "No pude sincronizar": "I couldn't sync",
+  "Cambios sin subir": "Changes not uploaded",
+  "Al día con {0}": "Up to date with {0}",
+  "· última vez {0}": "· last time {0}",
+  "Sin nombre": "No name",
+  "¿Cómo te decimos? <i>opcional</i>": "What should we call you? <i>optional</i>",
+  "Es lo que usaremos al saludarte, aquí y en los correos. Hasta {0} letras.":
+    "It's what we'll use to greet you, here and in emails. Up to {0} characters.",
+  "Nombre de este dispositivo": "This device's name",
+  "Aparece cuando dos dispositivos cambian lo mismo y hay que elegir.":
+    "It shows up when two devices change the same thing and you have to choose.",
+  "Sincronizar ahora": "Sync now",
+  "Cerrar sesión en este dispositivo": "Sign out on this device",
+  "Iniciar sesión o crear cuenta": "Sign in or create an account",
+  "Mientras tanto tu progreso se guarda solo en este dispositivo. Al entrar, lo que ya tienes aquí sube a tu cuenta.":
+    "In the meantime your progress is saved only on this device. When you sign in, what you already have here goes up to your account.",
+  "BORRAR MI CUENTA": "DELETE MY ACCOUNT",
+  "Borrar la cuenta": "Delete the account",
+  "Se cierra tu sesión y este dispositivo queda vacío, pero la cuenta no se borra hasta <b>30 días después</b>. Si te arrepientes, entra otra vez con tu correo y la recuperas con todo tu progreso.":
+    "You're signed out and this device is left empty, but the account isn't deleted until <b>30 days later</b>. If you change your mind, sign in again with your email and you get it back with all your progress.",
+  "Borrar mi cuenta": "Delete my account",
+  "tu cuenta": "your account",
+  "Si borras la cuenta ahora, el cobro seguirá vivo por su cuenta y te seguiríamos cobrando algo que ya no usas. Borrar la cuenta aquí no cancela el cobro.\n\nCancela primero tu plan y vuelve: tu progreso te espera mientras tanto, y podrás borrar la cuenta aunque al plan le queden meses.":
+    "If you delete the account now, the billing stays alive on its own and we'd keep charging you for something you no longer use. Deleting the account here doesn't cancel the billing.\n\nCancel your plan first and come back: your progress waits for you in the meantime, and you'll be able to delete the account even if the plan has months left.",
+  "Ir a cancelar mi plan": "Go cancel my plan",
+  "Tu plan se sigue cobrando": "Your plan is still being charged",
+  "Tu lugar de fundador es de por vida y no se puede recuperar: al borrar la cuenta se va con ella.\n\nLos lugares de fundador son limitados y no se reponen. Si algún día quisieras volver, el plan podría estar agotado y tendrías que entrar por una suscripción normal.\n\nSi solo quieres empezar de cero, «Vaciar la app» te deja la cuenta —y tu lugar— intactos.":
+    "Your founder place is for life and can't be recovered: deleting the account takes it with it.\n\nFounder places are limited and aren't replaced. If you ever wanted to come back, the plan could be sold out and you'd have to come in through a regular subscription.\n\nIf you only want to start over, «Empty the app» leaves your account —and your place— untouched.",
+  "Aun así, borrar mi cuenta": "Delete my account anyway",
+  "Vas a perder tu lugar de fundador": "You're going to lose your founder place",
+  "Mejor no": "Better not",
+  "Tu plan actual está pagado hasta el <b>{0}</b>. Se perderá el tiempo que sobre después de borrarse tu cuenta de forma definitiva.":
+    "Your current plan is paid until <b>{0}</b>. Whatever time is left will be lost once your account is deleted for good.",
+  "Se cerrará tu sesión y este dispositivo perderá tu progreso. La cuenta <b>{0}</b> se borrará dentro de <b>30 días naturales</b>; hasta entonces podrás recuperarla entrando nuevamente con tu correo.":
+    "You'll be signed out and this device will lose your progress. The account <b>{0}</b> will be deleted in <b>30 calendar days</b>; until then you can get it back by signing in again with your email.",
+  "Estás a punto de borrar tu cuenta.": "You're about to delete your account.",
+  "Escribe {0} para confirmar que quieres borrarla.":
+    "Type {0} to confirm you want to delete it.",
+  "¿Nos cuentas por qué te vas?": "Will you tell us why you're leaving?",
+  "Lo que no funcionó, lo que echaste de menos, o algo que desees compartirnos para mejorar Norata.":
+    "What didn't work, what you missed, or anything you'd like to share with us to make Norata better.",
+  "No coincide. No borré nada.": "That doesn't match. I didn't delete anything.",
+  "Última confirmación: se borrará tu cuenta. ¿Seguro?":
+    "Last confirmation: your account will be deleted. Are you sure?",
+  "Sí, borrarla": "Yes, delete it",
+  "Programando el borrado…": "Scheduling the deletion…",
+
+  /* ---- El sol y la luna ----
+     Viven en el indice de Ajustes y no dentro de una seccion: son un
+     interruptor de dos posiciones que se resuelve de un toque.
+  */
+
+  "Oscuro": "Dark",
+  "Claro": "Light",
+  "Aspecto de la app": "The app's look"
 };

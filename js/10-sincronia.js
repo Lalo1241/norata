@@ -369,28 +369,28 @@ function renderSync() {
   if (nota) nota.textContent = alm.explicacion();
   const notaDatos = document.getElementById("datos-nota");
   if (notaDatos) {
-    notaDatos.textContent = "Tu progreso vive en este navegador" +
-      (syncReady() ? " y en " + alm.nombre + "" : "") +
-      ". También puedes guardarlo en un archivo: es tuyo y funciona sin conexión.";
+    notaDatos.textContent = syncReady()
+      ? T`Tu progreso vive en este navegador y en ${alm.nombre}. También puedes guardarlo en un archivo: es tuyo y funciona sin conexión.`
+      : tx("Tu progreso vive en este navegador. También puedes guardarlo en un archivo: es tuyo y funciona sin conexión.");
   }
 
   let dot = "", titulo = "", detalle = "";
   if (!syncReady()) {
-    dot = ""; titulo = "Solo en este dispositivo";
-    detalle = "Tu progreso no sale de este navegador.";
+    dot = ""; titulo = tx("Solo en este dispositivo");
+    detalle = tx("Tu progreso no sale de este navegador.");
   } else if (syncBusy) {
-    dot = "busy"; titulo = "Sincronizando…"; detalle = alm.etiqueta();
+    dot = "busy"; titulo = tx("Sincronizando…"); detalle = alm.etiqueta();
   } else if (syncError) {
-    dot = "bad"; titulo = "No pude sincronizar"; detalle = syncError;
+    dot = "bad"; titulo = tx("No pude sincronizar"); detalle = syncError;
   } else {
     dot = "ok";
-    titulo = sync.dirty ? "Cambios sin subir" : "Al día con " + alm.nombre;
+    titulo = sync.dirty ? tx("Cambios sin subir") : T`Al día con ${alm.nombre}`;
     let cuando = "";
     if (sync.lastAt) {
       try {
-        cuando = " · última vez " + new Date(sync.lastAt).toLocaleString(localeActual(), {
+        cuando = T` · última vez ${new Date(sync.lastAt).toLocaleString(localeActual(), {
           timeZone: userTZ(), day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"
-        });
+        })}`;
       } catch (e) {}
     }
     detalle = alm.etiqueta() + cuando;
@@ -413,20 +413,20 @@ function renderSync() {
       /* La ficha entera es la puerta de la colección, igual que la fila del
          menú del engrane: donde está la insignia, se toca la insignia. */
       '<button class="perfil-ficha" onclick="abrirColeccion(\'settings\')">' + avatarHTML(48) +
-      '<div class="perfil-quien"><b>' + escapeHtml(p.saludo || "Sin nombre") + '</b>' +
+      '<div class="perfil-quien"><b>' + escapeHtml(p.saludo || tx("Sin nombre")) + '</b>' +
       '<span>' + escapeHtml((sync.cfg || {}).correo || "") + '</span></div>' +
       (typeof insigniaExpedicionHTML === "function" ? insigniaExpedicionHTML(30) : "") +
       '</button>' +
-      '<label class="field"><span>Tu nombre</span>' +
+      '<label class="field"><span>' + tx("Tu nombre") + '</span>' +
       '<input type="text" id="perfil-nombre" maxlength="' + NOMBRE_MAX + '" autocomplete="name"' +
       ' value="' + escapeAttr(p.nombre) + '" onchange="perfilGuardarAqui()"></label>' +
-      '<label class="field"><span>¿Cómo te decimos? <i>opcional</i></span>' +
+      '<label class="field"><span>' + tx("¿Cómo te decimos? <i>opcional</i>") + '</span>' +
       '<input type="text" id="perfil-apodo" maxlength="' + APODO_MAX + '" autocomplete="nickname"' +
       ' value="' + escapeAttr(p.apodo) + '" onchange="perfilGuardarAqui()">' +
-      '<div class="field-hint">Es lo que usaremos al saludarte, aquí y en los correos. Hasta ' + APODO_MAX + ' letras.</div></label>' +
-      '<label class="field"><span>Nombre de este dispositivo</span>' +
+      '<div class="field-hint">' + T`Es lo que usaremos al saludarte, aquí y en los correos. Hasta ${APODO_MAX} letras.` + '</div></label>' +
+      '<label class="field"><span>' + tx("Nombre de este dispositivo") + '</span>' +
       '<input type="text" id="sync-device" value="' + escapeAttr(sync.device) + '" onchange="syncRenameDevice(this.value)">' +
-      '<div class="field-hint">Aparece cuando dos dispositivos cambian lo mismo y hay que elegir.</div></label>' +
+      '<div class="field-hint">' + tx("Aparece cuando dos dispositivos cambian lo mismo y hay que elegir.") + '</div></label>' +
       /* Aquí estaba «¿Qué es esta cuenta?». Se fue a «Norata por dentro», que
          solo existe para la cuenta que el servidor reconoce como
          administradora: nadie más que Eduardo tiene dos cuentas de Norata, así
@@ -434,8 +434,8 @@ function renderSync() {
          ese botón quita la confirmación de borrar. Ver `esCuentaDePruebas` en
          `js/10c-portada.js`. */
       '<div class="stack">' +
-      '<button class="btn btn-soft btn-block" onclick="syncRun({})">Sincronizar ahora</button>' +
-      '<button class="btn btn-aviso btn-block" onclick="syncDisconnect()">Cerrar sesión en este dispositivo</button>' +
+      '<button class="btn btn-soft btn-block" onclick="syncRun({})">' + tx("Sincronizar ahora") + '</button>' +
+      '<button class="btn btn-aviso btn-block" onclick="syncDisconnect()">' + tx("Cerrar sesión en este dispositivo") + '</button>' +
       '</div>';
     return;
   }
@@ -447,9 +447,9 @@ function renderSync() {
      escondido detrás de un menú. */
   panelEl.innerHTML =
     '<div class="stack">' +
-    '<button class="btn btn-primary btn-block" onclick="irALaPuerta()">Iniciar sesión o crear cuenta</button>' +
+    '<button class="btn btn-primary btn-block" onclick="irALaPuerta()">' + tx("Iniciar sesión o crear cuenta") + '</button>' +
     '</div>' +
-    '<p class="field-hint" style="margin-top:10px">Mientras tanto tu progreso se guarda solo en este dispositivo. Al entrar, lo que ya tienes aquí sube a tu cuenta.</p>';
+    '<p class="field-hint" style="margin-top:10px">' + tx("Mientras tanto tu progreso se guarda solo en este dispositivo. Al entrar, lo que ya tienes aquí sube a tu cuenta.") + '</p>';
 }
 
 /* Guarda el nombre y el apodo desde Ajustes.
@@ -518,7 +518,12 @@ async function syncDisconnect() {
    para registrarse otra vez. Eso no es un efecto secundario: es la razón de
    borrar de verdad en vez de limitarse a vaciar la fila. */
 
-const FRASE_BORRAR = "BORRAR MI CUENTA";
+/* Se pide al DIBUJAR y no se guarda en una constante, y aquí eso importa más
+   que en ningún otro sitio: una constante se congela en el idioma de arranque,
+   y esta frase hay que TECLEARLA. Congelada, alguien con la app en inglés
+   tendría que copiar tres palabras en español que no significan nada para él
+   — y si no las copia bien, no puede borrar su cuenta. */
+function fraseBorrar() { return tx("BORRAR MI CUENTA"); }
 
 /* Lo que alguien escribe al irse. HOY NO SE MANDA A NINGUNA PARTE, y esta
    escrito aqui para que quede claro y no se de por hecho lo contrario: es el
@@ -544,14 +549,14 @@ function renderZonaCuenta() {
   if (!el) return;
   if (!syncReady()) { el.innerHTML = ""; return; }
   el.innerHTML =
-    '<h4 class="peligro-t">Borrar la cuenta</h4>' +
-    '<p class="settings-note">Se cierra tu sesión y este dispositivo queda vacío, pero la cuenta no se borra hasta <b>30 días después</b>. Si te arrepientes, entra otra vez con tu correo y la recuperas con todo tu progreso.</p>' +
-    '<button class="btn btn-danger-ghost btn-block" onclick="borrarCuenta()">Borrar mi cuenta</button>';
+    '<h4 class="peligro-t">' + tx("Borrar la cuenta") + '</h4>' +
+    '<p class="settings-note">' + tx("Se cierra tu sesión y este dispositivo queda vacío, pero la cuenta no se borra hasta <b>30 días después</b>. Si te arrepientes, entra otra vez con tu correo y la recuperas con todo tu progreso.") + '</p>' +
+    '<button class="btn btn-danger-ghost btn-block" onclick="borrarCuenta()">' + tx("Borrar mi cuenta") + '</button>';
 }
 
 async function borrarCuenta() {
   if (!syncReady()) return;
-  const correo = ((sync.cfg || {}).correo || "tu cuenta").trim();
+  const correo = ((sync.cfg || {}).correo || tx("tu cuenta")).trim();
   /* Se coge ahora, no al final: para cuando toque despedirse, el perfil ya se
      habrá vaciado y no quedará de dónde sacarlo. */
   const saludo = (typeof saludoActual === "function" ? saludoActual() : "") || "";
@@ -584,11 +589,8 @@ async function borrarCuenta() {
 
   if (leVanACobrar) {
     await avisar(
-      "Si borras la cuenta ahora, el cobro seguirá vivo por su cuenta y te seguiríamos cobrando " +
-      "algo que ya no usas. Borrar la cuenta aquí no cancela el cobro.\n\n" +
-      "Cancela primero tu plan y vuelve: tu progreso te espera mientras tanto, y podrás borrar la " +
-      "cuenta aunque al plan le queden meses.",
-      "lock", "Ir a cancelar mi plan", "Tu plan se sigue cobrando");
+      tx("Si borras la cuenta ahora, el cobro seguirá vivo por su cuenta y te seguiríamos cobrando algo que ya no usas. Borrar la cuenta aquí no cancela el cobro.\n\nCancela primero tu plan y vuelve: tu progreso te espera mientras tanto, y podrás borrar la cuenta aunque al plan le queden meses."),
+      "lock", tx("Ir a cancelar mi plan"), tx("Tu plan se sigue cobrando"));
     /* Se le deja donde tiene que estar en vez de decirle el camino y que lo
        busque: es el mismo numero de toques y no hay forma de perderse. */
     mostrarAjuste("plan");
@@ -611,11 +613,8 @@ async function borrarCuenta() {
 
   if (esFundador) {
     if (!await avisarOro(
-      "Tu lugar de fundador es de por vida y no se puede recuperar: al borrar la cuenta se va con ella.\n\n" +
-      "Los lugares de fundador son limitados y no se reponen. Si algún día quisieras volver, el plan " +
-      "podría estar agotado y tendrías que entrar por una suscripción normal.\n\n" +
-      "Si solo quieres empezar de cero, «Vaciar la app» te deja la cuenta —y tu lugar— intactos.",
-      "crown", "Aun así, borrar mi cuenta", "Vas a perder tu lugar de fundador", "Mejor no")) return;
+      tx("Tu lugar de fundador es de por vida y no se puede recuperar: al borrar la cuenta se va con ella.\n\nLos lugares de fundador son limitados y no se reponen. Si algún día quisieras volver, el plan podría estar agotado y tendrías que entrar por una suscripción normal.\n\nSi solo quieres empezar de cero, «Vaciar la app» te deja la cuenta —y tu lugar— intactos."),
+      "crown", tx("Aun así, borrar mi cuenta"), tx("Vas a perder tu lugar de fundador"), tx("Mejor no"))) return;
   }
 
   /* Y a quien SI puede irse pero todavia le queda plan pagado se le dice,
@@ -623,8 +622,7 @@ async function borrarCuenta() {
      seguir: es su decision, no la nuestra. Al fundador no, que ya tuvo su
      propia pantalla y repetirselo seria regañarle dos veces. */
   const pagadoQueSePierde = (!esFundador && typeof PLAN !== "undefined" && PLAN && PLAN.pro && PLAN.vence_el)
-    ? "<br><br>Tu plan actual está pagado hasta el <b>" + escapeHtml(fechaCorta(PLAN.vence_el)) +
-      "</b>. Se perderá el tiempo que sobre después de borrarse tu cuenta de forma definitiva."
+    ? "<br><br>" + T`Tu plan actual está pagado hasta el <b>${escapeHtml(fechaCorta(PLAN.vence_el))}</b>. Se perderá el tiempo que sobre después de borrarse tu cuenta de forma definitiva.`
     : "";
 
   if (!await askBase(
@@ -635,32 +633,30 @@ async function borrarCuenta() {
        Va como HTML —de ahi el `true` de abajo— para poder hacerlo, y por eso
        el correo pasa por `escapeHtml`: lo escribio el usuario al registrarse
        y acaba dentro de esta plantilla. */
-    "Se cerrará tu sesión y este dispositivo perderá tu progreso. La cuenta <b>" + escapeHtml(correo) +
-    "</b> se borrará dentro de <b>30 días naturales</b>; hasta entonces podrás recuperarla entrando " +
-    "nuevamente con tu correo." + pagadoQueSePierde,
-    true, "Continuar", true, false, null,
-    { icono: "puerta", titulo: "Estás a punto de borrar tu cuenta." })) return;
+    T`Se cerrará tu sesión y este dispositivo perderá tu progreso. La cuenta <b>${escapeHtml(correo)}</b> se borrará dentro de <b>30 días naturales</b>; hasta entonces podrás recuperarla entrando nuevamente con tu correo.` + pagadoQueSePierde,
+    true, tx("Continuar"), true, false, null,
+    { icono: "puerta", titulo: tx("Estás a punto de borrar tu cuenta.") })) return;
 
   /* Una frase y no un "¿seguro?": el segundo se pulsa con el dedo ya en
      camino, sin leerlo. Escribir tres palabras obliga a parar. */
   const respuesta = await askText(
-    "Escribe " + FRASE_BORRAR + " para confirmar que quieres borrarla.",
-    "", "Borrar la cuenta", FRASE_BORRAR, 40,
-    { titulo: "¿Nos cuentas por qué te vas?", pista: "Lo que no funcionó, lo que echaste de menos, o algo que desees compartirnos para mejorar Norata." });
+    T`Escribe ${fraseBorrar()} para confirmar que quieres borrarla.`,
+    "", tx("Borrar la cuenta"), fraseBorrar(), 40,
+    { titulo: tx("¿Nos cuentas por qué te vas?"), pista: tx("Lo que no funcionó, lo que echaste de menos, o algo que desees compartirnos para mejorar Norata.") });
   if (respuesta === null || respuesta.texto === null) return;
   const escrito = respuesta.texto;
   guardarMotivoDeBaja(respuesta.motivo);
-  if (String(escrito).trim().toUpperCase() !== FRASE_BORRAR) {
-    toast("No coincide. No borré nada.", "calma");
+  if (String(escrito).trim().toUpperCase() !== fraseBorrar().toUpperCase()) {
+    toast(tx("No coincide. No borré nada."), "calma");
     return;
   }
 
   /* La misma ultima parada que tiene borrar los datos. Faltaba aqui, que es
      donde mas se necesita: vaciar la app se deshace volviendo a capturar;
      borrar la cuenta arranca un plazo de 30 dias. */
-  if (!await ask("Última confirmación: se borrará tu cuenta. ¿Seguro?", "Sí, borrarla", true, true)) return;
+  if (!await ask(tx("Última confirmación: se borrará tu cuenta. ¿Seguro?"), tx("Sí, borrarla"), true, true)) return;
 
-  cargaMostrar("Programando el borrado…");
+  cargaMostrar(tx("Programando el borrado…"));
   let cuando = null;
   try {
     cuando = await sbPedirBorrado();
