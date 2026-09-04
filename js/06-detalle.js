@@ -894,7 +894,9 @@ function renderDetail() {
         <span class="edit-hint">${icon("pen", 11)}</span>
       </button>
       <h2>${escapeHtml(s.name)}</h2>
-      <span class="cat">${escapeHtml(s.category || "Sin categoría")}</span>
+      <!-- Traducido, como en la lista de Habilidades (js/05-resumen.js): era
+           la única de las dos que enseñaba este rótulo en español. -->
+      <span class="cat">${escapeHtml(s.category || tx("Sin categoría"))}</span>
       ${ringHtml}
       ${decayLine}
     </div>
