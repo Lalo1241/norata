@@ -7,7 +7,7 @@
    Contesta dos preguntas distintas con la misma cifra. La de Eduardo: "¿ya
    está arriba lo que hicimos?" —abre la app, mira la esquina de abajo y si el
    número es el que le dijeron, el despliegue llegó; si no, GitHub Pages
-   todavía va en camino o el aparato sigue con la copia vieja—. Y la mía:
+   todavía va en camino o el dispositivo sigue con la copia vieja—. Y la mía:
    nombrar cada tanda de trabajo en vez de decir "lo de ayer".
 
    CÓMO SE CUENTA
@@ -46,7 +46,7 @@
      1. este número
      2. la fecha de aquí abajo
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
-        aparatos ya instalados a soltar la copia vieja.
+        dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
 const VERSION = "0.7.87";
 const VERSION_FECHA = "4 sep 2026";
@@ -231,7 +231,7 @@ function icon(name, size) {
    partida es "oscuro" y no lo que diga el sistema: si siguiéramos al sistema,
    media Norata cambiaría de aspecto de golpe sin que nadie lo hubiera pedido.
 
-   Es preferencia DE ESTE APARATO, no dato del usuario: vive en su propia
+   Es preferencia DE ESTE DISPOSITIVO, no dato del usuario: vive en su propia
    llave de localStorage y nunca en `state`. Si viajara con la cuenta, poner
    el teléfono en claro te dejaría la computadora en claro también, y el
    teléfono se usa en la calle y la computadora de noche. Por eso mismo
@@ -881,14 +881,14 @@ function load() {
   if (!data.borrados || typeof data.borrados !== "object") data.borrados = {};
   if (!data.settings) data.settings = {};
   /* Sin ajuste guardado, pesos. No se adivina por la zona horaria del
-     aparato: alguien de vacaciones en Madrid no cambia de moneda, y un
+     dispositivo: alguien de vacaciones en Madrid no cambia de moneda, y un
      importe que cambia de código solo lo lee como que la app perdió sus
      datos. */
   if (!MONEDAS[data.settings.moneda]) data.settings.moneda = MONEDA_POR_DEFECTO;
   /* El idioma, con la misma regla que la moneda y por el mismo motivo: no se
      adivina por el navegador. Alguien con el teléfono en inglés y la app en
      español la tiene así porque la eligió, y un respaldo que se abre en otro
-     aparato no debería cambiar de idioma solo. Quien no ha elegido nunca lo
+     dispositivo no debería cambiar de idioma solo. Quien no ha elegido nunca lo
      elige en la primera pantalla (ver `js/09c-region.js`).
 
      `IDIOMA_POR_DEFECTO` sale de `js/00-idioma.js`, que carga antes que este

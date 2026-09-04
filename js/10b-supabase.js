@@ -355,13 +355,13 @@ async function sbBorrarCuenta() {
    2. **Sin sesión no se apunta nada, y no se busca la forma.** Quien prueba
       Norata sin cuenta no tiene identidad aquí, y por lo tanto es invisible
       en las cuentas. Es un hueco a propósito: medirlo exigiría dejarle una
-      marca al aparato, y eso ya es rastrear a alguien que no dio permiso.
+      marca al dispositivo, y eso ya es rastrear a alguien que no dio permiso.
 
-   3. **El tipo de aparato sale del ancho de la ventana**, no del user agent.
+   3. **El tipo de dispositivo sale del ancho de la ventana**, no del user agent.
       No hace falta husmear qué teléfono es nadie para responder la única
       pregunta que interesa —«¿usa la computadora y el teléfono?»—, y el
       ancho la responde. Cuesta precisión: dos teléfonos distintos cuentan
-      como uno. Se acepta a cambio de no fichar aparatos. */
+      como uno. Se acepta a cambio de no fichar dispositivos. */
 async function sbLatir() {
   try {
     if (!syncReady()) return;

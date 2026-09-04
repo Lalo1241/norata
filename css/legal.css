@@ -35,7 +35,7 @@
 
   /* La MISMA pila que `--sans` de la app, y por el mismo motivo: Norata no
      carga ninguna tipografía de fuera —su CSP solo admite `self`— así que
-     Outfit se usa si el aparato la tiene y si no cae al sistema. Estas páginas
+     Outfit se usa si el dispositivo la tiene y si no cae al sistema. Estas páginas
      no van a ser la excepción que abra una conexión a un servidor de letras. */
   --tipo-cuerpo: 'Outfit', 'Segoe UI', system-ui, sans-serif;
 }

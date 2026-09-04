@@ -1,5 +1,5 @@
 /* Al cambiar este nombre, activate() borra las cachés viejas: es la forma
-   de forzar que un aparato que se quedó con una versión anterior la suelte.
+   de forzar que un dispositivo que se quedó con una versión anterior la suelte.
    También es el único modo de renovar la tipografía, que se sirve de caché
    sin preguntar (ver abajo).
 

@@ -576,7 +576,7 @@ ul.reglas li::marker{{color:var(--tinta-3)}}
   <p class="sub" style="margin-top:1rem"><b>Los puntos no se guardan: se cuentan.</b>
     Es la regla que ya rige la sincronía, escrita en <code>10-fusion.js</code>: el XP
     se recalcula contando los movimientos, así una fusión no puede inflarlo. Un
-    contador guardado se rompe justo ahí — dos aparatos que suman 100 cada uno se
+    contador guardado se rompe justo ahí — dos dispositivos que suman 100 cada uno se
     juntan y se quedan con 100. Salen tres cosas gratis por decidirlo así: es
     <b>retroactivo</b>, la sincronía <b>no lo puede inflar ni perder</b>, y
     <b>nunca se desalinea</b>.</p>

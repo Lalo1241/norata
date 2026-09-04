@@ -620,13 +620,13 @@ async function portadaEntrada(correo, mensaje) {
   if (enLaPuerta()) {
     /* GUARDAR LA SESIÓN, y esta es la línea que faltaba en 0.7.14.
        `portadaEntrar` deja la credencial en `sync.cfg` y nada más: quien la
-       escribía en el aparato era `saveSync()` desde el final de lo que hoy es
+       escribía en el dispositivo era `saveSync()` desde el final de lo que hoy es
        `adoptarSesion`, y eso ya no corre aquí. Sin esto la puerta mandaba a la
        app, la app no encontraba sesión, rebotaba de vuelta a la puerta, y así
        para siempre — el bucle que dejó a todo el mundo atorado en el login.
 
        Se guarda lo MÍNIMO para que `syncReady()` diga que sí. Todo lo demás
-       —el dueño, la marca, la revisión, el nombre del aparato— lo pone
+       —el dueño, la marca, la revisión, el nombre del dispositivo— lo pone
        `adoptarSesion` al otro lado, y `sync.dueño` en particular NO se toca
        aquí a propósito: es lo que le permite a la app darse cuenta de que se
        está entrando con otra cuenta y apartar los datos de la anterior. */

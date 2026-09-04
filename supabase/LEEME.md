@@ -104,12 +104,12 @@ construye un panel — no antes.
 ### Cosas que no son obvias
 
 **Quien prueba sin cuenta es invisible, a propósito.** No tiene identidad en
-la base, y medirlo obligaría a dejarle una marca al aparato. Eso ya es
+la base, y medirlo obligaría a dejarle una marca al dispositivo. Eso ya es
 rastrear a alguien que no dio permiso, así que se acepta el hueco.
 
-**«Aparato» sale del ancho de la ventana, no del user agent.** Responde la
+**«Dispositivo» sale del ancho de la ventana, no del user agent.** Responde la
 única pregunta que interesa —¿usa la computadora y el teléfono?— sin fichar
-el aparato de nadie. Cuesta precisión: dos teléfonos distintos cuentan como
+el dispositivo de nadie. Cuesta precisión: dos teléfonos distintos cuentan como
 uno solo, y la consulta 4 lo sobreentiende.
 
 **El latido va lo último del arranque y sin esperarlo.** No debe retrasar ni
@@ -118,7 +118,7 @@ absoluto silencio. Si algún día un fallo de la medición interrumpe a alguien
 que está usando la app, la medición habrá costado más de lo que vale.
 
 **La consulta 6 caza el fallo clásico de una app instalable.** Si ahí aparece
-una versión que ya no existe, es un aparato pegado a una copia vieja porque
+una versión que ya no existe, es un dispositivo pegado a una copia vieja porque
 no se subió el número de `CACHE` en `sw.js`.
 
 ## El panel de números (`administracion.sql`)

@@ -138,7 +138,7 @@ grant execute on function public.latir(text, text, boolean) to authenticated;
 -- where dia >= current_date - 30;
 
 
--- ---- 4. ¿Cuántos usan dos aparatos? ----
+-- ---- 4. ¿Cuántos usan dos dispositivos? ----
 -- Es la señal de que ya cuentan con la app de verdad. Señal buena: 25 de
 -- cada 100. Ojo con lo que mide de verdad: ver LEEME.md, distingue teléfono
 -- de computadora, no dos teléfonos.
@@ -161,7 +161,7 @@ grant execute on function public.latir(text, text, boolean) to authenticated;
 
 
 -- ---- 6. ¿Qué versión está corriendo la gente? ----
--- Sirve para cazar el fallo clásico de una app instalable: un aparato que se
+-- Sirve para cazar el fallo clásico de una app instalable: un dispositivo que se
 -- quedó pegado a una copia vieja porque no se subió el número de CACHE. Si
 -- aquí aparece una versión que ya no existe, es eso.
 --

@@ -255,7 +255,7 @@ let PLAN_REAL = null;
 
 const PLAN_GUARDADO = "norata-plan";
 
-/* Una semana. El plan se guarda en el aparato para que quien pagó y abre la
+/* Una semana. El plan se guarda en el dispositivo para que quien pagó y abre la
    app en el metro no vea de pronto la versión gratuita, pero esa copia
    caduca: sin caducidad, quien cancela hace un año y no vuelve a tener red
    sigue siendo pro para siempre. Una semana es más que cualquier viaje sin

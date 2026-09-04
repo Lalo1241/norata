@@ -46,7 +46,7 @@ Cuatro sitios, y son cuatro a propósito:
 
 1. `VERSION` en `js/01-base.js`
 2. `VERSION_FECHA`, ahí mismo
-3. `CACHE` en `sw.js`, con el mismo número — es lo que obliga a los aparatos
+3. `CACHE` en `sw.js`, con el mismo número — es lo que obliga a los dispositivos
    ya instalados a soltar la copia vieja
 4. Una línea en esta lista
 
@@ -339,7 +339,7 @@ publicar la 0.7.84, alguien abrió la app justo dentro del minuto que tarda
 GitHub Pages en desplegar. Su CDN no cambia todos los archivos a la vez, así
 que el service worker instaló una mezcla y se quedó con ella: `CACHE` ya decía
 `norata-0.7.84`, y **ese número es el único canal por el que llega una versión
-nueva**, así que ese aparato no se iba a arreglar solo nunca.
+nueva**, así que ese dispositivo no se iba a arreglar solo nunca.
 
 Lo que se vio: «Uncaught SyntaxError: Unexpected string (línea 825)» y media
 app sin responder. Comprobado que **no era el código**: los 26 archivos
@@ -352,7 +352,7 @@ el almacén viejo. Es el arreglo y no hace falta que nadie toque nada.
 
 **Lo que esto deja escrito, porque va a volver a pasar:** publicar y abrir la
 app en el mismo minuto es la ventana peligrosa. Con `cache-first` desde 0.7.38,
-un aparato que se envenene ahí se queda envenenado hasta la siguiente versión.
+un dispositivo que se envenene ahí se queda envenenado hasta la siguiente versión.
 El `?h=` de `css/mundos.css` y de `caminos/caminos.json` existe justamente por
 esto, pero solo cubre lo que NO está en `ASSETS`; lo que sí está viaja en el
 `addAll` de la instalación y ahí no hay huella que comprobar.
@@ -389,7 +389,7 @@ Tres cosas de cómo está hecho:
   las dos direcciones: cambiar el nombre no borra el color, y elegir color no
   borra un apodo recién escrito.
 
-**Y los dos «aparato» que quedaban**, en el panel de números. Había que cambiar
+**Y los dos «dispositivo» que quedaban**, en el panel de números. Había que cambiar
 la frase **y su clave** en `js/00b-textos-en.js` a la vez: `tx()` busca por la
 frase en español, así que tocar solo una de las dos deja el inglés sin
 encontrarla y esa línea vuelve a salir en español, callando. Ya no queda
@@ -432,7 +432,7 @@ Cinco decisiones que el código explica con su motivo:
 - **Lo que se crea no lleva marca de origen.** Los mismos objetos que salen de
   `savePerk()` y `saveProject()`. Lo único que se apunta aparte es la rama, en
   `state.ui.caminos`, y `10-fusion.js` la une para que el sello no se pierda al
-  abrir en otro aparato.
+  abrir en otro dispositivo.
 - **Nunca se fusiona con una rama que ya existe**: si «Salud» está ocupada, la
   nueva es «Salud 2». Eso resuelve solo el problema de repetir un camino — la de
   antes se queda entera con su historial y no hay nada que sobrescribir.
@@ -623,7 +623,7 @@ llamadas seguidas sin moverse; y subiendo el nivel de 0 a 25 el ambiente
 **vuelve solo**. La elección guardada no se borra nunca, así que volver a la
 otra cuenta devuelve su mundo.
 
-**Y una palabra.** La app entera dice «dispositivo» y la 0.7.80 coló «aparato»
+**Y una palabra.** La app entera dice «dispositivo» y la 0.7.80 coló «dispositivo»
 en seis textos que ve el usuario. Corregido, con su entrada de esta lista.
 
 ### 0.7.81 · 3 sep 2026
@@ -908,8 +908,8 @@ milisegundos y un salto de toda la lista.
 #### El dato basura de las versiones tenía otra causa
 
 Le aparecía una versión vieja aunque él ya hubiera actualizado, y la sospecha
-apuntaba a los aparatos. **No eran aparatos: eran CUENTAS.** `pulsos` tiene la
-clave `(user_id, dia)`, así que no hay filas por aparato; lo que pasaba es que
+apuntaba a los dispositivos. **No eran dispositivos: eran CUENTAS.** `pulsos` tiene la
+clave `(user_id, dia)`, así que no hay filas por dispositivo; lo que pasaba es que
 una cuenta de pruebas que no se abre desde hace tres semanas se queda con la
 versión de aquel día, y la ventana de treinta días la seguía contando como si
 alguien estuviera ahí parado.
@@ -984,7 +984,7 @@ lado que no cuesta nada; de pie crece hacia abajo, y una rama de cinco niveles
 pedía más de mil píxeles. Con eso, dos ramas de pie ya no dejaban ver ninguna
 otra en la lista.
 
-**Girar una rama es preferencia DE ESTE APARATO**, como el modo claro: vive en
+**Girar una rama es preferencia DE ESTE DISPOSITIVO**, como el modo claro: vive en
 su propia llave de localStorage y no en `state`, así que no viaja con la cuenta
 ni entra en los respaldos. Si viajara, ponerla de pie en el teléfono te la
 pondría de pie en la computadora, y son dos pantallas de formas distintas.
@@ -1049,7 +1049,7 @@ pantalla lo dice en oro en vez de disimularlo con un «no se pierde nadie».
 El punto 2 pedía «distinguir usuarios únicos por cuenta, no solo aperturas». En
 los datos ya estaba bien: `pulsos` tiene la clave `(user_id, dia)`, así que hay
 **una fila por cuenta y día** y la serie de la gráfica cuenta cuentas, no
-aparatos ni visitas.
+dispositivos ni visitas.
 
 Lo que estaba mal era una cifra del pie: sumaba esas cuentas de los catorce días
 y al resultado le ponía **«aperturas con cuenta»**. Eso no eran aperturas — era
@@ -1233,7 +1233,7 @@ es peor que no prometerla.
 **No lleva versión a propósito, y es la primera entrada de esta lista que no la
 lleva.** Lo que entró es `plantillas/LEEME.md`: documentación, fuera de
 `ASSETS`, que no cambia un byte de lo que sirve la app. Subir `CACHE` habría
-obligado a todos los aparatos instalados a volver a bajarse los 460 KB para
+obligado a todos los dispositivos instalados a volver a bajarse los 460 KB para
 recibir exactamente lo que ya tienen. Queda anotado aquí porque el trabajo
 importa; el número se reserva para cuando cambie la app.
 
@@ -1304,7 +1304,7 @@ Lo que cambia al mirarlo:
   publicación y no hay una segunda lista que actualizar.
 - **Los tres avisos ya no salen del mismo oro:** «pidieron borrar su cuenta» es
   coral, que es una pérdida, y los otros dos son gente que todavía se recupera.
-- **Ningún gajo de una dona puede ser coral.** Un reparto de aparatos no tiene un
+- **Ningún gajo de una dona puede ser coral.** Un reparto de dispositivos no tiene un
   lado malo, y con la nomenclatura puesta un gajo coral se leería como alarma.
   Pasan a lila y gris, que aquí no significan nada.
 - **Y una clave al pie**, con los tres puntos y sus tres palabras. Va al final y
@@ -3277,7 +3277,7 @@ está la luna del dibujo.
 
 **Y el hito se ve siempre.** «Próximo hito · 7 días» vivía detrás de un
 `@container` de 1150 px, o sea que la pieza que más mueve a volver no aparecía
-en teléfono, ni en tableta, ni en laptop — exactamente los aparatos donde se
+en teléfono, ni en tableta, ni en laptop — exactamente los dispositivos donde se
 mira una racha. Se escribía en el HTML y se tiraba con `display: none`. Ahora lo
 único que espera a que haya sitio es «qué la sostiene», que son tres filas más.
 
@@ -3412,7 +3412,7 @@ número de versión nuevo puesto, porque `js/01-base.js` sí está en `ASSETS`.
 
 Reproducido de punta a punta con un navegador de verdad, un servidor que manda
 `max-age=600` como Pages y un perfil que sobrevive a las recargas: se instala la
-.2, se sirve la .3 con el mundo de la .2, y el aparato se queda en «versión .3,
+.2, se sirve la .3 con el mundo de la .2, y el dispositivo se queda en «versión .3,
 mundo .2» para siempre. Exactamente lo que él veía.
 
 **Tres piezas lo cierran, y hacen falta las tres:**
@@ -4210,7 +4210,7 @@ ganar.
 mismo tiempo que la de abajo, en dos sesiones que no se veían: dos árboles
 distintos con el mismo `VERSION` y el mismo `CACHE`. Con el `sw.js` de 0.7.38
 eso no es un detalle de contabilidad — el nombre de la caché es el ÚNICO
-canal por el que una versión entra en un aparato, y dos versiones con el
+canal por el que una versión entra en un dispositivo, y dos versiones con el
 mismo nombre significan que la segunda no llega nunca. Se corrige subiendo
 esta a 0.7.45; la de abajo se queda como salió a la calle.
 
@@ -4322,7 +4322,7 @@ se ve por ningún lado: es a propósito, primero lo que no se ve. Archivo nuevo,
 **La decisión que lo sostiene: los puntos no se guardan, se cuentan.** No hay
 ningún contador en `state` y no debe haberlo. El motivo ya estaba escrito en
 `js/10-fusion.js` y vale igual aquí —«el XP no se suma a mano: se recalcula
-contando los movimientos»—: un contador se rompe al fusionar dos aparatos, y
+contando los movimientos»—: un contador se rompe al fusionar dos dispositivos, y
 este número decide qué tienes desbloqueado. Tres cosas salen gratis: **es
 retroactivo** (el día que se encienda, cada cuenta ya tiene su nivel, sacado de
 meses de datos que ya existen), la sincronía no lo puede inflar ni perder, y no
@@ -4589,7 +4589,7 @@ sirve la de publicación, no la del primer archivo tocado.
 
 **Y por eso lleva número propio en vez de ser una corrección callada.** Cambiar
 un rótulo es cambiar `js/01-base.js`, que está en la lista de la instalación, y
-desde 0.7.38 el único camino por el que una versión llega a un aparato es que
+desde 0.7.38 el único camino por el que una versión llega a un dispositivo es que
 cambie el `CACHE` de `sw.js`. Sin subir el número, quien ya tuviera 0.7.39
 instalada se quedaría con «29 ago» para siempre y quien la instalara después
 vería «30 ago»: la misma versión diciendo dos cosas distintas. La entrada de
@@ -4875,7 +4875,7 @@ apuntado por si algún día la primera carga vuelve a importar.
 Subir el número al tocar un archivo de `ASSETS` ya era obligatorio. **Ahora es
 lo único que hace que una versión llegue.** Antes, olvidarlo servía una copia
 vieja pero la red acababa trayendo los archivos nuevos. Ahora, si `CACHE` no
-cambia, el aparato instalado **no vuelve a pedir nada nunca**: se queda en esa
+cambia, el dispositivo instalado **no vuelve a pedir nada nunca**: se queda en esa
 versión para siempre. Los cuatro sitios de «Al subir la versión» dejaron de ser
 una buena práctica y son el mecanismo.
 
@@ -5706,7 +5706,7 @@ La pantalla del plan sale de verdad.
 **El número, y por qué hay dos.** Lo de esta pantalla está contado entero en
 la entrada de 0.7.25, de abajo —ahí se escribió—, pero **el código no iba
 dentro de ese commit**: 0.7.25 subió con el renglón de la versión y el bicho,
-y `js/10d-plan.js` y su CSS se quedaron sin subir. Como los aparatos ya
+y `js/10d-plan.js` y su CSS se quedaron sin subir. Como los dispositivos ya
 instalados tienen guardado `norata-0.7.25`, volver a subir con ese número les
 habría dejado la copia vieja para siempre: el `CACHE` de `sw.js` es lo único
 que les dice que hay algo nuevo que pedir.
@@ -6229,8 +6229,8 @@ que cambia lo que decía una cifra.
 
 **El arreglo: «qué versión corre la gente» estaba mintiendo.** Contaba los
 pulsos de siete días agrupados por versión, y eso daba un retrato falso: una
-sola persona que hubiera abierto la app en tres aparatos aparecía tres veces,
-y seguía apareciendo en aparatos donde ya había cerrado la sesión — el pulso
+sola persona que hubiera abierto la app en tres dispositivos aparecía tres veces,
+y seguía apareciendo en dispositivos donde ya había cerrado la sesión — el pulso
 quedó escrito ese día y no se borra. Lo cazó Eduardo mirando sus propios
 números. Ahora es **una fila por persona: la última versión que vio**.
 
@@ -6238,7 +6238,7 @@ números. Ahora es **una fila por persona: la última versión que vio**.
 anterior y lleva escrito cuánta gente se pierde respecto al de arriba, en vez
 de dejarlo deducir: «de 41 a 33» obliga a hacer la cuenta cada vez que se mira.
 
-**Dos donas**: desde qué aparato y si está instalada o en el navegador. Se
+**Dos donas**: desde qué dispositivo y si está instalada o en el navegador. Se
 dibujan con `stroke-dasharray` sobre un círculo y no con arcos calculados a
 mano — son cuatro números en vez de trigonometría, y no hay redondeo que deje
 una rendija entre dos gajos. Con más de cuatro trozos habría que usar barras:
@@ -6310,14 +6310,14 @@ por delante — y el ejemplo, que dejó de escribir.
   avisa en el propio cuadro de confirmación, antes de decidir, no después.
   De paso, la fecha de término se limpia al reabrir: un encargo activo con
   fecha de cierre se colaba en el historial como si siguiera cerrado.
-- **Una rama vacía creada en un aparato desaparecía al sincronizar.** La
+- **Una rama vacía creada en un dispositivo desaparecía al sincronizar.** La
   fusión clona el lado que guardó después, así que `ui` entero venía del más
   nuevo y lo del otro se tiraba. Solo se notaba con las vacías —en cuanto una
   rama tiene un talento dentro, `ramasDe()` la vuelve a apuntar—, y era justo
   la recién creada: la haces en el teléfono, abres la computadora, y ya no
   está. En silencio. Ahora las dos listas de ramas se unen, como todo lo demás
   en ese archivo. El precio, aceptado a sabiendas: una rama vacía borrada
-  puede reaparecer si el otro aparato aún no se había enterado. Resucitar una
+  puede reaparecer si el otro dispositivo aún no se había enterado. Resucitar una
   rama vacía cuesta un clic; perder una recién creada cuesta trabajo. Los
   talentos que llevaba dentro no vuelven — ésos sí tienen lápida.
 - **Lo que se revisó y está bien**, para no volver a mirarlo: el XP de las
@@ -6464,7 +6464,7 @@ La puerta se olvidaba de guardar la sesión.
 
 - **Entrar dejaba a todo el mundo atorado en el login**, y la causa cabe en una
   línea: `portadaEntrar` deja la credencial en `sync.cfg` **y nada más**. Quien
-  la escribía en el aparato era `saveSync()`, desde el final de lo que en
+  la escribía en el dispositivo era `saveSync()`, desde el final de lo que en
   0.7.14 pasó a ser `adoptarSesion` — o sea, del otro lado del reboto. Así que
   la puerta mandaba a la app, la app no encontraba sesión guardada, rebotaba de
   vuelta a la puerta, y así para siempre. Ahora la puerta guarda **lo mínimo
@@ -6473,7 +6473,7 @@ La puerta se olvidaba de guardar la sesión.
   tocar allí**, que es lo que le permite a la app darse cuenta de que se entra
   con otra cuenta.
 - **Y el fallo estaba escrito en un comentario que decía lo contrario:** «la
-  sesión ya está escrita en el aparato (la escribió `sbEntrar`)». No era
+  sesión ya está escrita en el dispositivo (la escribió `sbEntrar`)». No era
   verdad, no se comprobó, y era la línea que sostenía todo el reboto.
 - **Cortafuegos del rebote.** Esta es la puerta de la app y no puede quedarse
   dando vueltas pase lo que pase: al tercer viaje se deja de rebotar y el
@@ -7046,7 +7046,7 @@ el servidor compruebe quién pregunta antes de contestar. De ahí el reparto:
   viajes desde un teléfono se notan.
 
 Lo que se ve dentro: la gente (cuentas, activos, retención a 30 días, cuántos
-volvieron, cuántos la instalaron, cuántos usan los dos aparatos), una gráfica
+volvieron, cuántos la instalaron, cuántos usan los dos dispositivos), una gráfica
 de los últimos catorce días, el estado del cobro con los lugares de fundador,
 qué versión corre cada quien, y lo que se rompe.
 
@@ -7148,7 +7148,7 @@ Los ocho tonos que eligió Eduardo mirándolos, y la etiqueta que se salía.
 - **La etiqueta de «cuenta de pruebas» se salía por arriba.** Colgaba del borde
   del marco y el marco iba pegado a los cuatro lados, así que quedaba diez
   píxeles por encima de la pantalla: se veía cortada por la mitad. Ahora el
-  marco se mete hacia dentro contando el hueco que reserva el aparato —la
+  marco se mete hacia dentro contando el hueco que reserva el dispositivo —la
   muesca, la barra de estado— y la etiqueta cae entera dentro. Medido en
   escritorio y en teléfono.
 - Y el aviso de deslizar para actualizar, por lo mismo: arrancaba en el borde
@@ -7294,7 +7294,7 @@ Norata también es de día.
   arriba de la lista de secciones, y en la computadora al final del mini menú
   del engrane, que es el único sitio donde esa lista se ve. La app sigue
   naciendo oscura: el claro es una elección, no lo que diga el sistema.
-- Es preferencia **de este aparato**, no de la cuenta. El teléfono se usa en
+- Es preferencia **de este dispositivo**, no de la cuenta. El teléfono se usa en
   la calle y la computadora de noche, así que no viaja con la sincronía ni
   entra en los respaldos.
 - Los acentos cambian de tono, no de sitio: la menta de la noche sobre papel

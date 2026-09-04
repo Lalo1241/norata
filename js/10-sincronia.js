@@ -553,7 +553,7 @@ function fraseBorrar() { return tx("BORRAR MI CUENTA"); }
    sitio unico donde enchufar el envio cuando exista el camino —el mismo que
    va a usar el boton de reportar fallos, que tampoco existe todavia—.
 
-   No se guarda en este aparato a proposito: el motivo se escribe justo antes
+   No se guarda en este dispositivo a proposito: el motivo se escribe justo antes
    de borrar la cuenta, y lo que se guarde aqui se va con ella en la misma
    linea. Guardarlo seria fingir que se conserva.
 
@@ -692,7 +692,7 @@ async function borrarCuenta() {
   /* Del servidor ya no queda nada, así que aquí tampoco puede quedar: ni el
      progreso, ni las copias de conflicto —que son fotos de esa misma cuenta—,
      ni la marca de cuenta de pruebas. Borrar a medias sería lo peor de las
-     dos opciones: la cuenta ya no existe y sus datos siguen en el aparato. */
+     dos opciones: la cuenta ya no existe y sus datos siguen en el dispositivo. */
   listarCopias().forEach(c => { try { localStorage.removeItem(c.key); } catch (e) {} });
   sync.cuentasPrueba = (sync.cuentasPrueba || []).filter(c => c !== correo.toLowerCase());
   sync.enabled = false; sync.cfg = {}; sync.marca = null; sync.rev = 0;

@@ -752,6 +752,6 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
 FAMILIAS = [
  ("de-relato","De relato","No salen de una materia sino de un género: cuentan algo antes de que hagas nada. Inspirados, nunca calcados — el nombre, el marco, la letra y los dibujos son de casa."),
  ("de-aqui","De aquí","Materiales que se pueden tocar en este país. Es el hilo que ningún paquete de temas genérico puede copiar."),
- ("de-pantalla","De pantalla","No imitan una materia: imitan un aparato. Son los más baratos de todos porque casi no llevan imagen."),
+ ("de-pantalla","De pantalla","No imitan una materia: imitan un dispositivo. Son los más baratos de todos porque casi no llevan imagen."),
  ("de-materia","De materia","Piedra, metal, vidrio, papel y madera: lo que se puede tocar, y donde el material manda sobre el color."),
 ]

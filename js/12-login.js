@@ -14,7 +14,7 @@
  *     /         la app. Los diecisiete, y ya con la sesión puesta.
  *
  * EL REPARTO, que es lo único que hay que entender para tocar esto: la puerta
- * termina su trabajo en cuanto hay una sesión guardada en el aparato. No baja
+ * termina su trabajo en cuanto hay una sesión guardada en el dispositivo. No baja
  * el progreso, no aparta datos de otra cuenta, no pinta nada de la app —todo
  * eso necesita `state` y las vistas, que aquí no existen—. Lo hace la app al
  * arrancar, avisada por una marca en `sessionStorage` (ver `adoptarSesion` en

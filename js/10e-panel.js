@@ -100,7 +100,7 @@ async function revisarAdmin() {
    la línea de la constelación (es la serie, y solo hay una) y los planes del
    cobro (menta los que se renuevan, lila el fundador, que es su color desde
    0.7.15). Los gajos de una dona son identidad también, y por eso ninguno
-   puede ser coral: un reparto de aparatos no tiene un lado malo.
+   puede ser coral: un reparto de dispositivos no tiene un lado malo.
 
    Dónde NO se toca: la tendencia de la gráfica (▲▼) ya usaba `--var-sube` y
    `--var-baja`, que es esta misma idea escrita antes y en todos los mundos. */

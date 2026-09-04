@@ -232,7 +232,7 @@
     function apuntar(donde, mensaje) {
       try {
         /* Tope de diez. Un error dentro de un bucle dispara miles en un
-           segundo, y una lista sin límite se comería la memoria del aparato
+           segundo, y una lista sin límite se comería la memoria del dispositivo
            encima de alguien a quien ya se le rompió la app. */
         if (window.__tropiezos.length >= 10) return;
         window.__tropiezos.push({ donde: donde, mensaje: String(mensaje).slice(0, 300) });

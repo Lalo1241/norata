@@ -232,7 +232,7 @@ begin
   --
   -- Antes se contaban los pulsos de siete días agrupados por versión, y eso
   -- daba un retrato falso: una sola persona que hubiera abierto la app en tres
-  -- aparatos aparecía tres veces, y seguía apareciendo en aparatos donde ya
+  -- dispositivos aparecía tres veces, y seguía apareciendo en dispositivos donde ya
   -- había cerrado la sesión — el pulso quedó escrito ese día y no se borra.
   -- La pregunta real es «¿con qué versión se quedó cada quien?», y eso es una
   -- fila por cuenta: la más reciente.
@@ -240,7 +240,7 @@ begin
   -- ---- Y la ventana son CATORCE días, no treinta ----
   -- Lo decidió Eduardo el 3 de septiembre de 2026, y arregla el «dato basura»
   -- que le salía: le aparecía una versión vieja aunque él ya hubiera
-  -- actualizado. La causa no era la que parecía —no eran aparatos, eran
+  -- actualizado. La causa no era la que parecía —no eran dispositivos, eran
   -- CUENTAS—: una cuenta de prueba que no se abre desde hace tres semanas se
   -- queda con la versión de aquel día para siempre, y con la ventana en treinta
   -- días seguía contando como si alguien estuviera ahí parado.
@@ -257,7 +257,7 @@ begin
   ),
 
   -- Teléfono, computadora, o las dos. Sale del ancho de la ventana y no de
-  -- fichar el aparato, así que dos teléfonos distintos cuentan como uno.
+  -- fichar el dispositivo, así que dos teléfonos distintos cuentan como uno.
   reparto as (
     select case
              when count(distinct aparato) > 1  then 'Los dos'
