@@ -76,6 +76,62 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.80 · 3 sep 2026
+
+**Cambiar de cuenta deja de costar una contraseña.** Lo pidió Eduardo con el
+motivo puesto: tiene dos cuentas, la de pruebas y la de verdad, y **la de verdad
+no la usaba** porque volver a ella costaba cuatro pasos —Ajustes, cerrar sesión,
+la puerta, teclear— y siempre acababa dándole pereza.
+
+Ahora las cuentas con las que ya se entró en este aparato se quedan en una
+lista y se cambia tocándolas. Sale en dos sitios, que son los dos momentos en
+que hace falta: **en Ajustes**, para cambiarse sin salir, y **en la puerta**,
+arriba del formulario, para entrar.
+
+**Cerrar sesión y cambiar de cuenta pasan a ser dos cosas distintas**, y esa
+separación es la que sostiene todo lo demás. Cerrar sesión sigue haciendo lo
+que promete su aviso —se lleva la credencial— y ahora borra también el atajo.
+Para tener las dos a mano está **«Entrar con otra cuenta»**, que lleva a la
+puerta sin cerrar la que hay; sin ese camino la lista nunca pasaría de una.
+
+Dos cosas que no se ven y son la mitad del trabajo:
+
+- **Antes de cambiar se sube lo que falte, y si no se puede NO se cambia.** El
+  relevo aparta los datos de este aparato y baja los de la otra cuenta; lo que
+  no hubiera subido quedaría solo en una copia de conflicto, que hay que ir a
+  rescatar a mano desde Ajustes. Mientras cambiar costaba una contraseña eso
+  casi no pasaba; con un toque iba a pasar seguido.
+- **Antes de entrar se comprueba que el permiso guardado sigue valiendo.** El
+  token de refresco no caduca por reloj: se lo lleva por delante cambiar la
+  contraseña o pedir «cerrar las otras sesiones» desde el teléfono. Sin
+  preguntarlo, la app entraba igual y se quedaba dentro de una cuenta que no
+  sincronizaba nada, con el aviso escondido en Ajustes. Ahora quita la fila,
+  deja el correo escrito y lo dice.
+
+**Dónde se guarda, que es lo único delicado.** En su propia llave de
+localStorage (`norata-cuentas-v1`), fuera de `sync` —que se vacía al cerrar
+sesión, justo cuando más falta haría— y sobre todo **fuera de `state`**, que es
+exactamente lo que se sube al servidor: una credencial ahí dentro sería
+publicarla. Lo guardado no es la contraseña —esa no se guarda nunca— sino el
+permiso de refresco, que el servidor puede revocar y que ya vivía en ese mismo
+almacén para la cuenta activa. Tener dos no abre una puerta que estuviera
+cerrada, abre la misma dos veces; y cada fila lleva su × para quitarla.
+
+**No hay un camino de entrada nuevo**, y eso fue deliberado: se deja la sesión
+puesta y se recarga con la marca `norata-recien`, o sea lo mismo que ya hacía
+la puerta al entrar con la contraseña. Apartar los datos de la cuenta anterior
+y bajar los nuevos sigue siendo `adoptarSesion`, sin tocarla — lo que lo hace
+posible es que `sync.dueño` NO se toca al poner la sesión, que es la señal por
+la que aquella se entera de que entra otra persona.
+
+Medido a 412×915 y a 360×480, en los dos modos: sin desbordes, el botón de
+entrar se alcanza con la lista llena, y los contrastes del rótulo y de la ×
+suben a 5,21 y 6,27 —con `--faint` daban 3,97, por debajo del 4,5 que pide un
+texto de 12 px aunque vaya en negrita—. Un nombre de 220 letras sin espacios se
+derramaba por encima de la ×: ahora las dos líneas se cortan con puntos
+suspensivos y todas las filas miden lo mismo, que es lo que deja recorrer una
+lista de un vistazo. El tope son cinco.
+
 ### 0.7.79 · 3 sep 2026
 
 **La cifra de arriba deja de ser un promedio y pasa a decir cuánta gente hay.**
