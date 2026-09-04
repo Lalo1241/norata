@@ -431,10 +431,13 @@ function renderSync() {
       '<input type="text" id="perfil-apodo" maxlength="' + APODO_MAX + '" autocomplete="nickname"' +
       ' value="' + escapeAttr(p.apodo) + '" onchange="perfilGuardarAqui()">' +
       '<div class="field-hint">' + T`Es lo que usaremos al saludarte, aquí y en los correos. Hasta ${APODO_MAX} letras.` + '</div></label>' +
-      selectorColorHTML() +
       '<label class="field"><span>' + tx("Nombre de este dispositivo") + '</span>' +
       '<input type="text" id="sync-device" value="' + escapeAttr(sync.device) + '" onchange="syncRenameDevice(this.value)">' +
       '<div class="field-hint">' + tx("Aparece cuando dos dispositivos cambian lo mismo y hay que elegir.") + '</div></label>' +
+      /* El color va el último de los cuatro campos. Lo pidió Eduardo y tiene
+         sentido de lectura: los tres de arriba son cosas que se escriben y
+         este es lo único que se toca. */
+      selectorColorHTML() +
       /* Aquí estaba «¿Qué es esta cuenta?». Se fue a «Norata por dentro», que
          solo existe para la cuenta que el servidor reconoce como
          administradora: nadie más que Eduardo tiene dos cuentas de Norata, así

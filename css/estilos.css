@@ -1734,6 +1734,20 @@
     border-radius: var(--r-caja); padding: 12px 14px;
   }
   .mun-m.on { border-color: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
+  /* EL ARO DE «LO ESTÁS MIRANDO». `pintarSeleccion()` ponía la clase desde el
+     principio —su comentario ya decía «la que llevas PUESTA lleva su palomita
+     y la que estás MIRANDO lleva el aro»— pero la regla no existía: tocar un
+     mundo para verlo arriba no marcaba nada y parecía que el clic no hacía
+     nada. Se dibuja con `outline` y no con el borde, que aquí es una imagen
+     (`border-image`) y ya lo usa «puesto»; así las dos marcas se pueden ver a
+     la vez sin pelearse. Es el mismo aro que los ambientes. */
+  .mun-m.mirando, .mun-m:focus-visible {
+    outline: 2px solid var(--mint); outline-offset: 2px;
+  }
+  /* Y el ratón. La ÚNICA regla de hover que había era la de abajo, la de los
+     cerrados, y por eso el mundo de Fundador era el único de la lista que
+     respondía al cursor — justo el que no se puede tener. */
+  .mun-m:hover { background: var(--sup-tarjeta2); }
   /* Cerrado se ve ENTERO y solo un poco apagado: enseñar lo que se puede tener
      es la mitad de la razón para quererlo, y un mundo tapado no vende nada. */
   .mun-m.cerrado { opacity: 0.68; }
@@ -10524,7 +10538,15 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
     color: var(--mu-acento);
   }
   .amb-ic svg { width: 15px; height: 15px; stroke-width: 1.7; }
-  .amb-m:hover .amb-mini { box-shadow: var(--sombra-s); }
+  /* `--sombra-s` es un COLOR, no una sombra entera, así que
+     `box-shadow: var(--sombra-s)` no pinta nada: al resolverse queda
+     `box-shadow: rgba(0,0,0,.35)`, que no es una sombra válida, y la propiedad
+     se cae a `none`. Y no salta a la vista porque **el `var()` esconde el
+     error del analizador**: la regla se guarda entera y solo revienta al
+     calcular el valor. Medido con `getComputedStyle`: `none`. Por eso ningún
+     ambiente reaccionaba al pasar el ratón. La forma correcta —y la que ya
+     usaba el resto del archivo— lleva las tres medidas delante. */
+  .amb-m:hover .amb-mini { box-shadow: 0 6px 18px var(--sombra-s); }
   /* El aro es MIRAR y la palomita es LLEVARLO PUESTO, igual que en la reja de
      los mundos: desde el escaparate son dos cosas y antes eran una sola,
      porque tocar una muestra te la ponía. */
