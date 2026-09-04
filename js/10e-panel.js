@@ -878,9 +878,9 @@ function renderPanelAdmin() {
       <h3>${tx("Cómo la usan")}</h3>
       <div class="pn-donas">
         <div>
-          <h4 class="pn-sub">${tx("Desde qué aparato")}</h4>
+          <h4 class="pn-sub">${tx("Desde qué dispositivo")}</h4>
           ${panelDona(m.aparatos, "grupo", "personas", tx("Nadie ha abierto la app todavía."))}
-          <p class="settings-note" style="margin-top:8px">${tx("Sale del ancho de la ventana, no de fichar el aparato: dos teléfonos distintos cuentan como uno.")}</p>
+          <p class="settings-note" style="margin-top:8px">${tx("Sale del ancho de la ventana, no de fichar el dispositivo: dos teléfonos distintos cuentan como uno.")}</p>
         </div>
         <div>
           <h4 class="pn-sub">${tx("Instalada o en el navegador")}</h4>
