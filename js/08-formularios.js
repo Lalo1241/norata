@@ -22,7 +22,7 @@ function renderPerkDetail() {
       <div class="fact"><div class="k">${tx("COSTO")}</div><div class="v acc">${p.cost > 0 ? money(p.cost) : "—"}</div></div>
       <div class="fact"><div class="k">${tx("INVERTIDO TOTAL")}</div><div class="v">${money(p.investedTotal || 0)}</div></div>
       <div class="fact"><div class="k">${tx("TIPO")}</div><div class="v tipo-v">${icon(t.icono, 15)}${t.nombre}</div></div>
-      <div class="fact"><div class="k">RECOMPENSA</div><div class="v">${skill ? "+" + p.xpReward + " XP" : "—"}</div></div>
+      <div class="fact"><div class="k">${tx("RECOMPENSA")}</div><div class="v">${skill ? "+" + p.xpReward + " XP" : "—"}</div></div>
     </div>
     <div class="xp-note" style="text-align:left;margin-top:10px">${t.sub}${
       t.llevaPlan ? ` Plan de ${planLabel(p.planDays)}.` : ""}${
@@ -155,12 +155,12 @@ function renderPerkDetail() {
     const hechos = reqs.filter(r => r.status === "completed").length;
     actionPanel = `
     <div class="panel alt">
-      <h3>Bloqueado</h3>
+      <h3>${tx("Bloqueado")}</h3>
       <p class="settings-note">${reqs.length === 1
         ? "Se desbloquea al completar:"
         : (modoDe(p) === "todos"
           ? `Se desbloquea al completar <b>los ${reqs.length}</b> — llevas ${hechos}.`
-          : `Se desbloquea al completar <b>cualquiera</b> de los ${reqs.length}.`)}</p>
+          : `Se desbloquea al completar <b>${tx("cualquiera")}</b> de los ${reqs.length}.`)}</p>
       <div class="req-list">
         ${reqs.map(r => `<button type="button" class="req-chip ${r.status === "completed" ? "hecho" : ""}" onclick="openPerk('${r.id}')">
           ${r.status === "completed" ? icon("check", 13) : icon(r.icon || "star", 13)}<span>${escapeHtml(r.name)}</span>
@@ -172,7 +172,7 @@ function renderPerkDetail() {
   if (st === "expired") {
     actionPanel = `
     <div class="panel alt">
-      <h3 style="color:var(--coral)">Talento perdido</h3>
+      <h3 style="color:var(--coral)">${tx("Talento perdido")}</h3>
       <p class="settings-note">${tx("El plan venció sin lograr la meta. Puedes reintentarlo: volverás a invertir y arrancará un plan nuevo.")}</p>
       <button class="btn btn-soft btn-block" onclick="retryPerk('${p.id}')">Reintentar${p.cost > 0 ? " · " + money(p.cost) : ""}</button>
     </div>`;
@@ -222,7 +222,7 @@ function renderPerkDetail() {
     ${planPanel}
     ${actionPanel}
     <div class="panel">
-      <h3>Movimientos</h3>
+      <h3>${tx("Movimientos")}</h3>
       ${historyHtml}
     </div>`;
 }
@@ -388,7 +388,7 @@ function openPerkForm(id, presetBranch) {
   document.getElementById("branch-list").innerHTML = branches.map(b => `<option value="${escapeAttr(b)}">`).join("");
 
   document.getElementById("p-skill").innerHTML =
-    `<option value="">— Ninguna —</option>` +
+    `<option value="">${tx("— Ninguna —")}</option>` +
     state.skills.map(s => `<option value="${s.id}" ${p && p.skillId === s.id ? "selected" : ""}>${escapeHtml(s.name)}</option>`).join("");
 
   const others = state.perks.filter(x => !p || x.id !== p.id);
@@ -652,7 +652,7 @@ function openMissionForm(id, presetTablero) {
   msDays = m && m.days && m.days.length ? [...m.days] : [1, 3, 5];
 
   document.getElementById("ms-skill").innerHTML =
-    `<option value="">— Ninguna —</option>` +
+    `<option value="">${tx("— Ninguna —")}</option>` +
     state.skills.map(s => `<option value="${s.id}" ${m && m.skillId === s.id ? "selected" : ""}>${escapeHtml(s.name)}</option>`).join("");
 
   renderIconGrid("ms-icon", msIcon, "pickMissionIcon", msColor);
@@ -747,7 +747,7 @@ function openProjectForm(id, presetBranch) {
   document.getElementById("pr-branch-list").innerHTML = branches.map(b => `<option value="${escapeAttr(b)}">`).join("");
 
   document.getElementById("pr-skill").innerHTML =
-    `<option value="">— Ninguna —</option>` +
+    `<option value="">${tx("— Ninguna —")}</option>` +
     state.skills.map(s => `<option value="${s.id}" ${pr && pr.skillId === s.id ? "selected" : ""}>${escapeHtml(s.name)}</option>`).join("");
 
   renderIconGrid("pr-icon", prIcon, "pickProjectIcon", prColor);

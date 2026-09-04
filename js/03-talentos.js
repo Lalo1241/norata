@@ -638,7 +638,7 @@ function verCaja(id) {
       <span class="caja-sub">${escapeHtml(c.branch)} · ${tituloTrimestre(c.trimestre)} · guardada el ${formatDate(c.guardadoEl)}</span>
     </div>
     <div class="caja-stats">
-      <div><b style="color:var(--mint)">${hechos}</b><span>hechos</span></div>
+      <div><b style="color:var(--mint)">${hechos}</b><span>${tx("hechos")}</span></div>
       <div><b style="color:${pendientes ? "var(--fire)" : "var(--muted)"}">${pendientes}</b><span>${tx("sin terminar")}</span></div>
       <div><b>${total}</b><span>${tx("en total")}</span></div>
     </div>

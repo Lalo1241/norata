@@ -292,7 +292,7 @@ function renderProjects() {
     scene: motifScene(820, 168, 77, "peaks", "var(--mint)"),
     lead: `<div>
       <div class="label">${tx("Avance de lo que construyes")}</div>
-      <div class="big"><b>${avgProg}%</b><span> promedio</span></div>
+      <div class="big"><b>${avgProg}%</b><span> ${tx("promedio")}</span></div>
     </div>`,
     /* «Etapas hechas» era un acumulado que solo sube: dejó sitio a las etapas
        y los cierres de la semana, con su flecha. */
@@ -386,12 +386,12 @@ function renderProjects() {
             <div class="proj-top">
               <span class="proj-ic" style="background:${velo(col, "22")};color:${tinta(col)}">${icon(p.icon, 19)}</span>
               <span class="proj-name">${escapeHtml(p.name)}</span>
-              <span class="proj-state" style="background:${PROJECT_STATUS[p.status].soft};color:${PROJECT_STATUS[p.status].color}">${PROJECT_STATUS[p.status].label}</span>
+              <span class="proj-state" style="background:${PROJECT_STATUS[p.status].soft};color:${PROJECT_STATUS[p.status].color}">${tx(PROJECT_STATUS[p.status].label)}</span>
             </div>
             <div class="proj-bar"><div class="bar"><div class="bar-fill" style="width:${prog}%;background:${trazo(col)}"></div></div></div>
             <div class="proj-meta">
               <span>${doneN} de ${(p.steps || []).length} etapas · <b>${prog}%</b></span>
-              <span style="color:${h.color}">${h.label}</span>
+              <span style="color:${h.color}">${tx(h.label)}</span>
             </div>
             </div>
             ${etapasEnLista(p)}
@@ -581,7 +581,7 @@ function etapasEnLista(p) {
   const anadir = cerrado ? "" : `
     <button class="pstep add" data-add="${escapeAttr(p.id)}"
       onclick="event.stopPropagation();nuevaEtapaEnLista('${pj}')"
-      aria-label="Añadir una etapa a ${escapeAttr(p.name)}">＋ etapa</button>`;
+      aria-label="Añadir una etapa a ${escapeAttr(p.name)}">${tx("＋ etapa")}</button>`;
 
   return `<div class="proj-steps">${chips}${mas}${anadir}</div>`;
 }
@@ -664,15 +664,15 @@ function renderProjectDetail() {
 
   const closed = pr.status === "done" || pr.status === "dropped";
   const actions = closed
-    ? `<button class="btn btn-soft btn-block" onclick="setProjectStatus('${pr.id}','active')">Retomar encargo</button>`
+    ? `<button class="btn btn-soft btn-block" onclick="setProjectStatus('${pr.id}','active')">${tx("Retomar encargo")}</button>`
     : `
       <div class="stack">
         ${prog === 100 || pr.status === "active"
           ? `<button class="btn ${prog === 100 ? "btn-primary" : "btn-soft"} btn-block" onclick="setProjectStatus('${pr.id}','done')">${tx("Dar por terminado")}</button>` : ""}
         ${pr.status === "active"
           ? `<button class="btn btn-ghost btn-block" onclick="setProjectStatus('${pr.id}','paused')">${tx("Pausar por ahora")}</button>`
-          : `<button class="btn btn-soft btn-block" onclick="setProjectStatus('${pr.id}','active')">Retomar</button>`}
-        <button class="btn btn-danger-ghost btn-block" onclick="setProjectStatus('${pr.id}','dropped')">Descartar encargo</button>
+          : `<button class="btn btn-soft btn-block" onclick="setProjectStatus('${pr.id}','active')">${tx("Retomar")}</button>`}
+        <button class="btn btn-danger-ghost btn-block" onclick="setProjectStatus('${pr.id}','dropped')">${tx("Descartar encargo")}</button>
       </div>`;
 
   const historyHtml = (pr.history || []).length === 0
@@ -738,7 +738,7 @@ function renderProjectDetail() {
 
   const panelesHtml = ordenHtml + `
     <div class="panel alt" style="border-color:${h.key === "stalled" ? "rgba(255,138,112,0.45)" : "var(--borde-panel)"}">
-      <h3 style="color:${h.color}">${h.label}</h3>
+      <h3 style="color:${h.color}">${tx(h.label)}</h3>
       <p class="settings-note" style="margin:0">${escapeHtml(h.note)}</p>
     </div>
 
@@ -752,18 +752,18 @@ function renderProjectDetail() {
     </div>
 
     <div class="panel alt">
-      <h3>Ficha</h3>
+      <h3>${tx("Ficha")}</h3>
       <div class="fact-grid">
-        <div class="fact"><div class="k">CREADO</div><div class="v" style="font-size:13.5px">${formatDate(pr.createdAt)}</div></div>
+        <div class="fact"><div class="k">${tx("CREADO")}</div><div class="v" style="font-size:13.5px">${formatDate(pr.createdAt)}</div></div>
         <div class="fact"><div class="k">${tx("ÚLTIMO AVANCE")}</div><div class="v" style="font-size:13.5px">${daysIdle(pr) === 0 ? "Hoy" : `Hace ${daysIdle(pr)} d`}</div></div>
-        <div class="fact"><div class="k">ENTRENA</div><div class="v" style="font-size:13.5px">${skill ? escapeHtml(skill.name) : "—"}</div></div>
-        <div class="fact"><div class="k">RECOMPENSA</div><div class="v" style="font-size:13.5px">${skill ? "+" + pr.xpReward + " XP" : "—"}</div></div>
+        <div class="fact"><div class="k">${tx("ENTRENA")}</div><div class="v" style="font-size:13.5px">${skill ? escapeHtml(skill.name) : "—"}</div></div>
+        <div class="fact"><div class="k">${tx("RECOMPENSA")}</div><div class="v" style="font-size:13.5px">${skill ? "+" + pr.xpReward + " XP" : "—"}</div></div>
       </div>
     </div>`;
 
   const movimientosHtml = `
     <div class="panel" style="margin-top:14px">
-      <h3>Movimientos</h3>
+      <h3>${tx("Movimientos")}</h3>
       ${historyHtml}
     </div>`;
 
@@ -894,7 +894,7 @@ function renderDetail() {
         return "";
       })()}
       <label class="field">
-        <span>Nota (opcional)</span>
+        <span>${tx("Nota (opcional)")}</span>
         <input type="text" id="log-note" placeholder="${escapeAttr(tx("¿Qué hiciste? Ej. Terminé módulo 2 del curso"))}" maxlength="120">
       </label>
       <button class="btn btn-primary btn-block" onclick="logActivity()">${tx("Registrar y ganar XP")}</button>
@@ -904,7 +904,7 @@ function renderDetail() {
 
     <div class="panel">
       <div class="panel-head">
-        <h3 style="margin:0">Historial</h3>
+        <h3 style="margin:0">${tx("Historial")}</h3>
         ${s.log.length ? `<button class="icon-btn sm ${histSelMode ? "on" : ""}" onclick="toggleHistSel()" aria-label="${escapeAttr(tx("Seleccionar movimientos para quitar"))}" title="Quitar movimientos">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${BM_ICONS.bote}</svg>
         </button>` : ""}
@@ -964,7 +964,7 @@ function linkedToSkill(s) {
       ${group("encargo", "encargos", "flag", pr.map(p => `
         <button class="linked-row" style="--lc:${pinta(p.color)}" onclick="openProject('${p.id}')">
           <span class="lr-ic">${icon(p.icon, 16)}</span>
-          <span class="lr-tx"><b>${escapeHtml(p.name)}</b><span>${projectProgress(p)}% · ${PROJECT_STATUS[p.status].label}</span></span>
+          <span class="lr-tx"><b>${escapeHtml(p.name)}</b><span>${projectProgress(p)}% · ${tx(PROJECT_STATUS[p.status].label)}</span></span>
           <span class="lr-go">→</span>
         </button>`))}
     </div>`;

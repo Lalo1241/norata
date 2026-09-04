@@ -186,7 +186,7 @@ function renderCopias() {
   const copias = listarCopias().filter(c => c.datos);
 
   if (!copias.length) {
-    cont.innerHTML = `<p class="settings-note" style="margin:0">No hay ninguna, y es buena señal: significa que tus dispositivos nunca han tenido que juntar cambios a la fuerza.</p>`;
+    cont.innerHTML = `<p class="settings-note" style="margin:0">${tx("No hay ninguna, y es buena señal: significa que tus dispositivos nunca han tenido que juntar cambios a la fuerza.")}</p>`;
     return;
   }
 
@@ -209,8 +209,8 @@ function renderCopias() {
           <span>Se apartó ${escapeHtml(de)} · ${escapeHtml(syncCount(c.datos))}</span>
         </div>
         <div class="copia-acts">
-          <button class="btn btn-soft" onclick="restaurarCopia('${escapeHtml(c.key)}')">Restaurar</button>
-          <button class="btn btn-danger-ghost" onclick="borrarCopia('${escapeHtml(c.key)}')">Borrar</button>
+          <button class="btn btn-soft" onclick="restaurarCopia('${escapeHtml(c.key)}')">${tx("Restaurar")}</button>
+          <button class="btn btn-danger-ghost" onclick="borrarCopia('${escapeHtml(c.key)}')">${tx("Borrar")}</button>
         </div>
       </div>`;
   }).join("");

@@ -493,7 +493,7 @@ function renderTutorial() {
       ${/* "Atrás" está siempre, apagado en la primera. Quitarlo movía de sitio
             a "Siguiente" justo al pasar de la primera a la segunda, y ese es
             el botón que se pulsa cinco veces seguidas. */
-        ""}<button class="btn btn-ghost" onclick="tutoAtras()" ${tutoPaso ? "" : "disabled"}>Atrás</button>
+        ""}<button class="btn btn-ghost" onclick="tutoAtras()" ${tutoPaso ? "" : "disabled"}>${tx("Atrás")}</button>
       <button class="btn btn-primary" onclick="tutoSiguiente()">${ultimo ? "Empezar" : "Siguiente"}</button>
     </div>`;
 }
@@ -1187,7 +1187,7 @@ function abrirMenuAjustes(btn) {
        </button>`
     : `<button class="mm-perfil" onclick="abrirAjustes('cuenta')">
          <span class="mm-ic">${icon("shield", 16)}</span>
-         <span class="mm-tx"><b>Sin cuenta</b><span>Entra para sincronizar tus dispositivos</span>
+         <span class="mm-tx"><b>${tx("Sin cuenta")}</b><span>${tx("Entra para sincronizar tus dispositivos")}</span>
          ${chapa}</span>
        </button>`;
 

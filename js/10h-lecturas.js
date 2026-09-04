@@ -396,8 +396,8 @@ function lecturasHTML(rama, r, rAntes, D) {
   if (ctx.diasActivos < LECTURAS_MINIMO_DIAS) {
     return `
       <section class="panel inf-lecturas">
-        <h3>Qué veo aquí</h3>
-        <p class="inf-pronto">Todavía es pronto para leer nada. Con unos días de uso, aquí aparece lo que se ve en tus números — el día que se te cae, de dónde sale tu XP, qué llevas parado.</p>
+        <h3>${tx("Qué veo aquí")}</h3>
+        <p class="inf-pronto">${tx("Todavía es pronto para leer nada. Con unos días de uso, aquí aparece lo que se ve en tus números — el día que se te cae, de dónde sale tu XP, qué llevas parado.")}</p>
       </section>`;
   }
 
@@ -406,7 +406,7 @@ function lecturasHTML(rama, r, rAntes, D) {
 
   return `
     <section class="panel inf-lecturas">
-      <h3>Qué veo aquí</h3>
+      <h3>${tx("Qué veo aquí")}</h3>
       <ul class="inf-lista">
         ${frases.map(f => `<li>${escapeHtml(f)}</li>`).join("")}
       </ul>

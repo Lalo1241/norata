@@ -270,10 +270,10 @@ function calLeyenda() {
   const escala = calEscala();
   return `
     <div class="inf-escala">
-      <span>Cada casilla es un día</span>
-      <span class="ie-sep">Menos</span>
+      <span>${tx("Cada casilla es un día")}</span>
+      <span class="ie-sep">${tx("Menos")}</span>
       ${escala.map(c => `<i style="background:${c}"></i>`).join("")}
-      <span>Más</span>
+      <span>${tx("Más")}</span>
     </div>`;
 }
 
@@ -461,18 +461,18 @@ function portadaHTML(r, rAntes, D) {
      tres de arriba, que siguen siendo la respuesta a «¿cómo voy?». */
   const repaso = r.periodo === "ano" ? `
       <div class="inf-tres inf-repaso">
-        <div><b>${hab.niveles}</b><span>Niveles subidos</span></div>
-        <div><b>${rachaMasLarga(r, D)}</b><span>Tu racha más larga</span></div>
-        <div><b>${moneyHTML(tal.invertido)}</b><span>Invertido en ti</span></div>
+        <div><b>${hab.niveles}</b><span>${tx("Niveles subidos")}</span></div>
+        <div><b>${rachaMasLarga(r, D)}</b><span>${tx("Tu racha más larga")}</span></div>
+        <div><b>${moneyHTML(tal.invertido)}</b><span>${tx("Invertido en ti")}</span></div>
       </div>` : "";
 
   return `
     <section class="panel inf-portada">
       <p class="inf-frase">${escapeHtml(frase)}</p>
       <div class="inf-tres">
-        <div><b>${mis.marcas}</b><span>Misiones cumplidas</span></div>
-        <div><b>${fmtXp(hab.ganada)}</b><span>XP ganada</span></div>
-        <div><b>${cerradas}</b><span>Cosas cerradas</span></div>
+        <div><b>${mis.marcas}</b><span>${tx("Misiones cumplidas")}</span></div>
+        <div><b>${fmtXp(hab.ganada)}</b><span>${tx("XP ganada")}</span></div>
+        <div><b>${cerradas}</b><span>${tx("Cosas cerradas")}</span></div>
       </div>
       ${repaso}
     </section>`;
@@ -520,7 +520,7 @@ function accesosHTML(r, D) {
       ${INFORME_RAMAS.filter(x => x.id !== "todo").map(x => `
         <button class="inf-acceso" onclick="informeVerRama('${x.id}')">
           <b>${escapeHtml(x.nombre)}</b>
-          <span>Ver el informe</span>
+          <span>${tx("Ver el informe")}</span>
         </button>`).join("")}
     </div>`;
 }
@@ -570,8 +570,8 @@ function infMisiones(r, rAntes, D) {
       ${gAro(m.constancia || 0, m.constancia === null ? "—" : m.constancia + "%",
         m.constancia === null ? "Todavía no ha cerrado ningún día con misiones" : `${m.completas} de ${m.tocaban} días-misión cumplidos`)}
       <div class="inf-cifras">
-        <div><b>${m.marcas}</b><span>Veces que marcaste</span>${flechaHTML(variacion(m.marcas, p.marcas), "Frente al periodo anterior")}</div>
-        <div><b>${m.constancia === null ? "—" : m.constancia + "%"}</b><span>Constancia</span>${flechaHTML(variacion(m.constancia, p.constancia), "Frente al periodo anterior")}</div>
+        <div><b>${m.marcas}</b><span>${tx("Veces que marcaste")}</span>${flechaHTML(variacion(m.marcas, p.marcas), "Frente al periodo anterior")}</div>
+        <div><b>${m.constancia === null ? "—" : m.constancia + "%"}</b><span>${tx("Constancia")}</span>${flechaHTML(variacion(m.constancia, p.constancia), "Frente al periodo anterior")}</div>
       </div>
     </div>`);
 
@@ -670,9 +670,9 @@ function infHabilidades(r, rAntes, D) {
   html += bloque("¿Ganas o pierdes?",
     h.perdida ? "Lo perdido es desgaste por dejar una habilidad sin practicar." : "",
     `<div class="inf-balance">
-      <div class="ib-lado"><b class="mint">+${fmtXp(h.ganada)}</b><span>Ganada</span></div>
-      <div class="ib-lado"><b class="${h.perdida ? "coral" : ""}">−${fmtXp(h.perdida)}</b><span>Perdida</span></div>
-      <div class="ib-lado"><b>${h.neta >= 0 ? "+" : "−"}${fmtXp(Math.abs(h.neta))}</b><span>Neta</span>${flechaHTML(variacion(h.neta, p.neta), "Frente al periodo anterior")}</div>
+      <div class="ib-lado"><b class="mint">+${fmtXp(h.ganada)}</b><span>${tx("Ganada")}</span></div>
+      <div class="ib-lado"><b class="${h.perdida ? "coral" : ""}">−${fmtXp(h.perdida)}</b><span>${tx("Perdida")}</span></div>
+      <div class="ib-lado"><b>${h.neta >= 0 ? "+" : "−"}${fmtXp(Math.abs(h.neta))}</b><span>${tx("Neta")}</span>${flechaHTML(variacion(h.neta, p.neta), "Frente al periodo anterior")}</div>
     </div>`);
 
   /* Cómo creció cada una a lo largo del periodo. En una semana serían siete
@@ -716,9 +716,9 @@ function infHabilidades(r, rAntes, D) {
   const horas = Math.round(h.minutos / 60);
   html += bloque("Lo que llevas puesto", "",
     `<div class="inf-cifras tres">
-      <div><b>${h.niveles}</b><span>Niveles subidos</span>${flechaHTML(variacion(h.niveles, p.niveles), "Frente al periodo anterior")}</div>
-      <div><b>${h.sesiones}</b><span>Registros</span>${flechaHTML(variacion(h.sesiones, p.sesiones), "Frente al periodo anterior")}</div>
-      <div><b>${horas ? horas + " h" : "—"}</b><span>Tiempo practicado</span></div>
+      <div><b>${h.niveles}</b><span>${tx("Niveles subidos")}</span>${flechaHTML(variacion(h.niveles, p.niveles), "Frente al periodo anterior")}</div>
+      <div><b>${h.sesiones}</b><span>${tx("Registros")}</span>${flechaHTML(variacion(h.sesiones, p.sesiones), "Frente al periodo anterior")}</div>
+      <div><b>${horas ? horas + " h" : "—"}</b><span>${tx("Tiempo practicado")}</span></div>
     </div>` +
     (h.minutos ? "" : gVacia("El tiempo solo se cuenta cuando registras una práctica con minutos.")));
 
@@ -739,9 +739,9 @@ function infTalentos(r, rAntes, D) {
 
   html += bloque("Cómo va lo que abriste", "",
     `<div class="inf-cifras tres">
-      <div><b>${moneyHTML(t.invertido)}</b><span>Invertido</span>${flechaHTML(variacion(t.invertido, p.invertido, { dinero: true }), "Frente al periodo anterior")}</div>
-      <div><b>${t.completados}</b><span>Asegurados</span>${flechaHTML(variacion(t.completados, p.completados), "Frente al periodo anterior")}</div>
-      <div><b class="${t.vencidos ? "coral" : ""}">${t.vencidos}</b><span>Se les pasó el plazo</span></div>
+      <div><b>${moneyHTML(t.invertido)}</b><span>${tx("Invertido")}</span>${flechaHTML(variacion(t.invertido, p.invertido, { dinero: true }), "Frente al periodo anterior")}</div>
+      <div><b>${t.completados}</b><span>${tx("Asegurados")}</span>${flechaHTML(variacion(t.completados, p.completados), "Frente al periodo anterior")}</div>
+      <div><b class="${t.vencidos ? "coral" : ""}">${t.vencidos}</b><span>${tx("Se les pasó el plazo")}</span></div>
     </div>`);
 
   /* Por trimestre, y solo en el informe del año: en un mes hay un trimestre y
@@ -777,9 +777,9 @@ function infTalentos(r, rAntes, D) {
       medio === null
         ? gVacia("Cuando completes un talento con fecha, aquí verás cuánto tardaste.")
         : `<div class="inf-cifras tres">
-            <div><b>${cerrados.length}</b><span>Completados</span></div>
-            <div><b>${medio}</b><span>Días de media</span></div>
-            <div><b class="${conPlazo.length && aTiempo < conPlazo.length ? "coral" : "mint"}">${conPlazo.length ? aTiempo + " de " + conPlazo.length : "—"}</b><span>Dentro de plazo</span></div>
+            <div><b>${cerrados.length}</b><span>${tx("Completados")}</span></div>
+            <div><b>${medio}</b><span>${tx("Días de media")}</span></div>
+            <div><b class="${conPlazo.length && aTiempo < conPlazo.length ? "coral" : "mint"}">${conPlazo.length ? aTiempo + " de " + conPlazo.length : "—"}</b><span>${tx("Dentro de plazo")}</span></div>
           </div>`);
   }
 
@@ -858,18 +858,18 @@ function infProyectos(r, rAntes, D) {
     html += bloque("Cuánto tarda un encargo", "De crearlo a cerrarlo.",
       dias.length
         ? `<div class="inf-cifras tres">
-            <div><b>${Math.round(dias.reduce((a, b) => a + b, 0) / dias.length)}</b><span>Días de media</span></div>
-            <div><b class="mint">${Math.min(...dias)}</b><span>El más rápido</span></div>
-            <div><b>${Math.max(...dias)}</b><span>El más lento</span></div>
+            <div><b>${Math.round(dias.reduce((a, b) => a + b, 0) / dias.length)}</b><span>${tx("Días de media")}</span></div>
+            <div><b class="mint">${Math.min(...dias)}</b><span>${tx("El más rápido")}</span></div>
+            <div><b>${Math.max(...dias)}</b><span>${tx("El más lento")}</span></div>
           </div>`
         : gVacia("Cuando termines un encargo, aquí verás cuánto te llevó."));
   }
 
   html += bloque("Lo que cerraste y lo que soltaste", "",
     `<div class="inf-cifras tres">
-      <div><b>${pr.etapas}</b><span>Etapas cerradas</span>${flechaHTML(variacion(pr.etapas, pa.etapas), "Frente al periodo anterior")}</div>
-      <div><b class="mint">${pr.terminados}</b><span>Encargos terminados</span>${flechaHTML(variacion(pr.terminados, pa.terminados), "Frente al periodo anterior")}</div>
-      <div><b class="${pr.soltados ? "coral" : ""}">${pr.soltados}</b><span>Soltados</span></div>
+      <div><b>${pr.etapas}</b><span>${tx("Etapas cerradas")}</span>${flechaHTML(variacion(pr.etapas, pa.etapas), "Frente al periodo anterior")}</div>
+      <div><b class="mint">${pr.terminados}</b><span>${tx("Encargos terminados")}</span>${flechaHTML(variacion(pr.terminados, pa.terminados), "Frente al periodo anterior")}</div>
+      <div><b class="${pr.soltados ? "coral" : ""}">${pr.soltados}</b><span>${tx("Soltados")}</span></div>
     </div>`);
 
   return html;

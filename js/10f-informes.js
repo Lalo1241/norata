@@ -537,7 +537,7 @@ function statsPanelMisiones(ctx) {
   /* «Récord» y no una flecha: una racha no se compara con la de la semana
      pasada —es la misma cuenta, solo más larga—, se compara con tu mejor. */
   const record = rachas.cur > 0 && rachas.cur >= rachas.best
-    ? `<i class="sh-var mejor" title="Es la racha más larga que has tenido">récord</i>` : "";
+    ? `<i class="sh-var mejor" title="Es la racha más larga que has tenido">${tx("récord")}</i>` : "";
 
   return [
     { n: hoy, t: "Hoy" },

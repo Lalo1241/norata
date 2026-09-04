@@ -1239,7 +1239,7 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
 
   el.innerHTML =
     bloqueNodo +
-    `<div class="ctx-head">Crear aquí</div>` +
+    `<div class="ctx-head">${tx("Crear aquí")}</div>` +
     /* Los tres tipos con su tecla, en el mismo orden que el selector del
        formulario para que la mano aprenda una sola disposición. */
     /* La figura acompana al nombre, igual que en la linea de ayuda: es la
@@ -2594,10 +2594,10 @@ function pintarBarraSeleccion(wrap) {
      por dónde salir: un modo sin salida a la vista es una trampa. */
   pista.innerHTML = n
     ? `<b>${n} elegido${n === 1 ? "" : "s"}</b>
-       <button type="button" class="btn btn-soft btn-sm" onclick="agruparElegidos()">Agruparlos</button>
+       <button type="button" class="btn btn-soft btn-sm" onclick="agruparElegidos()">${tx("Agruparlos")}</button>
        <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">${modoElegir ? "Salir" : "Quitar la selección"}</button>`
-    : `<b>Toca los talentos que quieras juntar</b>
-       <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">Salir</button>`;
+    : `<b>${tx("Toca los talentos que quieras juntar")}</b>
+       <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">${tx("Salir")}</button>`;
 }
 
 function repintarSeleccion() {
