@@ -6544,6 +6544,41 @@
   .ms-count { font-size: 13px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
   .ms-count i { font-style: normal; font-size: 10px; color: var(--faint); }
   .ms-body { flex: 1; min-width: 0; cursor: pointer; }
+  /* ---- El ancla de una misión ----
+     Debajo del nombre, en pequeño y con la bandera del hito: dice cuándo va a
+     pasar, que es lo que hace falta para hacerla. No es un recordatorio —no
+     hay hora ni aviso—, así que no lleva ningún tono de alerta. */
+  .ms-ancla {
+    display: flex; align-items: center; gap: 5px;
+    margin-top: 3px; font-size: 12px; color: var(--muted); line-height: 1.35;
+  }
+  .ms-ancla b { color: var(--text); font-weight: 500; }
+  .ms-ancla .ic { flex-shrink: 0; opacity: .75; }
+  .ms-ancla .ic svg { width: 11px; height: 11px; }
+
+  /* El «Después de» va DENTRO de la caja y no en lo que se escribe: así lo
+     guardado es «servirme el café» y la frase se arma sola en la tarjeta. */
+  .ancla-caja {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--sup-campo, var(--card));
+    border: 1px solid var(--line); border-radius: var(--r-boton, 11px);
+    padding: 0 12px;
+  }
+  .ancla-caja:focus-within { border-color: var(--mint); }
+  .ancla-pre { color: var(--muted); font-size: 14px; flex-shrink: 0; }
+  .ancla-caja input {
+    flex: 1; min-width: 0; background: none; border: none; padding: 11px 0;
+    color: var(--text); font-family: inherit; font-size: 15px;
+  }
+  .ancla-caja input:focus { outline: none; }
+  .ancla-sug { display: flex; flex-wrap: wrap; gap: 6px; margin: -6px 0 14px; }
+  .ancla-chip {
+    font-family: inherit; font-size: 12px; color: var(--muted);
+    background: none; border: 1px solid var(--line);
+    border-radius: var(--r-pastilla, 20px); padding: 5px 11px; cursor: pointer;
+  }
+  .ancla-chip:hover { color: var(--text); border-color: var(--mint); }
+
   .ms-name { font-size: 14.5px; font-weight: 650; overflow-wrap: anywhere; }
   .ms-meta {
     display: flex;

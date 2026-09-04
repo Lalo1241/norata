@@ -643,6 +643,8 @@ function openMissionForm(id, presetTablero) {
   document.getElementById("mission-form-title").textContent = m ? tx("Editar misión") : tx("Nueva misión");
   document.getElementById("ms-name").value = m ? m.name : "";
   document.getElementById("ms-desc").value = m ? (m.desc || "") : "";
+  document.getElementById("ms-ancla").value = m ? (m.ancla || "") : "";
+  pintarAnclas();
   document.getElementById("ms-target").value = m ? missionTarget(m) : 1;
   document.getElementById("ms-xp").value = m ? m.xp : 15;
   document.getElementById("ms-delete").style.display = m ? "block" : "none";
@@ -688,6 +690,7 @@ function saveMission() {
   if (!name) { toast(tx("Escribe qué vas a hacer")); return; }
   if (msCadence === "weekly" && msDays.length === 0) { toast(tx("Elige al menos un día")); return; }
   const desc = document.getElementById("ms-desc").value.trim();
+  const ancla = document.getElementById("ms-ancla").value.trim();
   const target = Math.max(1, parseInt(document.getElementById("ms-target").value) || 1);
   const xp = Math.max(0, parseInt(document.getElementById("ms-xp").value) || 0);
   const skillId = document.getElementById("ms-skill").value || null;
@@ -695,6 +698,9 @@ function saveMission() {
   if (editingMissionId) {
     const m = state.missions.find(x => x.id === editingMissionId);
     Object.assign(m, { name, desc, target: msCadence === "once" ? 1 : target, xp, skillId, icon: msIcon, color: msColor, cadence: msCadence, days: msDays });
+    /* Se borra la clave si se vacio el campo, en vez de guardar "". Una
+       mision sin ancla no tiene que llevarla puesta. */
+    if (ancla) m.ancla = ancla; else delete m.ancla;
     save();
     toast(tx("Misión actualizada"));
   } else {
@@ -703,6 +709,9 @@ function saveMission() {
       cadence: msCadence, days: msDays, target: msCadence === "once" ? 1 : target,
       skillId, xp, log: {}, archived: false, completedAt: null,
       createdAt: todayKey(),
+      /* Solo si tiene algo: la mayoría de misiones no van a llevar ancla, y
+         una clave vacía en cada una es peso muerto en cada sincronía. */
+      ...(ancla ? { ancla } : {}),
       /* Nacida en una columna concreta: no es una posposición —nadie la ha
          aplazado— así que no arranca ningún reloj de espera. */
       ...(msTablero ? { tablero: msTablero } : {})
@@ -860,3 +869,44 @@ async function deleteProject() {
   showView("projects");
 }
 
+
+/* ---- El ancla de una misión ----
+
+   La conducta nueva se sostiene cuando se engancha a una que ya existe, en vez
+   de depender de acordarse. Eso es lo que dice el trabajo de Fogg (2019) sobre
+   diseño de conducta, y es la pieza que a Norata le faltaba: una misión ya dice
+   QUÉ y QUÉ DÍAS, pero el momento lo ponía la fuerza de voluntad.
+
+   Y con el matiz honesto, que también está en la literatura: Gardner y sus
+   colegas (2024) avisan de que formar el hábito por sí solo puede no bastar —el
+   contexto pesa tanto como la repetición—. Por eso esto no promete nada ni se
+   presenta como una función mágica: es un campo opcional que ayuda a recordar.
+
+   Cinco anclas que le pasan a casi todo el mundo. Un campo vacío que pide una
+   frase es el mismo problema que tenía la pregunta 3 de la bienvenida: pide
+   ESCRIBIR donde todo lo demás pide ELEGIR. Con esto se toca una y ya está.
+
+   Son cosas que se hacen a diario y a la misma hora, que es lo que las hace
+   servir de gancho — «cuando tenga tiempo» no es un ancla. */
+const ANCLAS_SUGERIDAS = [
+  "servirme el café", "comer", "llegar a casa",
+  "lavarme los dientes", "cerrar la computadora"
+];
+
+function pintarAnclas() {
+  const caja = document.getElementById("ms-ancla-sug");
+  if (!caja) return;
+  caja.innerHTML = ANCLAS_SUGERIDAS.map(a =>
+    `<button type="button" class="ancla-chip" onclick="ponerAncla('${enJS(a)}')">${
+      escapeHtml(tx(a))}</button>`).join("");
+}
+
+/* Escribe la sugerencia en el campo. En español entra tal cual; en otro idioma
+   entra ya traducida, porque lo que se guarda es lo que la persona va a leer
+   luego en su tarjeta y no una clave del diccionario. */
+function ponerAncla(t) {
+  const campo = document.getElementById("ms-ancla");
+  if (!campo) return;
+  campo.value = tx(t);
+  campo.focus();
+}
