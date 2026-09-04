@@ -7738,19 +7738,13 @@
      no se redefinen: aquí solo se viste el hueco del icono, que en el ritmo
      lleva un dibujo y aquí lleva dos letras o una bandera. */
 
-  /* Las dos letras del idioma. Van con la misma caja de 36 que los iconos del
-     ritmo para que las dos listas se lean a la misma altura, y con el mismo
-     menta apagado del ritmo recomendado —ni celeste ni coral: elegir idioma
-     no es ni relajarse ni arriesgarse—. */
-  .rg-ic {
-    font-size: 12.5px; font-weight: 700; letter-spacing: 0.4px;
-    color: var(--mint); background: var(--mint-soft);
-  }
-  /* La bandera trae su propio color, así que el hueco es solo un marco: con
-     el fondo menta de las letras, la bandera mexicana se leía como parte del
-     mismo dibujo. */
-  .rg-bandera { background: var(--sup-panel); border: var(--borde-fino) solid var(--line); }
-  .bnd { display: block; }
+  /* El hueco de los discos. No lleva ni fondo ni marco: el disco trae su
+     propio color macizo y cualquiera de los dos le pondría un aro alrededor
+     — y el disco ya ES el aro. Conserva la caja de 36 de `.op-ic` para que la
+     lista del idioma y la de la moneda se lean a la misma altura que la del
+     ritmo del asistente. */
+  .rg-disco { background: none; }
+  .dsc { display: block; }
 
   /* El bloque que se abre al elegir otra moneda. Va hundido y no levantado:
      no es una tarjeta encima del panel, es un pliegue dentro de él —lo que

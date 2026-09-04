@@ -440,55 +440,108 @@ function nombreDeDia(i) {
   } catch (e) { return "?"; }
 }
 
-/* ================= Las banderas =================
+/* ================= Los discos =================
 
-   Dibujadas a mano en SVG, y no con los emoji de bandera (🇲🇽 🇺🇸 🇪🇺), por un
-   motivo que no es de gusto: **Windows no tiene esos glifos.** Chrome en
-   Windows —que es donde se construye y se prueba esta app— pinta las dos
-   letras del país en un recuadro, así que el selector de moneda saldría con
-   «MX», «US» y «EU» escritos en vez de banderas. En Android y en iPhone sí se
-   ven. Un botón que se ve de dos maneras distintas según el aparato no es un
-   botón, son dos.
+   Un círculo del tamaño de una moneda con su símbolo dentro. Los dos van en
+   círculo —en la primera pantalla se ven una lista debajo de la otra y dos
+   formas distintas las harían parecer cosas sin relación— pero **la moneda va
+   MACIZA y el idioma va en ARO**, y esa diferencia dice algo verdadero: una
+   moneda es una pieza, un idioma es una etiqueta.
 
-   Van en un rectángulo con las esquinas redondeadas de la app (`--r-micro`) y
-   sin escudos ni águilas: a dieciocho píxeles un escudo es una mancha, y
-   además el escudo mexicano es el detalle que más delata un dibujo hecho a
-   ojo. Se leen por las franjas, que es como se leen las banderas de lejos.
+   Y además resuelve un número. Medidos los ocho colores del usuario con tinta
+   oscura encima, siete pasan el 4,5 que pide un texto en los dos modos y uno
+   no: **el lila da 3,67 de día**. En aro no hay tinta oscura —las letras van
+   en `tinta()`, que se hunde sola sobre papel— así que el problema desaparece
+   en vez de esquivarse cambiando de color.
 
-   El IDIOMA no lleva bandera, y es a propósito. Una bandera es un país y un
-   idioma no lo es: el español de esta app es de México, pero también lo hablan
-   en otros veinte sitios, y el inglés no es de Estados Unidos ni del Reino
-   Unido. Poner una bandera obliga a elegir a quién dejas fuera. El idioma va
-   con su nombre escrito en su propio idioma —«Español», «English»—, que es lo
-   que hace que lo reconozca justamente quien no entiende la pantalla. */
-function bandera(cod, tam) {
-  const s = tam || 18;
-  const alto = Math.round(s * 0.7);
-  const r = 3;
-  const marco = `<rect x="0.5" y="0.5" width="${s - 1}" height="${alto - 1}" rx="${r}" fill="none" stroke="var(--line)" stroke-width="1"/>`;
-  const clip = `bnd-${cod}-${s}`;
-  const cuerpos = {
-    /* Verde, blanco y rojo en tres franjas verticales. */
-    MXN: `<rect width="${s / 3}" height="${alto}" fill="#006847"/>
-          <rect x="${s / 3}" width="${s / 3}" height="${alto}" fill="#ffffff"/>
-          <rect x="${(s / 3) * 2}" width="${s / 3}" height="${alto}" fill="#ce1126"/>`,
-    /* Las barras y el cantón. Siete barras y no trece: a esta altura trece
-       barras son una textura gris. */
-    USD: `<rect width="${s}" height="${alto}" fill="#ffffff"/>
-          ${[0, 2, 4, 6].map(i => `<rect y="${(alto / 7) * i}" width="${s}" height="${alto / 7}" fill="#b22234"/>`).join("")}
-          <rect width="${s * 0.42}" height="${(alto / 7) * 4}" fill="#3c3b6e"/>`,
-    /* Azul con las estrellas. Cinco y no doce, por lo mismo que las barras. */
-    EUR: `<rect width="${s}" height="${alto}" fill="#003399"/>
-          ${[0, 1, 2, 3, 4].map(i => {
-            const ang = (Math.PI * 2 * i) / 5 - Math.PI / 2;
-            const cx = s / 2 + Math.cos(ang) * (s * 0.22);
-            const cy = alto / 2 + Math.sin(ang) * (alto * 0.28);
-            return `<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="${(s * 0.055).toFixed(2)}" fill="#ffcc00"/>`;
-          }).join("")}`
-  };
-  const cuerpo = cuerpos[cod];
-  if (!cuerpo) return "";
-  return `<svg class="bnd" width="${s}" height="${alto}" viewBox="0 0 ${s} ${alto}" aria-hidden="true">
-    <defs><clipPath id="${clip}"><rect width="${s}" height="${alto}" rx="${r}"/></clipPath></defs>
-    <g clip-path="url(#${clip})">${cuerpo}</g>${marco}</svg>`;
+   ---- Por qué un disco y no una bandera ----
+
+   Lo pidió Eduardo después de ver las banderas puestas, y tiene razón por dos
+   motivos que la bandera no resolvía:
+
+   1. **Una bandera es un país, y una moneda no lo es.** El euro no es de
+      ningún país —por eso la bandera europea era ya un apaño— y el dólar lo
+      usan una veintena. Es el mismo problema por el que el idioma nunca llevó
+      bandera, y estaba igual de presente aquí.
+   2. **A dieciocho píxeles una bandera es un borrón y un símbolo no.** El $ y
+      el € se leen a cualquier tamaño, porque para eso los inventaron.
+
+   ---- Por qué cada uno lleva su propio color ----
+
+   Por dos cosas, y la primera es que **el peso y el dólar comparten símbolo**.
+   Con el mismo disco verde, dos de las tres monedas serían idénticas salvo por
+   el nombre escrito al lado — que es justo el problema que `money()` resuelve
+   escribiendo siempre el código detrás del importe.
+
+   Y la segunda: los dos idiomas estaban en menta y la pantalla se veía de un
+   solo color. Lo paró Eduardo mirándola.
+
+   Los cinco salen de los OCHO COLORES DEL USUARIO (`--paleta-1` … `--paleta-8`)
+   y no de los acentos de la casa, y eso importa: los acentos tienen
+   significado —la menta es lo que sale bien, el coral lo que destruye, la
+   luciérnaga lo que avisa— y ni una moneda ni un idioma son ninguna de esas
+   cosas. Los ocho del usuario son identidad sin significado, que es
+   exactamente lo que hace falta. Tampoco se repite ninguno: en la primera
+   pantalla se ven los cinco a la vez.
+
+   Ninguno es la menta, y también a propósito: la opción elegida se marca con
+   menta, y un disco menta dentro de una pastilla menta vuelve a dejar la
+   pantalla de un solo color — que es de lo que veníamos. */
+const MONEDA_COLOR = {
+  MXN: "#8fd18a",   /* verde   — el peso, y el verde del billete */
+  USD: "#f5d76e",   /* oro     — el otro $, y por eso no puede ser verde */
+  EUR: "#6fc3e8"    /* celeste — el azul de la Unión, sin la bandera */
+};
+const MONEDA_SIMBOLO = { MXN: "$", USD: "$", EUR: "€" };
+
+/* No hay nada de nacional en los dos del idioma, y no puede haberlo: por eso
+   el idioma no lleva bandera. Son dos etiquetas, y su único trabajo es no
+   parecerse entre ellas ni a ninguna moneda. */
+const IDIOMA_COLOR = { es: "#b7a2ea", en: "#f0a5c0" };
+
+/* El símbolo va en un `<text>` de SVG y no en un trazado dibujado a mano: el $
+   y el € los tiene cualquier tipografía, así que dibujarlos sería copiar peor
+   algo que ya está hecho — y además se queda con la letra de la app, que es lo
+   que hace que el disco pertenezca a esta pantalla y no parezca pegado de otra
+   parte.
+
+   Los dos ayudantes de abajo son los tres papeles de la paleta puestos donde
+   toca (ver `pinta`, `tinta` y `trazo` en `js/01-base.js`):
+
+     macizo   `pinta()` para el relleno + `--sobre-vivo` para la tinta — sobre
+              un relleno macizo la tinta va OSCURA en los DOS modos, porque los
+              ocho tonos del usuario son claros de día y de noche
+     aro      `trazo()` para la línea —que pide 3 y no 4,5, porque es un
+              dibujo— y `tinta()` para las letras, que sí son texto */
+function discoMacizo(simbolo, color, tam) {
+  const s = tam || 26;
+  if (!simbolo || !color) return "";
+  return `<svg class="dsc" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" aria-hidden="true">
+    <circle cx="${s / 2}" cy="${s / 2}" r="${s / 2}" fill="${pinta(color)}"/>
+    <text x="${s / 2}" y="${s / 2}" fill="var(--sobre-vivo)" font-size="${(s * 0.62).toFixed(1)}"
+      font-weight="700" text-anchor="middle" dominant-baseline="central"
+      font-family="inherit">${simbolo}</text>
+  </svg>`;
+}
+
+/* El aro va por dentro del borde (`r = s/2 - 1`) y no encima: centrado en el
+   borde, la mitad de sus dos píxeles se sale del `viewBox` y se corta. */
+function discoAro(texto, color, tam) {
+  const s = tam || 26;
+  if (!texto || !color) return "";
+  return `<svg class="dsc" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" aria-hidden="true">
+    <circle cx="${s / 2}" cy="${s / 2}" r="${s / 2 - 1}" fill="none"
+      stroke="${trazo(color)}" stroke-width="2"/>
+    <text x="${s / 2}" y="${s / 2}" fill="${tinta(color)}" font-size="${(s * 0.4).toFixed(1)}"
+      font-weight="700" letter-spacing="0.3" text-anchor="middle" dominant-baseline="central"
+      font-family="inherit">${texto}</text>
+  </svg>`;
+}
+
+function discoMoneda(cod, tam) {
+  return discoMacizo(MONEDA_SIMBOLO[cod], MONEDA_COLOR[cod], tam);
+}
+
+function discoIdioma(cod, tam) {
+  return discoAro(String(cod).toUpperCase(), IDIOMA_COLOR[cod], tam);
 }

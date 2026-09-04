@@ -33,14 +33,16 @@
    maquetaciones para lo mismo es lo que hace que dentro de un año una de las
    dos se quede sin arreglar.
 
-   El IDIOMA lleva su nombre escrito en su propio idioma y sin bandera; la
-   MONEDA lleva bandera. El porqué de las banderas está en `bandera()`
-   (`js/00-idioma.js`), que además explica por qué son SVG y no emoji. */
+   Cada opción lleva su propio color, y ninguno es la menta. Con todos en menta
+   —que es como estaban— la pantalla se veía de un solo color y las opciones se
+   distinguían solo por el texto; lo paró Eduardo mirándolo. El idioma va con
+   dos letras y la moneda con el disco de su símbolo: el porqué de las dos
+   cosas está en `discoMoneda()` (`js/00-idioma.js`). */
 
 function opcionesIdiomaHTML(sel, accion) {
   return `<div class="ob-pace">${Object.values(IDIOMAS).map(i => `
     <button class="ob-pace-opt ${sel === i.codigo ? "on" : ""}" onclick="${accion}('${i.codigo}')">
-      <span class="op-ic rg-ic">${i.codigo.toUpperCase()}</span>
+      <span class="op-ic rg-disco">${discoIdioma(i.codigo, 26)}</span>
       <span class="op-tx"><b>${escapeHtml(i.nombre)}</b><span>${escapeHtml(muestraDeFecha(i.locale))}</span></span>
     </button>`).join("")}</div>`;
 }
@@ -71,7 +73,7 @@ function opcionesMonedaHTML(sel, accion) {
     const nombre = idiomaActual() === "en" ? m.enIngles : m.nombre;
     return `
     <button class="ob-pace-opt ${sel === m.codigo ? "on" : ""}" onclick="${accion}('${m.codigo}')">
-      <span class="op-ic rg-ic rg-bandera">${bandera(m.codigo, 22)}</span>
+      <span class="op-ic rg-disco">${discoMoneda(m.codigo, 26)}</span>
       <span class="op-tx"><b>${escapeHtml(nombre)}</b><span>${escapeHtml(
         formateadorMoneda(m.codigo).format(1890))}</span></span>
     </button>`;
