@@ -76,6 +76,42 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.79 · 3 sep 2026
+
+**La cifra de arriba deja de ser un promedio y pasa a decir cuánta gente hay.**
+Es el segundo de los tres fallos diagnosticados, y el que Eduardo preguntó con
+la frase exacta: **«0,6 personas al día, ¿es normal eso?»**.
+
+No lo era, y el número estaba bien calculado. **El problema no era el número:
+era la pregunta.** Con tres cuentas, un promedio diario habla más de cuántos
+días pasaron que de cuánta gente hay — y baja cada vez que se añade un día
+tranquilo, que es justo cuando menos falta hace desanimar a nadie.
+
+Se le enseñaron cuatro salidas con sus propios datos —la media, la mediana, el
+promedio de los días con actividad, y dejar de promediar— y eligió la última.
+
+Ahora esa casilla dice **«3 cuentas distintas · 11 de 14 días con actividad»**.
+Dos cifras que se sostienen a cualquier escala: cuánta gente hay, y con qué
+constancia aparece. Ninguna se rompe con pocos ni con muchos, que es lo que se
+le pide a la cifra que va arriba del todo.
+
+**Y el 3 no estaba en el panel por ningún lado.** Había «activos esta semana» y
+«cuentas creadas», pero no «cuánta gente hay en el periodo que estás mirando»,
+que es justo lo que resume el dibujo. La cuenta el servidor y no el navegador
+por una razón que no se ve: **sumar los días contaría catorce veces a quien
+abrió catorce días**. Eso solo lo sabe la base.
+
+Dos detalles del rigor de la ventana:
+
+- **`current_date - 13` y no `- 14`.** Son catorce días contando hoy,
+  exactamente los mismos que dibuja la gráfica. Una ventana de quince días bajo
+  un rótulo de catorce es la clase de mentira pequeña que nadie revisa nunca.
+  De paso se corrigió lo mismo en la lista de versiones, que había quedado con
+  quince en la tanda anterior.
+- **Si el dato no viene, se cae a la media de antes** en vez de enseñar un
+  hueco. Un panel servido por un servidor a medio actualizar tiene que seguir
+  diciendo algo cierto.
+
 ### 0.7.78.1 · 3 sep 2026
 
 **El talento dejaba de estarse quieto cuando su nombre cambiaba de lado.** Lo

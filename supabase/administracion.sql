@@ -252,7 +252,7 @@ begin
   ultima_v as (
     select distinct on (user_id) user_id, version
       from public.pulsos
-     where dia >= current_date - 14
+     where dia >= current_date - 13
      order by user_id, dia desc
   ),
 
@@ -308,6 +308,22 @@ begin
                           where u.alta <= current_date - 30
                             and p.ultimo >= u.alta + 30),
       'pidieron_borrado', (select count(*) from public.perfiles where borrar_el is not null),
+      -- Cuántas cuentas DISTINTAS aparecieron en los catorce días que dibuja
+      -- la gráfica. Es la cifra que resume el dibujo y la única que no estaba
+      -- en ningún sitio del panel: había «activos esta semana» y «cuentas
+      -- creadas», pero no «cuánta gente hay en lo que estás mirando».
+      --
+      -- Sustituye a la media diaria, que a esta escala contestaba una pregunta
+      -- que no sirve: con tres cuentas, un promedio por día habla más de
+      -- cuántos días pasaron que de cuánta gente hay. Y no se rompe con pocos
+      -- ni con muchos, que es lo que se le pide a una cifra que va arriba.
+      --
+      -- El `- 13` y no `- 14`: son catorce días contando hoy, exactamente los
+      -- mismos que `generate_series` de abajo. Una ventana de quince días bajo
+      -- un rótulo de catorce es la clase de mentira pequeña que nadie revisa.
+      'distintas14',    (select count(distinct user_id) from public.pulsos
+                          where dia >= current_date - 13),
+
       'aperturas7',     (select coalesce(sum(aperturas), 0) from public.pulsos
                           where dia >= current_date - 7),
       -- Cuántos días distintos abre la app una persona, de media. Es la
