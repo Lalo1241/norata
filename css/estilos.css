@@ -9109,6 +9109,48 @@
 }
 .pn-dicho span { font-size: 11px; color: var(--faint); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
 
+/* ---- La palomita de atender un reporte ----
+   Va en la misma fila que la fecha y a la derecha del todo, que es donde no
+   estorba a la lectura: lo que se viene a leer aquí es lo que escribió la
+   persona, y el botón es lo que se hace DESPUÉS de leerlo.
+
+   Es un interruptor y no una acción de un solo sentido: se puede volver a
+   dejar abierto. Por eso lleva `aria-pressed` y cambia de palabra, en vez de
+   desaparecer al pulsarlo — un botón que se va no dice en qué estado quedó.
+
+   Sin transición sobre el color, como todo este panel. */
+.pn-dicho { position: relative; }
+.pn-palomita {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--faint);
+  background: transparent;
+  border: var(--borde-fino) solid var(--line);
+  border-radius: var(--r-pastilla);
+  padding: 3px 9px 3px 7px;
+  cursor: pointer;
+}
+.pn-palomita:hover, .pn-palomita:focus-visible { color: var(--text); border-color: var(--carril); }
+
+/* Atendido: menta, y esta es la única menta de la caja. Sigue la regla del
+   color del panel — aquí sí hay un juicio, y el juicio es «esto ya está». */
+.pn-palomita.on { color: var(--mint); border-color: var(--mint); }
+.pn-palomita.on:hover, .pn-palomita.on:focus-visible { color: var(--mint); border-color: var(--mint); }
+
+/* El texto se va en pantallas estrechas y se queda la palomita sola: en un
+   teléfono, dos palabras al lado de la fecha parten el renglón. */
+@media (max-width: 420px) {
+  .pn-palomita span { display: none; }
+  .pn-palomita { padding: 4px 7px; }
+}
+
 /* Los tonos de las barras de una lista, cuando la lista los pide. */
 .pn-riel i.t-lila { background: var(--lila-macizo); }
 .pn-riel i.t-menta { background: var(--mint-macizo); }

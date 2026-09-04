@@ -574,6 +574,36 @@ function agruparReportes(tropiezos) {
     .sort((a, b) => (b.sinVer - a.sinVer) || String(b.dia).localeCompare(String(a.dia)) || (b.cuantos - a.cuantos));
 }
 
+/* Archivar UN reporte, que es lo que pidió Eduardo: «para irlos archivando y
+   ver qué está corregido y qué no». Con el botón de «dar por vistos» a secas
+   eso no se podía — marcaba todos de golpe, así que atender uno enterraba
+   también los que no habías mirado.
+
+   Se pinta con lo que CONTESTA el servidor y no con lo que suponíamos antes de
+   preguntar: si la fila ya no está —dos pestañas archivando a la vez— la
+   respuesta es `null` y se vuelven a pedir los números en vez de dejar la
+   pantalla diciendo algo que no es.
+
+   Y no se recargan las métricas enteras en el caso normal: son unos cientos de
+   milisegundos y un salto de la lista entera para cambiar una palabra. Se
+   toca la fila que hay en memoria y se vuelve a pintar. */
+async function archivarReporte(id, visto) {
+  const t = (metricasCache && metricasCache.tropiezos || []).find(x => Number(x.id) === Number(id));
+  try {
+    const quedo = await sbTropiezoVisto(id, visto);
+    if (quedo === null || quedo === undefined) {
+      /* La fila se fue. Se piden los números otra vez y que mande el servidor. */
+      metricasCache = null;
+      await cargarMetricas();
+      return;
+    }
+    if (t) t.visto = !!quedo;
+    renderPanelAdmin();
+  } catch (e) {
+    toast(e.message || String(e), "atencion");
+  }
+}
+
 function panelReportesHTML(tropiezos) {
   const grupos = agruparReportes(tropiezos);
   if (!grupos.length) return "";
@@ -602,6 +632,12 @@ function panelReportesHTML(tropiezos) {
               <p>${escapeHtml(reporteSinLugar(t.mensaje))}</p>
               <span>${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")}${
                 (Number(t.cuantos) || 1) > 1 ? " · lo dijeron " + t.cuantos + " veces" : ""}</span>
+              ${t.id == null ? "" : `<button class="pn-palomita ${t.visto ? "on" : ""}"
+                onclick="archivarReporte(${Number(t.id)}, ${t.visto ? "false" : "true"})"
+                aria-pressed="${t.visto ? "true" : "false"}"
+                title="${t.visto ? "Volver a dejarlo abierto" : "Darlo por atendido"}">
+                ${icon("check", 14)}<span>${t.visto ? "Atendido" : "Atender"}</span>
+              </button>`}
             </div>`).join("") + `</div>` : ""}
       </div>`;
   }).join("") + `</div>
