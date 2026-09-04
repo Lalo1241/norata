@@ -1970,10 +1970,20 @@ function renderHome() {
     }
   }
 
+  /* "Todas" es a la vez el rótulo del primer chip y el VALOR con el que se
+     compara aquí abajo, así que se traduce solo al escribirlo: traducirlo en
+     la lista dejaría `activeCategory` en inglés y el filtro no encontraría
+     nada al volver al español.
+
+     Y se traduce ESE y no los demás. Las otras categorías salen de las
+     habilidades, que ya las guardan en el idioma en que se crearon; pasarlas
+     todas por `tx()` sería traducir datos de la persona, que es justo lo que
+     el barrido del DOM tiene prohibido — una categoría suya llamada
+     «Guardar» se volvería «Save» sola. */
   const cats = ["Todas", ...new Set(skills.map(s => s.category).filter(Boolean))];
   if (!cats.includes(activeCategory)) activeCategory = "Todas";
   document.getElementById("chips").innerHTML = skills.length === 0 ? "" : cats.map(c =>
-    `<button class="chip ${c === activeCategory ? "active" : ""}" onclick="setCategory('${enJS(c)}')">${escapeHtml(c)}</button>`
+    `<button class="chip ${c === activeCategory ? "active" : ""}" onclick="setCategory('${enJS(c)}')">${escapeHtml(c === "Todas" ? tx("Todas") : c)}</button>`
   ).join("");
 
   const list = document.getElementById("skill-list");
