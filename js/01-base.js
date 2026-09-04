@@ -1009,7 +1009,7 @@ function guardarLocal(data) {
   if (!avisoSinEspacio) {
     avisoSinEspacio = true;
     try {
-      toast("No pude guardar: este navegador se quedó sin espacio. Exporta un respaldo antes de seguir.",
+      toast(tx("No pude guardar: este navegador se quedó sin espacio. Exporta un respaldo antes de seguir."),
         "atencion", { label: "Exportar", onclick: "exportData()" });
     } catch (e) { /* ni el aviso pudo pintarse: la red de seguridad lo recoge */ }
   }

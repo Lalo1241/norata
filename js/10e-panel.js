@@ -872,7 +872,7 @@ async function marcarTropiezosVistos() {
     await sbTropiezosVistos();
     metricasCache = null;
     await cargarMetricas();
-    toast("Errores dados por vistos", "hecho");
+    toast(tx("Errores dados por vistos"), "hecho");
   } catch (e) {
     toast(e.message || String(e), "atencion");
   }

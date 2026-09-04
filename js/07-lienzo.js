@@ -828,7 +828,7 @@ function pushUndo(etiqueta, snap, mod) {
 }
 
 function undoEditor() {
-  if (!undoStack.length) { toast("No hay nada que deshacer", "atencion"); return; }
+  if (!undoStack.length) { toast(tx("No hay nada que deshacer"), "atencion"); return; }
   const prev = undoStack.pop();
   const antes = JSON.parse(prev.perks);
   if (antes.mod === "proyectos") {
@@ -1004,7 +1004,7 @@ function crearEncargoRapido(branch, pos) {
   state.projects.push(nuevo);
   save();
   renderProjects();
-  toast("Encargo creado · ábrelo para ponerle nombre", "hecho");
+  toast(tx("Encargo creado · ábrelo para ponerle nombre"), "hecho");
 }
 
 /* El interruptor que separa las dos clases de flecha. Vive en el ENCARGO y no
@@ -1299,7 +1299,7 @@ function toggleEditBranch(b, mod) {
     editBranch = null;
     clearUndo();   // deshacer un cambio de hace tres sesiones sorprendería más de lo que ayuda
     repintarModulo(mod);
-    toast("Listo, modo edición cerrado", "hecho");
+    toast(tx("Listo, modo edición cerrado"), "hecho");
     return;
   }
   editBranch = b;
@@ -2157,7 +2157,7 @@ function removeLink(par) {
   pushUndo("cortar una conexión", snap, mod);
   save();
   repintarModulo(mod);
-  toast("Conexión eliminada", "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
+  toast(tx("Conexión eliminada"), "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
 }
 
 /* ================= El gesto del lienzo =================
@@ -2630,7 +2630,7 @@ async function agruparElegidos() {
      puede dibujar sin que el mapa deje de leerse. Se avisa en vez de
      ignorarlo en silencio. */
   if (ids.some(id => cajaPorId(id))) {
-    toast("Un grupo no puede meterse dentro de otro", "atencion");
+    toast(tx("Un grupo no puede meterse dentro de otro"), "atencion");
     return;
   }
   const caja = await crearGrupoCon(ids, rama);
@@ -2888,9 +2888,9 @@ function attachEditHandlers(scope) {
       const t = toId && toId !== curId ? nodoPorId(toId) : null;
       if (t) {
         if (isDescendant(toId, curId)) {
-          toast("Esa conexión crearía un bucle", "atencion");
+          toast(tx("Esa conexión crearía un bucle"), "atencion");
         } else if (requisitosDe(t).includes(curId)) {
-          toast("Ya estaban conectados", "calma");
+          toast(tx("Ya estaban conectados"), "calma");
         } else {
           const esCaja = !!cajaPorId(toId) || !!cajaPorId(curId);
           pushUndo("conectar dos nodos", snapAntes, mod);

@@ -1137,5 +1137,118 @@ const TEXTOS_EN = {
 
   "Oscuro": "Dark",
   "Claro": "Light",
-  "Aspecto de la app": "The app's look"
+  "Aspecto de la app": "The app's look",
+
+  /* ================= Tanda 8: los avisos sueltos y el catalogo =================
+     Los `toast()` y las confirmaciones repartidas por los módulos, y el
+     catálogo de habilidades entero.
+
+     Del catálogo se traducen las 47 habilidades Y sus seis categorías, porque
+     las dos cosas se GUARDAN dentro de cada habilidad que se añade desde ahí.
+     La clave interna sigue siendo el nombre español: es lo que compara
+     `yaTengo()` y lo que busca el asistente de bienvenida para dar icono y
+     color. Sin eso, en inglés el catálogo enseñaría «Drawing» como disponible
+     teniendo ya la habilidad puesta, y añadirla la duplicaría.
+  */
+
+  "Aprendizaje": "Learning",
+  "Vida adulta": "Adult life",
+  "Aire libre": "Outdoors",
+  "Añade las que te interese seguir, aunque sea en cero: ver una habilidad sin empezar te recuerda que existe. Las de aquí además se reconocen solas — al escribir un talento o un proyecto se proponen para recibir el XP. Si te falta alguna, créala arriba: esa lo irá aprendiendo del uso.":
+    "Add the ones you care about following, even at zero: seeing a skill you haven't started reminds you it exists. The ones here are also recognised on their own — when you write a talent or a project they offer themselves to receive the XP. If one is missing, create it above: that one will learn from use.",
+  "Quitar todas": "Remove all",
+  "Todas": "All",
+  "Natación": "Swimming",
+  "Ciclismo": "Cycling",
+  "Escalada": "Climbing",
+  "Baile": "Dancing",
+  "Primeros auxilios": "First aid",
+  "Cuidado personal": "Self-care",
+  "Jardinería": "Gardening",
+  "Botánica": "Botany",
+  "Carpintería": "Woodworking",
+  "Reparaciones": "Repairs",
+  "Costura": "Sewing",
+  "Mecánica": "Mechanics",
+  "Electrónica": "Electronics",
+  "Pintura": "Painting",
+  "Fotografía": "Photography",
+  "Caligrafía": "Calligraphy",
+  "Guitarra": "Guitar",
+  "Piano": "Piano",
+  "Canto": "Singing",
+  "Cerámica": "Pottery",
+  "Vídeo": "Video",
+  "Programación": "Programming",
+  "Astronomía": "Astronomy",
+  "Ajedrez": "Chess",
+  "Historia": "History",
+  "Liderazgo": "Leadership",
+  "Barismo": "Coffee making",
+  "Pesca": "Fishing",
+  "Senderismo": "Hiking",
+  "Supervivencia": "Survival",
+  "Buceo": "Diving",
+  "Orientación": "Navigation",
+  "No pude guardar: este navegador se quedó sin espacio. Exporta un respaldo antes de seguir.":
+    "I couldn't save: this browser ran out of space. Export a backup before going on.",
+  "Primero completa el requisito": "Complete the requirement first",
+  "Una compra necesita su importe. Edítala y ponle cuánto costó.":
+    "A purchase needs its amount. Edit it and say what it cost.",
+  "Todas las etapas hechas. Confirma la meta cuando quieras":
+    "All stages done. Confirm the goal whenever you want",
+  "Elige al menos dos talentos": "Pick at least two talents",
+  "Todas las etapas listas — ciérralo cuando quieras":
+    "All stages ready — close it whenever you want",
+  "Escribe el nombre de la etapa": "Type the stage's name",
+  "Deja al menos un módulo encendido": "Leave at least one module on",
+  "Desliza otra vez para salir": "Swipe again to exit",
+  "Modo Editor cerrado · tu tablero quedó guardado": "Editor mode closed · your board is saved",
+  "No hay nada que deshacer en el tablero": "There's nothing to undo on the board",
+  "No hay nada marcado": "Nothing is selected",
+  "No hay nada que deshacer": "There's nothing to undo",
+  "Encargo creado · ábrelo para ponerle nombre":
+    "Assignment created · open it to give it a name",
+  "Listo, modo edición cerrado": "Done, edit mode closed",
+  "Conexión eliminada": "Connection removed",
+  "Un grupo no puede meterse dentro de otro": "A group can't go inside another one",
+  "Esa conexión crearía un bucle": "That connection would create a loop",
+  "Ya estaban conectados": "They were already connected",
+  "Ponle un nombre a la habilidad": "Give the skill a name",
+  "Ponle un nombre al talento": "Give the talent a name",
+  "Una compra necesita su importe: ponle cuánto costó":
+    "A purchase needs its amount: say what it cost",
+  "Escribe qué vas a hacer": "Write what you're going to do",
+  "Elige al menos un día": "Pick at least one day",
+  "Misión actualizada": "Mission updated",
+  "Misión eliminada": "Mission deleted",
+  "Ponle un nombre al encargo": "Give the assignment a name",
+  "Tres es suficiente para empezar": "Three is enough to start",
+  "Saliste del ejemplo. Tus datos están como los dejaste.":
+    "You left the example. Your data is just as you left it.",
+  "Así se ve Norata en uso. Nada de esto se guarda: sal cuando quieras.":
+    "This is Norata in use. None of it is saved: leave whenever you want.",
+  "Misiones de ejemplo cargadas": "Example missions loaded",
+  "Proyectos de ejemplo cargados": "Example projects loaded",
+  "Ese respaldo viene de una versión más nueva de Norata. Actualiza la app aquí antes de importarlo.":
+    "That backup comes from a newer version of Norata. Update the app here before importing it.",
+  "El archivo no es un respaldo válido": "That file isn't a valid backup",
+  "El correo no coincide. No borré nada.": "The email doesn't match. I didn't delete anything.",
+  "Última confirmación: se borrará todo. ¿Seguro?":
+    "Last confirmation: everything will be deleted. Are you sure?",
+  "Esa copia ya no se puede leer": "That copy can't be read any more",
+  "Se borrará esta copia de seguridad. No se puede deshacer.":
+    "This safety copy will be deleted. It can't be undone.",
+  "Listo: tu progreso ya está en {0}": "Done: your progress is now in {0}",
+  "el otro dispositivo": "the other device",
+  "Todo al día": "All up to date",
+  "Sin conexión: se subirá cuando vuelva": "No connection: it'll upload when it's back",
+  "Se borrará la credencial de este dispositivo y tu progreso dejará de subirse. Lo que ya subiste sigue en tu cuenta.":
+    "This device's credential will be deleted and your progress will stop uploading. What you've already uploaded stays in your account.",
+  "Trayendo tu progreso…": "Fetching your progress…",
+  "Se borrará ahora mismo, sin esperar. Esto ya no se puede deshacer.":
+    "It will be deleted right now, without waiting. This can't be undone.",
+  "Guardando solo en este dispositivo": "Saving only on this device",
+  "Errores dados por vistos": "Errors marked as seen",
+  "Sin cuenta: no hay nada que traer": "No account: there's nothing to fetch"
 };

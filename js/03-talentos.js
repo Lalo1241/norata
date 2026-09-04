@@ -98,14 +98,14 @@ async function investPerk(id) {
   if (!p) return;
   const t = metaDe(p);
   const st = perkStatus(p);
-  if (st === "locked") { toast("Primero completa el requisito", "atencion"); return; }
+  if (st === "locked") { toast(tx("Primero completa el requisito"), "atencion"); return; }
   if (st === "active" || st === "completed") return;
 
   /* Una compra sin importe no es una compra. Es la regla que la separa de
      un hito, así que se comprueba antes de dejar seguir en vez de dejar
      pasar un talento que luego no significa lo que dice ser. */
   if (t.pideImporte && !(p.cost > 0)) {
-    toast("Una compra necesita su importe. Edítala y ponle cuánto costó.", "atencion");
+    toast(tx("Una compra necesita su importe. Edítala y ponle cuánto costó."), "atencion");
     return;
   }
 
@@ -138,7 +138,7 @@ async function investPerk(id) {
 async function completeHito(id) {
   const p = state.perks.find(x => x.id === id);
   if (!p || tipoDe(p) !== "hito" || p.status === "completed") return;
-  if (perkStatus(p) === "locked") { toast("Primero completa el requisito", "atencion"); return; }
+  if (perkStatus(p) === "locked") { toast(tx("Primero completa el requisito"), "atencion"); return; }
   if (!await ask(`¿Dar por hecho "${p.name}"?`, "Hecho")) return;
   p.history = p.history || [];
   p.status = "completed";
@@ -259,7 +259,7 @@ function togglePerkStep(perkId, stepId) {
   save();
   renderPerkDetail();
   const ahora = perkProgress(p);
-  if (ahora >= 100 && antes < 100) toast("Todas las etapas hechas. Confirma la meta cuando quieras", "logro");
+  if (ahora >= 100 && antes < 100) toast(tx("Todas las etapas hechas. Confirma la meta cuando quieras"), "logro");
   else toast(`${p.name}: ${ahora}%`, s.done ? "hecho" : "deshecho");
 }
 
@@ -546,7 +546,7 @@ function sacarDeCaja(cajaId, perkId) {
    solo pasa al guardarlo de verdad, desde su propia ventana—. */
 async function crearGrupoCon(ids, branch) {
   const dentro = ids.map(id => state.perks.find(p => p.id === id)).filter(Boolean);
-  if (dentro.length < 2) { toast("Elige al menos dos talentos", "atencion"); return null; }
+  if (dentro.length < 2) { toast(tx("Elige al menos dos talentos"), "atencion"); return null; }
   const yaAgrupado = dentro.filter(p => (state.cajas || []).some(c => c.perkIds.includes(p.id)));
   if (yaAgrupado.length) {
     toast(`${yaAgrupado[0].name} ya está en otro grupo`, "atencion");
