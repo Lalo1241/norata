@@ -915,11 +915,16 @@ function cuentasMenuHTML(pref) {
      único camino por el que la lista llega a existir, y esconderlo hasta que
      haya dos es esconderlo justo de quien todavía tiene una.
 
-     El icono es la puerta porque es literalmente a donde lleva: a `/login/`,
-     que en este código se llama «la puerta» desde 0.7.14. */
-  const anadir = `<button class="${pref}-item" onclick="irAAgregarCuenta()">
-      <span class="${pref}-ic">${icon("puerta", 16)}</span>
-      <span class="${pref}-tx"><b>${tx("Entrar con otra cuenta")}</b><span>${tx("Sin cerrar la de ahora")}</span></span>
+     UNA SOLA LÍNEA, y un más. Llevaba debajo «Sin cerrar la de ahora» y lo
+     quitó Eduardo: los otros renglónes del menú tienen dos líneas porque la de
+     abajo dice algo que no se sabe —qué plan tienes, qué módulos hay puestos—,
+     y aquí no había nada que averiguar: el botón ya se explica entero en su
+     propio nombre. Una aclaración que no aclara solo hace el menú más largo.
+     El más por lo mismo: es el signo de añadir en cualquier sitio, y no hay
+     que leerlo. */
+  const anadir = `<button class="${pref}-item ${pref}-anadir" onclick="irAAgregarCuenta()">
+      <span class="${pref}-ic">${icon("mas", 16)}</span>
+      <span class="${pref}-tx"><b>${tx("Entrar con otra cuenta")}</b></span>
     </button>`;
   return `<div class="menu-cuentas">${cuentasOtras().map(fila).join("")}${anadir}</div>`;
 }

@@ -2205,5 +2205,12 @@ const TEXTOS_EN = {
   "Algo que estás construyendo: una mudanza, un lanzamiento, un trámite largo. Un camino lo trae armado, con <b>los encargos en el orden en que se pueden hacer de verdad</b>.":
     "Something you're building: a move, a launch, a long piece of paperwork. A path brings it ready-made, with <b>the assignments in the order they can actually be done</b>.",
   "Un camino la trae armada: <b>peldaños encadenados</b>, con sus pasos, sus plazos y las misiones que la alimentan. Todos salen de métodos publicados, y lo que entre se edita como cualquier cosa tuya.":
-    "A path brings it ready-made: <b>chained rungs</b>, with their steps, their deadlines and the missions that feed them. They all come from published methods, and whatever lands is edited like anything else of yours."
+    "A path brings it ready-made: <b>chained rungs</b>, with their steps, their deadlines and the missions that feed them. They all come from published methods, and whatever lands is edited like anything else of yours.",
+
+  /* ---- Lo que cambio en la segunda fusion ----
+     «Aqui estas» paso a «Estas aqui» en origin/main mientras esto se fusionaba.
+  */
+
+  "Estás aquí": "You are here",
+  "Añadir otra cuenta": "Add another account"
 };
