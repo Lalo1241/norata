@@ -7024,7 +7024,7 @@
     margin-top: 2px; word-break: break-all;
   }
 
-  /* ---------- Las cuentas guardadas en este aparato ----------
+  /* ---------- Las cuentas guardadas en este dispositivo ----------
      La misma fila en Ajustes y en la puerta, y por eso se apoya en
      `.perfil-ficha` en vez de traer la suya: aquella YA es la fila de «quién
      eres» del panel de la cuenta, y una lista de cuentas son varias de esas.
@@ -7035,7 +7035,7 @@
   }
   .cuentas-lista { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
 
-  /* La fila es la ficha MÁS la salida, una al lado de la otra. El aparato se
+  /* La fila es la ficha MÁS la salida, una al lado de la otra. El dispositivo se
      presta, y un atajo que entra sin escribir contraseña tiene que enseñar
      cómo se deshace sin que haya que ir a buscarlo a un menú. */
   .cuenta-fila { display: flex; align-items: stretch; gap: 8px; }
@@ -7060,6 +7060,29 @@
     border-radius: var(--r-chico);
   }
   .cuenta-quitar:hover { color: var(--coral); background: var(--sup-tarjeta2); }
+
+  /* ---------- Las cuentas dentro de un menú ----------
+     El bloque que va justo debajo de «quién eres», en el menú del engrane y en
+     el índice de Ajustes. La raya de abajo no es adorno: separa «con qué cuenta
+     estoy trabajando» de «qué ajustes hay», que son dos preguntas distintas
+     una encima de la otra. */
+  .menu-cuentas {
+    display: flex; flex-direction: column; gap: 2px;
+    padding-bottom: 8px; margin-bottom: 8px;
+    border-bottom: var(--borde-fino) solid var(--line);
+  }
+  /* El círculo de la cara ocupa el hueco del icono —los dos miden 30— así que
+     los renglónes siguen alineados con los de abajo sin tocar nada más. Y va
+     suelto, sin el envoltorio `.mm-ic`, porque aquel pinta un cuadrado de
+     fondo detrás: con la cara encima se veía un parche de color asomando. */
+  .mm-cuenta .avatar, .aj-cuenta .avatar { flex: none; }
+  /* En el índice de Ajustes los renglónes llevan una flecha al final; estos no
+     van a ninguna sección, así que el hueco de la flecha sobra. */
+  .aj-cuenta { grid-template-columns: none; }
+  .menu-cuentas .aj-item, .menu-cuentas .mm-item { min-width: 0; }
+  .menu-cuentas b, .menu-cuentas span span {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
 
   /* En la puerta la lista va dentro de la caja del formulario, que es
      estrecha: sin esto el correo largo de una cuenta estira la caja entera y

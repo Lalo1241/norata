@@ -36,6 +36,19 @@ async function revisarAdmin() {
     planSimular("");
   }
 
+  /* LA APARIENCIA, ANTES DEL `return` DE ABAJO. Aquí estaba el fallo que
+     Eduardo cazo cambiando de cuenta: esta línea vivía al final de la
+     función, o sea DESPUÉS de `if (!esAdmin) return`, así que para todo el
+     mundo menos para él no se ejecutaba nunca. La única puerta que revisaba
+     si lo que llevas puesto sigue siendo tuyo estaba cerrada para el 100% de
+     las cuentas.
+
+     No se notaba porque el plan y el nivel de una persona no suelen bajar. Al
+     poder cambiar de cuenta en el mismo dispositivo sí bajan de golpe: se
+     entraba con una cuenta Fundador, se cambiaba a una que no lo es, y el
+     mundo de Fundador seguía puesto hasta elegir otro a mano. */
+  if (typeof refrescarApariencia === "function") refrescarApariencia();
+
   if (!esAdmin) return;
 
   /* La cuenta administradora tiene Fundador puesto (ver `PLAN_DE_CASA`), y
@@ -53,11 +66,8 @@ async function revisarAdmin() {
      línea, entrar al ejemplo antes de que el servidor conteste dejaba el
      rótulo hablando hasta la siguiente recarga. */
   if (typeof pintarAvisoEjemplo === "function") pintarAvisoEjemplo();
-  /* Y la apariencia. Al arrancar, el nivel es 0 y el plan es el libre porque el
-     servidor todavía no ha contestado; si la puerta se preguntara solo ahí,
-     quien tiene puesto un ambiente que pide nivel o plan lo perdería en cada
-     apertura. Aquí es donde se sabe la verdad. */
-  if (typeof refrescarApariencia === "function") refrescarApariencia();
+  /* La apariencia se revisa arriba, antes del `return`: la necesita todo el
+     mundo, no solo quien administra. */
 }
 
 /* ---- Piezas de dibujo ----

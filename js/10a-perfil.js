@@ -181,7 +181,7 @@ function avatarPinta(semilla, saludo, correo, tam, extra) {
    que dibuja un círculo, para que no haya una pantalla donde se le olvide.
 
    Solo se pone donde hay sesión: `avatarPinta` se usa además en la portada,
-   que enseña el círculo de quien entró la última vez en este aparato, y ahí
+   que enseña el círculo de quien entró la última vez en este dispositivo, y ahí
    todavía no se sabe qué plan tiene nadie. Prometerle un anillo a alguien
    antes de comprobarlo sería enseñárselo y quitárselo al entrar.
 
@@ -223,7 +223,7 @@ function olvidarUltimo() {
   saveSync();
 }
 
-/* ================= Las cuentas de este aparato =================
+/* ================= Las cuentas de este dispositivo =================
    Con qué cuentas se ha entrado aquí, para poder volver a cualquiera de ellas
    con un toque en vez de con una contraseña. Es la lista de arriba llevada al
    plural: `recordarUltimo` ya guardaba UNA para poder saludarla por su nombre,
@@ -319,8 +319,8 @@ function cuentaFilaHTML(c) {
     '<div class="perfil-quien"><b>' + escapeHtml(saludo || c.correo) + '</b>' +
     (saludo ? '<span>' + escapeHtml(c.correo) + '</span>' : "") +
     '</div></button>' +
-    '<button class="cuenta-quitar" title="Quitar de este aparato" aria-label="Quitar ' +
-    escapeAttr(saludo || c.correo) + ' de este aparato" ' +
+    '<button class="cuenta-quitar" title="Quitar de este dispositivo" aria-label="Quitar ' +
+    escapeAttr(saludo || c.correo) + ' de este dispositivo" ' +
     'onclick="quitarCuentaGuardada(\'' + escapeAttr(c.uid) + '\')">&times;</button>' +
     '</div>';
 }
@@ -333,7 +333,7 @@ function cuentaFilaHTML(c) {
    `sync.dueño` NO se toca, y es lo único delicado de la función: es lo que le
    permite a `adoptarSesion` darse cuenta de que entra otra persona y apartar
    los datos de la anterior antes de bajar los suyos. Ponerlo aquí dejaría los
-   dos progresos mezclados en el mismo aparato. */
+   dos progresos mezclados en el mismo dispositivo. */
 function cuentaPonerSesion(c) {
   sync.tipo = "supabase";
   /* El perfil se normaliza al entrar y no se copia tal cual: `perfilDe` es lo

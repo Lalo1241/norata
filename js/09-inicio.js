@@ -989,7 +989,8 @@ function renderAjustes() {
      y no tiene nada más dentro. Metido en "Mis módulos" o en
      "Almacenamiento" estaría escondido detrás de una puerta que habla de
      otra cosa. */
-  nav.innerHTML = `<div class="tema-hueco">${temaSwitchHTML()}</div>` +
+  nav.innerHTML = (typeof cuentasMenuHTML === "function" ? cuentasMenuHTML("aj") : "") +
+    `<div class="tema-hueco">${temaSwitchHTML()}</div>` +
     seccionesAjustes().map(sec => `
     <button class="aj-item ${ajusteAbierto === sec.id ? "on" : ""} ${sec.tono ? "t-" + sec.tono : ""}"
       onclick="mostrarAjuste('${sec.id}')">
@@ -1162,7 +1163,7 @@ function abrirMenuAjustes(btn) {
      así que si el interruptor viviera solo allí, en el escritorio no habría
      forma de llegar a él. Va al final porque es lo que menos se cambia: lo
      que trae a alguien aquí casi siempre es su cuenta. */
-  m.innerHTML = ficha + `
+  m.innerHTML = ficha + (typeof cuentasMenuHTML === "function" ? cuentasMenuHTML("mm") : "") + `
     ${seccionesAjustes().map(sec => `
       <button class="mm-item ${sec.tono ? "t-" + sec.tono : ""}" onclick="abrirAjustes('${sec.id}')">
         <span class="mm-ic">${icon(sec.icon, 16)}</span>
