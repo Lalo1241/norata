@@ -76,6 +76,52 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.86.5 · 4 sep 2026
+**Los cinco rangos dejan de ser alias de los acentos de la casa.**
+
+Eduardo preguntó si las celebraciones se ven afectadas por los recolores.
+Midiéndolo salieron dos fallos, y el segundo llevaba ahí desde el principio.
+
+**1. Un ambiente movía el color de un rango.** Los cinco iban en `--mint`,
+`--celeste`, `--rosa`, `--astro` y `--coral`, y tres ambientes redeclaran
+`--mint` dentro de la escena — lo hacen a propósito, con un selector más
+específico (`html[data-apariencia="x"] .ncel`), que es como un ambiente llega a
+una escena que por lo demás se queda de noche. Consecuencia: con **Escarcha**
+puesto, Andante valía `#8ecdf5`, **exactamente el mismo color que Rastreador**,
+y los dos aparecen juntos en el estante de medallas. Con **Tinta**, Andante
+salía hueso; con **Marea**, turquesa.
+
+**2. Y dos rangos ya se confundían sin ningún ambiente.** Rastreador (celeste
+`#8ecdf5`) y Cartógrafo (`--astro`, `#cfe2f7`) estaban a **18,4** de distancia
+de color en la casa — los dos son azules claros—; y el `--astro` estaba a
+**16,6 del BLANCO**, que es justo el color de la estrella recién encendida, así
+que en la constelación del cartógrafo no se distinguía cuál acababa de nacer.
+El comentario del código decía que el astro «separaba» rosa de coral; era falso
+y ahora cuenta lo medido.
+
+**La solución: familia propia `--rango-*`, cerrada y verificada.** No son alias
+de nada, ningún ambiente los declara, y se validan como CONJUNTO. Cartógrafo
+pasa de azul pálido a un verde oliva de pergamino (`#bcd977`, `#4f6b12` de
+día), que es además lo que evoca un mapa viejo.
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| Par más cercano, de noche | 18,4 (y 0,0 con Escarcha) | **38,8** |
+| Par más cercano, de día | 30,4 | **30,4** |
+| Peor contraste sobre el cielo | 8,09 | **8,09** |
+| Peor contraste sobre la tarjeta clara | 5,40 | **5,40** |
+| Lo más cerca del blanco | 16,6 (Cartógrafo) | **34,5** (Rastreador) |
+
+Comprobado en los **siete ambientes por los dos modos** —catorce combinaciones—
+y en los tres mundos que renombran rangos: los cinco tonos salen idénticos y
+sin un solo duplicado. La pantalla de Mi expedición sí cambia con el modo
+claro, y ahí toma las cinco parejas de día.
+
+**Lo que NO cambia:** el ambiente sigue tiñendo la escena por donde debe —el
+cielo, el rescoldo del centro y las tarjetas de lo desbloqueado—; lo que deja
+de mover es la identidad de un rango, que se lleva puesta durante meses y no
+puede cambiar de color por probarse un recolor.
+
 ### 0.7.86.4 · 4 sep 2026
 
 **La app estaba rota de verdad, y no era la caché.** Ayer se subió como una
