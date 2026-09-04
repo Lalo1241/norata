@@ -53,7 +53,7 @@ function renderMissions() {
             ? `<span>cumplida el ${formatDate(m.completedAt)}</span>`
             : `${skill ? `<span>${escapeHtml(skill.name)}</span>` : ""}
           ${m.xp ? `<span>+${m.xp} XP</span>` : ""}
-          ${m.cadence === "weekly" ? `<span>${(m.days || []).map(d => DAY_NAMES[d]).join(" ")}</span>` : ""}
+          ${m.cadence === "weekly" ? `<span>${(m.days || []).map(d => letrasDeSemana()[d]).join(" ")}</span>` : ""}
           ${m.cadence === "once" ? `<span>${tx("una vez")}</span>` : ""}`}
           ${espera > 0 ? `<span class="ms-espera">pospuesta ${espera} d</span>` : ""}
           ${costo > 0 ? `<span class="ms-espera">esperó ${costo} d</span>` : ""}
@@ -153,7 +153,7 @@ function renderMissions() {
     stats: statsPanelMisiones({ due }),
     informe: "misiones",
     focus: pending[0]
-      ? { k: "Lo siguiente para hoy", v: pending[0].name, color: "var(--mint)", onclick: `logMission('${pending[0].id}', 1)` }
+      ? { k: tx("Lo siguiente para hoy"), v: pending[0].name, color: "var(--mint)", onclick: `logMission('${pending[0].id}', 1)` }
       : (due.length
         ? { k: "Día completo", v: "Todas las misiones cumplidas", color: "var(--mint)" }
         : { k: "Sin misiones hoy", v: "Crea una o descansa", color: "var(--muted)" })
@@ -283,7 +283,7 @@ function renderProjects() {
   } else if (closing) {
     pFocus = { k: "A punto de cerrarse", v: closing.name, color: "var(--mint)", onclick: `openProject('${closing.id}')`, pct: projectProgress(closing) };
   } else if (live.length) {
-    pFocus = { k: "Siguiente etapa", v: live[0].name, color: "var(--mint)", onclick: `openProject('${live[0].id}')`, pct: projectProgress(live[0]) };
+    pFocus = { k: tx("Siguiente etapa"), v: live[0].name, color: "var(--mint)", onclick: `openProject('${live[0].id}')`, pct: projectProgress(live[0]) };
   } else {
     pFocus = { k: "Nada en marcha", v: "Crea un encargo cuando quieras", color: "var(--muted)" };
   }
@@ -1241,7 +1241,7 @@ function renderTree() {
     const left = daysBetween(todayKey(), soonest.endDate);
     focus = { k: `Vence en ${left} día${left === 1 ? "" : "s"}`, v: soonest.name, color: "var(--fire)", id: soonest.id };
   } else if (readyNow.length) {
-    focus = { k: "Listo para empezar", v: readyNow[0].name, color: "var(--mint)", id: readyNow[0].id };
+    focus = { k: tx("Listo para empezar"), v: readyNow[0].name, color: "var(--mint)", id: readyNow[0].id };
   } else {
     focus = { k: "Sin planes en curso", v: "Abre un talento cuando quieras", color: "var(--muted)", id: null };
   }
@@ -1261,7 +1261,7 @@ function renderTree() {
        fila de abajo, en el informe y en el Resumen—, pero deja de presidir. */
     lead: `<div>
       <div class="label">${tx("Ya son tuyos")}</div>
-      <div class="big"><b>${completed}</b><span> ${completed === 1 ? "talento" : "talentos"}</span></div>
+      <div class="big"><b>${completed}</b><span> ${completed === 1 ? tx("talento") : tx("talentos")}</span></div>
     </div>`,
     /* «Por abrir» era un inventario que no pide nada: dejó sitio al dinero de
        la semana y a lo que se vence, que sí. */
@@ -1302,7 +1302,7 @@ function renderTree() {
           const c = pinta(st === "completed" ? (n.color || "#5fe0b0") : (st === "active" || st === "due" ? "var(--fire)" : "var(--pip)"));
           return `<i style="background:${c}${tipoDe(n) === "hito" ? ";border-radius:999px" : ""}"></i>`;
         }).join("")}${nodes.length > 12 ? `<span style="font-size:11px">+${nodes.length - 12}</span>` : ""}</span>
-        <span>${nodes.length} talento${nodes.length === 1 ? "" : "s"}</span>
+        <span>${nodes.length === 1 ? T`${nodes.length} talento` : T`${nodes.length} talentos`}</span>
       </div>`;
     } else {
       body = `
@@ -1371,7 +1371,7 @@ function renderTree() {
                algo que no querías mover (R8). */
             ...trimestresGuardables(b).map(t => ({
               title: `Guardar el ${tituloTrimestre(t.id)}`,
-              hint: `${t.n} talento${t.n === 1 ? "" : "s"} al ático`,
+              hint: t.n === 1 ? T`${t.n} talento al ático` : T`${t.n} talentos al ático`,
               icon: "caja", onclick: `guardarTrimestre('${bj}','${t.id}')`
             })),
             { title: "Borrar esta rama", hint: reales.length === 0 ? "Está vacía" : (reales.length === 1 ? "Se va también su único talento" : `Se van también sus ${reales.length} talentos`), icon: "bote", danger: true, onclick: `deleteBranch('perks','${bj}')` }

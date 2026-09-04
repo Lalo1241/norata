@@ -1409,7 +1409,15 @@ function activityDaySet() {
 
 /* Dos letras para martes y miércoles: con una sola, "M" y "M" seguidas no
    se distinguen y la semana deja de leerse. */
-const DOW_LETRA = ["D", "L", "Ma", "Mi", "J", "V", "S"];
+/* Dos letras para martes y miércoles porque con una sola son la misma M y
+   la fila de la semana se vuelve ilegible. En inglés el choque es el mismo
+   con T y con S, así que se cortan dos letras en los dos idiomas. */
+function letrasDeSemanaLargas() {
+  return letrasDeSemana().map((l, i) => {
+    const otras = letrasDeSemana();
+    return otras.filter(x => x === l).length > 1 ? nombreDeDia(i) : l;
+  });
+}
 const HITOS_RACHA = [3, 7, 14, 30, 50, 100, 200, 365, 500, 1000];
 
 function streakInfo() {
@@ -1448,7 +1456,7 @@ function streakInfo() {
     else estado = "empty";
     last14.push({
       key: k2, estado, n, hoy: i === 0,
-      letra: DOW_LETRA[weekdayOfKey(k2)],
+      letra: letrasDeSemanaLargas()[weekdayOfKey(k2)],
       dia: Number(k2.slice(8, 10))
     });
   }
@@ -1468,7 +1476,7 @@ function streakInfo() {
     else if (esHoy) estado = "hoy";
     else if (first && k2 >= first) estado = "missed";
     else estado = "empty";                     // antes de que existiera nada
-    semana.push({ key: k2, estado, n, hoy: esHoy, letra: DOW_LETRA[i], dia: Number(k2.slice(8, 10)) });
+    semana.push({ key: k2, estado, n, hoy: esHoy, letra: letrasDeSemanaLargas()[i], dia: Number(k2.slice(8, 10)) });
   }
 
   return { cur, best, last14, semana, activeToday: set.has(t) };

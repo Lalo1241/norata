@@ -518,7 +518,12 @@ function datosDeAhora() {
    más rápida de que alguien lea mal su propio progreso. */
 
 const PANEL_DIAS = 7;
-const CONTRA = "frente a los " + PANEL_DIAS + " días anteriores";
+/* Era `const CONTRA = "frente a los 7 días anteriores"`, y una constante de
+   nivel superior se evalúa UNA vez al cargar el archivo: se quedaba con el
+   idioma que hubiera al arrancar y cambiar de idioma no la movía. Por eso es
+   una función. Es la misma trampa que las tablas de rótulos, y aquí muerde
+   más porque no se ve: el texto está en un `title`. */
+function contra() { return T`frente a los ${PANEL_DIAS} días anteriores`; }
 
 /* Los dos periodos del panel, calculados una vez por dibujo. */
 function ventanasPanel() {
@@ -537,17 +542,17 @@ function statsPanelMisiones(ctx) {
   /* «Récord» y no una flecha: una racha no se compara con la de la semana
      pasada —es la misma cuenta, solo más larga—, se compara con tu mejor. */
   const record = rachas.cur > 0 && rachas.cur >= rachas.best
-    ? `<i class="sh-var mejor" title="Es la racha más larga que has tenido">${tx("récord")}</i>` : "";
+    ? `<i class="sh-var mejor" title="${escapeAttr(tx("Es la racha más larga que has tenido"))}">${tx("récord")}</i>` : "";
 
   return [
-    { n: hoy, t: "Hoy" },
-    { n: m.marcas, t: `Cumplidas · ${PANEL_DIAS} días`, tone: "mint",
-      d: flechaHTML(variacion(m.marcas, p.marcas), `Marcas de misión ${CONTRA}`) },
+    { n: hoy, t: tx("Hoy") },
+    { n: m.marcas, t: T`Cumplidas · ${PANEL_DIAS} días`, tone: "mint",
+      d: flechaHTML(variacion(m.marcas, p.marcas), T`Marcas de misión ${contra()}`) },
     /* Un guion y no un cero cuando no tocaba nada: cero por ciento es haber
        fallado, y no tener nada que hacer no es fallar. */
-    { n: m.constancia === null ? "—" : m.constancia + "%", t: "Constancia",
-      d: flechaHTML(variacion(m.constancia, p.constancia), `Cumplidas de las que tocaban, ${CONTRA}`) },
-    { n: rachas.cur, t: "Racha", d: record }
+    { n: m.constancia === null ? "—" : m.constancia + "%", t: tx("Constancia"),
+      d: flechaHTML(variacion(m.constancia, p.constancia), T`Cumplidas de las que tocaban, ${contra()}`) },
+    { n: rachas.cur, t: tx("Racha"), d: record }
   ];
 }
 
@@ -559,15 +564,15 @@ function statsPanelHabilidades(ctx) {
   const decayendo = D ? D.skills.filter(isDecaying).length : ctx.decaying;
 
   return [
-    { n: cuantas, t: "Habilidades" },
-    { n: fmtXp(m.ganada), t: `XP · ${PANEL_DIAS} días`, tone: "mint",
-      d: flechaHTML(variacion(m.ganada, p.ganada), `XP ganada ${CONTRA}`) },
-    { n: m.niveles, t: "Niveles subidos",
-      d: flechaHTML(variacion(m.niveles, p.niveles), `Niveles subidos ${CONTRA}`) },
+    { n: cuantas, t: tx("Habilidades") },
+    { n: fmtXp(m.ganada), t: T`XP · ${PANEL_DIAS} días`, tone: "mint",
+      d: flechaHTML(variacion(m.ganada, p.ganada), T`XP ganada ${contra()}`) },
+    { n: m.niveles, t: tx("Niveles subidos"),
+      d: flechaHTML(variacion(m.niveles, p.niveles), T`Niveles subidos ${contra()}`) },
     /* Sin flecha a propósito: no es un resultado del periodo, es una alarma
        de ahora mismo. Compararla con la semana pasada invitaría a leerla como
        «voy mejorando» cuando lo único que importa es que hay algo cayéndose. */
-    { n: decayendo, t: "Decayendo", tone: decayendo ? "fire" : "" }
+    { n: decayendo, t: tx("Decayendo"), tone: decayendo ? "fire" : "" }
   ];
 }
 
@@ -579,18 +584,18 @@ function statsPanelTalentos(ctx) {
   const enCurso = D ? D.perks.filter(x => x.status === "active").length : ctx.activeN;
 
   return [
-    { n: enCurso, t: "En curso", tone: enCurso ? "fire" : "" },
-    { n: m.completados, t: `Asegurados · ${PANEL_DIAS} días`, tone: "mint",
-      d: flechaHTML(variacion(m.completados, p.completados), `Talentos asegurados ${CONTRA}`) },
+    { n: enCurso, t: tx("En curso"), tone: enCurso ? "fire" : "" },
+    { n: m.completados, t: T`Asegurados · ${PANEL_DIAS} días`, tone: "mint",
+      d: flechaHTML(variacion(m.completados, p.completados), T`Talentos asegurados ${contra()}`) },
     /* `moneyHTML` y no `money`: aquí el importe se inserta como HTML, así que
        el código de la moneda puede ir en su etiqueta y pintarse más pequeño.
        Con las dos partes al mismo tamaño, «MXN» pesaba como una cifra. */
-    { n: moneyHTML(m.invertido), t: `Invertido · ${PANEL_DIAS} días`,
-      d: flechaHTML(variacion(m.invertido, p.invertido, { dinero: true }), `Invertido ${CONTRA}`) },
+    { n: moneyHTML(m.invertido), t: T`Invertido · ${PANEL_DIAS} días`,
+      d: flechaHTML(variacion(m.invertido, p.invertido, { dinero: true }), T`Invertido ${contra()}`) },
     /* «Por vencer» y no «Vencen esta semana»: medido a 375 px, el rótulo
        largo se partía en TRES renglones y dejaba esa columna más alta que las
        otras tres. Lo que se pierde —el plazo— lo dice el foco de abajo. */
-    { n: vencen, t: "Por vencer", tone: vencen ? "coral" : "" }
+    { n: vencen, t: tx("Por vencer"), tone: vencen ? "coral" : "" }
   ];
 }
 
@@ -602,11 +607,11 @@ function statsPanelProyectos(ctx) {
   const parados = D ? vivos.filter(x => projectHealth(x).key === "stalled") : ctx.stalled;
 
   return [
-    { n: vivos.length, t: "Vivos", tone: "mint" },
-    { n: parados.length, t: "Estancados", tone: parados.length ? "coral" : "" },
-    { n: m.etapas, t: `Etapas · ${PANEL_DIAS} días`,
-      d: flechaHTML(variacion(m.etapas, p.etapas), `Etapas cerradas ${CONTRA}`) },
-    { n: m.terminados, t: `Terminados · ${PANEL_DIAS} días`,
-      d: flechaHTML(variacion(m.terminados, p.terminados), `Encargos terminados ${CONTRA}`) }
+    { n: vivos.length, t: tx("Vivos"), tone: "mint" },
+    { n: parados.length, t: tx("Estancados"), tone: parados.length ? "coral" : "" },
+    { n: m.etapas, t: T`Etapas · ${PANEL_DIAS} días`,
+      d: flechaHTML(variacion(m.etapas, p.etapas), T`Etapas cerradas ${contra()}`) },
+    { n: m.terminados, t: T`Terminados · ${PANEL_DIAS} días`,
+      d: flechaHTML(variacion(m.terminados, p.terminados), T`Encargos terminados ${contra()}`) }
   ];
 }

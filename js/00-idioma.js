@@ -129,6 +129,21 @@ function tieneLetras(t) {
   return !!t && /[A-Za-zà-ÿ]{2}/.test(t);
 }
 
+/* El barrido del DOM NO apunta lo que no encuentra, y esa es la diferencia
+   entre una lista de pendientes que sirve y una que no.
+
+   El barrido mira TODOS los nodos de texto del documento, y ahí dentro hay
+   tres cosas que no son frases de la app: los datos de quien la usa —una
+   habilidad llamada «Dibujo», un proyecto llamado «Portafolio»—, los textos
+   que el propio código ya compuso pasando por `T` —«3 de septiembre»— y los
+   `title` que se arman al vuelo. Contándolos, `faltantesI18n()` devolvía 75
+   pendientes de los que 60 no eran nada: la lista dejaba de decir cuánto falta,
+   que es para lo único que existe.
+
+   Lo que sí cuenta es una llamada explícita desde el código, que es donde de
+   verdad hay una frase de la app esperando su traducción. */
+let _barriendo = false;
+
 function faltantesI18n() {
   const l = Array.from(_faltan).sort();
   console.log(l.length + " frases sin traducir:");
@@ -154,7 +169,7 @@ function tx(txt) {
   if (seco !== txt && typeof d[seco] === "string") {
     return txt.slice(0, txt.indexOf(seco[0])) + d[seco] + txt.slice(txt.indexOf(seco[0]) + seco.length);
   }
-  if (AUDITA_I18N && tieneLetras(seco)) _faltan.add(seco);
+  if (AUDITA_I18N && !_barriendo && tieneLetras(seco)) _faltan.add(seco);
   return txt;
 }
 
@@ -178,7 +193,7 @@ function T(partes, ...valores) {
   const clave = partes.reduce((s, p, i) => s + p + (i < valores.length ? "{" + i + "}" : ""), "");
   const hit = d[clave] || d[clave.trim()];
   if (typeof hit !== "string") {
-    if (AUDITA_I18N && tieneLetras(clave.trim())) _faltan.add(clave.trim());
+    if (AUDITA_I18N && !_barriendo && tieneLetras(clave.trim())) _faltan.add(clave.trim());
     return crudo;
   }
   return hit.replace(/\{(\d+)\}/g, (m, i) => {
@@ -252,6 +267,11 @@ function traducirDOM(raiz) {
   if (!base) return;
   if (IDIOMA === IDIOMA_POR_DEFECTO && !_yaTraducido) return;
   if (IDIOMA !== IDIOMA_POR_DEFECTO) _yaTraducido = true;
+  _barriendo = true;
+  try { _traducirTodo(base); } finally { _barriendo = false; }
+}
+
+function _traducirTodo(base) {
 
   /* Los nodos de texto, uno por uno y no `textContent` del padre: un
      `<p>Elige <b>una</b> opción</p>` son tres nodos y tres frases; pisar el
@@ -349,6 +369,60 @@ function sincronizarIdioma() {
     state.settings.idioma = IDIOMA;
   }
   traducirDOM();
+}
+
+/* ================= Los meses y los días =================
+
+   Estaban escritos a mano en cinco sitios —`MESES` en `10g-informe.js`,
+   `MESES_CORTOS` en `10e-panel.js`, y tres copias distintas de las letras de
+   la semana—, y en español. En inglés eso deja «SEPTIEMBRE 2026» encima del
+   calendario y «D L M M J V S» debajo.
+
+   No se traducen con el diccionario: los da `Intl`, que ya sabe los doce
+   nombres y las siete letras de cualquier idioma. Meter doce entradas por
+   idioma en el diccionario sería copiar a mano algo que el navegador ya trae,
+   y además equivocarse: en inglés los meses van con mayúscula y en español no,
+   y esa clase de detalle es justo lo que `Intl` acierta y una lista no.
+
+   La fecha se construye en UTC y se lee en UTC a propósito. Con la hora local,
+   `new Date(2026, 0, 1)` en una zona al este de Greenwich puede caer en el 31
+   de diciembre y devolver «diciembre» para enero. Aquí no se está fechando
+   nada: solo se está pidiendo un nombre. */
+function nombreDeMes(n, largo) {
+  try {
+    return new Date(Date.UTC(2021, (n - 1) % 12, 1))
+      .toLocaleDateString(localeActual(), { month: largo === false ? "short" : "long", timeZone: "UTC" });
+  } catch (e) { return String(n); }
+}
+
+/* Las siete letras, empezando en domingo —que es como dibuja el calendario de
+   la racha—. El 3 de enero de 2021 fue domingo.
+
+   Se corta a la primera letra a mano y no se pide `weekday: "narrow"` porque
+   en español eso devuelve «L M X J V S D»: la equis del miércoles, que es
+   correcta pero no es la que Norata ha usado siempre. Cortando de «miércoles»
+   sale la M de siempre, y en inglés sale la S T W T F S S que allá es la
+   normal. */
+function letrasDeSemana() {
+  const out = [];
+  for (let i = 0; i < 7; i++) {
+    try {
+      const d = new Date(Date.UTC(2021, 0, 3 + i))
+        .toLocaleDateString(localeActual(), { weekday: "long", timeZone: "UTC" });
+      out.push(d.charAt(0).toUpperCase());
+    } catch (e) { out.push("?"); }
+  }
+  return out;
+}
+
+/* Las dos primeras letras, para cuando una sola no distingue —martes y
+   miércoles en español, Tuesday y Thursday en inglés—. */
+function nombreDeDia(i) {
+  try {
+    const d = new Date(Date.UTC(2021, 0, 3 + i))
+      .toLocaleDateString(localeActual(), { weekday: "long", timeZone: "UTC" });
+    return d.charAt(0).toUpperCase() + d.charAt(1);
+  } catch (e) { return "?"; }
 }
 
 /* ================= Las banderas =================

@@ -902,5 +902,119 @@ const TEXTOS_EN = {
   "Misiones terminadas": "Finished missions",
   "otro tablero": "another board",
   "{0} vuelve al menú": "{0} is back in the menu",
-  "Oculto · puedes traerlo de vuelta aquí": "Hidden · you can bring it back here"
+  "Oculto · puedes traerlo de vuelta aquí": "Hidden · you can bring it back here",
+
+  /* ================= Tanda 4: lo que lleva números dentro =================
+     La tarjeta de la racha, el calendario y las fechas de los informes.
+
+     Los MESES y las LETRAS DE LA SEMANA no están aquí, y es a propósito: los
+     da `Intl` desde `nombreDeMes()` y `letrasDeSemana()` (js/00-idioma.js).
+     Había cinco listas escritas a mano en cinco archivos, las cinco en
+     español. Copiarlas al diccionario sería repetir a mano lo que el
+     navegador ya trae —y equivocarse: en inglés los meses llevan mayúscula
+     inicial y en español no.
+
+     Y aquí salió la trampa de este motor: **una clave que sirve para dos
+     frases distintas traduce mal una de las dos, siempre.** «{0} de {1}»
+     valía a la vez para «3 de septiembre» y para «Septiembre de 2026», que en
+     inglés son «September 3» y «September 2026» — nada que ver. Se separan
+     escribiendo en el código lo que cada una es de verdad («El mes de {0} de
+     {1}»), no buscando una traducción que sirva para las dos. */
+
+  "Hoy ya cuenta.": "Today already counts.",
+  "Hoy todavía no cuenta. Cualquier registro la mantiene viva.":
+    "Today doesn't count yet. Any entry keeps it alive.",
+  "Cualquier registro de hoy la echa a andar.": "Any entry today gets it going.",
+  "día<br>de racha": "day<br>streak",
+  "días<br>de racha": "day<br>streak",
+  "en {0}": "in {0}",
+  "{0} de {1}": "{1} {0}",
+  ": {0} registro": ": {0} entry",
+  ": {0} registros": ": {0} entries",
+  "{0} de {1}:": "{1} {0}:",
+  "{0} marca": "{0} check-in",
+  "{0} marcas": "{0} check-ins",
+  "nada": "nothing",
+  "hoy": "today",
+  "día {0} de {1}": "{1} {0}",
+  "· día {0} de {1}": "· {1} {0}",
+  "El mes de {0} de {1}": "{0} {1}",
+  "Del {0} al {1} de {2}": "{2} {0}–{1}",
+  "Del {0} de {1} al {2} de {3}": "{1} {0} – {3} {2}",
+  "de los {0} días que llevas de {1}": "of the {0} days so far in {1}",
+
+  /* ---- Los nombres de las tarjetas del tablero, y las cifras con su frase ----
+     Los nombres viven en `DASH_META`, que es otra tabla: se traducen donde se
+     dibujan —en la tarjeta, en los dos botones de encima, en la bandeja del
+     Modo Editor y en el aviso de deshacer—, que son cinco sitios y el mismo
+     nombre. */
+
+  "niveles en {0} habilidad": "levels across {0} skill",
+  "niveles en {0} habilidades": "levels across {0} skills",
+  "XP ganada frente a los 7 días anteriores": "XP earned compared with the previous 7 days",
+  "A {0} XP del nivel {1}": "{0} XP from level {1}",
+  "PUNTOS PARA EL {0}": "POINTS TO {0}",
+  "En el siguiente nivel": "At the next level",
+  "A {0} niveles": "{0} levels away",
+  " · con Pro": " · with Pro",
+  "talento ya es tuyo": "talent is already yours",
+  "talentos ya son tuyos": "talents are already yours",
+  "Quitar {0}": "Remove {0}",
+  "Cambiar tamaño de {0}": "Resize {0}",
+  "{0} quitado del tablero": "{0} removed from the board",
+  "Próximo hito · {0} días": "Next milestone · {0} days",
+  "Te falta un nivel": "One level to go",
+  "Te faltan {0} niveles": "{0} levels to go",
+  "{0} pendiente": "{0} left",
+  "{0} pendientes": "{0} left",
+  "Todas cumplidas": "All done",
+  "Nivel {0} · {1} · {2}% del nivel": "Level {0} · {1} · {2}% of the level",
+  "Nivel {0}, rango {1}": "Level {0}, {1} rank",
+  "Te falta 1 día": "1 day to go",
+  "Te faltan {0} días": "{0} days to go",
+  "Niveles": "Levels",
+  "Expedición": "Journey",
+
+  /* ---- La tira de cifras de arriba de cada módulo ----
+     Cuatro columnas por pantalla, y es lo primero que se ve al entrar. Los
+     rótulos los arman los cuatro `statsPanel*` de `js/10f-informes.js`.
+
+     Ahí vivía la trampa más escondida de todo esto: `CONTRA` —el texto de los
+     `title` de las flechas— era una CONSTANTE de nivel superior, o sea que se
+     evaluaba una sola vez al cargar el archivo y se quedaba con el idioma de
+     arranque para siempre. Cambiar de idioma no la movía, y no se veía: el
+     texto está dentro de un `title`. Ahora es una función. */
+
+  "frente a los {0} días anteriores": "compared with the previous {0} days",
+  "Hoy": "Today",
+  "Cumplidas · {0} días": "Completed · {0} days",
+  "Marcas de misión {0}": "Mission check-ins {0}",
+  "Cumplidas de las que tocaban, {0}": "Completed out of those due, {0}",
+  "XP · {0} días": "XP · {0} days",
+  "XP ganada {0}": "XP earned {0}",
+  "Niveles subidos {0}": "Levels gained {0}",
+  "Decayendo": "Decaying",
+  "En curso": "In progress",
+  "Asegurados · {0} días": "Secured · {0} days",
+  "Talentos asegurados {0}": "Talents secured {0}",
+  "Invertido · {0} días": "Invested · {0} days",
+  "Invertido {0}": "Invested {0}",
+  "Por vencer": "Running out",
+  "Vivos": "Alive",
+  "Estancados": "Stalled",
+  "Etapas · {0} días": "Stages · {0} days",
+  "Etapas cerradas {0}": "Stages closed {0}",
+  "Terminados · {0} días": "Finished · {0} days",
+  "Encargos terminados {0}": "Assignments finished {0}",
+  "Es la racha más larga que has tenido": "It's the longest streak you've had",
+  /* El foco: la única fila que dice qué tocar ahora, debajo de las cifras. */
+  "Lo siguiente para hoy": "Next up today",
+  "Siguiente etapa": "Next stage",
+  "Listo para empezar": "Ready to start",
+  "talento": "talent",
+  "talentos": "talents",
+  "{0} talento": "{0} talent",
+  "{0} talentos": "{0} talents",
+  "{0} talento al ático": "{0} talent in the attic",
+  "{0} talentos al ático": "{0} talents in the attic"
 };

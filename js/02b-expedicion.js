@@ -496,8 +496,8 @@ function insigniaExpedicionHTML(diam) {
   const col = "var(" + (r.color || "--mint") + ")";
 
   return '<span class="exp-insignia" style="width:' + d + 'px;height:' + d + 'px;color:' + col + '"' +
-    ' title="Nivel ' + info.nivel + ' · ' + r.nombre + ' · ' + info.pct + '% del nivel"' +
-    ' aria-label="Nivel ' + info.nivel + ', rango ' + r.nombre + '">' +
+    ' title="' + escapeAttr(T`Nivel ${info.nivel} · ${r.nombre} · ${info.pct}% del nivel`) + '"' +
+    ' aria-label="' + escapeAttr(T`Nivel ${info.nivel}, rango ${r.nombre}`) + '">' +
     ring(d, grosor, [{ pct: info.pct / 100, color: col }], "var(--carril)") +
     /* Un rango de la casa nombra un icono de ICONS; uno de mundo trae su
        trazo entero, porque sus dibujos viajan con el mundo y no con la app —
