@@ -70,10 +70,10 @@ function saludoDe(nombre, apodo) {
 /* Arma el trío listo para guardar. Se llama tanto al registrarse como al
    editarlo en Ajustes, para que el `saludo` no pueda quedarse desfasado
    respecto de los otros dos. */
-function armarPerfil(nombre, apodo) {
+function armarPerfil(nombre, apodo, color) {
   const n = limpiarNombre(nombre, NOMBRE_MAX);
   const a = limpiarNombre(apodo, APODO_MAX);
-  return { nombre: n, apodo: a, saludo: saludoDe(n, a) };
+  return { nombre: n, apodo: a, saludo: saludoDe(n, a), color: colorValido(color) };
 }
 
 /* Lee lo que Supabase devuelve pegado a la cuenta.
@@ -97,6 +97,11 @@ function perfilDe(meta) {
     nombre: nombre,
     apodo: apodo,
     saludo: guardado || saludoDe(nombre, apodo),
+    /* El color viaja con la cuenta y no con el dispositivo, igual que el
+       nombre: es parte de quién eres, y verse de un color en la computadora
+       y de otro en el teléfono sería peor que no poder elegirlo. Vacío
+       significa «el de siempre», o sea el que sale del identificador. */
+    color: colorValido(m.color),
     deducido: !guardado
   };
 }
@@ -132,25 +137,47 @@ function coma(nombre) {
 /* Colores elegidos para que la letra oscura de encima se lea en todos: la
    paleta de la app más cuatro tonos que la separan sin salirse de ella.
    Ninguno es tan pálido como para desaparecer sobre la tarjeta clara del
-   correo, ni tan oscuro como para tragarse la letra. */
+   correo, ni tan oscuro como para tragarse la letra.
+
+   Con su nombre desde que se pueden elegir: el selector es una fila de ocho
+   círculos y sin `aria-label` un lector de pantalla anunciaría ocho botones
+   vacíos, o sea ninguna forma de elegir. */
 const AVATAR_COLORES = [
-  "#5fe0b0",  // menta
-  "#f5d76e",  // amarillo luciérnaga
-  "#ff8a70",  // coral
-  "#8ecdf5",  // cielo
-  "#c9a7f0",  // violeta
-  "#a8e06a",  // lima
-  "#f79ec0",  // rosa
-  "#f0b978"   // ámbar
+  { hex: "#5fe0b0", nombre: "menta" },
+  { hex: "#f5d76e", nombre: "amarillo" },
+  { hex: "#ff8a70", nombre: "coral" },
+  { hex: "#8ecdf5", nombre: "cielo" },
+  { hex: "#c9a7f0", nombre: "violeta" },
+  { hex: "#a8e06a", nombre: "lima" },
+  { hex: "#f79ec0", nombre: "rosa" },
+  { hex: "#f0b978", nombre: "ámbar" }
 ];
 
+/* ¿Es uno de los ocho? Se comprueba en vez de confiar, y no es paranoia de
+   manual: este valor viaja dentro del perfil, o sea que llega del servidor y
+   acaba metido en un `style=`. Validarlo contra la lista es lo que impide que
+   ahí termine algo que no es un color. Devuelve "" si no vale, que es
+   exactamente lo que hace volver al color de siempre. */
+function colorValido(c) {
+  const h = String(c || "").trim().toLowerCase();
+  return AVATAR_COLORES.some(x => x.hex === h) ? h : "";
+}
+
 /* Suma de letras y resto: no hace falta nada mejor. Solo tiene que repartir
-   ocho colores de forma estable, no resistirse a nadie. */
-function avatarColor(semilla) {
+   ocho colores de forma estable, no resistirse a nadie.
+
+   Y manda el elegido si lo hay. El sorteo reparte bien pero no puede prometer
+   que dos cuentas del mismo dispositivo salgan distintas —con ocho colores,
+   dos personas coinciden más a menudo de lo que parece—, y ese es justo el
+   momento en que el círculo tiene que hacer su trabajo. Lo cazó Eduardo con
+   sus dos cuentas en rosa, una encima de la otra. */
+function avatarColor(semilla, elegido) {
+  const suyo = colorValido(elegido);
+  if (suyo) return suyo;
   const s = String(semilla || "");
   let n = 0;
   for (let i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) % 100000;
-  return AVATAR_COLORES[n % AVATAR_COLORES.length];
+  return AVATAR_COLORES[n % AVATAR_COLORES.length].hex;
 }
 
 /* La letra. Del saludo si lo hay y, si no, del correo — que siempre existe, y
@@ -168,11 +195,11 @@ function avatarInicial(saludo, correo) {
    Los datos se pasan sueltos en vez de leerse de la sesión porque hay un
    sitio donde todavía no hay sesión: la pantalla de entrada, que enseña el
    círculo de quien entró la última vez en este dispositivo. */
-function avatarPinta(semilla, saludo, correo, tam, extra) {
+function avatarPinta(semilla, saludo, correo, tam, extra, color) {
   const d = tam || 44;
   return '<span class="avatar' + (extra ? " " + extra : "") + '" aria-hidden="true" style="' +
     'width:' + d + 'px;height:' + d + 'px;font-size:' + Math.round(d * 0.42) + 'px;' +
-    'background:' + avatarColor(semilla || correo) + '">' +
+    'background:' + avatarColor(semilla || correo, color) + '">' +
     escapeHtml(avatarInicial(saludo, correo)) + '</span>';
 }
 
@@ -192,7 +219,59 @@ function avatarHTML(tam) {
   const cfg = sync.cfg || {};
   const fundador = typeof planNivel === "function" && planNivel() === "fundador";
   return avatarPinta((cfg.sesion || {}).uid, perfilActual().saludo, cfg.correo, tam,
-    fundador ? "es-fundador" : "");
+    fundador ? "es-fundador" : "", perfilActual().color);
+}
+
+
+/* ---- Elegir tu color ----
+   Ocho círculos y nada más. Existe porque el sorteo por identificador no puede
+   prometer que dos cuentas del mismo dispositivo salgan distintas, y ahí es
+   justo donde el círculo tiene que servir para algo: Eduardo vio sus dos
+   cuentas en rosa, una debajo de la otra, y las dos decían «Eduardo».
+
+   Se guarda al tocarlo, sin botón de confirmar. Es una decisión de un golpe y
+   reversible en otro, y el resultado se ve en el mismo instante en la ficha de
+   arriba — pedir además un «guardar» sería preguntar dos veces lo mismo. */
+function selectorColorHTML() {
+  const puesto = perfilActual().color;
+  const uid = ((sync.cfg || {}).sesion || {}).uid || "";
+  /* El primero es «el de siempre»: el que sale del identificador. Sin esa
+     casilla, quien probara un color no tendría forma de volver a como estaba
+     salvo adivinando cuál era. */
+  const dedefecto = `<button class="color-op${puesto ? "" : " on"}" onclick="perfilColor('')"
+      style="background:${avatarColor(uid)}" title="${escapeAttr(tx("El de siempre"))}"
+      aria-label="${escapeAttr(tx("El color de siempre"))}"${puesto ? "" : ' aria-current="true"'}></button>`;
+  const resto = AVATAR_COLORES.map(c => `<button class="color-op${puesto === c.hex ? " on" : ""}"
+      onclick="perfilColor('${c.hex}')" style="background:${c.hex}"
+      title="${escapeAttr(tx(c.nombre))}" aria-label="${escapeAttr(tx("Color") + " " + tx(c.nombre))}"${
+      puesto === c.hex ? ' aria-current="true"' : ""}></button>`).join("");
+  return `<div class="field"><span class="lbl">${tx("Tu color")}</span>
+    <div class="color-fila">${dedefecto}${resto}</div>
+    <div class="field-hint">${tx("Es el círculo con tu inicial. Ponles colores distintos a tus cuentas y se distinguen de un vistazo.")}</div>
+  </div>`;
+}
+
+/* Guarda el color. Lee también los dos campos de texto por el mismo motivo de
+   siempre: el guardado reemplaza el perfil entero, así que mandar solo el
+   color borraría el nombre y el apodo. */
+async function perfilColor(hex) {
+  const antes = perfilActual();
+  if ((antes.color || "") === (hex || "")) return;
+  const n = document.getElementById("perfil-nombre");
+  const a = document.getElementById("perfil-apodo");
+  const nombre = n ? n.value : antes.nombre;
+  const apodo = a ? a.value : antes.apodo;
+  try {
+    await guardarPerfil(nombre, apodo, hex);
+    /* La cuenta guardada de este dispositivo también, para que su fila de la
+       lista cambie de color ya y no en la próxima entrada. */
+    if (typeof cuentaApuntar === "function") cuentaApuntar();
+    renderSync();
+    if (typeof renderAjustes === "function") renderAjustes();
+  } catch (e) {
+    toast((e && e.message) || String(e));
+    renderSync();
+  }
 }
 
 /* ================= Quién entró la última vez =================
@@ -213,6 +292,7 @@ function recordarUltimo() {
   sync.ultimoSaludo = s;
   sync.ultimoCorreo = cfg.correo;
   sync.ultimoUid = (cfg.sesion || {}).uid || "";
+  sync.ultimoColor = ((cfg.perfil) || {}).color || "";
   saveSync();
 }
 
@@ -220,6 +300,7 @@ function olvidarUltimo() {
   delete sync.ultimoSaludo;
   delete sync.ultimoCorreo;
   delete sync.ultimoUid;
+  delete sync.ultimoColor;
   saveSync();
 }
 
@@ -315,7 +396,7 @@ function cuentaFilaHTML(c) {
   const saludo = cuentaSaludo(c);
   return '<div class="cuenta-fila">' +
     '<button class="perfil-ficha" onclick="entrarConCuentaGuardada(\'' + escapeAttr(c.uid) + '\')">' +
-    avatarPinta(c.uid, saludo, c.correo, 40) +
+    avatarPinta(c.uid, saludo, c.correo, 40, "", (c.perfil || {}).color) +
     '<div class="perfil-quien"><b>' + escapeHtml(saludo || c.correo) + '</b>' +
     (saludo ? '<span>' + escapeHtml(c.correo) + '</span>' : "") +
     '</div></button>' +
@@ -387,8 +468,8 @@ async function avisarBienvenida() {
    sincronía y no tiene revisiones ni conflictos: es una llamada y ya está.
    Al volver se refresca lo que hay en memoria, para que el resto de la app no
    tenga que acordarse de hacerlo. */
-async function guardarPerfil(nombre, apodo) {
-  const p = armarPerfil(nombre, apodo);
+async function guardarPerfil(nombre, apodo, color) {
+  const p = armarPerfil(nombre, apodo, color);
   await sbGuardarPerfil(p);
   sync.cfg.perfil = p;
   sync.ultimoSaludo = p.saludo;

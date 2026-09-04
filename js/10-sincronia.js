@@ -431,6 +431,7 @@ function renderSync() {
       '<input type="text" id="perfil-apodo" maxlength="' + APODO_MAX + '" autocomplete="nickname"' +
       ' value="' + escapeAttr(p.apodo) + '" onchange="perfilGuardarAqui()">' +
       '<div class="field-hint">' + T`Es lo que usaremos al saludarte, aquí y en los correos. Hasta ${APODO_MAX} letras.` + '</div></label>' +
+      selectorColorHTML() +
       '<label class="field"><span>' + tx("Nombre de este dispositivo") + '</span>' +
       '<input type="text" id="sync-device" value="' + escapeAttr(sync.device) + '" onchange="syncRenameDevice(this.value)">' +
       '<div class="field-hint">' + tx("Aparece cuando dos dispositivos cambian lo mismo y hay que elegir.") + '</div></label>' +
@@ -476,10 +477,13 @@ async function perfilGuardarAqui() {
   const a = document.getElementById("perfil-apodo");
   if (!n || !a) return;
   const antes = perfilActual();
-  const quiere = armarPerfil(n.value, a.value);
+  const quiere = armarPerfil(n.value, a.value, antes.color);
   if (quiere.nombre === antes.nombre && quiere.apodo === antes.apodo) return;
   try {
-    await guardarPerfil(n.value, a.value);
+    /* Con el color de ahora, aunque aquí no se toque: guardar reemplaza el
+       perfil entero, así que mandar solo los dos campos de texto lo borraría.
+       Es la misma trampa que ya tenía el apodo. */
+    await guardarPerfil(n.value, a.value, antes.color);
     renderSync();
     /* Se avisa por el saludo y no por el nombre: es el que se va a ver, y
        enseñarlo aquí es la única forma de comprobar que el apodo hizo lo que
