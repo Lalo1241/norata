@@ -76,6 +76,48 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.86 · 3 sep 2026
+
+**Ya se elige el color de tu círculo.** El círculo con tu inicial sacaba su
+color de un sorteo estable a partir del identificador de la cuenta, y con ocho
+colores dos cuentas coinciden más a menudo de lo que parece. Eduardo vio las
+suyas **las dos en rosa, una debajo de la otra, y las dos diciendo «Eduardo»**
+— que es justo el momento en que el círculo tenía que servir para algo. Un
+sorteo no puede prometer que salgan distintas, así que ahora se elige.
+
+Nueve casillas en **Mi perfil**, debajo del apodo: «el de siempre» —el que sale
+del identificador, para poder volver sin adivinar cuál era— y los ocho. Se
+guarda al tocarlo, sin botón de confirmar: es una decisión de un golpe,
+reversible en otro, y el resultado se ve en el mismo instante en la ficha de
+arriba. Pedir además un «guardar» sería preguntar dos veces lo mismo.
+
+Tres cosas de cómo está hecho:
+
+- **El color viaja con la cuenta, no con el dispositivo.** Va dentro del perfil,
+  al lado del nombre y el apodo, porque es parte de quién eres: verse de un
+  color en la computadora y de otro en el teléfono sería peor que no poder
+  elegirlo. Por eso lo respetan también la fila de la lista de cuentas y el
+  saludo de la puerta.
+- **Se valida contra la lista**, y no es paranoia de manual: ese valor llega del
+  servidor y acaba metido en un `style=`. `colorValido()` devuelve vacío a
+  cualquier cosa que no sea uno de los ocho, que es exactamente lo que hace
+  volver al color de siempre.
+- **Los tres sitios que guardan el perfil pasan el color.** El guardado
+  reemplaza el perfil entero, así que mandar solo lo que cambió borra el resto
+  — la misma trampa que ya tenía el apodo, ahora con un campo más. Medido en
+  las dos direcciones: cambiar el nombre no borra el color, y elegir color no
+  borra un apodo recién escrito.
+
+**Y los dos «aparato» que quedaban**, en el panel de números. Había que cambiar
+la frase **y su clave** en `js/00b-textos-en.js` a la vez: `tx()` busca por la
+frase en español, así que tocar solo una de las dos deja el inglés sin
+encontrarla y esa línea vuelve a salir en español, callando. Ya no queda
+ningún texto visible con esa palabra en toda la app.
+
+Medido: las nueve casillas en una fila a 412 px —con 30 y separación de 10 se
+caía la novena a un segundo renglón, que se lee como si sobrara— y en dos a
+320 sin desbordar, con objetivo de dedo de 42 px sobre círculos de 28.
+
 ### 0.7.85 · 3 sep 2026
 
 **El botón de crear una rama abre un cajón con diez caminos ya armados.**
