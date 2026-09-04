@@ -295,7 +295,7 @@ function portadaPintar(modo) {
            <button class="portada-volver" onclick="volverDeAgregar()" aria-label="Volver a mi cuenta">←</button>
            <h2>Entrar con otra cuenta</h2>
          </div>
-         <p class="portada-lema">La cuenta en la que estás ahora se queda guardada en este aparato: podrás volver a ella con un toque.</p>`
+         <p class="portada-lema">La cuenta en la que estás ahora se queda guardada en este dispositivo: podrás volver a ella con un toque.</p>`
       : vuelve
       ? `<div class="portada-vuelve">
            ${avatarPinta(sync.ultimoUid, sync.ultimoSaludo, sync.ultimoCorreo, 56)}
@@ -712,7 +712,7 @@ async function adoptarSesion(mensaje) {
   quizaTutorialDeEntrada();
 }
 
-/* ---- Cambiar a una cuenta que ya entró en este aparato ----
+/* ---- Cambiar a una cuenta que ya entró en este dispositivo ----
 
    La misma función sirve en los dos lados, y esa es la idea: en la puerta hay
    una lista de con qué cuentas se puede entrar, y dentro de la app hay otra
@@ -728,7 +728,7 @@ async function entrarConCuentaGuardada(uid) {
   /* Puede no estar: la lista se toca desde dos pantallas y desde otra pestaña
      del mismo navegador, y la que se está mirando pudo quedarse vieja. */
   if (!c) {
-    toast("Esa cuenta ya no está guardada en este aparato.");
+    toast("Esa cuenta ya no está guardada en este dispositivo.");
     if (enLaPuerta()) portadaPintar("entrar"); else renderSync();
     return;
   }
@@ -737,7 +737,7 @@ async function entrarConCuentaGuardada(uid) {
   /* PRIMERO SUBIR LO QUE FALTE, y esto no es una cortesía: es la condición
      para que el atajo pueda existir.
 
-     Cambiar de cuenta aparta los datos de este aparato y baja los de la otra
+     Cambiar de cuenta aparta los datos de este dispositivo y baja los de la otra
      (`adoptarSesion`). Lo que no se hubiera subido todavía queda solo en una
      copia de conflicto, que hay que ir a rescatar a mano desde Ajustes.
      Mientras cambiar costaba una contraseña eso casi no pasaba; con un toque
@@ -763,7 +763,7 @@ async function entrarConCuentaGuardada(uid) {
 
      El token de refresco no caduca por reloj: se lo lleva por delante cambiar
      la contraseña o pedir «cerrar las otras sesiones», y eso puede haber
-     pasado desde otro aparato. Sin preguntarlo, la app entraba igual y se
+     pasado desde otro dispositivo. Sin preguntarlo, la app entraba igual y se
      quedaba dentro de una cuenta que no podía sincronizar nada. */
   cargaMostrar("Entrando" + coma(saludo) + "…");
   const viva = await sbRevivir(c.sesion.refresh);
@@ -796,16 +796,16 @@ async function entrarConCuentaGuardada(uid) {
 }
 
 /* Quitar una cuenta de la lista. Es la otra mitad de guardarla, y tiene que
-   estar a la vista: un aparato se presta, y el atajo de entrar sin contraseña
+   estar a la vista: un dispositivo se presta, y el atajo de entrar sin contraseña
    necesita una forma evidente de deshacerse. */
 async function quitarCuentaGuardada(uid) {
   const c = cuentasLeer().filter(x => x.uid === uid)[0];
   if (!c) return;
   const quien = cuentaSaludo(c) || c.correo;
-  if (!await ask("Se quita " + quien + " de este aparato. Su progreso sigue entero en su cuenta; para volver a entrar habrá que escribir la contraseña.", "Quitar")) return;
+  if (!await ask("Se quita " + quien + " de este dispositivo. Su progreso sigue entero en su cuenta; para volver a entrar habrá que escribir la contraseña.", "Quitar")) return;
   cuentaOlvidar(uid);
   if (enLaPuerta()) portadaPintar("entrar"); else renderSync();
-  toast("Quitada de este aparato", "calma");
+  toast("Quitada de este dispositivo", "calma");
 }
 
 /* ---- Añadir una cuenta sin salirse de la que hay ----
@@ -849,7 +849,7 @@ async function irAAgregarCuenta() {
 /* La salida de ese modo, para quien llegó a la puerta y se arrepintió. Sin
    esto la única vuelta sería el botón de atrás del navegador, y «probar sin
    cuenta» —que es lo que hay ahí abajo— haría algo bastante peor: dejar el
-   aparato marcado como "sin cuenta" teniendo una sesión abierta. */
+   dispositivo marcado como "sin cuenta" teniendo una sesión abierta. */
 function volverDeAgregar() {
   try { sessionStorage.removeItem("norata-agregar"); } catch (e) {}
   cargaMostrar("Volviendo…");
@@ -864,6 +864,43 @@ function cuentasListaHTML() {
   return '<div class="cuentas-lista">' + otras.map(cuentaFilaHTML).join("") + '</div>';
 }
 
+/* Las cuentas guardadas, en forma de renglón de menú. Este es el atajo de
+   verdad: la lista de Ajustes → Mi perfil está bien para administrar —quitar
+   una, leer los correos enteros—, pero para CAMBIAR quedaba a cuatro toques y
+   detrás de dos puertas. Lo dijo Eduardo con el menú de Google delante: la
+   cuenta se cambia desde donde ya se ve quién eres, y de un toque.
+
+   Sale en los dos sitios donde la app ya contesta «¿en qué cuenta estoy?»: el
+   menú del engrane en la computadora y el índice de Ajustes en el teléfono.
+   `pref` es lo único que cambia entre los dos —`mm` o `aj`— porque los dos
+   renglónes tienen la misma forma: un hueco para el icono y dos líneas de
+   texto. Con dos funciones, una se habría quedado atrás a la primera.
+
+   Aquí NO va la × de quitar, a propósito: en un menú corto, un botón de borrar
+   pegado a uno de entrar es un accidente esperando. Quitar sigue en Mi perfil,
+   que es donde se administra. */
+function cuentasMenuHTML(pref) {
+  if (!syncReady()) return "";
+  const fila = c => {
+    const s = cuentaSaludo(c);
+    return `<button class="${pref}-item ${pref}-cuenta" onclick="entrarConCuentaGuardada('${escapeAttr(c.uid)}')">
+      ${avatarPinta(c.uid, s, c.correo, 30)}
+      <span class="${pref}-tx"><b>${escapeHtml(s || c.correo)}</b>${s ? `<span>${escapeHtml(c.correo)}</span>` : ""}</span>
+    </button>`;
+  };
+  /* El renglón de añadir va SIEMPRE, aunque no haya ninguna guardada: es el
+     único camino por el que la lista llega a existir, y esconderlo hasta que
+     haya dos es esconderlo justo de quien todavía tiene una.
+
+     El icono es la puerta porque es literalmente a donde lleva: a `/login/`,
+     que en este código se llama «la puerta» desde 0.7.14. */
+  const anadir = `<button class="${pref}-item" onclick="irAAgregarCuenta()">
+      <span class="${pref}-ic">${icon("puerta", 16)}</span>
+      <span class="${pref}-tx"><b>Entrar con otra cuenta</b><span>Sin cerrar la de ahora</span></span>
+    </button>`;
+  return `<div class="menu-cuentas">${cuentasOtras().map(fila).join("")}${anadir}</div>`;
+}
+
 /* La misma lista con su rótulo, para el panel de la cuenta en Ajustes. Sin
    ninguna otra cuenta guardada no se pinta nada: un apartado que solo dice que
    está vacío es ruido para quien tiene una sola cuenta, que es casi todo el
@@ -872,7 +909,7 @@ function cuentasListaHTML() {
 function cuentasSeccionHTML() {
   const lista = cuentasListaHTML();
   if (!lista) return "";
-  return '<p class="cuentas-tit">Cambiar a otra cuenta de este aparato</p>' + lista;
+  return '<p class="cuentas-tit">Cambiar a otra cuenta de este dispositivo</p>' + lista;
 }
 
 /* ---- La cuenta está esperando a borrarse ----

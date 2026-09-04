@@ -161,7 +161,7 @@ motivo puesto: tiene dos cuentas, la de pruebas y la de verdad, y **la de verdad
 no la usaba** porque volver a ella costaba cuatro pasos —Ajustes, cerrar sesión,
 la puerta, teclear— y siempre acababa dándole pereza.
 
-Ahora las cuentas con las que ya se entró en este aparato se quedan en una
+Ahora las cuentas con las que ya se entró en este dispositivo se quedan en una
 lista y se cambia tocándolas. Sale en dos sitios, que son los dos momentos en
 que hace falta: **en Ajustes**, para cambiarse sin salir, y **en la puerta**,
 arriba del formulario, para entrar.
@@ -175,7 +175,7 @@ puerta sin cerrar la que hay; sin ese camino la lista nunca pasaría de una.
 Dos cosas que no se ven y son la mitad del trabajo:
 
 - **Antes de cambiar se sube lo que falte, y si no se puede NO se cambia.** El
-  relevo aparta los datos de este aparato y baja los de la otra cuenta; lo que
+  relevo aparta los datos de este dispositivo y baja los de la otra cuenta; lo que
   no hubiera subido quedaría solo en una copia de conflicto, que hay que ir a
   rescatar a mano desde Ajustes. Mientras cambiar costaba una contraseña eso
   casi no pasaba; con un toque iba a pasar seguido.

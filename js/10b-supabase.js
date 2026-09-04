@@ -266,7 +266,7 @@ async function sbToken() {
   if (!nueva.uid) nueva.uid = s.uid;   // el refresco no siempre repite el usuario
   sync.cfg.sesion = nueva;
   saveSync();
-  /* Y la copia de la lista de cuentas de este aparato, que si no se queda con
+  /* Y la copia de la lista de cuentas de este dispositivo, que si no se queda con
      el token viejo. El de refresco se gasta al usarlo: una copia que no se
      actualiza aquí sirve una vez y deja de valer, y el atajo de cambiar de
      cuenta fallaría justo cuando ya se confía en él. */

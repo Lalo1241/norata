@@ -341,6 +341,13 @@ async function syncRun(opts) {
   } finally {
     syncBusy = false;
     renderSync();
+    /* Con los datos ya puestos, volver a mirar si la apariencia sigue siendo
+       tuya. El plan lo contesta el servidor, pero el NIVEL sale del progreso,
+       y el progreso llega aquí: preguntarlo antes de esta línea es preguntarlo
+       con el nivel en 0. Se nota al cambiar de cuenta, que es cuando el nivel
+       cambia de golpe en el mismo dispositivo. Es barato: `refrescarApariencia`
+       se sale sola si no hay nada que cambiar. */
+    if (typeof refrescarApariencia === "function") refrescarApariencia();
   }
 }
 
