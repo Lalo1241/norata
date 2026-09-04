@@ -818,17 +818,27 @@ function infProyectos(r, rAntes, D) {
   const vivos = datos.projects.filter(x => x.status === "active" || x.status === "paused");
 
   /* La salud sale de `projectHealth`, que ya existía: repetir aquí esa
-     clasificación sería tener dos verdades sobre lo mismo. */
-  const cuenta = {};
-  vivos.forEach(x => { const h = projectHealth(x); cuenta[h.label] = (cuenta[h.label] || 0) + 1; });
+     clasificación sería tener dos verdades sobre lo mismo.
+
+     Se agrupa por `h.key` y no por `h.label`, y eso ahora es obligatorio: la
+     etiqueta va traducida, así que en inglés no coincidiría con ninguna clave
+     del mapa de colores y las seis barras saldrían del mismo azul de reserva.
+     La clave es interna y no cambia de idioma nunca. El rótulo se guarda
+     aparte, que es lo único para lo que sirve: escribirlo en la leyenda. */
+  const cuenta = {}, rotulo = {};
+  vivos.forEach(x => {
+    const h = projectHealth(x);
+    cuenta[h.key] = (cuenta[h.key] || 0) + 1;
+    rotulo[h.key] = h.label;
+  });
   const COLOR_SALUD = {
-    tx("Con ritmo"): pinta("#5fe0b0"), "Casi listo": pinta("#5fe0b0"),
-    "Enfriándose": pinta("#f5d76e"), "Estancado": pinta("#ff8a70"),
-    tx("En pausa"): "var(--carril)"
+    healthy: pinta("#5fe0b0"), closing: pinta("#5fe0b0"),
+    cooling: pinta("#f5d76e"), stalled: pinta("#ff8a70"),
+    paused: "var(--carril)"
   };
 
   let html = bloque(tx("Cómo está lo que llevas"), tx("De un vistazo: qué sigue vivo y qué se está apagando."),
-    gApilada(Object.keys(cuenta).map(k => ({ k, v: cuenta[k], color: COLOR_SALUD[k] || pinta("#8ecdf5") })),
+    gApilada(Object.keys(cuenta).map(k => ({ k: rotulo[k], v: cuenta[k], color: COLOR_SALUD[k] || pinta("#8ecdf5") })),
       { vacia: tx("Cuando tengas encargos en marcha, aquí se ve su estado.") }));
 
   /* El ritmo, día a día dentro del periodo. Con más de dos semanas se agrupa
