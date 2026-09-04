@@ -283,8 +283,20 @@ function portadaPintar(modo) {
        Solo el saludo y el correo: la contraseña no se guarda aquí ni se
        guardará nunca. Y con salida, porque el dispositivo se presta y "no soy
        yo" tiene que estar a la vista sin tener que borrar un campo a mano. */
-    const vuelve = !!(sync.ultimoSaludo && sync.ultimoCorreo);
-    dentro = vuelve
+    /* Y el tercer caso, que no es «un desconocido» ni «quien vuelve»: alguien
+       que YA está dentro de una cuenta y viene a añadir otra
+       (`irAAgregarCuenta`). Ahí saludar por el nombre de la cuenta que ya
+       está puesta sería decirle «hola de nuevo» justo a quien no quiere
+       entrar como esa persona, y el correo prellenado sería el equivocado. */
+    const agregando = puertaAgregando();
+    const vuelve = !agregando && !!(sync.ultimoSaludo && sync.ultimoCorreo);
+    dentro = agregando
+      ? `<div class="portada-cab">
+           <button class="portada-volver" onclick="volverDeAgregar()" aria-label="Volver a mi cuenta">←</button>
+           <h2>Entrar con otra cuenta</h2>
+         </div>
+         <p class="portada-lema">La cuenta en la que estás ahora se queda guardada en este aparato: podrás volver a ella con un toque.</p>`
+      : vuelve
       ? `<div class="portada-vuelve">
            ${avatarPinta(sync.ultimoUid, sync.ultimoSaludo, sync.ultimoCorreo, 56)}
            <h2>Hola de nuevo, ${escapeHtml(sync.ultimoSaludo)}</h2>
@@ -292,6 +304,17 @@ function portadaPintar(modo) {
          </div>`
       : `<img class="portada-logo" src="${logotipoSrc()}" alt="Norata">
          <p class="portada-lema">Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.</p>`;
+
+    /* Las cuentas que ya entraron aquí, arriba del formulario y no debajo: si
+       una de ellas es la que se busca, no hay que leer nada más. Debajo del
+       formulario se leería después de haber empezado a teclear, que es
+       justo cuando ya no sirve de nada. */
+    const guardadas = cuentasListaHTML();
+    if (guardadas) {
+      dentro += `<p class="cuentas-tit">Ya entraste aquí con:</p>${guardadas}
+                 <div class="portada-o"><span>${agregando ? "o entra con otra" : "o escribe tu correo"}</span></div>`;
+    }
+
     dentro +=
       `<div id="portada-error" class="portada-error" hidden></div>
        <label class="field"><span>Tu correo</span>
@@ -305,10 +328,12 @@ function portadaPintar(modo) {
        ${vuelve ? '<button class="portada-sin sutil" onclick="portadaNoSoyYo()">No soy ' + escapeHtml(sync.ultimoSaludo) + '</button>' : ""}
        <div id="portada-google"></div>
        <p class="portada-pie">¿Todavía no tienes cuenta? <button onclick="portadaIrA('crear')">Créala aquí</button></p>
-       <button class="portada-sin" onclick="portadaSinCuenta()">${yaEntroSinCuenta ? "Volver sin iniciar sesión" : "Probar sin cuenta"}</button>
+       ${agregando
+         ? '<button class="portada-sin" onclick="volverDeAgregar()">Volver a mi cuenta</button>'
+         : `<button class="portada-sin" onclick="portadaSinCuenta()">${yaEntroSinCuenta ? "Volver sin iniciar sesión" : "Probar sin cuenta"}</button>
        <p class="portada-nota">${yaEntroSinCuenta
          ? "Seguirás guardando solo en este dispositivo."
-         : "Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crear una cuenta cuando quieras y llevártelo."}</p>`;
+         : "Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crear una cuenta cuando quieras y llevártelo."}</p>`}`;
   }
 
   cap.innerHTML = `<div class="portada-caja">${dentro}</div>`;
@@ -585,6 +610,11 @@ async function portadaEntrada(correo, mensaje) {
     sync.enabled = true;
     sync.entrada = "cuenta";
     saveSync();
+    /* El viaje de «entrar con otra cuenta» termina aquí. Si la marca se
+       quedara puesta, la próxima vez que la app mandara a la puerta —una
+       sesión caducada, un cierre de sesión— la puerta creería que se viene a
+       añadir otra y enseñaría la salida equivocada. */
+    try { sessionStorage.removeItem("norata-agregar"); } catch (e) {}
 
     /* Y el aviso de que llega alguien recién entrado, para que la app haga la
        adopción. Va en `sessionStorage` y no en la dirección: por la dirección
@@ -633,6 +663,10 @@ async function adoptarSesion(mensaje) {
   sync.dirty = hasLocalData();
   sync.lastAt = null;
   recordarUltimo();
+  /* Al lado de `recordarUltimo` y no dentro de él: aquel guarda a quien
+     saludar y se calla si la cuenta no tiene nombre; este guarda con qué
+     cuentas se puede entrar, y una cuenta sin nombre también cuenta. */
+  cuentaApuntar();
   saveSync();
 
   /* Una cuenta que existía antes de que se pidiera el nombre, o una que entró
@@ -676,6 +710,169 @@ async function adoptarSesion(mensaje) {
   cargaCerrar();
   toast(mensaje || ("Hola de nuevo" + coma()), "logro");
   quizaTutorialDeEntrada();
+}
+
+/* ---- Cambiar a una cuenta que ya entró en este aparato ----
+
+   La misma función sirve en los dos lados, y esa es la idea: en la puerta hay
+   una lista de con qué cuentas se puede entrar, y dentro de la app hay otra
+   para cambiarse sin salir. `enLaPuerta()` decide lo único que cambia, que es
+   a dónde se va después.
+
+   No hay un camino nuevo de entrada: se deja la sesión puesta y se recarga con
+   la marca `norata-recien`, que es exactamente lo que hace la puerta al entrar
+   con la contraseña. Todo lo de después —apartar los datos de la otra cuenta,
+   bajar los de esta, pintar— sigue siendo `adoptarSesion`, sin tocarla. */
+async function entrarConCuentaGuardada(uid) {
+  const c = cuentasLeer().filter(x => x.uid === uid)[0];
+  /* Puede no estar: la lista se toca desde dos pantallas y desde otra pestaña
+     del mismo navegador, y la que se está mirando pudo quedarse vieja. */
+  if (!c) {
+    toast("Esa cuenta ya no está guardada en este aparato.");
+    if (enLaPuerta()) portadaPintar("entrar"); else renderSync();
+    return;
+  }
+  const saludo = cuentaSaludo(c);
+
+  /* PRIMERO SUBIR LO QUE FALTE, y esto no es una cortesía: es la condición
+     para que el atajo pueda existir.
+
+     Cambiar de cuenta aparta los datos de este aparato y baja los de la otra
+     (`adoptarSesion`). Lo que no se hubiera subido todavía queda solo en una
+     copia de conflicto, que hay que ir a rescatar a mano desde Ajustes.
+     Mientras cambiar costaba una contraseña eso casi no pasaba; con un toque
+     va a pasar seguido. Así que si la subida falla no se cambia: se dice y uno
+     se queda donde estaba, que es lo único que no pierde nada.
+
+     En la puerta no se intenta siquiera: allí no existe `state`, y si se llegó
+     desde «Entrar con otra cuenta» la app ya subió lo suyo antes de mandar. */
+  if (!enLaPuerta() && syncReady() && sync.dirty) {
+    cargaMostrar("Guardando lo último…");
+    await syncRun({ silent: true });
+    if (sync.dirty) {
+      cargaCerrar();
+      toast("No cambié de cuenta, para no dejarte atrás lo que falta por subir. " +
+        (syncError || "Revisa la conexión e inténtalo otra vez."));
+      return;
+    }
+  }
+
+  /* Y AHORA SÍ, comprobar que el permiso guardado todavía vale. Va aquí y no
+     antes porque lo de arriba —subir lo pendiente— hay que hacerlo igual, y va
+     antes de tocar `sync` porque si esto falla no puede quedar nada a medias.
+
+     El token de refresco no caduca por reloj: se lo lleva por delante cambiar
+     la contraseña o pedir «cerrar las otras sesiones», y eso puede haber
+     pasado desde otro aparato. Sin preguntarlo, la app entraba igual y se
+     quedaba dentro de una cuenta que no podía sincronizar nada. */
+  cargaMostrar("Entrando" + coma(saludo) + "…");
+  const viva = await sbRevivir(c.sesion.refresh);
+  if (!viva) {
+    cargaCerrar();
+    /* Se quita de la lista: un atajo que ya no lleva a ninguna parte no puede
+       quedarse ofreciéndose. Y el correo se deja escrito en el formulario, que
+       es a lo único que se puede llegar desde aquí. */
+    cuentaOlvidar(uid);
+    portadaCorreo = c.correo;
+    if (enLaPuerta()) { portadaPintar("entrar"); } else { renderSync(); }
+    toast("La sesión guardada de " + (saludo || c.correo) + " ya no vale. Entra con su contraseña.");
+    return;
+  }
+  c.sesion = viva.uid ? viva : Object.assign({}, viva, { uid: c.uid });
+
+  cuentaPonerSesion(c);
+  /* El permiso recién renovado, guardado. El servidor gastó el viejo al
+     contestar: sin esto la lista se quedaría con uno que ya no sirve y el
+     atajo fallaría la próxima vez. */
+  cuentaApuntar();
+  try {
+    sessionStorage.setItem("norata-recien", "1");
+    sessionStorage.setItem("norata-recien-aviso", "Hola de nuevo" + coma(saludo));
+    sessionStorage.removeItem("norata-agregar");
+  } catch (e) { /* sin esto solo se pierde el saludo, no el cambio */ }
+  /* `replace` y no `assign`: el botón de atrás no puede devolver a la pantalla
+     de una cuenta en la que ya no se está. */
+  location.replace(enLaPuerta() ? "../" : location.pathname);
+}
+
+/* Quitar una cuenta de la lista. Es la otra mitad de guardarla, y tiene que
+   estar a la vista: un aparato se presta, y el atajo de entrar sin contraseña
+   necesita una forma evidente de deshacerse. */
+async function quitarCuentaGuardada(uid) {
+  const c = cuentasLeer().filter(x => x.uid === uid)[0];
+  if (!c) return;
+  const quien = cuentaSaludo(c) || c.correo;
+  if (!await ask("Se quita " + quien + " de este aparato. Su progreso sigue entero en su cuenta; para volver a entrar habrá que escribir la contraseña.", "Quitar")) return;
+  cuentaOlvidar(uid);
+  if (enLaPuerta()) portadaPintar("entrar"); else renderSync();
+  toast("Quitada de este aparato", "calma");
+}
+
+/* ---- Añadir una cuenta sin salirse de la que hay ----
+
+   Es lo que hace que la lista pueda tener dos cuentas: cerrar sesión borra la
+   credencial y también el atajo —lo promete su aviso—, así que por ahí la
+   lista nunca pasaría de una. Este es el camino que las deja a las dos.
+
+   La marca va en `sessionStorage` porque describe un viaje, no un ajuste: si
+   se cierra la pestaña a media faena no queda nada puesto. */
+function puertaAgregando() {
+  try { return sessionStorage.getItem("norata-agregar") === "1"; } catch (e) { return false; }
+}
+
+async function irAAgregarCuenta() {
+  /* Se sube antes de salir de la app, y por lo mismo que en el cambio: la
+     puerta no tiene `state` y desde allí ya no habría forma de subir nada. */
+  if (syncReady() && sync.dirty) {
+    cargaMostrar("Guardando lo último…");
+    await syncRun({ silent: true });
+    if (sync.dirty) {
+      cargaCerrar();
+      toast("Me quedé aquí, para no dejarte atrás lo que falta por subir. " +
+        (syncError || "Revisa la conexión e inténtalo otra vez."));
+      return;
+    }
+  }
+  let puesto = false;
+  try { sessionStorage.setItem("norata-agregar", "1"); puesto = true; } catch (e) {}
+  /* Sin la marca, la puerta rebotaría de vuelta aquí en cuanto viera que hay
+     sesión, y el botón parecería roto. Mejor decirlo que dejarlo sin efecto. */
+  if (!puesto) {
+    cargaCerrar();
+    toast("Este navegador no me deja guardar el paso intermedio. Cierra sesión y entra con la otra cuenta.");
+    return;
+  }
+  cargaMostrar("Abriendo la entrada…");
+  location.assign("login/");
+}
+
+/* La salida de ese modo, para quien llegó a la puerta y se arrepintió. Sin
+   esto la única vuelta sería el botón de atrás del navegador, y «probar sin
+   cuenta» —que es lo que hay ahí abajo— haría algo bastante peor: dejar el
+   aparato marcado como "sin cuenta" teniendo una sesión abierta. */
+function volverDeAgregar() {
+  try { sessionStorage.removeItem("norata-agregar"); } catch (e) {}
+  cargaMostrar("Volviendo…");
+  location.replace("../");
+}
+
+/* La lista, para las dos pantallas. Devuelve cadena vacía si no hay ninguna,
+   y quien la pinta decide qué hacer con eso. */
+function cuentasListaHTML() {
+  const otras = cuentasOtras();
+  if (!otras.length) return "";
+  return '<div class="cuentas-lista">' + otras.map(cuentaFilaHTML).join("") + '</div>';
+}
+
+/* La misma lista con su rótulo, para el panel de la cuenta en Ajustes. Sin
+   ninguna otra cuenta guardada no se pinta nada: un apartado que solo dice que
+   está vacío es ruido para quien tiene una sola cuenta, que es casi todo el
+   mundo. El botón de añadir vive abajo con los demás y ese sí está
+   siempre, porque es el único camino para que esta lista llegue a existir. */
+function cuentasSeccionHTML() {
+  const lista = cuentasListaHTML();
+  if (!lista) return "";
+  return '<p class="cuentas-tit">Cambiar a otra cuenta de este aparato</p>' + lista;
 }
 
 /* ---- La cuenta está esperando a borrarse ----

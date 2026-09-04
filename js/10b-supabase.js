@@ -230,6 +230,27 @@ async function sbCerrarOtrasSesiones() {
   return r.ok;
 }
 
+/* ¿Un permiso guardado sigue valiendo? Lo pregunta usándolo, que es la única
+   forma de saberlo: el token de refresco no caduca por reloj, se lo carga otra
+   cosa —cambiar la contraseña, «cerrar las otras sesiones», borrar la cuenta—
+   y desde aquí no hay manera de enterarse sin preguntar.
+
+   Existe por el atajo de cambiar de cuenta. Sin esta comprobación se entraba
+   igual y la app se quedaba dentro de una cuenta que no podía sincronizar:
+   todo pintado, nada subiendo, y el aviso escondido en Ajustes. Vale más una
+   petición de más y una frase clara.
+
+   Devuelve la sesión renovada —el servidor gasta el token viejo y da otro, así
+   que hay que guardar este— o null si ya no vale. No lanza: quien llama tiene
+   que poder distinguir «no vale» de «no hay red», y para eso mira `null`. */
+async function sbRevivir(refresh) {
+  if (!refresh) return null;
+  const r = await sbFetch("/auth/v1/token?grant_type=refresh_token", {
+    method: "POST", body: JSON.stringify({ refresh_token: refresh })
+  });
+  return r.ok ? sbSesionDe(r.body) : null;
+}
+
 /* El token de acceso caduca en una hora. Esto lo renueva solo con el de
    refresco, para que una sesión larga no se corte a media tarde. */
 async function sbToken() {
@@ -245,6 +266,11 @@ async function sbToken() {
   if (!nueva.uid) nueva.uid = s.uid;   // el refresco no siempre repite el usuario
   sync.cfg.sesion = nueva;
   saveSync();
+  /* Y la copia de la lista de cuentas de este aparato, que si no se queda con
+     el token viejo. El de refresco se gasta al usarlo: una copia que no se
+     actualiza aquí sirve una vez y deja de valer, y el atajo de cambiar de
+     cuenta fallaría justo cuando ya se confía en él. */
+  cuentaApuntar();
   return nueva.access;
 }
 
