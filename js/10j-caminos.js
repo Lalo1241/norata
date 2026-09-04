@@ -497,3 +497,17 @@ function ponerCamino(id) {
       uno ? T`Empiezas por: ${tx(uno.nombre)}` : tx("El primero ya está abierto.")}`,
     col, "map");
 }
+
+/* El sello junto al nombre de una rama, si vino de un camino.
+
+   Vive aquí y no en `06-detalle.js` porque las dos cabeceras que lo pintan
+   —Talentos y Proyectos— están en sitios distintos del archivo y con este
+   ayudante las dos dicen lo mismo con una llamada.
+
+   Es EL MISMO dibujo que lleva la carta en el cajón, y repetirlo es lo que
+   hace que se entienda sin que nadie lo explique: un mapa quiere decir «esto
+   vino de un camino». */
+function selloDeRama(rama) {
+  if (typeof caminoDeRama !== "function" || !caminoDeRama(rama)) return "";
+  return ` <span class="sello-camino" title="Vino de un camino">${icon("map", 12)}</span>`;
+}
