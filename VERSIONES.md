@@ -76,7 +76,7 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
-### 0.7.83.1 · 3 sep 2026
+### 0.7.83.2 · 3 sep 2026
 
 **El botón de añadir cuenta, a una línea y con un más.** Lo pidió Eduardo con
 el renglón de Google al lado: «sin texto extra y un icono de “+”».
@@ -94,6 +94,34 @@ menú, `.aj-ic` en el índice— y meterle otra dentro deja un aro apretado cont
 el borde.
 
 **Y en Mi expedición decía «Aquí estás» donde se dice «Estás aquí».**
+### 0.7.83.1 · 3 sep 2026
+
+**Se ve sobre qué rama estás trabajando.** Los atajos —Q, W, E, C, M— y el clic
+derecho actúan sobre UNA rama: la que señala el ratón, o la que se está
+editando. Eso lo decidía `ramaDeAtajo` en silencio, y el silencio era el
+problema: tocabas una rama, no pasaba nada visible, y la siguiente tecla creaba
+un talento ahí. Lo pidió Eduardo.
+
+Una pleca menta en el canto izquierdo de la tarjeta, y nada más. No es un borde
+alrededor —eso compite con el marco, que ya dice dónde empieza y acaba la
+tarjeta— ni un fondo teñido, que en una lista de ramas se lee como un estado
+del contenido. Una pleca al margen se lee como lo que es: una marca de lectura.
+
+Tres cosas de cómo está hecha:
+
+- **El desvanecido va sobre `opacity`, que es un número.** Ponerlo sobre el
+  color habría sido caer otra vez en la trampa de siempre: una propiedad cuyo
+  valor sale de una variable se queda congelada en el tono de partida.
+- **Solo en escritorio.** Los atajos y el clic derecho no existen en una
+  pantalla táctil, y marcar la rama que toca el dedo prometería algo que no
+  hay. La guarda está en los dos sitios, en el dibujado y en el vivo.
+- **La clase la pone el dibujado y también el ratón**, y las dos coinciden: así
+  un repintado no la pierde y mover el ratón no obliga a repintar la página.
+  Se recuerda cuál está marcada para no recorrer las tarjetas en cada píxel.
+
+Medido: sigue al ratón entre ramas y nunca hay dos marcadas, sobrevive a un
+repintado, acierta editando y con la rama de pie, y no aparece a 375 px de
+ancho. Contraste de la pleca contra la tarjeta: 10,4 de noche y 5,1 de día.
 
 ### 0.7.83 · 3 sep 2026
 

@@ -212,6 +212,14 @@ const LIMITES = {
        que nadie pierde nada al moverla. Quien no paga no se topa con un muro:
        ve la portada de su propia semana con sus números de verdad. */
     resumen: [],
+    /* Los diez caminos ya armados. Es un interruptor y no un número: no se
+       cuentan, se tienen o no —igual que `apariencia`—, así que se pregunta
+       con `planPermite` y no con `cabeUnoMas`.
+
+       Y no rompe la regla de congelar en vez de quitar: al dejar de pagar, lo
+       que un camino puso en el tablero se queda entero. Lo que se apaga es
+       poder soltar uno nuevo, que es CREAR. */
+    caminos: false,
     apariencia: false,
     /* La celebración de pantalla completa del nivel 16. No es «crear» como el
        resto de esta tabla, igual que `apariencia`: es una recompensa que se
@@ -220,6 +228,7 @@ const LIMITES = {
     celebracion: false
   },
   pro: {
+    caminos: true,
     ramas: Infinity,
     talentos: Infinity,
     ramasProyectos: Infinity,
@@ -583,6 +592,12 @@ function topeTexto(clave) {
       titulo: "Llenaste esta rama",
       frase: "Los " + LIMITES.libre.talentos + " talentos del plan Gratuito, completos. " +
         "Con " + NOMBRE_PRO + " esta rama sigue creciendo sin contar."
+    };
+  }
+  if (clave === "caminos") {
+    return {
+      titulo: "Diez caminos ya armados",
+      frase: "Cada uno trae una rama entera —doce o catorce peldaños encadenados, con sus pasos y sus plazos— sacada de un método que ya funcionó. Vienen con " + NOMBRE_PRO + "."
     };
   }
   if (clave === "resumen") {
