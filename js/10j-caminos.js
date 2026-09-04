@@ -206,7 +206,7 @@ function mapaDeCamino(c, col) {
   });
 
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeAttr(
-    c.nombre + ": " + c.peldanos.length + " peldaños, el primero abierto y el resto con candado.")}">
+    T`${tx(c.nombre)}: ${c.peldanos.length} peldaños, el primero abierto y el resto con candado.`)}">
     ${lineas}${nodos}</svg>`;
 }
 
@@ -223,14 +223,14 @@ function cartaDeCamino(c, trabada) {
     onclick="${trabada ? `topeAlcanzado('${escapeAttr(trabada)}')` : `verCamino('${escapeAttr(c.id)}')`}">
     <span class="cam-mapa">${mapaDeCamino(c, col)}</span>
     <span class="cam-cuerpo">
-      ${puesto ? `<span class="cam-hecho">${selloCamino()}Ya lo tienes</span>` : ""}
-      <span class="cam-titulo">${escapeHtml(c.nombre)}</span>
-      <span class="cam-uno"><b>${tx("Empiezas por")}</b><br>${escapeHtml(uno ? uno.nombre : "")}</span>
+      ${puesto ? `<span class="cam-hecho">${selloCamino()}${tx("Ya lo tienes")}</span>` : ""}
+      <span class="cam-titulo">${escapeHtml(tx(c.nombre))}</span>
+      <span class="cam-uno"><b>${tx("Empiezas por")}</b><br>${escapeHtml(uno ? tx(uno.nombre) : "")}</span>
       <span class="cam-pie">
-        <span class="cam-xp">+${xpDeCamino(c).toLocaleString("es-MX")} XP</span>
-        <span>${c.peldanos.length} ${cajonKind === "projects" ? "encargos" : "peldaños"}</span>
-        <span>${escapeHtml(c.horizonte)}</span>
-        <span class="cam-chapa">${escapeHtml(c.pantalla)}</span>
+        <span class="cam-xp">+${xpDeCamino(c).toLocaleString(localeActual())} XP</span>
+        <span>${c.peldanos.length} ${cajonKind === "projects" ? tx("encargos") : tx("peldaños")}</span>
+        <span>${escapeHtml(tx(c.horizonte))}</span>
+        <span class="cam-chapa">${escapeHtml(tx(c.pantalla))}</span>
       </span>
     </span>
   </button>`;
@@ -350,35 +350,35 @@ function verCamino(id) {
 
   document.getElementById("cajon-body").innerHTML = `
     <div class="cajon-cab" style="--c:${col}">
-      <h3>${escapeHtml(c.nombre)}</h3>
-      <p>Esto es lo que va a entrar en tu tablero. Nada se guarda hasta que lo
-        aceptes, y una vez dentro lo cambias como cualquier cosa tuya.</p>
+      <h3>${escapeHtml(tx(c.nombre))}</h3>
+      <p>${tx("Esto es lo que va a entrar en tu tablero. Nada se guarda hasta que lo aceptes, y una vez dentro lo cambias como cualquier cosa tuya.")}</p>
     </div>
     <div class="cajon-cuerpo" style="--c:${col}">
       <div class="cam-cuenta">
-        <span><b>${c.peldanos.length}</b>${proy ? "encargos" : "peldaños"}</span>
-        <span><b>${c.misiones.length}</b>misiones</span>
-        <span><b>1</b>${proy ? "proyecto" : "rama"} nuev${proy ? "o" : "a"}</span>
-        <span><b>0</b>datos tocados</span>
+        <span><b>${c.peldanos.length}</b>${proy ? tx("encargos") : tx("peldaños")}</span>
+        <span><b>${c.misiones.length}</b>${tx("misiones")}</span>
+        <span><b>1</b>${proy ? tx("proyecto nuevo") : tx("rama nueva")}</span>
+        <span><b>0</b>${tx("datos tocados")}</span>
       </div>
       <div class="cam-mapa" style="border:1px solid var(--line);border-radius:var(--r-media,12px);padding:12px;margin-bottom:12px">
         ${mapaDeCamino(c, col)}
       </div>
       <p class="settings-note" style="text-align:left;margin:0 0 10px">
-        Entra en <b>${escapeHtml(rama)}</b>${rama !== c.rama
-          ? ` — «${escapeHtml(c.rama)}» ya está ocupada, así que la nueva va aparte y la de antes se queda entera`
-          : ""}. ${abiertos === 1 ? "El primer peldaño está abierto" : `${abiertos} peldaños abiertos`}; el resto espera su turno.</p>
+        ${T`Entra en <b>${escapeHtml(rama)}</b>`}${rama !== tx(c.rama)
+          ? T` — «${escapeHtml(tx(c.rama))}» ya está ocupada, así que la nueva va aparte y la de antes se queda entera`
+          : ""}. ${abiertos === 1 ? tx("El primer peldaño está abierto") : T`${abiertos} peldaños abiertos`}${
+          tx("; el resto espera su turno.")}</p>
       <div class="cam-lista">
         ${c.peldanos.slice(0, 5).map(p => `<div>
           <span class="k">${p.n}</span>
-          <span><b>${escapeHtml(p.nombre)}</b> · ${p.pide.length
-            ? "pide " + p.pide.join(" y ") + (proy && !p.espera ? ", pero se puede adelantar" : "")
+          <span><b>${escapeHtml(tx(p.nombre))}</b> · ${p.pide.length
+            ? T`pide ${p.pide.join(" y ")}` + (proy && !p.espera ? tx(", pero se puede adelantar") : "")
             : tx("abierto desde el día uno")}</span></div>`).join("")}
-        ${c.peldanos.length > 5 ? `<div><span class="k">…</span><span>y ${
-          c.peldanos.length - 5} más, hasta «${escapeHtml(c.peldanos[c.peldanos.length - 1].nombre)}»</span></div>` : ""}
+        ${c.peldanos.length > 5 ? `<div><span class="k">…</span><span>${
+          T`y ${c.peldanos.length - 5} más, hasta «${escapeHtml(tx(c.peldanos[c.peldanos.length - 1].nombre))}»`}</span></div>` : ""}
       </div>
-      <p class="cam-refe">${escapeHtml(c.pantalla)}. Norata no está afiliada a los
-        autores citados ni cuenta con su aval.</p>
+      <p class="cam-refe">${escapeHtml(tx(c.pantalla))}. ${
+        tx("Norata no está afiliada a los autores citados ni cuenta con su aval.")}</p>
     </div>
     <div class="cajon-pie">
       <button class="btn btn-ghost" onclick="pintarCajon()">${tx("Atrás")}</button>
@@ -410,11 +410,19 @@ function ponerCamino(id) {
      mitad de la gracia. */
   const ex = typeof exigenciaActual === "function" ? exigenciaActual() : { grace: 7, decay: 10 };
   const skills = (c.habilidades || []).map(nombre => {
-    const ya = state.skills.find(s => s.name.toLowerCase() === nombre.toLowerCase());
+    /* El rótulo que se GUARDA va traducido; la clave que se BUSCA, no. El
+       catálogo está escrito en español y es quien decide icono y color, así
+       que buscar por el nombre inglés no encontraría nada. Es lo mismo que
+       hace el asistente de bienvenida. */
+    const rotulo = tx(nombre);
+    const ya = state.skills.find(s => {
+      const n = s.name.toLowerCase();
+      return n === rotulo.toLowerCase() || n === nombre.toLowerCase();
+    });
     if (ya) return ya;
     const cat = typeof SKILL_CATALOG !== "undefined" ? SKILL_CATALOG.find(x => x.n === nombre) : null;
     const nueva = {
-      id: uid(), name: nombre, category: cat ? cat.c : "General",
+      id: uid(), name: rotulo, category: cat ? tx(cat.c) : tx("General"),
       icon: cat ? cat.i : "star", color: cat ? cat.k : col,
       xp: 0, permanent: false, graceDays: ex.grace, decayPerDay: ex.decay,
       createdAt: hoy, lastActivity: null, lastCheck: hoy, log: []
@@ -430,15 +438,15 @@ function ponerCamino(id) {
   const porNumero = {};
   const iconos = { hito: "flag", meta: "target", compra: "key" };
   c.peldanos.forEach(p => {
-    const pasos = (p.pasos || []).map(t => ({ id: uid(), name: t, done: false, at: null }));
+    const pasos = (p.pasos || []).map(t => ({ id: uid(), name: tx(t), done: false, at: null }));
     const requiere = p.pide.map(n => porNumero[n]).filter(Boolean);
     const base = {
-      id: uid(), name: p.nombre, branch: rama, desc: "",
+      id: uid(), name: tx(p.nombre), branch: rama, desc: "",
       icon: iconos[p.tipo] || "flag", color: col,
       skillId: skillId, requiere: requiere, modo: "todos",
       createdAt: hoy, completedAt: null,
       history: [{ date: hoy, at: stamp(), event: proy
-        ? `Encargo creado en el proyecto ${rama}` : `Talento creado en la rama ${rama}` }]
+        ? T`Encargo creado en el proyecto ${rama}` : T`Talento creado en la rama ${rama}` }]
     };
     if (proy) {
       state.projects.push(Object.assign(base, {
@@ -459,7 +467,7 @@ function ponerCamino(id) {
      interruptor por misión sería complejidad en el peor momento. */
   (c.misiones || []).forEach(m => {
     state.missions.push({
-      id: uid(), name: m.nombre, desc: "", icon: "bolt", color: col,
+      id: uid(), name: tx(m.nombre), desc: "", icon: "bolt", color: col,
       cadence: m.cadencia === "daily" ? "daily" : "weekly",
       days: m.dias || [], target: m.cadencia === "daily" ? 1 : (m.meta || 1),
       skillId: skillId, xp: 20, log: {}, archived: false, completedAt: null,
@@ -486,6 +494,6 @@ function ponerCamino(id) {
   const uno = c.peldanos.find(p => !p.pide.length);
   celebrate(tx("Tu camino ya está puesto"),
     `${c.peldanos.length} ${proy ? "encargos" : "peldaños"} en «${rama}». ${
-      uno ? "Empiezas por: " + uno.nombre : tx("El primero ya está abierto.")}`,
+      uno ? T`Empiezas por: ${tx(uno.nombre)}` : tx("El primero ya está abierto.")}`,
     col, "map");
 }
