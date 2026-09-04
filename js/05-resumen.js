@@ -1510,7 +1510,7 @@ function olvidarPasoVacio() {
 }
 
 function deshacerTablero() {
-  if (!dashUndo.length) { toast("No hay nada que deshacer en el tablero", "atencion"); return; }
+  if (!dashUndo.length) { toast(tx("No hay nada que deshacer en el tablero"), "atencion"); return; }
   const prev = dashUndo.pop();
   const d = JSON.parse(prev.snap);
   saveDash(d.order, d.hidden, d.sizes, d.pos);
@@ -2563,8 +2563,16 @@ function toggleCatalogoCat(cat) {
   renderCatalogo();
 }
 
+/* Recibe siempre el nombre ESPAÑOL del catálogo —es la clave interna— y lo
+   compara contra lo que hay guardado, que va con el rótulo del idioma en que
+   se creó. Sin el `tx()`, en inglés el catálogo enseñaría «Drawing» como
+   disponible teniendo ya la habilidad puesta, y añadirla la duplicaría. */
 function yaTengo(nombre) {
-  return state.skills.some(s => s.name.toLowerCase() === nombre.toLowerCase());
+  const rotulo = tx(nombre).toLowerCase();
+  return state.skills.some(s => {
+    const n = s.name.toLowerCase();
+    return n === rotulo || n === nombre.toLowerCase();
+  });
 }
 
 function renderCatalogo() {
@@ -2572,10 +2580,7 @@ function renderCatalogo() {
   const n = catalogoSel.size;
   document.getElementById("catalog-content").innerHTML = `
     <p class="settings-note" style="padding:0 4px 4px">
-      Añade las que te interese seguir, aunque sea en cero: ver una habilidad
-      sin empezar te recuerda que existe. Las de aquí además se reconocen
-      solas — al escribir un talento o un proyecto se proponen para recibir el
-      XP. Si te falta alguna, créala arriba: esa lo irá aprendiendo del uso.
+      ${tx("Añade las que te interese seguir, aunque sea en cero: ver una habilidad sin empezar te recuerda que existe. Las de aquí además se reconocen solas — al escribir un talento o un proyecto se proponen para recibir el XP. Si te falta alguna, créala arriba: esa lo irá aprendiendo del uso.")}
     </p>
     ${cats.map(cat => {
       const dentro = SKILL_CATALOG.filter(x => x.c === cat);
@@ -2583,9 +2588,9 @@ function renderCatalogo() {
       return `
       <div class="cat-group">
         <div class="cat-head">
-          <h3>${escapeHtml(cat)}</h3>
+          <h3>${escapeHtml(tx(cat))}</h3>
           ${libres.length ? `<button class="cat-all" onclick="toggleCatalogoCat('${enJS(cat)}')">
-            ${libres.every(x => catalogoSel.has(x.n)) ? "Quitar todas" : "Todas"}
+            ${libres.every(x => catalogoSel.has(x.n)) ? tx("Quitar todas") : tx("Todas")}
           </button>` : `<span class="cat-done">${tx("ya las tienes")}</span>`}
         </div>
         <div class="cat-grid">
@@ -2596,7 +2601,7 @@ function renderCatalogo() {
             <button class="cat-chip ${tengo ? "tengo" : ""} ${sel ? "sel" : ""}"
               ${tengo ? "disabled" : `onclick="toggleCatalogo('${enJS(x.n)}')"`}>
               <span class="cc-ic" style="background:${velo(x.k, "26")};color:${tinta(x.k)}">${icon(x.i, 18)}</span>
-              <span class="cc-n">${escapeHtml(x.n)}</span>
+              <span class="cc-n">${escapeHtml(tx(x.n))}</span>
               ${tengo ? `<span class="cc-ok">${icon("check", 15)}</span>` : `<span class="cc-box">${sel ? icon("check", 13) : ""}</span>`}
             </button>`;
           }).join("")}
@@ -2623,7 +2628,11 @@ function añadirDelCatalogo() {
     topeAlcanzado("skills");
     return;
   }
-  elegidas.forEach(x => state.skills.push(nuevaHabilidad(x.n, x.c, x.i, x.k)));
+  /* Se guarda el nombre TRADUCIDO —es el rótulo que va a llevar la habilidad—
+     y la categoría también, que se ve en el filtro de Habilidades. La clave
+     interna sigue siendo la española: es la que compara `yaTengo` y la que
+     busca el asistente para dar icono y color. */
+  elegidas.forEach(x => state.skills.push(nuevaHabilidad(tx(x.n), tx(x.c), x.i, x.k)));
   save();
   catalogoSel = new Set();
   showView("home");

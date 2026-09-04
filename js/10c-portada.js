@@ -656,7 +656,7 @@ async function adoptarSesion(mensaje) {
      confirmar su cuenta por un correo de cortesía sería justo al revés. */
   avisarBienvenida();
 
-  cargaMostrar("Trayendo tu progreso…");
+  cargaMostrar(tx("Trayendo tu progreso…"));
   pintarAvisoPruebas();
   renderSync();
 
@@ -709,7 +709,7 @@ async function rescatarCuenta() {
 /* Borrarla ya. No se vuelve a pedir la frase —se escribió al solicitarlo— pero
    sí una confirmación, porque esto es lo único de aquí que no tiene vuelta. */
 async function borrarCuentaYa() {
-  if (!await ask("Se borrará ahora mismo, sin esperar. Esto ya no se puede deshacer.", "Borrarla ahora", true)) return;
+  if (!await ask(tx("Se borrará ahora mismo, sin esperar. Esto ya no se puede deshacer."), "Borrarla ahora", true)) return;
   portadaAviso(""); portadaOcupada(true, "Borrando…");
   try {
     await sbBorrarCuenta();
@@ -748,7 +748,7 @@ function portadaSinCuenta() {
   }
 
   cerrarPortada();
-  toast("Guardando solo en este dispositivo", "calma");
+  toast(tx("Guardando solo en este dispositivo"), "calma");
   // Con retraso: la portada tarda un cuarto de segundo en irse
   setTimeout(quizaTutorialDeEntrada, 320);
 }

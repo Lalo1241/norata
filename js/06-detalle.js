@@ -1173,7 +1173,7 @@ async function borrarHistSeleccion() {
   const s = state.skills.find(x => x.id === currentSkillId);
   if (!s) return;
   const idx = [...histSel].map(Number).sort((a, b) => a - b);
-  if (!idx.length) { toast("No hay nada marcado", "atencion"); return; }
+  if (!idx.length) { toast(tx("No hay nada marcado"), "atencion"); return; }
   const neto = idx.reduce((a, i) => a + ((s.log[i] && s.log[i].xp) || 0), 0);
   if (!await ask(
     `Se quitarán ${idx.length} movimiento${idx.length === 1 ? "" : "s"} de ${s.name}` +

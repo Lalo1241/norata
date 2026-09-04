@@ -219,7 +219,7 @@ function renderCopias() {
 async function restaurarCopia(key) {
   let datos = null;
   try { datos = JSON.parse(localStorage.getItem(key)); } catch (e) {}
-  if (!datos) { toast("Esa copia ya no se puede leer", "atencion"); return; }
+  if (!datos) { toast(tx("Esa copia ya no se puede leer"), "atencion"); return; }
 
   if (!await ask(
     `Se pondrá esta copia (${syncCount(datos)}) en lugar de lo que tienes ahora (${syncCount(state)}). ` +
@@ -237,7 +237,7 @@ async function restaurarCopia(key) {
 }
 
 async function borrarCopia(key) {
-  if (!await ask("Se borrará esta copia de seguridad. No se puede deshacer.", "Borrar", true)) return;
+  if (!await ask(tx("Se borrará esta copia de seguridad. No se puede deshacer."), "Borrar", true)) return;
   try { localStorage.removeItem(key); } catch (e) {}
   renderCopias();
   toast("Copia borrada", "deshecho");
@@ -261,7 +261,7 @@ async function syncOnce(opts) {
     if (w.conflicto) { const e = new Error("carrera"); e.retry = true; throw e; }
     sync.marca = w.marca; sync.rev = env.rev;
     sync.dirty = false; sync.lastAt = env.updatedAt; saveSync();
-    if (!opts.silent) toast("Listo: tu progreso ya está en " + almacenActual.nombre, "logro");
+    if (!opts.silent) toast(T`Listo: tu progreso ya está en ${almacenActual.nombre}`, "logro");
     return;
   }
 
@@ -296,13 +296,13 @@ async function syncOnce(opts) {
     // Sigue habiendo algo que subir: la fusión, que ninguno de los dos tiene
     sync.dirty = true;
     saveSync();
-    if (!opts.silent) toast("Al día con " + (env.device || "el otro dispositivo"), "hecho");
+    if (!opts.silent) toast(T`Al día con ${env.device || tx("el otro dispositivo")}`, "hecho");
   } else if (remoteNewer && env && env.state) {
     adoptRemote(env);
     sync.marca = remote.marca; sync.rev = remoteRev;
     sync.dirty = false; sync.lastAt = env.updatedAt; saveSync();
     renderSync();
-    if (!opts.silent) toast("Al día con " + (env.device || "el otro dispositivo"));
+    if (!opts.silent) toast(T`Al día con ${env.device || tx("el otro dispositivo")}`);
     return;
   } else {
     sync.marca = remote.marca;
@@ -310,7 +310,7 @@ async function syncOnce(opts) {
 
   if (!sync.dirty) {
     sync.lastAt = new Date().toISOString(); saveSync();
-    if (!opts.silent) toast("Todo al día", "calma");
+    if (!opts.silent) toast(tx("Todo al día"), "calma");
     return;
   }
 
@@ -333,7 +333,7 @@ async function syncRun(opts) {
      entrar al ejemplo y cambiar de pestaña para que se subiera. */
   if (modoEjemplo) return;
   if (navigator.onLine === false) {
-    if (!opts.silent) toast("Sin conexión: se subirá cuando vuelva", "calma");
+    if (!opts.silent) toast(tx("Sin conexión: se subirá cuando vuelva"), "calma");
     return;
   }
   syncBusy = true; syncError = null; renderSync();
@@ -486,7 +486,7 @@ function syncRenameDevice(v) {
 
 async function syncDisconnect() {
   const alm = almacen();
-  if (!await ask("Se borrará la credencial de este dispositivo y tu progreso dejará de subirse. Lo que ya subiste sigue en tu cuenta.", "Desconectar")) return;
+  if (!await ask(tx("Se borrará la credencial de este dispositivo y tu progreso dejará de subirse. Lo que ya subiste sigue en tu cuenta."), "Desconectar")) return;
   /* Se va la credencial entera, no solo una llave con nombre fijo: cada
      almacén guarda lo suyo y aquí no se sabe cómo se llama. */
   sync.enabled = false; sync.cfg = {}; sync.marca = null; sync.dirty = false;

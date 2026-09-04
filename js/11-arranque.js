@@ -421,7 +421,7 @@ window.addEventListener("online", () => syncRun({ silent: true }));
     if (!listo) { quitar(); return; }
     pintar(UMBRAL, "Actualizando…");
     if (syncReady()) await syncRun({ silent: true });
-    else toast("Sin cuenta: no hay nada que traer", "calma");
+    else toast(tx("Sin cuenta: no hay nada que traer"), "calma");
     quitar();
   }, { passive: true });
 })();

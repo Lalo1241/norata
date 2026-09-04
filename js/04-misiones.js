@@ -916,7 +916,7 @@ function toggleStep(prId, stepId) {
   const prog = projectProgress(pr);
   renderProjectDetail();
   if (prog === 100 && s.done) {
-    toast("Todas las etapas listas — ciérralo cuando quieras", "logro");
+    toast(tx("Todas las etapas listas — ciérralo cuando quieras"), "logro");
   } else {
     toast(`${pr.name}: ${prog}%`, "hecho");
   }
@@ -926,7 +926,7 @@ async function addStepTo(prId) {
   const pr = state.projects.find(x => x.id === prId);
   const input = document.getElementById("detail-new-step");
   const name = input.value.trim();
-  if (!name) { toast("Escribe el nombre de la etapa", "atencion"); return; }
+  if (!name) { toast(tx("Escribe el nombre de la etapa"), "atencion"); return; }
   pr.steps.push({ id: uid(), name, done: false, at: null });
   projectLog(pr, `Etapa añadida: ${name}`);
   save();
@@ -1041,7 +1041,7 @@ function setModulo(id, on) {
   state.ui = state.ui || {};
   const off = new Set(state.ui.modulosOff || []);
   if (on) off.delete(id); else off.add(id);
-  if (off.size >= MODULOS.length) { toast("Deja al menos un módulo encendido", "atencion"); return; }
+  if (off.size >= MODULOS.length) { toast(tx("Deja al menos un módulo encendido"), "atencion"); return; }
   state.ui.modulosOff = [...off];
   save();
   aplicarModulos();
@@ -1177,7 +1177,7 @@ function atrasApp() {
   const ahora = Date.now();
   if (ahora - avisoDeSalida < 2600) return false;
   avisoDeSalida = ahora;
-  toast("Desliza otra vez para salir", "calma");
+  toast(tx("Desliza otra vez para salir"), "calma");
   return true;
 }
 
@@ -1257,7 +1257,7 @@ function showView(name) {
   if (name !== "summary" && dashEditing) {
     dashEditing = false;
     save();
-    toast("Modo Editor cerrado · tu tablero quedó guardado", "hecho");
+    toast(tx("Modo Editor cerrado · tu tablero quedó guardado"), "hecho");
   }
 
   window.scrollTo(0, 0);

@@ -303,7 +303,7 @@ function togglePermFields() {
 
 function saveSkill() {
   const name = document.getElementById("f-name").value.trim();
-  if (!name) { toast("Ponle un nombre a la habilidad", "atencion"); return; }
+  if (!name) { toast(tx("Ponle un nombre a la habilidad"), "atencion"); return; }
   const category = document.getElementById("f-cat").value.trim();
   const permanent = document.getElementById("f-perm").checked;
   const ex = exigenciaActual();
@@ -526,7 +526,7 @@ function removePerkFormStep(i) {
 
 function savePerk() {
   const name = document.getElementById("p-name").value.trim();
-  if (!name) { toast("Ponle un nombre al talento", "atencion"); return; }
+  if (!name) { toast(tx("Ponle un nombre al talento"), "atencion"); return; }
   const t = TIPOS[pTipo];
   const branch = document.getElementById("p-branch").value.trim() || "General";
   const desc = document.getElementById("p-desc").value.trim();
@@ -546,7 +546,7 @@ function savePerk() {
      un talento a medio definir no debería poder quedarse guardado como si
      estuviera listo. */
   if (t.pideImporte && !(cost > 0)) {
-    toast("Una compra necesita su importe: ponle cuánto costó", "atencion");
+    toast(tx("Una compra necesita su importe: ponle cuánto costó"), "atencion");
     document.getElementById("p-cost").focus();
     return;
   }
@@ -685,8 +685,8 @@ function toggleDay(i) {
 
 function saveMission() {
   const name = document.getElementById("ms-name").value.trim();
-  if (!name) { toast("Escribe qué vas a hacer"); return; }
-  if (msCadence === "weekly" && msDays.length === 0) { toast("Elige al menos un día"); return; }
+  if (!name) { toast(tx("Escribe qué vas a hacer")); return; }
+  if (msCadence === "weekly" && msDays.length === 0) { toast(tx("Elige al menos un día")); return; }
   const desc = document.getElementById("ms-desc").value.trim();
   const target = Math.max(1, parseInt(document.getElementById("ms-target").value) || 1);
   const xp = Math.max(0, parseInt(document.getElementById("ms-xp").value) || 0);
@@ -696,7 +696,7 @@ function saveMission() {
     const m = state.missions.find(x => x.id === editingMissionId);
     Object.assign(m, { name, desc, target: msCadence === "once" ? 1 : target, xp, skillId, icon: msIcon, color: msColor, cadence: msCadence, days: msDays });
     save();
-    toast("Misión actualizada");
+    toast(tx("Misión actualizada"));
   } else {
     state.missions.push({
       id: uid(), name, desc, icon: msIcon, color: msColor,
@@ -719,7 +719,7 @@ async function deleteMission() {
   if (!await ask(`¿Eliminar la misión "${m.name}" y su historial de rachas?`, "Eliminar", true)) return;
   state.missions = state.missions.filter(x => x.id !== editingMissionId);
   save();
-  toast("Misión eliminada", "deshecho");
+  toast(tx("Misión eliminada"), "deshecho");
   showView("missions");
 }
 
@@ -789,7 +789,7 @@ function removeFormStep(i) {
 
 function saveProject() {
   const name = document.getElementById("pr-name").value.trim();
-  if (!name) { toast("Ponle un nombre al encargo", "atencion"); return; }
+  if (!name) { toast(tx("Ponle un nombre al encargo"), "atencion"); return; }
   const branch = document.getElementById("pr-branch").value.trim() || "General";
   const desc = document.getElementById("pr-desc").value.trim();
   const skillId = document.getElementById("pr-skill").value || null;

@@ -218,7 +218,7 @@ function toggleArea(id) {
      nada. Se lee el de `libre` incluso para quien paga: la bienvenida es
      la primera vez para todos, y ya podrá añadir más después. */
   else if (onboardPick.areas.length < LIMITES.libre.ramas) onboardPick.areas.push(id);
-  else { toast("Tres es suficiente para empezar", "atencion"); return; }
+  else { toast(tx("Tres es suficiente para empezar"), "atencion"); return; }
   renderOnboarding();
 }
 
@@ -594,7 +594,7 @@ function salirDelEjemplo() {
   } catch (e) { /* sin sincronía no hay nada que rearmar */ }
 
   showView("summary");
-  toast("Saliste del ejemplo. Tus datos están como los dejaste.", "hecho");
+  toast(tx("Saliste del ejemplo. Tus datos están como los dejaste."), "hecho");
 }
 
 /* El rótulo, y la única salida. Es el mismo trato que el de «Cuenta de
@@ -809,7 +809,7 @@ function loadExamples() {
      ejemplo y decidir dónde ponerlo son dos cosas: si algún día hay que
      enseñarlo en otro sitio, se reusa esto sin arrastrar el modo. */
   showView("summary");
-  toast("Así se ve Norata en uso. Nada de esto se guarda: sal cuando quieras.");
+  toast(tx("Así se ve Norata en uso. Nada de esto se guarda: sal cuando quieras."));
   quizaTutorial(700);
 }
 
@@ -856,7 +856,7 @@ function loadMissionExamples(silent) {
       archived: false, completedAt: null, createdAt: daysAgo(5)
     }
   );
-  if (!silent) { save(); renderMissions(); toast("Misiones de ejemplo cargadas"); }
+  if (!silent) { save(); renderMissions(); toast(tx("Misiones de ejemplo cargadas")); }
 }
 
 /* Proyectos de ejemplo: uno con ritmo, uno casi listo y uno estancado,
@@ -901,7 +901,7 @@ function loadProjectExamples(silent) {
       ]
     }
   );
-  if (!silent) { save(); renderProjects(); toast("Proyectos de ejemplo cargados"); }
+  if (!silent) { save(); renderProjects(); toast(tx("Proyectos de ejemplo cargados")); }
 }
 
 /* ================= Zona horaria ================= */
@@ -1519,7 +1519,7 @@ function importData(input) {
       const data = JSON.parse(reader.result);
       if (!data || !Array.isArray(data.skills)) throw new Error("formato");
       if ((Number(data.schemaVersion) || 1) > SCHEMA) {
-        toast("Ese respaldo viene de una versión más nueva de Norata. Actualiza la app aquí antes de importarlo.", "atencion");
+        toast(tx("Ese respaldo viene de una versión más nueva de Norata. Actualiza la app aquí antes de importarlo."), "atencion");
         return;
       }
       if (!Array.isArray(data.perks)) data.perks = [];
@@ -1530,7 +1530,7 @@ function importData(input) {
       showView("summary");
       toast("Respaldo importado");
     } catch (e) {
-      toast("El archivo no es un respaldo válido", "atencion");
+      toast(tx("El archivo no es un respaldo válido"), "atencion");
     } finally {
       input.value = "";
     }
@@ -1559,12 +1559,12 @@ async function resetAll() {
       "", "Borrar todo", correo, 120);
     if (escrito === null) return;
     if (String(escrito).trim().toLowerCase() !== correo.toLowerCase()) {
-      toast("El correo no coincide. No borré nada.", "calma");
+      toast(tx("El correo no coincide. No borré nada."), "calma");
       return;
     }
   }
 
-  if (!await ask("Última confirmación: se borrará todo. ¿Seguro?", "Sí, borrar", true, true)) return;
+  if (!await ask(tx("Última confirmación: se borrará todo. ¿Seguro?"), "Sí, borrar", true, true)) return;
   state = { skills: [], perks: [], projects: [], missions: [], settings: { timezone: userTZ() } };
   save();
   showView("summary");
