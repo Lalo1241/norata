@@ -351,7 +351,7 @@ function renderProjects() {
     <div class="branch-card" data-rid="${escapeAttr(b)}" data-cota="${liveN} de ${list.length}" style="padding-bottom:14px">
       <div class="branch-head" style="margin-bottom:12px">
         <!-- Igual que en Talentos: el nombre se reescribe tocándolo -->
-        <h3 class="renombrable" onclick="renombrarRamaProyectos('${enJS(b)}')" title="${escapeAttr(tx("Toca el nombre para renombrar el proyecto"))}">${escapeHtml(b)}${icon("pen", 11)}</h3>
+        <h3 class="renombrable" onclick="renombrarRamaProyectos('${enJS(b)}')" title="${escapeAttr(tx("Toca el nombre para renombrar el proyecto"))}">${escapeHtml(b)}${selloDeRama(b)}${icon("pen", 11)}</h3>
         <span class="count">${liveN} de ${list.length}</span>
         <div class="bhead-btns">
           ${branchMenu("p:" + b, [
@@ -1344,7 +1344,7 @@ function renderTree() {
         <!-- El nombre abre el renombrado, no el plegado: plegar ya tiene su
              flecha justo al lado, y escribir encima de un título es el gesto
              que todo el mundo prueba primero. -->
-        <h3 class="renombrable" onclick="renombrarRama('${bj}')" title="${escapeAttr(tx("Toca el nombre para renombrar la rama"))}">${escapeHtml(b)}${icon("pen", 11)}</h3>
+        <h3 class="renombrable" onclick="renombrarRama('${bj}')" title="${escapeAttr(tx("Toca el nombre para renombrar la rama"))}">${escapeHtml(b)}${selloDeRama(b)}${icon("pen", 11)}</h3>
         <span class="count">${doneN} de ${reales.length}</span>
         <div class="bhead-btns">
           ${editing ? `

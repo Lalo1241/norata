@@ -3055,24 +3055,13 @@ async function renombrarRamaProyectos(b) {
   toast(existe ? `Proyectos juntados en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
 }
 
-/* Etiqueta de rama reutilizable: el mismo concepto en todas las secciones.
-
-   El mapita que sale junto al nombre dice que esa rama vino de un camino. Es
-   EL MISMO dibujo que lleva la carta en el cajón, y repetirlo en los dos
-   sitios es lo que hace que se entienda sin que nadie lo explique.
-
-   Va aquí y no dentro de los talentos porque lo que se creó tiene que ser
-   indistinguible de lo escrito a mano: la marca es de la rama, que es un
-   nombre en `state.ui`, y no de las cosas que llevas dentro. */
+/* Etiqueta de rama reutilizable: el mismo concepto en todas las secciones. */
 function branchHeader(name, countLabel, buttons) {
-  const deCamino = typeof caminoDeRama === "function" && caminoDeRama(name);
   return `
     <div class="branch-head">
       <div class="btitle">
         <span class="branch-kicker">${tx("Rama")}</span>
-        <h3>${escapeHtml(name)}${deCamino
-          ? ` <span class="sello-camino" title="Vino de un camino">${icon("map", 12)}</span>`
-          : ""}</h3>
+        <h3>${escapeHtml(name)}</h3>
       </div>
       <span class="count">${countLabel}</span>
       <div class="bhead-btns">${buttons}</div>
