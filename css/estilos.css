@@ -3106,6 +3106,23 @@
   /* En la computadora el número ya vive al pie de la barra lateral */
   @media (min-width: 900px) { .version-pie { display: none; } }
 
+  /* ---------- El pie legal ----------
+     Los dos documentos, debajo del número. Más apagados que él a propósito:
+     no son algo que se venga a buscar todos los días, pero tienen que estar
+     donde se puedan encontrar sin preguntar. Y sin esconderse en la
+     computadora, al revés que el número: estos enlaces no viven en ningún
+     otro sitio de la app. */
+  .legal-pie {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-top: 10px;
+    font-size: 11.5px;
+  }
+  .legal-pie a { color: var(--faint); text-decoration: none; }
+  .legal-pie a:hover, .legal-pie a:focus-visible { color: var(--text); text-decoration: underline; }
+
   /* ---------- Reportar un fallo ----------
      Una BOLITA del tamaño del botón que pliega el menú (32 px), y no una fila
      con rótulo: esto se usa una vez al mes y una fila entera pesaba más que
@@ -6900,6 +6917,13 @@
     font-family: inherit; font-size: 12.5px; font-weight: 700;
   }
   .portada-nota { text-align: center; color: var(--faint); font-size: 12px; line-height: 1.55; margin: 6px 0 0; }
+
+  /* El consentimiento, debajo de la nota y más apagado todavía. Los enlaces sí
+     se subrayan: es lo único de este renglón que hay que poder distinguir de un
+     vistazo, porque es lo que hay que poder leer ANTES de aceptar. */
+  .portada-legal { text-align: center; color: var(--faint); font-size: 11.5px; line-height: 1.55; margin: 8px 0 0; }
+  .portada-legal a { color: var(--muted); text-decoration: underline; }
+  .portada-legal a:hover, .portada-legal a:focus-visible { color: var(--text); }
 
   /* La portada aparece desvaneciéndose salvo cuando releva a la pantalla de
      carga: ahí las dos tapan lo mismo con el mismo fondo, así que encadenar

@@ -76,6 +76,61 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.83 · 3 sep 2026
+
+**Norata ya tiene aviso de privacidad y términos, publicados y enlazados.** Era
+el bloqueador más viejo de la lista —desde el 22 de agosto— y el único que no
+dependía de escribir código, sino de tres datos que solo tenía Eduardo.
+
+Dos páginas nuevas, servidas por el mismo GitHub Pages que la app:
+`mi.norata.app/privacidad/` y `mi.norata.app/terminos/`.
+
+**No son pantallas de la app y eso es a propósito.** Tienen su propia hoja
+(`css/legal.css`, 4 KB contra los 300 de la de la app), no cargan ni un script
+ni una tipografía de fuera —contradecir por la puerta de atrás lo que el propio
+documento promete sobre seguimiento habría sido un buen chiste—, y llevan la
+misma CSP que `index.html`. Respetan el modo claro leyendo la MISMA llave que la
+app, y si quien llega no ha entrado nunca a Norata siguen lo que pida su
+sistema: un documento legal lo abre cualquiera, no solo quien ya es de la casa.
+
+**Los enlaces van en tres sitios, y el orden importa:**
+
+- **En la puerta, debajo del botón de crear cuenta.** Es el instante en que se
+  recoge el correo de alguien, que es justo lo que un aviso de privacidad tiene
+  que anunciar ANTES de que ocurra. Debajo del botón y no encima: quien viene a
+  crear una cuenta viene a pulsarlo.
+- **Al pie de Ajustes**, y no dentro de la sección de la cuenta: quien usa
+  Norata sin cuenta también aceptó los términos, y esa sección solo se pinta con
+  sesión. A diferencia del número de versión, este pie **no se esconde en la
+  computadora** — el número ya vive en la barra lateral, estos enlaces no viven
+  en ningún otro sitio.
+- **En el pie de los seis correos**, junto a la dirección de contacto.
+
+**La ruta se resuelve con `legalBase()`** y no escrita a mano, por el mismo
+motivo que existe `logotipoSrc()`: la portada se pinta en DOS sitios —la puerta,
+que vive en `/login/`, y la app, que vive en la raíz— y una ruta relativa que
+sirve en uno se rompe en el otro. Relativa y no absoluta, para que el proyecto
+siga abriéndose desde una carpeta local en las pruebas.
+
+**Lo que costó tres conversaciones y no una línea de código:** el responsable es
+él como persona física —Hopara es un registro de marca, no una sociedad—, así
+que su nombre y un domicilio van publicados. Se le ofrecieron tres caminos para
+el domicilio (el del IMPI, una oficina virtual, o el de su constancia) y eligió
+el tercero sabiendo lo que implica. La dirección de contacto es
+`norata@hopara.com.mx`, creada para esto.
+
+**Medido en local antes de subir**, en los dos modos: cero huecos en las dos
+páginas, las dos contestan 200 desde la puerta, los enlaces salen con `../`
+desde `/login/` y sin prefijo desde la app, y el contraste del cuerpo es 12,35
+en claro y del enlace 4,62.
+
+**Y una trampa de la verificación que conviene recordar:** el navegador servía
+`10c-portada.js` de su caché HTTP —53 KB contra los 64 del archivo nuevo—, así
+que la función nueva salía «undefined» mientras el archivo en disco ya la tenía.
+No era el service worker: no había ninguno registrado. Se vio comparando
+`decodedBodySize` con el tamaño real y se rodeó abriendo por `127.0.0.1` en vez
+de por `localhost`, que para el navegador es otro origen y otra caché.
+
 ### 0.7.82 · 3 sep 2026
 
 **Cambiar de cuenta se hace desde donde ya se ve quién eres.** Eduardo abrió el

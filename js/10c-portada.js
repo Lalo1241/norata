@@ -212,6 +212,17 @@ function portadaPintar(modo) {
          <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaRegistrar()">Crear cuenta</button>
        </div>
        <p class="portada-nota">Te mandaré un correo para confirmar que la dirección es tuya. Hasta que lo abras, la cuenta no se activa.</p>
+       <!-- El consentimiento va AQUÍ y no en Ajustes, y no es una manía legal:
+            este es el instante en que se recoge el correo de alguien, que es
+            justo lo que el aviso de privacidad tiene que anunciar antes de que
+            ocurra. Puesto después, se estaría avisando de algo ya hecho.
+
+            Debajo del botón y no encima: quien viene a crear una cuenta viene
+            a pulsarlo, y una frase legal por delante empuja el botón hacia
+            abajo sin que nadie la haya pedido. -->
+       <p class="portada-legal">Al crear tu cuenta aceptas los
+         <a href="${legalBase()}terminos/" target="_blank" rel="noopener">términos</a> y el
+         <a href="${legalBase()}privacidad/" target="_blank" rel="noopener">aviso de privacidad</a>.</p>
        <p class="portada-pie">¿Ya tienes una? <button onclick="portadaIrA('entrar')">Entra aquí</button></p>`;
 
   } else if (modo === "rescate") {
@@ -564,6 +575,18 @@ async function portadaRegistrar() {
    pregunta por lo que de verdad hay delante. */
 function enLaPuerta() {
   return !document.getElementById("view-summary");
+}
+
+/* Desde dónde se llega a las páginas legales. Es el mismo problema que resuelve
+   `logotipoSrc()` y por el mismo motivo: la portada se pinta en DOS sitios —la
+   puerta, que vive en `/login/`, y la app, que vive en la raíz— y una ruta
+   relativa que sirve en uno se rompe en el otro.
+
+   Relativa y no absoluta a propósito: con `/privacidad/` esto solo funcionaría
+   servido desde la raíz de un dominio, y el proyecto se abre también desde una
+   carpeta local en las pruebas. */
+function legalBase() {
+  return enLaPuerta() ? "../" : "";
 }
 
 /* Ir a entrar. Desde la app es un viaje de verdad —la puerta vive en otra
