@@ -202,9 +202,9 @@ function pintarMandoZoom(wrap, b) {
        forma de dejarlo en un número que el mando no sepa repetir. */
     mando.innerHTML = `
       <button type="button" data-z="menos" aria-label="Alejar">−</button>
-      <span class="pct"><input type="text" inputmode="numeric" aria-label="Nivel de zoom, en porcentaje"><i>%</i></span>
+      <span class="pct"><input type="text" inputmode="numeric" aria-label="${escapeAttr(tx("Nivel de zoom, en porcentaje"))}"><i>%</i></span>
       <button type="button" data-z="mas" aria-label="Acercar">+</button>
-      <button type="button" data-z="ajustar" class="ajustar" aria-label="Ajustar todo a la pantalla" title="Ajustar todo a la pantalla"><svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg></button>`;
+      <button type="button" data-z="ajustar" class="ajustar" aria-label="${escapeAttr(tx("Ajustar todo a la pantalla"))}" title="${escapeAttr(tx("Ajustar todo a la pantalla"))}"><svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg></button>`;
     mando.addEventListener("pointerdown", (e) => e.stopPropagation());
     mando.addEventListener("click", (e) => {
       const btn = e.target.closest("button");
@@ -1052,9 +1052,9 @@ function atajosLegend(compacta) {
     .join('<i class="sep">·</i>');
   const partes = compacta
     ? [crear, `${k("C")} editar el mapa`, `${k("M")} pantalla completa`,
-       `${raton} clic derecho: crear, editar y pantalla completa`]
+       `${raton} ${tx("clic derecho: crear, editar y pantalla completa")}`]
     : [crear, `${k("C")} salir de edición`, `${k("M")} pantalla completa`,
-       `${k("Ctrl")}${k("Z")} deshacer`, `${raton} clic derecho: crear y más acciones`];
+       `${k("Ctrl")}${k("Z")} deshacer`, `${raton} ${tx("clic derecho: crear y más acciones")}`];
   return `<span class="keys">${partes.join('<i class="sep">·</i>')}</span>`;
 }
 

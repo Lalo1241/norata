@@ -99,7 +99,7 @@ function renderSummary() {
   stalledProjects.forEach(p => attention.push(`
       <button class="att-item" onclick="openProject('${p.id}')">
         <span class="dot" style="background:var(--coral-soft);color:var(--coral)">${icon(p.icon, 17)}</span>
-        <span class="tx"><b>${escapeHtml(p.name)}</b><span>Estancado ${daysIdle(p)} días — retómalo o suéltalo</span></span>
+        <span class="tx"><b>${escapeHtml(p.name)}</b><span>${T`Estancado ${daysIdle(p)} días — retómalo o suéltalo`}</span></span>
         <span class="go">→</span>
       </button>`));
   if (!stk.activeToday) {
@@ -399,7 +399,7 @@ function renderSummary() {
           ${insigniaExpedicionHTML(38) || `<span class="ic">${icon("compass", 22)}</span>`}
           <div class="exp-cifra">
             <div class="n">${info.nivel}</div>
-            <div class="t">de expedición${r ? " · " + escapeHtml(r.nombre) : ""}</div>
+            <div class="t">${tx("de expedición")}${r ? " · " + escapeHtml(tx(r.nombre)) : ""}</div>
           </div>
         </div>
         <div class="sc-rows">
@@ -437,7 +437,7 @@ function renderSummary() {
           <div><b>${moneyHTML(invested)}</b><span>${tx("INVERTIDO")}</span></div>
         </div>
         ${cerca ? `<div class="sc-near">
-          <span>${cerca.pct}% hecho, lo más avanzado</span>
+          <span>${T`${cerca.pct}% hecho, lo más avanzado`}</span>
           <b>${escapeHtml(cerca.p.name)}</b>
           <i style="--p:${cerca.pct}%;${tonos("c", cerca.p.color || "var(--fire)")}"></i>
         </div>` : ""}
@@ -2166,7 +2166,7 @@ function loQueSostiene(cur) {
             <span class="sgs-b"><i style="width:${Math.round(f.dias / max * 100)}%;background:${trazo(f.color || "#5fe0b0")}"></i></span>
             <span class="sgs-v">${f.dias}</span>
           </div>`).join("")}
-        <p class="sgs-pie">Días de los últimos ${RACHA_VENTANA} en que apareció cada una.</p>
+        <p class="sgs-pie">${T`Días de los últimos ${RACHA_VENTANA} en que apareció cada una.`}</p>
       </div>` : ""}`;
 }
 

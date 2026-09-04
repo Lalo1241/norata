@@ -252,7 +252,7 @@ function openSkillForm(id) {
   editingSkillId = id || null;
   const s = id ? state.skills.find(x => x.id === id) : null;
 
-  document.getElementById("form-title").textContent = s ? "Editar habilidad" : "Nueva habilidad";
+  document.getElementById("form-title").textContent = tx(s ? "Editar habilidad" : "Nueva habilidad");
   document.getElementById("f-name").value = s ? s.name : "";
   document.getElementById("f-cat").value = s ? (s.category || "") : "";
   document.getElementById("f-perm").checked = s ? !!s.permanent : false;

@@ -259,7 +259,7 @@ function escaleraDeExpedicion() {
     /* Se empareja por el nivel donde el rango se CONSIGUE —el sexto de su
        tramo— y no por `desde`, que es donde empieza a dibujarse. */
     const r = propios.filter(x => x.desde + EXP_POR_RANGO - 1 === f.nivel)[0];
-    return r ? Object.assign({}, f, { nombre: "Rango " + r.nombre }) : f;
+    return r ? Object.assign({}, f, { nombre: T`Rango ${tx(r.nombre)}` }) : f;
   });
   if (typeof AMBIENTES !== "undefined") {
     for (const a of AMBIENTES) {
@@ -1278,11 +1278,11 @@ function renderColeccion() {
             <span class="crx-disco">${r.trazo ? svgDeTrazo(r.trazo, 22) : icon(r.icon, 22)}</span>
             <div class="crx-tx">
               <div class="crx-cab">
-                <b>${escapeHtml(r.nombre)}</b>
+                <b>${escapeHtml(tx(r.nombre))}</b>
                 <span class="crx-estado">${
-                  tuyo ? icon("check", 13) + "Conseguido"
+                  tuyo ? icon("check", 13) + tx("Conseguido")
                   : estado === "viva" ? tx("Estás aquí")
-                  : "Nivel " + hasta}</span>
+                  : T`Nivel ${hasta}`}</span>
               </div>
               <span class="crx-nota">${escapeHtml(r.nota ? tx(r.nota) : T`Niveles ${r.desde} a ${hasta}.`)}</span>
             </div>

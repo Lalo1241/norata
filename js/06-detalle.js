@@ -137,7 +137,7 @@ function renderMissions() {
      ahí. Las dos columnas de cerrado no lo llevan —a "Cumplidas hoy" y a
      "Misiones terminadas" se llega cumpliendo, no creando—. */
   const masTablero = (c) => (c.id === "hechas" || c.id === "terminadas") ? "" :
-    `<button class="badd" onclick="openMissionForm(null, '${c.id}')" aria-label="Añadir misión a ${escapeAttr(c.nombre)}">＋</button>`;
+    `<button class="badd" onclick="openMissionForm(null, '${c.id}')" aria-label="${escapeAttr(T`Añadir misión a ${c.nombre}`)}">＋</button>`;
 
   /* Igual que en las ramas de Proyectos y de Talentos: el nombre se reescribe
      tocándolo. Renombrar deja de estar escondido en un menú, que es donde
@@ -302,7 +302,7 @@ function renderProjects() {
     .sort((a, b) => projectProgress(b) - projectProgress(a))[0];
   let pFocus;
   if (stalled.length) {
-    pFocus = { k: `Estancado ${daysIdle(stalled[0])} días`, v: stalled[0].name, color: "var(--coral)", onclick: `openProject('${stalled[0].id}')`, pct: projectProgress(stalled[0]) };
+    pFocus = { k: T`Estancado ${daysIdle(stalled[0])} días`, v: stalled[0].name, color: "var(--coral)", onclick: `openProject('${stalled[0].id}')`, pct: projectProgress(stalled[0]) };
   } else if (closing) {
     pFocus = { k: "A punto de cerrarse", v: closing.name, color: "var(--mint)", onclick: `openProject('${closing.id}')`, pct: projectProgress(closing) };
   } else if (live.length) {
@@ -332,7 +332,7 @@ function renderProjects() {
       ${stalled.map(p => `
         <button class="att-item" onclick="openProject('${p.id}')">
           <span class="dot" style="background:var(--coral-soft);color:var(--coral)">${icon(p.icon, 17)}</span>
-          <span class="tx"><b>${escapeHtml(p.name)}</b><span>${daysIdle(p)} días sin avance · ${projectProgress(p)}% hecho</span></span>
+          <span class="tx"><b>${escapeHtml(p.name)}</b><span>${T`${daysIdle(p)} días sin avance · ${projectProgress(p)}% hecho`}</span></span>
           <span class="go">→</span>
         </button>`).join("")}
     </div>`;
@@ -343,7 +343,7 @@ function renderProjects() {
      LISTA de contenedores, que es donde el nombre largo hace falta. Dentro de
      cada tarjeta ya se les dice proyecto a secas — ahí el contexto lo da la
      propia tarjeta. Ver `crearRama` para la jerarquía entera. */
-  html += `<div class="sec-label full-row">Tus ramas de proyectos${
+  html += `<div class="sec-label full-row">${tx("Tus ramas de proyectos")}${
     branches.length > 1 ? `<span class="hint-hold">${pistaReordenarRamas()}</span>` : ""}</div>`;
   let iRama = 0;
   for (const b of branches) {
@@ -394,7 +394,7 @@ function renderProjects() {
             ] : []),
             { title: "Borrar este proyecto", hint: list.length === 0 ? "Está vacío" : (list.length === 1 ? "Se va también su único encargo" : `Se van también sus ${list.length} encargos`), icon: "bote", danger: true, onclick: `deleteBranch('projects','${enJS(b)}')` }
           ])}
-          <button class="badd" onclick="openProjectForm(null, '${enJS(b)}')" aria-label="Añadir encargo a ${escapeAttr(b)}">＋</button>
+          <button class="badd" onclick="openProjectForm(null, '${enJS(b)}')" aria-label="${escapeAttr(T`Añadir encargo a ${b}`)}">＋</button>
         </div>
       </div>
       ${enMapa ? mapaDeProyecto(b, editandoMapa, claveMapa) : `
@@ -418,7 +418,7 @@ function renderProjects() {
             <div class="proj-bar"><div class="bar"><div class="bar-fill" style="width:${prog}%;background:${trazo(col)}"></div></div></div>
             <div class="proj-meta">
               <span>${doneN} de ${(p.steps || []).length} etapas · <b>${prog}%</b></span>
-              <span style="color:${h.color}">${tx(h.label)}</span>
+              <span style="color:${h.color}">${h.label}</span>
             </div>
             </div>
             ${etapasEnLista(p)}
@@ -608,7 +608,7 @@ function etapasEnLista(p) {
   const anadir = cerrado ? "" : `
     <button class="pstep add" data-add="${escapeAttr(p.id)}"
       onclick="event.stopPropagation();nuevaEtapaEnLista('${pj}')"
-      aria-label="Añadir una etapa a ${escapeAttr(p.name)}">${tx("＋ etapa")}</button>`;
+      aria-label="${escapeAttr(T`Añadir una etapa a ${p.name}`)}">${tx("＋ etapa")}</button>`;
 
   return `<div class="proj-steps">${chips}${mas}${anadir}</div>`;
 }
@@ -765,7 +765,7 @@ function renderProjectDetail() {
 
   const panelesHtml = ordenHtml + `
     <div class="panel alt" style="border-color:${h.key === "stalled" ? "rgba(255,138,112,0.45)" : "var(--borde-panel)"}">
-      <h3 style="color:${h.color}">${tx(h.label)}</h3>
+      <h3 style="color:${h.color}">${h.label}</h3>
       <p class="settings-note" style="margin:0">${escapeHtml(h.note)}</p>
     </div>
 
@@ -1269,7 +1269,7 @@ function renderTree() {
     focus = { k: "Plan vencido", v: dueNow[0].name, color: "var(--fire)", id: dueNow[0].id };
   } else if (soonest) {
     const left = daysBetween(todayKey(), soonest.endDate);
-    focus = { k: `Vence en ${left} día${left === 1 ? "" : "s"}`, v: soonest.name, color: "var(--fire)", id: soonest.id };
+    focus = { k: left === 1 ? tx("Vence en 1 día") : T`Vence en ${left} días`, v: soonest.name, color: "var(--fire)", id: soonest.id };
   } else if (readyNow.length) {
     focus = { k: tx("Listo para empezar"), v: readyNow[0].name, color: "var(--mint)", id: readyNow[0].id };
   } else {
@@ -1415,7 +1415,7 @@ function renderTree() {
           ${/* En PC no hay botón de crear: el clic derecho y las teclas
                 Q, W y E lo hacen mejor y sin ocupar la cabecera. En táctil
                 no existe ninguna de las dos cosas, así que ahí se queda. */
-            `<button class="badd" onclick="openPerkForm(null, '${bj}')" aria-label="Añadir talento a ${ba}">＋</button>`}
+            `<button class="badd" onclick="openPerkForm(null, '${bj}')" aria-label="${escapeAttr(T`Añadir talento a ${b}`)}">＋</button>`}
         </div>
       </div>
       ${body}

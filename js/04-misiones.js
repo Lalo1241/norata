@@ -180,7 +180,7 @@ function moverMisionATablero(id, destino) {
 
 /* ---- Los tableros propios ---- */
 async function crearTableroMisiones() {
-  const nombre = await askText("Nuevo tablero", "", "Crear",
+  const nombre = await askText(tx("Nuevo tablero"), "", tx("Crear"),
     tx("Un sitio donde apartar misiones: un proyecto, un ámbito, lo que quieras."), 28);
   if (!nombre) return;
   state.tableros = state.tableros || [];
@@ -1236,8 +1236,8 @@ function showView(name) {
        que pide el nombre —igual que Talentos, cuyo botón también dice «Nueva
        rama» y cuyo cuadro dice «Nueva rama de talentos»—, porque en el botón
        ya se sabe en qué pantalla estás. */
-    home: "Nueva habilidad", tree: "Nueva rama",
-    projects: "Nueva rama", missions: "Nuevo tablero"
+    home: tx("Nueva habilidad"), tree: tx("Nueva rama"),
+    projects: tx("Nueva rama"), missions: tx("Nuevo tablero")
   }[name] || "";
 
   /* La pantalla completa es una capa por encima de todo, así que taparía
