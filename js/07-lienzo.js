@@ -1993,11 +1993,18 @@ function constellation(nodes, key, editing, branch, mod) {
 
      Se comprueba contra los otros talentos Y contra los nombres ya colocados:
      sin lo segundo, dos hermanos mandan su nombre al mismo hueco. */
+  /* Cada estorbo lleva de quién es, y eso NO es un adorno: el nombre se
+     separa diez píxeles de su propio talento, así que en cuanto se pide un
+     margen mayor que diez, la figura bloquea a su propio nombre y no lo deja
+     ni a la derecha ni a la izquierda. Solo sobrevivía "abajo", y de ahí ya no
+     salía nunca. Se veía como que el texto se quedaba pegado a un lado para
+     siempre; lo cazó Eduardo alejando el talento de al lado y viendo que no
+     volvía. Un talento nunca se estorba a sí mismo. */
   const estorbos = gir ? order.map(n => {
     const p = pos[n.id];
     const rw = n.esCaja ? CAJA_W / 2 : radioEnRumbo(n, "w");
     const rh = n.esCaja ? CAJA_H / 2 : radioEnRumbo(n, "n");
-    return { x0: p.x - rw, x1: p.x + rw, y0: p.y - rh, y1: p.y + rh };
+    return { id: n.id, x0: p.x - rw, x1: p.x + rw, y0: p.y - rh, y1: p.y + rh };
   }) : null;
 
   const cajaRotulo = (s, ancho, lineas, fs) => {
@@ -2055,12 +2062,29 @@ function constellation(nodes, key, editing, branch, mod) {
       y0: Math.min(a.y0, o.caja.y0), y1: Math.max(a.y1, o.caja.y1)
     }), { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity });
 
-    // El lado que ya tenía se prueba primero: ver `ladoPrevio`
-    const orden = opciones.slice().sort((a, b) =>
-      (a.lado === ladoPrevio[n.id] ? -1 : 0) - (b.lado === ladoPrevio[n.id] ? -1 : 0));
+    /* ---- Se prueban SIEMPRE en el orden natural, y la memoria solo pone un
+            escalón ----
+       La primera versión probaba primero el lado que ya tenía, y eso hacía lo
+       contrario de lo que se quería: un nombre que se había ido a la izquierda
+       se quedaba ahí para siempre, aunque la derecha volviera a estar libre,
+       porque la izquierda seguía cabiendo. Había que arrimarle otro talento
+       para que volviera. Lo cazó Eduardo.
 
-    for (const o of orden) {
-      if (!estorbos.some(e => chocanCajas(o.caja, e, 7))) {
+       Ahora el orden es siempre derecha → izquierda → abajo, y la memoria solo
+       decide CUÁNTO hueco hace falta: quedarse donde está pide el margen
+       normal, y mudarse a otro sitio pide el margen normal más un escalón. De
+       ahí sale una banda muerta —entre 7 y 17— que es lo que impide el
+       temblor: se va de la derecha cuando de verdad ya no cabe, y vuelve
+       cuando hay hueco de sobra, no en el mismo píxel donde se fue.
+
+       Sin memoria todavía —la primera vez que se dibuja— no hay escalón: el
+       escalón es para no cambiar de idea, y ahí no hay idea que cambiar. */
+    const previo = ladoPrevio[n.id];
+    const AIRE = 7, ESCALON = 10;
+
+    for (const o of opciones) {
+      const margen = (!previo || previo === o.lado) ? AIRE : AIRE + ESCALON;
+      if (!estorbos.some(e => e.id !== n.id && chocanCajas(o.caja, e, margen))) {
         estorbos.push(o.caja);
         ladoPrevio[n.id] = o.lado;
         o.envoltura = envoltura;

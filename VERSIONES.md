@@ -76,6 +76,41 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.80.1 · 3 sep 2026
+
+**El nombre de un talento no volvía a la derecha aunque la derecha ya estuviera
+libre.** Se iba a un lado y se quedaba ahí, y para devolverlo había que
+arrimarle otro talento a propósito. Lo cazó Eduardo, y era fastidioso de la
+peor manera: te obliga a arreglar a mano algo que el mapa debería resolver
+solo.
+
+Eran dos cosas encima de la otra.
+
+**La primera, que el talento se estorbaba a sí mismo.** El nombre se separa
+diez píxeles de su figura, y la lista de estorbos incluía la figura de todos
+los talentos — incluida la del suyo. Mientras el margen exigido fue siete no
+se notó; en cuanto pedir un cambio de lado exigió diecisiete, la figura
+bloqueaba a su propio nombre y no lo dejaba ni a la derecha ni a la izquierda.
+Solo sobrevivía "abajo", y de ahí ya no salía nunca. Ahora cada estorbo lleva
+de quién es, y un talento nunca se estorba a sí mismo.
+
+**La segunda, que la memoria del lado estaba puesta al revés.** Probaba
+primero el lado que ya tenía, así que un nombre que se había ido a la
+izquierda se quedaba mientras la izquierda cupiera, sin volver a mirar la
+derecha. Ahora el orden es SIEMPRE derecha → izquierda → abajo, y la memoria
+solo decide cuánto hueco hace falta: quedarse donde está pide el margen
+normal, y mudarse pide el margen normal más un escalón.
+
+De ahí sale una **banda muerta**, que es lo que hace que vuelva sin temblar: se
+va de la derecha cuando de verdad ya no cabe, y vuelve cuando hay hueco de
+sobra — no en el mismo píxel donde se fue. Medido acercando y alejando un
+vecino de uno en uno: se va en 85 y vuelve en 96, once unidades de banda. Y con
+el vecino clavado justo en el punto de cruce y cien repintados seguidos, el
+nombre no cambió de lado ni una vez.
+
+El dibujo no se mueve en ninguno de los dos casos: el `viewBox` fue el mismo en
+las cincuenta y siete posiciones del barrido. Las dos huellas siguen donde
+estaban, `16afb4ed` sin girar y `055c6952` de pie.
 ### 0.7.80 · 3 sep 2026
 
 **Cambiar de cuenta deja de costar una contraseña.** Lo pidió Eduardo con el
