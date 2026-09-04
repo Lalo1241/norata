@@ -1,0 +1,186 @@
+/* ============ LAS PÁGINAS LEGALES ============
+   El aviso de privacidad y los términos, que viven fuera de la app: son dos
+   direcciones sueltas (`/privacidad/` y `/terminos/`) servidas por el mismo
+   GitHub Pages, no una pantalla de Norata.
+
+   Por qué tienen su propia hoja de estilos y no usan `css/estilos.css`:
+   esa hoja pesa 300 KB y está hecha para una app con barra, ventanas y mapas.
+   Aquí hay texto y nada más. Un documento legal tiene que abrir rápido y
+   leerse bien en cualquier sitio, incluso desde un buscador y sin haber
+   entrado nunca a Norata.
+
+   Lo que sí se respeta de la casa: los tonos salen de variables declaradas
+   arriba —ninguno escrito suelto dentro de una regla— y el modo claro cambia
+   esas variables y nada más, igual que en la app. Los valores son los mismos
+   de `css/estilos.css`, copiados a propósito: si algún día cambian allá, esto
+   no se rompe, solo se queda con los de antes.
+
+   Y NO llevan transición ninguna sobre color ni background: en esta app una
+   transición sobre una propiedad cuyo valor sale de una variable se queda
+   congelada en el valor inicial para siempre. */
+
+:root {
+  --bg: #10151d;
+  --bg-2: #141b25;
+  --card: #1d2530;
+  --line: #2a3441;
+  --text: #eaf1ef;
+  --muted: #8b99a5;
+  --faint: #5d6b77;
+  --mint: #5fe0b0;
+  --mint-macizo: #5fe0b0;
+
+  --r-caja: 12px;
+  --r-boton: 10px;
+
+  /* La MISMA pila que `--sans` de la app, y por el mismo motivo: Norata no
+     carga ninguna tipografía de fuera —su CSP solo admite `self`— así que
+     Outfit se usa si el aparato la tiene y si no cae al sistema. Estas páginas
+     no van a ser la excepción que abra una conexión a un servidor de letras. */
+  --tipo-cuerpo: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* El modo claro llega como clase en `<html>`, puesta por el script de arriba
+   de cada página: lee la misma llave que la app (`norata-tema`), así que quien
+   eligió el sol en Ajustes ve estas páginas de día también. Los tonos son los
+   de día de la casa, con los acentos partidos en dos —escribir contra
+   rellenar— como manda la paleta. */
+html.claro {
+  --bg: #dcdef0;
+  --bg-2: #e3e5f2;
+  --card: #f2f0f9;
+  --line: #b4b8c9;
+  --text: #16202b;
+  --muted: #4f5b67;
+  --faint: #606d7b;
+  --mint: #007046;
+  --mint-macizo: #00cc7f;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  background-image: linear-gradient(180deg, var(--bg-2), var(--bg) 520px);
+  color: var(--text);
+  font-family: var(--tipo-cuerpo);
+  /* 17px y no 16: esto se lee de corrido y en el teléfono, que es donde va a
+     abrirse la mitad de las veces. */
+  font-size: 17px;
+  line-height: 1.66;
+  -webkit-font-smoothing: antialiased;
+}
+
+.hoja {
+  /* 34em de ancho de línea: unos 70 caracteres, que es lo que se lee sin
+     perder el renglón al saltar. */
+  max-width: 34em;
+  margin: 0 auto;
+  padding: 40px 22px 90px;
+}
+
+/* ---- La cabecera: el isotipo, y de vuelta a la app ---- */
+.cab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--line);
+}
+.cab img { width: 26px; height: 26px; display: block; }
+.cab b { font-size: 17px; font-weight: 600; letter-spacing: -.01em; flex: 1; }
+.cab a {
+  font-size: 14px;
+  color: var(--mint);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r-boton);
+  padding: 5px 12px;
+  white-space: nowrap;
+}
+.cab a:hover, .cab a:focus-visible { border-color: var(--mint); }
+
+h1 {
+  font-size: clamp(28px, 6vw, 38px);
+  line-height: 1.12;
+  letter-spacing: -.02em;
+  font-weight: 700;
+  margin: 32px 0 0;
+  text-wrap: balance;
+}
+
+.fecha {
+  color: var(--muted);
+  font-size: 14.5px;
+  margin: 10px 0 0;
+}
+
+h2 {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  margin: 42px 0 0;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  text-wrap: balance;
+}
+
+h3 {
+  font-size: 16.5px;
+  font-weight: 600;
+  margin: 26px 0 0;
+}
+
+p { margin: 14px 0 0; }
+ul { margin: 14px 0 0; padding-left: 22px; }
+li { margin-top: 7px; }
+li::marker { color: var(--faint); }
+
+a { color: var(--mint); }
+
+strong, b { font-weight: 600; }
+
+/* ---- La tabla de proveedores ---- */
+.tabla-envoltura { overflow-x: auto; margin-top: 18px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  min-width: 420px;
+}
+th, td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+th {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+td:first-child { font-weight: 600; white-space: nowrap; }
+
+/* ---- Lo que se lee de un vistazo ---- */
+.caja {
+  margin-top: 22px;
+  padding: 18px 20px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-caja);
+}
+.caja p:first-child { margin-top: 0; }
+
+.pie {
+  margin-top: 54px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14.5px;
+}
+.pie a { margin-right: 16px; }
+
+:focus-visible { outline: 2px solid var(--mint-macizo); outline-offset: 2px; }
