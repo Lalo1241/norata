@@ -76,6 +76,30 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.86.3 · 3 sep 2026
+
+**La primera pantalla ya recibe.** Idioma y moneda se preguntan antes que nada
+—antes del tablero y antes del tutorial— y salían con un compás genérico, un
+«Antes de empezar» y dos preguntas frías: sin decir dónde estabas, sin saludar
+y sin explicar por qué se te preguntaba eso. Lo paró Eduardo en cuanto la vio
+en su sitio.
+
+Ahora lleva el logo de Norata arriba, un saludo, una línea que dice qué es la
+app y otra que dice para qué son las dos preguntas —y que no son definitivas—.
+
+**El saludo es distinto al del tutorial** («Te doy la bienvenida») a propósito:
+el tutorial llega después y explica los módulos. Son dos momentos, no dos
+veces el mismo.
+
+La cabecera va centrada y las preguntas no: arriba se presenta la app y eso se
+lee como un cartel; abajo se elige, y una lista de opciones centrada no tiene
+dónde alinear la vista. El logo sale de `logoNorata()`, el mismo del menú, y
+cae al compás si por lo que sea no estuviera dibujado.
+
+Medido: el logo da 14,5 de contraste de noche y 15,7 de día —`--marca` cambia
+sola—, los dos textos 5,3 y 6,2, y a 360 × 480 la tarjeta se recorre con el
+logo y el botón alcanzables.
+
 ### 0.7.86.1 · 3 sep 2026
 
 **Las constelaciones de un mundo se quedan con sus VÉRTICES.** Eduardo, viendo

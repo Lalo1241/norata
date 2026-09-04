@@ -8081,9 +8081,30 @@
     background: var(--sup-tarjeta);
     border: var(--borde-tarjeta) solid var(--line); border-image: var(--marco-tarjeta);
   }
-  .region-card h2 { margin: 0 0 6px; font-size: 21px; font-family: var(--tipo-titulo); }
-  .region-card > .settings-note { margin: 0 0 4px; }
-  .region-card .bubble { margin-bottom: 14px; }
+  /* La cabecera va CENTRADA y las preguntas no: arriba se presenta la app
+     —una marca, un saludo y dos líneas— y eso se lee como un cartel; abajo se
+     elige, y una lista de opciones centrada no tiene dónde alinear la vista. */
+  .region-marca {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 44px; margin-bottom: 16px; color: var(--marca);
+  }
+  .region-marca svg { height: 34px; width: auto; display: block; }
+  .region-card h2 {
+    margin: 0 0 8px; font-size: 22px; font-family: var(--tipo-titulo);
+    text-align: center; text-wrap: balance;
+  }
+  .region-lema {
+    margin: 0 0 10px; font-size: 13.5px; line-height: 1.55;
+    color: var(--muted); text-align: center; text-wrap: pretty;
+  }
+  /* Separada del lema por una línea fina: la de arriba dice qué es la app y
+     ésta para qué son las preguntas. Sin la línea se leían como un párrafo
+     largo y la segunda se saltaba. */
+  .region-porque {
+    margin: 0; padding-top: 12px; border-top: var(--borde-fino) solid var(--line);
+    text-align: center;
+  }
+  .region-card .bubble { margin-bottom: 0; }
   .region-bloque { margin-top: 22px; }
   .region-bloque h3 { margin: 0 0 4px; font-size: 15px; }
   .region-bloque .settings-note { margin: 0 0 10px; }

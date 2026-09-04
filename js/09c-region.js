@@ -367,11 +367,25 @@ function mostrarPantallaRegion() {
 function pintarPantallaRegion() {
   const caja = document.getElementById("region");
   if (!caja) return;
+  /* El logo del menú, que ya está dibujado. Si por lo que sea no estuviera,
+     el compás: esta pantalla no se puede quedar sin cabecera. */
+  const marca = typeof logoNorata === "function" ? logoNorata() : "";
   caja.innerHTML = `
     <div class="region-card">
-      <div class="bubble">${icon("compass", 28)}</div>
-      <h2>${escapeHtml(tx("Antes de empezar"))}</h2>
-      <p class="settings-note">${escapeHtml(tx("Dos cosas que puedes cambiar después en Ajustes, cuando quieras."))}</p>
+      ${/* Esta pantalla es lo PRIMERO que ve alguien que abre Norata, antes
+            que el tablero y antes que el tutorial. Salía con un compás
+            genérico y dos preguntas frías: sin decir dónde estabas, sin
+            saludar y sin explicar por qué se te pregunta eso. Lo paró Eduardo
+            en cuanto la vio en su sitio.
+
+            Así que recibe: el logo presenta la app, una línea dice qué es y
+            otra dice para qué son las dos preguntas. El saludo es distinto al
+            del tutorial —«Te doy la bienvenida»— a propósito: el tutorial
+            llega después y son dos momentos, no dos veces el mismo. */""}
+      <div class="region-marca">${marca || `<span class="bubble">${icon("compass", 28)}</span>`}</div>
+      <h2>${escapeHtml(tx("Qué gusto tenerte aquí"))}</h2>
+      <p class="region-lema">${escapeHtml(tx("Norata trata tu vida como un videojuego: misiones que haces hoy, habilidades que suben con la práctica, talentos y proyectos."))}</p>
+      <p class="settings-note region-porque">${escapeHtml(tx("Antes de empezar, dos cosas para que la app hable como tú. Las dos se cambian después en Ajustes, cuando quieras."))}</p>
 
       <div class="region-bloque">
         <h3>${escapeHtml(tx("¿En qué idioma?"))}</h3>

@@ -2674,5 +2674,16 @@ const TEXTOS_EN = {
 
   "— «{0}» ya está ocupada, así que la nueva va aparte y la de antes se queda entera":
     "— «{0}» is already taken, so the new one goes separately and the old one stays whole",
-  "Encargo creado en el proyecto {0}": "Assignment created in the {0} project"
+  "Encargo creado en el proyecto {0}": "Assignment created in the {0} project",
+
+  /* ---- La bienvenida de la primera pantalla ----
+     Es lo PRIMERO que ve alguien que abre Norata. El saludo es distinto al del
+     tutorial a proposito: son dos momentos, no dos veces el mismo.
+  */
+
+  "Qué gusto tenerte aquí": "Good to have you here",
+  "Norata trata tu vida como un videojuego: misiones que haces hoy, habilidades que suben con la práctica, talentos y proyectos.":
+    "Norata treats your life like a video game: missions you do today, skills that rise with practice, talents and projects.",
+  "Antes de empezar, dos cosas para que la app hable como tú. Las dos se cambian después en Ajustes, cuando quieras.":
+    "Before you start, two things so the app speaks the way you do. You can change both later in Settings, whenever you want."
 };
