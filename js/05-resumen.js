@@ -2749,7 +2749,11 @@ const BM_ICONS = {
   bote: '<path d="M4 7h16M10 11.5v6M14 11.5v6M6.5 7l.9 12.1a2 2 0 002 1.9h5.2a2 2 0 002-1.9L17.5 7M9.5 7V5.2a2 2 0 012-2h1a2 2 0 012 2V7"/>',
   expandir: '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/>',
   copiar: '<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M6.5 15H5.2A2.2 2.2 0 013 12.8V5.2A2.2 2.2 0 015.2 3h7.6A2.2 2.2 0 0115 5.2v1.3"/>',
-  caja: '<path d="M3 8.5L12 4l9 4.5v7L12 20l-9-4.5z"/><path d="M3 8.5L12 13l9-4.5M12 13v7"/>'
+  caja: '<path d="M3 8.5L12 4l9 4.5v7L12 20l-9-4.5z"/><path d="M3 8.5L12 13l9-4.5M12 13v7"/>',
+  /* Poner de pie una rama: el rectángulo tumbado y la flecha que lo levanta.
+     Se dibuja el ANTES y no el después a propósito — un icono que enseña el
+     estado al que vas se lee mejor que uno que enseña en el que estás. */
+  girar: '<rect x="3" y="13" width="12" height="7.5" rx="1.8"/><path d="M13.5 9.5V5.6A2 2 0 0115.5 3.6h4"/><path d="M17.6 1.6l2.4 2-2.4 2"/>'
 };
 
 let openBranchMenu = null;

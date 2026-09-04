@@ -76,6 +76,96 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.77 · 3 sep 2026
+
+**Una rama se puede ver de pie.** Lo pidió Eduardo: el primer talento abajo y
+el camino creciendo hacia arriba, con un botón que la levanta y otro toque que
+la devuelve. Va rama por rama, y también en Proyectos.
+
+**Lo que NO se hizo es lo que lo hizo barato: no se gira la cámara.** Girar el
+SVG con CSS habría roto de golpe las cinco funciones que traducen un píxel de
+la pantalla a una coordenada del dibujo —`puntoEnLienzo`, `pixelEnLienzo`,
+`encuadreDe` y los dos `svgPt` de los manejadores—: todas hacen
+`getBoundingClientRect()` más el `viewBox` en línea recta, y con el elemento
+girado esa cuenta manda la x de la pantalla a la x del dibujo, que ya no es la
+misma. Arrastrar, cortar, conectar y el imán habrían caído todos desplazados.
+Y el contenedor que se recorre no gira con su contenido, así que la barra de
+desplazamiento habría seguido midiendo lo de antes.
+
+Lo que se gira es **dónde cae cada nodo**, en `branchLayout` y en un solo
+sitio. El SVG sigue derecho, así que el zoom, el recorrido, el corte y el imán
+siguen valiendo sin tocarlos — y los rótulos y los ICONOS salen rectos solos,
+sin contra-girar nada, que es la mitad del trabajo que uno esperaría hacer.
+
+**Lo guardado no se toca nunca.** `branchLayout` devuelve dos mapas: `pos`, en
+coordenadas guardadas, y `dib`, donde cae cada nodo. Son dos y no uno a
+propósito: quien congela un sitio en los datos (`fijarPosiciones`) y quien
+alinea con la regla (`imantarNodo`) trabajan en las guardadas, y darles las
+giradas les habría metido el giro en los datos. Sin girar son el MISMO objeto
+y no cuesta nada. Girar y desgirar es exacto por construcción.
+
+**Y la gramática de las flechas gira con ellas.** Si no, la rama queda de pie
+pero las conexiones entran de costado, que es peor que no girarla. Los ocho
+rumbos son nombres, así que basta un mapa de ocho: `e→n, ne→nw, se→ne, n→w,
+s→e, w→s, nw→sw, sw→se`. Se gira el NOMBRE y no la figura, y eso es lo que
+mantiene bien la cuenta del radio: el hexágono es picudo por arriba y plano
+por los lados, y como la figura no gira, salir por el norte tiene que medir lo
+que mide el norte de verdad.
+
+**El nombre del talento busca sitio: derecha → izquierda → abajo.** De pie los
+hermanos quedan hombro con hombro y el nombre a la derecha se metía dentro del
+talento de al lado; lo paró Eduardo en la primera mirada. Abajo es el último
+recurso, porque debajo es por donde ENTRA el camino y ahí vive el círculo
+**Y/O**, que se ve siempre y no solo editando. Se comprueba contra los otros
+talentos Y contra los nombres ya colocados: sin lo segundo, dos hermanos
+mandan su nombre al mismo hueco.
+
+Dos cosas que salieron midiendo y no mirando:
+
+- **Cuando el nombre acaba abajo, baja EXACTAMENTE lo que baja en horizontal**
+  —32 y 44 desde el centro, no desde el borde—. Apartarlo por el borde lo
+  mandaba al doble de distancia y se veía despegado del talento; lo paró
+  Eduardo. Solo se aparta más cuando el nodo de verdad lleva el círculo Y/O,
+  porque entonces tiene que caer por debajo de su cuenta.
+- **El ancho del rótulo se mide, no se estima.** Por número de letras fallaba
+  justo con los nombres que importan: "Aprender las escalas" y "Tocar en
+  público" tienen casi las mismas letras y no miden ni parecido.
+
+**La tarjeta de la lista lleva techo.** La regla de siempre —la tarjeta mide lo
+que mide el dibujo— es buena a lo ancho, donde una rama larga crece hacia un
+lado que no cuesta nada; de pie crece hacia abajo, y una rama de cinco niveles
+pedía más de mil píxeles. Con eso, dos ramas de pie ya no dejaban ver ninguna
+otra en la lista.
+
+**Girar una rama es preferencia DE ESTE APARATO**, como el modo claro: vive en
+su propia llave de localStorage y no en `state`, así que no viaja con la cuenta
+ni entra en los respaldos. Si viajara, ponerla de pie en el teléfono te la
+pondría de pie en la computadora, y son dos pantallas de formas distintas.
+
+**Cómo se comprobó que esto no le hizo nada a nadie.** La huella del lienzo
+(`pruebas/lienzo-huella.html`) dibuja nueve escenas —Talentos y Proyectos,
+editando y sin editar, una caja abierta, una rama vacía— y las resume en ocho
+letras. Sin girar, el SVG sale **idéntico letra por letra** al de antes:
+59 627 caracteres, huella `16afb4ed`. De pie da `9b57e808`.
+
+Esa prueba cazó lo único que se me había colado en el dibujo de todos: los
+discos que cuelgan del nodo pasaban a pedir su radio por rumbo, y `nodeRadius`
+redondea donde `radioEnRumbo` no. Eran medio píxel en el rombo y tres y medio
+en el hexágono — para todo el mundo, girase o no. Sin girar se escribe ahora
+exactamente lo de siempre, con la `H` del cabo y todo.
+
+Y dos trampas de la propia prueba, ya arregladas ahí:
+
+- **La huella leía si TÚ habías girado esa rama**, porque `ramaGirada` mira
+  localStorage. Una huella que cambia según quién la mire no mide nada; ahora
+  se fija a mano, igual que ya se fijaba `isDesktop`. Con `?girada=1` se mide
+  el dibujo de pie a propósito.
+- **Los archivos se servían de la caché del navegador.** Se refresca la copia
+  de `pruebas/head/` desde git, se vuelve a medir, y el navegador sirve los
+  viejos: el "antes" contra el que comparas es de hace cinco versiones y sale
+  una diferencia que no es tuya. Costó una vuelta entera; ahora las direcciones
+  llevan huella de tiempo.
+
 ### 0.7.76 · 3 sep 2026
 
 **El embudo por fin es un embudo, y las aperturas dejan de llamarse personas.**
