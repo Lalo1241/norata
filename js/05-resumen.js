@@ -2845,7 +2845,21 @@ function ramasDe(kind) {
   return (state.ui[clave] || []).slice();
 }
 
-async function crearRama(kind) {
+/* El botón de crear una rama abre EL CAJÓN, no la caja de texto.
+
+   Es el instante en que alguien se queda mirando un lienzo vacío, y por eso es
+   el sitio donde tienen que estar los diez caminos: un catálogo guardado en
+   una sección del menú no lo encuentra nadie. Dentro, «De cero» sigue siendo
+   la primera opción y hace exactamente lo de siempre.
+
+   El tope no se mira aquí: se mira dentro, porque el cajón se abre igual
+   cuando ya no caben más ramas —con los caminos apagados y mirables— y eso es
+   la diferencia entre un escaparate y un muro con un precio. */
+function crearRama(kind) {
+  abrirCajon(kind);
+}
+
+async function crearRamaDeCero(kind) {
   const esTalentos = kind === "perks";
   /* Cada módulo tiene su propia clave de tope porque los números son
      distintos: tres ramas de talentos y dos proyectos. Antes esto miraba solo
@@ -3030,13 +3044,24 @@ async function renombrarRamaProyectos(b) {
   toast(existe ? `Proyectos juntados en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
 }
 
-/* Etiqueta de rama reutilizable: el mismo concepto en todas las secciones. */
+/* Etiqueta de rama reutilizable: el mismo concepto en todas las secciones.
+
+   El mapita que sale junto al nombre dice que esa rama vino de un camino. Es
+   EL MISMO dibujo que lleva la carta en el cajón, y repetirlo en los dos
+   sitios es lo que hace que se entienda sin que nadie lo explique.
+
+   Va aquí y no dentro de los talentos porque lo que se creó tiene que ser
+   indistinguible de lo escrito a mano: la marca es de la rama, que es un
+   nombre en `state.ui`, y no de las cosas que llevas dentro. */
 function branchHeader(name, countLabel, buttons) {
+  const deCamino = typeof caminoDeRama === "function" && caminoDeRama(name);
   return `
     <div class="branch-head">
       <div class="btitle">
         <span class="branch-kicker">Rama</span>
-        <h3>${escapeHtml(name)}</h3>
+        <h3>${escapeHtml(name)}${deCamino
+          ? ` <span class="sello-camino" title="Vino de un camino">${icon("map", 12)}</span>`
+          : ""}</h3>
       </div>
       <span class="count">${countLabel}</span>
       <div class="bhead-btns">${buttons}</div>
