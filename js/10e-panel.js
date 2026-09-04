@@ -152,8 +152,8 @@ function panelDeCada(parte, total, rotulo, vara) {
  *    existe, porque aquí se llama `--mint`. Un `fill` que no resuelve no
  *    avisa: pinta negro. Por eso ahora el color va en clases y no a mano.
  */
-const MESES_CORTOS = ["ene", "feb", "mar", "abr", "may", "jun",
-                      "jul", "ago", "sep", "oct", "nov", "dic"];
+/* Los meses cortos los da `nombreDeMes(n, false)` (js/00-idioma.js), con el
+   idioma puesto. */
 
 function panelConstelacion(dias) {
   if (!dias || !dias.length) {
@@ -250,7 +250,7 @@ function panelConstelacion(dias) {
     const f = fecha(d.dia);
     const hoy = i === n - 1;
     if (!hoy && f.getDay() !== 1) return "";
-    const txt = hoy ? "hoy" : (f.getDate() + " " + MESES_CORTOS[f.getMonth()]);
+    const txt = hoy ? tx("hoy") : T`día ${f.getDate()} de ${nombreDeMes(f.getMonth() + 1, false)}`;
     /* Pegada al borde, la etiqueta se sale del lienzo. Se ancla al principio o
        al final según de qué lado esté, en vez de centrarse siempre. */
     const px = x(i);
@@ -300,7 +300,7 @@ function panelConstelacion(dias) {
   const resumen = `<div class="pn-graf-cifras">
       <div class="pn-gc"><b>${media}</b><span>${tx("personas al día")}</span></div>
       <div class="pn-gc"><b>${tope}</b><span>el mejor día${
-        diaCima ? " · " + diaCima.getDate() + " " + MESES_CORTOS[diaCima.getMonth()] : ""}</span></div>
+        diaCima ? T` · día ${diaCima.getDate()} de ${nombreDeMes(diaCima.getMonth() + 1, false)}` : ""}</span></div>
       <div class="pn-gc"><b>${total}</b><span>${tx("aperturas con cuenta")}</span></div>
       ${tendencia ? `<div class="pn-gc tend">${tendencia}</div>` : ""}
     </div>`;

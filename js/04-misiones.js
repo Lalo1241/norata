@@ -3,7 +3,10 @@
    Lo que haces hoy. Cada misión tiene su cadencia, su cuenta del día
    y su propia racha; al cumplirla suelta XP en la habilidad que entrena. */
 
-const DAY_NAMES = ["D", "L", "M", "M", "J", "V", "S"];
+/* Las siete letras las da `letrasDeSemana()` (js/00-idioma.js) con el idioma
+   puesto. Se pide al DIBUJAR y no se guarda en una constante: una constante de
+   nivel superior se evalúa al cargar el archivo y se quedaría con las letras
+   del idioma de arranque. */
 
 function missionScheduledOn(m, key) {
   if (m.cadence === "once") return !m.completedAt;

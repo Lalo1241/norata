@@ -673,7 +673,7 @@ function pickCadence(c) {
 }
 
 function renderDayPick() {
-  document.getElementById("ms-days").innerHTML = DAY_NAMES.map((d, i) =>
+  document.getElementById("ms-days").innerHTML = letrasDeSemana().map((d, i) =>
     `<button type="button" class="${msDays.includes(i) ? "on" : ""}" onclick="toggleDay(${i})">${d}</button>`
   ).join("");
 }

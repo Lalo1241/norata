@@ -171,10 +171,10 @@ function renderSummary() {
          perder. */
       const hoyCuenta = (cuentas.get(hoy) || 0) > 0;
       const frase = hoyCuenta
-        ? "Hoy ya cuenta."
+        ? tx("Hoy ya cuenta.")
         : (stk.cur > 0
-          ? "Hoy todavía no cuenta. Cualquier registro la mantiene viva."
-          : "Cualquier registro de hoy la echa a andar.");
+          ? tx("Hoy todavía no cuenta. Cualquier registro la mantiene viva.")
+          : tx("Cualquier registro de hoy la echa a andar."));
 
       return `
       <div class="scene-card streak-card">
@@ -194,7 +194,7 @@ function renderSummary() {
                 decir de cuándo es—, así que se escribe siempre y lo esconde el
                 CSS. El año va incluido: un calendario suelto no dice de cuándo
                 es, y esta tarjeta va a llevar años abierta. */""}
-          <div class="label">${tx("Racha")}<span class="lab-mes"> · ${escapeHtml(MESES[mes - 1])} ${anio}</span></div>
+          <div class="label">${tx("Racha")}<span class="lab-mes"> · ${escapeHtml(nombreDeMes(mes))} ${anio}</span></div>
           <div class="streak-grid">
             ${/* El mes va PRIMERO en la rejilla y a la izquierda desde la
                   0.7.56. Se escribe después en el marcado —para que apilada
@@ -212,7 +212,7 @@ function renderSummary() {
                       hoy, el récord viejo solo puede hacer dos cosas, y las
                       dos sobran — recordarte que ya lo hiciste mejor, o
                       encogerse cuando el de hoy lo supera. */""}
-                <span class="lbl">día${stk.cur === 1 ? "" : "s"}<br>${tx("de racha")}</span>
+                <span class="lbl">${stk.cur === 1 ? tx("día<br>de racha") : tx("días<br>de racha")}</span>
                 ${/* Cada cifra con su barra. Es la de Mi expedición
                       —`.barra-viva`, con su punta encendida y su estela— y
                       está aquí porque le gustó a Eduardo y porque estas dos
@@ -233,7 +233,7 @@ function renderSummary() {
                   <div>
                     <b>${activosMes}<span>/${diasMes.length}</span></b>
                     <div class="barra-viva sg-barra"><i style="--p:${Math.round(activosMes / Math.max(1, diasMes.length) * 100)}%;--c:var(--mint)"></i></div>
-                    <span>en ${MESES[mes - 1]}</span>
+                    <span>${T`en ${nombreDeMes(mes)}`}</span>
                   </div>
                 </div>
               </div>
@@ -305,7 +305,8 @@ function renderSummary() {
           </div>
           <div class="mt-tx">
             <b>${tx("Misiones de hoy")}</b>
-            <span>${pend.length === 0 ? "Todas cumplidas" : `${pend.length} pendiente${pend.length === 1 ? "" : "s"}`}</span>
+            <span>${pend.length === 0 ? tx("Todas cumplidas")
+              : (pend.length === 1 ? T`${pend.length} pendiente` : T`${pend.length} pendientes`)}</span>
           </div>
           <button class="btn btn-soft btn-sm" onclick="showView('missions')">${tx("Ver todas")}</button>
         </div>
@@ -349,7 +350,7 @@ function renderSummary() {
       <button class="sum-card a" onclick="showView('home')" style="width:100%">
         ${icon("chart", 22)}
         <div class="n">${totalLevels}</div>
-        <div class="t">niveles en ${skills.length} habilidad${skills.length === 1 ? "" : "es"}</div>
+        <div class="t">${skills.length === 1 ? T`niveles en ${skills.length} habilidad` : T`niveles en ${skills.length} habilidades`}</div>
         <div class="sc-rows">
           ${/* «XP TOTAL» era un acumulado que solo sube: enseñarlo cada día en
                 el Resumen no cambia nada de lo que haces. Lo sustituye lo que
@@ -360,12 +361,12 @@ function renderSummary() {
                const a = metricasHabilidades(ventanaDe(7, 0));
                const b = metricasHabilidades(ventanaDe(7, 1));
                return `<div><b>${fmtXp(a.ganada)}</b><span>${tx("XP · 7 DÍAS")}</span>${
-                 flechaHTML(variacion(a.ganada, b.ganada), "XP ganada frente a los 7 días anteriores")}</div>`;
+                 flechaHTML(variacion(a.ganada, b.ganada), tx("XP ganada frente a los 7 días anteriores"))}</div>`;
              })()}
           ${decayingList.length ? `<div><b style="color:var(--fire)">${decayingList.length}</b><span>${tx("DECAYENDO")}</span></div>` : ""}
         </div>
         ${cerca ? `<div class="sc-near">
-          <span>A ${cerca.falta} XP del nivel ${cerca.nivel}</span>
+          <span>${T`A ${cerca.falta} XP del nivel ${cerca.nivel}`}</span>
           <b>${escapeHtml(cerca.s.name)}</b>
           <i style="--p:${cerca.pct}%;${tonos("c", cerca.s.color)}"></i>
         </div>` : ""}
@@ -402,10 +403,10 @@ function renderSummary() {
           </div>
         </div>
         <div class="sc-rows">
-          <div><b>${info.faltan}</b><span>PUNTOS PARA EL ${info.nivel + 1}</span></div>
+          <div><b>${info.faltan}</b><span>${T`PUNTOS PARA EL ${info.nivel + 1}`}</span></div>
         </div>
         ${prox ? `<div class="sc-near">
-          <span>${faltan === 1 ? "En el siguiente nivel" : "A " + faltan + " niveles"}${prox.pro ? " · con Pro" : ""}</span>
+          <span>${faltan === 1 ? tx("En el siguiente nivel") : T`A ${faltan} niveles`}${prox.pro ? tx(" · con Pro") : ""}</span>
           <b>${escapeHtml(prox.nombre)}</b>
           <i style="--p:${info.pct}%"></i>
         </div>` : ""}
@@ -430,7 +431,7 @@ function renderSummary() {
               importe no desaparece, baja a la fila —con el código de la
               moneda más pequeño, que es la unidad y no una cifra—. */""}
         <div class="n">${permanentes}</div>
-        <div class="t">${permanentes === 1 ? "talento ya es tuyo" : "talentos ya son tuyos"}</div>
+        <div class="t">${permanentes === 1 ? tx("talento ya es tuyo") : tx("talentos ya son tuyos")}</div>
         <div class="sc-rows">
           <div><b${enCurso ? ` style="color:var(--fire)"` : ""}>${enCurso}</b><span>${tx("EN CURSO")}</span></div>
           <div><b>${moneyHTML(invested)}</b><span>${tx("INVERTIDO")}</span></div>
@@ -511,10 +512,10 @@ function renderSummary() {
         p ? `;--c:${p.c + 1};--f:${p.f + 1}` : ""}">
         ${body}
         <div class="w-edit">
-          <span class="w-grip">${icon("map", 14)} ${escapeHtml(meta.title)}</span>
-          <button class="w-hide" onclick="hideWidget('${id}')" aria-label="Quitar ${escapeAttr(meta.title)}">✕</button>
+          <span class="w-grip">${icon("map", 14)} ${escapeHtml(tx(meta.title))}</span>
+          <button class="w-hide" onclick="hideWidget('${id}')" aria-label="${escapeAttr(T`Quitar ${tx(meta.title)}`)}">✕</button>
         </div>
-        <button class="w-resize" aria-label="Cambiar tamaño de ${escapeAttr(meta.title)}">
+        <button class="w-resize" aria-label="${escapeAttr(T`Cambiar tamaño de ${tx(meta.title)}`)}">
           <svg viewBox="0 0 24 24"><path d="M20 10v10H10M20 20l-9-9"/></svg>
         </button>
       </div>`;
@@ -1569,7 +1570,7 @@ function dashTray(hidden) {
     </div>
     ${avail.length ? `
       <div class="tray-chips">
-        ${avail.map(id => `<button class="tray-chip" onclick="showWidget('${id}')">＋ ${escapeHtml(DASH_META[id].title)}</button>`).join("")}
+        ${avail.map(id => `<button class="tray-chip" onclick="showWidget('${id}')">＋ ${escapeHtml(tx(DASH_META[id].title))}</button>`).join("")}
       </div>` : ""}
     <div class="tray-acomodos">
       <span class="lbl">${tx("Acomodos sugeridos")}</span>
@@ -1600,7 +1601,7 @@ function hideWidget(id) {
   marcarAcomodo(null);
   saveDash(order, [...hidden, id]);
   flipRender(document.getElementById("summary-content"), renderSummary);
-  toast(`${DASH_META[id].title} quitado del tablero`, "deshecho");
+  toast(T`${tx(DASH_META[id].title)} quitado del tablero`, "deshecho");
 }
 
 function showWidget(id) {
@@ -1908,7 +1909,7 @@ function renderHome() {
     hFocus = { k: "Perdiendo XP", v: decayList[0].name, color: "var(--fire)", onclick: `openDetail('${decayList[0].id}')` };
   } else if (closest) {
     const li = levelInfo(closest.xp);
-    hFocus = { k: `A ${li.needed - li.inLevel} XP del nivel ${li.level + 1}`, v: closest.name, color: "var(--mint)", pct: li.pct, onclick: `openDetail('${closest.id}')` };
+    hFocus = { k: T`A ${li.needed - li.inLevel} XP del nivel ${li.level + 1}`, v: closest.name, color: "var(--mint)", pct: li.pct, onclick: `openDetail('${closest.id}')` };
   } else {
     hFocus = { k: "Todo al máximo", v: "No queda nivel por subir", color: "var(--mint)" };
   }
@@ -2133,13 +2134,13 @@ function loQueSostiene(cur) {
             en una tarjeta cuyo alto se mide en filas de la cuadrícula. Esos
             33 px son exactamente los que separan cinco filas de seis. */""}
       <div class="sg-hito">
-        <div class="rc-rot">Próximo hito · ${hito.sig} días</div>
+        <div class="rc-rot">${T`Próximo hito · ${hito.sig} días`}</div>
         ${/* La misma barra que el nivel y las dos cifras de arriba. Aquí es
               donde más paga: «te faltan 4 días» es lo único de esta tarjeta
               que mueve a volver hoy, y estaba dibujado como un carril
               muerto. */""}
         <div class="barra-viva sgh-b"><i style="--p:${Math.max(3, hito.pct)}%;--c:var(--mint)"></i></div>
-        <div class="sgh-p">Te ${hito.faltan === 1 ? "falta 1 día" : "faltan " + hito.faltan + " días"}</div>
+        <div class="sgh-p">${hito.faltan === 1 ? tx("Te falta 1 día") : T`Te faltan ${hito.faltan} días`}</div>
       </div>` : `
       <div class="sg-hito">
         <div class="rc-rot">${tx("Los hitos")}</div>
@@ -2194,7 +2195,8 @@ function calendarioRacha(anio, mes, cuentas, hoy) {
        pinta con el color entero, y encima de él un número claro desaparece.
        Los tres velos siguen siendo fondo oscuro con transparencia. */
     if (nivel === 4) clases.push("rc-tinta");
-    const titulo = d + " de " + MESES[mes - 1] + (n ? ": " + n + (n === 1 ? " registro" : " registros") : "");
+    const titulo = T`${d} de ${nombreDeMes(mes)}` +
+      (n ? (n === 1 ? T`: ${n} registro` : T`: ${n} registros`) : "");
     celdas += `<i class="${clases.join(" ")}"${nivel ? ` style="background:${escala[nivel]}"` : ""} title="${escapeAttr(titulo)}">${d}</i>`;
   }
 
@@ -2205,8 +2207,8 @@ function calendarioRacha(anio, mes, cuentas, hoy) {
             mes de treinta y un días que empieza en jueves puede ser
             perfectamente el de hace tres años. Lo preguntó Eduardo y no había
             ninguna razón para no ponerlo. */""}
-      <div class="rc-rot">${escapeHtml(MESES[mes - 1])} ${anio}</div>
-      <div class="rc-dow" aria-hidden="true">${["D", "L", "M", "M", "J", "V", "S"].map(x => `<span>${x}</span>`).join("")}</div>
+      <div class="rc-rot">${escapeHtml(nombreDeMes(mes))} ${anio}</div>
+      <div class="rc-dow" aria-hidden="true">${letrasDeSemana().map(x => `<span>${x}</span>`).join("")}</div>
       <div class="rc-rejilla">${celdas}</div>
     </div>`;
 }

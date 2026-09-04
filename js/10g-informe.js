@@ -220,7 +220,9 @@ function gAro(pct, texto, pie, color) {
    Los días que todavía no han llegado se dibujan vacíos y sin borde: se ve
    que el mes sigue, pero no se cuentan como fallados. */
 
-const CAL_DOW = ["D", "L", "M", "M", "J", "V", "S"];
+/* Las letras de la semana las da `letrasDeSemana()` (js/00-idioma.js),
+   con el idioma puesto. Antes había tres copias de esta lista en tres
+   archivos, las tres en español. */
 const CAL_MES_CORTO = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
 /* Cinco escalones y no una rampa continua: con un degradado, dos días de
@@ -253,7 +255,8 @@ function calRejilla(anio, mes, cuentas, max, mini) {
     const k = anio + "-" + mm + "-" + String(d).padStart(2, "0");
     if (k > hoy) { out += `<i class="mc-futuro"></i>`; continue; }
     const n = cuentas.get(k) || 0;
-    const titulo = d + " de " + MESES[mes - 1] + ": " + (n ? n + (n === 1 ? " marca" : " marcas") : "nada");
+    const titulo = T`${d} de ${nombreDeMes(mes)}: ` +
+      (n ? (n === 1 ? T`${n} marca` : T`${n} marcas`) : tx("nada"));
     out += `<i style="background:${escala[nivel(n)]}" title="${escapeAttr(titulo)}"></i>`;
   }
   return `<div class="cal-rejilla${mini ? " mini" : ""}">${out}</div>`;
@@ -263,7 +266,7 @@ function calCabecera() {
   /* `aria-hidden` en las iniciales: para quien lee la pantalla en voz alta,
      siete letras sueltas no son información, y cada casilla ya dice su fecha
      completa en el título. */
-  return `<div class="cal-dow" aria-hidden="true">${CAL_DOW.map(d => `<span>${d}</span>`).join("")}</div>`;
+  return `<div class="cal-dow" aria-hidden="true">${letrasDeSemana().map(d => `<span>${d}</span>`).join("")}</div>`;
 }
 
 function calLeyenda() {
@@ -356,18 +359,20 @@ function bloque(titulo, pregunta, cuerpo) {
 
 /* ================= El armazón ================= */
 
-const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
-  "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+/* Los doce nombres los da `nombreDeMes(n)` (js/00-idioma.js), con el idioma
+   puesto y con la mayúscula que pida cada uno —en inglés van con inicial y en
+   español no, y eso `Intl` lo acierta y una lista escrita a mano no. */
 
 /* «Del 23 al 29 de agosto», y no dos fechas completas: el año sobra cuando es
    el de ahora, y repetir el mes cuando es el mismo también. */
 function tituloDeRango(r) {
   if (r.periodo === "ano") return "El año " + r.desde.slice(0, 4);
   const d1 = keyToDate(r.desde), d2 = keyToDate(r.hasta);
-  if (r.periodo === "mes") return MESES[d1.getMonth()].replace(/^./, c => c.toUpperCase()) + " de " + d1.getFullYear();
+  if (r.periodo === "mes") return T`El mes de ${nombreDeMes(d1.getMonth() + 1).replace(/^./, c => c.toUpperCase())} de ${d1.getFullYear()}`;
   const mismoMes = d1.getMonth() === d2.getMonth();
-  return "Del " + d1.getDate() + (mismoMes ? "" : " de " + MESES[d1.getMonth()]) +
-    " al " + d2.getDate() + " de " + MESES[d2.getMonth()];
+  return mismoMes
+    ? T`Del ${d1.getDate()} al ${d2.getDate()} de ${nombreDeMes(d2.getMonth() + 1)}`
+    : T`Del ${d1.getDate()} de ${nombreDeMes(d1.getMonth() + 1)} al ${d2.getDate()} de ${nombreDeMes(d2.getMonth() + 1)}`;
 }
 
 function renderInforme() {
@@ -592,7 +597,7 @@ function infMisiones(r, rAntes, D) {
        van— y en el mes se nombra el mes, que es lo que se está mirando. */
     const cuantos = r.periodo === "ano"
       ? `de los ${total} días que llevas de ${r.desde.slice(0, 4)}`
-      : `de los ${total} días que llevas de ${MESES[Number(r.desde.slice(5, 7)) - 1]}`;
+      : T`de los ${total} días que llevas de ${nombreDeMes(Number(r.desde.slice(5, 7)))}`;
     /* «Hiciste algo N días» no: reduce a «algo» lo que costó hacerse, y lo
        que se hizo importa tanto como que se hiciera. Estas casillas cuentan
        misiones cumplidas, así que se nombran. */

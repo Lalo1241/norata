@@ -703,7 +703,7 @@ function estadoApariencia(a) {
     const faltan = Math.max(1, a.abre - n);
     return {
       ok: false, clase: "nivel", chapa: "Nivel " + a.abre, corta: "Nivel " + a.abre, insignia: null,
-      titulo: faltan === 1 ? "Te falta un nivel" : "Te faltan " + faltan + " niveles",
+      titulo: faltan === 1 ? tx("Te falta un nivel") : T`Te faltan ${faltan} niveles`,
       texto: a.nombre + " se abre en el nivel " + a.abre + " de expedición y vas en el " +
         n + ". Ese nivel no se compra: sube solo con lo que haces en la app." +
         (a.pro ? " Al llegar arriba se enciende con " + pro + "." : ""),
