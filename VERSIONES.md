@@ -76,6 +76,39 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.78.1 · 3 sep 2026
+
+**El talento dejaba de estarse quieto cuando su nombre cambiaba de lado.** Lo
+cazó Eduardo arrastrando al milímetro, y no era un temblor: era un bucle.
+
+El nombre entraba en la caja del dibujo, así que pasarlo de la derecha a la
+izquierda cambiaba esa caja, y con ella el `viewBox`. Pero `svgPt` —lo que
+traduce el dedo a una coordenada del dibujo— lee ese mismo `viewBox`, o sea
+que el mismo punto de la pantalla pasaba a significar otra coordenada, el
+talento que estabas arrastrando se movía solo, se volvía a decidir el lado, y
+otra vez. Derecha, izquierda, derecha, izquierda, sin parar.
+
+Ahora al encuadre se le da la **envoltura** de los tres sitios posibles y no
+la del lado que le tocó, así que el hueco que ocupa un talento no depende de
+dónde acabó su nombre. Cuesta dos dedos de lienzo y corta el bucle de raíz:
+medido con veintiún pasos cruzando el umbral —el nombre cambió de lado dos
+veces, pasando por los tres sitios— el `viewBox` **no cambió ni una vez** y el
+ancho del dibujo fue el mismo en los veintiuno. Y con el dedo quieto en el
+límite y cuarenta repintados, el nombre no se movió de sitio.
+
+Y por si acaso, **el lado que ya tenía se prueba primero**: un nombre solo
+cambia de lado cuando de verdad dejó de caber, y una vez que se mueve se
+queda.
+
+**El icono del botón dice ahora en qué estado está la rama.** Son dos y no
+uno: el rectángulo tumbado con la flecha que lo levanta, y el rectángulo de
+pie con la flecha que lo tumba. Con un icono fijo, una rama ya de pie seguía
+enseñando el dibujo tumbado y el botón contaba lo contrario de lo que pasaba.
+Lo pidió Eduardo.
+
+Sin girar, el dibujo sigue idéntico letra por letra: `16afb4ed`, las mismas
+59 627 letras de la 0.7.77. De pie ahora da `055c6952`.
+
 ### 0.7.78 · 3 sep 2026
 
 **Los reportes se atienden uno a uno, y las versiones miran catorce días.** El

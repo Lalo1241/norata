@@ -2750,10 +2750,14 @@ const BM_ICONS = {
   expandir: '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/>',
   copiar: '<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M6.5 15H5.2A2.2 2.2 0 013 12.8V5.2A2.2 2.2 0 015.2 3h7.6A2.2 2.2 0 0115 5.2v1.3"/>',
   caja: '<path d="M3 8.5L12 4l9 4.5v7L12 20l-9-4.5z"/><path d="M3 8.5L12 13l9-4.5M12 13v7"/>',
-  /* Poner de pie una rama: el rectángulo tumbado y la flecha que lo levanta.
-     Se dibuja el ANTES y no el después a propósito — un icono que enseña el
-     estado al que vas se lee mejor que uno que enseña en el que estás. */
-  girar: '<rect x="3" y="13" width="12" height="7.5" rx="1.8"/><path d="M13.5 9.5V5.6A2 2 0 0115.5 3.6h4"/><path d="M17.6 1.6l2.4 2-2.4 2"/>'
+  /* ---- Poner de pie una rama, y volverla a tumbar ----
+     Son DOS iconos y no uno, y la diferencia importa: el que se enseña dibuja
+     la rama COMO ESTÁ AHORA, con la flecha señalando hacia dónde la vas a
+     llevar. Con un icono fijo, una rama ya de pie seguía enseñando el
+     rectángulo tumbado y el botón contaba lo contrario de lo que pasaba. Lo
+     pidió Eduardo. Ver `girarRama`. */
+  girar: '<rect x="3" y="13" width="12" height="7.5" rx="1.8"/><path d="M13.5 9.5V5.6A2 2 0 0115.5 3.6h4"/><path d="M17.6 1.6l2.4 2-2.4 2"/>',
+  girarVuelta: '<rect x="13" y="3" width="7.5" height="12" rx="1.8"/><path d="M9.5 13.5H5.6A2 2 0 013.6 11.5v-4"/><path d="M1.6 9.4l2-2.4 2 2.4"/>'
 };
 
 let openBranchMenu = null;
