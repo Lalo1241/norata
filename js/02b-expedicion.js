@@ -691,8 +691,113 @@ function expEscalonDe(r, nivel) {
 
    Un mundo puede traer solo los NOMBRES y ningún trazo —Consola es así—, y
    entonces se queda con la figura de la casa. */
-const EXP_ASTROS_MUNDO = 13;
+/* Cuántas estrellas puede llegar a tener una figura derivada. **No hay una por
+   nivel**: esa atadura se rompió en la 0.7.65, cuando cada figura pasó a tener
+   las que pide el dibujo y `ncelHasta()` empezó a repartir el progreso entre
+   ellas. Aquí manda la forma, y el tope solo existe para que una silueta muy
+   picada no salga hecha un puñado de puntos. */
+const EXP_ASTROS_TOPE = 34;
+const EXP_ASTROS_PIEZA = 16;
 const expFigurasCache = {};
+
+/* Distancia de un punto al segmento a-b. La usa el simplificador. */
+function expDistSeg(q, a, b) {
+  const dx = b[0] - a[0], dy = b[1] - a[1];
+  const L2 = dx * dx + dy * dy;
+  if (!L2) return Math.hypot(q[0] - a[0], q[1] - a[1]);
+  let t = ((q[0] - a[0]) * dx + (q[1] - a[1]) * dy) / L2;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(q[0] - (a[0] + t * dx), q[1] - (a[1] + t * dy));
+}
+
+/* Ramer-Douglas-Peucker: de una polilínea densa se queda con los puntos que
+   de verdad la describen —las esquinas y los extremos de las curvas— y tira
+   los que caen sobre una recta que ya está dibujada.
+
+   Es el cambio que pidió Eduardo: «las del tema Averno no representan
+   correctamente ninguna de las formas». La primera versión sembraba a
+   intervalos IGUALES de recorrido, y eso se come justo lo que hace
+   reconocible una silueta: las esquinas caen entre dos muestras y el
+   pentagrama de Abadón salía como un polígono cualquiera. Quedándose con los
+   vértices, la forma se lee aunque tenga la mitad de estrellas. */
+function expSimplificar(pts, eps) {
+  if (pts.length < 3) return pts.slice();
+  let dmax = 0, idx = 0;
+  const a = pts[0], b = pts[pts.length - 1];
+  for (let i = 1; i < pts.length - 1; i++) {
+    const d = expDistSeg(pts[i], a, b);
+    if (d > dmax) { dmax = d; idx = i; }
+  }
+  if (dmax > eps) {
+    const izq = expSimplificar(pts.slice(0, idx + 1), eps);
+    const der = expSimplificar(pts.slice(idx), eps);
+    return izq.slice(0, -1).concat(der);
+  }
+  return [a, b];
+}
+
+/* El recorrido denso de una pieza, medido UNA sola vez y guardado en ella.
+   `getPointAtLength` es lo caro de todo esto —el umbral se prueba hasta cinco
+   veces, y remuestrear en cada intento costaba 276 ms para los cinco rangos de
+   Averno contra los 60 de ahora—. Lo que cambia entre intentos es el
+   simplificador, no las muestras.
+
+   Media unidad de paso: el simplificador solo puede elegir entre los puntos
+   que le das, así que si el muestreo ya se saltó la esquina no hay nada que
+   conservar. Con este paso una esquina cae a un cuarto de unidad como mucho,
+   por debajo del umbral con el que se empieza. */
+function expDensoDePieza(pieza) {
+  if (pieza.base) return pieza.base;
+  const { el, L, cierra } = pieza;
+  const n = Math.max(16, Math.min(200, Math.round(L / 0.5)));
+  const denso = [];
+  for (let i = 0; i <= n; i++) {
+    const q = el.getPointAtLength(Math.min(L, i * L / n));
+    denso.push([q.x, q.y]);
+  }
+  if (cierra) denso[denso.length - 1] = denso[0].slice();
+
+  /* Una figura cerrada se recorre en círculo, así que hay que empezar por una
+     esquina de verdad: arrancando en un punto cualquiera del contorno, ese
+     punto se conserva porque es un extremo del recorrido y la esquina que
+     tenía al lado se pierde. Se rota al punto más lejano del centro, que en
+     una silueta es siempre un pico. */
+  let base = denso;
+  if (cierra && denso.length > 3) {
+    const cx = denso.reduce((t, q) => t + q[0], 0) / denso.length;
+    const cy = denso.reduce((t, q) => t + q[1], 0) / denso.length;
+    let mejor = 0, dm = -1;
+    for (let i = 0; i < denso.length - 1; i++) {
+      const d = Math.hypot(denso[i][0] - cx, denso[i][1] - cy);
+      if (d > dm) { dm = d; mejor = i; }
+    }
+    const aro = denso.slice(0, -1);
+    base = aro.slice(mejor).concat(aro.slice(0, mejor));
+    base.push(base[0].slice());
+  }
+  pieza.base = base;
+  return base;
+}
+
+/* Los puntos de UNA pieza del dibujo, ya simplificados. */
+function expPuntosDePieza(pieza, eps) {
+  const { el, L, cierra } = pieza;
+  let pts = expSimplificar(expDensoDePieza(pieza), eps);
+  if (cierra && pts.length > 1) pts = pts.slice(0, -1);   // el último es el primero
+
+  /* Una curva sin esquinas —los ojos de Ceniza, un aro— se simplifica hasta
+     nada: no tiene vértices que conservar. Ahí se vuelve al reparto uniforme,
+     que es lo correcto para un círculo. */
+  if (pts.length < 3) {
+    const m = Math.max(3, Math.min(8, Math.round(L / 2.6)));
+    pts = [];
+    for (let i = 0; i < m; i++) {
+      const q = el.getPointAtLength(L * i / m);
+      pts.push([q.x, q.y]);
+    }
+  }
+  return pts.slice(0, EXP_ASTROS_PIEZA);
+}
 
 function expFiguraDeTrazo(trazo) {
   if (expFigurasCache[trazo]) return expFigurasCache[trazo];
@@ -705,7 +810,6 @@ function expFiguraDeTrazo(trazo) {
     document.body.appendChild(caja);
 
     const piezas = [];
-    let total = 0;
     caja.querySelectorAll("path, circle, ellipse, rect, polygon, polyline").forEach(el => {
       if (typeof el.getTotalLength !== "function") return;
       let L = 0;
@@ -714,31 +818,36 @@ function expFiguraDeTrazo(trazo) {
          entienda: sembrarlos deja puntos sueltos que parecen suciedad. */
       if (!(L > 2)) return;
       const d = (el.getAttribute("d") || "").trim();
-      const cierra = el.tagName !== "path" && el.tagName !== "polyline"
+      const cierra = (el.tagName !== "path" && el.tagName !== "polyline")
         ? true : /[zZ]\s*$/.test(d);
       piezas.push({ el, L, cierra });
-      total += L;
     });
-    if (!piezas.length || !total) return null;
+    if (!piezas.length) return null;
 
-    const p = [], l = [];
-    for (const pieza of piezas) {
-      /* En proporción al largo, con dos de suelo: una pieza corta que se lleve
-         una sola estrella no dibuja nada, dibuja un punto. */
-      const n = Math.max(2, Math.round(EXP_ASTROS_MUNDO * pieza.L / total));
-      const base = p.length;
-      /* Una figura cerrada reparte el largo entre n; una abierta entre n-1,
-         para que la última estrella caiga en la punta y no antes. */
-      const paso = pieza.L / (pieza.cierra ? n : Math.max(1, n - 1));
-      for (let i = 0; i < n; i++) {
-        const q = pieza.el.getPointAtLength(Math.min(pieza.L, i * paso));
-        /* Del espacio del icono (24) al de las constelaciones (100), que es el
-           que esperan `expFiguraHTML` y `ncelHasta`. */
-        p.push([q.x * 100 / 24, q.y * 100 / 24]);
-        if (i > 0) l.push([base + i - 1, base + i]);
+    /* El umbral se afloja hasta que la figura entre en el tope. Empieza fino
+       —tres centésimas de la caja del icono— y solo sube si hace falta, así
+       que una silueta sencilla se queda con todos sus vértices y una muy
+       picada pierde primero los detalles pequeños, que es el orden correcto. */
+    let eps = 0.3, p = [], l = [], vuelta = 0;
+    for (;;) {
+      p = []; l = [];
+      for (const pieza of piezas) {
+        const pts = expPuntosDePieza(pieza, eps);
+        if (pts.length < 2) continue;
+        const base = p.length;
+        for (let i = 0; i < pts.length; i++) {
+          /* Del espacio del icono (24) al de las constelaciones (100), que es
+             el que esperan `expFiguraHTML` y `ncelHasta`. */
+          p.push([pts[i][0] * 100 / 24, pts[i][1] * 100 / 24]);
+          if (i > 0) l.push([base + i - 1, base + i]);
+        }
+        if (pieza.cierra && pts.length > 2) l.push([base + pts.length - 1, base]);
       }
-      if (pieza.cierra && n > 2) l.push([base + n - 1, base]);
+      if (p.length <= EXP_ASTROS_TOPE || ++vuelta >= 5) break;
+      eps *= 1.45;
     }
+    if (p.length < 4) return null;
+
     const fig = { p, l };
     expFigurasCache[trazo] = fig;
     return fig;
@@ -765,6 +874,12 @@ function expFiguraDeRango(r, i) {
 function expFiguraHTML(fig, hasta, cx, cy, m, huecas) {
   const X = q => (cx + (q[0] - 50) * m.esc).toFixed(1);
   const Y = q => (cy + (q[1] - 50) * m.esc).toFixed(1);
+  /* Las figuras derivadas de un mundo pueden traer el triple de estrellas que
+     las doce de la casa, y a los radios de siempre se tocan entre ellas: en el
+     estante, la calavera de Ceniza salía como una mancha. El radio baja con la
+     raíz del número —no linealmente— porque lo que tiene que dejar de crecer
+     es el área, no el diámetro. */
+  const rf = fig.p.length > 13 ? Math.sqrt(13 / fig.p.length) : 1;
   let s = "";
   for (const [a, b] of fig.l) {
     if (Math.max(a, b) + 1 > hasta) continue;
@@ -780,7 +895,7 @@ function expFiguraHTML(fig, hasta, cx, cy, m, huecas) {
        cielo. */
     const tarde = ' style="animation-delay:' + (Math.random() * 3.6).toFixed(2) + 's"';
     s += '<circle class="exp-astro ' + (puesta ? "puesta" : "hueca") + '" cx="' + X(fig.p[k]) +
-      '" cy="' + Y(fig.p[k]) + '" r="' + (puesta ? m.r : m.r * 0.78).toFixed(2) + '"' +
+      '" cy="' + Y(fig.p[k]) + '" r="' + ((puesta ? m.r : m.r * 0.78) * rf).toFixed(2) + '"' +
       (puesta ? tarde : ' stroke-width="' + (m.sw * 0.8).toFixed(2) + '"') + '/>';
   }
   /* Una zona de toque del tamaño de la figura entera. Sin ella hay que acertarle
