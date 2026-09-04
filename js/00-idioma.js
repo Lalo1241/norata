@@ -346,6 +346,21 @@ function ponerIdioma(cod, callback) {
   }
   document.documentElement.setAttribute("lang", IDIOMAS[cod].lang);
   traducirDOM();
+  /* Y se vuelve a DIBUJAR la pantalla que se esté viendo. El barrido solo
+     sabe restaurar lo que escribió esta casa en `index.html`; lo que dibujó el
+     JavaScript no puede recuperarlo, y con razón: cuando el JavaScript
+     reescribe un nodo, el barrido toma ese texto como el original nuevo —es lo
+     que le permite convivir con código que escribe encima— así que al volver
+     al español restauraría el inglés.
+
+     Se vio yendo de inglés a español con Ajustes abierto: los rótulos de las
+     secciones se quedaban en inglés y el sol/luna de al lado en español, en la
+     misma pantalla. Redibujar lo arregla entero, y va aquí y no en cada quien
+     llama: una función que deja la pantalla a medias y confía en que el de
+     fuera se acuerde de terminarla es una función que un día no se termina. */
+  if (typeof showView === "function" && typeof activeMainView !== "undefined") {
+    try { showView(activeMainView || "summary"); } catch (e) { /* aún sin app */ }
+  }
   if (typeof callback === "function") callback();
   return true;
 }

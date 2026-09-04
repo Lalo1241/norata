@@ -410,9 +410,9 @@ function temaSwitchHTML() {
   return `
     <div class="tema-fila">
       <span class="tema-tit">${tx("Aspecto")}</span>
-      <div class="tema-sw" role="radiogroup" aria-label="Aspecto de la app">
-        ${op("oscuro", "Oscuro", "luna", !claro)}
-        ${op("claro", "Claro", "sol", claro)}
+      <div class="tema-sw" role="radiogroup" aria-label="${escapeAttr(tx("Aspecto de la app"))}">
+        ${op("oscuro", tx("Oscuro"), "luna", !claro)}
+        ${op("claro", tx("Claro"), "sol", claro)}
       </div>
     </div>`;
 }
