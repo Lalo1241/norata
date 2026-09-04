@@ -417,7 +417,7 @@ function renderProjects() {
             </div>
             <div class="proj-bar"><div class="bar"><div class="bar-fill" style="width:${prog}%;background:${trazo(col)}"></div></div></div>
             <div class="proj-meta">
-              <span>${doneN} de ${(p.steps || []).length} etapas · <b>${prog}%</b></span>
+              <span>${T`${doneN} de ${(p.steps || []).length} etapas`} · <b>${prog}%</b></span>
               <span style="color:${h.color}">${h.label}</span>
             </div>
             </div>
@@ -723,7 +723,7 @@ function renderProjectDetail() {
         ${animRing(150, 12, prog / 100, trazo(col), 0, "var(--carril)")}
         <div class="ring-center">
           <div class="v"><b>${prog}%</b></div>
-          <div class="k">${steps.filter(s => s.done).length} de ${steps.length} etapas</div>
+          <div class="k">${T`${steps.filter(s => s.done).length} de ${steps.length} etapas`}</div>
         </div>
       </div>
     </div>`;
@@ -978,7 +978,7 @@ function linkedToSkill(s) {
         const st = missionStreak(m);
         return `<button class="linked-row" style="--lc:${pinta(m.color)}" onclick="showView('missions')">
           <span class="lr-ic">${icon(m.icon, 16)}</span>
-          <span class="lr-tx"><b>${escapeHtml(m.name)}</b><span>+${m.xp} XP · ${ok ? "cumplida hoy" : `${c} de ${t} hoy`}${st > 1 ? ` · racha ${st}` : ""}</span></span>
+          <span class="lr-tx"><b>${escapeHtml(m.name)}</b><span>+${m.xp} XP · ${ok ? tx("cumplida hoy") : T`${c} de ${t} hoy`}${st > 1 ? T` · racha ${st}` : ""}</span></span>
           <span class="lr-go">→</span>
         </button>`;
       }))}

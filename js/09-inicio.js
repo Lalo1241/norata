@@ -697,10 +697,12 @@ function loadExamples() {
   const daysAgo = (n) => addDaysKey(todayKey(), -n);
 
   const mkS = (name, category, iconName, color, xp, permanent, lastAct) => ({
-    id: uid(), name, category, icon: iconName, color, xp,
+    /* `name` y `category` llegan en español porque son las claves del
+       catálogo —quien decide icono y color—; lo que se GUARDA es el rótulo. */
+    id: uid(), name: tx(name), category: tx(category), icon: iconName, color, xp,
     permanent: !!permanent, graceDays: 7, decayPerDay: 10,
     createdAt: daysAgo(30), lastActivity: lastAct || (xp > 0 ? today : null), lastCheck: today,
-    log: xp > 0 ? [{ date: lastAct || today, xp, note: "Nivel inicial estimado" }] : []
+    log: xp > 0 ? [{ date: lastAct || today, xp, note: tx("Nivel inicial estimado") }] : []
   });
 
   const ejercicio = mkS("Ejercicio", "Salud", "dumbbell", "#ff8a70", 340, false, today);
@@ -727,7 +729,7 @@ function loadExamples() {
     skillId: ejercicio.id, xpReward: 150, requiere: [], modo: "todos", icon: "star", color: "#5fe0b0",
     status: null, startDate: null, endDate: null, completedAt: null,
     investedTotal: 0, progress: 0, createdAt: today,
-    history: [{ date: today, at: stamp(), event: "Talento creado" }]
+    history: [{ date: today, at: stamp(), event: tx("Talento creado") }]
   }, extra);
 
   /* ---- Rama Salud: el ejemplo grande ----
@@ -751,7 +753,7 @@ function loadExamples() {
     desc: tx("Un hito: una acción puntual que se cierra en sí misma. Se marca con un toque."),
     xpReward: 40, requiere: [tenis.id],
     status: "completed", completedAt: daysAgo(18),
-    history: [{ date: daysAgo(18), at: new Date(Date.now() - 18 * 864e5).toISOString(), event: "Hito conseguido" }]
+    history: [{ date: daysAgo(18), at: new Date(Date.now() - 18 * 864e5).toISOString(), event: tx("Hito conseguido") }]
   });
   const habito = mkP({
     name: tx("Correr 3 veces por semana"), icon: "flame", color: "#ff8a70",
@@ -760,13 +762,13 @@ function loadExamples() {
     status: "active", startDate: daysAgo(16),
     endDate: addDaysKey(todayKey(), 74),
     steps: [
-      { id: uid(), name: "Primera semana completa", done: true, at: stamp() },
-      { id: uid(), name: "Cuatro semanas seguidas", done: true, at: stamp() },
-      { id: uid(), name: "Ocho semanas seguidas", done: false, at: null },
+      { id: uid(), name: tx("Primera semana completa"), done: true, at: stamp() },
+      { id: uid(), name: tx("Cuatro semanas seguidas"), done: true, at: stamp() },
+      { id: uid(), name: tx("Ocho semanas seguidas"), done: false, at: null },
       { id: uid(), name: tx("Las doce semanas"), done: false, at: null }
     ],
     history: [
-      { date: daysAgo(4), at: new Date(Date.now() - 4 * 864e5).toISOString(), event: "Etapa hecha: Cuatro semanas seguidas" },
+      { date: daysAgo(4), at: new Date(Date.now() - 4 * 864e5).toISOString(), event: tx("Etapa hecha: Cuatro semanas seguidas") },
       { date: daysAgo(16), at: new Date(Date.now() - 16 * 864e5).toISOString(), event: tx("Inversión de $0 — plan de 3 meses iniciado") }
     ]
   });
@@ -782,7 +784,7 @@ function loadExamples() {
     desc: tx("Tres sesiones grabándome y ajustando la zancada."),
     planDays: 60, xpReward: 200, requiere: [reloj.id],
     steps: [
-      { id: uid(), name: "Grabarme corriendo", done: false, at: null },
+      { id: uid(), name: tx("Grabarme corriendo"), done: false, at: null },
       { id: uid(), name: tx("Comparar con una referencia"), done: false, at: null },
       { id: uid(), name: tx("Tres salidas aplicando el cambio"), done: false, at: null }
     ]
@@ -811,7 +813,7 @@ function loadExamples() {
     name: tx("Revisión médica"), icon: "heart", color: "#8fd18a", tipo: "hito",
     desc: tx("Antes de empezar a correr en serio, saber cómo estoy."),
     xpReward: 60, status: "completed", completedAt: finDeTrim, createdAt: finDeTrim,
-    history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: "Hito conseguido" }]
+    history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: tx("Hito conseguido") }]
   });
   const bici = mkP({
     name: tx("Bicicleta de segunda mano"), icon: "bolt", color: "#9aa7b8",
@@ -827,8 +829,8 @@ function loadExamples() {
     status: "active", startDate: finDeTrim, endDate: addDaysKey(finDeTrim, 90),
     congeladoEl: addDaysKey(todayKey(), -120),
     steps: [
-      { id: uid(), name: "Cuatro semanas seguidas", done: true, at: stamp() },
-      { id: uid(), name: "Ocho semanas seguidas", done: false, at: null }
+      { id: uid(), name: tx("Cuatro semanas seguidas"), done: true, at: stamp() },
+      { id: uid(), name: tx("Ocho semanas seguidas"), done: false, at: null }
     ],
     history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: tx("Plan de 3 meses iniciado") }]
   });
@@ -894,31 +896,31 @@ function loadMissionExamples(silent) {
 
   state.missions.push(
     {
-      id: uid(), name: "Caminar 20 minutos", desc: tx("Cuenta cualquier caminata seguida de 20 min o más."),
+      id: uid(), name: tx("Caminar 20 minutos"), desc: tx("Cuenta cualquier caminata seguida de 20 min o más."),
       icon: "bolt", color: "#ff8a70", cadence: "daily", days: [], target: 1,
       skillId: skillBy("Ejercicio"), xp: 20, log: streakLog(4, 1),
       archived: false, completedAt: null, createdAt: daysAgo(30)
     },
     {
-      id: uid(), name: "Beber agua", desc: tx("Ocho vasos a lo largo del día."),
+      id: uid(), name: tx("Beber agua"), desc: tx("Ocho vasos a lo largo del día."),
       icon: "heart", color: "#6fc3e8", cadence: "daily", days: [], target: 8,
       skillId: null, xp: 10, log: Object.assign(streakLog(3, 8), { [todayKey()]: 3 }),
       archived: false, completedAt: null, createdAt: daysAgo(20)
     },
     {
-      id: uid(), name: "Practicar idioma 15 min", desc: tx("Lecciones, video o conversación."),
+      id: uid(), name: tx("Practicar idioma 15 min"), desc: tx("Lecciones, video o conversación."),
       icon: "globe", color: "#5fe0b0", cadence: "weekly", days: [1, 3, 5], target: 1,
       skillId: skillBy("Idiomas"), xp: 25, log: streakLog(2, 1),
       archived: false, completedAt: null, createdAt: daysAgo(25)
     },
     {
-      id: uid(), name: "Cocinar algo nuevo", desc: tx("Una receta que nunca hayas hecho."),
+      id: uid(), name: tx("Cocinar algo nuevo"), desc: tx("Una receta que nunca hayas hecho."),
       icon: "coffee", color: "#f5d76e", cadence: "weekly", days: [0, 6], target: 1,
       skillId: skillBy("Cocina"), xp: 30, log: {},
       archived: false, completedAt: null, createdAt: daysAgo(14)
     },
     {
-      id: uid(), name: "Revisar mis suscripciones", desc: tx("Cancelar lo que ya no uso."),
+      id: uid(), name: tx("Revisar mis suscripciones"), desc: tx("Cancelar lo que ya no uso."),
       icon: "coin", color: "#b7a2ea", cadence: "once", days: [], target: 1,
       skillId: skillBy("Finanzas"), xp: 40, log: {},
       archived: false, completedAt: null, createdAt: daysAgo(5)
@@ -942,7 +944,7 @@ function loadProjectExamples(silent) {
       steps: steps([[tx("Medir y hacer lista de lo que falta"), true], ["Comprar organizadores", true], ["Ordenar alacena", false], [tx("Cambiar la iluminación"), false]]),
       createdAt: daysAgo(24), lastActivity: daysAgo(2), completedAt: null,
       history: [
-        { date: daysAgo(2), at: new Date(Date.now() - 2 * 864e5).toISOString(), event: "Etapa completada: Comprar organizadores" },
+        { date: daysAgo(2), at: new Date(Date.now() - 2 * 864e5).toISOString(), event: tx("Etapa completada: Comprar organizadores") },
         { date: daysAgo(24), at: new Date(Date.now() - 24 * 864e5).toISOString(), event: tx("Encargo creado en el proyecto Casa") }
       ]
     },

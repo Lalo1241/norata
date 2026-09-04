@@ -21,7 +21,7 @@ function renderPerkDetail() {
     <div class="fact-grid">
       <div class="fact"><div class="k">${tx("COSTO")}</div><div class="v acc">${p.cost > 0 ? money(p.cost) : "—"}</div></div>
       <div class="fact"><div class="k">${tx("INVERTIDO TOTAL")}</div><div class="v">${money(p.investedTotal || 0)}</div></div>
-      <div class="fact"><div class="k">${tx("TIPO")}</div><div class="v tipo-v">${icon(t.icono, 15)}${t.nombre}</div></div>
+      <div class="fact"><div class="k">${tx("TIPO")}</div><div class="v tipo-v">${icon(t.icono, 15)}${tx(t.nombre)}</div></div>
       <div class="fact"><div class="k">${tx("RECOMPENSA")}</div><div class="v">${skill ? "+" + p.xpReward + " XP" : "—"}</div></div>
     </div>
     <div class="xp-note" style="text-align:left;margin-top:10px">${tx(t.sub)}${
@@ -45,8 +45,8 @@ function renderPerkDetail() {
         <span class="hint-hold">${listos} de ${reqs.length}</span>
       </div>
       <div class="seg">
-        ${[["todos", "Todos", `Hacen falta los ${reqs.length}`],
-           ["cualquiera", "Cualquiera", tx("Basta con uno")]].map(([k, t, s]) => `
+        ${[["todos", tx("Todos"), T`Hacen falta los ${reqs.length}`],
+           ["cualquiera", tx("Cualquiera"), tx("Basta con uno")]].map(([k, t, s]) => `
           <button type="button" class="${modo === k ? "on" : ""}" onclick="ponerModoTalento('${p.id}','${k}')">
             <span>${t}</span><i style="display:block;font-size:10px;opacity:0.75;font-style:normal">${s}</i>
           </button>`).join("")}
@@ -109,7 +109,9 @@ function renderPerkDetail() {
     <div class="panel alt">
       <h3>${tx("Plan de tiempo")}</h3>
       <div class="bar" style="height:6px"><div class="bar-fill" style="width:${Math.min(100, Math.round(gone / total * 100))}%;background:var(--fire)"></div></div>
-      <div class="xp-note">Del ${formatDate(p.startDate)} al ${formatDate(p.endDate)} — quedan <b>${left}</b> día${left === 1 ? "" : "s"}.</div>
+      <div class="xp-note">${left === 1
+        ? T`Del ${formatDate(p.startDate)} al ${formatDate(p.endDate)} — queda <b>${left}</b> día.`
+        : T`Del ${formatDate(p.startDate)} al ${formatDate(p.endDate)} — quedan <b>${left}</b> días.`}</div>
       <div class="stack" style="margin-top:14px">
         <button class="btn ${prog >= 100 ? "btn-primary" : "btn-soft"} btn-block" onclick="completePerk('${p.id}')">${tx("Ya logré la meta")}</button>
         <button class="btn btn-danger-ghost btn-block" onclick="failPerk('${p.id}')">${tx("Rendirme y perder el talento")}</button>
@@ -159,8 +161,10 @@ function renderPerkDetail() {
       <p class="settings-note">${reqs.length === 1
         ? tx("Se desbloquea al completar:")
         : (modoDe(p) === "todos"
-          ? `Se desbloquea al completar <b>los ${reqs.length}</b> — llevas ${hechos}.`
-          : `Se desbloquea al completar <b>${tx("cualquiera")}</b> de los ${reqs.length}.`)}</p>
+          /* Enteras, y no pegando «cualquiera» traducido dentro de un marco
+             español: así salía «Se desbloquea al completar any de los 2». */
+          ? T`Se desbloquea al completar <b>los ${reqs.length}</b> — llevas ${hechos}.`
+          : T`Se desbloquea al completar <b>cualquiera</b> de los ${reqs.length}.`)}</p>
       <div class="req-list">
         ${reqs.map(r => `<button type="button" class="req-chip ${r.status === "completed" ? "hecho" : ""}" onclick="openPerk('${r.id}')">
           ${r.status === "completed" ? icon("check", 13) : icon(r.icon || "star", 13)}<span>${escapeHtml(r.name)}</span>
@@ -180,7 +184,7 @@ function renderPerkDetail() {
   if (st === "completed") {
     actionPanel = `
     <div class="panel alt" style="border-color:var(--mint)">
-      <h3 style="color:var(--mint)">Permanente desde el ${formatDate(p.completedAt)}</h3>
+      <h3 style="color:var(--mint)">${T`Permanente desde el ${formatDate(p.completedAt)}`}</h3>
       <p class="settings-note">${tx("Este talento ya es parte de ti. Nadie te lo quita.")}</p>
       <button class="btn btn-ghost btn-block" onclick="revertirTalento('${p.id}')">${tx("Deshacer — no llegó a pasar")}</button>
     </div>`;
@@ -188,7 +192,7 @@ function renderPerkDetail() {
   if (st === "completed") {
     actionPanel = `
     <div class="panel alt" style="border-color:var(--mint)">
-      <h3 style="color:var(--mint)">Permanente desde el ${formatDate(p.completedAt)}</h3>
+      <h3 style="color:var(--mint)">${T`Permanente desde el ${formatDate(p.completedAt)}`}</h3>
       <p class="settings-note" style="margin:0">${tx("Este talento ya es parte de ti. Nadie te lo quita. 🎉")}</p>
     </div>`;
   }
@@ -362,7 +366,7 @@ function openPerkForm(id, presetBranch) {
   editingPerkId = id || null;
   const p = id ? state.perks.find(x => x.id === id) : null;
 
-  document.getElementById("perk-form-title").textContent = p ? "Editar talento" : "Nuevo talento";
+  document.getElementById("perk-form-title").textContent = p ? tx("Editar talento") : tx("Nuevo talento");
   document.getElementById("p-name").value = p ? p.name : "";
   document.getElementById("p-branch").value = p ? (p.branch || "") : (presetBranch || "");
   document.getElementById("p-desc").value = p ? (p.desc || "") : "";
@@ -478,7 +482,7 @@ function renderPerkTipo() {
   const t = TIPOS[pTipo];
   document.getElementById("p-tipo").innerHTML = Object.keys(TIPOS).map(k => `
     <button type="button" class="${k === pTipo ? "on" : ""}" onclick="pickPerkTipo('${k}')">
-      ${icon(TIPOS[k].icono, 15)}<span>${TIPOS[k].nombre}</span>
+      ${icon(TIPOS[k].icono, 15)}<span>${tx(TIPOS[k].nombre)}</span>
     </button>`).join("");
   document.getElementById("p-tipo-sub").textContent = tx(t.sub);
 
@@ -599,7 +603,7 @@ function savePerk() {
     }
     state.perks.push(nuevo);
     save();
-    toast(`${TIPOS[pTipo].nombre} "${name}" añadida al árbol`);
+    toast(T`${tx(TIPOS[pTipo].nombre)} "${name}" añadida al árbol`);
     showView("tree");
   }
 }

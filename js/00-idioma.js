@@ -196,7 +196,24 @@ function T(partes, ...valores) {
   const d = diccionario();
   if (!d) return crudo;
   const clave = partes.reduce((s, p, i) => s + p + (i < valores.length ? "{" + i + "}" : ""), "");
-  const hit = d[clave] || d[clave.trim()];
+  /* Los espacios de los extremos se DEVUELVEN, igual que en `tx()`.
+
+     La clave se busca recortada porque en el código las frases vienen
+     sangradas, pero muchas de estas plantillas empiezan por un espacio a
+     propósito: son un trozo que se pega detrás de otro —« · última vez X»,
+     « · señal buena: 20%»—. Devolviendo solo la traducción, ese espacio
+     desaparecía y en inglés las dos partes salían pegadas: «Synced· last
+     time today». En español no se veía nunca, porque ahí `T` devuelve el
+     texto crudo sin pasar por el diccionario.
+
+     Se vio midiendo, no mirando: la misma plantilla da " · última vez hoy"
+     en español y "· last time today" en inglés. */
+  const seca = clave.trim();
+  let hit = d[clave];
+  if (typeof hit !== "string" && seca && typeof d[seca] === "string") {
+    const corte = clave.indexOf(seca[0]);
+    hit = clave.slice(0, corte) + d[seca] + clave.slice(corte + seca.length);
+  }
   if (typeof hit !== "string") {
     if (AUDITA_I18N && !_barriendo && tieneLetras(clave.trim())) _faltan.add(clave.trim());
     return crudo;
@@ -433,6 +450,18 @@ function letrasDeSemana() {
     } catch (e) { out.push("?"); }
   }
   return out;
+}
+
+/* El nombre entero del día, con 0 = domingo. Lo da `Intl` por la misma razón
+   que los meses: acierta la mayúscula inicial que lleva el inglés y no lleva
+   el español, cosa que una lista copiada a mano no hace. Había una lista fija
+   en `js/10g-informe.js` y el informe escribía «Tu día más flojo es el lunes»
+   con la app en inglés. */
+function nombreDeDiaLargo(i) {
+  try {
+    return new Date(Date.UTC(2021, 0, 3 + i))
+      .toLocaleDateString(localeActual(), { weekday: "long", timeZone: "UTC" });
+  } catch (e) { return "?"; }
 }
 
 /* Las dos primeras letras, para cuando una sola no distingue —martes y

@@ -24,6 +24,143 @@
 
 const TEXTOS_EN = {
 
+  "Hito conseguido": "Milestone reached",
+  /* El contenido del ejemplo que siembra «Ver un ejemplo completo», y las dos
+     reglas de entrada de un talento. Doce de estas se habían quedado sueltas
+     mientras sus descripciones sí se traducían: la ficha salía con el nombre
+     en español y la explicación en inglés. */
+  "Caminar 20 minutos": "Walk 20 minutes",
+  "Beber agua": "Drink water",
+  "Practicar idioma 15 min": "Practice a language 15 min",
+  "Cocinar algo nuevo": "Cook something new",
+  "Revisar mis suscripciones": "Review my subscriptions",
+  "Primera semana completa": "First full week",
+  "Cuatro semanas seguidas": "Four weeks in a row",
+  "Ocho semanas seguidas": "Eight weeks in a row",
+  "Grabarme corriendo": "Film myself running",
+  "Talento creado": "Talent created",
+  "Etapa hecha: Cuatro semanas seguidas": "Step done: Four weeks in a row",
+  "Etapa completada: Comprar organizadores": "Step completed: Buy organizers",
+  "Cualquiera": "Any",
+  "Hacen falta los {0}": "All {0} are needed",
+  "Se desbloquea al completar <b>los {0}</b> — llevas {1}.": "Unlocks when you complete <b>all {0}</b> — you have {1}.",
+  "Se desbloquea al completar <b>cualquiera</b> de los {0}.": "Unlocks when you complete <b>any</b> of the {0}.",
+  "{0} \"{1}\" añadida al árbol": "{0} \"{1}\" added to the tree",
+  "{0} creado · ábrelo para ponerle nombre": "{0} created · open it to give it a name",
+  "Último avance hace {0} día.": "Last movement {0} day ago.",
+  "Último avance hace {0} días.": "Last movement {0} days ago.",
+  "{0} días sin avance y solo {1}% hecho. Sé honesto: ¿lo retomas esta semana o lo sueltas?": "{0} days with no movement and only {1}% done. Be honest: are you picking it back up this week, or letting it go?",
+  /* Un talento ya conseguido, y la misión de una habilidad en su ficha. */
+  "Permanente desde el {0}": "Permanent since {0}",
+  "{0} de {1} hoy": "{0} of {1} today",
+  "cumplida hoy": "done today",
+  " · racha {0}": " · streak {0}",
+  /* El ancla de una misión y el nivel estimado de una habilidad. El primero
+     vive en `index.html` y lo barre `traducirDOM()`: por eso el auditor no lo
+     ve —no pasa por `tx()`— y hacía falta mirar la pantalla. */
+  "Después de… (opcional)": "After… (optional)",
+  "Nivel inicial estimado": "Estimated starting level",
+
+  /* El plazo de un talento con plan. Singular y plural, dos claves. */
+  "Del {0} al {1} — queda <b>{2}</b> día.": "From {0} to {1} — <b>{2}</b> day left.",
+  "Del {0} al {1} — quedan <b>{2}</b> días.": "From {0} to {1} — <b>{2}</b> days left.",
+  /* Lo que lleva dentro una caja del mapa, y el avance de un proyecto. */
+  "{0} hechos · {1} sin terminar": "{0} done · {1} unfinished",
+  "{0} hechos y {1} sin terminar": "{0} done and {1} unfinished",
+  "{0} guardados": "{0} put away",
+  "{0} talentos guardados": "{0} talents put away",
+  /* Los contadores que se componían a mano pegando trozos. Van con `T` y una
+     sola clave: partidos, el inglés no puede mover el número de sitio. */
+  "{0} de {1} etapas": "{0} of {1} steps",
+  "{0}/{1} etapas": "{0}/{1} steps",
+  " · nivel {0} de {1}": " · level {0} of {1}",
+  " · conseguido": " · earned",
+
+  /* La tira de atajos del modo edición del mapa. */
+  "editar el mapa": "edit the map",
+  "salir de edición": "leave editing",
+  "pantalla completa": "full screen",
+  "deshacer": "undo",
+  /* El informe: el periodo, el módulo y el cartel de Pro. Los tres se
+     dibujaban sin pedir traducción. */
+  "Todo": "All",
+  "El informe completo, con {0}": "The full report, with {0}",
+
+  /* Mi expedición: el nivel grande y lo que falta para el siguiente. */
+  "<b>{0}</b> punto para el nivel {1}": "<b>{0}</b> point to level {1}",
+  "<b>{0}</b> puntos para el nivel {1}": "<b>{0}</b> points to level {1}",
+  /* Lo que abre cada nivel (EXP_ESCALERA, js/02b-expedicion.js) y el estado de
+     cada peldaño. Ninguno pedía traducción hasta la 0.7.88.2. */
+  "Racha avivada": "Streak fanned",
+  "Desbloqueado": "Unlocked",
+  "Pro": "Pro",
+
+  /* El día flojo de la semana, en los informes. El nombre del día lo pone
+     `Intl`, así que aquí solo va la frase que lo envuelve. */
+  "Tu día más flojo es el {0}.": "Your weakest day is {0}.",
+  "{0}: {1} marcas": "{0}: {1} check-ins",
+  /* ---------- Las TABLAS de rótulos (0.7.88.2) ----------
+     Estas veintinueve no las ve ninguna herramienta que busque literales dentro
+     de `tx()`: se piden con una variable —`tx(STATUS_LABEL[st])`,
+     `tx(EXP_ETIQUETAS[k])`— y la frase vive en una tabla. Ese es el punto ciego,
+     y es justo donde estaban todas las que quedaban en español.
+
+     Para volver a buscarlas: recorrer las tablas de nivel superior y comprobar
+     cada valor contra el diccionario, en vez de buscar `tx("...")`. */
+
+  /* Los tres tipos de talento (TIPOS, js/01-base.js) */
+  "Compra": "Purchase",
+  "Hito": "Milestone",
+  "Meta": "Goal",
+
+  /* En qué estado está un talento (STATUS_LABEL, js/03-talentos.js) */
+  "Disponible": "Available",
+  "Plan vencido": "Plan overdue",
+  "Permanente": "Permanent",
+  "Perdido": "Lost",
+
+  /* Lo que suma en Mi expedición (EXP_ETIQUETAS, js/02b-expedicion.js).
+     Las otras seis ya estaban; faltaban estas cuatro. */
+  "Talentos logrados": "Talents earned",
+  "Etapas hechas": "Steps done",
+  "Hitos conseguidos": "Milestones reached",
+  "Estrenos": "Unlocks",
+
+  /* Las cinco anclas de ejemplo de una misión (ANCLAS_SUGERIDAS). Se guardan
+     traducidas dentro de la misión, así que son copy y no etiquetas: van en
+     gerundio, que es como suena «después de» en inglés. */
+  "Después de": "After",
+  "servirme el café": "pouring my coffee",
+  "comer": "eating",
+  "llegar a casa": "getting home",
+  "lavarme los dientes": "brushing my teeth",
+  "cerrar la computadora": "closing my laptop",
+
+  /* El periodo de los informes (PERIODOS, js/10f-informes.js). Van los dos
+     juegos: el del botón y el que entra dentro de una frase. */
+  "Semana": "Week",
+  "Mes": "Month",
+  "Año": "Year",
+  "la semana": "the week",
+  "el mes": "the month",
+  "el año": "the year",
+
+  /* Cómo se acomoda el tablero (DASH_ACOMODOS, js/05-resumen.js) */
+  "Columnas": "Columns",
+  "Panorama": "Panorama",
+  "Mirador": "Overlook",
+
+  /* Los planes. Los NOMBRES se traducen porque las frases de al lado ya lo
+     hacían —«You're on Free», «Move to the Founder plan»—, así que la columna
+     que decía «Gratuito» discrepaba con el párrafo de encima. Los precios no:
+     son importes de verdad, en pesos, y los cobra Stripe. */
+  "Gratuito": "Free",
+  "Fundador": "Founder",
+  "Pro mensual": "Pro monthly",
+  "Pro anual": "Pro yearly",
+  "al mes": "a month",
+  "Recomendado": "Recommended",
+  "Tiempo limitado": "Limited time",
   /* ---------- La barra, las pantallas y los botones de siempre ---------- */
   "Resumen": "Summary",
   "Habilidades": "Skills",
@@ -2067,7 +2204,7 @@ const TEXTOS_EN = {
   "Nivel {0}": "Level {0}",
   "{0} se abre en el nivel {1} de expedición y vas en el {2}.":
     "{0} opens at journey level {1} and you're on {2}.",
-  "Al llegar arriba se enciende con {0}.": " Once you get there it switches on with {0}.",
+  "Al llegar arriba se enciende con {0}.": "Once you get there it switches on with {0}.",
   "{0} es lo único que {1} tiene además de Pro": "{0} is the only thing {1} has beyond Pro",
   ": un pago único de {0}, sin fecha y sin renovaciones.":
     ": a single payment of {0}, with no date and no renewals.",

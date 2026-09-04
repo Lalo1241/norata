@@ -143,10 +143,10 @@ async function completeHito(id) {
   p.history = p.history || [];
   p.status = "completed";
   p.completedAt = todayKey();
-  p.history.unshift({ date: todayKey(), at: stamp(), event: "Hito conseguido" });
+  p.history.unshift({ date: todayKey(), at: stamp(), event: tx("Hito conseguido") });
   grantPerkReward(p);
   save();
-  celebrate("Hito conseguido", p.name, "#5fe0b0", p.icon);
+  celebrate(tx("Hito conseguido"), p.name, "#5fe0b0", p.icon);
   renderPerkDetail();
   renderTree();
 }
@@ -764,7 +764,7 @@ function vistaDeRama(b) {
     nodos.push({
       id: c.id, esCaja: true, cajaId: c.id,
       name: nombreCaja(c),
-      resumen: pendientes ? `${hechos} hechos · ${pendientes} sin terminar` : `${total} guardados`,
+      resumen: pendientes ? T`${hechos} hechos · ${pendientes} sin terminar` : T`${total} guardados`,
       todoHecho: pendientes === 0,
       requiere: [...req], modo: modoDe(c),
       /* El color elegido a mano manda sobre el del estado. Viaja aparte
