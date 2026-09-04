@@ -6409,6 +6409,20 @@
   .op-ic[data-r="duro"]  { color: var(--fire);    background: var(--fire-soft); }
   .op-tx { min-width: 0; }
 
+  /* La etiqueta «beta» del inglés. Pegada al nombre y no en su propia línea:
+     lo que califica es el idioma, no la opción entera. En luciérnaga y sin
+     relleno macizo — avisa, no alarma, y una pastilla sólida al lado del
+     nombre pesaba más que el nombre. */
+  .op-beta {
+    margin-left: 7px; padding: 1px 6px;
+    border: var(--borde-fino) solid var(--fire);
+    border-radius: var(--r-pastilla);
+    color: var(--fire);
+    font-size: 10px; font-weight: 700; font-style: normal;
+    letter-spacing: .04em; text-transform: uppercase;
+    vertical-align: 2px;
+  }
+
   /* Los ejemplos de la pregunta 3. Se leen como sugerencias y no como botones
      de acción: sin relleno macizo, porque tocarlos no decide nada — rellenan un
      campo que se puede seguir escribiendo. */
@@ -7092,6 +7106,24 @@
   .btn[disabled] { opacity: 0.4; pointer-events: none; }
   .settings-note { font-size: 13.5px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
   .stack { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Los tres botones de la cuenta: dos arriba repartiéndose la fila y el
+     tercero a lo ancho debajo. Los de arriba no te quitan nada —traer los
+     cambios, y entrar con otra cuenta, que además conserva la de ahora— y el
+     de abajo toca la sesión. Tres botones iguales no dicen cuál pesa; con la
+     fila partida, la única con consecuencias es la que se lleva el ancho.
+
+     `1fr 1fr` y no `auto`: con columnas al contenido, «Entrar con otra
+     cuenta» se comía dos tercios y las dos dejaban de leerse como pareja. Y
+     por debajo de 380 px vuelven a apilarse: dos botones de estos textos en
+     media pantalla de teléfono parten el rótulo en tres renglones. */
+  .cuentas-acciones {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .cuentas-acciones > .btn-block { grid-column: 1 / -1; }
+  @media (max-width: 380px) {
+    .cuentas-acciones { grid-template-columns: 1fr; }
+  }
 
   /* Copias de conflicto. Los botones van debajo y a lo ancho, no apretados a
      la derecha: uno de los dos borra un respaldo y no debe quedar a tiro de
@@ -8187,6 +8219,20 @@
   /* La cabecera va CENTRADA y las preguntas no: arriba se presenta la app
      —una marca, un saludo y dos líneas— y eso se lee como un cartel; abajo se
      elige, y una lista de opciones centrada no tiene dónde alinear la vista. */
+  /* El rótulo del ensayo. En luciérnaga y no en menta: no es algo que hayas
+     conseguido, es un aviso de que lo que ves no cuenta. Va ARRIBA del logo
+     porque tiene que leerse antes que la pantalla, no después de haberla
+     creído. Los dos tonos salen de las variables partidas: el relleno es el
+     macizo del amarillo y la tinta la oscura, que es lo que contrasta encima
+     en los dos modos. */
+  .region-ensayo {
+    margin: -6px 0 16px; padding: 7px 12px;
+    border-radius: var(--r-pastilla);
+    background: var(--fire-macizo, var(--fire));
+    color: var(--sobre-vivo);
+    font-size: 12px; font-weight: 600; letter-spacing: .02em;
+    text-align: center; text-wrap: balance;
+  }
   .region-marca {
     display: flex; align-items: center; justify-content: center;
     min-height: 44px; margin-bottom: 16px; color: var(--marca);

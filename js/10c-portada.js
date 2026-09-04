@@ -937,7 +937,7 @@ function cuentasMenuHTML(pref) {
 function cuentasSeccionHTML() {
   const lista = cuentasListaHTML();
   if (!lista) return "";
-  return '<p class="cuentas-tit">Cambiar a otra cuenta de este dispositivo</p>' + lista;
+  return '<p class="cuentas-tit">' + escapeHtml(tx("Cambiar a otra cuenta de este dispositivo")) + '</p>' + lista;
 }
 
 /* ---- La cuenta está esperando a borrarse ----

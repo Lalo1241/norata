@@ -211,7 +211,7 @@ function renderMissions() {
         </section>`).join("")}
     </div>`
     : `
-    <div class="tablero-pista full-row"><span class="hint-hold">${pistaReordenar()} · el ＋ de cada tablero crea una misión ya puesta ahí</span></div>
+    <div class="tablero-pista full-row"><span class="hint-hold">${pistaReordenar()} · ${tx("el ＋ de cada tablero crea una misión ya puesta ahí")}</span></div>
     ${visibles.map((c, i) => `
       <div class="panel ${i % 2 ? "alt" : ""}">
         <div class="panel-head">
@@ -1338,7 +1338,7 @@ function renderTree() {
       body = `
       <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, bi, editing, b)}</div>
       <button class="fs-open" onclick="openBranchFullscreen('${bj}')">
-        <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> Ver la rama completa
+        <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> ${tx("Ver la rama completa")}
       </button>
       ${/* Una sola línea, y que diga lo que la mano puede hacer AHORA. Fuera
             de edición el gesto es el que hay que aprender; dentro, las
@@ -1364,7 +1364,7 @@ function renderTree() {
     html += `
     <div class="branch-card${isDesktop() && ramaDeAtajo() === b ? " rama-activa" : ""}" data-rama="${ba}" data-cota="${doneN} de ${reales.length}">
       <div class="branch-head">
-        <button class="badd solid" onclick="toggleBranch('${bj}')" aria-label="${collapsed ? "Desplegar" : "Plegar"} ${ba}" style="margin-right:2px">
+        <button class="badd solid" onclick="toggleBranch('${bj}')" aria-label="${escapeAttr(collapsed ? T`Desplegar ${b}` : T`Plegar ${b}`)}" style="margin-right:2px">
           <svg viewBox="0 0 24 24"><path d="${collapsed ? "M9 6l6 6-6 6" : "M6 9l6 6 6-6"}"/></svg>
         </button>
         <!-- El nombre abre el renombrado, no el plegado: plegar ya tiene su

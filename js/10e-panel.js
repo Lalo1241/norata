@@ -777,6 +777,38 @@ function verLaFiesta(cual) {
   celebrarNivel(Math.max(2, (typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 2)), []);
 }
 
+/* ---- El escaparate de las pantallas que solo salen una vez ----
+
+   Hermano del de las celebraciones y por el mismo motivo: hay pantallas que un
+   perfil ve UNA vez en su vida, y revisarlas obligaba a vaciar la app y
+   empezar de cero. Lo pidió Eduardo después de tener que borrar sus datos para
+   volver a ver la de idioma y moneda.
+
+   Cada una se abre en ENSAYO —lo que se toque dentro se deshace al cerrar—, y
+   eso no es prudencia de más: elegir moneda ahí dentro no convierte nada, así
+   que en un perfil con años de importes guardados dejaría los mismos números
+   leyéndose como dólares. */
+const PANTALLAS_DE_UNA_VEZ = [
+  { id: "region", rotulo: "Idioma y moneda",
+    nota: "La primera de todas: sale antes del tablero y antes del tutorial." }
+];
+
+function verLaPantalla(cual) {
+  if (cual === "region" && typeof verLaPantallaDeRegion === "function") verLaPantallaDeRegion();
+}
+
+function panelPantallasHTML() {
+  return `<div class="panel">
+      <h3>${tx("Ver una pantalla de la primera vez")}</h3>
+      <p class="settings-note">${tx("Un perfil las ve una sola vez, así que revisarlas costaba vaciar la app. Se abren en ensayo: lo que toques dentro se deshace al cerrar, y tus datos no se tocan.")}</p>
+      <div class="pn-fiestas">
+        ${PANTALLAS_DE_UNA_VEZ.map(p => `<button class="btn btn-linea btn-block" onclick="verLaPantalla('${p.id}')">
+          <b>${escapeHtml(tx(p.rotulo))}</b><span>${escapeHtml(tx(p.nota))}</span>
+        </button>`).join("")}
+      </div>
+    </div>`;
+}
+
 function panelFiestasHTML() {
   return `<div class="panel">
       <h3>${tx("Ver una celebración")}</h3>
@@ -802,7 +834,7 @@ function renderPanelAdmin() {
      métricas hayan llegado: dejarlo debajo de una tabla que todavía se está
      pidiendo lo escondía justo cuando hace falta. */
   if (!m) {
-    caja.innerHTML = panelPruebasHTML() + panelFiestasHTML() + `<div class="panel">
+    caja.innerHTML = panelPruebasHTML() + panelFiestasHTML() + panelPantallasHTML() + `<div class="panel">
         <h3>${tx("Los números")}</h3>
         <p class="settings-note">${tx("Se piden al servidor cuando abres esta sección.")}</p>
         <button class="btn btn-linea btn-block" onclick="cargarMetricas()">${tx("Cargar los números")}</button>
@@ -838,7 +870,7 @@ function renderPanelAdmin() {
       : null
   ].filter(Boolean);
 
-  caja.innerHTML = panelPruebasHTML() + panelFiestasHTML() + `
+  caja.innerHTML = panelPruebasHTML() + panelFiestasHTML() + panelPantallasHTML() + `
     ${avisos.length ? `<div class="panel">
       <h3>${tx("Para mirar")}</h3>
       <div class="pn-avisos">

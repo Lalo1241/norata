@@ -76,6 +76,43 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.88.2 · 4 sep 2026
+
+**La pantalla de la primera vez, ensayable desde el modo administrador.**
+Sale una vez en la vida de un perfil, así que revisarla costaba vaciar la app y
+empezar de cero. Ahora hay un botón en «Norata por dentro», al lado del
+escaparate de celebraciones y por el mismo motivo, y **abre un ensayo**: lleva
+su propio rótulo en amarillo, el botón dice «Cerrar el ensayo» y al cerrarse
+devuelve idioma, moneda y la marca de contestada a como estaban, y te deja
+donde estabas mirando.
+
+Que sea un ensayo no es prudencia de más: `regionMoneda` cambia la moneda **sin
+convertir** —lo correcto en un perfil recién nacido, que no tiene ni un importe
+guardado— y en un perfil con años dentro eso dejaría los mismos números
+leyéndose como dólares. Medido con un talento de $4.500 con $1.800 invertidos:
+se toca inglés y euros dentro del ensayo, se cierra, y las dos cifras y las tres
+llaves vuelven idénticas.
+
+**«beta» en el botón de inglés.** Lleva un día en vivo y cada recorrido saca
+frases nuevas; decirlo por delante cambia lo que alguien hace al toparse una.
+Es una bandera en `IDIOMAS` y se quita borrándola, sin tocar ninguna pantalla.
+
+**Los tres botones de la cuenta, dos arriba y uno abajo.** Los de arriba no te
+quitan nada —traer los cambios, y entrar con otra cuenta, que además conserva
+la de ahora— y el de abajo toca la sesión. Tres botones iguales del mismo alto
+no dicen cuál pesa. Por debajo de 380 px vuelven a apilarse: dos de esos
+rótulos en media pantalla de teléfono parten en tres renglones.
+
+**Y otra tanda de traducción**, de recorrer otra vez la app entera en inglés: la
+sección de cambiar de cuenta que él vio, las tarjetas del escaparate de planes
+—«al mes», «una sola vez», los pies y la garantía—, las anclas sugeridas de una
+misión con su «Después de», «Ver la rama completa», los `aria-label` de plegar
+una rama, y la pista del ＋ de un tablero, que estaba traducida a medias.
+
+De paso, un doble `tx()` en el título de Ajustes: `seccionesAjustes()` ya
+traduce desde ayer, así que el segundo pase buscaba el inglés en el diccionario
+y lo apuntaba como si faltara.
+
 ### 0.7.88.1 · 4 sep 2026
 
 **Lo que se había quedado en español con la app en inglés.** Eduardo lo vio en

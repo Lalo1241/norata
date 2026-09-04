@@ -43,7 +43,8 @@ function opcionesIdiomaHTML(sel, accion) {
   return `<div class="ob-pace">${Object.values(IDIOMAS).map(i => `
     <button class="ob-pace-opt ${sel === i.codigo ? "on" : ""}" onclick="${accion}('${i.codigo}')">
       <span class="op-ic rg-disco">${discoIdioma(i.codigo, 26)}</span>
-      <span class="op-tx"><b>${escapeHtml(i.nombre)}</b><span>${escapeHtml(muestraDeFecha(i.locale))}</span></span>
+      <span class="op-tx"><b>${escapeHtml(i.nombre)}${
+        i.beta ? `<i class="op-beta">${escapeHtml(tx("beta"))}</i>` : ""}</b><span>${escapeHtml(muestraDeFecha(i.locale))}</span></span>
     </button>`).join("")}</div>`;
 }
 
@@ -382,6 +383,11 @@ function pintarPantallaRegion() {
             otra dice para qué son las dos preguntas. El saludo es distinto al
             del tutorial —«Te doy la bienvenida»— a propósito: el tutorial
             llega después y son dos momentos, no dos veces el mismo. */""}
+      ${/* El rótulo es obligatorio, no decorativo: sin él es fácil olvidar
+             que esto es un ensayo y acabar juzgando —o peor, dando por
+             guardada— una elección que se va a deshacer sola. Es la misma
+             regla del modo prueba de la barra de direcciones. */
+        regionEnsayo ? `<div class="region-ensayo">${escapeHtml(tx("Ensayo · nada de lo que toques aquí se guarda"))}</div>` : ""}
       <div class="region-marca">${marca || `<span class="bubble">${icon("compass", 28)}</span>`}</div>
       <h2>${escapeHtml(tx("Qué gusto tenerte aquí"))}</h2>
       <p class="region-lema">${escapeHtml(tx("Norata trata tu vida como un videojuego: misiones que haces hoy, habilidades que suben con la práctica, talentos y proyectos."))}</p>
@@ -398,8 +404,8 @@ function pintarPantallaRegion() {
         ${opcionesMonedaHTML(monedaActual(), "regionMoneda")}
       </div>
 
-      <button class="btn btn-primary btn-block" style="margin-top:20px" onclick="cerrarPantallaRegion()">${
-        escapeHtml(tx("Continuar"))}</button>
+      <button class="btn ${regionEnsayo ? "btn-ghost" : "btn-primary"} btn-block" style="margin-top:20px" onclick="cerrarPantallaRegion()">${
+        escapeHtml(tx(regionEnsayo ? "Cerrar el ensayo" : "Continuar"))}</button>
     </div>`;
 }
 
@@ -421,12 +427,66 @@ function regionMoneda(cod) {
   pintarPantallaRegion();
 }
 
+/* ---- El ensayo, para el modo administrador ----
+
+   Esta pantalla sale UNA vez en la vida de un perfil, así que revisarla
+   costaba vaciar la app y empezar de cero. Desde el panel de pruebas se abre
+   cuando se quiera, y es un ensayo: lo que se toque dentro se deshace al
+   cerrar.
+
+   Deshacerlo no es un adorno. `regionMoneda` cambia la moneda SIN convertir
+   —que es lo correcto en un perfil recién nacido, donde no hay ni un importe
+   guardado— y en un perfil con años dentro eso reescribiría el sentido de cada
+   cifra que ya existe: los mismos números pasarían a leerse como dólares. Un
+   ensayo no puede costar eso, así que el ensayo devuelve las tres cosas que la
+   pantalla toca —idioma, moneda y la marca de contestada— a como estaban.
+
+   Se guarda también DÓNDE estaba mirando: la capa tapa Ajustes, y al cerrarse
+   `showView("settings")` deja el índice y no la sección abierta (lo pone a
+   null a propósito, ver `abrirAjustes`). Sin esto, ensayar la pantalla te
+   sacaba del panel desde el que la abriste. */
+let regionEnsayo = null;
+
+function verLaPantallaDeRegion() {
+  if (document.getElementById("region")) return;
+  regionEnsayo = {
+    idioma: idiomaActual(),
+    moneda: monedaActual(),
+    lista: !!(state.settings && state.settings.regionLista),
+    vista: typeof activeMainView !== "undefined" ? activeMainView : null,
+    seccion: typeof ajusteAbierto !== "undefined" ? ajusteAbierto : null
+  };
+  mostrarPantallaRegion();
+}
+
 function cerrarPantallaRegion() {
-  state.settings.regionLista = true;
-  state.settings.idioma = idiomaActual();
+  const ensayo = regionEnsayo;
+  regionEnsayo = null;
+
+  if (!ensayo) {
+    state.settings.regionLista = true;
+    state.settings.idioma = idiomaActual();
+  } else {
+    /* El idioma se devuelve con `ponerIdioma` y no a mano: es quien reescribe
+       el DOM y vuelve a dibujar. Puesto a mano, la app se quedaba en el idioma
+       del ensayo con el dato diciendo otra cosa. */
+    state.settings.moneda = ensayo.moneda;
+    state.settings.regionLista = ensayo.lista;
+  }
   save();
+
   const caja = document.getElementById("region");
   if (caja) caja.remove();
+
+  if (ensayo) {
+    ponerIdioma(ensayo.idioma);
+    if (ensayo.vista === "settings" && typeof abrirAjustes === "function") abrirAjustes(ensayo.seccion);
+    else { aplicarModulos(); showView(ensayo.vista || "summary"); }
+    if (typeof toast === "function")
+      toast(tx("Era un ensayo: tu idioma, tu moneda y tus datos siguen como estaban."), "hecho");
+    return;
+  }
+
   /* Se repinta lo que hay detrás: si se eligió inglés, la pantalla vacía y el
      menú se dibujaron en español antes de que existiera esta capa. */
   aplicarModulos();

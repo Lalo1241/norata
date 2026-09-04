@@ -58,7 +58,12 @@
 
 const IDIOMAS = {
   es: { codigo: "es", nombre: "Español", enIngles: "Spanish", locale: "es-MX", lang: "es" },
-  en: { codigo: "en", nombre: "English", enIngles: "English", locale: "en-US", lang: "en" }
+  /* `beta` no es decoración: el inglés lleva un día en vivo y todavía salen
+     frases sin traducir cada vez que se recorre la app. Decirlo por delante
+     cambia lo que alguien hace al encontrarse una — de «esto está roto» a
+     «esto va en camino»— y es lo que pidió Eduardo. Se quita borrando la
+     bandera, sin tocar ninguna pantalla. */
+  en: { codigo: "en", nombre: "English", enIngles: "English", locale: "en-US", lang: "en", beta: true }
 };
 const IDIOMA_POR_DEFECTO = "es";
 const LLAVE_IDIOMA = "norata-idioma";

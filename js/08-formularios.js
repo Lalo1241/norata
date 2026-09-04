@@ -888,6 +888,9 @@ async function deleteProject() {
 
    Son cosas que se hacen a diario y a la misma hora, que es lo que las hace
    servir de gancho — «cuando tenga tiempo» no es un ancla. */
+/* La tabla se queda en español y se traduce al PINTAR, como todas: lo que se
+   guarda al tocar una es el rótulo, y ese sí va en el idioma de quien escribe.
+   Ver `pintarAnclas`. */
 const ANCLAS_SUGERIDAS = [
   "servirme el café", "comer", "llegar a casa",
   "lavarme los dientes", "cerrar la computadora"
