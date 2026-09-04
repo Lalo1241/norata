@@ -9859,7 +9859,26 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
 .pn-guia.hoy { stroke: var(--carril); stroke-dasharray: none; }
 
 /* Las cuentas nuevas del día, al fondo y en su propia escala */
-.pn-alta { fill: var(--celeste); opacity: .32; }
+/* ---- La segunda serie: las cuentas nuevas ----
+   Era una barra al fondo con su propia escala, y desde el 3 de septiembre es
+   una línea sobre la MISMA escala que la principal. Se separa de ella por tres
+   cosas a la vez y no por una: el color, el trazo discontinuo y el grosor. El
+   discontinuo no es adorno — es lo que deja distinguirlas a quien no separa
+   bien el verde del azul.
+
+   Sin transición ninguna, como el resto de este panel: el color sale de una
+   variable y una transición sobre eso se queda congelada para siempre. */
+.pn-hilo-altas {
+  fill: none;
+  stroke: var(--celeste);
+  stroke-width: 1.3;
+  stroke-dasharray: 3 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: .75;
+}
+
+.pn-punto-alta { fill: var(--celeste); opacity: .85; }
 
 .pn-pie-graf {
   display: flex;
@@ -9871,8 +9890,11 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
 }
 
 .pn-pie-graf span { display: inline-flex; align-items: center; gap: 6px; }
-.pn-mu-punto { width: 8px; height: 8px; border-radius: var(--r-disco); background: var(--mint); }
-.pn-mu-barra { width: 6px; height: 11px; border-radius: 1px; background: var(--celeste); opacity: .5; }
+/* Las dos muestras de la leyenda son ahora dos LÍNEAS, porque eso es lo que
+   hay en el dibujo. La de antes pintaba una barra vertical al lado de la
+   palabra «cuentas nuevas» y ya no existe ninguna barra. */
+.pn-mu-linea { width: 14px; height: 0; border-top: 2px solid var(--mint); border-radius: 2px; }
+.pn-mu-linea.altas { border-top-style: dashed; border-top-color: var(--celeste); }
 
   /* El rótulo de una apariencia de prueba. Es parte de la receta de subir algo
      apagado detrás de un parámetro: sin él es fácil olvidar que la pestaña
