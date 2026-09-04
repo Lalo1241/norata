@@ -76,6 +76,47 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.75 · 3 sep 2026
+
+**Las cuentas nuevas dejan de ser barras y pasan a ser una línea.** Es el punto
+1 de los cinco que dictó Eduardo el 28 de agosto, y su palabra describía el
+problema mejor que cualquier explicación: mezclar barras y líneas en el mismo
+dibujo se le veía **sucio**.
+
+Tenía más razón de la que parecía. Dos formas distintas se leen como dos cosas
+de distinta naturaleza, y aquí no lo son: las dos series cuentan **personas**.
+La diferencia de forma no significaba nada y solo estorbaba.
+
+**Pero lo que de verdad estaba mal no era la forma: era la escala.** Las barras
+se dibujaban con su propio tope, estiradas al 42% del alto del lienzo. Con eso,
+un día de 2 cuentas nuevas se veía casi tan alto como un día de 9 personas, y
+las dos series no se podían comparar aunque compartieran el dibujo. **Un
+segundo eje escondido es la forma más común de que una gráfica mienta sin que
+nadie escriba una cifra falsa** — y esta lo tenía.
+
+Ahora las dos líneas se leen contra los mismos números de la izquierda. La de
+altas va a ir casi siempre pegada al suelo, y eso **es** el dato: las cuentas
+nuevas son una parte pequeña de quien abre la app. El párrafo de la caja lo
+dice con esas palabras, para que no se lea como un fallo del dibujo.
+
+**Se distinguen por tres cosas y no por una:** el color (menta contra celeste),
+el trazo discontinuo y el grosor. El discontinuo no es adorno — es lo que las
+separa para quien no distingue bien el verde del azul.
+
+Dos detalles del dibujo:
+
+- **Un punto solo en los días que tuvieron alguna alta.** La línea ya dice el
+  cero, y catorce puntos pegados al suelo solo ensucian el suelo. Los que se
+  dibujan llevan el título que se lee al pasar por encima.
+- **La leyenda pasa a ser dos líneas.** Pintaba una barra vertical al lado de
+  «cuentas nuevas» y ya no hay ninguna barra en el dibujo.
+
+**Medido, que aquí no se puede juzgar a ojo:** con datos sembrados de 9
+personas como máximo y 3 altas, el punto de las 3 altas cae exactamente en el
+0,33 de la altura donde el de 9 personas cae en el 1,00. Esa es la prueba de
+que la escala es una sola. Cero `rect` en el SVG, dos `polyline`, y las dos con
+las mismas catorce equis.
+
 ### 0.7.74.2 · 3 sep 2026
 
 **Siete días para los tres planes, y el reembolso deja de depender de cómo se

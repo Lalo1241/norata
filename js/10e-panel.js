@@ -173,9 +173,22 @@ function panelConstelacion(dias) {
 
   const n = dias.length;
   const valores = dias.map(d => Number(d.personas) || 0);
-  const tope = Math.max(...valores, 1);
-  const topeAltas = Math.max(...dias.map(d => Number(d.altas) || 0), 1);
-  const hayAltas = dias.some(d => (Number(d.altas) || 0) > 0);
+  const altas = dias.map(d => Number(d.altas) || 0);
+  const hayAltas = altas.some(v => v > 0);
+
+  /* ---- Una sola escala para las dos series, y esto es el cambio de fondo ----
+     Las cuentas nuevas se dibujaban como barras al fondo Y con su propia
+     escala, estirada al 42% del alto. Eso hacía que un día de 2 altas se
+     viera casi tan alto como un día de 9 personas, y que las dos cosas no se
+     pudieran comparar aunque estuvieran en el mismo dibujo. Un segundo eje
+     escondido es la forma más común de que una gráfica mienta sin que nadie
+     escriba una cifra falsa.
+
+     Ahora las dos series miden lo mismo —personas— y se leen contra los
+     mismos números de la izquierda. La línea de altas va a ir casi siempre
+     pegada al suelo, y eso ES el dato: las cuentas nuevas son una parte
+     pequeña de quien abre la app. */
+  const tope = Math.max(...valores, ...altas, 1);
 
   /* Con un solo día no hay recta que trazar: el punto va al centro, que es
      donde se lee como «esto es lo que hay» y no como el principio de algo. */
@@ -218,17 +231,29 @@ function panelConstelacion(dias) {
               class="pn-guia ${hoy ? "hoy" : ""}"/>`;
   }).join("");
 
-  /* Las altas del día, al fondo y en su propia escala. Van detrás de la
-     constelación porque son el contexto —de dónde salió la gente— y no la
-     cifra que se viene a mirar. */
-  const barrasAltas = !hayAltas ? "" : dias.map((d, i) => {
-    const v = Number(d.altas) || 0;
+  /* Las altas del día, en LÍNEA y no en barras. Lo pidió Eduardo el 28 de
+     agosto con una palabra que lo describe mejor que cualquier explicación:
+     mezclar barras y líneas en el mismo dibujo se le veía «sucio». Y tenía más
+     razón de la que parecía: dos formas distintas se leen como dos cosas de
+     distinta naturaleza, y aquí no lo son —las dos cuentan personas—, así que
+     la diferencia de forma no significaba nada y solo estorbaba.
+
+     Va debajo de la principal en el orden de dibujo: es el contexto —de dónde
+     salió la gente— y no la cifra que se viene a mirar. Y en trazo discontinuo
+     además de en otro color, porque de las dos maneras se distingue también
+     para quien no separa bien el verde del azul. */
+  const hiloAltas = !hayAltas ? "" :
+    `<polyline points="${altas.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ")}"
+       class="pn-hilo-altas"/>`;
+
+  /* Un punto solo en los días que tuvieron alguna: la línea ya dice el cero,
+     y catorce puntos pegados al suelo lo único que hacen es ensuciar el
+     suelo. Los que se dibujan llevan el título, que es lo que se lee al pasar
+     por encima. */
+  const puntosAltas = !hayAltas ? "" : altas.map((v, i) => {
     if (v <= 0) return "";
-    const h = Math.max((v / topeAltas) * (alto * 0.42), 3);
-    const an = Math.max(util / n * 0.42, 2.5);
-    return `<rect x="${(x(i) - an / 2).toFixed(1)}" y="${(suelo - h).toFixed(1)}"
-              width="${an.toFixed(1)}" height="${h.toFixed(1)}" rx="1.2"
-              class="pn-alta"><title>${escapeHtml(String(d.dia))}: ${v} ${v === 1 ? "cuenta nueva" : "cuentas nuevas"}</title></rect>`;
+    return `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.4"
+              class="pn-punto-alta"><title>${escapeHtml(String(dias[i].dia))}: ${v} ${v === 1 ? "cuenta nueva" : "cuentas nuevas"}</title></circle>`;
   }).join("");
 
   const pts = dias.map((d, i) => [x(i), y(d.personas)]);
@@ -260,8 +285,8 @@ function panelConstelacion(dias) {
 
   const pie = hayAltas
     ? `<div class="pn-pie-graf">
-         <span><i class="pn-mu-punto"></i> personas que abrieron</span>
-         <span><i class="pn-mu-barra"></i> cuentas nuevas</span>
+         <span><i class="pn-mu-linea"></i> personas que abrieron</span>
+         <span><i class="pn-mu-linea altas"></i> cuentas nuevas</span>
        </div>`
     : "";
 
@@ -312,10 +337,11 @@ function panelConstelacion(dias) {
      llegar a lo que se viene a ver. Debajo funcionan como el pie de una foto —
      miras la forma, y ahí está lo que no se podía leer de ella. */
   return `<svg class="pn-cielo" viewBox="0 0 ${W} ${H}" role="img"
-            aria-label="Personas activas y cuentas nuevas cada día durante los últimos catorce días. Media de ${media} al día, máximo de ${tope}.">
+            aria-label="Dos líneas sobre la misma escala durante los últimos catorce días: personas que abrieron la app cada día, con una media de ${media} y un máximo de ${tope}${hayAltas ? ", y cuentas nuevas creadas cada día" : ""}.">
       ${reja}
       ${marcas}
-      ${barrasAltas}
+      ${hiloAltas}
+      ${puntosAltas}
       <polyline points="${hilo}" class="pn-hilo"/>
       ${estrellas}
       ${fechas}
@@ -750,7 +776,7 @@ function renderPanelAdmin() {
 
     <div class="panel">
       <h3>Los últimos 14 días</h3>
-      <p class="settings-note">Los puntos son personas que abrieron la app; las barras del fondo, cuentas nuevas. Las líneas verticales marcan cada lunes, para comparar una semana con otra.</p>
+      <p class="settings-note">Dos líneas sobre la misma escala: la de arriba son las personas que abrieron la app, la punteada las cuentas nuevas de ese día. Que la segunda vaya casi siempre por abajo es el dato, no un problema de la gráfica. Las líneas verticales marcan cada lunes, para comparar una semana con otra.</p>
       ${panelConstelacion(m.dias)}
     </div>
 
