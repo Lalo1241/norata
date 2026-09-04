@@ -6310,8 +6310,8 @@
   /* Las áreas van en tarjetas HORIZONTALES y no en dos columnas de etiquetas.
      El motivo no es que sea más bonito: cada área ya sabe qué tres habilidades
      va a crear, y esa lista estaba escondida en `ONBOARD_AREAS` sin que nadie
-     la viera. Elegir "Salud y cuerpo" a ciegas y encontrarse tres líneas nuevas
-     es una sorpresa; leer "Ejercicio · Correr · Yoga" antes de tocarla es una
+     la viera. Elegir "Mover mi cuerpo" a ciegas y encontrarse dos líneas nuevas
+     es una sorpresa; leer "Ejercicio · Correr" antes de tocarla es una
      decisión. La tarjeta ancha existe para que quepa esa línea.
 
      `auto-fit` y no un número de columnas: en el teléfono cae una por fila y
@@ -6333,17 +6333,41 @@
     padding: 11px 13px;
     cursor: pointer;
   }
-  /* La teja es un RELLENO macizo, así que el icono encima va con tinta oscura
-     —`--sobre-macizo`, que es oscura en los dos modos porque los ocho tonos
-     del usuario son claros en los dos—. Con `--oc-l`, que es el tono de
-     escribir, el dibujo desaparecía sobre su propio color. */
+  /* ---- La teja va de LÍNEA y no maciza (0.7.84, Eduardo) ----
+     Ocho tejas macizas de ocho colores distintos, apiladas de dos en dos en la
+     primera pantalla que alguien ve de la app, son ocho manchas peleándose por
+     la mirada justo donde lo que hay que leer es el título de cada área. En
+     línea, el color sigue diciendo de qué área es cada una y deja de gritarlo.
+
+     El tono sale del de TRAZAR (`--oc-l`) hundido otro tanto, y esa segunda
+     vuelta es lo único que hace que funcione de día. Un aro de 1,5 px y un
+     dibujo de línea piden 3 sobre 1, y `--oc-l` a secas se queda corto sobre
+     el panel claro: medidos los ocho, seis caían entre 2,07 y 2,95 --el
+     amarillo y el verde, los peores--. El motivo es que `--paleta-N-linea`
+     está calculada contra la TARJETA, y la teja no se apoya en la tarjeta sino
+     en `--sup-panel`, que de día es más oscuro. Hundiéndolo con
+     `--hundir-trazo` los ocho suben a 4,13-6,93.
+
+     Y se hunde desde el CSS y no desde `trazo()` en JavaScript porque
+     `--hundir-trazo` vale 0% de noche: así la misma regla deja el color
+     intacto en oscuro --7,07 a 12,2, el tono exacto que tenía la teja maciza--
+     y no hay que redibujar nada al cambiar de modo.
+
+     Ya no hace falta `--sobre-vivo`: no hay relleno debajo del dibujo. Y el
+     borde no descuadra los 44 px porque todo el CSS va en `border-box`. */
   .ob-area .oa-ic {
     width: 44px; height: 44px;
     border-radius: var(--r-caja);
-    background: var(--oc);
-    color: var(--sobre-vivo);
+    background: transparent;
+    border: 1.5px solid color-mix(in srgb, var(--oc-l, var(--oc)), var(--tinta-fondo) var(--hundir-trazo));
+    color: color-mix(in srgb, var(--oc-l, var(--oc)), var(--tinta-fondo) var(--hundir-trazo));
     display: flex; align-items: center; justify-content: center;
   }
+  /* Marcada, la teja se rellena con un velo del color: es la única pista de
+     color que queda en una tarjeta que por lo demás ya está bordeada, y sin
+     ella elegir un área se notaba menos que antes. Un velo y no el macizo,
+     que es justo lo que se acaba de quitar. */
+  .ob-area.on .oa-ic { background: color-mix(in srgb, var(--oc) 16%, transparent); }
   .ob-area .oa-tx { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
   .ob-area .oa-tx b { font-size: 14.5px; font-weight: 700; color: var(--text); letter-spacing: -0.2px; }
   /* Las tres habilidades en una sola línea: si no caben se cortan, porque dos

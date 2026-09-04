@@ -261,6 +261,7 @@ const TEXTOS_EN = {
   "Ej. Renovar mi cuarto": "e.g. Redo my room",
   "O toca una de estas": "Or tap one of these",
   "Armar mi tablero": "Build my board",
+  "Armar mi tablero en 3 preguntas": "Build my board in 3 questions",
   "Tu tablero está listo": "Your board is ready",
   "{0} área para empezar": "{0} area to start with",
   "{0} áreas para empezar": "{0} areas to start with",
@@ -275,15 +276,19 @@ const TEXTOS_EN = {
   "7 días de gracia. El punto medio recomendado.": "7 grace days. The recommended middle ground.",
   "3 días de gracia. Si fallas, se nota rápido.": "3 grace days. If you slip, it shows fast.",
 
-  /* ---------- Las ocho áreas del asistente ---------- */
-  "Salud y cuerpo": "Health and body",
-  "Aprender algo": "Learn something",
-  "Crear cosas": "Make things",
+  /* ---------- Las ocho áreas del asistente ----------
+     Empiezan todas por un VERBO desde la 0.7.87, y en inglés igual: lo que
+     se elige ahí no es un tema, es algo que uno va a hacer. Las siete que
+     cambiaron de nombre se cambiaron aquí también en vez de dejar las viejas
+     al lado: una clave que ya no pide nadie no avisa de que sobra. */
+  "Mover mi cuerpo": "Move my body",
+  "Aprender algo nuevo": "Learn something new",
+  "Dibujar y pintar": "Draw and paint",
   "Ordenar mi dinero": "Sort out my money",
-  "Casa y cocina": "Home and cooking",
-  "Descanso y calma": "Rest and calm",
-  "Gente que quiero": "People I love",
-  "Carrera y trabajo": "Career and work",
+  "Cocinar en casa": "Cook at home",
+  "Descansar de verdad": "Really rest",
+  "Cuidar a mi gente": "Look after my people",
+  "Avanzar en mi trabajo": "Get ahead at work",
 
   /* Las ramas donde nacen los talentos de cada área */
   "Salud": "Health",
@@ -303,7 +308,8 @@ const TEXTOS_EN = {
   "Lectura": "Reading",
   "Idiomas": "Languages",
   "Dibujo": "Drawing",
-  "Escritura": "Writing",
+  "Pintura": "Painting",
+  "Escucha": "Listening",
   "Finanzas": "Finance",
   "Organización": "Organization",
   "Cocina": "Cooking",
@@ -317,9 +323,9 @@ const TEXTOS_EN = {
   /* Las misiones de cada área */
   "Moverme 20 minutos": "Move for 20 minutes",
   "Estudiar 15 minutos": "Study for 15 minutes",
-  "Crear algo pequeño": "Make something small",
+  "Dibujar diez minutos": "Draw for ten minutes",
   "Anotar mis gastos del día": "Write down today's spending",
-  "Cocinar en casa": "Cook at home",
+  "Cocinar en vez de pedir": "Cook instead of ordering in",
   "10 minutos sin pantallas": "10 minutes with no screens",
   "Escribirle a alguien": "Message someone",
   "Una hora de trabajo profundo": "One hour of deep work",
@@ -330,11 +336,12 @@ const TEXTOS_EN = {
   "Terminar el curso que dejé a medias": "Finish the course I left halfway",
   "Sacar mi certificado": "Get my certificate",
   "Montar mi portafolio": "Put together my portfolio",
+  "Preparar mi primera exposición": "Put together my first show",
   "Publicar mi primer trabajo": "Publish my first piece",
   "Salir de una deuda": "Get out of a debt",
   "Armar mi presupuesto del año": "Build my budget for the year",
-  "Renovar mi cuarto": "Redo my room",
-  "Ordenar la casa de una vez": "Sort out the house once and for all",
+  "Montar mi recetario": "Build my own recipe book",
+  "Equipar bien mi cocina": "Set up my kitchen properly",
   "Arreglar mis horarios de sueño": "Fix my sleep schedule",
   "Planear unas vacaciones de verdad": "Plan a real holiday",
   "Organizar una reunión con los míos": "Get my people together",
@@ -348,30 +355,36 @@ const TEXTOS_EN = {
   "Revisar avance": "Review progress",
   "Proyecto creado desde la bienvenida": "Project created from the welcome",
 
-  /* Los cuarenta talentos: cinco por área, del primer peldaño a la meta
-     grande. Son copy, no etiquetas: se reescriben para que suenen como algo
-     que uno se diría a sí mismo, no como la traducción de otra frase. */
+  /* Los cuarenta y ocho talentos: SEIS por área desde la 0.7.87, del primer
+     peldaño a la cima. Son copy, no etiquetas: se reescriben para que suenen
+     como algo que uno se diría a sí mismo, no como la traducción de otra
+     frase. Van en el orden del rombo — raíz, los dos caminos, la cima—, que
+     es como están en `ONBOARD_AREAS`. */
   "Caminar 20 minutos tres días seguidos": "Walk 20 minutes three days in a row",
   "Aguantar 5 minutos corriendo sin parar": "Run 5 minutes without stopping",
   "Moverme tres veces por semana, un mes": "Move three times a week for a month",
   "Correr 5 kilómetros de una tirada": "Run 5 kilometres in one go",
   "Una rutina que sostengo sin pensarla": "A routine I keep without thinking about it",
+  "Correr 10 kilómetros seguidos": "Run 10 kilometres without stopping",
 
   "Terminar el primer capítulo": "Finish the first chapter",
   "Estudiar diez días seguidos": "Study ten days in a row",
   "Llegar a la mitad del curso": "Reach the middle of the course",
   "Explicarle a alguien lo que aprendí": "Explain what I learned to someone",
+  "Usar lo aprendido en algo real": "Use what I learned on something real",
   "Terminar el curso entero": "Finish the whole course",
 
   "Diez bocetos sin borrar ninguno": "Ten sketches without erasing a single one",
   "Terminar algo y no dejarlo a medias": "Finish something instead of leaving it halfway",
   "Crear algo cada semana, dos meses": "Make something every week for two months",
   "Enseñárselo a alguien que no soy yo": "Show it to someone who isn't me",
+  "Llenar un cuaderno entero": "Fill a whole sketchbook",
 
   "Saber cuánto entra y cuánto sale": "Know what comes in and what goes out",
   "Un mes entero anotando todo": "A whole month writing everything down",
   "Recortar un gasto que no echo de menos": "Cut an expense I don't miss",
   "Ahorrar mi primer mes de gastos": "Save my first month of expenses",
+  "Apartar algo el día que cobro": "Set something aside on payday",
   "Fondo de emergencia completo": "A full emergency fund",
 
   "Tres recetas que me salen sin mirar": "Three recipes I can make without looking",
@@ -379,23 +392,27 @@ const TEXTOS_EN = {
   "Una semana entera cocinando en casa": "A whole week cooking at home",
   "Inventar un plato mío": "Invent a dish of my own",
   "Diez recetas de memoria": "Ten recipes by heart",
+  "Una cena entera hecha por mí": "A whole dinner made by me",
 
   "Siete días acostándome a la misma hora": "Seven days going to bed at the same time",
   "Una semana sin pantallas en la cama": "A week with no screens in bed",
   "Dormir bien un mes seguido": "Sleep well for a month straight",
   "Un día entero sin prisa, a propósito": "A whole day with no rush, on purpose",
   "Parar diez minutos cada día, tres meses": "Stop for ten minutes a day, three months",
+  "Un descanso que ya no tengo que planear": "Rest I no longer have to plan",
 
   "Escribirle a tres personas pendientes": "Message three people I've been meaning to",
   "Ver a alguien en persona, no por mensaje": "See someone in person, not by message",
   "Ver a mis amigos una vez al mes": "See my friends once a month",
   "Organizar yo el plan, sin esperar": "Make the plan myself instead of waiting",
+  "Escuchar a alguien sin mirar el teléfono": "Listen to someone without checking my phone",
   "Una costumbre que nos junte sin avisar": "A habit that brings us together without planning",
 
   "Una hora sin interrupciones, cinco días": "One hour with no interruptions, five days",
   "Terminar eso que llevo aplazando": "Finish the thing I keep putting off",
   "Un mes cerrando lo que empiezo": "A month closing what I start",
   "Pedir lo que me toca pedir": "Ask for what I'm owed",
+  "Dejar escrito el día siguiente, una semana": "Write down tomorrow before it starts, a week",
   "Certificarme en lo mío": "Get certified in my field",
 
   /* ================= Tanda 2 =================

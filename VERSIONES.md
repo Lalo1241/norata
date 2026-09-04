@@ -76,6 +76,116 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.87 · 4 sep 2026
+
+**Las tres preguntas de la bienvenida, rehechas enteras.** Cinco encargos de
+Eduardo sobre la misma pantalla, y los cinco salieron de mirarla con ojos de
+quien la ve por primera vez.
+
+**Van primero, y ahora se dice en los cinco módulos.** Mientras la bienvenida
+siga sin contestarse, el botón de menta de cualquier pantalla vacía es ella y
+lo del módulo baja a `btn-soft`: quien empezaba por «Crear mi primera misión»
+se ponía a crear cosas sueltas sin haber elegido siquiera el ritmo con el que
+sus habilidades bajan. Es recomendación y no puerta cerrada — el botón propio
+sigue ahí, al lado.
+
+Se recuerda en `settings.bienvenida`, y quien ya tenía la app montada a mano
+queda marcado como `previa` al abrir: sin eso, un tablero de meses vería la
+recomendación el día que vaciara un módulo, y el cuestionario le añadiría ramas
+encima de las suyas.
+
+Y son **dos botones, no tres**. El hueco que la regla de `.empty .stack`
+reserva en escritorio da para dos, y con tres se descuadran las cinco pantallas
+vacías a la vez. Medido antes y después: los cinco montones miden 134 px y la
+burbuja cae a 264 en cuatro y a 274 en el Resumen, exactamente igual que antes.
+
+**Los ocho títulos empiezan por un verbo en primera persona**, como el único
+que ya lo hacía. «Salud y cuerpo» era un tema; «Mover mi cuerpo» es algo que
+uno va a hacer.
+
+| Antes | Ahora |
+| --- | --- |
+| Salud y cuerpo | Mover mi cuerpo |
+| Aprender algo | Aprender algo nuevo |
+| Crear cosas | Dibujar y pintar |
+| Ordenar mi dinero | *(ya estaba)* |
+| Casa y cocina | Cocinar en casa |
+| Descanso y calma | Descansar de verdad |
+| Gente que quiero | Cuidar a mi gente |
+| Carrera y trabajo | Avanzar en mi trabajo |
+
+**Las dos habilidades de un área tienen que ser del mismo oficio.** Dos no lo
+eran y lo cazó Eduardo: «Crear cosas» creaba Dibujo y Escritura —dos artes que
+no se practican igual— y «Gente que quiero» creaba Oratoria y Carisma, que es
+hablar en público y no es cuidar a nadie. Repasadas las ocho contra el
+catálogo, esas dos eran las únicas cuyas habilidades caían en categorías
+distintas o describían otra cosa; las otras seis ya estaban bien.
+
+- La creativa se estrecha a **Dibujo · Pintura**, que es lo que sus talentos
+  decían desde siempre: «diez bocetos», «llenar un cuaderno». La rama se sigue
+  llamando Creatividad, que es donde caben después la escritura o la foto.
+- La social pasa a **Carisma · Escucha**, y `Escucha` nace en el catálogo para
+  esto. A `Carisma` se le quitaron «escucha» y «empatía» del léxico: dos
+  habilidades que reclaman la misma palabra convierten el acierto de
+  `adivinarHabilidad` en un sorteo. Y su léxico no lleva **términos de dos
+  palabras**: la lista se parte por espacios, así que «sin interrumpir»
+  entraba como «sin», que sobrevive al filtro de paradas y le habría dado
+  puntos a Escucha en cualquier título con un «sin» dentro —«Un día entero sin
+  prisa», por ejemplo—. Comprobado después: ese título ya no propone ninguna.
+
+Los seis pares se comprueban de un vistazo, y es la prueba que hay que repetir
+al tocar esta lista: las dos habilidades de cada área tienen que caer en la
+misma categoría de `SKILL_CATALOG`. Hoy las ocho lo cumplen.
+
+**Seis talentos por rama, y en rombo.** Eran cinco en fila, y una fila enseña
+de Talentos justo lo único que no tiene de especial: que las cosas van en
+orden. Ahora es uno arriba, dos caminos de dos y una cima que se abre con
+CUALQUIERA de los dos, así que la primera rama que alguien ve ya trae dentro
+las tres cosas que el lienzo sabe hacer: encadenar, abrirse y volver a
+juntarse.
+
+Los dos caminos no son dos mitades cualesquiera: uno es la **constancia**
+—sostener algo en el tiempo— y el otro son las **marcas** —logros que se
+cierran de un golpe—. A quien se le rompa la disciplina le queda una ruta viva,
+que es lo que un mapa puede hacer y una lista no.
+
+Medido con tres áreas puestas: 6 talentos por rama, el acomodo automático los
+reparte en cuatro capas (110 · 325 · 540 · 755) con el rombo simétrico, solo el
+primero sale `available` y los otros cinco con candado, y la cima lleva su
+sello **O**.
+
+**Las tejas de las áreas van de línea y no macizas.** Ocho manchas de ocho
+colores apiladas de dos en dos, en la primera pantalla que alguien ve, son ocho
+cosas peleándose por la mirada justo donde lo que hay que leer es el título.
+
+El tono sale del de trazar hundido otro tanto con `--hundir-trazo`, y esa
+segunda vuelta es lo único que lo hace funcionar de día: `--paleta-N-linea`
+está calculada contra la TARJETA, y la teja se apoya en `--sup-panel`, que de
+día es más oscuro. Medidos los ocho sobre su propio fondo:
+
+| | Antes (maciza) | Solo `--oc-l` | Como quedó |
+| --- | --- | --- | --- |
+| Noche | — | 7,07 – 12,20 | **7,07 – 12,20** |
+| Día | — | 2,07 – 4,13 | **4,13 – 6,93** |
+
+De noche la teja se ve del tono exacto que tenía, solo que vacía por dentro,
+porque `--hundir-trazo` vale 0% ahí. Marcada, se rellena con un velo del 16% —
+la única pista de color que le queda a una tarjeta que ya está bordeada—, y el
+peor de los ocho (el amarillo) da 3,98 de día y 5,50 de noche sobre ese velo.
+
+Lo que costó media hora: **una comilla inversa dentro de un comentario de un
+template literal** parte el archivo entero. Misiones dejó de dibujarse con un
+error que hablaba de `stack` y no de comillas. El comentario de Proyectos ya
+avisaba de esto; ahora también el de Misiones.
+
+Se subió sobre la 0.7.86.3 con un `cherry-pick` en un worktree aparte, porque
+la carpeta donde se construyó llevaba 29 commits de retraso y otra sesión
+estaba escribiendo en ella. Los seis conflictos eran todos el mismo patrón que
+ya describe la entrada de la 0.7.84: ellos habían envuelto el texto con `tx()`
+y yo había cambiado la estructura debajo. Se resuelve quedándose con lo suyo y
+volviendo a poner lo mío dentro — y las frases nuevas van al diccionario, que
+es el paso que se olvida.
+
 ### 0.7.86.5 · 4 sep 2026
 **Los cinco rangos dejan de ser alias de los acentos de la casa.**
 

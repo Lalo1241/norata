@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         aparatos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.86.5";
+const VERSION = "0.7.87";
 const VERSION_FECHA = "4 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -785,6 +785,42 @@ function exigenciaActual() {
   return EXIGENCIAS[e] || EXIGENCIAS[EXIGENCIA_POR_DEFECTO];
 }
 
+/* ---- Las tres preguntas van primero, y se dice en los cinco carteles ----
+   Lo pidió Eduardo: la bienvenida deja configuradas de una vez las
+   habilidades, la misión diaria y la primera rama, y quien la salta se pone a
+   crear cosas sueltas sin haber elegido ni el ritmo con el que bajan sus
+   habilidades. Así que mientras siga sin contestarse, el botón de menta de
+   CUALQUIER módulo vacío es el cuestionario y lo del módulo baja a `btn-soft`.
+
+   Es una recomendación y no una puerta cerrada: quien no quiera asistentes
+   sigue teniendo su botón al lado, en el mismo cartel y a un toque. */
+function bienvenidaPendiente() {
+  return !(state && state.settings && state.settings.bienvenida);
+}
+
+/* La clase del botón PROPIO de cada cartel —crear una misión, ver el
+   catálogo—: de menta cuando ya no hay nada que recomendar, y tenue mientras
+   la bienvenida siga por contestar. Va en un ayudante y no repetido cinco
+   veces porque el día que esto cambie tiene que cambiar en los cinco a la vez;
+   con cinco ternarios sueltos, uno se queda atrás y esa pantalla acaba con dos
+   botones de menta, que es no recomendar nada. */
+function claseAccionPropia() {
+  return bienvenidaPendiente() ? "btn btn-soft" : "btn btn-primary";
+}
+
+/* El botón del cuestionario, para pegarlo el PRIMERO en un cartel vacío.
+
+   Devuelve cadena vacía cuando ya se contestó, y eso importa para la cuenta de
+   alturas: `.empty .stack` reserva en escritorio el alto del cartel más largo
+   —46 + 48 + 20 + dos huecos— para que la burbuja y el título caigan a la
+   misma altura en las cinco pantallas. Dos botones caben en esa reserva; tres
+   se salen y descuadran las cinco. Por eso ningún cartel gana un botón: el
+   suyo se queda donde está y solo cambia de peso. */
+function bloqueBienvenida() {
+  if (!bienvenidaPendiente()) return "";
+  return `<button class="btn btn-primary" onclick="startOnboarding()">${tx("Armar mi tablero en 3 preguntas")}</button>`;
+}
+
 /* Los formateadores se guardan al vuelo: construir un Intl.NumberFormat es
    caro, y el informe llama a money() decenas de veces por dibujo. */
 const _fmtMoneda = {};
@@ -878,6 +914,17 @@ function load() {
      de un respaldo editado a mano— cae al punto medio en vez de dejar sin
      valores por defecto a la siguiente habilidad que se cree. */
   if (!EXIGENCIAS[data.settings.exigencia]) data.settings.exigencia = EXIGENCIA_POR_DEFECTO;
+  /* Quien ya tiene la app montada no necesita que le recomienden montarla.
+     La bienvenida marca `settings.bienvenida` al terminar, pero eso solo
+     existe desde la 0.7.84: sin esta línea, cualquiera con meses de tablero
+     vería "Armar mi tablero en 3 preguntas" en menta el día que vaciara un
+     módulo, y encima el cuestionario le añadiría ramas encima de las suyas.
+     Se mira si hay ALGO creado, no cuánto: un solo dato ya prueba que esa
+     persona pasó de la pantalla de bienvenida por su cuenta. */
+  if (!data.settings.bienvenida &&
+      (data.skills.length || data.missions.length || data.perks.length || data.projects.length)) {
+    data.settings.bienvenida = "previa";
+  }
   if (!data.settings.timezone) {
     try { data.settings.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
     catch (e) { data.settings.timezone = "UTC"; }

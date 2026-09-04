@@ -1992,8 +1992,9 @@ function renderHome() {
         <h2>${tx("Sin habilidades todavía")}</h2>
         <p>${tx("Empieza por el catálogo: verlas en cero es lo que te recuerda que existen. Luego puedes crear las tuyas.")}</p>
         <div class="stack" style="align-items:center">
-          <button class="btn btn-primary" onclick="openCatalogo()">${tx("Ver el catálogo")}</button>
-          <button class="btn btn-ghost" onclick="openSkillForm()">${tx("Crear una a mano")}</button>
+          ${bloqueBienvenida()}
+          <button class="${claseAccionPropia()}" onclick="openCatalogo()">${tx("Ver el catálogo")}</button>
+          ${bienvenidaPendiente() ? "" : `<button class="btn btn-ghost" onclick="openSkillForm()">${tx("Crear una a mano")}</button>`}
         </div>
       </div>`;
     return;
@@ -2289,6 +2290,12 @@ const SKILL_CATALOG = [
   // Vida adulta
   { n: "Finanzas",       c: "Vida adulta", i: "coin",     k: "#5fe0b0" },
   { n: "Carisma",        c: "Vida adulta", i: "smile",    k: "#6fc3e8" },
+  /* Escuchar es lo otro que se practica al estar con alguien, y hasta la
+     0.7.84 no existía: la bienvenida ofrecía "Gente que quiero" y creaba
+     Oratoria, que es hablar delante de una sala. Va aparte de Carisma
+     porque no son la misma práctica —se puede caer bien sin enterarse de
+     nada— y porque el par de esa área tiene que sostenerse solo. */
+  { n: "Escucha",        c: "Vida adulta", i: "heart",    k: "#8fd18a" },
   { n: "Negociación",    c: "Vida adulta", i: "chart",    k: "#f5d76e" },
   { n: "Organización",   c: "Vida adulta", i: "map",      k: "#9aa7b8" },
   { n: "Liderazgo",      c: "Vida adulta", i: "crown",    k: "#b7a2ea" },
@@ -2362,7 +2369,10 @@ const LEXICO = {
   "Oratoria":      "!hablar !exponer !presentar oratoria discurso publico presentacion charla",
 
   "Finanzas":      "!ahorrar !invertir !presupuestar finanzas dinero gastos ahorro inversion presupuesto fondo deuda emergencia bolsa",
-  "Carisma":       "!conversar !socializar !platicar !conocer carisma conversacion gente social amigos trato empatia escucha red contactos",
+  "Carisma":       "!conversar !socializar !platicar !conocer carisma conversacion gente social amigos trato red contactos",
+  /* "escucha" y "empatia" salieron de Carisma al nacer esta: dos habilidades
+     que reclaman la misma palabra convierten el acierto en un sorteo. */
+  "Escucha":       "!escuchar !atender !acompanar !interrumpir escucha empatia atencion presencia paciencia",
   "Negociación":   "!negociar !vender !cerrar negociacion trato cliente venta acuerdo precio",
   "Organización":  "!organizar !ordenar !planificar organizacion agenda tramite papeles orden calendario",
   "Liderazgo":     "!liderar !dirigir !coordinar !delegar liderazgo equipo junta reunion jefe mentoria feedback decision",
