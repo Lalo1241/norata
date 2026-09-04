@@ -76,6 +76,37 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.85.1 · 3 sep 2026
+
+**Los diez caminos, también en inglés** — 347 frases: los nombres, los
+peldaños, los pasos de cada uno, las ramas y las misiones que traen. El JSON se
+queda en español y se traduce al dibujar, porque `caminos/caminos.json` lo
+genera `caminos/app.py` desde `plantillas/LEEME.md`: traducirlo a mano lo
+borraría el generador.
+
+**Y, sobre todo, esta versión existe para limpiar una caché envenenada.** Al
+publicar la 0.7.84, alguien abrió la app justo dentro del minuto que tarda
+GitHub Pages en desplegar. Su CDN no cambia todos los archivos a la vez, así
+que el service worker instaló una mezcla y se quedó con ella: `CACHE` ya decía
+`norata-0.7.84`, y **ese número es el único canal por el que llega una versión
+nueva**, así que ese aparato no se iba a arreglar solo nunca.
+
+Lo que se vio: «Uncaught SyntaxError: Unexpected string (línea 825)» y media
+app sin responder. Comprobado que **no era el código**: los 26 archivos
+publicados compilan sin un solo error —cargados uno a uno con `import()`, que
+los compila en su propio ámbito y por eso no choca con lo ya declarado— y la
+app del live carga entera desde otro navegador.
+
+Subir el número reinstala el worker, que se trae los archivos de nuevo y tira
+el almacén viejo. Es el arreglo y no hace falta que nadie toque nada.
+
+**Lo que esto deja escrito, porque va a volver a pasar:** publicar y abrir la
+app en el mismo minuto es la ventana peligrosa. Con `cache-first` desde 0.7.38,
+un aparato que se envenene ahí se queda envenenado hasta la siguiente versión.
+El `?h=` de `css/mundos.css` y de `caminos/caminos.json` existe justamente por
+esto, pero solo cubre lo que NO está en `ASSETS`; lo que sí está viaja en el
+`addAll` de la instalación y ahí no hay huella que comprobar.
+
 ### 0.7.85 · 3 sep 2026
 
 **El botón de crear una rama abre un cajón con diez caminos ya armados.**
@@ -128,7 +159,6 @@ hacer mañana.
 está escrita y **no la llama nadie** — el mismo caso de `planPermite()`. Ahora va
 en las dos cabeceras de verdad, las de `06-detalle.js`.
 
-<<<<<<< HEAD
 ### 0.7.84 · 3 sep 2026
 
 **Norata habla inglés.** Se elige el idioma y la moneda, y las dos preguntas
@@ -196,99 +226,6 @@ pantalla.
 en Supabase** (`supabase/tipos-de-cambio.sql` y desplegar la función). Sin
 ellos no se rompe nada: se usa la tabla del código y la pantalla dice que es
 una referencia.
-=======
-### 0.7.83.3 · 3 sep 2026
-
-**El botón de añadir cuenta, a una línea y con un más.** Lo pidió Eduardo con
-el renglón de Google al lado: «sin texto extra y un icono de “+”».
-
-Llevaba «Sin cerrar la de ahora» debajo. Los otros renglónes del menú tienen
-dos líneas porque la de abajo dice algo que no se sabe —qué plan tienes, qué
-módulos hay puestos— y aquí no había nada que averiguar: el botón se explica
-entero en su propio nombre. Una aclaración que no aclara solo hace el menú más
-largo. Y el icono pasa de la puerta a un más, que es el signo de añadir en
-todas partes y no hay que leerlo.
-
-`mas` es un icono nuevo del catálogo (`js/01-base.js`): dos trazos y **sin
-círculo alrededor**, porque el hueco donde vive ya es una forma —`.mm-ic` en el
-menú, `.aj-ic` en el índice— y meterle otra dentro deja un aro apretado contra
-el borde.
-
-**Y en Mi expedición decía «Aquí estás» donde se dice «Estás aquí».**
-### 0.7.83.2 · 3 sep 2026
-
-**Con un mundo puesto, el cielo de Mi expedición dibuja SUS rangos y no los de
-la casa.** Lo cazó Eduardo: con Reliquia encima, el rótulo decía «Pieza» y
-arriba se veía la bota de Andante. Es el quinto sitio con el mismo despiste.
-
-**La figura se DERIVA del trazo del rango**, sembrando estrellas a lo largo de
-su contorno con `getTotalLength` y `getPointAtLength`. No se dibujan a mano por
-aritmética: son quince mundos por cinco rangos, o sea **setenta y cinco
-constelaciones** que habría que inventar, revisar y mantener. Derivándolas, un
-mundo nuevo trae su cielo con el mismo trazo que ya dibuja para su insignia
-—cero trabajo extra— y el icono y la constelación no se pueden desincronizar
-nunca, porque son el mismo dibujo.
-
-Las estrellas se reparten entre las piezas del dibujo en proporción a su largo,
-así que la parte que más contorno tiene se lleva más: es lo que hace que la
-silueta se reconozca.
-
-Las cinco de la casa siguen siendo las de siempre —están dibujadas a mano y son
-mejores que cualquier derivación— y un mundo que solo renombre sus rangos sin
-traer dibujo, como Consola, se queda también con ellas.
-
-Tres cosas que no son evidentes:
-
-- **Hace falta estar en el documento.** Un SVG suelto en memoria devuelve
-  longitud cero en algunos navegadores. Se cuelga fuera de la vista, se mide y
-  se quita en la misma vuelta.
-- **Las figuras cerradas cierran el anillo.** Un `<circle>`, o un `<path>` que
-  termina en `z`, une la última estrella con la primera; si no, un aro sale
-  como una C.
-- **La caché va por el TRAZO, no por el rango.** Parece lo mismo y no lo es:
-  `rangosVigentes()` construye cada rango encima del de la casa, así que el
-  «Hallazgo» de Reliquia y la «Ceniza» de Averno comparten el `id` `andante`.
-  Con esa clave los tres mundos se quedaban con la figura del primero que se
-  hubiera mirado, y se vio midiendo: los quince rangos daban exactamente los
-  mismos cinco recuentos de estrellas.
-
-Medido: derivar los cinco de un mundo en frío cuesta 18 ms, ya cacheados 0,2, y
-repintar la pantalla entera 5. Sin nodos colgados al terminar.
-
-**Queda pendiente el mismo arreglo en la celebración de subir de nivel**
-(`ncelPintarMapa`, en `js/02-progreso.js`): con un mundo puesto sigue pintando
-la figura de la casa debajo del nombre del mundo. `expFiguraDeRango()` ya está
-lista para que la use, con un `typeof` de guarda porque ese archivo carga antes.
-
-### 0.7.83.1 · 3 sep 2026
-
-**Se ve sobre qué rama estás trabajando.** Los atajos —Q, W, E, C, M— y el clic
-derecho actúan sobre UNA rama: la que señala el ratón, o la que se está
-editando. Eso lo decidía `ramaDeAtajo` en silencio, y el silencio era el
-problema: tocabas una rama, no pasaba nada visible, y la siguiente tecla creaba
-un talento ahí. Lo pidió Eduardo.
-
-Una pleca menta en el canto izquierdo de la tarjeta, y nada más. No es un borde
-alrededor —eso compite con el marco, que ya dice dónde empieza y acaba la
-tarjeta— ni un fondo teñido, que en una lista de ramas se lee como un estado
-del contenido. Una pleca al margen se lee como lo que es: una marca de lectura.
-
-Tres cosas de cómo está hecha:
-
-- **El desvanecido va sobre `opacity`, que es un número.** Ponerlo sobre el
-  color habría sido caer otra vez en la trampa de siempre: una propiedad cuyo
-  valor sale de una variable se queda congelada en el tono de partida.
-- **Solo en escritorio.** Los atajos y el clic derecho no existen en una
-  pantalla táctil, y marcar la rama que toca el dedo prometería algo que no
-  hay. La guarda está en los dos sitios, en el dibujado y en el vivo.
-- **La clase la pone el dibujado y también el ratón**, y las dos coinciden: así
-  un repintado no la pierde y mover el ratón no obliga a repintar la página.
-  Se recuerda cuál está marcada para no recorrer las tarjetas en cada píxel.
-
-Medido: sigue al ratón entre ramas y nunca hay dos marcadas, sobrevive a un
-repintado, acierta editando y con la rama de pie, y no aparece a 375 px de
-ancho. Contraste de la pleca contra la tarjeta: 10,4 de noche y 5,1 de día.
->>>>>>> origin/main
 
 ### 0.7.83 · 3 sep 2026
 
