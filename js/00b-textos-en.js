@@ -2143,5 +2143,67 @@ const TEXTOS_EN = {
   "{0}, una sola vez": "{0}, just once",
   "Un mundo es la app hecha de otro material: su tipografía, sus texturas, su marco y sus propios nombres para cada rango del camino. Con {0} se abren los tres construidos y los que lleguen después.":
     "A world is the app made of another material: its type, its textures, its frame and its own names for each rank of the path. With {0} the three that are built open, and the ones that come later.",
-  "Ver {0}": "See {0}"
+  "Ver {0}": "See {0}",
+
+  /* ---- Lo que trajo la fusion con origin/main (0.7.74 -> 0.7.83) ----
+     El cajon de los caminos, el cambio de cuenta con un toque, la rama de pie y
+     los enlaces legales. Nueve versiones que entraron mientras esto se traducia.
+     Lo que NO esta aqui es el CONTENIDO de los diez caminos: 363 frases en
+     caminos/caminos.json, que ademas lo genera caminos/app.py desde
+     plantillas/LEEME.md. Traducir el JSON a mano lo borraria el generador la
+     proxima vez que corra. Es una tanda aparte y hay que decidir como.
+  */
+
+  "Ver la rama de pie": "See the branch upright",
+  "Volver a lo ancho, como estaba": "Back to landscape, as it was",
+  "Quitar de este dispositivo": "Remove from this device",
+  "términos": "terms",
+  "aviso de privacidad": "privacy notice",
+  "Entrar con otra cuenta": "Sign in with another account",
+  "La cuenta en la que estás ahora se queda guardada en este dispositivo: podrás volver a ella con un toque.":
+    "The account you're in now stays saved on this device: you'll be able to come back to it with one tap.",
+  "Ya entraste aquí con:": "You've signed in here with:",
+  "o entra con otra": "or sign in with another",
+  "o escribe tu correo": "or type your email",
+  "Esa cuenta ya no está guardada en este dispositivo.":
+    "That account is no longer saved on this device.",
+  "Guardando lo último…": "Saving the last of it…",
+  "No cambié de cuenta, para no dejarte atrás lo que falta por subir. ":
+    "I didn't switch accounts, so as not to leave behind what's still to upload. ",
+  "Revisa la conexión e inténtalo otra vez.": "Check your connection and try again.",
+  "La sesión guardada de ": "The saved session for ",
+  "Se quita ": "Removing ",
+  "Quitada de este dispositivo": "Removed from this device",
+  "Me quedé aquí, para no dejarte atrás lo que falta por subir. ":
+    "I stayed here, so as not to leave behind what's still to upload. ",
+  "Este navegador no me deja guardar el paso intermedio. Cierra sesión y entra con la otra cuenta.":
+    "This browser won't let me save the step in between. Sign out and sign in with the other account.",
+  "Abriendo la entrada…": "Opening the sign-in…",
+  "Sin cerrar la de ahora": "Without closing the current one",
+  "Diez caminos ya armados": "Ten ready-made paths",
+  "cuentas al día": "accounts per day",
+  "Darlo por atendido": "Mark as handled",
+  "Empiezas por": "You start with",
+  "Trayendo los caminos…": "Fetching the paths…",
+  "No se pudieron traer": "I couldn't fetch them",
+  "Hace falta conexión para verlos la primera vez. Después ya se quedan.":
+    "You need a connection to see them the first time. After that they stay.",
+  "Un proyecto nuevo": "A new project",
+  "Una rama nueva": "A new branch",
+  "De cero": "From scratch",
+  "Por lo que elegiste al empezar": "Based on what you picked at the start",
+  "Los demás": "The rest",
+  "Los caminos": "The paths",
+  "abierto desde el día uno": "open from day one",
+  "Ponerlo en mi tablero": "Put it on my board",
+  "Tu camino ya está puesto": "Your path is in place",
+  "El primero ya está abierto.": "The first one is already open.",
+
+  /* ---- Las dos frases largas del cajon de caminos ----
+  */
+
+  "Algo que estás construyendo: una mudanza, un lanzamiento, un trámite largo. Un camino lo trae armado, con <b>los encargos en el orden en que se pueden hacer de verdad</b>.":
+    "Something you're building: a move, a launch, a long piece of paperwork. A path brings it ready-made, with <b>the assignments in the order they can actually be done</b>.",
+  "Un camino la trae armada: <b>peldaños encadenados</b>, con sus pasos, sus plazos y las misiones que la alimentan. Todos salen de métodos publicados, y lo que entre se edita como cualquier cosa tuya.":
+    "A path brings it ready-made: <b>chained rungs</b>, with their steps, their deadlines and the missions that feed them. They all come from published methods, and whatever lands is edited like anything else of yours."
 };

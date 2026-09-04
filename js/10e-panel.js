@@ -36,6 +36,19 @@ async function revisarAdmin() {
     planSimular("");
   }
 
+  /* LA APARIENCIA, ANTES DEL `return` DE ABAJO. Aquí estaba el fallo que
+     Eduardo cazo cambiando de cuenta: esta línea vivía al final de la
+     función, o sea DESPUÉS de `if (!esAdmin) return`, así que para todo el
+     mundo menos para él no se ejecutaba nunca. La única puerta que revisaba
+     si lo que llevas puesto sigue siendo tuyo estaba cerrada para el 100% de
+     las cuentas.
+
+     No se notaba porque el plan y el nivel de una persona no suelen bajar. Al
+     poder cambiar de cuenta en el mismo dispositivo sí bajan de golpe: se
+     entraba con una cuenta Fundador, se cambiaba a una que no lo es, y el
+     mundo de Fundador seguía puesto hasta elegir otro a mano. */
+  if (typeof refrescarApariencia === "function") refrescarApariencia();
+
   if (!esAdmin) return;
 
   /* La cuenta administradora tiene Fundador puesto (ver `PLAN_DE_CASA`), y
@@ -53,11 +66,8 @@ async function revisarAdmin() {
      línea, entrar al ejemplo antes de que el servidor conteste dejaba el
      rótulo hablando hasta la siguiente recarga. */
   if (typeof pintarAvisoEjemplo === "function") pintarAvisoEjemplo();
-  /* Y la apariencia. Al arrancar, el nivel es 0 y el plan es el libre porque el
-     servidor todavía no ha contestado; si la puerta se preguntara solo ahí,
-     quien tiene puesto un ambiente que pide nivel o plan lo perdería en cada
-     apertura. Aquí es donde se sabe la verdad. */
-  if (typeof refrescarApariencia === "function") refrescarApariencia();
+  /* La apariencia se revisa arriba, antes del `return`: la necesita todo el
+     mundo, no solo quien administra. */
 }
 
 /* ---- Piezas de dibujo ----
@@ -155,7 +165,7 @@ function panelDeCada(parte, total, rotulo, vara) {
 /* Los meses cortos los da `nombreDeMes(n, false)` (js/00-idioma.js), con el
    idioma puesto. */
 
-function panelConstelacion(dias) {
+function panelConstelacion(dias, distintas) {
   if (!dias || !dias.length) {
     return `<p class="settings-note">${tx("Todavía no hay ni un día con actividad. Aparecerá en cuanto alguien abra la app con su cuenta.")}</p>`;
   }
@@ -173,9 +183,22 @@ function panelConstelacion(dias) {
 
   const n = dias.length;
   const valores = dias.map(d => Number(d.personas) || 0);
-  const tope = Math.max(...valores, 1);
-  const topeAltas = Math.max(...dias.map(d => Number(d.altas) || 0), 1);
-  const hayAltas = dias.some(d => (Number(d.altas) || 0) > 0);
+  const altas = dias.map(d => Number(d.altas) || 0);
+  const hayAltas = altas.some(v => v > 0);
+
+  /* ---- Una sola escala para las dos series, y esto es el cambio de fondo ----
+     Las cuentas nuevas se dibujaban como barras al fondo Y con su propia
+     escala, estirada al 42% del alto. Eso hacía que un día de 2 altas se
+     viera casi tan alto como un día de 9 personas, y que las dos cosas no se
+     pudieran comparar aunque estuvieran en el mismo dibujo. Un segundo eje
+     escondido es la forma más común de que una gráfica mienta sin que nadie
+     escriba una cifra falsa.
+
+     Ahora las dos series miden lo mismo —personas— y se leen contra los
+     mismos números de la izquierda. La línea de altas va a ir casi siempre
+     pegada al suelo, y eso ES el dato: las cuentas nuevas son una parte
+     pequeña de quien abre la app. */
+  const tope = Math.max(...valores, ...altas, 1);
 
   /* Con un solo día no hay recta que trazar: el punto va al centro, que es
      donde se lee como «esto es lo que hay» y no como el principio de algo. */
@@ -218,17 +241,29 @@ function panelConstelacion(dias) {
               class="pn-guia ${hoy ? "hoy" : ""}"/>`;
   }).join("");
 
-  /* Las altas del día, al fondo y en su propia escala. Van detrás de la
-     constelación porque son el contexto —de dónde salió la gente— y no la
-     cifra que se viene a mirar. */
-  const barrasAltas = !hayAltas ? "" : dias.map((d, i) => {
-    const v = Number(d.altas) || 0;
+  /* Las altas del día, en LÍNEA y no en barras. Lo pidió Eduardo el 28 de
+     agosto con una palabra que lo describe mejor que cualquier explicación:
+     mezclar barras y líneas en el mismo dibujo se le veía «sucio». Y tenía más
+     razón de la que parecía: dos formas distintas se leen como dos cosas de
+     distinta naturaleza, y aquí no lo son —las dos cuentan personas—, así que
+     la diferencia de forma no significaba nada y solo estorbaba.
+
+     Va debajo de la principal en el orden de dibujo: es el contexto —de dónde
+     salió la gente— y no la cifra que se viene a mirar. Y en trazo discontinuo
+     además de en otro color, porque de las dos maneras se distingue también
+     para quien no separa bien el verde del azul. */
+  const hiloAltas = !hayAltas ? "" :
+    `<polyline points="${altas.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ")}"
+       class="pn-hilo-altas"/>`;
+
+  /* Un punto solo en los días que tuvieron alguna: la línea ya dice el cero,
+     y catorce puntos pegados al suelo lo único que hacen es ensuciar el
+     suelo. Los que se dibujan llevan el título, que es lo que se lee al pasar
+     por encima. */
+  const puntosAltas = !hayAltas ? "" : altas.map((v, i) => {
     if (v <= 0) return "";
-    const h = Math.max((v / topeAltas) * (alto * 0.42), 3);
-    const an = Math.max(util / n * 0.42, 2.5);
-    return `<rect x="${(x(i) - an / 2).toFixed(1)}" y="${(suelo - h).toFixed(1)}"
-              width="${an.toFixed(1)}" height="${h.toFixed(1)}" rx="1.2"
-              class="pn-alta"><title>${escapeHtml(String(d.dia))}: ${v} ${v === 1 ? "cuenta nueva" : "cuentas nuevas"}</title></rect>`;
+    return `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.4"
+              class="pn-punto-alta"><title>${escapeHtml(String(dias[i].dia))}: ${v} ${v === 1 ? "cuenta nueva" : "cuentas nuevas"}</title></circle>`;
   }).join("");
 
   const pts = dias.map((d, i) => [x(i), y(d.personas)]);
@@ -260,8 +295,8 @@ function panelConstelacion(dias) {
 
   const pie = hayAltas
     ? `<div class="pn-pie-graf">
-         <span><i class="pn-mu-punto"></i> ${tx("personas que abrieron")}</span>
-         <span><i class="pn-mu-barra"></i> ${tx("cuentas nuevas")}</span>
+         <span><i class="pn-mu-linea"></i> ${tx("personas que abrieron")}</span>
+         <span><i class="pn-mu-linea altas"></i> ${tx("cuentas nuevas")}</span>
        </div>`
     : "";
 
@@ -282,6 +317,43 @@ function panelConstelacion(dias) {
   const suma = (a) => a.reduce((t, v) => t + v, 0);
   const total = suma(valores);
   const media = n ? Math.round((total / n) * 10) / 10 : 0;
+
+  /* ---- Cuánta gente hay, en vez de un promedio por día ----
+     La primera cifra era «personas al día», la media de los catorce días con
+     los ceros dentro. Estaba bien calculada y era mala métrica, y Eduardo lo
+     preguntó con la frase exacta: «0,6 personas al día, ¿es normal eso?».
+
+     No lo era, y el problema no es el número: es la pregunta. Con tres cuentas,
+     un promedio diario habla más de cuántos días pasaron que de cuánta gente
+     hay — y baja cada vez que se añade un día tranquilo, que es justo cuando
+     menos hace falta desanimar a nadie.
+
+     Ahora van las dos cifras que sí se sostienen a cualquier escala: cuántas
+     cuentas DISTINTAS aparecieron en el periodo, y en cuántos de los catorce
+     días hubo alguien. La primera la cuenta el servidor —desde el navegador no
+     se puede: sumar los días contaría catorce veces a quien abrió catorce
+     días—; la segunda sale de la propia serie.
+
+     Si `distintas` no viene —un servidor que todavía no tiene el `metricas()`
+     nuevo— se cae a la media de antes en vez de enseñar un hueco. */
+  const conActividad = valores.filter(v => v > 0).length;
+
+  /* ---- Personas y aperturas son DOS cosas, y aquí se llamaban igual ----
+     Es el punto 2 de los cinco de Eduardo: «distinguir usuarios únicos por
+     cuenta, no solo aperturas». En los datos ya estaba bien —la tabla `pulsos`
+     tiene la clave (user_id, dia), así que una fila por cuenta y día, y lo que
+     cuenta la serie son cuentas—, pero esta caja sumaba esas cuentas de los
+     catorce días y al resultado le ponía el rótulo «aperturas con cuenta».
+
+     Eso no eran aperturas: era la suma de cuentas-por-día, que no es ninguna
+     magnitud que interese a nadie —alguien que abrió los catorce días contaba
+     catorce—. Y el número de aperturas de verdad venía en los datos, en su
+     propia columna, sin que ninguna pantalla lo usara.
+
+     Ahora son dos cifras distintas y el par dice algo que ninguna decía sola:
+     cuántas veces se abre la app por cada persona que la abre. */
+  const aperturas = suma(dias.map(d => Number(d.aperturas) || 0));
+  const porPersona = total > 0 ? Math.round((aperturas / total) * 10) / 10 : 0;
   const iCima = valores.indexOf(tope);
   const diaCima = dias[iCima] ? fecha(dias[iCima].dia) : null;
 
@@ -298,10 +370,14 @@ function panelConstelacion(dias) {
   }
 
   const resumen = `<div class="pn-graf-cifras">
-      <div class="pn-gc"><b>${media}</b><span>${tx("personas al día")}</span></div>
+      ${distintas == null
+        ? `<div class="pn-gc"><b>${media}</b><span>${tx("cuentas al día")}</span></div>`
+        : `<div class="pn-gc"><b>${distintas}</b><span>${
+            distintas === 1 ? "cuenta distinta" : "cuentas distintas"} · ${conActividad} de ${n} días con actividad</span></div>`}
       <div class="pn-gc"><b>${tope}</b><span>el mejor día${
         diaCima ? T` · día ${diaCima.getDate()} de ${nombreDeMes(diaCima.getMonth() + 1, false)}` : ""}</span></div>
-      <div class="pn-gc"><b>${total}</b><span>${tx("aperturas con cuenta")}</span></div>
+      <div class="pn-gc"><b>${aperturas}</b><span>aperturas${
+        porPersona ? " · " + porPersona + " por cuenta al día" : ""}</span></div>
       ${tendencia ? `<div class="pn-gc tend">${tendencia}</div>` : ""}
     </div>`;
 
@@ -312,10 +388,12 @@ function panelConstelacion(dias) {
      llegar a lo que se viene a ver. Debajo funcionan como el pie de una foto —
      miras la forma, y ahí está lo que no se podía leer de ella. */
   return `<svg class="pn-cielo" viewBox="0 0 ${W} ${H}" role="img"
-            aria-label="Personas activas y cuentas nuevas cada día durante los últimos catorce días. Media de ${media} al día, máximo de ${tope}.">
+            aria-label="Dos líneas sobre la misma escala durante los últimos catorce días: cuentas que abrieron la app cada día${
+              distintas == null ? ", con una media de " + media : ", " + distintas + " distintas en total"}, con un máximo de ${tope} en un día y actividad en ${conActividad} de ${n} días${hayAltas ? ", y cuentas nuevas creadas cada día" : ""}.">
       ${reja}
       ${marcas}
-      ${barrasAltas}
+      ${hiloAltas}
+      ${puntosAltas}
       <polyline points="${hilo}" class="pn-hilo"/>
       ${estrellas}
       ${fechas}
@@ -408,10 +486,16 @@ function panelEmbudo(pasos) {
        debajo de un cero es ruido con aire de dato. */
     const cae = (antes && antes > 0) ? Math.round(((antes - p.n) / antes) * 100) : 0;
     /* Un escalón MÁS GRANDE que el de arriba no es una buena noticia: es la
-       señal de que este paso no se está calculando como un trozo del anterior
-       —«Siguen esta semana» se cuenta suelto, y por eso puede salir un 3
-       debajo de un 2—. Antes caía en el «no se pierde nadie», que es la
-       lectura más halagadora posible de un dato roto. */
+       señal de que ese paso no se está calculando como un trozo del anterior.
+       Pasaba de verdad —«Siguen esta semana» se contaba suelto y podía salir
+       un 3 debajo de un 2—, y se arregló en el servidor el 3 de septiembre de
+       2026: ahora los tres últimos pasos salen de la misma CTE.
+
+       Esto se queda igualmente, y no por desconfianza: es un centinela. Si
+       algún día alguien vuelve a separar un paso del anterior, la pantalla lo
+       dice en vez de disimularlo — que es lo que hacía antes, cuando un
+       escalón que crecía caía en el «no se pierde nadie», la lectura más
+       halagadora posible de un dato roto. */
     const crece = antes != null && p.n > antes;
     const clase = crece ? "crece" : (i === iPeor ? "peor" : "");
     return `<div class="pn-paso ${clase}">
@@ -524,6 +608,36 @@ function agruparReportes(tropiezos) {
     .sort((a, b) => (b.sinVer - a.sinVer) || String(b.dia).localeCompare(String(a.dia)) || (b.cuantos - a.cuantos));
 }
 
+/* Archivar UN reporte, que es lo que pidió Eduardo: «para irlos archivando y
+   ver qué está corregido y qué no». Con el botón de «dar por vistos» a secas
+   eso no se podía — marcaba todos de golpe, así que atender uno enterraba
+   también los que no habías mirado.
+
+   Se pinta con lo que CONTESTA el servidor y no con lo que suponíamos antes de
+   preguntar: si la fila ya no está —dos pestañas archivando a la vez— la
+   respuesta es `null` y se vuelven a pedir los números en vez de dejar la
+   pantalla diciendo algo que no es.
+
+   Y no se recargan las métricas enteras en el caso normal: son unos cientos de
+   milisegundos y un salto de la lista entera para cambiar una palabra. Se
+   toca la fila que hay en memoria y se vuelve a pintar. */
+async function archivarReporte(id, visto) {
+  const t = (metricasCache && metricasCache.tropiezos || []).find(x => Number(x.id) === Number(id));
+  try {
+    const quedo = await sbTropiezoVisto(id, visto);
+    if (quedo === null || quedo === undefined) {
+      /* La fila se fue. Se piden los números otra vez y que mande el servidor. */
+      metricasCache = null;
+      await cargarMetricas();
+      return;
+    }
+    if (t) t.visto = !!quedo;
+    renderPanelAdmin();
+  } catch (e) {
+    toast(e.message || String(e), "atencion");
+  }
+}
+
 function panelReportesHTML(tropiezos) {
   const grupos = agruparReportes(tropiezos);
   if (!grupos.length) return "";
@@ -551,7 +665,13 @@ function panelReportesHTML(tropiezos) {
             <div class="pn-dicho ${t.visto ? "visto" : ""}">
               <p>${escapeHtml(reporteSinLugar(t.mensaje))}</p>
               <span>${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")}${
-                (Number(t.cuantos) || 1) > 1 ? T` · lo dijeron ${t.cuantos} veces` : ""}</span>
+                (Number(t.cuantos) || 1) > 1 ? " · lo dijeron " + t.cuantos + " veces" : ""}</span>
+              ${t.id == null ? "" : `<button class="pn-palomita ${t.visto ? "on" : ""}"
+                onclick="archivarReporte(${Number(t.id)}, ${t.visto ? "false" : "true"})"
+                aria-pressed="${t.visto ? "true" : "false"}"
+                title="${t.visto ? "Volver a dejarlo abierto" : tx("Darlo por atendido")}">
+                ${icon("check", 14)}<span>${t.visto ? "Atendido" : "Atender"}</span>
+              </button>`}
             </div>`).join("") + `</div>` : ""}
       </div>`;
   }).join("") + `</div>
@@ -750,8 +870,8 @@ function renderPanelAdmin() {
 
     <div class="panel">
       <h3>${tx("Los últimos 14 días")}</h3>
-      <p class="settings-note">${tx("Los puntos son personas que abrieron la app; las barras del fondo, cuentas nuevas. Las líneas verticales marcan cada lunes, para comparar una semana con otra.")}</p>
-      ${panelConstelacion(m.dias)}
+      <p class="settings-note">Dos líneas sobre la misma escala: la de arriba son las personas que abrieron la app, la punteada las cuentas nuevas de ese día. Que la segunda vaya casi siempre por abajo es el dato, no un problema de la gráfica. Las líneas verticales marcan cada lunes, para comparar una semana con otra.</p>
+      ${panelConstelacion(m.dias, r.distintas14 == null ? null : Number(r.distintas14))}
     </div>
 
     <div class="panel">

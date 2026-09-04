@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<!-- La misma postura que la app: nada de fuera. Una página legal no necesita
+     ni un script de terceros ni una tipografía remota, y cargarlos sería
+     contradecir por la puerta de atrás lo que este mismo documento promete
+     sobre seguimiento. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data:;
+  font-src 'self' data:;
+  connect-src 'none';
+  form-action 'none';
+  base-uri 'none';
+  object-src 'none'">
+
+<title>Aviso de privacidad · Norata</title>
+<meta name="description" content="Qué datos recoge Norata, para qué los usa, con quién los comparte y cómo ejercer tus derechos.">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<meta name="theme-color" content="#10151d">
+<link rel="stylesheet" href="../css/legal.css">
+
+<script>
+  /* Arriba del todo y no al final: si esperara, la página abriría de noche y
+     daría un fogonazo antes de aclararse. Es el mismo truco y la MISMA llave
+     que usa `index.html` de la app, así que quien eligió el sol en Ajustes lo
+     ve aquí también.
+
+     La diferencia con la app: si nadie ha elegido nada —alguien que llega
+     desde un buscador y nunca ha entrado a Norata— se sigue lo que pida su
+     sistema. La app puede permitirse nacer de noche siempre porque es suya;
+     un documento legal lo abre cualquiera. */
+  try {
+    var t = localStorage.getItem("norata-tema");
+    var claro = t === "claro" ||
+      (!t && window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches);
+    if (claro) {
+      document.documentElement.classList.add("claro");
+      var m = document.querySelector('meta[name="theme-color"]');
+      if (m) m.setAttribute("content", "#dcdef0");
+    }
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<div class="hoja">
+
+  <div class="cab">
+    <!-- El isotipo menta y no el logotipo completo: es el único de `marca/`
+         que se queda igual en los dos modos (0.7.54), así que no hay que
+         cambiar de archivo al cambiar de tema. -->
+    <img src="../marca/isotipo-menta.svg" alt="">
+    <b>Norata</b>
+    <a href="../">Ir a la app</a>
+  </div>
+
+  <h1>Aviso de privacidad</h1>
+  <p class="fecha">Última actualización: 3 de septiembre de 2026</p>
+
+  <div class="caja">
+    <p><strong>En corto:</strong> Norata guarda tu cuenta y lo que escribes
+    dentro de ella para poder devolvértelo en todos tus aparatos. No vende tus
+    datos, no muestra publicidad y no recibe nunca los datos de tu tarjeta.
+    Puedes exportar todo y borrar tu cuenta cuando quieras, sin pagar nada y
+    sin pedir permiso.</p>
+  </div>
+
+  <h2>Quién es responsable de tus datos</h2>
+
+  <p><strong>Jesús Eduardo Camarillo Pérez</strong>, con domicilio en
+  Calle Fuente Aguamarina 8942-G, colonia Villa Fontana Diamante, C.P. 45200, Zapopan, Jalisco, México, en adelante «Norata», es
+  responsable del uso y la protección de tus datos personales.</p>
+
+  <p>Para cualquier asunto relacionado con este aviso:
+  <a href="mailto:norata@hopara.com.mx">norata@hopara.com.mx</a>.</p>
+
+  <h2>Qué datos recogemos</h2>
+
+  <h3>Los que nos das al crear tu cuenta</h3>
+  <ul>
+    <li>Correo electrónico.</li>
+    <li>Contraseña. No la guardamos: se almacena cifrada por nuestro proveedor
+    de cuentas y nadie de Norata puede verla ni recuperarla.</li>
+    <li>Tu nombre y, si quieres, un apodo.</li>
+    <li>Si entras con Google, recibimos de Google tu correo y el nombre de tu
+    perfil. No recibimos tu contraseña de Google.</li>
+  </ul>
+
+  <h3>Los que generas al usar la app</h3>
+  <p>Todo lo que escribes dentro de Norata: misiones, habilidades, talentos,
+  proyectos, notas, el historial de tu progreso y tus preferencias de
+  configuración. Este contenido lo escribes tú y puede contener lo que decidas
+  poner en él.</p>
+
+  <h3>Los de tu suscripción</h3>
+  <p>Si contratas un plan de pago guardamos el estado de tu plan, sus fechas y
+  un identificador que nos da la plataforma de cobro. <strong>Norata nunca
+  recibe, ve ni almacena los datos de tu tarjeta</strong>: el pago ocurre
+  completo dentro de Stripe.</p>
+
+  <h3>Los que se registran solos</h3>
+  <p>Cuando la app falla, se envía un reporte técnico con la versión de Norata,
+  si usas computadora o teléfono, en qué parte ocurrió el fallo y el mensaje de
+  error, recortado a 300 caracteres. Este reporte se manda aunque no hayas
+  iniciado sesión, porque los fallos que más importan son los que impiden
+  entrar. No incluye tu identidad ni el contenido de tus datos.</p>
+  <p>También se registra una marca de que abriste la app —el día, la versión y
+  si fue desde teléfono o computadora— para saber cuánta gente la usa. Se
+  guarda una sola marca por día y no lleva nada de lo que hiciste dentro.</p>
+
+  <h3>Datos sensibles</h3>
+  <p>Norata no solicita datos personales sensibles: salud, origen étnico,
+  creencias religiosas, preferencia sexual, datos biométricos o financieros. Si
+  en el futuro se añaden funciones que lean información de salud o actividad
+  física, se te pedirá tu consentimiento expreso por separado antes de
+  activarlas.</p>
+
+  <h3>Menores de edad</h3>
+  <p>Norata no está dirigida a menores de 13 años y no recogemos datos a
+  sabiendas de personas de esa edad.</p>
+
+  <h2>Para qué los usamos</h2>
+
+  <h3>Finalidades necesarias</h3>
+  <p>Sin ellas Norata no puede funcionar:</p>
+  <ul>
+    <li>Crear tu cuenta, identificarte y mantener tu sesión abierta.</li>
+    <li>Guardar tu progreso y sincronizarlo entre tus dispositivos.</li>
+    <li>Cobrar, renovar o cancelar tu suscripción, y darte acceso a lo que
+    corresponde a tu plan.</li>
+    <li>Enviarte los correos indispensables del servicio: confirmar tu cuenta,
+    recuperar tu contraseña, avisarte de un cambio de correo o de contraseña, y
+    los avisos relacionados con tu pago.</li>
+    <li>Detectar y corregir fallos, y proteger la app frente a usos
+    abusivos.</li>
+  </ul>
+
+  <h3>Finalidades adicionales</h3>
+  <p>Puedes negarte y seguir usando Norata igual:</p>
+  <ul>
+    <li>Enviarte novedades del producto, consejos de uso o encuestas.</li>
+    <li>Analizar de forma agregada cómo se usa Norata para mejorarla. Estos
+    análisis se hacen sobre totales, nunca sobre tu actividad individual
+    identificada.</li>
+  </ul>
+  <p>Para negarte a las finalidades adicionales, escribe a
+  <a href="mailto:norata@hopara.com.mx">norata@hopara.com.mx</a> o usa el enlace para
+  darte de baja que aparece al final de esos correos. Tu negativa no afecta tu
+  cuenta ni tu suscripción.</p>
+
+  <h2>Con quién los compartimos</h2>
+
+  <p>No vendemos tus datos personales. <strong>Norata no muestra publicidad y
+  no comparte tus datos con anunciantes ni con corredores de datos.</strong></p>
+
+  <p>Para operar, tus datos pasan por proveedores que actúan por cuenta de
+  Norata y solo pueden usarlos para prestarnos su servicio. Varios están fuera
+  de México, principalmente en Estados Unidos y la Unión Europea:</p>
+
+  <div class="tabla-envoltura">
+    <table>
+      <thead>
+        <tr><th>Proveedor</th><th>Para qué</th><th>Qué recibe</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Supabase</td><td>Cuentas y base de datos</td><td>Correo, nombre y el contenido de tu cuenta</td></tr>
+        <tr><td>Stripe</td><td>Cobro de suscripciones</td><td>Correo y los datos de tu pago</td></tr>
+        <tr><td>Resend</td><td>Envío de los correos del servicio</td><td>Correo y nombre</td></tr>
+        <tr><td>GitHub Pages</td><td>Alojamiento de la aplicación</td><td>Datos técnicos de conexión</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Estas transferencias no requieren tu consentimiento por ser necesarias
+  para cumplir la relación entre tú y Norata. Fuera de estos casos, solo
+  compartiríamos tus datos si nos lo exige una autoridad competente conforme a
+  la ley.</p>
+
+  <h2>Cómo los guardamos y por cuánto tiempo</h2>
+
+  <p>Los datos viajan cifrados y se guardan con acceso restringido: cada cuenta
+  solo puede leer su propia información, y esa restricción está aplicada en el
+  servidor, no solo en la app.</p>
+
+  <p>Conservamos tus datos mientras tu cuenta exista. <strong>Cuando borras tu
+  cuenta, tu contenido se elimina.</strong> Por obligaciones fiscales y
+  contables debemos conservar los registros de las operaciones de pago durante
+  el plazo que marca la ley, aunque hayas borrado tu cuenta.</p>
+
+  <h2>Tus derechos</h2>
+
+  <p>Puedes pedirnos en cualquier momento <strong>acceder</strong> a tus datos,
+  <strong>rectificarlos</strong> si son incorrectos, <strong>cancelarlos</strong>
+  cuando consideres que no los necesitamos, u <strong>oponerte</strong> a que
+  los usemos para un fin concreto. También puedes revocar tu consentimiento.</p>
+
+  <p>Muchas de estas cosas las puedes hacer tú mismo y al instante desde la
+  app: editar tu perfil, exportar todos tus datos, importarlos y borrar tu
+  cuenta completa. <strong>Exportar, importar y borrar tu cuenta son gratuitos
+  y no dependen de que tengas un plan de pago.</strong></p>
+
+  <p>Si prefieres pedírnoslo, escribe a
+  <a href="mailto:norata@hopara.com.mx">norata@hopara.com.mx</a> desde el correo con
+  el que te registraste, indicando qué derecho quieres ejercer y sobre qué
+  datos. Te responderemos en un plazo máximo de 20 días hábiles y, si procede,
+  lo aplicaremos dentro de los 15 días hábiles siguientes. Podemos pedirte que
+  acredites tu identidad antes de proceder.</p>
+
+  <p>Si consideras que tu derecho a la protección de datos ha sido vulnerado,
+  puedes acudir a la autoridad competente en materia de protección de datos
+  personales.</p>
+
+  <h2>Almacenamiento en tu dispositivo</h2>
+
+  <p>Norata guarda información en tu propio navegador para que la app funcione
+  sin conexión, recuerde tus preferencias y no te pida iniciar sesión cada vez.
+  Esta información vive en tu dispositivo y puedes borrarla desde los ajustes
+  de tu navegador; al hacerlo, se cerrará tu sesión.</p>
+
+  <p>Norata no usa cookies de publicidad ni de seguimiento entre sitios.</p>
+
+  <h2>Cambios a este aviso</h2>
+
+  <p>Este aviso puede cambiar cuando cambie la app, nuestros proveedores o la
+  ley. La versión vigente estará siempre publicada en
+  <a href="https://mi.norata.app/privacidad/">mi.norata.app/privacidad</a> con
+  su fecha de actualización. Si el cambio afecta de forma importante cómo
+  usamos tus datos, te avisaremos por correo o dentro de la app antes de que
+  entre en vigor.</p>
+
+  <div class="pie">
+    <a href="../terminos/">Términos y condiciones</a>
+    <a href="../">Volver a Norata</a>
+  </div>
+
+</div>
+
+</body>
+</html>

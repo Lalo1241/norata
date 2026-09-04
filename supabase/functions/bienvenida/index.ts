@@ -36,6 +36,15 @@
 const RESEND = "https://api.resend.com/emails";
 const PLANTILLA = "https://mi.norata.app/correos/04-bienvenida.html";
 const REMITENTE = "Norata <no-reply@norata.app>";
+
+/* A donde va lo que conteste alguien. Sin esto, responder a un correo de
+   bienvenida era escribirle a `no-reply@norata.app`, que no tiene bandeja: el
+   mensaje se perdia y quien escribio se quedaba esperando.
+   Y el remitente NO cambia a esta direccion: `no-reply@norata.app` esta
+   verificado en Resend y `hopara.com.mx` no, asi que enviar desde ahi tiraria
+   el correo o lo mandaria a spam. Enviar y recibir son dos cosas distintas, y
+   `reply_to` es justo la que las junta. */
+const CONTESTA_A = "norata@hopara.com.mx";
 const ASUNTO = "Bienvenido a Norata";
 
 /* De donde se acepta la llamada. Con `*` cualquier pagina del mundo podria
@@ -149,6 +158,7 @@ Deno.serve(async (req: Request) => {
     },
     body: JSON.stringify({
       from: REMITENTE,
+      reply_to: CONTESTA_A,
       to: [usuario.email],
       subject: ASUNTO,
       html: html,

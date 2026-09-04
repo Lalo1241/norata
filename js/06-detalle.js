@@ -362,6 +362,10 @@ function renderProjects() {
               { title: editandoMapa ? "Salir de edición" : "Editar el mapa",
                 hint: editandoMapa ? "Vuelve al modo normal" : "Conecta y corta hilos",
                 icon: "lapiz", onclick: `toggleEditBranch('${enJS(b)}','proyectos')` },
+              { title: ramaGirada(b, "proyectos") ? "Verlo en horizontal" : "Ver el mapa de pie",
+                hint: ramaGirada(b, "proyectos") ? "Vuelve a lo ancho, como estaba" : "El primer encargo abajo y el camino subiendo",
+                icon: ramaGirada(b, "proyectos") ? "girarVuelta" : "girar",
+                onclick: `girarRama('${enJS(b)}','proyectos')` },
               { title: "Reacomodar el mapa", hint: "Recoloca los encargos según su orden",
                 icon: "expandir", onclick: `resetBranchLayout('${enJS(b)}','proyectos')` }
             ] : []),
@@ -1362,6 +1366,12 @@ function renderTree() {
               /* "Reacomodar solos" queda fuera a propósito hasta pulir cómo
                  decide el orden; la función sigue existiendo, sin puerta. */
               ...(editing ? [] : [{ title: "Centrar en lo que sigue", hint: "Te lleva al talento en curso o al siguiente por abrir", icon: "flecha", onclick: `focusBranchFront('${bj}')` }]),
+              /* Solo cambia cómo la miras: los talentos no se mueven de donde
+                 los pusiste, y volver a tocarlo la deja como estaba. */
+              { title: ramaGirada(b, "talentos") ? "Verla en horizontal" : "Ver la rama de pie",
+                hint: ramaGirada(b, "talentos") ? "Vuelve a lo ancho, como estaba" : "El primer talento abajo y el camino subiendo",
+                icon: ramaGirada(b, "talentos") ? "girarVuelta" : "girar",
+                onclick: `girarRama('${bj}','talentos')` },
               editing
                 ? { title: "Terminar de editar", hint: "Vuelve al modo normal", icon: "lapiz", onclick: `toggleEditBranch('${bj}')` }
                 : { title: "Editar el mapa", hint: "Mueve y conecta los talentos", icon: "lapiz", onclick: `toggleEditBranch('${bj}')` }

@@ -108,11 +108,11 @@ de estos métodos —Fogg (2019), desde el Behavior Design Lab de Stanford, y Cl
 es hacer la conducta tan pequeña que sea casi imposible fallar, lo cual es una
 tesis sobre cómo debería comportarse el módulo entero.
 
-Y con el matiz honesto: **hay una revisión de 2024 (Gardner, Rebar, de Wit y
-Lally) que sostiene que formar el hábito, por sí solo, puede no bastar** para
-sostener un cambio real. *Su referencia completa está sin verificar y no debe
-usarse en público hasta comprobarla.* No es una plantilla; es un hilo aparte que
-conviene abrir antes de la beta.
+Y con el matiz honesto: **Gardner, Rebar, de Wit y Lally (2024) sostienen que
+formar el hábito, por sí solo, puede no bastar** para sostener un cambio real —
+el contexto y la oportunidad pesan tanto como la repetición. Verificado el 3 de
+septiembre de 2026; la referencia completa está abajo. No es una plantilla: es un
+hilo aparte, y va a **Misiones**.
 
 ## Qué tan respaldada está cada una
 
@@ -206,6 +206,7 @@ depende, y es lo que el lienzo dibuja como candado.
 
 **Módulo:** Talentos · **Rama:** Salud · **Habilidades:** Correr, Ejercicio
 **Horizonte:** 9 semanas hasta 5K, 16 hasta 10K · **Le falla a:** quien ya corre 5K cómodo
+**En pantalla:** «plan de intervalos progresivos»
 **Respaldo:** plan publicado — **Couch to 5K**, 9 semanas, 3 salidas por semana
 con descanso entre ellas
 > Clark, J. (1996). *Couch to 5K*. Cool Running. Hoy lo publica el National
@@ -316,6 +317,7 @@ el mundo desarrolla uno y descuida el otro; el examen del final pide los dos.
 
 **Módulo:** Talentos · **Rama:** Música · **Habilidades:** Guitarra, Canto
 **Horizonte:** 12 meses · **Le falla a:** quien ya toca otro instrumento
+**En pantalla:** «acordes abiertos y cambios cronometrados»
 **Respaldo:** consenso de la enseñanza — acordes abiertos primero, el ejercicio
 del **cambio de un minuto**, y la cejilla como frontera del nivel intermedio
 > Sin autor único: es lo que coinciden en enseñar las academias. El ejercicio
@@ -365,6 +367,7 @@ mal y se estanca.
 
 **Módulo:** Talentos · **Rama:** Dinero · **Habilidades:** Finanzas, Organización
 **Horizonte:** 18 meses · **Le falla a:** quien no tiene ingreso fijo
+**En pantalla:** «la deuda más pequeña primero»
 **Respaldo:** método con nombre — **la bola de nieve**, con **la avalancha** al
 lado para que elijas
 > Ramsey, D. (2003). *The Total Money Makeover*. Thomas Nelson.
@@ -425,6 +428,7 @@ que es pagar lo que hay. Hacer solo una de las dos no termina nunca.
 
 **Módulo:** Talentos · **Rama:** Carrera · **Habilidades:** Programación, Organización
 **Horizonte:** 12 a 18 meses · **Le falla a:** quien ya trabaja en tecnología
+**En pantalla:** «un lenguaje, y postular desde el primer proyecto»
 **Respaldo:** consenso de la práctica — los caminos de **roadmap.sh** y la regla
 de que el portafolio pesa más que el certificado del curso
 > Sin autor único: roadmap.sh es un recurso comunitario, y lo del portafolio es
@@ -472,6 +476,7 @@ postula nunca.
 
 **Módulo:** Talentos · **Rama:** Carrera · **Habilidades:** Organización, la de tu campo
 **Horizonte:** 6 meses · **Le falla a:** quien no tiene una certificación clara en mente
+**En pantalla:** «simulacros con reloj»
 **Respaldo:** consenso de la práctica — temario oficial, simulacros con reloj y
 repaso dirigido a los fallos
 > Sin autor único. El temario y los simulacros los publica quien examina, que
@@ -517,6 +522,7 @@ se puede haber leído todo y fallar por ritmo.
 
 **Módulo:** Talentos · **Rama:** Escritura · **Habilidades:** Escritura, Lectura
 **Horizonte:** 12 meses · **Le falla a:** quien ya tiene un borrador terminado
+**En pantalla:** «cuota diaria de palabras»
 **Respaldo:** método con nombre — **NaNoWriMo**: 50 000 palabras en 30 días, que
 son **1 667 al día**
 > Baty, C. (1999). *National Novel Writing Month*.
@@ -565,6 +571,7 @@ oficios distintos y no se hacen a la vez.
 
 **Módulo:** Proyectos · **Rama:** Mi negocio · **Habilidades:** Negociación, Finanzas
 **Horizonte:** 12 meses · **Le falla a:** quien ya vende y quiere crecer
+**En pantalla:** «validación por compromisos»
 **Respaldo:** método con nombre — **The Mom Test**
 > Fitzpatrick, R. (2013). *The Mom Test: How to talk to customers and learn if
 > your business is a good idea when everyone is lying to you*. CreateSpace.
@@ -612,6 +619,7 @@ en cada venta sin enterarse.
 
 **Módulo:** Proyectos · **Rama:** La casa · **Habilidades:** Organización
 **Horizonte:** 3 meses · **Le falla a:** quien vive con más gente que no participa
+**En pantalla:** «orden por categorías»
 **Respaldo:** método con nombre — **KonMari**, y sus cinco categorías en el
 orden exacto
 > Kondo, M. (2014). *La magia del orden*. Aguilar. (Obra original publicada en
@@ -659,6 +667,7 @@ meses está igual.
 
 **Módulo:** Proyectos · **Rama:** La mudanza · **Habilidades:** Organización, Idiomas
 **Horizonte:** 12 a 18 meses · **Le falla a:** quien se muda dentro del mismo país
+**En pantalla:** «requisitos oficiales, en orden»
 **Respaldo:** requisitos reales — la lista oficial del país que sea, que es la
 única fuente que vale
 > Sin autor: la fuente es el consulado o el ministerio del país de destino, y
@@ -742,6 +751,11 @@ apuntado para las Misiones.)
 Fogg, B. J. (2019). *Tiny Habits: The Small Changes That Change Everything*.
 Houghton Mifflin Harcourt. (Como el anterior: apuntado para las Misiones.)
 
+Gardner, B., Rebar, A. L., de Wit, S., y Lally, P. (2024). What is habit and how
+can it be used to change real-world behaviour? Narrowing the theory-reality gap.
+*Social and Personality Psychology Compass*.
+https://doi.org/10.1111/spc3.12975
+
 Gal, D., y McShane, B. B. (2012). Can small victories help win the war? Evidence
 from consumer debt management. *Journal of Marketing Research*.
 
@@ -767,11 +781,6 @@ https://www.ramseysolutions.com/debt/debt-snowball-vs-debt-avalanche
 recurso comunitario), *Certificarme* (la fuente es quien examina, y cambia con
 cada certificación) y *Mudarme de país* (el consulado o el ministerio del país
 de destino).
-
-**Pendiente de verificar antes de usarla en público:** una revisión de 2024 de
-Gardner, Rebar, de Wit y Lally sobre si formar el hábito basta por sí solo para
-sostener un cambio de conducta. Se menciona arriba como advertencia y **no se
-cita como fuente** hasta comprobar título, revista y páginas.
 
 ## El descargo, que va donde se listen los caminos
 

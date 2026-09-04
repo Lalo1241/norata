@@ -76,6 +76,824 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.84 · 3 sep 2026
+
+**Norata habla inglés.** Se elige el idioma y la moneda, y las dos preguntas
+salen antes de nada la primera vez que alguien abre la app.
+
+**1.332 frases traducidas, ninguna a medias.** El motor está en
+`js/00-idioma.js` y el diccionario en `js/00b-textos-en.js`. La clave de cada
+frase es la propia frase en español: `tx("Guardar")` busca "Guardar" y, si no
+está, devuelve "Guardar". Con mil trescientas frases repartidas en veintitrés
+archivos, inventar una clave por frase obligaba a tocarlas todas antes de poder
+enseñar nada, y a vivir con que un despiste dejara `ajustes.perfil.titulo` en
+pantalla. Así lo que falte sale en español, nunca roto.
+
+Se llama `tx` y no `t` porque `t` era ya el nombre de una variable local en
+cuarenta sitios: ahí la traducción habría reventado en silencio.
+
+**La moneda ahora convierte.** MXN, USD y EUR. Hasta aquí el comentario del
+código decía que cambiar de moneda NO convertía nada, y el argumento era bueno
+—no se sabe a qué cambio estaba cada compra— pero la conclusión estaba mal:
+para quien se mudó, un talento de $1.890 pasando a decir «$1.890 USD» no es un
+dato conservado con honestidad, es treinta mil pesos donde había mil
+ochocientos. Se convierte una vez, con el tipo de cambio delante y editable, y
+guardando antes una copia entera con la máquina que ya existía para los
+conflictos de sincronía.
+
+**El tipo de cambio se pregunta al servidor.** Función `cambio` en Supabase
+(ver `supabase/LEEME.md`), pedida solo al abrir el selector —nunca al
+arrancar— y con la tabla del código como red de abajo. Al escribirla salió que
+la tabla de referencia estaba a ojo: decía 18,50 el dólar y 21,80 el euro
+cuando los dos proveedores daban 17,0 y 19,7.
+
+**Los meses y los días dejan de estar escritos a mano.** Había cinco listas en
+español en cinco archivos; ahora los da `Intl` desde `nombreDeMes()` y
+`letrasDeSemana()`. El español sale idéntico y el inglés sale con la mayúscula
+inicial que lleva allí y aquí no.
+
+**Discos con el símbolo, no banderas.** Una bandera es un país y una moneda no
+lo es: el euro no es de ninguno. Cada opción con su color, porque el peso y el
+dólar comparten símbolo — y el dólar con dos palos, que es lo que lo separa
+del de peso. La moneda va maciza y el idioma en aro: de los ocho colores del
+usuario con tinta oscura encima, siete pasan el 4,5 de un texto en los dos
+modos y el lila da 3,67 de día.
+
+**Las tres cosas que costaron una revertida cada una**, y valen para la
+siguiente tanda:
+
+- **La herramienta tiene que leer el archivo como lo lee JavaScript.** La
+  primera versión envolvía por expresión regular y metió 24 llamadas dentro de
+  cadenas con comillas simples, donde `${...}` es texto y no un hueco: la
+  pantalla habría impreso `${tx("Nuevo")}`.
+- **Nada que se traduzca puede vivir en una CONSTANTE de nivel superior.** Se
+  evalúa una vez al cargar el archivo y se queda con el idioma de arranque.
+  Mordió con `CONTRA` en `10f-informes.js`, y no se veía porque vive en un
+  `title`.
+- **Una clave que sirve para dos frases traduce mal una de las dos.**
+  «{0} de {1}» valía para «3 de septiembre» y para «Septiembre de 2026».
+
+**Lo que queda en español a propósito:** el contenido de los diez caminos
+(363 frases en `caminos/caminos.json`, que además genera `caminos/app.py`
+desde `plantillas/LEEME.md`, así que traducir el JSON a mano lo borraría el
+generador) y las dos páginas legales, que son un documento jurídico y no una
+pantalla.
+
+**Para que el cambio de moneda use el cambio del día hay que correr dos pasos
+en Supabase** (`supabase/tipos-de-cambio.sql` y desplegar la función). Sin
+ellos no se rompe nada: se usa la tabla del código y la pantalla dice que es
+una referencia.
+
+### 0.7.83 · 3 sep 2026
+
+**Norata ya tiene aviso de privacidad y términos, publicados y enlazados.** Era
+el bloqueador más viejo de la lista —desde el 22 de agosto— y el único que no
+dependía de escribir código, sino de tres datos que solo tenía Eduardo.
+
+Dos páginas nuevas, servidas por el mismo GitHub Pages que la app:
+`mi.norata.app/privacidad/` y `mi.norata.app/terminos/`.
+
+**No son pantallas de la app y eso es a propósito.** Tienen su propia hoja
+(`css/legal.css`, 4 KB contra los 300 de la de la app), no cargan ni un script
+ni una tipografía de fuera —contradecir por la puerta de atrás lo que el propio
+documento promete sobre seguimiento habría sido un buen chiste—, y llevan la
+misma CSP que `index.html`. Respetan el modo claro leyendo la MISMA llave que la
+app, y si quien llega no ha entrado nunca a Norata siguen lo que pida su
+sistema: un documento legal lo abre cualquiera, no solo quien ya es de la casa.
+
+**Los enlaces van en tres sitios, y el orden importa:**
+
+- **En la puerta, debajo del botón de crear cuenta.** Es el instante en que se
+  recoge el correo de alguien, que es justo lo que un aviso de privacidad tiene
+  que anunciar ANTES de que ocurra. Debajo del botón y no encima: quien viene a
+  crear una cuenta viene a pulsarlo.
+- **Al pie de Ajustes**, y no dentro de la sección de la cuenta: quien usa
+  Norata sin cuenta también aceptó los términos, y esa sección solo se pinta con
+  sesión. A diferencia del número de versión, este pie **no se esconde en la
+  computadora** — el número ya vive en la barra lateral, estos enlaces no viven
+  en ningún otro sitio.
+- **En el pie de los seis correos**, junto a la dirección de contacto.
+
+**La ruta se resuelve con `legalBase()`** y no escrita a mano, por el mismo
+motivo que existe `logotipoSrc()`: la portada se pinta en DOS sitios —la puerta,
+que vive en `/login/`, y la app, que vive en la raíz— y una ruta relativa que
+sirve en uno se rompe en el otro. Relativa y no absoluta, para que el proyecto
+siga abriéndose desde una carpeta local en las pruebas.
+
+**Lo que costó tres conversaciones y no una línea de código:** el responsable es
+él como persona física —Hopara es un registro de marca, no una sociedad—, así
+que su nombre y un domicilio van publicados. Se le ofrecieron tres caminos para
+el domicilio (el del IMPI, una oficina virtual, o el de su constancia) y eligió
+el tercero sabiendo lo que implica. La dirección de contacto es
+`norata@hopara.com.mx`, creada para esto.
+
+**Medido en local antes de subir**, en los dos modos: cero huecos en las dos
+páginas, las dos contestan 200 desde la puerta, los enlaces salen con `../`
+desde `/login/` y sin prefijo desde la app, y el contraste del cuerpo es 12,35
+en claro y del enlace 4,62.
+
+**Y una trampa de la verificación que conviene recordar:** el navegador servía
+`10c-portada.js` de su caché HTTP —53 KB contra los 64 del archivo nuevo—, así
+que la función nueva salía «undefined» mientras el archivo en disco ya la tenía.
+No era el service worker: no había ninguno registrado. Se vio comparando
+`decodedBodySize` con el tamaño real y se rodeó abriendo por `127.0.0.1` en vez
+de por `localhost`, que para el navegador es otro origen y otra caché.
+
+### 0.7.82 · 3 sep 2026
+
+**Cambiar de cuenta se hace desde donde ya se ve quién eres.** Eduardo abrió el
+menú de Google al lado y dijo lo justo: «siento que está muy escondido y siguen
+siendo muchos pasos». Tenía razón — la lista vivía en Ajustes → Mi perfil, que
+es un buen sitio para administrar y uno malo para cambiar.
+
+Ahora las cuentas salen **justo debajo de la ficha de «quién eres»**, en los dos
+sitios donde la app ya contesta «¿en qué cuenta estoy?»: el menú del engrane en
+la computadora y el índice de Ajustes en el teléfono. **Dos toques en los dos.**
+
+Es una sola función con dos pieles —`mm` para el menú, `aj` para el índice—
+porque los dos renglónes tienen la misma forma: un hueco para el icono y dos
+líneas de texto. Con dos funciones, una se queda atrás a la primera. Y **la ×
+de quitar no va ahí**: en un menú corto, un botón de borrar pegado a uno de
+entrar es un accidente esperando. Quitar sigue en Mi perfil, que es donde se
+administra.
+
+**Y el fallo que salió de tener dos cuentas a mano, que es lo importante de
+esta tanda.** Lo contó exacto: se venía de una cuenta con un mundo puesto, se
+cambiaba a otra que no lo tiene, y **el mundo seguía puesto** hasta elegir otro
+a mano. Lo mismo con los recoloreados que se ganan por nivel.
+
+La causa no estaba en lo nuevo. `refrescarApariencia()` —la única puerta que
+revisa si lo que llevas puesto sigue siendo tuyo— vivía **después de
+`if (!esAdmin) return`** dentro de `revisarAdmin`. O sea que no corría para
+nadie salvo para la cuenta administradora: estaba muerta para el 100% de las
+cuentas desde que se escribió. No se notaba porque el plan y el nivel de una
+persona no bajan solos — al poder cambiar de cuenta en el mismo dispositivo
+bajan de golpe, y ahí se vio.
+
+Tres arreglos, y hacen falta los tres:
+
+- **Sale de detrás del `return`.** La apariencia la lleva puesta todo el mundo.
+- **Mira lo ELEGIDO y no lo que está puesto.** Leyendo el atributo era de un
+  solo sentido: en cuanto una llamada devolvía a la casa —porque en ese
+  instante el nivel era 0, que es lo normal mientras el progreso va llegando—
+  la siguiente veía «casa», decía que casa está permitida, y se quedaba así
+  para siempre. Quitaba y no devolvía. Ahora hace las dos cosas y da igual
+  cuántas veces se pregunte.
+- **Se vuelve a preguntar cuando termina una sincronía.** El plan lo contesta
+  el servidor, pero el NIVEL sale del progreso, y el progreso llega ahí:
+  preguntarlo antes es preguntarlo con el nivel en 0.
+
+Medido, los cuatro casos: un mundo de Fundador con plan libre se cae a la casa;
+un ambiente de nivel 20 con nivel 0 también; lo que sí es tuyo aguanta tres
+llamadas seguidas sin moverse; y subiendo el nivel de 0 a 25 el ambiente
+**vuelve solo**. La elección guardada no se borra nunca, así que volver a la
+otra cuenta devuelve su mundo.
+
+**Y una palabra.** La app entera dice «dispositivo» y la 0.7.80 coló «aparato»
+en seis textos que ve el usuario. Corregido, con su entrada de esta lista.
+
+### 0.7.81 · 3 sep 2026
+
+**La regla de alinear ya funciona también con el lápiz encendido.** Eduardo la
+echó en falta y creyó que se había roto con el giro; no era eso. El imán y sus
+líneas vivían SOLO en el arrastre normal desde que se hicieron, y en el editor
+no había ninguno de los dos — que es justo donde uno acomoda un mapa, porque
+para conectar y cortar hay que encender el lápiz. Comprobado contra el código
+de antes del giro: allí tampoco estaba.
+
+Va solo cuando se mueve UNO. Arrastrando varios en bloque, pegar el grupo
+entero porque uno de sus miembros quedó cerca de alinearse movería a los otros
+a sitios que nadie pidió.
+
+Tres cosas que hubo que atar para que funcione ahí:
+
+- **Sembrar `posLienzo` con esta rama al empezar el arrastre.** El imán compara
+  contra el último mapa dibujado, y ese puede ser el de OTRA rama, porque la
+  página las dibuja todas. El arrastre normal lo tenía resuelto de casualidad
+  —`fijarPosiciones` lo sembraba de paso—; aquí hay que hacerlo a mano.
+- **Pintar las líneas DESPUÉS de redibujar y en el mismo fotograma.** El
+  redibujado sustituye el SVG entero, así que pintarlas antes es tirarlas.
+- **Y guardar las reglas pendientes fuera del manejador**, porque el redibujado
+  del editor va acelerado: cuando ya hay un fotograma pedido, los movimientos
+  siguientes no piden otro, y con una variable local el fotograma habría
+  pintado las reglas del movimiento que lo pidió en vez de las del último.
+
+**Y la M abre y cierra la pantalla completa**, como el mapa en cualquier juego.
+Lo pidió Eduardo. Hace las dos cosas porque un atajo que solo entra deja al que
+lo usó buscando cómo salir, y no se dispara editando —ahí la mano está
+conectando y cortando— ni escribiendo en un campo. La línea de ayuda ya la
+menciona.
+
+Medido: desde 88 unidades de distancia el talento entra, pega a 14, se queda
+pegado y suelta al pasarse; la línea aparece solo mientras está pegado y no
+queda ninguna al soltar. Las dos huellas del lienzo siguen donde estaban,
+`16afb4ed` sin girar y `055c6952` de pie.
+
+Y una nota de método, que costó media hora: **en el panel del navegador de este
+entorno `requestAnimationFrame` NO dispara nunca**, así que todo lo que se
+repinta por fotograma —como el editor— parece muerto. No lo está. Para medirlo
+hay que sustituir `requestAnimationFrame` por uno que llame al momento. Es la
+misma familia que la trampa de las transiciones ya apuntada en CLAUDE.md.
+
+### 0.7.80.1 · 3 sep 2026
+
+**El nombre de un talento no volvía a la derecha aunque la derecha ya estuviera
+libre.** Se iba a un lado y se quedaba ahí, y para devolverlo había que
+arrimarle otro talento a propósito. Lo cazó Eduardo, y era fastidioso de la
+peor manera: te obliga a arreglar a mano algo que el mapa debería resolver
+solo.
+
+Eran dos cosas encima de la otra.
+
+**La primera, que el talento se estorbaba a sí mismo.** El nombre se separa
+diez píxeles de su figura, y la lista de estorbos incluía la figura de todos
+los talentos — incluida la del suyo. Mientras el margen exigido fue siete no
+se notó; en cuanto pedir un cambio de lado exigió diecisiete, la figura
+bloqueaba a su propio nombre y no lo dejaba ni a la derecha ni a la izquierda.
+Solo sobrevivía "abajo", y de ahí ya no salía nunca. Ahora cada estorbo lleva
+de quién es, y un talento nunca se estorba a sí mismo.
+
+**La segunda, que la memoria del lado estaba puesta al revés.** Probaba
+primero el lado que ya tenía, así que un nombre que se había ido a la
+izquierda se quedaba mientras la izquierda cupiera, sin volver a mirar la
+derecha. Ahora el orden es SIEMPRE derecha → izquierda → abajo, y la memoria
+solo decide cuánto hueco hace falta: quedarse donde está pide el margen
+normal, y mudarse pide el margen normal más un escalón.
+
+De ahí sale una **banda muerta**, que es lo que hace que vuelva sin temblar: se
+va de la derecha cuando de verdad ya no cabe, y vuelve cuando hay hueco de
+sobra — no en el mismo píxel donde se fue. Medido acercando y alejando un
+vecino de uno en uno: se va en 85 y vuelve en 96, once unidades de banda. Y con
+el vecino clavado justo en el punto de cruce y cien repintados seguidos, el
+nombre no cambió de lado ni una vez.
+
+El dibujo no se mueve en ninguno de los dos casos: el `viewBox` fue el mismo en
+las cincuenta y siete posiciones del barrido. Las dos huellas siguen donde
+estaban, `16afb4ed` sin girar y `055c6952` de pie.
+### 0.7.80 · 3 sep 2026
+
+**Cambiar de cuenta deja de costar una contraseña.** Lo pidió Eduardo con el
+motivo puesto: tiene dos cuentas, la de pruebas y la de verdad, y **la de verdad
+no la usaba** porque volver a ella costaba cuatro pasos —Ajustes, cerrar sesión,
+la puerta, teclear— y siempre acababa dándole pereza.
+
+Ahora las cuentas con las que ya se entró en este dispositivo se quedan en una
+lista y se cambia tocándolas. Sale en dos sitios, que son los dos momentos en
+que hace falta: **en Ajustes**, para cambiarse sin salir, y **en la puerta**,
+arriba del formulario, para entrar.
+
+**Cerrar sesión y cambiar de cuenta pasan a ser dos cosas distintas**, y esa
+separación es la que sostiene todo lo demás. Cerrar sesión sigue haciendo lo
+que promete su aviso —se lleva la credencial— y ahora borra también el atajo.
+Para tener las dos a mano está **«Entrar con otra cuenta»**, que lleva a la
+puerta sin cerrar la que hay; sin ese camino la lista nunca pasaría de una.
+
+Dos cosas que no se ven y son la mitad del trabajo:
+
+- **Antes de cambiar se sube lo que falte, y si no se puede NO se cambia.** El
+  relevo aparta los datos de este dispositivo y baja los de la otra cuenta; lo que
+  no hubiera subido quedaría solo en una copia de conflicto, que hay que ir a
+  rescatar a mano desde Ajustes. Mientras cambiar costaba una contraseña eso
+  casi no pasaba; con un toque iba a pasar seguido.
+- **Antes de entrar se comprueba que el permiso guardado sigue valiendo.** El
+  token de refresco no caduca por reloj: se lo lleva por delante cambiar la
+  contraseña o pedir «cerrar las otras sesiones» desde el teléfono. Sin
+  preguntarlo, la app entraba igual y se quedaba dentro de una cuenta que no
+  sincronizaba nada, con el aviso escondido en Ajustes. Ahora quita la fila,
+  deja el correo escrito y lo dice.
+
+**Dónde se guarda, que es lo único delicado.** En su propia llave de
+localStorage (`norata-cuentas-v1`), fuera de `sync` —que se vacía al cerrar
+sesión, justo cuando más falta haría— y sobre todo **fuera de `state`**, que es
+exactamente lo que se sube al servidor: una credencial ahí dentro sería
+publicarla. Lo guardado no es la contraseña —esa no se guarda nunca— sino el
+permiso de refresco, que el servidor puede revocar y que ya vivía en ese mismo
+almacén para la cuenta activa. Tener dos no abre una puerta que estuviera
+cerrada, abre la misma dos veces; y cada fila lleva su × para quitarla.
+
+**No hay un camino de entrada nuevo**, y eso fue deliberado: se deja la sesión
+puesta y se recarga con la marca `norata-recien`, o sea lo mismo que ya hacía
+la puerta al entrar con la contraseña. Apartar los datos de la cuenta anterior
+y bajar los nuevos sigue siendo `adoptarSesion`, sin tocarla — lo que lo hace
+posible es que `sync.dueño` NO se toca al poner la sesión, que es la señal por
+la que aquella se entera de que entra otra persona.
+
+Medido a 412×915 y a 360×480, en los dos modos: sin desbordes, el botón de
+entrar se alcanza con la lista llena, y los contrastes del rótulo y de la ×
+suben a 5,21 y 6,27 —con `--faint` daban 3,97, por debajo del 4,5 que pide un
+texto de 12 px aunque vaya en negrita—. Un nombre de 220 letras sin espacios se
+derramaba por encima de la ×: ahora las dos líneas se cortan con puntos
+suspensivos y todas las filas miden lo mismo, que es lo que deja recorrer una
+lista de un vistazo. El tope son cinco.
+
+### Sin número · 3 sep 2026 — una dirección que contesta
+
+**No lleva versión** por lo mismo que las otras dos entradas sin número: nada de
+esto está en `ASSETS`. Los seis correos son plantillas que se sirven del sitio y
+la función de bienvenida se despliega aparte —ya está desplegada—.
+
+**La dirección de contacto de Norata es `norata@hopara.com.mx`**, y la eligió
+Eduardo entre cinco candidatas. El motivo de esa y no otra: va impresa en un
+documento legal, la gente la va a dictar en voz alta y a teclear a mano, así que
+gana la corta y sin separadores. Y la primera palabra que se lee es «norata»,
+que es lo que amortigua el tercer nombre — el aviso dice que el responsable es
+él, la app se llama Norata, y el correo dice Hopara.
+
+Dos datos del DNS que decidieron esto, verificados y no supuestos:
+`norata.app` **no tiene MX**, así que hoy no puede recibir nada; y
+`hopara.com.mx` está en Proton, donde añadir una dirección al dominio propio no
+cuesta nada extra.
+
+Dónde queda puesta:
+
+- **En el aviso de privacidad y en los términos**, que con esto se quedan con un
+  solo hueco: el domicilio.
+- **En el pie de los seis correos.** No es un adorno: el aviso promete una
+  dirección donde ejercer tus derechos, y hasta hoy ninguno de los correos la
+  llevaba.
+- **Como `reply_to` de la bienvenida.** Antes, responder a ese correo era
+  escribirle a `no-reply@norata.app`, que no tiene bandeja: el mensaje se perdía
+  y quien escribió se quedaba esperando.
+
+**Y el remitente NO cambia.** `no-reply@norata.app` está verificado en Resend y
+`hopara.com.mx` no lo está; enviar desde ahí tiraría el correo o lo mandaría a
+spam. Enviar y recibir son dos cosas distintas, y `reply_to` es justo la que las
+junta sin tocar la primera.
+
+Los otros cinco correos los manda Supabase y ahí no se puede poner un
+`reply_to`, así que en esos la dirección vive en el pie y nada más. Es una razón
+más para pegar las plantillas nuevas cuando toque: las que están puestas hoy en
+el panel no llevan la dirección.
+
+### 0.7.79 · 3 sep 2026
+
+**La cifra de arriba deja de ser un promedio y pasa a decir cuánta gente hay.**
+Es el segundo de los tres fallos diagnosticados, y el que Eduardo preguntó con
+la frase exacta: **«0,6 personas al día, ¿es normal eso?»**.
+
+No lo era, y el número estaba bien calculado. **El problema no era el número:
+era la pregunta.** Con tres cuentas, un promedio diario habla más de cuántos
+días pasaron que de cuánta gente hay — y baja cada vez que se añade un día
+tranquilo, que es justo cuando menos falta hace desanimar a nadie.
+
+Se le enseñaron cuatro salidas con sus propios datos —la media, la mediana, el
+promedio de los días con actividad, y dejar de promediar— y eligió la última.
+
+Ahora esa casilla dice **«3 cuentas distintas · 11 de 14 días con actividad»**.
+Dos cifras que se sostienen a cualquier escala: cuánta gente hay, y con qué
+constancia aparece. Ninguna se rompe con pocos ni con muchos, que es lo que se
+le pide a la cifra que va arriba del todo.
+
+**Y el 3 no estaba en el panel por ningún lado.** Había «activos esta semana» y
+«cuentas creadas», pero no «cuánta gente hay en el periodo que estás mirando»,
+que es justo lo que resume el dibujo. La cuenta el servidor y no el navegador
+por una razón que no se ve: **sumar los días contaría catorce veces a quien
+abrió catorce días**. Eso solo lo sabe la base.
+
+Dos detalles del rigor de la ventana:
+
+- **`current_date - 13` y no `- 14`.** Son catorce días contando hoy,
+  exactamente los mismos que dibuja la gráfica. Una ventana de quince días bajo
+  un rótulo de catorce es la clase de mentira pequeña que nadie revisa nunca.
+  De paso se corrigió lo mismo en la lista de versiones, que había quedado con
+  quince en la tanda anterior.
+- **Si el dato no viene, se cae a la media de antes** en vez de enseñar un
+  hueco. Un panel servido por un servidor a medio actualizar tiene que seguir
+  diciendo algo cierto.
+
+### 0.7.78.1 · 3 sep 2026
+
+**El talento dejaba de estarse quieto cuando su nombre cambiaba de lado.** Lo
+cazó Eduardo arrastrando al milímetro, y no era un temblor: era un bucle.
+
+El nombre entraba en la caja del dibujo, así que pasarlo de la derecha a la
+izquierda cambiaba esa caja, y con ella el `viewBox`. Pero `svgPt` —lo que
+traduce el dedo a una coordenada del dibujo— lee ese mismo `viewBox`, o sea
+que el mismo punto de la pantalla pasaba a significar otra coordenada, el
+talento que estabas arrastrando se movía solo, se volvía a decidir el lado, y
+otra vez. Derecha, izquierda, derecha, izquierda, sin parar.
+
+Ahora al encuadre se le da la **envoltura** de los tres sitios posibles y no
+la del lado que le tocó, así que el hueco que ocupa un talento no depende de
+dónde acabó su nombre. Cuesta dos dedos de lienzo y corta el bucle de raíz:
+medido con veintiún pasos cruzando el umbral —el nombre cambió de lado dos
+veces, pasando por los tres sitios— el `viewBox` **no cambió ni una vez** y el
+ancho del dibujo fue el mismo en los veintiuno. Y con el dedo quieto en el
+límite y cuarenta repintados, el nombre no se movió de sitio.
+
+Y por si acaso, **el lado que ya tenía se prueba primero**: un nombre solo
+cambia de lado cuando de verdad dejó de caber, y una vez que se mueve se
+queda.
+
+**El icono del botón dice ahora en qué estado está la rama.** Son dos y no
+uno: el rectángulo tumbado con la flecha que lo levanta, y el rectángulo de
+pie con la flecha que lo tumba. Con un icono fijo, una rama ya de pie seguía
+enseñando el dibujo tumbado y el botón contaba lo contrario de lo que pasaba.
+Lo pidió Eduardo.
+
+Sin girar, el dibujo sigue idéntico letra por letra: `16afb4ed`, las mismas
+59 627 letras de la 0.7.77. De pie ahora da `055c6952`.
+
+### 0.7.78 · 3 sep 2026
+
+**Los reportes se atienden uno a uno, y las versiones miran catorce días.** El
+punto 3 de la lista del 28 de agosto y el tercero de los fallos diagnosticados.
+
+#### Uno a uno, que es lo que pidió
+
+«Los reportes deben ser palomeables uno a uno, para irlos archivando y ver qué
+está corregido y qué no». Hasta hoy solo existía `tropiezos_vistos()`, que marca
+**todos de golpe**: dar por atendido un reporte enterraba también los que no
+habías mirado, así que en la práctica no se podía usar para lo que se quería.
+
+Ahora cada reporte lleva su botón. Tres decisiones dentro:
+
+- **Es un interruptor, no una acción de un solo sentido.** Se puede volver a
+  dejar abierto, dice en qué estado quedó («Atender» / «Atendido») y lleva
+  `aria-pressed`. Un botón que desaparece al pulsarlo no dice si funcionó.
+- **El menta del «Atendido» es la única menta de esa caja**, y sigue la regla de
+  color del panel: ahí sí hay un juicio, y el juicio es «esto ya está».
+- **Solo en los reportes de personas, no en los errores automáticos.** Lo dejó
+  claro Eduardo el 28 de agosto: para un error que caza la app sola, nadie sabe
+  todavía cómo saber cuándo está corregido. Construirlo antes de contestar eso
+  sería una palomita que miente.
+
+**El identificador es el `id` de la fila y no los cuatro campos de la clave
+única.** La otra opción era pasar el mensaje entero de ida y vuelta
+—trescientos caracteres— y cualquier diferencia de espacios o acentos dejaría la
+fila sin archivar sin decir por qué. La tabla ya tenía `id`; simplemente no
+salía de `metricas()`, así que la pantalla no podía nombrar una fila concreta.
+
+Y la pantalla **pinta con lo que contesta el servidor**, no con lo que suponía
+antes de preguntar: si la fila ya no está —dos pestañas archivando a la vez— la
+respuesta es nula y se vuelven a pedir los números. En el caso normal no se
+recarga nada: se toca la fila que hay en memoria y se vuelve a pintar, porque
+recargar las métricas enteras para cambiar una palabra son cientos de
+milisegundos y un salto de toda la lista.
+
+#### El dato basura de las versiones tenía otra causa
+
+Le aparecía una versión vieja aunque él ya hubiera actualizado, y la sospecha
+apuntaba a los aparatos. **No eran aparatos: eran CUENTAS.** `pulsos` tiene la
+clave `(user_id, dia)`, así que no hay filas por aparato; lo que pasaba es que
+una cuenta de pruebas que no se abre desde hace tres semanas se queda con la
+versión de aquel día, y la ventana de treinta días la seguía contando como si
+alguien estuviera ahí parado.
+
+La ventana pasa a **catorce días**, que lo eligió Eduardo. Es la misma que la
+gráfica de arriba, así que las dos cajas hablan del mismo periodo, y la pregunta
+que contesta pasa a ser la correcta: no «qué versión vio cada cuenta que existió
+alguna vez», sino **qué versión tiene la gente que está usando la app**.
+
+**Las dos cosas de SQL ya están aplicadas en el servidor** y comprobadas leyendo
+la definición de las funciones en la base. Quien vuelva a correr
+`administracion.sql` entero no rompe nada: todo es `create or replace`.
+
+### 0.7.77 · 3 sep 2026
+
+**Una rama se puede ver de pie.** Lo pidió Eduardo: el primer talento abajo y
+el camino creciendo hacia arriba, con un botón que la levanta y otro toque que
+la devuelve. Va rama por rama, y también en Proyectos.
+
+**Lo que NO se hizo es lo que lo hizo barato: no se gira la cámara.** Girar el
+SVG con CSS habría roto de golpe las cinco funciones que traducen un píxel de
+la pantalla a una coordenada del dibujo —`puntoEnLienzo`, `pixelEnLienzo`,
+`encuadreDe` y los dos `svgPt` de los manejadores—: todas hacen
+`getBoundingClientRect()` más el `viewBox` en línea recta, y con el elemento
+girado esa cuenta manda la x de la pantalla a la x del dibujo, que ya no es la
+misma. Arrastrar, cortar, conectar y el imán habrían caído todos desplazados.
+Y el contenedor que se recorre no gira con su contenido, así que la barra de
+desplazamiento habría seguido midiendo lo de antes.
+
+Lo que se gira es **dónde cae cada nodo**, en `branchLayout` y en un solo
+sitio. El SVG sigue derecho, así que el zoom, el recorrido, el corte y el imán
+siguen valiendo sin tocarlos — y los rótulos y los ICONOS salen rectos solos,
+sin contra-girar nada, que es la mitad del trabajo que uno esperaría hacer.
+
+**Lo guardado no se toca nunca.** `branchLayout` devuelve dos mapas: `pos`, en
+coordenadas guardadas, y `dib`, donde cae cada nodo. Son dos y no uno a
+propósito: quien congela un sitio en los datos (`fijarPosiciones`) y quien
+alinea con la regla (`imantarNodo`) trabajan en las guardadas, y darles las
+giradas les habría metido el giro en los datos. Sin girar son el MISMO objeto
+y no cuesta nada. Girar y desgirar es exacto por construcción.
+
+**Y la gramática de las flechas gira con ellas.** Si no, la rama queda de pie
+pero las conexiones entran de costado, que es peor que no girarla. Los ocho
+rumbos son nombres, así que basta un mapa de ocho: `e→n, ne→nw, se→ne, n→w,
+s→e, w→s, nw→sw, sw→se`. Se gira el NOMBRE y no la figura, y eso es lo que
+mantiene bien la cuenta del radio: el hexágono es picudo por arriba y plano
+por los lados, y como la figura no gira, salir por el norte tiene que medir lo
+que mide el norte de verdad.
+
+**El nombre del talento busca sitio: derecha → izquierda → abajo.** De pie los
+hermanos quedan hombro con hombro y el nombre a la derecha se metía dentro del
+talento de al lado; lo paró Eduardo en la primera mirada. Abajo es el último
+recurso, porque debajo es por donde ENTRA el camino y ahí vive el círculo
+**Y/O**, que se ve siempre y no solo editando. Se comprueba contra los otros
+talentos Y contra los nombres ya colocados: sin lo segundo, dos hermanos
+mandan su nombre al mismo hueco.
+
+Dos cosas que salieron midiendo y no mirando:
+
+- **Cuando el nombre acaba abajo, baja EXACTAMENTE lo que baja en horizontal**
+  —32 y 44 desde el centro, no desde el borde—. Apartarlo por el borde lo
+  mandaba al doble de distancia y se veía despegado del talento; lo paró
+  Eduardo. Solo se aparta más cuando el nodo de verdad lleva el círculo Y/O,
+  porque entonces tiene que caer por debajo de su cuenta.
+- **El ancho del rótulo se mide, no se estima.** Por número de letras fallaba
+  justo con los nombres que importan: "Aprender las escalas" y "Tocar en
+  público" tienen casi las mismas letras y no miden ni parecido.
+
+**La tarjeta de la lista lleva techo.** La regla de siempre —la tarjeta mide lo
+que mide el dibujo— es buena a lo ancho, donde una rama larga crece hacia un
+lado que no cuesta nada; de pie crece hacia abajo, y una rama de cinco niveles
+pedía más de mil píxeles. Con eso, dos ramas de pie ya no dejaban ver ninguna
+otra en la lista.
+
+**Girar una rama es preferencia DE ESTE APARATO**, como el modo claro: vive en
+su propia llave de localStorage y no en `state`, así que no viaja con la cuenta
+ni entra en los respaldos. Si viajara, ponerla de pie en el teléfono te la
+pondría de pie en la computadora, y son dos pantallas de formas distintas.
+
+**Cómo se comprobó que esto no le hizo nada a nadie.** La huella del lienzo
+(`pruebas/lienzo-huella.html`) dibuja nueve escenas —Talentos y Proyectos,
+editando y sin editar, una caja abierta, una rama vacía— y las resume en ocho
+letras. Sin girar, el SVG sale **idéntico letra por letra** al de antes:
+59 627 caracteres, huella `16afb4ed`. De pie da `9b57e808`.
+
+Esa prueba cazó lo único que se me había colado en el dibujo de todos: los
+discos que cuelgan del nodo pasaban a pedir su radio por rumbo, y `nodeRadius`
+redondea donde `radioEnRumbo` no. Eran medio píxel en el rombo y tres y medio
+en el hexágono — para todo el mundo, girase o no. Sin girar se escribe ahora
+exactamente lo de siempre, con la `H` del cabo y todo.
+
+Y dos trampas de la propia prueba, ya arregladas ahí:
+
+- **La huella leía si TÚ habías girado esa rama**, porque `ramaGirada` mira
+  localStorage. Una huella que cambia según quién la mire no mide nada; ahora
+  se fija a mano, igual que ya se fijaba `isDesktop`. Con `?girada=1` se mide
+  el dibujo de pie a propósito.
+- **Los archivos se servían de la caché del navegador.** Se refresca la copia
+  de `pruebas/head/` desde git, se vuelve a medir, y el navegador sirve los
+  viejos: el "antes" contra el que comparas es de hace cinco versiones y sale
+  una diferencia que no es tuya. Costó una vuelta entera; ahora las direcciones
+  llevan huella de tiempo.
+
+### 0.7.76 · 3 sep 2026
+
+**El embudo por fin es un embudo, y las aperturas dejan de llamarse personas.**
+Dos de la lista del 28 de agosto: el punto 2 y el primero de los tres fallos
+diagnosticados.
+
+#### El embudo mentía, y era de los fallos peores
+
+El texto de la caja prometía que **cada paso es un trozo del anterior**, y el
+último no lo era: «Siguen esta semana» se contaba suelto —cuántas cuentas
+distintas tienen un pulso en los últimos siete días— sin filtrar por ninguno de
+los pasos de arriba. Alguien que abrió la app por primera y única vez anteayer
+no entraba en «Volvieron otro día» y sí en «Siguen esta semana», así que el
+embudo podía enseñar **un 3 debajo de un 2**. Lo cazó Eduardo mirándolo.
+
+Es de los fallos peores que puede tener un panel: **no se ve roto, se ve raro**,
+y quien lo mira acaba desconfiando de todas las cifras en vez de desconfiar de
+una.
+
+Ahora el último paso sale de la misma CTE que los dos anteriores —de los que
+volvieron otro día, los que además siguen apareciendo esta semana—, y eso es lo
+que impide que alguien vuelva a separarlo sin darse cuenta.
+
+**Esto vive en `supabase/administracion.sql`, así que no viaja en la app: ya
+está aplicado en el servidor** —comprobado leyendo la definición de la función
+en la base, no de memoria—. Quien vuelva a correr ese archivo entero no rompe
+nada: es `create or replace`.
+
+Y el centinela del lado de la app se queda: si un escalón vuelve a crecer, la
+pantalla lo dice en oro en vez de disimularlo con un «no se pierde nadie».
+
+#### Personas y aperturas eran dos cosas y se llamaban igual
+
+El punto 2 pedía «distinguir usuarios únicos por cuenta, no solo aperturas». En
+los datos ya estaba bien: `pulsos` tiene la clave `(user_id, dia)`, así que hay
+**una fila por cuenta y día** y la serie de la gráfica cuenta cuentas, no
+aparatos ni visitas.
+
+Lo que estaba mal era una cifra del pie: sumaba esas cuentas de los catorce días
+y al resultado le ponía **«aperturas con cuenta»**. Eso no eran aperturas — era
+la suma de cuentas-por-día, que no es una magnitud que le interese a nadie:
+alguien que abrió los catorce días contaba catorce. Y las aperturas de verdad
+venían en los datos, en su propia columna, **sin que ninguna pantalla las
+usara**.
+
+Ahora son dos cifras distintas, y el par dice algo que ninguna decía sola:
+**cuántas veces se abre la app por cada cuenta que la abre**. Medido con datos
+sembrados: 59 cuentas-día y 142 aperturas dan «142 aperturas · 2,4 por cuenta al
+día».
+
+### 0.7.75 · 3 sep 2026
+
+**Las cuentas nuevas dejan de ser barras y pasan a ser una línea.** Es el punto
+1 de los cinco que dictó Eduardo el 28 de agosto, y su palabra describía el
+problema mejor que cualquier explicación: mezclar barras y líneas en el mismo
+dibujo se le veía **sucio**.
+
+Tenía más razón de la que parecía. Dos formas distintas se leen como dos cosas
+de distinta naturaleza, y aquí no lo son: las dos series cuentan **personas**.
+La diferencia de forma no significaba nada y solo estorbaba.
+
+**Pero lo que de verdad estaba mal no era la forma: era la escala.** Las barras
+se dibujaban con su propio tope, estiradas al 42% del alto del lienzo. Con eso,
+un día de 2 cuentas nuevas se veía casi tan alto como un día de 9 personas, y
+las dos series no se podían comparar aunque compartieran el dibujo. **Un
+segundo eje escondido es la forma más común de que una gráfica mienta sin que
+nadie escriba una cifra falsa** — y esta lo tenía.
+
+Ahora las dos líneas se leen contra los mismos números de la izquierda. La de
+altas va a ir casi siempre pegada al suelo, y eso **es** el dato: las cuentas
+nuevas son una parte pequeña de quien abre la app. El párrafo de la caja lo
+dice con esas palabras, para que no se lea como un fallo del dibujo.
+
+**Se distinguen por tres cosas y no por una:** el color (menta contra celeste),
+el trazo discontinuo y el grosor. El discontinuo no es adorno — es lo que las
+separa para quien no distingue bien el verde del azul.
+
+Dos detalles del dibujo:
+
+- **Un punto solo en los días que tuvieron alguna alta.** La línea ya dice el
+  cero, y catorce puntos pegados al suelo solo ensucian el suelo. Los que se
+  dibujan llevan el título que se lee al pasar por encima.
+- **La leyenda pasa a ser dos líneas.** Pintaba una barra vertical al lado de
+  «cuentas nuevas» y ya no hay ninguna barra en el dibujo.
+
+**Medido, que aquí no se puede juzgar a ojo:** con datos sembrados de 9
+personas como máximo y 3 altas, el punto de las 3 altas cae exactamente en el
+0,33 de la altura donde el de 9 personas cae en el 1,00. Esa es la prueba de
+que la escala es una sola. Cero `rect` en el SVG, dos `polyline`, y las dos con
+las mismas catorce equis.
+
+### 0.7.74.2 · 3 sep 2026
+
+**Siete días para los tres planes, y el reembolso deja de depender de cómo se
+llame el suceso en Stripe.** Dos cosas de la misma conversación.
+
+**Lo primero lo decidió Eduardo:** la garantía era de 7 días en Pro y 30 en
+Fundador, y la unificó en 7 para todos. Así que ahora es UN número
+(`GARANTIA_DIAS`) y no dos: una constante con dos claves iguales invita a que
+alguien las vuelva a separar sin saber que ya se decidió. La frase se acorta
+sola —«te devolvemos los primeros 7 días»— y de paso mejora: una promesa que
+tenía que explicar a qué plan aplicaba cada plazo dejaba de tranquilizar, que es
+lo único que vino a hacer. Cambiado también en la página de términos, que es el
+tercer sitio donde vive el número y el único que no lee la constante.
+
+**Y lo segundo salió de que no funcionara:** Eduardo fue a marcar
+`charge.refunded` en su panel de Stripe y **ese suceso no estaba en la lista**.
+No era un error suyo — según la versión de API del endpoint y de si la cuenta
+usa el panel nuevo, Stripe ofrece `charge.refunded`, `refund.created`,
+`refund.updated`, o solo algunos.
+
+Es exactamente el fallo que este proyecto ya tiene escrito en su `CLAUDE.md`:
+**dar por hecho el comportamiento del servidor.** El código estaba bien y no
+iba a correr nunca, porque el nombre no estaba donde yo dije que estaría, y sin
+ninguna señal de que faltara.
+
+Ahora la función atiende **los tres nombres**. Diez líneas, y quitan la
+dependencia entera: se marca el que ofrezca el panel, o los tres, que tampoco
+duplica nada —lo que se escribe es un estado final y no un incremento, así que
+repetirlo deja la fila igual—.
+
+Lo que sí cambia entre ellos es la forma: **un aviso de `refund.*` no trae el
+cargo, trae el reembolso**, que es otro objeto. Así que primero se normaliza
+—se le pide a Stripe el cargo del que cuelga— y de ahí para abajo el código es
+el mismo para los tres. Con una parada más por el camino: un reembolso puede
+nacer pendiente y tardar días en completarse, y hasta que Stripe no diga
+`succeeded` no se le quita el plan a nadie. `refund.updated` vuelve a avisar
+cuando cambie.
+
+**Dónde se marcan, que tampoco está donde uno cree:** Webhooks → el endpoint →
+los tres puntos → «Update details». La pestaña «Eventos» del panel es el
+registro de lo que ya llegó, no el selector.
+
+### 0.7.74.1 · 3 sep 2026
+
+**La garantía de devolución, escrita donde se decide pagar.** Existía en los
+términos —7 días en Pro, 30 en Fundador— y no se veía en ninguna pantalla. Una
+promesa que solo vive en un documento legal no tranquiliza a nadie, porque nadie
+lo lee antes de pulsar el botón.
+
+Sale de una conversación que empezó por otro lado: Eduardo propuso una **prueba
+gratis de 7 días** y alinear con ella la ventana del reembolso. Se descartó, y
+el motivo es el que ordena todo lo demás: **Norata ya tiene una prueba gratis y
+es mejor, porque no caduca** — el plan Gratuito da tres ramas, doce talentos en
+cada una, dos proyectos y tres encargos. Encima de eso, una prueba de siete días
+sería ofrecer algo peor de lo que ya se da, y además pediría la tarjeta por
+adelantado a alguien que hoy no tiene que darla. Fundador tampoco podría
+tenerla: es un pago único, no una suscripción.
+
+Lo que sí acertaba la idea era el miedo que señalaba —pagar sin conocer—, y eso
+se contesta con la garantía. Dos renglones:
+
+- **Debajo de las dos tarjetas de plan**, uno solo para las dos: la garantía es
+  la misma promesa con dos plazos, y repetida en cada tarjeta se lee como letra
+  pequeña.
+- **En el cuadro que sale al topar con un límite**, en corto y solo con el plazo
+  de Pro: ahí nadie está comparando planes, va a pulsar Pro.
+
+**Los días viven en una constante (`GARANTIA`) y no dentro de las frases**, por
+lo mismo que los topes viven en `LIMITES`: son el mismo dato en dos pantallas.
+El tercer sitio es la página de términos y esa se cambia a mano — queda dicho en
+el comentario, porque una garantía que dice siete en un sitio y cinco en otro es
+la peor clase de segunda verdad.
+
+**Y por qué 7 y 30 y no el mismo número en los dos:** Fundador cuesta trece
+veces más y no tiene renovación de la que arrepentirse. Bajarlo a siete sería
+recortar la confianza justo en el plan que más confianza pide.
+
+**La trampa que volvió a morder, y van dos:** el comentario que dejé encima del
+renglón llevaba la ruta de la página de términos escrita **entre comillas
+invertidas**, y ese comentario vive dentro de una plantilla de JavaScript. La
+comilla invertida corta la plantilla. El síntoma no señala a ningún comentario:
+sale un `ReferenceError` de una palabra que nadie declaró —aquí, «terminos is
+not defined»— y la función entera deja de existir. Ya está anotado en
+`CLAUDE.md` desde la primera vez; esta vez lo cazó la prueba en el navegador
+antes de commitear.
+
+### Sin número · 3 sep 2026 — el reembolso de un Fundador
+
+**Tampoco lleva versión, y por el mismo motivo que la entrada de abajo:** lo que
+cambia es `supabase/functions/cobro/index.ts`, que no viaja en la app. Se
+despliega aparte con `supabase functions deploy cobro --no-verify-jwt`, y hasta
+que eso ocurra este cambio no existe en ningún sitio.
+
+**El agujero que cierra.** La función atendía cinco sucesos de Stripe y ninguno
+era de reembolso. Con una suscripción no se notaba, porque lo que quita el plan
+es la CANCELACIÓN y esa sí avisa. Pero **Fundador es un pago único**: entra por
+`checkout.session.completed` en modo `payment` y no hay nada después que se lo
+quite. Devolverle los $890 a alguien le dejaba el plan puesto **para siempre**.
+
+Y había un segundo agujero debajo del primero: `lugares_fundador()` cuenta las
+filas con `plan = 'fundador'` **sin mirar el estado**, así que marcar la fila
+como cancelada le quitaba el plan pero no devolvía el lugar al cupo. Por eso lo
+que se escribe ahora es el `plan` y no solo el `estado` — es lo único que
+arregla las dos cosas de una vez, y encaja con `mi_plan()`, que tampoco mira el
+estado: su regla es `plan = 'fundador'` o `vence_el` en el futuro.
+
+Tres casos y solo uno toca la base:
+
+| Lo que llega | Qué hace |
+| --- | --- |
+| Reembolso de una factura (suscripción) | Nada. Manda la cancelación, que sí avisa |
+| Reembolso parcial | Nada. Una devolución de buena voluntad no apaga un plan |
+| Pago único devuelto entero | Retira el plan y devuelve el lugar |
+
+**Hay que darlo de alta en Stripe a mano.** El endpoint ya existe desde el 27 de
+agosto con cinco sucesos marcados; `charge.refunded` es el sexto y hay que ir a
+editarlo. Sin eso, el código de aquí no corre nunca y **no hay ninguna señal de
+que falte**: se descubriría el día que se devuelva el primer Fundador, que es
+justo cuando ya es tarde. Los pasos están en `supabase/LEEME.md`.
+
+Sale ahora porque la política de reembolsos que se acaba de escribir da **30
+días** para devolver Fundador, y prometer una devolución que deja el plan puesto
+es peor que no prometerla.
+
+### Sin número · 3 sep 2026 — las diez plantillas
+
+**No lleva versión a propósito, y es la primera entrada de esta lista que no la
+lleva.** Lo que entró es `plantillas/LEEME.md`: documentación, fuera de
+`ASSETS`, que no cambia un byte de lo que sirve la app. Subir `CACHE` habría
+obligado a todos los aparatos instalados a volver a bajarse los 460 KB para
+recibir exactamente lo que ya tienen. Queda anotado aquí porque el trabajo
+importa; el número se reserva para cuando cambie la app.
+
+Diez caminos listos para soltar en el tablero de alguien, con sus peldaños, sus
+pasos, sus plazos y las misiones que los alimentan. Viven fuera de `js/` porque
+**todavía no existe la pantalla que los dispara** — la misma regla que ya se
+saltó una vez con `03-cambio-de-correo.html`.
+
+Tres decisiones que el documento explica con su motivo:
+
+- **El método va DENTRO, no citado al pie.** «Semana 1: correr 1 minuto y
+  caminar 90 segundos, ocho veces» y no «aguantar más corriendo». Si al quitar
+  la línea de la fuente nadie sabría de dónde sale, el método está nombrado
+  pero no usado.
+- **Se revisa la vigencia, no la fecha.** Tres preguntas por método —¿lo
+  reemplazó su autor?, ¿sigue siendo lo recomendado?, ¿hay evidencia
+  posterior?— y una columna «Revisado» para no repetir la investigación entera
+  cada vez. De los cinco métodos con nombre, tres necesitaban algo y dos no.
+- **El método se usa, la marca no.** Norata Pro cobra, y aunque la Ley Federal
+  del Derecho de Autor deja fuera «los métodos, sistemas» y «los esquemas,
+  planes o reglas», los nombres sí son de sus titulares. En pantalla va el
+  principio con palabras propias —«intervalos progresivos»—; la obra se cita en
+  la referencia, y hay descargo de no afiliación.
+
+**Y una dependencia eliminada en vez de gestionada:** el marco europeo de
+idiomas exige permiso escrito y solo lo concede gratis para uso no comercial.
+La plantilla del idioma se ancló a horas acumuladas y a lo que la persona puede
+hacer, y de paso se lee mejor: «sostienes una charla de verdad» dice algo que
+«nivel B1» no dice. El patrón queda escrito: *antes de gestionar un permiso,
+mirar si se puede construir sin él.*
+
+Las plantillas **entran con Pro**, no se venden sueltas: no cuestan nada por
+uso, así que no hay coste que recuperar cobrando aparte.
+
 ### 0.7.74 · 3 sep 2026
 
 **El panel deja de ser todo verde.** Es el punto 5 de los cinco que dictó

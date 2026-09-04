@@ -2760,7 +2760,15 @@ const BM_ICONS = {
   bote: '<path d="M4 7h16M10 11.5v6M14 11.5v6M6.5 7l.9 12.1a2 2 0 002 1.9h5.2a2 2 0 002-1.9L17.5 7M9.5 7V5.2a2 2 0 012-2h1a2 2 0 012 2V7"/>',
   expandir: '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/>',
   copiar: '<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M6.5 15H5.2A2.2 2.2 0 013 12.8V5.2A2.2 2.2 0 015.2 3h7.6A2.2 2.2 0 0115 5.2v1.3"/>',
-  caja: '<path d="M3 8.5L12 4l9 4.5v7L12 20l-9-4.5z"/><path d="M3 8.5L12 13l9-4.5M12 13v7"/>'
+  caja: '<path d="M3 8.5L12 4l9 4.5v7L12 20l-9-4.5z"/><path d="M3 8.5L12 13l9-4.5M12 13v7"/>',
+  /* ---- Poner de pie una rama, y volverla a tumbar ----
+     Son DOS iconos y no uno, y la diferencia importa: el que se enseña dibuja
+     la rama COMO ESTÁ AHORA, con la flecha señalando hacia dónde la vas a
+     llevar. Con un icono fijo, una rama ya de pie seguía enseñando el
+     rectángulo tumbado y el botón contaba lo contrario de lo que pasaba. Lo
+     pidió Eduardo. Ver `girarRama`. */
+  girar: '<rect x="3" y="13" width="12" height="7.5" rx="1.8"/><path d="M13.5 9.5V5.6A2 2 0 0115.5 3.6h4"/><path d="M17.6 1.6l2.4 2-2.4 2"/>',
+  girarVuelta: '<rect x="13" y="3" width="7.5" height="12" rx="1.8"/><path d="M9.5 13.5H5.6A2 2 0 013.6 11.5v-4"/><path d="M1.6 9.4l2-2.4 2 2.4"/>'
 };
 
 let openBranchMenu = null;
@@ -2848,7 +2856,21 @@ function ramasDe(kind) {
   return (state.ui[clave] || []).slice();
 }
 
-async function crearRama(kind) {
+/* El botón de crear una rama abre EL CAJÓN, no la caja de texto.
+
+   Es el instante en que alguien se queda mirando un lienzo vacío, y por eso es
+   el sitio donde tienen que estar los diez caminos: un catálogo guardado en
+   una sección del menú no lo encuentra nadie. Dentro, «De cero» sigue siendo
+   la primera opción y hace exactamente lo de siempre.
+
+   El tope no se mira aquí: se mira dentro, porque el cajón se abre igual
+   cuando ya no caben más ramas —con los caminos apagados y mirables— y eso es
+   la diferencia entre un escaparate y un muro con un precio. */
+function crearRama(kind) {
+  abrirCajon(kind);
+}
+
+async function crearRamaDeCero(kind) {
   const esTalentos = kind === "perks";
   /* Cada módulo tiene su propia clave de tope porque los números son
      distintos: tres ramas de talentos y dos proyectos. Antes esto miraba solo
@@ -3033,13 +3055,24 @@ async function renombrarRamaProyectos(b) {
   toast(existe ? `Proyectos juntados en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
 }
 
-/* Etiqueta de rama reutilizable: el mismo concepto en todas las secciones. */
+/* Etiqueta de rama reutilizable: el mismo concepto en todas las secciones.
+
+   El mapita que sale junto al nombre dice que esa rama vino de un camino. Es
+   EL MISMO dibujo que lleva la carta en el cajón, y repetirlo en los dos
+   sitios es lo que hace que se entienda sin que nadie lo explique.
+
+   Va aquí y no dentro de los talentos porque lo que se creó tiene que ser
+   indistinguible de lo escrito a mano: la marca es de la rama, que es un
+   nombre en `state.ui`, y no de las cosas que llevas dentro. */
 function branchHeader(name, countLabel, buttons) {
+  const deCamino = typeof caminoDeRama === "function" && caminoDeRama(name);
   return `
     <div class="branch-head">
       <div class="btitle">
         <span class="branch-kicker">${tx("Rama")}</span>
-        <h3>${escapeHtml(name)}</h3>
+        <h3>${escapeHtml(name)}${deCamino
+          ? ` <span class="sello-camino" title="Vino de un camino">${icon("map", 12)}</span>`
+          : ""}</h3>
       </div>
       <span class="count">${countLabel}</span>
       <div class="bhead-btns">${buttons}</div>
