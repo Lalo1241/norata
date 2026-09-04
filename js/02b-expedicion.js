@@ -106,14 +106,32 @@ const EXP_POR_RANGO = 6;
        cancela, la trastienda del negocio.
 
    Un rango pintado con cualquiera de los dos no es variedad de color, es un
-   mensaje equivocado. En su sitio van `--rosa` y `--astro`, dos tonos propios
-   que no dicen nada más (declarados en `css/estilos.css`, con su pareja de
-   día medida contra la tarjeta clara).
+   mensaje equivocado.
 
-   El reparto evita además que dos tonos vecinos caigan juntos en el estante:
-   menta (160°), celeste (204°), rosa (330°), astro (sin matiz: es luz) y
-   coral (12°). El único par cercano quedaría rosa-coral, y entre los dos va
-   el astro.
+   **Los cinco tienen su propia familia, `--rango-*`, y no son alias de los
+   acentos de la casa.** Costó dos correcciones llegar aquí:
+
+   · Siendo alias, un AMBIENTE movía el rango. Tres ambientes redeclaran
+     `--mint` dentro de la escena, así que con Escarcha puesto Andante valía
+     `#8ecdf5`, que es exactamente `--celeste`: el mismo color que Rastreador,
+     los dos juntos en el estante de medallas. Con Tinta, Andante salía hueso.
+   · Y el reparto de tonos que había aquí escrito estaba MAL medido. Decía que
+     el astro separaba a rosa de coral; midiéndolo, el par que se confundía era
+     otro —Rastreador (celeste) y Cartógrafo (astro), a 18,4 de distancia de
+     color— y encima el astro estaba a 16,6 del BLANCO, que es el color de la
+     estrella recién encendida: en la constelación del cartógrafo no se veía
+     cuál acababa de nacer. Cartógrafo pasó a un verde oliva de pergamino.
+
+   Hoy el par más cercano de los diez está a 38,8 de noche y a 30,4 de día, y
+   el peor contraste es 8,09 contra el cielo y 5,40 contra la tarjeta clara.
+   Los cinco valen como CONJUNTO: cambiar uno obliga a repetir la medición
+   entera. Los valores y la cuenta están en `css/estilos.css`.
+
+   Y por eso tampoco los comparten con nada más de la pantalla de Mi
+   expedición: las pastillas de lo que se desbloquea van en celeste, rosa y
+   lila, y la leyenda de dónde salen los puntos en menta, celeste, astro y
+   rosa. Con los rangos en alias, el mismo color decía dos cosas en la misma
+   pantalla.
 
    Van como NOMBRE de variable y no como hex, que es la regla de la casa
    (ningún color suelto dentro de una regla). Y los cinco existen en los dos
@@ -132,15 +150,15 @@ const EXP_POR_RANGO = 6;
    andante camina» se rompería en catorce sitios. Habla del TRAMO, que es lo
    único que ningún mundo mueve. */
 const EXP_RANGOS = [
-  { id: "andante",    nombre: "Andante",    desde: 1,  icon: "rango-bota",    color: "--mint",
+  { id: "andante",    nombre: "Andante",    desde: 1,  icon: "rango-bota",    color: "--rango-andante",
     nota: "El principio. Se cruza en semanas y casi todo lo que haces suma." },
-  { id: "rastreador", nombre: "Rastreador", desde: 7,  icon: "rango-huella",  color: "--celeste",
+  { id: "rastreador", nombre: "Rastreador", desde: 7,  icon: "rango-huella",  color: "--rango-rastreador",
     nota: "Ya hay un rastro que seguir: se nota a qué le dedicas los días." },
-  { id: "explorador", nombre: "Explorador", desde: 13, icon: "rango-farol",   color: "--rosa",
+  { id: "explorador", nombre: "Explorador", desde: 13, icon: "rango-farol",   color: "--rango-explorador",
     nota: "Aquí se ve lo que sostienes, no lo que empezaste." },
-  { id: "cartografo", nombre: "Cartógrafo", desde: 19, icon: "rango-mapa",    color: "--astro",
+  { id: "cartografo", nombre: "Cartógrafo", desde: 19, icon: "rango-mapa",    color: "--rango-cartografo",
     nota: "El mapa ya es tuyo: habilidades, talentos y proyectos con historia detrás." },
-  { id: "navegante",  nombre: "Navegante",  desde: 25, icon: "rango-brujula", color: "--coral",
+  { id: "navegante",  nombre: "Navegante",  desde: 25, icon: "rango-brujula", color: "--rango-navegante",
     nota: "El último de los cinco. El nivel sigue subiendo después: la cuenta no se acaba." }
 ];
 

@@ -82,6 +82,35 @@
     --rosa: #f2a0c4;
     --astro: #cfe2f7;
 
+    /* ---------- Los cinco tonos de los RANGOS ----------
+       Familia propia y no alias de los acentos de la casa, y las dos razones
+       salieron midiendo:
+
+       1. **Un ambiente movía el rango.** Los rangos iban en `--mint`,
+          `--celeste`, `--rosa`, `--astro` y `--coral`, y tres ambientes
+          redeclaran `--mint` dentro de la escena. Con Escarcha puesto, Andante
+          valía `#8ecdf5` — **exactamente `--celeste`**, o sea el mismo color
+          que Rastreador, los dos juntos en el estante de medallas. Con Tinta,
+          Andante salía hueso. Aquí nadie los toca: ningún ambiente declara
+          `--rango-*`, y no debe empezar a hacerlo.
+       2. **Y dos rangos ya se confundían sin ambientes.** Rastreador (celeste)
+          y Cartógrafo (el viejo `--astro`, `#cfe2f7`) estaban a 18,4 de
+          distancia de color en LA CASA, y el `--astro` estaba a 16,6 del
+          BLANCO — que es justo el color de la estrella recién encendida, así
+          que en la constelación del cartógrafo no se distinguía cuál acababa
+          de nacer. Cartógrafo pasa a un verde oliva de pergamino.
+
+       Medido con el juego cerrado: de noche el par más cercano está a 38,8
+       (era 18,4) y el peor contraste contra el cielo es 8,09; de día, 30,4 y
+       5,40 contra la tarjeta clara — por encima del 4,5 que pide un texto. La
+       comprobación hay que rehacerla entera si se cambia cualquiera de los
+       cinco: valen como CONJUNTO, no de uno en uno. */
+    --rango-andante:    #5fe0b0;
+    --rango-rastreador: #8ecdf5;
+    --rango-explorador: #f2a0c4;
+    --rango-cartografo: #bcd977;
+    --rango-navegante:  #ff8a70;
+
     /* ---------- Los tres tonos de un aro ----------
        Un aro de nueve píxeles no es texto ni es un relleno: es un trazo
        gordo. Pintado con `--mint` sale verde bosque de día —ese tono es el de
@@ -624,6 +653,13 @@
     /* Ver arriba: los dos tonos propios de los rangos. */
     --rosa: #ad2e74;
     --astro: #2f4d7a;
+    /* Los cinco de los rangos, en su cara de día. Medidos contra la tarjeta
+       clara (#f2f0f9): 5,46 · 5,48 · 5,44 · 5,40 · 5,48. */
+    --rango-andante:    #007046;
+    --rango-rastreador: #0f688f;
+    --rango-explorador: #ad2e74;
+    --rango-cartografo: #4f6b12;
+    --rango-navegante:  #bd2200;
     /* Medidos contra la tarjeta clara (#f2f0f9): 3,36 · 3,77 · 3,82. */
     --aro-alto: #009663;
     --aro-medio: #1583b3;
@@ -940,6 +976,14 @@
     --celeste-soft: rgba(142, 205, 245, 0.1);
     --rosa: #f2a0c4;
     --astro: #cfe2f7;
+    /* Los cinco de los rangos vuelven a su cara de noche, como el resto: una
+       escena se queda de noche en los dos modos, y sin esto la constelación
+       salía con los tonos oscuros de día sobre su propio cielo negro. */
+    --rango-andante:    #5fe0b0;
+    --rango-rastreador: #8ecdf5;
+    --rango-explorador: #f2a0c4;
+    --rango-cartografo: #bcd977;
+    --rango-navegante:  #ff8a70;
     --sobre-acento: #10151d;
     --sobre-acento-coral: #3a1009;
     --sobre-vivo: #10151d;
