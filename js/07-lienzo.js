@@ -1051,9 +1051,10 @@ function atajosLegend(compacta) {
     .map(t => `${k(TIPOS[t].tecla)} <b class="gl">${TIPOS[t].glifo}</b> ${TIPOS[t].nombre.toLowerCase()}`)
     .join('<i class="sep">·</i>');
   const partes = compacta
-    ? [crear, `${k("C")} editar el mapa`, `${raton} clic derecho: crear, editar y pantalla completa`]
-    : [crear, `${k("C")} salir de edición`, `${k("Ctrl")}${k("Z")} deshacer`,
-       `${raton} clic derecho: crear y más acciones`];
+    ? [crear, `${k("C")} editar el mapa`, `${k("M")} pantalla completa`,
+       `${raton} clic derecho: crear, editar y pantalla completa`]
+    : [crear, `${k("C")} salir de edición`, `${k("M")} pantalla completa`,
+       `${k("Ctrl")}${k("Z")} deshacer`, `${raton} clic derecho: crear y más acciones`];
   return `<span class="keys">${partes.join('<i class="sep">·</i>')}</span>`;
 }
 
@@ -1316,6 +1317,19 @@ document.addEventListener("keydown", (e) => {
      cuenta de las tres que sí crean por separado de la que no lo hace es lo
      que evita que pulsar C gaste el turno de la Q. */
   if (k === "c") { e.preventDefault(); toggleEditBranch(rama); return; }
+  /* M de Mapa, como en cualquier juego. Tampoco se enfria, por lo mismo que
+     la C: no crea nada. Y hace las dos cosas —abre y cierra— porque un atajo
+     que solo entra deja al que lo uso buscando como salir.
+
+     Editando no se toca: ahi la mano esta conectando y cortando, y saltar a
+     otra pantalla a media faena seria perder el hilo. */
+  if (k === "m") {
+    e.preventDefault();
+    if (editandoRama(rama, "talentos")) return;
+    if (fullscreenBranch) closeBranchFullscreen();
+    else openBranchFullscreen(rama, "talentos");
+    return;
+  }
   const tipo = k === "q" ? "hito" : k === "w" ? "meta" : k === "e" ? "compra" : null;
   if (!tipo) return;
   e.preventDefault();
@@ -3036,6 +3050,12 @@ function attachEditHandlers(scope) {
   let snapAntes = null;
   // Trazo y punto de la tijera, para animar el corte una vez consumado
   let cutInfo = null;
+  /* Las reglas de alinear que hay que pintar en el proximo fotograma. Vive
+     aqui y no dentro del manejador de movimiento porque el redibujado va
+     acelerado: cuando ya hay un fotograma pedido, los movimientos siguientes
+     no piden otro, y con una variable local el fotograma habria pintado las
+     reglas del movimiento que lo pidio en vez de las del ultimo. */
+  let guiasPend = null;
 
   const svgPoint = (e) => {
     const svg = wrap.querySelector("svg");
@@ -3097,6 +3117,11 @@ function attachEditHandlers(scope) {
          nodo mueve solo ese, sin deshacer la selección. */
       ptIni = pt;
       grupoIni = null;
+      /* El iman compara contra `posLienzo`, que lo deja el ultimo mapa
+         dibujado — y ese puede ser el de OTRA rama, porque la pagina las
+         dibuja todas. Se siembra con esta antes de empezar, o el primer
+         movimiento se alinearia contra los nodos del vecino. */
+      branchLayout(branchNodes(b, mod), ramaGirada(b, mod));
       if (selNodos.has(curId) && selNodos.size > 1) {
         grupoIni = new Map();
         selNodos.forEach(id => {
@@ -3163,6 +3188,7 @@ function attachEditHandlers(scope) {
          vuelve a girar para `editPos`, que es lo que se compara contra el
          puntero en el recuadro de selección y al soltar un enlace. */
       const gir = ramaGirada(b, mod);
+      guiasPend = null;
       if (grupoIni) {
         const dx = pt.x - ptIni.x, dy = pt.y - ptIni.y;
         grupoIni.forEach((ini, id) => {
@@ -3177,13 +3203,29 @@ function attachEditHandlers(scope) {
         const d = aDatos(pt.x + offset.dx, pt.y + offset.dy, gir);
         p.x = enLienzoX(d.x);
         p.y = enLienzoY(d.y);
+        /* La regla de alinear, también aquí. Vivía SOLO en el arrastre normal
+           desde que se hizo, y en el editor no había ni imán ni líneas — que
+           es justo donde uno acomoda un mapa, porque para conectar y cortar
+           hay que encender el lápiz. Lo echó en falta Eduardo.
+
+           Va solo cuando se mueve UNO. Arrastrando varios en bloque, pegar el
+           grupo entero porque uno de sus miembros quedó cerca de alinearse
+           movería a los otros a sitios que nadie pidió. */
+        guiasPend = imantarNodo(p, b, mod);
         editPos[curId] = alDibujo(p.x, p.y, gir);
       }
       // Al acercarse a un borde, el lienzo acompaña al dedo
       const r = wrap.getBoundingClientRect();
       if (e.clientX > r.right - 46) wrap.scrollLeft += 14;
       else if (e.clientX < r.left + 46) wrap.scrollLeft -= 14;
-      if (!raf) raf = requestAnimationFrame(() => { raf = null; redraw(); });
+      /* Las líneas se pintan DESPUÉS de redibujar y en el mismo fotograma: el
+         redibujado sustituye el SVG entero, así que pintarlas antes es
+         tirarlas a la basura. */
+      if (!raf) raf = requestAnimationFrame(() => {
+        raf = null;
+        redraw();
+        if (guiasPend) pintarGuias(wrap, guiasPend); else borrarGuias(wrap);
+      });
     }
 
     if (mode === "link") {
@@ -3206,6 +3248,8 @@ function attachEditHandlers(scope) {
 
   const finish = (e) => {
     if (!mode) return;
+    guiasPend = null;
+    borrarGuias(wrap);
     if (mode === "pan") { mode = null; panFrom = null; return; }
     if (mode === "banda") {
       const pt = svgPoint(e);

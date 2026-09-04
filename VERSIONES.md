@@ -76,6 +76,49 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.81 · 3 sep 2026
+
+**La regla de alinear ya funciona también con el lápiz encendido.** Eduardo la
+echó en falta y creyó que se había roto con el giro; no era eso. El imán y sus
+líneas vivían SOLO en el arrastre normal desde que se hicieron, y en el editor
+no había ninguno de los dos — que es justo donde uno acomoda un mapa, porque
+para conectar y cortar hay que encender el lápiz. Comprobado contra el código
+de antes del giro: allí tampoco estaba.
+
+Va solo cuando se mueve UNO. Arrastrando varios en bloque, pegar el grupo
+entero porque uno de sus miembros quedó cerca de alinearse movería a los otros
+a sitios que nadie pidió.
+
+Tres cosas que hubo que atar para que funcione ahí:
+
+- **Sembrar `posLienzo` con esta rama al empezar el arrastre.** El imán compara
+  contra el último mapa dibujado, y ese puede ser el de OTRA rama, porque la
+  página las dibuja todas. El arrastre normal lo tenía resuelto de casualidad
+  —`fijarPosiciones` lo sembraba de paso—; aquí hay que hacerlo a mano.
+- **Pintar las líneas DESPUÉS de redibujar y en el mismo fotograma.** El
+  redibujado sustituye el SVG entero, así que pintarlas antes es tirarlas.
+- **Y guardar las reglas pendientes fuera del manejador**, porque el redibujado
+  del editor va acelerado: cuando ya hay un fotograma pedido, los movimientos
+  siguientes no piden otro, y con una variable local el fotograma habría
+  pintado las reglas del movimiento que lo pidió en vez de las del último.
+
+**Y la M abre y cierra la pantalla completa**, como el mapa en cualquier juego.
+Lo pidió Eduardo. Hace las dos cosas porque un atajo que solo entra deja al que
+lo usó buscando cómo salir, y no se dispara editando —ahí la mano está
+conectando y cortando— ni escribiendo en un campo. La línea de ayuda ya la
+menciona.
+
+Medido: desde 88 unidades de distancia el talento entra, pega a 14, se queda
+pegado y suelta al pasarse; la línea aparece solo mientras está pegado y no
+queda ninguna al soltar. Las dos huellas del lienzo siguen donde estaban,
+`16afb4ed` sin girar y `055c6952` de pie.
+
+Y una nota de método, que costó media hora: **en el panel del navegador de este
+entorno `requestAnimationFrame` NO dispara nunca**, así que todo lo que se
+repinta por fotograma —como el editor— parece muerto. No lo está. Para medirlo
+hay que sustituir `requestAnimationFrame` por uno que llame al momento. Es la
+misma familia que la trampa de las transiciones ya apuntada en CLAUDE.md.
+
 ### 0.7.80.1 · 3 sep 2026
 
 **El nombre de un talento no volvía a la derecha aunque la derecha ya estuviera
