@@ -76,6 +76,50 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.88.3 · 4 sep 2026
+
+**Los mundos no reaccionaban al ratón ni marcaban cuál estás mirando.** Tres
+fallos, los tres de CSS, los tres cazados por Eduardo en una captura.
+
+**1. Ningún mundo se marcaba al tocarlo.** `pintarSeleccion()` pone la clase
+`mirando` desde el principio, y su comentario ya decía que «la que llevas
+PUESTA lleva su palomita y la que estás MIRANDO lleva el aro» — pero la regla
+`.mun-m.mirando` no existía. El JavaScript estaba bien; el aro nunca se
+escribió, así que tocar un mundo para verlo arriba parecía no hacer nada.
+
+**2. Solo el de Fundador respondía al cursor**, que es justo el único que no se
+puede tener. La única regla de hover de la lista era `.mun-m.cerrado:hover`, la
+que sube la opacidad de un mundo bloqueado. No había `.mun-m:hover`.
+
+**3. Los ambientes tampoco, y este es el más sutil porque la regla sí existía:**
+
+```css
+.amb-m:hover .amb-mini { box-shadow: var(--sombra-s); }
+```
+
+`--sombra-s` es un **color**, no una sombra entera. Al resolverse queda
+`box-shadow: rgba(0,0,0,.35)`, que no es válido, y la propiedad se cae a `none`.
+No salta a la vista porque **el `var()` esconde el error del analizador**: la
+regla se guarda entera y solo revienta al calcular el valor, así que en las
+herramientas se lee escrita y correcta. Medido con `getComputedStyle`: `none`.
+Ahora lleva las tres medidas delante, que es como ya se usaba esa variable en el
+resto del archivo.
+
+El aro se dibuja con `outline` y no con el borde: aquí el borde es una imagen
+(`border-image`) y además ya lo usa «lo llevas puesto», así que las dos marcas se
+ven a la vez sin pelearse. Es el mismo aro que ya tenían los ambientes.
+
+**Y en Mi perfil, «Nombre de este dispositivo» sube por encima de «Tu color».**
+Los tres campos de arriba se escriben; el color es lo único que se toca, y va al
+final.
+
+Medido: tocar Averno le pone un aro menta de 2 px de verdad mientras «Noche de
+expedición» conserva su marca de puesta, sin confundirse; con el cursor encima
+un mundo pasa de `rgb(29,37,48)` a `rgb(34,44,57)` y un ambiente de `none` a
+`rgba(0,0,0,.35) 0 6px 18px`, y los de al lado siguen sin nada. En modo claro el
+aro da 3,41 sobre el fondo —por encima del 3 que pide una línea— y el tono del
+cursor es el «levantado» de la paleta.
+
 ### 0.7.88.2 · 4 sep 2026
 
 **La pantalla de la primera vez, ensayable desde el modo administrador.**
