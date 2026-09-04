@@ -1,9 +1,19 @@
 # Las plantillas
 
-Diez caminos ya recorridos, listos para soltar en el tablero de alguien. **Nada
-construido todavía**: no existe la pantalla que las ofrece ni el código que las
-convierte en talentos, y por eso viven aquí y no en `js/`. Este documento manda
-sobre lo que digan otras conversaciones, igual que `apariencias/LEEME.md`.
+Diez caminos ya recorridos, listos para soltar en el tablero de alguien.
+**Construido y en vivo desde la 0.7.85** (3 sep 2026): el cajón se abre desde el
+botón de crear una rama, en Talentos y en Proyectos.
+
+**Este documento sigue siendo la fuente**, y eso no es una figura retórica:
+`caminos/app.py` lee estas tablas y genera `caminos/caminos.json`, que es lo que
+carga la app. Para corregir un peldaño se corrige AQUÍ y se vuelve a correr el
+generador — el JSON no se toca a mano. Manda sobre lo que digan otras
+conversaciones, igual que `apariencias/LEEME.md`.
+
+Dónde vive cada pieza: `js/10j-caminos.js` (el cargador, el cajón, la vista
+previa y el conversor), la ventana en `index.html`, sus estilos en
+`css/estilos.css`, la clave `caminos` en `LIMITES` y el sello de la rama en
+`js/06-detalle.js`.
 
 ## La regla que las hace valer: el método va DENTRO
 
