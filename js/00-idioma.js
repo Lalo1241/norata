@@ -492,7 +492,16 @@ const MONEDA_COLOR = {
   USD: "#f5d76e",   /* oro     — el otro $, y por eso no puede ser verde */
   EUR: "#6fc3e8"    /* celeste — el azul de la Unión, sin la bandera */
 };
+/* El dólar va con DOS palitos y no con uno, y lo pidió Eduardo. La
+   tipografía solo trae el de uno —casi todas lo hacen— así que el símbolo se
+   dibuja: la S sale de la letra y los dos palos van encima, del alto del disco
+   y separados lo justo para que se vean dos y no un trazo grueso.
+
+   No es un capricho: el $ de dos barras es el que distingue el signo de peso
+   del de dólar en media América, y aquí hay las dos monedas en la misma lista.
+   El peso se queda con una y el dólar con dos. */
 const MONEDA_SIMBOLO = { MXN: "$", USD: "$", EUR: "€" };
+const MONEDA_BARRAS = { USD: 2 };
 
 /* No hay nada de nacional en los dos del idioma, y no puede haberlo: por eso
    el idioma no lleva bandera. Son dos etiquetas, y su único trabajo es no
@@ -513,14 +522,31 @@ const IDIOMA_COLOR = { es: "#b7a2ea", en: "#f0a5c0" };
               ocho tonos del usuario son claros de día y de noche
      aro      `trazo()` para la línea —que pide 3 y no 4,5, porque es un
               dibujo— y `tinta()` para las letras, que sí son texto */
-function discoMacizo(simbolo, color, tam) {
+function discoMacizo(simbolo, color, tam, barras) {
   const s = tam || 26;
   if (!simbolo || !color) return "";
+  /* Los dos palos del dólar. Se dibujan con `<rect>` y no con otra letra
+     porque tienen que ir DETRÁS de la S y del mismo alto que ella; con un
+     glifo encima de otro no hay forma de controlar ni el grosor ni el
+     solape. El ancho es 1,5 sobre 26, que es lo que hace que a este tamaño
+     se lean dos y no una barra gorda. */
+  const palo = s * 0.058;
+  const alto = s * 0.56;
+  const y = (s - alto) / 2;
+  const dosPalos = (barras === 2)
+    ? `<rect x="${(s / 2 - s * 0.10 - palo / 2).toFixed(2)}" y="${y.toFixed(2)}" width="${palo.toFixed(2)}" height="${alto.toFixed(2)}" fill="var(--sobre-vivo)"/>
+       <rect x="${(s / 2 + s * 0.10 - palo / 2).toFixed(2)}" y="${y.toFixed(2)}" width="${palo.toFixed(2)}" height="${alto.toFixed(2)}" fill="var(--sobre-vivo)"/>`
+    : "";
+  /* Con dos palos, la S va sin el palo que trae de serie: se recorta el
+     glifo del $ a la S usando el signo de dolar sin barra, que es la letra S
+     a secas. Así los únicos palos que se ven son los dos dibujados. */
+  const dentro = (barras === 2) ? "S" : simbolo;
   return `<svg class="dsc" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" aria-hidden="true">
     <circle cx="${s / 2}" cy="${s / 2}" r="${s / 2}" fill="${pinta(color)}"/>
+    ${dosPalos}
     <text x="${s / 2}" y="${s / 2}" fill="var(--sobre-vivo)" font-size="${(s * 0.62).toFixed(1)}"
       font-weight="700" text-anchor="middle" dominant-baseline="central"
-      font-family="inherit">${simbolo}</text>
+      font-family="inherit">${dentro}</text>
   </svg>`;
 }
 
@@ -539,7 +565,7 @@ function discoAro(texto, color, tam) {
 }
 
 function discoMoneda(cod, tam) {
-  return discoMacizo(MONEDA_SIMBOLO[cod], MONEDA_COLOR[cod], tam);
+  return discoMacizo(MONEDA_SIMBOLO[cod], MONEDA_COLOR[cod], tam, MONEDA_BARRAS[cod]);
 }
 
 function discoIdioma(cod, tam) {

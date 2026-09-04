@@ -138,6 +138,22 @@ function fusionarEstados(a, b, bEsMasNuevo) {
   unirRamas("ramasTalentos");
   unirRamas("ramasProyectos");
 
+  /* Qué rama vino de qué camino. Es un mapa `rama -> id`, así que se unen las
+     dos caras y gana la del lado más nuevo cuando la misma rama aparece en
+     ambos — pero eso casi no pasa, porque una rama la crea un solo aparato.
+
+     Se une por la misma razón que las ramas de arriba: sin esto, poner un
+     camino en el teléfono y abrir el cajón en la computadora enseñaría ese
+     camino como si no lo tuvieras.
+
+     Nunca se BORRA una entrada al fusionar: una rama renombrada deja su
+     apunte viejo colgando, y eso es preferible a que un aparato desactualizado
+     le quite el sello a una rama que sí vino de un camino. */
+  if ((base.ui && base.ui.caminos) || (otro.ui && otro.ui.caminos)) {
+    out.ui = out.ui || {};
+    out.ui.caminos = Object.assign({}, (otro.ui || {}).caminos, (base.ui || {}).caminos);
+  }
+
   COLECCIONES.forEach(col => {
     const porId = new Map();
     (otro[col] || []).forEach(x => { if (x && x.id) porId.set(x.id, x); });

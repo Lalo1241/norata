@@ -627,7 +627,19 @@ function arrancarApariencia() {
    dejar la app pintada con algo que el servidor no reconoce, pero la elección
    guardada NO se borra — el día que vuelva a pagar, vuelve su apariencia. */
 function refrescarApariencia() {
-  const puesta = apariencia();
+  /* Una apariencia de prueba (`?apariencia=`) no se toca: es una vista para
+     decidir, no la elección de nadie, y vive en `sessionStorage`. */
+  if (aparienciaDePrueba()) return;
+  /* Se mira lo ELEGIDO y no lo que está puesto, y esta es la diferencia entre
+     que esto se pueda llamar dos veces o solo una.
+
+     Antes leía el atributo. En cuanto una llamada devolvía a la casa —porque
+     en ese instante el nivel era 0, que es lo normal mientras el progreso
+     va llegando— la siguiente veía «casa», decía que casa está permitida y
+     se quedaba así para siempre. O sea que era de un solo sentido: quitaba y
+     no devolvía. Leyendo lo guardado, la respuesta correcta se alcanza
+     cuando llegan los datos de verdad, y da igual cuántas veces se pregunte. */
+  const puesta = aparienciaGuardada();
   const raiz = document.documentElement;
   const puedo = puesta === "casa" || aparienciaDisponible(puesta) === true;
   const ahora = raiz.getAttribute("data-apariencia") || "casa";

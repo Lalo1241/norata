@@ -236,10 +236,23 @@ begin
   -- había cerrado la sesión — el pulso quedó escrito ese día y no se borra.
   -- La pregunta real es «¿con qué versión se quedó cada quien?», y eso es una
   -- fila por cuenta: la más reciente.
+  --
+  -- ---- Y la ventana son CATORCE días, no treinta ----
+  -- Lo decidió Eduardo el 3 de septiembre de 2026, y arregla el «dato basura»
+  -- que le salía: le aparecía una versión vieja aunque él ya hubiera
+  -- actualizado. La causa no era la que parecía —no eran aparatos, eran
+  -- CUENTAS—: una cuenta de prueba que no se abre desde hace tres semanas se
+  -- queda con la versión de aquel día para siempre, y con la ventana en treinta
+  -- días seguía contando como si alguien estuviera ahí parado.
+  --
+  -- Catorce días es la misma ventana que la gráfica de arriba, así que las dos
+  -- cajas hablan del mismo periodo. Y la pregunta que contesta pasa a ser la
+  -- correcta: no «qué versión vio cada cuenta que existió alguna vez», sino
+  -- «qué versión tiene la gente que está usando la app».
   ultima_v as (
     select distinct on (user_id) user_id, version
       from public.pulsos
-     where dia >= current_date - 30
+     where dia >= current_date - 13
      order by user_id, dia desc
   ),
 
@@ -295,6 +308,22 @@ begin
                           where u.alta <= current_date - 30
                             and p.ultimo >= u.alta + 30),
       'pidieron_borrado', (select count(*) from public.perfiles where borrar_el is not null),
+      -- Cuántas cuentas DISTINTAS aparecieron en los catorce días que dibuja
+      -- la gráfica. Es la cifra que resume el dibujo y la única que no estaba
+      -- en ningún sitio del panel: había «activos esta semana» y «cuentas
+      -- creadas», pero no «cuánta gente hay en lo que estás mirando».
+      --
+      -- Sustituye a la media diaria, que a esta escala contestaba una pregunta
+      -- que no sirve: con tres cuentas, un promedio por día habla más de
+      -- cuántos días pasaron que de cuánta gente hay. Y no se rompe con pocos
+      -- ni con muchos, que es lo que se le pide a una cifra que va arriba.
+      --
+      -- El `- 13` y no `- 14`: son catorce días contando hoy, exactamente los
+      -- mismos que `generate_series` de abajo. Una ventana de quince días bajo
+      -- un rótulo de catorce es la clase de mentira pequeña que nadie revisa.
+      'distintas14',    (select count(distinct user_id) from public.pulsos
+                          where dia >= current_date - 13),
+
       'aperturas7',     (select coalesce(sum(aperturas), 0) from public.pulsos
                           where dia >= current_date - 7),
       -- Cuántos días distintos abre la app una persona, de media. Es la
@@ -306,14 +335,29 @@ begin
     -- El embudo, en el orden en que se pierde gente. Cada paso es un
     -- subconjunto del anterior, así que se lee de arriba abajo y el escalón
     -- que más cae es el que hay que arreglar.
+    --
+    -- ---- Y HASTA EL 3 DE SEPTIEMBRE DE 2026 ESO ERA MENTIRA ----
+    -- El último paso se contaba SUELTO: «cuántas cuentas distintas tienen un
+    -- pulso en los últimos siete días», sin filtrar por ninguno de los pasos
+    -- de arriba. Alguien que abrió la app por primera y única vez anteayer no
+    -- estaba en «Volvieron otro día» y sí en «Siguen esta semana», así que el
+    -- embudo podía enseñar un 3 debajo de un 2. Lo cazó Eduardo mirándolo, y
+    -- es de los fallos peores que puede tener un panel: no se ve roto, se ve
+    -- raro, y quien lo mira acaba desconfiando de todas las cifras en vez de
+    -- desconfiar de una.
+    --
+    -- Ahora sí es un subconjunto: de los que volvieron otro día, los que
+    -- además siguen apareciendo esta semana. Sale de la misma CTE `p` que los
+    -- dos pasos anteriores, que es lo que garantiza que no se pueda volver a
+    -- separar sin darse cuenta.
     'embudo', jsonb_build_array(
       jsonb_build_object('paso', 'Se registraron',        'personas', (select count(*) from u)),
       jsonb_build_object('paso', 'Confirmaron el correo', 'personas', (select count(*) from u where confirmada)),
       jsonb_build_object('paso', 'Abrieron la app',       'personas', (select count(*) from p)),
       jsonb_build_object('paso', 'Volvieron otro día',    'personas', (select count(*) from p where dias > 1)),
-      jsonb_build_object('paso', 'Siguen esta semana',    'personas', (select count(distinct user_id)
-                                                                        from public.pulsos
-                                                                       where dia >= current_date - 7))
+      jsonb_build_object('paso', 'Siguen esta semana',    'personas', (select count(*) from p
+                                                                        where dias > 1
+                                                                          and ultimo >= current_date - 7))
     ),
 
     -- Los catorce días SIEMPRE completos, incluidos los que no tuvo nadie.
@@ -361,9 +405,13 @@ begin
     -- sostiene mes a mes.
     'cobro', cobro,
 
+    -- El `id` viaja con cada fila desde el 3 de septiembre de 2026, y es lo
+    -- que permite archivar UN reporte en vez de todos de golpe. La tabla ya lo
+    -- tenía —es su clave primaria—; simplemente no salía de aquí, así que la
+    -- pantalla no tenía forma de nombrar una fila concreta.
     'tropiezos', coalesce((
       select jsonb_agg(x order by x.dia desc, x.cuantos desc)
-        from (select dia, version, donde, mensaje, cuantos, visto
+        from (select id, dia, version, donde, mensaje, cuantos, visto
                 from public.tropiezos
                where dia >= current_date - 30
                order by dia desc, cuantos desc
@@ -400,6 +448,49 @@ $fn$;
 
 revoke all on function public.tropiezos_vistos() from public, anon;
 grant execute on function public.tropiezos_vistos() to authenticated;
+
+
+-- Archivar UNO solo, por su `id`.
+--
+-- Es lo que pidió Eduardo el 28 de agosto: «los reportes deben ser palomeables
+-- uno a uno, para irlos archivando y ver qué está corregido y qué no». Con
+-- `tropiezos_vistos()` a secas eso no se podía: marca todos de golpe, así que
+-- dar por atendido un reporte enterraba también los que no había mirado.
+--
+-- Devuelve el estado en el que quedó la fila en vez de `void`, y no es un
+-- capricho: la pantalla lo usa para pintar el cambio sin volver a pedir las
+-- métricas enteras. Un `null` significa «esa fila ya no está», que es lo que
+-- pasa si se archiva desde dos pestañas a la vez.
+--
+-- El parámetro es un `bigint` y no los cuatro campos que forman la clave
+-- única. Pasar el mensaje entero como identificador era la otra opción y es
+-- peor: un texto de trescientos caracteres que viaja de ida y vuelta, y
+-- cualquier diferencia de espacios o de acentos deja la fila sin archivar sin
+-- decir por qué.
+create or replace function public.tropiezo_visto(p_id bigint, p_visto boolean default true)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, auth
+as $fn$
+declare
+  quedo boolean;
+begin
+  if not public.soy_admin() then
+    raise exception 'Sin permiso.' using errcode = '42501';
+  end if;
+
+  update public.tropiezos
+     set visto = p_visto
+   where id = p_id
+  returning visto into quedo;
+
+  return quedo;
+end;
+$fn$;
+
+revoke all on function public.tropiezo_visto(bigint, boolean) from public, anon;
+grant execute on function public.tropiezo_visto(bigint, boolean) to authenticated;
 
 
 -- ============================================================

@@ -43,8 +43,13 @@ traducirDOM();
      contraseña por gusto.
 
      Va lo primero de todo y ANTES de quitar la pantalla de carga, para que no
-     se vea el destello de un formulario que no hacía falta. */
-  if (syncReady()) { location.replace("../"); return; }
+     se vea el destello de un formulario que no hacía falta.
+
+     La excepción es venir a AÑADIR una cuenta teniendo ya otra puesta
+     (`irAAgregarCuenta`, en `10c-portada.js`). Ahí la sesión existe y aun así
+     hay algo que preguntar, así que el rebote se salta — y solo en ese caso,
+     que es lo que la marca distingue. */
+  if (syncReady() && !puertaAgregando()) { location.replace("../"); return; }
 
   /* El orden es el mismo que tenía el arranque de la app, y por los mismos
      motivos: primero se recoge lo que venga colgado de la dirección —Google y

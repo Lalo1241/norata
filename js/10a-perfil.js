@@ -181,7 +181,7 @@ function avatarPinta(semilla, saludo, correo, tam, extra) {
    que dibuja un círculo, para que no haya una pantalla donde se le olvide.
 
    Solo se pone donde hay sesión: `avatarPinta` se usa además en la portada,
-   que enseña el círculo de quien entró la última vez en este aparato, y ahí
+   que enseña el círculo de quien entró la última vez en este dispositivo, y ahí
    todavía no se sabe qué plan tiene nadie. Prometerle un anillo a alguien
    antes de comprobarlo sería enseñárselo y quitárselo al entrar.
 
@@ -220,6 +220,133 @@ function olvidarUltimo() {
   delete sync.ultimoSaludo;
   delete sync.ultimoCorreo;
   delete sync.ultimoUid;
+  saveSync();
+}
+
+/* ================= Las cuentas de este dispositivo =================
+   Con qué cuentas se ha entrado aquí, para poder volver a cualquiera de ellas
+   con un toque en vez de con una contraseña. Es la lista de arriba llevada al
+   plural: `recordarUltimo` ya guardaba UNA para poder saludarla por su nombre,
+   y esto guarda las últimas y además cómo volver a entrar.
+
+   Existe porque cambiar de cuenta costaba cuatro pasos y una contraseña
+   —Ajustes, cerrar sesión, la puerta, teclear—, y quien tiene dos cuentas
+   acaba usando siempre la que ya está puesta.
+
+   POR QUÉ ES UNA LLAVE APARTE Y NO UN CAMPO DE `sync`. Porque `sync` se vacía
+   entero en sitios que no saben de esto: `syncDisconnect` lo deja en `{}` y
+   `loadSync` jubila configuraciones viejas reescribiéndolo. Una lista metida
+   ahí desaparecería justo al cerrar sesión, que es el momento en que más falta
+   hace — lo contrario de para lo que existe.
+
+   Y LO QUE NO PUEDE PASAR NUNCA: esto no va dentro de `state`. `state` es
+   exactamente lo que se sube al servidor, así que una credencial ahí dentro
+   sería publicarla. Por eso vive en su propia llave de localStorage, que no
+   viaja a ninguna parte.
+
+   SOBRE GUARDAR EL PERMISO DE ENTRAR. Lo guardado no es la contraseña —esa no
+   se guarda nunca, en ningún sitio— sino el token de refresco: un permiso que
+   el servidor puede revocar y que ya vivía en este mismo almacén para la
+   cuenta activa. Tener dos no abre una puerta que estuviera cerrada, abre la
+   misma dos veces. Y la salida está a la vista, porque cerrar sesión en una
+   cuenta también la borra de aquí. */
+const CUENTAS_LLAVE = "norata-cuentas-v1";
+
+/* Cinco, y el tope no es técnico: una lista más larga que la pantalla deja de
+   ser un atajo y se vuelve otra pantalla que hay que leer. */
+const CUENTAS_MAX = 5;
+
+function cuentasLeer() {
+  let lista = null;
+  try { lista = JSON.parse(localStorage.getItem(CUENTAS_LLAVE)); } catch (e) { /* ilegible */ }
+  if (!Array.isArray(lista)) return [];
+  /* Se filtra al LEER y no solo al escribir. Una entrada a medias —de un
+     guardado que se quedó sin sitio, de una versión anterior de esto— tumbaría
+     el pintado de la lista entera, y con él la única forma de cambiar de
+     cuenta que tiene la app. */
+  return lista.filter(c => c && c.uid && c.correo && c.sesion && c.sesion.refresh);
+}
+
+function cuentasEscribir(lista) {
+  try { localStorage.setItem(CUENTAS_LLAVE, JSON.stringify(lista)); }
+  catch (e) { /* sin sitio: se pierde el atajo, no la sesión */ }
+}
+
+/* Apunta la cuenta que está dentro ahora mismo, o la pone al día si ya estaba.
+
+   Se llama desde dos sitios y los dos hacen falta: `adoptarSesion`, o sea cada
+   vez que alguien entra, y `sbToken`, que es el único lugar donde la sesión
+   cambia sola. El token de refresco se gasta al usarlo y el servidor devuelve
+   otro; una copia guardada y nunca actualizada dejaría de valer a la primera
+   hora de uso, y el atajo fallaría justo cuando ya se confía en él. */
+function cuentaApuntar() {
+  const cfg = sync.cfg || {};
+  const s = cfg.sesion || {};
+  if (!s.uid || !s.refresh || !cfg.correo) return;
+  const lista = cuentasLeer().filter(c => c.uid !== s.uid);
+  lista.unshift({
+    uid: s.uid, correo: cfg.correo,
+    perfil: cfg.perfil || null, sesion: s, visto: Date.now()
+  });
+  cuentasEscribir(lista.slice(0, CUENTAS_MAX));
+}
+
+function cuentaOlvidar(uid) {
+  if (!uid) return;
+  cuentasEscribir(cuentasLeer().filter(c => c.uid !== uid));
+}
+
+/* Las que NO son la de ahora. Enseñar la cuenta activa dentro de una lista de
+   «cambiar a» es ofrecer un viaje al sitio donde ya se está. */
+function cuentasOtras() {
+  const yo = ((sync.cfg || {}).sesion || {}).uid || "";
+  return cuentasLeer().filter(c => c.uid !== yo);
+}
+
+function cuentaSaludo(c) {
+  return ((c && c.perfil) || {}).saludo || "";
+}
+
+/* Una fila de la lista, y es la misma en Ajustes que en la puerta a propósito:
+   son el mismo gesto en dos sitios, y dos maquetados para lo mismo acaban
+   separándose. Se apoya en `.perfil-ficha`, que ya es la fila de «quién eres»
+   del panel de la cuenta. */
+function cuentaFilaHTML(c) {
+  const saludo = cuentaSaludo(c);
+  return '<div class="cuenta-fila">' +
+    '<button class="perfil-ficha" onclick="entrarConCuentaGuardada(\'' + escapeAttr(c.uid) + '\')">' +
+    avatarPinta(c.uid, saludo, c.correo, 40) +
+    '<div class="perfil-quien"><b>' + escapeHtml(saludo || c.correo) + '</b>' +
+    (saludo ? '<span>' + escapeHtml(c.correo) + '</span>' : "") +
+    '</div></button>' +
+    '<button class="cuenta-quitar" title=tx("Quitar de este dispositivo") aria-label="Quitar ' +
+    escapeAttr(saludo || c.correo) + ' de este dispositivo" ' +
+    'onclick="quitarCuentaGuardada(\'' + escapeAttr(c.uid) + '\')">&times;</button>' +
+    '</div>';
+}
+
+/* Deja una cuenta guardada puesta como la activa. No baja nada ni pinta nada:
+   de eso se encarga `adoptarSesion` al otro lado de la recarga, que es el
+   mismo camino que usa entrar con la contraseña. Aquí no hay un camino nuevo
+   que pueda desincronizarse de aquel.
+
+   `sync.dueño` NO se toca, y es lo único delicado de la función: es lo que le
+   permite a `adoptarSesion` darse cuenta de que entra otra persona y apartar
+   los datos de la anterior antes de bajar los suyos. Ponerlo aquí dejaría los
+   dos progresos mezclados en el mismo dispositivo. */
+function cuentaPonerSesion(c) {
+  sync.tipo = "supabase";
+  /* El perfil se normaliza al entrar y no se copia tal cual: `perfilDe` es lo
+     que garantiza el trío completo (nombre, apodo, saludo). Una entrada
+     guardada por una versión anterior con solo el saludo dejaba los campos de
+     Ajustes escribiendo «undefined». */
+  sync.cfg = { correo: c.correo, sesion: c.sesion, perfil: perfilDe(c.perfil || {}) };
+  sync.enabled = true;
+  sync.entrada = "cuenta";
+  sync.marca = null;
+  sync.rev = 0;
+  sync.dirty = false;
+  sync.lastAt = null;
   saveSync();
 }
 

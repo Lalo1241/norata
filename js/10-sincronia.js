@@ -350,6 +350,13 @@ async function syncRun(opts) {
   } finally {
     syncBusy = false;
     renderSync();
+    /* Con los datos ya puestos, volver a mirar si la apariencia sigue siendo
+       tuya. El plan lo contesta el servidor, pero el NIVEL sale del progreso,
+       y el progreso llega aquí: preguntarlo antes de esta línea es preguntarlo
+       con el nivel en 0. Se nota al cambiar de cuenta, que es cuando el nivel
+       cambia de golpe en el mismo dispositivo. Es barato: `refrescarApariencia`
+       se sale sola si no hay nada que cambiar. */
+    if (typeof refrescarApariencia === "function") refrescarApariencia();
   }
 }
 
@@ -433,9 +440,15 @@ function renderSync() {
          que a todo el mundo le preguntaba algo que no le pasa — y el «sí» de
          ese botón quita la confirmación de borrar. Ver `esCuentaDePruebas` en
          `js/10c-portada.js`. */
+      cuentasSeccionHTML() +
       '<div class="stack">' +
-      '<button class="btn btn-soft btn-block" onclick="syncRun({})">' + tx("Sincronizar ahora") + '</button>' +
-      '<button class="btn btn-aviso btn-block" onclick="syncDisconnect()">' + tx("Cerrar sesión en este dispositivo") + '</button>' +
+      '<button class="btn btn-soft btn-block" onclick="syncRun({})">Sincronizar ahora</button>' +
+      /* `btn-linea` y no `btn-soft`: no escribe nada tuyo, te lleva a otro
+         sitio. Y separado de «Cerrar sesión» a propósito, porque son cosas
+         distintas y confundirlas cuesta caro: cerrar sesión borra el atajo
+         para volver, cambiar de cuenta lo conserva. */
+      '<button class="btn btn-linea btn-block" onclick="irAAgregarCuenta()">Entrar con otra cuenta</button>' +
+      '<button class="btn btn-aviso btn-block" onclick="syncDisconnect()">Cerrar sesión en este dispositivo</button>' +
       '</div>';
     return;
   }
@@ -487,6 +500,12 @@ function syncRenameDevice(v) {
 async function syncDisconnect() {
   const alm = almacen();
   if (!await ask(tx("Se borrará la credencial de este dispositivo y tu progreso dejará de subirse. Lo que ya subiste sigue en tu cuenta."), "Desconectar")) return;
+  /* Y con ella el atajo. El aviso de arriba promete que la credencial se va
+     de este dispositivo, y dejarla guardada en la lista de cuentas para poder
+     volver con un toque sería justo lo contrario de lo que se acaba de
+     prometer. Quien quiera tener las dos a mano no cierra sesión: usa
+     «Entrar con otra cuenta», que las deja a las dos puestas. */
+  cuentaOlvidar(((sync.cfg || {}).sesion || {}).uid);
   /* Se va la credencial entera, no solo una llave con nombre fijo: cada
      almacén guarda lo suyo y aquí no se sabe cómo se llama. */
   sync.enabled = false; sync.cfg = {}; sync.marca = null; sync.dirty = false;

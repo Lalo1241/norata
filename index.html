@@ -880,6 +880,20 @@
       <span id="bug-ic-pie"></span> Reportar un fallo
     </button>
     <div class="version-pie" id="version-pie"></div>
+
+    <!-- Los dos documentos, al pie de Ajustes y no dentro de una sección.
+         Aquí es donde se buscan «las cosas de la app», y tienen que estar al
+         alcance de cualquiera: quien usa Norata sin cuenta también aceptó los
+         términos, así que colgarlos de la zona de la cuenta —que solo se pinta
+         con sesión— los escondería justo de quien no tiene ninguna.
+
+         A diferencia del número de versión, este pie NO se esconde en la
+         computadora: el número ya vive en la barra lateral y saldría dos
+         veces, pero estos enlaces no están en ningún otro sitio. -->
+    <div class="legal-pie">
+      <a href="privacidad/">Aviso de privacidad</a>
+      <a href="terminos/">Términos y condiciones</a>
+    </div>
   </div>
 
 </div>
@@ -1032,6 +1046,18 @@
      así que echar un vistazo costaba deshacer el orden que uno acababa de
      poner. Aquí se ve lo que guarda, se entra a cualquiera de sus talentos y
      se saca uno suelto, con la caja todavía cerrada. -->
+<!-- ============ EL CAJÓN DE CAMINOS ============
+     Diez ramas ya armadas. Se abre desde el botón de crear una rama, que es
+     el instante en que alguien se queda mirando un lienzo vacío; una sección
+     propia en el menú no la encontraría nadie.
+
+     Vacío en el HTML y pintado desde `js/10j-caminos.js`, igual que la caja
+     del ático: su contenido depende de un archivo que se pide por la red y no
+     tiene sentido dejarlo escrito aquí. -->
+<div class="modal-backdrop" id="cajon" onclick="if(event.target===this)cerrarCajon()">
+  <div class="modal-card cajon-card" id="cajon-body"></div>
+</div>
+
 <div class="modal-backdrop" id="caja-modal" onclick="if(event.target===this)cerrarVentanaCaja()">
   <div class="modal-card caja-card" id="caja-body"></div>
 </div>
@@ -1135,6 +1161,7 @@
 <script defer src="js/10g-informe.js"></script>
 <script defer src="js/10h-lecturas.js"></script>
 <script defer src="js/10i-apariencia.js"></script>
+<script defer src="js/10j-caminos.js"></script>
 <script defer src="js/11-arranque.js"></script>
 </body>
 </html>

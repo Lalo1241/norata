@@ -291,6 +291,123 @@ function llaveDeLienzo(wrap, b) {
   return (wrap.closest("#fs-overlay") ? "fs:" : "lista:") + b;
 }
 
+/* ================= La rama en vertical =================
+   Una rama se puede mirar de pie: el primer talento abajo y el camino
+   creciendo hacia arriba. Lo pidió Eduardo, y la clave de que salga barato
+   es lo que NO se hace: no se gira la cámara, se gira dónde cae cada nodo.
+
+   Girar el SVG con CSS habría roto las cinco funciones que traducen un píxel
+   de la pantalla a una coordenada del dibujo (`puntoEnLienzo`, `pixelEnLienzo`,
+   `encuadreDe` y los dos `svgPt` de los manejadores): todas hacen
+   `getBoundingClientRect()` más el `viewBox` en línea recta, y con el elemento
+   girado esa cuenta manda la x de la pantalla a la x del dibujo, que ya no es
+   la misma. Además el contenedor que se recorre no gira con su contenido, así
+   que la barra de desplazamiento habría medido lo de antes.
+
+   Girando las coordenadas el SVG sigue derecho: el zoom, el recorrido, el
+   arrastre, el corte y el imán siguen valiendo sin tocarlos, y los rótulos y
+   los ICONOS salen rectos solos, sin contra-girar nada.
+
+   Lo guardado NO se toca nunca. Girar y desgirar es exacto por construcción,
+   porque el giro solo existe mientras se dibuja. */
+
+/* Es preferencia DE ESTE APARATO, igual que el modo claro (ver `TEMA_LLAVE` en
+   js/01-base.js): girar una rama es cómo la miras hoy, no algo que cambie el
+   árbol. Si viajara con la cuenta, ponerla de pie en el teléfono te la
+   pondría de pie en la computadora, y son dos pantallas de formas distintas.
+   Por eso vive en su propia llave y no en `state`, ni entra en la sincronía
+   ni en los respaldos. */
+const GIRO_LLAVE = "norata-ramas-giradas";
+let ramasGiradas = null;
+
+function girosGuardados() {
+  if (ramasGiradas) return ramasGiradas;
+  try { ramasGiradas = JSON.parse(localStorage.getItem(GIRO_LLAVE)) || {}; }
+  catch (e) { ramasGiradas = {}; }
+  return ramasGiradas;
+}
+
+/* Con el módulo dentro: una rama de Proyectos puede llamarse igual que una de
+   Talentos, y ponerse de pie una no puede poner de pie la otra. */
+function llaveDeGiro(b, mod) { return (mod || "talentos") + ":" + b; }
+
+function ramaGirada(b, mod) { return !!girosGuardados()[llaveDeGiro(b, mod)]; }
+
+function girarRama(b, mod) {
+  const g = girosGuardados();
+  const k = llaveDeGiro(b, mod);
+  if (g[k]) delete g[k]; else g[k] = 1;
+  try { localStorage.setItem(GIRO_LLAVE, JSON.stringify(g)); } catch (e) { /* sin sitio: vale para esta sesión */ }
+  /* El encuadre guardado deja de significar lo mismo —la rama mide otra cosa
+     y lo que estaba centrado queda fuera—, así que se olvida y se vuelve a
+     encuadrar sola, igual que al girar el teléfono. */
+  delete scrollRama["lista:" + b];
+  delete scrollRama["fs:" + b];
+  repintarModulo(mod || "talentos");
+  if (fullscreenBranch === b) renderFullscreen(mod || "talentos");
+  toast(g[k] ? `"${b}" de pie` : `"${b}" en horizontal`, "hecho");
+}
+
+/* ---- El cuarto de vuelta ----
+   ASCENDENTE: "adelante" —que guardado es +x, hacia la derecha— sale hacia
+   ARRIBA, que en pantalla es −y. Eso es (x, y) → (y, −x). El otro cuarto de
+   vuelta, (x, y) → (−y, x), pone la raíz arriba y la rama creciendo hacia
+   abajo, y es justo el que no se quiere. */
+function alDibujo(x, y, gir) { return gir ? { x: y, y: -x } : { x, y }; }
+function aDatos(x, y, gir)   { return gir ? { x: -y, y: x } : { x, y }; }
+
+/* Y el mismo giro aplicado a los ocho brazos, que sale de rotar su vector con
+   la misma cuenta: e = (1,0) pasa a (0,−1), que es n. Sin esto la rama queda
+   de pie pero las conexiones no: todo entraría de costado.
+
+   Se gira el NOMBRE del rumbo y no la figura, y eso es lo que mantiene bien
+   la cuenta del radio en `radioEnRumbo`: el hexágono es picudo por arriba y
+   plano por los lados, y como la figura NO gira, salir por el norte tiene que
+   medir lo que mide el norte de verdad. */
+const GIRO_RUMBO = { e: "n", ne: "nw", se: "ne", n: "w", s: "e", w: "s", nw: "sw", sw: "se" };
+function rumboGirado(r, gir) { return gir ? GIRO_RUMBO[r] : r; }
+
+/* ---- De qué lado quedó el nombre la última vez ----
+   Memoria entre dibujos, y es lo que quita el temblor. Sin ella, un talento
+   arrastrado justo en el límite de caber a la derecha cambiaba de lado en
+   cada fotograma: derecha, izquierda, derecha, izquierda, sin parar. Con la
+   memoria, el lado que ya tenía se prueba PRIMERO, así que solo se mueve
+   cuando de verdad dejó de caber — y una vez que se mueve, se queda.
+   Lo pidió Eduardo viéndolo temblar. */
+const ladoPrevio = {};
+
+function chocanCajas(a, b, aire) {
+  return !(a.x1 + aire < b.x0 || b.x1 + aire < a.x0 || a.y1 + aire < b.y0 || b.y1 + aire < a.y0);
+}
+
+/* ---- Lo que MIDE un nombre, medido y no estimado ----
+   Hace falta para saber si cabe a un lado del nodo. Calcularlo por número de
+   letras fallaba justo con los nombres que importan: "Aprender las escalas" y
+   "Tocar en público" tienen casi las mismas letras y no miden ni parecido.
+   Un `measureText` es síncrono y cuesta nada, y se guarda por nombre porque
+   el mapa se vuelve a dibujar en cada fotograma de un arrastre. */
+let _regla = null;
+const _anchos = new Map();
+function anchoDelRotulo(lines, fs) {
+  let max = 0;
+  for (const ln of lines) {
+    const k = fs + "|" + ln;
+    let w = _anchos.get(k);
+    if (w === undefined) {
+      if (!_regla) {
+        try { _regla = document.createElement("canvas").getContext("2d"); } catch (e) { _regla = false; }
+      }
+      /* Sin canvas —un navegador que lo bloquee— se cae a la estimación por
+         letras. Colocará algún nombre en el lado que no era; no rompe nada. */
+      if (_regla) { _regla.font = `500 ${fs}px Outfit, sans-serif`; w = _regla.measureText(ln).width; }
+      else w = ln.length * fs * 0.52;
+      _anchos.set(k, w);
+    }
+    if (w > max) max = w;
+  }
+  return max;
+}
+
 /* Al cambiar el tamaño de la ventana (girar el teléfono, acoplar la app) la
    posición guardada deja de significar lo mismo: el lienzo mide otra cosa y
    lo que estaba centrado puede quedar fuera. Se olvida y cada rama vuelve a
@@ -370,7 +487,16 @@ function encuadrarLienzo(wrap, b) {
        En la computadora no se toca: ahí el dibujo cabe y el hueco sobraría. */
     const dh = Number(svg.dataset.dh) || 0;
     const suelo = innerWidth < 900 ? Math.min(Math.round(innerHeight * 0.46), 420) : 0;
-    wrap.style.height = Math.max(dh, suelo) + "px";
+    /* Y un TECHO cuando la rama está de pie. La regla de arriba —la tarjeta
+       mide lo que mide el dibujo— es buena a lo ancho, donde una rama larga
+       crece hacia un lado que no cuesta nada; de pie crece hacia abajo, y una
+       rama de cinco niveles pedía más de mil píxeles de tarjeta. Con eso, dos
+       ramas de pie ya no dejan ver ninguna otra en la lista. Dentro se recorre
+       y el botón de pantalla completa está justo debajo. */
+    const techo = ramaGirada(b === undefined ? wrap.dataset.branch : b, wrap.dataset.mod || "talentos")
+      ? Math.max(suelo, Math.min(Math.round(innerHeight * 0.62), 560))
+      : Infinity;
+    wrap.style.height = Math.min(techo, Math.max(dh, suelo)) + "px";
   }
   const memo = scrollRama[llaveDeLienzo(wrap, b)];
   if (memo) {
@@ -466,8 +592,22 @@ function pintarGuias(wrap, guias) {
     l.setAttribute("opacity", "0.62");
     g.appendChild(l);
   };
-  if (guias.gx !== null) linea(guias.gx, vb.y, guias.gx, vb.y + vb.height);
-  if (guias.gy !== null) linea(vb.x, guias.gy, vb.x + vb.width, guias.gy);
+  /* `gx` y `gy` vienen en coordenadas GUARDADAS —el imán compara contra
+     `n.x`—, así que hay que pasarlas al dibujo. Y con la rama de pie las dos
+     reglas cambian de orientación: alinear por la x guardada (misma altura del
+     camino) es una línea HORIZONTAL en pantalla, no vertical. Sin esto la
+     regla salía cruzada respecto a lo que estaba alineando. */
+  const gir = ramaGirada(wrap.dataset.branch, wrap.dataset.mod || "talentos");
+  const px = guias.gx !== null ? alDibujo(guias.gx, 0, gir) : null;
+  const py = guias.gy !== null ? alDibujo(0, guias.gy, gir) : null;
+  if (px) {
+    if (gir) linea(vb.x, px.y, vb.x + vb.width, px.y);
+    else linea(px.x, vb.y, px.x, vb.y + vb.height);
+  }
+  if (py) {
+    if (gir) linea(py.x, vb.y, py.x, vb.y + vb.height);
+    else linea(vb.x, py.y, vb.x + vb.width, py.y);
+  }
   svg.appendChild(g);
 }
 
@@ -522,7 +662,10 @@ function focusBranchFront(b, silent, mod) {
   if (!wrap) return;
   const nodes = branchNodes(b, mod);
   if (!nodes.length) return;
-  const { pos } = branchLayout(nodes);
+  // Del dibujo, que es lo que hay en pantalla: con la rama de pie, la
+  // coordenada guardada apunta a otro sitio
+  const { dib } = branchLayout(nodes, ramaGirada(b, mod));
+  const pos = dib;
   const target = frontNode(nodes);
   /* Por píxel y no por coordenada del dibujo: entre el borde del lienzo y el
      cero del dibujo hay ahora el margen libre, y a veces también el trozo que
@@ -750,6 +893,14 @@ function renderFullscreen(mod) {
       <button type="button" class="mt-btn" ${editing ? "disabled" : ""}
         onclick="focusBranchFront('${bj}', false, '${fullscreenMod}')"
         aria-label="Centrar en lo que sigue" title="Centrar en lo que sigue"><svg viewBox="0 0 24 24">${BM_ICONS.flecha}</svg></button>
+      <button type="button" class="mt-btn ${ramaGirada(b, fullscreenMod) ? "on" : ""}"
+        onclick="girarRama('${bj}', '${fullscreenMod}')"
+        aria-label="${ramaGirada(b, fullscreenMod) ? "Verla en horizontal" : tx("Ver la rama de pie")}"
+        aria-pressed="${ramaGirada(b, fullscreenMod)}"
+        title="${ramaGirada(b, fullscreenMod)
+          ? tx("Volver a lo ancho, como estaba")
+          : `Poner de pie: el primer ${esProy ? "encargo" : "talento"} abajo y el camino subiendo`}"><svg viewBox="0 0 24 24">${
+          ramaGirada(b, fullscreenMod) ? BM_ICONS.girarVuelta : BM_ICONS.girar}</svg></button>
       <button type="button" class="mt-btn ${editing ? "on" : ""}"
         onclick="toggleEditBranch('${bj}', '${fullscreenMod}')"
         aria-label="${editing ? "Salir de edición" : tx("Editar el mapa")}" aria-pressed="${editing}"
@@ -900,9 +1051,10 @@ function atajosLegend(compacta) {
     .map(t => `${k(TIPOS[t].tecla)} <b class="gl">${TIPOS[t].glifo}</b> ${TIPOS[t].nombre.toLowerCase()}`)
     .join('<i class="sep">·</i>');
   const partes = compacta
-    ? [crear, `${k("C")} editar el mapa`, `${raton} clic derecho: crear, editar y pantalla completa`]
-    : [crear, `${k("C")} salir de edición`, `${k("Ctrl")}${k("Z")} deshacer`,
-       `${raton} clic derecho: crear y más acciones`];
+    ? [crear, `${k("C")} editar el mapa`, `${k("M")} pantalla completa`,
+       `${raton} clic derecho: crear, editar y pantalla completa`]
+    : [crear, `${k("C")} salir de edición`, `${k("M")} pantalla completa`,
+       `${k("Ctrl")}${k("Z")} deshacer`, `${raton} clic derecho: crear y más acciones`];
   return `<span class="keys">${partes.join('<i class="sep">·</i>')}</span>`;
 }
 
@@ -927,8 +1079,12 @@ function crearTalentoRapido(branch, tipo, pos) {
     history: [{ date: todayKey(), at: stamp(), event: `Talento creado en la rama ${branch}` }]
   };
   if (pos) {
-    nuevo.x = enLienzoX(pos.x);
-    nuevo.y = enLienzoY(pos.y);
+    /* `pos` es donde está el cursor, o sea una coordenada DEL DIBUJO; lo que
+       se guarda tiene que ir sin girar, o al volver la rama a horizontal el
+       talento aparecería a noventa grados de donde se creó. */
+    const d = aDatos(pos.x, pos.y, ramaGirada(branch, "talentos"));
+    nuevo.x = enLienzoX(d.x);
+    nuevo.y = enLienzoY(d.y);
   }
   state.perks.push(nuevo);
   save();
@@ -961,8 +1117,12 @@ function duplicarTalento(id, pos) {
   copia.createdAt = todayKey();
   copia.history = [{ date: todayKey(), at: stamp(), event: `Duplicado de "${orig.name}"` }];
 
-  // Donde se hizo clic; si no, junto al original pero sin taparlo
-  const destino = pos || (typeof orig.x === "number" ? { x: orig.x + 46, y: orig.y + 78 } : null);
+  /* Donde se hizo clic; si no, junto al original pero sin taparlo. El clic
+     viene en coordenadas del dibujo y hay que desgirarlo; el "junto al
+     original" ya está en las guardadas y no se toca. */
+  const destino = pos
+    ? aDatos(pos.x, pos.y, ramaGirada(branch, "talentos"))
+    : (typeof orig.x === "number" ? { x: orig.x + 46, y: orig.y + 78 } : null);
   if (destino) {
     copia.x = enLienzoX(destino.x);
     copia.y = enLienzoY(destino.y);
@@ -998,8 +1158,10 @@ function crearEncargoRapido(branch, pos) {
     history: [{ date: todayKey(), at: stamp(), event: `Encargo creado en el proyecto ${branch}` }]
   };
   if (pos) {
-    nuevo.x = enLienzoX(pos.x);
-    nuevo.y = enLienzoY(pos.y);
+    // Igual que en Talentos: el cursor viene girado y lo guardado no lo va
+    const d = aDatos(pos.x, pos.y, ramaGirada(branch, "proyectos"));
+    nuevo.x = enLienzoX(d.x);
+    nuevo.y = enLienzoY(d.y);
   }
   state.projects.push(nuevo);
   save();
@@ -1155,6 +1317,19 @@ document.addEventListener("keydown", (e) => {
      cuenta de las tres que sí crean por separado de la que no lo hace es lo
      que evita que pulsar C gaste el turno de la Q. */
   if (k === "c") { e.preventDefault(); toggleEditBranch(rama); return; }
+  /* M de Mapa, como en cualquier juego. Tampoco se enfria, por lo mismo que
+     la C: no crea nada. Y hace las dos cosas —abre y cierra— porque un atajo
+     que solo entra deja al que lo uso buscando como salir.
+
+     Editando no se toca: ahi la mano esta conectando y cortando, y saltar a
+     otra pantalla a media faena seria perder el hilo. */
+  if (k === "m") {
+    e.preventDefault();
+    if (editandoRama(rama, "talentos")) return;
+    if (fullscreenBranch) closeBranchFullscreen();
+    else openBranchFullscreen(rama, "talentos");
+    return;
+  }
   const tipo = k === "q" ? "hito" : k === "w" ? "meta" : k === "e" ? "compra" : null;
   if (!tipo) return;
   e.preventDefault();
@@ -1331,7 +1506,11 @@ function toggleEditBranch(b, mod) {
    padres colocados). Como isDescendant impide los bucles, ese orden existe
    siempre; aun así se sale por las bravas si quedara algo sin colocar, para
    que un dato raro nunca cuelgue el dibujo. */
-function branchLayout(nodes) {
+/* `gir` dice si esta rama se está mirando de pie. Por omisión NO, así que
+   ninguna de las llamadas de antes cambia — incluida la del previsualizador
+   del plan (js/10d-plan.js), que dibuja un mapa diminuto dentro de un bloque
+   ancho y ahí ponerlo de pie no tendría sentido. */
+function branchLayout(nodes, gir) {
   const inBranch = new Set(nodes.map(n => n.id));
   const childrenOf = {};
   const padresDe = {};
@@ -1390,9 +1569,19 @@ function branchLayout(nodes) {
      Sin esto, arrastrar un nodo solo se alineaba con otros ya movidos. */
   posLienzo = pos;
 
+  /* ---- Y aquí entra el giro, en un solo sitio ----
+     `pos` se queda SIEMPRE en coordenadas guardadas y `dib` es donde cae cada
+     nodo en el dibujo. Son dos mapas y no uno a propósito: quien congela un
+     sitio en los datos (`fijarPosiciones`) y quien alinea con la regla
+     (`imantarNodo`, que compara contra `posLienzo` y contra `n.x`) trabajan en
+     coordenadas guardadas, y darles las giradas les habría metido el giro en
+     los datos. Sin girar, los dos mapas son el MISMO objeto y no cuesta nada. */
+  const dib = gir ? {} : pos;
+  if (gir) order.forEach(n => { dib[n.id] = alDibujo(pos[n.id].x, pos[n.id].y, true); });
+
   // El lienzo se ajusta a lo que ocupen los nodos (incluidos los movidos a mano)
-  const xs = order.map(n => pos[n.id].x);
-  const ys = order.map(n => pos[n.id].y);
+  const xs = order.map(n => dib[n.id].x);
+  const ys = order.map(n => dib[n.id].y);
   const W = Math.max(340, Math.max(...xs) + X0);
   const H = Math.max(200, Math.max(...ys) + PADY);
   /* Y también hacia atrás: desde que se puede colocar un nodo antes del cero
@@ -1400,7 +1589,7 @@ function branchLayout(nodes) {
      el borde izquierdo y el de arriba ya no son siempre el cero. */
   const minX = xs.length ? Math.min(...xs) : 0;
   const minY = ys.length ? Math.min(...ys) : 0;
-  return { pos, order, childrenOf, padresDe, H, W, minX, minY };
+  return { pos, dib, order, childrenOf, padresDe, H, W, minX, minY };
 }
 
 /* Radio horizontal de cada figura: de ahí salen y entran las conexiones.
@@ -1533,11 +1722,16 @@ const TODOS_LOS_RUMBOS = ["e", "w", "n", "s", "ne", "se", "nw", "sw"];
 /* El hito es el nodo pequeño y suele colgar a un lado del tronco, así que
    se le permiten los ocho rumbos; los demás respetan la gramática de salir
    por delante y entrar por detrás. */
-function rumbosDe(p, saliendo) {
-  if (p.esCaja) return saliendo ? SALIDAS : ENTRADAS;
-  // Al nodo pequeno se le permiten los ocho rumbos porque suele colgar a un
-  // lado del tronco. Es cosa de su tamano, no de que tipo sea.
-  return figuraDe(p).forma === "circulo" ? TODOS_LOS_RUMBOS : (saliendo ? SALIDAS : ENTRADAS);
+/* Con la rama de pie la gramática gira con ella: se sale por el norte y se
+   entra por el sur. El orden de la lista se conserva al girarla, y eso
+   importa — ante un empate gana el primero, y se prefiere el brazo recto. */
+function rumbosDe(p, saliendo, gir) {
+  const base = p.esCaja || figuraDe(p).forma !== "circulo"
+    ? (saliendo ? SALIDAS : ENTRADAS)
+    // Al nodo pequeno se le permiten los ocho rumbos porque suele colgar a un
+    // lado del tronco. Es cosa de su tamano, no de que tipo sea.
+    : TODOS_LOS_RUMBOS;
+  return gir ? base.map(r => GIRO_RUMBO[r]) : base;
 }
 
 function elegirRumbo(candidatos, dx, dy) {
@@ -1591,10 +1785,10 @@ function anclaEn(nodo, p, rumbo) {
 /* Curva entre dos nodos, como en un editor de nodos: el tirante de cada
    extremo sigue el brazo por el que ese nodo sale o entra, así el trazo
    nunca cruza por encima de las figuras. */
-function edgePath(a, b, pa, pb) {
+function edgePath(a, b, pa, pb, gir) {
   const dx = b.x - a.x, dy = b.y - a.y;
-  const salida = elegirRumbo(rumbosDe(pa, true), dx, dy);
-  const entrada = elegirRumbo(rumbosDe(pb, false), -dx, -dy);
+  const salida = elegirRumbo(rumbosDe(pa, true, gir), dx, dy);
+  const entrada = elegirRumbo(rumbosDe(pb, false, gir), -dx, -dy);
   const p1 = anclaEn(a, pa, salida);
   const p2 = anclaEn(b, pb, entrada);
   const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
@@ -1618,8 +1812,18 @@ function edgePath(a, b, pa, pb) {
    habria pintado el recinto de grupo del otro modulo. Por omision, talentos:
    asi ninguna de las llamadas de antes cambia. */
 function constellation(nodes, key, editing, branch, mod) {
-  const { pos, order, childrenOf, H, W, minX, minY } = branchLayout(nodes);
+  const gir = branch ? ramaGirada(branch, mod) : false;
+  const lay = branchLayout(nodes, gir);
+  const { order, childrenOf, H, W, minX, minY } = lay;
+  /* De aquí para abajo se dibuja SIEMPRE en coordenadas del dibujo. El alias
+     es a propósito y vale por cuarenta cambios: todo lo que ya escribía
+     `pos[n.id]` —los recintos, los hilos, las figuras, los rótulos, los
+     puertos, la selección— pasa a estar girado sin tocar una línea, y sin
+     girar `dib` y `pos` son el mismo objeto. */
+  const pos = lay.dib;
   const fid = "glow" + key;
+  // `editPos` guarda posiciones DEL DIBUJO: se compara contra lo que devuelve
+  // `svgPoint`, que también lo es. Ver los manejadores de edición.
   if (editing) { editPos = pos; editKey = key; }
   let edges = "";
   let nds = "";
@@ -1690,6 +1894,25 @@ function constellation(nodes, key, editing, branch, mod) {
      ejecuta con el mapa EN EDICIÓN: al entrar a editar una rama, el dibujado
      reventaba con «colT is not defined» a medio SVG, y con él se caía el
      resto de la pantalla de Talentos. Se cazó midiendo, no mirando. */
+  /* ---- Por dónde cuelgan los discos ----
+     Estaban clavados a la izquierda y a la derecha, que es lo mismo que decir
+     "por donde se recibe" y "por donde se avanza" mientras la rama es
+     horizontal. De pie ya no lo es: se piden por RUMBO y se van solos arriba
+     y abajo. Y el radio se pide en ese mismo rumbo, no el horizontal, porque
+     la figura no gira: una caja mide 104 de ancho y 52 de alto siempre. */
+  /* `R` es el radio horizontal que ya se venía usando y se respeta TAL CUAL
+     sin girar: `nodeRadius` redondea y `radioEnRumbo` no, así que cambiar de
+     uno a otro movía los discos medio píxel en el rombo y tres y medio en el
+     hexágono. Eso es tocar el dibujo de todo el mundo para arreglar el de
+     quien gire la rama, y lo cazó la huella del lienzo. Girada sí se pide por
+     rumbo, porque el radio de arriba no es el de los lados. */
+  const ladoDelPuerto = (n, x, y, base, sep, R) => {
+    const r = rumboGirado(base, gir);
+    const [ux, uy] = DIRS[r];
+    const d = (gir ? radioEnRumbo(n, r) : R) + sep;
+    return { x: x + ux * d, y: y + uy * d, ux, uy, rumbo: r };
+  };
+
   const puertos = (n, x, y, R, colL) => {
     let out = "";
     const reqs = requisitosDe(n);
@@ -1702,17 +1925,21 @@ function constellation(nodes, key, editing, branch, mod) {
       const listo = requisitosCumplidos(n);
       const cE = tinta(listo ? (n.color || "#5fe0b0") : "var(--lienzo-apagado)");
       const cumplidos = requisitosVivos(n).filter(r => nodoHecho(r, esNodoDeProyecto(n))).length;
+      const P = ladoDelPuerto(n, x, y, "w", 12, R);
       out += `<g class="port-in switch" data-modo="${n.id}">
         <title>${modo === "cualquiera"
           ? `Basta con completar CUALQUIERA de los ${reqs.length} requisitos. Toca para exigirlos todos.`
           : `Hacen falta LOS ${reqs.length} requisitos. Toca para que baste con cualquiera.`}</title>
-        <circle class="halo" cx="${x - R - 12}" cy="${y}" r="15" fill="transparent"/>
-        <circle cx="${x - R - 12}" cy="${y}" r="10" fill="var(--lienzo-ficha)" stroke="${cE}" stroke-width="2"${
+        <circle class="halo" cx="${P.x}" cy="${P.y}" r="15" fill="transparent"/>
+        <circle cx="${P.x}" cy="${P.y}" r="10" fill="var(--lienzo-ficha)" stroke="${cE}" stroke-width="2"${
           modo === "cualquiera" ? ` stroke-dasharray="3.4 2.6"` : ""}/>
-        <text x="${x - R - 12}" y="${y + 3.6}" text-anchor="middle" font-size="10" font-weight="800" fill="${cE}">${letra}</text>
+        <text x="${P.x}" y="${P.y + 3.6}" text-anchor="middle" font-size="10" font-weight="800" fill="${cE}">${letra}</text>
       </g>`;
       if (!listo) {
-        out += `<text x="${x - R - 12}" y="${y + 23}" text-anchor="middle" font-size="8.5" fill="var(--faint)" pointer-events="none">${cumplidos}/${reqs.length}</text>`;
+        /* La cuenta, siempre debajo del disco. De pie el disco ya está debajo
+           del nodo, así que "debajo del disco" sigue siendo hacia fuera y no
+           hay que cambiar nada. */
+        out += `<text x="${P.x}" y="${P.y + 23}" text-anchor="middle" font-size="8.5" fill="var(--faint)" pointer-events="none">${cumplidos}/${reqs.length}</text>`;
       }
     }
 
@@ -1727,20 +1954,164 @@ function constellation(nodes, key, editing, branch, mod) {
     const fuera = requisitosVivos(n).filter(r => (r.branch || "General") !== (n.branch || "General"));
     if (fuera.length) {
       const cF = tinta(fuera.every(r => nodoHecho(r, esNodoDeProyecto(n))) ? (n.color || "#5fe0b0") : "var(--lienzo-apagado)");
-      const x0 = x - R - 21, x1 = x0 - 26;
-      out += `<path d="M${x1} ${y} H${x0}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
+      /* El cabo sale por donde se recibe. El rótulo se queda DERECHO y colgado
+         del extremo: es texto, y el texto no gira. Sin girar se escribe
+         exactamente igual que siempre —con la `H` y todo— para que la huella
+         del lienzo no se mueva. */
+      if (!gir) {
+        const x0 = x - R - 21, x1 = x0 - 26;
+        out += `<path d="M${x1} ${y} H${x0}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
         <circle cx="${x1}" cy="${y}" r="3" fill="${cF}"/>
         <text x="${x1 - 5}" y="${y + 3.4}" text-anchor="end" font-size="8.5" fill="var(--faint)">${
           escapeHtml(fuera.length === 1 ? (fuera[0].branch || "General") : fuera.length + " ramas")}</text>`;
+      } else {
+        const A = ladoDelPuerto(n, x, y, "w", 21, R);
+        const B = ladoDelPuerto(n, x, y, "w", 47, R);
+        out += `<path d="M${B.x.toFixed(1)} ${B.y.toFixed(1)} L${A.x.toFixed(1)} ${A.y.toFixed(1)}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
+        <circle cx="${B.x.toFixed(1)}" cy="${B.y.toFixed(1)}" r="3" fill="${cF}"/>
+        <text x="${B.x.toFixed(1)}" y="${(B.y + A.uy * 11 + 3.4).toFixed(1)}" text-anchor="middle" font-size="8.5" fill="var(--faint)">${
+          escapeHtml(fuera.length === 1 ? (fuera[0].branch || "General") : fuera.length + " ramas")}</text>`;
+      }
     }
 
     if (editing) {
-      out += `<g class="port" data-from="${n.id}">
+      /* El punto ▸ sale por donde avanza el camino, y la punta mira hacia
+         allí: de pie tiene que apuntar arriba, no a la derecha. */
+      if (!gir) {
+        out += `<g class="port" data-from="${n.id}">
         <circle cx="${x + R + 11}" cy="${y}" r="9" fill="var(--lienzo-ficha)" stroke="${colL}" stroke-width="2"/>
         <path d="M${x + R + 8} ${y - 3.5} L${x + R + 14} ${y} L${x + R + 8} ${y + 3.5} Z" fill="${colL}"/>
       </g>`;
+      } else {
+        const S = ladoDelPuerto(n, x, y, "e", 11, R);
+        const ang = Math.atan2(S.uy, S.ux) * 180 / Math.PI;
+        out += `<g class="port" data-from="${n.id}" transform="rotate(${ang.toFixed(1)} ${S.x.toFixed(1)} ${S.y.toFixed(1)})">
+        <circle cx="${S.x.toFixed(1)}" cy="${S.y.toFixed(1)}" r="9" fill="var(--lienzo-ficha)" stroke="${colL}" stroke-width="2"/>
+        <path d="M${(S.x - 3).toFixed(1)} ${(S.y - 3.5).toFixed(1)} L${(S.x + 3).toFixed(1)} ${S.y.toFixed(1)} L${(S.x - 3).toFixed(1)} ${(S.y + 3.5).toFixed(1)} Z" fill="${colL}"/>
+      </g>`;
+      }
     }
     return out;
+  };
+
+  /* ================= Dónde cabe el nombre =================
+     Horizontal el nombre va debajo y ahí el hueco es suyo: los hermanos están
+     arriba y abajo, y lo que cuelga del nodo está a los lados. De pie se da la
+     vuelta —los hermanos quedan hombro con hombro— y el nombre a la derecha se
+     metía dentro del talento de al lado. Lo paró Eduardo viéndolo.
+
+     El orden es derecha → izquierda → abajo. La derecha primero porque leemos
+     hacia allá y el nombre pegado al costado se lee de corrido; abajo es el
+     último recurso porque debajo es por donde ENTRA el camino, y ahí vive el
+     círculo Y/O, que se ve siempre y no solo editando.
+
+     Se comprueba contra los otros talentos Y contra los nombres ya colocados:
+     sin lo segundo, dos hermanos mandan su nombre al mismo hueco. */
+  /* Cada estorbo lleva de quién es, y eso NO es un adorno: el nombre se
+     separa diez píxeles de su propio talento, así que en cuanto se pide un
+     margen mayor que diez, la figura bloquea a su propio nombre y no lo deja
+     ni a la derecha ni a la izquierda. Solo sobrevivía "abajo", y de ahí ya no
+     salía nunca. Se veía como que el texto se quedaba pegado a un lado para
+     siempre; lo cazó Eduardo alejando el talento de al lado y viendo que no
+     volvía. Un talento nunca se estorba a sí mismo. */
+  const estorbos = gir ? order.map(n => {
+    const p = pos[n.id];
+    const rw = n.esCaja ? CAJA_W / 2 : radioEnRumbo(n, "w");
+    const rh = n.esCaja ? CAJA_H / 2 : radioEnRumbo(n, "n");
+    return { id: n.id, x0: p.x - rw, x1: p.x + rw, y0: p.y - rh, y1: p.y + rh };
+  }) : null;
+
+  const cajaRotulo = (s, ancho, lineas, fs) => {
+    const x0 = s.ancla === "start" ? s.anclaX : s.ancla === "end" ? s.anclaX - ancho : s.anclaX - ancho / 2;
+    return { x0, x1: x0 + ancho, y0: s.base - fs, y1: s.base + (lineas - 1) * 12 + 3 };
+  };
+
+  const sitioDelRotulo = (n, x, y, lines, fs, esChico) => {
+    /* Sin girar, exactamente lo de siempre: 32 y 44 desde el CENTRO. */
+    const abajoDeSiempre = { lado: "abajo", ancla: "middle", anclaX: x, base: y + (esChico ? 32 : 44) };
+    const ancho = anchoDelRotulo(lines, fs);
+    if (!gir) {
+      abajoDeSiempre.caja = cajaRotulo(abajoDeSiempre, ancho, lines.length, fs);
+      return abajoDeSiempre;
+    }
+
+    const rE = n.esCaja ? CAJA_W / 2 : radioEnRumbo(n, "e");
+    const rW = n.esCaja ? CAJA_W / 2 : radioEnRumbo(n, "w");
+    const rS = n.esCaja ? CAJA_H / 2 : radioEnRumbo(n, "s");
+    const medio = (lines.length - 1) * 6;
+
+    /* Cuando acaba abajo, el hueco NO siempre mide lo mismo. El círculo Y/O
+       solo existe con más de un requisito; reservarle sitio al que no lo tiene
+       deja el nombre flotando lejos por nada. Y sin disco baja EXACTAMENTE lo
+       que baja en horizontal —desde el centro, no desde el borde—: apartarlo
+       por el borde lo mandaba al doble de distancia y se veía despegado del
+       talento. Lo pidió Eduardo mirándolo. */
+    const baseAbajo = requisitosDe(n).length > 1
+      ? y + rS + 52
+      : y + (esChico ? 32 : 44);
+
+    const opciones = [
+      { lado: "derecha",   ancla: "start",  anclaX: x + rE + 10, base: y - medio + 3.5 },
+      { lado: "izquierda", ancla: "end",    anclaX: x - rW - 10, base: y - medio + 3.5 },
+      { lado: "abajo",     ancla: "middle", anclaX: x,           base: baseAbajo }
+    ];
+    opciones.forEach(o => { o.caja = cajaRotulo(o, ancho, lines.length, fs); });
+
+    /* ---- Y AQUÍ ESTÁ LO QUE IMPEDÍA QUE EL TALENTO BAILARA ----
+       Lo que se le da al encuadre no es la caja del lado ELEGIDO, sino la de
+       los tres juntos: así el sitio que ocupa este talento no depende de a qué
+       lado acabó su nombre. Parece un desperdicio de dos dedos de lienzo y es
+       lo que corta un bucle de verdad:
+
+         el nombre cambia de lado → cambia la caja del dibujo → cambia el
+         `viewBox` → `svgPt` traduce el mismo punto de la pantalla a OTRA
+         coordenada → el talento que estás arrastrando se mueve solo → se
+         vuelve a decidir el lado → y otra vez, sin parar.
+
+       Se veía como que el talento pegaba tirones al pasar el texto de un lado
+       a otro. Lo cazó Eduardo arrastrando al milímetro. Con la envoltura, el
+       cambio de lado es SOLO del texto: el dibujo no se mueve ni un píxel. */
+    const envoltura = opciones.reduce((a, o) => ({
+      x0: Math.min(a.x0, o.caja.x0), x1: Math.max(a.x1, o.caja.x1),
+      y0: Math.min(a.y0, o.caja.y0), y1: Math.max(a.y1, o.caja.y1)
+    }), { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity });
+
+    /* ---- Se prueban SIEMPRE en el orden natural, y la memoria solo pone un
+            escalón ----
+       La primera versión probaba primero el lado que ya tenía, y eso hacía lo
+       contrario de lo que se quería: un nombre que se había ido a la izquierda
+       se quedaba ahí para siempre, aunque la derecha volviera a estar libre,
+       porque la izquierda seguía cabiendo. Había que arrimarle otro talento
+       para que volviera. Lo cazó Eduardo.
+
+       Ahora el orden es siempre derecha → izquierda → abajo, y la memoria solo
+       decide CUÁNTO hueco hace falta: quedarse donde está pide el margen
+       normal, y mudarse a otro sitio pide el margen normal más un escalón. De
+       ahí sale una banda muerta —entre 7 y 17— que es lo que impide el
+       temblor: se va de la derecha cuando de verdad ya no cabe, y vuelve
+       cuando hay hueco de sobra, no en el mismo píxel donde se fue.
+
+       Sin memoria todavía —la primera vez que se dibuja— no hay escalón: el
+       escalón es para no cambiar de idea, y ahí no hay idea que cambiar. */
+    const previo = ladoPrevio[n.id];
+    const AIRE = 7, ESCALON = 10;
+
+    for (const o of opciones) {
+      const margen = (!previo || previo === o.lado) ? AIRE : AIRE + ESCALON;
+      if (!estorbos.some(e => e.id !== n.id && chocanCajas(o.caja, e, margen))) {
+        estorbos.push(o.caja);
+        ladoPrevio[n.id] = o.lado;
+        o.envoltura = envoltura;
+        return o;
+      }
+    }
+    /* Ni a los lados ni debajo. Se queda abajo igual: es el mal menor —debajo
+       se pisa con un hilo, a los lados se pisa con un talento— y es el único
+       sitio que no depende de que quepa nada. */
+    estorbos.push(opciones[2].caja);
+    ladoPrevio[n.id] = "abajo";
+    opciones[2].envoltura = envoltura;
+    return opciones[2];
   };
 
   /* ---- Lo que está elegido ----
@@ -1770,7 +2141,7 @@ function constellation(nodes, key, editing, branch, mod) {
       const inProgress = !c.esCaja && (cst === "active" || cst === "due");
       const lit = done || inProgress;
       const col = trazo(done ? (c.color || "#5fe0b0") : (inProgress ? "var(--fire)" : "var(--lienzo-hilo)"));
-      const P = edgePath(a, b, n, c);
+      const P = edgePath(a, b, n, c, gir);
       const wdt = lit ? 3 : 2;
       // Sin filtro SVG: un trazo perfectamente horizontal tiene caja de altura
       // cero y el desenfoque lo hacía desaparecer. El halo se pinta a mano.
@@ -1889,7 +2260,8 @@ function constellation(nodes, key, editing, branch, mod) {
        es justo la pregunta que uno se hace mirando el mapa. */
     const verEtapas = st === "active" || (esNodoDeProyecto(n) && st === "esperando");
     const lines = wrapName(n.name);
-    const topY = y + (esHito ? 32 : 44);
+    const sitio = sitioDelRotulo(n, x, y, lines, esHito ? 9.5 : 10.5, esHito);
+    const topY = sitio.base;
 
     /* Sin onclick propio: abrir la ficha lo decide el gesto (ver
        attachPanHandlers). Con el puntero capturado por el lienzo, el clic
@@ -1905,8 +2277,8 @@ function constellation(nodes, key, editing, branch, mod) {
       ${conf.mark ? `<g class="nod-chapa"><circle cx="${x + markR.dx}" cy="${y + markR.dy}" r="9.5" fill="${conf.badge}"/>
         <g transform="translate(${x + markR.dx - 6}, ${y + markR.dy - 6}) scale(0.5)"
            stroke="var(--sobre-macizo)" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g></g>` : ""}
-      <text class="nod-nombre" x="${x}" y="${topY}" text-anchor="middle" font-size="${esHito ? 9.5 : 10.5}" fill="var(--lienzo-rotulo)" font-weight="500">
-        ${lines.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 12}">${escapeHtml(ln)}</tspan>`).join("")}
+      <text class="nod-nombre" x="${sitio.anclaX}" y="${topY}" text-anchor="${sitio.ancla}" font-size="${esHito ? 9.5 : 10.5}" fill="var(--lienzo-rotulo)" font-weight="500">
+        ${lines.map((ln, i) => `<tspan x="${sitio.anclaX}" dy="${i === 0 ? 0 : 12}">${escapeHtml(ln)}</tspan>`).join("")}
       </text>
       ${/* El avance de una meta en curso, en el propio mapa. Sin esto el
             trabajo por etapas solo existía dentro de la ficha, y el mapa
@@ -1914,24 +2286,36 @@ function constellation(nodes, key, editing, branch, mod) {
             adelantada. Se dice en etapas y no en porcentaje porque es lo que
             se marca: "2/4" es accionable, "50%" es un resumen. */
         (verEtapas && (n.steps || []).length)
-          ? `<text class="nod-etapas" x="${x}" y="${topY + (lines.length - 1) * 12 + 13}" text-anchor="middle" font-size="9" fill="var(--fire)" font-weight="700">${
+          ? `<text class="nod-etapas" x="${sitio.anclaX}" y="${topY + (lines.length - 1) * 12 + 13}" text-anchor="${sitio.ancla}" font-size="9" fill="var(--fire)" font-weight="700">${
               n.steps.filter(s2 => s2.done).length}/${n.steps.length} etapas</text>`
           : ""}
     </g>`;
 
     /* ---- Los círculos de apoyo (R15) ----
-       Por la izquierda entra lo que hace falta —y esa letra, "Y" u "O", es
-       además el interruptor de la regla—, por la derecha sale lo que este
+       Por donde se recibe entra lo que hace falta —y esa letra, "Y" u "O", es
+       además el interruptor de la regla—, por donde se avanza sale lo que este
        talento habilita. Ver `puertos`, arriba. */
     ports += puertos(n, x, y, R, colT);
 
     // Lo que ocupa este talento con todo lo que le cuelga
     const hayFueraAqui = requisitosVivos(n).some(r => (r.branch || "General") !== (n.branch || "General"));
-    abarcar(
-      x - R - (requisitosDe(n).length > 1 ? 26 : 0) - (hayFueraAqui ? 76 : 0),
-      y - R - (conf.mark ? 12 : 0),
-      x + R + (editing ? 22 : 0),
-      topY + (lines.length - 1) * 12 + ((verEtapas && (n.steps || []).length) ? 18 : 6));
+    const cuelga = (requisitosDe(n).length > 1 ? 26 : 0) + (hayFueraAqui ? 76 : 0);
+    const abajo = topY + (lines.length - 1) * 12 + ((verEtapas && (n.steps || []).length) ? 18 : 6);
+    if (!gir) {
+      // Palabra por palabra lo de siempre: la huella del lienzo no se mueve
+      abarcar(x - R - cuelga, y - R - (conf.mark ? 12 : 0), x + R + (editing ? 22 : 0), abajo);
+    } else {
+      /* De pie, lo que cuelga sale por ABAJO en vez de por la izquierda. Y el
+         nombre entra por su ENVOLTURA —los tres sitios posibles— y no por el
+         que le tocó: así el hueco de este talento no cambia cuando el texto se
+         pasa de lado, que es lo que le hacía dar tirones. Ver `sitioDelRotulo`. */
+      const env = sitio.envoltura || sitio.caja;
+      abarcar(
+        Math.min(x - R, env.x0),
+        Math.min(y - R - (conf.mark ? 12 : 0) - (editing ? 22 : 0), env.y0),
+        Math.max(x + R, env.x1),
+        Math.max(y + R + cuelga, abajo, env.y1));
+    }
   });
 
   const padRight = editing ? 46 : 0;
@@ -2246,7 +2630,13 @@ function attachPanHandlers(scope) {
          saltaba a ponerse bajo el cursor. */
       const n = nodoPorId(gesto.id);
       const p = pt || gesto.pt0;
-      if (n && typeof n.x === "number" && p) { gesto.dx = n.x - p.x; gesto.dy = n.y - p.y; }
+      /* El desfase se mide en coordenadas DEL DIBUJO, que es donde está el
+         dedo: `n.x` está sin girar y `p` viene girado, y restarlos a pelo
+         hacía saltar el nodo al primer movimiento con la rama de pie. */
+      if (n && typeof n.x === "number" && p) {
+        const d = alDibujo(n.x, n.y, ramaGirada(b, mod));
+        gesto.dx = d.x - p.x; gesto.dy = d.y - p.y;
+      }
       pushUndo(gesto.esCaja ? tx("mover una caja") : (mod === "proyectos" ? tx("mover un encargo") : tx("mover un talento")), null, mod);
       wrap.classList.add("moviendo");
       if (userHasTapped && navigator.vibrate) navigator.vibrate(12);
@@ -2325,8 +2715,10 @@ function attachPanHandlers(scope) {
         if (!n) return;
         const pt = svgPt(e);
         gesto.movido = true;
-        n.x = enLienzoX(pt.x + gesto.dx);
-        n.y = enLienzoY(pt.y + gesto.dy);
+        // Se arrastra en coordenadas del dibujo y se ESCRIBE desgirado
+        const d = aDatos(pt.x + gesto.dx, pt.y + gesto.dy, ramaGirada(b, mod));
+        n.x = enLienzoX(d.x);
+        n.y = enLienzoY(d.y);
         /* Y el imán, que es lo que pidió Eduardo: si el nodo queda CERCA de
            estar alineado con otro, se alinea del todo y aparece la línea que
            lo dice. Nadie coloca dos nodos a la misma altura a ojo con el
@@ -2658,6 +3050,12 @@ function attachEditHandlers(scope) {
   let snapAntes = null;
   // Trazo y punto de la tijera, para animar el corte una vez consumado
   let cutInfo = null;
+  /* Las reglas de alinear que hay que pintar en el proximo fotograma. Vive
+     aqui y no dentro del manejador de movimiento porque el redibujado va
+     acelerado: cuando ya hay un fotograma pedido, los movimientos siguientes
+     no piden otro, y con una variable local el fotograma habria pintado las
+     reglas del movimiento que lo pidio en vez de las del ultimo. */
+  let guiasPend = null;
 
   const svgPoint = (e) => {
     const svg = wrap.querySelector("svg");
@@ -2719,6 +3117,11 @@ function attachEditHandlers(scope) {
          nodo mueve solo ese, sin deshacer la selección. */
       ptIni = pt;
       grupoIni = null;
+      /* El iman compara contra `posLienzo`, que lo deja el ultimo mapa
+         dibujado — y ese puede ser el de OTRA rama, porque la pagina las
+         dibuja todas. Se siembra con esta antes de empezar, o el primer
+         movimiento se alinearia contra los nodos del vecino. */
+      branchLayout(branchNodes(b, mod), ramaGirada(b, mod));
       if (selNodos.has(curId) && selNodos.size > 1) {
         grupoIni = new Map();
         selNodos.forEach(id => {
@@ -2779,25 +3182,50 @@ function attachEditHandlers(scope) {
       // nodoPorId y no state.perks: la caja del atico tambien se arrastra
       const p = nodoPorId(curId);
       if (!p) return;
+      /* Todo lo de aquí va en coordenadas del dibujo —el dedo, `ptIni`, lo que
+         guarda `editPos`— y lo que se escribe en el talento va sin girar. Por
+         eso el ida y vuelta: se calcula girado, se desgira para guardar y se
+         vuelve a girar para `editPos`, que es lo que se compara contra el
+         puntero en el recuadro de selección y al soltar un enlace. */
+      const gir = ramaGirada(b, mod);
+      guiasPend = null;
       if (grupoIni) {
         const dx = pt.x - ptIni.x, dy = pt.y - ptIni.y;
         grupoIni.forEach((ini, id) => {
           const q = nodoPorId(id);
           if (!q) return;
-          q.x = enLienzoX(ini.x + dx);
-          q.y = enLienzoY(ini.y + dy);
-          editPos[id] = { x: q.x, y: q.y };
+          const d = aDatos(ini.x + dx, ini.y + dy, gir);
+          q.x = enLienzoX(d.x);
+          q.y = enLienzoY(d.y);
+          editPos[id] = alDibujo(q.x, q.y, gir);
         });
       } else {
-        p.x = enLienzoX(pt.x + offset.dx);
-        p.y = enLienzoY(pt.y + offset.dy);
-        editPos[curId] = { x: p.x, y: p.y };
+        const d = aDatos(pt.x + offset.dx, pt.y + offset.dy, gir);
+        p.x = enLienzoX(d.x);
+        p.y = enLienzoY(d.y);
+        /* La regla de alinear, también aquí. Vivía SOLO en el arrastre normal
+           desde que se hizo, y en el editor no había ni imán ni líneas — que
+           es justo donde uno acomoda un mapa, porque para conectar y cortar
+           hay que encender el lápiz. Lo echó en falta Eduardo.
+
+           Va solo cuando se mueve UNO. Arrastrando varios en bloque, pegar el
+           grupo entero porque uno de sus miembros quedó cerca de alinearse
+           movería a los otros a sitios que nadie pidió. */
+        guiasPend = imantarNodo(p, b, mod);
+        editPos[curId] = alDibujo(p.x, p.y, gir);
       }
       // Al acercarse a un borde, el lienzo acompaña al dedo
       const r = wrap.getBoundingClientRect();
       if (e.clientX > r.right - 46) wrap.scrollLeft += 14;
       else if (e.clientX < r.left + 46) wrap.scrollLeft -= 14;
-      if (!raf) raf = requestAnimationFrame(() => { raf = null; redraw(); });
+      /* Las líneas se pintan DESPUÉS de redibujar y en el mismo fotograma: el
+         redibujado sustituye el SVG entero, así que pintarlas antes es
+         tirarlas a la basura. */
+      if (!raf) raf = requestAnimationFrame(() => {
+        raf = null;
+        redraw();
+        if (guiasPend) pintarGuias(wrap, guiasPend); else borrarGuias(wrap);
+      });
     }
 
     if (mode === "link") {
@@ -2808,7 +3236,7 @@ function attachEditHandlers(scope) {
       if (prev) {
         // Mismo criterio de rumbo que edgePath(), para que la vista previa no
         // prometa un trazo que al soltar se dibuje por otro brazo.
-        const rumbo = elegirRumbo(rumbosDe(fp, true), pt.x - from.x, pt.y - from.y);
+        const rumbo = elegirRumbo(rumbosDe(fp, true, ramaGirada(b, mod)), pt.x - from.x, pt.y - from.y);
         const anchor = anclaEn(from, fp, rumbo);
         const [vx, vy] = DIRS[rumbo];
         const pull = Math.max(40, Math.hypot(pt.x - anchor.x, pt.y - anchor.y) * 0.5);
@@ -2820,6 +3248,8 @@ function attachEditHandlers(scope) {
 
   const finish = (e) => {
     if (!mode) return;
+    guiasPend = null;
+    borrarGuias(wrap);
     if (mode === "pan") { mode = null; panFrom = null; return; }
     if (mode === "banda") {
       const pt = svgPoint(e);

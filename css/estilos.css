@@ -3107,6 +3107,23 @@
   /* En la computadora el número ya vive al pie de la barra lateral */
   @media (min-width: 900px) { .version-pie { display: none; } }
 
+  /* ---------- El pie legal ----------
+     Los dos documentos, debajo del número. Más apagados que él a propósito:
+     no son algo que se venga a buscar todos los días, pero tienen que estar
+     donde se puedan encontrar sin preguntar. Y sin esconderse en la
+     computadora, al revés que el número: estos enlaces no viven en ningún
+     otro sitio de la app. */
+  .legal-pie {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-top: 10px;
+    font-size: 11.5px;
+  }
+  .legal-pie a { color: var(--faint); text-decoration: none; }
+  .legal-pie a:hover, .legal-pie a:focus-visible { color: var(--text); text-decoration: underline; }
+
   /* ---------- Reportar un fallo ----------
      Una BOLITA del tamaño del botón que pliega el menú (32 px), y no una fila
      con rótulo: esto se usa una vez al mes y una fila entera pesaba más que
@@ -4216,6 +4233,38 @@
     margin-bottom: 16px;
     overflow: hidden;
   }
+  /* ---- La rama sobre la que trabajas ----
+     Los atajos (Q, W, E, C, M) y el clic derecho actúan sobre UNA rama: la que
+     señala el ratón, o la que se está editando. Hasta ahora eso no se veía en
+     ninguna parte — tocabas una rama, no pasaba nada visible, y sin embargo la
+     tecla siguiente caía ahí. Lo pidió Eduardo: «que se vea que como mínimo
+     esa rama está seleccionada».
+
+     Una pleca en el canto izquierdo y nada más. No es un borde alrededor
+     —eso compite con el marco de la tarjeta, que ya dice dónde empieza y
+     acaba— ni un fondo teñido, que en una lista de ramas se lee como un
+     estado del contenido. Una pleca al margen se lee como lo que es: una
+     marca de lectura.
+
+     El desvanecido va sobre `opacity`, que es un número. Poner la transición
+     sobre el color habría sido caer otra vez en la trampa de siempre: una
+     propiedad cuyo valor sale de una variable se queda congelada en el tono
+     de partida (ver la nota de `ponerTema` en js/01-base.js). */
+  .branch-card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--mint);
+    border-radius: 0 3px 3px 0;
+    opacity: 0;
+    transition: opacity var(--dur-media) var(--curva);
+    pointer-events: none;
+  }
+  .branch-card.rama-activa::after { opacity: 1; }
+
   .branch-card .branch-head {
     display: flex;
     align-items: center;
@@ -5263,6 +5312,124 @@
   .tuto-dots i.on { background: var(--mint); width: 20px; }
 
   /* ---------- Ventana de una caja del ático ---------- */
+  /* ---------- El cajón de caminos ---------- */
+  .cajon-card { max-width: 640px; max-height: 88vh; display: flex; flex-direction: column; }
+  .cajon-cab { flex-shrink: 0; }
+  .cajon-cab h3 { margin: 0 0 4px; font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+  .cajon-cab p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+  .cajon-cifras {
+    display: flex; gap: 16px; margin: 11px 0 0; padding: 11px 0 0;
+    border-top: 1px solid var(--line);
+    font-family: var(--tipo-cifra); font-size: 10.5px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .cajon-cifras b { display: block; font-size: 15px; color: var(--mint); font-weight: 700; }
+  /* Lo que decide las columnas es el ancho de ESTA caja, no el de la pantalla:
+     la ventana no ocupa todo, y con una media query salían dos cartas
+     estrujadas dentro de un teléfono. */
+  .cajon-cuerpo { overflow-y: auto; flex: 1; margin: 14px 0; container-type: inline-size; }
+  .cajon-pie { display: flex; gap: 9px; flex-shrink: 0; }
+  .cajon-pie .btn { flex: 1; }
+
+  .cam-cero {
+    display: flex; align-items: center; gap: 11px; width: 100%;
+    padding: 12px 13px; margin-bottom: 15px; cursor: pointer;
+    border: 1px dashed var(--line); border-radius: var(--r-media, 12px);
+    background: none; color: var(--muted); font-family: inherit;
+    font-size: 13px; text-align: left;
+  }
+  .cam-cero:hover { border-color: var(--mint); color: var(--text); }
+  .cam-cero b { display: block; color: var(--text); font-size: 13.5px; }
+
+  .cam-rot {
+    font-family: var(--tipo-cifra); font-size: 9.5px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted);
+    margin: 0 0 9px; display: flex; align-items: center; gap: 8px;
+  }
+  .cam-rot::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+  .cam-rejilla { display: grid; grid-template-columns: 1fr; gap: 9px; margin-bottom: 16px; }
+  @container (min-width: 520px) { .cam-rejilla { grid-template-columns: 1fr 1fr; } }
+
+  .cam-carta {
+    border: 1px solid var(--line); border-radius: var(--r-grande, 14px);
+    overflow: hidden; background: var(--sup-hondo, var(--card));
+    display: flex; flex-direction: column; cursor: pointer;
+    font-family: inherit; text-align: left; padding: 0; color: var(--text);
+  }
+  .cam-carta:hover { border-color: var(--c); }
+  .cam-carta:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+  /* El mapa es la cabecera: es el terreno que vas a desbloquear, no un adorno.
+     Sobre el mismo suelo con puntitos que el lienzo de verdad. */
+  .cam-mapa {
+    padding: 11px 11px 7px; border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(circle, var(--line) 1px, transparent 1px) 0 0 / 13px 13px,
+      color-mix(in srgb, var(--c) 7%, transparent);
+  }
+  .cam-mapa svg { display: block; width: 100%; height: auto; }
+  .cam-cuerpo { padding: 10px 12px 11px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .cam-titulo { font-weight: 700; font-size: 14px; line-height: 1.22; }
+  .cam-uno {
+    font-size: 11.5px; color: var(--muted); line-height: 1.4;
+    padding-left: 9px; border-left: 2px solid var(--c);
+  }
+  .cam-uno b { color: var(--text); font-weight: 500; }
+  .cam-pie {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 5px 9px;
+    margin-top: auto; padding-top: 8px; border-top: 1px solid var(--line);
+    font-family: var(--tipo-cifra); font-size: 10px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .cam-xp { color: var(--c); font-weight: 700; font-size: 11.5px; }
+  .cam-chapa {
+    margin-left: auto; font-size: 9.5px; padding: 3px 7px;
+    border-radius: var(--r-pastilla, 20px); border: 1px solid var(--line);
+  }
+  /* Ya puesto: se MARCA, no se apaga. Volver a ponerlo crea una rama nueva al
+     lado, así que la de antes se queda entera y no hay nada que perder. */
+  .cam-hecho {
+    display: inline-flex; align-items: center; gap: 5px; align-self: flex-start;
+    font-family: var(--tipo-cifra); font-size: 9.5px; color: var(--muted);
+    border: 1px solid var(--line); border-radius: var(--r-pastilla, 20px);
+    padding: 2px 8px;
+  }
+  .cam-hecho .ic svg { width: 11px; height: 11px; }
+
+  /* Apagadas, no escondidas: se ven enteras y en gris, y al tocarlas sale el
+     cuadro que dice por qué. Es la diferencia entre un escaparate y un muro. */
+  .cam-carta.trabada { filter: grayscale(1); opacity: .6; }
+  .cam-carta.trabada:hover { border-color: var(--line); }
+  .cam-aviso {
+    margin: 0 0 14px; padding: 11px 13px; font-size: 12.5px;
+    border-radius: var(--r-media, 12px);
+    background: var(--fire-soft); border: 1px solid var(--fire); color: var(--text);
+  }
+  .cam-aviso b { color: var(--fire); }
+
+  /* La vista previa */
+  .cam-cuenta {
+    display: flex; flex-wrap: wrap; gap: 10px 18px; padding: 11px 13px;
+    background: var(--sup-hondo, var(--card)); border-radius: var(--r-media, 12px);
+    margin-bottom: 12px; font-size: 11.5px; color: var(--muted);
+  }
+  .cam-cuenta b { display: block; font-size: 16px; color: var(--text);
+    font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
+  .cam-lista { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; }
+  .cam-lista > div { display: flex; gap: 9px; color: var(--muted); }
+  .cam-lista .k { font-family: var(--tipo-cifra); font-size: 10.5px; color: var(--c);
+    padding-top: 2px; min-width: 15px; font-variant-numeric: tabular-nums; }
+  .cam-lista b { color: var(--text); font-weight: 500; }
+  .cam-refe {
+    margin: 14px 0 0; padding-top: 11px; border-top: 1px solid var(--line);
+    font-size: 11.5px; line-height: 1.5; color: var(--muted);
+    padding-left: 15px; text-indent: -15px;
+  }
+  /* El sello de que una rama vino de un camino. El MISMO dibujo que lleva la
+     carta en el cajón: repetirlo es lo que lo hace entender sin explicarlo. */
+  .sello-camino { color: var(--muted); display: inline-flex; opacity: .75; }
+  .sello-camino svg { width: 12px; height: 12px; }
+
   .caja-card { max-height: 86vh; overflow-y: auto; }
   .caja-head { text-align: center; margin-bottom: 14px; }
   .caja-nombre {
@@ -5642,6 +5809,19 @@
     display: block;
     font-size: 13px;
     color: var(--muted);
+    text-align: center;
+    /* Ya no cierra el bloque: debajo va la garantía, y el aire de abajo lo
+       pone ella. Con el margen aquí, las dos frases se leían como dos cosas. */
+    margin-bottom: 4px;
+  }
+
+  /* La garantía, más apagada que el precio y en el mismo eje. Es lo último que
+     se lee antes de pulsar y no compite con la cifra: contesta al miedo que
+     queda DESPUÉS de verla. */
+  .modal-card.menta .tope-garantia {
+    display: block;
+    font-size: 12.5px;
+    color: var(--faint);
     text-align: center;
     margin-bottom: 18px;
   }
@@ -6889,6 +7069,13 @@
   }
   .portada-nota { text-align: center; color: var(--faint); font-size: 12px; line-height: 1.55; margin: 6px 0 0; }
 
+  /* El consentimiento, debajo de la nota y más apagado todavía. Los enlaces sí
+     se subrayan: es lo único de este renglón que hay que poder distinguir de un
+     vistazo, porque es lo que hay que poder leer ANTES de aceptar. */
+  .portada-legal { text-align: center; color: var(--faint); font-size: 11.5px; line-height: 1.55; margin: 8px 0 0; }
+  .portada-legal a { color: var(--muted); text-decoration: underline; }
+  .portada-legal a:hover, .portada-legal a:focus-visible { color: var(--text); }
+
   /* La portada aparece desvaneciéndose salvo cuando releva a la pantalla de
      carga: ahí las dos tapan lo mismo con el mismo fondo, así que encadenar
      dos desvanecidos solo consigue enseñar un instante lo que hay debajo. */
@@ -7011,6 +7198,72 @@
     display: block; font-size: 12.5px; color: var(--muted);
     margin-top: 2px; word-break: break-all;
   }
+
+  /* ---------- Las cuentas guardadas en este dispositivo ----------
+     La misma fila en Ajustes y en la puerta, y por eso se apoya en
+     `.perfil-ficha` en vez de traer la suya: aquella YA es la fila de «quién
+     eres» del panel de la cuenta, y una lista de cuentas son varias de esas.
+     Dos maquetados para lo mismo se separan a la primera. */
+  .cuentas-tit {
+    margin: 0 0 8px; font-size: 12px; font-weight: 700;
+    letter-spacing: .04em; text-transform: uppercase; color: var(--muted);
+  }
+  .cuentas-lista { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+
+  /* La fila es la ficha MÁS la salida, una al lado de la otra. El dispositivo se
+     presta, y un atajo que entra sin escribir contraseña tiene que enseñar
+     cómo se deshace sin que haya que ir a buscarlo a un menú. */
+  .cuenta-fila { display: flex; align-items: stretch; gap: 8px; }
+  .cuenta-fila .perfil-ficha {
+    margin-bottom: 0; padding: 10px 12px; flex: 1; min-width: 0;
+  }
+  .cuenta-fila .perfil-ficha:hover { background: var(--sup-tarjeta2); }
+  /* Una línea cada uno, y con puntos suspensivos. Dos motivos: un nombre sin
+     espacios no tiene por dónde partirse y se derramaba por encima de la × —
+     medido, 220 letras seguidas—, y con los correos partidos en dos renglones
+     cada fila medía distinto, que es justo lo que impide recorrer una lista de
+     un vistazo. Lo que distingue a dos cuentas está al PRINCIPIO del correo,
+     así que cortar por el final no esconde nada que haga falta. */
+  .cuenta-fila .perfil-quien b,
+  .cuenta-fila .perfil-quien span {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; word-break: normal;
+  }
+  .cuenta-quitar {
+    flex: none; width: 38px; padding: 0;
+    background: none; border: 0; cursor: pointer;
+    color: var(--muted); font-size: 20px; line-height: 1; font-family: inherit;
+    border-radius: var(--r-chico);
+  }
+  .cuenta-quitar:hover { color: var(--coral); background: var(--sup-tarjeta2); }
+
+  /* ---------- Las cuentas dentro de un menú ----------
+     El bloque que va justo debajo de «quién eres», en el menú del engrane y en
+     el índice de Ajustes. La raya de abajo no es adorno: separa «con qué cuenta
+     estoy trabajando» de «qué ajustes hay», que son dos preguntas distintas
+     una encima de la otra. */
+  .menu-cuentas {
+    display: flex; flex-direction: column; gap: 2px;
+    padding-bottom: 8px; margin-bottom: 8px;
+    border-bottom: var(--borde-fino) solid var(--line);
+  }
+  /* El círculo de la cara ocupa el hueco del icono —los dos miden 30— así que
+     los renglónes siguen alineados con los de abajo sin tocar nada más. Y va
+     suelto, sin el envoltorio `.mm-ic`, porque aquel pinta un cuadrado de
+     fondo detrás: con la cara encima se veía un parche de color asomando. */
+  .mm-cuenta .avatar, .aj-cuenta .avatar { flex: none; }
+  /* En el índice de Ajustes los renglónes llevan una flecha al final; estos no
+     van a ninguna sección, así que el hueco de la flecha sobra. */
+  .aj-cuenta { grid-template-columns: none; }
+  .menu-cuentas .aj-item, .menu-cuentas .mm-item { min-width: 0; }
+  .menu-cuentas b, .menu-cuentas span span {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  /* En la puerta la lista va dentro de la caja del formulario, que es
+     estrecha: sin esto el correo largo de una cuenta estira la caja entera y
+     saca una barra horizontal en el teléfono. */
+  .portada .cuentas-lista { margin-bottom: 0; }
+  .portada .cuentas-tit { text-align: left; }
 
   /* "opcional" al lado de la etiqueta. En cursiva y más claro para que se lea
      como una aclaración y no como parte del nombre del campo. */
@@ -9169,6 +9422,48 @@
 }
 .pn-dicho span { font-size: 11px; color: var(--faint); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
 
+/* ---- La palomita de atender un reporte ----
+   Va en la misma fila que la fecha y a la derecha del todo, que es donde no
+   estorba a la lectura: lo que se viene a leer aquí es lo que escribió la
+   persona, y el botón es lo que se hace DESPUÉS de leerlo.
+
+   Es un interruptor y no una acción de un solo sentido: se puede volver a
+   dejar abierto. Por eso lleva `aria-pressed` y cambia de palabra, en vez de
+   desaparecer al pulsarlo — un botón que se va no dice en qué estado quedó.
+
+   Sin transición sobre el color, como todo este panel. */
+.pn-dicho { position: relative; }
+.pn-palomita {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--faint);
+  background: transparent;
+  border: var(--borde-fino) solid var(--line);
+  border-radius: var(--r-pastilla);
+  padding: 3px 9px 3px 7px;
+  cursor: pointer;
+}
+.pn-palomita:hover, .pn-palomita:focus-visible { color: var(--text); border-color: var(--carril); }
+
+/* Atendido: menta, y esta es la única menta de la caja. Sigue la regla del
+   color del panel — aquí sí hay un juicio, y el juicio es «esto ya está». */
+.pn-palomita.on { color: var(--mint); border-color: var(--mint); }
+.pn-palomita.on:hover, .pn-palomita.on:focus-visible { color: var(--mint); border-color: var(--mint); }
+
+/* El texto se va en pantallas estrechas y se queda la palomita sola: en un
+   teléfono, dos palabras al lado de la fecha parten el renglón. */
+@media (max-width: 420px) {
+  .pn-palomita span { display: none; }
+  .pn-palomita { padding: 4px 7px; }
+}
+
 /* Los tonos de las barras de una lista, cuando la lista los pide. */
 .pn-riel i.t-lila { background: var(--lila-macizo); }
 .pn-riel i.t-menta { background: var(--mint-macizo); }
@@ -9345,6 +9640,18 @@
 }
 
 .plan-cards { display: grid; gap: 10px; margin: 14px 0 4px; }
+
+/* La garantía de devolución, debajo de las dos tarjetas y no dentro de cada
+   una: es la misma promesa con dos plazos, y repetida en las dos se lee como
+   letra pequeña. Centrada y apagada — no es un argumento de venta más, es lo
+   que se lee justo después de decidir. */
+.plan-garantia {
+  margin: 10px 2px 4px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  text-align: center;
+}
 @media (min-width: 900px) { .plan-cards { grid-template-columns: repeat(3, 1fr); } }
 
 .plan-card {
@@ -9907,7 +10214,26 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
 .pn-guia.hoy { stroke: var(--carril); stroke-dasharray: none; }
 
 /* Las cuentas nuevas del día, al fondo y en su propia escala */
-.pn-alta { fill: var(--celeste); opacity: .32; }
+/* ---- La segunda serie: las cuentas nuevas ----
+   Era una barra al fondo con su propia escala, y desde el 3 de septiembre es
+   una línea sobre la MISMA escala que la principal. Se separa de ella por tres
+   cosas a la vez y no por una: el color, el trazo discontinuo y el grosor. El
+   discontinuo no es adorno — es lo que deja distinguirlas a quien no separa
+   bien el verde del azul.
+
+   Sin transición ninguna, como el resto de este panel: el color sale de una
+   variable y una transición sobre eso se queda congelada para siempre. */
+.pn-hilo-altas {
+  fill: none;
+  stroke: var(--celeste);
+  stroke-width: 1.3;
+  stroke-dasharray: 3 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: .75;
+}
+
+.pn-punto-alta { fill: var(--celeste); opacity: .85; }
 
 .pn-pie-graf {
   display: flex;
@@ -9919,8 +10245,11 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
 }
 
 .pn-pie-graf span { display: inline-flex; align-items: center; gap: 6px; }
-.pn-mu-punto { width: 8px; height: 8px; border-radius: var(--r-disco); background: var(--mint); }
-.pn-mu-barra { width: 6px; height: 11px; border-radius: 1px; background: var(--celeste); opacity: .5; }
+/* Las dos muestras de la leyenda son ahora dos LÍNEAS, porque eso es lo que
+   hay en el dibujo. La de antes pintaba una barra vertical al lado de la
+   palabra «cuentas nuevas» y ya no existe ninguna barra. */
+.pn-mu-linea { width: 14px; height: 0; border-top: 2px solid var(--mint); border-radius: 2px; }
+.pn-mu-linea.altas { border-top-style: dashed; border-top-color: var(--celeste); }
 
   /* El rótulo de una apariencia de prueba. Es parte de la receta de subir algo
      apagado detrás de un parámetro: sin él es fácil olvidar que la pestaña
