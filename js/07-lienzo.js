@@ -367,6 +367,15 @@ function aDatos(x, y, gir)   { return gir ? { x: -y, y: x } : { x, y }; }
 const GIRO_RUMBO = { e: "n", ne: "nw", se: "ne", n: "w", s: "e", w: "s", nw: "sw", sw: "se" };
 function rumboGirado(r, gir) { return gir ? GIRO_RUMBO[r] : r; }
 
+/* ---- De qué lado quedó el nombre la última vez ----
+   Memoria entre dibujos, y es lo que quita el temblor. Sin ella, un talento
+   arrastrado justo en el límite de caber a la derecha cambiaba de lado en
+   cada fotograma: derecha, izquierda, derecha, izquierda, sin parar. Con la
+   memoria, el lado que ya tenía se prueba PRIMERO, así que solo se mueve
+   cuando de verdad dejó de caber — y una vez que se mueve, se queda.
+   Lo pidió Eduardo viéndolo temblar. */
+const ladoPrevio = {};
+
 function chocanCajas(a, b, aire) {
   return !(a.x1 + aire < b.x0 || b.x1 + aire < a.x0 || a.y1 + aire < b.y0 || b.y1 + aire < a.y0);
 }
@@ -890,7 +899,8 @@ function renderFullscreen(mod) {
         aria-pressed="${ramaGirada(b, fullscreenMod)}"
         title="${ramaGirada(b, fullscreenMod)
           ? "Volver a lo ancho, como estaba"
-          : `Poner de pie: el primer ${esProy ? "encargo" : "talento"} abajo y el camino subiendo`}"><svg viewBox="0 0 24 24">${BM_ICONS.girar}</svg></button>
+          : `Poner de pie: el primer ${esProy ? "encargo" : "talento"} abajo y el camino subiendo`}"><svg viewBox="0 0 24 24">${
+          ramaGirada(b, fullscreenMod) ? BM_ICONS.girarVuelta : BM_ICONS.girar}</svg></button>
       <button type="button" class="mt-btn ${editing ? "on" : ""}"
         onclick="toggleEditBranch('${bj}', '${fullscreenMod}')"
         aria-label="${editing ? "Salir de edición" : "Editar el mapa"}" aria-pressed="${editing}"
@@ -2024,14 +2034,45 @@ function constellation(nodes, key, editing, branch, mod) {
       { lado: "izquierda", ancla: "end",    anclaX: x - rW - 10, base: y - medio + 3.5 },
       { lado: "abajo",     ancla: "middle", anclaX: x,           base: baseAbajo }
     ];
-    for (const o of opciones) {
-      o.caja = cajaRotulo(o, ancho, lines.length, fs);
-      if (!estorbos.some(e => chocanCajas(o.caja, e, 7))) { estorbos.push(o.caja); return o; }
+    opciones.forEach(o => { o.caja = cajaRotulo(o, ancho, lines.length, fs); });
+
+    /* ---- Y AQUÍ ESTÁ LO QUE IMPEDÍA QUE EL TALENTO BAILARA ----
+       Lo que se le da al encuadre no es la caja del lado ELEGIDO, sino la de
+       los tres juntos: así el sitio que ocupa este talento no depende de a qué
+       lado acabó su nombre. Parece un desperdicio de dos dedos de lienzo y es
+       lo que corta un bucle de verdad:
+
+         el nombre cambia de lado → cambia la caja del dibujo → cambia el
+         `viewBox` → `svgPt` traduce el mismo punto de la pantalla a OTRA
+         coordenada → el talento que estás arrastrando se mueve solo → se
+         vuelve a decidir el lado → y otra vez, sin parar.
+
+       Se veía como que el talento pegaba tirones al pasar el texto de un lado
+       a otro. Lo cazó Eduardo arrastrando al milímetro. Con la envoltura, el
+       cambio de lado es SOLO del texto: el dibujo no se mueve ni un píxel. */
+    const envoltura = opciones.reduce((a, o) => ({
+      x0: Math.min(a.x0, o.caja.x0), x1: Math.max(a.x1, o.caja.x1),
+      y0: Math.min(a.y0, o.caja.y0), y1: Math.max(a.y1, o.caja.y1)
+    }), { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity });
+
+    // El lado que ya tenía se prueba primero: ver `ladoPrevio`
+    const orden = opciones.slice().sort((a, b) =>
+      (a.lado === ladoPrevio[n.id] ? -1 : 0) - (b.lado === ladoPrevio[n.id] ? -1 : 0));
+
+    for (const o of orden) {
+      if (!estorbos.some(e => chocanCajas(o.caja, e, 7))) {
+        estorbos.push(o.caja);
+        ladoPrevio[n.id] = o.lado;
+        o.envoltura = envoltura;
+        return o;
+      }
     }
     /* Ni a los lados ni debajo. Se queda abajo igual: es el mal menor —debajo
        se pisa con un hilo, a los lados se pisa con un talento— y es el único
        sitio que no depende de que quepa nada. */
     estorbos.push(opciones[2].caja);
+    ladoPrevio[n.id] = "abajo";
+    opciones[2].envoltura = envoltura;
     return opciones[2];
   };
 
@@ -2226,14 +2267,16 @@ function constellation(nodes, key, editing, branch, mod) {
       // Palabra por palabra lo de siempre: la huella del lienzo no se mueve
       abarcar(x - R - cuelga, y - R - (conf.mark ? 12 : 0), x + R + (editing ? 22 : 0), abajo);
     } else {
-      /* De pie, lo que cuelga sale por ABAJO en vez de por la izquierda, y el
-         nombre puede estar a cualquiera de los tres lados: su caja entra en la
-         cuenta venga de donde venga, o el encuadre lo recorta. */
+      /* De pie, lo que cuelga sale por ABAJO en vez de por la izquierda. Y el
+         nombre entra por su ENVOLTURA —los tres sitios posibles— y no por el
+         que le tocó: así el hueco de este talento no cambia cuando el texto se
+         pasa de lado, que es lo que le hacía dar tirones. Ver `sitioDelRotulo`. */
+      const env = sitio.envoltura || sitio.caja;
       abarcar(
-        Math.min(x - R, sitio.caja.x0),
-        Math.min(y - R - (conf.mark ? 12 : 0) - (editing ? 22 : 0), sitio.caja.y0),
-        Math.max(x + R, sitio.caja.x1),
-        Math.max(y + R + cuelga, abajo, sitio.caja.y1));
+        Math.min(x - R, env.x0),
+        Math.min(y - R - (conf.mark ? 12 : 0) - (editing ? 22 : 0), env.y0),
+        Math.max(x + R, env.x1),
+        Math.max(y + R + cuelga, abajo, env.y1));
     }
   });
 

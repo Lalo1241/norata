@@ -364,7 +364,8 @@ function renderProjects() {
                 icon: "lapiz", onclick: `toggleEditBranch('${enJS(b)}','proyectos')` },
               { title: ramaGirada(b, "proyectos") ? "Verlo en horizontal" : "Ver el mapa de pie",
                 hint: ramaGirada(b, "proyectos") ? "Vuelve a lo ancho, como estaba" : "El primer encargo abajo y el camino subiendo",
-                icon: "girar", onclick: `girarRama('${enJS(b)}','proyectos')` },
+                icon: ramaGirada(b, "proyectos") ? "girarVuelta" : "girar",
+                onclick: `girarRama('${enJS(b)}','proyectos')` },
               { title: "Reacomodar el mapa", hint: "Recoloca los encargos según su orden",
                 icon: "expandir", onclick: `resetBranchLayout('${enJS(b)}','proyectos')` }
             ] : []),
@@ -1362,7 +1363,8 @@ function renderTree() {
                  los pusiste, y volver a tocarlo la deja como estaba. */
               { title: ramaGirada(b, "talentos") ? "Verla en horizontal" : "Ver la rama de pie",
                 hint: ramaGirada(b, "talentos") ? "Vuelve a lo ancho, como estaba" : "El primer talento abajo y el camino subiendo",
-                icon: "girar", onclick: `girarRama('${bj}','talentos')` },
+                icon: ramaGirada(b, "talentos") ? "girarVuelta" : "girar",
+                onclick: `girarRama('${bj}','talentos')` },
               editing
                 ? { title: "Terminar de editar", hint: "Vuelve al modo normal", icon: "lapiz", onclick: `toggleEditBranch('${bj}')` }
                 : { title: "Editar el mapa", hint: "Mueve y conecta los talentos", icon: "lapiz", onclick: `toggleEditBranch('${bj}')` }
