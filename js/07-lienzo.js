@@ -1234,7 +1234,34 @@ document.addEventListener("mousemove", (e) => {
   if (!wrap) return;                       // fuera de un lienzo se conserva el último
   const p = puntoEnLienzo(wrap, e.clientX, e.clientY);
   if (p) cursorRama = { branch: wrap.dataset.branch, x: p.x, y: p.y };
+  marcarRamaActiva();
 });
+
+/* ---- Enseñar sobre qué rama van a caer las teclas ----
+   `ramaDeAtajo` decide en silencio, y el silencio era el problema: señalabas
+   una rama, no pasaba nada visible, y la siguiente tecla creaba un talento
+   ahí. La pleca del canto izquierdo lo dice sin ocupar sitio (ver
+   `.branch-card::after` en css/estilos.css).
+
+   Solo en escritorio: los atajos y el clic derecho no existen en una pantalla
+   táctil, y marcar la rama que toca el dedo prometería algo que no hay. Y solo
+   en la lista de Talentos, que es donde esas teclas trabajan.
+
+   Se recuerda cuál está marcada para no recorrer las tarjetas en cada píxel
+   que se mueve el ratón: solo se toca el DOM cuando de verdad cambia la rama.
+   El dibujado pone la clase por su cuenta, así que un repintado no la pierde
+   y las dos formas coinciden. */
+let ramaMarcada = null;
+
+function marcarRamaActiva() {
+  const b = (isDesktop() && !fullscreenBranch && activeMainView === "tree")
+    ? ramaDeAtajo() : null;
+  if (b === ramaMarcada) return;
+  ramaMarcada = b;
+  document.querySelectorAll(".branch-card[data-rama]").forEach(c => {
+    c.classList.toggle("rama-activa", !!b && c.dataset.rama === b);
+  });
+}
 
 /* La rama sobre la que actúan los atajos: la que señala el ratón, y si no,
    la que esté a pantalla completa o en edición. */
