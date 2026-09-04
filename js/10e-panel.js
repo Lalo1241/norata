@@ -157,7 +157,7 @@ const MESES_CORTOS = ["ene", "feb", "mar", "abr", "may", "jun",
 
 function panelConstelacion(dias) {
   if (!dias || !dias.length) {
-    return `<p class="settings-note">Todavía no hay ni un día con actividad. Aparecerá en cuanto alguien abra la app con su cuenta.</p>`;
+    return `<p class="settings-note">${tx("Todavía no hay ni un día con actividad. Aparecerá en cuanto alguien abra la app con su cuenta.")}</p>`;
   }
 
   /* Con sitio a la izquierda para la escala —los números del eje no cabían en
@@ -260,8 +260,8 @@ function panelConstelacion(dias) {
 
   const pie = hayAltas
     ? `<div class="pn-pie-graf">
-         <span><i class="pn-mu-punto"></i> personas que abrieron</span>
-         <span><i class="pn-mu-barra"></i> cuentas nuevas</span>
+         <span><i class="pn-mu-punto"></i> ${tx("personas que abrieron")}</span>
+         <span><i class="pn-mu-barra"></i> ${tx("cuentas nuevas")}</span>
        </div>`
     : "";
 
@@ -298,10 +298,10 @@ function panelConstelacion(dias) {
   }
 
   const resumen = `<div class="pn-graf-cifras">
-      <div class="pn-gc"><b>${media}</b><span>personas al día</span></div>
+      <div class="pn-gc"><b>${media}</b><span>${tx("personas al día")}</span></div>
       <div class="pn-gc"><b>${tope}</b><span>el mejor día${
         diaCima ? " · " + diaCima.getDate() + " " + MESES_CORTOS[diaCima.getMonth()] : ""}</span></div>
-      <div class="pn-gc"><b>${total}</b><span>aperturas con cuenta</span></div>
+      <div class="pn-gc"><b>${total}</b><span>${tx("aperturas con cuenta")}</span></div>
       ${tendencia ? `<div class="pn-gc tend">${tendencia}</div>` : ""}
     </div>`;
 
@@ -385,7 +385,7 @@ function panelDona(filas, claveNombre, claveValor, vacio) {
 function panelEmbudo(pasos) {
   const ps = (pasos || []).map(p => ({ paso: String(p.paso), n: Number(p.personas) || 0 }));
   if (!ps.length || ps[0].n === 0) {
-    return `<p class="settings-note">Todavía no hay nadie registrado, así que no hay embudo que mirar.</p>`;
+    return `<p class="settings-note">${tx("Todavía no hay nadie registrado, así que no hay embudo que mirar.")}</p>`;
   }
   const tope = ps[0].n;
 
@@ -421,12 +421,12 @@ function panelEmbudo(pasos) {
         </div>
         <div class="pn-paso-riel"><i style="width:${ancho.toFixed(1)}%"></i></div>
         ${crece
-          ? `<div class="pn-caida ojo">sube en vez de bajar: este paso no se cuenta como un trozo del anterior</div>`
+          ? `<div class="pn-caida ojo">${tx("sube en vez de bajar: este paso no se cuenta como un trozo del anterior")}</div>`
           : (i === iPeor
             ? `<div class="pn-caida">aquí se pierde más gente que en ningún otro paso: ${maxPerdida} ${maxPerdida === 1 ? "persona" : "personas"}, el ${cae}% del anterior</div>`
             : (i > 0 && cae > 0
               ? `<div class="pn-caida ok">se pierde el ${cae}% del paso anterior</div>`
-              : (i > 0 ? `<div class="pn-caida ok">no se pierde nadie</div>` : "")))}
+              : (i > 0 ? `<div class="pn-caida ok">${tx("no se pierde nadie")}</div>` : "")))}
       </div>`;
   }).join("") + `</div>`;
 }
@@ -532,10 +532,10 @@ function panelReportesHTML(tropiezos) {
 
   return `<div class="panel">
       <div class="pn-cab">
-        <h3>Lo que la gente reporta</h3>
+        <h3>${tx("Lo que la gente reporta")}</h3>
         <span class="pn-cuenta${sinVer ? " nuevo" : ""}">${total} ${total === 1 ? "reporte" : "reportes"}</span>
       </div>
-      <p class="settings-note">Agrupados por dónde dicen que pasó, no por el texto: dos personas contando dos cosas distintas de la misma pantalla son dos historias, y sumarlas borraría lo que las hace útiles. Toca un grupo para leerlos.</p>
+      <p class="settings-note">${tx("Agrupados por dónde dicen que pasó, no por el texto: dos personas contando dos cosas distintas de la misma pantalla son dos historias, y sumarlas borraría lo que las hace útiles. Toca un grupo para leerlos.")}</p>
       <div class="pn-grupos">` + grupos.map(g => {
     const abierto = !!reportesAbiertos[g.lugar];
     return `<div class="pn-grupo ${abierto ? "abierto" : ""}">
@@ -579,14 +579,14 @@ function panelPruebasHTML() {
   const lista = typeof PLANES_SIMULABLES !== "undefined" ? PLANES_SIMULABLES : [];
 
   return `<div class="panel">
-      <h3>Modo de pruebas</h3>
-      <p class="settings-note">Solo lo ves tú, y solo mientras esta cuenta sea administradora. No cambia nada en el servidor: lo que hay aquí decide qué se DIBUJA, no lo que la base de datos cree.</p>
+      <h3>${tx("Modo de pruebas")}</h3>
+      <p class="settings-note">${tx("Solo lo ves tú, y solo mientras esta cuenta sea administradora. No cambia nada en el servidor: lo que hay aquí decide qué se DIBUJA, no lo que la base de datos cree.")}</p>
 
       <div class="field">
-        <span class="lbl">Esta cuenta</span>
+        <span class="lbl">${tx("Esta cuenta")}</span>
         <div class="seg">
-          <button${on ? "" : ' class="on"'} onclick="marcarCuentaDePruebas(false)">Normal</button>
-          <button${on ? ' class="on"' : ""} onclick="marcarCuentaDePruebas(true)">De pruebas</button>
+          <button${on ? "" : ' class="on"'} onclick="marcarCuentaDePruebas(false)">${tx("Normal")}</button>
+          <button${on ? ' class="on"' : ""} onclick="marcarCuentaDePruebas(true)">${tx("De pruebas")}</button>
         </div>
         <div class="field-hint">${on
           ? "Verás un marco punteado amarillo mientras la uses, y borrar todo no pedirá confirmación extra."
@@ -594,7 +594,7 @@ function panelPruebasHTML() {
       </div>
 
       ${on ? `<div class="field" style="margin-bottom:0">
-        <span class="lbl">Ver la app como si tuviera</span>
+        <span class="lbl">${tx("Ver la app como si tuviera")}</span>
         <div class="pn-planes">` +
           lista.map(x => `<button class="${cual === x.id ? "on" : ""}"
             onclick="planSimular('${x.id}')">${escapeHtml(x.rotulo)}</button>`).join("") +
@@ -659,8 +659,8 @@ function verLaFiesta(cual) {
 
 function panelFiestasHTML() {
   return `<div class="panel">
-      <h3>Ver una celebración</h3>
-      <p class="settings-note">Se disparan aquí porque algunas pasan una vez en la vida de una cuenta y no hay forma de revisarlas esperándolas. No tocan tus datos ni tu nivel: solo dibujan.</p>
+      <h3>${tx("Ver una celebración")}</h3>
+      <p class="settings-note">${tx("Se disparan aquí porque algunas pasan una vez en la vida de una cuenta y no hay forma de revisarlas esperándolas. No tocan tus datos ni tu nivel: solo dibujan.")}</p>
       <div class="pn-fiestas">
         ${FIESTAS.map(f => `<button class="btn btn-linea btn-block" onclick="verLaFiesta('${f.id}')">
           <b>${escapeHtml(f.rotulo)}</b><span>${escapeHtml(f.nota)}</span>
@@ -683,9 +683,9 @@ function renderPanelAdmin() {
      pidiendo lo escondía justo cuando hace falta. */
   if (!m) {
     caja.innerHTML = panelPruebasHTML() + panelFiestasHTML() + `<div class="panel">
-        <h3>Los números</h3>
-        <p class="settings-note">Se piden al servidor cuando abres esta sección.</p>
-        <button class="btn btn-linea btn-block" onclick="cargarMetricas()">Cargar los números</button>
+        <h3>${tx("Los números")}</h3>
+        <p class="settings-note">${tx("Se piden al servidor cuando abres esta sección.")}</p>
+        <button class="btn btn-linea btn-block" onclick="cargarMetricas()">${tx("Cargar los números")}</button>
       </div>`;
     return;
   }
@@ -720,7 +720,7 @@ function renderPanelAdmin() {
 
   caja.innerHTML = panelPruebasHTML() + panelFiestasHTML() + `
     ${avisos.length ? `<div class="panel">
-      <h3>Para mirar</h3>
+      <h3>${tx("Para mirar")}</h3>
       <div class="pn-avisos">
         ${avisos.map(a => `<div class="pn-aviso ${a.k}">
             <b>${a.n}</b>
@@ -731,13 +731,13 @@ function renderPanelAdmin() {
     </div>` : ""}
 
     <div class="panel">
-      <h3>El embudo</h3>
-      <p class="settings-note">Cada paso es un trozo del anterior. El escalón donde más gente se cae es el que hay que arreglar primero — y casi nunca es el que uno cree.</p>
+      <h3>${tx("El embudo")}</h3>
+      <p class="settings-note">${tx("Cada paso es un trozo del anterior. El escalón donde más gente se cae es el que hay que arreglar primero — y casi nunca es el que uno cree.")}</p>
       ${panelEmbudo(m.embudo)}
     </div>
 
     <div class="panel">
-      <h3>La gente</h3>
+      <h3>${tx("La gente")}</h3>
       <div class="pn-kpis">
         ${panelCifra(r.cuentas || 0, "Cuentas creadas")}
         ${panelCifra(r.activos7 || 0, "Activos esta semana", "abrieron en 7 días")}
@@ -749,33 +749,33 @@ function renderPanelAdmin() {
     </div>
 
     <div class="panel">
-      <h3>Los últimos 14 días</h3>
-      <p class="settings-note">Los puntos son personas que abrieron la app; las barras del fondo, cuentas nuevas. Las líneas verticales marcan cada lunes, para comparar una semana con otra.</p>
+      <h3>${tx("Los últimos 14 días")}</h3>
+      <p class="settings-note">${tx("Los puntos son personas que abrieron la app; las barras del fondo, cuentas nuevas. Las líneas verticales marcan cada lunes, para comparar una semana con otra.")}</p>
       ${panelConstelacion(m.dias)}
     </div>
 
     <div class="panel">
-      <h3>Cómo la usan</h3>
+      <h3>${tx("Cómo la usan")}</h3>
       <div class="pn-donas">
         <div>
-          <h4 class="pn-sub">Desde qué aparato</h4>
+          <h4 class="pn-sub">${tx("Desde qué aparato")}</h4>
           ${panelDona(m.aparatos, "grupo", "personas", "Nadie ha abierto la app todavía.")}
-          <p class="settings-note" style="margin-top:8px">Sale del ancho de la ventana, no de fichar el aparato: dos teléfonos distintos cuentan como uno.</p>
+          <p class="settings-note" style="margin-top:8px">${tx("Sale del ancho de la ventana, no de fichar el aparato: dos teléfonos distintos cuentan como uno.")}</p>
         </div>
         <div>
-          <h4 class="pn-sub">Instalada o en el navegador</h4>
+          <h4 class="pn-sub">${tx("Instalada o en el navegador")}</h4>
           ${panelDona(m.instalacion, "grupo", "personas", "Nadie ha abierto la app todavía.")}
-          <p class="settings-note" style="margin-top:8px">Instalada se abre sola; en una pestaña se olvida. Señal buena: 30 de cada 100.</p>
+          <p class="settings-note" style="margin-top:8px">${tx("Instalada se abre sola; en una pestaña se olvida. Señal buena: 30 de cada 100.")}</p>
         </div>
       </div>
-      <h4 class="pn-sub" style="margin-top:18px">Cuánto llevan con cuenta</h4>
+      <h4 class="pn-sub" style="margin-top:18px">${tx("Cuánto llevan con cuenta")}</h4>
       ${panelListaBarras(m.antiguedad, "tramo", "personas", "Todavía no hay ninguna cuenta.")}
     </div>
 
     <div class="panel">
-      <h3>El cobro</h3>
+      <h3>${tx("El cobro")}</h3>
       ${c.desplegado === false
-        ? `<p class="settings-note">El cobro todavía no está puesto en el servidor, así que aquí no hay nada que contar. Cuando corras <code>planes.sql</code> y despliegues Stripe, esta caja se llena sola — los pasos están en <code>supabase/LEEME.md</code>.</p>`
+        ? `<p class="settings-note">${tx("El cobro todavía no está puesto en el servidor, así que aquí no hay nada que contar. Cuando corras")} <code>planes.sql</code> ${tx("y despliegues Stripe, esta caja se llena sola — los pasos están en")} <code>supabase/LEEME.md</code>.</p>`
         : `<div class="pn-kpis">
              ${panelCifra(c.pagando || 0, "Pagando ahora")}
              ${panelCifra("$" + (c.mrr || 0), "Al mes", "sin contar fundador")}
@@ -797,8 +797,8 @@ function renderPanelAdmin() {
     </div>
 
     <div class="panel">
-      <h3>Con qué versión se quedó cada quien</h3>
-      <p class="settings-note">Una fila por persona: <strong>la última versión que vio</strong>, no todas las que ha usado nunca. Si aquí aparece una que ya no existe, hay alguien pegado a una copia vieja — casi siempre porque no se subió el número de <code>CACHE</code> en <code>sw.js</code>.</p>
+      <h3>${tx("Con qué versión se quedó cada quien")}</h3>
+      <p class="settings-note">${tx("Una fila por persona:")} <strong>${tx("la última versión que vio")}</strong>${tx(", no todas las que ha usado nunca. Si aquí aparece una que ya no existe, hay alguien pegado a una copia vieja — casi siempre porque no se subió el número de")} <code>CACHE</code> ${tx("en")} <code>sw.js</code>.</p>
       ${panelListaBarras(m.versiones, "version", "personas", "Nadie ha abierto la app en los últimos treinta días.",
           null,
           /* Las barras oscuras y solo la de hoy destacada, que es lo que pidió
@@ -814,7 +814,7 @@ function renderPanelAdmin() {
 
     <div class="panel">
       <div class="pn-cab">
-        <h3>Lo que se rompe solo</h3>
+        <h3>${tx("Lo que se rompe solo")}</h3>
         <span class="pn-cuenta${autos.length && autoSinVer ? " nuevo" : ""}">${autos.length} ${autos.length === 1 ? "error" : "errores"}</span>
       </div>
       <p class="settings-note">Los que caza la app por su cuenta. Cada fila es un error distinto de un día, con las veces que pasó: se agrupan a propósito, porque un fallo dentro de un bucle escribiría miles de filas iguales. Lo que escribe una persona va arriba, en su propia caja.</p>
@@ -827,7 +827,7 @@ function renderPanelAdmin() {
               </div>
               <div class="pn-error-pie">${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")} · ${escapeHtml(String(t.donde) || "?")}</div>
             </div>`).join("") + `</div>`
-        : `<p class="settings-note">Ni un error en los últimos treinta días.</p>`}
+        : `<p class="settings-note">${tx("Ni un error en los últimos treinta días.")}</p>`}
       ${sinVer ? `<button class="btn btn-soft btn-block" style="margin-top:12px" onclick="marcarTropiezosVistos()">Dar por vistos los ${sinVer} nuevos</button>` : ""}
     </div>
 
@@ -838,19 +838,19 @@ function renderPanelAdmin() {
            viene a ver — el mismo motivo por el que las cifras de la gráfica
            bajaron debajo del dibujo. -->
       <div class="pn-clave">
-        <span><i class="bien"></i>llega a la vara</span>
-        <span><i class="ojo"></i>hay que mirarlo</span>
-        <span><i class="mal"></i>se pierde gente</span>
+        <span><i class="bien"></i>${tx("llega a la vara")}</span>
+        <span><i class="ojo"></i>${tx("hay que mirarlo")}</span>
+        <span><i class="mal"></i>${tx("se pierde gente")}</span>
       </div>
-      <p class="settings-note">Lo demás va en tinta normal a propósito: es un dato, no un juicio. Un número sin una vara contra la que compararse no puede estar bien ni mal.</p>
+      <p class="settings-note">${tx("Lo demás va en tinta normal a propósito: es un dato, no un juicio. Un número sin una vara contra la que compararse no puede estar bien ni mal.")}</p>
       <p class="settings-note" style="margin:0">Números tomados ${escapeHtml(String(m.al_momento || "").slice(0, 16).replace("T", " a las "))}.</p>
-      <button class="btn btn-linea btn-block" style="margin-top:10px" onclick="cargarMetricas()">Volver a pedirlos</button>
+      <button class="btn btn-linea btn-block" style="margin-top:10px" onclick="cargarMetricas()">${tx("Volver a pedirlos")}</button>
     </div>`;
 }
 
 async function cargarMetricas() {
   const caja = document.getElementById("panel-admin");
-  if (caja) caja.innerHTML = `<div class="panel"><p class="settings-note">Pidiendo los números…</p></div>`;
+  if (caja) caja.innerHTML = `<div class="panel"><p class="settings-note">${tx("Pidiendo los números…")}</p></div>`;
   try {
     metricasCache = await sbMetricas();
     renderPanelAdmin();
@@ -859,9 +859,9 @@ async function cargarMetricas() {
        panel está esperando algo y merece saber por qué no llegó. */
     if (caja) {
       caja.innerHTML = `<div class="panel">
-          <h3>No pude traer los números</h3>
+          <h3>${tx("No pude traer los números")}</h3>
           <p class="settings-note">${escapeHtml(e.message || String(e))}</p>
-          <button class="btn btn-linea btn-block" onclick="cargarMetricas()">Intentar otra vez</button>
+          <button class="btn btn-linea btn-block" onclick="cargarMetricas()">${tx("Intentar otra vez")}</button>
         </div>`;
     }
   }

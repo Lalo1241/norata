@@ -1031,14 +1031,14 @@ function renderPanelPlan() {
      ofrece la salida, en vez de pintar tres botones que van a fallar. */
   if (typeof syncReady === "function" && !syncReady()) {
     caja.innerHTML =
-      `<h3>Tu plan</h3>
-       <p class="settings-note">Norata funciona entera sin cuenta, y lo que llevas hecho es tuyo. Para tener un plan hace falta una, porque es donde se guarda.</p>
-       <button class="btn btn-primary btn-block" onclick="abrirAjustes('cuenta')">Crear mi cuenta</button>`;
+      `<h3>${tx("Tu plan")}</h3>
+       <p class="settings-note">${tx("Norata funciona entera sin cuenta, y lo que llevas hecho es tuyo. Para tener un plan hace falta una, porque es donde se guarda.")}</p>
+       <button class="btn btn-primary btn-block" onclick="abrirAjustes('cuenta')">${tx("Crear mi cuenta")}</button>`;
     return;
   }
 
   if (esPro()) {
-    caja.innerHTML = `<h3>Tu plan</h3>` + planActivoHTML();
+    caja.innerHTML = `<h3>${tx("Tu plan")}</h3>` + planActivoHTML();
     return;
   }
 
@@ -1063,10 +1063,10 @@ function renderPanelPlan() {
      vuelve a su sitio. */
   const topes = planTopesHTML();
   caja.innerHTML =
-    `<h3>Tu plan</h3>` +
+    `<h3>${tx("Tu plan")}</h3>` +
     (topes || planCabeceraHTML()) +
-    `<h4 class="plan-h">Quita los topes</h4>
-     <p class="settings-note">Las ramas que quieras y sin tope de talentos dentro de cada una. Lo que ya escribiste no se toca nunca: al cambiar de plan no se borra nada.</p>` +
+    `<h4 class="plan-h">${tx("Quita los topes")}</h4>
+     <p class="settings-note">${tx("Las ramas que quieras y sin tope de talentos dentro de cada una. Lo que ya escribiste no se toca nunca: al cambiar de plan no se borra nada.")}</p>` +
     planTarjetasHTML() +
     planLegalHTML() +
     planCompararHTML();
@@ -1331,7 +1331,7 @@ function planTarjetasHTML() {
         <span class="plan-d">${escapeHtml(p.pie)}</span>
         ${vent(ventajasPro())}
         <button class="btn btn-primary btn-block"
-          onclick="irAPagarDesdeAjustes('${planPeriodo}', this)">Pasar a Plan Pro</button>
+          onclick="irAPagarDesdeAjustes('${planPeriodo}', this)">${tx("Pasar a Plan Pro")}</button>
       </div>
       <div class="plan-card limitada">
         <span class="plan-tag lila">${escapeHtml(f.tag)}</span>
@@ -1352,7 +1352,7 @@ function planTarjetasHTML() {
              construcción, sin alturas escritas a mano y sin depender de que
              estén lado a lado. -->
         <div class="plan-per-wrap unica">
-          <span class="plan-per on">Un solo pago</span>
+          <span class="plan-per on">${tx("Un solo pago")}</span>
         </div>
         <!-- El dato y no el adjetivo. «Sale a cuenta» no se puede comprobar;
              esto sí: 890 contra 590 al año. Sale de los precios de arriba y no
@@ -1364,7 +1364,7 @@ function planTarjetasHTML() {
         <span class="plan-d">${escapeHtml(f.pie)}</span>
         ${vent(ventajasFundador)}
         <button class="btn btn-primary btn-block"
-          onclick="irAPagarDesdeAjustes('fundador', this)">Pasar a Plan Fundador</button>
+          onclick="irAPagarDesdeAjustes('fundador', this)">${tx("Pasar a Plan Fundador")}</button>
       </div>
     </div>`;
 }

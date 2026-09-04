@@ -197,7 +197,7 @@ function portadaPintar(modo) {
        <label class="field"><span>${tx("¿Cómo te llamas?")}</span>
          <input type="text" id="portada-nombre" value="${escapeAttr(portadaNombre)}" autocomplete="name"
                 maxlength="${NOMBRE_MAX}" placeholder="${escapeAttr(tx("Tu nombre"))}"></label>
-       <label class="field"><span>${tx("¿Cómo te decimos?")} <i>opcional</i></span>
+       <label class="field"><span>${tx("¿Cómo te decimos?")} <i>${tx("opcional")}</i></span>
          <input type="text" id="portada-apodo" value="${escapeAttr(portadaApodo)}" autocomplete="nickname"
                 maxlength="${APODO_MAX}" placeholder="${escapeAttr(tx("Tu apodo"))}">
          <div class="field-hint" id="portada-apodo-hint"></div></label>
@@ -224,7 +224,7 @@ function portadaPintar(modo) {
        <p class="portada-lema">${tx("Pediste borrar")} <b>${escapeHtml(portadaCorreo)}</b>${tx(", y se hará el")} <b>${escapeHtml(fecha)}</b>${tx(". Hasta ese día puedes recuperarla con todo tu progreso intacto.")}</p>
        <div id="portada-error" class="portada-error" hidden></div>
        <div class="stack">
-         <button class="btn btn-primary btn-block" id="portada-ok" onclick="rescatarCuenta()">Recuperar mi cuenta</button>
+         <button class="btn btn-primary btn-block" id="portada-ok" onclick="rescatarCuenta()">${tx("Recuperar mi cuenta")}</button>
          <button class="btn btn-danger-ghost btn-block" onclick="borrarCuentaYa()">${tx("Borrarla ahora, sin esperar")}</button>
        </div>
        <button class="portada-sin sutil" onclick="salirDelRescate()">${tx("Dejarlo como está y salir")}</button>`;
@@ -299,7 +299,7 @@ function portadaPintar(modo) {
        <div class="field"><span class="lbl">${tx("Contraseña")}</span>
          ${campoClave("portada-clave", "current-password")}</div>
        <div class="stack">
-         <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaEntrar()">Entrar</button>
+         <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaEntrar()">${tx("Entrar")}</button>
        </div>
        <button class="portada-sin sutil" onclick="portadaOlvide()">${tx("¿Olvidaste tu contraseña?")}</button>
        ${vuelve ? '<button class="portada-sin sutil" onclick="portadaNoSoyYo()">No soy ' + escapeHtml(sync.ultimoSaludo) + '</button>' : ""}

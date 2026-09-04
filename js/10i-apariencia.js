@@ -934,13 +934,13 @@ function escenaCuerpo(id) {
   const m = mundoPorId(id);
   return `
     <div class="vp-cab">
-      <span class="vp-tit">Tu expedición</span>
+      <span class="vp-tit">${tx("Tu expedición")}</span>
       <span class="vp-chapa">Nivel 14</span>
     </div>
     <div class="vp-caja">
       <div class="vp-fila">
         <span class="vp-aro"></span>
-        <span class="vp-tx"><b>Leer veinte páginas</b><i>Hoy · todos los días</i></span>
+        <span class="vp-tx"><b>${tx("Leer veinte páginas")}</b><i>${tx("Hoy · todos los días")}</i></span>
       </div>
       <div class="vp-carril"><span style="width:64%"></span></div>
     </div>
@@ -1090,8 +1090,8 @@ function pintarFicha(id) {
        suena a ropa. «Aplicar» es lo que hace y se lee igual para un recolor que
        para un mundo. */
     : (puesta
-        ? `<p class="ap-yaesta">${icon("check", 15)}<span>Es la que llevas puesta.</span></p>`
-        : `<button type="button" class="btn btn-primary btn-block" onclick="elegirApariencia('${id}')">Aplicar</button>`);
+        ? `<p class="ap-yaesta">${icon("check", 15)}<span>${tx("Es la que llevas puesta.")}</span></p>`
+        : `<button type="button" class="btn btn-primary btn-block" onclick="elegirApariencia('${id}')">${tx("Aplicar")}</button>`);
 
   /* El nombre y las cápsulas arriba en su renglón, y la premisa ENTERA debajo.
      Los tres iban en la misma fila y en un teléfono la cápsula larga dejaba la
@@ -1225,11 +1225,11 @@ function renderPanelApariencia() {
         <div class="ap-marco"><iframe id="ap-vista" title="Vista previa de la apariencia" scrolling="no" tabindex="-1" aria-hidden="true"></iframe></div>
         <div class="ap-ficha" id="ap-ficha"></div>
       </div>
-      <h3 class="amb-h2">Ambientes</h3>
-      <p class="settings-note">El mismo Norata con otra luz. Se van desbloqueando conforme avanzas, y el modo de día y de noche sigue arriba: cada ambiente tiene sus dos caras.</p>
+      <h3 class="amb-h2">${tx("Ambientes")}</h3>
+      <p class="settings-note">${tx("El mismo Norata con otra luz. Se van desbloqueando conforme avanzas, y el modo de día y de noche sigue arriba: cada ambiente tiene sus dos caras.")}</p>
       <div class="amb-rej" id="ap-ambientes"></div>
-      <h3 class="amb-h2">Mundos</h3>
-      <p class="settings-note">Un mundo no es otra luz: es otro material. Cambia la superficie, el marco, la letra y hasta cómo se llama tu camino. Van aparte de los ambientes porque no se combinan — llevas uno o llevas el otro.</p>
+      <h3 class="amb-h2">${tx("Mundos")}</h3>
+      <p class="settings-note">${tx("Un mundo no es otra luz: es otro material. Cambia la superficie, el marco, la letra y hasta cómo se llama tu camino. Van aparte de los ambientes porque no se combinan — llevas uno o llevas el otro.")}</p>
       <div class="mun-rej" id="ap-mundos"></div>`;
   }
   document.getElementById("ap-ambientes").innerHTML = muestras;

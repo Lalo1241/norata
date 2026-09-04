@@ -53,7 +53,9 @@ function tablerosDeMisiones() {
   const puestos = (state.ui && state.ui.nombresTablero) || {};
   const fijo = (id) => {
     const t = TABLEROS_FIJOS.find(x => x.id === id);
-    return Object.assign({}, t, { nombre: puestos[id] || t.nombre, deFabrica: t.nombre });
+    /* El nombre que el usuario le puso manda, y ese NO se traduce: es suyo.
+       Solo se traduce el de fábrica, que es un rótulo de la app. */
+    return Object.assign({}, t, { nombre: puestos[id] || tx(t.nombre), deFabrica: tx(t.nombre) });
   };
   const propios = (state.tableros || []).map(t => ({ id: t.id, nombre: t.nombre, propio: true }));
   return [fijo("hoy"), fijo("hechas"), fijo("semana"), ...propios, fijo("terminadas")];
@@ -61,7 +63,7 @@ function tablerosDeMisiones() {
 
 function nombreTablero(id) {
   const t = tablerosDeMisiones().find(x => x.id === id);
-  return t ? t.nombre : "otro tablero";
+  return t ? t.nombre : tx("otro tablero");
 }
 
 function tableroDeMision(m) {
@@ -1043,7 +1045,7 @@ function setModulo(id, on) {
   renderModulos();
   if (!on && VISTA_MODULO[activeMainView] === id) showView("summary");
   else renderSummary();
-  toast(on ? `${MODULOS.find(m => m.id === id).label} vuelve al menú` : "Oculto · puedes traerlo de vuelta aquí", on ? "hecho" : "deshecho");
+  toast(on ? T`${tx(MODULOS.find(m => m.id === id).label)} vuelve al menú` : tx("Oculto · puedes traerlo de vuelta aquí"), on ? "hecho" : "deshecho");
 }
 
 function renderModulos() {
@@ -1053,7 +1055,7 @@ function renderModulos() {
     const on = moduloOn(m.id);
     return `
     <button class="mod-row ${on ? "on" : ""}" onclick="setModulo('${m.id}', ${!on})">
-      <span class="mod-tx"><b>${escapeHtml(m.label)}</b><span>${escapeHtml(m.hint)}</span></span>
+      <span class="mod-tx"><b>${escapeHtml(tx(m.label))}</b><span>${escapeHtml(tx(m.hint))}</span></span>
       <span class="mod-sw"><i></i></span>
     </button>`;
   }).join("");

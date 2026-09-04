@@ -1014,14 +1014,14 @@ function renderColeccion() {
          inicio, así que sin una línea que lo nombre casi nadie descubre que el
          reparto exacto está ahí. */""}
     <div class="panel">
-      <h3>Qué es tu expedición</h3>
-      <p class="settings-note">Es el nivel de tu <b>cuenta</b>, no el de una habilidad suelta: un solo número para todo lo que haces en Norata — los días que apareces, las misiones que cumples, las habilidades que suben, y los talentos y proyectos que cierras.</p>
-      <p class="settings-note exp-quees-2">No hay nada que administrar: sube solo con lo que ya estás haciendo, y no tiene techo. Más abajo puedes ver el reparto exacto, renglón por renglón.</p>
+      <h3>${tx("Qué es tu expedición")}</h3>
+      <p class="settings-note">${tx("Es el nivel de tu")} <b>${tx("cuenta")}</b>${tx(", no el de una habilidad suelta: un solo número para todo lo que haces en Norata — los días que apareces, las misiones que cumples, las habilidades que suben, y los talentos y proyectos que cierras.")}</p>
+      <p class="settings-note exp-quees-2">${tx("No hay nada que administrar: sube solo con lo que ya estás haciendo, y no tiene techo. Más abajo puedes ver el reparto exacto, renglón por renglón.")}</p>
     </div>
 
     <div class="panel">
-      <h3>Tus rangos</h3>
-      <p class="settings-note">Cinco en toda la vida de una cuenta. Cada uno son seis niveles, y cada nivel avanza un tramo de su constelación. El rango se consigue al cerrarla, y se queda puesto.</p>
+      <h3>${tx("Tus rangos")}</h3>
+      <p class="settings-note">${tx("Cinco en toda la vida de una cuenta. Cada uno son seis niveles, y cada nivel avanza un tramo de su constelación. El rango se consigue al cerrarla, y se queda puesto.")}</p>
       <div class="col-rangos">
         ${/* `rangosVigentes()` y no `EXP_RANGOS` a secas: con un mundo puesto,
              la insignia de arriba decía el rango del mundo —Arquitecto— y esta
@@ -1051,8 +1051,8 @@ function renderColeccion() {
     </div>
 
     ${peldanos.length ? `<div class="panel">
-      <h3>Lo que desbloqueas al subir</h3>
-      <p class="settings-note">El nivel sube solo con lo que ya haces. Esto es lo que vas desbloqueando por el camino.</p>
+      <h3>${tx("Lo que desbloqueas al subir")}</h3>
+      <p class="settings-note">${tx("El nivel sube solo con lo que ya haces. Esto es lo que vas desbloqueando por el camino.")}</p>
       <div class="col-peldanos">
         ${peldanos.map(x => {
           /* Por qué no lo tienes se lo pregunta a `aparienciaDisponible()`, que
@@ -1096,14 +1096,14 @@ function renderColeccion() {
           </div>`;
         }).join("")}
       </div>
-      ${typeof abrirApariencia === "function" ? `<button class="btn btn-linea btn-block" onclick="abrirApariencia()">Ver Mi apariencia</button>` : ""}
+      ${typeof abrirApariencia === "function" ? `<button class="btn btn-linea btn-block" onclick="abrirApariencia()">${tx("Ver Mi apariencia")}</button>` : ""}
     </div>` : (typeof abrirApariencia === "function" ? `<div class="panel">
-      <button class="btn btn-linea btn-block" onclick="abrirApariencia()">Ver Mi apariencia</button>
+      <button class="btn btn-linea btn-block" onclick="abrirApariencia()">${tx("Ver Mi apariencia")}</button>
     </div>` : "")}
 
     <div class="panel panel-plegable">
       <button class="exp-plegable" aria-expanded="false" onclick="expPlegar(this)">
-        <span>De dónde salen tus puntos</span>
+        <span>${tx("De dónde salen tus puntos")}</span>
         <em>${fuentes.length ? fuentes.length + (fuentes.length === 1 ? " fuente" : " fuentes") : "Todavía nada"}</em>
         ${svgDeTrazo('<path d="M6 9.5l6 6 6-6"/>', 16)}
       </button>
@@ -1115,7 +1115,7 @@ function renderColeccion() {
             <i style="--p:${Math.round((d[k] / mayor) * 100)}%"></i>
             <em>${EXP_PISTAS[k] || ""}</em>
           </div>`).join("")}
-        </div>` : `<p class="settings-note">Todavía nada. Cumple una misión o registra una práctica y esto empieza a llenarse.</p>`}
+        </div>` : `<p class="settings-note">${tx("Todavía nada. Cumple una misión o registra una práctica y esto empieza a llenarse.")}</p>`}
       </div>
     </div>`;
 

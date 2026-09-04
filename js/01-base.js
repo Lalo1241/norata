@@ -409,7 +409,7 @@ function temaSwitchHTML() {
     </button>`;
   return `
     <div class="tema-fila">
-      <span class="tema-tit">Aspecto</span>
+      <span class="tema-tit">${tx("Aspecto")}</span>
       <div class="tema-sw" role="radiogroup" aria-label="Aspecto de la app">
         ${op("oscuro", "Oscuro", "luna", !claro)}
         ${op("claro", "Claro", "sol", claro)}
@@ -1281,7 +1281,7 @@ function askText(titulo, valor, okLabel, pista, max, motivo) {
      <input id="modal-input" type="text" maxlength="${Number(max) || 42}" value="${escapeAttr(valor || "")}">
      ${pista ? `<span class="field-hint" style="display:block;text-align:left">${escapeHtml(pista)}</span>` : ""}
      ${motivo ? `<label class="modal-motivo">
-       <span class="modal-motivo-t">${escapeHtml(motivo.titulo || "¿Nos cuentas por qué te vas?")} <i>Opcional</i></span>
+       <span class="modal-motivo-t">${escapeHtml(motivo.titulo || "¿Nos cuentas por qué te vas?")} <i>${tx("Opcional")}</i></span>
        <textarea id="modal-motivo" rows="3" maxlength="${MOTIVO_MAX}"
          placeholder="${escapeAttr(motivo.pista || "Lo que quieras contarnos.")}"></textarea>
        <span class="modal-cuenta" id="modal-cuenta">0 / ${MOTIVO_MAX}</span>

@@ -601,7 +601,7 @@ function celebrarNivel(nivel, abre) {
   const premios = abre.filter(x => x.tipo !== "rango");
   const caja = document.getElementById("ncel-abre");
   caja.innerHTML = premios.length
-    ? `<div class="ncel-tit">Desbloqueaste</div><div class="ncel-premios">` +
+    ? `<div class="ncel-tit">${tx("Desbloqueaste")}</div><div class="ncel-premios">` +
       premios.map((x, i) => ncelTarjetaPremio(x, i)).join("") + `</div>`
     : "";
 
@@ -612,8 +612,8 @@ function celebrarNivel(nivel, abre) {
   const aAmbiente = premios.some(x => x.tipo === "ambiente");
   pies.innerHTML = hayVentana
     ? `<button class="btn btn-primary btn-block" onclick="${aAmbiente ? "ncelQuedarseAmbiente(); " : ""}cerrarNivelCel(); ${aAmbiente ? "abrirApariencia()" : "abrirColeccion('summary')"}">${aAmbiente ? "Ver Mi apariencia" : "Ver Mi expedición"}</button>
-       <button class="btn btn-ghost btn-block" onclick="cerrarNivelCel()">Ahora no</button>`
-    : `<button class="btn btn-primary btn-block" onclick="cerrarNivelCel()">Continuar</button>`;
+       <button class="btn btn-ghost btn-block" onclick="cerrarNivelCel()">${tx("Ahora no")}</button>`
+    : `<button class="btn btn-primary btn-block" onclick="cerrarNivelCel()">${tx("Continuar")}</button>`;
 
   /* La clase decide las dos diferencias de comportamiento en un solo sitio:
      con `abierta` no hay cierre por tocar fuera ni cuenta atrás. */

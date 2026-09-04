@@ -15,11 +15,11 @@ function greeting() {
   const h = hourNow();
   if (h < 6) {
     const q = typeof saludoActual === "function" ? saludoActual() : "";
-    return q ? "Hola, " + q : "Buenas noches";
+    return q ? T`Hola, ${q}` : tx("Buenas noches");
   }
-  if (h < 12) return "Buenos días";
-  if (h < 19) return "Buenas tardes";
-  return "Buenas noches";
+  if (h < 12) return tx("Buenos días");
+  if (h < 19) return tx("Buenas tardes");
+  return tx("Buenas noches");
 }
 
 function renderSummary() {
@@ -194,7 +194,7 @@ function renderSummary() {
                 decir de cuándo es—, así que se escribe siempre y lo esconde el
                 CSS. El año va incluido: un calendario suelto no dice de cuándo
                 es, y esta tarjeta va a llevar años abierta. */""}
-          <div class="label">Racha<span class="lab-mes"> · ${escapeHtml(MESES[mes - 1])} ${anio}</span></div>
+          <div class="label">${tx("Racha")}<span class="lab-mes"> · ${escapeHtml(MESES[mes - 1])} ${anio}</span></div>
           <div class="streak-grid">
             ${/* El mes va PRIMERO en la rejilla y a la izquierda desde la
                   0.7.56. Se escribe después en el marcado —para que apilada
@@ -362,7 +362,7 @@ function renderSummary() {
                return `<div><b>${fmtXp(a.ganada)}</b><span>${tx("XP · 7 DÍAS")}</span>${
                  flechaHTML(variacion(a.ganada, b.ganada), "XP ganada frente a los 7 días anteriores")}</div>`;
              })()}
-          ${decayingList.length ? `<div><b style="color:var(--fire)">${decayingList.length}</b><span>DECAYENDO</span></div>` : ""}
+          ${decayingList.length ? `<div><b style="color:var(--fire)">${decayingList.length}</b><span>${tx("DECAYENDO")}</span></div>` : ""}
         </div>
         ${cerca ? `<div class="sc-near">
           <span>A ${cerca.falta} XP del nivel ${cerca.nivel}</span>
@@ -433,7 +433,7 @@ function renderSummary() {
         <div class="t">${permanentes === 1 ? "talento ya es tuyo" : "talentos ya son tuyos"}</div>
         <div class="sc-rows">
           <div><b${enCurso ? ` style="color:var(--fire)"` : ""}>${enCurso}</b><span>${tx("EN CURSO")}</span></div>
-          <div><b>${moneyHTML(invested)}</b><span>INVERTIDO</span></div>
+          <div><b>${moneyHTML(invested)}</b><span>${tx("INVERTIDO")}</span></div>
         </div>
         ${cerca ? `<div class="sc-near">
           <span>${cerca.pct}% hecho, lo más avanzado</span>
@@ -450,7 +450,7 @@ function renderSummary() {
       <button class="sum-card wide" onclick="showView('projects')" style="width:100%">
         <div class="sw-head">
           ${icon("flag", 20)}
-          <span>Proyectos</span>
+          <span>${tx("Proyectos")}</span>
           <span class="sw-go">→</span>
         </div>
         <div class="sw-rows">
@@ -1572,7 +1572,7 @@ function dashTray(hidden) {
         ${avail.map(id => `<button class="tray-chip" onclick="showWidget('${id}')">＋ ${escapeHtml(DASH_META[id].title)}</button>`).join("")}
       </div>` : ""}
     <div class="tray-acomodos">
-      <span class="lbl">Acomodos sugeridos</span>
+      <span class="lbl">${tx("Acomodos sugeridos")}</span>
       <div class="acomodo-fila">
         ${acomodosDeAhora().map((a, i) => `
           <button class="acomodo ${a.nombre === acomodoActivo() ? "on" : ""}" onclick="aplicarAcomodo(${i})">
@@ -1917,7 +1917,7 @@ function renderHome() {
     scene: scene(820, 168, 23),
     lead: `<div>
       <div class="label">${tx("Nivel de tu personaje")}</div>
-      <div class="big"><b>${totalLevels}</b><span> niveles</span></div>
+      <div class="big"><b>${totalLevels}</b><span> ${tx("niveles")}</span></div>
     </div>`,
     /* Los cuatro huecos los decide el motor de informes: números del periodo
        con su flecha, en vez de acumulados que solo suben. Aquí estaban «XP
@@ -1943,7 +1943,7 @@ function renderHome() {
       zona.innerHTML = `
       <div class="panel decay-panel">
         <div class="panel-head">
-          <h3 style="margin:0">Perdiendo XP</h3>
+          <h3 style="margin:0">${tx("Perdiendo XP")}</h3>
           <span class="dz-count">${orden.length}</span>
         </div>
         <div class="dz-list">
@@ -2008,7 +2008,7 @@ function renderHome() {
     const li = levelInfo(s.xp);
     const marcada = enSeleccion && seleccionHab.has(s.id);
     const tab = isDecaying(s)
-      ? `<span class="skill-tab warn">▾ perdiendo XP</span>`
+      ? `<span class="skill-tab warn">${tx("▾ perdiendo XP")}</span>`
       : (s.permanent ? `<span class="skill-tab perm">${icon("shield", 10)}blindada</span>` : "");
     const pct = li.level >= MAX_LEVEL ? 1 : li.pct / 100;
     return `
@@ -2226,7 +2226,7 @@ function renderHomeTools() {
   }
   el.innerHTML = `
     <button class="btn btn-soft hb-b" onclick="openCatalogo()">${tx("＋ Del catálogo")}</button>
-    <button class="btn btn-ghost hb-b" onclick="toggleSeleccionHab()">Seleccionar</button>`;
+    <button class="btn btn-ghost hb-b" onclick="toggleSeleccionHab()">${tx("Seleccionar")}</button>`;
 }
 
 /* ================= Catálogo de habilidades =================

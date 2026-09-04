@@ -662,5 +662,245 @@ const TEXTOS_EN = {
   /* El valor con el que nace el rótulo en `index.html`, antes de que
      `js/08-formularios.js` lo reescriba con la moneda de cada quien. */
   "Costo (MXN)": "Cost (MXN)",
-  "Con una cuenta puedes tener plan": "With an account you can have a plan"
+  "Con una cuenta puedes tener plan": "With an account you can have a plan",
+
+  /* ================= Tanda 3 =================
+     El panel de numeros, los informes, la expedicion, el lienzo, los planes,
+     las apariencias y los rotulos cortos de todas las pantallas.
+
+     Aqui la herramienta aprendio a leer el archivo como lo lee JavaScript.
+     La version anterior envolvia por expresion regular, sin saber en que
+     estaba, y metio 24 llamadas dentro de cadenas con COMILLAS SIMPLES —donde
+     `${...}` no es un hueco sino texto, asi que la pantalla habria impreso
+     `${tx("Nuevo")}` tal cual—. Media docena de archivos de Norata construyen
+     su HTML concatenando comillas, y por eso el error no era raro sino el
+     caso normal en esos archivos. Se reviritio la tanda entera y se rehizo.
+
+     Dos clases de rotulo que NO caza ningun buscador y van a mano:
+
+     - **Los de una o dos palabras sin tilde** —«INVERTIDO», «Racha», «Ficha»—,
+       que se leen igual que un identificador y por eso van en una lista.
+     - **Los que viven en una TABLA de datos** (`PROJECT_STATUS`, `MODULOS`,
+       `TABLEROS_FIJOS`). Esos se envuelven donde se DIBUJAN y jamas en la
+       tabla: una tabla de nivel superior se evalua una sola vez al cargar el
+       archivo, asi que un `tx()` ahi congela el rotulo en el idioma que
+       hubiera al arrancar y cambiar de idioma no lo mueve. */
+
+  "Hola, {0}": "Hi, {0}",
+  "Buenos días": "Good morning",
+  "Buenas tardes": "Good afternoon",
+  "Buenas noches": "Good evening",
+  "Ahora no": "Not now",
+  "Qué es tu expedición": "What your journey is",
+  "Es el nivel de tu": "It's the level of your",
+  ", no el de una habilidad suelta: un solo número para todo lo que haces en Norata — los días que apareces, las misiones que cumples, las habilidades que suben, y los talentos y proyectos que cierras.":
+    ", not of any single skill: one number for everything you do in Norata — the days you show up, the missions you complete, the skills that rise, and the talents and projects you close.",
+  "No hay nada que administrar: sube solo con lo que ya estás haciendo, y no tiene techo. Más abajo puedes ver el reparto exacto, renglón por renglón.":
+    "There's nothing to manage: it rises on its own from what you're already doing, and it has no ceiling. Further down you can see the exact breakdown, line by line.",
+  "Tus rangos": "Your ranks",
+  "Cinco en toda la vida de una cuenta. Cada uno son seis niveles, y cada nivel avanza un tramo de su constelación. El rango se consigue al cerrarla, y se queda puesto.":
+    "Five over the whole life of an account. Each one is six levels, and each level advances a stretch of its constellation. You earn the rank by closing it, and it stays with you.",
+  "Lo que desbloqueas al subir": "What you unlock as you rise",
+  "El nivel sube solo con lo que ya haces. Esto es lo que vas desbloqueando por el camino.":
+    "Your level rises on its own from what you already do. This is what you unlock along the way.",
+  "Ver Mi apariencia": "See My look",
+  "De dónde salen tus puntos": "Where your points come from",
+  "Todavía nada. Cumple una misión o registra una práctica y esto empieza a llenarse.":
+    "Nothing yet. Complete a mission or log a practice and this starts filling up.",
+  "Crear aquí": "Create here",
+  "Toca los talentos que quieras juntar": "Tap the talents you want to group",
+  "Sin cuenta": "No account",
+  "Entra para sincronizar tus dispositivos": "Sign in to sync your devices",
+  "No hay ninguna, y es buena señal: significa que tus dispositivos nunca han tenido que juntar cambios a la fuerza.":
+    "There aren't any, and that's a good sign: it means your devices have never had to force changes together.",
+  "Borrar": "Delete",
+  "Tu plan": "Your plan",
+  "Norata funciona entera sin cuenta, y lo que llevas hecho es tuyo. Para tener un plan hace falta una, porque es donde se guarda.":
+    "Norata works completely without an account, and what you've done is yours. To have a plan you need one, because that's where it's kept.",
+  "Crear mi cuenta": "Create my account",
+  "Quita los topes": "Removes the limits",
+  "Las ramas que quieras y sin tope de talentos dentro de cada una. Lo que ya escribiste no se toca nunca: al cambiar de plan no se borra nada.":
+    "As many branches as you want, with no cap on talents inside each one. What you already wrote is never touched: changing plans deletes nothing.",
+  "Pasar a Plan Pro": "Move to the Pro plan",
+  "Un solo pago": "A single payment",
+  "Pasar a Plan Fundador": "Move to the Founder plan",
+  "Todavía no hay ni un día con actividad. Aparecerá en cuanto alguien abra la app con su cuenta.":
+    "There isn't a single day with activity yet. It will show up as soon as someone opens the app with their account.",
+  "personas que abrieron": "people who opened it",
+  "personas al día": "people per day",
+  "aperturas con cuenta": "openings with an account",
+  "Todavía no hay nadie registrado, así que no hay embudo que mirar.":
+    "Nobody has signed up yet, so there's no funnel to look at.",
+  "sube en vez de bajar: este paso no se cuenta como un trozo del anterior":
+    "it goes up instead of down: this step isn't counted as a slice of the previous one",
+  "no se pierde nadie": "nobody is lost",
+  "Lo que la gente reporta": "What people report",
+  "Agrupados por dónde dicen que pasó, no por el texto: dos personas contando dos cosas distintas de la misma pantalla son dos historias, y sumarlas borraría lo que las hace útiles. Toca un grupo para leerlos.":
+    "Grouped by where they say it happened, not by the text: two people describing two different things about the same screen are two stories, and adding them up would erase what makes them useful. Tap a group to read them.",
+  "Modo de pruebas": "Test mode",
+  "Solo lo ves tú, y solo mientras esta cuenta sea administradora. No cambia nada en el servidor: lo que hay aquí decide qué se DIBUJA, no lo que la base de datos cree.":
+    "Only you see this, and only while this account is an administrator. It changes nothing on the server: what's here decides what gets DRAWN, not what the database believes.",
+  "Esta cuenta": "This account",
+  "De pruebas": "Test",
+  "Ver la app como si tuviera": "See the app as if it had",
+  "Ver una celebración": "See a celebration",
+  "Se disparan aquí porque algunas pasan una vez en la vida de una cuenta y no hay forma de revisarlas esperándolas. No tocan tus datos ni tu nivel: solo dibujan.":
+    "They're triggered here because some happen once in an account's lifetime and there's no way to review them by waiting. They don't touch your data or your level: they only draw.",
+  "Los números": "The numbers",
+  "Se piden al servidor cuando abres esta sección.":
+    "They're requested from the server when you open this section.",
+  "Cargar los números": "Load the numbers",
+  "Para mirar": "To look at",
+  "El embudo": "The funnel",
+  "Cada paso es un trozo del anterior. El escalón donde más gente se cae es el que hay que arreglar primero — y casi nunca es el que uno cree.":
+    "Each step is a slice of the previous one. The step where most people drop off is the one to fix first — and it's almost never the one you'd guess.",
+  "La gente": "People",
+  "Los últimos 14 días": "The last 14 days",
+  "Los puntos son personas que abrieron la app; las barras del fondo, cuentas nuevas. Las líneas verticales marcan cada lunes, para comparar una semana con otra.":
+    "The dots are people who opened the app; the bars behind them, new accounts. The vertical lines mark each Monday, so you can compare one week with another.",
+  "Cómo la usan": "How they use it",
+  "Desde qué aparato": "From which device",
+  "Sale del ancho de la ventana, no de fichar el aparato: dos teléfonos distintos cuentan como uno.":
+    "It comes from the window width, not from fingerprinting the device: two different phones count as one.",
+  "Instalada o en el navegador": "Installed or in the browser",
+  "Instalada se abre sola; en una pestaña se olvida. Señal buena: 30 de cada 100.":
+    "Installed, it opens on its own; in a tab, it gets forgotten. A good sign: 30 out of every 100.",
+  "Cuánto llevan con cuenta": "How long they've had an account",
+  "El cobro": "Billing",
+  "El cobro todavía no está puesto en el servidor, así que aquí no hay nada que contar. Cuando corras":
+    "Billing isn't set up on the server yet, so there's nothing to count here. Once you run",
+  "y despliegues Stripe, esta caja se llena sola — los pasos están en":
+    "and deploy Stripe, this box fills itself — the steps are in",
+  "Con qué versión se quedó cada quien": "Which version each person ended up on",
+  "Una fila por persona:": "One row per person:",
+  "la última versión que vio": "the last version they saw",
+  ", no todas las que ha usado nunca. Si aquí aparece una que ya no existe, hay alguien pegado a una copia vieja — casi siempre porque no se subió el número de":
+    ", not every one they've ever used. If one shows up here that no longer exists, someone is stuck on an old copy — almost always because the number wasn't bumped in",
+  "en": "in",
+  "Lo que se rompe solo": "What breaks on its own",
+  "Ni un error en los últimos treinta días.": "Not a single error in the last thirty days.",
+  "llega a la vara": "meets the bar",
+  "hay que mirarlo": "worth a look",
+  "se pierde gente": "people are being lost",
+  "Lo demás va en tinta normal a propósito: es un dato, no un juicio. Un número sin una vara contra la que compararse no puede estar bien ni mal.":
+    "Everything else is in plain ink on purpose: it's a figure, not a verdict. A number with no bar to measure against can't be good or bad.",
+  "Volver a pedirlos": "Ask for them again",
+  "Pidiendo los números…": "Asking for the numbers…",
+  "No pude traer los números": "I couldn't fetch the numbers",
+  "récord": "record",
+  "Cada casilla es un día": "Each square is a day",
+  "Más": "More",
+  "Tu racha más larga": "Your longest streak",
+  "Invertido en ti": "Invested in you",
+  "Veces que marcaste": "Times you checked in",
+  "Se les pasó el plazo": "They ran past the deadline",
+  "Días de media": "Days on average",
+  "Dentro de plazo": "Within the deadline",
+  "El más rápido": "The fastest",
+  "El más lento": "The slowest",
+  "Etapas cerradas": "Stages closed",
+  "Qué veo aquí": "What I see here",
+  "Todavía es pronto para leer nada. Con unos días de uso, aquí aparece lo que se ve en tus números — el día que se te cae, de dónde sale tu XP, qué llevas parado.":
+    "It's still too early to read anything. After a few days of use, this shows what your numbers say — the day you tend to drop, where your XP comes from, what you've left standing still.",
+  "Tu expedición": "Your journey",
+  "Leer veinte páginas": "Read twenty pages",
+  "Hoy · todos los días": "Today · every day",
+  "Es la que llevas puesta.": "This is the one you're wearing.",
+  "El mismo Norata con otra luz. Se van desbloqueando conforme avanzas, y el modo de día y de noche sigue arriba: cada ambiente tiene sus dos caras.":
+    "The same Norata in a different light. They unlock as you progress, and day and night mode stays above: every ambience has both faces.",
+  "Un mundo no es otra luz: es otro material. Cambia la superficie, el marco, la letra y hasta cómo se llama tu camino. Van aparte de los ambientes porque no se combinan — llevas uno o llevas el otro.":
+    "A world isn't another light: it's another material. It changes the surface, the frame, the type and even what your path is called. They're separate from ambiences because they don't combine — you wear one or the other.",
+  "Esta copia de Norata está desactualizada": "This copy of Norata is out of date",
+  "Tu progreso lo guardó una versión más nueva de la app, así que aquí no puedo entenderlo del todo.":
+    "Your progress was saved by a newer version of the app, so I can't fully understand it here.",
+  "Mientras tanto no voy a guardar nada.": "In the meantime I won't save anything.",
+  "Actualiza Norata en este dispositivo y vuelve a abrirla.":
+    "Update Norata on this device and open it again.",
+  "Buscar la versión nueva": "Look for the new version",
+  "Guardar un respaldo": "Save a backup",
+  "Acomodos sugeridos": "Suggested layouts",
+  "Agruparlos": "Group them",
+  "Ambientes": "Ambiences",
+  "Aplicar": "Apply",
+  "Asegurados": "Secured",
+  "Aspecto": "Look",
+  "Bloqueado": "Locked",
+  "CREADO": "CREATED",
+  "Completados": "Completed",
+  "Constancia": "Consistency",
+  "Cosas cerradas": "Things closed",
+  "DECAYENDO": "DECAYING",
+  "Desbloqueaste": "You unlocked",
+  "Descartar encargo": "Discard assignment",
+  "ENTRENA": "TRAINS",
+  "Encargos terminados": "Assignments finished",
+  "Entrar": "Sign in",
+  "Ficha": "Card",
+  "Ganada": "Earned",
+  "Historial": "History",
+  "INVERTIDO": "INVESTED",
+  "Intentar otra vez": "Try again",
+  "Invertido": "Invested",
+  "Menos": "Less",
+  "Misiones cumplidas": "Missions completed",
+  "Movimientos": "Entries",
+  "Mundos": "Worlds",
+  "Neta": "Net",
+  "Niveles subidos": "Levels gained",
+  "Normal": "Normal",
+  "Nota (opcional)": "Note (optional)",
+  "Opcional": "Optional",
+  "Perdida": "Lost",
+  "Perdiendo XP": "Losing XP",
+  "RECOMPENSA": "REWARD",
+  "Racha": "Streak",
+  "Recuperar mi cuenta": "Recover my account",
+  "Registros": "Entries",
+  "Restaurar": "Restore",
+  "Retomar": "Pick back up",
+  "Retomar encargo": "Pick the assignment back up",
+  "Salir": "Exit",
+  "Seleccionar": "Select",
+  "Soltados": "Let go",
+  "Talento perdido": "Talent lost",
+  "Tiempo practicado": "Time practiced",
+  "XP ganada": "XP earned",
+  "cualquiera": "any",
+  "cuenta": "account",
+  "cuentas nuevas": "new accounts",
+  "hechos": "done",
+  "niveles": "levels",
+  "opcional": "optional",
+  "promedio": "average",
+  "— Ninguna —": "— None —",
+  "▾ perdiendo XP": "▾ losing XP",
+  "＋ etapa": "＋ stage",
+  "Rehacer": "Redo",
+  "En marcha": "Under way",
+  "En pausa": "Paused",
+  "Terminado": "Finished",
+  "Descartado": "Discarded",
+  "Espera su turno": "Waiting its turn",
+  "Estancado": "Stalled",
+  "Enfriándose": "Cooling off",
+  "Casi listo": "Almost there",
+  "Con ritmo": "Keeping pace",
+  "Cerrado y guardado en tu historial.": "Closed and kept in your history.",
+  "Lo soltaste. Puedes retomarlo cuando quieras.":
+    "You let it go. You can pick it back up whenever you want.",
+  "Congelado a propósito: no cuenta como abandonado.":
+    "Frozen on purpose: it doesn't count as abandoned.",
+  "Estás a nada de cerrarlo. Termina las etapas que faltan.":
+    "You're a hair from closing it. Finish the remaining stages.",
+  "Lo que haces hoy, con su racha": "What you do today, with its streak",
+  "Lo que practicas y sube de nivel": "What you practice and level up",
+  "Metas con inversión de dinero real": "Goals with real money invested",
+  "Lo que construyes, encargo a encargo": "What you build, assignment by assignment",
+  "Pendientes de hoy": "Due today",
+  "Cumplidas hoy": "Done today",
+  "Pendientes de la semana": "Due this week",
+  "Misiones terminadas": "Finished missions",
+  "otro tablero": "another board",
+  "{0} vuelve al menú": "{0} is back in the menu",
+  "Oculto · puedes traerlo de vuelta aquí": "Hidden · you can bring it back here"
 };
