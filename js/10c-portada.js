@@ -49,7 +49,7 @@ function alternarClave(id, boton) {
   const verla = el.type === "password";
   el.type = verla ? "text" : "password";
   boton.innerHTML = ojoIcono(verla);
-  boton.setAttribute("aria-label", verla ? "Ocultar la contraseña" : "Mostrar la contraseña");
+  boton.setAttribute("aria-label", verla ? tx("Ocultar la contraseña") : tx("Mostrar la contraseña"));
   /* Devolver el cursor donde estaba: sin esto, mirar la contraseña a media
      escritura te manda el punto de inserción al principio. */
   const fin = el.value.length;
@@ -81,7 +81,7 @@ function cargaMostrar(mensaje) {
   if (!el) return;
   cargaTurno++;
   const msg = document.getElementById("carga-msg");
-  if (msg) msg.textContent = mensaje || "Un momento…";
+  if (msg) msg.textContent = mensaje || tx("Un momento…");
   el.classList.remove("oculta", "fuera");
 }
 
@@ -215,7 +215,7 @@ function portadaPintar(modo) {
        <p class="portada-pie">${tx("¿Ya tienes una?")} <button onclick="portadaIrA('entrar')">${tx("Entra aquí")}</button></p>`;
 
   } else if (modo === "rescate") {
-    const fecha = fechaLarga(rescateCuando) || "dentro de unos días";
+    const fecha = fechaLarga(rescateCuando) || tx("dentro de unos días");
     dentro =
       `<div class="portada-sello aviso">
          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.4v5.1l3.2 1.9"/></svg>
@@ -250,7 +250,7 @@ function portadaPintar(modo) {
          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 3.5H18a2 2 0 012 2v13a2 2 0 01-2 2h-3.5"/><path d="M10 7l-5 5 5 5M5 12h9"/></svg>
        </div>
        <h2>Hasta pronto${escapeHtml(coma(portadaSaludo))}</h2>
-       <p class="portada-lema">Tu cuenta quedó programada para borrarse${fecha ? " el <b>" + escapeHtml(fecha) + "</b>" : ""}. Hasta ese día puedes recuperarla entera —con tu progreso, tus rachas y tu XP— entrando otra vez con tu correo.</p>
+       <p class="portada-lema">Tu cuenta quedó programada para borrarse${fecha ? T` el <b>${escapeHtml(fecha)}</b>` : ""}. Hasta ese día puedes recuperarla entera —con tu progreso, tus rachas y tu XP— entrando otra vez con tu correo.</p>
        <p class="portada-lema">${tx("Gracias por el tiempo que le diste a Norata. Lo que aprendiste jugando a esto sigue siendo tuyo, esté o no la app de por medio.")}</p>
        <div class="stack">
          <button class="btn btn-soft btn-block" onclick="irALaPuerta()">${tx("Volver a entrar")}</button>
@@ -305,10 +305,10 @@ function portadaPintar(modo) {
        ${vuelve ? '<button class="portada-sin sutil" onclick="portadaNoSoyYo()">No soy ' + escapeHtml(sync.ultimoSaludo) + '</button>' : ""}
        <div id="portada-google"></div>
        <p class="portada-pie">${tx("¿Todavía no tienes cuenta?")} <button onclick="portadaIrA('crear')">${tx("Créala aquí")}</button></p>
-       <button class="portada-sin" onclick="portadaSinCuenta()">${yaEntroSinCuenta ? "Volver sin iniciar sesión" : "Probar sin cuenta"}</button>
+       <button class="portada-sin" onclick="portadaSinCuenta()">${yaEntroSinCuenta ? tx("Volver sin iniciar sesión") : tx("Probar sin cuenta")}</button>
        <p class="portada-nota">${yaEntroSinCuenta
-         ? "Seguirás guardando solo en este dispositivo."
-         : "Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crear una cuenta cuando quieras y llevártelo."}</p>`;
+         ? tx("Seguirás guardando solo en este dispositivo.")
+         : tx("Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crear una cuenta cuando quieras y llevártelo.")}</p>`;
   }
 
   cap.innerHTML = `<div class="portada-caja">${dentro}</div>`;
@@ -356,10 +356,10 @@ function portadaPistaApodo() {
   const s = saludoDe(valorDe("portada-nombre"), valorDe("portada-apodo"));
   const propio = !!limpiarNombre(valorDe("portada-apodo"), APODO_MAX);
   el.textContent = !s
-    ? "Si lo dejas en blanco usaremos tu nombre."
+    ? tx("Si lo dejas en blanco usaremos tu nombre.")
     : propio
-      ? "Te llamaremos " + s + "."
-      : "Si lo dejas en blanco te llamaremos " + s + ".";
+      ? T`Te llamaremos ${s}.`
+      : T`Si lo dejas en blanco te llamaremos ${s}.`;
 }
 
 /* El dispositivo se presta, y quien lo recibe no tiene por qué borrar el
@@ -452,7 +452,7 @@ async function portadaOfrecerGoogle() {
 async function portadaEntrar() {
   const correo = portadaCorreoValor();
   const clave = valorDe("portada-clave");
-  if (!correo || !clave) { portadaAviso("Escribe tu correo y tu contraseña."); return; }
+  if (!correo || !clave) { portadaAviso(tx("Escribe tu correo y tu contraseña.")); return; }
 
   portadaCorreo = correo;
   portadaAviso(""); portadaOcupada(true, "Comprobando…");
@@ -464,7 +464,7 @@ async function portadaEntrar() {
     const m = (e && e.message) || String(e);
     portadaOcupada(false);
     portadaAviso(m, /confirmar tu correo/i.test(m)
-      ? { etiqueta: "Reenviar el correo", fn: portadaReenviarVerificacion }
+      ? { etiqueta: tx("Reenviar el correo"), fn: portadaReenviarVerificacion }
       : null);
   }
 }
@@ -483,15 +483,15 @@ async function portadaRegistrar() {
      quería arreglar. Es una casilla de texto libre: vale cualquier cosa que
      alguien reconozca como suya. */
   if (!perfil.nombre) {
-    portadaAviso("Dime cómo te llamas: es lo que usaré para hablarte.");
+    portadaAviso(tx("Dime cómo te llamas: es lo que usaré para hablarte."));
     const n = document.getElementById("portada-nombre");
     if (n) n.focus();
     return;
   }
-  if (!correo) { portadaAviso("Escribe el correo con el que quieres entrar."); return; }
-  if (!/.+@.+\..+/.test(correo)) { portadaAviso("Ese correo no parece completo. Revísalo."); return; }
-  if (clave.length < CLAVE_MIN) { portadaAviso("La contraseña necesita al menos " + CLAVE_MIN + " caracteres."); return; }
-  if (clave !== clave2) { portadaAviso("Las dos contraseñas no coinciden. Míralas con el ojito para compararlas."); return; }
+  if (!correo) { portadaAviso(tx("Escribe el correo con el que quieres entrar.")); return; }
+  if (!/.+@.+\..+/.test(correo)) { portadaAviso(tx("Ese correo no parece completo. Revísalo.")); return; }
+  if (clave.length < CLAVE_MIN) { portadaAviso(T`La contraseña necesita al menos ${CLAVE_MIN} caracteres.`); return; }
+  if (clave !== clave2) { portadaAviso(tx("Las dos contraseñas no coinciden. Míralas con el ojito para compararlas.")); return; }
 
   portadaRecordar();
   portadaAviso(""); portadaOcupada(true, "Creando tu cuenta…");
@@ -508,7 +508,7 @@ async function portadaRegistrar() {
        secas: quien acaba de descubrir que ya tenía cuenta lo que quiere es
        usarla, y el correo ya está escrito. */
     portadaAviso((e && e.message) || String(e), (e && e.yaExiste)
-      ? { etiqueta: "Ir a iniciar sesión", fn: () => portadaIrA("entrar") }
+      ? { etiqueta: tx("Ir a iniciar sesión"), fn: () => portadaIrA("entrar") }
       : null);
   }
 }
@@ -674,7 +674,7 @@ async function adoptarSesion(mensaje) {
   // La app ya está pintada con lo que toca: recién ahora se destapa
   cerrarPortada(true);
   cargaCerrar();
-  toast(mensaje || ("Hola de nuevo" + coma()), "logro");
+  toast(mensaje || (tx("Hola de nuevo") + coma()), "logro");
   quizaTutorialDeEntrada();
 }
 
@@ -764,7 +764,7 @@ function portadaSinCuenta() {
 async function portadaOlvide() {
   const correo = portadaCorreoValor();
   if (!correo) {
-    portadaAviso("Escribe arriba tu correo y vuelve a pulsar: ahí te mando el enlace.");
+    portadaAviso(tx("Escribe arriba tu correo y vuelve a pulsar: ahí te mando el enlace."));
     const c = document.getElementById("portada-correo");
     if (c) c.focus();
     return;
@@ -773,7 +773,7 @@ async function portadaOlvide() {
   portadaAviso(""); portadaOcupada(true, "Mandando el enlace…");
   try {
     await sbRecuperar(correo);
-    portadaAviso("Si hay una cuenta con " + correo + ", te acaba de llegar un enlace para poner una contraseña nueva. Revisa también la carpeta de no deseado.");
+    portadaAviso(T`Si hay una cuenta con ${correo}, te acaba de llegar un enlace para poner una contraseña nueva. Revisa también la carpeta de no deseado.`);
   } catch (e) {
     portadaAviso((e && e.message) || String(e));
   } finally {
@@ -801,18 +801,18 @@ function portadaAtajoOlvide() {
   mostrarPortada("entrar");
   const b = document.querySelector(".portada-sin.sutil");
   if (b) b.classList.add("resaltado");
-  portadaAviso("Para poner una contraseña nueva, comprueba que el correo de abajo es el tuyo y pulsa «¿Olvidaste tu contraseña?».");
+  portadaAviso(tx("Para poner una contraseña nueva, comprueba que el correo de abajo es el tuyo y pulsa «¿Olvidaste tu contraseña?»."));
   return true;
 }
 
 async function portadaReenviarVerificacion() {
   const correo = portadaCorreoValor();
-  if (!correo) { portadaAviso("Escribe arriba tu correo."); return; }
+  if (!correo) { portadaAviso(tx("Escribe arriba tu correo.")); return; }
   // Este botón se pulsa desde dos sitios; solo se reetiqueta cuando es suyo
   portadaAviso(""); portadaOcupada(true, portadaModo === "enviado" ? "Reenviando…" : null);
   try {
     await sbReenviarVerificacion(correo);
-    portadaAviso("Te reenvié el correo de confirmación a " + correo + ". Míralo también en no deseado.");
+    portadaAviso(T`Te reenvié el correo de confirmación a ${correo}. Míralo también en no deseado.`);
   } catch (e) {
     portadaAviso((e && e.message) || String(e));
   } finally {
@@ -861,8 +861,8 @@ async function guardarNuevaClave() {
   const b = document.getElementById("nc-clave2").value || "";
   const aviso = (m) => { const el = document.getElementById("nc-error"); el.textContent = m || ""; el.hidden = !m; };
 
-  if (a.length < CLAVE_MIN) { aviso("Necesita al menos " + CLAVE_MIN + " caracteres."); return; }
-  if (a !== b) { aviso("Las dos no coinciden. Míralas con el ojito para comprobarlo."); return; }
+  if (a.length < CLAVE_MIN) { aviso(T`Necesita al menos ${CLAVE_MIN} caracteres.`); return; }
+  if (a !== b) { aviso(tx("Las dos no coinciden. Míralas con el ojito para comprobarlo.")); return; }
 
   aviso("");
   const btn = document.getElementById("nc-ok");
@@ -885,13 +885,13 @@ async function guardarNuevaClave() {
     /* La pantalla se quita al final, cuando `portadaEntrada` ya bajó el
        progreso y tapó todo con la de carga: quitarla antes deja a la vista
        una app a medio poner. */
-    await portadaEntrada(sync.cfg.correo, "Contraseña cambiada. Cerré la sesión en los demás dispositivos");
+    await portadaEntrada(sync.cfg.correo, tx("Contraseña cambiada. Cerré la sesión en los demás dispositivos"));
     const cap = document.getElementById("nueva-clave");
     if (cap) cap.remove();
   } catch (e) {
     aviso((e && e.message) || String(e));
     btn.disabled = false;
-    btn.textContent = "Guardar y entrar";
+    btn.textContent = tx("Guardar y entrar");
   }
 }
 
@@ -935,7 +935,7 @@ async function sbVolverDeEnlace() {
     const d = String(fallo);
     mostrarPortada();
     portadaAviso(/expired|invalid/i.test(d)
-      ? "Ese enlace ya caducó o se usó. Pide uno nuevo con «¿Olvidaste tu contraseña?»."
+      ? tx("Ese enlace ya caducó o se usó. Pide uno nuevo con «¿Olvidaste tu contraseña?».")
       : d.replace(/\+/g, " "));
     return true;
   }
@@ -954,11 +954,11 @@ async function sbVolverDeEnlace() {
   let datos = null;
   try {
     const r = await sbFetch("/auth/v1/user", { headers: { "Authorization": "Bearer " + sesion.access } });
-    if (!r.ok) throw new Error("no pude leer la cuenta");
+    if (!r.ok) throw new Error(tx("no pude leer la cuenta"));
     datos = r.body;
   } catch (e) {
     mostrarPortada();
-    portadaAviso("El enlace era válido pero no pude terminar de entrar. Inténtalo otra vez.");
+    portadaAviso(tx("El enlace era válido pero no pude terminar de entrar. Inténtalo otra vez."));
     return true;
   }
 
@@ -1081,9 +1081,9 @@ function pintarAvisos() {
   const partes = [];
   if (pruebas) {
     const simulado = typeof planNombreSimulado === "function" ? planNombreSimulado() : "";
-    partes.push("Cuenta de pruebas" + (simulado ? " · viendo como " + escapeHtml(simulado) : ""));
+    partes.push(tx("Cuenta de pruebas") + (simulado ? T` · viendo como ${escapeHtml(simulado)}` : ""));
   }
-  if (ejemplo && !pruebas) partes.push("Estás viendo un ejemplo");
+  if (ejemplo && !pruebas) partes.push(tx("Estás viendo un ejemplo"));
 
   const marco = document.createElement("div");
   marco.id = "aviso-modo";

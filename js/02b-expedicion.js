@@ -861,10 +861,10 @@ function expCieloVivo() {
    nivel 30 tiene las cinco figuras cerradas y la pantalla le seguía diciendo
    que estaba «en» un rango. */
 function expLecturaCielo(nivel) {
-  if (nivel < 1) return "Tu cielo está por escribirse";
+  if (nivel < 1) return tx("Tu cielo está por escribirse");
   const rangos = rangosVigentes();
   const viva = rangos.filter(r => expEstadoRango(r, nivel) === "viva")[0];
-  if (!viva) return "Cielo completo · las cinco constelaciones";
+  if (!viva) return tx("Cielo completo · las cinco constelaciones");
   const k = expEscalonDe(viva, nivel);
   /* En el sexto la frase cambia porque el momento cambia: la figura quedó
      cerrada y el rango ya es tuyo. Decir «nivel 6 de 6» ahí sería contar el
@@ -1040,10 +1040,10 @@ function renderColeccion() {
                 <b>${escapeHtml(r.nombre)}</b>
                 <span class="crx-estado">${
                   tuyo ? icon("check", 13) + "Conseguido"
-                  : estado === "viva" ? "Aquí estás"
+                  : estado === "viva" ? tx("Aquí estás")
                   : "Nivel " + hasta}</span>
               </div>
-              <span class="crx-nota">${escapeHtml(r.nota || ("Niveles " + r.desde + " a " + hasta + "."))}</span>
+              <span class="crx-nota">${escapeHtml(r.nota ? tx(r.nota) : T`Niveles ${r.desde} a ${hasta}.`)}</span>
             </div>
           </div>`;
         }).join("")}
@@ -1104,16 +1104,16 @@ function renderColeccion() {
     <div class="panel panel-plegable">
       <button class="exp-plegable" aria-expanded="false" onclick="expPlegar(this)">
         <span>${tx("De dónde salen tus puntos")}</span>
-        <em>${fuentes.length ? fuentes.length + (fuentes.length === 1 ? " fuente" : " fuentes") : "Todavía nada"}</em>
+        <em>${fuentes.length ? fuentes.length + (fuentes.length === 1 ? " fuente" : " fuentes") : tx("Todavía nada")}</em>
         ${svgDeTrazo('<path d="M6 9.5l6 6 6-6"/>', 16)}
       </button>
       <div hidden>
         ${fuentes.length ? `<div class="col-fuentes">
           ${fuentes.map(k => `<div class="col-fuente" style="--c:var(${EXP_COLOR_FUENTE[k] || "--mint"})">
-            <span>${EXP_ETIQUETAS[k] || k}</span>
+            <span>${tx(EXP_ETIQUETAS[k] || k)}</span>
             <b>${d[k]}</b>
             <i style="--p:${Math.round((d[k] / mayor) * 100)}%"></i>
-            <em>${EXP_PISTAS[k] || ""}</em>
+            <em>${tx(EXP_PISTAS[k] || "")}</em>
           </div>`).join("")}
         </div>` : `<p class="settings-note">${tx("Todavía nada. Cumple una misión o registra una práctica y esto empieza a llenarse.")}</p>`}
       </div>

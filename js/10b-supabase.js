@@ -65,10 +65,10 @@ async function sbEntrar(correo, clave) {
        y aquí se pasaba la vida escribiendo la de su correo sin que nada
        funcionara: el aviso le mandaba a crear una cuenta que ya existía. */
     if (/invalid login credentials/i.test(m)) {
-      throw new Error("Correo o contraseña incorrectos. Si entraste con Google la primera vez, usa ese botón; y si todavía no tienes cuenta, créala abajo.");
+      throw new Error(tx("Correo o contraseña incorrectos. Si entraste con Google la primera vez, usa ese botón; y si todavía no tienes cuenta, créala abajo."));
     }
     if (/email not confirmed/i.test(m)) {
-      throw new Error("Falta confirmar tu correo. Abre el mensaje que te mandamos y pulsa el enlace; luego vuelve aquí.");
+      throw new Error(tx("Falta confirmar tu correo. Abre el mensaje que te mandamos y pulsa el enlace; luego vuelve aquí."));
     }
     throw new Error(sbMensaje(r));
   }
@@ -81,7 +81,7 @@ async function sbEntrar(correo, clave) {
 /* Ese correo ya tiene cuenta. Se marca con `yaExiste` para que la pantalla
    pueda ofrecer el botón de entrar en vez de dejar el aviso a secas. */
 function sbYaExiste() {
-  const e = new Error("Ya hay una cuenta con ese correo. Entra con tu contraseña, o usa «¿Olvidaste tu contraseña?» si no la recuerdas.");
+  const e = new Error(tx("Ya hay una cuenta con ese correo. Entra con tu contraseña, o usa «¿Olvidaste tu contraseña?» si no la recuerdas."));
   e.yaExiste = true;
   return e;
 }
@@ -95,7 +95,7 @@ function sbYaExiste() {
    que es justo el primero que va a leer. */
 async function sbRegistrar(correo, clave, perfil) {
   if (String(clave).length < CLAVE_MIN) {
-    throw new Error("La contraseña necesita al menos " + CLAVE_MIN + " caracteres.");
+    throw new Error(T`La contraseña necesita al menos ${CLAVE_MIN} caracteres.`);
   }
   const r = await sbFetch("/auth/v1/signup?redirect_to=" + encodeURIComponent(sbVuelta()), {
     method: "POST",
@@ -104,7 +104,7 @@ async function sbRegistrar(correo, clave, perfil) {
   if (!r.ok) {
     const m = sbMensaje(r);
     if (/password/i.test(m) && /least|short|weak|characters/i.test(m)) {
-      throw new Error("La contraseña es muy corta. Usa al menos " + CLAVE_MIN + " caracteres.");
+      throw new Error(T`La contraseña es muy corta. Usa al menos ${CLAVE_MIN} caracteres.`);
     }
     if (/already registered|already exists/i.test(m)) throw sbYaExiste();
     throw new Error(m);
@@ -152,7 +152,7 @@ async function sbRecuperar(correo) {
   /* Un 429 sí se cuenta: no delata nada —salta por dirección IP, no por
      cuenta— y callarlo dejaría al usuario pulsando un botón que ya no hace
      nada, creyendo que el correo va en camino. */
-  if (r.status === 429) throw new Error("Demasiados intentos seguidos. Espera unos minutos y vuelve a probar.");
+  if (r.status === 429) throw new Error(tx("Demasiados intentos seguidos. Espera unos minutos y vuelve a probar."));
   return true;
 }
 
@@ -162,7 +162,7 @@ async function sbReenviarVerificacion(correo) {
   const r = await sbFetch("/auth/v1/resend?redirect_to=" + encodeURIComponent(sbVuelta()), {
     method: "POST", body: JSON.stringify({ type: "signup", email: correo })
   });
-  if (r.status === 429) throw new Error("Demasiados intentos seguidos. Espera unos minutos y vuelve a probar.");
+  if (r.status === 429) throw new Error(tx("Demasiados intentos seguidos. Espera unos minutos y vuelve a probar."));
   if (!r.ok) throw new Error(sbMensaje(r));
   return true;
 }
@@ -179,9 +179,9 @@ async function sbCambiarClave(nueva) {
   if (!r.ok) {
     const m = sbMensaje(r);
     if (/password/i.test(m) && /least|short|weak|characters/i.test(m)) {
-      throw new Error("Esa contraseña no cumple el mínimo. Usa al menos " + CLAVE_MIN + " caracteres.");
+      throw new Error(T`Esa contraseña no cumple el mínimo. Usa al menos ${CLAVE_MIN} caracteres.`);
     }
-    if (/different from the old/i.test(m)) throw new Error("Esa es la contraseña que ya tenías. Elige otra distinta.");
+    if (/different from the old/i.test(m)) throw new Error(tx("Esa es la contraseña que ya tenías. Elige otra distinta."));
     throw new Error(m);
   }
   return true;
@@ -234,13 +234,13 @@ async function sbCerrarOtrasSesiones() {
    refresco, para que una sesión larga no se corte a media tarde. */
 async function sbToken() {
   const s = (sync.cfg || {}).sesion;
-  if (!s || !s.refresh) throw new Error("No hay sesión iniciada. Vuelve a conectar.");
+  if (!s || !s.refresh) throw new Error(tx("No hay sesión iniciada. Vuelve a conectar."));
   if (Date.now() < s.expira) return s.access;
 
   const r = await sbFetch("/auth/v1/token?grant_type=refresh_token", {
     method: "POST", body: JSON.stringify({ refresh_token: s.refresh })
   });
-  if (!r.ok) throw new Error("Tu sesión caducó. Entra otra vez con tu correo y contraseña.");
+  if (!r.ok) throw new Error(tx("Tu sesión caducó. Entra otra vez con tu correo y contraseña."));
   const nueva = sbSesionDe(r.body);
   if (!nueva.uid) nueva.uid = s.uid;   // el refresco no siempre repite el usuario
   sync.cfg.sesion = nueva;
@@ -260,7 +260,7 @@ async function sbToken() {
    (ver abajo). Si el SQL todavía no se ha corrido, el servidor contesta 404 y
    se traduce a algo accionable en vez de a un número suelto. */
 
-const FALTA_SQL = "Falta activar el borrado de cuentas en el servidor. Es un paso de una sola vez; hasta entonces no puedo tocar la cuenta desde aquí.";
+const FALTA_SQL = tx("Falta activar el borrado de cuentas en el servidor. Es un paso de una sola vez; hasta entonces no puedo tocar la cuenta desde aquí.");
 
 async function sbPedirBorrado() {
   const r = await sbDatos("/rpc/pedir_borrado", { method: "POST", body: "{}" });
@@ -389,8 +389,8 @@ async function sbMetricas() {
      puesto y lo que faltaba era planes.sql, del que `metricas()` tiraba sin
      necesidad. Ese fallo ya está arreglado en el SQL; el mensaje se queda
      honesto por si aparece otra pieza que falte. */
-  if (r.status === 404) throw new Error("El servidor no encontró algo que la consulta necesita. Suele ser que falta correr un SQL de la carpeta supabase/ — mira su LEEME. Detalle: " + sbMensaje(r));
-  if (r.status === 403 || r.status === 401) throw new Error("Esta cuenta no tiene permiso para ver el panel.");
+  if (r.status === 404) throw new Error(T`El servidor no encontró algo que la consulta necesita. Suele ser que falta correr un SQL de la carpeta supabase/ — mira su LEEME. Detalle: ${sbMensaje(r)}`);
+  if (r.status === 403 || r.status === 401) throw new Error(tx("Esta cuenta no tiene permiso para ver el panel."));
   if (!r.ok) throw sbError(r);
   return r.body;
 }
@@ -453,7 +453,7 @@ async function sbVaciarTropiezos() {
    que se cuele no tiene por qué salir en inglés y sin salida. */
 function sbUid() {
   const s = (sync.cfg || {}).sesion;
-  if (!s || !s.uid) throw new Error("No hay sesión iniciada. Entra con tu correo y contraseña.");
+  if (!s || !s.uid) throw new Error(tx("No hay sesión iniciada. Entra con tu correo y contraseña."));
   return s.uid;
 }
 
@@ -466,9 +466,9 @@ async function sbDatos(ruta, opts) {
 
 function sbError(r) {
   if (r.status === 401 || r.status === 403) {
-    return new Error("Tu sesión ya no vale. Entra otra vez con tu correo y contraseña.");
+    return new Error(tx("Tu sesión ya no vale. Entra otra vez con tu correo y contraseña."));
   }
-  return new Error("Supabase respondió: " + sbMensaje(r));
+  return new Error(T`Supabase respondió: ${sbMensaje(r)}`);
 }
 
 /* ---- El almacén ---- */
@@ -477,8 +477,8 @@ ALMACENES.supabase = {
   nombre: "Supabase",
 
   explicacion() {
-    return "Guarda tu progreso en tu cuenta para que la computadora y el teléfono vean lo mismo. " +
-      "Solo tú puedes verlo, y tu contraseña no se queda guardada aquí.";
+    return tx("Guarda tu progreso en tu cuenta para que la computadora y el teléfono vean lo mismo.") + " " +
+      tx("Solo tú puedes verlo, y tu contraseña no se queda guardada aquí.");
   },
 
   listo() {

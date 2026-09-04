@@ -97,7 +97,7 @@ function gVacia(texto) {
    algo: los días de la semana, las horas del día. */
 function gBarras(datos, opciones) {
   const op = opciones || {};
-  if (!datos.length || !datos.some(d => d.v > 0)) return gVacia(op.vacia || "Todavía no hay nada que dibujar aquí.");
+  if (!datos.length || !datos.some(d => d.v > 0)) return gVacia(op.vacia || tx("Todavía no hay nada que dibujar aquí."));
   const max = Math.max(...datos.map(d => d.v));
   const color = op.color || "var(--mint)";
   return `
@@ -115,7 +115,7 @@ function gBarras(datos, opciones) {
    los largos, que en vertical se parten en cuatro renglones. */
 function gBarrasH(datos, opciones) {
   const op = opciones || {};
-  if (!datos.length) return gVacia(op.vacia || "Todavía no hay nada que dibujar aquí.");
+  if (!datos.length) return gVacia(op.vacia || tx("Todavía no hay nada que dibujar aquí."));
   const max = Math.max(...datos.map(d => d.v), 1);
   return `
     <div class="inf-rank">
@@ -135,7 +135,7 @@ function gBarrasH(datos, opciones) {
 function gApilada(partes, opciones) {
   const op = opciones || {};
   const total = partes.reduce((a, p) => a + p.v, 0);
-  if (!total) return gVacia(op.vacia || "Todavía no hay nada que repartir.");
+  if (!total) return gVacia(op.vacia || tx("Todavía no hay nada que repartir."));
   const vivas = partes.filter(p => p.v > 0);
   return `
     <div class="inf-apilada">
@@ -283,9 +283,9 @@ function calLeyenda() {
 function gCalendario(r, cuentas, opciones) {
   const op = opciones || {};
   const dias = diasDe(r);
-  if (!dias.length) return gVacia(op.vacia || "Todavía no hay días que pintar.");
+  if (!dias.length) return gVacia(op.vacia || tx("Todavía no hay días que pintar."));
   const max = Math.max(...dias.map(k => cuentas.get(k) || 0), 1);
-  if (!dias.some(k => (cuentas.get(k) || 0) > 0)) return gVacia(op.vacia || "En cuanto cumplas misiones, aquí se llena el calendario.");
+  if (!dias.some(k => (cuentas.get(k) || 0) > 0)) return gVacia(op.vacia || tx("En cuanto cumplas misiones, aquí se llena el calendario."));
 
   const anio = Number(r.desde.slice(0, 4));
 
@@ -318,7 +318,7 @@ function gCalendario(r, cuentas, opciones) {
 function gLineas(series, opciones) {
   const op = opciones || {};
   const vivas = series.filter(s => s.valores.some(v => v > 0));
-  if (!vivas.length) return gVacia(op.vacia || "Todavía no hay suficiente historia para dibujar una curva.");
+  if (!vivas.length) return gVacia(op.vacia || tx("Todavía no hay suficiente historia para dibujar una curva."));
 
   const W = 300, H = 110, P = 3;
   const n = vivas[0].valores.length;
@@ -454,11 +454,11 @@ function portadaHTML(r, rAntes, D) {
      El rango de fechas tampoco se repite: ya está arriba, en su rótulo. */
   const v = variacion(mis.marcas, misA.marcas);
   const frase = !(mis.marcas || hab.ganada || cerradas)
-    ? "Todavía sin movimiento. Esto se llena solo en cuanto empieces a marcar."
-    : v.dir === "nueva" ? "Es tu primer periodo con datos: a partir de aquí ya hay con qué comparar."
-    : v.dir === "igual" ? "Igual que el periodo anterior. Sostener también es un resultado."
-    : v.dir === "mejor" ? "Fue mejor que el periodo anterior."
-    : "Fue más flojo que el periodo anterior, y eso no borra lo de antes.";
+    ? tx("Todavía sin movimiento. Esto se llena solo en cuanto empieces a marcar.")
+    : v.dir === "nueva" ? tx("Es tu primer periodo con datos: a partir de aquí ya hay con qué comparar.")
+    : v.dir === "igual" ? tx("Igual que el periodo anterior. Sostener también es un resultado.")
+    : v.dir === "mejor" ? tx("Fue mejor que el periodo anterior.")
+    : tx("Fue más flojo que el periodo anterior, y eso no borra lo de antes.");
 
   /* El repaso de diciembre. Un año no se resume con los mismos tres números
      que una semana: lo que se recuerda de un año es cuánto subiste, cuánto
@@ -516,11 +516,11 @@ function accesosHTML(r, D) {
     { k: "Misiones", v: f.misiones, color: pinta("#5fe0b0") },
     { k: "Talentos", v: f.talentos, color: pinta("#c7a6ff") },
     { k: "Proyectos", v: f.proyectos, color: pinta("#8ecdf5") },
-    { k: "Práctica suelta", v: f.practica, color: pinta("#f5d76e") }
+    { k: tx("Práctica suelta"), v: f.practica, color: pinta("#f5d76e") }
   ], { fmt: (x) => fmtXp(x) + " XP", vacia: "Cuando ganes XP se verá aquí de dónde salió." });
 
-  return bloque("¿Dónde pusiste la energía?",
-    "Es la única pregunta que ningún módulo puede contestar solo.", energia) + `
+  return bloque(tx("¿Dónde pusiste la energía?"),
+    tx("Es la única pregunta que ningún módulo puede contestar solo."), energia) + `
     <div class="inf-accesos">
       ${INFORME_RAMAS.filter(x => x.id !== "todo").map(x => `
         <button class="inf-acceso" onclick="informeVerRama('${x.id}')">
@@ -551,7 +551,7 @@ function antesalaHTML() {
         de cada módulo. Lo que abre ${escapeHtml(NOMBRE_PRO)} es todo lo demás:
       </p>
       <ul class="inf-abre">
-        ${INFORME_ABRE.map(x => `<li>${icon("check", 16)}<span>${escapeHtml(x)}</span></li>`).join("")}
+        ${INFORME_ABRE.map(x => `<li>${icon("check", 16)}<span>${escapeHtml(tx(x))}</span></li>`).join("")}
       </ul>
       <div class="inf-siluetas" aria-hidden="true">
         ${[62, 88, 40, 74, 55, 90].map(h => `<i style="height:${h}%"></i>`).join("")}
@@ -570,12 +570,12 @@ function infMisiones(r, rAntes, D) {
   const m = metricasMisiones(r, D), p = metricasMisiones(rAntes, D);
   const datos = D || state;
 
-  let html = bloque("Tu constancia", "De todo lo que tocaba hacer, ¿cuánto hiciste?",
+  let html = bloque(tx("Tu constancia"), tx("De todo lo que tocaba hacer, ¿cuánto hiciste?"),
     `<div class="inf-doble">
       ${gAro(m.constancia || 0, m.constancia === null ? "—" : m.constancia + "%",
-        m.constancia === null ? "Todavía no ha cerrado ningún día con misiones" : `${m.completas} de ${m.tocaban} días-misión cumplidos`)}
+        m.constancia === null ? tx("Todavía no ha cerrado ningún día con misiones") : `${m.completas} de ${m.tocaban} días-misión cumplidos`)}
       <div class="inf-cifras">
-        <div><b>${m.marcas}</b><span>${tx("Veces que marcaste")}</span>${flechaHTML(variacion(m.marcas, p.marcas), "Frente al periodo anterior")}</div>
+        <div><b>${m.marcas}</b><span>${tx("Veces que marcaste")}</span>${flechaHTML(variacion(m.marcas, p.marcas), tx("Frente al periodo anterior"))}</div>
         <div><b>${m.constancia === null ? "—" : m.constancia + "%"}</b><span>${tx("Constancia")}</span>${flechaHTML(variacion(m.constancia, p.constancia), "Frente al periodo anterior")}</div>
       </div>
     </div>`);
@@ -601,9 +601,9 @@ function infMisiones(r, rAntes, D) {
     /* «Hiciste algo N días» no: reduce a «algo» lo que costó hacerse, y lo
        que se hizo importa tanto como que se hiciera. Estas casillas cuentan
        misiones cumplidas, así que se nombran. */
-    html += bloque("Tus días",
+    html += bloque(tx("Tus días"),
       conAlgo ? `Cumpliste misiones ${conAlgo} ${cuantos}.` : "",
-      gCalendario(r, cuentas, { vacia: "En cuanto cumplas misiones, aquí se llena el calendario." }));
+      gCalendario(r, cuentas, { vacia: tx("En cuanto cumplas misiones, aquí se llena el calendario.") }));
   }
 
   /* Por día de la semana. La pregunta no es cuánto hiciste, es DÓNDE se te
@@ -614,13 +614,13 @@ function infMisiones(r, rAntes, D) {
     return conDatos.sort((a, b) => a.v - b.v)[0].i;
   })();
 
-  html += bloque("¿Qué día se te cae la semana?",
-    flojo === null ? "Hace falta más de una semana para que esto signifique algo." : `Tu día más flojo es el ${DOW_LARGO[flojo].toLowerCase()}.`,
+  html += bloque(tx("¿Qué día se te cae la semana?"),
+    flojo === null ? tx("Hace falta más de una semana para que esto signifique algo.") : `Tu día más flojo es el ${DOW_LARGO[flojo].toLowerCase()}.`,
     gBarras(m.porDiaSemana.map((v, i) => ({
       k: DOW_LARGO[i].slice(0, 3), v,
       color: i === flojo ? pinta("#ff8a70") : pinta("#5fe0b0"),
       titulo: `${DOW_LARGO[i]}: ${v} marcas`
-    })), { vacia: "En cuanto cumplas misiones, aquí se verá en qué días." }));
+    })), { vacia: tx("En cuanto cumplas misiones, aquí se verá en qué días.") }));
 
   /* Qué misión sostiene el periodo. */
   const porMision = datos.missions.map(x => {
@@ -629,8 +629,8 @@ function infMisiones(r, rAntes, D) {
     return { k: x.name, v: n, color: pinta(x.color || "#5fe0b0") };
   }).filter(x => x.v > 0).sort((a, b) => b.v - a.v).slice(0, 5);
 
-  html += bloque("Qué sostiene tu periodo", "Las cinco que más veces cumpliste.",
-    gBarrasH(porMision, { vacia: "Aquí saldrán tus misiones más cumplidas." }));
+  html += bloque(tx("Qué sostiene tu periodo"), tx("Las cinco que más veces cumpliste."),
+    gBarrasH(porMision, { vacia: tx("Aquí saldrán tus misiones más cumplidas.") }));
 
   /* La hora. Solo se puede contestar con lo que se guardó desde el 27 de
      agosto de 2026: las marcas anteriores no llevan hora y no se inventan. */
@@ -645,11 +645,11 @@ function infMisiones(r, rAntes, D) {
     return { k: f.k, v, color: pinta("#8ecdf5") };
   });
 
-  html += bloque("¿A qué hora cumples?",
-    m.conHora ? "Sirve para saber a qué hora ponerte lo que más te cuesta." : "",
+  html += bloque(tx("¿A qué hora cumples?"),
+    m.conHora ? tx("Sirve para saber a qué hora ponerte lo que más te cuesta.") : "",
     m.conHora
       ? gBarras(franjas, { vacia: "" })
-      : gVacia("La hora se empezó a guardar hace poco, y no se puede reconstruir hacia atrás. Esto se llena solo con las misiones que cumplas de ahora en adelante."));
+      : gVacia(tx("La hora se empezó a guardar hace poco, y no se puede reconstruir hacia atrás. Esto se llena solo con las misiones que cumplas de ahora en adelante.")));
 
   return html;
 }
@@ -661,19 +661,19 @@ function infHabilidades(r, rAntes, D) {
   const datos = D || state;
   const f = h.porFuente;
 
-  let html = bloque("¿De dónde sale tu XP?",
-    "Si casi todo viene de un solo sitio, ya sabes qué parte de la app estás usando de verdad.",
+  let html = bloque(tx("¿De dónde sale tu XP?"),
+    tx("Si casi todo viene de un solo sitio, ya sabes qué parte de la app estás usando de verdad."),
     gApilada([
       { k: "Misiones", v: f.misiones, color: pinta("#5fe0b0") },
       { k: "Talentos", v: f.talentos, color: pinta("#c7a6ff") },
       { k: "Proyectos", v: f.proyectos, color: pinta("#8ecdf5") },
-      { k: "Práctica suelta", v: f.practica, color: pinta("#f5d76e") }
+      { k: tx("Práctica suelta"), v: f.practica, color: pinta("#f5d76e") }
     ], { fmt: (x) => fmtXp(x) + " XP", vacia: "Cuando ganes XP se verá aquí de dónde salió." }));
 
   /* Ganada contra perdida. Es el número que duele y el que cambia conductas,
      así que va entero y no escondido en un pie. */
-  html += bloque("¿Ganas o pierdes?",
-    h.perdida ? "Lo perdido es desgaste por dejar una habilidad sin practicar." : "",
+  html += bloque(tx("¿Ganas o pierdes?"),
+    h.perdida ? tx("Lo perdido es desgaste por dejar una habilidad sin practicar.") : "",
     `<div class="inf-balance">
       <div class="ib-lado"><b class="mint">+${fmtXp(h.ganada)}</b><span>${tx("Ganada")}</span></div>
       <div class="ib-lado"><b class="${h.perdida ? "coral" : ""}">−${fmtXp(h.perdida)}</b><span>${tx("Perdida")}</span></div>
@@ -702,8 +702,8 @@ function infHabilidades(r, rAntes, D) {
     /* «La curva de cada una» y no «Cómo creciste»: dos bloques seguidos
        llamados «Cómo creciste» y «Dónde creciste» se leen como el mismo
        título repetido y nadie mira el segundo. */
-    html += bloque("La curva de cada una", "Las cinco que más se movieron, sumando desde el principio del periodo.",
-      gLineas(series, { vacia: "Con un poco más de historia aquí se verá la forma de cada habilidad." }));
+    html += bloque(tx("La curva de cada una"), tx("Las cinco que más se movieron, sumando desde el principio del periodo."),
+      gLineas(series, { vacia: tx("Con un poco más de historia aquí se verá la forma de cada habilidad.") }));
   }
 
   const top = [...h.porHabilidad.entries()]
@@ -713,16 +713,16 @@ function infHabilidades(r, rAntes, D) {
     })
     .filter(Boolean).sort((a, b) => b.v - a.v).slice(0, 5);
 
-  html += bloque("Dónde creciste", "Las cinco habilidades que más se movieron.",
-    gBarrasH(top, { vacia: "Aquí saldrán las habilidades que más suban." }));
+  html += bloque(tx("Dónde creciste"), tx("Las cinco habilidades que más se movieron."),
+    gBarrasH(top, { vacia: tx("Aquí saldrán las habilidades que más suban.") }));
 
   /* Tiempo y niveles: lo que se puede contar de una vida, dicho en unidades
      de vida. «6 días completos» pesa más que «8.640 minutos». */
   const horas = Math.round(h.minutos / 60);
-  html += bloque("Lo que llevas puesto", "",
+  html += bloque(tx("Lo que llevas puesto"), "",
     `<div class="inf-cifras tres">
-      <div><b>${h.niveles}</b><span>${tx("Niveles subidos")}</span>${flechaHTML(variacion(h.niveles, p.niveles), "Frente al periodo anterior")}</div>
-      <div><b>${h.sesiones}</b><span>${tx("Registros")}</span>${flechaHTML(variacion(h.sesiones, p.sesiones), "Frente al periodo anterior")}</div>
+      <div><b>${h.niveles}</b><span>${tx("Niveles subidos")}</span>${flechaHTML(variacion(h.niveles, p.niveles), tx("Frente al periodo anterior"))}</div>
+      <div><b>${h.sesiones}</b><span>${tx("Registros")}</span>${flechaHTML(variacion(h.sesiones, p.sesiones), tx("Frente al periodo anterior"))}</div>
       <div><b>${horas ? horas + " h" : "—"}</b><span>${tx("Tiempo practicado")}</span></div>
     </div>` +
     (h.minutos ? "" : gVacia("El tiempo solo se cuenta cuando registras una práctica con minutos.")));
@@ -736,16 +736,16 @@ function infTalentos(r, rAntes, D) {
   const t = metricasTalentos(r, D), p = metricasTalentos(rAntes, D);
   const datos = D || state;
 
-  let html = bloque("En qué se te va el dinero", "Lo invertido en este periodo, por rama.",
+  let html = bloque(tx("En qué se te va el dinero"), tx("Lo invertido en este periodo, por rama."),
     gBarrasH([...t.invertidoPorRama.entries()]
       .map(([k, v]) => ({ k, v, etiqueta: money(v), color: pinta("#c7a6ff") }))
       .sort((a, b) => b.v - a.v),
-      { vacia: "En cuanto abras un talento con importe, aquí se ve en qué rama cayó." }));
+      { vacia: tx("En cuanto abras un talento con importe, aquí se ve en qué rama cayó.") }));
 
-  html += bloque("Cómo va lo que abriste", "",
+  html += bloque(tx("Cómo va lo que abriste"), "",
     `<div class="inf-cifras tres">
       <div><b>${moneyHTML(t.invertido)}</b><span>${tx("Invertido")}</span>${flechaHTML(variacion(t.invertido, p.invertido, { dinero: true }), "Frente al periodo anterior")}</div>
-      <div><b>${t.completados}</b><span>${tx("Asegurados")}</span>${flechaHTML(variacion(t.completados, p.completados), "Frente al periodo anterior")}</div>
+      <div><b>${t.completados}</b><span>${tx("Asegurados")}</span>${flechaHTML(variacion(t.completados, p.completados), tx("Frente al periodo anterior"))}</div>
       <div><b class="${t.vencidos ? "coral" : ""}">${t.vencidos}</b><span>${tx("Se les pasó el plazo")}</span></div>
     </div>`);
 
@@ -758,11 +758,11 @@ function infTalentos(r, rAntes, D) {
       if (!(x.cost > 0) || !enRango(d, r)) return;
       porTri[Math.floor((Number(d.slice(5, 7)) - 1) / 3)] += x.cost;
     });
-    html += bloque("En qué trimestre gastaste", "",
+    html += bloque(tx("En qué trimestre gastaste"), "",
       gBarras(porTri.map((v, i) => ({
         k: "T" + (i + 1), v, etiqueta: v ? money(v) : "",
         color: pinta("#c7a6ff"), titulo: "Trimestre " + (i + 1) + ": " + money(v)
-      })), { vacia: "Aquí se reparte por trimestre lo que inviertas este año." }));
+      })), { vacia: tx("Aquí se reparte por trimestre lo que inviertas este año.") }));
   }
 
   /* Cuánto tardas en cerrar lo que abres. Solo cuenta lo que se completó
@@ -778,9 +778,9 @@ function infTalentos(r, rAntes, D) {
     const conPlazo = cerrados.filter(x => x.endDate);
     const aTiempo = conPlazo.filter(x => x.completedAt <= x.endDate).length;
 
-    html += bloque("¿Cierras lo que abres?", "",
+    html += bloque(tx("¿Cierras lo que abres?"), "",
       medio === null
-        ? gVacia("Cuando completes un talento con fecha, aquí verás cuánto tardaste.")
+        ? gVacia(tx("Cuando completes un talento con fecha, aquí verás cuánto tardaste."))
         : `<div class="inf-cifras tres">
             <div><b>${cerrados.length}</b><span>${tx("Completados")}</span></div>
             <div><b>${medio}</b><span>${tx("Días de media")}</span></div>
@@ -804,8 +804,8 @@ function infTalentos(r, rAntes, D) {
       };
     });
 
-  html += bloque("Lo que se te vence", "Cuanto más llena la barra, menos tiempo queda.",
-    gBarrasH(porVencer, { vacia: "No tienes ningún plan con fecha corriendo." }));
+  html += bloque(tx("Lo que se te vence"), tx("Cuanto más llena la barra, menos tiempo queda."),
+    gBarrasH(porVencer, { vacia: tx("No tienes ningún plan con fecha corriendo.") }));
 
   return html;
 }
@@ -822,14 +822,14 @@ function infProyectos(r, rAntes, D) {
   const cuenta = {};
   vivos.forEach(x => { const h = projectHealth(x); cuenta[h.label] = (cuenta[h.label] || 0) + 1; });
   const COLOR_SALUD = {
-    "Con ritmo": pinta("#5fe0b0"), "Casi listo": pinta("#5fe0b0"),
+    tx("Con ritmo"): pinta("#5fe0b0"), "Casi listo": pinta("#5fe0b0"),
     "Enfriándose": pinta("#f5d76e"), "Estancado": pinta("#ff8a70"),
-    "En pausa": "var(--carril)"
+    tx("En pausa"): "var(--carril)"
   };
 
-  let html = bloque("Cómo está lo que llevas", "De un vistazo: qué sigue vivo y qué se está apagando.",
+  let html = bloque(tx("Cómo está lo que llevas"), tx("De un vistazo: qué sigue vivo y qué se está apagando."),
     gApilada(Object.keys(cuenta).map(k => ({ k, v: cuenta[k], color: COLOR_SALUD[k] || pinta("#8ecdf5") })),
-      { vacia: "Cuando tengas encargos en marcha, aquí se ve su estado." }));
+      { vacia: tx("Cuando tengas encargos en marcha, aquí se ve su estado.") }));
 
   /* El ritmo, día a día dentro del periodo. Con más de dos semanas se agrupa
      por semanas: 365 barras no son una gráfica, son una pared. */
@@ -852,28 +852,28 @@ function infProyectos(r, rAntes, D) {
     });
   }
 
-  html += bloque("Tu ritmo", "Etapas cerradas a lo largo del periodo.",
-    gBarras(ritmo, { vacia: "Aquí se verá el ritmo en cuanto cierres etapas." }));
+  html += bloque(tx("Tu ritmo"), tx("Etapas cerradas a lo largo del periodo."),
+    gBarras(ritmo, { vacia: tx("Aquí se verá el ritmo en cuanto cierres etapas.") }));
 
   /* Cuánto tarda un encargo de principio a fin. Con una semana la muestra es
      de uno o dos y la media es ruido; de un mes en adelante ya dice algo. */
   if (r.periodo !== "semana") {
     const cerrados = datos.projects.filter(x => x.status === "done" && enRango(x.completedAt || x.lastActivity, r));
     const dias = cerrados.map(x => Math.max(0, daysBetween(x.createdAt, x.completedAt || x.lastActivity)));
-    html += bloque("Cuánto tarda un encargo", "De crearlo a cerrarlo.",
+    html += bloque(tx("Cuánto tarda un encargo"), tx("De crearlo a cerrarlo."),
       dias.length
         ? `<div class="inf-cifras tres">
             <div><b>${Math.round(dias.reduce((a, b) => a + b, 0) / dias.length)}</b><span>${tx("Días de media")}</span></div>
             <div><b class="mint">${Math.min(...dias)}</b><span>${tx("El más rápido")}</span></div>
             <div><b>${Math.max(...dias)}</b><span>${tx("El más lento")}</span></div>
           </div>`
-        : gVacia("Cuando termines un encargo, aquí verás cuánto te llevó."));
+        : gVacia(tx("Cuando termines un encargo, aquí verás cuánto te llevó.")));
   }
 
-  html += bloque("Lo que cerraste y lo que soltaste", "",
+  html += bloque(tx("Lo que cerraste y lo que soltaste"), "",
     `<div class="inf-cifras tres">
-      <div><b>${pr.etapas}</b><span>${tx("Etapas cerradas")}</span>${flechaHTML(variacion(pr.etapas, pa.etapas), "Frente al periodo anterior")}</div>
-      <div><b class="mint">${pr.terminados}</b><span>${tx("Encargos terminados")}</span>${flechaHTML(variacion(pr.terminados, pa.terminados), "Frente al periodo anterior")}</div>
+      <div><b>${pr.etapas}</b><span>${tx("Etapas cerradas")}</span>${flechaHTML(variacion(pr.etapas, pa.etapas), tx("Frente al periodo anterior"))}</div>
+      <div><b class="mint">${pr.terminados}</b><span>${tx("Encargos terminados")}</span>${flechaHTML(variacion(pr.terminados, pa.terminados), tx("Frente al periodo anterior"))}</div>
       <div><b class="${pr.soltados ? "coral" : ""}">${pr.soltados}</b><span>${tx("Soltados")}</span></div>
     </div>`);
 

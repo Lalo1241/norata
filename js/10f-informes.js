@@ -392,7 +392,7 @@ function datosDemo() {
     { id: "d-m1", name: "Dibujar 15 minutos",  skillId: "d-s1", xp: 20, hora: "21" },
     { id: "d-m2", name: "Caminar 20 minutos",  skillId: "d-s2", xp: 20, hora: "07" },
     { id: "d-m3", name: "Repasar vocabulario", skillId: "d-s3", xp: 15, hora: "13" },
-    { id: "d-m4", name: "Cocinar en casa",     skillId: "d-s4", xp: 25, hora: "19" },
+    { id: "d-m4", name: tx("Cocinar en casa"),     skillId: "d-s4", xp: 25, hora: "19" },
     { id: "d-m5", name: "Anotar mis gastos",   skillId: "d-s5", xp: 15, hora: "22" }
   ];
 
@@ -413,7 +413,7 @@ function datosDemo() {
       const s = porId(d.skillId);
       s.xp += d.xp;
       s.log.unshift({ date: fecha, at: sello(i, d.hora + ":" + min), xp: d.xp,
-        note: "Misión cumplida: " + d.name, fuente: "Misión · " + d.name, min: 15 });
+        note: T`Misión cumplida: ${d.name}`, fuente: T`Misión · ${d.name}`, min: 15 });
     }
   });
 
@@ -426,32 +426,32 @@ function datosDemo() {
     s.xp += xp;
     s.log.unshift({ date: dia(i), at: sello(i, "18:20"), xp, note, fuente, min: min || 0 });
   };
-  extra("d-s1", 2, 60, "Práctica libre", null, 45);
-  extra("d-s3", 5, 40, "Práctica libre", null, 30);
+  extra("d-s1", 2, 60, tx("Práctica libre"), null, 45);
+  extra("d-s3", 5, 40, tx("Práctica libre"), null, 30);
   /* Uno de cada familia DENTRO del periodo, además de los dos gordos de la
      semana pasada: sin ellos, el reparto de «de dónde sale tu XP» se quedaba
      en dos porciones y no se podía ver si cuatro colores juntos se leen. */
-  extra("d-s2", 4, 120, "Talento completado: Bici de ciudad", "Talento · Bici de ciudad");
-  extra("d-s4", 3, 90, "Proyecto terminado: Regalo de mamá", "Proyecto · Regalo de mamá");
-  extra("d-s2", 9, 300, "Talento completado: Curso de acuarela", "Talento · Curso de acuarela");
-  extra("d-s4", 11, 250, "Proyecto terminado: Ordenar la cocina", "Proyecto · Ordenar la cocina");
-  extra("d-s1", 16, 80, "Práctica libre", null, 60);
+  extra("d-s2", 4, 120, tx("Talento completado: Bici de ciudad"), tx("Talento · Bici de ciudad"));
+  extra("d-s4", 3, 90, tx("Proyecto terminado: Regalo de mamá"), tx("Proyecto · Regalo de mamá"));
+  extra("d-s2", 9, 300, tx("Talento completado: Curso de acuarela"), tx("Talento · Curso de acuarela"));
+  extra("d-s4", 11, 250, tx("Proyecto terminado: Ordenar la cocina"), tx("Proyecto · Ordenar la cocina"));
+  extra("d-s1", 16, 80, tx("Práctica libre"), null, 60);
 
   /* Y algo cayéndose: sin XP perdido, la mitad de lo que el informe tiene que
      saber contar no se ve nunca. Sin fuente, que es lo que lo distingue de
      una vuelta atrás (ver el reparto por familias). */
-  skills[4].log.unshift({ date: dia(1), at: sello(1, "03:00"), xp: -12, note: "Decaimiento por inactividad", fuente: null });
+  skills[4].log.unshift({ date: dia(1), at: sello(1, "03:00"), xp: -12, note: tx("Decaimiento por inactividad"), fuente: null });
   skills[4].xp -= 12;
-  skills[2].log.unshift({ date: dia(8), at: sello(8, "03:00"), xp: -9, note: "Decaimiento por inactividad", fuente: null });
+  skills[2].log.unshift({ date: dia(8), at: sello(8, "03:00"), xp: -9, note: tx("Decaimiento por inactividad"), fuente: null });
   skills[2].xp -= 9;
 
   const perks = [
-    { id: "d-p1", name: "Curso de acuarela", branch: "Oficio", icon: "pen",    color: "#c7a6ff", tipo: "meta",   status: "active",    cost: 1890, startDate: dia(3),  endDate: addDaysKey(todayKey(), 4),  planDays: 7,  completedAt: null, createdAt: dia(30), steps: [{ id: "e1", name: "Materiales", done: true, at: sello(2, "10:00") }, { id: "e2", name: "Primeras láminas", done: false, at: null }], history: [] },
-    { id: "d-p2", name: "Bici de ciudad",    branch: "Cuerpo", icon: "heart",  color: "#5fe0b0", tipo: "compra", status: "active",    cost: 4200, startDate: dia(10), endDate: addDaysKey(todayKey(), 20), planDays: 30, completedAt: null, createdAt: dia(40), steps: [], history: [] },
+    { id: "d-p1", name: tx("Curso de acuarela"), branch: "Oficio", icon: "pen",    color: "#c7a6ff", tipo: "meta",   status: "active",    cost: 1890, startDate: dia(3),  endDate: addDaysKey(todayKey(), 4),  planDays: 7,  completedAt: null, createdAt: dia(30), steps: [{ id: "e1", name: "Materiales", done: true, at: sello(2, "10:00") }, { id: "e2", name: "Primeras láminas", done: false, at: null }], history: [] },
+    { id: "d-p2", name: tx("Bici de ciudad"),    branch: "Cuerpo", icon: "heart",  color: "#5fe0b0", tipo: "compra", status: "active",    cost: 4200, startDate: dia(10), endDate: addDaysKey(todayKey(), 20), planDays: 30, completedAt: null, createdAt: dia(40), steps: [], history: [] },
     { id: "d-p3", name: "Teclado partido",   branch: "Oficio", icon: "chart",  color: "#8ecdf5", tipo: "compra", status: "completed", cost: 990,  startDate: dia(25), endDate: null, completedAt: dia(2),  createdAt: dia(28), steps: [], history: [] },
     { id: "d-p4", name: "Certificado B2",    branch: "Mente",  icon: "book",   color: "#8ecdf5", tipo: "meta",   status: "active",    cost: 0,    startDate: dia(6),  endDate: addDaysKey(todayKey(), 40), planDays: 46, completedAt: null, createdAt: dia(20), steps: [], history: [] },
-    { id: "d-p5", name: "Sartén de hierro",  branch: "Casa",   icon: "coffee", color: "#f5d76e", tipo: "compra", status: "completed", cost: 1200, startDate: dia(60), endDate: null, completedAt: dia(58), createdAt: dia(62), steps: [], history: [] },
-    { id: "d-p6", name: "Curso de finanzas", branch: "Dinero", icon: "chart",  color: "#ff8a70", tipo: "meta",   status: "completed", cost: 2400, startDate: dia(90), endDate: dia(60), completedAt: dia(64), createdAt: dia(95), steps: [], history: [] }
+    { id: "d-p5", name: tx("Sartén de hierro"),  branch: "Casa",   icon: "coffee", color: "#f5d76e", tipo: "compra", status: "completed", cost: 1200, startDate: dia(60), endDate: null, completedAt: dia(58), createdAt: dia(62), steps: [], history: [] },
+    { id: "d-p6", name: tx("Curso de finanzas"), branch: "Dinero", icon: "chart",  color: "#ff8a70", tipo: "meta",   status: "completed", cost: 2400, startDate: dia(90), endDate: dia(60), completedAt: dia(64), createdAt: dia(95), steps: [], history: [] }
   ];
 
   /* Nueve encargos: seis vivos —dos parados desde hace mes y medio, que es lo
@@ -464,12 +464,12 @@ function datosDemo() {
   const projects = [
     { id: "d-x1", name: "Mudanza",           branch: "Casa",     icon: "flag", color: "#5fe0b0", status: "active", createdAt: dia(30), lastActivity: dia(0),  completedAt: null,   steps: etapas([0, 1, 3, 5, null, null]), history: [] },
     { id: "d-x2", name: "Portafolio nuevo",  branch: "Oficio",   icon: "flag", color: "#c7a6ff", status: "active", createdAt: dia(45), lastActivity: dia(2),  completedAt: null,   steps: etapas([2, 4, 6, 9, 11, null]), history: [] },
-    { id: "d-x3", name: "Huerto del patio",  branch: "Casa",     icon: "flag", color: "#f5d76e", status: "paused", createdAt: dia(60), lastActivity: dia(12), completedAt: null,   steps: etapas([8, 10, 12, 13, null]), history: [] },
-    { id: "d-x4", name: "Trámite del coche", branch: "Trámites", icon: "flag", color: "#8ecdf5", status: "active", createdAt: dia(80), lastActivity: dia(52), completedAt: null,   steps: etapas([52, 60, null, null, null]), history: [] },
+    { id: "d-x3", name: tx("Huerto del patio"),  branch: "Casa",     icon: "flag", color: "#f5d76e", status: "paused", createdAt: dia(60), lastActivity: dia(12), completedAt: null,   steps: etapas([8, 10, 12, 13, null]), history: [] },
+    { id: "d-x4", name: tx("Trámite del coche"), branch: "Trámites", icon: "flag", color: "#8ecdf5", status: "active", createdAt: dia(80), lastActivity: dia(52), completedAt: null,   steps: etapas([52, 60, null, null, null]), history: [] },
     { id: "d-x5", name: "Libro a medias",    branch: "Mente",    icon: "flag", color: "#ff8a70", status: "active", createdAt: dia(90), lastActivity: dia(55), completedAt: null,   steps: etapas([55, 70, null, null, null, null]), history: [] },
-    { id: "d-x6", name: "Cambiar de banco",  branch: "Dinero",   icon: "flag", color: "#5fe0b0", status: "active", createdAt: dia(25), lastActivity: dia(4),  completedAt: null,   steps: etapas([4, 7, 8, null]), history: [] },
-    { id: "d-x7", name: "Ordenar la cocina", branch: "Casa",     icon: "flag", color: "#f5d76e", status: "done",   createdAt: dia(40), lastActivity: dia(1),  completedAt: dia(1), steps: etapas([1, 6, 10, 14]), history: [] },
-    { id: "d-x8", name: "Regalo de mamá",    branch: "Casa",     icon: "flag", color: "#c7a6ff", status: "done",   createdAt: dia(35), lastActivity: dia(5),  completedAt: dia(5), steps: etapas([5, 9, 13]), history: [] },
+    { id: "d-x6", name: tx("Cambiar de banco"),  branch: "Dinero",   icon: "flag", color: "#5fe0b0", status: "active", createdAt: dia(25), lastActivity: dia(4),  completedAt: null,   steps: etapas([4, 7, 8, null]), history: [] },
+    { id: "d-x7", name: tx("Ordenar la cocina"), branch: "Casa",     icon: "flag", color: "#f5d76e", status: "done",   createdAt: dia(40), lastActivity: dia(1),  completedAt: dia(1), steps: etapas([1, 6, 10, 14]), history: [] },
+    { id: "d-x8", name: tx("Regalo de mamá"),    branch: "Casa",     icon: "flag", color: "#c7a6ff", status: "done",   createdAt: dia(35), lastActivity: dia(5),  completedAt: dia(5), steps: etapas([5, 9, 13]), history: [] },
     { id: "d-x9", name: "Impuestos",         branch: "Dinero",   icon: "flag", color: "#8ecdf5", status: "done",   createdAt: dia(50), lastActivity: dia(9),  completedAt: dia(9), steps: etapas([9, 10, 11, 12]), history: [] }
   ];
 

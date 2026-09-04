@@ -168,7 +168,7 @@ function moverMisionATablero(id, destino) {
   }
 
   const espera = diasPospuesta(m);
-  const deshecho = revertida ? " · se deshizo lo cumplido" : "";
+  const deshecho = revertida ? tx(" · se deshizo lo cumplido") : "";
   save();
   if (destino === "semana" || m.tablero) {
     return espera > 0
@@ -181,7 +181,7 @@ function moverMisionATablero(id, destino) {
 /* ---- Los tableros propios ---- */
 async function crearTableroMisiones() {
   const nombre = await askText("Nuevo tablero", "", "Crear",
-    "Un sitio donde apartar misiones: un proyecto, un ámbito, lo que quieras.", 28);
+    tx("Un sitio donde apartar misiones: un proyecto, un ámbito, lo que quieras."), 28);
   if (!nombre) return;
   state.tableros = state.tableros || [];
   state.tableros.push({ id: uid(), nombre });
@@ -222,10 +222,10 @@ async function borrarTableroMisiones(id) {
   const ok = await ask(
     (dentro.length
       ? `Se borra el tablero "${t.nombre}". ${dentro.length === 1
-          ? "La misión que tiene dentro no se pierde: vuelve a su sitio de siempre, según toque hoy o no."
+          ? tx("La misión que tiene dentro no se pierde: vuelve a su sitio de siempre, según toque hoy o no.")
           : `Las ${dentro.length} misiones que tiene dentro no se pierden: vuelven a su sitio de siempre, según toquen hoy o no.`}`
       : `Se borra el tablero "${t.nombre}", que está vacío.`),
-    "Borrar el tablero", true);
+    tx("Borrar el tablero"), true);
   if (!ok) return;
   dentro.forEach(m => { delete m.tablero; cerrarPosposicion(m); });
   state.tableros = state.tableros.filter(x => x.id !== id);
@@ -699,7 +699,7 @@ function reordSoltar() {
 /* Pista de uso: el gesto no es el mismo en cada dispositivo, así que el texto
    tampoco puede serlo. */
 function pistaReordenar() {
-  return isDesktop() ? "Arrastra para reordenar" : "Mantén pulsada una para reordenar";
+  return isDesktop() ? tx("Arrastra para reordenar") : tx("Mantén pulsada una para reordenar");
 }
 
 /* ---- Orden guardado, común a misiones y habilidades ---- */
@@ -786,16 +786,16 @@ function daysIdle(pr) {
 
 /* Veredicto honesto: avance real contra tiempo sin tocarlo. */
 function projectHealth(pr) {
-  if (pr.status === "done") return { key: "done", label: "Terminado", color: "var(--mint)", note: "Cerrado y guardado en tu historial." };
-  if (pr.status === "dropped") return { key: "dropped", label: "Descartado", color: "var(--coral)", note: "Lo soltaste. Puedes retomarlo cuando quieras." };
-  if (pr.status === "paused") return { key: "paused", label: "En pausa", color: "var(--muted)", note: "Congelado a propósito: no cuenta como abandonado." };
+  if (pr.status === "done") return { key: "done", label: "Terminado", color: "var(--mint)", note: tx("Cerrado y guardado en tu historial.") };
+  if (pr.status === "dropped") return { key: "dropped", label: "Descartado", color: "var(--coral)", note: tx("Lo soltaste. Puedes retomarlo cuando quieras.") };
+  if (pr.status === "paused") return { key: "paused", label: tx("En pausa"), color: "var(--muted)", note: tx("Congelado a propósito: no cuenta como abandonado.") };
   /* Ver esperandoTurno: los dias empiezan a contar cuando se abre el paso */
   if (esperandoTurno(pr)) {
     const faltan = requisitosVivos(pr).filter(r => r.status !== "done");
-    return { key: "waiting", label: "Espera su turno", color: "var(--celeste)",
+    return { key: "waiting", label: tx("Espera su turno"), color: "var(--celeste)",
       note: faltan.length === 1
-        ? `Va despues de "${faltan[0].name}". ${pr.espera ? "No se abre hasta que termine." : "Puedes adelantarlo si quieres."}`
-        : `Va despues de ${faltan.length} encargos. ${pr.espera ? "No se abre hasta que terminen." : "Puedes adelantarlo si quieres."}` };
+        ? `Va despues de "${faltan[0].name}". ${pr.espera ? tx("No se abre hasta que termine.") : "Puedes adelantarlo si quieres."}`
+        : `Va despues de ${faltan.length} encargos. ${pr.espera ? tx("No se abre hasta que terminen.") : "Puedes adelantarlo si quieres."}` };
   }
   const idle = daysIdle(pr);
   const prog = projectProgress(pr);
@@ -809,10 +809,10 @@ function projectHealth(pr) {
   }
   if (prog >= 80) {
     return { key: "closing", label: "Casi listo", color: "var(--mint)",
-      note: "Estás a nada de cerrarlo. Termina las etapas que faltan." };
+      note: tx("Estás a nada de cerrarlo. Termina las etapas que faltan.") };
   }
-  return { key: "healthy", label: "Con ritmo", color: "var(--mint)",
-    note: idle === 0 ? "Le diste avance hoy." : `Último avance hace ${idle} día${idle === 1 ? "" : "s"}.` };
+  return { key: "healthy", label: tx("Con ritmo"), color: "var(--mint)",
+    note: idle === 0 ? tx("Le diste avance hoy.") : `Último avance hace ${idle} día${idle === 1 ? "" : "s"}.` };
 }
 
 /* ================= El encargo como nodo del mapa =================
@@ -910,7 +910,7 @@ function toggleStep(prId, stepId) {
   projectLog(pr, `${s.done ? "Etapa completada" : "Etapa reabierta"}: ${s.name}`);
   if (pr.status === "paused" && s.done) {
     pr.status = "active";
-    projectLog(pr, "Retomado al avanzar una etapa");
+    projectLog(pr, tx("Retomado al avanzar una etapa"));
   }
   save();
   const prog = projectProgress(pr);
@@ -947,10 +947,10 @@ async function setProjectStatus(prId, status) {
   const pr = state.projects.find(x => x.id === prId);
   if (!pr) return;
   const labels = {
-    active: ["¿Retomar este encargo?", "Retomar"],
-    paused: ["¿Poner el encargo en pausa? No contará como abandonado mientras esté pausado.", "Pausar"],
-    done: ["¿Dar por terminado este encargo? Se guardará en tu historial y ganarás el XP.", "Terminarlo"],
-    dropped: ["¿Descartar este encargo? Deja de pedirte atención, pero queda guardado por si lo retomas.", "Descartar"]
+    active: [tx("¿Retomar este encargo?"), "Retomar"],
+    paused: [tx("¿Poner el encargo en pausa? No contará como abandonado mientras esté pausado."), "Pausar"],
+    done: [tx("¿Dar por terminado este encargo? Se guardará en tu historial y ganarás el XP."), "Terminarlo"],
+    dropped: [tx("¿Descartar este encargo? Deja de pedirte atención, pero queda guardado por si lo retomas."), "Descartar"]
   };
   const [msg, ok] = labels[status];
 
@@ -993,7 +993,7 @@ async function setProjectStatus(prId, status) {
     celebrate("Encargo terminado", pr.name, pr.color || "#5fe0b0", pr.icon);
   } else {
     save();
-    toast({ active: "Encargo retomado", paused: "Encargo en pausa", dropped: "Encargo descartado" }[status], status === "active" ? "hecho" : "deshecho");
+    toast({ active: "Encargo retomado", paused: tx("Encargo en pausa"), dropped: "Encargo descartado" }[status], status === "active" ? "hecho" : "deshecho");
   }
   renderProjectDetail();
 }

@@ -1250,5 +1250,898 @@ const TEXTOS_EN = {
     "It will be deleted right now, without waiting. This can't be undone.",
   "Guardando solo en este dispositivo": "Saving only on this device",
   "Errores dados por vistos": "Errors marked as seen",
-  "Sin cuenta: no hay nada que traer": "No account: there's nothing to fetch"
+  "Sin cuenta: no hay nada que traer": "No account: there's nothing to fetch",
+
+  /* ---- Las pantallas del plan ----
+     El comparador, los topes del plan Gratuito, la vuelta de Stripe y el
+     distintivo de fundador.
+  */
+
+  "De vuelta a tu plan de verdad": "Back to your real plan",
+  "Tu árbol pide otra rama": "Your tree is asking for another branch",
+  "Otro proyecto en marcha": "Another project under way",
+  "Este proyecto va lleno": "This project is full",
+  "Tu lista de habilidades va llena": "Your skill list is full",
+  "Llenaste esta rama": "You filled this branch",
+  "Tu semana, de un vistazo": "Your week, at a glance",
+  "Norata con otro material": "Norata in another material",
+  "Tu plan Gratuito no incluye esta parte.": "Your Free plan doesn't include this part.",
+  "Ramas de talentos ilimitadas": "Unlimited talent branches",
+  "Talentos ilimitados en cada rama": "Unlimited talents in each branch",
+  "Informes de la semana, del mes y del año": "Weekly, monthly and yearly reports",
+  "Todas las apariencias": "Every look",
+  "Tu plan terminó": "Your plan has ended",
+  "Revisa tu pago": "Check your payment",
+  "No pudimos cobrar tu último recibo": "We couldn't charge your last invoice",
+  "Hay un problema con tu pago": "There's a problem with your payment",
+  "Ese plan no existe.": "That plan doesn't exist.",
+  "Entra con tu cuenta y el pago sigue donde lo dejaste.":
+    "Sign in with your account and the payment picks up where you left it.",
+  "El pago todavía no está disponible. Falta muy poco.":
+    "Payment isn't available yet. It won't be long.",
+  "Los lugares de fundador ya se agotaron.": "The founder places are sold out.",
+  "No se pudo abrir el pago.": "I couldn't open the payment.",
+  "No se pudo abrir tu suscripción.": "I couldn't open your subscription.",
+  "Confirmando tu pago": "Confirming your payment",
+  "Stripe ya cobró. Estamos esperando su aviso para encender tu plan; suele tardar un par de segundos.":
+    "Stripe has charged you. We're waiting for its notice to switch your plan on; it usually takes a couple of seconds.",
+  "Tu pago se registró": "Your payment went through",
+  "El aviso de Stripe está tardando más de lo normal. Tu plan se encenderá solo en cuanto llegue: no hay que volver a pagar ni hacer nada. Si al recargar la app en unos minutos sigue igual, escríbenos.":
+    "Stripe's notice is taking longer than usual. Your plan will switch on by itself as soon as it arrives: there's nothing to pay again and nothing to do. If it's still the same after reloading the app in a few minutes, write to us.",
+  "Ya eres fundador": "You're already a founder",
+  "Pago único, sin fecha y sin renovaciones. Tu lugar está guardado y la app queda abierta entera.":
+    "A single payment, with no date and no renewals. Your place is saved and the whole app stays open.",
+  "Tu plan está activo. Todo lo que sigue ya está encendido, y lo que tenías escrito sigue donde estaba.":
+    "Your plan is active. Everything below is already on, and what you had written is right where it was.",
+  "Las ramas de talentos que quieras": "As many talent branches as you want",
+  "Más ramas de talentos": "More talent branches",
+  "Talentos sin tope dentro de cada rama": "No cap on talents inside each branch",
+  "Más talentos por rama": "More talents per branch",
+  "Los resúmenes del mes y del año": "The monthly and yearly summaries",
+  "Tu distintivo: Reliquia, el anillo lila y tu propia insignia":
+    "Your badge: Relic, the lilac ring and your own emblem",
+  "Sin costo": "Free",
+  "Es tuyo para siempre y sin fecha. Norata entera funciona así; Pro solo quita los topes.":
+    "It's yours forever and with no date. All of Norata works like this; Pro only removes the caps.",
+  "Tienes Norata entera abierta por sostenerla, no por una compra. No hay ningún cobro asociado a esta cuenta.":
+    "You have all of Norata open for supporting it, not for a purchase. There's no billing tied to this account.",
+  "No pudimos cobrar tu último recibo. Revisa tu tarjeta para que no se interrumpa; hay tres días de margen desde la fecha de cobro.":
+    "We couldn't charge your last invoice. Check your card so it isn't interrupted; there are three days of margin from the billing date.",
+  "Lo pagaste una vez y es para siempre. No hay nada que renovar ni que cancelar.":
+    "You paid once and it's forever. There's nothing to renew and nothing to cancel.",
+  "Ramas de talentos": "Talent branches",
+  "Talentos por rama": "Talents per branch",
+  "De la semana, del mes y del año": "Weekly, monthly and yearly",
+  "El panel de tu día": "Your day's panel",
+  "Las paletas que vayas desbloqueando": "The palettes you unlock along the way",
+  "Misiones, habilidades y proyectos": "Missions, skills and projects",
+  "Sincronía entre dispositivos": "Syncing between devices",
+  "Qué tienes abierto": "What you have open",
+  "Qué tienes ahora": "What you have now",
+  "Qué pagas": "What you pay",
+  "Hasta cuándo": "Until when",
+  "Para siempre": "Forever",
+  "Termina el": "Ends on",
+  "Editar suscripción": "Edit subscription",
+  "Cuesta menos que un año del anual.": "It costs less than a year of the annual plan.",
+  "dos": "two",
+  "tres": "three",
+  "El plan anual sale dos meses más barato.": "The annual plan comes out two months cheaper.",
+  "Estás ahorrando dos meses frente al mensual.":
+    "You're saving two months against the monthly plan.",
+  "Pro entero y sin límites, para siempre": "All of Pro with no limits, forever",
+  "Todo lo que Norata añada a Pro": "Everything Norata adds to Pro",
+  "Reliquia, el mundo que solo tienen los fundadores": "Relic, the world only founders have",
+  "Anillo lila en tu perfil y tu propia insignia":
+    "A lilac ring on your profile and your own emblem",
+  "Sin tope": "No cap",
+  "La otra sigue": "The other one stays",
+  "Pro abre las que quieras y deja de contar los talentos de cada una.":
+    "Pro opens as many as you want and stops counting the talents in each one.",
+  "contar los talentos de cada una.": "counting the talents in each one.",
+  "Tu única rama": "Your only branch",
+  "Ahí puedes consultar y descargar el comprobante de tu pago.":
+    "There you can view and download your payment receipt.",
+  "Ahí puedes actualizar tu método de pago, consultar tus recibos y cancelar la renovación cuando lo decidas.":
+    "There you can update your payment method, check your invoices and cancel the renewal whenever you decide.",
+  "Pagos procesados por Stripe": "Payments processed by Stripe",
+  "Datos cifrados de extremo a extremo": "End-to-end encrypted data",
+  "Ocultar la comparación": "Hide the comparison",
+  "Comparar los planes": "Compare the plans",
+  "Semana, mes y año": "Week, month and year",
+  "Solo el panel del día": "Only the day's panel",
+  "Todas, y Reliquia": "All of them, and Relic",
+  "Tu progreso y tu XP": "Your progress and your XP",
+  "Cómo se paga": "How you pay",
+  "Es gratis": "It's free",
+  "Pago único": "One-time payment",
+  "Distintivo de fundador": "Founder badge",
+  "Se renueva solo. Cancelas cuando quieras.": "It renews by itself. Cancel whenever you want.",
+  "al año": "a year",
+  "Se renueva cada año. Cancelas cuando quieras.":
+    "It renews every year. Cancel whenever you want.",
+  "una sola vez": "just once",
+  "Para quienes llegaron al principio y confiaron en Norata.":
+    "For the people who arrived at the beginning and trusted Norata.",
+  "Pro cancelándose": "Pro, cancelling",
+  "Pro sin pagar": "Pro, unpaid",
+  "Las {0} ramas del plan Gratuito, llenas. Con {1} abres las que quieras, y cada una lleva su propio camino.":
+    "The Free plan's {0} branches are full. With {1} you open as many as you want, and each one carries its own path.",
+  "Los {0} proyectos del plan Gratuito, ocupados. Con {1} llevas a la vez los que quieras.":
+    "The Free plan's {0} projects are taken. With {1} you run as many at once as you want.",
+  "Los {0} encargos del plan Gratuito, puestos. Con {1} este proyecto sigue creciendo sin contar.":
+    "The Free plan's {0} assignments are in place. With {1} this project keeps growing without counting.",
+  "Las {0} habilidades del plan Gratuito, en marcha. Con {1} añades las que quieras, y todas siguen subiendo igual.":
+    "The Free plan's {0} skills are under way. With {1} you add as many as you want, and they all keep rising the same.",
+  "Los {0} talentos del plan Gratuito, completos. Con {1} esta rama sigue creciendo sin contar.":
+    "The Free plan's {0} talents are complete. With {1} this branch keeps growing without counting.",
+  "Tu día lo ves siempre en el panel de cada módulo. Los informes empiezan en la semana y vienen con {0}.":
+    "You always see your day in each module's panel. Reports start at the week and come with {0}.",
+  "Subir de nivel abre ambientes: la misma Norata con otra luz. Con {0} se abren todos, y además los mundos, que cambian el material entero — la letra, las texturas y hasta cómo se llama tu camino.":
+    "Levelling up unlocks ambiences: the same Norata in another light. With {0} they all open, plus the worlds, which change the whole material — the type, the textures and even what your path is called.",
+  "Esto viene con {0}": "This comes with {0}",
+  "Tu plan {0} terminó": "Your {0} plan has ended",
+  "Gratuito · una rama y {0} talentos": "Free · one branch and {0} talents",
+  "{0} · Termina el {1}": "{0} · Ends on {1}",
+  "Ya tienes {0}": "You already have {0}",
+  "Tu plan {0} terminó. No se borró nada: lo que pasa del plan Gratuito sigue a la vista, en solo lectura, y vuelve a moverse en cuanto renueves.":
+    "Your {0} plan has ended. Nothing was deleted: whatever goes past the Free plan is still visible, read-only, and moves again as soon as you renew.",
+  "Cancelaste, y sigue funcionando hasta el {0}":
+    "You cancelled, and it keeps working until {0}",
+  "Se renueva por su cuenta el {0}, sin que tengas que hacer nada.":
+    "It renews on its own on {0}, with nothing for you to do.",
+  "Cuesta menos que {0} años del plan anual.":
+    "It costs less than {0} years of the annual plan.",
+  "Te quedan {0}": "{0} left",
+  "Viendo la app como {0}": "Viewing the app as {0}",
+  "Hasta el {0}": "Until {0}",
+  "Lo que abre {0}": "What {0} opens",
+
+  /* ---- El ejemplo completo ----
+     El perfil de mentira que ensena «Ver un ejemplo completo»: un corredor con
+     su rama de talentos, sus tres proyectos y sus misiones. Es contenido, no
+     interfaz, y se reescribe en ingles en vez de traducirse palabra por palabra.
+  */
+
+  "Tenis para correr": "Running shoes",
+  "Comprarlos es el primer paso: son tuyos desde que los pagas, sin plazo que cumplir.":
+    "Buying them is the first step: they're yours from the moment you pay, with no deadline to meet.",
+  "Comprada y asegurada ($1,800)": "Bought and secured ($1,800)",
+  "Talento creado en la rama Salud": "Talent created in the Health branch",
+  "Salir a correr una vez": "Go for one run",
+  "Un hito: una acción puntual que se cierra en sí misma. Se marca con un toque.":
+    "A milestone: a one-off action that closes in itself. You check it with one tap.",
+  "Correr 3 veces por semana": "Run 3 times a week",
+  "Una meta: tienes 3 meses y avanza marcando sus etapas.":
+    "A goal: you have 3 months and it moves as you check off its stages.",
+  "Las doce semanas": "The twelve weeks",
+  "Inversión de $0 — plan de 3 meses iniciado": "Investment of $0 — 3-month plan started",
+  "Reloj con pulsómetro": "Watch with a heart rate monitor",
+  "Para saber si corres al ritmo que crees que corres.":
+    "To know whether you run at the pace you think you run.",
+  "Corregir mi técnica": "Fix my form",
+  "Tres sesiones grabándome y ajustando la zancada.":
+    "Three sessions filming myself and adjusting my stride.",
+  "Comparar con una referencia": "Compare against a reference",
+  "Tres salidas aplicando el cambio": "Three runs applying the change",
+  "Correr mi primera carrera de 5 km": "Run my first 5 km race",
+  "La meta grande: hace falta el hábito Y la técnica. Es un talento que corona dos caminos.":
+    "The big goal: it takes the habit AND the form. It's a talent that crowns two paths.",
+  "Entrar a un club de corredores": "Join a running club",
+  "Basta con tener el hábito O haber corrido una carrera: cualquiera de los dos te abre la puerta.":
+    "Having the habit OR having run a race is enough: either one opens the door.",
+  "Revisión médica": "Medical check-up",
+  "Antes de empezar a correr en serio, saber cómo estoy.":
+    "Before starting to run seriously, know where I stand.",
+  "Bicicleta de segunda mano": "Second-hand bike",
+  "El intento anterior. Sirvió para descubrir que lo mío es correr.":
+    "The previous attempt. It served to find out that running is my thing.",
+  "Comprada y asegurada ($3,200)": "Bought and secured ($3,200)",
+  "Natación dos veces por semana": "Swimming twice a week",
+  "Se quedó a medias, y por eso viaja en la caja: guardar el trimestre no juzga lo que no terminaste.":
+    "It was left halfway, and that's why it travels in the box: putting the quarter away doesn't judge what you didn't finish.",
+  "Plan de 3 meses iniciado": "3-month plan started",
+  "Curso de cocina básica": "Basic cooking course",
+  "Aprender diez recetas que puedas hacer sin receta.":
+    "Learn ten recipes you can make without the recipe.",
+  "Cocinar para amigos": "Cook for friends",
+  "Invitar a alguien y cocinarle. Sin plazo: se logra o no se logra.":
+    "Invite someone and cook for them. No deadline: you do it or you don't.",
+  "Fondo de emergencia": "Emergency fund",
+  "Juntar tres meses de gastos. Un año de plazo para lograrlo.":
+    "Put together three months of expenses. A year to get there.",
+  "Curso de inversión": "Investing course",
+  "Entender en qué invertir antes de invertir.":
+    "Understand what to invest in before investing.",
+  "Cuenta cualquier caminata seguida de 20 min o más.":
+    "Any unbroken walk of 20 minutes or more counts.",
+  "Ocho vasos a lo largo del día.": "Eight glasses through the day.",
+  "Lecciones, video o conversación.": "Lessons, video or conversation.",
+  "Una receta que nunca hayas hecho.": "A recipe you've never made.",
+  "Cancelar lo que ya no uso.": "Cancel what I no longer use.",
+  "Renovar la cocina": "Redo the kitchen",
+  "Dejar la cocina funcional y ordenada, sin obra mayor.":
+    "Leave the kitchen working and tidy, with no major building work.",
+  "Medir y hacer lista de lo que falta": "Measure and list what's missing",
+  "Cambiar la iluminación": "Change the lighting",
+  "Encargo creado en el proyecto Casa": "Assignment created in the Home project",
+  "Curso de inglés en línea": "Online Spanish course",
+  "Terminar los módulos y presentar la evaluación final.":
+    "Finish the modules and take the final assessment.",
+  "Módulos 1 a 4": "Modules 1 to 4",
+  "Módulos 5 a 8": "Modules 5 to 8",
+  "Práctica de conversación": "Conversation practice",
+  "Evaluación final": "Final assessment",
+  "Etapa completada: Práctica de conversación": "Stage completed: Conversation practice",
+  "Encargo creado en el proyecto Aprender": "Assignment created in the Learning project",
+  "Tienda en línea de artesanías": "Online craft shop",
+  "Vender lo que hago sin depender de redes sociales.":
+    "Sell what I make without depending on social media.",
+  "Definir catálogo": "Define the catalog",
+  "Fotos de producto": "Product photos",
+  "Montar la tienda": "Set up the shop",
+  "Etapa completada: Definir catálogo": "Stage completed: Define the catalog",
+  "Encargo creado en el proyecto Negocio": "Assignment created in the Business project",
+  "Se van tus habilidades, misiones, talentos, proyectos y todo el progreso que llevas. Esta acción no se puede deshacer.":
+    "Your skills, missions, talents, projects and all the progress you've made are gone. This action can't be undone.",
+  "Vas a vaciar la app.": "You're about to empty the app.",
+  "Sí, borrar": "Yes, delete",
+  "Esta es tu cuenta real. Escribe {0} para confirmar que quieres borrar todo su progreso.":
+    "This is your real account. Type {0} to confirm you want to delete all its progress.",
+
+  /* ---- Los informes ----
+     Los titulos, las preguntas que encabeza cada bloque y los casos vacios. Casi
+     todo son PREGUNTAS -«¿Que dia se te cae la semana?»- porque un informe que
+     solo ensena cifras no dice nada.
+  */
+
+  "Todavía no hay nada que dibujar aquí.": "There's nothing to draw here yet.",
+  "Todavía no hay nada que repartir.": "There's nothing to break down yet.",
+  "Todavía no hay días que pintar.": "There are no days to paint yet.",
+  "En cuanto cumplas misiones, aquí se llena el calendario.":
+    "As soon as you complete missions, the calendar fills up here.",
+  "Todavía no hay suficiente historia para dibujar una curva.":
+    "There isn't enough history to draw a curve yet.",
+  "Todavía sin movimiento. Esto se llena solo en cuanto empieces a marcar.":
+    "No movement yet. This fills itself as soon as you start checking things off.",
+  "Es tu primer periodo con datos: a partir de aquí ya hay con qué comparar.":
+    "It's your first period with data: from here on there's something to compare against.",
+  "Igual que el periodo anterior. Sostener también es un resultado.":
+    "The same as the previous period. Holding steady is a result too.",
+  "Fue mejor que el periodo anterior.": "It was better than the previous period.",
+  "Fue más flojo que el periodo anterior, y eso no borra lo de antes.":
+    "It was weaker than the previous period, and that doesn't erase what came before.",
+  "Práctica suelta": "Loose practice",
+  "¿Dónde pusiste la energía?": "Where did you put your energy?",
+  "Es la única pregunta que ningún módulo puede contestar solo.":
+    "It's the only question no single module can answer on its own.",
+  "Tu constancia": "Your consistency",
+  "De todo lo que tocaba hacer, ¿cuánto hiciste?":
+    "Of everything that was due, how much did you do?",
+  "Todavía no ha cerrado ningún día con misiones": "No day with missions has closed yet",
+  "Frente al periodo anterior": "Against the previous period",
+  "Tus días": "Your days",
+  "¿Qué día se te cae la semana?": "Which day does your week fall apart?",
+  "Hace falta más de una semana para que esto signifique algo.":
+    "It takes more than a week for this to mean anything.",
+  "En cuanto cumplas misiones, aquí se verá en qué días.":
+    "As soon as you complete missions, you'll see which days here.",
+  "Qué sostiene tu periodo": "What holds your period up",
+  "Las cinco que más veces cumpliste.": "The five you completed most often.",
+  "Aquí saldrán tus misiones más cumplidas.": "Your most-completed missions will show up here.",
+  "¿A qué hora cumples?": "What time do you get things done?",
+  "Sirve para saber a qué hora ponerte lo que más te cuesta.":
+    "It helps you know what time to schedule the thing you find hardest.",
+  "La hora se empezó a guardar hace poco, y no se puede reconstruir hacia atrás. Esto se llena solo con las misiones que cumplas de ahora en adelante.":
+    "The time only started being saved recently, and it can't be rebuilt backwards. This fills only with the missions you complete from now on.",
+  "¿De dónde sale tu XP?": "Where does your XP come from?",
+  "Si casi todo viene de un solo sitio, ya sabes qué parte de la app estás usando de verdad.":
+    "If almost all of it comes from one place, you know which part of the app you're really using.",
+  "¿Ganas o pierdes?": "Are you gaining or losing?",
+  "Lo perdido es desgaste por dejar una habilidad sin practicar.":
+    "What's lost is decay from leaving a skill unpracticed.",
+  "La curva de cada una": "Each one's curve",
+  "Las cinco que más se movieron, sumando desde el principio del periodo.":
+    "The five that moved most, adding up from the start of the period.",
+  "Con un poco más de historia aquí se verá la forma de cada habilidad.":
+    "With a little more history you'll see the shape of each skill here.",
+  "Dónde creciste": "Where you grew",
+  "Las cinco habilidades que más se movieron.": "The five skills that moved most.",
+  "Aquí saldrán las habilidades que más suban.": "The skills that rise most will show up here.",
+  "Lo que llevas puesto": "What you've put in",
+  "En qué se te va el dinero": "Where your money goes",
+  "Lo invertido en este periodo, por rama.": "What was invested this period, by branch.",
+  "En cuanto abras un talento con importe, aquí se ve en qué rama cayó.":
+    "As soon as you open a talent with an amount, you'll see which branch it landed in here.",
+  "Cómo va lo que abriste": "How what you opened is going",
+  "En qué trimestre gastaste": "Which quarter you spent in",
+  "Aquí se reparte por trimestre lo que inviertas este año.":
+    "What you invest this year is broken down by quarter here.",
+  "¿Cierras lo que abres?": "Do you close what you open?",
+  "Cuando completes un talento con fecha, aquí verás cuánto tardaste.":
+    "When you complete a talent with a deadline, you'll see how long you took here.",
+  "Lo que se te vence": "What's running out",
+  "Cuanto más llena la barra, menos tiempo queda.":
+    "The fuller the bar, the less time is left.",
+  "No tienes ningún plan con fecha corriendo.": "You have no dated plan running.",
+  "Cómo está lo que llevas": "How what you're carrying is doing",
+  "De un vistazo: qué sigue vivo y qué se está apagando.":
+    "At a glance: what's still alive and what's going out.",
+  "Cuando tengas encargos en marcha, aquí se ve su estado.":
+    "When you have assignments under way, you'll see their status here.",
+  "Tu ritmo": "Your pace",
+  "Etapas cerradas a lo largo del periodo.": "Stages closed over the period.",
+  "Aquí se verá el ritmo en cuanto cierres etapas.":
+    "You'll see the pace here as soon as you close stages.",
+  "Cuánto tarda un encargo": "How long an assignment takes",
+  "De crearlo a cerrarlo.": "From creating it to closing it.",
+  "Cuando termines un encargo, aquí verás cuánto te llevó.":
+    "When you finish an assignment, you'll see how long it took here.",
+  "Lo que cerraste y lo que soltaste": "What you closed and what you let go",
+  "En qué día de la semana se te cae el ritmo": "Which day of the week your pace drops",
+  "De dónde sale tu XP: misiones, talentos, proyectos o práctica":
+    "Where your XP comes from: missions, talents, projects or practice",
+  "En qué se te va el dinero y qué se te vence": "Where your money goes and what's running out",
+  "Qué encargos llevan semanas quietos": "Which assignments have been still for weeks",
+  "El mes y el año enteros, con el mapa de tus días":
+    "The whole month and year, with the map of your days",
+
+  /* ---- El mapa, el detalle y la puerta ----
+     Las herramientas del lienzo -el menu del clic derecho, las pistas de abajo y
+     los avisos de deshacer-, las columnas de Misiones y el formulario de entrada.
+  */
+
+  "reacomodar la rama": "rearrange the branch",
+  "Tus proyectos": "Your projects",
+  "Tus ramas": "Your branches",
+  "Editar el mapa": "Edit the map",
+  "Editar el mapa: conectar y cortar": "Edit the map: connect and cut",
+  "Elegir varios para moverlos juntos o agruparlos": "Pick several to move together or group",
+  "encargos en este proyecto": "assignments in this project",
+  "talentos en esta rama": "talents in this branch",
+  "arrastra el fondo para recorrer": "drag the background to pan",
+  "Tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno":
+    "Pull the ▸ dot onto another assignment to put it after · tap a line to cut it · the <b>Y/O</b> circle switches between needing all its requirements or just one",
+  "Tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · <b>Shift</b> y clic elige varios · el círculo <b>Y/O</b> cambia la regla de entrada":
+    "Pull the ▸ dot onto another node to connect them · tap a line to cut it · <b>Shift</b> and click picks several · the <b>Y/O</b> circle changes the entry rule",
+  "duplicar un talento": "duplicate a talent",
+  "crear un encargo": "create an assignment",
+  "dejar de esperar": "stop waiting",
+  "esperar el turno": "wait its turn",
+  "Espera a que terminen sus requisitos": "Waits for its requirements to finish",
+  "Ya no espera: se puede avanzar antes de tiempo":
+    "It no longer waits: it can move ahead early",
+  "Abrir el encargo": "Open the assignment",
+  "Sus etapas, su ritmo y su historial": "Its stages, its pace and its history",
+  "Dejar de esperar": "Stop waiting",
+  "Podrás avanzarlo aunque lo anterior no esté":
+    "You'll be able to move it forward even if the earlier ones aren't done",
+  "No se abrirá hasta que terminen sus requisitos":
+    "It won't open until its requirements are finished",
+  "Nuevo encargo aquí": "New assignment here",
+  "Se crea donde hiciste clic": "It's created where you clicked",
+  "Salir de edición": "Leave editing",
+  "Vuelve al modo normal": "Back to normal mode",
+  "Conecta y corta hilos": "Connect and cut threads",
+  "Recorre el proyecto con sitio de sobra": "Move around the project with room to spare",
+  "Renombrar la caja": "Rename the box",
+  "Ponle el nombre de lo que fue esa época": "Name it after what that stretch was",
+  "Todo vuelve donde estaba": "Everything goes back where it was",
+  "Borrar la caja": "Delete the box",
+  "Copia su forma, sin el progreso": "Copies its shape, without the progress",
+  "Ver y editar sus datos": "See and edit its details",
+  "Se sostiene en el tiempo y avanza por etapas":
+    "It holds up over time and moves stage by stage",
+  "Una llave que se paga y abre el paso": "A key you pay for that opens the way",
+  "Una acción puntual que se cierra en sí misma": "A one-off action that closes in itself",
+  "Edición: arrastra, conecta y corta": "Editing: drag, connect and cut",
+  "Edición: Q, W y E crean · C para salir": "Editing: Q, W and E create · C to leave",
+  "Modo edición: arrastra y conecta": "Edit mode: drag and connect",
+  "toca para ver qué lleva": "tap to see what's inside",
+  "cortar una conexión": "cut a connection",
+  "mover una caja": "move a box",
+  "mover un encargo": "move an assignment",
+  "mover un talento": "move a talent",
+  "cambiar la regla de entrada": "change the entry rule",
+  "Listo, ya no estás eligiendo": "Done, you're no longer selecting",
+  "Quitar la selección": "Clear the selection",
+  "bájame la racha": "drop my streak",
+  "quita una vez de hoy": "remove one of today's",
+  "Arrastra aquí la misión que quieras.": "Drag any mission here.",
+  "Aquí van apareciendo las que cumples hoy.": "The ones you complete today show up here.",
+  "Arrastra aquí la misión que quieras dar por terminada.":
+    "Drag here any mission you want to finish for good.",
+  "Borrar este tablero": "Delete this board",
+  "Sus misiones vuelven a su sitio": "Its missions go back where they belong",
+  "Está vacío": "It's empty",
+  "Día completo": "Full day",
+  "Todas las misiones cumplidas": "Every mission completed",
+  "Sin misiones hoy": "No missions today",
+  "Crea una o descansa": "Create one or take a break",
+  "Nada en marcha": "Nothing under way",
+  "Crea un encargo cuando quieras": "Create an assignment whenever you want",
+  "Verlo como lista": "See it as a list",
+  "Verlo como mapa": "See it as a map",
+  "Vuelve a las tarjetas de siempre": "Back to the usual cards",
+  "Dibuja los encargos y en qué orden van": "Draws the assignments and what order they go in",
+  "Arrastra una cabecera para reordenar las ramas": "Drag a header to reorder the branches",
+  "Mantén pulsada una cabecera para reordenar las ramas":
+    "Press and hold a header to reorder the branches",
+  "misión diaria": "daily mission",
+  "Sigo un rato": "I'll keep going",
+  "Lo dejo por hoy": "I'm done for today",
+  "Nivel retirado por registro abusivo": "Level removed for abusive logging",
+  "la habilidad que tenía": "the skill it had",
+  "Sin planes en curso": "No plans running",
+  "Abre un talento cuando quieras": "Open a talent whenever you want",
+  "Ver en pantalla completa": "See it full screen",
+  "Recorre la rama con sitio de sobra": "Move around the branch with room to spare",
+  "Ocultar la contraseña": "Hide the password",
+  "Un momento…": "One moment…",
+  "dentro de unos días": "in a few days",
+  "Volver sin iniciar sesión": "Go back without signing in",
+  "Probar sin cuenta": "Try it without an account",
+  "Seguirás guardando solo en este dispositivo.": "You'll keep saving only on this device.",
+  "Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crear una cuenta cuando quieras y llevártelo.":
+    "Without an account, your progress is saved only on this device. You can create an account whenever you want and take it with you.",
+  "Si lo dejas en blanco usaremos tu nombre.": "If you leave it blank we'll use your name.",
+  "Escribe tu correo y tu contraseña.": "Type your email and your password.",
+  "Dime cómo te llamas: es lo que usaré para hablarte.":
+    "Tell me your name: it's what I'll use to talk to you.",
+  "Escribe el correo con el que quieres entrar.": "Type the email you want to sign in with.",
+  "Ese correo no parece completo. Revísalo.": "That email doesn't look complete. Check it.",
+  "Las dos contraseñas no coinciden. Míralas con el ojito para compararlas.":
+    "The two passwords don't match. Use the little eye to compare them.",
+  "Ir a iniciar sesión": "Go to sign in",
+  "Escribe arriba tu correo y vuelve a pulsar: ahí te mando el enlace.":
+    "Type your email above and tap again: that's where I'll send the link.",
+  "Para poner una contraseña nueva, comprueba que el correo de abajo es el tuyo y pulsa «¿Olvidaste tu contraseña?».":
+    "To set a new password, check that the email below is yours and tap «Forgot your password?».",
+  "Escribe arriba tu correo.": "Type your email above.",
+  "Las dos no coinciden. Míralas con el ojito para comprobarlo.":
+    "The two don't match. Use the little eye to check.",
+  "Contraseña cambiada. Cerré la sesión en los demás dispositivos":
+    "Password changed. I signed you out on your other devices",
+  "Ese enlace ya caducó o se usó. Pide uno nuevo con «¿Olvidaste tu contraseña?».":
+    "That link has expired or been used. Ask for a new one with «Forgot your password?».",
+  "no pude leer la cuenta": "I couldn't read the account",
+  "El enlace era válido pero no pude terminar de entrar. Inténtalo otra vez.":
+    "The link was valid but I couldn't finish signing you in. Try again.",
+  "Cuenta de pruebas": "Test account",
+  "Estás viendo un ejemplo": "You're looking at an example",
+
+  /* ---- Mi expedicion, el tablero, el panel, la racha y los datos de ejemplo ----
+     Los cinco rangos y sus pistas, los acomodos sugeridos del Resumen, las
+     preguntas que la app le hace a una habilidad abandonada, y los nombres del
+     perfil de ejemplo del panel de numeros.
+  */
+
+  "Tu cielo está por escribirse": "Your sky is waiting to be written",
+  "Cielo completo · las cinco constelaciones": "Full sky · all five constellations",
+  "Aquí estás": "You are here",
+  "Todavía nada": "Nothing yet",
+  "El principio. Se cruza en semanas y casi todo lo que haces suma.":
+    "The beginning. You cross it in weeks and almost everything you do counts.",
+  "Ya hay un rastro que seguir: se nota a qué le dedicas los días.":
+    "There's a trail to follow now: you can tell what you give your days to.",
+  "Aquí se ve lo que sostienes, no lo que empezaste.":
+    "Here you see what you hold up, not what you started.",
+  "El mapa ya es tuyo: habilidades, talentos y proyectos con historia detrás.":
+    "The map is yours now: skills, talents and projects with history behind them.",
+  "El último de los cinco. El nivel sigue subiendo después: la cuenta no se acaba.":
+    "The last of the five. Your level keeps rising after it: the count doesn't end.",
+  "Destello propio al cumplir una misión": "Its own flash when you complete a mission",
+  "Celebración de pantalla completa": "Full-screen celebration",
+  "Celebración grande": "Big celebration",
+  "Rango Cartógrafo": "Cartographer rank",
+  "Días con actividad": "Days with activity",
+  "Niveles de habilidad": "Skill levels",
+  "Hitos de racha": "Streak milestones",
+  "Nivel de pruebas": "Test level",
+  "Los dos primeros días de cada semana valen mucho más que los siguientes. Premia volver, no marcar.":
+    "The first two days of each week are worth far more than the rest. It rewards coming back, not checking things off.",
+  "Hasta cinco misiones distintas por día. Doce no valen seis veces más que dos.":
+    "Up to five different missions a day. Twelve aren't worth six times as much as two.",
+  "Cuenta el nivel más alto que alcanzó cada habilidad, aunque hoy haya bajado.":
+    "It counts the highest level each skill reached, even if it's dropped since.",
+  "Cada talento que cierras.": "Every talent you close.",
+  "Cada proyecto que das por terminado.": "Every project you mark as finished.",
+  "Cada etapa marcada, en talentos y en proyectos.":
+    "Every stage checked off, in talents and in projects.",
+  "Los hitos que cierras en el árbol de talentos.":
+    "The milestones you close in the talent tree.",
+  "Los días redondos de racha que ya cruzaste. No se pierden al romperse.":
+    "The round streak days you've already crossed. They aren't lost when it breaks.",
+  "Por estrenar cada módulo: tu primera habilidad, tu primera misión, tu primer talento, tu primer proyecto.":
+    "For opening each module: your first skill, your first mission, your first talent, your first project.",
+  "Un nivel fingido desde la trastienda. No es tu recorrido real.":
+    "A level faked from the back office. It isn't your real journey.",
+  "Hoy no te toca ninguna": "None are due today",
+  "Todavía no tienes ninguna": "You don't have any yet",
+  "Crear una": "Create one",
+  "Un día sin misiones programadas también cuenta. Si quieres adelantar algo, tráelo a hoy desde Misiones.":
+    "A day with no missions scheduled counts too. If you want to get ahead, bring something to today from Missions.",
+  "Una misión es algo que haces hoy y que suma a una habilidad. La primera es la que echa a andar la racha.":
+    "A mission is something you do today that adds to a skill. The first one is what gets the streak going.",
+  "Arrastra las tarjetas para reacomodarlas": "Drag the cards to rearrange them",
+  "Elige un acomodo para tu Resumen": "Pick a layout for your Summary",
+  "Todo al máximo": "Everything maxed out",
+  "No queda nivel por subir": "There's no level left to gain",
+  "Sin categoría": "No category",
+  "una de ellas tiene": "one of them has",
+  "Nueva rama de talentos": "New talent branch",
+  "Nueva rama de proyectos": "New project branch",
+  "Un ámbito donde agrupar talentos: un oficio, un instrumento, un plan.":
+    "A place to group talents: a craft, an instrument, a plan.",
+  "Algo que estás construyendo: una mudanza, un lanzamiento, un trámite largo. Dentro van los encargos que lo hacen avanzar.":
+    "Something you're building: a move, a launch, a long piece of paperwork. Inside go the assignments that move it forward.",
+  "Esto no se puede deshacer.": "This can't be undone.",
+  "Borrar la rama": "Delete the branch",
+  "Borrar el proyecto": "Delete the project",
+  "Se reescribe en todos sus talentos y en sus cajas.":
+    "It's rewritten across all its talents and boxes.",
+  "Se reescribe en todos sus encargos.": "It's rewritten across all its assignments.",
+  "Tres columnas parejas, las misiones al centro": "Three even columns, missions in the middle",
+  "La escena a lo ancho, arriba a la derecha": "The scene across the top, on the right",
+  "La escena grande, presidiendo el tablero": "The big scene, presiding over the board",
+  "Las dos columnas parejas, y el día arriba": "Two even columns, with the day on top",
+  "El mes a lo ancho arriba; lo demás, debajo":
+    "The month across the top; everything else below",
+  "Proyectos y talentos al frente; el día, después":
+    "Projects and talents up front; the day after",
+  "El día arriba, y el mes a lo ancho debajo": "The day on top, and the month across below",
+  "El mes preside, y debajo lo que lo llena": "The month presides, and below it what fills it",
+  "El día": "The day",
+  "Lo de hoy primero: misiones, racha y lo que urge":
+    "Today first: missions, streak and what's urgent",
+  "La racha arriba, y debajo lo que la alimenta": "The streak on top, and below what feeds it",
+  "Lo que construyo": "What I'm building",
+  "todavía sin datos": "no data yet",
+  "Sin ubicar": "Unplaced",
+  "Verás un marco punteado amarillo mientras la uses, y borrar todo no pedirá confirmación extra.":
+    "You'll see a yellow dotted frame while you use it, and deleting everything won't ask for extra confirmation.",
+  "Borrar todo te pedirá escribir tu correo. Es a propósito: obliga a mirar en qué cuenta estás.":
+    "Deleting everything will ask you to type your email. That's on purpose: it forces you to look at which account you're in.",
+  "Los topes, las pantallas y los avisos de cada plan, sin tener que comprarlos. Vive en la pestaña: aguanta una recarga y muere al cerrarla.":
+    "Each plan's caps, screens and notices, without buying them. It lives in the tab: it survives a reload and dies when you close it.",
+  "Guitarra sube de nivel": "Guitar levels up",
+  "Un ambiente nuevo": "A new ambience",
+  "Activos esta semana": "Active this week",
+  "abrieron en 7 días": "opened it in 7 days",
+  "Siguen tras 30 días": "Still here after 30 days",
+  "Volvieron otro día": "Came back another day",
+  "Días de uso por persona": "Days of use per person",
+  "cuántos días distintos abre cada quien": "how many different days each person opens it",
+  "Aperturas esta semana": "Opens this week",
+  "veces que se abrió, en total": "times it was opened, in total",
+  "Nadie ha abierto la app todavía.": "Nobody has opened the app yet.",
+  "Todavía no hay ninguna cuenta.": "There are no accounts yet.",
+  "sin contar fundador": "not counting founder",
+  "de 200": "of 200",
+  "Todavía no hay ninguna suscripción.": "There are no subscriptions yet.",
+  "Nadie ha abierto la app en los últimos treinta días.":
+    "Nobody has opened the app in the last thirty days.",
+  "La que pasa: se va sola a los ocho segundos y se corta tocando fuera.":
+    "The passing one: it leaves by itself after eight seconds and is cut short by tapping outside.",
+  "Nivel con rango": "Level with a rank",
+  "Cuando el nivel además te cambia el nombre del camino.":
+    "When the level also changes what your path is called.",
+  "Nivel con premio": "Level with a reward",
+  "La ventana que NO se cierra tocando fuera ni sola. Lleva a lo que abriste.":
+    "The window that doesn't close by tapping outside or on its own. It takes you to what you unlocked.",
+  "Hito de racha": "Streak milestone",
+  "La de los días seguidos, en amarillo.": "The one for days in a row, in yellow.",
+  "La chica": "The small one",
+  "El destello de subir una habilidad o cumplir un talento.":
+    "The flash of a skill levelling up or a talent being completed.",
+  "Celebración nueva": "New celebration",
+  "Ver Mi expedición": "See My journey",
+  "Un año entero sin soltarlo. Esto ya no es fuerza de voluntad, es quién eres.":
+    "A whole year without letting go. This isn't willpower any more, it's who you are.",
+  "Doscientos días. Muy poca gente llega hasta aquí.":
+    "Two hundred days. Very few people get this far.",
+  "Cien días seguidos. El hábito ya se sostiene solo.":
+    "A hundred days in a row. The habit holds itself up now.",
+  "Cincuenta días. Medio centenar de veces que elegiste aparecer.":
+    "Fifty days. Fifty times you chose to show up.",
+  "Un mes completo sin fallar un solo día.": "A whole month without missing a single day.",
+  "Dos semanas seguidas. Ya no es suerte.": "Two weeks in a row. It isn't luck any more.",
+  "¡Semana perfecta! Siete de siete.": "A perfect week. Seven out of seven.",
+  "Tres días seguidos: así es como empieza todo hábito.":
+    "Three days in a row: that's how every habit starts.",
+  "Decaimiento por inactividad": "Decay from inactivity",
+  "¿Y si hoy la estrenas? Con un rato corto ya cuenta.":
+    "What if you started it today? A short while already counts.",
+  "¿Sigue siendo algo que te gustaría aprender?": "Is it still something you'd like to learn?",
+  "¿Por dónde sería lo más fácil de empezar?": "Where would be the easiest place to start?",
+  "¿Le damos una oportunidad esta semana?": "Shall we give it a shot this week?",
+  "¿Qué haría falta para dar el primer paso?": "What would it take to make the first move?",
+  "¿La probamos una vez y vemos qué tal se siente?":
+    "Shall we try it once and see how it feels?",
+  "¿Qué te llamó la atención de esto cuando la anotaste?":
+    "What caught your eye about this when you wrote it down?",
+  "¿Existe una versión pequeña de esto que quepa hoy?":
+    "Is there a small version of this that fits today?",
+  "¿Sería más fácil con alguien más?": "Would it be easier with someone else?",
+  "¿Hay algo que estés esperando para empezar?":
+    "Is there something you're waiting for to start?",
+  "¿Cuál sería el primer paso, aunque fuera diminuto?":
+    "What would the first step be, however tiny?",
+  "¿Te gustaría que esto formara parte de tu semana?":
+    "Would you like this to be part of your week?",
+  "¿Cuándo te quedaría mejor probarla?": "When would suit you best to try it?",
+  "¿Qué se te ocurre hacer con esto en diez minutos?":
+    "What could you do with this in ten minutes?",
+  "¿Te sigue dando curiosidad?": "Are you still curious about it?",
+  "¿Qué necesitarías tener a mano para arrancar?": "What would you need at hand to get going?",
+  "¿Hay un día de la semana donde encajaría bien?":
+    "Is there a day of the week where it would fit well?",
+  "¿Prefieres empezarla en serio o solo asomarte?":
+    "Would you rather start it properly or just peek in?",
+  "¿La dejamos aquí un tiempo más o le buscamos hueco?":
+    "Shall we leave it here a while longer or make room for it?",
+  "¿Qué versión de esto te gustaría estar haciendo dentro de un año?":
+    "What version of this would you like to be doing a year from now?",
+  "Práctica libre": "Free practice",
+  "Talento completado: Bici de ciudad": "Talent completed: City bike",
+  "Talento · Bici de ciudad": "Talent · City bike",
+  "Proyecto terminado: Regalo de mamá": "Project finished: Mum's present",
+  "Proyecto · Regalo de mamá": "Project · Mum's present",
+  "Talento completado: Curso de acuarela": "Talent completed: Watercolour course",
+  "Talento · Curso de acuarela": "Talent · Watercolour course",
+  "Proyecto terminado: Ordenar la cocina": "Project finished: Sort out the kitchen",
+  "Proyecto · Ordenar la cocina": "Project · Sort out the kitchen",
+  "Curso de acuarela": "Watercolour course",
+  "Bici de ciudad": "City bike",
+  "Sartén de hierro": "Cast iron pan",
+  "Curso de finanzas": "Finance course",
+  "Huerto del patio": "Backyard garden",
+  "Trámite del coche": "Car paperwork",
+  "Cambiar de banco": "Switch banks",
+  "Ordenar la cocina": "Sort out the kitchen",
+  "Regalo de mamá": "Mum's present",
+
+  /* ---- Lo que quedaba: los mundos, las lecturas y los mensajes del servidor ----
+     Los ocho ambientes y los mundos con sus premisas, las lecturas que arma la
+     app sobre tus datos, y los errores que devuelve Supabase \u2014que son los que
+     alguien lee justo cuando algo no le funciona.
+     Las dos lineas de LEXICO son terminos de BUSQUEDA, no rotulos: sirven para
+     reconocer una habilidad por lo que alguien escribe. Se traducen a los terminos
+     ingleses, no palabra por palabra.
+  */
+
+  "Sí, lo logré": "Yes, I made it",
+  "Lo perdí": "I lost it",
+  "Plan vencido sin lograr la meta": "Plan ran out without reaching the goal",
+  "Ver qué lleva": "See what's inside",
+  "¿Cómo quieres llamar a esta caja?": "What do you want to call this box?",
+  "sacar un talento de la caja": "take a talent out of the box",
+  "El nombre del grupo. Puedes cambiarlo después.":
+    "The group's name. You can change it later.",
+  "Está desplegada: sus talentos viven en el mapa, dentro del recinto del grupo.":
+    "It's spread out: its talents live on the map, inside the group's enclosure.",
+  "En progreso": "In progress",
+  "Un sitio donde apartar misiones: un proyecto, un ámbito, lo que quieras.":
+    "A place to set missions aside: a project, an area, whatever you want.",
+  "La misión que tiene dentro no se pierde: vuelve a su sitio de siempre, según toque hoy o no.":
+    "The mission inside isn't lost: it goes back where it belongs, whether it's due today or not.",
+  "Borrar el tablero": "Delete the board",
+  "Arrastra para reordenar": "Drag to reorder",
+  "Mantén pulsada una para reordenar": "Press and hold one to reorder",
+  "No se abre hasta que termine.": "It doesn't open until that one finishes.",
+  "No se abre hasta que terminen.": "It doesn't open until those finish.",
+  "Le diste avance hoy.": "You moved it forward today.",
+  "Retomado al avanzar una etapa": "Picked back up by moving a stage forward",
+  "¿Retomar este encargo?": "Pick this assignment back up?",
+  "¿Poner el encargo en pausa? No contará como abandonado mientras esté pausado.":
+    "Pause the assignment? It won't count as abandoned while it's paused.",
+  "¿Dar por terminado este encargo? Se guardará en tu historial y ganarás el XP.":
+    "Mark this assignment as finished? It'll be kept in your history and you'll earn the XP.",
+  "¿Descartar este encargo? Deja de pedirte atención, pero queda guardado por si lo retomas.":
+    "Discard this assignment? It stops asking for your attention, but it's kept in case you pick it back up.",
+  "Encargo en pausa": "Assignment paused",
+  "También se pierden las conexiones que llegaban a esos talentos desde otras ramas.\n\n":
+    "The connections reaching those talents from other branches are lost too.\n\n",
+  "Basta con uno": "Any one will do",
+  "Se desbloquea al completar:": "It unlocks when you complete:",
+  "Sin requisitos: estará disponible desde el principio.":
+    "No requirements: it'll be available from the start.",
+  "Quedará bloqueado (y conectado en el mapa) hasta completar ese talento.":
+    "It'll stay locked (and connected on the map) until you complete that talent.",
+  "Obligatorio: una compra es una llave que se paga.":
+    "Required: a purchase is a key you pay for.",
+  "Si la meta te costó dinero, anótalo aquí.":
+    "If the goal cost you money, write it down here.",
+  "Editar misión": "Edit mission",
+  "la versión del otro dispositivo": "the other device's version",
+  "la versión de este dispositivo": "this device's version",
+  "lo que había antes de cambiar de moneda": "what was there before the currency changed",
+  "El otro dispositivo usa una versión más nueva de Norata. Actualiza esta (recarga la página) antes de sincronizar.":
+    "The other device is using a newer version of Norata. Update this one (reload the page) before syncing.",
+  "[motivo de baja, aun sin enviar]": "[reason for leaving, not sent yet]",
+  "1 año": "1 year",
+  "Correo o contraseña incorrectos. Si entraste con Google la primera vez, usa ese botón; y si todavía no tienes cuenta, créala abajo.":
+    "Wrong email or password. If you signed in with Google the first time, use that button; and if you don't have an account yet, create one below.",
+  "Falta confirmar tu correo. Abre el mensaje que te mandamos y pulsa el enlace; luego vuelve aquí.":
+    "Your email still needs confirming. Open the message we sent and tap the link; then come back here.",
+  "Ya hay una cuenta con ese correo. Entra con tu contraseña, o usa «¿Olvidaste tu contraseña?» si no la recuerdas.":
+    "There's already an account with that email. Sign in with your password, or use «Forgot your password?» if you don't remember it.",
+  "Demasiados intentos seguidos. Espera unos minutos y vuelve a probar.":
+    "Too many tries in a row. Wait a few minutes and try again.",
+  "Esa es la contraseña que ya tenías. Elige otra distinta.":
+    "That's the password you already had. Pick a different one.",
+  "No hay sesión iniciada. Vuelve a conectar.": "You're not signed in. Connect again.",
+  "Tu sesión caducó. Entra otra vez con tu correo y contraseña.":
+    "Your session expired. Sign in again with your email and password.",
+  "Falta activar el borrado de cuentas en el servidor. Es un paso de una sola vez; hasta entonces no puedo tocar la cuenta desde aquí.":
+    "Account deletion still needs switching on in the server. It's a one-time step; until then I can't touch the account from here.",
+  "Esta cuenta no tiene permiso para ver el panel.":
+    "This account isn't allowed to see the panel.",
+  "No hay sesión iniciada. Entra con tu correo y contraseña.":
+    "You're not signed in. Sign in with your email and password.",
+  "Tu sesión ya no vale. Entra otra vez con tu correo y contraseña.":
+    "Your session is no longer valid. Sign in again with your email and password.",
+  "Solo tú puedes verlo, y tu contraseña no se queda guardada aquí.":
+    "Only you can see it, and your password isn't kept here.",
+  "Hola de nuevo": "Good to see you again",
+  " No se abre con el plan mensual ni con el anual.":
+    " It doesn't open with the monthly or the annual plan.",
+  "Tu rango": "Your rank",
+  "Suelta para actualizar": "Let go to refresh",
+  "Desliza para actualizar": "Pull to refresh",
+  "Hay una versión nueva de Norata": "There's a new version of Norata",
+  "Niveles {0} a {1}.": "Levels {0} to {1}.",
+  "Práctica de {0}": "{0} practice",
+  "+{0} XP al lograrlo": "+{0} XP when you get it",
+  "Hacen falta los {0}": "All {0} are needed",
+  "Quedará bloqueado hasta completar los {0}. Es el talento que corona varios caminos.":
+    "It'll stay locked until you complete all {0}. It's the talent that crowns several paths.",
+  "Se desbloquea en cuanto completes cualquiera de los {0}. Son caminos alternativos.":
+    "It unlocks as soon as you complete any of the {0}. They're alternative paths.",
+  "Te llamaremos {0}": "We'll call you {0}",
+  "Te llamaremos {0}.": "We'll call you {0}.",
+  "Si lo dejas en blanco te llamaremos {0}.": "If you leave it blank we'll call you {0}.",
+  "La contraseña necesita al menos {0} caracteres.":
+    "The password needs at least {0} characters.",
+  "La contraseña es muy corta. Usa al menos {0} caracteres.":
+    "That password is too short. Use at least {0} characters.",
+  "Esa contraseña no cumple el mínimo. Usa al menos {0} caracteres.":
+    "That password doesn't meet the minimum. Use at least {0} characters.",
+  "Necesita al menos {0} caracteres.": "It needs at least {0} characters.",
+  "Supabase respondió: {0}": "Supabase replied: {0}",
+  "el <b>{0}</b>": "on <b>{0}</b>",
+  "Si hay una cuenta con {0}, te acaba de llegar un enlace para poner una contraseña nueva. Revisa también la carpeta de no deseado.":
+    "If there's an account with {0}, a link to set a new password has just arrived. Check your spam folder too.",
+  "Te reenvié el correo de confirmación a {0}. Míralo también en no deseado.":
+    "I resent the confirmation email to {0}. Check your spam folder too.",
+  "· viendo como {0}": "· viewing as {0}",
+  ", hasta el {0}": ", until {0}",
+  "· señal buena: {0}%": "· a good sign: {0}%",
+  "· lo dijeron {0} veces": "· said {0} times",
+  "Estás viendo la app como <b>{0}</b>. Se cae sola al cerrar la pestaña, y no toca lo que pagaste.":
+    "You're viewing the app as <b>{0}</b>. It drops by itself when you close the tab, and it doesn't touch what you paid for.",
+  "Misión cumplida: {0}": "Mission completed: {0}",
+  "Misión · {0}": "Mission · {0}",
+  "{0} de cada 10": "{0} out of 10",
+  "Apariencia de prueba: {0}": "Test look: {0}",
+  "Nivel {0}": "Level {0}",
+  "{0} se abre en el nivel {1} de expedición y vas en el {2}.":
+    "{0} opens at journey level {1} and you're on {2}.",
+  "Al llegar arriba se enciende con {0}.": " Once you get there it switches on with {0}.",
+  "{0} es lo único que {1} tiene además de Pro": "{0} is the only thing {1} has beyond Pro",
+  ": un pago único de {0}, sin fecha y sin renovaciones.":
+    ": a single payment of {0}, with no date and no renewals.",
+  "El nivel ya lo tienes; lo que falta es el plan. Con {0} se abren todas las apariencias, las de hoy y las que vengan.":
+    "You already have the level; what's missing is the plan. With {0} every look opens, today's and the ones to come.",
+  "Tu rango en {0}": "Your rank in {0}",
+  "Actualizar a la versión {0}": "Update to version {0}",
+  "Ya está lista la versión {0}": "Version {0} is ready",
+  "Una llave: la pagas y te abre el paso a lo que sigue. Equipo, licencias, cursos.":
+    "A key: you pay for it and it opens the way to what's next. Gear, licences, courses.",
+  "Una acción puntual que se cierra en sí misma: publicar un dibujo, dar una clase de prueba.":
+    "A one-off action that closes in itself: posting a drawing, teaching a trial class.",
+  "Algo que sostienes en el tiempo. Avanza por etapas y tiene fecha límite.":
+    "Something you hold up over time. It moves stage by stage and has a deadline.",
+  "!beber !hidratarme !dormir !cepillarme !lavarme !descansar !estirarme agua vasos dientes cepillo hilo dental piel crema protector solar higiene rutina sueño siesta uñas cabello ducha":
+    "!drink !hydrate !sleep !brush !wash !rest !stretch water glasses teeth toothbrush floss skin cream sunscreen hygiene routine sleep nap nails hair shower",
+  "!pescar pesca caña anzuelo carnada rio muelle": "!fish fishing rod hook bait river pier",
+  "día seguido": "day in a row",
+  "días seguidos": "days in a row",
+  "por la mañana": "in the morning",
+  "por la tarde": "in the afternoon",
+  "por la noche": "at night",
+  "práctica suelta": "loose practice",
+  "un día completo": "a full day",
+  "días completos": "full days",
+  "talento se le pasó": "talent ran past its date",
+  "talentos se les pasó": "talents ran past their dates",
+  "talento con fecha": "dated talent",
+  "talentos con fecha": "dated talents",
+  "la práctica suelta": "loose practice",
+  /* El «Todos» del selector de requisitos: hacen falta TODOS los talentos
+     de los que cuelga. Va aparte del «Todas» del catálogo porque en español
+     son dos palabras y en inglés la misma — y una clave por frase, siempre. */
+  "Todos": "All",
+  "Norata Clásico": "Norata Classic",
+  "El carbón azulado y la menta de siempre. Es donde empiezas, y es lo que queda al quitarte un recolor.":
+    "The blue-black charcoal and the usual mint. It's where you start, and what's left when you take a recolour off.",
+  "Tinta china sobre papel. Sin más color que el amarillo y el coral, para que lo que avisa se vea desde la otra punta del cuarto.":
+    "India ink on paper. No colour but the yellow and the coral, so that what warns you can be seen from across the room.",
+  "Verde hondo de bosque cerrado de noche, y luz entre hojas de día.":
+    "The deep green of thick forest at night, and light through leaves by day.",
+  "Verdiazul de agua honda, con la menta de la casa vista desde el fondo.":
+    "The blue-green of deep water, with the house mint seen from the bottom.",
+  "Barro cocido: terracota apagada con cal encima, el color de una pared vieja.":
+    "Fired clay: muted terracotta with lime over it, the colour of an old wall.",
+  "La menta se vuelve celeste y la app pasa de festejar a acompañar.":
+    "The mint turns sky blue and the app goes from celebrating to keeping you company.",
+  "El desierto cuando se mete el sol: el cielo en violeta y la arena en lavanda.":
+    "The desert as the sun goes down: the sky in violet and the sand in lavender.",
+  "Piedra quemada con la brasa debajo, y los círculos del poema. Demonología de la que se lee, no de la que se disfraza.":
+    "Burnt stone with the embers underneath, and the circles from the poem. The demonology you read, not the kind you dress up as.",
+  "Me arrepiento en polvo y ceniza.": "I repent in dust and ashes.",
+  "Lo ató, y puso su sello sobre él.": "He bound him, and set a seal upon him.",
+  "No hay sobre la tierra quien se le parezca.": "Upon earth there is not his like.",
+  "Legión me llamo, porque somos muchos.": "My name is Legion, for we are many.",
+  "Su rey es el ángel del abismo, cuyo nombre es Abadón.":
+    "Their king is the angel of the abyss, whose name is Abaddon.",
+  "El papel de plano: retícula de dos pesos, cotas con puntas de flecha y marcas de sección. Todo lo tuyo, todavía en obra.":
+    "Blueprint paper: a two-weight grid, dimensions with arrowheads and section marks. Everything of yours, still under construction.",
+  "Una pieza en su vitrina: forro de terciopelo, marco de latón y el vidrio por encima.":
+    "A piece in its display case: velvet lining, a brass frame and glass over the top.",
+  "Noche de expedición": "Expedition night",
+  "El mundo de partida: el material original de Norata, sin forro ni marco. Elegirlo te quita el mundo y el recolor que lleves puestos.":
+    "The starting world: Norata's original material, with no lining and no frame. Choosing it takes off whatever world and recolour you're wearing.",
+
+  /* ---- Los nombres de los ambientes y los mundos ----
+     SE TRADUCEN, y es una decision que se puede deshacer en una linea: son
+     palabras evocadoras y no una marca. Ademas el texto del plan ya dice «Relic,
+     the world only founders have», asi que dejar «Reliquia» en la reja los
+     dejaria discrepando en la misma pantalla. «Adobe» y «Blueprint» se quedan
+     igual porque en ingles se dicen igual.
+  */
+
+  "Adobe": "Adobe",
+  "Duna": "Dune",
+  "Escarcha": "Frost",
+  "Marea": "Tide",
+  "Reliquia": "Relic",
+  "Averno": "Inferno",
+  "Blueprint": "Blueprint",
+  "Bosque": "Forest",
+  "Tinta": "Ink",
+
+  /* ---- El cierre ----
+     Las quince que quedaban, todas partidas en varias lineas: ninguna herramienta
+     que mire UNA linea puede verlas enteras, y por eso fueron las ultimas.
+  */
+
+  " · se deshizo lo cumplido": " · what was completed was undone",
+  "Las habilidades que crees a partir de ahora nacen así.":
+    "The skills you create from now on are born like this.",
+  " Las que ya tienes también van con esta exigencia.":
+    " The ones you already have run at this setting too.",
+  "Guarda tu progreso en tu cuenta para que la computadora y el teléfono vean lo mismo.":
+    "Save your progress to your account so your computer and your phone see the same thing.",
+  "una rama": "one branch",
+  "{0} ramas": "{0} branches",
+  " a la vista y en solo lectura; no se borró nada.":
+    " visible and read-only; nothing was deleted.",
+  "Pro la vuelve a poner en marcha y deja de contar los talentos de cada una.":
+    "Pro puts it back in motion and stops counting the talents in each one.",
+  "Pro las vuelve a poner en marcha y deja de contar los talentos de cada una.":
+    "Pro puts them back in motion and stops counting the talents in each one.",
+  "Estás en Gratuito. Pro abre las ramas que quieras y deja de contar los talentos de cada una.":
+    "You're on Free. Pro opens as many branches as you want and stops counting the talents in each one.",
+  "Estás en Gratuito, que incluye {0}.": "You're on Free, which includes {0}.",
+  "Las otras {0} siguen": "The other {0} stay",
+  "Estás en Gratuito: {0}, y ya la tienes.": "You're on Free: {0}, and you already have it.",
+  "Estás en Gratuito: {0}, y ya las tienes.": "You're on Free: {0}, and you already have them.",
+  "El servidor no encontró algo que la consulta necesita. Suele ser que falta correr un SQL de la carpeta supabase/ — mira su LEEME. Detalle: {0}":
+    "The server couldn't find something the query needs. It usually means a SQL file from the supabase/ folder hasn't been run — see its LEEME. Detail: {0}",
+  "Desde {0} al mes. Cancelas cuando quieras.": "From {0} a month. Cancel whenever you want.",
+  "{0}, una sola vez": "{0}, just once",
+  "Un mundo es la app hecha de otro material: su tipografía, sus texturas, su marco y sus propios nombres para cada rango del camino. Con {0} se abren los tres construidos y los que lleguen después.":
+    "A world is the app made of another material: its type, its textures, its frame and its own names for each rank of the path. With {0} the three that are built open, and the ones that come later.",
+  "Ver {0}": "See {0}"
 };

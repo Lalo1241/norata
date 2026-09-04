@@ -521,8 +521,8 @@ function ncelTarjetaPremio(x, i) {
     '<span class="ncel-fulgor" aria-hidden="true"></span>' +
     '<div class="ncel-vista">' + vista + '</div>' +
     '<div class="ncel-pie">' +
-      '<div class="ncel-quees">' + (esAmb ? "Ambiente nuevo" : "Celebración nueva") + '</div>' +
-      '<div class="ncel-nom">' + escapeHtml(x.corto || x.nombre) + '</div>' +
+      '<div class="ncel-quees">' + (esAmb ? "Ambiente nuevo" : tx("Celebración nueva")) + '</div>' +
+      '<div class="ncel-nom">' + escapeHtml(tx(x.corto || x.nombre)) + '</div>' +
     '</div>' +
     '</article>';
 }
@@ -611,7 +611,7 @@ function celebrarNivel(nivel, abre) {
   const pies = document.getElementById("ncel-pies");
   const aAmbiente = premios.some(x => x.tipo === "ambiente");
   pies.innerHTML = hayVentana
-    ? `<button class="btn btn-primary btn-block" onclick="${aAmbiente ? "ncelQuedarseAmbiente(); " : ""}cerrarNivelCel(); ${aAmbiente ? "abrirApariencia()" : "abrirColeccion('summary')"}">${aAmbiente ? "Ver Mi apariencia" : "Ver Mi expedición"}</button>
+    ? `<button class="btn btn-primary btn-block" onclick="${aAmbiente ? "ncelQuedarseAmbiente(); " : ""}cerrarNivelCel(); ${aAmbiente ? "abrirApariencia()" : "abrirColeccion('summary')"}">${aAmbiente ? "Ver Mi apariencia" : tx("Ver Mi expedición")}</button>
        <button class="btn btn-ghost btn-block" onclick="cerrarNivelCel()">${tx("Ahora no")}</button>`
     : `<button class="btn btn-primary btn-block" onclick="cerrarNivelCel()">${tx("Continuar")}</button>`;
 
@@ -745,14 +745,14 @@ function destello(objetivo, color) {
    cada día, la fiesta dejaría de significar nada. */
 
 function mensajeHito(n) {
-  if (n >= 365) return "Un año entero sin soltarlo. Esto ya no es fuerza de voluntad, es quién eres.";
-  if (n >= 200) return "Doscientos días. Muy poca gente llega hasta aquí.";
-  if (n >= 100) return "Cien días seguidos. El hábito ya se sostiene solo.";
-  if (n >= 50) return "Cincuenta días. Medio centenar de veces que elegiste aparecer.";
-  if (n >= 30) return "Un mes completo sin fallar un solo día.";
-  if (n >= 14) return "Dos semanas seguidas. Ya no es suerte.";
-  if (n >= 7) return "¡Semana perfecta! Siete de siete.";
-  return "Tres días seguidos: así es como empieza todo hábito.";
+  if (n >= 365) return tx("Un año entero sin soltarlo. Esto ya no es fuerza de voluntad, es quién eres.");
+  if (n >= 200) return tx("Doscientos días. Muy poca gente llega hasta aquí.");
+  if (n >= 100) return tx("Cien días seguidos. El hábito ya se sostiene solo.");
+  if (n >= 50) return tx("Cincuenta días. Medio centenar de veces que elegiste aparecer.");
+  if (n >= 30) return tx("Un mes completo sin fallar un solo día.");
+  if (n >= 14) return tx("Dos semanas seguidas. Ya no es suerte.");
+  if (n >= 7) return tx("¡Semana perfecta! Siete de siete.");
+  return tx("Tres días seguidos: así es como empieza todo hábito.");
 }
 
 let scelEntra = null;
@@ -1301,7 +1301,7 @@ function applyDecay() {
       if (lost > 0) {
         const real = Math.min(lost, s.xp);
         s.xp -= real;
-        s.log.unshift({ date: today, xp: -real, note: "Decaimiento por inactividad" });
+        s.log.unshift({ date: today, xp: -real, note: tx("Decaimiento por inactividad") });
         changed = true;
       }
     }
@@ -1369,7 +1369,7 @@ const INVITACIONES = [
 
 function invitacionPara(s) {
   const semana = Math.floor(Date.now() / (7 * 864e5));
-  return INVITACIONES[(hashSeed(s.id) + semana) % INVITACIONES.length];
+  return tx(INVITACIONES[(hashSeed(s.id) + semana) % INVITACIONES.length]);
 }
 
 /* ================= Racha ================= */

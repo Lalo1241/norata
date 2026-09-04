@@ -411,7 +411,7 @@ window.addEventListener("online", () => syncRun({ silent: true }));
     if (inicioY === null) return;
     const d = e.touches[0].clientY - inicioY;
     if (d <= 0) { quitar(); return; }
-    pintar(d * 0.5, d * 0.5 >= UMBRAL ? "Suelta para actualizar" : "Desliza para actualizar");
+    pintar(d * 0.5, d * 0.5 >= UMBRAL ? tx("Suelta para actualizar") : tx("Desliza para actualizar"));
   }, { passive: true });
 
   window.addEventListener("touchend", async () => {
@@ -574,7 +574,7 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
     if (btn) {
       const num = document.getElementById("nav-update-ver");
       if (num) num.textContent = versionQueEntra ? "V" + versionQueEntra : "";
-      if (versionQueEntra) btn.title = "Actualizar a la versión " + versionQueEntra;
+      if (versionQueEntra) btn.title = T`Actualizar a la versión ${versionQueEntra}`;
       btn.hidden = false;
       // `offsetParent` es null cuando algo no se está pintando: barra escondida.
       if (btn.offsetParent !== null) return;
@@ -582,8 +582,8 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
     const ahora = Date.now();
     if (ahora - ultimoToast < ENTRE_TOASTS) return;
     ultimoToast = ahora;
-    toast(versionQueEntra ? "Ya está lista la versión " + versionQueEntra
-                          : "Hay una versión nueva de Norata", "atencion",
+    toast(versionQueEntra ? T`Ya está lista la versión ${versionQueEntra}`
+                          : tx("Hay una versión nueva de Norata"), "atencion",
           { label: "Actualizar", onclick: "norataActualizar()", ms: 12000 });
   }
 
