@@ -5313,7 +5313,13 @@
 
   /* ---------- Ventana de una caja del ático ---------- */
   /* ---------- El cajón de caminos ---------- */
-  .cajon-card { max-width: 640px; max-height: 88vh; display: flex; flex-direction: column; }
+  /* Las dos clases juntas, o pierde: `.modal-card` fija su ancho más abajo
+     en este archivo y con la misma especificidad ganaba por orden. El cajón
+     necesita ser más ancho que un cuadro de confirmar — con 460px el cuerpo
+     se queda en 406 y las cartas no llegan a dos columnas nunca. */
+  .modal-card.cajon-card {
+    max-width: 640px; max-height: 88vh; display: flex; flex-direction: column;
+  }
   .cajon-cab { flex-shrink: 0; }
   .cajon-cab h3 { margin: 0 0 4px; font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
   .cajon-cab p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }

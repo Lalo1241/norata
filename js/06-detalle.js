@@ -1336,7 +1336,7 @@ function renderTree() {
        backticks, y un backtick dentro de un template literal lo CIERRA. Con él
        dentro, la app entera dejaba de arrancar. */
     html += `
-    <div class="branch-card" data-cota="${doneN} de ${reales.length}">
+    <div class="branch-card${isDesktop() && ramaDeAtajo() === b ? " rama-activa" : ""}" data-rama="${ba}" data-cota="${doneN} de ${reales.length}">
       <div class="branch-head">
         <button class="badd solid" onclick="toggleBranch('${bj}')" aria-label="${collapsed ? "Desplegar" : "Plegar"} ${ba}" style="margin-right:2px">
           <svg viewBox="0 0 24 24"><path d="${collapsed ? "M9 6l6 6-6 6" : "M6 9l6 6 6-6"}"/></svg>
