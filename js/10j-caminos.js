@@ -89,7 +89,7 @@ function caminoPorId(id) {
    el trato desde el principio.
 
    Vive en `state.ui` para que viaje en la sincronia, y `js/10-fusion.js` tiene
-   que unirlo o al abrir en otro aparato se te olvida cual usaste. */
+   que unirlo o al abrir en otro dispositivo se te olvida cual usaste. */
 function caminosPuestos() {
   return (state.ui && state.ui.caminos) || {};
 }
@@ -131,7 +131,7 @@ let cajonKind = null;
 function moduloDe(kind) { return kind === "perks" ? "talentos" : "proyectos"; }
 
 /* Cada camino toma un color de la paleta del usuario. Por índice y no al azar:
-   así el mismo camino es siempre del mismo color, en este aparato y en otro. */
+   así el mismo camino es siempre del mismo color, en este dispositivo y en otro. */
 function colorDeCamino(c) { return COLORS[(c.n - 1) % COLORS.length]; }
 
 /* El XP sale de una regla y no de un número escrito: 120 por hito, 300 por

@@ -367,7 +367,7 @@ function ponerIdioma(cod, callback) {
 
 /* Junta el dato y el espejo cuando los datos ya están cargados. Se llama desde
    el arranque, y hace falta porque los dos pueden discrepar en dos casos
-   reales: al entrar en un aparato nuevo con la cuenta ya sincronizada —donde
+   reales: al entrar en un dispositivo nuevo con la cuenta ya sincronizada —donde
    el dato manda y el espejo no existe— y al importar un respaldo hecho en
    otro idioma.
 

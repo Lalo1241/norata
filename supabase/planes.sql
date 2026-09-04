@@ -69,7 +69,7 @@ revoke insert, update, delete on table public.suscripciones from anon, authentic
 
 -- ---- La única puerta de lectura ----
 -- La app podría hacer un select normal, pero entonces tendría que decidir
--- ella si la fecha ya pasó, y esa decisión no puede vivir en un aparato cuyo
+-- ella si la fecha ya pasó, y esa decisión no puede vivir en un dispositivo cuyo
 -- reloj cambia el usuario. Aquí `now()` es el del servidor.
 --
 -- Devuelve SIEMPRE algo, incluso si no hay fila. Que la app tenga que

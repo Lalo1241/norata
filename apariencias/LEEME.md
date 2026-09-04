@@ -274,13 +274,13 @@ ninguno. Un mundo se baja **una vez**, el día que lo enciendes — que es lo qu
 0.7.38 hizo posible.
 
 Y la regla que 0.7.38 volvió inflexible: **al tocar cualquier archivo de
-`ASSETS` hay que subir `CACHE` en `sw.js`.** Si no cambia, el aparato instalado
+`ASSETS` hay que subir `CACHE` en `sw.js`.** Si no cambia, el dispositivo instalado
 no vuelve a pedir nada nunca.
 
 ### Lo que el motor tiene que hacer, y en este orden
 
 1. **Leer la elección** de `localStorage` (llave `norata-apariencia`), y del
-   perfil cuando haya sincronía, para que viaje entre aparatos.
+   perfil cuando haya sincronía, para que viaje entre dispositivos.
 2. **Comprobar que se puede.** Si la apariencia guardada pide Pro y el plan ya
    no lo es, no se apaga a la brava — ver «Qué pasa al dejar de pagar».
 3. **Pedir el CSS si hace falta** —solo los mundos— y **esperar a que cargue
@@ -387,7 +387,7 @@ expedición empieza aquí».
 no es un capricho técnico — es la regla que ya rige la sincronía, escrita en
 `js/10-fusion.js`: «El XP no se suma a mano: se recalcula contando los
 movimientos. Así una fusión no puede inflarlo aunque se repita mil veces.» Un
-contador guardado se rompe justo ahí: dos aparatos que suman 100 cada uno se
+contador guardado se rompe justo ahí: dos dispositivos que suman 100 cada uno se
 juntan y se quedan con 100.
 
 Tres cosas salen gratis por decidirlo así: es **retroactivo** —el día que se

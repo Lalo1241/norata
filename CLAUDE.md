@@ -22,9 +22,9 @@ navegador entiende tal cual. Tres consecuencias que muerden si se olvidan:
    si existe la app.
 2. **Hay que subir la versión al tocar cualquier archivo de `ASSETS`** (ver
    abajo). Desde 0.7.38 esto no es una buena práctica: es el ÚNICO mecanismo
-   por el que una versión llega a un aparato. La app se sirve de su propia
+   por el que una versión llega a un dispositivo. La app se sirve de su propia
    copia y no pide nada a la red; lo único que el navegador vuelve a pedir en
-   cada apertura es `sw.js`, y si su `CACHE` no cambió, ese aparato **se queda
+   cada apertura es `sw.js`, y si su `CACHE` no cambió, ese dispositivo **se queda
    en esa versión para siempre**. Antes, olvidarlo servía una copia vieja pero
    la red acababa trayendo lo nuevo; ahora no hay quien lo rescate.
 3. **Hace falta servirla por HTTP.** `python -m http.server 8123`. Abrir

@@ -428,7 +428,7 @@ function pedirLosMundos() {
   const l = document.createElement("link");
   l.rel = "stylesheet";
   /* La HUELLA del contenido va en la dirección, y la pone `mundos/app.py` al
-     generar el archivo. Sin ella, un aparato podía quedarse con una copia
+     generar el archivo. Sin ella, un dispositivo podía quedarse con una copia
      vieja PARA SIEMPRE: este archivo no está en ASSETS —pesa lo que pesa un
      mundo—, así que no lo renueva la instalación; se pide suelto y lo que
      llegue se guarda en la caché de esa versión, y a partir de ahí ya es un

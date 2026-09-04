@@ -172,7 +172,7 @@ quien nunca lo va a encender. Van aparte, se piden cuando se enciende el mundo
 y se quedan cacheadas por nombre —igual que `css/fuente.css` hoy—.
 
 Y la regla que 0.7.38 volvió inflexible: **al tocar cualquier archivo de
-`ASSETS` hay que subir `CACHE` en `sw.js`.** Si no cambia, el aparato instalado
+`ASSETS` hay que subir `CACHE` en `sw.js`.** Si no cambia, el dispositivo instalado
 no vuelve a pedir nada nunca.
 
 ## Cómo se comprueba que un mundo está bien

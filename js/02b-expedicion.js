@@ -8,7 +8,7 @@
    El motivo está escrito en `js/10-fusion.js` y vale igual aquí: «El XP no se
    suma a mano: se recalcula contando los movimientos. Así una fusión no puede
    inflarlo aunque se repita mil veces». Un contador guardado se rompe justo
-   ahí — dos aparatos que suman 100 cada uno se juntan y se quedan con 100 —,
+   ahí — dos dispositivos que suman 100 cada uno se juntan y se quedan con 100 —,
    y este número decide qué tienes desbloqueado.
 
    Tres cosas salen gratis por hacerlo así:

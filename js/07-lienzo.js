@@ -311,7 +311,7 @@ function llaveDeLienzo(wrap, b) {
    Lo guardado NO se toca nunca. Girar y desgirar es exacto por construcción,
    porque el giro solo existe mientras se dibuja. */
 
-/* Es preferencia DE ESTE APARATO, igual que el modo claro (ver `TEMA_LLAVE` en
+/* Es preferencia DE ESTE DISPOSITIVO, igual que el modo claro (ver `TEMA_LLAVE` en
    js/01-base.js): girar una rama es cómo la miras hoy, no algo que cambie el
    árbol. Si viajara con la cuenta, ponerla de pie en el teléfono te la
    pondría de pie en la computadora, y son dos pantallas de formas distintas.

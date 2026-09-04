@@ -850,7 +850,7 @@ if __name__ == "__main__":
     mues = "\n".join([MUESTRAS_CAB] + [muestra(m) for m in D.MUNDOS]) + "\n"
     open(os.path.join(raiz, "css", "muestras.css"), "w", encoding="utf-8").write(mues)
 
-    # ---- Y la HUELLA, que es lo que impide que un aparato se quede con una
+    # ---- Y la HUELLA, que es lo que impide que un dispositivo se quede con una
     # copia vieja para siempre ----
     #
     # `css/mundos.css` no va en ASSETS, así que no lo renueva la instalación:

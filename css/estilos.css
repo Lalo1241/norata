@@ -5653,7 +5653,7 @@
     color: var(--muted);
   }
   /* Al llegar al tope cambia de color: sin esto, el teclado deja de responder
-     y no hay forma de saber si el fallo es del campo o del aparato. */
+     y no hay forma de saber si el fallo es del campo o del dispositivo. */
   .modal-cuenta.lleno { color: var(--coral); font-weight: 600; }
 
   /* Con un solo boton, que ocupe el ancho: centrado y a medias parece que
@@ -7914,7 +7914,7 @@
   /* ---- El hito se ve SIEMPRE, también en el teléfono (0.7.56) ----
      Vivía detrás de un umbral de 1150 px de tarjeta, o sea que la pieza que
      más mueve a volver —cuánto falta para el siguiente hito— no se veía en
-     teléfono, ni en tableta, ni en laptop: exactamente los aparatos donde se
+     teléfono, ni en tableta, ni en laptop: exactamente los dispositivos donde se
      mira una racha. Se escribía en el HTML y se tiraba con `display: none`.
 
      Lo que sí se queda fuera de las tarjetas estrechas es «qué la sostiene»:
@@ -8184,7 +8184,7 @@
   }
 
   /* Estado de la sincronía: un punto de color dice más rápido que un párrafo
-     si tus datos están a salvo en otro lado o solo viven en este aparato. */
+     si tus datos están a salvo en otro lado o solo viven en este dispositivo. */
   .sync-status {
     display: flex; align-items: center; gap: 10px;
     padding: 11px 13px; border-radius: var(--r-caja); margin-bottom: 12px;
@@ -10266,7 +10266,7 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
 .pn-gajo { fill: none; }
 .pn-gajo-1 { stroke: var(--mint-macizo); }
 .pn-gajo-2 { stroke: var(--celeste); }
-/* Ni oro ni coral aquí: en un reparto de aparatos no hay un lado malo, y con
+/* Ni oro ni coral aquí: en un reparto de dispositivos no hay un lado malo, y con
    la nomenclatura puesta un gajo coral se leería como una alarma. Identidad,
    no juicio — por eso lila y gris, que no significan nada en este panel. */
 .pn-gajo-3 { stroke: var(--lila-macizo); }
