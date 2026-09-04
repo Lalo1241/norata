@@ -76,6 +76,34 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.88 · 4 sep 2026
+
+**Una misión puede decir después de qué va a pasar.** Un campo opcional bajo el
+nombre, una línea en la tarjeta, y nada más.
+
+Hasta ahora una misión decía QUÉ haces y QUÉ DÍAS; el momento lo ponía la fuerza
+de voluntad, que es justo lo que falla los martes. La conducta nueva se sostiene
+cuando se engancha a una que ya existe —eso es lo de Fogg (2019)—, y esa era la
+pieza que faltaba: Norata ya acertaba en las dos difíciles, porque celebra al
+cumplir y porque las Habilidades son identidad y no metas.
+
+- **El «Después de» vive en la caja, no en lo que escribes.** Lo guardado es
+  «servirme el café» y la frase se arma sola en la tarjeta. Sin eso, media app
+  acabaría con «Después de después de comer».
+- **Cinco sugerencias**, por lo mismo que las llevó la pregunta 3 de la
+  bienvenida: un campo vacío que pide una frase pide ESCRIBIR donde todo lo demás
+  pide ELEGIR. Son cosas diarias y a la misma hora, que es lo que las hace servir
+  de gancho — «cuando tenga tiempo» no es un ancla.
+- **Opcional de verdad**: sin ancla, la clave ni se guarda, y la tarjeta se ve
+  exactamente igual que antes. Vaciar el campo la borra.
+- **NO es un recordatorio, y conviene que no se convierta en uno**: sin hora, sin
+  aviso y sin que la app compruebe nada. En cuanto pida permisos del sistema deja
+  de costar una tarde y pasa a ser otro proyecto.
+
+Y sin prometer nada: Gardner y sus colegas (2024) avisan de que formar el hábito,
+por sí solo, puede no bastar —el contexto pesa tanto como la repetición—, así que
+esto se presenta como lo que es: un campo que ayuda a recordar.
+
 ### 0.7.87.2 · 4 sep 2026
 
 **Se acabó «aparato».** La app entera decía «dispositivo» y la palabra se coló
