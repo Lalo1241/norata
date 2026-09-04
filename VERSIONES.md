@@ -76,7 +76,7 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
-### 0.7.83.2 · 3 sep 2026
+### 0.7.83.3 · 3 sep 2026
 
 **El botón de añadir cuenta, a una línea y con un más.** Lo pidió Eduardo con
 el renglón de Google al lado: «sin texto extra y un icono de “+”».
@@ -94,6 +94,51 @@ menú, `.aj-ic` en el índice— y meterle otra dentro deja un aro apretado cont
 el borde.
 
 **Y en Mi expedición decía «Aquí estás» donde se dice «Estás aquí».**
+### 0.7.83.2 · 3 sep 2026
+
+**Con un mundo puesto, el cielo de Mi expedición dibuja SUS rangos y no los de
+la casa.** Lo cazó Eduardo: con Reliquia encima, el rótulo decía «Pieza» y
+arriba se veía la bota de Andante. Es el quinto sitio con el mismo despiste.
+
+**La figura se DERIVA del trazo del rango**, sembrando estrellas a lo largo de
+su contorno con `getTotalLength` y `getPointAtLength`. No se dibujan a mano por
+aritmética: son quince mundos por cinco rangos, o sea **setenta y cinco
+constelaciones** que habría que inventar, revisar y mantener. Derivándolas, un
+mundo nuevo trae su cielo con el mismo trazo que ya dibuja para su insignia
+—cero trabajo extra— y el icono y la constelación no se pueden desincronizar
+nunca, porque son el mismo dibujo.
+
+Las estrellas se reparten entre las piezas del dibujo en proporción a su largo,
+así que la parte que más contorno tiene se lleva más: es lo que hace que la
+silueta se reconozca.
+
+Las cinco de la casa siguen siendo las de siempre —están dibujadas a mano y son
+mejores que cualquier derivación— y un mundo que solo renombre sus rangos sin
+traer dibujo, como Consola, se queda también con ellas.
+
+Tres cosas que no son evidentes:
+
+- **Hace falta estar en el documento.** Un SVG suelto en memoria devuelve
+  longitud cero en algunos navegadores. Se cuelga fuera de la vista, se mide y
+  se quita en la misma vuelta.
+- **Las figuras cerradas cierran el anillo.** Un `<circle>`, o un `<path>` que
+  termina en `z`, une la última estrella con la primera; si no, un aro sale
+  como una C.
+- **La caché va por el TRAZO, no por el rango.** Parece lo mismo y no lo es:
+  `rangosVigentes()` construye cada rango encima del de la casa, así que el
+  «Hallazgo» de Reliquia y la «Ceniza» de Averno comparten el `id` `andante`.
+  Con esa clave los tres mundos se quedaban con la figura del primero que se
+  hubiera mirado, y se vio midiendo: los quince rangos daban exactamente los
+  mismos cinco recuentos de estrellas.
+
+Medido: derivar los cinco de un mundo en frío cuesta 18 ms, ya cacheados 0,2, y
+repintar la pantalla entera 5. Sin nodos colgados al terminar.
+
+**Queda pendiente el mismo arreglo en la celebración de subir de nivel**
+(`ncelPintarMapa`, en `js/02-progreso.js`): con un mundo puesto sigue pintando
+la figura de la casa debajo del nombre del mundo. `expFiguraDeRango()` ya está
+lista para que la use, con un `typeof` de guarda porque ese archivo carga antes.
+
 ### 0.7.83.1 · 3 sep 2026
 
 **Se ve sobre qué rama estás trabajando.** Los atajos —Q, W, E, C, M— y el clic

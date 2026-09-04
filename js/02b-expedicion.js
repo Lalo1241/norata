@@ -652,6 +652,114 @@ function expEscalonDe(r, nivel) {
   return Math.max(0, Math.min(EXP_POR_RANGO, nivel - r.desde + 1));
 }
 
+/* ================= La constelación de un mundo =================
+   Las cinco figuras de la casa —la bota, la huella, el farol, el mapa y la
+   brújula— están dibujadas a mano en `NCEL_FIGURAS`. Un mundo trae sus propios
+   rangos con SU dibujo, y hasta ahora el cielo seguía pintando los de la casa:
+   con Reliquia puesto, el rótulo decía «Pieza» y arriba se veía la bota. Lo
+   cazó Eduardo, y es el quinto sitio con el mismo despiste.
+
+   **La figura se DERIVA del trazo del rango**, sembrando estrellas a lo largo
+   de su contorno. No se dibujan a mano por una razón de aritmética: son quince
+   mundos por cinco rangos, o sea setenta y cinco constelaciones que habría que
+   inventar, revisar y mantener. Derivándolas, un mundo nuevo trae su cielo con
+   el mismo trazo que ya tiene que dibujar para su insignia — cero trabajo
+   extra, y nunca se pueden desincronizar el icono y la constelación, porque
+   son el mismo dibujo.
+
+   Cómo: se mete el trazo en un SVG de verdad y se le pregunta al navegador por
+   dónde pasa (`getTotalLength` y `getPointAtLength`). Las estrellas se reparten
+   entre las piezas del dibujo en proporción a su largo, así que la parte que
+   más contorno tiene se lleva más estrellas — que es justo lo que hace que la
+   silueta se reconozca.
+
+   Tres cosas que no son evidentes:
+
+   1. **Hace falta estar en el documento.** Un SVG suelto en memoria devuelve
+      longitud cero en algunos navegadores. Se cuelga fuera de la vista, se
+      mide y se quita en la misma vuelta.
+   2. **Las figuras cerradas cierran el anillo.** Un `<circle>`, o un `<path>`
+      que termina en `z`, une la última estrella con la primera; si no, un aro
+      sale como una C.
+   3. **Se guarda en caché por el TRAZO**, no por el rango. Parece lo mismo y
+      no lo es: `rangosVigentes()` construye cada rango encima del de la casa,
+      así que el «Hallazgo» de Reliquia y la «Ceniza» de Averno comparten el
+      `id` —`andante`— y con esa clave los tres mundos se quedaban con la
+      figura del primero que se hubiera mirado. Se vio midiendo: los quince
+      rangos de los tres mundos daban exactamente los mismos cinco recuentos de
+      estrellas. El trazo sí es único, porque ES el dibujo.
+
+   Un mundo puede traer solo los NOMBRES y ningún trazo —Consola es así—, y
+   entonces se queda con la figura de la casa. */
+const EXP_ASTROS_MUNDO = 13;
+const expFigurasCache = {};
+
+function expFiguraDeTrazo(trazo) {
+  if (expFigurasCache[trazo]) return expFigurasCache[trazo];
+  let caja = null;
+  try {
+    caja = document.createElement("div");
+    caja.setAttribute("aria-hidden", "true");
+    caja.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;left:-9999px";
+    caja.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">' + trazo + "</svg>";
+    document.body.appendChild(caja);
+
+    const piezas = [];
+    let total = 0;
+    caja.querySelectorAll("path, circle, ellipse, rect, polygon, polyline").forEach(el => {
+      if (typeof el.getTotalLength !== "function") return;
+      let L = 0;
+      try { L = el.getTotalLength(); } catch (e) { return; }
+      /* Los rabitos de menos de dos unidades no dan una estrella que se
+         entienda: sembrarlos deja puntos sueltos que parecen suciedad. */
+      if (!(L > 2)) return;
+      const d = (el.getAttribute("d") || "").trim();
+      const cierra = el.tagName !== "path" && el.tagName !== "polyline"
+        ? true : /[zZ]\s*$/.test(d);
+      piezas.push({ el, L, cierra });
+      total += L;
+    });
+    if (!piezas.length || !total) return null;
+
+    const p = [], l = [];
+    for (const pieza of piezas) {
+      /* En proporción al largo, con dos de suelo: una pieza corta que se lleve
+         una sola estrella no dibuja nada, dibuja un punto. */
+      const n = Math.max(2, Math.round(EXP_ASTROS_MUNDO * pieza.L / total));
+      const base = p.length;
+      /* Una figura cerrada reparte el largo entre n; una abierta entre n-1,
+         para que la última estrella caiga en la punta y no antes. */
+      const paso = pieza.L / (pieza.cierra ? n : Math.max(1, n - 1));
+      for (let i = 0; i < n; i++) {
+        const q = pieza.el.getPointAtLength(Math.min(pieza.L, i * paso));
+        /* Del espacio del icono (24) al de las constelaciones (100), que es el
+           que esperan `expFiguraHTML` y `ncelHasta`. */
+        p.push([q.x * 100 / 24, q.y * 100 / 24]);
+        if (i > 0) l.push([base + i - 1, base + i]);
+      }
+      if (pieza.cierra && n > 2) l.push([base + n - 1, base]);
+    }
+    const fig = { p, l };
+    expFigurasCache[trazo] = fig;
+    return fig;
+  } catch (e) {
+    return null;
+  } finally {
+    if (caja && caja.parentNode) caja.parentNode.removeChild(caja);
+  }
+}
+
+/* La figura que le toca a un rango: la suya si el mundo trae trazo, y si no la
+   de la casa. `i` es su sitio entre los cinco, que es lo que un mundo no
+   mueve. */
+function expFiguraDeRango(r, i) {
+  if (r && r.trazo) {
+    const fig = expFiguraDeTrazo(r.trazo);
+    if (fig && fig.p.length >= 4) return fig;
+  }
+  return NCEL_FIGURAS[i];
+}
+
 /* Una figura, con `hasta` estrellas puestas. Las que faltan salen como aros
    vacíos, que es lo que deja ver cuánto le queda al dibujo. */
 function expFiguraHTML(fig, hasta, cx, cy, m, huecas) {
@@ -794,15 +902,15 @@ function expCieloHTML(nivel) {
   const x0 = 160 - (cerradas.length - 1) * m.paso / 2;
   let estante = "";
   cerradas.forEach((r, i) => {
+    const figC = expFiguraDeRango(r, rangos.indexOf(r));
     estante += '<g class="exp-const cerrada" style="--c:var(' + r.color + ')">' +
       '<title>' + escapeHtml(r.nombre) + ' · conseguido</title>' +
-      expFiguraHTML(NCEL_FIGURAS[rangos.indexOf(r)], NCEL_FIGURAS[rangos.indexOf(r)].p.length,
-        x0 + i * m.paso, m.y, m, false) + '</g>';
+      expFiguraHTML(figC, figC.p.length, x0 + i * m.paso, m.y, m, false) + '</g>';
   });
 
   let altar = "";
   if (viva) {
-    const fig = NCEL_FIGURAS[rangos.indexOf(viva)];
+    const fig = expFiguraDeRango(viva, rangos.indexOf(viva));
     const k = expEscalonDe(viva, nivel);
     altar = '<g class="exp-const viva" style="--c:var(' + viva.color + ')">' +
       '<title>' + escapeHtml(viva.nombre) + (k >= EXP_POR_RANGO ? ' · conseguido' : ' · nivel ' + k + ' de ' + EXP_POR_RANGO) + '</title>' +
