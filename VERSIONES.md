@@ -76,6 +76,61 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.78 · 3 sep 2026
+
+**Los reportes se atienden uno a uno, y las versiones miran catorce días.** El
+punto 3 de la lista del 28 de agosto y el tercero de los fallos diagnosticados.
+
+#### Uno a uno, que es lo que pidió
+
+«Los reportes deben ser palomeables uno a uno, para irlos archivando y ver qué
+está corregido y qué no». Hasta hoy solo existía `tropiezos_vistos()`, que marca
+**todos de golpe**: dar por atendido un reporte enterraba también los que no
+habías mirado, así que en la práctica no se podía usar para lo que se quería.
+
+Ahora cada reporte lleva su botón. Tres decisiones dentro:
+
+- **Es un interruptor, no una acción de un solo sentido.** Se puede volver a
+  dejar abierto, dice en qué estado quedó («Atender» / «Atendido») y lleva
+  `aria-pressed`. Un botón que desaparece al pulsarlo no dice si funcionó.
+- **El menta del «Atendido» es la única menta de esa caja**, y sigue la regla de
+  color del panel: ahí sí hay un juicio, y el juicio es «esto ya está».
+- **Solo en los reportes de personas, no en los errores automáticos.** Lo dejó
+  claro Eduardo el 28 de agosto: para un error que caza la app sola, nadie sabe
+  todavía cómo saber cuándo está corregido. Construirlo antes de contestar eso
+  sería una palomita que miente.
+
+**El identificador es el `id` de la fila y no los cuatro campos de la clave
+única.** La otra opción era pasar el mensaje entero de ida y vuelta
+—trescientos caracteres— y cualquier diferencia de espacios o acentos dejaría la
+fila sin archivar sin decir por qué. La tabla ya tenía `id`; simplemente no
+salía de `metricas()`, así que la pantalla no podía nombrar una fila concreta.
+
+Y la pantalla **pinta con lo que contesta el servidor**, no con lo que suponía
+antes de preguntar: si la fila ya no está —dos pestañas archivando a la vez— la
+respuesta es nula y se vuelven a pedir los números. En el caso normal no se
+recarga nada: se toca la fila que hay en memoria y se vuelve a pintar, porque
+recargar las métricas enteras para cambiar una palabra son cientos de
+milisegundos y un salto de toda la lista.
+
+#### El dato basura de las versiones tenía otra causa
+
+Le aparecía una versión vieja aunque él ya hubiera actualizado, y la sospecha
+apuntaba a los aparatos. **No eran aparatos: eran CUENTAS.** `pulsos` tiene la
+clave `(user_id, dia)`, así que no hay filas por aparato; lo que pasaba es que
+una cuenta de pruebas que no se abre desde hace tres semanas se queda con la
+versión de aquel día, y la ventana de treinta días la seguía contando como si
+alguien estuviera ahí parado.
+
+La ventana pasa a **catorce días**, que lo eligió Eduardo. Es la misma que la
+gráfica de arriba, así que las dos cajas hablan del mismo periodo, y la pregunta
+que contesta pasa a ser la correcta: no «qué versión vio cada cuenta que existió
+alguna vez», sino **qué versión tiene la gente que está usando la app**.
+
+**Las dos cosas de SQL ya están aplicadas en el servidor** y comprobadas leyendo
+la definición de las funciones en la base. Quien vuelva a correr
+`administracion.sql` entero no rompe nada: todo es `create or replace`.
+
 ### 0.7.77 · 3 sep 2026
 
 **Una rama se puede ver de pie.** Lo pidió Eduardo: el primer talento abajo y

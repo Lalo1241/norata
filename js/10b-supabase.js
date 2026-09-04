@@ -401,6 +401,19 @@ async function sbTropiezosVistos() {
   return true;
 }
 
+/* Archivar UNO, o desarchivarlo. Devuelve cómo quedó la fila, o `null` si esa
+   fila ya no está — que es lo que pasa al archivar desde dos pestañas a la vez.
+   Quien llama pinta con lo que devuelve esto y no con lo que suponía, así que
+   una carrera entre dos pestañas acaba en las dos diciendo lo mismo. */
+async function sbTropiezoVisto(id, visto) {
+  const r = await sbDatos("/rpc/tropiezo_visto", {
+    method: "POST",
+    body: JSON.stringify({ p_id: id, p_visto: visto !== false })
+  });
+  if (!r.ok) throw sbError(r);
+  return r.body;
+}
+
 /* Apuntar que algo se rompió.
 
    Va por `sbFetch` y no por `sbDatos` a propósito: `sbDatos` exige un token, y
