@@ -1250,6 +1250,7 @@ const TEXTOS_EN = {
   "Cambios sin subir": "Changes not uploaded",
   "Al día con {0}": "Up to date with {0}",
   "· última vez {0}": "· last time {0}",
+  "última vez {0}": "last time {0}",
   "Sin nombre": "No name",
   "¿Cómo te decimos? <i>opcional</i>": "What should we call you? <i>optional</i>",
   "Es lo que usaremos al saludarte, aquí y en los correos. Hasta {0} letras.":
@@ -2185,7 +2186,11 @@ const TEXTOS_EN = {
   "Esa contraseña no cumple el mínimo. Usa al menos {0} caracteres.":
     "That password doesn't meet the minimum. Use at least {0} characters.",
   "Necesita al menos {0} caracteres.": "It needs at least {0} characters.",
-  "Supabase respondió: {0}": "Supabase replied: {0}",
+  "El servidor respondió: {0}": "The server replied: {0}",
+  "tu cuenta": "your account",
+  "Tus datos": "Your details",
+  "Tu cuenta": "Your account",
+  "Actual": "Current",
   "el <b>{0}</b>": "on <b>{0}</b>",
   "Si hay una cuenta con {0}, te acaba de llegar un enlace para poner una contraseña nueva. Revisa también la carpeta de no deseado.":
     "If there's an account with {0}, a link to set a new password has just arrived. Check your spam folder too.",
