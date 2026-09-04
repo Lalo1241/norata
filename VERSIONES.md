@@ -76,6 +76,58 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.85 · 3 sep 2026
+
+**El botón de crear una rama abre un cajón con diez caminos ya armados.**
+Cada uno trae la rama entera —de doce a catorce peldaños encadenados, con sus
+pasos, sus plazos, sus habilidades y las misiones que la alimentan— sacada de un
+método que ya funcionó. Vienen con Pro.
+
+Dónde vive: **en el botón de crear**, y no en una sección propia. Es el instante
+en que alguien se queda mirando un lienzo vacío, y un catálogo guardado en el
+menú no lo encuentra nadie. Dentro, «De cero» sigue siendo la primera opción y
+hace exactamente lo de siempre.
+
+**Los datos NO van en `ASSETS`, y es a propósito.** Son 21 KB que solo necesita
+quien abre el cajón, y solo si paga; en la lista de instalación se los bajaría
+todo el mundo, y el arranque son hoy una petición y ~120 ms. Se piden al abrirlo,
+con `?h=<huella>` en la dirección porque lo que no está en esa lista no lo
+renueva nadie. `sw.js` ya sabía comprobar esa huella, así que no hubo que
+tocarlo.
+
+**El LEEME manda y el JSON se genera.** `caminos/app.py` saca los 132 peldaños
+de `plantillas/LEEME.md`. Escritos dos veces se desincronizan a la primera
+corrección, y la copia que se queda vieja es siempre la que nadie mira.
+
+Cinco decisiones que el código explica con su motivo:
+
+- **El tope se mira DENTRO del cajón, no antes.** Se abre igual cuando no caben
+  más ramas o cuando no hay plan, con las cartas apagadas y el cuadro que dice
+  por qué. Es la diferencia entre un escaparate y un muro con un precio: sin eso,
+  quien no paga nunca vería los caminos, así que nunca los querría.
+- **La vista previa es obligatoria.** Es la misma regla que gobernará a la IA
+  cuando llegue: propone, tú confirmas. Su cuenta acaba en «0 datos tocados».
+- **Lo que se crea no lleva marca de origen.** Los mismos objetos que salen de
+  `savePerk()` y `saveProject()`. Lo único que se apunta aparte es la rama, en
+  `state.ui.caminos`, y `10-fusion.js` la une para que el sello no se pierda al
+  abrir en otro aparato.
+- **Nunca se fusiona con una rama que ya existe**: si «Salud» está ocupada, la
+  nueva es «Salud 2». Eso resuelve solo el problema de repetir un camino — la de
+  antes se queda entera con su historial y no hay nada que sobrescribir.
+- **El método se usa, la marca no.** La ley deja fuera del derecho de autor los
+  métodos y los planes, pero los nombres son de sus titulares: en pantalla va el
+  principio con palabras propias («plan de intervalos progresivos»), la obra se
+  cita en la referencia, y hay descargo de no afiliación.
+
+Un sello con forma de mapa marca las ramas que vinieron de un camino, y el mismo
+dibujo marca en el cajón los que ya tienes. Al aceptar, una celebración de las
+pequeñas que no felicita: señala el primer peldaño, que es lo único que se puede
+hacer mañana.
+
+**Un fallo que salió midiendo:** el sello estaba puesto en `branchHeader()`, que
+está escrita y **no la llama nadie** — el mismo caso de `planPermite()`. Ahora va
+en las dos cabeceras de verdad, las de `06-detalle.js`.
+
 <<<<<<< HEAD
 ### 0.7.84 · 3 sep 2026
 
