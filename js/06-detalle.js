@@ -11,9 +11,25 @@ function renderMissions() {
         <div class="bubble">${icon("target", 34)}</div>
         <h2>${tx("Sin misiones todavía")}</h2>
         <p>${tx("Las misiones son lo que haces hoy: pequeñas, repetibles y con recompensa. Son las que mantienen viva tu racha y hacen subir tus habilidades sin que lo notes.")}</p>
+        <!-- Mientras la bienvenida siga sin contestarse, el botón de menta es
+             ella y no el de aquí: son tres preguntas que dejan puestas las
+             habilidades, la misión diaria y la primera rama de una vez, y
+             quien empieza por crear una misión suelta ni siquiera ha elegido
+             el ritmo con el que sus habilidades bajan. Contestada, esta
+             pantalla vuelve a ser exactamente la de siempre.
+
+             Y son DOS botones, contestada o no: el hueco que reserva la regla
+             de empty stack en escritorio da para dos, y con tres se descuadran
+             las cinco pantallas vacías a la vez. El ejemplo completo sigue en
+             la portada, que es donde de verdad se ofrece.
+             SIN COMILLAS INVERSAS, como avisa el comentario de Proyectos: este
+             texto vive dentro de un template literal y una sola lo parte. Ya
+             lo hizo aquí: Misiones dejó de dibujarse con un error que hablaba
+             de 'stack' y no de comillas. -->
         <div class="stack" style="align-items:center">
-          <button class="btn btn-primary" onclick="openMissionForm()">${tx("Crear mi primera misión")}</button>
-          <button class="btn btn-ghost" onclick="verElEjemplo()">${tx("Ver un ejemplo completo")}</button>
+          ${bloqueBienvenida()}
+          <button class="${claseAccionPropia()}" onclick="openMissionForm()">${tx("Crear mi primera misión")}</button>
+          ${bienvenidaPendiente() ? "" : `<button class="btn btn-ghost" onclick="verElEjemplo()">${tx("Ver un ejemplo completo")}</button>`}
         </div>
       </div>`;
     return;
@@ -263,7 +279,8 @@ function renderProjects() {
                SIN COMILLAS INVERSAS: este comentario vive dentro de un template
                literal, y una sola cierra la cadena y parte el archivo entero.
                Lo hizo: renderProjects dejó de existir y Proyectos no cargaba. -->
-          <button class="btn btn-primary" onclick="crearRama('projects')">${tx("Crear mi primer proyecto")}</button>
+          ${bloqueBienvenida()}
+          <button class="${claseAccionPropia()}" onclick="crearRama('projects')">${tx("Crear mi primer proyecto")}</button>
         </div>
       </div>`;
     return;
@@ -1218,7 +1235,8 @@ function renderTree() {
              el título caigan a la misma altura en las cinco, y suelto se quedaba
              fuera de esa cuenta. -->
         <div class="stack" style="align-items:center">
-          <button class="btn btn-primary" onclick="openPerkForm()">${tx("Crear mi primer talento")}</button>
+          ${bloqueBienvenida()}
+          <button class="${claseAccionPropia()}" onclick="openPerkForm()">${tx("Crear mi primer talento")}</button>
         </div>
       </div>`;
     return;

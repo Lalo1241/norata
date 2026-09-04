@@ -3,110 +3,155 @@
    Tres preguntas para armar un tablero con las cosas que a esa persona
    le importan, en vez de soltarla frente a una app vacía. */
 
-/* Cada área trae DOS habilidades y una cadena de CINCO talentos.
+/* Cada área trae DOS habilidades, una misión y una rama de SEIS talentos.
 
    Las dos habilidades, y no tres: con tres, elegir cuatro áreas dejaba doce
    habilidades puestas el primer día, y una habilidad no es un adorno --baja si
    la dejas--, así que doce son doce deudas vivas antes de empezar. Con el
    máximo en tres áreas salen seis, que es justo el tope del plan gratuito.
 
-   Los cinco talentos encadenados, y no uno: una rama con un solo nodo en medio
-   del lienzo no se lee como un comienzo, se lee como que algo falló. Cinco no
-   son cinco tareas --el lienzo dibuja el primero encendido y los otros cuatro
-   con candado--, así que se leen como un camino con el primer paso iluminado.
+   Y las dos tienen que ser del MISMO OFICIO. Había dos áreas que no lo eran y
+   las paró Eduardo: "Crear cosas" creaba Dibujo y Escritura --dos artes que no
+   se practican igual ni se parecen-- y "Gente que quiero" creaba Oratoria y
+   Carisma, que es hablar en público y no es cuidar a nadie. Elegir un área y
+   encontrarse una habilidad que no tiene que ver con lo que se pidió no se lee
+   como una sugerencia: se lee como que la app entendió otra cosa. La
+   comprobación que lo caza de un vistazo: las dos habilidades tienen que caer
+   en la misma categoría del catálogo (`SKILL_CATALOG`, js/05-resumen.js).
 
-   Los primeros peldaños son HITOS, que se cierran en sí mismos y no llevan
-   plazo; los que se sostienen en el tiempo son METAS, las únicas con planDays.
-   Mezclarlos importa: una rama entera de metas es una lista de deberes con
-   fecha, y eso agobia igual que agobiaban las doce habilidades. */
+   Los TÍTULOS empiezan todos por un verbo en primera persona --"Ordenar mi
+   dinero", y no "Dinero"--. Lo que se elige aquí no es un tema, es algo que uno
+   va a hacer, y el verbo es lo que lo dice.
+
+   Los seis talentos NO van en fila. Una fila es una lista de deberes con la
+   palabra "mapa" encima, y de este módulo enseña justo lo único que no tiene de
+   especial: que las cosas van en orden. La forma es un rombo --uno arriba, dos
+   caminos de dos, y una cima que se abre con CUALQUIERA de los dos--, así que
+   la primera rama que alguien ve ya trae dentro las tres cosas que el lienzo
+   sabe hacer: encadenar, abrirse en dos y volver a juntarse. Eran cinco en
+   fila hasta que lo paró Eduardo por aburrido.
+
+   Los dos caminos no son dos mitades cualesquiera: uno es la CONSTANCIA
+   --sostener algo en el tiempo-- y el otro son las MARCAS --logros que se
+   cierran de un golpe--. Repartidos así, a quien se le rompa la disciplina le
+   queda una ruta viva, que es justo lo que un mapa puede hacer y una lista no.
+
+   Los peldaños que se cierran en sí mismos son HITOS y no llevan plazo; los que
+   se sostienen en el tiempo son METAS, las únicas con `days`. Mezclarlos
+   importa: una rama entera de metas es una agenda con fechas, y eso agobia
+   igual que agobiaban las doce habilidades.
+
+   Las llaves `k` y `req` son de aquí y no llegan a los datos: `uid()` no existe
+   hasta crear el nodo, así que los requisitos se escriben con nombres cortos y
+   `buildFromOnboarding` los traduce a ids de verdad. */
 const ONBOARD_AREAS = [
-  { id: "salud", proyectos: ["Correr mi primera carrera", "Armar mi rutina en casa"],     label: "Salud y cuerpo",     icon: "dumbbell", color: "#ff8a70",
+  { id: "salud", proyectos: ["Correr mi primera carrera", "Armar mi rutina en casa"],     label: "Mover mi cuerpo",     icon: "dumbbell", color: "#ff8a70",
     skills: ["Ejercicio", "Correr"],
     mission: { name: "Moverme 20 minutos", icon: "bolt", xp: 20 },
     branch: "Salud",
     perks: [
-      { tipo: "hito", name: "Caminar 20 minutos tres días seguidos",   icon: "bolt",   days: 0,   xp: 80 },
-      { tipo: "hito", name: "Aguantar 5 minutos corriendo sin parar",  icon: "flame",  days: 0,   xp: 120 },
-      { tipo: "meta", name: "Moverme tres veces por semana, un mes",   icon: "target", days: 45,  xp: 180 },
-      { tipo: "hito", name: "Correr 5 kilómetros de una tirada",       icon: "trophy", days: 0,   xp: 250 },
-      { tipo: "meta", name: "Una rutina que sostengo sin pensarla",    icon: "shield", days: 180, xp: 400 }
+      { k: "a", tipo: "hito", name: "Caminar 20 minutos tres días seguidos",  icon: "bolt",   days: 0,   xp: 80 },
+      { k: "b", req: ["a"], tipo: "meta", name: "Moverme tres veces por semana, un mes", icon: "target", days: 45, xp: 180 },
+      { k: "c", req: ["a"], tipo: "hito", name: "Aguantar 5 minutos corriendo sin parar", icon: "flame", days: 0, xp: 120 },
+      { k: "d", req: ["b"], tipo: "meta", name: "Una rutina que sostengo sin pensarla",  icon: "shield", days: 180, xp: 400 },
+      { k: "e", req: ["c"], tipo: "hito", name: "Correr 5 kilómetros de una tirada",     icon: "trophy", days: 0,   xp: 250 },
+      { k: "f", req: ["d", "e"], modo: "cualquiera", tipo: "meta", name: "Correr 10 kilómetros seguidos", icon: "crown", days: 240, xp: 500 }
     ] },
-  { id: "mente", proyectos: ["Terminar el curso que dejé a medias", "Sacar mi certificado"],     label: "Aprender algo",      icon: "book", color: "#6fc3e8",
+  { id: "mente", proyectos: ["Terminar el curso que dejé a medias", "Sacar mi certificado"],     label: "Aprender algo nuevo",      icon: "book", color: "#6fc3e8",
     skills: ["Lectura", "Idiomas"],
     mission: { name: "Estudiar 15 minutos", icon: "cap", xp: 20 },
     branch: "Aprender",
     perks: [
-      { tipo: "hito", name: "Terminar el primer capítulo",             icon: "book",   days: 0,   xp: 80 },
-      { tipo: "hito", name: "Estudiar diez días seguidos",             icon: "flame",  days: 0,   xp: 120 },
-      { tipo: "meta", name: "Llegar a la mitad del curso",             icon: "target", days: 60,  xp: 200 },
-      { tipo: "hito", name: "Explicarle a alguien lo que aprendí",     icon: "mic",    days: 0,   xp: 220 },
-      { tipo: "meta", name: "Terminar el curso entero",                icon: "cap",    days: 180, xp: 400 }
+      { k: "a", tipo: "hito", name: "Terminar el primer capítulo",            icon: "book",   days: 0,   xp: 80 },
+      { k: "b", req: ["a"], tipo: "hito", name: "Estudiar diez días seguidos", icon: "flame", days: 0,   xp: 120 },
+      { k: "c", req: ["a"], tipo: "hito", name: "Explicarle a alguien lo que aprendí", icon: "mic", days: 0, xp: 150 },
+      { k: "d", req: ["b"], tipo: "meta", name: "Llegar a la mitad del curso", icon: "target", days: 60,  xp: 200 },
+      { k: "e", req: ["c"], tipo: "hito", name: "Usar lo aprendido en algo real", icon: "bulb", days: 0,  xp: 220 },
+      { k: "f", req: ["d", "e"], modo: "cualquiera", tipo: "meta", name: "Terminar el curso entero", icon: "cap", days: 180, xp: 400 }
     ] },
-  { id: "creativo", proyectos: ["Montar mi portafolio", "Publicar mi primer trabajo"],  label: "Crear cosas",        icon: "brush", color: "#b7a2ea",
-    skills: ["Dibujo", "Escritura"],
-    mission: { name: "Crear algo pequeño", icon: "pen", xp: 20 },
+  /* Dibujo y Pintura, y el título dice exactamente eso. Antes era "Crear
+     cosas" con Dibujo y Escritura dentro, y ni los talentos le hacían sitio a
+     la escritura: "diez bocetos", "enseñárselo a alguien" y "publicar mi primer
+     trabajo" son de alguien que dibuja. La rama se sigue llamando Creatividad
+     porque ahí es donde caben después la escritura, la foto o la música: lo que
+     se estrecha es la promesa del primer día, no el mapa. */
+  { id: "creativo", proyectos: ["Montar mi portafolio", "Preparar mi primera exposición"],  label: "Dibujar y pintar",        icon: "brush", color: "#b7a2ea",
+    skills: ["Dibujo", "Pintura"],
+    mission: { name: "Dibujar diez minutos", icon: "pen", xp: 20 },
     branch: "Creatividad",
     perks: [
-      { tipo: "hito", name: "Diez bocetos sin borrar ninguno",         icon: "pen",    days: 0,   xp: 80 },
-      { tipo: "hito", name: "Terminar algo y no dejarlo a medias",     icon: "flag",   days: 0,   xp: 130 },
-      { tipo: "meta", name: "Crear algo cada semana, dos meses",       icon: "brush",  days: 60,  xp: 200 },
-      { tipo: "hito", name: "Enseñárselo a alguien que no soy yo",     icon: "smile",  days: 0,   xp: 220 },
-      { tipo: "meta", name: "Publicar mi primer trabajo",              icon: "star",   days: 120, xp: 350 }
+      { k: "a", tipo: "hito", name: "Diez bocetos sin borrar ninguno",        icon: "pen",    days: 0,   xp: 80 },
+      { k: "b", req: ["a"], tipo: "meta", name: "Crear algo cada semana, dos meses", icon: "brush", days: 60, xp: 200 },
+      { k: "c", req: ["a"], tipo: "hito", name: "Terminar algo y no dejarlo a medias", icon: "flag", days: 0, xp: 130 },
+      { k: "d", req: ["b"], tipo: "hito", name: "Llenar un cuaderno entero",   icon: "book",   days: 0,   xp: 250 },
+      { k: "e", req: ["c"], tipo: "hito", name: "Enseñárselo a alguien que no soy yo", icon: "smile", days: 0, xp: 200 },
+      { k: "f", req: ["d", "e"], modo: "cualquiera", tipo: "meta", name: "Publicar mi primer trabajo", icon: "star", days: 120, xp: 350 }
     ] },
   { id: "dinero", proyectos: ["Salir de una deuda", "Armar mi presupuesto del año"],    label: "Ordenar mi dinero",  icon: "coin", color: "#5fe0b0",
     skills: ["Finanzas", "Organización"],
     mission: { name: "Anotar mis gastos del día", icon: "chart", xp: 15 },
     branch: "Dinero",
     perks: [
-      { tipo: "hito", name: "Saber cuánto entra y cuánto sale",        icon: "chart",  days: 0,   xp: 80 },
-      { tipo: "hito", name: "Un mes entero anotando todo",             icon: "book",   days: 0,   xp: 150 },
-      { tipo: "meta", name: "Recortar un gasto que no echo de menos",  icon: "target", days: 60,  xp: 180 },
-      { tipo: "meta", name: "Ahorrar mi primer mes de gastos",         icon: "coin",   days: 180, xp: 350 },
-      { tipo: "meta", name: "Fondo de emergencia completo",            icon: "gem",    days: 365, xp: 500 }
+      { k: "a", tipo: "hito", name: "Saber cuánto entra y cuánto sale",       icon: "chart",  days: 0,   xp: 80 },
+      { k: "b", req: ["a"], tipo: "hito", name: "Un mes entero anotando todo", icon: "book",  days: 0,   xp: 150 },
+      { k: "c", req: ["a"], tipo: "hito", name: "Apartar algo el día que cobro", icon: "coin", days: 0,  xp: 120 },
+      { k: "d", req: ["b"], tipo: "meta", name: "Recortar un gasto que no echo de menos", icon: "target", days: 60, xp: 180 },
+      { k: "e", req: ["c"], tipo: "meta", name: "Ahorrar mi primer mes de gastos", icon: "gem", days: 180, xp: 350 },
+      { k: "f", req: ["d", "e"], modo: "cualquiera", tipo: "meta", name: "Fondo de emergencia completo", icon: "shield", days: 365, xp: 500 }
     ] },
-  { id: "casa", proyectos: ["Renovar mi cuarto", "Ordenar la casa de una vez"],      label: "Casa y cocina",      icon: "coffee", color: "#f5d76e",
+  { id: "casa", proyectos: ["Montar mi recetario", "Equipar bien mi cocina"],      label: "Cocinar en casa",      icon: "coffee", color: "#f5d76e",
     skills: ["Cocina", "Repostería"],
-    mission: { name: "Cocinar en casa", icon: "coffee", xp: 20 },
-    branch: "Casa",
+    mission: { name: "Cocinar en vez de pedir", icon: "coffee", xp: 20 },
+    branch: "Cocina",
     perks: [
-      { tipo: "hito", name: "Tres recetas que me salen sin mirar",     icon: "coffee", days: 0,   xp: 80 },
-      { tipo: "hito", name: "Cocinar para alguien más",                icon: "smile",  days: 0,   xp: 130 },
-      { tipo: "meta", name: "Una semana entera cocinando en casa",     icon: "target", days: 60,  xp: 200 },
-      { tipo: "hito", name: "Inventar un plato mío",                   icon: "bulb",   days: 0,   xp: 220 },
-      { tipo: "meta", name: "Diez recetas de memoria",                 icon: "book",   days: 120, xp: 300 }
+      { k: "a", tipo: "hito", name: "Tres recetas que me salen sin mirar",    icon: "coffee", days: 0,   xp: 80 },
+      { k: "b", req: ["a"], tipo: "meta", name: "Una semana entera cocinando en casa", icon: "target", days: 60, xp: 200 },
+      { k: "c", req: ["a"], tipo: "hito", name: "Cocinar para alguien más",   icon: "smile",  days: 0,   xp: 130 },
+      { k: "d", req: ["b"], tipo: "hito", name: "Diez recetas de memoria",    icon: "book",   days: 0,   xp: 250 },
+      { k: "e", req: ["c"], tipo: "hito", name: "Inventar un plato mío",      icon: "bulb",   days: 0,   xp: 220 },
+      { k: "f", req: ["d", "e"], modo: "cualquiera", tipo: "meta", name: "Una cena entera hecha por mí", icon: "star", days: 120, xp: 350 }
     ] },
-  { id: "calma", proyectos: ["Arreglar mis horarios de sueño", "Planear unas vacaciones de verdad"],     label: "Descanso y calma",   icon: "heart", color: "#f0a5c0",
+  { id: "calma", proyectos: ["Arreglar mis horarios de sueño", "Planear unas vacaciones de verdad"],     label: "Descansar de verdad",   icon: "heart", color: "#f0a5c0",
     skills: ["Meditación", "Yoga"],
     mission: { name: "10 minutos sin pantallas", icon: "heart", xp: 15 },
     branch: "Bienestar",
     perks: [
-      { tipo: "hito", name: "Siete días acostándome a la misma hora",  icon: "heart",  days: 0,   xp: 80 },
-      { tipo: "hito", name: "Una semana sin pantallas en la cama",     icon: "shield", days: 0,   xp: 120 },
-      { tipo: "meta", name: "Dormir bien un mes seguido",              icon: "target", days: 30,  xp: 200 },
-      { tipo: "hito", name: "Un día entero sin prisa, a propósito",    icon: "plant",  days: 0,   xp: 180 },
-      { tipo: "meta", name: "Parar diez minutos cada día, tres meses", icon: "smile",  days: 90,  xp: 300 }
+      { k: "a", tipo: "hito", name: "Siete días acostándome a la misma hora", icon: "heart",  days: 0,   xp: 80 },
+      { k: "b", req: ["a"], tipo: "hito", name: "Una semana sin pantallas en la cama", icon: "shield", days: 0, xp: 120 },
+      { k: "c", req: ["a"], tipo: "hito", name: "Un día entero sin prisa, a propósito", icon: "plant", days: 0, xp: 150 },
+      { k: "d", req: ["b"], tipo: "meta", name: "Dormir bien un mes seguido",  icon: "target", days: 30,  xp: 200 },
+      { k: "e", req: ["c"], tipo: "meta", name: "Parar diez minutos cada día, tres meses", icon: "smile", days: 90, xp: 300 },
+      { k: "f", req: ["d", "e"], modo: "cualquiera", tipo: "meta", name: "Un descanso que ya no tengo que planear", icon: "star", days: 180, xp: 400 }
     ] },
-  { id: "social", proyectos: ["Organizar una reunión con los míos", "Preparar un regalo que lleve tiempo"],    label: "Gente que quiero",   icon: "mic", color: "#8fd18a",
-    skills: ["Oratoria", "Carisma"],
-    mission: { name: "Escribirle a alguien", icon: "mic", xp: 15 },
+  /* Carisma y Escucha, que es lo que se practica al estar con alguien. Antes
+     eran Oratoria y Carisma: hablar delante de una sala no es cuidar a nadie, y
+     era la única área cuyas dos habilidades no se parecían ni entre ellas.
+     `Escucha` nació en el catálogo para esto, y a `Carisma` se le quitó la
+     palabra "escucha" de su léxico para que las dos no se peleen por la misma
+     misión. */
+  { id: "social", proyectos: ["Organizar una reunión con los míos", "Preparar un regalo que lleve tiempo"],    label: "Cuidar a mi gente",   icon: "smile", color: "#8fd18a",
+    skills: ["Carisma", "Escucha"],
+    mission: { name: "Escribirle a alguien", icon: "pen", xp: 15 },
     branch: "Personas",
     perks: [
-      { tipo: "hito", name: "Escribirle a tres personas pendientes",   icon: "mic",    days: 0,   xp: 80 },
-      { tipo: "hito", name: "Ver a alguien en persona, no por mensaje", icon: "smile", days: 0,   xp: 120 },
-      { tipo: "meta", name: "Ver a mis amigos una vez al mes",         icon: "heart",  days: 90,  xp: 250 },
-      { tipo: "hito", name: "Organizar yo el plan, sin esperar",       icon: "flag",   days: 0,   xp: 200 },
-      { tipo: "meta", name: "Una costumbre que nos junte sin avisar",  icon: "star",   days: 180, xp: 350 }
+      { k: "a", tipo: "hito", name: "Escribirle a tres personas pendientes",  icon: "pen",    days: 0,   xp: 80 },
+      { k: "b", req: ["a"], tipo: "hito", name: "Ver a alguien en persona, no por mensaje", icon: "smile", days: 0, xp: 120 },
+      { k: "c", req: ["a"], tipo: "hito", name: "Escuchar a alguien sin mirar el teléfono", icon: "heart", days: 0, xp: 130 },
+      { k: "d", req: ["b"], tipo: "hito", name: "Organizar yo el plan, sin esperar", icon: "flag", days: 0, xp: 200 },
+      { k: "e", req: ["c"], tipo: "meta", name: "Ver a mis amigos una vez al mes", icon: "target", days: 90, xp: 250 },
+      { k: "f", req: ["d", "e"], modo: "cualquiera", tipo: "meta", name: "Una costumbre que nos junte sin avisar", icon: "star", days: 180, xp: 350 }
     ] },
-  { id: "trabajo", proyectos: ["Cambiar de trabajo", "Lanzar algo propio"],   label: "Carrera y trabajo",  icon: "wrench", color: "#9aa7b8",
+  { id: "trabajo", proyectos: ["Cambiar de trabajo", "Lanzar algo propio"],   label: "Avanzar en mi trabajo",  icon: "wrench", color: "#9aa7b8",
     skills: ["Organización", "Negociación"],
     mission: { name: "Una hora de trabajo profundo", icon: "bolt", xp: 25 },
     branch: "Trabajo",
     perks: [
-      { tipo: "hito", name: "Una hora sin interrupciones, cinco días", icon: "bolt",   days: 0,   xp: 90 },
-      { tipo: "hito", name: "Terminar eso que llevo aplazando",        icon: "flag",   days: 0,   xp: 130 },
-      { tipo: "meta", name: "Un mes cerrando lo que empiezo",          icon: "target", days: 60,  xp: 200 },
-      { tipo: "hito", name: "Pedir lo que me toca pedir",              icon: "crown",  days: 0,   xp: 250 },
-      { tipo: "meta", name: "Certificarme en lo mío",                  icon: "trophy", days: 180, xp: 400 }
+      { k: "a", tipo: "hito", name: "Una hora sin interrupciones, cinco días", icon: "bolt",  days: 0,   xp: 90 },
+      { k: "b", req: ["a"], tipo: "hito", name: "Terminar eso que llevo aplazando", icon: "flag", days: 0, xp: 130 },
+      { k: "c", req: ["a"], tipo: "hito", name: "Dejar escrito el día siguiente, una semana", icon: "map", days: 0, xp: 120 },
+      { k: "d", req: ["b"], tipo: "meta", name: "Un mes cerrando lo que empiezo", icon: "target", days: 60, xp: 200 },
+      { k: "e", req: ["c"], tipo: "hito", name: "Pedir lo que me toca pedir",   icon: "crown",  days: 0,   xp: 250 },
+      { k: "f", req: ["d", "e"], modo: "cualquiera", tipo: "meta", name: "Certificarme en lo mío", icon: "trophy", days: 180, xp: 400 }
     ] }
 ];
 
@@ -185,7 +230,7 @@ function renderOnboarding() {
 
 /* ---- Los ejemplos de la pregunta 3 ----
    Salen de lo que la persona acaba de elegir en la pregunta 1, no de una lista
-   general: quien marcó «Casa y cocina» y «Ordenar mi dinero» no tiene por qué
+   general: quien marcó «Cocinar en casa» y «Ordenar mi dinero» no tiene por qué
    ver «Cambiar de trabajo» entre las ideas.
 
    Existen porque esa pantalla era la única de las tres que pedía ESCRIBIR
@@ -246,6 +291,11 @@ function buildFromOnboarding() {
      se usaba aquí y se perdía: la habilidad que crearas mañana volvía al punto
      medio sin avisar, y no había ninguna pantalla donde ver qué elegiste. */
   state.settings.exigencia = EXIGENCIAS[onboardPick.pace] ? onboardPick.pace : EXIGENCIA_POR_DEFECTO;
+  /* Y queda constancia de que se contestó. Es lo que apaga la recomendación
+     de los cinco carteles vacíos (`bienvenidaPendiente`, js/01-base.js): sin
+     esta marca, terminar la bienvenida y borrar luego las misiones volvería a
+     ofrecer la bienvenida en menta, como si no hubiera pasado nada. */
+  state.settings.bienvenida = todayKey();
   const ex = exigenciaActual();
   const grace = ex.grace;
   const decay = ex.decay;
@@ -293,30 +343,39 @@ function buildFromOnboarding() {
       createdAt: today
     });
 
-    /* Encadenados, y por eso se crean en orden guardando el id del previo:
-       `uid()` no existe hasta crear el nodo. El primero sale sin requisitos
-       —el único que el lienzo dibuja encendido— y los otros cuatro con
-       candado, que es lo que los vuelve camino en vez de lista de deberes.
-       Antes era UN talento suelto por área, y una rama con un solo nodo en
-       medio del lienzo no se lee como un comienzo: se lee como un error. */
-    let anterior = null;
-    /* `nodo` y no `t`: `t` era el nombre de esta variable y desde que existe
-       el motor de idiomas hay una función global que se llama `tx` —con una
-       variable local llamada igual, la traducción de aquí dentro habría
-       reventado en silencio—. */
+    /* En rombo, y por eso hace falta una tabla de equivalencias: los
+       requisitos vienen escritos con las llaves cortas de `ONBOARD_AREAS`
+       ("d" va después de "b") y el id de verdad no existe hasta crear el
+       nodo. Como los padres van antes que los hijos en la lista, para cuando
+       toca traducir el requisito su id ya está en `ids`.
+
+       El `filter` no sobra aunque hoy no descarte nada: una llave mal escrita
+       daría `undefined`, y un requisito indefinido deja el nodo con candado
+       para siempre sin ninguna forma de abrirlo desde la app.
+
+       `modo` viaja porque la cima se abre con CUALQUIERA de los dos caminos.
+       En "todos" habría que terminar las dos rutas enteras para verla, que es
+       exactamente la fila de seis que se quería evitar, solo que más larga.
+
+       Y la variable se llama `paso` y no `t`: desde que existe el motor de
+       idiomas hay una función global llamada `tx`, y una local parecida aquí
+       dentro es justo el despiste que revienta una traducción en silencio. */
+    const ids = {};
     a.perks.forEach(paso => {
       const rama = tx(a.branch);
       const nodo = {
         id: uid(), name: tx(paso.name), branch: rama, desc: "",
         tipo: paso.tipo, cost: 0, planDays: paso.days, steps: [],
-        skillId: skill.id, xpReward: paso.xp, requiere: anterior ? [anterior] : [], modo: "todos",
+        skillId: skill.id, xpReward: paso.xp,
+        requiere: (paso.req || []).map(k => ids[k]).filter(Boolean),
+        modo: paso.modo === "cualquiera" ? "cualquiera" : "todos",
         icon: paso.icon, color: a.color,
         status: null, startDate: null, endDate: null, completedAt: null,
         investedTotal: 0, progress: 0, createdAt: today,
         history: [{ date: today, at: stamp(), event: T`Talento creado en la rama ${rama}` }]
       };
       state.perks.push(nodo);
-      anterior = nodo.id;
+      ids[paso.k] = nodo.id;
     });
   });
 
