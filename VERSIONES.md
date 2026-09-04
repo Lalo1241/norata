@@ -76,6 +76,48 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.74.2 · 3 sep 2026
+
+**Siete días para los tres planes, y el reembolso deja de depender de cómo se
+llame el suceso en Stripe.** Dos cosas de la misma conversación.
+
+**Lo primero lo decidió Eduardo:** la garantía era de 7 días en Pro y 30 en
+Fundador, y la unificó en 7 para todos. Así que ahora es UN número
+(`GARANTIA_DIAS`) y no dos: una constante con dos claves iguales invita a que
+alguien las vuelva a separar sin saber que ya se decidió. La frase se acorta
+sola —«te devolvemos los primeros 7 días»— y de paso mejora: una promesa que
+tenía que explicar a qué plan aplicaba cada plazo dejaba de tranquilizar, que es
+lo único que vino a hacer. Cambiado también en la página de términos, que es el
+tercer sitio donde vive el número y el único que no lee la constante.
+
+**Y lo segundo salió de que no funcionara:** Eduardo fue a marcar
+`charge.refunded` en su panel de Stripe y **ese suceso no estaba en la lista**.
+No era un error suyo — según la versión de API del endpoint y de si la cuenta
+usa el panel nuevo, Stripe ofrece `charge.refunded`, `refund.created`,
+`refund.updated`, o solo algunos.
+
+Es exactamente el fallo que este proyecto ya tiene escrito en su `CLAUDE.md`:
+**dar por hecho el comportamiento del servidor.** El código estaba bien y no
+iba a correr nunca, porque el nombre no estaba donde yo dije que estaría, y sin
+ninguna señal de que faltara.
+
+Ahora la función atiende **los tres nombres**. Diez líneas, y quitan la
+dependencia entera: se marca el que ofrezca el panel, o los tres, que tampoco
+duplica nada —lo que se escribe es un estado final y no un incremento, así que
+repetirlo deja la fila igual—.
+
+Lo que sí cambia entre ellos es la forma: **un aviso de `refund.*` no trae el
+cargo, trae el reembolso**, que es otro objeto. Así que primero se normaliza
+—se le pide a Stripe el cargo del que cuelga— y de ahí para abajo el código es
+el mismo para los tres. Con una parada más por el camino: un reembolso puede
+nacer pendiente y tardar días en completarse, y hasta que Stripe no diga
+`succeeded` no se le quita el plan a nadie. `refund.updated` vuelve a avisar
+cuando cambie.
+
+**Dónde se marcan, que tampoco está donde uno cree:** Webhooks → el endpoint →
+los tres puntos → «Update details». La pestaña «Eventos» del panel es el
+registro de lo que ya llegó, no el selector.
+
 ### 0.7.74.1 · 3 sep 2026
 
 **La garantía de devolución, escrita donde se decide pagar.** Existía en los
