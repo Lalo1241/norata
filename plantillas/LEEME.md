@@ -108,11 +108,11 @@ de estos métodos —Fogg (2019), desde el Behavior Design Lab de Stanford, y Cl
 es hacer la conducta tan pequeña que sea casi imposible fallar, lo cual es una
 tesis sobre cómo debería comportarse el módulo entero.
 
-Y con el matiz honesto: **hay una revisión de 2024 (Gardner, Rebar, de Wit y
-Lally) que sostiene que formar el hábito, por sí solo, puede no bastar** para
-sostener un cambio real. *Su referencia completa está sin verificar y no debe
-usarse en público hasta comprobarla.* No es una plantilla; es un hilo aparte que
-conviene abrir antes de la beta.
+Y con el matiz honesto: **Gardner, Rebar, de Wit y Lally (2024) sostienen que
+formar el hábito, por sí solo, puede no bastar** para sostener un cambio real —
+el contexto y la oportunidad pesan tanto como la repetición. Verificado el 3 de
+septiembre de 2026; la referencia completa está abajo. No es una plantilla: es un
+hilo aparte, y va a **Misiones**.
 
 ## Qué tan respaldada está cada una
 
@@ -742,6 +742,11 @@ apuntado para las Misiones.)
 Fogg, B. J. (2019). *Tiny Habits: The Small Changes That Change Everything*.
 Houghton Mifflin Harcourt. (Como el anterior: apuntado para las Misiones.)
 
+Gardner, B., Rebar, A. L., de Wit, S., y Lally, P. (2024). What is habit and how
+can it be used to change real-world behaviour? Narrowing the theory-reality gap.
+*Social and Personality Psychology Compass*.
+https://doi.org/10.1111/spc3.12975
+
 Gal, D., y McShane, B. B. (2012). Can small victories help win the war? Evidence
 from consumer debt management. *Journal of Marketing Research*.
 
@@ -767,11 +772,6 @@ https://www.ramseysolutions.com/debt/debt-snowball-vs-debt-avalanche
 recurso comunitario), *Certificarme* (la fuente es quien examina, y cambia con
 cada certificación) y *Mudarme de país* (el consulado o el ministerio del país
 de destino).
-
-**Pendiente de verificar antes de usarla en público:** una revisión de 2024 de
-Gardner, Rebar, de Wit y Lally sobre si formar el hábito basta por sí solo para
-sostener un cambio de conducta. Se menciona arriba como advertencia y **no se
-cita como fuente** hasta comprobar título, revista y páginas.
 
 ## El descargo, que va donde se listen los caminos
 
