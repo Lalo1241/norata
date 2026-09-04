@@ -55,16 +55,16 @@ function renderSummary() {
     el.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("compass", 34)}</div>
-        <h2>Tu expedición empieza aquí</h2>
-        <p>Convierte tu vida en un videojuego: misiones que haces hoy, habilidades que suben con la práctica, talentos que compras con dinero real y proyectos que avanzan por etapas.</p>
+        <h2>${tx("Tu expedición empieza aquí")}</h2>
+        <p>${tx("Convierte tu vida en un videojuego: misiones que haces hoy, habilidades que suben con la práctica, talentos que compras con dinero real y proyectos que avanzan por etapas.")}</p>
         <div class="stack" style="align-items:center">
-          <button class="btn btn-primary" onclick="startOnboarding()">Armar mi tablero en 3 preguntas</button>
-          <button class="btn btn-ghost" onclick="verElEjemplo()">Ver un ejemplo completo</button>
+          <button class="btn btn-primary" onclick="startOnboarding()">${tx("Armar mi tablero en 3 preguntas")}</button>
+          <button class="btn btn-ghost" onclick="verElEjemplo()">${tx("Ver un ejemplo completo")}</button>
           <!-- Tres botones del mismo peso en la pantalla más vacía es una
                decisión de más, y encima la tercera se salta lo único que aquí
                enseña algo. Sigue estando —hay quien no quiere asistentes— pero
                pesa como lo que es: una salida, no una opción a la par. -->
-          <button class="suelto" onclick="openSkillForm()">Empezar de cero</button>
+          <button class="suelto" onclick="openSkillForm()">${tx("Empezar de cero")}</button>
         </div>
       </div>`;
     return;
@@ -82,7 +82,7 @@ function renderSummary() {
     ...dueList.map(p => `
       <button class="att-item" onclick="openPerk('${p.id}')">
         <span class="dot" style="background:var(--fire-soft);color:var(--fire)">${icon("flag", 17)}</span>
-        <span class="tx"><b>${escapeHtml(p.name)}</b><span>El plan venció — confirma si lo lograste</span></span>
+        <span class="tx"><b>${escapeHtml(p.name)}</b><span>${tx("El plan venció — confirma si lo lograste")}</span></span>
         <span class="go">→</span>
       </button>`),
     ...decayingList.map(s => {
@@ -106,7 +106,7 @@ function renderSummary() {
     attention.push(`
       <button class="att-item" onclick="showView('home')">
         <span class="dot" style="background:var(--mint-soft);color:var(--mint)">${icon("flame", 17)}</span>
-        <span class="tx"><b>Aún no registras práctica hoy</b><span>Una sesión corta mantiene viva tu racha</span></span>
+        <span class="tx"><b>${tx("Aún no registras práctica hoy")}</b><span>${tx("Una sesión corta mantiene viva tu racha")}</span></span>
         <span class="go">→</span>
       </button>`);
   }
@@ -212,7 +212,7 @@ function renderSummary() {
                       hoy, el récord viejo solo puede hacer dos cosas, y las
                       dos sobran — recordarte que ya lo hiciste mejor, o
                       encogerse cuando el de hoy lo supera. */""}
-                <span class="lbl">día${stk.cur === 1 ? "" : "s"}<br>de racha</span>
+                <span class="lbl">día${stk.cur === 1 ? "" : "s"}<br>${tx("de racha")}</span>
                 ${/* Cada cifra con su barra. Es la de Mi expedición
                       —`.barra-viva`, con su punta encendida y su estela— y
                       está aquí porque le gustó a Eduardo y porque estas dos
@@ -228,7 +228,7 @@ function renderSummary() {
                   <div>
                     <b>${activosSemana}<span>/${diasCorridos}</span></b>
                     <div class="barra-viva sg-barra"><i style="--p:${Math.round(activosSemana / Math.max(1, diasCorridos) * 100)}%;--c:var(--fire)"></i></div>
-                    <span>esta semana</span>
+                    <span>${tx("esta semana")}</span>
                   </div>
                   <div>
                     <b>${activosMes}<span>/${diasMes.length}</span></b>
@@ -280,7 +280,7 @@ function renderSummary() {
         <div class="panel ms-today ms-hueca">
           <div class="mt-head">
             <div class="mt-tx">
-              <b>Misiones de hoy</b>
+              <b>${tx("Misiones de hoy")}</b>
               <span>${tiene ? "Hoy no te toca ninguna" : "Todavía no tienes ninguna"}</span>
             </div>
             <button class="btn ${tiene ? "btn-linea" : "btn-soft"} btn-sm" onclick="${
@@ -304,10 +304,10 @@ function renderSummary() {
             <div class="ring-center"><div class="v" style="font-size:15px"><b>${done.length}/${due.length}</b></div></div>
           </div>
           <div class="mt-tx">
-            <b>Misiones de hoy</b>
+            <b>${tx("Misiones de hoy")}</b>
             <span>${pend.length === 0 ? "Todas cumplidas" : `${pend.length} pendiente${pend.length === 1 ? "" : "s"}`}</span>
           </div>
-          <button class="btn btn-soft btn-sm" onclick="showView('missions')">Ver todas</button>
+          <button class="btn btn-soft btn-sm" onclick="showView('missions')">${tx("Ver todas")}</button>
         </div>
         ${/* Lo pendiente primero y lo cumplido después, pero cumplido a la
               vista: esto es un resumen del día, y un día del que ya
@@ -359,7 +359,7 @@ function renderSummary() {
              (() => {
                const a = metricasHabilidades(ventanaDe(7, 0));
                const b = metricasHabilidades(ventanaDe(7, 1));
-               return `<div><b>${fmtXp(a.ganada)}</b><span>XP · 7 DÍAS</span>${
+               return `<div><b>${fmtXp(a.ganada)}</b><span>${tx("XP · 7 DÍAS")}</span>${
                  flechaHTML(variacion(a.ganada, b.ganada), "XP ganada frente a los 7 días anteriores")}</div>`;
              })()}
           ${decayingList.length ? `<div><b style="color:var(--fire)">${decayingList.length}</b><span>DECAYENDO</span></div>` : ""}
@@ -432,7 +432,7 @@ function renderSummary() {
         <div class="n">${permanentes}</div>
         <div class="t">${permanentes === 1 ? "talento ya es tuyo" : "talentos ya son tuyos"}</div>
         <div class="sc-rows">
-          <div><b${enCurso ? ` style="color:var(--fire)"` : ""}>${enCurso}</b><span>EN CURSO</span></div>
+          <div><b${enCurso ? ` style="color:var(--fire)"` : ""}>${enCurso}</b><span>${tx("EN CURSO")}</span></div>
           <div><b>${moneyHTML(invested)}</b><span>INVERTIDO</span></div>
         </div>
         ${cerca ? `<div class="sc-near">
@@ -468,14 +468,14 @@ function renderSummary() {
 
     atencion: () => `
       <div class="panel">
-        <h3>Atención hoy</h3>
-        ${attention.length ? attention.join("") : `<p class="settings-note" style="margin:0">Todo bajo control. Nada urge hoy — sigue explorando.</p>`}
+        <h3>${tx("Atención hoy")}</h3>
+        ${attention.length ? attention.join("") : `<p class="settings-note" style="margin:0">${tx("Todo bajo control. Nada urge hoy — sigue explorando.")}</p>`}
       </div>`,
 
     listos: () => !readyList.length ? "" : `
       <div class="panel alt ready-panel">
-        <h3>Listos para empezar</h3>
-        <p class="settings-note">Estos talentos están desbloqueados y esperando. Empieza uno para ponerlo en progreso.</p>
+        <h3>${tx("Listos para empezar")}</h3>
+        <p class="settings-note">${tx("Estos talentos están desbloqueados y esperando. Empieza uno para ponerlo en progreso.")}</p>
         <div class="ready-grid">
           ${readyList.slice(0, 6).map(p => `
             <button class="ready-chip" onclick="openPerk('${p.id}')" style="${tonos("rc", p.color)}">
@@ -1565,7 +1565,7 @@ function dashTray(hidden) {
           ? `Arrastra para acomodar · esquina inferior derecha para cambiar el tamaño · ✕ para quitar · <kbd>Ctrl</kbd><kbd>Z</kbd> deshacer`
           : `Elige con qué quieres encontrarte al abrir la app. Acomodar tarjeta por tarjeta llegará más adelante, con un gesto pensado para el teléfono.`}</p>
       </div>
-      <button class="btn btn-primary" onclick="setDashEdit(false)">Listo</button>
+      <button class="btn btn-primary" onclick="setDashEdit(false)">${tx("Listo")}</button>
     </div>
     ${avail.length ? `
       <div class="tray-chips">
@@ -1916,7 +1916,7 @@ function renderHome() {
   document.getElementById("home-hero").innerHTML = skills.length === 0 ? "" : sectionHero({
     scene: scene(820, 168, 23),
     lead: `<div>
-      <div class="label">Nivel de tu personaje</div>
+      <div class="label">${tx("Nivel de tu personaje")}</div>
       <div class="big"><b>${totalLevels}</b><span> niveles</span></div>
     </div>`,
     /* Los cuatro huecos los decide el motor de informes: números del periodo
@@ -1988,11 +1988,11 @@ function renderHome() {
     list.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("star", 34)}</div>
-        <h2>Sin habilidades todavía</h2>
-        <p>Empieza por el catálogo: verlas en cero es lo que te recuerda que existen. Luego puedes crear las tuyas.</p>
+        <h2>${tx("Sin habilidades todavía")}</h2>
+        <p>${tx("Empieza por el catálogo: verlas en cero es lo que te recuerda que existen. Luego puedes crear las tuyas.")}</p>
         <div class="stack" style="align-items:center">
-          <button class="btn btn-primary" onclick="openCatalogo()">Ver el catálogo</button>
-          <button class="btn btn-ghost" onclick="openSkillForm()">Crear una a mano</button>
+          <button class="btn btn-primary" onclick="openCatalogo()">${tx("Ver el catálogo")}</button>
+          <button class="btn btn-ghost" onclick="openSkillForm()">${tx("Crear una a mano")}</button>
         </div>
       </div>`;
     return;
@@ -2142,12 +2142,12 @@ function loQueSostiene(cur) {
         <div class="sgh-p">Te ${hito.faltan === 1 ? "falta 1 día" : "faltan " + hito.faltan + " días"}</div>
       </div>` : `
       <div class="sg-hito">
-        <div class="rc-rot">Los hitos</div>
-        <div class="sgh-p">Pasaste el último de la lista. A partir de aquí, cada día es récord.</div>
+        <div class="rc-rot">${tx("Los hitos")}</div>
+        <div class="sgh-p">${tx("Pasaste el último de la lista. A partir de aquí, cada día es récord.")}</div>
       </div>`}
     ${filas.length ? `
       <div class="sg-sostiene">
-        <div class="rc-rot">Qué la sostiene</div>
+        <div class="rc-rot">${tx("Qué la sostiene")}</div>
         ${filas.map(f => `
           <div class="sgs">
             <span class="sgs-n">${escapeHtml(f.nombre)}</span>
@@ -2218,14 +2218,14 @@ function renderHomeTools() {
   if (seleccionHab) {
     const n = seleccionHab.size;
     el.innerHTML = `
-      <button class="btn btn-ghost hb-b" onclick="toggleSeleccionHab()">Cancelar</button>
+      <button class="btn btn-ghost hb-b" onclick="toggleSeleccionHab()">${tx("Cancelar")}</button>
       <button class="btn btn-danger-ghost hb-b" ${n ? "" : "disabled"} onclick="borrarSeleccionHab()">
         ${n ? `Borrar ${n}` : "Marca alguna"}
       </button>`;
     return;
   }
   el.innerHTML = `
-    <button class="btn btn-soft hb-b" onclick="openCatalogo()">＋ Del catálogo</button>
+    <button class="btn btn-soft hb-b" onclick="openCatalogo()">${tx("＋ Del catálogo")}</button>
     <button class="btn btn-ghost hb-b" onclick="toggleSeleccionHab()">Seleccionar</button>`;
 }
 
@@ -2495,7 +2495,7 @@ function refrescarSugerencias(pref) {
 
   const lista = sugerirHabilidades(titulo, rama);
   if (!lista.length) {
-    cont.innerHTML = `<span class="sug-nada">No sé cuál encaja con ese nombre; elígela tú si quieres.</span>`;
+    cont.innerHTML = `<span class="sug-nada">${tx("No sé cuál encaja con ese nombre; elígela tú si quieres.")}</span>`;
     sugActual[pref] = null;
     return;
   }
@@ -2504,10 +2504,10 @@ function refrescarSugerencias(pref) {
   if (sel && !sel.value) { sel.value = lista[0].s.id; sugActual[pref] = lista[0].s.name; }
   else if (!sugActual[pref]) sugActual[pref] = lista[0].s.name;
 
-  cont.innerHTML = `<span class="sug-tit">Sube:</span>` + lista.map(x => `
+  cont.innerHTML = `<span class="sug-tit">${tx("Sube:")}</span>` + lista.map(x => `
     <button type="button" class="sug-chip ${sel && sel.value === x.s.id ? "on" : ""}"
       style="${tonos("sc", x.s.color)}" onclick="elegirSugerencia('${pref}','${x.s.id}')">
-      ${escapeHtml(x.s.name)}${x.porRama ? ' <i>por la rama</i>' : ''}
+      ${escapeHtml(x.s.name)}${x.porRama ? ` <i>${tx("por la rama")}</i>` : ""}
     </button>`).join("");
 }
 
@@ -2584,7 +2584,7 @@ function renderCatalogo() {
           <h3>${escapeHtml(cat)}</h3>
           ${libres.length ? `<button class="cat-all" onclick="toggleCatalogoCat('${enJS(cat)}')">
             ${libres.every(x => catalogoSel.has(x.n)) ? "Quitar todas" : "Todas"}
-          </button>` : `<span class="cat-done">ya las tienes</span>`}
+          </button>` : `<span class="cat-done">${tx("ya las tienes")}</span>`}
         </div>
         <div class="cat-grid">
           ${dentro.map(x => {
@@ -2602,7 +2602,7 @@ function renderCatalogo() {
       </div>`;
     }).join("")}
     <div class="cat-bar">
-      <button class="btn btn-ghost" onclick="showView('home')">Cancelar</button>
+      <button class="btn btn-ghost" onclick="showView('home')">${tx("Cancelar")}</button>
       <button class="btn btn-primary" ${n ? "" : "disabled"} onclick="añadirDelCatalogo()">
         ${n ? `Añadir ${n} habilidad${n === 1 ? "" : "es"}` : "Elige alguna"}
       </button>
@@ -2730,7 +2730,7 @@ function sectionHero({ scene, lead, stats, focus, informe }) {
                 no escribe nada: solo lleva a mirar (ver los seis niveles de
                 botón). Es lo que permite que el panel se quede pequeño: todo
                 lo que no cabe arriba vive detrás de este botón. */
-             informe ? `<button class="btn btn-linea sh-informe" onclick="abrirInforme('${informe}')">Ver el informe</button>` : ""}
+             informe ? `<button class="btn btn-linea sh-informe" onclick="abrirInforme('${informe}')">${tx("Ver el informe")}</button>` : ""}
         </div>
       </div>
     </div>`;
@@ -2763,7 +2763,7 @@ function branchMenu(key, items) {
   if (!items.length) return "";
   return `
     <div class="bmenu-wrap">
-      <button class="badd solid" onclick="toggleBranchMenu('${enJS(key)}', event)" aria-label="Más opciones de esta rama" aria-haspopup="true">
+      <button class="badd solid" onclick="toggleBranchMenu('${enJS(key)}', event)" aria-label="${escapeAttr(tx("Más opciones de esta rama"))}" aria-haspopup="true">
         <svg viewBox="0 0 24 24">${BM_ICONS.puntos}</svg>
       </button>
       <div class="bmenu" data-menu="${escapeAttr(key)}">
@@ -3027,7 +3027,7 @@ function branchHeader(name, countLabel, buttons) {
   return `
     <div class="branch-head">
       <div class="btitle">
-        <span class="branch-kicker">Rama</span>
+        <span class="branch-kicker">${tx("Rama")}</span>
         <h3>${escapeHtml(name)}</h3>
       </div>
       <span class="count">${countLabel}</span>

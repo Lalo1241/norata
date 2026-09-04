@@ -396,5 +396,271 @@ const TEXTOS_EN = {
   "Terminar eso que llevo aplazando": "Finish the thing I keep putting off",
   "Un mes cerrando lo que empiezo": "A month closing what I start",
   "Pedir lo que me toca pedir": "Ask for what I'm owed",
-  "Certificarme en lo mío": "Get certified in my field"
+  "Certificarme en lo mío": "Get certified in my field",
+
+  /* ================= Tanda 2 =================
+     El Resumen, la puerta, el detalle, los formularios y los talentos.
+     Salieron de envolver con `tx()` el texto de cinco archivos y de partir
+     a mano las frases que llevaban datos dentro.
+
+     Dos cosas que se aprendieron envolviendo, y que valen para la tanda
+     siguiente:
+
+     - **Los trozos sueltos son un riesgo, no un ahorro.** «Te quedan» + un
+       número + «días de gracia» parece traducible por partes hasta que el
+       inglés quiere el número en otro sitio. Lo que lleva datos dentro va
+       con `` T`` `` y una sola clave con `{0}`.
+     - **El singular y el plural son DOS claves.** «Te queda 1 día» y «te
+       quedan 3 días» ya eran dos frases en español; fingir que son una sola
+       obliga al inglés a elegir entre «day» y «days» sin saber cuál toca. */
+
+  "Tu expedición empieza aquí": "Your journey starts here",
+  "Convierte tu vida en un videojuego: misiones que haces hoy, habilidades que suben con la práctica, talentos que compras con dinero real y proyectos que avanzan por etapas.":
+    "Turn your life into a video game: missions you do today, skills that rise with practice, talents you buy with real money, and projects that advance stage by stage.",
+  "Armar mi tablero en 3 preguntas": "Build my board in 3 questions",
+  "Ver un ejemplo completo": "See a full example",
+  "Empezar de cero": "Start from scratch",
+  "El plan venció — confirma si lo lograste": "The plan is up — confirm whether you made it",
+  "Aún no registras práctica hoy": "You haven't logged any practice today",
+  "Una sesión corta mantiene viva tu racha": "A short session keeps your streak alive",
+  "de racha": "streak",
+  "esta semana": "this week",
+  "Misiones de hoy": "Today's missions",
+  "Ver todas": "See all",
+  "XP · 7 DÍAS": "XP · 7 DAYS",
+  "EN CURSO": "IN PROGRESS",
+  "Atención hoy": "Needs you today",
+  "Todo bajo control. Nada urge hoy — sigue explorando.":
+    "All under control. Nothing is urgent today — keep exploring.",
+  "Listos para empezar": "Ready to start",
+  "Estos talentos están desbloqueados y esperando. Empieza uno para ponerlo en progreso.":
+    "These talents are unlocked and waiting. Start one to put it in progress.",
+  "Listo": "Done",
+  "Nivel de tu personaje": "Your character's level",
+  "Sin habilidades todavía": "No skills yet",
+  "Empieza por el catálogo: verlas en cero es lo que te recuerda que existen. Luego puedes crear las tuyas.":
+    "Start with the catalog: seeing them at zero is what reminds you they exist. Then you can create your own.",
+  "Ver el catálogo": "See the catalog",
+  "Crear una a mano": "Create one by hand",
+  "Los hitos": "Milestones",
+  "Pasaste el último de la lista. A partir de aquí, cada día es récord.":
+    "You passed the last one on the list. From here on, every day is a record.",
+  "Qué la sostiene": "What holds it up",
+  "＋ Del catálogo": "＋ From the catalog",
+  "No sé cuál encaja con ese nombre; elígela tú si quieres.":
+    "I don't know which one fits that name; pick it yourself if you want.",
+  "por la rama": "via the branch",
+  "ya las tienes": "you already have them",
+  "Ver el informe": "See the report",
+  "Más opciones de esta rama": "More options for this branch",
+  "Sube:": "Raises:",
+  "Crear tu cuenta": "Create your account",
+  "¿Cómo te llamas?": "What's your name?",
+  "¿Cómo te decimos?": "What should we call you?",
+  "Tu correo": "Your email",
+  "Contraseña": "Password",
+  "Repítela": "Type it again",
+  "Crear cuenta": "Create account",
+  "Te mandaré un correo para confirmar que la dirección es tuya. Hasta que lo abras, la cuenta no se activa.":
+    "I'll send you an email to confirm the address is yours. The account isn't active until you open it.",
+  "¿Ya tienes una?": "Already have one?",
+  "Entra aquí": "Sign in here",
+  "Esta cuenta se va a borrar": "This account is set to be deleted",
+  "Pediste borrar": "You asked to delete",
+  ", y se hará el": ", and it will happen on",
+  ". Hasta ese día puedes recuperarla con todo tu progreso intacto.":
+    ". Until that day you can recover it with all your progress intact.",
+  "Borrarla ahora, sin esperar": "Delete it now, without waiting",
+  "Dejarlo como está y salir": "Leave it as it is and exit",
+  "Gracias por el tiempo que le diste a Norata. Lo que aprendiste jugando a esto sigue siendo tuyo, esté o no la app de por medio.":
+    "Thank you for the time you gave Norata. What you learned playing this is still yours, with or without the app in between.",
+  "Volver a entrar": "Sign back in",
+  "Revisa tu correo": "Check your email",
+  "Le mandé un mensaje a": "I sent a message to",
+  ". Ábrelo, pulsa el enlace, y vuelve aquí a entrar.":
+    ". Open it, tap the link, and come back here to sign in.",
+  "Ya lo confirmé: entrar": "I confirmed it: sign in",
+  "Reenviar el correo": "Send the email again",
+  "Si no aparece en unos minutos, míralo en la carpeta de no deseado.":
+    "If it doesn't show up in a few minutes, check your spam folder.",
+  "Escribe tu contraseña y sigues donde lo dejaste.":
+    "Type your password and you're right where you left off.",
+  "Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.":
+    "Your life as a video game: skills that rise with practice and goals that actually move.",
+  "¿Olvidaste tu contraseña?": "Forgot your password?",
+  "¿Todavía no tienes cuenta?": "Don't have an account yet?",
+  "Créala aquí": "Create one here",
+  "Continuar con Google": "Continue with Google",
+  "Elige tu contraseña nueva. Con ella entrarás en todos tus dispositivos.":
+    "Choose your new password. You'll use it to sign in on all your devices.",
+  "Contraseña nueva": "New password",
+  "Guardar y entrar": "Save and sign in",
+  "Mostrar la contraseña": "Show the password",
+  "Volver a iniciar sesión": "Back to sign in",
+  "Tu nombre": "Your name",
+  "Tu apodo": "Your nickname",
+  "tu@correo.com": "you@email.com",
+  "Sin misiones todavía": "No missions yet",
+  "Las misiones son lo que haces hoy: pequeñas, repetibles y con recompensa. Son las que mantienen viva tu racha y hacen subir tus habilidades sin que lo notes.":
+    "Missions are what you do today: small, repeatable and rewarding. They're what keeps your streak alive and raises your skills without you noticing.",
+  "Crear mi primera misión": "Create my first mission",
+  "una vez": "once",
+  "del día": "of the day",
+  "Arrastra una misión de una columna a otra: a la semana queda pospuesta, a las terminadas queda cerrada. El ＋ de cada columna crea una misión ya puesta ahí.":
+    "Drag a mission from one column to another: to the week it's postponed, to done it's closed. Each column's ＋ creates a mission already placed there.",
+  "Sin proyectos todavía": "No projects yet",
+  "Un proyecto es algo que estás construyendo y que avanza por encargos divididos en etapas. La app mide tu ritmo y te dice cuáles proyectos siguen vivos y cuáles te conviene soltar.":
+    "A project is something you're building that advances through assignments split into stages. The app measures your pace and tells you which projects are still alive and which are worth letting go.",
+  "Crear mi primer proyecto": "Create my first project",
+  "Avance de lo que construyes": "Progress on what you're building",
+  "Decisión pendiente": "Decision pending",
+  "Estos encargos llevan mucho sin avanzar. Retomarlos o soltarlos libera tu atención — dejarlos en el limbo es lo único que no ayuda.":
+    "These assignments haven't moved in a long time. Picking them up or letting them go frees your attention — leaving them in limbo is the only thing that doesn't help.",
+  "Arrastra aquí el encargo que quieras, o crea uno con el ＋.":
+    "Drag any assignment here, or create one with the ＋.",
+  "Todavía no hay encargos en este proyecto. Créale el primero con el ＋.":
+    "There are no assignments in this project yet. Create the first one with the ＋.",
+  "Arrastra para acomodar · tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo":
+    "Drag to arrange · pull the ▸ dot onto another assignment to put it after · tap a line to cut it · the circle",
+  "cambia si hacen falta todos sus requisitos o basta uno":
+    "switches between needing all its requirements or just one",
+  "Toca un encargo para abrirlo · arrástralo para acomodarlo · clic derecho para conectar, crear y más":
+    "Tap an assignment to open it · drag it to arrange it · right-click to connect, create and more",
+  "Sin etapas todavía. Divide el encargo en pasos concretos para poder medir su avance.":
+    "No stages yet. Break the assignment into concrete steps so its progress can be measured.",
+  "Dar por terminado": "Mark as finished",
+  "Pausar por ahora": "Pause for now",
+  "Sin movimientos todavía.": "No activity yet.",
+  "Va después de": "Comes after",
+  "Basta con que termine cualquiera de ellos.": "Any one of them finishing is enough.",
+  "Hacen falta todos.": "All of them are needed.",
+  "Se cambia en el mapa, con el círculo <b>Y/O</b>.":
+    "You change it on the map, with the <b>Y/O</b> circle.",
+  "Este encargo <b>espera su turno</b>: no lo puedes avanzar hasta que termine lo de arriba.":
+    "This assignment <b>waits its turn</b>: you can't move it forward until the ones above are done.",
+  "Este encargo esperaba su turno, y ya le toca.":
+    "This assignment was waiting its turn, and now it's up.",
+  "Este encargo <b>solo va después</b>: la app deja de sugerírtelo hasta que toque, pero puedes adelantarlo cuando quieras.":
+    "This assignment <b>just comes later</b>: the app stops suggesting it until its time, but you can move it up whenever you want.",
+  "Dejar que lo adelante": "Let me move it up",
+  "Que espere su turno": "Make it wait its turn",
+  "ÚLTIMO AVANCE": "LAST PROGRESS",
+  "espera su turno": "waits its turn",
+  "solo va después": "just comes later",
+  "Sin estrenar.": "Not started.",
+  "Sin estrenar todavía: nada que perder hasta que registres tu primera práctica.":
+    "Not started yet: nothing to lose until you log your first practice.",
+  "En decaimiento:": "Decaying:",
+  "Habilidad blindada: nunca pierde XP.": "Protected skill: it never loses XP.",
+  "Te quedan": "You have",
+  "Todavía no hay actividad registrada.": "No activity logged yet.",
+  "Registrar práctica": "Log practice",
+  "Registro cerrado por hoy: ya sumaste medio día de práctica en esta habilidad.":
+    "Logging is closed for today: you've already added half a day of practice to this skill.",
+  "Registrar y ganar XP": "Log it and earn XP",
+  "Marca los movimientos que quieras quitar. Se devolverá su XP.":
+    "Check the entries you want to remove. Their XP will be given back.",
+  "Qué alimenta esta habilidad": "What feeds this skill",
+  "Nada apunta aquí todavía. Cuando vincules una misión, un talento o un encargo a":
+    "Nothing points here yet. When you link a mission, a talent or an assignment to",
+  ", aparecerán en esta lista y su XP subirá sola.":
+    ", they'll show up in this list and its XP will rise on its own.",
+  "Crear una misión diaria": "Create a daily mission",
+  "Crear un talento": "Create a talent",
+  "Quitar una vez de hoy": "Remove one of today's",
+  "Editar habilidad": "Edit skill",
+  "¿Qué hiciste? Ej. Terminé módulo 2 del curso":
+    "What did you do? e.g. Finished module 2 of the course",
+  "Seleccionar movimientos para quitar": "Select entries to remove",
+  "Tu mapa está por trazarse": "Your map is waiting to be drawn",
+  "Un talento es una meta con inversión real: un curso, un equipo, una certificación. Al pagarla arranca un plan con fecha límite — si logras la meta, el talento es tuyo para siempre.":
+    "A talent is a goal with real investment: a course, a piece of gear, a certification. Paying for it starts a plan with a deadline — if you reach the goal, the talent is yours forever.",
+  "Crear mi primer talento": "Create my first talent",
+  "Ya son tuyos": "Already yours",
+  "Tus ramas de talentos": "Your talent branches",
+  "Todavía no hay talentos en esta rama. Créale el primero con el ＋.":
+    "There are no talents in this branch yet. Create the first one with the ＋.",
+  "Arrastra para acomodar ·": "Drag to arrange ·",
+  "y clic (o Shift y arrastra un recuadro) elige varios para moverlos juntos o agruparlos · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo":
+    "and click (or Shift and drag a box) picks several to move together or group · pull the ▸ dot onto another node to connect them · tap a line to cut it · the circle",
+  "Toca un nodo para abrirlo · arrástralo para acomodarlo · el círculo":
+    "Tap a node to open it · drag it to arrange it · the circle",
+  "Toca el nombre para renombrar este tablero": "Tap the name to rename this board",
+  "Toca el nombre para renombrar el proyecto": "Tap the name to rename the project",
+  "Toca el nombre para renombrar la rama": "Tap the name to rename the branch",
+  "Salir del modo edición": "Leave edit mode",
+  "COSTO": "COST",
+  "INVERTIDO TOTAL": "TOTAL INVESTED",
+  "TIPO": "TYPE",
+  "Regla de entrada": "Entry rule",
+  "a su izquierda, y ahí también se cambia de un toque.":
+    "to its left, and you can change it there with one tap too.",
+  "Todavía no tiene etapas: así, la meta entera cuenta como una sola y se cierra de una vez. Añade las que quieras y el avance se contará solo.":
+    "It has no stages yet: this way the whole goal counts as one and closes in a single go. Add as many as you like and progress will count itself.",
+  "Las etapas se marcan cuando el plan esté en curso.":
+    "Stages can be checked once the plan is running.",
+  "Tu avance": "Your progress",
+  "ella misma es la etapa": "it is its own stage",
+  "Plan de tiempo": "Time plan",
+  "Ya logré la meta": "I reached the goal",
+  "Rendirme y perder el talento": "Give up and lose the talent",
+  "El plan terminó — momento de la verdad": "The plan is over — moment of truth",
+  "Sí, lo logré — hacerlo permanente": "Yes, I made it — make it permanent",
+  "No lo logré — lo pierdo": "I didn't make it — I lose it",
+  "Dar por hecho": "Mark as done",
+  "Le falta el importe": "It's missing the amount",
+  "Una compra es una llave que se paga. Ponle cuánto costó y podrás asegurarla.":
+    "A purchase is a key you pay for. Tell me what it cost and you'll be able to secure it.",
+  "Editar y ponerle importe": "Edit it and add the amount",
+  "El plan venció sin lograr la meta. Puedes reintentarlo: volverás a invertir y arrancará un plan nuevo.":
+    "The plan ran out without the goal being reached. You can try again: you'll invest again and a new plan will start.",
+  "Este talento ya es parte de ti. Nadie te lo quita.":
+    "This talent is part of you now. Nobody takes it away.",
+  "Deshacer — no llegó a pasar": "Undo — it didn't actually happen",
+  "Este talento ya es parte de ti. Nadie te lo quita. 🎉":
+    "This talent is part of you now. Nobody takes it away. 🎉",
+  "Todavía no hay otros talentos a los que encadenarlo.":
+    "There are no other talents to chain it to yet.",
+  "Sin etapas: la meta entera será su propia etapa.":
+    "No stages: the whole goal will be its own stage.",
+  "Sin etapas todavía.": "No stages yet.",
+  "Editar talento": "Edit talent",
+  "sin terminar": "unfinished",
+  "en total": "in total",
+  "Se quedó vacía.": "It ended up empty.",
+  "Color del grupo": "Group color",
+  "Volver a guardarla": "Put it away again",
+  "Desplegarla en el mapa": "Spread it out on the map",
+  "Deshacer el grupo": "Ungroup",
+  "Borrar la caja y lo que lleva": "Delete the box and what's in it",
+  "Cerrar": "Close",
+  "Sacar del ático": "Take out of the attic",
+  "Renombrar esta caja": "Rename this box",
+  "Que lo decida su estado": "Let its status decide",
+  "<b>En decaimiento:</b> pierdes {0} XP al día. Practica hoy para frenarlo.":
+    "<b>Decaying:</b> you're losing {0} XP a day. Practice today to stop it.",
+  "Te queda <b>{0}</b> día de gracia antes de empezar a perder XP.":
+    "You have <b>{0}</b> grace day left before you start losing XP.",
+  "Te quedan <b>{0}</b> días de gracia antes de empezar a perder XP.":
+    "You have <b>{0}</b> grace days left before you start losing XP.",
+  "Arrastra para acomodar · <b>Shift</b> y clic (o Shift y arrastra un recuadro) elige varios para moverlos juntos o agruparlos · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos los requisitos o basta uno":
+    "Drag to arrange · <b>Shift</b> and click (or Shift and drag a box) picks several to move together or group · pull the ▸ dot onto another node to connect them · tap a line to cut it · the <b>Y/O</b> circle switches between needing all requirements or just one",
+  "Toca un nodo para abrirlo · arrástralo para acomodarlo · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno":
+    "Tap a node to open it · drag it to arrange it · the <b>Y/O</b> circle switches between needing all its requirements or just one",
+  "Este talento corona varios caminos: se desbloquea cuando estén completos los {0}.":
+    "This talent crowns several paths: it unlocks when all {0} are complete.",
+  "Son caminos alternativos: se desbloquea en cuanto completes cualquiera de los {0}.":
+    "These are alternative paths: it unlocks as soon as you complete any of the {0}.",
+  "En el mapa es el círculo con la letra <b>{0}</b> a su izquierda, y ahí también se cambia de un toque.":
+    "On the map it's the circle with the letter <b>{0}</b> to its left, and you can change it there with one tap too.",
+  "Esta meta no tiene etapas: <b>ella misma es la etapa</b>. Se cierra confirmándola abajo.":
+    "This goal has no stages: <b>it is its own stage</b>. You close it by confirming below.",
+  "Llevas <b>{0}%</b> — {1} de {2} etapas.": "You're at <b>{0}%</b> — {1} of {2} stages.",
+
+  /* Las tres que cazó el auditor recorriendo la app entera en inglés. */
+  "＋ Crear habilidad": "＋ Create skill",
+  /* El valor con el que nace el rótulo en `index.html`, antes de que
+     `js/08-formularios.js` lo reescriba con la moneda de cada quien. */
+  "Costo (MXN)": "Cost (MXN)",
+  "Con una cuenta puedes tener plan": "With an account you can have a plan"
 };

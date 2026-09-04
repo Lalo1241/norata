@@ -9,11 +9,11 @@ function renderMissions() {
     el.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("target", 34)}</div>
-        <h2>Sin misiones todavía</h2>
-        <p>Las misiones son lo que haces hoy: pequeñas, repetibles y con recompensa. Son las que mantienen viva tu racha y hacen subir tus habilidades sin que lo notes.</p>
+        <h2>${tx("Sin misiones todavía")}</h2>
+        <p>${tx("Las misiones son lo que haces hoy: pequeñas, repetibles y con recompensa. Son las que mantienen viva tu racha y hacen subir tus habilidades sin que lo notes.")}</p>
         <div class="stack" style="align-items:center">
-          <button class="btn btn-primary" onclick="openMissionForm()">Crear mi primera misión</button>
-          <button class="btn btn-ghost" onclick="verElEjemplo()">Ver un ejemplo completo</button>
+          <button class="btn btn-primary" onclick="openMissionForm()">${tx("Crear mi primera misión")}</button>
+          <button class="btn btn-ghost" onclick="verElEjemplo()">${tx("Ver un ejemplo completo")}</button>
         </div>
       </div>`;
     return;
@@ -54,7 +54,7 @@ function renderMissions() {
             : `${skill ? `<span>${escapeHtml(skill.name)}</span>` : ""}
           ${m.xp ? `<span>+${m.xp} XP</span>` : ""}
           ${m.cadence === "weekly" ? `<span>${(m.days || []).map(d => DAY_NAMES[d]).join(" ")}</span>` : ""}
-          ${m.cadence === "once" ? `<span>una vez</span>` : ""}`}
+          ${m.cadence === "once" ? `<span>${tx("una vez")}</span>` : ""}`}
           ${espera > 0 ? `<span class="ms-espera">pospuesta ${espera} d</span>` : ""}
           ${costo > 0 ? `<span class="ms-espera">esperó ${costo} d</span>` : ""}
           ${/* Deshacer vive DENTRO de la misión, junto a sus datos. Estaba
@@ -66,7 +66,7 @@ function renderMissions() {
                 "−1" y no "3→2" para que sea el reverso exacto del "+1" que
                 aparece en el círculo. */
             (!guardada && cuenta && c > 0) ? `<button class="ms-undo" onclick="event.stopPropagation();logMission('${m.id}', -1)"
-              aria-label="Quitar una vez de ${escapeAttr(m.name)}" title="Quitar una vez de hoy">
+              aria-label="Quitar una vez de ${escapeAttr(m.name)}" title="${escapeAttr(tx("Quitar una vez de hoy"))}">
               ${VOLVER} −1
             </button>` : ""}
         </div>
@@ -122,7 +122,7 @@ function renderMissions() {
      nadie lo busca — el lápiz al lado del título lo dice sin explicarlo. */
   const tituloTablero = (c) => `
     <h3 class="renombrable" onclick="renombrarTableroMisiones('${c.id}')"
-      title="Toca el nombre para renombrar este tablero">${escapeHtml(c.nombre)}${icon("pen", 11)}</h3>`;
+      title="${escapeAttr(tx("Toca el nombre para renombrar este tablero"))}">${escapeHtml(c.nombre)}${icon("pen", 11)}</h3>`;
 
   const menuTablero = (c) => c.propio
     ? branchMenu("t:" + c.id, [
@@ -146,7 +146,7 @@ function renderMissions() {
       </div>
       <div>
         <div class="label">${dayName}</div>
-        <div class="big" style="font-size:30px"><b>${pct}%</b><span> del día</span></div>
+        <div class="big" style="font-size:30px"><b>${pct}%</b><span> ${tx("del día")}</span></div>
       </div>`,
     /* Los números son de los últimos siete días y cada uno trae su flecha
        (js/10f-informes.js). Lo de hoy sigue arriba, en el anillo y en «Hoy». */
@@ -175,7 +175,7 @@ function renderMissions() {
   el.innerHTML = hero + (isDesktop()
     ? `
     <div class="tablero-pista full-row">
-      <span class="hint-hold">Arrastra una misión de una columna a otra: a la semana queda pospuesta, a las terminadas queda cerrada. El ＋ de cada columna crea una misión ya puesta ahí.</span>
+      <span class="hint-hold">${tx("Arrastra una misión de una columna a otra: a la semana queda pospuesta, a las terminadas queda cerrada. El ＋ de cada columna crea una misión ya puesta ahí.")}</span>
     </div>
     <div class="tablero-mis full-row" data-carril>
       ${visibles.map(c => `
@@ -247,8 +247,8 @@ function renderProjects() {
              encargos, y los encargos se dividen en etapas. La primera
              pantalla del módulo es justo donde no se puede confundir el
              nombre del módulo con el de lo que lleva dentro. -->
-        <h2>Sin proyectos todavía</h2>
-        <p>Un proyecto es algo que estás construyendo y que avanza por encargos divididos en etapas. La app mide tu ritmo y te dice cuáles proyectos siguen vivos y cuáles te conviene soltar.</p>
+        <h2>${tx("Sin proyectos todavía")}</h2>
+        <p>${tx("Un proyecto es algo que estás construyendo y que avanza por encargos divididos en etapas. La app mide tu ritmo y te dice cuáles proyectos siguen vivos y cuáles te conviene soltar.")}</p>
         <div class="stack" style="align-items:center">
           <!-- Aquí había un "Ver un ejemplo completo", y sembraba la app
                ENTERA: habilidades, talentos y misiones además de los
@@ -263,7 +263,7 @@ function renderProjects() {
                SIN COMILLAS INVERSAS: este comentario vive dentro de un template
                literal, y una sola cierra la cadena y parte el archivo entero.
                Lo hizo: renderProjects dejó de existir y Proyectos no cargaba. -->
-          <button class="btn btn-primary" onclick="crearRama('projects')">Crear mi primer proyecto</button>
+          <button class="btn btn-primary" onclick="crearRama('projects')">${tx("Crear mi primer proyecto")}</button>
         </div>
       </div>`;
     return;
@@ -291,7 +291,7 @@ function renderProjects() {
   let html = sectionHero({
     scene: motifScene(820, 168, 77, "peaks", "var(--mint)"),
     lead: `<div>
-      <div class="label">Avance de lo que construyes</div>
+      <div class="label">${tx("Avance de lo que construyes")}</div>
       <div class="big"><b>${avgProg}%</b><span> promedio</span></div>
     </div>`,
     /* «Etapas hechas» era un acumulado que solo sube: dejó sitio a las etapas
@@ -304,8 +304,8 @@ function renderProjects() {
   if (stalled.length) {
     html += `
     <div class="panel alt full-row" style="border-color:rgba(255,138,112,0.4)">
-      <h3 style="color:var(--coral)">Decisión pendiente</h3>
-      <p class="settings-note">Estos encargos llevan mucho sin avanzar. Retomarlos o soltarlos libera tu atención — dejarlos en el limbo es lo único que no ayuda.</p>
+      <h3 style="color:var(--coral)">${tx("Decisión pendiente")}</h3>
+      <p class="settings-note">${tx("Estos encargos llevan mucho sin avanzar. Retomarlos o soltarlos libera tu atención — dejarlos en el limbo es lo único que no ayuda.")}</p>
       ${stalled.map(p => `
         <button class="att-item" onclick="openProject('${p.id}')">
           <span class="dot" style="background:var(--coral-soft);color:var(--coral)">${icon(p.icon, 17)}</span>
@@ -351,7 +351,7 @@ function renderProjects() {
     <div class="branch-card" data-rid="${escapeAttr(b)}" data-cota="${liveN} de ${list.length}" style="padding-bottom:14px">
       <div class="branch-head" style="margin-bottom:12px">
         <!-- Igual que en Talentos: el nombre se reescribe tocándolo -->
-        <h3 class="renombrable" onclick="renombrarRamaProyectos('${enJS(b)}')" title="Toca el nombre para renombrar el proyecto">${escapeHtml(b)}${icon("pen", 11)}</h3>
+        <h3 class="renombrable" onclick="renombrarRamaProyectos('${enJS(b)}')" title="${escapeAttr(tx("Toca el nombre para renombrar el proyecto"))}">${escapeHtml(b)}${icon("pen", 11)}</h3>
         <span class="count">${liveN} de ${list.length}</span>
         <div class="bhead-btns">
           ${branchMenu("p:" + b, [
@@ -372,7 +372,7 @@ function renderProjects() {
       </div>
       ${enMapa ? mapaDeProyecto(b, editandoMapa, claveMapa) : `
       <div class="proj-list" data-branch="${escapeAttr(b)}" data-soltar=".proj-card">
-        ${!list.length ? `<p class="col-vacia">Arrastra aquí el encargo que quieras, o crea uno con el ＋.</p>` : ""}
+        ${!list.length ? `<p class="col-vacia">${tx("Arrastra aquí el encargo que quieras, o crea uno con el ＋.")}</p>` : ""}
         ${list.map(p => {
           const prog = projectProgress(p);
           const h = projectHealth(p);
@@ -473,7 +473,7 @@ function alternarMapaProyectos(b) {
 function mapaDeProyecto(b, editando, clave) {
   const nodes = vistaDeRamaProyectos(b);
   if (!nodes.length) {
-    return `<p class="col-vacia">Todavía no hay encargos en este proyecto. Créale el primero con el ＋.</p>`;
+    return `<p class="col-vacia">${tx("Todavía no hay encargos en este proyecto. Créale el primero con el ＋.")}</p>`;
   }
   /* `data-mod` es lo que le dice al lienzo de que coleccion es este mapa. Sin
      el, un arrastre hecho aqui habria ido a buscar el nodo entre los talentos
@@ -485,8 +485,8 @@ function mapaDeProyecto(b, editando, clave) {
       <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> Ver el proyecto completo
     </button>
     ${editando
-      ? `<div class="const-hint edit">Arrastra para acomodar · tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno</div>`
-      : `<div class="const-hint">Toca un encargo para abrirlo · arrástralo para acomodarlo · clic derecho para conectar, crear y más</div>`}`;
+      ? `<div class="const-hint edit">${tx("Arrastra para acomodar · tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo")} <b>Y/O</b> ${tx("cambia si hacen falta todos sus requisitos o basta uno")}</div>`
+      : `<div class="const-hint">${tx("Toca un encargo para abrirlo · arrástralo para acomodarlo · clic derecho para conectar, crear y más")}</div>`}`;
 }
 
 /* ---- Orden de las ramas de Proyectos ----
@@ -604,7 +604,7 @@ function nuevaEtapaEnLista(prId) {
   etapaAbiertaEn = prId;
   const caja = document.createElement("span");
   caja.className = "pstep escribiendo";
-  caja.innerHTML = `<i></i><input type="text" maxlength="70" placeholder="Nueva etapa…"
+  caja.innerHTML = `<i></i><input type="text" maxlength="70" placeholder="${escapeAttr(tx("Nueva etapa…"))}"
     aria-label="Nombre de la etapa nueva de ${escapeAttr(pr.name)}">`;
   btn.replaceWith(caja);
   const input = caja.querySelector("input");
@@ -652,7 +652,7 @@ function renderProjectDetail() {
   const steps = pr.steps || [];
 
   const stepsHtml = steps.length === 0
-    ? `<p class="settings-note" style="margin:0 0 12px">Sin etapas todavía. Divide el encargo en pasos concretos para poder medir su avance.</p>`
+    ? `<p class="settings-note" style="margin:0 0 12px">${tx("Sin etapas todavía. Divide el encargo en pasos concretos para poder medir su avance.")}</p>`
     : steps.map(s => `
       <div class="step-row ${s.done ? "done" : ""}">
         <button class="step-check" onclick="toggleStep('${pr.id}','${s.id}')" aria-label="${s.done ? "Reabrir" : "Completar"} etapa" style="${tonos("pc", col)}">
@@ -668,15 +668,15 @@ function renderProjectDetail() {
     : `
       <div class="stack">
         ${prog === 100 || pr.status === "active"
-          ? `<button class="btn ${prog === 100 ? "btn-primary" : "btn-soft"} btn-block" onclick="setProjectStatus('${pr.id}','done')">Dar por terminado</button>` : ""}
+          ? `<button class="btn ${prog === 100 ? "btn-primary" : "btn-soft"} btn-block" onclick="setProjectStatus('${pr.id}','done')">${tx("Dar por terminado")}</button>` : ""}
         ${pr.status === "active"
-          ? `<button class="btn btn-ghost btn-block" onclick="setProjectStatus('${pr.id}','paused')">Pausar por ahora</button>`
+          ? `<button class="btn btn-ghost btn-block" onclick="setProjectStatus('${pr.id}','paused')">${tx("Pausar por ahora")}</button>`
           : `<button class="btn btn-soft btn-block" onclick="setProjectStatus('${pr.id}','active')">Retomar</button>`}
         <button class="btn btn-danger-ghost btn-block" onclick="setProjectStatus('${pr.id}','dropped')">Descartar encargo</button>
       </div>`;
 
   const historyHtml = (pr.history || []).length === 0
-    ? `<p class="settings-note" style="margin:0">Sin movimientos todavía.</p>`
+    ? `<p class="settings-note" style="margin:0">${tx("Sin movimientos todavía.")}</p>`
     : pr.history.slice(0, 25).map(e => `
       <div class="history-item">
         <div class="note">${escapeHtml(e.event)}<span class="when">${formatWhen(e)}</span></div>
@@ -713,7 +713,7 @@ function renderProjectDetail() {
   const faltan = antes.filter(r => r.status !== "done");
   const ordenHtml = !antes.length ? "" : `
     <div class="panel alt">
-      <h3>Va después de</h3>
+      <h3>${tx("Va después de")}</h3>
       ${antes.map(r => `
         <button class="att-item" onclick="openProject('${r.id}')">
           <span class="dot" style="background:${velo(r.color || "#5fe0b0", "22")};color:${tinta(r.color || "#5fe0b0")}">${icon(r.icon, 17)}</span>
@@ -723,16 +723,16 @@ function renderProjectDetail() {
         </button>`).join("")}
       ${antes.length > 1 ? `<p class="settings-note">${
         modoDe(pr) === "cualquiera"
-          ? "Basta con que termine cualquiera de ellos."
-          : "Hacen falta todos."} Se cambia en el mapa, con el círculo <b>Y/O</b>.</p>` : ""}
+          ? tx("Basta con que termine cualquiera de ellos.")
+          : tx("Hacen falta todos.")} ${tx("Se cambia en el mapa, con el círculo <b>Y/O</b>.")}</p>` : ""}
       <p class="settings-note">${
         pr.espera
           ? (faltan.length
-              ? "Este encargo <b>espera su turno</b>: no lo puedes avanzar hasta que termine lo de arriba."
-              : "Este encargo esperaba su turno, y ya le toca.")
-          : "Este encargo <b>solo va después</b>: la app deja de sugerírtelo hasta que toque, pero puedes adelantarlo cuando quieras."}</p>
+              ? tx("Este encargo <b>espera su turno</b>: no lo puedes avanzar hasta que termine lo de arriba.")
+              : tx("Este encargo esperaba su turno, y ya le toca."))
+          : tx("Este encargo <b>solo va después</b>: la app deja de sugerírtelo hasta que toque, pero puedes adelantarlo cuando quieras.")}</p>
       <button class="btn ${pr.espera ? "btn-ghost" : "btn-linea"} btn-block" onclick="alternarEspera('${pr.id}')">${
-        pr.espera ? "Dejar que lo adelante" : "Que espere su turno"}</button>
+        pr.espera ? tx("Dejar que lo adelante") : tx("Que espere su turno")}</button>
     </div>
 `;
 
@@ -743,11 +743,11 @@ function renderProjectDetail() {
     </div>
 
     <div class="panel">
-      <h3>Etapas</h3>
+      <h3>${tx("Etapas")}</h3>
       ${stepsHtml}
       <div class="step-add">
-        <input type="text" id="detail-new-step" placeholder="Nueva etapa…" maxlength="70" onkeydown="if(event.key==='Enter'){event.preventDefault();addStepTo('${pr.id}');}">
-        <button class="btn btn-soft btn-sm" onclick="addStepTo('${pr.id}')">Añadir</button>
+        <input type="text" id="detail-new-step" placeholder="${escapeAttr(tx("Nueva etapa…"))}" maxlength="70" onkeydown="if(event.key==='Enter'){event.preventDefault();addStepTo('${pr.id}');}">
+        <button class="btn btn-soft btn-sm" onclick="addStepTo('${pr.id}')">${tx("Añadir")}</button>
       </div>
     </div>
 
@@ -755,7 +755,7 @@ function renderProjectDetail() {
       <h3>Ficha</h3>
       <div class="fact-grid">
         <div class="fact"><div class="k">CREADO</div><div class="v" style="font-size:13.5px">${formatDate(pr.createdAt)}</div></div>
-        <div class="fact"><div class="k">ÚLTIMO AVANCE</div><div class="v" style="font-size:13.5px">${daysIdle(pr) === 0 ? "Hoy" : `Hace ${daysIdle(pr)} d`}</div></div>
+        <div class="fact"><div class="k">${tx("ÚLTIMO AVANCE")}</div><div class="v" style="font-size:13.5px">${daysIdle(pr) === 0 ? "Hoy" : `Hace ${daysIdle(pr)} d`}</div></div>
         <div class="fact"><div class="k">ENTRENA</div><div class="v" style="font-size:13.5px">${skill ? escapeHtml(skill.name) : "—"}</div></div>
         <div class="fact"><div class="k">RECOMPENSA</div><div class="v" style="font-size:13.5px">${skill ? "+" + pr.xpReward + " XP" : "—"}</div></div>
       </div>
@@ -811,16 +811,19 @@ function renderDetail() {
   if (s.xp <= 0) {
     const espera = diasSinGanar(s);
     decayLine = espera >= DIAS_PARA_INVITAR
-      ? `<div class="xp-note">Sin estrenar. <span class="invita">${invitacionPara(s)}</span></div>`
-      : `<div class="xp-note">Sin estrenar todavía: nada que perder hasta que registres tu primera práctica.</div>`;
+      ? `<div class="xp-note">${tx("Sin estrenar.")} <span class="invita">${invitacionPara(s)}</span></div>`
+      : `<div class="xp-note">${tx("Sin estrenar todavía: nada que perder hasta que registres tu primera práctica.")}</div>`;
   } else if (s.permanent) {
     const espera = diasSinGanar(s);
-    decayLine = `<div class="xp-note">Habilidad blindada: nunca pierde XP.${
+    decayLine = `<div class="xp-note">${tx("Habilidad blindada: nunca pierde XP.")}${
       espera >= DIAS_PARA_INVITAR ? ` <span class="invita">${invitacionPara(s)}</span>` : ""}</div>`;
   } else if (isDecaying(s)) {
-    decayLine = `<div class="xp-note" style="color:var(--fire)"><b>En decaimiento:</b> pierdes ${s.decayPerDay} XP al día. Practica hoy para frenarlo.</div>`;
+    decayLine = `<div class="xp-note" style="color:var(--fire)">${
+      T`<b>En decaimiento:</b> pierdes ${s.decayPerDay} XP al día. Practica hoy para frenarlo.`}</div>`;
   } else {
-    decayLine = `<div class="xp-note">Te quedan <b>${untilDecay}</b> día${untilDecay === 1 ? "" : "s"} de gracia antes de empezar a perder XP.</div>`;
+    decayLine = `<div class="xp-note">${untilDecay === 1
+      ? T`Te queda <b>${untilDecay}</b> día de gracia antes de empezar a perder XP.`
+      : T`Te quedan <b>${untilDecay}</b> días de gracia antes de empezar a perder XP.`}</div>`;
   }
 
   const pct = li.level >= MAX_LEVEL ? 1 : li.pct / 100;
@@ -834,7 +837,7 @@ function renderDetail() {
     </div>`;
 
   const historyHtml = s.log.length === 0
-    ? `<p class="settings-note" style="margin:0">Todavía no hay actividad registrada.</p>`
+    ? `<p class="settings-note" style="margin:0">${tx("Todavía no hay actividad registrada.")}</p>`
     : s.log.slice(0, 30).map((e, i) => {
         /* Cada movimiento dice de dónde salió: qué tipo de práctica fue y
            cuánto duró si lo registraste a mano, o qué misión, talento o
@@ -857,7 +860,7 @@ function renderDetail() {
       }).join("") + (histSelMode ? `
       <div class="stack" style="margin-top:14px">
         <button class="btn btn-danger-ghost btn-block" onclick="borrarHistSeleccion()">Quitar lo marcado (${histSel.size})</button>
-        <button class="btn btn-ghost btn-block" onclick="toggleHistSel()">Cancelar</button>
+        <button class="btn btn-ghost btn-block" onclick="toggleHistSel()">${tx("Cancelar")}</button>
       </div>` : "");
 
   const content = document.getElementById("detail-content");
@@ -865,7 +868,7 @@ function renderDetail() {
     <div class="detail-hero">
       <div class="strip">${motifScene(560, 156, hashSeed(s.id), motifFor(s.icon), trazo(s.color))}</div>
       <button type="button" class="skill-emoji editable" style="background:${velo(s.color, "30")};color:${tinta(s.color)}"
-        onclick="openSkillForm(currentSkillId)" title="Editar habilidad" aria-label="Editar habilidad">
+        onclick="openSkillForm(currentSkillId)" title="${escapeAttr(tx("Editar habilidad"))}" aria-label="${escapeAttr(tx("Editar habilidad"))}">
         ${icon(s.icon, 28)}
         <span class="edit-hint">${icon("pen", 11)}</span>
       </button>
@@ -876,7 +879,7 @@ function renderDetail() {
     </div>
 
     <div class="panel alt">
-      <h3>Registrar práctica</h3>
+      <h3>${tx("Registrar práctica")}</h3>
       <div class="quick-xp" id="quick-xp">
         ${PRACTICAS.map(o => `
           <button data-xp="${o.xp}" class="${o.xp === selectedQuickXp ? "selected" : ""}" onclick="selectQuickXp(${o.xp})">
@@ -886,15 +889,15 @@ function renderDetail() {
       ${(() => {
         const usado = minutosHoy(s);
         const resto = TOPE_MIN_DIA - usado;
-        if (resto <= 0) return `<p class="settings-note" style="margin:0 0 10px;color:var(--coral)">Registro cerrado por hoy: ya sumaste medio día de práctica en esta habilidad.</p>`;
+        if (resto <= 0) return `<p class="settings-note" style="margin:0 0 10px;color:var(--coral)">${tx("Registro cerrado por hoy: ya sumaste medio día de práctica en esta habilidad.")}</p>`;
         if (usado > 0) return `<p class="settings-note" style="margin:0 0 10px">Hoy llevas ${Math.round(usado / 60 * 10) / 10} h registradas · te quedan ${Math.round(resto / 60 * 10) / 10} h.</p>`;
         return "";
       })()}
       <label class="field">
         <span>Nota (opcional)</span>
-        <input type="text" id="log-note" placeholder="¿Qué hiciste? Ej. Terminé módulo 2 del curso" maxlength="120">
+        <input type="text" id="log-note" placeholder="${escapeAttr(tx("¿Qué hiciste? Ej. Terminé módulo 2 del curso"))}" maxlength="120">
       </label>
-      <button class="btn btn-primary btn-block" onclick="logActivity()">Registrar y ganar XP</button>
+      <button class="btn btn-primary btn-block" onclick="logActivity()">${tx("Registrar y ganar XP")}</button>
     </div>
 
     ${linkedToSkill(s)}
@@ -902,11 +905,11 @@ function renderDetail() {
     <div class="panel">
       <div class="panel-head">
         <h3 style="margin:0">Historial</h3>
-        ${s.log.length ? `<button class="icon-btn sm ${histSelMode ? "on" : ""}" onclick="toggleHistSel()" aria-label="Seleccionar movimientos para quitar" title="Quitar movimientos">
+        ${s.log.length ? `<button class="icon-btn sm ${histSelMode ? "on" : ""}" onclick="toggleHistSel()" aria-label="${escapeAttr(tx("Seleccionar movimientos para quitar"))}" title="Quitar movimientos">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${BM_ICONS.bote}</svg>
         </button>` : ""}
       </div>
-      ${histSelMode ? `<p class="settings-note">Marca los movimientos que quieras quitar. Se devolverá su XP.</p>` : ""}
+      ${histSelMode ? `<p class="settings-note">${tx("Marca los movimientos que quieras quitar. Se devolverá su XP.")}</p>` : ""}
       ${historyHtml}
     </div>`;
   playRings(content);
@@ -922,11 +925,11 @@ function linkedToSkill(s) {
   if (!ms.length && !pk.length && !pr.length) {
     return `
     <div class="panel alt">
-      <h3>Qué alimenta esta habilidad</h3>
-      <p class="settings-note" style="margin:0 0 12px">Nada apunta aquí todavía. Cuando vincules una misión, un talento o un encargo a <b>${escapeHtml(s.name)}</b>, aparecerán en esta lista y su XP subirá sola.</p>
+      <h3>${tx("Qué alimenta esta habilidad")}</h3>
+      <p class="settings-note" style="margin:0 0 12px">${tx("Nada apunta aquí todavía. Cuando vincules una misión, un talento o un encargo a")} <b>${escapeHtml(s.name)}</b>${tx(", aparecerán en esta lista y su XP subirá sola.")}</p>
       <div class="stack">
-        <button class="btn btn-soft btn-block" onclick="openMissionForm()">Crear una misión diaria</button>
-        <button class="btn btn-ghost btn-block" onclick="openPerkForm()">Crear un talento</button>
+        <button class="btn btn-soft btn-block" onclick="openMissionForm()">${tx("Crear una misión diaria")}</button>
+        <button class="btn btn-ghost btn-block" onclick="openPerkForm()">${tx("Crear un talento")}</button>
       </div>
     </div>`;
   }
@@ -940,7 +943,7 @@ function linkedToSkill(s) {
   const key = todayKey();
   return `
     <div class="panel alt">
-      <h3>Qué alimenta esta habilidad</h3>
+      <h3>${tx("Qué alimenta esta habilidad")}</h3>
       ${group("misión diaria", "misiones diarias", "target", ms.map(m => {
         const c = missionCount(m, key), t = missionTarget(m), ok = c >= t;
         const st = missionStreak(m);
@@ -1203,15 +1206,15 @@ function renderTree() {
     el.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("map", 34)}</div>
-        <h2>Tu mapa está por trazarse</h2>
-        <p>Un talento es una meta con inversión real: un curso, un equipo, una certificación. Al pagarla arranca un plan con fecha límite — si logras la meta, el talento es tuyo para siempre.</p>
+        <h2>${tx("Tu mapa está por trazarse")}</h2>
+        <p>${tx("Un talento es una meta con inversión real: un curso, un equipo, una certificación. Al pagarla arranca un plan con fecha límite — si logras la meta, el talento es tuyo para siempre.")}</p>
         <!-- El botón va dentro de un "stack" aunque sea uno solo, como en las
              otras cuatro pantallas vacías. No es orden por el orden: el CSS le
              reserva a esa caja el alto del cartel más alto para que la burbuja y
              el título caigan a la misma altura en las cinco, y suelto se quedaba
              fuera de esa cuenta. -->
         <div class="stack" style="align-items:center">
-          <button class="btn btn-primary" onclick="openPerkForm()">Crear mi primer talento</button>
+          <button class="btn btn-primary" onclick="openPerkForm()">${tx("Crear mi primer talento")}</button>
         </div>
       </div>`;
     return;
@@ -1257,7 +1260,7 @@ function renderTree() {
        talento completado no decae nunca. El dinero no desaparece —sigue en la
        fila de abajo, en el informe y en el Resumen—, pero deja de presidir. */
     lead: `<div>
-      <div class="label">Ya son tuyos</div>
+      <div class="label">${tx("Ya son tuyos")}</div>
       <div class="big"><b>${completed}</b><span> ${completed === 1 ? "talento" : "talentos"}</span></div>
     </div>`,
     /* «Por abrir» era un inventario que no pide nada: dejó sitio al dinero de
@@ -1268,7 +1271,7 @@ function renderTree() {
       onclick: focus.id ? `openPerk('${focus.id}')` : null,
       pct: inProgress.length ? avgProgress : undefined
     })
-  }) + `<div class="sec-label">Tus ramas de talentos</div>`;
+  }) + `<div class="sec-label">${tx("Tus ramas de talentos")}</div>`;
 
   branches.forEach((b, bi) => {
     // Lo que se dibuja: talentos sueltos y cajas cerradas. La cuenta de la
@@ -1290,7 +1293,7 @@ function renderTree() {
     if (!nodes.length) {
       /* Una rama vacía no se dibuja como un lienzo en blanco —parecería rota—
          sino como lo que es: un sitio esperando su primer talento. */
-      body = `<p class="col-vacia">Todavía no hay talentos en esta rama. Créale el primero con el ＋.</p>`;
+      body = `<p class="col-vacia">${tx("Todavía no hay talentos en esta rama. Créale el primero con el ＋.")}</p>`;
     } else if (collapsed) {
       body = `
       <div class="branch-collapsed">
@@ -1311,8 +1314,12 @@ function renderTree() {
             de edición el gesto es el que hay que aprender; dentro, las
             herramientas. */
         editing
-        ? `<div class="const-hint edit">Arrastra para acomodar · <b>Shift</b> y clic (o Shift y arrastra un recuadro) elige varios para moverlos juntos o agruparlos · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos los requisitos o basta uno${atajosLegend()}</div>`
-        : `<div class="const-hint">Toca un nodo para abrirlo · arrástralo para acomodarlo · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno${atajosLegend(true)}</div>`}`;
+        ? `<div class="const-hint edit">${
+            T`Arrastra para acomodar · <b>Shift</b> y clic (o Shift y arrastra un recuadro) elige varios para moverlos juntos o agruparlos · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos los requisitos o basta uno`
+          }${atajosLegend()}</div>`
+        : `<div class="const-hint">${
+            T`Toca un nodo para abrirlo · arrástralo para acomodarlo · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno`
+          }${atajosLegend(true)}</div>`}`;
     }
 
     /* `data-cota` es la cifra de la cota de Blueprint, y lleva LO MISMO que la
@@ -1333,11 +1340,11 @@ function renderTree() {
         <!-- El nombre abre el renombrado, no el plegado: plegar ya tiene su
              flecha justo al lado, y escribir encima de un título es el gesto
              que todo el mundo prueba primero. -->
-        <h3 class="renombrable" onclick="renombrarRama('${bj}')" title="Toca el nombre para renombrar la rama">${escapeHtml(b)}${icon("pen", 11)}</h3>
+        <h3 class="renombrable" onclick="renombrarRama('${bj}')" title="${escapeAttr(tx("Toca el nombre para renombrar la rama"))}">${escapeHtml(b)}${icon("pen", 11)}</h3>
         <span class="count">${doneN} de ${reales.length}</span>
         <div class="bhead-btns">
           ${editing ? `
-          <button class="badd solid on" onclick="toggleEditBranch('${bj}')" aria-label="Salir del modo edición" title="Salir de edición${isDesktop() ? " (C)" : ""}">
+          <button class="badd solid on" onclick="toggleEditBranch('${bj}')" aria-label="${escapeAttr(tx("Salir del modo edición"))}" title="Salir de edición${isDesktop() ? " (C)" : ""}">
             <svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>
           </button>` : ""}
           ${branchMenu("t:" + b, [

@@ -19,9 +19,9 @@ function renderPerkDetail() {
      memorizar: la llave, la bandera y la diana explican solas de qué va. */
   const facts = `
     <div class="fact-grid">
-      <div class="fact"><div class="k">COSTO</div><div class="v acc">${p.cost > 0 ? money(p.cost) : "—"}</div></div>
-      <div class="fact"><div class="k">INVERTIDO TOTAL</div><div class="v">${money(p.investedTotal || 0)}</div></div>
-      <div class="fact"><div class="k">TIPO</div><div class="v tipo-v">${icon(t.icono, 15)}${t.nombre}</div></div>
+      <div class="fact"><div class="k">${tx("COSTO")}</div><div class="v acc">${p.cost > 0 ? money(p.cost) : "—"}</div></div>
+      <div class="fact"><div class="k">${tx("INVERTIDO TOTAL")}</div><div class="v">${money(p.investedTotal || 0)}</div></div>
+      <div class="fact"><div class="k">${tx("TIPO")}</div><div class="v tipo-v">${icon(t.icono, 15)}${t.nombre}</div></div>
       <div class="fact"><div class="k">RECOMPENSA</div><div class="v">${skill ? "+" + p.xpReward + " XP" : "—"}</div></div>
     </div>
     <div class="xp-note" style="text-align:left;margin-top:10px">${t.sub}${
@@ -41,7 +41,7 @@ function renderPerkDetail() {
   const reglaPanel = reqs.length < 2 ? "" : `
     <div class="panel alt">
       <div class="panel-head">
-        <h3 style="margin:0">Regla de entrada</h3>
+        <h3 style="margin:0">${tx("Regla de entrada")}</h3>
         <span class="hint-hold">${listos} de ${reqs.length}</span>
       </div>
       <div class="seg">
@@ -52,9 +52,9 @@ function renderPerkDetail() {
           </button>`).join("")}
       </div>
       <p class="settings-note" style="margin:10px 0 0">${modo === "todos"
-        ? `Este talento corona varios caminos: se desbloquea cuando estén completos los ${reqs.length}.`
-        : `Son caminos alternativos: se desbloquea en cuanto completes cualquiera de los ${reqs.length}.`}
-        En el mapa es el círculo con la letra <b>${modo === "todos" ? "Y" : "O"}</b> a su izquierda, y ahí también se cambia de un toque.</p>
+        ? T`Este talento corona varios caminos: se desbloquea cuando estén completos los ${reqs.length}.`
+        : T`Son caminos alternativos: se desbloquea en cuanto completes cualquiera de los ${reqs.length}.`}
+        ${T`En el mapa es el círculo con la letra <b>${modo === "todos" ? "Y" : "O"}</b> a su izquierda, y ahí también se cambia de un toque.`}</p>
     </div>`;
 
   /* ---- Etapas ----
@@ -65,7 +65,7 @@ function renderPerkDetail() {
   const etapas = !t.llevaPlan || st === "completed" || st === "expired" ? "" : `
     <div class="panel alt">
       <div class="panel-head">
-        <h3 style="margin:0">Etapas</h3>
+        <h3 style="margin:0">${tx("Etapas")}</h3>
         ${pasos.length ? `<span class="hint-hold">${pasos.filter(s => s.done).length} de ${pasos.length}</span>` : ""}
       </div>
       ${pasos.length ? `<div class="pk-steps">
@@ -78,17 +78,17 @@ function renderPerkDetail() {
             ${st === "active" ? `<span class="pk-del" onclick="event.stopPropagation();quitarEtapa('${p.id}','${s.id}')" title="Quitar etapa">✕</span>` : ""}
           </button>`).join("")}
       </div>`
-      : `<p class="settings-note" style="margin:0 0 12px">Todavía no tiene etapas: así, la meta entera cuenta como una sola y se cierra de una vez. Añade las que quieras y el avance se contará solo.</p>`}
+      : `<p class="settings-note" style="margin:0 0 12px">${tx("Todavía no tiene etapas: así, la meta entera cuenta como una sola y se cierra de una vez. Añade las que quieras y el avance se contará solo.")}</p>`}
       <!-- Añadir etapas se hace AQUÍ, no solo en el formulario. Una meta
            creada con el atajo del mapa nace sin ninguna, y obligar a entrar
            a editar para ponerle la primera dejaba la regla de las etapas
            escondida justo donde el usuario está trabajando. -->
       <div class="step-add" style="margin-top:${pasos.length ? "12px" : "0"}">
-        <input type="text" id="pk-new-step" placeholder="Nueva etapa…" maxlength="70"
+        <input type="text" id="pk-new-step" placeholder="${escapeAttr(tx("Nueva etapa…"))}" maxlength="70"
           onkeydown="if(event.key==='Enter'){event.preventDefault();anadirEtapa('${p.id}');}">
-        <button class="btn btn-soft btn-sm" onclick="anadirEtapa('${p.id}')">Añadir</button>
+        <button class="btn btn-soft btn-sm" onclick="anadirEtapa('${p.id}')">${tx("Añadir")}</button>
       </div>
-      ${st !== "active" && pasos.length ? `<p class="settings-note" style="margin:12px 0 0">Las etapas se marcan cuando el plan esté en curso.</p>` : ""}
+      ${st !== "active" && pasos.length ? `<p class="settings-note" style="margin:12px 0 0">${tx("Las etapas se marcan cuando el plan esté en curso.")}</p>` : ""}
     </div>`;
 
   let planPanel = "";
@@ -100,30 +100,30 @@ function renderPerkDetail() {
     const sinEtapas = !(p.steps || []).length;
     planPanel = `
     <div class="panel alt">
-      <h3>Tu avance</h3>
+      <h3>${tx("Tu avance")}</h3>
       <div class="bar" style="height:8px"><div class="bar-fill" style="width:${prog}%;background:${p.color || "var(--mint)"}"></div></div>
       <div class="xp-note" style="margin-top:8px">${sinEtapas
-        ? `Esta meta no tiene etapas: <b>ella misma es la etapa</b>. Se cierra confirmándola abajo.`
-        : `Llevas <b>${prog}%</b> — ${p.steps.filter(s => s.done).length} de ${p.steps.length} etapas.`}</div>
+        ? tx("Esta meta no tiene etapas: <b>ella misma es la etapa</b>. Se cierra confirmándola abajo.")
+        : T`Llevas <b>${prog}%</b> — ${p.steps.filter(s => s.done).length} de ${p.steps.length} etapas.`}</div>
     </div>
     <div class="panel alt">
-      <h3>Plan de tiempo</h3>
+      <h3>${tx("Plan de tiempo")}</h3>
       <div class="bar" style="height:6px"><div class="bar-fill" style="width:${Math.min(100, Math.round(gone / total * 100))}%;background:var(--fire)"></div></div>
       <div class="xp-note">Del ${formatDate(p.startDate)} al ${formatDate(p.endDate)} — quedan <b>${left}</b> día${left === 1 ? "" : "s"}.</div>
       <div class="stack" style="margin-top:14px">
-        <button class="btn ${prog >= 100 ? "btn-primary" : "btn-soft"} btn-block" onclick="completePerk('${p.id}')">Ya logré la meta</button>
-        <button class="btn btn-danger-ghost btn-block" onclick="failPerk('${p.id}')">Rendirme y perder el talento</button>
+        <button class="btn ${prog >= 100 ? "btn-primary" : "btn-soft"} btn-block" onclick="completePerk('${p.id}')">${tx("Ya logré la meta")}</button>
+        <button class="btn btn-danger-ghost btn-block" onclick="failPerk('${p.id}')">${tx("Rendirme y perder el talento")}</button>
       </div>
     </div>`;
   }
   if (st === "due") {
     planPanel = `
     <div class="panel alt">
-      <h3 style="color:var(--fire)">El plan terminó — momento de la verdad</h3>
+      <h3 style="color:var(--fire)">${tx("El plan terminó — momento de la verdad")}</h3>
       <p class="settings-note">El plazo venció el ${formatDate(p.endDate)}. Sé honesto: ¿lograste la meta de este talento?</p>
       <div class="stack">
-        <button class="btn btn-primary btn-block" onclick="completePerk('${p.id}')">Sí, lo logré — hacerlo permanente</button>
-        <button class="btn btn-danger-ghost btn-block" onclick="failPerk('${p.id}')">No lo logré — lo pierdo</button>
+        <button class="btn btn-primary btn-block" onclick="completePerk('${p.id}')">${tx("Sí, lo logré — hacerlo permanente")}</button>
+        <button class="btn btn-danger-ghost btn-block" onclick="failPerk('${p.id}')">${tx("No lo logré — lo pierdo")}</button>
       </div>
     </div>`;
   }
@@ -132,16 +132,16 @@ function renderPerkDetail() {
   if (st === "available") {
     const importe = p.cost > 0 ? " · " + money(p.cost) : "";
     if (tipoDe(p) === "hito") {
-      actionPanel = `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="completeHito('${p.id}')">Dar por hecho</button>`;
+      actionPanel = `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="completeHito('${p.id}')">${tx("Dar por hecho")}</button>`;
     } else if (tipoDe(p) === "compra") {
       /* Sin importe la compra no puede cerrarse: es lo que la hace una
          llave y no un hito. El botón lo dice en vez de fallar al pulsarlo. */
       actionPanel = p.cost > 0
         ? `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="investPerk('${p.id}')">Comprar y asegurar${importe}</button>`
         : `<div class="panel alt" style="border-color:var(--fire)">
-             <h3 style="color:var(--fire)">Le falta el importe</h3>
-             <p class="settings-note" style="margin:0 0 12px">Una compra es una llave que se paga. Ponle cuánto costó y podrás asegurarla.</p>
-             <button class="btn btn-soft btn-block" onclick="openPerkForm('${p.id}')">Editar y ponerle importe</button>
+             <h3 style="color:var(--fire)">${tx("Le falta el importe")}</h3>
+             <p class="settings-note" style="margin:0 0 12px">${tx("Una compra es una llave que se paga. Ponle cuánto costó y podrás asegurarla.")}</p>
+             <button class="btn btn-soft btn-block" onclick="openPerkForm('${p.id}')">${tx("Editar y ponerle importe")}</button>
            </div>`;
     } else {
       actionPanel = `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="investPerk('${p.id}')">Comenzar plan${importe}</button>`;
@@ -173,7 +173,7 @@ function renderPerkDetail() {
     actionPanel = `
     <div class="panel alt">
       <h3 style="color:var(--coral)">Talento perdido</h3>
-      <p class="settings-note">El plan venció sin lograr la meta. Puedes reintentarlo: volverás a invertir y arrancará un plan nuevo.</p>
+      <p class="settings-note">${tx("El plan venció sin lograr la meta. Puedes reintentarlo: volverás a invertir y arrancará un plan nuevo.")}</p>
       <button class="btn btn-soft btn-block" onclick="retryPerk('${p.id}')">Reintentar${p.cost > 0 ? " · " + money(p.cost) : ""}</button>
     </div>`;
   }
@@ -181,20 +181,20 @@ function renderPerkDetail() {
     actionPanel = `
     <div class="panel alt" style="border-color:var(--mint)">
       <h3 style="color:var(--mint)">Permanente desde el ${formatDate(p.completedAt)}</h3>
-      <p class="settings-note">Este talento ya es parte de ti. Nadie te lo quita.</p>
-      <button class="btn btn-ghost btn-block" onclick="revertirTalento('${p.id}')">Deshacer — no llegó a pasar</button>
+      <p class="settings-note">${tx("Este talento ya es parte de ti. Nadie te lo quita.")}</p>
+      <button class="btn btn-ghost btn-block" onclick="revertirTalento('${p.id}')">${tx("Deshacer — no llegó a pasar")}</button>
     </div>`;
   }
   if (st === "completed") {
     actionPanel = `
     <div class="panel alt" style="border-color:var(--mint)">
       <h3 style="color:var(--mint)">Permanente desde el ${formatDate(p.completedAt)}</h3>
-      <p class="settings-note" style="margin:0">Este talento ya es parte de ti. Nadie te lo quita. 🎉</p>
+      <p class="settings-note" style="margin:0">${tx("Este talento ya es parte de ti. Nadie te lo quita. 🎉")}</p>
     </div>`;
   }
 
   const historyHtml = (p.history || []).length === 0
-    ? `<p class="settings-note" style="margin:0">Sin movimientos todavía.</p>`
+    ? `<p class="settings-note" style="margin:0">${tx("Sin movimientos todavía.")}</p>`
     : p.history.slice(0, 20).map(e => `
       <div class="history-item">
         <div class="note">${escapeHtml(e.event)}<span class="when">${formatWhen(e)}</span></div>
@@ -204,7 +204,7 @@ function renderPerkDetail() {
     <div class="detail-hero perk-hero h-${st}">
       <div class="strip">${motifScene(560, 156, hashSeed(p.id), motifFor(p.icon), trazo(p.color))}</div>
       <button type="button" class="skill-emoji editable" style="background:${velo(p.color, "30")};color:${tinta(p.color)}"
-        onclick="openPerkForm(currentPerkId)" title="Editar talento" aria-label="Editar talento">
+        onclick="openPerkForm(currentPerkId)" title="${escapeAttr(tx("Editar talento"))}" aria-label="${escapeAttr(tx("Editar talento"))}">
         ${icon(p.icon, 26)}
         <span class="edit-hint">${icon("pen", 11)}</span>
       </button>
@@ -423,7 +423,7 @@ function renderPerkReqs() {
   const cont = document.getElementById("p-requires");
   const otros = state.perks.filter(x => x.id !== editingPerkId);
   if (!otros.length) {
-    cont.innerHTML = `<p class="settings-note" style="margin:0">Todavía no hay otros talentos a los que encadenarlo.</p>`;
+    cont.innerHTML = `<p class="settings-note" style="margin:0">${tx("Todavía no hay otros talentos a los que encadenarlo.")}</p>`;
   } else {
     cont.innerHTML = otros.map(x => {
       const on = pReq.includes(x.id);
@@ -500,7 +500,7 @@ function renderPerkTipo() {
 
 function renderPerkFormSteps() {
   document.getElementById("p-steps").innerHTML = pSteps.length === 0
-    ? `<p class="settings-note" style="margin:0 0 10px">Sin etapas: la meta entera será su propia etapa.</p>`
+    ? `<p class="settings-note" style="margin:0 0 10px">${tx("Sin etapas: la meta entera será su propia etapa.")}</p>`
     : pSteps.map((s, i) => `
       <div class="step-row">
         <span class="step-num">${i + 1}</span>
@@ -763,7 +763,7 @@ function pickProjectColor(c) { prColor = c; renderColorGrid("pr-color", c, "pick
 
 function renderFormSteps() {
   document.getElementById("pr-steps").innerHTML = formSteps.length === 0
-    ? `<p class="settings-note" style="margin:0 0 10px">Sin etapas todavía.</p>`
+    ? `<p class="settings-note" style="margin:0 0 10px">${tx("Sin etapas todavía.")}</p>`
     : formSteps.map((s, i) => `
       <div class="step-row">
         <span class="step-num">${i + 1}</span>

@@ -625,22 +625,22 @@ function verCaja(id) {
         <span class="ci" style="color:${tinta(p.color)}">${icon(st === "completed" ? "check" : (p.icon || "star"), 15)}</span>
         <span class="ct"><b>${escapeHtml(p.name)}</b><span>${metaDe(p).nombre} · ${STATUS_LABEL[st]}</span></span>
       </button>
-      <button type="button" class="caja-sacar" title="Sacar del ático" aria-label="Sacar ${escapeAttr(p.name)} del ático"
+      <button type="button" class="caja-sacar" title="${escapeAttr(tx("Sacar del ático"))}" aria-label="Sacar ${escapeAttr(p.name)} del ático"
         onclick="sacarDeCaja('${escapeAttr(c.id)}','${escapeAttr(p.id)}')">↥</button>
     </div>`;
   }).join("");
 
   document.getElementById("caja-body").innerHTML = `
     <div class="caja-head">
-      <button type="button" class="caja-nombre" onclick="renombrarCaja('${escapeAttr(c.id)}')" title="Renombrar esta caja">
+      <button type="button" class="caja-nombre" onclick="renombrarCaja('${escapeAttr(c.id)}')" title="${escapeAttr(tx("Renombrar esta caja"))}">
         <b style="color:${tinta(cc)}">${escapeHtml(nombreCaja(c))}</b>${icon("pen", 12)}
       </button>
       <span class="caja-sub">${escapeHtml(c.branch)} · ${tituloTrimestre(c.trimestre)} · guardada el ${formatDate(c.guardadoEl)}</span>
     </div>
     <div class="caja-stats">
       <div><b style="color:var(--mint)">${hechos}</b><span>hechos</span></div>
-      <div><b style="color:${pendientes ? "var(--fire)" : "var(--muted)"}">${pendientes}</b><span>sin terminar</span></div>
-      <div><b>${total}</b><span>en total</span></div>
+      <div><b style="color:${pendientes ? "var(--fire)" : "var(--muted)"}">${pendientes}</b><span>${tx("sin terminar")}</span></div>
+      <div><b>${total}</b><span>${tx("en total")}</span></div>
     </div>
     <p class="settings-note" style="text-align:left;margin:0 0 12px">${
       c.abierta
@@ -648,21 +648,21 @@ function verCaja(id) {
         : `Está guardada: en el mapa ocupa un solo nodo${
             pendientes ? ` y los plazos de lo pendiente están congelados` : ""}${
             enlaces ? ` · ${enlaces} conexión${enlaces === 1 ? "" : "es"} entrando` : ""}.`}</p>
-    <div class="caja-lista">${lista || `<p class="settings-note" style="margin:0">Se quedó vacía.</p>`}</div>
+    <div class="caja-lista">${lista || `<p class="settings-note" style="margin:0">${tx("Se quedó vacía.")}</p>`}</div>
     <div class="caja-color">
-      <span class="caja-sub">Color del grupo</span>
+      <span class="caja-sub">${tx("Color del grupo")}</span>
       <div class="color-grid">
-        <button type="button" class="cc-auto ${!c.color ? "selected" : ""}" onclick="pintarCaja('')" title="Que lo decida su estado">auto</button>
+        <button type="button" class="cc-auto ${!c.color ? "selected" : ""}" onclick="pintarCaja('')" title="${escapeAttr(tx("Que lo decida su estado"))}">auto</button>
         ${COLORS.map(col => `<button type="button" class="${c.color === col ? "selected" : ""}" style="background:${col}" onclick="pintarCaja('${col}')" aria-label="${col}"></button>`).join("")}
       </div>
     </div>
     <div class="stack" style="margin-top:14px">
       ${c.abierta
-        ? `<button class="btn btn-primary btn-block" onclick="cerrarCaja('${escapeAttr(c.id)}')">Volver a guardarla</button>`
-        : `<button class="btn btn-primary btn-block" onclick="abrirCaja('${escapeAttr(c.id)}')">Desplegarla en el mapa</button>`}
-      <button class="btn btn-soft btn-block" onclick="desagrupar('${escapeAttr(c.id)}')">Deshacer el grupo</button>
-      <button class="btn btn-danger-ghost btn-block" onclick="borrarCaja('${escapeAttr(c.id)}')">Borrar la caja y lo que lleva</button>
-      <button class="btn btn-ghost btn-block" onclick="cerrarVentanaCaja()">Cerrar</button>
+        ? `<button class="btn btn-primary btn-block" onclick="cerrarCaja('${escapeAttr(c.id)}')">${tx("Volver a guardarla")}</button>`
+        : `<button class="btn btn-primary btn-block" onclick="abrirCaja('${escapeAttr(c.id)}')">${tx("Desplegarla en el mapa")}</button>`}
+      <button class="btn btn-soft btn-block" onclick="desagrupar('${escapeAttr(c.id)}')">${tx("Deshacer el grupo")}</button>
+      <button class="btn btn-danger-ghost btn-block" onclick="borrarCaja('${escapeAttr(c.id)}')">${tx("Borrar la caja y lo que lleva")}</button>
+      <button class="btn btn-ghost btn-block" onclick="cerrarVentanaCaja()">${tx("Cerrar")}</button>
     </div>`;
   el.classList.add("show");
 }

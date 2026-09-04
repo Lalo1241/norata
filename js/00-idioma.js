@@ -121,6 +121,14 @@ try {
   AUDITA_I18N = sessionStorage.getItem("norata-i18n-audita") === "1";
 } catch (e) { /* sin sessionStorage no hay auditor, y no pasa nada */ }
 
+/* Solo cuenta como frase lo que tiene DOS letras seguidas. El barrido del DOM
+   pasa por todos los nodos de texto que hay, y ahí dentro también van cifras,
+   flechas y el signo de más de los botones: apuntarlos como «pendientes de
+   traducir» ensucia la única lista que dice cuánto falta. */
+function tieneLetras(t) {
+  return !!t && /[A-Za-zà-ÿ]{2}/.test(t);
+}
+
 function faltantesI18n() {
   const l = Array.from(_faltan).sort();
   console.log(l.length + " frases sin traducir:");
@@ -146,7 +154,7 @@ function tx(txt) {
   if (seco !== txt && typeof d[seco] === "string") {
     return txt.slice(0, txt.indexOf(seco[0])) + d[seco] + txt.slice(txt.indexOf(seco[0]) + seco.length);
   }
-  if (AUDITA_I18N && seco) _faltan.add(seco);
+  if (AUDITA_I18N && tieneLetras(seco)) _faltan.add(seco);
   return txt;
 }
 
@@ -170,7 +178,7 @@ function T(partes, ...valores) {
   const clave = partes.reduce((s, p, i) => s + p + (i < valores.length ? "{" + i + "}" : ""), "");
   const hit = d[clave] || d[clave.trim()];
   if (typeof hit !== "string") {
-    if (AUDITA_I18N && clave.trim()) _faltan.add(clave.trim());
+    if (AUDITA_I18N && tieneLetras(clave.trim())) _faltan.add(clave.trim());
     return crudo;
   }
   return hit.replace(/\{(\d+)\}/g, (m, i) => {
