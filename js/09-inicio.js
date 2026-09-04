@@ -1139,7 +1139,9 @@ function renderAjustes() {
 
   const abierta = seccionesAjustes().find(x => x.id === ajusteAbierto);
   const titulo = document.getElementById("ajustes-titulo");
-  if (titulo) titulo.textContent = (!escritorio && abierta) ? tx(abierta.nombre) : tx("Ajustes");
+  /* `abierta` sale de `seccionesAjustes()`, que ya traduce: envolverla otra
+     vez buscaba el inglés en el diccionario y lo apuntaba como si faltara. */
+  if (titulo) titulo.textContent = (!escritorio && abierta) ? abierta.nombre : tx("Ajustes");
 }
 
 /* ================= Mi exigencia =================

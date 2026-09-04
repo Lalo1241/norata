@@ -442,14 +442,20 @@ function renderSync() {
          ese botón quita la confirmación de borrar. Ver `esCuentaDePruebas` en
          `js/10c-portada.js`. */
       cuentasSeccionHTML() +
-      '<div class="stack">' +
-      '<button class="btn btn-soft btn-block" onclick="syncRun({})">Sincronizar ahora</button>' +
+      /* Dos arriba y una abajo, y no tres en fila: las dos de arriba son
+         cosas que no te quitan nada —traer los cambios, entrar con otra
+         cuenta, que además CONSERVA la de ahora— y la de abajo toca la
+         sesión. Tres botones iguales del mismo alto no dicen cuál pesa; con
+         la fila partida, la que se lleva la anchura entera es la única con
+         consecuencias. Lo pidió Eduardo. */
+      '<div class="stack cuentas-acciones">' +
+      '<button class="btn btn-soft" onclick="syncRun({})">' + tx("Sincronizar ahora") + '</button>' +
       /* `btn-linea` y no `btn-soft`: no escribe nada tuyo, te lleva a otro
          sitio. Y separado de «Cerrar sesión» a propósito, porque son cosas
          distintas y confundirlas cuesta caro: cerrar sesión borra el atajo
          para volver, cambiar de cuenta lo conserva. */
-      '<button class="btn btn-linea btn-block" onclick="irAAgregarCuenta()">Entrar con otra cuenta</button>' +
-      '<button class="btn btn-aviso btn-block" onclick="syncDisconnect()">Cerrar sesión en este dispositivo</button>' +
+      '<button class="btn btn-linea" onclick="irAAgregarCuenta()">' + tx("Entrar con otra cuenta") + '</button>' +
+      '<button class="btn btn-aviso btn-block" onclick="syncDisconnect()">' + tx("Cerrar sesión en este dispositivo") + '</button>' +
       '</div>';
     return;
   }

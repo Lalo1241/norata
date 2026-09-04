@@ -99,8 +99,7 @@ const GARANTIA_DIAS = 7;
 /* La promesa entera en una frase. Sin condiciones colgando: si hay que explicar
    cuándo aplica, deja de tranquilizar, que es lo único que vino a hacer. */
 function garantiaTexto() {
-  return "Si no es para ti, te devolvemos los primeros " + GARANTIA_DIAS +
-         " días. Sin explicaciones.";
+  return T`Si no es para ti, te devolvemos los primeros ${GARANTIA_DIAS} días. Sin explicaciones.`;
 }
 
 const PLANES = {
@@ -703,8 +702,7 @@ function topeAlcanzado(clave) {
        el precio. Aquí en corto —solo el plazo de Pro— porque este cuadro
        aparece cuando alguien llenó una rama, no cuando está comparando planes:
        lo que va a pulsar es Pro. */
-    '<span class="tope-garantia">Y si no es para ti, te devolvemos los primeros ' +
-    GARANTIA_DIAS + ' días.</span>';
+    '<span class="tope-garantia">' + T`Y si no es para ti, te devolvemos los primeros ${GARANTIA_DIAS} días.` + '</span>';
   /* `danger` y `alarm` en false a propósito, y es la decisión de fondo de todo
      este cuadro: aquí no se rompió nada. Alguien llenó una rama, que es un
      logro. El temblor y el coral son para lo que se pierde. */
@@ -1317,7 +1315,7 @@ function planConmutadorHTML() {
     ? tx("El plan anual sale dos meses más barato.")
     : tx("Estás ahorrando dos meses frente al mensual.");
 
-  return `<div class="plan-per-wrap" role="group" aria-label="Cada cuánto se cobra Pro">${
+  return `<div class="plan-per-wrap" role="group" aria-label="${escapeAttr(tx("Cada cuánto se cobra Pro"))}">${
     uno("mensual", "Mensual")}${uno("anual", "Anual")}</div>` +
     `<span class="plan-gancho">${escapeHtml(gancho)}</span>`;
 }
@@ -1370,8 +1368,8 @@ function planTarjetasHTML() {
       <div class="plan-card destacada">
         ${planConmutadorHTML()}
         ${conPiedra("pro", NOMBRE_PRO)}
-        <span class="plan-p">${escapeHtml(p.precio)} <i>${escapeHtml(p.periodo)}</i></span>
-        <span class="plan-d">${escapeHtml(p.pie)}</span>
+        <span class="plan-p">${escapeHtml(p.precio)} <i>${escapeHtml(tx(p.periodo))}</i></span>
+        <span class="plan-d">${escapeHtml(tx(p.pie))}</span>
         ${vent(ventajasPro())}
         <button class="btn btn-primary btn-block"
           onclick="irAPagarDesdeAjustes('${planPeriodo}', this)">${tx("Pasar a Plan Pro")}</button>
@@ -1403,8 +1401,8 @@ function planTarjetasHTML() {
              aquí una cuenta que ya no sale. -->
         <span class="plan-gancho">${escapeHtml(planFundadorGancho())}</span>
         ${conPiedra("fundador", NOMBRE_FUNDADOR)}
-        <span class="plan-p">${escapeHtml(f.precio)} <i>${escapeHtml(f.periodo)}</i></span>
-        <span class="plan-d">${escapeHtml(f.pie)}</span>
+        <span class="plan-p">${escapeHtml(f.precio)} <i>${escapeHtml(tx(f.periodo))}</i></span>
+        <span class="plan-d">${escapeHtml(tx(f.pie))}</span>
         ${vent(ventajasFundador)}
         <button class="btn btn-primary btn-block"
           onclick="irAPagarDesdeAjustes('fundador', this)">${tx("Pasar a Plan Fundador")}</button>
