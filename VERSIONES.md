@@ -76,6 +76,56 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.76 · 3 sep 2026
+
+**El embudo por fin es un embudo, y las aperturas dejan de llamarse personas.**
+Dos de la lista del 28 de agosto: el punto 2 y el primero de los tres fallos
+diagnosticados.
+
+#### El embudo mentía, y era de los fallos peores
+
+El texto de la caja prometía que **cada paso es un trozo del anterior**, y el
+último no lo era: «Siguen esta semana» se contaba suelto —cuántas cuentas
+distintas tienen un pulso en los últimos siete días— sin filtrar por ninguno de
+los pasos de arriba. Alguien que abrió la app por primera y única vez anteayer
+no entraba en «Volvieron otro día» y sí en «Siguen esta semana», así que el
+embudo podía enseñar **un 3 debajo de un 2**. Lo cazó Eduardo mirándolo.
+
+Es de los fallos peores que puede tener un panel: **no se ve roto, se ve raro**,
+y quien lo mira acaba desconfiando de todas las cifras en vez de desconfiar de
+una.
+
+Ahora el último paso sale de la misma CTE que los dos anteriores —de los que
+volvieron otro día, los que además siguen apareciendo esta semana—, y eso es lo
+que impide que alguien vuelva a separarlo sin darse cuenta.
+
+**Esto vive en `supabase/administracion.sql`, así que no viaja en la app: ya
+está aplicado en el servidor** —comprobado leyendo la definición de la función
+en la base, no de memoria—. Quien vuelva a correr ese archivo entero no rompe
+nada: es `create or replace`.
+
+Y el centinela del lado de la app se queda: si un escalón vuelve a crecer, la
+pantalla lo dice en oro en vez de disimularlo con un «no se pierde nadie».
+
+#### Personas y aperturas eran dos cosas y se llamaban igual
+
+El punto 2 pedía «distinguir usuarios únicos por cuenta, no solo aperturas». En
+los datos ya estaba bien: `pulsos` tiene la clave `(user_id, dia)`, así que hay
+**una fila por cuenta y día** y la serie de la gráfica cuenta cuentas, no
+aparatos ni visitas.
+
+Lo que estaba mal era una cifra del pie: sumaba esas cuentas de los catorce días
+y al resultado le ponía **«aperturas con cuenta»**. Eso no eran aperturas — era
+la suma de cuentas-por-día, que no es una magnitud que le interese a nadie:
+alguien que abrió los catorce días contaba catorce. Y las aperturas de verdad
+venían en los datos, en su propia columna, **sin que ninguna pantalla las
+usara**.
+
+Ahora son dos cifras distintas, y el par dice algo que ninguna decía sola:
+**cuántas veces se abre la app por cada cuenta que la abre**. Medido con datos
+sembrados: 59 cuentas-día y 142 aperturas dan «142 aperturas · 2,4 por cuenta al
+día».
+
 ### 0.7.75 · 3 sep 2026
 
 **Las cuentas nuevas dejan de ser barras y pasan a ser una línea.** Es el punto

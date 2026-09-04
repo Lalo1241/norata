@@ -306,14 +306,29 @@ begin
     -- El embudo, en el orden en que se pierde gente. Cada paso es un
     -- subconjunto del anterior, así que se lee de arriba abajo y el escalón
     -- que más cae es el que hay que arreglar.
+    --
+    -- ---- Y HASTA EL 3 DE SEPTIEMBRE DE 2026 ESO ERA MENTIRA ----
+    -- El último paso se contaba SUELTO: «cuántas cuentas distintas tienen un
+    -- pulso en los últimos siete días», sin filtrar por ninguno de los pasos
+    -- de arriba. Alguien que abrió la app por primera y única vez anteayer no
+    -- estaba en «Volvieron otro día» y sí en «Siguen esta semana», así que el
+    -- embudo podía enseñar un 3 debajo de un 2. Lo cazó Eduardo mirándolo, y
+    -- es de los fallos peores que puede tener un panel: no se ve roto, se ve
+    -- raro, y quien lo mira acaba desconfiando de todas las cifras en vez de
+    -- desconfiar de una.
+    --
+    -- Ahora sí es un subconjunto: de los que volvieron otro día, los que
+    -- además siguen apareciendo esta semana. Sale de la misma CTE `p` que los
+    -- dos pasos anteriores, que es lo que garantiza que no se pueda volver a
+    -- separar sin darse cuenta.
     'embudo', jsonb_build_array(
       jsonb_build_object('paso', 'Se registraron',        'personas', (select count(*) from u)),
       jsonb_build_object('paso', 'Confirmaron el correo', 'personas', (select count(*) from u where confirmada)),
       jsonb_build_object('paso', 'Abrieron la app',       'personas', (select count(*) from p)),
       jsonb_build_object('paso', 'Volvieron otro día',    'personas', (select count(*) from p where dias > 1)),
-      jsonb_build_object('paso', 'Siguen esta semana',    'personas', (select count(distinct user_id)
-                                                                        from public.pulsos
-                                                                       where dia >= current_date - 7))
+      jsonb_build_object('paso', 'Siguen esta semana',    'personas', (select count(*) from p
+                                                                        where dias > 1
+                                                                          and ultimo >= current_date - 7))
     ),
 
     -- Los catorce días SIEMPRE completos, incluidos los que no tuvo nadie.
