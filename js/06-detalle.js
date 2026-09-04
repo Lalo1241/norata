@@ -64,6 +64,12 @@ function renderMissions() {
       ${iconoMision(m)}
       <div class="ms-body" onclick="openMissionForm('${m.id}')">
         <div class="ms-name">${escapeHtml(m.name)}</div>
+        ${/* El ancla, si la tiene. Debajo del nombre y antes de los datos:
+              lo que hace falta saber para hacerla no es cuántos XP da, es
+              cuándo toca. Solo sale si se escribió, así que las misiones de
+              siempre se ven exactamente igual que antes. */
+          m.ancla ? `<div class="ms-ancla">${icon("flag", 11)}${
+            tx("Después de")} <b>${escapeHtml(m.ancla)}</b></div>` : ""}
         <div class="ms-meta">
           ${guardada
             ? `<span>cumplida el ${formatDate(m.completedAt)}</span>`

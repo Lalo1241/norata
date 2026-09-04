@@ -383,6 +383,27 @@
         <span>¿Qué vas a hacer?</span>
         <input type="text" id="ms-name" placeholder="Ej. Caminar 20 minutos" maxlength="60">
       </label>
+      <!-- El ancla: «después de qué» va a pasar esto.
+
+           No es un recordatorio y conviene que no se convierta en uno: no hay
+           hora, no hay aviso y la app no comprueba nada. Es una frase que
+           escribes para ti y que aparece justo donde vas a mirar.
+
+           Va aquí, pegado al nombre, y no al final del formulario: se decide en
+           el mismo momento que el qué, no como un ajuste que nadie baja a ver.
+
+           El «Después de» vive en la caja y no en lo que escribes, así que lo
+           guardado es «servirme el café» y la frase se arma sola en la tarjeta.
+           Sin eso, media app acabaría con «Después de después de comer». -->
+      <label class="field">
+        <span>Después de… (opcional)</span>
+        <div class="ancla-caja">
+          <span class="ancla-pre">Después de</span>
+          <input type="text" id="ms-ancla" placeholder="servirme el café" maxlength="40">
+        </div>
+      </label>
+      <div class="ancla-sug" id="ms-ancla-sug"></div>
+
       <label class="field">
         <span>Detalle (opcional)</span>
         <textarea id="ms-desc" rows="2" placeholder="Algo que te ayude a recordar qué cuenta como cumplida." maxlength="200"></textarea>
