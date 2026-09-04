@@ -309,7 +309,7 @@ function portadaPintar(modo) {
          <p class="portada-lema">${tx("La cuenta en la que estás ahora se queda guardada en este dispositivo: podrás volver a ella con un toque.")}</p>`
       : vuelve
       ? `<div class="portada-vuelve">
-           ${avatarPinta(sync.ultimoUid, sync.ultimoSaludo, sync.ultimoCorreo, 56)}
+           ${avatarPinta(sync.ultimoUid, sync.ultimoSaludo, sync.ultimoCorreo, 56, "", sync.ultimoColor)}
            <h2>Hola de nuevo, ${escapeHtml(sync.ultimoSaludo)}</h2>
            <p class="portada-lema">${tx("Escribe tu contraseña y sigues donde lo dejaste.")}</p>
          </div>`
@@ -705,7 +705,7 @@ async function adoptarSesion(mensaje) {
      no en cada entrada. */
   const p = perfilActual();
   if (p.deducido && p.saludo) {
-    guardarPerfil(p.nombre, p.apodo).catch(() => { /* el próximo intento */ });
+    guardarPerfil(p.nombre, p.apodo, p.color).catch(() => { /* el próximo intento */ });
   }
 
   /* El aviso de la bienvenida, también sin `await`. La pantalla no depende de
@@ -907,7 +907,7 @@ function cuentasMenuHTML(pref) {
   const fila = c => {
     const s = cuentaSaludo(c);
     return `<button class="${pref}-item ${pref}-cuenta" onclick="entrarConCuentaGuardada('${escapeAttr(c.uid)}')">
-      ${avatarPinta(c.uid, s, c.correo, 30)}
+      ${avatarPinta(c.uid, s, c.correo, 30, "", (c.perfil || {}).color)}
       <span class="${pref}-tx"><b>${escapeHtml(s || c.correo)}</b>${s ? `<span>${escapeHtml(c.correo)}</span>` : ""}</span>
     </button>`;
   };

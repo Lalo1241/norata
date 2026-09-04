@@ -759,8 +759,8 @@ const TEXTOS_EN = {
   "Los puntos son personas que abrieron la app; las barras del fondo, cuentas nuevas. Las líneas verticales marcan cada lunes, para comparar una semana con otra.":
     "The dots are people who opened the app; the bars behind them, new accounts. The vertical lines mark each Monday, so you can compare one week with another.",
   "Cómo la usan": "How they use it",
-  "Desde qué aparato": "From which device",
-  "Sale del ancho de la ventana, no de fichar el aparato: dos teléfonos distintos cuentan como uno.":
+  "Desde qué dispositivo": "From which device",
+  "Sale del ancho de la ventana, no de fichar el dispositivo: dos teléfonos distintos cuentan como uno.":
     "It comes from the window width, not from fingerprinting the device: two different phones count as one.",
   "Instalada o en el navegador": "Installed or in the browser",
   "Instalada se abre sola; en una pestaña se olvida. Señal buena: 30 de cada 100.":
@@ -1091,6 +1091,20 @@ const TEXTOS_EN = {
   "¿Cómo te decimos? <i>opcional</i>": "What should we call you? <i>optional</i>",
   "Es lo que usaremos al saludarte, aquí y en los correos. Hasta {0} letras.":
     "It's what we'll use to greet you, here and in emails. Up to {0} characters.",
+  "Tu color": "Your colour",
+  "Es el círculo con tu inicial. Ponles colores distintos a tus cuentas y se distinguen de un vistazo.":
+    "It is the circle with your initial. Give your accounts different colours and you can tell them apart at a glance.",
+  "El de siempre": "The usual one",
+  "El color de siempre": "The usual colour",
+  "Color": "Colour",
+  "menta": "mint",
+  "amarillo": "yellow",
+  "coral": "coral",
+  "cielo": "sky",
+  "violeta": "violet",
+  "lima": "lime",
+  "rosa": "pink",
+  "ámbar": "amber",
   "Nombre de este dispositivo": "This device's name",
   "Aparece cuando dos dispositivos cambian lo mismo y hay que elegir.":
     "It shows up when two devices change the same thing and you have to choose.",
@@ -2625,5 +2639,40 @@ const TEXTOS_EN = {
     "The paperwork for the first thirty days there",
   "Estar en regla para trabajar": "Be legal to work",
   "Un trámite avanzado": "One piece of paperwork moved forward",
-  "Practicar el idioma": "Practise the language"
+  "Practicar el idioma": "Practise the language",
+
+  /* ---- El cajon de los caminos: los rotulos ----
+  */
+
+  "Ya lo tienes": "You already have it",
+  "encargos": "assignments",
+  "peldaños": "rungs",
+  "misiones": "missions",
+  "proyecto nuevo": "new project",
+  "rama nueva": "new branch",
+  "datos tocados": "data touched",
+  "Esto es lo que va a entrar en tu tablero. Nada se guarda hasta que lo aceptes, y una vez dentro lo cambias como cualquier cosa tuya.":
+    "This is what's going onto your board. Nothing is saved until you accept it, and once it's in you change it like anything else of yours.",
+  "El primer peldaño está abierto": "The first rung is open",
+  "; el resto espera su turno.": "; the rest wait their turn.",
+  ", pero se puede adelantar": ", but it can be moved up",
+  "Norata no está afiliada a los autores citados ni cuenta con su aval.":
+    "Norata isn't affiliated with the authors cited, nor endorsed by them.",
+  "General": "General",
+  "pide {0}": "needs {0}",
+  "y {0} más, hasta «{1}»": "and {0} more, up to «{1}»",
+  "{0} peldaños abiertos": "{0} rungs open",
+  "Entra en <b>{0}</b>": "It goes into <b>{0}</b>",
+  " — «{0}» ya está ocupada, así que la nueva va aparte y la de antes se queda entera":
+    " — «{0}» is already taken, so the new one goes separately and the old one stays whole",
+  "{0}: {1} peldaños, el primero abierto y el resto con candado.":
+    "{0}: {1} rungs, the first open and the rest locked.",
+  "Empiezas por: {0}": "You start with: {0}",
+
+  /* 
+  */
+
+  "— «{0}» ya está ocupada, así que la nueva va aparte y la de antes se queda entera":
+    "— «{0}» is already taken, so the new one goes separately and the old one stays whole",
+  "Encargo creado en el proyecto {0}": "Assignment created in the {0} project"
 };
