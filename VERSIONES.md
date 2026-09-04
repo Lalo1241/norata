@@ -76,6 +76,35 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.87.1 · 4 sep 2026
+
+**Se acabó «aparato».** La app entera decía «dispositivo» y la palabra se coló
+tres veces en pantallas nuevas. Eduardo la paró y pidió el barrido completo:
+«de todos lados, no por tandas». **117 cambios en 32 archivos, de una pasada.**
+
+Lo único que el usuario leía estaba en **las dos páginas legales** —términos y
+aviso de privacidad, seis apariciones entre las dos—. El resto son comentarios
+del código, esta misma lista, los LEEME y las láminas.
+
+**Lo que NO se tocó, y es la mitad del trabajo.** `aparato` es también el nombre
+de una columna de verdad —`public.pulsos` y `public.tropiezos`—, y `aparatos` y
+`dos_aparatos` son claves del JSON que el panel lee (`m.aparatos`). Renombrarlas
+no es cambiar un texto: es un despliegue, y la app se queda rota hasta que el
+SQL se corra en el servidor. Así que en los `.sql` solo se tocó lo que va
+detrás de `--`, y no cambió ni una línea de código.
+
+Y dentro de esos comentarios había una trampa que un barrido ciego se lleva por
+delante: una **consulta comentada** —la número 4 de `medicion.sql`— que está
+ahí para pegarla y correrla. El barrido le había cambiado
+`count(distinct aparato)` por `dispositivo`, que no existe como columna. Se
+devolvió: **una consulta comentada sigue siendo código.**
+
+Comprobado: los 26 archivos parsean —un global real de cada uno—, sin aviso de
+fallo ni errores en consola; ningún cambio cayó dentro de un `tx()` ni de
+ninguna cadena, solo comentarios; las dos páginas legales ya no dicen la palabra
+y siguen leyendose; y el panel sigue leyendo `m.aparatos`, que es lo que el
+servidor devuelve.
+
 ### 0.7.87 · 4 sep 2026
 
 **Las tres preguntas de la bienvenida, rehechas enteras.** Cinco encargos de
