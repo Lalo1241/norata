@@ -325,7 +325,16 @@ function buildFromOnboarding() {
       const cat = SKILL_CATALOG.find(x => x.n === nombre);
       const nueva = {
         id: uid(), name: rotulo,
-        category: cat ? cat.c : "General",
+        /* La categoría se traduce igual que el nombre, y por lo mismo: es un
+           RÓTULO, no la clave. `cat.c` viene del catálogo, que está escrito en
+           español y es quien decide icono y color; lo que se guarda dentro de
+           la habilidad es lo que la persona va a leer en su lista y en el
+           filtro de Habilidades. Sin el `tx()`, quien armaba su tablero en
+           inglés acababa con «Listening» dentro de «Vida adulta» —y con dos
+           grupos distintos si luego añadía una del catálogo, que sí traduce—.
+           Es lo mismo que ya hacen el catálogo (`nuevaHabilidad`) y los
+           caminos (`js/10j-caminos.js`). */
+        category: cat ? tx(cat.c) : tx("General"),
         icon: cat ? cat.i : a.icon,
         color: cat ? cat.k : a.color,
         xp: 0, permanent: false, graceDays: grace, decayPerDay: decay,

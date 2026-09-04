@@ -76,6 +76,44 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.87.1 · 4 sep 2026
+
+**La categoría de una habilidad también es un rótulo, y se quedaba en
+español.** Quien armaba su tablero con las tres preguntas teniendo la app en
+inglés acababa con «Listening» dentro de «Vida adulta»: el nombre traducido y
+el grupo no.
+
+Se veía peor en cuanto añadía una del catálogo, porque ese camino sí traducía:
+la lista de Habilidades quedaba con «Adult life» y «Vida adulta» como dos
+grupos distintos, y el filtro de arriba los ofrecía como dos categorías
+separadas cuando son la misma.
+
+La regla es la que ya estaba escrita para el nombre: **`SKILL_CATALOG` está en
+español porque es la clave interna —es quien decide icono y color, y buscar por
+el nombre inglés no encontraría nada—, pero lo que se GUARDA dentro de la
+habilidad es lo que la persona va a leer.** Los caminos
+(`js/10j-caminos.js`) y el catálogo ya lo hacían así; faltaba la bienvenida.
+
+De paso, la ficha de una habilidad (`js/06-detalle.js`) enseñaba «Sin
+categoría» sin traducir. Era la única de las dos pantallas que lo hacía: la
+lista de Habilidades ya lo tenía envuelto.
+
+Las ocho claves ya estaban en el diccionario —las seis categorías, «General» y
+«Sin categoría»—, así que no hizo falta tocarlo.
+
+Y al mirar ese filtro salió el tercero: el primer chip decía «Todas» en la app
+en inglés. Ese sí es del programa, pero es a la vez el rótulo y el VALOR con el
+que se compara, así que se traduce solo al escribirlo — traducirlo en la lista
+dejaría `activeCategory` en inglés y el filtro no encontraría nada al volver al
+español. **Y se traduce ESE y no los demás:** las otras categorías salen de las
+habilidades de la persona, y pasarlas todas por `tx()` sería traducir sus datos
+—una categoría suya llamada «Guardar» se volvería «Save» sola—.
+
+Comprobado sembrando el tablero en inglés desde cero y añadiendo encima una del
+catálogo: las siete habilidades salen con «Creativity», «Home», «Adult life» y
+«Health», y el filtro ofrece esos cuatro grupos con «All» delante, en vez de los
+ocho que salían mezclando idiomas.
+
 ### 0.7.87 · 4 sep 2026
 
 **Las tres preguntas de la bienvenida, rehechas enteras.** Cinco encargos de
