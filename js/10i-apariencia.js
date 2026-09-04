@@ -580,7 +580,7 @@ function rotuloDePrueba(cual) {
   const n = aparienciaPorId(cual);
   const d = document.createElement("div");
   d.id = "aparienciaPrueba";
-  d.textContent = "Apariencia de prueba: " + (n ? n.nombre : cual);
+  d.textContent = T`Apariencia de prueba: ${n ? tx(n.nombre) : cual}`;
   document.body.appendChild(d);
 }
 
@@ -702,11 +702,10 @@ function estadoApariencia(a) {
     const n = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 0;
     const faltan = Math.max(1, a.abre - n);
     return {
-      ok: false, clase: "nivel", chapa: "Nivel " + a.abre, corta: "Nivel " + a.abre, insignia: null,
+      ok: false, clase: "nivel", chapa: T`Nivel ${a.abre}`, corta: T`Nivel ${a.abre}`, insignia: null,
       titulo: faltan === 1 ? tx("Te falta un nivel") : T`Te faltan ${faltan} niveles`,
-      texto: a.nombre + " se abre en el nivel " + a.abre + " de expedición y vas en el " +
-        n + ". Ese nivel no se compra: sube solo con lo que haces en la app." +
-        (a.pro ? " Al llegar arriba se enciende con " + pro + "." : ""),
+      texto: T`${tx(a.nombre)} se abre en el nivel ${a.abre} de expedición y vas en el ${n}.` +
+        (a.pro ? T` Al llegar arriba se enciende con ${pro}.` : ""),
       /* Sin botón, y es lo mismo que dice el comentario de arriba: aquí no se
          ofrece pagar. La salida de este candado es usar la app. */
       accion: null
@@ -718,9 +717,9 @@ function estadoApariencia(a) {
     return {
       ok: false, clase: "fundador", chapa: "Solo Fundador", corta: "Fundador", insignia: "plan-fundador",
       titulo: a.nombre + " es de " + fun,
-      texto: a.nombre + " es lo único que " + fun + " tiene además de Pro" +
-        (precio ? ": un pago único de " + precio + ", sin fecha y sin renovaciones." : ".") +
-        " No se abre con el plan mensual ni con el anual.",
+      texto: T`${tx(a.nombre)} es lo único que ${fun} tiene además de Pro` +
+        (precio ? T`: un pago único de ${precio}, sin fecha y sin renovaciones.` : ".") +
+        tx(" No se abre con el plan mensual ni con el anual."),
       accion: { texto: "Ver " + fun, como: "fundador", insignia: "plan-fundador" }
     };
   }
@@ -732,9 +731,9 @@ function estadoApariencia(a) {
        mismo, y decir «viene con Pro» de los dos es justo la confusión que
        `apariencias/LEEME.md` existe para evitar. */
     texto: esMundo(a.id)
-      ? "Un mundo es la app hecha de otro material: su tipografía, sus texturas, su marco y sus propios nombres para cada rango del camino. Con " + pro + " se abren los tres construidos y los que lleguen después."
-      : "El nivel ya lo tienes; lo que falta es el plan. Con " + pro + " se abren todas las apariencias, las de hoy y las que vengan.",
-    accion: { texto: "Ver " + pro, como: "pro", insignia: "plan-pro" }
+      ? T`Un mundo es la app hecha de otro material: su tipografía, sus texturas, su marco y sus propios nombres para cada rango del camino. Con ${pro} se abren los tres construidos y los que lleguen después.`
+      : T`El nivel ya lo tienes; lo que falta es el plan. Con ${pro} se abren todas las apariencias, las de hoy y las que vengan.`,
+    accion: { texto: T`Ver ${pro}`, como: "pro", insignia: "plan-pro" }
   };
 }
 
@@ -946,7 +945,7 @@ function escenaCuerpo(id) {
     </div>
     <div class="vp-caja vp-rango">
       <span class="vp-glifo">${r.glifo}</span>
-      <span class="vp-tx"><b>${escapeHtml(r.nombre)}</b><i>${m && m.listo ? "Tu rango en " + escapeHtml(m.nombre) : "Tu rango"}</i></span>
+      <span class="vp-tx"><b>${escapeHtml(r.nombre)}</b><i>${m && m.listo ? T`Tu rango en ${escapeHtml(tx(m.nombre))}` : tx("Tu rango")}</i></span>
     </div>`;
 }
 
@@ -1065,7 +1064,7 @@ function pintarFicha(id) {
   const puesta = apariencia() === id;
   const comoMundo = miradaComoMundo;
   const nombre = nombreApariencia(a, comoMundo);
-  const premisa = (comoMundo && id === "casa") ? CASA_MUNDO.premisa : (a.premisa || "");
+  const premisa = tx((comoMundo && id === "casa") ? CASA_MUNDO.premisa : (a.premisa || ""));
 
   /* Los cinco nombres del camino, que es lo que de verdad separa un mundo de un
      recolor: un ambiente te cambia la luz, un mundo te renombra lo que llevas
@@ -1148,7 +1147,7 @@ function filaMundo(m, esSalida) {
       ${m.icon ? `<span class="mun-ic">${icon(m.icon, 20)}</span>` : ""}
       <span class="mun-tx">
         <b>${escapeHtml(m.nombre)}${esSalida ? "" : novedadApariencia(m)}</b>
-        <span>${escapeHtml(m.premisa || "")}</span>
+        <span>${escapeHtml(tx(m.premisa || ""))}</span>
       </span>
       ${esSalida
         /* «Predeterminado» y no una cápsula de plan: es el mundo original, no

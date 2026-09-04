@@ -59,7 +59,7 @@ function renderMissions() {
           ${costo > 0 ? `<span class="ms-espera">esperó ${costo} d</span>` : ""}
           ${/* Deshacer vive DENTRO de la misión, junto a sus datos. Estaba
                 pegado a la llama de la racha, donde el signo "−" se leía
-                como "bájame la racha" en vez de "quita una vez de hoy".
+                como tx("bájame la racha") en vez de tx("quita una vez de hoy").
                 Solo queda en las misiones con cuenta: en las de un solo
                 golpe lo hace ya el propio círculo al pasar el cursor, y
                 tener las dos cosas era ofrecer dos veces lo mismo. Dice
@@ -93,10 +93,10 @@ function renderMissions() {
      hueco. La de cumplidas es la excepción —a esa se llega cumpliendo, no
      planeando— y por eso es la única que cuenta algo. */
   const VACIO = {
-    hoy: "Arrastra aquí la misión que quieras.",
-    hechas: "Aquí van apareciendo las que cumples hoy.",
-    semana: "Arrastra aquí la misión que quieras.",
-    terminadas: "Arrastra aquí la misión que quieras dar por terminada."
+    hoy: tx("Arrastra aquí la misión que quieras."),
+    hechas: tx("Aquí van apareciendo las que cumples hoy."),
+    semana: tx("Arrastra aquí la misión que quieras."),
+    terminadas: tx("Arrastra aquí la misión que quieras dar por terminada.")
   };
 
   /* La lista es también la zona donde se suelta: `data-soltar` deja que una
@@ -107,7 +107,7 @@ function renderMissions() {
     return `<div class="ms-list" data-tablero="${c.id}" data-soltar=".ms-card">${
       lista.length
         ? lista.map(card).join("")
-        : `<p class="col-vacia">${escapeHtml(VACIO[c.id] || "Arrastra aquí la misión que quieras.")}</p>`
+        : `<p class="col-vacia">${escapeHtml(VACIO[c.id] || tx("Arrastra aquí la misión que quieras."))}</p>`
     }</div>`;
   };
 
@@ -126,7 +126,7 @@ function renderMissions() {
 
   const menuTablero = (c) => c.propio
     ? branchMenu("t:" + c.id, [
-        { title: "Borrar este tablero", hint: (porTablero[c.id] || []).length ? "Sus misiones vuelven a su sitio" : "Está vacío", icon: "bote", danger: true, onclick: `borrarTableroMisiones('${c.id}')` }
+        { title: tx("Borrar este tablero"), hint: (porTablero[c.id] || []).length ? tx("Sus misiones vuelven a su sitio") : tx("Está vacío"), icon: "bote", danger: true, onclick: `borrarTableroMisiones('${c.id}')` }
       ])
     : "";
 
@@ -155,8 +155,8 @@ function renderMissions() {
     focus: pending[0]
       ? { k: tx("Lo siguiente para hoy"), v: pending[0].name, color: "var(--mint)", onclick: `logMission('${pending[0].id}', 1)` }
       : (due.length
-        ? { k: "Día completo", v: "Todas las misiones cumplidas", color: "var(--mint)" }
-        : { k: "Sin misiones hoy", v: "Crea una o descansa", color: "var(--muted)" })
+        ? { k: tx("Día completo"), v: tx("Todas las misiones cumplidas"), color: "var(--mint)" }
+        : { k: tx("Sin misiones hoy"), v: tx("Crea una o descansa"), color: "var(--muted)" })
   });
 
   /* Dos formas para el mismo tablero. En pantalla ancha son columnas de
@@ -285,7 +285,7 @@ function renderProjects() {
   } else if (live.length) {
     pFocus = { k: tx("Siguiente etapa"), v: live[0].name, color: "var(--mint)", onclick: `openProject('${live[0].id}')`, pct: projectProgress(live[0]) };
   } else {
-    pFocus = { k: "Nada en marcha", v: "Crea un encargo cuando quieras", color: "var(--muted)" };
+    pFocus = { k: tx("Nada en marcha"), v: tx("Crea un encargo cuando quieras"), color: "var(--muted)" };
   }
 
   let html = sectionHero({
@@ -355,8 +355,8 @@ function renderProjects() {
         <span class="count">${liveN} de ${list.length}</span>
         <div class="bhead-btns">
           ${branchMenu("p:" + b, [
-            { title: enMapa ? "Verlo como lista" : "Verlo como mapa",
-              hint: enMapa ? "Vuelve a las tarjetas de siempre" : "Dibuja los encargos y en qué orden van",
+            { title: enMapa ? tx("Verlo como lista") : tx("Verlo como mapa"),
+              hint: enMapa ? tx("Vuelve a las tarjetas de siempre") : tx("Dibuja los encargos y en qué orden van"),
               icon: enMapa ? "caja" : "expandir", onclick: `alternarMapaProyectos('${enJS(b)}')` },
             ...(enMapa ? [
               { title: editandoMapa ? "Salir de edición" : "Editar el mapa",
@@ -502,8 +502,8 @@ function reacomodarRamas(nombres) {
 }
 
 function pistaReordenarRamas() {
-  return isDesktop() ? "Arrastra una cabecera para reordenar las ramas"
-                     : "Mantén pulsada una cabecera para reordenar las ramas";
+  return isDesktop() ? tx("Arrastra una cabecera para reordenar las ramas")
+                     : tx("Mantén pulsada una cabecera para reordenar las ramas");
 }
 
 /* Reconstruye el orden y la rama de cada encargo a partir de lo que quedó en
@@ -944,7 +944,7 @@ function linkedToSkill(s) {
   return `
     <div class="panel alt">
       <h3>${tx("Qué alimenta esta habilidad")}</h3>
-      ${group("misión diaria", "misiones diarias", "target", ms.map(m => {
+      ${group(tx("misión diaria"), "misiones diarias", "target", ms.map(m => {
         const c = missionCount(m, key), t = missionTarget(m), ok = c >= t;
         const st = missionStreak(m);
         return `<button class="linked-row" style="--lc:${pinta(m.color)}" onclick="showView('missions')">
@@ -957,7 +957,7 @@ function linkedToSkill(s) {
         const stt = perkStatus(p);
         return `<button class="linked-row" style="--lc:${pinta(p.color)}" onclick="openPerk('${p.id}')">
           <span class="lr-ic">${icon(p.icon, 16)}</span>
-          <span class="lr-tx"><b>${escapeHtml(p.name)}</b><span>${STATUS_LABEL[stt]} · +${p.xpReward} XP al lograrlo</span></span>
+          <span class="lr-tx"><b>${escapeHtml(p.name)}</b><span>${tx(STATUS_LABEL[stt])} · ${T`+${p.xpReward} XP al lograrlo`}</span></span>
           <span class="lr-go">→</span>
         </button>`;
       }))}
@@ -1027,7 +1027,7 @@ function minutosHoyGlobal() {
 function avisoDescanso(msg) {
   const card = document.querySelector("#modal .modal-card");
   if (card) card.classList.add("suave");
-  return askBase(msg, false, "Sigo un rato", false, false, "Lo dejo por hoy")
+  return askBase(msg, false, tx("Sigo un rato"), false, false, tx("Lo dejo por hoy"))
     .then(v => { if (card) card.classList.remove("suave"); return v; });
 }
 
@@ -1070,7 +1070,7 @@ function penalizarPorAbuso() {
     const perdido = s.xp - suelo;
     if (perdido <= 0) return;
     s.xp = suelo;
-    s.log.unshift({ date: todayKey(), at: stamp(), xp: -perdido, note: "Nivel retirado por registro abusivo", fuente: "Sistema" });
+    s.log.unshift({ date: todayKey(), at: stamp(), xp: -perdido, note: tx("Nivel retirado por registro abusivo"), fuente: "Sistema" });
     tocadas++;
   });
   return tocadas;
@@ -1089,7 +1089,7 @@ async function marcarAbuso(s, esGlobal) {
     renderDetail();
     await ask(
       `Es el segundo día seguido registrando más de medio día de práctica en una sola habilidad.\n\n` +
-      `El sistema de habilidades solo sirve si refleja algo real, así que se retira un nivel completo en ${n === 1 ? "la habilidad que tenía" : `las ${n} habilidades que tenían`} nivel para recuperar.\n\n` +
+      `El sistema de habilidades solo sirve si refleja algo real, así que se retira un nivel completo en ${n === 1 ? tx("la habilidad que tenía") : `las ${n} habilidades que tenían`} nivel para recuperar.\n\n` +
       `Ninguna baja de cero. Mañana puedes volver a registrar con normalidad.`,
       "Entendido", true);
     return;
@@ -1243,7 +1243,7 @@ function renderTree() {
   } else if (readyNow.length) {
     focus = { k: tx("Listo para empezar"), v: readyNow[0].name, color: "var(--mint)", id: readyNow[0].id };
   } else {
-    focus = { k: "Sin planes en curso", v: "Abre un talento cuando quieras", color: "var(--muted)", id: null };
+    focus = { k: tx("Sin planes en curso"), v: tx("Abre un talento cuando quieras"), color: "var(--muted)", id: null };
   }
 
   const branches = ramasT;
@@ -1352,7 +1352,7 @@ function renderTree() {
                completa despliega la rama de todos modos, y quien la tiene
                plegada es justo quien no tiene a mano el botón de debajo del
                lienzo. */
-            { title: "Ver en pantalla completa", hint: "Recorre la rama con sitio de sobra", icon: "expandir", onclick: `openBranchFullscreen('${bj}')` },
+            { title: tx("Ver en pantalla completa"), hint: tx("Recorre la rama con sitio de sobra"), icon: "expandir", onclick: `openBranchFullscreen('${bj}')` },
             ...(collapsed ? [] : [
               /* Elegir varios sin teclado: en el teléfono es la única forma
                  de juntar talentos, y en la computadora convive con Shift. */

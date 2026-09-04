@@ -197,9 +197,9 @@ function renderCopias() {
        dispositivo" —cierto y no dice nada—: quien viene a restaurarla viene
        porque el tipo de cambio estaba mal, y tiene que reconocerla. */
     const DE_DONDE = {
-      remoto: "la versión del otro dispositivo",
-      local: "la versión de este dispositivo",
-      moneda: "lo que había antes de cambiar de moneda"
+      remoto: tx("la versión del otro dispositivo"),
+      local: tx("la versión de este dispositivo"),
+      moneda: tx("lo que había antes de cambiar de moneda")
     };
     const de = DE_DONDE[c.lado] || DE_DONDE.local;
     return `
@@ -273,7 +273,7 @@ async function syncOnce(opts) {
      pisaríamos con los nuestros, que es peor. */
   const schemaRemoto = Number(env && (env.schema || (env.state && env.state.schemaVersion))) || 1;
   if (schemaRemoto > SCHEMA) {
-    throw new Error("El otro dispositivo usa una versión más nueva de Norata. Actualiza esta (recarga la página) antes de sincronizar.");
+    throw new Error(tx("El otro dispositivo usa una versión más nueva de Norata. Actualiza esta (recarga la página) antes de sincronizar."));
   }
 
   const remoteRev = env && typeof env.rev === "number" ? env.rev : 0;
@@ -471,7 +471,7 @@ async function perfilGuardarAqui() {
     /* Se avisa por el saludo y no por el nombre: es el que se va a ver, y
        enseñarlo aquí es la única forma de comprobar que el apodo hizo lo que
        se esperaba sin tener que cerrar sesión para verlo. */
-    toast(quiere.saludo ? "Te llamaremos " + quiere.saludo : "Nombre guardado", "logro");
+    toast(quiere.saludo ? T`Te llamaremos ${quiere.saludo}` : "Nombre guardado", "logro");
   } catch (e) {
     toast((e && e.message) || String(e));
     renderSync();   // devuelve los campos a lo que sí está guardado
@@ -540,7 +540,7 @@ function guardarMotivoDeBaja(texto) {
   try {
     const t = String(texto || "").trim();
     if (!t) return;
-    console.log("[motivo de baja, aun sin enviar]", t);
+    console.log(tx("[motivo de baja, aun sin enviar]"), t);
   } catch (e) { /* irse nunca puede fallar por esto */ }
 }
 
@@ -771,7 +771,7 @@ function formatWhen(e) {
 }
 
 function planLabel(days) {
-  if (days % 365 === 0) { const y = days / 365; return y === 1 ? "1 año" : y + " años"; }
+  if (days % 365 === 0) { const y = days / 365; return y === 1 ? tx("1 año") : y + " años"; }
   if (days % 30 === 0) { const m = days / 30; return m === 1 ? "1 mes" : m + " meses"; }
   return days + " días";
 }

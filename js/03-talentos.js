@@ -154,7 +154,7 @@ async function completeHito(id) {
 async function completePerk(id) {
   const p = state.perks.find(x => x.id === id);
   if (!p || p.status !== "active") return;
-  if (!await ask(`¿Confirmas que lograste la meta de "${p.name}"? Se volverá permanente.`, "Sí, lo logré")) return;
+  if (!await ask(`¿Confirmas que lograste la meta de "${p.name}"? Se volverá permanente.`, tx("Sí, lo logré"))) return;
   p.status = "completed";
   p.completedAt = todayKey();
   p.history.unshift({ date: todayKey(), at: stamp(), event: "Meta lograda: talento permanente" });
@@ -168,9 +168,9 @@ async function completePerk(id) {
 async function failPerk(id) {
   const p = state.perks.find(x => x.id === id);
   if (!p || p.status !== "active") return;
-  if (!await ask(`¿Marcar "${p.name}" como perdido? Podrás reintentarlo más adelante (volviendo a invertir).`, "Lo perdí", true)) return;
+  if (!await ask(`¿Marcar "${p.name}" como perdido? Podrás reintentarlo más adelante (volviendo a invertir).`, tx("Lo perdí"), true)) return;
   p.status = "expired";
-  p.history.unshift({ date: todayKey(), at: stamp(), event: "Plan vencido sin lograr la meta" });
+  p.history.unshift({ date: todayKey(), at: stamp(), event: tx("Plan vencido sin lograr la meta") });
   save();
   toast(`El talento "${p.name}" se perdió. Puedes reintentarlo.`, "atencion");
   renderPerkDetail();
@@ -442,7 +442,7 @@ async function guardarTrimestre(b, tid) {
   save();
   renderTree();
   toast(`${tituloTrimestre(tid)} guardado · ${dentro.length} talento${dentro.length === 1 ? "" : "s"}`, "hecho",
-    { label: "Ver qué lleva", onclick: `verCaja('${caja.id}')` });
+    { label: tx("Ver qué lleva"), onclick: `verCaja('${caja.id}')` });
 }
 
 /* Abrir no es una vista de solo lectura: lo de dentro vuelve a ser
@@ -491,7 +491,7 @@ async function renombrarCaja(id) {
   const c = cajaPorId(id);
   if (!c) return;
   const nombre = await askText(
-    "¿Cómo quieres llamar a esta caja?",
+    tx("¿Cómo quieres llamar a esta caja?"),
     nombreCaja(c),
     "Ponerle nombre",
     `Déjalo vacío para volver a "${tituloTrimestre(c.trimestre)}".`);
@@ -510,7 +510,7 @@ function sacarDeCaja(cajaId, perkId) {
   const c = cajaPorId(cajaId);
   const p = state.perks.find(x => x.id === perkId);
   if (!c || !p) return;
-  pushUndo("sacar un talento de la caja");
+  pushUndo(tx("sacar un talento de la caja"));
   c.perkIds = c.perkIds.filter(id => id !== perkId);
   if (c.pos) delete c.pos[perkId];
   // Vuelve a correr su plazo: fuera de la caja el compromiso está vivo
@@ -554,7 +554,7 @@ async function crearGrupoCon(ids, branch) {
   }
   const nombre = await askText(
     `Agrupar ${dentro.length} talentos`, "", "Agrupar",
-    "El nombre del grupo. Puedes cambiarlo después.", 42);
+    tx("El nombre del grupo. Puedes cambiarlo después."), 42);
   if (nombre === null) return null;
 
   fijarPosiciones(branch);
@@ -623,7 +623,7 @@ function verCaja(id) {
     <div class="caja-row ${st === "completed" ? "ok" : ""}">
       <button type="button" class="caja-ir" onclick="irATalentoDeCaja('${escapeAttr(p.id)}')">
         <span class="ci" style="color:${tinta(p.color)}">${icon(st === "completed" ? "check" : (p.icon || "star"), 15)}</span>
-        <span class="ct"><b>${escapeHtml(p.name)}</b><span>${metaDe(p).nombre} · ${STATUS_LABEL[st]}</span></span>
+        <span class="ct"><b>${escapeHtml(p.name)}</b><span>${tx(metaDe(p).nombre)} · ${tx(STATUS_LABEL[st])}</span></span>
       </button>
       <button type="button" class="caja-sacar" title="${escapeAttr(tx("Sacar del ático"))}" aria-label="Sacar ${escapeAttr(p.name)} del ático"
         onclick="sacarDeCaja('${escapeAttr(c.id)}','${escapeAttr(p.id)}')">↥</button>
@@ -644,7 +644,7 @@ function verCaja(id) {
     </div>
     <p class="settings-note" style="text-align:left;margin:0 0 12px">${
       c.abierta
-        ? "Está desplegada: sus talentos viven en el mapa, dentro del recinto del grupo."
+        ? tx("Está desplegada: sus talentos viven en el mapa, dentro del recinto del grupo.")
         : `Está guardada: en el mapa ocupa un solo nodo${
             pendientes ? ` y los plazos de lo pendiente están congelados` : ""}${
             enlaces ? ` · ${enlaces} conexión${enlaces === 1 ? "" : "es"} entrando` : ""}.`}</p>

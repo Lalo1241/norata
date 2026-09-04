@@ -713,7 +713,7 @@ const MONEDA_POR_DEFECTO = "MXN";
    diccionario inglés (`js/00b-textos-en.js`), o la app en inglés dirá la
    fecha en español dentro de una frase inglesa. */
 const CAMBIO_EN_PESOS = { MXN: 1, USD: 17.0, EUR: 19.72 };
-const CAMBIO_FECHA = "3 de septiembre de 2026";
+const CAMBIO_FECHA = tx("3 de septiembre de 2026");
 
 /* Cuántas unidades de `a` vale una de `de`. Es lo que se enseña en la
    pantalla y lo que se puede corregir a mano. */
@@ -1281,7 +1281,7 @@ function askText(titulo, valor, okLabel, pista, max, motivo) {
      <input id="modal-input" type="text" maxlength="${Number(max) || 42}" value="${escapeAttr(valor || "")}">
      ${pista ? `<span class="field-hint" style="display:block;text-align:left">${escapeHtml(pista)}</span>` : ""}
      ${motivo ? `<label class="modal-motivo">
-       <span class="modal-motivo-t">${escapeHtml(motivo.titulo || "¿Nos cuentas por qué te vas?")} <i>${tx("Opcional")}</i></span>
+       <span class="modal-motivo-t">${escapeHtml(motivo.titulo || tx("¿Nos cuentas por qué te vas?"))} <i>${tx("Opcional")}</i></span>
        <textarea id="modal-motivo" rows="3" maxlength="${MOTIVO_MAX}"
          placeholder="${escapeAttr(motivo.pista || "Lo que quieras contarnos.")}"></textarea>
        <span class="modal-cuenta" id="modal-cuenta">0 / ${MOTIVO_MAX}</span>
@@ -1430,7 +1430,7 @@ function avisar(msg, icono, okLabel, titulo) {
    quedarse. Para lo que tiene un coste que no se ve —perder algo, no romper
    algo—, que es cuando el rojo miente y el oro dice la verdad. */
 function avisarOro(msg, icono, okLabel, titulo, cancelLabel) {
-  return askBase(msg, false, okLabel || "Continuar", true, true, cancelLabel || "Mejor no",
+  return askBase(msg, false, okLabel || "Continuar", true, true, cancelLabel || tx("Mejor no"),
                  { icono: icono || "alert", fijo: true, titulo: titulo, tono: "oro" });
 }
 

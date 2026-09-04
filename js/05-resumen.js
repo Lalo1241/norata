@@ -281,18 +281,18 @@ function renderSummary() {
           <div class="mt-head">
             <div class="mt-tx">
               <b>${tx("Misiones de hoy")}</b>
-              <span>${tiene ? "Hoy no te toca ninguna" : "Todavía no tienes ninguna"}</span>
+              <span>${tiene ? tx("Hoy no te toca ninguna") : tx("Todavía no tienes ninguna")}</span>
             </div>
             <button class="btn ${tiene ? "btn-linea" : "btn-soft"} btn-sm" onclick="${
               tiene ? "showView('missions')" : "openMissionForm()"}">${
-              tiene ? "Ver misiones" : "Crear una"}</button>
+              tiene ? "Ver misiones" : tx("Crear una")}</button>
           </div>
           ${/* La nota se centra en lo que sobre de tarjeta: el alto lo eligió
                 el acomodo pensando en una lista de misiones, y con dos frases
                 pegadas arriba el resto se lee como un panel roto. */""}
           <p class="settings-note mt-hueco">${tiene
-            ? "Un día sin misiones programadas también cuenta. Si quieres adelantar algo, tráelo a hoy desde Misiones."
-            : "Una misión es algo que haces hoy y que suma a una habilidad. La primera es la que echa a andar la racha."}</p>
+            ? tx("Un día sin misiones programadas también cuenta. Si quieres adelantar algo, tráelo a hoy desde Misiones.")
+            : tx("Una misión es algo que haces hoy y que suma a una habilidad. La primera es la que echa a andar la racha.")}</p>
         </div>`;
       }
       const pend = due.filter(m => !missionDone(m, key));
@@ -1578,7 +1578,7 @@ function dashTray(hidden) {
         ${acomodosDeAhora().map((a, i) => `
           <button class="acomodo ${a.nombre === acomodoActivo() ? "on" : ""}" onclick="aplicarAcomodo(${i})">
             <span class="ac-n">${i + 1}</span>
-            <span class="ac-tx"><b>${escapeHtml(a.nombre)}</b><span>${escapeHtml(a.sub)}</span></span>
+            <span class="ac-tx"><b>${escapeHtml(tx(a.nombre))}</b><span>${escapeHtml(tx(a.sub))}</span></span>
           </button>`).join("")}
       </div>
     </div>
@@ -1590,8 +1590,8 @@ function setDashEdit(on) {
   renderSummary();
   if (!on) return;
   toast(isDesktop()
-    ? "Arrastra las tarjetas para reacomodarlas"
-    : "Elige un acomodo para tu Resumen", "hecho");
+    ? tx("Arrastra las tarjetas para reacomodarlas")
+    : tx("Elige un acomodo para tu Resumen"), "hecho");
 }
 
 function hideWidget(id) {
@@ -1911,7 +1911,7 @@ function renderHome() {
     const li = levelInfo(closest.xp);
     hFocus = { k: T`A ${li.needed - li.inLevel} XP del nivel ${li.level + 1}`, v: closest.name, color: "var(--mint)", pct: li.pct, onclick: `openDetail('${closest.id}')` };
   } else {
-    hFocus = { k: "Todo al máximo", v: "No queda nivel por subir", color: "var(--mint)" };
+    hFocus = { k: tx("Todo al máximo"), v: tx("No queda nivel por subir"), color: "var(--mint)" };
   }
 
   document.getElementById("home-hero").innerHTML = skills.length === 0 ? "" : sectionHero({
@@ -2021,7 +2021,7 @@ function renderHome() {
       <div class="skill-emoji" style="background:${velo(s.color, "26")};color:${tinta(s.color)}">${icon(s.icon, 23)}</div>
       <div class="skill-info">
         <div class="skill-name">${escapeHtml(s.name)}</div>
-        <div class="skill-meta">${escapeHtml(s.category || "Sin categoría")}</div>
+        <div class="skill-meta">${escapeHtml(s.category || tx("Sin categoría"))}</div>
       </div>
       ${enSeleccion ? "" : `<div class="mini-ring">
         ${ring(46, 4.5, [{ pct, color: trazo(s.color) }], "var(--carril)")}
@@ -2113,7 +2113,7 @@ function sostienenLaRacha(dias) {
     (sk.log || []).forEach(e => {
       if (e.date >= desde && (Number(e.xp) || 0) > 0 && !e.fuente) dias30.add(e.date);
     });
-    if (dias30.size) filas.push({ nombre: "Práctica de " + sk.name, dias: dias30.size, color: sk.color });
+    if (dias30.size) filas.push({ nombre: T`Práctica de ${sk.name}`, dias: dias30.size, color: sk.color });
   });
 
   return filas.sort((a, b) => b.dias - a.dias).slice(0, 3);
@@ -2659,7 +2659,7 @@ async function borrarSeleccionHab() {
   const conXp = state.skills.filter(s => seleccionHab.has(s.id) && s.xp > 0).length;
   const ok = await ask(
     `Se van ${n} habilidad${n === 1 ? "" : "es"}` +
-    (conXp ? `, y ${conXp === 1 ? "una de ellas tiene" : `${conXp} de ellas tienen`} progreso registrado que se pierde` : "") +
+    (conXp ? `, y ${conXp === 1 ? tx("una de ellas tiene") : `${conXp} de ellas tienen`} progreso registrado que se pierde` : "") +
     ".\n\nEsto no se puede deshacer.",
     `Borrar ${n === 1 ? "la habilidad" : "las " + n}`, true);
   if (!ok) return;
@@ -2861,10 +2861,10 @@ async function crearRama(kind) {
     return;
   }
   const nombre = await askText(
-    esTalentos ? "Nueva rama de talentos" : "Nueva rama de proyectos", "", "Crear",
+    esTalentos ? tx("Nueva rama de talentos") : tx("Nueva rama de proyectos"), "", "Crear",
     esTalentos
-      ? "Un ámbito donde agrupar talentos: un oficio, un instrumento, un plan."
-      : "Algo que estás construyendo: una mudanza, un lanzamiento, un trámite largo. Dentro van los encargos que lo hacen avanzar.",
+      ? tx("Un ámbito donde agrupar talentos: un oficio, un instrumento, un plan.")
+      : tx("Algo que estás construyendo: una mudanza, un lanzamiento, un trámite largo. Dentro van los encargos que lo hacen avanzar."),
     30);
   if (!nombre) return;
   const ramas = ramasDe(kind);
@@ -2926,9 +2926,9 @@ async function deleteBranch(kind, b) {
     (arrastra
       ? `Se borrará ${cont} "${b}" y con ${esTalentos ? "ella" : "él"} ${arrastra}.`
       : `Se borrará ${cont} "${b}", que está ${esTalentos ? "vacía" : "vacío"}.`) + "\n\n" +
-    (esTalentos && n ? "También se pierden las conexiones que llegaban a esos talentos desde otras ramas.\n\n" : "") +
-    "Esto no se puede deshacer.",
-    esTalentos ? "Borrar la rama" : "Borrar el proyecto", true);
+    (esTalentos && n ? tx("También se pierden las conexiones que llegaban a esos talentos desde otras ramas.\n\n") : "") +
+    tx("Esto no se puede deshacer."),
+    esTalentos ? tx("Borrar la rama") : tx("Borrar el proyecto"), true);
   if (!ok) return;
 
   state.ui[claveRamas(kind)] = ramasDe(kind).filter(n => n !== b);
@@ -2979,7 +2979,7 @@ async function deleteBranch(kind, b) {
    resultado no se puede adivinar desde el teclado. */
 async function renombrarRama(b) {
   const nuevo = await askText(`Renombrar la rama "${b}"`, b, "Renombrar",
-    "Se reescribe en todos sus talentos y en sus cajas.");
+    tx("Se reescribe en todos sus talentos y en sus cajas."));
   if (nuevo === null || !nuevo || nuevo === b) return;
 
   const existe = state.perks.some(p => (p.branch || "General") === nuevo);
@@ -3009,7 +3009,7 @@ async function renombrarRama(b) {
    nunca se ejecutan juntas. */
 async function renombrarRamaProyectos(b) {
   const nuevo = await askText(`Renombrar el proyecto "${b}"`, b, "Renombrar",
-    "Se reescribe en todos sus encargos.");
+    tx("Se reescribe en todos sus encargos."));
   if (nuevo === null || !nuevo || nuevo === b) return;
 
   const existe = state.projects.some(p => (p.branch || "General") === nuevo);

@@ -334,7 +334,7 @@ function planLeerSimulado() {
 function planNombreSimulado() {
   const cual = planLeerSimulado();
   const x = PLANES_SIMULABLES.find(p => p.id === cual);
-  return cual && x ? x.rotulo : "";
+  return cual && x ? tx(x.rotulo) : "";
 }
 
 /* Las fechas se calculan desde hoy y no se escriben a mano: un "vence el 3 de
@@ -475,7 +475,7 @@ function planSimular(cual) {
   if (typeof refrescarApariencia === "function") refrescarApariencia();
   if (typeof renderPanelApariencia === "function") renderPanelApariencia();
   if (typeof toast === "function") {
-    toast(cual ? "Viendo la app como " + planNombreSimulado() : "De vuelta a tu plan de verdad", "hecho");
+    toast(cual ? T`Viendo la app como ${planNombreSimulado()}` : tx("De vuelta a tu plan de verdad"), "hecho");
   }
 }
 
@@ -517,32 +517,28 @@ function topeTexto(clave) {
        abajo: esta frase decía «Llenaste la primera» de cuando el tope era
        una, y siguió diciéndolo después de pasar a tres. */
     return {
-      titulo: "Tu árbol pide otra rama",
-      frase: "Las " + LIMITES.libre.ramas + " ramas del plan Gratuito, llenas. " +
-        "Con " + NOMBRE_PRO + " abres las que quieras, y cada una lleva su propio camino."
+      titulo: tx("Tu árbol pide otra rama"),
+      frase: T`Las ${LIMITES.libre.ramas} ramas del plan Gratuito, llenas. Con ${NOMBRE_PRO} abres las que quieras, y cada una lleva su propio camino.`
     };
   }
   if (clave === "ramasProyectos") {
     return {
-      titulo: "Otro proyecto en marcha",
-      frase: "Los " + LIMITES.libre.ramasProyectos + " proyectos del plan Gratuito, ocupados. " +
-        "Con " + NOMBRE_PRO + " llevas a la vez los que quieras."
+      titulo: tx("Otro proyecto en marcha"),
+      frase: T`Los ${LIMITES.libre.ramasProyectos} proyectos del plan Gratuito, ocupados. Con ${NOMBRE_PRO} llevas a la vez los que quieras.`
     };
   }
   if (clave === "encargos") {
     return {
-      titulo: "Este proyecto va lleno",
-      frase: "Los " + LIMITES.libre.encargos + " encargos del plan Gratuito, puestos. " +
-        "Con " + NOMBRE_PRO + " este proyecto sigue creciendo sin contar."
+      titulo: tx("Este proyecto va lleno"),
+      frase: T`Los ${LIMITES.libre.encargos} encargos del plan Gratuito, puestos. Con ${NOMBRE_PRO} este proyecto sigue creciendo sin contar.`
     };
   }
   if (clave === "skills") {
     /* El número sale de `LIMITES`, como en las otras cuatro: el día que seis
        sean ocho, esta frase no puede seguir diciendo seis. */
     return {
-      titulo: "Tu lista de habilidades va llena",
-      frase: "Las " + LIMITES.libre.skills + " habilidades del plan Gratuito, en marcha. " +
-        "Con " + NOMBRE_PRO + " añades las que quieras, y todas siguen subiendo igual."
+      titulo: tx("Tu lista de habilidades va llena"),
+      frase: T`Las ${LIMITES.libre.skills} habilidades del plan Gratuito, en marcha. Con ${NOMBRE_PRO} añades las que quieras, y todas siguen subiendo igual.`
     };
   }
   if (clave === "talentos") {
@@ -550,15 +546,14 @@ function topeTexto(clave) {
        copiarlo —está dentro de una frase, no de una tabla— y por eso se dice:
        el día que doce sean quince, esta frase seguiría diciendo doce. */
     return {
-      titulo: "Llenaste esta rama",
-      frase: "Los " + LIMITES.libre.talentos + " talentos del plan Gratuito, completos. " +
-        "Con " + NOMBRE_PRO + " esta rama sigue creciendo sin contar."
+      titulo: tx("Llenaste esta rama"),
+      frase: T`Los ${LIMITES.libre.talentos} talentos del plan Gratuito, completos. Con ${NOMBRE_PRO} esta rama sigue creciendo sin contar.`
     };
   }
   if (clave === "resumen") {
     return {
-      titulo: "Tu semana, de un vistazo",
-      frase: "Tu día lo ves siempre en el panel de cada módulo. Los informes empiezan en la semana y vienen con " + NOMBRE_PRO + "."
+      titulo: tx("Tu semana, de un vistazo"),
+      frase: T`Tu día lo ves siempre en el panel de cada módulo. Los informes empiezan en la semana y vienen con ${NOMBRE_PRO}.`
     };
   }
   if (clave === "apariencia") {
@@ -572,12 +567,11 @@ function topeTexto(clave) {
        Y sin números: decir «cinco de los siete» sería una segunda verdad que
        mantener el día que entre el octavo. */
     return {
-      titulo: "Norata con otro material",
-      frase: "Subir de nivel abre ambientes: la misma Norata con otra luz. Con " +
-        NOMBRE_PRO + " se abren todos, y además los mundos, que cambian el material entero — la letra, las texturas y hasta cómo se llama tu camino."
+      titulo: tx("Norata con otro material"),
+      frase: T`Subir de nivel abre ambientes: la misma Norata con otra luz. Con ${NOMBRE_PRO} se abren todos, y además los mundos, que cambian el material entero — la letra, las texturas y hasta cómo se llama tu camino.`
     };
   }
-  return { titulo: "Esto viene con " + NOMBRE_PRO, frase: "Tu plan Gratuito no incluye esta parte." };
+  return { titulo: T`Esto viene con ${NOMBRE_PRO}`, frase: tx("Tu plan Gratuito no incluye esta parte.") };
 }
 
 /* La frase suelta, sin título, para quien solo necesite el texto. Se queda
@@ -603,10 +597,10 @@ function ventajasPro() {
      describe la ausencia de una traba —habla del límite, no de lo que
      abres— y en una lista que existe para convencer, cada renglón tiene que
      decir lo que ganas. */
-  if (p.ramas > l.ramas) v.push("Ramas de talentos ilimitadas");
-  if (p.talentos > l.talentos) v.push("Talentos ilimitados en cada rama");
-  if (p.resumen.length > l.resumen.length) v.push("Informes de la semana, del mes y del año");
-  if (p.apariencia && !l.apariencia) v.push("Todas las apariencias");
+  if (p.ramas > l.ramas) v.push(tx("Ramas de talentos ilimitadas"));
+  if (p.talentos > l.talentos) v.push(tx("Talentos ilimitados en cada rama"));
+  if (p.resumen.length > l.resumen.length) v.push(tx("Informes de la semana, del mes y del año"));
+  if (p.apariencia && !l.apariencia) v.push(tx("Todas las apariencias"));
   return v;
 }
 
@@ -646,7 +640,7 @@ function topeAlcanzado(clave) {
        decía de QUÉ eran: se leían como características sueltas del cuadro y
        no como lo que abre pagar. Un renglón lo arregla, y de paso es donde
        el nombre del producto aparece por primera vez. */
-    '<span class="tope-tit">' + icon("gem", 15) + 'Lo que abre ' + escapeHtml(NOMBRE_PRO) + '</span>' +
+    '<span class="tope-tit">' + icon("gem", 15) + T`Lo que abre ${escapeHtml(NOMBRE_PRO)}` + '</span>' +
     '<span class="tope-lista">' +
       ventajasPro().map(function (v) {
         return '<span class="tope-item">' + icon("check", 15) +
@@ -658,12 +652,11 @@ function topeAlcanzado(clave) {
        página donde por fin te digo la cifra", y esa sospecha frena más que el
        propio precio. Sale de `PLANES` por lo mismo que las ventajas salen de
        `LIMITES`. */
-    '<span class="tope-precio">Desde ' + escapeHtml(PLANES.mensual.precio) +
-    ' al mes. Cancelas cuando quieras.</span>';
+    '<span class="tope-precio">' + T`Desde ${escapeHtml(PLANES.mensual.precio)} al mes. Cancelas cuando quieras.` + '</span>';
   /* `danger` y `alarm` en false a propósito, y es la decisión de fondo de todo
      este cuadro: aquí no se rompió nada. Alguien llenó una rama, que es un
      logro. El temblor y el coral son para lo que se pierde. */
-  return askBase(cuerpo, true, "Quiero " + NOMBRE_PRO, false, false, "Ahora no",
+  return askBase(cuerpo, true, "Quiero " + NOMBRE_PRO, false, false, tx("Ahora no"),
                  /* La gema y no la corona: es el símbolo que la app usa para
                     lo premium, y repetirlo en el cuadro del tope, en la lista
                     y en el botón hace que los tres se lean como el mismo
@@ -721,12 +714,12 @@ function planTono() {
    frase entera —"Plan Mensual, hasta el 14 de marzo"— y ahí no cabe. */
 function planEtiquetaCorta() {
   if (!PLAN.pro) {
-    if (PLAN.compro && PLAN.compro !== "libre") return "Tu plan terminó";
+    if (PLAN.compro && PLAN.compro !== "libre") return tx("Tu plan terminó");
     return "Gratuito";
   }
-  if (PLAN.estado === "impago") return "Revisa tu pago";
+  if (PLAN.estado === "impago") return tx("Revisa tu pago");
   if (PLAN.plan === "fundador") return "Fundador";
-  if (!PLAN.renueva && PLAN.vence_el) return "Hasta el " + fechaCorta(PLAN.vence_el);
+  if (!PLAN.renueva && PLAN.vence_el) return T`Hasta el ${fechaCorta(PLAN.vence_el)}`;
   /* El nivel y no la cadencia: en una pastilla de once píxeles, "Pro" dice lo
      que esta persona tiene y "Pro anual" gasta la mitad del hueco en decir
      cada cuánto le cobran, que no es lo que se viene a mirar aquí. */
@@ -739,21 +732,21 @@ function planEtiquetaCorta() {
    así que aquí va el dato y no la promesa de que hay un dato dentro. */
 function planSub() {
   if (typeof syncReady === "function" && !syncReady()) {
-    return "Con una cuenta puedes tener plan";
+    return tx("Con una cuenta puedes tener plan");
   }
   const p = PLANES[PLAN.plan] || {};
   if (!PLAN.pro) {
     if (PLAN.compro && PLAN.compro !== "libre") {
-      return "Tu plan " + ((PLANES[PLAN.compro] || {}).nombre || PLAN.compro) + " terminó";
+      return T`Tu plan ${(PLANES[PLAN.compro] || {}).nombre || PLAN.compro} terminó`;
     }
-    return "Gratuito · una rama y " + LIMITES.libre.talentos + " talentos";
+    return T`Gratuito · una rama y ${LIMITES.libre.talentos} talentos`;
   }
-  if (PLAN.estado === "impago") return "No pudimos cobrar tu último recibo";
+  if (PLAN.estado === "impago") return tx("No pudimos cobrar tu último recibo");
   /* «Vigente» y no el precio. El precio ya está dentro, en la cabecera y en el
      renglón de «qué pagas», y aquí compite con el único dato que esta línea
      tiene que dar: si lo que tienes sigue en pie o se está acabando. La única
      vez que sale una fecha es cuando hay una fecha que mirar. */
-  if (!PLAN.renueva && PLAN.vence_el) return p.nombre + " · Termina el " + fechaCorta(PLAN.vence_el);
+  if (!PLAN.renueva && PLAN.vence_el) return T`${p.nombre} · Termina el ${fechaCorta(PLAN.vence_el)}`;
   return (p.nombre || PLAN.plan) + " · Vigente";
 }
 
@@ -769,14 +762,14 @@ function planChapaHTML() {
    pagando, canceló pero le quedan días, y se acabó. */
 function planEtiqueta() {
   if (!PLAN.pro) {
-    if (PLAN.compro && PLAN.compro !== "libre") return "Tu plan " + (PLANES[PLAN.compro] || {}).nombre + " terminó";
+    if (PLAN.compro && PLAN.compro !== "libre") return T`Tu plan ${(PLANES[PLAN.compro] || {}).nombre} terminó`;
     return "Gratuito";
   }
   if (PLAN.plan === "fundador") return "Fundador";
   if (!PLAN.renueva && PLAN.vence_el) {
-    return "Plan " + (PLANES[PLAN.plan] || {}).nombre + ", hasta el " + fechaCorta(PLAN.vence_el);
+    return "Plan " + (PLANES[PLAN.plan] || {}).nombre + T`, hasta el ${fechaCorta(PLAN.vence_el)}`;
   }
-  if (PLAN.estado === "impago") return "Hay un problema con tu pago";
+  if (PLAN.estado === "impago") return tx("Hay un problema con tu pago");
   return "Plan " + ((PLANES[PLAN.plan] || {}).nombre || PLAN.plan);
 }
 
@@ -802,14 +795,14 @@ function fechaCorta(iso) {
    así que no hay nada sensible que pueda filtrarse desde aquí — que es justo
    el motivo de hacerlo así y no con un formulario propio. */
 async function irAPagar(cual) {
-  if (!PLANES[cual]) throw new Error("Ese plan no existe.");
+  if (!PLANES[cual]) throw new Error(tx("Ese plan no existe."));
 
   /* Sin cuenta no hay dónde aterrizar el pago. Se manda a entrar y se apunta
      qué quería comprar, para retomarlo al volver: perder la intención entre
      el registro y el pago es donde se cae la mitad de la gente. */
   if (typeof syncReady === "function" && !syncReady()) {
     try { sessionStorage.setItem("norata-comprar", cual); } catch (e) { /* da igual */ }
-    throw new Error("Entra con tu cuenta y el pago sigue donde lo dejaste.");
+    throw new Error(tx("Entra con tu cuenta y el pago sigue donde lo dejaste."));
   }
 
   const t = await sbToken();
@@ -825,10 +818,10 @@ async function irAPagar(cual) {
   const b = await res.json().catch(function () { return {}; });
 
   if (res.status === 404 || res.status === 503) {
-    throw new Error("El pago todavía no está disponible. Falta muy poco.");
+    throw new Error(tx("El pago todavía no está disponible. Falta muy poco."));
   }
-  if (b.agotado) throw new Error("Los lugares de fundador ya se agotaron.");
-  if (!res.ok || !b.url) throw new Error(b.error || "No se pudo abrir el pago.");
+  if (b.agotado) throw new Error(tx("Los lugares de fundador ya se agotaron."));
+  if (!res.ok || !b.url) throw new Error(b.error || tx("No se pudo abrir el pago."));
 
   /* `replace` y no `assign`: si vuelve con el botón de atrás, que no caiga
      otra vez en la página de cobro que acaba de abandonar. */
@@ -850,7 +843,7 @@ async function abrirPortalDePago() {
     body: JSON.stringify({ que: "portal" })
   });
   const b = await res.json().catch(function () { return {}; });
-  if (!res.ok || !b.url) throw new Error(b.error || "No se pudo abrir tu suscripción.");
+  if (!res.ok || !b.url) throw new Error(b.error || tx("No se pudo abrir tu suscripción."));
   location.replace(b.url);
 }
 
@@ -971,8 +964,8 @@ function compraPintar(estado) {
 
   if (estado === "esperando") {
     ic.innerHTML = '<span class="btn-rueda" aria-hidden="true" style="width:28px;height:28px;margin:0"></span>';
-    tit.textContent = "Confirmando tu pago";
-    sub.textContent = "Stripe ya cobró. Estamos esperando su aviso para encender tu plan; suele tardar un par de segundos.";
+    tit.textContent = tx("Confirmando tu pago");
+    sub.textContent = tx("Stripe ya cobró. Estamos esperando su aviso para encender tu plan; suele tardar un par de segundos.");
     lista.innerHTML = "";
     botones.innerHTML = "";
     return;
@@ -980,8 +973,8 @@ function compraPintar(estado) {
 
   if (estado === "tarda") {
     ic.innerHTML = icon("bulb", 34);
-    tit.textContent = "Tu pago se registró";
-    sub.textContent = "El aviso de Stripe está tardando más de lo normal. Tu plan se encenderá solo en cuanto llegue: no hay que volver a pagar ni hacer nada. Si al recargar la app en unos minutos sigue igual, escríbenos.";
+    tit.textContent = tx("Tu pago se registró");
+    sub.textContent = tx("El aviso de Stripe está tardando más de lo normal. Tu plan se encenderá solo en cuanto llegue: no hay que volver a pagar ni hacer nada. Si al recargar la app en unos minutos sigue igual, escríbenos.");
     lista.innerHTML = "";
     botones.innerHTML = '<button class="btn btn-soft btn-block" onclick="compraCerrar()">Entendido</button>';
     return;
@@ -991,19 +984,19 @@ function compraPintar(estado) {
      acaba de abrir — leído de `LIMITES`, como todo lo demás. */
   const p = PLANES[PLAN.plan] || {};
   ic.innerHTML = icon(planIcono(), 34);
-  tit.textContent = fundador ? "Ya eres fundador" : "Ya tienes " + (p.nombre || "Pro");
+  tit.textContent = fundador ? tx("Ya eres fundador") : T`Ya tienes ${p.nombre || "Pro"}`;
   sub.textContent = fundador
-    ? "Pago único, sin fecha y sin renovaciones. Tu lugar está guardado y la app queda abierta entera."
-    : "Tu plan está activo. Todo lo que sigue ya está encendido, y lo que tenías escrito sigue donde estaba.";
+    ? tx("Pago único, sin fecha y sin renovaciones. Tu lugar está guardado y la app queda abierta entera.")
+    : tx("Tu plan está activo. Todo lo que sigue ya está encendido, y lo que tenías escrito sigue donde estaba.");
 
   const l = LIMITES.pro;
   const abiertas = [
-    l.ramas === Infinity ? "Las ramas de talentos que quieras" : "Más ramas de talentos",
-    l.talentos === Infinity ? "Talentos sin tope dentro de cada rama" : "Más talentos por rama",
-    "Los resúmenes del mes y del año",
-    "Todas las apariencias"
+    l.ramas === Infinity ? tx("Las ramas de talentos que quieras") : tx("Más ramas de talentos"),
+    l.talentos === Infinity ? tx("Talentos sin tope dentro de cada rama") : tx("Más talentos por rama"),
+    tx("Los resúmenes del mes y del año"),
+    tx("Todas las apariencias")
   ];
-  if (fundador) abiertas.push("Tu distintivo: Reliquia, el anillo lila y tu propia insignia");
+  if (fundador) abiertas.push(tx("Tu distintivo: Reliquia, el anillo lila y tu propia insignia"));
 
   lista.className = "compra-lista";
   lista.innerHTML = abiertas.map(t =>
@@ -1094,30 +1087,29 @@ function planCabeceraHTML() {
 
   if (libre) {
     titulo = "Gratuito";
-    precio = "Sin costo";
+    precio = tx("Sin costo");
     if (PLAN.compro && PLAN.compro !== "libre") {
-      nota = "Tu plan " + ((PLANES[PLAN.compro] || {}).nombre || PLAN.compro) +
-        " terminó. No se borró nada: lo que pasa del plan Gratuito sigue a la vista, en solo lectura, y vuelve a moverse en cuanto renueves.";
+      nota = T`Tu plan ${(PLANES[PLAN.compro] || {}).nombre || PLAN.compro} terminó. No se borró nada: lo que pasa del plan Gratuito sigue a la vista, en solo lectura, y vuelve a moverse en cuanto renueves.`;
     } else {
-      nota = "Es tuyo para siempre y sin fecha. Norata entera funciona así; Pro solo quita los topes.";
+      nota = tx("Es tuyo para siempre y sin fecha. Norata entera funciona así; Pro solo quita los topes.");
     }
   } else {
     titulo = p.nombre || PLAN.plan;
-    precio = PLAN.plan === "fundador" ? p.precio + ", una sola vez" : p.precio + " " + p.periodo;
+    precio = PLAN.plan === "fundador" ? T`${p.precio}, una sola vez` : p.precio + " " + tx(p.periodo);
     if (PLAN.deCasa) {
       /* Ni «lo pagaste» ni un precio: no lo pagó. Decírselo bien cuesta una
          línea y evita que la única pantalla que habla de dinero mienta. */
       precio = "Cuenta administradora";
-      nota = "Tienes Norata entera abierta por sostenerla, no por una compra. No hay ningún cobro asociado a esta cuenta.";
+      nota = tx("Tienes Norata entera abierta por sostenerla, no por una compra. No hay ningún cobro asociado a esta cuenta.");
     } else if (PLAN.estado === "impago") {
-      nota = "No pudimos cobrar tu último recibo. Revisa tu tarjeta para que no se interrumpa; hay tres días de margen desde la fecha de cobro.";
+      nota = tx("No pudimos cobrar tu último recibo. Revisa tu tarjeta para que no se interrumpa; hay tres días de margen desde la fecha de cobro.");
     } else if (PLAN.plan === "fundador") {
-      nota = "Lo pagaste una vez y es para siempre. No hay nada que renovar ni que cancelar.";
+      nota = tx("Lo pagaste una vez y es para siempre. No hay nada que renovar ni que cancelar.");
     } else if (!PLAN.renueva && PLAN.vence_el) {
-      nota = "Cancelaste, y sigue funcionando hasta el " + fechaCorta(PLAN.vence_el) +
+      nota = T`Cancelaste, y sigue funcionando hasta el ${fechaCorta(PLAN.vence_el)}` +
         ". Nada de lo tuyo se borra ese día: lo que pase de los topes se queda a la vista y en solo lectura.";
     } else if (PLAN.vence_el) {
-      nota = "Se renueva por su cuenta el " + fechaCorta(PLAN.vence_el) + ", sin que tengas que hacer nada.";
+      nota = T`Se renueva por su cuenta el ${fechaCorta(PLAN.vence_el)}, sin que tengas que hacer nada.`;
     } else {
       nota = "Activo.";
     }
@@ -1155,17 +1147,17 @@ function planCabeceraHTML() {
 function planIncluyeHTML(pro) {
   const l = LIMITES[pro ? "pro" : "libre"];
   const filas = [
-    ["Ramas de talentos", l.ramas === Infinity ? "Ilimitadas" : (l.ramas === 1 ? "Una" : String(l.ramas))],
-    ["Talentos por rama", l.talentos === Infinity ? "Ilimitados" : String(l.talentos)],
-    ["Informes", l.resumen.length ? "De la semana, del mes y del año" : "El panel de tu día"],
-    ["Apariencias", l.apariencia ? "Todas" : "Las paletas que vayas desbloqueando"],
+    [tx("Ramas de talentos"), l.ramas === Infinity ? "Ilimitadas" : (l.ramas === 1 ? "Una" : String(l.ramas))],
+    [tx("Talentos por rama"), l.talentos === Infinity ? "Ilimitados" : String(l.talentos)],
+    ["Informes", l.resumen.length ? tx("De la semana, del mes y del año") : tx("El panel de tu día")],
+    ["Apariencias", l.apariencia ? "Todas" : tx("Las paletas que vayas desbloqueando")],
     /* Estas dos no salen de `LIMITES` porque no tienen tope en ningún plan, y
        decirlo aquí es la mitad del mensaje: lo que se cobra no es la app, son
        los topes. Sin ellas la lista del plan libre parece una lista de peros. */
-    ["Misiones, habilidades y proyectos", "Ilimitados"],
-    ["Sincronía entre dispositivos", "Incluida"]
+    [tx("Misiones, habilidades y proyectos"), "Ilimitados"],
+    [tx("Sincronía entre dispositivos"), "Incluida"]
   ];
-  return `<h4 class="plan-h">${pro ? "Qué tienes abierto" : "Qué tienes ahora"}</h4>
+  return `<h4 class="plan-h">${pro ? tx("Qué tienes abierto") : tx("Qué tienes ahora")}</h4>
     <dl class="plan-datos">` +
     filas.map(f => `<div><dt>${escapeHtml(f[0])}</dt><dd>${escapeHtml(f[1])}</dd></div>`).join("") +
     `</dl>`;
@@ -1181,13 +1173,13 @@ function planActivoHTML() {
      no se le pinta la lista: dos renglones diciendo «—» ocupan lo mismo que
      dos renglones diciendo algo. */
   const filas = PLAN.deCasa ? [] :
-    [["Qué pagas", PLAN.plan === "fundador" ? p.precio + ", una sola vez" : p.precio + " " + p.periodo]];
+    [[tx("Qué pagas"), PLAN.plan === "fundador" ? T`${p.precio}, una sola vez` : p.precio + " " + tx(p.periodo)]];
   if (PLAN.deCasa) {
     /* nada */
   } else if (PLAN.plan === "fundador") {
-    filas.push(["Hasta cuándo", "Para siempre"]);
+    filas.push([tx("Hasta cuándo"), tx("Para siempre")]);
   } else if (PLAN.vence_el) {
-    filas.push([PLAN.renueva ? "Siguiente cobro" : "Termina el", fechaCorta(PLAN.vence_el)]);
+    filas.push([PLAN.renueva ? "Siguiente cobro" : tx("Termina el"), fechaCorta(PLAN.vence_el)]);
   }
 
   return planCabeceraHTML() +
@@ -1201,7 +1193,7 @@ function planActivoHTML() {
        se queda para todos y solo cambia lo que promete. */
     (PLAN.deCasa ? "" :
       `<button class="btn ${PLAN.plan === "fundador" ? "btn-linea" : "btn-aviso"} btn-block" style="margin-top:14px" onclick="irAlPortal(this)">${
-        PLAN.plan === "fundador" ? "Ver mi recibo" : "Editar suscripción"
+        PLAN.plan === "fundador" ? "Ver mi recibo" : tx("Editar suscripción")
       }</button>
        ` + planPortalNotaHTML());
 }
@@ -1226,9 +1218,8 @@ function planFundadorGancho() {
   const f = n(PLANES.fundador.precio), a = n(PLANES.anual.precio);
   if (!f || !a) return "";
   const anos = Math.floor(f / a) + 1;
-  if (anos < 2) return "Cuesta menos que un año del anual.";
-  return "Cuesta menos que " + (anos === 2 ? "dos" : anos === 3 ? "tres" : anos) +
-    " años del plan anual.";
+  if (anos < 2) return tx("Cuesta menos que un año del anual.");
+  return T`Cuesta menos que ${anos === 2 ? tx("dos") : anos === 3 ? tx("tres") : anos} años del plan anual.`;
 }
 
 /* Cada cuánto se cobra Pro. En una variable y no en tres tarjetas, porque
@@ -1271,8 +1262,8 @@ function planConmutadorHTML() {
      aquí en los dos casos, y el pie del anual pasó a contar lo suyo —cada
      cuánto se cobra—, que es lo que le faltaba. */
   const gancho = planPeriodo === "mensual"
-    ? "El plan anual sale dos meses más barato."
-    : "Estás ahorrando dos meses frente al mensual.";
+    ? tx("El plan anual sale dos meses más barato.")
+    : tx("Estás ahorrando dos meses frente al mensual.");
 
   return `<div class="plan-per-wrap" role="group" aria-label="Cada cuánto se cobra Pro">${
     uno("mensual", "Mensual")}${uno("anual", "Anual")}</div>` +
@@ -1317,10 +1308,10 @@ function planTarjetasHTML() {
        ve es un anillo en su foto y una insignia distinta a la de los demás
        —«piedra» es como la llamamos en el código, no como se llama sola—. */
   const ventajasFundador = [
-    "Pro entero y sin límites, para siempre",
-    "Todo lo que Norata añada a Pro",
-    "Reliquia, el mundo que solo tienen los fundadores",
-    "Anillo lila en tu perfil y tu propia insignia"
+    tx("Pro entero y sin límites, para siempre"),
+    tx("Todo lo que Norata añada a Pro"),
+    tx("Reliquia, el mundo que solo tienen los fundadores"),
+    tx("Anillo lila en tu perfil y tu propia insignia")
   ];
 
   return `<div class="plan-cards dos">
@@ -1655,7 +1646,7 @@ function planTopesHTML() {
   const d = planTopeDatos();
   if (!d) return "";
 
-  const cuenta = (n) => n === Infinity ? "Sin tope" : "Te quedan " + n;
+  const cuenta = (n) => n === Infinity ? tx("Sin tope") : T`Te quedan ${n}`;
   const dibujo = planRamaSVG(d.rama, d.quedanT);
 
   /* El cierre dice en qué plan estás, porque este bloque sustituye a la
@@ -1669,22 +1660,23 @@ function planTopesHTML() {
        eso no es una frase mal escrita: es la única pantalla que habla de
        dinero diciéndole a alguien que tiene menos de lo que tiene. Lo que toca
        decir ahí es que nada se borró, que es la promesa de la app. */
-  const cuantas = (n) => n === 1 ? "una rama" : n + " ramas";
+  const cuantas = (n) => n === 1 ? tx("una rama") : T`${n} ramas`;
   const deMas = d.topeR === Infinity ? 0 : d.ramas.length - d.topeR;
   let cierre;
   if (deMas > 0) {
-    cierre = "Estás en Gratuito, que incluye " + cuantas(d.topeR) + ". " +
-      (deMas === 1 ? "La otra sigue" : "Las otras " + deMas + " siguen") +
-      " a la vista y en solo lectura; no se borró nada. Pro " +
-      (deMas === 1 ? "la vuelve" : "las vuelve") +
-      " a poner en marcha y deja de contar los talentos de cada una.";
+    cierre = T`Estás en Gratuito, que incluye ${cuantas(d.topeR)}. ` +
+      (deMas === 1 ? tx("La otra sigue") : T`Las otras ${deMas} siguen`) +
+      tx(" a la vista y en solo lectura; no se borró nada.") + " " +
+      (deMas === 1
+        ? tx("Pro la vuelve a poner en marcha y deja de contar los talentos de cada una.")
+        : tx("Pro las vuelve a poner en marcha y deja de contar los talentos de cada una."));
   } else if (d.quedanR === 0) {
-    cierre = "Estás en Gratuito: " + cuantas(d.topeR) +
-      (d.topeR === 1 ? ", y ya la tienes. " : ", y ya las tienes. ") +
-      "Pro abre las que quieras y deja de contar los talentos de cada una.";
+    cierre = (d.topeR === 1
+      ? T`Estás en Gratuito: ${cuantas(d.topeR)}, y ya la tienes. `
+      : T`Estás en Gratuito: ${cuantas(d.topeR)}, y ya las tienes. `) +
+      tx("Pro abre las que quieras y deja de contar los talentos de cada una.");
   } else {
-    cierre = "Estás en Gratuito. Pro abre las ramas que quieras y deja de " +
-      "contar los talentos de cada una.";
+    cierre = tx("Estás en Gratuito. Pro abre las ramas que quieras y deja de contar los talentos de cada una.");
   }
 
   /* Cada cosa con el dibujo que le toca, y una sola vez. Los talentos van en
@@ -1701,7 +1693,7 @@ function planTopesHTML() {
       ${dibujo
         ? `<div class="plan-lienzo${dibujo.recorta ? " mas" : ""}"><span class="plan-cuenta">${cuenta(d.quedanT)}</span>${dibujo.svg}</div>`
         : planNodosHTML(d.llenos, d.quedanT)}
-      <div class="plan-tope-rot alto"><span>${d.ramas.length === 1 ? "Tu única rama" : "Tus ramas"}</span><em>${cuenta(d.quedanR)}</em></div>
+      <div class="plan-tope-rot alto"><span>${d.ramas.length === 1 ? tx("Tu única rama") : tx("Tus ramas")}</span><em>${cuenta(d.quedanR)}</em></div>
       ${planChipsRamasHTML(d.ramas, d.quedanR)}
       <p class="plan-tope-cierre">${escapeHtml(cierre)}</p>
     </div>`;
@@ -1723,10 +1715,10 @@ function planTopesHTML() {
    quitando importancia a algo. Se sigue tuteando, que eso no se negocia. */
 function planPortalNotaHTML() {
   const fundador = PLAN.plan === "fundador";
-  const accion = fundador ? "Ver mi recibo" : "Editar suscripción";
+  const accion = fundador ? "Ver mi recibo" : tx("Editar suscripción");
   const dentro = fundador
-    ? "Ahí puedes consultar y descargar el comprobante de tu pago."
-    : "Ahí puedes actualizar tu método de pago, consultar tus recibos y cancelar la renovación cuando lo decidas.";
+    ? tx("Ahí puedes consultar y descargar el comprobante de tu pago.")
+    : tx("Ahí puedes actualizar tu método de pago, consultar tus recibos y cancelar la renovación cuando lo decidas.");
 
   /* Dos párrafos y no uno. El primero dice a dónde vas y qué puedes hacer
      allí; el segundo es de otra clase —dónde acaban tus datos bancarios— y
@@ -1747,8 +1739,8 @@ function planPortalNotaHTML() {
 function planLegalHTML() {
   const puntos = [
     "IVA incluido",
-    "Pagos procesados por Stripe",
-    "Datos cifrados de extremo a extremo"
+    tx("Pagos procesados por Stripe"),
+    tx("Datos cifrados de extremo a extremo")
   ];
   return `<p class="settings-note plan-legal">` +
     puntos.map(t => `<span>${escapeHtml(t)}</span>`).join("") +
@@ -1780,7 +1772,7 @@ function planAlternarComparacion() {
 
 function planCompararHTML() {
   return `<button class="btn btn-linea btn-block plan-vs-btn" onclick="planAlternarComparacion()">${
-    planComparando ? "Ocultar la comparación" : "Comparar los planes"
+    planComparando ? tx("Ocultar la comparación") : tx("Comparar los planes")
   }</button>` + (planComparando ? planTablaHTML() : "");
 }
 
@@ -1801,31 +1793,31 @@ function planFilasComparadas() {
   const l = LIMITES.libre, p = LIMITES.pro;
   const ramas = (x) => x === Infinity ? "Ilimitadas" : (x === 1 ? "Una" : String(x));
   const tope = (x) => x === Infinity ? "Ilimitados" : String(x);
-  const resu = (x) => x.length ? "Semana, mes y año" : "Solo el panel del día";
+  const resu = (x) => x.length ? tx("Semana, mes y año") : tx("Solo el panel del día");
   /* «Solo las paletas de color» dejó de ser cierto con el reparto nuevo:
      Escarcha y Marea SON paletas y piden Pro, así que la frase prometía en
      Gratuito algo que Gratuito no tiene entero. Ahora dice lo que de verdad
      se abre — las que te vayas ganando, que además es la invitación buena. */
-  const apar = (x) => x ? "Todas" : "Las paletas que vayas desbloqueando";
+  const apar = (x) => x ? "Todas" : tx("Las paletas que vayas desbloqueando");
   /* Fundador deja de decir lo mismo que Pro, y esa es exactamente la diferencia
      que se compra: Reliquia es el único mundo que no abre Pro. Entra hoy y no
      antes porque hasta hoy el mundo no existía, y escribirlo sin él sería la
      misma deuda que costó quitar la fila de «Todas las apariencias». */
-  const aparFundador = "Todas, y Reliquia";
+  const aparFundador = tx("Todas, y Reliquia");
 
   return [
-    ["Ramas de talentos", ramas(l.ramas), ramas(p.ramas), ramas(p.ramas)],
-    ["Talentos por rama", tope(l.talentos), tope(p.talentos), tope(p.talentos)],
+    [tx("Ramas de talentos"), ramas(l.ramas), ramas(p.ramas), ramas(p.ramas)],
+    [tx("Talentos por rama"), tope(l.talentos), tope(p.talentos), tope(p.talentos)],
     ["Informes", resu(l.resumen), resu(p.resumen), resu(p.resumen)],
     ["Apariencias", apar(l.apariencia), apar(p.apariencia), aparFundador],
-    ["Misiones, habilidades y proyectos", "Ilimitados", "Ilimitados", "Ilimitados"],
-    ["Sincronía entre dispositivos", "Incluida", "Incluida", "Incluida"],
-    ["Tu progreso y tu XP", "Tuyos", "Tuyos", "Tuyos"],
+    [tx("Misiones, habilidades y proyectos"), "Ilimitados", "Ilimitados", "Ilimitados"],
+    [tx("Sincronía entre dispositivos"), "Incluida", "Incluida", "Incluida"],
+    [tx("Tu progreso y tu XP"), "Tuyos", "Tuyos", "Tuyos"],
     /* "Es gratis" y no "No se paga": la primera dice lo que hay, la segunda lo
        que no pasa, y en una fila que se llama "Cómo se paga" un no se lee como
        una carencia. Y "Pago único" porque es como se nombra en el sitio; "Una
        sola vez" era una tercera forma de decir lo mismo. */
-    ["Cómo se paga", "Es gratis", "Suscripción", ojo("Pago único")],
+    [tx("Cómo se paga"), tx("Es gratis"), "Suscripción", ojo(tx("Pago único"))],
     /* El distintivo de fundador existe hoy y no es una promesa: el anillo
        alrededor del círculo de la cuenta y su propia insignia en vez de la
        tallada. El anillo es LILA desde 0.7.13 — si vuelve a cambiar de color,
@@ -1835,7 +1827,7 @@ function planFilasComparadas() {
        siendo el nombre que le damos al dibujo entre nosotros, no el que
        entiende quien lo ve: lo que la persona reconoce es una INSIGNIA. Esta celda y la ventaja
        de la tarjeta dicen lo mismo a propósito: son la misma promesa. */
-    ["Distintivo de fundador", "—", "—", ojo("Anillo lila e insignia propia")]
+    [tx("Distintivo de fundador"), "—", "—", ojo("Anillo lila e insignia propia")]
   ];
 }
 

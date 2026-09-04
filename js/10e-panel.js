@@ -133,7 +133,7 @@ function panelDeCada(parte, total, rotulo, vara) {
   return `<div class="pn-kpi${tono ? " " + tono : ""}">
       <b>${texto}</b>
       <span>${escapeHtml(rotulo)}</span>
-      <i>${total > 0 ? parte + " de " + total : "todavía sin datos"}${vara ? " · señal buena: " + vara + "%" : ""}</i>
+      <i>${total > 0 ? T`${parte} de ${total}` : tx("todavía sin datos")}${vara ? T` · señal buena: ${vara}%` : ""}</i>
     </div>`;
 }
 
@@ -477,7 +477,7 @@ function panelListaBarras(filas, claveNombre, claveValor, vacio, nombra, tono) {
 
 function lugarDelReporte(mensaje) {
   const m = String(mensaje || "").match(/^\s*\[([^\]]{1,40})\]\s*/);
-  return m ? m[1].trim() : "Sin ubicar";
+  return m ? m[1].trim() : tx("Sin ubicar");
 }
 
 /* El mensaje sin la etiqueta del lugar: dentro del grupo ya se sabe dónde fue,
@@ -551,7 +551,7 @@ function panelReportesHTML(tropiezos) {
             <div class="pn-dicho ${t.visto ? "visto" : ""}">
               <p>${escapeHtml(reporteSinLugar(t.mensaje))}</p>
               <span>${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")}${
-                (Number(t.cuantos) || 1) > 1 ? " · lo dijeron " + t.cuantos + " veces" : ""}</span>
+                (Number(t.cuantos) || 1) > 1 ? T` · lo dijeron ${t.cuantos} veces` : ""}</span>
             </div>`).join("") + `</div>` : ""}
       </div>`;
   }).join("") + `</div>
@@ -589,19 +589,19 @@ function panelPruebasHTML() {
           <button${on ? ' class="on"' : ""} onclick="marcarCuentaDePruebas(true)">${tx("De pruebas")}</button>
         </div>
         <div class="field-hint">${on
-          ? "Verás un marco punteado amarillo mientras la uses, y borrar todo no pedirá confirmación extra."
-          : "Borrar todo te pedirá escribir tu correo. Es a propósito: obliga a mirar en qué cuenta estás."}</div>
+          ? tx("Verás un marco punteado amarillo mientras la uses, y borrar todo no pedirá confirmación extra.")
+          : tx("Borrar todo te pedirá escribir tu correo. Es a propósito: obliga a mirar en qué cuenta estás.")}</div>
       </div>
 
       ${on ? `<div class="field" style="margin-bottom:0">
         <span class="lbl">${tx("Ver la app como si tuviera")}</span>
         <div class="pn-planes">` +
           lista.map(x => `<button class="${cual === x.id ? "on" : ""}"
-            onclick="planSimular('${x.id}')">${escapeHtml(x.rotulo)}</button>`).join("") +
+            onclick="planSimular('${x.id}')">${escapeHtml(tx(x.rotulo))}</button>`).join("") +
         `</div>
         <div class="field-hint">${cual
-          ? "Estás viendo la app como <b>" + escapeHtml(planNombreSimulado()) + "</b>. Se cae sola al cerrar la pestaña, y no toca lo que pagaste."
-          : "Los topes, las pantallas y los avisos de cada plan, sin tener que comprarlos. Vive en la pestaña: aguanta una recarga y muere al cerrarla."}</div>
+          ? T`Estás viendo la app como <b>${escapeHtml(planNombreSimulado())}</b>. Se cae sola al cerrar la pestaña, y no toca lo que pagaste.`
+          : tx("Los topes, las pantallas y los avisos de cada plan, sin tener que comprarlos. Vive en la pestaña: aguanta una recarga y muere al cerrarla.")}</div>
       </div>` : ""}
     </div>`;
 }
@@ -638,7 +638,7 @@ function verLaFiesta(cual) {
   if (typeof showView === "function") showView("summary");
 
   if (cual === "racha") { celebrateStreak(30); return; }
-  if (cual === "chica") { celebrate("Nivel 7", "Guitarra sube de nivel", "#f5d76e", "music"); return; }
+  if (cual === "chica") { celebrate("Nivel 7", tx("Guitarra sube de nivel"), "#f5d76e", "music"); return; }
 
   /* Se toma un nivel de verdad de la escalera para que lo que se vea sea lo
      que va a ver la gente, no un ejemplo inventado: los nombres, los iconos y
@@ -651,7 +651,7 @@ function verLaFiesta(cual) {
   }
   if (cual === "premio") {
     const a = escalera.find(x => x.tipo === "ambiente" && x.listo);
-    celebrarNivel(a ? a.nivel : 3, a ? [a] : [{ nivel: 3, tipo: "ambiente", nombre: "Un ambiente nuevo" }]);
+    celebrarNivel(a ? a.nivel : 3, a ? [a] : [{ nivel: 3, tipo: "ambiente", nombre: tx("Un ambiente nuevo") }]);
     return;
   }
   celebrarNivel(Math.max(2, (typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 2)), []);
@@ -663,7 +663,7 @@ function panelFiestasHTML() {
       <p class="settings-note">${tx("Se disparan aquí porque algunas pasan una vez en la vida de una cuenta y no hay forma de revisarlas esperándolas. No tocan tus datos ni tu nivel: solo dibujan.")}</p>
       <div class="pn-fiestas">
         ${FIESTAS.map(f => `<button class="btn btn-linea btn-block" onclick="verLaFiesta('${f.id}')">
-          <b>${escapeHtml(f.rotulo)}</b><span>${escapeHtml(f.nota)}</span>
+          <b>${escapeHtml(tx(f.rotulo))}</b><span>${escapeHtml(tx(f.nota))}</span>
         </button>`).join("")}
       </div>
     </div>`;
@@ -740,11 +740,11 @@ function renderPanelAdmin() {
       <h3>${tx("La gente")}</h3>
       <div class="pn-kpis">
         ${panelCifra(r.cuentas || 0, "Cuentas creadas")}
-        ${panelCifra(r.activos7 || 0, "Activos esta semana", "abrieron en 7 días")}
-        ${panelDeCada(r.siguen30 || 0, r.maduros || 0, "Siguen tras 30 días", 20)}
-        ${panelDeCada(r.volvieron || 0, r.abrieron || 0, "Volvieron otro día", 40)}
-        ${panelCifra(r.dias_medios || 0, "Días de uso por persona", "cuántos días distintos abre cada quien")}
-        ${panelCifra(r.aperturas7 || 0, "Aperturas esta semana", "veces que se abrió, en total")}
+        ${panelCifra(r.activos7 || 0, tx("Activos esta semana"), tx("abrieron en 7 días"))}
+        ${panelDeCada(r.siguen30 || 0, r.maduros || 0, tx("Siguen tras 30 días"), 20)}
+        ${panelDeCada(r.volvieron || 0, r.abrieron || 0, tx("Volvieron otro día"), 40)}
+        ${panelCifra(r.dias_medios || 0, tx("Días de uso por persona"), tx("cuántos días distintos abre cada quien"))}
+        ${panelCifra(r.aperturas7 || 0, tx("Aperturas esta semana"), tx("veces que se abrió, en total"))}
       </div>
     </div>
 
@@ -759,17 +759,17 @@ function renderPanelAdmin() {
       <div class="pn-donas">
         <div>
           <h4 class="pn-sub">${tx("Desde qué aparato")}</h4>
-          ${panelDona(m.aparatos, "grupo", "personas", "Nadie ha abierto la app todavía.")}
+          ${panelDona(m.aparatos, "grupo", "personas", tx("Nadie ha abierto la app todavía."))}
           <p class="settings-note" style="margin-top:8px">${tx("Sale del ancho de la ventana, no de fichar el aparato: dos teléfonos distintos cuentan como uno.")}</p>
         </div>
         <div>
           <h4 class="pn-sub">${tx("Instalada o en el navegador")}</h4>
-          ${panelDona(m.instalacion, "grupo", "personas", "Nadie ha abierto la app todavía.")}
+          ${panelDona(m.instalacion, "grupo", "personas", tx("Nadie ha abierto la app todavía."))}
           <p class="settings-note" style="margin-top:8px">${tx("Instalada se abre sola; en una pestaña se olvida. Señal buena: 30 de cada 100.")}</p>
         </div>
       </div>
       <h4 class="pn-sub" style="margin-top:18px">${tx("Cuánto llevan con cuenta")}</h4>
-      ${panelListaBarras(m.antiguedad, "tramo", "personas", "Todavía no hay ninguna cuenta.")}
+      ${panelListaBarras(m.antiguedad, "tramo", "personas", tx("Todavía no hay ninguna cuenta."))}
     </div>
 
     <div class="panel">
@@ -778,10 +778,10 @@ function renderPanelAdmin() {
         ? `<p class="settings-note">${tx("El cobro todavía no está puesto en el servidor, así que aquí no hay nada que contar. Cuando corras")} <code>planes.sql</code> ${tx("y despliegues Stripe, esta caja se llena sola — los pasos están en")} <code>supabase/LEEME.md</code>.</p>`
         : `<div class="pn-kpis">
              ${panelCifra(c.pagando || 0, "Pagando ahora")}
-             ${panelCifra("$" + (c.mrr || 0), "Al mes", "sin contar fundador")}
-             ${panelCifra(c.lugares_fundador == null ? "—" : c.lugares_fundador, "Lugares de fundador", "de 200")}
+             ${panelCifra("$" + (c.mrr || 0), "Al mes", tx("sin contar fundador"))}
+             ${panelCifra(c.lugares_fundador == null ? "—" : c.lugares_fundador, "Lugares de fundador", tx("de 200"))}
            </div>
-           ${panelListaBarras(c.planes, "plan", "personas", "Todavía no hay ninguna suscripción.",
+           ${panelListaBarras(c.planes, "plan", "personas", tx("Todavía no hay ninguna suscripción."),
                /* «Plan mensual» y no «mensual». La palabra suelta obliga a
                   adivinar de qué se está hablando, y en la única caja de la
                   app donde se cuenta dinero eso no puede pasar. Fundador
@@ -799,7 +799,7 @@ function renderPanelAdmin() {
     <div class="panel">
       <h3>${tx("Con qué versión se quedó cada quien")}</h3>
       <p class="settings-note">${tx("Una fila por persona:")} <strong>${tx("la última versión que vio")}</strong>${tx(", no todas las que ha usado nunca. Si aquí aparece una que ya no existe, hay alguien pegado a una copia vieja — casi siempre porque no se subió el número de")} <code>CACHE</code> ${tx("en")} <code>sw.js</code>.</p>
-      ${panelListaBarras(m.versiones, "version", "personas", "Nadie ha abierto la app en los últimos treinta días.",
+      ${panelListaBarras(m.versiones, "version", "personas", tx("Nadie ha abierto la app en los últimos treinta días."),
           null,
           /* Las barras oscuras y solo la de hoy destacada, que es lo que pidió
              Eduardo. Con todas en menta, la fila que importa —cuánta gente ya

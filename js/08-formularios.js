@@ -24,7 +24,7 @@ function renderPerkDetail() {
       <div class="fact"><div class="k">${tx("TIPO")}</div><div class="v tipo-v">${icon(t.icono, 15)}${t.nombre}</div></div>
       <div class="fact"><div class="k">${tx("RECOMPENSA")}</div><div class="v">${skill ? "+" + p.xpReward + " XP" : "—"}</div></div>
     </div>
-    <div class="xp-note" style="text-align:left;margin-top:10px">${t.sub}${
+    <div class="xp-note" style="text-align:left;margin-top:10px">${tx(t.sub)}${
       t.llevaPlan ? ` Plan de ${planLabel(p.planDays)}.` : ""}${
       skill ? ` Beneficia a <b>${escapeHtml(skill.name)}</b>.` : ""}</div>`;
 
@@ -46,7 +46,7 @@ function renderPerkDetail() {
       </div>
       <div class="seg">
         ${[["todos", "Todos", `Hacen falta los ${reqs.length}`],
-           ["cualquiera", "Cualquiera", "Basta con uno"]].map(([k, t, s]) => `
+           ["cualquiera", "Cualquiera", tx("Basta con uno")]].map(([k, t, s]) => `
           <button type="button" class="${modo === k ? "on" : ""}" onclick="ponerModoTalento('${p.id}','${k}')">
             <span>${t}</span><i style="display:block;font-size:10px;opacity:0.75;font-style:normal">${s}</i>
           </button>`).join("")}
@@ -157,7 +157,7 @@ function renderPerkDetail() {
     <div class="panel alt">
       <h3>${tx("Bloqueado")}</h3>
       <p class="settings-note">${reqs.length === 1
-        ? "Se desbloquea al completar:"
+        ? tx("Se desbloquea al completar:")
         : (modoDe(p) === "todos"
           ? `Se desbloquea al completar <b>los ${reqs.length}</b> — llevas ${hechos}.`
           : `Se desbloquea al completar <b>${tx("cualquiera")}</b> de los ${reqs.length}.`)}</p>
@@ -208,7 +208,7 @@ function renderPerkDetail() {
         ${icon(p.icon, 26)}
         <span class="edit-hint">${icon("pen", 11)}</span>
       </button>
-      <span class="state-big">${STATUS_LABEL[st]}</span>
+      <span class="state-big">${tx(STATUS_LABEL[st])}</span>
       <h2>${escapeHtml(p.name)}</h2>
       <div class="branch-lbl">Rama de talentos · ${escapeHtml(p.branch || "General")}</div>
       ${p.desc ? `<div class="desc">${escapeHtml(p.desc)}</div>` : ""}
@@ -233,7 +233,7 @@ function renderPerkDetail() {
 function ponerModoTalento(id, m) {
   const p = state.perks.find(x => x.id === id);
   if (!p || modoDe(p) === m) return;
-  pushUndo("cambiar la regla de entrada");
+  pushUndo(tx("cambiar la regla de entrada"));
   p.modo = m === "cualquiera" ? "cualquiera" : "todos";
   save();
   renderPerkDetail();
@@ -441,20 +441,20 @@ function renderPerkReqs() {
   const varios = pReq.length > 1;
   document.getElementById("p-modo-fila").style.display = varios ? "block" : "none";
   document.getElementById("p-modo").innerHTML = [
-    ["todos", "Todos", "Hacen falta los " + pReq.length],
-    ["cualquiera", "Cualquiera", "Basta con uno"]
+    ["todos", tx("Todos"), T`Hacen falta los ${pReq.length}`],
+    ["cualquiera", "Cualquiera", tx("Basta con uno")]
   ].map(([k, t, s]) => `
     <button type="button" class="${pModo === k ? "on" : ""}" onclick="pickPerkModo('${k}')">
       <span>${t}</span><i style="display:block;font-size:10px;opacity:0.75;font-style:normal">${s}</i>
     </button>`).join("");
 
   document.getElementById("p-req-hint").textContent = !pReq.length
-    ? "Sin requisitos: estará disponible desde el principio."
+    ? tx("Sin requisitos: estará disponible desde el principio.")
     : (varios
       ? (pModo === "todos"
-        ? "Quedará bloqueado hasta completar los " + pReq.length + ". Es el talento que corona varios caminos."
-        : "Se desbloquea en cuanto completes cualquiera de los " + pReq.length + ". Son caminos alternativos.")
-      : "Quedará bloqueado (y conectado en el mapa) hasta completar ese talento.");
+        ? T`Quedará bloqueado hasta completar los ${pReq.length}. Es el talento que corona varios caminos.`
+      : T`Se desbloquea en cuanto completes cualquiera de los ${pReq.length}. Son caminos alternativos.`)
+      : tx("Quedará bloqueado (y conectado en el mapa) hasta completar ese talento."));
 }
 
 function togglePerkReq(id) {
@@ -480,7 +480,7 @@ function renderPerkTipo() {
     <button type="button" class="${k === pTipo ? "on" : ""}" onclick="pickPerkTipo('${k}')">
       ${icon(TIPOS[k].icono, 15)}<span>${TIPOS[k].nombre}</span>
     </button>`).join("");
-  document.getElementById("p-tipo-sub").textContent = t.sub;
+  document.getElementById("p-tipo-sub").textContent = tx(t.sub);
 
   /* Cada tipo enseña solo los campos que le significan algo. Un hito sin
      casilla de importe no es una restricción caprichosa: es la regla que lo
@@ -494,8 +494,8 @@ function renderPerkTipo() {
   const cod = monedaActual();
   document.getElementById("p-cost-lbl").textContent = t.pideImporte ? T`Cuánto costó (${cod})` : T`Costo (${cod}, opcional)`;
   document.getElementById("p-cost-hint").textContent = t.pideImporte
-    ? "Obligatorio: una compra es una llave que se paga."
-    : "Si la meta te costó dinero, anótalo aquí.";
+    ? tx("Obligatorio: una compra es una llave que se paga.")
+    : tx("Si la meta te costó dinero, anótalo aquí.");
 }
 
 function renderPerkFormSteps() {
@@ -640,7 +640,7 @@ function openMissionForm(id, presetTablero) {
   msTablero = (!id && presetTablero && presetTablero !== "hoy") ? presetTablero : null;
   const m = id ? state.missions.find(x => x.id === id) : null;
 
-  document.getElementById("mission-form-title").textContent = m ? "Editar misión" : "Nueva misión";
+  document.getElementById("mission-form-title").textContent = m ? tx("Editar misión") : tx("Nueva misión");
   document.getElementById("ms-name").value = m ? m.name : "";
   document.getElementById("ms-desc").value = m ? (m.desc || "") : "";
   document.getElementById("ms-target").value = m ? missionTarget(m) : 1;

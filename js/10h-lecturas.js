@@ -57,7 +57,7 @@ function plural(n, singular, plural_) {
 /* «7 de cada 10» se entiende de un vistazo; «68,4%» hay que traducirlo
    mentalmente. Para una frase hablada gana la proporción. */
 function deCada10(parte, total) {
-  return Math.round(parte / total * 10) + " de cada 10";
+  return T`${Math.round(parte / total * 10)} de cada 10`;
 }
 
 function nombreDia(i) {

@@ -669,25 +669,25 @@ function loadExamples() {
      pequeñas a propósito: si todas fueran densas, no se vería que una rama
      puede ser sencilla. */
   const tenis = mkP({
-    name: "Tenis para correr", icon: "bolt", color: "#ff8a70",
-    desc: "Comprarlos es el primer paso: son tuyos desde que los pagas, sin plazo que cumplir.",
+    name: tx("Tenis para correr"), icon: "bolt", color: "#ff8a70",
+    desc: tx("Comprarlos es el primer paso: son tuyos desde que los pagas, sin plazo que cumplir."),
     tipo: "compra", cost: 1800, xpReward: 80,
     status: "completed", completedAt: daysAgo(20), investedTotal: 1800,
     history: [
-      { date: daysAgo(20), at: new Date(Date.now() - 20 * 864e5).toISOString(), event: "Comprada y asegurada ($1,800)" },
-      { date: daysAgo(21), at: new Date(Date.now() - 21 * 864e5).toISOString(), event: "Talento creado en la rama Salud" }
+      { date: daysAgo(20), at: new Date(Date.now() - 20 * 864e5).toISOString(), event: tx("Comprada y asegurada ($1,800)") },
+      { date: daysAgo(21), at: new Date(Date.now() - 21 * 864e5).toISOString(), event: tx("Talento creado en la rama Salud") }
     ]
   });
   const primeraSalida = mkP({
-    name: "Salir a correr una vez", icon: "flag", color: "#f5d76e", tipo: "hito",
-    desc: "Un hito: una acción puntual que se cierra en sí misma. Se marca con un toque.",
+    name: tx("Salir a correr una vez"), icon: "flag", color: "#f5d76e", tipo: "hito",
+    desc: tx("Un hito: una acción puntual que se cierra en sí misma. Se marca con un toque."),
     xpReward: 40, requiere: [tenis.id],
     status: "completed", completedAt: daysAgo(18),
     history: [{ date: daysAgo(18), at: new Date(Date.now() - 18 * 864e5).toISOString(), event: "Hito conseguido" }]
   });
   const habito = mkP({
-    name: "Correr 3 veces por semana", icon: "flame", color: "#ff8a70",
-    desc: "Una meta: tienes 3 meses y avanza marcando sus etapas.",
+    name: tx("Correr 3 veces por semana"), icon: "flame", color: "#ff8a70",
+    desc: tx("Una meta: tienes 3 meses y avanza marcando sus etapas."),
     planDays: 90, xpReward: 300, requiere: [primeraSalida.id],
     status: "active", startDate: daysAgo(16),
     endDate: addDaysKey(todayKey(), 74),
@@ -695,43 +695,43 @@ function loadExamples() {
       { id: uid(), name: "Primera semana completa", done: true, at: stamp() },
       { id: uid(), name: "Cuatro semanas seguidas", done: true, at: stamp() },
       { id: uid(), name: "Ocho semanas seguidas", done: false, at: null },
-      { id: uid(), name: "Las doce semanas", done: false, at: null }
+      { id: uid(), name: tx("Las doce semanas"), done: false, at: null }
     ],
     history: [
       { date: daysAgo(4), at: new Date(Date.now() - 4 * 864e5).toISOString(), event: "Etapa hecha: Cuatro semanas seguidas" },
-      { date: daysAgo(16), at: new Date(Date.now() - 16 * 864e5).toISOString(), event: "Inversión de $0 — plan de 3 meses iniciado" }
+      { date: daysAgo(16), at: new Date(Date.now() - 16 * 864e5).toISOString(), event: tx("Inversión de $0 — plan de 3 meses iniciado") }
     ]
   });
   /* Un segundo camino que nace del mismo sitio: enseña que el árbol se abre
      en abanico, no solo en cadena. */
   const reloj = mkP({
-    name: "Reloj con pulsómetro", icon: "target", color: "#6fc3e8",
-    desc: "Para saber si corres al ritmo que crees que corres.",
+    name: tx("Reloj con pulsómetro"), icon: "target", color: "#6fc3e8",
+    desc: tx("Para saber si corres al ritmo que crees que corres."),
     tipo: "compra", cost: 2400, xpReward: 90, requiere: [primeraSalida.id]
   });
   const tecnica = mkP({
-    name: "Corregir mi técnica", icon: "bulb", color: "#b7a2ea",
-    desc: "Tres sesiones grabándome y ajustando la zancada.",
+    name: tx("Corregir mi técnica"), icon: "bulb", color: "#b7a2ea",
+    desc: tx("Tres sesiones grabándome y ajustando la zancada."),
     planDays: 60, xpReward: 200, requiere: [reloj.id],
     steps: [
       { id: uid(), name: "Grabarme corriendo", done: false, at: null },
-      { id: uid(), name: "Comparar con una referencia", done: false, at: null },
-      { id: uid(), name: "Tres salidas aplicando el cambio", done: false, at: null }
+      { id: uid(), name: tx("Comparar con una referencia"), done: false, at: null },
+      { id: uid(), name: tx("Tres salidas aplicando el cambio"), done: false, at: null }
     ]
   });
   /* EL NODO QUE CORONA: necesita el hábito Y la técnica. Es la figura que
      antes no se podía dibujar, y por eso el ejemplo la trae. */
   const carrera = mkP({
-    name: "Correr mi primera carrera de 5 km", icon: "trophy", color: "#5fe0b0",
-    desc: "La meta grande: hace falta el hábito Y la técnica. Es un talento que corona dos caminos.",
+    name: tx("Correr mi primera carrera de 5 km"), icon: "trophy", color: "#5fe0b0",
+    desc: tx("La meta grande: hace falta el hábito Y la técnica. Es un talento que corona dos caminos."),
     cost: 450, planDays: 180, xpReward: 600,
     requiere: [habito.id, tecnica.id], modo: "todos"
   });
   /* CAMINO ALTERNATIVO: vale con cualquiera de los dos. Enseña el otro modo
      sin tener que buscarlo en un menú. */
   const club = mkP({
-    name: "Entrar a un club de corredores", icon: "smile", color: "#f0a5c0", tipo: "hito",
-    desc: "Basta con tener el hábito O haber corrido una carrera: cualquiera de los dos te abre la puerta.",
+    name: tx("Entrar a un club de corredores"), icon: "smile", color: "#f0a5c0", tipo: "hito",
+    desc: tx("Basta con tener el hábito O haber corrido una carrera: cualquiera de los dos te abre la puerta."),
     xpReward: 120, requiere: [habito.id, carrera.id], modo: "cualquiera"
   });
 
@@ -740,21 +740,21 @@ function loadExamples() {
   const viejoTrim = trimestreDe(addDaysKey(todayKey(), -140));
   const finDeTrim = addDaysKey(todayKey(), -140);
   const revision = mkP({
-    name: "Revisión médica", icon: "heart", color: "#8fd18a", tipo: "hito",
-    desc: "Antes de empezar a correr en serio, saber cómo estoy.",
+    name: tx("Revisión médica"), icon: "heart", color: "#8fd18a", tipo: "hito",
+    desc: tx("Antes de empezar a correr en serio, saber cómo estoy."),
     xpReward: 60, status: "completed", completedAt: finDeTrim, createdAt: finDeTrim,
     history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: "Hito conseguido" }]
   });
   const bici = mkP({
-    name: "Bicicleta de segunda mano", icon: "bolt", color: "#9aa7b8",
-    desc: "El intento anterior. Sirvió para descubrir que lo mío es correr.",
+    name: tx("Bicicleta de segunda mano"), icon: "bolt", color: "#9aa7b8",
+    desc: tx("El intento anterior. Sirvió para descubrir que lo mío es correr."),
     tipo: "compra", cost: 3200, xpReward: 70, status: "completed",
     completedAt: finDeTrim, createdAt: finDeTrim, investedTotal: 3200,
-    history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: "Comprada y asegurada ($3,200)" }]
+    history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: tx("Comprada y asegurada ($3,200)") }]
   });
   const natacion = mkP({
-    name: "Natación dos veces por semana", icon: "goggles", color: "#6fc3e8",
-    desc: "Se quedó a medias, y por eso viaja en la caja: guardar el trimestre no juzga lo que no terminaste.",
+    name: tx("Natación dos veces por semana"), icon: "goggles", color: "#6fc3e8",
+    desc: tx("Se quedó a medias, y por eso viaja en la caja: guardar el trimestre no juzga lo que no terminaste."),
     planDays: 90, xpReward: 250, createdAt: finDeTrim,
     status: "active", startDate: finDeTrim, endDate: addDaysKey(finDeTrim, 90),
     congeladoEl: addDaysKey(todayKey(), -120),
@@ -762,30 +762,30 @@ function loadExamples() {
       { id: uid(), name: "Cuatro semanas seguidas", done: true, at: stamp() },
       { id: uid(), name: "Ocho semanas seguidas", done: false, at: null }
     ],
-    history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: "Plan de 3 meses iniciado" }]
+    history: [{ date: finDeTrim, at: new Date(Date.now() - 140 * 864e5).toISOString(), event: tx("Plan de 3 meses iniciado") }]
   });
 
   // Rama Casa: dos caminos independientes que nacen del mismo punto
   const recetario = mkP({
-    branch: "Casa", skillId: cocina.id, name: "Curso de cocina básica", icon: "cap", color: "#f5d76e",
-    desc: "Aprender diez recetas que puedas hacer sin receta.",
+    branch: "Casa", skillId: cocina.id, name: tx("Curso de cocina básica"), icon: "cap", color: "#f5d76e",
+    desc: tx("Aprender diez recetas que puedas hacer sin receta."),
     cost: 990, planDays: 120, xpReward: 250
   });
   const cenaAmigos = mkP({
-    branch: "Casa", skillId: cocina.id, name: "Cocinar para amigos", icon: "heart", color: "#f0a5c0", tipo: "hito",
-    desc: "Invitar a alguien y cocinarle. Sin plazo: se logra o no se logra.",
+    branch: "Casa", skillId: cocina.id, name: tx("Cocinar para amigos"), icon: "heart", color: "#f0a5c0", tipo: "hito",
+    desc: tx("Invitar a alguien y cocinarle. Sin plazo: se logra o no se logra."),
     xpReward: 60, requiere: [recetario.id]
   });
 
   // Rama Dinero: un talento listo para empezar, con costo real
   const fondo = mkP({
-    branch: "Dinero", skillId: finanzas.id, name: "Fondo de emergencia", icon: "gem", color: "#5fe0b0",
-    desc: "Juntar tres meses de gastos. Un año de plazo para lograrlo.",
+    branch: "Dinero", skillId: finanzas.id, name: tx("Fondo de emergencia"), icon: "gem", color: "#5fe0b0",
+    desc: tx("Juntar tres meses de gastos. Un año de plazo para lograrlo."),
     planDays: 365, xpReward: 500
   });
   const curso = mkP({
-    branch: "Dinero", skillId: finanzas.id, name: "Curso de inversión", icon: "chart", color: "#6fc3e8",
-    desc: "Entender en qué invertir antes de invertir.",
+    branch: "Dinero", skillId: finanzas.id, name: tx("Curso de inversión"), icon: "chart", color: "#6fc3e8",
+    desc: tx("Entender en qué invertir antes de invertir."),
     cost: 1500, planDays: 180, xpReward: 350, requiere: [fondo.id]
   });
 
@@ -826,31 +826,31 @@ function loadMissionExamples(silent) {
 
   state.missions.push(
     {
-      id: uid(), name: "Caminar 20 minutos", desc: "Cuenta cualquier caminata seguida de 20 min o más.",
+      id: uid(), name: "Caminar 20 minutos", desc: tx("Cuenta cualquier caminata seguida de 20 min o más."),
       icon: "bolt", color: "#ff8a70", cadence: "daily", days: [], target: 1,
       skillId: skillBy("Ejercicio"), xp: 20, log: streakLog(4, 1),
       archived: false, completedAt: null, createdAt: daysAgo(30)
     },
     {
-      id: uid(), name: "Beber agua", desc: "Ocho vasos a lo largo del día.",
+      id: uid(), name: "Beber agua", desc: tx("Ocho vasos a lo largo del día."),
       icon: "heart", color: "#6fc3e8", cadence: "daily", days: [], target: 8,
       skillId: null, xp: 10, log: Object.assign(streakLog(3, 8), { [todayKey()]: 3 }),
       archived: false, completedAt: null, createdAt: daysAgo(20)
     },
     {
-      id: uid(), name: "Practicar idioma 15 min", desc: "Lecciones, video o conversación.",
+      id: uid(), name: "Practicar idioma 15 min", desc: tx("Lecciones, video o conversación."),
       icon: "globe", color: "#5fe0b0", cadence: "weekly", days: [1, 3, 5], target: 1,
       skillId: skillBy("Idiomas"), xp: 25, log: streakLog(2, 1),
       archived: false, completedAt: null, createdAt: daysAgo(25)
     },
     {
-      id: uid(), name: "Cocinar algo nuevo", desc: "Una receta que nunca hayas hecho.",
+      id: uid(), name: "Cocinar algo nuevo", desc: tx("Una receta que nunca hayas hecho."),
       icon: "coffee", color: "#f5d76e", cadence: "weekly", days: [0, 6], target: 1,
       skillId: skillBy("Cocina"), xp: 30, log: {},
       archived: false, completedAt: null, createdAt: daysAgo(14)
     },
     {
-      id: uid(), name: "Revisar mis suscripciones", desc: "Cancelar lo que ya no uso.",
+      id: uid(), name: "Revisar mis suscripciones", desc: tx("Cancelar lo que ya no uso."),
       icon: "coin", color: "#b7a2ea", cadence: "once", days: [], target: 1,
       skillId: skillBy("Finanzas"), xp: 40, log: {},
       archived: false, completedAt: null, createdAt: daysAgo(5)
@@ -868,36 +868,36 @@ function loadProjectExamples(silent) {
 
   state.projects.push(
     {
-      id: uid(), name: "Renovar la cocina", branch: "Casa", icon: "wrench", color: "#f5d76e",
-      desc: "Dejar la cocina funcional y ordenada, sin obra mayor.",
+      id: uid(), name: tx("Renovar la cocina"), branch: "Casa", icon: "wrench", color: "#f5d76e",
+      desc: tx("Dejar la cocina funcional y ordenada, sin obra mayor."),
       status: "active", skillId: skillBy("Reparaciones"), xpReward: 250,
-      steps: steps([["Medir y hacer lista de lo que falta", true], ["Comprar organizadores", true], ["Ordenar alacena", false], ["Cambiar la iluminación", false]]),
+      steps: steps([[tx("Medir y hacer lista de lo que falta"), true], ["Comprar organizadores", true], ["Ordenar alacena", false], [tx("Cambiar la iluminación"), false]]),
       createdAt: daysAgo(24), lastActivity: daysAgo(2), completedAt: null,
       history: [
         { date: daysAgo(2), at: new Date(Date.now() - 2 * 864e5).toISOString(), event: "Etapa completada: Comprar organizadores" },
-        { date: daysAgo(24), at: new Date(Date.now() - 24 * 864e5).toISOString(), event: "Encargo creado en el proyecto Casa" }
+        { date: daysAgo(24), at: new Date(Date.now() - 24 * 864e5).toISOString(), event: tx("Encargo creado en el proyecto Casa") }
       ]
     },
     {
-      id: uid(), name: "Curso de inglés en línea", branch: "Aprender", icon: "cap", color: "#6fc3e8",
-      desc: "Terminar los módulos y presentar la evaluación final.",
+      id: uid(), name: tx("Curso de inglés en línea"), branch: "Aprender", icon: "cap", color: "#6fc3e8",
+      desc: tx("Terminar los módulos y presentar la evaluación final."),
       status: "active", skillId: skillBy("Idiomas"), xpReward: 400,
-      steps: steps([["Módulos 1 a 4", true], ["Módulos 5 a 8", true], ["Práctica de conversación", true], ["Evaluación final", false]]),
+      steps: steps([[tx("Módulos 1 a 4"), true], [tx("Módulos 5 a 8"), true], [tx("Práctica de conversación"), true], [tx("Evaluación final"), false]]),
       createdAt: daysAgo(60), lastActivity: daysAgo(3), completedAt: null,
       history: [
-        { date: daysAgo(3), at: new Date(Date.now() - 3 * 864e5).toISOString(), event: "Etapa completada: Práctica de conversación" },
-        { date: daysAgo(60), at: new Date(Date.now() - 60 * 864e5).toISOString(), event: "Encargo creado en el proyecto Aprender" }
+        { date: daysAgo(3), at: new Date(Date.now() - 3 * 864e5).toISOString(), event: tx("Etapa completada: Práctica de conversación") },
+        { date: daysAgo(60), at: new Date(Date.now() - 60 * 864e5).toISOString(), event: tx("Encargo creado en el proyecto Aprender") }
       ]
     },
     {
-      id: uid(), name: "Tienda en línea de artesanías", branch: "Negocio", icon: "coin", color: "#ff8a70",
-      desc: "Vender lo que hago sin depender de redes sociales.",
+      id: uid(), name: tx("Tienda en línea de artesanías"), branch: "Negocio", icon: "coin", color: "#ff8a70",
+      desc: tx("Vender lo que hago sin depender de redes sociales."),
       status: "active", skillId: skillBy("Finanzas"), xpReward: 600,
-      steps: steps([["Definir catálogo", true], ["Fotos de producto", false], ["Montar la tienda", false], ["Primera venta", false]]),
+      steps: steps([[tx("Definir catálogo"), true], [tx("Fotos de producto"), false], [tx("Montar la tienda"), false], ["Primera venta", false]]),
       createdAt: daysAgo(120), lastActivity: daysAgo(58), completedAt: null,
       history: [
-        { date: daysAgo(58), at: new Date(Date.now() - 58 * 864e5).toISOString(), event: "Etapa completada: Definir catálogo" },
-        { date: daysAgo(120), at: new Date(Date.now() - 120 * 864e5).toISOString(), event: "Encargo creado en el proyecto Negocio" }
+        { date: daysAgo(58), at: new Date(Date.now() - 58 * 864e5).toISOString(), event: tx("Etapa completada: Definir catálogo") },
+        { date: daysAgo(120), at: new Date(Date.now() - 120 * 864e5).toISOString(), event: tx("Encargo creado en el proyecto Negocio") }
       ]
     }
   );
@@ -993,8 +993,8 @@ function seccionesAjustes() {
      los módulos y no decía nada de esto. */
   if (typeof esAdmin !== "undefined" && esAdmin) {
     secs.push({
-      id: "admin", nombre: "Norata por dentro", icon: "chart", tono: "oro",
-      sub: "El modo de pruebas, cuánta gente la usa y lo que se rompe"
+      id: "admin", nombre: tx("Norata por dentro"), icon: "chart", tono: "oro",
+      sub: tx("El modo de pruebas, cuánta gente la usa y lo que se rompe")
     });
   }
   return secs;
@@ -1023,7 +1023,11 @@ function renderAjustes() {
     <button class="aj-item ${ajusteAbierto === sec.id ? "on" : ""} ${sec.tono ? "t-" + sec.tono : ""}"
       onclick="mostrarAjuste('${sec.id}')">
       <span class="aj-ic">${icon(sec.icon, 17)}</span>
-      <span class="aj-tx"><b>${escapeHtml(tx(sec.nombre))}</b><span>${escapeHtml(tx(sec.sub))}</span></span>
+      ${/* El `sub` de la fila del plan lo escribe `planSub()`, que ya lo
+             devuelve traducido. Volver a traducir lo ya traducido no cambia
+             nada en pantalla, pero deja la frase INGLESA apuntada como
+             pendiente y ensucia la única lista que dice cuánto falta. */""}
+      <span class="aj-tx"><b>${escapeHtml(tx(sec.nombre))}</b><span>${escapeHtml(sec.id === "plan" ? sec.sub : tx(sec.sub))}</span></span>
       <span class="aj-chev" aria-hidden="true">›</span>
     </button>`).join("");
 
@@ -1091,9 +1095,9 @@ function renderPanelRitmo() {
   if (!zona) return;
 
   if (!desalineadas.length) {
-    zona.innerHTML = `<p class="settings-note" style="margin-top:14px">
-      Las habilidades que crees a partir de ahora nacen así.${
-      state.skills.length ? " Las que ya tienes también van con esta exigencia." : ""}</p>`;
+    zona.innerHTML = `<p class="settings-note" style="margin-top:14px">${
+      tx("Las habilidades que crees a partir de ahora nacen así.")}${
+      state.skills.length ? tx(" Las que ya tienes también van con esta exigencia.") : ""}</p>`;
     return;
   }
 
@@ -1180,7 +1184,7 @@ function abrirMenuAjustes(btn) {
   const ficha = dentro
     ? `<button class="mm-perfil" onclick="abrirColeccion()">
          ${avatarHTML(48)}
-         <span class="mm-tx"><b>${escapeHtml(perfilActual().saludo || "Sin nombre")}</b>
+         <span class="mm-tx"><b>${escapeHtml(perfilActual().saludo || tx("Sin nombre"))}</b>
          <span>${escapeHtml(cfg.correo || "")}</span>
          ${chapa}</span>
          ${insignia}
@@ -1542,9 +1546,9 @@ async function resetAll() {
   /* Papelera y no candado: aqui no se cierra nada, se tira. El icono dice de
      que va antes de que el ojo llegue a leer "TODAS". */
   if (!await askBase(
-    "Se van tus habilidades, misiones, talentos, proyectos y todo el progreso que llevas. Esta acción no se puede deshacer.",
+    tx("Se van tus habilidades, misiones, talentos, proyectos y todo el progreso que llevas. Esta acción no se puede deshacer."),
     false, "Borrar todo", true, false, null,
-    { icono: "papelera", titulo: "Vas a vaciar la app." })) return;
+    { icono: "papelera", titulo: tx("Vas a vaciar la app.") })) return;
 
   /* En una cuenta de verdad no basta con pulsar dos veces. Quien usa una
      cuenta para experimentar y otra para su vida acaba borrando en la que no
@@ -1555,7 +1559,7 @@ async function resetAll() {
   if (syncReady() && !esCuentaDePruebas()) {
     const correo = ((sync.cfg || {}).correo || "").trim();
     const escrito = await askText(
-      "Esta es tu cuenta real. Escribe " + correo + " para confirmar que quieres borrar todo su progreso.",
+      T`Esta es tu cuenta real. Escribe ${correo} para confirmar que quieres borrar todo su progreso.`,
       "", "Borrar todo", correo, 120);
     if (escrito === null) return;
     if (String(escrito).trim().toLowerCase() !== correo.toLowerCase()) {
@@ -1564,7 +1568,7 @@ async function resetAll() {
     }
   }
 
-  if (!await ask(tx("Última confirmación: se borrará todo. ¿Seguro?"), "Sí, borrar", true, true)) return;
+  if (!await ask(tx("Última confirmación: se borrará todo. ¿Seguro?"), tx("Sí, borrar"), true, true)) return;
   state = { skills: [], perks: [], projects: [], missions: [], settings: { timezone: userTZ() } };
   save();
   showView("summary");

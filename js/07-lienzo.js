@@ -539,7 +539,7 @@ function focusBranchFront(b, silent, mod) {
 
 async function resetBranchLayout(b, mod) {
   if (!await ask(`Esto va a reordenar automáticamente todos los talentos de "${b}". Si habías acomodado esta rama a mano, ese orden se pierde.`, "Reacomodar")) return;
-  pushUndo("reacomodar la rama", null, mod);
+  pushUndo(tx("reacomodar la rama"), null, mod);
   /* Sobre los objetos REALES: branchNodes devuelve copias de los talentos
      (con sus requisitos ya traducidos a las cajas), y borrarles ahí las
      coordenadas no borraba nada. */
@@ -633,7 +633,7 @@ function abrirSaltoDeRama(e) {
   if (!el || !fullscreenBranch) return;
   const esProy = fullscreenMod === "proyectos";
   const otras = ramasDe(esProy ? "projects" : "perks");
-  el.innerHTML = `<div class="ctx-head">${esProy ? "Tus proyectos" : "Tus ramas"}</div>` +
+  el.innerHTML = `<div class="ctx-head">${esProy ? tx("Tus proyectos") : tx("Tus ramas")}</div>` +
     otras.map(n => {
       const cuantos = esProy ? encargosDeRama(n).length : talentosDeRama(n).length;
       const aqui = n === fullscreenBranch;
@@ -752,12 +752,12 @@ function renderFullscreen(mod) {
         aria-label="Centrar en lo que sigue" title="Centrar en lo que sigue"><svg viewBox="0 0 24 24">${BM_ICONS.flecha}</svg></button>
       <button type="button" class="mt-btn ${editing ? "on" : ""}"
         onclick="toggleEditBranch('${bj}', '${fullscreenMod}')"
-        aria-label="${editing ? "Salir de edición" : "Editar el mapa"}" aria-pressed="${editing}"
-        title="${editing ? "Salir de edición" : "Editar el mapa: conectar y cortar"}"><svg viewBox="0 0 24 24">${BM_ICONS.lapiz}</svg></button>
+        aria-label="${editing ? "Salir de edición" : tx("Editar el mapa")}" aria-pressed="${editing}"
+        title="${editing ? "Salir de edición" : tx("Editar el mapa: conectar y cortar")}"><svg viewBox="0 0 24 24">${BM_ICONS.lapiz}</svg></button>
       <button type="button" class="mt-btn ${modoElegir ? "on" : ""}" ${esProy ? "disabled" : ""}
         onclick="toggleElegirVarios('${bj}')"
         aria-label="Elegir varios" aria-pressed="${!esProy && modoElegir}"
-        title="${esProy ? "Elegir varios es del árbol de Talentos" : "Elegir varios para moverlos juntos o agruparlos"}"><svg viewBox="0 0 24 24">${BM_ICONS.caja}</svg></button>
+        title="${esProy ? "Elegir varios es del árbol de Talentos" : tx("Elegir varios para moverlos juntos o agruparlos")}"><svg viewBox="0 0 24 24">${BM_ICONS.caja}</svg></button>
       <button type="button" class="mt-btn crear"
         onclick="${esProy ? `openProjectForm(null, '${bj}')` : `openPerkForm(null, '${bj}')`}"
         aria-label="Añadir ${esProy ? "encargo" : "talento"} a ${ba}"
@@ -766,20 +766,20 @@ function renderFullscreen(mod) {
 
   document.getElementById("fs-body").innerHTML = !nodes.length
     ? `<p class="col-vacia" style="margin:auto;text-align:center;max-width:34ch">Todavía no hay ${
-        esProy ? "encargos en este proyecto" : "talentos en esta rama"}. Créale el primero con el ＋ de arriba.</p>`
+        esProy ? tx("encargos en este proyecto") : tx("talentos en esta rama")}. Créale el primero con el ＋ de arriba.</p>`
     : `
     <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}"${
         esProy ? ` data-mod="proyectos"` : ""}>${constellation(nodes, 900, editing, b, fullscreenMod)}</div>
     ${tira}
     ${/* La ayuda solo mientras se edita, y no siempre. Ocupaba 54 px fijos —de
           812 que tiene un teléfono— para repetir eternamente algo que se lee
-          una vez: "arrastra el fondo para recorrer". Ahí es donde va ahora la
+          una vez: tx("arrastra el fondo para recorrer"). Ahí es donde va ahora la
           tira, así que las herramientas no cuestan un píxel nuevo. Dentro de
           la edición sí se queda: tirar del punto ▸ y tocar una línea para
           cortarla no se adivinan solos. */
       !editing ? "" : `<div class="fs-hint">${esProy
-        ? "Tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno"
-        : "Tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · <b>Shift</b> y clic elige varios · el círculo <b>Y/O</b> cambia la regla de entrada"}${
+        ? tx("Tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno")
+        : tx("Tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · <b>Shift</b> y clic elige varios · el círculo <b>Y/O</b> cambia la regla de entrada")}${
         esProy ? "" : atajosLegend()}</div>`}`;
 
   ov.classList.add("show");
@@ -946,7 +946,7 @@ function duplicarTalento(id, pos) {
   /* Duplicar es crear: si no se mirara aquí, el tope se saltaría con el atajo
      más cómodo que tiene la app. */
   if (!cabeUnoMas("talentos", talentosDeRama(branch).length)) { topeAlcanzado("talentos"); return; }
-  pushUndo("duplicar un talento");
+  pushUndo(tx("duplicar un talento"));
   fijarPosiciones(branch);
 
   const copia = JSON.parse(JSON.stringify(orig));
@@ -985,7 +985,7 @@ function duplicarTalento(id, pos) {
 function crearEncargoRapido(branch, pos) {
   if (!branch) return;
   if (!cabeUnoMas("encargos", encargosDeRama(branch).length)) { topeAlcanzado("encargos"); return; }
-  pushUndo("crear un encargo", null, "proyectos");
+  pushUndo(tx("crear un encargo"), null, "proyectos");
   fijarPosiciones(branch, "proyectos");
   const n = state.projects.length;
   const nuevo = {
@@ -1013,7 +1013,7 @@ function crearEncargoRapido(branch, pos) {
 function alternarEspera(id) {
   const pr = state.projects.find(x => x.id === id);
   if (!pr) return;
-  pushUndo(pr.espera ? "dejar de esperar" : "esperar el turno", null, "proyectos");
+  pushUndo(pr.espera ? tx("dejar de esperar") : tx("esperar el turno"), null, "proyectos");
   pr.espera = !pr.espera;
   /* A mano y no con projectLog: ese ayudante pone `lastActivity` en hoy, y
      cambiar como se comporta un encargo no es haberlo avanzado. Con el, dar
@@ -1021,8 +1021,8 @@ function alternarEspera(id) {
      parado, que es justo el numero que la app usa para decirte la verdad. */
   pr.history = pr.history || [];
   pr.history.unshift({ date: todayKey(), at: stamp(), event: pr.espera
-    ? "Espera a que terminen sus requisitos"
-    : "Ya no espera: se puede avanzar antes de tiempo" });
+    ? tx("Espera a que terminen sus requisitos")
+    : tx("Ya no espera: se puede avanzar antes de tiempo") });
   save();
   if (typeof currentProjectId !== "undefined" && currentProjectId === pr.id) renderProjectDetail();
   renderProjects();
@@ -1189,20 +1189,20 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
     el.innerHTML =
       (enc ? (
         `<div class="ctx-head">${escapeHtml(enc.name)}</div>` +
-        item("Abrir el encargo", "Sus etapas, su ritmo y su historial", "",
+        item(tx("Abrir el encargo"), tx("Sus etapas, su ritmo y su historial"), "",
           `cerrarCtxMenu();openProject('${escapeAttr(enc.id)}')`, BM_ICONS.lapiz) +
-        item(enc.espera ? "Dejar de esperar" : "Que espere su turno",
-          enc.espera ? "Podrás avanzarlo aunque lo anterior no esté" : "No se abrirá hasta que terminen sus requisitos",
+        item(enc.espera ? tx("Dejar de esperar") : tx("Que espere su turno"),
+          enc.espera ? tx("Podrás avanzarlo aunque lo anterior no esté") : tx("No se abrirá hasta que terminen sus requisitos"),
           "", `cerrarCtxMenu();alternarEspera('${escapeAttr(enc.id)}')`, BM_ICONS.caja) +
         `<div class="ctx-sep"></div>`
       ) : "") +
-      item("Nuevo encargo aquí", "Se crea donde hiciste clic", "",
+      item(tx("Nuevo encargo aquí"), tx("Se crea donde hiciste clic"), "",
         `ctxCrearEncargo('${enJS(branch)}')`, BM_ICONS.copiar) +
       `<div class="ctx-sep"></div>` +
-      item(editando ? "Salir de edición" : "Editar el mapa",
-        editando ? "Vuelve al modo normal" : "Conecta y corta hilos", "",
+      item(editando ? tx("Salir de edición") : tx("Editar el mapa"),
+        editando ? tx("Vuelve al modo normal") : tx("Conecta y corta hilos"), "",
         `cerrarCtxMenu();toggleEditBranch('${enJS(branch)}','proyectos')`) +
-      (fullscreenBranch ? "" : item("Ver en pantalla completa", "Recorre el proyecto con sitio de sobra", "",
+      (fullscreenBranch ? "" : item("Ver en pantalla completa", tx("Recorre el proyecto con sitio de sobra"), "",
         `cerrarCtxMenu();openBranchFullscreen('${enJS(branch)}','proyectos')`, BM_ICONS.expandir)) +
       (undoStack.length ? item("Deshacer", undoStack[undoStack.length - 1].etiqueta, "Ctrl Z", `cerrarCtxMenu();undoEditor()`) : "");
     colocarCtxMenu(el, clientX, clientY);
@@ -1215,14 +1215,14 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
     const { total, hechos, pendientes } = resumenCaja(caja);
     el.innerHTML =
       `<div class="ctx-head">${escapeHtml(nombreCaja(caja))}</div>` +
-      item("Ver qué lleva", pendientes ? `${hechos} hechos y ${pendientes} sin terminar` : `${total} talentos guardados`,
+      item(tx("Ver qué lleva"), pendientes ? `${hechos} hechos y ${pendientes} sin terminar` : `${total} talentos guardados`,
         "", `cerrarCtxMenu();verCaja('${escapeAttr(caja.id)}')`, BM_ICONS.caja) +
-      item("Renombrar la caja", "Ponle el nombre de lo que fue esa época", "",
+      item(tx("Renombrar la caja"), tx("Ponle el nombre de lo que fue esa época"), "",
         `cerrarCtxMenu();renombrarCaja('${escapeAttr(caja.id)}')`, BM_ICONS.lapiz) +
-      item("Desplegarla en el mapa", "Todo vuelve donde estaba", "",
+      item(tx("Desplegarla en el mapa"), tx("Todo vuelve donde estaba"), "",
         `cerrarCtxMenu();abrirCaja('${escapeAttr(caja.id)}')`, BM_ICONS.expandir) +
       `<div class="ctx-sep"></div>` +
-      item("Borrar la caja", `Se van sus ${total} talento${total === 1 ? "" : "s"}`, "",
+      item(tx("Borrar la caja"), `Se van sus ${total} talento${total === 1 ? "" : "s"}`, "",
         `cerrarCtxMenu();borrarCaja('${escapeAttr(caja.id)}')`, BM_ICONS.bote);
     colocarCtxMenu(el, clientX, clientY);
     return;
@@ -1232,8 +1232,8 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
   const nodo = nodoId ? state.perks.find(p => p.id === nodoId) : null;
   const bloqueNodo = nodo ? (
     `<div class="ctx-head">${escapeHtml(nodo.name)}</div>` +
-    item("Duplicar talento", "Copia su forma, sin el progreso", "", `ctxDuplicar('${escapeAttr(nodo.id)}')`, BM_ICONS.copiar) +
-    item("Abrir talento", "Ver y editar sus datos", "", `cerrarCtxMenu();openPerk('${escapeAttr(nodo.id)}')`, BM_ICONS.lapiz) +
+    item("Duplicar talento", tx("Copia su forma, sin el progreso"), "", `ctxDuplicar('${escapeAttr(nodo.id)}')`, BM_ICONS.copiar) +
+    item("Abrir talento", tx("Ver y editar sus datos"), "", `cerrarCtxMenu();openPerk('${escapeAttr(nodo.id)}')`, BM_ICONS.lapiz) +
     `<div class="ctx-sep"></div>`
   ) : "";
 
@@ -1244,12 +1244,12 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
        formulario para que la mano aprenda una sola disposición. */
     /* La figura acompana al nombre, igual que en la linea de ayuda: es la
        misma pista en los dos sitios, asi que se aprende una sola vez. */
-    item(`${TIPOS.meta.glifo} ${TIPOS.meta.nombre}`, "Se sostiene en el tiempo y avanza por etapas", "W", `ctxCrear('${enJS(branch)}','meta')`) +
-    item(`${TIPOS.compra.glifo} ${TIPOS.compra.nombre}`, "Una llave que se paga y abre el paso", "E", `ctxCrear('${enJS(branch)}','compra')`) +
-    item(`${TIPOS.hito.glifo} ${TIPOS.hito.nombre}`, "Una acción puntual que se cierra en sí misma", "Q", `ctxCrear('${enJS(branch)}','hito')`) +
+    item(`${TIPOS.meta.glifo} ${TIPOS.meta.nombre}`, tx("Se sostiene en el tiempo y avanza por etapas"), "W", `ctxCrear('${enJS(branch)}','meta')`) +
+    item(`${TIPOS.compra.glifo} ${TIPOS.compra.nombre}`, tx("Una llave que se paga y abre el paso"), "E", `ctxCrear('${enJS(branch)}','compra')`) +
+    item(`${TIPOS.hito.glifo} ${TIPOS.hito.nombre}`, tx("Una acción puntual que se cierra en sí misma"), "Q", `ctxCrear('${enJS(branch)}','hito')`) +
     `<div class="ctx-sep"></div>` +
-    item(editando ? "Salir de edición" : "Editar el mapa", editando ? "Vuelve al modo normal" : "Conecta y corta hilos", "C", `cerrarCtxMenu();toggleEditBranch('${enJS(branch)}')`) +
-    item("Ver en pantalla completa", "Recorre la rama con sitio de sobra", "", `cerrarCtxMenu();openBranchFullscreen('${enJS(branch)}')`, BM_ICONS.expandir) +
+    item(editando ? tx("Salir de edición") : tx("Editar el mapa"), editando ? tx("Vuelve al modo normal") : tx("Conecta y corta hilos"), "C", `cerrarCtxMenu();toggleEditBranch('${enJS(branch)}')`) +
+    item(tx("Ver en pantalla completa"), tx("Recorre la rama con sitio de sobra"), "", `cerrarCtxMenu();openBranchFullscreen('${enJS(branch)}')`, BM_ICONS.expandir) +
     (undoStack.length ? item("Deshacer", undoStack[undoStack.length - 1].etiqueta, "Ctrl Z", `cerrarCtxMenu();undoEditor()`) : "");
 
   colocarCtxMenu(el, clientX, clientY);
@@ -1309,8 +1309,8 @@ function toggleEditBranch(b, mod) {
   save();
   repintarModulo(mod);
   toast(mod === "proyectos"
-    ? "Edición: arrastra, conecta y corta"
-    : (isDesktop() ? "Edición: Q, W y E crean · C para salir" : "Modo edición: arrastra y conecta"), "hecho");
+    ? tx("Edición: arrastra, conecta y corta")
+    : (isDesktop() ? tx("Edición: Q, W y E crean · C para salir") : tx("Modo edición: arrastra y conecta")), "hecho");
 }
 
 /* ================= Constelación =================
@@ -1838,7 +1838,7 @@ function constellation(nodes, key, editing, branch, mod) {
           ${nom.map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : 11}">${escapeHtml(ln)}</tspan>`).join("")}
         </text>
         <text x="${x}" y="${y + (nom.length > 1 ? 14 : 12)}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${escapeHtml(n.resumen)}</text>
-        <text x="${x}" y="${y + CAJA_H / 2 + 15}" text-anchor="middle" font-size="9" fill="var(--faint)">${editing ? "arrastra, conecta o clic derecho" : "toca para ver qué lleva"}</text>
+        <text x="${x}" y="${y + CAJA_H / 2 + 15}" text-anchor="middle" font-size="9" fill="var(--faint)">${editing ? "arrastra, conecta o clic derecho" : tx("toca para ver qué lleva")}</text>
       </g>`;
       ports += puertos(n, x, y, CAJA_W / 2, ccZ);
       abarcar(x - CAJA_W / 2 - (n.requiere.length > 1 ? 24 : 0), y - CAJA_H / 2,
@@ -2154,7 +2154,7 @@ function removeLink(par) {
     if (quedan.length !== reqs.length) { n.requiere = quedan; tocado = true; }
   });
   if (!tocado) return;
-  pushUndo("cortar una conexión", snap, mod);
+  pushUndo(tx("cortar una conexión"), snap, mod);
   save();
   repintarModulo(mod);
   toast(tx("Conexión eliminada"), "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
@@ -2247,7 +2247,7 @@ function attachPanHandlers(scope) {
       const n = nodoPorId(gesto.id);
       const p = pt || gesto.pt0;
       if (n && typeof n.x === "number" && p) { gesto.dx = n.x - p.x; gesto.dy = n.y - p.y; }
-      pushUndo(gesto.esCaja ? "mover una caja" : (mod === "proyectos" ? "mover un encargo" : "mover un talento"), null, mod);
+      pushUndo(gesto.esCaja ? tx("mover una caja") : (mod === "proyectos" ? tx("mover un encargo") : tx("mover un talento")), null, mod);
       wrap.classList.add("moviendo");
       if (userHasTapped && navigator.vibrate) navigator.vibrate(12);
     };
@@ -2426,7 +2426,7 @@ function alternarModo(id) {
      ahí la regla no tiene nada que decidir. */
   const cuenta = (dib.requiere || []).length;
   if (cuenta < 2) return;
-  pushUndo("cambiar la regla de entrada", null, modDe(n));
+  pushUndo(tx("cambiar la regla de entrada"), null, modDe(n));
   n.modo = modoDe(n) === "todos" ? "cualquiera" : "todos";
   save();
   repintarModulo(modDe(n));
@@ -2561,8 +2561,8 @@ function toggleElegirVarios(rama) {
   renderTree();
   if (fullscreenBranch) renderFullscreen();
   toast(modoElegir
-    ? "Toca los talentos que quieras juntar"
-    : "Listo, ya no estás eligiendo", modoElegir ? "calma" : "hecho");
+    ? tx("Toca los talentos que quieras juntar")
+    : tx("Listo, ya no estás eligiendo"), modoElegir ? "calma" : "hecho");
 }
 
 function alternarSeleccion(id, rama) {
@@ -2595,7 +2595,7 @@ function pintarBarraSeleccion(wrap) {
   pista.innerHTML = n
     ? `<b>${n} elegido${n === 1 ? "" : "s"}</b>
        <button type="button" class="btn btn-soft btn-sm" onclick="agruparElegidos()">${tx("Agruparlos")}</button>
-       <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">${modoElegir ? "Salir" : "Quitar la selección"}</button>`
+       <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">${modoElegir ? "Salir" : tx("Quitar la selección")}</button>`
     : `<b>${tx("Toca los talentos que quieras juntar")}</b>
        <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">${tx("Salir")}</button>`;
 }
@@ -2921,7 +2921,7 @@ function attachEditHandlers(scope) {
         const uno = mod === "proyectos" ? "un encargo" : "un talento";
         const varios = mod === "proyectos" ? "encargos" : "talentos";
         pushUndo(grupoIni ? `mover ${grupoIni.size} ${varios}`
-          : (cajaPorId(curId) ? "mover una caja" : `mover ${uno}`), snapAntes, mod);
+          : (cajaPorId(curId) ? tx("mover una caja") : `mover ${uno}`), snapAntes, mod);
       }
       save();
     }
