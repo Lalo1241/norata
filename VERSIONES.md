@@ -76,6 +76,44 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.88.1 · 4 sep 2026
+
+**Lo que se había quedado en español con la app en inglés.** Eduardo lo vio en
+el menú de su ficha, y de tirar del hilo salieron treinta y ocho frases más.
+
+*El menú de la ficha.* «Mi perfil», «Mi plan», «Mis módulos», «Mi apariencia» y
+«Mi almacenamiento» salían en español ahí y en inglés en el índice de Ajustes:
+**la misma lista se dibuja en DOS sitios y solo uno traducía.** Ahora se traduce
+en `seccionesAjustes()`, que es de donde salen los dos, y el segundo pase sobra.
+
+*«Look» decía el interruptor de claro y oscuro, y ahora dice «Theme».* «Look» se
+queda para «Mi apariencia», que es la pantalla de mundos y ambientes.
+
+*Los mundos y los recolores ya se renombran.* Estaban traducidos en el
+diccionario desde el primer día pero los sitios que los pintan no llamaban a
+`tx()`, así que salían las descripciones en inglés y los nombres en español.
+Con ellos van sus cinco rangos —lo que de verdad separa un mundo de un
+recolor es que te RENOMBRA lo que llevas recorrido— y las dos chapas,
+«Predeterminado» y «Nuevo».
+
+*Y el resto, que salió de recorrer las nueve pantallas más los cinco paneles de
+Ajustes con la app en inglés y recoger todo el texto visible que aún tenía pinta
+de español.* Los rótulos de crear («Nuevo tablero», «Nueva rama», «Nueva
+habilidad»), los `aria-label` de los botones de añadir —que solo lee quien usa
+lector de pantalla, y por eso nadie los había visto—, los mandos del zoom del
+lienzo, lo que dice cómo va un encargo, los cinco rangos de expedición y lo que
+se anuncia al conseguirlos, la nota de la zona horaria y los dos enlaces del
+pie. **Los documentos legales siguen en español a propósito; lo que estaba mal
+eran sus enlaces.**
+
+*Un cambio de copia en español, de paso:* «Reliquia es de Fundador» pasa a
+«Solo Norata Fundador tiene Reliquia». La frase de antes daba una clave
+—«{0} es de {1}»— que se podía confundir con cualquier otra cosa.
+
+Medido: nueve pantallas, cinco paneles y la reja de apariencias en inglés, y
+**no queda ni una frase sin traducir ni una clave sin entrada**. En español,
+las mismas superficies siguen exactamente igual.
+
 ### 0.7.88 · 4 sep 2026
 
 **Una misión puede decir después de qué va a pasar.** Un campo opcional bajo el

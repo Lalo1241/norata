@@ -727,18 +727,18 @@ function estadoApariencia(a) {
   if (puede === "fundador") {
     const precio = (typeof PLANES !== "undefined" && PLANES.fundador) ? PLANES.fundador.precio : "";
     return {
-      ok: false, clase: "fundador", chapa: "Solo Fundador", corta: "Fundador", insignia: "plan-fundador",
-      titulo: a.nombre + " es de " + fun,
+      ok: false, clase: "fundador", chapa: tx("Solo Fundador"), corta: "Fundador", insignia: "plan-fundador",
+      titulo: T`Solo ${fun} tiene ${tx(a.nombre)}`,
       texto: T`${tx(a.nombre)} es lo único que ${fun} tiene además de Pro` +
         (precio ? T`: un pago único de ${precio}, sin fecha y sin renovaciones.` : ".") +
         tx(" No se abre con el plan mensual ni con el anual."),
-      accion: { texto: "Ver " + fun, como: "fundador", insignia: "plan-fundador" }
+      accion: { texto: T`Ver ${fun}`, como: "fundador", insignia: "plan-fundador" }
     };
   }
 
   return {
-    ok: false, clase: "pro", chapa: "Con " + pro, corta: "Pro", insignia: "plan-pro",
-    titulo: a.nombre + " viene con " + pro,
+    ok: false, clase: "pro", chapa: T`Con ${pro}`, corta: "Pro", insignia: "plan-pro",
+    titulo: T`${tx(a.nombre)} viene con ${pro}`,
     /* Un mundo y un ambiente no se venden con la misma frase porque no son lo
        mismo, y decir «viene con Pro» de los dos es justo la confusión que
        `apariencias/LEEME.md` existe para evitar. */
@@ -786,7 +786,7 @@ function chapaApariencia(e, corta) {
 /* Y la marca de lo recién llegado. Va en menta y sin insignia: no dice nada de
    planes, dice «esto no estaba la última vez». */
 function novedadApariencia(a) {
-  return esNovedad(a) ? '<span class="ap-nueva">Nuevo</span>' : "";
+  return esNovedad(a) ? `<span class="ap-nueva">${escapeHtml(tx("Nuevo"))}</span>` : "";
 }
 
 /* ---- `casa` tiene DOS nombres, y no es un descuido ----
@@ -807,8 +807,19 @@ const CASA_MUNDO = {
   premisa: "El mundo de partida: el material original de Norata, sin forro ni marco. Elegirlo te quita el mundo y el recolor que lleves puestos."
 };
 
+/* Y traducido, que es lo que faltaba: las dos tablas son constantes de nivel
+   superior y se congelan en el idioma del arranque, así que el nombre tiene
+   que pasar por aquí al DIBUJARSE. Los nombres viven en el diccionario como
+   cualquier otro texto —«Tinta» es «Ink», «Reliquia» es «Relic»—, salvo los
+   que ya son iguales en los dos idiomas (Adobe, Blueprint) y los que son
+   nombres propios de un sitio, que no se traducen. */
 function nombreApariencia(a, comoMundo) {
-  return (comoMundo && a.id === "casa") ? CASA_MUNDO.nombre : a.nombre;
+  return tx((comoMundo && a.id === "casa") ? CASA_MUNDO.nombre : a.nombre);
+}
+
+/* Los cinco rangos de un mundo: mismo caso, misma tabla congelada. */
+function nombreRango(r) {
+  return tx(r && r.nombre ? r.nombre : "");
 }
 
 /* ---- Y lo que pasa al tocar un candado de los que se pagan ----
@@ -957,7 +968,7 @@ function escenaCuerpo(id) {
     </div>
     <div class="vp-caja vp-rango">
       <span class="vp-glifo">${r.glifo}</span>
-      <span class="vp-tx"><b>${escapeHtml(r.nombre)}</b><i>${m && m.listo ? T`Tu rango en ${escapeHtml(tx(m.nombre))}` : tx("Tu rango")}</i></span>
+      <span class="vp-tx"><b>${escapeHtml(nombreRango(r))}</b><i>${m && m.listo ? T`Tu rango en ${escapeHtml(tx(m.nombre))}` : tx("Tu rango")}</i></span>
     </div>`;
 }
 
@@ -1082,8 +1093,8 @@ function pintarFicha(id) {
      recolor: un ambiente te cambia la luz, un mundo te renombra lo que llevas
      recorrido. */
   const rangos = m && m.listo && m.rangos
-    ? `<div class="ap-rangos"><span class="ap-rot">Tu camino en ${escapeHtml(m.nombre)}</span>
-       <p>${m.rangos.map(r => escapeHtml(r.nombre)).join(" · ")}</p></div>` : "";
+    ? `<div class="ap-rangos"><span class="ap-rot">${T`Tu camino en ${escapeHtml(tx(m.nombre))}`}</span>
+       <p>${m.rangos.map(r => escapeHtml(nombreRango(r))).join(" · ")}</p></div>` : "";
 
   const abajo = !e.ok
     ? `<div class="ap-cerrado ap-${e.clase}">
@@ -1111,7 +1122,7 @@ function pintarFicha(id) {
     <div class="ap-cab">
       <span class="ap-ic mues-${id}">${icon((m && m.icon) || (ambientePorId(id) || {}).icon || "compass", 20)}</span>
       <b class="ap-nom">${escapeHtml(nombre)}</b>
-      ${comoMundo && id === "casa" ? '<span class="mun-p ap-base">Predeterminado</span>' : ""}
+      ${comoMundo && id === "casa" ? `<span class="mun-p ap-base">${escapeHtml(tx("Predeterminado"))}</span>` : ""}
       ${novedadApariencia(a)}
       ${chapaApariencia(e, true)}
     </div>
@@ -1155,16 +1166,16 @@ function filaMundo(m, esSalida) {
   return `
     <button type="button" class="mun-m mues-${m.id}${esSalida ? " mun-salida" : ""}${e.ok ? "" : " cerrado"}"
       data-ap="${m.id}" onclick="mirarApariencia('${m.id}', true)"
-      title="${escapeHtml(m.nombre)}${e.ok ? "" : " · " + escapeHtml(e.chapa)}">
+      title="${escapeHtml(tx(m.nombre))}${e.ok ? "" : " · " + escapeHtml(e.chapa)}">
       ${m.icon ? `<span class="mun-ic">${icon(m.icon, 20)}</span>` : ""}
       <span class="mun-tx">
-        <b>${escapeHtml(m.nombre)}${esSalida ? "" : novedadApariencia(m)}</b>
+        <b>${escapeHtml(tx(m.nombre))}${esSalida ? "" : novedadApariencia(m)}</b>
         <span>${escapeHtml(tx(m.premisa || ""))}</span>
       </span>
       ${esSalida
         /* «Predeterminado» y no una cápsula de plan: es el mundo original, no
            algo que se abra pagando ni subiendo de nivel. Lo pidió Eduardo. */
-        ? '<span class="mun-p ap-base">Predeterminado</span>'
+        ? `<span class="mun-p ap-base">${escapeHtml(tx("Predeterminado"))}</span>`
         : chapaApariencia(e, true)}
       <span class="mun-ok" aria-hidden="true">${icon("check", 13)}</span>
     </button>`;
@@ -1197,14 +1208,14 @@ function renderPanelApariencia() {
     return `
       <button type="button" class="amb-m mues-${a.id}${e.ok ? "" : " cerrado"}"
         data-ap="${a.id}" onclick="mirarApariencia('${a.id}')"
-        title="${escapeHtml(a.nombre)}${pie ? " · " + escapeHtml(pie) : ""}">
+        title="${escapeHtml(tx(a.nombre))}${pie ? " · " + escapeHtml(pie) : ""}">
         <span class="amb-mini" aria-hidden="true">
           <span class="amb-tarj"></span><span class="amb-pt"></span>
           ${a.icon ? `<span class="amb-ic">${icon(a.icon, 15)}</span>` : ""}
           <span class="amb-ok" aria-hidden="true">${icon("check", 12)}</span>
-          ${esNovedad(a) ? '<span class="amb-nueva">Nuevo</span>' : ""}
+          ${esNovedad(a) ? `<span class="amb-nueva">${escapeHtml(tx("Nuevo"))}</span>` : ""}
         </span>
-        <span class="amb-n">${escapeHtml(a.nombre)}</span>
+        <span class="amb-n">${escapeHtml(tx(a.nombre))}</span>
         ${pie ? `<span class="amb-p">${escapeHtml(pie)}</span>` : ""}
       </button>`;
   }).join("");
@@ -1233,7 +1244,7 @@ function renderPanelApariencia() {
   if (!document.getElementById("ap-escena")) {
     caja.innerHTML = `
       <div class="ap-escena" id="ap-escena">
-        <div class="ap-marco"><iframe id="ap-vista" title="Vista previa de la apariencia" scrolling="no" tabindex="-1" aria-hidden="true"></iframe></div>
+        <div class="ap-marco"><iframe id="ap-vista" title="${escapeAttr(tx("Vista previa de la apariencia"))}" scrolling="no" tabindex="-1" aria-hidden="true"></iframe></div>
         <div class="ap-ficha" id="ap-ficha"></div>
       </div>
       <h3 class="amb-h2">${tx("Ambientes")}</h3>

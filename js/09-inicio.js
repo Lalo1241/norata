@@ -1023,7 +1023,12 @@ const AJUSTES_SECS = [
    una pantalla vacía, porque los números los da el servidor tras comprobar
    quién pregunta (ver `supabase/administracion.sql`). */
 function seccionesAjustes() {
-  let secs = AJUSTES_SECS.map(sec => Object.assign({}, sec));
+  /* La tabla de arriba es una constante de nivel superior, así que se congela
+     en el idioma del arranque: envolverla allí no serviría de nada. Se traduce
+     aquí, que es donde se saca la copia y donde ya se toca cada entrada. */
+  let secs = AJUSTES_SECS.map(sec => Object.assign({}, sec, {
+    nombre: tx(sec.nombre), sub: tx(sec.sub)
+  }));
 
   /* «Mi apariencia» estuvo detrás de `?apariencia=` mientras el nivel de
      expedición no existía: sin escalera, ningún ambiente se puede desbloquear
@@ -1096,7 +1101,7 @@ function renderAjustes() {
              devuelve traducido. Volver a traducir lo ya traducido no cambia
              nada en pantalla, pero deja la frase INGLESA apuntada como
              pendiente y ensucia la única lista que dice cuánto falta. */""}
-      <span class="aj-tx"><b>${escapeHtml(tx(sec.nombre))}</b><span>${escapeHtml(sec.id === "plan" ? sec.sub : tx(sec.sub))}</span></span>
+      <span class="aj-tx"><b>${escapeHtml(sec.nombre)}</b><span>${escapeHtml(sec.sub)}</span></span>
       <span class="aj-chev" aria-hidden="true">›</span>
     </button>`).join("");
 
@@ -1171,11 +1176,13 @@ function renderPanelRitmo() {
   }
 
   zona.innerHTML = `
-    <p class="settings-note" style="margin-top:14px">Esto es con lo que nacen las habilidades nuevas.
-      ${desalineadas.length} de las tuyas van con otros números, porque las creaste antes o las
-      ajustaste una por una.</p>
+    <p class="settings-note" style="margin-top:14px">${tx("Esto es con lo que nacen las habilidades nuevas.")}
+      ${desalineadas.length === 1
+        ? tx("Una de las tuyas va con otros números, porque la creaste antes o la ajustaste a mano.")
+        : T`${desalineadas.length} de las tuyas van con otros números, porque las creaste antes o las ajustaste una por una.`}</p>
     <button class="btn btn-aviso btn-block" onclick="aplicarExigenciaATodas()">
-      Aplicarlo también a ${desalineadas.length === 1 ? "esa habilidad" : `esas ${desalineadas.length} habilidades`}
+      ${desalineadas.length === 1 ? tx("Aplicarlo también a esa habilidad")
+        : T`Aplicarlo también a esas ${desalineadas.length} habilidades`}
     </button>`;
 }
 
@@ -1560,7 +1567,7 @@ function renderTimezone() {
   try {
     hora = now.toLocaleTimeString(localeActual(), { timeZone: cur, hour: "2-digit", minute: "2-digit" });
   } catch (e) { hora = "—"; }
-  document.getElementById("tz-hint").textContent = `Ahí son las ${hora}. Tu día en la app: ${formatDate(todayKey())}.`;
+  document.getElementById("tz-hint").textContent = T`Ahí son las ${hora}. Tu día en la app: ${formatDate(todayKey())}.`;
 }
 
 function setTimezone(tz) {

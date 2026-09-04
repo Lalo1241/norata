@@ -521,7 +521,7 @@ function ncelTarjetaPremio(x, i) {
     '<span class="ncel-fulgor" aria-hidden="true"></span>' +
     '<div class="ncel-vista">' + vista + '</div>' +
     '<div class="ncel-pie">' +
-      '<div class="ncel-quees">' + (esAmb ? "Ambiente nuevo" : tx("Celebración nueva")) + '</div>' +
+      '<div class="ncel-quees">' + tx(esAmb ? "Ambiente nuevo" : "Celebración nueva") + '</div>' +
       '<div class="ncel-nom">' + escapeHtml(tx(x.corto || x.nombre)) + '</div>' +
     '</div>' +
     '</article>';
@@ -567,10 +567,11 @@ function celebrarNivel(nivel, abre) {
   const rango = document.getElementById("ncel-rango");
   const estrena = typeof ncelEstrella === "function" && ncelEstrella(nivel) === 1;
   const cierraRango = typeof ncelCierra === "function" && ncelCierra(nivel);
-  rango.innerHTML = !r ? `Alcanzaste el nivel ${nivel} de tu expedición`
-    : cierraRango ? `Rango <b>${escapeHtml(r.nombre)}</b> conseguido`
-    : estrena     ? `Empiezas a trazar <b>${escapeHtml(r.nombre)}</b>`
-    : `Alcanzaste el nivel ${nivel} de tu expedición`;
+  const marca = r ? `<b>${escapeHtml(tx(r.nombre))}</b>` : "";
+  rango.innerHTML = !r ? T`Alcanzaste el nivel ${nivel} de tu expedición`
+    : cierraRango ? T`Rango ${marca} conseguido`
+    : estrena     ? T`Empiezas a trazar ${marca}`
+    : T`Alcanzaste el nivel ${nivel} de tu expedición`;
   rango.classList.toggle("nuevo", cierraRango);
 
   /* La LÍNEA del rango, y solo al estrenarlo. Es un campo de un rango
@@ -611,7 +612,7 @@ function celebrarNivel(nivel, abre) {
   const pies = document.getElementById("ncel-pies");
   const aAmbiente = premios.some(x => x.tipo === "ambiente");
   pies.innerHTML = hayVentana
-    ? `<button class="btn btn-primary btn-block" onclick="${aAmbiente ? "ncelQuedarseAmbiente(); " : ""}cerrarNivelCel(); ${aAmbiente ? "abrirApariencia()" : "abrirColeccion('summary')"}">${aAmbiente ? "Ver Mi apariencia" : tx("Ver Mi expedición")}</button>
+    ? `<button class="btn btn-primary btn-block" onclick="${aAmbiente ? "ncelQuedarseAmbiente(); " : ""}cerrarNivelCel(); ${aAmbiente ? "abrirApariencia()" : "abrirColeccion('summary')"}">${tx(aAmbiente ? "Ver Mi apariencia" : "Ver Mi expedición")}</button>
        <button class="btn btn-ghost btn-block" onclick="cerrarNivelCel()">${tx("Ahora no")}</button>`
     : `<button class="btn btn-primary btn-block" onclick="cerrarNivelCel()">${tx("Continuar")}</button>`;
 
