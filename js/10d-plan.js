@@ -79,11 +79,14 @@ const NOMBRE_FUNDADOR = "Norata Fundador";
    topes viven en `LIMITES`: son el MISMO dato en dos pantallas —las tarjetas y
    el cuadro del tope— y también en los términos publicados. Dos de los tres
    sitios se sirven de aquí; el tercero es un documento legal y se cambia a
-   mano, así que si algún día se mueve un número hay que ir allí también.
+   mano, así que si algún día se mueve el número hay que ir allí también.
 
-   Por qué son distintos y no siete en los dos: Fundador cuesta trece veces más
-   y no tiene renovación de la que arrepentirse. Bajarlo a siete sería recortar
-   la confianza justo en el plan que más confianza pide.
+   **Un solo plazo para los tres planes, y lo decidió Eduardo.** La primera
+   versión daba 7 días en Pro y 30 en Fundador, con el argumento de que Fundador
+   cuesta trece veces más y no tiene renovación de la que arrepentirse. Él lo
+   unificó en 7 para los dos, y por eso esto es UN número y no dos: una
+   constante con dos claves iguales invita a que alguien las separe otra vez sin
+   saber que ya se decidió.
 
    Y por qué está escrito en el sitio donde se decide pagar, que es de donde
    salió esto: la garantía existía en los términos y no se veía en ninguna
@@ -91,15 +94,13 @@ const NOMBRE_FUNDADOR = "Norata Fundador";
    nadie, porque nadie lo lee antes de pulsar el botón. Puesta al lado del
    precio hace el trabajo que haría una prueba gratis —«no te la juegas»— sin
    pedir la tarjeta por adelantado y sin una fecha que caduque. */
-const GARANTIA = { pro: 7, fundador: 30 };
+const GARANTIA_DIAS = 7;
 
-/* Las dos ventanas en una frase, que es como se leen mejor: puestas juntas se
-   ven como lo que son —generosidad—, y separadas en cada tarjeta se leerían
-   como dos condiciones. */
+/* La promesa entera en una frase. Sin condiciones colgando: si hay que explicar
+   cuándo aplica, deja de tranquilizar, que es lo único que vino a hacer. */
 function garantiaTexto() {
-  return "Si no es para ti, te devolvemos los primeros " + GARANTIA.pro +
-         " días de Pro o los primeros " + GARANTIA.fundador +
-         " de Fundador. Sin explicaciones.";
+  return "Si no es para ti, te devolvemos los primeros " + GARANTIA_DIAS +
+         " días. Sin explicaciones.";
 }
 
 const PLANES = {
@@ -694,7 +695,7 @@ function topeAlcanzado(clave) {
        aparece cuando alguien llenó una rama, no cuando está comparando planes:
        lo que va a pulsar es Pro. */
     '<span class="tope-garantia">Y si no es para ti, te devolvemos los primeros ' +
-    GARANTIA.pro + ' días.</span>';
+    GARANTIA_DIAS + ' días.</span>';
   /* `danger` y `alarm` en false a propósito, y es la decisión de fondo de todo
      este cuadro: aquí no se rompió nada. Alguien llenó una rama, que es un
      logro. El temblor y el coral son para lo que se pierde. */

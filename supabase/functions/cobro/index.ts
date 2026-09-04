@@ -48,16 +48,21 @@
      customer.subscription.deleted
      invoice.paid
      invoice.payment_failed
-     charge.refunded
+     charge.refunded          (o refund.created, o los dos: ver abajo)
 
    El `whsec_` sale de ahi mismo, despues de crear el endpoint.
 
-   ---- OJO CON EL SEXTO ----
-   `charge.refunded` se anadio despues, el 3 de septiembre de 2026. Si el
-   endpoint ya existia en Stripe hay que ir a editarlo y marcarlo a mano: el
-   codigo de aqui abajo no corre nunca si Stripe no manda el aviso, y no hay
-   ninguna senal de que falte. Se descubriria el dia que se devuelva un
-   Fundador, que es justo cuando ya es tarde. */
+   ---- OJO CON EL DE LOS REEMBOLSOS ----
+   Se anadio despues, el 3 de septiembre de 2026. Si el endpoint ya existia en
+   Stripe hay que ir a editarlo y marcarlo a mano: el codigo de aqui abajo no
+   corre nunca si Stripe no manda el aviso, y no hay ninguna senal de que
+   falte. Se descubriria el dia que se devuelva un Fundador, que es justo
+   cuando ya es tarde.
+
+   Y el nombre depende del panel: segun la version de API del endpoint y de si
+   la cuenta usa el panel nuevo, el selector ofrece `charge.refunded`,
+   `refund.created` o los tres. **Esta funcion atiende los tres**, asi que
+   basta con marcar el que aparezca; marcar varios tampoco duplica nada. */
 
 const STRIPE = "https://api.stripe.com/v1";
 
@@ -316,7 +321,7 @@ Deno.serve(async (req: Request) => {
           }
         }
       }
-    } else if (tipo === "charge.refunded") {
+    } else if (tipo === "charge.refunded" || tipo === "refund.created" || tipo === "refund.updated") {
       /* ---- Un reembolso, y por que hacia falta esto ----
 
          Hasta aqui la funcion atendia cinco sucesos y ninguno era de
@@ -339,10 +344,50 @@ Deno.serve(async (req: Request) => {
          se distinga una cuenta que compro y se le devolvio de una que nunca
          compro nada. Y `cliente` NO se toca: es por donde se le encuentra si
          vuelve. */
-      const total = Number(dato.amount) || 0;
-      const devuelto = Number(dato.amount_refunded) || 0;
+      /* ---- Por que se atienden TRES nombres y no uno ----
+         `charge.refunded` es el de siempre, pero Stripe fue anadiendo
+         `refund.created` y `refund.updated`, y cual de ellos aparece en el
+         selector del panel depende de la version de API del endpoint y de si
+         la cuenta usa el panel nuevo. Eduardo no encontro el primero en el
+         suyo, y ese es exactamente el problema que no se puede tener aqui: el
+         codigo estaba escrito y no corria porque el nombre no estaba donde
+         yo dije que estaria.
 
-      if (dato.invoice) {
+         Atender los tres cuesta diez lineas y quita la dependencia: se marca
+         el que ofrezca el panel y esto funciona igual. Marcar varios tampoco
+         hace dano — lo que se escribe es el mismo estado final, no un
+         incremento, asi que repetirlo deja la fila igual (ver la decision 2
+         de la cabecera).
+
+         Lo que si cambia es la FORMA: un aviso de `refund.*` no trae el cargo,
+         trae el reembolso, que es otro objeto. Asi que primero se normaliza
+         —se le pide a Stripe el cargo del que cuelga— y de ahi para abajo el
+         codigo es el mismo para los tres. */
+      let cargo = dato;
+      let sigue = true;
+
+      if (tipo !== "charge.refunded") {
+        const idCargo = typeof dato.charge === "string" ? dato.charge : dato.charge?.id;
+        if (dato.status && dato.status !== "succeeded") {
+          /* Un reembolso puede nacer pendiente y tardar dias en completarse.
+             Hasta que Stripe no diga que salio, no se le quita el plan a
+             nadie: `refund.updated` volvera a avisar cuando cambie. */
+          sigue = false;
+          resultado = "reembolso en curso (" + dato.status + "): no se toca nada";
+        } else if (!idCargo) {
+          sigue = false;
+          resultado = "reembolso sin cargo asociado";
+        } else {
+          cargo = await stripeGet("/charges/" + idCargo, LLAVE);
+        }
+      }
+
+      const total = sigue ? (Number(cargo.amount) || 0) : 0;
+      const devuelto = sigue ? (Number(cargo.amount_refunded) || 0) : 0;
+
+      if (!sigue) {
+        /* Ya se dijo por que arriba. */
+      } else if (cargo.invoice) {
         /* Viene de una factura, o sea de una suscripcion. Aqui NO se toca el
            plan a proposito: quien manda en una suscripcion son sus propios
            sucesos, y un reembolso parcial hecho por buena voluntad no puede
@@ -356,8 +401,8 @@ Deno.serve(async (req: Request) => {
         /* Pago unico devuelto entero: Fundador. La metadata de la sesion no
            siempre llega hasta el cargo, asi que se le busca por su cliente de
            Stripe, que es el camino que `guardar` dejo escrito en la fila. */
-        const cliente = typeof dato.customer === "string" ? dato.customer : dato.customer?.id;
-        const uid = await duenoDe(SB, SERVICIO, dato.metadata, undefined, cliente);
+        const cliente = typeof cargo.customer === "string" ? cargo.customer : cargo.customer?.id;
+        const uid = await duenoDe(SB, SERVICIO, cargo.metadata, undefined, cliente);
         if (uid) {
           await guardar(SB, SERVICIO, uid, {
             plan: "libre",

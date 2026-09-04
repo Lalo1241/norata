@@ -279,6 +279,17 @@ engañar a su propia pantalla, y al recargar la mentira se cae sola.
    lugar ocupado en el cupo. No hay ninguna señal de que falte — se descubre el
    día que se devuelve el primero, que es justo cuando ya es tarde.
 
+   **Y si `charge.refunded` no aparece en el selector, no es un error tuyo:**
+   según la versión de API del endpoint y de si la cuenta usa el panel nuevo,
+   Stripe ofrece `charge.refunded`, `refund.created` y `refund.updated`, o solo
+   algunos. La función atiende **los tres**, así que marca el que te aparezca —
+   o los tres, que tampoco duplica nada: lo que se escribe es un estado final,
+   no un incremento.
+
+   Dónde se marcan, que tampoco está donde uno cree: **Webhooks → el endpoint →
+   los tres puntos → «Update details»**. La pestaña «Eventos» del panel es el
+   REGISTRO de lo que ya llegó, no el selector; ahí no se marca nada.
+
 6. **Guardar la firma**, que aparece al crear el endpoint del paso anterior:
 
    ```
