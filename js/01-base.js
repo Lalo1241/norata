@@ -1361,6 +1361,7 @@ const CAPAS_QUE_TAPAN = [
   "#modal.show",            // confirmar
   "#tuto.show",             // el tutorial
   "#caja-modal.show",       // una caja del ático
+  "#cajon.show",            // el cajón de caminos
   "#scel.show",             // celebrar una racha
   "#ncel.show",             // subir de nivel de expedición
   "#fs-overlay.show",       // una rama a pantalla completa
