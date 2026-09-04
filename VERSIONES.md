@@ -76,6 +76,25 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.83.1 · 3 sep 2026
+
+**El botón de añadir cuenta, a una línea y con un más.** Lo pidió Eduardo con
+el renglón de Google al lado: «sin texto extra y un icono de “+”».
+
+Llevaba «Sin cerrar la de ahora» debajo. Los otros renglónes del menú tienen
+dos líneas porque la de abajo dice algo que no se sabe —qué plan tienes, qué
+módulos hay puestos— y aquí no había nada que averiguar: el botón se explica
+entero en su propio nombre. Una aclaración que no aclara solo hace el menú más
+largo. Y el icono pasa de la puerta a un más, que es el signo de añadir en
+todas partes y no hay que leerlo.
+
+`mas` es un icono nuevo del catálogo (`js/01-base.js`): dos trazos y **sin
+círculo alrededor**, porque el hueco donde vive ya es una forma —`.mm-ic` en el
+menú, `.aj-ic` en el índice— y meterle otra dentro deja un aro apretado contra
+el borde.
+
+**Y en Mi expedición decía «Aquí estás» donde se dice «Estás aquí».**
+
 ### 0.7.83 · 3 sep 2026
 
 **Norata ya tiene aviso de privacidad y términos, publicados y enlazados.** Era
