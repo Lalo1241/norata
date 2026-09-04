@@ -155,7 +155,7 @@ function panelDeCada(parte, total, rotulo, vara) {
 const MESES_CORTOS = ["ene", "feb", "mar", "abr", "may", "jun",
                       "jul", "ago", "sep", "oct", "nov", "dic"];
 
-function panelConstelacion(dias) {
+function panelConstelacion(dias, distintas) {
   if (!dias || !dias.length) {
     return `<p class="settings-note">Todavía no hay ni un día con actividad. Aparecerá en cuanto alguien abra la app con su cuenta.</p>`;
   }
@@ -308,6 +308,26 @@ function panelConstelacion(dias) {
   const total = suma(valores);
   const media = n ? Math.round((total / n) * 10) / 10 : 0;
 
+  /* ---- Cuánta gente hay, en vez de un promedio por día ----
+     La primera cifra era «personas al día», la media de los catorce días con
+     los ceros dentro. Estaba bien calculada y era mala métrica, y Eduardo lo
+     preguntó con la frase exacta: «0,6 personas al día, ¿es normal eso?».
+
+     No lo era, y el problema no es el número: es la pregunta. Con tres cuentas,
+     un promedio diario habla más de cuántos días pasaron que de cuánta gente
+     hay — y baja cada vez que se añade un día tranquilo, que es justo cuando
+     menos hace falta desanimar a nadie.
+
+     Ahora van las dos cifras que sí se sostienen a cualquier escala: cuántas
+     cuentas DISTINTAS aparecieron en el periodo, y en cuántos de los catorce
+     días hubo alguien. La primera la cuenta el servidor —desde el navegador no
+     se puede: sumar los días contaría catorce veces a quien abrió catorce
+     días—; la segunda sale de la propia serie.
+
+     Si `distintas` no viene —un servidor que todavía no tiene el `metricas()`
+     nuevo— se cae a la media de antes en vez de enseñar un hueco. */
+  const conActividad = valores.filter(v => v > 0).length;
+
   /* ---- Personas y aperturas son DOS cosas, y aquí se llamaban igual ----
      Es el punto 2 de los cinco de Eduardo: «distinguir usuarios únicos por
      cuenta, no solo aperturas». En los datos ya estaba bien —la tabla `pulsos`
@@ -340,7 +360,10 @@ function panelConstelacion(dias) {
   }
 
   const resumen = `<div class="pn-graf-cifras">
-      <div class="pn-gc"><b>${media}</b><span>cuentas al día</span></div>
+      ${distintas == null
+        ? `<div class="pn-gc"><b>${media}</b><span>cuentas al día</span></div>`
+        : `<div class="pn-gc"><b>${distintas}</b><span>${
+            distintas === 1 ? "cuenta distinta" : "cuentas distintas"} · ${conActividad} de ${n} días con actividad</span></div>`}
       <div class="pn-gc"><b>${tope}</b><span>el mejor día${
         diaCima ? " · " + diaCima.getDate() + " " + MESES_CORTOS[diaCima.getMonth()] : ""}</span></div>
       <div class="pn-gc"><b>${aperturas}</b><span>aperturas${
@@ -355,7 +378,8 @@ function panelConstelacion(dias) {
      llegar a lo que se viene a ver. Debajo funcionan como el pie de una foto —
      miras la forma, y ahí está lo que no se podía leer de ella. */
   return `<svg class="pn-cielo" viewBox="0 0 ${W} ${H}" role="img"
-            aria-label="Dos líneas sobre la misma escala durante los últimos catorce días: personas que abrieron la app cada día, con una media de ${media} y un máximo de ${tope}${hayAltas ? ", y cuentas nuevas creadas cada día" : ""}.">
+            aria-label="Dos líneas sobre la misma escala durante los últimos catorce días: cuentas que abrieron la app cada día${
+              distintas == null ? ", con una media de " + media : ", " + distintas + " distintas en total"}, con un máximo de ${tope} en un día y actividad en ${conActividad} de ${n} días${hayAltas ? ", y cuentas nuevas creadas cada día" : ""}.">
       ${reja}
       ${marcas}
       ${hiloAltas}
@@ -837,7 +861,7 @@ function renderPanelAdmin() {
     <div class="panel">
       <h3>Los últimos 14 días</h3>
       <p class="settings-note">Dos líneas sobre la misma escala: la de arriba son las personas que abrieron la app, la punteada las cuentas nuevas de ese día. Que la segunda vaya casi siempre por abajo es el dato, no un problema de la gráfica. Las líneas verticales marcan cada lunes, para comparar una semana con otra.</p>
-      ${panelConstelacion(m.dias)}
+      ${panelConstelacion(m.dias, r.distintas14 == null ? null : Number(r.distintas14))}
     </div>
 
     <div class="panel">
