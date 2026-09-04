@@ -877,7 +877,14 @@ const TEXTOS_EN = {
   "＋ etapa": "＋ stage",
   "Rehacer": "Redo",
   "En marcha": "Under way",
-  "En pausa": "Paused",
+  /* Los cinco veredictos de `projectHealth` que se quedaron en espanol: se
+    devuelven como propiedad de un objeto y por eso no los vio el barrido. */
+ "Terminado": "Finished",
+ "Descartado": "Dropped",
+ "Estancado": "Stalled",
+ "Enfriándose": "Cooling off",
+ "Casi listo": "Almost there",
+ "En pausa": "Paused",
   "Terminado": "Finished",
   "Descartado": "Discarded",
   "Espera su turno": "Waiting its turn",

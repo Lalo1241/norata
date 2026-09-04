@@ -786,8 +786,8 @@ function daysIdle(pr) {
 
 /* Veredicto honesto: avance real contra tiempo sin tocarlo. */
 function projectHealth(pr) {
-  if (pr.status === "done") return { key: "done", label: "Terminado", color: "var(--mint)", note: tx("Cerrado y guardado en tu historial.") };
-  if (pr.status === "dropped") return { key: "dropped", label: "Descartado", color: "var(--coral)", note: tx("Lo soltaste. Puedes retomarlo cuando quieras.") };
+  if (pr.status === "done") return { key: "done", label: tx("Terminado"), color: "var(--mint)", note: tx("Cerrado y guardado en tu historial.") };
+  if (pr.status === "dropped") return { key: "dropped", label: tx("Descartado"), color: "var(--coral)", note: tx("Lo soltaste. Puedes retomarlo cuando quieras.") };
   if (pr.status === "paused") return { key: "paused", label: tx("En pausa"), color: "var(--muted)", note: tx("Congelado a propósito: no cuenta como abandonado.") };
   /* Ver esperandoTurno: los dias empiezan a contar cuando se abre el paso */
   if (esperandoTurno(pr)) {
@@ -800,15 +800,15 @@ function projectHealth(pr) {
   const idle = daysIdle(pr);
   const prog = projectProgress(pr);
   if (idle >= 45 && prog < 60) {
-    return { key: "stalled", label: "Estancado", color: "var(--coral)",
+    return { key: "stalled", label: tx("Estancado"), color: "var(--coral)",
       note: `${idle} días sin avance y solo ${prog}% hecho. Sé honesto: ¿lo retomas esta semana o lo sueltas?` };
   }
   if (idle >= 21) {
-    return { key: "cooling", label: "Enfriándose", color: "var(--fire)",
+    return { key: "cooling", label: tx("Enfriándose"), color: "var(--fire)",
       note: `${idle} días sin tocarlo. Una etapa pequeña bastaría para revivirlo.` };
   }
   if (prog >= 80) {
-    return { key: "closing", label: "Casi listo", color: "var(--mint)",
+    return { key: "closing", label: tx("Casi listo"), color: "var(--mint)",
       note: tx("Estás a nada de cerrarlo. Termina las etapas que faltan.") };
   }
   return { key: "healthy", label: tx("Con ritmo"), color: "var(--mint)",

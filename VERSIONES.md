@@ -76,6 +76,37 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.86.4 · 4 sep 2026
+
+**La app estaba rota de verdad, y no era la caché.** Ayer se subió como una
+caché envenenada lo que era un error de sintaxis en `js/10g-informe.js`: el
+paso que envolvió los textos para traducirlos escribió `tx("Con ritmo"):` como
+CLAVE de un objeto, y una clave no puede ser una llamada a función. El archivo
+entero dejaba de compilar, y con él se caía el arranque.
+
+Cómo se me pasó, que es lo que importa: comprobé los 26 archivos con `import()`
+—la prueba correcta— pero **la pestaña estaba en `/login/`, que solo carga
+ocho**, y `10g-informe.js` no es uno de ellos. La prueba dijo «todo bien»
+porque nunca miró el archivo roto. Al hacerla en la página de la app salta a la
+primera. Y hay una forma de que la ubicación no se pierda: una página de prueba
+que registre `addEventListener("error")` ANTES de los `<script>` da archivo,
+línea y columna; la consola a secas solo dice «Unexpected string».
+
+De paso, ese mapa de colores se agrupaba por el RÓTULO de `projectHealth`, que
+va traducido: en inglés no habría coincidido con ninguna clave y las seis
+barras habrían salido del mismo azul de reserva. Ahora se agrupa por `h.key`,
+que es interna y no cambia de idioma, y el rótulo se guarda aparte para
+escribirlo.
+
+Y los cinco veredictos que seguían en español —«Terminado», «Descartado»,
+«Estancado», «Enfriándose», «Casi listo»— ya están traducidos. El barrido no
+los vio porque se devuelven como propiedad de un objeto.
+
+**La pantalla de idioma y moneda no se repite, y está medido.** Se contesta una
+vez: al continuar se guarda `regionLista` en el perfil, y quien ya tenía datos
+el día que llegó esta versión no la ve nunca. Cinco aperturas seguidas y un
+perfil con datos pero sin la llave: cero apariciones.
+
 ### 0.7.86.3 · 3 sep 2026
 
 **La primera pantalla ya recibe.** Idioma y moneda se preguntan antes que nada
