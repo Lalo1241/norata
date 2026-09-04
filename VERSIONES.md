@@ -76,6 +76,48 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.86.1 · 3 sep 2026
+
+**Las constelaciones de un mundo se quedan con sus VÉRTICES.** Eduardo, viendo
+Averno: «no representan correctamente ninguna de las formas». Tenía razón y la
+causa era el muestreo: se sembraban estrellas a intervalos IGUALES de recorrido,
+y eso se come justo lo que hace reconocible una silueta. Las esquinas caen entre
+dos muestras, así que el pentagrama de Abadón salía como un polígono cualquiera
+y la calavera de Ceniza como un hexágono.
+
+Ahora se muestrea denso y se simplifica con **Ramer-Douglas-Peucker**, que
+conserva los vértices y los extremos de las curvas y tira los puntos que caen
+sobre una recta ya dibujada. Con eso la forma se lee aunque tenga la mitad de
+estrellas.
+
+**Y se acabó el tope de una estrella por nivel**, que lo pidió él: manda la
+forma. Esa atadura ya se había roto en la 0.7.65 para las figuras de la casa
+—`ncelHasta()` reparte el progreso entre las que haya— y aquí solo faltaba
+aprovecharlo. Averno va de 21 a 34 estrellas según la figura; la escuadra de
+Blueprint se queda en 6, que es lo que pide una escuadra.
+
+Cuatro detalles que costaron su rato:
+
+- **Hay que empezar por una esquina.** Una figura cerrada se recorre en
+  círculo, y el punto por donde arrancas se conserva siempre por ser un
+  extremo del recorrido — con lo que la esquina que tenía al lado se pierde. Se
+  rota el contorno al punto más lejano del centro, que en una silueta es
+  siempre un pico.
+- **Una curva pura no tiene vértices** y el simplificador la reduce a nada. Los
+  ojos de Ceniza, un aro: ahí se vuelve al reparto uniforme, que para un
+  círculo es lo correcto.
+- **El umbral se afloja hasta entrar en el tope**, empezando fino. Así una
+  silueta sencilla conserva todos sus vértices y una muy picada pierde primero
+  los detalles pequeños, que es el orden correcto.
+- **El recorrido denso se mide UNA vez por pieza.** `getPointAtLength` es lo
+  caro, el umbral se prueba hasta cinco veces, y remuestrear en cada intento
+  costaba 276 ms para los cinco rangos de Averno. Midiendo una vez son 106, y
+  0,1 con la caché caliente.
+
+Las estrellas se achican con la raíz del número cuando pasan de trece: a los
+radios de siempre, una calavera de treinta y cuatro salía como una mancha en el
+estante.
+
 ### 0.7.86 · 3 sep 2026
 
 **Ya se elige el color de tu círculo.** El círculo con tu inicial sacaba su
