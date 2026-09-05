@@ -7788,6 +7788,241 @@
     html.compacto .thumb-cluster { height: 54px; }
   }
 
+  /* ================= PRUEBA CON ENLACE: el modo horizontal =================
+     «Que el adaptativo en móvil se acomode para funcionar óptimamente en
+     pantalla horizontal, como en un juego». Esto es la propuesta, apagada y
+     detrás de `?horizontal=1` (`?horizontal=0` la apaga).
+
+     ---- El diagnóstico, medido a 812×375 ----
+     Hoy el teléfono tumbado recibe el diseño de pie sobre una pantalla que
+     mide la mitad de alto y el doble de ancho. Tres cuentas lo dicen todo:
+
+       · 252 px de ancho SIN USAR — el 31% de la pantalla. `.app` está topada
+         en 560 px y centrada. De pie ese tope es correcto (una columna no debe
+         ser más ancha de lo que se lee cómodo); tumbado son dos dedos de fondo
+         a cada lado.
+       · Resumen pide 5,8 PANTALLAS de recorrido, contra 3 de pie. El mismo
+         contenido, la misma columna, la mitad de alto.
+       · A pantalla completa, la cabecera del mapa cuesta 59 px de 375 —el
+         16%— y la tira flotante tapa otros 52 por abajo. Al mapa le quedan
+         264 px de 375.
+
+     ---- Y la idea que ordena todo lo demás ----
+     De pie el teléfono se sujeta con una mano y el pulgar llega ABAJO: por eso
+     la barra vive abajo y por eso se llama «cluster del pulgar». **Tumbado se
+     sujeta con las dos manos y los pulgares caen en los CANTOS**, que es justo
+     donde hoy no hay nada. Abajo en el centro es, tumbado, el sitio más
+     incómodo de la pantalla.
+
+     Así que todo lo que se toca se va a los cantos y el centro queda para
+     mirar — que es la disposición de cualquier juego, y no por estética: es
+     por dónde están los pulgares.
+
+       1. Los cinco círculos de navegar → columna pegada al canto IZQUIERDO.
+       2. El botón ＋ → esquina inferior DERECHA, bajo el otro pulgar.
+       3. El contenido suelta el tope de 560 y va a DOS columnas de ~345 px,
+          que es el ancho que ya tiene de pie (339) — o sea que ningún widget
+          se estrecha, y el recorrido se parte por la mitad.
+       4. A pantalla completa el mapa ocupa los 375 px enteros: la barra de
+          arriba deja de ser una barra y pasa a ser HUD flotante, la tira de
+          herramientas se va al canto izquierdo y el zoom se queda en el
+          derecho. Herramientas en los dos flancos, mapa en medio.
+
+     ---- Lo que NO cambia ----
+     El vertical, ni una regla. La paleta, el material y los pisos, tampoco.
+     Y ninguna zona táctil baja de 44 px: los círculos siguen midiendo 44 y el
+     ＋ 58.
+
+     ---- Por qué se dispara con el ALTO y no con el ancho ----
+     `orientation: landscape` la cumple también un monitor. Lo que separa un
+     teléfono tumbado de todo lo demás es que mide menos de 500 px de alto —
+     un teléfono da 375-430, una tableta tumbada 768. Con `max-width: 899px`
+     no bastaba: un teléfono tumbado mide 812 de ancho y lo cumple, pero una
+     ventana estrecha y ALTA de computadora también, y ahí este reparto sería
+     un disparate.
+
+     PARA QUITARLA, borrando POR NOMBRE y nunca por rango:
+       - este bloque (`html.horizontal`) y el de `#rotulo-horizontal`
+       - la lectura de `?horizontal` en el script de arriba de `index.html`
+       - el `<div id="rotulo-horizontal">` de `index.html`
+       - la entrada de `VERSIONES.md` */
+  @media (orientation: landscape) and (max-height: 500px) {
+
+    /* ---- 1. El ancho recuperado, y dos columnas ----
+       El tope de 560 se levanta y se deja sitio al carril de la izquierda y al
+       ＋ de la derecha. Dos columnas de ~345 px: no es apretar, es que cada
+       columna queda del ancho que la app ya tiene de pie, donde todo funciona.
+       La ventaja es el recorrido, que se parte por la mitad. */
+    html.horizontal .app {
+      max-width: none;
+      width: 100%;
+      padding-left: calc(66px + env(safe-area-inset-left));
+      padding-right: calc(20px + env(safe-area-inset-right));
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    }
+    html.horizontal .dash,
+    html.horizontal #missions-content,
+    html.horizontal #projects-content,
+    html.horizontal #skill-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 18px;
+      align-items: start;
+    }
+    /* El catálogo va por su cuenta porque sus fichas viven dentro de un grupo
+       por categoría y no en la rejilla de arriba. En un teléfono grande no hace
+       falta —ya se reparte en dos por encima de 620 px de ancho—, pero en uno
+       pequeño tumbado sí: 568×320 cumple esta consulta y no llega a 620, así que
+       sin esto se quedaba en una sola columna justo donde menos alto hay.
+
+       Y que quede dicho, porque se midió y no cuadra con lo que uno esperaría:
+       esto NO acorta el catálogo en un teléfono normal. Sigue en 5,8 pantallas
+       de recorrido y es la más larga de la app tumbada. No es cosa del reparto
+       —ya son dos columnas— sino de cuántos grupos de categoría hay. */
+    html.horizontal .cat-grid { grid-template-columns: 1fr 1fr; }
+
+    /* Habilidades pasa de 4,3 pantallas de recorrido a 3,2.
+
+       Y `#tree-content` se queda en UNA a propósito, aunque sea la segunda más
+       larga: la tarjeta de una rama lleva un mapa dentro, y partirla en dos es
+       exactamente lo que la computadora no hace ni siquiera a 1.700 px de
+       ancho. Para mirar una rama con sitio está la pantalla completa, que
+       tumbada es justo donde mejor se ve. */
+    /* El ancho que cada quien le dio a su tarjeta se respeta hasta donde llega
+       la rejilla. Se puede sin las coordenadas del tablero de escritorio
+       (`disposicionTablero`, que solo corre con `isDesktop()`): aquí las
+       tarjetas fluyen en orden, como ya hacen de pie, y lo único que se añade
+       es que una tarjeta ancha ocupe las dos columnas en vez de encogerse. */
+    html.horizontal .dash .widget { grid-column: auto / span min(var(--w, 1), 2); }
+
+    /* La cabecera pesaba 107 px de 375 — el 29% de la pantalla para decir en
+       qué pantalla estás. Tumbado eso no se puede pagar. */
+    html.horizontal .page-head { padding: 10px 4px 10px; gap: 6px; }
+    html.horizontal .app h1 { font-size: 23px; }
+
+    /* ---- 2. La navegación se reparte entre los dos pulgares ----
+       El cluster deja de ser una barra y pasa a ser la pantalla entera sin
+       recibir toques (ya lo era: `pointer-events: none`, y cada hijo se
+       reactiva). Dentro, los círculos se pegan al canto izquierdo y el ＋ a la
+       esquina de abajo a la derecha.
+
+       Cinco círculos de 44 con 8 de hueco miden 252 de los 375: centrados,
+       quedan 61 px libres arriba y abajo. */
+    html.horizontal .thumb-cluster {
+      top: 0; bottom: 0; left: 0; right: 0;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      display: block;
+    }
+    html.horizontal .thumb-cluster .nav-circles {
+      position: absolute;
+      left: calc(11px + env(safe-area-inset-left));
+      top: 50%;
+      transform: translateY(-50%);
+      flex-direction: column;
+      gap: 8px;
+    }
+    html.horizontal .thumb-cluster .c-main {
+      position: absolute;
+      right: calc(14px + env(safe-area-inset-right));
+      bottom: calc(12px + env(safe-area-inset-bottom));
+    }
+
+    /* ---- 3. Una hoja inferior no es una hoja cuando la pantalla es baja ----
+       De pie el cuadro sube desde abajo y eso está bien: nace donde está el
+       pulgar. Tumbado, una hoja que ocupa lo alto no deja ver nada de lo que
+       hay detrás y además queda rarísima, así que se centra, como en la
+       computadora. */
+    html.horizontal .modal-backdrop { align-items: center; }
+    html.horizontal .modal-card {
+      max-width: 460px;
+      margin-bottom: 0;
+      border-radius: var(--r-grande);
+      border-bottom: var(--borde-fino) solid var(--line);
+      max-height: calc(100dvh - 20px);
+    }
+
+    /* ---- 4. El mapa, de canto a canto ----
+       Aquí es donde el modo se gana el nombre. La barra de arriba deja de ser
+       una barra —59 px macizos de los 375— y pasa a ser HUD: transparente, sin
+       borde, sin quitarle alto a nada, con sus piezas convertidas en pastillas
+       flotantes que se leen igual sobre el mapa. El lienzo pasa a ocupar los
+       375 px, un 19% más de alto.
+
+       Y las herramientas se reparten en los flancos, que es donde caen los
+       pulgares: la tira a la izquierda —la misma columna que ya usa la
+       computadora, así que no hay una tercera disposición que aprender— y el
+       mando del zoom a la derecha, donde ya estaba. En medio quedan ~700 px
+       de mapa sin nada encima. */
+    html.horizontal .fs-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 2;
+      background: transparent;
+      border-bottom: 0;
+      padding: calc(8px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) 8px calc(10px + env(safe-area-inset-left));
+      /* La barra completa deja pasar el dedo al mapa; solo sus piezas lo
+         reciben. Sin esto, una franja invisible de 50 px se comía el arrastre
+         a lo ancho de toda la parte de arriba del lienzo. */
+      pointer-events: none;
+    }
+    html.horizontal .fs-bar > * { pointer-events: auto; }
+    html.horizontal .fs-body { position: absolute; inset: 0; }
+    /* Pastilla, para que el nombre se lea sobre el mapa sin velarlo. Y sin
+       crecer: `flex: 0 1 auto` en vez del `flex: 1` de la barra maciza, o la
+       pastilla se estiraría de canto a canto y volvería a ser una barra. */
+    html.horizontal .fs-title {
+      flex: 0 1 auto;
+      align-items: center;
+      background: var(--sup-flotante);
+      backdrop-filter: blur(10px);
+      border: var(--borde-fino) solid var(--line);
+      border-radius: var(--r-pastilla);
+      padding: 5px 13px;
+      box-shadow: 0 6px 20px var(--sombra-m);
+    }
+    html.horizontal .fs-title b { font-size: 15px; }
+    html.horizontal .fs-body .mapa-tira {
+      left: calc(10px + env(safe-area-inset-left));
+      top: 50%;
+      bottom: auto;
+      transform: translateY(-50%);
+      flex-direction: column;
+    }
+  }
+
+  /* El rótulo de la prueba del horizontal. Arriba a la derecha, porque los
+     otros dos viven abajo a la izquierda y tumbado el sitio de abajo es
+     escaso. Solo se dibuja cuando la pestaña está en la prueba Y el teléfono
+     está tumbado: de pie no cambia nada, así que anunciarlo sería mentir. */
+  #rotulo-horizontal { display: none; }
+  @media (orientation: landscape) and (max-height: 500px) {
+    html.horizontal #rotulo-horizontal {
+      display: flex; align-items: center; gap: 8px;
+      position: fixed;
+      right: calc(12px + env(safe-area-inset-right));
+      top: calc(10px + env(safe-area-inset-top));
+      z-index: var(--piso-rotulo-prueba);
+      background: var(--fire-macizo); color: var(--sobre-vivo);
+      border-radius: var(--r-pastilla);
+      padding: 4px 7px 4px 11px;
+      font-size: 9.5px; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      max-width: calc(100vw - 24px);
+    }
+    html.horizontal #rotulo-horizontal a {
+      color: inherit;
+      background: rgba(16, 21, 29, 0.14);
+      border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
+      border-radius: var(--r-boton); padding: 3px 9px 4px;
+      text-decoration: none;
+    }
+    /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
+       deja congelado en el inicial. */
+    html.horizontal #rotulo-horizontal a:hover { background: rgba(16, 21, 29, 0.24); }
+  }
+
   /* El rótulo de ESTA prueba. Aparte del de los informes y no compartiendo
      reglas con él: los dos se borran por separado, y una regla compartida es
      justo lo que hace que al quitar una se caiga la otra. Va más arriba para
