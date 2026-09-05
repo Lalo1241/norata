@@ -257,6 +257,18 @@ function pintarMandoZoom(wrap, b) {
 function colocarMando(mando, wrap) {
   const padre = mando.parentElement;
   if (!padre) return;
+  /* A pantalla completa en el teléfono este mando NO se coloca desde aquí: va
+     de pie contra el canto derecho y quien lo pone es el CSS. Un `bottom` en
+     línea le gana a la regla y lo devolvería al renglón de abajo, que es
+     justo el choque con la tira de herramientas que se vino a quitar (28 px
+     de solape medidos en un teléfono de 375). Se limpia lo que hubiera
+     escrito antes, porque el mismo mando cambia de sitio al girar el
+     teléfono o al acoplar la ventana. */
+  if (mando.closest("#fs-body") && !isDesktop()) {
+    mando.style.removeProperty("bottom");
+    mando.style.removeProperty("right");
+    return;
+  }
   const rw = wrap.getBoundingClientRect(), rp = padre.getBoundingClientRect();
   if (!rw.height || !rp.height) return;       // sin medir aún: se deja como esté
 
@@ -503,7 +515,25 @@ function encuadrarLienzo(wrap, b) {
     wrap.scrollLeft = memo.x;
     wrap.scrollTop = memo.y;
   } else {
-    const enc = encuadreDe(wrap, null);
+    /* ---- Sin encuadre guardado, la cámara nace mirando LO QUE SIGUE ----
+       Antes nacía con `encuadreDe(wrap, null)`, que cuando el dibujo no cabe
+       se va AL PRINCIPIO. A lo ancho eso casi acierta, porque el principio de
+       una rama es su raíz; de pie no, porque de pie el principio es el borde
+       de ARRIBA, o sea el extremo más lejano del camino. La rama nacía
+       enseñando los talentos más profundos y no el próximo por abrir, que es
+       justo lo único que una vista previa tiene que contar.
+
+       Medido en un teléfono de 375×812, la rama "Salud" de pie: nacía en
+       `top: 300` y lo que tocaba estaba en `top: 605`. Lo contó Eduardo como
+       «no se centran correctamente y no te deja ver cuál es el más próximo».
+
+       Va aquí y no en quien llama porque este es el ÚNICO sitio que decide el
+       encuadre de nacimiento: vale igual para la lista, para la pantalla
+       completa y para el repintado de después de girar la rama —que borra el
+       encuadre guardado justo para volver a pasar por aquí—. */
+    const rama = b === undefined ? wrap.dataset.branch : b;
+    const frente = pixelDelFrente(wrap, rama, wrap.dataset.mod || "talentos");
+    const enc = encuadreDe(wrap, frente && frente.px);
     if (enc) { wrap.scrollLeft = enc.left; wrap.scrollTop = enc.top; }
   }
   wrap.addEventListener("scroll", () => {
@@ -657,27 +687,52 @@ function frontNode(nodes) {
   return [...nodes].sort(byDepth)[0];
 }
 
+/* Dónde cae, en píxeles del lienzo, el talento que toca ahora. Salió de
+   dentro de `focusBranchFront` porque lo necesitan DOS: el botón de centrar y
+   el encuadre con el que nace un lienzo sin recorrido guardado.
+
+   Por píxel y no por coordenada del dibujo: entre el borde del lienzo y el
+   cero del dibujo hay el margen libre, y a veces también el trozo que ocupan
+   los nodos colocados hacia atrás.
+
+   Y del DIBUJO, que es lo que hay en pantalla: con la rama de pie, la
+   coordenada guardada apunta a otro sitio. */
+function pixelDelFrente(wrap, b, mod) {
+  const nodes = branchNodes(b, mod);
+  if (!nodes.length) return null;
+  const { dib } = branchLayout(nodes, ramaGirada(b, mod));
+  const nodo = frontNode(nodes);
+  if (!nodo || !dib[nodo.id]) return null;
+  const px = pixelEnLienzo(wrap, dib[nodo.id].x, dib[nodo.id].y);
+  return px ? { px, nodo } : null;
+}
+
 function focusBranchFront(b, silent, mod) {
   const wrap = constWrapFor(b);
   if (!wrap) return;
-  const nodes = branchNodes(b, mod);
-  if (!nodes.length) return;
-  // Del dibujo, que es lo que hay en pantalla: con la rama de pie, la
-  // coordenada guardada apunta a otro sitio
-  const { dib } = branchLayout(nodes, ramaGirada(b, mod));
-  const pos = dib;
-  const target = frontNode(nodes);
-  /* Por píxel y no por coordenada del dibujo: entre el borde del lienzo y el
-     cero del dibujo hay ahora el margen libre, y a veces también el trozo que
-     ocupan los nodos colocados hacia atrás. Y pasa por encuadreDe, que si la
-     rama cabe entera la centra en vez de escorarla para poner ese nodo justo
-     en el medio — enseñar la rama completa siempre gana. */
-  const p = pixelEnLienzo(wrap, pos[target.id].x, pos[target.id].y);
-  if (!p) return;
-  const enc = encuadreDe(wrap, p);
+  const frente = pixelDelFrente(wrap, b, mod);
+  if (!frente) return;
+  /* Pasa por encuadreDe, que si la rama cabe entera la centra en vez de
+     escorarla para poner ese nodo justo en el medio — enseñar la rama
+     completa siempre gana. */
+  const enc = encuadreDe(wrap, frente.px);
   if (!enc) return;
-  wrap.scrollTo({ left: enc.left, top: enc.top, behavior: silent ? "auto" : "smooth" });
-  if (!silent) toast(`Centrado en: ${target.name}`, "hecho");
+  /* ---- Suave solo donde el dedo puede recorrer el mapa ----
+     Fuera de pantalla completa el lienzo va con `overflow: hidden` a
+     propósito, para no pelearse con el desplazamiento de la página. Un salto
+     animado sobre una caja que el usuario no puede recorrer no está asegurado
+     en todos los navegadores, y un botón que a veces no hace nada es peor que
+     uno que salta seco. Donde el mapa SÍ se recorre —pantalla completa, y la
+     computadora— la animación se queda, que ahí es la que cuenta hacia
+     dónde te movieron. */
+  const cs = getComputedStyle(wrap);
+  const recorrible = cs.overflowY !== "hidden" || cs.overflowX !== "hidden";
+  wrap.scrollTo({ left: enc.left, top: enc.top, behavior: (silent || !recorrible) ? "auto" : "smooth" });
+  /* Y el encuadre se APUNTA aquí, sin esperar al evento `scroll`: con el salto
+     animado esos eventos llegan repartidos en varios fotogramas, y cualquier
+     repintado en medio devolvía el mapa a donde estaba. */
+  scrollRama[llaveDeLienzo(wrap, b)] = { x: enc.left, y: enc.top };
+  if (!silent) toast(`Centrado en: ${frente.nodo.name}`, "hecho");
 }
 
 async function resetBranchLayout(b, mod) {
@@ -910,14 +965,27 @@ function renderFullscreen(mod) {
         aria-label="Elegir varios" aria-pressed="${!esProy && modoElegir}"
         title="${esProy ? "Elegir varios es del árbol de Talentos" : tx("Elegir varios para moverlos juntos o agruparlos")}"><svg viewBox="0 0 24 24">${BM_ICONS.caja}</svg></button>
       <button type="button" class="mt-btn crear"
-        onclick="${esProy ? `openProjectForm(null, '${bj}')` : `openPerkForm(null, '${bj}')`}"
+        onclick="${esProy ? `openProjectForm(null, '${bj}')` : `abrirMenuCrear('${bj}', event)`}"
         aria-label="Añadir ${esProy ? "encargo" : "talento"} a ${ba}"
+        aria-haspopup="${esProy ? "false" : "true"}"
         title="Añadir ${esProy ? "un encargo" : "un talento"}">＋</button>
     </div>`;
 
+  /* ---- La rama vacía, con la puerta puesta ----
+     Aquí decía «créale el primero con el ＋ de arriba», y ese ＋ no existía:
+     la barra de arriba se vacía unas líneas más abajo, y la tira de
+     herramientas —que es donde vive el ＋— solo se pinta cuando hay nodos. O
+     sea que el único momento en que hace falta crear era justo el único en el
+     que no había con qué. Ahora el botón va dentro del mensaje, que es a donde
+     se está mirando. */
   document.getElementById("fs-body").innerHTML = !nodes.length
-    ? `<p class="col-vacia" style="margin:auto;text-align:center;max-width:34ch">Todavía no hay ${
-        esProy ? tx("encargos en este proyecto") : tx("talentos en esta rama")}. Créale el primero con el ＋ de arriba.</p>`
+    ? `<div class="fs-vacio">
+         <p class="col-vacia">Todavía no hay ${
+           esProy ? tx("encargos en este proyecto") : tx("talentos en esta rama")}.</p>
+         <button type="button" class="btn btn-primary"
+           onclick="${esProy ? `openProjectForm(null, '${bj}')` : `abrirMenuCrear('${bj}', event)`}">${
+           tx("Crear el primero")}</button>
+       </div>`
     : `
     <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}"${
         esProy ? ` data-mod="proyectos"` : ""}>${constellation(nodes, 900, editing, b, fullscreenMod)}</div>
@@ -1041,7 +1109,18 @@ const RATON_DERECHO = `<svg viewBox="0 0 24 24" aria-hidden="true">
 </svg>`;
 
 function atajosLegend(compacta) {
-  if (!isDesktop()) return "";
+  /* ---- En táctil también hay algo que aprender ----
+     Aquí se devolvía "" y era correcto mientras el mapa del teléfono no tenía
+     más gesto que tocar y arrastrar. Desde que el dedo quieto abre el mismo
+     menú del clic derecho hay que anunciarlo: un gesto que nadie cuenta es un
+     gesto que nadie usa, y este abre la única puerta a crear los tres tipos,
+     a editar y a deshacer.
+
+     Va en el renglón que ya existe para esto, así que no cuesta un píxel
+     nuevo — que es exactamente por lo que ese renglón se ganó su sitio. */
+  if (!isDesktop()) {
+    return `<span class="keys">${tx("Deja el dedo quieto sobre el mapa para crear, editar y más")}</span>`;
+  }
   const k = (t) => `<kbd>${t}</kbd>`;
   const raton = `<kbd class="kb-raton">${RATON_DERECHO}</kbd>`;
   /* Tecla, figura y nombre juntos. Antes la figura vivia en una fila de
@@ -1368,6 +1447,78 @@ document.addEventListener("keydown", (e) => {
 let ctxPos = null;
 let ctxMod = "talentos";
 
+/* Una línea del menú. Vive fuera de `abrirCtxMenu` desde que hay una segunda
+   puerta —el ＋ del mapa en el teléfono— que pinta este mismo menú recortado. */
+function ctxItem(titulo, pista, tecla, onclick, icono) {
+  return `
+    <button onclick="${onclick}">
+      <span class="ctx-tx"><b>${escapeHtml(titulo)}</b><span>${escapeHtml(pista)}</span></span>
+      ${tecla ? `<kbd>${tecla}</kbd>` : (icono ? `<span class="ctx-ic"><svg viewBox="0 0 24 24">${icono}</svg></span>` : "")}
+    </button>`;
+}
+
+/* Las tres líneas de «crear aquí», que salen por DOS puertas: el clic derecho
+   de la computadora y el ＋ del mapa en el teléfono. Viven aparte para que las
+   dos digan exactamente lo mismo — con dos copias, el día que se añada un
+   cuarto tipo una de ellas se queda en tres, y entonces hay dos apps.
+
+   Las teclas solo donde existen: una `Q` dibujada en un teléfono es un rótulo
+   que no lleva a ninguna parte. */
+function lineasDeCrear(branch, conTeclas) {
+  const t = (k) => conTeclas ? k : "";
+  return ctxItem(`${TIPOS.meta.glifo} ${TIPOS.meta.nombre}`, tx("Se sostiene en el tiempo y avanza por etapas"), t("W"), `ctxCrear('${enJS(branch)}','meta')`) +
+    ctxItem(`${TIPOS.compra.glifo} ${TIPOS.compra.nombre}`, tx("Una llave que se paga y abre el paso"), t("E"), `ctxCrear('${enJS(branch)}','compra')`) +
+    ctxItem(`${TIPOS.hito.glifo} ${TIPOS.hito.nombre}`, tx("Una acción puntual que se cierra en sí misma"), t("Q"), `ctxCrear('${enJS(branch)}','hito')`);
+}
+
+/* ---- El ＋ del mapa pregunta QUÉ ----
+   En la computadora los tres tipos se crean con el clic derecho o con Q, W y
+   E, así que el ＋ solo hacía falta en táctil — y allí abría el formulario
+   largo, que es OTRA pantalla: se perdía el mapa, el sitio donde ibas a poner
+   el talento y el hilo de lo que estabas haciendo. Lo pidió Eduardo: que
+   pregunte primero, como hace el menú del clic derecho.
+
+   El talento nace en el CENTRO de lo que se está viendo y no en el cero del
+   dibujo: uno creado fuera de la pantalla se siente como que el botón no hizo
+   nada. Sin lienzo —una rama vacía— se deja sin coordenada y lo coloca el
+   reparto automático.
+
+   El formulario largo sigue estando: se llega a él abriendo el talento recién
+   creado, igual que desde el atajo de teclado. */
+function abrirMenuCrear(branch, ev) {
+  /* Sin esto, el mismo clic que abre el menú burbujea hasta el documento y lo
+     cierra en el acto (ver `toggleBranchMenu`, que arrastra la misma piedra). */
+  if (ev) ev.stopPropagation();
+  const el = document.getElementById("ctx");
+  if (!el) return;
+  closeBranchMenus();
+  const wrap = constWrapFor(branch);
+  if (wrap) {
+    const r = wrap.getBoundingClientRect();
+    ctxPos = puntoEnLienzo(wrap, r.left + wrap.clientWidth / 2, r.top + wrap.clientHeight / 2);
+  } else {
+    ctxPos = null;
+  }
+  ctxMod = "talentos";
+  el.innerHTML = `<div class="ctx-head">${tx("Crear aquí")}</div>` + lineasDeCrear(branch, isDesktop());
+  /* Anclado al botón que lo abrió. */
+  const rb = ev && ev.currentTarget ? ev.currentTarget.getBoundingClientRect() : null;
+  colocarCtxMenu(el, rb ? rb.left : innerWidth / 2, rb ? rb.top : innerHeight / 2);
+  /* Y por ENCIMA del botón, no sobre él. `colocarCtxMenu` solo sabe meter el
+     menú dentro de la pantalla, y el ＋ vive en la tira de abajo: medido,
+     el menú caía en 614–802 y la tira está en 746–798, o sea que tapaba justo
+     la herramienta que acabas de tocar y las otras cuatro con ella.
+
+     Se hace aquí y no dentro de `colocarCtxMenu` porque el clic derecho SÍ
+     quiere el menú bajo el cursor —ahí el ancla es un punto, no un botón que
+     haya que dejar visible—. Y con el menú ya medido, que su alto depende de
+     cuántas líneas lleve. */
+  if (rb) {
+    const alto = el.getBoundingClientRect().height;
+    el.style.top = Math.max(10, Math.min(parseFloat(el.style.top) || 0, rb.top - alto - 8)) + "px";
+  }
+}
+
 function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
   const el = document.getElementById("ctx");
   if (!el) return;
@@ -1375,11 +1526,10 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
   ctxPos = pos;
   ctxMod = mod || "talentos";
   const editando = editandoRama(branch, ctxMod);
-  const item = (titulo, pista, tecla, onclick, icono) => `
-    <button onclick="${onclick}">
-      <span class="ctx-tx"><b>${escapeHtml(titulo)}</b><span>${escapeHtml(pista)}</span></span>
-      ${tecla ? `<kbd>${tecla}</kbd>` : (icono ? `<span class="ctx-ic"><svg viewBox="0 0 24 24">${icono}</svg></span>` : "")}
-    </button>`;
+  const item = ctxItem;
+  /* Las teclas solo se dibujan donde existen. Este menú lo abre también el
+     toque sostenido de un teléfono, y allí no hay ni Q, ni C, ni Ctrl Z. */
+  const tec = (k) => isDesktop() ? k : "";
 
   /* ---- El menu del mapa de encargos ----
      Sale antes que nada porque casi ninguna accion de Talentos vale aqui: no
@@ -1446,13 +1596,15 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
        formulario para que la mano aprenda una sola disposición. */
     /* La figura acompana al nombre, igual que en la linea de ayuda: es la
        misma pista en los dos sitios, asi que se aprende una sola vez. */
-    item(`${TIPOS.meta.glifo} ${TIPOS.meta.nombre}`, tx("Se sostiene en el tiempo y avanza por etapas"), "W", `ctxCrear('${enJS(branch)}','meta')`) +
-    item(`${TIPOS.compra.glifo} ${TIPOS.compra.nombre}`, tx("Una llave que se paga y abre el paso"), "E", `ctxCrear('${enJS(branch)}','compra')`) +
-    item(`${TIPOS.hito.glifo} ${TIPOS.hito.nombre}`, tx("Una acción puntual que se cierra en sí misma"), "Q", `ctxCrear('${enJS(branch)}','hito')`) +
+    lineasDeCrear(branch, isDesktop()) +
     `<div class="ctx-sep"></div>` +
-    item(editando ? tx("Salir de edición") : tx("Editar el mapa"), editando ? tx("Vuelve al modo normal") : tx("Conecta y corta hilos"), "C", `cerrarCtxMenu();toggleEditBranch('${enJS(branch)}')`) +
-    item(tx("Ver en pantalla completa"), tx("Recorre la rama con sitio de sobra"), "", `cerrarCtxMenu();openBranchFullscreen('${enJS(branch)}')`, BM_ICONS.expandir) +
-    (undoStack.length ? item("Deshacer", undoStack[undoStack.length - 1].etiqueta, "Ctrl Z", `cerrarCtxMenu();undoEditor()`) : "");
+    item(editando ? tx("Salir de edición") : tx("Editar el mapa"), editando ? tx("Vuelve al modo normal") : tx("Conecta y corta hilos"), tec("C"), `cerrarCtxMenu();toggleEditBranch('${enJS(branch)}')`) +
+    /* Estando YA a pantalla completa, esta línea no lleva a ninguna parte. El
+       menú de Proyectos ya la escondía; este no, y hasta ahora no se notaba
+       porque solo se abría con el clic derecho. Con el toque sostenido del
+       teléfono, la pantalla completa es justo donde más se usa. */
+    (fullscreenBranch ? "" : item(tx("Ver en pantalla completa"), tx("Recorre la rama con sitio de sobra"), "", `cerrarCtxMenu();openBranchFullscreen('${enJS(branch)}')`, BM_ICONS.expandir)) +
+    (undoStack.length ? item("Deshacer", undoStack[undoStack.length - 1].etiqueta, tec("Ctrl Z"), `cerrarCtxMenu();undoEditor()`) : "");
 
   colocarCtxMenu(el, clientX, clientY);
 }
@@ -2940,7 +3092,79 @@ function attachCtxHandlers(scope) {
       abrirCtxMenu(e.clientX, e.clientY, wrap.dataset.branch, p, nodo && nodo.dataset.id,
                    wrap.dataset.mod || "talentos");
     });
+    attachToqueSostenido(wrap);
   });
+}
+
+/* ================= El toque sostenido: el clic derecho del teléfono =================
+   En una pantalla táctil no hay botón derecho, así que TODO el menú del mapa
+   —crear los tres tipos justo aquí, entrar en edición, deshacer, abrir o
+   duplicar el talento que hay debajo— no existía en el teléfono. Lo pidió
+   Eduardo y el gesto que eligió es el que ya usan la galería y el navegador
+   para «más cosas de esto»: el dedo quieto medio segundo.
+
+   Lo que hace que no estorbe no es cuándo se dispara, es todo lo que lo
+   CANCELA. En cuanto el dedo se mueve más de diez píxeles esto es un
+   arrastre; en cuanto aparece un segundo dedo es un pellizco; y en cuanto el
+   mapa empieza a recorrerse ya no es un toque quieto. Los tres apagan el
+   reloj antes de que suene, así que el recorrido y el zoom siguen igual de
+   sueltos que antes: no compiten con este gesto en ningún momento, porque un
+   gesto que empieza a moverse deja de ser este.
+
+   No se comprueba `isDesktop()`: quien no tiene pantalla táctil no manda
+   `touchstart` y esto no corre nunca. Y una computadora que SÍ la tiene se
+   queda con las dos puertas, que es lo correcto. */
+const SOSTENIDO_MS = 480;
+const SOSTENIDO_MARGEN = 10;
+
+function attachToqueSostenido(wrap) {
+  let reloj = null, x0 = 0, y0 = 0, blanco = null;
+  const soltar = () => { if (reloj) { clearTimeout(reloj); reloj = null; } };
+
+  wrap.addEventListener("touchstart", (e) => {
+    soltar();
+    if (e.touches.length !== 1) return;      // dos dedos ya es un pellizco
+    const t = e.touches[0];
+    x0 = t.clientX; y0 = t.clientY;
+    blanco = e.target;
+    reloj = setTimeout(() => {
+      reloj = null;
+      const p = puntoEnLienzo(wrap, x0, y0);
+      const nodo = blanco && blanco.closest ? blanco.closest(".cnode") : null;
+      /* Un golpecito, si el dispositivo lo tiene: sin él no hay forma de saber
+         que el menú salió porque lo pediste y no por un toque suelto. */
+      try { if (navigator.vibrate) navigator.vibrate(12); } catch (x) { /* sin vibrador */ }
+      abrirCtxMenu(x0, y0, wrap.dataset.branch, p, nodo && nodo.dataset.id,
+                   wrap.dataset.mod || "talentos");
+      tragarSiguienteToque();
+    }, SOSTENIDO_MS);
+  }, { passive: true });
+
+  wrap.addEventListener("touchmove", (e) => {
+    if (!reloj) return;
+    const t = e.touches[0];
+    if (!t) { soltar(); return; }
+    if (Math.abs(t.clientX - x0) > SOSTENIDO_MARGEN ||
+        Math.abs(t.clientY - y0) > SOSTENIDO_MARGEN) soltar();
+  }, { passive: true });
+
+  wrap.addEventListener("touchend", soltar, { passive: true });
+  wrap.addEventListener("touchcancel", soltar, { passive: true });
+  wrap.addEventListener("scroll", soltar, { passive: true });
+}
+
+/* El menú se abre con el dedo TODAVÍA abajo, así que detrás viene un `click`
+   que no es de nadie: sin tragarlo, el mismo gesto abría además la ficha del
+   talento de debajo, y el `click` del documento cerraba el menú recién
+   abierto en el mismo suspiro.
+
+   Y se retira sola a los 700 ms porque ese `click` NO siempre llega —si el
+   navegador decide que hubo arrastre no lo manda—, y una escucha que se queda
+   puesta se comería el próximo toque de verdad, minutos después. */
+function tragarSiguienteToque() {
+  const comer = (e) => { e.stopPropagation(); e.preventDefault(); };
+  document.addEventListener("click", comer, { capture: true, once: true });
+  setTimeout(() => document.removeEventListener("click", comer, { capture: true }), 700);
 }
 
 /* `scope` importa desde que existe el modo pantalla completa: con él abierto
