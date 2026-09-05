@@ -1322,8 +1322,18 @@ function renderTree() {
     let body;
     if (!nodes.length) {
       /* Una rama vacía no se dibuja como un lienzo en blanco —parecería rota—
-         sino como lo que es: un sitio esperando su primer talento. */
-      body = `<p class="col-vacia">${tx("Todavía no hay talentos en esta rama. Créale el primero con el ＋.")}</p>`;
+         sino como lo que es: un sitio esperando su primer talento.
+
+         Con un BOTÓN y no señalando al ＋ de la cabecera, que en el teléfono
+         ya no está (ver arriba). Un mensaje que manda a un botón invisible es
+         peor que no decir nada: deja al que acaba de crear la rama sin ninguna
+         puerta a la vista, y es justo el momento en que va a llenarla. */
+      body = `
+        <div class="rama-vacia">
+          <p class="col-vacia">${tx("Todavía no hay talentos en esta rama.")}</p>
+          <button type="button" class="btn btn-soft btn-sm"
+            onclick="abrirMenuCrear('${bj}', event)">${tx("Crear el primero")}</button>
+        </div>`;
     } else if (collapsed) {
       body = `
       <div class="branch-collapsed">
@@ -1412,10 +1422,24 @@ function renderTree() {
             })),
             { title: "Borrar esta rama", hint: reales.length === 0 ? "Está vacía" : (reales.length === 1 ? "Se va también su único talento" : `Se van también sus ${reales.length} talentos`), icon: "bote", danger: true, onclick: `deleteBranch('perks','${bj}')` }
           ])}
-          ${/* En PC no hay botón de crear: el clic derecho y las teclas
-                Q, W y E lo hacen mejor y sin ocupar la cabecera. En táctil
-                no existe ninguna de las dos cosas, así que ahí se queda. */
-            `<button class="badd" onclick="openPerkForm(null, '${bj}')" aria-label="${escapeAttr(T`Añadir talento a ${b}`)}">＋</button>`}
+          ${/* ---- El ＋ de la cabecera, y por qué en el teléfono se va ----
+                En PC hace de puerta corta: el clic derecho y las teclas Q, W y
+                E hacen lo mismo mejor, pero un ＋ visible no estorba en una
+                pantalla con sitio.
+
+                En el teléfono sí estorbaba, y no por el tamaño: fuera de
+                pantalla completa la rama es SOLO una vista previa —no se
+                recorre, no se toca por dentro—, así que un ＋ ahí ofrece crear
+                justo donde no se puede colocar nada. Lo que hacía era abrir el
+                formulario largo y sacarte del árbol. Lo pidió Eduardo: aquí se
+                quita, y crear pasa a ser algo que se hace DENTRO del mapa, con
+                el ＋ de la tira, que además pregunta qué tipo.
+
+                Se esconde con CSS y no con un `if`: la misma tarjeta se pinta
+                una sola vez y tiene que seguir siendo correcta si la ventana
+                cambia de ancho sin repintar —una computadora que se acopla a
+                media pantalla, o el teléfono al girarse—. Ver `.badd-talento`. */
+            `<button class="badd badd-talento" onclick="openPerkForm(null, '${bj}')" aria-label="${escapeAttr(T`Añadir talento a ${b}`)}">＋</button>`}
         </div>
       </div>
       ${body}

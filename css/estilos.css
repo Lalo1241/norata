@@ -4599,6 +4599,37 @@
   }
   .fs-tools { flex: none; display: flex; gap: 7px; }
   .fs-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+  /* ---------- Una rama sin nada dentro, con su puerta ----------
+     Aquí antes había un párrafo que mandaba a un ＋ inexistente. El mensaje y
+     el botón van juntos y centrados en el hueco: es la única pantalla de la
+     app donde no hay absolutamente nada más que mirar, así que lo que se
+     puede hacer tiene que estar en el centro y no escondido en un canto. */
+  .fs-vacio, .rama-vacia {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+  }
+  .fs-vacio { margin: auto; padding: 20px; }
+  .fs-vacio .col-vacia, .rama-vacia .col-vacia { max-width: 34ch; margin: 0; }
+  .rama-vacia { padding: 18px 12px 22px; }
+
+  /* ---------- El ＋ de la cabecera de una rama de talentos ----------
+     Fuera del teléfono. No es cuestión de tamaño: fuera de pantalla completa
+     la rama es SOLO una vista previa —no se recorre ni se toca por dentro—,
+     así que ese ＋ ofrecía crear justo donde no se puede colocar nada, y lo
+     que hacía era abrir el formulario largo y sacarte del árbol. Lo pidió
+     Eduardo. Dentro del mapa el ＋ sigue estando, en la tira, y allí además
+     pregunta de qué tipo.
+
+     Solo el de TALENTOS: `.badd` lo comparten las columnas de misiones y las
+     tarjetas de proyectos, donde el botón sí crea algo que se ve en el acto. */
+  @media (max-width: 899px) {
+    .badd-talento { display: none; }
+  }
   /* Aquí sí se recorre en los dos ejes: es el modo que existe para eso */
   .fs-overlay .const-wrap {
     flex: 1;
@@ -4687,23 +4718,55 @@
     }
   }
 
-  /* ---------- En el teléfono, los dos mandos en la misma línea ----------
-     Antes la tira iba centrada abajo y el mando del zoom en su esquina, y como
-     se pisaban había una función que subía el zoom a media pantalla. El
-     resultado es lo que Eduardo describió: se veía mal colocado, flotando
-     donde no toca.
+  /* ---------- En el teléfono, cada mando en su canto ----------
+     Historia corta, porque este sitio ya se movió dos veces. Primero los dos
+     estaban abajo y se pisaban, y había una función que subía el zoom a
+     media pantalla para esquivar —eso es lo que Eduardo describió como «mal
+     colocado, flotando donde no toca»—. Luego se repartieron en el mismo
+     renglón, herramientas a la izquierda y zoom a la derecha, y en un teléfono
+     de verdad TAMPOCO caben: medido a 375 px, la tira acaba en 244 y el zoom
+     empieza en 216. **28 píxeles de solape**, y peor cuanto más estrecho el
+     teléfono — los dos juntos piden 379 px de los 351 que hay entre márgenes.
 
-     Repartidos —herramientas a la izquierda, zoom a la derecha— dejan de
-     chocar, no hace falta esquivar nada y el pulgar llega a los dos. */
+     Achicarlos hasta que cupieran no era salida: los dos habrían quedado por
+     debajo del tamaño que un dedo acierta. Lo que sobra es el RENGLÓN
+     compartido, no el tamaño.
+
+     Así que el zoom se pone DE PIE contra el canto derecho: es la disposición
+     que tiene cualquier mapa, ocupa 40 px de ancho en vez de 147 de largo, y
+     no comparte línea con nada. La tira recupera el centro, que es donde
+     llegan los dos pulgares. */
   @media (max-width: 899px) {
     .fs-body .mapa-tira {
-      left: calc(12px + env(safe-area-inset-left));
-      transform: none;
+      left: 50%;
+      transform: translateX(-50%);
     }
     .fs-body .zoom-mando {
-      right: calc(12px + env(safe-area-inset-right));
-      bottom: calc(14px + env(safe-area-inset-bottom));
+      right: calc(8px + env(safe-area-inset-right));
+      bottom: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      flex-direction: column;
+      gap: 1px;
+      padding: 2px;
     }
+    /* En el orden en que se lee un mando de mapa: acercar arriba. El DOM los
+       trae en el orden de la computadora —− % + ajustar— y se reordenan aquí
+       y no en el JavaScript, porque es cosa de la forma y no del qué. */
+    .fs-body .zoom-mando [data-z="mas"] { order: 1; }
+    .fs-body .zoom-mando .pct { order: 2; }
+    .fs-body .zoom-mando [data-z="menos"] { order: 3; }
+    .fs-body .zoom-mando .ajustar { order: 4; }
+    .fs-body .zoom-mando button { width: 34px; height: 34px; }
+    /* El porcentaje, solo en su renglón, no necesita el signo: lo que tiene
+       encima y debajo ya dice que esto es el zoom. */
+    .fs-body .zoom-mando .pct {
+      padding: 1px 0 2px;
+      font-size: 10px;
+      justify-content: center;
+    }
+    .fs-body .zoom-mando .pct input { width: 3ch; text-align: center; }
+    .fs-body .zoom-mando .pct i { display: none; }
   }
 
   /* ================= El mando del zoom =================
@@ -7623,13 +7686,21 @@
     padding-top: env(safe-area-inset-top);
     pointer-events: none;
   }
+  /* ---- Y pequeña de verdad ----
+     Medía 38 px de alto en un teléfono de 812, y ese hueco no lo paga el
+     rótulo: lo paga la app entera, porque el contenido baja lo que la barra
+     mide (`--alto-aviso`). Un aviso permanente tiene que estar y no pesar.
+     Lo pidió Eduardo, y para las dos pantallas: en PC tampoco necesita ese
+     cuerpo.
+
+     El alto lo ponía el BOTÓN y no el texto, así que ahí es donde se recorta. */
   .aviso-modo .av-caja {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
     max-width: min(92vw, 560px);
     background: var(--fire-macizo); color: var(--sobre-vivo);
-    padding: 5px 14px 6px;
+    padding: 3px 11px 4px;
     border-radius: 0 0 var(--r-caja) var(--r-caja);
-    font-size: 10.5px; font-weight: 800;
+    font-size: 9.5px; font-weight: 800;
     letter-spacing: 0.06em; text-transform: uppercase;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.34);
     pointer-events: auto;
@@ -7639,11 +7710,25 @@
      el dedo no puede serlo: a 19 px de alto se falla en un teléfono. */
   .aviso-modo .av-caja button {
     flex: none;
-    font: inherit; letter-spacing: inherit; text-transform: inherit;
+    position: relative;
+    font: inherit; line-height: 1.25; letter-spacing: inherit; text-transform: inherit;
     color: inherit; cursor: pointer;
     background: rgba(16, 21, 29, 0.14);
     border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
-    border-radius: var(--r-boton); padding: 5px 11px 6px;
+    border-radius: var(--r-boton); padding: 2px 9px 3px;
+  }
+  /* La zona del dedo, INVISIBLE y sin ocupar sitio. El botón dibujado mide 18
+     px de alto y a esa altura se falla; agrandarlo devolvería la barra a los
+     38 px que se vinieron a quitar. Un `inset` negativo deja 36 px de zona
+     táctil sin que el dibujo crezca un píxel.
+
+     Se sale de la barra por abajo a propósito: ahí no hay nada que pulsar
+     —la app empieza por debajo del hueco reservado—, así que no le roba el
+     toque a nadie. */
+  .aviso-modo .av-caja button::after {
+    content: "";
+    position: absolute;
+    inset: -9px -7px;
   }
   /* Sin transición en el fondo: el color sale de una variable y Chrome deja el
      valor congelado en el inicial (ver la nota del modo claro). */

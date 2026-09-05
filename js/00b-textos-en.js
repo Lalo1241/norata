@@ -734,6 +734,10 @@ const TEXTOS_EN = {
   "Tus ramas de talentos": "Your talent branches",
   "Todavía no hay talentos en esta rama. Créale el primero con el ＋.":
     "There are no talents in this branch yet. Create the first one with the ＋.",
+  "Todavía no hay talentos en esta rama.": "There are no talents in this branch yet.",
+  "Crear el primero": "Create the first one",
+  "Deja el dedo quieto sobre el mapa para crear, editar y más":
+    "Hold your finger still on the map to create, edit and more",
   "Arrastra para acomodar ·": "Drag to arrange ·",
   "y clic (o Shift y arrastra un recuadro) elige varios para moverlos juntos o agruparlos · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo":
     "and click (or Shift and drag a box) picks several to move together or group · pull the ▸ dot onto another node to connect them · tap a line to cut it · the circle",
