@@ -7673,7 +7673,11 @@
      No se dibuja salvo que la clase esté puesta en `<html>`, que es lo que
      hace el script de arriba de index.html al ver `?informes=demo`. */
   .rotulo-prueba { display: none; }
-  html.informes-demo .rotulo-prueba {
+  /* Cada prueba enseña SOLO su rótulo: con un selector suelto, encender los
+     nodos sacaba también el de «números inventados». Por eso van emparejados
+     clase-de-prueba con id-de-rótulo y no clase con clase. */
+  html.informes-demo #rotulo-informes,
+  html.nodos-variedad #rotulo-nodos {
     display: flex; align-items: center; gap: 8px;
     position: fixed;
     left: 12px;
@@ -7686,7 +7690,8 @@
     letter-spacing: 0.06em; text-transform: uppercase;
     max-width: calc(100vw - 24px);
   }
-  html.informes-demo .rotulo-prueba a {
+  html.informes-demo #rotulo-informes a,
+  html.nodos-variedad #rotulo-nodos a {
     color: inherit;
     background: rgba(16, 21, 29, 0.14);
     border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
@@ -7695,10 +7700,12 @@
   }
   /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
      deja congelado en el inicial. */
-  html.informes-demo .rotulo-prueba a:hover { background: rgba(16, 21, 29, 0.24); }
+  html.informes-demo #rotulo-informes a:hover,
+  html.nodos-variedad #rotulo-nodos a:hover { background: rgba(16, 21, 29, 0.24); }
   @media (min-width: 900px) {
     /* En pantalla ancha la barra de navegación no está abajo. */
-    html.informes-demo .rotulo-prueba { bottom: calc(env(safe-area-inset-bottom) + 14px); }
+    html.informes-demo #rotulo-informes,
+    html.nodos-variedad #rotulo-nodos { bottom: calc(env(safe-area-inset-bottom) + 14px); }
   }
 
 

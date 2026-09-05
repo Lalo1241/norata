@@ -143,6 +143,55 @@
     }
   } catch (e) {}
 
+  /* ---- Los nodos de Proyectos con variedad: `?nodos=variedad` ----
+     Una prueba apagada, con la misma receta que el modo claro y el
+     escaparate: la decisión es de Eduardo y hasta que la vea, la app de todo
+     el mundo se comporta como siempre.
+
+     Lo que enciende: el avance dentro de la figura del encargo, la chapa de
+     salud (estancado, enfriándose) y los cuatro tipos de encargo con figura
+     propia; y de paso, que una rama entre encuadrada a pantalla completa en
+     vez de al 100%.
+
+     En sessionStorage y no en localStorage, por lo mismo que las otras dos:
+     al cerrar la pestaña se va, así que no se queda pegada como si fuera un
+     ajuste. `?nodos=no` la apaga.
+
+     Aquí arriba y no en el script principal: abajo se vería un instante la
+     app de siempre y luego el cambio.
+
+     ---- QUÉ HAY QUE BORRAR PARA QUITARLA ----
+     Por nombre y no por rango: la primera vez que se quitó una prueba se
+     cortó de "aquí" a "allá" y se llevó por delante cuatro bloques que no
+     tenían nada que ver.
+
+       · index.html ....... este bloque `try` y el div `#rotulo-nodos`, y el
+                            panel `#panel-tipo-encargo` del formulario
+       · css/estilos.css .. `html.nodos-variedad #rotulo-nodos` en las cuatro
+                            reglas del rótulo (van emparejadas con las de
+                            `html.informes-demo #rotulo-informes`)
+       · js/07-lienzo.js .. `pruebaNodos()`, la condición dentro de `figuraDe`,
+                            las dos siluetas ("punta" y "corte") de
+                            `nodeShape`, `barra`, `salud`, `saludR` y sus dos
+                            interpolaciones dentro del grupo del nodo, y
+                            `encuadrarAlAbrir` (con su llamada en
+                            `openBranchFullscreen`)
+       · js/04-misiones.js  `TIPOS_ENCARGO`, `tipoDeEncargo`, `figuraDeEncargo`
+       · js/08-formularios.js  `prTipo`, `pickTipoEncargo`, `renderTipoEncargo`,
+                            las tres líneas de `openProjectForm` y el `tipo:`
+                            de las dos ramas de `saveProject`
+
+     Y si se queda: lo único que hay que quitar es la condición, no el código.
+     El campo `tipo` que se haya guardado en algún encargo es inofensivo —
+     `tipoDeEncargo` devuelve "tarea" para el que no lo tenga—. */
+  try {
+    var qn = new URLSearchParams(location.search).get("nodos");
+    if (qn === "variedad" || qn === "no") sessionStorage.setItem("norata-prueba-nodos", qn);
+    if (sessionStorage.getItem("norata-prueba-nodos") === "variedad") {
+      document.documentElement.classList.add("nodos-variedad");
+    }
+  } catch (e) {}
+
   /* ---- Red de seguridad ----
      Vive en este bloque y no en el script principal a propósito: el grande
      corre al final, así que un manejador declarado dentro de él nunca
@@ -279,6 +328,16 @@
 <div class="rotulo-prueba" id="rotulo-informes">
   Estás viendo números inventados, no son tus datos
   <a href="?informes=no">salir</a>
+</div>
+
+<!-- El rótulo de la prueba de los nodos de Proyectos. Mismo motivo que el de
+     arriba: sin él es facilísimo olvidar que la pestaña está en modo prueba y
+     acabar juzgando la app de verdad por lo que se ve aquí. Se borra entero
+     al quitar la prueba: la lista de qué borrar está arriba, en el script,
+     con el interruptor. -->
+<div class="rotulo-prueba" id="rotulo-nodos">
+  Prueba: los nodos de Proyectos con variedad
+  <a href="?nodos=no">salir</a>
 </div>
 
 <div class="orb orb-1"></div>
@@ -505,6 +564,19 @@
         <span class="lbl">Color</span>
         <div class="color-grid" id="pr-color"></div>
       </div>
+    </div>
+
+    <!-- Tipo de encargo. Solo se enseña con la prueba `?nodos=variedad`
+         puesta, y quien lo esconde es `openProjectForm`: sin la prueba no hay
+         cuatro figuras que elegir, así que preguntar por el tipo sería pedir
+         un dato que no pinta nada. Se borra entero al quitar la prueba: la
+         lista de qué borrar está arriba, con el interruptor. -->
+    <div class="panel alt" id="panel-tipo-encargo" style="display:none">
+      <h3>Tipo de encargo</h3>
+      <!-- Excluyentes, igual que en el talento: un encargo es una cosa o la
+           otra, y con interruptores sueltos se podría dibujar la contradicción. -->
+      <div class="seg tipo-seg" id="pr-tipo"></div>
+      <div class="field-hint" id="pr-tipo-sub" style="margin-top:10px"></div>
     </div>
 
     <div class="panel alt">
