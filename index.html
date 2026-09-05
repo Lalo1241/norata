@@ -164,6 +164,26 @@
     }
   } catch (e) {}
 
+  /* ---- Prueba con enlace: el modo horizontal ----
+     «Que el adaptativo en móvil se acomode para funcionar óptimamente en
+     pantalla horizontal, como en un juego». `?horizontal=1` la enciende,
+     `?horizontal=0` la apaga.
+
+     La clase es el PERMISO y no el disparador: puesta, no cambia nada hasta
+     que el teléfono se tumba, porque las reglas viven dentro de una consulta
+     de orientación. Por eso se puede encender de pie sin que pase nada y girar
+     el teléfono para verla, que es como se va a probar.
+
+     Qué borrar el día que sobre: esto, el `<div id="rotulo-horizontal">`, y el
+     bloque `html.horizontal` de `css/estilos.css`. */
+  try {
+    var qh = new URLSearchParams(location.search).get("horizontal");
+    if (qh === "1" || qh === "0") sessionStorage.setItem("norata-prueba-horizontal", qh);
+    if (sessionStorage.getItem("norata-prueba-horizontal") === "1") {
+      document.documentElement.classList.add("horizontal");
+    }
+  } catch (e) {}
+
   /* ---- Red de seguridad ----
      Vive en este bloque y no en el script principal a propósito: el grande
      corre al final, así que un manejador declarado dentro de él nunca
@@ -308,6 +328,13 @@
 <div id="rotulo-compacto">
   Estás viendo la app compacta, todavía no es la de siempre
   <a href="?compacto=0">salir</a>
+</div>
+
+<!-- El rótulo de la prueba del horizontal. Solo se dibuja con el teléfono
+     tumbado, que es cuando la prueba cambia algo. -->
+<div id="rotulo-horizontal">
+  Horizontal de prueba
+  <a href="?horizontal=0">salir</a>
 </div>
 
 <div class="orb orb-1"></div>
