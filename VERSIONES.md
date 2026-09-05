@@ -76,6 +76,89 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.91 · 5 sep 2026
+
+**El mapa de un proyecto se abre entero desde el menú, y detrás de un
+parámetro esperan los nodos con variedad.**
+
+**Lo primero no era una función que faltaba, era una puerta.** La pantalla
+completa de un proyecto existe desde la 0.7.23, pero la única forma de entrar
+era el botón «Ver el proyecto completo» de debajo del lienzo — y ese botón
+lleva `display: none` por encima de 900 px (`.fs-open`, pensado como aviso de
+que la vista previa está recortada en el teléfono). En una computadora quedaba
+el clic derecho, que es un gesto que nadie va a buscar. En Talentos la entrada
+estaba en el menú `···` desde el principio; aquí faltaba, y por eso el mapa de
+un proyecto parecía media función.
+
+Ahora el `···` de un proyecto en modo mapa lleva **«Ver en pantalla completa»** y
+**«Centrar en lo que sigue»**, las mismas dos que ya tenía una rama de talentos
+y en el mismo sitio.
+
+**Y las teclas.** `M` abre y cierra el mapa entero, `C` entra y sale de
+edición — antes las dos se salían al principio si lo que estabas mirando no era
+el árbol. Q, W y E siguen siendo solo de Talentos, y a propósito: crean un
+tipo de talento cada una y un encargo no tiene tres tipos.
+
+**El fallo que salió de camino, y no era del mapa.** `cursorRama` guardaba la
+rama que señala el ratón pero no de qué módulo era. Pasar el ratón por el mapa
+de un proyecto y volver a Talentos dejaba a la `Q` apuntando a esa rama de
+**Proyectos**, así que sembraba un talento en una rama de Talentos con ese
+nombre — que casi nunca existe. Ahora el módulo viaja dentro.
+
+### La prueba de los nodos: `?nodos=variedad`
+
+Eduardo lo pidió mirando el mapa de un proyecto: «se ve muy vacío y muy básico
+comparado con Talentos». Medido, tenía razón dos veces — cuatro encargos son
+cuatro cajas idénticas, y al abrirlo a pantalla completa el dibujo ocupaba el
+**14 %** de lo que se ve. Va apagada, con la receta de siempre: nadie que no
+escriba el parámetro se la encuentra, un rótulo fijo recuerda que la pestaña
+está en modo prueba, y con la pestaña cerrada desaparece. `?nodos=no` la apaga.
+
+Lleva cuatro cosas:
+
+- **El avance dentro de la caja.** Una barra pegada al borde de abajo, con su
+  carril. No sustituye al «1/3 etapas»: en la tarjeta de la lista conviven
+  igual — la barra para el vistazo, la cuenta para leerla.
+- **La salud, que ya se calculaba y no se veía.** `projectHealth` decide
+  «Estancado» y «Enfriándose» desde que Proyectos existe, pero solo salía en
+  la lista, y el mapa es justo donde se decide qué tocar hoy. Chapa coral con
+  `!` y amarilla con luna, y solo esas dos: «Con ritmo» es la mayoría de los
+  encargos y una chapa en todos no distingue nada.
+- **Cuatro tipos de encargo con figura propia**, con su selector en el
+  formulario: tarea, entrega (con punta a la derecha), decisión (esquinas
+  cortadas) y gasto (el círculo pequeño). **No se usan el rombo ni el
+  hexágono**: ya significan «meta» e «hito» en Talentos, y dos mapas hechos de
+  las mismas piezas dejarían de saberse cuál es cuál. Las tres primeras
+  comparten ancho, alto y radio con la caja de siempre, así que el acomodo no
+  se mueve ni un píxel. Un encargo sin tipo es una tarea, que es exactamente
+  lo que ya se dibujaba: no hay nada que migrar.
+- **Encuadrar al abrir, pero solo cuando ACERCA.** El ajuste ya existía — es
+  el botón de la esquina y el doble toque —, faltaba pedirlo al entrar. Y solo
+  si el resultado es mayor que 100 %: por debajo del 90 % el nivel de detalle
+  empieza a quitar cosas y por debajo del 65 % se lleva los nombres, así que un
+  mapa grande en un teléfono habría abierto en una vista de pájaro ilegible.
+  Cuando el mapa no cabe se queda al 100 % y te lleva a lo que sigue.
+
+**Qué hay que borrar para quitarla:** la lista exacta, archivo por archivo y
+por nombre — nunca por rango —, está escrita junto al interruptor, en el
+script de arriba de `index.html`. Y si se queda, lo único que se quita es la
+condición: el campo `tipo` guardado en un encargo es inofensivo.
+
+**La huella del lienzo, apagada la prueba, sale `1bde860d`: letra por letra la
+misma que antes de tocar nada.** La primera medición no — y el fallo es el que
+ya había mordido escribiendo las etapas dentro del mapa: **una interpolación
+escrita en su propia línea mete un salto y seis espacios en el SVG de CADA
+nodo**, también en los de Talentos, que no tenían nada que ver. Catorce letras
+por nodo, cero píxeles, y la huella distinta — que es la peor combinación
+posible para una prueba. Se cierra pegándolas a la línea de arriba.
+
+**De camino, la propia prueba estaba rota.** `pruebas/lienzo-huella.html` carga
+los `.js` a mano, y al aparecer `js/00-idioma.js` en la 0.7.84 dejó de arrancar
+entera con un `tx is not defined`: no medía nada. También había deriva sin
+apuntar — «PROYECTOS: estados y candados» cambió entre la 0.7.79 y la 0.7.89 y
+`HUELLA-BASE.txt` se había quedado en la 0.7.78.1. Los números de hoy están
+anotados arriba de ese archivo.
+
 ### 0.7.90 · 5 sep 2026
 
 **El inglés, hasta el fondo: el panel, las seis claves que se tapaban y la

@@ -382,6 +382,22 @@ function renderProjects() {
               hint: enMapa ? tx("Vuelve a las tarjetas de siempre") : tx("Dibuja los encargos y en qué orden van"),
               icon: enMapa ? "caja" : "expandir", onclick: `alternarMapaProyectos('${enJS(b)}')` },
             ...(enMapa ? [
+              /* Las mismas tres que ya tenía una rama de talentos, y por el
+                 mismo motivo que allí: en escritorio el botón de debajo del
+                 lienzo está apagado (`.fs-open` solo se enseña por debajo de
+                 900 px), así que sin esta línea la única forma de abrir el
+                 mapa entero era el clic derecho — un gesto que nadie va a
+                 buscar. En Talentos la entrada existía desde el principio;
+                 aquí faltaba, y es lo que hacía que el mapa de un proyecto
+                 pareciera media función. */
+              { title: tx("Ver en pantalla completa"), hint: tx("Recorre el proyecto con sitio de sobra"),
+                icon: "expandir", onclick: `openBranchFullscreen('${enJS(b)}','proyectos')` },
+              /* Editando no: ahí la mano está conectando y cortando, y saltar
+                 el encuadre a media faena pierde el hilo. Igual que en Talentos. */
+              ...(editandoMapa ? [] : [
+                { title: "Centrar en lo que sigue", hint: "Te lleva al encargo en curso o al siguiente que toca",
+                  icon: "flecha", onclick: `focusBranchFront('${enJS(b)}', false, 'proyectos')` }
+              ]),
               { title: editandoMapa ? "Salir de edición" : "Editar el mapa",
                 hint: editandoMapa ? "Vuelve al modo normal" : "Conecta y corta hilos",
                 icon: "lapiz", onclick: `toggleEditBranch('${enJS(b)}','proyectos')` },
@@ -512,8 +528,8 @@ function mapaDeProyecto(b, editando, clave) {
       <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> Ver el proyecto completo
     </button>
     ${editando
-      ? `<div class="const-hint edit">${tx("Arrastra para acomodar · tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo")} <b>Y/O</b> ${tx("cambia si hacen falta todos sus requisitos o basta uno")}</div>`
-      : `<div class="const-hint">${tx("Toca un encargo para abrirlo · arrástralo para acomodarlo · clic derecho para conectar, crear y más")}</div>`}`;
+      ? `<div class="const-hint edit">${tx("Arrastra para acomodar · tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo")} <b>Y/O</b> ${tx("cambia si hacen falta todos sus requisitos o basta uno")}${atajosLegendProyectos()}</div>`
+      : `<div class="const-hint">${tx("Toca un encargo para abrirlo · arrástralo para acomodarlo · clic derecho para conectar, crear y más")}${atajosLegendProyectos()}</div>`}`;
 }
 
 /* ---- Orden de las ramas de Proyectos ----
