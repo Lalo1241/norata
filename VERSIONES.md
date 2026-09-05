@@ -76,6 +76,90 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.90 · 5 sep 2026
+
+**El inglés, hasta el fondo: el panel, las seis claves que se tapaban y la
+ortografía de las 2.187 traducciones.**
+
+**El panel de administración tenía 27 frases sin `tx()`.** Doce se veían
+leyendo el archivo. Las otras quince estaban **dentro de un `${...}`** —una
+palabra suelta en un ternario (`persona`/`personas`, `error`/`errores`,
+`reporte`/`reportes`), un `title`, un `aria-label`, un rótulo pasado como
+argumento a `panelCifra`— y por eso no las había cazado ninguna de las nueve
+tandas de idioma. La lección, que sirve para el resto del repositorio: **un
+barrido que borra las interpolaciones para leer el HTML se deja ciego justo
+donde vive el texto corto.**
+
+El rótulo largo de la gráfica se rehízo entero. Estaba pegado con `+` a trozos
+de frase sueltos —`", con una media de " + media`— y eso **ata el orden de las
+palabras inglesas al que tenían en español**. Ahora cada trozo pasa por `T` y el
+diccionario los coloca donde le toque.
+
+**Y una que sí era un fallo, no un olvido:** el párrafo de la gráfica de catorce
+días llevaba `tx()` y traducción, pero alguien reescribió el ESPAÑOL —de «los
+puntos son personas… las barras del fondo» a «dos líneas sobre la misma
+escala»— y aquí la clave *es* la frase en español. La traducción quedó
+apuntando a un texto que ya no existe y el párrafo volvió al español sin que
+nada fallara.
+
+**Las seis claves repetidas que la 0.7.89.1 dejó apuntadas.** En un objeto de
+JavaScript la segunda escritura de una clave se lleva por delante a la primera,
+sin error y sin aviso. Las dos veces pasó lo mismo: **alguien corrigió una
+frase, escribió la buena ARRIBA, y la vieja de más abajo siguió ganando.**
+
+- **Las cinco anclas de una misión.** La buena es de la 0.7.88.4 (11:18), con un
+  comentario al lado explicando que van en gerundio porque así suena «después
+  de» en inglés. La vieja era de la 0.7.88.2 (10:58), veinte minutos antes y
+  2.250 líneas más abajo. Ganaba ella: se leía **«After pour my coffee»**.
+- **`Descartado`.** La buena es «Dropped», de la 0.7.86.4 — el estado se llama
+  `dropped` en el código y su explicación es «Lo soltaste». Ganaba «Discarded».
+
+**Se añade la regla 5 a la cabecera de `js/00b-textos-en.js`**, que tenía cuatro
+y ninguna sobre esto, con el `grep` que lo evita. Quedan ocho claves repetidas
+más, pero con el mismo valor a los dos lados: no hacen daño hoy, son la mecha de
+la próxima.
+
+**La ortografía de las 2.187 traducciones, leídas una por una.** El diccionario
+está escrito en inglés **americano** —`color` 5 contra 2, `catalog` 6 contra 0,
+`organization` 2 contra 0, `practice` 27 contra 2— y se habían colado formas
+británicas. 33 correcciones hacia la casa: `kilometres`, `metre`,
+`Watercolour`, `colour`, `recolour`, `recognised`, `Practise`, `licences`,
+`cancelled`, `cancelling`, `Levelling`, `Mum's`, «any more», «Sit it» por
+«Take it», «holiday» por «vacation», «film» por «movie», y la fecha del tipo de
+cambio, que estaba en orden británico.
+
+Y cuatro que no eran ortografía sino sentido:
+
+| Estaba | Por qué está mal |
+| --- | --- |
+| «Get out of a debt» | en inglés ese giro no lleva artículo |
+| «three days ago's» | el posesivo no se encadena a un adverbio: esa construcción no existe |
+| «putting the quarter away» | «guardar el trimestre» de un plan; en inglés «the quarter» se lee como trimestre **fiscal** |
+| «with no major building work» | «sin obra mayor» en una cocina es remodelar |
+
+**Cómo se comprobó, que es la parte que da confianza.** Con el modo auditor
+encendido (`?i18n=audita`), el panel se dibuja con datos falsos en **seis
+escenarios** —el cobro sin desplegar y con planes, los singulares de 1, todo
+vacío, un escalón del embudo que crece— y en los seis `faltantesI18n()` devuelve
+**cero**. El español sale **byte a byte idéntico** al de antes: la misma pantalla
+con el archivo viejo y con el nuevo da 18.333 bytes iguales carácter por
+carácter, así que a quien la use en español no le cambió nada.
+
+Y la comprobación que de verdad importaba: **comparar el juego de CLAVES antes y
+después.** Una clave rozada por accidente no da error — deja esa frase saliendo
+en español para siempre. Sale exactamente una fuera (la vieja de la gráfica,
+cuyo español se reescribió) y 44 nuevas. Ninguna otra se movió.
+
+**Lo que se vio y no se tocó, porque es voz y no ortografía:** tres preguntas de
+las habilidades dormidas empiezan por «Shall we…», que en inglés americano suena
+británico y algo formal; y «A one-page CV», que en Estados Unidos sería
+*résumé*. Las dos son de Eduardo.
+
+**Y lo que no se puede arreglar desde aquí:** los rótulos que pone el servidor
+—«Teléfono», «Instalada», «Se registraron», «Menos de una semana»— viven dentro
+de `supabase/administracion.sql` (líneas 272, 279 y 354). Se traducirían
+mapeándolos al pintar, no tocando la consulta.
+
 ### 0.7.89.1 · 4 sep 2026
 
 **Dos claves repetidas del inglés, que tapaban otras.** Salió al verificar la
