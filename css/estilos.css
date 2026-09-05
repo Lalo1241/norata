@@ -7745,6 +7745,78 @@
      dibujada y no clavado a un número: con dos renglones mide otra cosa. */
   .app { padding-top: var(--alto-aviso, 0); }
 
+  /* ================= PRUEBA CON ENLACE: la app más compacta =================
+     Eduardo lo dijo así: «siento algo tosca y grande la app». Medido en un
+     teléfono de 375×812, la pantalla de Resumen mide 2.422 px — TRES pantallas
+     de recorrido — y esa altura no la pone el contenido: la ponen los huecos.
+     El relleno de cada tarjeta, el aire entre unas y otras, y una cabecera de
+     124 px antes de que empiece nada.
+
+     Va detrás de un parámetro y nace APAGADA, porque es un cambio de aspecto y
+     la decisión es suya (ver CLAUDE.md, «Antes de tocar lo que se ve»). Se
+     enciende con `?compacto=1` y se apaga con `?compacto=0`.
+
+     La regla que NO se rompe: nada que reciba el dedo baja de 44 px. Lo que se
+     recorta es AIRE, no margen de seguridad — las tarjetas de misión miden 62
+     px y quedan en 58, los chips de "listo para hoy" 58 y quedan en 54, las
+     filas de asistencia 60 y quedan en 54.
+
+     Y no toca el relleno de ARRIBA de `.app`: ese no es aire, es el hueco que
+     reserva el rótulo del ejemplo (`--alto-aviso`). Recortarlo dejaría la
+     barra amarilla encima del título, que es el fallo que la barra vino a
+     arreglar en 0.7.50.
+
+     PARA QUITARLA, borrando POR NOMBRE y nunca por rango:
+       - este bloque (`html.compacto`) y el de `#rotulo-compacto` de abajo
+       - la lectura de `?compacto` en el script de arriba de `index.html`
+       - el `<div id="rotulo-compacto">` de `index.html`
+       - la entrada de `VERSIONES.md` */
+  @media (max-width: 899px) {
+    html.compacto .app { padding-left: 13px; padding-right: 13px; }
+    html.compacto .page-head { padding: 16px 4px 12px; gap: 8px; }
+    html.compacto .app h1 { font-size: 25px; }
+    html.compacto .panel { padding: 14px; }
+    html.compacto .scene-body { padding: 14px; }
+    html.compacto .sum-card { padding: 13px; }
+    html.compacto .ms-card,
+    html.compacto .ready-chip { padding: 9px 12px; }
+    html.compacto .ms-list { gap: 7px; }
+    html.compacto .att-item { padding: 9px 2px; }
+    html.compacto .dash { gap: 10px; }
+    html.compacto .streak-grid { gap: 13px; }
+    html.compacto .sc-rows { padding-top: 7px; margin-top: 8px; }
+    html.compacto .thumb-cluster { height: 54px; }
+  }
+
+  /* El rótulo de ESTA prueba. Aparte del de los informes y no compartiendo
+     reglas con él: los dos se borran por separado, y una regla compartida es
+     justo lo que hace que al quitar una se caiga la otra. Va más arriba para
+     que, con las dos pruebas encendidas a la vez, no se tapen. */
+  #rotulo-compacto { display: none; }
+  html.compacto #rotulo-compacto {
+    display: flex; align-items: center; gap: 8px;
+    position: fixed;
+    left: 12px;
+    bottom: calc(env(safe-area-inset-bottom) + 108px);
+    z-index: var(--piso-rotulo-prueba);
+    background: var(--fire-macizo); color: var(--sobre-vivo);
+    border-radius: var(--r-pastilla);
+    padding: 5px 8px 5px 13px;
+    font-size: 10.5px; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    max-width: calc(100vw - 24px);
+  }
+  html.compacto #rotulo-compacto a {
+    color: inherit;
+    background: rgba(16, 21, 29, 0.14);
+    border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
+    border-radius: var(--r-boton); padding: 4px 10px 5px;
+    text-decoration: none;
+  }
+  /* Sin transición en el fondo: el valor sale de una variable y Chrome lo deja
+     congelado en el inicial. */
+  html.compacto #rotulo-compacto a:hover { background: rgba(16, 21, 29, 0.24); }
+
   /* ---------- Rótulo de una prueba con enlace (0.7.20) ----------
      Recuerda que ESTA pestaña está viendo algo que todavía no es la app. Sin
      él es facilísimo olvidarlo y acabar juzgando la app de verdad por lo que

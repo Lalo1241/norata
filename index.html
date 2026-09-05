@@ -143,6 +143,27 @@
     }
   } catch (e) {}
 
+  /* ---- Prueba con enlace: la app más compacta en el teléfono ----
+     «Siento algo tosca y grande la app», y esto es la propuesta para mirarla
+     antes de decidir. Recorta AIRE —rellenos y huecos— sin bajar ninguna zona
+     táctil de 44 px. `?compacto=1` la enciende, `?compacto=0` la apaga.
+
+     En sessionStorage y no en localStorage, para que no se quede pegada como
+     si fuera un ajuste: con la pestaña cerrada desaparece.
+
+     Aquí arriba y no en el script principal por lo mismo que el modo claro:
+     abajo se vería un instante la app de siempre y luego el cambio.
+
+     Qué borrar el día que sobre: esto, el `<div id="rotulo-compacto">`, y el
+     bloque `html.compacto` de `css/estilos.css`. */
+  try {
+    var qc = new URLSearchParams(location.search).get("compacto");
+    if (qc === "1" || qc === "0") sessionStorage.setItem("norata-prueba-compacto", qc);
+    if (sessionStorage.getItem("norata-prueba-compacto") === "1") {
+      document.documentElement.classList.add("compacto");
+    }
+  } catch (e) {}
+
   /* ---- Red de seguridad ----
      Vive en este bloque y no en el script principal a propósito: el grande
      corre al final, así que un manejador declarado dentro de él nunca
@@ -279,6 +300,14 @@
 <div class="rotulo-prueba" id="rotulo-informes">
   Estás viendo números inventados, no son tus datos
   <a href="?informes=no">salir</a>
+</div>
+
+<!-- El rótulo de la prueba de la app compacta. Sin él es facilísimo olvidar
+     que esta pestaña no es la app de siempre y acabar juzgando la de verdad
+     por lo que se ve aquí. -->
+<div id="rotulo-compacto">
+  Estás viendo la app compacta, todavía no es la de siempre
+  <a href="?compacto=0">salir</a>
 </div>
 
 <div class="orb orb-1"></div>
