@@ -263,7 +263,7 @@ function panelConstelacion(dias, distintas) {
   const puntosAltas = !hayAltas ? "" : altas.map((v, i) => {
     if (v <= 0) return "";
     return `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.4"
-              class="pn-punto-alta"><title>${escapeHtml(String(dias[i].dia))}: ${v} ${v === 1 ? "cuenta nueva" : "cuentas nuevas"}</title></circle>`;
+              class="pn-punto-alta"><title>${escapeHtml(String(dias[i].dia))}: ${v} ${v === 1 ? tx("cuenta nueva") : tx("cuentas nuevas")}</title></circle>`;
   }).join("");
 
   const pts = dias.map((d, i) => [x(i), y(d.personas)]);
@@ -364,8 +364,8 @@ function panelConstelacion(dias, distintas) {
       const dif = prev === 0 ? null : Math.round(((ult - prev) / prev) * 100);
       const sube = ult >= prev;
       tendencia = `<span class="pn-tend ${sube ? "sube" : "baja"}">
-          ${sube ? "▲" : "▼"} ${dif === null ? "nuevo" : Math.abs(dif) + "%"}
-        </span><span class="pn-tend-pie">${ult} contra ${prev} los 7 días de antes</span>`;
+          ${sube ? "▲" : "▼"} ${dif === null ? tx("nuevo") : Math.abs(dif) + "%"}
+        </span><span class="pn-tend-pie">${T`${ult} contra ${prev} los 7 días de antes`}</span>`;
     }
   }
 
@@ -373,11 +373,11 @@ function panelConstelacion(dias, distintas) {
       ${distintas == null
         ? `<div class="pn-gc"><b>${media}</b><span>${tx("cuentas al día")}</span></div>`
         : `<div class="pn-gc"><b>${distintas}</b><span>${
-            distintas === 1 ? "cuenta distinta" : "cuentas distintas"} · ${conActividad} de ${n} días con actividad</span></div>`}
-      <div class="pn-gc"><b>${tope}</b><span>el mejor día${
+            distintas === 1 ? tx("cuenta distinta") : tx("cuentas distintas")}${T` · ${conActividad} de ${n} días con actividad`}</span></div>`}
+      <div class="pn-gc"><b>${tope}</b><span>${tx("el mejor día")}${
         diaCima ? T` · día ${diaCima.getDate()} de ${nombreDeMes(diaCima.getMonth() + 1, false)}` : ""}</span></div>
-      <div class="pn-gc"><b>${aperturas}</b><span>aperturas${
-        porPersona ? " · " + porPersona + " por cuenta al día" : ""}</span></div>
+      <div class="pn-gc"><b>${aperturas}</b><span>${tx("aperturas")}${
+        porPersona ? T` · ${porPersona} por cuenta al día` : ""}</span></div>
       ${tendencia ? `<div class="pn-gc tend">${tendencia}</div>` : ""}
     </div>`;
 
@@ -387,9 +387,18 @@ function panelConstelacion(dias, distintas) {
      tres números más antes del dibujo eran un cuarto bloque de texto antes de
      llegar a lo que se viene a ver. Debajo funcionan como el pie de una foto —
      miras la forma, y ahí está lo que no se podía leer de ella. */
+  /* El rótulo se arma ANTES y por trozos. Dentro del atributo, cada pedazo
+     condicional era una frase suelta —«, con una media de »— pegada a la
+     siguiente con un «+»: en inglés eso ata el orden de las palabras al que
+     tenían en español. Pasando cada trozo por `T`, el diccionario puede
+     colocar los huecos donde le toque. */
+  const cuantas = distintas == null
+    ? T`, con una media de ${media}`
+    : T`, ${distintas} distintas en total`;
+  const rotulo = T`Dos líneas sobre la misma escala durante los últimos catorce días: cuentas que abrieron la app cada día${cuantas}, con un máximo de ${tope} en un día y actividad en ${conActividad} de ${n} días${hayAltas ? tx(", y cuentas nuevas creadas cada día") : ""}.`;
+
   return `<svg class="pn-cielo" viewBox="0 0 ${W} ${H}" role="img"
-            aria-label="Dos líneas sobre la misma escala durante los últimos catorce días: cuentas que abrieron la app cada día${
-              distintas == null ? ", con una media de " + media : ", " + distintas + " distintas en total"}, con un máximo de ${tope} en un día y actividad en ${conActividad} de ${n} días${hayAltas ? ", y cuentas nuevas creadas cada día" : ""}.">
+            aria-label="${rotulo}">
       ${reja}
       ${marcas}
       ${hiloAltas}
@@ -443,13 +452,13 @@ function panelDona(filas, claveNombre, claveValor, vacio) {
 
   return `<div class="pn-dona-caja">
       <svg class="pn-dona" viewBox="0 0 120 120" role="img"
-           aria-label="Reparto: ${escapeHtml(datos.map(f => f[claveNombre] + " " + f[claveValor]).join(", "))}">
+           aria-label="${T`Reparto: ${escapeHtml(datos.map(f => f[claveNombre] + " " + f[claveValor]).join(", "))}`}">
         <g transform="rotate(-90 60 60)">
           <circle cx="60" cy="60" r="${R}" class="pn-dona-riel" stroke-width="${GRUESO}"/>
           ${gajos}
         </g>
         <text x="60" y="58" class="pn-dona-num">${total}</text>
-        <text x="60" y="70" class="pn-dona-pie">${total === 1 ? "persona" : "personas"}</text>
+        <text x="60" y="70" class="pn-dona-pie">${total === 1 ? tx("persona") : tx("personas")}</text>
       </svg>
       <div class="pn-leyenda">${leyenda}</div>
     </div>`;
@@ -507,9 +516,9 @@ function panelEmbudo(pasos) {
         ${crece
           ? `<div class="pn-caida ojo">${tx("sube en vez de bajar: este paso no se cuenta como un trozo del anterior")}</div>`
           : (i === iPeor
-            ? `<div class="pn-caida">aquí se pierde más gente que en ningún otro paso: ${maxPerdida} ${maxPerdida === 1 ? "persona" : "personas"}, el ${cae}% del anterior</div>`
+            ? `<div class="pn-caida">${T`aquí se pierde más gente que en ningún otro paso: ${maxPerdida} ${maxPerdida === 1 ? tx("persona") : tx("personas")}, el ${cae}% del anterior`}</div>`
             : (i > 0 && cae > 0
-              ? `<div class="pn-caida ok">se pierde el ${cae}% del paso anterior</div>`
+              ? `<div class="pn-caida ok">${T`se pierde el ${cae}% del paso anterior`}</div>`
               : (i > 0 ? `<div class="pn-caida ok">${tx("no se pierde nadie")}</div>` : "")))}
       </div>`;
   }).join("") + `</div>`;
@@ -529,7 +538,7 @@ function panelListaBarras(filas, claveNombre, claveValor, vacio, nombra, tono) {
   const tope = Math.max(...filas.map(f => Number(f[claveValor]) || 0), 1);
   return `<div class="pn-lista">` + filas.map(f => {
     const v = Number(f[claveValor]) || 0;
-    const crudo = String(f[claveNombre] || "—") || "(sin dato)";
+    const crudo = String(f[claveNombre] || "—") || tx("(sin dato)");
     const nombre = nombra ? nombra(crudo) : crudo;
     const t = tono ? tono(crudo) : "";
     return `<div class="pn-fila">
@@ -647,7 +656,7 @@ function panelReportesHTML(tropiezos) {
   return `<div class="panel">
       <div class="pn-cab">
         <h3>${tx("Lo que la gente reporta")}</h3>
-        <span class="pn-cuenta${sinVer ? " nuevo" : ""}">${total} ${total === 1 ? "reporte" : "reportes"}</span>
+        <span class="pn-cuenta${sinVer ? " nuevo" : ""}">${total} ${total === 1 ? tx("reporte") : tx("reportes")}</span>
       </div>
       <p class="settings-note">${tx("Agrupados por dónde dicen que pasó, no por el texto: dos personas contando dos cosas distintas de la misma pantalla son dos historias, y sumarlas borraría lo que las hace útiles. Toca un grupo para leerlos.")}</p>
       <div class="pn-grupos">` + grupos.map(g => {
@@ -665,12 +674,12 @@ function panelReportesHTML(tropiezos) {
             <div class="pn-dicho ${t.visto ? "visto" : ""}">
               <p>${escapeHtml(reporteSinLugar(t.mensaje))}</p>
               <span>${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")}${
-                (Number(t.cuantos) || 1) > 1 ? " · lo dijeron " + t.cuantos + " veces" : ""}</span>
+                (Number(t.cuantos) || 1) > 1 ? T` · lo dijeron ${t.cuantos} veces` : ""}</span>
               ${t.id == null ? "" : `<button class="pn-palomita ${t.visto ? "on" : ""}"
                 onclick="archivarReporte(${Number(t.id)}, ${t.visto ? "false" : "true"})"
                 aria-pressed="${t.visto ? "true" : "false"}"
-                title="${t.visto ? "Volver a dejarlo abierto" : tx("Darlo por atendido")}">
-                ${icon("check", 14)}<span>${t.visto ? "Atendido" : "Atender"}</span>
+                title="${t.visto ? tx("Volver a dejarlo abierto") : tx("Darlo por atendido")}">
+                ${icon("check", 14)}<span>${t.visto ? tx("Atendido") : tx("Atender")}</span>
               </button>`}
             </div>`).join("") + `</div>` : ""}
       </div>`;
@@ -876,8 +885,8 @@ function renderPanelAdmin() {
       <div class="pn-avisos">
         ${avisos.map(a => `<div class="pn-aviso ${a.k}">
             <b>${a.n}</b>
-            <span>${escapeHtml(a.t)}</span>
-            <i>${escapeHtml(a.d)}</i>
+            <span>${escapeHtml(tx(a.t))}</span>
+            <i>${escapeHtml(tx(a.d))}</i>
           </div>`).join("")}
       </div>
     </div>` : ""}
@@ -891,7 +900,7 @@ function renderPanelAdmin() {
     <div class="panel">
       <h3>${tx("La gente")}</h3>
       <div class="pn-kpis">
-        ${panelCifra(r.cuentas || 0, "Cuentas creadas")}
+        ${panelCifra(r.cuentas || 0, tx("Cuentas creadas"))}
         ${panelCifra(r.activos7 || 0, tx("Activos esta semana"), tx("abrieron en 7 días"))}
         ${panelDeCada(r.siguen30 || 0, r.maduros || 0, tx("Siguen tras 30 días"), 20)}
         ${panelDeCada(r.volvieron || 0, r.abrieron || 0, tx("Volvieron otro día"), 40)}
@@ -902,7 +911,7 @@ function renderPanelAdmin() {
 
     <div class="panel">
       <h3>${tx("Los últimos 14 días")}</h3>
-      <p class="settings-note">Dos líneas sobre la misma escala: la de arriba son las personas que abrieron la app, la punteada las cuentas nuevas de ese día. Que la segunda vaya casi siempre por abajo es el dato, no un problema de la gráfica. Las líneas verticales marcan cada lunes, para comparar una semana con otra.</p>
+      <p class="settings-note">${tx("Dos líneas sobre la misma escala: la de arriba son las personas que abrieron la app, la punteada las cuentas nuevas de ese día. Que la segunda vaya casi siempre por abajo es el dato, no un problema de la gráfica. Las líneas verticales marcan cada lunes, para comparar una semana con otra.")}</p>
       ${panelConstelacion(m.dias, r.distintas14 == null ? null : Number(r.distintas14))}
     </div>
 
@@ -929,9 +938,9 @@ function renderPanelAdmin() {
       ${c.desplegado === false
         ? `<p class="settings-note">${tx("El cobro todavía no está puesto en el servidor, así que aquí no hay nada que contar. Cuando corras")} <code>planes.sql</code> ${tx("y despliegues Stripe, esta caja se llena sola — los pasos están en")} <code>supabase/LEEME.md</code>.</p>`
         : `<div class="pn-kpis">
-             ${panelCifra(c.pagando || 0, "Pagando ahora")}
-             ${panelCifra("$" + (c.mrr || 0), "Al mes", tx("sin contar fundador"))}
-             ${panelCifra(c.lugares_fundador == null ? "—" : c.lugares_fundador, "Lugares de fundador", tx("de 200"))}
+             ${panelCifra(c.pagando || 0, tx("Pagando ahora"))}
+             ${panelCifra("$" + (c.mrr || 0), tx("Al mes"), tx("sin contar fundador"))}
+             ${panelCifra(c.lugares_fundador == null ? "—" : c.lugares_fundador, tx("Lugares de fundador"), tx("de 200"))}
            </div>
            ${panelListaBarras(c.planes, "plan", "personas", tx("Todavía no hay ninguna suscripción."),
                /* «Plan mensual» y no «mensual». La palabra suelta obliga a
@@ -940,7 +949,7 @@ function renderPanelAdmin() {
                   lleva su nombre sin «Plan» delante porque no es una
                   suscripción: es un pago único, y llamarlo plan lo mete en el
                   mismo saco que los otros dos. */
-               (k) => ({ mensual: "Plan mensual", anual: "Plan anual", fundador: "Fundador" })[k] || k,
+               (k) => ({ mensual: tx("Plan mensual"), anual: tx("Plan anual"), fundador: tx("Fundador") })[k] || k,
                /* Cada uno con su color, el mismo que ya usa la app: menta los
                   que se renuevan y lila el fundador, que es el color de su
                   anillo y de su piedra desde 0.7.15. Así la barra se reconoce
@@ -967,9 +976,9 @@ function renderPanelAdmin() {
     <div class="panel">
       <div class="pn-cab">
         <h3>${tx("Lo que se rompe solo")}</h3>
-        <span class="pn-cuenta${autos.length && autoSinVer ? " nuevo" : ""}">${autos.length} ${autos.length === 1 ? "error" : "errores"}</span>
+        <span class="pn-cuenta${autos.length && autoSinVer ? " nuevo" : ""}">${autos.length} ${autos.length === 1 ? tx("error") : tx("errores")}</span>
       </div>
-      <p class="settings-note">Los que caza la app por su cuenta. Cada fila es un error distinto de un día, con las veces que pasó: se agrupan a propósito, porque un fallo dentro de un bucle escribiría miles de filas iguales. Lo que escribe una persona va arriba, en su propia caja.</p>
+      <p class="settings-note">${tx("Los que caza la app por su cuenta. Cada fila es un error distinto de un día, con las veces que pasó: se agrupan a propósito, porque un fallo dentro de un bucle escribiría miles de filas iguales. Lo que escribe una persona va arriba, en su propia caja.")}</p>
       ${autos.length
         ? `<div class="pn-errores">` + autos.map(t => `
             <div class="pn-error ${t.visto ? "visto" : ""}">
@@ -980,7 +989,7 @@ function renderPanelAdmin() {
               <div class="pn-error-pie">${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")} · ${escapeHtml(String(t.donde) || "?")}</div>
             </div>`).join("") + `</div>`
         : `<p class="settings-note">${tx("Ni un error en los últimos treinta días.")}</p>`}
-      ${sinVer ? `<button class="btn btn-soft btn-block" style="margin-top:12px" onclick="marcarTropiezosVistos()">Dar por vistos los ${sinVer} nuevos</button>` : ""}
+      ${sinVer ? `<button class="btn btn-soft btn-block" style="margin-top:12px" onclick="marcarTropiezosVistos()">${T`Dar por vistos los ${sinVer} nuevos`}</button>` : ""}
     </div>
 
     <div class="panel">
@@ -995,7 +1004,7 @@ function renderPanelAdmin() {
         <span><i class="mal"></i>${tx("se pierde gente")}</span>
       </div>
       <p class="settings-note">${tx("Lo demás va en tinta normal a propósito: es un dato, no un juicio. Un número sin una vara contra la que compararse no puede estar bien ni mal.")}</p>
-      <p class="settings-note" style="margin:0">Números tomados ${escapeHtml(String(m.al_momento || "").slice(0, 16).replace("T", " a las "))}.</p>
+      <p class="settings-note" style="margin:0">${T`Números tomados ${escapeHtml(String(m.al_momento || "").slice(0, 16).replace("T", tx(" a las ")))}.`}</p>
       <button class="btn btn-linea btn-block" style="margin-top:10px" onclick="cargarMetricas()">${tx("Volver a pedirlos")}</button>
     </div>`;
 }

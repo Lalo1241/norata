@@ -835,6 +835,48 @@ function projectHealth(pr) {
    de un vistazo. */
 const FIGURA_ENCARGO = { forma: "encargo", radio: 31, ancho: 62, alto: 42 };
 
+/* ---- Los cuatro tipos de encargo (prueba `?nodos=variedad`) ----
+   El comentario de arriba decía que un encargo es siempre lo mismo y por eso
+   tenía una sola figura. Con cuatro encargos en fila resultó que eso deja el
+   mapa sin nada que mirar, así que aquí está la vuelta a esa decisión —
+   apagada hasta que Eduardo la vea.
+
+   Las figuras NO son las de Talentos, y no por capricho: el rombo y el
+   hexágono ya significan «meta» e «hito» allí, y dos mapas hechos de las
+   mismas piezas dejarían de saberse cuál es cuál. Las tres primeras son la
+   MISMA caja de siempre con la silueta recortada de otra forma —así el
+   acomodo no se mueve ni un píxel: comparten ancho, alto y radio—, y la
+   cuarta es el círculo pequeño, que sí coincide con la compra de Talentos
+   porque es literalmente lo mismo: algo que se paga para poder seguir.
+
+   `tarea` es lo que ya había, así que un tablero de antes se dibuja igual
+   sin migrar nada: quien no tenga tipo es una tarea. */
+const TIPOS_ENCARGO = {
+  tarea: {
+    nombre: "Tarea", sub: "El trabajo de siempre: se hace por etapas y no cierra nada por su cuenta.",
+    icono: "check", forma: "encargo", silueta: "rect", radio: 31, ancho: 62, alto: 42
+  },
+  entrega: {
+    nombre: "Entrega", sub: "Lo que cierra una fase y sale del proyecto: entregar, publicar, inaugurar.",
+    icono: "flag",
+    // La punta a la derecha dice por dónde sale
+    forma: "encargo", silueta: "punta", radio: 31, ancho: 62, alto: 42
+  },
+  decision: {
+    nombre: "Decisión", sub: "Hay que elegir entre caminos, y hasta que elijas lo de después no se puede empezar.",
+    icono: "compass",
+    // Las esquinas cortadas, que es la silueta de «alto, decide»
+    forma: "encargo", silueta: "corte", radio: 31, ancho: 62, alto: 42
+  },
+  gasto: {
+    nombre: "Gasto", sub: "Algo que hay que pagar para que el proyecto siga: material, un permiso, un servicio.",
+    icono: "coin", forma: "circulo", radio: 19
+  }
+};
+
+function tipoDeEncargo(pr) { return TIPOS_ENCARGO[pr && pr.tipo] ? pr.tipo : "tarea"; }
+function figuraDeEncargo(pr) { return TIPOS_ENCARGO[tipoDeEncargo(pr)]; }
+
 /* Los estados que el mapa sabe pintar. «esperando» nace con el mapa: es un
    encargo cuyos requisitos no estan listos. Si `espera` esta apagado se
    dibuja apagado pero deja pasar; si esta encendido, ademas cierra. Los dos

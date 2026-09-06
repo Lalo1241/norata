@@ -18,6 +18,17 @@
       «please» de formulario y sin voz pasiva. Y la regla de los cierres se
       mantiene: nada de decir lo que NO se va a hacer.
 
+   5. **Una clave no puede estar dos veces.** Esto es un objeto de JavaScript:
+      la segunda escritura de una clave se lleva por delante a la primera, sin
+      un aviso ni un error. Ya mordió dos veces, y las dos igual —alguien
+      corrige una frase, escribe la buena ARRIBA, y la vieja de más abajo
+      sigue ganando—: en la 0.7.89.1 fueron dos claves, y aquí cinco anclas de
+      misión que volvían a salir en infinitivo («After pour my coffee») más
+      «Descartado», que salía «Discarded» donde ya se había decidido
+      «Dropped». Antes de añadir una frase, buscarla:
+
+      grep -c '"la frase":' js/00b-textos-en.js
+
    Lo que a propósito NO se traduce: los nombres de las monedas los pone
    `MONEDAS` (`enIngles`), los nombres de los idiomas van cada uno en el suyo,
    y «Norata» es «Norata». */
@@ -378,7 +389,7 @@ const TEXTOS_EN = {
   /* `CAMBIO_FECHA` (js/01-base.js). Al subir los tipos de cambio hay que
      cambiar esta línea también, o la app en inglés dirá la fecha en español
      dentro de una frase inglesa —que es justo como salió la primera vez. */
-  "3 de septiembre de 2026": "3 September 2026",
+  "3 de septiembre de 2026": "September 3, 2026",
   "Listo: {0} {1} a {2}": "Done: {0} {1} to {2}",
 
   /* ---------- El asistente: las tres preguntas ---------- */
@@ -475,12 +486,12 @@ const TEXTOS_EN = {
   "Montar mi portafolio": "Put together my portfolio",
   "Preparar mi primera exposición": "Put together my first show",
   "Publicar mi primer trabajo": "Publish my first piece",
-  "Salir de una deuda": "Get out of a debt",
+  "Salir de una deuda": "Get out of debt",
   "Armar mi presupuesto del año": "Build my budget for the year",
   "Montar mi recetario": "Build my own recipe book",
   "Equipar bien mi cocina": "Set up my kitchen properly",
   "Arreglar mis horarios de sueño": "Fix my sleep schedule",
-  "Planear unas vacaciones de verdad": "Plan a real holiday",
+  "Planear unas vacaciones de verdad": "Plan a real vacation",
   "Organizar una reunión con los míos": "Get my people together",
   "Preparar un regalo que lleve tiempo": "Make a gift that takes time",
   "Cambiar de trabajo": "Change jobs",
@@ -500,9 +511,9 @@ const TEXTOS_EN = {
   "Caminar 20 minutos tres días seguidos": "Walk 20 minutes three days in a row",
   "Aguantar 5 minutos corriendo sin parar": "Run 5 minutes without stopping",
   "Moverme tres veces por semana, un mes": "Move three times a week for a month",
-  "Correr 5 kilómetros de una tirada": "Run 5 kilometres in one go",
+  "Correr 5 kilómetros de una tirada": "Run 5 kilometers in one go",
   "Una rutina que sostengo sin pensarla": "A routine I keep without thinking about it",
-  "Correr 10 kilómetros seguidos": "Run 10 kilometres without stopping",
+  "Correr 10 kilómetros seguidos": "Run 10 kilometers without stopping",
 
   "Terminar el primer capítulo": "Finish the first chapter",
   "Estudiar diez días seguidos": "Study ten days in a row",
@@ -914,8 +925,8 @@ const TEXTOS_EN = {
     "Each step is a slice of the previous one. The step where most people drop off is the one to fix first — and it's almost never the one you'd guess.",
   "La gente": "People",
   "Los últimos 14 días": "The last 14 days",
-  "Los puntos son personas que abrieron la app; las barras del fondo, cuentas nuevas. Las líneas verticales marcan cada lunes, para comparar una semana con otra.":
-    "The dots are people who opened the app; the bars behind them, new accounts. The vertical lines mark each Monday, so you can compare one week with another.",
+  "Dos líneas sobre la misma escala: la de arriba son las personas que abrieron la app, la punteada las cuentas nuevas de ese día. Que la segunda vaya casi siempre por abajo es el dato, no un problema de la gráfica. Las líneas verticales marcan cada lunes, para comparar una semana con otra.":
+    "Two lines on the same scale: the top one is the people who opened the app, the dotted one the new accounts that day. That the second almost always runs below is the data, not a problem with the chart. The vertical lines mark each Monday, so you can compare one week with another.",
   "Cómo la usan": "How they use it",
   "Desde qué dispositivo": "From which device",
   "Sale del ancho de la ventana, no de fichar el dispositivo: dos teléfonos distintos cuentan como uno.":
@@ -945,6 +956,52 @@ const TEXTOS_EN = {
   "Volver a pedirlos": "Ask for them again",
   "Pidiendo los números…": "Asking for the numbers…",
   "No pude traer los números": "I couldn't fetch the numbers",
+  "Reparto: {0}": "Split: {0}",
+  "(sin dato)": "(no data)",
+  "reporte": "report",
+  "reportes": "reports",
+  " · lo dijeron {0} veces": " · {0} people said it",
+  "Volver a dejarlo abierto": "Leave it open again",
+  "Atendido": "Handled",
+  "Atender": "Handle",
+  "Pagando ahora": "Paying now",
+  "Al mes": "Per month",
+  "Lugares de fundador": "Founder seats",
+  "Plan mensual": "Monthly plan",
+  "Plan anual": "Annual plan",
+  "cuenta nueva": "new account",
+  "nuevo": "new",
+  "{0} contra {1} los 7 días de antes": "{0} against {1} the previous 7 days",
+  "cuenta distinta": "distinct account",
+  "cuentas distintas": "distinct accounts",
+  " · {0} de {1} días con actividad": " · {0} of {1} days with activity",
+  "el mejor día": "the best day",
+  "aperturas": "opens",
+  " · {0} por cuenta al día": " · {0} per account per day",
+  "Dos líneas sobre la misma escala durante los últimos catorce días: cuentas que abrieron la app cada día{0}, con un máximo de {1} en un día y actividad en {2} de {3} días{4}.":
+    "Two lines on the same scale over the last fourteen days: accounts that opened the app each day{0}, with a peak of {1} in a single day and activity on {2} of {3} days{4}.",
+  ", con una media de {0}": ", averaging {0}",
+  ", {0} distintas en total": ", {0} distinct in total",
+  ", y cuentas nuevas creadas cada día": ", and new accounts created each day",
+  "aquí se pierde más gente que en ningún otro paso: {0} {1}, el {2}% del anterior":
+    "this is where the most people are lost: {0} {1}, {2}% of the previous step",
+  "persona": "person",
+  "personas": "people",
+  "se pierde el {0}% del paso anterior": "{0}% of the previous step is lost",
+  "sin confirmar el correo": "haven't confirmed their email",
+  "se registraron y nunca pulsaron el enlace": "they signed up and never clicked the link",
+  "nunca abrieron la app": "never opened the app",
+  "tienen cuenta y jamás entraron": "they have an account and never came in",
+  "pidieron borrar su cuenta": "asked to delete their account",
+  "en el plazo de 30 días para arrepentirse": "within the 30 days to change their mind",
+  "Cuentas creadas": "Accounts created",
+  "error": "error",
+  "errores": "errors",
+  "Los que caza la app por su cuenta. Cada fila es un error distinto de un día, con las veces que pasó: se agrupan a propósito, porque un fallo dentro de un bucle escribiría miles de filas iguales. Lo que escribe una persona va arriba, en su propia caja.":
+    "The ones the app catches on its own. Each row is a different error from one day, with the number of times it happened: they're grouped on purpose, because a failure inside a loop would write thousands of identical rows. What a person writes goes above, in its own box.",
+  "Dar por vistos los {0} nuevos": "Mark the {0} new ones as seen",
+  "Números tomados {0}.": "Numbers taken {0}.",
+  "a las": "at",
   "récord": "record",
   "Cada casilla es un día": "Each square is a day",
   "Más": "More",
@@ -1046,8 +1103,7 @@ const TEXTOS_EN = {
  "Casi listo": "Almost there",
  "En pausa": "Paused",
   "Terminado": "Finished",
-  "Descartado": "Discarded",
-  "Espera su turno": "Waiting its turn",
+   "Espera su turno": "Waiting its turn",
   "Estancado": "Stalled",
   "Enfriándose": "Cooling off",
   "Casi listo": "Almost there",
@@ -1336,7 +1392,7 @@ const TEXTOS_EN = {
   "Vida adulta": "Adult life",
   "Aire libre": "Outdoors",
   "Añade las que te interese seguir, aunque sea en cero: ver una habilidad sin empezar te recuerda que existe. Las de aquí además se reconocen solas — al escribir un talento o un proyecto se proponen para recibir el XP. Si te falta alguna, créala arriba: esa lo irá aprendiendo del uso.":
-    "Add the ones you care about following, even at zero: seeing a skill you haven't started reminds you it exists. The ones here are also recognised on their own — when you write a talent or a project they offer themselves to receive the XP. If one is missing, create it above: that one will learn from use.",
+    "Add the ones you care about following, even at zero: seeing a skill you haven't started reminds you it exists. The ones here are also recognized on their own — when you write a talent or a project they offer themselves to receive the XP. If one is missing, create it above: that one will learn from use.",
   "Quitar todas": "Remove all",
   "Todas": "All",
   "Natación": "Swimming",
@@ -1417,7 +1473,7 @@ const TEXTOS_EN = {
   "El correo no coincide. No borré nada.": "The email doesn't match. I didn't delete anything.",
   "Última confirmación: se borrará todo. ¿Seguro?":
     "Last confirmation: everything will be deleted. Are you sure?",
-  "Esa copia ya no se puede leer": "That copy can't be read any more",
+  "Esa copia ya no se puede leer": "That copy can't be read anymore",
   "Se borrará esta copia de seguridad. No se puede deshacer.":
     "This safety copy will be deleted. It can't be undone.",
   "Listo: tu progreso ya está en {0}": "Done: your progress is now in {0}",
@@ -1544,7 +1600,7 @@ const TEXTOS_EN = {
   "una sola vez": "just once",
   "Para quienes llegaron al principio y confiaron en Norata.":
     "For the people who arrived at the beginning and trusted Norata.",
-  "Pro cancelándose": "Pro, cancelling",
+  "Pro cancelándose": "Pro, canceling",
   "Pro sin pagar": "Pro, unpaid",
   "Las {0} ramas del plan Gratuito, llenas. Con {1} abres las que quieras, y cada una lleva su propio camino.":
     "The Free plan's {0} branches are full. With {1} you open as many as you want, and each one carries its own path.",
@@ -1559,7 +1615,7 @@ const TEXTOS_EN = {
   "Tu día lo ves siempre en el panel de cada módulo. Los informes empiezan en la semana y vienen con {0}.":
     "You always see your day in each module's panel. Reports start at the week and come with {0}.",
   "Subir de nivel abre ambientes: la misma Norata con otra luz. Con {0} se abren todos, y además los mundos, que cambian el material entero — la letra, las texturas y hasta cómo se llama tu camino.":
-    "Levelling up unlocks ambiences: the same Norata in another light. With {0} they all open, plus the worlds, which change the whole material — the type, the textures and even what your path is called.",
+    "Leveling up unlocks ambiences: the same Norata in another light. With {0} they all open, plus the worlds, which change the whole material — the type, the textures and even what your path is called.",
   "Esto viene con {0}": "This comes with {0}",
   "Tu plan {0} terminó": "Your {0} plan has ended",
   "Gratuito · una rama y {0} talentos": "Free · one branch and {0} talents",
@@ -1568,7 +1624,7 @@ const TEXTOS_EN = {
   "Tu plan {0} terminó. No se borró nada: lo que pasa del plan Gratuito sigue a la vista, en solo lectura, y vuelve a moverse en cuanto renueves.":
     "Your {0} plan has ended. Nothing was deleted: whatever goes past the Free plan is still visible, read-only, and moves again as soon as you renew.",
   "Cancelaste, y sigue funcionando hasta el {0}":
-    "You cancelled, and it keeps working until {0}",
+    "You canceled, and it keeps working until {0}",
   "Se renueva por su cuenta el {0}, sin que tengas que hacer nada.":
     "It renews on its own on {0}, with nothing for you to do.",
   "Cuesta menos que {0} años del plan anual.":
@@ -1620,7 +1676,7 @@ const TEXTOS_EN = {
   "Comprada y asegurada ($3,200)": "Bought and secured ($3,200)",
   "Natación dos veces por semana": "Swimming twice a week",
   "Se quedó a medias, y por eso viaja en la caja: guardar el trimestre no juzga lo que no terminaste.":
-    "It was left halfway, and that's why it travels in the box: putting the quarter away doesn't judge what you didn't finish.",
+    "It was left halfway, and that's why it travels in the box: putting those three months away doesn't judge what you didn't finish.",
   "Plan de 3 meses iniciado": "3-month plan started",
   "Curso de cocina básica": "Basic cooking course",
   "Aprender diez recetas que puedas hacer sin receta.":
@@ -1642,7 +1698,7 @@ const TEXTOS_EN = {
   "Cancelar lo que ya no uso.": "Cancel what I no longer use.",
   "Renovar la cocina": "Redo the kitchen",
   "Dejar la cocina funcional y ordenada, sin obra mayor.":
-    "Leave the kitchen working and tidy, with no major building work.",
+    "Leave the kitchen working and tidy, with no major remodeling.",
   "Medir y hacer lista de lo que falta": "Measure and list what's missing",
   "Cambiar la iluminación": "Change the lighting",
   "Encargo creado en el proyecto Casa": "Assignment created in the Home project",
@@ -2014,11 +2070,11 @@ const TEXTOS_EN = {
   "La de los días seguidos, en amarillo.": "The one for days in a row, in yellow.",
   "La chica": "The small one",
   "El destello de subir una habilidad o cumplir un talento.":
-    "The flash of a skill levelling up or a talent being completed.",
+    "The flash of a skill leveling up or a talent being completed.",
   "Celebración nueva": "New celebration",
   "Ver Mi expedición": "See My journey",
   "Un año entero sin soltarlo. Esto ya no es fuerza de voluntad, es quién eres.":
-    "A whole year without letting go. This isn't willpower any more, it's who you are.",
+    "A whole year without letting go. This isn't willpower anymore, it's who you are.",
   "Doscientos días. Muy poca gente llega hasta aquí.":
     "Two hundred days. Very few people get this far.",
   "Cien días seguidos. El hábito ya se sostiene solo.":
@@ -2026,7 +2082,7 @@ const TEXTOS_EN = {
   "Cincuenta días. Medio centenar de veces que elegiste aparecer.":
     "Fifty days. Fifty times you chose to show up.",
   "Un mes completo sin fallar un solo día.": "A whole month without missing a single day.",
-  "Dos semanas seguidas. Ya no es suerte.": "Two weeks in a row. It isn't luck any more.",
+  "Dos semanas seguidas. Ya no es suerte.": "Two weeks in a row. It isn't luck anymore.",
   "¡Semana perfecta! Siete de siete.": "A perfect week. Seven out of seven.",
   "Tres días seguidos: así es como empieza todo hábito.":
     "Three days in a row: that's how every habit starts.",
@@ -2066,13 +2122,13 @@ const TEXTOS_EN = {
   "Práctica libre": "Free practice",
   "Talento completado: Bici de ciudad": "Talent completed: City bike",
   "Talento · Bici de ciudad": "Talent · City bike",
-  "Proyecto terminado: Regalo de mamá": "Project finished: Mum's present",
-  "Proyecto · Regalo de mamá": "Project · Mum's present",
-  "Talento completado: Curso de acuarela": "Talent completed: Watercolour course",
-  "Talento · Curso de acuarela": "Talent · Watercolour course",
+  "Proyecto terminado: Regalo de mamá": "Project finished: Mom's present",
+  "Proyecto · Regalo de mamá": "Project · Mom's present",
+  "Talento completado: Curso de acuarela": "Talent completed: Watercolor course",
+  "Talento · Curso de acuarela": "Talent · Watercolor course",
   "Proyecto terminado: Ordenar la cocina": "Project finished: Sort out the kitchen",
   "Proyecto · Ordenar la cocina": "Project · Sort out the kitchen",
-  "Curso de acuarela": "Watercolour course",
+  "Curso de acuarela": "Watercolor course",
   "Bici de ciudad": "City bike",
   "Sartén de hierro": "Cast iron pan",
   "Curso de finanzas": "Finance course",
@@ -2080,7 +2136,7 @@ const TEXTOS_EN = {
   "Trámite del coche": "Car paperwork",
   "Cambiar de banco": "Switch banks",
   "Ordenar la cocina": "Sort out the kitchen",
-  "Regalo de mamá": "Mum's present",
+  "Regalo de mamá": "Mom's present",
 
   /* ---- Lo que quedaba: los mundos, las lecturas y los mensajes del servidor ----
      Los ocho ambientes y los mundos con sus premisas, las lecturas que arma la
@@ -2221,7 +2277,7 @@ const TEXTOS_EN = {
   "Actualizar a la versión {0}": "Update to version {0}",
   "Ya está lista la versión {0}": "Version {0} is ready",
   "Una llave: la pagas y te abre el paso a lo que sigue. Equipo, licencias, cursos.":
-    "A key: you pay for it and it opens the way to what's next. Gear, licences, courses.",
+    "A key: you pay for it and it opens the way to what's next. Gear, licenses, courses.",
   "Una acción puntual que se cierra en sí misma: publicar un dibujo, dar una clase de prueba.":
     "A one-off action that closes in itself: posting a drawing, teaching a trial class.",
   "Algo que sostienes en el tiempo. Avanza por etapas y tiene fecha límite.":
@@ -2331,21 +2387,15 @@ const TEXTOS_EN = {
  "Idioma y moneda": "Language and currency",
  "La primera de todas: sale antes del tablero y antes del tutorial.": "The first of them all: it comes before the board and before the tutorial.",
  "Nivel a secas": "Level, plain",
- /* La sección de la cuenta, la etiqueta «beta» del inglés y las anclas
-    sugeridas de una misión. */
+ /* La sección de la cuenta y la etiqueta «beta» del inglés. Las anclas
+    sugeridas de una misión estaban también aquí, en infinitivo, y desde
+    abajo le ganaban a las de arriba: ver la regla 5 de la cabecera. */
  "beta": "beta",
  "Cambiar a otra cuenta de este dispositivo": "Switch to another account on this device",
  "Ver la rama completa": "See the whole branch",
  "Desplegar {0}": "Expand {0}",
  "Plegar {0}": "Collapse {0}",
  "el ＋ de cada tablero crea una misión ya puesta ahí": "the ＋ on each board creates a mission already placed there",
- "servirme el café": "pour my coffee",
- "comer": "eat",
- "llegar a casa": "get home",
- "lavarme los dientes": "brush my teeth",
- "cerrar la computadora": "close my laptop",
- "Después de": "After",
- "Después de… (opcional)": "After… (optional)",
  "Cada cuánto se cobra Pro": "How often Pro is charged",
  /* Las tarjetas del escaparate de planes. */
  "al mes": "a month",
@@ -2353,15 +2403,15 @@ const TEXTOS_EN = {
  "Y si no es para ti, te devolvemos los primeros {0} días.": "And if it isn't for you, we refund the first {0} days.",
  "Norata Clásico": "Norata Classic",
   "El carbón azulado y la menta de siempre. Es donde empiezas, y es lo que queda al quitarte un recolor.":
-    "The blue-black charcoal and the usual mint. It's where you start, and what's left when you take a recolour off.",
+    "The blue-black charcoal and the usual mint. It's where you start, and what's left when you take a recolor off.",
   "Tinta china sobre papel. Sin más color que el amarillo y el coral, para que lo que avisa se vea desde la otra punta del cuarto.":
-    "India ink on paper. No colour but the yellow and the coral, so that what warns you can be seen from across the room.",
+    "India ink on paper. No color but the yellow and the coral, so that what warns you can be seen from across the room.",
   "Verde hondo de bosque cerrado de noche, y luz entre hojas de día.":
     "The deep green of thick forest at night, and light through leaves by day.",
   "Verdiazul de agua honda, con la menta de la casa vista desde el fondo.":
     "The blue-green of deep water, with the house mint seen from the bottom.",
   "Barro cocido: terracota apagada con cal encima, el color de una pared vieja.":
-    "Fired clay: muted terracotta with lime over it, the colour of an old wall.",
+    "Fired clay: muted terracotta with lime over it, the color of an old wall.",
   "La menta se vuelve celeste y la app pasa de festejar a acompañar.":
     "The mint turns sky blue and the app goes from celebrating to keeping you company.",
   "El desierto cuando se mete el sol: el cielo en violeta y la arena en lavanda.":
@@ -2380,7 +2430,7 @@ const TEXTOS_EN = {
     "A piece in its display case: velvet lining, a brass frame and glass over the top.",
   "Noche de expedición": "Expedition night",
   "El mundo de partida: el material original de Norata, sin forro ni marco. Elegirlo te quita el mundo y el recolor que lleves puestos.":
-    "The starting world: Norata's original material, with no lining and no frame. Choosing it takes off whatever world and recolour you're wearing.",
+    "The starting world: Norata's original material, with no lining and no frame. Choosing it takes off whatever world and recolor you're wearing.",
 
   /* ---- Los nombres de los ambientes y los mundos ----
      SE TRADUCEN, y es una decision que se puede deshacer en una linea: son
@@ -2547,11 +2597,11 @@ const TEXTOS_EN = {
     "Week 9: 30 minutes straight, which is your 5K",
   "Subir la distancia un 10% por semana, no más": "Raise the distance 10% a week, no more",
   "Anotar la distancia de la semana": "Write down the week's distance",
-  "Subirla un 10% y ni un metro más": "Raise it 10% and not a metre more",
+  "Subirla un 10% y ni un metro más": "Raise it 10% and not a meter more",
   "Repetir la misma distancia si una semana se hizo cuesta arriba":
     "Repeat the same distance if a week felt uphill",
-  "Correr 8 kilómetros de una tirada": "Run 8 kilometres in one go",
-  "Los 10 kilómetros, el día que elegiste": "The 10 kilometres, on the day you chose",
+  "Correr 8 kilómetros de una tirada": "Run 8 kilometers in one go",
+  "Los 10 kilómetros, el día que elegiste": "The 10 kilometers, on the day you chose",
   "Elegir la carrera y apuntar la fecha": "Pick the race and write down the date",
   "Correr 9 km dos semanas antes": "Run 9 km two weeks before",
   "Bajar el ritmo la última semana": "Ease off the last week",
@@ -2574,7 +2624,7 @@ const TEXTOS_EN = {
   "Números y horas": "Numbers and telling the time",
   "Pedir y comprar cosas": "Ordering and buying things",
   "Repaso espaciado: lo de ayer, lo de hace tres días y lo de la semana pasada":
-    "Spaced review: yesterday's, three days ago's and last week's",
+    "Spaced review: what you saw yesterday, three days ago and last week",
   "Tres montones: hoy, hace tres días, la semana pasada":
     "Three piles: today, three days ago, last week",
   "Cada día se repasa uno": "Each day you review one",
@@ -2595,7 +2645,7 @@ const TEXTOS_EN = {
   "Media hora sin preparar temas": "Half an hour with no prepared topics",
   "Sin cambiar de idioma al trabarte": "No switching languages when you get stuck",
   "Repetirlo con otra persona": "Do it again with someone else",
-  "Seguir una película sin subtítulos": "Follow a film without subtitles",
+  "Seguir una película sin subtítulos": "Follow a movie without subtitles",
   "Las 350 horas: sostienes una charla de verdad":
     "350 hours: you can hold a real conversation",
   "Un simulacro del examen, con reloj": "A mock exam, against the clock",
@@ -2603,7 +2653,7 @@ const TEXTOS_EN = {
   "Elegir el examen y la fecha": "Pick the exam and the date",
   "Un simulacro completo": "A full mock",
   "Repasar lo que fallaste": "Review what you got wrong",
-  "Presentarlo": "Sit it",
+  "Presentarlo": "Take it",
   "Estudiar 20 minutos": "Study for 20 minutes",
   "Escuchar algo en ese idioma": "Listen to something in that language",
   "Un instrumento desde cero": "An instrument from scratch",
@@ -2643,7 +2693,7 @@ const TEXTOS_EN = {
   "Tocar sin cantar": "Play without singing",
   "Las dos a la vez, despacio": "Both at once, slowly",
   "A velocidad": "Up to speed",
-  "Practicar 15 minutos": "Practise for 15 minutes",
+  "Practicar 15 minutos": "Practice for 15 minutes",
   "El cambio de un minuto": "The one-minute change drill",
   "18 meses": "18 months",
   "la deuda más pequeña primero": "smallest debt first",
@@ -2757,7 +2807,7 @@ const TEXTOS_EN = {
   "Un simulacro aprobado": "A mock passed",
   "Tres simulacros seguidos aprobados": "Three mocks passed in a row",
   "Un simulacro en las condiciones del examen real": "A mock under real exam conditions",
-  "Presentarlo y aprobar": "Sit it and pass",
+  "Presentarlo y aprobar": "Take it and pass",
   "Dormir la noche antes": "Sleep the night before",
   "Estudiar una hora": "Study for an hour",
   "Un simulacro con reloj": "A mock against the clock",
@@ -2894,7 +2944,7 @@ const TEXTOS_EN = {
   "Pedir los que faltan": "Request the ones you're missing",
   "Apostillar y traducir": "Apostille and translate",
   "Apostillar cada uno": "Apostille each one",
-  "Traducir con traductor reconocido allá": "Translate with a translator recognised there",
+  "Traducir con traductor reconocido allá": "Translate with a translator recognized there",
   "Comprobar que ninguno caducó mientras esperabas": "Check that none expired while you waited",
   "Presentar la solicitud y pagar": "Submit the application and pay",
   "El colchón de los primeros tres meses": "The cushion for the first three months",
@@ -2906,7 +2956,7 @@ const TEXTOS_EN = {
   "Qué se va, qué se vende y qué se queda": "What goes, what's sold and what stays",
   "Dónde vas a dormir el primer mes": "Where you'll sleep the first month",
   "Reservar algo para las primeras semanas": "Book something for the first few weeks",
-  "Que se pueda cancelar": "Make sure it can be cancelled",
+  "Que se pueda cancelar": "Make sure it can be canceled",
   "No firmar nada de un año sin haber estado":
     "Don't sign anything for a year without having been there",
   "El vuelo y la mudanza": "The flight and the move",
@@ -2914,7 +2964,7 @@ const TEXTOS_EN = {
     "The paperwork for the first thirty days there",
   "Estar en regla para trabajar": "Be legal to work",
   "Un trámite avanzado": "One piece of paperwork moved forward",
-  "Practicar el idioma": "Practise the language",
+  "Practicar el idioma": "Practice the language",
 
   /* ---- El cajon de los caminos: los rotulos ----
   */
