@@ -741,6 +741,7 @@ async function deleteMission() {
 let prIcon = ICON_LIST[16];
 let prColor = COLORS[0];
 let formSteps = [];
+let prTipo = "tarea";
 
 function openProjectForm(id, presetBranch) {
   editingProjectId = id || null;
@@ -763,12 +764,35 @@ function openProjectForm(id, presetBranch) {
     `<option value="">${tx("— Ninguna —")}</option>` +
     state.skills.map(s => `<option value="${s.id}" ${pr && pr.skillId === s.id ? "selected" : ""}>${escapeHtml(s.name)}</option>`).join("");
 
+  /* El tipo, y el panel entero, solo con la prueba de los nodos encendida:
+     apagada no hay cuatro figuras, así que el tipo no significaría nada. Un
+     encargo de antes es una tarea, que es exactamente lo que ya se dibujaba. */
+  prTipo = tipoDeEncargo(pr);
+  document.getElementById("panel-tipo-encargo").style.display = pruebaNodos() ? "block" : "none";
+  renderTipoEncargo();
+
   renderIconGrid("pr-icon", prIcon, "pickProjectIcon", prColor);
   renderColorGrid("pr-color", prColor, "pickProjectColor");
   renderFormSteps();
   sugActual.pr = null;
   refrescarSugerencias("pr");
   showView("project-form");
+}
+
+function pickTipoEncargo(t) {
+  if (!TIPOS_ENCARGO[t]) return;
+  prTipo = t;
+  renderTipoEncargo();
+}
+
+function renderTipoEncargo() {
+  const caja = document.getElementById("pr-tipo");
+  if (!caja) return;
+  caja.innerHTML = Object.keys(TIPOS_ENCARGO).map(k => `
+    <button type="button" class="${k === prTipo ? "on" : ""}" onclick="pickTipoEncargo('${k}')">
+      ${icon(TIPOS_ENCARGO[k].icono, 15)}<span>${tx(TIPOS_ENCARGO[k].nombre)}</span>
+    </button>`).join("");
+  document.getElementById("pr-tipo-sub").textContent = tx(TIPOS_ENCARGO[prTipo].sub);
 }
 
 function pickProjectIcon(n) { prIcon = n; renderIconGrid("pr-icon", n, "pickProjectIcon", prColor); }
@@ -833,7 +857,7 @@ function saveProject() {
     const prev = {};
     pr.steps.forEach(s => prev[s.id] = s);
     Object.assign(pr, {
-      name, branch, desc, skillId, xpReward, icon: prIcon, color: prColor,
+      name, branch, desc, skillId, xpReward, icon: prIcon, color: prColor, tipo: prTipo,
       steps: formSteps.map(s => prev[s.id] ? { ...s, done: prev[s.id].done, at: prev[s.id].at } : s)
     });
     save();
@@ -842,7 +866,7 @@ function saveProject() {
     else showView("projects");
   } else {
     state.projects.push({
-      id: uid(), name, branch, desc, icon: prIcon, color: prColor,
+      id: uid(), name, branch, desc, icon: prIcon, color: prColor, tipo: prTipo,
       status: "active", steps: formSteps, skillId, xpReward,
       /* Los campos del mapa, tambien aqui y no solo en la migracion de la
          carga: un encargo creado por este formulario vivia sin la etiqueta

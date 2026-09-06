@@ -13,8 +13,20 @@
    porque media docena de caminos llegan aqui con un objeto suelto y sin
    contexto: un arrastre, el menu del clic derecho, deshacer. */
 
+/* ---- La prueba de los nodos con variedad (`?nodos=variedad`) ----
+   Se lee de la clase que el script de arriba de `index.html` pone en <html>,
+   y no de sessionStorage, por lo mismo que el modo claro: una sola fuente, y
+   el CSS y el JavaScript preguntando lo mismo. Mientras esté apagada, todo lo
+   que la mira devuelve exactamente lo que devolvía antes. */
+function pruebaNodos() {
+  return document.documentElement.classList.contains("nodos-variedad");
+}
+
 /* La figura y su radio. */
-function figuraDe(p) { return esNodoDeProyecto(p) ? FIGURA_ENCARGO : metaDe(p); }
+function figuraDe(p) {
+  if (!esNodoDeProyecto(p)) return metaDe(p);
+  return pruebaNodos() ? figuraDeEncargo(p) : FIGURA_ENCARGO;
+}
 
 /* El estado con el que se pinta. Los nombres coinciden a proposito
    (completed, active, expired...) para que la tabla de colores sea una sola. */
@@ -805,7 +817,40 @@ function openBranchFullscreen(b, mod) {
   fullscreenMod = mod;
   document.body.classList.add("fs-on");
   repintarModulo(mod);
-  requestAnimationFrame(() => focusBranchFront(b, true, mod));
+  requestAnimationFrame(() => {
+    encuadrarAlAbrir(b);
+    focusBranchFront(b, true, mod);
+  });
+}
+
+/* ---- Que la rama entre ajustada, y no al 100% (prueba `?nodos=variedad`) ----
+   Un proyecto de cuatro encargos ocupaba el 14% de la pantalla al abrirlo, y
+   eso se ve como sitio vacío, no como un mapa. El ajuste ya existía —es el
+   botón de la esquina y el doble toque—; lo único que faltaba era pedirlo al
+   entrar.
+
+   Solo la PRIMERA vez de esa rama en ese sitio: si ya hay un zoom guardado es
+   el que eligió el usuario, y volver a una rama tiene que devolverte donde la
+   dejaste. Por eso se mira `zoomRama` a pelo y no `zoomDe`, que rellena con
+   un 1 y haría imposible distinguir «al 100% porque lo puso él» de «al 100%
+   porque nadie lo ha tocado». */
+function encuadrarAlAbrir(b) {
+  if (!pruebaNodos()) return;
+  const wrap = document.querySelector("#fs-body .const-wrap");
+  if (!wrap) return;
+  if (typeof zoomRama[llaveDeLienzo(wrap, b)] === "number") return;
+  const svg = wrap.querySelector("svg");
+  if (!svg || !svg.dataset.bw) return;
+  const bw = +svg.dataset.bw, bh = +svg.dataset.bh;
+  if (!bw || !bh || !wrap.clientWidth || !wrap.clientHeight) return;
+  /* Solo si el ajuste ACERCA. Encogiendo no ayuda: por debajo del 90% el
+     nivel de detalle empieza a quitar cosas y por debajo del 65% se lleva
+     también los nombres, así que un mapa grande en un teléfono habría abierto
+     en una vista de pájaro donde no se lee ni cuál es cuál. Cuando el mapa no
+     cabe, lo que hay que hacer es lo de siempre: dejarlo al 100% y llevarte a
+     lo que sigue, que es donde está tu trabajo. */
+  if (Math.min(wrap.clientWidth / bw, wrap.clientHeight / bh) * 0.94 <= 1) return;
+  ajustarZoom(wrap, b);
 }
 
 /* No cierra el modo, solo lo esconde: el usuario sigue "dentro" de la rama
@@ -999,7 +1044,7 @@ function renderFullscreen(mod) {
       !editing ? "" : `<div class="fs-hint">${esProy
         ? tx("Tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno")
         : tx("Tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · <b>Shift</b> y clic elige varios · el círculo <b>Y/O</b> cambia la regla de entrada")}${
-        esProy ? "" : atajosLegend()}</div>`}`;
+        esProy ? atajosLegendProyectos() : atajosLegend()}</div>`}`;
 
   ov.classList.add("show");
   /* Los manejadores del lienzo solo si hay lienzo: sin él, `encuadrarLienzos`
@@ -1107,6 +1152,22 @@ const RATON_DERECHO = `<svg viewBox="0 0 24 24" aria-hidden="true">
   <path d="M12 2.9h.9a4.5 4.5 0 0 1 4.5 4.5v3.4H12z" fill="currentColor" stroke="none"/>
   <path d="M12 3v7.8M6.6 10.8h10.8" stroke="currentColor" stroke-width="1.4" fill="none"/>
 </svg>`;
+
+/* Los atajos que SÍ existen en el mapa de un proyecto, que son dos. Va
+   aparte de `atajosLegend` en vez de con un `if` dentro: esa lista empieza
+   por las tres teclas que crean talentos, y aquí no hay ninguna que crear
+   —un encargo es siempre lo mismo—. Prometer una tecla que no hace nada es
+   peor que no escribir la línea. */
+function atajosLegendProyectos() {
+  if (!isDesktop()) return "";
+  const k = (t) => `<kbd>${t}</kbd>`;
+  const raton = `<kbd class="kb-raton">${RATON_DERECHO}</kbd>`;
+  return `<span class="keys">${[
+    `${k("M")} ${tx("pantalla completa")}`,
+    `${k("C")} ${tx("editar el mapa")}`,
+    `${raton} ${tx("clic derecho: crear, editar y pantalla completa")}`
+  ].join('<i class="sep">·</i>')}</span>`;
+}
 
 function atajosLegend(compacta) {
   /* ---- En táctil también hay algo que aprender ----
@@ -1312,7 +1373,10 @@ document.addEventListener("mousemove", (e) => {
   const wrap = e.target.closest(".const-wrap");
   if (!wrap) return;                       // fuera de un lienzo se conserva el último
   const p = puntoEnLienzo(wrap, e.clientX, e.clientY);
-  if (p) cursorRama = { branch: wrap.dataset.branch, x: p.x, y: p.y };
+  /* El módulo va dentro: sin él, señalar el mapa de un proyecto y volver al
+     árbol dejaba las teclas apuntando a una rama de Proyectos, y la Q sembraba
+     un talento en una rama de Talentos que casi nunca existe. Ver `ramaDeAtajo`. */
+  if (p) cursorRama = { branch: wrap.dataset.branch, mod: wrap.dataset.mod || "talentos", x: p.x, y: p.y };
   marcarRamaActiva();
 });
 
@@ -1347,8 +1411,17 @@ function marcarRamaActiva() {
 function ramaDeAtajo() {
   // A pantalla completa solo hay una rama en juego, señale donde señale
   if (fullscreenBranch) return fullscreenMod === "talentos" ? fullscreenBranch : null;
-  if (cursorRama && cursorRama.branch) return cursorRama.branch;
-  return editBranch;
+  if (cursorRama && cursorRama.branch) return cursorRama.mod === "talentos" ? cursorRama.branch : null;
+  return editMod === "talentos" ? editBranch : null;
+}
+
+/* La misma pregunta para Proyectos, y va aparte porque allí el mapa es
+   opcional: una rama que se está viendo como lista no tiene lienzo que abrir,
+   así que la tecla no puede caer sobre ella. */
+function ramaDeAtajoProyectos() {
+  if (fullscreenBranch) return fullscreenMod === "proyectos" ? fullscreenBranch : null;
+  if (cursorRama && cursorRama.mod === "proyectos" && enMapaProyectos(cursorRama.branch)) return cursorRama.branch;
+  return editMod === "proyectos" ? editBranch : null;
 }
 
 function posDeAtajo(branch) {
@@ -1410,19 +1483,27 @@ document.addEventListener("keydown", (e) => {
   }
   if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
 
-  // Solo dentro del árbol (o de una rama a pantalla completa)
-  /* Los atajos crean TALENTOS. Con un proyecto a pantalla completa,
-     `fullscreenBranch` está puesto pero la rama es de otro módulo: sin esta
-     comprobación, pulsar Q sembraba un talento dentro de un proyecto. */
-  if (fullscreenBranch ? fullscreenMod !== "talentos" : activeMainView !== "tree") return;
-  const rama = ramaDeAtajo();
+  /* ---- Sobre qué mapa caen las teclas ----
+     Dos módulos dibujan mapas, así que primero se decide de cuál se está
+     hablando y después qué rama de él escucha. Antes esto era una sola
+     comprobación de «estoy en el árbol», y por eso en Proyectos no había
+     ninguna tecla: ni para editar el mapa, ni para abrirlo entero.
+
+     Lo que NO se reparte son las teclas que CREAN. Q, W y E crean talentos de
+     un tipo cada una y un encargo es siempre lo mismo, así que en Proyectos
+     se sale antes de llegar a ellas. */
+  const modAtajo = fullscreenBranch ? fullscreenMod
+    : activeMainView === "tree" ? "talentos"
+    : activeMainView === "projects" ? "proyectos" : null;
+  if (!modAtajo) return;
+  const rama = modAtajo === "proyectos" ? ramaDeAtajoProyectos() : ramaDeAtajo();
   if (!rama) return;
 
   const k = e.key.toLowerCase();
   /* La C no se enfría: alternar el modo de edición no crea nada, y llevar la
      cuenta de las tres que sí crean por separado de la que no lo hace es lo
      que evita que pulsar C gaste el turno de la Q. */
-  if (k === "c") { e.preventDefault(); toggleEditBranch(rama); return; }
+  if (k === "c") { e.preventDefault(); toggleEditBranch(rama, modAtajo); return; }
   /* M de Mapa, como en cualquier juego. Tampoco se enfria, por lo mismo que
      la C: no crea nada. Y hace las dos cosas —abre y cierra— porque un atajo
      que solo entra deja al que lo uso buscando como salir.
@@ -1431,11 +1512,12 @@ document.addEventListener("keydown", (e) => {
      otra pantalla a media faena seria perder el hilo. */
   if (k === "m") {
     e.preventDefault();
-    if (editandoRama(rama, "talentos")) return;
+    if (editandoRama(rama, modAtajo)) return;
     if (fullscreenBranch) closeBranchFullscreen();
-    else openBranchFullscreen(rama, "talentos");
+    else openBranchFullscreen(rama, modAtajo);
     return;
   }
+  if (modAtajo !== "talentos") return;
   const tipo = k === "q" ? "hito" : k === "w" ? "meta" : k === "e" ? "compra" : null;
   if (!tipo) return;
   e.preventDefault();
@@ -1850,7 +1932,27 @@ function nodeShape(p, x, y, conf, fid, crecer) {
      ninguna figura de Talentos, y esa es toda su gracia — con los dos mapas
      hechos de rombos y hexagonos nadie sabria en cual esta. */
   if (t.forma === "encargo") {
-    return `<rect x="${x - t.ancho / 2 - c}" y="${y - t.alto / 2 - c}" width="${t.ancho + c * 2}" height="${t.alto + c * 2}" rx="${rLienzo(13) + c}" ${common}/>`;
+    const w = t.ancho + c * 2, h = t.alto + c * 2;
+    const x0 = x - w / 2, y0 = y - h / 2;
+    /* Las dos siluetas de la prueba. Van con `stroke-linejoin="round"` igual
+       que el hexágono: sin eso las puntas salen de aguja y el nodo deja de
+       parecer de la misma familia que el rectángulo de al lado. */
+    if (t.silueta === "punta") {
+      // La punta a la derecha: por ahí sale del proyecto
+      const P = 15;
+      return `<polygon points="${[
+        [x0, y0], [x0 + w - P, y0], [x0 + w, y], [x0 + w - P, y0 + h], [x0, y0 + h]
+      ].map(q => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" ")}" stroke-linejoin="round" ${common}/>`;
+    }
+    if (t.silueta === "corte") {
+      // Las cuatro esquinas cortadas: la silueta de «alto, aquí se decide»
+      const k = 13;
+      return `<polygon points="${[
+        [x0 + k, y0], [x0 + w - k, y0], [x0 + w, y0 + k], [x0 + w, y0 + h - k],
+        [x0 + w - k, y0 + h], [x0 + k, y0 + h], [x0, y0 + h - k], [x0, y0 + k]
+      ].map(q => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" ")}" stroke-linejoin="round" ${common}/>`;
+    }
+    return `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" rx="${rLienzo(13) + c}" ${common}/>`;
   }
   if (t.forma === "circulo") {
     return `<circle cx="${x}" cy="${y}" r="${t.radio + c}" ${common}/>`;
@@ -2438,6 +2540,45 @@ function constellation(nodes, key, editing, branch, mod) {
        encargo espera su turno: saber cuanto lleva hecho lo que viene despues
        es justo la pregunta que uno se hace mirando el mapa. */
     const verEtapas = st === "active" || (esNodoDeProyecto(n) && st === "esperando");
+
+    /* ---- El avance, dentro de la propia figura (prueba `?nodos=variedad`) ----
+       Hasta ahora el trabajo hecho solo se decía en letra chica debajo del
+       nombre, y solo en los encargos en curso: cuatro encargos en fila se
+       veían como cuatro cajas idénticas. Una barra dentro de la caja hace que
+       cada nodo se vea distinto desde lejos, que es justo lo que el nivel de
+       detalle "medio" deja en pantalla cuando te alejas.
+
+       No sustituye a la cuenta de etapas: en la tarjeta de la lista conviven
+       igual —la barra para el vistazo, el "1 de 3" para leerlo— y aquí hacen
+       lo mismo.
+
+       Va en `trazo()` y no en `pinta()`: es una raya de 3 px, y una raya de
+       ese grosor con el tono pastel de noche se pierde sobre el relleno del
+       nodo (ver la regla de la paleta en CLAUDE.md). */
+    const barra = (pruebaNodos() && esNodoDeProyecto(n) && figuraDe(n).forma === "encargo"
+                   && (n.steps || []).length && st !== "expired")
+      ? { hechas: n.steps.filter(s2 => s2.done).length, total: n.steps.length }
+      : null;
+
+    /* ---- La salud, que ya se calculaba y no se veía (misma prueba) ----
+       `projectHealth` decide "Estancado" y "Enfriándose" desde que Proyectos
+       existe, pero solo salía en la tarjeta de la lista. El mapa es donde se
+       decide qué tocar hoy, así que era justo la pantalla a la que le faltaba.
+
+       Solo los dos avisos: "Con ritmo" y "Casi listo" son la mayoría de los
+       encargos y una chapa en todos no distingue nada. Y solo en los vivos —
+       un encargo terminado no puede estar estancado. */
+    const salud = (pruebaNodos() && esNodoDeProyecto(n)
+                   && (n.status === "active" || n.status === "paused"))
+      ? { stalled: { col: "var(--coral-macizo)", ic: "alert" },
+          cooling: { col: "var(--fire-macizo)", ic: "luna" } }[projectHealth(n).key]
+      : null;
+    /* Y su esquina. En la caja normal cabe enfrente de la chapa de estado sin
+       más, pero en el círculo de un gasto —que mide 19 de radio— las dos
+       chapas quedaban montadas una encima de otra: con ±13 sus centros se
+       separan 26 y cada una mide 19 de ancha. Se aparta la de salud lo justo
+       para que se separen 32. */
+    const saludR = esHito ? { dx: -19, dy: -11 } : { dx: -markR.dx, dy: markR.dy };
     const lines = wrapName(n.name);
     const sitio = sitioDelRotulo(n, x, y, lines, esHito ? 9.5 : 10.5, esHito);
     const topY = sitio.base;
@@ -2455,7 +2596,21 @@ function constellation(nodes, key, editing, branch, mod) {
          stroke="${cerrado ? "var(--faint)" : conf.stroke}" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[iname] || ICONS.star}</g>
       ${conf.mark ? `<g class="nod-chapa"><circle cx="${x + markR.dx}" cy="${y + markR.dy}" r="9.5" fill="${conf.badge}"/>
         <g transform="translate(${x + markR.dx - 6}, ${y + markR.dy - 6}) scale(0.5)"
-           stroke="var(--sobre-macizo)" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g></g>` : ""}
+           stroke="var(--sobre-macizo)" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g></g>` : ""}${/* Pegado a la línea de arriba y no en la
+        suya: una interpolación en su propia línea mete un salto y seis
+        espacios en el SVG de CADA nodo —también en los de Talentos, que no
+        tienen nada que ver con esto—. Cero píxeles y huella distinta, que es
+        la peor combinación para una prueba. Ya pasó al escribir las etapas
+        dentro del mapa. */""}${barra ? (() => {
+        // Dentro de la caja y pegada al borde de abajo, con su carril detrás
+        const w = 40, x1 = x - w / 2, yb = y + figuraDe(n).alto / 2 - 9;
+        const hecho = Math.max(0, Math.min(1, barra.hechas / barra.total));
+        return `<g class="nod-avance">
+        <path d="M ${x1} ${yb} H ${x1 + w}" stroke="var(--carril)" stroke-width="3" stroke-linecap="round" fill="none"/>
+        ${hecho > 0 ? `<path d="M ${x1} ${yb} H ${(x1 + w * hecho).toFixed(1)}" stroke="${colT}" stroke-width="3" stroke-linecap="round" fill="none"/>` : ""}
+      </g>`; })() : ""}${salud ? `<g class="nod-salud"><circle cx="${x + saludR.dx}" cy="${y + saludR.dy}" r="9.5" fill="${salud.col}"/>
+        <g transform="translate(${x + saludR.dx - 6}, ${y + saludR.dy - 6}) scale(0.5)"
+           stroke="var(--sobre-macizo)" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${ICONS[salud.ic]}</g></g>` : ""}
       <text class="nod-nombre" x="${sitio.anclaX}" y="${topY}" text-anchor="${sitio.ancla}" font-size="${esHito ? 9.5 : 10.5}" fill="var(--lienzo-rotulo)" font-weight="500">
         ${lines.map((ln, i) => `<tspan x="${sitio.anclaX}" dy="${i === 0 ? 0 : 12}">${escapeHtml(ln)}</tspan>`).join("")}
       </text>
