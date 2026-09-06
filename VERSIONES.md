@@ -212,6 +212,68 @@ desplazamiento sobre una caja normal recién creada tampoco avanzaba, así que l
 roto era la prueba y no el archivo. Queda apuntado porque es la tercera vez que
 esta trampa cuesta tiempo, y el control cuesta tres líneas.
 
+### 0.7.91.1 · 6 sep 2026
+
+**Se acabó el cuadrado azul al tocar.** Lo paró Eduardo: «estamos simulando una
+app, provoca confusión y ensucia la experiencia».
+
+En un teléfono, tocar cualquier cosa pinta encima un rectángulo azul
+translúcido — el «tap highlight» de Chrome de Android y de Safari. Y sale con
+la forma de la **caja** del elemento, no con su silueta, así que debajo de un
+botón redondeado o de un círculo aparece un cuadrado.
+
+**No se quita porque estorbe: se quita porque sobra**, y esa es la diferencia
+que decide si el cambio es bueno o deja la app rota. La app ya contesta al toque
+por su cuenta. Medido en la pantalla de Resumen, de **33 elementos tocables**:
+
+| | |
+| --- | --- |
+| Con su propio `:active` | 18 — `.btn` encoge un 3% y baja la opacidad, y hay 19 reglas más |
+| Contestan cambiando de estado | el resto: `.c-nav.active` marca la sección, `.ob-pace-opt.on` marca lo elegido |
+| Se quedan sin respuesta | **ninguno** |
+
+Era doble respuesta al mismo toque, y la que sobraba era la del sistema — la
+única que no se parece a nada de la app.
+
+**El control que lo demuestra:** un documento vacío al lado, sin nuestra hoja,
+da `rgba(51, 181, 229, 0.4)`. Ese es el azul. Después del cambio, los **108
+elementos tocables** de la app dan `rgba(0, 0, 0, 0)`.
+
+Va en `html` y no en `*` porque `-webkit-tap-highlight-color` **se hereda**: una
+línea llega a todo, incluidas las ventanas que se dibujan después.
+
+**Y hay un segundo azul que se confunde con el primero.** Al dejar el dedo
+encima, el navegador selecciona el texto del rótulo y lo tiñe. En una app nativa
+el rótulo de un botón no se selecciona, así que se apaga en los controles. Los
+`<a>` se quedan fuera a propósito: aquí viven dentro de párrafos legales, y
+volverlos no seleccionables rompe copiar el párrafo.
+
+**Lo que casi se cuela, y solo lo vio la medición.** Al apagar la selección en
+`label`, **20 de los 23 campos de escribir se quedaron sin poder seleccionar**:
+`user-select` se hereda y aquí cada campo va envuelto en su
+`<label class="field">`, así que el `none` de la etiqueta caía dentro del campo.
+Habría sido una regresión justo en el teléfono, que es donde no hay otra forma
+de seleccionar lo que acabas de escribir. **A ojo se ve idéntico** — un campo
+sin selección y uno bueno son el mismo píxel. Se devuelve con una regla para
+`input, textarea, select, [contenteditable]`, y ahora son 0 de 28.
+
+**La trampa a futuro, escrita en el comentario para que nadie la deshaga:** si
+se añade algo tocable, hay que darle su `:active`. Ese destello era la única
+respuesta que un teléfono da por defecto; quitado, lo que no conteste ya no se
+siente limpio, se siente roto.
+
+Intactas las 19 reglas `:focus-visible`, que son el recuadro de quien navega con
+teclado y no aparecen nunca al tocar con el dedo.
+
+**Y una nota para quien fecha una versión de noche:** el comando que este
+documento recomienda para salir de dudas con el huso —
+`TZ=America/Mexico_City date`— **no funciona en el Git Bash de esta máquina**.
+No hay datos de husos, así que `TZ` se ignora y devuelve UTC: México, UTC y
+Tokio dan los tres la misma hora. Entre las 18:00 y la medianoche de México eso
+contesta el día siguiente, que es exactamente el fallo contra el que se escribió
+la regla. Aquí el reloj del sistema sí es de México —«Central Standard Time
+(Mexico)»—, así que lo fiable es `date` a secas.
+
 ### 0.7.91 · 5 sep 2026
 
 **El mapa de un proyecto se abre entero desde el menú, y detrás de un
