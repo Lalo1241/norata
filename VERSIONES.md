@@ -76,6 +76,142 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.92 · 6 sep 2026
+
+**El teléfono deja de pelearse con el mapa de talentos, y detrás de dos
+parámetros esperan la app compacta y el modo horizontal.**
+
+Eduardo probó la app tumbado y de pie y cazó cinco cosas. Van todas, más una
+sexta que salió de en medio y que era la peor de todas.
+
+**El rótulo de «estás viendo un ejemplo» medía 38 px de alto**, y ese hueco no
+lo paga el rótulo: lo paga la app entera, porque el contenido baja lo que la
+barra mide (`--alto-aviso`). Ahora mide 26, en las dos pantallas. El alto lo
+ponía el BOTÓN y no el texto, así que ahí es donde se recortó — y la zona que
+recibe el dedo se sostiene con un `::after` invisible de 37 px, que no ocupa
+sitio. Un aviso permanente tiene que estar y no pesar.
+
+**La tira de herramientas y el mando del zoom se encimaban 28 px** a pantalla
+completa. Medido en un teléfono de 375: la tira acaba en 244 y el zoom empieza
+en 216, y los dos juntos piden 379 px de los 351 que hay entre márgenes.
+Achicarlos no era salida —los dos habrían quedado por debajo del tamaño que un
+dedo acierta—, porque lo que sobra es el RENGLÓN compartido y no el tamaño. Así
+que el zoom se pone **de pie contra el canto derecho**: 40 px de ancho en vez de
+147 de largo, es la disposición que tiene cualquier mapa, y la tira recupera el
+centro. Este sitio ya se había movido dos veces; la nota de por qué está junto
+a la regla, para que no haya una tercera.
+
+**El toque sostenido abre el menú del clic derecho.** En una pantalla táctil no
+hay botón derecho, así que TODO ese menú —crear los tres tipos justo aquí,
+entrar en edición, deshacer, abrir o duplicar el talento de debajo— sencillamente
+no existía en el teléfono. Medio segundo con el dedo quieto y sale. Lo que hace
+que no estorbe no es cuándo se dispara, es todo lo que lo CANCELA: el
+movimiento (10 px), el segundo dedo y el recorrido del mapa. Por eso el arrastre
+y el pellizco siguen igual de sueltos — un gesto que empieza a moverse deja de
+ser este.
+
+**El ＋ de la cabecera de una rama se va del teléfono, y el del mapa pregunta
+qué.** Fuera de pantalla completa la rama es solo una vista previa —no se
+recorre ni se toca por dentro—, así que ese botón ofrecía crear justo donde no
+se puede colocar nada, y lo que hacía era abrir el formulario largo y sacarte
+del árbol. Dentro del mapa el ＋ se queda, y ahora abre el mismo menú de tres
+líneas que el clic derecho; el talento nace en el centro de lo que estás
+viendo, porque uno creado fuera de la pantalla se siente como que el botón no
+hizo nada.
+
+**Una rama de pie nacía enseñando su extremo más lejano.** Sin encuadre
+guardado la cámara se iba «al principio», y a lo ancho eso casi acierta —el
+principio de una rama es su raíz— pero de pie el principio es el borde de
+ARRIBA, o sea lo más profundo del camino. Medido en 375×812: nacía en `top 300`
+y lo que tocaba estaba en `top 605`. Ahora nace mirando lo que sigue, y eso
+vale igual para la lista, para la pantalla completa y para después de girar la
+rama, porque se arregló en el único sitio que decide ese encuadre.
+
+**Y la que salió de en medio, que era la peor:** una rama vacía a pantalla
+completa decía «créale el primero con el ＋ de arriba» y ese ＋ no existía. La
+barra de arriba se vacía unas líneas más abajo y la tira solo se pinta cuando
+hay nodos, así que el único momento en que hace falta crear era justo el único
+en el que no había con qué. Ahora el botón va dentro del mensaje.
+
+---
+
+**Dos pruebas con enlace, las dos apagadas.** Son cambios de aspecto y la
+decisión es de Eduardo, así que nadie que no las pida se las encuentra.
+
+**`?compacto=1`** recorta el aire de la app en el teléfono —rellenos, huecos
+entre tarjetas, y una cabecera que medía 124 px— sin que ninguna zona táctil
+baje de 44: las tarjetas de misión pasan de 62 a 58, los chips de «listo para
+hoy» de 58 a 54. Resumen queda en 2.227 px de los 2.422, **un 8%**. Un 8% no es
+lo que hace falta y eso también es un dato: el peso de verdad está DENTRO de
+dos widgets ilustrados —la escena de la racha mide 499 px y la que le sigue
+361—, o sea 860 px entre los dos de los 1.930 que suman los ocho. Eso ya no es
+aire, es decidir cuánto teléfono ocupa un dibujo.
+
+**`?horizontal=1`** es el modo apaisado. El diagnóstico, medido a 812×375:
+252 px de ancho sin usar (el 31%, porque la columna está topada en 560 y
+centrada), Resumen pidiendo 5,8 pantallas de recorrido contra 3 de pie, y un
+mapa a pantalla completa al que le quedaban 264 px de 375 entre la cabecera y
+la tira.
+
+Y la idea que ordena todo lo demás: **de pie el teléfono se sujeta con una mano
+y el pulgar llega ABAJO** —por eso la barra vive abajo y la propia app la llama
+cluster del pulgar—; **tumbado se sujeta con las dos manos y los pulgares caen
+en los CANTOS**, que es justo donde no hay nada. Abajo en el centro es, tumbado,
+el sitio más incómodo de la pantalla. Así que todo lo que se toca se va a los
+cantos y el centro queda para mirar, que es la disposición de cualquier juego —
+y no por estética, sino por dónde están los pulgares.
+
+En concreto: los cinco círculos de navegar en columna contra el canto izquierdo
+y el ＋ en la esquina de abajo a la derecha, uno bajo cada pulgar y sin encoger
+nada; el contenido suelta el tope de 560 y va a dos columnas de 349 px, que es
+el ancho que la app ya tiene de pie (339), así que ninguna tarjeta se estrecha
+y el recorrido se parte; la cabecera del mapa deja de ser una barra y pasa a
+ser HUD flotante, con la tira en el canto izquierdo y el zoom en el derecho, lo
+que le da al lienzo un 19% más de alto y deja 692×375 de mapa sin nada encima —
+el 85% de la pantalla—; y los cuadros se centran en vez de nacer desde abajo,
+que tumbado tapan lo que hay detrás.
+
+Resumen pasa de 5,8 pantallas de recorrido a 3,9, Habilidades de 4,3 a 3,2,
+Proyectos de 4,3 a 3,2 y Misiones de 3,5 a 3. **Dos no bajan y conviene
+decirlo:** Talentos se queda en una columna a propósito, porque la tarjeta de
+una rama lleva un mapa dentro y ni la computadora la parte a 1.700 px de ancho;
+y el Catálogo ya se repartía en dos por encima de 620 px, así que su largo no
+es cosa del reparto sino de cuántos grupos de categoría tiene.
+
+**Se dispara con el ALTO y no con el ancho**, y esa es la parte que hay que
+entender antes de tocarla: `orientation: landscape` la cumple también un
+monitor, y lo que separa un teléfono tumbado de todo lo demás es medir menos de
+500 px de alto —un teléfono da 375-430, una tableta tumbada 768—. Con
+`max-width: 899px` no bastaba: un teléfono tumbado mide 812 de ancho y lo
+cumple, pero una ventana estrecha y ALTA de computadora también, y ahí este
+reparto sería un disparate.
+
+La clase es el PERMISO y no el disparador: puesta, no cambia nada hasta que el
+teléfono se tumba. Comprobado que de pie no se mueve una sola medida (Resumen
+sigue en 2.422 px, tope 560, relleno 26/18, barra abajo) y que apagarla
+devuelve los números exactos de antes.
+
+**Para quitar cualquiera de las dos, borrando por nombre y nunca por rango**
+—la primera vez que se quitó una prueba se cortó de «aquí» a «allá» y se
+llevaron por delante cuatro bloques que no tenían nada que ver—:
+
+- `css/estilos.css`: el bloque `html.compacto` o el `html.horizontal`, y el de
+  su rótulo (`#rotulo-compacto` / `#rotulo-horizontal`), que están justo al lado
+- `index.html`: la lectura de `?compacto` o de `?horizontal` en el script de
+  arriba, y su `<div>` de rótulo
+- esta entrada
+
+---
+
+**Una nota sobre cómo se verificó, porque volvió a morder.** El panel del
+navegador de esta sesión **no compone fotogramas**: `requestAnimationFrame` no
+llega a correr nunca. Eso hizo que un desplazamiento suave pareciera roto
+—`scrollTo({behavior:"smooth"})` no avanzaba ni un píxel— y estuvo a punto de
+diagnosticarse como un fallo del lienzo. Lo salvó el control: el mismo
+desplazamiento sobre una caja normal recién creada tampoco avanzaba, así que lo
+roto era la prueba y no el archivo. Queda apuntado porque es la tercera vez que
+esta trampa cuesta tiempo, y el control cuesta tres líneas.
+
 ### 0.7.91 · 5 sep 2026
 
 **El mapa de un proyecto se abre entero desde el menú, y detrás de un
