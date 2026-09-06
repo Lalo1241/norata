@@ -1053,6 +1053,47 @@
   }
   ::-webkit-scrollbar-thumb:hover { background: var(--pulgar-vivo); background-clip: padding-box; }
   ::-webkit-scrollbar-corner { background: transparent; }
+
+  /* ---------- Ni un destello del sistema al tocar ----------
+     En un teléfono, tocar cualquier cosa pinta encima un rectángulo azul
+     translúcido: es el «tap highlight» que traen Chrome de Android y Safari.
+     Y sale con la forma de la CAJA del elemento, no con su silueta, así que
+     debajo de un botón redondeado o de un círculo aparece un CUADRADO.
+
+     Se apaga porque SOBRA, no porque estorbe, y esa es la diferencia: la app
+     ya contesta al toque por su cuenta —`.btn:active` encoge un 3% y baja la
+     opacidad, y hay veinte reglas `:active` más—. Con las dos cosas juntas el
+     mismo toque se responde dos veces, y la de fábrica es la que no se parece
+     a nada de aquí. Lo paró Eduardo: «estamos simulando una app, provoca
+     confusión y ensucia la experiencia».
+
+     **Si algún día se añade algo tocable, hay que darle su `:active`.** Ese
+     destello era la única respuesta que da un teléfono por defecto; quitado,
+     lo que no conteste solo se siente roto, no limpio.
+
+     Va en `html` y no en `*` porque la propiedad se HEREDA: una línea llega a
+     todo, incluidas las ventanas que se dibujan después.
+
+     Y lo de abajo es OTRO azul, aunque se confunda con el primero: al dejar el
+     dedo encima, el navegador selecciona el texto del rótulo y lo tiñe. En una
+     app nativa el rótulo de un botón no se selecciona. Se apaga solo en los
+     controles —y nunca en `<a>`, que aquí vive dentro de párrafos legales, ni
+     en los campos de escribir, donde seleccionar es a lo que se viene—. */
+  html { -webkit-tap-highlight-color: transparent; }
+  button, label, summary, [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  /* Y se devuelve en los campos, que es donde muerde: `user-select` se
+     HEREDA, y aquí cada campo va envuelto en su `<label class="field">`.
+     Sin esta línea, 20 de los 23 campos de la app se quedaban sin poder
+     seleccionar lo que acabas de escribir — justo en el teléfono, que es
+     donde no hay teclado para hacerlo de otra forma. Lo cazó la medición,
+     no la vista: a ojo un campo sin selección se ve igual que uno bueno. */
+  input, textarea, select, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
   /* El fondo va también en <html>, no solo en <body>: la franja que asoma al
      rebotar el scroll en el móvil la pinta el elemento raíz, y sin esto salía
      blanca. Y `color-scheme: dark` es lo que le dice al navegador que ponga
