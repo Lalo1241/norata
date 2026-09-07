@@ -618,7 +618,6 @@ const TEXTOS_EN = {
      inglés —allí el sustantivo no marca género y contestarla no cambiaría
      nada—, así que el cuestionario mide una pantalla menos. Ver
      `preguntaGenero` en js/09-inicio.js. */
-  "Armar mi tablero en 6 preguntas": "Build my board in 5 questions",
   "Ver un ejemplo completo": "See a full example",
   "Empezar de cero": "Start from scratch",
   "El plan venció — confirma si lo lograste": "The plan is up — confirm whether you made it",
@@ -1246,6 +1245,53 @@ const TEXTOS_EN = {
   "{0} · ver los planes": "{0} · see the plans",
   "{0} · viene con {1}": "{0} · comes with {1}",
   "Ramas llenas": "Branches full",
+
+  /* ---- Lo que se ve al tocar un candado de módulo (0.7.96) ---- */
+  "Nivel {0} de {1}": "Level {0} of {1}",
+  "Vas por el nivel {0} de {1}, un {2}% del camino": "You're at level {0} of {1}, {2}% of the way",
+  "Al llegar te espera la rama de {0}, con los talentos que elegiste al armar tu tablero.":
+    "Waiting for you there: your {0} branch, with the talents you chose when you built your board.",
+  "Al llegar te esperan tus ramas de {0}, con los talentos que elegiste al armar tu tablero.":
+    "Waiting for you there: your {0} branches, with the talents you chose when you built your board.",
+  "Al llegar te espera «{0}», el proyecto que apuntaste al armar tu tablero.":
+    "Waiting for you there: \u201c{0}\u201d, the project you noted down when you built your board.",
+  /* El separador de una lista dentro de una frase. Con espacios a los lados a
+     propósito: se pega entre dos nombres, no se escribe suelto. */
+  " y ": " and ",
+  " o ": " or ",
+
+  /* ---- Las dos respuestas de la bienvenida que ahora se pueden cambiar ---- */
+  "Ninguna en particular": "None in particular",
+  "Reparte los peldaños como vengan": "Lay the steps out however they come",
+  "Ahora cuento con {0}": "Now I'll count on {0}",
+  "Lo tendré en cuenta al armarte algo nuevo": "I'll keep it in mind when I build you something new",
+  "Reparto de siempre": "The usual layout",
+  "Hecho": "Done",
+
+  /* ---- El tutorial, que ahora cuenta los módulos que va a explicar ---- */
+  "Norata lleva tu vida con la mecánica de un juego de rol. Empiezas por <b>{0}</b>.":
+    "Norata runs your life with the mechanics of a role-playing game. You start with <b>{0}</b>.",
+  "Es {0} sección. Te cuento en un minuto qué hace.":
+    "It's {0} section. I'll tell you in a minute what it does.",
+  "Son {0} secciones. Te cuento en un minuto qué hace cada una.":
+    "They're {0} sections. I'll tell you in a minute what each one does.",
+  "Las demás se abren solas conforme avanzas.": "The rest open on their own as you go.",
+  "Una misión cumplida": "A mission completed",
+  "un talento logrado": "a talent earned",
+  "una etapa de proyecto": "a project stage",
+  "{0} termina en el mismo sitio: <b>XP para tus habilidades</b>.":
+    "{0} ends up in the same place: <b>XP for your skills</b>.",
+  "{0} terminan en el mismo sitio: <b>XP para tus habilidades</b>.":
+    "{0} all end up in the same place: <b>XP for your skills</b>.",
+  /* Los números escritos con letra del tutorial. Son cuatro como mucho —hay
+     cuatro módulos— así que no hace falta un formateador. «dos» y «tres» NO
+     están aquí: ya viven más abajo, en el bloque del plan, y una clave repetida
+     en el mismo objeto se resuelve sola en silencio —gana la última— así que el
+     día que alguien cambie una de las dos, la otra se queda y nadie se entera. */
+  "una": "one",
+  "cuatro": "four",
+
+  /* ---- Y los candados por nivel del informe ---- */
   "Te faltan {0} niveles": "{0} levels to go",
   "{0} pendiente": "{0} left",
   "{0} pendientes": "{0} left",
@@ -1467,7 +1513,6 @@ const TEXTOS_EN = {
   "Costura": "Sewing",
   "Mecánica": "Mechanics",
   "Electrónica": "Electronics",
-  "Pintura": "Painting",
   "Fotografía": "Photography",
   "Caligrafía": "Calligraphy",
   "Guitarra": "Guitar",
@@ -2293,7 +2338,6 @@ const TEXTOS_EN = {
   "Niveles {0} a {1}.": "Levels {0} to {1}.",
   "Práctica de {0}": "{0} practice",
   "+{0} XP al lograrlo": "+{0} XP when you get it",
-  "Hacen falta los {0}": "All {0} are needed",
   "Quedará bloqueado hasta completar los {0}. Es el talento que corona varios caminos.":
     "It'll stay locked until you complete all {0}. It's the talent that crowns several paths.",
   "Se desbloquea en cuanto completes cualquiera de los {0}. Son caminos alternativos.":
@@ -2328,8 +2372,6 @@ const TEXTOS_EN = {
   "{0} de cada 10": "{0} out of 10",
   "Apariencia de prueba: {0}": "Test look: {0}",
   "Nivel {0}": "Level {0}",
-  "{0} se abre en el nivel {1} de expedición y vas en el {2}.":
-    "{0} opens at journey level {1} and you're on {2}.",
   "Al llegar arriba se enciende con {0}.": "Once you get there it switches on with {0}.",
   "{0} es lo único que {1} tiene además de Pro": "{0} is the only thing {1} has beyond Pro",
   ": un pago único de {0}, sin fecha y sin renovaciones.":

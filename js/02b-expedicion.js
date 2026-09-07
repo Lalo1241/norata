@@ -606,6 +606,61 @@ function insigniaExpedicionHTML(diam) {
     '</span>';
 }
 
+/* ================= El aro de «cuánto te falta» =================
+   Un candado que dice «te faltan 3 niveles» da un número; el mismo candado con
+   el aro al lado dice DÓNDE estás. Lo pidió Eduardo para todos los sitios que
+   cuentan niveles hacia algo: los dos módulos y las apariencias.
+
+   **Mide el camino entero hasta el objetivo, no lo que llevas del nivel de
+   ahora.** Son dos cosas distintas y aquí solo sirve la primera: a alguien que
+   va por el 2 camino del 3, el aro del nivel EN CURSO puede estar al 5% y
+   parecer que no ha empezado, cuando del camino lleva casi la mitad. Y se
+   cuenta en PUNTOS y no en niveles enteros por lo mismo — con niveles el aro
+   daría saltos de un tercio y estaría parado casi siempre.
+
+   La cuenta sale de `expCosto()`, que es la misma curva que decide el nivel,
+   así que no hay dos verdades: si el aro dice lleno, el nivel ya cambió.
+
+   `ring()` vive en `js/02-progreso.js` y es el mismo que dibuja la insignia de
+   la expedición y los aros de las habilidades. No se dibuja uno nuevo a
+   propósito: en esta app ya se cazó una vez un dibujo duplicado que acabó
+   desincronizado de su original. */
+function puntosHastaNivel(objetivo) {
+  let pide = 0;
+  for (let n = 0; n < objetivo; n++) pide += expCosto(n);
+  return pide;
+}
+
+function aroDeNivelHTML(objetivo, diam) {
+  const d = diam || 62;
+  const info = typeof nivelExpedicion === "function" ? nivelExpedicion() : { nivel: 0, puntos: 0 };
+  const pide = puntosHastaNivel(objetivo);
+  const pct = pide > 0 ? Math.max(0, Math.min(1, info.puntos / pide)) : 1;
+  const grosor = d >= 56 ? 4 : 3;
+  /* Menta, que es el tono de lo que se gana usando la app. Ni coral ni
+     luciérnaga: aquí no hay nada roto ni nada que cueste dinero — hay un
+     camino a medio andar. */
+  const aro = typeof ring === "function"
+    ? ring(d, grosor, [{ pct: pct, color: "var(--mint)" }], "var(--carril)") : "";
+  return '<span class="aro-nivel" style="width:' + d + 'px;height:' + d + 'px"' +
+    ' role="img" aria-label="' + escapeAttr(
+      T`Vas por el nivel ${info.nivel} de ${objetivo}, un ${Math.round(pct * 100)}% del camino`) + '">' +
+    aro + '<b>' + info.nivel + '</b></span>';
+}
+
+/* El renglón que acompaña al aro. Va aparte porque el aro sale en sitios con
+   hueco distinto —un cuadro, una tarjeta del tablero— y la frase larga no
+   siempre cabe. */
+function faltaParaNivel(objetivo) {
+  const n = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 0;
+  const faltan = Math.max(1, objetivo - n);
+  return {
+    nivel: n, objetivo: objetivo, faltan: faltan,
+    corto: T`Nivel ${n} de ${objetivo}`,
+    titulo: faltan === 1 ? tx("Te falta un nivel") : T`Te faltan ${faltan} niveles`
+  };
+}
+
 /* ================= La colección =================
    El inventario del recorrido, no una vitrina de trofeos. La diferencia la
    marcó Eduardo y es la que hace que tenga sentido sin más gente mirando: lo

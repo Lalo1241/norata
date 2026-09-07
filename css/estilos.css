@@ -1709,6 +1709,15 @@
   .ap-cerrado.ap-pro { border-left-color: var(--mint); }
   .ap-cerrado.ap-fundador { border-left-color: var(--lila); }
   .ap-cerrado.ap-nivel { border-left-color: var(--fire); }
+  /* Con aro, el bloque pasa a dos columnas: el dibujo a la izquierda y las dos
+     frases a la derecha. `align-items: center` y no `flex-start` porque el aro
+     es más alto que el título solo, y arriba del todo quedaría descolgado del
+     texto que explica. Solo lo lleva el candado de NIVEL — el de un plan no
+     tiene camino que dibujar—, así que la fila entera cuelga de `.con-aro` y
+     el bloque de siempre no cambia ni un píxel. */
+  .ap-cerrado.con-aro { display: flex; align-items: center; gap: 12px; }
+  .ap-cerrado.con-aro .ap-cerrado-tx { flex: 1; min-width: 0; }
+  .ap-aro { flex: none; }
   .ap-cerrado + .btn { margin-top: 10px; }
   .ap-yaesta {
     display: flex; align-items: center; gap: 7px;
@@ -2994,6 +3003,111 @@
   .mod-row.on .mod-sw i { transform: translateX(17px); background: var(--mint); }
   .mod-row:not(.on) .mod-tx b { color: var(--muted); }
   @media (prefers-reduced-motion: reduce) { .mod-sw, .mod-sw i { transition: none; } }
+
+  /* El aro de «cuánto te falta para el nivel N», con el nivel de ahora dentro.
+     El número va en la tipografía de las cifras y con `tabular-nums` porque de
+     un nivel a otro cambia de ancho, y sin eso el 1 y el 2 no caen en el mismo
+     sitio dentro del círculo. El SVG se coloca por debajo con posición
+     absoluta para que el número quede centrado sobre él sin depender de la
+     altura de línea. */
+  .aro-nivel {
+    position: relative;
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+  }
+  .aro-nivel svg { position: absolute; inset: 0; }
+  .aro-nivel b {
+    position: relative;
+    font-family: var(--tipo-cifra);
+    font-variant-numeric: tabular-nums;
+    font-size: 21px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+  }
+  /* En una tarjeta del tablero el aro va más pequeño y el número con él. */
+  .w-cerrado .aro-nivel b { font-size: 16px; }
+
+  /* El cuerpo del cuadro de un módulo cerrado: el aro arriba, y debajo las
+     frases. `#modal-msg` respeta los saltos de línea del texto plano, pero
+     este cuadro va en modo HTML —lo pide el aro— y ahí eso se vuelve en
+     contra: la sangría de la plantilla se dibujaría como huecos de verdad. Por
+     eso cada trozo es un bloque con su propio margen y no hay ni un salto de
+     línea suelto. */
+  .cerr-aro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 14px;
+  }
+  .cerr-paso {
+    font-size: 11px; font-weight: 800; letter-spacing: 1.4px;
+    text-transform: uppercase; color: var(--mint);
+  }
+  .cerr-tx { display: block; }
+  .cerr-como { margin-top: 10px; color: var(--muted); font-size: 13px; }
+  /* Lo que espera dentro. En menta y con la gema porque no es una advertencia:
+     es lo único de este cuadro que da ganas de volver. */
+  .cerr-espera {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: var(--r-caja);
+    background: var(--mint-soft);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.4;
+    text-align: left;
+  }
+  .cerr-espera svg { flex: none; margin-top: 2px; color: var(--mint); }
+
+  /* ---------- La tarjeta de un módulo que aún no abre el nivel ----------
+     Se queda en el tablero en vez de desaparecer (0.7.96, decisión de Eduardo):
+     un tablero al que le faltan huecos no enseña que vienen cosas, enseña un
+     tablero pequeño. Va apagada pero LEGIBLE — el rótulo tiene que poder
+     leerse, que es lo único que dice qué es lo que viene—, y lo que dice que
+     está cerrada es el candado, no el gris. Es la misma regla que la barra. */
+  .widget.w-cerrado { opacity: 0.72; }
+  .wc {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    height: 100%;
+    padding: 14px 15px;
+    border-radius: var(--r-tarjeta);
+    background: var(--sup-tarjeta);
+    border: var(--borde-fino) dashed var(--line);
+    font-family: inherit;
+    text-align: left;
+    color: var(--text);
+    cursor: pointer;
+  }
+  /* El borde DISCONTINUO es lo que la separa de una tarjeta de verdad sin
+     tener que apagarla más: dice «aquí va a haber algo» en vez de «aquí hay
+     algo apagado», y se lee de un vistazo entre tarjetas macizas. */
+  .wc:hover { border-color: var(--mint); }
+  .wc-aro { flex: none; }
+  .wc-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .wc-tx b {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 14px; font-weight: 700; color: var(--text);
+  }
+  .wc-tx > span { font-size: 11.5px; font-weight: 700; color: var(--mint); letter-spacing: 0.4px; }
+  /* El icono del módulo, el mismo del botón de la barra: hay que darle aquí las
+     cuatro cosas que allá le ponía su propia regla. */
+  .wc-ic {
+    flex: none; width: 16px; height: 16px;
+    stroke: currentColor; fill: none; stroke-width: 1.9;
+    stroke-linecap: round; stroke-linejoin: round;
+    color: var(--muted);
+  }
+  .wc-llave { flex: none; color: var(--muted); display: grid; place-items: center; }
+  .wc-llave svg { stroke-width: 2.1; }
 
   /* ---------- El candado ----------
      UNA chapa para todo lo que está cerrado, y por eso vive aquí suelta y no
