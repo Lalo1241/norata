@@ -29,24 +29,43 @@ function renderSummary() {
   const projects = state.projects;
   const missions = state.missions;
 
+  /* Con el tablero vacío no hay tablero que acomodar. El botón de ordenar
+     widgets encima de la pantalla de bienvenida ofrecía un modo sin nada
+     dentro, justo cuando la única pregunta que importa es por cuál de los
+     tres caminos empezar. */
+  const vacio = skills.length === 0 && perks.length === 0 && projects.length === 0 && missions.length === 0;
+
   /* ---- El saludo y la fecha, en la cabecera del Resumen (0.7.57) ----
      Vivían dentro de la tarjeta de la racha, y eran la ÚNICA aparición de
      `greeting()` en toda la app: quien quitaba esa tarjeta del tablero —cosa
      que el Modo Editor permite— se quedaba sin saludo y sin fecha en el
      Resumen entero. La fecha no es un dato de la racha; es de hoy.
 
-     Se escribe ANTES del caso vacío a propósito: un perfil recién creado no
-     tiene tablero que pintar, pero sí tiene día, y esa pantalla es justo la
-     que más agradece que alguien la salude. */
-  const dateTxt = keyToDate(todayKey()).toLocaleDateString(localeActual(), { weekday: "long", day: "numeric", month: "long" });
-  const elSaludo = document.getElementById("resumen-saludo");
-  if (elSaludo) elSaludo.textContent = greeting() + " · " + dateTxt;
+     **Y NO sale hasta que la app tiene algo dentro** (0.7.93). Se escribía
+     antes del caso vacío justo al revés —«un perfil recién creado no tiene
+     tablero, pero sí tiene día»— y eso resultó ser lo contrario de lo que hace
+     falta ahí: la primera pantalla de alguien que acaba de entrar tiene UNA
+     pregunta que hacer —por cuál de los tres caminos empiezas— y encima de
+     ella salía «Buenas tardes · lunes, 6 de septiembre», que ni es la pregunta
+     ni ayuda a contestarla. Lo paró Eduardo.
 
-  /* Con el tablero vacío no hay tablero que acomodar. El botón de ordenar
-     widgets encima de la pantalla de bienvenida ofrecía un modo sin nada
-     dentro, justo cuando la única pregunta que importa es por cuál de los
-     tres caminos empezar. */
-  const vacio = skills.length === 0 && perks.length === 0 && projects.length === 0 && missions.length === 0;
+     Son DOS condiciones y no una, porque son dos maneras distintas de no haber
+     empezado: el tablero vacío (no hay nada que resumir) y la bienvenida sin
+     contestar (hay algo, pero la app todavía está recomendando por dónde ir).
+     Con solo la primera, quien creaba una habilidad suelta y se saltaba el
+     cuestionario ya se llevaba el saludo encima del cartel que se lo ofrece.
+
+     Se BORRA además de no escribirse: `renderSummary` corre otra vez al
+     borrarlo todo, y sin el `else` el saludo del tablero de antes se quedaba
+     puesto sobre la pantalla vacía. */
+  const elSaludo = document.getElementById("resumen-saludo");
+  if (elSaludo) {
+    if (vacio || bienvenidaPendiente()) elSaludo.textContent = "";
+    else {
+      const dateTxt = keyToDate(todayKey()).toLocaleDateString(localeActual(), { weekday: "long", day: "numeric", month: "long" });
+      elSaludo.textContent = greeting() + " · " + dateTxt;
+    }
+  }
   const btnTablero = document.getElementById("dash-btn");
   if (vacio && btnTablero) btnTablero.style.display = "none";
   if (vacio) {
@@ -58,7 +77,7 @@ function renderSummary() {
         <h2>${tx("Tu expedición empieza aquí")}</h2>
         <p>${tx("Convierte tu vida en un videojuego: misiones que haces hoy, habilidades que suben con la práctica, talentos que compras con dinero real y proyectos que avanzan por etapas.")}</p>
         <div class="stack" style="align-items:center">
-          <button class="btn btn-primary" onclick="startOnboarding()">${tx("Armar mi tablero en 3 preguntas")}</button>
+          <button class="btn btn-primary" onclick="startOnboarding()">${tx("Armar mi tablero en 6 preguntas")}</button>
           <button class="btn btn-ghost" onclick="verElEjemplo()">${tx("Ver un ejemplo completo")}</button>
           <!-- Tres botones del mismo peso en la pantalla más vacía es una
                decisión de más, y encima la tercera se salta lo único que aquí
@@ -399,7 +418,7 @@ function renderSummary() {
           ${insigniaExpedicionHTML(38) || `<span class="ic">${icon("compass", 22)}</span>`}
           <div class="exp-cifra">
             <div class="n">${info.nivel}</div>
-            <div class="t">${tx("de expedición")}${r ? " · " + escapeHtml(tx(r.nombre)) : ""}</div>
+            <div class="t">${tx("de expedición")}${r ? " · " + escapeHtml(nombreDeRango(r)) : ""}</div>
           </div>
         </div>
         <div class="sc-rows">
@@ -494,9 +513,15 @@ function renderSummary() {
   const { order, hidden } = dashLayout();
   /* Una tarjeta que resume un módulo apagado no tiene a dónde llevar, así
      que desaparece con él. No se toca la configuración del tablero: al
-     volver a encender el módulo, su tarjeta reaparece donde estaba. */
+     volver a encender el módulo, su tarjeta reaparece donde estaba.
+
+     `moduloUsable` y no `moduloOn` desde 0.7.93: vale igual para el que el
+     nivel todavía no abrió. Aquí la tarjeta desaparece sin candado, y es a
+     propósito — el candado va en el MENÚ, que es donde se entra a un módulo;
+     repetirlo en el tablero llenaría el Resumen de puertas cerradas el primer
+     día, que es justo lo que este cambio existe para quitar. */
   const visibles = order.filter(id =>
-    !hidden.includes(id) && (!DASH_MODULO[id] || moduloOn(DASH_MODULO[id])) && W[id] && W[id]());
+    !hidden.includes(id) && (!DASH_MODULO[id] || moduloUsable(DASH_MODULO[id])) && W[id] && W[id]());
   /* Dónde va cada una. En el teléfono no hay columnas que repartir: se apilan
      en el orden de lectura y la cuadrícula de una sola columna hace el resto. */
   const sitio = isDesktop() ? disposicionTablero(visibles, dashCols()) : {};
