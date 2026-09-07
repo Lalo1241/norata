@@ -1176,39 +1176,54 @@ function avisoModuloCerrado(id) {
   if (!m) return;
   const pide = MODULO_NIVEL[id] || 0;
   const f = faltaParaNivel(pide);
-  const titulo = f.titulo;
   const espera = loQueEsperaDentro(id);
-  /* El cuerpo pasa a ser HTML por el aro. Todo lo que viene de los datos
-     —el nombre de una rama, el de un proyecto— se escapa antes de entrar; lo
-     único que va en crudo es el SVG que dibujamos aquí.
+  /* El título dice lo que falta Y para qué, que es lo que pidió Eduardo: «te
+     faltan 3 niveles» a secas obliga a leer la frase de abajo para saber de qué
+     iban esos tres. */
+  const titulo = f.faltan === 1
+    ? tx("Te falta 1 nivel más para desbloquearlo")
+    : T`Te faltan ${f.faltan} niveles más para desbloquearlo`;
+
+  /* El cuerpo va en HTML por el aro y por el enlace. Todo lo que viene de los
+     datos —el nombre de una rama, el de un proyecto— se escapa antes de entrar;
+     lo único en crudo es lo que dibujamos aquí.
 
      Y todo en `<span>`, ninguno `<p>` ni `<ul>`: `#modal-msg` ES un `<p>`, y un
      `<p>` dentro de otro el navegador lo saca fuera al vuelo — el cuadro se
      desarma solo y no hay nada en el CSS que lo explique. Es la misma nota que
      lleva `topeAlcanzado` en js/10d-plan.js. */
   const cuerpo =
-    '<span class="cerr-aro">' + aroDeNivelHTML(pide, 72) +
-      '<span class="cerr-paso">' + escapeHtml(f.vas) + '</span></span>' +
-    /* Sin el «y vas en el N» que llevaba: el rótulo de debajo del aro ya lo
-       dice, y con los dos la misma cifra salía dos veces en cuatro renglones. */
+    /* El aro con el CANDADO dentro, no con el número: aquí no hay otro candado
+       en el cuadro, así que este es el que dice de qué va el aro. */
+    '<span class="cerr-aro">' + aroDeNivelHTML(pide, 76, "candado") + '</span>' +
     '<span class="cerr-tx">' +
-      escapeHtml(T`${tx(m.label)} se abre en el nivel ${pide} de expedición.`) +
+      T`El módulo de ${escapeHtml(tx(m.label))} se desbloquea en el nivel ${pide} de ` +
+      /* «Tu expedición» lleva al sitio donde se ve la barra, cuánto falta y qué
+         más abre el camino. Va DENTRO de la frase y no en un botón aparte —lo
+         pidió Eduardo— porque un cuadro con dos botones grandes obliga a elegir
+         entre dos salidas cuando solo hay una acción; y así el nombre de la
+         pantalla es el propio enlace, que es como se llega a ella.
+
+         Cierra el cuadro antes de navegar: sin `modalDone`, la ventana se
+         quedaría encima de la pantalla a la que acaba de llevar. */
+      '<button type="button" class="cerr-enlace" onclick="modalDone(false); abrirColeccion();">' +
+        escapeHtml(tx("tu expedición")) + '</button>.' +
     '</span>' +
     (espera ? '<span class="cerr-espera">' + icon("gem", 14) + escapeHtml(espera) + '</span>' : "") +
     '<span class="cerr-tx cerr-como">' +
-      escapeHtml(tx("El nivel sube solo con lo que ya haces: cumplir una misión, practicar una habilidad y volver mañana.")) +
+      escapeHtml(tx("El nivel sube solo con las actividades que realizas: cumple misiones, practica habilidades y vuelve mañana para adquirir experiencia de cada una de ellas.")) +
     '</span>';
-  /* Ni `danger` ni `alarm`, y es la misma decisión que la del cuadro de los
-     topes del plan: aquí no se rompió nada. Hay algo que todavía no llega, y
-     eso se cuenta en menta con el candado delante, no en coral y temblando.
 
-     Dos botones y no uno: el segundo lleva a Mi expedición, que es donde se ve
-     la barra, cuánto falta y qué más abre el camino. Un aviso que dice «te
-     faltan dos niveles» y no enseña dónde mirarlos es media respuesta. */
-  return askBase(cuerpo, true, tx("Ver Mi expedición"), false, false, tx("Entendido"),
-                 { icono: "lock", tono: "menta", titulo: titulo }).then(ok => {
-    if (ok && typeof abrirColeccion === "function") abrirColeccion();
-  });
+  /* En LUCIÉRNAGA y no en menta, y sin icono arriba. Lo cambió Eduardo: el
+     candado ya vive dentro del aro, así que uno segundo en la cabecera sería el
+     mismo dibujo dos veces; y el tono es el de «esto tiene un coste que quizá
+     no ves» —el mismo del cuadro de reportar un fallo—, no el de algo que se
+     gana. Ni `danger` ni `alarm`: aquí no se rompió nada, hay algo que todavía
+     no llega.
+
+     Un solo botón: la otra salida es ahora el enlace de la frase. */
+  return askBase(cuerpo, true, tx("Entendido"), false, false, null,
+                 { tono: "oro", titulo: titulo, soloOk: true });
 }
 
 /* La puerta de los cinco botones del menú. Existe para que el candado HAGA algo

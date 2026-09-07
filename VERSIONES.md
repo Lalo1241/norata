@@ -100,6 +100,54 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.97.3 · 7 sep 2026
+
+**El cuadro de un módulo cerrado, rehecho entero: el candado se mete dentro del
+aro, el título dice para qué faltan esos niveles, y «tu expedición» es el enlace
+que lleva allí.** Punto por punto, de Eduardo.
+
+Y antes que nada, el malentendido que lo motivó: **el aro y el nivel nunca iban
+en el botón del menú.** Allí se queda solo el candado, como estaba. Todo esto es
+del cuadro que se despliega al tocarlo.
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| Arriba | Un candado en su disco | Nada: el candado bajó al aro |
+| El aro | El número del nivel dentro | **El candado** dentro |
+| Título | «Te faltan 3 niveles» | **«Te faltan 3 niveles más para desbloquearlo»** |
+| Debajo del aro | «Vas en el nivel 0» | Se va |
+| La frase | «Talentos se abre en el nivel 3 de expedición.» | «El módulo de Talentos se desbloquea en el nivel 3 de **tu expedición**», y eso último lleva allí de un clic |
+| Cómo sube | «…cumplir una misión, practicar una habilidad y volver mañana» | «…cumple misiones, practica habilidades y vuelve mañana para adquirir experiencia de cada una de ellas» |
+| Botones | «Entendido» y «Ver Mi expedición» | Solo **«Entendido»** |
+| El marco | Menta | **Luciérnaga**, como el de reportar un fallo |
+
+Cuatro cosas que van juntas y no son gratuitas:
+
+- **El candado dentro del aro, y no un segundo candado arriba.** El mismo dibujo
+  dos veces en la misma tarjeta no dice más, dice menos. Como el aro se usa
+  también en la tarjeta del tablero —donde el candado ya está a la derecha y
+  dentro va el número—, `aroDeNivelHTML` acepta ahora qué poner en el centro.
+- **El enlace va DENTRO de la frase y no en un botón aparte.** Un cuadro con dos
+  botones grandes obliga a elegir entre dos salidas cuando solo hay una acción;
+  y así el nombre de la pantalla es el propio enlace, que es como se llega a
+  ella. Cierra el cuadro antes de navegar: sin eso, la ventana se quedaría
+  encima de la pantalla a la que acaba de llevar.
+- **El tono es luciérnaga y no menta.** Es el de «esto tiene un coste que quizá
+  no ves», el mismo del cuadro de reportar un fallo; menta es lo que se gana, y
+  aquí lo que hay es algo que todavía no llega. El botón se queda en menta
+  maciza porque ya hay precedente exacto: el cuadro dorado de «Gracias por
+  avisarme» cierra igual.
+- **Y `vas` desaparece del ayudante**, no solo de la pantalla. Donde va el aro,
+  el aro ya dice dónde estás; un rótulo repitiéndolo era la línea que sobraba.
+
+Medido en cuatro combinaciones —teléfono en los dos modos, escritorio y una
+pantalla de 480 px de alto—: el marco y el título en luciérnaga (`#f5d76e` de
+noche, `#755c05` de día, que es la versión de escribir), sin icono arriba,
+candado dentro del aro y ningún número, el enlace en menta (`#5fe0b0` y
+`#007046`), un solo botón, el cuadro entero dentro de la pantalla incluso a 480
+px, y al pulsar «tu expedición» el cuadro se cierra y la app queda en Mi
+expedición. Cero frases sin traducir.
+
 ### 0.7.97.2 · 7 sep 2026
 
 **Sí hay pantallas esqueleto, y aparecen solo cuando de verdad tarda.**
