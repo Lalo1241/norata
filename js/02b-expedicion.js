@@ -241,8 +241,11 @@ const EXP_ESCALERA = [
      Van en la escalera porque son lo que más se parece a un premio de todo lo
      que hay en ella: una pantalla entera de la app que se enciende. Y porque
      un candado sin fecha desespera y uno con el nivel escrito al lado tira. */
-  { nivel: 0,  tipo: "modulo", id: "tree",     nombre: "El árbol de talentos", corto: "Talentos",  icon: "star", listo: true },
-  { nivel: 0,  tipo: "modulo", id: "projects", nombre: "Proyectos y encargos", corto: "Proyectos", icon: "flag", listo: true },
+  /* Sin `icon`, y es la corrección de 0.7.94.1: decían `star` y `flag`, que no
+     son los dibujos de esos módulos en ninguna parte de la app. El de verdad lo
+     saca `trazoDeModulo()` del propio botón de la barra — un dibujo, un sitio. */
+  { nivel: 0,  tipo: "modulo", id: "tree",     nombre: "El árbol de talentos", corto: "Talentos",  listo: true },
+  { nivel: 0,  tipo: "modulo", id: "projects", nombre: "Proyectos y encargos", corto: "Proyectos", listo: true },
   { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión", corto: "Destello propio", listo: true },
   { nivel: 6,  tipo: "rango",       nombre: "Rango Andante", listo: true },
   { nivel: 9,  tipo: "celebracion", nombre: "Racha avivada", corto: "Racha avivada", listo: true },
@@ -1389,8 +1392,17 @@ function renderColeccion() {
                  onclick="${typeof abrirAjustes === "function" ? "abrirAjustes('plan')" : ""}"
                  aria-label="${escapeAttr(T`${tx(x.nombre)} · ver los planes`)}">`
             : `<div class="col-peldano ${tuyo ? "tuyo" : ""}" style="--c:var(${col})">`;
+          /* El mismo dibujo que la celebración y que el botón de la barra, y por
+             el mismo motivo: sale del DOM (`trazoDeModulo`) en vez de nombrar
+             un icono aquí. Con `icon: "star"` escrito en la escalera, esta
+             lista prometía una estrella y el menú enseñaba un árbol. */
+          const trazoMod = (x.tipo === "modulo" && typeof trazoDeModulo === "function")
+            ? trazoDeModulo(x.id) : "";
+          const dibujo = trazoMod
+            ? '<svg class="cpx-mod" viewBox="0 0 24 24" aria-hidden="true">' + trazoMod + '</svg>'
+            : icon(x.icon || (x.tipo === "ambiente" ? "brush" : "star"), 17);
           return eti + `
-            <span class="cpx-disco">${icon(x.icon || (x.tipo === "ambiente" ? "brush" : "star"), 17)}</span>
+            <span class="cpx-disco">${dibujo}</span>
             <!-- Los cuatro rótulos de aquí abajo NUNCA pedían traducción, así que
                  el auditor del navegador no podía verlos: solo cuenta lo que pasa
                  por tx(). Con la app en inglés esta tira decía «Rango Cartógrafo»,

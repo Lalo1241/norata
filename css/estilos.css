@@ -2200,6 +2200,50 @@
      que anticipar de qué color va a quedar la app. */
   .ncel-premio.es-amb { --premio: var(--sw-ac, var(--mint)); }
   .ncel-premio.es-cel { --premio: var(--fire); }
+  /* Un módulo es la app misma, no un adorno de la app, y la menta es el único
+     tono de la casa que significa eso. Se escribe aunque coincida con el valor
+     de respaldo de `var(--premio, var(--mint))`: las otras dos lo declaran, y
+     una de tres que se lo calla obliga a ir a buscar por qué. */
+  .ncel-premio.es-mod { --premio: var(--mint); }
+
+  /* El dibujo del módulo, grande y centrado. Es el MISMO svg del botón de la
+     barra —lo lee `trazoDeModulo` del DOM— así que aquí solo se le dan las tres
+     cosas que allí ponía su propia regla: el trazo, el relleno y el grosor.
+
+     El grosor baja de 1,9 a 1,6 y no es una inconsistencia con la barra: allí
+     el dibujo mide 19 px y aquí unos 65, así que con el mismo número el trazo
+     se vería tres veces más gordo de lo que se ve abajo. Lo que se conserva es
+     el PESO a la vista, que es lo que hace que se reconozca; 1,6 sobre 24
+     unidades deja el mismo grosor efectivo que la insignia del rango, que es
+     el otro dibujo grande de esta escena.
+
+     La medida va en porcentaje del hueco y no en píxeles: la caja mide 104 con
+     tres tarjetas en un teléfono y 150 con una sola, y un tamaño fijo dejaba el
+     icono ahogado en la primera y perdido en la segunda. */
+  /* El selector lleva el `.ncel-vista svg` delante a propósito: la regla
+     genérica de más abajo estira CUALQUIER svg de esta caja al 100%, y con un
+     nombre de clase suelto —menos específico y además escrito antes— ganaba
+     ella y el dibujo salía a toda la caja. Medido: 220×104 en vez de los 65
+     que se buscaban. */
+  .ncel-vista svg.ncel-mod {
+    width: 62%; height: 62%;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  /* Y el hueco de alrededor con un lavado del mismo tono, igual que la tarjeta
+     de un ambiente pinta el suyo con su suelo. Sin esto la caja se leía vacía
+     al lado de sus vecinas —que la llenan enteras con su escena— y la tarjeta
+     parecía a medio cargar. Lo cazó una foto puesta al lado de las otras dos. */
+  .ncel-premio.es-mod .ncel-vista {
+    background:
+      radial-gradient(circle at 50% 46%,
+        color-mix(in srgb, var(--mint) 13%, transparent),
+        transparent 68%),
+      rgba(var(--escena-fondo), 0.62);
+  }
   .ncel.show .ncel-premio {
     animation: ncelBotin .52s cubic-bezier(.34, 1.4, .64, 1) calc(.62s + var(--i, 0) * .11s) backwards;
   }
@@ -2681,6 +2725,15 @@
   .cpx-disco {
     display: grid; place-items: center; width: 30px; height: 30px;
     border-radius: var(--r-redondo); color: var(--faint); background: var(--carril);
+  }
+  /* El dibujo de un módulo dentro del disco de la escalera. Es el svg del botón
+     de la barra tal cual —lo lee `trazoDeModulo`—, así que hay que darle aquí
+     las cuatro cosas que allá le ponía su regla. A 17 px el grosor sí es el
+     mismo que en la barra: los dos son iconos pequeños. */
+  .cpx-mod {
+    width: 17px; height: 17px;
+    stroke: currentColor; fill: none; stroke-width: 1.9;
+    stroke-linecap: round; stroke-linejoin: round;
   }
   .col-peldano.tuyo .cpx-disco,
   .col-peldano.cerrado .cpx-disco {
