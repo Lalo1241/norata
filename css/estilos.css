@@ -3016,7 +3016,19 @@
     display: inline-grid;
     place-items: center;
   }
-  .aro-nivel svg { position: absolute; inset: 0; }
+  /* Solo el aro va absoluto. El candado de dentro es un `svg` también, así que
+     sin este `:scope >` se le aplicaba la misma regla y se estiraba a toda la
+     caja en vez de quedarse en el centro. */
+  .aro-nivel > svg { position: absolute; inset: 0; }
+  /* El candado dentro del aro, cuando el aro va en un cuadro donde no hay otro.
+     En `--muted` y no en menta: lo que se gana es el ARO, y el candado es lo
+     que todavía no está. Dos cosas distintas dentro del mismo dibujo. */
+  .aro-llave {
+    position: relative;
+    display: grid; place-items: center;
+    color: var(--muted);
+  }
+  .aro-llave svg { stroke: currentColor; fill: none; stroke-width: 1.9; }
   .aro-nivel b {
     position: relative;
     font-family: var(--tipo-cifra);
@@ -3042,10 +3054,23 @@
     gap: 7px;
     margin-bottom: 14px;
   }
-  .cerr-paso {
-    font-size: 11px; font-weight: 800; letter-spacing: 1.4px;
-    text-transform: uppercase; color: var(--mint);
+  /* «Tu expedición», dentro de la frase y llevando a la pantalla que se llama
+     así. Es un `button` porque se pulsa —un `span` con onclick no entra con el
+     tabulador ni contesta al Enter— y aquí se le quitan las cuatro cosas que un
+     botón trae de fábrica para que se lea como lo que es: una palabra subrayada
+     dentro de un renglón, no un botón pequeño. */
+  .cerr-enlace {
+    font: inherit;
+    font-weight: 800;
+    color: var(--mint);
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
+  .cerr-enlace:hover { color: var(--mint-deep); }
   .cerr-tx { display: block; }
   .cerr-como { margin-top: 10px; color: var(--muted); font-size: 13px; }
   /* Lo que espera dentro. En menta y con la gema porque no es una advertencia:
