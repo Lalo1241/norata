@@ -100,6 +100,65 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.95 · 7 sep 2026
+
+**Una rama plegada dice en qué va, y se pliegan todas de una vez.** Es trabajo
+que estaba hecho desde el 28 de agosto en la sucursal `mapa` y llevaba diez días
+sin publicar.
+
+**Lo que decía una rama plegada era su TAMAÑO.** Doce puntitos de colores y «14
+talentos» — o sea, justo lo único que no cambia nunca. La plegaste porque ya
+sabes lo que hay dentro; lo que quieres saber de un vistazo es lo otro. Ahora
+lleva la barra de cuánto llevas, y debajo **qué hay en curso, qué está por abrir
+y qué sigue trabado**, y remata con **«Sigue: …»**, el próximo por el que ir. En
+inglés: *2 in progress · 1 ready to start · 3 still locked · Next: …*
+
+**Y se pliegan todas de golpe.** Dos botones en el rótulo de «Tus ramas de
+talentos», y solo aparecen con **más de una rama** —con una sola, «plegarlas
+todas» no es una acción, es el mismo botón que ya tiene su cabecera—. Cada uno
+se apaga cuando no haría nada, que es lo que evita el «le doy y no pasa nada».
+
+**Del mando del zoom**, dos cosas de escritorio: la rueda con Alt va por
+escalones fijos en vez de por los píxeles que manda el ratón —un ratón manda
+saltos de 100 y un trackpad de 3, así que el número crudo hacía que el mismo
+gesto acercara muchísimo en uno y nada en el otro— y hay una guarda para que
+**Alt no abra el menú del navegador**, que en los que lo esconden se comía el
+gesto. Y el botón de ajustar cambia de icono: ahora es el de **encuadrar** y no
+el de expandir, porque expandir ya significa «ver a pantalla completa» dos
+botones más allá, en la tira de herramientas. Dos flechas distintas para dos
+cosas distintas.
+
+---
+
+**Lo que costó traerlo, que es la parte reutilizable.** La rama es de **antes de
+la 0.7.84**, cuando la app pasó a hablar inglés, así que todo su texto venía
+escrito a mano. En los tres choques ganó la FUNCIÓN de `mapa` con el IDIOMA de
+`main`, y salieron diez claves nuevas.
+
+**Tres de ellas estaban mal y no se veía.** `T` arma la clave de búsqueda
+poniendo `{0}` donde va el hueco —`"{0} en curso"`, no `"en curso"`—, así que
+mis claves sin hueco no encontraban nada y «2 en curso» salía en español con la
+app en inglés. Se caza con la auditoría que ya trae `js/00-idioma.js`: con
+`sessionStorage["norata-i18n-audita"] = "1"` se apunta todo lo que pidió
+traducción y no la encontró. Después de arreglarlo no reporta ninguna.
+
+**Y una limpieza de una torpeza mía.** `LEEME-ESTA-CARPETA.md` sale del
+repositorio al `.gitignore`. La nota de cada sucursal es SUYA —dice qué rama es,
+qué puerto usa y de qué se ocupa— y en `main` no significa nada; viajando en git,
+dos sucursales se pisan la nota la una a la otra, que es exactamente como dio un
+choque `add/add` al traer `mapa`. La había publicado yo por error en la 0.7.92.
+
+---
+
+**Lo que NO se publicó, y conviene que quede escrito.** La sucursal `ambientes`
+también llevaba diez días con trabajo sin publicar —404 líneas de CSS para ocho
+ambientes, del 30 de agosto—. **Está superada:** `main` construyó después los
+mismos ocho de otra manera, generados desde `apariencias/construir.py` a
+`css/ambientes.css` y enganchados por `[data-apariencia]`, con su registro en
+`js/10i-apariencia.js`. La rama usaba clases `html.amb-*` y un segundo lector de
+`?apariencia` que habría peleado con el de verdad. Publicarla habría roto lo que
+hoy funciona. Esa carpeta se puede retirar.
+
 ### 0.7.94.2 · 7 sep 2026
 
 **Los dos módulos que abre el nivel ya se anuncian con SU dibujo, y no con una
