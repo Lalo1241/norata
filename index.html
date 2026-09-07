@@ -948,6 +948,25 @@
             <div id="moneda-cambio"></div>
           </div>
 
+          <!-- Las dos respuestas de la bienvenida que hasta 0.7.96 se guardaban
+               y no las leia ninguna pantalla: se contestaban una vez y no
+               habia donde cambiarlas, cuando sus vecinas -genero, idioma,
+               moneda, exigencia- si la tenian. Van aqui, en Mi perfil, porque
+               son cosas TUYAS, y en este orden porque asi se preguntan en la
+               bienvenida. Las dibuja `renderTiempo` y `renderFlaqueza`
+               (js/09-inicio.js). -->
+          <div class="panel">
+            <h3>Cuanto tiempo tienes al dia</h3>
+            <p class="settings-note">Lo que contestaste al armar tu tablero. Decide cuantas habilidades trae un area nueva, si su mision es diaria o de tres dias, y cuanto tiempo se le da a cada meta. Cambiarlo no toca nada de lo que ya tienes: manda sobre lo que se cree a partir de ahora.</p>
+            <div id="tiempo-opciones"></div>
+          </div>
+
+          <div class="panel">
+            <h3>Donde se te suele caer</h3>
+            <p class="settings-note">Con esto decido que NO ponerte: menos plazos si te cuesta arrancar, menos metas largas si te cuesta sostener, y ramas mas cortas si lo que te cuesta es cerrar.</p>
+            <div id="flaqueza-opciones"></div>
+          </div>
+
           <div class="panel">
             <h3>Qué tan exigente lo quieres</h3>
             <p class="settings-note">Cuánto aguanta una habilidad sin que la practiques antes de empezar a bajar, y a qué ritmo baja. Es lo que eliges al armar tu tablero, y aquí se cambia cuando quieras.</p>

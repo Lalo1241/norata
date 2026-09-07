@@ -47,7 +47,27 @@ function volverDeInforme() {
   showView(informeVengoDe || "summary");
 }
 
+/* De qué MÓDULO habla cada rama del informe. Existe para el candado del nivel:
+   sin esta tabla habría que adivinarlo del `id`, y «habilidades» no se llama
+   igual que su módulo, que es `home`. */
+const INFORME_MODULO = { misiones: "missions", habilidades: "home", talentos: "tree", proyectos: "projects" };
+
+/* ¿Está cerrada por NIVEL? Es distinto de estar cerrada por plan, y las dos
+   puertas se preguntan en este orden —primero el nivel, que se gana; después
+   el plan, que se paga— por lo mismo que en el resto de la app. */
+function informeRamaCerrada(id) {
+  const mod = INFORME_MODULO[id];
+  return !!mod && typeof moduloAbierto === "function" && !moduloAbierto(mod);
+}
+
 function informeVerRama(rama) {
+  /* El nivel primero: a quien todavía no tiene el módulo no se le ofrece pagar
+     por un informe de algo que no puede abrir. Sería cobrarle por saltarse la
+     escalera, que es lo único que la rompería. */
+  if (informeRamaCerrada(rama)) {
+    if (typeof avisoModuloCerrado === "function") avisoModuloCerrado(INFORME_MODULO[rama]);
+    return;
+  }
   /* Sin plan solo abre la portada. Se avisa igual que en cualquier otro tope
      de la app: se dice qué hay detrás, no se ignora el toque. */
   if (rama !== "todo" && !planIncluyeResumen("semana")) { topeAlcanzado("resumen"); return; }
@@ -413,11 +433,21 @@ function renderInforme() {
               Se apagan igual que los periodos cerrados —se ven, dicen por qué
               al tocarlas— en vez de fingir que funcionan. */
           INFORME_RAMAS.map(x => {
-            const abierta = conPlan || x.id === "todo";
+            /* Dos motivos distintos para llevar candado, y el de NIVEL manda:
+               una rama cuyo módulo aún no se abre no se vende, se espera. Sin
+               esta línea, el informe ofrecía «Talentos» y «Proyectos» en el
+               nivel 2 —con los dos módulos cerrados— y tocarlas sacaba el
+               cuadro de Pro, prometiendo por dinero algo que el dinero no
+               abre. */
+            const porNivel = informeRamaCerrada(x.id);
+            const abierta = !porNivel && (conPlan || x.id === "todo");
+            const razon = porNivel
+              ? T`${tx(x.nombre)} · se abre en el nivel ${MODULO_NIVEL[INFORME_MODULO[x.id]]}`
+              : T`${tx(x.nombre)} · viene con ${NOMBRE_PRO}`;
             return `
           <button role="tab" class="${x.id === informeRamaActual ? "on" : ""}${abierta ? "" : " bajo-llave"}"
             aria-selected="${x.id === informeRamaActual}" onclick="informeVerRama('${x.id}')"
-            ${abierta ? "" : `aria-label="${escapeAttr(T`${tx(x.nombre)} · viene con ${NOMBRE_PRO}`)}"`}
+            ${abierta ? "" : `aria-label="${escapeAttr(razon)}"`}
             >${escapeHtml(tx(x.nombre))}${abierta ? "" : icon("lock", 11)}</button>`;
           }).join("")}
       </div>
