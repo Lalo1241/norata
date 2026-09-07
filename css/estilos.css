@@ -8278,6 +8278,44 @@
      congelado en el inicial. */
   html.compacto #rotulo-compacto a:hover { background: rgba(16, 21, 29, 0.24); }
 
+  /* ================= La pantalla esqueleto =================
+     El hueco que ocupa el sitio mientras llega el contenido, y SOLO cuando de
+     verdad tarda — quién lo decide está en `showView` (`esqHaceFalta`), no
+     aquí. En un teléfono rápido esto no se dibuja nunca.
+
+     El tono sale de `--sup-tarjeta2`, que es la misma superficie levantada que
+     usan las tarjetas: el esqueleto tiene que parecer el mueble sin la lámpara
+     encendida, no un agujero. Y cada forma se parece a lo que va a llegar en
+     esa pantalla, que es lo que evita el brinco al aparecer el contenido.
+
+     El latido va sobre `opacity` y NO sobre el color. Un color que sale de una
+     variable se queda congelado en el inicial —la trampa que ya mordió cuatro
+     veces en este proyecto, ver CLAUDE.md— y además un latido de color sobre
+     ocho ambientes distintos habría que declararlo ocho veces. */
+  .esq { display: grid; gap: 12px; }
+  .esq i {
+    display: block;
+    background: var(--sup-tarjeta2);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-caja);
+    animation: esqLatido 1.4s ease-in-out infinite;
+  }
+  .esq i.alto  { height: 190px; }
+  .esq i.medio { height: 120px; }
+  .esq i.bajo  { height: 56px; }
+  .esq i.fila  { height: 62px; }
+  /* Escalonado, para que no lata todo a la vez como un solo bloque */
+  .esq i:nth-child(2) { animation-delay: 0.12s; }
+  .esq i:nth-child(3) { animation-delay: 0.24s; }
+  .esq i:nth-child(4) { animation-delay: 0.36s; }
+  .esq i:nth-child(5) { animation-delay: 0.48s; }
+  @keyframes esqLatido { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.9; } }
+  /* Quien pidió menos movimiento ve el hueco quieto, que sigue diciendo lo
+     mismo: aquí va a llegar algo. */
+  @media (prefers-reduced-motion: reduce) {
+    .esq i { animation: none; opacity: 0.7; }
+  }
+
   /* ---------- Rótulo de una prueba con enlace (0.7.20) ----------
      Recuerda que ESTA pestaña está viendo algo que todavía no es la app. Sin
      él es facilísimo olvidarlo y acabar juzgando la app de verdad por lo que

@@ -100,6 +100,83 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.96.1 · 7 sep 2026
+
+**Sí hay pantallas esqueleto, y aparecen solo cuando de verdad tarda.**
+
+En la 0.7.96 quedó escrito que se descartaban porque ya no había espera que
+tapar. Eduardo lo corrigió, y su encuadre era mejor que el mío:
+
+> «En poca red o en dispositivos de gama más baja sí puede llegar a
+> necesitarse, tal vez ahorita no te lo parezca, pero me da pendiente para esos
+> casos. No quiero pantallas de carga forzadas, en eso sí te apoyo, pero para
+> los casos más extraordinarios no vendría mal tener un feedback de esqueleto
+> como apoyo a "sí, sí está cargando" y no que se interprete como "esta app no
+> funciona".»
+
+Yo había medido en una computadora y en un teléfono bueno, y de ahí concluí que
+no hacía falta. Lo que no medí —ni podía— es el teléfono de gama baja con mala
+red de otra persona. La respuesta correcta no era ponerlo ni quitarlo: era
+**condicionarlo**.
+
+---
+
+**La app se cronometra a sí misma.** Cada vez que pinta una pantalla apunta lo
+que le costó, y la próxima vez que se entre ahí decide con ese número: si la
+última vez pasó de **180 ms**, esta vez enseña el esqueleto y aplaza el pintado
+un fotograma para que se llegue a ver. No hay lista de dispositivos lentos ni
+olfato; hay una medición del aparato que lo está corriendo. En un teléfono
+rápido esa rama no se ejecuta nunca, y está comprobado: sin parámetro, en esta
+máquina, los costes medidos son de 18 a 57 ms y el esqueleto no aparece jamás.
+
+Y **se recalibra sola**: el coste se vuelve a apuntar en cada pintado, así que
+una pantalla que dejó de ser lenta deja de enseñarlo.
+
+180 ms porque por debajo de eso el esqueleto sería un parpadeo, y un parpadeo se
+lee peor que no poner nada.
+
+**Solo las cinco pantallas de lista** —Resumen, Misiones, Habilidades, Talentos
+y Proyectos—. Son a las que se llega navegando, y las únicas donde aplazar el
+pintado un fotograma no se lo pisa a nadie: cuando se aplaza, todo lo demás de
+`showView` ya pasó —la vista activa, el botón encendido, el ancho, el ＋ y el
+rótulo de la pestaña—, así que lo único que llega tarde es el contenido, que es
+justo lo que el esqueleto está ocupando. Las fichas y los formularios quedan
+fuera a propósito: a esos se llega desde código que a veces pinta antes y
+muestra después (`renderDetail(); showView("detail")`).
+
+**Cada pantalla tiene su forma** —cuatro bloques en Resumen, cinco filas en
+Habilidades, dos lienzos altos en Talentos—, y eso es lo que separa un esqueleto
+de una mancha gris: si el hueco no se parece a lo que va a llegar, el salto al
+aparecer el contenido es peor que no haber puesto nada.
+
+---
+
+**El fallo que encontró la propia prueba, y que no era del entorno.** La primera
+versión aplazaba el pintado con dos vueltas de `requestAnimationFrame`. El
+esqueleto salía y **el contenido no llegaba nunca**. Aquí se descubrió porque el
+panel donde se prueba esto no compone fotogramas —la trampa de siempre, ver
+CLAUDE.md— pero el fallo es real y muerde en producción: **en una pestaña de
+fondo el navegador para `requestAnimationFrame` en seco**, así que si alguien
+toca un módulo y se cambia de app en el mismo gesto, la pantalla se quedaría con
+el esqueleto puesto para siempre.
+
+Ahora hay dos caminos al mismo sitio y una bandera que garantiza que se pinte
+una sola vez, gane quien gane: los dos `requestAnimationFrame` y un
+`setTimeout` de 120 ms de red. En condiciones normales gana el primero.
+
+**Y otro de mi propia prueba:** `esqForzado()` releía la dirección en cada
+llamada, así que con `?esqueleto=0` escrito arriba el parámetro se volvía
+imborrable y tapaba la decisión automática. Ahora se resuelve una vez y se
+recuerda, como el resto de las pruebas con enlace.
+
+---
+
+**Para verlo sin tener un teléfono lento a mano:** `?esqueleto=1` lo fuerza
+siempre y `?esqueleto=0` lo apaga del todo. Sin parámetro manda la medición, que
+es como funciona de verdad. Este no es una prueba con enlace de las que se
+borran: el mecanismo se queda, y los dos parámetros son la única forma de
+mirarlo desde un aparato que no lo dispara.
+
 ### 0.7.96 · 7 sep 2026
 
 **Entrar al Resumen pasa de 685 ms a 20.** Y las demás pantallas con él.
