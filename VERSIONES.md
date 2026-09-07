@@ -100,6 +100,39 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.97.4 · 7 sep 2026
+
+**El esqueleto deja de inventarse la forma y la copia de lo que va a llegar.**
+
+Eduardo lo probó y lo cazó a la primera: «me salieron 3 rectángulos en lista muy
+pequeños en Resumen y siento que no se ve bien». Tenía razón por un factor de
+tres —las tarjetas del Resumen miden 504, 395, 130 y 203 px, y yo había puesto
+bloques fijos de 56 a 190— pero el problema de fondo era peor que las cifras:
+**inventar la forma la condena a envejecer.** El día que se añada una tarjeta o
+que alguien acomode su tablero, el hueco deja de parecerse a lo que llega.
+
+**Ahora la app se mira a sí misma.** Después de cada pintado apunta las alturas
+reales de las tarjetas de esa pantalla, y el esqueleto las repite. Medido
+después, el esqueleto del Resumen sale `504, 395, 130, 171, 203` contra un
+contenido de `504, 395, 130, 171, 203` — el mismo hueco, tarjeta por tarjeta. Y
+lo mismo en las otras cuatro. Se parece por construcción y sigue pareciéndose
+cuando la pantalla cambie, sin que nadie tenga que volver aquí.
+
+Como el esqueleto solo sale cuando esa pantalla YA se pintó lenta una vez, la
+medida siempre existe cuando hace falta; la lista de alturas escrita a mano es
+solo para la primera vez de todas.
+
+Se recorta a seis bloques y a metro y medio de pantalla: dibujar tres mil
+píxeles de hueco no ayuda a nadie.
+
+**Y el fallo que explica lo que él vio.** Los bloques iban dentro de un `<div
+class="esq">`, y `#summary-content` **es la rejilla del tablero** (`.dash`). Ese
+envoltorio caía como UNA celda de la rejilla, así que el esqueleto entero del
+Resumen era una sola tarjeta con tres rayitas apiladas dentro — literalmente
+«3 rectángulos en lista muy pequeños». Ahora los bloques van como hijos directos
+del contenedor, sin envoltorio, y así adoptan la disposición que ese contenedor
+ya tenga: en el Resumen caen como caen las tarjetas, y en las demás se apilan.
+
 ### 0.7.97.3 · 7 sep 2026
 
 **El cuadro de un módulo cerrado, rehecho entero: el candado se mete dentro del
