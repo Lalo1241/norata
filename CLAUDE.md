@@ -49,19 +49,32 @@ la máquina que toque. Ya se coló tres veces desde una sesión que commiteaba e
 UTC, y con eso la lista deja de leerse en orden. Solo muerde entre las 00:00 y
 las 06:00 UTC. México es UTC-6 todo el año, sin horario de verano desde 2022.
 
-El reloj de esta máquina ya está en México, así que **`date` a secas es lo
-fiable** — y se confirma mirando que el desfase diga `-0600`:
+**Y el comando para saber qué hora es depende de DÓNDE estés corriendo**, que
+es lo que casi convierte esta regla en su propio fallo. Hay dos entornos y cada
+uno rompe con el comando que al otro le funciona:
+
+| Dónde | Qué usar | Por qué |
+| --- | --- | --- |
+| El Git Bash de Eduardo (Windows) | `date` a secas | Su reloj ya está en México, y este Bash **no trae la base de husos**: ignora `TZ` en silencio y contesta en UTC |
+| Una sesión en la nube (Linux) | `TZ=America/Mexico_City date` | Ahí el reloj de la máquina **es UTC**, así que `date` a secas es justo lo que la regla prohíbe |
+
+**Antes de fechar nada, se pregunta cuál de los dos es** — cuesta un comando y
+no hay que acordarse de nada:
 
 ```bash
-date "+%-d %b %Y | %H:%M %z"
+TZ=Asia/Tokyo date "+%z"     # +0900 → TZ funciona; +0000 → TZ se ignora
 ```
 
-**Lo que NO sirve aquí es `TZ=America/Mexico_City date`**, aunque sea lo obvio y
-aunque `VERSIONES.md` lo recomendara hasta la 0.7.91.1: este Git Bash no trae la
-base de husos, **ignora `TZ` en silencio y contesta en UTC**. Pedirle México,
-UTC y Tokio da las tres veces la misma hora, y de 18:00 a medianoche eso fecha
-el día siguiente — justo el fallo que la regla existe para evitar. Se comprueba
-con `TZ=Asia/Tokyo date "+%z"`: si contesta `+0000`, `TZ` no funciona.
+Si contesta `+0900`, la hora buena es `TZ=America/Mexico_City date "+%-d %b %Y
+| %H:%M %z"`. Si contesta `+0000`, es `date "+%-d %b %Y | %H:%M %z"`. En los dos
+casos se confirma igual: **el desfase tiene que decir `-0600`**, y si dice otra
+cosa, la fecha que ibas a escribir está mal.
+
+Las dos mitades de esta tabla las descubrió cada una su sesión, y por separado
+cada una escribió aquí que la suya era «la buena». La primera versión decía que
+`TZ` no sirve y punto; una sesión en la nube que la hubiera seguido al pie de la
+letra habría fechado en UTC —o sea, el día siguiente entre las 18:00 y la
+medianoche—, que es exactamente el fallo del que avisa el párrafo de arriba.
 
 ## Cómo verificar
 
