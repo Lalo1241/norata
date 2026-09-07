@@ -8031,6 +8031,163 @@
       transform: translateY(-50%);
       flex-direction: column;
     }
+
+    /* ---- 5. Y el resto de la app, que es donde estaba lo peor ----
+       Las cinco listas eran la mitad del trabajo. La otra mitad son las
+       pantallas de DENTRO —una ficha, un formulario, la colección, el
+       catálogo— y ahí el recorrido era peor que en ninguna lista. Medido
+       tumbado, antes de esto:
+
+         · la colección ................. 5,9 pantallas
+         · el catálogo .................. 5,8
+         · el formulario de un talento .. 5,8
+         · la ficha de un proyecto ...... 4,8
+         · el formulario de una misión .. 4,2
+
+       Todas tienen la misma forma: una PILA de paneles de 716 px de ancho, uno
+       debajo de otro, y a veces un bloque ilustrado grande arriba del todo.
+
+       ---- Y por qué se EMPAQUETAN en vez de emparejarse ----
+       La primera versión de esto los ponía de dos en dos con una rejilla, que
+       es lo que ya hacen las listas. **Medido, no funcionó**, y las dos razones
+       vale la pena dejarlas escritas porque las dos son contrarias a la
+       intuición:
+
+       1. **Un panel estrechado no mide lo mismo, mide MÁS.** Los cuatro del
+          formulario de un talento miden 751, 366, 208 y 503 a 716 px de ancho;
+          a 349 pasan a 816, 420, 251 y **872**. El cuarto casi dobla, porque
+          dentro lleva una rejilla de iconos que al estrecharse necesita más
+          renglones. Sumado: 1.828 contra 2.359. Las tarjetas de las listas no
+          tienen este problema porque a 349 están en su ancho de siempre; un
+          panel que venía usando 716 sí.
+       2. **Una rejilla ALINEA, y alinear cosas de alturas distintas es tirar
+          el hueco.** En la ficha de un proyecto, el bloque ilustrado mide 546 y
+          el panel que le tocaba al lado 92: 454 px de nada. El total se quedó
+          en 1.522 de los 1.544 que medía en una sola columna — o sea, nada.
+
+       Empaquetar arregla las dos: el navegador reparte los bloques entre las
+       dos columnas buscando el equilibrio, así que un bloque alto se compensa
+       con dos bajos y no queda hueco. La ficha de un proyecto pasa de 1.544 px
+       a **900**, y el formulario de un talento de 5,8 pantallas de recorrido a
+       4,1.
+
+       Lo que NO se parte es el CONTENIDO de un panel: `break-inside: avoid` lo
+       mantiene entero, y sus campos siguen en una sola columna. Es la misma
+       regla de las listas —se emparejan las tarjetas, no se estrecha lo que
+       llevan dentro— y la que ya sigue la computadora, donde un formulario
+       conserva una sola columna legible por encima de 900 px.
+
+       El orden de lectura pasa a ser el de un periódico: se baja por la
+       columna izquierda y se sigue por la derecha. En un formulario eso es lo
+       de siempre en papel, y en una ficha deja el bloque ilustrado arriba a la
+       izquierda, que es donde cae la vista. */
+    html.horizontal #perk-content,
+    html.horizontal #project-content,
+    html.horizontal #detail-content,
+    html.horizontal #coleccion-cuerpo {
+      display: block;
+      columns: 2;
+      column-gap: 18px;
+    }
+    html.horizontal #perk-content > *,
+    html.horizontal #project-content > *,
+    html.horizontal #detail-content > *,
+    html.horizontal #coleccion-cuerpo > * { break-inside: avoid; }
+
+    /* El formulario, igual, y con `.active` — que no es un detalle. Aquí el
+       `display` se le pone a la VISTA, y una vista apagada se esconde con
+       `.view { display: none }`. Un `display` con un id delante le gana a esa
+       regla, así que las cuatro pantallas de formulario se dibujaban a la vez,
+       siempre, debajo de la que estuvieras mirando. No se vio: se midió. La
+       ficha de un talento pasó de 3,1 pantallas de recorrido a **15,9**, y la
+       de un proyecto a 18, sin que ninguna de las dos tenga nada que ver con
+       un formulario. */
+    html.horizontal #view-perk-form.active,
+    html.horizontal #view-project-form.active,
+    html.horizontal #view-mission-form.active,
+    html.horizontal #view-form.active {
+      display: block;
+      columns: 2;
+      column-gap: 18px;
+    }
+    html.horizontal #view-perk-form.active > *,
+    html.horizontal #view-project-form.active > *,
+    html.horizontal #view-mission-form.active > *,
+    html.horizontal #view-form.active > * { break-inside: avoid; }
+    /* La fila de volver y la de guardar cruzan las dos columnas. La de guardar
+       sobre todo: un botón de guardar escondido al pie de una de las dos
+       columnas es un botón que se busca. */
+    html.horizontal #view-perk-form.active > .back-row,
+    html.horizontal #view-project-form.active > .back-row,
+    html.horizontal #view-mission-form.active > .back-row,
+    html.horizontal #view-form.active > .back-row,
+    html.horizontal #view-perk-form.active > .stack,
+    html.horizontal #view-project-form.active > .stack,
+    html.horizontal #view-mission-form.active > .stack,
+    html.horizontal #view-form.active > .stack { column-span: all; }
+
+    /* ---- El catálogo es la excepción: aquí empaquetar no sirve ----
+       Y es el único sitio donde se probó y salió peor, así que queda escrito.
+       Sus fichas ya se reparten en dos por encima de 620 px de ancho, o sea que
+       lo que se apila no son las fichas sino las CATEGORÍAS. Empaquetar los
+       grupos obliga a estrechar la rejilla de dentro a una columna —si no, cada
+       ficha se queda en 165 px— y eso dobla el alto de cada grupo: lo que se
+       gana emparejando se pierde dentro. Medido: 5,8 pantallas de recorrido
+       antes, **5,9** después. Cero.
+
+       Lo que sí sirve es lo contrario, y es de una línea: dejar los grupos en
+       una columna y que quepan TRES fichas por renglón en vez de dos. La ficha
+       de una habilidad mide 52 px de alto a cualquier ancho —no envuelve— así
+       que estrecharla no cuesta nada de alto. Con tres queda en 234 px, cerca de
+       los 273 que ya tiene en la computadora, y el catálogo baja a 4,7.
+
+       Con cuatro bajaba a 4,1 y la ficha seguía midiendo 52, pero a 201 px de
+       ancho —por debajo de lo que la computadora le da nunca— y un nombre largo
+       ahí se corta sin que el alto lo delate. Tres es donde se para. */
+    html.horizontal #catalog-content .cat-grid { grid-template-columns: repeat(3, 1fr); }
+
+    /* ---- La puerta ----
+       Es lo primero que se ve, y tumbada era una columna de 617 px en una
+       pantalla de 375: se recorre —`.portada` lleva `overflow-y: auto`, así que
+       nadie se queda sin poder entrar— pero hay que recorrerla para llegar al
+       botón, y eso en la pantalla de entrar es lo peor que puede pasar.
+
+       No se parte en dos columnas y conviene decir por qué, porque es lo que
+       parece que habría que hacer: los hijos de la caja son una lista plana que
+       cambia con el estado —entrar, registrarse, recuperar la contraseña, una
+       cuenta en borrado— y cualquier reparto en columnas los emparejaría de
+       formas distintas en cada pantalla, algunas absurdas. Un formulario de
+       entrar tiene UN orden y no se toca.
+
+       Lo que sí se puede es dejar de pagar el alto que no hace falta: tumbado
+       el logotipo no necesita 172 px, el aire entre bloques tampoco, y la caja
+       puede ser más ancha porque ancho es justo lo que sobra. Con eso la puerta
+       baja de 617 px a caber de una. */
+    html.horizontal .portada { padding: 14px 20px; }
+    html.horizontal .portada-caja { max-width: 420px; }
+    html.horizontal .portada-logo { width: 116px; margin-bottom: 10px; }
+    html.horizontal .portada-lema { font-size: 13px; line-height: 1.45; margin-bottom: 14px; }
+    html.horizontal .portada .field { margin-bottom: 8px; }
+    html.horizontal .portada .stack { margin-top: 12px; }
+    html.horizontal .portada-o { margin: 12px 0 8px; }
+    html.horizontal .portada-sin { margin-top: 14px; }
+
+    /* ---- Ajustes: el índice al lado, como en la computadora ----
+       No hay que inventar nada: la disposición ya existe para pantalla ancha y
+       es exactamente la que un teléfono tumbado necesita. Lo único que cambia
+       es la anchura del índice, que a 812 px no puede pagar los 274 de la
+       computadora. */
+    html.horizontal .ajustes-wrap {
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+    html.horizontal .ajustes-wrap.en-seccion .ajustes-nav { display: flex; }
+    html.horizontal .ajustes-nav { position: sticky; top: 12px; }
+    /* La flecha promete «esto abre otra pantalla», y aquí no la abre: el
+       índice y la sección conviven. */
+    html.horizontal .aj-chev { display: none; }
   }
 
   /* El rótulo de la prueba del horizontal. Arriba a la derecha, porque los
