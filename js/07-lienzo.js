@@ -3089,7 +3089,20 @@ function attachPanHandlers(scope) {
       if (gesto && gesto.tipo === "nodo" && gesto.moviendo) e.preventDefault();
     }, { passive: false });
 
-    const fin = () => {
+    /* `esClic` separa soltar de que te lo quiten, y esa distincion es el
+       arreglo de un fallo que se veia como «el desplazamiento se corta solo»:
+       en el telefono, deslizar la pagina con el dedo apoyado sobre un nodo
+       hace que el navegador reclame el gesto para desplazar, y al reclamarlo
+       dispara `pointercancel`. Los dos eventos llamaban aqui igual, asi que un
+       desplazamiento cancelado terminaba abriendo la ficha del talento que
+       tocaste de paso — y abrir una ficha para el desplazamiento en seco.
+
+       El umbral de 12 px de `pointermove` no lo cazaba: en cuanto el navegador
+       decide que aquello es un desplazamiento deja de entregar movimientos al
+       elemento, asi que el gesto llegaba al final sin haberse movido nunca.
+       Cancelar NO es un clic, y con eso basta. Lo que ya se estaba arrastrando
+       si se guarda: perder el sitio de un nodo por soltar mal seria peor. */
+    const fin = (esClic) => {
       cancelarEspera();
       const g = gesto;
       /* El deslizamiento va antes de soltar `from`, que es donde vive la
@@ -3100,8 +3113,8 @@ function attachPanHandlers(scope) {
       wrap.classList.remove("panning", "moviendo");
       if (!g) return;
 
-      if (g.tipo === "modo") { alternarModo(g.id); return; }
-      if (g.tipo === "grupo") { verCaja(g.id); return; }
+      if (g.tipo === "modo") { if (esClic) alternarModo(g.id); return; }
+      if (g.tipo === "grupo") { if (esClic) verCaja(g.id); return; }
 
       if (g.moviendo) {
         /* Las reglas de alinear se van EN CUANTO se suelta. Se pintaban en
@@ -3121,6 +3134,7 @@ function attachPanHandlers(scope) {
       /* Ni arrastre ni interruptor: fue un clic. Normalmente abre; mientras
          se está eligiendo, mete o saca de la selección — que es justo lo que
          hace falta en el teléfono, donde no hay Shift. */
+      if (!esClic) return;
       if (modoElegir) {
         alternarSeleccion(g.id, b);
         redibujarLienzo(wrap, constellation(branchNodes(b, mod), 0, false, b, mod));
@@ -3131,8 +3145,8 @@ function attachPanHandlers(scope) {
       else if (mod === "proyectos") openProject(g.id);
       else openPerk(g.id);
     };
-    wrap.addEventListener("pointerup", fin);
-    wrap.addEventListener("pointercancel", fin);
+    wrap.addEventListener("pointerup", () => fin(true));
+    wrap.addEventListener("pointercancel", () => fin(false));
 
     if (modoElegir) pintarBarraSeleccion(wrap);
   });

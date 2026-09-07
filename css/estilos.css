@@ -1142,15 +1142,17 @@
     justify-content: space-between;
     gap: 12px;
   }
-  /* El saludo y la fecha, encima del título del Resumen (0.7.57). En tono
-     normal y no en versalitas de menta como `.kicker`: una fecha en mayúsculas
-     y con tres píxeles de entreletra deja de leerse como un saludo y pasa a
-     leerse como una etiqueta de sección. Aquí lo que se busca es lo contrario.
+  /* El saludo y la fecha, DEBAJO del título del Resumen (0.7.93; encima hasta
+     entonces). En tono normal y no en versalitas de menta como `.kicker`: una
+     fecha en mayúsculas y con tres píxeles de entreletra deja de leerse como un
+     saludo y pasa a leerse como una etiqueta de sección. Aquí lo que se busca
+     es lo contrario.
 
      Solo se pinta cuando tiene texto: `renderSummary` lo escribe, y en las
-     demás vistas el elemento no existe. */
+     demás vistas el elemento no existe. Y no lo escribe siempre — un tablero
+     vacío no se saluda (ver el porqué allí). */
   .page-saludo {
-    margin: 0 0 3px;
+    margin: 3px 0 0;
     font-size: 13px;
     line-height: 1.35;
     color: var(--muted);
@@ -2692,6 +2694,19 @@
     font-weight: 700; color: var(--faint); white-space: nowrap;
   }
   .col-peldano.tuyo .cpx-estado { color: var(--mint); }
+  /* El peldaño que cierra un PLAN es un botón de verdad y lleva al panel de los
+     precios (0.7.93). Aquí solo se le quitan los cuatro valores que un `button`
+     trae de fábrica y que lo separarían de sus vecinos —la letra, el ancho, la
+     alineación y el subrayado del texto—: el resto ya lo pone `.col-peldano`,
+     que es la misma regla para los dos. Un peldaño cerrado por NIVEL sigue
+     siendo un `div`, y no por descuido: ahí no hay nada que comprar. */
+  button.col-peldano {
+    width: 100%;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  button.col-peldano:hover { border-color: color-mix(in srgb, var(--c) 45%, var(--line)); }
   /* Lo que ya alcanzaste y sigue cerrado toma su `--c`, que el JavaScript
      reparte según QUIÉN lo cierra: lila solo si es Fundador —ese tono no dice
      nada más en Norata— y celeste si es Pro. De decir que está cerrado ya se
@@ -2926,6 +2941,86 @@
   .mod-row.on .mod-sw i { transform: translateX(17px); background: var(--mint); }
   .mod-row:not(.on) .mod-tx b { color: var(--muted); }
   @media (prefers-reduced-motion: reduce) { .mod-sw, .mod-sw i { transition: none; } }
+
+  /* ---------- El candado ----------
+     UNA chapa para todo lo que está cerrado, y por eso vive aquí suelta y no
+     dentro de la sección de nadie. La regla que la pide es de Eduardo y es de
+     una línea: **lo que está cerrado tiene que verse cerrado.** Antes había
+     tres maneras de decirlo y ninguna lo decía — los periodos del informe se
+     ponían al 45% de opacidad, las cartas de los caminos en blanco y negro, y
+     los módulos que el nivel no ha abierto no existían todavía. Gris no
+     significa «cerrado»: significa «desactivado», que es lo que le pasa a un
+     botón que no viene al caso, y nadie toca un botón desactivado para
+     preguntarle por qué.
+
+     El candado se toca. Cada sitio decide qué pasa entonces —el nivel explica
+     cuánto falta, el plan saca su cuadro— pero la chapa es la misma en los
+     tres, porque las tres son la misma pregunta.
+
+     Sin `--llave-c` puesto va en el gris apagado de la casa. Quien quiera
+     decir de qué color es su candado le pone la variable y ya. */
+  .llave {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: none;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    padding: 3px 8px 3px 6px;
+    border-radius: var(--r-pastilla);
+    color: var(--llave-c, var(--muted));
+    background: var(--llave-f, var(--sup-tarjeta2));
+    border: var(--borde-fino) solid var(--line);
+    white-space: nowrap;
+  }
+  .llave svg { flex: none; }
+
+  /* La fila de un módulo que el nivel todavía no abrió. Ni interruptor ni
+     apagado: el rótulo se lee entero —hay que poder saber qué es lo que
+     viene— y a la derecha va el nivel en el que llega. */
+  .mod-row.cerrado { cursor: pointer; }
+  .mod-row.cerrado .mod-tx b { color: var(--muted); }
+  .mod-llave {
+    flex: none;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 800;
+    color: var(--mint);
+    background: var(--mint-soft);
+    border-radius: var(--r-pastilla);
+    padding: 4px 9px 4px 7px;
+    white-space: nowrap;
+  }
+  .mod-llave svg { flex: none; }
+
+  /* El candado del MENÚ. Va pegado abajo a la derecha del botón y no dentro
+     del icono: los cinco iconos de la barra son dibujos de línea de 19 px y
+     meterle un sexto trazo dentro los vuelve ilegibles a ese tamaño. Fuera,
+     encima del borde, se lee como lo que es — una chapa colgada del botón.
+
+     `--sup-flotante` de fondo y no transparente: la barra del teléfono flota
+     sobre el contenido de la página, así que un candado sin fondo se mezcla
+     con lo que pase por debajo. */
+  .c-nav { position: relative; }
+  .nav-candado {
+    position: absolute;
+    right: -2px; bottom: -2px;
+    width: 16px; height: 16px;
+    border-radius: var(--r-redondo);
+    display: grid; place-items: center;
+    /* `--muted` y no `--faint`, medido: el trazo de 9 px en `--faint` daba 2,8
+       sobre el fondo flotante, por debajo del 3 que pide una LÍNEA (ver la
+       tabla de `pinta`/`trazo` en CLAUDE.md). Un candado que no se ve es peor
+       que ninguno: deja el botón apagado sin decir por qué. */
+    color: var(--muted);
+    background: var(--sup-flotante);
+    border: var(--borde-fino) solid var(--line);
+    pointer-events: none;
+  }
+  .nav-candado svg { width: 9px; height: 9px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+  /* Cerrado, el botón se apaga un poco. Poco: sigue siendo un sitio al que se
+     va, y lo que dice que está cerrado es el candado, no el gris. */
+  .thumb-cluster .c-nav.con-candado { color: var(--faint); opacity: 0.72; }
 
   /* ---------- Habilidades: barra de acciones y catálogo ---------- */
   /* Herramientas de la lista, no protagonistas. Antes eran dos botones a
@@ -5566,8 +5661,20 @@
 
   /* Apagadas, no escondidas: se ven enteras y en gris, y al tocarlas sale el
      cuadro que dice por qué. Es la diferencia entre un escaparate y un muro. */
-  .cam-carta.trabada { filter: grayscale(1); opacity: .6; }
+  /* El blanco y negro se lo queda el MAPA, no la carta entera. `filter` en el
+     padre tiñe también a los hijos —no hay forma de desteñir uno— y con la
+     regla de antes el candado nuevo salía gris sobre gris, que es exactamente
+     lo que este cambio existe para quitar. Apagando solo el dibujo, la carta
+     sigue leyéndose cerrada y la chapa se ve. */
+  .cam-carta.trabada { opacity: .78; }
+  .cam-carta.trabada .cam-mapa { filter: grayscale(1); opacity: .7; }
+  .cam-carta.trabada .cam-titulo, .cam-carta.trabada .cam-uno { color: var(--muted); }
   .cam-carta.trabada:hover { border-color: var(--line); }
+  /* La chapa va sobre el mapa, arriba a la derecha: es donde no tapa ni el
+     título ni el primer peldaño, que son las dos cosas que hacen que alguien
+     quiera este camino. */
+  .cam-mapa { position: relative; }
+  .cam-llave { position: absolute; top: 7px; right: 7px; z-index: 1; }
   .cam-aviso {
     margin: 0 0 14px; padding: 11px 13px; font-size: 12.5px;
     border-radius: var(--r-media, 12px);
@@ -6520,11 +6627,35 @@
     border-radius: var(--r-boton);
     display: grid; place-items: center;
   }
+  /* El tono de fondo, para TODAS las filas de elegir. Antes solo lo tenían las
+     tres de la exigencia, porque eran las únicas que había; con la bienvenida
+     larga son cuatro preguntas con esta forma y las tres nuevas salían con el
+     icono desnudo, media caja más estrechas y sin la mancha de color que hace
+     que la fila se lea como una opción y no como un renglón de texto.
+
+     El apagado va primero para que valga de suelo: lo que tenga tono propio
+     abajo lo pisa, y lo que no, se ve igual que sus vecinas. */
+  .op-ic { color: var(--faint); background: var(--carril); }
   /* Los tres tonos que la app ya usa para calma, recomendado y aviso. No coral:
      aquí coral es lo que destruye, y ser exigente es una elección. */
   .op-ic[data-r="suave"] { color: var(--celeste); background: var(--celeste-soft); }
   .op-ic[data-r="medio"] { color: var(--mint);    background: var(--mint-soft); }
   .op-ic[data-r="duro"]  { color: var(--fire);    background: var(--fire-soft); }
+  /* Y los mismos tres para el tiempo del día, que es la misma escala: poco,
+     normal y mucho. Repetirlos no es copiar un color — es decir que las dos
+     preguntas se leen igual, y eso ayuda a contestar la segunda. */
+  .op-ic[data-r="poco"]     { color: var(--celeste); background: var(--celeste-soft); }
+  .op-ic[data-r="algo"]     { color: var(--mint);    background: var(--mint-soft); }
+  .op-ic[data-r="bastante"] { color: var(--fire);    background: var(--fire-soft); }
+  /* Las tres de «dónde se te cae» NO llevan escala: no hay una mejor que otra
+     ni una más exigente, son tres sitios distintos donde se rompe lo mismo.
+     Así que van las tres en luciérnaga, que aquí es lo que dice «esto tiene un
+     coste que quizá no ves» sin señalar a nadie. Con la escala de arriba, la
+     tercera se habría leído como la peor. (`--fire` es la luciérnaga, no el
+     coral: aquí coral sería decirle a alguien que está roto.) */
+  .op-ic[data-r="empezar"], .op-ic[data-r="sostener"], .op-ic[data-r="terminar"] {
+    color: var(--fire); background: var(--fire-soft);
+  }
   .op-tx { min-width: 0; }
 
   /* La etiqueta «beta» del inglés. Pegada al nombre y no en su propia línea:
@@ -7012,22 +7143,41 @@
   }
   .proj-card:active { background: var(--sup-tarjeta2); }
   .proj-card.dim { opacity: 0.5; }
-  .proj-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .proj-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
   .proj-ic {
     width: 32px; height: 32px;
     border-radius: var(--r-chico);
     display: inline-flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
+  /* Dos renglones en el teléfono, y no uno con puntos suspensivos. Los
+     encargos se llaman como se llaman las cosas que uno construye —«Terminar
+     el curso que dejé a medias»— y en 375 px eso son 41 caracteres: la mitad
+     de los títulos de la app de ejemplo se cortaban antes de decir de qué
+     iban, y una tarjeta que dice «Terminar el curso que…» no se distingue de
+     la de al lado.
+
+     Se recorta con `-webkit-line-clamp` y no con un alto fijo: un alto en
+     píxeles corta la segunda línea por la mitad en cuanto una apariencia
+     cambia la tipografía, y aquí la letra sale de `--tipo-titulo`. Los tres
+     prefijos hacen falta juntos —`display:-webkit-box` incluido—; es la única
+     forma que entienden todos los navegadores de hoy.
+
+     `align-items` de `.proj-top` pasa a `flex-start` por lo mismo: centrado,
+     un título de dos renglones bajaba el icono y la pastilla del estado media
+     línea y la fila quedaba descuadrada contra las tarjetas de un renglón. */
   .proj-name {
     flex: 1;
     min-width: 0;
     font-size: 14.5px;
     font-weight: 700;
     letter-spacing: -0.2px;
+    line-height: 1.3;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
   .proj-state {
     flex-shrink: 0;
@@ -8174,7 +8324,15 @@
   }
   /* Lo que todavía no abre no se esconde: se ve apagado y dice por qué al
      tocarlo. Esconderlo haría creer que no existe. */
-  .inf-periodos button.bajo-llave, .inf-ramas button.bajo-llave { opacity: 0.45; }
+  /* Cerrado y con candado, no solo apagado (0.7.93). El 0.45 sube a 0.62: con
+     el candado delante ya no hace falta que el gris grite, y por debajo de eso
+     el rótulo dejaba de leerse — que en una pestaña que hay que TOCAR para
+     enterarse de qué abre es medio botón. */
+  .inf-periodos button.bajo-llave, .inf-ramas button.bajo-llave { opacity: 0.62; }
+  .inf-periodos button, .inf-ramas button { display: inline-flex; align-items: center; gap: 4px; }
+  .inf-periodos button.bajo-llave svg, .inf-ramas button.bajo-llave svg {
+    flex: none; stroke: currentColor; fill: none; stroke-width: 2.1;
+  }
 
   .inf-rango {
     margin: 0 0 12px; font-size: 12px; letter-spacing: 0.06em;
@@ -8923,6 +9081,14 @@
        Las esquinas se quedan como estaban. Se probaron casi rectas y no era
        aquí: la barra son pastillas y así se lee como una lista de sitios a
        los que ir. Lo recto le toca a la ventana de Ajustes. */
+    /* En la barra lateral el botón es una fila ancha con su rótulo, así que el
+       candado deja la esquina y se va al final del renglón: colgado del borde
+       de una fila de 200 px de ancho no se leería como suyo. */
+    .thumb-cluster .c-nav .nav-candado {
+      position: static;
+      margin-left: auto;
+      width: 18px; height: 18px;
+    }
     .thumb-cluster .c-nav {
       width: 100%;
       height: auto;
@@ -9760,7 +9926,11 @@
        la dirección. */
     .proj-steps { flex-direction: column; align-items: flex-start; }
     .pstep { white-space: normal; overflow: visible; line-height: 1.35; }
-    .proj-name { white-space: normal; overflow: visible; }
+    /* En escritorio sobra el recorte: hay renglón de sobra y un título largo
+       cabe entero. Se apaga la caja de dos líneas, no se le suben las líneas:
+       con `-webkit-line-clamp` puesto a un número grande el título sigue
+       dentro de una caja que no se puede seleccionar igual. */
+    .proj-name { display: block; overflow: visible; -webkit-line-clamp: none; line-clamp: none; }
 
     /* Las ramas de talentos respiran más */
     .const-wrap { min-height: 300px; max-height: 640px; }
