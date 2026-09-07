@@ -817,9 +817,12 @@ function nombreApariencia(a, comoMundo) {
   return tx((comoMundo && a.id === "casa") ? CASA_MUNDO.nombre : a.nombre);
 }
 
-/* Los cinco rangos de un mundo: mismo caso, misma tabla congelada. */
+/* Los cinco rangos de un mundo: mismo caso, misma tabla congelada. Delega en
+   `nombreDeRango()` (js/01-base.js) desde 0.7.93 para no ser la sexta copia
+   del mismo ternario: los rangos de la casa tienen tres formas y los de un
+   mundo una, y quien decide cuál es siempre el mismo sitio. */
 function nombreRango(r) {
-  return tx(r && r.nombre ? r.nombre : "");
+  return nombreDeRango(r);
 }
 
 /* ---- Y lo que pasa al tocar un candado de los que se pagan ----

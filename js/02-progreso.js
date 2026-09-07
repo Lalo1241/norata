@@ -482,8 +482,16 @@ function ncelVistaCelebracion(nivel) {
 
 function ncelTarjetaPremio(x, i) {
   const esAmb = x.tipo === "ambiente";
+  /* Un MÓDULO que se abre no es una celebración ni un ambiente: no tiene
+     vista previa que enseñar —la vista previa es la pantalla entera— así que
+     va su icono en el disco, que es lo mismo que lleva en el menú. Sin este
+     caso caía en el de las celebraciones y anunciaba «Celebración nueva ·
+     Talentos» con el dibujo de un destello debajo. */
+  const esMod = x.tipo === "modulo";
   let vista, estilo = "";
-  if (esAmb) {
+  if (esMod) {
+    vista = icon(x.icon || "star", 30);
+  } else if (esAmb) {
     const t = x.id ? ncelTonosDe(x.id) : null;
     /* Sin tonos —un ambiente que aún no tenga su bloque— se cae al icono de
        siempre en vez de dejar el hueco vacío. */
@@ -517,11 +525,11 @@ function ncelTarjetaPremio(x, i) {
      aquí: el CSS es el que decide cuánto tarda cada tarjeta en entrar, y así
      el ritmo del botín se ajusta en un solo sitio. */
   const orden = ' style="--i:' + (i || 0) + (estilo ? ';' + estilo.slice(8, -1) : '') + '"';
-  return '<article class="ncel-premio' + (esAmb ? " es-amb" : " es-cel") + '"' + orden + '>' +
+  return '<article class="ncel-premio' + (esAmb ? " es-amb" : esMod ? " es-mod" : " es-cel") + '"' + orden + '>' +
     '<span class="ncel-fulgor" aria-hidden="true"></span>' +
     '<div class="ncel-vista">' + vista + '</div>' +
     '<div class="ncel-pie">' +
-      '<div class="ncel-quees">' + tx(esAmb ? "Ambiente nuevo" : "Celebración nueva") + '</div>' +
+      '<div class="ncel-quees">' + tx(esAmb ? "Ambiente nuevo" : esMod ? "Módulo nuevo" : "Celebración nueva") + '</div>' +
       '<div class="ncel-nom">' + escapeHtml(tx(x.corto || x.nombre)) + '</div>' +
     '</div>' +
     '</article>';
@@ -567,7 +575,7 @@ function celebrarNivel(nivel, abre) {
   const rango = document.getElementById("ncel-rango");
   const estrena = typeof ncelEstrella === "function" && ncelEstrella(nivel) === 1;
   const cierraRango = typeof ncelCierra === "function" && ncelCierra(nivel);
-  const marca = r ? `<b>${escapeHtml(tx(r.nombre))}</b>` : "";
+  const marca = r ? `<b>${escapeHtml(nombreDeRango(r))}</b>` : "";
   rango.innerHTML = !r ? T`Alcanzaste el nivel ${nivel} de tu expedición`
     : cierraRango ? T`Rango ${marca} conseguido`
     : estrena     ? T`Empiezas a trazar ${marca}`
@@ -611,8 +619,16 @@ function celebrarNivel(nivel, abre) {
   const hayVentana = premios.length > 0;
   const pies = document.getElementById("ncel-pies");
   const aAmbiente = premios.some(x => x.tipo === "ambiente");
+  /* Un módulo recién abierto gana al resto de destinos, y por la misma razón
+     por la que existe este botón: el premio es una pantalla, así que llevar a
+     la lista donde se anuncia sería enseñar el envoltorio. Se va al módulo. */
+  const aModulo = premios.filter(x => x.tipo === "modulo")[0];
+  const destino = aModulo ? `irAModulo('${aModulo.id}')`
+    : aAmbiente ? "abrirApariencia()" : "abrirColeccion('summary')";
+  const rotulo = aModulo ? T`Ver ${tx(aModulo.corto || aModulo.nombre)}`
+    : tx(aAmbiente ? "Ver Mi apariencia" : "Ver Mi expedición");
   pies.innerHTML = hayVentana
-    ? `<button class="btn btn-primary btn-block" onclick="${aAmbiente ? "ncelQuedarseAmbiente(); " : ""}cerrarNivelCel(); ${aAmbiente ? "abrirApariencia()" : "abrirColeccion('summary')"}">${tx(aAmbiente ? "Ver Mi apariencia" : "Ver Mi expedición")}</button>
+    ? `<button class="btn btn-primary btn-block" onclick="${aAmbiente && !aModulo ? "ncelQuedarseAmbiente(); " : ""}cerrarNivelCel(); ${destino}">${escapeHtml(rotulo)}</button>
        <button class="btn btn-ghost btn-block" onclick="cerrarNivelCel()">${tx("Ahora no")}</button>`
     : `<button class="btn btn-primary btn-block" onclick="cerrarNivelCel()">${tx("Continuar")}</button>`;
 
@@ -681,7 +697,25 @@ function revisarNivelExpedicion() {
     ? desbloqueosDeExpedicion(ahora).filter(x => x.nivel > visto)
     : [];
   state.ui.expNivelVisto = ahora;
+
+  /* ---- Y lo que el nivel acaba de abrir ----
+     Dos cosas, en este orden y las dos antes de guardar.
+
+     Primero SEMBRAR: si el nivel abrió Talentos o Proyectos, la bienvenida dejó
+     apuntado qué poner dentro (ver `sembrarLoApuntado`, js/09-inicio.js) y el
+     módulo tiene que estar lleno cuando la persona toque el botón de la
+     celebración. Un módulo que se abre vacío después de anunciarlo como premio
+     es la mitad del regalo.
+
+     Y después REPINTAR el menú, que es donde vive el candado. Sin esto, el
+     botón se queda con su candado puesto hasta el siguiente arranque de la app,
+     y la celebración estaría diciendo que se abrió algo que sigue cerrado.
+
+     Las dos son opcionales a propósito: este archivo carga antes que los dos
+     que las definen, y `revisarNivelExpedicion` también corre en el arranque. */
+  if (typeof sembrarLoApuntado === "function") sembrarLoApuntado();
   guardarLocal(state);
+  if (typeof aplicarModulos === "function") aplicarModulos();
   celebrarNivel(ahora, abre);
 }
 

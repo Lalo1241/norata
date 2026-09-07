@@ -406,13 +406,19 @@
   <div class="view active" id="view-summary">
     <div class="page-head">
       <div>
+        <h1>Resumen</h1>
         <!-- El saludo y la fecha viven AQUI desde 0.7.57, y no dentro de la
              tarjeta de la racha. Ahi eran la unica aparicion de `greeting()` en
              toda la app, asi que quien quitaba la racha del tablero -cosa que
              el Modo Editor permite- se quedaba sin saludo y sin fecha en el
-             Resumen entero. Lo escribe `renderSummary`. -->
+             Resumen entero. Lo escribe `renderSummary`.
+
+             DEBAJO del titulo desde 0.7.93, y no encima. Encima era lo primero
+             que se leia al abrir la app, asi que la app abria diciendo la
+             fecha: un dato que ya esta en la barra del telefono, puesto por
+             delante del sitio donde estas. Debajo hace de pie del titulo, que
+             es lo que es. Lo paro Eduardo. -->
         <p class="page-saludo" id="resumen-saludo"></p>
-        <h1>Resumen</h1>
       </div>
       <div style="display:flex;gap:9px">
         <button class="icon-btn" onclick="setDashEdit(!dashEditing)" aria-label="Acomodar tablero" id="dash-btn"></button>
@@ -917,6 +923,18 @@
                porque juntas se preguntan la primera vez —ver la pantalla de
                `js/09c-region.js`—: quien viene a cambiar una se acuerda de
                dónde vio la otra. -->
+          <!-- Como te habla la app. Va con el idioma y la exigencia, y no en
+               una seccion propia, por lo mismo que ellas: es una cosa TUYA, no
+               de la app. Y va justo antes del idioma porque las dos contestan
+               la misma pregunta -en que palabras te habla Norata-, la una en
+               que lengua y la otra en que forma. Lo dibuja `renderGenero`
+               (js/09-inicio.js). -->
+          <div class="panel" id="panel-genero">
+            <h3>Como te hablo</h3>
+            <p class="settings-note">El espanol pone genero en muchas palabras. Esto decide cual uso contigo: los rangos de tu expedicion, los avisos y los correos. Se pregunta al armar tu tablero, y aqui se cambia cuando quieras.</p>
+            <div id="genero-opciones"></div>
+          </div>
+
           <div class="panel">
             <h3>Idioma</h3>
             <p class="settings-note">En qué idioma te habla Norata. Cambiarlo no toca nada de lo que has escrito tú: tus habilidades, misiones y talentos se quedan como los nombraste.</p>
@@ -1087,24 +1105,28 @@
       <svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3.5"/><path d="M9.5 4.5v15"/></svg>
     </button>
   </div>
+  <!-- Los cuatro modulos llaman a `irAModulo` y no a `showView`, y Resumen si
+       llama a showView: es el unico que no puede estar cerrado. `irAModulo`
+       mira el candado y, si el nivel todavia no lo abrio, explica cuanto falta
+       en vez de rebotar en silencio al Resumen (js/04-misiones.js). -->
   <div class="nav-circles">
     <button class="c-nav" id="nav-summary" onclick="showView('summary')" aria-label="Resumen">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M15.5 8.5l-2.2 5-5 2.2 2.2-5z"/></svg>
       <span class="nav-label">Resumen</span>
     </button>
-    <button class="c-nav" id="nav-missions" onclick="showView('missions')" aria-label="Misiones">
+    <button class="c-nav" id="nav-missions" onclick="irAModulo('missions')" aria-label="Misiones">
       <svg viewBox="0 0 24 24"><path d="M4 6.5l2 2 3.5-3.5M4 14.5l2 2 3.5-3.5M13 7h7M13 15h7"/></svg>
       <span class="nav-label">Misiones</span>
     </button>
-    <button class="c-nav" id="nav-home" onclick="showView('home')" aria-label="Habilidades">
+    <button class="c-nav" id="nav-home" onclick="irAModulo('home')" aria-label="Habilidades">
       <svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7"/></svg>
       <span class="nav-label">Habilidades</span>
     </button>
-    <button class="c-nav" id="nav-tree" onclick="showView('tree')" aria-label="Árbol">
+    <button class="c-nav" id="nav-tree" onclick="irAModulo('tree')" aria-label="Árbol">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M12 7.5v4M12 11.5l-5 4.5M12 11.5l5 4.5"/></svg>
       <span class="nav-label">Talentos</span>
     </button>
-    <button class="c-nav" id="nav-projects" onclick="showView('projects')" aria-label="Proyectos">
+    <button class="c-nav" id="nav-projects" onclick="irAModulo('projects')" aria-label="Proyectos">
       <svg viewBox="0 0 24 24"><path d="M3 7.5a2 2 0 012-2h4l2 2.5h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M8 13.5h8"/></svg>
       <span class="nav-label">Proyectos</span>
     </button>
