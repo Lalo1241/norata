@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.92";
+const VERSION = "0.7.93";
 const VERSION_FECHA = "6 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -785,11 +785,81 @@ function exigenciaActual() {
   return EXIGENCIAS[e] || EXIGENCIAS[EXIGENCIA_POR_DEFECTO];
 }
 
-/* ---- Las tres preguntas van primero, y se dice en los cinco carteles ----
+/* ================= Cómo se le habla a quien usa la app =================
+   El español pone género en sitios donde el inglés no pone nada, y Norata
+   estaba escrita esquivándolos uno a uno. Se nota leyendo los comentarios que
+   ya había: el saludo de madrugada dice que «trasnochador» le pone género a
+   quien lee «y una "a" detrás no lo arregla, lo alarga», así que a esa hora se
+   usa el nombre. Esquivar funciona, pero cuesta: cada frase nueva hay que
+   escribirla dos veces —una y la que no se pudo usar— y quedan rincones donde
+   no hay salida, como los rangos, que son OFICIOS y en español los oficios
+   tienen dos formas.
+
+   Lo pidió Eduardo con la bienvenida larga: preguntarlo una vez y usarlo.
+
+   Tres valores y ninguno es el de nadie por defecto:
+     "m"  masculino     Rastreador
+     "f"  femenino      Rastreadora
+     "x"  no binario    Rastreadore
+
+   Y **"x" es lo que hay cuando no se ha contestado**, no el masculino. Quien
+   no pasó por la bienvenida no ha dicho nada, y suponerle un género es
+   exactamente lo que este ajuste existe para no hacer.
+
+   La forma en "-e" se usa SOLO cuando se pidió explícitamente. No es una
+   propuesta que la app le haga a nadie: es lo que espera quien eligió esa
+   casilla, y quien no la eligió no la ve nunca. */
+const GENEROS = ["m", "f", "x"];
+const GENERO_POR_DEFECTO = "x";
+
+function generoActual() {
+  const g = state && state.settings && state.settings.genero;
+  return GENEROS.indexOf(g) >= 0 ? g : GENERO_POR_DEFECTO;
+}
+
+/* Las tres formas de una palabra, en el orden en que se leen. `x` es opcional
+   y cae en la masculina cuando no hay forma neutra que valga la pena inventar
+   —hay palabras que ya son iguales para todos, y ahí las tres son la misma—.
+
+   **Solo manda en español.** El inglés no marca género en el sustantivo, así
+   que allí la variante no existe y lo que se devuelve es la palabra base, que
+   es la que está en el diccionario: sin esto, «Rastreadora» se buscaría como
+   clave, no la encontraría y se quedaría en español dentro de una app en
+   inglés. Es el mismo motivo por el que el catálogo de habilidades se busca
+   siempre por el nombre en español (ver `buildFromOnboarding`). */
+function gen(m, f, x) {
+  if (typeof idiomaActual === "function" && idiomaActual() !== "es") return m;
+  const g = generoActual();
+  if (g === "f") return f;
+  if (g === "x") return x === undefined ? m : x;
+  return m;
+}
+
+/* El nombre de un rango, con la forma que toca. Vive aquí y no en la tabla de
+   rangos porque lo leen cinco pantallas —la insignia, la tarjeta del Resumen,
+   la celebración de subir de nivel, el cielo de Mi expedición y el
+   escaparate—, y con cinco copias del mismo ternario, la que se queda atrás
+   es la que un día llama Rastreador a quien pidió Rastreadora.
+
+   Un rango de MUNDO no tiene formas: sus nombres son propios de ese mundo
+   —Semilla, Bit, Norte— y `rangosVigentes()` los pisa junto con las variantes,
+   así que aquí no hay nada que elegir y se devuelve el suyo. */
+function nombreDeRango(r) {
+  if (!r || !r.nombre) return "";
+  /* El `tx()` va FUERA y envuelve al ternario, no dentro de cada rama: en
+     español devuelve lo que le llega tal cual —que es ya la forma elegida— y
+     en inglés `gen()` ya ha devuelto la palabra base, que es la clave del
+     diccionario. Una sola línea y ningún idioma se queda a medias. */
+  return tx(gen(r.nombre, r.nombreF || r.nombre, r.nombreX || r.nombre));
+}
+
+/* ---- La bienvenida va primero, y se dice en los cinco carteles ----
    Lo pidió Eduardo: la bienvenida deja configuradas de una vez las
    habilidades, la misión diaria y la primera rama, y quien la salta se pone a
    crear cosas sueltas sin haber elegido ni el ritmo con el que bajan sus
-   habilidades. Así que mientras siga sin contestarse, el botón de menta de
+   habilidades. Eran tres preguntas y desde 0.7.93 son seis: también deciden
+   cómo se le habla, cuánto tiempo real hay al día y dónde se le suele caer, y
+   las tres cosas cambian lo que se crea (ver `ramaAMedida`, js/09-inicio.js). Así que mientras siga sin contestarse, el botón de menta de
    CUALQUIER módulo vacío es el cuestionario y lo del módulo baja a `btn-soft`.
 
    Es una recomendación y no una puerta cerrada: quien no quiera asistentes
@@ -818,7 +888,7 @@ function claseAccionPropia() {
    suyo se queda donde está y solo cambia de peso. */
 function bloqueBienvenida() {
   if (!bienvenidaPendiente()) return "";
-  return `<button class="btn btn-primary" onclick="startOnboarding()">${tx("Armar mi tablero en 3 preguntas")}</button>`;
+  return `<button class="btn btn-primary" onclick="startOnboarding()">${tx("Armar mi tablero en 6 preguntas")}</button>`;
 }
 
 /* Los formateadores se guardan al vuelo: construir un Intl.NumberFormat es
@@ -914,10 +984,16 @@ function load() {
      de un respaldo editado a mano— cae al punto medio en vez de dejar sin
      valores por defecto a la siguiente habilidad que se cree. */
   if (!EXIGENCIAS[data.settings.exigencia]) data.settings.exigencia = EXIGENCIA_POR_DEFECTO;
+  /* Y lo mismo con el género, salvo que aquí no hay punto medio al que caer:
+     un valor que no reconocemos se BORRA, y `generoActual()` devuelve el
+     neutro. Escribirle "m" a alguien porque su ajuste llegó corrupto sería
+     suponerle un género, que es justo lo que este ajuste existe para no
+     hacer. */
+  if (data.settings.genero && GENEROS.indexOf(data.settings.genero) < 0) delete data.settings.genero;
   /* Quien ya tiene la app montada no necesita que le recomienden montarla.
      La bienvenida marca `settings.bienvenida` al terminar, pero eso solo
      existe desde la 0.7.84: sin esta línea, cualquiera con meses de tablero
-     vería "Armar mi tablero en 3 preguntas" en menta el día que vaciara un
+     vería "Armar mi tablero" en menta el día que vaciara un
      módulo, y encima el cuestionario le añadiría ramas encima de las suyas.
      Se mira si hay ALGO creado, no cuánto: un solo dato ya prueba que esa
      persona pasó de la pantalla de bienvenida por su cuenta. */
