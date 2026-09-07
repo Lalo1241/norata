@@ -1058,6 +1058,98 @@ const MODULOS = [
   { id: "projects", nav: "nav-projects", label: "Proyectos",   hint: "Lo que construyes, encargo a encargo" }
 ];
 
+/* ================= Los dos que llegan después =================
+   Norata abre con CUATRO módulos delante y ninguna pista de por dónde
+   empezar: el primer día había que entender a la vez qué es una misión, qué
+   es una habilidad que baja si la dejas, qué es un talento que se compra con
+   dinero real y qué es un encargo dentro de un proyecto. Cuatro vocabularios
+   nuevos en la misma barra, y los dos últimos son los que menos se entienden
+   sin haber usado los dos primeros.
+
+   Así que los dos últimos LLEGAN, y llegan por el nivel de expedición, que ya
+   es el reloj de la app: Talentos en el 3 y Proyectos en el 5. Los números no
+   son redondos, son el calendario — medidos con `EXP_PUNTOS` y la curva de
+   `js/02b-expedicion.js` sobre un perfil de cuatro días por semana: el 3 cae
+   dentro de la primera semana y el 5 alrededor de la tercera. Bastante para
+   que Misiones y Habilidades ya signifiquen algo, poco para que nadie espere
+   un mes por la pantalla que más trabajo lleva.
+
+   Misiones y Habilidades no tienen nivel a propósito: son las dos que se
+   entienden sin que nadie las explique, y una app que abre con la barra entera
+   cerrada no enseña, castiga.
+
+   **Y el nivel solo puede ABRIR, nunca cerrar.** Es la misma regla del cobro
+   —congelar, nunca quitar—: quien ya tiene talentos los ve, tenga el nivel que
+   tenga. Sin eso, publicar esto le habría escondido el árbol a todo el que
+   ya lo estaba usando, que es exactamente el fallo que nadie perdona. */
+const MODULO_NIVEL = { tree: 3, projects: 5 };
+
+/* Lo que hay dentro de un módulo, para la regla de arriba. Se mira la
+   colección y no una marca guardada: un respaldo importado, el ejemplo
+   completo y una cuenta que llega de otro dispositivo traen sus cosas sin
+   pasar por ninguna bandera nuestra. */
+function moduloConCosas(id) {
+  if (id === "tree") return (state.perks || []).length > 0;
+  if (id === "projects") return (state.projects || []).length > 0;
+  return true;
+}
+
+/* ¿Lo abrió ya el nivel? Es la pregunta del CANDADO, y es distinta de
+   `moduloOn`, que es el interruptor de Ajustes: uno lo decide la app y el otro
+   la persona. Se separan porque se ven distinto — lo apagado desaparece del
+   menú, lo cerrado se queda a la vista con su candado y su nivel escrito. */
+function moduloAbierto(id) {
+  const pide = MODULO_NIVEL[id];
+  if (!pide) return true;
+  if (moduloConCosas(id)) return true;
+  const n = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 99;
+  return n >= pide;
+}
+
+/* Las dos preguntas juntas, que es lo que casi todo el mundo quiere saber:
+   ¿pinto esta pantalla, este widget, esta fila? */
+function moduloUsable(id) {
+  return moduloOn(id) && moduloAbierto(id);
+}
+
+/* Lo que se dice al tocar un candado del menú. No ofrece pagar, y eso no es un
+   descuido: esta puerta se abre USANDO la app, igual que los ambientes (ver la
+   nota de `estadoApariencia` en js/10i-apariencia.js). Cobrar por saltarse la
+   escalera es lo único que la rompería. */
+function avisoModuloCerrado(id) {
+  const m = MODULOS.find(x => x.id === id);
+  if (!m) return;
+  const pide = MODULO_NIVEL[id] || 0;
+  const n = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 0;
+  const faltan = Math.max(1, pide - n);
+  const titulo = faltan === 1 ? tx("Te falta un nivel") : T`Te faltan ${faltan} niveles`;
+  const cuerpo =
+    T`${tx(m.label)} se abre en el nivel ${pide} de expedición y vas en el ${n}.` + "\n\n" +
+    tx("El nivel sube solo con lo que ya haces: cumplir una misión, practicar una habilidad y volver mañana.");
+  /* Ni `danger` ni `alarm`, y es la misma decisión que la del cuadro de los
+     topes del plan: aquí no se rompió nada. Hay algo que todavía no llega, y
+     eso se cuenta en menta con el candado delante, no en coral y temblando.
+
+     Dos botones y no uno: el segundo lleva a Mi expedición, que es donde se ve
+     la barra, cuánto falta y qué más abre el camino. Un aviso que dice «te
+     faltan dos niveles» y no enseña dónde mirarlos es media respuesta. */
+  return askBase(cuerpo, false, tx("Ver Mi expedición"), false, false, tx("Entendido"),
+                 { icono: "lock", tono: "menta", titulo: titulo }).then(ok => {
+    if (ok && typeof abrirColeccion === "function") abrirColeccion();
+  });
+}
+
+/* La puerta de los cinco botones del menú. Existe para que el candado HAGA algo
+   al tocarlo: `showView` no puede avisar por su cuenta —la llaman el arranque,
+   el gesto de atrás y una docena de botones, y un cuadro emergente al abrir la
+   app sería el peor recibimiento posible—, así que quien avisa es el gesto
+   explícito de ir a un módulo, que es este. */
+function irAModulo(name) {
+  const mod = VISTA_MODULO[name] || name;
+  if (!moduloAbierto(mod)) { avisoModuloCerrado(mod); return; }
+  showView(name);
+}
+
 /* A qué módulo pertenece cada vista, incluidas sus pantallas hijas: si
    Talentos está apagado, tampoco debe poder abrirse la ficha de un talento
    por un enlace viejo del Resumen. */
@@ -1073,10 +1165,33 @@ function moduloOn(id) {
   return !off.includes(id);
 }
 
+/* El menú, con sus candados. Se llama al arrancar, al cambiar un interruptor
+   y al subir de nivel.
+
+   Un módulo APAGADO desaparece; uno CERRADO se queda y se le pone el candado
+   encima. Es la diferencia entera: lo que escondes no se echa de menos, y de
+   lo que no se echa de menos nadie quiere saber cuándo llega. */
 function aplicarModulos() {
   MODULOS.forEach(m => {
     const el = document.getElementById(m.nav);
-    if (el) el.style.display = moduloOn(m.id) ? "" : "none";
+    if (!el) return;
+    el.style.display = moduloOn(m.id) ? "" : "none";
+    const cerrado = !moduloAbierto(m.id);
+    el.classList.toggle("con-candado", cerrado);
+    /* El candado se pinta una vez y se queda: quitarlo y volver a ponerlo en
+       cada repintado le corta la transición al que acaba de abrirse. */
+    let ll = el.querySelector(".nav-candado");
+    if (cerrado && !ll) {
+      ll = document.createElement("i");
+      ll.className = "nav-candado";
+      ll.setAttribute("aria-hidden", "true");
+      ll.innerHTML = icon("lock", 10);
+      el.appendChild(ll);
+    } else if (!cerrado && ll) ll.remove();
+    /* Y lo dice también quien no ve la pantalla. El rótulo del botón sigue
+       siendo el nombre del módulo; el candado va detrás, como en la barra. */
+    const base = tx(m.label);
+    el.setAttribute("aria-label", cerrado ? T`${base} · se abre en el nivel ${MODULO_NIVEL[m.id]}` : base);
   });
 }
 
@@ -1099,6 +1214,18 @@ function renderModulos() {
   if (!el) return;
   el.innerHTML = MODULOS.map(m => {
     const on = moduloOn(m.id);
+    /* Un módulo que el nivel todavía no abrió no tiene interruptor, y no
+       porque no se pueda: apagar lo que aún no existe no significa nada, y un
+       interruptor apagado al lado de un candado son dos cosas distintas
+       diciendo lo mismo. En su sitio va el nivel al que se abre, que es la
+       única respuesta que hace falta ahí. */
+    if (!moduloAbierto(m.id)) {
+      return `
+    <button class="mod-row cerrado" onclick="avisoModuloCerrado('${m.id}')">
+      <span class="mod-tx"><b>${escapeHtml(tx(m.label))}</b><span>${escapeHtml(tx(m.hint))}</span></span>
+      <span class="mod-llave">${icon("lock", 12)}${escapeHtml(T`Nivel ${MODULO_NIVEL[m.id]}`)}</span>
+    </button>`;
+    }
     return `
     <button class="mod-row ${on ? "on" : ""}" onclick="setModulo('${m.id}', ${!on})">
       <span class="mod-tx"><b>${escapeHtml(tx(m.label))}</b><span>${escapeHtml(tx(m.hint))}</span></span>
@@ -1225,9 +1352,13 @@ function atrasApp() {
 }
 
 function showView(name) {
-  // Un módulo apagado no se abre ni por un enlace que quedara apuntando ahí
+  /* Un módulo apagado —o que el nivel todavía no abrió— no se abre ni por un
+     enlace que quedara apuntando ahí. Aquí se rebota en silencio a propósito:
+     esta función la llaman el arranque, el gesto de atrás y una docena de
+     botones, y quien toca un candado a sabiendas ya pasó por `irAModulo`, que
+     es quien lo explica. */
   const mod = VISTA_MODULO[name];
-  if (mod && !moduloOn(mod)) name = "summary";
+  if (mod && !moduloUsable(mod)) name = "summary";
 
   /* Cambiar de pantalla cierra lo que hubiera puesto encima. Una ventana es
      una capa sobre UNA pantalla; en cuanto la pantalla de debajo ya no es la
@@ -1302,6 +1433,16 @@ function showView(name) {
     save();
     toast(tx("Modo Editor cerrado · tu tablero quedó guardado"), "hecho");
   }
+
+  /* Los candados del menú se repasan en cada viaje. Es barato —cuatro botones,
+     una clase y un rótulo— y es lo único que cierra el hueco entre las dos
+     formas de abrir un módulo: el nivel avisa por su cuenta (ver
+     `revisarNivelExpedicion`), pero un módulo también se abre por TENER algo
+     dentro, y eso pasa sin que suba ningún nivel — al ver el ejemplo completo,
+     al importar un respaldo, o cuando la sincronía trae una cuenta con
+     talentos. Sin esta línea el candado se quedaba puesto encima de un módulo
+     ya abierto hasta la siguiente vez que se abriera la app. */
+  aplicarModulos();
 
   window.scrollTo(0, 0);
   /* El colchón se repone al movernos: si algo lo consumió por su cuenta (una

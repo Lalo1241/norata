@@ -1,7 +1,20 @@
 /* Bienvenida, tutorial, ejemplos, zona horaria y respaldos */
 /* ================= Bienvenida =================
-   Tres preguntas para armar un tablero con las cosas que a esa persona
-   le importan, en vez de soltarla frente a una app vacía. */
+   Seis preguntas para armar un tablero con las cosas que a esa persona le
+   importan, en vez de soltarla frente a una app vacía.
+
+   Eran TRES —áreas, exigencia y proyecto— y las tres preguntaban por lo que
+   se quiere. Faltaban las que deciden qué NO ponerle, que es donde estaba el
+   problema de verdad: todo el mundo salía con las mismas seis habilidades, la
+   misma misión diaria y la misma rama de seis peldaños con dos plazos largos y
+   una cima a 240 días, tuviera diez minutos al día o dos horas, y le costara
+   arrancar o le costara cerrar. Un tablero igual para todos es un tablero
+   pensado para nadie, y la mitad de lo que trae acaba siendo deuda.
+
+   Las tres nuevas son de género (cómo hablarle), de tiempo real al día y de
+   dónde se le cae lo que empieza. Lo que HACE cada una está en `ramaAMedida`,
+   `habilidadesPorArea` y `cadenciaDeMision`, todas aquí abajo y todas juntas
+   a propósito. */
 
 /* Cada área trae DOS habilidades, una misión y una rama de SEIS talentos.
 
@@ -155,22 +168,193 @@ const ONBOARD_AREAS = [
     ] }
 ];
 
+/* ================= Las tablas de la bienvenida =================
+   Cada respuesta que no sea una lista suelta vive en su propia tabla, con el
+   mismo trato que ya tienen `EXIGENCIAS` y `ONBOARD_AREAS`: aquí está lo que
+   se enseña, y lo que la respuesta HACE está más abajo, en `ramaAMedida()`.
+   Separados a propósito — la mitad de arriba se lee para escribir la pantalla
+   y la de abajo para entender qué cambia, y mezclarlas obliga a leerlo todo
+   para cambiar una palabra. */
+
+/* Cómo se le habla a quien usa la app. La primera pregunta y no la última, y
+   no es un capricho de orden: es lo único que cambia cómo suenan las CINCO
+   siguientes, y preguntarlo al final sería hablarle a alguien durante seis
+   pantallas sin saber cómo. Ver `GENEROS` en js/01-base.js. */
+const OB_GENEROS = [
+  { id: "f", label: "En femenino",  ej: "Exploradora", icon: "smile" },
+  { id: "m", label: "En masculino", ej: "Explorador",  icon: "smile" },
+  { id: "x", label: "En neutro",    ej: "Exploradore", icon: "compass" }
+];
+
+/* Cuánto tiempo real hay al día. Es la pregunta que más cambia lo que se crea
+   y la que nunca se hacía: hasta 0.7.93 quien tenía diez minutos y quien tenía
+   dos horas recibían exactamente el mismo tablero, con las mismas seis
+   habilidades y los mismos plazos. Al que le sobraba tiempo se le quedaba
+   corto y al que no le llegaba se le quedaba una lista de deudas.
+
+   Las tres franjas están escritas en MINUTOS y no en adjetivos («poco»,
+   «normal») porque un adjetivo lo contesta cada quien contra su propia idea de
+   normal, y quince minutos son quince minutos. */
+const OB_TIEMPOS = [
+  { id: "poco",     nombre: "Diez minutos al día",  dicho: "Lo justo para no romper la racha",   icon: "bolt" },
+  { id: "algo",     nombre: "Media hora",           dicho: "Algo cada día, sin que sea un turno", icon: "target" },
+  { id: "bastante", nombre: "Una hora o más",       dicho: "Tengo hueco de verdad y quiero usarlo", icon: "flame" }
+];
+
+/* Con qué se ha fallado antes. Es la única pregunta de las seis que sirve para
+   quitar y no para poner, y por eso hacía falta: una rama en rombo con seis
+   peldaños, dos plazos largos y una cima a 240 días es un buen mapa para quien
+   sostiene las cosas y una condena para quien no. La app no puede saber cuál de
+   los dos eres, pero sí puede preguntarlo una vez.
+
+   Tres y no cinco, y las tres son los tres momentos en que algo se cae:
+   arrancar, mantener y cerrar. Quien no se reconozca en ninguna puede saltar la
+   pregunta y se queda el reparto de siempre. */
+const OB_FLAQUEZAS = [
+  { id: "empezar",  nombre: "Me cuesta arrancar",     dicho: "Lo pienso mucho y no doy el primer paso", icon: "bolt" },
+  { id: "sostener", nombre: "Me cuesta sostenerlo",   dicho: "Empiezo con todo y a las dos semanas lo dejo", icon: "flame" },
+  { id: "terminar", nombre: "Me cuesta terminar",     dicho: "Tengo cinco cosas a medias y ninguna cerrada", icon: "flag" }
+];
+
+/* ================= Lo que cada respuesta HACE =================
+   Aquí se traduce lo contestado a la rama que se va a crear. Todo pasa por una
+   sola función a propósito: son cinco reglas que se pisan entre ellas —recortar
+   la rama cambia quién es requisito de quién, y cambiar un tipo cambia si lleva
+   plazo— y repartidas por `buildFromOnboarding` se convertían en cinco `if`
+   dentro de un bucle que ya crea nodos.
+
+   Recibe los peldaños tal como están escritos en `ONBOARD_AREAS` y devuelve
+   otros nuevos: no toca la tabla. La tabla es una constante que se lee una vez
+   por área y hasta tres veces por bienvenida, y modificarla en sitio dejaría la
+   segunda área con lo que le hizo la primera. */
+function ramaAMedida(perks, plan) {
+  let pasos = perks.map(p => Object.assign({}, p));
+
+  /* 1. CUÁNTOS peldaños. Con diez minutos al día, o con «tengo cinco cosas a
+        medias», la rama nace de cuatro: se van los dos del medio y la cima pasa
+        a colgar de los dos caminos cortos. Sigue siendo un rombo —lo que este
+        módulo enseña es que un mapa se abre y se vuelve a juntar, no que sea
+        largo—, solo que se cierra en semanas y no en meses.
+
+        Los requisitos se reescriben a mano y no se recalculan: `f` colgaba de
+        `d` y `e`, que son justo los que se van, y un requisito que apunta a un
+        peldaño que no existe deja la cima con candado para siempre. Es el mismo
+        fallo del que ya avisa el `filter` de `buildFromOnboarding`. */
+  if (plan.tiempo === "poco" || plan.flaqueza === "terminar") {
+    pasos = pasos.filter(x => x.k !== "d" && x.k !== "e");
+    pasos = pasos.map(x => x.k === "f" ? Object.assign({}, x, { req: ["b", "c"] }) : x);
+  }
+
+  /* 2. Lo que se sostiene en el tiempo, para quien dice que no lo sostiene.
+        Toda meta que no sea la cima pasa a hito y suelta su plazo: un hito se
+        cierra en sí mismo y no lleva reloj encima. La cima se queda como está
+        —una rama entera sin ninguna meta es una lista de recados— y es la única
+        que puede pedir tiempo, porque es la única que se ve venir de lejos. */
+  if (plan.flaqueza === "sostener") {
+    pasos = pasos.map(x => (x.tipo === "meta" && x.k !== "f")
+      ? Object.assign({}, x, { tipo: "hito", days: 0 }) : x);
+  }
+
+  /* 3. Y para quien no arranca, los tres primeros nunca llevan plazo. Un plazo
+        en el peldaño uno no empuja: asusta, que es exactamente lo contrario de
+        lo que hace falta ahí. */
+  if (plan.flaqueza === "empezar") {
+    pasos = pasos.map(x => (x.tipo === "meta" && ["a", "b", "c"].indexOf(x.k) >= 0)
+      ? Object.assign({}, x, { tipo: "hito", days: 0 }) : x);
+  }
+
+  /* 4. Y los plazos que queden, medidos contra el tiempo que hay. Un plazo es
+        una cuenta de días y quien dedica diez minutos tarda más que quien dedica
+        una hora: dejarlos iguales para los dos es fechar la mitad de las metas
+        para que se pasen.
+
+        Los dos topes no son adornos, y los dos se vieron midiendo. El suelo de
+        15 días existe porque por debajo de dos semanas un plazo deja de ser un
+        plazo y pasa a ser una prisa. Y el techo de un AÑO porque sin él el
+        1,4 sobre la meta más larga —el fondo de emergencia, que ya viene a 365—
+        daba 511 días: año y medio en el primer tablero de alguien que acaba de
+        entrar. Nada de lo que crea la bienvenida se fecha más allá de un año,
+        pase lo que pase con el factor. */
+  const factor = plan.tiempo === "poco" ? 1.4 : plan.tiempo === "bastante" ? 0.7 : 1;
+  if (factor !== 1) {
+    pasos = pasos.map(x => x.days > 0
+      ? Object.assign({}, x, { days: Math.min(365, Math.max(15, Math.round(x.days * factor))) }) : x);
+  }
+  return pasos;
+}
+
+/* Cuántas habilidades trae cada área. Dos es lo de siempre y lo que explica el
+   comentario de `ONBOARD_AREAS`; con diez minutos al día son dos deudas por
+   área en vez de una, y con tres áreas eso son seis habilidades bajando a la
+   vez para alguien que dijo que no tiene tiempo. */
+function habilidadesPorArea(plan) {
+  return plan.tiempo === "poco" ? 1 : 2;
+}
+
+/* La misión diaria, o casi. Con diez minutos al día pasa a tres días por
+   semana —lunes, miércoles y viernes— en vez de todos: una misión diaria que no
+   se cumple no es un recordatorio, es una racha rota cada dos días, y la racha
+   es de lo poco que esta app no puede permitirse que mienta.
+
+   Los días van en índices de `getUTCDay()`, donde el 0 es domingo: los mismos
+   que lee `missionDueOn` y los mismos que pinta el formulario de misiones. */
+function cadenciaDeMision(plan) {
+  return plan.tiempo === "poco"
+    ? { cadence: "weekly", days: [1, 3, 5] }
+    : { cadence: "daily", days: [] };
+}
+
+/* ¿Sale la pregunta del género? En español sí y en inglés no, y no es una
+   traducción que falte: en inglés el sustantivo no marca género, así que
+   `gen()` devuelve siempre la palabra base y contestarla no cambiaría ni una
+   letra de la app. Una pregunta que no hace nada es peor que no preguntar —
+   promete algo, y además alarga a seis un cuestionario que allí son cinco.
+
+   Es lo mismo que ya hace el panel de Ajustes, que se esconde por lo mismo. */
+function preguntaGenero() {
+  return typeof idiomaActual !== "function" || idiomaActual() === "es";
+}
+
 let onboardStep = 0;
-let onboardPick = { areas: [], pace: "medio", project: "" };
+let onboardPick = { genero: "", areas: [], tiempo: "", pace: "medio", flaqueza: "", project: "" };
 
 function startOnboarding() {
   onboardStep = 0;
-  onboardPick = { areas: [], pace: "medio", project: "" };
+  onboardPick = { genero: "", areas: [], tiempo: "", pace: "medio", flaqueza: "", project: "" };
   renderOnboarding();
   showView("onboarding");
 }
 
-function renderOnboarding() {
-  const el = document.getElementById("onboarding-content");
-  const steps = [
+/* Una fila de opciones, que es la forma que tienen cuatro de las seis
+   preguntas. Estaba escrita tres veces con tres nombres de clase distintos y
+   las tres se veían igual; la cuarta y la quinta habrían sido la cuarta y la
+   quinta copia. */
+function obOpciones(lista, elegido, fn) {
+  return `<div class="ob-pace">
+    ${lista.map(o => `
+      <button class="ob-pace-opt ${elegido === o.id ? "on" : ""}" onclick="${fn}('${o.id}')">
+        <span class="op-ic" data-r="${escapeAttr(o.id)}">${icon(o.icon || o.icono, 20)}</span>
+        <span class="op-tx"><b>${escapeHtml(tx(o.nombre || o.label))}</b><span>${escapeHtml(tx(o.dicho || o.ej || ""))}</span></span>
+      </button>`).join("")}
+  </div>`;
+}
+
+/* Las pantallas de la bienvenida, en una lista y en orden. Sale de aquí y no de
+   dentro de `renderOnboarding` porque hay TRES sitios que necesitan saber
+   cuántas son —el rótulo «Pregunta N de M», el botón que en la última dice
+   «Armar mi tablero» y el avance automático, que tiene que parar en ella— y con
+   el número escrito a mano en los tres, el que se queda atrás deja el
+   cuestionario terminando antes de la última pregunta. Eran tres pantallas con
+   su «Pregunta 1 de 3» escrito dentro de cada una; de ahí viene la manía.
+
+   Y son seis o cinco según el idioma: ver `preguntaGenero`. */
+function obPantallas() {
+  const pantallas = [
     () => `
-      <div class="ob-q">
-        <div class="ob-num">${tx("Pregunta 1 de 3")}</div>
+        <h2>${tx("¿Cómo prefieres que te hable?")}</h2>
+        <p class="settings-note">${tx("El español pone género en muchas palabras y esta app te habla de tú. Dime cuál usar y lo uso en todas: los rangos, los avisos y los correos.")}</p>
+        ${obOpciones(OB_GENEROS, onboardPick.genero, "pickGenero")}`,
+    () => `
         <h2>${tx("¿Qué partes de tu vida quieres mejorar?")}</h2>
         <p class="settings-note">${tx("Elige de una a tres. Con eso armo tus primeras habilidades, misiones y ramas — después puedes cambiar todo.")}</p>
         <div class="ob-areas">
@@ -183,24 +367,20 @@ function renderOnboarding() {
               </span>
               <span class="oa-check">${icon("check", 15)}</span>
             </button>`).join("")}
-        </div>
-      </div>`,
+        </div>`,
     () => `
-      <div class="ob-q">
-        <div class="ob-num">${tx("Pregunta 2 de 3")}</div>
+        <h2>${tx("¿Cuánto tiempo tienes de verdad al día?")}</h2>
+        <p class="settings-note">${tx("Lo que contestes decide cuántas habilidades te pongo, si la misión es diaria o de tres días, y cuánto tiempo doy a cada meta. Sé honesto: es más fácil subir después que ir siempre debiendo.")}</p>
+        ${obOpciones(OB_TIEMPOS, onboardPick.tiempo, "pickTiempo")}`,
+    () => `
         <h2>${tx("¿Qué tan exigente lo quieres?")}</h2>
         <p class="settings-note">${tx("Esto define cuánto tiempo puedes dejar una habilidad sin practicar antes de que empiece a bajar.")}</p>
-        <div class="ob-pace">
-          ${Object.values(EXIGENCIAS).map(p => `
-            <button class="ob-pace-opt ${onboardPick.pace === p.id ? "on" : ""}" onclick="pickPace('${p.id}')">
-              <span class="op-ic" data-r="${p.id}">${icon(p.icono, 20)}</span>
-              <span class="op-tx"><b>${tx(p.nombre)}</b><span>${tx(p.dicho)}</span></span>
-            </button>`).join("")}
-        </div>
-      </div>`,
+        ${obOpciones(Object.values(EXIGENCIAS), onboardPick.pace, "pickPace")}`,
     () => `
-      <div class="ob-q">
-        <div class="ob-num">${tx("Pregunta 3 de 3")}</div>
+        <h2>${tx("¿Dónde se te suele caer?")}</h2>
+        <p class="settings-note">${tx("Con esto decido qué NO ponerte: menos plazos si te cuesta arrancar, menos metas largas si te cuesta sostener, y una rama más corta si lo que te cuesta es cerrar. Si no te reconoces en ninguna, sáltala.")}</p>
+        ${obOpciones(OB_FLAQUEZAS, onboardPick.flaqueza, "pickFlaqueza")}`,
+    () => `
         <h2>${tx("¿Hay algo que estés construyendo ahora?")}</h2>
         <p class="settings-note">${tx("Un proyecto con etapas: mudarte, lanzar algo, terminar un trámite. Si no hay nada, puedes saltarlo.")}</p>
         <label class="field">
@@ -212,29 +392,63 @@ function renderOnboarding() {
           <div class="ob-ideas">
             ${ideasDeProyecto().map(idea => `
               <button type="button" class="ob-idea" onclick="usarIdea('${enJS(tx(idea))}')">${escapeHtml(tx(idea))}</button>`).join("")}
-          </div>` : ""}
-      </div>`
+          </div>` : ""}`
   ];
+  return preguntaGenero() ? pantallas : pantallas.slice(1);
+}
 
-  const canNext = onboardStep !== 0 || onboardPick.areas.length > 0;
+/* En qué posición cae la de las áreas, que es la única obligatoria. Se cuenta y
+   no se escribe: sin la pregunta del género delante, la segunda pantalla pasa a
+   ser la primera, y un `1` clavado aquí habría dejado la app en inglés pidiendo
+   un área en la pantalla del tiempo. */
+function obPasoDeAreas() {
+  return preguntaGenero() ? 1 : 0;
+}
+
+function obUltimo() {
+  return obPantallas().length - 1;
+}
+
+function renderOnboarding() {
+  const el = document.getElementById("onboarding-content");
+  const steps = obPantallas();
+  /* El paso se ata a la lista antes de usarlo como índice. La lista mide seis
+     o cinco según el idioma, así que cambiarlo a media bienvenida —o volver
+     atrás desde un enlace viejo— podía dejar el índice fuera y `steps[n]()`
+     revienta con la pantalla ya en blanco. Sujetarlo cuesta una línea. */
+  if (onboardStep >= steps.length) onboardStep = steps.length - 1;
+  if (onboardStep < 0) onboardStep = 0;
+
+  /* Solo las áreas son obligatorias, y siguen siéndolo por lo mismo de siempre:
+     sin ninguna, la bienvenida no tiene nada que crear. Las demás se pueden
+     pasar de largo — la de género cae en neutro, el tiempo en media hora y la
+     flaqueza en ninguna, que es el reparto que ya existía. Un cuestionario de
+     seis pantallas con seis paredes no se termina. */
+  const canNext = onboardStep !== obPasoDeAreas() || onboardPick.areas.length > 0;
+  /* El número y la tarjeta se escriben AQUÍ y no dentro de cada paso: el
+     rótulo va dentro de `.ob-q`, que es la que trae el marco y el aire, así
+     que sacarlo fuera lo dejaba flotando encima de la tarjeta sin margen. */
   el.innerHTML = `
-    ${steps[onboardStep]()}
+    <div class="ob-q">
+      <div class="ob-num">${T`Pregunta ${onboardStep + 1} de ${steps.length}`}</div>
+      ${steps[onboardStep]()}
+    </div>
     <div class="ob-nav">
       ${onboardStep > 0 ? `<button class="btn btn-ghost" onclick="obBack()">${tx("Atrás")}</button>` : `<button class="btn btn-ghost" onclick="showView('summary')">${tx("Cancelar")}</button>`}
       <button class="btn btn-primary" onclick="obNext()" ${canNext ? "" : "disabled"}>
-        ${onboardStep === 2 ? tx("Armar mi tablero") : tx("Siguiente")}
+        ${onboardStep === steps.length - 1 ? tx("Armar mi tablero") : tx("Siguiente")}
       </button>
     </div>
-    <div class="ob-dots">${[0, 1, 2].map(i => `<i class="${i === onboardStep ? "on" : ""}"></i>`).join("")}</div>`;
+    <div class="ob-dots">${steps.map((x, i) => `<i class="${i === onboardStep ? "on" : ""}"></i>`).join("")}</div>`;
 }
 
-/* ---- Los ejemplos de la pregunta 3 ----
-   Salen de lo que la persona acaba de elegir en la pregunta 1, no de una lista
-   general: quien marcó «Cocinar en casa» y «Ordenar mi dinero» no tiene por qué
-   ver «Cambiar de trabajo» entre las ideas.
+/* ---- Los ejemplos de la pregunta del proyecto ----
+   Salen de lo que la persona acaba de elegir en la de las áreas, no de una
+   lista general: quien marcó «Cocinar en casa» y «Ordenar mi dinero» no tiene
+   por qué ver «Cambiar de trabajo» entre las ideas.
 
-   Existen porque esa pantalla era la única de las tres que pedía ESCRIBIR
-   cuando las otras dos piden elegir, y encima llega cuando la persona ya se
+   Existen porque esa pantalla es la única de las seis que pide ESCRIBIR cuando
+   las otras piden elegir, y encima llega la última, cuando la persona ya se
    cansó de decidir: una caja de texto vacía al final de un formulario se salta
    sola. Quien quiera escribir lo suyo sigue teniendo el campo delante. */
 function ideasDeProyecto() {
@@ -267,20 +481,42 @@ function toggleArea(id) {
   renderOnboarding();
 }
 
-function pickPace(p) { onboardPick.pace = p; renderOnboarding(); }
+/* Las cuatro respuestas de una sola opción. Cada una avanza sola al paso
+   siguiente y no se queda esperando el botón: son preguntas de una respuesta y
+   tocar la respuesta ES contestarla — pedir además un «Siguiente» convierte
+   seis pantallas en doce toques. La de las áreas no avanza, porque ahí se
+   pueden elegir hasta tres y el toque significa otra cosa. */
+function pickGenero(g) { onboardPick.genero = g; obAvanzar(); }
+function pickTiempo(t) { onboardPick.tiempo = t; obAvanzar(); }
+function pickPace(p) { onboardPick.pace = p; obAvanzar(); }
+function pickFlaqueza(f) { onboardPick.flaqueza = f; obAvanzar(); }
+
+/* Se repinta primero y se avanza después, con un respiro en medio: sin él, la
+   opción elegida no llega a verse marcada nunca y el paso siguiente aparece de
+   golpe, que se lee como si la app se hubiera adelantado. 180 ms es lo que
+   tarda en verse una palomita. */
+function obAvanzar() {
+  renderOnboarding();
+  setTimeout(() => { if (onboardStep < obUltimo()) { onboardStep++; renderOnboarding(); } }, 180);
+}
+
+/* El campo del proyecto es el único que hay que rescatar a mano antes de
+   repintar, y por eso se pregunta por el paso: los demás ya viven en
+   `onboardPick` desde que se tocaron. */
+function obGuardarCampo() {
+  const campo = document.getElementById("ob-project");
+  if (campo) onboardPick.project = campo.value.trim();
+}
 
 function obBack() {
-  if (onboardStep === 2) onboardPick.project = document.getElementById("ob-project").value.trim();
+  obGuardarCampo();
   onboardStep--;
   renderOnboarding();
 }
 
 function obNext() {
-  if (onboardStep === 2) {
-    onboardPick.project = document.getElementById("ob-project").value.trim();
-    buildFromOnboarding();
-    return;
-  }
+  obGuardarCampo();
+  if (onboardStep === obUltimo()) { buildFromOnboarding(); return; }
   onboardStep++;
   renderOnboarding();
 }
@@ -291,6 +527,17 @@ function buildFromOnboarding() {
      se usaba aquí y se perdía: la habilidad que crearas mañana volvía al punto
      medio sin avisar, y no había ninguna pantalla donde ver qué elegiste. */
   state.settings.exigencia = EXIGENCIAS[onboardPick.pace] ? onboardPick.pace : EXIGENCIA_POR_DEFECTO;
+  /* El género se guarda aquí y no en su propio ajuste porque no es un ajuste de
+     la bienvenida: es de la persona, y a partir de ahora lo lee la app entera
+     (ver `generoActual` en js/01-base.js). Sin contestar se queda en neutro,
+     que es lo que ya hacía la app antes de preguntarlo. */
+  if (GENEROS.indexOf(onboardPick.genero) >= 0) state.settings.genero = onboardPick.genero;
+  /* Y las dos nuevas. Se guardan aunque hoy solo las lea la propia bienvenida:
+     el día que alguien añada un área o un camino, lo que decidió aquí tiene que
+     poder consultarse — es la misma razón por la que `exigencia` dejó de
+     perderse. */
+  state.settings.tiempo = onboardPick.tiempo || "algo";
+  state.settings.flaqueza = onboardPick.flaqueza || "";
   /* Y queda constancia de que se contestó. Es lo que apaga la recomendación
      de los cinco carteles vacíos (`bienvenidaPendiente`, js/01-base.js): sin
      esta marca, terminar la bienvenida y borrar luego las misiones volvería a
@@ -299,7 +546,10 @@ function buildFromOnboarding() {
   const ex = exigenciaActual();
   const grace = ex.grace;
   const decay = ex.decay;
+  const plan = { tiempo: state.settings.tiempo, flaqueza: state.settings.flaqueza };
   const areas = ONBOARD_AREAS.filter(a => onboardPick.areas.includes(a.id));
+  const cad = cadenciaDeMision(plan);
+  const cuantas = habilidadesPorArea(plan);
 
   areas.forEach((a, i) => {
     /* Cada área trae DOS habilidades afines en vez de una. Elegir "Salud y
@@ -311,9 +561,12 @@ function buildFromOnboarding() {
        es la que enlaza con la misión y el talento del área. Los nombres se
        resuelven contra el catálogo para no repetir icono y color en dos
        sitios, y si una ya existe (dos áreas pueden compartirla) se reutiliza
-       en vez de duplicarla. */
+       en vez de duplicarla.
+
+       Dos, salvo que la bienvenida haya oído «tengo diez minutos al día»: ahí
+       es una, y son tres en total en vez de seis. Ver `habilidadesPorArea`. */
     let skill = null;
-    a.skills.forEach((nombre, j) => {
+    a.skills.slice(0, cuantas).forEach((nombre, j) => {
       /* El nombre que se GUARDA se traduce; el que se BUSCA, no. El catálogo
          (`SKILL_CATALOG`) está escrito en español y es quien decide icono y
          color, así que buscar por el nombre inglés no encontraría nada y
@@ -347,63 +600,41 @@ function buildFromOnboarding() {
 
     state.missions.push({
       id: uid(), name: tx(a.mission.name), desc: "", icon: a.mission.icon, color: a.color,
-      cadence: "daily", days: [], target: 1,
+      cadence: cad.cadence, days: cad.days.slice(), target: 1,
       skillId: skill.id, xp: a.mission.xp, log: {}, archived: false, completedAt: null,
       createdAt: today
     });
-
-    /* En rombo, y por eso hace falta una tabla de equivalencias: los
-       requisitos vienen escritos con las llaves cortas de `ONBOARD_AREAS`
-       ("d" va después de "b") y el id de verdad no existe hasta crear el
-       nodo. Como los padres van antes que los hijos en la lista, para cuando
-       toca traducir el requisito su id ya está en `ids`.
-
-       El `filter` no sobra aunque hoy no descarte nada: una llave mal escrita
-       daría `undefined`, y un requisito indefinido deja el nodo con candado
-       para siempre sin ninguna forma de abrirlo desde la app.
-
-       `modo` viaja porque la cima se abre con CUALQUIERA de los dos caminos.
-       En "todos" habría que terminar las dos rutas enteras para verla, que es
-       exactamente la fila de seis que se quería evitar, solo que más larga.
-
-       Y la variable se llama `paso` y no `t`: desde que existe el motor de
-       idiomas hay una función global llamada `tx`, y una local parecida aquí
-       dentro es justo el despiste que revienta una traducción en silencio. */
-    const ids = {};
-    a.perks.forEach(paso => {
-      const rama = tx(a.branch);
-      const nodo = {
-        id: uid(), name: tx(paso.name), branch: rama, desc: "",
-        tipo: paso.tipo, cost: 0, planDays: paso.days, steps: [],
-        skillId: skill.id, xpReward: paso.xp,
-        requiere: (paso.req || []).map(k => ids[k]).filter(Boolean),
-        modo: paso.modo === "cualquiera" ? "cualquiera" : "todos",
-        icon: paso.icon, color: a.color,
-        status: null, startDate: null, endDate: null, completedAt: null,
-        investedTotal: 0, progress: 0, createdAt: today,
-        history: [{ date: today, at: stamp(), event: T`Talento creado en la rama ${rama}` }]
-      };
-      state.perks.push(nodo);
-      ids[paso.k] = nodo.id;
-    });
   });
 
-  if (onboardPick.project) {
-    const first = areas[0];
-    state.projects.push({
-      id: uid(), name: onboardPick.project, branch: tx("Personal"),
-      icon: "flag", color: first ? first.color : COLORS[0],
-      desc: "", status: "active",
-      steps: [
-        { id: uid(), name: tx("Definir qué significa terminarlo"), done: false, at: null },
-        { id: uid(), name: tx("Primer paso concreto"), done: false, at: null },
-        { id: uid(), name: tx("Revisar avance"), done: false, at: null }
-      ],
-      skillId: first ? state.skills[0].id : null, xpReward: 250,
-      createdAt: today, lastActivity: today, completedAt: null,
-      history: [{ date: today, at: stamp(), event: tx("Proyecto creado desde la bienvenida") }]
-    });
-  }
+  /* ---- Y lo que todavía no cabe en pantalla ----
+     La bienvenida crea habilidades y misiones siempre, porque sus dos módulos
+     están abiertos desde el primer día. Talentos y Proyectos no: llegan en el
+     nivel 3 y en el 5 (ver `MODULO_NIVEL`, js/04-misiones.js), y crear ahora
+     una rama de seis talentos que la persona no puede ver sería lo peor de las
+     dos opciones — le sube el nivel de expedición por unos estrenos que no
+     hizo, y el día que se abra el módulo se encuentra dentro cosas que no
+     recuerda haber puesto.
+
+     Así que se APUNTA lo elegido y se siembra el día que la puerta se abre, con
+     su celebración delante. Eso convierte desbloquear un módulo en un regalo en
+     vez de en una pantalla vacía, que es lo que decidió Eduardo.
+
+     Se guarda el plan entero —áreas, proyecto, tiempo y flaqueza— y no solo los
+     ids: quien cambie de exigencia dentro de dos semanas no tiene por qué
+     encontrarse una rama distinta de la que pidió. */
+  state.settings.siembra = {
+    areas: areas.map(a => a.id),
+    project: onboardPick.project || "",
+    /* El color del proyecto se decide AQUÍ y no al sembrarlo. Talentos se abre
+       antes que Proyectos, así que para cuando le toca al proyecto la lista de
+       áreas ya está vacía —la vació la siembra de las ramas— y leerla entonces
+       devolvía siempre el color de respaldo: todos los proyectos nacían mentas.
+       Lo que se guarda es el resultado, que es lo único que no caduca. */
+    color: areas.length ? areas[0].color : COLORS[0],
+    tiempo: plan.tiempo,
+    flaqueza: plan.flaqueza
+  };
+  sembrarLoApuntado();
 
   save();
   showView("summary");
@@ -412,6 +643,105 @@ function buildFromOnboarding() {
     "#5fe0b0", "compass");
   // Después de la celebración, no encima de ella
   quizaTutorial(2600);
+}
+
+/* ================= Sembrar lo que la bienvenida dejó apuntado =================
+   Corre en dos momentos: justo al terminar la bienvenida —y ahí planta lo que
+   ya esté abierto, que para una cuenta nueva no es nada— y cada vez que sube el
+   nivel de expedición (`revisarNivelExpedicion`, js/02-progreso.js).
+
+   No guarda ni consulta ningún número de nivel: le pregunta a `moduloAbierto`,
+   que es quien decide. Con un nivel escrito aquí serían dos verdades, y la
+   segunda es la que un día siembra una rama en un módulo que sigue cerrado.
+
+   Devuelve si plantó algo, para que quien la llama sepa si hay que repintar. */
+function sembrarLoApuntado() {
+  const s = state.settings && state.settings.siembra;
+  if (!s || typeof s !== "object") return false;
+  /* La nota viaja en la sincronía y en los respaldos, así que puede llegar
+     editada a mano o de una versión que la escribía de otra forma. Se
+     endereza antes de tocarla: un `areas` que no sea una lista revienta el
+     bucle, y reventar aquí es dejar a alguien sin su rama el único día en que
+     se iba a crear. */
+  if (!Array.isArray(s.areas)) s.areas = [];
+  if (typeof s.project !== "string") s.project = "";
+  const today = todayKey();
+  const plan = { tiempo: s.tiempo || "algo", flaqueza: s.flaqueza || "" };
+  let algo = false;
+
+  if ((s.areas || []).length && typeof moduloAbierto === "function" && moduloAbierto("tree")) {
+    ONBOARD_AREAS.filter(a => s.areas.indexOf(a.id) >= 0).forEach(a => {
+      /* La habilidad a la que cuelgan los talentos es la que la bienvenida creó
+         para esta área, buscada por su nombre. Puede no estar —se pudo borrar
+         en las tres semanas que van de una cosa a la otra— y entonces el
+         talento nace sin habilidad enlazada, que es un estado que la app ya
+         admite: `skillId: null` es lo que tiene cualquier talento creado a mano
+         sin elegir una. */
+      const rotulo = tx(a.skills[0]);
+      const skill = state.skills.find(x => x.name.toLowerCase() === rotulo.toLowerCase());
+      const ids = {};
+      /* En rombo, y por eso hace falta una tabla de equivalencias: los
+         requisitos vienen escritos con las llaves cortas de `ONBOARD_AREAS`
+         ("d" va después de "b") y el id de verdad no existe hasta crear el
+         nodo. Como los padres van antes que los hijos en la lista, para cuando
+         toca traducir el requisito su id ya está en `ids`.
+
+         El `filter` no sobra aunque hoy no descarte nada: una llave mal escrita
+         daría `undefined`, y un requisito indefinido deja el nodo con candado
+         para siempre sin ninguna forma de abrirlo desde la app.
+
+         `modo` viaja porque la cima se abre con CUALQUIERA de los dos caminos.
+         En "todos" habría que terminar las dos rutas enteras para verla, que es
+         exactamente la fila de seis que se quería evitar, solo que más larga.
+
+         Y la variable se llama `paso` y no `t`: desde que existe el motor de
+         idiomas hay una función global llamada `tx`, y una local parecida aquí
+         dentro es justo el despiste que revienta una traducción en silencio. */
+      ramaAMedida(a.perks, plan).forEach(paso => {
+        const rama = tx(a.branch);
+        const nodo = {
+          id: uid(), name: tx(paso.name), branch: rama, desc: "",
+          tipo: paso.tipo, cost: 0, planDays: paso.days, steps: [],
+          skillId: skill ? skill.id : null, xpReward: paso.xp,
+          requiere: (paso.req || []).map(k => ids[k]).filter(Boolean),
+          modo: paso.modo === "cualquiera" ? "cualquiera" : "todos",
+          icon: paso.icon, color: a.color,
+          status: null, startDate: null, endDate: null, completedAt: null,
+          investedTotal: 0, progress: 0, createdAt: today,
+          history: [{ date: today, at: stamp(), event: T`Talento creado en la rama ${rama}` }]
+        };
+        state.perks.push(nodo);
+        ids[paso.k] = nodo.id;
+      });
+    });
+    s.areas = [];
+    algo = true;
+  }
+
+  if (s.project && typeof moduloAbierto === "function" && moduloAbierto("projects")) {
+    const col = s.color || COLORS[0];
+    state.projects.push({
+      id: uid(), name: s.project, branch: tx("Personal"),
+      icon: "flag", color: col,
+      desc: "", status: "active",
+      steps: [
+        { id: uid(), name: tx("Definir qué significa terminarlo"), done: false, at: null },
+        { id: uid(), name: tx("Primer paso concreto"), done: false, at: null },
+        { id: uid(), name: tx("Revisar avance"), done: false, at: null }
+      ],
+      skillId: state.skills.length ? state.skills[0].id : null, xpReward: 250,
+      createdAt: today, lastActivity: today, completedAt: null,
+      history: [{ date: today, at: stamp(), event: tx("Proyecto creado desde la bienvenida") }]
+    });
+    s.project = "";
+    algo = true;
+  }
+
+  /* Cuando ya no queda nada por sembrar, la nota se va. Una llave vacía que
+     sobrevive en los ajustes acaba viajando en cada sincronía y en cada
+     respaldo diciendo que hay algo pendiente que no existe. */
+  if (!(s.areas || []).length && !s.project) delete state.settings.siembra;
+  return algo;
 }
 
 /* ================= Tutorial de bienvenida =================
@@ -471,7 +801,11 @@ let tutoPaso = 0;
 
 function pasosDelTutorial() {
   // Un módulo apagado no se explica: sería enseñar una puerta que no existe
-  return TUTO_PASOS.filter(p => !p.modulo || moduloOn(p.modulo));
+  /* `moduloUsable` y no `moduloOn`: el tutorial tampoco explica lo que el
+     nivel todavía no abrió. Enseñar el árbol de talentos el primer día y que
+     al ir a buscarlo esté cerrado es peor que no enseñarlo — y este cambio
+     existe justo para que el primer día quepa en la cabeza. */
+  return TUTO_PASOS.filter(p => !p.modulo || moduloUsable(p.modulo));
 }
 
 function arrancarTutorial() {
@@ -1218,6 +1552,7 @@ function renderAjustes() {
        archivo, y el service worker puede servir un index.html viejo con
        un JavaScript nuevo durante una carga (ver la nota de los iconos
        en `js/11-arranque.js`). */
+    if (typeof renderGenero === "function") renderGenero();
     if (typeof renderPanelIdioma === "function") renderPanelIdioma();
     if (typeof renderPanelMoneda === "function") renderPanelMoneda();
   }
@@ -1227,6 +1562,43 @@ function renderAjustes() {
   /* `abierta` sale de `seccionesAjustes()`, que ya traduce: envolverla otra
      vez buscaba el inglés en el diccionario y lo apuntaba como si faltara. */
   if (titulo) titulo.textContent = (!escritorio && abierta) ? abierta.nombre : tx("Ajustes");
+}
+
+/* ================= Cómo te hablo =================
+   La misma pregunta que abre la bienvenida, otra vez aquí. Y hace falta que
+   esté en los dos sitios: la bienvenida se puede saltar, se contestó una vez
+   hace meses, o sencillamente alguien cambia de respuesta — y de las tres
+   cosas, la que peor se lleva es no tener dónde cambiarla.
+
+   Reutiliza `obOpciones` y `OB_GENEROS`, que es lo que hace que las dos
+   pantallas no se puedan separar: el día que se añada una forma, aparece en las
+   dos sin tocar nada. */
+function renderGenero() {
+  const wrap = document.getElementById("genero-opciones");
+  if (!wrap) return;
+  /* En inglés el panel entero se va, no solo se vacía: `gen()` devuelve allí
+     siempre la palabra base, así que este ajuste no cambiaría ni una letra —y
+     un ajuste que no hace nada es peor que no tenerlo, porque promete algo—.
+     Es la misma decisión que esconde la pregunta en la bienvenida
+     (`preguntaGenero`); se pregunta una vez y las dos pantallas obedecen. */
+  const panel = document.getElementById("panel-genero");
+  if (panel) panel.hidden = !preguntaGenero();
+  if (!preguntaGenero()) return;
+  wrap.innerHTML = obOpciones(OB_GENEROS, generoActual(), "ponerGenero");
+}
+
+function ponerGenero(g) {
+  if (GENEROS.indexOf(g) < 0) return;
+  state.settings.genero = g;
+  save();
+  renderGenero();
+  /* Y se repinta lo que ya está escrito con la forma vieja. El Resumen lleva el
+     rango en su tarjeta y el menú de la cuenta también: sin esto, cambiar la
+     respuesta dejaba «Rastreador» puesto hasta la siguiente vez que algo
+     repintara esa pantalla, y eso se lee como que el ajuste no hizo nada. */
+  if (typeof renderSummary === "function") renderSummary();
+  const uno = OB_GENEROS.filter(x => x.id === g)[0];
+  toast(uno ? T`Te hablo ${tx(uno.label).toLowerCase()}` : tx("Hecho"), "hecho");
 }
 
 /* ================= Mi exigencia =================
@@ -1242,11 +1614,10 @@ function renderPanelRitmo() {
   if (!wrap) return;
   const actual = exigenciaActual();
 
-  wrap.innerHTML = `<div class="ob-pace">${Object.values(EXIGENCIAS).map(p => `
-    <button class="ob-pace-opt ${actual.id === p.id ? "on" : ""}" onclick="ponerExigencia('${p.id}')">
-      <span class="op-ic" data-r="${p.id}">${icon(p.icono, 20)}</span>
-      <span class="op-tx"><b>${tx(p.nombre)}</b><span>${tx(p.dicho)}</span></span>
-    </button>`).join("")}</div>`;
+  /* La misma fila que la bienvenida, y del mismo sitio: era la cuarta copia del
+     mismo marcado —tres en el cuestionario y esta— y la que se quedaba atrás
+     cada vez que se retocaba una clase. */
+  wrap.innerHTML = obOpciones(Object.values(EXIGENCIAS), actual.id, "ponerExigencia");
 
   /* Solo las que decaen: una habilidad blindada no pierde XP nunca, así que
      sus dos números no significan nada y contarla infla el botón. */

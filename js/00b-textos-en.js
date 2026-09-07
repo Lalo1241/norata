@@ -411,7 +411,37 @@ const TEXTOS_EN = {
   "Ej. Renovar mi cuarto": "e.g. Redo my room",
   "O toca una de estas": "Or tap one of these",
   "Armar mi tablero": "Build my board",
-  "Armar mi tablero en 3 preguntas": "Build my board in 3 questions",
+  "Pregunta {0} de {1}": "Question {0} of {1}",
+
+  /* ---- Las tres preguntas que llegaron con la bienvenida larga (0.7.93) ----
+     La del GÉNERO no está aquí y no falta: no se enseña en inglés, así que sus
+     tres opciones y su explicación no llegan nunca a `tx()`. Traducirlas sería
+     mantener una pantalla que nadie ve. */
+  "¿Cuánto tiempo tienes de verdad al día?": "How much time do you really have each day?",
+  "Lo que contestes decide cuántas habilidades te pongo, si la misión es diaria o de tres días, y cuánto tiempo doy a cada meta. Sé honesto: es más fácil subir después que ir siempre debiendo.":
+    "Your answer decides how many skills I set up, whether the mission is daily or three days a week, and how long I give each goal. Be honest: it's easier to raise it later than to always be behind.",
+  "Diez minutos al día": "Ten minutes a day",
+  "Lo justo para no romper la racha": "Just enough not to break the streak",
+  "Media hora": "Half an hour",
+  "Algo cada día, sin que sea un turno": "Something every day, without it being a shift",
+  "Una hora o más": "An hour or more",
+  "Tengo hueco de verdad y quiero usarlo": "I have real room and I want to use it",
+
+  "¿Dónde se te suele caer?": "Where does it usually fall apart?",
+  "Con esto decido qué NO ponerte: menos plazos si te cuesta arrancar, menos metas largas si te cuesta sostener, y una rama más corta si lo que te cuesta es cerrar. Si no te reconoces en ninguna, sáltala.":
+    "This decides what NOT to give you: fewer deadlines if starting is hard, fewer long goals if keeping it up is hard, and a shorter branch if closing things is what gets you. If none of them is you, skip it.",
+  "Me cuesta arrancar": "Starting is hard for me",
+  "Lo pienso mucho y no doy el primer paso": "I think it over and never take the first step",
+  "Me cuesta sostenerlo": "Keeping it up is hard for me",
+  "Empiezo con todo y a las dos semanas lo dejo": "I start strong and drop it two weeks in",
+  "Me cuesta terminar": "Finishing is hard for me",
+  "Tengo cinco cosas a medias y ninguna cerrada": "I have five things half done and none closed",
+
+  /* CINCO y no seis, y no es un despiste: la pregunta del género no sale en
+     inglés —allí el sustantivo no marca género y contestarla no cambiaría
+     nada—, así que el cuestionario mide una pantalla menos. Ver
+     `preguntaGenero` en js/09-inicio.js. */
+  "Armar mi tablero en 6 preguntas": "Build my board in 5 questions",
   "Tu tablero está listo": "Your board is ready",
   "{0} área para empezar": "{0} area to start with",
   "{0} áreas para empezar": "{0} areas to start with",
@@ -584,7 +614,11 @@ const TEXTOS_EN = {
   "Tu expedición empieza aquí": "Your journey starts here",
   "Convierte tu vida en un videojuego: misiones que haces hoy, habilidades que suben con la práctica, talentos que compras con dinero real y proyectos que avanzan por etapas.":
     "Turn your life into a video game: missions you do today, skills that rise with practice, talents you buy with real money, and projects that advance stage by stage.",
-  "Armar mi tablero en 3 preguntas": "Build my board in 3 questions",
+  /* CINCO y no seis, y no es un despiste: la pregunta del género no sale en
+     inglés —allí el sustantivo no marca género y contestarla no cambiaría
+     nada—, así que el cuestionario mide una pantalla menos. Ver
+     `preguntaGenero` en js/09-inicio.js. */
+  "Armar mi tablero en 6 preguntas": "Build my board in 5 questions",
   "Ver un ejemplo completo": "See a full example",
   "Empezar de cero": "Start from scratch",
   "El plan venció — confirma si lo lograste": "The plan is up — confirm whether you made it",
@@ -1189,6 +1223,19 @@ const TEXTOS_EN = {
   "{0} quitado del tablero": "{0} removed from the board",
   "Próximo hito · {0} días": "Next milestone · {0} days",
   "Te falta un nivel": "One level to go",
+  /* ---- Los dos módulos que abre el nivel (0.7.93) ---- */
+  "{0} se abre en el nivel {1} de expedición y vas en el {2}.":
+    "{0} opens at journey level {1} and you're at {2}.",
+  "El nivel sube solo con lo que ya haces: cumplir una misión, practicar una habilidad y volver mañana.":
+    "Your level rises from what you already do: finishing a mission, practising a skill, and coming back tomorrow.",
+  "{0} · se abre en el nivel {1}": "{0} · opens at level {1}",
+  "El árbol de talentos": "The talent tree",
+  "Proyectos y encargos": "Projects and assignments",
+  "Módulo nuevo": "New section",
+  "Entendido": "Got it",
+  "{0} · ver los planes": "{0} · see the plans",
+  "{0} · viene con {1}": "{0} · comes with {1}",
+  "Ramas llenas": "Branches full",
   "Te faltan {0} niveles": "{0} levels to go",
   "{0} pendiente": "{0} left",
   "{0} pendientes": "{0} left",
@@ -1970,6 +2017,10 @@ const TEXTOS_EN = {
   "El último de los cinco. El nivel sigue subiendo después: la cuenta no se acaba.":
     "The last of the five. Your level keeps rising after it: the count doesn't end.",
   "Destello propio al cumplir una misión": "Its own flash when you complete a mission",
+  /* El nombre corto, el que cabe en una tarjeta de premio. Faltaba desde que
+     existe `corto`: la celebración de subir de nivel usa ese y no el largo, así
+     que la app en inglés anunciaba «Destello propio» en español. */
+  "Destello propio": "Its own flash",
   "Celebración de pantalla completa": "Full-screen celebration",
   "Celebración grande": "Big celebration",
   "Rango Cartógrafo": "Cartographer rank",

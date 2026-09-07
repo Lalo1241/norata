@@ -537,7 +537,14 @@ async function portadaRegistrar() {
     if (!sesion) { portadaIrA("enviado"); return; }
     sync.tipo = "supabase";
     sync.cfg = { correo: correo, sesion: sesion, perfil: perfil };
-    await portadaEntrada(correo, "Cuenta creada. Bienvenido" + coma(perfil.saludo));
+    /* «Bienvenido» era la única palabra de toda la app que le ponía género a
+       quien la lee sin habérselo preguntado — y encima en la primera frase que
+       ve. Quien viene de la portada todavía no ha contestado la bienvenida, así
+       que casi siempre saldrá la forma neutra; el día que sí lo haya dicho,
+       esta frase ya lo sabe. Ver `GENEROS` en js/01-base.js. */
+    await portadaEntrada(correo, gen("Cuenta creada. Bienvenido",
+                                     "Cuenta creada. Bienvenida",
+                                     "Cuenta creada. Te damos la bienvenida") + coma(perfil.saludo));
   } catch (e) {
     portadaOcupada(false);
     /* Si la cuenta ya existía se manda a entrar en vez de dejar el aviso a

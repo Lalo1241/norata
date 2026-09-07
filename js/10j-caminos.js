@@ -219,9 +219,21 @@ function cartaDeCamino(c, trabada) {
   const col = colorDeCamino(c);
   const uno = c.peldanos.find(p => !p.pide.length);
   const puesto = caminoYaPuesto(c.id);
+  /* La carta trabada se pintaba en blanco y negro y al 60% y ahí acababa la
+     explicación. Eso dice «esto está apagado», no «esto se abre», y las dos
+     cosas se tocan de maneras distintas: nadie pulsa lo apagado, y pulsar es
+     justo lo que hace falta aquí — es lo que saca el cuadro con el precio.
+
+     Y son DOS motivos distintos con la misma cara, así que la chapa los separa:
+     o falta el plan, o el plan está y son las ramas las que van llenas. Con una
+     sola palabra —«Pro»— la segunda mentía: quien ya paga y tiene las ramas
+     llenas leía que le faltaba un plan que ya tiene. */
+  const chapa = !trabada ? "" :
+    `<span class="llave cam-llave">${icon("lock", 11)}${escapeHtml(
+      trabada === "caminos" ? tx(NOMBRE_PRO) : tx("Ramas llenas"))}</span>`;
   return `<button type="button" class="cam-carta${trabada ? " trabada" : ""}" style="--c:${col}"
     onclick="${trabada ? `topeAlcanzado('${escapeAttr(trabada)}')` : `verCamino('${escapeAttr(c.id)}')`}">
-    <span class="cam-mapa">${mapaDeCamino(c, col)}</span>
+    <span class="cam-mapa">${mapaDeCamino(c, col)}${chapa}</span>
     <span class="cam-cuerpo">
       ${puesto ? `<span class="cam-hecho">${selloCamino()}${tx("Ya lo tienes")}</span>` : ""}
       <span class="cam-titulo">${escapeHtml(tx(c.nombre))}</span>
