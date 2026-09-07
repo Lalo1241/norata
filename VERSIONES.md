@@ -65,16 +65,109 @@ un día **después**, y a partir de ahí nadie sabe qué se hizo cuándo.
 Solo se nota entre las 00:00 y las 06:00 UTC, que en México son las seis horas
 anteriores del día de antes. Justo la franja en la que se trabaja de noche.
 
-**Cómo salir de dudas** cuando no se esté seguro de en qué huso va el reloj:
+**Cómo salir de dudas** cuando no se esté seguro de en qué huso va el reloj.
+Aquí el reloj del sistema YA está en México —Windows lo llama «Central Standard
+Time (Mexico)»—, así que lo que hay que hacer es preguntárselo a él y mirar que
+el desfase sea `-0600`:
 
 ```
-TZ=America/Mexico_City date "+%-d %b %Y"
+date "+%-d %b %Y | %H:%M %z"
+```
+
+**Y lo que NO hay que usar, aunque parezca lo obvio: `TZ=America/Mexico_City`.**
+El Git Bash de esta máquina no trae la base de husos, así que **ignora `TZ` en
+silencio y contesta en UTC** — pedirle México, UTC y Tokio devuelve las tres
+veces la misma hora. Entre las 18:00 y la medianoche de México eso responde el
+día siguiente, que es exactamente el fallo contra el que se escribió esta regla.
+Se comprueba en un comando:
+
+```
+TZ=Asia/Tokyo date "+%z"      # si contesta +0000, TZ no funciona aquí
 ```
 
 México es **UTC-6 todo el año**: el país quitó el horario de verano en 2022, así
 que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
+
+### 0.7.93 · 6 sep 2026
+
+**La zona horaria se puede elegir por su desfase, y hay husos para todo el
+mundo.** Lo pidió Eduardo: «que manejen lo de GMT y que se vea en todas las
+zonas horarias igual, ayuda mucho a apoyarse en elegir la correcta».
+
+Cada opción se lee `GMT-6 · America/Mexico City`, y la lista va **ordenada por
+ese desfase**. Es lo que la convierte en una escalera: si sabes que vas dos
+horas por delante de México, bajas dos peldaños y ahí está. Ordenada por nombre
+había que saberse el huso de memoria, que es justo lo que uno viene a buscar.
+
+**El desfase se calcula, no está escrito**, y esa es la decisión que importa:
+un desfase no es una propiedad del huso, es una propiedad del huso **en una
+fecha**. Medido con las mismas zonas en dos fechas:
+
+| | 6 sep | 15 ene |
+| --- | --- | --- |
+| Madrid | GMT+2 | GMT+1 |
+| Londres | GMT+1 | GMT+0 |
+| Nueva York | GMT-4 | GMT-5 |
+| Sídney | GMT+10 | GMT+11 |
+| **Ciudad de México** | **GMT-6** | **GMT-6** |
+
+Una tabla escrita a mano habría nacido correcta y mentiría dos veces al año, en
+fechas distintas para cada país. Se le pregunta al navegador, que lleva la base
+de husos dentro: se pide la hora de allá y se resta la de aquí.
+
+**Y el formato se escribe a mano en vez de usar el `timeZoneName: "shortOffset"`
+de `Intl`**, porque ese cambia de forma según el idioma y el navegador —«GMT-6»,
+«GMT-06:00», «UTC-6»— y lo único que hace útil esa columna es que todas las
+filas se lean IGUAL. Los minutos solo aparecen cuando los hay: India es GMT+5:30
+y Nepal GMT+5:45, pero poner «:00» en las otras sesenta ensucia la columna.
+
+**De 16 husos a 62.** Los dieciséis de antes no salían de América más Madrid y
+Londres; con la app en inglés desde la 0.7.84, alguien en Tokio o en Berlín no
+encontraba el suyo. Ahora hay uno por cada desfase que existe, los cuatro de
+México y todos los países de habla hispana. **No se quitó ninguno de los
+dieciséis** — comprobado uno por uno. Sin esto, enseñar «GMT+» en una lista que
+se cortaba en GMT+1 era una escalera sin peldaños.
+
+Nadie se queda fuera aunque su huso no esté: `renderTimezone` mete siempre el
+detectado del dispositivo, así que la lista es para quien quiere CAMBIARLO —
+alguien que viaja, o que trabaja con el horario de otro país.
+
+**Medido:** 62 opciones, **0 mal formadas y 0 desordenadas**, y un huso
+inventado devuelve `null` y se salta en vez de reventar Ajustes entero.
+
+**Tres cosas que salieron de paso, en esa misma pantalla:**
+
+- **«Zona horaria actualizada» y «de este equipo» estaban sin `tx()`.** La misma
+  clase de fallo que la 0.7.90. Envueltas, con sus dos entradas; en inglés la
+  opción detectada dice ahora «(from this device)».
+- **«de este equipo» pasa a «de este dispositivo»**, que es la palabra que ya
+  usa la nota dos líneas más arriba en esa misma pantalla.
+- **Un punto doble que llevaba ahí desde siempre.** La pista decía «Ahí son las
+  02:27 a.m**..**»: en español de México la hora ya trae su punto y la frase le
+  añadía el suyo. En inglés no pasa, porque ahí es «2:27 AM». Se quita el punto
+  repetido al componer, así que vale para cualquier idioma que venga y no
+  obliga a partir la frase en dos versiones.
+
+## Y una corrección a este documento: el comando de las fechas estaba mal
+
+La sección «Las fechas van en hora de México» recomendaba
+`TZ=America/Mexico_City date` para salir de dudas. **En el Git Bash de esta
+máquina eso no funciona**: no trae la base de husos, así que **ignora `TZ` en
+silencio y contesta en UTC**. Pedirle México, UTC y Tokio devuelve las tres
+veces la misma hora.
+
+Entre las 18:00 y la medianoche de México eso responde el día siguiente — que
+es exactamente el fallo contra el que se escribió la regla. **Esta misma entrada
+lo enseña**: se escribió a las 22:22 del 6 de septiembre en México, que en UTC
+ya son las 04:22 del 7. El comando viejo la habría fechado mañana.
+
+Lo fiable aquí es `date` a secas, porque el reloj del sistema ya está en México
+—Windows lo llama «Central Standard Time (Mexico)»—, y se confirma mirando que
+el desfase diga `-0600`. Corregido en este documento y en `CLAUDE.md`, con la
+prueba que lo caza en un comando: `TZ=Asia/Tokyo date "+%z"`; si contesta
+`+0000`, `TZ` no funciona.
 
 ### 0.7.92 · 6 sep 2026
 

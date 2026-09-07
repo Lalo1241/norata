@@ -976,12 +976,95 @@ function loadProjectExamples(silent) {
 
 /* ================= Zona horaria ================= */
 
+/* Uno por cada desfase que existe, y los de los países donde se habla la
+   lengua de la app con todos sus husos. Eran dieciséis y no salían de América
+   más Madrid y Londres: con la app en inglés desde la 0.7.84, alguien en Tokio
+   o en Berlín no encontraba el suyo en la lista.
+
+   No pasa nada por no estar: `renderTimezone` mete SIEMPRE el huso detectado
+   del dispositivo, así que quien viva en un sitio que no esté aquí ya lo tiene
+   elegido. Esta lista es para quien quiere CAMBIARLO a otro — alguien que
+   viaja, o que trabaja con el horario de otro país.
+
+   Van sin ordenar a propósito: el orden lo decide el desfase al pintarlas, y
+   ese cambia solo con el horario de verano. Ordenarlas aquí a mano sería una
+   segunda verdad que se desincroniza dos veces al año. */
 const TZ_OPTIONS = [
+  /* México, con sus cuatro husos */
   "America/Mexico_City", "America/Tijuana", "America/Monterrey", "America/Cancun",
+  "America/Hermosillo",
+  /* El resto de América */
   "America/Bogota", "America/Lima", "America/Santiago", "America/Argentina/Buenos_Aires",
-  "America/Sao_Paulo", "America/New_York", "America/Chicago", "America/Denver",
-  "America/Los_Angeles", "Europe/Madrid", "Europe/London", "UTC"
+  "America/Sao_Paulo", "America/Montevideo", "America/Asuncion", "America/La_Paz",
+  "America/Caracas", "America/Panama", "America/Costa_Rica", "America/Guatemala",
+  "America/Havana", "America/Santo_Domingo", "America/Puerto_Rico",
+  "America/New_York", "America/Chicago", "America/Denver", "America/Phoenix",
+  "America/Los_Angeles", "America/Anchorage", "America/Halifax", "Pacific/Honolulu",
+  /* Europa y África */
+  "Atlantic/Azores", "Europe/Lisbon", "Europe/London", "Europe/Madrid", "Europe/Paris",
+  "Europe/Berlin", "Europe/Rome", "Europe/Athens", "Europe/Kyiv", "Europe/Moscow",
+  "Africa/Casablanca", "Africa/Lagos", "Africa/Cairo", "Africa/Johannesburg",
+  "Africa/Nairobi",
+  /* Asia y Oceanía */
+  "Asia/Jerusalem", "Asia/Riyadh", "Asia/Dubai", "Asia/Karachi", "Asia/Kolkata",
+  "Asia/Dhaka", "Asia/Bangkok", "Asia/Jakarta", "Asia/Shanghai", "Asia/Hong_Kong",
+  "Asia/Singapore", "Asia/Manila", "Asia/Tokyo", "Asia/Seoul",
+  "Australia/Perth", "Australia/Brisbane", "Australia/Sydney", "Pacific/Auckland",
+  "UTC"
 ];
+
+/* ---- El desfase de un huso, CALCULADO y no escrito ----
+   Un desfase no es una propiedad del huso: es una propiedad del huso EN UNA
+   FECHA. Madrid es GMT+1 en enero y GMT+2 en julio, y Santiago se mueve al
+   revés que Madrid porque está en el otro hemisferio. Una tabla de desfases
+   escrita a mano nace correcta y miente dos veces al año, en fechas distintas
+   para cada país.
+
+   Así que se pregunta al navegador, que lleva la base de husos dentro: se le
+   pide la hora de ALLÁ y se resta la de aquí. Es el mismo truco que usa todo
+   el mundo porque `Intl` no expone el desfase en minutos y punto.
+
+   Devuelve `null` si el huso no existe —un respaldo viejo, un nombre que
+   cambió de país—, y quien llama lo trata como «esta opción no se pinta» en
+   vez de reventar la pantalla de Ajustes entera. */
+function tzDesfaseMin(tz, cuando) {
+  try {
+    const d = cuando || new Date();
+    const p = {};
+    for (const x of new Intl.DateTimeFormat("en-US", {
+      timeZone: tz, hour12: false,
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", second: "2-digit"
+    }).formatToParts(d)) p[x.type] = x.value;
+    /* La medianoche sale como «24» en algunos navegadores y como «00» en
+       otros. Sin esto, el huso de quien mira justo a las 00:00 salía un día
+       entero desplazado. */
+    const hora = p.hour === "24" ? 0 : Number(p.hour);
+    const alla = Date.UTC(Number(p.year), Number(p.month) - 1, Number(p.day),
+                          hora, Number(p.minute), Number(p.second));
+    /* Los milisegundos se tiran de los dos lados: `formatToParts` solo llega
+       al segundo, y sin recortar aquí la resta traía un resto que redondeaba
+       mal los husos de media hora. */
+    return Math.round((alla - Math.floor(d.getTime() / 1000) * 1000) / 60000);
+  } catch (e) { return null; }
+}
+
+/* «GMT-6», «GMT+5:30», «GMT+0». Se escribe a mano en vez de pedirle a `Intl`
+   su `timeZoneName: "shortOffset"` porque ese cambia de forma según el idioma
+   y el navegador —«GMT-6», «GMT-06:00», «UTC-6»—, y lo que hace útil esta
+   columna es que todas las filas se lean IGUAL para poder compararlas de un
+   vistazo. Lo pidió Eduardo con esas palabras: «que se vea en todas las zonas
+   horarias igual, ayuda mucho a apoyarse en elegir la correcta».
+
+   Los minutos solo se escriben cuando los hay: India es GMT+5:30 y Nepal
+   GMT+5:45, pero poner «:00» en las otras sesenta ensucia la columna. */
+function tzGMT(tz, cuando) {
+  const m = tzDesfaseMin(tz, cuando);
+  if (m === null) return "";
+  const abs = Math.abs(m);
+  const h = Math.floor(abs / 60), min = abs % 60;
+  return "GMT" + (m < 0 ? "-" : "+") + h + (min ? ":" + String(min).padStart(2, "0") : "");
+}
 
 function detectedTZ() {
   try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; } catch (e) { return "UTC"; }
@@ -1561,17 +1644,37 @@ function volverDeAjustes() {
 function renderTimezone() {
   const sel = document.getElementById("tz-select");
   if (!sel) return;
-  const cur = userTZ();
-  const list = [...new Set([detectedTZ(), cur, ...TZ_OPTIONS])];
-  sel.innerHTML = list.map(tz =>
-    `<option value="${escapeAttr(tz)}" ${tz === cur ? "selected" : ""}>${escapeHtml(tz.replace(/_/g, " "))}${tz === detectedTZ() ? " (de este equipo)" : ""}</option>`
+  const cur = userTZ(), det = detectedTZ(), ahora = new Date();
+
+  /* Ordenadas por desfase y no por nombre. Es lo que convierte la lista en una
+     escalera: si sabes que vas dos horas por delante de México, bajas dos
+     peldaños y ahí está. Por nombre habría que saberse el huso de memoria,
+     que es justo lo que uno viene a buscar aquí.
+
+     El huso detectado y el elegido entran siempre, estén o no en la lista, y
+     se cuelan en su peldaño como una más. */
+  const lista = [...new Set([det, cur, ...TZ_OPTIONS])]
+    .map(tz => ({ tz, min: tzDesfaseMin(tz, ahora) }))
+    .filter(o => o.min !== null)
+    .sort((a, b) => a.min - b.min || a.tz.localeCompare(b.tz));
+
+  sel.innerHTML = lista.map(o =>
+    `<option value="${escapeAttr(o.tz)}" ${o.tz === cur ? "selected" : ""}>` +
+    `${escapeHtml(tzGMT(o.tz, ahora))} · ${escapeHtml(o.tz.replace(/_/g, " "))}` +
+    `${o.tz === det ? " (" + escapeHtml(tx("de este dispositivo")) + ")" : ""}</option>`
   ).join("");
   const now = new Date();
   let hora = "";
   try {
     hora = now.toLocaleTimeString(localeActual(), { timeZone: cur, hour: "2-digit", minute: "2-digit" });
   } catch (e) { hora = "—"; }
-  document.getElementById("tz-hint").textContent = T`Ahí son las ${hora}. Tu día en la app: ${formatDate(todayKey())}.`;
+  /* El punto doble: en español de México la hora sale «02:27 a.m.» —con punto
+     final— y la frase le añadía el suyo, así que se leía «a.m...». En inglés no
+     pasa, porque ahí es «2:27 AM» sin punto. En vez de partir la frase en dos
+     versiones por idioma, se quita el punto repetido después de componerla:
+     vale para cualquier idioma que venga y no toca el diccionario. */
+  const pista = T`Ahí son las ${hora}. Tu día en la app: ${formatDate(todayKey())}.`;
+  document.getElementById("tz-hint").textContent = pista.replace(/\.\.+/g, ".");
 }
 
 function setTimezone(tz) {
@@ -1579,7 +1682,7 @@ function setTimezone(tz) {
   state.settings.timezone = tz;
   save();
   renderTimezone();
-  toast("Zona horaria actualizada");
+  toast(tx("Zona horaria actualizada"));
 }
 
 /* ================= Datos: exportar / importar ================= */
