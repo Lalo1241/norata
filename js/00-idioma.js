@@ -440,16 +440,32 @@ function nombreDeMes(n, largo) {
    correcta pero no es la que Norata ha usado siempre. Cortando de «miércoles»
    sale la M de siempre, y en inglés sale la S T W T F S S que allá es la
    normal. */
+/* ---- Y se calcula UNA vez por idioma ----
+   Son siete `toLocaleDateString`, que en `Intl` no son gratis: medido, la
+   lista larga que sale de aquí costaba **6,8 ms**, y `streakInfo()` la pedía
+   21 veces —una por cada día de la tira de catorce y de la semana— o sea 143
+   ms de recalcular veintiuna veces exactamente lo mismo. Era el 100% de lo que
+   costaba `streakInfo`, y `streakInfo` era lo que quedaba de lento en Resumen
+   y en Misiones después de arreglar el nivel de expedición.
+
+   La llave es el idioma porque es lo único que cambia el resultado. Y se
+   devuelve una COPIA: quien la reciba puede ordenarla o darle la vuelta sin
+   estropeársela a los otros doce sitios que la piden. */
+let _letrasCache = null;
+
 function letrasDeSemana() {
+  const loc = localeActual();
+  if (_letrasCache && _letrasCache.loc === loc) return _letrasCache.v.slice();
   const out = [];
   for (let i = 0; i < 7; i++) {
     try {
       const d = new Date(Date.UTC(2021, 0, 3 + i))
-        .toLocaleDateString(localeActual(), { weekday: "long", timeZone: "UTC" });
+        .toLocaleDateString(loc, { weekday: "long", timeZone: "UTC" });
       out.push(d.charAt(0).toUpperCase());
     } catch (e) { out.push("?"); }
   }
-  return out;
+  _letrasCache = { loc, v: out };
+  return out.slice();
 }
 
 /* El nombre entero del día, con 0 = domingo. Lo da `Intl` por la misma razón

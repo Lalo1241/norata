@@ -1463,11 +1463,22 @@ function activityDaySet() {
 /* Dos letras para martes y miércoles porque con una sola son la misma M y
    la fila de la semana se vuelve ilegible. En inglés el choque es el mismo
    con T y con S, así que se cortan dos letras en los dos idiomas. */
+/* Dos cosas aquí, y la primera era un error de bulto: `letrasDeSemana()` se
+   volvía a pedir DENTRO del propio `map`, así que la lista de siete se armaba
+   ocho veces —una fuera y una por cada día— con sus siete `toLocaleDateString`
+   cada vez. Ahora se pide una y se reutiliza.
+
+   Y con memoria por idioma, por lo mismo que la corta: `streakInfo()` la pide
+   21 veces por pintado. Copia al salir, que quien la recibe la mapea. */
+let _letrasLargasCache = null;
+
 function letrasDeSemanaLargas() {
-  return letrasDeSemana().map((l, i) => {
-    const otras = letrasDeSemana();
-    return otras.filter(x => x === l).length > 1 ? nombreDeDia(i) : l;
-  });
+  const loc = typeof localeActual === "function" ? localeActual() : "";
+  if (_letrasLargasCache && _letrasLargasCache.loc === loc) return _letrasLargasCache.v.slice();
+  const base = letrasDeSemana();
+  const v = base.map((l, i) => base.filter(x => x === l).length > 1 ? nombreDeDia(i) : l);
+  _letrasLargasCache = { loc, v };
+  return v.slice();
 }
 const HITOS_RACHA = [3, 7, 14, 30, 50, 100, 200, 365, 500, 1000];
 

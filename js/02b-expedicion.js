@@ -371,7 +371,52 @@ function expNivelMaximo(s) {
   return levelInfo(Math.max(max, Number(s.xp) || 0)).level;
 }
 
+/* ================= El reparto se cuenta UNA vez =================
+   `expDesglose()` recorre todo lo que hay: cada misión por cada día de su
+   registro, y cada habilidad ordenando su historial ENTERO para saber el nivel
+   más alto que llegó a tener. Eso cuesta **120 ms** con una cuenta de ejemplo,
+   y no es que la cuenta sea mejorable: es que se repetía.
+
+   `nivelExpedicion()` la pide cada vez que alguien pregunta por el nivel, y en
+   un solo pintado del Resumen eso pasaba **cuatro veces**: 480 de los 685 ms
+   que costaba entrar. En un teléfono de gama media, los dos segundos que
+   describió Eduardo — «entrar a Resumen suele demorar entre 1-2 seg mientras
+   no pasa nada».
+
+   ---- Por qué la llave es la que es ----
+   No basta con vaciar la caché en `save()`. Hay CINCO sitios que reasignan
+   `state` entero sin pasar por ahí —volver del ejemplo, empezar de cero y las
+   tres recargas de la sincronía— y con una caché colgada solo de `save()` esos
+   cinco devolverían los puntos de los datos anteriores. Por eso la llave lleva
+   las dos cosas: la IDENTIDAD del objeto `state`, que cambia sola en esos
+   cinco, y un sello que sube en cada `save()`, que es lo que cubre los cambios
+   hechos dentro del mismo objeto.
+
+   Y lleva además los puntos simulados, que la trastienda cambia sin tocar los
+   datos: sin eso, pedir «ver como fundador» no movería el nivel.
+
+   Se devuelve una COPIA. El reparto se enseña en la pantalla del recorrido y
+   quien lo reciba puede hacer lo que quiera con él sin envenenar la caché de
+   todos los demás; copiar ocho números no cuesta nada. */
+let _expSello = 0;
+let _expCache = null;
+
+/* La llama `save()`. Cualquier cambio de datos pasa por ahí. */
+function expTocado() { _expSello++; _expCache = null; }
+
 function expDesglose() {
+  const sim = typeof puntosDeExpedicionSimulados === "function"
+    ? puntosDeExpedicionSimulados() : null;
+  if (_expCache && _expCache.state === state
+      && _expCache.sello === _expSello && _expCache.sim === sim) {
+    return Object.assign({}, _expCache.valor);
+  }
+  const valor = expDesgloseCrudo();
+  _expCache = { state, sello: _expSello, sim, valor };
+  return Object.assign({}, valor);
+}
+
+function expDesgloseCrudo() {
   /* La trastienda puede pedir un nivel alto para MIRAR lo que abre la escalera
      —los ambientes del 12 y del 20— sin tener que ganárselo, que son años. Se
      engancha aquí y no en `puntosExpedicion()` a propósito: todo lo demás sale

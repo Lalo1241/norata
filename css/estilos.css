@@ -3871,6 +3871,21 @@
     stroke-linecap: round;
     stroke-linejoin: round;
   }
+  /* ---- El toque se acusa AL INSTANTE ----
+     Los cinco círculos de navegar eran lo único de la app que no contestaba al
+     pulsarse: `.btn` encoge un 3%, el ＋ un 8%, y estos no hacían nada. En una
+     computadora no se nota porque el ratón ya tiene el `:hover`; en un teléfono
+     tocabas y la pantalla se quedaba igual hasta que terminaba de pintarse la
+     siguiente. Eduardo lo describió como «mientras no pasa nada», y aunque la
+     causa gorda era otra —ver la 0.7.96— esta parte seguía ahí: aunque pintar
+     costara cero, un botón que no se hunde al tocarlo se siente muerto.
+
+     Lo hace el CSS y no el JavaScript, que es lo importante: `:active` entra en
+     el mismo fotograma del toque, sin esperar a nada. Y este bloque lleva
+     `transition: none` a propósito (ver arriba), así que no hay animación que
+     pueda quedarse a medias. */
+  .thumb-cluster .c-nav:active { transform: scale(0.9); }
+
   .thumb-cluster .c-nav.active {
     color: var(--mint);
     border-color: var(--mint);

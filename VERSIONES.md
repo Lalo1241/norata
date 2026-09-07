@@ -100,6 +100,91 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.96 · 7 sep 2026
+
+**Entrar al Resumen pasa de 685 ms a 20.** Y las demás pantallas con él.
+
+Eduardo lo describió así: «he sentido más lento de lo usual pasar entre
+módulos, y sobre todo entrar a Resumen suele demorar entre 1-2 seg mientras no
+pasa nada». Medido en una computadora, tenía razón por partida doble.
+
+| Pantalla | Antes | Ahora |
+| --- | --- | --- |
+| Resumen | 685 ms | **20** |
+| Misiones | 161 | **15** |
+| Talentos | 86 | **22** |
+| Proyectos | 5 | 4 |
+| Habilidades | 6 | 4 |
+
+En un teléfono de gama media eso son los uno o dos segundos que sentía, porque
+todo esto es JavaScript puro y ahí va tres o cuatro veces más lento.
+
+---
+
+**Nada de esto era una cuenta lenta. Eran cuentas REPETIDAS**, y salieron una
+detrás de otra tirando del hilo con el cronómetro.
+
+**Primera: `nivelExpedicion()`, 511 de los 685 ms.** Pide `expDesglose()`, que
+recorre todo lo que hay —cada misión por cada día de su registro, y cada
+habilidad ordenando su historial ENTERO para saber el nivel más alto que llegó
+a tener—. Eso cuesta 120 ms, y un solo pintado del Resumen lo pedía **cuatro
+veces**. Ahora el reparto se cuenta una vez y se guarda.
+
+La llave de esa memoria lleva dos cosas y las dos hacen falta: el **sello** que
+sube en cada `save()`, para los cambios hechos dentro del mismo `state`, y la
+**identidad** del objeto `state`, porque hay CINCO sitios que lo reasignan
+entero sin pasar por `save()` —volver del ejemplo, empezar de cero y las tres
+recargas de la sincronía—. Con una caché colgada solo de `save()`, esos cinco
+habrían devuelto los puntos de los datos anteriores. Lleva además los puntos
+simulados de la trastienda, que cambian sin tocar los datos.
+
+**Segunda, ya con la primera resuelta: `streakInfo()`, 124 ms**, y lo pagaban
+Resumen y Misiones por separado en cada pintado. El culpable no estaba a la
+vista: **`letrasDeSemanaLargas()` cuesta 6,8 ms y se llamaba 21 veces**, una por
+cada día de la tira de catorce y de la semana. Son siete `toLocaleDateString`
+por vuelta, que en `Intl` no son gratis.
+
+Y dentro de esa función había un error de bulto: **`letrasDeSemana()` se volvía
+a pedir DENTRO de su propio `map`**, así que la lista de siete se armaba ocho
+veces —una fuera y una por cada día—. Sumando: unas 1.200 llamadas a `Intl` por
+pintado para calcular veintiuna veces las mismas siete letras. Ahora se calcula
+una vez por idioma, con la llave puesta en el idioma porque es lo único que
+cambia el resultado. `streakInfo()` pasó de 124 ms a **0,78**.
+
+**Las tres memorias devuelven una copia.** El reparto se enseña en la pantalla
+del recorrido y las letras las pide una docena de sitios que las mapean; copiar
+ocho números o siete letras no cuesta nada, y envenenar la caché de todos los
+demás sí. Comprobado: mutar lo devuelto no cambia lo que recibe el siguiente.
+
+---
+
+**Y la otra mitad del «no pasa nada», que no era velocidad.** Los cinco
+círculos de navegar eran lo único de la app que **no contestaba al pulsarse**:
+`.btn` encoge un 3% y el ＋ un 8%, y estos no hacían nada. En una computadora no
+se nota porque el ratón ya tiene su `:hover`; en un teléfono tocabas y la
+pantalla se quedaba igual hasta que terminaba de pintarse la siguiente. Lo hace
+el CSS y no el JavaScript, que es lo importante: `:active` entra en el mismo
+fotograma del toque, sin esperar a nada.
+
+---
+
+**Sobre las pantallas esqueleto, que Eduardo pidió expresamente.** Se
+consideraron y **no se pusieron**, y conviene dejar dicho por qué para no
+volver a discutirlo: un esqueleto existe para tapar una espera, y después de
+esto no queda espera que tapar. Medido, la PRIMERA entrada de una sesión —la
+más cara, con todo frío— da 51 ms en Talentos, 21 en Habilidades, 19 en
+Misiones y 4 en Proyectos. Un esqueleto ahí no se vería: para que se viera
+habría que RETRASAR el pintado un fotograma a propósito, o sea hacer la app más
+lenta para poder enseñar que está cargando.
+
+Donde la espera sí es real —la primera apertura de todas, con 460 KB por
+bajar— la app ya enseña su pantalla de marca desde el primer byte del HTML,
+que es lo que un esqueleto haría y además dice de quién es la app.
+
+Si algún día una pantalla vuelve a pasar de unos 200 ms, entonces sí: el sitio
+es `showView`, y lo que hace falta es pintar el esqueleto y aplazar el render
+un fotograma.
+
 ### 0.7.95 · 7 sep 2026
 
 **Una rama plegada dice en qué va, y se pliegan todas de una vez.** Es trabajo
