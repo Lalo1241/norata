@@ -90,6 +90,70 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.94.2 · 7 sep 2026
+
+**Los dos módulos que abre el nivel ya se anuncian con SU dibujo, y no con una
+estrella y una bandera que no son de nadie.**
+
+Eduardo pidió ver la tarjeta que sale al desbloquear un módulo. Renderizada y
+puesta al lado de sus vecinas, tenía dos cosas mal.
+
+**El dibujo no era el del módulo.** Talentos se anunciaba con una estrella y
+Proyectos con una bandera, porque el peldaño de la escalera los nombraba así
+(`icon: "star"`). En la barra, Talentos es un árbol de tres nodos y Proyectos
+una carpeta. O sea que el premio no se parecía a donde te manda — y eso es
+exactamente lo que el comentario de la tarjeta de un ambiente, tres bloques más
+abajo en el mismo archivo, se molesta en explicar desde que Eduardo lo paró la
+primera vez: «la vista de la recompensa tiene que ser la que ya enseña Mi
+apariencia, o el premio no se reconoce cuando llegas a buscarlo». El mismo
+despiste, un nivel más abajo.
+
+**Y se arregla leyendo el original, no dibujando otro.** `trazoDeModulo()`
+(`js/04-misiones.js`) saca el SVG **del propio botón de la barra**, del DOM. Se
+podría haber copiado el trazo a `MODULOS` y habría quedado igual de bien hoy;
+serían dos verdades sobre el mismo dibujo, y la que se queda atrás es la que un
+día enseña el árbol viejo en la celebración y el nuevo en el menú. Comprobado
+midiendo: lo que se pinta es idéntico carácter por carácter a lo que hay en el
+botón. Los cinco iconos comparten `viewBox="0 0 24 24"`, así que el mismo
+contenido sirve a 17 px en la escalera y a 65 en la celebración.
+
+**Y la tarjeta se veía vacía.** Un icono de 30 px en una caja de 220 × 104,
+cuando la de al lado —«Destello propio», «Marea»— llena la suya entera con su
+escena o su miniatura. Puestas en fila, la del módulo parecía no haber acabado
+de cargar. Ahora el dibujo ocupa el 62% del hueco y el resto lleva un lavado del
+mismo tono, igual que la tarjeta de un ambiente pinta su sobrante con su suelo.
+El porcentaje no es capricho: la caja mide 104 con tres tarjetas en un teléfono
+y 150 con una sola, y un tamaño en píxeles dejaba el icono ahogado en la primera
+y perdido en la segunda.
+
+Tres detalles que costaron una vuelta cada uno:
+
+- **El grosor del trazo baja de 1,9 a 1,6 en la versión grande**, y no es una
+  inconsistencia con la barra: allí el dibujo mide 19 px y aquí 65, así que con
+  el mismo número el trazo se vería tres veces más gordo. Lo que se conserva es
+  el peso a la vista. En la escalera, que también son 17 px, se queda en 1,9.
+- **El selector necesita `.ncel-vista svg.ncel-mod` y no `.ncel-mod` a secas.**
+  La regla genérica de esa caja estira CUALQUIER svg al 100%, y le gana a una
+  clase suelta por especificidad: medido, el dibujo salía a 220 × 104 en vez de
+  a los 65 que se buscaban.
+- **No se usa `icon()`** para el grande: ese devuelve un `<span class="ic">` con
+  el tamaño escrito en el atributo, y aquí el tamaño lo tiene que decidir el
+  CSS, que es quien sabe cuánto mide la caja.
+
+La escena se queda de noche en los dos modos —`.ncel` está en la regla que
+redeclara la paleta oscura— así que el lavado y el marco valen igual con el modo
+claro puesto. Medido: dentro de la escena `--mint` es `#5fe0b0` en los dos.
+
+**Por qué el número saltó dos veces.** Esto empezó siendo la 0.7.93.1 y acabó
+siendo la 0.7.94.2: mientras se hacía, otra sesión publicó la 0.7.93.1 (las
+zonas horarias), la 0.7.94 (el modo horizontal) y la 0.7.94.1 (el horizontal
+recortado a los botones del canto). No hubo ningún choque de verdad —ninguna de
+las tres tocó los archivos de este arreglo— y los únicos conflictos fueron los
+tres sitios donde se escribe el número. Queda apuntado porque es la primera vez
+que pasa: con dos sesiones publicando el mismo día, **el número se elige al
+subir y no al empezar**, y antes de publicar hay que volver a mirar dónde está
+`main`.
+
 ### 0.7.94.1 · 7 sep 2026
 
 **El modo horizontal se queda en una sola cosa: los botones al canto
@@ -147,6 +211,7 @@ nuevo: es una decisión tomada, no una idea pendiente.
 
 Y la puerta vuelve a ser exactamente la de antes: se le quitó también la lectura
 del parámetro, que sin nada que encender era código muerto.
+
 
 ### 0.7.94 · 6 sep 2026
 
@@ -344,6 +409,7 @@ Lo fiable aquí es `date` a secas, porque el reloj del sistema ya está en Méxi
 el desfase diga `-0600`. Corregido en este documento y en `CLAUDE.md`, con la
 prueba que lo caza en un comando: `TZ=Asia/Tokyo date "+%z"`; si contesta
 `+0000`, `TZ` no funciona.
+
 
 ### 0.7.93 · 6 sep 2026
 
