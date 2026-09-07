@@ -27,3 +27,8 @@ supabase/.temp/
 # la lista ASSETS de sw.js.
 pruebas/
 lote2.html
+
+# La nota de cada sucursal es SUYA: dice qué rama es, qué puerto usa y de qué
+# se ocupa. En `main` no significa nada, y viajando en git dos sucursales se
+# pisan la nota la una a la otra (paso al traer `mapa`: choque add/add).
+LEEME-ESTA-CARPETA.md

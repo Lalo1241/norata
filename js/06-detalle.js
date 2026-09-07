@@ -1317,7 +1317,20 @@ function renderTree() {
       onclick: focus.id ? `openPerk('${focus.id}')` : null,
       pct: inProgress.length ? avgProgress : undefined
     })
-  }) + `<div class="sec-label">${tx("Tus ramas de talentos")}</div>`;
+  /* Los dos botones solo con MÁS DE UNA rama: con una sola, «plegarlas todas»
+     no es una acción, es el mismo botón que ya tiene su cabecera. Y cada uno se
+     apaga cuando no haría nada, que es lo que evita el «le doy y no pasa nada».
+
+     Cada botón lleva su propio `tx()` y no va dentro del rótulo: la rama `mapa`
+     es de antes de que la app hablara inglés, y una cadena con HTML dentro no
+     se traduce. */
+  }) + `<div class="sec-label">${tx("Tus ramas de talentos")}${
+    ramasT.length > 1 ? `<span class="sec-acciones">
+      <button type="button" onclick="plegarTodasLasRamas(true)"${
+        ramasT.every(b => isCollapsed(b)) ? " disabled" : ""}>${tx("Plegar todas")}</button>
+      <button type="button" onclick="plegarTodasLasRamas(false)"${
+        ramasT.every(b => !isCollapsed(b)) ? " disabled" : ""}>${tx("Desplegar todas")}</button>
+    </span>` : ""}</div>`;
 
   branches.forEach((b, bi) => {
     // Lo que se dibuja: talentos sueltos y cajas cerradas. La cuenta de la
@@ -1351,14 +1364,42 @@ function renderTree() {
             onclick="abrirMenuCrear('${bj}', event)">${tx("Crear el primero")}</button>
         </div>`;
     } else if (collapsed) {
+      /* ---- La rama plegada ----
+         Antes eran doce rombitos de color y la cuenta. Los rombos no decían
+         nada: a ese tamaño el estado no se distingue, y dos ramas distintas
+         se veían igual. Plegar servía para ahorrar sitio y costaba saber qué
+         había dentro, así que había que desplegar para enterarse — es decir,
+         plegar no ahorraba nada.
+
+         Ahora dice lo que se preguntaría uno antes de desplegarla: cuánto
+         llevas, qué tienes en marcha y qué toca después. La barra da el
+         vistazo y los números el detalle. */
+      const enCurso = reales.filter(n => { const e = perkStatus(n); return e === "active" || e === "due"; }).length;
+      const porAbrir = reales.filter(n => perkStatus(n) === "available").length;
+      const trabados = reales.filter(n => perkStatus(n) === "locked").length;
+      const pct = reales.length ? Math.round(doneN / reales.length * 100) : 0;
+      const sigue = frontNode(nodes);
+      const sigueVale = sigue && !["completed", "expired"].includes(perkStatus(sigue));
+      /* ---- Una rama plegada dice EN QUÉ VA, no cuántos tiene ----
+         Antes eran doce puntitos de colores y la cuenta: «14 talentos». Eso
+         dice el tamaño de la rama, que es justo lo que no cambia nunca — la
+         plegaste porque ya sabes lo que hay dentro. Ahora dice lo que sí
+         cambia: cuánto llevas, qué hay en curso, qué está por abrir y cuál
+         sigue. Viene de la rama `mapa`.
+
+         Los textos pasan por `tx()`, que en esa rama no existía: es de antes
+         de la 0.7.84, cuando la app pasó a hablar inglés. */
       body = `
       <div class="branch-collapsed">
-        <span class="pips">${nodes.slice(0, 12).map(n => {
-          const st = perkStatus(n);
-          const c = pinta(st === "completed" ? (n.color || "#5fe0b0") : (st === "active" || st === "due" ? "var(--fire)" : "var(--pip)"));
-          return `<i style="background:${c}${tipoDe(n) === "hito" ? ";border-radius:999px" : ""}"></i>`;
-        }).join("")}${nodes.length > 12 ? `<span style="font-size:11px">+${nodes.length - 12}</span>` : ""}</span>
-        <span>${nodes.length === 1 ? T`${nodes.length} talento` : T`${nodes.length} talentos`}</span>
+        <div class="bc-barra"><i style="width:${pct}%"></i></div>
+        <div class="bc-datos">
+          ${enCurso ? `<span class="bc-d curso">${T`${enCurso} en curso`}</span>` : ""}
+          ${porAbrir ? `<span class="bc-d abre">${T`${porAbrir} por abrir`}</span>` : ""}
+          ${trabados ? `<span class="bc-d">${T`${trabados} por desbloquear`}</span>` : ""}
+          ${!enCurso && !porAbrir && !trabados ? `<span class="bc-d">${
+            reales.length ? tx("todo conseguido") : tx("sin talentos todavía")}</span>` : ""}
+        </div>
+        ${sigueVale ? `<div class="bc-sigue">${icon(sigue.icon || "star", 13)} <b>${tx("Sigue:")}</b> ${escapeHtml(sigue.name)}</div>` : ""}
       </div>`;
     } else {
       body = `
