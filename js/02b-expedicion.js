@@ -631,7 +631,13 @@ function puntosHastaNivel(objetivo) {
   return pide;
 }
 
-function aroDeNivelHTML(objetivo, diam) {
+/* `dentro` decide qué va en el centro: el NÚMERO del nivel («nivel») o un
+   CANDADO («candado»). Los dos tienen su sitio y no son intercambiables: en la
+   tarjeta del tablero el candado ya está a la derecha, así que dentro va el
+   número; en el cuadro que se abre no hay otro candado, y ahí es donde tiene
+   que estar — el aro dice cuánto llevas y el candado dice de qué. Lo pidió
+   Eduardo así. */
+function aroDeNivelHTML(objetivo, diam, dentro) {
   const d = diam || 62;
   const info = typeof nivelExpedicion === "function" ? nivelExpedicion() : { nivel: 0, puntos: 0 };
   const pide = puntosHastaNivel(objetivo);
@@ -642,10 +648,13 @@ function aroDeNivelHTML(objetivo, diam) {
      camino a medio andar. */
   const aro = typeof ring === "function"
     ? ring(d, grosor, [{ pct: pct, color: "var(--mint)" }], "var(--carril)") : "";
+  const centro = dentro === "candado"
+    ? '<i class="aro-llave">' + icon("lock", Math.round(d * 0.3)) + '</i>'
+    : '<b>' + info.nivel + '</b>';
   return '<span class="aro-nivel" style="width:' + d + 'px;height:' + d + 'px"' +
     ' role="img" aria-label="' + escapeAttr(
       T`Vas por el nivel ${info.nivel} de ${objetivo}, un ${Math.round(pct * 100)}% del camino`) + '">' +
-    aro + '<b>' + info.nivel + '</b></span>';
+    aro + centro + '</span>';
 }
 
 /* El renglón que acompaña al aro. Va aparte porque el aro sale en sitios con
@@ -659,13 +668,11 @@ function faltaParaNivel(objetivo) {
      más frase alrededor, eso se lee como «este módulo ES el nivel 2 de 3» — que
      no significa nada. Lo paró Eduardo.
 
-     `abre` dice lo que hay que hacer y va donde el rótulo está solo. `vas` dice
-     dónde estás y va pegado al aro, que es lo que el aro dibuja, y solo en
-     sitios donde otra frase explica ya de qué va. */
+     `abre` dice lo que hay que hacer, y es lo único que hace falta: donde va el
+     aro, el aro ya dice dónde estás y un rótulo repitiéndolo sobra. */
   return {
     nivel: n, objetivo: objetivo, faltan: faltan,
     abre: T`Se desbloquea en el nivel ${objetivo}`,
-    vas: T`Vas en el nivel ${n}`,
     titulo: faltan === 1 ? tx("Te falta un nivel") : T`Te faltan ${faltan} niveles`
   };
 }

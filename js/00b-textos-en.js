@@ -1235,8 +1235,6 @@ const TEXTOS_EN = {
   /* ---- Los dos módulos que abre el nivel (0.7.93) ---- */
   "{0} se abre en el nivel {1} de expedición y vas en el {2}.":
     "{0} opens at journey level {1} and you're at {2}.",
-  "El nivel sube solo con lo que ya haces: cumplir una misión, practicar una habilidad y volver mañana.":
-    "Your level rises from what you already do: finishing a mission, practising a skill, and coming back tomorrow.",
   "{0} · se abre en el nivel {1}": "{0} · opens at level {1}",
   "El árbol de talentos": "The talent tree",
   "Proyectos y encargos": "Projects and assignments",
@@ -1250,9 +1248,16 @@ const TEXTOS_EN = {
   /* «Nivel 2 de 3» se fue en la 0.7.97.1: solo, sin frase alrededor, se leía
      como «este módulo ES el nivel 2 de 3». Se partió en dos rótulos que dicen
      una cosa cada uno. */
-  "{0} se abre en el nivel {1} de expedición.": "{0} opens at journey level {1}.",
   "Se desbloquea en el nivel {0}": "Unlocks at level {0}",
-  "Vas en el nivel {0}": "You're on level {0}",
+  /* El cuadro entero se rehizo en la 0.7.97.3. La frase va partida porque
+     lleva un enlace dentro —«tu expedición»— y el trozo de después del enlace
+     es solo un punto. */
+  "El módulo de {0} se desbloquea en el nivel {1} de ": "The {0} section unlocks at level {1} of ",
+  "tu expedición": "your journey",
+  "Te falta 1 nivel más para desbloquearlo": "One more level to unlock it",
+  "Te faltan {0} niveles más para desbloquearlo": "{0} more levels to unlock it",
+  "El nivel sube solo con las actividades que realizas: cumple misiones, practica habilidades y vuelve mañana para adquirir experiencia de cada una de ellas.":
+    "Your level rises from what you do: complete missions, practise skills, and come back tomorrow to earn experience from each of them.",
   "Vas por el nivel {0} de {1}, un {2}% del camino": "You're at level {0} of {1}, {2}% of the way",
   "Al llegar te espera la rama de {0}, con los talentos que elegiste al armar tu tablero.":
     "Waiting for you there: your {0} branch, with the talents you chose when you built your board.",
