@@ -3,7 +3,9 @@
 La vida tratada como un videojuego. Vive en `https://mi.norata.app`, publicada
 con GitHub Pages desde `main`. **Cuatro módulos:** Misiones (lo de hoy),
 Habilidades (suben con la práctica y bajan si las dejas), Talentos (las cosas
-grandes, en un árbol por ramas) y Proyectos (lo que avanza por etapas).
+grandes, en un árbol por ramas) y Proyectos (lo que avanza por etapas). **Los
+dos últimos no están el primer día**: los abre el nivel de expedición (ver «Lo
+que llega por el camino»).
 
 ## No hay compilación
 
@@ -419,6 +421,80 @@ planes (119 KB, el 26% del arranque). Con la red ya resuelta, compilar y
 ejecutar TODO el JavaScript cuesta 12-17 ms en un teléfono de gama media.
 Partir archivos que se pasan globales entre ellos para ganar milisegundos es
 mal negocio. Está apuntado en `VERSIONES.md` por si algún día cambia.
+
+## Lo que llega por el camino
+
+**Talentos y Proyectos no están el primer día: se abren en el nivel 3 y en el 5
+de expedición.** La tabla es `MODULO_NIVEL` (`js/04-misiones.js`) y los números
+son un calendario, no una preferencia: medidos sobre un perfil de cuatro días por
+semana, el 3 cae en la primera semana y el 5 en la tercera. Misiones y
+Habilidades no tienen nivel porque son las dos que se entienden sin que nadie las
+explique — y una app que abre con la barra entera cerrada no enseña, castiga.
+
+Tres reglas, y las tres se rompen solas si no están escritas:
+
+- **El nivel solo ABRE, nunca cierra.** Un módulo que ya tiene algo dentro está
+  abierto tenga el nivel que tenga (`moduloConCosas`). Es la misma regla del
+  cobro —congelar, nunca quitar— y es lo que evita esconderle el árbol a quien ya
+  lo usa, a quien importa un respaldo y a quien ve el ejemplo completo.
+- **Son DOS preguntas distintas.** `moduloOn` es el interruptor de Ajustes —lo
+  decide la persona, y lo apagado desaparece del menú— y `moduloAbierto` es el
+  candado —lo decide la app, y lo cerrado se queda a la vista—. `moduloUsable`
+  es las dos juntas, y es la que quieren casi todos: las pantallas, los widgets
+  del tablero y los pasos del tutorial.
+- **Lo que se abre no llega vacío.** La bienvenida apunta lo que iría dentro en
+  `settings.siembra` y `sembrarLoApuntado()` (`js/09-inicio.js`) lo planta el día
+  que la puerta se abre. Crearlo todo el primer día detrás del candado tiene las
+  dos mitades malas: el nivel de expedición cuenta los estrenos —así que subes de
+  nivel por algo que no hiciste— y el módulo se abre con cosas dentro que no
+  recuerdas haber puesto.
+
+Al añadir un módulo con nivel: la fila de `MODULO_NIVEL`, un peldaño en
+`EXP_ESCALERA` con `tipo: "modulo"` —el nivel NO se copia ahí: se rellena leyendo
+esa misma tabla— y nada más. El candado del menú, la fila de Ajustes, el aviso al
+tocarlo y la celebración salen solos.
+
+## El candado
+
+**Lo que está cerrado tiene que VERSE cerrado.** Gris no lo dice: gris significa
+«no viene al caso», que es lo que le pasa a un botón desactivado — y nadie toca
+un botón desactivado para preguntarle por qué, cuando tocarlo es justo lo que
+saca el cuadro que explica qué es y cuánto cuesta. La chapa es `.llave`
+(`css/estilos.css`), el candado del menú es `.nav-candado`, y el icono es `lock`.
+
+**El orden de las dos puertas no cambia: primero el NIVEL, que se gana, y después
+el PLAN, que se paga.** A quien todavía no llega al nivel no se le ofrece pagar,
+porque cobrar por saltarse la escalera es lo único que la rompería. De ahí que el
+cuadro de un módulo cerrado no tenga botón de comprar —lleva a Mi expedición, que
+es donde se ve cuánto falta— y que un peldaño de la escalera cerrado por nivel
+sea un `div` mientras el cerrado por plan es un `button` que va al panel de los
+precios. La nota larga está en `estadoApariencia` (`js/10i-apariencia.js`).
+
+Y **un candado es una LÍNEA**, así que pide 3 sobre 1 y no le vale el gris de los
+bordes: en `--faint` daba 2,8 y hubo que subirlo a `--muted`. Ver la tabla de
+`pinta`/`trazo` más arriba.
+
+## Cómo se le habla a quien usa la app
+
+El español pone género donde el inglés no pone nada, y durante mucho tiempo esto
+se resolvió esquivándolo —el saludo de madrugada usa tu nombre justo por eso—.
+Desde 0.7.93 se pregunta en la bienvenida y se guarda en `settings.genero`:
+`"m"`, `"f"` o `"x"`.
+
+- **Sin contestar es NEUTRO, no masculino.** Quien no ha dicho nada no ha dicho
+  nada, y suponerle un género es lo que este ajuste existe para no hacer.
+- **La forma en `-e` solo sale si se pidió.** No es una propuesta que la app le
+  haga a nadie; quien no eligió esa casilla no la ve nunca.
+- **Se resuelve con `gen(m, f, x)` (`js/01-base.js`), y solo manda en español.**
+  En inglés el sustantivo no marca género, así que `gen()` devuelve la palabra
+  base — que además es la clave del diccionario, y buscar «Rastreadora» dentro de
+  una app en inglés la dejaría escrita en español.
+- **Los rangos pasan todos por `nombreDeRango()`.** Con un ternario por pantalla,
+  el que se queda atrás es el que un día llama Rastreador a quien pidió
+  Rastreadora. Solo llevan `nombreF`/`nombreX` los tres que las necesitan;
+  Andante y Navegante ya son iguales para todo el mundo. Y un mundo BORRA las
+  variantes al pisar los nombres (`rangosVigentes`): sin esa línea, Semilla salía
+  llamándose Rastreadora.
 
 ## Los botones
 
