@@ -476,10 +476,21 @@ Tres reglas, y las tres se rompen solas si no están escritas:
   nivel por algo que no hiciste— y el módulo se abre con cosas dentro que no
   recuerdas haber puesto.
 
+**Y lo que llega tarde hay que PRESENTARLO.** El tutorial solo explica los
+módulos abiertos y se marca como visto al terminar, así que sin nada más quien
+lo ve el primer día no aprende nunca qué es un talento: el módulo aparece y
+nadie lo presenta. Lo cierra `quizaPresentarModulo` (`js/09-inicio.js`), que
+enseña la tarjeta de ese módulo **al entrar en él por primera vez** —no al
+desbloquearlo, que ese momento ya lo ocupa la celebración— y lo apunta en
+`state.ui.modulosPresentados`. Tres guardas que hacen falta: no dentro del
+ejemplo, no encima de otra ventana, y sembrado en `migrar` para quien ya usaba
+la app.
+
 Al añadir un módulo con nivel: la fila de `MODULO_NIVEL`, un peldaño en
 `EXP_ESCALERA` con `tipo: "modulo"` —el nivel NO se copia ahí: se rellena leyendo
-esa misma tabla— y nada más. El candado del menú, la fila de Ajustes, el aviso al
-tocarlo y la celebración salen solos.
+esa misma tabla— y su tarjeta en `TUTO_PASOS`. El candado del menú, la tarjeta
+apagada del tablero, la fila de Ajustes, el aviso al tocarlo, la celebración y
+la presentación al entrar salen solos.
 
 ## El candado
 
@@ -500,6 +511,19 @@ precios. La nota larga está en `estadoApariencia` (`js/10i-apariencia.js`).
 Y **un candado es una LÍNEA**, así que pide 3 sobre 1 y no le vale el gris de los
 bordes: en `--faint` daba 2,8 y hubo que subirlo a `--muted`. Ver la tabla de
 `pinta`/`trazo` más arriba.
+
+**Lo cerrado se queda a la vista, también en el tablero.** La 0.7.93 escondía la
+tarjeta de un módulo cerrado y Eduardo lo paró: *un tablero al que le faltan
+tres huecos no enseña que vienen tres cosas, enseña un tablero pequeño*. Ahora
+se queda apagada, con borde discontinuo y su nivel. **Apagar y cerrar no son lo
+mismo tampoco aquí**: lo que la persona apagó en Ajustes sí desaparece —no hay
+nada que anunciarle sobre algo que ella quitó—, y una tarjeta por MÓDULO, que
+del árbol cuelgan dos y salía repetida.
+
+**Y donde se cuentan niveles va el aro, no un número suelto** (`aroDeNivelHTML`,
+`js/02b-expedicion.js`). Mide el camino entero hasta el objetivo y no lo que
+llevas del nivel en curso: quien va por el 2 camino del 3 puede tener el nivel
+actual al 5% y llevar media escalera. Sale del `ring()` que ya existía.
 
 ## Cómo se le habla a quien usa la app
 

@@ -100,7 +100,7 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
-### 0.7.96.1 · 7 sep 2026
+### 0.7.97.2 · 7 sep 2026
 
 **Sí hay pantallas esqueleto, y aparecen solo cuando de verdad tarda.**
 
@@ -176,6 +176,164 @@ siempre y `?esqueleto=0` lo apaga del todo. Sin parámetro manda la medición, q
 es como funciona de verdad. Este no es una prueba con enlace de las que se
 borran: el mecanismo se queda, y los dos parámetros son la única forma de
 mirarlo desde un aparato que no lo dispara.
+
+### 0.7.97.1 · 7 sep 2026
+
+**«Nivel 2 de 3» decía otra cosa de la que parecía, y el candado del menú
+llevaba un disco detrás que no hacía falta.** Las dos las vio Eduardo.
+
+**El rótulo se parte en dos, porque eran dos frases distintas metidas en una.**
+En la tarjeta del tablero, «Nivel 2 de 3» va SOLO —sin ninguna frase alrededor
+que lo sitúe— y ahí se lee como «este módulo ES el nivel 2 de 3», que no
+significa nada. Ahora esa tarjeta dice **«Se desbloquea en el nivel 3»**, que es
+lo que hay que saber, y el rótulo de debajo del aro —que sí va acompañado de la
+explicación— dice **«Vas en el nivel 2»**, que es justo lo que el aro dibuja.
+
+Y de paso el cuadro dejó de decirlo dos veces: la frase era «Talentos se abre en
+el nivel 3 de expedición **y vas en el 2**» con el «vas en el 2» ya escrito
+encima, debajo del aro. Se queda en la primera mitad.
+
+**El candado del menú va sin disco.** Llevaba fondo y borde propios, como una
+chapa colgada del botón; Eduardo lo quitó y tiene razón: el candado ya se
+entiende solo, y una segunda pastilla dentro de un botón que YA es una pastilla
+solo añade un borde que no dice nada.
+
+Al quitarlo hay que meterlo DENTRO del botón, y esa parte no es opcional:
+colgaba del canto en `-2px` apoyado en su propio fondo, y sin fondo se habría
+quedado medio encima de lo que pase por debajo de la barra —que flota sobre el
+contenido de la página—, donde un trazo de 9 px no se lee. Dentro, el fondo del
+propio botón hace de suelo.
+
+Medido en las seis combinaciones —vertical, horizontal y escritorio, en los dos
+modos—: **5,49 de noche y 5,71 de día** en el teléfono. El único que baja es la
+barra lateral en modo claro, donde el botón es transparente y el candado se
+apoya en la página: **3,02**, que pasa el 3 que pide una línea pero sin margen.
+Ahí lo que se refuerza es el GROSOR y no el tono, que es lo que de verdad se lee
+a ese contraste: el dibujo pasa de 9 a 12 px, que en esa fila caben de sobra.
+
+### 0.7.97 · 7 sep 2026
+
+**Los dos módulos que llegan por el camino dejan de ser un hueco: se ven
+venir en el tablero, se presentan al entrar, y el candado enseña con un aro
+cuánto falta y qué te espera dentro.**
+
+Cinco cosas, y **las tres primeras son deudas que dejó la 0.7.93**. El bloqueo
+por nivel se aplicó en el menú, en el tablero y en el tutorial, y quedaron tres
+sitios hablando de módulos que ya no están el primer día.
+
+**El tutorial prometía cuatro secciones y explicaba dos.** Es la peor de las
+tres. Su primera tarjeta decía literalmente «Son cuatro secciones. Te cuento en
+un minuto qué hace cada una» y, medido en una cuenta nueva, enseñaba la portada,
+Misiones, Habilidades y el cierre. Y como `tutorialVisto` se marca al terminar y
+no se vuelve a mirar, **quien lo veía el primer día no aprendía nunca qué es un
+talento ni un encargo**: los módulos llegaban sin que nadie los presentara, que
+es justo lo contrario de lo que la escalera pretendía. La tarjeta de cierre
+tenía el mismo problema —hablaba de «un talento logrado o una etapa de
+proyecto»— y las dos frases se arreglan igual: **se cuentan, no se escriben.**
+Es la misma manía que el «Pregunta N de M» de la bienvenida y por el mismo
+motivo — un número a mano en una frase es un número que un día deja de ser
+verdad sin que nada avise. La portada dice además que las demás se abren solas,
+que es lo que convierte una app pequeña en una app que crece.
+
+**Y el módulo se presenta al ENTRAR en él, no al desbloquearlo.** Lo pidió
+Eduardo así y es lo correcto: el momento en que se abre ya está ocupado por la
+celebración —el nivel, la constelación, la tarjeta del premio— y meter ahí una
+explicación de cuatro renglones es hablarle a alguien que está mirando fuegos
+artificiales. Al entrar, en cambio, la pantalla ya está detrás de la tarjeta y
+lo que se explica se ve. Reutiliza el tutorial entero —su marco, su tecla de
+Escape— con una variable, `tutoSuelto`, en vez de una ventana propia que se le
+parezca; sin puntos, sin «Atrás» y con «Entendido» en vez de «Empezar», que es
+lo que se le dice a alguien que ya está dentro.
+
+Tres guardas que hacían falta y se vieron probando: **no sale dentro del
+ejemplo** —ahí los talentos son de mentira, la marca se tira al salir y volvería
+a salir en la app de verdad—, **no sale encima de la celebración ni de un
+cuadro**, y **no le sale a quien ya usaba la app**: la marca se siembra en
+`migrar` mirando si el módulo tiene algo dentro, igual que se sembró
+`bienvenida: "previa"` en su día. Comprobado con un perfil que carga del disco
+con talentos y un proyecto: llega con los dos ya presentados y no se le
+interrumpe nada.
+
+**El informe ofrecía pestañas de módulos cerrados.** En el nivel 2, con los dos
+con candado, pintaba las cinco: `Todo · Misiones · Habilidades · Talentos ·
+Proyectos`. Y tocarlas sacaba el cuadro de Pro, **prometiendo por dinero algo
+que el dinero no abre.** Ahora llevan el candado que ya usaban las de plan, y el
+orden de las dos puertas se respeta también aquí: primero el nivel, que se gana.
+
+**Las tarjetas del tablero se quedan puestas, y esto CAMBIA lo que hacía la
+0.7.93.** Allí desaparecían, con el argumento de que el candado va en el menú y
+repetirlo llenaría el Resumen de puertas cerradas. Eduardo lo paró con el
+argumento bueno: **un tablero al que le faltan tres huecos no enseña que vienen
+tres cosas, enseña un tablero pequeño.** Ahora la tarjeta se queda apagada, con
+borde discontinuo —dice «aquí va a haber algo» en vez de «aquí hay algo
+apagado»—, el dibujo del módulo, el aro y el nivel al que se abre. Se toca y
+abre el mismo cuadro que el candado del menú.
+
+Y una que solo se vio midiendo: **Talentos salía DOS VECES**. Del árbol cuelgan
+dos tarjetas del tablero —«Invertido» y «Listos para empezar»— así que el
+Resumen del primer día enseñaba «Talentos · Nivel 2 de 3» dos veces seguidas
+diciendo lo mismo. Una por módulo, la primera en el orden que tenga puesto cada
+quien.
+
+**Y dos deudas más, que también eran mías.**
+
+**`tiempo` y `flaqueza` se guardaban y no las leía ninguna pantalla.** Las dos
+respuestas nuevas de la bienvenida eran ajustes sin sitio donde verlos ni
+cambiarlos, cuando sus vecinas —género, idioma, moneda, exigencia— sí lo tienen:
+alguien que contestó «diez minutos al día» en enero y ahora tiene una hora no
+tenía por dónde decirlo. Es exactamente lo que este documento prohíbe en «Qué NO
+hacer». Van a Mi perfil, reutilizando `obOpciones` y las mismas tablas de la
+bienvenida, así que el día que se añada una forma aparece en los dos sitios. La
+de la flaqueza lleva una fila más que allí —«Ninguna en particular»— porque en
+la bienvenida se salta con el botón de Siguiente y aquí no hay ninguno que
+saltar. **Cambiarlas no toca nada de lo ya creado**, y aquí eso no necesita el
+botón de «aplicarlo también a lo que ya tengo» que sí lleva la exigencia:
+rehacer lo que estos dos deciden sería reescribirle los talentos a alguien, no
+ajustar un número.
+
+**El candado dice ahora qué te espera dentro, y lo enseña con un aro.** Los dos
+los pidió Eduardo. Si la bienvenida dejó siembra apuntada, el cuadro nombra las
+ramas que hay al otro lado —«Al llegar te esperan tus ramas de Salud y Dinero»—,
+que es lo que convierte una puerta cerrada en algo que se anticipa. Y el número
+suelto pasa a ser un aro con el nivel dentro.
+
+Tres detalles del aro:
+
+- **Mide el camino ENTERO hasta el objetivo, no lo que llevas del nivel de
+  ahora.** Son dos cosas distintas y aquí solo sirve la primera: a quien va por
+  el 2 camino del 3, el aro del nivel en curso puede estar al 5% y parecer que
+  no ha empezado, cuando del camino lleva casi la mitad.
+- **Se cuenta en puntos y no en niveles enteros**, por lo mismo: con niveles
+  daría saltos de un tercio y estaría parado casi siempre. La cuenta sale de
+  `expCosto()`, la misma curva que decide el nivel, así que no hay dos verdades.
+- **Y es `ring()`, el que ya existía** — el mismo que dibuja la insignia de la
+  expedición y los aros de las habilidades. No hay uno nuevo a propósito: en
+  esta app ya se cazó una vez un dibujo duplicado que acabó desincronizado.
+
+En el escaparate de apariencias el aro sale **solo en el candado de NIVEL**. Un
+plan no tiene camino que dibujar, y un aro al lado de «Con Norata Pro» sugiere
+que pagando se avanza en algo.
+
+**De paso, el diccionario del inglés tenía cinco claves repetidas** —dos de la
+0.7.93 y tres de antes—. Una clave repetida en el mismo objeto se resuelve sola
+en silencio (gana la última), así que el día que alguien cambie una de las dos,
+la otra se queda y nadie se entera. Se quedó la primera de cada una; en la única
+donde las dos decían cosas distintas, «you're at level 2» en vez de «you're on».
+
+**Cómo se comprobó.** Midiendo el DOM en Chromium a 390×844 y en los dos modos:
+el tutorial contando dos módulos y luego tres, la tarjeta suelta al entrar a
+Talentos y que NO se repite al volver a entrar, un perfil cargado del disco con
+talentos que no recibe ninguna, las pestañas del informe con su motivo escrito
+en el `aria-label`, las tarjetas cerradas del tablero (una por módulo, con aro e
+icono), los dos paneles nuevos de Ajustes guardando, cero frases sin traducir y
+las cuatro combinaciones de tamaño y modo sin errores ni desbordes.
+
+**Sobre el número.** Esto empezó siendo la 0.7.95.1 y sale como 0.7.97: mientras
+se hacía, otra sesión publicó la 0.7.95 y la 0.7.96. La segunda toca de cerca —
+mete una caché en `expDesglose()` para bajar el Resumen de 685 ms a 20— y se
+revisó antes de dar esto por bueno: su llave cuelga de `save()` y de la
+identidad de `state`, así que todo lo que aquí pregunta por el nivel lo ve al
+día, y de paso abarata los aros nuevos, que piden el nivel una vez por tarjeta.
 
 ### 0.7.96 · 7 sep 2026
 

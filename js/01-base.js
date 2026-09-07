@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.96.1";
+const VERSION = "0.7.97.2";
 const VERSION_FECHA = "7 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -1000,6 +1000,20 @@ function load() {
   if (!data.settings.bienvenida &&
       (data.skills.length || data.missions.length || data.perks.length || data.projects.length)) {
     data.settings.bienvenida = "previa";
+  }
+  /* Y lo mismo con la presentación de un módulo, por el mismo motivo y con el
+     mismo criterio: quien ya tiene talentos dentro lleva meses usándolos, y al
+     entrar a Talentos le saldría una tarjeta explicándole qué es un talento.
+     Se mira si hay ALGO dentro, que es la misma pregunta que decide si el
+     módulo está abierto (`moduloConCosas`, js/04-misiones.js).
+
+     Solo se siembra la primera vez —cuando la llave no existe—; a partir de ahí
+     manda lo que la persona haya visto de verdad. */
+  data.ui = data.ui || {};
+  if (!data.ui.modulosPresentados) {
+    data.ui.modulosPresentados = [];
+    if (data.perks.length) data.ui.modulosPresentados.push("tree");
+    if (data.projects.length) data.ui.modulosPresentados.push("projects");
   }
   if (!data.settings.timezone) {
     try { data.settings.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
