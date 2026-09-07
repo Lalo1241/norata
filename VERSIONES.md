@@ -65,25 +65,35 @@ un día **después**, y a partir de ahí nadie sabe qué se hizo cuándo.
 Solo se nota entre las 00:00 y las 06:00 UTC, que en México son las seis horas
 anteriores del día de antes. Justo la franja en la que se trabaja de noche.
 
-**Cómo salir de dudas** cuando no se esté seguro de en qué huso va el reloj.
-Aquí el reloj del sistema YA está en México —Windows lo llama «Central Standard
-Time (Mexico)»—, así que lo que hay que hacer es preguntárselo a él y mirar que
-el desfase sea `-0600`:
+**Cómo salir de dudas**, y ojo aquí, porque **el comando depende de DÓNDE
+estés corriendo** y cada entorno rompe con el que al otro le funciona:
+
+| Dónde | Qué usar | Por qué |
+| --- | --- | --- |
+| El Git Bash de Eduardo (Windows) | `date` a secas | El reloj del sistema YA está en México —Windows lo llama «Central Standard Time (Mexico)»— y este Bash **no trae la base de husos**: ignora `TZ` en silencio y contesta en UTC |
+| Una sesión en la nube (Linux) | `TZ=America/Mexico_City date` | Ahí el reloj de la máquina **es UTC**, así que `date` a secas es justo lo que esta regla prohíbe |
+
+Se pregunta primero cuál de los dos es, que cuesta un comando:
 
 ```
-date "+%-d %b %Y | %H:%M %z"
+TZ=Asia/Tokyo date "+%z"      # +0900 → TZ funciona; +0000 → TZ se ignora
 ```
 
-**Y lo que NO hay que usar, aunque parezca lo obvio: `TZ=America/Mexico_City`.**
-El Git Bash de esta máquina no trae la base de husos, así que **ignora `TZ` en
-silencio y contesta en UTC** — pedirle México, UTC y Tokio devuelve las tres
-veces la misma hora. Entre las 18:00 y la medianoche de México eso responde el
-día siguiente, que es exactamente el fallo contra el que se escribió esta regla.
-Se comprueba en un comando:
+Y con la respuesta, la hora:
 
 ```
-TZ=Asia/Tokyo date "+%z"      # si contesta +0000, TZ no funciona aquí
+TZ=America/Mexico_City date "+%-d %b %Y | %H:%M %z"    # si dijo +0900
+date "+%-d %b %Y | %H:%M %z"                           # si dijo +0000
 ```
+
+En los dos casos se confirma igual: **el desfase tiene que decir `-0600`**. Si
+dice otra cosa, la fecha que ibas a escribir está mal.
+
+Las dos mitades de esa tabla las descubrió cada una su sesión, y cada una
+escribió aquí que la suya era la buena. La versión de la 0.7.93.1 decía que `TZ`
+no sirve y punto: una sesión en la nube que la siguiera al pie de la letra
+fecharía en UTC —el día siguiente entre las 18:00 y la medianoche—, que es
+exactamente el fallo del que avisa el párrafo de arriba.
 
 México es **UTC-6 todo el año**: el país quitó el horario de verano en 2022, así
 que no hay que acordarse de ningún cambio de estación.
