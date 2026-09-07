@@ -762,8 +762,9 @@ const TUTO_PASOS = [
        por el medio. El logo hace de presentación: es lo único que el usuario
        ya vio (en el menú) y no ha podido relacionar con nada. */
     logo: true, color: "#5fe0b0", titulo: "Te doy la bienvenida",
-    tx: "Norata lleva tu vida con la mecánica de un juego de rol: lo que <b>haces</b>, lo que <b>practicas</b>, lo que <b>te propones</b> y lo que <b>construyes</b>.",
-    pie: "Son cuatro secciones. Te cuento en un minuto qué hace cada una."
+    /* Ni el texto ni el pie están escritos aquí: los dos CUENTAN los módulos
+       que se van a explicar. Ver `fraseDeLaPortada` y `pieDeLaPortada`. */
+    tx: null, pie: null
   },
   {
     modulo: "missions", icon: "flame", color: "#f5d76e", titulo: "Misiones",
@@ -792,14 +793,23 @@ const TUTO_PASOS = [
   },
   {
     modulo: null, icon: "compass", color: "#5fe0b0", titulo: "Y todo se conecta",
-    tx: "Una misión cumplida, un talento logrado o una etapa de proyecto terminan en el mismo sitio: <b>XP para tus habilidades</b>.",
+    /* Igual que la portada: nombraba «un talento logrado o una etapa de
+       proyecto» a alguien que todavía no tiene ni Talentos ni Proyectos. */
+    tx: null,
     pie: "Puedes apagar los módulos que no uses desde Ajustes, y volver a ver esto cuando quieras."
   }
 ];
 
 let tutoPaso = 0;
+/* El módulo que se está presentando SOLO, o null si corre el tutorial entero.
+   Con esto, una tarjeta suelta reutiliza el tutorial completo —su marco, sus
+   flechas, su tecla de Escape— en vez de tener una ventana propia que se
+   parezca. */
+let tutoSuelto = null;
 
 function pasosDelTutorial() {
+  /* Presentando un módulo: su tarjeta y nada más. */
+  if (tutoSuelto) return TUTO_PASOS.filter(p => p.modulo === tutoSuelto);
   // Un módulo apagado no se explica: sería enseñar una puerta que no existe
   /* `moduloUsable` y no `moduloOn`: el tutorial tampoco explica lo que el
      nivel todavía no abrió. Enseñar el árbol de talentos el primer día y que
@@ -808,7 +818,125 @@ function pasosDelTutorial() {
   return TUTO_PASOS.filter(p => !p.modulo || moduloUsable(p.modulo));
 }
 
+/* ================= Presentar un módulo cuando por fin se entra =================
+   La 0.7.93 dejó un agujero: el tutorial solo explica los módulos ABIERTOS, se
+   marca como visto al terminar y no vuelve nunca. Así que quien lo veía el
+   primer día —con Talentos y Proyectos todavía cerrados— no aprendía JAMÁS qué
+   es un talento ni un encargo: los módulos llegaban sin que nadie los
+   presentara, que es lo contrario de lo que la escalera pretendía.
+
+   Se cierra aquí, y **al ENTRAR en el módulo, no al desbloquearlo**. Lo pidió
+   Eduardo así y es lo correcto: el momento en que se abre ya está ocupado por
+   la celebración —el nivel, la constelación, la tarjeta del premio—, y meter
+   ahí una explicación de cuatro renglones es hablarle a alguien que está
+   mirando fuegos artificiales. Cuando entra a la pantalla, en cambio, ya la
+   tiene delante y la explicación cae sobre algo que se ve.
+
+   Una vez por módulo, apuntado en `state.ui.modulosPresentados`. */
+function moduloPresentado(id) {
+  return ((state.ui && state.ui.modulosPresentados) || []).indexOf(id) >= 0;
+}
+
+function marcarPresentado(id) {
+  if (!id || moduloPresentado(id)) return;
+  state.ui = state.ui || {};
+  state.ui.modulosPresentados = ((state.ui.modulosPresentados) || []).concat([id]);
+}
+
+/* Lo llama `showView` en cada viaje. Las cuatro guardas importan:
+
+   · Solo módulos con nivel, porque son los únicos que pueden llegar tarde.
+   · Solo si ya está abierto, que es lo que se va a explicar.
+   · Una vez, y la marca se siembra para quien ya lo usaba (ver `migrar`).
+   · Y no encima de otra cosa: la celebración del nivel dura lo suyo, y quien
+     acaba de tocar «Ver Talentos» llega aquí con la escena todavía cerrándose. */
+function quizaPresentarModulo(vista) {
+  const id = VISTA_MODULO[vista];
+  if (!id || !MODULO_NIVEL[id]) return;
+  if (!moduloAbierto(id) || moduloPresentado(id)) return;
+  /* Dentro del ejemplo no. Ahí los talentos son de mentira y el módulo está
+     abierto solo porque el ejemplo los puso (`moduloConCosas`), así que la
+     tarjeta interrumpe justo lo que se vino a mirar — y para nada: al salir,
+     el estado vuelve como estaba y la marca de «ya presentado» se va con él,
+     así que volvería a salir en la app de verdad. */
+  if (typeof modoEjemplo !== "undefined" && modoEjemplo) return;
+  if (document.querySelector("#tuto.show, #ncel.show, #modal.show")) return;
+  setTimeout(() => {
+    /* Se vuelve a mirar al disparar: entre el viaje y este momento la persona
+       pudo irse a otra pantalla, o pudo abrirse la escena de una racha. */
+    if (activeMainView !== vista || moduloPresentado(id)) return;
+    if (document.querySelector("#tuto.show, #ncel.show, #modal.show")) return;
+    presentarModulo(id);
+  }, 620);
+}
+
+function presentarModulo(id) {
+  if (!TUTO_PASOS.some(p => p.modulo === id)) { marcarPresentado(id); save(); return; }
+  tutoSuelto = id;
+  tutoPaso = 0;
+  renderTutorial();
+  document.getElementById("tuto").classList.add("show");
+}
+
+/* ---- Las dos frases que cuentan los módulos ----
+   La portada prometía «Son cuatro secciones» y el cierre hablaba de talentos y
+   de etapas de proyecto. Desde 0.7.93 un tablero nuevo empieza con DOS módulos,
+   así que las dos frases mentían en la primera pantalla que ve alguien: la app
+   se presentaba prometiendo el doble de lo que iba a enseñar.
+
+   Se cuentan y no se escriben. Es la misma manía que el «Pregunta N de M» de la
+   bienvenida, y por el mismo motivo: un número a mano en una frase es un número
+   que un día deja de ser verdad sin que nada avise. */
+const TUTO_CUANTOS = { 1: "una", 2: "dos", 3: "tres", 4: "cuatro" };
+
+function modulosDelTutorial() {
+  return pasosDelTutorial().filter(p => p.modulo);
+}
+
+function fraseDeLaPortada() {
+  const hay = modulosDelTutorial().map(p => tx(p.titulo).toLowerCase());
+  const lista = hay.length > 1
+    ? hay.slice(0, -1).join(", ") + tx(" y ") + hay[hay.length - 1]
+    : (hay[0] || "");
+  return T`Norata lleva tu vida con la mecánica de un juego de rol. Empiezas por <b>${lista}</b>.`;
+}
+
+function pieDeLaPortada() {
+  const n = modulosDelTutorial().length;
+  const cuantas = tx(TUTO_CUANTOS[n] || String(n));
+  const base = n === 1
+    ? T`Es ${cuantas} sección. Te cuento en un minuto qué hace.`
+    : T`Son ${cuantas} secciones. Te cuento en un minuto qué hace cada una.`;
+  /* Y se dice que vienen más, que es lo que convierte una app pequeña en una
+     app que crece. Sin esta frase, quien empieza con dos módulos no tiene forma
+     de saber que hay otros dos esperando. */
+  const faltan = TUTO_PASOS.filter(p => p.modulo).length - n;
+  return faltan > 0 ? base + " " + tx("Las demás se abren solas conforme avanzas.") : base;
+}
+
+function fraseDelCierre() {
+  const ids = modulosDelTutorial().map(p => p.modulo);
+  const trozos = [tx("Una misión cumplida")];
+  if (ids.indexOf("tree") >= 0) trozos.push(tx("un talento logrado"));
+  if (ids.indexOf("projects") >= 0) trozos.push(tx("una etapa de proyecto"));
+  const sujeto = trozos.length > 1
+    ? trozos.slice(0, -1).join(", ") + tx(" o ") + trozos[trozos.length - 1]
+    : trozos[0];
+  return trozos.length > 1
+    ? T`${sujeto} terminan en el mismo sitio: <b>XP para tus habilidades</b>.`
+    : T`${sujeto} termina en el mismo sitio: <b>XP para tus habilidades</b>.`;
+}
+
+/* Lo que se pinta en cada tarjeta. Las dos que cuentan módulos traen `null` en
+   la tabla y se resuelven aquí; las demás llevan su texto escrito. */
+function textoDelPaso(p, cual) {
+  if (p[cual] !== null) return tx(p[cual]);
+  if (p.logo) return cual === "tx" ? fraseDeLaPortada() : pieDeLaPortada();
+  return cual === "tx" ? fraseDelCierre() : "";
+}
+
 function arrancarTutorial() {
+  tutoSuelto = null;
   tutoPaso = 0;
   renderTutorial();
   document.getElementById("tuto").classList.add("show");
@@ -887,16 +1015,24 @@ function renderTutorial() {
       ? `<span class="tuto-logo">${logoNorata()}</span>`
       : `<span class="tuto-ic" style="${tonos("tc", p.color)}">${icon(p.icon, 30)}</span>`}</div>
     <h2 class="tuto-titulo">${escapeHtml(tx(p.titulo))}</h2>
-    <p class="tuto-tx">${tx(p.tx)}</p>
-    <p class="tuto-pie">${tx(p.pie)}</p>
-    <div class="tuto-dots">${pasos.map((_, i) =>
-      `<i class="${i === tutoPaso ? "on" : ""}"></i>`).join("")}</div>
+    <p class="tuto-tx">${textoDelPaso(p, "tx")}</p>
+    <p class="tuto-pie">${textoDelPaso(p, "pie")}</p>
+    ${/* Presentando UN módulo no hay recorrido: ni puntos que contar ni un
+          "Atrás" al que volver. Los dos se van, y el botón deja de decir
+          "Empezar" —que es lo que se le dice a alguien que aún no ha entrado—
+          para decir "Entendido", que es lo que toca cuando ya estás dentro y
+          la pantalla está detrás de la tarjeta. */""}
+    ${tutoSuelto ? "" : `<div class="tuto-dots">${pasos.map((_, i) =>
+      `<i class="${i === tutoPaso ? "on" : ""}"></i>`).join("")}</div>`}
+    ${/* Sin clase para el caso de un botón: `.modal-actions` es flex con
+          `.btn { flex: 1 }`, así que el único que quede ya ocupa la fila. */""}
     <div class="modal-actions">
-      ${/* "Atrás" está siempre, apagado en la primera. Quitarlo movía de sitio
+      ${tutoSuelto ? "" : /* "Atrás" está siempre, apagado en la primera. Quitarlo movía de sitio
             a "Siguiente" justo al pasar de la primera a la segunda, y ese es
             el botón que se pulsa cinco veces seguidas. */
-        ""}<button class="btn btn-ghost" onclick="tutoAtras()" ${tutoPaso ? "" : "disabled"}>${tx("Atrás")}</button>
-      <button class="btn btn-primary" onclick="tutoSiguiente()">${ultimo ? tx("Empezar") : tx("Siguiente")}</button>
+        `<button class="btn btn-ghost" onclick="tutoAtras()" ${tutoPaso ? "" : "disabled"}>${tx("Atrás")}</button>`}
+      <button class="btn btn-primary" onclick="tutoSiguiente()">${
+        tutoSuelto ? tx("Entendido") : ultimo ? tx("Empezar") : tx("Siguiente")}</button>
     </div>`;
 }
 
@@ -918,7 +1054,18 @@ function saltarTutorial() { terminarTutorial(); }
    de ser una salida y pasaría a ser un aplazamiento. */
 function terminarTutorial() {
   state.ui = state.ui || {};
-  state.ui.tutorialVisto = true;
+  if (tutoSuelto) {
+    /* Una tarjeta suelta no marca el tutorial entero como visto: son dos cosas
+       distintas, y confundirlas dejaría sin presentación a quien conoce
+       Talentos porque entró en él antes de ver el tutorial. */
+    marcarPresentado(tutoSuelto);
+    tutoSuelto = null;
+  } else {
+    state.ui.tutorialVisto = true;
+    /* Y los módulos que el tutorial ACABA de explicar quedan presentados, o al
+       entrar en ellos se explicarían dos veces seguidas. */
+    pasosDelTutorial().forEach(p => { if (p.modulo) marcarPresentado(p.modulo); });
+  }
   save();
   cerrarTutorial();
 }
@@ -929,6 +1076,11 @@ function cerrarTutorial() {
 }
 
 function verTutorialOtraVez() {
+  /* `tutoSuelto` se apaga aquí y no solo al cerrarse: quien pide ver el
+     tutorial otra vez lo quiere ENTERO, y si la última vez que se abrió esta
+     ventana fue para presentar un módulo, sin esta línea vería esa tarjeta
+     sola otra vez. */
+  tutoSuelto = null;
   showView("summary");
   arrancarTutorial();
 }
@@ -1553,6 +1705,8 @@ function renderAjustes() {
        un JavaScript nuevo durante una carga (ver la nota de los iconos
        en `js/11-arranque.js`). */
     if (typeof renderGenero === "function") renderGenero();
+    if (typeof renderTiempo === "function") renderTiempo();
+    if (typeof renderFlaqueza === "function") renderFlaqueza();
     if (typeof renderPanelIdioma === "function") renderPanelIdioma();
     if (typeof renderPanelMoneda === "function") renderPanelMoneda();
   }
@@ -1599,6 +1753,66 @@ function ponerGenero(g) {
   if (typeof renderSummary === "function") renderSummary();
   const uno = OB_GENEROS.filter(x => x.id === g)[0];
   toast(uno ? T`Te hablo ${tx(uno.label).toLowerCase()}` : tx("Hecho"), "hecho");
+}
+
+/* ================= Cuánto tiempo tengo, y dónde se me cae =================
+   Las otras dos respuestas de la bienvenida. Hasta 0.7.96 se guardaban en
+   `settings` y no las leía ninguna pantalla: dos ajustes escritos una vez y sin
+   sitio donde verlos ni cambiarlos, que es exactamente lo que `CLAUDE.md`
+   prohíbe en «Qué NO hacer» —guardar algo sin el camino que lo usa—.
+
+   **Cambiarlos no toca nada de lo que ya existe**, igual que la exigencia y que
+   la moneda: mandan sobre lo que se CREE a partir de ahora. Y aquí eso no
+   necesita el botón de «aplicarlo también a lo que ya tengo» que sí lleva la
+   exigencia, porque lo que estos dos deciden —cuántos peldaños trae una rama,
+   si la misión es diaria— ya está escrito en cada cosa creada: rehacerlo sería
+   reescribir los talentos de alguien, no ajustar un número. */
+function renderTiempo() {
+  const wrap = document.getElementById("tiempo-opciones");
+  if (!wrap) return;
+  wrap.innerHTML = obOpciones(OB_TIEMPOS, tiempoActual(), "ponerTiempo");
+}
+
+function renderFlaqueza() {
+  const wrap = document.getElementById("flaqueza-opciones");
+  if (!wrap) return;
+  /* Con una fila más que la bienvenida: «Ninguna en particular». Allí se puede
+     saltar la pregunta con el botón de Siguiente y aquí no hay ninguno que
+     saltar, así que sin esta fila quien contestó por error no tendría forma de
+     volver a no haber contestado. */
+  const conNinguna = OB_FLAQUEZAS.concat([{
+    id: "", nombre: "Ninguna en particular", dicho: "Reparte los peldaños como vengan", icon: "compass"
+  }]);
+  wrap.innerHTML = obOpciones(conNinguna, flaquezaActual(), "ponerFlaqueza");
+}
+
+/* Los dos con el mismo trato que `exigenciaActual`: un valor corrupto o de una
+   versión más nueva cae en el de siempre en vez de romper la pantalla. */
+function tiempoActual() {
+  const t = state && state.settings && state.settings.tiempo;
+  return OB_TIEMPOS.some(x => x.id === t) ? t : "algo";
+}
+
+function flaquezaActual() {
+  const f = state && state.settings && state.settings.flaqueza;
+  return OB_FLAQUEZAS.some(x => x.id === f) ? f : "";
+}
+
+function ponerTiempo(id) {
+  if (!OB_TIEMPOS.some(x => x.id === id)) return;
+  state.settings.tiempo = id;
+  save();
+  renderTiempo();
+  const uno = OB_TIEMPOS.filter(x => x.id === id)[0];
+  toast(uno ? T`Ahora cuento con ${tx(uno.nombre).toLowerCase()}` : tx("Hecho"), "hecho");
+}
+
+function ponerFlaqueza(id) {
+  if (id !== "" && !OB_FLAQUEZAS.some(x => x.id === id)) return;
+  state.settings.flaqueza = id;
+  save();
+  renderFlaqueza();
+  toast(id ? tx("Lo tendré en cuenta al armarte algo nuevo") : tx("Reparto de siempre"), "hecho");
 }
 
 /* ================= Mi exigencia =================

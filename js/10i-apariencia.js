@@ -715,6 +715,11 @@ function estadoApariencia(a) {
     const faltan = Math.max(1, a.abre - n);
     return {
       ok: false, clase: "nivel", chapa: T`Nivel ${a.abre}`, corta: T`Nivel ${a.abre}`, insignia: null,
+      /* El nivel al que se abre viaja también como número, para que la ficha
+         pueda dibujar el aro (`aroDeNivelHTML`, js/02b-expedicion.js). Lo pidió
+         Eduardo para todos los sitios que cuentan niveles: un aro dice dónde
+         estás, y «te faltan dos» solo dice cuánto. */
+      abre: a.abre,
       titulo: faltan === 1 ? tx("Te falta un nivel") : T`Te faltan ${faltan} niveles`,
       texto: T`${tx(a.nombre)} se abre en el nivel ${a.abre} de expedición y vas en el ${n}.` +
         (a.pro ? T` Al llegar arriba se enciende con ${pro}.` : ""),
@@ -1099,10 +1104,19 @@ function pintarFicha(id) {
     ? `<div class="ap-rangos"><span class="ap-rot">${T`Tu camino en ${escapeHtml(tx(m.nombre))}`}</span>
        <p>${m.rangos.map(r => escapeHtml(nombreRango(r))).join(" · ")}</p></div>` : "";
 
+  /* El aro solo en el candado de NIVEL, y esa es la misma regla de siempre: el
+     nivel se anda y por eso se puede enseñar cuánto llevas; un plan se paga y
+     ahí no hay camino que dibujar — un aro al lado de «Con Norata Pro» sugiere
+     que pagando se avanza en algo. */
+  const aro = (!e.ok && e.clase === "nivel" && e.abre && typeof aroDeNivelHTML === "function")
+    ? `<span class="ap-aro">${aroDeNivelHTML(e.abre, 58)}</span>` : "";
   const abajo = !e.ok
-    ? `<div class="ap-cerrado ap-${e.clase}">
-         <b>${escapeHtml(e.titulo)}</b>
-         <span>${escapeHtml(e.texto)}</span>
+    ? `<div class="ap-cerrado ap-${e.clase}${aro ? " con-aro" : ""}">
+         ${aro}
+         <span class="ap-cerrado-tx">
+           <b>${escapeHtml(e.titulo)}</b>
+           <span>${escapeHtml(e.texto)}</span>
+         </span>
        </div>` +
        /* Menta para Pro y LILA para Fundador: en esta app todo lo de Fundador
           va en lila, y un botón menta que dice «Ver Norata Fundador» lo pinta

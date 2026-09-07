@@ -511,29 +511,51 @@ function renderSummary() {
   };
 
   const { order, hidden } = dashLayout();
-  /* Una tarjeta que resume un módulo apagado no tiene a dónde llevar, así
-     que desaparece con él. No se toca la configuración del tablero: al
-     volver a encender el módulo, su tarjeta reaparece donde estaba.
+  /* ---- Apagado desaparece; CERRADO se queda con su candado ----
+     Son dos cosas distintas y hasta 0.7.95 el tablero las trataba igual: las
+     dos hacían desaparecer la tarjeta.
 
-     `moduloUsable` y no `moduloOn` desde 0.7.93: vale igual para el que el
-     nivel todavía no abrió. Aquí la tarjeta desaparece sin candado, y es a
-     propósito — el candado va en el MENÚ, que es donde se entra a un módulo;
-     repetirlo en el tablero llenaría el Resumen de puertas cerradas el primer
-     día, que es justo lo que este cambio existe para quitar. */
-  const visibles = order.filter(id =>
-    !hidden.includes(id) && (!DASH_MODULO[id] || moduloUsable(DASH_MODULO[id])) && W[id] && W[id]());
+     Un módulo APAGADO desaparece porque la persona lo apagó — no hay nada que
+     anunciarle sobre algo que ella misma quitó, y su tarjeta vuelve sola al
+     encenderlo. Un módulo CERRADO no: ahí la tarjeta se queda puesta, apagada
+     y diciendo en qué nivel se abre. Lo decidió Eduardo, y corrige lo que hacía
+     la 0.7.93 —esconderlas— con el argumento bueno: **un tablero al que le
+     faltan tres huecos no enseña que vienen tres cosas, enseña un tablero
+     pequeño.** Con la tarjeta puesta, el Resumen del primer día ya tiene la
+     forma que va a tener siempre y lo que falta se ve venir.
+
+     `cerrados` es la lista de las que van así; salen del filtro normal —su
+     cuerpo no se puede pintar, no hay datos— y se les da uno propio. */
+  const cerrado = (id) => !!DASH_MODULO[id] && moduloOn(DASH_MODULO[id]) && !moduloAbierto(DASH_MODULO[id]);
+  /* **Una tarjeta cerrada por módulo, no una por widget.** Talentos alimenta
+     dos del tablero —«Invertido» y «Listos para empezar»— y Misiones otras
+     dos, así que sin esto el Resumen del primer día enseñaba «Talentos · Nivel
+     2 de 3» DOS VECES, una debajo de otra y diciendo exactamente lo mismo. Se
+     queda la primera en el orden que tenga puesto la persona, que es la que
+     ella colocó más arriba. Lo cazó una medición, no la vista. */
+  const yaCerrado = {};
+  const visibles = order.filter(id => {
+    if (hidden.includes(id)) return false;
+    if (DASH_MODULO[id] && !moduloOn(DASH_MODULO[id])) return false;
+    if (!W[id]) return false;
+    if (!cerrado(id)) return !!W[id]();
+    const mod = DASH_MODULO[id];
+    if (yaCerrado[mod]) return false;
+    yaCerrado[mod] = true;
+    return true;
+  });
   /* Dónde va cada una. En el teléfono no hay columnas que repartir: se apilan
      en el orden de lectura y la cuadrícula de una sola columna hace el resto. */
   const sitio = isDesktop() ? disposicionTablero(visibles, dashCols()) : {};
   const piezas = visibles
     .map(id => {
-      const body = W[id] ? W[id]() : "";
+      const body = cerrado(id) ? cuerpoCerrado(id) : (W[id] ? W[id]() : "");
       if (!body) return "";
       const meta = DASH_META[id];
       const sz = dashSize(id);
       const p = sitio[id];
       return `
-      <div class="widget" data-w="${id}" style="--w:${sz.w};--h:${sz.h}${
+      <div class="widget${cerrado(id) ? " w-cerrado" : ""}" data-w="${id}" style="--w:${sz.w};--h:${sz.h}${
         p ? `;--c:${p.c + 1};--f:${p.f + 1}` : ""}">
         ${body}
         <div class="w-edit">
@@ -571,6 +593,37 @@ function renderSummary() {
 /* ================= Tablero personalizable =================
    El Resumen es una rejilla de widgets: se reordenan arrastrando
    (mantén pulsado para entrar en modo edición) y se pueden quitar o volver a añadir. */
+
+/* El cuerpo de una tarjeta cuyo módulo todavía no abre el nivel. No es un
+   widget más: no hay datos que resumir, así que lo que se pinta es la promesa
+   —el dibujo del módulo, el aro de cuánto falta y el nivel al que llega—.
+
+   El dibujo sale del BOTÓN de la barra (`trazoDeModulo`, js/04-misiones.js) por
+   lo mismo que en la celebración: un dibujo, un sitio. Y se toca: lleva al
+   mismo cuadro que el candado del menú, con su aro y con lo que te espera
+   dentro. Una tarjeta cerrada que no contesta al tocarla es un adorno.
+
+   Es un `button` y no un `div` porque se pulsa: un div con onclick no entra con
+   el tabulador ni contesta al Enter. */
+function cuerpoCerrado(id) {
+  const mod = DASH_MODULO[id];
+  const m = (typeof MODULOS !== "undefined" ? MODULOS : []).find(x => x.id === mod);
+  const pide = (typeof MODULO_NIVEL !== "undefined" && MODULO_NIVEL[mod]) || 0;
+  if (!m || !pide) return "";
+  const trazo = typeof trazoDeModulo === "function" ? trazoDeModulo(mod) : "";
+  const f = typeof faltaParaNivel === "function"
+    ? faltaParaNivel(pide) : { abre: T`Se desbloquea en el nivel ${pide}` };
+  return `
+    <button type="button" class="wc" onclick="avisoModuloCerrado('${escapeAttr(mod)}')"
+      aria-label="${escapeAttr(T`${tx(m.label)} · se abre en el nivel ${pide}`)}">
+      <span class="wc-aro">${typeof aroDeNivelHTML === "function" ? aroDeNivelHTML(pide, 46) : ""}</span>
+      <span class="wc-tx">
+        <b>${trazo ? `<svg class="wc-ic" viewBox="0 0 24 24" aria-hidden="true">${trazo}</svg>` : ""}${escapeHtml(tx(m.label))}</b>
+        <span>${escapeHtml(f.abre)}</span>
+      </span>
+      <span class="wc-llave">${icon("lock", 13)}</span>
+    </button>`;
+}
 
 const DASH_META = {
   /* Más alta desde que lleva el mes debajo de la semana (0.7.33). */
