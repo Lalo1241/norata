@@ -241,7 +241,7 @@ const EXP_ESCALERA = [
      Van en la escalera porque son lo que más se parece a un premio de todo lo
      que hay en ella: una pantalla entera de la app que se enciende. Y porque
      un candado sin fecha desespera y uno con el nivel escrito al lado tira. */
-  /* Sin `icon`, y es la corrección de 0.7.94.1: decían `star` y `flag`, que no
+  /* Sin `icon`, y es la corrección de 0.7.94.2: decían `star` y `flag`, que no
      son los dibujos de esos módulos en ninguna parte de la app. El de verdad lo
      saca `trazoDeModulo()` del propio botón de la barra — un dibujo, un sitio. */
   { nivel: 0,  tipo: "modulo", id: "tree",     nombre: "El árbol de talentos", corto: "Talentos",  listo: true },
