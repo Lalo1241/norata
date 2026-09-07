@@ -65,16 +65,277 @@ un día **después**, y a partir de ahí nadie sabe qué se hizo cuándo.
 Solo se nota entre las 00:00 y las 06:00 UTC, que en México son las seis horas
 anteriores del día de antes. Justo la franja en la que se trabaja de noche.
 
-**Cómo salir de dudas** cuando no se esté seguro de en qué huso va el reloj:
+**Cómo salir de dudas** cuando no se esté seguro de en qué huso va el reloj.
+Aquí el reloj del sistema YA está en México —Windows lo llama «Central Standard
+Time (Mexico)»—, así que lo que hay que hacer es preguntárselo a él y mirar que
+el desfase sea `-0600`:
 
 ```
-TZ=America/Mexico_City date "+%-d %b %Y"
+date "+%-d %b %Y | %H:%M %z"
+```
+
+**Y lo que NO hay que usar, aunque parezca lo obvio: `TZ=America/Mexico_City`.**
+El Git Bash de esta máquina no trae la base de husos, así que **ignora `TZ` en
+silencio y contesta en UTC** — pedirle México, UTC y Tokio devuelve las tres
+veces la misma hora. Entre las 18:00 y la medianoche de México eso responde el
+día siguiente, que es exactamente el fallo contra el que se escribió esta regla.
+Se comprueba en un comando:
+
+```
+TZ=Asia/Tokyo date "+%z"      # si contesta +0000, TZ no funciona aquí
 ```
 
 México es **UTC-6 todo el año**: el país quitó el horario de verano en 2022, así
 que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
+
+### 0.7.93.1 · 6 sep 2026
+
+**La zona horaria se puede elegir por su desfase, y hay husos para todo el
+mundo.** Lo pidió Eduardo: «que manejen lo de GMT y que se vea en todas las
+zonas horarias igual, ayuda mucho a apoyarse en elegir la correcta».
+
+Cada opción se lee `GMT-6 · America/Mexico City`, y la lista va **ordenada por
+ese desfase**. Es lo que la convierte en una escalera: si sabes que vas dos
+horas por delante de México, bajas dos peldaños y ahí está. Ordenada por nombre
+había que saberse el huso de memoria, que es justo lo que uno viene a buscar.
+
+**El desfase se calcula, no está escrito**, y esa es la decisión que importa:
+un desfase no es una propiedad del huso, es una propiedad del huso **en una
+fecha**. Medido con las mismas zonas en dos fechas:
+
+| | 6 sep | 15 ene |
+| --- | --- | --- |
+| Madrid | GMT+2 | GMT+1 |
+| Londres | GMT+1 | GMT+0 |
+| Nueva York | GMT-4 | GMT-5 |
+| Sídney | GMT+10 | GMT+11 |
+| **Ciudad de México** | **GMT-6** | **GMT-6** |
+
+Una tabla escrita a mano habría nacido correcta y mentiría dos veces al año, en
+fechas distintas para cada país. Se le pregunta al navegador, que lleva la base
+de husos dentro: se pide la hora de allá y se resta la de aquí.
+
+**Y el formato se escribe a mano en vez de usar el `timeZoneName: "shortOffset"`
+de `Intl`**, porque ese cambia de forma según el idioma y el navegador —«GMT-6»,
+«GMT-06:00», «UTC-6»— y lo único que hace útil esa columna es que todas las
+filas se lean IGUAL. Los minutos solo aparecen cuando los hay: India es GMT+5:30
+y Nepal GMT+5:45, pero poner «:00» en las otras sesenta ensucia la columna.
+
+**De 16 husos a 62.** Los dieciséis de antes no salían de América más Madrid y
+Londres; con la app en inglés desde la 0.7.84, alguien en Tokio o en Berlín no
+encontraba el suyo. Ahora hay uno por cada desfase que existe, los cuatro de
+México y todos los países de habla hispana. **No se quitó ninguno de los
+dieciséis** — comprobado uno por uno. Sin esto, enseñar «GMT+» en una lista que
+se cortaba en GMT+1 era una escalera sin peldaños.
+
+Nadie se queda fuera aunque su huso no esté: `renderTimezone` mete siempre el
+detectado del dispositivo, así que la lista es para quien quiere CAMBIARLO —
+alguien que viaja, o que trabaja con el horario de otro país.
+
+**Medido:** 62 opciones, **0 mal formadas y 0 desordenadas**, y un huso
+inventado devuelve `null` y se salta en vez de reventar Ajustes entero.
+
+**Tres cosas que salieron de paso, en esa misma pantalla:**
+
+- **«Zona horaria actualizada» y «de este equipo» estaban sin `tx()`.** La misma
+  clase de fallo que la 0.7.90. Envueltas, con sus dos entradas; en inglés la
+  opción detectada dice ahora «(from this device)».
+- **«de este equipo» pasa a «de este dispositivo»**, que es la palabra que ya
+  usa la nota dos líneas más arriba en esa misma pantalla.
+- **Un punto doble que llevaba ahí desde siempre.** La pista decía «Ahí son las
+  02:27 a.m**..**»: en español de México la hora ya trae su punto y la frase le
+  añadía el suyo. En inglés no pasa, porque ahí es «2:27 AM». Se quita el punto
+  repetido al componer, así que vale para cualquier idioma que venga y no
+  obliga a partir la frase en dos versiones.
+
+## Y una corrección a este documento: el comando de las fechas estaba mal
+
+La sección «Las fechas van en hora de México» recomendaba
+`TZ=America/Mexico_City date` para salir de dudas. **En el Git Bash de esta
+máquina eso no funciona**: no trae la base de husos, así que **ignora `TZ` en
+silencio y contesta en UTC**. Pedirle México, UTC y Tokio devuelve las tres
+veces la misma hora.
+
+Entre las 18:00 y la medianoche de México eso responde el día siguiente — que
+es exactamente el fallo contra el que se escribió la regla. **Esta misma entrada
+lo enseña**: se escribió a las 22:22 del 6 de septiembre en México, que en UTC
+ya son las 04:22 del 7. El comando viejo la habría fechado mañana.
+
+Lo fiable aquí es `date` a secas, porque el reloj del sistema ya está en México
+—Windows lo llama «Central Standard Time (Mexico)»—, y se confirma mirando que
+el desfase diga `-0600`. Corregido en este documento y en `CLAUDE.md`, con la
+prueba que lo caza en un comando: `TZ=Asia/Tokyo date "+%z"`; si contesta
+`+0000`, `TZ` no funciona.
+
+### 0.7.93 · 6 sep 2026
+
+**La app ya no abre con las cuatro pantallas encima: Talentos y Proyectos
+llegan por el camino, la bienvenida pasa de tres preguntas a seis y decide
+también qué NO ponerte, y todo lo que está cerrado lleva por fin un candado
+encima.**
+
+Seis cosas de una tanda de Eduardo, y las dos primeras salen de la misma queja:
+la app se explica mal el primer día y no se siente como un juego.
+
+**Los dos módulos que llegan.** Norata abría con cuatro secciones delante y
+ninguna pista de por dónde empezar: había que entender a la vez qué es una
+misión, qué es una habilidad que baja si la dejas, qué es un talento que se
+compra con dinero real y qué es un encargo dentro de un proyecto. Cuatro
+vocabularios nuevos en la misma barra. Ahora **Talentos se abre en el nivel 3 y
+Proyectos en el 5** (`MODULO_NIVEL`, `js/04-misiones.js`), y los números no son
+redondos: medidos con `EXP_PUNTOS` y la curva de la expedición sobre un perfil
+de cuatro días por semana, el 3 cae dentro de la primera semana y el 5 alrededor
+de la tercera. Bastante para que Misiones y Habilidades ya signifiquen algo,
+poco para que nadie espere un mes por la pantalla que más trabajo lleva. Misiones
+y Habilidades no tienen nivel a propósito: son las dos que se entienden sin que
+nadie las explique, y una app que abre con la barra entera cerrada no enseña,
+castiga.
+
+**Y el nivel solo puede ABRIR, nunca cerrar.** Es la misma regla del cobro
+—congelar, nunca quitar—: un módulo que ya tiene algo dentro está abierto tenga
+el nivel que tenga (`moduloConCosas`). Sin eso, publicar esto le habría escondido
+el árbol a todo el que ya lo estaba usando, que es el fallo que nadie perdona.
+Vale igual para quien importa un respaldo, para quien ve el ejemplo completo y
+para una cuenta que llega de otro dispositivo.
+
+**Lo que se abre no llega vacío.** La bienvenida crea habilidades y misiones
+siempre, pero lo de Talentos y Proyectos lo deja APUNTADO (`settings.siembra`) y
+se planta el día que la puerta se abre, con su celebración delante
+(`sembrarLoApuntado`, `js/09-inicio.js`). Se decidió así contra la alternativa
+fácil —crearlo todo el primer día detrás del candado— porque esa tenía las dos
+mitades malas: el nivel de expedición cuenta los estrenos, así que crear talentos
+invisibles te sube de nivel por algo que no hiciste, y el módulo se abre con
+cosas dentro que no recuerdas haber puesto. Así, desbloquear es un regalo. Los
+dos módulos salen además en la escalera de Mi expedición con su nivel escrito al
+lado, y el nivel de esa fila no está copiado: se lee de `MODULO_NIVEL`, que es
+quien lo aplica. Un candado sin fecha desespera; uno con el nivel al lado tira.
+
+**La bienvenida, de tres preguntas a seis.** Las tres de antes preguntaban por lo
+que se quiere. Faltaban las que deciden qué NO ponerte, que es donde estaba el
+problema: todo el mundo salía con las mismas seis habilidades, la misma misión
+diaria y la misma rama de seis peldaños con dos plazos largos y una cima a 240
+días, tuviera diez minutos al día o dos horas, y le costara arrancar o le costara
+cerrar. Un tablero igual para todos es un tablero pensado para nadie, y la mitad
+de lo que trae acaba siendo deuda.
+
+Las tres nuevas y lo que HACEN, que está todo junto en `ramaAMedida`,
+`habilidadesPorArea` y `cadenciaDeMision`:
+
+| Pregunta | Lo que cambia |
+| --- | --- |
+| **Cuánto tiempo tienes al día** | Diez minutos: UNA habilidad por área en vez de dos, misión de tres días a la semana en vez de diaria, rama de cuatro peldaños y plazos un 40% más largos. Una hora o más: los plazos se acortan un 30% |
+| **Dónde se te suele caer** | *Arrancar*: los tres primeros peldaños nunca llevan plazo. *Sostener*: toda meta que no sea la cima pasa a hito y suelta su reloj. *Terminar*: la rama nace de cuatro peldaños y la cima cuelga de los dos caminos cortos |
+| **Cómo prefieres que te hable** | El género, abajo |
+
+Las tres se pueden saltar y solo las áreas siguen siendo obligatorias: un
+cuestionario de seis pantallas con seis paredes no se termina. Y las de una sola
+respuesta avanzan solas al tocarlas, que es lo que evita que seis pantallas se
+conviertan en doce toques.
+
+Dos topes salieron de medirlo: **ningún plazo baja de 15 días** —por debajo de
+dos semanas deja de ser un plazo y pasa a ser una prisa— **y ninguno pasa de un
+año**, porque el 1,4 sobre el fondo de emergencia (que ya viene a 365) daba 511
+días: año y medio en el primer tablero de alguien que acaba de entrar.
+
+**El género, y con él el primer ajuste de cómo te habla la app.** El español pone
+género donde el inglés no pone nada, y Norata estaba escrita esquivándolo uno a
+uno —el saludo de madrugada usa tu nombre justo por eso—. Esquivar funciona pero
+cuesta, y hay rincones sin salida: los rangos son OFICIOS, y en español un oficio
+tiene dos formas. Ahora se pregunta una vez y se usa: **Rastreador,
+Rastreadora o Rastreadore**, igual con Explorador y Cartógrafo (Andante y
+Navegante ya eran iguales para todo el mundo y no llevan variante, que sería una
+copia esperando a desincronizarse). Sin contestar se queda en NEUTRO y no en
+masculino: quien no ha dicho nada no ha dicho nada, y suponerle un género es lo
+que este ajuste existe para no hacer. Se cambia después en Ajustes → Mi perfil,
+junto al idioma y a la exigencia. Tres cosas que hacían falta para que no
+mintiera: las variantes se BORRAN al ponerse un mundo (`Object.assign` pisa
+`nombre` pero no `nombreF`, así que Semilla habría salido llamándose
+Rastreadora), la forma solo manda en español —en inglés el sustantivo no marca
+género y buscar «Rastreadora» en el diccionario la habría dejado en español
+dentro de una app en inglés—, y lo eligen los cinco sitios que escriben un rango
+llamando a un único `nombreDeRango()`, porque con cinco ternarios sueltos el que
+se queda atrás es el que un día llama Rastreador a quien pidió Rastreadora. De
+paso cayó la única palabra que ya le ponía género a quien lee sin haberlo
+preguntado: «Cuenta creada. Bienvenido».
+
+**El candado, que es lo que faltaba en toda la app.** La regla es de una línea:
+*lo que está cerrado tiene que verse cerrado*. Había tres maneras de decirlo y
+ninguna lo decía —los periodos del informe se ponían al 45% de opacidad, las
+cartas de los caminos en blanco y negro, y ya está—. Gris no significa
+«cerrado»: significa «desactivado», que es lo que le pasa a un botón que no viene
+al caso, y **nadie toca un botón desactivado para preguntarle por qué** — cuando
+tocarlo es justo lo que saca el cuadro que explica qué es y cuánto cuesta. Ahora
+llevan candado los dos módulos del menú, sus filas en Ajustes, los periodos y las
+ramas del informe, y las cartas de los caminos; y el blanco y negro de una carta
+trabada se lo queda ahora solo el mapa, porque un `filter` en el padre tiñe
+también al hijo y el candado nuevo salía gris sobre gris. Los peldaños de la
+escalera que cierra un PLAN pasaron a ser botones y llevan al panel de los
+precios. **El orden de las dos puertas no cambia** y es la decisión de fondo,
+la misma que ya gobierna el escaparate de apariencias: primero el NIVEL, que se
+gana, y después el PLAN, que se paga. A quien no llega al nivel no se le ofrece
+pagar — cobrar por saltarse la escalera es lo único que la rompería. Por eso el
+cuadro de un módulo cerrado no tiene botón de comprar: tiene uno que lleva a Mi
+expedición, que es donde se ve cuánto falta. Medido: el candado del menú en
+`--faint` daba 2,8 sobre el fondo flotante, por debajo del 3 que pide una línea;
+va en `--muted`, que da 5,5 de noche y 5,7 de día.
+
+**El desplazamiento que se cortaba solo al pasar por encima de un talento.** En
+el teléfono, deslizar la página con el dedo apoyado sobre un nodo del mapa abría
+la ficha de ese nodo y paraba el desplazamiento. El motivo: cuando el navegador
+decide que un gesto es un desplazamiento, se lo lleva y dispara `pointercancel`
+— y `pointerup` y `pointercancel` llamaban a la misma función, así que un gesto
+que te QUITAN se contaba como un clic. El umbral de 12 px que ya había no lo
+cazaba, y no podía: en cuanto el navegador reclama el gesto deja de entregar
+movimientos al elemento, así que el gesto llegaba al final sin haberse movido ni
+un píxel. **Cancelar no es un clic**, y con eso basta; lo que ya se estaba
+arrastrando sí se guarda, que perder el sitio de un nodo por soltar mal sería
+peor. Comprobado midiendo, con el archivo viejo y con el nuevo: antes, un
+`pointerdown` + `pointercancel` sobre un talento dejaba la app en `view-perk` y
+abría la ventana de una caja; ahora no mueve nada, y un toque de verdad sigue
+abriendo las dos cosas.
+
+**Los títulos de los encargos, a dos renglones en el teléfono.** Iban a uno con
+puntos suspensivos, y los encargos se llaman como se llaman las cosas que uno
+construye: «Terminar el curso que dejé a medias» son 41 caracteres y en 375 px se
+cortaba antes de decir de qué iba. Una tarjeta que dice «Terminar el curso que…»
+no se distingue de la de al lado. Se recorta con `line-clamp` y no con un alto
+fijo, que en píxeles corta la segunda línea por la mitad en cuanto una apariencia
+cambia la tipografía; y `.proj-top` pasa a `flex-start`, porque centrado un
+título de dos renglones bajaba el icono y la pastilla del estado media línea.
+
+**El saludo y la fecha, debajo del título y no encima.** Y no salen hasta que la
+app tiene algo dentro. Estaban encima del «Resumen», así que la app abría
+diciendo la fecha —un dato que ya está en la barra del teléfono— por delante del
+sitio donde estás; y se escribían ANTES del caso vacío a propósito, con el
+argumento de que «un perfil recién creado no tiene tablero pero sí tiene día».
+Resultó ser lo contrario de lo que hace falta ahí: la primera pantalla de alguien
+que acaba de entrar tiene UNA pregunta que hacer —por cuál de los tres caminos
+empiezas— y encima salía «Buenas tardes · lunes, 6 de septiembre», que ni es la
+pregunta ni ayuda a contestarla. Son dos condiciones y no una, porque son dos
+maneras distintas de no haber empezado: el tablero vacío y la bienvenida sin
+contestar. Con solo la primera, quien creaba una habilidad suelta y se saltaba el
+cuestionario ya se llevaba el saludo encima del cartel que se lo ofrece.
+
+**Cómo se comprobó.** Midiendo el DOM en Chromium, con las animaciones saltadas
+al final antes de cada medición, a 375×780 y a 360×480 y en los dos modos: las
+seis pantallas de la bienvenida sin desbordes ni opciones fuera de la ventana, la
+siembra de una cuenta nueva de principio a fin (nivel 0 → 3 → 5, comprobando que
+en el 3 llegan las ramas y en el 5 el proyecto, y que la nota se borra al
+quedarse sin nada), el gesto del mapa contra el archivo viejo y el nuevo, los
+contrastes de las tres chapas nuevas, y el título de un encargo largo (dos
+renglones exactos, 38 px, recortado y sin desbordar).
+
+Dos que se cazaron así y no mirando: **el proyecto sembrado nacía siempre
+de menta**, porque Talentos se abre antes que Proyectos y para cuando le tocaba al
+proyecto la lista de áreas ya estaba vacía —la había vaciado la siembra de las
+ramas—, así que el color se decide ahora al contestar y se guarda; y **el candado
+del menú se quedaba puesto encima de un módulo ya abierto** hasta la siguiente
+vez que se abriera la app, porque un módulo también se abre por TENER algo dentro
+y eso pasa sin que suba ningún nivel. Los candados se repasan ahora en cada
+viaje: son cuatro botones, una clase y un rótulo.
+
 
 ### 0.7.92 · 6 sep 2026
 

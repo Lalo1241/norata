@@ -385,6 +385,14 @@ function renderInforme() {
   const rAntes = rangoDe(periodo, 1);
   const D = datosDeAhora();
 
+  /* ---- Y lo que está cerrado, con su candado ----
+     Los periodos y las ramas que el plan no incluye se apagaban al 45% de
+     opacidad y nada más. Un botón gris se lee como «no viene al caso», no como
+     «esto se abre pagando», así que nadie lo tocaba — y tocarlo es justo lo que
+     saca el cuadro que explica qué es y cuánto cuesta (`topeAlcanzado`, que ya
+     estaba enganchado en `informeVerPeriodo` y en `informeVerRama`). El
+     candado es lo que convierte el gris en una invitación. Ver la nota de
+     `.llave` en css/estilos.css. */
   const mandos = `
     <div class="inf-mandos">
       <div class="inf-periodos" role="tablist" aria-label="Periodo del informe">
@@ -395,7 +403,9 @@ function renderInforme() {
                 se contradice consigo misma. Gris es lo que no está abierto Y
                 no estás viendo. */""}
           <button role="tab" class="${p === periodo ? "on" : (planIncluyeResumen(p) ? "" : "bajo-llave")}"
-            aria-selected="${p === periodo}" onclick="informeVerPeriodo('${p}')">${escapeHtml(tx(PERIODOS[p].nombre))}</button>`).join("")}
+            aria-selected="${p === periodo}" onclick="informeVerPeriodo('${p}')"
+            ${p !== periodo && !planIncluyeResumen(p) ? `aria-label="${escapeAttr(T`${tx(PERIODOS[p].nombre)} · viene con ${NOMBRE_PRO}`)}"` : ""}
+            >${escapeHtml(tx(PERIODOS[p].nombre))}${p !== periodo && !planIncluyeResumen(p) ? icon("lock", 11) : ""}</button>`).join("")}
       </div>
       <div class="inf-ramas" role="tablist" aria-label="Módulo del informe">
         ${/* Sin plan, las cuatro ramas no llevan a ninguna parte: el informe
@@ -406,7 +416,9 @@ function renderInforme() {
             const abierta = conPlan || x.id === "todo";
             return `
           <button role="tab" class="${x.id === informeRamaActual ? "on" : ""}${abierta ? "" : " bajo-llave"}"
-            aria-selected="${x.id === informeRamaActual}" onclick="informeVerRama('${x.id}')">${escapeHtml(tx(x.nombre))}</button>`;
+            aria-selected="${x.id === informeRamaActual}" onclick="informeVerRama('${x.id}')"
+            ${abierta ? "" : `aria-label="${escapeAttr(T`${tx(x.nombre)} · viene con ${NOMBRE_PRO}`)}"`}
+            >${escapeHtml(tx(x.nombre))}${abierta ? "" : icon("lock", 11)}</button>`;
           }).join("")}
       </div>
     </div>`;

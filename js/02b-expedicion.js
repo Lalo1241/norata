@@ -149,14 +149,23 @@ const EXP_POR_RANGO = 6;
    cinco —en Arboleda no eres Andante, eres Semilla— y una nota que dijera «el
    andante camina» se rompería en catorce sitios. Habla del TRAMO, que es lo
    único que ningún mundo mueve. */
+/* `nombreF` y `nombreX` son las otras dos formas del oficio, y solo las llevan
+   los tres que las tienen: «Andante» y «Navegante» ya son iguales para todo el
+   mundo, y ponerles una variante igual a sí misma sería una copia esperando a
+   desincronizarse. Las resuelve `nombreDeRango()` (js/01-base.js), que es el
+   único sitio donde se elige — y en inglés no se eligen, porque allí el oficio
+   no marca género. Ver la nota de `GENEROS`. */
 const EXP_RANGOS = [
   { id: "andante",    nombre: "Andante",    desde: 1,  icon: "rango-bota",    color: "--rango-andante",
     nota: "El principio. Se cruza en semanas y casi todo lo que haces suma." },
-  { id: "rastreador", nombre: "Rastreador", desde: 7,  icon: "rango-huella",  color: "--rango-rastreador",
+  { id: "rastreador", nombre: "Rastreador", nombreF: "Rastreadora", nombreX: "Rastreadore",
+    desde: 7,  icon: "rango-huella",  color: "--rango-rastreador",
     nota: "Ya hay un rastro que seguir: se nota a qué le dedicas los días." },
-  { id: "explorador", nombre: "Explorador", desde: 13, icon: "rango-farol",   color: "--rango-explorador",
+  { id: "explorador", nombre: "Explorador", nombreF: "Exploradora", nombreX: "Exploradore",
+    desde: 13, icon: "rango-farol",   color: "--rango-explorador",
     nota: "Aquí se ve lo que sostienes, no lo que empezaste." },
-  { id: "cartografo", nombre: "Cartógrafo", desde: 19, icon: "rango-mapa",    color: "--rango-cartografo",
+  { id: "cartografo", nombre: "Cartógrafo", nombreF: "Cartógrafa",  nombreX: "Cartógrafe",
+    desde: 19, icon: "rango-mapa",    color: "--rango-cartografo",
     nota: "El mapa ya es tuyo: habilidades, talentos y proyectos con historia detrás." },
   { id: "navegante",  nombre: "Navegante",  desde: 25, icon: "rango-brujula", color: "--rango-navegante",
     nota: "El último de los cinco. El nivel sigue subiendo después: la cuenta no se acaba." }
@@ -223,6 +232,17 @@ function celebracionesAbiertas() {
    usando donde hay renglón entero —«Mi expedición»—, pero «Destello propio al
    cumplir una misión» en 132 px son cuatro líneas y descuadraba la fila. */
 const EXP_ESCALERA = [
+  /* Los dos MÓDULOS que llegan por el camino (0.7.93). Los niveles no se
+     escriben aquí: salen de `MODULO_NIVEL` (js/04-misiones.js), que es quien
+     de verdad los aplica. Copiarlos sería la segunda verdad de siempre —una
+     tarjeta prometiendo el nivel 3 y un candado abriéndose en el 4—, y esta
+     lista es justo la pantalla donde se leería.
+
+     Van en la escalera porque son lo que más se parece a un premio de todo lo
+     que hay en ella: una pantalla entera de la app que se enciende. Y porque
+     un candado sin fecha desespera y uno con el nivel escrito al lado tira. */
+  { nivel: 0,  tipo: "modulo", id: "tree",     nombre: "El árbol de talentos", corto: "Talentos",  icon: "star", listo: true },
+  { nivel: 0,  tipo: "modulo", id: "projects", nombre: "Proyectos y encargos", corto: "Proyectos", icon: "flag", listo: true },
   { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión", corto: "Destello propio", listo: true },
   { nivel: 6,  tipo: "rango",       nombre: "Rango Andante", listo: true },
   { nivel: 9,  tipo: "celebracion", nombre: "Racha avivada", corto: "Racha avivada", listo: true },
@@ -243,6 +263,11 @@ const EXP_ESCALERA = [
    catálogo abría Adobe en el 7. Dos verdades sobre lo mismo, que es justo lo
    que un peldaño no puede tener. */
 function escaleraDeExpedicion() {
+  /* El nivel de los dos peldaños de módulo se rellena aquí, leído de la tabla
+     que lo aplica. Se declaran arriba con un cero de relleno porque este
+     archivo carga ANTES que `js/04-misiones.js` —el mismo motivo por el que
+     los ambientes se juntan al vuelo y no en la constante—. */
+  const porNivel = typeof MODULO_NIVEL !== "undefined" ? MODULO_NIVEL : {};
   /* Los nombres de los peldaños de RANGO se vuelven a escribir con los del
      mundo puesto, por el mismo motivo por el que se juntan aquí los ambientes:
      arriba están escritos a mano —«Rango Rama»— y con un mundo encima eso era
@@ -255,11 +280,12 @@ function escaleraDeExpedicion() {
      nuevo en medio. */
   const propios = typeof rangosVigentes === "function" ? rangosVigentes() : null;
   const filas = EXP_ESCALERA.map(f => {
+    if (f.tipo === "modulo") return Object.assign({}, f, { nivel: porNivel[f.id] || f.nivel });
     if (f.tipo !== "rango" || !propios) return f;
     /* Se empareja por el nivel donde el rango se CONSIGUE —el sexto de su
        tramo— y no por `desde`, que es donde empieza a dibujarse. */
     const r = propios.filter(x => x.desde + EXP_POR_RANGO - 1 === f.nivel)[0];
-    return r ? Object.assign({}, f, { nombre: T`Rango ${tx(r.nombre)}` }) : f;
+    return r ? Object.assign({}, f, { nombre: T`Rango ${nombreDeRango(r)}` }) : f;
   });
   if (typeof AMBIENTES !== "undefined") {
     for (const a of AMBIENTES) {
@@ -443,7 +469,14 @@ function rangosVigentes() {
   if (typeof rangosDeApariencia === "function") {
     const propios = rangosDeApariencia();
     if (propios && propios.length === EXP_RANGOS.length) {
-      return EXP_RANGOS.map((r, i) => Object.assign({}, r, propios[i]));
+      /* Las variantes de género de la casa se BORRAN al ponerse un mundo, y
+         hace falta decirlo: `Object.assign` pisa `nombre` pero no toca
+         `nombreF`, así que sin esta línea el rango «Semilla» de Arboleda
+         seguiría llevando pegado el «Rastreadora» de la casa — y a quien
+         eligiera femenino le habría salido Rastreadora dentro de Arboleda.
+         Un mundo nombra los cinco a su manera y ahí no hay nada que elegir. */
+      return EXP_RANGOS.map((r, i) =>
+        Object.assign({}, r, { nombreF: null, nombreX: null }, propios[i]));
     }
   }
   return EXP_RANGOS;
@@ -514,8 +547,8 @@ function insigniaExpedicionHTML(diam) {
   const col = "var(" + (r.color || "--mint") + ")";
 
   return '<span class="exp-insignia" style="width:' + d + 'px;height:' + d + 'px;color:' + col + '"' +
-    ' title="' + escapeAttr(T`Nivel ${info.nivel} · ${r.nombre} · ${info.pct}% del nivel`) + '"' +
-    ' aria-label="' + escapeAttr(T`Nivel ${info.nivel}, rango ${r.nombre}`) + '">' +
+    ' title="' + escapeAttr(T`Nivel ${info.nivel} · ${nombreDeRango(r)} · ${info.pct}% del nivel`) + '"' +
+    ' aria-label="' + escapeAttr(T`Nivel ${info.nivel}, rango ${nombreDeRango(r)}`) + '">' +
     ring(d, grosor, [{ pct: info.pct / 100, color: col }], "var(--carril)") +
     /* Un rango de la casa nombra un icono de ICONS; uno de mundo trae su
        trazo entero, porque sus dibujos viajan con el mundo y no con la app —
@@ -1037,7 +1070,7 @@ function expCieloHTML(nivel) {
   cerradas.forEach((r, i) => {
     const figC = expFiguraDeRango(r, rangos.indexOf(r));
     estante += '<g class="exp-const cerrada" style="--c:var(' + r.color + ')">' +
-      '<title>' + escapeHtml(r.nombre) + ' · conseguido</title>' +
+      '<title>' + escapeHtml(nombreDeRango(r)) + ' · conseguido</title>' +
       expFiguraHTML(figC, figC.p.length, x0 + i * m.paso, m.y, m, false) + '</g>';
   });
 
@@ -1283,7 +1316,7 @@ function renderColeccion() {
             <span class="crx-disco">${r.trazo ? svgDeTrazo(r.trazo, 22) : icon(r.icon, 22)}</span>
             <div class="crx-tx">
               <div class="crx-cab">
-                <b>${escapeHtml(tx(r.nombre))}</b>
+                <b>${escapeHtml(nombreDeRango(r))}</b>
                 <span class="crx-estado">${
                   tuyo ? icon("check", 13) + tx("Conseguido")
                   : estado === "viva" ? tx("Estás aquí")
@@ -1307,7 +1340,13 @@ function renderColeccion() {
              usar le dice que no puede. Devuelve `true`, "nivel", "pro" o
              "fundador". Los peldaños sin `id` —las celebraciones, que todavía
              no existen— no son una apariencia y se resuelven por el nivel. */
-          const razon = (x.id && typeof aparienciaDisponible === "function")
+          /* Un módulo lleva `id`, pero su `id` no es el de una apariencia:
+             preguntarle a `aparienciaDisponible("tree")` devolvería lo que
+             devuelve para cualquier nombre que no está en el catálogo. Se
+             resuelve por el nivel y ya está — un módulo no se paga. */
+          const razon = (x.tipo === "modulo")
+            ? (nivel < x.nivel ? "nivel" : true)
+            : (x.id && typeof aparienciaDisponible === "function")
             ? aparienciaDisponible(x.id)
             : nivel < x.nivel ? "nivel"
             /* Un peldaño sin `id` no es una apariencia —hoy son las tres
@@ -1329,10 +1368,28 @@ function renderColeccion() {
              para que dijera una sola cosa, y un candado de Pro pintado de lila
              la rompe. Lo que cierra Pro va en celeste, que aquí no significa
              nada más — y de decir que está cerrado ya se encarga el candado. */
+          /* La menta para los módulos: son la app misma, no un adorno de la
+             app, y ese es el único tono de la casa que significa eso. */
           const col = tuyo || porNivel
-            ? (x.tipo === "ambiente" ? "--celeste" : "--rosa")
+            ? (x.tipo === "ambiente" ? "--celeste" : x.tipo === "modulo" ? "--mint" : "--rosa")
             : (razon === "fundador" ? "--lila" : "--celeste");
-          return `<div class="col-peldano ${tuyo ? "tuyo" : porNivel ? "" : "cerrado"}" style="--c:var(${col})">
+          /* Lo que cierra un PLAN se puede tocar, y lleva al panel donde están
+             los precios. Lo que cierra el NIVEL no: ahí no hay nada que
+             comprar, y un chip que se hunde al pulsarlo prometiendo algo que
+             no llega es peor que uno que no se mueve. Es el mismo reparto que
+             ya hace el escaparate de apariencias, y la razón entera está
+             escrita allí: primero el nivel, que se gana, y después el plan,
+             que se paga.
+
+             Un `div` no admite `onclick` accesible —no entra con el tabulador
+             ni contesta al Enter—, así que el que se toca nace `button`. */
+          const seCompra = !tuyo && !porNivel;
+          const eti = seCompra
+            ? `<button type="button" class="col-peldano cerrado se-compra" style="--c:var(${col})"
+                 onclick="${typeof abrirAjustes === "function" ? "abrirAjustes('plan')" : ""}"
+                 aria-label="${escapeAttr(T`${tx(x.nombre)} · ver los planes`)}">`
+            : `<div class="col-peldano ${tuyo ? "tuyo" : ""}" style="--c:var(${col})">`;
+          return eti + `
             <span class="cpx-disco">${icon(x.icon || (x.tipo === "ambiente" ? "brush" : "star"), 17)}</span>
             <!-- Los cuatro rótulos de aquí abajo NUNCA pedían traducción, así que
                  el auditor del navegador no podía verlos: solo cuenta lo que pasa
@@ -1343,7 +1400,7 @@ function renderColeccion() {
               porNivel ? T`Nivel ${x.nivel}`
               : tuyo ? icon("check", 13) + tx("Desbloqueado")
               : icon("lock", 12) + (razon === "fundador" ? tx("Fundador") : tx("Pro"))}</span>
-          </div>`;
+          ` + (seCompra ? `</button>` : `</div>`);
         }).join("")}
       </div>
       ${typeof abrirApariencia === "function" ? `<button class="btn btn-linea btn-block" onclick="abrirApariencia()">${tx("Ver Mi apariencia")}</button>` : ""}
