@@ -654,9 +654,18 @@ function aroDeNivelHTML(objetivo, diam) {
 function faltaParaNivel(objetivo) {
   const n = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 0;
   const faltan = Math.max(1, objetivo - n);
+  /* Dos rótulos y NO uno, porque dicen cosas distintas y confundirlos fue el
+     fallo de la 0.7.97: la tarjeta del tablero decía «Nivel 2 de 3» y sola, sin
+     más frase alrededor, eso se lee como «este módulo ES el nivel 2 de 3» — que
+     no significa nada. Lo paró Eduardo.
+
+     `abre` dice lo que hay que hacer y va donde el rótulo está solo. `vas` dice
+     dónde estás y va pegado al aro, que es lo que el aro dibuja, y solo en
+     sitios donde otra frase explica ya de qué va. */
   return {
     nivel: n, objetivo: objetivo, faltan: faltan,
-    corto: T`Nivel ${n} de ${objetivo}`,
+    abre: T`Se desbloquea en el nivel ${objetivo}`,
+    vas: T`Vas en el nivel ${n}`,
     titulo: faltan === 1 ? tx("Te falta un nivel") : T`Te faltan ${faltan} niveles`
   };
 }
