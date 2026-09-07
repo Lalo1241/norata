@@ -1371,6 +1371,102 @@ function atrasApp() {
   return true;
 }
 
+/* ================= Pantallas esqueleto, solo cuando de verdad tardan ==========
+   Lo pidió Eduardo y con la condición correcta: **«no quiero pantallas de carga
+   forzadas»**, pero sí un acuse en los casos extraordinarios —poca red, un
+   dispositivo de gama baja— para que la espera se lea como «sí, está cargando»
+   y no como «esta app no funciona».
+
+   ---- Por qué no se pone siempre ----
+   Medido en la 0.7.96, pintar una pantalla cuesta entre 4 y 22 ms, y la primera
+   entrada de una sesión —la más cara— 51 ms en la peor. Un esqueleto ahí no se
+   vería; para que se viera habría que retrasar el pintado a propósito, o sea
+   hacer la app más lenta para poder enseñar que está cargando. Eso es
+   exactamente la pantalla de carga forzada que él no quiere.
+
+   ---- Cómo sabe si tarda, sin adivinar ----
+   La app se CRONOMETRA a sí misma. Cada vez que pinta una pantalla apunta lo
+   que le costó, y la próxima vez que se entre ahí decide con ese número: si la
+   última vez pasó de `ESQ_UMBRAL`, esta vez enseña el esqueleto y aplaza el
+   pintado un fotograma para que se vea. No hay lista de dispositivos lentos ni
+   olfato: hay una medición del aparato que lo está corriendo. En un teléfono
+   rápido esta rama no se ejecuta nunca.
+
+   El umbral son 180 ms porque por debajo de eso el esqueleto sería un parpadeo,
+   que se lee peor que no poner nada.
+
+   ---- Y por qué solo estas cinco ----
+   Son las pantallas a las que se llega navegando, y las únicas donde aplazar el
+   pintado un fotograma no se lo pisa a nadie: cuando se aplaza, TODO lo demás
+   de `showView` ya pasó —la vista activa, el botón encendido, el ancho, el ＋ y
+   el rótulo de la pestaña—, así que lo único que llega tarde es el contenido,
+   que es justo lo que el esqueleto está ocupando. Las fichas y los formularios
+   se quedan fuera a propósito: a esos se llega desde código que a veces pinta
+   antes y muestra después (`renderDetail(); showView("detail")`).
+
+   ---- Para verlo sin tener un teléfono lento a mano ----
+   `?esqueleto=1` lo fuerza siempre y `?esqueleto=0` lo apaga del todo. Sin
+   parámetro manda la medición, que es como va a funcionar de verdad. */
+const ESQ_UMBRAL = 180;
+const ESQ_CONTENEDOR = {
+  summary: "summary-content", missions: "missions-content",
+  home: "skill-list", tree: "tree-content", projects: "projects-content"
+};
+/* Lo que costó pintar cada pantalla la última vez, EN ESTE dispositivo. Vive en
+   memoria y no se guarda: un teléfono no se vuelve lento entre sesiones, y
+   guardarlo obligaría a decidir cuándo caduca. */
+const _esqCoste = {};
+
+/* Se resuelve UNA vez y se recuerda, como el resto de las pruebas con enlace.
+   Releyendo la dirección en cada llamada, el parámetro se volvía imborrable
+   mientras siguiera escrito arriba —quitarlo de `sessionStorage` no servía de
+   nada porque la siguiente llamada lo volvía a poner— y eso se comía la única
+   forma de probar la decisión automática. */
+let _esqForzadoLeido;
+
+function esqForzado() {
+  if (_esqForzadoLeido !== undefined) return _esqForzadoLeido;
+  let v = null;
+  try {
+    const q = new URLSearchParams(location.search).get("esqueleto");
+    if (q === "1" || q === "0") sessionStorage.setItem("norata-prueba-esqueleto", q);
+    v = sessionStorage.getItem("norata-prueba-esqueleto");
+  } catch (e) { /* sin sessionStorage: manda la medición */ }
+  _esqForzadoLeido = v === "1" ? true : v === "0" ? false : null;
+  return _esqForzadoLeido;
+}
+
+function esqHaceFalta(name) {
+  if (!ESQ_CONTENEDOR[name]) return false;
+  const f = esqForzado();
+  if (f !== null) return f;
+  return (_esqCoste[name] || 0) > ESQ_UMBRAL;
+}
+
+/* Cada pantalla tiene su forma, y eso es lo que separa un esqueleto de una
+   mancha gris: si el hueco no se parece a lo que va a llegar, el salto al
+   aparecer el contenido es peor que no haber puesto nada. */
+const ESQ_FORMA = {
+  summary:  ["alto", "medio", "bajo", "medio"],
+  missions: ["bajo", "fila", "fila", "fila", "fila"],
+  home:     ["fila", "fila", "fila", "fila", "fila"],
+  tree:     ["bajo", "alto", "alto"],
+  projects: ["bajo", "medio", "medio"]
+};
+
+function esqPintar(name) {
+  const el = document.getElementById(ESQ_CONTENEDOR[name]);
+  if (!el || el.dataset.esq === "1") return;
+  el.dataset.esq = "1";
+  el.innerHTML = `<div class="esq" aria-hidden="true">${
+    (ESQ_FORMA[name] || ["medio", "medio"]).map(c => `<i class="${c}"></i>`).join("")}</div>`;
+}
+
+function esqQuitar(name) {
+  const el = document.getElementById(ESQ_CONTENEDOR[name] || "");
+  if (el) delete el.dataset.esq;
+}
+
 function showView(name) {
   /* Un módulo apagado —o que el nivel todavía no abrió— no se abre ni por un
      enlace que quedara apuntando ahí. Aquí se rebota en silencio a propósito:
@@ -1469,20 +1565,51 @@ function showView(name) {
      vuelta de Google limpia la dirección con replaceState, por ejemplo), el
      gesto de atrás se quedaría sin red. */
   armarColchon();
-  if (name === "catalog") renderCatalogo();
-  if (name === "summary") renderSummary();
-  if (name === "settings") {
-    /* Entrar siempre empieza igual: la lista en el teléfono, la primera
-       sección en la computadora. Recordar la última visitada haría que la
-       pantalla apareciera distinta cada vez sin motivo visible. */
-    ajusteAbierto = null;
-    renderAjustes();
-    renderTimezone(); renderModulos(); renderSync(); renderCopias(); renderZonaCuenta();
+  /* El pintado va envuelto para dos cosas: cronometrarlo —de ahí sale la
+     decisión del esqueleto la próxima vez— y poder aplazarlo un fotograma
+     cuando toca enseñarlo. Ver el bloque de las pantallas esqueleto, arriba. */
+  const pintar = () => {
+    const t0 = performance.now();
+    esqQuitar(name);
+    if (name === "catalog") renderCatalogo();
+    if (name === "summary") renderSummary();
+    if (name === "settings") {
+      /* Entrar siempre empieza igual: la lista en el teléfono, la primera
+         sección en la computadora. Recordar la última visitada haría que la
+         pantalla apareciera distinta cada vez sin motivo visible. */
+      ajusteAbierto = null;
+      renderAjustes();
+      renderTimezone(); renderModulos(); renderSync(); renderCopias(); renderZonaCuenta();
+    }
+    if (name === "missions") renderMissions();
+    if (name === "home") renderHome();
+    if (name === "tree") { focusPending = true; renderTree(); }
+    if (name === "projects") renderProjects();
+    if (ESQ_CONTENEDOR[name]) _esqCoste[name] = performance.now() - t0;
+  };
+
+  if (esqHaceFalta(name)) {
+    esqPintar(name);
+    /* ---- Dos caminos al mismo sitio, y el segundo NO es de adorno ----
+       Dos vueltas de `requestAnimationFrame` y no una: con una sola, el
+       navegador puede agrupar el esqueleto y el contenido en el mismo
+       fotograma y el esqueleto no llega a verse.
+
+       Y un `setTimeout` de red, porque **`requestAnimationFrame` no siempre
+       corre**: en una pestaña de fondo el navegador lo para en seco, y si el
+       usuario se cambia de app justo al tocar un módulo, sin esta red la
+       pantalla se quedaría con el esqueleto puesto PARA SIEMPRE. Se descubrió
+       aquí mismo: el panel donde se prueba esto no compone fotogramas, así que
+       el esqueleto salía y el contenido no llegaba nunca.
+
+       `hecho` es lo que garantiza que se pinte UNA vez, gane quien gane. */
+    let hecho = false;
+    const unaVez = () => { if (hecho) return; hecho = true; pintar(); };
+    requestAnimationFrame(() => requestAnimationFrame(unaVez));
+    setTimeout(unaVez, 120);
+  } else {
+    pintar();
   }
-  if (name === "missions") renderMissions();
-  if (name === "home") renderHome();
-  if (name === "tree") { focusPending = true; renderTree(); }
-  if (name === "projects") renderProjects();
 
   // Lo último: los rótulos de arriba ya están pintados y se pueden leer
   titularPestana(name);
