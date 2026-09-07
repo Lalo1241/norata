@@ -8438,28 +8438,31 @@
      variable se queda congelado en el inicial —la trampa que ya mordió cuatro
      veces en este proyecto, ver CLAUDE.md— y además un latido de color sobre
      ocho ambientes distintos habría que declararlo ocho veces. */
-  .esq { display: grid; gap: 12px; }
-  .esq i {
+  /* Cada bloque va SUELTO dentro del contenedor, sin envoltorio, para adoptar
+     la disposición que ese contenedor ya tenga —el Resumen es la rejilla del
+     tablero— y su alto se lo pone el JavaScript con la medida de la tarjeta que
+     va a ocupar ese sitio. Aquí solo va el aspecto. */
+  .esq-bloque {
     display: block;
+    margin-bottom: 12px;
     background: var(--sup-tarjeta2);
     border: var(--borde-fino) solid var(--line);
     border-radius: var(--r-caja);
     animation: esqLatido 1.4s ease-in-out infinite;
   }
-  .esq i.alto  { height: 190px; }
-  .esq i.medio { height: 120px; }
-  .esq i.bajo  { height: 56px; }
-  .esq i.fila  { height: 62px; }
+  /* En una rejilla el hueco lo pone el `gap` del contenedor, no el margen */
+  .dash > .esq-bloque { margin-bottom: 0; }
   /* Escalonado, para que no lata todo a la vez como un solo bloque */
-  .esq i:nth-child(2) { animation-delay: 0.12s; }
-  .esq i:nth-child(3) { animation-delay: 0.24s; }
-  .esq i:nth-child(4) { animation-delay: 0.36s; }
-  .esq i:nth-child(5) { animation-delay: 0.48s; }
+  .esq-bloque:nth-child(2) { animation-delay: 0.12s; }
+  .esq-bloque:nth-child(3) { animation-delay: 0.24s; }
+  .esq-bloque:nth-child(4) { animation-delay: 0.36s; }
+  .esq-bloque:nth-child(5) { animation-delay: 0.48s; }
+  .esq-bloque:nth-child(6) { animation-delay: 0.6s; }
   @keyframes esqLatido { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.9; } }
   /* Quien pidió menos movimiento ve el hueco quieto, que sigue diciendo lo
      mismo: aquí va a llegar algo. */
   @media (prefers-reduced-motion: reduce) {
-    .esq i { animation: none; opacity: 0.7; }
+    .esq-bloque { animation: none; opacity: 0.7; }
   }
 
   /* ---------- Rótulo de una prueba con enlace (0.7.20) ----------

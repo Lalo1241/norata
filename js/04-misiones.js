@@ -1510,23 +1510,63 @@ function esqHaceFalta(name) {
   return (_esqCoste[name] || 0) > ESQ_UMBRAL;
 }
 
-/* Cada pantalla tiene su forma, y eso es lo que separa un esqueleto de una
-   mancha gris: si el hueco no se parece a lo que va a llegar, el salto al
-   aparecer el contenido es peor que no haber puesto nada. */
-const ESQ_FORMA = {
-  summary:  ["alto", "medio", "bajo", "medio"],
-  missions: ["bajo", "fila", "fila", "fila", "fila"],
-  home:     ["fila", "fila", "fila", "fila", "fila"],
-  tree:     ["bajo", "alto", "alto"],
-  projects: ["bajo", "medio", "medio"]
+/* ---- La forma se MIDE, no se inventa ----
+   La primera versión llevaba tres o cuatro alturas fijas de 56 a 190 px, y
+   Eduardo lo cazó a la primera: «me salieron 3 rectángulos en lista muy
+   pequeños en Resumen y siento que no se ve bien». Tenía razón por un factor
+   de tres — las tarjetas del Resumen miden 504, 395, 130 y 203 px, no 190 —, y
+   el problema de fondo era peor que las cifras: **inventar la forma la condena
+   a envejecer**. El día que se añada una tarjeta o alguien acomode su tablero,
+   el hueco deja de parecerse a lo que llega.
+
+   Así que la app se mira a sí misma: después de cada pintado apunta las alturas
+   reales de las tarjetas de esa pantalla, y el esqueleto las repite. Se parece
+   por construcción, y sigue pareciéndose cuando la pantalla cambie. Y como el
+   esqueleto solo sale cuando la pantalla YA se pintó lenta una vez, la medida
+   siempre existe: la lista de abajo es solo para la primera vez de todas.
+
+   Los bloques van como hijos DIRECTOS del contenedor, sin envoltorio. Eso es lo
+   que hace que adopten la disposición que ya tenga: `#summary-content` es la
+   rejilla del tablero (`.dash`), así que ahí caen como caen las tarjetas, y en
+   las demás se apilan. Con un `<div>` en medio, el esqueleto del Resumen era
+   una sola celda con tres rayitas dentro — que es exactamente lo que él vio. */
+const ESQ_FORMA_INICIAL = {
+  summary:  [500, 390, 130, 200],
+  missions: [350, 40, 360, 150],
+  home:     [80, 80, 80, 80, 80, 80],
+  tree:     [355, 45, 570],
+  projects: [335, 205, 37, 310]
 };
+/* Las alturas de la última vez, por pantalla y en ESTE dispositivo. */
+const _esqForma = {};
+
+/* Se llama después de cada pintado. Recorta a seis bloques y a metro y medio de
+   pantalla: dibujar tres mil píxeles de hueco no ayuda a nadie, y nadie ve más
+   allá de lo que cabe más un poco. */
+function esqRecordarForma(name) {
+  const el = document.getElementById(ESQ_CONTENEDOR[name] || "");
+  if (!el || !el.children.length) return;
+  const alturas = [];
+  let suma = 0;
+  const tope = innerHeight * 1.5;
+  for (const hijo of el.children) {
+    const h = Math.round(hijo.getBoundingClientRect().height);
+    if (h < 24) continue;                       // separadores y rótulos sueltos
+    alturas.push(Math.min(h, 560));
+    suma += h;
+    if (alturas.length >= 6 || suma > tope) break;
+  }
+  if (alturas.length) _esqForma[name] = alturas;
+}
 
 function esqPintar(name) {
   const el = document.getElementById(ESQ_CONTENEDOR[name]);
   if (!el || el.dataset.esq === "1") return;
   el.dataset.esq = "1";
-  el.innerHTML = `<div class="esq" aria-hidden="true">${
-    (ESQ_FORMA[name] || ["medio", "medio"]).map(c => `<i class="${c}"></i>`).join("")}</div>`;
+  const alturas = _esqForma[name] || ESQ_FORMA_INICIAL[name] || [200, 200];
+  el.innerHTML = alturas
+    .map(h => `<i class="esq-bloque" style="height:${h}px" aria-hidden="true"></i>`)
+    .join("");
 }
 
 function esqQuitar(name) {
@@ -1652,7 +1692,10 @@ function showView(name) {
     if (name === "home") renderHome();
     if (name === "tree") { focusPending = true; renderTree(); }
     if (name === "projects") renderProjects();
-    if (ESQ_CONTENEDOR[name]) _esqCoste[name] = performance.now() - t0;
+    if (ESQ_CONTENEDOR[name]) {
+      _esqCoste[name] = performance.now() - t0;
+      esqRecordarForma(name);
+    }
   };
 
   if (esqHaceFalta(name)) {
