@@ -204,7 +204,11 @@ function pintarMandoZoom(wrap, b) {
   const padre = wrap.parentElement;
   if (!padre) return;
   let mando = padre.querySelector(":scope > .zoom-mando");
-  if (!svg) { if (mando) mando.remove(); return; }
+  /* Solo a pantalla completa. En la tarjeta de la lista el mando quedaba
+     flotando sobre una vista previa que no se trabaja, y encima le caía
+     encima al dibujo porque ahí el lienzo es bajito. La tarjeta es para
+     mirar; el mapa se maneja dentro. Decisión de Eduardo, 28 ago 2026. */
+  if (!svg || !wrap.closest("#fs-overlay")) { if (mando) mando.remove(); return; }
   if (!mando) {
     mando = document.createElement("div");
     mando.className = "zoom-mando";
@@ -216,7 +220,7 @@ function pintarMandoZoom(wrap, b) {
       <button type="button" data-z="menos" aria-label="Alejar">−</button>
       <span class="pct"><input type="text" inputmode="numeric" aria-label="${escapeAttr(tx("Nivel de zoom, en porcentaje"))}"><i>%</i></span>
       <button type="button" data-z="mas" aria-label="Acercar">+</button>
-      <button type="button" data-z="ajustar" class="ajustar" aria-label="${escapeAttr(tx("Ajustar todo a la pantalla"))}" title="${escapeAttr(tx("Ajustar todo a la pantalla"))}"><svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg></button>`;
+      <button type="button" data-z="ajustar" class="ajustar" aria-label="${escapeAttr(tx("Ajustar todo a la pantalla"))}" title="${escapeAttr(tx("Ajustar todo a la pantalla"))}"><svg viewBox="0 0 24 24">${BM_ICONS.encuadrar}</svg></button>`;
     mando.addEventListener("pointerdown", (e) => e.stopPropagation());
     mando.addEventListener("click", (e) => {
       const btn = e.target.closest("button");
@@ -970,10 +974,45 @@ function renderFullscreen(mod) {
       hermanas.length > 1 ? `<i>▾</i>` : ""}</button>`;
   document.getElementById("fs-count").textContent =
     `${doneN} de ${nodes.length} ${esProy ? "terminados" : "logrados"}`;
-  /* Arriba solo queda cerrar y saber dónde estás. Las herramientas bajan a
-     la tira flotante: en el teléfono el pulgar no llega a la esquina superior
-     derecha, y es justo la barra que más se toca. */
-  document.getElementById("fs-tools").innerHTML = "";
+  /* ---- La esquina derecha de la barra ----
+     Las herramientas bajaron a la tira flotante y esto se quedó vacío. En vez
+     de rellenarlo con adorno, va lo que responde a las dos preguntas que uno
+     se hace al abrir un mapa grande —«¿y ahora qué?» y «¿cómo deshago lo que
+     acabo de hacer?»—:
+
+     · LO QUE SIGUE: el siguiente nodo que se puede tocar, con su nombre.
+       Pulsarlo lleva la cámara hasta él. Solo en pantalla ancha: en un
+       teléfono se come el nombre de la rama, que importa más.
+     · DESHACER: solo aparece cuando hay algo que deshacer. En el teléfono
+       era la única acción del editor sin ninguna puerta — no hay Ctrl+Z ni
+       clic derecho—, así que se hacía y no se podía volver atrás. */
+  const siguiente = frontNode(nodes);
+  const suSitio = siguiente && estadoDeNodo(siguiente);
+  const valeLaPena = siguiente && suSitio !== "completed" && suSitio !== "expired";
+  document.getElementById("fs-tools").innerHTML = `
+    ${valeLaPena ? `<button type="button" class="fs-sigue" onclick="focusBranchFront('${bj}', false, '${fullscreenMod}')"
+        title="Llevar la cámara hasta ahí">
+        <span class="k">SIGUE</span><span class="v">${escapeHtml(siguiente.name)}</span>
+      </button>` : ""}
+    ${undoStack.length ? `<button type="button" class="badd solid" onclick="undoEditor()"
+        aria-label="Deshacer: ${escapeAttr(undoStack[undoStack.length - 1].etiqueta)}"
+        title="Deshacer: ${escapeAttr(undoStack[undoStack.length - 1].etiqueta)}"><svg viewBox="0 0 24 24">${VOLVER_D}</svg></button>` : ""}`;
+
+  /* Y una línea de avance pegada al borde de abajo de la barra. Tres píxeles
+     que dicen cuánto llevas de la rama sin ocupar sitio ni pedir atención:
+     la cifra exacta ya está en el chip de al lado. */
+  const barra = document.querySelector(".fs-bar");
+  if (barra) {
+    let linea = barra.querySelector(":scope > .fs-avance");
+    if (!linea) {
+      linea = document.createElement("i");
+      linea.className = "fs-avance";
+      barra.appendChild(linea);
+    }
+    const pct = nodes.length ? Math.round(doneN / nodes.length * 100) : 0;
+    linea.style.width = pct + "%";
+    linea.title = `${pct}% de la rama`;
+  }
 
   /* La clave del SVG es distinta de la que usa la lista: si coincidiera,
      los dos lienzos compartirían los ids de los filtros y el brillo se
@@ -1147,6 +1186,11 @@ function fijarPosiciones(b, mod) {
    teclas en su tecla dibujada y "clic derecho" suelto en texto corrido, así
    que la única pista que no era de teclado era justo la que menos se parecía
    a un atajo. */
+/* La flecha de deshacer. Va aquí y no en BM_ICONS porque BM_ICONS vive en
+   js/05-resumen.js, que es de la otra sesión: meterle una línea sería otra
+   colisión de las que acabamos de separar. */
+const VOLVER_D = '<path d="M9 14l-4-4 4-4"/><path d="M5 10h9a5 5 0 0 1 0 10h-3"/>';
+
 const RATON_DERECHO = `<svg viewBox="0 0 24 24" aria-hidden="true">
   <rect x="6.6" y="2.4" width="10.8" height="19.2" rx="5.4" fill="none" stroke="currentColor" stroke-width="1.7"/>
   <path d="M12 2.9h.9a4.5 4.5 0 0 1 4.5 4.5v3.4H12z" fill="currentColor" stroke="none"/>
@@ -1716,6 +1760,28 @@ document.addEventListener("scroll", cerrarCtxMenu, true);
 
 function isCollapsed(b) {
   return !!(state.ui && state.ui.collapsed && state.ui.collapsed[b]);
+}
+
+/* Plegar o desplegar TODAS de una vez. Con ocho ramas, dejar solo una
+   abierta era ocho toques; y al volver de una sesión larga, verlas todas
+   abiertas obliga a recorrer media pantalla para llegar a la de abajo.
+
+   No se guarda como "modo": lo que se guarda es el estado de cada rama, el
+   mismo que ya escribe el botón de una sola. Así no hay dos verdades sobre
+   si algo está plegado. */
+function plegarTodasLasRamas(plegar) {
+  state.ui = state.ui || {};
+  state.ui.collapsed = state.ui.collapsed || {};
+  const ramas = ramasDe("perks");
+  ramas.forEach(b => {
+    if (plegar) state.ui.collapsed[b] = true;
+    else delete state.ui.collapsed[b];
+  });
+  // Editar a ciegas una rama que acaba de plegarse no lleva a nada bueno
+  if (plegar && editMod === "talentos" && editBranch) editBranch = null;
+  save();
+  renderTree();
+  toast(plegar ? tx("Todas plegadas") : tx("Todas desplegadas"), "hecho");
 }
 
 function toggleBranch(b) {
@@ -3219,7 +3285,19 @@ function attachZoomHandlers(scope) {
       /* Por pasos y no por píxeles del evento: una rueda de ratón manda
          saltos de 100 y un trackpad de 3, así que usar el número crudo hace
          que el mismo gesto acerque muchísimo en uno y nada en el otro. */
-      const paso = Math.sign(e.deltaY) > 0 ? -ZOOM_PASO : ZOOM_PASO;
+      /* ---- Cuántos escalones da una vuelta de rueda ----
+         Siempre en múltiplos de cinco, pero no siempre UNO: con un escalón
+         fijo, cruzar de 50 a 150 pedía veinte muescas y se sentía lento
+         («un poco lento a mi gusto»). Ahora la fuerza del gesto decide
+         cuántos escalones de cinco se dan de golpe, y el número que sale
+         sigue siendo redondo.
+
+         La rueda de un ratón manda saltos de ~100 y un trackpad de ~3, así
+         que el reparto se hace por tramos y no dividiendo: dividir haría que
+         el mismo gesto volara en uno y no se moviera en el otro. */
+      const fuerza = Math.abs(e.deltaY);
+      const escalones = fuerza >= 100 ? 3 : fuerza >= 40 ? 2 : 1;
+      const paso = (Math.sign(e.deltaY) > 0 ? -ZOOM_PASO : ZOOM_PASO) * escalones;
       zoomEn(wrap, b, zoomDe(wrap, b) + paso, e.clientX, e.clientY);
     }, { passive: false });
 
@@ -3247,6 +3325,26 @@ function attachZoomHandlers(scope) {
 
     wrap.addEventListener("touchend", () => { pinza = null; }, { passive: true });
     wrap.addEventListener("touchcancel", () => { pinza = null; }, { passive: true });
+
+    /* ---- Que Alt no abra el menú del navegador ----
+       Soltar Alt sin pulsar nada más despliega la barra de menú en Firefox y
+       en los navegadores que la esconden. Como Alt es el gesto del zoom, cada
+       vez que se acercaba con la rueda saltaba el menú encima del mapa.
+
+       Se para en `keyup`, que es cuando el navegador lo abre, y SOLO mientras
+       el ratón está sobre el lienzo: fuera de aquí Alt sigue siendo suyo.
+       El oyente va en el documento porque el lienzo no tiene el foco del
+       teclado —nadie hace clic para acercar—, así que un oyente en el
+       elemento no vería nunca la tecla. */
+    let encima = false;
+    wrap.addEventListener("pointerenter", () => { encima = true; });
+    wrap.addEventListener("pointerleave", () => { encima = false; });
+    document.addEventListener("keyup", (e) => {
+      if (encima && e.key === "Alt") e.preventDefault();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (encima && e.key === "Alt") e.preventDefault();
+    });
   });
 }
 
