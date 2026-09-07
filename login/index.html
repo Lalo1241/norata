@@ -44,6 +44,27 @@
       if (mtc) mtc.setAttribute("content", "#f2f4f8");
     }
   } catch (e) {}
+
+  /* ---- La prueba del modo horizontal, también aquí ----
+     La puerta es otra página con su propio script de arriba, así que el
+     interruptor de `index.html` no le llega. Sin esto, encender la prueba y
+     salir de la sesión te devolvía a una puerta que no se había enterado —y la
+     puerta es lo primero que se ve tumbado.
+
+     `sessionStorage` es del ORIGEN, no de la página, así que lo que se guardó
+     en la app se lee aquí sin más; lo único que hace falta es volver a poner la
+     clase. Y se acepta también el parámetro, para poder entrar directo a
+     `login/?horizontal=1`.
+
+     Qué borrar el día que sobre: esto, y el bloque `html.horizontal .portada`
+     de `css/estilos.css`. */
+  try {
+    var qh = new URLSearchParams(location.search).get("horizontal");
+    if (qh === "1" || qh === "0") sessionStorage.setItem("norata-prueba-horizontal", qh);
+    if (sessionStorage.getItem("norata-prueba-horizontal") === "1") {
+      document.documentElement.classList.add("horizontal");
+    }
+  } catch (e) {}
 </script>
 
 <!-- Los tres huecos que la portada necesita para hablar: la pantalla de
