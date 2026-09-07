@@ -3169,19 +3169,26 @@
      sobre el contenido de la página, así que un candado sin fondo se mezcla
      con lo que pase por debajo. */
   .c-nav { position: relative; }
+  /* **Sin disco detrás.** Lo llevaba —fondo y borde propios, como una chapa
+     colgada del botón— y Eduardo lo quitó: el candado ya se entiende solo, y
+     una segunda pastilla dentro de un botón que YA es una pastilla añade un
+     borde que no dice nada.
+
+     Al quitarlo hay que meterlo DENTRO del botón, y esa parte no es opcional:
+     colgado del canto en `-2px` se apoyaba en su propio fondo, y sin fondo se
+     quedaría medio encima de lo que pase por debajo de la barra —que flota
+     sobre el contenido de la página— y ahí un trazo de 9 px no se lee. Dentro,
+     el fondo del propio botón hace de suelo y el contraste se sostiene. */
   .nav-candado {
     position: absolute;
-    right: -2px; bottom: -2px;
-    width: 16px; height: 16px;
-    border-radius: var(--r-redondo);
+    right: 3px; bottom: 3px;
+    width: 11px; height: 11px;
     display: grid; place-items: center;
     /* `--muted` y no `--faint`, medido: el trazo de 9 px en `--faint` daba 2,8
-       sobre el fondo flotante, por debajo del 3 que pide una LÍNEA (ver la
+       sobre el fondo del botón, por debajo del 3 que pide una LÍNEA (ver la
        tabla de `pinta`/`trazo` en CLAUDE.md). Un candado que no se ve es peor
        que ninguno: deja el botón apagado sin decir por qué. */
     color: var(--muted);
-    background: var(--sup-flotante);
-    border: var(--borde-fino) solid var(--line);
     pointer-events: none;
   }
   .nav-candado svg { width: 9px; height: 9px; stroke: currentColor; fill: none; stroke-width: 2.2; }
@@ -9233,11 +9240,18 @@
     /* En la barra lateral el botón es una fila ancha con su rótulo, así que el
        candado deja la esquina y se va al final del renglón: colgado del borde
        de una fila de 200 px de ancho no se leería como suyo. */
+    /* En la barra lateral el botón es una fila ancha, así que el candado deja
+       la esquina y se va al final del renglón. Y ahí el dibujo crece: sin el
+       disco detrás se apoya en el fondo de la página, que en modo claro deja el
+       trazo en 3,02 sobre 1 —justo en el filo del 3 que pide una línea—, y a
+       ese contraste lo que se lee es el GROSOR. Doce píxeles en vez de nueve
+       cuestan nada y se ven. */
     .thumb-cluster .c-nav .nav-candado {
       position: static;
       margin-left: auto;
-      width: 18px; height: 18px;
+      width: 15px; height: 15px;
     }
+    .thumb-cluster .c-nav .nav-candado svg { width: 12px; height: 12px; }
     .thumb-cluster .c-nav {
       width: 100%;
       height: auto;

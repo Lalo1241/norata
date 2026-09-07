@@ -100,6 +100,40 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.97.1 · 7 sep 2026
+
+**«Nivel 2 de 3» decía otra cosa de la que parecía, y el candado del menú
+llevaba un disco detrás que no hacía falta.** Las dos las vio Eduardo.
+
+**El rótulo se parte en dos, porque eran dos frases distintas metidas en una.**
+En la tarjeta del tablero, «Nivel 2 de 3» va SOLO —sin ninguna frase alrededor
+que lo sitúe— y ahí se lee como «este módulo ES el nivel 2 de 3», que no
+significa nada. Ahora esa tarjeta dice **«Se desbloquea en el nivel 3»**, que es
+lo que hay que saber, y el rótulo de debajo del aro —que sí va acompañado de la
+explicación— dice **«Vas en el nivel 2»**, que es justo lo que el aro dibuja.
+
+Y de paso el cuadro dejó de decirlo dos veces: la frase era «Talentos se abre en
+el nivel 3 de expedición **y vas en el 2**» con el «vas en el 2» ya escrito
+encima, debajo del aro. Se queda en la primera mitad.
+
+**El candado del menú va sin disco.** Llevaba fondo y borde propios, como una
+chapa colgada del botón; Eduardo lo quitó y tiene razón: el candado ya se
+entiende solo, y una segunda pastilla dentro de un botón que YA es una pastilla
+solo añade un borde que no dice nada.
+
+Al quitarlo hay que meterlo DENTRO del botón, y esa parte no es opcional:
+colgaba del canto en `-2px` apoyado en su propio fondo, y sin fondo se habría
+quedado medio encima de lo que pase por debajo de la barra —que flota sobre el
+contenido de la página—, donde un trazo de 9 px no se lee. Dentro, el fondo del
+propio botón hace de suelo.
+
+Medido en las seis combinaciones —vertical, horizontal y escritorio, en los dos
+modos—: **5,49 de noche y 5,71 de día** en el teléfono. El único que baja es la
+barra lateral en modo claro, donde el botón es transparente y el candado se
+apoya en la página: **3,02**, que pasa el 3 que pide una línea pero sin margen.
+Ahí lo que se refuerza es el GROSOR y no el tono, que es lo que de verdad se lee
+a ese contraste: el dibujo pasa de 9 a 12 px, que en esa fila caben de sobra.
+
 ### 0.7.97 · 7 sep 2026
 
 **Los dos módulos que llegan por el camino dejan de ser un hueco: se ven
