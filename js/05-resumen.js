@@ -612,14 +612,14 @@ function cuerpoCerrado(id) {
   if (!m || !pide) return "";
   const trazo = typeof trazoDeModulo === "function" ? trazoDeModulo(mod) : "";
   const f = typeof faltaParaNivel === "function"
-    ? faltaParaNivel(pide) : { corto: T`Nivel ${pide}` };
+    ? faltaParaNivel(pide) : { abre: T`Se desbloquea en el nivel ${pide}` };
   return `
     <button type="button" class="wc" onclick="avisoModuloCerrado('${escapeAttr(mod)}')"
       aria-label="${escapeAttr(T`${tx(m.label)} · se abre en el nivel ${pide}`)}">
       <span class="wc-aro">${typeof aroDeNivelHTML === "function" ? aroDeNivelHTML(pide, 46) : ""}</span>
       <span class="wc-tx">
         <b>${trazo ? `<svg class="wc-ic" viewBox="0 0 24 24" aria-hidden="true">${trazo}</svg>` : ""}${escapeHtml(tx(m.label))}</b>
-        <span>${escapeHtml(f.corto)}</span>
+        <span>${escapeHtml(f.abre)}</span>
       </span>
       <span class="wc-llave">${icon("lock", 13)}</span>
     </button>`;

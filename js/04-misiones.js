@@ -1188,9 +1188,11 @@ function avisoModuloCerrado(id) {
      lleva `topeAlcanzado` en js/10d-plan.js. */
   const cuerpo =
     '<span class="cerr-aro">' + aroDeNivelHTML(pide, 72) +
-      '<span class="cerr-paso">' + escapeHtml(f.corto) + '</span></span>' +
+      '<span class="cerr-paso">' + escapeHtml(f.vas) + '</span></span>' +
+    /* Sin el «y vas en el N» que llevaba: el rótulo de debajo del aro ya lo
+       dice, y con los dos la misma cifra salía dos veces en cuatro renglones. */
     '<span class="cerr-tx">' +
-      escapeHtml(T`${tx(m.label)} se abre en el nivel ${pide} de expedición y vas en el ${f.nivel}.`) +
+      escapeHtml(T`${tx(m.label)} se abre en el nivel ${pide} de expedición.`) +
     '</span>' +
     (espera ? '<span class="cerr-espera">' + icon("gem", 14) + escapeHtml(espera) + '</span>' : "") +
     '<span class="cerr-tx cerr-como">' +

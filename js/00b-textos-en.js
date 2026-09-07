@@ -1247,7 +1247,12 @@ const TEXTOS_EN = {
   "Ramas llenas": "Branches full",
 
   /* ---- Lo que se ve al tocar un candado de módulo (0.7.96) ---- */
-  "Nivel {0} de {1}": "Level {0} of {1}",
+  /* «Nivel 2 de 3» se fue en la 0.7.97.1: solo, sin frase alrededor, se leía
+     como «este módulo ES el nivel 2 de 3». Se partió en dos rótulos que dicen
+     una cosa cada uno. */
+  "{0} se abre en el nivel {1} de expedición.": "{0} opens at journey level {1}.",
+  "Se desbloquea en el nivel {0}": "Unlocks at level {0}",
+  "Vas en el nivel {0}": "You're on level {0}",
   "Vas por el nivel {0} de {1}, un {2}% del camino": "You're at level {0} of {1}, {2}% of the way",
   "Al llegar te espera la rama de {0}, con los talentos que elegiste al armar tu tablero.":
     "Waiting for you there: your {0} branch, with the talents you chose when you built your board.",
