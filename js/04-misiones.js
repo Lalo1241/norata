@@ -1106,6 +1106,26 @@ function moduloAbierto(id) {
   return n >= pide;
 }
 
+/* ---- El dibujo de un módulo, sacado de su BOTÓN ----
+   Se lee del DOM y no se copia a esta tabla, y esa es toda la gracia: los cinco
+   iconos de la barra viven escritos a mano dentro de `index.html`, así que una
+   copia aquí serían DOS verdades sobre el mismo dibujo — y la que se queda
+   atrás es la que un día enseña un árbol viejo en la celebración y el nuevo en
+   el menú. Lo pidió Eduardo con esas palabras: los originales, para evitar
+   inconsistencias.
+
+   Devuelve solo lo de DENTRO del `<svg>`, porque quien llama lo mete en un svg
+   propio con su tamaño: los cinco comparten `viewBox="0 0 24 24"`, así que el
+   contenido se puede dibujar a cualquier medida sin tocarlo.
+
+   Cadena vacía si no lo encuentra —y quien llama tiene que aguantarlo—: la
+   celebración también existe cuando la barra todavía no se ha pintado. */
+function trazoDeModulo(id) {
+  const m = MODULOS.find(x => x.id === id);
+  const svg = m && document.querySelector("#" + m.nav + " svg");
+  return svg ? svg.innerHTML : "";
+}
+
 /* Las dos preguntas juntas, que es lo que casi todo el mundo quiere saber:
    ¿pinto esta pantalla, este widget, esta fila? */
 function moduloUsable(id) {

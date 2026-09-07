@@ -482,15 +482,31 @@ function ncelVistaCelebracion(nivel) {
 
 function ncelTarjetaPremio(x, i) {
   const esAmb = x.tipo === "ambiente";
-  /* Un MÓDULO que se abre no es una celebración ni un ambiente: no tiene
-     vista previa que enseñar —la vista previa es la pantalla entera— así que
-     va su icono en el disco, que es lo mismo que lleva en el menú. Sin este
-     caso caía en el de las celebraciones y anunciaba «Celebración nueva ·
-     Talentos» con el dibujo de un destello debajo. */
+  /* Un MÓDULO que se abre no es una celebración ni un ambiente: no tiene vista
+     previa que enseñar —la vista previa es la pantalla entera—, así que lo que
+     va es SU DIBUJO, grande. Sin este caso caía en el de las celebraciones y
+     anunciaba «Celebración nueva · Talentos» con un destello debajo.
+
+     Y el dibujo es **el del botón de la barra**, leído del DOM
+     (`trazoDeModulo`, js/04-misiones.js). La primera versión ponía el icono que
+     nombrara el peldaño —una estrella para Talentos, una bandera para
+     Proyectos— y eso rompe justo lo que el comentario del ambiente, tres
+     bloques más abajo, se molesta en explicar: la vista de la recompensa tiene
+     que ser la que vas a reconocer cuando llegues a buscarla. Un premio que se
+     anuncia con una estrella y vive detrás de un árbol de tres nodos no se
+     reconoce. Lo paró Eduardo, y es la segunda vez que este mismo despiste
+     llega a pantalla.
+
+     Va sin el envoltorio de `icon()` a propósito: ese devuelve un `<span
+     class="ic">` con el tamaño escrito en el atributo, y aquí el tamaño lo
+     tiene que decidir el CSS, que es quien sabe cuánto mide la caja. */
   const esMod = x.tipo === "modulo";
   let vista, estilo = "";
   if (esMod) {
-    vista = icon(x.icon || "star", 30);
+    const trazo = typeof trazoDeModulo === "function" ? trazoDeModulo(x.id) : "";
+    vista = trazo
+      ? '<svg class="ncel-mod" viewBox="0 0 24 24" aria-hidden="true">' + trazo + '</svg>'
+      : icon(x.icon || "star", 30);
   } else if (esAmb) {
     const t = x.id ? ncelTonosDe(x.id) : null;
     /* Sin tonos —un ambiente que aún no tenga su bloque— se cae al icono de
