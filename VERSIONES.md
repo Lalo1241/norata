@@ -90,6 +90,64 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.94.1 · 7 sep 2026
+
+**El modo horizontal se queda en una sola cosa: los botones al canto
+izquierdo.** Todo lo demás se fue.
+
+Eduardo lo probó en su teléfono y lo paró en la primera mirada: **«se mira mal,
+no se debe de mover NADA, solo los botones de abajo hacia la izquierda»**.
+
+Y tenía razón en lo que importa, que no eran los números. Las dos tandas
+anteriores repartían el contenido a dos columnas, empaquetaban las pantallas de
+dentro, sacaban el mapa a sangre con la cabecera flotando, ponían el índice de
+Ajustes al lado y apretaban la puerta. Todo medido y todo con buenos números —
+Resumen de 5,8 pantallas de recorrido a 3,9, la ficha de un proyecto de 4,8 a
+3,0—. **Lo que no medía nada era el coste de reaprender la pantalla cada vez que
+giras el teléfono**, y ese se paga siempre, no una vez. Tumbado sigues estando
+en la misma app; si al girar se recompone entera, lo que se rompe no es la
+estética, es saber dónde estás.
+
+**Lo único que de verdad cambia al girar es dónde caen los pulgares.** De pie el
+teléfono se sujeta con una mano y el pulgar llega ABAJO —por eso la barra vive
+abajo y la propia app la llama cluster del pulgar—; tumbado se sujeta con las
+dos manos y los pulgares caen en los CANTOS. Eso es lo que se queda, y nada más.
+
+**Cómo se hizo, que importa para el día que se toque:** el cluster se gira como
+UNA pieza —una columna centrada con su hueco— en vez de colocar cada trozo por
+su cuenta. La primera versión plantaba los círculos en el 50% y el ＋ en
+`calc(50% + 126px)`, donde 126 era media columna de círculos contada a mano: el
+＋ **se encimaba 15 px** sobre el último, y el día que se añada o se quite uno se
+encimaría otra cantidad distinta. Dejándolo en una columna centrada la cuenta la
+hace el navegador. Caben de sobra: cinco círculos de 44 con 8 de hueco son 252,
+más 12 y los 58 del ＋, 322 de los 375, con 27 px libres arriba y abajo.
+
+Y el rótulo de la prueba se baja a la derecha: arriba tapaba el botón de
+Ajustes, y se vio en la primera foto que mandó Eduardo.
+
+**Cómo se comprobó que no se mueve nada más.** Una foto de la geometría —caja,
+posición y tamaño— de una docena de piezas por pantalla, en las siete pantallas
+más las fichas y los formularios, con la prueba encendida y apagada. **Todas
+idénticas.** Y el control primero, que es lo que hace que un «no cambió nada»
+signifique algo: dos fotos seguidas sin tocar nada salen iguales, así que la app
+mide igual dos veces.
+
+Ahí salió una trampa que ya conocíamos y volvió a morder: **midiendo en dos
+llamadas distintas las diferencias eran falsas** —el alto de la escena de la
+racha salía 295 contra 276— y midiendo encendido y apagado **en la misma vuelta**
+salían idénticas. Lo que fallaba era la secuencia, no la app. Y una de verdad:
+al quitar la regla que ponía `translateY(-50%)` en el ＋, la transición del
+`transform` se quedó **congelada a medio camino** (`matrix(1,0,0,1,0,-29)`) con
+la regla ya borrada, así que el ＋ medía mal por un motivo que no estaba en el
+CSS. `getAnimations().forEach(a => a.finish())` antes de medir, siempre.
+
+**Lo que se quitó, con sus números, está en la entrada de la 0.7.94**, por si
+algún día se retoma. Lo que no se puede es volver a proponerlo como si fuera
+nuevo: es una decisión tomada, no una idea pendiente.
+
+Y la puerta vuelve a ser exactamente la de antes: se le quitó también la lectura
+del parámetro, que sin nada que encender era código muerto.
+
 ### 0.7.94 · 6 sep 2026
 
 **El modo horizontal llega al resto de la app.** Sigue apagado, detrás de
