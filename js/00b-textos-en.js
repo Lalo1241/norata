@@ -344,6 +344,8 @@ const TEXTOS_EN = {
   "Las rachas, el decaimiento y las misiones se calculan con esta zona horaria, no con la del dispositivo. Así tu progreso no se descuadra si viajas o abres la app desde otra computadora.":
     "Streaks, decay and missions are calculated with this time zone, not the device's. That way your progress doesn't drift if you travel or open the app from another computer.",
   "Zona horaria actual": "Current time zone",
+  "de este dispositivo": "from this device",
+  "Zona horaria actualizada": "Time zone updated",
   "Respaldos": "Backups",
   "Exportar respaldo (JSON)": "Export backup (JSON)",
   "Importar respaldo": "Import backup",

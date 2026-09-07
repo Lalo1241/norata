@@ -47,6 +47,20 @@ la máquina que toque. Ya se coló tres veces desde una sesión que commiteaba e
 UTC, y con eso la lista deja de leerse en orden. Solo muerde entre las 00:00 y
 las 06:00 UTC. México es UTC-6 todo el año, sin horario de verano desde 2022.
 
+El reloj de esta máquina ya está en México, así que **`date` a secas es lo
+fiable** — y se confirma mirando que el desfase diga `-0600`:
+
+```bash
+date "+%-d %b %Y | %H:%M %z"
+```
+
+**Lo que NO sirve aquí es `TZ=America/Mexico_City date`**, aunque sea lo obvio y
+aunque `VERSIONES.md` lo recomendara hasta la 0.7.91.1: este Git Bash no trae la
+base de husos, **ignora `TZ` en silencio y contesta en UTC**. Pedirle México,
+UTC y Tokio da las tres veces la misma hora, y de 18:00 a medianoche eso fecha
+el día siguiente — justo el fallo que la regla existe para evitar. Se comprueba
+con `TZ=Asia/Tokyo date "+%z"`: si contesta `+0000`, `TZ` no funciona.
+
 ## Cómo verificar
 
 **El panel del navegador suele no componer imagen** en algunos entornos y las
