@@ -90,6 +90,124 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.94 · 6 sep 2026
+
+**El modo horizontal llega al resto de la app.** Sigue apagado, detrás de
+`?horizontal=1`.
+
+La tanda anterior lo dejó puesto en las cinco listas y en el mapa a pantalla
+completa. Eduardo lo probó y dijo lo que faltaba: «esto se tiene que ver
+también en todo lo demás». Tenía razón, y de hecho las pantallas de DENTRO
+estaban peor que ninguna lista. Medido tumbado a 812×375, antes de esto:
+
+| Pantalla | Antes | Ahora |
+| --- | --- | --- |
+| La colección | 5,9 | **3,8** |
+| El catálogo | 5,8 | **4,7** |
+| Crear un talento | 5,8 | **4,1** |
+| Editar un talento | 5,1 | **3,9** |
+| La ficha de un proyecto | 4,8 | **3,0** |
+| Crear una misión | 4,2 | **3,0** |
+| Crear un proyecto | 4,0 | **2,9** |
+| La ficha de un talento | 3,1 | **2,1** |
+
+(En pantallas de recorrido: cuántas veces cabe la pantalla en lo que hay que
+deslizar.)
+
+---
+
+**Lo que funcionó en las listas NO servía aquí**, y las dos razones son
+contrarias a la intuición, así que quedan escritas. Se probaron las tres
+disposiciones y se midieron las tres:
+
+**1. Un panel estrechado no mide lo mismo: mide MÁS.** Los cuatro paneles del
+formulario de un talento miden 751, 366, 208 y 503 px a 716 de ancho. A 349
+pasan a 816, 420, 251 y **872** — el cuarto casi dobla, porque lleva dentro una
+rejilla de iconos que al estrecharse pide más renglones. Sumados: 1.828 contra
+2.359. Las tarjetas de las listas no tienen este problema porque a 349 están en
+su ancho de siempre; un panel que venía usando los 716, sí.
+
+**2. Una rejilla ALINEA, y alinear alturas distintas es tirar el hueco.** En la
+ficha de un proyecto, el bloque ilustrado mide 546 y el panel que le tocaba al
+lado 92: 454 px de nada. El total se quedó en 1.522 de los 1.544 que medía en
+una sola columna. O sea, nada.
+
+**Empaquetar arregla las dos.** `columns: 2` con `break-inside: avoid`: el
+navegador reparte los bloques buscando el equilibrio, así que un bloque alto se
+compensa con dos bajos y no queda hueco. La ficha de un proyecto pasa de 1.544
+px a **900**.
+
+Lo que no se parte es el CONTENIDO de un panel: sus campos siguen en una sola
+columna. Es la misma regla de las listas —se emparejan las tarjetas, no se
+estrecha lo que llevan dentro— y la que ya sigue la computadora, donde un
+formulario conserva una sola columna legible por encima de 900 px.
+
+El orden de lectura pasa a ser el de un periódico: se baja por la columna
+izquierda y se sigue por la derecha. En un formulario eso es lo de siempre en
+papel, y en una ficha deja el bloque ilustrado arriba a la izquierda, que es
+donde cae la vista. La fila de volver y la de guardar cruzan las dos columnas;
+la de guardar sobre todo, porque un botón de guardar escondido al pie de una de
+las dos es un botón que se busca.
+
+**El catálogo es la excepción, y por eso lleva otra regla.** Sus fichas ya se
+reparten en dos por encima de 620 px de ancho, así que lo que se apila no son
+las fichas sino las CATEGORÍAS. Empaquetar los grupos obliga a estrechar la
+rejilla de dentro a una columna, y lo que se gana fuera se pierde dentro:
+medido, 5,8 pantallas antes y **5,9** después. Cero. Lo que sí sirve es lo
+contrario y es de una línea: tres fichas por renglón en vez de dos. La ficha de
+una habilidad mide 52 px de alto a cualquier ancho —no envuelve—, así que
+estrecharla no cuesta nada. Con cuatro bajaba a 4,1, pero a 201 px de ancho, por
+debajo de lo que la computadora le da nunca, y ahí un nombre largo se corta sin
+que el alto lo delate. Tres es donde se para.
+
+**Ajustes** se lleva el índice al lado. No hubo que inventar nada: esa
+disposición ya existía para pantalla ancha y es exactamente la que un teléfono
+tumbado necesita. Lo único que cambia es la anchura del índice, que a 812 px no
+puede pagar los 274 de la computadora.
+
+**Y la puerta**, que es lo primero que se ve y tumbada medía 617 px en una
+pantalla de 375. Ahora mide 551, con «Entrar» por encima del pliegue, que antes
+no lo estaba. No se parte en dos columnas a propósito: los hijos de su caja son
+una lista plana que cambia con el estado —entrar, registrarse, recuperar la
+contraseña, una cuenta en borrado— y cualquier reparto los emparejaría de
+formas distintas en cada pantalla, algunas absurdas. Un formulario de entrar
+tiene UN orden y no se toca. Se probó igualmente: daba 504, o sea 47 px por
+mucha fragilidad. Además la puerta es otra página con su propio script de
+arriba y no leía el parámetro; ahora sí, leyendo la misma llave de
+`sessionStorage`, que es del origen y no de la página.
+
+---
+
+**El fallo que costó la tanda, y no se vio: se midió.** El `display: grid` se
+le puso a la VISTA, y con un id delante le gana al `display: none` que esconde
+las vistas apagadas. Las cuatro pantallas de formulario se dibujaban a la vez,
+siempre, debajo de la que estuvieras mirando. La ficha de un talento pasó de
+3,1 pantallas de recorrido a **15,9** y la de un proyecto a 18, sin que ninguna
+de las dos tenga nada que ver con un formulario. La regla va con `.active`.
+
+**Y una trampa nueva de verificación, que cuesta apuntar y ahorra una hora.**
+Sin service worker de por medio, el navegador sigue sirviendo de SU caché: al
+medir después de editar el CSS, los números salían idénticos a los de antes
+porque la hoja venía de la caché (`transferSize: 0`, `workerStart: 0`). Y peor
+después de fusionar: el CSS estaba fresco pero el JavaScript no, así que se
+estaba midiendo la 0.7.92 con las reglas de la 0.7.94. Se delata mirando
+`VERSION` en la propia página. Lo que lo arregla:
+
+```js
+for (const u of urls) await fetch(u, { cache: "reload" });   // y luego recargar
+```
+
+Comprobado, ya con el JavaScript de verdad de la 0.7.93.1: de pie con la clase
+puesta no cambia una sola medida (Resumen 2.422 px, `columns: auto` en todos
+los contenedores, la puerta en 617 con su logotipo de 172), y `?horizontal=0`
+devuelve los números de antes.
+
+**Para quitarlo** —por nombre y nunca por rango— hay ahora un sitio más que en
+la 0.7.92: el bloque `html.horizontal` de `css/estilos.css`, el de
+`#rotulo-horizontal`, la lectura de `?horizontal` en el script de arriba de
+`index.html`, **la misma lectura en `login/index.html`**, el
+`<div id="rotulo-horizontal">`, y esta entrada.
+
 ### 0.7.93.1 · 6 sep 2026
 
 **La zona horaria se puede elegir por su desfase, y hay husos para todo el
