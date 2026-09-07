@@ -1136,16 +1136,66 @@ function moduloUsable(id) {
    descuido: esta puerta se abre USANDO la app, igual que los ambientes (ver la
    nota de `estadoApariencia` en js/10i-apariencia.js). Cobrar por saltarse la
    escalera es lo único que la rompería. */
+/* Lo que la bienvenida dejó apuntado para este módulo, escrito para leerlo. Es
+   lo que convierte la espera en algo que se anticipa: quien contestó el
+   cuestionario ya eligió sus áreas, y la rama está armada esperando al otro
+   lado del candado (`settings.siembra`, js/09-inicio.js). Decirlo cuesta un
+   renglón; callarlo deja el candado siendo solo una puerta.
+
+   Devuelve cadena vacía cuando no hay nada apuntado —quien se saltó la
+   bienvenida— y entonces el cuadro no promete nada, que es lo correcto. */
+/* «Salud y Dinero», no «Salud, Dinero». Un `join(", ")` es lo que sale solo y
+   se lee como una lista de la compra dentro de una frase que quiere sonar a
+   alguien hablando. Con tres o más, la coma vuelve para las primeras y la «y»
+   se queda para la última, que es como se escribe en español. */
+function enLista(nombres) {
+  if (nombres.length < 2) return nombres[0] || "";
+  return nombres.slice(0, -1).join(", ") + tx(" y ") + nombres[nombres.length - 1];
+}
+
+function loQueEsperaDentro(id) {
+  const s = state.settings && state.settings.siembra;
+  if (!s) return "";
+  if (id === "tree") {
+    const nombres = (typeof ONBOARD_AREAS !== "undefined" ? ONBOARD_AREAS : [])
+      .filter(a => (s.areas || []).indexOf(a.id) >= 0)
+      .map(a => tx(a.branch));
+    if (!nombres.length) return "";
+    return nombres.length === 1
+      ? T`Al llegar te espera la rama de ${nombres[0]}, con los talentos que elegiste al armar tu tablero.`
+      : T`Al llegar te esperan tus ramas de ${enLista(nombres)}, con los talentos que elegiste al armar tu tablero.`;
+  }
+  if (id === "projects" && s.project) {
+    return T`Al llegar te espera «${s.project}», el proyecto que apuntaste al armar tu tablero.`;
+  }
+  return "";
+}
+
 function avisoModuloCerrado(id) {
   const m = MODULOS.find(x => x.id === id);
   if (!m) return;
   const pide = MODULO_NIVEL[id] || 0;
-  const n = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 0;
-  const faltan = Math.max(1, pide - n);
-  const titulo = faltan === 1 ? tx("Te falta un nivel") : T`Te faltan ${faltan} niveles`;
+  const f = faltaParaNivel(pide);
+  const titulo = f.titulo;
+  const espera = loQueEsperaDentro(id);
+  /* El cuerpo pasa a ser HTML por el aro. Todo lo que viene de los datos
+     —el nombre de una rama, el de un proyecto— se escapa antes de entrar; lo
+     único que va en crudo es el SVG que dibujamos aquí.
+
+     Y todo en `<span>`, ninguno `<p>` ni `<ul>`: `#modal-msg` ES un `<p>`, y un
+     `<p>` dentro de otro el navegador lo saca fuera al vuelo — el cuadro se
+     desarma solo y no hay nada en el CSS que lo explique. Es la misma nota que
+     lleva `topeAlcanzado` en js/10d-plan.js. */
   const cuerpo =
-    T`${tx(m.label)} se abre en el nivel ${pide} de expedición y vas en el ${n}.` + "\n\n" +
-    tx("El nivel sube solo con lo que ya haces: cumplir una misión, practicar una habilidad y volver mañana.");
+    '<span class="cerr-aro">' + aroDeNivelHTML(pide, 72) +
+      '<span class="cerr-paso">' + escapeHtml(f.corto) + '</span></span>' +
+    '<span class="cerr-tx">' +
+      escapeHtml(T`${tx(m.label)} se abre en el nivel ${pide} de expedición y vas en el ${f.nivel}.`) +
+    '</span>' +
+    (espera ? '<span class="cerr-espera">' + icon("gem", 14) + escapeHtml(espera) + '</span>' : "") +
+    '<span class="cerr-tx cerr-como">' +
+      escapeHtml(tx("El nivel sube solo con lo que ya haces: cumplir una misión, practicar una habilidad y volver mañana.")) +
+    '</span>';
   /* Ni `danger` ni `alarm`, y es la misma decisión que la del cuadro de los
      topes del plan: aquí no se rompió nada. Hay algo que todavía no llega, y
      eso se cuenta en menta con el candado delante, no en coral y temblando.
@@ -1153,7 +1203,7 @@ function avisoModuloCerrado(id) {
      Dos botones y no uno: el segundo lleva a Mi expedición, que es donde se ve
      la barra, cuánto falta y qué más abre el camino. Un aviso que dice «te
      faltan dos niveles» y no enseña dónde mirarlos es media respuesta. */
-  return askBase(cuerpo, false, tx("Ver Mi expedición"), false, false, tx("Entendido"),
+  return askBase(cuerpo, true, tx("Ver Mi expedición"), false, false, tx("Entendido"),
                  { icono: "lock", tono: "menta", titulo: titulo }).then(ok => {
     if (ok && typeof abrirColeccion === "function") abrirColeccion();
   });
@@ -1486,6 +1536,12 @@ function showView(name) {
 
   // Lo último: los rótulos de arriba ya están pintados y se pueden leer
   titularPestana(name);
+
+  /* Y si es la primera vez que se entra a un módulo que abrió el nivel, se
+     presenta. Va al final y con retraso propio (ver `quizaPresentarModulo`,
+     js/09-inicio.js): la pantalla tiene que estar pintada debajo, o la tarjeta
+     explica algo que todavía no se ve. */
+  if (typeof quizaPresentarModulo === "function") quizaPresentarModulo(name);
 }
 
 /* El nombre de la pestaña dice en qué parte de la app estás. En el teléfono no
