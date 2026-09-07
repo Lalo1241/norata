@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.95";
+const VERSION = "0.7.96";
 const VERSION_FECHA = "7 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -1215,6 +1215,11 @@ function anotarBorrados() {
 
 function save() {
   anotarBorrados();
+  /* El reparto del nivel de expedición se cuenta una vez y se guarda; aquí se
+     tira, que es el único sitio por el que pasan todos los cambios hechos
+     dentro del mismo `state`. Ver `expDesglose` en `js/02b-expedicion.js`.
+     Con `typeof` porque `save()` se declara antes que ese archivo. */
+  if (typeof expTocado === "function") expTocado();
   guardarLocal(state);
   syncTouch();
 }
