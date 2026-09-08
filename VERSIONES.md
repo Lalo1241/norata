@@ -100,6 +100,46 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.97.5 · 7 sep 2026
+
+**El teléfono tumbado deja de ser una prueba: los botones van al canto y ya
+está.** Fuera el `?horizontal=1`, el rótulo y la clase.
+
+Eduardo revisó en su teléfono y los botones seguían abajo. No era un fallo del
+reparto —comprobado a 844×390 y a 390×844, funciona—: **era que el interruptor
+no estaba puesto.** Y ahí estaba el error de fondo, que es mío.
+
+`sessionStorage` muere al cerrar la pestaña. Eso es exactamente lo que se quiere
+de una prueba con enlace —que no se quede pegada como si fuera un ajuste— pero
+convierte en imposible lo que él necesitaba: **vivir con ello unos días para
+juzgarlo**. Cada pestaña nueva lo perdía, y la app instalada en la pantalla de
+inicio es otro contexto, así que ahí no llegaba nunca.
+
+**Y la prueba ya no tenía nada que probar.** El interruptor estaba para decidir
+entre el reparto grande —dos columnas, las pantallas de dentro empaquetadas, el
+mapa a sangre— y no hacer nada. Eso se decidió en la 0.7.94.1, y lo que quedó es
+esto: el cluster del pulgar girado un cuarto de vuelta contra el canto
+izquierdo, y **nada más se mueve**. Dejar la decisión de Eduardo detrás de un
+interruptor frágil es fricción sin nada a cambio.
+
+**La regla que sale de aquí, y vale para la próxima prueba con enlace:** una
+prueba de las que se miran y se deciden en un rato vive bien en
+`sessionStorage`; una que hay que *habitar* —algo que se juzga usando la app
+varios días— no, porque el interruptor se apaga solo y lo que se concluye es que
+la función no existe. Si se necesita habitarla, o se publica encendida o el
+interruptor tiene que sobrevivir a cerrar la pestaña.
+
+Comprobado sin ningún parámetro y con la sesión limpia: a 844×390 el carril sale
+a la izquierda (15–59), el ＋ debajo sin encimarse, el contenido empieza en 155 y
+no hay rótulo. De pie (390×844) no cambia una sola medida —el cluster sigue
+siendo una fila abajo, la columna sigue topada en 560 y con relleno 26/18— y en
+la computadora la consulta ni se cumple.
+
+Lo que se quitó **por nombre y no por rango**: el bloque `html.horizontal` de
+`css/estilos.css` (sus reglas se quedan, sin la clase), el bloque
+`#rotulo-horizontal`, la lectura de `?horizontal` del script de arriba de
+`index.html` y su `<div>`. Queda cero rastro de la palabra en `index.html`.
+
 ### 0.7.97.4 · 7 sep 2026
 
 **El esqueleto deja de inventarse la forma y la copia de lo que va a llegar.**
