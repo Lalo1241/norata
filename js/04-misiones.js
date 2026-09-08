@@ -835,11 +835,10 @@ function projectHealth(pr) {
    de un vistazo. */
 const FIGURA_ENCARGO = { forma: "encargo", radio: 31, ancho: 62, alto: 42 };
 
-/* ---- Los cuatro tipos de encargo (prueba `?nodos=variedad`) ----
+/* ---- Los cuatro tipos de encargo (0.7.98) ----
    El comentario de arriba decía que un encargo es siempre lo mismo y por eso
    tenía una sola figura. Con cuatro encargos en fila resultó que eso deja el
-   mapa sin nada que mirar, así que aquí está la vuelta a esa decisión —
-   apagada hasta que Eduardo la vea.
+   mapa sin nada que mirar, así que aquí está la vuelta a esa decisión.
 
    Las figuras NO son las de Talentos, y no por capricho: el rombo y el
    hexágono ya significan «meta» e «hito» allí, y dos mapas hechos de las

@@ -1149,6 +1149,22 @@ const TEXTOS_EN = {
  "En pausa": "Paused",
   "Terminado": "Finished",
    "Espera su turno": "Waiting its turn",
+  /* ---- Los cuatro tipos de encargo ----
+     Salen de `TIPOS_ENCARGO` y no del barrido, igual que los veredictos de
+     `projectHealth` de aqui arriba: viajan como propiedad de un objeto. */
+  "Tarea": "Task",
+  "El trabajo de siempre: se hace por etapas y no cierra nada por su cuenta.":
+    "The usual work: you do it in stages and it closes nothing on its own.",
+  "Entrega": "Delivery",
+  "Lo que cierra una fase y sale del proyecto: entregar, publicar, inaugurar.":
+    "What closes a phase and leaves the project: deliver, publish, open.",
+  "Decisión": "Decision",
+  "Hay que elegir entre caminos, y hasta que elijas lo de después no se puede empezar.":
+    "You have to pick a path, and nothing after it can start until you do.",
+  "Gasto": "Cost",
+  "Algo que hay que pagar para que el proyecto siga: material, un permiso, un servicio.":
+    "Something you pay for so the project keeps going: materials, a permit, a service.",
+  "Rama de Proyectos": "Projects branch",
   "Estancado": "Stalled",
   "Enfriándose": "Cooling off",
   "Casi listo": "Almost there",
