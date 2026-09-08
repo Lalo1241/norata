@@ -237,11 +237,23 @@ function selectorColorHTML() {
   const uid = ((sync.cfg || {}).sesion || {}).uid || "";
   /* El primero es «el de siempre»: el que sale del identificador. Sin esa
      casilla, quien probara un color no tendría forma de volver a como estaba
-     salvo adivinando cuál era. */
-  const dedefecto = `<button class="color-op${puesto ? "" : " on"}" onclick="perfilColor('')"
-      style="background:${avatarColor(uid)}" title="${escapeAttr(tx("El de siempre"))}"
-      aria-label="${escapeAttr(tx("El color de siempre"))}"${puesto ? "" : ' aria-current="true"'}></button>`;
-  const resto = AVATAR_COLORES.map(c => `<button class="color-op${puesto === c.hex ? " on" : ""}"
+     salvo adivinando cuál era.
+
+     Y ese mismo tono se QUITA de los de abajo, que es el fallo que cazó Eduardo
+     mirando su perfil: «el rosa está dos veces». `avatarColor()` reparte entre
+     estos ocho y ninguno más, así que el de siempre SIEMPRE es uno de ellos —
+     no era mala suerte suya, la fila salía con un color repetido para todo el
+     mundo—. Quitarlo deja ocho círculos y ocho tonos distintos.
+
+     Sale marcado también cuando el elegido coincide con él: los dos pintan lo
+     mismo, y sin esa segunda condición el círculo del que quitamos se llevaba
+     la marca y la fila se quedaba sin ninguna. */
+  const suyo = avatarColor(uid);
+  const enSuyo = !puesto || puesto === suyo;
+  const dedefecto = `<button class="color-op${enSuyo ? " on" : ""}" onclick="perfilColor('')"
+      style="background:${suyo}" title="${escapeAttr(tx("El de siempre"))}"
+      aria-label="${escapeAttr(tx("El color de siempre"))}"${enSuyo ? ' aria-current="true"' : ""}></button>`;
+  const resto = AVATAR_COLORES.filter(c => c.hex !== suyo).map(c => `<button class="color-op${puesto === c.hex ? " on" : ""}"
       onclick="perfilColor('${c.hex}')" style="background:${c.hex}"
       title="${escapeAttr(tx(c.nombre))}" aria-label="${escapeAttr(tx("Color") + " " + tx(c.nombre))}"${
       puesto === c.hex ? ' aria-current="true"' : ""}></button>`).join("");

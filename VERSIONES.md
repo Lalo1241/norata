@@ -100,6 +100,33 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.98.2 · 8 sep 2026
+
+**En «Tu color» había un tono repetido, y no era mala suerte: le pasaba a todo
+el mundo.** Lo vio Eduardo en su perfil —«el rosa está dos veces»—.
+
+La fila son nueve círculos: el de siempre, más los ocho de `AVATAR_COLORES`. Y
+el de siempre lo elige `avatarColor()`, que reparte **entre esos mismos ocho** y
+ninguno más, así que uno de los ocho salía SIEMPRE duplicado. Lo que cambiaba de
+una persona a otra era cuál: a Eduardo le tocó el rosa.
+
+Ahora ese tono se quita de los de abajo. Quedan ocho círculos y ocho tonos
+distintos, y el primero sigue siendo «el de siempre» —que es lo que permite
+volver a como estabas después de probar un color, sin tener que adivinar cuál
+era—.
+
+**El caso que se rompía al arreglarlo:** quien tenga guardado ese mismo tono
+como elegido —los dos pintan lo mismo, así que pasa— se quedaba con la fila sin
+ninguna marca, porque el círculo que la llevaba es justo el que quitamos. El
+primero se marca también en ese caso.
+
+**Medido** con cuatro identificadores distintos, para que el de siempre cayera
+en tonos distintos de la lista, y en los tres estados de cada uno —sin elegir,
+con otro elegido, y con el suyo elegido—: ocho botones, ocho colores distintos,
+exactamente uno marcado y un solo `aria-current` en los doce casos. Cero errores
+de consola, cero traducciones que falten, las cuatro combinaciones de humo
+limpias.
+
 ### 0.7.98.1 · 8 sep 2026
 
 **La barra con luz donde hay ancho, el aro encendido en los cuadros emergentes,
