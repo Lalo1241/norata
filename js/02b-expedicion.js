@@ -606,38 +606,52 @@ function insigniaExpedicionHTML(diam) {
     '</span>';
 }
 
-/* ================= El aro de «cuánto te falta» =================
+/* ================= «Cuánto te falta para el nivel N» =================
    Un candado que dice «te faltan 3 niveles» da un número; el mismo candado con
-   el aro al lado dice DÓNDE estás. Lo pidió Eduardo para todos los sitios que
-   cuentan niveles hacia algo: los dos módulos y las apariencias.
+   el dibujo al lado dice DÓNDE estás. Sale en todos los sitios que cuentan
+   niveles hacia algo: los dos módulos y las apariencias.
+
+   **Son DOS formas y las decide el sitio, no el gusto.** Lo dejó cerrado
+   Eduardo en dos mensajes seguidos:
+
+     - donde hay ANCHO —una tarjeta del tablero, la ficha de un ambiente— va la
+       BARRA, que es `.barra-viva`, la misma del próximo hito de la racha: «usa
+       la animación de barras que ya usas para Resumen, que es llamativa y muy
+       bonita». Y de paso caben los dos números, el de ahora y el de destino;
+     - en un CUADRO EMERGENTE va el ARO: «la barra de los cuadros emergentes
+       debe permanecer circular, no horizontal».
+
+   Ninguna de las dos dibuja nada nuevo — `ring()`/`animRing()` y `.barra-viva`
+   ya existían—: en esta app ya se cazó una vez un dibujo duplicado que acabó
+   desincronizado de su original.
 
    **Mide el camino entero hasta el objetivo, no lo que llevas del nivel de
    ahora.** Son dos cosas distintas y aquí solo sirve la primera: a alguien que
-   va por el 2 camino del 3, el aro del nivel EN CURSO puede estar al 5% y
+   va por el 2 camino del 3, la barra del nivel EN CURSO puede estar al 5% y
    parecer que no ha empezado, cuando del camino lleva casi la mitad. Y se
-   cuenta en PUNTOS y no en niveles enteros por lo mismo — con niveles el aro
-   daría saltos de un tercio y estaría parado casi siempre.
+   cuenta en PUNTOS y no en niveles enteros por lo mismo — con niveles la barra
+   daría saltos de un tercio y estaría parada casi siempre.
 
    La cuenta sale de `expCosto()`, que es la misma curva que decide el nivel,
-   así que no hay dos verdades: si el aro dice lleno, el nivel ya cambió.
-
-   `ring()` vive en `js/02-progreso.js` y es el mismo que dibuja la insignia de
-   la expedición y los aros de las habilidades. No se dibuja uno nuevo a
-   propósito: en esta app ya se cazó una vez un dibujo duplicado que acabó
-   desincronizado de su original. */
+   así que no hay dos verdades: si el dibujo dice lleno, el nivel ya cambió. */
 function puntosHastaNivel(objetivo) {
   let pide = 0;
   for (let n = 0; n < objetivo; n++) pide += expCosto(n);
   return pide;
 }
 
-/* `dentro` decide qué va en el centro: el NÚMERO del nivel («nivel») o un
-   CANDADO («candado»). Los dos tienen su sitio y no son intercambiables: en la
-   tarjeta del tablero el candado ya está a la derecha, así que dentro va el
-   número; en el cuadro que se abre no hay otro candado, y ahí es donde tiene
+/* EL ARO, el de los cuadros emergentes. Dentro lleva SIEMPRE el candado y
+   nunca el número: en un cuadro así no hay otro candado, y ahí es donde tiene
    que estar — el aro dice cuánto llevas y el candado dice de qué. Lo pidió
-   Eduardo así. */
-function aroDeNivelHTML(objetivo, diam, dentro) {
+   Eduardo así, y por eso no hay una opción para el número: nadie la usa y una
+   opción que nadie usa es una rama que nadie prueba.
+
+   Se dibuja con `animRing` y arrancando de cero, así que se LLENA al abrirse el
+   cuadro en vez de aparecer ya puesto. Es lo mismo que hace la barra al entrar,
+   que es la mitad de por qué gustó; lo que no se copia es la estela, que en un
+   aro de 76 px daría vueltas sin decir nada. Lo lanza `askBase` llamando a
+   `playRings` (`js/01-base.js`). */
+function aroDeNivelHTML(objetivo, diam) {
   const d = diam || 62;
   const info = typeof nivelExpedicion === "function" ? nivelExpedicion() : { nivel: 0, puntos: 0 };
   const pide = puntosHastaNivel(objetivo);
@@ -646,19 +660,47 @@ function aroDeNivelHTML(objetivo, diam, dentro) {
   /* Menta, que es el tono de lo que se gana usando la app. Ni coral ni
      luciérnaga: aquí no hay nada roto ni nada que cueste dinero — hay un
      camino a medio andar. */
-  const aro = typeof ring === "function"
-    ? ring(d, grosor, [{ pct: pct, color: "var(--mint)" }], "var(--carril)") : "";
-  const centro = dentro === "candado"
-    ? '<i class="aro-llave">' + icon("lock", Math.round(d * 0.3)) + '</i>'
-    : '<b>' + info.nivel + '</b>';
+  const aro = typeof animRing === "function"
+    ? animRing(d, grosor, pct, "var(--mint)", 0, "var(--carril)") : "";
   return '<span class="aro-nivel" style="width:' + d + 'px;height:' + d + 'px"' +
     ' role="img" aria-label="' + escapeAttr(
       T`Vas por el nivel ${info.nivel} de ${objetivo}, un ${Math.round(pct * 100)}% del camino`) + '">' +
-    aro + centro + '</span>';
+    aro + '<i class="aro-llave">' + icon("lock", Math.round(d * 0.3)) + '</i>' +
+    '</span>';
 }
 
-/* El renglón que acompaña al aro. Va aparte porque el aro sale en sitios con
-   hueco distinto —un cuadro, una tarjeta del tablero— y la frase larga no
+/* LA BARRA, la de donde hay ancho. `opts.candado` pone el candado junto al nivel de destino, y `opts.chica` la
+   encoge para una tarjeta del tablero. El candado no va siempre: donde ya hay
+   uno al lado —la tarjeta del tablero lo lleva a la derecha— serían el mismo
+   dibujo dos veces. */
+function barraDeNivelHTML(objetivo, opts) {
+  const o = opts || {};
+  const info = typeof nivelExpedicion === "function" ? nivelExpedicion() : { nivel: 0, puntos: 0 };
+  const pide = puntosHastaNivel(objetivo);
+  const pct = pide > 0 ? Math.max(0, Math.min(1, info.puntos / pide)) : 1;
+  /* Menta, que es el tono de lo que se gana usando la app. Ni coral ni
+     luciérnaga: aquí no hay nada roto ni nada que cueste dinero — hay un
+     camino a medio andar. Y va en el marco de un cuadro que sí es amarillo,
+     que es justo la diferencia entre el aviso y lo que llevas andado.
+
+     El 3% de suelo es el mismo que usa el próximo hito de la racha: con 0% la
+     barra no tiene punta encendida y parece rota en vez de vacía. */
+  const lleno = Math.max(3, Math.round(pct * 100));
+  const meta = (o.candado ? icon("lock", o.chica ? 11 : 12) : "") +
+    escapeHtml(T`Nivel ${objetivo}`);
+  return '<span class="bar-nivel' + (o.chica ? " es-chica" : "") + '"' +
+    ' role="img" aria-label="' + escapeAttr(
+      T`Vas por el nivel ${info.nivel} de ${objetivo}, un ${Math.round(pct * 100)}% del camino`) + '">' +
+    '<span class="rc-rot bn-rot" aria-hidden="true">' +
+      '<span>' + escapeHtml(T`Nivel ${info.nivel}`) + '</span>' +
+      '<span class="bn-meta">' + meta + '</span>' +
+    '</span>' +
+    '<span class="barra-viva bn-b" aria-hidden="true"><i style="--p:' + lleno + '%;--c:var(--mint)"></i></span>' +
+    '</span>';
+}
+
+/* El renglón que acompaña a la barra. Va aparte porque la barra sale en sitios
+   con hueco distinto —un cuadro, una tarjeta del tablero— y la frase larga no
    siempre cabe. */
 function faltaParaNivel(objetivo) {
   const n = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 0;
@@ -668,8 +710,8 @@ function faltaParaNivel(objetivo) {
      más frase alrededor, eso se lee como «este módulo ES el nivel 2 de 3» — que
      no significa nada. Lo paró Eduardo.
 
-     `abre` dice lo que hay que hacer, y es lo único que hace falta: donde va el
-     aro, el aro ya dice dónde estás y un rótulo repitiéndolo sobra. */
+     `abre` dice lo que hay que hacer, y es lo único que hace falta: donde va la
+     barra, la barra ya dice dónde estás y un rótulo repitiéndolo sobra. */
   return {
     nivel: n, objetivo: objetivo, faltan: faltan,
     abre: T`Se desbloquea en el nivel ${objetivo}`,

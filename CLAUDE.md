@@ -316,12 +316,26 @@ Cuatro cosas que hay que saber antes de tocarlo:
   vive en los dos sitios: dentro de una escena —que se queda de noche— y
   encima de una ficha, que de día es clara. Su cielo y sus chispas salen de
   las variables `--motivo-*`.
-- **De día no hay resplandor.** Los nodos del árbol y los motivos llevan una
-  copia borrosa de sí mismos por debajo; sobre carbón eso es luz, sobre papel
-  es una mancha, y con ocho colores en el mismo lienzo el conjunto se ve
-  sucio. Se apaga desde el CSS (`html.claro .const-wrap [filter]`) y no
-  dejando de escribir el atributo: un atributo de presentación de SVG pierde
-  contra una regla, así que no hay que volver a dibujar nada al cambiar.
+- **De día no hay resplandor, y esto vale para TODO lo que brilla.** Sobre
+  carbón un halo es luz; sobre papel es una mancha. Ya lo ha parado Eduardo dos
+  veces y las dos con la misma frase —«se ve todo gris»—, porque de día el tono
+  que se usa es el OSCURO del color y el halo sangra alrededor hasta enturbiar
+  lo que rodea. Son tres sitios y ninguno es opcional:
+
+  | Qué | Dónde se apaga |
+  | --- | --- |
+  | Los nodos del árbol y los motivos, que llevan una copia borrosa debajo | `html.claro .const-wrap [filter]` |
+  | `.barra-viva` — lo lleno y su punta encendida | `html.claro .barra-viva i` |
+  | El aro de nivel de un cuadro emergente | `html.claro .aro-nivel circle[data-anim]` |
+
+  **Se apaga desde el CSS y no dejando de escribirlo en el dibujo**, por dos
+  razones distintas y las dos muerden: un atributo de presentación de SVG
+  pierde contra una regla, y lo que se dibuja una sola vez —un aro dentro de un
+  cuadro, el mapa de talentos— no se vuelve a dibujar al cambiar de modo, así
+  que un resplandor decidido en JavaScript se queda con la cara del modo en que
+  se dibujó. Apagar el halo no apaga la pieza: lo lleno, la punta, el llenado y
+  la estela siguen ahí, que son las cuatro cosas que la hacen parecer
+  encendida.
 - **El logotipo de la portada es un `<img>`** y hay que cambiar de archivo:
   `logotipoSrc()` elige entre los dos de `marca/`. Ojo con los nombres, que
   dicen de qué color es el dibujo: el *claro* va sobre fondo oscuro.

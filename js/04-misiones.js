@@ -1192,9 +1192,12 @@ function avisoModuloCerrado(id) {
      desarma solo y no hay nada en el CSS que lo explique. Es la misma nota que
      lleva `topeAlcanzado` en js/10d-plan.js. */
   const cuerpo =
-    /* El aro con el CANDADO dentro, no con el número: aquí no hay otro candado
-       en el cuadro, así que este es el que dice de qué va el aro. */
-    '<span class="cerr-aro">' + aroDeNivelHTML(pide, 76, "candado") + '</span>' +
+    /* EL ARO, no la barra: «la barra de los cuadros emergentes debe permanecer
+       circular, no horizontal» (Eduardo, 0.7.97.6). Con el candado dentro,
+       porque aquí no hay otro candado en el cuadro y este es el que dice de qué
+       va el aro. La barra se queda donde hay ancho de sobra: la tarjeta del
+       tablero y la ficha de un ambiente. */
+    '<span class="cerr-aro">' + aroDeNivelHTML(pide, 76) + '</span>' +
     '<span class="cerr-tx">' +
       T`El módulo de ${escapeHtml(tx(m.label))} se desbloquea en el nivel ${pide} de ` +
       /* «Tu expedición» lleva al sitio donde se ve la barra, cuánto falta y qué
@@ -1220,7 +1223,8 @@ function avisoModuloCerrado(id) {
      gana. Ni `danger` ni `alarm`: aquí no se rompió nada, hay algo que todavía
      no llega.
 
-     Un solo botón: la otra salida es ahora el enlace de la frase. */
+     Un solo botón, y en MENTA aunque el marco sea amarillo — lo confirmó
+     Eduardo: el marco avisa, el botón solo cierra. */
   return askBase(cuerpo, true, tx("Entendido"), false, false, null,
                  { tono: "oro", titulo: titulo, soloOk: true });
 }

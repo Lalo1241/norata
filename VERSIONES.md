@@ -100,6 +100,78 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.98.1 · 8 sep 2026
+
+**La barra con luz donde hay ancho, el aro encendido en los cuadros emergentes,
+y la lista de mundos deja de llevar dos marcos.**
+
+**Las dos formas.** El aro de «te faltan 3 niveles» duró una versión. Eduardo lo
+vio y pidió otra cosa: «usa la animación de barras que ya usas para Resumen, que
+es llamativa y muy bonita, para aplicarla a los niveles de esos mensajes». Al
+verla montada acotó dónde: **«la barra de los cuadros emergentes debe permanecer
+circular, no horizontal».** Así que hay dos formas y las decide el SITIO, no el
+gusto:
+
+- donde hay ancho —la tarjeta apagada del tablero y la ficha de un ambiente que
+  abre el nivel— va la BARRA, que es `.barra-viva`, la misma del próximo hito de
+  la racha, con su punta encendida y su estela. Chica y sin candado en la
+  tarjeta, que ya lleva uno arriba a la derecha;
+- en el cuadro de un módulo cerrado se queda el ARO, con el candado dentro.
+
+Ninguna de las dos dibuja nada nuevo: `barraDeNivelHTML()` y `aroDeNivelHTML()`
+(`js/02b-expedicion.js`) montan piezas que ya existían.
+
+**El aro ahora se llena y se enciende.** Se llena al abrirse el cuadro en vez de
+aparecer ya puesto —lo dibuja `animRing()`, que ya existía, y lo lanza `askBase`
+llamando a `playRings`: fuera de un modal eso lo hace la pantalla que dibuja el
+aro, y un modal no tiene pantalla— y lleva el mismo halo que `.barra-viva` en lo
+lleno, que era lo que le faltaba y lo preguntó él: «¿sí se ilumina el aro a como
+te lo pedí?». El halo pide `overflow: visible` en el SVG y no es un detalle: el
+trazo llega justo al borde, así que sin eso se recorta contra él y no se ve nada.
+
+**Y de día no hay resplandor, en NINGUNA de las dos.** «En blanco se ve todo
+gris»: de día el tono que se usa es el oscuro del color, así que el halo era
+verde oscuro sangrando alrededor del verde y lo que se leía era una mancha. Se
+apaga en el aro y también en `.barra-viva`, que se lo llevaba saltando desde que
+existe —lo lleno y su punta— y era la misma mancha en las tarjetas del tablero.
+Apagar el halo no apaga la barra: lo lleno, la punta, el llenado y la estela
+siguen ahí. La regla de la casa ya estaba escrita en `CLAUDE.md` para los nodos
+del árbol y los motivos; ahora está escrita con los tres sitios y con dónde se
+apaga cada uno, porque decía «los nodos» y por eso nadie la aplicó a una barra.
+
+En medio se probó llenar ese círculo de abajo arriba, como un frasco. Eduardo lo
+paró —«se ve mal tu concepto»— y queda apuntado aquí para no volver a
+intentarlo: el aro se llena dando la vuelta.
+
+De paso arregla lo que Eduardo señaló de los ambientes: **el contador de nivel
+se leía como el número del ambiente**. Dentro de un aro solo cabe un número, y
+ese número era el nivel en el que vas; al lado de «Adobe» y de «Nivel 7» eso se
+lee como cualquier cosa menos como «vas por el 1». Esa ficha tiene ancho, así que
+le toca barra: `NIVEL 1` a la izquierda y `🔒 NIVEL 7` a la derecha.
+
+El botón del cuadro **se queda en menta** aunque el marco sea amarillo, y lo
+confirmó él: el marco avisa, el botón solo cierra.
+
+**Los dos marcos.** En la lista de mundos, el que llevas puesto tenía borde
+menta con anillo de sombra y el que estás mirando tiene su contorno. Con eso se
+veían dos marcos a la vez, y sobre el puesto los dos encima del mismo renglón.
+«Debe de tener siempre 1 y solo el que está seleccionado con mouse, no aplicado,
+porque para aplicado ya tiene una palomita a la derecha.» Fuera `.mun-m.on`: la
+palomita de la derecha es la marca de lo puesto, y es la única que no se mueve
+al pasear por la lista. Los ambientes ya funcionaban así.
+
+**Medido.** Los rótulos de la barra a 5,29 sobre 1 de noche y 6,15 de día; lo
+lleno contra el carril, 7,67 y 4,51 —una línea pide 3—. Los halos, leídos uno a
+uno: de noche los tres puestos, de día los tres en `none` y los rellenos
+intactos. El aro del cuadro con su candado centrado al píxel, el trazo en menta;
+y
+el aro ANIMANDO de verdad, no clavado: a los 250 ms el valor calculado iba por
+23,98 camino de los 30,8 del destino, que es la comprobación que pide CLAUDE.md
+para no confundir una transición congelada con un CSS que no llega. El cuadro
+entero cabe a 360×480. Un marco en la lista de mundos y en el renglón correcto,
+antes y después de mirar otro. Cero errores de consola, cero traducciones que
+falten, las cuatro combinaciones de humo limpias.
+
 ### 0.7.98 · 8 sep 2026
 
 **Un encargo ya no es siempre lo mismo: tiene tipo, y el tipo se ve.** Deja de
@@ -185,6 +257,7 @@ del rótulo. Las reglas del rótulo se quedan, emparejadas con `?informes=demo`,
 que es la única prueba con enlace que sigue viva. Contadas las llaves de
 `css/estilos.css`: 2 304 → 2 307, que son exactamente las tres siluetas nuevas
 de la lista y nada más.
+
 
 ### 0.7.97.6 · 7 sep 2026
 

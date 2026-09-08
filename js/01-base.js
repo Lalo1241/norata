@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.98";
+const VERSION = "0.7.98.1";
 const VERSION_FECHA = "8 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -1562,6 +1562,12 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
     const fondo = document.getElementById("modal");
     fondo.classList.toggle("fijo", !!ex.fijo);
     fondo.classList.add("show");
+    /* Un cuerpo en HTML puede traer un aro de `animRing`, que nace vacio y se
+       llena cuando alguien le copia su destino. Fuera de aqui lo hace la
+       pantalla que lo dibuja; un modal no tiene pantalla, asi que lo lanza el
+       propio `askBase` — sin esto el aro del cuadro de un modulo cerrado se
+       quedaria a cero para siempre y pareceria un aro roto. */
+    if (esHtml && typeof playRings === "function") playRings(cuerpo);
     if (alarm && userHasTapped && navigator.vibrate) navigator.vibrate([40, 60, 40]);
   });
 }
