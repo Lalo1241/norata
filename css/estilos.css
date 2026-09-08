@@ -8236,49 +8236,6 @@
      dibujada y no clavado a un número: con dos renglones mide otra cosa. */
   .app { padding-top: var(--alto-aviso, 0); }
 
-  /* ================= PRUEBA CON ENLACE: la app más compacta =================
-     Eduardo lo dijo así: «siento algo tosca y grande la app». Medido en un
-     teléfono de 375×812, la pantalla de Resumen mide 2.422 px — TRES pantallas
-     de recorrido — y esa altura no la pone el contenido: la ponen los huecos.
-     El relleno de cada tarjeta, el aire entre unas y otras, y una cabecera de
-     124 px antes de que empiece nada.
-
-     Va detrás de un parámetro y nace APAGADA, porque es un cambio de aspecto y
-     la decisión es suya (ver CLAUDE.md, «Antes de tocar lo que se ve»). Se
-     enciende con `?compacto=1` y se apaga con `?compacto=0`.
-
-     La regla que NO se rompe: nada que reciba el dedo baja de 44 px. Lo que se
-     recorta es AIRE, no margen de seguridad — las tarjetas de misión miden 62
-     px y quedan en 58, los chips de "listo para hoy" 58 y quedan en 54, las
-     filas de asistencia 60 y quedan en 54.
-
-     Y no toca el relleno de ARRIBA de `.app`: ese no es aire, es el hueco que
-     reserva el rótulo del ejemplo (`--alto-aviso`). Recortarlo dejaría la
-     barra amarilla encima del título, que es el fallo que la barra vino a
-     arreglar en 0.7.50.
-
-     PARA QUITARLA, borrando POR NOMBRE y nunca por rango:
-       - este bloque (`html.compacto`) y el de `#rotulo-compacto` de abajo
-       - la lectura de `?compacto` en el script de arriba de `index.html`
-       - el `<div id="rotulo-compacto">` de `index.html`
-       - la entrada de `VERSIONES.md` */
-  @media (max-width: 899px) {
-    html.compacto .app { padding-left: 13px; padding-right: 13px; }
-    html.compacto .page-head { padding: 16px 4px 12px; gap: 8px; }
-    html.compacto .app h1 { font-size: 25px; }
-    html.compacto .panel { padding: 14px; }
-    html.compacto .scene-body { padding: 14px; }
-    html.compacto .sum-card { padding: 13px; }
-    html.compacto .ms-card,
-    html.compacto .ready-chip { padding: 9px 12px; }
-    html.compacto .ms-list { gap: 7px; }
-    html.compacto .att-item { padding: 9px 2px; }
-    html.compacto .dash { gap: 10px; }
-    html.compacto .streak-grid { gap: 13px; }
-    html.compacto .sc-rows { padding-top: 7px; margin-top: 8px; }
-    html.compacto .thumb-cluster { height: 54px; }
-  }
-
   /* ================= El teléfono tumbado: los botones al canto =================
      Lo único que cambia al girar el teléfono, y es de Eduardo. Estuvo detrás de
      `?horizontal=1` mientras había algo que decidir; ya no lo hay, así que el
@@ -8320,12 +8277,23 @@
        Dejándolo en una columna centrada, la cuenta la hace el navegador y sigue
        saliendo sola pase lo que pase.
 
-       Caben: cinco círculos de 44 con 8 de hueco son 252, más 12 y los 58 del
-       ＋, 322 de los 375. Centrados dejan 27 px arriba y abajo.
+       ---- Y el ＋ NO va en el carril ----
+       Iba, y era la misma pieza girada: de pie está al final de la fila, así
+       que tumbado al final de la columna. Sobre el papel es coherente; en un
+       teléfono de verdad no. Los cinco círculos son 252 px, y con el hueco y
+       los 58 del ＋ la tira se va a 322 — de los 360 que tiene tumbado un
+       teléfono normal, restándole la muesca. Eduardo lo vio en cuanto salió:
+       la tira ocupa la pantalla de arriba abajo y el primer círculo se sube a
+       tocar la barra de estado.
+
+       El ＋ se va a la esquina de abajo a la derecha, y de paso queda mejor de
+       lo que estaba: **con las dos manos sujetando, ese es el pulgar que
+       queda libre**, y navegar y crear dejan de compartir sitio. El carril se
+       queda en 252 px y respira 54 arriba y abajo.
 
        Y el contenedor mide 66 px de ancho en vez de la pantalla entera: como
        aquí no hay que repartir nada a los dos lados, no tiene por qué estar
-       encima de todo lo demás. */
+       encima de todo lo demás. Por eso el ＋ se saca de él y se coloca solo. */
     .thumb-cluster {
       top: 0; bottom: 0;
       left: calc(4px + env(safe-area-inset-left));
@@ -8341,6 +8309,14 @@
     .thumb-cluster .nav-circles {
       flex-direction: column;
       gap: 8px;
+    }
+    /* Fuera del carril, en su esquina. `position: fixed` y no `absolute`
+       porque el cluster mide 66 px de ancho y la esquina derecha le queda
+       fuera. */
+    .thumb-cluster .c-main {
+      position: fixed;
+      right: calc(14px + env(safe-area-inset-right));
+      bottom: calc(12px + env(safe-area-inset-bottom));
     }
   }
 

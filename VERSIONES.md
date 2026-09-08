@@ -100,6 +100,51 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.97.6 · 7 sep 2026
+
+**El ＋ sale del carril a su esquina, y se va la prueba de la app compacta.**
+Las dos las pidió Eduardo mirándolo en su teléfono.
+
+**El ＋ estaba en el carril y era la misma pieza girada** —de pie va al final de
+la fila, así que tumbado al final de la columna—. Sobre el papel es coherente;
+en un teléfono de verdad no. Los cinco círculos son 252 px, y con el hueco y los
+58 del ＋ la tira se iba a **322 de los 360** que tiene tumbado un teléfono
+normal quitándole la muesca: la tira ocupaba la pantalla de arriba abajo y el
+primer círculo se subía a tocar la barra de estado.
+
+Ahora el ＋ va a la esquina de abajo a la derecha y el carril se queda en 252 px.
+Medido a 854×384: **66 px libres arriba y abajo**, contra los 27 de antes. Y de
+paso queda mejor de lo que estaba, que es lo que hace buena la corrección: con
+las dos manos sujetando el teléfono, esa esquina es el pulgar que queda libre, y
+navegar y crear dejan de compartir sitio.
+
+**Y el texto de arriba.** Era el rótulo de la prueba de la app compacta, que se
+le había quedado encendido: en el teléfono tumbado salía cortado —«Es…endo la
+app compacta»— y encima del carril. Él lo llamó «un texto residual», que es
+justo el problema: **ya no lo reconocía como una prueba suya**.
+
+Así que la prueba se va entera. Medida en la 0.7.96, compraba un **8%** de
+recorrido y el peso de verdad estaba en otra parte —la tarjeta de la racha, 504
+px de los 812—; no daba para cargar con un rótulo permanente. Es el mismo error
+que la 0.7.97.5: un interruptor que hay que *habitar* no cabe en
+`sessionStorage`, y este llevaba días pegado en su teléfono sin que él supiera
+por qué.
+
+**Borrado por nombre, y comprobado que el corte fue limpio:** desaparecen 13
+reglas, las 13 `html.compacto`, más el bloque de su rótulo; entra una,
+`.thumb-cluster .c-main`. La cuenta de reglas del archivo va de 2.191 a 2.178,
+que cuadra exactamente. Esa comprobación no es celo: la primera vez que se quitó
+una prueba en este proyecto se cortó de «aquí» a «allá» y se llevó por delante
+cuatro bloques que no tenían nada que ver.
+
+Quedan tres pruebas con enlace vivas —`?informes`, `?nodos` y `?apariencia`— y
+dos rótulos.
+
+Comprobado: tumbado el carril respira y el ＋ está en su esquina sin encimarse;
+de pie no cambia una sola medida —el cluster sigue siendo una fila abajo con el
+＋ en su sitio de siempre, `position: static`— y en la computadora la barra
+lateral sigue igual.
+
 ### 0.7.97.5 · 7 sep 2026
 
 **El teléfono tumbado deja de ser una prueba: los botones van al canto y ya
