@@ -596,7 +596,7 @@ function renderSummary() {
 
 /* El cuerpo de una tarjeta cuyo módulo todavía no abre el nivel. No es un
    widget más: no hay datos que resumir, así que lo que se pinta es la promesa
-   —el dibujo del módulo, el aro de cuánto falta y el nivel al que llega—.
+   —el dibujo del módulo, la barra de cuánto falta y el nivel al que llega—.
 
    El dibujo sale del BOTÓN de la barra (`trazoDeModulo`, js/04-misiones.js) por
    lo mismo que en la celebración: un dibujo, un sitio. Y se toca: lleva al
@@ -616,12 +616,14 @@ function cuerpoCerrado(id) {
   return `
     <button type="button" class="wc" onclick="avisoModuloCerrado('${escapeAttr(mod)}')"
       aria-label="${escapeAttr(T`${tx(m.label)} · se abre en el nivel ${pide}`)}">
-      <span class="wc-aro">${typeof aroDeNivelHTML === "function" ? aroDeNivelHTML(pide, 46) : ""}</span>
-      <span class="wc-tx">
+      <span class="wc-alto">
         <b>${trazo ? `<svg class="wc-ic" viewBox="0 0 24 24" aria-hidden="true">${trazo}</svg>` : ""}${escapeHtml(tx(m.label))}</b>
-        <span>${escapeHtml(f.abre)}</span>
+        <span class="wc-llave">${icon("lock", 13)}</span>
       </span>
-      <span class="wc-llave">${icon("lock", 13)}</span>
+      ${/* Sin candado dentro de la barra: en esta tarjeta ya hay uno arriba a la
+           derecha, y dos serían el mismo dibujo dos veces. */""
+      }${typeof barraDeNivelHTML === "function" ? barraDeNivelHTML(pide, { chica: true }) : ""}
+      <span class="wc-abre">${escapeHtml(f.abre)}</span>
     </button>`;
 }
 

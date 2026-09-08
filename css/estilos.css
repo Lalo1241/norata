@@ -1709,15 +1709,13 @@
   .ap-cerrado.ap-pro { border-left-color: var(--mint); }
   .ap-cerrado.ap-fundador { border-left-color: var(--lila); }
   .ap-cerrado.ap-nivel { border-left-color: var(--fire); }
-  /* Con aro, el bloque pasa a dos columnas: el dibujo a la izquierda y las dos
-     frases a la derecha. `align-items: center` y no `flex-start` porque el aro
-     es más alto que el título solo, y arriba del todo quedaría descolgado del
-     texto que explica. Solo lo lleva el candado de NIVEL — el de un plan no
-     tiene camino que dibujar—, así que la fila entera cuelga de `.con-aro` y
-     el bloque de siempre no cambia ni un píxel. */
-  .ap-cerrado.con-aro { display: flex; align-items: center; gap: 12px; }
-  .ap-cerrado.con-aro .ap-cerrado-tx { flex: 1; min-width: 0; }
-  .ap-aro { flex: none; }
+  /* La barra va DEBAJO del texto y a lo ancho, no al lado: en la mitad de un
+     bloque de 12 px de padding no mide nada, y medir es lo único que viene a
+     hacer. Solo la lleva el candado de NIVEL —el de un plan no tiene camino que
+     dibujar—, así que cuelga de `.con-barra` y el bloque de siempre no cambia
+     ni un píxel. */
+  .ap-cerrado.con-barra { display: block; }
+  .ap-barra { display: block; margin-top: 11px; }
   .ap-cerrado + .btn { margin-top: 10px; }
   .ap-yaesta {
     display: flex; align-items: center; gap: 7px;
@@ -1785,8 +1783,18 @@
     border-image: var(--marco-tarjeta);
     border-radius: var(--r-caja); padding: 12px 14px;
   }
-  .mun-m.on { border-color: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
-  /* EL ARO DE «LO ESTÁS MIRANDO». `pintarSeleccion()` ponía la clase desde el
+  /* UN SOLO MARCO EN LA LISTA, y es el de «lo estás mirando». La puesta tenía
+     el suyo —borde menta y un anillo de sombra— y con eso se veían DOS marcos a
+     la vez: el de la que llevas puesta y el de la que acabas de tocar; y sobre
+     la puesta misma, los dos encima del mismo renglón. Lo paró Eduardo: «debe
+     de tener siempre 1 y solo el que está seleccionado con mouse, no aplicado,
+     porque para aplicado ya tiene una palomita a la derecha».
+
+     Así que la puesta se dice con la palomita de la derecha y con nada más. No
+     se queda sin marca: la palomita es la marca, y es la única que no se mueve
+     al pasear por la lista.
+
+     EL ARO DE «LO ESTÁS MIRANDO». `pintarSeleccion()` ponía la clase desde el
      principio —su comentario ya decía «la que llevas PUESTA lleva su palomita
      y la que estás MIRANDO lleva el aro»— pero la regla no existía: tocar un
      mundo para verlo arriba no marcaba nada y parecía que el clic no hacía
@@ -2671,6 +2679,17 @@
     0%        { background-position: -60% 0; }
     55%, 100% { background-position: 160% 0; }
   }
+  /* Y DE DÍA, SIN HALO. Es la regla de la casa —sobre carbón un halo es luz,
+     sobre papel es una mancha— y esta barra llevaba saltándosela desde que
+     existe: de día `--c` es el tono OSCURO del color, así que el resplandor era
+     verde oscuro sangrando alrededor del verde, y lo que se veía era gris. Lo
+     paró Eduardo mirando el modo claro: «se ve todo gris».
+
+     Se apaga el halo y nada más: lo lleno, la punta, el llenado y la estela
+     siguen igual, que son las cuatro cosas que hacen que la barra se lea como
+     encendida. Una barra maciza sobre papel ya destaca sola. */
+  html.claro .barra-viva i,
+  html.claro .barra-viva i::before { box-shadow: none; }
 
   .exp-hero-pie {
     display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
@@ -3004,12 +3023,11 @@
   .mod-row:not(.on) .mod-tx b { color: var(--muted); }
   @media (prefers-reduced-motion: reduce) { .mod-sw, .mod-sw i { transition: none; } }
 
-  /* El aro de «cuánto te falta para el nivel N», con el nivel de ahora dentro.
-     El número va en la tipografía de las cifras y con `tabular-nums` porque de
-     un nivel a otro cambia de ancho, y sin eso el 1 y el 2 no caen en el mismo
-     sitio dentro del círculo. El SVG se coloca por debajo con posición
-     absoluta para que el número quede centrado sobre él sin depender de la
-     altura de línea. */
+  /* ---------- El aro de «cuánto te falta para el nivel N» ----------
+     El de los CUADROS EMERGENTES, que es donde la barra no va: «la barra de los
+     cuadros emergentes debe permanecer circular, no horizontal» (Eduardo). El
+     SVG se coloca por debajo con posición absoluta para que el candado quede
+     centrado sobre él sin depender de la altura de línea. */
   .aro-nivel {
     position: relative;
     flex: none;
@@ -3017,11 +3035,11 @@
     place-items: center;
   }
   /* Solo el aro va absoluto. El candado de dentro es un `svg` también, así que
-     sin este `:scope >` se le aplicaba la misma regla y se estiraba a toda la
-     caja en vez de quedarse en el centro. */
+     sin este `>` se le aplicaba la misma regla y se estiraba a toda la caja en
+     vez de quedarse en el centro. */
   .aro-nivel > svg { position: absolute; inset: 0; }
-  /* El candado dentro del aro, cuando el aro va en un cuadro donde no hay otro.
-     En `--muted` y no en menta: lo que se gana es el ARO, y el candado es lo
+
+  /* En `--muted` y no en menta: lo que se gana es el ARO, y el candado es lo
      que todavía no está. Dos cosas distintas dentro del mismo dibujo. */
   .aro-llave {
     position: relative;
@@ -3029,24 +3047,64 @@
     color: var(--muted);
   }
   .aro-llave svg { stroke: currentColor; fill: none; stroke-width: 1.9; }
-  .aro-nivel b {
-    position: relative;
-    font-family: var(--tipo-cifra);
-    font-variant-numeric: tabular-nums;
-    font-size: 21px;
-    font-weight: 800;
-    color: var(--text);
-    line-height: 1;
+  /* LA LUZ. Es lo que faltaba y lo preguntó Eduardo: el aro no solo se llena,
+     se enciende. Es el mismo halo que lleva `.barra-viva` en lo lleno —el color
+     entra por el trazo y el halo no se anima, que un color animado se queda
+     congelado en Chrome y esa trampa ya mordió cuatro veces en esta app—.
+
+     El `overflow: visible` hace falta y no es un detalle: el trazo del aro
+     llega justo al borde del SVG, así que sin esto el halo se recorta contra él
+     y no se ve nada. El envoltorio no recorta, así que puede salirse. */
+  .aro-nivel > svg { overflow: visible; }
+  .aro-nivel circle[data-anim] {
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--mint) 75%, transparent))
+            drop-shadow(0 0 9px color-mix(in srgb, var(--mint) 45%, transparent));
   }
-  /* En una tarjeta del tablero el aro va más pequeño y el número con él. */
-  .w-cerrado .aro-nivel b { font-size: 16px; }
+  /* Y DE DÍA NO HAY RESPLANDOR, que es la regla de la casa y esta es la quinta
+     vez que se salta: sobre carbón un halo es luz, sobre papel es una mancha —
+     aquí el verde oscuro del modo claro sangraba alrededor del trazo y el aro
+     entero se leía gris—. Lo paró Eduardo: «en blanco se ve todo gris». Se
+     apaga desde el CSS y no dejando de escribirlo en el dibujo: el aro no se
+     vuelve a dibujar al cambiar de modo, así que un halo decidido en JavaScript
+     se quedaría con la cara del modo en que se abrió el cuadro. */
+  html.claro .aro-nivel circle[data-anim] { filter: none; }
+
+  /* ---------- La barra de «cuánto te falta para el nivel N» ----------
+     El dibujo lo pone `.barra-viva`, que es la misma del próximo hito de la
+     racha y del nivel en Mi expedición; aquí solo van los dos rótulos que la
+     acompañan. Fue un aro hasta la 0.7.97.3 y lo cambió Eduardo.
+
+     Todo cuelga de `.bar-nivel` y no de las clases sueltas: uno de los tres
+     sitios donde sale es `.ap-cerrado`, que tiñe de gris y encoge CUALQUIER
+     `span` de dentro. Con `.bn-rot` a secas ganaba esa regla y los rótulos
+     salían a 11,5 px y sin su color. */
+  .bar-nivel { display: block; }
+  .bar-nivel .bn-rot {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-bottom: 7px;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); line-height: 1.2;
+  }
+  /* El de destino se lee más que el de ahora, que es a donde vas. */
+  .bar-nivel .bn-meta {
+    display: inline-flex; align-items: center; gap: 5px;
+    color: var(--text);
+  }
+  .bar-nivel .bn-meta svg { stroke: currentColor; fill: none; stroke-width: 2.1; }
+  /* Sin `overflow: hidden` y con el radio de un botón, igual que la barra del
+     próximo hito: la punta encendida tiene que poder salirse. */
+  .bar-nivel .bn-b { display: block; --alto: 8px; border-radius: var(--r-boton); }
+  .bar-nivel.es-chica .bn-rot { margin-bottom: 5px; letter-spacing: 0.06em; }
+  .bar-nivel.es-chica .bn-b { --alto: 6px; }
 
   /* El cuerpo del cuadro de un módulo cerrado: el aro arriba, y debajo las
      frases. `#modal-msg` respeta los saltos de línea del texto plano, pero
      este cuadro va en modo HTML —lo pide el aro— y ahí eso se vuelve en
      contra: la sangría de la plantilla se dibujaría como huecos de verdad. Por
      eso cada trozo es un bloque con su propio margen y no hay ni un salto de
-     línea suelto. */
+     línea suelto.
+
+     El aro va centrado y con su propio margen abajo. */
   .cerr-aro {
     display: flex;
     flex-direction: column;
@@ -3099,8 +3157,9 @@
   .widget.w-cerrado { opacity: 0.72; }
   .wc {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 9px;
     width: 100%;
     height: 100%;
     padding: 14px 15px;
@@ -3116,13 +3175,15 @@
      tener que apagarla más: dice «aquí va a haber algo» en vez de «aquí hay
      algo apagado», y se lee de un vistazo entre tarjetas macizas. */
   .wc:hover { border-color: var(--mint); }
-  .wc-aro { flex: none; }
-  .wc-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-  .wc-tx b {
+  /* El nombre y el candado en el mismo renglón, y la barra debajo a lo ancho:
+     al lado de un rótulo la barra se queda en dos dedos y no mide nada. */
+  .wc-alto { display: flex; align-items: center; gap: 8px; }
+  .wc-alto b {
+    flex: 1; min-width: 0;
     display: flex; align-items: center; gap: 7px;
     font-size: 14px; font-weight: 700; color: var(--text);
   }
-  .wc-tx > span { font-size: 11.5px; font-weight: 700; color: var(--mint); letter-spacing: 0.4px; }
+  .wc-abre { font-size: 11.5px; font-weight: 700; color: var(--mint); letter-spacing: 0.4px; }
   /* El icono del módulo, el mismo del botón de la barra: hay que darle aquí las
      cuatro cosas que allá le ponía su propia regla. */
   .wc-ic {
