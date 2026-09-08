@@ -13,19 +13,12 @@
    porque media docena de caminos llegan aqui con un objeto suelto y sin
    contexto: un arrastre, el menu del clic derecho, deshacer. */
 
-/* ---- La prueba de los nodos con variedad (`?nodos=variedad`) ----
-   Se lee de la clase que el script de arriba de `index.html` pone en <html>,
-   y no de sessionStorage, por lo mismo que el modo claro: una sola fuente, y
-   el CSS y el JavaScript preguntando lo mismo. Mientras esté apagada, todo lo
-   que la mira devuelve exactamente lo que devolvía antes. */
-function pruebaNodos() {
-  return document.documentElement.classList.contains("nodos-variedad");
-}
-
-/* La figura y su radio. */
+/* La figura y su radio. Un encargo la saca de su TIPO desde 0.7.98; el que no
+   tenga tipo es una tarea, y una tarea es la caja de siempre, así que un
+   tablero de antes se sigue dibujando igual sin migrar nada. */
 function figuraDe(p) {
   if (!esNodoDeProyecto(p)) return metaDe(p);
-  return pruebaNodos() ? figuraDeEncargo(p) : FIGURA_ENCARGO;
+  return figuraDeEncargo(p);
 }
 
 /* El estado con el que se pinta. Los nombres coinciden a proposito
@@ -827,7 +820,7 @@ function openBranchFullscreen(b, mod) {
   });
 }
 
-/* ---- Que la rama entre ajustada, y no al 100% (prueba `?nodos=variedad`) ----
+/* ---- Que la rama entre ajustada, y no al 100% ----
    Un proyecto de cuatro encargos ocupaba el 14% de la pantalla al abrirlo, y
    eso se ve como sitio vacío, no como un mapa. El ajuste ya existía —es el
    botón de la esquina y el doble toque—; lo único que faltaba era pedirlo al
@@ -839,7 +832,6 @@ function openBranchFullscreen(b, mod) {
    un 1 y haría imposible distinguir «al 100% porque lo puso él» de «al 100%
    porque nadie lo ha tocado». */
 function encuadrarAlAbrir(b) {
-  if (!pruebaNodos()) return;
   const wrap = document.querySelector("#fs-body .const-wrap");
   if (!wrap) return;
   if (typeof zoomRama[llaveDeLienzo(wrap, b)] === "number") return;
@@ -2607,12 +2599,17 @@ function constellation(nodes, key, editing, branch, mod) {
        es justo la pregunta que uno se hace mirando el mapa. */
     const verEtapas = st === "active" || (esNodoDeProyecto(n) && st === "esperando");
 
-    /* ---- El avance, dentro de la propia figura (prueba `?nodos=variedad`) ----
+    /* ---- El avance, en una barra encima del nombre ----
        Hasta ahora el trabajo hecho solo se decía en letra chica debajo del
        nombre, y solo en los encargos en curso: cuatro encargos en fila se
-       veían como cuatro cajas idénticas. Una barra dentro de la caja hace que
-       cada nodo se vea distinto desde lejos, que es justo lo que el nivel de
-       detalle "medio" deja en pantalla cuando te alejas.
+       veían como cuatro cajas idénticas. Una barra hace que cada nodo se vea
+       distinto desde lejos, que es justo lo que el nivel de detalle "medio"
+       deja en pantalla cuando te alejas.
+
+       **Va FUERA de la figura**, y eso lo paró Eduardo mirándolo: metida
+       dentro competía con el icono y con las dos chapas, y tres píxeles de
+       raya sobre un relleno del 12% se leen peor que sueltos sobre el suelo
+       del lienzo. Dónde va exactamente se decide abajo, con el nombre.
 
        No sustituye a la cuenta de etapas: en la tarjeta de la lista conviven
        igual —la barra para el vistazo, el "1 de 3" para leerlo— y aquí hacen
@@ -2621,12 +2618,12 @@ function constellation(nodes, key, editing, branch, mod) {
        Va en `trazo()` y no en `pinta()`: es una raya de 3 px, y una raya de
        ese grosor con el tono pastel de noche se pierde sobre el relleno del
        nodo (ver la regla de la paleta en CLAUDE.md). */
-    const barra = (pruebaNodos() && esNodoDeProyecto(n) && figuraDe(n).forma === "encargo"
+    const barra = (esNodoDeProyecto(n) && figuraDe(n).forma === "encargo"
                    && (n.steps || []).length && st !== "expired")
       ? { hechas: n.steps.filter(s2 => s2.done).length, total: n.steps.length }
       : null;
 
-    /* ---- La salud, que ya se calculaba y no se veía (misma prueba) ----
+    /* ---- La salud, que ya se calculaba y no se veía ----
        `projectHealth` decide "Estancado" y "Enfriándose" desde que Proyectos
        existe, pero solo salía en la tarjeta de la lista. El mapa es donde se
        decide qué tocar hoy, así que era justo la pantalla a la que le faltaba.
@@ -2634,7 +2631,7 @@ function constellation(nodes, key, editing, branch, mod) {
        Solo los dos avisos: "Con ritmo" y "Casi listo" son la mayoría de los
        encargos y una chapa en todos no distingue nada. Y solo en los vivos —
        un encargo terminado no puede estar estancado. */
-    const salud = (pruebaNodos() && esNodoDeProyecto(n)
+    const salud = (esNodoDeProyecto(n)
                    && (n.status === "active" || n.status === "paused"))
       ? { stalled: { col: "var(--coral-macizo)", ic: "alert" },
           cooling: { col: "var(--fire-macizo)", ic: "luna" } }[projectHealth(n).key]
@@ -2668,8 +2665,25 @@ function constellation(nodes, key, editing, branch, mod) {
         tienen nada que ver con esto—. Cero píxeles y huella distinta, que es
         la peor combinación para una prueba. Ya pasó al escribir las etapas
         dentro del mapa. */""}${barra ? (() => {
-        // Dentro de la caja y pegada al borde de abajo, con su carril detrás
-        const w = 40, x1 = x - w / 2, yb = y + figuraDe(n).alto / 2 - 9;
+        /* ---- La barra se cuelga del NOMBRE, no del borde de la figura ----
+           Y eso es lo que la hace no estorbar nunca: el nombre ya se coloca
+           esquivando a los hermanos, al disco Y/O y a los cabos de otra rama
+           (ver `sitioDelRotulo`), así que ponerse seis píxeles por encima de
+           él hereda esa decisión entera y gratis. De pie, cuando el nombre se
+           va a un costado, la barra se va con él y sigue sin pisar nada.
+
+           Colgarla del borde de abajo habría sido lo obvio y está mal: con la
+           rama de pie, ahí debajo es justo donde vive el disco Y/O.
+
+           El ancho es FIJO y es el de la figura. Si cada barra midiera lo que
+           mide su propio nombre, dos encargos con el mismo avance saldrían
+           con rayas de distinto largo y no habría nada que comparar de un
+           vistazo — que es lo único para lo que existe esta barra. */
+        const w = figuraDe(n).ancho;
+        const x1 = sitio.ancla === "start" ? sitio.anclaX
+                 : sitio.ancla === "end" ? sitio.anclaX - w
+                 : sitio.anclaX - w / 2;
+        const yb = topY - 10.5 - 6.5;
         const hecho = Math.max(0, Math.min(1, barra.hechas / barra.total));
         return `<g class="nod-avance">
         <path d="M ${x1} ${yb} H ${x1 + w}" stroke="var(--carril)" stroke-width="3" stroke-linecap="round" fill="none"/>
@@ -2712,7 +2726,12 @@ function constellation(nodes, key, editing, branch, mod) {
       const env = sitio.envoltura || sitio.caja;
       abarcar(
         Math.min(x - R, env.x0),
-        Math.min(y - R - (conf.mark ? 12 : 0) - (editing ? 22 : 0), env.y0),
+        /* Los 17 son la barra de avance, que se cuelga por ENCIMA del nombre
+           (ver arriba). Solo se piden cuando la hay: sin ellos, de pie y con
+           el nombre a un costado, la raya del nodo más alto se cortaba contra
+           el borde del lienzo. Y con ellos siempre, la huella de Talentos
+           cambiaría sin motivo. */
+        Math.min(y - R - (conf.mark ? 12 : 0) - (editing ? 22 : 0), env.y0 - (barra ? 17 : 0)),
         Math.max(x + R, env.x1),
         Math.max(y + R + cuelga, abajo, env.y1));
     }

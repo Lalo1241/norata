@@ -7450,6 +7450,31 @@
     display: inline-flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
+  /* ---- La silueta del tipo, también en la lista (0.7.98) ----
+     En el mapa un encargo dice de qué tipo es por su forma; en la lista no
+     decía nada, y con eso el tipo se convertía en una propiedad que solo
+     existe en una de las dos pantallas. Lo preguntó Eduardo, y tiene razón:
+     la lista es donde más gente vive, porque el mapa se abre a propósito.
+
+     Es la MISMA silueta y no un icono ni una etiqueta nueva a propósito: así
+     el tipo se aprende una vez y se lee en los dos sitios. Quien entre por la
+     lista llega al mapa sabiendo qué significa una punta.
+
+     `tarea` no lleva nada. Es el tipo por defecto y la inmensa mayoría de los
+     encargos: recortarle la pastilla a todo el mundo no distinguiría a nadie,
+     y además dejaría la lista distinta para quien nunca ha elegido un tipo.
+     Es la misma regla que la chapa de salud, que solo saca los dos avisos.
+
+     Se recorta con `clip-path` y no con `border-radius` porque son esquinas
+     rectas; por eso estas tres no pasan por `--r-factor`, igual que en el
+     mapa. El icono de dentro mide 19 de los 32 y queda holgado dentro de los
+     tres recortes — comprobado esquina por esquina antes de elegir los
+     porcentajes. */
+  .proj-ic.enc-entrega { clip-path: polygon(0 0, 78% 0, 100% 50%, 78% 100%, 0 100%); }
+  .proj-ic.enc-decision {
+    clip-path: polygon(28% 0, 72% 0, 100% 28%, 100% 72%, 72% 100%, 28% 100%, 0 72%, 0 28%);
+  }
+  .proj-ic.enc-gasto { border-radius: var(--r-redondo); }
   /* Dos renglones en el teléfono, y no uno con puntos suspensivos. Los
      encargos se llaman como se llaman las cosas que uno construye —«Terminar
      el curso que dejé a medias»— y en 375 px eso son 41 caracteres: la mitad
@@ -8342,11 +8367,11 @@
      No se dibuja salvo que la clase esté puesta en `<html>`, que es lo que
      hace el script de arriba de index.html al ver `?informes=demo`. */
   .rotulo-prueba { display: none; }
-  /* Cada prueba enseña SOLO su rótulo: con un selector suelto, encender los
-     nodos sacaba también el de «números inventados». Por eso van emparejados
-     clase-de-prueba con id-de-rótulo y no clase con clase. */
-  html.informes-demo #rotulo-informes,
-  html.nodos-variedad #rotulo-nodos {
+  /* Cada prueba enseña SOLO su rótulo, emparejando clase-de-prueba con
+     id-de-rótulo y no clase con clase: con un selector suelto, encender una
+     sacaba también el rótulo de la otra. Hoy queda una sola prueba viva
+     (`?informes=demo`), y el emparejamiento se deja puesto para la siguiente. */
+  html.informes-demo #rotulo-informes {
     display: flex; align-items: center; gap: 8px;
     position: fixed;
     left: 12px;
@@ -8359,8 +8384,7 @@
     letter-spacing: 0.06em; text-transform: uppercase;
     max-width: calc(100vw - 24px);
   }
-  html.informes-demo #rotulo-informes a,
-  html.nodos-variedad #rotulo-nodos a {
+  html.informes-demo #rotulo-informes a {
     color: inherit;
     background: rgba(16, 21, 29, 0.14);
     border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
@@ -8369,12 +8393,10 @@
   }
   /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
      deja congelado en el inicial. */
-  html.informes-demo #rotulo-informes a:hover,
-  html.nodos-variedad #rotulo-nodos a:hover { background: rgba(16, 21, 29, 0.24); }
+  html.informes-demo #rotulo-informes a:hover { background: rgba(16, 21, 29, 0.24); }
   @media (min-width: 900px) {
     /* En pantalla ancha la barra de navegación no está abajo. */
-    html.informes-demo #rotulo-informes,
-    html.nodos-variedad #rotulo-nodos { bottom: calc(env(safe-area-inset-bottom) + 14px); }
+    html.informes-demo #rotulo-informes { bottom: calc(env(safe-area-inset-bottom) + 14px); }
   }
 
 

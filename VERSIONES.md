@@ -100,6 +100,92 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.98 · 8 sep 2026
+
+**Un encargo ya no es siempre lo mismo: tiene tipo, y el tipo se ve.** Deja de
+ser la prueba `?nodos=variedad` y se queda encendido para todo el mundo, que es
+lo que pidió Eduardo después de verlo.
+
+**Los cuatro tipos.** Tarea (la caja de siempre), Entrega (con la punta a la
+derecha, por donde sale del proyecto), Decisión (las cuatro esquinas cortadas,
+la silueta de «alto, aquí se decide») y Gasto (el círculo pequeño). Las figuras
+no son las de Talentos a propósito: el rombo y el hexágono ya significan «meta»
+e «hito» allí, y dos mapas hechos de las mismas piezas dejarían de saberse cuál
+es cuál. Las tres primeras son la MISMA caja con la silueta recortada de otra
+forma —mismo ancho, mismo alto, mismo radio—, así que el acomodo del mapa no se
+mueve ni un píxel.
+
+**`tarea` es lo que ya había**, y esa es toda la migración: quien no tenga tipo
+es una tarea, y una tarea se dibuja exactamente como antes.
+
+**La barra de avance, y dónde acabó.** Iba DENTRO de la caja, pegada al borde de
+abajo. Eduardo la paró mirándola: dentro compite con el icono y con las dos
+chapas, y tres píxeles de raya sobre un relleno del 12% se leen peor que sueltos
+sobre el suelo del lienzo. Ahora va fuera, encima del nombre, y de 40 px pasa a
+62 —el ancho de la figura, así que la subraya—.
+
+**Se cuelga del NOMBRE y no del borde de la figura, y eso no es un capricho:**
+lo obvio era colgarla del borde de abajo, y con la rama **de pie** ahí debajo es
+justo donde vive el disco **Y/O**. El nombre, en cambio, ya se coloca esquivando
+a los hermanos, al disco y a los cabos de otra rama (ver `sitioDelRotulo`), así
+que ponerse seis píxeles encima de él hereda esa decisión entera y gratis: de
+pie, cuando el nombre se va a un costado, la barra se va con él. Medido con la
+rama girada y dos requisitos: barra a la derecha, disco abajo a la izquierda,
+cero solape.
+
+Y el ancho es FIJO. Si cada barra midiera lo que mide su propio nombre, dos
+encargos con el mismo avance saldrían con rayas de distinto largo y no habría
+nada que comparar de un vistazo, que es lo único para lo que existe.
+
+**La chapa de salud.** «Estancado» y «Enfriándose» se calculaban desde que
+Proyectos existe y solo salían en la tarjeta de la lista; el mapa es donde se
+decide qué tocar hoy, así que era justo la pantalla a la que le faltaban. Solo
+esos dos avisos —«Con ritmo» y «Casi listo» son la mayoría, y una chapa en todos
+no distingue nada— y solo en los encargos vivos.
+
+**Y la lista, que es la pregunta que hizo Eduardo:** si el tipo solo se ve en el
+mapa, es una propiedad que existe en una de las dos pantallas, y la lista es
+donde más gente vive porque al mapa se entra a propósito. Así que en la lista
+**la misma silueta recorta la pastilla del icono**, con el nombre del tipo
+debajo. La silueta sola no basta la primera vez —nadie nace sabiendo qué es una
+esquina cortada— y el nombre solo sería una etiqueta que no enseña el mapa; con
+las dos, el tipo se aprende una vez y se lee en los dos sitios. También sale en
+la ficha, junto a la rama.
+
+**Una tarea no lleva ni recorte ni nombre**, y es la misma regla que la chapa de
+salud: marcar el caso mayoritario no distingue a nadie, y además dejaría la
+lista distinta para quien nunca ha elegido un tipo. Comprobado: con los tipos
+sin usar, la tarjeta sale carácter por carácter como antes.
+
+**La rama entra ajustada** al abrirla a pantalla completa, y no al 100%: un
+proyecto de cuatro encargos ocupaba el 14% de la pantalla y eso se ve como sitio
+vacío, no como un mapa. Solo la primera vez de esa rama —después manda el zoom
+que eligió el usuario— y solo si el ajuste ACERCA: encogiendo no ayuda, porque
+por debajo del 65% el nivel de detalle se lleva los nombres.
+
+**Lo que se comprobó antes de subirlo.** Que **Talentos no cambia**: el árbol
+sale idéntico con y sin los tipos —mismo tamaño de dibujo, mismo `viewBox`,
+carácter por carácter—. Que ninguna barra se corta contra el borde del lienzo,
+de pie ni tumbado. Y las holguras de la barra: 6 px por arriba y 6 por abajo en
+los tres nodos con etapas, exacto.
+
+**Dos cosas que la prueba tapaba y salieron al quitarla.** Los cuatro tipos **no
+estaban traducidos al inglés** —la sesión que los construyó se saltó el
+diccionario, y como la prueba nunca se encendía nadie lo vio—; ya están, con
+«Rama de Proyectos», que llevaba en español desde siempre. Y el panel del tipo
+nacía con `display:none` en `index.html` porque quien lo enseñaba era
+`openProjectForm` al ver la prueba encendida: al quitar esa línea había que
+quitar TAMBIÉN el `display:none`, o el panel se quedaba escondido para siempre y
+nadie podría elegir tipo. Es la trampa de siempre al retirar una prueba —la
+condición se quita en un sitio y el estado inicial se queda en otro—.
+
+Borrado por nombre y no por rango: el bloque `try` de `?nodos`, el div
+`#rotulo-nodos` con su comentario, y `html.nodos-variedad` en las cuatro reglas
+del rótulo. Las reglas del rótulo se quedan, emparejadas con `?informes=demo`,
+que es la única prueba con enlace que sigue viva. Contadas las llaves de
+`css/estilos.css`: 2 304 → 2 307, que son exactamente las tres siluetas nuevas
+de la lista y nada más.
+
 ### 0.7.97.6 · 7 sep 2026
 
 **El ＋ sale del carril a su esquina, y se va la prueba de la app compacta.**

@@ -764,11 +764,9 @@ function openProjectForm(id, presetBranch) {
     `<option value="">${tx("— Ninguna —")}</option>` +
     state.skills.map(s => `<option value="${s.id}" ${pr && pr.skillId === s.id ? "selected" : ""}>${escapeHtml(s.name)}</option>`).join("");
 
-  /* El tipo, y el panel entero, solo con la prueba de los nodos encendida:
-     apagada no hay cuatro figuras, así que el tipo no significaría nada. Un
-     encargo de antes es una tarea, que es exactamente lo que ya se dibujaba. */
+  /* Un encargo de antes es una tarea, que es exactamente lo que ya se
+     dibujaba: por eso el panel no necesita migrar nada. */
   prTipo = tipoDeEncargo(pr);
-  document.getElementById("panel-tipo-encargo").style.display = pruebaNodos() ? "block" : "none";
   renderTipoEncargo();
 
   renderIconGrid("pr-icon", prIcon, "pickProjectIcon", prColor);

@@ -422,18 +422,26 @@ function renderProjects() {
           const dim = p.status === "dropped" || p.status === "done";
           const col = p.color || "#5fe0b0";
           const doneN = (p.steps || []).filter(s => s.done).length;
+          // De qué tipo es, para la silueta y para el nombre
+          const tipo = tipoDeEncargo(p);
           return `
           <div class="proj-card ${dim ? "dim" : ""}" data-rid="${p.id}" style="${tonos("pc", col)}">
             <div class="proj-abre" role="button" tabindex="0" onclick="openProject('${p.id}')"
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProject('${p.id}')}">
             <div class="proj-top">
-              <span class="proj-ic" style="background:${velo(col, "22")};color:${tinta(col)}">${icon(p.icon, 19)}</span>
+              <span class="proj-ic${tipo === "tarea" ? "" : ` enc-${tipo}`}" style="background:${velo(col, "22")};color:${tinta(col)}">${icon(p.icon, 19)}</span>
               <span class="proj-name">${escapeHtml(p.name)}</span>
               <span class="proj-state" style="background:${PROJECT_STATUS[p.status].soft};color:${PROJECT_STATUS[p.status].color}">${tx(PROJECT_STATUS[p.status].label)}</span>
             </div>
             <div class="proj-bar"><div class="bar"><div class="bar-fill" style="width:${prog}%;background:${trazo(col)}"></div></div></div>
             <div class="proj-meta">
-              <span>${T`${doneN} de ${(p.steps || []).length} etapas`} · <b>${prog}%</b></span>
+              <span>${/* El nombre del tipo, y solo cuando NO es una tarea. La silueta
+                          sola no basta la primera vez —nadie nace sabiendo qué es una
+                          esquina cortada— y esta línea es donde se aprende. Ponerlo
+                          también en las tareas llenaría de ruido la tarjeta de quien
+                          no usa los tipos, que son casi todas. */
+                        tipo === "tarea" ? "" : `<b>${tx(TIPOS_ENCARGO[tipo].nombre)}</b> · `
+                        }${T`${doneN} de ${(p.steps || []).length} etapas`} · <b>${prog}%</b></span>
               <span style="color:${h.color}">${h.label}</span>
             </div>
             </div>
@@ -730,7 +738,8 @@ function renderProjectDetail() {
       <div class="strip">${motifScene(560, 156, hashSeed(pr.id), motifFor(pr.icon), trazo(col))}</div>
       <div class="skill-emoji" style="background:${velo(col, "30")};color:${tinta(col)}">${icon(pr.icon, 28)}</div>
       <h2>${escapeHtml(pr.name)}</h2>
-      <span class="cat">Rama de Proyectos · ${escapeHtml(pr.branch || "General")}</span>
+      <span class="cat">${tx("Rama de Proyectos")} · ${escapeHtml(pr.branch || "General")}${
+        tipoDeEncargo(pr) !== "tarea" ? ` · ${tx(TIPOS_ENCARGO[tipoDeEncargo(pr)].nombre)}` : ""}</span>
       ${pr.desc ? `<div class="perk-desc">${escapeHtml(pr.desc)}</div>` : ""}
       ${skill ? `<div style="margin-top:12px"><button class="xlink" style="--xc:${pinta(skill.color)}" onclick="openDetail('${skill.id}')">
         ${icon(skill.icon, 13)} Entrena ${escapeHtml(skill.name)} →
