@@ -173,54 +173,8 @@ function renderSummary() {
       const anio = Number(hoy.slice(0, 4));
       const mes = Number(hoy.slice(5, 7));
 
-      const inicioSemana = addDaysKey(hoy, -weekdayOfKey(hoy));
-      let activosSemana = 0;
-      for (let i = 0; i < 7; i++) {
-        const k = addDaysKey(inicioSemana, i);
-        if (k <= hoy && (cuentas.get(k) || 0) > 0) activosSemana++;
-      }
-      const diasCorridos = daysBetween(inicioSemana, hoy) + 1;
-
-      /* ---- Contra la semana pasada, y no contra el mes ----
-         Hasta la 0.7.99 aquí había dos fracciones —«4/7 esta semana» y «12/30
-         en septiembre»— y Eduardo las paró: «dice mucho y a la vez no dice
-         nada». Tenía razón, y el problema no era el tamaño. Las dos fracciones,
-         el calendario y el número de la llama son CUATRO formas de contar lo
-         mismo —cuántos días has registrado— y ninguna contesta la única
-         pregunta que uno se hace mirando una racha: *¿voy bien?*
-
-         Una fracción sola no lo contesta porque no tiene contra qué medirse.
-         4 de 7 es bueno o malo según lo que hicieras antes, y eso la app lo
-         sabe. Así que en vez de un dato más, se compara.
-
-         **Se comparan los mismos días, no la semana entera**: un miércoles,
-         los 3 días que llevas contra los 3 PRIMEROS de la semana pasada. Medir
-         3 días corridos contra 7 completos diría siempre que vas peor, y sería
-         mentira todos los lunes. */
-      const iniPrevia = addDaysKey(inicioSemana, -7);
-      let activosPrevia = 0;
-      for (let i = 0; i < diasCorridos; i++) {
-        if ((cuentas.get(addDaysKey(iniPrevia, i)) || 0) > 0) activosPrevia++;
-      }
-      /* Y si no hubo NADA antes de esta semana, no se compara: a quien acaba de
-         empezar, «la semana pasada llevabas 0» le dice que va bien por no haber
-         existido. Ese es el caso vacío de esta tarjeta y se contesta con el
-         dato a secas. */
-      let hayPasado = false;
-      for (const k of cuentas.keys()) { if (k < inicioSemana) { hayPasado = true; break; } }
-
-      const dif = activosSemana - activosPrevia;
-      const tendencia = !hayPasado ? null : {
-        clase: dif > 0 ? "mejor" : (dif < 0 ? "detras" : "igual"),
-        /* «La semana pasada llevabas más» y no «vas peor»: el dato es el mismo
-           y el reproche sobra. La salida ya la da la frase de abajo. */
-        cabeza: dif > 0 ? tx("Vas mejor que la semana pasada")
-              : dif < 0 ? tx("La semana pasada llevabas más")
-              : tx("Vas igual que la semana pasada")
-      };
-
-      /* La frase de hoy. Es lo único de esta tarjeta que pide algo, y pide sin
-         asustar: dice qué falta y con qué se resuelve, nunca cuánto vas a
+      /* La frase de hoy. Es lo unico de esta tarjeta que pide algo, y pide sin
+         asustar: dice que falta y con que se resuelve, nunca cuanto vas a
          perder. */
       const hoyCuenta = (cuentas.get(hoy) || 0) > 0;
       const frase = hoyCuenta
@@ -234,75 +188,58 @@ function renderSummary() {
         ${scene(820, 230, 11)}
         <div class="scene-fade"></div>
         <div class="scene-body">
-          ${/* El nombre de la tarjeta, en el sitio que dejó el saludo. Es el
-                mismo que lleva en `DASH_META` y en la bandeja del Modo Editor:
-                una cosa, un nombre. Sin él la tarjeta empezaba directamente por
-                un número grande y no decía de qué era.
+          ${/* ---- Tres piezas y ni una mas (0.7.100) ----
+                Esta tarjeta llego a decir SIETE cosas: el numero, la fraccion de
+                la semana, la del mes, la frase de hoy, la comparacion con la
+                semana pasada, el proximo hito y que misiones la sostenian. Todas
+                ciertas y ninguna de mas por si sola; el problema es que las
+                siete pedian el mismo turno de atencion y ninguna ganaba.
 
-                Y el mes viaja con el título cuando hay dos bloques, porque ahí
-                el calendario queda pegado justo debajo y su propio rótulo era
-                un segundo letrero del mismo tamaño a doce píxeles del primero:
-                dos etiquetas apiladas, no un título y una sección. Apilada no
-                puede mudarse —allí el mes está lejos del título y necesita
-                decir de cuándo es—, así que se escribe siempre y lo esconde el
-                CSS. El año va incluido: un calendario suelto no dice de cuándo
-                es, y esta tarjeta va a llevar años abierta. */""}
-          <div class="label">${tx("Racha")}<span class="lab-mes"> · ${escapeHtml(nombreDeMes(mes))} ${anio}</span></div>
-          <div class="streak-grid">
-            ${/* El mes va PRIMERO en la rejilla y a la izquierda desde la
-                  0.7.56. Se escribe después en el marcado —para que apilada
-                  quede debajo de la marca, que es como se lee en el teléfono—
-                  y se coloca con `grid-column` en el CSS. */""}
-            <div class="sg-izq">
-              <div class="streak-row">
-                ${/* La llama respira mientras la racha esté viva. Con la
-                      racha rota se queda quieta: una llama que late encima de
-                      un cero anima algo que no está pasando. */""}
-                <span class="flame ic${stk.cur > 0 ? " viva" : ""}"><svg viewBox="0 0 24 24">${ICONS.flame}</svg></span>
-                <span class="num">${stk.cur}</span>
-                ${/* Sin «mejor: N». La gracia está en la racha que tienes
-                      viva, no en una que ya se rompió: al lado del número de
-                      hoy, el récord viejo solo puede hacer dos cosas, y las
-                      dos sobran — recordarte que ya lo hiciste mejor, o
-                      encogerse cuando el de hoy lo supera. */""}
-                <span class="lbl">${stk.cur === 1 ? tx("día<br>de racha") : tx("días<br>de racha")}</span>
-              </div>
-              ${/* ---- Una sola cosa donde había dos fracciones ----
-                    Y esta sí contesta la pregunta que uno se hace mirando una
-                    racha: «¿voy bien?». Las dos de antes —«4/7 esta semana» y
-                    «12/30 en septiembre»— eran datos sin nada contra qué
-                    medirse, y con el calendario justo debajo diciendo lo mismo.
+                Eduardo lo dijo entero: «decir tanta info no ayuda y solo provoca
+                que la gente no quiera leer los textos, entonces se vuelve inutil
+                si nadie quiere prestar atencion a Resumen». Y ahi esta lo que va
+                mas alla de esta tarjeta: la racha es el 25% del Resumen y es la
+                PRIMERA. Si lo primero que ves es denso, aprendes que esta
+                pantalla se hojea, y a partir de ahi las otras siete tarjetas no
+                se leen por buenas que sean. **La racha no solo se lee a si
+                misma: decide si el Resumen se lee.**
 
-                    La barra se queda, y es la de Mi expedición: le gustó a
-                    Eduardo y aquí gana algo nuevo, la marca de por dónde iba la
-                    semana pasada. Una fracción hay que resolverla; una barra
-                    con una marca detrás se ve. Va en el color de la LLAMA,
-                    que es de lo que habla. Dentro de una escena el tono vuelve
-                    a su cara de noche solo. */""}
-              <div class="sg-tendencia${tendencia ? " " + tendencia.clase : ""}">
-                ${tendencia ? `<b>${escapeHtml(tendencia.cabeza)}</b>` : ""}
-                <div class="barra-viva sg-barra"><i style="--p:${Math.round(activosSemana / Math.max(1, diasCorridos) * 100)}%;--c:var(--fire)"></i>${
-                  tendencia ? `<u style="--q:${Math.round(activosPrevia / Math.max(1, diasCorridos) * 100)}%"></u>` : ""}</div>
-                <span>${tendencia
-                  ? T`${activosSemana} de ${diasCorridos} días · la semana pasada, ${activosPrevia}`
-                  : T`${activosSemana} de ${diasCorridos} días esta semana`}</span>
-              </div>
-              <p class="sg-hoy${hoyCuenta ? " si" : ""}">${escapeHtml(frase)}</p>
-            </div>
-            <div class="sg-der">
-              ${calendarioRacha(anio, mes, cuentas, hoy)}
-            </div>
-            ${/* El hito y qué la sostiene. Se escriben siempre y quien decide
-                  qué se ve es el ancho REAL de la tarjeta, desde el CSS.
+                Asi que quedan tres, en este orden y por este motivo:
 
-                  Hasta la 0.7.47 este bloque entero vivía detrás de un umbral
-                  de 1150 px, y eso quería decir que «te faltan 2 días para el
-                  siguiente hito» —lo único de la tarjeta que mueve a volver
-                  hoy— no se veía en teléfono, ni en tableta, ni en laptop.
-                  Ahora el hito se ve siempre y lo único que espera a que haya
-                  sitio es «qué la sostiene», que son tres filas más. */""}
-            <div class="sg-extra">${loQueSostiene(stk.cur)}</div>
+                  1. la CABECERA dice donde estas —cuantos dias llevas— y si hoy
+                     hace falta algo. Es lo unico accionable;
+                  2. el MES es el dibujo, y es lo que hace volver a mirar. Dice
+                     por si solo lo que decian las dos fracciones que se fueron,
+                     y lo dice sin que haya que leer un numero;
+                  3. el HITO, en un renglon, porque es lo unico que empuja a
+                     volver HOY y no lo dice ninguna otra pieza de la app.
+
+                Lo que se fue con esto: la comparacion con la semana pasada, que
+                duro de la 0.7.99 a la 0.7.100. No estaba mal —la eligio el
+                mismo Eduardo— pero con el mes de protagonista pasaba a ser la
+                tercera forma de decir lo mismo, y el mes lo dice mejor. */""}
+          ${/* El titulo dice «Racha» a secas: el mes lo dice el propio
+                calendario, tres renglones mas abajo, donde etiqueta lo que hay
+                que leer. Con los dos puestos salia «septiembre 2026» dos veces
+                en la misma tarjeta. Antes no chocaban porque cada reparto
+                escondia uno con CSS — y esa clase de arreglo es justo la que se
+                fue con los repartos. */""}
+          <div class="label">${tx("Racha")}</div>
+          ${/* La cabecera envuelve: en una tarjeta ancha la frase de hoy va a la
+                derecha del numero, y en un telefono cae debajo. Es la misma
+                pieza en los dos sitios, no dos repartos distintos — que es de
+                lo que venimos. */""}
+          <div class="streak-row">
+            ${/* La llama respira mientras la racha este viva. Con la racha rota
+                  se queda quieta: una llama que late encima de un cero anima
+                  algo que no esta pasando. */""}
+            <span class="flame ic${stk.cur > 0 ? " viva" : ""}"><svg viewBox="0 0 24 24">${ICONS.flame}</svg></span>
+            <span class="num">${stk.cur}</span>
+            <span class="lbl">${stk.cur === 1 ? tx("día<br>de racha") : tx("días<br>de racha")}</span>
+            <p class="sg-hoy${hoyCuenta ? " si" : ""}">${escapeHtml(frase)}</p>
           </div>
+          ${calendarioRacha(anio, mes, cuentas, hoy)}
+          ${bloqueDelHito(stk.cur)}
         </div>
       </div>`;
     },
@@ -659,8 +596,8 @@ function cuerpoCerrado(id) {
 }
 
 const DASH_META = {
-  /* Más alta desde que lleva el mes debajo de la semana (0.7.33). */
-  racha:     { title: "Racha", w: 2, h: 8 },
+  /* Una columna siempre desde la 0.7.100: ver `ALTO_RACHA`. */
+  racha:     { title: "Racha", w: 1, h: 6 },
   misiones:  { title: "Misiones de hoy", w: 1, h: 8 },
   atencion:  { title: "Atención hoy", w: 1, h: 3 },
   niveles:   { title: "Niveles", w: 1, h: 3 },
@@ -691,7 +628,7 @@ const ROW_PITCH = ROW_H + ROW_GAP_V;
    —"Listos para empezar" es una lista y necesita cuatro; "Proyectos" es un
    dato suelto y se apaña con dos—. El techo sigue siendo el mismo para
    todas: encoger estropea, agrandar no. */
-const DASH_MIN_H = { racha: 5, misiones: 3, atencion: 2, expedicion: 3, niveles: 3, invertido: 3, proyectos: 2, listos: 4 };
+const DASH_MIN_H = { racha: 6, misiones: 3, atencion: 2, expedicion: 3, niveles: 3, invertido: 3, proyectos: 2, listos: 4 };
 /* Techo generoso: son 40 filas de la cuadrícula, más de dos pantallas de
    alto. Existe solo para que un tirón desbocado del asa no deje una tarjeta
    de mil filas imposible de volver a encoger. */
@@ -750,7 +687,7 @@ const DASH_ACOMODOS = [
          lo que la mantiene en la columna del centro, que es lo que promete el
          rótulo. Con la altura justa se desliza a la primera columna y el
          acomodo deja de llamarse como se llama. */
-      racha: { w: 1, h: 4 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 4 },
+      racha: { w: 1, h: 6 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 4 },
       expedicion: { w: 1, h: 4 }, niveles: { w: 1, h: 3 }, listos: { w: 1, h: 4 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
@@ -763,7 +700,7 @@ const DASH_ACOMODOS = [
        la derecha, que es lo que dice el rótulo. */
     order: ["misiones", "racha", "expedicion", "listos", "atencion", "niveles", "proyectos", "invertido"],
     sizes: {
-      racha: { w: 2, h: 5 }, misiones: { w: 1, h: 6 }, expedicion: { w: 1, h: 4 },
+      racha: { w: 1, h: 6 }, misiones: { w: 1, h: 6 }, expedicion: { w: 1, h: 4 },
       listos: { w: 1, h: 4 }, atencion: { w: 1, h: 3 }, niveles: { w: 1, h: 3 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
@@ -781,7 +718,7 @@ const DASH_ACOMODOS = [
        medio de ancho. */
     order: ["racha", "misiones", "expedicion", "atencion", "proyectos", "listos", "niveles", "invertido"],
     sizes: {
-      racha: { w: 3, h: 5 }, misiones: { w: 1, h: 6 }, expedicion: { w: 1, h: 4 },
+      racha: { w: 1, h: 6 }, misiones: { w: 1, h: 6 }, expedicion: { w: 1, h: 4 },
       atencion: { w: 1, h: 3 }, proyectos: { w: 1, h: 3 }, listos: { w: 1, h: 5 },
       niveles: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
@@ -811,7 +748,7 @@ const DASH_ACOMODOS_LAPTOP = [
     sub: "Las dos columnas parejas, y el día arriba",
     order: ["misiones", "racha", "niveles", "atencion", "expedicion", "proyectos", "listos", "invertido"],
     sizes: {
-      misiones: { w: 1, h: 8 }, racha: { w: 1, h: 4 }, niveles: { w: 1, h: 3 },
+      misiones: { w: 1, h: 8 }, racha: { w: 1, h: 6 }, niveles: { w: 1, h: 3 },
       atencion: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, proyectos: { w: 1, h: 3 },
       listos: { w: 1, h: 4 }, invertido: { w: 1, h: 3 }
     }
@@ -825,7 +762,7 @@ const DASH_ACOMODOS_LAPTOP = [
        ver el mes grande, que es de lo que va este acomodo. */
     order: ["racha", "misiones", "atencion", "expedicion", "listos", "niveles", "proyectos", "invertido"],
     sizes: {
-      racha: { w: 2, h: 5 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 3 },
+      racha: { w: 1, h: 6 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 3 },
       expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 4 }, niveles: { w: 1, h: 3 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
@@ -839,7 +776,7 @@ const DASH_ACOMODOS_LAPTOP = [
     sizes: {
       listos: { w: 1, h: 4 }, proyectos: { w: 1, h: 3 }, niveles: { w: 1, h: 3 },
       misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 3 }, invertido: { w: 1, h: 3 },
-      expedicion: { w: 1, h: 4 }, racha: { w: 1, h: 4 }
+      expedicion: { w: 1, h: 4 }, racha: { w: 1, h: 6 }
     }
   }
 ];
@@ -861,7 +798,7 @@ const DASH_ACOMODOS_TABLETA = [
     sub: "El día arriba, y el mes a lo ancho debajo",
     order: ["misiones", "racha", "expedicion", "listos", "atencion", "niveles", "invertido", "proyectos"],
     sizes: {
-      misiones: { w: 1, h: 8 }, racha: { w: 2, h: 5 }, expedicion: { w: 1, h: 4 },
+      misiones: { w: 1, h: 8 }, racha: { w: 1, h: 6 }, expedicion: { w: 1, h: 4 },
       listos: { w: 1, h: 4 }, atencion: { w: 1, h: 3 }, niveles: { w: 1, h: 3 },
       invertido: { w: 1, h: 3 }, proyectos: { w: 1, h: 3 }
     }
@@ -871,7 +808,7 @@ const DASH_ACOMODOS_TABLETA = [
     sub: "El mes preside, y debajo lo que lo llena",
     order: ["racha", "misiones", "atencion", "expedicion", "listos", "niveles", "proyectos", "invertido"],
     sizes: {
-      racha: { w: 2, h: 5 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 3 },
+      racha: { w: 1, h: 6 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 3 },
       expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 4 }, niveles: { w: 1, h: 3 },
       proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
@@ -885,7 +822,7 @@ const DASH_ACOMODOS_TABLETA = [
     order: ["listos", "niveles", "misiones", "racha", "proyectos", "expedicion", "atencion", "invertido"],
     sizes: {
       listos: { w: 1, h: 4 }, niveles: { w: 1, h: 3 }, misiones: { w: 1, h: 8 },
-      racha: { w: 2, h: 5 }, proyectos: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 },
+      racha: { w: 1, h: 6 }, proyectos: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 },
       atencion: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
     }
   }
@@ -1113,7 +1050,7 @@ function encajarEnPantalla() {
     order.forEach(id => {
       if (hidden.includes(id) || !DASH_META[id]) return;
       /* La racha no entra: su alto no se elige, sale de su ancho (ver
-         `altoDeRacha`). Escribirle uno aquí no hacía nada salvo dar el bucle
+         `ALTO_RACHA`). Escribirle uno aquí no hacía nada salvo dar el bucle
          por vivo seis vueltas seguidas. */
       if (id === "racha") return;
       const s = dashSize(id);
@@ -1168,7 +1105,7 @@ function encajarEnPantalla() {
 
    Dos tarjetas se quedan fuera y por motivos distintos: la racha, porque su
    alto sale de su ancho y escribirle uno aquí no haría nada (ver
-   `altoDeRacha`); y cualquiera que ya esté en `DASH_MAX_H`, que es el tope de
+   `ALTO_RACHA`); y cualquiera que ya esté en `DASH_MAX_H`, que es el tope de
    siempre. Si un hueco no se puede tapar se deja y se sigue con el siguiente:
    más vale un agujero que un bucle. */
 function emparejarColumnas() {
@@ -1484,23 +1421,21 @@ const RACHA_LADO_A_LADO = 430;
    queda en 294 px, la frase de hoy y las dos cifras parten en varias líneas, y
    la tarjeta pedía 459 px cuando recibía 376. Se salía por abajo sin que nada
    lo dijera, que es el mismo fallo que ya tuvo esta tarjeta en la 0.7.35. */
-const RACHA_MES_GRANDE = 900;
-/* ---- Los tres altos, MEDIDOS y no supuestos (0.7.56) ----
-   Eran 7 / 5 / 6 y sobraban 110 y 130 px en escritorio: el contenido mide
-   266 px de lado y 326 ancha, y recibía 376 y 456. Como `.scene-body` centra
-   en vertical, ese sobrante salía como cielo vacío repartido arriba y abajo
-   —83 px de cada lado en una tarjeta de 1176 x 456, el 36 % de la tarjeta—,
-   que es justo el problema del que venía la 0.7.33.
+/* ---- El alto de la racha: UNO, y ya ----
+   Fueron tres —apilada, de lado y ancha— con dos umbrales en pixeles para
+   elegir entre ellos, porque la tarjeta tenia tres repartos. Desde la 0.7.100
+   solo hay uno, asi que solo hace falta un numero.
 
-   Y no lo recuperaba nadie: `encajarEnPantalla` se salta la racha a
-   propósito, porque su alto no se elige. Así que la cuenta se arregla aquí o
-   no se arregla.
+   Sigue sin salir del contenido, y eso no es una eleccion: el dibujo del cielo
+   es una ilustracion de alto fijo, asi que la tarjeta ocupa un numero entero de
+   filas de la cuadricula y `.scene-body` reparte el sobrante arriba y abajo.
+   Lo que cambia es que ahora hay UN numero que mantener al dia en vez de tres.
 
-   Las cifras, vueltas a medir en la 0.7.99.3 al quitar «qué la sostiene»:
-   apilada el contenido pide 471 px y siete filas son 536; de lado pide 232 y
-   cuatro filas son 296; ancha pide 269 y CUATRO son 296 — antes cinco, y esos
-   80 px de más eran justo el cielo vacío que esta tabla existe para evitar. */
-const ALTO_RACHA = { apilada: 7, lado: 4, ancha: 4 };
+   **Al tocar lo que hay dentro de la racha, volver a medir esto.** Es
+   literalmente el fallo de la 0.7.99: entro la comparacion con la semana
+   pasada, nadie toco la tabla, y el rotulo de la tarjeta acabo 5 px por encima
+   de su propio borde. */
+const ALTO_RACHA = 6;
 
 /* Cuánto mide de ancho una columna del tablero AHORA MISMO, en píxeles. Se
    mide y no se calcula: el ancho disponible depende de la barra lateral, de
@@ -1531,23 +1466,6 @@ function anchoDeTarjeta(w) {
   return col ? col * w + ROW_GAP * (w - 1) : 0;
 }
 
-/* Los DOS saltos se deciden en píxeles, y este es el arreglo de la 0.7.56.
-   Antes el segundo preguntaba por el número de columnas —`w >= 2`— mientras
-   el CSS lo decidía midiendo, y las dos cuentas no coinciden: una tarjeta de
-   UNA columna en un tablero ancho puede medir 739 px, más que una de DOS en
-   una tableta, que mide 688. La de 739 recibía el alto de la estrecha y salía
-   cortada. Ahora las dos preguntas son la misma pregunta. */
-function altoDeRacha(w) {
-  const px = anchoDeTarjeta(w);
-  /* Sin medida —el tablero todavía no se ha pintado— se responde lo de antes.
-     No hace falta más: en cuanto la pantalla se dibuja, `dashSize` vuelve a
-     preguntar y el alto se corrige solo, que es justo para lo que esto se
-     calcula al LEER y no solo al escribir. */
-  if (!px) return w >= 2 ? ALTO_RACHA.ancha : ALTO_RACHA.lado;
-  if (px < RACHA_LADO_A_LADO) return ALTO_RACHA.apilada;
-  return px < RACHA_MES_GRANDE ? ALTO_RACHA.lado : ALTO_RACHA.ancha;
-}
-
 /* El suelo se aplica al LEER, no solo al arrastrar. Si no, un tablero
    guardado con la altura vieja se seguiría pintando por debajo del mínimo
    para siempre: el usuario nunca vuelve a tocar esa tarjeta y el valor
@@ -1559,10 +1477,13 @@ function dashSize(id) {
      tarjeta guardada de tres columnas en la computadora llegaba al teléfono
      diciendo que era de tres —y la racha, que ahora tiene un acomodo por
      ancho, sacaba en una pantalla de 375 px el reparto pensado para 1500—. */
-  const w = Math.min(s.w || DASH_META[id].w, dashCols());
+  /* La racha va SIEMPRE en una columna, y esto es lo que lo garantiza: da
+     igual lo que traiga guardado un tablero viejo o lo que se arrastre. Lo
+     pidio Eduardo y ademas es lo que evita que vuelva a tener repartos. */
+  const w = id === "racha" ? 1 : Math.min(s.w || DASH_META[id].w, dashCols());
   return {
     w,
-    h: id === "racha" ? altoDeRacha(w) : clamp(s.h || DASH_META[id].h, altoMinimo(id), DASH_MAX_H)
+    h: id === "racha" ? ALTO_RACHA : clamp(s.h || DASH_META[id].h, altoMinimo(id), DASH_MAX_H)
   };
 }
 
@@ -1584,7 +1505,9 @@ function saveDash(order, hidden, sizes, pos) {
    del suelo, venga del arrastre o de donde venga. */
 function setWidgetSize(id, w, h) {
   const { sizes } = dashLayout();
-  sizes[id] = { w, h: id === "racha" ? altoDeRacha(w) : clamp(h, altoMinimo(id), DASH_MAX_H) };
+  sizes[id] = id === "racha"
+    ? { w: 1, h: ALTO_RACHA }
+    : { w, h: clamp(h, altoMinimo(id), DASH_MAX_H) };
   marcarAcomodo(null);
   saveDash(null, null, sizes);
 }
@@ -1849,15 +1772,16 @@ function attachDashHandlers() {
       const dw = Math.round((e.clientX - sizeStart.x) / (cellW + ROW_GAP));
       const dh = Math.round((e.clientY - sizeStart.y) / ROW_H);
       const w = clamp(sizeStart.w + dw, 1, sizeStart.max);
-      /* El alto de la racha no se arrastra: lo decide su ancho. Antes se
-         dejaba estirar y al soltar volvía de golpe a su sitio — el tirón
-         funcionaba, la tarjeta no obedecía, y eso no se lee como una regla
-         sino como algo roto. Ahora la altura sigue al ancho mientras se
-         arrastra, así que lo que se ve es lo que se guarda. */
+      /* La racha no se estira ni a lo ancho ni a lo alto: es de una columna y
+         de `ALTO_RACHA` filas, siempre. Antes se dejaba estirar y al soltar
+         volvia de golpe a su sitio — el tiron funcionaba, la tarjeta no
+         obedecia, y eso no se lee como una regla sino como algo roto. Ahora
+         no se mueve mientras se arrastra, que es lo que si se lee como una
+         regla. */
       const h = sizeId === "racha"
-        ? altoDeRacha(w)
+        ? ALTO_RACHA
         : clamp(sizeStart.h + dh, altoMinimo(sizeId), DASH_MAX_H);
-      el.style.setProperty("--w", w);
+      el.style.setProperty("--w", sizeId === "racha" ? 1 : w);
       el.style.setProperty("--h", h);
       return;
     }
@@ -2214,7 +2138,10 @@ function proximoHito(cur) {
   return { sig, faltan: sig - cur, pct: Math.round((cur - desde) / (sig - desde) * 100) };
 }
 
-function loQueSostiene(cur) {
+/* El proximo hito, en UN renglon. Se llamaba `loQueSostiene` y devolvia dos
+   bloques; desde la 0.7.99.3 solo queda este, asi que el nombre pasa a decir
+   lo que hace. */
+function bloqueDelHito(cur) {
   const hito = proximoHito(cur);
 
   return `

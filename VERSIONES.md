@@ -100,6 +100,89 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.100 · 9 sep 2026
+
+**La racha, rehecha: una columna siempre y tres piezas.** Lo pidió Eduardo
+después de dos roturas seguidas en esta misma tarjeta: *«¿valdrá la pena mejor
+matar Racha a como la conocemos? Confinarla a usar una columna siempre y no
+varias. Siento que decir tanta info no ayuda y solo provoca que la gente no
+quiera leer los textos, entonces se vuelve inútil si nadie quiere prestar
+atención a Resumen.»*
+
+**Lo que se murió es la tarjeta, no la racha.** El número de días es la columna
+vertebral de la app: es lo único que dice «llevas algo vivo». Lo que sobraba
+era todo lo demás.
+
+---- Siete cosas peleando por el mismo turno ----
+
+Llegó a decir siete: el número, la fracción de la semana, la del mes, la frase
+de hoy, la comparación con la semana pasada, el próximo hito y qué misiones la
+sostenían. Ninguna estaba de más por sí sola; el problema es que las siete
+pedían la misma atención y ninguna ganaba.
+
+Y hay un dato que hace de esto algo más grande que una tarjeta: **la racha es
+el 25 % del Resumen y es la primera**. Medido en el ejemplo a 375×812, los 509
+px de la racha sobre 2 058 px de tarjetas. Si lo primero que ves es denso,
+aprendes que esta pantalla se hojea, y a partir de ahí las otras siete tarjetas
+no se leen por buenas que sean. **La racha no solo se lee a sí misma: decide si
+el Resumen se lee.**
+
+Quedan tres piezas, en este orden y por este motivo:
+
+  1. la **cabecera** dice dónde estás —cuántos días llevas— y si hoy hace falta
+     algo. Es lo único accionable;
+  2. el **mes** es el dibujo, y es lo que hace volver a mirar. Dice por sí solo
+     lo que decían las dos fracciones, sin que haya que leer un número;
+  3. el **hito**, en un renglón, porque es lo único que empuja a volver HOY y no
+     lo dice ninguna otra pieza de la app.
+
+**Lo que se fue, y hay que decirlo:** la comparación con la semana pasada, que
+duró de la 0.7.99 a la 0.7.100. La eligió el propio Eduardo dos días antes y no
+estaba mal — pero con el mes de protagonista pasaba a ser la tercera forma de
+decir lo mismo, y el mes lo dice mejor. Con «una columna y menos información»,
+algo tiene que salir, y esa era la pieza que menos se pierde.
+
+---- Una columna no es solo estética ----
+
+Era **la única tarjeta del tablero cuyo alto no sale de su contenido** —salía de
+una tabla de filas de cuadrícula, porque el dibujo del cielo es una ilustración
+de alto fijo— y **la única con más de un reparto**: tres, elegidos por dos
+umbrales en píxeles y tres consultas de contenedor. Las dos roturas de estos
+días salieron exactamente de ahí.
+
+Con un solo reparto se van `altoDeRacha`, los tres valores de `ALTO_RACHA`,
+`RACHA_MES_GRANDE`, las dos consultas de contenedor del acomodo y siete clases
+(`streak-grid`, `sg-izq`, `sg-der`, `sg-extra`, `sg-tendencia`, `sg-barra` y su
+marca). Queda **un** número que mantener al día en vez de tres, y una sola
+consulta que ya no reparte nada: solo decide si la casilla del mes mide 33 o 42.
+
+**Y la racha ya no se estira.** Ni a lo ancho ni a lo alto, ni arrastrando ni
+por un tablero guardado de antes: `dashSize` y `setWidgetSize` la fijan en una
+columna. Antes se dejaba estirar y al soltar volvía de golpe a su sitio, que no
+se lee como una regla sino como algo roto.
+
+---- Lo medido ----
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| Teléfono (339 px de ancho) | 509 px | **412** |
+| Computadora | 376 px (2 columnas) | **456** (1 columna) |
+| El Resumen entero, en el teléfono | 2 393 px | **2 296** |
+
+En la computadora la tarjeta crece 80 px, y es el precio de la columna única:
+más estrecha, el mes ocupa más alto. A cambio deja libre una columna del
+tablero para otra tarjeta, así que el Resumen no se alarga.
+
+**El mes salía dos veces** al juntar los repartos: el título decía «Racha ·
+septiembre 2026» y el calendario repetía «septiembre 2026» tres renglones más
+abajo. Antes no chocaban porque cada reparto escondía uno con CSS — y esa clase
+de arreglo es justo la que se fue con los repartos. Ahora el título dice «Racha»
+a secas y el mes lo dice el calendario, que es donde etiqueta lo que hay que
+leer.
+
+Comprobado: el caso vacío (racha en cero, la llama deja de latir), el modo
+claro, los dos anchos, cero desbordes de lado y la consola limpia.
+
 ### 0.7.99.3 · 9 sep 2026
 
 **El Resumen se rompió con la 0.7.99, y la causa es una que ya estaba escrita.**
