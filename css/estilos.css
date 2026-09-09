@@ -9431,50 +9431,54 @@
        decidas—, y hasta ahora una se veía como un hallazgo y la otra como un
        botón con un color puesto.
 
-       Se traen las cinco señas de aquella tarjeta, con sus mismos números:
+       Se traen cuatro señas de aquella tarjeta, con sus mismos números:
 
        | Qué | De dónde |
-       | el degradado del acento cayendo desde arriba | 13 % → nada al 46 % |
        | el marco del acento | 42 %, era 26 |
        | el halo exterior | `0 0 26px` al 18 % |
        | el barrido que cruza UNA vez | `ncelBarrido`, mismo tiempo y curva |
        | la entrada con rebote | `--curva-rebote`, la del botín |
 
-       **Lo que NO se trae es el vidrio, y es la única pieza que no viaja.** La
-       tarjeta se apoya en `rgba(var(--escena-vidrio), .62)`, que es de noche
-       SIEMPRE porque vive dentro de una escena —y una escena no cambia de luz,
-       es un dibujo—. El botón vive en la barra, que sí cambia con el modo
-       claro: con el vidrio puesto sería un rectángulo carbón en mitad de una
-       barra clara. Se apoya en `--fire-soft`, que ya tiene sus dos caras.
+       **Eran cinco: la quinta era un degradado del acento cayendo desde arriba,
+       y se fue.** «Se ve anticuado», y tiene razón — un degradado vertical
+       tenue sobre un botón es de otra época, y aquí no hacía falta ninguna: lo
+       que dice que esto llegó son el marco, el halo, el disco del icono y el
+       barrido, que son gestos, no un tinte. El fondo se queda liso en
+       `--fire-soft`. El BARRIDO se queda: ese sí es un degradado, pero es un
+       destello que cruza una vez y no una capa pegada al fondo.
+
+       **Lo que tampoco se trae es el vidrio, y es la única pieza que no viaja
+       por otro motivo.** La tarjeta se apoya en `rgba(var(--escena-vidrio),
+       .62)`, que es de noche SIEMPRE porque vive dentro de una escena —y una
+       escena no cambia de luz, es un dibujo—. El botón vive en la barra, que sí
+       cambia con el modo claro: con el vidrio puesto sería un rectángulo carbón
+       en mitad de una barra clara. De ahí `--fire-soft`, que ya tiene sus dos
+       caras.
 
        Y todo sigue saliendo de `--fire`, así que un mundo que la cambie se lo
        lleva entero y el modo claro pasa solo a la versión de escribir. */
     #nav-update-side {
       /* ---- El tono de la LUZ, que no es el del botón ----
-         La tarjeta de premio cae dentro de una escena, y una escena es de noche
-         siempre: allí el acento es claro y su degradado ILUMINA la mitad de
-         arriba. Aquí no. De día `--fire` es `#755c05`, la luciérnaga de
-         escribir, y ese mismo degradado hundiría la mitad de arriba en vez de
-         levantarla —y el barrido pasaría como una sombra, no como un
-         destello—.
+         Lo usa el barrido, que es lo único que le pasa luz por encima. La
+         tarjeta de premio cae dentro de una escena, y una escena es de noche
+         siempre: allí el acento es claro y aclara lo que toca. Aquí no. De día
+         `--fire` es `#755c05`, la luciérnaga de escribir, y con ese tono el
+         barrido pasaría como una sombra en vez de como un destello.
 
          Así que la luz tiene su propio tono y sus dos caras, igual que
          `--premio` las tiene en la tarjeta: de noche el acento, de día el
          blanco. Es la misma regla que ya siguen los `*-soft`, que de día
          levantan hacia el blanco en vez de hundir hacia el color. El BOTÓN
-         sigue saliendo entero de `--fire`; lo único que cambia de tono es lo
-         que le pasa la luz por encima. */
+         sigue saliendo entero de `--fire`. */
       --nu-luz: var(--fire);
       /* Los dos hacen falta para el barrido: el `::after` se coloca contra el
          botón y lo que se sale se corta en el borde redondeado. */
       position: relative;
       overflow: hidden;
       color: var(--fire);
-      background:
-        linear-gradient(180deg,
-          color-mix(in srgb, var(--nu-luz) 13%, transparent) 0%,
-          transparent 46%),
-        var(--fire-soft);
+      /* Liso, sin el degradado que caía desde arriba: lo paró Eduardo —«se ve
+         anticuado»— y no hacía falta ninguno (ver la nota de arriba). */
+      background: var(--fire-soft);
       border-color: color-mix(in srgb, var(--fire) 42%, transparent);
       border-radius: var(--r-caja);
       padding: 12px;
@@ -9513,11 +9517,7 @@
       100% { transform: translateX(58%); opacity: 0; }
     }
     #nav-update-side:hover {
-      background:
-        linear-gradient(180deg,
-          color-mix(in srgb, var(--nu-luz) 20%, transparent) 0%,
-          transparent 46%),
-        color-mix(in srgb, var(--fire) 18%, transparent);
+      background: color-mix(in srgb, var(--fire) 18%, transparent);
       border-color: color-mix(in srgb, var(--fire) 60%, transparent);
       color: var(--fire);
     }

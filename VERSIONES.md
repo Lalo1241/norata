@@ -100,6 +100,27 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.99.1 · 9 sep 2026
+
+**Fuera el degradado del aviso de versión nueva.** «Se ve anticuado», y tiene
+razón: un degradado vertical tenue sobre un botón es de otra época.
+
+El botón se trajo cinco señas de la tarjeta de un premio (0.7.72.8) y una era el
+degradado del acento cayendo desde arriba. Se va esa y se quedan las otras
+cuatro, que son las que de verdad dicen «esto llegó»: el marco del acento, el
+halo exterior, el disco del icono y el barrido que cruza una vez. El fondo se
+queda liso en `--fire-soft`, que ya tiene sus dos caras. El de `:hover` también.
+
+**El barrido se queda.** Es un degradado, sí, pero es un destello que cruza una
+vez y no una capa pegada al fondo — la diferencia es justo la que hace que uno
+se lea como un gesto y el otro como un tinte de los 2010.
+
+**Medido** en los dos modos, en la barra lateral: `background-image` en `none`,
+el fondo liso —el 13 % de luciérnaga de noche, `#eeebe1` de día—, y el marco al
+42 %, el halo y el disco intactos. De día el halo sigue apagado, como manda la
+regla de la casa. Cero errores de consola, cero traducciones que falten, las
+cuatro combinaciones de humo limpias.
+
 ### 0.7.99 · 9 sep 2026
 
 **Salir de un formulario guarda, la racha dice si vas bien, y los tipos de
