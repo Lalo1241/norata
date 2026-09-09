@@ -100,6 +100,44 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.99.3 · 9 sep 2026
+
+**El Resumen se rompió con la 0.7.99, y la causa es una que ya estaba escrita.**
+Eduardo lo vio en cuanto abrió: el rótulo «RACHA · SEPTIEMBRE 2026» salía
+cortado por arriba, fuera de la tarjeta.
+
+**El alto de esta tarjeta NO sale del contenido: sale de una tabla** —
+`ALTO_RACHA`, en filas de la cuadrícula del tablero— porque el dibujo del cielo
+es una imagen de tamaño fijo. La 0.7.99 le metió la comparación con la semana
+pasada, unos 44 px, y no tocó la tabla. Como `.scene-body` centra en vertical,
+esos 13 px de más se repartieron arriba y abajo y el rótulo se salió por el
+techo. Medido: el rótulo caía a **-5 px** del borde de la tarjeta.
+
+Es exactamente el fallo del que avisa el comentario de `ALTO_RACHA` desde la
+0.7.56, leído del revés: allí sobraban 110 px y aquí faltaban 13. **Al cambiar
+lo que hay dentro de la racha hay que volver a medir esa tabla, siempre.**
+
+**Y se va «Qué la sostiene».** Lo pidió Eduardo, y los números le dan la razón:
+listaba «Caminar 20 minutos · 4», «Beber agua · 4», «Practicar idioma · 2» —
+que son las MISMAS misiones que la tarjeta de justo debajo enseña enteras, con
+su aro y su progreso de hoy. Dos tarjetas pegadas contando lo mismo con
+distinto formato no son dos datos: son uno repetido, y el segundo le quita
+sitio al que sí importa.
+
+Con eso fuera, la tarjeta ancha pasa a pedir 269 px donde recibía 376, así que
+la tabla baja de cinco filas a **cuatro**. Medido en los tres repartos:
+
+| | Ancho | Contenido | Alto | Cielo vacío |
+| --- | --- | --- | --- | --- |
+| Teléfono | 339 | 471 | 509 | 38 |
+| De lado | 564 | 232 | 296 | 25 |
+| Ancha | 944 | 269 | 296 | 25 |
+
+Antes, la ancha tenía 105 px de cielo vacío y el rótulo fuera de la tarjeta.
+
+Se borran también `sostienenLaRacha`, `RACHA_VENTANA`, sus siete reglas de CSS
+y sus dos claves del diccionario: nada de eso lo lee ya nadie.
+
 ### 0.7.99.2 · 9 sep 2026
 
 **El aviso de versión nueva se viste como el cuadro de reportar un fallo.** Lo

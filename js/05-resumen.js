@@ -1496,9 +1496,11 @@ const RACHA_MES_GRANDE = 900;
    propósito, porque su alto no se elige. Así que la cuenta se arregla aquí o
    no se arregla.
 
-   Las cifras: apilada el contenido pide 486 px y siete filas son 536; de
-   lado pide 266 y cuatro filas son 296; ancha pide 326 y cinco son 376. */
-const ALTO_RACHA = { apilada: 7, lado: 4, ancha: 5 };
+   Las cifras, vueltas a medir en la 0.7.99.3 al quitar «qué la sostiene»:
+   apilada el contenido pide 471 px y siete filas son 536; de lado pide 232 y
+   cuatro filas son 296; ancha pide 269 y CUATRO son 296 — antes cinco, y esos
+   80 px de más eran justo el cielo vacío que esta tabla existe para evitar. */
+const ALTO_RACHA = { apilada: 7, lado: 4, ancha: 4 };
 
 /* Cuánto mide de ancho una columna del tablero AHORA MISMO, en píxeles. Se
    mide y no se calcula: el ancho disponible depende de la barra lateral, de
@@ -2212,41 +2214,8 @@ function proximoHito(cur) {
   return { sig, faltan: sig - cur, pct: Math.round((cur - desde) / (sig - desde) * 100) };
 }
 
-/* En cuántos DÍAS distintos de los últimos treinta apareció cada cosa. Días y
-   no veces: una misión cumplida tres veces el martes sostiene un día, no
-   tres — y lo que se está midiendo es qué mantiene la racha, que se cuenta en
-   días. */
-function sostienenLaRacha(dias) {
-  const desde = addDaysKey(todayKey(), -(dias - 1));
-  const filas = [];
-
-  state.missions.forEach(m => {
-    let n = 0;
-    Object.keys(m.log || {}).forEach(k => { if (k >= desde && missionCount(m, k) > 0) n++; });
-    if (n) filas.push({ nombre: m.name, dias: n, color: m.color });
-  });
-
-  /* La práctica registrada a mano cuenta aparte de las misiones aunque toque
-     la misma habilidad: son dos gestos distintos y el que sostiene la racha
-     es el que se hizo. Se deja fuera lo que no es tuyo —el desgaste, que
-     resta— y lo que ya está contado como misión, talento o proyecto. */
-  state.skills.forEach(sk => {
-    const dias30 = new Set();
-    (sk.log || []).forEach(e => {
-      if (e.date >= desde && (Number(e.xp) || 0) > 0 && !e.fuente) dias30.add(e.date);
-    });
-    if (dias30.size) filas.push({ nombre: T`Práctica de ${sk.name}`, dias: dias30.size, color: sk.color });
-  });
-
-  return filas.sort((a, b) => b.dias - a.dias).slice(0, 3);
-}
-
-const RACHA_VENTANA = 30;
-
 function loQueSostiene(cur) {
   const hito = proximoHito(cur);
-  const filas = sostienenLaRacha(RACHA_VENTANA);
-  const max = filas.length ? filas[0].dias : 1;
 
   return `
     ${hito ? `
@@ -2268,17 +2237,7 @@ function loQueSostiene(cur) {
         <div class="rc-rot">${tx("Los hitos")}</div>
         <div class="sgh-p">${tx("Pasaste el último de la lista. A partir de aquí, cada día es récord.")}</div>
       </div>`}
-    ${filas.length ? `
-      <div class="sg-sostiene">
-        <div class="rc-rot">${tx("Qué la sostiene")}</div>
-        ${filas.map(f => `
-          <div class="sgs">
-            <span class="sgs-n">${escapeHtml(f.nombre)}</span>
-            <span class="sgs-b"><i style="width:${Math.round(f.dias / max * 100)}%;background:${trazo(f.color || "#5fe0b0")}"></i></span>
-            <span class="sgs-v">${f.dias}</span>
-          </div>`).join("")}
-        <p class="sgs-pie">${T`Días de los últimos ${RACHA_VENTANA} en que apareció cada una.`}</p>
-      </div>` : ""}`;
+`;
 }
 
 function calendarioRacha(anio, mes, cuentas, hoy) {

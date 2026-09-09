@@ -645,7 +645,6 @@ const TEXTOS_EN = {
   "Los hitos": "Milestones",
   "Pasaste el último de la lista. A partir de aquí, cada día es récord.":
     "You passed the last one on the list. From here on, every day is a record.",
-  "Qué la sostiene": "What holds it up",
   "＋ Del catálogo": "＋ From the catalog",
   "No sé cuál encaja con ese nombre; elígela tú si quieres.":
     "I don't know which one fits that name; pick it yourself if you want.",
