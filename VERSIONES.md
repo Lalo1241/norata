@@ -100,6 +100,132 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.99 · 9 sep 2026
+
+**Salir de un formulario guarda, la racha dice si vas bien, y los tipos de
+encargo se ven de verdad.** Los siete puntos que dictó Eduardo mirando la
+0.7.98 en su teléfono.
+
+---- Salir de un formulario GUARDA ----
+
+Palabras suyas: «cuando te sales de estar editando algún elemento sin el botón
+guardar cambios necesito que sí los guardes, como el botón está hasta abajo
+siento que se olvida». El diagnóstico detrás es más simple que el síntoma: la
+flecha de arriba dice **«volver»**, no «cancelar», y nadie lee «volver» como
+«tira lo que escribiste». La app prometía una cosa y hacía otra.
+
+Ahora, en los cuatro formularios —habilidad, talento, misión y encargo—:
+
+  · **sin nombre** → se sale sin guardar, porque no hay nada que guardar;
+  · **con nombre** → se guarda, también al CREAR (lo eligió Eduardo: nunca
+    perder lo escrito pesa más que un encargo empezado por error, que se borra
+    en dos toques);
+  · **con nombre y no se puede guardar** —falta elegir día en una misión
+    semanal, o el plan no deja crear otra— se parte en dos: editando algo que
+    ya existe se queda en el formulario, porque hay cambios de verdad que
+    proteger y el aviso dice qué arreglar; creando algo nuevo se sale, porque
+    quedarse encerrado en un formulario que no puede guardar es peor que no
+    crear nada.
+
+**Y el gesto de atrás del teléfono también.** `atrasApp` decía en su comentario
+«lo mismo que haría la flecha de esta pantalla» y en los cuatro formularios eso
+era falso justo donde más caro salía: la flecha conservaba y el gesto tiraba.
+Dos salidas de la misma pantalla haciendo lo contrario es peor que ninguna.
+
+Cómo se sabe si guardó, que es el detalle que hace esto fiable: se mira si la
+pantalla del formulario **sigue siendo la activa**. Las cuatro funciones de
+guardar navegan al terminar bien, así que seguir ahí ES el fallo. Se hizo así y
+no devolviendo `true` para no tener que tocar los `return` sueltos que ya tiene
+cada una — un `return` olvidado se vería como «a veces no guarda», que es el
+peor fallo posible justo aquí.
+
+**Lo que NO cubre, y conviene saberlo:** salir por los círculos de navegación de
+abajo sigue sin guardar. Esos llaman a `showView` a pelo, y para que guarden hay
+que separar el guardado de la navegación dentro de las cuatro funciones. Es un
+cambio mayor y va aparte.
+
+---- La racha: de marcador a respuesta ----
+
+Eduardo: «sigue siendo inútil, dice mucho y a la vez no dice nada». Medida en un
+teléfono de 375×812 antes de tocarla: **504 px**, de los que el calendario se
+llevaba 252 y la única línea que pide algo —«Hoy todavía no cuenta»— 19.
+
+El problema no era el tamaño. Las dos fracciones («4/7 esta semana», «12/30 en
+septiembre»), el calendario y el número de la llama son **cuatro formas de
+contar lo mismo** —cuántos días has registrado— y ninguna contesta la única
+pregunta que uno se hace mirando una racha: *¿voy bien?* Una fracción sola no
+puede contestarla porque no tiene contra qué medirse: 4 de 7 es bueno o malo
+según lo que hicieras antes, y eso la app lo sabe.
+
+Así que las dos fracciones se van y entra una comparación con la semana pasada,
+con su barra y una marca de por dónde ibas entonces. **Se comparan los mismos
+días, no la semana entera**: un miércoles, los 3 que llevas contra los 3
+PRIMEROS de la semana pasada. Medir 3 corridos contra 7 completos diría que vas
+peor todos los lunes, y sería mentira.
+
+«La semana pasada llevabas más» y no «vas peor»: el dato es el mismo y el
+reproche sobra. Ni coral ni amarillo — el coral destruye y el amarillo avisa de
+algo delicado; esto es un dato de ayer, y la salida ya la da la frase de al
+lado.
+
+**El caso vacío tiene su propia salida:** si no hubo NADA antes de esta semana
+no se compara, porque a quien acaba de empezar «la semana pasada llevabas 0» le
+diría que va bien por no haber existido. Ahí sale el dato a secas.
+
+**Y el mes deja de ser un mural.** Estirada a lo ancho de un teléfono cada
+casilla salía de 40 px: cinco filas de eso son 214 y con las iniciales el mes se
+llevaba 252 de los 504 de la tarjeta. Una casilla de un mes no es un botón, no
+se toca: se mira. A 33 px el número se lee igual y devuelve 54, que es justo lo
+que costó meter la comparación. La tarjeta queda en **509 px** — la misma de
+antes, contando algo distinto.
+
+Comprobados los cuatro estados con datos sintéticos: mejor, igual, detrás y sin
+pasado.
+
+---- Y los cinco arreglos de los tipos de encargo ----
+
+**La silueta no se apreciaba en la lista.** Recortaba poco (punta al 78%,
+esquinas al 28%) porque los porcentajes venían del mapa, y ahí hay cuatro
+figuras juntas mientras que en la lista hay UNA: sin vecina contra la que
+compararla, un recorte discreto se lee como un redondeo cualquiera. Ahora la
+punta va al 66% y las esquinas al 36%, y el relleno sube del 13% al 26% — el
+canto de una silueta se ve por su contraste con la tarjeta de detrás.
+
+**El título se iba arriba con una sola línea.** El recorte a dos renglones
+necesita `display:-webkit-box`, que no puede a la vez centrar contra el icono de
+32 px. Con una envoltura, fuera se centra y dentro se recorta: un renglón queda
+a la altura del icono y dos crecen hacia abajo.
+
+**El botón de editar estaba en la esquina.** Habilidades y Talentos editan desde
+el icono grande de la ficha; el encargo era el único de los tres que no, y
+llevaba un lápiz suelto arriba a la derecha. Ahora el icono edita, con su
+lapicito, y el de la esquina se va.
+
+**Y ese icono lleva la silueta de su tipo**, como la pastilla de la lista y como
+la figura del mapa: el mismo tipo dibujado igual en las tres pantallas donde
+aparece. El recorte va en un `::before` y no en el botón, porque `clip-path`
+recorta TODOS los descendientes y se llevaba el lapicito por delante — justo el
+trozo que corta la punta de una Entrega.
+
+**Los botones del tipo llevaban paloma, bandera, brújula y moneda**: iconos del
+CONCEPTO. Eduardo los paró, y es más que estética — ese botón es el único sitio
+donde se aprende qué figura vas a poner en el mapa, así que dibujar otra cosa
+era enseñar el vocabulario equivocado justo donde se elige. Ahora son las cuatro
+siluetas.
+
+---- El fallo que costó la tarde ----
+
+Un `*/` de más al ampliar un comentario del CSS partió el comentario en dos, y
+el navegador se comió **la regla siguiente entera** al recuperarse: la silueta de
+Entrega no salía y las otras tres sí. No hay error en consola y el archivo se ve
+bien leyéndolo. Lo cazó medir `clip-path` con `getComputedStyle` en las cuatro
+tarjetas y encontrar un `none` donde tocaba un polígono. Al ampliar un
+comentario del CSS, contar las aperturas y los cierres antes de dar nada por
+bueno.
+
+Comprobado además: Talentos sale idéntico, ninguna de las cinco pantallas
+desborda de lado, el modo claro no cambia nada, y la consola está limpia.
+
 ### 0.7.98.2 · 8 sep 2026
 
 **En «Tu color» había un tono repetido, y no era mala suerte: le pasaba a todo

@@ -429,8 +429,15 @@ function renderProjects() {
             <div class="proj-abre" role="button" tabindex="0" onclick="openProject('${p.id}')"
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProject('${p.id}')}">
             <div class="proj-top">
-              <span class="proj-ic${tipo === "tarea" ? "" : ` enc-${tipo}`}" style="background:${velo(col, "22")};color:${tinta(col)}">${icon(p.icon, 19)}</span>
-              <span class="proj-name">${escapeHtml(p.name)}</span>
+              <span class="proj-ic${tipo === "tarea" ? "" : ` enc-${tipo}`}" style="background:${
+                velo(col, tipo === "tarea" ? "22" : "42")};color:${tinta(col)}">${icon(p.icon, 19)}</span>
+              ${/* El nombre va envuelto, y no es un `div` de más. El recorte a
+                    dos renglones necesita `display:-webkit-box`, que no puede
+                    a la vez centrar el texto contra el icono de 32; con la
+                    envoltura, fuera se centra y dentro se recorta. Sin esto un
+                    título de UN renglón se pegaba al borde de arriba y la fila
+                    quedaba descuadrada — lo vio Eduardo en su teléfono. */""}
+              <span class="proj-name"><span>${escapeHtml(p.name)}</span></span>
               <span class="proj-state" style="background:${PROJECT_STATUS[p.status].soft};color:${PROJECT_STATUS[p.status].color}">${tx(PROJECT_STATUS[p.status].label)}</span>
             </div>
             <div class="proj-bar"><div class="bar"><div class="bar-fill" style="width:${prog}%;background:${trazo(col)}"></div></div></div>
@@ -701,6 +708,7 @@ function renderProjectDetail() {
   const col = pr.color || "#5fe0b0";
   const skill = pr.skillId ? state.skills.find(s => s.id === pr.skillId) : null;
   const steps = pr.steps || [];
+  const tipoFicha = tipoDeEncargo(pr);
 
   const stepsHtml = steps.length === 0
     ? `<p class="settings-note" style="margin:0 0 12px">${tx("Sin etapas todavía. Divide el encargo en pasos concretos para poder medir su avance.")}</p>`
@@ -736,10 +744,31 @@ function renderProjectDetail() {
   const heroHtml = `
     <div class="detail-hero">
       <div class="strip">${motifScene(560, 156, hashSeed(pr.id), motifFor(pr.icon), trazo(col))}</div>
-      <div class="skill-emoji" style="background:${velo(col, "30")};color:${tinta(col)}">${icon(pr.icon, 28)}</div>
+      ${/* El icono edita, igual que en Habilidades y en Talentos. Aquí era el
+            único de los tres que no hacía nada y el lápiz vivía suelto en la
+            esquina de arriba a la derecha: tres fichas hermanas con el mismo
+            gesto en dos sitios distintos. Lo cazó Eduardo. El lapicito pequeño
+            está para que se note que se puede tocar sin descubrirlo por
+            accidente.
+
+            Y lleva la SILUETA de su tipo, como la pastilla de la lista y como
+            la figura del mapa: el mismo tipo dibujado igual en las tres
+            pantallas donde aparece. */""}
+      <button type="button" class="skill-emoji editable${tipoFicha === "tarea" ? "" : ` enc-${tipoFicha}`}"
+        style="${/* El relleno se pasa como VARIABLE cuando hay silueta, y como
+                    fondo normal cuando no. No es capricho: la silueta la pinta
+                    un `::before` y no el botón, así que el color tiene que
+                    llegarle a él; escrito como `background` en línea le ganaría
+                    al `background: none` de la regla y el recorte no se vería.
+                    Ver el bloque de `.detail-hero .skill-emoji.enc-*`. */""
+        }${tipoFicha === "tarea" ? `background:${velo(col, "30")};` : `--velo-forma:${velo(col, "4a")};`}color:${tinta(col)}"
+        onclick="openProjectForm(currentProjectId)" title="${escapeAttr(tx("Editar encargo"))}" aria-label="${escapeAttr(tx("Editar encargo"))}">
+        ${icon(pr.icon, 28)}
+        <span class="edit-hint">${icon("pen", 11)}</span>
+      </button>
       <h2>${escapeHtml(pr.name)}</h2>
       <span class="cat">${tx("Rama de Proyectos")} · ${escapeHtml(pr.branch || "General")}${
-        tipoDeEncargo(pr) !== "tarea" ? ` · ${tx(TIPOS_ENCARGO[tipoDeEncargo(pr)].nombre)}` : ""}</span>
+        tipoFicha !== "tarea" ? ` · ${tx(TIPOS_ENCARGO[tipoFicha].nombre)}` : ""}</span>
       ${pr.desc ? `<div class="perk-desc">${escapeHtml(pr.desc)}</div>` : ""}
       ${skill ? `<div style="margin-top:12px"><button class="xlink" style="--xc:${pinta(skill.color)}" onclick="openDetail('${skill.id}')">
         ${icon(skill.icon, 13)} Entrena ${escapeHtml(skill.name)} →

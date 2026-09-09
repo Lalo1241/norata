@@ -4253,6 +4253,36 @@
     border: 4px solid var(--card);
   }
   .detail-hero .skill-emoji svg { width: 28px; height: 28px; }
+  /* ---- La silueta del tipo en el icono grande de la ficha ----
+     Los mismos recortes que en la lista, con dos diferencias que costaron
+     entenderlas y que conviene no deshacer:
+
+     **El recorte va en un `::before` y no en el botón.** `clip-path` recorta
+     TODOS los descendientes, y de este botón cuelga el lapicito de «se puede
+     editar», que vive pegado a la esquina de abajo a la derecha — justo el
+     trozo que se lleva la punta de una Entrega. Recortando el botón, el
+     lapicito desaparecía en tres de los cuatro tipos. Con la silueta en una
+     capa de fondo propia, el icono y el lapicito se dibujan encima sin
+     recortar.
+
+     **Y se va el marco de 4 px.** `clip-path` también recorta el borde, así
+     que en los cantos diagonales el marco se cortaba y el icono se veía
+     mordido. No hace falta: la escena de arriba termina en degradado y el
+     icono ya se despega solo. */
+  .detail-hero .skill-emoji.enc-entrega,
+  .detail-hero .skill-emoji.enc-decision,
+  .detail-hero .skill-emoji.enc-gasto { border: 0; background: none; }
+  .detail-hero .skill-emoji.enc-entrega::before,
+  .detail-hero .skill-emoji.enc-decision::before,
+  .detail-hero .skill-emoji.enc-gasto::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--velo-forma);
+  }
+  .detail-hero .skill-emoji.enc-entrega::before { clip-path: polygon(0 0, 66% 0, 100% 50%, 66% 100%, 0 100%); }
+  .detail-hero .skill-emoji.enc-decision::before {
+    clip-path: polygon(36% 0, 64% 0, 100% 36%, 100% 64%, 64% 100%, 36% 100%, 0 64%, 0 36%);
+  }
+  .detail-hero .skill-emoji.enc-gasto::before { border-radius: var(--r-redondo); }
   /* El icono del héroe también edita. Es el elemento más grande y más
      obvio de la ficha, y hasta ahora era el único que no hacía nada; el
      lápiz de la esquina seguía estando, así que esto es un segundo camino
@@ -7530,12 +7560,26 @@
      rectas; por eso estas tres no pasan por `--r-factor`, igual que en el
      mapa. El icono de dentro mide 19 de los 32 y queda holgado dentro de los
      tres recortes — comprobado esquina por esquina antes de elegir los
-     porcentajes. */
-  .proj-ic.enc-entrega { clip-path: polygon(0 0, 78% 0, 100% 50%, 78% 100%, 0 100%); }
+     porcentajes.
+
+     ---- Y por qué son tan marcadas ----
+     La primera versión recortaba poco (punta al 78%, esquinas al 28%) y
+     Eduardo lo paró: «no se aprecia suficiente que el icono es distinto». El
+     motivo es que en el mapa hay cuatro figuras juntas y aquí hay UNA: sin
+     vecina contra la que compararla, un recorte discreto se lee como un
+     redondeo cualquiera. Una silueta que solo se distingue en fila no sirve
+     en una lista. */
+  .proj-ic.enc-entrega { clip-path: polygon(0 0, 66% 0, 100% 50%, 66% 100%, 0 100%); }
   .proj-ic.enc-decision {
-    clip-path: polygon(28% 0, 72% 0, 100% 28%, 100% 72%, 72% 100%, 28% 100%, 0 72%, 0 28%);
+    clip-path: polygon(36% 0, 64% 0, 100% 36%, 100% 64%, 64% 100%, 36% 100%, 0 64%, 0 36%);
   }
   .proj-ic.enc-gasto { border-radius: var(--r-redondo); }
+  /* El relleno de las tres recortadas sube del 13% al 26%, y NO se pone aquí:
+     lo escribe `velo()` desde JavaScript, porque el tono sale del color que
+     eligió la persona y a un `var(--...)` no se le pueden pegar dos dígitos de
+     transparencia detrás (ver la regla de `velo` en CLAUDE.md). El porqué: el
+     canto de una silueta se ve por su CONTRASTE con la tarjeta de detrás, y a
+     un 13% ese salto es de nada — la forma estaba y el canto no. */
   /* Dos renglones en el teléfono, y no uno con puntos suspensivos. Los
      encargos se llaman como se llaman las cosas que uno construye —«Terminar
      el curso que dejé a medias»— y en 375 px eso son 41 caracteres: la mitad
@@ -7552,9 +7596,18 @@
      `align-items` de `.proj-top` pasa a `flex-start` por lo mismo: centrado,
      un título de dos renglones bajaba el icono y la pastilla del estado media
      línea y la fila quedaba descuadrada contra las tarjetas de un renglón. */
+  /* Fuera se centra contra el icono, dentro se recorta. El `min-height` es
+     el alto del icono: con un solo renglón el título queda a su altura, y con
+     dos crece por debajo y los dos arrancan arriba, que es como tiene que
+     ser. */
   .proj-name {
     flex: 1;
     min-width: 0;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+  }
+  .proj-name > span {
     font-size: 14.5px;
     font-weight: 700;
     letter-spacing: -0.2px;
@@ -8702,18 +8755,46 @@
   .sg-hoy { margin: 0; font-size: 13px; line-height: 1.45; color: var(--text); opacity: 0.85; max-width: 34ch; }
   .sg-hoy.si { color: var(--mint); opacity: 1; font-weight: 650; }
 
-  .sg-cifras { display: flex; gap: 22px; margin-left: auto; }
-  .sg-cifras b { font-size: 20px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
-  /* El denominador, más chico: «4/7» con los dos números iguales se lee como
-     una fracción que hay que resolver; con el segundo pequeño se lee como
-     «cuatro de siete», que es lo que dice. */
-  .sg-cifras b span { font-size: 13px; font-weight: 700; color: var(--muted); }
-  .sg-cifras > div > span { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
-  /* La barra debajo de cada cifra. Existe porque «4/7» dice el dato y no dice
-     de un vistazo si vas bien: una fracción hay que resolverla, una barra se
-     ve. Ancho fijo y no `100%` porque las dos cifras están en una fila
-     flexible y sin tope la barra las estiraba hasta descolgar el calendario. */
-  .sg-barra { width: 74px; margin: 7px 0 1px; --alto: 4px; }
+  /* ---- La tendencia (0.7.99) ----
+     Donde estaban las dos fracciones. El texto va arriba y no debajo porque es
+     la conclusión —«vas mejor»— y el número de abajo es la prueba: al revés se
+     lee como un dato con una etiqueta, que es de lo que venimos.
+
+     `margin-left: auto` la empuja contra el canto derecho de la fila, en el
+     mismo sitio que ocupaban las cifras. */
+  /* ---- Debajo de la llama, no al lado ----
+     Las dos fracciones que había antes cabían al lado porque eran dos bloques
+     de veinte caracteres. Una frase no: a 375 px, con la llama y su número
+     ocupando la mitad de la fila, «Vas mejor que la semana pasada» se partía
+     en tres renglones y la fila pasaba de 52 px a 87. Medido. Debajo tiene los
+     301 px enteros y cada cosa cabe en su renglón. */
+  .sg-tendencia { max-width: 36ch; }
+  .sg-tendencia b { display: block; font-size: 13px; font-weight: 650; line-height: 1.3; }
+  .sg-tendencia.mejor b { color: var(--mint); }
+  /* «Detrás» NO va en coral ni en amarillo. El coral destruye y el amarillo
+     avisa de algo delicado; esto es un dato de ayer y no hay nada que
+     corregir. La salida ya la da la frase de la izquierda. */
+  .sg-tendencia span { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* La barra. Existe porque «4 de 7» dice el dato y no dice de un vistazo si
+     vas bien: una fracción hay que resolverla, una barra se ve. Ancho fijo y
+     no `100%` porque vive en una fila flexible y sin tope estiraba la fila
+     hasta descolgar el calendario. */
+  .sg-barra { width: 148px; margin: 6px 0 3px; --alto: 4px; }
+  /* ---- La marca de la semana pasada ----
+     Una rayita vertical sobre el carril, en el punto al que llegó la semana
+     pasada por estos mismos días. Es lo que convierte la barra en una
+     comparación sin escribir un segundo número: se ve si lo llenado pasa de la
+     marca o se queda corto.
+
+     Va sobre el carril y no dentro de lo lleno, porque cuando vas por detrás
+     la marca cae FUERA de lo lleno y ahí es justo donde tiene que verse. */
+  .sg-barra u {
+    position: absolute; top: -1px; bottom: -1px;
+    left: var(--q); width: 2px; margin-left: -1px;
+    background: rgba(var(--escena-tinta), 0.55);
+    border-radius: 2px;
+  }
 
   /* ---- Hoy no se queda quieto ----
      Lo pidió Eduardo: «que el día en curso igual tenga algún efecto y no se
@@ -8745,7 +8826,7 @@
     font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
     text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
   }
-  .rc-dow, .rc-rejilla { display: grid; grid-template-columns: repeat(7, minmax(0, 42px)); gap: 4px; }
+  .rc-dow, .rc-rejilla { display: grid; grid-template-columns: repeat(7, minmax(0, 42px)); gap: 4px; justify-content: start; }
   .rc-dow { margin-bottom: 4px; }
   .rc-dow span { text-align: center; font-size: 10px; font-weight: 700; color: var(--faint); }
   .rc-d, .rc-hueco { aspect-ratio: 1; border-radius: var(--r-mini); }
@@ -8810,7 +8891,17 @@
      entero con la casilla topada — `1fr` sin límite lo convierte en seis
      filas de ladrillos, y ya pasó una vez con este mismo calendario. */
   .rc { max-width: 100%; }
-  .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, minmax(0, 44px)); }
+  /* ---- 33 y no 44 ----
+     Estirada a lo ancho de un teléfono, cada casilla salía de 40 px: cinco
+     filas de eso son 214, y con las iniciales el mes se llevaba 252 de los 504
+     de alto de la tarjeta — casi la mitad. Una casilla de un mes no es un
+     botón, no se toca: se mira. A 33 px el número se lee igual y el mes
+     devuelve 54 px, que es justo lo que costó meter la comparación con la
+     semana pasada.
+
+     Sigue siendo `minmax(0, …)`: en una tarjeta más estrecha que 7×33 las
+     casillas tienen que poder encoger antes que desbordar. */
+  .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, minmax(0, 33px)); }
 
   /* ---- El hito se ve SIEMPRE, también en el teléfono (0.7.56) ----
      Vivía detrás de un umbral de 1150 px de tarjeta, o sea que la pieza que
@@ -8907,7 +8998,9 @@
     .streak-row .num { font-size: 46px; }
     .streak-row .lbl { font-size: 13px; }
     .sg-hoy { font-size: 14px; }
-    .sg-cifras b { font-size: 24px; }
+    .sg-tendencia b { font-size: 15px; }
+    .sg-tendencia span { font-size: 12px; }
+    .sg-barra { width: 200px; }
   }
 
   /* Un mes: siete columnas, las iniciales arriba y una casilla por día. Las
