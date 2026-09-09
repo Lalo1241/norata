@@ -8863,17 +8863,6 @@
   .sgh-b { margin-top: 9px; --alto: 8px; border-radius: var(--r-boton); }
   .sgh-p { margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.45; }
 
-  .sg-sostiene { display: flex; flex-direction: column; gap: 8px; }
-  .sgs { display: grid; grid-template-columns: minmax(0, 1fr) 54px 18px; gap: 9px; align-items: center; font-size: 12px; }
-  /* El nombre puede ser largo —«Práctica de Fotografía analógica»— y aquí
-     manda que la columna no crezca: se recorta con puntos suspensivos y el
-     título completo sigue estando al pasar el dedo. */
-  .sgs-n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .sgs-b { height: 6px; border-radius: var(--r-boton); background: var(--carril); overflow: hidden; }
-  .sgs-b i { display: block; height: 100%; border-radius: var(--r-barra); }
-  .sgs-v { text-align: right; font-weight: 700; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; color: var(--muted); }
-  .sgs-pie { margin: 4px 0 0; font-size: 11px; color: var(--faint); line-height: 1.4; }
-
   /* ---- Un acomodo por ancho, medido en PÍXELES ----
      Primero se hizo con el número de columnas del tablero, y estaba mal
      planteado: «una columna» no quiere decir «estrecha». Una columna del
@@ -8916,7 +8905,6 @@
   /* Apilada, el mes lleva su propio rótulo y el título de la tarjeta no lo
      repite. En cuanto hay dos bloques se intercambian (ver más abajo). */
   .streak-card .lab-mes { display: none; }
-  .sg-sostiene { display: none; flex-direction: column; gap: 8px; }
 
   /* ---- Dos bloques, y el mes manda (0.7.56) ----
      El mes entero es la superficie que hace volver —eso se decidió en la
@@ -8988,7 +8976,6 @@
   @container (min-width: 900px) {
     .rc-dow, .rc-rejilla { grid-template-columns: repeat(7, 42px); }
     .rc-d { font-size: 12px; border-radius: var(--r-mini); }
-    .sg-sostiene { display: flex; }
     .streak-grid { gap: 18px 40px; }
     /* Y la marca crece con la tarjeta. A 34 px se perdía en metro y medio de
        ancho, y un bloque pequeño rodeado de sitio se lee como un hueco por
