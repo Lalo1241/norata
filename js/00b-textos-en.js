@@ -1165,6 +1165,15 @@ const TEXTOS_EN = {
   "Algo que hay que pagar para que el proyecto siga: material, un permiso, un servicio.":
     "Something you pay for so the project keeps going: materials, a permit, a service.",
   "Rama de Proyectos": "Projects branch",
+  "Editar encargo": "Edit task",
+  /* ---- La tendencia de la racha (0.7.99) ----
+     «Llevabas más» y no «ibas peor»: el dato es el mismo y el reproche sobra,
+     también en inglés. */
+  "Vas mejor que la semana pasada": "Better than last week",
+  "La semana pasada llevabas más": "Last week you had more",
+  "Vas igual que la semana pasada": "Same as last week",
+  "{0} de {1} días · la semana pasada, {2}": "{0} of {1} days · last week, {2}",
+  "{0} de {1} días esta semana": "{0} of {1} days this week",
   "Estancado": "Stalled",
   "Enfriándose": "Cooling off",
   "Casi listo": "Almost there",

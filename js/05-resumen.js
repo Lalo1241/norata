@@ -173,10 +173,6 @@ function renderSummary() {
       const anio = Number(hoy.slice(0, 4));
       const mes = Number(hoy.slice(5, 7));
 
-      const delMes = { periodo: "mes", desde: hoy.slice(0, 8) + "01", hasta: hoy };
-      const diasMes = diasDe(delMes);
-      const activosMes = diasMes.filter(k => (cuentas.get(k) || 0) > 0).length;
-
       const inicioSemana = addDaysKey(hoy, -weekdayOfKey(hoy));
       let activosSemana = 0;
       for (let i = 0; i < 7; i++) {
@@ -184,6 +180,44 @@ function renderSummary() {
         if (k <= hoy && (cuentas.get(k) || 0) > 0) activosSemana++;
       }
       const diasCorridos = daysBetween(inicioSemana, hoy) + 1;
+
+      /* ---- Contra la semana pasada, y no contra el mes ----
+         Hasta la 0.7.99 aquí había dos fracciones —«4/7 esta semana» y «12/30
+         en septiembre»— y Eduardo las paró: «dice mucho y a la vez no dice
+         nada». Tenía razón, y el problema no era el tamaño. Las dos fracciones,
+         el calendario y el número de la llama son CUATRO formas de contar lo
+         mismo —cuántos días has registrado— y ninguna contesta la única
+         pregunta que uno se hace mirando una racha: *¿voy bien?*
+
+         Una fracción sola no lo contesta porque no tiene contra qué medirse.
+         4 de 7 es bueno o malo según lo que hicieras antes, y eso la app lo
+         sabe. Así que en vez de un dato más, se compara.
+
+         **Se comparan los mismos días, no la semana entera**: un miércoles,
+         los 3 días que llevas contra los 3 PRIMEROS de la semana pasada. Medir
+         3 días corridos contra 7 completos diría siempre que vas peor, y sería
+         mentira todos los lunes. */
+      const iniPrevia = addDaysKey(inicioSemana, -7);
+      let activosPrevia = 0;
+      for (let i = 0; i < diasCorridos; i++) {
+        if ((cuentas.get(addDaysKey(iniPrevia, i)) || 0) > 0) activosPrevia++;
+      }
+      /* Y si no hubo NADA antes de esta semana, no se compara: a quien acaba de
+         empezar, «la semana pasada llevabas 0» le dice que va bien por no haber
+         existido. Ese es el caso vacío de esta tarjeta y se contesta con el
+         dato a secas. */
+      let hayPasado = false;
+      for (const k of cuentas.keys()) { if (k < inicioSemana) { hayPasado = true; break; } }
+
+      const dif = activosSemana - activosPrevia;
+      const tendencia = !hayPasado ? null : {
+        clase: dif > 0 ? "mejor" : (dif < 0 ? "detras" : "igual"),
+        /* «La semana pasada llevabas más» y no «vas peor»: el dato es el mismo
+           y el reproche sobra. La salida ya la da la frase de abajo. */
+        cabeza: dif > 0 ? tx("Vas mejor que la semana pasada")
+              : dif < 0 ? tx("La semana pasada llevabas más")
+              : tx("Vas igual que la semana pasada")
+      };
 
       /* La frase de hoy. Es lo único de esta tarjeta que pide algo, y pide sin
          asustar: dice qué falta y con qué se resuelve, nunca cuánto vas a
@@ -232,29 +266,26 @@ function renderSummary() {
                       dos sobran — recordarte que ya lo hiciste mejor, o
                       encogerse cuando el de hoy lo supera. */""}
                 <span class="lbl">${stk.cur === 1 ? tx("día<br>de racha") : tx("días<br>de racha")}</span>
-                ${/* Cada cifra con su barra. Es la de Mi expedición
-                      —`.barra-viva`, con su punta encendida y su estela— y
-                      está aquí porque le gustó a Eduardo y porque estas dos
-                      cifras eran justo lo más estático de la tarjeta: dos
-                      fracciones que no dicen de un vistazo si vas bien.
+              </div>
+              ${/* ---- Una sola cosa donde había dos fracciones ----
+                    Y esta sí contesta la pregunta que uno se hace mirando una
+                    racha: «¿voy bien?». Las dos de antes —«4/7 esta semana» y
+                    «12/30 en septiembre»— eran datos sin nada contra qué
+                    medirse, y con el calendario justo debajo diciendo lo mismo.
 
-                      La semana va en el color de la LLAMA y el mes en el
-                      acento: son las dos cosas que ya distinguen esta tarjeta,
-                      y así la barra dice de cuál de las dos cifras es sin
-                      leer el rótulo. Dentro de una escena los dos tonos
-                      vuelven a su cara de noche solos. */""}
-                <div class="sg-cifras">
-                  <div>
-                    <b>${activosSemana}<span>/${diasCorridos}</span></b>
-                    <div class="barra-viva sg-barra"><i style="--p:${Math.round(activosSemana / Math.max(1, diasCorridos) * 100)}%;--c:var(--fire)"></i></div>
-                    <span>${tx("esta semana")}</span>
-                  </div>
-                  <div>
-                    <b>${activosMes}<span>/${diasMes.length}</span></b>
-                    <div class="barra-viva sg-barra"><i style="--p:${Math.round(activosMes / Math.max(1, diasMes.length) * 100)}%;--c:var(--mint)"></i></div>
-                    <span>${T`en ${nombreDeMes(mes)}`}</span>
-                  </div>
-                </div>
+                    La barra se queda, y es la de Mi expedición: le gustó a
+                    Eduardo y aquí gana algo nuevo, la marca de por dónde iba la
+                    semana pasada. Una fracción hay que resolverla; una barra
+                    con una marca detrás se ve. Va en el color de la LLAMA,
+                    que es de lo que habla. Dentro de una escena el tono vuelve
+                    a su cara de noche solo. */""}
+              <div class="sg-tendencia${tendencia ? " " + tendencia.clase : ""}">
+                ${tendencia ? `<b>${escapeHtml(tendencia.cabeza)}</b>` : ""}
+                <div class="barra-viva sg-barra"><i style="--p:${Math.round(activosSemana / Math.max(1, diasCorridos) * 100)}%;--c:var(--fire)"></i>${
+                  tendencia ? `<u style="--q:${Math.round(activosPrevia / Math.max(1, diasCorridos) * 100)}%"></u>` : ""}</div>
+                <span>${tendencia
+                  ? T`${activosSemana} de ${diasCorridos} días · la semana pasada, ${activosPrevia}`
+                  : T`${activosSemana} de ${diasCorridos} días esta semana`}</span>
               </div>
               <p class="sg-hoy${hoyCuenta ? " si" : ""}">${escapeHtml(frase)}</p>
             </div>

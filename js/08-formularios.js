@@ -341,8 +341,47 @@ function saveSkill() {
   }
 }
 
+/* ================= Salir de un formulario GUARDA =================
+   Lo pidió Eduardo el 8 sep 2026: «cuando te sales de estar editando algún
+   elemento sin el botón guardar cambios necesito que sí los guardes, como el
+   botón está hasta abajo siento que se olvida».
+
+   El diagnóstico detrás, que es lo que hace que esto no sea un capricho: la
+   flecha de arriba a la izquierda dice **«volver»**, no «cancelar». Nadie lee
+   «volver» como «tira lo que escribiste». Así que la app prometía una cosa y
+   hacía otra, y el precio lo pagaba siempre el mismo: quien editó, bajó, no
+   vio el botón y se salió.
+
+   ---- Las tres salidas, y por qué son tres y no una ----
+
+     · **Sin nombre** → se sale sin guardar. No hay nada que perder: un
+       formulario sin nombre no es un cambio, es un formulario en blanco.
+     · **Con nombre y guarda bien** → guardado, y la propia función de guardar
+       se encarga de mover de pantalla (por eso aquí no se navega después).
+     · **Con nombre y NO puede guardar** —falta elegir un día en una misión
+       semanal, o el plan no deja crear una más— se separa en dos:
+       editando algo que YA existe se queda en el formulario, porque hay
+       cambios de verdad que proteger y el aviso dice qué arreglar; creando
+       algo nuevo se sale, porque no existía nada y quedarse encerrado en un
+       formulario que no se puede guardar sería peor que no crearlo.
+
+   Cómo se sabe si guardó: se mira si la pantalla del formulario sigue siendo
+   la activa. Las cuatro funciones de guardar navegan al terminar bien, así que
+   seguir aquí ES el fallo. Se hace así, y no devolviendo `true`, para no tener
+   que tocar los cuatro `return` sueltos que ya tiene cada una — un `return`
+   olvidado se vería como «a veces no guarda», que es el peor fallo posible
+   justo aquí. */
+function salirGuardando(vistaForm, campoNombre, guardar, editando, destino) {
+  const campo = document.getElementById(campoNombre);
+  if (!campo || !campo.value.trim()) { showView(destino); return; }
+  guardar();
+  const sigueAqui = document.getElementById(vistaForm).classList.contains("active");
+  if (sigueAqui && !editando) showView(destino);
+}
+
 function cancelForm() {
-  showView(editingSkillId && currentSkillId === editingSkillId ? "detail" : "home");
+  salirGuardando("view-form", "f-name", saveSkill, !!editingSkillId,
+    editingSkillId && currentSkillId === editingSkillId ? "detail" : "home");
 }
 
 async function deleteSkill() {
@@ -609,7 +648,8 @@ function savePerk() {
 }
 
 function cancelPerkForm() {
-  showView(editingPerkId && currentPerkId === editingPerkId ? "perk" : "tree");
+  salirGuardando("view-perk-form", "p-name", savePerk, !!editingPerkId,
+    editingPerkId && currentPerkId === editingPerkId ? "perk" : "tree");
 }
 
 async function deletePerk() {
@@ -687,6 +727,10 @@ function renderDayPick() {
 function toggleDay(i) {
   msDays = msDays.includes(i) ? msDays.filter(d => d !== i) : [...msDays, i].sort();
   renderDayPick();
+}
+
+function cancelMissionForm() {
+  salirGuardando("view-mission-form", "ms-name", saveMission, !!editingMissionId, "missions");
 }
 
 function saveMission() {
@@ -881,7 +925,8 @@ function saveProject() {
 }
 
 function cancelProjectForm() {
-  showView(editingProjectId && currentProjectId === editingProjectId ? "project" : "projects");
+  salirGuardando("view-project-form", "pr-name", saveProject, !!editingProjectId,
+    editingProjectId && currentProjectId === editingProjectId ? "project" : "projects");
 }
 
 async function deleteProject() {

@@ -48,8 +48,8 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.98.2";
-const VERSION_FECHA = "8 sep 2026";
+const VERSION = "0.7.99";
+const VERSION_FECHA = "9 sep 2026";
 
 /* ================= Iconografía propia =================
    Iconos de trazo (24x24) dibujados a mano; nada de emojis. */
@@ -179,6 +179,20 @@ const ICONS = {
      confunde con un vaso a tamaño pequeño. */
   papelera: '<path d="M4 7h16"/><path d="M10 4h4"/><path d="M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/><path d="M10 11v6M14 11v6"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  /* ---- Las cuatro siluetas de encargo, como icono (0.7.99) ----
+     Los botones del tipo llevaban paloma, bandera, brújula y moneda: iconos
+     del CONCEPTO. Eduardo los paró — «no debe venir con un icono random,
+     debería venir con uno que haga alusión a la forma que ya determinamos».
+     Tiene razón y es más que estética: el botón es el único sitio donde se
+     aprende qué figura vas a poner en el mapa, así que dibujar otra cosa era
+     enseñar el vocabulario equivocado justo donde se elige.
+
+     Son la misma geometría del lienzo llevada a 24×24: caja de esquinas
+     suaves, caja con punta, caja con las esquinas cortadas y círculo. */
+  figTarea: '<rect x="3" y="6" width="18" height="12" rx="4"/>',
+  figEntrega: '<path d="M3.5 6h10.5l4.5 6-4.5 6H3.5z"/>',
+  figDecision: '<path d="M8.5 4h7l4.5 4.5v7L15.5 20h-7L4 15.5v-7z"/>',
+  figGasto: '<circle cx="12" cy="12" r="6.5"/>',
   play: '<path d="M8 5.5l11 6.5-11 6.5z" stroke-linejoin="round"/>',
   alert: '<path d="M12 7v7M12 17.4v.2"/>',
   /* El bicho de reportar fallos. Un escarabajo visto desde arriba: cuerpo,

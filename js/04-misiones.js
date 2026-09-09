@@ -853,23 +853,23 @@ const FIGURA_ENCARGO = { forma: "encargo", radio: 31, ancho: 62, alto: 42 };
 const TIPOS_ENCARGO = {
   tarea: {
     nombre: "Tarea", sub: "El trabajo de siempre: se hace por etapas y no cierra nada por su cuenta.",
-    icono: "check", forma: "encargo", silueta: "rect", radio: 31, ancho: 62, alto: 42
+    icono: "figTarea", forma: "encargo", silueta: "rect", radio: 31, ancho: 62, alto: 42
   },
   entrega: {
     nombre: "Entrega", sub: "Lo que cierra una fase y sale del proyecto: entregar, publicar, inaugurar.",
-    icono: "flag",
+    icono: "figEntrega",
     // La punta a la derecha dice por dónde sale
     forma: "encargo", silueta: "punta", radio: 31, ancho: 62, alto: 42
   },
   decision: {
     nombre: "Decisión", sub: "Hay que elegir entre caminos, y hasta que elijas lo de después no se puede empezar.",
-    icono: "compass",
+    icono: "figDecision",
     // Las esquinas cortadas, que es la silueta de «alto, decide»
     forma: "encargo", silueta: "corte", radio: 31, ancho: 62, alto: 42
   },
   gasto: {
     nombre: "Gasto", sub: "Algo que hay que pagar para que el proyecto siga: material, un permiso, un servicio.",
-    icono: "coin", forma: "circulo", radio: 19
+    icono: "figGasto", forma: "circulo", radio: 19
   }
 };
 
@@ -1429,6 +1429,22 @@ function atrasApp() {
     showView("summary");
     return desarmar();
   }
+  /* ---- Los formularios salen por su propia puerta ----
+     Y no por `padre`, que es lo que hacían hasta la 0.7.99. El comentario de
+     arriba dice «lo mismo que haría la flecha de esta pantalla», y en los
+     cuatro formularios eso era falso justo donde más caro salía: desde que
+     salir guarda (ver `salirGuardando`), la flecha conserva lo escrito y el
+     gesto de atrás del teléfono lo tiraba. Dos salidas de la misma pantalla
+     haciendo cosas contrarias es peor que ninguna de las dos. */
+  const PUERTA_FORM = {
+    "form": "cancelForm", "perk-form": "cancelPerkForm",
+    "project-form": "cancelProjectForm", "mission-form": "cancelMissionForm"
+  };
+  if (PUERTA_FORM[vista] && typeof window[PUERTA_FORM[vista]] === "function") {
+    window[PUERTA_FORM[vista]]();
+    return desarmar();
+  }
+
   const padre = VISTA_MODULO[vista];
   if (padre && padre !== vista) { showView(padre); return desarmar(); }
 
