@@ -9443,17 +9443,29 @@
        y se fue.** «Se ve anticuado», y tiene razón — un degradado vertical
        tenue sobre un botón es de otra época, y aquí no hacía falta ninguna: lo
        que dice que esto llegó son el marco, el halo, el disco del icono y el
-       barrido, que son gestos, no un tinte. El fondo se queda liso en
-       `--fire-soft`. El BARRIDO se queda: ese sí es un degradado, pero es un
-       destello que cruza una vez y no una capa pegada al fondo.
+       barrido, que son gestos, no un tinte. El BARRIDO se queda: ese sí es un
+       degradado, pero es un destello que cruza una vez y no una capa pegada al
+       fondo.
 
-       **Lo que tampoco se trae es el vidrio, y es la única pieza que no viaja
-       por otro motivo.** La tarjeta se apoya en `rgba(var(--escena-vidrio),
-       .62)`, que es de noche SIEMPRE porque vive dentro de una escena —y una
-       escena no cambia de luz, es un dibujo—. El botón vive en la barra, que sí
-       cambia con el modo claro: con el vidrio puesto sería un rectángulo carbón
-       en mitad de una barra clara. De ahí `--fire-soft`, que ya tiene sus dos
-       caras.
+       **Y el fondo y el marco son ahora los del CUADRO DE REPORTAR UN FALLO**,
+       que es lo que pidió Eduardo al verlo liso. O sea `--sup-tarjeta` y el
+       acento a plena fuerza, no un tinte del acento y un marco al 42 %. Y no es
+       un cambio de gusto: los dos objetos son la misma cosa dicha en dos
+       sitios —algo en luciérnaga que aparece encima de lo que estabas haciendo
+       y espera a que decidas—, así que la app tiene UNA forma de decirlo y no
+       dos parecidas. De paso el marco se ve de verdad: un borde al 42 % de un
+       tono sobre un fondo de ese mismo tono casi no existe.
+
+       Se lleva también el `border-image`, que es lo que hace que un mundo con
+       marco forjado se lo lleve aquí igual que en el cuadro. En la casa vale
+       `none` y no cambia nada.
+
+       **Lo que no viaja del cuadro de premio es el vidrio.** La tarjeta se
+       apoya en `rgba(var(--escena-vidrio), .62)`, que es de noche SIEMPRE
+       porque vive dentro de una escena —y una escena no cambia de luz, es un
+       dibujo—. El botón vive en la barra, que sí cambia con el modo claro: con
+       el vidrio puesto sería un rectángulo carbón en mitad de una barra clara.
+       `--sup-tarjeta` ya tiene sus dos caras.
 
        Y todo sigue saliendo de `--fire`, así que un mundo que la cambie se lo
        lleva entero y el modo claro pasa solo a la versión de escribir. */
@@ -9476,10 +9488,11 @@
       position: relative;
       overflow: hidden;
       color: var(--fire);
-      /* Liso, sin el degradado que caía desde arriba: lo paró Eduardo —«se ve
-         anticuado»— y no hacía falta ninguno (ver la nota de arriba). */
-      background: var(--fire-soft);
-      border-color: color-mix(in srgb, var(--fire) 42%, transparent);
+      /* El fondo y el marco del cuadro de reportar un fallo, tal cual: liso, y
+         el acento a plena fuerza (ver la nota de arriba). */
+      background: var(--sup-tarjeta);
+      border-color: var(--fire);
+      border-image: var(--marco-tarjeta);
       border-radius: var(--r-caja);
       padding: 12px;
       gap: 11px;
@@ -9516,9 +9529,11 @@
       22%  { opacity: 1; }
       100% { transform: translateX(58%); opacity: 0; }
     }
+    /* Y el ratón lo levanta con un velo del acento por encima del mismo suelo,
+       que es lo único que cambia: el marco ya está a plena fuerza y no le queda
+       a dónde subir. */
     #nav-update-side:hover {
-      background: color-mix(in srgb, var(--fire) 18%, transparent);
-      border-color: color-mix(in srgb, var(--fire) 60%, transparent);
+      background: color-mix(in srgb, var(--fire) 13%, var(--sup-tarjeta));
       color: var(--fire);
     }
     /* ---- De día no hay resplandor ----

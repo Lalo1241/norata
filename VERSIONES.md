@@ -100,6 +100,33 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.99.2 · 9 sep 2026
+
+**El aviso de versión nueva se viste como el cuadro de reportar un fallo.** Lo
+pidió Eduardo al verlo ya liso: «usa mejor el fondo y el borde que usas en la
+ventana de bugs».
+
+O sea `--sup-tarjeta` y el acento a PLENA fuerza, en vez de un tinte del acento
+y un marco al 42 %. Y no es un cambio de gusto: los dos objetos son la misma
+cosa dicha en dos sitios —algo en luciérnaga que aparece encima de lo que
+estabas haciendo y espera a que decidas—, así que la app tiene una sola forma de
+decirlo y no dos parecidas. De paso el marco se ve de verdad: un borde al 42 %
+de un tono, puesto sobre un fondo de ese mismo tono, casi no existe.
+
+Se lleva también el `border-image`, que es lo que hará que un mundo con marco
+forjado se lo lleve aquí igual que en el cuadro. En la casa vale `none` y no
+cambia nada hoy.
+
+El `:hover` deja de subirle el marco —ya está arriba— y se queda con un velo del
+acento sobre ese mismo suelo. El halo, el disco del icono, la entrada con rebote
+y el barrido siguen igual.
+
+**Medido** en los dos modos: el fondo del botón sale idéntico al de la ventana
+de bugs —`#1d2530` de noche y `#f2f0f9` de día, leídos los dos del mismo DOM— y
+el marco es `--fire` entero, a 12,2 y 6,01 sobre 1 contra la barra (una línea
+pide 3). El rótulo, a 10,91 y 5,66. Sin desbordes. Cero errores de consola, cero
+traducciones que falten, las cuatro combinaciones de humo limpias.
+
 ### 0.7.99.1 · 9 sep 2026
 
 **Fuera el degradado del aviso de versión nueva.** «Se ve anticuado», y tiene
