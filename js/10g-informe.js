@@ -865,10 +865,11 @@ function infPomodoro(r, rAntes, D) {
 
   return html;
 }
-/* «7:20» en las barras de las noches: «7 h 20 min» no cabe encima de una barra. */
+/* «07:20» en las barras de las noches: «7 h 20 min» no cabe encima de una
+   barra. Con dos dígitos también en la hora, como el reloj del Pomodoro. */
 function jHm2(min) {
   const m = Math.round(min || 0);
-  return Math.floor(m / 60) + ":" + String(m % 60).padStart(2, "0");
+  return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
 }
 
 /* ================= Talentos ================= */

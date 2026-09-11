@@ -46,8 +46,32 @@
 .jor-lite #jor-tiempo { font-size: 64px; }
 .jor-lite #jor-fase { font-size: 14px; margin-top: 6px; }
 .jor-lite #jor-sub { font-size: 13px; margin-bottom: 18px; }
-.jor-lite .jor-controles { max-width: 380px; }
+.jor-lite .jor-controles { max-width: 420px; }
 .jor-pild[aria-pressed="true"] { border-color: var(--mint); background: var(--mint-soft); color: var(--mint); }
+
+/* Las tres maneras del Hiperfoco (0.7.105): tres tarjetas en fila, cada una
+   con su lápiz en la esquina para cambiarle el nombre. */
+.jor-hf-modos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.jor-hf { position: relative; }
+.jor-hf-sel {
+  width: 100%; height: 100%; display: grid; gap: 2px; align-content: start; text-align: left;
+  padding: 10px 26px 10px 12px; border-radius: var(--r-tarjeta); border: 1px solid var(--line);
+  background: var(--sup-tarjeta); color: var(--text); font: inherit; cursor: pointer;
+}
+.jor-hf-sel b { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jor-hf-sel span { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
+.jor-hf-sel[aria-pressed="true"] { border-color: var(--mint); background: var(--mint-soft); }
+.jor-hf-sel[aria-pressed="true"] b { color: var(--mint); }
+.jor-hf-lapiz {
+  position: absolute; top: 6px; right: 5px; width: 24px; height: 24px; padding: 0;
+  border: 0; border-radius: var(--r-redondo); background: transparent; color: var(--muted);
+  display: grid; place-items: center; cursor: pointer;
+}
+.jor-hf-lapiz:hover { color: var(--text); background: var(--carril); }
+.jor-hf-lapiz svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.jor-hf-ajustes { width: 100%; border: 1px solid var(--line); border-radius: var(--r-tarjeta); }
+.jor-hf-paso { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 12px; font-size: 14px; }
+.jor-hf-paso + .jor-hf-paso { border-top: 1px solid var(--line); }
 
 /* «2 de 4 con foco», al lado de «Hoy»: lo planeado contra lo hecho. */
 .jor-rot-dato { margin-left: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--mint); }
@@ -66,6 +90,15 @@
 .jor-num.mayor { fill: var(--text); font-weight: 700; }
 .jor-blq { stroke: var(--jor-sep); stroke-width: 2; cursor: grab; }
 .jor-blq.sel { stroke: var(--text); stroke-width: 2.2; }
+/* El gajo en curso brilla con su color: el mismo halo que `.barra-viva i`
+   (10 px al 55%) más uno corto que lo pega al borde. Sin animación: el color
+   sale de una variable, y animado se queda congelado en Chrome. */
+.jor-blq.ahora {
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--jor-brillo) 70%, transparent))
+          drop-shadow(0 0 10px color-mix(in srgb, var(--jor-brillo) 55%, transparent));
+}
+/* De día no hay resplandor: sobre papel un halo es una mancha. */
+html.claro .jor-blq.ahora { filter: none; }
 .jor-blq-ic { color: var(--sobre-vivo); pointer-events: none; }
 .jor-blq-ic.descanso { color: var(--text); }
 .jor-aguja { pointer-events: none; }
@@ -99,7 +132,7 @@
 .jor-madera { fill: var(--faint); stroke: var(--muted); stroke-width: 2.5; }
 .jor-poste { stroke: var(--faint); stroke-width: 7; stroke-linecap: round; }
 .jor-vidrio { fill: color-mix(in srgb, var(--celeste) 8%, transparent); }
-.jor-vidrio-borde { fill: none; stroke: var(--muted); stroke-width: 3; }
+.jor-vidrio-borde { fill: none; stroke: var(--muted); stroke-width: 3; stroke-linejoin: round; }
 .jor-arena-g { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--jor-grano) 50%, transparent)); }
 .jor-arena-g rect { fill: var(--jor-grano); }
 #jor-chorro { stroke: var(--jor-grano); stroke-width: 4; stroke-dasharray: 6 8; animation: jor-caer .5s linear infinite; }
