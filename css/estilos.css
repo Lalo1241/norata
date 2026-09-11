@@ -568,6 +568,7 @@
     --piso-barra: 60;      /* la barra de navegación */
     --piso-lienzo: 90;     /* la rama a pantalla completa */
     --piso-flotante: 100;  /* menús pegados a algo: clic derecho, rama */
+    --piso-reloj: 110;     /* la píldora del reloj de la Jornada: bajo las fiestas */
     --piso-fiesta: 120;    /* celebraciones que ocupan la pantalla */
     --piso-nivel: 130;     /* subir de nivel: encima de la fiesta de racha */
     --piso-arrastre: 200;  /* la copia que sigue al dedo al reordenar */

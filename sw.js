@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.100";
+const CACHE = "norata-0.7.101";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -28,10 +28,12 @@ const ASSETS = [
      del catálogo saldría gris para quien nunca se haya bajado un mundo, que es
      todo el mundo la primera vez que abre esa pantalla. */
   "./css/muestras.css",
+  /* La Jornada, en prueba desde 0.7.101. */
+  "./css/jornada.css",
   "./js/00-idioma.js", "./js/00b-textos-en.js",
   "./js/01-base.js", "./js/02-progreso.js", "./js/02b-expedicion.js", "./js/03-talentos.js",
   "./js/04-misiones.js", "./js/05-resumen.js", "./js/06-detalle.js",
-  "./js/07-lienzo.js", "./js/08-formularios.js", "./js/09-inicio.js", "./js/09c-region.js",
+  "./js/07-lienzo.js", "./js/08-formularios.js", "./js/09-inicio.js", "./js/09c-region.js", "./js/09d-jornada.js",
   "./js/10-fusion.js", "./js/10-sincronia.js", "./js/10a-perfil.js", "./js/10b-supabase.js", "./js/10c-portada.js", "./js/10d-plan.js", "./js/10e-panel.js", "./js/10f-informes.js", "./js/10g-informe.js", "./js/10h-lecturas.js",
   "./js/10i-apariencia.js",
   "./js/10j-caminos.js",
@@ -321,3 +323,17 @@ function avisarDeVersionNueva(primeraInstalacion) {
       });
     });
 }
+
+/* ---- Tocar el aviso de la Jornada te devuelve a la app ----
+   La Jornada (en prueba, 0.7.101) avisa con el sistema cuando acaba un tramo
+   y la pestaña está de fondo. Sin esto, tocar el aviso lo cerraba y no pasaba
+   nada más: el aviso decía «ven» y no llevaba a ningún sitio. */
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((lista) => {
+      for (const c of lista) { if ("focus" in c) return c.focus(); }
+      return self.clients.openWindow ? self.clients.openWindow("./") : undefined;
+    })
+  );
+});

@@ -1054,7 +1054,12 @@ const MODULOS = [
   { id: "missions", nav: "nav-missions", label: "Misiones",    hint: "Lo que haces hoy, con su racha" },
   { id: "home",     nav: "nav-home",     label: "Habilidades", hint: "Lo que practicas y sube de nivel" },
   { id: "tree",     nav: "nav-tree",     label: "Talentos",    hint: "Metas con inversión de dinero real" },
-  { id: "projects", nav: "nav-projects", label: "Proyectos",   hint: "Lo que construyes, encargo a encargo" }
+  { id: "projects", nav: "nav-projects", label: "Proyectos",   hint: "Lo que construyes, encargo a encargo" },
+  /* EN PRUEBA desde 0.7.101, y va al revés que los otros cuatro: APAGADA para
+     todos hasta que alguien la encienda (`?jornada=1`). Por eso lleva `prueba`:
+     no cuenta para «deja al menos un módulo encendido» y su fila de Ajustes
+     solo aparece a quien ya la encendió alguna vez. Ver js/09d-jornada.js. */
+  { id: "jornada",  nav: "nav-jornada",  label: "Jornada",     hint: "En prueba: tu día en una rueda, con reloj de enfoque", prueba: true }
 ];
 
 /* ================= Los dos que llegan después =================
@@ -1247,10 +1252,13 @@ const VISTA_MODULO = {
   missions: "missions", "mission-form": "missions",
   home: "home", detail: "home", form: "home", catalog: "home",
   tree: "tree", perk: "tree", "perk-form": "tree",
-  projects: "projects", project: "projects", "project-form": "projects"
+  projects: "projects", project: "projects", "project-form": "projects",
+  jornada: "jornada"
 };
 
 function moduloOn(id) {
+  /* La Jornada es la única que nace apagada: se pregunta al revés. */
+  if (id === "jornada") return typeof jornadaEncendida === "function" && jornadaEncendida();
   const off = (state.ui && state.ui.modulosOff) || [];
   return !off.includes(id);
 }
@@ -1283,13 +1291,25 @@ function aplicarModulos() {
     const base = tx(m.label);
     el.setAttribute("aria-label", cerrado ? T`${base} · se abre en el nivel ${MODULO_NIVEL[m.id]}` : base);
   });
+  /* Con la Jornada la barra del teléfono lleva seis círculos y hay que
+     apretarlos para que quepan (css/jornada.css). */
+  document.documentElement.classList.toggle("con-jornada", moduloOn("jornada"));
 }
 
 function setModulo(id, on) {
   state.ui = state.ui || {};
+  if (id === "jornada") {
+    state.ui.jornada = !!on;
+    save();
+    aplicarModulos();
+    renderModulos();
+    if (!on && activeMainView === "jornada") showView("summary");
+    toast(on ? T`${tx("Jornada")} vuelve al menú` : tx("Oculto · puedes traerlo de vuelta aquí"), on ? "hecho" : "deshecho");
+    return;
+  }
   const off = new Set(state.ui.modulosOff || []);
   if (on) off.delete(id); else off.add(id);
-  if (off.size >= MODULOS.length) { toast(tx("Deja al menos un módulo encendido"), "atencion"); return; }
+  if (off.size >= MODULOS.filter(m => !m.prueba).length) { toast(tx("Deja al menos un módulo encendido"), "atencion"); return; }
   state.ui.modulosOff = [...off];
   save();
   aplicarModulos();
@@ -1302,7 +1322,9 @@ function setModulo(id, on) {
 function renderModulos() {
   const el = document.getElementById("modulos-list");
   if (!el) return;
-  el.innerHTML = MODULOS.map(m => {
+  /* Un módulo en prueba no se le enseña a quien nunca lo pidió: su fila sale
+     cuando ya se encendió alguna vez, para poder apagarlo desde aquí. */
+  el.innerHTML = MODULOS.filter(m => !m.prueba || (state.ui && state.ui.jornada !== undefined)).map(m => {
     const on = moduloOn(m.id);
     /* Un módulo que el nivel todavía no abrió no tiene interruptor, y no
        porque no se pueda: apagar lo que aún no existe no significa nada, y un
@@ -1326,7 +1348,7 @@ function renderModulos() {
 
 /* ================= Navegación ================= */
 
-const NAV_VIEWS = { summary: "nav-summary", missions: "nav-missions", home: "nav-home", tree: "nav-tree", projects: "nav-projects", settings: "nav-settings-side" };
+const NAV_VIEWS = { summary: "nav-summary", missions: "nav-missions", home: "nav-home", tree: "nav-tree", projects: "nav-projects", jornada: "nav-jornada", settings: "nav-settings-side" };
 
 /* Solo importa en escritorio (móvil no tiene barra lateral que plegar),
    pero no hace daño llamarla desde donde sea: sin el div.side-brand del
@@ -1408,6 +1430,11 @@ function atrasApp() {
   if (tuto && tuto.classList.contains("show")) { cerrarTutorial(); return desarmar(); }
 
   if (typeof ventanaCajaId !== "undefined" && ventanaCajaId) { cerrarVentanaCaja(); return desarmar(); }
+
+  /* Las hojas de la Jornada. El cierre de un tramo no se va con el gesto —se
+     perdería el tramo—, pero el gesto se consume igual: salir de la app con
+     un tramo sin guardar sería peor. */
+  if (typeof jornadaHojaAbierta === "function" && jornadaHojaAbierta()) { cerrarHojaJornada(true); return desarmar(); }
 
   const modal = document.getElementById("modal");
   if (modal && modal.classList.contains("show")) { modalDone(false); return desarmar(); }
@@ -1617,6 +1644,7 @@ function showView(name) {
      Todas se van solas si no había ninguna puesta. */
   if (typeof cerrarMenuAjustes === "function") cerrarMenuAjustes();
   if (typeof cerrarVentanaCaja === "function") cerrarVentanaCaja();
+  if (typeof cerrarHojaJornada === "function") cerrarHojaJornada(true);
 
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.getElementById("view-" + name).classList.add("active");
@@ -1711,6 +1739,7 @@ function showView(name) {
     if (name === "home") renderHome();
     if (name === "tree") { focusPending = true; renderTree(); }
     if (name === "projects") renderProjects();
+    if (name === "jornada" && typeof renderJornada === "function") renderJornada();
     if (ESQ_CONTENEDOR[name]) {
       _esqCoste[name] = performance.now() - t0;
       esqRecordarForma(name);
@@ -1763,7 +1792,9 @@ function showView(name) {
    Ajustes se queda fuera a propósito, por petición de Eduardo. */
 const ROTULO_PESTANA = {
   // Su encabezado es "Árbol de talentos", que recortado no dice nada
-  tree: "Talentos"
+  tree: "Talentos",
+  // El suyo lleva pegada la chapa de «Prueba», que en la pestaña sobra
+  jornada: "Jornada"
 };
 
 function titularPestana(name) {
@@ -1780,7 +1811,7 @@ function titularPestana(name) {
   document.title = (name === "settings" || !rotulo) ? APP : rotulo + " - " + APP;
 }
 
-const VISTAS_ANCHAS = new Set(["summary", "missions", "home", "tree", "projects"]);
+const VISTAS_ANCHAS = new Set(["summary", "missions", "home", "tree", "projects", "jornada"]);
 
 function fabAction() {
   if (activeMainView === "tree") crearRama("perks");
