@@ -66,8 +66,12 @@
 /* Solo gira el dibujo, y su transición es de `transform`: nada que salga de
    una variable, que es lo que Chrome deja congelado. */
 #jor-giro { transform-box: view-box; transform-origin: 80px 112px; transition: transform .9s cubic-bezier(.3, .7, .2, 1); }
-.jor-madera { fill: var(--card); stroke: var(--line); stroke-width: 3; }
-.jor-poste { stroke: var(--line); stroke-width: 5; stroke-linecap: round; }
+/* Las tapas y los postes iban en `--card` y `--line`, casi el mismo tono que
+   la tarjeta de detrás: a 56 px de alto las tapas no se veían y el reloj
+   parecía un vaso suelto. Lo cazó Eduardo en la 0.7.101. Van un escalón más
+   claras y más gruesas, que es lo que dice «esto es un reloj de arena». */
+.jor-madera { fill: var(--faint); stroke: var(--muted); stroke-width: 2.5; }
+.jor-poste { stroke: var(--faint); stroke-width: 7; stroke-linecap: round; }
 .jor-vidrio { fill: color-mix(in srgb, var(--celeste) 8%, transparent); }
 .jor-vidrio-borde { fill: none; stroke: var(--muted); stroke-width: 3; }
 .jor-arena-g { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--jor-grano) 50%, transparent)); }
@@ -200,6 +204,10 @@ html.claro .jor-arena-g { filter: none; }
 @media (min-width: 900px) {
   .jor { display: grid; grid-template-columns: minmax(380px, 460px) minmax(0, 1fr); gap: 28px; align-items: start; padding-bottom: 40px; }
   .jor-reloj { background: var(--sup-tarjeta); border: 1px solid var(--line); border-radius: var(--r-grande); padding: 22px 22px 24px; }
+  /* La lista no se estira a todo lo que sobra: una tira de 1.000 px con un
+     nombre a la izquierda y la duración a la derecha no se lee como UNA cosa.
+     Lo pidió Eduardo al probarla (0.7.101.1). */
+  .jor-lista { max-width: 560px; }
   .jor-rueda { max-width: 400px; --jor-sep: var(--card); }
   .jor-arena { width: 56px; }
   #jor-tiempo { font-size: 42px; }
