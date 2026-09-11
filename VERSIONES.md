@@ -100,6 +100,17 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.101.1 · 11 sep 2026
+
+**Jornada: la lista ya no se estira y el reloj de arena tiene tapas.** Las dos
+las cazó Eduardo en la primera prueba. En la computadora cada bloque de «Hoy»
+ocupaba todo el ancho que sobraba —una tira de 1.000 px con el nombre en una
+punta y la duración en la otra—; ahora la columna llega a 560 px. Y las tapas y
+los postes del reloj iban en `--card` y `--line`, casi el tono de la tarjeta:
+a 56 px de alto el reloj parecía un vaso. Van en `--faint` con contorno
+`--muted`, más gruesas. Todo en `css/jornada.css` y en el dibujo de
+`js/09d-jornada.js`; la lista de borrado de la 0.7.101 no cambia.
+
 ### 0.7.101 · 11 sep 2026
 
 **Jornada, en prueba: el día en una rueda de 24 horas con un reloj de arena en

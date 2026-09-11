@@ -440,7 +440,7 @@ function renderJornada() {
                   <line id="jor-chorro" x1="80" y1="112" x2="80" y2="200"/>
                 </g>
                 <path class="jor-vidrio-borde" d="M42 22 L118 22 C118 72 86 94 83.5 112 C86 130 118 152 118 202 L42 202 C42 152 74 130 76.5 112 C74 94 42 72 42 22 Z"/>
-                <rect class="jor-madera" x="18" y="6" width="124" height="14" rx="5"/><rect class="jor-madera" x="18" y="204" width="124" height="14" rx="5"/>
+                <rect class="jor-madera" x="14" y="1" width="132" height="21" rx="7"/><rect class="jor-madera" x="14" y="202" width="132" height="21" rx="7"/>
               </g>
             </svg>
             <div id="jor-tiempo">25:00</div>
