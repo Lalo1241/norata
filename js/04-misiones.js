@@ -1055,13 +1055,16 @@ const MODULOS = [
   { id: "home",     nav: "nav-home",     label: "Habilidades", hint: "Lo que practicas y sube de nivel" },
   { id: "tree",     nav: "nav-tree",     label: "Talentos",    hint: "Metas con inversión de dinero real" },
   { id: "projects", nav: "nav-projects", label: "Proyectos",   hint: "Lo que construyes, encargo a encargo" },
-  /* EN PRUEBA desde 0.7.101, y va al revés que los otros cuatro: APAGADA para
-     todos hasta que alguien la encienda (`?jornada=1`). Por eso lleva `prueba`:
-     no cuenta para «deja al menos un módulo encendido» y su fila de Ajustes
-     solo aparece a quien ya la encendió alguna vez. Ver js/09d-jornada.js. */
-  /* Se ve «Pomodoro» desde la 0.7.102; el id sigue siendo `jornada` para no
-     dejar huérfanos los datos de quien ya lo probaba. */
-  { id: "jornada",  nav: "nav-jornada",  label: "Pomodoro",    hint: "En prueba: tu día en una rueda, con tramos de enfoque", prueba: true }
+  /* El Pomodoro. Nació en la 0.7.101 APAGADO y detrás de `?jornada=1`, y en la
+     0.7.103 pasó a ser un módulo como los otros cuatro: encendido para todos y
+     con su interruptor en Ajustes. Lo pidió Eduardo porque «no siempre sale»,
+     y la causa era de fondo: el interruptor vivía en `state.ui`, que la
+     sincronía trae ENTERO del dispositivo más reciente, así que otro
+     dispositivo sin la marca lo apagaba en silencio. Ahora solo se guarda si
+     alguien lo APAGA (`modulosOff`), como los demás.
+     Se ve «Pomodoro» desde la 0.7.102; el id sigue siendo `jornada` para no
+     dejar huérfanos los datos. Ver js/09d-jornada.js. */
+  { id: "jornada",  nav: "nav-jornada",  label: "Pomodoro",    hint: "Pre alpha: tu día en una rueda, con tramos de enfoque" }
 ];
 
 /* ================= Los dos que llegan después =================
@@ -1259,8 +1262,6 @@ const VISTA_MODULO = {
 };
 
 function moduloOn(id) {
-  /* La Jornada es la única que nace apagada: se pregunta al revés. */
-  if (id === "jornada") return typeof jornadaEncendida === "function" && jornadaEncendida();
   const off = (state.ui && state.ui.modulosOff) || [];
   return !off.includes(id);
 }
@@ -1300,18 +1301,9 @@ function aplicarModulos() {
 
 function setModulo(id, on) {
   state.ui = state.ui || {};
-  if (id === "jornada") {
-    state.ui.jornada = !!on;
-    save();
-    aplicarModulos();
-    renderModulos();
-    if (!on && activeMainView === "jornada") showView("summary");
-    toast(on ? T`${tx("Pomodoro")} vuelve al menú` : tx("Oculto · puedes traerlo de vuelta aquí"), on ? "hecho" : "deshecho");
-    return;
-  }
   const off = new Set(state.ui.modulosOff || []);
   if (on) off.delete(id); else off.add(id);
-  if (off.size >= MODULOS.filter(m => !m.prueba).length) { toast(tx("Deja al menos un módulo encendido"), "atencion"); return; }
+  if (off.size >= MODULOS.length) { toast(tx("Deja al menos un módulo encendido"), "atencion"); return; }
   state.ui.modulosOff = [...off];
   save();
   aplicarModulos();
@@ -1324,9 +1316,7 @@ function setModulo(id, on) {
 function renderModulos() {
   const el = document.getElementById("modulos-list");
   if (!el) return;
-  /* Un módulo en prueba no se le enseña a quien nunca lo pidió: su fila sale
-     cuando ya se encendió alguna vez, para poder apagarlo desde aquí. */
-  el.innerHTML = MODULOS.filter(m => !m.prueba || (state.ui && state.ui.jornada !== undefined)).map(m => {
+  el.innerHTML = MODULOS.map(m => {
     const on = moduloOn(m.id);
     /* Un módulo que el nivel todavía no abrió no tiene interruptor, y no
        porque no se pueda: apagar lo que aún no existe no significa nada, y un

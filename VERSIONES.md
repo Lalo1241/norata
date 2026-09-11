@@ -100,6 +100,30 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.103 · 11 sep 2026
+
+**El Pomodoro sale para todos.** Hasta aquí nacía apagado y se encendía con
+`?jornada=1`. Eduardo pidió que estuviera en el live general porque «no siempre
+sale», y la causa era de fondo, no el enlace: el interruptor vivía en
+`state.ui.jornada`, y **`state.ui` viaja entero desde el dispositivo que guardó
+más reciente** (`fusionarEstados` solo fusiona pieza a pieza las colecciones).
+Un dispositivo que no había abierto el enlace guardaba sin la marca y lo apagaba
+en los demás, sin avisar.
+
+Ahora es un módulo como los otros cuatro: encendido de partida, con su
+interruptor en Ajustes, y lo único que se guarda es el APAGADO, en
+`modulosOff`. La marca vieja se convierte una vez al arrancar
+(`jMigrarInterruptor`): quien lo había apagado a propósito lo sigue teniendo
+apagado. `?jornada=1|0` y `?pomodoro=1|0` siguen valiendo.
+
+La etiqueta junto al título se queda, y dice **Pre alpha** en vez de «Prueba»
+(lo pidió Eduardo): ahora lo ve todo el mundo, y tiene que decir en qué punto
+está.
+
+Lo que cambia de la lista de borrado de la 0.7.101: en `js/04-misiones.js` ya
+no hay línea en `moduloOn` ni rama `jornada` en `setModulo` ni filtro en
+`renderModulos`; queda solo su fila de `MODULOS`.
+
 ### 0.7.102 · 11 sep 2026
 
 **La Jornada se llama Pomodoro, sabe cuándo toca descansar y apunta cuánto

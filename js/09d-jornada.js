@@ -18,13 +18,14 @@
    día, como las apps de bloques de tiempo, y con los controles de otra que
    había visto: una sola cosa grande, un botón de Iniciar y casi nada de texto.
 
-   ---- Apagado para todos, y se enciende con un enlace ----
-   Es un módulo de prueba: `?jornada=1` lo enciende y `?jornada=0` lo apaga.
-   Se guarda en `state.ui.jornada` y NO en sessionStorage como las pruebas de
-   mirar, porque este se juzga USÁNDOLO varios días —ver la nota del modo
-   horizontal en la memoria de la casa: un interruptor que se pierde al cerrar
-   la pestaña hizo que Eduardo volviera diciendo que no le salían los botones—.
-   Y así viaja a sus otros dispositivos con la sincronía.
+   ---- Encendido para todos desde la 0.7.103 ----
+   Nació apagado y detrás de `?jornada=1`, con la marca en `state.ui.jornada`.
+   Eduardo pidió que saliera en el live general porque «no siempre sale», y
+   la causa no era el enlace: `state.ui` viaja ENTERO desde el dispositivo que
+   guardó más reciente, así que otro dispositivo sin la marca lo apagaba en
+   silencio. Ahora es un módulo como los otros cuatro —se apaga en Ajustes y
+   solo se guarda el APAGADO, en `modulosOff`— y la marca vieja se convierte
+   una vez (`jMigrarInterruptor`). Los enlaces siguen valiendo.
 
    ---- Dos clases de bloque: los de enfoque y los de descanso ----
    Dormir con tramos de 25 minutos no tiene sentido (lo dijo Eduardo en la
@@ -62,7 +63,19 @@ const J_DESCANSOS = {
   traslado: { nombre: "Traslado", fase: "En camino",      icono: '<path d="M5.5 16.5V8a3 3 0 013-3h7a3 3 0 013 3v8.5M5.5 12h13M5.5 16.5h13M7.5 16.5V19M16.5 16.5V19"/>' }
 };
 
-function jornadaEncendida() { return !!(state.ui && state.ui.jornada === true); }
+function jornadaEncendida() { return typeof moduloOn === "function" ? moduloOn("jornada") : true; }
+
+/* La marca de la 0.7.101-0.7.102 pasa al sistema de todos los módulos: quien
+   lo había APAGADO a propósito lo sigue teniendo apagado; a los demás no se
+   les guarda nada, porque encendido es lo de partida. */
+function jMigrarInterruptor() {
+  if (!state.ui || state.ui.jornada === undefined) return;
+  const off = new Set(state.ui.modulosOff || []);
+  if (state.ui.jornada === false) off.add("jornada");
+  state.ui.modulosOff = [...off];
+  delete state.ui.jornada;
+  save();
+}
 
 /* Los datos se siembran al PEDIRLOS, no al cargar: quien nunca encienda el
    Pomodoro no lleva ni una llave de más en su perfil. */
@@ -1027,6 +1040,7 @@ function jClickLista(e) {
 
 /* ---------- El enlace que lo enciende ---------- */
 function jornadaDesdeEnlace() {
+  jMigrarInterruptor();
   let q = null;
   try {
     const p = new URLSearchParams(location.search);
@@ -1034,7 +1048,9 @@ function jornadaDesdeEnlace() {
   } catch (e) { return; }
   if (q !== "1" && q !== "0") return;
   state.ui = state.ui || {};
-  state.ui.jornada = q === "1";
+  const off = new Set(state.ui.modulosOff || []);
+  if (q === "1") off.delete("jornada"); else off.add("jornada");
+  state.ui.modulosOff = [...off];
   save();
   /* Se quita de la dirección para que recargar no lo vuelva a aplicar encima
      de lo que hayas cambiado después en Ajustes. */

@@ -3285,5 +3285,7 @@ const TEXTOS_EN = {
   "Te levantas a las {0}": "You get up at {0}",
   "Hasta las {0}": "Until {0}",
   "Toca para guardarlo": "Tap to save it",
-  "Sin tramos": "No sessions"
+  "Sin tramos": "No sessions",
+  "Pre alpha": "Pre-alpha",
+  "Pre alpha: tu día en una rueda, con tramos de enfoque": "Pre-alpha: your day on a wheel, with focus sessions"
 };
