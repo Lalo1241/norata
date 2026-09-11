@@ -100,6 +100,52 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.108.1 · 11 sep 2026
+
+**Los tres relojes de arena, simétricos, y ahora gira el reloj ENTERO.** Es la
+otra mitad de la 0.7.108: allí el volteo volvió a ser una vuelta, pero giraba
+solo el vidrio dentro de su pie, porque media vuelta a un marco con arco arriba
+y pedestal abajo lo deja apoyado del revés. Eduardo lo miró y lo pidió completo:
+*«redibuja los tres relojes simétricos, no me había percatado de ese detalle»*.
+
+**La simetría no se escribe a mano.** Cada reloj declara la mitad de ARRIBA y
+una función la copia abajo espejada sobre el cuello (`esp()`, en `J_RELOJES`).
+Así no hay ninguna resta que pueda salir mal, y mover una tapa mueve las dos.
+Lo que ya era simétrico por su cuenta —los postes, las panzas de las columnas,
+las ocho marcas de la escala— se queda sin copiar.
+
+Qué cambió de los dibujos, que es lo único que se ve:
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| **chico** | tapa arriba, base más chica abajo | la misma tapa en los dos extremos |
+| **mediano** | tapa arriba, pedestal de dos escalones abajo | el pedestal de dos escalones en los dos |
+| **grande** | arco con remate arriba, pedestal y peana ancha abajo | el arco con su remate arriba y abajo; se va la peana ancha, que era la única pieza sin pareja |
+
+Lo que distingue a los tres entre sí no se toca, que era la condición de la
+0.7.106: tapa lisa, pedestal escalonado y el Monumental con sus cuatro columnas
+torneadas y su escala.
+
+**Y con eso el marco entra en el grupo que gira.** El enderezado del final ya no
+se nota en ninguna pieza: a media vuelta el pie se ve igual que derecho.
+
+Medido pieza por pieza, en pantalla y no en las coordenadas del dibujo —ojo con
+esto: `getBBox()` devuelve la caja SIN el transform del padre, que es justo
+donde vive el espejo, así que mide la mitad de arriba dos veces y dice que no
+hay simetría cuando sí la hay. Con `getBoundingClientRect`, los tres cuadran:
+
+| | Piezas | Sin pareja | Arriba del cuello | Abajo |
+| --- | --- | --- | --- | --- |
+| chico | 4 | 0 | 70 | 70 |
+| mediano | 6 | 0 | 112 | 112 |
+| grande | 24 | 0 | 148 | 148 |
+
+A media vuelta el más grande ocupa 183 px de ancho en escritorio y 158 en el
+teléfono, y **nadie lo recorta**: ni la caja del reloj, ni el centro de la rueda,
+ni la tarjeta. El volteo termina con la clase fuera, `transform: none` y la arena
+arriba (85,9 de 86). Y el recorrido entero del Hiperfoco —iniciar, pausar,
+reiniciar, saltar, descanso, ronda 2— sigue sin soltar un error.
+
 ### 0.7.108 · 11 sep 2026
 
 **El reloj vuelve a voltearse girando, y el Hiperfoco gana dos salidas y una

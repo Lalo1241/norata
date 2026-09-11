@@ -799,16 +799,30 @@ function jAcomodar(t, id) {
    sea el mismo dibujo encogido. Eligió de dos tandas de bocetos (el Clásico de
    antes queda retirado):
 
-     chico    15 min o menos   tapa lisa y pedestal escalonado
-     mediano  de 20 a 45       dos columnas y pedestal escalonado
+     chico    15 min o menos   tapa lisa arriba y abajo
+     mediano  de 20 a 45       dos columnas y pedestal de dos escalones
      grande   50 o más         el Monumental: arco con remate, cuatro
                                columnas torneadas, pedestal y escala
 
-   Los tres comparten el vidrio cuadrado de la 0.7.105, cada uno a su escala,
-   y es simétrico respecto al cuello en los tres: el volteo depende de eso.
-   Y al voltear gira SOLO el vidrio con su arena, no el marco: con un arco
-   arriba y un pedestal abajo, girar el conjunto enseñaba el pedestal arriba
-   durante un instante al enderezarse. */
+   ---- Los tres son SIMÉTRICOS respecto al cuello (0.7.108.1) ----
+   Y eso no es una manía de dibujante: es lo que deja que al voltear gire el
+   RELOJ ENTERO y no solo el vidrio. Media vuelta a un reloj con arco arriba y
+   pedestal abajo lo deja apoyado del revés, así que hasta la 0.7.108 giraba
+   solo el vidrio dentro de su pie. Eduardo lo vio al mirarlo de cerca —«no me
+   había percatado de ese detalle»— y pidió los tres simétricos.
+
+   La simetría no se escribe a mano, se dibuja UNA vez: cada reloj declara la
+   mitad de ARRIBA (`cabAtras`, `cabDelante`) y `esp()` la copia abajo espejada
+   sobre el cuello. Así no hay ninguna resta que pueda salir mal, y mover una
+   tapa mueve las dos. Lo que ya era simétrico por su cuenta —los postes, las
+   panzas de las columnas, las marcas de la escala— se queda en `atras` y
+   `adelante` sin copiar.
+
+   Qué cambió de los dibujos al hacerlos simétricos: el chico lleva su tapa
+   arriba y abajo (antes la de abajo era más chica), el mediano lleva el
+   pedestal de dos escalones en los dos extremos, y el Monumental su arco con
+   remate arriba y abajo — y pierde la peana ancha del suelo, que era justo la
+   pieza que no tenía pareja. Lo que los distingue entre sí no se toca. */
 const J_RELOJES = (() => {
   function vidrio(cx, hw, y0, y1, pared) {
     const mid = (y0 + y1) / 2, n = 3.5, a = y0 + pared, b = y1 - pared, nt = mid - 4, nb = mid + 4;
@@ -821,23 +835,31 @@ const J_RELOJES = (() => {
   }
   const pz = (x, y, w, h, r) => `<rect class="jor-madera" x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>`;
   const po = (x, y0, y1, grosor) => `<line class="jor-poste${grosor ? " " + grosor : ""}" x1="${x}" y1="${y0}" x2="${x}" y2="${y1}"/>`;
-  const def = (vb, cx, hw, y0, y1, pared, atras, adelante) => ({ vb, cx, hw, y0, y1, v: vidrio(cx, hw, y0, y1, pared), atras, adelante });
+  /* El espejo sobre el cuello: `y' = 2·mid − y`. Una matriz y no dos traslados
+     para que el trazo no cambie de grosor por el camino. */
+  const esp = (mid, c) => c ? `<g transform="matrix(1 0 0 -1 0 ${2 * mid})">${c}</g>` : "";
+  const def = o => {
+    const v = vidrio(o.cx, o.hw, o.y0, o.y1, o.pared);
+    return { vb: o.vb, cx: o.cx, hw: o.hw, y0: o.y0, y1: o.y1, v,
+      atras: (o.atras || "") + (o.cabAtras || "") + esp(v.mid, o.cabAtras),
+      adelante: (o.adelante || "") + (o.cabDelante || "") + esp(v.mid, o.cabDelante) };
+  };
   return {
     /* Sin el escalón de abajo (0.7.106.3): con él, el pequeño y el mediano no
        se distinguían en nada —lo vio Eduardo poniéndolos lado a lado—. Se
-       queda con una sola base, y el pedestal de dos escalones es del mediano. */
-    chico: def("0 0 140 156", 70, 30, 30, 142, 18,
-      po(32, 28, 144, "delgado") + po(108, 28, 144, "delgado"),
-      pz(26, 16, 88, 14, 4) + pz(28, 142, 84, 12, 4)),
-    mediano: def("0 0 170 240", 85, 36, 34, 206, 28,
-      po(30, 32, 208) + po(140, 32, 208),
-      pz(22, 20, 126, 14, 4) + pz(22, 206, 126, 12, 3) + pz(12, 218, 146, 14, 4)),
-    grande: def("0 0 200 300", 100, 38, 40, 260, 64,
-      `<circle class="jor-madera" cx="100" cy="7" r="5"/><path class="jor-madera" d="M40 28 Q100 -4 160 28 Z"/>` +
-      po(40, 38, 262) + po(160, 38, 262) + po(52, 38, 262, "fino") + po(148, 38, 262, "fino") +
-      [92, 150, 208].map(y => `<ellipse class="jor-madera" cx="40" cy="${y}" rx="7" ry="10"/><ellipse class="jor-madera" cx="160" cy="${y}" rx="7" ry="10"/>`).join(""),
-      [48, 64, 80, 96, 204, 220, 236, 252].map(y => `<line class="jor-marca" x1="141" y1="${y}" x2="146" y2="${y}"/>`).join("") +
-      pz(30, 26, 140, 13, 3) + pz(30, 261, 140, 12, 3) + pz(16, 273, 168, 15, 4))
+       queda con una tapa lisa, y el pedestal de dos escalones es del mediano. */
+    chico: def({ vb: "0 0 140 156", cx: 70, hw: 30, y0: 30, y1: 142, pared: 18,
+      atras: po(32, 28, 144, "delgado") + po(108, 28, 144, "delgado"),
+      cabDelante: pz(26, 16, 88, 14, 4) }),
+    mediano: def({ vb: "0 0 170 240", cx: 85, hw: 36, y0: 34, y1: 206, pared: 28,
+      atras: po(30, 32, 208) + po(140, 32, 208),
+      cabDelante: pz(12, 8, 146, 14, 4) + pz(22, 22, 126, 12, 3) }),
+    grande: def({ vb: "0 0 200 300", cx: 100, hw: 38, y0: 40, y1: 260, pared: 64,
+      atras: po(40, 38, 262) + po(160, 38, 262) + po(52, 38, 262, "fino") + po(148, 38, 262, "fino") +
+        [92, 150, 208].map(y => `<ellipse class="jor-madera" cx="40" cy="${y}" rx="7" ry="10"/><ellipse class="jor-madera" cx="160" cy="${y}" rx="7" ry="10"/>`).join(""),
+      cabAtras: `<circle class="jor-madera" cx="100" cy="7" r="5"/><path class="jor-madera" d="M40 28 Q100 -4 160 28 Z"/>`,
+      adelante: [48, 64, 80, 96, 204, 220, 236, 252].map(y => `<line class="jor-marca" x1="141" y1="${y}" x2="146" y2="${y}"/>`).join(""),
+      cabDelante: pz(30, 26, 140, 13, 3) })
   };
 })();
 /* `min` son los minutos elegidos; sin límite (Libre) cuenta como mucho tiempo. */
@@ -861,8 +883,8 @@ function jRelojHTML(tipo) {
         <clipPath id="jor-c-arriba"><path d="${v.arriba}"/></clipPath>
         <clipPath id="jor-c-abajo"><path d="${v.abajo}"/></clipPath>
       </defs>
-      ${R.atras}
       <g id="jor-giro" style="transform-origin:${R.cx}px ${v.mid}px">
+        ${R.atras}
         <path class="jor-vidrio" d="${v.todo}"/>
         <g class="jor-arena-g">
           <rect id="jor-a-arriba" clip-path="url(#jor-c-arriba)" x="${x}" y="${R.y0}" width="${w}" height="${v.mid - R.y0}"/>
@@ -870,8 +892,8 @@ function jRelojHTML(tipo) {
           <line id="jor-chorro" x1="${R.cx}" y1="${v.mid}" x2="${R.cx}" y2="${R.y1 - 2}"/>
         </g>
         <path class="jor-vidrio-borde" d="${v.todo}"/>
+        ${R.adelante}
       </g>
-      ${R.adelante}
     </svg>`;
 }
 /* Si cambió el tiempo elegido —otro ritmo, otra manera del Hiperfoco—, cambia
@@ -1097,7 +1119,12 @@ function jTextoRegla() {
    arena dentro y, al acabar el giro, se endereza sin que se note: lleno, un
    bulbo va de punta a punta, así que «abajo lleno, girado» y «arriba lleno,
    derecho» son el mismo dibujo. En el primer boceto la arena se dibujaba de
-   cabeza y en el modo Libre se quedaba pegada al techo — lo cazó Eduardo. */
+   cabeza y en el modo Libre se quedaba pegada al techo — lo cazó Eduardo.
+
+   Desde 0.7.108.1 el enderezado del final tampoco se nota en el MARCO, y es lo
+   que permitió que gire el reloj entero: los tres son simétricos respecto al
+   cuello, así que a media vuelta el pie se ve igual que derecho. Ver
+   `J_RELOJES`, que es donde vive esa simetría. */
 let jArribaAntes = 1, jVolteando = false;
 function jVoltear() {
   const g = document.getElementById("jor-giro");
