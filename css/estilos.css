@@ -413,7 +413,7 @@
     /* Solo se usa en escritorio (ver @media min-width:900px), pero vive
        aquí para que la barra lateral y el margen del contenido siempre
        lean el mismo número — así no se pueden desincronizar. */
-    --sidebar-w: 246px;
+    --sidebar-w: 208px;
 
     /* ============ El material: de qué está hecha la app ============
        Hasta aquí arriba todo es COLOR, y el color ya estaba resuelto: el
@@ -9060,8 +9060,9 @@
 
   /* ---- La tableta en vertical se queda con el diseño del teléfono ----
      Y es a propósito, no un olvido: de 768 px no se puede sacar la barra
-     lateral —246 dejarían 522 para todo lo demás, menos que un teléfono—, así
-     que por debajo de 900 hay una sola forma posible.
+     lateral —hasta apretada a 208 dejaría 560 para todo lo demás, y con los
+     246 de antes eran 522, menos que un teléfono—, así que por debajo de 900
+     hay una sola forma posible.
 
      Se probó ensancharle la columna de contenido de 560 a 700 px para
      aprovechar el ancho de más, y se quitó porque no compraba nada: medido en
@@ -9102,7 +9103,7 @@
       width: var(--sidebar-w);
       max-width: none;
       margin: 0;
-      padding: 26px 18px;
+      padding: 18px 12px;
       flex-direction: column;
       justify-content: flex-start;
       align-items: stretch;
@@ -9119,7 +9120,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 6px;
-      padding: 4px 4px 22px 12px;
+      padding: 2px 2px 16px 8px;
       pointer-events: auto;
     }
     .side-brand {
@@ -9156,11 +9157,11 @@
        pequeño. Esto los iguala a la vista, que es lo que importa. */
     .side-brand .sb-expand svg { width: 20px; height: 20px; display: block; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
     .side-brand .sb-logo-full { color: var(--marca); }
-    .side-brand .sb-logo-full svg { height: 30px; width: auto; display: block; }
+    .side-brand .sb-logo-full svg { height: 26px; width: auto; display: block; }
 
     .side-toggle {
       flex-shrink: 0;
-      width: 32px; height: 32px;
+      width: 28px; height: 28px;
       border-radius: var(--r-pastilla);
       border: var(--borde-fino) solid var(--line);
       background: var(--sup-panel);
@@ -9169,23 +9170,32 @@
       display: flex; align-items: center; justify-content: center;
     }
     .side-toggle:hover { color: var(--text); border-color: var(--faint); }
-    .side-toggle svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .side-toggle svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
     .thumb-cluster .nav-circles {
       flex-direction: column;
-      gap: 5px;
+      gap: 3px;
       width: 100%;
     }
-    /* Las filas del menú, más altas: en la computadora el blanco de una barra
-       lateral no cuesta nada —sobra sitio de arriba abajo— y en cambio una
-       fila baja obliga a apuntar. Con 52 px el ratón acierta sin mirar.
+    /* ---- Las filas del menú: 40 px, no 52 ----
+       Empezaron altas con el argumento de que en la computadora el blanco de
+       una barra lateral no cuesta nada, y de que una fila baja obliga a
+       apuntar. La segunda mitad sigue siendo verdad; la primera no: el blanco
+       sí cuesta, lo cobra la barra entera, que medía 246 px de ancho al lado
+       de una columna de seis nombres cortos. Eduardo lo paró mirándola junto a
+       la de otra app: demasiado grande para lo que dice.
 
-       Las esquinas se quedan como estaban. Se probaron casi rectas y no era
-       aquí: la barra son pastillas y así se lee como una lista de sitios a
-       los que ir. Lo recto le toca a la ventana de Ajustes. */
+       Apuntar no se resiente, y esto es lo que hay que saber antes de volver a
+       subirlas: el objetivo cómodo del ratón son 40 px, y aquí además la fila
+       mide 184 de ancho, así que el blanco es enorme justo en la dirección que
+       cuesta acertar. Lo que se fue es aire, no superficie tocable.
+
+       Las esquinas se quedan siendo pastillas. Se probaron casi rectas y no era
+       aquí: así se lee como una lista de sitios a los que ir. Lo recto le toca
+       a la ventana de Ajustes. */
     /* En la barra lateral el botón es una fila ancha con su rótulo, así que el
        candado deja la esquina y se va al final del renglón: colgado del borde
-       de una fila de 200 px de ancho no se leería como suyo. */
+       de una fila de 184 px de ancho no se leería como suyo. */
     /* En la barra lateral el botón es una fila ancha, así que el candado deja
        la esquina y se va al final del renglón. Y ahí el dibujo crece: sin el
        disco detrás se apoya en el fondo de la página, que en modo claro deja el
@@ -9201,10 +9211,13 @@
     .thumb-cluster .c-nav {
       width: 100%;
       height: auto;
-      border-radius: 13px;
+      /* Y sale de una variable en vez de los 13 px que llevaba escritos a
+         mano: era uno de los radios que el factor de una apariencia no
+         alcanzaba. */
+      border-radius: var(--r-chico);
       justify-content: flex-start;
-      gap: 13px;
-      padding: 15px 14px;
+      gap: 11px;
+      padding: 10px 11px;
       background: transparent;
       border-color: transparent;
       box-shadow: none;
@@ -9229,8 +9242,8 @@
       box-shadow: none;
       color: var(--mint);
     }
-    .thumb-cluster .c-nav svg { width: 20px; height: 20px; flex-shrink: 0; }
-    .nav-label { display: inline; font-size: 14px; font-weight: 650; letter-spacing: -0.1px; white-space: nowrap; }
+    .thumb-cluster .c-nav svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .nav-label { display: inline; font-size: 13px; font-weight: 600; letter-spacing: -0.1px; white-space: nowrap; }
     .side-only { display: flex !important; }
     /* Y `hidden` tiene que poder ganarle. `.side-only` declara su display con
        `!important`, y el `display: none` que el navegador le pone a un elemento
@@ -9518,7 +9531,7 @@
          principio o al final de un hijo se colapsa y las tres piezas salían
          pegadas. */
       gap: 5px;
-      padding: 9px 14px 2px;
+      padding: 7px 11px 2px;
       font-size: 10.5px;
       font-weight: 650;
       letter-spacing: 0.02em;
@@ -9534,18 +9547,20 @@
       display: flex; align-items: baseline; gap: 5px;
       min-width: 0;
     }
-    /* Pegada a la derecha y alineada con el botón de plegar la barra. Los 4 px
-       salen de una medición, no de la vista: el botón de plegar termina en 223
-       y la fila de la versión en 227, así que cuatro es exactamente lo que
-       faltaba. Antes la bolita quedaba 10 px más a la izquierda que él, y esos
-       10 px eran todo lo que rompía la columna de la derecha.
+    /* Pegada a la derecha y alineada con el botón de plegar la barra. Los 2 px
+       salen de una medición, no de la vista: con la barra en 208, el botón de
+       plegar termina en 194 y la fila de la versión en 196, así que dos es
+       exactamente lo que falta. Antes la bolita quedaba 10 px más a la
+       izquierda que él, y esos 10 px eran todo lo que rompía la columna de la
+       derecha. Eran 4 px cuando la barra medía 246; al apretarla se movieron
+       los dos bordes, y este número sale de restar uno del otro.
 
        `margin-top` negativo en vez de `translateY(-50%)` a propósito: plegada
        la barra, la bolita usa `transform` para la escala del cambio, y las dos
        cosas no pueden compartir la misma propiedad. */
     .side-version .sv-bug {
       position: absolute;
-      right: 4px;
+      right: 2px;
       top: 50%;
       margin-top: -16px;
     }
@@ -9657,10 +9672,10 @@
     .thumb-cluster .c-main {
       width: 100%;
       height: auto;
-      border-radius: 13px;
-      padding: 16px 16px;
-      margin-top: 5px;
-      font-size: 14px;
+      border-radius: var(--r-chico);
+      padding: 12px 14px;
+      margin-top: 4px;
+      font-size: 13px;
       font-weight: 700;
       gap: 9px;
     }

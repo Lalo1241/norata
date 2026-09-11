@@ -100,6 +100,53 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.106.1 · 11 sep 2026
+
+**La barra lateral, más pequeña.** Lo pidió Eduardo poniéndola al lado de la de
+otra app: la nuestra medía **246 px de ancho y sus filas 52**, y la quería *«un
+poco más pequeña, elegante y sutil, sin cambiar el diseño de iconos»*. Ningún
+icono se ha tocado; lo único que cambia son las medidas.
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| Ancho | 246 | **208** |
+| Alto de fila | 52 | **40** |
+| Separación entre filas | 5 | 3 |
+| Icono | 20 | 18 |
+| Rótulo | 14 / 650 | 13 / 600 |
+| Relleno de la barra | 26 / 18 | 18 / 12 |
+| Logotipo | 30 | 26 |
+| Botón de plegar | 32 | 28 |
+
+Las filas nacieron altas con el argumento de que en la computadora el blanco de
+una barra lateral no cuesta nada. La mitad de eso no era verdad: lo cobra la
+barra entera, y eran 246 px de ancho para una columna de seis nombres cortos.
+**Apuntar no se resiente**, que era el otro argumento: el objetivo cómodo del
+ratón son 40 px, y aquí la fila mide 184 de ancho, así que el blanco sigue
+siendo enorme justo en la dirección que cuesta acertar. Lo que se fue es aire,
+no superficie tocable.
+
+El rótulo pierde medio punto de trazo porque seis rótulos en seminegrita
+compiten entre ellos, y en un menú solo tiene que llamar el encendido. La
+pastilla menta del encendido se queda igual, y las esquinas siguen siendo
+pastillas —se probaron casi rectas y no era aquí—, solo que ahora el radio sale
+de `--r-chico` en vez de los `13px` que llevaba escritos a mano: era uno de los
+63 radios que el factor de una apariencia no alcanzaba.
+
+**Dos números que se movieron con ella y no se ven hasta que fallan:** la
+bolita de reportar un fallo se alinea con el botón de plegar restando un borde
+del otro, y con la barra en 208 eso son 2 px y no los 4 de antes; y la nota de
+por qué la tableta en vertical se queda con el diseño del teléfono llevaba la
+cuenta hecha con 246.
+
+Se probó también quitarle la caja al encendido —marcarlo con una guía de 2 px,
+el icono en menta y más trazo en el rótulo— y una tercera forma, un riel de 72
+px que se despliega al pasar el ratón. La segunda la paró Eduardo: **eso ya
+existe** con el botón de plegar, y además como decisión suya y no automática.
+
+Medido a 1280 px y en los dos modos: ancho 246 → 208, fila 52 → 40, sin
+desbordes laterales y con el teléfono intacto.
+
 ### 0.7.106 · 11 sep 2026
 
 **El reloj de arena depende del tiempo que elijas.** Lo pidió Eduardo: un
