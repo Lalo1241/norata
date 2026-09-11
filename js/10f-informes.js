@@ -148,6 +148,10 @@ function familiaDeFuente(e) {
   if (/^Misión/.test(f)) return "misiones";
   if (/^Talento/.test(f)) return "talentos";
   if (/^Proyecto/.test(f)) return "proyectos";
+  /* Lo que dio el Pomodoro (0.7.104): su práctica y las misiones que se
+     cumplieron con él. Antes caía en «práctica suelta» y no se distinguía de
+     un registro a mano. */
+  if (/^Pomodoro/.test(f)) return "pomodoro";
   if (f === "Sistema") return "sistema";
   return "practica";
 }
@@ -156,7 +160,7 @@ function metricasHabilidades(r, D) {
   const datos = D || state;
   const out = {
     ganada: 0, perdida: 0, minutos: 0, niveles: 0, sesiones: 0,
-    porFuente: { misiones: 0, talentos: 0, proyectos: 0, practica: 0 },
+    porFuente: { misiones: 0, talentos: 0, proyectos: 0, practica: 0, pomodoro: 0 },
     porHabilidad: new Map()
   };
 
@@ -278,6 +282,67 @@ function metricasProyectos(r, D) {
    que no tiene periodo anterior con el que compararse. Sale en gris y sin
    flecha — enseñar una caída del 100% a alguien que acaba de entrar sería
    la peor primera impresión posible. */
+/* ================= Pomodoro (0.7.104) =================
+
+   Lee el registro propio del Pomodoro (`state.jornada.registro`), que es
+   donde queda lo que no llega a ningún otro módulo: el foco sin vincular, los
+   tramos abandonados, cómo te fue y las horas dormidas. Y lo cruza con el plan
+   apuntado de cada día (`state.jornada.planes`) para contestar cuánto de lo
+   planeado tuvo foco de verdad.
+
+   - `minutos`/`tramos`: solo lo que se hizo; lo abandonado va aparte.
+   - `terminadas`: misiones que se cumplieron al acabar un tramo.
+   - `sueno`: una entrada por noche, fechada el día en que despertaste.
+   - `xp`: lo que el Pomodoro dio a las habilidades, leído del historial de
+     cada una por su origen — la misma cuenta que el reparto de Habilidades. */
+function metricasPomodoro(r, D) {
+  const datos = D || state;
+  const j = datos.jornada || {};
+  const reg = Array.isArray(j.registro) ? j.registro : [];
+  const out = {
+    minutos: 0, tramos: 0, abandonados: 0, terminadas: 0, rapidos: 0, xp: 0,
+    porDia: new Map(), porNombre: new Map(), animo: [0, 0, 0],
+    sueno: { noches: 0, minutos: 0, porDia: new Map() },
+    plan: { planeados: 0, conFoco: 0, pct: null }
+  };
+  const bloquesConFoco = new Map();
+  for (const e of reg) {
+    if (!enRango(e.fecha, r)) continue;
+    const min = Number(e.min) || 0;
+    if (e.tipo === "sueno") {
+      out.sueno.noches++;
+      out.sueno.minutos += min;
+      out.sueno.porDia.set(e.fecha, (out.sueno.porDia.get(e.fecha) || 0) + min);
+      continue;
+    }
+    if (e.abandono) { out.abandonados++; continue; }
+    out.tramos++;
+    out.minutos += min;
+    if (e.lite) out.rapidos++;
+    if (e.terminada) out.terminadas++;
+    out.porDia.set(e.fecha, (out.porDia.get(e.fecha) || 0) + min);
+    const nom = e.nombre || "";
+    out.porNombre.set(nom, (out.porNombre.get(nom) || 0) + min);
+    if (e.animo >= 1 && e.animo <= 3) out.animo[e.animo - 1]++;
+    if (e.bloque) {
+      if (!bloquesConFoco.has(e.fecha)) bloquesConFoco.set(e.fecha, new Set());
+      bloquesConFoco.get(e.fecha).add(e.bloque);
+    }
+  }
+  const planes = j.planes || {};
+  diasDe(r).forEach(k => {
+    const n = Number(planes[k]) || 0;
+    if (!n) return;
+    out.plan.planeados += n;
+    out.plan.conFoco += Math.min(n, (bloquesConFoco.get(k) || new Set()).size);
+  });
+  out.plan.pct = out.plan.planeados ? Math.round(out.plan.conFoco / out.plan.planeados * 100) : null;
+  (datos.skills || []).forEach(s => (s.log || []).forEach(e => {
+    if (enRango(e.date, r) && familiaDeFuente(e) === "pomodoro") out.xp += Number(e.xp) || 0;
+  }));
+  return out;
+}
+
 function variacion(ahora, antes, opciones) {
   const op = opciones || {};
   const a = Number(ahora) || 0;

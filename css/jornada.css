@@ -31,6 +31,28 @@
   background: var(--fire-soft); color: var(--fire);
 }
 
+/* ---- Mi día / Solo enfocar (0.7.104) ---- */
+.jor-modos {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px;
+  max-width: 340px; margin: 0 auto 18px; padding: 4px;
+  border-radius: var(--r-tarjeta); background: var(--sup-tarjeta); border: 1px solid var(--line);
+}
+.jor-modos button { border: 0; background: none; padding: 9px 8px; border-radius: var(--r-chico); font: inherit; font-size: 13.5px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.jor-modos button[aria-selected="true"] { background: var(--mint-soft); color: var(--mint); }
+
+/* «Solo enfocar»: el reloj grande en el medio y nada más. */
+.jor-lite { display: grid; justify-items: center; gap: 4px; max-width: 420px; margin: 0 auto; padding: 18px 0 120px; text-align: center; }
+.jor-lite .jor-arena { width: 104px; margin-bottom: 14px; }
+.jor-lite #jor-tiempo { font-size: 64px; }
+.jor-lite #jor-fase { font-size: 14px; margin-top: 6px; }
+.jor-lite #jor-sub { font-size: 13px; margin-bottom: 18px; }
+.jor-lite .jor-controles { max-width: 380px; }
+.jor-pild[aria-pressed="true"] { border-color: var(--mint); background: var(--mint-soft); color: var(--mint); }
+
+/* «2 de 4 con foco», al lado de «Hoy»: lo planeado contra lo hecho. */
+.jor-rot-dato { margin-left: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--mint); }
+.jor-al-informe { justify-self: start; padding-left: 0; }
+
 .jor { display: flex; flex-direction: column; gap: 20px; padding-bottom: 110px; }
 .jor-reloj { display: grid; gap: 16px; }
 
@@ -247,8 +269,11 @@ html.claro .jor-arena-g { filter: none; }
      Lo pidió Eduardo al probarla (0.7.101.1). */
   .jor-lista { max-width: 560px; }
   .jor-rueda { max-width: 400px; --jor-sep: var(--card); }
-  .jor-arena { width: 56px; }
-  #jor-tiempo { font-size: 42px; }
+  .jor-centro .jor-arena { width: 56px; }
+  .jor-centro #jor-tiempo { font-size: 42px; }
+  .jor-lite { background: var(--sup-tarjeta); border: 1px solid var(--line); border-radius: var(--r-grande); padding: 36px 32px 34px; }
+  .jor-lite .jor-arena { width: 130px; }
+  .jor-lite #jor-tiempo { font-size: 80px; }
   /* Abajo a la derecha viven los avisos de la app; la píldora se va arriba. */
   .jornada-pildora { left: auto; right: 24px; transform: none; bottom: auto; top: 18px; }
 }
