@@ -1059,7 +1059,9 @@ const MODULOS = [
      todos hasta que alguien la encienda (`?jornada=1`). Por eso lleva `prueba`:
      no cuenta para «deja al menos un módulo encendido» y su fila de Ajustes
      solo aparece a quien ya la encendió alguna vez. Ver js/09d-jornada.js. */
-  { id: "jornada",  nav: "nav-jornada",  label: "Jornada",     hint: "En prueba: tu día en una rueda, con reloj de enfoque", prueba: true }
+  /* Se ve «Pomodoro» desde la 0.7.102; el id sigue siendo `jornada` para no
+     dejar huérfanos los datos de quien ya lo probaba. */
+  { id: "jornada",  nav: "nav-jornada",  label: "Pomodoro",    hint: "En prueba: tu día en una rueda, con tramos de enfoque", prueba: true }
 ];
 
 /* ================= Los dos que llegan después =================
@@ -1304,7 +1306,7 @@ function setModulo(id, on) {
     aplicarModulos();
     renderModulos();
     if (!on && activeMainView === "jornada") showView("summary");
-    toast(on ? T`${tx("Jornada")} vuelve al menú` : tx("Oculto · puedes traerlo de vuelta aquí"), on ? "hecho" : "deshecho");
+    toast(on ? T`${tx("Pomodoro")} vuelve al menú` : tx("Oculto · puedes traerlo de vuelta aquí"), on ? "hecho" : "deshecho");
     return;
   }
   const off = new Set(state.ui.modulosOff || []);
@@ -1794,7 +1796,7 @@ const ROTULO_PESTANA = {
   // Su encabezado es "Árbol de talentos", que recortado no dice nada
   tree: "Talentos",
   // El suyo lleva pegada la chapa de «Prueba», que en la pestaña sobra
-  jornada: "Jornada"
+  jornada: "Pomodoro"
 };
 
 function titularPestana(name) {
