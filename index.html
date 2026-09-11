@@ -46,6 +46,7 @@
      entero sin haberse bajado ningun mundo — mundos.css pesa 180 KB y solo se
      pide al mirar uno. Lo genera `mundos/app.py`. -->
 <link rel="stylesheet" href="css/muestras.css">
+<link rel="stylesheet" href="css/jornada.css">
 </head>
 <body>
 <script>
@@ -378,6 +379,19 @@
       </div>
     </div>
     <div id="missions-content"></div>
+  </div>
+
+  <!-- ============ VISTA: JORNADA (en prueba, 0.7.101) ============
+       Apagada para todos: se enciende con ?jornada=1 y se apaga con
+       ?jornada=0 o desde Ajustes. Todo lo suyo está en js/09d-jornada.js y
+       css/jornada.css. -->
+  <div class="view" id="view-jornada">
+    <div class="page-head">
+      <div>
+        <h1>Jornada<span class="jor-prueba">Prueba</span></h1>
+      </div>
+    </div>
+    <div id="jornada-content"></div>
   </div>
 
   <!-- ============ VISTA: FORMULARIO MISIÓN ============ -->
@@ -1035,6 +1049,11 @@
       <svg viewBox="0 0 24 24"><path d="M3 7.5a2 2 0 012-2h4l2 2.5h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M8 13.5h8"/></svg>
       <span class="nav-label">Proyectos</span>
     </button>
+    <!-- Nace escondido: `aplicarModulos` lo enseña solo si la Jornada está encendida. -->
+    <button class="c-nav" id="nav-jornada" onclick="irAModulo('jornada')" aria-label="Jornada" style="display:none">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 7v5l3.5 2"/></svg>
+      <span class="nav-label">Jornada</span>
+    </button>
   </div>
   <button class="c-main hidden" id="fab" onclick="fabAction()" aria-label="Crear">
     <span class="fab-plus">＋</span><span class="fab-label"></span>
@@ -1142,6 +1161,12 @@
 <div class="modal-backdrop" id="caja-modal" onclick="if(event.target===this)cerrarVentanaCaja()">
   <div class="modal-card caja-card" id="caja-body"></div>
 </div>
+
+<!-- La Jornada (en prueba): el ritmo, en qué enfocarse, un bloque y el cierre
+     de un tramo. Tocar fuera cierra todas menos el cierre, que perdería el tramo. -->
+<div class="modal-backdrop" id="jornada-modal" onclick="if(event.target===this)cerrarHojaJornada(true)">
+  <div class="modal-card jornada-card" id="jornada-hoja"></div>
+</div>
 </div>
 
 <!-- ============ CELEBRACIÓN ============ -->
@@ -1212,6 +1237,13 @@
   </div>
 </div>
 
+<!-- El reloj de la Jornada cuando estás en otra pantalla. Solo existe mientras
+     corre un tramo. -->
+<button type="button" class="jornada-pildora" id="jornada-pildora" hidden onclick="irAModulo('jornada')">
+  <span class="ic"><svg viewBox="0 0 24 24"><path d="M7 3h10M7 21h10M8 3c0 5 8 6.5 8 9s-8 4-8 9M16 3c0 5-8 6.5-8 9s8 4 8 9"/></svg></span>
+  <span><b id="jor-pil-t">25:00</b><span id="jor-pil-s"></span></span>
+</button>
+
 <div id="toast"></div>
 
 <!-- El motor de idiomas va el PRIMERO de todos, antes que 01-base: ese
@@ -1231,6 +1263,7 @@
 <script defer src="js/08-formularios.js"></script>
 <script defer src="js/09-inicio.js"></script>
 <script defer src="js/09c-region.js"></script>
+<script defer src="js/09d-jornada.js"></script>
 <script defer src="js/10-fusion.js"></script>
 <script defer src="js/10-sincronia.js"></script>
 <script defer src="js/10a-perfil.js"></script>

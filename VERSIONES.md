@@ -100,6 +100,64 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.101 · 11 sep 2026
+
+**Jornada, en prueba: el día en una rueda de 24 horas con un reloj de arena en
+el centro.** Lo pidió Eduardo el 10 de septiembre: un reloj de arena para la
+técnica pomodoro que avisara del descanso y registrara lo hecho. El primer
+boceto ponía un botón de «Enfocar» en cada misión y cada habilidad, y lo paró:
+*«vas a saturar de botones la interfaz y va a ser contraproducente»*. Lo que se
+imaginaba era un lugar para planear el día en un diagrama circular, con los
+controles de otra app que había visto: una sola cosa grande y casi nada de
+texto. Decidió tres cosas: un **módulo aparte** para probar la herramienta, la
+**arena** en el centro y la rueda de **24 horas en formato de 12** (AM/PM).
+
+**Apagada para todos.** Se enciende con `?jornada=1` y se apaga con
+`?jornada=0` o desde Ajustes, cuya fila solo aparece a quien la encendió alguna
+vez. Va en `state.ui.jornada` y no en `sessionStorage` porque se juzga USÁNDOLA
+varios días, y así llega también a sus otros dispositivos.
+
+**Qué toca de lo demás, y solo por las puertas que ya existían:**
+
+  - una **misión** se cumple con `logMission` y únicamente si al acabar el
+    tramo contestas que la terminaste;
+  - una **habilidad** recibe XP con `addXp`, a la tarifa del registro manual
+    (40 XP la hora, 17 por un tramo de 25) y con los mismos dos topes de medio
+    día;
+  - un **talento** o un **encargo** no guarda tiempo en ningún campo, así que
+    si entrena una habilidad la practica esa, y si no, queda solo en el
+    registro de la Jornada.
+
+**El reloj mide con marcas de tiempo** (`state.jornada.run`), así que sobrevive
+a cerrar la app y a recargar. Lo mueve un `setInterval` y no
+`requestAnimationFrame`: en una pestaña de fondo no hay fotogramas y sin eso el
+tramo no acababa ni sonaba. Con la pestaña de fondo avisa con el sistema si se
+dio permiso (interruptor en el Ritmo); con la app **cerrada** no avisa nada,
+porque eso pide avisos desde el servidor y queda para otra versión.
+
+**La barra del teléfono pasa a seis círculos** y a 375 px no cabían: se
+encogen a 40 px solo mientras la Jornada está encendida (`html.con-jornada`).
+
+---- Qué borrar si la prueba no se queda (por NOMBRE, no por rango) ----
+
+  - `js/09d-jornada.js` y `css/jornada.css`, enteros.
+  - `index.html`: el `<link>` de `css/jornada.css`, la vista `#view-jornada`,
+    el botón `#nav-jornada`, la ventana `#jornada-modal`, la píldora
+    `#jornada-pildora` y el `<script>` de `09d-jornada.js`.
+  - `sw.js`: las dos entradas de `ASSETS` y el `notificationclick`.
+  - `js/04-misiones.js`: la fila `jornada` de `MODULOS`, su línea en
+    `moduloOn`, la clase `con-jornada` de `aplicarModulos`, la rama `jornada`
+    de `setModulo` y su filtro `prueba`, el filtro de `renderModulos`, y las
+    entradas `jornada` de `VISTA_MODULO`, `NAV_VIEWS`, `ROTULO_PESTANA` y
+    `VISTAS_ANCHAS`; en `showView`, `cerrarHojaJornada(true)` y
+    `renderJornada()`; en `atrasApp`, la línea de `jornadaHojaAbierta`.
+  - `js/01-base.js`: `#jornada-modal.show` de `CAPAS_QUE_TAPAN`.
+  - `js/11-arranque.js`: las dos llamadas de la Jornada.
+  - `css/estilos.css`: `--piso-reloj`.
+  - `js/00b-textos-en.js`: el bloque «La Jornada (en prueba, 0.7.101)».
+  - Los datos `state.jornada` y `state.ui.jornada` se quedan inertes: nadie
+    los lee si no está el archivo.
+
 ### 0.7.100 · 9 sep 2026
 
 **La racha, rehecha: una columna siempre y tres piezas.** Lo pidió Eduardo

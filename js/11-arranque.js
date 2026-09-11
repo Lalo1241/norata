@@ -155,6 +155,11 @@ function avisarDatosDelFuturo() {
   document.body.appendChild(caja);
 }
 
+/* La Jornada (en prueba): primero el enlace que la enciende, para que el menú
+   ya salga con ella; luego su reloj, que corre aunque no estés en su pantalla. */
+if (typeof jornadaDesdeEnlace === "function") jornadaDesdeEnlace();
+if (typeof iniciarRelojJornada === "function") iniciarRelojJornada();
+
 aplicarModulos();
 
 /* El gesto de atrás del teléfono pasa por aquí. Ver atrasApp(): si la app se

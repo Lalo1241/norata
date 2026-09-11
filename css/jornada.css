@@ -1,0 +1,213 @@
+/* ================= Jornada (EN PRUEBA, 0.7.101) =================
+   Vive en su propio archivo y no en estilos.css por dos razones: es un módulo
+   de prueba —si no se queda, se borra un archivo y no un bloque perdido entre
+   diez mil líneas— y estilos.css es el archivo que pisan todas las sesiones a
+   la vez. Todos los colores salen de las variables de la casa, así que el modo
+   claro, los ambientes y los mundos le llegan solos. */
+
+:root {
+  --jor-sueno: color-mix(in srgb, var(--muted) 38%, var(--bg));
+  --jor-libre: color-mix(in srgb, var(--muted) 60%, var(--bg));
+}
+
+/* ---- Seis botones en la barra del teléfono ----
+   Con la Jornada encendida la barra pasa de cinco a seis círculos, y a 375 px
+   no caben: 6 × 44 + separaciones + el ＋ son 357 px contra 339 libres. Se
+   encogen a 40 y se aprietan un poco. Es el precio de un módulo aparte, y es
+   justo lo que hay que juzgar al probarlo. */
+@media (max-width: 899px) {
+  html.con-jornada .thumb-cluster { padding: 0 12px; }
+  html.con-jornada .thumb-cluster .nav-circles { gap: 5px; }
+  html.con-jornada .thumb-cluster .c-nav { width: 40px; height: 40px; }
+}
+
+.jor-prueba {
+  display: inline-block; vertical-align: middle; margin-left: 10px;
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  padding: 2px 9px; border-radius: var(--r-pastilla);
+  background: var(--fire-soft); color: var(--fire);
+}
+
+.jor { display: flex; flex-direction: column; gap: 20px; padding-bottom: 110px; }
+.jor-reloj { display: grid; gap: 16px; }
+
+/* ---------- La rueda ---------- */
+.jor-rueda { position: relative; width: 100%; max-width: 340px; margin: 0 auto; aspect-ratio: 1; --jor-sep: var(--bg); }
+#jor-svg { width: 100%; height: 100%; display: block; overflow: visible; touch-action: none; user-select: none; -webkit-user-select: none; }
+.jor-carril { fill: none; stroke: var(--carril); }
+.jor-tick { stroke: var(--faint); stroke-width: 1; }
+.jor-tick.mayor { stroke: var(--muted); stroke-width: 1.6; }
+.jor-num { fill: var(--muted); font-family: inherit; font-size: 10px; font-weight: 500; text-anchor: middle; dominant-baseline: central; }
+.jor-num.mayor { fill: var(--text); font-weight: 700; }
+.jor-blq { stroke: var(--jor-sep); stroke-width: 2; cursor: grab; }
+.jor-blq.sel { stroke: var(--text); stroke-width: 2.2; }
+.jor-blq-ic { color: var(--sobre-vivo); pointer-events: none; }
+.jor-blq-ic.sueno { color: var(--text); }
+.jor-aguja { pointer-events: none; }
+.jor-aguja line { stroke: var(--text); stroke-width: 2; stroke-linecap: round; }
+.jor-aguja circle { fill: var(--text); }
+.jor-asa-g { cursor: grab; }
+.jor-asa { fill: var(--card2, var(--card)); stroke: var(--text); stroke-width: 2; }
+
+.jor-centro {
+  position: absolute; inset: 24%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 1px; pointer-events: none;
+}
+#jor-tiempo { font-size: 32px; font-weight: 300; letter-spacing: -.02em; line-height: 1; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
+#jor-fase { font-size: 12px; font-weight: 700; color: var(--text); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
+#jor-fase.foco { color: var(--mint); }
+#jor-fase.brasa { color: var(--fire); }
+#jor-fase.pausa { color: var(--coral); }
+#jor-sub { font-size: 11px; color: var(--muted); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- El reloj de arena ---------- */
+.jor-arena { width: 44px; height: auto; overflow: visible; margin-bottom: 4px; --jor-grano: var(--mint-macizo); }
+.jor-arena.brasa { --jor-grano: var(--fire-macizo); }
+/* Solo gira el dibujo, y su transición es de `transform`: nada que salga de
+   una variable, que es lo que Chrome deja congelado. */
+#jor-giro { transform-box: view-box; transform-origin: 80px 112px; transition: transform .9s cubic-bezier(.3, .7, .2, 1); }
+.jor-madera { fill: var(--card); stroke: var(--line); stroke-width: 3; }
+.jor-poste { stroke: var(--line); stroke-width: 5; stroke-linecap: round; }
+.jor-vidrio { fill: color-mix(in srgb, var(--celeste) 8%, transparent); }
+.jor-vidrio-borde { fill: none; stroke: var(--muted); stroke-width: 3; }
+.jor-arena-g { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--jor-grano) 50%, transparent)); }
+.jor-arena-g rect { fill: var(--jor-grano); }
+#jor-chorro { stroke: var(--jor-grano); stroke-width: 4; stroke-dasharray: 6 8; animation: jor-caer .5s linear infinite; }
+@keyframes jor-caer { to { stroke-dashoffset: -14; } }
+/* De día no hay resplandor: sobre papel un halo es una mancha. */
+html.claro .jor-arena-g { filter: none; }
+
+/* ---------- Los controles ---------- */
+.jor-controles { display: grid; gap: 10px; width: 100%; max-width: 360px; margin: 0 auto; }
+.jor-pildoras { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.jor-pild {
+  display: inline-flex; align-items: center; gap: 7px; max-width: 100%;
+  padding: 8px 12px 8px 10px; border-radius: var(--r-pastilla);
+  border: 1px solid var(--line); background: var(--sup-tarjeta); color: var(--text);
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.jor-pild:disabled { cursor: default; opacity: 1; }
+.jor-pild .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; font-variant-numeric: tabular-nums; }
+.jor-pild svg { width: 15px; height: 15px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.jor-punto { width: 10px; height: 10px; border-radius: var(--r-micro); flex: none; }
+.jor-acc { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+.jor-acc.dos { grid-template-columns: 1fr 1fr; }
+.jor-acc.una { grid-template-columns: 1fr; }
+.jor-grande { display: flex; gap: 8px; align-items: center; justify-content: center; padding: 14px 18px; font-size: 16px; }
+.jor-grande svg, .jor-icono svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.jor-grande svg.lleno { fill: currentColor; stroke: none; }
+.jor-icono { width: 50px; height: 50px; padding: 0; border-radius: var(--r-redondo); display: grid; place-items: center; }
+.jor-chico { padding: 8px 12px; font-size: 13px; }
+.btn.seguro { background: var(--coral-soft); }
+.jor-regla { margin: 0; text-align: center; font-size: 12.5px; color: var(--muted); }
+
+/* ---------- La lista del día ---------- */
+.jor-lista { display: grid; gap: 10px; align-content: start; }
+.jor-rot { margin: 4px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.jor-bloques { display: grid; gap: 6px; }
+.jor-fila {
+  display: grid; grid-template-columns: 38px 1fr auto; gap: 12px; align-items: center; width: 100%; text-align: left;
+  padding: 9px 12px; border-radius: var(--r-tarjeta); border: 1px solid var(--line);
+  background: var(--sup-tarjeta); color: var(--text); font: inherit; cursor: pointer;
+}
+.jor-fila.sel { border-color: var(--text); }
+.jor-tile { width: 38px; height: 38px; border-radius: var(--r-chico); display: grid; place-items: center; color: var(--sobre-vivo); flex: none; }
+.jor-tile.sueno, .jor-tile.sin { color: var(--text); }
+.jor-tile.sin { background: var(--sup-tarjeta); border: 1px solid var(--line); }
+.jor-tile svg { width: 19px; height: 19px; }
+.jor-tile.chico { width: 30px; height: 30px; }
+.jor-tile.chico svg { width: 16px; height: 16px; }
+.jor-fila-t { display: grid; min-width: 0; }
+.jor-fila-t b { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jor-fila-t span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jor-fila-d { display: grid; justify-items: end; gap: 3px; }
+.jor-chip { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: var(--r-pastilla); background: var(--carril); color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.jor-chip.ahora { background: var(--mint-soft); color: var(--mint); }
+.jor-acomodar { display: flex; flex-wrap: wrap; gap: 6px; }
+.jor-acomodar button {
+  display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px 7px 9px;
+  border-radius: var(--r-pastilla); border: 1px dashed var(--line); background: transparent;
+  color: var(--text); font: inherit; font-size: 13px; cursor: pointer;
+}
+.jor-vacio, .jor-como { margin: 0; font-size: 13px; color: var(--muted); }
+.jor-como { font-size: 12px; margin-top: 6px; }
+
+/* ---------- La píldora que te sigue ---------- */
+.jornada-pildora {
+  position: fixed; z-index: var(--piso-reloj);
+  left: 50%; transform: translateX(-50%);
+  bottom: calc(92px + env(safe-area-inset-bottom));
+  display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; text-align: left;
+  min-width: 220px; max-width: calc(100vw - 40px);
+  padding: 6px 16px 6px 6px; border-radius: var(--r-redondo);
+  border: 1px solid var(--mint); background: var(--sup-flotante); backdrop-filter: blur(10px);
+  box-shadow: 0 10px 24px var(--sombra-m); color: var(--text); font: inherit; cursor: pointer;
+}
+.jornada-pildora[hidden] { display: none; }
+.jornada-pildora.brasa { border-color: var(--fire); }
+.jornada-pildora .ic { width: 34px; height: 34px; border-radius: var(--r-redondo); display: grid; place-items: center; background: var(--mint-soft); color: var(--mint); }
+.jornada-pildora.brasa .ic { background: var(--fire-soft); color: var(--fire); }
+.jornada-pildora .ic svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.jornada-pildora b { display: block; font-size: 17px; font-weight: 500; line-height: 1.1; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
+.jornada-pildora span span { display: block; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 230px; }
+
+/* ---------- Las hojas ---------- */
+.jornada-card { display: grid; gap: 14px; max-height: 88vh; overflow-y: auto; }
+.jor-hoja-cab { display: grid; gap: 2px; }
+.jor-hoja-cab h3 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.jor-ceja { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--mint); }
+.jor-seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: var(--r-tarjeta); background: var(--bg); border: 1px solid var(--line); }
+.jor-seg button { border: 0; background: none; padding: 9px 6px; border-radius: var(--r-chico); font: inherit; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.jor-seg button[aria-pressed="true"] { background: var(--sup-tarjeta); color: var(--text); box-shadow: 0 0 0 1px var(--line); }
+.jor-filas { display: grid; border-radius: var(--r-tarjeta); border: 1px solid var(--line); }
+.jor-fila-aj { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; min-height: 50px; font-size: 14px; }
+.jor-fila-aj + .jor-fila-aj { border-top: 1px solid var(--line); }
+.jor-fila-aj small { display: block; color: var(--muted); font-size: 12px; }
+.jor-paso { display: flex; align-items: center; gap: 4px; }
+.jor-paso button { width: 32px; height: 32px; border-radius: var(--r-chico); border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; font-size: 16px; line-height: 1; cursor: pointer; }
+.jor-paso output { min-width: 80px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; font-size: 14px; }
+.jor-sw { width: 44px; height: 26px; border-radius: var(--r-redondo); border: 1px solid var(--line); background: var(--carril); position: relative; padding: 0; flex: none; cursor: pointer; }
+.jor-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--muted); transition: transform .2s ease; }
+.jor-sw[aria-checked="true"] { background: var(--mint-macizo); border-color: var(--mint-macizo); }
+.jor-sw[aria-checked="true"]::after { transform: translateX(18px); background: var(--sobre-macizo); }
+.jor-ops { display: grid; gap: 6px; }
+.jor-ops.alto { max-height: 38vh; overflow-y: auto; padding-right: 2px; }
+.jor-grupo { margin: 6px 0 0; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.jor-op {
+  display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; text-align: left; width: 100%;
+  padding: 9px 12px; border-radius: var(--r-tarjeta); border: 1px solid var(--line); background: transparent;
+  color: var(--text); font: inherit; cursor: pointer;
+}
+.jor-op[aria-pressed="true"] { border-color: var(--mint); background: var(--mint-soft); }
+.jor-op-t { font-size: 14px; }
+.jor-op small { display: block; font-size: 12px; color: var(--muted); }
+.jor-ok { color: var(--mint); font-weight: 700; }
+.jor-nota { margin: 0; font-size: 13px; color: var(--muted); }
+.jor-nota.error { color: var(--coral); }
+.jor-efecto { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; padding: 12px; border-radius: var(--r-tarjeta); background: var(--mint-soft); font-size: 14px; }
+.jor-efecto svg { width: 22px; height: 22px; fill: none; stroke: var(--mint); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.jor-efecto small { display: block; color: var(--muted); font-size: 12px; }
+.jor-grupo-p { display: grid; gap: 8px; }
+.jor-grupo-p p { margin: 0; font-size: 14px; }
+.jor-animo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.jor-animo button { display: grid; justify-items: center; gap: 4px; padding: 10px 4px; border-radius: var(--r-chico); border: 1px solid var(--line); background: transparent; font: inherit; font-size: 12px; color: var(--muted); cursor: pointer; }
+.jor-animo button[aria-pressed="true"] { border-color: var(--mint); color: var(--text); background: var(--mint-soft); }
+.jor-animo .d { display: flex; gap: 3px; }
+.jor-animo .d i { width: 7px; height: 7px; border-radius: 50%; background: var(--carril); }
+.jor-animo .d i.on { background: var(--mint); }
+
+/* ---------- En la computadora ---------- */
+@media (min-width: 900px) {
+  .jor { display: grid; grid-template-columns: minmax(380px, 460px) minmax(0, 1fr); gap: 28px; align-items: start; padding-bottom: 40px; }
+  .jor-reloj { background: var(--sup-tarjeta); border: 1px solid var(--line); border-radius: var(--r-grande); padding: 22px 22px 24px; }
+  .jor-rueda { max-width: 400px; --jor-sep: var(--card); }
+  .jor-arena { width: 56px; }
+  #jor-tiempo { font-size: 42px; }
+  /* Abajo a la derecha viven los avisos de la app; la píldora se va arriba. */
+  .jornada-pildora { left: auto; right: 24px; transform: none; bottom: auto; top: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #jor-giro, .jor-sw::after { transition: none; }
+  #jor-chorro { animation: none; }
+}
