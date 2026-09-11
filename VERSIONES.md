@@ -100,6 +100,45 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.102 · 11 sep 2026
+
+**La Jornada se llama Pomodoro, sabe cuándo toca descansar y apunta cuánto
+duermes.** Todo lo pidió Eduardo al probarla la misma noche.
+
+**Dos clases de bloque.** Dormir con tramos de 25 minutos «no tiene mucho
+sentido», y comer o ir en camino tampoco. Un bloque de descanso
+(`b.descanso`: `dormir`, `comida`, `traslado`) no ofrece Iniciar: el centro
+enseña cuánto le queda, con la arena en luciérnaga vaciándose a lo largo del
+bloque, y queda un enlace de «Enfocar de todos modos» que vale solo para ese
+bloque. Comer (2 a 3 PM) y Traslado (8 a 8:30 AM) llegan **sugeridos una vez**
+—y solo donde caben— y se borran como cualquier otro. El `sueno: true` de la
+0.7.101 se convierte solo en `descanso: "dormir"`.
+
+**Dormir se apunta.** «Buenas noches, a dormir» guarda la hora
+(`state.jornada.dormido`) y a partir de ahí el centro cuenta lo que llevas
+durmiendo; «Buenos días» cierra la cuenta, la guarda en el registro
+(`tipo: "sueno"`) y la fila de Dormir dice cuánto dormiste. Media hora antes
+del bloque de dormir, un aviso — una vez por noche.
+
+**Abandonar es un toque.** Pedía dos, y el rótulo «Otra vez para abandonar» ni
+cabía: se partía en dos líneas. Ahora abandona a la primera y el aviso trae
+**Deshacer**, que devuelve el tramo tal cual y en pausa.
+
+**La píldora reacciona.** En pausa seguía menta, como si corriera: ahora va
+coral en pausa, luciérnaga en descanso y menta en foco, con el estado en
+negritas y de ese color. La arena del centro también se pone coral en pausa.
+
+**Pomodoro, con un tomate.** Solo cambia lo que se VE. Por dentro sigue siendo
+`jornada` —`state.jornada`, `state.ui.jornada`, `#view-jornada`, los
+archivos— para no dejar huérfanos los datos de quien ya lo probaba;
+`?pomodoro=1` vale igual que `?jornada=1`.
+
+**Y en la computadora va centrado**, con el título alineado a la tarjeta: pegado
+a la izquierda dejaba media ventana vacía.
+
+La lista de borrado de la 0.7.101 sigue valiendo entera: todo lo nuevo vive en
+los mismos archivos y bajo los mismos nombres.
+
 ### 0.7.101.1 · 11 sep 2026
 
 **Jornada: la lista ya no se estira y el reloj de arena tiene tapas.** Las dos

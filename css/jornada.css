@@ -8,6 +8,9 @@
 :root {
   --jor-sueno: color-mix(in srgb, var(--muted) 38%, var(--bg));
   --jor-libre: color-mix(in srgb, var(--muted) 60%, var(--bg));
+  /* Comer y Traslado: descanso como Dormir, un escalón más claros para que no
+     se confundan con la noche en la rueda. */
+  --jor-descanso: color-mix(in srgb, var(--muted) 50%, var(--bg));
 }
 
 /* ---- Seis botones en la barra del teléfono ----
@@ -42,7 +45,7 @@
 .jor-blq { stroke: var(--jor-sep); stroke-width: 2; cursor: grab; }
 .jor-blq.sel { stroke: var(--text); stroke-width: 2.2; }
 .jor-blq-ic { color: var(--sobre-vivo); pointer-events: none; }
-.jor-blq-ic.sueno { color: var(--text); }
+.jor-blq-ic.descanso { color: var(--text); }
 .jor-aguja { pointer-events: none; }
 .jor-aguja line { stroke: var(--text); stroke-width: 2; stroke-linecap: round; }
 .jor-aguja circle { fill: var(--text); }
@@ -63,6 +66,7 @@
 /* ---------- El reloj de arena ---------- */
 .jor-arena { width: 44px; height: auto; overflow: visible; margin-bottom: 4px; --jor-grano: var(--mint-macizo); }
 .jor-arena.brasa { --jor-grano: var(--fire-macizo); }
+.jor-arena.pausa { --jor-grano: var(--coral-macizo); }
 /* Solo gira el dibujo, y su transición es de `transform`: nada que salga de
    una variable, que es lo que Chrome deja congelado. */
 #jor-giro { transform-box: view-box; transform-origin: 80px 112px; transition: transform .9s cubic-bezier(.3, .7, .2, 1); }
@@ -104,6 +108,16 @@ html.claro .jor-arena-g { filter: none; }
 .jor-chico { padding: 8px 12px; font-size: 13px; }
 .btn.seguro { background: var(--coral-soft); }
 .jor-regla { margin: 0; text-align: center; font-size: 12.5px; color: var(--muted); }
+/* Las salidas secundarias van como enlace y no como botón: «Enfocar de todos
+   modos» dentro de un descanso y «Abandonar» en el modo Libre. Un tercer botón
+   grande competiría con los dos que sí son la acción. */
+.jor-enlace {
+  justify-self: center; border: 0; background: none; padding: 4px 8px;
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--muted);
+  text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+}
+.jor-enlace.peligro { color: var(--coral); }
+.jor-desc-tx { font-size: 13px; color: var(--muted); text-align: center; }
 
 /* ---------- La lista del día ---------- */
 .jor-lista { display: grid; gap: 10px; align-content: start; }
@@ -116,7 +130,7 @@ html.claro .jor-arena-g { filter: none; }
 }
 .jor-fila.sel { border-color: var(--text); }
 .jor-tile { width: 38px; height: 38px; border-radius: var(--r-chico); display: grid; place-items: center; color: var(--sobre-vivo); flex: none; }
-.jor-tile.sueno, .jor-tile.sin { color: var(--text); }
+.jor-tile.descanso, .jor-tile.sin { color: var(--text); }
 .jor-tile.sin { background: var(--sup-tarjeta); border: 1px solid var(--line); }
 .jor-tile svg { width: 19px; height: 19px; }
 .jor-tile.chico { width: 30px; height: 30px; }
@@ -148,9 +162,19 @@ html.claro .jor-arena-g { filter: none; }
   box-shadow: 0 10px 24px var(--sombra-m); color: var(--text); font: inherit; cursor: pointer;
 }
 .jornada-pildora[hidden] { display: none; }
-.jornada-pildora.brasa { border-color: var(--fire); }
 .jornada-pildora .ic { width: 34px; height: 34px; border-radius: var(--r-redondo); display: grid; place-items: center; background: var(--mint-soft); color: var(--mint); }
+/* La píldora REACCIONA al estado (0.7.102): en pausa se veía menta, como si
+   siguiera corriendo. Borde, disco del icono y rótulo cambian juntos. */
+.jornada-pildora.brasa { border-color: var(--fire); }
 .jornada-pildora.brasa .ic { background: var(--fire-soft); color: var(--fire); }
+.jornada-pildora.pausa { border-color: var(--coral); }
+.jornada-pildora.pausa .ic { background: var(--coral-soft); color: var(--coral); }
+/* Con `.jornada-pildora` delante a propósito: la regla de la cifra grande
+   (`.jornada-pildora b`) también atrapa este `<b>`, y ganaba — lo dejaba en
+   bloque y con peso 500, así que el estado no salía en negritas. */
+.jornada-pildora .jor-pil-est { display: inline; font-size: inherit; font-family: inherit; line-height: inherit; font-weight: 700; color: var(--mint); }
+.jornada-pildora.brasa .jor-pil-est { color: var(--fire); }
+.jornada-pildora.pausa .jor-pil-est { color: var(--coral); }
 .jornada-pildora .ic svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 .jornada-pildora b { display: block; font-size: 17px; font-weight: 500; line-height: 1.1; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
 .jornada-pildora span span { display: block; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 230px; }
@@ -202,7 +226,12 @@ html.claro .jor-arena-g { filter: none; }
 
 /* ---------- En la computadora ---------- */
 @media (min-width: 900px) {
-  .jor { display: grid; grid-template-columns: minmax(380px, 460px) minmax(0, 1fr); gap: 28px; align-items: start; padding-bottom: 40px; }
+  /* CENTRADO en la pantalla (0.7.102): pegado a la izquierda dejaba media
+     ventana vacía a la derecha. Las dos columnas tienen tope y el conjunto va
+     al medio; el título se alinea con él para que no se quede solo en la
+     esquina. */
+  .jor { display: grid; grid-template-columns: minmax(380px, 460px) minmax(0, 560px); justify-content: center; gap: 28px; align-items: start; padding-bottom: 40px; max-width: 1048px; margin: 0 auto; }
+  #view-jornada .page-head { max-width: 1048px; margin-left: auto; margin-right: auto; }
   .jor-reloj { background: var(--sup-tarjeta); border: 1px solid var(--line); border-radius: var(--r-grande); padding: 22px 22px 24px; }
   /* La lista no se estira a todo lo que sobra: una tira de 1.000 px con un
      nombre a la izquierda y la duración a la derecha no se lee como UNA cosa.
