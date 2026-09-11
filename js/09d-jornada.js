@@ -112,7 +112,12 @@ function jDatos() {
   /* `notificar` sustituye a `avisos` (0.7.105.1): aquel nació apagado y se
      guardó apagado en todos los perfiles, así que reusarlo no habría
      encendido nada. */
-  j.cfg = Object.assign({ preset: "clasico", foco: 25, desc: 5, ciclos: 4, auto: false, sonido: true, notificar: true, hfModo: "travesia" }, j.cfg);
+  /* Se rellena lo que falta SIN cambiar el objeto (0.7.106). Antes se
+     reemplazaba por una copia en cada llamada —cuatro veces por segundo—, y
+     quien guardaba el de antes escribía en una copia huérfana: el reloj no
+     cambiaba al mover los minutos. */
+  const porDefecto = { preset: "clasico", foco: 25, desc: 5, ciclos: 4, auto: false, sonido: true, notificar: true, hfModo: "travesia" };
+  for (const k in porDefecto) if (!(k in j.cfg)) j.cfg[k] = porDefecto[k];
   if (!Array.isArray(j.registro)) j.registro = [];
   return j;
 }
@@ -266,7 +271,7 @@ function jIniciar() {
     bloque = b && !b.descanso && jEleccion === undefined ? b.id : null;
   }
   j.run = { fase: "foco", tramo, dur: libre ? null : c.foco * J_MS, acum: 0, seg: Date.now(), pausas: 0, libre, ref: ref || null, bloque,
-    origen: jEsteDispositivo(), fid: uid() };
+    origen: jEsteDispositivo(), fid: uid(), reloj: jTipoReloj(libre ? 0 : c.foco) };
   save(); jPintar();
 }
 function jPausa() {
@@ -384,12 +389,14 @@ const J_HF = {
 };
 function jHfCfg() {
   const c = jDatos().cfg;
-  const hf = c.hf && typeof c.hf === "object" ? c.hf : {};
-  c.hf = {
-    travesia: Object.assign({ foco: 25, desc: 5, rondas: 4 }, hf.travesia),
-    inmersion: Object.assign({ foco: 50 }, hf.inmersion),
-    respiro: Object.assign({ desc: 10 }, hf.respiro)
-  };
+  /* En su sitio, igual que `jDatos`: reemplazar `c.hf` en cada llamada dejaba
+     huérfano a quien tuviera en la mano el de antes. */
+  if (!c.hf || typeof c.hf !== "object") c.hf = {};
+  const porDefecto = { travesia: { foco: 25, desc: 5, rondas: 4 }, inmersion: { foco: 50 }, respiro: { desc: 10 } };
+  for (const m in porDefecto) {
+    if (!c.hf[m] || typeof c.hf[m] !== "object") c.hf[m] = {};
+    for (const p in porDefecto[m]) if (typeof c.hf[m][p] !== "number") c.hf[m][p] = porDefecto[m][p];
+  }
   if (!J_HF[c.hfModo]) c.hfModo = "travesia";
   if (!c.hfNombres || typeof c.hfNombres !== "object") c.hfNombres = {};
   return c;
@@ -409,7 +416,7 @@ function jIniciarLite() {
   jAudio(); jPedirPermiso();
   const c = jHfCfg(), k = c.hfModo, h = c.hf[k], j = jDatos();
   const base = { lite: true, modo: k, tramo: 1, acum: 0, seg: Date.now(), pausas: 0, ref: null, bloque: null,
-    origen: jEsteDispositivo(), fid: uid() };
+    origen: jEsteDispositivo(), fid: uid(), reloj: jTipoReloj(k === "respiro" ? h.desc : h.foco) };
   j.run = k === "respiro"
     ? Object.assign(base, { fase: "descanso", dur: h.desc * J_MS })
     : Object.assign(base, { fase: "foco", dur: h.foco * J_MS, rondas: k === "travesia" ? h.rondas : 1 });
@@ -755,30 +762,95 @@ function jAcomodar(t, id) {
 }
 
 /* ---------- La pantalla ---------- */
-function jRelojHTML() {
+/* ---------- Tres relojes, según el tiempo (0.7.106) ----------
+   El reloj que se ve depende del tiempo elegido ANTES de iniciar: poco tiempo,
+   uno pequeño; mucho, el Monumental. Lo pidió Eduardo —«si un usuario elige
+   mucho tiempo, que tenga un reloj distinto y alusivo a tener más tiempo»— y
+   con dos condiciones: que sea el mismo en el foco y en el descanso, y que no
+   sea el mismo dibujo encogido. Eligió de dos tandas de bocetos (el Clásico de
+   antes queda retirado):
+
+     chico    15 min o menos   tapa lisa y pedestal escalonado
+     mediano  de 20 a 45       dos columnas y pedestal escalonado
+     grande   50 o más         el Monumental: arco con remate, cuatro
+                               columnas torneadas, pedestal y escala
+
+   Los tres comparten el vidrio cuadrado de la 0.7.105, cada uno a su escala,
+   y es simétrico respecto al cuello en los tres: el volteo depende de eso.
+   Y al voltear gira SOLO el vidrio con su arena, no el marco: con un arco
+   arriba y un pedestal abajo, girar el conjunto enseñaba el pedestal arriba
+   durante un instante al enderezarse. */
+const J_RELOJES = (() => {
+  function vidrio(cx, hw, y0, y1, pared) {
+    const mid = (y0 + y1) / 2, n = 3.5, a = y0 + pared, b = y1 - pared, nt = mid - 4, nb = mid + 4;
+    return {
+      mid,
+      todo: `M${cx - hw} ${y0} L${cx + hw} ${y0} L${cx + hw} ${a} L${cx + n} ${nt} L${cx + n} ${nb} L${cx + hw} ${b} L${cx + hw} ${y1} L${cx - hw} ${y1} L${cx - hw} ${b} L${cx - n} ${nb} L${cx - n} ${nt} L${cx - hw} ${a} Z`,
+      arriba: `M${cx - hw} ${y0} L${cx + hw} ${y0} L${cx + hw} ${a} L${cx + n} ${nt} L${cx + n} ${mid} L${cx - n} ${mid} L${cx - n} ${nt} L${cx - hw} ${a} Z`,
+      abajo: `M${cx - n} ${mid} L${cx + n} ${mid} L${cx + n} ${nb} L${cx + hw} ${b} L${cx + hw} ${y1} L${cx - hw} ${y1} L${cx - hw} ${b} L${cx - n} ${nb} Z`
+    };
+  }
+  const pz = (x, y, w, h, r) => `<rect class="jor-madera" x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>`;
+  const po = (x, y0, y1, grosor) => `<line class="jor-poste${grosor ? " " + grosor : ""}" x1="${x}" y1="${y0}" x2="${x}" y2="${y1}"/>`;
+  const def = (vb, cx, hw, y0, y1, pared, atras, adelante) => ({ vb, cx, hw, y0, y1, v: vidrio(cx, hw, y0, y1, pared), atras, adelante });
+  return {
+    chico: def("0 0 140 170", 70, 30, 30, 142, 18,
+      po(32, 28, 144, "delgado") + po(108, 28, 144, "delgado"),
+      pz(26, 16, 88, 14, 4) + pz(28, 142, 84, 10, 3) + pz(18, 152, 104, 12, 4)),
+    mediano: def("0 0 170 240", 85, 36, 34, 206, 28,
+      po(30, 32, 208) + po(140, 32, 208),
+      pz(22, 20, 126, 14, 4) + pz(22, 206, 126, 12, 3) + pz(12, 218, 146, 14, 4)),
+    grande: def("0 0 200 300", 100, 38, 40, 260, 64,
+      `<circle class="jor-madera" cx="100" cy="7" r="5"/><path class="jor-madera" d="M40 28 Q100 -4 160 28 Z"/>` +
+      po(40, 38, 262) + po(160, 38, 262) + po(52, 38, 262, "fino") + po(148, 38, 262, "fino") +
+      [92, 150, 208].map(y => `<ellipse class="jor-madera" cx="40" cy="${y}" rx="7" ry="10"/><ellipse class="jor-madera" cx="160" cy="${y}" rx="7" ry="10"/>`).join(""),
+      [48, 64, 80, 96, 204, 220, 236, 252].map(y => `<line class="jor-marca" x1="141" y1="${y}" x2="146" y2="${y}"/>`).join("") +
+      pz(30, 26, 140, 13, 3) + pz(30, 261, 140, 12, 3) + pz(16, 273, 168, 15, 4))
+  };
+})();
+/* `min` son los minutos elegidos; sin límite (Libre) cuenta como mucho tiempo. */
+function jTipoReloj(min) { return !min ? "grande" : min <= 15 ? "chico" : min >= 50 ? "grande" : "mediano"; }
+/* El que toca ahora: el del tramo en curso —se apunta al empezar, y así no
+   cambia entre el foco y el descanso—, o el de lo que está elegido. */
+function jRelojActual() {
+  const j = jDatos(), run = j.run;
+  if (run && run.reloj) return run.reloj;
+  if ((run && run.lite) || (!run && jModo() === "lite")) {
+    const c = jHfCfg(), k = run ? (run.modo || "travesia") : c.hfModo, h = c.hf[k];
+    return jTipoReloj(k === "respiro" ? h.desc : h.foco);
+  }
+  return jTipoReloj(j.cfg.preset === "libre" ? 0 : j.cfg.foco);
+}
+function jRelojHTML(tipo) {
+  const t = J_RELOJES[tipo] ? tipo : "mediano", R = J_RELOJES[t], v = R.v, x = R.cx - R.hw - 2, w = R.hw * 2 + 4;
   return `
-    <svg class="jor-arena" id="jor-arena" viewBox="0 0 160 224" aria-hidden="true">
+    <svg class="jor-arena t-${t}" id="jor-arena" data-tipo="${t}" viewBox="${R.vb}" aria-hidden="true">
       <defs>
-        ${/* El vidrio es más CUADRADO desde la 0.7.105, con la silueta del icono
-              que enseñó Eduardo: paredes rectas arriba y abajo, diagonales al
-              cuello y un cuello corto. Tiene que seguir siendo simétrico
-              respecto a y=112 —el volteo depende de que «abajo lleno, girado»
-              y «arriba lleno, derecho» sean el mismo dibujo—. */""}
-        <clipPath id="jor-c-arriba"><path d="M42 22 L118 22 L118 50 L83.5 108 L83.5 112 L76.5 112 L76.5 108 L42 50 Z"/></clipPath>
-        <clipPath id="jor-c-abajo"><path d="M76.5 112 L83.5 112 L83.5 116 L118 174 L118 202 L42 202 L42 174 L76.5 116 Z"/></clipPath>
+        <clipPath id="jor-c-arriba"><path d="${v.arriba}"/></clipPath>
+        <clipPath id="jor-c-abajo"><path d="${v.abajo}"/></clipPath>
       </defs>
-      <g id="jor-giro">
-        <line class="jor-poste" x1="26" y1="20" x2="26" y2="204"/><line class="jor-poste" x1="134" y1="20" x2="134" y2="204"/>
-        <path class="jor-vidrio" d="M42 22 L118 22 L118 50 L83.5 108 L83.5 116 L118 174 L118 202 L42 202 L42 174 L76.5 116 L76.5 108 L42 50 Z"/>
+      ${R.atras}
+      <g id="jor-giro" style="transform-origin:${R.cx}px ${v.mid}px">
+        <path class="jor-vidrio" d="${v.todo}"/>
         <g class="jor-arena-g">
-          <rect id="jor-a-arriba" clip-path="url(#jor-c-arriba)" x="40" y="22" width="80" height="90"/>
-          <rect id="jor-a-abajo" clip-path="url(#jor-c-abajo)" x="40" y="202" width="80" height="0"/>
-          <line id="jor-chorro" x1="80" y1="112" x2="80" y2="200"/>
+          <rect id="jor-a-arriba" clip-path="url(#jor-c-arriba)" x="${x}" y="${R.y0}" width="${w}" height="${v.mid - R.y0}"/>
+          <rect id="jor-a-abajo" clip-path="url(#jor-c-abajo)" x="${x}" y="${R.y1}" width="${w}" height="0"/>
+          <line id="jor-chorro" x1="${R.cx}" y1="${v.mid}" x2="${R.cx}" y2="${R.y1 - 2}"/>
         </g>
-        <path class="jor-vidrio-borde" d="M42 22 L118 22 L118 50 L83.5 108 L83.5 116 L118 174 L118 202 L42 202 L42 174 L76.5 116 L76.5 108 L42 50 Z"/>
-        <rect class="jor-madera" x="14" y="1" width="132" height="21" rx="7"/><rect class="jor-madera" x="14" y="202" width="132" height="21" rx="7"/>
+        <path class="jor-vidrio-borde" d="${v.todo}"/>
       </g>
+      ${R.adelante}
     </svg>`;
+}
+/* Si cambió el tiempo elegido —otro ritmo, otra manera del Hiperfoco—, cambia
+   el reloj. Se rehace entero porque cada uno es otro dibujo. */
+function jAsegurarReloj() {
+  const el = document.getElementById("jor-arena");
+  if (!el) return;
+  const t = jRelojActual();
+  if (el.dataset.tipo === t) return;
+  el.outerHTML = jRelojHTML(t);
+  jArribaAntes = 1; jVolteando = false;
 }
 function renderJornada() {
   const cont = document.getElementById("jornada-content");
@@ -794,7 +866,7 @@ function renderJornada() {
   if (modo === "lite") {
     cont.innerHTML = pestanas + `
       <div class="jor-lite">
-        ${jRelojHTML()}
+        ${jRelojHTML(jRelojActual())}
         ${numeros}
         <div class="jor-controles" id="jor-controles"></div>
       </div>`;
@@ -808,7 +880,7 @@ function renderJornada() {
               <g id="jor-aguja" class="jor-aguja"><line x1="${J_C}" y1="${J_C - J_RI + 6}" x2="${J_C}" y2="${J_C - J_RO - 9}"/><circle cx="${J_C}" cy="${J_C - J_RO - 9}" r="3.5"/></g>
               <g id="jor-asas"></g>
             </svg>
-            <div class="jor-centro">${jRelojHTML()}${numeros}</div>
+            <div class="jor-centro">${jRelojHTML(jRelojActual())}${numeros}</div>
           </div>
           <div class="jor-controles" id="jor-controles"></div>
         </div>
@@ -987,10 +1059,12 @@ function jVoltear() {
   const g = document.getElementById("jor-giro");
   if (!g) return;
   jVolteando = true;
-  g.style.transition = ""; g.style.transform = "rotate(180deg)";
+  /* Se da la vuelta sobre su eje horizontal y se queda dentro del marco: girar
+     en el plano lo sacaba por los lados a medio camino. */
+  g.style.transition = ""; g.style.transform = "scaleY(-1)";
   const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
   setTimeout(() => {
-    g.style.transition = "none"; g.style.transform = "rotate(0deg)";
+    g.style.transition = "none"; g.style.transform = "none";
     g.getBoundingClientRect(); g.style.transition = "";
     jVolteando = false;
   }, quieto ? 0 : 950);
@@ -1051,18 +1125,20 @@ function jEstadoCentro() {
   return { arriba: 0, t: jMmss(run.libre ? run.acum : 0), f: tx("Tramo listo"), fc: "foco", sub: nom, cae: false, prog: 1 };
 }
 function jPintarCentro() {
+  jAsegurarReloj();
   const reloj = document.getElementById("jor-arena");
   if (!reloj) return;
+  const R = J_RELOJES[reloj.dataset.tipo] || J_RELOJES.mediano, mid = R.v.mid, alto = mid - R.y0;
   const s = jEstadoCentro();
   if (s.arriba - jArribaAntes > 0.5 && !jVolteando) jVoltear();
   jArribaAntes = s.arriba;
   const p = jVolteando ? 1 : 1 - s.arriba;
-  const yA = 22 + p * 90, yB = 202 - p * 90;
+  const yA = R.y0 + p * alto, yB = R.y1 - p * alto;
   const A = document.getElementById("jor-a-arriba"), B = document.getElementById("jor-a-abajo"), ch = document.getElementById("jor-chorro");
-  A.setAttribute("y", yA); A.setAttribute("height", Math.max(0, 112 - yA));
-  B.setAttribute("y", yB); B.setAttribute("height", 202 - yB);
+  A.setAttribute("y", yA); A.setAttribute("height", Math.max(0, mid - yA));
+  B.setAttribute("y", yB); B.setAttribute("height", R.y1 - yB);
   ch.style.display = s.cae && !jVolteando && s.arriba > 0.01 ? "" : "none";
-  ch.setAttribute("y2", Math.max(114, yB));
+  ch.setAttribute("y2", Math.max(mid + 2, yB));
   reloj.classList.toggle("brasa", s.fc === "brasa");
   reloj.classList.toggle("pausa", s.fc === "pausa");
   document.getElementById("jor-tiempo").textContent = s.t;

@@ -100,6 +100,38 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.106 · 11 sep 2026
+
+**El reloj de arena depende del tiempo que elijas.** Lo pidió Eduardo: un
+reloj distinto y alusivo a tener más tiempo cuando se elige mucho, y uno
+pequeño cuando se elige poco — el mismo en el foco y en el descanso, y con
+dibujo propio, no el mismo reloj encogido. Eligió de dos tandas de bocetos
+(la primera traía una «Ampolleta» de barco que se leía mal como reloj de
+arena; el Clásico de antes queda retirado):
+
+  - **15 min o menos**: tapa lisa y pedestal escalonado.
+  - **De 20 a 45**: dos columnas y el pedestal escalonado. Los torneados
+    redondos de las columnas los quitó él.
+  - **50 o más, o Libre**: el Monumental — arco con remate, cuatro columnas
+    torneadas, pedestal y una escala al costado.
+
+Manda el tiempo elegido ANTES de iniciar (el foco; en el Respiro, su
+descanso), y se apunta en el tramo al empezar (`run.reloj`) para que no
+cambie en el descanso. Si cambias el ritmo, cambia el reloj en el momento
+(`jAsegurarReloj`). Lo dibuja `J_RELOJES` en `js/09d-jornada.js`; el alto de
+cada uno, en `css/jornada.css`.
+
+**De paso, una trampa que salió al probarlo:** `jDatos()` reemplazaba el
+objeto de ajustes por una copia en cada llamada —cuatro veces por segundo—, y
+`jHfCfg()` hacía lo mismo con los del Hiperfoco. Quien guardaba el objeto de
+antes escribía en una copia huérfana, y el reloj se quedaba en el primero que
+había salido. Ahora rellenan lo que falta sin cambiar el objeto.
+
+**Y al voltear gira solo el vidrio**, dándose la vuelta sobre sí mismo
+(`scaleY(-1)`), con el marco quieto. Girar el conjunto en el plano enseñaba el
+pedestal arriba un instante al enderezarse —con el Clásico no se notaba porque
+su marco era simétrico— y a medio giro el vidrio se salía por los lados.
+
 ### 0.7.105.1 · 11 sep 2026
 
 **El Pomodoro ya no suena sin decir por qué.** Lo reportó Eduardo: *«siento

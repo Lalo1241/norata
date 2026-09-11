@@ -42,7 +42,10 @@
 
 /* «Solo enfocar»: el reloj grande en el medio y nada más. */
 .jor-lite { display: grid; justify-items: center; gap: 4px; max-width: 420px; margin: 0 auto; padding: 18px 0 120px; text-align: center; }
-.jor-lite .jor-arena { width: 104px; margin-bottom: 14px; }
+.jor-lite .jor-arena { margin-bottom: 14px; }
+.jor-lite .jor-arena.t-chico { --jor-alto: 112px; }
+.jor-lite .jor-arena.t-mediano { --jor-alto: 150px; }
+.jor-lite .jor-arena.t-grande { --jor-alto: 186px; }
 .jor-lite #jor-tiempo { font-size: 64px; }
 .jor-lite #jor-fase { font-size: 14px; margin-top: 6px; }
 .jor-lite #jor-sub { font-size: 13px; margin-bottom: 18px; }
@@ -119,18 +122,27 @@ html.claro .jor-blq.ahora { filter: none; }
 #jor-sub { font-size: 11px; color: var(--muted); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---------- El reloj de arena ---------- */
-.jor-arena { width: 44px; height: auto; overflow: visible; margin-bottom: 4px; --jor-grano: var(--mint-macizo); }
+/* Tres relojes (0.7.106): el alto dice cuánto tiempo mide, así que manda el
+   ALTO y no el ancho — cada dibujo tiene sus proporciones. */
+.jor-arena { height: var(--jor-alto, 60px); width: auto; overflow: visible; margin-bottom: 4px; --jor-grano: var(--mint-macizo); }
+.jor-arena.t-chico { --jor-alto: 48px; }
+.jor-arena.t-mediano { --jor-alto: 62px; }
+.jor-arena.t-grande { --jor-alto: 74px; }
 .jor-arena.brasa { --jor-grano: var(--fire-macizo); }
 .jor-arena.pausa { --jor-grano: var(--coral-macizo); }
 /* Solo gira el dibujo, y su transición es de `transform`: nada que salga de
    una variable, que es lo que Chrome deja congelado. */
-#jor-giro { transform-box: view-box; transform-origin: 80px 112px; transition: transform .9s cubic-bezier(.3, .7, .2, 1); }
+/* El punto de giro lo pone cada reloj en línea: es el centro de SU cuello. */
+#jor-giro { transform-box: view-box; transition: transform .9s cubic-bezier(.3, .7, .2, 1); }
 /* Las tapas y los postes iban en `--card` y `--line`, casi el mismo tono que
    la tarjeta de detrás: a 56 px de alto las tapas no se veían y el reloj
    parecía un vaso suelto. Lo cazó Eduardo en la 0.7.101. Van un escalón más
    claras y más gruesas, que es lo que dice «esto es un reloj de arena». */
 .jor-madera { fill: var(--faint); stroke: var(--muted); stroke-width: 2.5; }
 .jor-poste { stroke: var(--faint); stroke-width: 7; stroke-linecap: round; }
+.jor-poste.delgado { stroke-width: 5; }
+.jor-poste.fino { stroke-width: 3; }
+.jor-marca { stroke: var(--faint); stroke-width: 2; stroke-linecap: round; }
 .jor-vidrio { fill: color-mix(in srgb, var(--celeste) 8%, transparent); }
 .jor-vidrio-borde { fill: none; stroke: var(--muted); stroke-width: 3; stroke-linejoin: round; }
 .jor-arena-g { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--jor-grano) 50%, transparent)); }
@@ -302,10 +314,14 @@ html.claro .jor-arena-g { filter: none; }
      Lo pidió Eduardo al probarla (0.7.101.1). */
   .jor-lista { max-width: 560px; }
   .jor-rueda { max-width: 400px; --jor-sep: var(--card); }
-  .jor-centro .jor-arena { width: 56px; }
+  .jor-centro .jor-arena.t-chico { --jor-alto: 58px; }
+  .jor-centro .jor-arena.t-mediano { --jor-alto: 74px; }
+  .jor-centro .jor-arena.t-grande { --jor-alto: 88px; }
   .jor-centro #jor-tiempo { font-size: 42px; }
   .jor-lite { background: var(--sup-tarjeta); border: 1px solid var(--line); border-radius: var(--r-grande); padding: 36px 32px 34px; }
-  .jor-lite .jor-arena { width: 130px; }
+  .jor-lite .jor-arena.t-chico { --jor-alto: 130px; }
+  .jor-lite .jor-arena.t-mediano { --jor-alto: 176px; }
+  .jor-lite .jor-arena.t-grande { --jor-alto: 216px; }
   .jor-lite #jor-tiempo { font-size: 80px; }
   /* Abajo a la derecha viven los avisos de la app; la píldora se va arriba. */
   .jornada-pildora { left: auto; right: 24px; transform: none; bottom: auto; top: 18px; }
