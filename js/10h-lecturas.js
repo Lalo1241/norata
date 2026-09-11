@@ -140,9 +140,9 @@ const LECTURAS_HABILIDADES = [
      su propia app, y por eso va primera. */
   function (c) {
     const f = c.h.porFuente;
-    const total = f.misiones + f.talentos + f.proyectos + f.practica;
+    const total = f.misiones + f.talentos + f.proyectos + f.practica + (f.pomodoro || 0);
     if (total < 100) return null;
-    const pares = [["misiones", f.misiones], ["talentos", f.talentos], ["proyectos", f.proyectos], ["práctica suelta", f.practica]];
+    const pares = [["misiones", f.misiones], ["talentos", f.talentos], ["proyectos", f.proyectos], ["práctica suelta", f.practica], ["el Pomodoro", f.pomodoro || 0]];
     pares.sort((a, b) => b[1] - a[1]);
     const [nombre, valor] = pares[0];
     if (valor < total * 0.7) return null;
@@ -327,12 +327,37 @@ const LECTURAS_TODO = [
   }
 ];
 
+/* El Pomodoro (0.7.104). Tres frases y las tres dan una salida: el sueño, lo
+   que se abandona y lo planeado que no tuvo foco. */
+const LECTURAS_POMODORO = [
+  function (c) {
+    const s = c.po && c.po.sueno;
+    if (!s || s.noches < 3) return null;
+    const prom = s.minutos / s.noches;
+    const txt = jHorasTxt(prom);
+    if (prom < 360) return T`Dormiste en promedio ${txt} por noche, menos de seis horas. El foco de mañana sale de ahí.`;
+    if (prom >= 420) return T`Dormiste en promedio ${txt} por noche. Con eso el foco tiene de dónde salir.`;
+    return null;
+  },
+  function (c) {
+    const p = c.po;
+    if (!p || p.abandonados < 3 || p.abandonados < p.tramos * 0.3) return null;
+    return T`Abandonaste ${p.abandonados} tramos. Prueba tramos más cortos: quince o veinte minutos que terminas pesan más que veinticinco que no.`;
+  },
+  function (c) {
+    const pl = c.po && c.po.plan;
+    if (!pl || pl.pct === null || pl.planeados < 5 || pl.pct >= 40) return null;
+    return T`Solo ${pl.conFoco} de ${pl.planeados} bloques planeados tuvieron foco. Quizá la rueda pide menos bloques, no más ganas.`;
+  }
+];
+
 const LECTURAS = {
   todo: LECTURAS_TODO,
   misiones: LECTURAS_MISIONES,
   habilidades: LECTURAS_HABILIDADES,
   talentos: LECTURAS_TALENTOS,
-  proyectos: LECTURAS_PROYECTOS
+  proyectos: LECTURAS_PROYECTOS,
+  pomodoro: LECTURAS_POMODORO
 };
 
 /* ================= El armado ================= */
@@ -367,6 +392,7 @@ function contextoLecturas(r, rAntes, D) {
     pAntes: metricasProyectos(rAntes, D),
     vivos: datos.projects.filter(x => x.status === "active" || x.status === "paused"),
     porMision, topHab,
+    po: typeof metricasPomodoro === "function" ? metricasPomodoro(r, D) : null,
     dias: diasDe(r).length,
     diasActivos: diasConAlgo(r, datos),
     rachas: D ? rachaDemo(D) : (typeof streakInfo === "function" ? streakInfo() : null)

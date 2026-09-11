@@ -1,4 +1,4 @@
-/* ================= Pomodoro: el día en una rueda (EN PRUEBA, 0.7.101) =======
+/* ================= Pomodoro: el día en una rueda (0.7.101 en adelante) =====
    Una rueda de 24 horas donde se acomoda CUÁNDO se hace cada cosa, con un
    reloj de arena en el centro que lleva los tramos de enfoque (la técnica
    pomodoro). Al acabar un tramo apunta el avance en el módulo que toque.
@@ -6,11 +6,10 @@
    ---- Se ve «Pomodoro» y por dentro se llama `jornada` ----
    Nació llamándose Jornada (0.7.101) y Eduardo lo renombró en la 0.7.102, con
    un tomate de icono. Los identificadores internos NO se cambiaron a
-   propósito —`state.jornada`, `state.ui.jornada`, `#view-jornada`,
-   `?jornada=1`—: son los que ya guardan los datos de quien lo está probando, y
-   renombrarlos los dejaría huérfanos. Es la misma decisión que se tomó con
-   `mainquest-v1` cuando la app cambió de nombre dos veces. `?pomodoro=1` vale
-   igual que `?jornada=1`.
+   propósito —`state.jornada`, `#view-jornada`, `?jornada=1`—: son los que ya
+   guardan los datos de quien lo está probando, y renombrarlos los dejaría
+   huérfanos. Es la misma decisión que se tomó con `mainquest-v1` cuando la app
+   cambió de nombre dos veces. `?pomodoro=1` vale igual que `?jornada=1`.
 
    Nació de dos bocetos del 10 sep 2026. El primero ponía un botón de «Enfocar»
    en cada misión y cada habilidad, y Eduardo lo paró: «vas a saturar de
@@ -26,6 +25,14 @@
    silencio. Ahora es un módulo como los otros cuatro —se apaga en Ajustes y
    solo se guarda el APAGADO, en `modulosOff`— y la marca vieja se convierte
    una vez (`jMigrarInterruptor`). Los enlaces siguen valiendo.
+
+   ---- Dos maneras de usarlo (0.7.104) ----
+   «Mi día» es la rueda. «Solo enfocar» es un reloj de un toque: nada que
+   vincular ni que configurar —25, 50 o libre, y ya—, para cuando lo único que
+   hace falta es hiperfoco. Lo pidió Eduardo con esas palabras: «algo mucho más
+   lite donde no andes buscando configuraciones complejas». Comparten el mismo
+   reloj (`state.jornada.run`, con `lite: true`), así que la píldora y el
+   informe los cuentan igual.
 
    ---- Dos clases de bloque: los de enfoque y los de descanso ----
    Dormir con tramos de 25 minutos no tiene sentido (lo dijo Eduardo en la
@@ -46,13 +53,20 @@
    Solo toca otros módulos por las puertas que ya existen: `logMission` para
    cumplir una misión (y solo si dices que la terminaste) y `addXp` para la
    práctica de una habilidad, con los mismos topes de medio día que el registro
-   manual. Los talentos y los encargos no guardan tiempo en ningún campo, así
-   que si entrenan una habilidad, la practica esa; si no, queda en el registro
-   del Pomodoro y en ningún otro sitio. */
+   manual. Lo que da, lo da A NOMBRE DEL POMODORO (`fuente: "Pomodoro · …"`),
+   que el informe cuenta aparte; la misión igual queda cumplida en Misiones.
+   Los talentos y los encargos no guardan tiempo en ningún campo, así que si
+   entrenan una habilidad, la practica esa; si no, queda en el registro del
+   Pomodoro, que es lo que lee su informe (`metricasPomodoro`,
+   js/10f-informes.js). */
 
 const J_DIA = 1440, J_MS = 60000;
 const J_C = 160, J_RO = 126, J_RI = 94, J_RM = 110;
 const J_PRESETS = { clasico: { foco: 25, desc: 5, ciclos: 4 }, profundo: { foco: 50, desc: 10, ciclos: 2 } };
+/* Lo que se guarda del registro. Eran 300, que a ocho tramos al día son cinco
+   semanas: el informe del año se quedaba sin historia. Cada entrada pesa poco
+   más de cien bytes. */
+const J_REG_MAX = 2000;
 const J_LUNA = '<path d="M19.5 14.5A7.5 7.5 0 019.5 4.5a7.5 7.5 0 1010 10z"/>';
 const J_ARENA = '<path d="M7 3h10M7 21h10M8 3c0 5 8 6.5 8 9s-8 4-8 9M16 3c0 5-8 6.5-8 9s8 4 8 9"/>';
 /* Los bloques de descanso. Los rótulos se traducen donde se DIBUJAN: una tabla
@@ -77,7 +91,7 @@ function jMigrarInterruptor() {
   save();
 }
 
-/* Los datos se siembran al PEDIRLOS, no al cargar: quien nunca encienda el
+/* Los datos se siembran al PEDIRLOS, no al cargar: quien nunca abra el
    Pomodoro no lleva ni una llave de más en su perfil. */
 function jDatos() {
   if (!state.jornada || typeof state.jornada !== "object") state.jornada = {};
@@ -95,7 +109,7 @@ function jDatos() {
     });
   }
   if (!j.cfg || typeof j.cfg !== "object") j.cfg = {};
-  j.cfg = Object.assign({ preset: "clasico", foco: 25, desc: 5, ciclos: 4, auto: false, sonido: true, avisos: false }, j.cfg);
+  j.cfg = Object.assign({ preset: "clasico", foco: 25, desc: 5, ciclos: 4, auto: false, sonido: true, avisos: false, lite: 25 }, j.cfg);
   if (!Array.isArray(j.registro)) j.registro = [];
   return j;
 }
@@ -179,8 +193,19 @@ function jCandidatos() {
   ].filter(g => g[2].length);
 }
 
+/* ---------- Mi día o Solo enfocar ----------
+   Es preferencia de ESTE dispositivo y no dato del usuario: vive en su propia
+   llave de localStorage y nunca en `state`, como el plegado de la barra. */
+function jModo() {
+  try { return localStorage.getItem("norata-pomodoro-modo") === "lite" ? "lite" : "dia"; } catch (e) { return "dia"; }
+}
+function jPonerModo(m) {
+  try { localStorage.setItem("norata-pomodoro-modo", m); } catch (e) { /* se queda en este rato */ }
+  renderJornada();
+}
+
 /* ---------- Qué se enfoca si tocas Iniciar ---------- */
-let jEleccion;   // undefined: lo decide el bloque de ahora · null: sin atar · {t,id}: lo que elegiste
+let jEleccion;   // undefined: lo decide el bloque de ahora · null: sin vincular · {t,id}: lo que elegiste
 /* «Enfocar de todos modos» dentro de un descanso: vale para ESE bloque y se
    olvida al salir de él, para que la noche siguiente vuelva a ser noche. */
 let jForzado = null;
@@ -203,7 +228,7 @@ function jIniciar() {
   jAudio();
   const j = jDatos(), c = j.cfg, libre = c.preset === "libre";
   let tramo = 1, ref = jObjetivo(), bloque = null;
-  if (j.run && j.run.fase === "listo") { tramo = j.run.tramo; ref = j.run.ref; bloque = j.run.bloque; }
+  if (j.run && j.run.fase === "listo" && !j.run.lite) { tramo = j.run.tramo; ref = j.run.ref; bloque = j.run.bloque; }
   else {
     const b = jBloqueEn(jAhora());
     bloque = b && !b.descanso && jEleccion === undefined ? b.id : null;
@@ -225,6 +250,21 @@ function jSiguiente() {
 }
 function jFinFase() {
   const j = jDatos(), run = j.run;
+  if (run.lite) {
+    if (run.fase === "foco") {
+      const min = Math.round(run.dur / J_MS);
+      jApuntarLite(min, run.pausas);
+      Object.assign(run, { fase: "listo", min, acum: 0, seg: null });
+      save();
+      jAvisar(tx("Listo"), T`${min} min de hiperfoco.`);
+    } else if (run.fase === "descanso") {
+      j.run = null;
+      save();
+      jAvisar(tx("Se acabó el descanso"), tx("Cuando quieras, otro tramo."));
+    }
+    jPintar();
+    return;
+  }
   if (run.fase === "foco") {
     run.min = Math.round(run.dur / J_MS);
     run.fase = "cierre"; run.seg = null;
@@ -253,8 +293,8 @@ let jDeshacer = null;
 function jAbandonar() {
   const j = jDatos(), run = j.run; if (!run) return;
   const r = jRef(run.ref);
-  const entrada = { id: uid(), fecha: todayKey(), hora: hhmmNow(), ref: run.ref, nombre: r ? r.nombre : tx("Sin atar"),
-    min: Math.floor(jTrans(run) / J_MS), pausas: run.pausas, animo: 0, res: tx("Abandonado · sin XP"), abandono: true };
+  const entrada = { id: uid(), fecha: todayKey(), hora: hhmmNow(), ref: run.ref, nombre: r ? r.nombre : tx("Sin vincular"),
+    min: Math.floor(jTrans(run) / J_MS), pausas: run.pausas, animo: 0, res: tx("Abandonado · sin XP"), abandono: true, bloque: run.bloque || null };
   j.registro.unshift(entrada);
   jDeshacer = { run: JSON.parse(JSON.stringify(run)), id: entrada.id, en: Date.now() };
   j.run = null; jEleccion = undefined;
@@ -274,6 +314,34 @@ function jDeshacerAbandono() {
   toast(tx("El tramo sigue, en pausa"), "hecho");
 }
 
+/* ---------- Solo enfocar ---------- */
+function jIniciarLite() {
+  jAudio();
+  const j = jDatos(), min = Number(j.cfg.lite) || 0;
+  const tramo = j.run && j.run.lite ? (j.run.tramo || 0) + 1 : 1;
+  j.run = { fase: "foco", lite: true, tramo, dur: min ? min * J_MS : null, libre: !min, acum: 0, seg: Date.now(), pausas: 0, ref: null, bloque: null };
+  save(); jPintar();
+}
+/* Lo que se hizo en modo rápido queda en el registro sin vincular: no da XP
+   —no está atado a nada que la reciba— pero cuenta como foco en el informe. */
+function jApuntarLite(min, pausas) {
+  if (min < 1) return;
+  const j = jDatos();
+  j.registro.unshift({ id: uid(), fecha: todayKey(), hora: hhmmNow(), ref: null, nombre: tx("Hiperfoco"),
+    min, pausas: pausas || 0, animo: 0, res: tx("Hiperfoco"), lite: true });
+  j.registro = j.registro.slice(0, J_REG_MAX);
+}
+/* Parar guarda lo hecho y ya: aquí no hay «abandonar», porque no hay nada que
+   cumplir. Diez minutos de hiperfoco son diez minutos. */
+function jPararLite() {
+  const j = jDatos(), run = j.run; if (!run) return;
+  const min = run.fase === "foco" ? Math.floor(jTrans(run) / J_MS) : 0;
+  if (run.fase === "foco") jApuntarLite(min, run.pausas);
+  j.run = null;
+  save(); jPintar();
+  if (run.fase === "foco") toast(min >= 1 ? T`${min} min de hiperfoco apuntados` : tx("Menos de un minuto: no queda apuntado"), min >= 1 ? "logro" : "calma");
+}
+
 /* ---------- Dormir y despertar ---------- */
 function jBuenasNoches() {
   const j = jDatos(), b = jBloqueEn(jAhora());
@@ -286,7 +354,7 @@ function jBuenosDias() {
   if (!d) return;
   const min = Math.max(1, Math.round((Date.now() - d.inicio) / J_MS));
   j.registro.unshift({ id: uid(), fecha: todayKey(), tipo: "sueno", inicio: d.inicio, fin: Date.now(), min, bloque: d.bloque });
-  j.registro = j.registro.slice(0, 300);
+  j.registro = j.registro.slice(0, J_REG_MAX);
   j.dormido = null;
   save(); jPintar();
   toast(T`Buenos días · dormiste ${jFmtDur(min)}`, "logro");
@@ -309,11 +377,39 @@ function jAvisoSueno() {
   }
 }
 
+/* ---------- Lo planeado contra lo hecho (0.7.104) ----------
+   La rueda es una plantilla que se repite cada día, así que «cuántos bloques
+   tenía el martes» no se puede reconstruir después: si hoy la cambias, el
+   martes pasado cambiaría con ella. Por eso se APUNTA, un número por día —los
+   bloques de enfoque, sin los descansos— y el informe lo cruza con los bloques
+   que de verdad tuvieron un tramo. Solo se guarda cuando el número cambia. */
+function jApuntarPlan() {
+  const j = jDatos(), hoy = todayKey();
+  const n = j.bloques.filter(b => !b.descanso).length;
+  if (!j.planes || typeof j.planes !== "object") j.planes = {};
+  if (j.planes[hoy] === n) return;
+  j.planes[hoy] = n;
+  const ks = Object.keys(j.planes).sort();
+  while (ks.length > 400) delete j.planes[ks.shift()];
+  save();
+}
+function jPlanDeHoy() {
+  const j = jDatos(), hoy = todayKey();
+  const enfoque = j.bloques.filter(b => !b.descanso);
+  const conFoco = new Set();
+  j.registro.forEach(r => { if (r.fecha === hoy && r.bloque && !r.abandono && r.tipo !== "sueno") conFoco.add(r.bloque); });
+  return { plan: enfoque.length, hechos: enfoque.filter(b => conFoco.has(b.id)).length };
+}
+
 /* ---------- Lo que pasa al guardar un tramo ---------- */
 /* La tarifa del registro manual (`PRACTICAS`, js/06-detalle.js): 40 XP la hora
    y un extra pequeño por sostenerlo. Un tramo de 25 minutos da 17. */
 const jXp = min => min <= 60 ? Math.round(min * 40 / 60) : Math.round(40 + (min - 60) * 45 / 60);
 const jNivelPractica = min => min < 45 ? "suave" : min < 105 ? "moderada" : "intensiva";
+/* El origen que se guarda en el historial de la habilidad. SIN traducir, a
+   propósito: `familiaDeFuente` lo reconoce por cómo empieza, y en inglés
+   «Pomodoro» se escribe igual. */
+const jFuente = nombre => "Pomodoro · " + nombre;
 
 function jEfecto(ref, min, terminada) {
   const r = jRef(ref);
@@ -322,11 +418,15 @@ function jEfecto(ref, min, terminada) {
     const m = r.o, hoy = todayKey();
     if (missionDone(m, hoy)) return { t: T`${min} min de foco en «${m.name}»`, s: tx("La misión ya estaba cumplida hoy.") };
     if (terminada) {
+      /* Se cumple en Misiones —cuenta para la racha y su informe— y su XP va
+         a nombre del Pomodoro. Lo pidió Eduardo así: que se tache como
+         terminada y que el mérito sea del Pomodoro. Y solo si lo confirmaste:
+         que se acabe el tiempo no quiere decir que se acabara la actividad. */
       return {
         t: tx("Misión cumplida"),
-        s: m.skillId && m.xp ? T`Y su habilidad recibe ${m.xp} XP.` : T`Con ${min} min de foco.`,
-        propio: true,
-        hacer: () => logMission(m.id, missionTarget(m) - missionCount(m, hoy))
+        s: m.skillId && m.xp ? T`Y su habilidad recibe ${m.xp} XP, a nombre del Pomodoro.` : T`Con ${min} min de foco.`,
+        propio: true, terminada: true,
+        hacer: () => logMission(m.id, missionTarget(m) - missionCount(m, hoy), { fuente: jFuente(m.name) })
       };
     }
     return { t: T`${min} min de foco apuntados`, s: tx("La misión sigue abierta.") };
@@ -343,7 +443,7 @@ function jEfecto(ref, min, terminada) {
     t: T`+${xp} XP a ${s.name}`,
     s: r.t === "habilidad" ? tx("Cuenta como práctica de hoy: no baja.") : T`Por «${r.nombre}», que la entrena.`,
     skill: s,
-    hacer: () => addXp(s, xp, T`Enfoque: ${r.nombre}`, "Pomodoro", { min: cuenta, nivel: jNivelPractica(cuenta) })
+    hacer: () => addXp(s, xp, T`Enfoque: ${r.nombre}`, jFuente(r.nombre), { min: cuenta, nivel: jNivelPractica(cuenta) })
   };
 }
 
@@ -355,9 +455,9 @@ function jGuardar(descansar) {
   const antes = ef.skill ? levelInfo(ef.skill.xp).level : null;
   if (ef.hacer) ef.hacer();
   const r = jRef(run.ref);
-  j.registro.unshift({ id: uid(), fecha: todayKey(), hora: hhmmNow(), ref: run.ref, nombre: r ? r.nombre : tx("Sin atar"),
-    min: run.min, pausas: run.pausas, animo: jAnimo, res: ef.t, bloque: run.bloque || null });
-  j.registro = j.registro.slice(0, 300);
+  j.registro.unshift({ id: uid(), fecha: todayKey(), hora: hhmmNow(), ref: run.ref, nombre: r ? r.nombre : tx("Sin vincular"),
+    min: run.min, pausas: run.pausas, animo: jAnimo, res: ef.t, bloque: run.bloque || null, terminada: !!ef.terminada });
+  j.registro = j.registro.slice(0, J_REG_MAX);
   const ultimo = !run.libre && run.tramo >= j.cfg.ciclos;
   if (run.libre || ultimo) { j.run = null; jEleccion = undefined; }
   else if (descansar) Object.assign(run, { fase: "descanso", dur: j.cfg.desc * J_MS, acum: 0, seg: Date.now() });
@@ -525,7 +625,7 @@ function jAcomodar(t, id) {
       if (!jChoca(ini, fin, null)) {
         const b = { id: uid(), ref: { t, id }, ini, fin };
         jDatos().bloques.push(b); jSelId = b.id;
-        save(); jPintar();
+        save(); jApuntarPlan(); jPintar();
         return;
       }
     }
@@ -534,61 +634,78 @@ function jAcomodar(t, id) {
 }
 
 /* ---------- La pantalla ---------- */
+function jRelojHTML() {
+  return `
+    <svg class="jor-arena" id="jor-arena" viewBox="0 0 160 224" aria-hidden="true">
+      <defs>
+        <clipPath id="jor-c-arriba"><path d="M42 22 L118 22 C118 72 86 94 83.5 112 L76.5 112 C74 94 42 72 42 22 Z"/></clipPath>
+        <clipPath id="jor-c-abajo"><path d="M76.5 112 L83.5 112 C86 130 118 152 118 202 L42 202 C42 152 74 130 76.5 112 Z"/></clipPath>
+      </defs>
+      <g id="jor-giro">
+        <line class="jor-poste" x1="26" y1="20" x2="26" y2="204"/><line class="jor-poste" x1="134" y1="20" x2="134" y2="204"/>
+        <path class="jor-vidrio" d="M42 22 L118 22 C118 72 86 94 83.5 112 C86 130 118 152 118 202 L42 202 C42 152 74 130 76.5 112 C74 94 42 72 42 22 Z"/>
+        <g class="jor-arena-g">
+          <rect id="jor-a-arriba" clip-path="url(#jor-c-arriba)" x="40" y="22" width="80" height="90"/>
+          <rect id="jor-a-abajo" clip-path="url(#jor-c-abajo)" x="40" y="202" width="80" height="0"/>
+          <line id="jor-chorro" x1="80" y1="112" x2="80" y2="200"/>
+        </g>
+        <path class="jor-vidrio-borde" d="M42 22 L118 22 C118 72 86 94 83.5 112 C86 130 118 152 118 202 L42 202 C42 152 74 130 76.5 112 C74 94 42 72 42 22 Z"/>
+        <rect class="jor-madera" x="14" y="1" width="132" height="21" rx="7"/><rect class="jor-madera" x="14" y="202" width="132" height="21" rx="7"/>
+      </g>
+    </svg>`;
+}
 function renderJornada() {
   const cont = document.getElementById("jornada-content");
   if (!cont || !jornadaEncendida()) return;
   jDatos();
-  cont.innerHTML = `
-    <div class="jor">
-      <div class="jor-reloj">
-        <div class="jor-rueda">
-          <svg id="jor-svg" viewBox="0 0 320 320" role="img" aria-label="${escapeAttr(tx("Tu día en una rueda de 24 horas"))}">
-            <g>${jBaseRueda()}</g><g id="jor-bloques-svg"></g>
-            <g id="jor-aguja" class="jor-aguja"><line x1="${J_C}" y1="${J_C - J_RI + 6}" x2="${J_C}" y2="${J_C - J_RO - 9}"/><circle cx="${J_C}" cy="${J_C - J_RO - 9}" r="3.5"/></g>
-            <g id="jor-asas"></g>
-          </svg>
-          <div class="jor-centro">
-            <svg class="jor-arena" id="jor-arena" viewBox="0 0 160 224" aria-hidden="true">
-              <defs>
-                <clipPath id="jor-c-arriba"><path d="M42 22 L118 22 C118 72 86 94 83.5 112 L76.5 112 C74 94 42 72 42 22 Z"/></clipPath>
-                <clipPath id="jor-c-abajo"><path d="M76.5 112 L83.5 112 C86 130 118 152 118 202 L42 202 C42 152 74 130 76.5 112 Z"/></clipPath>
-              </defs>
-              <g id="jor-giro">
-                <line class="jor-poste" x1="26" y1="20" x2="26" y2="204"/><line class="jor-poste" x1="134" y1="20" x2="134" y2="204"/>
-                <path class="jor-vidrio" d="M42 22 L118 22 C118 72 86 94 83.5 112 C86 130 118 152 118 202 L42 202 C42 152 74 130 76.5 112 C74 94 42 72 42 22 Z"/>
-                <g class="jor-arena-g">
-                  <rect id="jor-a-arriba" clip-path="url(#jor-c-arriba)" x="40" y="22" width="80" height="90"/>
-                  <rect id="jor-a-abajo" clip-path="url(#jor-c-abajo)" x="40" y="202" width="80" height="0"/>
-                  <line id="jor-chorro" x1="80" y1="112" x2="80" y2="200"/>
-                </g>
-                <path class="jor-vidrio-borde" d="M42 22 L118 22 C118 72 86 94 83.5 112 C86 130 118 152 118 202 L42 202 C42 152 74 130 76.5 112 C74 94 42 72 42 22 Z"/>
-                <rect class="jor-madera" x="14" y="1" width="132" height="21" rx="7"/><rect class="jor-madera" x="14" y="202" width="132" height="21" rx="7"/>
-              </g>
-            </svg>
-            <div id="jor-tiempo">25:00</div>
-            <div id="jor-fase"></div>
-            <div id="jor-sub"></div>
-          </div>
-        </div>
+  const modo = jModo();
+  const pestanas = `<div class="jor-modos" role="tablist" aria-label="${escapeAttr(tx("Cómo usar el Pomodoro"))}">
+    ${[["dia", tx("Mi día")], ["lite", tx("Solo enfocar")]].map(([k, n]) =>
+      `<button type="button" role="tab" data-modo="${k}" aria-selected="${modo === k}">${n}</button>`).join("")}
+  </div>`;
+  const numeros = `<div id="jor-tiempo">25:00</div><div id="jor-fase"></div><div id="jor-sub"></div>`;
+
+  if (modo === "lite") {
+    cont.innerHTML = pestanas + `
+      <div class="jor-lite">
+        ${jRelojHTML()}
+        ${numeros}
         <div class="jor-controles" id="jor-controles"></div>
-      </div>
-      <div class="jor-lista">
-        <h3 class="jor-rot">${tx("Hoy")}</h3>
-        <div class="jor-bloques" id="jor-lista-bloques"></div>
-        <h3 class="jor-rot">${tx("Por acomodar")}</h3>
-        <div class="jor-acomodar" id="jor-acomodar"></div>
-        <p class="jor-como">${tx("Toca un bloque para elegirlo, arrastra sus puntas para cambiar la hora y arrástralo entero para moverlo. Tócalo otra vez para editarlo.")}</p>
-      </div>
-    </div>`;
-  jEngancharRueda(document.getElementById("jor-svg"));
+      </div>`;
+  } else {
+    cont.innerHTML = pestanas + `
+      <div class="jor">
+        <div class="jor-reloj">
+          <div class="jor-rueda">
+            <svg id="jor-svg" viewBox="0 0 320 320" role="img" aria-label="${escapeAttr(tx("Tu día en una rueda de 24 horas"))}">
+              <g>${jBaseRueda()}</g><g id="jor-bloques-svg"></g>
+              <g id="jor-aguja" class="jor-aguja"><line x1="${J_C}" y1="${J_C - J_RI + 6}" x2="${J_C}" y2="${J_C - J_RO - 9}"/><circle cx="${J_C}" cy="${J_C - J_RO - 9}" r="3.5"/></g>
+              <g id="jor-asas"></g>
+            </svg>
+            <div class="jor-centro">${jRelojHTML()}${numeros}</div>
+          </div>
+          <div class="jor-controles" id="jor-controles"></div>
+        </div>
+        <div class="jor-lista">
+          <h3 class="jor-rot">${tx("Hoy")}<span class="jor-rot-dato" id="jor-hoy-dato"></span></h3>
+          <div class="jor-bloques" id="jor-lista-bloques"></div>
+          <h3 class="jor-rot">${tx("Por acomodar")}</h3>
+          <div class="jor-acomodar" id="jor-acomodar"></div>
+          <p class="jor-como">${tx("Toca un bloque para elegirlo, arrastra sus puntas para cambiar la hora y arrástralo entero para moverlo. Tócalo otra vez para editarlo.")}</p>
+          <button type="button" class="jor-enlace jor-al-informe" onclick="abrirInforme('pomodoro')">${tx("Ver el informe del Pomodoro")}</button>
+        </div>
+      </div>`;
+    jEngancharRueda(document.getElementById("jor-svg"));
+  }
   jArribaAntes = 1; jVolteando = false;
+  jApuntarPlan();
   jPintar();
   jPintarAguja();
   const run = jDatos().run;
   if (run && run.fase === "cierre") jAbrirHoja("cierre");
 }
 function jPintar() {
-  if (document.getElementById("jor-svg")) { jPintarRueda(); jPintarLista(); jPintarControles(); jPintarCentro(); }
+  if (document.getElementById("jor-arena")) { jPintarRueda(); jPintarLista(); jPintarControles(); jPintarCentro(); }
   jPintarPildora();
 }
 
@@ -611,6 +728,12 @@ function jPintarLista() {
       <span class="jor-fila-d">${jDentro(b, m) ? `<span class="jor-chip ahora">${tx("Ahora")}</span>` : ""}<span class="jor-chip">${jFmtDur(jDur(b))}</span></span>
     </button>`;
   }).join("");
+  /* Lo planeado contra lo hecho, en el sitio donde se planea. */
+  const dato = document.getElementById("jor-hoy-dato");
+  if (dato) {
+    const p = jPlanDeHoy();
+    dato.textContent = p.plan ? T`${p.hechos} de ${p.plan} con foco` : "";
+  }
   const puestas = new Set(j.bloques.filter(b => b.ref && b.ref.t === "mision").map(b => b.ref.id));
   const libres = (state.missions || []).filter(x => missionDueToday(x) && !missionDone(x, hoy) && !puestas.has(x.id));
   document.getElementById("jor-acomodar").innerHTML = libres.length
@@ -618,13 +741,48 @@ function jPintarLista() {
     : `<p class="jor-vacio">${tx("Todas tus misiones de hoy ya tienen hora.")}</p>`;
 }
 
+const J_PLAY = '<svg class="lleno" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>';
+const J_PAUSA = '<svg viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></svg>';
+const J_PARAR = '<svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/></svg>';
+
+/* Los controles de «Solo enfocar»: una duración, un botón, y nada más. */
+function jControlesLite(run) {
+  const cfg = jDatos().cfg;
+  if (!run) {
+    const ops = [[25, T`${25} min`], [50, T`${50} min`], [0, tx("Libre")]];
+    return `<div class="jor-pildoras">${ops.map(([v, n]) =>
+        `<button type="button" class="jor-pild" data-a="lite-dur" data-v="${v}" aria-pressed="${Number(cfg.lite) === v}"><span class="t">${n}</span></button>`).join("")}</div>
+      <div class="jor-acc una"><button type="button" class="btn btn-primary jor-grande" data-a="lite-go">${J_PLAY}${tx("Enfocar")}</button></div>
+      <p class="jor-regla">${tx("Sin elegir nada: solo tú y el reloj.")}</p>`;
+  }
+  if (run.fase === "foco") {
+    return `<div class="jor-acc dos">
+        <button type="button" class="btn btn-soft jor-grande" data-a="pausa">${run.seg ? J_PAUSA + tx("Pausa") : J_PLAY + tx("Seguir")}</button>
+        <button type="button" class="btn btn-ghost jor-grande" data-a="lite-parar">${J_PARAR}${tx("Parar")}</button>
+      </div>`;
+  }
+  if (run.fase === "listo") {
+    return `<div class="jor-acc dos">
+        <button type="button" class="btn btn-primary jor-grande" data-a="lite-go">${J_PLAY}${tx("Otro tramo")}</button>
+        <button type="button" class="btn btn-soft jor-grande" data-a="lite-desc">${escapeHtml(T`Descansar ${cfg.desc} min`)}</button>
+      </div>
+      <button type="button" class="jor-enlace" data-a="fin">${tx("Terminar")}</button>`;
+  }
+  if (run.fase === "descanso") {
+    return `<div class="jor-acc una"><button type="button" class="btn btn-ghost jor-grande" data-a="saltar">${tx("Saltar el descanso")}</button></div>`;
+  }
+  return "";
+}
+
 function jPintarControles() {
   const c = document.getElementById("jor-controles");
   if (!c) return;
   const j = jDatos(), run = j.run, cfg = j.cfg;
+  /* Un tramo rápido se lleva con sus propios controles aunque se mire desde
+     la rueda: pasarlo a los de la rueda lo convertiría en otro tramo. */
+  if ((jModo() === "lite" && !run) || (run && run.lite)) { c.innerHTML = jControlesLite(run); return; }
   const r = jRef(jObjetivo());
   const flecha = '<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>';
-  const play = '<svg class="lleno" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>';
   const mas = `<button type="button" class="btn btn-ghost jor-icono" data-a="nuevo" aria-label="${escapeAttr(tx("Crear bloque"))}" title="${escapeAttr(tx("Crear bloque"))}"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>`;
   const desc = !run ? jDescansoAhora() : null;
   let h = "", regla = "";
@@ -636,24 +794,24 @@ function jPintarControles() {
   } else if (desc) {
     h = desc.descanso === "dormir"
       ? `<div class="jor-acc"><button type="button" class="btn btn-soft jor-grande" data-a="dormir"><svg viewBox="0 0 24 24">${J_LUNA}</svg>${tx("Buenas noches, a dormir")}</button>${mas}</div>`
-      : `<div class="jor-acc">${`<span class="jor-desc-tx">${tx("Bloque de descanso: no lleva tramos.")}</span>`}${mas}</div>`;
+      : `<div class="jor-acc"><span class="jor-desc-tx">${tx("Bloque de descanso: no lleva tramos.")}</span>${mas}</div>`;
     h += `<button type="button" class="jor-enlace" data-a="forzar">${tx("Enfocar de todos modos")}</button>`;
     regla = desc.descanso === "dormir" ? tx("Toca al irte a dormir y al despertar: así sabes cuánto dormiste.") : "";
   } else {
     if (!run || run.fase === "listo") {
       const ritmo = cfg.preset === "libre" ? tx("Libre") : `${cfg.foco}m / ${cfg.desc}m · ${cfg.ciclos}`;
       h += `<div class="jor-pildoras">
-        <button type="button" class="jor-pild" data-a="enque" ${run ? "disabled" : ""}>${r && r.o.color ? `<span class="jor-punto" style="background:${pinta(r.o.color)}"></span>` : `<svg viewBox="0 0 24 24">${J_ARENA}</svg>`}<span class="t">${escapeHtml(r ? r.nombre : tx("Sin atar"))}</span>${run ? "" : flecha}</button>
+        <button type="button" class="jor-pild" data-a="enque" ${run ? "disabled" : ""}>${r && r.o.color ? `<span class="jor-punto" style="background:${pinta(r.o.color)}"></span>` : `<svg viewBox="0 0 24 24">${J_ARENA}</svg>`}<span class="t">${escapeHtml(r ? r.nombre : tx("Sin vincular"))}</span>${run ? "" : flecha}</button>
         <button type="button" class="jor-pild" data-a="ritmo"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 1.5M9.5 2.5h5"/></svg><span class="t">${ritmo}</span>${flecha}</button>
       </div>`;
     }
     if (!run) {
-      h += `<div class="jor-acc"><button type="button" class="btn btn-primary jor-grande" data-a="iniciar">${play}${tx("Iniciar")}</button>${mas}</div>`;
+      h += `<div class="jor-acc"><button type="button" class="btn btn-primary jor-grande" data-a="iniciar">${J_PLAY}${tx("Iniciar")}</button>${mas}</div>`;
     } else if (run.fase === "listo") {
-      h += `<div class="jor-acc"><button type="button" class="btn btn-primary jor-grande" data-a="iniciar">${play}${escapeHtml(T`Tramo ${run.tramo} de ${cfg.ciclos}`)}</button>
-        <button type="button" class="btn btn-ghost jor-icono" data-a="fin" aria-label="${escapeAttr(tx("Terminar por hoy"))}" title="${escapeAttr(tx("Terminar por hoy"))}"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/></svg></button></div>`;
+      h += `<div class="jor-acc"><button type="button" class="btn btn-primary jor-grande" data-a="iniciar">${J_PLAY}${escapeHtml(T`Tramo ${run.tramo} de ${cfg.ciclos}`)}</button>
+        <button type="button" class="btn btn-ghost jor-icono" data-a="fin" aria-label="${escapeAttr(tx("Terminar por hoy"))}" title="${escapeAttr(tx("Terminar por hoy"))}">${J_PARAR}</button></div>`;
     } else if (run.fase === "foco") {
-      const pausa = `<button type="button" class="btn btn-soft jor-grande" data-a="pausa">${run.seg ? `<svg viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></svg>${tx("Pausa")}` : play + tx("Seguir")}</button>`;
+      const pausa = `<button type="button" class="btn btn-soft jor-grande" data-a="pausa">${run.seg ? J_PAUSA + tx("Pausa") : J_PLAY + tx("Seguir")}</button>`;
       h += run.libre
         ? `<div class="jor-acc dos">${pausa}<button type="button" class="btn btn-primary jor-grande" data-a="terminar">${tx("Terminar")}</button></div>
            <button type="button" class="jor-enlace peligro" data-a="abandonar">${tx("Abandonar")}</button>`
@@ -671,7 +829,7 @@ function jPintarControles() {
    Es «el reloj propone, tú confirmas» dicho antes de empezar. */
 function jTextoRegla() {
   const r = jRef(jObjetivo());
-  if (!r) return tx("Sin atar: solo queda en tu registro.");
+  if (!r) return tx("Sin vincular: solo queda en tu registro.");
   if (r.t === "mision") return tx("Al acabar el tramo te pregunta si la terminaste.");
   if (r.t === "habilidad") return tx("Cada tramo cuenta como práctica y le da XP.");
   const s = r.o.skillId && (state.skills || []).find(x => x.id === r.o.skillId);
@@ -703,6 +861,10 @@ function jVoltear() {
 function jEstadoCentro() {
   const j = jDatos(), run = j.run, cfg = j.cfg;
   if (!run) {
+    if (jModo() === "lite") {
+      return { arriba: 1, t: Number(cfg.lite) ? jMmss(Number(cfg.lite) * J_MS) : "00:00", f: tx("Hiperfoco"), fc: "",
+        sub: tx("Un reloj y nada más"), cae: false, prog: 0 };
+    }
     const m = jAhora();
     if (j.dormido) {
       const min = (Date.now() - j.dormido.inicio) / J_MS;
@@ -717,22 +879,26 @@ function jEstadoCentro() {
         sub: d.descanso === "dormir" ? T`Te levantas a las ${jH12(d.fin)}` : T`Hasta las ${jH12(d.fin)}`, cae: true, prog: 0 };
     }
     const b = jBloqueEn(m), r = jRef(jObjetivo());
-    return { arriba: 1, t: cfg.preset === "libre" ? "00:00" : jMmss(cfg.foco * J_MS), f: r ? r.nombre : tx("Sin atar"), fc: "",
+    return { arriba: 1, t: cfg.preset === "libre" ? "00:00" : jMmss(cfg.foco * J_MS), f: r ? r.nombre : tx("Sin vincular"), fc: "",
       sub: b ? jRango(b) : tx("Nada a esta hora"), cae: false, prog: 0 };
   }
-  const el = jTrans(run), r = jRef(run.ref), nom = r ? r.nombre : tx("Sin atar");
+  const el = jTrans(run), r = jRef(run.ref), nom = run.lite ? tx("Hiperfoco") : (r ? r.nombre : tx("Sin vincular"));
   if (run.fase === "foco") {
     const enPausa = !run.seg;
+    const sub = run.lite ? (run.libre ? tx("Sin límite") : T`Tramo ${run.tramo}`) : nom;
     if (run.libre) {
       const v = (el % (25 * J_MS)) / (25 * J_MS);
-      return { arriba: 1 - v, t: jMmss(el), f: enPausa ? tx("En pausa") : tx("Enfoque libre"), fc: enPausa ? "pausa" : "foco", sub: nom, cae: !enPausa, prog: v };
+      return { arriba: 1 - v, t: jMmss(el), f: enPausa ? tx("En pausa") : (run.lite ? tx("Hiperfoco") : tx("Enfoque libre")), fc: enPausa ? "pausa" : "foco", sub, cae: !enPausa, prog: v };
     }
     const p = Math.min(1, el / run.dur);
-    return { arriba: 1 - p, t: jMmss(run.dur - el), f: enPausa ? tx("En pausa") : T`Foco · ${run.tramo} de ${cfg.ciclos}`, fc: enPausa ? "pausa" : "foco", sub: nom, cae: !enPausa, prog: p };
+    return { arriba: 1 - p, t: jMmss(run.dur - el), f: enPausa ? tx("En pausa") : (run.lite ? tx("Hiperfoco") : T`Foco · ${run.tramo} de ${cfg.ciclos}`), fc: enPausa ? "pausa" : "foco", sub, cae: !enPausa, prog: p };
   }
   if (run.fase === "descanso") {
     const p = Math.min(1, el / run.dur);
-    return { arriba: 1 - p, t: jMmss(run.dur - el), f: tx("Descanso"), fc: "brasa", sub: T`Luego, tramo ${run.tramo + 1}`, cae: true, prog: p };
+    return { arriba: 1 - p, t: jMmss(run.dur - el), f: tx("Descanso"), fc: "brasa", sub: run.lite ? tx("Luego, otro tramo si quieres") : T`Luego, tramo ${run.tramo + 1}`, cae: true, prog: p };
+  }
+  if (run.fase === "listo" && run.lite) {
+    return { arriba: 0, t: jMmss((run.min || 0) * J_MS), f: tx("Listo"), fc: "foco", sub: T`${run.min || 0} min de hiperfoco`, cae: false, prog: 1 };
   }
   if (run.fase === "listo") return { arriba: 1, t: jMmss(cfg.foco * J_MS), f: T`Tramo ${run.tramo} de ${cfg.ciclos}`, fc: "", sub: nom, cae: false, prog: 0 };
   return { arriba: 0, t: jMmss(run.libre ? run.acum : 0), f: tx("Tramo listo"), fc: "foco", sub: nom, cae: false, prog: 1 };
@@ -788,15 +954,17 @@ function jPaso() {
   if (run && (run.fase === "foco" || run.fase === "descanso") && run.dur && run.seg && jTrans(run) >= run.dur) jFinFase();
   jAvisoSueno();
   /* Cada cuarto de hora puede cambiar el bloque de «ahora», y con él se olvida
-     el «Enfocar de todos modos» del bloque que ya pasó. */
+     el «Enfocar de todos modos» del bloque que ya pasó. Y es cuando se apunta
+     el plan del día, que así queda escrito aunque no se abra la pantalla. */
   const cuarto = Math.floor(jAhora() / 15);
   const cambio = cuarto !== jCuartoAntes;
   if (cambio) {
     jCuartoAntes = cuarto;
     const b = jBloqueEn(jAhora());
     if (jForzado && (!b || b.id !== jForzado)) jForzado = null;
+    jApuntarPlan();
   }
-  if (document.getElementById("jor-svg") && document.querySelector("#view-jornada.active")) {
+  if (document.getElementById("jor-arena") && document.querySelector("#view-jornada.active")) {
     jPintarCentro(); jPintarAguja();
     if (cambio) {
       jPintarLista();
@@ -916,7 +1084,7 @@ function jPintarHoja() {
       <div class="jor-ops">
         ${jOpcion("auto", reloj, tx("Lo que toca ahora"), del ? escapeHtml(del.nombre) : tx("No hay nada a esta hora"), jEleccion === undefined, "elegir")}
         ${jListaOpciones("elegir", jEleccion || null)}
-        ${jOpcion("none", reloj, tx("Sin atar"), tx("Solo queda en tu registro"), jEleccion === null, "elegir")}
+        ${jOpcion("none", reloj, tx("Sin vincular"), tx("Solo queda en tu registro"), jEleccion === null, "elegir")}
       </div>`;
   } else if (jHoja === "bloque") {
     const e = jEdit, d = ((e.fin - e.ini + J_DIA) % J_DIA) || J_DIA;
@@ -961,13 +1129,13 @@ function jClickHoja(e) {
   if (a === "preset") {
     cfg.preset = v;
     if (J_PRESETS[v]) Object.assign(cfg, J_PRESETS[v]);
-    if (j.run && j.run.fase === "listo") j.run.dur = cfg.foco * J_MS;
+    if (j.run && j.run.fase === "listo" && !j.run.lite) j.run.dur = cfg.foco * J_MS;
     save();
   }
   if (a === "paso") {
     const k = b.dataset.k, salto = { foco: 5, desc: 1, ciclos: 1 }[k], lim = { foco: [10, 90], desc: [1, 20], ciclos: [1, 8] }[k];
     cfg[k] = Math.min(lim[1], Math.max(lim[0], cfg[k] + salto * Number(b.dataset.d)));
-    if (j.run && j.run.fase === "listo") j.run.dur = cfg.foco * J_MS;
+    if (j.run && j.run.fase === "listo" && !j.run.lite) j.run.dur = cfg.foco * J_MS;
     save();
   }
   if (a === "sw") {
@@ -1008,12 +1176,12 @@ function jClickHoja(e) {
     }
     /* `undefined` no viaja en JSON, pero en memoria sí estorba al leer. */
     j.bloques.forEach(x => { if (x.descanso === undefined) delete x.descanso; if (x.ref === undefined) delete x.ref; if (x.color === undefined) delete x.color; });
-    save(); cerrarHojaJornada(); jPintar(); return;
+    save(); jApuntarPlan(); cerrarHojaJornada(); jPintar(); return;
   }
   if (a === "b-quitar") {
     if (!jQuitando) { jQuitando = true; jPintarHoja(); return; }
     j.bloques = j.bloques.filter(x => x.id !== jEdit.id);
-    jSelId = null; save(); cerrarHojaJornada(); jPintar(); return;
+    jSelId = null; save(); jApuntarPlan(); cerrarHojaJornada(); jPintar(); return;
   }
   if (a === "sino") jRespuesta = v;
   if (a === "animo") jAnimo = Number(v);
@@ -1032,11 +1200,15 @@ function jClickControles(e) {
   if (a === "dormir") return jBuenasNoches();
   if (a === "despertar") return jBuenosDias();
   if (a === "forzar") { const b = jBloqueEn(jAhora()); jForzado = b ? b.id : null; jPintar(); return; }
+  if (a === "lite-dur") { j.cfg.lite = Number(btn.dataset.v) || 0; save(); jPintar(); return; }
+  if (a === "lite-go") return jIniciarLite();
   if (!j.run) return;
   if (a === "pausa") jPausa();
   if (a === "terminar") jTerminarLibre();
   if (a === "abandonar") jAbandonar();
-  if (a === "saltar") jSiguiente();
+  if (a === "lite-parar") jPararLite();
+  if (a === "lite-desc") { Object.assign(j.run, { fase: "descanso", dur: j.cfg.desc * J_MS, acum: 0, seg: Date.now() }); save(); jPintar(); }
+  if (a === "saltar") { if (j.run.lite) { j.run = null; save(); jPintar(); } else jSiguiente(); }
   if (a === "cierre") jAbrirHoja("cierre");
   if (a === "fin") { j.run = null; jEleccion = undefined; save(); jPintar(); }
 }
@@ -1080,6 +1252,8 @@ function iniciarRelojJornada() {
   const cont = document.getElementById("jornada-content");
   if (cont) {
     cont.addEventListener("click", e => {
+      const md = e.target.closest("[data-modo]");
+      if (md) { if (md.dataset.modo !== jModo()) jPonerModo(md.dataset.modo); return; }
       if (e.target.closest("#jor-controles")) jClickControles(e);
       else if (e.target.closest(".jor-lista")) jClickLista(e);
     });

@@ -308,7 +308,10 @@ function logMission(id, delta, opciones) {
   if (nowDone && !wasDone) {
     if (m.skillId && m.xp) {
       const s = state.skills.find(x => x.id === m.skillId);
-      if (s) addXp(s, m.xp, `Misión cumplida: ${m.name}`, `Misión · ${m.name}`);
+      /* `op.fuente` lo pasa quien cumple la misión por su cuenta —el Pomodoro,
+         desde la 0.7.104— para que el informe le dé a él el mérito del XP. La
+         misión se cumple igual y cuenta igual para la racha. */
+      if (s) addXp(s, m.xp, `Misión cumplida: ${m.name}`, op.fuente || `Misión · ${m.name}`);
     }
     if (esperaba > 0) {
       m.pospuestaUltima = { dias: esperaba, veces: (m.pospuesta && m.pospuesta.veces) || 1, cerradaEl: key };
@@ -321,7 +324,12 @@ function logMission(id, delta, opciones) {
     // desmarcar varias veces en el día no infle la habilidad de gratis.
     if (m.skillId && m.xp) {
       const s = state.skills.find(x => x.id === m.skillId);
-      if (s) removeXp(s, m.xp, `Misión revertida: ${m.name}`, `Misión · ${m.name}`);
+      /* Se descuenta del MISMO origen que la dio. Si la cumplió el Pomodoro y
+         se desmarca desde la lista, restar de «Misión» dejaría el reparto del
+         informe con XP del Pomodoro que ya no existe y un negativo en Misiones
+         que nunca se ganó. */
+      const dio = s && (s.log || []).find(e => e.date === key && e.xp > 0 && e.note === `Misión cumplida: ${m.name}`);
+      if (s) removeXp(s, m.xp, `Misión revertida: ${m.name}`, (dio && dio.fuente) || `Misión · ${m.name}`);
     }
     if (m.cadence === "once") { m.completedAt = null; m.archived = false; }
     /* Deshacer el cumplido devuelve también la espera que se había saldado:

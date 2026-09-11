@@ -33,8 +33,15 @@ const INFORME_RAMAS = [
   { id: "misiones", nombre: "Misiones", icono: "check" },
   { id: "habilidades", nombre: "Habilidades", icono: "chart" },
   { id: "talentos", nombre: "Talentos", icono: "star" },
-  { id: "proyectos", nombre: "Proyectos", icono: "flag" }
+  { id: "proyectos", nombre: "Proyectos", icono: "flag" },
+  /* El Pomodoro (0.7.104). Solo sale si el módulo está encendido: un informe
+     de algo que apagaste no tiene nada que decirte. */
+  { id: "pomodoro", nombre: "Pomodoro", icono: "flame" }
 ];
+
+function informeRamaVisible(x) {
+  return x.id !== "pomodoro" || (typeof moduloOn === "function" && moduloOn("jornada"));
+}
 
 function abrirInforme(rama) {
   informeRamaActual = INFORME_RAMAS.some(r => r.id === rama) ? rama : "todo";
@@ -432,7 +439,7 @@ function renderInforme() {
               que se ve es la portada, y tocarlas no cambiaba nada en pantalla.
               Se apagan igual que los periodos cerrados —se ven, dicen por qué
               al tocarlas— en vez de fingir que funcionan. */
-          INFORME_RAMAS.map(x => {
+          INFORME_RAMAS.filter(informeRamaVisible).map(x => {
             /* Dos motivos distintos para llevar candado, y el de NIVEL manda:
                una rama cuyo módulo aún no se abre no se vende, se espera. Sin
                esta línea, el informe ofrecía «Talentos» y «Proyectos» en el
@@ -468,6 +475,7 @@ function renderInforme() {
   else if (informeRamaActual === "misiones") html += infMisiones(r, rAntes, D);
   else if (informeRamaActual === "habilidades") html += infHabilidades(r, rAntes, D);
   else if (informeRamaActual === "talentos") html += infTalentos(r, rAntes, D);
+  else if (informeRamaActual === "pomodoro") html += infPomodoro(r, rAntes, D);
   else html += infProyectos(r, rAntes, D);
 
   /* Las lecturas van SIEMPRE al final y nunca en medio: primero se ve, luego
@@ -558,13 +566,14 @@ function accesosHTML(r, D) {
     { k: "Misiones", v: f.misiones, color: pinta("#5fe0b0") },
     { k: "Talentos", v: f.talentos, color: pinta("#c7a6ff") },
     { k: "Proyectos", v: f.proyectos, color: pinta("#8ecdf5") },
-    { k: tx("Práctica suelta"), v: f.practica, color: pinta("#f5d76e") }
+    { k: tx("Práctica suelta"), v: f.practica, color: pinta("#f5d76e") },
+    { k: "Pomodoro", v: f.pomodoro, color: pinta("#ff8a70") }
   ], { fmt: (x) => fmtXp(x) + " XP", vacia: "Cuando ganes XP se verá aquí de dónde salió." });
 
   return bloque(tx("¿Dónde pusiste la energía?"),
     tx("Es la única pregunta que ningún módulo puede contestar solo."), energia) + `
     <div class="inf-accesos">
-      ${INFORME_RAMAS.filter(x => x.id !== "todo").map(x => `
+      ${INFORME_RAMAS.filter(x => x.id !== "todo" && informeRamaVisible(x)).map(x => `
         <button class="inf-acceso" onclick="informeVerRama('${x.id}')">
           <b>${escapeHtml(x.nombre)}</b>
           <span>${tx("Ver el informe")}</span>
@@ -714,7 +723,8 @@ function infHabilidades(r, rAntes, D) {
       { k: "Misiones", v: f.misiones, color: pinta("#5fe0b0") },
       { k: "Talentos", v: f.talentos, color: pinta("#c7a6ff") },
       { k: "Proyectos", v: f.proyectos, color: pinta("#8ecdf5") },
-      { k: tx("Práctica suelta"), v: f.practica, color: pinta("#f5d76e") }
+      { k: tx("Práctica suelta"), v: f.practica, color: pinta("#f5d76e") },
+      { k: "Pomodoro", v: f.pomodoro, color: pinta("#ff8a70") }
     ], { fmt: (x) => fmtXp(x) + " XP", vacia: "Cuando ganes XP se verá aquí de dónde salió." }));
 
   /* Ganada contra perdida. Es el número que duele y el que cambia conductas,
@@ -775,6 +785,90 @@ function infHabilidades(r, rAntes, D) {
     (h.minutos ? "" : gVacia("El tiempo solo se cuenta cuando registras una práctica con minutos.")));
 
   return html;
+}
+
+/* ================= Pomodoro (0.7.104) =================
+
+   Lo que el Pomodoro sabe y ningún otro módulo guarda: cuánto foco hubo de
+   verdad, cuánto de lo planeado lo tuvo, cuánto dormiste y cómo te fue. Seis
+   bloques, que es el tope de la casa. Lo que dio XP ya sale además en el
+   reparto de Habilidades con su propio color. */
+
+function jHorasTxt(min) {
+  const m = Math.round(min || 0), h = Math.floor(m / 60), r = m % 60;
+  if (!h) return T`${r} min`;
+  return r ? T`${h} h ${r} min` : T`${h} h`;
+}
+
+function infPomodoro(r, rAntes, D) {
+  const po = metricasPomodoro(r, D), pa = metricasPomodoro(rAntes, D);
+
+  let html = bloque(tx("Tu foco"), tx("Lo que de verdad le dedicaste, sin contar las pausas."),
+    `<div class="inf-cifras tres">
+      <div><b>${escapeHtml(jHorasTxt(po.minutos))}</b><span>${tx("De foco")}</span>${flechaHTML(variacion(po.minutos, pa.minutos), tx("Frente al periodo anterior"))}</div>
+      <div><b>${po.tramos}</b><span>${tx("Tramos hechos")}</span>${flechaHTML(variacion(po.tramos, pa.tramos), tx("Frente al periodo anterior"))}</div>
+      <div><b>${po.terminadas}</b><span>${tx("Terminadas con el Pomodoro")}</span></div>
+    </div>` +
+    (po.abandonados ? `<p class="inf-pregunta">${escapeHtml(po.abandonados === 1 ? tx("Y un tramo abandonado, que no dio XP.") : T`Y ${po.abandonados} tramos abandonados, que no dieron XP.`)}</p>` : "") +
+    (po.xp ? `<p class="inf-pregunta">${escapeHtml(T`Le dio ${fmtXp(po.xp)} XP a tus habilidades.`)}</p>` : ""));
+
+  /* Cuándo. En la semana, un día por barra; en el mes y el año, el mapa de
+     días, que es la forma que ya usa Misiones. */
+  if (r.periodo === "semana") {
+    html += bloque(tx("¿Cuándo te enfocaste?"), "",
+      gBarras(diasDe(r).map(k => {
+        const v = po.porDia.get(k) || 0;
+        return { k: nombreDeDiaLargo(weekdayOfKey(k)).slice(0, 3), v, etiqueta: v ? jHorasTxt(v) : "", color: pinta("#ff8a70"), titulo: jHorasTxt(v) };
+      }), { vacia: tx("Cuando hagas tu primer tramo, aquí se verá en qué días.") }));
+  } else {
+    html += bloque(tx("¿Cuándo te enfocaste?"), po.porDia.size ? T`Hubo foco ${po.porDia.size} días de este periodo.` : "",
+      gCalendario(r, po.porDia, { vacia: tx("Cuando hagas tu primer tramo, aquí se llena el calendario.") }));
+  }
+
+  /* Lo planeado contra lo hecho. */
+  html += bloque(tx("¿Cumpliste lo que planeaste?"), tx("De los bloques de enfoque de tu rueda, cuántos tuvieron al menos un tramo."),
+    po.plan.pct === null
+      ? gVacia(tx("Cuando acomodes tu día en la rueda, aquí se verá cuánto de lo planeado tuvo foco."))
+      : `<div class="inf-doble">${gAro(po.plan.pct, po.plan.pct + "%", T`${po.plan.conFoco} de ${po.plan.planeados} bloques con foco`)}</div>`);
+
+  /* Las horas dormidas: el promedio y una barra por noche. En el año son
+     demasiadas noches para leerlas una a una, así que va solo el promedio. */
+  const noches = po.sueno.noches;
+  let sueno = gVacia(tx("Toca «Buenas noches» al irte a dormir y «Buenos días» al despertar, y aquí se verá cuánto duermes."));
+  if (noches) {
+    const prom = po.sueno.minutos / noches;
+    sueno = `<div class="inf-cifras">
+        <div><b>${escapeHtml(jHorasTxt(prom))}</b><span>${tx("Promedio por noche")}</span></div>
+        <div><b>${noches}</b><span>${tx("Noches registradas")}</span></div>
+      </div>` + (r.periodo === "ano" ? "" : gBarras(diasDe(r).map(k => {
+        const v = po.sueno.porDia.get(k) || 0;
+        const eti = r.periodo === "semana" ? nombreDeDiaLargo(weekdayOfKey(k)).slice(0, 3) : String(Number(k.slice(8)));
+        return { k: eti, v, etiqueta: v ? jHm2(v) : "", color: pinta(v && v < 360 ? "#ff8a70" : "#6fc3e8"), titulo: jHorasTxt(v) };
+      }), { vacia: "" }));
+  }
+  html += bloque(tx("¿Cuánto dormiste?"), noches ? tx("Las noches de menos de seis horas van en coral.") : "", sueno);
+
+  /* Cómo te fue: la respuesta de cada cierre. */
+  html += bloque(tx("¿Cómo te fue?"), tx("Lo que contestaste al cerrar cada tramo."),
+    gApilada([
+      { k: tx("Muy enfocado"), v: po.animo[2], color: pinta("#5fe0b0") },
+      { k: tx("Bien"), v: po.animo[1], color: pinta("#6fc3e8") },
+      { k: tx("Disperso"), v: po.animo[0], color: pinta("#ff8a70") }
+    ], { fmt: (x) => x === 1 ? tx("1 tramo") : T`${x} tramos`, vacia: tx("Al cerrar tus tramos, aquí se verá cómo te fue.") }));
+
+  /* En qué se fue el foco. */
+  const top = [...po.porNombre.entries()]
+    .map(([k, v]) => ({ k: k || tx("Sin vincular"), v, etiqueta: jHorasTxt(v), color: pinta("#ff8a70") }))
+    .filter(x => x.v > 0).sort((a, b) => b.v - a.v).slice(0, 5);
+  html += bloque(tx("¿En qué pusiste el foco?"), tx("Las cinco cosas a las que más tiempo le diste."),
+    gBarrasH(top, { vacia: tx("Aquí saldrá a qué le dedicas más foco.") }));
+
+  return html;
+}
+/* «7:20» en las barras de las noches: «7 h 20 min» no cabe encima de una barra. */
+function jHm2(min) {
+  const m = Math.round(min || 0);
+  return Math.floor(m / 60) + ":" + String(m % 60).padStart(2, "0");
 }
 
 /* ================= Talentos ================= */

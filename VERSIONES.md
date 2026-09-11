@@ -100,6 +100,57 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.104 · 11 sep 2026
+
+**El Pomodoro llega a los informes, se lleva su mérito, cruza lo planeado con
+lo hecho y tiene un modo de un solo toque.** Las cuatro las pidió Eduardo
+después de preguntar si los minutos «se ven reflejados en los informes». La
+respuesta era que solo a medias: lo que llegaba a una misión o a una habilidad
+sí, y todo lo demás —el foco sin vincular, lo abandonado, cómo te fue, las
+horas dormidas— se quedaba en el registro del Pomodoro sin que nadie lo leyera.
+
+**Una rama nueva en Informes: Pomodoro.** Seis bloques, que es el tope de la
+casa: el foco del periodo con su flecha, en qué días (barras en la semana,
+mapa en el mes y el año), cuánto de lo planeado tuvo foco, **cuánto dormiste**
+—el promedio y una barra por noche, en coral las de menos de seis horas—, cómo
+te fue y en qué se fue el foco. Lo calcula `metricasPomodoro`
+(js/10f-informes.js) leyendo `state.jornada`, y tiene sus tres lecturas. Solo
+sale si el módulo está encendido (`informeRamaVisible`). Y el registro guarda
+ahora 2.000 entradas en vez de 300, que a ocho tramos al día eran cinco
+semanas: el informe del año se quedaba sin historia.
+
+**El mérito es del Pomodoro.** Lo que da va con `fuente: "Pomodoro · …"` y
+`familiaDeFuente` lo cuenta aparte, con su color en el reparto de «¿De dónde
+sale tu XP?» —antes caía en «práctica suelta»—. Una misión cumplida al acabar
+un tramo se sigue marcando en Misiones (racha, constancia, su informe), pero
+su XP va a nombre del Pomodoro, y solo si contestas que la terminaste: que se
+acabe el tiempo no quiere decir que se acabara la actividad. Para eso
+`logMission` acepta `opciones.fuente`, y al DESMARCAR descuenta del mismo
+origen que la dio — si no, desmarcarla desde la lista dejaba XP del Pomodoro
+que ya no existía y un negativo en Misiones que nunca se ganó.
+
+**Lo planeado contra lo hecho.** La rueda es una plantilla que se repite, así
+que cuántos bloques había el martes no se puede reconstruir después: se
+APUNTA, un número por día (`state.jornada.planes`), y se cruza con los bloques
+que tuvieron un tramo. En la pantalla, junto a «Hoy»: «2 de 4 con foco».
+
+**«Solo enfocar».** Una segunda pestaña con el reloj grande y nada más: 25, 50
+o libre, y un botón. Sin vincular, sin preguntas al final, y «Parar» guarda lo
+hecho. En palabras de Eduardo, «algo mucho más lite donde no andes buscando
+configuraciones complejas». Comparte el reloj (`run.lite`), así que la píldora
+y el informe lo cuentan igual; no da XP porque no está atado a nada que la
+reciba. La pestaña elegida es de este dispositivo (localStorage).
+
+**«Sin atar» pasa a «Sin vincular».**
+
+Para la lista de borrado, además de lo de la 0.7.101: en `js/10f-informes.js`
+la familia `pomodoro` y `metricasPomodoro`; en `js/10g-informe.js` la rama
+`pomodoro`, `informeRamaVisible`, `infPomodoro`, `jHorasTxt`, `jHm2` y las dos
+porciones «Pomodoro» de las barras apiladas; en `js/10h-lecturas.js`
+`LECTURAS_POMODORO`, su entrada en `LECTURAS`, `po` del contexto y el
+«el Pomodoro» de la primera lectura de Habilidades; en `js/04-misiones.js` el
+`op.fuente` de `logMission` y la búsqueda de `dio` al desmarcar.
+
 ### 0.7.103.1 · 11 sep 2026
 
 **Pomodoro: cada bloque puede llevar su color.** Lo pidió Eduardo al ver la
