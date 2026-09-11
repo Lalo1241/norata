@@ -172,10 +172,12 @@ html.claro .jor-blq.ahora { filter: none; }
    desfasarse. Nada de esto sale de una variable, así que no cae en la trampa de
    Chrome con las transiciones.
 
-   Gira el VIDRIO y no el conjunto: el marco es el pie —arco arriba, pedestal
-   abajo— y darle media vuelta lo deja del revés, apoyado en el arco. El vidrio
-   sí es simétrico respecto al cuello, y por eso al terminar la vuelta «abajo
-   lleno, girado» y «arriba lleno, derecho» son el mismo dibujo. */
+   Gira el RELOJ ENTERO desde 0.7.108.1 —marco incluido—, y eso se pudo porque
+   los tres dibujos se rehicieron simétricos respecto al cuello (ver
+   `J_RELOJES`): con un arco arriba y un pedestal abajo, media vuelta dejaba el
+   reloj apoyado del revés, y por eso hasta entonces giraba solo el vidrio.
+   Siendo simétrico, a media vuelta el pie se ve igual que derecho, y al acabar
+   «abajo lleno, girado» y «arriba lleno, derecho» son el mismo dibujo. */
 #jor-giro { transform-box: view-box; }
 #jor-giro.girando { animation: jor-voltear .9s cubic-bezier(.3, .7, .2, 1); }
 @keyframes jor-voltear {
