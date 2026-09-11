@@ -1063,10 +1063,18 @@ function jVoltear() {
      en el plano lo sacaba por los lados a medio camino. */
   g.style.transition = ""; g.style.transform = "scaleY(-1)";
   const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* Al terminar la vuelta se endereza el vidrio Y se redibuja la arena en el
+     MISMO turno, para que el navegador pinte las dos cosas juntas. Antes la
+     arena se corregía en el siguiente paso del reloj —hasta 250 ms después—,
+     y en ese hueco el vidrio ya estaba derecho con la arena dibujada como si
+     siguiera girado: abajo en vez de arriba. Lo vio Eduardo como un parpadeo.
+     Se busca el grupo de nuevo porque el reloj pudo cambiar de dibujo en medio. */
   setTimeout(() => {
-    g.style.transition = "none"; g.style.transform = "none";
-    g.getBoundingClientRect(); g.style.transition = "";
     jVolteando = false;
+    const g2 = document.getElementById("jor-giro");
+    if (g2) { g2.style.transition = "none"; g2.style.transform = "none"; }
+    jPintarCentro();
+    if (g2) { g2.getBoundingClientRect(); g2.style.transition = ""; }
   }, quieto ? 0 : 950);
 }
 /* `fc` es el estado, y de él salen los colores del centro y de la píldora:

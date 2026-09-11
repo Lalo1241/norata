@@ -100,6 +100,19 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.106.2 · 11 sep 2026
+
+**El reloj de arena ya no parpadea al darse la vuelta.** Lo reportó Eduardo:
+por un instante la arena se veía mal ubicada. Al terminar la vuelta, el vidrio
+se enderezaba en ese momento pero la arena se redibujaba en el siguiente paso
+del reloj —hasta 250 ms después—, y en ese hueco se veía el vidrio derecho con
+la arena todavía dibujada como si siguiera girado: abajo en vez de arriba.
+Ahora `jVoltear` endereza y redibuja en el mismo turno, así que el navegador
+pinta las dos cosas juntas.
+
+Iba a ser la 0.7.106.1, pero la otra sesión publicó ese número en medio (la
+barra lateral más pequeña). Ninguna de las dos toca los archivos de la otra.
+
 ### 0.7.106.1 · 11 sep 2026
 
 **La barra lateral, más pequeña.** Lo pidió Eduardo poniéndola al lado de la de
