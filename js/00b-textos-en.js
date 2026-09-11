@@ -3372,5 +3372,9 @@ const TEXTOS_EN = {
   "Cambiar el nombre": "Rename",
   "Otra vez": "Again",
   "Rondas": "Rounds",
-  "{0} min de respiro apuntados": "{0} min of breather logged"
+  "{0} min de respiro apuntados": "{0} min of breather logged",
+  "Ver": "View",
+  "Mientras no estabas · {0}": "While you were away · {0}",
+  "Avisarme fuera de la app": "Notify me outside the app",
+  "Con un aviso del sistema que dice qué pasó": "With a system notification that says what happened"
 };

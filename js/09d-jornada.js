@@ -109,7 +109,10 @@ function jDatos() {
     });
   }
   if (!j.cfg || typeof j.cfg !== "object") j.cfg = {};
-  j.cfg = Object.assign({ preset: "clasico", foco: 25, desc: 5, ciclos: 4, auto: false, sonido: true, avisos: false, hfModo: "travesia" }, j.cfg);
+  /* `notificar` sustituye a `avisos` (0.7.105.1): aquel nació apagado y se
+     guardó apagado en todos los perfiles, así que reusarlo no habría
+     encendido nada. */
+  j.cfg = Object.assign({ preset: "clasico", foco: 25, desc: 5, ciclos: 4, auto: false, sonido: true, notificar: true, hfModo: "travesia" }, j.cfg);
   if (!Array.isArray(j.registro)) j.registro = [];
   return j;
 }
@@ -226,8 +229,35 @@ function jObjetivo() {
 /* ---------- El reloj ---------- */
 const jTrans = run => !run ? 0 : (run.acum || 0) + (run.seg ? Date.now() - run.seg : 0);
 
+/* ---- Qué dispositivo lleva el reloj (0.7.105.1) ----
+   El reloj viaja con la sincronía, así que con el teléfono y la computadora
+   abiertos los dos cerraban el mismo tramo y los dos sonaban; y si uno traía
+   una copia vieja, volvía a sonar. Eduardo lo describió así: «siento que suena
+   algo pero nunca me acabo enterando el motivo». Desde aquí el tramo es del
+   dispositivo donde se empezó (`run.origen`): ese lo cierra y suena. Otro solo
+   lo cierra —en silencio— si ya pasó minuto y medio y el primero no lo hizo,
+   que es cuando está apagado o dormido. Es preferencia de este dispositivo:
+   localStorage, nunca `state`. */
+function jEsteDispositivo() {
+  try {
+    let id = localStorage.getItem("norata-pomodoro-dispositivo");
+    if (!id) { id = uid(); localStorage.setItem("norata-pomodoro-dispositivo", id); }
+    return id;
+  } catch (e) { return "este"; }
+}
+const jEsMio = run => !run || !run.origen || run.origen === jEsteDispositivo();
+function jPuedoCerrar(run) { return jEsMio(run) || jTrans(run) - run.dur > 90000; }
+/* El permiso de los avisos del sistema se pide al tocar Iniciar: es un gesto
+   tuyo y es justo cuando se entiende para qué. Sin permiso, el aviso de fuera
+   de la app no puede explicar nada, y una campana sin explicación es ruido. */
+function jPedirPermiso() {
+  const c = jDatos().cfg;
+  if (c.notificar === false || !("Notification" in window) || Notification.permission !== "default") return;
+  try { Notification.requestPermission(); } catch (e) { /* sin avisos del sistema */ }
+}
+
 function jIniciar() {
-  jAudio();
+  jAudio(); jPedirPermiso();
   const j = jDatos(), c = j.cfg, libre = c.preset === "libre";
   let tramo = 1, ref = jObjetivo(), bloque = null;
   if (j.run && j.run.fase === "listo" && !j.run.lite) { tramo = j.run.tramo; ref = j.run.ref; bloque = j.run.bloque; }
@@ -235,7 +265,8 @@ function jIniciar() {
     const b = jBloqueEn(jAhora());
     bloque = b && !b.descanso && jEleccion === undefined ? b.id : null;
   }
-  j.run = { fase: "foco", tramo, dur: libre ? null : c.foco * J_MS, acum: 0, seg: Date.now(), pausas: 0, libre, ref: ref || null, bloque };
+  j.run = { fase: "foco", tramo, dur: libre ? null : c.foco * J_MS, acum: 0, seg: Date.now(), pausas: 0, libre, ref: ref || null, bloque,
+    origen: jEsteDispositivo(), fid: uid() };
   save(); jPintar();
 }
 function jPausa() {
@@ -252,6 +283,9 @@ function jSiguiente() {
 }
 function jFinFase() {
   const j = jDatos(), run = j.run;
+  /* Cada final de fase suena UNA vez (`clave`) y solo en el dispositivo que
+     lleva el reloj (`mio`). */
+  const mio = jEsMio(run), clave = (run.fid || run.seg || "") + "|" + run.fase;
   if (run.lite) {
     const k = run.modo || "travesia", h = jHfCfg().hf[k] || {};
     if (run.fase === "foco") {
@@ -259,24 +293,24 @@ function jFinFase() {
       jApuntarLite(min, run.pausas, k);
       /* Una Travesía sigue sola: foco, descanso, foco… hasta sus rondas. */
       if (k === "travesia" && run.tramo < (run.rondas || 1)) {
-        Object.assign(run, { fase: "descanso", dur: (h.desc || 5) * J_MS, acum: 0, seg: Date.now() });
+        Object.assign(run, { fase: "descanso", dur: (h.desc || 5) * J_MS, acum: 0, seg: Date.now(), fid: uid() });
         save();
-        jAvisar(T`Ronda ${run.tramo} de ${run.rondas} lista`, T`Descansa ${h.desc || 5} min.`);
+        jAvisar(T`Ronda ${run.tramo} de ${run.rondas} lista`, T`Descansa ${h.desc || 5} min.`, clave, mio);
       } else {
         Object.assign(run, { fase: "listo", min, acum: 0, seg: null });
         save();
-        jAvisar(tx("Listo"), k === "travesia" && (run.rondas || 1) > 1 ? T`Terminaste tus ${run.rondas} rondas.` : T`${min} min de hiperfoco.`);
+        jAvisar(tx("Listo"), k === "travesia" && (run.rondas || 1) > 1 ? T`Terminaste tus ${run.rondas} rondas.` : T`${min} min de hiperfoco.`, clave, mio);
       }
     } else if (run.fase === "descanso") {
       if (k === "respiro") {
         jApuntarRespiro(Math.round(run.dur / J_MS));
         j.run = null;
         save();
-        jAvisar(tx("Tu respiro terminó"), tx("Vuelve cuando quieras."));
+        jAvisar(tx("Tu respiro terminó"), tx("Vuelve cuando quieras."), clave, mio);
       } else {
-        Object.assign(run, { fase: "foco", tramo: run.tramo + 1, dur: (h.foco || 25) * J_MS, acum: 0, seg: Date.now(), pausas: 0 });
+        Object.assign(run, { fase: "foco", tramo: run.tramo + 1, dur: (h.foco || 25) * J_MS, acum: 0, seg: Date.now(), pausas: 0, fid: uid() });
         save();
-        jAvisar(tx("De vuelta al foco"), T`Ronda ${run.tramo} de ${run.rondas}.`);
+        jAvisar(tx("De vuelta al foco"), T`Ronda ${run.tramo} de ${run.rondas}.`, clave, mio);
       }
     }
     jPintar();
@@ -286,11 +320,11 @@ function jFinFase() {
     run.min = Math.round(run.dur / J_MS);
     run.fase = "cierre"; run.seg = null;
     save();
-    jAvisar(T`Tramo ${run.tramo} de ${j.cfg.ciclos} listo`, T`${run.min} min de foco. Toca descansar.`);
+    jAvisar(T`Tramo ${run.tramo} de ${j.cfg.ciclos} listo`, T`${run.min} min de foco. Toca descansar.`, clave, mio);
     if (document.querySelector("#view-jornada.active")) jAbrirHoja("cierre");
     jPintarControles();
   } else if (run.fase === "descanso") {
-    jAvisar(tx("Se acabó el descanso"), T`Sigue el tramo ${run.tramo + 1}.`);
+    jAvisar(tx("Se acabó el descanso"), T`Sigue el tramo ${run.tramo + 1}.`, clave, mio);
     jSiguiente();
   }
 }
@@ -372,9 +406,10 @@ function jHfResumen(k) {
 }
 
 function jIniciarLite() {
-  jAudio();
+  jAudio(); jPedirPermiso();
   const c = jHfCfg(), k = c.hfModo, h = c.hf[k], j = jDatos();
-  const base = { lite: true, modo: k, tramo: 1, acum: 0, seg: Date.now(), pausas: 0, ref: null, bloque: null };
+  const base = { lite: true, modo: k, tramo: 1, acum: 0, seg: Date.now(), pausas: 0, ref: null, bloque: null,
+    origen: jEsteDispositivo(), fid: uid() };
   j.run = k === "respiro"
     ? Object.assign(base, { fase: "descanso", dur: h.desc * J_MS })
     : Object.assign(base, { fase: "foco", dur: h.foco * J_MS, rondas: k === "travesia" ? h.rondas : 1 });
@@ -418,7 +453,7 @@ function jSaltarLite() {
   const j = jDatos(), run = j.run; if (!run) return;
   if (run.modo === "respiro") return jPararLite();
   const h = jHfCfg().hf.travesia;
-  Object.assign(run, { fase: "foco", tramo: run.tramo + 1, dur: h.foco * J_MS, acum: 0, seg: Date.now(), pausas: 0 });
+  Object.assign(run, { fase: "foco", tramo: run.tramo + 1, dur: h.foco * J_MS, acum: 0, seg: Date.now(), pausas: 0, fid: uid() });
   save(); jPintar();
 }
 
@@ -453,7 +488,7 @@ function jAvisoSueno() {
     if (j.avisoSueno === clave) continue;
     j.avisoSueno = clave;
     save();
-    jAvisar(T`En ${Math.ceil(falta)} min toca dormir`, T`Tu bloque de dormir empieza a las ${jH12(b.ini)}.`);
+    jAvisar(T`En ${Math.ceil(falta)} min toca dormir`, T`Tu bloque de dormir empieza a las ${jH12(b.ini)}.`, "sueno|" + clave);
   }
 }
 
@@ -540,7 +575,7 @@ function jGuardar(descansar) {
   j.registro = j.registro.slice(0, J_REG_MAX);
   const ultimo = !run.libre && run.tramo >= j.cfg.ciclos;
   if (run.libre || ultimo) { j.run = null; jEleccion = undefined; }
-  else if (descansar) Object.assign(run, { fase: "descanso", dur: j.cfg.desc * J_MS, acum: 0, seg: Date.now() });
+  else if (descansar) Object.assign(run, { fase: "descanso", dur: j.cfg.desc * J_MS, acum: 0, seg: Date.now(), fid: uid() });
   else Object.assign(run, { fase: "listo", tramo: run.tramo + 1, dur: j.cfg.foco * J_MS, acum: 0, seg: null, pausas: 0 });
   save();
   cerrarHojaJornada();
@@ -1063,7 +1098,7 @@ let jCuartoAntes = -1;
 function jPaso() {
   if (!jornadaEncendida()) { jPintarPildora(); return; }
   const run = jDatos().run;
-  if (run && (run.fase === "foco" || run.fase === "descanso") && run.dur && run.seg && jTrans(run) >= run.dur) jFinFase();
+  if (run && (run.fase === "foco" || run.fase === "descanso") && run.dur && run.seg && jTrans(run) >= run.dur && jPuedoCerrar(run)) jFinFase();
   jAvisoSueno();
   /* Cada cuarto de hora puede cambiar el bloque de «ahora», y con él se olvida
      el «Enfocar de todos modos» del bloque que ya pasó. Y es cuando se apunta
@@ -1105,18 +1140,52 @@ function jCampana() {
     o.connect(g).connect(jCtx.destination); o.start(t0); o.stop(t0 + 1);
   });
 }
-function jAvisar(titulo, texto) {
-  jCampana();
-  try { if (navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch (e) { /* sin vibración */ }
+/* ---- Nada suena sin decir por qué (0.7.105.1) ----
+   Antes la campana sonaba SIEMPRE y la explicación iba a un aviso dentro de
+   la app, de dos segundos y medio: con la app de fondo sonaba algo y el porqué
+   se lo llevaba una pestaña que nadie miraba. Ahora hay tres caminos y en los
+   tres el sonido llega con su motivo:
+
+     - app a la vista: campana y un aviso que dice «Pomodoro · …», con un
+       botón para ir y diez segundos para leerlo;
+     - app de fondo, con permiso: campana y el aviso del SISTEMA, que es lo que
+       se ve fuera de la app;
+     - app de fondo, sin permiso: NO suena. Se guarda, y al volver se dice
+       «Mientras no estabas · …».
+
+   `clave` hace que cada final de fase suene una sola vez aunque la sincronía
+   traiga otra vez el mismo tramo, y `mio === false` es el dispositivo que no
+   lleva el reloj: ese no suena nunca. */
+const jSonados = new Set();
+let jPendientes = [];
+function jAvisar(titulo, texto, clave, mio) {
+  if (mio === false) return;
+  if (clave) { if (jSonados.has(clave)) return; jSonados.add(clave); }
+  const t = tx("Pomodoro") + " · " + titulo;
+  const vibrar = () => { try { if (navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch (e) { /* sin vibración */ } };
+  if (!document.hidden) {
+    jCampana(); vibrar();
+    toast(t + " · " + texto, "logro", { label: tx("Ver"), onclick: "irAModulo('jornada')", ms: 10000 });
+    return;
+  }
   const cfg = jDatos().cfg;
-  if (document.hidden && cfg.avisos && "Notification" in window && Notification.permission === "granted") {
+  if (cfg.notificar !== false && "Notification" in window && Notification.permission === "granted") {
+    jCampana(); vibrar();
     const op = { body: texto, tag: "jornada", icon: "icon-192.png", badge: "icon-192.png" };
     if (navigator.serviceWorker && navigator.serviceWorker.ready) {
-      navigator.serviceWorker.ready.then(r => r.showNotification(titulo, op)).catch(() => { try { new Notification(titulo, op); } catch (e) { /* nada */ } });
-    } else { try { new Notification(titulo, op); } catch (e) { /* nada */ } }
-  } else {
-    toast(titulo + " · " + texto, "logro");
+      navigator.serviceWorker.ready.then(r => r.showNotification(t, op)).catch(() => { try { new Notification(t, op); } catch (e) { /* nada */ } });
+    } else { try { new Notification(t, op); } catch (e) { /* nada */ } }
+    return;
   }
+  jPendientes.push(t + " · " + texto);
+  jPendientes = jPendientes.slice(-3);
+}
+function jMostrarPendientes() {
+  if (!jPendientes.length) return;
+  const lista = jPendientes;
+  jPendientes = [];
+  lista.forEach((m, i) => setTimeout(() =>
+    toast(T`Mientras no estabas · ${m}`, "logro", { label: tx("Ver"), onclick: "irAModulo('jornada')", ms: 10000 }), i * 400));
 }
 
 /* ---------- Las hojas ---------- */
@@ -1187,7 +1256,7 @@ function jPintarHoja() {
       <div class="jor-filas">
         ${sw("auto", tx("Seguir solo"), tx("El siguiente tramo arranca sin tocar nada"))}
         ${sw("sonido", tx("Sonido"))}
-        ${sw("avisos", tx("Avisarme en otra pestaña"), tx("Con la app abierta en segundo plano"))}
+        ${sw("notificar", tx("Avisarme fuera de la app"), tx("Con un aviso del sistema que dice qué pasó"))}
       </div>
       <button type="button" class="btn btn-primary btn-block" data-act="cerrar">${tx("Listo")}</button>`;
   } else if (jHoja === "enque") {
@@ -1255,9 +1324,9 @@ function jClickHoja(e) {
     cfg[v] = !cfg[v];
     /* El permiso se pide al ENCENDER el interruptor, que es un gesto tuyo: pedirlo
        al abrir la pantalla es el cuadro que todo el mundo cierra sin leer. */
-    if (v === "avisos" && cfg.avisos && "Notification" in window && Notification.permission !== "granted") {
+    if (v === "notificar" && cfg.notificar && "Notification" in window && Notification.permission !== "granted") {
       Notification.requestPermission().then(p => {
-        if (p !== "granted") { cfg.avisos = false; save(); jPintarHoja(); toast(tx("Sin permiso para avisar: el navegador lo tiene bloqueado"), "atencion"); }
+        if (p !== "granted") { cfg.notificar = false; save(); jPintarHoja(); toast(tx("Sin permiso para avisar: el navegador lo tiene bloqueado"), "atencion"); }
       });
     }
     save();
@@ -1390,5 +1459,5 @@ function iniciarRelojJornada() {
     });
   }
   setInterval(jPaso, 250);
-  document.addEventListener("visibilitychange", jPaso);
+  document.addEventListener("visibilitychange", () => { jPaso(); if (!document.hidden) jMostrarPendientes(); });
 }

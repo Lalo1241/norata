@@ -100,6 +100,35 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.105.1 · 11 sep 2026
+
+**El Pomodoro ya no suena sin decir por qué.** Lo reportó Eduardo: *«siento
+que suena algo pero nunca me acabo enterando el motivo»*, cada 25 minutos y
+también con la app cerrada o en segundo plano. Lo único que suena en toda la
+app es la campana del Pomodoro (`jAvisar`), y había tres fallos juntos:
+
+  1. **La campana sonaba siempre, y el porqué no se veía.** Con la app de
+     fondo y los avisos del sistema apagados —que es como venían—, el motivo
+     iba a un aviso dentro de la app, de 2,6 segundos, en una pestaña que
+     nadie estaba mirando.
+  2. **Seguía sonando cada 25 minutos**: una Travesía o «Seguir solo» siguen
+     tramo tras tramo aunque no estés.
+  3. **Sonaba en cada dispositivo abierto.** El reloj viaja con la sincronía,
+     así que el teléfono y la computadora cerraban el mismo tramo y los dos
+     sonaban; con una copia vieja de por medio, podía volver a sonar.
+
+Ahora **cada sonido llega con su motivo**: con la app a la vista, un aviso
+«Pomodoro · …» de diez segundos y con un botón para ir; fuera de ella, el aviso
+del sistema; y sin permiso para ese aviso, **no suena**: se guarda y al volver
+sale «Mientras no estabas · …». El permiso se pide al tocar Iniciar, y el
+interruptor pasa a llamarse «Avisarme fuera de la app» (`cfg.notificar`, que
+sustituye al `avisos` que se guardó apagado en todos los perfiles).
+
+**Suena solo el dispositivo donde empezó el tramo** (`run.origen`, un id de
+este dispositivo en localStorage). Otro lo cierra en silencio si pasa minuto y
+medio y el primero no lo hizo. Y **cada final de fase suena una vez**
+(`run.fid` + `jSonados`), aunque la sincronía traiga otra vez el mismo tramo.
+
 ### 0.7.105 · 11 sep 2026
 
 **Hiperfoco con tres maneras, el gajo en curso brilla y la hora a dos
