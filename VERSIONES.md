@@ -100,6 +100,31 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.107.1 · 11 sep 2026
+
+**El Pomodoro ya no baila al cambiar de reloj, y el pequeño se distingue del
+mediano.** Lo pidió Eduardo con tres capturas del Hiperfoco a 50, 45 y 15
+minutos: la tarjeta entera cambiaba de alto con cada reloj (186, 150 y 112 px en
+el teléfono) y con cada modo (los ajustes de una Travesía son tres filas; los de
+Inmersión y Respiro, una).
+
+- **El reloj vive en una caja del alto del más grande** (`.jor-reloj-caja`), y se
+  apoya abajo, como sobre una repisa. Vale en el Hiperfoco y en el centro de la
+  rueda, en teléfono y en PC.
+- **Los ajustes y los controles tienen alto mínimo fijo**: el de las tres filas
+  de la Travesía y el de la pantalla parada, así que cambiar de modo o empezar
+  no mueve nada.
+- **El reloj pequeño pierde el escalón de abajo**: se queda con una sola base, y
+  el pedestal de dos escalones es del mediano.
+
+Medido: la tarjeta mide 776 px en el teléfono y 756 en PC en las nueve
+combinaciones (tres modos por 15, 25 y 50 minutos) y también con el tramo
+corriendo; los números no se mueven ni un píxel.
+
+Iba a ser la 0.7.106.3, pero la otra sesión publicó la 0.7.107 en medio (la
+tipografía del menú y el candado plegado). Ninguna de las dos toca los
+archivos de la otra.
+
 ### 0.7.107 · 11 sep 2026
 
 **Tres cosas de la barra lateral que Eduardo cazó al usarla**, las tres suyas y
