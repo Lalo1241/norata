@@ -100,6 +100,42 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.107.2 · 11 sep 2026
+
+**La barra lateral vuelve a su tamaño, y se quedan los tres arreglos.** Lo
+decidió Eduardo viéndola en la pantalla de verdad: apretada se veía apretada,
+no elegante. Así que las medidas de la 0.7.106.1 se van enteras y vuelven las
+de siempre — 246 px de ancho, filas de 52, icono 20, rótulo 14/650, radio de
+13, y el relleno, el logotipo, el botón de plegar y la fila de la versión como
+estaban.
+
+Queda escrito en el CSS, al lado de la altura de la fila, que **esto ya fue y
+volvió**: si algún día se quiere apretar otra vez, que sea con un motivo nuevo
+y no con estos números, que ya se vieron.
+
+**Lo que NO vuelve son los tres arreglos que salieron de mirarla de cerca**, y
+por eso la tanda no fue en balde:
+
+1. **La tipografía de los rótulos** (`font-family: inherit` en `.c-nav`). Un
+   `<button>` no hereda la de la página, y llevaban saliendo en la del sistema
+   desde que el menú tiene rótulos.
+2. **El candado de la barra plegada**: lo cerrado se apaga y el candado aparece
+   al pasar el ratón, en su esquina, en vez de pelearse con el icono.
+3. **El hundido del clic**: 2% con 110 ms en escritorio en vez del 10% seco.
+   Con la fila otra vez en 246 x 52 el argumento pesa más, no menos: ese 10%
+   son veinticinco píxeles de ancho moviéndose de golpe.
+
+**Un número que se mueve solo con el ancho y hay que rehacer a mano:** el
+`right` de la bolita de reportar un fallo, que se alinea con el botón de plegar
+restando un borde del otro. Con 208 eran 2 px y con 246 vuelven a ser 4. Está
+escrito en su comentario para la próxima.
+
+Comprobado contra la 0.7.106 —la última antes de apretarla— midiendo la barra
+entera, 191 piezas, en las dos posturas: el ancho vuelve a 246 y la fila a 52,
+y las únicas diferencias son las de los tres arreglos, más el ancho del texto
+de los rótulos (que cambia porque ahora sí están en Outfit) y el largo del
+número de versión. En el teléfono, nada.
+
 ### 0.7.107.1 · 11 sep 2026
 
 **El Pomodoro ya no baila al cambiar de reloj, y el pequeño se distingue del
