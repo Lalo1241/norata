@@ -42,7 +42,12 @@
 
 /* «Solo enfocar»: el reloj grande en el medio y nada más. */
 .jor-lite { display: grid; justify-items: center; gap: 4px; max-width: 420px; margin: 0 auto; padding: 18px 0 120px; text-align: center; }
-.jor-lite .jor-arena { margin-bottom: 14px; }
+.jor-lite .jor-reloj-caja { height: 186px; margin-bottom: 14px; }
+/* Y lo de abajo, igual: los ajustes de una Travesía son tres filas y los de
+   Inmersión o Respiro una, y al iniciar los controles se reducen a dos
+   botones. Con un alto mínimo fijo, cambiar de modo o empezar no mueve nada. */
+.jor-lite .jor-controles { min-height: 300px; align-content: start; }
+.jor-hf-ajustes-caja { min-height: 136px; }
 .jor-lite .jor-arena.t-chico { --jor-alto: 112px; }
 .jor-lite .jor-arena.t-mediano { --jor-alto: 150px; }
 .jor-lite .jor-arena.t-grande { --jor-alto: 186px; }
@@ -124,7 +129,12 @@ html.claro .jor-blq.ahora { filter: none; }
 /* ---------- El reloj de arena ---------- */
 /* Tres relojes (0.7.106): el alto dice cuánto tiempo mide, así que manda el
    ALTO y no el ancho — cada dibujo tiene sus proporciones. */
-.jor-arena { height: var(--jor-alto, 60px); width: auto; overflow: visible; margin-bottom: 4px; --jor-grano: var(--mint-macizo); }
+.jor-arena { height: var(--jor-alto, 60px); width: auto; overflow: visible; --jor-grano: var(--mint-macizo); }
+/* ---- La caja del reloj: siempre del alto del más grande (0.7.106.3) ----
+   Cada reloj mide distinto, y sin caja la ventana entera subía y bajaba al
+   cambiar de uno a otro —«baila mucho», dijo Eduardo—. El reloj se apoya
+   abajo, como sobre una repisa, y lo de debajo no se mueve. */
+.jor-reloj-caja { height: 74px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 4px; }
 .jor-arena.t-chico { --jor-alto: 48px; }
 .jor-arena.t-mediano { --jor-alto: 62px; }
 .jor-arena.t-grande { --jor-alto: 74px; }
@@ -314,6 +324,8 @@ html.claro .jor-arena-g { filter: none; }
      Lo pidió Eduardo al probarla (0.7.101.1). */
   .jor-lista { max-width: 560px; }
   .jor-rueda { max-width: 400px; --jor-sep: var(--card); }
+  .jor-centro .jor-reloj-caja { height: 88px; }
+  .jor-lite .jor-reloj-caja { height: 216px; }
   .jor-centro .jor-arena.t-chico { --jor-alto: 58px; }
   .jor-centro .jor-arena.t-mediano { --jor-alto: 74px; }
   .jor-centro .jor-arena.t-grande { --jor-alto: 88px; }

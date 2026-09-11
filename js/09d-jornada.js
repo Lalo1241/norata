@@ -794,9 +794,12 @@ const J_RELOJES = (() => {
   const po = (x, y0, y1, grosor) => `<line class="jor-poste${grosor ? " " + grosor : ""}" x1="${x}" y1="${y0}" x2="${x}" y2="${y1}"/>`;
   const def = (vb, cx, hw, y0, y1, pared, atras, adelante) => ({ vb, cx, hw, y0, y1, v: vidrio(cx, hw, y0, y1, pared), atras, adelante });
   return {
-    chico: def("0 0 140 170", 70, 30, 30, 142, 18,
+    /* Sin el escalón de abajo (0.7.106.3): con él, el pequeño y el mediano no
+       se distinguían en nada —lo vio Eduardo poniéndolos lado a lado—. Se
+       queda con una sola base, y el pedestal de dos escalones es del mediano. */
+    chico: def("0 0 140 156", 70, 30, 30, 142, 18,
       po(32, 28, 144, "delgado") + po(108, 28, 144, "delgado"),
-      pz(26, 16, 88, 14, 4) + pz(28, 142, 84, 10, 3) + pz(18, 152, 104, 12, 4)),
+      pz(26, 16, 88, 14, 4) + pz(28, 142, 84, 12, 4)),
     mediano: def("0 0 170 240", 85, 36, 34, 206, 28,
       po(30, 32, 208) + po(140, 32, 208),
       pz(22, 20, 126, 14, 4) + pz(22, 206, 126, 12, 3) + pz(12, 218, 146, 14, 4)),
@@ -866,7 +869,7 @@ function renderJornada() {
   if (modo === "lite") {
     cont.innerHTML = pestanas + `
       <div class="jor-lite">
-        ${jRelojHTML(jRelojActual())}
+        <div class="jor-reloj-caja">${jRelojHTML(jRelojActual())}</div>
         ${numeros}
         <div class="jor-controles" id="jor-controles"></div>
       </div>`;
@@ -880,7 +883,7 @@ function renderJornada() {
               <g id="jor-aguja" class="jor-aguja"><line x1="${J_C}" y1="${J_C - J_RI + 6}" x2="${J_C}" y2="${J_C - J_RO - 9}"/><circle cx="${J_C}" cy="${J_C - J_RO - 9}" r="3.5"/></g>
               <g id="jor-asas"></g>
             </svg>
-            <div class="jor-centro">${jRelojHTML(jRelojActual())}${numeros}</div>
+            <div class="jor-centro"><div class="jor-reloj-caja">${jRelojHTML(jRelojActual())}</div>${numeros}</div>
           </div>
           <div class="jor-controles" id="jor-controles"></div>
         </div>
@@ -963,7 +966,7 @@ function jControlesLite(run) {
           <button type="button" class="jor-hf-sel" data-a="hf-modo" data-v="${m}" aria-pressed="${m === k}"><b>${escapeHtml(jHfNombre(m))}</b><span>${escapeHtml(jHfResumen(m))}</span></button>
           <button type="button" class="jor-hf-lapiz" data-a="hf-nombre" data-v="${m}" aria-label="${escapeAttr(tx("Cambiar el nombre"))}" title="${escapeAttr(tx("Cambiar el nombre"))}">${J_LAPIZ}</button>
         </div>`).join("")}</div>
-      <div class="jor-hf-ajustes">${ajustes}</div>
+      <div class="jor-hf-ajustes-caja"><div class="jor-hf-ajustes">${ajustes}</div></div>
       <div class="jor-acc una"><button type="button" class="btn btn-primary jor-grande" data-a="lite-go">${J_PLAY}${tx(J_HF[k].verbo)}</button></div>`;
   }
   if (run.fase === "foco") {
