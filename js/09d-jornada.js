@@ -464,6 +464,35 @@ function jSaltarLite() {
   save(); jPintar();
 }
 
+/* ---- Reiniciar la fase y saltar lo que queda (0.7.107.3) ----
+   Las dos salidas que aparecen al pausar en Hiperfoco.
+
+   **Reiniciar** pone la fase a cero y la deja CORRIENDO: quien la reinicia
+   quiere volver a empezar ahora, no volver a tocar Seguir. Se lleva por delante
+   los minutos que iban —y eso es lo que se está pidiendo—, así que el `fid`
+   cambia: es la marca de «esta fase es otra» y sin ella la campana del final
+   creería que ya sonó.
+
+   **Saltar** no regala tiempo. Termina la fase AQUÍ, poniéndole a `dur` lo que
+   de verdad se llevaba trabajado, y deja que `jFinFase` haga lo de siempre: así
+   el registro apunta los minutos reales y no los que se pensaban hacer, y la
+   Travesía sigue a su descanso sin saber que pasó nada raro. Un botón que
+   apuntara la fase entera por saltarla sería una manera de mentirle al informe,
+   que es lo único que este módulo tiene que cuidar. */
+function jReiniciarFaseLite() {
+  const run = jDatos().run; if (!run || !run.lite) return;
+  Object.assign(run, { acum: 0, seg: Date.now(), pausas: 0, fid: uid() });
+  save(); jPintar();
+  toast(tx("La fase vuelve a empezar"), "hecho");
+}
+function jSaltarFaseLite() {
+  const run = jDatos().run; if (!run || !run.lite) return;
+  run.acum = jTrans(run); run.seg = null;
+  run.dur = Math.max(0, run.acum);
+  save();
+  jFinFase();
+}
+
 /* ---------- Dormir y despertar ---------- */
 function jBuenasNoches() {
   const j = jDatos(), b = jBloqueEn(jAhora());
@@ -864,7 +893,9 @@ function renderJornada() {
     ${[["dia", tx("Rutina diaria")], ["lite", tx("Hiperfoco")]].map(([k, n]) =>
       `<button type="button" role="tab" data-modo="${k}" aria-selected="${modo === k}">${n}</button>`).join("")}
   </div>`;
-  const numeros = `<div id="jor-tiempo">25:00</div><div id="jor-fase"></div><div id="jor-sub"></div>`;
+  /* `jor-fin` es la hora a la que acaba la fase (0.7.107.3). Nace escondido:
+     solo hay hora que dar cuando algo está corriendo con final conocido. */
+  const numeros = `<div id="jor-tiempo">25:00</div><div id="jor-fase"></div><div id="jor-sub"></div><div id="jor-fin" hidden></div>`;
 
   if (modo === "lite") {
     cont.innerHTML = pestanas + `
@@ -970,10 +1001,20 @@ function jControlesLite(run) {
       <div class="jor-acc una"><button type="button" class="btn btn-primary jor-grande" data-a="lite-go">${J_PLAY}${tx(J_HF[k].verbo)}</button></div>`;
   }
   if (run.fase === "foco") {
+    /* ---- En pausa aparecen las dos salidas de la fase (0.7.107.3) ----
+       Las pidió Eduardo, y solo en pausa: corriendo son ruido —lo que hay que
+       hacer es enfocar— y en pausa son justo las dos preguntas que uno se hace
+       ahí parado, «esta ronda ya no me sirve» o «ya estuvo, sigue».
+
+       Volver a Pausa las esconde, así que no hay que acordarse de nada. */
+    const extra = run.seg ? "" : `<div class="jor-acc dos jor-mas">
+        <button type="button" class="btn btn-aviso jor-chico" data-a="hf-reiniciar">${tx("Reiniciar fase")}</button>
+        <button type="button" class="btn btn-ghost jor-chico" data-a="hf-saltar">${tx("Saltar lo que queda")}</button>
+      </div>`;
     return `<div class="jor-acc dos">
         <button type="button" class="btn btn-soft jor-grande" data-a="pausa">${run.seg ? J_PAUSA + tx("Pausa") : J_PLAY + tx("Seguir")}</button>
         <button type="button" class="btn btn-ghost jor-grande" data-a="lite-parar">${J_PARAR}${tx("Parar")}</button>
-      </div>`;
+      </div>` + extra;
   }
   if (run.fase === "listo") {
     return `<div class="jor-acc una"><button type="button" class="btn btn-primary jor-grande" data-a="lite-go">${J_PLAY}${tx("Otra vez")}</button></div>
@@ -1062,23 +1103,30 @@ function jVoltear() {
   const g = document.getElementById("jor-giro");
   if (!g) return;
   jVolteando = true;
-  /* Se da la vuelta sobre su eje horizontal y se queda dentro del marco: girar
-     en el plano lo sacaba por los lados a medio camino. */
-  g.style.transition = ""; g.style.transform = "scaleY(-1)";
+  /* La vuelta entera vive en el CSS (`@keyframes jor-voltear`): media vuelta
+     con un encogimiento a mitad de camino. Aquí solo se enciende y se espera. */
   const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  /* Al terminar la vuelta se endereza el vidrio Y se redibuja la arena en el
-     MISMO turno, para que el navegador pinte las dos cosas juntas. Antes la
-     arena se corregía en el siguiente paso del reloj —hasta 250 ms después—,
-     y en ese hueco el vidrio ya estaba derecho con la arena dibujada como si
-     siguiera girado: abajo en vez de arriba. Lo vio Eduardo como un parpadeo.
-     Se busca el grupo de nuevo porque el reloj pudo cambiar de dibujo en medio. */
-  setTimeout(() => {
+  /* Al terminar la vuelta se quita la clase Y se redibuja la arena en el MISMO
+     turno, para que el navegador pinte las dos cosas juntas. Antes la arena se
+     corregía en el siguiente paso del reloj —hasta 250 ms después—, y en ese
+     hueco el vidrio ya estaba derecho con la arena dibujada como si siguiera
+     girado: abajo en vez de arriba. Lo vio Eduardo como un parpadeo.
+
+     Se busca el grupo otra vez porque el reloj pudo cambiar de dibujo en medio,
+     y `acabar` se protege sola: la llaman el final de la animación Y un plazo
+     de seguridad, y con el dibujo cambiado en medio el `animationend` no llega
+     nunca — sin ese plazo la arena se quedaría congelada a media vuelta. */
+  const acabar = () => {
+    if (!jVolteando) return;
     jVolteando = false;
     const g2 = document.getElementById("jor-giro");
-    if (g2) { g2.style.transition = "none"; g2.style.transform = "none"; }
+    if (g2) g2.classList.remove("girando");
     jPintarCentro();
-    if (g2) { g2.getBoundingClientRect(); g2.style.transition = ""; }
-  }, quieto ? 0 : 950);
+  };
+  if (quieto) { acabar(); return; }
+  g.classList.add("girando");
+  g.addEventListener("animationend", acabar, { once: true });
+  setTimeout(acabar, 1200);
 }
 /* `fc` es el estado, y de él salen los colores del centro y de la píldora:
    foco en menta, descanso en luciérnaga, pausa en coral. */
@@ -1120,13 +1168,13 @@ function jEstadoCentro() {
       return { arriba: 1 - v, t: jMmss(el), f: enPausa ? tx("En pausa") : (run.lite ? hfNom : tx("Enfoque libre")), fc: enPausa ? "pausa" : "foco", sub, cae: !enPausa, prog: v };
     }
     const p = Math.min(1, el / run.dur);
-    return { arriba: 1 - p, t: jMmss(run.dur - el), f: enPausa ? tx("En pausa") : (run.lite ? hfNom : T`Foco · ${run.tramo} de ${cfg.ciclos}`), fc: enPausa ? "pausa" : "foco", sub, cae: !enPausa, prog: p };
+    return { arriba: 1 - p, t: jMmss(run.dur - el), f: enPausa ? tx("En pausa") : (run.lite ? hfNom : T`Foco · ${run.tramo} de ${cfg.ciclos}`), fc: enPausa ? "pausa" : "foco", sub, cae: !enPausa, prog: p, resta: run.dur - el };
   }
   if (run.fase === "descanso") {
     const p = Math.min(1, el / run.dur);
     const respiro = run.lite && run.modo === "respiro";
     return { arriba: 1 - p, t: jMmss(run.dur - el), f: respiro ? hfNom : tx("Descanso"), fc: "brasa",
-      sub: respiro ? tx("Nada que hacer: solo respirar") : run.lite ? T`Luego, ronda ${run.tramo + 1} de ${run.rondas || 1}` : T`Luego, tramo ${run.tramo + 1}`, cae: true, prog: p };
+      sub: respiro ? tx("Nada que hacer: solo respirar") : run.lite ? T`Luego, ronda ${run.tramo + 1} de ${run.rondas || 1}` : T`Luego, tramo ${run.tramo + 1}`, cae: true, prog: p, resta: run.dur - el };
   }
   if (run.fase === "listo" && run.lite) {
     return { arriba: 0, t: jMmss((run.min || 0) * J_MS), f: tx("Listo"), fc: "foco",
@@ -1156,6 +1204,35 @@ function jPintarCentro() {
   const f = document.getElementById("jor-fase");
   f.textContent = s.f; f.className = s.fc;
   document.getElementById("jor-sub").textContent = s.sub;
+  jPintarFin(s);
+}
+/* ---- A qué hora acabas esto (0.7.107.3) ----
+   La pidió Eduardo: hora de ahora + lo que le queda a la fase. Se calcula desde
+   el reloj y no desde la hora a la que empezó, y esa es toda la gracia: así una
+   pausa de diez minutos corre la hora diez minutos, que es lo que de verdad va
+   a pasar.
+
+   En pausa el rótulo lo dice —«si sigues»—, porque ahí el número no es una
+   promesa: es lo que pasaría si le dieras a Seguir ahora mismo, y se va
+   moviendo solo mientras no lo hagas.
+
+   Va en la hora del PERFIL (`jMinDe` + `jH12`), no en la del reloj de la
+   máquina: es la misma zona con la que se dibujan los bloques del día, y dos
+   horas distintas en la misma pantalla no se pueden mirar juntas.
+
+   Y los segundos se cortan hacia abajo —`jMinDe` lee hora y minuto— en vez de
+   redondearse: si la fase acaba a las 10:46:44 todavía son las 10:46, y
+   redondear escribiría una hora a la que la fase YA habría terminado. Ojo al
+   compararlo con `jH12(jAhora())`, que sí redondea: por eso «ahora» puede ir un
+   minuto por delante de la cuenta hecha a mano, y no es un error de la resta. */
+function jPintarFin(s) {
+  const el = document.getElementById("jor-fin");
+  if (!el) return;
+  const hay = s.resta > 0;
+  el.hidden = !hay;
+  if (!hay) { el.textContent = ""; return; }
+  const hora = jH12(jMinDe(Date.now() + s.resta));
+  el.textContent = s.fc === "pausa" ? T`Si sigues, acabas a las ${hora}` : T`Acabas a las ${hora}`;
 }
 
 /* ---------- La píldora: el reloj te sigue a otras pantallas ----------
@@ -1495,6 +1572,8 @@ function jClickControles(e) {
   if (a === "terminar") jTerminarLibre();
   if (a === "abandonar") jAbandonar();
   if (a === "lite-parar") jPararLite();
+  if (a === "hf-reiniciar") jReiniciarFaseLite();
+  if (a === "hf-saltar") jSaltarFaseLite();
   if (a === "saltar") { if (j.run.lite) jSaltarLite(); else jSiguiente(); }
   if (a === "cierre") jAbrirHoja("cierre");
   if (a === "fin") { j.run = null; jEleccion = undefined; save(); jPintar(); }
