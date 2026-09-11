@@ -100,6 +100,42 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.105 · 11 sep 2026
+
+**Hiperfoco con tres maneras, el gajo en curso brilla y la hora a dos
+dígitos.** Todo lo pidió Eduardo probando la 0.7.104.
+
+**Las pestañas se llaman «Rutina diaria» e «Hiperfoco»** (eran «Mi día» y
+«Solo enfocar»).
+
+**El Hiperfoco tiene tres maneras**, cada una con su nombre de la casa y un
+lápiz para cambiárselo (`cfg.hfNombres`; vacío vuelve al de siempre):
+
+  - **Travesía**: foco y descanso alternados, por rondas, y sigue sola hasta
+    terminarlas. Se ajustan el foco, el descanso y las rondas.
+  - **Inmersión**: solo foco, de corrido y sin pausas.
+  - **Respiro**: solo descanso. Se apunta aparte (`tipo: "respiro"`) y el
+    informe no lo cuenta como foco (`respiros`, `respiroMin` en
+    `metricasPomodoro`).
+
+Sustituyen las tres duraciones sueltas de la 0.7.104 (25, 50 y libre). Los
+minutos de foco van de cinco en cinco; los de descanso, de uno en uno hasta
+diez y luego de cinco.
+
+**El gajo en curso brilla con su color**, con el mismo halo que `.barra-viva`
+en lo lleno. Solo la luz: el dibujo no cambia. Sin animación —el color sale de
+una variable y animado se congela en Chrome— y **de día se apaga**, como todos
+los halos de la casa.
+
+**La hora del reloj va con dos dígitos** (03:17 y no 3:17), también en las
+barras de las noches del informe: al pasar de una cifra a dos el reloj
+cambiaba de ancho.
+
+**Y el vidrio del reloj de arena es más cuadrado**, con la silueta de un icono
+que enseñó Eduardo: paredes rectas arriba y abajo, diagonales y un cuello
+corto. Tapas, postes y arena quedan igual. Sigue siendo simétrico respecto a su
+cuello, que es lo que hace invisible el volteo.
+
 ### 0.7.104 · 11 sep 2026
 
 **El Pomodoro llega a los informes, se lleva su mérito, cruza lo planeado con

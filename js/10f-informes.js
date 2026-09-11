@@ -300,7 +300,7 @@ function metricasPomodoro(r, D) {
   const j = datos.jornada || {};
   const reg = Array.isArray(j.registro) ? j.registro : [];
   const out = {
-    minutos: 0, tramos: 0, abandonados: 0, terminadas: 0, rapidos: 0, xp: 0,
+    minutos: 0, tramos: 0, abandonados: 0, terminadas: 0, rapidos: 0, xp: 0, respiros: 0, respiroMin: 0,
     porDia: new Map(), porNombre: new Map(), animo: [0, 0, 0],
     sueno: { noches: 0, minutos: 0, porDia: new Map() },
     plan: { planeados: 0, conFoco: 0, pct: null }
@@ -315,6 +315,9 @@ function metricasPomodoro(r, D) {
       out.sueno.porDia.set(e.fecha, (out.sueno.porDia.get(e.fecha) || 0) + min);
       continue;
     }
+    /* Un «Respiro» del Hiperfoco (0.7.105) es descanso a propósito: no es
+       foco y no se cuenta como tal, pero sí se sabe cuánto hubo. */
+    if (e.tipo === "respiro") { out.respiros++; out.respiroMin += min; continue; }
     if (e.abandono) { out.abandonados++; continue; }
     out.tramos++;
     out.minutos += min;
