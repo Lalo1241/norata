@@ -198,6 +198,15 @@ html.claro .jor-arena-g { filter: none; }
 .jor-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--muted); transition: transform .2s ease; }
 .jor-sw[aria-checked="true"] { background: var(--mint-macizo); border-color: var(--mint-macizo); }
 .jor-sw[aria-checked="true"]::after { transform: translateX(18px); background: var(--sobre-macizo); }
+/* El color propio de un bloque: «Automático» y los ocho de la app. */
+.jor-colores { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.jor-color { width: 30px; height: 30px; padding: 0; border-radius: var(--r-redondo); border: 0; cursor: pointer; }
+.jor-color[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--sup-tarjeta), 0 0 0 4px var(--text); }
+.jor-color.auto {
+  width: auto; padding: 0 12px; border: 1px dashed var(--line); background: transparent;
+  color: var(--muted); font: inherit; font-size: 12px; font-weight: 600;
+}
+.jor-color.auto[aria-pressed="true"] { color: var(--text); border-style: solid; box-shadow: none; border-color: var(--text); }
 .jor-ops { display: grid; gap: 6px; }
 .jor-ops.alto { max-height: 38vh; overflow-y: auto; padding-right: 2px; }
 .jor-grupo { margin: 6px 0 0; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }

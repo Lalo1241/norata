@@ -100,6 +100,16 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.103.1 · 11 sep 2026
+
+**Pomodoro: cada bloque puede llevar su color.** Lo pidió Eduardo al ver la
+rueda con Dormir, Comer y Traslado, los tres del mismo gris: no se distinguían.
+La hoja de un bloque tiene ahora una fila «Color» con «Automático» y los ocho
+colores de la app (`COLORS`). El color propio (`b.color`) manda; en
+Automático sigue siendo el de lo que enfoca, o el gris del descanso. Con color
+propio, el icono de un descanso pasa a tinta oscura, como sobre cualquier otro
+color vivo.
+
 ### 0.7.103 · 11 sep 2026
 
 **El Pomodoro sale para todos.** Hasta aquí nacía apagado y se encendía con

@@ -153,7 +153,11 @@ function jNombreBloque(b) {
   const r = jRef(b.ref);
   return r ? r.nombre : tx("Bloque libre");
 }
+/* El color PROPIO del bloque manda (0.7.103.1): los tres descansos salían del
+   mismo gris y en la rueda no se distinguía Comer de Dormir. Lo pidió Eduardo.
+   Sin color propio, sigue siendo el de lo que enfoca, o el gris del descanso. */
 function jColorBloque(b) {
+  if (b.color) return pinta(b.color);
   if (b.descanso) return b.descanso === "dormir" ? "var(--jor-sueno)" : "var(--jor-descanso)";
   const r = jRef(b.ref);
   return r && r.o.color ? pinta(r.o.color) : "var(--jor-libre)";
@@ -404,7 +408,7 @@ function jPintarRueda() {
     h += `<path class="jor-blq${b.id === jSelId ? " sel" : ""}" data-id="${b.id}" d="${jArco(b.ini, d)}" style="fill:${jColorBloque(b)}"/>`;
     if (d >= 60) {
       const [x, y] = jPt(J_RM, b.ini + d / 2);
-      h += `<svg class="jor-blq-ic${b.descanso ? " descanso" : ""}" x="${x - 8}" y="${y - 8}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${jIconoBloque(b)}</svg>`;
+      h += `<svg class="jor-blq-ic${b.descanso && !b.color ? " descanso" : ""}" x="${x - 8}" y="${y - 8}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${jIconoBloque(b)}</svg>`;
     }
   }
   g.innerHTML = h;
@@ -602,7 +606,7 @@ function jPintarLista() {
     const extra = foco[b.id] ? " · " + T`${foco[b.id]} min de foco` : sueno[b.id] ? " · " + T`dormiste ${jFmtDur(sueno[b.id])}` : "";
     return `
     <button type="button" class="jor-fila${b.id === jSelId ? " sel" : ""}" data-id="${b.id}">
-      <span class="jor-tile${b.descanso ? " descanso" : ""}" style="background:${jColorBloque(b)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${jIconoBloque(b)}</svg></span>
+      <span class="jor-tile${b.descanso && !b.color ? " descanso" : ""}" style="background:${jColorBloque(b)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${jIconoBloque(b)}</svg></span>
       <span class="jor-fila-t"><b>${escapeHtml(jNombreBloque(b))}</b><span>${jRango(b)}${escapeHtml(extra)}</span></span>
       <span class="jor-fila-d">${jDentro(b, m) ? `<span class="jor-chip ahora">${tx("Ahora")}</span>` : ""}<span class="jor-chip">${jFmtDur(jDur(b))}</span></span>
     </button>`;
@@ -854,11 +858,11 @@ function cerrarHojaJornada(desdeFuera) {
 }
 function jAbrirBloque(id) {
   const b = jDatos().bloques.find(x => x.id === id);
-  if (b) jEdit = { id: b.id, descanso: b.descanso || null, ref: b.ref || null, ini: b.ini, fin: b.fin };
+  if (b) jEdit = { id: b.id, descanso: b.descanso || null, ref: b.ref || null, color: b.color || null, ini: b.ini, fin: b.fin };
   else {
     const ini = (Math.ceil(jAhora() / 15) * 15) % J_DIA;
     const g = jCandidatos()[0];
-    jEdit = { id: null, descanso: g ? null : "comida", ref: g ? { t: g[0], id: g[2][0].id } : null, ini, fin: (ini + 60) % J_DIA };
+    jEdit = { id: null, descanso: g ? null : "comida", ref: g ? { t: g[0], id: g[2][0].id } : null, color: null, ini, fin: (ini + 60) % J_DIA };
   }
   jAbrirHoja("bloque");
 }
@@ -925,6 +929,10 @@ function jPintarHoja() {
         ${paso("b-hora", "fin", tx("Acaba"), jH12(e.fin))}
       </div>
       ${otro ? `<p class="jor-nota error">${escapeHtml(T`Se encima con «${jNombreBloque(otro)}». Muévelo o acórtalo.`)}</p>` : `<p class="jor-nota">${escapeHtml(T`Dura ${jFmtDur(d)}.`)}</p>`}
+      <div class="jor-grupo-p"><p>${tx("Color")}</p><div class="jor-colores">
+        <button type="button" class="jor-color auto" data-act="b-color" data-v="" aria-pressed="${!e.color}">${tx("Automático")}</button>
+        ${COLORS.map(c => `<button type="button" class="jor-color" data-act="b-color" data-v="${c}" aria-pressed="${e.color === c}" style="background:${pinta(c)}" aria-label="${c}"></button>`).join("")}
+      </div></div>
       <div class="jor-ops alto">${jOpcionesDescanso(e.descanso)}${jListaOpciones("b-ref", e.descanso ? null : e.ref)}</div>
       <button type="button" class="btn btn-primary btn-block" data-act="b-guardar" ${otro || (!e.descanso && !r) ? "disabled" : ""}>${tx("Guardar")}</button>
       ${e.id ? `<button type="button" class="btn btn-danger-ghost btn-block" data-act="b-quitar">${jQuitando ? tx("Toca otra vez para quitarlo") : tx("Quitar de la rueda")}</button>` : ""}`;
@@ -982,6 +990,7 @@ function jClickHoja(e) {
     if (t === "descanso") { jEdit.descanso = id; jEdit.ref = null; }
     else { jEdit.descanso = null; jEdit.ref = { t, id }; }
   }
+  if (a === "b-color") jEdit.color = v || null;
   if (a === "b-hora") {
     const k = b.dataset.k, n = (jEdit[k] + 15 * Number(b.dataset.d) + J_DIA) % J_DIA;
     const d = k === "ini" ? (jEdit.fin - n + J_DIA) % J_DIA : (n - jEdit.ini + J_DIA) % J_DIA;
@@ -989,6 +998,7 @@ function jClickHoja(e) {
   }
   if (a === "b-guardar") {
     const datos = jEdit.descanso ? { descanso: jEdit.descanso, ref: undefined } : { descanso: undefined, ref: jEdit.ref };
+    datos.color = jEdit.color || undefined;
     if (jEdit.id) {
       const x = j.bloques.find(y => y.id === jEdit.id);
       if (x) Object.assign(x, datos, { ini: jEdit.ini, fin: jEdit.fin });
@@ -997,7 +1007,7 @@ function jClickHoja(e) {
       j.bloques.push(n); jSelId = n.id;
     }
     /* `undefined` no viaja en JSON, pero en memoria sí estorba al leer. */
-    j.bloques.forEach(x => { if (x.descanso === undefined) delete x.descanso; if (x.ref === undefined) delete x.ref; });
+    j.bloques.forEach(x => { if (x.descanso === undefined) delete x.descanso; if (x.ref === undefined) delete x.ref; if (x.color === undefined) delete x.color; });
     save(); cerrarHojaJornada(); jPintar(); return;
   }
   if (a === "b-quitar") {
