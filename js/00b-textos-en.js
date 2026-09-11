@@ -3287,5 +3287,6 @@ const TEXTOS_EN = {
   "Toca para guardarlo": "Tap to save it",
   "Sin tramos": "No sessions",
   "Pre alpha": "Pre-alpha",
-  "Pre alpha: tu día en una rueda, con tramos de enfoque": "Pre-alpha: your day on a wheel, with focus sessions"
+  "Pre alpha: tu día en una rueda, con tramos de enfoque": "Pre-alpha: your day on a wheel, with focus sessions",
+  "Automático": "Automatic"
 };
