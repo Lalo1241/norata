@@ -100,6 +100,58 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.107 · 11 sep 2026
+
+**Tres cosas de la barra lateral que Eduardo cazó al usarla**, las tres suyas y
+las tres de escritorio.
+
+**1 · El menú estaba escrito en otra tipografía, y llevaba así desde siempre.**
+Un `<button>` **no hereda** la tipografía de la página: el navegador le pone la
+suya del sistema y hay que pedírsela. Así que los seis rótulos de la barra
+salían en Segoe UI —Arial en otros— en mitad de una app escrita entera en
+Outfit. No se veía porque en el teléfono esos botones no llevan texto y en la
+computadora el rótulo era grande y con mucho trazo; al apretar la barra en la
+0.7.106.1 saltó a la vista. El botón de crear ya pedía `font-family: inherit`
+—está tres reglas más abajo— y éste no. Medido: `.nav-label` daba `Arial` y
+ahora da `Outfit`.
+
+**2 · Plegada, lo cerrado se apaga y el candado espera al ratón.** En 84 px el
+candado no tiene renglón del que colgarse, así que se ponía al lado del icono:
+dos dibujos de línea peleando por el sitio dentro de un botón de 48. Ahora la
+fila cerrada baja a `opacity: 0.45` —bastante más que el 0,72 de siempre, para
+que se lea como cerrada y no como tenue— y el candado aparece al pasar el
+ratón, en su esquina.
+
+Esto **no deroga la regla de la casa** —lo cerrado tiene que VERSE cerrado, y
+gris no lo dice—: la barra DESPLEGADA la sigue cumpliendo entera, con el
+candado escrito al final del renglón y sin esconderse nunca. Cambia solo el
+sitio donde no cabe. Y quien no ve la pantalla no pierde nada: lo cerrado va en
+el `aria-label`, no en el dibujo.
+
+**3 · El clic ya no pega un salto.** `.c-nav:active` encogía un 10% y sin
+desvanecido. Ese número está pensado para un círculo de 44 px en un teléfono,
+donde el dedo tapa el botón; en una fila de 208 x 40 son veinte píxeles de
+ancho moviéndose de golpe, y no se lee como un botón que se hunde sino como uno
+que salta. En escritorio pasa a **2% con 110 ms**. La transición nombra SOLO
+`transform` a propósito: la regla de al lado lleva `transition: none` porque el
+color sale de una variable y Chrome lo deja congelado, y un `transform` no sale
+de ninguna variable. En el teléfono todo sigue igual.
+
+**Y un fallo propio que conviene dejar escrito**: al mover ese bloque de sitio
+quedó un párrafo FUERA del comentario, y un comentario mal cerrado en CSS no
+avisa: se come en silencio la regla siguiente. La que se comió era
+`.thumb-cluster .c-nav.active`, así que en el teléfono el botón de la sección
+abierta perdía la menta. Lo cazó la foto de estilos calculados —5 elementos
+distintos donde no debía haber ninguno—, no la vista. Comprobarlo cuesta una
+línea, y ahora está en el cajón de herramientas: contar `/*` y `*/` tras borrar
+los comentarios bien formados; si sobra alguno, hay uno abierto.
+
+Medido a 1280 px en los dos modos: la fila cerrada da 0,45 en reposo y 1 con el
+ratón encima, con el candado pasando de 0 a 1; al pulsar, `scale(0.98)`; la
+tipografía es Outfit en las cuatro combinaciones. En teléfono y tableta,
+**0 de 691 elementos distintos** contra la 0.7.106.2 — lo único que cambia allí
+es la tipografía de unos botones que no llevan texto.
+
 ### 0.7.106.2 · 11 sep 2026
 
 **El reloj de arena ya no parpadea al darse la vuelta.** Lo reportó Eduardo:

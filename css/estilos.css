@@ -4061,6 +4061,14 @@
   }
   .thumb-cluster .c-nav {
     width: 44px; height: 44px;
+    /* Un <button> NO hereda la tipografía de la página: el navegador le pone
+       la suya del sistema, y hay que pedírsela. Sin esta línea los seis
+       rótulos de la barra de escritorio salían en Segoe UI (Arial en otros) en
+       mitad de una app escrita entera en Outfit. Llevaba así desde que el menú
+       tuvo rótulos y no se veía porque en el teléfono estos botones no llevan
+       texto; al apretar la barra en 0.7.106.1 saltó a la vista. El botón de
+       crear ya lo pedía —`.c-main`, unas líneas más abajo—, y este no. */
+    font-family: inherit;
     border-radius: var(--r-redondo);
     background: var(--sup-flotante);
     backdrop-filter: blur(10px);
@@ -4093,6 +4101,21 @@
      `transition: none` a propósito (ver arriba), así que no hay animación que
      pueda quedarse a medias. */
   .thumb-cluster .c-nav:active { transform: scale(0.9); }
+  /* ---- Y en escritorio, mucho menos (ver el bloque de escritorio) ----
+     El 10% está pensado para un círculo de 44 px en un teléfono, donde el dedo
+     tapa el botón y hace falta un salto que se note por el rabillo del ojo. En
+     una fila de 208 x 40 el mismo 10% son veinte píxeles de ancho moviéndose
+     de golpe: no se lee como un botón que se hunde, sino como uno que salta.
+
+     Dos por ciento y con un desvanecido corto. La transición es SOLO sobre
+     `transform` a propósito: el bloque de escritorio lleva `transition: none`
+     porque el color sale de una variable y Chrome lo deja congelado (ver la
+     nota de `.c-nav` más abajo). Un `transform` no sale de ninguna variable,
+     así que puede animarse sin caer en esa trampa.
+
+     Va escrito abajo, dentro del bloque de escritorio, y no aquí: el
+     `transition: none` de allí llega después con la misma especificidad y se
+     comería a éste. */
 
   .thumb-cluster .c-nav.active {
     color: var(--mint);
@@ -9231,6 +9254,26 @@
          la transición. Un botón de menú quiere responder, no bailar. */
       transition: none;
     }
+    /* ---- El hundido del clic: 2%, no 10% ----
+       El 10% de `.c-nav:active` está pensado para un círculo de 44 px en un
+       teléfono, donde el dedo tapa el botón y hace falta un salto que se note
+       por el rabillo del ojo. En una fila de 208 x 40 ese mismo 10% son veinte
+       píxeles de ancho moviéndose de golpe, y encima sin desvanecido: no se
+       lee como un botón que se hunde, sino como uno que salta. Lo paró
+       Eduardo: «que no sea tan drástico el cambio en tamaño».
+
+       La transición es SOLO sobre `transform`, y eso no es una precaución de
+       más: la regla de aquí arriba lleva `transition: none` porque el color
+       sale de una variable y Chrome lo deja congelado en el inicial. Un
+       `transform` no sale de ninguna variable, así que se puede animar sin
+       caer en esa trampa — pero nombrándolo, nunca con `transition: all`. */
+    .thumb-cluster .c-nav { transition: transform 110ms ease-out; }
+    .thumb-cluster .c-nav:active { transform: scale(0.98); }
+    .thumb-cluster .c-main { transition: transform 110ms ease-out; }
+    .thumb-cluster .c-main:active { transform: scale(0.985); }
+    @media (prefers-reduced-motion: reduce) {
+      .thumb-cluster .c-nav, .thumb-cluster .c-main { transition: none; }
+    }
     .thumb-cluster .c-nav:hover { background: var(--sup-panel); color: var(--text); }
     .thumb-cluster .c-nav.active,
     /* Con el mini menú desplegado, Ajustes se enciende igual que la sección
@@ -9715,6 +9758,39 @@
     html.sc .thumb-cluster .c-main,
     html.sc #nav-settings-side { justify-content: center; padding-left: 0; padding-right: 0; }
     html.sc .thumb-cluster .c-main { gap: 0; }
+
+    /* ---- Plegada, lo cerrado se APAGA y el candado espera al ratón ----
+       En 84 px el candado no tiene renglón del que colgarse, así que se ponía
+       al lado del icono: dos dibujos de línea peleando por el mismo sitio
+       dentro de un botón de 48. Lo paró Eduardo mirándola — «en minimizado
+       debe verse oscuro lo bloqueado, y si pones el cursor encima que se vea
+       el candado».
+
+       No contradice la regla de la casa —lo cerrado tiene que VERSE cerrado, y
+       gris no lo dice—: la barra DESPLEGADA la sigue cumpliendo entera, con el
+       candado escrito al final del renglón y sin esconderse nunca. Lo que
+       cambia es el sitio donde no cabe, y ahí el apagado es bastante más fuerte
+       que el 0,72 de siempre justo para que se lea como cerrado y no como
+       tenue. Quien no ve la pantalla no pierde nada: lo cerrado va en el
+       `aria-label` del botón y no en el dibujo (`aplicarModulos`,
+       js/04-misiones.js). */
+    html.sc .thumb-cluster .c-nav.con-candado { opacity: 0.45; }
+    html.sc .thumb-cluster .c-nav.con-candado:hover { opacity: 1; }
+    html.sc .thumb-cluster .c-nav .nav-candado {
+      /* Vuelve a su esquina. Desplegada es `position: static` para irse al
+         final del renglón; aquí eso lo metía en la fila y empujaba al icono
+         fuera del centro. */
+      position: absolute;
+      right: 6px; bottom: 4px;
+      margin: 0;
+      width: 12px; height: 12px;
+      opacity: 0;
+      transition: opacity 0.16s ease;
+    }
+    html.sc .thumb-cluster .c-nav:hover .nav-candado { opacity: 1; }
+    @media (prefers-reduced-motion: reduce) {
+      html.sc .thumb-cluster .c-nav .nav-candado { transition: none; }
+    }
     .page-head { padding: 34px 4px 22px; }
     .page-head h1 { font-size: calc(34px * var(--tipo-titulo-escala)); }
     #settings-btn { display: none; }
