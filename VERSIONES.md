@@ -100,6 +100,65 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.108 · 11 sep 2026
+
+**El reloj vuelve a voltearse girando, y el Hiperfoco gana dos salidas y una
+hora.** Las tres las pidió Eduardo usándolo.
+
+**1 · El volteo es otra vez una vuelta, no un estirón.** En la 0.7.106 el
+`rotate(180deg)` de siempre se cambió por un `scaleY(-1)` para que el vidrio no
+se saliera por los lados a media vuelta, y el remedio fue peor que la
+enfermedad: un estiramiento no se lee como voltear un reloj, se lee como arena
+subiendo y bajando. *«Debe ser rotatorio en circular, como cuando se pone de
+cabeza el reloj»*.
+
+Lo de salirse por los lados se arregla donde estaba el problema: **a mitad de
+la vuelta el vidrio se encoge un 14%**, como cuando lo levantas para darle la
+vuelta, y así pasa entre los postes sin desbordar. Medido: a 90 grados ocupa 46
+px de ancho contra los 52 de su caja — tres píxeles de sobra por lado.
+
+Y es una **animación** y no una transición, que no es un detalle: al acabar
+vuelve sola a `rotate(0)` —el estado en el que hay que redibujar la arena— y
+avisa con `animationend` en vez de con un cronómetro que puede desfasarse.
+Queda un plazo de seguridad por si el reloj cambia de dibujo a media vuelta: ahí
+el `animationend` no llega nunca y sin él la arena se quedaría congelada.
+
+**Gira el vidrio y no el conjunto**, y eso sí es a propósito: el marco es el pie
+—arco arriba, pedestal abajo— y darle media vuelta lo deja apoyado del revés. El
+vidrio es simétrico respecto al cuello, y por eso al terminar «abajo lleno,
+girado» y «arriba lleno, derecho» son el mismo dibujo.
+
+**2 · Al pausar en Hiperfoco salen dos salidas de la fase**: «Reiniciar fase» y
+«Saltar lo que queda». Solo en pausa —corriendo son ruido, lo que hay que hacer
+es enfocar— y se esconden solas al seguir.
+
+  - **Reiniciar** pone la fase a cero y la deja CORRIENDO: quien reinicia quiere
+    volver a empezar ahora, no volver a tocar Seguir. Cambia el `fid`, que es la
+    marca de «esta fase es otra»: sin eso la campana del final creería que ya
+    sonó.
+  - **Saltar no regala tiempo.** Termina la fase aquí poniéndole a `dur` lo que
+    de verdad llevabas, así que el registro apunta los minutos REALES. Medido:
+    saltar a los 7 minutos de una ronda de 25 apunta 7, no 25. Un botón que
+    apuntara la fase entera por saltarla sería una manera de mentirle al
+    informe.
+
+**3 · A qué hora acabas.** Debajo del reloj, un renglón con la hora estimada de
+final: **hora de ahora + lo que le queda a la fase**. Se calcula desde el reloj
+y no desde la hora a la que empezaste, y esa es toda la gracia — una pausa de
+diez minutos corre la hora diez minutos, que es lo que de verdad va a pasar. En
+pausa el rótulo lo dice: «Si sigues, acabas a las…», porque ahí no es una
+promesa sino lo que pasaría si le dieras a Seguir ahora.
+
+Sale en las dos pestañas, y solo cuando hay algo corriendo con final conocido.
+Los segundos se cortan hacia abajo y no se redondean: si la fase acaba a las
+10:46:44 todavía son las 10:46, y redondear escribiría una hora a la que ya
+habría terminado.
+
+Medido en escritorio y teléfono: el renglón cabe dentro del centro de la rueda
+—173 px de contenido en 208 de hueco, y 149 en 177 en el teléfono—, el aire
+antes de los controles sigue siendo el mismo 18, y la hora escrita cuadra con la
+cuenta a mano.
+
 ### 0.7.107.2 · 11 sep 2026
 
 **La barra lateral vuelve a su tamaño, y se quedan los tres arreglos.** Lo

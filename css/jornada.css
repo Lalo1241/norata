@@ -53,7 +53,12 @@
 .jor-lite .jor-arena.t-grande { --jor-alto: 186px; }
 .jor-lite #jor-tiempo { font-size: 64px; }
 .jor-lite #jor-fase { font-size: 14px; margin-top: 6px; }
-.jor-lite #jor-sub { font-size: 13px; margin-bottom: 18px; }
+.jor-lite #jor-sub { font-size: 13px; }
+.jor-lite #jor-fin { font-size: 12px; }
+/* El aire antes de los controles lo pone AHORA el bloque de abajo y no el
+   margen del subtítulo: con la hora de fin debajo, el subtítulo dejó de ser el
+   último renglón y ese margen quedaba en medio de los dos. */
+.jor-lite .jor-controles { margin-top: 14px; }
 .jor-lite .jor-controles { max-width: 420px; }
 .jor-pild[aria-pressed="true"] { border-color: var(--mint); background: var(--mint-soft); color: var(--mint); }
 
@@ -125,6 +130,15 @@ html.claro .jor-blq.ahora { filter: none; }
 #jor-fase.brasa { color: var(--fire); }
 #jor-fase.pausa { color: var(--coral); }
 #jor-sub { font-size: 11px; color: var(--muted); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* La hora a la que acaba la fase. Un peldaño por debajo del subtítulo —más
+   pequeña y en el gris más apagado—: es un dato para mirar de reojo, no algo
+   que haya que leer. Con cifras tabulares, que cambia cada segundo y sin ellas
+   el renglón baila. */
+#jor-fin {
+  font-size: 10.5px; color: var(--faint); margin-top: 2px;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+}
 
 /* ---------- El reloj de arena ---------- */
 /* Tres relojes (0.7.106): el alto dice cuánto tiempo mide, así que manda el
@@ -140,10 +154,36 @@ html.claro .jor-blq.ahora { filter: none; }
 .jor-arena.t-grande { --jor-alto: 74px; }
 .jor-arena.brasa { --jor-grano: var(--fire-macizo); }
 .jor-arena.pausa { --jor-grano: var(--coral-macizo); }
-/* Solo gira el dibujo, y su transición es de `transform`: nada que salga de
-   una variable, que es lo que Chrome deja congelado. */
-/* El punto de giro lo pone cada reloj en línea: es el centro de SU cuello. */
-#jor-giro { transform-box: view-box; transition: transform .9s cubic-bezier(.3, .7, .2, 1); }
+/* ---- El volteo: una vuelta de verdad, no un estirón ----
+   Media vuelta sobre el centro de SU cuello, que es el punto de giro que cada
+   reloj escribe en línea. En 0.7.106 se cambió por un `scaleY(-1)` para que el
+   vidrio no se saliera por los lados a media vuelta, y el remedio fue peor que
+   la enfermedad: un estiramiento no se lee como voltear un reloj, se lee como
+   arena subiendo y bajando. Lo paró Eduardo — «debe ser rotatorio en circular,
+   como cuando se pone de cabeza el reloj».
+
+   Y lo de salirse por los lados se arregla donde estaba: a mitad de la vuelta
+   el vidrio se encoge un poco, como cuando lo levantas para darle la vuelta, y
+   así pasa entre los postes sin desbordar.
+
+   Es una ANIMACIÓN y no una transición, y esa parte no es de adorno: al acabar
+   vuelve sola a `rotate(0)`, que es justo el estado en el que hay que redibujar
+   la arena, y avisa con `animationend` en vez de con un cronómetro que puede
+   desfasarse. Nada de esto sale de una variable, así que no cae en la trampa de
+   Chrome con las transiciones.
+
+   Gira el VIDRIO y no el conjunto: el marco es el pie —arco arriba, pedestal
+   abajo— y darle media vuelta lo deja del revés, apoyado en el arco. El vidrio
+   sí es simétrico respecto al cuello, y por eso al terminar la vuelta «abajo
+   lleno, girado» y «arriba lleno, derecho» son el mismo dibujo. */
+#jor-giro { transform-box: view-box; }
+#jor-giro.girando { animation: jor-voltear .9s cubic-bezier(.3, .7, .2, 1); }
+@keyframes jor-voltear {
+  from { transform: rotate(0deg); }
+  50% { transform: rotate(90deg) scale(.86); }
+  to { transform: rotate(180deg); }
+}
+@media (prefers-reduced-motion: reduce) { #jor-giro.girando { animation: none; } }
 /* Las tapas y los postes iban en `--card` y `--line`, casi el mismo tono que
    la tarjeta de detrás: a 56 px de alto las tapas no se veían y el reloj
    parecía un vaso suelto. Lo cazó Eduardo en la 0.7.101. Van un escalón más
@@ -183,6 +223,9 @@ html.claro .jor-arena-g { filter: none; }
 .jor-grande svg.lleno { fill: currentColor; stroke: none; }
 .jor-icono { width: 50px; height: 50px; padding: 0; border-radius: var(--r-redondo); display: grid; place-items: center; }
 .jor-chico { padding: 8px 12px; font-size: 13px; }
+/* La fila que aparece al pausar. Separada de los dos botones grandes y más
+   pequeña que ellos: son salidas, no la acción. */
+.jor-mas { margin-top: 2px; }
 .btn.seguro { background: var(--coral-soft); }
 .jor-regla { margin: 0; text-align: center; font-size: 12.5px; color: var(--muted); }
 /* Las salidas secundarias van como enlace y no como botón: «Enfocar de todos
