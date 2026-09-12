@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.108.1";
+const VERSION = "0.7.109";
 const VERSION_FECHA = "11 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -138,6 +138,35 @@ const ICONS = {
   /* Brújula distinta de `compass`, que ya existe y lo lleva «Noche de
      expedición»: aquélla es un aro con la aguja suelta, ésta tiene anilla. */
   "rango-brujula": '<ellipse cx="12" cy="3.4" rx="2.6" ry="1.3"/><path d="M10.8 4.6v1.6M13.2 4.6v1.6"/><circle cx="12" cy="14.3" r="7.6"/><path d="M15.9 10.5l-2.2 5.4-5.6 2.2 2.2-5.4z"/>',
+  /* ---- La cocina, y el descanso que viene detrás (0.7.109) ----
+     Los cinco los pidió Eduardo por su nombre, y cuatro son de comida porque
+     el catálogo no tenía ninguno: lo único de cocina era `coffee`, así que
+     «Cocinar», «Comer mejor» y «Repostería» salían las tres con la misma taza.
+
+     Los dos de carne se dibujaron TRES veces. Las dos primeras tandas eran un
+     lóbulo cerrado con el hueso pegado al lado como una raya aparte, y eso no
+     es un muslo: es un espejo de mano. Lo que los salva es que la silueta sea
+     UNA sola —la carne se estrecha y se vuelve hueso sin levantar el trazo— y
+     que los dos no compartan postura: el muslo va en diagonal con el hueso
+     largo hacia abajo, y el trozo va tumbado, más cuadrado y con el hueso
+     corto a la izquierda. Hay que distinguirlos a 20 px, que es el tamaño al
+     que se eligen, no al que se dibujan. */
+  cama: '<path d="M2.6 20.4v-6.6a2 2 0 012-2h14.8a2 2 0 012 2v6.6"/><path d="M5.4 11.8V8.2a2 2 0 012-2h9.2a2 2 0 012 2v3.6"/><path d="M12 6.2v5.6"/><path d="M2.6 17.4h18.8"/>',
+  /* Tenedor y cuchara: es el MISMO dibujo que el bloque de comer del Pomodoro,
+     y lo lee de aquí (`J_DESCANSOS`, js/09d-jornada.js). Dos copias del mismo
+     objeto se separan al primer retoque. */
+  cubiertos: '<path d="M7 3v7a2 2 0 004 0V3M9 12v9M16.5 3C15 4 14 6.2 14 9s1 3.5 2.5 3.5V21"/>',
+  /* El gorro de chef. La copa lleva TRES bultos y no una cúpula lisa: con un
+     solo arco arriba se lee como una lámpara o un tarro. Y la cinta es más
+     estrecha que la copa, que es lo que hace que la copa parezca hinchada. */
+  chef: '<path d="M6.6 13.8A3.8 3.8 0 019 6.2 4.6 4.6 0 0115 6.2 3.8 3.8 0 0117.4 13.8Z"/><path d="M8.4 13.8v6.1a1 1 0 001 1h5.2a1 1 0 001-1v-6.1"/><path d="M8.4 17.5h7.2"/>',
+  /* El muslo va en DIAGONAL y con la carne alargada, no con un lóbulo
+     redondo: con un círculo arriba y la raya del hueso abajo lo que sale es
+     una lupa, y en esta misma rejilla ya hay una llave que se le parecía. */
+  pollo: '<path d="M12.1 14.3L10.9 13.2A3.8 3.8 0 0016.3 13L17.9 11.3A3.8 3.8 0 0017.8 5.9L17.5 5.6A3.8 3.8 0 0012.1 5.8L10.5 7.5A3.8 3.8 0 0010.6 12.9L9.5 11.8L7.3 14.3A2.1 2.1 0 016.3 17.9A2.1 2.1 0 019.8 16.6Z"/>',
+  /* Y el trozo va TUMBADO y más cuadrado, con el hueso corto: puesto en la
+     misma postura que el muslo, los dos vecinos se leían igual. */
+  carne: '<path d="M10.8 14.7L10.6 14A3.6 3.6 0 0015.2 16.2L18.2 15.1A3.6 3.6 0 0020.3 10.4L19.4 8A3.6 3.6 0 0014.8 5.8L11.8 6.9A3.6 3.6 0 009.7 11.6L9.4 10.9L7.1 11.8A2.3 2.3 0 014.4 14.9A2.3 2.3 0 018.4 15.4Z"/>',
   star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 5.9-5.3-3-5.3 3 1.2-5.9L3.4 9.3l6-.7z"/>',
   bolt: '<path d="M13 2L5 14h6l-1 8 8-12h-6l1-8z"/>',
   /* El más: añadir algo. Dos trazos y nada más — sin círculo alrededor, porque
@@ -225,7 +254,28 @@ const ICONS = {
   eclipse: '<circle cx="12" cy="12" r="6.2"/><circle cx="12" cy="12" r="2.4"/><path d="M12 1.9v2.5M12 19.6v2.5M1.9 12h2.5M19.6 12h2.5M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/>'
 };
 
-const ICON_LIST = ["brush","pen","book","dumbbell","code","music","camera","mic","globe","coin","bulb","heart","flame","trophy","target","flag","wrench","coffee","plant","cap","chart","map","compass","crown","gem","gamepad","star","bolt","shield","smile","rod","goggles","key","papelera"];
+/* El orden de la rejilla no es el de cómo se fueron dibujando: los iconos van
+   en SECUENCIA por lo que tienen en común —crear, estudiar, cocinar, cuerpo,
+   calle, meta, chispa—, sin títulos ni cajas que los separen. Con treinta y
+   nueve iconos sueltos, encontrar el de cocina era repasarlos uno a uno; en
+   fila con sus vecinos, el ojo cae en la zona y ya solo elige dentro. Se
+   dividió en grupos con nombre en una primera prueba y era peor: cinco cajas
+   con título ocupan media pantalla y obligan a LEER para elegir un dibujo.
+
+   Al añadir un icono se mete JUNTO A LOS SUYOS, no al final. Y quien cambie
+   este orden mueve también lo que le toca de estreno a una habilidad nueva
+   —salen de aquí por posición (`ICON_LIST[i % ICON_LIST.length]`)—, que no
+   rompe nada: lo ya guardado se queda con el suyo. */
+const ICON_LIST = [
+  /* crear y contar */      "brush", "pen", "book", "camera", "music", "mic",
+  /* estudiar y trabajar */ "cap", "bulb", "code", "chart", "wrench",
+  /* cocina */              "chef", "cubiertos", "pollo", "carne", "coffee",
+  /* cuerpo y descanso */   "dumbbell", "heart", "plant", "cama",
+  /* fuera de casa */       "globe", "map", "compass", "rod", "goggles",
+  /* meta y premio */       "target", "flag", "trophy", "crown", "gem", "coin", "key", "shield",
+  /* chispa */              "star", "bolt", "flame", "smile", "gamepad",
+  /* y el bote */           "papelera"
+];
 
 const EMOJI_TO_ICON = {
   "🎨":"brush","🍳":"coffee","💪":"dumbbell","📚":"book","🎸":"music","💻":"code","🗣️":"mic","🧘":"heart",

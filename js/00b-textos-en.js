@@ -3381,5 +3381,9 @@ const TEXTOS_EN = {
   "Ver": "View",
   "Mientras no estabas · {0}": "While you were away · {0}",
   "Avisarme fuera de la app": "Notify me outside the app",
-  "Con un aviso del sistema que dice qué pasó": "With a system notification that says what happened"
+  "Con un aviso del sistema que dice qué pasó": "With a system notification that says what happened",
+
+  /* ---- La rejilla de iconos, plegada (0.7.109) ---- */
+  "Ver más iconos": "More icons",
+  "Ver menos": "Fewer icons"
 };

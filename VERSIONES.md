@@ -100,6 +100,70 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.109 · 11 sep 2026
+
+**Los iconos de una habilidad llegan plegados, ordenados por familias, y hay
+cinco nuevos.** Tres cosas de la misma pantalla, que es la de elegir el dibujo
+de una habilidad, un talento, una misión o un proyecto — la misma rejilla en
+los cuatro formularios.
+
+**Plegada a dos filas.** Con treinta y nueve iconos abiertos de golpe, la
+rejilla medía 344 px y empujaba el color, el decaimiento y el botón de guardar
+fuera de la pantalla: el formulario se leía como un catálogo de dibujos con un
+campo de nombre encima. Ahora mide 94 px —dos filas— y debajo va un botón que
+la abre. Medido en el teléfono (412 px), el formulario entero cabe sin
+desplazarse.
+
+El plegado se hace con un ALTO y no enseñando doce botones y escondiendo el
+resto: las columnas son seis en el teléfono y diez en escritorio, así que «dos
+filas» son doce iconos o veinte según dónde se mire, y un número escrito a mano
+acierta en una pantalla y falla en la otra. Para que ese alto sea exacto, las
+filas miden lo que dice `--fila-iconos` (`grid-auto-rows`) en vez de lo que
+sumen el relleno y el dibujo de dentro; comprobado en las dos anchuras, ningún
+botón queda cortado por la mitad.
+
+Tres casos que había que cerrar y están medidos:
+
+| | Qué pasa |
+| --- | --- |
+| Editar algo con un icono del final | la rejilla llega ABIERTA: enseñarle una rejilla donde su propia elección no está a la vista es enseñarle una donde nada está marcado |
+| Cambiar el color con la rejilla abierta | se queda abierta. Lo abierto se recuerda por rejilla (`REJILLAS`), no en una variable suelta: las cuatro viven a la vez en el HTML |
+| Estrenar una ficha nueva | su icono sale de esas dos primeras filas (`iconoDeEstreno`), o la rejilla se abriría sola para enseñárselo y no habría plegado nunca |
+
+**Y el orden deja de ser el de cómo se fueron dibujando.** Van en SECUENCIA por
+lo que tienen en común —crear, estudiar, cocinar, cuerpo, calle, meta,
+chispa—, sin títulos ni cajas que los separen: con treinta y nueve sueltos,
+encontrar el de cocina era repasarlos uno a uno. Se probó a dividirlos en
+grupos con nombre y era peor — cinco cajas con título ocupan media pantalla y
+obligan a LEER para elegir un dibujo. Al añadir uno se mete junto a los suyos.
+
+**Los cinco nuevos los pidió Eduardo por su nombre:** una cama, los cubiertos,
+un gorro de chef, un muslo de pollo y un trozo de carne. Cuatro son de comida
+porque el catálogo no tenía ninguno: lo único de cocina era `coffee`, así que
+«Cocinar», «Comer mejor» y «Repostería» salían las tres con la misma taza.
+
+Los cubiertos no son un dibujo nuevo: son los del bloque de comer del Pomodoro,
+que ahora los lee del catálogo (`ICONS.cubiertos`). Eran el mismo objeto escrito
+dos veces, y dos copias se separan al primer retoque.
+
+Los dos de carne se dibujaron tres veces, y el fallo de las dos primeras tandas
+vale para cualquier icono que venga detrás: **un lóbulo cerrado con una raya
+pegada al lado no es un muslo, es una lupa** — y en esta misma rejilla ya está
+la llave, que se le parecía tanto que había que mirar dos veces. Lo que los
+salva son dos cosas: que la silueta sea UNA sola —la carne se estrecha y se
+vuelve hueso sin levantar el trazo— y que los dos no compartan postura, el
+muslo en diagonal con el hueso largo y el trozo tumbado, más cuadrado y con el
+hueso corto. Se eligen a 20 px, que no es el tamaño al que se dibujan.
+
+El gorro lleva TRES bultos arriba y no una cúpula lisa, que se leía como una
+lámpara.
+
+Comprobado con la app servida y el navegador midiendo el DOM: los treinta y
+nueve iconos tienen dibujo, ninguno se sale de su caja de 24, las cuatro
+rejillas abren plegadas con su botón, guardar y volver a abrir conserva el
+icono nuevo, y ni la puerta ni el Pomodoro sueltan un error. En modo claro la
+tinta del botón es la menta oscura (`#007046`), que es la que se escribe.
+
 ### 0.7.108.1 · 11 sep 2026
 
 **Los tres relojes de arena, simétricos, y ahora gira el reloj ENTERO.** Es la
