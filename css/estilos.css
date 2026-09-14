@@ -4646,6 +4646,49 @@
     color: var(--mint);
   }
 
+  /* ================= El banner no sale en el teléfono =================
+
+     Los cuatro módulos abren con un `sectionHero`: un dibujo, cuatro cifras y
+     una línea de foco. En una pantalla ancha es un encabezado; en uno de
+     teléfono es media pantalla de informe **antes** de la primera cosa que se
+     puede tocar, y las misiones de hoy quedan debajo del doblez.
+
+     Lo paró Eduardo, y es la segunda vez que lo para: en 0.7.49 ya había
+     dicho que «los banners se comen la presencia de los módulos» y entonces
+     se adelgazó el velo. Adelgazarlo no bastó, porque el problema no era el
+     tono — era el sitio que ocupa.
+
+     **No se pierde nada, y esa es la razón de que esto pueda ser una regla de
+     CSS y no una discusión:** las cuatro cifras de cada banner viven también
+     en su informe, y el informe se alcanza desde la cabecera (`.ph-informe`,
+     justo abajo). El banner es un resumen de portada, no un dato único.
+
+     Se apaga desde el CSS y NO dejando de dibujarlo en JavaScript, por lo de
+     siempre en este proyecto: lo que se decide una vez en JS se queda con la
+     cara del momento en que se dibujó, así que al girar el teléfono o abrir
+     la ventana el banner no volvería. Aquí el corte lo lleva el navegador y
+     acierta siempre.
+
+     El corte son 900 px porque es el mismo que usa `isDesktop()` en
+     js/07-lienzo.js: un solo número decide qué es un teléfono en toda la app. */
+  @media (max-width: 899px) {
+    .sec-hero { display: none; }
+  }
+
+  /* La puerta al informe cuando el banner no está. Vive en la cabecera del
+     módulo y no debajo, y eso es lo que hace que esconder el banner GANE sitio
+     en vez de cambiar una caja grande por un botón: `.page-head` ya es un flex
+     con el título a la izquierda y el hueco libre a la derecha, así que este
+     botón no cuesta ni un píxel de alto.
+
+     Solo existe en el teléfono. Arriba de 900 px el banner está, y lleva su
+     propio «Ver el informe» dentro (`.sh-informe`): dos botones que van al
+     mismo sitio, a tres centímetros uno de otro, es peor que ninguno. */
+  .ph-informe { display: none; }
+  @media (max-width: 899px) {
+    .ph-informe { display: inline-flex; flex: 0 0 auto; margin-bottom: 2px; }
+  }
+
   /* ---------- Rama: el contenedor que se repite en toda la app ---------- */
   .sec-label {
     display: flex;
