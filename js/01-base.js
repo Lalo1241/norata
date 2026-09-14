@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.109.2";
+const VERSION = "0.7.110";
 const VERSION_FECHA = "13 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -182,7 +182,21 @@ const ICONS = {
      que lo vuelve cilindro y no bola— con un hueso saliendo por cada tapa,
      como lo pidió Eduardo y como se ve en su foto. */
   pollo: '<path d="M7.6 12.8L9.2 7A5.9 5.9 0 1116.4 14.2L10.6 15.8Z"/><path d="M8.3 13.5L5.3 15.5A1.65 1.65 0 104.3 18.2A0.9 0.9 0 015.2 19.1A1.65 1.65 0 107.9 18.1L9.9 15.1"/>',
-  carne: '<path d="M14.7 7.4A5.4 5.2 -22 006.9 10.5L9.3 16.6A5.4 5.2 -22 0017.1 13.5Z"/><path d="M16.4 11.6L17.5 11.7A1.6 1.6 0 1019.6 9.6A0.9 0.9 0 0119.1 8.4A1.6 1.6 0 1016.2 8.4L15.4 9.2"/><path d="M7.6 12.4L6.5 12.3A1.6 1.6 0 104.4 14.4A0.9 0.9 0 014.9 15.6A1.6 1.6 0 107.8 15.6L8.6 14.8"/>',
+  carne: '<path d="M14.1 8A4.6 4.4 -25 007.6 11L9.9 16A4.6 4.4 -25 0016.4 13Z"/><path d="M15.8 11.6L18.3 10.9A1.5 1.5 0 1020.1 8.9A0.85 0.85 0 0119.6 7.8A1.5 1.5 0 1016.9 7.9L14.8 9.4"/><path d="M8.2 12.4L5.7 13.1A1.5 1.5 0 103.9 15.1A0.85 0.85 0 014.4 16.2A1.5 1.5 0 107.1 16.1L9.2 14.6"/>',
+  /* El caramelo: cuerpo redondo y los dos extremos en PICO. Va junto al
+     trozo de carne a propósito, porque es el vecino que lo delata: lo que
+     antes se leía «caramelo» era la carne con el hueso corto, y puestos uno
+     al lado del otro se ve qué hace a cada uno lo que es —picos angulosos
+     contra nudillos redondos, y el caramelo derecho contra la carne
+     inclinada—. Lo pidió Eduardo al ver ese parecido. */
+  caramelo: '<ellipse cx="12" cy="12" rx="3.8" ry="3.5"/><path d="M15.8 12L20.2 8.6L20.2 15.4Z"/><path d="M8.2 12L3.8 8.6L3.8 15.4Z"/>',
+  /* Dormir, la otra cara de `cama`: una nube y dos zetas. Las zetas van
+     SEPARADAS de la nube y en diagonal, subiendo hacia la derecha. Pegadas al
+     hombro de la nube —que es donde caen si se reparte el cuadro a ojo— la
+     chica se mete dentro del bulto y se lee como un borrón. La grande no
+     cabe dos veces: con tres zetas hay que encogerlas hasta que a 20 px son
+     tres rayas. */
+  zzz: '<path d="M4.6 19.6h7.6a2.7 2.7 0 00.2-5.4 3.9 3.9 0 00-7.3-1 2.6 2.6 0 00-.5 6.4z"/><path d="M14.2 10.4h2.8l-2.8 3h2.8"/><path d="M17.8 2.6h4.2l-4.2 5h4.2"/>',
   star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 5.9-5.3-3-5.3 3 1.2-5.9L3.4 9.3l6-.7z"/>',
   bolt: '<path d="M13 2L5 14h6l-1 8 8-12h-6l1-8z"/>',
   /* El más: añadir algo. Dos trazos y nada más — sin círculo alrededor, porque
@@ -253,7 +267,12 @@ const ICONS = {
   close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
   settings: '<path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/>',
   /* Sol y luna: los dos modos de la app. Ocho rayos y no doce, porque a
-     15 px los doce se empastan en una rueda gris. */
+     15 px los doce se empastan en una rueda gris.
+
+     Desde la 0.7.110 están TAMBIÉN en el catálogo de la rejilla (`ICON_LIST`),
+     que es donde los pidió Eduardo. Se reutilizan y no se dibujan otra vez:
+     son el mismo objeto con el mismo significado, y dos soles distintos en la
+     misma app es la clase de detalle que nadie decide, solo se hereda. */
   sol: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.3M12 19.1v2.3M2.6 12h2.3M19.1 12h2.3M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/>',
   /* La luna va con el hueco a la DERECHA, mirando al sol de al lado: al
      revés los dos iconos se dan la espalda y la pareja se lee peor. */
@@ -285,8 +304,8 @@ const ICONS = {
 const ICON_LIST = [
   /* crear y contar */      "brush", "pen", "book", "camera", "music", "mic",
   /* estudiar y trabajar */ "cap", "bulb", "code", "chart", "wrench",
-  /* cocina */              "chef", "cubiertos", "pollo", "carne", "coffee",
-  /* cuerpo y descanso */   "dumbbell", "heart", "plant", "cama",
+  /* cocina */              "chef", "cubiertos", "pollo", "carne", "caramelo", "coffee",
+  /* cuerpo y descanso */   "dumbbell", "heart", "plant", "cama", "zzz", "luna", "sol",
   /* fuera de casa */       "globe", "map", "compass", "rod", "goggles",
   /* meta y premio */       "target", "flag", "trophy", "crown", "gem", "coin", "key", "shield",
   /* chispa */              "star", "bolt", "flame", "smile", "gamepad",

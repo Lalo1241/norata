@@ -100,6 +100,38 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.110 · 13 sep 2026
+
+**El hueso del trozo de carne se alarga, y entran cuatro iconos más: caramelo,
+dormir, luna y sol.** Los cuatro los pidió Eduardo por su nombre, y el hueso
+por el mismo motivo por el que existe el caramelo: *«parece un caramelo a como
+está ahorita»*.
+
+**Y tenía razón por una razón concreta: con el hueso corto, la carne y un
+caramelo son la misma silueta** —un bulto en medio y dos cosas a los lados—.
+Lo que las separa no es el detalle de los extremos, que a 20 px casi no se ve,
+sino CUÁNTO asoma: el hueso pasó de 2,6 a 4,0, y a partir de ahí el ojo lee dos
+huesos largos en vez de dos envoltorios. El caramelo entra al catálogo justo al
+lado, que es donde se comprueba: picos angulosos contra nudillos redondos, y el
+caramelo derecho contra la carne inclinada.
+
+**Dormir: una nube y dos zetas, con las zetas separadas de la nube.** Es la otra
+cara de `cama` —una es el mueble, la otra el sueño— y el reparto del cuadro es
+todo el trabajo: pegadas al hombro de la nube, que es donde caen si se reparte a
+ojo, la zeta chica se mete dentro del bulto y queda un borrón. Van en diagonal,
+subiendo hacia la derecha, y son DOS: con tres hay que encogerlas hasta que a
+20 px son tres rayas.
+
+**La luna y el sol no se dibujaron: ya estaban.** Son los del interruptor de
+modo claro/oscuro de Ajustes (`ICONS.sol`, `ICONS.luna`), y ahora están también
+en el catálogo de la rejilla. Dos soles distintos en la misma app es la clase de
+detalle que nadie decide, solo se hereda.
+
+Con esto el catálogo pasa de 39 a 43, y la rejilla sigue llegando plegada a dos
+filas: lo que se pliega es un ALTO, así que crece la parte de abajo y no la
+que se ve. Medido: los 43 tienen dibujo, ninguno se sale de su caja de 24, y la
+app no suelta un error.
+
 ### 0.7.109.2 · 13 sep 2026
 
 **El hueso se dibuja como en la lámina —de un trazo y con su cintura— y el
