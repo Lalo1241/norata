@@ -84,6 +84,113 @@ function responder(cuerpo: unknown, estado: number, origen: string | null) {
    anidados se escriben con corchetes en el nombre del campo. Se hace a mano
    y no con su libreria porque este proyecto no tiene paso de compilacion y
    no va a empezar a tenerlo por un `POST`. */
+async function stripeGet(ruta: string, llave: string) {
+  const res = await fetch(STRIPE + ruta, { headers: { "Authorization": "Bearer " + llave } });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error((json && json.error && json.error.message) || "Stripe respondio " + res.status);
+  }
+  return json;
+}
+
+/* ================= Lo que ya pagaste no se paga dos veces =================
+
+   Quien tiene Pro y se pasa a Fundador esta pagando un mes o un ano que ya
+   compro. Eduardo lo pidio con estas palabras: «si me brindan su confianza
+   para gastar cerca de 40 USD porque quieren mas de la app debe ser
+   respetable tambien».
+
+   Asi que se le descuenta la parte del periodo que todavia no ha gastado, y
+   se le descuenta AQUI —en un cupon aplicado al cobro— y no como saldo a
+   favor en Stripe. La diferencia importa: un saldo a favor se consume en la
+   SIGUIENTE factura, y Fundador es un pago unico que no tiene siguiente. El
+   abono habria quedado en la cuenta sin poder gastarse nunca.
+
+   Y se calcula en el servidor porque es dinero. La app enseña su propia
+   cuenta para que nadie llegue a ciegas, pero la que vale es esta: el
+   navegador no decide cuanto se le cobra a nadie.
+
+   ---- Las cuatro guardas, y por que cada una ----
+
+   1. Solo cuenta una suscripcion VIVA (`active` o `trialing`). Una cancelada
+      hace tiempo no tiene periodo que devolver.
+   2. El credito se topa por debajo del precio: un descuento igual o mayor
+      dejaria el cobro en cero y Stripe no abre una caja que no cobra nada.
+   3. Por debajo de un peso no se hace cupon. Un descuento de doce centavos no
+      es un gesto, es ruido en el recibo.
+   4. El cupon caduca en una hora y se puede usar UNA vez. Si abandonan el
+      pago, no queda un cupon suelto por ahi con el nombre de nadie.
+
+   Devuelve el id del cupon, o null si no hay nada que descontar. */
+async function cuponDeLoQueYaPago(
+  cliente: string | null,
+  precioFundador: string,
+  llave: string,
+): Promise<{ id: string; centavos: number } | null> {
+  if (!cliente) return null;
+
+  /* Se le pregunta a Stripe por las suscripciones del cliente en vez de fiarse
+     del `suscripcion` guardado en la tabla: esa columna puede venir de una
+     compra vieja, y aqui una respuesta desfasada es dinero mal cobrado. */
+  const lista = await stripeGet(
+    "/subscriptions?customer=" + encodeURIComponent(cliente) + "&status=active&limit=10",
+    llave,
+  );
+  const subs = Array.isArray(lista?.data) ? lista.data : [];
+  if (!subs.length) return null;
+
+  const ahora = Math.floor(Date.now() / 1000);
+  let credito = 0;
+  let moneda = "";
+
+  for (const sub of subs) {
+    if (sub.status !== "active" && sub.status !== "trialing") continue;
+    const renglon = sub.items?.data?.[0];
+    if (!renglon) continue;
+    const importe = Number(renglon.price?.unit_amount || 0);
+    if (!importe) continue;
+
+    /* `current_period_*` cambio de sitio entre versiones de la API de Stripe:
+       dejo de estar en la suscripcion y paso a cada renglon. Se prueban las
+       dos, igual que hace `aplicarSuscripcion` en cobro/index.ts — alli ya
+       costo que todo el mundo se quedara sin fecha. */
+    const desde = Number(sub.current_period_start ?? renglon.current_period_start ?? 0);
+    const hasta = Number(sub.current_period_end ?? renglon.current_period_end ?? 0);
+    if (!desde || !hasta || hasta <= desde) continue;
+
+    const restante = Math.max(0, Math.min(hasta - ahora, hasta - desde));
+    credito += Math.floor(importe * restante / (hasta - desde));
+    moneda = moneda || String(renglon.price?.currency || "");
+  }
+
+  if (credito <= 0 || !moneda) return null;
+
+  /* El precio de Fundador, para toparlo. Si por lo que sea no se puede leer,
+     se prefiere no descontar a descontar de mas. */
+  let tope = 0;
+  try {
+    const p = await stripeGet("/prices/" + encodeURIComponent(precioFundador), llave);
+    tope = Number(p?.unit_amount || 0);
+  } catch (_e) { /* sin tope fiable no se arriesga */ }
+  if (!tope) return null;
+
+  /* Guarda 2: nunca hasta cero. Se deja al menos un peso por cobrar. */
+  if (credito >= tope) credito = tope - 100;
+  /* Guarda 3: menos de un peso no merece un cupon. */
+  if (credito < 100) return null;
+
+  const cupon = await stripe("/coupons", {
+    "amount_off": String(credito),
+    "currency": moneda,
+    "duration": "once",
+    "max_redemptions": "1",
+    "redeem_by": String(ahora + 3600),
+    "name": "Lo que ya pagaste de tu plan",
+  }, llave);
+
+  return { id: cupon.id as string, centavos: credito };
+}
+
 async function stripe(ruta: string, campos: Record<string, string>, llave: string) {
   const cuerpo = new URLSearchParams(campos);
   const res = await fetch(STRIPE + ruta, {
@@ -219,10 +326,32 @@ Deno.serve(async (req: Request) => {
     "client_reference_id": uid,
     "metadata[user_id]": uid,
     "metadata[plan]": nombrePlan,
+  };
+
+  /* ---- El descuento de lo que ya pago, si viene de Pro ----
+     Va antes que `allow_promotion_codes` porque Stripe NO deja los dos a la
+     vez: una caja con descuento puesto no puede ademas pedir un codigo. Se
+     elige el descuento, que es dinero de la persona; el codigo promocional
+     sigue estando para todos los demas. */
+  let descuento: { id: string; centavos: number } | null = null;
+  if (nombrePlan === "fundador" && clienteYa) {
+    try {
+      descuento = await cuponDeLoQueYaPago(clienteYa, precio, LLAVE);
+    } catch (e) {
+      /* Que falle el abono no puede impedir la compra: se registra y se cobra
+         entero. Devolverle un error a quien queria pagar seria lo peor de las
+         dos opciones. El reembolso manual siempre queda. */
+      console.log("no se pudo calcular el abono:", (e as Error).message);
+    }
+  }
+  if (descuento) {
+    campos["discounts[0][coupon]"] = descuento.id;
+    campos["metadata[abono_centavos]"] = String(descuento.centavos);
+  } else {
     /* Que pueda meter un cupon. Cuesta un campo y ahorra tener que desplegar
        de nuevo el dia que quiera hacer una promocion. */
-    "allow_promotion_codes": "true",
-  };
+    campos["allow_promotion_codes"] = "true";
+  }
 
   if (clienteYa) {
     campos["customer"] = clienteYa;
