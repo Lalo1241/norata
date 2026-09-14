@@ -120,6 +120,47 @@ async function stripeGet(ruta: string, llave: string) {
   return json;
 }
 
+/* ================= Al hacerse fundador, se corta la suscripcion =================
+
+   Fundador es un pago unico y para siempre. Quien venia de Pro tiene ademas
+   una suscripcion viva, y si nadie la para le sigue cobrando $69 al mes por
+   algo que ya compro entero. Eso no es un detalle de contabilidad: es cobrarle
+   de mas todos los meses a quien mas confio.
+
+   Se cancela AL INSTANTE y no al final del periodo, y las dos mitades tienen
+   que ir juntas o el trato deja de ser justo: en `pagar/index.ts` se le
+   descuenta del precio la parte del periodo que no habia gastado, asi que ya
+   se le devolvio ese tiempo en dinero. Dejarla correr ademas hasta fin de mes
+   seria pagarle lo mismo dos veces.
+
+   Falla en silencio a proposito. Si Stripe no contesta, lo que NO puede pasar
+   es que se caiga el aviso entero y la persona se quede sin el plan que acaba
+   de pagar: el plan ya esta escrito cuando esto corre. Queda en el registro,
+   y una suscripcion de mas se cancela a mano en un minuto. */
+async function cortarSuscripciones(cliente: string, LLAVE: string): Promise<string> {
+  try {
+    const lista = await stripeGet(
+      "/subscriptions?customer=" + encodeURIComponent(cliente) + "&status=active&limit=10",
+      LLAVE,
+    );
+    const subs = Array.isArray(lista?.data) ? lista.data : [];
+    if (!subs.length) return "sin suscripcion que cortar";
+    const cortadas: string[] = [];
+    for (const s of subs) {
+      const res = await fetch(STRIPE + "/subscriptions/" + s.id, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + LLAVE },
+      });
+      if (res.ok) cortadas.push(s.id);
+      else console.log("no se pudo cancelar", s.id, await res.text());
+    }
+    return "canceladas: " + (cortadas.join(", ") || "ninguna");
+  } catch (e) {
+    console.log("fallo al cortar suscripciones:", (e as Error).message);
+    return "fallo al cortar (queda a mano)";
+  }
+}
+
 /* De que plan es un precio. Se resuelve por los identificadores guardados en
    los secretos y no por el importe: el dia que suba el precio, los cobros
    viejos siguen siendo del mismo plan. */
@@ -194,6 +235,31 @@ async function aplicarSuscripcion(
   const cliente = typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
   const uid = await duenoDe(SB, SERVICIO, sub.metadata, undefined, cliente);
   if (!uid) return "sin dueno";
+
+  /* ---- Fundador no se pisa NUNCA, y este es el agujero que lo pedia ----
+
+     La tabla tiene UNA fila por persona. Quien se pasa de Pro a Fundador deja
+     su suscripcion cancelandose, y esa cancelacion manda su propio aviso —que
+     llega DESPUES del pago—. Sin esta guarda, ese aviso entraba aqui, escribia
+     `plan: "mensual"` con su `vence_el`, y el fundador de hace treinta
+     segundos volvia a ser un Pro con fecha de caducidad. Pagado una vez y para
+     siempre, caducado al minuto.
+
+     No es hipotetico: es el orden normal de los avisos de Stripe, que llegan
+     desordenados a proposito (ver la decision 2 de arriba). Lo unico que
+     cambiaba era cual ganaba la carrera.
+
+     Se pregunta a la BASE y no a Stripe porque la pregunta es «que plan tiene
+     esta persona», y eso vive aqui. Fundador gana a cualquier suscripcion:
+     no hay ningun camino por el que alguien con Fundador deba bajar a Pro. */
+  const yaEs = await fetch(
+    SB + "/rest/v1/suscripciones?select=plan&user_id=eq." + uid,
+    { headers: { "Authorization": "Bearer " + SERVICIO, "apikey": SERVICIO } },
+  );
+  const filasYa = await yaEs.json();
+  if (Array.isArray(filasYa) && filasYa.length && filasYa[0].plan === "fundador") {
+    return "es fundador: no se toca (aviso de " + sub.id + ")";
+  }
 
   const renglon = sub.items?.data?.[0];
   const precio = renglon?.price?.id;
@@ -305,6 +371,14 @@ Deno.serve(async (req: Request) => {
             suscripcion: null,
           });
           resultado = "fundador";
+
+          /* Y se le corta la suscripcion que traia, si traia alguna. Va
+             DESPUES de guardar el plan a proposito: si Stripe tarda o falla,
+             la persona ya es fundador. Al reves, un fallo aqui la habria
+             dejado pagando y sin plan. */
+          if (dato.customer) {
+            resultado = "fundador (" + await cortarSuscripciones(String(dato.customer), LLAVE) + ")";
+          }
 
           /* Si el cupo se paso por uno o dos, se le da igual y se apunta en
              el registro. Cobrarle a alguien y luego decirle que no hay lugar

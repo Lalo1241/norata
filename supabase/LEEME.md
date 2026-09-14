@@ -260,6 +260,19 @@ engañar a su propia pantalla, y al recargar la mentira se cae sola.
    supabase functions deploy cobro --no-verify-jwt
    ```
 
+   **Y hay que volver a desplegarlas cada vez que cambien**, que es lo que se
+   olvida: estas dos funciones **no se publican con la app**. GitHub Pages sube
+   el HTML y el JavaScript; esto vive en Supabase y solo llega con el comando de
+   arriba. Una app nueva hablando con una función vieja no da ningún error — hace
+   algo distinto de lo que promete la pantalla, y en silencio.
+
+   El caso que lo demostró es de la 0.7.114: si la tarjeta de «Pasar a Fundador»
+   sale en la app y `pagar` todavía es la vieja, se cobran los $890 enteros sin
+   el descuento prometido; y si la vieja es `cobro`, **la suscripción sigue
+   cobrando después de la compra**, que es justo el fallo que esa versión vino a
+   cerrar. Así que el orden no es una preferencia: **primero las funciones,
+   después la app.**
+
 5. **Dar de alta el webhook en Stripe.** Developers → Webhooks → Add endpoint,
    apuntando a `https://<proyecto>.supabase.co/functions/v1/cobro`, con estos
    seis sucesos y no más:

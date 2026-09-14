@@ -1237,6 +1237,13 @@ function planActivoHTML() {
     filas.map(f => `<div><dt>${escapeHtml(f[0])}</dt><dd>${escapeHtml(f[1])}</dd></div>`).join("") +
     `</dl>` +
     planIncluyeHTML(true) +
+    /* El camino a Fundador va DESPUÉS de lo que ya tienes y ANTES de la tabla
+       comparativa y del botón de gestionar: primero se contesta «qué tengo»,
+       que es a lo que se entra, y solo entonces se ofrece lo otro. Delante
+       sería un anuncio; al final del todo, detrás del botón de cancelar, no lo
+       vería nadie. No sale para Fundador ni para la cuenta de casa: la propia
+       función se calla sola. */
+    planSubirAFundadorHTML() +
     planCompararHTML() +
     /* Fundador no tiene nada que gestionar —ni tarjeta que cambiar ni
        suscripción que cancelar—, pero sí recibos que mirar, así que el botón
@@ -1246,6 +1253,105 @@ function planActivoHTML() {
         PLAN.plan === "fundador" ? "Ver mi recibo" : tx("Editar suscripción")
       }</button>
        ` + planPortalNotaHTML());
+}
+
+/* ================= De Pro a Fundador =================
+
+   Faltaba, y no por olvido: la pantalla del plan activo contestaba «qué tengo»
+   y nunca «y si quiero más». Quien pagaba Pro no tenía ningún camino a
+   Fundador dentro de la app — ni un botón. El de la landing tampoco servía,
+   porque allí se entra sin sesión.
+
+   Eduardo lo pidió con una condición que manda sobre el resto: **no se le pone
+   condición a nadie.** Si alguien quiere pasarse, se pasa; y lo que ya pagó se
+   le descuenta, porque «si me brindan su confianza para gastar cerca de 40 USD
+   porque quieren más de la app debe ser respetable también».
+
+   ---- Por qué aquí se enseña una cuenta APROXIMADA ----
+
+   El descuento de verdad lo calcula `pagar/index.ts` contra el reloj de
+   Stripe, que es el único que sabe cuándo empezó el periodo. Aquí solo se sabe
+   cuándo TERMINA (`PLAN.vence_el`), así que el principio se deduce restando un
+   mes o un año. Sale igual salvo por horas.
+
+   Se enseña igualmente, y redondeando HACIA ABAJO a propósito: llegar a la
+   caja y encontrarse un descuento algo mayor del prometido es una sorpresa
+   buena; al revés es una mentira. Y no enseñar nada sería peor que las dos —
+   «te descontamos lo que llevas pagado» sin una cifra no tranquiliza a nadie,
+   que es justo lo que este bloque vino a hacer.
+
+   El importe exacto sale en la página de Stripe antes de meter la tarjeta, y
+   de ahí todavía se puede uno volver. */
+function planAbonoEstimado() {
+  if (!PLAN.pro || PLAN.plan === "fundador" || PLAN.deCasa) return 0;
+  if (PLAN.estado !== "activa" && PLAN.estado !== "prueba") return 0;
+  if (!PLAN.vence_el) return 0;
+
+  const p = PLANES[PLAN.plan];
+  if (!p) return 0;
+  const precio = Number(String(p.precio).replace(/[^0-9]/g, ""));
+  if (!precio) return 0;
+
+  const fin = new Date(PLAN.vence_el).getTime();
+  if (!fin || isNaN(fin)) return 0;
+
+  /* El principio del periodo, deducido del final. Es la única parte que aquí
+     se adivina, y por eso la cifra se llama «más o menos» en la pantalla. */
+  const ini = new Date(PLAN.vence_el);
+  if (PLAN.plan === "anual") ini.setFullYear(ini.getFullYear() - 1);
+  else ini.setMonth(ini.getMonth() - 1);
+
+  const total = fin - ini.getTime();
+  const queda = fin - Date.now();
+  if (total <= 0 || queda <= 0) return 0;
+
+  const abono = Math.floor(precio * Math.min(queda, total) / total);
+  /* El mismo tope que pone el servidor: nunca hasta cero, y por debajo de un
+     peso no se menciona. */
+  const f = Number(String(PLANES.fundador.precio).replace(/[^0-9]/g, ""));
+  return Math.max(0, Math.min(abono, f - 1));
+}
+
+function planSubirAFundadorHTML() {
+  if (!PLAN.pro || PLAN.plan === "fundador" || PLAN.deCasa) return "";
+
+  const f = PLANES.fundador;
+  const abono = planAbonoEstimado();
+  const precio = Number(String(f.precio).replace(/[^0-9]/g, ""));
+
+  /* Las tres de Fundador, dichas como lo que ganas y no como inventario. Son
+     las mismas que en las tarjetas de precio: un solo sitio decide qué trae. */
+  const trae = [
+    tx("Todo lo de Pro, sin fecha y sin renovaciones"),
+    tx("Reliquia, el mundo que solo tienen los fundadores"),
+    tx("Tu distintivo: el anillo lila y tu propia insignia")
+  ];
+
+  return `<h4 class="plan-h">${T`Pasar a ${NOMBRE_FUNDADOR}`}</h4>
+    <div class="panel plan-subir">
+      <p class="settings-note" style="margin-top:0">${
+        tx("Se paga una vez y ya no se renueva nunca. Tu suscripción se cancela sola en cuanto entra el pago, y no se te vuelve a cobrar.")
+      }</p>
+      <dl class="plan-datos">
+        <div><dt>${tx("Precio")}</dt><dd>${escapeHtml(f.precio)}</dd></div>
+        ${abono > 0 ? `
+        <div><dt>${tx("Lo que ya pagaste")}</dt><dd>− $${abono} MXN</dd></div>
+        <div><dt>${tx("Pagarías más o menos")}</dt><dd><b>$${precio - abono} MXN</b></dd></div>` : ""}
+      </dl>
+      ${/* La misma lista que usan las tarjetas de precio, con su propia
+            palomita puesta por CSS. Dibujarla aquí con `icon("check")` habría
+            sido una segunda forma de escribir una ventaja, y entonces son dos
+            las que hay que acordarse de cambiar. */""}
+      <ul class="plan-vent">
+        ${trae.map(t => `<li>${escapeHtml(t)}</li>`).join("")}
+      </ul>
+      ${abono > 0 ? `<p class="settings-note">${
+        tx("La cifra exacta la calcula Stripe con los días que te quedan y la ves antes de meter la tarjeta.")
+      }</p>` : ""}
+      <button class="btn btn-primary btn-block" style="margin-top:12px"
+        onclick="irAPagarDesdeAjustes('fundador', this)">${T`Quiero ${NOMBRE_FUNDADOR}`}</button>
+      <p class="settings-note" style="margin-bottom:0">${escapeHtml(garantiaTexto())}</p>
+    </div>`;
 }
 
 /* El rótulo de la tarjeta destacada. "El que sale mejor" sonaba a rebaja de

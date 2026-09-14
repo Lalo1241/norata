@@ -112,6 +112,85 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.114 · 14 sep 2026
+
+**De Pro a Fundador ya se puede, y lo que llevas pagado se te descuenta.**
+
+> **Ojo al desplegar: primero las funciones, después la app.** Las dos mitades
+> de esto viven en Supabase (`pagar` y `cobro`) y no se publican con GitHub
+> Pages. Si la tarjeta sale en la app antes de que estén desplegadas, quien la
+> use paga los $890 enteros **y su suscripción sigue cobrándole**, que es
+> exactamente el fallo que esta versión viene a cerrar. Los comandos, en
+> `supabase/LEEME.md`.
+
+Faltaba entero y no por olvido: la pantalla del plan contestaba «qué tengo» y
+nunca «y si quiero más». Quien pagaba Pro no tenía **ningún** camino a Fundador
+dentro de la app, y el de la landing tampoco servía porque allí se entra sin
+sesión. La condición de Eduardo manda sobre todo lo demás: *no se le pone
+condición a nadie* — si alguien quiere pasarse, se pasa.
+
+**Y lo que ya pagó se le descuenta**, con sus palabras: *«si me brindan su
+confianza para gastar cerca de 40 USD porque quieren más de la app debe ser
+respetable también»*.
+
+**Las tres piezas, y las tres hacen falta:**
+
+1. **`pagar` calcula el abono y lo mete en la caja como un cupón.** Se descuenta
+   ahí y no como saldo a favor en Stripe, y la diferencia no es de estilo: un
+   saldo a favor se consume en la SIGUIENTE factura, y Fundador es un pago único
+   que no tiene siguiente. El abono habría quedado en la cuenta sin poder
+   gastarse nunca.
+2. **`cobro` corta la suscripción en cuanto entra el pago.** Al instante y no a
+   fin de mes, y las dos mitades van juntas o el trato deja de ser justo: ya se
+   le devolvió ese tiempo en dinero, así que dejarla correr además sería pagarle
+   lo mismo dos veces.
+3. **La tarjeta en Ajustes**, entre «qué tienes abierto» y la tabla comparativa.
+   Delante sería un anuncio; al final, detrás del botón de cancelar, no la vería
+   nadie.
+
+**El fallo escondido que se cerró de paso, y era el peor de los tres.** La tabla
+tiene UNA fila por persona. Quien se pasa deja su suscripción cancelándose, y esa
+cancelación manda su propio aviso — que llega DESPUÉS del pago. Sin guarda, ese
+aviso entraba en `aplicarSuscripcion`, escribía `plan: "mensual"` con su
+`vence_el`, y **el fundador de hace treinta segundos volvía a ser un Pro con
+fecha de caducidad**. Pagado una vez y para siempre, caducado al minuto. No era
+hipotético: es el orden normal de los avisos de Stripe, que llegan desordenados a
+propósito. Lo único que cambiaba era quién ganaba la carrera. Ahora Fundador no
+se pisa nunca.
+
+**Por qué la app enseña una cifra aproximada.** El descuento de verdad lo calcula
+el servidor contra el reloj de Stripe, que es el único que sabe cuándo empezó el
+periodo; la app solo sabe cuándo termina, así que deduce el principio restando un
+mes o un año. Sale igual salvo por horas. Se redondea **hacia abajo a propósito**:
+encontrarse en la caja un descuento algo mayor del prometido es una sorpresa
+buena, al revés es una mentira. Y no enseñar cifra sería peor que las dos — «te
+descontamos lo que llevas pagado» sin un número no tranquiliza a nadie, que es lo
+único que ese bloque vino a hacer.
+
+**Las guardas del servidor**, que son donde se decide de verdad:
+
+- Solo cuenta una suscripción viva (`active` o `trialing`).
+- El crédito se topa por debajo del precio: un descuento igual o mayor dejaría el
+  cobro en cero, y Stripe no abre una caja que no cobra nada.
+- Por debajo de un peso no se hace cupón. Doce centavos no son un gesto, son
+  ruido en el recibo.
+- El cupón caduca en una hora y se usa una vez: quien abandone el pago no deja un
+  cupón suelto con su nombre.
+- Si el cálculo del abono falla, **se cobra entero y se apunta en el registro**.
+  Devolverle un error a quien venía a pagar sería lo peor de las dos opciones.
+- `allow_promotion_codes` se apaga cuando hay abono: Stripe no deja las dos cosas
+  a la vez, y entre el dinero de la persona y un código de promoción gana el
+  dinero de la persona.
+- Cortar la suscripción va DESPUÉS de guardar el plan, y falla en silencio: si
+  Stripe no contesta, la persona ya es fundador. Al revés se habría quedado
+  pagando y sin plan. Una suscripción de más se cancela a mano en un minuto.
+
+Comprobados los diez casos, no solo el feliz: mensual con 15 días (−$33), con 1
+día (−$2), anual con 300 días (−$484), cancelado pero todavía vivo (se le abona
+igual: lo pagó), impago, sin fecha, ya vencido, quien ya es fundador, la cuenta
+de casa y el plan Gratuito. En los tres últimos la tarjeta **no sale**, y la
+función se calla sola sin que quien la llama tenga que preguntar.
+
 ### 0.7.113 · 14 sep 2026
 
 **Modo dormir: la app entera se atenúa, y la rueda no se toca.** Lo pidió
