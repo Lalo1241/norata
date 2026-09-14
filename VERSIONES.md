@@ -112,6 +112,90 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.115 · 14 sep 2026
+
+**La puerta de dos columnas, en prueba y apagada.** Eduardo trajo la pantalla de
+entrar de Supabase: el formulario a la izquierda y, a la derecha, sitio para una
+frase. Y con ella una pregunta más grande —que la landing tenga DOS entradas
+distintas, una para quien ya tiene cuenta y otra para quien llega nuevo, cada
+una con su camino—. Las dos cosas son decisión suya, así que se suben **apagadas
+detrás de un parámetro**, que es la receta de la casa desde los tonos del modo
+claro (0.7.3.1).
+
+**Tres enlaces y nada más:**
+
+| Dirección | Qué enseña |
+| --- | --- |
+| `mi.norata.app/login/?puerta=dos` | La puerta de quien YA tiene cuenta: el formulario de entrar, y al lado la frase de bienvenida |
+| `mi.norata.app/login/?puerta=nuevo` | La puerta de quien llega de «Empieza gratis»: abre directamente en **crear cuenta**, y al lado lo que Norata hace |
+| `mi.norata.app/login/?puerta=no` | Apagarla |
+
+- **El formulario no cambia ni una línea.** Los botones, el orden de los campos,
+  Google, «probar sin cuenta» y el pie legal son exactamente los de siempre; lo
+  único que se añade es la columna de al lado.
+- **La frase la manda el FORMULARIO, no la dirección.** Las dos empiezan juntas
+  —quien entra por «soy nuevo» abre en crear cuenta y ve la frase de crear
+  cuenta—, pero desde dentro se salta de un formulario al otro con «Créala aquí»
+  y «Entra aquí», y una frase clavada a la puerta de entrada acabaría hablándole
+  a otra persona.
+- **En el teléfono el panel no desaparece: baja.** Se pone debajo del formulario
+  y se desplaza con él. Por eso el panel es HIJO de `#portada` y no un elemento
+  suelto —suelto se quedaría por debajo de una capa fija, sin poder
+  alcanzarse— y por eso se vuelve a pegar solo con un observador: `portadaPintar`
+  repinta con `innerHTML` y se lleva por delante cualquier hijo de fuera.
+  Enganchar uno a uno los seis caminos que repintan es la lista a la que siempre
+  le falta el séptimo.
+- **Nada de esto toca `js/10c-portada.js`**, que lo comparte la app: la misma
+  portada se abre desde Ajustes para crear la cuenta y ahí una segunda columna
+  no pinta nada. Todo vive en la puerta —`login/index.html` y `js/12-login.js`—
+  más un bloque de CSS con nombre propio.
+
+**Lo que cazó la medición, y que a ojo no se habría visto.** En columna, el
+`justify-content: center` que ya traía `.portada` centra en VERTICAL, y con el
+formulario de crear cuenta en un teléfono (683 px de alto en 844) los márgenes
+automáticos valen cero —así manda flexbox con el hueco en negativo— y entonces
+manda el centrado: **el principio del formulario quedaba 80 px por encima del
+borde de arriba, y a 480 px de alto, 262 px**. Ahí no llega el desplazamiento,
+que no va a números negativos: el «¿Cómo te llamas?» era inalcanzable. Es
+exactamente la trampa que ya está escrita en el bloque de `.portada`, y aun así
+volvió a morder por la puerta de al lado. Se cierra con `justify-content:
+flex-start` y repartiendo el hueco con `margin: auto`.
+
+**Y la prueba de que apagada no cambia nada:** foto de los estilos calculados de
+la puerta entera —dos anchos, los dos modos, 112 elementos— contra la misma
+puerta sin tocar. Diferencias: ninguna.
+
+**La pregunta que queda abierta, que es la de la landing.** Hoy hay una sola
+dirección (`/login/`) y las dos entradas de la landing tendrían que llevar a
+sitios que se sientan distintos. Tres formas, y la que no recomiendo es la que
+parece más limpia:
+
+1. **`/login/?nuevo`** (o el `?puerta=nuevo` de esta prueba, ya sin rótulo). No
+   cuesta nada: ni archivo nuevo, ni entrada en `ASSETS`, ni configuración en
+   Supabase. Y no la rompe ningún correo, porque `sbVuelta()` manda a volver sin
+   la consulta: el enlace del correo aterriza en `/login/` limpio.
+2. **`/crear/` como página propia.** Es lo que se pediría de primeras y tiene
+   cuatro costes que no se ven: dos entradas más en `ASSETS`, un segundo HTML
+   casi idéntico al de la puerta —que es como se desincronizan las cosas—, y
+   sobre todo **una dirección de vuelta más que dar de alta en Supabase**
+   (`redirect_to` sale de `location.pathname`, así que quien entre con Google
+   desde `/crear/` vuelve a `/crear/`, y lo que no esté en la lista de
+   permitidas rebota). Con eso encima, `/crear/` no puede ser un archivo suelto:
+   o comparte el de `/login/` o se convierte en dos puertas que mantener.
+3. **`/crear/` como desvío de una línea** a `/login/?nuevo`. La dirección bonita
+   para la landing y una sola puerta de verdad; se paga un parpadeo y una
+   entrada en `ASSETS`.
+
+Mientras no haya veredicto, lo que hay es la prueba: el camino partido ya
+funciona entero —abrir en un formulario o en el otro, con su frase— y la
+dirección se puede cambiar después sin tocar nada de lo de dentro.
+
+**Dos cosas que faltan si esto se queda:** las frases nuevas no están en
+`js/00b-textos-en.js`, así que en inglés saldrían en español; y el rótulo naranja
+de «puerta en prueba» se va con la prueba. **Qué borrar, por nombre y nunca por
+rango:** la lista exacta está al final del bloque `.puerta-lado` en
+`css/estilos.css`.
+
 ### 0.7.113.2 · 14 sep 2026
 
 **El botón de despertar sale de la penumbra, y de día se acaba el marrón.**
