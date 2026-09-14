@@ -100,6 +100,31 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.110.1 · 13 sep 2026
+
+**La luna, el sol y el caramelo crecen: en la rejilla se veían pequeños al lado
+de los demás.** Lo vio Eduardo de un vistazo, y midiéndolo tenía número: la
+diagonal media de los cuarenta y tres es 24,6, y esos tres estaban en 23,4, en
+26,6 —con un disco de 8,4 de diámetro, que es lo que de verdad se ve— y en 17,8,
+el más pequeño de todo el catálogo.
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| **luna** | 16,5 × 16,5 | 19,1 × 19,1 (la misma forma, un 15% mayor) |
+| **sol** | disco 4,2, rayos hasta 9,4 | disco 4,7, rayos hasta 10,2 |
+| **caramelo** | 16,4 × 7 | 19,2 × 10,4 |
+
+**Por qué venían chicos, que es lo que hay que recordar: el sol y la luna se
+dibujaron para un interruptor de 15 px**, el del aspecto en Ajustes, donde un
+dibujo compacto es exactamente lo que se quiere. Dentro de una rejilla, en
+cambio, un icono no se mide contra su hueco: se mide contra los cuarenta y dos
+de al lado. Al reutilizar un dibujo de un sitio en otro hay que volver a
+medirlo.
+
+El hueco entre el disco del sol y sus rayos se mantuvo en 0,9 al agrandarlo,
+que es lo que impide que a 15 px se fundan en una rueda gris — comprobado en el
+interruptor de Ajustes, que sigue igual de legible.
+
 ### 0.7.110 · 13 sep 2026
 
 **El hueso del trozo de carne se alarga, y entran cuatro iconos más: caramelo,

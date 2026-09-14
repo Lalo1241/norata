@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.110";
+const VERSION = "0.7.110.1";
 const VERSION_FECHA = "13 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -189,7 +189,7 @@ const ICONS = {
      al lado del otro se ve qué hace a cada uno lo que es —picos angulosos
      contra nudillos redondos, y el caramelo derecho contra la carne
      inclinada—. Lo pidió Eduardo al ver ese parecido. */
-  caramelo: '<ellipse cx="12" cy="12" rx="3.8" ry="3.5"/><path d="M15.8 12L20.2 8.6L20.2 15.4Z"/><path d="M8.2 12L3.8 8.6L3.8 15.4Z"/>',
+  caramelo: '<ellipse cx="12" cy="12" rx="4.4" ry="4.2"/><path d="M16.4 12L21.6 6.8L21.6 17.2Z"/><path d="M7.6 12L2.4 6.8L2.4 17.2Z"/>',
   /* Dormir, la otra cara de `cama`: una nube y dos zetas. Las zetas van
      SEPARADAS de la nube y en diagonal, subiendo hacia la derecha. Pegadas al
      hombro de la nube —que es donde caen si se reparte el cuadro a ojo— la
@@ -269,14 +269,21 @@ const ICONS = {
   /* Sol y luna: los dos modos de la app. Ocho rayos y no doce, porque a
      15 px los doce se empastan en una rueda gris.
 
+     Crecieron en la 0.7.110.1 —el disco de 4,2 a 4,7 y los rayos hasta 10,2—
+     porque en la rejilla se veían pequeños al lado de sus vecinos: venían de
+     un interruptor de 15 px, donde un dibujo compacto es lo que se quiere, y
+     ahí dentro un icono se mide contra los cuarenta y dos de al lado. El
+     hueco entre el disco y los rayos se mantuvo en 0,9, que es lo que impide
+     que a 15 px se fundan en una rueda.
+
      Desde la 0.7.110 están TAMBIÉN en el catálogo de la rejilla (`ICON_LIST`),
      que es donde los pidió Eduardo. Se reutilizan y no se dibujan otra vez:
      son el mismo objeto con el mismo significado, y dos soles distintos en la
      misma app es la clase de detalle que nadie decide, solo se hereda. */
-  sol: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.3M12 19.1v2.3M2.6 12h2.3M19.1 12h2.3M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/>',
+  sol: '<circle cx="12" cy="12" r="4.7"/><path d="M12 1.8v2.7M12 19.5v2.7M1.8 12h2.7M19.5 12h2.7M4.8 4.8l1.9 1.9M17.3 17.3l1.9 1.9M19.2 4.8l-1.9 1.9M6.7 17.3l-1.9 1.9"/>',
   /* La luna va con el hueco a la DERECHA, mirando al sol de al lado: al
      revés los dos iconos se dan la espalda y la pareja se lee peor. */
-  luna: '<path d="M20 14.2A8.4 8.4 0 019.8 4 8.4 8.4 0 1020 14.2z"/>',
+  luna: '<path d="M21.2 14.5A9.7 9.7 0 019.5 2.8 9.7 9.7 0 1021.2 14.5z"/>',
   /* El sol eclipsado: anillo encendido y centro muerto. Es el sello de Averno,
      y va aquí y no con sus vectores porque el icono de un mundo sale de este
      mapa —lo pide `js/10i-apariencia.js` por nombre—, igual que Reliquia usa
