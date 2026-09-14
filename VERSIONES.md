@@ -100,6 +100,28 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.110.4 · 13 sep 2026
+
+**Dos dibujos viejos que llevaban ahí desde el principio: el corazón se abría
+por abajo y las barras no estaban centradas sobre su base.** Los dos los cazó
+Eduardo mirando la rejilla, y los dos son fallos que no se ven en el dibujo
+grande: aparecen a 20 px, que es el tamaño al que se usan.
+
+**El corazón cerraba en dos puntas.** Traía dos curvas que acababan en el mismo
+sitio por caminos distintos, y ahí abajo le salía una horquilla —dos picos y un
+pellizco en medio—. Ahora los dos lados son la misma curva espejada y los
+lóbulos son dos arcos de radio 4,8: una sola descripción de la mitad, así que
+la simetría no puede salir mal. Medido, su caja cae centrada en x = 12 exacto.
+
+**Y la gráfica estaba escorada aunque cada pieza estuviera bien.** Las barras
+iban en 4, 10 y 16 con la base de 2 a 22: dos de margen a la izquierda y seis a
+la derecha. Ahora la base va de 3 a 21 —centro en 12, como todo lo demás— y las
+barras a 7,5, 12 y 16,5, con 4,5 a cada lado y la del medio en el eje del
+cuadro.
+
+Es la misma lección que la del sol dos versiones atrás, por el otro lado: un
+icono no se mira solo, se mira dentro de su caja y al lado de los demás.
+
 ### 0.7.110.3 · 13 sep 2026
 
 **El caramelo se convierte en paleta, y el trozo de carne crece otro punto.**

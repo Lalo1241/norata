@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.110.3";
+const VERSION = "0.7.110.4";
 const VERSION_FECHA = "13 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -81,7 +81,13 @@ const ICONS = {
      dibuja una "Ƨ" espejada, que es lo que tenía antes. */
   coin: '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M14.5 9.7c0-1-1.1-1.7-2.5-1.7s-2.5.7-2.5 1.7 1 1.5 2.5 1.8 2.5.8 2.5 1.8-1.1 1.7-2.5 1.7-2.5-.7-2.5-1.7"/>',
   bulb: '<path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0012 2z"/>',
-  heart: '<path d="M12 20.5s-7.4-4.8-9.4-9.2C1.4 8.4 3.3 5.5 6.4 5.5c2 0 3.3 1.1 4.1 2.5.8-1.4 2.1-2.5 4.1-2.5 3.1 0 5 2.9 3.8 5.8-2 4.4-9.4 9.2-9.4 9.2z"/>',
+  /* El corazón se cierra en UNA punta. El de antes traía dos curvas que
+     acababan en el mismo sitio por caminos distintos y abajo se le abría una
+     horquilla —dos picos y un pellizco en medio—, que es lo que se ve a 20 px
+     y no en el dibujo grande. Lo paró Eduardo. Ahora los dos lados son la
+     misma curva espejada y los lóbulos son dos arcos de radio 4,8: una sola
+     descripción de la mitad, así que la simetría no puede salir mal. */
+  heart: '<path d="M12 20.6C9 18 2.8 13.8 2.8 9.4A4.8 4.8 0 0 1 12 7.6A4.8 4.8 0 0 1 21.2 9.4C21.2 13.8 15 18 12 20.6Z"/>',
   flame: '<path d="M12 22c4.4 0 7-2.9 7-6.5 0-4.5-4-6.3-4.5-10C13 7 11 8.5 11 11c-1.5-.6-2-2.3-1.8-4C6.5 8.8 5 11.5 5 15.5 5 19.1 7.6 22 12 22z"/>',
   trophy: '<path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0z"/><path d="M7 6H4a3 3 0 003 5M17 6h3a3 3 0 01-3 5"/>',
   target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
@@ -90,7 +96,12 @@ const ICONS = {
   coffee: '<path d="M18 8h1a4 4 0 010 8h-1M2 8h16v6a4 4 0 01-4 4H6a4 4 0 01-4-4z"/><path d="M6 1v3M10 1v3M14 1v3"/>',
   plant: '<path d="M12 22V8M12 8C12 5 9 3 6 3c0 3 2 5.5 6 5M12 12c0-3 3-5 6-5 0 3-2 5.5-6 5"/>',
   cap: '<path d="M22 9L12 4 2 9l10 5z"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5"/>',
-  chart: '<path d="M4 20v-6M10 20V6M16 20v-9M2 20h20"/>',
+  /* Las barras van CENTRADAS sobre su base. Estaban en 4, 10 y 16 con la
+     base de 2 a 22: dos de margen a la izquierda y seis a la derecha, y el
+     dibujo se leía escorado aunque cada pieza estuviera bien. Ahora la base
+     va de 3 a 21 —centro en 12, como todo lo demás— y las barras a 7,5, 12 y
+     16,5, que deja 4,5 a cada lado. La del medio cae en el eje del cuadro. */
+  chart: '<path d="M3 20h18"/><path d="M7.5 20v-6M12 20v-14M16.5 20v-9"/>',
   map: '<path d="M1 6v16l7-3 8 3 7-3V3l-7 3-8-3z"/><path d="M8 3v16M16 6v16"/>',
   compass: '<circle cx="12" cy="12" r="10"/><path d="M16 8l-2.5 6L8 16l2.5-6z"/>',
   crown: '<path d="M3 18h18M4 18l-1-9 5 3 4-6 4 6 5-3-1 9z"/>',
