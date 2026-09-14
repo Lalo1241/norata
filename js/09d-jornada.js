@@ -510,14 +510,14 @@ function jBuenasNoches() {
   save(); jModoDormir(); jPintar();
   toast(tx("Que descanses. Al despertar, toca «Buenos días»."), "calma");
 }
-function jBuenosDias() {
+function jBuenosDias(desde) {
   const j = jDatos(), d = j.dormido;
   if (!d) return;
   const min = Math.max(1, Math.round((Date.now() - d.inicio) / J_MS));
   j.registro.unshift({ id: uid(), fecha: todayKey(), tipo: "sueno", inicio: d.inicio, fin: Date.now(), min, bloque: d.bloque });
   j.registro = j.registro.slice(0, J_REG_MAX);
   j.dormido = null;
-  save(); jModoDormir(); jPintar();
+  save(); jAmanecer(desde); jPintar();
   toast(T`Buenos días · dormiste ${jFmtDur(min)}`, "logro");
 }
 /* Media hora antes de dormir. Una vez por noche y por bloque: la marca lleva
@@ -643,8 +643,60 @@ function jArco(ini, d) {
   const [x1, y1] = jPt(J_RO, ini), [x2, y2] = jPt(J_RO, ini + d), [x3, y3] = jPt(J_RI, ini + d), [x4, y4] = jPt(J_RI, ini);
   return `M${x1} ${y1}A${J_RO} ${J_RO} 0 ${large} 1 ${x2} ${y2}L${x3} ${y3}A${J_RI} ${J_RI} 0 ${large} 0 ${x4} ${y4}Z`;
 }
+/* Una línea curva suelta: el hilo de guía y el arco de lo que va del día. */
+function jArcoLinea(r, ini, fin) {
+  const d = ((fin - ini + J_DIA) % J_DIA) || J_DIA;
+  const [x1, y1] = jPt(r, ini), [x2, y2] = jPt(r, fin);
+  return `M${x1} ${y1}A${r} ${r} 0 ${d > 720 ? 1 : 0} 1 ${x2} ${y2}`;
+}
+/* ---- El gajo, con las cuatro esquinas redondeadas (0.7.114) ----
+   El mismo gajo de siempre: mismo ancho, mismos radios, solo sin el pico. Con
+   `k` en 0 sale exactamente el de antes. Ni punta redonda entera —dos vecinos
+   dejaban una junta blanda y no se veía dónde acababa uno— ni filo, que picaba
+   de más; Eduardo lo afinó en el boceto y se quedó en 7.
+   El radio de la esquina se mide en el arco, así que un gajo corto lo recorta
+   solo: si no cabe, se dibuja el gajo de siempre. */
+const J_ESQ = 7;
+function jGajo(ini, d, rIn, rOut, k) {
+  rIn = rIn || J_RI; rOut = rOut || J_RO;
+  k = Math.min(k === undefined ? J_ESQ : k, (rOut - rIn) / 2 - 0.5, ((d / J_DIA) * 2 * Math.PI * rIn) / 2 - 0.5);
+  const t1 = ini / J_DIA * Math.PI * 2, t2 = (ini + d) / J_DIA * Math.PI * 2;
+  const P = (r, t) => `${(J_C + r * Math.sin(t)).toFixed(2)} ${(J_C - r * Math.cos(t)).toFixed(2)}`;
+  const A = (r, l, s, x) => `A${r.toFixed(2)} ${r.toFixed(2)} 0 ${l} ${s} ${x}`;
+  const grande = d > 720 ? 1 : 0;
+  if (k <= 1) return `M${P(rOut, t1)}${A(rOut, grande, 1, P(rOut, t2))}L${P(rIn, t2)}${A(rIn, grande, 0, P(rIn, t1))}Z`;
+  const dO = k / rOut, dI = k / rIn;
+  return `M${P(rOut, t1 + dO)}` +
+    A(rOut, (t2 - t1 - 2 * dO) > Math.PI ? 1 : 0, 1, P(rOut, t2 - dO)) +
+    A(k, 0, 1, P(rOut - k, t2)) + `L${P(rIn + k, t2)}` +
+    A(k, 0, 1, P(rIn, t2 - dI)) +
+    A(rIn, (t2 - t1 - 2 * dI) > Math.PI ? 1 : 0, 0, P(rIn, t1 + dI)) +
+    A(k, 0, 1, P(rIn + k, t1)) + `L${P(rOut - k, t1)}` +
+    A(k, 0, 1, P(rOut, t1 + dO)) + "Z";
+}
+/* El borde de un gajo es SU color muy atenuado, no el fondo: con el fondo por
+   borde, lo que está pasando ahora parecía recortado con tijeras. Sigue
+   separando a dos vecinos, porque cada uno trae el suyo. */
+const jBordeBloque = col => `color-mix(in srgb, ${col} 42%, var(--jor-sep))`;
+/* El asa: una barrita delgada cruzada sobre el aro. Se VE fina y se AGARRA
+   ancho —el rectángulo transparente de detrás mide 34×46—, así que el dibujo
+   no tiene que engordar para que se atine con el dedo. */
+function jAsaHTML(k, min) {
+  const [x, y] = jPt(J_RM, min);
+  return `<g class="jor-asa-g" data-h="${k}" transform="translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${(min / J_DIA * 360).toFixed(2)})">
+    <rect x="-17" y="-23" width="34" height="46" fill="transparent"/>
+    <rect class="jor-asa" x="-3.5" y="-14" width="7" height="28" rx="3"/></g>`;
+}
+/* El fondo del aro NO se pinta (0.7.114): era una rosquilla gris llena aunque
+   el día estuviera vacío, y lo que se tiene que ver es TU día. En su lugar,
+   dos hilos de guía que enmarcan por dónde va el aro y los puntos de las
+   medias horas. Lo de fuera —marcas de hora, números, aguja— no se toca. */
 function jBaseRueda() {
-  let h = `<circle class="jor-carril" cx="${J_C}" cy="${J_C}" r="${J_RM}" stroke-width="${J_RO - J_RI}"/>`;
+  let h = `<circle class="jor-guia" cx="${J_C}" cy="${J_C}" r="${J_RI - 3}"/><circle class="jor-guia" cx="${J_C}" cy="${J_C}" r="${J_RO + 2}"/>`;
+  for (let i = 1; i < 48; i += 2) {
+    const [x, y] = jPt(J_RI - 3, i * 30);
+    h += `<circle class="jor-media" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="1.1"/>`;
+  }
   for (let i = 0; i < 24; i++) {
     const mayor = i % 6 === 0;
     const [x1, y1] = jPt(J_RO + 3, i * 60), [x2, y2] = jPt(J_RO + (mayor ? 10 : 6), i * 60);
@@ -663,11 +715,21 @@ let jSelId = null;
 /* El bloque que va en el aire ahora mismo. Se pinta el ÚLTIMO —en SVG no hay
    z-index, manda el orden— o pasaría por DEBAJO de lo que está cruzando. */
 let jVolando = null;
+/* A qué hora caería si lo soltaras aquí: el mismo sitio, o el hueco libre más
+   cercano. Se calcula en cada paso del arrastre y se dibuja punteado. */
+let jDestino = null;
 function jPintarRueda() {
   const g = document.getElementById("jor-bloques-svg");
   if (!g) return;
   let h = "";
   const ahora = jAhora();
+  /* Lo que va del día, en un hilo por dentro del aro. */
+  if (ahora > 0) h += `<path class="jor-transcurrido" d="${jArcoLinea(J_RI - 8, 0, ahora)}"/>`;
+  /* Y el hueco al que caería lo que llevas en la mano, dibujado entero. */
+  if (jDestino != null && jVolando) {
+    const v = jDatos().bloques.find(x => x.id === jVolando);
+    if (v) h += `<path class="jor-destino" d="${jGajo(jDestino, jDur(v), J_RI + 2, J_RO - 2)}" style="fill:${jColorBloque(v)};fill-opacity:.2"/>`;
+  }
   const bloques = jVolando
     ? [...jDatos().bloques].sort((x, y) => (x.id === jVolando) - (y.id === jVolando))
     : jDatos().bloques;
@@ -681,20 +743,21 @@ function jPintarRueda() {
     /* En coral y con el trazo cortado solo mientras lo arrastras por encima de
        otro: ahí no se queda tal cual, al soltarlo se irá al hueco más cercano. */
     const vuela = b.id === jVolando, encima = vuela && !!jChoca(b.ini, b.fin, b.id);
-    h += `<path class="jor-blq${b.id === jSelId ? " sel" : ""}${enCurso ? " ahora" : ""}${vuela ? " volando" : ""}${encima ? " encima" : ""}" data-id="${b.id}" d="${jArco(b.ini, d)}" style="fill:${col};--jor-brillo:${col}"/>`;
+    /* Pisando a otro, el gajo SALE del aro a la órbita de fuera: dos bloques
+       no pueden encimarse, y verlo levantado lo dice antes de soltarlo. */
+    const rIn = encima ? J_RO + 6 : J_RI, rOut = encima ? J_RO + 30 : J_RO;
+    const rm = (rIn + rOut) / 2;
+    h += `<path class="jor-blq${b.id === jSelId ? " sel" : ""}${enCurso ? " ahora" : ""}${vuela ? " volando" : ""}${encima ? " orbita" : ""}" data-id="${b.id}" d="${jGajo(b.ini, d, rIn, rOut)}" style="fill:${col};--jor-brillo:${col};--jor-borde:${jBordeBloque(col)}"/>`;
     if (d >= 60) {
-      const [x, y] = jPt(J_RM, b.ini + d / 2);
+      const [x, y] = jPt(rm, b.ini + d / 2);
       h += `<svg class="jor-blq-ic${b.descanso && !b.color ? " descanso" : ""}" x="${x - 8}" y="${y - 8}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${jIconoBloque(b)}</svg>`;
     }
   }
   g.innerHTML = h;
   const svg = document.getElementById("jor-svg");
   if (svg) svg.classList.toggle("jor-quieta", !!jQuieta());
-  const s = jQuieta() ? null : jDatos().bloques.find(b => b.id === jSelId);
-  document.getElementById("jor-asas").innerHTML = s ? ["ini", "fin"].map(k => {
-    const [x, y] = jPt(J_RM, s[k]);
-    return `<g class="jor-asa-g" data-h="${k}"><circle cx="${x}" cy="${y}" r="18" fill="transparent"/><circle class="jor-asa" cx="${x}" cy="${y}" r="8"/></g>`;
-  }).join("") : "";
+  const s = (jQuieta() || jVolando) ? null : jDatos().bloques.find(b => b.id === jSelId);
+  document.getElementById("jor-asas").innerHTML = s ? jAsaHTML("ini", s.ini) + jAsaHTML("fin", s.fin) : "";
 }
 function jPintarAguja() {
   const a = document.getElementById("jor-aguja");
@@ -712,7 +775,9 @@ function jMinEn(svg, e) {
    bloque no se le puede comer al de al lado, así que durante el arrastre no
    cambian. Mover el bloque ENTERO ya no los mira (0.7.109): vuela libre. */
 function jVecinos(b) {
-  const otros = jDatos().bloques.filter(o => o !== b);
+  /* Por id además de por identidad: el borrador de la hoja tiene el id de un
+     bloque guardado pero es otro objeto, y sin esto sería su propio vecino. */
+  const otros = jDatos().bloques.filter(o => o !== b && o.id !== b.id);
   let prev = null, next = null, dp = 1e9, dn = 1e9;
   for (const o of otros) {
     const n = (o.ini - b.ini + J_DIA) % J_DIA; if (n > 0 && n < dn) { dn = n; next = o; }
@@ -758,14 +823,18 @@ function jHuecoCerca(ini, d, id) {
   return null;
 }
 function jAterrizar(b, ini0) {
-  if (!jChoca(b.ini, b.fin, b.id)) return;
+  const pisado = jChoca(b.ini, b.fin, b.id);
+  if (!pisado) return;
   const d = jDur(b), c = jHuecoCerca(b.ini, d, b.id);
+  /* El aro ya lo dijo con el color mientras arrastrabas; lo que pasó con TU
+     bloque se cuenta en palabras: con qué chocaste, qué se hizo y dónde quedó. */
   if (c == null) {
     b.ini = ini0; b.fin = (ini0 + d) % J_DIA;
-    toast(tx("No cabe: a esa hora la rueda está llena"), "atencion");
+    toast(T`«${jNombreBloque(pisado)}» ya ocupa esa hora, y no hay ningún hueco de ${jFmtDur(d)} libre. Tu bloque volvió a las ${jH12(ini0)}.`, "atencion");
     return;
   }
   b.ini = c; b.fin = (c + d) % J_DIA;
+  toast(T`«${jNombreBloque(pisado)}» ya ocupa esa hora. Tu bloque se acomodó en el hueco libre de las ${jH12(c)}.`, "atencion");
 }
 function jEngancharRueda(svg) {
   let arr = null;
@@ -813,12 +882,13 @@ function jEngancharRueda(svg) {
       const delta = ((jMinEn(svg, e) - arr.m0 + 720) % J_DIA + J_DIA) % J_DIA - 720;
       const ini = jSnap(arr.ini0 + delta);
       b.ini = ini; b.fin = (ini + d) % J_DIA;
+      jDestino = jChoca(b.ini, b.fin, b.id) ? jHuecoCerca(b.ini, d, b.id) : null;
     }
     jPintarRueda(); jPintarLista();
   });
   const soltar = () => {
     if (!arr) return;
-    const a = arr; arr = null; jVolando = null;
+    const a = arr; arr = null; jVolando = null; jDestino = null;
     if (a.movido && a.modo === "todo") jAterrizar(a.b, a.ini0);
     if (a.movido) save();
     else if (a.modo === "todo" && a.ya) jAbrirBloque(a.b.id);
@@ -1379,8 +1449,32 @@ let jCuartoAntes = -1;
    (css/jornada.css). Vive aquí y no en el CSS de la casa porque el dato es
    del Pomodoro, y se apaga sola si el módulo está apagado. */
 function jModoDormir() {
+  if (jAmaneciendo) return;          // a media luz no se toca el interruptor
   const on = jornadaEncendida() && !!jDatos().dormido;
   document.documentElement.classList.toggle("durmiendo", on);
+}
+/* ---- El amanecer (0.7.114) ----
+   Quitar el velo de golpe era un parpadeo. La luz entra DESDE EL BOTÓN: una
+   máscara circular que se abre desde donde tocaste y se lleva la penumbra por
+   delante. Por eso hacen falta las coordenadas del botón —el gesto tiene que
+   salir de donde pusiste el dedo, o se nota postizo— y por eso el velo no se
+   quita hasta que la máscara termina.
+   Con «menos movimiento» puesto no hay máscara: se quita y ya. */
+let jAmaneciendo = false;
+function jAmanecer(desde) {
+  const raiz = document.documentElement;
+  const r = desde && desde.getBoundingClientRect ? desde.getBoundingClientRect() : null;
+  raiz.style.setProperty("--jor-x", r ? `${Math.round(r.left + r.width / 2)}px` : "50%");
+  raiz.style.setProperty("--jor-y", r ? `${Math.round(r.top + r.height / 2)}px` : "70%");
+  let quieto = false;
+  try { quieto = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { /* sin matchMedia, que se anime */ }
+  if (quieto) { raiz.classList.remove("durmiendo"); return; }
+  jAmaneciendo = true;
+  raiz.classList.add("despertando");
+  setTimeout(() => {
+    jAmaneciendo = false;
+    raiz.classList.remove("despertando", "durmiendo");
+  }, 950);
 }
 /* ---- Cuándo la rueda se queda quieta (0.7.113) ----
    Dos casos, y no son el mismo:
@@ -1530,15 +1624,126 @@ function jAbrirBloque(id) {
    forma de ver dónde iba a caer lo nuevo: se guardaba y luego se miraba. Lo
    pidió Eduardo. Es la MISMA rueda, en pequeño y solo para mirar —sin asas y
    sin arrastre—, con lo que ya hay apagado y lo nuevo en primer plano. */
-function jPreviaRueda(e) {
-  const otros = jDatos().bloques.filter(b => b.id !== e.id)
-    .map(b => `<path class="jor-blq otro" d="${jArco(b.ini, jDur(b))}" style="fill:${jColorBloque(b)}"/>`).join("");
-  const d = ((e.fin - e.ini + J_DIA) % J_DIA) || J_DIA;
-  return `<svg class="jor-previa" viewBox="0 0 320 320" role="img" aria-label="${escapeAttr(tx("Dónde queda en tu día"))}">
-    <g>${jBaseRueda()}</g>${otros}
-    <path class="jor-blq nuevo" d="${jArco(e.ini, d)}" style="fill:${jColorBloque(e)}"/>
-    <g class="jor-aguja" transform="rotate(${jAhora() / J_DIA * 360} ${J_C} ${J_C})"><line x1="${J_C}" y1="${J_C - J_RI + 6}" x2="${J_C}" y2="${J_C - J_RO - 9}"/><circle cx="${J_C}" cy="${J_C - J_RO - 9}" r="3.5"/></g>
-  </svg>`;
+/* ---- Guardar el borrador de la hoja ----
+   Devuelve false cuando no se puede: se encima con otro bloque, o no tiene ni
+   nombre ni con qué vincularse. Vive aparte del botón porque al cambiarte de
+   bloque dentro de la hoja hay que guardar antes lo que llevas escrito. */
+function jGuardarBloque() {
+  const j = jDatos();
+  if (jChoca(jEdit.ini, jEdit.fin, jEdit.id)) return false;
+  if (!jEdit.descanso && !jRef(jEdit.ref) && !(jEdit.nombre || "").trim()) return false;
+  const datos = jEdit.descanso ? { descanso: jEdit.descanso, ref: undefined } : { descanso: undefined, ref: jEdit.ref || undefined };
+  datos.color = jEdit.color || undefined;
+  datos.nombre = (jEdit.nombre || "").trim() || undefined;
+  if (jEdit.id) {
+    const x = j.bloques.find(y => y.id === jEdit.id);
+    if (x) Object.assign(x, datos, { ini: jEdit.ini, fin: jEdit.fin });
+  } else {
+    const n = Object.assign({ id: uid(), ini: jEdit.ini, fin: jEdit.fin }, datos);
+    j.bloques.push(n); jSelId = n.id; jEdit.id = n.id;
+  }
+  /* `undefined` no viaja en JSON, pero en memoria sí estorba al leer. */
+  j.bloques.forEach(x => { if (x.descanso === undefined) delete x.descanso; if (x.ref === undefined) delete x.ref; if (x.color === undefined) delete x.color; if (x.nombre === undefined) delete x.nombre; });
+  save(); jApuntarPlan();
+  return true;
+}
+
+/* ---- La rueda de la hoja, viva (0.7.114) ----
+   Era un dibujo para mirar. Ahora es la misma rueda en pequeño y se usa: el
+   bloque que estás editando se arrastra y se estira ahí dentro, y tocando otro
+   te pasas a editarlo SIN salir de la ventana. Al cambiarte se guarda antes lo
+   que llevas —tocar otro gajo no puede costarte lo que acabas de escribir—, y
+   si lo que llevas no se puede guardar todavía, se dice y no se cambia. */
+const J_BORRADOR = "jor-borrador";
+function jPreviaRueda() {
+  return `<svg class="jor-previa" id="jor-previa-svg" viewBox="0 0 320 320" role="img" aria-label="${escapeAttr(tx("Tu día: arrastra el bloque o toca otro para editarlo"))}">${jDibujarPrevia()}</svg>`;
+}
+function jDibujarPrevia() {
+  const e = jEdit;
+  let h = jBaseRueda();
+  if (jDestino != null && jPrevVolando) {
+    h += `<path class="jor-destino" d="${jGajo(jDestino, jDur(e), J_RI + 2, J_RO - 2)}" style="fill:${jColorBloque(e)};fill-opacity:.2"/>`;
+  }
+  for (const b of jDatos().bloques) {
+    if (b.id === e.id) continue;
+    const col = jColorBloque(b), choca = jPrevVolando && jDentro(b, e.ini) || jPrevVolando && jDentro(e, b.ini);
+    h += `<path class="jor-blq otro${choca ? " encima" : ""}" data-id="${b.id}" d="${jGajo(b.ini, jDur(b))}" style="fill:${col};--jor-borde:${jBordeBloque(col)}"/>`;
+  }
+  const d = jDur(e), col = jColorBloque(e);
+  const fuera = jPrevVolando && !!jChoca(e.ini, e.fin, e.id);
+  const rIn = fuera ? J_RO + 6 : J_RI, rOut = fuera ? J_RO + 30 : J_RO;
+  h += `<path class="jor-blq nuevo${fuera ? " orbita" : ""}" data-id="${J_BORRADOR}" d="${jGajo(e.ini, d, rIn, rOut)}" style="fill:${col};--jor-borde:${jBordeBloque(col)}"/>`;
+  if (!jPrevVolando) h += jAsaHTML("ini", e.ini) + jAsaHTML("fin", e.fin);
+  h += `<g class="jor-aguja" transform="rotate(${jAhora() / J_DIA * 360} ${J_C} ${J_C})"><line x1="${J_C}" y1="${J_C - J_RI + 6}" x2="${J_C}" y2="${J_C - J_RO - 9}"/><circle cx="${J_C}" cy="${J_C - J_RO - 9}" r="3.5"/></g>`;
+  return h;
+}
+let jPrevVolando = false;
+function jPintarPrevia() {
+  const s = document.getElementById("jor-previa-svg");
+  if (s) s.innerHTML = jDibujarPrevia();
+  /* Las horas se tocan a mano y no se rehace la hoja: rehacerla en mitad del
+     arrastre se lleva por delante la captura del puntero —y el foco del campo
+     del nombre, si estabas escribiendo—. */
+  const outs = document.querySelectorAll("#jornada-hoja .jor-filas .jor-paso output");
+  if (outs.length >= 2) { outs[0].textContent = jH12(jEdit.ini); outs[1].textContent = jH12(jEdit.fin); }
+  const nota = document.querySelector("#jornada-hoja .jor-nota");
+  if (nota) {
+    const otro = jChoca(jEdit.ini, jEdit.fin, jEdit.id);
+    nota.className = otro ? "jor-nota error" : "jor-nota";
+    nota.textContent = otro ? T`Se encima con «${jNombreBloque(otro)}». Muévelo o acórtalo.` : T`Dura ${jFmtDur(jDur(jEdit))}.`;
+  }
+}
+function jEngancharPrevia(svg) {
+  if (!svg || svg.dataset.listo) return;
+  svg.dataset.listo = "1";
+  let arr = null;
+  svg.addEventListener("pointerdown", ev => {
+    const asa = ev.target.closest("[data-h]"), p = ev.target.closest(".jor-blq");
+    if (asa) {
+      arr = { modo: asa.dataset.h, v: jVecinos(jEdit), ini0: jEdit.ini, fin0: jEdit.fin, x: ev.clientX, y: ev.clientY, movido: false };
+    } else if (p && p.dataset.id === J_BORRADOR) {
+      arr = { modo: "todo", m0: jMinEn(svg, ev), ini0: jEdit.ini, fin0: jEdit.fin, x: ev.clientX, y: ev.clientY, movido: false };
+      jPrevVolando = true; jPintarPrevia();
+    } else if (p) {
+      /* Otro bloque: guardas lo que llevas y te pasas a ese. */
+      const id = p.dataset.id;
+      if (!jGuardarBloque()) { toast(tx("Guarda este bloque antes de pasar a otro"), "atencion"); return; }
+      jSelId = id; jAbrirBloque(id); jPintar();
+      return;
+    } else return;
+    try { svg.setPointerCapture(ev.pointerId); } catch (x) { /* sin captura, sigue igual */ }
+    ev.preventDefault();
+  });
+  svg.addEventListener("pointermove", ev => {
+    if (!arr) return;
+    if (!arr.movido && Math.hypot(ev.clientX - arr.x, ev.clientY - arr.y) < 6) return;
+    arr.movido = true;
+    const m = jSnap(jMinEn(svg, ev));
+    if (arr.modo === "ini") jEdit.ini = jMoverIni(jEdit, m, arr.v);
+    else if (arr.modo === "fin") jEdit.fin = jMoverFin(jEdit, m, arr.v);
+    else {
+      const d = ((arr.fin0 - arr.ini0 + J_DIA) % J_DIA) || J_DIA;
+      const delta = ((jMinEn(svg, ev) - arr.m0 + 720) % J_DIA + J_DIA) % J_DIA - 720;
+      const ini = jSnap(arr.ini0 + delta);
+      jEdit.ini = ini; jEdit.fin = (ini + d) % J_DIA;
+      jDestino = jChoca(jEdit.ini, jEdit.fin, jEdit.id) ? jHuecoCerca(jEdit.ini, d, jEdit.id) : null;
+    }
+    jPintarPrevia();
+  });
+  const soltar = () => {
+    if (!arr) return;
+    const a = arr; arr = null;
+    const destino = jDestino;
+    jPrevVolando = false; jDestino = null;
+    if (a.movido && a.modo === "todo" && jChoca(jEdit.ini, jEdit.fin, jEdit.id)) {
+      const d = jDur(jEdit);
+      if (destino == null) { jEdit.ini = a.ini0; jEdit.fin = a.fin0; toast(tx("No cabe: a esa hora la rueda está llena"), "atencion"); }
+      else { jEdit.ini = destino; jEdit.fin = (destino + d) % J_DIA; }
+    }
+    jPintarHoja();
+  };
+  svg.addEventListener("pointerup", soltar);
+  svg.addEventListener("pointercancel", soltar);
 }
 
 /* La palomita es SIEMPRE la de Misiones (`PALOMITA`, en 04-misiones.js) y
@@ -1603,7 +1808,7 @@ function jPintarHoja() {
     const auto = e.descanso ? tx((J_DESCANSOS[e.descanso] || J_DESCANSOS.dormir).nombre) : (r ? r.nombre : tx("Bloque libre"));
     const propio = (e.nombre || "").trim();
     h = `<div class="jor-hoja-cab"><span class="jor-ceja">${e.id ? tx("Bloque") : tx("Nuevo bloque")}</span><h3 id="jor-b-titulo">${escapeHtml(propio || auto)}</h3></div>
-      ${jPreviaRueda(e)}
+      ${jPreviaRueda()}
       <div class="jor-campo">
         <label for="jor-b-nombre">${tx("Cómo se llama")}</label>
         <input type="text" id="jor-b-nombre" data-in="nombre" maxlength="40" autocomplete="off" value="${escapeAttr(e.nombre || "")}" placeholder="${escapeAttr(auto)}">
@@ -1635,6 +1840,7 @@ function jPintarHoja() {
       ${run.libre || ultimo ? "" : `<button type="button" class="btn btn-ghost btn-block" data-act="guardar" data-v="0">${tx("Seguir sin descanso")}</button>`}`;
   }
   H.innerHTML = h;
+  if (jHoja === "bloque") jEngancharPrevia(document.getElementById("jor-previa-svg"));
 }
 
 function jClickHoja(e) {
@@ -1681,19 +1887,8 @@ function jClickHoja(e) {
     if (d >= 15) jEdit[k] = n;
   }
   if (a === "b-guardar") {
-    const datos = jEdit.descanso ? { descanso: jEdit.descanso, ref: undefined } : { descanso: undefined, ref: jEdit.ref || undefined };
-    datos.color = jEdit.color || undefined;
-    datos.nombre = (jEdit.nombre || "").trim() || undefined;
-    if (jEdit.id) {
-      const x = j.bloques.find(y => y.id === jEdit.id);
-      if (x) Object.assign(x, datos, { ini: jEdit.ini, fin: jEdit.fin });
-    } else {
-      const n = Object.assign({ id: uid(), ini: jEdit.ini, fin: jEdit.fin }, datos);
-      j.bloques.push(n); jSelId = n.id;
-    }
-    /* `undefined` no viaja en JSON, pero en memoria sí estorba al leer. */
-    j.bloques.forEach(x => { if (x.descanso === undefined) delete x.descanso; if (x.ref === undefined) delete x.ref; if (x.color === undefined) delete x.color; if (x.nombre === undefined) delete x.nombre; });
-    save(); jApuntarPlan(); cerrarHojaJornada(); jPintar(); return;
+    if (!jGuardarBloque()) return;
+    cerrarHojaJornada(); jPintar(); return;
   }
   if (a === "b-quitar") {
     if (!jQuitando) { jQuitando = true; jPintarHoja(); return; }
@@ -1728,7 +1923,7 @@ function jClickControles(e) {
   if (a === "nuevo") return jAbrirBloque(null);
   if (a === "iniciar") return jIniciar();
   if (a === "dormir") return jBuenasNoches();
-  if (a === "despertar") return jBuenosDias();
+  if (a === "despertar") return jBuenosDias(btn);
   if (a === "forzar") { const b = jBloqueEn(jAhora()); jForzado = b ? b.id : null; jPintar(); return; }
   if (a === "hf-modo") { jHfCfg().hfModo = btn.dataset.v; save(); jPintar(); return; }
   if (a === "hf-paso") {
