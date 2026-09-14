@@ -1136,7 +1136,7 @@ function jPintarControles() {
        velo, con su sol y un halo que respira. Y lo dice en primera persona
        —«Ya desperté» es lo que haces, no un saludo—; el saludo se queda en el
        aviso de después, que es donde se lee como saludo. */
-    h = `<div class="jor-acc una jor-despertar"><button type="button" class="btn btn-primary jor-grande" data-a="despertar"><svg viewBox="0 0 24 24">${J_SOL}</svg>${tx("Ya desperté")}</button></div>`;
+    h = `<div class="jor-acc una jor-despertar"><button type="button" class="btn btn-primary jor-grande" data-a="despertar"><svg viewBox="0 0 24 24">${J_SOL}</svg>${tx("Buenos días, ya desperté")}</button></div>`;
     regla = tx("Tócalo al despertar y queda apuntado cuánto dormiste.");
   } else if (desc) {
     h = desc.descanso === "dormir"
