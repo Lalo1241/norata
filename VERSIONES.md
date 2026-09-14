@@ -112,6 +112,40 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.114 · 14 sep 2026
+
+**La rueda del boceto, ya en la app — y el despertar se abre como un amanecer.**
+Lo probado durante días en el boceto funcional pasa al live tal cual, con una
+regla por delante: entra lo que aporta, y el aro sigue siendo el de siempre.
+
+- **Las esquinas de cada gajo, redondeadas** (radio 7). Mismo ancho, mismos
+  radios, solo sin el pico. Con radio 0 sale exactamente el de antes.
+- **El fondo del aro ya no se pinta.** Era una rosquilla gris llena aunque el
+  día estuviera vacío; lo que se tiene que ver es TU día. En su lugar, dos hilos
+  de guía que enmarcan el aro, los puntos de las medias horas y un arco tenue
+  con lo que va del día.
+- **El borde de un gajo es SU color muy atenuado**, no el fondo. Con el fondo por
+  borde, lo que está pasando ahora parecía recortado con tijeras; sigue
+  separando a dos vecinos porque cada uno trae el suyo.
+- **Las asas son barritas delgadas** (7 px) con la zona de toque cinco veces más
+  ancha: se ven finas y se agarran fácil.
+- **Arrastrar por encima de otro se ve antes de soltar**: el gajo SALE del aro a
+  la órbita de fuera, con sombra, y el hueco al que va a caer se dibuja entero y
+  punteado. Al soltar, el aviso dice con qué chocaste y dónde quedó tu bloque, o
+  que volvió a su hora porque no había hueco.
+- **La ventana de editar es un tablero**: dentro se arrastra el bloque, se
+  estiran sus puntas y **tocando otro te pasas a editarlo sin salir**. Al
+  cambiarte se guarda antes lo que llevas —tocar otro gajo no puede costarte lo
+  que acabas de escribir— y si no se puede guardar todavía, se dice y no se
+  cambia.
+
+**Y el amanecer.** Al tocar «ya desperté», un círculo se abre DESDE EL BOTÓN y
+se lleva la penumbra por delante, en vez de que el velo desaparezca de golpe. Es
+una máscara y no un desvanecido, porque un desvanecido no sale de ningún sitio y
+esto sale de donde pusiste el dedo. Lo permite `@property`, que es lo que deja
+animar una medida dentro de un gradiente; donde no exista, queda el desvanecido
+del final. Con «menos movimiento» puesto no hay máscara.
+
 ### 0.7.113.2 · 14 sep 2026
 
 **El botón de despertar sale de la penumbra, y de día se acaba el marrón.**
