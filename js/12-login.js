@@ -127,6 +127,13 @@ function puertaLadoPegar() {
 function puertaIdiomaPintar() {
   const caja = document.getElementById("puerta-idioma");
   if (!caja || !puertaPrueba()) return;
+  /* El sol y la luna, que viven en el mismo grupo: `pintarTema` rellena todos
+     los `.tema-hueco` de la página con el control de Ajustes y lo deja marcado
+     donde toca. Se llama desde aquí porque en la puerta no hay nadie más que
+     lo haga al arrancar — dentro de la app lo llama el arranque—, y también
+     en cada cambio de idioma, que es cuando sus rótulos ocultos y sus
+     `aria-label` tienen que volver a escribirse. */
+  if (typeof pintarTema === "function") pintarTema();
   caja.innerHTML = Object.values(IDIOMAS).map(i => `
     <button type="button" class="${i.codigo === idiomaActual() ? "on" : ""}"
             aria-pressed="${i.codigo === idiomaActual()}"

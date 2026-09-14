@@ -8179,9 +8179,14 @@
      ya mordió en la portada, y por eso `.portada` no se centra así. */
   html.puerta-dos .portada {
     flex-direction: column; justify-content: flex-start;
-    /* Hueco para el rótulo de la prueba, que es fijo y se pone encima. Se va
-       con la prueba. */
-    padding-bottom: calc(env(safe-area-inset-bottom) + 92px);
+    /* Hueco arriba y abajo para lo que flota encima: el rótulo de la prueba
+       —que se va con ella— y el grupo de idioma y aspecto, que se queda. Los
+       92 de arriba son para el teléfono, donde el rótulo se parte en dos
+       renglones y mide 68; en pantalla ancha no hace falta ninguno porque el
+       rótulo cae sobre el panel de al lado y no sobre el formulario, y la
+       regla de abajo devuelve el relleno normal. */
+    padding-top: calc(env(safe-area-inset-top) + 92px);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 74px);
   }
   /* Auto arriba y cero abajo en el formulario, y al revés en el panel: entre
      los dos se reparten el hueco libre y el grupo queda centrado, pero al
@@ -8245,7 +8250,7 @@
   /* Desde 900 px hay sitio para las dos columnas de verdad: el formulario se
      queda en la izquierda y el panel se va a la derecha de borde a borde. */
   @media (min-width: 900px) {
-    html.puerta-dos .portada { right: 46%; padding: 26px 34px; }
+    html.puerta-dos .portada { right: 46%; padding: 34px; }
     /* Con el panel ya fuera del flujo, el formulario vuelve a ser hijo único y
        se centra como siempre: con `margin: auto`, que reparte el hueco cuando
        sobra y vale cero cuando falta. */
@@ -8262,39 +8267,66 @@
     html.puerta-dos .puerta-lista li { font-size: 14.5px; }
   }
 
-  /* ---- Elegir idioma en la puerta ----
-     Arriba a la derecha y fuera del formulario, que es donde se busca esto y
-     donde no estorba a lo que se ha venido a hacer. Encima de la portada
-     (`--piso-idioma-puerta`), porque la portada tapa la pantalla entera y
-     cualquier cosa por debajo se dibuja pero no se puede tocar — se midió con
-     el rótulo de la prueba, que caía justo en ese agujero.
+  /* ---- Idioma y aspecto, en la puerta ----
+     Abajo a la izquierda, los dos juntos y en la misma esquina: son la misma
+     clase de cosa —cómo te habla la app, decidido antes de entrar— y separados
+     se leen como dos controles que no tienen que ver. Fuera del formulario,
+     que es donde se buscan y donde no estorban a lo que se ha venido a hacer.
 
-     No lleva transición en el fondo ni en el borde: los dos valores salen de
+     Encima de la portada (`--piso-idioma-puerta`), porque la portada tapa la
+     pantalla entera y cualquier cosa por debajo se dibuja pero no se puede
+     tocar — se midió con el rótulo de la prueba, que caía justo en ese agujero.
+
+     Nada lleva transición en el fondo ni en el borde: los dos valores salen de
      variables, y una transición sobre un valor que sale de una variable se
      queda congelada en el inicial (la trampa de la casa). */
-  .puerta-idioma { display: none; }
-  html.puerta-dos .puerta-idioma {
-    display: flex; gap: 4px;
-    position: fixed; top: calc(env(safe-area-inset-top) + 12px); right: 12px;
+  .puerta-ajustes { display: none; }
+  html.puerta-dos .puerta-ajustes {
+    display: flex; align-items: center; gap: 8px;
+    position: fixed;
+    left: 12px; bottom: calc(env(safe-area-inset-bottom) + 14px);
     z-index: var(--piso-idioma-puerta);
+  }
+  /* Las dos pastillas se dibujan igual, y la del aspecto es el control de
+     Ajustes al que se le quitan el rótulo y las palabras: aquí los iconos
+     bastan, y las palabras harían la esquina el doble de ancha en un
+     teléfono. */
+  html.puerta-dos .puerta-idioma,
+  html.puerta-dos .puerta-ajustes .tema-sw {
+    display: flex; gap: 4px; flex: none;
     padding: 4px;
     background: var(--sup-tarjeta); border: var(--borde-fino) solid var(--line);
     border-radius: var(--r-pastilla);
   }
-  html.puerta-dos .puerta-idioma button {
+  html.puerta-dos .puerta-ajustes .tema-fila {
+    background: none; border: 0; border-image: none; padding: 0; gap: 0;
+  }
+  /* `span:not(.ic)` y no `span` a secas: `icon()` envuelve el dibujo en un
+     `<span class="ic">`, así que la regla corta se llevaba por delante el sol y
+     la luna y dejaba dos botones vacíos. Se vio en la captura, no en el código. */
+  html.puerta-dos .puerta-ajustes .tema-tit,
+  html.puerta-dos .puerta-ajustes .ts-op span:not(.ic) { display: none; }
+  html.puerta-dos .puerta-idioma button,
+  html.puerta-dos .puerta-ajustes .ts-op {
     display: flex; align-items: center; gap: 7px;
     padding: 6px 12px 6px 8px;
     background: none; border: 0; border-radius: var(--r-pastilla);
     color: var(--muted); cursor: pointer;
     font-family: inherit; font-size: 12.5px; font-weight: 700;
   }
-  html.puerta-dos .puerta-idioma button:hover { color: var(--text); }
-  /* El elegido se marca con superficie y tinta, no con el color de la marca:
-     esto no es una acción, es un estado. */
-  html.puerta-dos .puerta-idioma button.on {
+  html.puerta-dos .puerta-ajustes .ts-op { padding: 7px 9px; }
+  html.puerta-dos .puerta-idioma button:hover,
+  html.puerta-dos .puerta-ajustes .ts-op:hover { color: var(--text); }
+  /* El elegido se marca con superficie y tinta, y NO con la menta maciza que
+     usa este mismo control dentro de Ajustes. Aquí no es lo mismo: en esta
+     pantalla la menta es «Entrar», y hay una sola cosa que lo merece. Dos
+     chispas verdes en la esquina le quitan el único acento que importa. */
+  html.puerta-dos .puerta-idioma button.on,
+  html.puerta-dos .puerta-ajustes .ts-op.on {
     background: var(--sup-tarjeta2); color: var(--text);
   }
-  html.puerta-dos .puerta-idioma svg { flex: none; }
+  html.puerta-dos .puerta-idioma svg,
+  html.puerta-dos .puerta-ajustes .ts-op svg { flex: none; }
   /* En el teléfono se queda solo el aro con las dos letras: el nombre del
      idioma al lado se comía el ancho justo donde menos sobra, y «ES» y «EN»
      dicen lo mismo en las dos caras. */
@@ -8305,13 +8337,16 @@
 
   /* El rótulo de que esta pestaña está en prueba. Emparejado clase-con-id,
      como el de los informes: con un selector suelto, encender una prueba
-     sacaba el rótulo de la otra. En la puerta no hay barra de navegación
-     abajo, así que se pega al borde seguro y ya. */
+     sacaba el rótulo de la otra.
+
+     ARRIBA a la derecha, que es la esquina que dejó libre el idioma al bajar:
+     abajo a la izquierda tapaba los controles, y un rótulo de pruebas que se
+     come un botón de verdad convierte la prueba en el problema. */
   html.puerta-dos #rotulo-puerta {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
     position: fixed;
-    left: 12px;
-    bottom: calc(env(safe-area-inset-bottom) + 14px);
+    right: 12px;
+    top: calc(env(safe-area-inset-top) + 12px);
     /* Un piso propio y no el `--piso-rotulo-prueba` de los informes, que se
        quedaba corto: aquel vive DENTRO de la app y ahí no hay nada encima,
        pero la portada tapa la pantalla entera desde 8000. Medido: el rótulo se

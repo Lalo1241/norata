@@ -40,8 +40,12 @@
   try {
     if (localStorage.getItem("norata-tema") === "claro") {
       document.documentElement.classList.add("claro");
+      /* El MISMO valor que `--bg` en `html.claro`, no uno parecido: es lo que
+         el navegador lee al abrir, y si no coincide con lo que se pinta debajo
+         se ve un escalón en el borde de arriba. Decía `#f2f4f8`, que es el
+         fondo de los CORREOS y no el de la app. */
       var mtc = document.querySelector('meta[name="theme-color"]');
-      if (mtc) mtc.setAttribute("content", "#f2f4f8");
+      if (mtc) mtc.setAttribute("content", "#dcdef0");
     }
   } catch (e) {}
 
@@ -106,7 +110,7 @@
 
 <div id="toast"></div>
 
-<!-- ============ EL IDIOMA, EN LA PUERTA (en prueba, 0.7.115) ============
+<!-- ============ IDIOMA Y ASPECTO, EN LA PUERTA (en prueba, 0.7.115) ============
      Hasta ahora la puerta hablaba SIEMPRE en español a quien nunca ha
      entrado, y estaba escrito así a conciencia: «todavía no ha elegido, y la
      pantalla donde se elige está al otro lado». El problema es que al otro
@@ -119,8 +123,23 @@
      nace con ese idioma puesto (ver la normalización de `js/01-base.js`).
 
      Lo pinta `js/12-login.js` porque los dos discos salen de `discoIdioma()`,
-     que es el mismo aro que usan Ajustes y la pantalla de la primera vez. -->
-<div class="puerta-idioma" id="puerta-idioma" role="group" aria-label="Idioma"></div>
+     que es el mismo aro que usan Ajustes y la pantalla de la primera vez.
+
+     Y al lado, el sol y la luna: la puerta LEÍA el modo claro desde la primera
+     versión —el script de arriba— pero no dejaba cambiarlo, así que quien
+     abriera de día se comía la pantalla de noche hasta estar dentro. Los dos
+     van juntos abajo a la izquierda porque son la misma clase de cosa: cómo te
+     habla la app, decidido antes de entrar. -->
+<div class="puerta-ajustes" id="puerta-ajustes">
+  <div class="puerta-idioma" id="puerta-idioma" role="group" aria-label="Idioma"></div>
+  <!-- El sol y la luna son EL MISMO control de Ajustes (`temaSwitchHTML`), no
+       una copia: se pega en un `.tema-hueco` y `pintarTema()` lo rellena y lo
+       vuelve a marcar solo al cambiar de modo — que además es quien cambia el
+       archivo del logotipo, porque el claro va sobre fondo oscuro. Dos
+       maquetaciones para lo mismo es como una de las dos se queda sin
+       arreglar; aquí solo se le quitan el rótulo y las palabras con CSS. -->
+  <div class="tema-hueco"></div>
+</div>
 
 <!-- ============ EL PANEL DE AL LADO (en prueba, 0.7.115) ============
      No se dibuja salvo que `<html>` lleve la clase, que es lo que pone el
