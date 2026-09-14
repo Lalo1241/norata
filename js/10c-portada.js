@@ -178,6 +178,16 @@ function portadaPintar(modo) {
   const correo = escapeAttr(portadaCorreo);
   let dentro;
 
+  /* Los dos enlaces legales se arman FUERA de la plantilla para que la frase
+     que los envuelve quepa en una sola clave del diccionario. Escritos dentro,
+     el barrido veía tres trozos sueltos —«Al crear tu cuenta aceptas los», «y
+     el» y el punto— y en inglés salía «Al crear tu cuenta aceptas los terms y
+     el privacy notice»: los enlaces traducidos y la frase en español. Y «y el»
+     no se puede meter en el diccionario por su cuenta: es un fragmento que
+     aparece suelto en media app. */
+  const aTerminos = `<a href="${legalBase()}terminos/" target="_blank" rel="noopener">${tx("términos")}</a>`;
+  const aPrivacidad = `<a href="${legalBase()}privacidad/" target="_blank" rel="noopener">${tx("aviso de privacidad")}</a>`;
+
   if (modo === "crear") {
     /* El nombre va PRIMERO, antes que el correo. No es capricho de orden: es
        la única pregunta del formulario que no es un trámite, y abrir por ahí
@@ -205,7 +215,7 @@ function portadaPintar(modo) {
          <input type="email" id="portada-correo" value="${correo}" autocomplete="email" inputmode="email" spellcheck="false" placeholder="${escapeAttr(tx("tu@correo.com"))}"></label>
        <div class="field"><span class="lbl">${tx("Contraseña")}</span>
          ${campoClave("portada-clave", "new-password")}
-         <div class="field-hint">Mínimo ${CLAVE_MIN} caracteres. Cuanto más larga, mejor.</div></div>
+         <div class="field-hint">${T`Mínimo ${CLAVE_MIN} caracteres. Cuanto más larga, mejor.`}</div></div>
        <div class="field"><span class="lbl">${tx("Repítela")}</span>
          ${campoClave("portada-clave2", "new-password")}</div>
        <div class="stack">
@@ -220,9 +230,7 @@ function portadaPintar(modo) {
             Debajo del botón y no encima: quien viene a crear una cuenta viene
             a pulsarlo, y una frase legal por delante empuja el botón hacia
             abajo sin que nadie la haya pedido. -->
-       <p class="portada-legal">Al crear tu cuenta aceptas los
-         <a href="${legalBase()}terminos/" target="_blank" rel="noopener">${tx("términos")}</a> y el
-         <a href="${legalBase()}privacidad/" target="_blank" rel="noopener">${tx("aviso de privacidad")}</a>.</p>
+       <p class="portada-legal">${T`Al crear tu cuenta aceptas los ${aTerminos} y el ${aPrivacidad}.`}</p>
        <p class="portada-pie">${tx("¿Ya tienes una?")} <button onclick="portadaIrA('entrar')">${tx("Entra aquí")}</button></p>`;
 
   } else if (modo === "rescate") {
@@ -1108,7 +1116,7 @@ function mostrarNuevaClave() {
        <div id="nc-error" class="portada-error" hidden></div>
        <div class="field"><span class="lbl">${tx("Contraseña nueva")}</span>
          ${campoClave("nc-clave", "new-password")}
-         <div class="field-hint">Mínimo ${CLAVE_MIN} caracteres. Cuanto más larga, mejor.</div></div>
+         <div class="field-hint">${T`Mínimo ${CLAVE_MIN} caracteres. Cuanto más larga, mejor.`}</div></div>
        <div class="field"><span class="lbl">${tx("Repítela")}</span>
          ${campoClave("nc-clave2", "new-password")}</div>
        <div class="stack">

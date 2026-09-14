@@ -172,6 +172,56 @@ confirmar, que van siempre los últimos.
 la puerta entera —dos anchos, los dos modos, 112 elementos— contra la misma
 puerta sin tocar. Diferencias: ninguna.
 
+**Y el idioma se pregunta en la puerta, que es donde ya hacía falta.** Lo trajo
+Eduardo aprovechando el formato nuevo: si la puerta sabe en qué idioma hablas,
+la app ya no tiene que preguntarlo. Resultó que la mitad difícil ya estaba
+hecha — el idioma vive en DOS sitios desde siempre: el dato
+(`state.settings.idioma`, que viaja con la cuenta) y el espejo de
+`localStorage`, que existe justo para saberlo antes de que haya datos de nadie.
+La puerta escribe el espejo y **el perfil que se crea después nace con ese
+idioma puesto**, sin una línea más de fontanería: lo hace la normalización de
+`js/01-base.js`, que ya decía «sin ajuste guardado, el del espejo».
+
+- **Dos aros arriba a la derecha**, los mismos de Ajustes (`discoIdioma`), y no
+  un desplegable: son dos idiomas, y un menú esconde detrás de un toque lo único
+  que podría necesitar quien no entiende la pantalla. En el teléfono se quedan
+  solo las dos letras.
+- **Hasta hoy la puerta hablaba SIEMPRE español** a quien nunca había entrado, y
+  estaba escrito así a conciencia — «todavía no ha elegido, y la pantalla donde
+  se elige está al otro lado». El problema es que al otro lado hay que crear una
+  cuenta: quien no entiende la puerta no la cruza.
+- **La pantalla de idioma y moneda se queda con UNA pregunta** cuando ya se
+  eligió en la puerta (`idiomaVinoDeLaPuerta`). La moneda no se esconde y no es
+  un olvido: es la otra pregunta, no se ha contestado en ningún sitio, y es la
+  que no se puede adivinar —el idioma se deduce de cómo lee alguien; la moneda,
+  de nada—.
+- **Pulsar es elegir, aunque no cambie nada.** La puerta abre en español, así
+  que quien habla español pulsa «Español» y la pantalla no se mueve; si eso no
+  contara, el ahorro sería para casi nadie. Lo que no cuenta es no tocar nada:
+  ahí no ha contestado nadie y la app vuelve a preguntar, que es la regla del
+  género — el silencio no es una respuesta.
+
+**Tres cosas que salieron por el camino, y las tres ya estaban rotas:**
+
+- **La puerta no escribía NADA en el dispositivo** —medido: cero llaves en
+  `localStorage` al abrirla— y `ponerIdioma` lo habría estropeado: `state`
+  existe también en la puerta (un perfil vacío de nadie) y con él un `save()`
+  que dejaría un `mainquest-v1` entero escrito a quien solo pasó por la pantalla
+  de entrar. Ahora `ponerIdioma` no toca el dato cuando `enLaPuerta()`; el
+  espejo basta, que es para lo que existe.
+- **El `lang` del documento se quedaba en `es` con la app en inglés.**
+  `index.html` nace con `lang="es"` escrito a mano y `sincronizarIdioma()` solo
+  lo escribía en la rama donde el dato y el espejo discrepaban — o sea, nunca
+  después de la primera vez. Basta recargar para verlo. Es lo que hace que un
+  lector de pantalla lea «day» como «dai». Ahora se escribe siempre.
+- **Dos frases de la puerta nunca pasaron por el traductor**: el mínimo de la
+  contraseña (que lleva un número dentro y estaba escrito como plantilla sin
+  etiquetar) y la línea legal de crear cuenta, que en inglés salía «Al crear tu
+  cuenta aceptas los terms y el privacy notice» — los enlaces traducidos y la
+  frase en español, porque el barrido veía tres trozos sueltos y «y el» no se
+  puede meter en el diccionario por su cuenta: aparece en media app. Los dos
+  enlaces se arman fuera de la plantilla y la frase entera cabe en una clave.
+
 **La pregunta que queda abierta, que es la de la landing.** Hoy hay una sola
 dirección (`/login/`) y las dos entradas de la landing tendrían que llevar a
 sitios que se sientan distintos. Tres formas, y la que no recomiendo es la que
@@ -197,9 +247,9 @@ Mientras no haya veredicto, lo que hay es la prueba: el camino partido ya
 funciona entero —abrir en un formulario o en el otro, con su frase— y la
 dirección se puede cambiar después sin tocar nada de lo de dentro.
 
-**Dos cosas que faltan si esto se queda:** las frases nuevas no están en
-`js/00b-textos-en.js`, así que en inglés saldrían en español; y el rótulo naranja
-de «puerta en prueba» se va con la prueba. **Qué borrar, por nombre y nunca por
+**Lo que falta si esto se queda:** el rótulo de «puerta en prueba» se va con la
+prueba. Las frases nuevas del panel ya están traducidas —hacía falta, porque la
+puerta ahora puede estar en inglés antes de que exista ninguna cuenta—. **Qué borrar, por nombre y nunca por
 rango:** la lista exacta está al final del bloque `.puerta-lado` en
 `css/estilos.css`.
 

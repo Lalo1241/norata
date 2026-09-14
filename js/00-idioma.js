@@ -362,7 +362,15 @@ function ponerIdioma(cod, callback) {
   if (!IDIOMAS[cod] || cod === IDIOMA) return false;
   IDIOMA = cod;
   try { localStorage.setItem(LLAVE_IDIOMA, cod); } catch (e) { /* modo privado */ }
-  if (typeof state !== "undefined" && state && state.settings) {
+  /* El dato solo si hay de quién: en la PUERTA no lo hay. Ahí `state` existe
+     —`js/01-base.js` lo carga también en `/login/`— pero es un perfil vacío de
+     nadie, y `save()` dejaría un `mainquest-v1` entero escrito en el
+     dispositivo de alguien que solo pasó por la pantalla de entrar. Medido: al
+     abrir la puerta hoy, `localStorage` se queda en CERO llaves, y eso vale la
+     pena conservarlo. El espejo basta ahí, que es exactamente para lo que
+     existe: saber el idioma antes de que haya datos de nadie. */
+  if (typeof state !== "undefined" && state && state.settings
+      && !(typeof enLaPuerta === "function" && enLaPuerta())) {
     state.settings.idioma = cod;
     if (typeof save === "function") save();
   }
@@ -405,6 +413,16 @@ function sincronizarIdioma() {
   } else if (!IDIOMAS[guardado]) {
     state.settings.idioma = IDIOMA;
   }
+  /* Y el `lang` del documento SIEMPRE, no solo cuando los dos discrepaban.
+     `index.html` nace con `lang="es"` escrito a mano, así que a quien tenía la
+     app en inglés le bastaba con recargar para quedarse con el atributo en
+     español: dato e espejo coincidían —los dos en `en`— y esta función pasaba
+     de largo por la rama de arriba, que era la única que lo escribía. Se ve en
+     que el lector de pantalla lee «day» como «dai» y en que el navegador corta
+     las palabras con las reglas del idioma equivocado. Lo dice `ponerIdioma`
+     ahí arriba, que sí lo escribía; lo que faltaba era escribirlo también al
+     arrancar. */
+  document.documentElement.setAttribute("lang", IDIOMAS[idiomaActual()].lang);
   traducirDOM();
 }
 

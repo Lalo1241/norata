@@ -356,6 +356,25 @@ function regionHaceFalta() {
   return !!state && !!state.settings && !state.settings.regionLista;
 }
 
+/* ---- Cuando el idioma ya vino contestado de la puerta (0.7.115) ----
+
+   Quien elige idioma en `/login/` antes de crear la cuenta ya contestó esta
+   mitad, y volvérsela a preguntar aquí —tres segundos después, con la misma
+   respuesta ya puesta— es lo que hace que una bienvenida se sienta un trámite.
+
+   La marca la deja la puerta en `localStorage`, al lado del espejo del idioma
+   y por el mismo motivo: es de este dispositivo. No va en `state` porque el
+   perfil todavía no existe cuando se elige, y meterla después sería un dato
+   más que migrar, sincronizar y volver a explicar.
+
+   Lo que NO se hace es esconder también la moneda. Es la otra pregunta y no se
+   ha contestado en ningún sitio, y además es la que no se puede adivinar: el
+   idioma se deduce de cómo lee alguien, la moneda no se deduce de nada. Así
+   que la pantalla se queda, con una sola pregunta. */
+function idiomaVinoDeLaPuerta() {
+  try { return localStorage.getItem("norata-idioma-puerta") === "1"; } catch (e) { return false; }
+}
+
 function mostrarPantallaRegion() {
   if (document.getElementById("region")) return;
   const caja = document.createElement("div");
@@ -371,6 +390,10 @@ function pintarPantallaRegion() {
   /* El logo del menú, que ya está dibujado. Si por lo que sea no estuviera,
      el compás: esta pantalla no se puede quedar sin cabecera. */
   const marca = typeof logoNorata === "function" ? logoNorata() : "";
+  /* Sin el bloque del idioma cuando ya se eligió en la puerta. Se calcula aquí
+     y no dentro de la plantilla para que se lea de un vistazo que esta pantalla
+     tiene dos formas, y cuál de las dos se está pintando. */
+  const soloMoneda = idiomaVinoDeLaPuerta();
   caja.innerHTML = `
     <div class="region-card">
       ${/* Esta pantalla es lo PRIMERO que ve alguien que abre Norata, antes
@@ -391,12 +414,14 @@ function pintarPantallaRegion() {
       <div class="region-marca">${marca || `<span class="bubble">${icon("compass", 28)}</span>`}</div>
       <h2>${escapeHtml(tx("Qué gusto tenerte aquí"))}</h2>
       <p class="region-lema">${escapeHtml(tx("Norata trata tu vida como un videojuego: misiones que haces hoy, habilidades que suben con la práctica, talentos y proyectos."))}</p>
-      <p class="settings-note region-porque">${escapeHtml(tx("Antes de empezar, dos cosas para que la app hable como tú. Las dos se cambian después en Ajustes, cuando quieras."))}</p>
+      <p class="settings-note region-porque">${escapeHtml(soloMoneda
+        ? tx("Ya sé en qué idioma hablarte. Falta una cosa, y también se cambia después en Ajustes, cuando quieras.")
+        : tx("Antes de empezar, dos cosas para que la app hable como tú. Las dos se cambian después en Ajustes, cuando quieras."))}</p>
 
-      <div class="region-bloque">
+      ${soloMoneda ? "" : `<div class="region-bloque">
         <h3>${escapeHtml(tx("¿En qué idioma?"))}</h3>
         ${opcionesIdiomaHTML(idiomaActual(), "regionIdioma")}
-      </div>
+      </div>`}
 
       <div class="region-bloque">
         <h3>${escapeHtml(tx("¿Con qué moneda cuentas tu dinero?"))}</h3>

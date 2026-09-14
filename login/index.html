@@ -106,6 +106,22 @@
 
 <div id="toast"></div>
 
+<!-- ============ EL IDIOMA, EN LA PUERTA (en prueba, 0.7.115) ============
+     Hasta ahora la puerta hablaba SIEMPRE en español a quien nunca ha
+     entrado, y estaba escrito así a conciencia: «todavía no ha elegido, y la
+     pantalla donde se elige está al otro lado». El problema es que al otro
+     lado hay que crear una cuenta, y quien no entiende la puerta no la crea.
+
+     Lo que lo hace posible sin tocar nada más es que el idioma ya vive en DOS
+     sitios: el dato (`state.settings.idioma`, que viaja con la cuenta) y el
+     espejo de `localStorage`, que existe justo para saberlo antes de que haya
+     datos de nadie. La puerta escribe el espejo; el perfil que se cree después
+     nace con ese idioma puesto (ver la normalización de `js/01-base.js`).
+
+     Lo pinta `js/12-login.js` porque los dos discos salen de `discoIdioma()`,
+     que es el mismo aro que usan Ajustes y la pantalla de la primera vez. -->
+<div class="puerta-idioma" id="puerta-idioma" role="group" aria-label="Idioma"></div>
+
 <!-- ============ EL PANEL DE AL LADO (en prueba, 0.7.115) ============
      No se dibuja salvo que `<html>` lleve la clase, que es lo que pone el
      script de arriba al ver `?puerta=`. Vive aquí y no en `js/10c-portada.js`

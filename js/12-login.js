@@ -69,6 +69,7 @@ traducirDOM();
        exactamente lo que había. */
     mostrarPortada(puertaPrueba() === "nuevo" ? "crear" : undefined);
     puertaLadoPegar();
+    puertaIdiomaPintar();
   }
 
   cargaCerrar();
@@ -110,6 +111,59 @@ function puertaLadoPegar() {
     if (lado.parentNode !== cap) cap.appendChild(lado);
     puertaFrase();
   }).observe(cap, { childList: true });
+}
+
+/* ---- El idioma, en la puerta (EN PRUEBA, 0.7.115) ----
+
+   Dos aros, los mismos de Ajustes y los de la pantalla de la primera vez
+   (`discoIdioma`), y no un menú: son dos idiomas, y un desplegable esconde
+   detrás de un toque lo único que alguien que no entiende la pantalla podría
+   necesitar. Se pinta desde aquí y no en el marcado porque el aro es un SVG
+   que sabe dibujar `js/00-idioma.js`.
+
+   El nombre de cada idioma NO se traduce —«Español» se dice Español en
+   inglés— así que este trozo es el mismo en las dos caras. */
+function puertaIdiomaPintar() {
+  const caja = document.getElementById("puerta-idioma");
+  if (!caja || !puertaPrueba()) return;
+  caja.innerHTML = Object.values(IDIOMAS).map(i => `
+    <button type="button" class="${i.codigo === idiomaActual() ? "on" : ""}"
+            aria-pressed="${i.codigo === idiomaActual()}"
+            onclick="puertaIdioma('${i.codigo}')">
+      ${discoIdioma(i.codigo, 18)}<span>${escapeHtml(i.nombre)}</span>
+    </button>`).join("");
+}
+
+/* Cambiar de idioma desde la puerta.
+
+   `ponerIdioma` ya hace todo lo que hace falta —el espejo, el `lang` del
+   documento y el barrido de lo que está escrito en el marcado— y desde la
+   0.7.115 sabe además NO escribir el perfil cuando quien llama es la puerta,
+   que no tiene perfil de nadie que escribir.
+
+   Lo que no puede saber es qué repintar aquí: en la app redibuja la vista, y
+   en la puerta lo que hay es la portada. Va por el callback y no después, para
+   que el repintado y la traducción ocurran en el mismo turno y no se vea la
+   pantalla a medio idioma.
+
+   Y deja una MARCA: sirve para que la pantalla de idioma y moneda de la app no
+   vuelva a preguntar lo que ya se contestó aquí (ver `idiomaVinoDeLaPuerta` en
+   `js/09c-region.js`). Es de este dispositivo, como el espejo, y por eso vive
+   en `localStorage` al lado de él y no en los datos de nadie. */
+function puertaIdioma(cod) {
+  if (!IDIOMAS[cod]) return;
+  /* La marca se deja ANTES y sin mirar si el idioma cambió, y esa es la
+     diferencia entre ahorrar la pregunta a casi nadie o a casi todo el mundo:
+     la puerta abre en español, así que quien habla español PULSA «Español» y no
+     cambia nada — `ponerIdioma` devuelve false y se acabó—. Pulsar es elegir,
+     tanto si mueve la pantalla como si no. Lo que no cuenta es no tocar nada:
+     ahí no ha contestado nadie y la app vuelve a preguntar, que es la misma
+     regla del género —el silencio no es una respuesta—. */
+  try { localStorage.setItem("norata-idioma-puerta", "1"); } catch (e) { /* modo privado */ }
+  ponerIdioma(cod, () => {
+    if (document.getElementById("portada")) portadaPintar(portadaModo);
+    puertaIdiomaPintar();
+  });
 }
 
 /* Qué frase se enseña al lado. La decide el formulario que hay en pantalla y
