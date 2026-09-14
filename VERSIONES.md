@@ -100,6 +100,36 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.110.3 · 13 sep 2026
+
+**El caramelo se convierte en paleta, y el trozo de carne crece otro punto.**
+Las dos las pidió Eduardo, y la primera cierra un parecido que llevaba tres
+versiones volviendo: *«el caramelo mejor transfórmalo a una paleta, para
+diferenciarse mejor»*.
+
+**Tenía razón y el motivo es de forma, no de tamaño.** Un caramelo de
+envoltorio y un trozo de carne con hueso son la MISMA silueta —un bulto en
+medio y dos cosas a los lados—, y por ahí no se salía: primero la carne parecía
+caramelo, luego el caramelo parecía carne. Una paleta no se parece a nada más
+de la rejilla: disco arriba, palo abajo.
+
+**El remolino de dentro es lo que la separa de una lupa**, y por eso no puede
+ser una espiral de verdad: con las vueltas pegadas, a 20 px los trazos se
+juntan en una mancha. Son dos semicírculos de radio creciente —el truco de
+siempre para dibujar una espiral con arcos— y entre el de fuera y el borde del
+disco quedan 3,4, que es el hueco que hace falta para que no se fundan.
+
+La carne pasa de 21 × 15,8 a 20,8 × 18,5: se inclina un poco más (de 30 a 39
+grados) y crece por el alto, que es donde le quedaba hueco. Ocupa de 1,6 a 22,4
+a lo ancho y de 2,8 a 21,2 a lo alto.
+
+**Y quien ya lo tuviera puesto no se queda sin dibujo.** El caramelo vivió un
+día, pero un icono que desaparece no falla a gritos: `icon()` cae en la estrella
+y quien lo hubiera elegido vería otra cosa sin saber por qué. Una línea en
+`migrar` lo pasa a paleta en las cuatro listas —misiones, talentos, habilidades
+y proyectos—; comprobado creando una habilidad con el icono viejo, recargando y
+leyendo el que queda.
+
 ### 0.7.110.2 · 13 sep 2026
 
 **El trozo de carne crece y la luna vuelve a su tamaño de siempre.** Las dos

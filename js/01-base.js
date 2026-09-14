@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.110.2";
+const VERSION = "0.7.110.3";
 const VERSION_FECHA = "13 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -182,14 +182,20 @@ const ICONS = {
      que lo vuelve cilindro y no bola— con un hueso saliendo por cada tapa,
      como lo pidió Eduardo y como se ve en su foto. */
   pollo: '<path d="M7.6 12.8L9.2 7A5.9 5.9 0 1116.4 14.2L10.6 15.8Z"/><path d="M8.3 13.5L5.3 15.5A1.65 1.65 0 104.3 18.2A0.9 0.9 0 015.2 19.1A1.65 1.65 0 107.9 18.1L9.9 15.1"/>',
-  carne: '<path d="M14.2 7.1A5.4 5.2 -30 006.7 11.4L9.8 16.9A5.4 5.2 -30 0017.3 12.6Z"/><path d="M16.4 11.1L19.2 10A1.75 1.75 0 1021.1 7.5A1 1 0 0120.5 6.3A1.75 1.75 0 1017.3 6.7L15 8.6"/><path d="M7.6 12.9L4.8 14A1.75 1.75 0 102.9 16.5A1 1 0 013.5 17.7A1.75 1.75 0 106.7 17.3L9 15.4"/>',
-  /* El caramelo: cuerpo redondo y los dos extremos en PICO. Va junto al
-     trozo de carne a propósito, porque es el vecino que lo delata: lo que
-     antes se leía «caramelo» era la carne con el hueso corto, y puestos uno
-     al lado del otro se ve qué hace a cada uno lo que es —picos angulosos
-     contra nudillos redondos, y el caramelo derecho contra la carne
-     inclinada—. Lo pidió Eduardo al ver ese parecido. */
-  caramelo: '<ellipse cx="12" cy="12" rx="4.4" ry="4.2"/><path d="M16.4 12L21.6 6.8L21.6 17.2Z"/><path d="M7.6 12L2.4 6.8L2.4 17.2Z"/>',
+  carne: '<path d="M13.4 6.5A5.7 5.5 -39 006.4 12.2L10.6 17.5A5.7 5.5 -39 0017.6 11.8Z"/><path d="M16.4 10.3L19.2 8.7A1.8 1.8 0 1020.8 5.8A1.05 1.05 0 0119.9 4.7A1.8 1.8 0 1016.7 5.7L14.6 8"/><path d="M7.6 13.7L4.8 15.3A1.8 1.8 0 103.2 18.2A1.05 1.05 0 014.1 19.3A1.8 1.8 0 107.3 18.3L9.4 16"/>',
+  /* La paleta. Era un caramelo de envoltorio —cuerpo con dos picos— y lo
+     cambió Eduardo: puesto al lado del trozo de carne seguían siendo la misma
+     silueta, un bulto en medio y dos cosas a los lados, que es el parecido
+     que llevamos tres versiones persiguiendo. Una paleta no se parece a nada
+     más de la rejilla: disco arriba, palo abajo.
+
+     El remolino de dentro es lo que la separa de una lupa, y por eso no se
+     puede dibujar como una espiral de verdad: con las vueltas pegadas, a
+     20 px los trazos se juntan en una mancha. Son DOS semicírculos —el truco
+     de siempre para dibujar una espiral con arcos— y entre el de fuera y el
+     borde del disco quedan 3,4, que es el hueco que hace falta para que no se
+     fundan. */
+  paleta: '<circle cx="11.8" cy="8.4" r="6.4"/><path d="M11.8 8.4A0.9 0.9 0 0 1 10 8.4A2.4 2.4 0 0 1 14.8 8.4"/><path d="M11.8 14.8v6.8"/>',
   /* Dormir, la otra cara de `cama`: una nube y dos zetas. Las zetas van
      SEPARADAS de la nube y en diagonal, subiendo hacia la derecha. Pegadas al
      hombro de la nube —que es donde caen si se reparte el cuadro a ojo— la
@@ -316,7 +322,7 @@ const ICONS = {
 const ICON_LIST = [
   /* crear y contar */      "brush", "pen", "book", "camera", "music", "mic",
   /* estudiar y trabajar */ "cap", "bulb", "code", "chart", "wrench",
-  /* cocina */              "chef", "cubiertos", "pollo", "carne", "caramelo", "coffee",
+  /* cocina */              "chef", "cubiertos", "pollo", "carne", "paleta", "coffee",
   /* cuerpo y descanso */   "dumbbell", "heart", "plant", "cama", "zzz", "luna", "sol",
   /* fuera de casa */       "globe", "map", "compass", "rod", "goggles",
   /* meta y premio */       "target", "flag", "trophy", "crown", "gem", "coin", "key", "shield",
@@ -1130,6 +1136,12 @@ function load() {
     try { data.settings.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
     catch (e) { data.settings.timezone = "UTC"; }
   }
+  /* El caramelo de la 0.7.110 se volvió paleta en la 0.7.110.3. Vivió un día,
+     pero un icono que ya no existe no falla a gritos: `icon()` cae en la
+     estrella y quien lo hubiera elegido vería otra cosa sin saber por qué. */
+  [data.missions, data.perks, data.skills, data.projects].forEach(lista =>
+    (lista || []).forEach(x => { if (x && x.icon === "caramelo") x.icon = "paleta"; }));
+
   const tablerosVivos = new Set(data.tableros.map(t => t && t.id));
   data.missions.forEach((m, i) => {
     if (!m.color) m.color = COLORS[i % COLORS.length];
