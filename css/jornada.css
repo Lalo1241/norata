@@ -6,6 +6,10 @@
    claro, los ambientes y los mundos le llegan solos. */
 
 :root {
+  /* El velo del modo dormir. De noche basta hundir la app hacia su propio
+     fondo; de día hace falta un velo OSCURO —uno claro sobre papel no atenúa,
+     lava—, y ahí `--text` es justo el azul casi negro de la tinta. */
+  --jor-velo: color-mix(in srgb, var(--bg) 66%, transparent);
   --jor-sueno: color-mix(in srgb, var(--muted) 38%, var(--bg));
   --jor-libre: color-mix(in srgb, var(--muted) 60%, var(--bg));
   /* Comer y Traslado: descanso como Dormir, un escalón más claros para que no
@@ -23,6 +27,20 @@
   html.con-jornada .thumb-cluster .nav-circles { gap: 5px; }
   html.con-jornada .thumb-cluster .c-nav { width: 40px; height: 40px; }
 }
+
+/* ---- Modo dormir: la app entera se atenúa (0.7.113) ----
+   Lo pidió Eduardo: mientras duermes, la app no es para usarse, y eso tiene
+   que verse en TODA la interfaz y no solo en el Pomodoro. El velo va por
+   encima de la app y por debajo de la píldora —que es la que dice «Durmiendo»
+   y lleva a «Buenos días», así que es lo único que se queda encendido—, de las
+   ventanas y de los avisos. Y NO atrapa el puntero: atenuar no es desactivar;
+   quien quiera usar la app a media noche puede, solo que la app no finge que
+   es un día normal. */
+html.durmiendo body::after {
+  content: ""; position: fixed; inset: 0; z-index: var(--piso-dormir);
+  background: var(--jor-velo); pointer-events: none;
+}
+html.claro { --jor-velo: color-mix(in srgb, var(--text) 34%, transparent); }
 
 .jor-prueba {
   display: inline-block; vertical-align: middle; margin-left: 10px;
@@ -102,6 +120,9 @@
 .jor-num { fill: var(--muted); font-family: inherit; font-size: 10px; font-weight: 500; text-anchor: middle; dominant-baseline: central; }
 .jor-num.mayor { fill: var(--text); font-weight: 700; }
 .jor-blq { stroke: var(--jor-sep); stroke-width: 2; cursor: grab; }
+/* Con la rueda quieta —durmiendo, o con un tramo en curso— los bloques no
+   se arrastran, y el cursor lo dice antes de intentarlo. */
+.jor-quieta .jor-blq { cursor: default; }
 .jor-blq.sel { stroke: var(--text); stroke-width: 2.2; }
 /* Mientras vuela por encima de otros (0.7.109): en el aire, y en coral cuando
    está pisando algo — ahí no se queda, al soltarlo se va al hueco más cercano. */

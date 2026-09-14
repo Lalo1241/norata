@@ -504,7 +504,7 @@ function jSaltarFaseLite() {
 function jBuenasNoches() {
   const j = jDatos(), b = jBloqueEn(jAhora());
   j.dormido = { inicio: Date.now(), bloque: b && b.descanso === "dormir" ? b.id : null };
-  save(); jPintar();
+  save(); jModoDormir(); jPintar();
   toast(tx("Que descanses. Al despertar, toca «Buenos días»."), "calma");
 }
 function jBuenosDias() {
@@ -514,7 +514,7 @@ function jBuenosDias() {
   j.registro.unshift({ id: uid(), fecha: todayKey(), tipo: "sueno", inicio: d.inicio, fin: Date.now(), min, bloque: d.bloque });
   j.registro = j.registro.slice(0, J_REG_MAX);
   j.dormido = null;
-  save(); jPintar();
+  save(); jModoDormir(); jPintar();
   toast(T`Buenos días · dormiste ${jFmtDur(min)}`, "logro");
 }
 /* Media hora antes de dormir. Una vez por noche y por bloque: la marca lleva
@@ -685,7 +685,9 @@ function jPintarRueda() {
     }
   }
   g.innerHTML = h;
-  const s = jDatos().bloques.find(b => b.id === jSelId);
+  const svg = document.getElementById("jor-svg");
+  if (svg) svg.classList.toggle("jor-quieta", !!jQuieta());
+  const s = jQuieta() ? null : jDatos().bloques.find(b => b.id === jSelId);
   document.getElementById("jor-asas").innerHTML = s ? ["ini", "fin"].map(k => {
     const [x, y] = jPt(J_RM, s[k]);
     return `<g class="jor-asa-g" data-h="${k}"><circle cx="${x}" cy="${y}" r="18" fill="transparent"/><circle class="jor-asa" cx="${x}" cy="${y}" r="8"/></g>`;
@@ -768,6 +770,17 @@ function jEngancharRueda(svg) {
     const asa = e.target.closest("[data-h]"), p = e.target.closest(".jor-blq");
     const bloques = jDatos().bloques;
     const s = bloques.find(b => b.id === jSelId);
+    const quieta = jQuieta();
+    if (quieta && (asa || p)) {
+      /* Se dice por qué en el momento de intentarlo, que es cuando la pregunta
+         existe. Con un tramo en curso el bloque sí se puede elegir y abrir. */
+      if (quieta.todo || asa || !p) { toast(quieta.txt, "atencion"); return; }
+      const b = bloques.find(x => x.id === p.dataset.id);
+      if (!b) return;
+      if (jSelId === b.id) jAbrirBloque(b.id);
+      else { jSelId = b.id; jPintarRueda(); jPintarLista(); }
+      return;
+    }
     if (asa && s) {
       arr = { modo: asa.dataset.h, b: s, v: jVecinos(s), x: e.clientX, y: e.clientY, movido: false };
     } else if (p) {
@@ -820,6 +833,8 @@ function jChocaEn(bloques, ini, fin, exceptoId) {
 function jChoca(ini, fin, exceptoId) { return jChocaEn(jDatos().bloques, ini, fin, exceptoId); }
 /* Acomodar: lo pone en el primer hueco libre desde ahora, de una hora si cabe. */
 function jAcomodar(t, id) {
+  const q = jQuieta();
+  if (q && q.todo) { toast(q.txt, "atencion"); return; }
   const desde = Math.ceil(jAhora() / 15) * 15;
   for (const d of [60, 45, 30, 15]) {
     for (let s = 0; s < J_DIA; s += 15) {
@@ -1318,23 +1333,57 @@ function jPintarFin(s) {
 function jPintarPildora() {
   const pil = document.getElementById("jornada-pildora");
   if (!pil) return;
-  const run = jornadaEncendida() ? jDatos().run : null;
-  const ver = !!run && run.fase !== "listo" && !document.querySelector("#view-jornada.active") &&
-              !document.getElementById("portada");
+  const j = jornadaEncendida() ? jDatos() : null;
+  const run = j ? j.run : null;
+  /* DURMIENDO también saca la píldora (0.7.113), y no es un adorno: con el
+     velo del modo dormir encima, la píldora es lo único que se queda
+     encendido, dice desde qué hora duermes y es el camino a «Buenos días».
+     Sin ella, atenuar la app dejaba la pantalla sin una sola salida a la vista. */
+  const durmiendo = !!(j && j.dormido);
+  const ver = (durmiendo || (!!run && run.fase !== "listo")) &&
+              !document.querySelector("#view-jornada.active") && !document.getElementById("portada");
   pil.hidden = !ver;
   if (!ver) return;
   const s = jEstadoCentro();
-  const estado = run.fase === "cierre" ? "foco" : s.fc || "foco";
+  const cierre = !!run && run.fase === "cierre";
+  const estado = cierre ? "foco" : s.fc || "foco";
   ["foco", "pausa", "brasa"].forEach(k => pil.classList.toggle(k, k === estado));
-  document.getElementById("jor-pil-t").textContent = run.fase === "cierre" ? tx("Listo") : s.t;
-  const rot = run.fase === "cierre" ? tx("Tramo listo") : s.f;
-  const nom = run.fase === "cierre" ? tx("Toca para guardarlo") : s.sub;
+  document.getElementById("jor-pil-t").textContent = cierre ? tx("Listo") : s.t;
+  const rot = cierre ? tx("Tramo listo") : s.f;
+  const nom = cierre ? tx("Toca para guardarlo") : s.sub;
   document.getElementById("jor-pil-s").innerHTML = `<b class="jor-pil-est">${escapeHtml(rot)}</b> · ${escapeHtml(nom)}`;
 }
 
 /* ---------- El paso ---------- */
 let jCuartoAntes = -1;
+/* El modo dormir se ve en toda la app: esta clase es la que enciende el velo
+   (css/jornada.css). Vive aquí y no en el CSS de la casa porque el dato es
+   del Pomodoro, y se apaga sola si el módulo está apagado. */
+function jModoDormir() {
+  const on = jornadaEncendida() && !!jDatos().dormido;
+  document.documentElement.classList.toggle("durmiendo", on);
+}
+/* ---- Cuándo la rueda se queda quieta (0.7.113) ----
+   Dos casos, y no son el mismo:
+   - DURMIENDO: la app está bloqueada a propósito, así que el día no se toca
+     —ni arrastrar, ni abrir un bloque—. Quien quiera acomodar algo, primero
+     se levanta: es un toque en «Buenos días».
+   - TRAMO EN CURSO: mover el bloque que estás enfocando cambiaría a media
+     cuenta lo que se está midiendo. Ahí solo se prohíbe ARRASTRAR; abrir un
+     bloque y mirarlo sigue valiendo.
+   El Hiperfoco no entra: su tramo no cuelga de la rueda, y quien lo usa puede
+   estar planeando el día mientras tanto. */
+function jQuieta() {
+  const j = jDatos();
+  if (j.dormido) return { todo: true, txt: tx("Mientras duermes, la rueda se queda quieta. Toca «Buenos días» para acomodar tu día.") };
+  const r = j.run;
+  if (r && !r.lite && (r.fase === "foco" || r.fase === "descanso")) {
+    return { todo: false, txt: tx("Con un tramo en curso los bloques no se mueven. Termínalo o abandónalo para acomodar tu día.") };
+  }
+  return null;
+}
 function jPaso() {
+  jModoDormir();
   if (!jornadaEncendida()) { jPintarPildora(); return; }
   const run = jDatos().run;
   if (run && (run.fase === "foco" || run.fase === "descanso") && run.dur && run.seg && jTrans(run) >= run.dur && jPuedoCerrar(run)) jFinFase();
@@ -1446,6 +1495,8 @@ function cerrarHojaJornada(desdeFuera) {
   if (m) m.classList.remove("show");
 }
 function jAbrirBloque(id) {
+  const q = jQuieta();
+  if (q && q.todo) { toast(q.txt, "atencion"); return; }
   const b = jDatos().bloques.find(x => x.id === id);
   if (b) jEdit = { id: b.id, descanso: b.descanso || null, ref: b.ref || null, color: b.color || null, nombre: b.nombre || "", ini: b.ini, fin: b.fin };
   else {
