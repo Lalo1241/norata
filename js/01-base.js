@@ -48,8 +48,8 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.110";
-const VERSION_FECHA = "13 sep 2026";
+const VERSION = "0.7.111";
+const VERSION_FECHA = "14 sep 2026";
 
 /* ================= Iconografía propia =================
    Iconos de trazo (24x24) dibujados a mano; nada de emojis. */
@@ -925,18 +925,35 @@ function exigenciaActual() {
 
    Lo pidió Eduardo con la bienvenida larga: preguntarlo una vez y usarlo.
 
-   Tres valores y ninguno es el de nadie por defecto:
-     "m"  masculino     Rastreador
-     "f"  femenino      Rastreadora
-     "x"  no binario    Rastreadore
+   ---- Y en 0.7.110 cambió lo que significa "x" ----
 
-   Y **"x" es lo que hay cuando no se ha contestado**, no el masculino. Quien
-   no pasó por la bienvenida no ha dicho nada, y suponerle un género es
-   exactamente lo que este ajuste existe para no hacer.
+   Hasta entonces "x" era la forma en -e —Rastreadore, Exploradore— y el
+   párrafo de arriba daba los rangos como el rincón sin salida. Ya no lo son:
+   **los cinco rangos se renombraron a palabras que no marcan** (Andante,
+   Vigía, Guía, Líder, Navegante), así que el rincón se cerró por el otro lado.
 
-   La forma en "-e" se usa SOLO cuando se pidió explícitamente. No es una
-   propuesta que la app le haga a nadie: es lo que espera quien eligió esa
-   casilla, y quien no la eligió no la ve nunca. */
+   La regla que dejó Eduardo, y que vale para toda frase nueva: **el neutro no
+   se inventa con una letra, se consigue eligiendo palabras que ya no marcan.**
+   La app ya lo hacía sin decirlo —«Te damos la bienvenida» en vez de
+   «Bienvenido», el saludo de madrugada que usa el nombre— y ahora es la única
+   manera. La forma en -e no se usa en ninguna parte y no se va a volver a usar.
+
+   Tres valores, y el tercero YA NO ES UNA TERCERA FORMA sino la ausencia de
+   las otras dos:
+     "m"  masculino     «Bienvenido de vuelta»
+     "f"  femenino      «Bienvenida de vuelta»
+     "x"  sin marcar    «Te damos la bienvenida»   ← el de quien no contestó
+
+   Y **"x" sigue siendo lo que hay cuando no se ha contestado**, no el
+   masculino. Quien no pasó por la bienvenida no ha dicho nada, y suponerle un
+   género es exactamente lo que este ajuste existe para no hacer. Por eso la
+   pregunta solo enseña DOS opciones (`OB_GENEROS`) y Ajustes lleva un botón
+   para volver aquí: el neutro no es una casilla que se elige, es el suelo.
+
+   Dónde muerde: `gen(m, f, x)` deja la `x` opcional y sin ella devuelve la
+   masculina. Eso está bien para una palabra que ya vale para todos —ahí las
+   tres son la misma— pero es un fallo silencioso si la frase SÍ marca y nadie
+   escribió el rodeo. Al escribir un `gen()` nuevo, la tercera se piensa. */
 const GENEROS = ["m", "f", "x"];
 const GENERO_POR_DEFECTO = "x";
 

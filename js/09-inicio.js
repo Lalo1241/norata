@@ -180,10 +180,22 @@ const ONBOARD_AREAS = [
    no es un capricho de orden: es lo único que cambia cómo suenan las CINCO
    siguientes, y preguntarlo al final sería hablarle a alguien durante seis
    pantallas sin saber cómo. Ver `GENEROS` en js/01-base.js. */
+/* ---- Dos opciones, y el ejemplo es una FRASE y no un rango ----
+
+   Aquí había tres, y la tercera era la forma en -e. La quitó Eduardo: el
+   neutro no se hace inventando una letra, se hace eligiendo palabras que ya no
+   marcan. Los cinco rangos se renombraron por eso (ver `EXP_RANGOS`), y quien
+   no conteste sigue cayendo en el neutro —`GENERO_POR_DEFECTO` es "x"—, que
+   ahora significa «esquiva el género con la frase».
+
+   Y el ejemplo tuvo que cambiar con ello, que es la parte que se pasa por
+   alto: ilustraba la pregunta con un rango —Explorador / Exploradora— y los
+   rangos ya no marcan género, así que las dos opciones habrían enseñado la
+   MISMA palabra debajo. Ahora el ejemplo es el saludo de la portada, que es
+   una de las frases que de verdad cambian. */
 const OB_GENEROS = [
-  { id: "f", label: "En femenino",  ej: "Exploradora", icon: "smile" },
-  { id: "m", label: "En masculino", ej: "Explorador",  icon: "smile" },
-  { id: "x", label: "En neutro",    ej: "Exploradore", icon: "compass" }
+  { id: "f", label: "En femenino",  ej: "Bienvenida de vuelta", icon: "smile" },
+  { id: "m", label: "En masculino", ej: "Bienvenido de vuelta", icon: "smile" }
 ];
 
 /* Cuánto tiempo real hay al día. Es la pregunta que más cambia lo que se crea
@@ -1738,7 +1750,24 @@ function renderGenero() {
   const panel = document.getElementById("panel-genero");
   if (panel) panel.hidden = !preguntaGenero();
   if (!preguntaGenero()) return;
-  wrap.innerHTML = obOpciones(OB_GENEROS, generoActual(), "ponerGenero");
+  /* ---- Y la salida de vuelta al neutro ----
+     Desde 0.7.110 la lista son DOS, porque el neutro dejó de ser una opción
+     con forma propia y pasó a ser lo que hace la app cuando no le has dicho
+     nada: esquivar el género con la frase. Pero sin este botón, elegir era de
+     ida y sin vuelta — quien tocara «En femenino» por curiosidad se quedaba
+     dentro para siempre, y eso convierte una preferencia en una trampa.
+     Solo sale cuando hay algo que deshacer. */
+  const elegido = generoActual();
+  const puesto = elegido === "f" || elegido === "m";
+  wrap.innerHTML = obOpciones(OB_GENEROS, elegido, "ponerGenero") +
+    `<p class="settings-note" style="margin-top:10px">${
+      puesto
+        ? tx("Sin elegir ninguna, cambio la frase para no marcar género: «Te damos la bienvenida» en vez de «Bienvenido».")
+        : tx("Ahora mismo no marco género: te digo «Te damos la bienvenida» en vez de «Bienvenido». Elige una si prefieres que hable de una forma concreta.")
+    }</p>` +
+    (puesto
+      ? `<button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="ponerGenero('x')">${tx("Prefiero no decirlo")}</button>`
+      : "");
 }
 
 function ponerGenero(g) {
@@ -1752,7 +1781,8 @@ function ponerGenero(g) {
      repintara esa pantalla, y eso se lee como que el ajuste no hizo nada. */
   if (typeof renderSummary === "function") renderSummary();
   const uno = OB_GENEROS.filter(x => x.id === g)[0];
-  toast(uno ? T`Te hablo ${tx(uno.label).toLowerCase()}` : tx("Hecho"), "hecho");
+  toast(uno ? T`Te hablo ${tx(uno.label).toLowerCase()}`
+            : tx("Listo, ya no marco género"), "hecho");
 }
 
 /* ================= Cuánto tiempo tengo, y dónde se me cae =================
