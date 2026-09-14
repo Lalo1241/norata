@@ -854,11 +854,14 @@ const J_RELOJES = (() => {
     mediano: def({ vb: "0 0 170 240", cx: 85, hw: 36, y0: 34, y1: 206, pared: 28,
       atras: po(30, 32, 208) + po(140, 32, 208),
       cabDelante: pz(12, 8, 146, 14, 4) + pz(22, 22, 126, 12, 3) }),
+    /* Menos adornos (0.7.108.2): con cuatro postes, seis torneados y la escala
+       de rayas al costado, el grande se separaba demasiado de los otros dos
+       —«se diferencia demasiado de los otros 2», dijo Eduardo—. Se queda con
+       el arco y su remate, que es lo que le da el rango sin volverlo otro
+       objeto. Con la escala se fue el último uso de `.jor-marca`. */
     grande: def({ vb: "0 0 200 300", cx: 100, hw: 38, y0: 40, y1: 260, pared: 64,
-      atras: po(40, 38, 262) + po(160, 38, 262) + po(52, 38, 262, "fino") + po(148, 38, 262, "fino") +
-        [92, 150, 208].map(y => `<ellipse class="jor-madera" cx="40" cy="${y}" rx="7" ry="10"/><ellipse class="jor-madera" cx="160" cy="${y}" rx="7" ry="10"/>`).join(""),
+      atras: po(40, 38, 262) + po(160, 38, 262),
       cabAtras: `<circle class="jor-madera" cx="100" cy="7" r="5"/><path class="jor-madera" d="M40 28 Q100 -4 160 28 Z"/>`,
-      adelante: [48, 64, 80, 96, 204, 220, 236, 252].map(y => `<line class="jor-marca" x1="141" y1="${y}" x2="146" y2="${y}"/>`).join(""),
       cabDelante: pz(30, 26, 140, 13, 3) })
   };
 })();

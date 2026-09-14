@@ -100,6 +100,25 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.108.2 · 13 sep 2026
+
+**El reloj pequeño crece, el grande se despeja y los tres se centran en su
+caja.** Tres notas de Eduardo mirando los relojes en la app:
+
+- **El pequeño ya no queda tan atrás del mediano**: pasa de 112 a 132 px en el
+  teléfono y de 130 a 154 en PC (el mediano mide 150 y 176), y en el centro de
+  la rueda de 48 a 55 y de 58 a 66.
+- **El grande pierde el exceso de adorno**: fuera los dos postes finos, los seis
+  torneados y la escala de rayas del costado. Se queda con el arco y su remate
+  —«se diferencia demasiado de los otros 2»—. Con la escala se fue el último
+  uso de `.jor-marca`, así que la regla también.
+- **La caja del reloj CENTRA en vez de apoyar abajo**: apoyado, todo el sobrante
+  se juntaba arriba y cantaba la diferencia de alto; centrado se reparte en dos
+  mitades (31 px arriba y 31 abajo en el pequeño, 20 y 20 en el mediano).
+
+La tarjeta sigue midiendo lo mismo en las nueve combinaciones de manera y
+tiempo, que es lo que arregló la 0.7.107.1.
+
 ### 0.7.108.1 · 11 sep 2026
 
 **Los tres relojes de arena, simétricos, y ahora gira el reloj ENTERO.** Es la
