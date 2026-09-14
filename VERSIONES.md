@@ -112,6 +112,30 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.113 · 14 sep 2026
+
+**Modo dormir: la app entera se atenúa, y la rueda no se toca.** Lo pidió
+Eduardo viendo el Pomodoro en «Durmiendo»: mientras duermes, la app no es para
+usarse, y eso tiene que verse en toda la interfaz.
+
+- **El velo.** Con `state.jornada.dormido` puesto, `<html>` lleva la clase
+  `durmiendo` y un velo cubre la app entera. Va por debajo de la píldora del
+  reloj, de las ventanas y de los avisos, y **no atrapa el puntero**: atenuar no
+  es desactivar. De noche hunde la app hacia su propio fondo (66%); de día el
+  velo es OSCURO (la tinta al 34%), porque uno claro sobre papel no atenúa,
+  lava. Capa nueva `--piso-dormir: 105`.
+- **La píldora sale también durmiendo**, y no es adorno: con todo atenuado es lo
+  único encendido, dice desde qué hora duermes y es el camino a «Buenos días».
+  Sin ella, la pantalla se quedaba sin una sola salida a la vista.
+- **La rueda se queda quieta**, y son dos casos distintos (`jQuieta`):
+  durmiendo no se arrastra NI se abre un bloque —primero te levantas—; con un
+  tramo del día en curso solo se prohíbe arrastrar, porque mover el bloque que
+  estás enfocando cambiaría a media cuenta lo que se está midiendo. Elegir y
+  mirar siguen valiendo. El Hiperfoco no entra: su tramo no cuelga de la rueda.
+- Mientras está quieta **no se dibujan las asas** y el cursor deja de ser una
+  mano, así que se sabe antes de intentarlo; al intentarlo, un aviso dice por
+  qué y qué hacer.
+
 ### 0.7.112 · 14 sep 2026
 
 **El banner de cada módulo no sale en el teléfono, y el informe se alcanza desde
