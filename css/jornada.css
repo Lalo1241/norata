@@ -255,6 +255,26 @@ html.claro .jor-arena-g { filter: none; }
 .jor-mas { margin-top: 2px; }
 .btn.seguro { background: var(--coral-soft); }
 .jor-regla { margin: 0; text-align: center; font-size: 12.5px; color: var(--muted); }
+/* ---- Despertar, con la app atenuada (0.7.113.1) ----
+   El botón y su renglón se levantan POR ENCIMA del velo: son la única salida
+   y tienen que leerse sin pelear con la penumbra. El halo respira para que el
+   ojo lo encuentre al abrir la app medio dormido. De día no hay resplandor
+   —regla de la casa—, así que ahí late un aro en vez de un halo: dice lo mismo
+   sin manchar el papel. */
+html.durmiendo .jor-despertar,
+html.durmiendo #jor-controles .jor-regla { position: relative; z-index: var(--piso-despertar); }
+html.durmiendo #jor-controles .jor-regla { color: var(--text); font-size: 13px; }
+.jor-despertar .btn { animation: jor-respira 2.8s ease-in-out infinite; }
+@keyframes jor-respira {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--mint) 50%, transparent); }
+  50% { box-shadow: 0 0 24px 5px color-mix(in srgb, var(--mint) 50%, transparent); }
+}
+html.claro .jor-despertar .btn { animation: jor-respira-dia 2.8s ease-in-out infinite; }
+@keyframes jor-respira-dia {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--mint) 34%, transparent); }
+  50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--mint) 26%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .jor-despertar .btn { animation: none; } }
 /* Las salidas secundarias van como enlace y no como botón: «Enfocar de todos
    modos» dentro de un descanso y «Abandonar» en el modo Libre. Un tercer botón
    grande competiría con los dos que sí son la acción. */

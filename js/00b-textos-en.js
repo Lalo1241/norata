@@ -3414,5 +3414,6 @@ const TEXTOS_EN = {
   "Ver más iconos": "More icons",
   "Ver menos": "Fewer icons",
   "Mientras duermes, la rueda se queda quieta. Toca «Buenos días» para acomodar tu día.": "While you sleep, the wheel stays put. Tap «Good morning» to arrange your day.",
-  "Con un tramo en curso los bloques no se mueven. Termínalo o abandónalo para acomodar tu día.": "With a stretch running, blocks don't move. Finish it or drop it to arrange your day."
+  "Con un tramo en curso los bloques no se mueven. Termínalo o abandónalo para acomodar tu día.": "With a stretch running, blocks don't move. Finish it or drop it to arrange your day.",
+  "Ya desperté": "I'm awake"
 };
