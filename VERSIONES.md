@@ -112,6 +112,30 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.113.2 · 14 sep 2026
+
+**El botón de despertar sale de la penumbra, y de día se acaba el marrón.**
+
+- **«Buenos días, ya desperté»** — el saludo y lo que haces, en el mismo
+  renglón.
+- **Ahora sí escapa del velo.** Tenía su piso puesto desde la 0.7.113.1 y
+  seguía atenuado: `.app` lleva `z-index: 1`, o sea que es su propio contexto de
+  apilamiento, y cualquier piso de dentro se compara solo contra sus hermanos,
+  nunca contra un velo que cuelga de `body`. Mientras se duerme, `.app` deja de
+  crear contexto y entonces 106 sí le gana a 105. **Vale para cualquier cosa
+  que algún día tenga que salir por encima del velo.**
+- **Late por dentro y brilla al pasar el cursor**: una luz que respira dentro
+  del botón —no solo el halo de fuera— y un destello que lo barre de izquierda a
+  derecha, una pasada y no en bucle, el mismo gesto que la carta de subir de
+  nivel.
+- **De día, el descanso deja la luciérnaga y pasa al celeste.** Escrito, el
+  amarillo se vuelve `#755c05`, un marrón que Eduardo paró en cuanto lo vio, y
+  la arena del reloj salía mostaza. Tres variables nuevas —`--jor-brasa`,
+  `--jor-brasa-grano` y `--jor-brasa-velo`— separan lo que escribe, lo que
+  rellena y el velo tenue, así que de noche todo sigue exactamente igual.
+- **Los gajos de descanso destacan de día**: la mezcla de noche los dejaba
+  perdidos contra la tarjeta clara, y suben a 56%, 70% y 78% de tinta.
+
 ### 0.7.113.1 · 14 sep 2026
 
 **Despertar se ve, y la cuenta dice lo que falta.** Cuatro retoques del modo

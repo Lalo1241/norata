@@ -6,6 +6,15 @@
    claro, los ambientes y los mundos le llegan solos. */
 
 :root {
+  /* El descanso y el sueño escriben en «brasa». De noche es la luciérnaga; de
+     día NO puede serlo: al escribir, el amarillo se vuelve #755c05 —un marrón
+     que Eduardo paró en cuanto lo vio— y la arena del reloj sale mostaza. De
+     día el descanso pasa al celeste, que además dice noche mejor que el ámbar.
+     Son dos tonos porque son dos oficios: uno escribe y traza, el otro rellena
+     (ver la tabla de la paleta en `estilos.css`). */
+  --jor-brasa: var(--fire);
+  --jor-brasa-grano: var(--fire-macizo);
+  --jor-brasa-velo: var(--fire-soft);
   /* El velo del modo dormir. De noche basta hundir la app hacia su propio
      fondo; de día hace falta un velo OSCURO —uno claro sobre papel no atenúa,
      lava—, y ahí `--text` es justo el azul casi negro de la tinta. */
@@ -40,13 +49,24 @@ html.durmiendo body::after {
   content: ""; position: fixed; inset: 0; z-index: var(--piso-dormir);
   background: var(--jor-velo); pointer-events: none;
 }
-html.claro { --jor-velo: color-mix(in srgb, var(--text) 34%, transparent); }
+html.claro {
+  --jor-velo: color-mix(in srgb, var(--text) 34%, transparent);
+  --jor-brasa: var(--celeste);
+  --jor-brasa-grano: color-mix(in srgb, var(--celeste) 66%, white);
+  --jor-brasa-velo: color-mix(in srgb, var(--celeste) 13%, white);
+  /* Y los gajos de descanso, un escalón más oscuros de día: con la mezcla de
+     noche se perdían contra la tarjeta clara. Lo pidió Eduardo — «que
+     destaquen también en modo claro». */
+  --jor-sueno: color-mix(in srgb, var(--muted) 56%, var(--bg));
+  --jor-descanso: color-mix(in srgb, var(--muted) 70%, var(--bg));
+  --jor-libre: color-mix(in srgb, var(--muted) 78%, var(--bg));
+}
 
 .jor-prueba {
   display: inline-block; vertical-align: middle; margin-left: 10px;
   font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
   padding: 2px 9px; border-radius: var(--r-pastilla);
-  background: var(--fire-soft); color: var(--fire);
+  background: var(--jor-brasa-velo); color: var(--jor-brasa);
 }
 
 /* ---- Mi día / Solo enfocar (0.7.104) ---- */
@@ -152,7 +172,7 @@ html.claro .jor-blq.ahora { filter: none; }
 #jor-tiempo { font-size: 32px; font-weight: 300; letter-spacing: -.02em; line-height: 1; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
 #jor-fase { font-size: 12px; font-weight: 700; color: var(--text); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
 #jor-fase.foco { color: var(--mint); }
-#jor-fase.brasa { color: var(--fire); }
+#jor-fase.brasa { color: var(--jor-brasa); }
 #jor-fase.pausa { color: var(--coral); }
 #jor-sub { font-size: 11px; color: var(--muted); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* La hora a la que acaba la fase. Un peldaño por debajo del subtítulo —más
@@ -178,7 +198,7 @@ html.claro .jor-blq.ahora { filter: none; }
 .jor-arena.t-chico { --jor-alto: 55px; }
 .jor-arena.t-mediano { --jor-alto: 62px; }
 .jor-arena.t-grande { --jor-alto: 74px; }
-.jor-arena.brasa { --jor-grano: var(--fire-macizo); }
+.jor-arena.brasa { --jor-grano: var(--jor-brasa-grano); }
 .jor-arena.pausa { --jor-grano: var(--coral-macizo); }
 /* ---- El volteo: una vuelta de verdad, no un estirón ----
    Media vuelta sobre el centro de SU cuello, que es el punto de giro que cada
@@ -261,10 +281,40 @@ html.claro .jor-arena-g { filter: none; }
    ojo lo encuentre al abrir la app medio dormido. De día no hay resplandor
    —regla de la casa—, así que ahí late un aro en vez de un halo: dice lo mismo
    sin manchar el papel. */
+/* `.app` lleva `z-index: 1`, o sea que es su PROPIO contexto de apilamiento:
+   cualquier z-index de dentro se compara solo contra sus hermanos, nunca
+   contra el velo, que cuelga de `body`. Por eso el botón seguía atenuado por
+   mucho piso que se le pusiera. Mientras se duerme, `.app` deja de crear
+   contexto y entonces sí: 106 le gana a 105. */
+html.durmiendo .app { z-index: auto; }
 html.durmiendo .jor-despertar,
 html.durmiendo #jor-controles .jor-regla { position: relative; z-index: var(--piso-despertar); }
 html.durmiendo #jor-controles .jor-regla { color: var(--text); font-size: 13px; }
-.jor-despertar .btn { animation: jor-respira 2.8s ease-in-out infinite; }
+.jor-despertar .btn { position: relative; overflow: hidden; animation: jor-respira 2.8s ease-in-out infinite; }
+/* Dentro del botón late una luz, no solo el halo de fuera: es lo que lo hace
+   parecer encendido y no solo enmarcado. */
+.jor-despertar .btn::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 150% at 50% 130%, rgba(255, 255, 255, .55), transparent 62%);
+  animation: jor-late 2.8s ease-in-out infinite;
+}
+@keyframes jor-late { 0%, 100% { opacity: .18; } 50% { opacity: .5; } }
+/* Y al pasar el cursor, un destello lo barre de izquierda a derecha. Es el
+   mismo gesto que `.ncel-fulgor` en la carta de subir de nivel: una pasada,
+   no un bucle — en bucle sería un anuncio. El blanco aquí es LUZ y no un tono
+   de la paleta, que es la única razón por la que va escrito a mano. */
+.jor-despertar .btn::after {
+  content: ""; position: absolute; top: -40%; bottom: -40%; left: 0; width: 55%;
+  background: linear-gradient(74deg, transparent 38%, rgba(255, 255, 255, .5) 50%, transparent 62%);
+  pointer-events: none; opacity: 0;
+}
+.jor-despertar .btn:hover::after,
+.jor-despertar .btn:focus-visible::after { animation: jor-fulgor .9s ease-out; }
+@keyframes jor-fulgor {
+  0% { transform: translateX(-120%); opacity: 0; }
+  22% { opacity: 1; }
+  100% { transform: translateX(220%); opacity: 0; }
+}
 @keyframes jor-respira {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--mint) 50%, transparent); }
   50% { box-shadow: 0 0 24px 5px color-mix(in srgb, var(--mint) 50%, transparent); }
@@ -274,7 +324,9 @@ html.claro .jor-despertar .btn { animation: jor-respira-dia 2.8s ease-in-out inf
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--mint) 34%, transparent); }
   50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--mint) 26%, transparent); }
 }
-@media (prefers-reduced-motion: reduce) { .jor-despertar .btn { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .jor-despertar .btn, .jor-despertar .btn::before, .jor-despertar .btn::after { animation: none; }
+}
 /* Las salidas secundarias van como enlace y no como botón: «Enfocar de todos
    modos» dentro de un descanso y «Abandonar» en el modo Libre. Un tercer botón
    grande competiría con los dos que sí son la acción. */
@@ -332,15 +384,15 @@ html.claro .jor-despertar .btn { animation: jor-respira-dia 2.8s ease-in-out inf
 .jornada-pildora .ic { width: 34px; height: 34px; border-radius: var(--r-redondo); display: grid; place-items: center; background: var(--mint-soft); color: var(--mint); }
 /* La píldora REACCIONA al estado (0.7.102): en pausa se veía menta, como si
    siguiera corriendo. Borde, disco del icono y rótulo cambian juntos. */
-.jornada-pildora.brasa { border-color: var(--fire); }
-.jornada-pildora.brasa .ic { background: var(--fire-soft); color: var(--fire); }
+.jornada-pildora.brasa { border-color: var(--jor-brasa); }
+.jornada-pildora.brasa .ic { background: var(--jor-brasa-velo); color: var(--jor-brasa); }
 .jornada-pildora.pausa { border-color: var(--coral); }
 .jornada-pildora.pausa .ic { background: var(--coral-soft); color: var(--coral); }
 /* Con `.jornada-pildora` delante a propósito: la regla de la cifra grande
    (`.jornada-pildora b`) también atrapa este `<b>`, y ganaba — lo dejaba en
    bloque y con peso 500, así que el estado no salía en negritas. */
 .jornada-pildora .jor-pil-est { display: inline; font-size: inherit; font-family: inherit; line-height: inherit; font-weight: 700; color: var(--mint); }
-.jornada-pildora.brasa .jor-pil-est { color: var(--fire); }
+.jornada-pildora.brasa .jor-pil-est { color: var(--jor-brasa); }
 .jornada-pildora.pausa .jor-pil-est { color: var(--coral); }
 .jornada-pildora .ic svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 .jornada-pildora b { display: block; font-size: 17px; font-weight: 500; line-height: 1.1; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
