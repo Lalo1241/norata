@@ -879,7 +879,7 @@ function abrirSaltoDeRama(e) {
       return `<button${aqui ? ' class="aqui"' : ""} onclick="cerrarCtxMenu();saltarARama('${enJS(n)}')">
         <span class="ctx-tx"><b>${escapeHtml(n)}</b><span>${cuantos} ${
           esProy ? (cuantos === 1 ? "encargo" : "encargos") : (cuantos === 1 ? "talento" : "talentos")}</span></span>
-        ${aqui ? `<span class="ctx-ic">✓</span>` : ""}
+        ${aqui ? `<span class="ctx-ic">${PALOMITA}</span>` : ""}
       </button>`;
     }).join("");
   const r = e.currentTarget.getBoundingClientRect();

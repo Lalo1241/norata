@@ -344,7 +344,8 @@ html.claro .jor-arena-g { filter: none; }
 .jor-op[aria-pressed="true"] { border-color: var(--mint); background: var(--mint-soft); }
 .jor-op-t { font-size: 14px; }
 .jor-op small { display: block; font-size: 12px; color: var(--muted); }
-.jor-ok { color: var(--mint); font-weight: 700; }
+.jor-ok { color: var(--mint); display: inline-flex; }
+.jor-ok svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
 /* La rueda de la hoja (0.7.109): la misma, en pequeño y solo para mirar. */
 .jor-previa { display: block; width: 100%; max-width: 200px; margin: 2px auto 6px; overflow: visible; }
 .jor-previa .jor-blq { stroke: var(--sup-tarjeta); stroke-width: 2; }

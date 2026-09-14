@@ -1468,8 +1468,12 @@ function jPreviaRueda(e) {
   </svg>`;
 }
 
+/* La palomita es SIEMPRE la de Misiones (`PALOMITA`, en 04-misiones.js) y
+   nunca el carácter «✓»: cada sistema lo dibuja a su manera —más fino, más
+   alto, desalineado— y no casa con ningún otro icono de la app. Lo paró
+   Eduardo al verlo aquí al lado de la lista de misiones. */
 function jOpcion(v, tile, titulo, sub, sel, act) {
-  return `<button type="button" class="jor-op" data-act="${act}" data-v="${escapeAttr(v)}" aria-pressed="${sel}">${tile}<span><span class="jor-op-t">${titulo}</span>${sub ? `<small>${sub}</small>` : ""}</span><span class="jor-ok">${sel ? "✓" : ""}</span></button>`;
+  return `<button type="button" class="jor-op" data-act="${act}" data-v="${escapeAttr(v)}" aria-pressed="${sel}">${tile}<span><span class="jor-op-t">${titulo}</span>${sub ? `<small>${sub}</small>` : ""}</span><span class="jor-ok">${sel ? PALOMITA : ""}</span></button>`;
 }
 function jTileDe(o) {
   return `<span class="jor-tile chico" style="background:${o.color ? pinta(o.color) : "var(--jor-libre)"}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${jIconoDe(o)}</svg></span>`;

@@ -100,6 +100,19 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.109.1 · 13 sep 2026
+
+**La palomita, la de siempre.** Eduardo la vio en la hoja del Pomodoro, justo al
+lado de la lista de misiones: ahí era el carácter «✓» y no el dibujo de la casa.
+Ahora sale de `PALOMITA` (`js/04-misiones.js`), con el trazo de 3.2 que ya
+llevan las casillas de estado, porque a este tamaño el de por defecto se
+deshace. De paso se cambió el otro que quedaba suelto, el del menú de ramas del
+lienzo.
+
+La regla, que es lo que importa de esta versión: **la palomita se toma siempre
+de `PALOMITA` y nunca se escribe el carácter**. Cada sistema lo dibuja a su
+manera —más fino, más alto, desalineado— y no casa con ningún otro icono.
+
 ### 0.7.109 · 13 sep 2026
 
 **Los bloques ya no son muros, y cada uno puede llamarse como quieras.** Tres
