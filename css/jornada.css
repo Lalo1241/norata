@@ -103,6 +103,10 @@
 .jor-num.mayor { fill: var(--text); font-weight: 700; }
 .jor-blq { stroke: var(--jor-sep); stroke-width: 2; cursor: grab; }
 .jor-blq.sel { stroke: var(--text); stroke-width: 2.2; }
+/* Mientras vuela por encima de otros (0.7.109): en el aire, y en coral cuando
+   está pisando algo — ahí no se queda, al soltarlo se va al hueco más cercano. */
+.jor-blq.volando { opacity: .92; }
+.jor-blq.encima { stroke: var(--coral); stroke-width: 2.4; stroke-dasharray: 5 4; }
 /* El gajo en curso brilla con su color: el mismo halo que `.barra-viva i`
    (10 px al 55%) más uno corto que lo pega al borde. Sin animación: el color
    sale de una variable, y animado se queda congelado en Chrome. */
@@ -341,6 +345,14 @@ html.claro .jor-arena-g { filter: none; }
 .jor-op-t { font-size: 14px; }
 .jor-op small { display: block; font-size: 12px; color: var(--muted); }
 .jor-ok { color: var(--mint); font-weight: 700; }
+/* La rueda de la hoja (0.7.109): la misma, en pequeño y solo para mirar. */
+.jor-previa { display: block; width: 100%; max-width: 200px; margin: 2px auto 6px; overflow: visible; }
+.jor-previa .jor-blq { stroke: var(--sup-tarjeta); stroke-width: 2; }
+.jor-previa .jor-blq.otro { opacity: .45; }
+.jor-previa .jor-blq.nuevo { stroke: var(--text); stroke-width: 2.4; }
+.jor-campo { display: grid; gap: 6px; }
+.jor-campo label { font-size: 14px; }
+.jor-campo input { width: 100%; }
 .jor-nota { margin: 0; font-size: 13px; color: var(--muted); }
 .jor-nota.error { color: var(--coral); }
 .jor-efecto { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; padding: 12px; border-radius: var(--r-tarjeta); background: var(--mint-soft); font-size: 14px; }

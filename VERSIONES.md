@@ -100,6 +100,31 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.109 · 13 sep 2026
+
+**Los bloques ya no son muros, y cada uno puede llamarse como quieras.** Tres
+cosas que pidió Eduardo probando la rueda:
+
+- **Un bloque pasa por encima de otro.** Antes se quedaba pegado a su vecino
+  —«parecen muros y no permiten reorganizar el orden de las cosas»—, así que
+  para llevar algo al otro lado del día había que mover primero todo lo que
+  hubiera en medio. Ahora vuela libre y la cuenta se hace al SOLTARLO: si el
+  sitio está libre se queda ahí; si está ocupado se va al hueco libre más
+  cercano; y si no hay ninguno que le quepa, vuelve a donde estaba y se dice por
+  qué. Mientras cruza por encima de otro se pone en coral con el trazo cortado,
+  para que se lea que ahí no se queda.
+- **Nombre propio.** Un campo en la hoja del bloque: si lo dejas vacío sigue
+  saliendo el nombre de siempre —Dormir, Comer, la misión que enfoca— y si
+  escribes algo, manda lo tuyo. Con un nombre basta para guardar un bloque, sin
+  vincularlo a nada.
+- **La rueda, dentro de la hoja.** Creando un bloque desde el botón, la hoja
+  tapaba la rueda entera y no había forma de ver dónde iba a caer lo nuevo. Va
+  la misma rueda en pequeño, solo para mirar, con lo que ya hay apagado y lo
+  nuevo en primer plano; se mueve sola al cambiar las horas.
+
+Estirar una punta sigue respetando al vecino: alargar un bloque hasta comérselo
+no tiene un resultado que valga, y lo que se pedía era reordenar.
+
 ### 0.7.108.2 · 13 sep 2026
 
 **El reloj pequeño crece, el grande se despeja y los tres se centran en su
