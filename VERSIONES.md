@@ -222,6 +222,38 @@ idioma puesto**, sin una línea más de fontanería: lo hace la normalización d
   puede meter en el diccionario por su cuenta: aparece en media app. Los dos
   enlaces se arman fuera de la plantilla y la frase entera cabe en una clave.
 
+**El sol y la luna, que faltaban.** La puerta LEÍA el modo claro desde la
+primera versión —el script de arriba de `login/index.html`— pero no dejaba
+cambiarlo: quien la abriera de día se comía la pantalla de noche hasta estar
+dentro de la app. Lo vio Eduardo y tiene arreglo barato, porque el control ya
+existe: se pega `temaSwitchHTML()` en un `.tema-hueco` y `pintarTema()` lo
+rellena, lo marca y —esto es lo que no se ve— **cambia el archivo del
+logotipo**, que es una imagen y tiene dos versiones. No es una copia del
+control de Ajustes: es el mismo, con el rótulo y las palabras ocultos por CSS.
+
+- **Los dos grupos bajan juntos a la esquina inferior izquierda.** Idioma y
+  aspecto son la misma clase de cosa —cómo te habla la app, decidido antes de
+  entrar— y en esquinas distintas se leen como dos controles sin relación.
+- **El rótulo de la prueba sube a la derecha**, que es la esquina que dejaron
+  libre. Abajo tapaba los botones, y un rótulo de pruebas que se come un botón
+  de verdad convierte la prueba en el problema.
+- **El elegido NO se marca en menta maciza**, que es como se marca este mismo
+  control dentro de Ajustes. En esta pantalla la menta es «Entrar», y hay una
+  sola cosa que lo merece; dos chispas verdes en la esquina le quitan al botón
+  el único acento que importa.
+- **Y un fallo que ya estaba:** la ceja del navegador se ponía en `#f2f4f8` —el
+  fondo de los CORREOS— y el de la app clara es `#dcdef0`, así que de día la
+  franja de arriba salía más clara que la página. Estaba en dos sitios: el
+  script de la puerta y el respaldo de `ponerTema`, que es justo el que corre
+  donde no existe `pintarColorDeBarra` — o sea, en la puerta.
+
+**Un tropiezo que solo se ve mirando:** ocultar las palabras del interruptor con
+`.ts-op span { display: none }` dejó los dos botones VACÍOS. `icon()` envuelve
+cada dibujo en un `<span class="ic">`, así que la regla corta se llevó por
+delante el sol y la luna. Es `span:not(.ic)`. No dio ningún error, ni en
+consola ni en la medición del DOM: los botones estaban, se podían pulsar y
+funcionaban. Solo faltaba el dibujo.
+
 **Y ya son dos direcciones: `/crear-cuenta/` y `/login/`.** Es la respuesta a la
 pregunta de más abajo, y sale por la puerta de en medio: `/crear-cuenta/` existe
 de verdad —es la que va en el botón de «Empieza gratis» de la landing— y lo

@@ -521,7 +521,10 @@ function ponerTema(cual) {
   if (typeof pintarColorDeBarra === "function") pintarColorDeBarra();
   else {
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", claro ? "#f2f4f8" : "#10151d");
+    /* El claro es `--bg` de `html.claro` y no `#f2f4f8`, que es el fondo de los
+       correos: este respaldo solo corre donde no existe `pintarColorDeBarra`
+       —o sea, en la PUERTA— y ahí dejaba una ceja más clara que la página. */
+    if (meta) meta.setAttribute("content", claro ? "#dcdef0" : "#10151d");
   }
   pintarTema();
 }
