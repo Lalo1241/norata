@@ -556,33 +556,56 @@ function nombreDeDia(i) {
    menta, y un disco menta dentro de una pastilla menta vuelve a dejar la
    pantalla de un solo color — que es de lo que veníamos. */
 const MONEDA_COLOR = {
-  MXN: "#8fd18a",   /* verde   — el peso, y el verde del billete */
-  USD: "#f5d76e",   /* oro     — el otro $, y por eso no puede ser verde */
+  /* El rosa de la paleta, que de día sale en `#f03e7e`: el rosa mexicano de
+     toda la vida. Es lo más de aquí que hay entre los ocho sin recurrir a una
+     bandera —el verde ya se lo lleva el dólar, y el rojo es el coral, que en
+     esta app significa «esto destruye»—. */
+  MXN: "#f0a5c0",   /* rosa mexicano */
+  /* El verde se lo queda el dólar, que es de donde viene el verde del dinero.
+     Hasta la 0.7.115 era al revés y el dólar iba en oro, con esta nota al
+     lado: «el otro $, y por eso no puede ser verde». El motivo era que los dos
+     comparten símbolo y había que distinguirlos; ahora se distinguen igual
+     —uno lleva dos palos y el otro uno— y el color puede decir de dónde es
+     cada moneda en vez de solo separarlas. Lo pidió Eduardo. */
+  USD: "#8fd18a",   /* verde del billete */
   EUR: "#6fc3e8"    /* celeste — el azul de la Unión, sin la bandera */
 };
-/* El dólar va con DOS palitos y no con uno, y lo pidió Eduardo. La
-   tipografía solo trae el de uno —casi todas lo hacen— así que el símbolo se
-   dibuja: la S sale de la letra y los dos palos van encima, del alto del disco
-   y separados lo justo para que se vean dos y no un trazo grueso.
+/* ---- Los tres símbolos, DIBUJADOS y no escritos (0.7.115) ----
 
-   No es un capricho: el $ de dos barras es el que distingue el signo de peso
-   del de dólar en media América, y aquí hay las dos monedas en la misma lista.
-   El peso se queda con una y el dólar con dos. */
-const MONEDA_SIMBOLO = { MXN: "$", USD: "$", EUR: "€" };
-const MONEDA_BARRAS = { USD: 2 };
+   Hasta ahora salían de la tipografía, y estaba escrito aquí que dibujarlos
+   sería «copiar peor algo que ya está hecho». Es verdad para el € y para el $
+   de un palo — y justo por eso falla para el de DOS, que ninguna tipografía
+   trae: el dólar se armaba con la letra S y dos rectángulos encima, y se veía
+   lo que era, un remiendo. Los palos salían más altos que la S, más finos que
+   ella, y la S de la letra es más ancha que la del signo: en vez de un dólar
+   se leía una especie de cruz.
+
+   Así que los tres pasan a trazo, que además es la iconografía de la casa
+   («iconografía propia de trazo»). Dibujados los tres y no solo el que
+   fallaba: mezclar un glifo con un dibujo es exactamente lo que se veía mal.
+
+   Van en una caja de 24 y se encogen al 80% desde el centro, que es el hueco
+   que deja el disco. El grosor se escribe una vez arriba, así que los tres
+   pesan lo mismo — que era el otro fallo del remiendo.
+
+   El peso lleva UN palo y el dólar DOS: es lo que distingue los dos signos en
+   media América, y aquí las dos monedas están en la misma lista. */
+const MONEDA_DIBUJO = {
+  MXN: '<path d="M12 4.4v15.2"/><path d="M16 6.4H10a2.8 2.8 0 0 0 0 5.6h4a2.8 2.8 0 0 1 0 5.6H7.6"/>',
+  USD: '<path d="M10.2 4.4v15.2"/><path d="M13.8 4.4v15.2"/><path d="M16 6.4H10a2.8 2.8 0 0 0 0 5.6h4a2.8 2.8 0 0 1 0 5.6H7.6"/>',
+  EUR: '<path d="M17.4 6.8A7.4 7.4 0 1 0 17.4 17.2"/><path d="M4.8 10.4h9.4"/><path d="M4.8 13.9h7.2"/>'
+};
 
 /* No hay nada de nacional en los dos del idioma, y no puede haberlo: por eso
    el idioma no lleva bandera. Son dos etiquetas, y su único trabajo es no
-   parecerse entre ellas ni a ninguna moneda. */
-const IDIOMA_COLOR = { es: "#b7a2ea", en: "#f0a5c0" };
+   parecerse entre ellas ni a ninguna moneda.
 
-/* El símbolo va en un `<text>` de SVG y no en un trazado dibujado a mano: el $
-   y el € los tiene cualquier tipografía, así que dibujarlos sería copiar peor
-   algo que ya está hecho — y además se queda con la letra de la app, que es lo
-   que hace que el disco pertenezca a esta pantalla y no parezca pegado de otra
-   parte.
+   El inglés era rosa hasta la 0.7.115 y se movió al amarillo, que dejó libre
+   el dólar: el rosa pasó al peso y en la primera pantalla se ven los cinco a la
+   vez, así que dos iguales se leen como un error. */
+const IDIOMA_COLOR = { es: "#b7a2ea", en: "#f5d76e" };
 
-   Los dos ayudantes de abajo son los tres papeles de la paleta puestos donde
+/* Los dos ayudantes de abajo son los tres papeles de la paleta puestos donde
    toca (ver `pinta`, `tinta` y `trazo` en `js/01-base.js`):
 
      macizo   `pinta()` para el relleno + `--sobre-vivo` para la tinta — sobre
@@ -590,31 +613,19 @@ const IDIOMA_COLOR = { es: "#b7a2ea", en: "#f0a5c0" };
               ocho tonos del usuario son claros de día y de noche
      aro      `trazo()` para la línea —que pide 3 y no 4,5, porque es un
               dibujo— y `tinta()` para las letras, que sí son texto */
-function discoMacizo(simbolo, color, tam, barras) {
+function discoMacizo(dibujo, color, tam) {
   const s = tam || 26;
-  if (!simbolo || !color) return "";
-  /* Los dos palos del dólar. Se dibujan con `<rect>` y no con otra letra
-     porque tienen que ir DETRÁS de la S y del mismo alto que ella; con un
-     glifo encima de otro no hay forma de controlar ni el grosor ni el
-     solape. El ancho es 1,5 sobre 26, que es lo que hace que a este tamaño
-     se lean dos y no una barra gorda. */
-  const palo = s * 0.058;
-  const alto = s * 0.56;
-  const y = (s - alto) / 2;
-  const dosPalos = (barras === 2)
-    ? `<rect x="${(s / 2 - s * 0.10 - palo / 2).toFixed(2)}" y="${y.toFixed(2)}" width="${palo.toFixed(2)}" height="${alto.toFixed(2)}" fill="var(--sobre-vivo)"/>
-       <rect x="${(s / 2 + s * 0.10 - palo / 2).toFixed(2)}" y="${y.toFixed(2)}" width="${palo.toFixed(2)}" height="${alto.toFixed(2)}" fill="var(--sobre-vivo)"/>`
-    : "";
-  /* Con dos palos, la S va sin el palo que trae de serie: se recorta el
-     glifo del $ a la S usando el signo de dolar sin barra, que es la letra S
-     a secas. Así los únicos palos que se ven son los dos dibujados. */
-  const dentro = (barras === 2) ? "S" : simbolo;
-  return `<svg class="dsc" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" aria-hidden="true">
-    <circle cx="${s / 2}" cy="${s / 2}" r="${s / 2}" fill="${pinta(color)}"/>
-    ${dosPalos}
-    <text x="${s / 2}" y="${s / 2}" fill="var(--sobre-vivo)" font-size="${(s * 0.62).toFixed(1)}"
-      font-weight="700" text-anchor="middle" dominant-baseline="central"
-      font-family="inherit">${dentro}</text>
+  if (!dibujo || !color) return "";
+  /* La caja es SIEMPRE de 24 y el tamaño lo pone el `width`: así el dibujo se
+     escribe una vez, en coordenadas que se leen, y sirve a 18 o a 96 sin
+     recalcular nada. El símbolo se encoge al 80% desde el centro, que es el
+     hueco que le deja el disco; el grosor va escrito antes de esa reducción,
+     así que el trazo real es 2,5 × 0,8 = 2 sobre 24. */
+  return `<svg class="dsc" width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="12" fill="${pinta(color)}"/>
+    <g fill="none" stroke="var(--sobre-vivo)" stroke-width="2.5"
+       stroke-linecap="round" stroke-linejoin="round"
+       transform="translate(12 12) scale(.8) translate(-12 -12)">${dibujo}</g>
   </svg>`;
 }
 
@@ -633,7 +644,7 @@ function discoAro(texto, color, tam) {
 }
 
 function discoMoneda(cod, tam) {
-  return discoMacizo(MONEDA_SIMBOLO[cod], MONEDA_COLOR[cod], tam, MONEDA_BARRAS[cod]);
+  return discoMacizo(MONEDA_DIBUJO[cod], MONEDA_COLOR[cod], tam);
 }
 
 function discoIdioma(cod, tam) {

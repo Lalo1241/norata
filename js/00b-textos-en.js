@@ -696,6 +696,22 @@ const TEXTOS_EN = {
      si no se queda, y entonces estas siete frases se van con él. */
   "Del otro lado está lo tuyo: tus habilidades, tu progreso y lo que toca hoy.":
     "What's yours is on the other side: your skills, your progress and what today asks of you.",
+  "Nada de lo que construiste se fue a ningún lado. Te estaba esperando.":
+    "Nothing you built went anywhere. It was waiting for you.",
+  "Volver también cuenta. De hecho, es la parte difícil.":
+    "Coming back counts too. It's the hard part, actually.",
+  "Tu expedición sigue abierta, justo donde la dejaste.":
+    "Your expedition is still open, right where you left it.",
+  "Los días que no abriste la app también son parte del camino.":
+    "The days you didn't open the app are part of the road too.",
+  "Todo lo que admiras de alguien empezó siendo un martes cualquiera.":
+    "Everything you admire in someone started out as an ordinary Tuesday.",
+  "Una habilidad no sube porque lo decidas hoy. Sube porque lo repitas.":
+    "A skill doesn't rise because you decide it today. It rises because you repeat it.",
+  "Tienes por delante un camino largo, y se recorre en días pequeños.":
+    "You have a long road ahead, and it's walked in small days.",
+  "Lo que se mide se ve, y lo que se ve se sostiene.":
+    "What gets measured gets seen, and what gets seen holds up.",
   "Los días grandes no se deciden: se construyen con los pequeños.":
     "Big days aren't decided. They're built out of small ones.",
   "Misiones para hoy, que se marcan de un toque.":

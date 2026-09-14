@@ -19,6 +19,11 @@ const ASSETS = [
      Con una sola, la otra se quedaba sin copia y sin conexión daba un error de
      red en mitad del inicio de sesión. */
   "./login/", "./login/index.html",
+  /* La segunda puerta (en prueba, 0.7.115): la dirección que usa el botón de
+     «Empieza gratis» de la landing. Es un desvío a `/login/`, y va aquí por lo
+     mismo que la puerta: se llega por las dos formas, la que escribe un enlace
+     y la que pide el navegador al recargar. */
+  "./crear-cuenta/", "./crear-cuenta/index.html",
   "./icon.svg", "./favicon.svg", "./icon-192.png", "./icon-512.png",
   "./icon-maskable-512.png", "./apple-touch-icon.png",
   "./css/fuente.css", "./css/estilos.css", "./css/ambientes.css",

@@ -222,6 +222,54 @@ idioma puesto**, sin una línea más de fontanería: lo hace la normalización d
   puede meter en el diccionario por su cuenta: aparece en media app. Los dos
   enlaces se arman fuera de la plantilla y la frase entera cabe en una clave.
 
+**Y ya son dos direcciones: `/crear-cuenta/` y `/login/`.** Es la respuesta a la
+pregunta de más abajo, y sale por la puerta de en medio: `/crear-cuenta/` existe
+de verdad —es la que va en el botón de «Empieza gratis» de la landing— y lo
+único que hace es **desviar a `/login/`** abriendo en el formulario de crear
+cuenta. Así la landing tiene sus dos entradas y la puerta sigue siendo una sola
+página que mantener. El desvío usa `replace`, así que no se queda en el
+historial y «atrás» desde la puerta lleva a la landing y no a un bucle.
+
+**`/login/` no se toca, y esa es la parte importante.** Ahí apuntan el rebote de
+la app, la lista `ASSETS`, los enlaces de los correos y las direcciones de vuelta
+dadas de alta en Supabase; renombrarla cuesta todo eso y no gana nada, porque
+«login» lo entiende cualquiera. Si algún día se quiere el par completo en
+español, el cambio es `/entrar/` **con desvío desde `/login/`**, nunca al revés.
+De los nombres para la otra, `/crear-cuenta/` dice exactamente lo que pasa al
+entrar; `/empezar/` suena mejor en la landing pero promete algo más blando que
+un formulario.
+
+**El panel tiene repertorio: cinco frases por camino y una al azar en cada
+apertura** (`PUERTA_FRASES`). Una frase clavada se gasta —quien abre la puerta
+tres veces por semana ya no la lee—, así que rotan; y no repiten dos veces
+seguidas en la misma pestaña, que con cinco frases pasaría una de cada cinco
+recargas. Se sortean UNA vez por apertura y no en cada repintado: el panel se
+vuelve a pegar cada vez que la portada cambia de formulario, y sortear ahí haría
+que la frase bailara al ir y venir entre «entrar» y «crear». Las viñetas de «soy
+nuevo» no rotan, porque eso no es una frase: es lo que hace la app.
+
+**Los tres símbolos de moneda pasan a ser dibujos, y dos cambian de color.**
+
+- **El dólar se veía mal y con razón.** Ninguna tipografía trae el $ de dos
+  palos, así que se armaba con la letra S y dos rectángulos encima: los palos
+  salían más altos y más finos que la S, y la S de la letra es más ancha que la
+  del signo. En vez de un dólar se leía una cruz. Ahora los tres van **a trazo**
+  —que además es la iconografía de la casa—, en una caja de 24 y con el mismo
+  grosor, que era el otro fallo: mezclar un glifo con un dibujo es exactamente
+  lo que se notaba.
+- **Verde para el dólar**, que es de donde viene el verde del dinero. Lo tenía
+  el peso, con esta nota al lado: «el otro $, y por eso no puede ser verde». El
+  motivo era distinguirlos, y ahora se distinguen por los palos —uno el peso,
+  dos el dólar—, así que el color puede decir de dónde es cada moneda.
+- **Rosa mexicano para el peso** (`#f03e7e` de día): lo más de aquí que hay
+  entre los ocho sin recurrir a una bandera — el verde ya está ocupado y el rojo
+  es el coral, que en esta app significa «esto destruye».
+- **El inglés se mueve al amarillo**, que dejó libre el dólar. En la primera
+  pantalla se ven los cinco discos a la vez, así que dos del mismo tono se leen
+  como un error.
+- Medido en los dos modos: el símbolo sobre su disco da entre 4,97 y 10,16 sobre
+  1, y los dos aros de idioma 4,21 y 8,37 — por encima del 3 que pide un dibujo.
+
 **La pregunta que queda abierta, que es la de la landing.** Hoy hay una sola
 dirección (`/login/`) y las dos entradas de la landing tendrían que llevar a
 sitios que se sientan distintos. Tres formas, y la que no recomiendo es la que
@@ -243,9 +291,9 @@ parece más limpia:
    para la landing y una sola puerta de verdad; se paga un parpadeo y una
    entrada en `ASSETS`.
 
-Mientras no haya veredicto, lo que hay es la prueba: el camino partido ya
-funciona entero —abrir en un formulario o en el otro, con su frase— y la
-dirección se puede cambiar después sin tocar nada de lo de dentro.
+**Se tomó la 3**, y por eso `/crear-cuenta/` es un desvío y no una página. La
+1 sigue viva por dentro —es a donde desvía— así que cambiar de idea después
+cuesta una línea.
 
 **Lo que falta si esto se queda:** el rótulo de «puerta en prueba» se va con la
 prueba. Las frases nuevas del panel ya están traducidas —hacía falta, porque la
