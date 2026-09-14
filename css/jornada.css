@@ -48,7 +48,7 @@
    botones. Con un alto mínimo fijo, cambiar de modo o empezar no mueve nada. */
 .jor-lite .jor-controles { min-height: 300px; align-content: start; }
 .jor-hf-ajustes-caja { min-height: 136px; }
-.jor-lite .jor-arena.t-chico { --jor-alto: 112px; }
+.jor-lite .jor-arena.t-chico { --jor-alto: 132px; }
 .jor-lite .jor-arena.t-mediano { --jor-alto: 150px; }
 .jor-lite .jor-arena.t-grande { --jor-alto: 186px; }
 .jor-lite #jor-tiempo { font-size: 64px; }
@@ -146,10 +146,11 @@ html.claro .jor-blq.ahora { filter: none; }
 .jor-arena { height: var(--jor-alto, 60px); width: auto; overflow: visible; --jor-grano: var(--mint-macizo); }
 /* ---- La caja del reloj: siempre del alto del más grande (0.7.106.3) ----
    Cada reloj mide distinto, y sin caja la ventana entera subía y bajaba al
-   cambiar de uno a otro —«baila mucho», dijo Eduardo—. El reloj se apoya
-   abajo, como sobre una repisa, y lo de debajo no se mueve. */
-.jor-reloj-caja { height: 74px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 4px; }
-.jor-arena.t-chico { --jor-alto: 48px; }
+   cambiar de uno a otro —«baila mucho», dijo Eduardo—. Se CENTRA, no se apoya
+   abajo (0.7.108.2): apoyado, todo el sobrante se juntaba arriba y cantaba la
+   diferencia de alto; centrado se reparte en dos mitades y casi no se nota. */
+.jor-reloj-caja { height: 74px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+.jor-arena.t-chico { --jor-alto: 55px; }
 .jor-arena.t-mediano { --jor-alto: 62px; }
 .jor-arena.t-grande { --jor-alto: 74px; }
 .jor-arena.brasa { --jor-grano: var(--fire-macizo); }
@@ -194,7 +195,6 @@ html.claro .jor-blq.ahora { filter: none; }
 .jor-poste { stroke: var(--faint); stroke-width: 7; stroke-linecap: round; }
 .jor-poste.delgado { stroke-width: 5; }
 .jor-poste.fino { stroke-width: 3; }
-.jor-marca { stroke: var(--faint); stroke-width: 2; stroke-linecap: round; }
 .jor-vidrio { fill: color-mix(in srgb, var(--celeste) 8%, transparent); }
 .jor-vidrio-borde { fill: none; stroke: var(--muted); stroke-width: 3; stroke-linejoin: round; }
 .jor-arena-g { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--jor-grano) 50%, transparent)); }
@@ -371,12 +371,12 @@ html.claro .jor-arena-g { filter: none; }
   .jor-rueda { max-width: 400px; --jor-sep: var(--card); }
   .jor-centro .jor-reloj-caja { height: 88px; }
   .jor-lite .jor-reloj-caja { height: 216px; }
-  .jor-centro .jor-arena.t-chico { --jor-alto: 58px; }
+  .jor-centro .jor-arena.t-chico { --jor-alto: 66px; }
   .jor-centro .jor-arena.t-mediano { --jor-alto: 74px; }
   .jor-centro .jor-arena.t-grande { --jor-alto: 88px; }
   .jor-centro #jor-tiempo { font-size: 42px; }
   .jor-lite { background: var(--sup-tarjeta); border: 1px solid var(--line); border-radius: var(--r-grande); padding: 36px 32px 34px; }
-  .jor-lite .jor-arena.t-chico { --jor-alto: 130px; }
+  .jor-lite .jor-arena.t-chico { --jor-alto: 154px; }
   .jor-lite .jor-arena.t-mediano { --jor-alto: 176px; }
   .jor-lite .jor-arena.t-grande { --jor-alto: 216px; }
   .jor-lite #jor-tiempo { font-size: 80px; }
