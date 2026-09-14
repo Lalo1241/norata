@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.109.1";
+const VERSION = "0.7.109.2";
 const VERSION_FECHA = "13 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -160,26 +160,29 @@ const ICONS = {
      solo arco arriba se lee como una lámpara o un tarro. Y la cinta es más
      estrecha que la copa, que es lo que hace que la copa parezca hinchada. */
   chef: '<path d="M6.6 13.8A3.8 3.8 0 019 6.2 4.6 4.6 0 0115 6.2 3.8 3.8 0 0117.4 13.8Z"/><path d="M8.4 13.8v6.1a1 1 0 001 1h5.2a1 1 0 001-1v-6.1"/><path d="M8.4 17.5h7.2"/>',
-  /* El reparto es de la lámina que trajo Eduardo, y son TRES piezas y no una
-     silueta: la carne cerrada por un CORTE recto, el hueso saliendo de ese
-     corte, y dos bolas en la punta. Antes iban fundidas en un contorno
-     continuo —la carne se estrechaba hasta volverse hueso— y las dos salían
-     lupa: sin el corte, un lóbulo cerrado con una raya pegada al lado no es
-     comida, y en esta misma rejilla está `key`, que se le parecía tanto que
-     había que mirar dos veces. Lo paró Eduardo: «no parecen comida».
+  /* El reparto es el de la lámina que trajo Eduardo, y son TRES piezas y no
+     una silueta: la carne cerrada por un CORTE recto, el hueso saliendo de
+     ese corte, y el nudillo. Fundidas en un contorno continuo —la carne
+     estrechándose hasta volverse hueso— las dos salían lupa, y en esta misma
+     rejilla está `key`, que se le parecía tanto que había que mirar dos
+     veces. Lo paró Eduardo: «no parecen comida».
 
-     Las bolas van SUELTAS y no dibujando el contorno del nudillo. El nudillo
-     de verdad —dos lóbulos trabados con su cintura, como en la lámina— se
-     empasta: aquel dibujo tiene un trazo del 4,9% de su lado y el de la casa
-     es del 7,9% (1,9 sobre 24), así que a 20 px la cintura se cierra y queda
-     un nudo. Dos círculos sueltos dicen lo mismo y sobreviven al tamaño.
+     **El nudillo se dibuja de un trazo, con su CINTURA**, como en la lámina:
+     los dos lóbulos se rodean por fuera y se juntan por delante con un arco
+     cóncavo (`nudillo()`, más abajo). Hubo una versión con dos círculos
+     sueltos en la punta, por miedo a que la cintura se empastara a 20 px, y
+     la paró Eduardo en la primera mirada: dos bolas al final de una raya no
+     son un hueso, son otra cosa. La cintura entra si los lóbulos NO se
+     solapan —separados 3,7 y de radio 1,65— y el hueso es más fino que
+     ellos: así queda hueco entre los dos trazos.
 
-     Lo que separa a los dos es la POSTURA, no el tamaño: el muslo va en
-     diagonal, con cuello estrecho y hueso largo; el trozo va tumbado, sin
-     cuello —el corte es casi tan ancho como la carne— y con el hueso corto. */
-  pollo: '<path d="M7.6 12.8L9.2 7A5.9 5.9 0 1116.4 14.2L10.6 15.8Z"/><path d="M9.1 14.3L5.4 18"/><circle cx="4.1" cy="16.8" r="1.9"/><circle cx="6.6" cy="19.3" r="1.9"/>',
-  /* El trozo: mismo lenguaje, echado y sin cuello. */
-  carne: '<path d="M8.3 8.5L12.4 6.5A5.7 5.7 0 1112.7 16.9L8.5 15.1Z"/><path d="M8.4 11.8L4 12"/><circle cx="4" cy="10.4" r="1.75"/><circle cx="4.1" cy="13.6" r="1.75"/>',
+     Lo que separa a los dos dibujos es la POSTURA, no el tamaño. El muslo va
+     en diagonal, con cuello estrecho y un solo hueso. El trozo es un
+     CILINDRO echado —una elipse cortada a ras por sus dos tapas, que es lo
+     que lo vuelve cilindro y no bola— con un hueso saliendo por cada tapa,
+     como lo pidió Eduardo y como se ve en su foto. */
+  pollo: '<path d="M7.6 12.8L9.2 7A5.9 5.9 0 1116.4 14.2L10.6 15.8Z"/><path d="M8.3 13.5L5.3 15.5A1.65 1.65 0 104.3 18.2A0.9 0.9 0 015.2 19.1A1.65 1.65 0 107.9 18.1L9.9 15.1"/>',
+  carne: '<path d="M14.7 7.4A5.4 5.2 -22 006.9 10.5L9.3 16.6A5.4 5.2 -22 0017.1 13.5Z"/><path d="M16.4 11.6L17.5 11.7A1.6 1.6 0 1019.6 9.6A0.9 0.9 0 0119.1 8.4A1.6 1.6 0 1016.2 8.4L15.4 9.2"/><path d="M7.6 12.4L6.5 12.3A1.6 1.6 0 104.4 14.4A0.9 0.9 0 014.9 15.6A1.6 1.6 0 107.8 15.6L8.6 14.8"/>',
   star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 5.9-5.3-3-5.3 3 1.2-5.9L3.4 9.3l6-.7z"/>',
   bolt: '<path d="M13 2L5 14h6l-1 8 8-12h-6l1-8z"/>',
   /* El más: añadir algo. Dos trazos y nada más — sin círculo alrededor, porque

@@ -100,6 +100,44 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.109.2 · 13 sep 2026
+
+**El hueso se dibuja como en la lámina —de un trazo y con su cintura— y el
+trozo de carne pasa a ser un cilindro con un hueso a cada lado.** Las dos cosas
+las pidió Eduardo mirando la 0.7.109.1: *«no vuelvas a poner dos círculos así»*,
+y *«la carne debe ser como un cilindro y debe salir un hueso por un lado y otro
+por el otro»*, con una foto de una mesa servida al lado.
+
+**Dos círculos sueltos en la punta de una raya no son un hueso.** Se habían
+puesto ahí por miedo a que la cintura se empastara a 20 px —el miedo tenía su
+número: la lámina lleva un trazo del 4,9% de su lado y el de la casa el 7,9%—,
+y el remedio era peor que la enfermedad. La cintura sí entra, y lo que la hace
+entrar es la geometría, no el tamaño:
+
+| | Qué hay que cumplir |
+| --- | --- |
+| **Los lóbulos no se solapan** | separados 3,7 y de radio 1,65: entre los dos queda hueco, y ese hueco es la cintura |
+| **Se juntan por delante** | con un arco cóncavo de 0,9 tangente a los dos (`nudillo()`, js/01-base.js) |
+| **El hueso es más fino que ellos** | 2,3 de ancho contra 3,3 del lóbulo, o el nudillo no sobresale y no hay nada que leer |
+
+Puestos así, los dos trazos del nudillo no se tocan ni a 20 px. Es el mismo
+dibujo de la lámina, sin un detalle menos.
+
+**El trozo de carne es ahora un cilindro echado**: una elipse cortada a ras por
+sus dos tapas —esos cortes rectos son lo que lo vuelve cilindro y no bola— con
+un hueso saliendo por cada tapa. Antes era una pieza con un solo hueso, como el
+muslo pero tumbada, y eran dos veces el mismo dibujo. Ahora cada uno dice una
+cosa: el muslo es una pieza con su hueso; el trozo es un corte con hueso a los
+dos lados.
+
+De camino se probó y se descartó redondear las esquinas de un rectángulo hasta
+convertirlo en cilindro: pasado cierto radio las esquinas se comen los lados y
+lo que sale es un rombo. La elipse cortada no tiene ese problema.
+
+Medido: el muslo ocupa de 2,4 a 20,8 de su caja de 24 y el trozo de 3,4 a 20,6,
+los treinta y nueve iconos siguen teniendo dibujo, ninguno se sale, y la app no
+suelta un error.
+
 ### 0.7.109.1 · 13 sep 2026
 
 **El muslo y el trozo de carne, redibujados: los dos parecían una lupa.** Los
