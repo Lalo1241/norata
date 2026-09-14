@@ -112,6 +112,25 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.114.1 · 14 sep 2026
+
+**El asa ya no aparece en la esquina, y lo ocupado se tapa con una malla.**
+
+- **El fallo del asa, y la regla que deja.** Nacían un instante arriba a la
+  izquierda. El grupo llevaba el `transform` del SVG —dónde va— y a la vez la
+  animación de aparecer, y **el `transform` del CSS PISA al del atributo**: al
+  animarlo, el asa se iba al origen del lienzo. Ahora son dos grupos: el de
+  fuera coloca, el de dentro anima. **Al animar cualquier cosa de un SVG que ya
+  lleve `transform` de atributo, hay que anidar.** Repasada toda la app con las
+  vistas abiertas —los 28 elementos con `transform` de las siete pantallas y la
+  hoja del bloque—: no había ningún otro pisado.
+- **Lo ocupado se TAPA.** El bloque que estás pisando pasa de borde cortado a
+  **línea coral continua + malla diagonal encima**, y en lugar de su icono sale
+  el **símbolo de prohibido**. Con el borde cortado se veía que pasaba algo;
+  con la malla se ve qué pasa. El resto del día se apaga mientras tanto, para
+  que se lean los dos que importan. Vale igual en la rueda grande y en la de la
+  ventana de editar.
+
 ### 0.7.114 · 14 sep 2026
 
 **La rueda del boceto, ya en la app — y el despertar se abre como un amanecer.**
