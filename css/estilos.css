@@ -8139,6 +8139,166 @@
   .portada-vuelve h2 { margin-bottom: 8px; }
   .portada-vuelve .portada-lema { margin-bottom: 0; }
 
+  /* ---------- La puerta de dos columnas (EN PRUEBA, 0.7.115) ----------
+     Apagada salvo que se pida con `?puerta=` (ver el script de arriba de
+     `login/index.html`). Solo vive en la puerta: el bloque no toca a
+     `.portada` cuando se abre DENTRO de la app —desde Ajustes, a crear la
+     cuenta—, porque el panel de al lado solo existe en `login/index.html`.
+
+     Lo que hace y lo que no: el formulario no cambia ni una línea. Lo único
+     que se añade es una columna al lado con una frase, y la frase es distinta
+     según por qué puerta se entró —`?puerta=dos` para quien ya tiene cuenta y
+     `?puerta=nuevo` para quien viene a crearla—, que es el camino partido que
+     hay que juzgar aquí.
+
+     Qué borrar si no se queda: al final del bloque.
+
+     Cómo se acomoda, que es lo que tiene truco: el panel es HIJO de
+     `.portada` (lo pega `js/12-login.js`), así que en el teléfono va en el
+     flujo, debajo del formulario y desplazándose con él. En pantalla ancha
+     ese mismo hijo se vuelve `position: fixed` y se va a la mitad derecha:
+     un fijo no lo recorta el `overflow` de su padre —solo lo recortaría si el
+     padre fuera su bloque contenedor, y no lo es—, así que llega hasta los
+     bordes sin sacarlo del árbol.
+
+     Y NADA se centra con `justify-content: center`: con el formulario más
+     alto que la pantalla, el centrado esconde la mitad de arriba para siempre
+     porque el desplazamiento no llega a negativos. Es la misma trampa que ya
+     mordió en la portada. Se reparte con `margin: auto`, que cuando falta
+     sitio vale cero por los dos lados. */
+  .puerta-lado { display: none; }
+
+  /* `justify-content: flex-start` NO es de adorno y costó una medición: en
+     columna, el `center` que trae `.portada` centra en VERTICAL, y cuando el
+     formulario no cabe —«crear cuenta» en un teléfono— los márgenes automáticos
+     valen cero (así manda flexbox con el hueco en negativo) y entonces manda el
+     centrado: medido, el principio del formulario quedaba 80 px por encima del
+     borde de arriba, y ahí no llega el desplazamiento. Es la misma trampa que
+     ya mordió en la portada, y por eso `.portada` no se centra así. */
+  html.puerta-dos .portada {
+    flex-direction: column; justify-content: flex-start;
+    /* Hueco para el rótulo de la prueba, que es fijo y se pone encima. Se va
+       con la prueba. */
+    padding-bottom: calc(env(safe-area-inset-bottom) + 92px);
+  }
+  /* Auto arriba y cero abajo en el formulario, y al revés en el panel: entre
+     los dos se reparten el hueco libre y el grupo queda centrado, pero al
+     faltar sitio los dos `auto` se quedan en cero y no hay nada inalcanzable. */
+  html.puerta-dos .portada > .portada-caja { margin: auto auto 0; }
+  html.puerta-dos .puerta-lado {
+    display: flex; flex-direction: column; gap: 16px;
+    width: 100%; max-width: 360px; margin: 26px auto auto;
+    padding: 20px 22px;
+    background: var(--sup-hondo);
+    border: var(--borde-tarjeta) solid var(--borde-panel);
+    border-radius: var(--r-grande);
+  }
+  /* Una frase u otra, y la que manda es EL FORMULARIO que hay al lado, no la
+     dirección por la que se entró. Las dos cosas empiezan juntas —quien llega
+     de «Empieza gratis» abre en crear cuenta y ve la frase de crear cuenta—,
+     pero desde dentro se puede saltar de un formulario al otro con «Créala
+     aquí» o «Entra aquí», y una frase que se quedara con la de la puerta de
+     entrada estaría hablándole a otra persona. La clase la pone
+     `js/12-login.js` mirando `portadaModo`.
+
+     Las dos frases viajan en el marcado y el CSS elige: así no hay texto
+     escrito en JavaScript, que es lo que habría que deshacer después. */
+  html.puerta-dos .puerta-frase { display: none; }
+  html.puerta-dos .puerta-frase-vuelve { display: block; }
+  html.puerta-creando .puerta-frase-vuelve { display: none; }
+  html.puerta-creando .puerta-frase-nueva { display: block; }
+
+  .puerta-cita {
+    font-family: var(--tipo-titulo);
+    font-size: clamp(19px, 2.4vw, 27px); line-height: 1.35; font-weight: 700;
+    color: var(--text); margin: 0;
+  }
+  /* La comilla es un adorno y no se lee: fuera del árbol de accesibilidad y
+     sin ocupar renglón propio. */
+  .puerta-cita::before {
+    content: "\201C"; display: block; margin-bottom: -0.24em;
+    font-size: 2.1em; line-height: 1; color: var(--mint); opacity: 0.55;
+  }
+  .puerta-lista { list-style: none; margin: 4px 0 0; padding: 0; }
+  .puerta-lista li {
+    position: relative; padding-left: 20px; margin-top: 10px;
+    color: var(--muted); font-size: 13.5px; line-height: 1.55;
+  }
+  /* El punto es una FIGURA pequeña, así que va en el tono de trazar y no en
+     el de rellenar: a 6 px, la menta de relleno desaparece sobre papel. */
+  .puerta-lista li::before {
+    content: ""; position: absolute; left: 2px; top: 0.58em;
+    width: 6px; height: 6px; border-radius: var(--r-disco);
+    background: var(--mint);
+  }
+  /* En `--muted` y no en `--faint`, que es donde había empezado: son doce
+     píxeles en versalitas, y medido sobre el panel el tono apagado daba 3,12
+     sobre 1 —por debajo del 4,5 que pide un texto—. En apagado se queda 4,78
+     de día y 5,86 de noche. */
+  .puerta-firma {
+    color: var(--muted); font-size: 12px; letter-spacing: 0.06em;
+    text-transform: uppercase; font-weight: 700; margin: 0;
+  }
+
+  /* Desde 900 px hay sitio para las dos columnas de verdad: el formulario se
+     queda en la izquierda y el panel se va a la derecha de borde a borde. */
+  @media (min-width: 900px) {
+    html.puerta-dos .portada { right: 46%; padding: 26px 34px; }
+    /* Con el panel ya fuera del flujo, el formulario vuelve a ser hijo único y
+       se centra como siempre: con `margin: auto`, que reparte el hueco cuando
+       sobra y vale cero cuando falta. */
+    html.puerta-dos .portada > .portada-caja { margin: auto; }
+    html.puerta-dos .puerta-lado {
+      position: fixed; inset: 0 0 0 54%;
+      width: auto; max-width: none; margin: 0;
+      justify-content: center; gap: 20px;
+      padding: 48px min(7vw, 78px);
+      background: var(--sup-hondo);
+      border: 0; border-left: var(--borde-tarjeta) solid var(--borde-panel);
+      border-radius: 0;
+    }
+    html.puerta-dos .puerta-lista li { font-size: 14.5px; }
+  }
+
+  /* El rótulo de que esta pestaña está en prueba. Emparejado clase-con-id,
+     como el de los informes: con un selector suelto, encender una prueba
+     sacaba el rótulo de la otra. En la puerta no hay barra de navegación
+     abajo, así que se pega al borde seguro y ya. */
+  html.puerta-dos #rotulo-puerta {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    position: fixed;
+    left: 12px;
+    bottom: calc(env(safe-area-inset-bottom) + 14px);
+    z-index: var(--piso-rotulo-prueba);
+    background: var(--fire-macizo); color: var(--sobre-vivo);
+    border-radius: var(--r-pastilla);
+    padding: 5px 8px 5px 13px;
+    font-size: 10.5px; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    max-width: calc(100vw - 24px);
+  }
+  html.puerta-dos #rotulo-puerta a {
+    color: inherit;
+    background: rgba(16, 21, 29, 0.14);
+    border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
+    border-radius: var(--r-boton); padding: 4px 10px 5px;
+    text-decoration: none;
+  }
+  /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
+     deja congelado en el inicial. */
+  html.puerta-dos #rotulo-puerta a:hover { background: rgba(16, 21, 29, 0.24); }
+
+  /* ---- Qué borrar si la prueba no se queda (por NOMBRE, no por rango) ----
+       - `css/estilos.css`: este bloque entero, de `.puerta-lado` hasta aquí.
+       - `login/index.html`: el `<script>` de `?puerta=`, el `<aside
+         id="puerta-lado">` y el `<div id="rotulo-puerta">`.
+       - `js/12-login.js`: `puertaPrueba`, `puertaLadoPegar`, `puertaFrase` y
+         las dos líneas que las llaman dentro del `async`.
+     Y si SE QUEDA, lo que se quita es la condición: las clases `puerta-dos` y
+     `puerta-nuevo` dejan de salir de un parámetro y el panel pasa a ser la
+     puerta a secas. */
+
+
   /* La ficha de Ajustes: quién eres, arriba del todo del panel de la cuenta */
   .perfil-ficha {
     display: flex; align-items: center; gap: 13px;
