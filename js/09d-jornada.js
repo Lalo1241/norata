@@ -73,7 +73,10 @@ const J_ARENA = '<path d="M7 3h10M7 21h10M8 3c0 5 8 6.5 8 9s-8 4-8 9M16 3c0 5-8 
    de nivel superior se evalúa una vez al cargar y congelaría el idioma. */
 const J_DESCANSOS = {
   dormir:   { nombre: "Dormir",   fase: "Hora de dormir", icono: J_LUNA },
-  comida:   { nombre: "Comer",    fase: "Hora de comer",  icono: '<path d="M7 3v7a2 2 0 004 0V3M9 12v9M16.5 3C15 4 14 6.2 14 9s1 3.5 2.5 3.5V21"/>' },
+  /* Los cubiertos salen del catálogo (`ICONS`, js/01-base.js) desde la
+     0.7.109, que es donde los pidió Eduardo para las habilidades: era el mismo
+     dibujo escrito dos veces, y dos copias se separan al primer retoque. */
+  comida:   { nombre: "Comer",    fase: "Hora de comer",  icono: ICONS.cubiertos },
   traslado: { nombre: "Traslado", fase: "En camino",      icono: '<path d="M5.5 16.5V8a3 3 0 013-3h7a3 3 0 013 3v8.5M5.5 12h13M5.5 16.5h13M7.5 16.5V19M16.5 16.5V19"/>' }
 };
 

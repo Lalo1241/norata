@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.109.1";
+const VERSION = "0.7.110";
 const VERSION_FECHA = "13 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -81,7 +81,13 @@ const ICONS = {
      dibuja una "Ƨ" espejada, que es lo que tenía antes. */
   coin: '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M14.5 9.7c0-1-1.1-1.7-2.5-1.7s-2.5.7-2.5 1.7 1 1.5 2.5 1.8 2.5.8 2.5 1.8-1.1 1.7-2.5 1.7-2.5-.7-2.5-1.7"/>',
   bulb: '<path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0012 2z"/>',
-  heart: '<path d="M12 20.5s-7.4-4.8-9.4-9.2C1.4 8.4 3.3 5.5 6.4 5.5c2 0 3.3 1.1 4.1 2.5.8-1.4 2.1-2.5 4.1-2.5 3.1 0 5 2.9 3.8 5.8-2 4.4-9.4 9.2-9.4 9.2z"/>',
+  /* El corazón se cierra en UNA punta. El de antes traía dos curvas que
+     acababan en el mismo sitio por caminos distintos y abajo se le abría una
+     horquilla —dos picos y un pellizco en medio—, que es lo que se ve a 20 px
+     y no en el dibujo grande. Lo paró Eduardo. Ahora los dos lados son la
+     misma curva espejada y los lóbulos son dos arcos de radio 4,8: una sola
+     descripción de la mitad, así que la simetría no puede salir mal. */
+  heart: '<path d="M12 20.6C9 18 2.8 13.8 2.8 9.4A4.8 4.8 0 0 1 12 7.6A4.8 4.8 0 0 1 21.2 9.4C21.2 13.8 15 18 12 20.6Z"/>',
   flame: '<path d="M12 22c4.4 0 7-2.9 7-6.5 0-4.5-4-6.3-4.5-10C13 7 11 8.5 11 11c-1.5-.6-2-2.3-1.8-4C6.5 8.8 5 11.5 5 15.5 5 19.1 7.6 22 12 22z"/>',
   trophy: '<path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0z"/><path d="M7 6H4a3 3 0 003 5M17 6h3a3 3 0 01-3 5"/>',
   target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
@@ -90,7 +96,12 @@ const ICONS = {
   coffee: '<path d="M18 8h1a4 4 0 010 8h-1M2 8h16v6a4 4 0 01-4 4H6a4 4 0 01-4-4z"/><path d="M6 1v3M10 1v3M14 1v3"/>',
   plant: '<path d="M12 22V8M12 8C12 5 9 3 6 3c0 3 2 5.5 6 5M12 12c0-3 3-5 6-5 0 3-2 5.5-6 5"/>',
   cap: '<path d="M22 9L12 4 2 9l10 5z"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5"/>',
-  chart: '<path d="M4 20v-6M10 20V6M16 20v-9M2 20h20"/>',
+  /* Las barras van CENTRADAS sobre su base. Estaban en 4, 10 y 16 con la
+     base de 2 a 22: dos de margen a la izquierda y seis a la derecha, y el
+     dibujo se leía escorado aunque cada pieza estuviera bien. Ahora la base
+     va de 3 a 21 —centro en 12, como todo lo demás— y las barras a 7,5, 12 y
+     16,5, que deja 4,5 a cada lado. La del medio cae en el eje del cuadro. */
+  chart: '<path d="M3 20h18"/><path d="M7.5 20v-6M12 20v-14M16.5 20v-9"/>',
   map: '<path d="M1 6v16l7-3 8 3 7-3V3l-7 3-8-3z"/><path d="M8 3v16M16 6v16"/>',
   compass: '<circle cx="12" cy="12" r="10"/><path d="M16 8l-2.5 6L8 16l2.5-6z"/>',
   crown: '<path d="M3 18h18M4 18l-1-9 5 3 4-6 4 6 5-3-1 9z"/>',
@@ -138,6 +149,71 @@ const ICONS = {
   /* Brújula distinta de `compass`, que ya existe y lo lleva «Noche de
      expedición»: aquélla es un aro con la aguja suelta, ésta tiene anilla. */
   "rango-brujula": '<ellipse cx="12" cy="3.4" rx="2.6" ry="1.3"/><path d="M10.8 4.6v1.6M13.2 4.6v1.6"/><circle cx="12" cy="14.3" r="7.6"/><path d="M15.9 10.5l-2.2 5.4-5.6 2.2 2.2-5.4z"/>',
+  /* ---- La cocina, y el descanso que viene detrás (0.7.109) ----
+     Los cinco los pidió Eduardo por su nombre, y cuatro son de comida porque
+     el catálogo no tenía ninguno: lo único de cocina era `coffee`, así que
+     «Cocinar», «Comer mejor» y «Repostería» salían las tres con la misma taza.
+
+     Los dos de carne se dibujaron TRES veces. Las dos primeras tandas eran un
+     lóbulo cerrado con el hueso pegado al lado como una raya aparte, y eso no
+     es un muslo: es un espejo de mano. Lo que los salva es que la silueta sea
+     UNA sola —la carne se estrecha y se vuelve hueso sin levantar el trazo— y
+     que los dos no compartan postura: el muslo va en diagonal con el hueso
+     largo hacia abajo, y el trozo va tumbado, más cuadrado y con el hueso
+     corto a la izquierda. Hay que distinguirlos a 20 px, que es el tamaño al
+     que se eligen, no al que se dibujan. */
+  cama: '<path d="M2.6 20.4v-6.6a2 2 0 012-2h14.8a2 2 0 012 2v6.6"/><path d="M5.4 11.8V8.2a2 2 0 012-2h9.2a2 2 0 012 2v3.6"/><path d="M12 6.2v5.6"/><path d="M2.6 17.4h18.8"/>',
+  /* Tenedor y cuchara: es el MISMO dibujo que el bloque de comer del Pomodoro,
+     y lo lee de aquí (`J_DESCANSOS`, js/09d-jornada.js). Dos copias del mismo
+     objeto se separan al primer retoque. */
+  cubiertos: '<path d="M7 3v7a2 2 0 004 0V3M9 12v9M16.5 3C15 4 14 6.2 14 9s1 3.5 2.5 3.5V21"/>',
+  /* El gorro de chef. La copa lleva TRES bultos y no una cúpula lisa: con un
+     solo arco arriba se lee como una lámpara o un tarro. Y la cinta es más
+     estrecha que la copa, que es lo que hace que la copa parezca hinchada. */
+  chef: '<path d="M6.6 13.8A3.8 3.8 0 019 6.2 4.6 4.6 0 0115 6.2 3.8 3.8 0 0117.4 13.8Z"/><path d="M8.4 13.8v6.1a1 1 0 001 1h5.2a1 1 0 001-1v-6.1"/><path d="M8.4 17.5h7.2"/>',
+  /* El reparto es el de la lámina que trajo Eduardo, y son TRES piezas y no
+     una silueta: la carne cerrada por un CORTE recto, el hueso saliendo de
+     ese corte, y el nudillo. Fundidas en un contorno continuo —la carne
+     estrechándose hasta volverse hueso— las dos salían lupa, y en esta misma
+     rejilla está `key`, que se le parecía tanto que había que mirar dos
+     veces. Lo paró Eduardo: «no parecen comida».
+
+     **El nudillo se dibuja de un trazo, con su CINTURA**, como en la lámina:
+     los dos lóbulos se rodean por fuera y se juntan por delante con un arco
+     cóncavo (`nudillo()`, más abajo). Hubo una versión con dos círculos
+     sueltos en la punta, por miedo a que la cintura se empastara a 20 px, y
+     la paró Eduardo en la primera mirada: dos bolas al final de una raya no
+     son un hueso, son otra cosa. La cintura entra si los lóbulos NO se
+     solapan —separados 3,7 y de radio 1,65— y el hueso es más fino que
+     ellos: así queda hueco entre los dos trazos.
+
+     Lo que separa a los dos dibujos es la POSTURA, no el tamaño. El muslo va
+     en diagonal, con cuello estrecho y un solo hueso. El trozo es un
+     CILINDRO echado —una elipse cortada a ras por sus dos tapas, que es lo
+     que lo vuelve cilindro y no bola— con un hueso saliendo por cada tapa,
+     como lo pidió Eduardo y como se ve en su foto. */
+  pollo: '<path d="M7.6 12.8L9.2 7A5.9 5.9 0 1116.4 14.2L10.6 15.8Z"/><path d="M8.3 13.5L5.3 15.5A1.65 1.65 0 104.3 18.2A0.9 0.9 0 015.2 19.1A1.65 1.65 0 107.9 18.1L9.9 15.1"/>',
+  carne: '<path d="M13.4 6.5A5.7 5.5 -39 006.4 12.2L10.6 17.5A5.7 5.5 -39 0017.6 11.8Z"/><path d="M16.4 10.3L19.2 8.7A1.8 1.8 0 1020.8 5.8A1.05 1.05 0 0119.9 4.7A1.8 1.8 0 1016.7 5.7L14.6 8"/><path d="M7.6 13.7L4.8 15.3A1.8 1.8 0 103.2 18.2A1.05 1.05 0 014.1 19.3A1.8 1.8 0 107.3 18.3L9.4 16"/>',
+  /* La paleta. Era un caramelo de envoltorio —cuerpo con dos picos— y lo
+     cambió Eduardo: puesto al lado del trozo de carne seguían siendo la misma
+     silueta, un bulto en medio y dos cosas a los lados, que es el parecido
+     que llevamos tres versiones persiguiendo. Una paleta no se parece a nada
+     más de la rejilla: disco arriba, palo abajo.
+
+     El remolino de dentro es lo que la separa de una lupa, y por eso no se
+     puede dibujar como una espiral de verdad: con las vueltas pegadas, a
+     20 px los trazos se juntan en una mancha. Son DOS semicírculos —el truco
+     de siempre para dibujar una espiral con arcos— y entre el de fuera y el
+     borde del disco quedan 3,4, que es el hueco que hace falta para que no se
+     fundan. */
+  paleta: '<circle cx="11.8" cy="8.4" r="6.4"/><path d="M11.8 8.4A0.9 0.9 0 0 1 10 8.4A2.4 2.4 0 0 1 14.8 8.4"/><path d="M11.8 14.8v6.8"/>',
+  /* Dormir, la otra cara de `cama`: una nube y dos zetas. Las zetas van
+     SEPARADAS de la nube y en diagonal, subiendo hacia la derecha. Pegadas al
+     hombro de la nube —que es donde caen si se reparte el cuadro a ojo— la
+     chica se mete dentro del bulto y se lee como un borrón. La grande no
+     cabe dos veces: con tres zetas hay que encogerlas hasta que a 20 px son
+     tres rayas. */
+  zzz: '<path d="M4.6 19.6h7.6a2.7 2.7 0 00.2-5.4 3.9 3.9 0 00-7.3-1 2.6 2.6 0 00-.5 6.4z"/><path d="M14.2 10.4h2.8l-2.8 3h2.8"/><path d="M17.8 2.6h4.2l-4.2 5h4.2"/>',
   star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 5.9-5.3-3-5.3 3 1.2-5.9L3.4 9.3l6-.7z"/>',
   bolt: '<path d="M13 2L5 14h6l-1 8 8-12h-6l1-8z"/>',
   /* El más: añadir algo. Dos trazos y nada más — sin círculo alrededor, porque
@@ -208,8 +284,25 @@ const ICONS = {
   close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
   settings: '<path d="M5 8h14M5 16h14"/><circle cx="9" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/>',
   /* Sol y luna: los dos modos de la app. Ocho rayos y no doce, porque a
-     15 px los doce se empastan en una rueda gris. */
-  sol: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.3M12 19.1v2.3M2.6 12h2.3M19.1 12h2.3M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/>',
+     15 px los doce se empastan en una rueda gris.
+
+     El SOL creció en la 0.7.110.1 —el disco de 4,2 a 4,7 y los rayos hasta
+     10,2— porque en la rejilla se veía pequeño al lado de sus vecinos: venía
+     de un interruptor de 15 px, donde un dibujo compacto es lo que se quiere,
+     y ahí dentro un icono se mide contra los cuarenta y dos de al lado. El
+     hueco entre el disco y los rayos se mantuvo en 0,9, que es lo que impide
+     que a 15 px se fundan en una rueda.
+
+     **La LUNA no: se agrandó igual y Eduardo la devolvió a 8,4.** Queda
+     apuntado para que nadie la vuelva a subir por simetría con el sol — el
+     hueco de la medialuna ya la hace pesar más de lo que mide su caja, y
+     agrandada se comía a sus vecinas.
+
+     Desde la 0.7.110 están TAMBIÉN en el catálogo de la rejilla (`ICON_LIST`),
+     que es donde los pidió Eduardo. Se reutilizan y no se dibujan otra vez:
+     son el mismo objeto con el mismo significado, y dos soles distintos en la
+     misma app es la clase de detalle que nadie decide, solo se hereda. */
+  sol: '<circle cx="12" cy="12" r="4.7"/><path d="M12 1.8v2.7M12 19.5v2.7M1.8 12h2.7M19.5 12h2.7M4.8 4.8l1.9 1.9M17.3 17.3l1.9 1.9M19.2 4.8l-1.9 1.9M6.7 17.3l-1.9 1.9"/>',
   /* La luna va con el hueco a la DERECHA, mirando al sol de al lado: al
      revés los dos iconos se dan la espalda y la pareja se lee peor. */
   luna: '<path d="M20 14.2A8.4 8.4 0 019.8 4 8.4 8.4 0 1020 14.2z"/>',
@@ -225,7 +318,28 @@ const ICONS = {
   eclipse: '<circle cx="12" cy="12" r="6.2"/><circle cx="12" cy="12" r="2.4"/><path d="M12 1.9v2.5M12 19.6v2.5M1.9 12h2.5M19.6 12h2.5M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/>'
 };
 
-const ICON_LIST = ["brush","pen","book","dumbbell","code","music","camera","mic","globe","coin","bulb","heart","flame","trophy","target","flag","wrench","coffee","plant","cap","chart","map","compass","crown","gem","gamepad","star","bolt","shield","smile","rod","goggles","key","papelera"];
+/* El orden de la rejilla no es el de cómo se fueron dibujando: los iconos van
+   en SECUENCIA por lo que tienen en común —crear, estudiar, cocinar, cuerpo,
+   calle, meta, chispa—, sin títulos ni cajas que los separen. Con treinta y
+   nueve iconos sueltos, encontrar el de cocina era repasarlos uno a uno; en
+   fila con sus vecinos, el ojo cae en la zona y ya solo elige dentro. Se
+   dividió en grupos con nombre en una primera prueba y era peor: cinco cajas
+   con título ocupan media pantalla y obligan a LEER para elegir un dibujo.
+
+   Al añadir un icono se mete JUNTO A LOS SUYOS, no al final. Y quien cambie
+   este orden mueve también lo que le toca de estreno a una habilidad nueva
+   —salen de aquí por posición (`ICON_LIST[i % ICON_LIST.length]`)—, que no
+   rompe nada: lo ya guardado se queda con el suyo. */
+const ICON_LIST = [
+  /* crear y contar */      "brush", "pen", "book", "camera", "music", "mic",
+  /* estudiar y trabajar */ "cap", "bulb", "code", "chart", "wrench",
+  /* cocina */              "chef", "cubiertos", "pollo", "carne", "paleta", "coffee",
+  /* cuerpo y descanso */   "dumbbell", "heart", "plant", "cama", "zzz", "luna", "sol",
+  /* fuera de casa */       "globe", "map", "compass", "rod", "goggles",
+  /* meta y premio */       "target", "flag", "trophy", "crown", "gem", "coin", "key", "shield",
+  /* chispa */              "star", "bolt", "flame", "smile", "gamepad",
+  /* y el bote */           "papelera"
+];
 
 const EMOJI_TO_ICON = {
   "🎨":"brush","🍳":"coffee","💪":"dumbbell","📚":"book","🎸":"music","💻":"code","🗣️":"mic","🧘":"heart",
@@ -1033,6 +1147,12 @@ function load() {
     try { data.settings.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
     catch (e) { data.settings.timezone = "UTC"; }
   }
+  /* El caramelo de la 0.7.110 se volvió paleta en la 0.7.110.3. Vivió un día,
+     pero un icono que ya no existe no falla a gritos: `icon()` cae en la
+     estrella y quien lo hubiera elegido vería otra cosa sin saber por qué. */
+  [data.missions, data.perks, data.skills, data.projects].forEach(lista =>
+    (lista || []).forEach(x => { if (x && x.icon === "caramelo") x.icon = "paleta"; }));
+
   const tablerosVivos = new Set(data.tableros.map(t => t && t.id));
   data.missions.forEach((m, i) => {
     if (!m.color) m.color = COLORS[i % COLORS.length];

@@ -267,28 +267,81 @@ function openSkillForm(id) {
   document.getElementById("f-grace").value = s ? s.graceDays : ex.grace;
   document.getElementById("f-decay").value = s ? s.decayPerDay : ex.decay;
   document.getElementById("f-delete").style.display = s ? "block" : "none";
-  fIcon = s ? s.icon : ICON_LIST[state.skills.length % ICON_LIST.length];
+  fIcon = s ? s.icon : iconoDeEstreno(state.skills.length, 1, 0);
   fColor = s ? s.color : COLORS[state.skills.length % COLORS.length];
 
   const cats = [...new Set(state.skills.map(x => x.category).filter(Boolean))];
   document.getElementById("cat-list").innerHTML = cats.map(c => `<option value="${escapeAttr(c)}">`).join("");
 
-  renderIconGrid("f-icon", fIcon, "pickSkillIcon", fColor);
+  renderIconGrid("f-icon", fIcon, "pickSkillIcon", fColor, true);
   renderColorGrid("f-color", fColor, "pickColor");
   togglePermFields();
   showView("form");
 }
 
 /* La rejilla de iconos muestra el icono elegido ya con el color elegido:
-   así ves en vivo cómo va a quedar. */
-function renderIconGrid(elId, selected, pickFn, color) {
+   así ves en vivo cómo va a quedar.
+
+   Y llega PLEGADA a dos filas (0.7.109). Con treinta y nueve iconos abiertos
+   de golpe, la rejilla mide media pantalla y empuja el color, el nombre y el
+   botón de guardar fuera de la vista: el formulario se volvía un catálogo de
+   dibujos con un campo de nombre arriba. Plegada se ve una muestra, y quien
+   quiera otro icono lo pide.
+
+   Lo que está abierto se recuerda por rejilla (`REJILLAS`) y no en una
+   variable suelta: las cuatro —habilidad, talento, misión y proyecto— viven a
+   la vez en el HTML, y elegir un color vuelve a dibujar la suya. Sin esa
+   memoria, tocar un color la cerraría en la cara de quien acaba de abrirla. */
+const REJILLAS = {};
+/* Dos filas de las seis columnas del teléfono. En escritorio son diez por
+   fila, así que se ven veinte y sobra: lo que no puede pasar es lo contrario,
+   que el candidato quede cortado en el móvil, que es donde se usa. */
+const ICONOS_A_LA_VISTA = 12;
+
+/* El icono que estrena una ficha nueva sale SIEMPRE de esas dos primeras
+   filas, y no del catálogo entero. Si le tocara uno del final, la rejilla se
+   abriría de par en par para enseñárselo —esa es la regla de arriba— y el
+   formulario de una misión nueva llegaría con media pantalla de dibujos, que
+   es justo lo que se vino a quitar.
+
+   El paso de cada lista es primo con doce para que la vuelta pase por los
+   doce y no rebote entre dos: con el paso 6 que tenían las misiones, la
+   primera y la tercera nacían con el mismo icono. */
+function iconoDeEstreno(n, paso, salida) {
+  return ICON_LIST[(n * paso + salida) % ICONOS_A_LA_VISTA];
+}
+
+function renderIconGrid(elId, selected, pickFn, color, reiniciar) {
   const el = document.getElementById(elId);
   if (!el) return;
   if (color) el.style.setProperty("--sel", pinta(color));
-    el.style.setProperty("--sel-l", trazo(color));
-  el.innerHTML = ICON_LIST.map(n =>
-    `<button type="button" class="${n === selected ? "selected" : ""}" onclick="${pickFn}('${n}')" aria-label="${n}">${icon(n, 20)}</button>`
-  ).join("");
+  el.style.setProperty("--sel-l", trazo(color));
+  const previo = REJILLAS[elId];
+  /* Al abrir el formulario se pliega, salvo que el icono que ya tiene esta
+     habilidad viva más abajo de la segunda fila: abrirle su propia elección
+     escondida es enseñarle una rejilla donde nada está marcado. */
+  const abierta = (reiniciar || !previo)
+    ? ICON_LIST.indexOf(selected) >= ICONOS_A_LA_VISTA
+    : previo.abierta;
+  REJILLAS[elId] = { selected, pickFn, color, abierta };
+  el.innerHTML =
+    `<div class="icon-grid${abierta ? "" : " plegada"}">` +
+    ICON_LIST.map(n =>
+      `<button type="button" class="${n === selected ? "selected" : ""}" onclick="${pickFn}('${n}')" aria-label="${n}">${icon(n, 20)}</button>`
+    ).join("") +
+    `</div>` +
+    `<button type="button" class="mas-iconos" aria-expanded="${abierta}" onclick="alternarIconos('${elId}')">` +
+      `${tx(abierta ? "Ver menos" : "Ver más iconos")}` +
+      `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>` +
+    `</button>`;
+}
+/* Sin `reiniciar`: el estado abierto/plegado se queda como estaba, que es lo
+   que la rejilla acaba de guardar al dibujarse. */
+function alternarIconos(elId) {
+  const r = REJILLAS[elId];
+  if (!r) return;
+  r.abierta = !r.abierta;
+  renderIconGrid(elId, r.selected, r.pickFn, r.color);
 }
 function pickSkillIcon(n) { fIcon = n; renderIconGrid("f-icon", n, "pickSkillIcon", fColor); }
 
@@ -412,7 +465,7 @@ function openPerkForm(id, presetBranch) {
   document.getElementById("p-cost").value = p ? p.cost : 0;
   document.getElementById("p-xp").value = p ? p.xpReward : 600;
   document.getElementById("p-delete").style.display = p ? "block" : "none";
-  pIcon = p ? (p.icon || "star") : ICON_LIST[(state.perks.length * 5 + 3) % ICON_LIST.length];
+  pIcon = p ? (p.icon || "star") : iconoDeEstreno(state.perks.length, 5, 3);
   pColor = p ? (p.color || COLORS[2]) : COLORS[(state.perks.length * 3 + 2) % COLORS.length];
   pTipo = p ? tipoDe(p) : "meta";
   /* Copia, no referencia: si se edita y luego se cancela, las etapas del
@@ -439,7 +492,7 @@ function openPerkForm(id, presetBranch) {
   pModo = p ? modoDe(p) : "todos";
   renderPerkReqs();
 
-  renderIconGrid("p-icon", pIcon, "pickPerkIcon", pColor);
+  renderIconGrid("p-icon", pIcon, "pickPerkIcon", pColor, true);
   renderColorGrid("p-color", pColor, "pickPerkColor");
   renderPerkTipo();
   renderPerkFormSteps();
@@ -670,7 +723,7 @@ async function deletePerk() {
 /* ================= Formulario de misión ================= */
 
 let msTablero = null;
-let msIcon = ICON_LIST[14];
+let msIcon = ICON_LIST[2];
 let msColor = COLORS[0];
 let msCadence = "daily";
 let msDays = [1, 3, 5];
@@ -692,7 +745,7 @@ function openMissionForm(id, presetTablero) {
   document.getElementById("ms-target").value = m ? missionTarget(m) : 1;
   document.getElementById("ms-xp").value = m ? m.xp : 15;
   document.getElementById("ms-delete").style.display = m ? "block" : "none";
-  msIcon = m ? m.icon : ICON_LIST[(state.missions.length * 6 + 14) % ICON_LIST.length];
+  msIcon = m ? m.icon : iconoDeEstreno(state.missions.length, 7, 2);
   msColor = m ? m.color : COLORS[state.missions.length % COLORS.length];
   msCadence = m ? m.cadence : "daily";
   msDays = m && m.days && m.days.length ? [...m.days] : [1, 3, 5];
@@ -701,7 +754,7 @@ function openMissionForm(id, presetTablero) {
     `<option value="">${tx("— Ninguna —")}</option>` +
     state.skills.map(s => `<option value="${s.id}" ${m && m.skillId === s.id ? "selected" : ""}>${escapeHtml(s.name)}</option>`).join("");
 
-  renderIconGrid("ms-icon", msIcon, "pickMissionIcon", msColor);
+  renderIconGrid("ms-icon", msIcon, "pickMissionIcon", msColor, true);
   renderColorGrid("ms-color", msColor, "pickMissionColor");
   pickCadence(msCadence);
   showView("mission-form");
@@ -782,7 +835,7 @@ async function deleteMission() {
 
 /* ================= Formulario de proyecto ================= */
 
-let prIcon = ICON_LIST[16];
+let prIcon = ICON_LIST[3];
 let prColor = COLORS[0];
 let formSteps = [];
 let prTipo = "tarea";
@@ -797,7 +850,7 @@ function openProjectForm(id, presetBranch) {
   document.getElementById("pr-desc").value = pr ? (pr.desc || "") : "";
   document.getElementById("pr-xp").value = pr ? pr.xpReward : 500;
   document.getElementById("pr-delete").style.display = pr ? "block" : "none";
-  prIcon = pr ? pr.icon : ICON_LIST[(state.projects.length * 4 + 1) % ICON_LIST.length];
+  prIcon = pr ? pr.icon : iconoDeEstreno(state.projects.length, 5, 1);
   prColor = pr ? pr.color : COLORS[state.projects.length % COLORS.length];
   formSteps = pr ? pr.steps.map(s => ({ ...s })) : [];
 
@@ -813,7 +866,7 @@ function openProjectForm(id, presetBranch) {
   prTipo = tipoDeEncargo(pr);
   renderTipoEncargo();
 
-  renderIconGrid("pr-icon", prIcon, "pickProjectIcon", prColor);
+  renderIconGrid("pr-icon", prIcon, "pickProjectIcon", prColor, true);
   renderColorGrid("pr-color", prColor, "pickProjectColor");
   renderFormSteps();
   sugActual.pr = null;

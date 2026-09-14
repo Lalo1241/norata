@@ -5755,6 +5755,50 @@
     justify-content: center;
   }
   .icon-grid button svg { width: 20px; height: 20px; }
+  /* ---- La rejilla plegada (0.7.109) ----
+     Se pliega con un alto y no enseñando doce botones y escondiendo el resto:
+     las columnas son seis en el teléfono y diez en escritorio, así que «dos
+     filas» son doce iconos o veinte según dónde se mire, y un número escrito
+     a mano acierta en una pantalla y falla en la otra.
+
+     Para que ese alto sea exacto, las filas miden lo que dice `--fila-iconos`
+     (`grid-auto-rows`) en vez de lo que sumen el relleno y el dibujo de
+     dentro: así el corte cae siempre entre dos filas y no a media fila, que
+     es lo que deja media corona asomando por abajo. */
+  .icon-pick { --fila-iconos: 44px; }
+  .icon-grid { grid-auto-rows: var(--fila-iconos); }
+  .icon-grid button { padding: 0; }
+  .icon-grid.plegada { max-height: calc(var(--fila-iconos) * 2 + 6px); overflow: hidden; }
+
+  /* El botón que la abre. Es `btn-linea` de fondo y borde —mirar, no
+     escribir— pero a media altura y con la letra chica: compite con el botón
+     de guardar si se le da el tamaño de una acción de verdad. */
+  .mas-iconos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px 0;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--mint);
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--mint);
+    border-image: var(--marco-tarjeta);
+    border-radius: var(--r-boton);
+    cursor: pointer;
+  }
+  .mas-iconos svg {
+    width: 16px; height: 16px;
+    fill: none; stroke: currentColor; stroke-width: 2.2;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  /* La flecha apunta arriba cuando ya está abierta. Sin transición a
+     propósito: el contenido de arriba cambia de alto de golpe, y una flecha
+     girando sola mientras lo demás salta se lee como un fallo. */
+  .mas-iconos[aria-expanded="true"] svg { transform: rotate(180deg); }
   .icon-grid button.selected {
     border-color: var(--sel-l, var(--sel, var(--mint)));
     background: color-mix(in srgb, var(--sel, var(--mint)) 14%, transparent);
