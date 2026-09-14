@@ -67,6 +67,9 @@ const J_PRESETS = { clasico: { foco: 25, desc: 5, ciclos: 4 }, profundo: { foco:
    semanas: el informe del año se quedaba sin historia. Cada entrada pesa poco
    más de cien bytes. */
 const J_REG_MAX = 2000;
+/* El sol es el hermano de la luna: si irse a dormir lleva icono, despertar
+   también. Mismo trazo de 24x24 que el resto de la casa. */
+const J_SOL = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
 const J_LUNA = '<path d="M19.5 14.5A7.5 7.5 0 019.5 4.5a7.5 7.5 0 1010 10z"/>';
 const J_ARENA = '<path d="M7 3h10M7 21h10M8 3c0 5 8 6.5 8 9s-8 4-8 9M16 3c0 5-8 6.5-8 9s8 4 8 9"/>';
 /* Los bloques de descanso. Los rótulos se traducen donde se DIBUJAN: una tabla
@@ -1129,7 +1132,11 @@ function jPintarControles() {
 
   if (!run && j.dormido) {
     /* Dormido gana a todo: lo primero al abrir por la mañana es despertar. */
-    h = `<div class="jor-acc una"><button type="button" class="btn btn-primary jor-grande" data-a="despertar">${tx("Buenos días")}</button></div>`;
+    /* Con la app atenuada, este botón es la ÚNICA salida: va por encima del
+       velo, con su sol y un halo que respira. Y lo dice en primera persona
+       —«Ya desperté» es lo que haces, no un saludo—; el saludo se queda en el
+       aviso de después, que es donde se lee como saludo. */
+    h = `<div class="jor-acc una jor-despertar"><button type="button" class="btn btn-primary jor-grande" data-a="despertar"><svg viewBox="0 0 24 24">${J_SOL}</svg>${tx("Ya desperté")}</button></div>`;
     regla = tx("Tócalo al despertar y queda apuntado cuánto dormiste.");
   } else if (desc) {
     h = desc.descanso === "dormir"
@@ -1232,8 +1239,20 @@ function jEstadoCentro() {
     if (j.dormido) {
       const min = (Date.now() - j.dormido.inicio) / J_MS;
       const b = j.bloques.find(x => x.id === j.dormido.bloque);
-      return { arriba: b ? Math.max(0, 1 - min / jDur(b)) : 0.5, t: jHm(min), f: tx("Durmiendo"), fc: "brasa",
-        sub: T`Desde las ${jH12(jMinDe(j.dormido.inicio))}`, cae: true, prog: 0 };
+      /* Lo que se enseña es lo que FALTA, no lo que llevas (0.7.113.1). Un
+         número que sube mientras duermes no se sabe contra qué se compara
+         —lo dijo Eduardo: «es confuso»—, y dormido lo único que importa es
+         cuánto queda hasta levantarse. Sin bloque de dormir no hay contra qué
+         medir, y ahí sí vale lo que llevas, que es el dato que existe. */
+      const dentro = b && jDentro(b, jAhora());
+      const falta = dentro ? ((b.fin - jAhora() + J_DIA) % J_DIA) : 0;
+      return {
+        arriba: dentro ? Math.max(0, Math.min(1, falta / jDur(b))) : (b ? 0 : 0.5),
+        t: dentro ? jHm(falta) : jHm(min),
+        f: tx("Durmiendo"), fc: "brasa",
+        sub: dentro ? T`Te levantas a las ${jH12(b.fin)}` : T`Desde las ${jH12(jMinDe(j.dormido.inicio))}`,
+        cae: true, prog: 0
+      };
     }
     const d = jDescansoAhora();
     if (d) {

@@ -112,6 +112,25 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.113.1 · 14 sep 2026
+
+**Despertar se ve, y la cuenta dice lo que falta.** Cuatro retoques del modo
+dormir, todos de Eduardo mirándolo en uso:
+
+- **El botón es la única salida encendida.** «Ya desperté» —en primera persona,
+  porque es lo que haces; el saludo se queda en el aviso de después—, con un
+  **sol** que hace pareja con la luna de irse a dormir, y un halo que respira
+  para que el ojo lo encuentre al abrir la app medio dormido. De día no hay
+  resplandor (regla de la casa): ahí late un aro en vez de un halo.
+- **El botón y su renglón suben por encima del velo** (`--piso-despertar: 106`),
+  y el renglón se lee en tinta normal y un punto más grande. Atenuada la app,
+  lo que te saca de ahí no puede estar atenuado también.
+- **La cuenta del centro dice cuánto FALTA, no cuánto llevas.** Un número que
+  sube mientras duermes no se sabe contra qué se compara —«es confuso»—, y
+  dormido lo único que importa es cuánto queda para levantarse. Debajo, la hora:
+  «Te levantas a las 7:00 AM». Sin bloque de dormir no hay contra qué medir, y
+  ahí sí se enseña lo que llevas, que es el dato que existe.
+
 ### 0.7.114 · 14 sep 2026
 
 **De Pro a Fundador ya se puede, y lo que llevas pagado se te descuenta.**
