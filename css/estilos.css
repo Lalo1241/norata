@@ -585,6 +585,7 @@
     --piso-region: 7900;   /* elegir idioma y moneda, la primera vez */
     --piso-portada: 8000;  /* entrar a la app */
     --piso-rotulo-puerta: 8100; /* "puerta en prueba": encima de la portada */
+    --piso-idioma-puerta: 8050;  /* elegir idioma en la puerta, encima de la portada */
     --piso-compra: 8200;   /* volver de pagar: tapa la app, no los avisos */
     --piso-brindis: 8500;  /* los avisos de abajo, encima de todo lo anterior */
     --piso-confirmar: 8600;/* el cuadro de confirmar: SIEMPRE lo último */
@@ -8261,6 +8262,47 @@
     html.puerta-dos .puerta-lista li { font-size: 14.5px; }
   }
 
+  /* ---- Elegir idioma en la puerta ----
+     Arriba a la derecha y fuera del formulario, que es donde se busca esto y
+     donde no estorba a lo que se ha venido a hacer. Encima de la portada
+     (`--piso-idioma-puerta`), porque la portada tapa la pantalla entera y
+     cualquier cosa por debajo se dibuja pero no se puede tocar — se midió con
+     el rótulo de la prueba, que caía justo en ese agujero.
+
+     No lleva transición en el fondo ni en el borde: los dos valores salen de
+     variables, y una transición sobre un valor que sale de una variable se
+     queda congelada en el inicial (la trampa de la casa). */
+  .puerta-idioma { display: none; }
+  html.puerta-dos .puerta-idioma {
+    display: flex; gap: 4px;
+    position: fixed; top: calc(env(safe-area-inset-top) + 12px); right: 12px;
+    z-index: var(--piso-idioma-puerta);
+    padding: 4px;
+    background: var(--sup-tarjeta); border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-pastilla);
+  }
+  html.puerta-dos .puerta-idioma button {
+    display: flex; align-items: center; gap: 7px;
+    padding: 6px 12px 6px 8px;
+    background: none; border: 0; border-radius: var(--r-pastilla);
+    color: var(--muted); cursor: pointer;
+    font-family: inherit; font-size: 12.5px; font-weight: 700;
+  }
+  html.puerta-dos .puerta-idioma button:hover { color: var(--text); }
+  /* El elegido se marca con superficie y tinta, no con el color de la marca:
+     esto no es una acción, es un estado. */
+  html.puerta-dos .puerta-idioma button.on {
+    background: var(--sup-tarjeta2); color: var(--text);
+  }
+  html.puerta-dos .puerta-idioma svg { flex: none; }
+  /* En el teléfono se queda solo el aro con las dos letras: el nombre del
+     idioma al lado se comía el ancho justo donde menos sobra, y «ES» y «EN»
+     dicen lo mismo en las dos caras. */
+  @media (max-width: 480px) {
+    html.puerta-dos .puerta-idioma button { padding: 6px 8px; }
+    html.puerta-dos .puerta-idioma button span { display: none; }
+  }
+
   /* El rótulo de que esta pestaña está en prueba. Emparejado clase-con-id,
      como el de los informes: con un selector suelto, encender una prueba
      sacaba el rótulo de la otra. En la puerta no hay barra de navegación
@@ -8299,9 +8341,17 @@
        - `css/estilos.css`: este bloque entero, de `.puerta-lado` hasta aquí,
          y `--piso-rotulo-puerta` en `:root`.
        - `login/index.html`: el `<script>` de `?puerta=`, el `<aside
-         id="puerta-lado">` y el `<div id="rotulo-puerta">`.
-       - `js/12-login.js`: `puertaPrueba`, `puertaLadoPegar`, `puertaFrase` y
-         las dos líneas que las llaman dentro del `async`.
+         id="puerta-lado">`, el `<div id="puerta-idioma">` y el `<div
+         id="rotulo-puerta">`.
+       - `js/12-login.js`: `puertaPrueba`, `puertaLadoPegar`, `puertaFrase`,
+         `puertaIdiomaPintar`, `puertaIdioma` y las líneas que las llaman
+         dentro del `async`.
+       - `js/09c-region.js`: `idiomaVinoDeLaPuerta` y su uso en
+         `pintarPantallaRegion` (con eso la pantalla vuelve a preguntar las dos
+         cosas siempre).
+       - `js/00-idioma.js`: la guarda de `enLaPuerta()` en `ponerIdioma` se
+         QUEDA — sin ella, cualquier cambio de idioma desde la puerta escribe
+         un perfil vacío en el dispositivo.
      Y si SE QUEDA, lo que se quita es la condición: las clases `puerta-dos` y
      `puerta-nuevo` dejan de salir de un parámetro y el panel pasa a ser la
      puerta a secas. */

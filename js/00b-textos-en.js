@@ -687,6 +687,26 @@ const TEXTOS_EN = {
   "Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.":
     "Your life as a video game: skills that rise with practice and goals that actually move.",
   "¿Olvidaste tu contraseña?": "Forgot your password?",
+  "Mínimo {0} caracteres. Cuanto más larga, mejor.":
+    "At least {0} characters. The longer, the better.",
+  "Al crear tu cuenta aceptas los {0} y el {1}.":
+    "By creating your account you accept the {0} and the {1}.",
+
+  /* El panel de al lado de la puerta (en prueba, 0.7.115). Se va con la prueba
+     si no se queda, y entonces estas siete frases se van con él. */
+  "Del otro lado está lo tuyo: tus habilidades, tu progreso y lo que toca hoy.":
+    "What's yours is on the other side: your skills, your progress and what today asks of you.",
+  "Los días grandes no se deciden: se construyen con los pequeños.":
+    "Big days aren't decided. They're built out of small ones.",
+  "Misiones para hoy, que se marcan de un toque.":
+    "Missions for today, checked off in one tap.",
+  "Habilidades que suben con la práctica y bajan si las dejas.":
+    "Skills that rise with practice and slip if you leave them.",
+  "Talentos y proyectos, que se abren conforme avanzas.":
+    "Talents and projects, which open up as you go.",
+  "Empezar es gratis": "Starting is free",
+  "Ya sé en qué idioma hablarte. Falta una cosa, y también se cambia después en Ajustes, cuando quieras.":
+    "I already know which language to speak to you in. One thing left, and it also changes later in Settings, whenever you want.",
   "¿Todavía no tienes cuenta?": "Don't have an account yet?",
   "Créala aquí": "Create one here",
   "Continuar con Google": "Continue with Google",
