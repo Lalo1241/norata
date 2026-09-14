@@ -112,6 +112,61 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.112 · 14 sep 2026
+
+**El banner de cada módulo no sale en el teléfono, y el informe se alcanza desde
+la cabecera.** Lo pidió Eduardo: *«en móvil los banners de cada módulo siento que
+no deberían abrumar así, deben de estar ocultos y ver esa info en el informe»*.
+
+Es la segunda vez que los para. En la 0.7.49 ya había dicho que **«los banners se
+comen la presencia de los módulos»** y entonces se adelgazó el velo. No bastó,
+porque el problema nunca fue el tono: **era el sitio que ocupan.**
+
+El número que lo cierra, medido en los cuatro módulos con el ejemplo cargado y la
+pantalla a 390 × 780:
+
+| Módulo | La primera cosa que se puede tocar estaba en | Ahora está en | Se gana |
+| --- | --- | --- | --- |
+| Misiones | y = 612 | y = 256 | 356 px |
+| Habilidades | y = 479 | y = 125 | 354 px |
+| Talentos | y = 504 | y = 147 | 357 px |
+| Proyectos | y = 479 | y = 125 | 354 px |
+
+En una pantalla de 780 px de alto, **la primera misión del día estaba en el 612**:
+casi fuera. Abrías Misiones y antes de poder marcar nada te leías un dibujo,
+cuatro cifras y una línea de foco. Ahora entra en el primer tercio.
+
+**No se pierde ni un dato, y por eso esto cabe en una regla de CSS y no en una
+discusión:** las cuatro cifras de cada banner viven también en su informe. Lo que
+hacía falta era una puerta, porque el botón de «Ver el informe» estaba DENTRO del
+banner y se iba con él.
+
+**Esa puerta va en la cabecera del módulo y no debajo**, y ahí está la diferencia
+entre ganar sitio y cambiar una caja grande por un botón: `.page-head` ya es un
+flex con el título a la izquierda y el hueco libre a la derecha, así que el botón
+no cuesta ni un píxel de alto. Los cuatro miden lo mismo (87 px de cabecera).
+Arriba de 900 px no existe: allí el banner está y lleva el suyo dentro, y dos
+botones al mismo sitio a tres centímetros uno de otro es peor que ninguno.
+
+Tres decisiones de cómo está hecho:
+
+- **Se apaga desde el CSS, no dejando de dibujarlo en JavaScript.** Es la regla
+  de siempre en este proyecto: lo que se decide una vez en JS se queda con la
+  cara del momento en que se dibujó, así que al girar el teléfono el banner no
+  volvería. Aquí el corte lo lleva el navegador y acierta siempre.
+- **El corte son 900 px porque es el mismo de `isDesktop()`** (js/07-lienzo.js):
+  un solo número decide qué es un teléfono en toda la app.
+- **El botón va en `index.html` y no en `sectionHero`**, aunque los cuatro pasen
+  por ahí: `sectionHero` pinta dentro del contenido, y este tiene que vivir en la
+  cabecera, que es estática. Su texto lo traduce `traducirDOM()` sola, con la
+  clave que ya existía.
+
+Comprobado: a 390 px los cuatro banners dan `display: none` y los cuatro botones
+salen; a 1280 px es justo al revés y el banner conserva el suyo dentro. El botón
+abre el informe de su módulo y deja el camino de vuelta puesto. Sin desbordes en
+ninguno de los dos anchos, y el botón contrasta en los dos modos — `#007046` de
+día sobre la tarjeta, `#5fe0b0` de noche.
+
 ### 0.7.111.1 · 14 sep 2026
 
 **«Guía» quedó como llave duplicada en el diccionario del inglés, y se quita.**

@@ -322,10 +322,16 @@
 
   <!-- ============ VISTA: HABILIDADES ============ -->
   <div class="view" id="view-home">
+    <!-- El boton del informe vive AQUI y no dentro del banner, porque en el
+         telefono el banner no sale (ver `.sec-hero` y `.ph-informe` en
+         css/estilos.css). En la cabecera no cuesta alto: `.page-head` ya
+         reparte el espacio entre el titulo y este hueco. En PC no se ve, que
+         alli el banner esta y lleva el suyo dentro. -->
     <div class="page-head">
       <div>
         <h1>Habilidades</h1>
       </div>
+      <button class="btn btn-linea btn-sm ph-informe" onclick="abrirInforme('habilidades')">Ver el informe</button>
     </div>
 
     <div id="home-hero"></div>
@@ -356,6 +362,7 @@
       <div>
         <h1>Árbol de talentos</h1>
       </div>
+      <button class="btn btn-linea btn-sm ph-informe" onclick="abrirInforme('talentos')">Ver el informe</button>
     </div>
 
     <div id="tree-content"></div>
@@ -377,6 +384,7 @@
       <div>
         <h1>Misiones</h1>
       </div>
+      <button class="btn btn-linea btn-sm ph-informe" onclick="abrirInforme('misiones')">Ver el informe</button>
     </div>
     <div id="missions-content"></div>
   </div>
@@ -484,6 +492,7 @@
       <div>
         <h1>Proyectos</h1>
       </div>
+      <button class="btn btn-linea btn-sm ph-informe" onclick="abrirInforme('proyectos')">Ver el informe</button>
     </div>
     <div id="projects-content"></div>
   </div>
