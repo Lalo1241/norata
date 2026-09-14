@@ -112,6 +112,21 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.111.1 · 14 sep 2026
+
+**«Guía» quedó como llave duplicada en el diccionario del inglés, y se quita.**
+Salió al comprobar la tanda de antes: Blueprint ya tenía un rango llamado Guía,
+así que al renombrar el tercero de la casa el mismo objeto pasó a tener la
+llave dos veces. Las dos traducían igual —«Guide»—, así que no se veía nada mal
+en pantalla; el problema era el de mañana, porque **de dos llaves iguales gana
+la última** y quien cambiara la primera se habría quedado mirando por qué no
+pasa nada. Se declara una sola vez, con los cinco rangos de la casa.
+
+Buscadas las demás de paso: el diccionario tiene **2 508 llaves y cinco más
+repetidas** —«al mes», «Terminado», «Estancado», «Enfriándose» y «Casi listo»—,
+pero en las cinco los dos lados dicen exactamente lo mismo, así que no hay nada
+roto y se quedan como están.
+
 ### 0.7.111 · 14 sep 2026
 
 **Ningún rango marca género, y la forma en «-e» se retira de la app.** Lo pidió

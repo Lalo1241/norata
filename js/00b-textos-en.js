@@ -2478,7 +2478,11 @@ const TEXTOS_EN = {
  "Dibujante": "Drafter",
  "Proyectista": "Designer",
  "Contratista": "Contractor",
- "Guía": "Guide",
+ /* Aquí iba «Guía», el quinto rango de Blueprint. Desde 0.7.111 es también el
+    tercero de la casa, así que se declara UNA sola vez con los cinco de la
+    casa, más abajo. Repetirla no traducía nada dos veces: dejaba dos llaves
+    iguales en el mismo objeto, y de dos llaves iguales gana la última — quien
+    cambiara esta se habría quedado mirando por qué no pasaba nada. */
  "Hallazgo": "Find",
  "Pieza": "Piece",
  "Colección": "Collection",
