@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#10151d">
+<meta name="color-scheme" content="dark light">
+<!-- Esta página no pide nada ni enseña nada, así que la muralla se cierra a lo
+     único que hace: un `<script>` en línea y un color de fondo. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'none';
+  script-src 'unsafe-inline';
+  style-src 'unsafe-inline';
+  form-action 'none';
+  base-uri 'none'">
+<title>Crear cuenta · Norata</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<!--
+  ============ La segunda puerta: /crear-cuenta/ (EN PRUEBA, 0.7.115) ============
+
+  La landing tiene dos botones —«Empieza gratis» e «Iniciar sesión»— y llevaban
+  al mismo sitio. Esta es la dirección del primero.
+
+  ---- Por qué es un desvío y no una página de verdad ----
+
+  Porque una página de verdad cuesta cuatro cosas que no se ven, y la cuarta es
+  la que muerde:
+
+    1. Otro HTML casi idéntico al de la puerta, que es como se desincronizan
+       las cosas.
+    2. Dos entradas más en la lista `ASSETS` de `sw.js`, con sus dos formas
+       (`./crear-cuenta/` y `./crear-cuenta/index.html`).
+    3. El logotipo y las páginas legales resuelven su ruta mirando dónde están
+       (`logotipoSrc`, `legalBase`), así que habría un tercer sitio que enseñar.
+    4. Y sobre todo: **`redirect_to` sale de `location.pathname`** (ver
+       `sbVuelta` en `js/10b-supabase.js`). Quien entrara con Google desde aquí
+       volvería a `/crear-cuenta/`, y una dirección que no esté dada de alta en
+       Supabase rebota. O sea que una segunda puerta de verdad no es un archivo
+       más: es una configuración más que mantener, fuera de este repositorio.
+
+  Desviando, la dirección bonita existe para la landing y la puerta sigue
+  siendo UNA. Se paga un salto, y ni eso se nota: la página pesa lo que ves y
+  el service worker la sirve de su copia.
+
+  ---- Lo que hay que cambiar el día que la prueba se apruebe ----
+
+  `?puerta=nuevo` es el interruptor del borrador. Al aprobarlo, aquí se escribe
+  `../login/?nuevo` y se borra el resto de la prueba (la lista está en
+  `css/estilos.css`, al final del bloque `.puerta-lado`).
+-->
+</head>
+<body style="margin:0;background:#10151d">
+<script>
+  /* `replace` y no `href`: así esta parada no se queda en el historial y el
+     gesto de atrás desde la puerta lleva a la landing, que es de donde se
+     viene, y no otra vez aquí — que sería un bucle del que solo se sale
+     cerrando la pestaña. */
+  location.replace("../login/?puerta=nuevo" + location.hash);
+</script>
+<noscript>
+  <p style="color:#f7f8fa;font:15px/1.6 system-ui,sans-serif;padding:24px">
+    <a href="../login/?puerta=nuevo" style="color:#5fe0b0">Crear tu cuenta en Norata</a>
+  </p>
+</noscript>
+</body>
+</html>

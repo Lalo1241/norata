@@ -106,6 +106,7 @@ function puertaLadoPegar() {
   const lado = document.getElementById("puerta-lado");
   if (!cap || !lado) return;
   cap.appendChild(lado);
+  puertaFrasesPoner();
   puertaFrase();
   new MutationObserver(() => {
     if (lado.parentNode !== cap) cap.appendChild(lado);
@@ -164,6 +165,68 @@ function puertaIdioma(cod) {
     if (document.getElementById("portada")) portadaPintar(portadaModo);
     puertaIdiomaPintar();
   });
+}
+
+/* ---- El repertorio de frases del panel (EN PRUEBA, 0.7.115) ----
+
+   Una sola frase clavada se gasta: quien abre la puerta tres veces en una
+   semana ya no la lee. Así que hay un puñado por cada camino y sale una al
+   azar en cada apertura.
+
+   Se escriben en ESPAÑOL y se dejan en el DOM tal cual; quien las traduce es
+   el barrido de `traducirDOM()`, igual que si estuvieran en el marcado. Si se
+   escribiera aquí el resultado de `tx()`, el barrido tomaría el inglés como
+   original y al volver al español dejaría la frase en inglés — es la misma
+   trampa que ya está apuntada en `js/00-idioma.js`.
+
+   Las viñetas de «soy nuevo» NO rotan y se quedan en el marcado: eso no es una
+   frase, es lo que hace la app. Lo que rota es la voz de arriba. */
+const PUERTA_FRASES = {
+  entrar: [
+    "Del otro lado está lo tuyo: tus habilidades, tu progreso y lo que toca hoy.",
+    "Nada de lo que construiste se fue a ningún lado. Te estaba esperando.",
+    "Volver también cuenta. De hecho, es la parte difícil.",
+    "Tu expedición sigue abierta, justo donde la dejaste.",
+    "Los días que no abriste la app también son parte del camino."
+  ],
+  crear: [
+    "Los días grandes no se deciden: se construyen con los pequeños.",
+    "Todo lo que admiras de alguien empezó siendo un martes cualquiera.",
+    "Una habilidad no sube porque lo decidas hoy. Sube porque lo repitas.",
+    "Tienes por delante un camino largo, y se recorre en días pequeños.",
+    "Lo que se mide se ve, y lo que se ve se sostiene."
+  ]
+};
+
+/* Una al azar, pero nunca la misma dos veces seguidas en esta pestaña. Con
+   cinco frases, repetir al recargar tiene una probabilidad de uno entre cinco
+   — bastante para que se note justo lo que esto viene a evitar. La anterior se
+   apunta en `sessionStorage`: al cerrar la pestaña se olvida, que es
+   exactamente la vida que tiene que tener este dato. */
+function puertaFraseAzar(lista, llave) {
+  if (!lista || lista.length < 2) return (lista && lista[0]) || "";
+  let antes = -1;
+  try { antes = parseInt(sessionStorage.getItem(llave), 10); } catch (e) { /* modo privado */ }
+  let i = Math.floor(Math.random() * lista.length);
+  if (i === antes) i = (i + 1) % lista.length;
+  try { sessionStorage.setItem(llave, String(i)); } catch (e) { /* modo privado */ }
+  return lista[i];
+}
+
+/* Se eligen UNA vez por apertura y no en cada repintado: el panel se vuelve a
+   pegar cada vez que la portada cambia de formulario, y sortear ahí haría que
+   la frase bailara cada vez que alguien va y viene entre «entrar» y «crear». */
+function puertaFrasesPoner() {
+  const lado = document.getElementById("puerta-lado");
+  if (!lado) return;
+  const v = lado.querySelector(".puerta-frase-vuelve .puerta-cita");
+  const n = lado.querySelector(".puerta-frase-nueva .puerta-cita");
+  if (v) v.textContent = puertaFraseAzar(PUERTA_FRASES.entrar, "norata-frase-entrar");
+  if (n) n.textContent = puertaFraseAzar(PUERTA_FRASES.crear, "norata-frase-crear");
+  /* Y se traduce lo que se acaba de escribir. El barrido de arriba ya pasó
+     —corre antes de que exista la portada— así que sin esto, una puerta abierta
+     en inglés enseñaría la frase en español. */
+  traducirDOM(lado);
 }
 
 /* Qué frase se enseña al lado. La decide el formulario que hay en pantalla y

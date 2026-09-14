@@ -8346,6 +8346,12 @@
        - `js/12-login.js`: `puertaPrueba`, `puertaLadoPegar`, `puertaFrase`,
          `puertaIdiomaPintar`, `puertaIdioma` y las líneas que las llaman
          dentro del `async`.
+       - `crear-cuenta/index.html`, entero, y sus dos entradas en `ASSETS`
+         (`sw.js`). Si se queda, lo único que cambia es a dónde desvía:
+         `../login/?nuevo` en vez de `?puerta=nuevo`.
+       - `js/12-login.js`: `PUERTA_FRASES`, `puertaFraseAzar` y
+         `puertaFrasesPoner` (las frases vuelven al marcado), y en
+         `js/00b-textos-en.js` sus traducciones.
        - `js/09c-region.js`: `idiomaVinoDeLaPuerta` y su uso en
          `pintarPantallaRegion` (con eso la pantalla vuelve a preguntar las dos
          cosas siempre).
