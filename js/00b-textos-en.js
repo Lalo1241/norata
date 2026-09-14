@@ -2112,7 +2112,16 @@ const TEXTOS_EN = {
   "Destello propio": "Its own flash",
   "Celebración de pantalla completa": "Full-screen celebration",
   "Celebración grande": "Big celebration",
-  "Rango Cartógrafo": "Cartographer rank",
+  /* Los cinco peldaños de rango de la escalera. Van con el nombre entero
+     escrito porque `EXP_ESCALERA` guarda la frase completa, no el rango suelto
+     —«Rango {0}» de más abajo es para `nombreDeRango()`, que es otra cosa—.
+     Estaban solo tres de los cinco, así que la escalera en inglés enseñaba dos
+     peldaños en español. */
+  "Rango Andante": "Wayfarer rank",
+  "Rango Vigía": "Scout rank",
+  "Rango Guía": "Guide rank",
+  "Rango Líder": "Leader rank",
+  "Rango Navegante": "Navigator rank",
   "Días con actividad": "Days with activity",
   "Niveles de habilidad": "Skill levels",
   "Hitos de racha": "Streak milestones",
@@ -2475,7 +2484,6 @@ const TEXTOS_EN = {
  "Colección": "Collection",
  "Sala": "Hall",
  "Legado": "Legacy",
- "Explorador": "Explorer",
  /* La tanda del 4 de septiembre: lo que seguía en español con la app en
     inglés. Salió de recorrer las nueve pantallas con la app puesta en
     inglés y recoger el texto visible que aún tenía pinta de español. */
@@ -2502,9 +2510,20 @@ const TEXTOS_EN = {
  "{0} de las tuyas van con otros números, porque las creaste antes o las ajustaste una por una.": "{0} of yours run on different numbers, because you created them earlier or tuned them one by one.",
  "Aplicarlo también a esa habilidad": "Apply it to that skill too",
  "Aplicarlo también a esas {0} habilidades": "Apply it to those {0} skills too",
+ /* Los cinco rangos de la casa. El inglés SIGUE al español —Scout, Guide,
+    Leader— en vez de quedarse con Tracker, Explorer y Cartographer: lo pidió
+    Eduardo para que un rango signifique lo mismo en los dos idiomas, porque si
+    no, quien cambia de idioma cambia de oficio.
+
+    Y «Lookout», que era la traducción literal de Vigía, se descartó: en inglés
+    esa palabra es casi más un LUGAR que una persona —un mirador—, y en una
+    chapa al lado de Guide y Navigator se leería como el sitio desde donde
+    miras. «Scout» es persona, se mueve, y deja la escalera contando algo:
+    andas, te adelantas, llevas a otros, decides, cruzas. */
  "Andante": "Wayfarer",
- "Rastreador": "Tracker",
- "Cartógrafo": "Cartographer",
+ "Vigía": "Scout",
+ "Guía": "Guide",
+ "Líder": "Leader",
  "Navegante": "Navigator",
  "Rango {0}": "{0} rank",
  "Conseguido": "Earned",

@@ -948,7 +948,10 @@ function escenaRango(id) {
   const propios = m && m.listo && m.rangos ? m.rangos : null;
   const casa = typeof EXP_RANGOS !== "undefined" ? EXP_RANGOS : null;
   const r = propios ? propios[2] : (casa ? casa[2] : null);
-  if (!r) return { nombre: "Explorador", glifo: "" };
+  /* El respaldo dice lo mismo que `casa[2]`, que es el rango del medio de la
+     casa: si algún día no se pudiera leer la tabla, al menos no se enseña un
+     oficio que ya no existe. */
+  if (!r) return { nombre: "Guía", glifo: "" };
   const glifo = r.trazo && typeof svgDeTrazo === "function"
     ? svgDeTrazo(r.trazo, 19)
     : (r.icon && typeof icon === "function" ? icon(r.icon, 19) : "");

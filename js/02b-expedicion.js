@@ -149,24 +149,44 @@ const EXP_POR_RANGO = 6;
    cinco —en Arboleda no eres Andante, eres Semilla— y una nota que dijera «el
    andante camina» se rompería en catorce sitios. Habla del TRAMO, que es lo
    único que ningún mundo mueve. */
-/* `nombreF` y `nombreX` son las otras dos formas del oficio, y solo las llevan
-   los tres que las tienen: «Andante» y «Navegante» ya son iguales para todo el
-   mundo, y ponerles una variante igual a sí misma sería una copia esperando a
-   desincronizarse. Las resuelve `nombreDeRango()` (js/01-base.js), que es el
-   único sitio donde se elige — y en inglés no se eligen, porque allí el oficio
-   no marca género. Ver la nota de `GENEROS`. */
+/* ---- Ningún rango marca género, y eso es una decisión, no una casualidad ----
+
+   Hasta la 0.7.110 tres de los cinco llevaban `nombreF` y `nombreX`, y el
+   neutro era la forma en -e: Rastreadore, Exploradore, Cartógrafe. Eduardo la
+   retiró, y con un criterio que vale para toda la app: **el neutro no se
+   inventa con una letra, se consigue eligiendo palabras que ya no marcan.**
+   Es lo que hacía ya el saludo de la portada —«Te damos la bienvenida» en vez
+   de «Bienvenido»— y lo que hacían por su cuenta Andante y Navegante.
+
+   Así que los tres se renombraron a palabras que en español sirven igual para
+   cualquiera: **Vigía, Guía y Líder.** Ya no hay nada que elegir, y por eso ya
+   no hay variantes que mantener sincronizadas.
+
+   Dónde muerde si alguien lo deshace: una INSIGNIA es una sola palabra, así
+   que ahí el rodeo de la frase no salva. Un rango que vuelva a marcar género
+   obliga a reinventar las variantes y a decidir otra vez qué ve quien no ha
+   contestado. Si hace falta un rango nuevo, que sea una palabra que ya valga
+   para todos — es más barato y se lee mejor.
+
+   Los `id` siguen diciendo «rastreador», «explorador» y «cartografo» A
+   PROPÓSITO: no se ven en ninguna pantalla y son el nombre de sus variables de
+   color en `css/estilos.css` (`--rango-rastreador`…). Renombrarlos sería tocar
+   tres bloques de CSS para que nadie note nada. */
 const EXP_RANGOS = [
   { id: "andante",    nombre: "Andante",    desde: 1,  icon: "rango-bota",    color: "--rango-andante",
     nota: "El principio. Se cruza en semanas y casi todo lo que haces suma." },
-  { id: "rastreador", nombre: "Rastreador", nombreF: "Rastreadora", nombreX: "Rastreadore",
+  { id: "rastreador", nombre: "Vigía",
     desde: 7,  icon: "rango-huella",  color: "--rango-rastreador",
     nota: "Ya hay un rastro que seguir: se nota a qué le dedicas los días." },
-  { id: "explorador", nombre: "Explorador", nombreF: "Exploradora", nombreX: "Exploradore",
+  { id: "explorador", nombre: "Guía",
     desde: 13, icon: "rango-farol",   color: "--rango-explorador",
     nota: "Aquí se ve lo que sostienes, no lo que empezaste." },
-  { id: "cartografo", nombre: "Cartógrafo", nombreF: "Cartógrafa",  nombreX: "Cartógrafe",
+  /* El mapa que lleva dibujado dejó de sobrar al cambiar el nombre: un
+     cartógrafo copia el terreno, y un líder decide por dónde. La frase la
+     escribió Eduardo y es la que hace que el icono siga teniendo sentido. */
+  { id: "cartografo", nombre: "Líder",
     desde: 19, icon: "rango-mapa",    color: "--rango-cartografo",
-    nota: "El mapa ya es tuyo: habilidades, talentos y proyectos con historia detrás." },
+    nota: "Ya no sigues un camino: escribes el tuyo. Habilidades, talentos y proyectos con historia detrás." },
   { id: "navegante",  nombre: "Navegante",  desde: 25, icon: "rango-brujula", color: "--rango-navegante",
     nota: "El último de los cinco. El nivel sigue subiendo después: la cuenta no se acaba." }
 ];
@@ -249,10 +269,10 @@ const EXP_ESCALERA = [
   { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión", corto: "Destello propio", listo: true },
   { nivel: 6,  tipo: "rango",       nombre: "Rango Andante", listo: true },
   { nivel: 9,  tipo: "celebracion", nombre: "Racha avivada", corto: "Racha avivada", listo: true },
-  { nivel: 12, tipo: "rango",       nombre: "Rango Rastreador", listo: true },
+  { nivel: 12, tipo: "rango",       nombre: "Rango Vigía", listo: true },
   { nivel: 15, tipo: "celebracion", nombre: "Celebración de pantalla completa", corto: "Celebración grande", pro: true, listo: true },
-  { nivel: 18, tipo: "rango",       nombre: "Rango Explorador", listo: true },
-  { nivel: 24, tipo: "rango",       nombre: "Rango Cartógrafo", listo: true },
+  { nivel: 18, tipo: "rango",       nombre: "Rango Guía", listo: true },
+  { nivel: 24, tipo: "rango",       nombre: "Rango Líder", listo: true },
   { nivel: 30, tipo: "rango",       nombre: "Rango Navegante", listo: true }
 ];
 
@@ -517,12 +537,12 @@ function rangosVigentes() {
   if (typeof rangosDeApariencia === "function") {
     const propios = rangosDeApariencia();
     if (propios && propios.length === EXP_RANGOS.length) {
-      /* Las variantes de género de la casa se BORRAN al ponerse un mundo, y
-         hace falta decirlo: `Object.assign` pisa `nombre` pero no toca
-         `nombreF`, así que sin esta línea el rango «Semilla» de Arboleda
-         seguiría llevando pegado el «Rastreadora» de la casa — y a quien
-         eligiera femenino le habría salido Rastreadora dentro de Arboleda.
-         Un mundo nombra los cinco a su manera y ahí no hay nada que elegir. */
+      /* El borrado de variantes se queda aunque la casa ya no tenga ninguna
+         (0.7.110: los cinco rangos dejaron de marcar género). No es código
+         muerto: `Object.assign` pisa `nombre` pero no `nombreF`, así que el
+         día que un rango —de la casa o de un mundo— vuelva a traer variantes,
+         sin esta línea se le quedarían pegadas encima del nombre del mundo.
+         Costaba una línea y evitaba un fallo que ya pasó una vez. */
       return EXP_RANGOS.map((r, i) =>
         Object.assign({}, r, { nombreF: null, nombreX: null }, propios[i]));
     }

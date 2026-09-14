@@ -112,6 +112,83 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.111 · 14 sep 2026
+
+**Ningún rango marca género, y la forma en «-e» se retira de la app.** Lo pidió
+Eduardo con un criterio que vale para todo lo que se escriba a partir de ahora:
+*el neutro no se inventa con una letra, se consigue eligiendo palabras que ya no
+marcan.* No es una opinión nueva dentro de Norata — es lo que la app ya hacía sin
+decirlo, y lo que hacían solos dos de los cinco rangos.
+
+**Los cinco oficios**, y los tres de en medio son los que cambian:
+
+| Antes | Ahora | En inglés |
+| --- | --- | --- |
+| Andante | **Andante** | Wayfarer |
+| Rastreador · Rastreadora · Rastreadore | **Vigía** | Scout |
+| Explorador · Exploradora · Exploradore | **Guía** | Guide |
+| Cartógrafo · Cartógrafa · Cartógrafe | **Líder** | Leader |
+| Navegante | **Navegante** | Navigator |
+
+Con eso `nombreF` y `nombreX` desaparecen de la tabla: ya no hay tres copias de
+un oficio esperando a desincronizarse.
+
+**El inglés SIGUE a los nombres nuevos** en vez de quedarse con Tracker, Explorer
+y Cartographer. En inglés no hay problema de género, así que podrían no haberse
+tocado; se tocan porque si no, **quien cambia de idioma cambia de oficio**. Y
+«Lookout», que era la traducción literal de Vigía, se descartó por una razón que
+no es la obvia: no es que se confunda con el aviso «look out!» —eso es la
+interjección, dos palabras—, sino que en inglés *lookout* es casi más un LUGAR
+que una persona, un mirador. Al lado de Guide y Navigator se leería como el sitio
+desde donde miras. **Scout** es persona, se mueve, y deja la escalera contando
+algo: andas, te adelantas, llevas a otros, decides, cruzas.
+
+**La frase de Líder se reescribió, y con eso su dibujo dejó de sobrar.** Ese
+rango lleva un mapa, que con Cartógrafo era la idea entera. La escribió Eduardo:
+
+> Ya no sigues un camino: escribes el tuyo.
+
+Un cartógrafo copia el terreno; un líder decide por dónde. El mapa sigue ahí
+porque ahora lo dibujas tú.
+
+**La pregunta de la bienvenida pierde una opción y GANA un ejemplo nuevo**, que
+es la parte que casi se escapa: ilustraba el género con un rango —«Te diría:
+Explorador / Exploradora»— y los rangos ya no marcan, así que las dos opciones
+habrían enseñado la misma palabra debajo. Ahora el ejemplo es el saludo de la
+portada, que es una de las frases que de verdad cambian: «Bienvenida de vuelta»
+contra «Bienvenido de vuelta».
+
+**Y elegir deja de ser de ida y sin vuelta.** El neutro ya no es una casilla que
+se marca, es el suelo — `GENERO_POR_DEFECTO` sigue siendo `"x"`, que ahora
+significa «esquiva el género con la frase». Pero sin una salida, quien tocara «En
+femenino» por curiosidad se quedaba dentro para siempre, y eso convierte una
+preferencia en una trampa: Ajustes lleva ahora un **«Prefiero no decirlo»** que
+solo sale cuando hay algo que deshacer, y una línea que dice en cada estado qué
+está pasando.
+
+Lo que se tocó, y lo que NO:
+
+- **No se tocaron los `id`** (`rastreador`, `explorador`, `cartografo`). No se
+  ven en ninguna pantalla y son el nombre de sus variables de color en
+  `css/estilos.css`; renombrarlos sería tocar tres bloques de CSS para que nadie
+  note nada.
+- **Se quedó el borrado de variantes de `rangosVigentes()`** aunque la casa ya no
+  tenga ninguna. No es código muerto: `Object.assign` pisa `nombre` pero no
+  `nombreF`, así que el día que un rango vuelva a traer variantes, sin esa línea
+  se le quedarían pegadas encima del nombre del mundo. Ya pasó una vez.
+- **La escalera tenía dos peldaños sin traducir**, y se vio al tocarlos: solo
+  existía la clave de «Rango Cartógrafo», así que en inglés la escalera enseñaba
+  «Rango Andante» y «Rango Navegante» en español. Están los cinco.
+- **El respaldo de `escenaRango()` decía «Explorador»**, un oficio que ya no
+  existe. Dice lo mismo que `casa[2]`, que es de donde sale.
+- El texto del panel de Ajustes prometía que esto cambiaba «los rangos de tu
+  expedición». Ya no: lo dice, y dice que los cinco valen igual para todo el
+  mundo.
+
+**Quien ya tuviera un rango con género lo verá cambiar** — una Rastreadora pasa a
+ser Vigía. Es un cambio visible en una insignia ganada y no hay migración que
+valga: el rango se calcula del nivel, no se guarda.
+
 ### 0.7.110 · 13 sep 2026
 
 **La rejilla de iconos llega plegada, ordenada por familias, y el catálogo pasa
