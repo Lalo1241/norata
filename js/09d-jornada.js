@@ -70,6 +70,10 @@ const J_REG_MAX = 2000;
 /* El sol es el hermano de la luna: si irse a dormir lleva icono, despertar
    también. Mismo trazo de 24x24 que el resto de la casa. */
 const J_SOL = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+/* El símbolo de prohibido, para el bloque que estás pisando: mientras dure el
+   arrastre sustituye a SU icono, porque ahí no se trata de qué es sino de que
+   ahí no cabe. */
+const J_PROHIBIDO = '<circle cx="12" cy="12" r="9"/><line x1="5.6" y1="18.4" x2="18.4" y2="5.6"/>';
 const J_LUNA = '<path d="M19.5 14.5A7.5 7.5 0 019.5 4.5a7.5 7.5 0 1010 10z"/>';
 const J_ARENA = '<path d="M7 3h10M7 21h10M8 3c0 5 8 6.5 8 9s-8 4-8 9M16 3c0 5-8 6.5-8 9s8 4 8 9"/>';
 /* Los bloques de descanso. Los rótulos se traducen donde se DIBUJAN: una tabla
@@ -683,16 +687,26 @@ const jBordeBloque = col => `color-mix(in srgb, ${col} 42%, var(--jor-sep))`;
    no tiene que engordar para que se atine con el dedo. */
 function jAsaHTML(k, min) {
   const [x, y] = jPt(J_RM, min);
-  return `<g class="jor-asa-g" data-h="${k}" transform="translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${(min / J_DIA * 360).toFixed(2)})">
-    <rect x="-17" y="-23" width="34" height="46" fill="transparent"/>
-    <rect class="jor-asa" x="-3.5" y="-14" width="7" height="28" rx="3"/></g>`;
+  /* DOS grupos, y esto no es adorno: el de fuera lleva el `transform` del SVG
+     —dónde va el asa— y el de dentro es el que se anima. Con los dos en el
+     mismo elemento, el `transform` del CSS PISA al del atributo y el asa se
+     dibujaba un instante en la esquina de arriba a la izquierda, que es el
+     origen del lienzo. Lo cazó Eduardo en la 0.7.114. */
+  return `<g data-h="${k}" transform="translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${(min / J_DIA * 360).toFixed(2)})">
+    <g class="jor-asa-g"><rect x="-17" y="-23" width="34" height="46" fill="transparent"/>
+    <rect class="jor-asa" x="-3.5" y="-14" width="7" height="28" rx="3"/></g></g>`;
 }
 /* El fondo del aro NO se pinta (0.7.114): era una rosquilla gris llena aunque
    el día estuviera vacío, y lo que se tiene que ver es TU día. En su lugar,
    dos hilos de guía que enmarcan por dónde va el aro y los puntos de las
    medias horas. Lo de fuera —marcas de hora, números, aguja— no se toca. */
 function jBaseRueda() {
-  let h = `<circle class="jor-guia" cx="${J_C}" cy="${J_C}" r="${J_RI - 3}"/><circle class="jor-guia" cx="${J_C}" cy="${J_C}" r="${J_RO + 2}"/>`;
+  /* La malla diagonal que tapa lo que está ocupado. Se declara aquí porque las
+     dos ruedas —la grande y la de la hoja— salen de esta misma base; las dos
+     copias son idénticas, así que da igual cuál resuelva el `url(#…)`. */
+  let h = `<defs><pattern id="jor-veda" patternUnits="userSpaceOnUse" width="9" height="9" patternTransform="rotate(45)">
+      <line class="jor-veda-raya" x1="0" y1="0" x2="0" y2="9"/></pattern></defs>`;
+  h += `<circle class="jor-guia" cx="${J_C}" cy="${J_C}" r="${J_RI - 3}"/><circle class="jor-guia" cx="${J_C}" cy="${J_C}" r="${J_RO + 2}"/>`;
   for (let i = 1; i < 48; i += 2) {
     const [x, y] = jPt(J_RI - 3, i * 30);
     h += `<circle class="jor-media" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="1.1"/>`;
@@ -730,6 +744,8 @@ function jPintarRueda() {
     const v = jDatos().bloques.find(x => x.id === jVolando);
     if (v) h += `<path class="jor-destino" d="${jGajo(jDestino, jDur(v), J_RI + 2, J_RO - 2)}" style="fill:${jColorBloque(v)};fill-opacity:.2"/>`;
   }
+  const enMano = jVolando ? jDatos().bloques.find(x => x.id === jVolando) : null;
+  const pisando = enMano ? jChoca(enMano.ini, enMano.fin, enMano.id) : null;
   const bloques = jVolando
     ? [...jDatos().bloques].sort((x, y) => (x.id === jVolando) - (y.id === jVolando))
     : jDatos().bloques;
@@ -744,13 +760,20 @@ function jPintarRueda() {
        otro: ahí no se queda tal cual, al soltarlo se irá al hueco más cercano. */
     const vuela = b.id === jVolando, encima = vuela && !!jChoca(b.ini, b.fin, b.id);
     /* Pisando a otro, el gajo SALE del aro a la órbita de fuera: dos bloques
-       no pueden encimarse, y verlo levantado lo dice antes de soltarlo. */
+       no pueden encimarse, y verlo levantado lo dice antes de soltarlo. Y el
+       que está DEBAJO lo dice también, en coral y con el borde cortado —si no,
+       se ve que algo pasa pero no con qué—; el resto del día se apaga un poco
+       para que los dos protagonistas se lean solos. */
+    const bloqueado = !vuela && !!enMano && jSolapan(b, enMano);
+    const apagado = !vuela && !!enMano && !bloqueado && !!pisando;
     const rIn = encima ? J_RO + 6 : J_RI, rOut = encima ? J_RO + 30 : J_RO;
     const rm = (rIn + rOut) / 2;
-    h += `<path class="jor-blq${b.id === jSelId ? " sel" : ""}${enCurso ? " ahora" : ""}${vuela ? " volando" : ""}${encima ? " orbita" : ""}" data-id="${b.id}" d="${jGajo(b.ini, d, rIn, rOut)}" style="fill:${col};--jor-brillo:${col};--jor-borde:${jBordeBloque(col)}"/>`;
-    if (d >= 60) {
+    const camino = jGajo(b.ini, d, rIn, rOut);
+    h += `<path class="jor-blq${b.id === jSelId ? " sel" : ""}${enCurso ? " ahora" : ""}${vuela ? " volando" : ""}${encima ? " orbita" : ""}${bloqueado ? " bloqueado" : ""}${apagado ? " apagado" : ""}" data-id="${b.id}" d="${camino}" style="fill:${col};--jor-brillo:${col};--jor-borde:${jBordeBloque(col)}"/>`;
+    if (bloqueado) h += `<path class="jor-veda" d="${camino}"/>`;
+    if (d >= 60 || bloqueado) {
       const [x, y] = jPt(rm, b.ini + d / 2);
-      h += `<svg class="jor-blq-ic${b.descanso && !b.color ? " descanso" : ""}" x="${x - 8}" y="${y - 8}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${jIconoBloque(b)}</svg>`;
+      h += `<svg class="jor-blq-ic${bloqueado ? " vedado" : b.descanso && !b.color ? " descanso" : ""}" x="${x - 8}" y="${y - 8}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${bloqueado ? J_PROHIBIDO : jIconoBloque(b)}</svg>`;
     }
   }
   g.innerHTML = h;
@@ -899,6 +922,7 @@ function jEngancharRueda(svg) {
 }
 
 /* ---------- Choques ---------- */
+const jSolapan = (a, b) => jDentro(a, b.ini) || jDentro(b, a.ini);
 function jChocaEn(bloques, ini, fin, exceptoId) {
   const t = { ini, fin };
   return bloques.find(o => o.id !== exceptoId && (jDentro(o, ini) || jDentro(t, o.ini))) || null;
@@ -1666,8 +1690,14 @@ function jDibujarPrevia() {
   }
   for (const b of jDatos().bloques) {
     if (b.id === e.id) continue;
-    const col = jColorBloque(b), choca = jPrevVolando && jDentro(b, e.ini) || jPrevVolando && jDentro(e, b.ini);
-    h += `<path class="jor-blq otro${choca ? " encima" : ""}" data-id="${b.id}" d="${jGajo(b.ini, jDur(b))}" style="fill:${col};--jor-borde:${jBordeBloque(col)}"/>`;
+    const col = jColorBloque(b), choca = jPrevVolando && jSolapan(b, e);
+    const camino = jGajo(b.ini, jDur(b));
+    h += `<path class="jor-blq otro${choca ? " bloqueado" : ""}" data-id="${b.id}" d="${camino}" style="fill:${col};--jor-borde:${jBordeBloque(col)}"/>`;
+    if (choca) {
+      h += `<path class="jor-veda" d="${camino}"/>`;
+      const [ix, iy] = jPt(J_RM, b.ini + jDur(b) / 2);
+      h += `<svg class="jor-blq-ic vedado" x="${ix - 8}" y="${iy - 8}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${J_PROHIBIDO}</svg>`;
+    }
   }
   const d = jDur(e), col = jColorBloque(e);
   const fuera = jPrevVolando && !!jChoca(e.ini, e.fin, e.id);

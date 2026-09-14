@@ -172,6 +172,17 @@ html.claro {
 /* Mientras vuela por encima de otros (0.7.109): en el aire, y en coral cuando
    está pisando algo — ahí no se queda, al soltarlo se va al hueco más cercano. */
 .jor-blq.volando { opacity: .95; }
+/* ---- Lo que está ocupado se TAPA ----
+   El bloque que estás pisando lleva línea coral continua, una malla diagonal
+   encima y, en lugar de su icono, el símbolo de prohibido: tres señales que
+   dicen lo mismo —ahí no cabe— sin que haya que adivinarlo. Con el borde
+   cortado solo se veía «pasa algo»; con la malla se ve QUÉ pasa. El resto del
+   día se apaga mientras tanto, para que se lean los dos que importan. */
+.jor-blq.bloqueado { stroke: var(--coral); stroke-width: 2.6; }
+.jor-blq.apagado { opacity: .55; }
+.jor-veda { fill: url(#jor-veda); stroke: none; pointer-events: none; }
+.jor-veda-raya { stroke: var(--coral); stroke-width: 2.6; opacity: .75; }
+.jor-blq-ic.vedado { color: var(--coral); }
 /* Fuera del aro mientras pisa a otro: la sombra es lo que lo levanta. De día
    no hay resplandor, pero una sombra sí —no es luz, es peso—. */
 .jor-blq.orbita { filter: drop-shadow(0 3px 9px rgba(0, 0, 0, .45)); cursor: grabbing; }
@@ -476,7 +487,7 @@ html.claro .jor-despertar .btn { animation: jor-respira-dia 2.8s ease-in-out inf
 .jor-previa { display: block; width: 100%; max-width: 236px; margin: 2px auto 10px; overflow: visible; touch-action: none; user-select: none; -webkit-user-select: none; }
 .jor-previa .jor-blq.otro { opacity: .6; }
 .jor-previa .jor-blq.nuevo { stroke: var(--text); stroke-width: 2.4; }
-.jor-previa .jor-blq.encima { stroke: var(--coral); stroke-width: 2.4; stroke-dasharray: 5 4; opacity: 1; }
+.jor-previa .jor-blq.bloqueado { opacity: 1; }
 .jor-campo { display: grid; gap: 6px; }
 .jor-campo label { font-size: 14px; }
 .jor-campo input { width: 100%; }
