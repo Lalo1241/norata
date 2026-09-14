@@ -50,6 +50,18 @@ Cuatro sitios, y son cuatro a propósito:
    ya instalados a soltar la copia vieja
 4. Una línea en esta lista
 
+**El número se coge al PUBLICAR, no al empezar a trabajar.** Con dos ramas
+abiertas a la vez pasó lo que tenía que pasar: una iba por el Pomodoro y otra
+por los iconos, las dos escribieron `0.7.109` en `js/01-base.js`, y al juntarlas
+había dos versiones distintas con el mismo nombre y dos entradas `0.7.109` en
+esta lista. El número no se reserva: se mira `main` justo antes de subir y se
+coge el siguiente que esté libre.
+
+Y una tanda que se trabaja a trompicones —diez retoques sobre lo mismo, pedidos
+uno detrás de otro— **es UNA línea de esta lista y no diez**, si ninguno de esos
+pasos llegó a publicarse. Lo que la lista cuenta es lo que llegó a un
+dispositivo; lo demás es cómo se llegó, y eso va dentro de la entrada.
+
 ## Las fechas van en hora de México. Siempre.
 
 No en UTC, no en la del reloj de la máquina que tocó subirlo: **en la de quien
@@ -100,276 +112,141 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
-### 0.7.110.4 · 13 sep 2026
-
-**Dos dibujos viejos que llevaban ahí desde el principio: el corazón se abría
-por abajo y las barras no estaban centradas sobre su base.** Los dos los cazó
-Eduardo mirando la rejilla, y los dos son fallos que no se ven en el dibujo
-grande: aparecen a 20 px, que es el tamaño al que se usan.
-
-**El corazón cerraba en dos puntas.** Traía dos curvas que acababan en el mismo
-sitio por caminos distintos, y ahí abajo le salía una horquilla —dos picos y un
-pellizco en medio—. Ahora los dos lados son la misma curva espejada y los
-lóbulos son dos arcos de radio 4,8: una sola descripción de la mitad, así que
-la simetría no puede salir mal. Medido, su caja cae centrada en x = 12 exacto.
-
-**Y la gráfica estaba escorada aunque cada pieza estuviera bien.** Las barras
-iban en 4, 10 y 16 con la base de 2 a 22: dos de margen a la izquierda y seis a
-la derecha. Ahora la base va de 3 a 21 —centro en 12, como todo lo demás— y las
-barras a 7,5, 12 y 16,5, con 4,5 a cada lado y la del medio en el eje del
-cuadro.
-
-Es la misma lección que la del sol dos versiones atrás, por el otro lado: un
-icono no se mira solo, se mira dentro de su caja y al lado de los demás.
-
-### 0.7.110.3 · 13 sep 2026
-
-**El caramelo se convierte en paleta, y el trozo de carne crece otro punto.**
-Las dos las pidió Eduardo, y la primera cierra un parecido que llevaba tres
-versiones volviendo: *«el caramelo mejor transfórmalo a una paleta, para
-diferenciarse mejor»*.
-
-**Tenía razón y el motivo es de forma, no de tamaño.** Un caramelo de
-envoltorio y un trozo de carne con hueso son la MISMA silueta —un bulto en
-medio y dos cosas a los lados—, y por ahí no se salía: primero la carne parecía
-caramelo, luego el caramelo parecía carne. Una paleta no se parece a nada más
-de la rejilla: disco arriba, palo abajo.
-
-**El remolino de dentro es lo que la separa de una lupa**, y por eso no puede
-ser una espiral de verdad: con las vueltas pegadas, a 20 px los trazos se
-juntan en una mancha. Son dos semicírculos de radio creciente —el truco de
-siempre para dibujar una espiral con arcos— y entre el de fuera y el borde del
-disco quedan 3,4, que es el hueco que hace falta para que no se fundan.
-
-La carne pasa de 21 × 15,8 a 20,8 × 18,5: se inclina un poco más (de 30 a 39
-grados) y crece por el alto, que es donde le quedaba hueco. Ocupa de 1,6 a 22,4
-a lo ancho y de 2,8 a 21,2 a lo alto.
-
-**Y quien ya lo tuviera puesto no se queda sin dibujo.** El caramelo vivió un
-día, pero un icono que desaparece no falla a gritos: `icon()` cae en la estrella
-y quien lo hubiera elegido vería otra cosa sin saber por qué. Una línea en
-`migrar` lo pasa a paleta en las cuatro listas —misiones, talentos, habilidades
-y proyectos—; comprobado creando una habilidad con el icono viejo, recargando y
-leyendo el que queda.
-
-### 0.7.110.2 · 13 sep 2026
-
-**El trozo de carne crece y la luna vuelve a su tamaño de siempre.** Las dos
-cosas las pidió Eduardo mirando la rejilla, y la segunda corrige justo lo que
-la 0.7.110.1 había hecho con ella.
-
-| | Antes | Ahora |
-| --- | --- | --- |
-| **carne** | 18,4 × 12,6 | 21 × 15,8 (de las que más llenan su hueco) |
-| **luna** | 19,1 × 19,1 | 16,5 × 16,5, la de siempre |
-
-**Y lo que deja apuntado la luna: la media no manda sobre el ojo.** Se agrandó
-porque su caja —23,4 de diagonal— quedaba por debajo de la media de los
-cuarenta y tres, que es 24,6. Pero una medialuna es hueca: pesa más de lo que
-mide su caja, y agrandada se comía a sus vecinas. El número sirve para
-encontrar al que desentona, no para decidir cuánto tiene que medir. Queda
-escrito junto al dibujo para que nadie la vuelva a subir por simetría con el
-sol, que sí necesitaba crecer porque su disco es lo único que se ve de él.
-
-La carne, en cambio, sí pedía sitio: es una pieza echada, y echada sobra alto.
-Se inclinó un poco más —de 25 a 30 grados— y se alargó a lo largo del eje, que
-es la dirección donde le quedaba hueco. Medido: ocupa de 1,5 a 22,5, dentro de
-su caja de 24 con el trazo puesto.
-
-### 0.7.110.1 · 13 sep 2026
-
-**La luna, el sol y el caramelo crecen: en la rejilla se veían pequeños al lado
-de los demás.** Lo vio Eduardo de un vistazo, y midiéndolo tenía número: la
-diagonal media de los cuarenta y tres es 24,6, y esos tres estaban en 23,4, en
-26,6 —con un disco de 8,4 de diámetro, que es lo que de verdad se ve— y en 17,8,
-el más pequeño de todo el catálogo.
-
-| | Antes | Ahora |
-| --- | --- | --- |
-| **luna** | 16,5 × 16,5 | 19,1 × 19,1 (la misma forma, un 15% mayor) |
-| **sol** | disco 4,2, rayos hasta 9,4 | disco 4,7, rayos hasta 10,2 |
-| **caramelo** | 16,4 × 7 | 19,2 × 10,4 |
-
-**Por qué venían chicos, que es lo que hay que recordar: el sol y la luna se
-dibujaron para un interruptor de 15 px**, el del aspecto en Ajustes, donde un
-dibujo compacto es exactamente lo que se quiere. Dentro de una rejilla, en
-cambio, un icono no se mide contra su hueco: se mide contra los cuarenta y dos
-de al lado. Al reutilizar un dibujo de un sitio en otro hay que volver a
-medirlo.
-
-El hueco entre el disco del sol y sus rayos se mantuvo en 0,9 al agrandarlo,
-que es lo que impide que a 15 px se fundan en una rueda gris — comprobado en el
-interruptor de Ajustes, que sigue igual de legible.
-
 ### 0.7.110 · 13 sep 2026
 
-**El hueso del trozo de carne se alarga, y entran cuatro iconos más: caramelo,
-dormir, luna y sol.** Los cuatro los pidió Eduardo por su nombre, y el hueso
-por el mismo motivo por el que existe el caramelo: *«parece un caramelo a como
-está ahorita»*.
+**La rejilla de iconos llega plegada, ordenada por familias, y el catálogo pasa
+de 34 a 43 dibujos.** Es la misma rejilla en habilidad, talento, misión y
+proyecto.
 
-**Y tenía razón por una razón concreta: con el hueso corto, la carne y un
-caramelo son la misma silueta** —un bulto en medio y dos cosas a los lados—.
-Lo que las separa no es el detalle de los extremos, que a 20 px casi no se ve,
-sino CUÁNTO asoma: el hueso pasó de 2,6 a 4,0, y a partir de ahí el ojo lee dos
-huesos largos en vez de dos envoltorios. El caramelo entra al catálogo justo al
-lado, que es donde se comprueba: picos angulosos contra nudillos redondos, y el
-caramelo derecho contra la carne inclinada.
+**Plegada a dos filas.** Con treinta y nueve iconos abiertos de golpe medía
+344 px y empujaba el color, el decaimiento y el botón de guardar fuera de la
+pantalla: el formulario se leía como un catálogo de dibujos con un campo de
+nombre encima. Ahora mide 94 px y debajo va un botón que la abre.
 
-**Dormir: una nube y dos zetas, con las zetas separadas de la nube.** Es la otra
-cara de `cama` —una es el mueble, la otra el sueño— y el reparto del cuadro es
-todo el trabajo: pegadas al hombro de la nube, que es donde caen si se reparte a
-ojo, la zeta chica se mete dentro del bulto y queda un borrón. Van en diagonal,
-subiendo hacia la derecha, y son DOS: con tres hay que encogerlas hasta que a
-20 px son tres rayas.
-
-**La luna y el sol no se dibujaron: ya estaban.** Son los del interruptor de
-modo claro/oscuro de Ajustes (`ICONS.sol`, `ICONS.luna`), y ahora están también
-en el catálogo de la rejilla. Dos soles distintos en la misma app es la clase de
-detalle que nadie decide, solo se hereda.
-
-Con esto el catálogo pasa de 39 a 43, y la rejilla sigue llegando plegada a dos
-filas: lo que se pliega es un ALTO, así que crece la parte de abajo y no la
-que se ve. Medido: los 43 tienen dibujo, ninguno se sale de su caja de 24, y la
-app no suelta un error.
-
-### 0.7.109.2 · 13 sep 2026
-
-**El hueso se dibuja como en la lámina —de un trazo y con su cintura— y el
-trozo de carne pasa a ser un cilindro con un hueso a cada lado.** Las dos cosas
-las pidió Eduardo mirando la 0.7.109.1: *«no vuelvas a poner dos círculos así»*,
-y *«la carne debe ser como un cilindro y debe salir un hueso por un lado y otro
-por el otro»*, con una foto de una mesa servida al lado.
-
-**Dos círculos sueltos en la punta de una raya no son un hueso.** Se habían
-puesto ahí por miedo a que la cintura se empastara a 20 px —el miedo tenía su
-número: la lámina lleva un trazo del 4,9% de su lado y el de la casa el 7,9%—,
-y el remedio era peor que la enfermedad. La cintura sí entra, y lo que la hace
-entrar es la geometría, no el tamaño:
-
-| | Qué hay que cumplir |
-| --- | --- |
-| **Los lóbulos no se solapan** | separados 3,7 y de radio 1,65: entre los dos queda hueco, y ese hueco es la cintura |
-| **Se juntan por delante** | con un arco cóncavo de 0,9 tangente a los dos (`nudillo()`, js/01-base.js) |
-| **El hueso es más fino que ellos** | 2,3 de ancho contra 3,3 del lóbulo, o el nudillo no sobresale y no hay nada que leer |
-
-Puestos así, los dos trazos del nudillo no se tocan ni a 20 px. Es el mismo
-dibujo de la lámina, sin un detalle menos.
-
-**El trozo de carne es ahora un cilindro echado**: una elipse cortada a ras por
-sus dos tapas —esos cortes rectos son lo que lo vuelve cilindro y no bola— con
-un hueso saliendo por cada tapa. Antes era una pieza con un solo hueso, como el
-muslo pero tumbada, y eran dos veces el mismo dibujo. Ahora cada uno dice una
-cosa: el muslo es una pieza con su hueso; el trozo es un corte con hueso a los
-dos lados.
-
-De camino se probó y se descartó redondear las esquinas de un rectángulo hasta
-convertirlo en cilindro: pasado cierto radio las esquinas se comen los lados y
-lo que sale es un rombo. La elipse cortada no tiene ese problema.
-
-Medido: el muslo ocupa de 2,4 a 20,8 de su caja de 24 y el trozo de 3,4 a 20,6,
-los treinta y nueve iconos siguen teniendo dibujo, ninguno se sale, y la app no
-suelta un error.
-
-### 0.7.109.1 · 13 sep 2026
-
-**El muslo y el trozo de carne, redibujados: los dos parecían una lupa.** Los
-paró Eduardo en la primera mirada —*«no parecen comida»*— y trajo una lámina de
-una pata de pollo para usarla de patrón. La lámina viene con relleno, así que
-no se pega tal cual: `.ic svg` impone `fill: none` y le gana a cualquier
-atributo, de modo que lo que se copia es su REPARTO, dibujado a trazo.
-
-**Y ese reparto desmiente lo que decía la 0.7.109.** Allí se apuntó que lo que
-salvaba a los dos era que la silueta fuera UNA sola —la carne estrechándose
-hasta volverse hueso—. Es justo al revés: **son tres piezas, y la que hace el
-trabajo es el CORTE.** La carne se cierra con una recta, el hueso sale de esa
-recta y las bolas rematan la punta. Sin el corte, un lóbulo cerrado con una
-raya pegada al lado no es comida; es una lupa, y en esa misma rejilla está
-`key`, que se le parecía tanto que había que mirar dos veces.
-
-**Las bolas van sueltas y no dibujando el contorno del nudillo.** El nudillo de
-verdad —dos lóbulos trabados con su cintura, como en la lámina— se empasta a
-este tamaño, y el número dice por qué: la lámina tiene un trazo del 4,9% de su
-lado y el de la casa es del 7,9% (1,9 sobre 24). A 20 px la cintura se cierra y
-queda un nudo. Dos círculos sueltos dicen lo mismo y aguantan el tamaño. Es la
-regla de siempre: no se copia el detalle de un dibujo hecho para otro grosor.
-
-**Lo que separa a los dos es la POSTURA.** Antes se intentó separarlos por
-tamaño —uno más redondo, otro más cuadrado— y en la rejilla seguían siendo dos
-manchas iguales:
-
-| | Muslo | Trozo |
-| --- | --- | --- |
-| Cómo va | en diagonal | tumbado |
-| Cuello | estrecho y largo | ninguno: el corte es casi tan ancho como la carne |
-| Hueso | largo | corto |
-
-Medido: los dos caben en su caja de 24 —el muslo ocupa de 2,2 a 20,8 y el trozo
-de 2,3 a 20,6— y la app no suelta un error al dibujarlos.
-
-### 0.7.109 · 11 sep 2026
-
-**Los iconos de una habilidad llegan plegados, ordenados por familias, y hay
-cinco nuevos.** Tres cosas de la misma pantalla, que es la de elegir el dibujo
-de una habilidad, un talento, una misión o un proyecto — la misma rejilla en
-los cuatro formularios.
-
-**Plegada a dos filas.** Con treinta y nueve iconos abiertos de golpe, la
-rejilla medía 344 px y empujaba el color, el decaimiento y el botón de guardar
-fuera de la pantalla: el formulario se leía como un catálogo de dibujos con un
-campo de nombre encima. Ahora mide 94 px —dos filas— y debajo va un botón que
-la abre. Medido en el teléfono (412 px), el formulario entero cabe sin
-desplazarse.
-
-El plegado se hace con un ALTO y no enseñando doce botones y escondiendo el
-resto: las columnas son seis en el teléfono y diez en escritorio, así que «dos
-filas» son doce iconos o veinte según dónde se mire, y un número escrito a mano
-acierta en una pantalla y falla en la otra. Para que ese alto sea exacto, las
-filas miden lo que dice `--fila-iconos` (`grid-auto-rows`) en vez de lo que
-sumen el relleno y el dibujo de dentro; comprobado en las dos anchuras, ningún
-botón queda cortado por la mitad.
+El plegado es un ALTO y no un número de botones: las columnas son seis en el
+teléfono y diez en escritorio, así que «dos filas» son doce iconos o veinte
+según dónde se mire, y un número escrito a mano acierta en una pantalla y falla
+en la otra. Las filas miden lo que dice `--fila-iconos` (`grid-auto-rows`), así
+que el corte cae siempre entre dos filas y no a media fila.
 
 Tres casos que había que cerrar y están medidos:
 
 | | Qué pasa |
 | --- | --- |
-| Editar algo con un icono del final | la rejilla llega ABIERTA: enseñarle una rejilla donde su propia elección no está a la vista es enseñarle una donde nada está marcado |
+| Editar algo con un icono del final | la rejilla llega ABIERTA: enseñar una rejilla donde su propia elección no se ve es enseñar una donde nada está marcado |
 | Cambiar el color con la rejilla abierta | se queda abierta. Lo abierto se recuerda por rejilla (`REJILLAS`), no en una variable suelta: las cuatro viven a la vez en el HTML |
 | Estrenar una ficha nueva | su icono sale de esas dos primeras filas (`iconoDeEstreno`), o la rejilla se abriría sola para enseñárselo y no habría plegado nunca |
 
-**Y el orden deja de ser el de cómo se fueron dibujando.** Van en SECUENCIA por
-lo que tienen en común —crear, estudiar, cocinar, cuerpo, calle, meta,
-chispa—, sin títulos ni cajas que los separen: con treinta y nueve sueltos,
-encontrar el de cocina era repasarlos uno a uno. Se probó a dividirlos en
-grupos con nombre y era peor — cinco cajas con título ocupan media pantalla y
-obligan a LEER para elegir un dibujo. Al añadir uno se mete junto a los suyos.
+**El orden va por familias, en secuencia y sin cajas** —crear, estudiar,
+cocinar, cuerpo, calle, meta, chispa—. Con cuarenta y tres sueltos, encontrar el
+de cocina era repasarlos uno a uno. Se probó a dividirlos en grupos con título y
+era peor: cinco cajas ocupan media pantalla y obligan a LEER para elegir un
+dibujo. Al añadir uno se mete junto a los suyos.
 
-**Los cinco nuevos los pidió Eduardo por su nombre:** una cama, los cubiertos,
-un gorro de chef, un muslo de pollo y un trozo de carne. Cuatro son de comida
-porque el catálogo no tenía ninguno: lo único de cocina era `coffee`, así que
-«Cocinar», «Comer mejor» y «Repostería» salían las tres con la misma taza.
+**Nueve dibujos nuevos**, todos pedidos por Eduardo: gorro de chef, cubiertos,
+muslo de pollo, trozo de carne, paleta, cama, y una nube con zetas para dormir.
+La luna y el sol no se dibujaron: son los del interruptor de aspecto de Ajustes,
+y ahora están también en el catálogo. Los cubiertos tampoco: son los del bloque
+de comer del Pomodoro, que ahora los lee del catálogo (`ICONS.cubiertos`) en vez
+de tener su propia copia.
 
-Los cubiertos no son un dibujo nuevo: son los del bloque de comer del Pomodoro,
-que ahora los lee del catálogo (`ICONS.cubiertos`). Eran el mismo objeto escrito
-dos veces, y dos copias se separan al primer retoque.
+De paso, dos dibujos viejos: **el corazón** cerraba en dos puntas —dos curvas
+que acababan en el mismo sitio por caminos distintos, y abajo se le abría una
+horquilla— y ahora los dos lados son la misma curva espejada; **la gráfica**
+tenía las barras en 4, 10 y 16 con la base de 2 a 22, dos de margen a un lado y
+seis al otro, y ahora la base va de 3 a 21 con las barras a 7,5, 12 y 16,5.
 
-Los dos de carne se dibujaron tres veces, y el fallo de las dos primeras tandas
-vale para cualquier icono que venga detrás: **un lóbulo cerrado con una raya
-pegada al lado no es un muslo, es una lupa** — y en esta misma rejilla ya está
-la llave, que se le parecía tanto que había que mirar dos veces. Lo que los
-salva son dos cosas: que la silueta sea UNA sola —la carne se estrecha y se
-vuelve hueso sin levantar el trazo— y que los dos no compartan postura, el
-muslo en diagonal con el hueso largo y el trozo tumbado, más cuadrado y con el
-hueso corto. Se eligen a 20 px, que no es el tamaño al que se dibujan.
+### Lo que costó, y por qué queda escrito
 
-El gorro lleva TRES bultos arriba y no una cúpula lisa, que se leía como una
-lámpara.
+- **Un lóbulo cerrado con una raya pegada al lado no es comida: es una lupa.** El
+  muslo y el trozo salieron así tres veces, y en esta misma rejilla está `key`,
+  que se le parecía tanto que había que mirar dos veces. Lo que los salva es el
+  CORTE: son tres piezas —carne cerrada por una recta, hueso saliendo de ella y
+  nudillo—, no una silueta continua. El reparto es el de una lámina que trajo
+  Eduardo; venía con relleno, y como `.ic svg` impone `fill: none`, lo que se
+  copia de un dibujo así es su reparto, nunca el archivo.
+- **El nudillo se dibuja de un trazo y con cintura.** Hubo una versión con dos
+  círculos sueltos en la punta, por miedo a que la cintura se empastara a 20 px,
+  y no parecía un hueso. Entra si los lóbulos NO se solapan y el hueso es más
+  fino que ellos.
+- **Un caramelo de envoltorio y un trozo de carne con hueso son la misma
+  silueta**, un bulto en medio y dos cosas a los lados. Primero la carne parecía
+  caramelo; arreglada la carne, el caramelo parecía carne. Se salió cambiando de
+  objeto: el caramelo es ahora una paleta, que no se parece a nada más de la
+  rejilla. Quien tuviera puesto el icono viejo lo ve convertido en paleta
+  (`migrar`), porque un icono que desaparece no falla a gritos: cae en la
+  estrella y nadie sabe por qué.
+- **La media sirve para encontrar al que desentona, no para decidir cuánto debe
+  medir.** La luna se agrandó porque su caja quedaba por debajo de la media de
+  los cuarenta y tres (24,6 de diagonal) y hubo que devolverla: una medialuna es
+  hueca y pesa más de lo que mide su caja.
+- **Al reutilizar un dibujo de un sitio en otro hay que volver a medirlo.** El
+  sol venía de un interruptor de 15 px, donde un dibujo compacto es exactamente
+  lo que se quiere; dentro de la rejilla un icono no se mide contra su hueco,
+  sino contra los cuarenta y dos de al lado.
 
-Comprobado con la app servida y el navegador midiendo el DOM: los treinta y
-nueve iconos tienen dibujo, ninguno se sale de su caja de 24, las cuatro
-rejillas abren plegadas con su botón, guardar y volver a abrir conserva el
-icono nuevo, y ni la puerta ni el Pomodoro sueltan un error. En modo claro la
-tinta del botón es la menta oscura (`#007046`), que es la que se escribe.
+**Y la numeración: esta tanda se trabajó como 0.7.109 → 0.7.110.4 y se consolidó
+en un solo número al traer `main`.** Mientras tanto, `main` había usado 0.7.109 y
+0.7.109.1 para el Pomodoro, así que había dos versiones distintas con el mismo
+número y ninguna de las intermedias de aquí llegó nunca a un dispositivo. Ver la
+nota de arriba, en «Al subir la versión».
+
+### 0.7.109.1 · 13 sep 2026
+
+**La palomita, la de siempre.** Eduardo la vio en la hoja del Pomodoro, justo al
+lado de la lista de misiones: ahí era el carácter «✓» y no el dibujo de la casa.
+Ahora sale de `PALOMITA` (`js/04-misiones.js`), con el trazo de 3.2 que ya
+llevan las casillas de estado, porque a este tamaño el de por defecto se
+deshace. De paso se cambió el otro que quedaba suelto, el del menú de ramas del
+lienzo.
+
+La regla, que es lo que importa de esta versión: **la palomita se toma siempre
+de `PALOMITA` y nunca se escribe el carácter**. Cada sistema lo dibuja a su
+manera —más fino, más alto, desalineado— y no casa con ningún otro icono.
+
+### 0.7.109 · 13 sep 2026
+
+**Los bloques ya no son muros, y cada uno puede llamarse como quieras.** Tres
+cosas que pidió Eduardo probando la rueda:
+
+- **Un bloque pasa por encima de otro.** Antes se quedaba pegado a su vecino
+  —«parecen muros y no permiten reorganizar el orden de las cosas»—, así que
+  para llevar algo al otro lado del día había que mover primero todo lo que
+  hubiera en medio. Ahora vuela libre y la cuenta se hace al SOLTARLO: si el
+  sitio está libre se queda ahí; si está ocupado se va al hueco libre más
+  cercano; y si no hay ninguno que le quepa, vuelve a donde estaba y se dice por
+  qué. Mientras cruza por encima de otro se pone en coral con el trazo cortado,
+  para que se lea que ahí no se queda.
+- **Nombre propio.** Un campo en la hoja del bloque: si lo dejas vacío sigue
+  saliendo el nombre de siempre —Dormir, Comer, la misión que enfoca— y si
+  escribes algo, manda lo tuyo. Con un nombre basta para guardar un bloque, sin
+  vincularlo a nada.
+- **La rueda, dentro de la hoja.** Creando un bloque desde el botón, la hoja
+  tapaba la rueda entera y no había forma de ver dónde iba a caer lo nuevo. Va
+  la misma rueda en pequeño, solo para mirar, con lo que ya hay apagado y lo
+  nuevo en primer plano; se mueve sola al cambiar las horas.
+
+Estirar una punta sigue respetando al vecino: alargar un bloque hasta comérselo
+no tiene un resultado que valga, y lo que se pedía era reordenar.
+
+### 0.7.108.2 · 13 sep 2026
+
+**El reloj pequeño crece, el grande se despeja y los tres se centran en su
+caja.** Tres notas de Eduardo mirando los relojes en la app:
+
+- **El pequeño ya no queda tan atrás del mediano**: pasa de 112 a 132 px en el
+  teléfono y de 130 a 154 en PC (el mediano mide 150 y 176), y en el centro de
+  la rueda de 48 a 55 y de 58 a 66.
+- **El grande pierde el exceso de adorno**: fuera los dos postes finos, los seis
+  torneados y la escala de rayas del costado. Se queda con el arco y su remate
+  —«se diferencia demasiado de los otros 2»—. Con la escala se fue el último
+  uso de `.jor-marca`, así que la regla también.
+- **La caja del reloj CENTRA en vez de apoyar abajo**: apoyado, todo el sobrante
+  se juntaba arriba y cantaba la diferencia de alto; centrado se reparte en dos
+  mitades (31 px arriba y 31 abajo en el pequeño, 20 y 20 en el mediano).
+
+La tarjeta sigue midiendo lo mismo en las nueve combinaciones de manera y
+tiempo, que es lo que arregló la 0.7.107.1.
 
 ### 0.7.108.1 · 11 sep 2026
 
