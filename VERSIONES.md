@@ -100,6 +100,30 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.110.2 · 13 sep 2026
+
+**El trozo de carne crece y la luna vuelve a su tamaño de siempre.** Las dos
+cosas las pidió Eduardo mirando la rejilla, y la segunda corrige justo lo que
+la 0.7.110.1 había hecho con ella.
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| **carne** | 18,4 × 12,6 | 21 × 15,8 (de las que más llenan su hueco) |
+| **luna** | 19,1 × 19,1 | 16,5 × 16,5, la de siempre |
+
+**Y lo que deja apuntado la luna: la media no manda sobre el ojo.** Se agrandó
+porque su caja —23,4 de diagonal— quedaba por debajo de la media de los
+cuarenta y tres, que es 24,6. Pero una medialuna es hueca: pesa más de lo que
+mide su caja, y agrandada se comía a sus vecinas. El número sirve para
+encontrar al que desentona, no para decidir cuánto tiene que medir. Queda
+escrito junto al dibujo para que nadie la vuelva a subir por simetría con el
+sol, que sí necesitaba crecer porque su disco es lo único que se ve de él.
+
+La carne, en cambio, sí pedía sitio: es una pieza echada, y echada sobra alto.
+Se inclinó un poco más —de 25 a 30 grados— y se alargó a lo largo del eje, que
+es la dirección donde le quedaba hueco. Medido: ocupa de 1,5 a 22,5, dentro de
+su caja de 24 con el trazo puesto.
+
 ### 0.7.110.1 · 13 sep 2026
 
 **La luna, el sol y el caramelo crecen: en la rejilla se veían pequeños al lado

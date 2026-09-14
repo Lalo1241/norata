@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.110.1";
+const VERSION = "0.7.110.2";
 const VERSION_FECHA = "13 sep 2026";
 
 /* ================= Iconografía propia =================
@@ -182,7 +182,7 @@ const ICONS = {
      que lo vuelve cilindro y no bola— con un hueso saliendo por cada tapa,
      como lo pidió Eduardo y como se ve en su foto. */
   pollo: '<path d="M7.6 12.8L9.2 7A5.9 5.9 0 1116.4 14.2L10.6 15.8Z"/><path d="M8.3 13.5L5.3 15.5A1.65 1.65 0 104.3 18.2A0.9 0.9 0 015.2 19.1A1.65 1.65 0 107.9 18.1L9.9 15.1"/>',
-  carne: '<path d="M14.1 8A4.6 4.4 -25 007.6 11L9.9 16A4.6 4.4 -25 0016.4 13Z"/><path d="M15.8 11.6L18.3 10.9A1.5 1.5 0 1020.1 8.9A0.85 0.85 0 0119.6 7.8A1.5 1.5 0 1016.9 7.9L14.8 9.4"/><path d="M8.2 12.4L5.7 13.1A1.5 1.5 0 103.9 15.1A0.85 0.85 0 014.4 16.2A1.5 1.5 0 107.1 16.1L9.2 14.6"/>',
+  carne: '<path d="M14.2 7.1A5.4 5.2 -30 006.7 11.4L9.8 16.9A5.4 5.2 -30 0017.3 12.6Z"/><path d="M16.4 11.1L19.2 10A1.75 1.75 0 1021.1 7.5A1 1 0 0120.5 6.3A1.75 1.75 0 1017.3 6.7L15 8.6"/><path d="M7.6 12.9L4.8 14A1.75 1.75 0 102.9 16.5A1 1 0 013.5 17.7A1.75 1.75 0 106.7 17.3L9 15.4"/>',
   /* El caramelo: cuerpo redondo y los dos extremos en PICO. Va junto al
      trozo de carne a propósito, porque es el vecino que lo delata: lo que
      antes se leía «caramelo» era la carne con el hueso corto, y puestos uno
@@ -269,12 +269,17 @@ const ICONS = {
   /* Sol y luna: los dos modos de la app. Ocho rayos y no doce, porque a
      15 px los doce se empastan en una rueda gris.
 
-     Crecieron en la 0.7.110.1 —el disco de 4,2 a 4,7 y los rayos hasta 10,2—
-     porque en la rejilla se veían pequeños al lado de sus vecinos: venían de
-     un interruptor de 15 px, donde un dibujo compacto es lo que se quiere, y
-     ahí dentro un icono se mide contra los cuarenta y dos de al lado. El
+     El SOL creció en la 0.7.110.1 —el disco de 4,2 a 4,7 y los rayos hasta
+     10,2— porque en la rejilla se veía pequeño al lado de sus vecinos: venía
+     de un interruptor de 15 px, donde un dibujo compacto es lo que se quiere,
+     y ahí dentro un icono se mide contra los cuarenta y dos de al lado. El
      hueco entre el disco y los rayos se mantuvo en 0,9, que es lo que impide
      que a 15 px se fundan en una rueda.
+
+     **La LUNA no: se agrandó igual y Eduardo la devolvió a 8,4.** Queda
+     apuntado para que nadie la vuelva a subir por simetría con el sol — el
+     hueco de la medialuna ya la hace pesar más de lo que mide su caja, y
+     agrandada se comía a sus vecinas.
 
      Desde la 0.7.110 están TAMBIÉN en el catálogo de la rejilla (`ICON_LIST`),
      que es donde los pidió Eduardo. Se reutilizan y no se dibujan otra vez:
@@ -283,7 +288,7 @@ const ICONS = {
   sol: '<circle cx="12" cy="12" r="4.7"/><path d="M12 1.8v2.7M12 19.5v2.7M1.8 12h2.7M19.5 12h2.7M4.8 4.8l1.9 1.9M17.3 17.3l1.9 1.9M19.2 4.8l-1.9 1.9M6.7 17.3l-1.9 1.9"/>',
   /* La luna va con el hueco a la DERECHA, mirando al sol de al lado: al
      revés los dos iconos se dan la espalda y la pareja se lee peor. */
-  luna: '<path d="M21.2 14.5A9.7 9.7 0 019.5 2.8 9.7 9.7 0 1021.2 14.5z"/>',
+  luna: '<path d="M20 14.2A8.4 8.4 0 019.8 4 8.4 8.4 0 1020 14.2z"/>',
   /* El sol eclipsado: anillo encendido y centro muerto. Es el sello de Averno,
      y va aquí y no con sus vectores porque el icono de un mundo sale de este
      mapa —lo pide `js/10i-apariencia.js` por nombre—, igual que Reliquia usa
