@@ -100,6 +100,42 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.109.1 · 13 sep 2026
+
+**El muslo y el trozo de carne, redibujados: los dos parecían una lupa.** Los
+paró Eduardo en la primera mirada —*«no parecen comida»*— y trajo una lámina de
+una pata de pollo para usarla de patrón. La lámina viene con relleno, así que
+no se pega tal cual: `.ic svg` impone `fill: none` y le gana a cualquier
+atributo, de modo que lo que se copia es su REPARTO, dibujado a trazo.
+
+**Y ese reparto desmiente lo que decía la 0.7.109.** Allí se apuntó que lo que
+salvaba a los dos era que la silueta fuera UNA sola —la carne estrechándose
+hasta volverse hueso—. Es justo al revés: **son tres piezas, y la que hace el
+trabajo es el CORTE.** La carne se cierra con una recta, el hueso sale de esa
+recta y las bolas rematan la punta. Sin el corte, un lóbulo cerrado con una
+raya pegada al lado no es comida; es una lupa, y en esa misma rejilla está
+`key`, que se le parecía tanto que había que mirar dos veces.
+
+**Las bolas van sueltas y no dibujando el contorno del nudillo.** El nudillo de
+verdad —dos lóbulos trabados con su cintura, como en la lámina— se empasta a
+este tamaño, y el número dice por qué: la lámina tiene un trazo del 4,9% de su
+lado y el de la casa es del 7,9% (1,9 sobre 24). A 20 px la cintura se cierra y
+queda un nudo. Dos círculos sueltos dicen lo mismo y aguantan el tamaño. Es la
+regla de siempre: no se copia el detalle de un dibujo hecho para otro grosor.
+
+**Lo que separa a los dos es la POSTURA.** Antes se intentó separarlos por
+tamaño —uno más redondo, otro más cuadrado— y en la rejilla seguían siendo dos
+manchas iguales:
+
+| | Muslo | Trozo |
+| --- | --- | --- |
+| Cómo va | en diagonal | tumbado |
+| Cuello | estrecho y largo | ninguno: el corte es casi tan ancho como la carne |
+| Hueso | largo | corto |
+
+Medido: los dos caben en su caja de 24 —el muslo ocupa de 2,2 a 20,8 y el trozo
+de 2,3 a 20,6— y la app no suelta un error al dibujarlos.
+
 ### 0.7.109 · 11 sep 2026
 
 **Los iconos de una habilidad llegan plegados, ordenados por familias, y hay
