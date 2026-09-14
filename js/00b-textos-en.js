@@ -3191,7 +3191,7 @@ const TEXTOS_EN = {
   "La rueda está llena: quita o acorta un bloque": "The wheel is full: remove or shorten a block",
   "Tu día en una rueda de 24 horas": "Your day on a 24-hour wheel",
   "Por acomodar": "Still to place",
-  "Toca un bloque para elegirlo, arrastra sus puntas para cambiar la hora y arrástralo entero para moverlo. Tócalo otra vez para editarlo.": "Tap a block to select it, drag its ends to change the time and drag the whole block to move it. Tap it again to edit it.",
+  "Toca un bloque para elegirlo, arrastra sus puntas para cambiar la hora y arrástralo entero para moverlo, aunque haya otro en medio. Tócalo otra vez para editarlo.": "Tap a block to select it, drag its ends to change the time and drag the whole block to move it, even if another one is in the way. Tap it again to edit it.",
   "{0} min de foco": "{0} min of focus",
   "Ahora": "Now",
   "Todas tus misiones de hoy ya tienen hora.": "All of today's missions already have a time.",
@@ -3381,5 +3381,8 @@ const TEXTOS_EN = {
   "Ver": "View",
   "Mientras no estabas · {0}": "While you were away · {0}",
   "Avisarme fuera de la app": "Notify me outside the app",
-  "Con un aviso del sistema que dice qué pasó": "With a system notification that says what happened"
+  "Con un aviso del sistema que dice qué pasó": "With a system notification that says what happened",
+  "Cómo se llama": "What it's called",
+  "Dónde queda en tu día": "Where it lands in your day",
+  "No cabe: a esa hora la rueda está llena": "It doesn't fit: the wheel is full at that time"
 };
