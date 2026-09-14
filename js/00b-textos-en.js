@@ -3382,7 +3382,12 @@ const TEXTOS_EN = {
   "Mientras no estabas · {0}": "While you were away · {0}",
   "Avisarme fuera de la app": "Notify me outside the app",
   "Con un aviso del sistema que dice qué pasó": "With a system notification that says what happened",
+
   "Cómo se llama": "What it's called",
   "Dónde queda en tu día": "Where it lands in your day",
-  "No cabe: a esa hora la rueda está llena": "It doesn't fit: the wheel is full at that time"
+  "No cabe: a esa hora la rueda está llena": "It doesn't fit: the wheel is full at that time",
+
+  /* ---- La rejilla de iconos, plegada (0.7.110) ---- */
+  "Ver más iconos": "More icons",
+  "Ver menos": "Fewer icons"
 };

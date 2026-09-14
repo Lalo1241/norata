@@ -50,6 +50,18 @@ Cuatro sitios, y son cuatro a propósito:
    ya instalados a soltar la copia vieja
 4. Una línea en esta lista
 
+**El número se coge al PUBLICAR, no al empezar a trabajar.** Con dos ramas
+abiertas a la vez pasó lo que tenía que pasar: una iba por el Pomodoro y otra
+por los iconos, las dos escribieron `0.7.109` en `js/01-base.js`, y al juntarlas
+había dos versiones distintas con el mismo nombre y dos entradas `0.7.109` en
+esta lista. El número no se reserva: se mira `main` justo antes de subir y se
+coge el siguiente que esté libre.
+
+Y una tanda que se trabaja a trompicones —diez retoques sobre lo mismo, pedidos
+uno detrás de otro— **es UNA línea de esta lista y no diez**, si ninguno de esos
+pasos llegó a publicarse. Lo que la lista cuenta es lo que llegó a un
+dispositivo; lo demás es cómo se llegó, y eso va dentro de la entrada.
+
 ## Las fechas van en hora de México. Siempre.
 
 No en UTC, no en la del reloj de la máquina que tocó subirlo: **en la de quien
@@ -99,6 +111,85 @@ México es **UTC-6 todo el año**: el país quitó el horario de verano en 2022,
 que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
+
+### 0.7.110 · 13 sep 2026
+
+**La rejilla de iconos llega plegada, ordenada por familias, y el catálogo pasa
+de 34 a 43 dibujos.** Es la misma rejilla en habilidad, talento, misión y
+proyecto.
+
+**Plegada a dos filas.** Con treinta y nueve iconos abiertos de golpe medía
+344 px y empujaba el color, el decaimiento y el botón de guardar fuera de la
+pantalla: el formulario se leía como un catálogo de dibujos con un campo de
+nombre encima. Ahora mide 94 px y debajo va un botón que la abre.
+
+El plegado es un ALTO y no un número de botones: las columnas son seis en el
+teléfono y diez en escritorio, así que «dos filas» son doce iconos o veinte
+según dónde se mire, y un número escrito a mano acierta en una pantalla y falla
+en la otra. Las filas miden lo que dice `--fila-iconos` (`grid-auto-rows`), así
+que el corte cae siempre entre dos filas y no a media fila.
+
+Tres casos que había que cerrar y están medidos:
+
+| | Qué pasa |
+| --- | --- |
+| Editar algo con un icono del final | la rejilla llega ABIERTA: enseñar una rejilla donde su propia elección no se ve es enseñar una donde nada está marcado |
+| Cambiar el color con la rejilla abierta | se queda abierta. Lo abierto se recuerda por rejilla (`REJILLAS`), no en una variable suelta: las cuatro viven a la vez en el HTML |
+| Estrenar una ficha nueva | su icono sale de esas dos primeras filas (`iconoDeEstreno`), o la rejilla se abriría sola para enseñárselo y no habría plegado nunca |
+
+**El orden va por familias, en secuencia y sin cajas** —crear, estudiar,
+cocinar, cuerpo, calle, meta, chispa—. Con cuarenta y tres sueltos, encontrar el
+de cocina era repasarlos uno a uno. Se probó a dividirlos en grupos con título y
+era peor: cinco cajas ocupan media pantalla y obligan a LEER para elegir un
+dibujo. Al añadir uno se mete junto a los suyos.
+
+**Nueve dibujos nuevos**, todos pedidos por Eduardo: gorro de chef, cubiertos,
+muslo de pollo, trozo de carne, paleta, cama, y una nube con zetas para dormir.
+La luna y el sol no se dibujaron: son los del interruptor de aspecto de Ajustes,
+y ahora están también en el catálogo. Los cubiertos tampoco: son los del bloque
+de comer del Pomodoro, que ahora los lee del catálogo (`ICONS.cubiertos`) en vez
+de tener su propia copia.
+
+De paso, dos dibujos viejos: **el corazón** cerraba en dos puntas —dos curvas
+que acababan en el mismo sitio por caminos distintos, y abajo se le abría una
+horquilla— y ahora los dos lados son la misma curva espejada; **la gráfica**
+tenía las barras en 4, 10 y 16 con la base de 2 a 22, dos de margen a un lado y
+seis al otro, y ahora la base va de 3 a 21 con las barras a 7,5, 12 y 16,5.
+
+### Lo que costó, y por qué queda escrito
+
+- **Un lóbulo cerrado con una raya pegada al lado no es comida: es una lupa.** El
+  muslo y el trozo salieron así tres veces, y en esta misma rejilla está `key`,
+  que se le parecía tanto que había que mirar dos veces. Lo que los salva es el
+  CORTE: son tres piezas —carne cerrada por una recta, hueso saliendo de ella y
+  nudillo—, no una silueta continua. El reparto es el de una lámina que trajo
+  Eduardo; venía con relleno, y como `.ic svg` impone `fill: none`, lo que se
+  copia de un dibujo así es su reparto, nunca el archivo.
+- **El nudillo se dibuja de un trazo y con cintura.** Hubo una versión con dos
+  círculos sueltos en la punta, por miedo a que la cintura se empastara a 20 px,
+  y no parecía un hueso. Entra si los lóbulos NO se solapan y el hueso es más
+  fino que ellos.
+- **Un caramelo de envoltorio y un trozo de carne con hueso son la misma
+  silueta**, un bulto en medio y dos cosas a los lados. Primero la carne parecía
+  caramelo; arreglada la carne, el caramelo parecía carne. Se salió cambiando de
+  objeto: el caramelo es ahora una paleta, que no se parece a nada más de la
+  rejilla. Quien tuviera puesto el icono viejo lo ve convertido en paleta
+  (`migrar`), porque un icono que desaparece no falla a gritos: cae en la
+  estrella y nadie sabe por qué.
+- **La media sirve para encontrar al que desentona, no para decidir cuánto debe
+  medir.** La luna se agrandó porque su caja quedaba por debajo de la media de
+  los cuarenta y tres (24,6 de diagonal) y hubo que devolverla: una medialuna es
+  hueca y pesa más de lo que mide su caja.
+- **Al reutilizar un dibujo de un sitio en otro hay que volver a medirlo.** El
+  sol venía de un interruptor de 15 px, donde un dibujo compacto es exactamente
+  lo que se quiere; dentro de la rejilla un icono no se mide contra su hueco,
+  sino contra los cuarenta y dos de al lado.
+
+**Y la numeración: esta tanda se trabajó como 0.7.109 → 0.7.110.4 y se consolidó
+en un solo número al traer `main`.** Mientras tanto, `main` había usado 0.7.109 y
+0.7.109.1 para el Pomodoro, así que había dos versiones distintas con el mismo
+número y ninguna de las intermedias de aquí llegó nunca a un dispositivo. Ver la
+nota de arriba, en «Al subir la versión».
 
 ### 0.7.109.1 · 13 sep 2026
 
