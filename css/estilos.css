@@ -584,6 +584,7 @@
     --piso-rotulo-prueba: 7700; /* "esta pestaña está en modo prueba" */
     --piso-region: 7900;   /* elegir idioma y moneda, la primera vez */
     --piso-portada: 8000;  /* entrar a la app */
+    --piso-rotulo-puerta: 8100; /* "puerta en prueba": encima de la portada */
     --piso-compra: 8200;   /* volver de pagar: tapa la app, no los avisos */
     --piso-brindis: 8500;  /* los avisos de abajo, encima de todo lo anterior */
     --piso-confirmar: 8600;/* el cuadro de confirmar: SIEMPRE lo último */
@@ -8237,7 +8238,7 @@
      de día y 5,86 de noche. */
   .puerta-firma {
     color: var(--muted); font-size: 12px; letter-spacing: 0.06em;
-    text-transform: uppercase; font-weight: 700; margin: 0;
+    text-transform: uppercase; font-weight: 700; margin: 18px 0 0;
   }
 
   /* Desde 900 px hay sitio para las dos columnas de verdad: el formulario se
@@ -8269,7 +8270,13 @@
     position: fixed;
     left: 12px;
     bottom: calc(env(safe-area-inset-bottom) + 14px);
-    z-index: var(--piso-rotulo-prueba);
+    /* Un piso propio y no el `--piso-rotulo-prueba` de los informes, que se
+       quedaba corto: aquel vive DENTRO de la app y ahí no hay nada encima,
+       pero la portada tapa la pantalla entera desde 8000. Medido: el rótulo se
+       dibujaba en su sitio y `elementFromPoint` devolvía la portada, o sea
+       invisible y sin poder pulsarlo. Sigue por debajo de los avisos (8500) y
+       del cuadro de confirmar (8600), que van siempre los últimos. */
+    z-index: var(--piso-rotulo-puerta);
     background: var(--fire-macizo); color: var(--sobre-vivo);
     border-radius: var(--r-pastilla);
     padding: 5px 8px 5px 13px;
@@ -8289,7 +8296,8 @@
   html.puerta-dos #rotulo-puerta a:hover { background: rgba(16, 21, 29, 0.24); }
 
   /* ---- Qué borrar si la prueba no se queda (por NOMBRE, no por rango) ----
-       - `css/estilos.css`: este bloque entero, de `.puerta-lado` hasta aquí.
+       - `css/estilos.css`: este bloque entero, de `.puerta-lado` hasta aquí,
+         y `--piso-rotulo-puerta` en `:root`.
        - `login/index.html`: el `<script>` de `?puerta=`, el `<aside
          id="puerta-lado">` y el `<div id="rotulo-puerta">`.
        - `js/12-login.js`: `puertaPrueba`, `puertaLadoPegar`, `puertaFrase` y

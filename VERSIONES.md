@@ -161,6 +161,13 @@ exactamente la trampa que ya está escrita en el bloque de `.portada`, y aun as�
 volvió a morder por la puerta de al lado. Se cierra con `justify-content:
 flex-start` y repartiendo el hueco con `margin: auto`.
 
+**El rótulo se dibujaba debajo de la portada.** `--piso-rotulo-prueba` (7700)
+lo heredó del rótulo de los informes, y aquel vive DENTRO de la app, donde nada
+lo tapa; la portada cubre la pantalla entera desde 8000. Se dibujaba en su sitio
+y `elementFromPoint` devolvía la portada: invisible y sin poder pulsarlo. Piso
+propio, `--piso-rotulo-puerta: 8100`, por debajo de los avisos y del cuadro de
+confirmar, que van siempre los últimos.
+
 **Y la prueba de que apagada no cambia nada:** foto de los estilos calculados de
 la puerta entera —dos anchos, los dos modos, 112 elementos— contra la misma
 puerta sin tocar. Diferencias: ninguna.
