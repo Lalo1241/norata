@@ -118,6 +118,28 @@ function jDatos() {
       if (!jChocaEn(j.bloques, ini, fin, null)) j.bloques.push({ id: uid(), descanso: d, ini, fin });
     });
   }
+  /* ---- Una rutina por día (0.7.115) ----
+     Hasta aquí la rueda era UNA plantilla para los siete días, y eso obliga a
+     mentir: el gimnasio de martes y jueves o el sábado sin traslados no caben.
+     Ahora son siete listas, `rutinas[0]` domingo y `rutinas[6]` sábado, como
+     `Date.getDay()` — así ningún sitio tiene que traducir el índice.
+     La que había se copia a los siete, que es lo que la persona tenía en la
+     cabeza: «mi día», todos los días. Los ids se rehacen en cada copia porque
+     si no, el mismo bloque existiría siete veces con el mismo id y el registro
+     de un tramo no sabría de cuál día habla. */
+  if (!Array.isArray(j.rutinas) || j.rutinas.length !== 7) {
+    j.rutinas = [];
+    for (let d = 0; d < 7; d++) {
+      j.rutinas.push(d === jHoy()
+        ? j.bloques
+        : j.bloques.map(b => Object.assign({}, b, { id: uid() })));
+    }
+  }
+  /* `bloques` se queda como ESPEJO del día de hoy y no como otra copia: una
+     versión anterior de la app en otro dispositivo lo sigue leyendo y ve su
+     día de siempre. Se reescribe en `jDatos` y en cada pintada (`jEspejoHoy`). */
+  if (typeof j.vinculado !== "boolean") j.vinculado = false;
+  jEspejoHoy(j);
   if (!j.cfg || typeof j.cfg !== "object") j.cfg = {};
   /* `notificar` sustituye a `avisos` (0.7.105.1): aquel nació apagado y se
      guardó apagado en todos los perfiles, así que reusarlo no habría
@@ -142,7 +164,119 @@ function jAhora() {
   const s = hhmmNow();
   return (+s.slice(0, 2)) * 60 + (+s.slice(2)) + new Date().getSeconds() / 60;
 }
-function jBloqueEn(m) { return jDatos().bloques.find(b => jDentro(b, m)) || null; }
+/* ---- Hoy, el día que se mira, y el grupo ----
+   `jHoy` es el día de verdad y manda en todo lo que PASA: lo que corre, lo que
+   se avisa, lo que se apunta. `jDiaVisto` es el que estás mirando y manda en
+   todo lo que se EDITA. Separarlos es lo que evita que ver el jueves mueva el
+   tramo de hoy. El día visto no se guarda en `state`: es de este dispositivo y
+   de este rato, como el modo, y vuelve a hoy al entrar. */
+function jHoy() { return new Date().getDay(); }
+let jDiaSel = null;
+function jDiaVisto() { return jDiaSel == null ? jHoy() : jDiaSel; }
+function jBloques() { return jDatos().rutinas[jDiaVisto()]; }
+function jBloquesHoy() { return jDatos().rutinas[jHoy()]; }
+const jFinde = d => d === 0 || d === 6;
+function jDiasGrupo(d) { return jFinde(d) ? [6, 0] : [1, 2, 3, 4, 5]; }
+function jHuella(bs) {
+  return bs.slice().sort((x, y) => x.ini - y.ini)
+    .map(b => [b.ini, b.fin, b.descanso || "", b.color || "", b.nombre || "", b.ref ? b.ref.t + ":" + b.ref.id : ""].join("·")).join("|");
+}
+function jGrupoIgual(d) {
+  const dias = jDiasGrupo(d), h = jHuella(jDatos().rutinas[dias[0]]);
+  return dias.every(x => jHuella(jDatos().rutinas[x]) === h);
+}
+/* Se copia de verdad y no se comparte la lista: desvincular tiene que dejar a
+   cada día con lo suyo, no con una referencia al mismo sitio. Y los ids se
+   rehacen por lo mismo que en la migración: un id es de un bloque de un día. */
+function jCopiaDia(bs) { return bs.map(b => Object.assign({}, b, { id: uid() })); }
+function jPropagar() {
+  const j = jDatos();
+  if (!j.vinculado) return jEspejoHoy();
+  const d = jDiaVisto(), bs = j.rutinas[d];
+  jDiasGrupo(d).forEach(x => { if (x !== d) j.rutinas[x] = jCopiaDia(bs); });
+  jEspejoHoy();
+}
+/* El espejo para las versiones anteriores: `bloques` siempre apunta al día de
+   HOY. Recibe los datos en vez de pedirlos porque también se llama desde
+   dentro de `jDatos`, y pedirlos ahí sería una recursión sin fondo. */
+function jEspejoHoy(j) { j = j || jDatos(); j.bloques = j.rutinas[jHoy()]; }
+/* ---- El selector de días ----
+   Siete botones con HOY marcado por un punto, y un interruptor para llevar
+   solo dos rutinas. Vinculado se enciende el grupo entero: tocar un martes es
+   tocar «entre semana», y eso tiene que verse antes de editar nada. */
+const J_LETRAS = ["D", "L", "M", "X", "J", "V", "S"];
+const J_DIAS_ORDEN = [1, 2, 3, 4, 5, 6, 0];
+function jNombreDia(d) {
+  return [tx("Domingo"), tx("Lunes"), tx("Martes"), tx("Miércoles"), tx("Jueves"), tx("Viernes"), tx("Sábado")][d];
+}
+function jDiasHTML() {
+  const j = jDatos(), visto = jDiaVisto(), hoy = jHoy();
+  const botones = J_DIAS_ORDEN.map(d => {
+    const marcado = j.vinculado ? jDiasGrupo(visto).indexOf(d) >= 0 : d === visto;
+    return `<button type="button" class="jor-dia${d === hoy ? " hoy" : ""}" data-jdia="${d}" aria-pressed="${marcado}" title="${escapeAttr(jNombreDia(d) + " · " + jResumenDia(d))}">${tx(J_LETRAS[d])}</button>`;
+  }).join("");
+  const sub = j.vinculado
+    ? tx("Vinculado: una rutina para los cinco días hábiles y otra para el fin de semana")
+    : tx("Sin vincular: cada día lleva la suya, siete en total");
+  const nota = visto !== hoy
+    ? T`Estás viendo tu ${jNombreDia(visto).toLowerCase()}. Los tramos se inician en el día de hoy.`
+    : (j.vinculado
+        ? (jFinde(visto) ? tx("Lo que cambies aquí se copia a sábado y domingo.") : tx("Lo que cambies aquí se copia a los cinco días hábiles."))
+        : T`Hoy, ${jNombreDia(hoy).toLowerCase()}.`);
+  return `<div class="jor-dias">
+    <div class="jor-dias-fila" role="group" aria-label="${escapeAttr(tx("Día de la rutina"))}">${botones}</div>
+    <button type="button" class="jor-vinculo" data-jvinculo="1" role="switch" aria-checked="${j.vinculado}">
+      <span class="jor-palanca"></span>
+      <span class="jor-vinculo-tx"><b>${tx("Vincular entre semana y fin de semana")}</b><small>${sub}</small></span>
+    </button>
+    <p class="jor-dias-nota">${nota}</p>
+  </div>`;
+}
+/* Vincular IGUALA los días del grupo, así que si los venías llevando uno a uno
+   alguno se perdería. En vez de decidir por la persona, se pregunta con cuál
+   se queda. Desvincular, en cambio, no cambia NADA: solo deja de copiar, y por
+   eso no pregunta. */
+function jTocarVinculo() {
+  const j = jDatos();
+  if (j.vinculado) {
+    j.vinculado = false; save(); jPintar();
+    toast(tx("Desvinculado: cada día se queda como está"), "hecho");
+    return;
+  }
+  const falta = [];
+  if (!jGrupoIgual(1)) falta.push("semana");
+  if (!jGrupoIgual(0)) falta.push("finde");
+  if (!falta.length) {
+    j.vinculado = true; save(); jPintar();
+    toast(tx("Vinculado: dos rutinas, entre semana y fin de semana"), "hecho");
+    return;
+  }
+  jVinc = { falta, elegido: { semana: jFinde(jDiaVisto()) ? 1 : jDiaVisto(), finde: jFinde(jDiaVisto()) ? jDiaVisto() : 6 } };
+  jAbrirHoja("vincular");
+}
+let jVinc = null;
+function jAplicarVinculo() {
+  const j = jDatos();
+  if (jVinc.falta.indexOf("semana") >= 0) {
+    const bs = j.rutinas[jVinc.elegido.semana];
+    [1, 2, 3, 4, 5].forEach(d => { if (d !== jVinc.elegido.semana) j.rutinas[d] = jCopiaDia(bs); });
+  }
+  if (jVinc.falta.indexOf("finde") >= 0) {
+    const fs = j.rutinas[jVinc.elegido.finde];
+    [6, 0].forEach(d => { if (d !== jVinc.elegido.finde) j.rutinas[d] = jCopiaDia(fs); });
+  }
+  j.vinculado = true; jVinc = null; jSelId = null;
+  save(); jApuntarPlan(); cerrarHojaJornada(); jPintar();
+  toast(tx("Vinculado: dos rutinas, entre semana y fin de semana"), "hecho");
+}
+function jResumenDia(d) {
+  const bs = jDatos().rutinas[d];
+  let foco = 0, n = 0;
+  bs.forEach(b => { if (!b.descanso) { foco += jDur(b); n++; } });
+  const cuantos = bs.length + " " + (bs.length === 1 ? tx("bloque") : tx("bloques"));
+  return cuantos + " · " + (n ? T`${jFmtDur(foco)} de foco` : tx("sin foco"));
+}
+function jBloqueEn(m) { return jBloquesHoy().find(b => jDentro(b, m)) || null; }
 function jH12(m) {
   m = ((Math.round(m) % J_DIA) + J_DIA) % J_DIA;
   const h = Math.floor(m / 60), mm = m % 60;
@@ -530,7 +664,7 @@ function jAvisoSueno() {
   const j = jDatos();
   if (j.dormido) return;
   const m = jAhora(), hoy = todayKey();
-  for (const b of j.bloques) {
+  for (const b of jBloquesHoy()) {
     if (b.descanso !== "dormir") continue;
     const falta = (b.ini - m + J_DIA) % J_DIA;
     if (falta <= 0 || falta > 30) continue;
@@ -550,7 +684,7 @@ function jAvisoSueno() {
    que de verdad tuvieron un tramo. Solo se guarda cuando el número cambia. */
 function jApuntarPlan() {
   const j = jDatos(), hoy = todayKey();
-  const n = j.bloques.filter(b => !b.descanso).length;
+  const n = jBloquesHoy().filter(b => !b.descanso).length;
   if (!j.planes || typeof j.planes !== "object") j.planes = {};
   if (j.planes[hoy] === n) return;
   j.planes[hoy] = n;
@@ -560,7 +694,7 @@ function jApuntarPlan() {
 }
 function jPlanDeHoy() {
   const j = jDatos(), hoy = todayKey();
-  const enfoque = j.bloques.filter(b => !b.descanso);
+  const enfoque = jBloquesHoy().filter(b => !b.descanso);
   const conFoco = new Set();
   j.registro.forEach(r => { if (r.fecha === hoy && r.bloque && !r.abandono && r.tipo !== "sueno") conFoco.add(r.bloque); });
   return { plan: enfoque.length, hechos: enfoque.filter(b => conFoco.has(b.id)).length };
@@ -742,21 +876,21 @@ function jPintarRueda() {
   if (ahora > 0) h += `<path class="jor-transcurrido" d="${jArcoLinea(J_RI - 8, 0, ahora)}"/>`;
   /* Y el hueco al que caería lo que llevas en la mano, dibujado entero. */
   if (jDestino != null && jVolando) {
-    const v = jDatos().bloques.find(x => x.id === jVolando);
+    const v = jBloques().find(x => x.id === jVolando);
     if (v) h += `<path class="jor-destino" d="${jGajo(jDestino, jDur(v), J_RI + 2, J_RO - 2)}" style="fill:${jColorBloque(v)};fill-opacity:.2"/>`;
   }
-  const enMano = jVolando ? jDatos().bloques.find(x => x.id === jVolando) : null;
+  const enMano = jVolando ? jBloques().find(x => x.id === jVolando) : null;
   const pisando = enMano ? jChoca(enMano.ini, enMano.fin, enMano.id) : null;
   const bloques = jVolando
-    ? [...jDatos().bloques].sort((x, y) => (x.id === jVolando) - (y.id === jVolando))
-    : jDatos().bloques;
+    ? [...jBloques()].sort((x, y) => (x.id === jVolando) - (y.id === jVolando))
+    : jBloques();
   for (const b of bloques) {
     const d = jDur(b), col = jColorBloque(b);
     /* El gajo en curso BRILLA con su propio color (0.7.105), con el mismo halo
        que `.barra-viva` en lo lleno. Solo la luz: el dibujo no cambia. El color
        entra por una variable y el halo no se anima —animado, Chrome lo deja
        congelado—, y de día se apaga en el CSS, como todos los halos. */
-    const enCurso = jDentro(b, ahora);
+    const enCurso = jDiaVisto() === jHoy() && jDentro(b, ahora);
     /* En coral y con el trazo cortado solo mientras lo arrastras por encima de
        otro: ahí no se queda tal cual, al soltarlo se irá al hueco más cercano. */
     const vuela = b.id === jVolando, encima = vuela && !!jChoca(b.ini, b.fin, b.id);
@@ -780,11 +914,13 @@ function jPintarRueda() {
   g.innerHTML = h;
   const svg = document.getElementById("jor-svg");
   if (svg) svg.classList.toggle("jor-quieta", !!jQuieta());
-  const s = (jQuieta() || jVolando) ? null : jDatos().bloques.find(b => b.id === jSelId);
+  const s = (jQuieta() || jVolando) ? null : jBloques().find(b => b.id === jSelId);
   document.getElementById("jor-asas").innerHTML = s ? jAsaHTML("ini", s.ini) + jAsaHTML("fin", s.fin) : "";
 }
 function jPintarAguja() {
   const a = document.getElementById("jor-aguja");
+  /* La aguja es de HOY: en otro día no señala nada y engañaría. */
+  if (a) a.hidden = jDiaVisto() !== jHoy();
   if (a) a.setAttribute("transform", `rotate(${jAhora() / J_DIA * 360} ${J_C} ${J_C})`);
 }
 
@@ -801,7 +937,7 @@ function jMinEn(svg, e) {
 function jVecinos(b) {
   /* Por id además de por identidad: el borrador de la hoja tiene el id de un
      bloque guardado pero es otro objeto, y sin esto sería su propio vecino. */
-  const otros = jDatos().bloques.filter(o => o !== b && o.id !== b.id);
+  const otros = jBloques().filter(o => o !== b && o.id !== b.id);
   let prev = null, next = null, dp = 1e9, dn = 1e9;
   for (const o of otros) {
     const n = (o.ini - b.ini + J_DIA) % J_DIA; if (n > 0 && n < dn) { dn = n; next = o; }
@@ -864,7 +1000,7 @@ function jEngancharRueda(svg) {
   let arr = null;
   svg.addEventListener("pointerdown", e => {
     const asa = e.target.closest("[data-h]"), p = e.target.closest(".jor-blq");
-    const bloques = jDatos().bloques;
+    const bloques = jBloques();
     const s = bloques.find(b => b.id === jSelId);
     const quieta = jQuieta();
     if (quieta && (asa || p)) {
@@ -928,7 +1064,7 @@ function jChocaEn(bloques, ini, fin, exceptoId) {
   const t = { ini, fin };
   return bloques.find(o => o.id !== exceptoId && (jDentro(o, ini) || jDentro(t, o.ini))) || null;
 }
-function jChoca(ini, fin, exceptoId) { return jChocaEn(jDatos().bloques, ini, fin, exceptoId); }
+function jChoca(ini, fin, exceptoId) { return jChocaEn(jBloques(), ini, fin, exceptoId); }
 /* Acomodar: lo pone en el primer hueco libre desde ahora, de una hora si cabe. */
 function jAcomodar(t, id) {
   const q = jQuieta();
@@ -939,7 +1075,7 @@ function jAcomodar(t, id) {
       const ini = (desde + s) % J_DIA, fin = (ini + d) % J_DIA;
       if (!jChoca(ini, fin, null)) {
         const b = { id: uid(), ref: { t, id }, ini, fin };
-        jDatos().bloques.push(b); jSelId = b.id;
+        jBloques().push(b); jSelId = b.id;
         save(); jApuntarPlan(); jPintar();
         return;
       }
@@ -1090,6 +1226,7 @@ function renderJornada() {
   } else {
     cont.innerHTML = pestanas + `
       <div class="jor">
+        ${jDiasHTML()}
         <div class="jor-reloj">
           <div class="jor-rueda">
             <svg id="jor-svg" viewBox="0 0 320 320" role="img" aria-label="${escapeAttr(tx("Tu día en una rueda de 24 horas"))}">
@@ -1120,6 +1257,10 @@ function renderJornada() {
   if (run && run.fase === "cierre") jAbrirHoja("cierre");
 }
 function jPintar() {
+  /* Estando vinculado, lo que tocas en un día se copia a los suyos. Va aquí y
+     no en cada sitio que edita: así no hay forma de añadir una edición nueva y
+     olvidarse de propagarla, que es como se desincronizan estas cosas. */
+  jPropagar();
   if (document.getElementById("jor-arena")) { jPintarRueda(); jPintarLista(); jPintarControles(); jPintarCentro(); }
   jPintarPildora();
 }
@@ -1134,7 +1275,7 @@ function jPintarLista() {
     if (r.tipo === "sueno") { if (!sueno[r.bloque]) sueno[r.bloque] = r.min; }
     else if (!r.abandono) foco[r.bloque] = (foco[r.bloque] || 0) + r.min;
   });
-  el.innerHTML = j.bloques.slice().sort((a, b) => a.ini - b.ini).map(b => {
+  el.innerHTML = jBloques().slice().sort((a, b) => a.ini - b.ini).map(b => {
     const extra = foco[b.id] ? " · " + T`${foco[b.id]} min de foco` : sueno[b.id] ? " · " + T`dormiste ${jFmtDur(sueno[b.id])}` : "";
     return `
     <button type="button" class="jor-fila${b.id === jSelId ? " sel" : ""}" data-id="${b.id}">
@@ -1149,7 +1290,7 @@ function jPintarLista() {
     const p = jPlanDeHoy();
     dato.textContent = p.plan ? T`${p.hechos} de ${p.plan} con foco` : "";
   }
-  const puestas = new Set(j.bloques.filter(b => b.ref && b.ref.t === "mision").map(b => b.ref.id));
+  const puestas = new Set(jBloques().filter(b => b.ref && b.ref.t === "mision").map(b => b.ref.id));
   const libres = (state.missions || []).filter(x => missionDueToday(x) && !missionDone(x, hoy) && !puestas.has(x.id));
   document.getElementById("jor-acomodar").innerHTML = libres.length
     ? libres.map(x => `<button type="button" data-acomodar="${x.id}"><span class="jor-punto" style="background:${pinta(x.color || "#9aa7b8")}"></span>${escapeHtml(x.name)}</button>`).join("")
@@ -1224,6 +1365,14 @@ function jPintarControles() {
   const mas = `<button type="button" class="btn btn-ghost jor-icono" data-a="nuevo" aria-label="${escapeAttr(tx("Crear bloque"))}" title="${escapeAttr(tx("Crear bloque"))}"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>`;
   const desc = !run ? jDescansoAhora() : null;
   let h = "", regla = "";
+
+  /* Mirando otro día solo se acomoda: los tramos se inician en el de hoy, y
+     un botón que no puede hacer lo que dice es peor que no estar. */
+  if (jDiaVisto() !== jHoy()) {
+    c.innerHTML = `<div class="jor-acc"><span class="jor-desc-tx">${escapeHtml(T`Estás acomodando tu ${jNombreDia(jDiaVisto()).toLowerCase()}.`)}</span>${mas}</div>` +
+      `<p class="jor-regla">${tx("Para iniciar un tramo, vuelve al día de hoy.")}</p>`;
+    return;
+  }
 
   if (!run && j.dormido) {
     /* Dormido gana a todo: lo primero al abrir por la mañana es despertar. */
@@ -1335,10 +1484,20 @@ function jEstadoCentro() {
       return { arriba: 0, t: jMmss((k === "respiro" ? h.desc : h.foco) * J_MS), f: jHfNombre(k), fc: k === "respiro" ? "brasa" : "",
         sub: jHfResumen(k), cae: false, prog: 0 };
     }
+    /* Mirando otro día, el centro habla de ESE día: el tiempo de foco que
+       tiene planeado y cuántos bloques. Enseñar ahí la cuenta de hoy, con la
+       rueda de otro día detrás, sería mezclar dos cosas distintas. */
+    if (jDiaVisto() !== jHoy()) {
+      const bs = jDatos().rutinas[jDiaVisto()];
+      const foco = bs.filter(b => !b.descanso);
+      const min = foco.reduce((t, b) => t + jDur(b), 0);
+      return { arriba: 1, t: min ? jFmtDur(min) : "—", f: jNombreDia(jDiaVisto()), fc: "",
+        sub: !foco.length ? tx("Sin bloques de foco") : foco.length === 1 ? tx("1 bloque de foco") : T`${foco.length} bloques de foco`, cae: false, prog: 0 };
+    }
     const m = jAhora();
     if (j.dormido) {
       const min = (Date.now() - j.dormido.inicio) / J_MS;
-      const b = j.bloques.find(x => x.id === j.dormido.bloque);
+      const b = jBloquesHoy().find(x => x.id === j.dormido.bloque);
       /* Lo que se enseña es lo que FALTA, no lo que llevas (0.7.113.1). Un
          número que sube mientras duermes no se sabe contra qué se compara
          —lo dijo Eduardo: «es confuso»—, y dormido lo único que importa es
@@ -1640,7 +1799,7 @@ function cerrarHojaJornada(desdeFuera) {
 function jAbrirBloque(id) {
   const q = jQuieta();
   if (q && q.todo) { toast(q.txt, "atencion"); return; }
-  const b = jDatos().bloques.find(x => x.id === id);
+  const b = jBloques().find(x => x.id === id);
   if (b) jEdit = { id: b.id, descanso: b.descanso || null, ref: b.ref || null, color: b.color || null, nombre: b.nombre || "", ini: b.ini, fin: b.fin };
   else {
     const ini = (Math.ceil(jAhora() / 15) * 15) % J_DIA;
@@ -1666,14 +1825,14 @@ function jGuardarBloque() {
   datos.color = jEdit.color || undefined;
   datos.nombre = (jEdit.nombre || "").trim() || undefined;
   if (jEdit.id) {
-    const x = j.bloques.find(y => y.id === jEdit.id);
+    const x = jBloques().find(y => y.id === jEdit.id);
     if (x) Object.assign(x, datos, { ini: jEdit.ini, fin: jEdit.fin });
   } else {
     const n = Object.assign({ id: uid(), ini: jEdit.ini, fin: jEdit.fin }, datos);
-    j.bloques.push(n); jSelId = n.id; jEdit.id = n.id;
+    jBloques().push(n); jSelId = n.id; jEdit.id = n.id;
   }
   /* `undefined` no viaja en JSON, pero en memoria sí estorba al leer. */
-  j.bloques.forEach(x => { if (x.descanso === undefined) delete x.descanso; if (x.ref === undefined) delete x.ref; if (x.color === undefined) delete x.color; if (x.nombre === undefined) delete x.nombre; });
+  jBloques().forEach(x => { if (x.descanso === undefined) delete x.descanso; if (x.ref === undefined) delete x.ref; if (x.color === undefined) delete x.color; if (x.nombre === undefined) delete x.nombre; });
   save(); jApuntarPlan();
   return true;
 }
@@ -1694,7 +1853,7 @@ function jDibujarPrevia() {
   if (jDestino != null && jPrevVolando) {
     h += `<path class="jor-destino" d="${jGajo(jDestino, jDur(e), J_RI + 2, J_RO - 2)}" style="fill:${jColorBloque(e)};fill-opacity:.2"/>`;
   }
-  for (const b of jDatos().bloques) {
+  for (const b of jBloques()) {
     if (b.id === e.id) continue;
     const col = jColorBloque(b), choca = jPrevVolando && jSolapan(b, e);
     const camino = jGajo(b.ini, jDur(b));
@@ -1861,6 +2020,17 @@ function jPintarHoja() {
       <div class="jor-ops alto">${jOpcionesDescanso(e.descanso)}${jListaOpciones("b-ref", e.descanso ? null : e.ref)}</div>
       <button type="button" class="btn btn-primary btn-block" data-act="b-guardar" ${otro || (!e.descanso && !r && !propio) ? "disabled" : ""}>${tx("Guardar")}</button>
       ${e.id ? `<button type="button" class="btn btn-danger-ghost btn-block" data-act="b-quitar">${jQuitando ? tx("Toca otra vez para quitarlo") : tx("Quitar de la rueda")}</button>` : ""}`;
+  } else if (jHoja === "vincular") {
+    if (!jVinc) { cerrarHojaJornada(); return; }
+    const fila = (grupo, d) => jOpcion(grupo + ":" + d,
+      `<span class="jor-tile chico sin">${tx(J_LETRAS[d])}</span>`,
+      escapeHtml(jNombreDia(d)), escapeHtml(jResumenDia(d)), jVinc.elegido[grupo] === d, "v-elige");
+    h = `<div class="jor-hoja-cab"><span class="jor-ceja">${tx("Vincular")}</span><h3>${tx("¿Con cuál rutina te quedas?")}</h3></div>
+      <p class="jor-nota">${tx("Vincular deja una rutina para los cinco días hábiles y otra para el fin de semana. Los días que no elijas se sobrescriben, y desvincular después no lo deshace.")}</p>
+      ${jVinc.falta.indexOf("semana") >= 0 ? `<div class="jor-grupo-p"><p>${tx("Entre semana")}</p><div class="jor-ops">${[1, 2, 3, 4, 5].map(d => fila("semana", d)).join("")}</div></div>` : ""}
+      ${jVinc.falta.indexOf("finde") >= 0 ? `<div class="jor-grupo-p"><p>${tx("Fin de semana")}</p><div class="jor-ops">${[6, 0].map(d => fila("finde", d)).join("")}</div></div>` : ""}
+      <button type="button" class="btn btn-aviso btn-block" data-act="v-ok">${tx("Vincular y sobrescribir")}</button>
+      <button type="button" class="btn btn-ghost btn-block" data-act="v-no">${tx("Mejor no")}</button>`;
   } else if (jHoja === "cierre") {
     const run = j.run;
     if (!run || run.fase !== "cierre") { cerrarHojaJornada(); return; }
@@ -1911,6 +2081,13 @@ function jClickHoja(e) {
     jEleccion = v === "auto" ? undefined : v === "none" ? null : { t: v.split(":")[0], id: v.split(":").slice(1).join(":") };
     cerrarHojaJornada(); jPintar(); return;
   }
+  if (a === "v-elige") {
+    const [g, d] = v.split(":");
+    jVinc.elegido[g] = Number(d);
+    jPintarHoja(); return;
+  }
+  if (a === "v-ok") { jAplicarVinculo(); return; }
+  if (a === "v-no") { jVinc = null; cerrarHojaJornada(); jPintar(); return; }
   if (a === "b-ref") {
     const t = v.split(":")[0], id = v.split(":").slice(1).join(":");
     if (t === "descanso") { jEdit.descanso = id; jEdit.ref = null; }
@@ -1928,7 +2105,7 @@ function jClickHoja(e) {
   }
   if (a === "b-quitar") {
     if (!jQuitando) { jQuitando = true; jPintarHoja(); return; }
-    j.bloques = j.bloques.filter(x => x.id !== jEdit.id);
+    j.rutinas[jDiaVisto()] = jBloques().filter(x => x.id !== jEdit.id);
     jSelId = null; save(); jApuntarPlan(); cerrarHojaJornada(); jPintar(); return;
   }
   if (a === "sino") jRespuesta = v;
@@ -2035,6 +2212,13 @@ function iniciarRelojJornada() {
     cont.addEventListener("click", e => {
       const md = e.target.closest("[data-modo]");
       if (md) { if (md.dataset.modo !== jModo()) jPonerModo(md.dataset.modo); return; }
+      const dia = e.target.closest("[data-jdia]");
+      if (dia) {
+        jDiaSel = Number(dia.dataset.jdia);
+        jSelId = null; cerrarHojaJornada(); renderJornada();
+        return;
+      }
+      if (e.target.closest("[data-jvinculo]")) return jTocarVinculo();
       if (e.target.closest("#jor-controles")) jClickControles(e);
       else if (e.target.closest(".jor-lista")) jClickLista(e);
     });
