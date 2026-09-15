@@ -1234,17 +1234,16 @@ function jHeroHTML() {
     : (sig ? { k: tx("Lo siguiente"), v: T`${jNombreBloque(sig)} · ${jH12(sig.ini)}`, color: "var(--mint)" }
            : { k: tx("Nada a esta hora"), v: tx("Acomoda un bloque o enfoca sin vincular"), color: "var(--muted)" });
   return sectionHero({
-    scene: motifScene(820, 168, 31, "marea", "var(--mint)"),
     lead: `
-      <div class="ring-wrap" style="width:92px;height:92px">
+      <div class="ring-wrap aro-tira">
         ${ring(92, 9, [{ pct: plan.plan ? plan.hechos / plan.plan : 0, color: "var(--mint)" }], "rgba(234,241,239,0.14)")}
         <div class="ring-center">
-          <div class="v" style="font-size:19px"><b>${plan.hechos}</b><span style="font-size:13px;color:var(--muted)">/${plan.plan}</span></div>
+          <div class="v"><b>${plan.hechos}</b><span style="font-size:13px;color:var(--muted)">/${plan.plan}</span></div>
         </div>
       </div>
       <div>
         <div class="label">${escapeHtml(jNombreDia(jHoy()))}</div>
-        <div class="big" style="font-size:30px"><b>${jHorasTxt(min)}</b><span> ${tx("de foco hoy")}</span></div>
+        <div class="big"><b>${jHorasTxt(min)}</b><span> ${tx("de foco hoy")}</span></div>
       </div>`,
     stats: statsPanelPomodoro(),
     informe: "pomodoro",
@@ -1330,11 +1329,20 @@ function renderJornada() {
   const run = jDatos().run;
   if (run && run.fase === "cierre") jAbrirHoja("cierre");
 }
+/* El selector de días se repinta con todo lo demás. Sin esto, vincular dejaba
+   el interruptor en gris y los días sin recolorear hasta cambiar de pantalla:
+   el dato cambiaba y la interfaz se quedaba con la foto vieja. Lo cazó Eduardo
+   al aplicar un vínculo. */
+function jPintarDias() {
+  const caja = document.querySelector(".jor-dias");
+  if (caja) caja.outerHTML = jDiasHTML();
+}
 function jPintar() {
   /* Estando vinculado, lo que tocas en un día se copia a los suyos. Va aquí y
      no en cada sitio que edita: así no hay forma de añadir una edición nueva y
      olvidarse de propagarla, que es como se desincronizan estas cosas. */
   jPropagar();
+  jPintarDias();
   if (document.getElementById("jor-arena")) { jPintarRueda(); jPintarLista(); jPintarControles(); jPintarCentro(); }
   jPintarPildora();
 }
@@ -2297,11 +2305,7 @@ function iniciarRelojJornada() {
         jSelId = null; cerrarHojaJornada(); renderJornada();
         return;
       }
-      if (e.target.closest("[data-jdias-mas]")) {
-        jDiasAbierto = !jDiasAbierto;
-        document.querySelector(".jor-dias").outerHTML = jDiasHTML();
-        return;
-      }
+      if (e.target.closest("[data-jdias-mas]")) { jDiasAbierto = !jDiasAbierto; jPintarDias(); return; }
       if (e.target.closest("[data-jvinculo]")) return jTocarVinculo();
       if (e.target.closest("#jor-controles")) jClickControles(e);
       else if (e.target.closest(".jor-lista")) jClickLista(e);
