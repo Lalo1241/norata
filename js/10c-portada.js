@@ -346,6 +346,17 @@ function portadaPintar(modo) {
       : `<img class="portada-logo" src="${logotipoSrc()}" alt="Norata">
          <p class="portada-lema">${tx("Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.")}</p>`;
 
+    /* Google, LO PRIMERO, igual que en crear cuenta (0.7.115). Estaba debajo
+       del botón de entrar, donde se veía sin desplazar porque el formulario
+       son dos campos — pero tenerlo en un sitio distinto en cada pantalla
+       obliga a buscarlo dos veces, y quien entra con Google entra con Google
+       siempre: es el mismo gesto en las dos. Un solo lugar, el de arriba.
+
+       Va antes de las cuentas guardadas y no después, y las dos rayitas que
+       quedan dicen la verdad cada una: la de aquí separa Google de lo que
+       sigue, y la de abajo anuncia el formulario. */
+    dentro += `<div id="portada-google"></div>`;
+
     /* Las cuentas que ya entraron aquí, arriba del formulario y no debajo: si
        una de ellas es la que se busca, no hay que leer nada más. Debajo del
        formulario se leería después de haber empezado a teclear, que es
@@ -367,7 +378,6 @@ function portadaPintar(modo) {
        </div>
        <button class="portada-sin sutil" onclick="portadaOlvide()">${tx("¿Olvidaste tu contraseña?")}</button>
        ${vuelve ? '<button class="portada-sin sutil" onclick="portadaNoSoyYo()">No soy ' + escapeHtml(sync.ultimoSaludo) + '</button>' : ""}
-       <div id="portada-google"></div>
        <p class="portada-pie">${tx("¿Todavía no tienes cuenta?")} <button onclick="portadaIrA('crear')">${tx("Créala aquí")}</button></p>
        ${agregando
          ? '<button class="portada-sin" onclick="volverDeAgregar()">Volver a mi cuenta</button>'
@@ -499,12 +509,12 @@ function portadaOcupada(si, texto) {
    pantalla de error es peor que no tener botón. */
 /* El botón de Google. Sirve a las dos pantallas y solo cambia dos cosas: el
    verbo: «continuar» donde se entra y «crear cuenta» donde se crea, que es lo
-   que hace a alguien entender que ese botón también da de alta. Y de qué lado
-   queda la rayita del «o», que no es un adorno: su trabajo es separar este
-   camino del formulario, así que va del lado por donde está el formulario —
-   detrás del botón al crear (donde el botón va arriba) y delante al entrar
-   (donde va abajo). Y sale de aquí, con el botón, para que no se quede una
-   rayita suelta cuando el proveedor no está disponible. */
+   que hace a alguien entender que ese botón también da de alta.
+
+   La rayita del «o» va SIEMPRE detrás, porque desde la 0.7.115 el botón está
+   arriba en las dos pantallas y lo que tiene que separar está debajo. Y sale
+   de aquí, con el botón, para que no se quede una rayita suelta el día que el
+   proveedor no conteste — medido con él apagado: cero rayitas. */
 async function portadaOfrecerGoogle(modo) {
   const hueco = document.getElementById("portada-google");
   if (!hueco) return;
@@ -515,10 +525,8 @@ async function portadaOfrecerGoogle(modo) {
   } catch (e) { /* sin conexión: se queda sin el botón, y hay dos formas más */ }
   if (!hay || !document.getElementById("portada-google")) return;
   const creando = modo === "crear";
-  const raya = `<div class="portada-o"><span>${tx("o")}</span></div>`;
   hueco.innerHTML =
-    `${creando ? "" : raya}
-     <button class="btn btn-soft btn-block portada-google" onclick="sbEntrarConGoogle()">
+    `<button class="btn btn-soft btn-block portada-google" onclick="sbEntrarConGoogle()">
        <svg viewBox="0 0 48 48" aria-hidden="true">
          <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.2-.4-4.7H24v8.9h11.8c-.5 2.7-2 5-4.4 6.6v5.5h7.1c4.2-3.8 6.6-9.5 6.6-16.3z"/>
          <path fill="#34A853" d="M24 46c6 0 11-2 14.6-5.4l-7.1-5.5c-2 1.3-4.5 2.1-7.5 2.1-5.8 0-10.7-3.9-12.4-9.1H4.3v5.7C7.9 41.1 15.4 46 24 46z"/>
@@ -527,7 +535,7 @@ async function portadaOfrecerGoogle(modo) {
        </svg>
        <span>${tx(creando ? "Crear cuenta con Google" : "Continuar con Google")}</span>
      </button>
-     ${creando ? raya : ""}`;
+     <div class="portada-o"><span>${tx("o")}</span></div>`;
 }
 
 async function portadaEntrar() {

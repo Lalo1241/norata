@@ -8384,27 +8384,29 @@
      deja congelado en el inicial. */
   html.puerta-dos #rotulo-puerta a:hover { background: rgba(16, 21, 29, 0.24); }
 
-  /* ---- En el teléfono se cambian las esquinas ----
-     Abajo a la izquierda, en una pantalla estrecha, los controles caen justo
-     donde acaba el formulario y donde vive el pulgar: es por donde se desplaza
-     y lo que tapa el teclado al abrirse. Arriba están antes de que hagan falta
-     —quien no entiende la pantalla lo primero que busca es cómo cambiarla— y el
-     formulario ya nace debajo, porque el relleno de arriba les deja sitio.
+  /* ---- El teléfono ----
+     Tres cosas cambian, y las tres las pidió Eduardo mirándolo:
 
-     El rótulo de la prueba hace el viaje contrario, que es la otra mitad del
-     motivo: los dos no caben arriba en 390 px. Abajo tapa la frase del panel,
-     que es lo único que se puede permitir tapar — y se va con la prueba. */
+     1. Los controles van CENTRADOS y abajo. Arriba a la izquierda quedaban
+        encima del encabezado del formulario; centrados y abajo se leen como
+        una barra de pie y dejan de parecerse a un botón de la pantalla.
+     2. El panel de la frase NO se enseña. Debajo de un formulario largo no lo
+        lee nadie: ahí se llega cuando ya decidiste. En pantalla ancha vive al
+        lado, que es cuando de verdad acompaña.
+     3. El rótulo de la prueba se queda arriba, como en ancho, porque abajo ya
+        no cabe: ahí están los controles.
+
+     Los rellenos de la portada dejan sitio a los dos: 92 arriba —el rótulo se
+     parte en dos renglones y mide 68— y 70 abajo. */
   @media (max-width: 640px) {
     html.puerta-dos .puerta-ajustes {
-      top: calc(env(safe-area-inset-top) + 12px); bottom: auto;
+      left: 50%; right: auto; transform: translateX(-50%);
+      bottom: calc(env(safe-area-inset-bottom) + 14px); top: auto;
     }
-    html.puerta-dos #rotulo-puerta {
-      bottom: calc(env(safe-area-inset-bottom) + 12px); top: auto;
-      left: 12px; right: auto;
-    }
+    html.puerta-dos .puerta-lado { display: none; }
     html.puerta-dos .portada {
-      padding-top: calc(env(safe-area-inset-top) + 58px);
-      padding-bottom: calc(env(safe-area-inset-bottom) + 92px);
+      padding-top: calc(env(safe-area-inset-top) + 92px);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 70px);
     }
     /* Y el dedo pide más que el ratón: los mismos botones vuelven a 32 px de
        alto. Se escribe como `min-height` y no como relleno para que el número

@@ -277,11 +277,35 @@ pantalla de crear cuenta la vía rápida estaba escondida detrás del enlace de
   letra chica de ESE botón; colgando del encabezado, y diciendo «al crear tu
   cuenta» en vez de «al continuar con Google», se lee como lo que es: la
   condición de crear una cuenta, por el camino que sea. Empuja 18 px.
-- **La rayita del «o» cambia de lado según dónde esté el botón** — detrás al
-  crear, delante al entrar—, porque su trabajo es separarlo del formulario. Y
-  sale del mismo sitio que el botón: sin eso, un día que el proveedor no
-  conteste quedaría una rayita suelta sin nada que separar. Medido con el
-  proveedor apagado: cero rayitas.
+- **Y arriba en las DOS pantallas, no solo en crear.** En entrar estaba debajo
+  del botón, donde se veía sin desplazar porque el formulario son dos campos —
+  pero tenerlo en un sitio distinto en cada pantalla obliga a buscarlo dos
+  veces, y quien entra con Google entra con Google siempre: es el mismo gesto.
+  Un solo lugar, el de arriba. Lo pidió Eduardo.
+- **La rayita del «o» va siempre detrás del botón**, porque lo que tiene que
+  separar está debajo. Y sale del mismo sitio que el botón: sin eso, un día que
+  el proveedor no conteste quedaría una rayita suelta sin nada que separar.
+  Medido con el proveedor apagado: cero rayitas.
+
+**El teléfono, con tres cambios de Eduardo.** Los controles de idioma y aspecto
+van **centrados y abajo** —arriba a la izquierda quedaban encima del encabezado
+del formulario, y centrados abajo se leen como una barra de pie en vez de como
+un botón más de la pantalla—; el rótulo de la prueba se queda arriba, que es lo
+que sobra; y **el panel de la frase no se enseña**. Esto último invierte lo que
+se había hecho en esta misma versión —bajarlo debajo del formulario para no
+esconder contenido en el teléfono— y la razón es que ahí no lo lee nadie: al pie
+de un formulario largo se llega cuando ya decidiste. En pantalla ancha vive al
+lado, que es cuando de verdad acompaña.
+
+**Y un susto que cazó la medición, no la vista.** Al mover un bloque de CSS lo
+corté «de aquí hasta el siguiente `@media (max-width: 480px)`» — y ese marcador
+aparece DOS veces en la hoja. Se fueron **632 líneas** por delante: entre ellas
+la regla de la pantalla de carga, que pasó de `fixed` y oculta a `static` y
+visible. La foto de estilos lo enseñó en la segunda línea del diff; a ojo no se
+habría visto hasta abrir la app sin conexión. Es exactamente la trampa que ya
+estaba escrita en `CLAUDE.md` —«borrar por NOMBRE y no por rango»— y vale igual
+para mover que para borrar: se restauró el archivo y se rehízo escribiendo el
+bloque entero, viejo y nuevo, sin índices.
 
 **El sol y la luna, que faltaban.** La puerta LEÍA el modo claro desde la
 primera versión —el script de arriba de `login/index.html`— pero no dejaba
