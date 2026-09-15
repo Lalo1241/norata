@@ -33,7 +33,7 @@
    Va lo primero y fuera del `async`, antes de pintar nada, por lo mismo que
    el modo claro se aplica en el script de arriba de `index.html`: traducir
    después de pintar es lo que hace parpadear la pantalla. */
-/* ---- El idioma que trae el navegador (EN PRUEBA, 0.7.115) ----
+/* ---- El idioma que trae el navegador (0.7.117) ----
 
    Y esto NO contradice la regla de `js/01-base.js` —«el idioma no se adivina
    por el navegador»—, aunque lo parezca. Esa regla protege dos casos, y los
@@ -58,7 +58,6 @@
    Va lo primero del archivo, antes de traducir y de poner el `lang`: después
    sería pintar la puerta en español y cambiarla a la vista. */
 function puertaIdiomaDelNavegador() {
-  if (!puertaPrueba()) return "";
   /* Si ya hay algo guardado, aquí no se toca nada: eligió alguien, y quien
      eligió manda sobre cualquier suposición. */
   try { if (localStorage.getItem(LLAVE_IDIOMA)) return ""; } catch (e) { return ""; }
@@ -108,12 +107,10 @@ traducirDOM();
   /* `sbVolverDeEnlace` puede haber entrado y disparado el reboto a la raíz; en
      ese caso esta página ya se está yendo y no hay nada que dibujar. */
   if (!veniaDeEnlace && !veniaAOlvidar) {
-    /* La puerta de dos columnas, apagada salvo que se pida (0.7.115). Quien
-       llega por la puerta de «soy nuevo» abre directamente en el formulario de
-       crear cuenta: ese es el camino partido, y no un adorno de la pantalla.
-       Sin prueba puesta, `puertaPrueba()` no devuelve nada y esto es
-       exactamente lo que había. */
-    mostrarPortada(puertaPrueba() === "nuevo" ? "crear" : undefined);
+    /* Quien llega por la puerta de «soy nuevo» abre directamente en el
+       formulario de crear cuenta: ese es el camino partido de la landing, y no
+       un adorno de la pantalla. */
+    mostrarPortada(puertaEsNueva() ? "crear" : undefined);
     puertaLadoPegar();
     puertaIdiomaPintar();
   }
@@ -121,17 +118,13 @@ traducirDOM();
   cargaCerrar();
 })();
 
-/* ---- La puerta de dos columnas, EN PRUEBA (0.7.115) ----
-   El interruptor está en el script de arriba de `login/index.html`, que es
-   quien lee `?puerta=` y pone las clases; aquí solo se leen. Todo lo de esta
-   prueba vive en la PUERTA —este archivo y ese marcado— y nada en
-   `js/10c-portada.js`, que lo comparte la app.
-
-   Qué borrar si no se queda: la lista está al final del bloque de CSS
-   `.puerta-lado`, en `css/estilos.css`. */
-function puertaPrueba() {
-  const c = document.documentElement.classList;
-  return c.contains("puerta-nuevo") ? "nuevo" : c.contains("puerta-dos") ? "dos" : "";
+/* ---- Por qué puerta se entró (0.7.117) ----
+   `/crear-cuenta/` desvía aquí con `?nuevo` puesto, y eso es lo único que
+   distingue los dos caminos de la landing: con él la puerta abre en el
+   formulario de crear cuenta, sin él en el de entrar. Nada más cuelga de esta
+   pregunta — el panel, el idioma y el aspecto son iguales por los dos lados. */
+function puertaEsNueva() {
+  try { return new URLSearchParams(location.search).has("nuevo"); } catch (e) { return false; }
 }
 
 /* El panel de al lado tiene que ser HIJO de `#portada`: en el teléfono va
@@ -147,7 +140,6 @@ function puertaPrueba() {
    observador no entra en bucle: al volver a pegarlo el padre ya es el que
    toca, así que la vuelta siguiente no hace nada. */
 function puertaLadoPegar() {
-  if (!puertaPrueba()) return;
   const cap = document.getElementById("portada");
   const lado = document.getElementById("puerta-lado");
   if (!cap || !lado) return;
@@ -160,7 +152,7 @@ function puertaLadoPegar() {
   }).observe(cap, { childList: true });
 }
 
-/* ---- El idioma, en la puerta (EN PRUEBA, 0.7.115) ----
+/* ---- El idioma, en la puerta (0.7.117) ----
 
    Dos aros, los mismos de Ajustes y los de la pantalla de la primera vez
    (`discoIdioma`), y no un menú: son dos idiomas, y un desplegable esconde
@@ -172,7 +164,7 @@ function puertaLadoPegar() {
    inglés— así que este trozo es el mismo en las dos caras. */
 function puertaIdiomaPintar() {
   const caja = document.getElementById("puerta-idioma");
-  if (!caja || !puertaPrueba()) return;
+  if (!caja) return;
   /* El sol y la luna, que viven en el mismo grupo: `pintarTema` rellena todos
      los `.tema-hueco` de la página con el control de Ajustes y lo deja marcado
      donde toca. Se llama desde aquí porque en la puerta no hay nadie más que
@@ -220,7 +212,7 @@ function puertaIdioma(cod) {
   });
 }
 
-/* ---- El repertorio de frases del panel (EN PRUEBA, 0.7.115) ----
+/* ---- El repertorio de frases del panel (0.7.117) ----
 
    Una sola frase clavada se gasta: quien abre la puerta tres veces en una
    semana ya no la lee. Así que hay un puñado por cada camino y sale una al
