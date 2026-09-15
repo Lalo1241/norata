@@ -163,13 +163,32 @@ campo visible y el botón, y nadie tocaba los puntos. Ahora las tres cosas que
 cambian al cambiar de paso viven en una sola función (`portadaPasoPintar`), para
 que quien añada una cuarta la vea.
 
+**Google se queda en la PRIMERA pantalla y no en las tres.** Lo pidió Eduardo y
+la razón se explica sola: quien pasa del primer paso ya decidió no entrar por
+ahí, y un atajo que se sigue ofreciendo después de rechazarlo deja de ser un
+atajo y pasa a ser ruido. Su rayita del «o» se va con él.
+
+**Cada paso entra desvaneciéndose, y el botón no se mueve.** Dos detalles que
+son la diferencia entre tres pantallas y un camino:
+
+- Es una **animación** y no una transición, y la diferencia importa: el paso
+  viene de `display: none`, y desde ahí una transición no arranca —el navegador
+  no interpola algo que no existía—. Una animación se dispara sola en cuanto el
+  selector empieza a aplicar, así que cada cambio de paso la relanza sin una
+  línea de JavaScript. Se anima `opacity` y `transform`, que son valores
+  literales; si saliera de una variable se quedaría congelada en el inicial.
+- **Los tres pasos miden lo mismo** (`min-height: 271px`, medido uno por uno:
+  250 el primero con Google dentro, 271 los otros dos). Sin eso el botón saltaba
+  11 px al cambiar de pantalla, y que el sitio donde hay que volver a pulsar se
+  mueva bajo el dedo es justo lo que hace que un camino corto se sienta largo.
+- Con `prefers-reduced-motion` se queda el desvanecido a secas: lo que marea es
+  el desplazamiento, no el cambio de opacidad.
+
 **Lo que NO se tocó, y a conciencia:**
 
-- **La confirmación de la contraseña se queda.** Cosmos no la pide, y en un
-  flujo por pasos sobra menos que en uno largo — pero está ahí por un fallo
-  real y escrito: una errata al teclearla se convertía en una cuenta a la que
-  ya no se podía entrar. Quitarla es decisión de Eduardo, no un efecto
-  secundario de partir el formulario.
+- **La confirmación de la contraseña se queda**, y esto ya lo confirmó Eduardo.
+  Está ahí por un fallo real y escrito: una errata al teclearla se convertía en
+  una cuenta a la que ya no se podía entrar.
 - **No se pide la edad.** Cosmos la usa para su feed; Norata no la usa para
   nada, y una pregunta que no alimenta ninguna pantalla es una casilla más
   entre alguien y la app.
