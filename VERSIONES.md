@@ -261,13 +261,27 @@ pantalla de crear cuenta la vía rápida estaba escondida detrás del enlace de
 - **Con el verbo de su pantalla**: «Continuar con Google» donde se entra,
   **«Crear cuenta con Google»** donde se crea. Es lo que hace entender que ese
   botón también da de alta; con «continuar» se lee como algo para quien ya está.
-- **Debajo del formulario y no encima**, aunque arriba se descubriría sin
-  desplazar. Lo que manda aquí es el consentimiento: la línea legal va después
-  de los botones —decisión ya tomada— y tiene que cubrir los DOS caminos,
-  porque con Google también se crea una cuenta. Con el botón arriba, alguien
-  podría darse de alta sin haber pasado por delante de esa línea nunca.
-- La rayita del «o» va siempre delante del botón: su trabajo es separarlo del
-  formulario de arriba, y detrás no separa nada.
+- **Arriba del todo, y esto es de Eduardo**: un toque contra cinco campos.
+  «Nadie gana nada porque alguien rellene un cuestionario largo», y menos quien
+  todavía no sabe si la app le va a servir. Lo había puesto DEBAJO del
+  formulario por el consentimiento, y esa razón se resuelve moviendo el
+  consentimiento, no escondiendo el botón.
+- **Así que la línea legal sube con él**, y se invierte una decisión que estaba
+  escrita: iba debajo del botón porque «una frase legal por delante empuja el
+  botón hacia abajo sin que nadie la haya pedido». Eso valía cuando abajo
+  estaba el único botón que daba de alta; ahora el primero es el de Google y
+  «después» pasaría a significar «después de que ya pasó», que es justo lo que
+  ese aviso existe para no hacer. Medido en un teléfono de 390×844: el botón y
+  la línea caben los dos en la pantalla sin desplazar.
+- **Colgando del título y no pegada al botón.** Pegada debajo se lee como la
+  letra chica de ESE botón; colgando del encabezado, y diciendo «al crear tu
+  cuenta» en vez de «al continuar con Google», se lee como lo que es: la
+  condición de crear una cuenta, por el camino que sea. Empuja 18 px.
+- **La rayita del «o» cambia de lado según dónde esté el botón** — detrás al
+  crear, delante al entrar—, porque su trabajo es separarlo del formulario. Y
+  sale del mismo sitio que el botón: sin eso, un día que el proveedor no
+  conteste quedaría una rayita suelta sin nada que separar. Medido con el
+  proveedor apagado: cero rayitas.
 
 **El sol y la luna, que faltaban.** La puerta LEÍA el modo claro desde la
 primera versión —el script de arriba de `login/index.html`— pero no dejaba

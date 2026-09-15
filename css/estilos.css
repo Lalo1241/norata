@@ -8037,6 +8037,10 @@
      se subrayan: es lo único de este renglón que hay que poder distinguir de un
      vistazo, porque es lo que hay que poder leer ANTES de aceptar. */
   .portada-legal { text-align: center; color: var(--faint); font-size: 11.5px; line-height: 1.55; margin: 8px 0 0; }
+  /* Colgando del título en vez de cerrando la pantalla: el mismo renglón, con
+     aire por los dos lados para que se lea como una nota del encabezado y no
+     como la letra chica del botón que tiene debajo. */
+  .portada-legal-arriba { margin: -8px 0 18px; }
   .portada-legal a { color: var(--muted); text-decoration: underline; }
   .portada-legal a:hover, .portada-legal a:focus-visible { color: var(--text); }
 

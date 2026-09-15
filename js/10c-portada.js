@@ -204,6 +204,37 @@ function portadaPintar(modo) {
          <h2>${tx("Crear tu cuenta")}</h2>
        </div>
        <div id="portada-error" class="portada-error" hidden></div>
+       <!-- ---- El consentimiento, y por qué subió aquí (0.7.115) ----
+            Estaba debajo del botón, con este motivo escrito al lado: «quien
+            viene a crear una cuenta viene a pulsarlo, y una frase legal por
+            delante empuja el botón hacia abajo sin que nadie la haya pedido».
+            Eso valía cuando abajo estaba el único botón que daba de alta.
+
+            Ahora el primero es el de Google, y «después» pasaría a significar
+            «después de que ya pasó» — que es exactamente lo que este aviso
+            existe para no hacer: anunciar que se va a recoger el correo de
+            alguien ANTES de recogerlo. En un teléfono, con el botón arriba, la
+            línea de abajo queda fuera de la pantalla.
+
+            Y va aquí y no pegada al botón de Google a propósito: pegada
+            debajo se lee como la letra chica de ESE botón. Colgando del
+            título, con «al crear tu cuenta» y no «al continuar con Google»,
+            se lee como lo que es — la condición de crear una cuenta, por el
+            camino que sea. Empuja dieciocho píxeles. -->
+       <p class="portada-legal portada-legal-arriba">${T`Al crear tu cuenta aceptas los ${aTerminos} y el ${aPrivacidad}.`}</p>
+       <!-- Crear cuenta con Google, lo PRIMERO de la pantalla. Hasta la
+            0.7.115 no estaba, y no porque no se pudiera —quien pulsaba
+            «Continuar con Google» en la otra pantalla sin tener cuenta la
+            creaba igual, porque el proveedor da de alta la primera vez— sino
+            porque ese botón solo vivía en la pantalla de entrar: la vía rápida
+            existía, escondida detrás del enlace de «¿Ya tienes una?».
+
+            Arriba del todo y no debajo del formulario, y esto es de Eduardo:
+            un toque contra cinco campos. Nadie gana nada porque alguien
+            rellene un cuestionario largo, y menos quien todavía no sabe si la
+            app le va a servir. Debajo del formulario, la vía de un toque solo
+            la encuentra quien ya decidió no usarla. -->
+       <div id="portada-google"></div>
        <label class="field"><span>${tx("¿Cómo te llamas?")}</span>
          <input type="text" id="portada-nombre" value="${escapeAttr(portadaNombre)}" autocomplete="name"
                 maxlength="${NOMBRE_MAX}" placeholder="${escapeAttr(tx("Tu nombre"))}"></label>
@@ -222,30 +253,6 @@ function portadaPintar(modo) {
          <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaRegistrar()">${tx("Crear cuenta")}</button>
        </div>
        <p class="portada-nota">${tx("Te mandaré un correo para confirmar que la dirección es tuya. Hasta que lo abras, la cuenta no se activa.")}</p>
-       <!-- Crear cuenta con Google, que hasta la 0.7.115 solo se ofrecía en la
-            pantalla de ENTRAR. Y no es que no se pudiera —quien pulsaba aquello
-            sin tener cuenta la creaba igual, porque el proveedor da de alta al
-            entrar la primera vez—: es que en la pantalla donde alguien viene a
-            crearse una cuenta no aparecía por ningún lado. O sea que la vía
-            rápida existía y estaba escondida detrás del enlace de «¿Ya tienes
-            una?».
-
-            DEBAJO del formulario y no encima, aunque arriba se descubriría sin
-            desplazar: lo que manda aquí es el consentimiento. La frase legal
-            va después de los botones —decisión ya tomada, ver abajo— y tiene
-            que cubrir los DOS caminos, porque con Google también se crea una
-            cuenta. Con el botón arriba, alguien podría darse de alta sin haber
-            pasado por delante de esa línea nunca. -->
-       <div id="portada-google"></div>
-       <!-- El consentimiento va AQUÍ y no en Ajustes, y no es una manía legal:
-            este es el instante en que se recoge el correo de alguien, que es
-            justo lo que el aviso de privacidad tiene que anunciar antes de que
-            ocurra. Puesto después, se estaría avisando de algo ya hecho.
-
-            Debajo del botón y no encima: quien viene a crear una cuenta viene
-            a pulsarlo, y una frase legal por delante empuja el botón hacia
-            abajo sin que nadie la haya pedido. -->
-       <p class="portada-legal">${T`Al crear tu cuenta aceptas los ${aTerminos} y el ${aPrivacidad}.`}</p>
        <p class="portada-pie">${tx("¿Ya tienes una?")} <button onclick="portadaIrA('entrar')">${tx("Entra aquí")}</button></p>`;
 
   } else if (modo === "rescate") {
@@ -492,9 +499,12 @@ function portadaOcupada(si, texto) {
    pantalla de error es peor que no tener botón. */
 /* El botón de Google. Sirve a las dos pantallas y solo cambia dos cosas: el
    verbo: «continuar» donde se entra y «crear cuenta» donde se crea, que es lo
-   que hace a alguien entender que ese botón también da de alta. La rayita del
-   «o» va siempre DELANTE, porque su trabajo es separar este camino del
-   formulario de arriba; detrás no separaría nada. */
+   que hace a alguien entender que ese botón también da de alta. Y de qué lado
+   queda la rayita del «o», que no es un adorno: su trabajo es separar este
+   camino del formulario, así que va del lado por donde está el formulario —
+   detrás del botón al crear (donde el botón va arriba) y delante al entrar
+   (donde va abajo). Y sale de aquí, con el botón, para que no se quede una
+   rayita suelta cuando el proveedor no está disponible. */
 async function portadaOfrecerGoogle(modo) {
   const hueco = document.getElementById("portada-google");
   if (!hueco) return;
@@ -505,8 +515,9 @@ async function portadaOfrecerGoogle(modo) {
   } catch (e) { /* sin conexión: se queda sin el botón, y hay dos formas más */ }
   if (!hay || !document.getElementById("portada-google")) return;
   const creando = modo === "crear";
+  const raya = `<div class="portada-o"><span>${tx("o")}</span></div>`;
   hueco.innerHTML =
-    `<div class="portada-o"><span>o</span></div>
+    `${creando ? "" : raya}
      <button class="btn btn-soft btn-block portada-google" onclick="sbEntrarConGoogle()">
        <svg viewBox="0 0 48 48" aria-hidden="true">
          <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.2-.4-4.7H24v8.9h11.8c-.5 2.7-2 5-4.4 6.6v5.5h7.1c4.2-3.8 6.6-9.5 6.6-16.3z"/>
@@ -515,7 +526,8 @@ async function portadaOfrecerGoogle(modo) {
          <path fill="#EA4335" d="M24 10.8c3.3 0 6.2 1.1 8.5 3.3l6.3-6.3C35 4.3 30 2 24 2 15.4 2 7.9 6.9 4.3 14.2l7.3 5.7c1.7-5.2 6.6-9.1 12.4-9.1z"/>
        </svg>
        <span>${tx(creando ? "Crear cuenta con Google" : "Continuar con Google")}</span>
-     </button>`;
+     </button>
+     ${creando ? raya : ""}`;
 }
 
 async function portadaEntrar() {
