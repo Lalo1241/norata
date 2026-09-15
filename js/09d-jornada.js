@@ -705,6 +705,7 @@ function jBaseRueda() {
      dos ruedas —la grande y la de la hoja— salen de esta misma base; las dos
      copias son idénticas, así que da igual cuál resuelva el `url(#…)`. */
   let h = `<defs><pattern id="jor-veda" patternUnits="userSpaceOnUse" width="9" height="9" patternTransform="rotate(45)">
+      <rect class="jor-veda-fondo" width="9" height="9"/>
       <line class="jor-veda-raya" x1="0" y1="0" x2="0" y2="9"/></pattern></defs>`;
   h += `<circle class="jor-guia" cx="${J_C}" cy="${J_C}" r="${J_RI - 3}"/><circle class="jor-guia" cx="${J_C}" cy="${J_C}" r="${J_RO + 2}"/>`;
   for (let i = 1; i < 48; i += 2) {
@@ -1326,7 +1327,12 @@ function jEstadoCentro() {
   if (!run) {
     if (jModo() === "lite") {
       const hc = jHfCfg(), k = hc.hfModo, h = hc.hf[k];
-      return { arriba: 1, t: jMmss((k === "respiro" ? h.desc : h.foco) * J_MS), f: jHfNombre(k), fc: k === "respiro" ? "brasa" : "",
+      /* Parado, la arena está ABAJO: un reloj de arena en reposo tiene el grano
+         en el bulbo de abajo, y se voltea para empezar a contar. Eso hace que
+         al tocar «Enfocar» el reloj DÉ LA VUELTA solo —`jPintarCentro` voltea
+         cuando la arena sube de golpe—, que es el gesto de ponerlo en marcha.
+         Lo pidió Eduardo: «lo correcto es que esté con la arena abajo». */
+      return { arriba: 0, t: jMmss((k === "respiro" ? h.desc : h.foco) * J_MS), f: jHfNombre(k), fc: k === "respiro" ? "brasa" : "",
         sub: jHfResumen(k), cae: false, prog: 0 };
     }
     const m = jAhora();
