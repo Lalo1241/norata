@@ -3512,5 +3512,11 @@ const TEXTOS_EN = {
   "Acomodar mi día": "Arrange my day",
   "Ajustes de la rutina": "Routine settings",
   "Rutina por día": "Routine by day",
-  "Ver los números": "See the numbers"
+  "Ver los números": "See the numbers",
+  "Escribir el número": "Type the number",
+  "Entre {0} y {1}": "Between {0} and {1}",
+  "A «{0}» le quedan {1}.": "«{0}» has {1} left.",
+  "«{0}» dura {1}.": "«{0}» lasts {1}.",
+  "Tu ritmo no cabe ahí.": "Your rhythm doesn't fit there.",
+  "Cuadrar: {0} × {1} min": "Fit: {0} × {1} min"
 };

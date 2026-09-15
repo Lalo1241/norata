@@ -354,6 +354,46 @@ function jIconoBloque(b) {
   return r ? jIconoDe(r.o) : J_ARENA;
 }
 
+/* ---- Cuánto dura lo que dice el nombre (0.7.119) ----
+   «Moverme 20 minutos» dura veinte minutos, y ponerle una hora en la rueda es
+   escribir un dato falso: el informe cuenta después esa hora como planeada. Lo
+   cazó Eduardo. No hay campo de duración en una misión —y no se va a inventar
+   uno por esto—, así que se lee del nombre, que es donde la persona ya lo
+   escribió. Si el nombre no dice nada, se queda la hora de siempre.
+   Se leen las dos lenguas porque el nombre lo escribe quien usa la app, no la
+   app: alguien en inglés escribe «20 min» igual. */
+function jMinutosDeNombre(nombre) {
+  const s = String(nombre || "").toLowerCase();
+  if (/(hora y media|hour and a half)/.test(s)) return 90;
+  if (/(media hora|half an hour)/.test(s)) return 30;
+  if (/(cuarto de hora|quarter of an hour)/.test(s)) return 15;
+  const h = s.match(/(\d+(?:[.,]\d+)?)\s*(h|hr|hrs|hora|horas|hour|hours)\b/);
+  if (h) {
+    const n = Math.round(parseFloat(h[1].replace(",", ".")) * 60);
+    if (n >= 5 && n <= 720) return n;
+  }
+  const m = s.match(/(\d+)\s*(m|min|mins|minuto|minutos|minute|minutes)\b/);
+  if (m) {
+    const n = Number(m[1]);
+    if (n >= 5 && n <= 720) return n;
+  }
+  return null;
+}
+/* Lo que dura el bloque al que vas a enfocar, y lo que le QUEDA si ya empezó:
+   el ritmo tiene que caber en lo que falta, no en el total. */
+function jRestoDelObjetivo() {
+  const j = jDatos();
+  if (j.run) return null;
+  const b = jBloqueSel() || jBloqueEn(jAhora());
+  if (!b || b.descanso) return null;
+  const dentro = jDentro(b, jAhora());
+  const resto = dentro ? ((b.fin - jAhora() + J_DIA) % J_DIA) : jDur(b);
+  return { bloque: b, resto: Math.max(1, Math.round(resto)), dentro };
+}
+function jBloqueSel() {
+  return jSelId ? jBloques().find(b => b.id === jSelId) || null : null;
+}
+
 /* Lo que se puede poner en la rueda. Las misiones son las DE HOY: una misión
    de los martes no tiene nada que hacer en el miércoles. */
 function jCandidatos() {
@@ -389,6 +429,13 @@ function jObjetivo() {
   const j = jDatos();
   if (j.run) return j.run.ref;
   if (jEleccion !== undefined) return jEleccion;
+  /* Elegir un bloque en la rueda ES decir en qué te vas a enfocar (0.7.119).
+     Antes solo contaba el bloque de la hora actual, así que tocar el de las
+     cinco y darle a Iniciar arrancaba «Sin vincular» — lo dijo Eduardo. El
+     orden es: lo que corre, lo que elegiste a mano, lo que tocaste en la
+     rueda, y lo que toca ahora. */
+  const sel = jBloqueSel();
+  if (sel && !sel.descanso && jRef(sel.ref)) return sel.ref;
   const b = jBloqueEn(jAhora());
   return b && !b.descanso && jRef(b.ref) ? b.ref : null;
 }
@@ -1084,7 +1131,12 @@ function jAcomodar(t, id) {
   const q = jQuieta();
   if (q && q.todo) { toast(q.txt, "atencion"); return; }
   const desde = Math.ceil(jAhora() / 15) * 15;
-  for (const d of [60, 45, 30, 15]) {
+  /* Si la actividad dice cuánto dura, ESE es el primer tamaño que se prueba.
+     Los de siempre quedan detrás, por si no cabe. */
+  const r = jRef({ t, id });
+  const suya = r ? jMinutosDeNombre(r.nombre) : null;
+  const tamanos = suya ? [suya, 60, 45, 30, 15].filter((x, i, a) => a.indexOf(x) === i) : [60, 45, 30, 15];
+  for (const d of tamanos) {
     for (let s = 0; s < J_DIA; s += 15) {
       const ini = (desde + s) % J_DIA, fin = (ini + d) % J_DIA;
       if (!jChoca(ini, fin, null)) {
@@ -1864,6 +1916,7 @@ function jMostrarPendientes() {
 let jHoja = null, jEdit = null, jQuitando = false;
 function jornadaHojaAbierta() { return !!jHoja; }
 function jAbrirHoja(tipo) {
+  jEditando = null;
   jHoja = tipo; jQuitando = false;
   if (tipo === "cierre") { jRespuesta = "no"; jAnimo = 2; }
   jPintarHoja();
@@ -2047,22 +2100,75 @@ function jOpcionesDescanso(actual) {
   }).join("");
 }
 
+/* Lo más largo que puede durar un foco: lo que falta de la actividad, y si no
+   hay actividad, el tope de siempre. */
+function jTopeFoco() {
+  const r = jRestoDelObjetivo();
+  return r ? Math.max(5, Math.min(180, r.resto)) : 90;
+}
+/* Reparte lo que queda en tramos enteros con sus descansos en medio. Prefiere
+   tramos de 25 y baja de ahí; nunca propone menos de 10 min de foco, que es
+   donde un tramo deja de ser un tramo. */
+function jCuadrar(resto, desc) {
+  if (!resto || resto < 10) return null;
+  let mejor = null;
+  for (let c = 1; c <= 8; c++) {
+    const foco = Math.floor((resto - desc * (c - 1)) / c);
+    if (foco < 10 || foco > 180) continue;
+    const sobra = resto - (foco * c + desc * (c - 1));
+    const lejos = Math.abs(foco - 25);
+    if (!mejor || lejos < mejor.lejos || (lejos === mejor.lejos && sobra < mejor.sobra)) {
+      mejor = { foco, ciclos: c, sobra, lejos };
+    }
+  }
+  return mejor;
+}
+let jEditando = null;
 function jPintarHoja() {
   const H = document.getElementById("jornada-hoja");
   if (!H) return;
   const j = jDatos(), cfg = j.cfg;
   const sw = (k, lbl, sub) => `<div class="jor-fila-aj"><span>${lbl}${sub ? `<small>${sub}</small>` : ""}</span><button type="button" class="jor-sw" role="switch" aria-checked="${!!cfg[k]}" data-act="sw" data-v="${k}" aria-label="${escapeAttr(lbl)}"></button></div>`;
-  const paso = (act, k, lbl, val) => `<div class="jor-fila-aj"><span>${lbl}</span><span class="jor-paso"><button type="button" data-act="${act}" data-k="${k}" data-d="-1" aria-label="${escapeAttr(tx("Menos"))}">−</button><output>${val}</output><button type="button" data-act="${act}" data-k="${k}" data-d="1" aria-label="${escapeAttr(tx("Más"))}">+</button></span></div>`;
+  /* El lápiz abre el número para escribirlo a mano: los botones siguen yendo
+     de cinco en cinco —que es el gesto rápido— y el lápiz da acceso a los
+     impares y a lo que no es múltiplo de cinco, de uno en uno. Lo pidió
+     Eduardo. `num` es el valor crudo que va al campo; `val` es cómo se lee. */
+  const paso = (act, k, lbl, val, num, lapiz) => `<div class="jor-fila-aj"><span>${lbl}</span><span class="jor-paso">
+    <button type="button" data-act="${act}" data-k="${k}" data-d="-1" aria-label="${escapeAttr(tx("Menos"))}">−</button>
+    ${jEditando === k && lapiz
+      ? `<input type="number" class="jor-num" data-num="${k}" value="${num}" min="${lapiz.min}" max="${lapiz.max}" step="1" inputmode="numeric" autofocus>`
+      : `<output>${val}</output>`}
+    <button type="button" data-act="${act}" data-k="${k}" data-d="1" aria-label="${escapeAttr(tx("Más"))}">+</button>
+    ${lapiz ? `<button type="button" class="jor-lapiz-num" data-act="lapiz" data-k="${k}" aria-label="${escapeAttr(tx("Escribir el número"))}" title="${escapeAttr(T`Entre ${lapiz.min} y ${lapiz.max}`)}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 10-4-4L4 16v4z"/></svg>
+    </button>` : ""}
+  </span></div>`;
   let h = "";
   if (jHoja === "ritmo") {
     const libre = cfg.preset === "libre";
     h = `<div class="jor-hoja-cab"><span class="jor-ceja">${tx("Ritmo")}</span><h3>${tx("¿Cómo quieres ir?")}</h3></div>
       <div class="jor-seg">${[["clasico", tx("Clásico")], ["profundo", tx("Profundo")], ["libre", tx("Libre")]].map(([k, n]) => `<button type="button" data-act="preset" data-v="${k}" aria-pressed="${cfg.preset === k}">${n}</button>`).join("")}</div>
       ${libre ? `<p class="jor-nota">${tx("Cuenta hacia arriba hasta que tú lo pares. El reloj se voltea solo cada 25 minutos.")}</p>` : `<div class="jor-filas">
-        ${paso("paso", "foco", tx("Foco"), T`${cfg.foco} min`)}
-        ${paso("paso", "desc", tx("Descanso"), T`${cfg.desc} min`)}
-        ${paso("paso", "ciclos", tx("Tramos"), cfg.ciclos)}
-      </div>`}
+        ${paso("paso", "foco", tx("Foco"), T`${cfg.foco} min`, cfg.foco, { min: 5, max: jTopeFoco() })}
+        ${paso("paso", "desc", tx("Descanso"), T`${cfg.desc} min`, cfg.desc, { min: 1, max: 30 })}
+        ${paso("paso", "ciclos", tx("Tramos"), cfg.ciclos, cfg.ciclos, { min: 1, max: 8 })}
+      </div>
+      ${(() => {
+        /* El ritmo tiene que caber en lo que FALTA de la actividad, no en su
+           total: un bloque de dos horas del que quedan veinte minutos no
+           admite cuatro tramos de veinticinco. Se dice cuánto queda y se
+           ofrece cuadrarlo de un toque; el tope del foco sale de ahí. */
+        const r = jRestoDelObjetivo();
+        if (!r) return "";
+        const plan = jCuadrar(r.resto, cfg.desc);
+        const cabe = cfg.foco * cfg.ciclos + cfg.desc * (cfg.ciclos - 1) <= r.resto;
+        return `<p class="jor-nota${cabe ? "" : " error"}">${escapeHtml(r.dentro
+          ? T`A «${jNombreBloque(r.bloque)}» le quedan ${jFmtDur(r.resto)}.`
+          : T`«${jNombreBloque(r.bloque)}» dura ${jFmtDur(r.resto)}.`)}${cabe ? "" : " " + escapeHtml(tx("Tu ritmo no cabe ahí."))}</p>
+        ${plan && (plan.foco !== cfg.foco || plan.ciclos !== cfg.ciclos)
+          ? `<button type="button" class="btn btn-soft btn-block" data-act="cuadrar">${escapeHtml(T`Cuadrar: ${plan.ciclos} × ${plan.foco} min`)}</button>`
+          : ""}`;
+      })()}`}
       <div class="jor-filas">
         ${sw("auto", tx("Seguir solo"), tx("El siguiente tramo arranca sin tocar nada"))}
         ${sw("sonido", tx("Sonido"))}
@@ -2142,8 +2248,21 @@ function jClickHoja(e) {
     if (j.run && j.run.fase === "listo" && !j.run.lite) j.run.dur = cfg.foco * J_MS;
     save();
   }
+  if (a === "lapiz") { jEditando = jEditando === b.dataset.k ? null : b.dataset.k; jPintarHoja(); return; }
+  if (a === "cuadrar") {
+    const r = jRestoDelObjetivo(), plan = r && jCuadrar(r.resto, cfg.desc);
+    if (plan) {
+      cfg.foco = plan.foco; cfg.ciclos = plan.ciclos;
+      if (j.run && j.run.fase === "listo" && !j.run.lite) j.run.dur = cfg.foco * J_MS;
+      save();
+    }
+    jEditando = null; jPintarHoja(); jPintarControles(); return;
+  }
   if (a === "paso") {
-    const k = b.dataset.k, salto = { foco: 5, desc: 1, ciclos: 1 }[k], lim = { foco: [10, 90], desc: [1, 20], ciclos: [1, 8] }[k];
+    const k = b.dataset.k, salto = { foco: 5, desc: 1, ciclos: 1 }[k];
+    /* El tope del foco ya no es fijo: es lo que falta de la actividad a la que
+       vas a enfocar, o 90 si no hay ninguna. */
+    const lim = { foco: [5, jTopeFoco()], desc: [1, 30], ciclos: [1, 8] }[k];
     cfg[k] = Math.min(lim[1], Math.max(lim[0], cfg[k] + salto * Number(b.dataset.d)));
     if (j.run && j.run.fase === "listo" && !j.run.lite) j.run.dur = cfg.foco * J_MS;
     save();
@@ -2200,6 +2319,22 @@ function jClickHoja(e) {
    quita el foco al campo a media palabra. Se toca a mano lo poco que depende
    de él, que es el título de arriba y si ya se puede guardar. */
 function jInputHoja(ev) {
+  /* El número escrito a mano va de uno en uno y se recorta a su rango: el
+     máximo del foco es lo que falta de la actividad, así que no se puede pedir
+     un tramo que no cabe. Se aplica al escribir, no al salir del campo: salir
+     tocando otra cosa perdería lo escrito. */
+  const num = ev.target.closest("[data-num]");
+  if (num) {
+    const j = jDatos(), cfg = j.cfg, k = num.dataset.num;
+    const lim = { foco: [5, jTopeFoco()], desc: [1, 30], ciclos: [1, 8] }[k];
+    const v = Math.round(Number(num.value));
+    if (!isNaN(v) && v >= lim[0] && v <= lim[1]) {
+      cfg[k] = v;
+      if (j.run && j.run.fase === "listo" && !j.run.lite) j.run.dur = cfg.foco * J_MS;
+      save(); jPintarControles();
+    }
+    return;
+  }
   const el = ev.target.closest("[data-in]");
   if (!el || jHoja !== "bloque") return;
   jEdit.nombre = el.value;

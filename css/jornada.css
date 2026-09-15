@@ -502,6 +502,21 @@ html.claro .jor-despertar .btn { animation: jor-respira-dia 2.8s ease-in-out inf
 .jor-fila-aj small { display: block; color: var(--muted); font-size: 12px; }
 .jor-paso { display: flex; align-items: center; gap: 4px; }
 .jor-paso button { width: 32px; height: 32px; border-radius: var(--r-chico); border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; font-size: 16px; line-height: 1; cursor: pointer; }
+/* El número escrito a mano (0.7.119): mismo hueco que el `output` para que la
+   fila no salte al abrirlo, y el lápiz al lado de los botones. */
+.jor-num {
+  width: 72px; text-align: center; font: inherit; font-weight: 700;
+  font-variant-numeric: tabular-nums; color: var(--text);
+  background: var(--bg); border: 1px solid var(--mint); border-radius: var(--r-chico);
+  padding: 4px 6px;
+}
+.jor-num::-webkit-outer-spin-button, .jor-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.jor-lapiz-num {
+  width: 26px; height: 26px; padding: 0; border: 0; border-radius: var(--r-redondo);
+  background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer;
+}
+.jor-lapiz-num:hover { color: var(--text); background: var(--carril); }
+.jor-lapiz-num svg { width: 14px; height: 14px; }
 .jor-paso output { min-width: 80px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; font-size: 14px; }
 .jor-sw { width: 44px; height: 26px; border-radius: var(--r-redondo); border: 1px solid var(--line); background: var(--carril); position: relative; padding: 0; flex: none; cursor: pointer; }
 .jor-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--muted); transition: transform .2s ease; }
