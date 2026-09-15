@@ -155,10 +155,22 @@ html.claro {
    Siete botones, un interruptor y un renglón que dice qué pasa al tocar. El
    punto debajo de la letra es HOY; el fondo marca el día que se está editando,
    y vinculado se marca el grupo entero. */
-.jor-dias { display: grid; gap: 10px; background: var(--sup-tarjeta); border: 1px solid var(--line); border-radius: var(--r-tarjeta); padding: 12px; }
-.jor-dias-fila { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.jor-dias { display: grid; gap: 8px; background: var(--sup-tarjeta); border: 1px solid var(--line); border-radius: var(--r-tarjeta); padding: 8px; }
+/* La presentación del módulo: la misma caja vacía de las otras pantallas, con
+   menos aire —aquí debajo hay una rueda que también quiere sitio—. */
+.jor-bienvenida { padding: 18px 16px 20px; margin-bottom: 4px; }
+.jor-dias-fila { display: grid; grid-template-columns: repeat(7, 1fr) auto; gap: 6px; align-items: stretch; }
+/* El chevron que abre lo de vincular. Del alto de los días para que la fila se
+   lea como una sola pieza. */
+.jor-dias-mas {
+  width: 30px; border-radius: var(--r-chico); border: 1px solid var(--line);
+  background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer;
+}
+.jor-dias-mas svg { width: 16px; height: 16px; transition: transform var(--dur-corta, .15s) ease; }
+.jor-dias-mas[aria-expanded="true"] { color: var(--text); }
+.jor-dias-mas[aria-expanded="true"] svg { transform: rotate(180deg); }
 .jor-dia {
-  position: relative; padding: 9px 0 12px; border-radius: var(--r-chico);
+  position: relative; padding: 6px 0 9px; border-radius: var(--r-chico);
   border: 1px solid var(--line); background: transparent; color: var(--muted);
   font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
 }
