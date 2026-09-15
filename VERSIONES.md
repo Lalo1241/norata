@@ -112,6 +112,39 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.120.1 · 15 sep 2026
+
+**El abono de Fundador salía del precio de catálogo y no de lo que se cobró.**
+Lo destapó la propia cuenta de Eduardo al abrir el portal de Stripe: su Pro
+Anual figura a $590, pero la factura pagada dice **$11.80** —entró con un cupón
+de prueba—. Con el precio de la etiqueta se le habrían abonado $559 por unos $11
+cobrados: **$547 regalados, y con cara de que todo iba bien.** Con una cuenta da
+igual; con una promoción de lanzamiento, no.
+
+Ahora el abono sale de **la factura pagada del periodo** (`amount_paid`), que es
+la única fuente honesta: trae ya aplicados los descuentos, los impuestos y lo que
+de verdad entró. Y si no se puede leer, **no se abona nada** — un abono que falta
+se arregla con un reembolso; uno que sobra ya se fue.
+
+**Y la app deja de adivinar la cifra: la pregunta.** Hacía su propia cuenta en el
+navegador —deduciendo el principio del periodo y multiplicando por el precio de
+catálogo— y eso, con el arreglo de arriba, habría prometido $559 donde el
+servidor descuenta $11. Prometer de más es la única versión de esto que no se
+puede permitir. `pagar` gana una rama (`que: "abono"`) que calcula sin abrir
+ninguna caja ni crear ningún cupón, y la pantalla del plan la pide al pintarse y
+se repinta cuando llega.
+
+Sin red, el abono queda en cero y el bloque enseña el precio entero sin ningún
+renglón de descuento: quedarse corto es el lado bueno de equivocarse, y al
+comprar se vuelve a calcular de todas formas.
+
+**Y el botón «Editar suscripción» ya dice por qué falla.** La llamada al portal de
+Stripe estaba sin capturar, así que un error suyo reventaba la función entera,
+Supabase devolvía un 500 genérico y la app se quedaba con su frase de respaldo:
+el motivo real nunca salía del servidor. Ahora llega dentro del aviso y queda en
+el log. (El botón en sí funcionaba: comprobado que lo desplegado era byte a byte
+lo del repo y que la rama del portal nunca se tocó.)
+
 ### 0.7.120 · 15 sep 2026
 
 **El bloque de ascenso a Fundador se viste de Fundador, y los números dicen lo
