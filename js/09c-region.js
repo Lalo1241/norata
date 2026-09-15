@@ -81,6 +81,31 @@ function opcionesMonedaHTML(sel, accion) {
   }).join("")}</div>`;
 }
 
+/* Las dos opciones del género, con el mismo traje que las del idioma y la
+   moneda: `obOpciones` y `OB_GENEROS` son los del asistente (`js/09-inicio.js`),
+   así que la pregunta se ve igual la conteste donde la conteste. Tres
+   maquetaciones para la misma cosa es como una de las tres se queda sin
+   arreglar.
+
+   Y el «Prefiero no decirlo» NO es una tercera opción: es lo que ya pasa si no
+   se toca nada —`GENERO_POR_DEFECTO` es "x"—, así que aquí no se dibuja. El
+   neutro no es una casilla que se elige; es el suelo. Volver a él se hace desde
+   Ajustes, que es donde alguien va a cambiar de idea. */
+function opcionesGeneroHTML() {
+  const elegido = (state && state.settings && state.settings.genero) || "";
+  return obOpciones(OB_GENEROS, elegido, "regionGenero");
+}
+
+/* Sin `toast` y sin repintar el Resumen, que es lo que hace `ponerGenero`: aquí
+   no hay app detrás todavía —esta capa sale antes de nada— y un aviso flotando
+   sobre una pantalla que tapa la app entera no lo lee nadie. */
+function regionGenero(g) {
+  if (GENEROS.indexOf(g) < 0) return;
+  state.settings.genero = g;
+  save();
+  pintarPantallaRegion();
+}
+
 /* ================= Ajustes · Mi perfil ================= */
 
 function renderPanelIdioma() {
@@ -414,14 +439,46 @@ function pintarPantallaRegion() {
       <div class="region-marca">${marca || `<span class="bubble">${icon("compass", 28)}</span>`}</div>
       <h2>${escapeHtml(tx("Qué gusto tenerte aquí"))}</h2>
       <p class="region-lema">${escapeHtml(tx("Norata trata tu vida como un videojuego: misiones que haces hoy, habilidades que suben con la práctica, talentos y proyectos."))}</p>
+      ${/* El número de la frase se cuenta, no se escribe: los bloques de abajo
+            van de uno a tres según quién llegue —en inglés no hay pregunta de
+            género y a quien vuelve ya solo le falta la moneda—, y una frase
+            que promete «dos cosas» encima de tres es de las que se leen como
+            un fallo de la app. */""}
       <p class="settings-note region-porque">${escapeHtml(soloMoneda
         ? tx("Ya sé en qué idioma hablarte. Falta una cosa, y también se cambia después en Ajustes, cuando quieras.")
+        : preguntaGenero()
+        ? tx("Antes de empezar, tres cosas para que la app hable como tú. Las tres se cambian después en Ajustes, cuando quieras.")
         : tx("Antes de empezar, dos cosas para que la app hable como tú. Las dos se cambian después en Ajustes, cuando quieras."))}</p>
 
       ${soloMoneda ? "" : `<div class="region-bloque">
         <h3>${escapeHtml(tx("¿En qué idioma?"))}</h3>
         ${opcionesIdiomaHTML(idiomaActual(), "regionIdioma")}
       </div>`}
+
+      ${/* ---- El género, aquí y no en la bienvenida (0.7.118) ----
+
+            Estaba en la primera pantalla del asistente, y el asistente se
+            SALTA: sale de un botón y la pantalla vacía ofrece otros dos
+            caminos —«ver un ejemplo» y «empezar de cero»— que no pasan por
+            ahí. O sea que la única pregunta que decide cómo te habla la app
+            entera se la llevaba quien quisiera contestarla.
+
+            Y quien entra con Google se salta el formulario entero, que es la
+            pregunta con la que Eduardo llegó a esto. La respuesta resultó ser
+            la misma para los dos agujeros: esta pantalla es la ÚNICA que ve
+            todo el mundo sí o sí —con Google, con formulario y sin cuenta—, no
+            se puede cerrar sin contestar y sale una vez en la vida del perfil.
+            Ponerlo aquí lo resuelve para todos los caminos a la vez.
+
+            Va después del idioma a propósito: en inglés no se pregunta
+            (`preguntaGenero`), así que elegir «English» arriba tiene que poder
+            hacer desaparecer este bloque — y lo hace, porque cambiar de idioma
+            repinta la pantalla entera. */""}
+      ${preguntaGenero() ? `<div class="region-bloque">
+        <h3>${escapeHtml(tx("¿Cómo prefieres que te hable?"))}</h3>
+        <p class="settings-note">${escapeHtml(tx("El español pone género en muchas palabras. Dime cuál usar y lo uso en todas: los avisos, los correos y la app entera. Si no eliges, escribo esquivándolo."))}</p>
+        ${opcionesGeneroHTML()}
+      </div>` : ""}
 
       <div class="region-bloque">
         <h3>${escapeHtml(tx("¿Con qué moneda cuentas tu dinero?"))}</h3>
@@ -477,6 +534,7 @@ function verLaPantallaDeRegion() {
   regionEnsayo = {
     idioma: idiomaActual(),
     moneda: monedaActual(),
+    genero: (state.settings && state.settings.genero) || "",
     lista: !!(state.settings && state.settings.regionLista),
     vista: typeof activeMainView !== "undefined" ? activeMainView : null,
     seccion: typeof ajusteAbierto !== "undefined" ? ajusteAbierto : null
@@ -497,6 +555,11 @@ function cerrarPantallaRegion() {
        del ensayo con el dato diciendo otra cosa. */
     state.settings.moneda = ensayo.moneda;
     state.settings.regionLista = ensayo.lista;
+    /* Y el género, que desde la 0.7.118 también se pregunta aquí: sin esta
+       línea, ensayar la pantalla dejaba a quien la abriera hablándole en el
+       género que se tocó de prueba. */
+    if (ensayo.genero) state.settings.genero = ensayo.genero;
+    else delete state.settings.genero;
   }
   save();
 

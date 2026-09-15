@@ -660,8 +660,18 @@ const TEXTOS_EN = {
   "Contraseña": "Password",
   "Repítela": "Type it again",
   "Crear cuenta": "Create account",
-  "Te mandaré un correo para confirmar que la dirección es tuya. Hasta que lo abras, la cuenta no se activa.":
-    "I'll send you an email to confirm the address is yours. The account isn't active until you open it.",
+  /* Los tres pasos del alta (`crear-pasos`, `js/10c-portada.js`). La puerta se
+     abre en inglés igual que en español, así que un paso sin traducir se ve en
+     mitad del camino y no al final, que es donde se mira. */
+  "¿Cuál es tu correo?": "What's your email?",
+  "Con él entras, y ahí llega lo que la app te mande.":
+    "You sign in with it, and it's where anything the app sends you lands.",
+  "Elige una contraseña": "Pick a password",
+  "Larga es mejor que rara: una frase que recuerdes gana a ocho símbolos.":
+    "Long beats strange: a phrase you'll remember wins over eight symbols.",
+  "Una última cosa": "One last thing",
+  "Es lo que usaré para hablarte, empezando por el correo de confirmación.":
+    "It's what I'll use to talk to you, starting with the confirmation email.",
   "¿Ya tienes una?": "Already have one?",
   "Entra aquí": "Sign in here",
   "Esta cuenta se va a borrar": "This account is set to be deleted",
@@ -674,10 +684,17 @@ const TEXTOS_EN = {
   "Gracias por el tiempo que le diste a Norata. Lo que aprendiste jugando a esto sigue siendo tuyo, esté o no la app de por medio.":
     "Thank you for the time you gave Norata. What you learned playing this is still yours, with or without the app in between.",
   "Volver a entrar": "Sign back in",
-  "Revisa tu correo": "Check your email",
-  "Le mandé un mensaje a": "I sent a message to",
-  ". Ábrelo, pulsa el enlace, y vuelve aquí a entrar.":
-    ". Open it, tap the link, and come back here to sign in.",
+  "Ya casi: te mandé un correo": "Almost there: I sent you an email",
+  "Va para": "It's on its way to",
+  /* En inglés no se entrecomilla el nombre del botón. Los seis correos están
+     escritos en español y se pegan a mano en Supabase, así que el botón dice
+     «Confirmar mi correo» le hable la app en el idioma que le hable: prometer
+     aquí un rótulo en inglés sería mandar a buscar algo que no está. */
+  ". Ábrelo y pulsa «Confirmar mi correo»: con eso tu cuenta queda lista y ya puedes entrar.":
+    ". Open it and press the confirm button: that's what leaves your account ready, and then you can sign in.",
+  "El enlace no dura para siempre, así que mejor ahora que mañana. Si se te pasa, desde aquí te mando otro.":
+    "The link doesn't last forever, so better now than tomorrow. If it expires on you, I'll send another one from here.",
+  "Mandarme otro": "Send me another one",
   "Ya lo confirmé: entrar": "I confirmed it: sign in",
   "Reenviar el correo": "Send the email again",
   "Si no aparece en unos minutos, míralo en la carpeta de no deseado.":
