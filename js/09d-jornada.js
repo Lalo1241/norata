@@ -205,6 +205,7 @@ function jEspejoHoy(j) { j = j || jDatos(); j.bloques = j.rutinas[jHoy()]; }
    solo dos rutinas. Vinculado se enciende el grupo entero: tocar un martes es
    tocar «entre semana», y eso tiene que verse antes de editar nada. */
 const J_LETRAS = ["D", "L", "M", "X", "J", "V", "S"];
+let jDiasAbierto = false;
 const J_DIAS_ORDEN = [1, 2, 3, 4, 5, 6, 0];
 function jNombreDia(d) {
   return [tx("Domingo"), tx("Lunes"), tx("Martes"), tx("Miércoles"), tx("Jueves"), tx("Viernes"), tx("Sábado")][d];
@@ -223,13 +224,21 @@ function jDiasHTML() {
     : (j.vinculado
         ? (jFinde(visto) ? tx("Lo que cambies aquí se copia a sábado y domingo.") : tx("Lo que cambies aquí se copia a los cinco días hábiles."))
         : T`Hoy, ${jNombreDia(hoy).toLowerCase()}.`);
+  /* La fila de días se queda siempre —es navegación, se toca a diario—, y lo
+     de vincular se pliega: se configura una vez y estorba el resto del tiempo.
+     Lo pidió Eduardo. Plegado solo se ve la nota cuando estás mirando OTRO
+     día, que es la única que no se puede deducir del propio selector. */
   return `<div class="jor-dias">
-    <div class="jor-dias-fila" role="group" aria-label="${escapeAttr(tx("Día de la rutina"))}">${botones}</div>
-    <button type="button" class="jor-vinculo" data-jvinculo="1" role="switch" aria-checked="${j.vinculado}">
+    <div class="jor-dias-fila" role="group" aria-label="${escapeAttr(tx("Día de la rutina"))}">${botones}
+      <button type="button" class="jor-dias-mas" data-jdias-mas="1" aria-expanded="${jDiasAbierto}" aria-label="${escapeAttr(tx("Ajustes de la rutina"))}" title="${escapeAttr(tx("Ajustes de la rutina"))}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5 5 5-5"/></svg>
+      </button>
+    </div>
+    ${jDiasAbierto ? `<button type="button" class="jor-vinculo" data-jvinculo="1" role="switch" aria-checked="${j.vinculado}">
       <span class="jor-palanca"></span>
       <span class="jor-vinculo-tx"><b>${tx("Vincular entre semana y fin de semana")}</b><small>${sub}</small></span>
-    </button>
-    <p class="jor-dias-nota">${nota}</p>
+    </button>` : ""}
+    ${jDiasAbierto || visto !== hoy ? `<p class="jor-dias-nota">${nota}</p>` : ""}
   </div>`;
 }
 /* Vincular IGUALA los días del grupo, así que si los venías llevando uno a uno
@@ -1203,6 +1212,64 @@ function jAsegurarReloj() {
   el.outerHTML = jRelojHTML(t);
   jArribaAntes = 1; jVolteando = false;
 }
+/* ---- El banner del módulo (0.7.116) ----
+   El Pomodoro era el único de los cinco sin banner, y por eso su puerta al
+   informe acabó de botón suelto al final de la lista, que es donde nadie la
+   busca. Ahora se lee como los demás: la cifra que resume, los cuatro
+   indicadores comparables, lo que pide atención y el informe detrás del mismo
+   botón que en el resto de la app. */
+function jHeroHTML() {
+  const j = jDatos(), plan = jPlanDeHoy();
+  const pct = plan.plan ? Math.round(plan.hechos / plan.plan * 100) : 0;
+  const hoyKey = todayKey();
+  const min = (j.registro || []).reduce((t, r) => t + (r.fecha === hoyKey && !r.abandono && r.tipo !== "sueno" && r.tipo !== "respiro" ? (Number(r.min) || 0) : 0), 0);
+  const ahora = jBloqueEn(jAhora()), sig = jSiguienteBloque();
+  const foco = ahora
+    ? { k: ahora.descanso ? tx("Ahora, descanso") : tx("Ahora toca"), v: jNombreBloque(ahora), color: ahora.descanso ? "var(--jor-brasa)" : "var(--mint)" }
+    : (sig ? { k: tx("Lo siguiente"), v: T`${jNombreBloque(sig)} · ${jH12(sig.ini)}`, color: "var(--mint)" }
+           : { k: tx("Nada a esta hora"), v: tx("Acomoda un bloque o enfoca sin vincular"), color: "var(--muted)" });
+  return sectionHero({
+    scene: motifScene(820, 168, 31, "marea", "var(--mint)"),
+    lead: `
+      <div class="ring-wrap" style="width:92px;height:92px">
+        ${ring(92, 9, [{ pct: plan.plan ? plan.hechos / plan.plan : 0, color: "var(--mint)" }], "rgba(234,241,239,0.14)")}
+        <div class="ring-center">
+          <div class="v" style="font-size:19px"><b>${plan.hechos}</b><span style="font-size:13px;color:var(--muted)">/${plan.plan}</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="label">${escapeHtml(jNombreDia(jHoy()))}</div>
+        <div class="big" style="font-size:30px"><b>${jHorasTxt(min)}</b><span> ${tx("de foco hoy")}</span></div>
+      </div>`,
+    stats: statsPanelPomodoro(),
+    informe: "pomodoro",
+    focus: foco
+  });
+}
+/* El primer bloque que empieza después de ahora, para el «lo siguiente». */
+function jSiguienteBloque() {
+  const m = jAhora();
+  let mejor = null, falta = 1e9;
+  for (const b of jBloquesHoy()) {
+    const d = (b.ini - m + J_DIA) % J_DIA;
+    if (d > 0 && d < falta) { falta = d; mejor = b; }
+  }
+  return mejor;
+}
+/* La primera vez no hay nada que resumir: en vez de un banner con ceros, la
+   presentación del módulo con sus dos salidas. Desaparece sola en cuanto hay
+   un tramo apuntado. */
+function jBienvenidaHTML() {
+  return `<div class="empty jor-bienvenida">
+    <div class="bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="34" height="34">${J_ARENA}</svg></div>
+    <h2>${tx("Tu día, en una rueda")}</h2>
+    <p>${tx("Acomoda tus bloques en las 24 horas y enfoca en uno: el Pomodoro cuenta el tiempo y apunta lo que hiciste. Y si solo quieres el reloj, el Hiperfoco cuenta sin planear nada.")}</p>
+    <div class="stack" style="align-items:center">
+      <button type="button" class="btn btn-primary" data-jbien="iniciar">${tx("Empezar un tramo")}</button>
+      <button type="button" class="btn btn-linea" data-jbien="bloque">${tx("Acomodar mi día")}</button>
+    </div>
+  </div>`;
+}
 function renderJornada() {
   const cont = document.getElementById("jornada-content");
   if (!cont || !jornadaEncendida()) return;
@@ -1214,17 +1281,20 @@ function renderJornada() {
   </div>`;
   /* `jor-fin` es la hora a la que acaba la fase (0.7.107.3). Nace escondido:
      solo hay hora que dar cuando algo está corriendo con final conocido. */
+  /* El banner primero, como en los otros cuatro módulos. Sin registro todavía
+     no hay nada que resumir, y va la presentación en su lugar. */
+  const cabeza = (jDatos().registro || []).length ? jHeroHTML() : jBienvenidaHTML();
   const numeros = `<div id="jor-tiempo">25:00</div><div id="jor-fase"></div><div id="jor-sub"></div><div id="jor-fin" hidden></div>`;
 
   if (modo === "lite") {
-    cont.innerHTML = pestanas + `
+    cont.innerHTML = cabeza + pestanas + `
       <div class="jor-lite">
         <div class="jor-reloj-caja">${jRelojHTML(jRelojActual())}</div>
         ${numeros}
         <div class="jor-controles" id="jor-controles"></div>
       </div>`;
   } else {
-    cont.innerHTML = pestanas + `
+    cont.innerHTML = cabeza + pestanas + `
       <div class="jor">
         ${jDiasHTML()}
         <div class="jor-reloj">
@@ -1244,7 +1314,6 @@ function renderJornada() {
           <h3 class="jor-rot">${tx("Por acomodar")}</h3>
           <div class="jor-acomodar" id="jor-acomodar"></div>
           <p class="jor-como">${tx("Toca un bloque para elegirlo, arrastra sus puntas para cambiar la hora y arrástralo entero para moverlo, aunque haya otro en medio. Tócalo otra vez para editarlo.")}</p>
-          <button type="button" class="jor-enlace jor-al-informe" onclick="abrirInforme('pomodoro')">${tx("Ver el informe del Pomodoro")}</button>
         </div>
       </div>`;
     jEngancharRueda(document.getElementById("jor-svg"));
@@ -2212,10 +2281,20 @@ function iniciarRelojJornada() {
     cont.addEventListener("click", e => {
       const md = e.target.closest("[data-modo]");
       if (md) { if (md.dataset.modo !== jModo()) jPonerModo(md.dataset.modo); return; }
+      const bien = e.target.closest("[data-jbien]");
+      if (bien) {
+        if (bien.dataset.jbien === "iniciar") jIniciar(); else jAbrirBloque(null);
+        return;
+      }
       const dia = e.target.closest("[data-jdia]");
       if (dia) {
         jDiaSel = Number(dia.dataset.jdia);
         jSelId = null; cerrarHojaJornada(); renderJornada();
+        return;
+      }
+      if (e.target.closest("[data-jdias-mas]")) {
+        jDiasAbierto = !jDiasAbierto;
+        document.querySelector(".jor-dias").outerHTML = jDiasHTML();
         return;
       }
       if (e.target.closest("[data-jvinculo]")) return jTocarVinculo();

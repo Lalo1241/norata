@@ -112,6 +112,28 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.116 · 15 sep 2026
+
+**El Pomodoro ya se lee como los otros cuatro módulos, y el selector de días se
+pliega.** Dos cosas que vio Eduardo entrando a la pantalla:
+
+- **Banner propio** (`jHeroHTML` + `statsPanelPomodoro`): el anillo con los
+  bloques de foco hechos de los planeados, las horas de foco de hoy, los cuatro
+  indicadores comparables de siempre —foco de 7 días, tramos, del plan, sueño
+  por noche— y lo que pide atención ahora. Era el ÚNICO módulo sin banner.
+- **La puerta al informe vuelve a su sitio.** Estaba de botón suelto al final de
+  la lista, que es donde nadie la busca; ahora está dentro del banner en PC y en
+  la cabecera del módulo en el teléfono (`ph-informe`), exactamente como en los
+  otros cuatro.
+- **La primera vez no hay banner con ceros**, hay presentación: qué es el
+  Pomodoro y dos salidas —empezar un tramo o acomodar el día—. Desaparece sola
+  en cuanto hay un tramo apuntado.
+- **El selector de días se pliega.** La fila de días se queda —es navegación, se
+  toca a diario— y lo de vincular se guarda tras un chevron: se configura una
+  vez y estorba el resto del tiempo. De 160 px de alto a 53. Plegado solo
+  aparece la nota cuando estás mirando OTRO día, que es la única que no se
+  deduce del propio selector.
+
 ### 0.7.115.1 · 15 sep 2026
 
 **En PC, el reloj vuelve a la izquierda.** Al meter el selector de días arriba,

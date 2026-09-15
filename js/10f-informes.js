@@ -644,6 +644,29 @@ function statsPanelHabilidades(ctx) {
   ];
 }
 
+/* El Pomodoro era el único módulo sin panel (0.7.116), así que tampoco tenía
+   banner ni puerta al informe donde la tienen los demás. Los cuatro que suben
+   son los que pueden cambiar lo que haces ahora: cuánto has enfocado, en
+   cuántos tramos, cuánto del plan cumpliste y cuánto duermes. El XP acumulado
+   no entra, por la misma regla que en los otros paneles. */
+function statsPanelPomodoro() {
+  const D = datosDeAhora();
+  const { a, b } = ventanasPanel();
+  const m = metricasPomodoro(a, D), p = metricasPomodoro(b, D);
+  const prom = s => (s.noches ? Math.round(s.minutos / s.noches) : 0);
+  const sue = prom(m.sueno), sueAntes = prom(p.sueno);
+  return [
+    { n: jHorasTxt(m.minutos), t: T`Foco · ${PANEL_DIAS} días`, tone: "mint",
+      d: flechaHTML(variacion(m.minutos, p.minutos), T`Minutos de foco ${contra()}`) },
+    { n: m.tramos, t: tx("Tramos"),
+      d: flechaHTML(variacion(m.tramos, p.tramos), T`Tramos ${contra()}`) },
+    { n: m.plan.pct == null ? "—" : m.plan.pct + "%", t: tx("Del plan"),
+      d: m.plan.pct == null || p.plan.pct == null ? "" : flechaHTML(variacion(m.plan.pct, p.plan.pct), T`Del plan cumplido ${contra()}`) },
+    { n: sue ? jHorasTxt(sue) : "—", t: tx("Sueño por noche"),
+      d: sue && sueAntes ? flechaHTML(variacion(sue, sueAntes), T`Sueño por noche ${contra()}`) : "" }
+  ];
+}
+
 function statsPanelTalentos(ctx) {
   const D = datosDeAhora();
   const { a, b } = ventanasPanel();
