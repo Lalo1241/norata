@@ -8178,6 +8178,21 @@
     @keyframes pasoAparece { from { opacity: 0; } to { opacity: 1; } }
   }
 
+  /* La línea legal colgando de un botón: más pegada arriba que abajo, para que
+     se lea como la letra chica de ESE botón y no como un párrafo suelto. */
+  .portada-legal-bajo { margin: 10px 0 0; }
+  /* La del final solo se LEE en la última pantalla, que es donde está el botón
+     al que acompaña. Fuera de los `.paso` porque el botón también lo está.
+
+     Y se apaga con `visibility` y no con `display`, que es lo que hacía antes:
+     quitándola del todo la tarjeta medía dos líneas menos en los dos primeros
+     pasos, y como está centrada a lo alto, eso subía el botón 14 px justo al
+     llegar al último. El hueco reservado cuesta dos líneas en blanco y hace lo
+     que el `min-height` de abajo: que el sitio donde hay que volver a pulsar no
+     se mueva bajo el dedo. Medido paso a paso: 568, 568, 568. */
+  .crear-pasos .solo-ultimo { visibility: hidden; }
+  .crear-pasos[data-en="3"] .solo-ultimo { visibility: visible; }
+
   /* Los tres pasos miden distinto —uno pide un campo, los otros dos— y sin un
      mínimo el botón de abajo salta de sitio en cada pantalla. Que el sitio
      donde hay que volver a pulsar se mueva bajo el dedo es justo lo que hace
@@ -8232,13 +8247,22 @@
   /* ---- Qué borrar si la prueba del alta por pasos no se queda ----
        - `css/estilos.css`: este bloque, de `.crear-pasos` hasta aquí.
        - `js/10c-portada.js`: `portadaPorPasos`, `portadaPaso`, `PORTADA_PASOS`,
-         `portadaPasoFalla`, `portadaPasoIr`, `portadaPasoBoton`,
+         `portadaPasoFalla`, `portadaPasoIr`, `portadaPasoPintar`,
          `portadaCrearAtras` y la función anónima que agrupa los campos dentro
-         de `portadaPintar` — que vuelve a ser los cinco campos seguidos.
+         de `portadaPintar` — que vuelve a ser los cinco campos seguidos. Y en
+         `portadaOfrecerGoogle`, la llamada a `portadaLegalHTML` que cuelga la
+         frase legal del botón (la función se queda: la usa el formulario
+         largo).
        - `login/index.html`: el `<script>` de `?pasos=` y el `<div
          id="rotulo-pasos">`; y aquí, la regla de ese rótulo.
      Y si SE QUEDA: se quita la condición `portadaPorPasos()` y con ella la
-     rama de los cinco campos seguidos, que es la que deja de usarse. */
+     rama de los cinco campos seguidos, que es la que deja de usarse.
+
+     Lo que NO se borra en ninguno de los dos casos, porque no es de la prueba:
+     la pantalla de «ya te mandé el correo» (modo `enviado`), la pregunta del
+     género en `js/09c-region.js` y `portadaLegalHTML`. Esas tres se ven con la
+     prueba apagada. Borrar por nombre y no por rango es justo lo que evita
+     llevárselas por delante. */
 
   /* ---------- La puerta de dos columnas (0.7.117) ----------
      Solo vive en la PUERTA: el bloque no toca a `.portada` cuando se abre
