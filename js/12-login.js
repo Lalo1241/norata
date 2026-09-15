@@ -184,7 +184,7 @@ function puertaIdiomaPintar() {
     <button type="button" class="${i.codigo === idiomaActual() ? "on" : ""}"
             aria-pressed="${i.codigo === idiomaActual()}"
             onclick="puertaIdioma('${i.codigo}')">
-      ${discoIdioma(i.codigo, 18)}<span>${escapeHtml(i.nombre)}</span>
+      ${discoIdioma(i.codigo, 16)}<span>${escapeHtml(i.nombre)}</span>
     </button>`).join("");
 }
 
