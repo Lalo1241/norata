@@ -240,13 +240,34 @@ con el navegador en inglés y `norata-idioma` ya puesto en español, la puerta
 abre en español.
 
 **Adivinar no es elegir**, y por eso no se deja la marca: la app SÍ pregunta el
-idioma en la bienvenida, ya con éste puesto. La marca la deja solo quien pulsa.
+idioma en la bienvenida, ya con éste puesto. Se le puso a Eduardo la otra opción
+—que una suposición no contradicha contara como respuesta y la bienvenida se
+quedara solo con la moneda— y eligió que pregunte una vez. La marca la deja solo quien pulsa.
 Es la misma regla del género — el silencio no es una respuesta, y una suposición
 tampoco. Equivocarse cuesta un toque, porque los dos idiomas están a la vista en
 la esquina.
 
 Un idioma que no conocemos —un teléfono en francés— cae en español, que es el
 idioma de la casa.
+
+**Crear cuenta con Google, en la pantalla donde se crea la cuenta.** Lo vio
+Eduardo mirando la captura, y el fallo era más raro de lo que parecía: **no es
+que no se pudiera**. Quien pulsaba «Continuar con Google» sin tener cuenta la
+creaba igual, porque el proveedor da de alta la primera vez que entras. Lo que
+pasaba es que ese botón solo existía en la pantalla de ENTRAR, así que en la
+pantalla de crear cuenta la vía rápida estaba escondida detrás del enlace de
+«¿Ya tienes una?». Una función entera invisible justo donde hacía falta.
+
+- **Con el verbo de su pantalla**: «Continuar con Google» donde se entra,
+  **«Crear cuenta con Google»** donde se crea. Es lo que hace entender que ese
+  botón también da de alta; con «continuar» se lee como algo para quien ya está.
+- **Debajo del formulario y no encima**, aunque arriba se descubriría sin
+  desplazar. Lo que manda aquí es el consentimiento: la línea legal va después
+  de los botones —decisión ya tomada— y tiene que cubrir los DOS caminos,
+  porque con Google también se crea una cuenta. Con el botón arriba, alguien
+  podría darse de alta sin haber pasado por delante de esa línea nunca.
+- La rayita del «o» va siempre delante del botón: su trabajo es separarlo del
+  formulario de arriba, y detrás no separa nada.
 
 **El sol y la luna, que faltaban.** La puerta LEÍA el modo claro desde la
 primera versión —el script de arriba de `login/index.html`— pero no dejaba

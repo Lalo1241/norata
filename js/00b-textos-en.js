@@ -726,6 +726,7 @@ const TEXTOS_EN = {
   "¿Todavía no tienes cuenta?": "Don't have an account yet?",
   "Créala aquí": "Create one here",
   "Continuar con Google": "Continue with Google",
+  "Crear cuenta con Google": "Create account with Google",
   "Elige tu contraseña nueva. Con ella entrarás en todos tus dispositivos.":
     "Choose your new password. You'll use it to sign in on all your devices.",
   "Contraseña nueva": "New password",
