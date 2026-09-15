@@ -112,6 +112,31 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.118 · 15 sep 2026
+
+**Los banners se vuelven una tira plegable.** Eduardo lo paró por tercera vez, y
+esta con el diagnóstico exacto: «aportan poco para lo mucho que roban». Tenía
+razón y la medida lo confirma — el banner costaba **208 px** del sitio más caro
+de cada módulo, y en Misiones eso empujaba dos misiones por debajo del doblez.
+
+Decidido con un boceto de tres alternativas
+(https://claude.ai/artifact/8eC2MrwVxNsSeCUr6yzrVd); eligió la tira.
+
+- **Una fila de 62 px** con lo único que cambia lo que haces en el siguiente
+  minuto: la cifra del módulo y lo que pide atención. **146 px menos por
+  módulo.**
+- **Las cuatro cifras y el informe siguen ahí**, detrás de un chevron. No se
+  pierde nada: lo que estaba a la vista pasa a estar a un toque. Abierta o
+  cerrada se recuerda mientras dure la sesión y se estampa al dibujar — sin eso,
+  cumplir una misión la cerraría en las narices de quien acaba de abrirla.
+- **El pliegue se dibuja siempre y se esconde con CSS**, así abrirlo no repinta
+  el módulo entero.
+- **Fuera la ilustración de fondo**: era lo que más pesaba y lo que menos decía,
+  y el color del módulo ya lo identifica. Los cinco sitios dejaron de calcular
+  su escena, y con ella se va el velo que se adelgazó en 0.7.49.
+- En el teléfono no cambia nada: ahí el banner ya no salía desde 0.7.112 y la
+  puerta al informe sigue en la cabecera.
+
 ### 0.7.117 · 15 sep 2026
 
 **La puerta nueva, ya encendida para todo el mundo.** Eduardo trajo la pantalla

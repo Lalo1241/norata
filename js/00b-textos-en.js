@@ -3511,5 +3511,6 @@ const TEXTOS_EN = {
   "Empezar un tramo": "Start a stretch",
   "Acomodar mi día": "Arrange my day",
   "Ajustes de la rutina": "Routine settings",
-  "Rutina por día": "Routine by day"
+  "Rutina por día": "Routine by day",
+  "Ver los números": "See the numbers"
 };
