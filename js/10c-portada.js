@@ -222,6 +222,21 @@ function portadaPintar(modo) {
          <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaRegistrar()">${tx("Crear cuenta")}</button>
        </div>
        <p class="portada-nota">${tx("Te mandaré un correo para confirmar que la dirección es tuya. Hasta que lo abras, la cuenta no se activa.")}</p>
+       <!-- Crear cuenta con Google, que hasta la 0.7.115 solo se ofrecía en la
+            pantalla de ENTRAR. Y no es que no se pudiera —quien pulsaba aquello
+            sin tener cuenta la creaba igual, porque el proveedor da de alta al
+            entrar la primera vez—: es que en la pantalla donde alguien viene a
+            crearse una cuenta no aparecía por ningún lado. O sea que la vía
+            rápida existía y estaba escondida detrás del enlace de «¿Ya tienes
+            una?».
+
+            DEBAJO del formulario y no encima, aunque arriba se descubriría sin
+            desplazar: lo que manda aquí es el consentimiento. La frase legal
+            va después de los botones —decisión ya tomada, ver abajo— y tiene
+            que cubrir los DOS caminos, porque con Google también se crea una
+            cuenta. Con el botón arriba, alguien podría darse de alta sin haber
+            pasado por delante de esa línea nunca. -->
+       <div id="portada-google"></div>
        <!-- El consentimiento va AQUÍ y no en Ajustes, y no es una manía legal:
             este es el instante en que se recoge el correo de alguien, que es
             justo lo que el aviso de privacidad tiene que anunciar antes de que
@@ -365,7 +380,11 @@ function portadaPintar(modo) {
     });
   });
 
-  if (modo !== "crear" && modo !== "enviado" && modo !== "rescate" && modo !== "adios") portadaOfrecerGoogle();
+  /* «crear» entró en la lista en la 0.7.115. Las otras tres se quedan fuera y
+     por el mismo motivo de siempre: son pantallas de una sola cosa —revisa tu
+     correo, esta cuenta se va a borrar, hasta pronto— y ahí un botón de entrar
+     no viene a cuento. */
+  if (modo !== "enviado" && modo !== "rescate" && modo !== "adios") portadaOfrecerGoogle(modo);
 
   /* La ayuda del apodo se escribe sola mientras se teclea el nombre. Contar
      de antemano cómo te vamos a llamar es lo que convierte un campo opcional
@@ -471,7 +490,12 @@ function portadaOcupada(si, texto) {
 /* El botón de Google solo aparece si el proveedor está activado de verdad en
    Supabase. Se pregunta en vez de darlo por hecho: un botón que lleva a una
    pantalla de error es peor que no tener botón. */
-async function portadaOfrecerGoogle() {
+/* El botón de Google. Sirve a las dos pantallas y solo cambia dos cosas: el
+   verbo: «continuar» donde se entra y «crear cuenta» donde se crea, que es lo
+   que hace a alguien entender que ese botón también da de alta. La rayita del
+   «o» va siempre DELANTE, porque su trabajo es separar este camino del
+   formulario de arriba; detrás no separaría nada. */
+async function portadaOfrecerGoogle(modo) {
   const hueco = document.getElementById("portada-google");
   if (!hueco) return;
   let hay = false;
@@ -480,6 +504,7 @@ async function portadaOfrecerGoogle() {
     hay = !!(r.ok && r.body && r.body.external && r.body.external.google);
   } catch (e) { /* sin conexión: se queda sin el botón, y hay dos formas más */ }
   if (!hay || !document.getElementById("portada-google")) return;
+  const creando = modo === "crear";
   hueco.innerHTML =
     `<div class="portada-o"><span>o</span></div>
      <button class="btn btn-soft btn-block portada-google" onclick="sbEntrarConGoogle()">
@@ -489,7 +514,7 @@ async function portadaOfrecerGoogle() {
          <path fill="#FBBC05" d="M11.6 28.1c-.4-1.3-.7-2.7-.7-4.1s.2-2.8.7-4.1v-5.7H4.3C2.8 17.1 2 20.4 2 24s.8 6.9 2.3 9.8l7.3-5.7z"/>
          <path fill="#EA4335" d="M24 10.8c3.3 0 6.2 1.1 8.5 3.3l6.3-6.3C35 4.3 30 2 24 2 15.4 2 7.9 6.9 4.3 14.2l7.3 5.7c1.7-5.2 6.6-9.1 12.4-9.1z"/>
        </svg>
-       <span>${tx("Continuar con Google")}</span>
+       <span>${tx(creando ? "Crear cuenta con Google" : "Continuar con Google")}</span>
      </button>`;
 }
 
