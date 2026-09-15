@@ -3473,5 +3473,6 @@ const TEXTOS_EN = {
   "Acomoda tus bloques en las 24 horas y enfoca en uno: el Pomodoro cuenta el tiempo y apunta lo que hiciste. Y si solo quieres el reloj, el Hiperfoco cuenta sin planear nada.": "Arrange your blocks across the 24 hours and focus on one: the Pomodoro counts the time and logs what you did. And if you just want the clock, Hyperfocus counts without any planning.",
   "Empezar un tramo": "Start a stretch",
   "Acomodar mi día": "Arrange my day",
-  "Ajustes de la rutina": "Routine settings"
+  "Ajustes de la rutina": "Routine settings",
+  "Rutina por día": "Routine by day"
 };
