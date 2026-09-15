@@ -541,25 +541,49 @@ actual al 5% y llevar media escalera. Sale del `ring()` que ya existía.
 
 ## Cómo se le habla a quien usa la app
 
-El español pone género donde el inglés no pone nada, y durante mucho tiempo esto
-se resolvió esquivándolo —el saludo de madrugada usa tu nombre justo por eso—.
-Desde 0.7.93 se pregunta en la bienvenida y se guarda en `settings.genero`:
-`"m"`, `"f"` o `"x"`.
+El español pone género donde el inglés no pone nada. Se pregunta en la bienvenida
+y se guarda en `settings.genero`: `"m"`, `"f"` o `"x"`.
+
+**La regla que manda sobre todo lo demás, y es de Eduardo (0.7.111): el neutro no
+se inventa con una letra, se consigue eligiendo palabras que ya no marcan.** La
+forma en «-e» —Rastreadore, Exploradore— se retiró de la app entera y no vuelve.
+No es una decisión nueva: es lo que Norata ya hacía sin decirlo, y lo que hacían
+por su cuenta dos de los cinco rangos.
+
+Así que **`"x"` ya no es una tercera forma, es la ausencia de las otras dos**: el
+suelo de quien no ha contestado, y lo que hace es cambiar la frase.
+
+| | Qué se escribe |
+| --- | --- |
+| `"m"` | «Bienvenido de vuelta» |
+| `"f"` | «Bienvenida de vuelta» |
+| `"x"` | «Te damos la bienvenida» ← el de quien no contestó |
 
 - **Sin contestar es NEUTRO, no masculino.** Quien no ha dicho nada no ha dicho
-  nada, y suponerle un género es lo que este ajuste existe para no hacer.
-- **La forma en `-e` solo sale si se pidió.** No es una propuesta que la app le
-  haga a nadie; quien no eligió esa casilla no la ve nunca.
+  nada, y suponerle un género es lo que este ajuste existe para no hacer. Por eso
+  la pregunta enseña **dos** opciones (`OB_GENEROS`) y Ajustes lleva un «Prefiero
+  no decirlo» para volver: el neutro no es una casilla que se elige.
 - **Se resuelve con `gen(m, f, x)` (`js/01-base.js`), y solo manda en español.**
   En inglés el sustantivo no marca género, así que `gen()` devuelve la palabra
-  base — que además es la clave del diccionario, y buscar «Rastreadora» dentro de
+  base — que además es la clave del diccionario, y buscar una variante dentro de
   una app en inglés la dejaría escrita en español.
-- **Los rangos pasan todos por `nombreDeRango()`.** Con un ternario por pantalla,
-  el que se queda atrás es el que un día llama Rastreador a quien pidió
-  Rastreadora. Solo llevan `nombreF`/`nombreX` los tres que las necesitan;
-  Andante y Navegante ya son iguales para todo el mundo. Y un mundo BORRA las
-  variantes al pisar los nombres (`rangosVigentes`): sin esa línea, Semilla salía
-  llamándose Rastreadora.
+- **Dónde muerde:** la `x` de `gen()` es opcional y sin ella se cae en la
+  masculina. Eso está bien para una palabra que ya vale para todos; es un fallo
+  callado si la frase SÍ marca y nadie escribió el rodeo. Al escribir un `gen()`
+  nuevo, la tercera se piensa.
+- **Ningún rango marca género.** Son Andante, Vigía, Guía, Líder y Navegante
+  (Wayfarer, Scout, Guide, Leader, Navigator), y ninguno lleva `nombreF` ni
+  `nombreX`. Una INSIGNIA es una sola palabra, así que ahí el rodeo de la frase
+  no salva: si algún día hace falta un rango nuevo, que sea una palabra que ya
+  valga para todos. Siguen pasando todos por `nombreDeRango()`, que es el único
+  sitio donde se elige.
+- **Los `id` de los rangos no dicen su nombre** (`rastreador`, `explorador`,
+  `cartografo`) y se quedan así: no se ven en ninguna pantalla y son el nombre de
+  sus variables de color en `css/estilos.css`.
+- **Un mundo borra las variantes al pisar los nombres** (`rangosVigentes`). La
+  línea se queda aunque la casa ya no tenga ninguna: `Object.assign` pisa
+  `nombre` pero no `nombreF`, así que el día que un rango vuelva a traerlas, sin
+  ella se le quedarían pegadas encima del nombre del mundo. Ya pasó una vez.
 
 ## Los botones
 

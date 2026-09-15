@@ -112,7 +112,7 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
-### 0.7.115 · 14 sep 2026
+### 0.7.117 · 15 sep 2026
 
 **La puerta de dos columnas, en prueba y apagada.** Eduardo trajo la pantalla de
 entrar de Supabase: el formulario a la izquierda y, a la derecha, sitio para una
@@ -433,50 +433,126 @@ puerta ahora puede estar en inglés antes de que exista ninguna cuenta—. **Qu�
 rango:** la lista exacta está al final del bloque `.puerta-lado` en
 `css/estilos.css`.
 
-### 0.7.113.2 · 14 sep 2026
+### 0.7.116.1 · 15 sep 2026
 
-**El botón de despertar sale de la penumbra, y de día se acaba el marrón.**
+**El selector de días, con título.** Siete letras sueltas no dicen qué son: el
+bloque lleva ahora su rótulo —«Rutina por día»— y el chevron que abre lo de
+vincular se va a la derecha del rótulo, que al final de la fila parecía un
+octavo día. Lo vio Eduardo en la pantalla.
 
-- **«Buenos días, ya desperté»** — el saludo y lo que haces, en el mismo
-  renglón.
-- **Ahora sí escapa del velo.** Tenía su piso puesto desde la 0.7.113.1 y
-  seguía atenuado: `.app` lleva `z-index: 1`, o sea que es su propio contexto de
-  apilamiento, y cualquier piso de dentro se compara solo contra sus hermanos,
-  nunca contra un velo que cuelga de `body`. Mientras se duerme, `.app` deja de
-  crear contexto y entonces 106 sí le gana a 105. **Vale para cualquier cosa
-  que algún día tenga que salir por encima del velo.**
-- **Late por dentro y brilla al pasar el cursor**: una luz que respira dentro
-  del botón —no solo el halo de fuera— y un destello que lo barre de izquierda a
-  derecha, una pasada y no en bucle, el mismo gesto que la carta de subir de
-  nivel.
-- **De día, el descanso deja la luciérnaga y pasa al celeste.** Escrito, el
-  amarillo se vuelve `#755c05`, un marrón que Eduardo paró en cuanto lo vio, y
-  la arena del reloj salía mostaza. Tres variables nuevas —`--jor-brasa`,
-  `--jor-brasa-grano` y `--jor-brasa-velo`— separan lo que escribe, lo que
-  rellena y el velo tenue, así que de noche todo sigue exactamente igual.
-- **Los gajos de descanso destacan de día**: la mezcla de noche los dejaba
-  perdidos contra la tarjeta clara, y suben a 56%, 70% y 78% de tinta.
+### 0.7.116 · 15 sep 2026
 
-### 0.7.113.1 · 14 sep 2026
+**El Pomodoro ya se lee como los otros cuatro módulos, y el selector de días se
+pliega.** Dos cosas que vio Eduardo entrando a la pantalla:
 
-**Despertar se ve, y la cuenta dice lo que falta.** Cuatro retoques del modo
-dormir, todos de Eduardo mirándolo en uso:
+- **Banner propio** (`jHeroHTML` + `statsPanelPomodoro`): el anillo con los
+  bloques de foco hechos de los planeados, las horas de foco de hoy, los cuatro
+  indicadores comparables de siempre —foco de 7 días, tramos, del plan, sueño
+  por noche— y lo que pide atención ahora. Era el ÚNICO módulo sin banner.
+- **La puerta al informe vuelve a su sitio.** Estaba de botón suelto al final de
+  la lista, que es donde nadie la busca; ahora está dentro del banner en PC y en
+  la cabecera del módulo en el teléfono (`ph-informe`), exactamente como en los
+  otros cuatro.
+- **La primera vez no hay banner con ceros**, hay presentación: qué es el
+  Pomodoro y dos salidas —empezar un tramo o acomodar el día—. Desaparece sola
+  en cuanto hay un tramo apuntado.
+- **El selector de días se pliega.** La fila de días se queda —es navegación, se
+  toca a diario— y lo de vincular se guarda tras un chevron: se configura una
+  vez y estorba el resto del tiempo. De 160 px de alto a 53. Plegado solo
+  aparece la nota cuando estás mirando OTRO día, que es la única que no se
+  deduce del propio selector.
 
-- **El botón es la única salida encendida.** «Ya desperté» —en primera persona,
-  porque es lo que haces; el saludo se queda en el aviso de después—, con un
-  **sol** que hace pareja con la luna de irse a dormir, y un halo que respira
-  para que el ojo lo encuentre al abrir la app medio dormido. De día no hay
-  resplandor (regla de la casa): ahí late un aro en vez de un halo.
-- **El botón y su renglón suben por encima del velo** (`--piso-despertar: 106`),
-  y el renglón se lee en tinta normal y un punto más grande. Atenuada la app,
-  lo que te saca de ahí no puede estar atenuado también.
-- **La cuenta del centro dice cuánto FALTA, no cuánto llevas.** Un número que
-  sube mientras duermes no se sabe contra qué se compara —«es confuso»—, y
-  dormido lo único que importa es cuánto queda para levantarse. Debajo, la hora:
-  «Te levantas a las 7:00 AM». Sin bloque de dormir no hay contra qué medir, y
-  ahí sí se enseña lo que llevas, que es el dato que existe.
+### 0.7.115.1 · 15 sep 2026
+
+**En PC, el reloj vuelve a la izquierda.** Al meter el selector de días arriba,
+la reja de dos columnas lo puso de primero y empujó el reloj a la derecha. Las
+columnas ahora van por áreas con nombre (`"reloj dias" / "reloj lista"`), así
+que el orden del HTML deja de mandar en el reparto: el reloj ocupa la columna
+izquierda entera y a su lado se apilan el selector y la lista. En el teléfono no
+cambia nada — ahí siguen uno debajo de otro, con el selector arriba.
+
+### 0.7.115 · 15 sep 2026
+
+**Una rutina por día, y un interruptor para llevar solo dos.** Hasta aquí la
+rueda era UNA plantilla para los siete días, y eso obliga a mentir: el gimnasio
+de martes y jueves o el sábado sin traslados no caben. Probado primero en el
+boceto (https://claude.ai/artifact/QTD5JeByRmHZcBiij7nMuZ) y traído tal cual.
+
+- **Siete rutinas**, `rutinas[0]` domingo y `rutinas[6]` sábado —como
+  `Date.getDay()`, para que ningún sitio tenga que traducir el índice—. La que
+  había se copia a los siete, que es lo que la persona tenía en la cabeza: «mi
+  día», todos los días. **Los ids se rehacen en cada copia**: con el mismo id
+  siete veces, el registro de un tramo no sabría de qué día habla.
+- **El selector**: siete botones con HOY marcado por un punto. El día que se
+  mira vive en este dispositivo y en este rato —como el modo—, y vuelve a hoy
+  al entrar.
+- **Vincular entre semana y fin de semana.** Vinculado, tocar un martes es
+  tocar los cinco días: se marca el grupo entero ANTES de editar nada. Como
+  vincular iguala el grupo, si los venías llevando uno a uno **se pregunta con
+  cuál rutina te quedas**, enseñando lo que tiene cada día, y solo por el grupo
+  que esté desigual. **Desvincular no cambia nada**: cada día se queda como
+  está y solo deja de copiarse, y por eso no pregunta.
+- **Hoy manda en lo que PASA; el día visto, en lo que se EDITA.** Separados a
+  propósito (`jBloquesHoy` contra `jBloques`): lo que corre, lo que se avisa y
+  lo que se apunta miran hoy; la rueda, la lista y la hoja miran el día que
+  tienes delante. Viendo otro día se esconde la aguja, ningún gajo brilla como
+  «en curso», el centro dice el foco planeado de ESE día y los controles se
+  cambian por «Estás acomodando tu jueves» — un botón que no puede hacer lo que
+  dice es peor que no estar.
+- **`bloques` se queda como ESPEJO del día de hoy.** Una versión anterior en
+  otro dispositivo lo sigue leyendo y ve su día de siempre en vez de una rueda
+  vacía.
+
+### 0.7.114.2 · 14 sep 2026
+
+**La prohibición se lee sobre cualquier color, y el Hiperfoco arranca volteando
+el reloj.**
+
+- **La malla trae su propio fondo.** Sobre un gajo coral, unas rayas coral no se
+  veían —lo cazó Eduardo de noche—. Ahora el patrón lleva un fondo que hunde el
+  gajo hacia el suelo de la app (oscurece de noche, aclara de día, al 66%) y
+  encima van las rayas a plena fuerza. Se lee igual encima de los ocho colores.
+- **En el Hiperfoco, la arena empieza ABAJO.** Un reloj de arena en reposo tiene
+  el grano en el bulbo de abajo y se voltea para empezar a contar; ahora al
+  tocar «Enfocar» el reloj **da la vuelta** y arranca la cuenta. No hizo falta
+  código nuevo para el giro: `jPintarCentro` ya voltea cuando la arena sube de
+  golpe, así que basta con que el estado parado sea `arriba: 0`.
+
+### 0.7.114.1 · 14 sep 2026
+
+**El asa ya no aparece en la esquina, y lo ocupado se tapa con una malla.**
+
+- **El fallo del asa, y la regla que deja.** Nacían un instante arriba a la
+  izquierda. El grupo llevaba el `transform` del SVG —dónde va— y a la vez la
+  animación de aparecer, y **el `transform` del CSS PISA al del atributo**: al
+  animarlo, el asa se iba al origen del lienzo. Ahora son dos grupos: el de
+  fuera coloca, el de dentro anima. **Al animar cualquier cosa de un SVG que ya
+  lleve `transform` de atributo, hay que anidar.** Repasada toda la app con las
+  vistas abiertas —los 28 elementos con `transform` de las siete pantallas y la
+  hoja del bloque—: no había ningún otro pisado.
+- **Lo ocupado se TAPA.** El bloque que estás pisando pasa de borde cortado a
+  **línea coral continua + malla diagonal encima**, y en lugar de su icono sale
+  el **símbolo de prohibido**. Con el borde cortado se veía que pasaba algo;
+  con la malla se ve qué pasa. El resto del día se apaga mientras tanto, para
+  que se lean los dos que importan. Vale igual en la rueda grande y en la de la
+  ventana de editar.
 
 ### 0.7.114 · 14 sep 2026
+
+**Dos tandas distintas comparten este número.** No es un despiste de la lista: se
+publicaron las dos bajo él la misma noche, desde dos sesiones que trabajaban a la
+vez en la misma carpeta. Cuando la segunda subió el número, la primera ya estaba
+en vivo, y la `.1` y la `.2` cuelgan de la segunda.
+
+No se renumera ninguna, y el motivo es el de siempre: **la lista cuenta lo que se
+sirvió, no lo que habría quedado mejor.** Las dos se sirvieron como `0.7.114`.
+Quedan juntas, en el orden en que salieron.
+
+La lección, que es la que vale para mañana: **antes de coger un número hay que
+mirar el de la rama, no el del archivo que tienes abierto.** `git fetch` y leer
+`VERSION` cuesta un comando, y aquí no lo hizo la segunda sesión.
+
+#### Primero: de Pro a Fundador, con lo que ya pagaste descontado
 
 **De Pro a Fundador ya se puede, y lo que llevas pagado se te descuenta.**
 
@@ -554,6 +630,83 @@ día (−$2), anual con 300 días (−$484), cancelado pero todavía vivo (se le
 igual: lo pagó), impago, sin fecha, ya vencido, quien ya es fundador, la cuenta
 de casa y el plan Gratuito. En los tres últimos la tarjeta **no sale**, y la
 función se calla sola sin que quien la llama tenga que preguntar.
+
+#### Después: la rueda del boceto llega a la app, y el despertar se abre como un amanecer
+
+**La rueda del boceto, ya en la app — y el despertar se abre como un amanecer.**
+Lo probado durante días en el boceto funcional pasa al live tal cual, con una
+regla por delante: entra lo que aporta, y el aro sigue siendo el de siempre.
+
+- **Las esquinas de cada gajo, redondeadas** (radio 7). Mismo ancho, mismos
+  radios, solo sin el pico. Con radio 0 sale exactamente el de antes.
+- **El fondo del aro ya no se pinta.** Era una rosquilla gris llena aunque el
+  día estuviera vacío; lo que se tiene que ver es TU día. En su lugar, dos hilos
+  de guía que enmarcan el aro, los puntos de las medias horas y un arco tenue
+  con lo que va del día.
+- **El borde de un gajo es SU color muy atenuado**, no el fondo. Con el fondo por
+  borde, lo que está pasando ahora parecía recortado con tijeras; sigue
+  separando a dos vecinos porque cada uno trae el suyo.
+- **Las asas son barritas delgadas** (7 px) con la zona de toque cinco veces más
+  ancha: se ven finas y se agarran fácil.
+- **Arrastrar por encima de otro se ve antes de soltar**: el gajo SALE del aro a
+  la órbita de fuera, con sombra, y el hueco al que va a caer se dibuja entero y
+  punteado. Al soltar, el aviso dice con qué chocaste y dónde quedó tu bloque, o
+  que volvió a su hora porque no había hueco.
+- **La ventana de editar es un tablero**: dentro se arrastra el bloque, se
+  estiran sus puntas y **tocando otro te pasas a editarlo sin salir**. Al
+  cambiarte se guarda antes lo que llevas —tocar otro gajo no puede costarte lo
+  que acabas de escribir— y si no se puede guardar todavía, se dice y no se
+  cambia.
+
+**Y el amanecer.** Al tocar «ya desperté», un círculo se abre DESDE EL BOTÓN y
+se lleva la penumbra por delante, en vez de que el velo desaparezca de golpe. Es
+una máscara y no un desvanecido, porque un desvanecido no sale de ningún sitio y
+esto sale de donde pusiste el dedo. Lo permite `@property`, que es lo que deja
+animar una medida dentro de un gradiente; donde no exista, queda el desvanecido
+del final. Con «menos movimiento» puesto no hay máscara.
+
+### 0.7.113.2 · 14 sep 2026
+
+**El botón de despertar sale de la penumbra, y de día se acaba el marrón.**
+
+- **«Buenos días, ya desperté»** — el saludo y lo que haces, en el mismo
+  renglón.
+- **Ahora sí escapa del velo.** Tenía su piso puesto desde la 0.7.113.1 y
+  seguía atenuado: `.app` lleva `z-index: 1`, o sea que es su propio contexto de
+  apilamiento, y cualquier piso de dentro se compara solo contra sus hermanos,
+  nunca contra un velo que cuelga de `body`. Mientras se duerme, `.app` deja de
+  crear contexto y entonces 106 sí le gana a 105. **Vale para cualquier cosa
+  que algún día tenga que salir por encima del velo.**
+- **Late por dentro y brilla al pasar el cursor**: una luz que respira dentro
+  del botón —no solo el halo de fuera— y un destello que lo barre de izquierda a
+  derecha, una pasada y no en bucle, el mismo gesto que la carta de subir de
+  nivel.
+- **De día, el descanso deja la luciérnaga y pasa al celeste.** Escrito, el
+  amarillo se vuelve `#755c05`, un marrón que Eduardo paró en cuanto lo vio, y
+  la arena del reloj salía mostaza. Tres variables nuevas —`--jor-brasa`,
+  `--jor-brasa-grano` y `--jor-brasa-velo`— separan lo que escribe, lo que
+  rellena y el velo tenue, así que de noche todo sigue exactamente igual.
+- **Los gajos de descanso destacan de día**: la mezcla de noche los dejaba
+  perdidos contra la tarjeta clara, y suben a 56%, 70% y 78% de tinta.
+
+### 0.7.113.1 · 14 sep 2026
+
+**Despertar se ve, y la cuenta dice lo que falta.** Cuatro retoques del modo
+dormir, todos de Eduardo mirándolo en uso:
+
+- **El botón es la única salida encendida.** «Ya desperté» —en primera persona,
+  porque es lo que haces; el saludo se queda en el aviso de después—, con un
+  **sol** que hace pareja con la luna de irse a dormir, y un halo que respira
+  para que el ojo lo encuentre al abrir la app medio dormido. De día no hay
+  resplandor (regla de la casa): ahí late un aro en vez de un halo.
+- **El botón y su renglón suben por encima del velo** (`--piso-despertar: 106`),
+  y el renglón se lee en tinta normal y un punto más grande. Atenuada la app,
+  lo que te saca de ahí no puede estar atenuado también.
+- **La cuenta del centro dice cuánto FALTA, no cuánto llevas.** Un número que
+  sube mientras duermes no se sabe contra qué se compara —«es confuso»—, y
+  dormido lo único que importa es cuánto queda para levantarse. Debajo, la hora:
+  «Te levantas a las 7:00 AM». Sin bloque de dormir no hay contra qué medir, y
+  ahí sí se enseña lo que llevas, que es el dato que existe.
 
 ### 0.7.113 · 14 sep 2026
 

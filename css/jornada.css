@@ -49,6 +49,26 @@ html.durmiendo body::after {
   content: ""; position: fixed; inset: 0; z-index: var(--piso-dormir);
   background: var(--jor-velo); pointer-events: none;
 }
+/* ---- El amanecer ----
+   Al tocar «ya desperté», un círculo se abre DESDE EL BOTÓN y se lleva la
+   penumbra. Es una máscara y no un desvanecido: el desvanecido no viene de
+   ningún sitio, y esto sale de donde pusiste el dedo.
+   `@property` es lo que permite animar una medida dentro de un gradiente —sin
+   registrarla, el navegador la trata como texto y salta de golpe—. Donde no
+   exista, la máscara no se aplica y queda el desvanecido del final, que sigue
+   siendo un cierre decente. */
+@property --jor-abre { syntax: "<length>"; inherits: false; initial-value: 0px; }
+html.despertando body::after {
+  -webkit-mask-image: radial-gradient(circle at var(--jor-x, 50%) var(--jor-y, 70%), transparent var(--jor-abre), #000 calc(var(--jor-abre) + 3px));
+  mask-image: radial-gradient(circle at var(--jor-x, 50%) var(--jor-y, 70%), transparent var(--jor-abre), #000 calc(var(--jor-abre) + 3px));
+  animation: jor-amanece .92s cubic-bezier(.22, .61, .36, 1) forwards;
+}
+@keyframes jor-amanece {
+  0% { --jor-abre: 0px; opacity: 1; }
+  78% { opacity: 1; }
+  100% { --jor-abre: 160vmax; opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { html.despertando body::after { animation: none; opacity: 0; } }
 html.claro {
   --jor-velo: color-mix(in srgb, var(--text) 34%, transparent);
   --jor-brasa: var(--celeste);
@@ -131,23 +151,91 @@ html.claro {
 .jor { display: flex; flex-direction: column; gap: 20px; padding-bottom: 110px; }
 .jor-reloj { display: grid; gap: 16px; }
 
+/* ---- El selector de días (0.7.115) ----
+   Siete botones, un interruptor y un renglón que dice qué pasa al tocar. El
+   punto debajo de la letra es HOY; el fondo marca el día que se está editando,
+   y vinculado se marca el grupo entero. */
+.jor-dias { display: grid; gap: 8px; background: var(--sup-tarjeta); border: 1px solid var(--line); border-radius: var(--r-tarjeta); padding: 8px; }
+/* La presentación del módulo: la misma caja vacía de las otras pantallas, con
+   menos aire —aquí debajo hay una rueda que también quiere sitio—. */
+.jor-bienvenida { padding: 18px 16px 20px; margin-bottom: 4px; }
+.jor-dias-fila { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: stretch; }
+.jor-dias-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.jor-dias-cab .jor-rot { margin: 0; }
+/* El chevron que abre lo de vincular. Del alto de los días para que la fila se
+   lea como una sola pieza. */
+.jor-dias-mas {
+  width: 28px; height: 28px; flex: none; border-radius: var(--r-chico); border: 1px solid var(--line);
+  background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer;
+}
+.jor-dias-mas svg { width: 16px; height: 16px; transition: transform var(--dur-corta, .15s) ease; }
+.jor-dias-mas[aria-expanded="true"] { color: var(--text); }
+.jor-dias-mas[aria-expanded="true"] svg { transform: rotate(180deg); }
+.jor-dia {
+  position: relative; padding: 6px 0 9px; border-radius: var(--r-chico);
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.jor-dia[aria-pressed="true"] { background: var(--mint-soft); border-color: var(--mint); color: var(--mint); }
+.jor-dia.hoy::after {
+  content: ""; position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%);
+  width: 4px; height: 4px; border-radius: var(--r-redondo); background: currentColor;
+}
+.jor-vinculo { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border: 0; padding: 2px; color: var(--text); font: inherit; cursor: pointer; }
+.jor-palanca { position: relative; flex: none; width: 38px; height: 22px; border-radius: var(--r-pastilla); background: var(--carril); border: 1px solid var(--line); }
+.jor-palanca::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+  border-radius: var(--r-redondo); background: var(--muted); transition: transform .15s ease;
+}
+.jor-vinculo[aria-checked="true"] .jor-palanca { background: var(--mint-soft); border-color: var(--mint); }
+.jor-vinculo[aria-checked="true"] .jor-palanca::after { transform: translateX(16px); background: var(--mint); }
+.jor-vinculo-tx { display: grid; gap: 1px; min-width: 0; }
+.jor-vinculo-tx b { font-size: 13.5px; font-weight: 700; }
+.jor-vinculo-tx small { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+.jor-dias-nota { margin: 0; font-size: 12px; color: var(--faint); line-height: 1.4; }
+
 /* ---------- La rueda ---------- */
 .jor-rueda { position: relative; width: 100%; max-width: 340px; margin: 0 auto; aspect-ratio: 1; --jor-sep: var(--bg); }
 #jor-svg { width: 100%; height: 100%; display: block; overflow: visible; touch-action: none; user-select: none; -webkit-user-select: none; }
-.jor-carril { fill: none; stroke: var(--carril); }
+/* El fondo del aro ya no se pinta (0.7.114): quedan los dos hilos que lo
+   enmarcan, los puntos de las medias horas y el arco de lo que va del día. */
+.jor-guia { fill: none; stroke: var(--muted); opacity: .2; stroke-width: 1; }
+.jor-media { fill: var(--muted); opacity: .3; }
+.jor-transcurrido { fill: none; stroke: var(--mint); opacity: .3; stroke-width: 1.6; stroke-linecap: round; }
+.jor-destino { stroke: var(--text); stroke-width: 1.5; stroke-dasharray: 5 6; opacity: .75; }
 .jor-tick { stroke: var(--faint); stroke-width: 1; }
 .jor-tick.mayor { stroke: var(--muted); stroke-width: 1.6; }
 .jor-num { fill: var(--muted); font-family: inherit; font-size: 10px; font-weight: 500; text-anchor: middle; dominant-baseline: central; }
 .jor-num.mayor { fill: var(--text); font-weight: 700; }
-.jor-blq { stroke: var(--jor-sep); stroke-width: 2; cursor: grab; }
+.jor-blq { stroke: var(--jor-borde, var(--jor-sep)); stroke-width: 2; cursor: grab; }
 /* Con la rueda quieta —durmiendo, o con un tramo en curso— los bloques no
    se arrastran, y el cursor lo dice antes de intentarlo. */
 .jor-quieta .jor-blq { cursor: default; }
 .jor-blq.sel { stroke: var(--text); stroke-width: 2.2; }
 /* Mientras vuela por encima de otros (0.7.109): en el aire, y en coral cuando
    está pisando algo — ahí no se queda, al soltarlo se va al hueco más cercano. */
-.jor-blq.volando { opacity: .92; }
-.jor-blq.encima { stroke: var(--coral); stroke-width: 2.4; stroke-dasharray: 5 4; }
+.jor-blq.volando { opacity: .95; }
+/* ---- Lo que está ocupado se TAPA ----
+   El bloque que estás pisando lleva línea coral continua, una malla diagonal
+   encima y, en lugar de su icono, el símbolo de prohibido: tres señales que
+   dicen lo mismo —ahí no cabe— sin que haya que adivinarlo. Con el borde
+   cortado solo se veía «pasa algo»; con la malla se ve QUÉ pasa. El resto del
+   día se apaga mientras tanto, para que se lean los dos que importan. */
+.jor-blq.bloqueado { stroke: var(--coral); stroke-width: 2.6; }
+.jor-blq.apagado { opacity: .55; }
+.jor-veda { fill: url(#jor-veda); stroke: none; pointer-events: none; }
+/* La malla trae SU propio fondo y no se fía del color del bloque: sobre un
+   gajo coral, unas rayas coral no se veían —lo cazó Eduardo de noche—. El
+   fondo hunde el gajo hacia el suelo de la app (oscurece de noche, aclara de
+   día) y encima van las rayas a plena fuerza. Así la prohibición se lee igual
+   encima de cualquiera de los ocho colores. */
+.jor-veda-fondo { fill: var(--bg); opacity: .66; }
+.jor-veda-raya { stroke: var(--coral); stroke-width: 2.8; }
+.jor-blq-ic.vedado { color: var(--coral); }
+/* Fuera del aro mientras pisa a otro: la sombra es lo que lo levanta. De día
+   no hay resplandor, pero una sombra sí —no es luz, es peso—. */
+.jor-blq.orbita { filter: drop-shadow(0 3px 9px rgba(0, 0, 0, .45)); cursor: grabbing; }
+html.claro .jor-blq.orbita { filter: drop-shadow(0 3px 7px rgba(22, 32, 43, .22)); }
 /* El gajo en curso brilla con su color: el mismo halo que `.barra-viva i`
    (10 px al 55%) más uno corto que lo pega al borde. Sin animación: el color
    sale de una variable, y animado se queda congelado en Chrome. */
@@ -163,7 +251,9 @@ html.claro .jor-blq.ahora { filter: none; }
 .jor-aguja line { stroke: var(--text); stroke-width: 2; stroke-linecap: round; }
 .jor-aguja circle { fill: var(--text); }
 .jor-asa-g { cursor: grab; }
-.jor-asa { fill: var(--card2, var(--card)); stroke: var(--text); stroke-width: 2; }
+.jor-asa { fill: var(--card2, var(--card)); stroke: var(--text); stroke-width: 1.6; }
+.jor-asa-g { animation: jor-asoma .16s ease-out; transform-box: fill-box; transform-origin: center; }
+@keyframes jor-asoma { from { opacity: 0; transform: scale(.5); } to { opacity: 1; transform: none; } }
 
 .jor-centro {
   position: absolute; inset: 24%; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -440,10 +530,13 @@ html.claro .jor-despertar .btn { animation: jor-respira-dia 2.8s ease-in-out inf
 .jor-ok { color: var(--mint); display: inline-flex; }
 .jor-ok svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
 /* La rueda de la hoja (0.7.109): la misma, en pequeño y solo para mirar. */
-.jor-previa { display: block; width: 100%; max-width: 200px; margin: 2px auto 6px; overflow: visible; }
-.jor-previa .jor-blq { stroke: var(--sup-tarjeta); stroke-width: 2; }
-.jor-previa .jor-blq.otro { opacity: .45; }
+/* La rueda de la hoja ya no es un dibujo: se arrastra dentro y se toca otro
+   bloque para editarlo, así que necesita sitio y no puede hacer scroll al
+   deslizar el dedo encima. */
+.jor-previa { display: block; width: 100%; max-width: 236px; margin: 2px auto 10px; overflow: visible; touch-action: none; user-select: none; -webkit-user-select: none; }
+.jor-previa .jor-blq.otro { opacity: .6; }
 .jor-previa .jor-blq.nuevo { stroke: var(--text); stroke-width: 2.4; }
+.jor-previa .jor-blq.bloqueado { opacity: 1; }
 .jor-campo { display: grid; gap: 6px; }
 .jor-campo label { font-size: 14px; }
 .jor-campo input { width: 100%; }
@@ -467,7 +560,21 @@ html.claro .jor-despertar .btn { animation: jor-respira-dia 2.8s ease-in-out inf
      ventana vacía a la derecha. Las dos columnas tienen tope y el conjunto va
      al medio; el título se alinea con él para que no se quede solo en la
      esquina. */
-  .jor { display: grid; grid-template-columns: minmax(380px, 460px) minmax(0, 560px); justify-content: center; gap: 28px; align-items: start; padding-bottom: 40px; max-width: 1048px; margin: 0 auto; }
+  /* El reloj a la IZQUIERDA y todo lo demás a la derecha (0.7.115.1): al meter
+     el selector de días arriba, la reja lo puso de primero y el reloj se fue a
+     la columna derecha. Con áreas con nombre el orden del HTML deja de mandar:
+     el reloj ocupa la columna izquierda entera y a su lado se apilan el
+     selector y la lista. */
+  .jor {
+    display: grid; grid-template-columns: minmax(380px, 460px) minmax(0, 560px);
+    grid-template-areas: "reloj dias" "reloj lista";
+    grid-template-rows: auto 1fr;
+    justify-content: center; gap: 20px 28px; align-items: start;
+    padding-bottom: 40px; max-width: 1048px; margin: 0 auto;
+  }
+  .jor-reloj { grid-area: reloj; }
+  .jor-dias { grid-area: dias; }
+  .jor-lista { grid-area: lista; }
   #view-jornada .page-head { max-width: 1048px; margin-left: auto; margin-right: auto; }
   .jor-reloj { background: var(--sup-tarjeta); border: 1px solid var(--line); border-radius: var(--r-grande); padding: 22px 22px 24px; }
   /* La lista no se estira a todo lo que sobra: una tira de 1.000 px con un
