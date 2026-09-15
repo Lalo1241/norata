@@ -455,7 +455,7 @@ function pintarPantallaRegion() {
         ${opcionesIdiomaHTML(idiomaActual(), "regionIdioma")}
       </div>`}
 
-      ${/* ---- El género, aquí y no en la bienvenida (0.7.118) ----
+      ${/* ---- El género, aquí y no en la bienvenida (0.7.121) ----
 
             Estaba en la primera pantalla del asistente, y el asistente se
             SALTA: sale de un botón y la pantalla vacía ofrece otros dos
@@ -555,7 +555,7 @@ function cerrarPantallaRegion() {
        del ensayo con el dato diciendo otra cosa. */
     state.settings.moneda = ensayo.moneda;
     state.settings.regionLista = ensayo.lista;
-    /* Y el género, que desde la 0.7.118 también se pregunta aquí: sin esta
+    /* Y el género, que desde la 0.7.121 también se pregunta aquí: sin esta
        línea, ensayar la pantalla dejaba a quien la abriera hablándole en el
        género que se tocó de prueba. */
     if (ensayo.genero) state.settings.genero = ensayo.genero;

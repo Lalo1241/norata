@@ -1952,7 +1952,6 @@ function renderHome() {
   }
 
   document.getElementById("home-hero").innerHTML = skills.length === 0 ? "" : sectionHero({
-    scene: scene(820, 168, 23),
     lead: `<div>
       <div class="label">${tx("Nivel de tu personaje")}</div>
       <div class="big"><b>${totalLevels}</b><span> ${tx("niveles")}</span></div>
@@ -2704,62 +2703,62 @@ function setCategory(c) {
    Las cuatro secciones se leen igual: una cifra que resume el conjunto,
    indicadores comparables y el foco de lo que pide atención. */
 
-function sectionHero({ scene, lead, stats, focus, informe }) {
+/* ================= La tira de sección (0.7.118) =================
+   Era un banner: un dibujo de 208 px con cuatro cifras, la línea de foco y el
+   informe. Eduardo lo paró tres veces —0.7.49 el velo, 0.7.112 quitarlo del
+   teléfono, y ahora— y la última con el diagnóstico exacto: «aportan poco para
+   lo mucho que roban». Medido en Misiones: el banner empujaba dos misiones por
+   debajo del doblez.
+
+   Lo que queda es UNA fila de 62 px con lo único que cambia lo que haces en el
+   siguiente minuto —la cifra del módulo y lo que pide atención— y un chevron.
+   Detrás del chevron siguen las cuatro cifras y el informe: **no se pierde
+   nada, se deja de estorbar**.
+
+   Fuera la ilustración de fondo, que es lo que más pesaba y lo que menos decía;
+   el color del módulo ya lo identifica. Por eso `scene` ya no se recibe: los
+   cinco sitios dejaron de calcularla.
+
+   Abierta o cerrada se recuerda en `heroAbierto` mientras dure la sesión, y se
+   estampa al dibujar: sin eso, cualquier repintado —cumplir una misión, que
+   pase un cuarto de hora— la volvería a cerrar en las narices de quien acaba de
+   abrirla. */
+let heroAbierto = false;
+function alternarTiraSeccion(btn) {
+  heroAbierto = !heroAbierto;
+  const t = btn.closest(".sec-tira");
+  if (t) t.classList.toggle("abierta", heroAbierto);
+  btn.setAttribute("aria-expanded", String(heroAbierto));
+}
+
+function sectionHero({ lead, stats, focus, informe }) {
+  const conVar = stats.some(s => s.d);
+  const alto = stats.some(s => String(s.n).length >= 9);
+  const cifras = stats.map(s => `<div>${
+    conVar ? (s.d || `<i class="sh-var"></i>`) : ""
+  }<div class="n ${alto ? "alto " : ""}${s.tone || ""}">${s.n}</div><div class="t">${s.t}</div></div>`).join("");
+  /* La línea del foco es el corazón de la tira, así que cuando lleva acción es
+     un botón de verdad y no un adorno con `onclick`. */
+  const eti = focus.onclick ? "button" : "div";
   return `
-    <div class="scene-card sec-hero">
-      ${scene}
-      <div class="scene-fade"></div>
-      <div class="scene-body">
-        <div class="sh-main">
-          <div class="sh-lead">${lead}</div>
-          <div class="sh-stats">
-            ${/* `s.d` es la flecha de comparación, y llega ya como HTML porque
-                  la arma `flechaHTML` en js/10f-informes.js — quien pinta no
-                  decide contra qué se compara. Va entre el número y el rótulo:
-                  debajo del rótulo se leía como parte del nombre del dato.
-
-                  Y cuando UNA columna del grupo lleva flecha, las demás llevan
-                  el hueco vacío. Sin eso, las columnas sin flecha subían su
-                  rótulo 14 px y la fila de nombres quedaba escalonada: se veía
-                  «HOY» a una altura y «CUMPLIDAS» a otra. La fila de la
-                  comparación existe para las cuatro o para ninguna. */
-              (() => {
-                const conVar = stats.some(s => s.d);
-                /* Un importe con su moneda —«$5,340 MXN»— no cabe en una
-                   columna de 78 px y parte en dos renglones, y entonces esa
-                   columna baja su rótulo 23 px y desalinea la fila entera.
-                   Se vio al poner la moneda a todos los montos (0.7.24).
-
-                   La salida NO es recortar el número ni quitarle el código:
-                   los dos serían perder el dato justo donde hay que
-                   desambiguar. Se reserva la segunda línea en las CUATRO
-                   columnas, igual que con la fila de las flechas: o la hay
-                   para todas o no la hay para ninguna. Solo se paga la altura
-                   en el panel que enseña dinero. */
-                const alto = stats.some(s => String(s.n).length >= 9);
-                /* La flecha va ARRIBA de la cifra, y esto lo cazó Eduardo
-                   mirando el hero de Habilidades. Debajo, el hueco vacío de
-                   las columnas sin comparación se abría entre la cifra y su
-                   rótulo, que es justo donde se lee como un agujero. Arriba,
-                   ese mismo hueco queda contra el borde de la caja —donde
-                   pasa por aire— y las cifras y los rótulos de las cuatro
-                   columnas se alinean solos. */
-                return stats.map(s => `<div>${
-                  conVar ? (s.d || `<i class="sh-var"></i>`) : ""
-                }<div class="n ${alto ? "alto " : ""}${s.tone || ""}">${s.n}</div><div class="t">${s.t}</div></div>`).join("");
-              })()}
-          </div>
-          <${focus.onclick ? `button class="sh-focus" onclick="${focus.onclick}"` : `div class="sh-focus"`}>
-            <span class="shf-k" style="color:${focus.color}">${escapeHtml(focus.k)}</span>
-            <span class="shf-v">${escapeHtml(focus.v)}</span>
-            ${typeof focus.pct === "number" ? `<span class="shf-bar"><i style="width:${focus.pct}%;background:${focus.color}"></i></span>` : ""}
-          </${focus.onclick ? "button" : "div"}>
-          ${/* La puerta al informe. En `btn-linea` y no en menta maciza porque
-                no escribe nada: solo lleva a mirar (ver los seis niveles de
-                botón). Es lo que permite que el panel se quede pequeño: todo
-                lo que no cabe arriba vive detrás de este botón. */
-             informe ? `<button class="btn btn-linea sh-informe" onclick="abrirInforme('${informe}')">${tx("Ver el informe")}</button>` : ""}
-        </div>
+    <div class="sec-tira${heroAbierto ? " abierta" : ""}">
+      <div class="st-fila">
+        <div class="st-lead">${lead}</div>
+        <${eti} class="st-foco"${focus.onclick ? ` onclick="${focus.onclick}"` : ""}>
+          <span class="stf-v">${escapeHtml(focus.v)}</span>
+          <span class="stf-k" style="color:${focus.color}">${escapeHtml(focus.k)}</span>
+          ${typeof focus.pct === "number" ? `<span class="shf-bar"><i style="width:${focus.pct}%;background:${focus.color}"></i></span>` : ""}
+        </${eti}>
+        <button type="button" class="st-mas" onclick="alternarTiraSeccion(this)" aria-expanded="${heroAbierto}"
+          aria-label="${escapeAttr(tx("Ver los números"))}" title="${escapeAttr(tx("Ver los números"))}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5 5 5-5"/></svg>
+        </button>
+      </div>
+      <div class="st-abierta">
+        <div class="sh-stats">${cifras}</div>
+        ${/* La puerta al informe. En `btn-linea` y no en menta maciza porque no
+              escribe nada: solo lleva a mirar (ver los seis niveles de botón). */
+          informe ? `<button class="btn btn-linea st-informe" onclick="abrirInforme('${informe}')">${tx("Ver el informe")}</button>` : ""}
       </div>
     </div>`;
 }

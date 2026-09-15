@@ -325,7 +325,7 @@ function cadenciaDeMision(plan) {
    Es lo mismo que ya hace el panel de Ajustes, que se esconde por lo mismo. */
 function preguntaGenero() {
   if (typeof idiomaActual === "function" && idiomaActual() !== "es") return false;
-  /* Y no se pregunta dos veces. Desde la 0.7.118 la pantalla de idioma y moneda
+  /* Y no se pregunta dos veces. Desde la 0.7.121 la pantalla de idioma y moneda
      lo pregunta también —ver `js/09c-region.js`—, y esa la ve todo el mundo:
      quien entra con Google, quien rellena el formulario y quien usa la app sin
      cuenta. El asistente, en cambio, se salta. Así que quien ya contestó llega

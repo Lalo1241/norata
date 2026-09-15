@@ -153,9 +153,8 @@ function renderMissions() {
     : "";
 
   const hero = sectionHero({
-    scene: motifScene(820, 168, 55, "waves", "var(--mint)"),
     lead: `
-      <div class="ring-wrap" style="width:92px;height:92px">
+      <div class="ring-wrap aro-tira">
         ${/* Animado, no fijo: cumplir una misión mueve este anillo, y verlo
               crecer es la respuesta a lo que acabas de hacer. Estático,
               el porcentaje simplemente aparecía cambiado y el gesto se
@@ -163,12 +162,12 @@ function renderMissions() {
           animRing(92, 9, pct / 100, "var(--mint)",
             lastMisionPct === null ? 0 : lastMisionPct, "rgba(234,241,239,0.14)")}
         <div class="ring-center">
-          <div class="v" style="font-size:19px"><b>${done.length}</b><span style="font-size:13px;color:var(--muted)">/${due.length}</span></div>
+          <div class="v"><b>${done.length}</b><span style="font-size:13px;color:var(--muted)">/${due.length}</span></div>
         </div>
       </div>
       <div>
         <div class="label">${dayName}</div>
-        <div class="big" style="font-size:30px"><b>${pct}%</b><span> ${tx("del día")}</span></div>
+        <div class="big"><b>${pct}%</b><span> ${tx("del día")}</span></div>
       </div>`,
     /* Los números son de los últimos siete días y cada uno trae su flecha
        (js/10f-informes.js). Lo de hoy sigue arriba, en el anillo y en «Hoy». */
@@ -312,7 +311,6 @@ function renderProjects() {
   }
 
   let html = sectionHero({
-    scene: motifScene(820, 168, 77, "peaks", "var(--mint)"),
     lead: `<div>
       <div class="label">${tx("Avance de lo que construyes")}</div>
       <div class="big"><b>${avgProg}%</b><span> ${tx("promedio")}</span></div>
@@ -1333,7 +1331,6 @@ function renderTree() {
   const branches = ramasT;
 
   let html = sectionHero({
-    scene: topoScene(820, 168, 31),
     /* Aquí ponía «Invertido en ti» y el total gastado, en la cifra más grande
        de la pantalla. Lo cambió Eduardo, y el motivo es de marca antes que de
        diseño: **una persona vale por lo que es, no por lo que gastó.** Que el
