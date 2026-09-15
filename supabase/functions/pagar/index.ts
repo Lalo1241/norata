@@ -179,13 +179,18 @@ async function cuponDeLoQueYaPago(
   /* Guarda 3: menos de un peso no merece un cupon. */
   if (credito < 100) return null;
 
+  /* El nombre se LEE: sale en la caja de Stripe, en el recibo y en el correo
+     del cobro. «Lo que ya pagaste de tu plan» describia bien la intencion y
+     mal la cifra —quien pago $590 del anual ve −$559 y la resta no le cuadra—,
+     asi que dice la palabra exacta: es un PRORRATEO, no una devolucion del
+     recibo. Es la misma palabra que usa la pantalla de Ajustes. */
   const cupon = await stripe("/coupons", {
     "amount_off": String(credito),
     "currency": moneda,
     "duration": "once",
     "max_redemptions": "1",
     "redeem_by": String(ahora + 3600),
-    "name": "Lo que ya pagaste de tu plan",
+    "name": "Prorrateo de tu plan Norata Pro",
   }, llave);
 
   return { id: cupon.id as string, centavos: credito };

@@ -1327,29 +1327,59 @@ function planSubirAFundadorHTML() {
     tx("Tu distintivo: el anillo lila y tu propia insignia")
   ];
 
+  /* El nombre del plan que se deja atrás, para nombrarlo en el prorrateo. Sin
+     él, el renglón dice «de tu plan» y la persona tiene que acordarse de cuál
+     era justo cuando está mirando números. */
+  /* Pasa por `tx()` aquí y no dentro de la plantilla: `T` traduce el PATRÓN
+     —las partes fijas— y mete los valores tal cual, así que un nombre
+     interpolado sin traducir se queda en español dentro de la app en inglés.
+     Se vio midiendo: el renglón decía «Prorated credit from your Pro anual». */
+  const actual = tx((PLANES[PLAN.plan] || {}).nombre || "Pro");
+
+  /* ---- El copy de arriba ----
+     La primera versión decía tres veces lo mismo —«se paga una vez», «ya no se
+     renueva nunca», «no se te vuelve a cobrar»— y además contaba en negativo lo
+     único que aquí es una buena noticia: que se acaban las renovaciones. Lo
+     paró Eduardo. Ahora es una frase con la promesa en negrita y una segunda
+     que dice qué pasa con lo que ya pagaste, que es la duda real de quien está
+     mirando este bloque. */
   return `<h4 class="plan-h">${T`Pasar a ${NOMBRE_FUNDADOR}`}</h4>
     <div class="panel plan-subir">
-      <p class="settings-note" style="margin-top:0">${
-        tx("Se paga una vez y ya no se renueva nunca. Tu suscripción se cancela sola en cuanto entra el pago, y no se te vuelve a cobrar.")
+      ${/* Dos frases ENTERAS y no una con un trozo condicional dentro: `T`
+            construye la clave del diccionario con las partes fijas, así que
+            una plantilla partida a la mitad por un ternario deja una clave que
+            no se puede traducir. Cada caso, su frase. */""}
+      <p class="settings-note" style="margin-top:0">${abono > 0
+        ? T`<b>Un pago y Norata es tuya para siempre.</b> Se acaban las renovaciones y las fechas: al completarlo, tu ${actual} se cierra solo y los días que ya pagaste se te abonan aquí abajo.`
+        : T`<b>Un pago y Norata es tuya para siempre.</b> Se acaban las renovaciones y las fechas: al completarlo, tu ${actual} se cierra solo.`
       }</p>
       <dl class="plan-datos">
-        <div><dt>${tx("Precio")}</dt><dd>${escapeHtml(f.precio)}</dd></div>
+        ${/* El renglón dice QUÉ producto es y no «Precio» a secas: es la única
+              cifra de la pantalla que no depende de nada, y ponerle nombre
+              evita que se lea como el precio de lo que ya se tiene. */""}
+        <div><dt>${escapeHtml(NOMBRE_FUNDADOR)}</dt><dd>${escapeHtml(f.precio)}</dd></div>
         ${abono > 0 ? `
-        <div><dt>${tx("Lo que ya pagaste")}</dt><dd>− $${abono} MXN</dd></div>
-        <div><dt>${tx("Pagarías más o menos")}</dt><dd><b>$${precio - abono} MXN</b></dd></div>` : ""}
+        <div><dt>${T`Prorrateo de tu ${actual}`}</dt><dd>− $${abono} MXN</dd></div>
+        <div><dt>${tx("Total estimado del ascenso")}</dt><dd><b>$${precio - abono} MXN</b></dd></div>` : ""}
       </dl>
+      ${/* Por qué el prorrateo NO es lo que pagaste. Eduardo lo cazó mirando su
+            propio caso: pagó $590 del anual y el renglón decía −$559, que sin
+            explicar se lee como una cuenta mal hecha. Lo que se abona son los
+            días que aún no ha usado, no el recibo entero. */""}
+      ${abono > 0 ? `<p class="settings-note">${
+        T`El prorrateo son los días que todavía no has usado de tu ${actual}, no el recibo completo: la parte que ya disfrutaste se queda gastada. La cifra exacta la calcula Stripe y la ves antes de meter la tarjeta.`
+      }</p>` : ""}
       ${/* La misma lista que usan las tarjetas de precio, con su propia
-            palomita puesta por CSS. Dibujarla aquí con `icon("check")` habría
-            sido una segunda forma de escribir una ventaja, y entonces son dos
-            las que hay que acordarse de cambiar. */""}
+            palomita puesta por CSS —en lila, que es el color de Fundador—.
+            Dibujarla aquí con `icon("check")` habría sido una segunda forma de
+            escribir una ventaja, y entonces son dos las que hay que acordarse
+            de cambiar. */""}
       <ul class="plan-vent">
         ${trae.map(t => `<li>${escapeHtml(t)}</li>`).join("")}
       </ul>
-      ${abono > 0 ? `<p class="settings-note">${
-        tx("La cifra exacta la calcula Stripe con los días que te quedan y la ves antes de meter la tarjeta.")
-      }</p>` : ""}
       <button class="btn btn-primary btn-block" style="margin-top:12px"
-        onclick="irAPagarDesdeAjustes('fundador', this)">${T`Quiero ${NOMBRE_FUNDADOR}`}</button>
+        onclick="irAPagarDesdeAjustes('fundador', this)">${
+          icon("plan-fundador", 18)}<span>${T`Quiero ${NOMBRE_FUNDADOR}`}</span></button>
       <p class="settings-note" style="margin-bottom:0">${escapeHtml(garantiaTexto())}</p>
     </div>`;
 }

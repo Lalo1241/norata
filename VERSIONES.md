@@ -112,6 +112,47 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.120 · 15 sep 2026
+
+**El bloque de ascenso a Fundador se viste de Fundador, y los números dicen lo
+que son.** Ocho notas de Eduardo mirándolo en su cuenta, y todas venían del
+mismo sitio: el bloque prometía un plan lila con la ropa del plan menta.
+
+- **El lila entero, y desde los selectores que ya existían.** Marco, botón y
+  palomitas salen ahora de las mismas reglas que visten la tarjeta de precio de
+  Fundador (`.plan-card.limitada`), con `.plan-subir` añadido al lado. Son la
+  misma promesa en dos pantallas: separadas, un día discrepan en un tono.
+- **El botón lleva su piedra**, la misma que sale en la cabecera del plan y en
+  el mini menú. Dentro del botón y no junto al título, porque lo que se
+  reconoce de un vistazo es adónde lleva el botón.
+- **El copy decía tres veces lo mismo** —«se paga una vez», «ya no se renueva
+  nunca», «no se te vuelve a cobrar»— y contaba en negativo lo único que aquí
+  es una buena noticia. Ahora es una frase con la promesa en negrita: **un pago
+  y Norata es tuya para siempre**, y lo de librarse de la suscripción dicho como
+  lo que es —se acaban las renovaciones y las fechas—. Con eso sobra la
+  cápsula que iba a llevar.
+
+**Y los tres renglones de la cuenta, que era lo que más confundía:**
+
+| Antes | Ahora | Por qué |
+| --- | --- | --- |
+| Precio | **Norata Fundador** | Dice qué producto es, no solo cuánto cuesta |
+| Lo que ya pagaste | **Prorrateo de tu Pro anual** | Él pagó $590 y el renglón decía −$559: sin la palabra exacta, la resta no cuadra |
+| Pagarías más o menos | **Total estimado del ascenso** | Formal, y dice por qué se paga eso |
+
+Debajo, una línea que cierra la duda de la que salía todo: **el prorrateo son
+los días que todavía no has usado, no el recibo completo** — la parte ya
+disfrutada se queda gastada. Y el cupón de Stripe cambia de nombre por lo mismo:
+de «Lo que ya pagaste de tu plan» a **«Prorrateo de tu plan Norata Pro»**, que es
+lo que se lee en la caja y en el recibo.
+
+**Dos fallos del inglés que sacó la medición**, y el segundo vale para cualquier
+texto nuevo: `T` traduce el PATRÓN —las partes fijas— y mete los valores
+interpolados tal cual, así que un nombre metido sin `tx()` se queda en español
+dentro de la app en inglés. El renglón decía «Prorated credit from your Pro
+anual». Y una plantilla partida por un ternario deja una clave que no se puede
+traducir: cada caso lleva su frase entera.
+
 ### 0.7.119 · 15 sep 2026
 
 **El ritmo cuadra con la actividad, y los números se pueden escribir.** Cuatro

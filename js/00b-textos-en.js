@@ -651,6 +651,19 @@ const TEXTOS_EN = {
   "por la rama": "via the branch",
   "ya las tienes": "you already have them",
   "Ver el informe": "See the report",
+  /* El bloque de ascenso a Fundador (0.7.116). Las dos primeras llevan `<b>`
+     dentro de la clave porque la negrita es parte de la frase, no del formato:
+     lo que se destaca es la promesa, y en inglés cae en las mismas palabras. */
+  "<b>Un pago y Norata es tuya para siempre.</b> Se acaban las renovaciones y las fechas: al completarlo, tu {0} se cierra solo y los días que ya pagaste se te abonan aquí abajo.":
+    "<b>One payment and Norata is yours for good.</b> No more renewals, no more dates: when you finish, your {0} closes itself and the days you already paid for are credited below.",
+  "<b>Un pago y Norata es tuya para siempre.</b> Se acaban las renovaciones y las fechas: al completarlo, tu {0} se cierra solo.":
+    "<b>One payment and Norata is yours for good.</b> No more renewals, no more dates: when you finish, your {0} closes itself.",
+  "Prorrateo de tu {0}": "Prorated credit from your {0}",
+  "Total estimado del ascenso": "Estimated total to upgrade",
+  "El prorrateo son los días que todavía no has usado de tu {0}, no el recibo completo: la parte que ya disfrutaste se queda gastada. La cifra exacta la calcula Stripe y la ves antes de meter la tarjeta.":
+    "The prorated credit covers the days you have not used yet from your {0}, not the whole receipt: the part you already enjoyed stays spent. Stripe works out the exact figure and you see it before entering your card.",
+  "Pasar a {0}": "Upgrade to {0}",
+  "Quiero {0}": "I want {0}",
   "Más opciones de esta rama": "More options for this branch",
   "Sube:": "Raises:",
   "Crear tu cuenta": "Create your account",
