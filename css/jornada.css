@@ -546,7 +546,21 @@ html.claro .jor-despertar .btn { animation: jor-respira-dia 2.8s ease-in-out inf
      ventana vacía a la derecha. Las dos columnas tienen tope y el conjunto va
      al medio; el título se alinea con él para que no se quede solo en la
      esquina. */
-  .jor { display: grid; grid-template-columns: minmax(380px, 460px) minmax(0, 560px); justify-content: center; gap: 28px; align-items: start; padding-bottom: 40px; max-width: 1048px; margin: 0 auto; }
+  /* El reloj a la IZQUIERDA y todo lo demás a la derecha (0.7.115.1): al meter
+     el selector de días arriba, la reja lo puso de primero y el reloj se fue a
+     la columna derecha. Con áreas con nombre el orden del HTML deja de mandar:
+     el reloj ocupa la columna izquierda entera y a su lado se apilan el
+     selector y la lista. */
+  .jor {
+    display: grid; grid-template-columns: minmax(380px, 460px) minmax(0, 560px);
+    grid-template-areas: "reloj dias" "reloj lista";
+    grid-template-rows: auto 1fr;
+    justify-content: center; gap: 20px 28px; align-items: start;
+    padding-bottom: 40px; max-width: 1048px; margin: 0 auto;
+  }
+  .jor-reloj { grid-area: reloj; }
+  .jor-dias { grid-area: dias; }
+  .jor-lista { grid-area: lista; }
   #view-jornada .page-head { max-width: 1048px; margin-left: auto; margin-right: auto; }
   .jor-reloj { background: var(--sup-tarjeta); border: 1px solid var(--line); border-radius: var(--r-grande); padding: 22px 22px 24px; }
   /* La lista no se estira a todo lo que sobra: una tira de 1.000 px con un
