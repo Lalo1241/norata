@@ -11142,7 +11142,12 @@
    con su color, que es lo que evita leerlos como el mismo mensaje dicho dos
    veces. */
 .plan-card.destacada { border-color: var(--mint); }
-.plan-card.limitada { border-color: var(--lila); }
+/* El lila es de Fundador y de nada más (ver `--lila` en :root). Lo llevan su
+   tarjeta de precio y el bloque de ascenso de Ajustes (`.plan-subir`), y van
+   juntos en los mismos selectores a propósito: son la misma promesa en dos
+   pantallas, y separados acaban discrepando en un tono. */
+.plan-card.limitada,
+.plan-subir { border-color: var(--lila); }
 
 .plan-tag {
   position: absolute; top: -9px; left: 13px;
@@ -11153,11 +11158,19 @@
 .plan-tag.lila { background: var(--lila-macizo); }
 /* El botón de Fundador va relleno como el del anual, pero en su color. La
    sombra se apaga: la de `.btn-primary` es menta y aquí cantaría. */
-.plan-card.limitada .btn-primary {
+.plan-card.limitada .btn-primary,
+.plan-subir .btn-primary {
   background: var(--lila-macizo);
   color: var(--sobre-vivo);
   box-shadow: none;
 }
+/* El icono dentro del botón: la misma piedra de Fundador que sale en la
+   cabecera del plan y en el mini menú. Va DENTRO del botón y no al lado del
+   título porque lo que se reconoce de un vistazo es adónde lleva el botón. */
+.plan-subir .btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.plan-subir .btn-primary svg { flex: none; }
 .plan-n { font-weight: 700; font-size: 15px; color: var(--text); }
 .plan-p { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1.1; }
 .plan-p i { font-style: normal; font-size: 12.5px; font-weight: 500; color: var(--muted); }
@@ -11382,7 +11395,8 @@ html.claro .plan-linea { stroke-opacity: .85; }
   content: "✓"; position: absolute; left: 0; top: 0;
   font-size: 12px; color: var(--mint);
 }
-.plan-card.limitada .plan-vent li::before { color: var(--lila); }
+.plan-card.limitada .plan-vent li::before,
+.plan-subir .plan-vent li::before { color: var(--lila); }
 
 /* El botón, siempre abajo del todo. Las dos tarjetas miden lo mismo —las
    estira la rejilla— pero su contenido no, así que los dos botones de pagar
