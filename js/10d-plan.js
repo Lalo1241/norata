@@ -1082,6 +1082,11 @@ function renderPanelPlan() {
 
   if (esPro()) {
     caja.innerHTML = `<h3>${tx("Tu plan")}</h3>` + planActivoHTML();
+    /* La cifra del abono se pide al servidor la primera vez que se pinta esto,
+       y cuando llega se repinta solo (ver `pedirAbono`). No se espera: la
+       pantalla del plan tiene que salir ya, y el renglón del descuento aparece
+       un instante después si lo hay. */
+    if (planAbono === null) pedirAbono();
     return;
   }
 
@@ -1282,34 +1287,54 @@ function planActivoHTML() {
 
    El importe exacto sale en la página de Stripe antes de meter la tarjeta, y
    de ahí todavía se puede uno volver. */
+/* Lo último que dijo el servidor, en pesos. `null` = todavía no se ha
+   preguntado; `0` = no hay nada que abonar. Vive fuera de la función porque el
+   panel se repinta varias veces y no puede preguntar en cada una. */
+let planAbono = null;
+
 function planAbonoEstimado() {
   if (!PLAN.pro || PLAN.plan === "fundador" || PLAN.deCasa) return 0;
-  if (PLAN.estado !== "activa" && PLAN.estado !== "prueba") return 0;
-  if (!PLAN.vence_el) return 0;
+  return planAbono || 0;
+}
 
-  const p = PLANES[PLAN.plan];
-  if (!p) return 0;
-  const precio = Number(String(p.precio).replace(/[^0-9]/g, ""));
-  if (!precio) return 0;
+/* ---- Se PREGUNTA, no se adivina ----
 
-  const fin = new Date(PLAN.vence_el).getTime();
-  if (!fin || isNaN(fin)) return 0;
+   Aquí había una cuenta hecha en el navegador: deducía el principio del
+   periodo restando un mes o un año a `vence_el` y lo multiplicaba por el
+   precio de catálogo. Daba bien en el caso normal y **mentía en el que
+   importa**: la cuenta de Eduardo figura a $590 pero su factura pagada dice
+   $11.80 —entró con un cupón—, así que la pantalla prometía abonarle $559 de
+   algo que costó $11. El servidor, que sí mira la factura, le habría
+   descontado $11. Prometer de más es la única versión de esto que no se puede
+   permitir, así que la cifra la da quien la decide.
 
-  /* El principio del periodo, deducido del final. Es la única parte que aquí
-     se adivina, y por eso la cifra se llama «más o menos» en la pantalla. */
-  const ini = new Date(PLAN.vence_el);
-  if (PLAN.plan === "anual") ini.setFullYear(ini.getFullYear() - 1);
-  else ini.setMonth(ini.getMonth() - 1);
-
-  const total = fin - ini.getTime();
-  const queda = fin - Date.now();
-  if (total <= 0 || queda <= 0) return 0;
-
-  const abono = Math.floor(precio * Math.min(queda, total) / total);
-  /* El mismo tope que pone el servidor: nunca hasta cero, y por debajo de un
-     peso no se menciona. */
-  const f = Number(String(PLANES.fundador.precio).replace(/[^0-9]/g, ""));
-  return Math.max(0, Math.min(abono, f - 1));
+   Falla en silencio y deja el abono en cero: sin red, el bloque enseña el
+   precio entero y ningún renglón de descuento. Eso es quedarse corto, que es
+   el lado bueno de equivocarse — y al comprar se vuelve a calcular. */
+async function pedirAbono() {
+  if (!PLAN.pro || PLAN.plan === "fundador" || PLAN.deCasa) return;
+  if (typeof syncReady === "function" && !syncReady()) return;
+  try {
+    const t = await sbToken();
+    const res = await fetch(SB_URL + "/functions/v1/pagar", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + t,
+        "apikey": SB_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ que: "abono" })
+    });
+    const b = await res.json().catch(function () { return {}; });
+    const pesos = res.ok && typeof b.centavos === "number" ? Math.floor(b.centavos / 100) : 0;
+    if (pesos === planAbono) return;
+    planAbono = pesos;
+    /* Solo se repinta si el panel sigue en pantalla: quien ya se fue a otra
+       sección no tiene por qué ver cómo se le mueve algo por detrás. */
+    if (document.getElementById("panel-plan")) renderPanelPlan();
+  } catch (e) {
+    planAbono = 0;
+  }
 }
 
 function planSubirAFundadorHTML() {
