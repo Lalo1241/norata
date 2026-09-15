@@ -338,7 +338,6 @@ function portadaPintar(modo) {
             rellene un cuestionario largo, y menos quien todavía no sabe si la
             app le va a servir. Debajo del formulario, la vía de un toque solo
             la encuentra quien ya decidió no usarla. -->
-       <div id="portada-google"></div>
        ${(() => {
          /* Los cinco campos, siempre los mismos y con los mismos ids. Lo único
             que cambia entre la pantalla de siempre y la de pasos es cómo se
@@ -360,7 +359,7 @@ function portadaPintar(modo) {
          const nota = `<p class="portada-nota">${tx("Te mandaré un correo para confirmar que la dirección es tuya. Hasta que lo abras, la cuenta no se activa.")}</p>`;
 
          if (!portadaPorPasos()) {
-           return `${cNombre}${cCorreo}${cClave}
+           return `<div id="portada-google"></div>${cNombre}${cCorreo}${cClave}
              <div class="stack">
                <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaRegistrar()">${tx("Crear cuenta")}</button>
              </div>${nota}`;
@@ -378,6 +377,11 @@ function portadaPintar(modo) {
              <div class="paso-puntos" aria-hidden="true">${
                [1, 2, 3].map(n => `<i class="${n <= portadaPaso ? "on" : ""}"></i>`).join("")}</div>
              <div class="paso" data-paso="1">
+               ${/* Google vive AQUÍ y no encima de las tres pantallas: quien
+                     pasa del primer paso ya decidió no entrar por ahí, y un
+                     atajo que sigue ofreciéndose después de rechazarlo deja de
+                     ser un atajo y pasa a ser ruido. Lo pidió Eduardo. */""}
+               <div id="portada-google"></div>
                ${titulo(1, "¿Cuál es tu correo?", "Con él entras, y ahí llega lo que la app te mande.")}
                ${cCorreo}
              </div>

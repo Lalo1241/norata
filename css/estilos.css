@@ -8154,7 +8154,37 @@
   .crear-pasos .paso { display: none; }
   .crear-pasos[data-en="1"] .paso[data-paso="1"],
   .crear-pasos[data-en="2"] .paso[data-paso="2"],
-  .crear-pasos[data-en="3"] .paso[data-paso="3"] { display: block; }
+  .crear-pasos[data-en="3"] .paso[data-paso="3"] {
+    display: block;
+    /* Una ANIMACIÓN y no una transición, y la diferencia importa: el paso
+       viene de `display: none`, y desde ahí una transición no arranca —el
+       navegador no interpola un elemento que no existía—. Una animación sí se
+       dispara sola en cuanto el selector empieza a aplicar, así que cada
+       cambio de paso la vuelve a lanzar sin una línea de JavaScript.
+
+       Se anima `opacity` y `transform`, que son valores literales. Si alguno
+       saliera de una variable se quedaría congelado en el inicial, que es la
+       trampa de la casa. */
+    animation: pasoEntra var(--dur-media, 0.22s) var(--curva, ease) both;
+  }
+  @keyframes pasoEntra {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+  /* Quien pide menos movimiento se queda con el desvanecido a secas: lo que
+     marea es el desplazamiento, no el cambio de opacidad. */
+  @media (prefers-reduced-motion: reduce) {
+    .crear-pasos .paso { animation-name: pasoAparece; }
+    @keyframes pasoAparece { from { opacity: 0; } to { opacity: 1; } }
+  }
+
+  /* Los tres pasos miden distinto —uno pide un campo, los otros dos— y sin un
+     mínimo el botón de abajo salta de sitio en cada pantalla. Que el sitio
+     donde hay que volver a pulsar se mueva bajo el dedo es justo lo que hace
+     que un camino de tres pasos se sienta largo. Medido uno por uno: 250 el
+     primero —con Google dentro— y 271 los otros dos, así que el mínimo es 271
+     y el botón no se mueve ni un píxel en todo el camino. */
+  .crear-pasos .paso { min-height: 271px; }
 
   /* Los tres puntos. No es una barra de progreso con porcentaje: son tres, se
      cuentan de un vistazo, y lo que hay que saber aquí no es «cuánto llevas»
