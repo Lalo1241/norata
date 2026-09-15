@@ -159,11 +159,13 @@ html.claro {
 /* La presentación del módulo: la misma caja vacía de las otras pantallas, con
    menos aire —aquí debajo hay una rueda que también quiere sitio—. */
 .jor-bienvenida { padding: 18px 16px 20px; margin-bottom: 4px; }
-.jor-dias-fila { display: grid; grid-template-columns: repeat(7, 1fr) auto; gap: 6px; align-items: stretch; }
+.jor-dias-fila { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: stretch; }
+.jor-dias-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.jor-dias-cab .jor-rot { margin: 0; }
 /* El chevron que abre lo de vincular. Del alto de los días para que la fila se
    lea como una sola pieza. */
 .jor-dias-mas {
-  width: 30px; border-radius: var(--r-chico); border: 1px solid var(--line);
+  width: 28px; height: 28px; flex: none; border-radius: var(--r-chico); border: 1px solid var(--line);
   background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer;
 }
 .jor-dias-mas svg { width: 16px; height: 16px; transition: transform var(--dur-corta, .15s) ease; }

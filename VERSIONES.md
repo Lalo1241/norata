@@ -112,6 +112,13 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.116.1 · 15 sep 2026
+
+**El selector de días, con título.** Siete letras sueltas no dicen qué son: el
+bloque lleva ahora su rótulo —«Rutina por día»— y el chevron que abre lo de
+vincular se va a la derecha del rótulo, que al final de la fila parecía un
+octavo día. Lo vio Eduardo en la pantalla.
+
 ### 0.7.116 · 15 sep 2026
 
 **El Pomodoro ya se lee como los otros cuatro módulos, y el selector de días se

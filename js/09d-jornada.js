@@ -228,12 +228,17 @@ function jDiasHTML() {
      de vincular se pliega: se configura una vez y estorba el resto del tiempo.
      Lo pidió Eduardo. Plegado solo se ve la nota cuando estás mirando OTRO
      día, que es la única que no se puede deducir del propio selector. */
+  /* Con título: siete letras sueltas no dicen qué son. Y el chevron a la
+     derecha del rótulo, no al final de los días, que ahí parecía un octavo
+     día. Lo pidió Eduardo. */
   return `<div class="jor-dias">
-    <div class="jor-dias-fila" role="group" aria-label="${escapeAttr(tx("Día de la rutina"))}">${botones}
+    <div class="jor-dias-cab">
+      <h3 class="jor-rot">${tx("Rutina por día")}</h3>
       <button type="button" class="jor-dias-mas" data-jdias-mas="1" aria-expanded="${jDiasAbierto}" aria-label="${escapeAttr(tx("Ajustes de la rutina"))}" title="${escapeAttr(tx("Ajustes de la rutina"))}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5 5 5-5"/></svg>
       </button>
     </div>
+    <div class="jor-dias-fila" role="group" aria-label="${escapeAttr(tx("Día de la rutina"))}">${botones}</div>
     ${jDiasAbierto ? `<button type="button" class="jor-vinculo" data-jvinculo="1" role="switch" aria-checked="${j.vinculado}">
       <span class="jor-palanca"></span>
       <span class="jor-vinculo-tx"><b>${tx("Vincular entre semana y fin de semana")}</b><small>${sub}</small></span>
