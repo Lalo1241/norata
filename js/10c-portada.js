@@ -107,7 +107,7 @@ function portadaHaceFalta() {
   return sync.entrada !== "local";
 }
 
-/* ================= El alta por pasos (EN PRUEBA, 0.7.118) =================
+/* ================= El alta por pasos (EN PRUEBA, 0.7.121) =================
 
    Una pregunta por pantalla en vez de cinco casillas de golpe. Lo trajo
    Eduardo de una app que se llama Cosmos, y el argumento es el correcto: una

@@ -112,7 +112,7 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
-### 0.7.118 · 15 sep 2026
+### 0.7.121 · 15 sep 2026
 
 **El alta por pasos, en prueba y apagada.** Eduardo trajo una app —Cosmos— que
 parte el registro en pantallas de una pregunta cada una, en vez de dejar una
@@ -282,6 +282,99 @@ aquí te mando otro», y el botón se llama «Mandarme otro». La cifra exacta v
 el panel de Supabase (Authentication → Email), y **desde aquí no se puede
 mirar**: la red de esta sesión no llega. Si Eduardo la confirma, se escribe;
 hasta entonces no se pone un número que igual no es.
+
+### 0.7.120 · 15 sep 2026
+
+**El bloque de ascenso a Fundador se viste de Fundador, y los números dicen lo
+que son.** Ocho notas de Eduardo mirándolo en su cuenta, y todas venían del
+mismo sitio: el bloque prometía un plan lila con la ropa del plan menta.
+
+- **El lila entero, y desde los selectores que ya existían.** Marco, botón y
+  palomitas salen ahora de las mismas reglas que visten la tarjeta de precio de
+  Fundador (`.plan-card.limitada`), con `.plan-subir` añadido al lado. Son la
+  misma promesa en dos pantallas: separadas, un día discrepan en un tono.
+- **El botón lleva su piedra**, la misma que sale en la cabecera del plan y en
+  el mini menú. Dentro del botón y no junto al título, porque lo que se
+  reconoce de un vistazo es adónde lleva el botón.
+- **El copy decía tres veces lo mismo** —«se paga una vez», «ya no se renueva
+  nunca», «no se te vuelve a cobrar»— y contaba en negativo lo único que aquí
+  es una buena noticia. Ahora es una frase con la promesa en negrita: **un pago
+  y Norata es tuya para siempre**, y lo de librarse de la suscripción dicho como
+  lo que es —se acaban las renovaciones y las fechas—. Con eso sobra la
+  cápsula que iba a llevar.
+
+**Y los tres renglones de la cuenta, que era lo que más confundía:**
+
+| Antes | Ahora | Por qué |
+| --- | --- | --- |
+| Precio | **Norata Fundador** | Dice qué producto es, no solo cuánto cuesta |
+| Lo que ya pagaste | **Prorrateo de tu Pro anual** | Él pagó $590 y el renglón decía −$559: sin la palabra exacta, la resta no cuadra |
+| Pagarías más o menos | **Total estimado del ascenso** | Formal, y dice por qué se paga eso |
+
+Debajo, una línea que cierra la duda de la que salía todo: **el prorrateo son
+los días que todavía no has usado, no el recibo completo** — la parte ya
+disfrutada se queda gastada. Y el cupón de Stripe cambia de nombre por lo mismo:
+de «Lo que ya pagaste de tu plan» a **«Prorrateo de tu plan Norata Pro»**, que es
+lo que se lee en la caja y en el recibo.
+
+**Dos fallos del inglés que sacó la medición**, y el segundo vale para cualquier
+texto nuevo: `T` traduce el PATRÓN —las partes fijas— y mete los valores
+interpolados tal cual, así que un nombre metido sin `tx()` se queda en español
+dentro de la app en inglés. El renglón decía «Prorated credit from your Pro
+anual». Y una plantilla partida por un ternario deja una clave que no se puede
+traducir: cada caso lleva su frase entera.
+
+### 0.7.119 · 15 sep 2026
+
+**El ritmo cuadra con la actividad, y los números se pueden escribir.** Cuatro
+cosas que vio Eduardo usándolo:
+
+- **Una actividad dura lo que dice su nombre.** «Moverme 20 minutos» entraba a
+  la rueda como un bloque de una hora, y el informe contaba después esa hora
+  como planeada. No hay campo de duración en una misión y no se inventa uno:
+  se lee del nombre (`jMinutosDeNombre`), que es donde la persona ya lo
+  escribió — en español y en inglés, con «media hora» y «1.5 h» incluidos. Si
+  el nombre no dice nada, se queda la hora de siempre.
+- **Elegir un bloque en la rueda ES decir en qué te vas a enfocar.** Antes solo
+  contaba el bloque de la hora actual, así que tocar el de las cinco y darle a
+  Iniciar arrancaba «Sin vincular».
+- **El ritmo se mide contra lo que FALTA, no contra el total.** La hoja dice
+  cuánto le queda al bloque, avisa cuando el ritmo no cabe y ofrece cuadrarlo de
+  un toque —`jCuadrar` reparte lo que queda en tramos enteros con sus descansos,
+  prefiriendo tramos de 25—. El tope del foco pasa a ser ese resto.
+- **Los números se escriben a mano.** Un lápiz por fila abre el campo: de uno en
+  uno, recortado a su rango, para los impares y lo que no es múltiplo de cinco.
+  Los botones − y + siguen yendo de cinco en cinco, que es el gesto rápido.
+
+### 0.7.118 · 15 sep 2026
+
+**Los banners se vuelven una tira plegable.** Eduardo lo paró por tercera vez, y
+esta con el diagnóstico exacto: «aportan poco para lo mucho que roban». Tenía
+razón y la medida lo confirma — el banner costaba **208 px** del sitio más caro
+de cada módulo, y en Misiones eso empujaba dos misiones por debajo del doblez.
+
+Decidido con un boceto de tres alternativas
+(https://claude.ai/artifact/8eC2MrwVxNsSeCUr6yzrVd); eligió la tira.
+
+- **Una fila de 62 px** con lo único que cambia lo que haces en el siguiente
+  minuto: la cifra del módulo y lo que pide atención. **146 px menos por
+  módulo.**
+- **Las cuatro cifras y el informe siguen ahí**, detrás de un chevron. No se
+  pierde nada: lo que estaba a la vista pasa a estar a un toque. Abierta o
+  cerrada se recuerda mientras dure la sesión y se estampa al dibujar — sin eso,
+  cumplir una misión la cerraría en las narices de quien acaba de abrirla.
+- **El pliegue se dibuja siempre y se esconde con CSS**, así abrirlo no repinta
+  el módulo entero.
+- **Fuera la ilustración de fondo**: era lo que más pesaba y lo que menos decía,
+  y el color del módulo ya lo identifica. Los cinco sitios dejaron de calcular
+  su escena, y con ella se va el velo que se adelgazó en 0.7.49.
+- En el teléfono no cambia nada: ahí el banner ya no salía desde 0.7.112 y la
+  puerta al informe sigue en la cabecera.
+
+**Y un arreglo del Pomodoro:** al aplicar un vínculo, el interruptor se quedaba
+en gris y los días sin recolorear hasta cambiar de pantalla. El selector no se
+repintaba con el resto (): el dato cambiaba y la interfaz se
+quedaba con la foto vieja.
 
 ### 0.7.117 · 15 sep 2026
 

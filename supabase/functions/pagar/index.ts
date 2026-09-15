@@ -179,13 +179,18 @@ async function cuponDeLoQueYaPago(
   /* Guarda 3: menos de un peso no merece un cupon. */
   if (credito < 100) return null;
 
+  /* El nombre se LEE: sale en la caja de Stripe, en el recibo y en el correo
+     del cobro. «Lo que ya pagaste de tu plan» describia bien la intencion y
+     mal la cifra —quien pago $590 del anual ve −$559 y la resta no le cuadra—,
+     asi que dice la palabra exacta: es un PRORRATEO, no una devolucion del
+     recibo. Es la misma palabra que usa la pantalla de Ajustes. */
   const cupon = await stripe("/coupons", {
     "amount_off": String(credito),
     "currency": moneda,
     "duration": "once",
     "max_redemptions": "1",
     "redeem_by": String(ahora + 3600),
-    "name": "Lo que ya pagaste de tu plan",
+    "name": "Prorrateo de tu plan Norata Pro",
   }, llave);
 
   return { id: cupon.id as string, centavos: credito };
@@ -261,12 +266,35 @@ Deno.serve(async (req: Request) => {
     if (!cliente) {
       return responder({ error: "Todavia no hay ningun pago en esta cuenta." }, 400, origen);
     }
-    const sesion = await stripe("/billing_portal/sessions", {
-      customer: cliente,
-      return_url: "https://mi.norata.app/?pago=portal",
-      locale: "es-419",
-    }, LLAVE);
-    return responder({ url: sesion.url }, 200, origen);
+    /* ---- El error de Stripe tiene que LLEGAR ----
+
+       Esto estaba sin capturar, y por eso un fallo aqui era mudo: `stripe()`
+       lanza con el mensaje de Stripe, la funcion reventaba entera, Supabase
+       devolvia un 500 con su propio cuerpo y la app se quedaba con su frase de
+       respaldo —«No se pudo abrir tu suscripcion»—. Con eso no se puede
+       arreglar nada: el motivo de verdad nunca salia de aqui.
+
+       Y el motivo de verdad suele ser uno concreto y facil de arreglar: el
+       portal de Stripe **necesita una configuracion guardada en su panel**, y
+       hasta que exista contesta «You must provide a configuration or create
+       your default configuration in the Stripe Dashboard». Es de las cosas que
+       se configuran una vez por modo, asi que puede estar hecha en pruebas y
+       faltar en vivo — y entonces «antes funcionaba» es literalmente cierto.
+
+       Se registra ademas en el log, que es donde se mira cuando la persona ya
+       cerro la pestana. */
+    try {
+      const sesion = await stripe("/billing_portal/sessions", {
+        customer: cliente,
+        return_url: "https://mi.norata.app/?pago=portal",
+        locale: "es-419",
+      }, LLAVE);
+      return responder({ url: sesion.url }, 200, origen);
+    } catch (e) {
+      const motivo = (e as Error).message || "sin mensaje";
+      console.log("portal fallo | cliente:", cliente, "| stripe dijo:", motivo);
+      return responder({ error: "No se pudo abrir tu suscripcion: " + motivo }, 502, origen);
+    }
   }
 
   /* ---- Comprar ---- */
