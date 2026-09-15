@@ -263,6 +263,14 @@ control de Ajustes: es el mismo, con el rótulo y las palabras ocultos por CSS.
 - **El rótulo de la prueba sube a la derecha**, que es la esquina que dejaron
   libre. Abajo tapaba los botones, y un rótulo de pruebas que se come un botón
   de verdad convierte la prueba en el problema.
+- **Pequeños, y en el teléfono cambian de esquina.** Con el ratón se apunta,
+  así que en pantalla ancha caben en 24 px de alto; en el teléfono se toca y
+  vuelven a 32, que es el mínimo que ya se maneja con el pulgar en la app. Y
+  ahí suben ARRIBA a la izquierda: abajo caían donde acaba el formulario, donde
+  vive el pulgar que desplaza y donde tapa el teclado al abrirse. Arriba están
+  antes de que hagan falta — quien no entiende la pantalla lo primero que busca
+  es cómo cambiarla. El rótulo de la prueba hace el viaje contrario, porque los
+  dos no caben arriba en 390 px.
 - **El elegido NO se marca en menta maciza**, que es como se marca este mismo
   control dentro de Ajustes. En esta pantalla la menta es «Entrar», y hay una
   sola cosa que lo merece; dos chispas verdes en la esquina le quitan al botón
@@ -272,6 +280,13 @@ control de Ajustes: es el mismo, con el rótulo y las palabras ocultos por CSS.
   franja de arriba salía más clara que la página. Estaba en dos sitios: el
   script de la puerta y el respaldo de `ponerTema`, que es justo el que corre
   donde no existe `pintarColorDeBarra` — o sea, en la puerta.
+
+**Y un segundo tropiezo, del mismo tipo:** el bloque que cambia las esquinas en
+el teléfono se escribió ANTES de las reglas del rótulo, y con la misma
+especificidad manda el último. Resultado: al rótulo se le aplicaban los cuatro
+lados a la vez —`top` y `bottom`, `left` y `right`— y se estiraba de arriba
+abajo tapando la pantalla entera. Medido: 820 px de alto. Se arregla moviendo el
+bloque detrás, no subiéndole la especificidad.
 
 **Un tropiezo que solo se ve mirando:** ocultar las palabras del interruptor con
 `.ts-op span { display: none }` dejó los dos botones VACÍOS. `icon()` envuelve

@@ -8250,7 +8250,7 @@
   /* Desde 900 px hay sitio para las dos columnas de verdad: el formulario se
      queda en la izquierda y el panel se va a la derecha de borde a borde. */
   @media (min-width: 900px) {
-    html.puerta-dos .portada { right: 46%; padding: 34px; }
+    html.puerta-dos .portada { right: 46%; padding: 34px 34px 62px; }
     /* Con el panel ya fuera del flujo, el formulario vuelve a ser hijo único y
        se centra como siempre: con `margin: auto`, que reparte el hueco cuando
        sobra y vale cero cuando falta. */
@@ -8293,8 +8293,8 @@
      teléfono. */
   html.puerta-dos .puerta-idioma,
   html.puerta-dos .puerta-ajustes .tema-sw {
-    display: flex; gap: 4px; flex: none;
-    padding: 4px;
+    display: flex; gap: 3px; flex: none;
+    padding: 3px;
     background: var(--sup-tarjeta); border: var(--borde-fino) solid var(--line);
     border-radius: var(--r-pastilla);
   }
@@ -8306,15 +8306,23 @@
      la luna y dejaba dos botones vacíos. Se vio en la captura, no en el código. */
   html.puerta-dos .puerta-ajustes .tema-tit,
   html.puerta-dos .puerta-ajustes .ts-op span:not(.ic) { display: none; }
+  /* Pequeños a propósito: esto no es una acción de la pantalla, es cómo te
+     habla — y en la esquina de un formulario, un control del tamaño de un
+     botón compite con el botón. Con el ratón se apunta, así que aquí caben en
+     24 px de alto; en el teléfono se toca, y la regla de abajo los devuelve a
+     32, que es el mínimo que ya se maneja con el pulgar en la app (`.badd`). */
   html.puerta-dos .puerta-idioma button,
   html.puerta-dos .puerta-ajustes .ts-op {
-    display: flex; align-items: center; gap: 7px;
-    padding: 6px 12px 6px 8px;
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 9px 4px 5px;
     background: none; border: 0; border-radius: var(--r-pastilla);
     color: var(--muted); cursor: pointer;
-    font-family: inherit; font-size: 12.5px; font-weight: 700;
+    font-family: inherit; font-size: 11px; font-weight: 700;
   }
-  html.puerta-dos .puerta-ajustes .ts-op { padding: 7px 9px; }
+  html.puerta-dos .puerta-ajustes .ts-op { padding: 5px 7px; }
+  /* El dibujo se encoge desde aquí y no desde `icon(ico, 15)`: ese tamaño lo
+     escribe `temaSwitchHTML()`, que es el control de Ajustes y allí está bien. */
+  html.puerta-dos .puerta-ajustes .ts-op svg { width: 14px; height: 14px; }
   html.puerta-dos .puerta-idioma button:hover,
   html.puerta-dos .puerta-ajustes .ts-op:hover { color: var(--text); }
   /* El elegido se marca con superficie y tinta, y NO con la menta maciza que
@@ -8331,7 +8339,7 @@
      idioma al lado se comía el ancho justo donde menos sobra, y «ES» y «EN»
      dicen lo mismo en las dos caras. */
   @media (max-width: 480px) {
-    html.puerta-dos .puerta-idioma button { padding: 6px 8px; }
+    html.puerta-dos .puerta-idioma button { padding: 5px 7px; }
     html.puerta-dos .puerta-idioma button span { display: none; }
   }
 
@@ -8371,6 +8379,36 @@
   /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
      deja congelado en el inicial. */
   html.puerta-dos #rotulo-puerta a:hover { background: rgba(16, 21, 29, 0.24); }
+
+  /* ---- En el teléfono se cambian las esquinas ----
+     Abajo a la izquierda, en una pantalla estrecha, los controles caen justo
+     donde acaba el formulario y donde vive el pulgar: es por donde se desplaza
+     y lo que tapa el teclado al abrirse. Arriba están antes de que hagan falta
+     —quien no entiende la pantalla lo primero que busca es cómo cambiarla— y el
+     formulario ya nace debajo, porque el relleno de arriba les deja sitio.
+
+     El rótulo de la prueba hace el viaje contrario, que es la otra mitad del
+     motivo: los dos no caben arriba en 390 px. Abajo tapa la frase del panel,
+     que es lo único que se puede permitir tapar — y se va con la prueba. */
+  @media (max-width: 640px) {
+    html.puerta-dos .puerta-ajustes {
+      top: calc(env(safe-area-inset-top) + 12px); bottom: auto;
+    }
+    html.puerta-dos #rotulo-puerta {
+      bottom: calc(env(safe-area-inset-bottom) + 12px); top: auto;
+      left: 12px; right: auto;
+    }
+    html.puerta-dos .portada {
+      padding-top: calc(env(safe-area-inset-top) + 58px);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 92px);
+    }
+    /* Y el dedo pide más que el ratón: los mismos botones vuelven a 32 px de
+       alto. Se escribe como `min-height` y no como relleno para que el número
+       se lea —es el mínimo de la casa— y no haya que recalcularlo cada vez que
+       cambie la letra o el aro. */
+    html.puerta-dos .puerta-idioma button,
+    html.puerta-dos .puerta-ajustes .ts-op { min-height: 32px; }
+  }
 
   /* ---- Qué borrar si la prueba no se queda (por NOMBRE, no por rango) ----
        - `css/estilos.css`: este bloque entero, de `.puerta-lado` hasta aquí,
