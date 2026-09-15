@@ -112,6 +112,15 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.115.1 · 15 sep 2026
+
+**En PC, el reloj vuelve a la izquierda.** Al meter el selector de días arriba,
+la reja de dos columnas lo puso de primero y empujó el reloj a la derecha. Las
+columnas ahora van por áreas con nombre (`"reloj dias" / "reloj lista"`), así
+que el orden del HTML deja de mandar en el reparto: el reloj ocupa la columna
+izquierda entera y a su lado se apilan el selector y la lista. En el teléfono no
+cambia nada — ahí siguen uno debajo de otro, con el selector arriba.
+
 ### 0.7.115 · 15 sep 2026
 
 **Una rutina por día, y un interruptor para llevar solo dos.** Hasta aquí la
