@@ -112,6 +112,21 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.114.2 · 14 sep 2026
+
+**La prohibición se lee sobre cualquier color, y el Hiperfoco arranca volteando
+el reloj.**
+
+- **La malla trae su propio fondo.** Sobre un gajo coral, unas rayas coral no se
+  veían —lo cazó Eduardo de noche—. Ahora el patrón lleva un fondo que hunde el
+  gajo hacia el suelo de la app (oscurece de noche, aclara de día, al 66%) y
+  encima van las rayas a plena fuerza. Se lee igual encima de los ocho colores.
+- **En el Hiperfoco, la arena empieza ABAJO.** Un reloj de arena en reposo tiene
+  el grano en el bulbo de abajo y se voltea para empezar a contar; ahora al
+  tocar «Enfocar» el reloj **da la vuelta** y arranca la cuenta. No hizo falta
+  código nuevo para el giro: `jPintarCentro` ya voltea cuando la arena sube de
+  golpe, así que basta con que el estado parado sea `arriba: 0`.
+
 ### 0.7.114.1 · 14 sep 2026
 
 **El asa ya no aparece en la esquina, y lo ocupado se tapa con una malla.**

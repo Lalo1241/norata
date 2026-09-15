@@ -181,7 +181,13 @@ html.claro {
 .jor-blq.bloqueado { stroke: var(--coral); stroke-width: 2.6; }
 .jor-blq.apagado { opacity: .55; }
 .jor-veda { fill: url(#jor-veda); stroke: none; pointer-events: none; }
-.jor-veda-raya { stroke: var(--coral); stroke-width: 2.6; opacity: .75; }
+/* La malla trae SU propio fondo y no se fía del color del bloque: sobre un
+   gajo coral, unas rayas coral no se veían —lo cazó Eduardo de noche—. El
+   fondo hunde el gajo hacia el suelo de la app (oscurece de noche, aclara de
+   día) y encima van las rayas a plena fuerza. Así la prohibición se lee igual
+   encima de cualquiera de los ocho colores. */
+.jor-veda-fondo { fill: var(--bg); opacity: .66; }
+.jor-veda-raya { stroke: var(--coral); stroke-width: 2.8; }
 .jor-blq-ic.vedado { color: var(--coral); }
 /* Fuera del aro mientras pisa a otro: la sombra es lo que lo levanta. De día
    no hay resplandor, pero una sombra sí —no es luz, es peso—. */
