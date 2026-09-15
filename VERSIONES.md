@@ -112,6 +112,28 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.119 · 15 sep 2026
+
+**El ritmo cuadra con la actividad, y los números se pueden escribir.** Cuatro
+cosas que vio Eduardo usándolo:
+
+- **Una actividad dura lo que dice su nombre.** «Moverme 20 minutos» entraba a
+  la rueda como un bloque de una hora, y el informe contaba después esa hora
+  como planeada. No hay campo de duración en una misión y no se inventa uno:
+  se lee del nombre (`jMinutosDeNombre`), que es donde la persona ya lo
+  escribió — en español y en inglés, con «media hora» y «1.5 h» incluidos. Si
+  el nombre no dice nada, se queda la hora de siempre.
+- **Elegir un bloque en la rueda ES decir en qué te vas a enfocar.** Antes solo
+  contaba el bloque de la hora actual, así que tocar el de las cinco y darle a
+  Iniciar arrancaba «Sin vincular».
+- **El ritmo se mide contra lo que FALTA, no contra el total.** La hoja dice
+  cuánto le queda al bloque, avisa cuando el ritmo no cabe y ofrece cuadrarlo de
+  un toque —`jCuadrar` reparte lo que queda en tramos enteros con sus descansos,
+  prefiriendo tramos de 25—. El tope del foco pasa a ser ese resto.
+- **Los números se escriben a mano.** Un lápiz por fila abre el campo: de uno en
+  uno, recortado a su rango, para los impares y lo que no es múltiplo de cinco.
+  Los botones − y + siguen yendo de cinco en cinco, que es el gesto rápido.
+
 ### 0.7.118 · 15 sep 2026
 
 **Los banners se vuelven una tira plegable.** Eduardo lo paró por tercera vez, y
@@ -136,6 +158,11 @@ Decidido con un boceto de tres alternativas
   su escena, y con ella se va el velo que se adelgazó en 0.7.49.
 - En el teléfono no cambia nada: ahí el banner ya no salía desde 0.7.112 y la
   puerta al informe sigue en la cabecera.
+
+**Y un arreglo del Pomodoro:** al aplicar un vínculo, el interruptor se quedaba
+en gris y los días sin recolorear hasta cambiar de pantalla. El selector no se
+repintaba con el resto (): el dato cambiaba y la interfaz se
+quedaba con la foto vieja.
 
 ### 0.7.117 · 15 sep 2026
 
