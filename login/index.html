@@ -49,33 +49,6 @@
     }
   } catch (e) {}
 
-  /* ---- La puerta de dos columnas, EN PRUEBA (0.7.115): `?puerta=` ----
-     La misma receta con la que se probaron los tonos del modo claro: la
-     pantalla nueva se sube APAGADA y solo la ve quien escribe el parámetro.
-     Esta decisión es de Eduardo —es lo primero que ve alguien que llega de la
-     landing—, así que no se enciende sola.
-
-     Tres valores, y los dos primeros son los dos CAMINOS que hay que juzgar:
-
-       ?puerta=dos     quien ya tiene cuenta -> el formulario de entrar
-       ?puerta=nuevo   quien llega de «Empieza gratis» -> el de crear cuenta
-       ?puerta=no      apagarla
-
-     En `sessionStorage` y no en `localStorage`, igual que las otras pruebas:
-     al cerrar la pestaña desaparece, así que no se queda pegada como si fuera
-     un ajuste que alguien eligió. Y aquí arriba y no en `12-login.js` por lo
-     mismo que el modo claro: abajo se vería un instante la puerta de siempre
-     y luego el salto. */
-  try {
-    var qpu = new URLSearchParams(location.search).get("puerta");
-    if (qpu === "dos" || qpu === "nuevo" || qpu === "no") sessionStorage.setItem("norata-prueba-puerta", qpu);
-    var pu = sessionStorage.getItem("norata-prueba-puerta");
-    if (pu === "dos" || pu === "nuevo") {
-      document.documentElement.classList.add("puerta-dos");
-      if (pu === "nuevo") document.documentElement.classList.add("puerta-nuevo");
-    }
-  } catch (e) {}
-
 </script>
 
 <!-- Los tres huecos que la portada necesita para hablar: la pantalla de
@@ -110,7 +83,7 @@
 
 <div id="toast"></div>
 
-<!-- ============ IDIOMA Y ASPECTO, EN LA PUERTA (en prueba, 0.7.115) ============
+<!-- ============ IDIOMA Y ASPECTO, EN LA PUERTA (0.7.117) ============
      Hasta ahora la puerta hablaba SIEMPRE en español a quien nunca ha
      entrado, y estaba escrito así a conciencia: «todavía no ha elegido, y la
      pantalla donde se elige está al otro lado». El problema es que al otro
@@ -141,9 +114,8 @@
   <div class="tema-hueco"></div>
 </div>
 
-<!-- ============ EL PANEL DE AL LADO (en prueba, 0.7.115) ============
-     No se dibuja salvo que `<html>` lleve la clase, que es lo que pone el
-     script de arriba al ver `?puerta=`. Vive aquí y no en `js/10c-portada.js`
+<!-- ============ EL PANEL DE AL LADO (0.7.117) ============
+     Vive aquí y no en `js/10c-portada.js`
      a propósito: ese archivo lo comparte la APP —la misma portada se abre
      desde Ajustes para crear la cuenta— y ahí una segunda columna no pinta
      nada. Puesto en el marcado de la puerta, la app ni se entera.
@@ -175,17 +147,6 @@
     <p class="puerta-firma">Empezar es gratis</p>
   </div>
 </aside>
-
-<!-- El recordatorio de que esta pestaña no es la app de verdad. Sin él es
-     fácil olvidarlo y acabar juzgando la puerta buena por lo que se ve aquí.
-     Los tres enlaces son los tres caminos, para poder saltar entre ellos sin
-     escribir la dirección a mano. -->
-<div class="rotulo-prueba" id="rotulo-puerta">
-  Puerta en prueba
-  <a href="?puerta=dos">Ya tengo cuenta</a>
-  <a href="?puerta=nuevo">Soy nuevo</a>
-  <a href="?puerta=no">Apagar</a>
-</div>
 
 <!-- ============ LOS ARCHIVOS ============
      CINCO de los diecisiete que carga la app, y ni uno más. Se pudo hacer

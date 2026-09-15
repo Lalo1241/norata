@@ -114,21 +114,24 @@ que no hay que acordarse de ningún cambio de estación.
 
 ### 0.7.117 · 15 sep 2026
 
-**La puerta de dos columnas, en prueba y apagada.** Eduardo trajo la pantalla de
-entrar de Supabase: el formulario a la izquierda y, a la derecha, sitio para una
-frase. Y con ella una pregunta más grande —que la landing tenga DOS entradas
-distintas, una para quien ya tiene cuenta y otra para quien llega nuevo, cada
-una con su camino—. Las dos cosas son decisión suya, así que se suben **apagadas
-detrás de un parámetro**, que es la receta de la casa desde los tonos del modo
-claro (0.7.3.1).
+**La puerta nueva, ya encendida para todo el mundo.** Eduardo trajo la pantalla
+de entrar de Supabase: el formulario a la izquierda y, a la derecha, sitio para
+una frase. Y con ella una pregunta más grande —que la landing tenga DOS entradas
+distintas, una para quien ya tiene cuenta y otra para quien llega por primera
+vez, cada una con su camino—.
 
-**Tres enlaces y nada más:**
+Se construyó entera **apagada detrás de `?puerta=`**, que es la receta de la
+casa desde los tonos del modo claro (0.7.3.1), y se encendió al aprobarla. Esta
+entrada cuenta las dos cosas: lo que quedó, y lo que se descubrió por el camino
+con el interruptor puesto. Lo que se quitó al encender está al final del bloque
+`.puerta-lado` de `css/estilos.css`.
+
+**Dos direcciones y dos caminos:**
 
 | Dirección | Qué enseña |
 | --- | --- |
-| `mi.norata.app/login/?puerta=dos` | La puerta de quien YA tiene cuenta: el formulario de entrar, y al lado la frase de bienvenida |
-| `mi.norata.app/login/?puerta=nuevo` | La puerta de quien llega de «Empieza gratis»: abre directamente en **crear cuenta**, y al lado lo que Norata hace |
-| `mi.norata.app/login/?puerta=no` | Apagarla |
+| `mi.norata.app/login/` | Quien YA tiene cuenta: el formulario de entrar, y al lado la frase de bienvenida |
+| `mi.norata.app/crear-cuenta/` | Quien llega de «Empieza gratis»: desvía a `/login/?nuevo` y abre en **crear cuenta**, con lo que Norata hace al lado |
 
 - **El formulario no cambia ni una línea.** Los botones, el orden de los campos,
   Google, «probar sin cuenta» y el pie legal son exactamente los de siempre; lo
@@ -161,16 +164,19 @@ exactamente la trampa que ya está escrita en el bloque de `.portada`, y aun as�
 volvió a morder por la puerta de al lado. Se cierra con `justify-content:
 flex-start` y repartiendo el hueco con `margin: auto`.
 
-**El rótulo se dibujaba debajo de la portada.** `--piso-rotulo-prueba` (7700)
-lo heredó del rótulo de los informes, y aquel vive DENTRO de la app, donde nada
-lo tapa; la portada cubre la pantalla entera desde 8000. Se dibujaba en su sitio
-y `elementFromPoint` devolvía la portada: invisible y sin poder pulsarlo. Piso
-propio, `--piso-rotulo-puerta: 8100`, por debajo de los avisos y del cuadro de
-confirmar, que van siempre los últimos.
+**Y una que vale para cualquier cosa que se ponga encima de la puerta:** el
+rótulo de la prueba se dibujaba DEBAJO de la portada. Llevaba
+`--piso-rotulo-prueba` (7700), que es el del rótulo de los informes — y aquel
+vive dentro de la app, donde nada lo tapa; la portada cubre la pantalla entera
+desde 8000. Se dibujaba en su sitio y `elementFromPoint` devolvía la portada:
+invisible y sin poder pulsarlo. El rótulo se fue al encender la puerta, pero la
+lección se queda: **encima de la portada hay que pasar de 8000**, y por debajo
+de los avisos (8500) y del cuadro de confirmar (8600).
 
-**Y la prueba de que apagada no cambia nada:** foto de los estilos calculados de
-la puerta entera —dos anchos, los dos modos, 112 elementos— contra la misma
-puerta sin tocar. Diferencias: ninguna.
+**Y la prueba de que apagada no cambiaba nada:** foto de los estilos calculados
+de la puerta entera —dos anchos, los dos modos, 112 elementos— contra la misma
+puerta sin tocar, en cada tanda. Diferencias: ninguna, hasta el día de
+encenderla.
 
 **Y el idioma se pregunta en la puerta, que es donde ya hacía falta.** Lo trajo
 Eduardo aprovechando el formato nuevo: si la puerta sabe en qué idioma hablas,
@@ -402,12 +408,10 @@ nuevo» no rotan, porque eso no es una frase: es lo que hace la app.
 - Medido en los dos modos: el símbolo sobre su disco da entre 4,97 y 10,16 sobre
   1, y los dos aros de idioma 4,21 y 8,37 — por encima del 3 que pide un dibujo.
 
-**La pregunta que queda abierta, que es la de la landing.** Hoy hay una sola
-dirección (`/login/`) y las dos entradas de la landing tendrían que llevar a
-sitios que se sientan distintos. Tres formas, y la que no recomiendo es la que
-parece más limpia:
+**Cómo se resolvió lo de las dos direcciones.** Había tres formas, y la que no
+recomendé es la que parece más limpia:
 
-1. **`/login/?nuevo`** (o el `?puerta=nuevo` de esta prueba, ya sin rótulo). No
+1. **`/login/?nuevo`**. No
    cuesta nada: ni archivo nuevo, ni entrada en `ASSETS`, ni configuración en
    Supabase. Y no la rompe ningún correo, porque `sbVuelta()` manda a volver sin
    la consulta: el enlace del correo aterriza en `/login/` limpio.
@@ -427,11 +431,18 @@ parece más limpia:
 1 sigue viva por dentro —es a donde desvía— así que cambiar de idea después
 cuesta una línea.
 
-**Lo que falta si esto se queda:** el rótulo de «puerta en prueba» se va con la
-prueba. Las frases nuevas del panel ya están traducidas —hacía falta, porque la
-puerta ahora puede estar en inglés antes de que exista ninguna cuenta—. **Qué borrar, por nombre y nunca por
-rango:** la lista exacta está al final del bloque `.puerta-lado` en
-`css/estilos.css`.
+**Qué se quitó al encenderla**, por nombre y nunca por rango: el interruptor
+`?puerta=` del script de `login/index.html`, el rótulo naranja con sus tres
+enlaces, el piso `--piso-rotulo-puerta` que solo él usaba, y el `html.puerta-dos`
+que llevaba cada selector del bloque. Todo lo demás se quedó como estaba el día
+que se aprobó. La lista vive también en `css/estilos.css`, al final de ese
+bloque.
+
+**Y el número.** Esto se trabajó como 0.7.115 durante varios días, y mientras
+tanto `main` publicó ocho versiones y se llevó ese número — el choque exacto que
+avisa la sección de arriba: «el número se coge al PUBLICAR, no al empezar a
+trabajar». Al subirlo se miró `main` (iba por 0.7.116.1) y se renumeró a 0.7.117.
+Si alguna captura o algún comentario del código dice 0.7.115, es de esos días.
 
 ### 0.7.116.1 · 15 sep 2026
 

@@ -584,7 +584,6 @@
     --piso-rotulo-prueba: 7700; /* "esta pestaña está en modo prueba" */
     --piso-region: 7900;   /* elegir idioma y moneda, la primera vez */
     --piso-portada: 8000;  /* entrar a la app */
-    --piso-rotulo-puerta: 8100; /* "puerta en prueba": encima de la portada */
     --piso-idioma-puerta: 8050;  /* elegir idioma en la puerta, encima de la portada */
     --piso-compra: 8200;   /* volver de pagar: tapa la app, no los avisos */
     --piso-brindis: 8500;  /* los avisos de abajo, encima de todo lo anterior */
@@ -8145,19 +8144,17 @@
   .portada-vuelve h2 { margin-bottom: 8px; }
   .portada-vuelve .portada-lema { margin-bottom: 0; }
 
-  /* ---------- La puerta de dos columnas (EN PRUEBA, 0.7.115) ----------
-     Apagada salvo que se pida con `?puerta=` (ver el script de arriba de
-     `login/index.html`). Solo vive en la puerta: el bloque no toca a
-     `.portada` cuando se abre DENTRO de la app —desde Ajustes, a crear la
-     cuenta—, porque el panel de al lado solo existe en `login/index.html`.
+  /* ---------- La puerta de dos columnas (0.7.117) ----------
+     Solo vive en la PUERTA: el bloque no toca a `.portada` cuando se abre
+     dentro de la app —desde Ajustes, a crear la cuenta—, porque el panel de al
+     lado solo existe en `login/index.html`. Estuvo detrás de `?puerta=` toda
+     la 0.7.115 y se encendió para todos en la 0.7.117.
 
      Lo que hace y lo que no: el formulario no cambia ni una línea. Lo único
      que se añade es una columna al lado con una frase, y la frase es distinta
      según por qué puerta se entró —`?puerta=dos` para quien ya tiene cuenta y
      `?puerta=nuevo` para quien viene a crearla—, que es el camino partido que
      hay que juzgar aquí.
-
-     Qué borrar si no se queda: al final del bloque.
 
      Cómo se acomoda, que es lo que tiene truco: el panel es HIJO de
      `.portada` (lo pega `js/12-login.js`), así que en el teléfono va en el
@@ -8172,7 +8169,6 @@
      porque el desplazamiento no llega a negativos. Es la misma trampa que ya
      mordió en la portada. Se reparte con `margin: auto`, que cuando falta
      sitio vale cero por los dos lados. */
-  .puerta-lado { display: none; }
 
   /* `justify-content: flex-start` NO es de adorno y costó una medición: en
      columna, el `center` que trae `.portada` centra en VERTICAL, y cuando el
@@ -8181,7 +8177,7 @@
      centrado: medido, el principio del formulario quedaba 80 px por encima del
      borde de arriba, y ahí no llega el desplazamiento. Es la misma trampa que
      ya mordió en la portada, y por eso `.portada` no se centra así. */
-  html.puerta-dos .portada {
+  .portada {
     flex-direction: column; justify-content: flex-start;
     /* Hueco arriba y abajo para lo que flota encima: el rótulo de la prueba
        —que se va con ella— y el grupo de idioma y aspecto, que se queda. Los
@@ -8195,8 +8191,8 @@
   /* Auto arriba y cero abajo en el formulario, y al revés en el panel: entre
      los dos se reparten el hueco libre y el grupo queda centrado, pero al
      faltar sitio los dos `auto` se quedan en cero y no hay nada inalcanzable. */
-  html.puerta-dos .portada > .portada-caja { margin: auto auto 0; }
-  html.puerta-dos .puerta-lado {
+  .portada > .portada-caja { margin: auto auto 0; }
+  .puerta-lado {
     display: flex; flex-direction: column; gap: 16px;
     width: 100%; max-width: 360px; margin: 26px auto auto;
     padding: 20px 22px;
@@ -8214,8 +8210,8 @@
 
      Las dos frases viajan en el marcado y el CSS elige: así no hay texto
      escrito en JavaScript, que es lo que habría que deshacer después. */
-  html.puerta-dos .puerta-frase { display: none; }
-  html.puerta-dos .puerta-frase-vuelve { display: block; }
+  .puerta-frase { display: none; }
+  .puerta-frase-vuelve { display: block; }
   html.puerta-creando .puerta-frase-vuelve { display: none; }
   html.puerta-creando .puerta-frase-nueva { display: block; }
 
@@ -8254,12 +8250,12 @@
   /* Desde 900 px hay sitio para las dos columnas de verdad: el formulario se
      queda en la izquierda y el panel se va a la derecha de borde a borde. */
   @media (min-width: 900px) {
-    html.puerta-dos .portada { right: 46%; padding: 34px 34px 62px; }
+    .portada { right: 46%; padding: 34px 34px 62px; }
     /* Con el panel ya fuera del flujo, el formulario vuelve a ser hijo único y
        se centra como siempre: con `margin: auto`, que reparte el hueco cuando
        sobra y vale cero cuando falta. */
-    html.puerta-dos .portada > .portada-caja { margin: auto; }
-    html.puerta-dos .puerta-lado {
+    .portada > .portada-caja { margin: auto; }
+    .puerta-lado {
       position: fixed; inset: 0 0 0 54%;
       width: auto; max-width: none; margin: 0;
       justify-content: center; gap: 20px;
@@ -8268,7 +8264,7 @@
       border: 0; border-left: var(--borde-tarjeta) solid var(--borde-panel);
       border-radius: 0;
     }
-    html.puerta-dos .puerta-lista li { font-size: 14.5px; }
+    .puerta-lista li { font-size: 14.5px; }
   }
 
   /* ---- Idioma y aspecto, en la puerta ----
@@ -8284,8 +8280,7 @@
      Nada lleva transición en el fondo ni en el borde: los dos valores salen de
      variables, y una transición sobre un valor que sale de una variable se
      queda congelada en el inicial (la trampa de la casa). */
-  .puerta-ajustes { display: none; }
-  html.puerta-dos .puerta-ajustes {
+  .puerta-ajustes {
     display: flex; align-items: center; gap: 8px;
     position: fixed;
     left: 12px; bottom: calc(env(safe-area-inset-bottom) + 14px);
@@ -8295,97 +8290,61 @@
      Ajustes al que se le quitan el rótulo y las palabras: aquí los iconos
      bastan, y las palabras harían la esquina el doble de ancha en un
      teléfono. */
-  html.puerta-dos .puerta-idioma,
-  html.puerta-dos .puerta-ajustes .tema-sw {
+  .puerta-idioma,
+  .puerta-ajustes .tema-sw {
     display: flex; gap: 3px; flex: none;
     padding: 3px;
     background: var(--sup-tarjeta); border: var(--borde-fino) solid var(--line);
     border-radius: var(--r-pastilla);
   }
-  html.puerta-dos .puerta-ajustes .tema-fila {
+  .puerta-ajustes .tema-fila {
     background: none; border: 0; border-image: none; padding: 0; gap: 0;
   }
   /* `span:not(.ic)` y no `span` a secas: `icon()` envuelve el dibujo en un
      `<span class="ic">`, así que la regla corta se llevaba por delante el sol y
      la luna y dejaba dos botones vacíos. Se vio en la captura, no en el código. */
-  html.puerta-dos .puerta-ajustes .tema-tit,
-  html.puerta-dos .puerta-ajustes .ts-op span:not(.ic) { display: none; }
+  .puerta-ajustes .tema-tit,
+  .puerta-ajustes .ts-op span:not(.ic) { display: none; }
   /* Pequeños a propósito: esto no es una acción de la pantalla, es cómo te
      habla — y en la esquina de un formulario, un control del tamaño de un
      botón compite con el botón. Con el ratón se apunta, así que aquí caben en
      24 px de alto; en el teléfono se toca, y la regla de abajo los devuelve a
      32, que es el mínimo que ya se maneja con el pulgar en la app (`.badd`). */
-  html.puerta-dos .puerta-idioma button,
-  html.puerta-dos .puerta-ajustes .ts-op {
+  .puerta-idioma button,
+  .puerta-ajustes .ts-op {
     display: flex; align-items: center; gap: 6px;
     padding: 4px 9px 4px 5px;
     background: none; border: 0; border-radius: var(--r-pastilla);
     color: var(--muted); cursor: pointer;
     font-family: inherit; font-size: 11px; font-weight: 700;
   }
-  html.puerta-dos .puerta-ajustes .ts-op { padding: 5px 7px; }
+  .puerta-ajustes .ts-op { padding: 5px 7px; }
   /* El dibujo se encoge desde aquí y no desde `icon(ico, 15)`: ese tamaño lo
      escribe `temaSwitchHTML()`, que es el control de Ajustes y allí está bien. */
-  html.puerta-dos .puerta-ajustes .ts-op svg { width: 14px; height: 14px; }
-  html.puerta-dos .puerta-idioma button:hover,
-  html.puerta-dos .puerta-ajustes .ts-op:hover { color: var(--text); }
+  .puerta-ajustes .ts-op svg { width: 14px; height: 14px; }
+  .puerta-idioma button:hover,
+  .puerta-ajustes .ts-op:hover { color: var(--text); }
   /* El elegido se marca con superficie y tinta, y NO con la menta maciza que
      usa este mismo control dentro de Ajustes. Aquí no es lo mismo: en esta
      pantalla la menta es «Entrar», y hay una sola cosa que lo merece. Dos
      chispas verdes en la esquina le quitan el único acento que importa. */
-  html.puerta-dos .puerta-idioma button.on,
-  html.puerta-dos .puerta-ajustes .ts-op.on {
+  .puerta-idioma button.on,
+  .puerta-ajustes .ts-op.on {
     background: var(--sup-tarjeta2); color: var(--text);
   }
-  html.puerta-dos .puerta-idioma svg,
-  html.puerta-dos .puerta-ajustes .ts-op svg { flex: none; }
+  .puerta-idioma svg,
+  .puerta-ajustes .ts-op svg { flex: none; }
   /* En el teléfono se queda solo el aro con las dos letras: el nombre del
      idioma al lado se comía el ancho justo donde menos sobra, y «ES» y «EN»
      dicen lo mismo en las dos caras. */
   @media (max-width: 480px) {
-    html.puerta-dos .puerta-idioma button { padding: 5px 7px; }
-    html.puerta-dos .puerta-idioma button span { display: none; }
+    .puerta-idioma button { padding: 5px 7px; }
+    .puerta-idioma button span { display: none; }
   }
 
-  /* El rótulo de que esta pestaña está en prueba. Emparejado clase-con-id,
-     como el de los informes: con un selector suelto, encender una prueba
-     sacaba el rótulo de la otra.
-
-     ARRIBA a la derecha, que es la esquina que dejó libre el idioma al bajar:
-     abajo a la izquierda tapaba los controles, y un rótulo de pruebas que se
-     come un botón de verdad convierte la prueba en el problema. */
-  html.puerta-dos #rotulo-puerta {
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    position: fixed;
-    right: 12px;
-    top: calc(env(safe-area-inset-top) + 12px);
-    /* Un piso propio y no el `--piso-rotulo-prueba` de los informes, que se
-       quedaba corto: aquel vive DENTRO de la app y ahí no hay nada encima,
-       pero la portada tapa la pantalla entera desde 8000. Medido: el rótulo se
-       dibujaba en su sitio y `elementFromPoint` devolvía la portada, o sea
-       invisible y sin poder pulsarlo. Sigue por debajo de los avisos (8500) y
-       del cuadro de confirmar (8600), que van siempre los últimos. */
-    z-index: var(--piso-rotulo-puerta);
-    background: var(--fire-macizo); color: var(--sobre-vivo);
-    border-radius: var(--r-pastilla);
-    padding: 5px 8px 5px 13px;
-    font-size: 10.5px; font-weight: 800;
-    letter-spacing: 0.06em; text-transform: uppercase;
-    max-width: calc(100vw - 24px);
-  }
-  html.puerta-dos #rotulo-puerta a {
-    color: inherit;
-    background: rgba(16, 21, 29, 0.14);
-    border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
-    border-radius: var(--r-boton); padding: 4px 10px 5px;
-    text-decoration: none;
-  }
-  /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
-     deja congelado en el inicial. */
-  html.puerta-dos #rotulo-puerta a:hover { background: rgba(16, 21, 29, 0.24); }
 
   /* ---- El teléfono ----
-     Tres cosas cambian, y las tres las pidió Eduardo mirándolo:
+     Dos cosas cambian, y las dos las pidió Eduardo mirándolo:
 
      1. Los controles van CENTRADOS y abajo. Arriba a la izquierda quedaban
         encima del encabezado del formulario; centrados y abajo se leen como
@@ -8393,53 +8352,32 @@
      2. El panel de la frase NO se enseña. Debajo de un formulario largo no lo
         lee nadie: ahí se llega cuando ya decidiste. En pantalla ancha vive al
         lado, que es cuando de verdad acompaña.
-     3. El rótulo de la prueba se queda arriba, como en ancho, porque abajo ya
-        no cabe: ahí están los controles.
-
-     Los rellenos de la portada dejan sitio a los dos: 92 arriba —el rótulo se
-     parte en dos renglones y mide 68— y 70 abajo. */
+     El relleno de abajo (70) es el hueco de los controles; el de arriba vuelve
+     a ser el normal, porque ahí ya no flota nada desde que se fue el rótulo de
+     la prueba. */
   @media (max-width: 640px) {
-    html.puerta-dos .puerta-ajustes {
+    .puerta-ajustes {
       left: 50%; right: auto; transform: translateX(-50%);
       bottom: calc(env(safe-area-inset-bottom) + 14px); top: auto;
     }
-    html.puerta-dos .puerta-lado { display: none; }
-    html.puerta-dos .portada {
-      padding-top: calc(env(safe-area-inset-top) + 92px);
+    .puerta-lado { display: none; }
+    .portada {
+      padding-top: calc(env(safe-area-inset-top) + 24px);
       padding-bottom: calc(env(safe-area-inset-bottom) + 70px);
     }
     /* Y el dedo pide más que el ratón: los mismos botones vuelven a 32 px de
        alto. Se escribe como `min-height` y no como relleno para que el número
        se lea —es el mínimo de la casa— y no haya que recalcularlo cada vez que
        cambie la letra o el aro. */
-    html.puerta-dos .puerta-idioma button,
-    html.puerta-dos .puerta-ajustes .ts-op { min-height: 32px; }
+    .puerta-idioma button,
+    .puerta-ajustes .ts-op { min-height: 32px; }
   }
 
-  /* ---- Qué borrar si la prueba no se queda (por NOMBRE, no por rango) ----
-       - `css/estilos.css`: este bloque entero, de `.puerta-lado` hasta aquí,
-         y `--piso-rotulo-puerta` en `:root`.
-       - `login/index.html`: el `<script>` de `?puerta=`, el `<aside
-         id="puerta-lado">`, el `<div id="puerta-idioma">` y el `<div
-         id="rotulo-puerta">`.
-       - `js/12-login.js`: `puertaPrueba`, `puertaLadoPegar`, `puertaFrase`,
-         `puertaIdiomaPintar`, `puertaIdioma` y las líneas que las llaman
-         dentro del `async`.
-       - `crear-cuenta/index.html`, entero, y sus dos entradas en `ASSETS`
-         (`sw.js`). Si se queda, lo único que cambia es a dónde desvía:
-         `../login/?nuevo` en vez de `?puerta=nuevo`.
-       - `js/12-login.js`: `PUERTA_FRASES`, `puertaFraseAzar` y
-         `puertaFrasesPoner` (las frases vuelven al marcado), y en
-         `js/00b-textos-en.js` sus traducciones.
-       - `js/09c-region.js`: `idiomaVinoDeLaPuerta` y su uso en
-         `pintarPantallaRegion` (con eso la pantalla vuelve a preguntar las dos
-         cosas siempre).
-       - `js/00-idioma.js`: la guarda de `enLaPuerta()` en `ponerIdioma` se
-         QUEDA — sin ella, cualquier cambio de idioma desde la puerta escribe
-         un perfil vacío en el dispositivo.
-     Y si SE QUEDA, lo que se quita es la condición: las clases `puerta-dos` y
-     `puerta-nuevo` dejan de salir de un parámetro y el panel pasa a ser la
-     puerta a secas. */
+  /* ---- Qué se quitó al encenderla (0.7.117) ----
+     El interruptor `?puerta=` del script de `login/index.html`, el rótulo
+     naranja con sus tres enlaces, el piso `--piso-rotulo-puerta` que solo él
+     usaba, y el `html.puerta-dos` que llevaba cada selector de aquí. Lo demás
+     se quedó tal cual estaba el día que se aprobó. */
 
 
   /* La ficha de Ajustes: quién eres, arriba del todo del panel de la cuenta */
