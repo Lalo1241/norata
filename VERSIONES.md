@@ -222,6 +222,32 @@ idioma puesto**, sin una línea más de fontanería: lo hace la normalización d
   puede meter en el diccionario por su cuenta: aparece en media app. Los dos
   enlaces se arman fuera de la plantilla y la frase entera cabe en una clave.
 
+**Y la puerta abre en el idioma del teléfono, la primerísima vez.** Preguntó
+Eduardo si se podía automatizar. Se puede, y **no por la ubicación**: por
+`navigator.languages`, que no dice de dónde es alguien sino **qué idioma eligió
+para su teléfono**. Es leer una respuesta que ya dio, solo que a otro. La
+ubicación sería adivinar, y adivina mal en los casos que más importan — un
+mexicano en Texas, un gringo en la CDMX, cualquiera con una VPN—; además una
+consulta a un servicio de IP no cabe en el `connect-src` de la muralla y
+tardaría lo que tarda la red justo antes de pintar.
+
+Y NO contradice la regla de `js/01-base.js` —«el idioma no se adivina por el
+navegador»— aunque lo parezca. Esa regla protege dos casos y los dos son de
+alguien que YA eligió: quien tiene el teléfono en inglés y la app en español
+porque así la quiere, y un respaldo que se abre en otro dispositivo. Esto solo
+corre cuando en el dispositivo **no hay ninguna elección guardada**. Medido:
+con el navegador en inglés y `norata-idioma` ya puesto en español, la puerta
+abre en español.
+
+**Adivinar no es elegir**, y por eso no se deja la marca: la app SÍ pregunta el
+idioma en la bienvenida, ya con éste puesto. La marca la deja solo quien pulsa.
+Es la misma regla del género — el silencio no es una respuesta, y una suposición
+tampoco. Equivocarse cuesta un toque, porque los dos idiomas están a la vista en
+la esquina.
+
+Un idioma que no conocemos —un teléfono en francés— cae en español, que es el
+idioma de la casa.
+
 **El sol y la luna, que faltaban.** La puerta LEÍA el modo claro desde la
 primera versión —el script de arriba de `login/index.html`— pero no dejaba
 cambiarlo: quien la abriera de día se comía la pantalla de noche hasta estar

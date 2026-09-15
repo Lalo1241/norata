@@ -33,6 +33,52 @@
    Va lo primero y fuera del `async`, antes de pintar nada, por lo mismo que
    el modo claro se aplica en el script de arriba de `index.html`: traducir
    después de pintar es lo que hace parpadear la pantalla. */
+/* ---- El idioma que trae el navegador (EN PRUEBA, 0.7.115) ----
+
+   Y esto NO contradice la regla de `js/01-base.js` —«el idioma no se adivina
+   por el navegador»—, aunque lo parezca. Esa regla protege dos casos, y los
+   dos son de alguien que YA eligió: quien tiene el teléfono en inglés y la app
+   en español *porque así la quiere*, y un respaldo que se abre en otro
+   dispositivo. Aquí no hay ninguno de los dos: esto solo corre cuando en este
+   dispositivo **no hay ninguna elección guardada**, o sea la primerísima vez.
+
+   Y `navigator.languages` no es la UBICACIÓN, que es lo que lo hace honesto:
+   es el idioma que esa persona ya eligió para su teléfono. No es adivinar de
+   dónde es —un mexicano en Texas, un gringo en la CDMX, cualquiera con una
+   VPN—, es leer una respuesta que ya dio, solo que a otro.
+
+   Dos cosas que hacen que equivocarse sea barato:
+     - El sol, la luna y los dos idiomas están a la vista abajo a la izquierda,
+       así que un acierto malo cuesta un toque.
+     - **Adivinar no es elegir**: no se deja la marca `norata-idioma-puerta`, así
+       que la app SÍ pregunta el idioma en la pantalla de bienvenida, ya con
+       éste puesto. La marca solo la deja quien pulsa, que es la misma regla
+       del género — el silencio no es una respuesta, y una suposición tampoco.
+
+   Va lo primero del archivo, antes de traducir y de poner el `lang`: después
+   sería pintar la puerta en español y cambiarla a la vista. */
+function puertaIdiomaDelNavegador() {
+  if (!puertaPrueba()) return "";
+  /* Si ya hay algo guardado, aquí no se toca nada: eligió alguien, y quien
+     eligió manda sobre cualquier suposición. */
+  try { if (localStorage.getItem(LLAVE_IDIOMA)) return ""; } catch (e) { return ""; }
+  const lista = (navigator.languages && navigator.languages.length)
+    ? navigator.languages : [navigator.language];
+  for (let i = 0; i < lista.length; i++) {
+    /* «en-US», «en-GB» y «en» son el mismo idioma para nosotros: lo que se
+       mira es la primera parte, y la primera que conozcamos gana — la lista
+       viene en orden de preferencia. */
+    const base = String(lista[i] || "").toLowerCase().split("-")[0];
+    if (IDIOMAS[base]) return base;
+  }
+  return "";
+}
+
+(function () {
+  const sugerido = puertaIdiomaDelNavegador();
+  if (sugerido && sugerido !== idiomaActual()) ponerIdioma(sugerido);
+})();
+
 document.documentElement.setAttribute("lang", IDIOMAS[idiomaActual()].lang);
 traducirDOM();
 
