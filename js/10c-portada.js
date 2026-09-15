@@ -107,6 +107,110 @@ function portadaHaceFalta() {
   return sync.entrada !== "local";
 }
 
+/* ================= El alta por pasos (EN PRUEBA, 0.7.118) =================
+
+   Una pregunta por pantalla en vez de cinco casillas de golpe. Lo trajo
+   Eduardo de una app que se llama Cosmos, y el argumento es el correcto: una
+   columna larga de campos se lee como un trámite antes de haber visto nada, y
+   quien todavía no sabe si la app le sirve la abandona ahí.
+
+   ---- Lo que NO hace falta inventar ----
+
+   La app YA pregunta por pasos, y con cápsulas: son las seis pantallas de la
+   bienvenida (`js/09-inicio.js`) y las cápsulas son `ONBOARD_AREAS`, «¿qué
+   partes de tu vida quieres mejorar?». O sea que lo único que estaba sin
+   partir era el ALTA. Esto no añade preguntas: reparte las que ya había.
+
+   ---- Cómo está hecho, que es la parte que importa ----
+
+   Los cinco campos se pintan SIEMPRE, con sus mismos ids, y lo único que
+   cambia es cuál se enseña (`data-en` en el contenedor). Tres cosas salen
+   gratis de hacerlo así:
+
+     - la contraseña no viaja por ninguna variable entre pasos — sigue viviendo
+       solo dentro de su `<input>`, que es donde estaba;
+     - volver atrás no pierde lo escrito, porque nada se repinta;
+     - `portadaRegistrar()` no se entera: valida los cinco campos igual que
+       antes, y por eso el alta sigue siendo el mismo camino probado.
+
+   Qué borrar si no se queda: al final del bloque `.crear-pasos` en
+   `css/estilos.css`. */
+function portadaPorPasos() {
+  return document.documentElement.classList.contains("puerta-pasos");
+}
+
+/* En qué paso va. Vive fuera de `portadaPintar` porque el repintado —cambiar
+   de idioma, volver de un aviso— no debe devolver a nadie al primer paso. */
+let portadaPaso = 1;
+const PORTADA_PASOS = 3;
+
+/* Lo que pide cada paso para dejar pasar al siguiente. Son las MISMAS
+   comprobaciones de `portadaRegistrar`, escritas una sola vez aquí y llamadas
+   desde los dos sitios: con dos copias, el día que cambie el mínimo de la
+   contraseña una de las dos se queda corta y deja pasar a alguien hasta el
+   final para rebotarlo al pulsar. */
+function portadaPasoFalla(paso) {
+  if (paso === 1) {
+    const correo = portadaCorreoValor();
+    if (!correo) return { msg: tx("Escribe el correo con el que quieres entrar."), campo: "portada-correo" };
+    if (!/.+@.+\..+/.test(correo)) return { msg: tx("Ese correo no parece completo. Revísalo."), campo: "portada-correo" };
+    return null;
+  }
+  if (paso === 2) {
+    const clave = valorDe("portada-clave");
+    if (clave.length < CLAVE_MIN) return { msg: T`La contraseña necesita al menos ${CLAVE_MIN} caracteres.`, campo: "portada-clave" };
+    if (clave !== valorDe("portada-clave2")) return { msg: tx("Las dos contraseñas no coinciden. Míralas con el ojito para compararlas."), campo: "portada-clave2" };
+    return null;
+  }
+  return null;
+}
+
+/* Ir a un paso. Sin repintar la pantalla: se cambia el atributo y ya, que es
+   lo que conserva lo escrito y el foco. Hacia atrás nunca se valida — nadie
+   tiene que arreglar un campo para poder retroceder. */
+function portadaPasoIr(n) {
+  const caja = document.querySelector(".crear-pasos");
+  if (!caja) return;
+  if (n > portadaPaso) {
+    const falla = portadaPasoFalla(portadaPaso);
+    if (falla) {
+      portadaAviso(falla.msg);
+      const el = document.getElementById(falla.campo);
+      if (el) el.focus();
+      return;
+    }
+  }
+  portadaAviso("");
+  portadaPaso = Math.max(1, Math.min(PORTADA_PASOS, n));
+  portadaPasoPintar();
+  /* El foco al campo del paso nuevo: sin esto hay que tocar la pantalla para
+     escribir, que en un teléfono es un toque de más por pantalla. */
+  const primero = caja.querySelector('[data-paso="' + portadaPaso + '"] input');
+  if (primero) setTimeout(() => primero.focus(), 40);
+}
+
+/* Lo que cambia al cambiar de paso, TODO en una función y no repartido por
+   quien mueve el paso. Son tres cosas y la tercera se olvidó la primera vez:
+   el campo que se ve, el botón de abajo y los puntos de arriba — que se
+   quedaron clavados en el primero mientras el formulario ya iba por el
+   tercero. Con las tres aquí, quien añada una cuarta la ve.
+
+   El botón dice lo que va a pasar: «Siguiente» mientras quede algo que
+   preguntar y «Crear cuenta» en el último. Un botón que dice «crear» en el
+   primer paso es una promesa que no va a cumplir. */
+function portadaPasoPintar() {
+  const caja = document.querySelector(".crear-pasos");
+  if (caja) caja.setAttribute("data-en", portadaPaso);
+  document.querySelectorAll(".paso-puntos i").forEach((punto, i) => {
+    punto.classList.toggle("on", i + 1 <= portadaPaso);
+  });
+  const b = document.getElementById("portada-ok");
+  if (!b) return;
+  const ultimo = portadaPaso === PORTADA_PASOS;
+  b.textContent = ultimo ? tx("Crear cuenta") : tx("Siguiente");
+  b.setAttribute("onclick", ultimo ? "portadaRegistrar()" : "portadaPasoIr(" + (portadaPaso + 1) + ")");
+}
+
 /* En qué pantalla está la portada: "entrar", "crear" o "enviado".
 
    Antes las dos primeras eran una sola con dos botones debajo, y eso hacía
@@ -200,7 +304,7 @@ function portadaPintar(modo) {
        nadie escribe un apodo si no sabe qué se evita con él. */
     dentro =
       `<div class="portada-cab">
-         <button class="portada-volver" onclick="portadaIrA('entrar')" aria-label="${escapeAttr(tx("Volver a iniciar sesión"))}">←</button>
+         <button class="portada-volver" onclick="portadaCrearAtras()" aria-label="${escapeAttr(tx("Volver a iniciar sesión"))}">←</button>
          <h2>${tx("Crear tu cuenta")}</h2>
        </div>
        <div id="portada-error" class="portada-error" hidden></div>
@@ -235,24 +339,62 @@ function portadaPintar(modo) {
             app le va a servir. Debajo del formulario, la vía de un toque solo
             la encuentra quien ya decidió no usarla. -->
        <div id="portada-google"></div>
-       <label class="field"><span>${tx("¿Cómo te llamas?")}</span>
-         <input type="text" id="portada-nombre" value="${escapeAttr(portadaNombre)}" autocomplete="name"
-                maxlength="${NOMBRE_MAX}" placeholder="${escapeAttr(tx("Tu nombre"))}"></label>
-       <label class="field"><span>${tx("¿Cómo te decimos?")} <i>${tx("opcional")}</i></span>
-         <input type="text" id="portada-apodo" value="${escapeAttr(portadaApodo)}" autocomplete="nickname"
-                maxlength="${APODO_MAX}" placeholder="${escapeAttr(tx("Tu apodo"))}">
-         <div class="field-hint" id="portada-apodo-hint"></div></label>
-       <label class="field"><span>${tx("Tu correo")}</span>
-         <input type="email" id="portada-correo" value="${correo}" autocomplete="email" inputmode="email" spellcheck="false" placeholder="${escapeAttr(tx("tu@correo.com"))}"></label>
-       <div class="field"><span class="lbl">${tx("Contraseña")}</span>
-         ${campoClave("portada-clave", "new-password")}
-         <div class="field-hint">${T`Mínimo ${CLAVE_MIN} caracteres. Cuanto más larga, mejor.`}</div></div>
-       <div class="field"><span class="lbl">${tx("Repítela")}</span>
-         ${campoClave("portada-clave2", "new-password")}</div>
-       <div class="stack">
-         <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaRegistrar()">${tx("Crear cuenta")}</button>
-       </div>
-       <p class="portada-nota">${tx("Te mandaré un correo para confirmar que la dirección es tuya. Hasta que lo abras, la cuenta no se activa.")}</p>
+       ${(() => {
+         /* Los cinco campos, siempre los mismos y con los mismos ids. Lo único
+            que cambia entre la pantalla de siempre y la de pasos es cómo se
+            agrupan y cuál se enseña — ver `portadaPorPasos` más arriba. */
+         const cNombre = `<label class="field"><span>${tx("¿Cómo te llamas?")}</span>
+             <input type="text" id="portada-nombre" value="${escapeAttr(portadaNombre)}" autocomplete="name"
+                    maxlength="${NOMBRE_MAX}" placeholder="${escapeAttr(tx("Tu nombre"))}"></label>
+           <label class="field"><span>${tx("¿Cómo te decimos?")} <i>${tx("opcional")}</i></span>
+             <input type="text" id="portada-apodo" value="${escapeAttr(portadaApodo)}" autocomplete="nickname"
+                    maxlength="${APODO_MAX}" placeholder="${escapeAttr(tx("Tu apodo"))}">
+             <div class="field-hint" id="portada-apodo-hint"></div></label>`;
+         const cCorreo = `<label class="field"><span>${tx("Tu correo")}</span>
+             <input type="email" id="portada-correo" value="${correo}" autocomplete="email" inputmode="email" spellcheck="false" placeholder="${escapeAttr(tx("tu@correo.com"))}"></label>`;
+         const cClave = `<div class="field"><span class="lbl">${tx("Contraseña")}</span>
+             ${campoClave("portada-clave", "new-password")}
+             <div class="field-hint">${T`Mínimo ${CLAVE_MIN} caracteres. Cuanto más larga, mejor.`}</div></div>
+           <div class="field"><span class="lbl">${tx("Repítela")}</span>
+             ${campoClave("portada-clave2", "new-password")}</div>`;
+         const nota = `<p class="portada-nota">${tx("Te mandaré un correo para confirmar que la dirección es tuya. Hasta que lo abras, la cuenta no se activa.")}</p>`;
+
+         if (!portadaPorPasos()) {
+           return `${cNombre}${cCorreo}${cClave}
+             <div class="stack">
+               <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaRegistrar()">${tx("Crear cuenta")}</button>
+             </div>${nota}`;
+         }
+
+         /* El orden cambia a propósito: el correo va PRIMERO y el nombre al
+            final. Con cinco campos de golpe daba igual, pero de uno en uno lo
+            primero que se pregunta es lo que decide si alguien sigue — y el
+            correo es el trámite que ya esperaba, mientras que «¿cómo te
+            llamas?» de entrada suena a formulario de otra cosa. Además, si la
+            cuenta ya existía, se descubre en el primer paso y no después de
+            haber contestado tres. */
+         const titulo = (n, t, p) => `<p class="paso-tit"><b>${escapeHtml(tx(t))}</b><span>${escapeHtml(tx(p))}</span></p>`;
+         return `<div class="crear-pasos" data-en="${portadaPaso}">
+             <div class="paso-puntos" aria-hidden="true">${
+               [1, 2, 3].map(n => `<i class="${n <= portadaPaso ? "on" : ""}"></i>`).join("")}</div>
+             <div class="paso" data-paso="1">
+               ${titulo(1, "¿Cuál es tu correo?", "Con él entras, y ahí llega lo que la app te mande.")}
+               ${cCorreo}
+             </div>
+             <div class="paso" data-paso="2">
+               ${titulo(2, "Elige una contraseña", "Larga es mejor que rara: una frase que recuerdes gana a ocho símbolos.")}
+               ${cClave}
+             </div>
+             <div class="paso" data-paso="3">
+               ${titulo(3, "¿Cómo te llamas?", "Es lo que usaré para hablarte, empezando por el correo de confirmación.")}
+               ${cNombre}
+             </div>
+             <div class="stack">
+               <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaPasoIr(${portadaPaso + 1})">${tx("Siguiente")}</button>
+             </div>
+             ${nota}
+           </div>`;
+       })()}
        <p class="portada-pie">${tx("¿Ya tienes una?")} <button onclick="portadaIrA('entrar')">${tx("Entra aquí")}</button></p>`;
 
   } else if (modo === "rescate") {
@@ -393,7 +535,12 @@ function portadaPintar(modo) {
   cap.querySelectorAll("input").forEach(el => {
     el.addEventListener("keydown", e => {
       if (e.key !== "Enter") return;
-      if (portadaModo === "crear") portadaRegistrar(); else portadaEntrar();
+      if (portadaModo !== "crear") { portadaEntrar(); return; }
+      /* En pasos, Enter hace lo que hace el botón de abajo: avanzar. Sin esto
+         se intentaba crear la cuenta desde el primer campo y el aviso hablaba
+         de la contraseña a quien todavía no la había escrito. */
+      if (portadaPorPasos() && portadaPaso < PORTADA_PASOS) portadaPasoIr(portadaPaso + 1);
+      else portadaRegistrar();
     });
   });
 
@@ -409,6 +556,7 @@ function portadaPintar(modo) {
      decir María y, si no le gusta, ya sabe para qué sirve la casilla de
      abajo. Un texto fijo no habría enseñado nada. */
   if (modo === "crear") {
+    if (portadaPorPasos()) portadaPasoPintar();
     ["portada-nombre", "portada-apodo"].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.addEventListener("input", portadaPistaApodo);
@@ -425,7 +573,20 @@ function portadaPintar(modo) {
   }, 60);
 }
 
+/* La flecha de la cabecera. Retrocede un paso mientras quede uno; en el
+   primero sale a la pantalla de entrar, que es lo que hacía siempre. Un botón
+   de volver que en mitad de un cuestionario te saca del cuestionario entero es
+   la forma más rápida de perder lo escrito. */
+function portadaCrearAtras() {
+  if (portadaPorPasos() && portadaPaso > 1) { portadaPasoIr(portadaPaso - 1); return; }
+  portadaIrA("entrar");
+}
+
 function portadaIrA(modo) {
+  /* Cada visita a «crear cuenta» empieza por el principio. Sin esto, salir y
+     volver dejaba el cuestionario en el paso donde se abandonó, que es un sitio
+     raro para empezar. */
+  if (modo === "crear") portadaPaso = 1;
   portadaRecordar();
   portadaPintar(modo);
 }

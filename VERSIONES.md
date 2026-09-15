@@ -112,6 +112,77 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.118 · 15 sep 2026
+
+**El alta por pasos, en prueba y apagada.** Eduardo trajo una app —Cosmos— que
+parte el registro en pantallas de una pregunta cada una, en vez de dejar una
+columna de casillas que rellenar. El argumento es correcto: una lista larga de
+campos se lee como un trámite antes de haber visto nada, y quien todavía no sabe
+si la app le sirve la abandona ahí.
+
+**Enlaces:** `mi.norata.app/login/?nuevo&pasos=si` para verla, `?pasos=no` para
+apagarla.
+
+**Lo primero que salió al mirarlo, y es lo que cambia la propuesta: las cápsulas
+ya existen.** La bienvenida de la app son SEIS pantallas de una pregunta cada
+una, y la segunda es exactamente eso — «¿Qué partes de tu vida quieres
+mejorar?», de una a tres, con icono y color (`ONBOARD_AREAS`, `js/09-inicio.js`).
+O sea que Norata ya hace lo que hace Cosmos; lo único que estaba sin partir era
+el ALTA. Esta prueba no añade ninguna pregunta: reparte las cinco que ya había.
+
+**Tres pantallas, y el orden cambió a propósito:**
+
+| | Qué pregunta |
+| --- | --- |
+| 1 | El correo |
+| 2 | La contraseña (con su «repítela» debajo, en la misma) |
+| 3 | El nombre, y el apodo opcional |
+
+El correo va PRIMERO y el nombre al final, al revés que en el formulario largo.
+Con cinco campos de golpe el orden daba igual; de uno en uno, lo primero que se
+pregunta decide si alguien sigue — y el correo es el trámite que ya esperaba,
+mientras que «¿cómo te llamas?» de entrada suena a formulario de otra cosa. Y si
+la cuenta ya existía, se descubre en el primer paso y no después de contestar
+tres.
+
+**Cómo está hecho, que es de donde salen tres cosas gratis.** Los cinco campos
+se pintan SIEMPRE, con sus mismos ids, y lo único que cambia es cuál se enseña.
+Con eso: la contraseña no viaja por ninguna variable entre pasos —sigue viviendo
+dentro de su `<input>`—, volver atrás no pierde lo escrito porque nada se
+repinta, y `portadaRegistrar()` no se entera: valida los cinco campos igual que
+siempre, así que el alta sigue siendo el mismo camino ya probado.
+
+**Y las comprobaciones se escriben una sola vez** (`portadaPasoFalla`), no una
+por paso: con dos copias, el día que cambie el mínimo de la contraseña una de
+las dos se queda corta y deja pasar a alguien hasta el final para rebotarlo al
+pulsar.
+
+**El fallo que cazó la medición:** los tres puntos de arriba se quedaban en el
+primero mientras el formulario ya iba por el tercero. `portadaPasoIr` cambiaba el
+campo visible y el botón, y nadie tocaba los puntos. Ahora las tres cosas que
+cambian al cambiar de paso viven en una sola función (`portadaPasoPintar`), para
+que quien añada una cuarta la vea.
+
+**Lo que NO se tocó, y a conciencia:**
+
+- **La confirmación de la contraseña se queda.** Cosmos no la pide, y en un
+  flujo por pasos sobra menos que en uno largo — pero está ahí por un fallo
+  real y escrito: una errata al teclearla se convertía en una cuenta a la que
+  ya no se podía entrar. Quitarla es decisión de Eduardo, no un efecto
+  secundario de partir el formulario.
+- **No se pide la edad.** Cosmos la usa para su feed; Norata no la usa para
+  nada, y una pregunta que no alimenta ninguna pantalla es una casilla más
+  entre alguien y la app.
+- **El género sigue en la bienvenida.** Preguntarlo también aquí sería
+  preguntarlo dos veces; moverlo entero es otra decisión.
+- **Las cápsulas se quedan donde están.** Antes de crear la cuenta, cada
+  pregunta de más es una oportunidad de abandonar; después, el coste es cero y
+  además sirven para armar el tablero. Si Eduardo las quiere adelantar, se
+  adelantan — pero eso es mover una pregunta, no añadirla.
+
+**Qué borrar si no se queda:** la lista exacta está al final del bloque
+`.crear-pasos` en `css/estilos.css`.
+
 ### 0.7.117 · 15 sep 2026
 
 **La puerta nueva, ya encendida para todo el mundo.** Eduardo trajo la pantalla

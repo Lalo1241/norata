@@ -49,6 +49,24 @@
     }
   } catch (e) {}
 
+  /* ---- El alta por pasos, EN PRUEBA (0.7.118): `?pasos=` ----
+     Una pregunta por pantalla en vez de cinco casillas de golpe. Es la receta
+     de la casa: se sube apagado, porque es lo primero que ve alguien que llega
+     y la decisión es de Eduardo.
+
+       ?pasos=si   una pregunta por pantalla
+       ?pasos=no   apagarlo
+
+     En `sessionStorage`, como las demás pruebas: al cerrar la pestaña
+     desaparece y no se queda pegado como si fuera un ajuste. */
+  try {
+    var qps = new URLSearchParams(location.search).get("pasos");
+    if (qps === "si" || qps === "no") sessionStorage.setItem("norata-prueba-pasos", qps);
+    if (sessionStorage.getItem("norata-prueba-pasos") === "si") {
+      document.documentElement.classList.add("puerta-pasos");
+    }
+  } catch (e) {}
+
 </script>
 
 <!-- Los tres huecos que la portada necesita para hablar: la pantalla de
@@ -103,6 +121,15 @@
      abriera de día se comía la pantalla de noche hasta estar dentro. Los dos
      van juntos abajo a la izquierda porque son la misma clase de cosa: cómo te
      habla la app, decidido antes de entrar. -->
+<!-- El recordatorio de que esta pestaña está probando el alta por pasos. Sin
+     él es fácil olvidarlo y acabar juzgando la puerta buena por lo que se ve
+     aquí. Se va con la prueba. -->
+<div class="rotulo-prueba" id="rotulo-pasos">
+  Alta por pasos
+  <a href="?nuevo&pasos=si">Verla</a>
+  <a href="?nuevo&pasos=no">Apagar</a>
+</div>
+
 <div class="puerta-ajustes" id="puerta-ajustes">
   <div class="puerta-idioma" id="puerta-idioma" role="group" aria-label="Idioma"></div>
   <!-- El sol y la luna son EL MISMO control de Ajustes (`temaSwitchHTML`), no
