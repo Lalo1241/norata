@@ -16,7 +16,7 @@
 
    Lo que no esta en `ASSETS` no lo renueva nadie: se pide suelto, lo que
    llegue se guarda en la cache de esa version, y a partir de ahi ya es un
-   acierto y no se vuelve a pedir NUNCA. GitHub Pages tarda un minuto en
+   acierto y no se vuelve a pedir NUNCA. Un despliegue tarda un minuto en
    publicar y su CDN no cambia todos los archivos a la vez, asi que hay una
    ventana en la que el JS ya es el nuevo y el JSON todavia es el viejo: quien
    abra ahi se queda los caminos viejos congelados para siempre.

@@ -1,0 +1,60 @@
+# ============================================================
+#  Cabeceras de seguridad — Cloudflare Pages
+# ============================================================
+#
+#  Esto NO se puede hacer en GitHub Pages: sirve los archivos con las
+#  cabeceras que le da la gana y no hay dónde tocarlas. Es la razón
+#  concreta por la que la app se mudó aquí, así que conviene que se use.
+#
+#  Cloudflare LEE este archivo y no lo sirve. No aparece en la web.
+#
+#  Límites: 100 reglas y 2.000 caracteres por línea.
+#
+#  ---- Por qué la CSP va en modo aviso y no apretando ----
+#
+#  Se contaron antes de escribirla: la app tiene 322 manejadores escritos
+#  dentro del HTML (`onclick=`) y 245 atributos `style=`. Una CSP normal
+#  —la que prohíbe el código en línea— apagaría los 322 botones de golpe,
+#  y sin `eval` de por medio no habría ni un aviso claro: los botones
+#  dejarían de responder y ya. Por eso `script-src` y `style-src` llevan
+#  `unsafe-inline`: no es dejadez, es que la app está escrita así y
+#  cambiarlo son 322 ediciones, no una cabecera.
+#
+#  Lo que SÍ cierra la CSP aunque el código en línea siga permitido, que
+#  es lo que de verdad importa: **a dónde puede salir la información**.
+#  `connect-src` deja hablar solo con Supabase y con la propia app, así
+#  que un script colado no tiene a dónde mandar lo que lea. Y `base-uri`,
+#  `object-src` y `form-action` cierran las tres puertas clásicas.
+#
+#  Va en `-Report-Only` porque este archivo llega antes de haberla podido
+#  medir contra la app viva. Se mide mirando la consola, y cuando salga
+#  limpia se le quita el `-Report-Only` al nombre. Mientras tanto no puede
+#  romper nada: avisa y deja pasar.
+#
+#  ---- Por qué la caché se queda EXACTAMENTE como estaba ----
+#
+#  GitHub Pages mandaba `max-age=600` en todo. El diseño del service
+#  worker está medido contra ese número —está escrito en `sw.js`: «el
+#  navegador solo le pasa la petición al worker la PRIMERA vez, mientras
+#  el archivo siga fresco en su caché»—. Cloudflare por su cuenta manda
+#  otra cosa, así que aquí se vuelve a poner el 600 a mano: una mudanza
+#  cambia el servidor, no el comportamiento. Si algún día se quiere
+#  cambiar, que sea una decisión aparte y medida aparte.
+#
+#  La excepción es `sw.js`, y es a propósito: es el ÚNICO canal por el que
+#  llega una versión nueva. Los navegadores ya lo revalidan siempre por su
+#  cuenta; ponerlo escrito es decir en voz alta lo que ya pasaba, para que
+#  nadie lo "optimice" un día sin saber lo que desenchufa.
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Cross-Origin-Opener-Policy: same-origin
+  Permissions-Policy: accelerometer=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://wifffghnyrqfuwqlatci.supabase.co; font-src 'self' data:; connect-src 'self' https://wifffghnyrqfuwqlatci.supabase.co; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'; form-action 'self'
+  Cache-Control: public, max-age=600
+
+# El canal por el que llega una versión nueva. Nunca de la caché.
+/sw.js
+  Cache-Control: no-cache

@@ -1,7 +1,7 @@
 # Norata
 
 La vida tratada como un videojuego. Vive en `https://mi.norata.app`, publicada
-con GitHub Pages desde `main`. **Cuatro módulos:** Misiones (lo de hoy),
+con Cloudflare Pages desde `main`, con el repositorio en privado. **Cuatro módulos:** Misiones (lo de hoy),
 Habilidades (suben con la práctica y bajan si las dejas), Talentos (las cosas
 grandes, en un árbol por ramas) y Proyectos (lo que avanza por etapas). **Los
 dos últimos no están el primer día**: los abre el nivel de expedición (ver «Lo
@@ -166,8 +166,10 @@ del DOM, no la vista.
 - **Comparar el archivo local con el publicado da distinto aunque sea el
   mismo:** el árbol de trabajo está en CRLF y GitHub sirve LF. Comparar sin
   los retornos: `tr -d '\r' < archivo | md5sum`.
-- **GitHub Pages tarda un minuto largo en publicar.** Un archivo recién subido
-  que no carga no está roto: aún no ha desplegado.
+- **Un despliegue tarda un minuto largo en publicar.** Un archivo recién
+  subido que no carga no está roto: aún no ha desplegado. Cloudflare enseña el
+  despliegue en curso, así que aquí sí se puede mirar en vez de esperar a
+  ciegas.
 - **No verificar DNS con `nslookup`** — devuelve respuestas cacheadas. Usar
   `dns.google/resolve`.
 
@@ -440,7 +442,7 @@ Tres cosas del `sw.js` que no se pueden tocar sin entender por qué están:
   HUELLA en la dirección.** Un archivo que no está en la lista de la
   instalación no lo renueva nadie: se pide suelto y lo que llegue se guarda en
   la caché de esa versión, y a partir de ahí ya es un acierto y no se vuelve a
-  pedir NUNCA. GitHub Pages tarda un minuto en publicar y su CDN no cambia
+  pedir NUNCA. Un despliegue tarda un minuto en publicar y un CDN no cambia
   todos los archivos a la vez, así que hay una ventana en la que `sw.js` ya es
   el nuevo y `css/mundos.css` todavía es el viejo: quien abra ahí se queda el
   mundo congelado con el número de versión nuevo puesto. Pasó de verdad con la
@@ -462,6 +464,80 @@ planes (119 KB, el 26% del arranque). Con la red ya resuelta, compilar y
 ejecutar TODO el JavaScript cuesta 12-17 ms en un teléfono de gama media.
 Partir archivos que se pasan globales entre ellos para ganar milisegundos es
 mal negocio. Está apuntado en `VERSIONES.md` por si algún día cambia.
+
+## Cómo se publica
+
+**Cloudflare Pages, desde `main`, con el repositorio en privado.** Se mudó en
+la 0.7.122 desde GitHub Pages, que en el plan gratuito solo publica
+repositorios públicos. La dirección no cambió, así que **quien tenga la app
+instalada no se entera**: un acceso directo apunta a un dominio, no a un
+servidor.
+
+`git push` y ya: Cloudflare ve el commit, ejecuta `publicar.sh` y despliega.
+Un minuto largo, igual que antes, pero ahora se puede **mirar** — el panel de
+Cloudflare enseña el despliegue en curso y su registro, que es donde sale el
+error si algo falla.
+
+**El DNS no está en Cloudflare y no hace falta que lo esté.** `norata.app` vive
+en GoDaddy y allí sigue; lo único que se tocó es el CNAME de `mi.norata.app`.
+Se hizo así a propósito: mover el dominio entero obligaba a recrear los
+registros del correo —el MX de Resend, la DKIM, la DMARC— y un registro que
+falte ahí no se nota hasta que alguien no recibe su correo de confirmar.
+
+**La landing es otra cosa.** `norata.app` y `www` siguen en GitHub Pages, desde
+**otro repositorio**. Apagar Pages aquí no las toca, y si algún día se mudan es
+una mudanza aparte.
+
+### Tres archivos nuevos, y ninguno es opcional
+
+| Archivo | Qué hace |
+| --- | --- |
+| `_headers` | Las cabeceras de seguridad, y el `max-age=600` que antes ponía GitHub |
+| `publicar.sh` | Qué NO se publica. Lo ejecuta Cloudflare antes de subir |
+| `.gitattributes` | `publicar.sh` en LF: corre en Linux y con CRLF se cae |
+
+**`publicar.sh` es una lista de EXCLUSIÓN, y eso no se invierte.** Se nombra lo
+que no sale, nunca lo que sí, para que un archivo nuevo se publique solo. Ya
+hay DOS sitios donde registrar un archivo (`index.html` y `ASSETS`); un tercero
+se olvida, y el fallo sería un archivo que está en local y falta en producción.
+
+**Y lleva un guardarraíl que lee `ASSETS` del propio `sw.js`** y corta el
+despliegue si falta algo. No es adorno: cazó un fallo la primera vez que se
+ejecutó —`./crear-cuenta/`, recién llegado en la 0.7.121—. Importa porque desde
+la 0.7.38 la app se sirve de su propia copia: un despliegue que no sale es un
+mal rato, uno que sale roto se queda en las cachés de todo el mundo hasta la
+versión siguiente.
+
+### Lo que la privacidad NO compra
+
+Hacer privado el repositorio esconde la historia, los documentos y el porqué de
+cada decisión. **No esconde el JavaScript**, que lo tiene que leer el navegador
+y siempre se va a poder leer. Eso no tiene arreglo y no hay que buscárselo.
+
+Lo que sí tenía arreglo, y estaba abierto de par en par: hasta la 0.7.121
+cualquiera abría `mi.norata.app/VERSIONES.md` —670 KB con cada decisión y su
+porqué—, `CLAUDE.md`, `supabase/planes.sql`, `supabase/functions/cobro/index.ts`
+y `mundos/app.py`. Los cinco contestaban 200 sin ninguna cuenta. Eso es el libro
+de recetas, y vale más que el código. `publicar.sh` es lo que lo cierra.
+
+**Lo que se queda público a propósito:** `marca/` y `correos/`. Los correos que
+ya están en bandejas ajenas enlazan `mi.norata.app/marca/*.png`, y Gmail no
+vuelve a pedir una imagen que ya guardó. Quitarlas rompería los correos viejos
+para siempre.
+
+### La CSP va en modo aviso, y hay una razón contada
+
+Se contaron antes de escribirla: **322 manejadores `onclick=` y 245 atributos
+`style=`**. Una CSP normal —la que prohíbe el código en línea— apagaría los 322
+botones de golpe y sin un solo error en la consola. Por eso `script-src` lleva
+`unsafe-inline`: no es dejadez, es cómo está escrita la app.
+
+Lo que la CSP sí cierra, que es lo que importa: **a dónde puede salir la
+información**. `connect-src` solo deja hablar con Supabase y con la propia app.
+
+Está en `Content-Security-Policy-Report-Only`, así que **no puede romper nada**:
+avisa y deja pasar. Se aprieta quitándole el `-Report-Only` al nombre, y solo
+después de mirar la consola de la app viva y verla limpia.
 
 ## Lo que llega por el camino
 

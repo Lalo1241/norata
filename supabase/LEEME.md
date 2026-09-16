@@ -261,7 +261,7 @@ engañar a su propia pantalla, y al recargar la mentira se cae sola.
    ```
 
    **Y hay que volver a desplegarlas cada vez que cambien**, que es lo que se
-   olvida: estas dos funciones **no se publican con la app**. GitHub Pages sube
+   olvida: estas dos funciones **no se publican con la app**. Cloudflare sube
    el HTML y el JavaScript; esto vive en Supabase y solo llega con el comando de
    arriba. Una app nueva hablando con una función vieja no da ningún error — hace
    algo distinto de lo que promete la pantalla, y en silencio.

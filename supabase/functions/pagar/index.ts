@@ -10,11 +10,11 @@
    Pero OJO con la conclusion facil: que el cobro no pueda vivir en el
    navegador NO significa que el boton de pagar no pueda estar en la app. La
    app no cobra; llama aqui, recibe una direccion de stripe.com y abre esa
-   pagina. Los datos de la tarjeta nunca pasan por Norata ni por GitHub Pages,
+   pagina. Los datos de la tarjeta nunca pasan por Norata ni por su hosting,
    ni siquiera de paso. La landing hace exactamente lo mismo, con la unica
    diferencia de que alli todavia no hay sesion iniciada.
 
-   El impedimento real de cobrar dentro de la app no es GitHub Pages: es la
+   El impedimento real de cobrar dentro de la app no es el hosting: es la
    regla de Google Play, que exige su propio cobro para lo que se venda dentro
    de una app publicada alli. Eso aplica el dia que exista esa app. Mientras
    Norata sea web, cobrar desde la web es lo normal y lo correcto.
