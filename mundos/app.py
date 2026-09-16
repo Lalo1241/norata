@@ -856,7 +856,7 @@ if __name__ == "__main__":
     # `css/mundos.css` no va en ASSETS, así que no lo renueva la instalación:
     # se pide suelto cuando hace falta y lo que llegue se guarda en la caché de
     # esa versión — y a partir de ahí ya es un acierto y no se vuelve a pedir.
-    # GitHub Pages tarda un minuto largo en publicar y su CDN no cambia todos
+    # Un despliegue tarda un minuto largo en publicar y un CDN no cambia todos
     # los archivos a la vez, así que hay una ventana en la que `sw.js` ya es el
     # nuevo y este archivo todavía es el viejo. Quien abra ahí se queda el
     # archivo viejo congelado con el número de versión nuevo puesto, y no hay

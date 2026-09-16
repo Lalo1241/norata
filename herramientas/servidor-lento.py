@@ -1,4 +1,4 @@
-"""Un GitHub Pages de mentira: comprime como el de verdad, pone las mismas
+"""El sitio en vivo de mentira: comprime como el de verdad, pone las mismas
 cabeceras de cache, y va tan lento como se le diga. La lentitud va AQUI y no
 en el panel del navegador porque el service worker pide por su cuenta y la
 simulacion del panel no le llega: sin esto, la segunda visita sale falsamente
@@ -40,7 +40,7 @@ class H(BaseHTTPRequestHandler):
         self.send_header("Content-Type", tipo)
         if comprime: self.send_header("Content-Encoding","gzip")
         self.send_header("Content-Length", str(len(cuerpo)))
-        self.send_header("Cache-Control", "max-age=600")  # lo que pone GitHub Pages
+        self.send_header("Cache-Control", "max-age=600")  # lo que pone `_headers`
         self.end_headers()
         with CANAL:
             trozo = max(1024, int(KBPS*1024/8/20))        # 20 trozos por segundo

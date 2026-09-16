@@ -1,0 +1,6 @@
+# El guion que Cloudflare ejecuta corre en Linux. Con CRLF dentro, bash lee
+# `set -euo pipefail` y se cae, o borra un archivo con un retorno pegado al
+# nombre. Hoy `core.autocrlf` ya lo dejaria en LF, pero eso es un ajuste de la
+# maquina de cada quien y no viaja en el repositorio: esto si.
+*.sh   text eol=lf
+_headers text eol=lf

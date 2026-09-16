@@ -46,7 +46,7 @@ Antes de fiarse de un «no cambió nada», dos comprobaciones:
 
 ## Medir cuánto tarda en abrirse
 
-`servidor-lento.py` es un GitHub Pages de mentira: comprime como el de verdad,
+`servidor-lento.py` es el sitio en vivo de mentira: comprime como el de verdad,
 pone las mismas cabeceras de caché, va tan lento como se le diga y **apunta cada
 petición en una bitácora**. Sin esas cuatro cosas la medición engaña.
 

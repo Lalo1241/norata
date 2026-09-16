@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.121";
+const CACHE = "norata-0.7.122";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -49,9 +49,40 @@ const ASSETS = [
   "./marca/logotipo-claro.svg", "./marca/logotipo-oscuro.svg"
 ];
 
+/* ---- Dónde vive la app, desde 0.7.122 ----
+   La sirve **Cloudflare Pages**, no GitHub Pages. La dirección no cambió
+   —sigue siendo `mi.norata.app`—, así que quien tenga la app instalada no se
+   entera: el acceso directo apunta a un dominio, no a un servidor.
+
+   Lo que hay que saber aquí abajo, porque todo este archivo está medido
+   contra el servidor de antes:
+
+   · **`max-age=600` sigue siendo `max-age=600`.** Cloudflare por su cuenta
+     manda otra cosa, así que está escrito a mano en `_headers`. Se dejó igual
+     a propósito: una mudanza cambia el servidor, no el comportamiento, y todo
+     lo que se midió abajo —incluido que el navegador solo le pasa la petición
+     al worker la primera vez— sigue valiendo tal cual. Cambiarlo sería una
+     decisión aparte y habría que volver a medirla.
+
+   · **`sw.js` se pide sin caché.** Escrito también en `_headers`. Los
+     navegadores ya lo revalidaban por su cuenta; ponerlo en voz alta es para
+     que nadie lo «optimice» un día sin ver que está desenchufando el ÚNICO
+     canal por el que llega una versión nueva.
+
+   · **Lo que comprueba la huella se queda.** Cloudflare publica un despliegue
+     entero de una vez, así que la ventana de archivos mezclados que costó la
+     0.7.55.3 debería cerrarse sola. «Debería» no es «está medido», y el
+     guardarraíl no cuesta nada: se queda hasta que alguien lo compruebe.
+
+   · **Ya no se publica el repositorio entero.** `publicar.sh` quita los
+     documentos y los generadores antes de subir nada. Si un archivo nuevo
+     hace falta en vivo y NO está en ASSETS, hay que nombrarlo allí también;
+     lo que sí está en ASSETS lo comprueba ese guion solo, leyendo esta misma
+     lista. */
+
 /* ---- De la copia primero, desde 0.7.38 ----
    Hasta 0.7.37 esto iba a la RED PRIMERO para todo menos la tipografía, y con
-   `no-store` encima. Se puso así por un susto real —GitHub Pages tarda un
+   `no-store` encima. Se puso así por un susto real —un despliegue tarda un
    minuto en publicar, alguien recargó en ese hueco, se guardó una página de
    error como si fuera un archivo y la app arrancó a medias hasta la siguiente
    versión— y estaba escrito que era «un precio que se paga a conciencia».
@@ -138,7 +169,7 @@ function esNuestro(req) {
    404, un 500, o la página de error que devuelve el servidor mientras
    despliega. Comprobarlo es lo que faltaba y lo que costó un susto.
 
-   Esto es lo que pasaba: GitHub Pages tarda un minuto largo en publicar, y
+   Esto es lo que pasaba: un despliegue tarda un minuto largo en publicar, y
    quien recargue justo en ese hueco puede pedir un archivo que todavía no
    está. El servidor contesta 404 con una página de HTML; el navegador la
    ejecuta como si fuera JavaScript, no define nada, y la app arranca a medias
@@ -169,15 +200,15 @@ function seguardase(res) {
    se guarda en la caché de esta versión — y a partir de ahí ya es un acierto y
    no se vuelve a pedir NUNCA.
 
-   Ahí estaba el fallo, y está reproducido: GitHub Pages tarda un minuto largo
-   en publicar y su CDN no cambia todos los archivos a la vez, así que hay una
-   ventana en la que `sw.js` ya es el nuevo y `css/mundos.css` todavía es el
-   viejo. Quien abra la app en esa ventana instala el worker nuevo, pide el
-   mundo, recibe el archivo VIEJO con un 200 —o sea, bueno— y se lo queda
-   congelado para toda la versión. El número de Ajustes sale nuevo, porque
-   `01-base.js` sí está en ASSETS; el mundo se queda como estaba, y no hay
-   recarga que lo arregle. Es exactamente lo que vio Eduardo: «la versión sí
-   está subida y no veo ningún cambio».
+   Ahí estaba el fallo, y está reproducido: el GitHub Pages de entonces
+   tardaba un minuto largo en publicar y su CDN no cambiaba todos los archivos
+   a la vez, así que hay una ventana en la que `sw.js` ya es el nuevo y
+   `css/mundos.css` todavía es el viejo. Quien abra la app en esa ventana
+   instala el worker nuevo, pide el mundo, recibe el archivo VIEJO con un 200
+   —o sea, bueno— y se lo queda congelado para toda la versión. El número de
+   Ajustes sale nuevo, porque `01-base.js` sí está en ASSETS; el mundo se
+   queda como estaba, y no hay recarga que lo arregle. Es exactamente lo que
+   vio Eduardo: «la versión sí está subida y no veo ningún cambio».
 
    La cura es servir la copia y PEDIR OTRA por detrás: se sigue viendo al
    instante, y si lo que llega es distinto queda guardado para la siguiente
@@ -199,7 +230,7 @@ function esBajoDemanda(req) {
    los diez primeros dígitos del sha-256 del archivo, y la estampa
    `mundos/app.py` al generarlo. Aquí se comprueba antes de guardar nada.
 
-   Hace falta porque cambiar la dirección, por sí solo, no basta: GitHub Pages
+   Hace falta porque cambiar la dirección, por sí solo, no basta: un CDN
    sirve el archivo sin mirar la parte de la dirección que va tras la
    interrogación, así que durante el minuto que tarda en publicar contesta al
    `?h=nuevo` con el archivo VIEJO y con un 200 — o sea, con algo que parece
@@ -273,11 +304,12 @@ self.addEventListener("fetch", (e) => {
          `reload` se salta la caché HTTP del navegador para LEER, pero lo que
          llega lo GUARDA ahí igual. Y eso importa muchísimo por algo que hubo
          que medir para creérselo: **el navegador solo le pasa la petición al
-         service worker la PRIMERA vez.** Mientras el archivo siga fresco en su
-         caché HTTP —GitHub Pages manda `max-age=600`—, las cargas siguientes
-         se sirven de ahí sin preguntarle nada a este archivo. Medido con un
-         contador guardado en el propio almacén de cachés: cuatro cargas
-         seguidas y el worker vio la petición del mundo UNA vez.
+         service worker la PRIMERA vez.** Mientras el archivo siga fresco en
+         su caché HTTP —el sitio manda `max-age=600`, hoy escrito en
+         `_headers`—, las cargas siguientes se sirven de ahí sin preguntarle
+         nada a este archivo. Medido con un contador guardado en el propio
+         almacén de cachés: cuatro cargas seguidas y el worker vio la petición
+         del mundo UNA vez.
 
          O sea que con `reload`, lo que se colara una vez en la caché del
          navegador mandaba durante diez minutos por encima de cualquier cosa

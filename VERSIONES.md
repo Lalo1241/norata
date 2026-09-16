@@ -112,6 +112,111 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.122 · 15 sep 2026
+
+**Norata se mudó a Cloudflare Pages y el repositorio es privado.** El motivo lo
+puso Eduardo y no es técnico: no quiere el código a la vista, sobre todo por lo
+fácil que se ha vuelto rehacer un proyecto ajeno con una IA. GitHub Pages solo
+publica repositorios públicos si no se paga, y pagar Pro por eso no salía.
+
+**La dirección no cambió**, así que quien tenga la app instalada no se entera:
+un acceso directo apunta a un dominio, no a un servidor.
+
+**Lo primero que se midió fue si hacía falta mover el dominio, y no hacía
+falta.** `norata.app` vive en GoDaddy, y `mi.norata.app` es un SUBDOMINIO:
+Cloudflare acepta un CNAME desde fuera y solo exige tener el dominio en su casa
+para un dominio raíz. Mover los nameservers habría obligado a recrear todos los
+registros del correo —el MX de Resend, la DKIM, la DMARC—, y **un registro de
+correo que falte no se nota hasta que alguien no recibe su correo de
+confirmar**. Se tocó un registro y ninguno más.
+
+**Y la landing no se movió**: `norata.app` y `www` siguen en GitHub Pages, desde
+otro repositorio. Apagar Pages aquí no las toca.
+
+#### Lo que salió al mirarlo, y es lo que de verdad valía la tanda
+
+Hacer privado el repositorio **no escondía casi nada**, porque la web servía
+todo lo que había dentro. Medido contra el sitio en vivo, sin ninguna cuenta:
+
+| Dirección | Peso | Qué es |
+| --- | --- | --- |
+| `mi.norata.app/VERSIONES.md` | 670 KB | Esta lista: cada decisión y su porqué |
+| `mi.norata.app/CLAUDE.md` | 39 KB | El sistema de diseño entero |
+| `mi.norata.app/supabase/planes.sql` | 8 KB | El esquema y sus permisos |
+| `.../supabase/functions/cobro/index.ts` | 25 KB | El cobro |
+| `mi.norata.app/mundos/app.py` | 51 KB | El generador de mundos |
+
+Los cinco contestaban 200. Eso es el libro de recetas, y vale más que el código.
+**El JavaScript es público por naturaleza y eso no tiene arreglo** —lo lee el
+navegador—, pero los documentos no tenían por qué estar ahí. Lo cierra
+`publicar.sh`: Cloudflare lo ejecuta antes de subir nada y quita los documentos
+y los generadores. De 165 archivos a 71.
+
+**Es una lista de EXCLUSIÓN y eso no se invierte.** Se nombra lo que no sale,
+nunca lo que sí, para que un archivo nuevo se publique solo. Ya hay dos sitios
+donde registrar cada archivo; un tercero se olvida.
+
+**Lleva un guardarraíl, y cazó algo a la primera ejecución.** Comprueba que siga
+estando todo lo que `sw.js` instala, leyendo la lista del propio `sw.js` en vez
+de copiarla. Falló señalando `./crear-cuenta/`, recién llegado en la 0.7.121, y
+tenía razón: la regla que traducía carpeta a `index.html` estaba escrita a mano
+para `./` y `./login/`. Se hizo genérica. Importa porque desde la 0.7.38 la app
+se sirve de su propia copia: **un despliegue que no sale es un mal rato; uno que
+sale roto se queda en las cachés de todo el mundo hasta la versión siguiente.**
+
+**Lo que se queda público a propósito:** `marca/` y `correos/`. Los correos que
+ya están en bandejas ajenas enlazan `mi.norata.app/marca/*.png`, y Gmail no
+vuelve a pedir una imagen que ya guardó. Quitarlas rompería los correos viejos
+para siempre.
+
+#### `_headers`, que es la ventaja concreta del cambio
+
+GitHub Pages no dejaba poner cabeceras. Ahora hay `nosniff`, `X-Frame-Options`,
+`Referrer-Policy`, `Permissions-Policy` y `Cross-Origin-Opener-Policy`.
+
+**La CSP va en modo aviso, y la razón se contó antes de escribirla: 322
+manejadores `onclick=` y 245 atributos `style=`.** Una CSP normal apagaría los
+322 botones de golpe y **sin un solo error en la consola** — los botones
+dejarían de responder y ya. Por eso `script-src` lleva `unsafe-inline`: no es
+dejadez, es cómo está escrita la app, y cambiarlo son 322 ediciones.
+
+Lo que la CSP sí cierra es **a dónde puede salir la información**: `connect-src`
+solo deja hablar con Supabase y con la propia app, así que un script colado no
+tiene a dónde mandar lo que lea. Va en `-Report-Only`, así que no puede romper
+nada; se aprieta quitándole ese sufijo, y solo después de ver la consola limpia.
+
+**Y la caché se dejó EXACTAMENTE igual: `max-age=600`.** Cloudflare por su
+cuenta manda otra cosa, así que está escrito a mano. El diseño del service
+worker está medido contra ese número —«el navegador solo le pasa la petición al
+worker la primera vez, mientras el archivo siga fresco»—, y una mudanza cambia
+el servidor, no el comportamiento. Cambiarlo será otra tanda, con su medición.
+La única excepción es `sw.js`, que se pide sin caché: los navegadores ya lo
+revalidaban solos, y ponerlo escrito es para que nadie lo apague sin ver que es
+el único canal por el que llega una versión nueva.
+
+#### Dos trampas que se cazaron antes de que mordieran
+
+**El árbol está en CRLF y `publicar.sh` corre en Linux.** Con retornos de carro
+dentro, bash lee `set -euo pipefail` con un `` pegado y se cae, o borra un
+archivo con el retorno pegado al nombre. Hoy `core.autocrlf` ya lo dejaría en
+LF, pero eso es un ajuste de la máquina de cada quien y no viaja en el
+repositorio: por eso hay `.gitattributes`.
+
+**El aviso de privacidad nombraba a GitHub Pages** en su tabla de terceros, y
+eso no es un comentario: es un hecho declarado a quien usa la app. Corregido.
+
+#### Los trece archivos que nombraban GitHub Pages
+
+Se revisaron uno por uno y **ninguno afectaba al funcionamiento**: son todos
+comentarios y prosa. Ningún código mira el dominio ni el servidor. Donde la
+frase explicaba un guardarraíl que se queda —la ventana en la que un CDN sirve
+un archivo nuevo y otro viejo— se dejó la explicación y se quitó el nombre del
+servidor, porque el guardarraíl sigue haciendo falta.
+
+**Lo que comprueba la huella se queda.** Cloudflare publica un despliegue entero
+de una vez, así que la ventana que costó la 0.7.55.3 debería cerrarse sola.
+«Debería» no es «está medido», y el guardarraíl no cuesta nada.
+
 ### 0.7.121 · 15 sep 2026
 
 **El alta se pregunta de una en una.** Eduardo trajo una app —Cosmos— que parte

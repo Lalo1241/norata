@@ -6,7 +6,7 @@
 
    Contesta dos preguntas distintas con la misma cifra. La de Eduardo: "¿ya
    está arriba lo que hicimos?" —abre la app, mira la esquina de abajo y si el
-   número es el que le dijeron, el despliegue llegó; si no, GitHub Pages
+   número es el que le dijeron, el despliegue llegó; si no, Cloudflare
    todavía va en camino o el dispositivo sigue con la copia vieja—. Y la mía:
    nombrar cada tanda de trabajo en vez de decir "lo de ayer".
 
@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.121";
+const VERSION = "0.7.122";
 const VERSION_FECHA = "15 sep 2026";
 
 /* ================= Iconografía propia =================
