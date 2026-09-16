@@ -126,6 +126,7 @@ async function cuponDeLoQueYaPago(
   cliente: string | null,
   precioFundador: string,
   llave: string,
+  soloCalcular?: boolean,
 ): Promise<{ id: string; centavos: number } | null> {
   if (!cliente) return null;
 
@@ -147,7 +148,30 @@ async function cuponDeLoQueYaPago(
     if (sub.status !== "active" && sub.status !== "trialing") continue;
     const renglon = sub.items?.data?.[0];
     if (!renglon) continue;
-    const importe = Number(renglon.price?.unit_amount || 0);
+
+    /* ---- Se abona lo que SE COBRO, no lo que cuesta ----
+
+       Aqui estaba `price.unit_amount`, o sea el precio del catalogo, y eso es
+       un agujero de dinero en cuanto alguien paga menos que la etiqueta: un
+       cupon de lanzamiento, una promocion, un precio viejo que ya subio.
+
+       Lo destapo la propia cuenta de Eduardo. Su Pro Anual figura a $590, pero
+       la factura pagada dice **$11.80** —entro con un cupon de prueba—. Con el
+       precio de catalogo se le habrian abonado $559 por unos $11 cobrados:
+       Norata le habria regalado $547 y encima con cara de que todo iba bien.
+
+       La factura es la unica fuente honesta: trae ya aplicados los descuentos,
+       los impuestos y lo que de verdad entro. Si no se puede leer, se prefiere
+       NO abonar a abonar de mas — un abono que falta se arregla con un
+       reembolso; uno que sobra ya se fue. */
+    let importe = 0;
+    try {
+      const facturas = await stripeGet(
+        "/invoices?subscription=" + encodeURIComponent(sub.id) + "&status=paid&limit=1",
+        llave,
+      );
+      importe = Number(facturas?.data?.[0]?.amount_paid || 0);
+    } catch (_e) { /* sin factura fiable no se abona nada por esta */ }
     if (!importe) continue;
 
     /* `current_period_*` cambio de sitio entre versiones de la API de Stripe:
@@ -164,6 +188,7 @@ async function cuponDeLoQueYaPago(
   }
 
   if (credito <= 0 || !moneda) return null;
+  if (soloCalcular) return { id: "", centavos: credito };
 
   /* El precio de Fundador, para toparlo. Si por lo que sea no se puede leer,
      se prefiere no descontar a descontar de mas. */
@@ -294,6 +319,37 @@ Deno.serve(async (req: Request) => {
       const motivo = (e as Error).message || "sin mensaje";
       console.log("portal fallo | cliente:", cliente, "| stripe dijo:", motivo);
       return responder({ error: "No se pudo abrir tu suscripcion: " + motivo }, 502, origen);
+    }
+  }
+
+  /* ---- Cuanto se te abonaria, sin abrir ninguna caja ----
+
+     Existe para que la app no tenga que adivinarlo. Lo adivinaba: deducia el
+     principio del periodo restando un mes o un ano y multiplicaba por el
+     PRECIO DE CATALOGO, y con eso prometia $559 a quien habia pagado $11.80
+     con un cupon. Prometer de mas es la unica version de esto que no se puede
+     permitir, asi que la cifra sale de donde se decide: aqui.
+
+     No crea cupon ni cobra nada. Devuelve centavos, y `0` cuando no hay nada
+     que abonar — que la app sabe leer como «no enseñes el renglon». */
+  if (cuerpo.que === "abono") {
+    const fila = await fetch(
+      SB + "/rest/v1/suscripciones?select=cliente&user_id=eq." + uid,
+      { headers: { "Authorization": "Bearer " + SERVICIO, "apikey": SERVICIO } },
+    );
+    const filas = await fila.json();
+    const cliente = Array.isArray(filas) && filas.length ? filas[0].cliente : null;
+    const precioF = Deno.env.get("STRIPE_PRECIO_FUNDADOR") || "";
+    if (!cliente || !precioF) return responder({ centavos: 0 }, 200, origen);
+    try {
+      const r = await cuponDeLoQueYaPago(cliente, precioF, LLAVE, true);
+      return responder({ centavos: r ? r.centavos : 0 }, 200, origen);
+    } catch (e) {
+      /* Que falle la cuenta no puede romper la pantalla del plan: se contesta
+         cero y el renglon del abono no sale. El descuento de verdad se calcula
+         otra vez al comprar, asi que nadie pierde su dinero por esto. */
+      console.log("no se pudo calcular el abono:", (e as Error).message);
+      return responder({ centavos: 0 }, 200, origen);
     }
   }
 
