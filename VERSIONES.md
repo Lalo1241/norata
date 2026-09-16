@@ -114,14 +114,24 @@ que no hay que acordarse de ningún cambio de estación.
 
 ### 0.7.121 · 15 sep 2026
 
-**El alta por pasos, en prueba y apagada.** Eduardo trajo una app —Cosmos— que
-parte el registro en pantallas de una pregunta cada una, en vez de dejar una
-columna de casillas que rellenar. El argumento es correcto: una lista larga de
-campos se lee como un trámite antes de haber visto nada, y quien todavía no sabe
-si la app le sirve la abandona ahí.
+**El alta se pregunta de una en una.** Eduardo trajo una app —Cosmos— que parte
+el registro en pantallas de una pregunta cada una, en vez de dejar una columna
+de casillas que rellenar. El argumento es correcto: una lista larga de campos se
+lee como un trámite antes de haber visto nada, y quien todavía no sabe si la app
+le sirve la abandona ahí.
 
-**Enlaces:** `mi.norata.app/login/?nuevo&pasos=si` para verla, `?pasos=no` para
-apagarla.
+Se trabajó detrás de `?pasos=`, que es la receta de la casa para lo que se ve, y
+Eduardo la encendió para todos antes de publicar — así que nunca llegó a un
+dispositivo apagada y esto es una sola entrada, no dos. **Al encenderla se borró
+la rama de los cinco campos seguidos**, que era la que dejaba de usarse:
+quedarse las dos es mantener dos altas y arreglar una sola. Y se borró por
+NOMBRE y no por rango, que es lo que la primera vez se llevó por delante cuatro
+bloques que estaban en medio.
+
+**Vale también dentro de la app.** La pantalla de crear cuenta no es solo la de
+la puerta: se abre igual desde Ajustes, al añadir otra cuenta. El CSS no está
+scopeado a `login/`, así que las dos son la misma — que es justo lo que evita
+que una se quede sin arreglar.
 
 **Lo primero que salió al mirarlo, y es lo que cambia la propuesta: las cápsulas
 ya existen.** La bienvenida de la app son SEIS pantallas de una pregunta cada
@@ -178,9 +188,10 @@ son la diferencia entre tres pantallas y un camino:
   línea de JavaScript. Se anima `opacity` y `transform`, que son valores
   literales; si saliera de una variable se quedaría congelada en el inicial.
 - **Los tres pasos miden lo mismo** (`min-height: 271px`, medido uno por uno:
-  250 el primero con Google dentro, 271 los otros dos). Sin eso el botón saltaba
-  11 px al cambiar de pantalla, y que el sitio donde hay que volver a pulsar se
-  mueva bajo el dedo es justo lo que hace que un camino corto se sienta largo.
+  262 el primero con Google y su frase legal dentro, 271 los otros dos). Sin eso
+  el botón saltaba al cambiar de pantalla, y que el sitio donde hay que volver
+  a pulsar se mueva bajo el dedo es justo lo que hace que un camino corto se
+  sienta largo.
 - Con `prefers-reduced-motion` se queda el desvanecido a secas: lo que marea es
   el desplazamiento, no el cambio de opacidad.
 
@@ -199,10 +210,9 @@ son la diferencia entre tres pantallas y un camino:
   además sirven para armar el tablero. Si Eduardo las quiere adelantar, se
   adelantan — pero eso es mover una pregunta, no añadirla.
 
-**Qué borrar si no se queda:** la lista exacta está al final del bloque
-`.crear-pasos` en `css/estilos.css`. Tres cosas de esta tanda NO son de la
-prueba y se quedan pase lo que pase: el género en la pantalla de idioma y
-moneda, la pantalla del correo mandado y `portadaLegalHTML`.
+**Y ya no es reversible con un parámetro:** `?pasos=` se fue con el formulario
+largo. Si algún día hay que volver atrás, se reconstruye — esta entrada cuenta
+cómo era.
 
 ---
 
