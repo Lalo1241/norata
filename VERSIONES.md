@@ -112,6 +112,58 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### Sin número · 16 sep 2026 · dejan de publicarse los documentos
+
+**Esta entrada no lleva número a propósito, y la razón es la regla de arriba:
+lo que esta lista cuenta es lo que llegó a un dispositivo.** Aquí no cambió un
+solo archivo de `ASSETS` —lo que se descarga es byte por byte lo mismo—; lo que
+cambió es lo que el SERVIDOR deja mirar a quien ande hurgando. Subir el número
+habría hecho que todo el mundo se volviera a bajar 460 KB para nada.
+
+**El repositorio es público y hasta hoy la web además servía todo lo de
+dentro.** Medido contra el sitio en vivo, desde el navegador y sin ninguna
+cuenta de GitHub:
+
+| Dirección | Peso | Qué es |
+| --- | --- | --- |
+| `mi.norata.app/VERSIONES.md` | 670 KB | Esta lista: cada decisión y su porqué |
+| `mi.norata.app/CLAUDE.md` | 39 KB | El sistema de diseño entero |
+| `mi.norata.app/supabase/planes.sql` | 8 KB | El esquema y sus permisos |
+| `.../supabase/functions/cobro/index.ts` | 25 KB | El cobro |
+| `mi.norata.app/mundos/app.py` | 51 KB | El generador de mundos |
+
+Los trece que se comprobaron contestaban 200. Eso es el libro de recetas, y
+vale más que el código: el JavaScript dice QUÉ hace la app y esto dice POR QUÉ.
+
+**Lo cierra `_config.yml`**, y funciona sin mudar nada porque GitHub Pages ya
+pasaba el sitio por Jekyll —se vio en un segundo: `mi.norata.app/CLAUDE.html`
+existía, y ese archivo no está en el repositorio—. Lo que esté en su lista
+`exclude` no llega al sitio construido.
+
+**El JavaScript se queda público y eso no tiene arreglo.** Lo lee el navegador.
+Lo que la privacidad compra es la parte cara de averiguar, no la parte visible.
+
+**Es una lista de EXCLUSIÓN y no se invierte:** se nombra lo que no sale, para
+que un archivo nuevo se publique solo. Y hay cinco cosas que nunca pueden
+entrar en ella —`CNAME`, las imágenes de `marca/`, `correos/04-bienvenida.html`,
+`caminos/caminos.json` y los css generados—; la tabla con el porqué de cada una
+está en `CLAUDE.md`.
+
+**Se comprueba después de publicar, no antes**, porque aquí no hay compilación
+propia donde meter el guardarraíl: `python herramientas/comprobar-publicado.py`
+pide al sitio en vivo las 58 direcciones que la app necesita —la lista sale de
+`ASSETS`, no se copia— y las 13 que no debe servir. Lleva un control: si
+`index.html` falla, lo roto es la prueba y no el sitio.
+
+#### Lo que se decidió NO hacer
+
+Se llegó a hacer entera la mudanza a **Cloudflare Pages** con el repositorio en
+privado, y está probada en la rama `cloudflare`. Eduardo la aparcó: no le
+agrega nada a la app a corto plazo, y lo que de verdad le preocupaba se cierra
+sin mudarse. Queda ahí para cuando toque. Lo que la mudanza daba de más y esto
+no: el repositorio privado —o sea, la historia de los 521 commits— y las
+cabeceras de seguridad, que GitHub Pages no deja poner.
+
 ### 0.7.121 · 15 sep 2026
 
 **El alta se pregunta de una en una.** Eduardo trajo una app —Cosmos— que parte

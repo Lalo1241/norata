@@ -32,6 +32,68 @@ navegador entiende tal cual. Tres consecuencias que muerden si se olvidan:
 3. **Hace falta servirla por HTTP.** `python -m http.server 8123`. Abrir
    `index.html` con doble clic no funciona.
 
+## Lo que no se publica
+
+**El repositorio es público, pero la web ya no sirve todo lo que hay dentro.**
+Lo decide `_config.yml`, y funciona porque GitHub Pages pasa el sitio por
+Jekyll antes de servirlo: lo que esté en su lista `exclude` no llega al sitio
+construido. Se comprueba en un segundo — `mi.norata.app/CLAUDE.html` existía y
+ese archivo no está en el repositorio; lo generaba Jekyll desde `CLAUDE.md`.
+
+**Por qué se hizo (16 sep 2026).** Hasta entonces cualquiera abría en el
+navegador, sin ninguna cuenta, `VERSIONES.md` (670 KB), `CLAUDE.md`,
+`supabase/planes.sql`, la función de cobro y `mundos/app.py`. Los cinco daban
+200. Eso es el libro de recetas —cada decisión y el fallo que la motivó— y vale
+más que el código: el JavaScript dice QUÉ hace la app y esto dice POR QUÉ, que
+es lo caro de volver a averiguar.
+
+**El JavaScript se queda público y no hay forma de que deje de estarlo.** Lo
+tiene que leer el navegador. No buscarle arreglo ni prometer lo contrario.
+
+**Es una lista de EXCLUSIÓN y no se invierte.** Se nombra lo que no sale, nunca
+lo que sí, para que un archivo nuevo se publique solo. Ya hay DOS sitios donde
+registrar cada archivo (`index.html` y `ASSETS`); un tercero se olvida, y el
+fallo sería un archivo que está en local y falta en producción.
+
+**Lo que NUNCA puede entrar en esa lista**, y cada uno por su motivo:
+
+| Qué | Por qué |
+| --- | --- |
+| `CNAME` | Es lo que ata el dominio a este repositorio |
+| `marca/` (las imágenes) | Los correos ya enviados las enlazan, y Gmail no vuelve a pedir una imagen que ya guardó |
+| `correos/04-bienvenida.html` | Lo enlazan esos mismos correos |
+| `caminos/caminos.json` | Se pide en caliente, no está en `ASSETS` |
+| `css/mundos.css`, `css/ambientes.css` | Son los GENERADOS. Sus fuentes (`mundos/`, `apariencias/`) sí se excluyen |
+
+**Cómo se comprueba, y hay que hacerlo después de publicar.** Aquí no hay paso
+de compilación propio donde meter un guardarraíl, así que se mira a posteriori:
+
+```sh
+python herramientas/comprobar-publicado.py
+```
+
+Pide al sitio en vivo todo lo que `ASSETS` lista —la lista sale de `sw.js`, no
+se copia— más lo que se pide en caliente, y comprueba que los documentos den
+404. Lleva un **control**: si `index.html` falla, lo roto es la prueba y no el
+sitio, porque GitHub Pages tarda un minuto largo en publicar.
+
+**Esto no subió la versión, y es correcto.** No cambió un solo archivo de
+`ASSETS`: lo que llega a un dispositivo es byte por byte lo mismo. Subir el
+número habría hecho que todo el mundo se volviera a bajar 460 KB para nada.
+
+### La mudanza a Cloudflare, aparcada
+
+Existe una rama **`cloudflare`** con la mudanza entera hecha y probada —
+repositorio privado, `_headers` con las cabeceras de seguridad, `publicar.sh`,
+y el DNS resuelto con un solo CNAME en GoDaddy—. Eduardo la aparcó el 16 de
+septiembre de 2026: no le agrega nada a la app a corto plazo, y lo que de
+verdad le preocupaba lo cierra `_config.yml` sin mudarse.
+
+**No se fusiona sin volver a hablarlo**, y al retomarla hay dos cosas: su
+número de versión (0.7.122) estará cogido y habrá que renumerar, y su
+`publicar.sh` y este `_config.yml` hacen lo mismo por dos caminos — se queda
+uno, no los dos.
+
 ## Versiones
 
 El número se ve debajo de Ajustes y **las reglas están en `VERSIONES.md`** —
