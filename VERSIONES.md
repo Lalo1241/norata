@@ -112,6 +112,187 @@ que no hay que acordarse de ningún cambio de estación.
 
 ## La lista
 
+### 0.7.121 · 15 sep 2026
+
+**El alta se pregunta de una en una.** Eduardo trajo una app —Cosmos— que parte
+el registro en pantallas de una pregunta cada una, en vez de dejar una columna
+de casillas que rellenar. El argumento es correcto: una lista larga de campos se
+lee como un trámite antes de haber visto nada, y quien todavía no sabe si la app
+le sirve la abandona ahí.
+
+Se trabajó detrás de `?pasos=`, que es la receta de la casa para lo que se ve, y
+Eduardo la encendió para todos antes de publicar — así que nunca llegó a un
+dispositivo apagada y esto es una sola entrada, no dos. **Al encenderla se borró
+la rama de los cinco campos seguidos**, que era la que dejaba de usarse:
+quedarse las dos es mantener dos altas y arreglar una sola. Y se borró por
+NOMBRE y no por rango, que es lo que la primera vez se llevó por delante cuatro
+bloques que estaban en medio.
+
+**Vale también dentro de la app.** La pantalla de crear cuenta no es solo la de
+la puerta: se abre igual desde Ajustes, al añadir otra cuenta. El CSS no está
+scopeado a `login/`, así que las dos son la misma — que es justo lo que evita
+que una se quede sin arreglar.
+
+**Lo primero que salió al mirarlo, y es lo que cambia la propuesta: las cápsulas
+ya existen.** La bienvenida de la app son SEIS pantallas de una pregunta cada
+una, y la segunda es exactamente eso — «¿Qué partes de tu vida quieres
+mejorar?», de una a tres, con icono y color (`ONBOARD_AREAS`, `js/09-inicio.js`).
+O sea que Norata ya hace lo que hace Cosmos; lo único que estaba sin partir era
+el ALTA. Esta prueba no añade ninguna pregunta: reparte las cinco que ya había.
+
+**Tres pantallas, y el orden cambió a propósito:**
+
+| | Qué pregunta |
+| --- | --- |
+| 1 | El correo |
+| 2 | La contraseña (con su «repítela» debajo, en la misma) |
+| 3 | El nombre, y el apodo opcional |
+
+El correo va PRIMERO y el nombre al final, al revés que en el formulario largo.
+Con cinco campos de golpe el orden daba igual; de uno en uno, lo primero que se
+pregunta decide si alguien sigue — y el correo es el trámite que ya esperaba,
+mientras que «¿cómo te llamas?» de entrada suena a formulario de otra cosa. Y si
+la cuenta ya existía, se descubre en el primer paso y no después de contestar
+tres.
+
+**Cómo está hecho, que es de donde salen tres cosas gratis.** Los cinco campos
+se pintan SIEMPRE, con sus mismos ids, y lo único que cambia es cuál se enseña.
+Con eso: la contraseña no viaja por ninguna variable entre pasos —sigue viviendo
+dentro de su `<input>`—, volver atrás no pierde lo escrito porque nada se
+repinta, y `portadaRegistrar()` no se entera: valida los cinco campos igual que
+siempre, así que el alta sigue siendo el mismo camino ya probado.
+
+**Y las comprobaciones se escriben una sola vez** (`portadaPasoFalla`), no una
+por paso: con dos copias, el día que cambie el mínimo de la contraseña una de
+las dos se queda corta y deja pasar a alguien hasta el final para rebotarlo al
+pulsar.
+
+**El fallo que cazó la medición:** los tres puntos de arriba se quedaban en el
+primero mientras el formulario ya iba por el tercero. `portadaPasoIr` cambiaba el
+campo visible y el botón, y nadie tocaba los puntos. Ahora las tres cosas que
+cambian al cambiar de paso viven en una sola función (`portadaPasoPintar`), para
+que quien añada una cuarta la vea.
+
+**Google se queda en la PRIMERA pantalla y no en las tres.** Lo pidió Eduardo y
+la razón se explica sola: quien pasa del primer paso ya decidió no entrar por
+ahí, y un atajo que se sigue ofreciendo después de rechazarlo deja de ser un
+atajo y pasa a ser ruido. Su rayita del «o» se va con él.
+
+**Cada paso entra desvaneciéndose, y el botón no se mueve.** Dos detalles que
+son la diferencia entre tres pantallas y un camino:
+
+- Es una **animación** y no una transición, y la diferencia importa: el paso
+  viene de `display: none`, y desde ahí una transición no arranca —el navegador
+  no interpola algo que no existía—. Una animación se dispara sola en cuanto el
+  selector empieza a aplicar, así que cada cambio de paso la relanza sin una
+  línea de JavaScript. Se anima `opacity` y `transform`, que son valores
+  literales; si saliera de una variable se quedaría congelada en el inicial.
+- **Los tres pasos miden lo mismo** (`min-height: 271px`, medido uno por uno:
+  262 el primero con Google y su frase legal dentro, 271 los otros dos). Sin eso
+  el botón saltaba al cambiar de pantalla, y que el sitio donde hay que volver
+  a pulsar se mueva bajo el dedo es justo lo que hace que un camino corto se
+  sienta largo.
+- Con `prefers-reduced-motion` se queda el desvanecido a secas: lo que marea es
+  el desplazamiento, no el cambio de opacidad.
+
+**Lo que NO se tocó, y a conciencia:**
+
+- **La confirmación de la contraseña se queda**, y esto ya lo confirmó Eduardo.
+  Está ahí por un fallo real y escrito: una errata al teclearla se convertía en
+  una cuenta a la que ya no se podía entrar.
+- **No se pide la edad.** Cosmos la usa para su feed; Norata no la usa para
+  nada, y una pregunta que no alimenta ninguna pantalla es una casilla más
+  entre alguien y la app.
+- **El género no se pregunta AQUÍ.** Preguntarlo en el alta sería preguntarlo
+  dos veces. Se movió, pero a otro sitio — ver abajo.
+- **Las cápsulas se quedan donde están.** Antes de crear la cuenta, cada
+  pregunta de más es una oportunidad de abandonar; después, el coste es cero y
+  además sirven para armar el tablero. Si Eduardo las quiere adelantar, se
+  adelantan — pero eso es mover una pregunta, no añadirla.
+
+**Y ya no es reversible con un parámetro:** `?pasos=` se fue con el formulario
+largo. Si algún día hay que volver atrás, se reconstruye — esta entrada cuenta
+cómo era.
+
+---
+
+**El género se mudó a la pantalla de idioma y moneda, y esto arregla un agujero
+que ya existía.** Eduardo preguntó si entrar con Google nos cuesta información,
+porque quien entra por ahí se salta el formulario entero. Al mirarlo salió que
+el agujero era más grande que Google: el género **solo** se preguntaba en el
+asistente de bienvenida, que es OPCIONAL —la pantalla vacía ofrece otros dos
+caminos, «ver un ejemplo» y «empezar de cero», que no pasan por ahí—. O sea que
+la única pregunta que decide cómo te habla la app entera se la llevaba quien
+quisiera contestarla, con Google o sin él.
+
+La solución es la misma para los dos agujeros, y por eso se eligió esa pantalla
+y no otra: **es la única que ve todo el mundo sí o sí** —con Google, con
+formulario y sin cuenta—, no se puede cerrar sin contestar, y sale una vez en la
+vida del perfil. Va después del idioma a propósito: en inglés no se pregunta
+(`preguntaGenero`), así que elegir «English» arriba hace desaparecer el bloque,
+que es lo que pasa porque cambiar de idioma repinta la pantalla entera.
+
+Y no se pregunta dos veces: `preguntaGenero()` mira el DATO guardado, no una
+marca aparte. Quien ya contestó llega al asistente con una pantalla menos —de
+seis a cinco—, empezando por las cápsulas. El neutro no deja dato, así que quien
+no contestó sigue viendo la pregunta; sigue habiendo **dos** opciones y no tres,
+porque el neutro es el suelo y no una casilla que se elige.
+
+El detalle que se vio al medir: la frase de arriba decía «dos cosas» encima de
+tres bloques. Ahora el número se cuenta y no se escribe.
+
+**Lo de Google, entonces:** no cuesta información. Devuelve `full_name`, que es
+lo mismo que pedía el formulario. Lo que faltaba faltaba igual por los dos
+caminos.
+
+---
+
+**La línea legal cuelga ahora del BOTÓN que da de alta.** Estuvo un rato arriba
+del todo, entre el título y los tres puntos, y Eduardo lo paró en la primera
+mirada: ahí no es de nadie. Hay dos botones que dan de alta y viven en pantallas
+distintas, así que la frase va con cada uno — debajo del de Google (dentro de su
+mismo hueco, antes de la rayita del «o», porque escrita fuera caía DETRÁS de la
+rayita y se leía como si fuera del título del paso) y debajo del de «Crear
+cuenta», en el último. Sale de `portadaLegalHTML` y no escrita tres veces: tres
+copias de la misma frase son dos que se quedan sin arreglar el día que cambie.
+
+Sin Google no hay frase en el primer paso, y está bien: el camino a pie la
+encuentra en el último, pegada al botón que de verdad crea la cuenta.
+
+**Y el hueco de esa frase se reserva en los tres pasos** (`visibility` y no
+`display`). Apagándola del todo, la tarjeta medía dos líneas menos en los dos
+primeros y, como está centrada a lo alto, el botón subía 14 px justo al llegar
+al último — el mismo fallo que el `min-height` ya evitaba por dentro. Medido
+paso a paso: 568, 568, 568.
+
+**El rótulo del tercer paso dejó de repetir la pregunta.** Decía «¿Cómo te
+llamas?» y el campo de debajo decía «¿Cómo te llamas?». Ahora dice «Una última
+cosa», que además es lo que más ayuda justo antes del botón que da de alta.
+
+---
+
+**La pantalla de después de crear la cuenta, reescrita.** La nota de «te mandaré
+un correo para confirmar» estaba en el formulario, ANTES de pulsar. Se movió
+entera a la pantalla de después (modo `enviado`), por dos razones: ahí la cuenta
+todavía no existe —el correo puede estar mal escrito, o ya tener cuenta—, y este
+es el único momento en que de verdad hay algo que ir a abrir.
+
+Y dice qué hacer con él, que era la pregunta de Eduardo: **abrir el correo no
+activa nada; lo que activa la cuenta es pulsar el botón de dentro.** Antes
+ponía «ábrelo, pulsa el enlace»; ahora nombra el botón —«Confirmar mi correo»,
+que es como se llama en `correos/01-confirmar-cuenta.html`— y dice qué pasa al
+pulsarlo. En inglés no se entrecomilla ningún rótulo: los seis correos están
+escritos en español y se pegan a mano en Supabase, así que prometer ahí un botón
+en inglés sería mandar a buscar algo que no está.
+
+**Lo del periodo de validez, sin inventarse el número.** El enlace caduca, y la
+pantalla lo dice —«no dura para siempre, así que mejor ahora que mañana»— con la
+salida al lado, que es lo que un aviso tiene que traer: «si se te pasa, desde
+aquí te mando otro», y el botón se llama «Mandarme otro». La cifra exacta vive en
+el panel de Supabase (Authentication → Email), y **desde aquí no se puede
+mirar**: la red de esta sesión no llega. Si Eduardo la confirma, se escribe;
+hasta entonces no se pone un número que igual no es.
+
 ### 0.7.120.1 · 15 sep 2026
 
 **El abono de Fundador salía del precio de catálogo y no de lo que se cobró.**

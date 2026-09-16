@@ -324,7 +324,20 @@ function cadenciaDeMision(plan) {
 
    Es lo mismo que ya hace el panel de Ajustes, que se esconde por lo mismo. */
 function preguntaGenero() {
-  return typeof idiomaActual !== "function" || idiomaActual() === "es";
+  if (typeof idiomaActual === "function" && idiomaActual() !== "es") return false;
+  /* Y no se pregunta dos veces. Desde la 0.7.121 la pantalla de idioma y moneda
+     lo pregunta también —ver `js/09c-region.js`—, y esa la ve todo el mundo:
+     quien entra con Google, quien rellena el formulario y quien usa la app sin
+     cuenta. El asistente, en cambio, se salta. Así que quien ya contestó llega
+     aquí con el tablero por armar y una pregunta menos.
+
+     Se mira el DATO y no una marca aparte: si hay género guardado es que
+     alguien lo eligió, viniera de donde viniera. El neutro no deja dato —es el
+     suelo, no una respuesta—, así que quien no ha contestado sigue viendo la
+     pregunta. */
+  const g = (typeof state !== "undefined" && state && state.settings) ? state.settings.genero : "";
+  if (typeof GENEROS !== "undefined" && GENEROS.indexOf(g) >= 0) return false;
+  return true;
 }
 
 let onboardStep = 0;

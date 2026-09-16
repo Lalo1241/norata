@@ -8185,6 +8185,96 @@
   .portada-vuelve h2 { margin-bottom: 8px; }
   .portada-vuelve .portada-lema { margin-bottom: 0; }
 
+  /* ---------- El alta por pasos (0.7.121) ----------
+     Una pregunta por pantalla. Los cinco campos están todos en el marcado —ver
+     `portadaPintar` en `js/10c-portada.js`— y aquí solo se decide cuál se ve:
+     `display: none` y no `hidden`, porque los campos siguen teniendo que
+     existir para que `portadaRegistrar()` los lea al final.
+
+     No está scopeado a la puerta a propósito: la pantalla de crear cuenta
+     también se abre desde dentro de la app, y ahí tiene que ser la misma. */
+  .crear-pasos .paso { display: none; }
+  .crear-pasos[data-en="1"] .paso[data-paso="1"],
+  .crear-pasos[data-en="2"] .paso[data-paso="2"],
+  .crear-pasos[data-en="3"] .paso[data-paso="3"] {
+    display: block;
+    /* Una ANIMACIÓN y no una transición, y la diferencia importa: el paso
+       viene de `display: none`, y desde ahí una transición no arranca —el
+       navegador no interpola un elemento que no existía—. Una animación sí se
+       dispara sola en cuanto el selector empieza a aplicar, así que cada
+       cambio de paso la vuelve a lanzar sin una línea de JavaScript.
+
+       Se anima `opacity` y `transform`, que son valores literales. Si alguno
+       saliera de una variable se quedaría congelado en el inicial, que es la
+       trampa de la casa. */
+    animation: pasoEntra var(--dur-media, 0.22s) var(--curva, ease) both;
+  }
+  @keyframes pasoEntra {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+  /* Quien pide menos movimiento se queda con el desvanecido a secas: lo que
+     marea es el desplazamiento, no el cambio de opacidad. */
+  @media (prefers-reduced-motion: reduce) {
+    .crear-pasos .paso { animation-name: pasoAparece; }
+    @keyframes pasoAparece { from { opacity: 0; } to { opacity: 1; } }
+  }
+
+  /* La línea legal colgando de un botón: más pegada arriba que abajo, para que
+     se lea como la letra chica de ESE botón y no como un párrafo suelto. */
+  .portada-legal-bajo { margin: 10px 0 0; }
+  /* La del final solo se LEE en la última pantalla, que es donde está el botón
+     al que acompaña. Fuera de los `.paso` porque el botón también lo está.
+
+     Y se apaga con `visibility` y no con `display`, que es lo que hacía antes:
+     quitándola del todo la tarjeta medía dos líneas menos en los dos primeros
+     pasos, y como está centrada a lo alto, eso subía el botón 14 px justo al
+     llegar al último. El hueco reservado cuesta dos líneas en blanco y hace lo
+     que el `min-height` de abajo: que el sitio donde hay que volver a pulsar no
+     se mueva bajo el dedo. Medido paso a paso: 568, 568, 568. */
+  .crear-pasos .solo-ultimo { visibility: hidden; }
+  .crear-pasos[data-en="3"] .solo-ultimo { visibility: visible; }
+
+  /* Los tres pasos miden distinto —uno pide un campo, los otros dos— y sin un
+     mínimo el botón de abajo salta de sitio en cada pantalla. Que el sitio
+     donde hay que volver a pulsar se mueva bajo el dedo es justo lo que hace
+     que un camino de tres pasos se sienta largo. Medido uno por uno: 262 el
+     primero —con Google y su frase legal dentro— y 271 los otros dos, así que
+     el mínimo es 271 y el botón no se mueve ni un píxel en todo el camino. */
+  .crear-pasos .paso { min-height: 271px; }
+
+  /* Los tres puntos. No es una barra de progreso con porcentaje: son tres, se
+     cuentan de un vistazo, y lo que hay que saber aquí no es «cuánto llevas»
+     sino «cuánto falta» — y falta poco, que es justo lo que hay que decir. */
+  .paso-puntos { display: flex; gap: 6px; justify-content: center; margin-bottom: 22px; }
+  .paso-puntos i {
+    width: 22px; height: 4px; border-radius: var(--r-barra);
+    background: var(--carril);
+  }
+  /* Sin transición: el valor sale de una variable y Chrome lo deja congelado
+     en el inicial (la trampa de la casa). */
+  .paso-puntos i.on { background: var(--mint-macizo); }
+
+  .paso-tit { text-align: center; margin: 0 0 20px; }
+  .paso-tit b {
+    display: block; font-family: var(--tipo-titulo);
+    font-size: 19px; line-height: 1.3; margin-bottom: 6px;
+  }
+  .paso-tit span {
+    display: block; color: var(--muted); font-size: 13px; line-height: 1.55;
+  }
+
+  /* ---- Qué se fue al encenderla para todos ----
+     Borrado por NOMBRE y no por rango, que es la regla de la casa: `?pasos=`
+     y su rótulo en `login/index.html` y aquí, `portadaPorPasos()` en
+     `js/10c-portada.js` y con ella la rama de los cinco campos seguidos, que
+     es la que dejaba de usarse. Quedarse las dos es mantener dos altas y
+     arreglar una sola.
+
+     Y el alta por pasos ya NO es reversible con un parámetro: si algún día hay
+     que volver al formulario largo, se reconstruye. La entrada de la 0.7.121
+     en `VERSIONES.md` cuenta cómo era. */
+
   /* ---------- La puerta de dos columnas (0.7.117) ----------
      Solo vive en la PUERTA: el bloque no toca a `.portada` cuando se abre
      dentro de la app —desde Ajustes, a crear la cuenta—, porque el panel de al
