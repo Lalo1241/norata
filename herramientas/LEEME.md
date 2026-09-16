@@ -176,3 +176,22 @@ node bandas.js /ruta/mundos/vista.html m-talavera
 compuesto le sale alto por la cenefa; `debajo.js` mira sólo bajo el texto;
 `bandas.js` dice dónde está cada cosa. Talavera da 2,58 en campo y 1,25 en
 debajo, y las dos cifras son correctas.
+
+## Comprobar lo que se publicó
+
+`comprobar-publicado.py` le pide al sitio EN VIVO todo lo que la app necesita y
+comprueba que los documentos den 404. Se ejecuta **después** de cada push que
+toque `_config.yml` o que añada un archivo nuevo.
+
+```sh
+python herramientas/comprobar-publicado.py
+```
+
+La lista no está escrita ahí dentro: sale de `ASSETS`, en `sw.js`. Copiarla
+sería un cuarto sitio que mantener, y el día que se desincronizara el que
+mentiría sería justo el que comprueba.
+
+**Lleva un control a propósito.** GitHub Pages tarda un minuto largo en
+publicar, así que un 404 recién subido no significa que se haya excluido de
+más. Si el control —`index.html`— falla, lo roto es la prueba: esperar y
+repetir.

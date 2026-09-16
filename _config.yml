@@ -1,0 +1,81 @@
+# ============================================================
+#  Lo que NO se publica
+# ============================================================
+#
+#  GitHub Pages pasa el sitio por Jekyll antes de servirlo —se comprueba
+#  en un segundo: `mi.norata.app/CLAUDE.html` existe, y ese archivo no
+#  está en el repositorio; lo generó Jekyll desde `CLAUDE.md`—. Lo que se
+#  nombre aquí abajo no llega al sitio construido, así que deja de
+#  servirse.
+#
+#  ---- Por qué existe ----
+#
+#  El repositorio es público, y hasta hoy la web además servía TODO lo
+#  que hay dentro. Medido contra el sitio en vivo el 16 de septiembre de
+#  2026, sin ninguna cuenta de GitHub y desde el navegador:
+#
+#      mi.norata.app/VERSIONES.md                      670 KB
+#      mi.norata.app/CLAUDE.md                          39 KB
+#      mi.norata.app/supabase/planes.sql                 8 KB
+#      mi.norata.app/supabase/functions/cobro/index.ts  25 KB
+#      mi.norata.app/mundos/app.py                      51 KB
+#
+#  Los cinco contestaban 200. Eso es el libro de recetas —cada decisión y
+#  el fallo que la motivó—, y vale más que el código: el JavaScript dice
+#  QUÉ hace la app, y esto dice POR QUÉ, que es lo caro de volver a
+#  averiguar.
+#
+#  El JavaScript se queda público y no hay forma de que deje de estarlo:
+#  lo tiene que leer el navegador. No buscarle arreglo.
+#
+#  ---- Es una lista de EXCLUSIÓN, y no se invierte ----
+#
+#  Se nombra lo que no sale, nunca lo que sí. Al revés haría falta
+#  acordarse de apuntar cada archivo nuevo aquí, y ya hay DOS sitios
+#  donde hay que apuntarlos (`index.html` y el `ASSETS` de `sw.js`); un
+#  tercero se olvida, y el fallo sería un archivo que está en local y
+#  falta en producción, de los caros de encontrar. Así, lo nuevo se
+#  publica solo.
+#
+#  ---- Lo que NO se puede meter aquí ----
+#
+#  · `CNAME` — es lo que ata `mi.norata.app` a este repositorio. Sin él,
+#    GitHub Pages deja de responder en el dominio.
+#  · `marca/` (las imágenes) y `correos/` — los correos que ya están en
+#    bandejas ajenas enlazan `mi.norata.app/marca/*.png`, y Gmail no
+#    vuelve a pedir una imagen que ya guardó. Quitarlas rompería los
+#    correos viejos para siempre.
+#  · `caminos/caminos.json` — se pide en caliente, no está en `ASSETS`.
+#  · `css/mundos.css` y `css/ambientes.css` — son los archivos GENERADOS
+#    que sí usa la app. Sus fuentes (`mundos/`, `apariencias/`) no, y por
+#    eso esas carpetas enteras sí se excluyen: se comprobó que ningún
+#    `url()` de los css apunta a ellas, porque los svg y las tipografías
+#    van incrustados en base64 dentro del propio css.
+
+exclude:
+  # Los documentos. Esto es lo que de verdad se está cerrando.
+  - CLAUDE.md
+  - README.md
+  - VERSIONES.md
+
+  # El servidor: su código vive en Supabase, no aquí.
+  - supabase/
+
+  # Fuentes de las que salen archivos generados que SÍ se publican:
+  #   apariencias/   -> css/ambientes.css
+  #   mundos/        -> css/mundos.css
+  #   plantillas/    -> caminos/caminos.json
+  - apariencias/
+  - mundos/
+  - plantillas/
+  - caminos/app.py
+
+  # Las herramientas de depurar se pegan en la consola a mano; nadie las
+  # pide por la red.
+  - herramientas/
+
+  # Los generadores de la marca. Las IMÁGENES se quedan (ver arriba).
+  - marca/generar-marca.py
+  - marca/generar-iconos-correo.html
+
+  - correos/LEEME.md
