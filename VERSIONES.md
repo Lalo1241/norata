@@ -110,6 +110,92 @@ exactamente el fallo del que avisa el párrafo de arriba.
 México es **UTC-6 todo el año**: el país quitó el horario de verano en 2022, así
 que no hay que acordarse de ningún cambio de estación.
 
+## Apuntado y sin hacer
+
+Lo que se vio, se entendió y NO se arregló todavía. Vive aquí y no en la cabeza
+de nadie: una decisión que solo existe en una conversación se vuelve a discutir
+desde cero dentro de tres semanas.
+
+### La puerta, cuatro cosas (17 sep 2026)
+
+Eduardo las vio probando la 0.7.121 en vivo. Ninguna es un fallo de esa tanda:
+tres venían de antes y la cuarta es un cambio de diseño.
+
+**1 · `/Crear-cuenta/` con mayúscula da el 404 de GitHub.** Pages distingue
+mayúsculas y minúsculas, así que la dirección bien escrita funciona y esa no.
+Lo arregla un **`404.html` propio en la raíz**: Pages lo sirve para cualquier
+ruta que no exista, sin configurar nada. Y de paso puede arreglar el caso solo
+—si la ruta en minúsculas existe, redirigir— que es lo que convierte una errata
+de mayúscula en un parpadeo en vez de en una pared.
+
+**2 · Y ese 404 delata que esto vive en GitHub Pages**, que es lo que preocupa
+a Eduardo. El mismo `404.html` lo tapa: con la marca de Norata y una salida, la
+página de GitHub no se ve. **Pero hay que decirlo claro para no vender lo que
+no es:** eso tapa lo que se VE, no el hosting. Los encabezados de la respuesta
+siguen diciendo `server: GitHub.com` y el DNS de `mi.norata.app` sigue
+apuntando a Pages; quien mire con herramientas lo ve igual. Esconderlo de
+verdad es poner un CDN delante, que es otra decisión y otra factura.
+
+**3 · `/crear-cuenta/` sigue siendo un desvío a `/login/?nuevo`** y no una
+pantalla propia. La razón está escrita entera en `crear-cuenta/index.html` y no
+ha cambiado: **`redirect_to` sale de `location.pathname`** (`sbVuelta`, en
+`js/10b-supabase.js`), así que una segunda puerta de verdad no es un archivo
+más, es **otra dirección de vuelta que dar de alta en Supabase** — una
+configuración fuera de este repositorio, que si falta hace rebotar a quien
+entre con Google. Cuando se haga: primero el alta en Supabase, después la
+página, y no al revés.
+
+**4 · Las dos pantallas tienen que decir qué son, cruzarse con una flecha y
+llevar el disclaimer abajo.** Esto es lo que pidió Eduardo mirando la puerta de
+Supabase, y hoy falta casi todo:
+
+| Qué pide | Cómo está hoy |
+| --- | --- |
+| Un título grande en cada una | «Crear tu cuenta» sí; en entrar el logo hace de título y no dice nada |
+| El logo, sin perderlo | Está solo en entrar, y solo para quien llega nuevo |
+| Cruzarse con una flecha | La flecha va en un solo sentido: `portadaCrearAtras` lleva de crear a entrar, y de entrar a crear solo hay un enlace de texto al pie |
+| Un disclaimer abajo, como el de Supabase | Solo existe en el alta, y colgando de cada botón (0.7.121) |
+
+Y una advertencia sobre lo último, porque muerde de dos maneras:
+
+- **Contradice a la 0.7.121 y hay que elegir.** Esa tanda movió la frase legal
+  a colgar del botón que da de alta, con su motivo escrito. Un disclaimer
+  abajo, de página, dice «al continuar aceptas» y vale para las dos pantallas —
+  y entonces la de los botones sobra. Dejar las dos es decir lo mismo dos veces
+  en la misma pantalla.
+- **El de Supabase incluye «and to receive periodic emails with updates»**, que
+  no es una frase de estilo: es un consentimiento para mandar correo. Norata
+  manda seis correos y eso hay que mirarlo con cuidado antes de copiar la
+  frase, no después.
+
+### ¿Se quita «Probar sin cuenta»? (17 sep 2026)
+
+Eduardo lo preguntó: si conviene quitarlo para que todo el mundo se registre,
+«como se espera de una app común». **La respuesta de hoy es que no hace falta
+todavía, y la razón principal no es de diseño:**
+
+- **Hay gente dentro con `entrada: "local"`.** Su progreso vive SOLO en su
+  dispositivo. Quitar el modo no es dejar de ofrecerlo: es pedirle una cuenta a
+  quien ya tiene un perfil que no está en ningún servidor. Eso es exactamente
+  lo que la regla del cobro prohíbe — **congelar, nunca quitar**. Si algún día
+  se quita, se quita **solo para quien llega nuevo**, y quien ya entró así
+  sigue entrando así.
+- **La razón por la que existe sigue siendo verdad**, y está escrita arriba de
+  `js/10c-portada.js`: quien solo venía a curiosear se va si lo primero que ve
+  es un registro, y el ejemplo completo de Norata es lo que convence.
+- **Y el problema que preocupa acaba de bajar de precio.** La fricción que
+  justificaba el atajo era una columna de cinco casillas; desde la 0.7.121 el
+  alta se pregunta de una en una y Google va arriba en las dos pantallas. Lo
+  razonable es ver cómo se comporta eso antes de cerrar la única salida.
+
+**Lo que sí se puede hacer sin quitar nada:** está al final de la pantalla, en
+letra pequeña y con su nota — o sea, ya está en el último lugar. Lo que falta no
+es cerrarle la puerta, es **invitar a la cuenta desde DENTRO**, cuando ya hay
+progreso que perder: ahí «llévate esto a una cuenta» es una oferta y no un
+peaje. Y ojo con una cosa que hace imposible decidirlo con números: **quien usa
+la app sin cuenta no toca Supabase, así que no aparece en ninguna parte.** No se
+puede medir cuántos son; se decide por criterio.
+
 ## La lista
 
 ### Sin número · 16 sep 2026 · dejan de publicarse los documentos

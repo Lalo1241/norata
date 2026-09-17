@@ -736,6 +736,12 @@ que cambiarle el nombre: `-v1` → `-v2`).
 
 ## Qué NO hacer
 
+- **No volver a discutir desde cero lo que ya está apuntado.** `VERSIONES.md`
+  tiene una sección **«Apuntado y sin hacer»** justo antes de la lista: lo que
+  se vio, se entendió y no se arregló todavía, con el motivo escrito. Ahí están
+  los cuatro pendientes de la puerta —el 404 de GitHub, `/crear-cuenta/` como
+  desvío, los títulos y la flecha entre las dos pantallas, y el disclaimer de
+  abajo— y por qué «Probar sin cuenta» no se quita.
 - **No crear una plantilla, pantalla o archivo sin comprobar que existe el
   camino que lo dispara.** Ya pasó: hay una plantilla que ninguna pantalla usa.
 - **No dar por hecho el comportamiento del servidor.** Si algo importa,
