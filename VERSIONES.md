@@ -157,6 +157,102 @@ salida no llega ni a `mi.norata.app` ni a `supabase.co`.
 
 ## La lista
 
+### 0.7.123 · 17 sep 2026
+
+**La puerta, acomodada como la de Supabase.** Eduardo la puso al lado de la
+nuestra y señaló cinco cosas. Las cinco, y un fallo que salió midiendo.
+
+**La marca sale de la tarjeta y se queda quieta en la esquina.** Dentro crecía
+y se encogía con la pantalla, y sobre todo empujaba el título a una altura
+distinta en cada una de las dos pantallas — que es lo que él pidió arreglar.
+Ahora vive en el marcado de `login/index.html` (`.puerta-marca`), fija arriba a
+la izquierda, y nada de lo de abajo depende de su alto.
+
+Nace **sin `src`**: lo pone `pintarTema()`, que ya recorría todos los
+`.portada-logo` y es quien sabe cuál de los dos archivos toca —el claro va
+sobre fondo oscuro—. Con uno escrito en el marcado, en modo claro se habría
+visto el logotipo equivocado durante un fotograma. Su hueco está reservado, así
+que la esquina no salta cuando llega.
+
+**El título cae en el MISMO píxel en las dos pantallas.** Medido a cinco
+tamaños: 1440, 1100, 390, 360 y una de 480 de alto. Y no se consigue
+centrando: las dos tarjetas miden distinto —una tiene dos campos y la otra uno
+más los tres puntos— así que el centrado las cuelga de alturas distintas (248
+contra 296 en un teléfono de 844). Se consigue **apoyando la tarjeta arriba**,
+con el hueco que sobra abajo. Eso además hace lo que hacía el `auto` de antes:
+con el margen de arriba en cero no hay nada que recortar por arriba, y el
+desplazamiento no llega a negativos.
+
+**La flecha cuadrada se fue, y las dos pantallas se cruzan con el mismo
+enlace.** Lo pidió así: «Iniciar sesión — Crear cuenta ›» en las dos. Ahora la
+cabecera la escribe una sola función (`portadaCabHTML`), que es lo que
+garantiza que no se desincronicen: con dos maquetaciones, la primera vez que
+una cambie la otra se queda atrás.
+
+El paso ATRÁS del alta no se perdió con la flecha: se mudó a la fila de los
+tres puntos, a su izquierda y con el mismo galón que los demás enlaces. Su
+hueco se reserva en el primer paso (`visibility`) o los puntos se
+descentrarían al pasar al segundo. Y `aria-label` deja de hacer falta: el
+enlace dice «Atrás» y se lee tal cual, que es mejor que una flecha con etiqueta
+—la vieja prometía «volver a iniciar sesión» también en el paso 3, donde iba
+al 2—.
+
+**El idioma y el sol/luna se van arriba a la derecha**, a la altura de la marca
+y en la misma línea: donde Supabase pone «Documentation». Los dos bloques se
+apoyan en una caja de 30 px de alto, así que quedan alineados sin depender de
+cuánto mida cada uno por dentro. También en el teléfono, que es donde antes
+estaban centrados abajo: la marca se mudó a esa esquina y los controles son su
+pareja.
+
+**El botón de Google ya no da el salto.** Llega de una petición al servidor de
+cuentas, y hasta hoy al llegar empujaba todo lo de abajo 88 px de golpe.
+Tres piezas:
+
+| | |
+| --- | --- |
+| El hueco se reserva desde el primer fotograma | 88 px: el botón (46) y la rayita del «o» con sus márgenes (42) |
+| Cuánto reservar lo decide la respuesta de la ÚLTIMA vez | `localStorage["norata-google"]`, y solo se apunta lo que el servidor CONTESTÓ — un fallo de red no es un «no hay Google» |
+| Y entra desvaneciéndose hacia arriba | Una ANIMACIÓN y no una transición: el contenido acaba de nacer, y desde algo que no existía una transición no arranca |
+
+Medido con la respuesta del servidor retenida a mano, mirando dónde cae el
+campo del correo antes y después:
+
+```
+primera visita, Google sí     0 px
+ya visitada,    Google sí     0 px
+primera visita, Google no    88 px  (el hueco se cierra, animado)
+ya visitada,    Google no     0 px  (ya no reserva)
+```
+
+El único caso que se mueve es el tercero, y **en Norata no pasa**: Google está
+encendido. Reservar de más es el lado bueno por el que equivocarse, porque
+cerrarse se puede animar —el alto es un número literal— y estirarse no.
+
+**La columna del formulario se estrecha del 54% al 40%**, que es lo que le
+había quitado a las frases. Supabase da a la suya un 39%.
+
+---
+
+**Y el fallo que salió midiendo, que no tiene que ver con lo anterior: el
+bloque de la puerta de dos columnas se estaba aplicando también DENTRO de la
+app.** Su comentario decía que no —«el panel de al lado solo existe en la
+puerta»— pero los selectores eran `.portada` a secas, y `right: 46%` no
+necesita el panel para aplicarse. Medido a 1440 px con la portada abierta desde
+Ajustes: `right: 658px` y 772 px de ancho, o sea que el login que tapa la
+pantalla entera tapaba solo la mitad izquierda y dejaba la app a la vista —y
+pulsable— por la derecha. Ahora las cuatro reglas van detrás de `html.puerta`,
+una clase estática de `login/index.html`, y eso deja de ser una promesa en un
+comentario. Comprobado después: `right: 0px`, 1430 de ancho.
+
+**Una lección de medición, que costó dos vueltas.** El primer número del salto
+de Google salió en 7-8 px y no en cero, y no había ningún salto: la medición
+pillaba la animación de entrada del paso a medio vuelo, así que lo que se leía
+era el `translateY` de la animación y no la maqueta. Es la hermana de la trampa
+que ya está escrita —las transiciones que no avanzan sin componer fotogramas—:
+**hay que saltar las animaciones al final ANTES de cada medición, no solo antes
+de la última.**
+
+
 ### 0.7.122 · 17 sep 2026
 
 **La puerta dice qué es, y el 404 ya no es de GitHub.** Tres de los cuatro
