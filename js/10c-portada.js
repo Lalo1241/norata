@@ -225,8 +225,15 @@ function portadaPasoIr(n) {
 function portadaPasoPintar() {
   const caja = document.querySelector(".crear-pasos");
   if (caja) caja.setAttribute("data-en", portadaPaso);
-  document.querySelectorAll(".paso-puntos i").forEach((punto, i) => {
-    punto.classList.toggle("on", i + 1 <= portadaPaso);
+  /* Fila por fila, y no todos los puntos de la página de una vez: desde que el
+     contador vive DENTRO de cada paso hay TRES filas en el marcado, así que un
+     `querySelectorAll` de los puntos devuelve nueve y el índice se sale de
+     cuenta a partir del cuarto — los pasos 2 y 3 salían con los tres puntos
+     apagados. */
+  document.querySelectorAll(".paso-puntos").forEach(fila => {
+    Array.prototype.forEach.call(fila.children, (punto, i) => {
+      punto.classList.toggle("on", i + 1 <= portadaPaso);
+    });
   });
   const b = document.getElementById("portada-ok");
   if (!b) return;
@@ -424,21 +431,33 @@ function portadaPintar(modo) {
             cuenta ya existía, se descubre en el primer paso y no después de
             haber contestado tres. */
          const titulo = (n, t, p) => `<p class="paso-tit"><b>${escapeHtml(tx(t))}</b><span>${escapeHtml(tx(p))}</span></p>`;
-         return `<div class="crear-pasos" data-en="${portadaPaso}">
-             ${/* Los puntos, y a su izquierda el paso atrás — que antes era la
-                    flecha cuadrada de la cabecera y allí ya no cabe: esa fila
-                    la ocupan el título y el enlace a la otra pantalla, iguales
-                    en las dos. Aquí dice «Atrás» con el mismo galón que los
-                    otros enlaces, así que no hay que adivinar qué hace.
 
-                    Su hueco se reserva en el primer paso en vez de quitarlo
-                    (`visibility`), o los puntos se descentrarían al pasar del
-                    primero al segundo. */""}
-             <div class="paso-fila">
+         /* ---- El contador va DENTRO de cada paso, y en el primero DEBAJO de
+                 Google ----
+            Estaba encima de los tres, y encima también del botón de Google — y
+            ahí decía una mentira: anuncia tres pantallas que quien entra con
+            Google no hace ninguna. Lo vio Eduardo. Ahora cuelga del camino a
+            pie, que es el único que las tiene: debajo de la rayita del «o».
+
+            Por eso se escribe tres veces, una por paso, en vez de una sola
+            encima: la alternativa era dejarlo arriba y esconderlo en el primer
+            paso, y entonces al pasar al segundo APARECÍA y empujaba todo —el
+            salto que la 0.7.123 acaba de quitar—. Solo hay un `.paso` visible
+            a la vez, así que solo se ve uno; `portadaPasoPintar` marca los
+            puntos de los tres con un `querySelectorAll`, que ya los recorría
+            todos.
+
+            El paso atrás vive en esta misma fila —antes era la flecha cuadrada
+            de la cabecera, y allí ya no cabe: esa fila la ocupan el título y
+            el enlace a la otra pantalla, iguales en las dos—. Su hueco se
+            reserva en el primer paso en vez de quitarlo (`visibility`), o los
+            puntos se descentrarían al pasar al segundo. */
+         const fila = `<div class="paso-fila">
                <button class="portada-cruce paso-atras" onclick="portadaCrearAtras()"><span aria-hidden="true">\u2039</span> ${tx("Atrás")}</button>
                <div class="paso-puntos" aria-hidden="true">${
                  [1, 2, 3].map(n => `<i class="${n <= portadaPaso ? "on" : ""}"></i>`).join("")}</div>
-             </div>
+             </div>`;
+         return `<div class="crear-pasos" data-en="${portadaPaso}">
              <div class="paso" data-paso="1">
                ${/* Google vive AQUÍ y no encima de las tres pantallas: quien
                      pasa del primer paso ya decidió no entrar por ahí, y un
@@ -465,10 +484,12 @@ function portadaPintar(modo) {
                      hace falta ninguna: el camino a pie la encuentra en el
                      último paso, debajo de «Crear cuenta», que es el botón que
                      de verdad da de alta. */""}
+               ${fila}
                ${titulo(1, "¿Cuál es tu correo?", "Con él entras, y ahí llega lo que la app te mande.")}
                ${cCorreo}
              </div>
              <div class="paso" data-paso="2">
+               ${fila}
                ${titulo(2, "Elige una contraseña", "Larga es mejor que rara: una frase que recuerdes gana a ocho símbolos.")}
                ${cClave}
              </div>
@@ -478,6 +499,7 @@ function portadaPintar(modo) {
                      dos líneas seguidas se leen como un fallo de la app. Dice
                      dónde estás —en la última— que es lo que más ayuda justo
                      antes del botón que da de alta. */""}
+               ${fila}
                ${titulo(3, "Una última cosa", "Es lo que usaré para hablarte, empezando por el correo de confirmación.")}
                ${cNombre}
              </div>
