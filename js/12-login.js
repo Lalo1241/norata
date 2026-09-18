@@ -239,21 +239,56 @@ function puertaIdioma(cod) {
    Las viñetas de «soy nuevo» NO rotan y se quedan en el marcado: eso no es una
    frase, es lo que hace la app. Lo que rota es la voz de arriba. */
 const PUERTA_FRASES = {
+  /* ---- QUIEN VUELVE ----
+     Aquí no hay nada que vender: ya decidió, y el formulario de al lado es de
+     dos campos. El trabajo de la frase es EMOCIONAL, y sobre todo con quien
+     vuelve después de semanas, que es quien más miedo tiene de haber perdido
+     algo. Cinco familias y no una repetida cinco veces:
+
+       lo tuyo sigue ahí · volver cuenta · lo de hoy es pequeño ·
+       la racha no es el camino · el progreso lento sigue siendo progreso */
   entrar: [
     "Del otro lado está lo tuyo: tus habilidades, tu progreso y lo que toca hoy.",
     "Nada de lo que construiste se fue a ningún lado. Te estaba esperando.",
     "Volver también cuenta. De hecho, es la parte difícil.",
     "Tu expedición sigue abierta, justo donde la dejaste.",
-    "Los días que no abriste la app también son parte del camino."
+    "Los días que no abriste la app también son parte del camino.",
+    "Hoy hay algo pequeño esperándote. Con eso basta.",
+    "La racha se corta; el camino no.",
+    "Nadie lleva un año seguido. Se lleva un día, y luego otro.",
+    "Tus habilidades bajan si las dejas, pero nunca vuelves a empezar de cero.",
+    "Lo que dejaste a medias sigue a medias, que es mucho mejor que en blanco.",
+    "Entra, mira qué toca hoy, y ya. Así se hace largo.",
+    "El progreso lento sigue siendo progreso."
   ],
+
+  /* ---- QUIEN LLEGA NUEVO ----
+     Este es el ÚNICO sitio de toda la app donde se le habla a alguien que no
+     la conoce, y hasta hoy lo gastaba en un aforismo que podía firmar
+     cualquiera —cuatro de las cinco frases decían lo mismo: «lo grande se hace
+     de días pequeños»—. Lo decidió Eduardo al revisarlo: aquí se dice **lo que
+     Norata hace y nadie más**.
+
+     La regla al escribir una nueva: si la frase la podría firmar una app de
+     hábitos cualquiera, no es de este banco. Y no se promete lo que no hay —
+     talentos y proyectos NO están el primer día, así que la frase que los
+     nombra dice que se abren, igual que la viñeta de abajo. */
   crear: [
-    "Los días grandes no se deciden: se construyen con los pequeños.",
-    "Todo lo que admiras de alguien empezó siendo un martes cualquiera.",
-    "Una habilidad no sube porque lo decidas hoy. Sube porque lo repitas.",
-    "Tienes por delante un camino largo, y se recorre en días pequeños.",
-    "Lo que se mide se ve, y lo que se ve se sostiene."
+    "Tus habilidades bajan si las dejas. Como en la vida real, pero aquí se ve.",
+    "Un hábito no es una casilla: es una habilidad que sube de nivel.",
+    "Las cosas grandes viven en un árbol que se abre conforme avanzas.",
+    "Tu vida, tratada como la partida larga que es.",
+    "Las misiones de hoy se marcan de un toque. El resto lo lleva la app.",
+    "Subes de nivel por lo que haces, no por lo que te propones.",
+    "Empiezas de Andante. A Navegante se llega caminando.",
+    "No es una lista de pendientes. Es una partida que ya empezó.",
+    "Lo que se mide se ve, y lo que se ve se sostiene.",
+    "Un proyecto grande avanza por etapas, y aquí se ven todas.",
+    "Rachas, XP y niveles: lo que un videojuego te da por jugar, por vivir.",
+    "Talentos y proyectos no están el primer día. Se abren, y por eso saben a algo."
   ]
 };
+
 
 /* Una al azar, pero nunca la misma dos veces seguidas en esta pestaña. Con
    cinco frases, repetir al recargar tiene una probabilidad de uno entre cinco

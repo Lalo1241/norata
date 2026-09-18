@@ -168,6 +168,59 @@ salida no llega ni a `mi.norata.app` ni a `supabase.co`.
 
 ## La lista
 
+### 0.7.124 · 18 sep 2026
+
+**El banco de frases de la puerta: de 10 a 24, y una decisión de qué se dice
+ahí.** Eduardo pidió más frases para no repetirse, y al mirarlas de cerca el
+problema no era la cantidad.
+
+**Lo que salió al contarlas por IDEA y no por número:**
+
+| Camino | Frases | Ideas distintas |
+| --- | --- | --- |
+| Entrar | 5 | 2 — cuatro decían «no perdiste nada / volver está bien» |
+| Crear | 5 | 2 — cuatro decían «lo grande se hace de días pequeños» |
+
+O sea que con cinco ya se sentía repetitivo, y subir a quince más de lo mismo
+no lo habría arreglado: lo que se repetía era el mensaje, no la redacción.
+
+**Y la pregunta que importaba más: en «crear cuenta», ¿vale la pena lo que se
+comunica?** Ese panel es **el único sitio de toda la app donde se le habla a
+alguien que no la conoce**, y lo estaba gastando en un aforismo que podía
+firmar cualquier app de hábitos. Las viñetas de abajo hacían el trabajo de
+decir qué es Norata; la frase grande, que es lo primero que se lee, no decía
+nada que no dijera la competencia.
+
+**Lo decidió Eduardo: ahí se dice lo que Norata hace y nadie más.** Las doce
+nuevas hablan de las habilidades que BAJAN si las dejas, del árbol que se abre
+conforme avanzas, de los cinco rangos, de que subes de nivel por lo que haces y
+no por lo que te propones. La regla queda escrita al lado del banco: **si la
+frase la podría firmar una app de hábitos cualquiera, no es de este banco.**
+
+**El de «entrar» se queda en aspiracional, y es correcto que así sea**: quien
+vuelve ya decidió, y el formulario de al lado son dos campos. Ahí la frase no
+vende, acompaña — sobre todo a quien vuelve después de semanas, que es quien
+más miedo tiene de haber perdido algo. Lo que cambia es que las doce se
+reparten en cinco familias en vez de repetir una.
+
+**Lo que NO se prometió, que es donde una frase de marketing se vuelve mentira:**
+talentos y proyectos no están el primer día —los abre el nivel de expedición—
+así que la frase que los nombra dice que *se abren*, igual que la viñeta de
+abajo. Y «Empiezas de Andante. A Navegante se llega caminando» se comprobó
+contra `EXP_RANGOS`: Andante es el del nivel 1 y Navegante el último.
+
+**Tres frases se fueron** —las del aforismo repetido— y con ellas sus entradas
+del diccionario, para no dejar huérfanas. Una se quedó fuera de la puerta a
+propósito: «Tienes por delante un camino largo, y se recorre en días pequeños»
+vive en `js/10h-lecturas.js` y en el correo de bienvenida, así que tenerla
+TAMBIÉN aquí era decir lo mismo en dos sitios.
+
+**Comprobado abriendo la puerta veinte veces**, catorce en español y seis en
+inglés: rotan de verdad (10 frases distintas de 12 en catorce aperturas), las
+24 se traducen, ninguna se sale del panel y la más alta mide 116 px. Cero
+errores.
+
+
 ### 0.7.123.1 · 18 sep 2026
 
 Tres retoques de Eduardo mirando la puerta ya publicada.
