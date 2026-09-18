@@ -117,7 +117,20 @@
      fotograma. Su hueco está reservado en el CSS, así que la esquina no salta
      cuando llega. -->
 <div class="puerta-marca">
-  <img class="portada-logo" alt="Norata">
+  <!-- La marca lleva a la web pública, como en cualquier sitio. El `href` lo
+       pone `js/12-login.js` desde `WEB_NORATA` (`js/01-base.js`) y no se
+       escribe aquí a propósito: la dirección de verdad —`www.norata.app`—
+       todavía no está en alta, así que hoy apunta a la de Framer y el día que
+       cambie se toca UNA línea. Sin JavaScript la puerta no pinta nada, así
+       que no hace falta respaldo en el marcado.
+
+       En la misma pestaña y no en otra, que es lo que hace el logotipo de
+       cualquier página. Quien esté a medio formulario lo pierde, y es el
+       precio conocido de la convención: un enlace que se abre donde no se
+       espera desorienta más que volver atrás. -->
+  <a id="puerta-marca-enlace">
+    <img class="portada-logo" alt="Norata">
+  </a>
 </div>
 
 <div class="puerta-ajustes" id="puerta-ajustes">

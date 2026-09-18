@@ -747,10 +747,10 @@ que cambiarle el nombre: `-v1` → `-v2`).
 - **No volver a discutir desde cero lo que ya está apuntado.** `VERSIONES.md`
   tiene una sección **«Apuntado y sin hacer»** justo antes de la lista: lo que
   se vio, se entendió y no se arregló todavía, con el motivo escrito. Hoy son
-  dos cosas, las dos de la puerta: `/crear-cuenta/` como pantalla propia —que
-  pide dar de alta otra dirección de vuelta en Supabase, y por eso no se puede
-  cerrar desde aquí— y qué hacer con la confirmación del correo ahora que no
-  hay salida sin cuenta.
+  tres: `/crear-cuenta/` como pantalla propia —que pide dar de alta otra
+  dirección de vuelta en Supabase, y por eso no se puede cerrar desde aquí—,
+  qué hacer con la confirmación del correo ahora que no hay salida sin cuenta,
+  y cambiar `WEB_NORATA` cuando `www.norata.app` esté en alta.
 - **No crear una plantilla, pantalla o archivo sin comprobar que existe el
   camino que lo dispara.** Ya pasó: hay una plantilla que ninguna pantalla usa.
 - **No dar por hecho el comportamiento del servidor.** Si algo importa,

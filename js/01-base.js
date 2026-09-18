@@ -48,8 +48,20 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.123";
-const VERSION_FECHA = "17 sep 2026";
+const VERSION = "0.7.123.1";
+const VERSION_FECHA = "18 sep 2026";
+
+/* ---- La web de fuera, en UN solo sitio ----
+   La página pública de Norata, la que no es la app. Vive aquí y no escrita en
+   los dos sitios que la enlazan —la marca de la puerta y el botón de la
+   despedida— porque **la dirección de verdad todavía no está en alta**:
+   `www.norata.app` no responde, así que de momento apunta a la de Framer.
+
+   El día que el dominio exista se cambia esta línea y ya. Hasta hoy el botón
+   de «Ir a norata.app» de la pantalla de despedida llevaba a
+   `https://www.norata.app` escrito a mano, o sea a una dirección que no
+   contesta; eso es justo lo que este constante evita que vuelva a pasar. */
+const WEB_NORATA = "https://norata.framer.website";
 
 /* ================= Iconografía propia =================
    Iconos de trazo (24x24) dibujados a mano; nada de emojis. */

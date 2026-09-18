@@ -8409,21 +8409,37 @@
        que va fija encima de todo: 30 de alto, 20 de borde y un respiro. Los 92
        de antes eran del rótulo de la prueba, que ya no existe, y los 74 de
        abajo eran de los controles cuando vivían en esa esquina. */
-    padding-top: calc(env(safe-area-inset-top) + 72px);
+    padding-top: calc(env(safe-area-inset-top) + 82px);
     padding-bottom: calc(env(safe-area-inset-bottom) + 28px);
   }
-  /* La tarjeta se apoya ARRIBA y el hueco que sobra se va abajo (`margin-top:
-     0`, `margin-bottom: auto`). Dos cosas se ganan con eso y las dos se
-     midieron:
+  /* La tarjeta NO se centra, y el hueco de arriba NO depende de ella: sale de
+     lo que mide la VENTANA y nada más. Las dos cosas que eso resuelve a la vez
+     se midieron las dos:
 
        · el título cae en el mismo píxel en las dos pantallas —lo pidió
-         Eduardo—, y centrando no puede: las dos tarjetas miden distinto y el
-         centrado las cuelga de alturas distintas (248 contra 296 en un
-         teléfono de 844);
-       · y nada queda inalcanzable cuando no cabe, que es lo que tenía que
-         resolver el `auto` de arriba: con cero no hay nada que recortar por
-         arriba, y el desplazamiento no llega a negativos. */
-  html.puerta .portada > .portada-caja { margin: 0 auto auto; }
+         Eduardo—, y centrando no puede: las dos tarjetas miden distinto (572 y
+         553 en un teléfono) y el centrado las cuelga de alturas distintas;
+       · y nada queda inalcanzable cuando no cabe: el margen de arriba se queda
+         en cero en las pantallas bajas, así que no hay nada que recortar por
+         arriba — y el desplazamiento no llega a negativos.
+
+     Y la fórmula baja la tarjeta SOLO cuando hay sitio, que es lo que Eduardo
+     vio: apoyada arriba del todo desperdiciaba 190 px abajo en un teléfono de
+     844 y 295 en uno de 932. Medio píxel por cada uno que la ventana pase de
+     700, hasta 140:
+
+       ventana   margen   arriba   abajo
+       640       0        82       (se desplaza, como antes)
+       740       20       102      66
+       844       72       154      118
+       932       116      198      179
+
+     Por debajo de 700 vale cero y la pantalla se comporta igual que antes. La
+     regla de ≥900 px la pisa con su propio número, porque ahí la tarjeta vive
+     en una columna y no en la pantalla entera. */
+  html.puerta .portada > .portada-caja {
+    margin: clamp(0px, calc((100vh - 700px) * 0.5), 140px) auto auto;
+  }
   .puerta-lado {
     display: flex; flex-direction: column; gap: 16px;
     width: 100%; max-width: 360px; margin: 26px auto auto;
@@ -8502,7 +8518,11 @@
       position: fixed; inset: 0 0 0 40%;
       width: auto; max-width: none; margin: 0;
       justify-content: center; gap: 20px;
-      padding: 48px min(7vw, 78px);
+      /* Más aire por la izquierda que por la derecha, y lo pidió Eduardo: por
+         ese lado la frase toca el marco que la separa del formulario, y
+         pegada a él parecía la segunda columna de una tabla en vez de una
+         página aparte. Medido a 1440: 80 px antes, 126 ahora. */
+      padding: 48px min(6vw, 74px) 48px min(9vw, 126px);
       background: var(--sup-hondo);
       border: 0; border-left: var(--borde-tarjeta) solid var(--borde-panel);
       border-radius: 0;
@@ -8524,7 +8544,7 @@
      cuando llega. */
   .puerta-marca {
     position: fixed;
-    top: calc(env(safe-area-inset-top) + 20px); left: 24px;
+    top: calc(env(safe-area-inset-top) + 30px); left: 34px;
     z-index: var(--piso-idioma-puerta);
     height: 30px; display: flex; align-items: center;
   }
@@ -8557,7 +8577,10 @@
   .puerta-ajustes {
     display: flex; align-items: center; gap: 8px;
     position: fixed;
-    top: calc(env(safe-area-inset-top) + 20px); right: 22px;
+    /* El MISMO número que el `left` de la marca, no uno parecido: las dos
+       esquinas tienen que sangrar igual o la fila se lee torcida. Era 22
+       contra 24 y se notaba. */
+    top: calc(env(safe-area-inset-top) + 30px); right: 34px;
     /* Los 30 px son el alto de `.puerta-marca`: las dos esquinas se apoyan en
        la misma caja, así que el logotipo y las pastillas quedan alineados a lo
        alto sin depender de cuánto mida cada uno por dentro. */
@@ -8638,13 +8661,13 @@
        abajo como estaban: la marca se mudó a esta esquina en la 0.7.123 y los
        dos controles son su pareja. El fondo queda libre, que es donde acaba el
        formulario. */
-    .puerta-marca { left: 18px; }
-    .puerta-ajustes { right: 14px; }
+    .puerta-marca { left: 20px; }
+    .puerta-ajustes { right: 20px; }
     .puerta-lado { display: none; }
     html.puerta .portada {
-      /* Sitio para la fila de arriba: 30 de alto más los 20 del borde y un
+      /* Sitio para la fila de arriba: 30 de alto más los 30 del borde y un
          respiro. Antes eran 92 por el rótulo de la prueba, que ya no está. */
-      padding-top: calc(env(safe-area-inset-top) + 72px);
+      padding-top: calc(env(safe-area-inset-top) + 82px);
       padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
     }
     /* Y el dedo pide más que el ratón: los mismos botones vuelven a 32 px de
