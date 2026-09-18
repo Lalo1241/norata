@@ -113,6 +113,7 @@ traducirDOM();
     mostrarPortada(puertaEsNueva() ? "crear" : undefined);
     puertaLadoPegar();
     puertaIdiomaPintar();
+    puertaMarcaEnlazar();
   }
 
   cargaCerrar();
@@ -150,6 +151,17 @@ function puertaLadoPegar() {
     if (lado.parentNode !== cap) cap.appendChild(lado);
     puertaFrase();
   }).observe(cap, { childList: true });
+}
+
+/* La marca de la esquina lleva a la web pública. El `href` se pone aquí y no
+   en el marcado porque la dirección sale de `WEB_NORATA` (`js/01-base.js`),
+   que es el único sitio donde está escrita — hoy apunta a la de Framer,
+   porque `www.norata.app` todavía no está en alta. Escribirla también en el
+   HTML serían dos sitios que descuadrar el día que el dominio exista. */
+function puertaMarcaEnlazar() {
+  const a = document.getElementById("puerta-marca-enlace");
+  if (!a || typeof WEB_NORATA !== "string") return;
+  a.href = WEB_NORATA;
 }
 
 /* ---- El idioma, en la puerta (0.7.117) ----
