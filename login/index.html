@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="es">
+<!-- `class="puerta"` no es decorativa: es lo que ESCOPA las reglas de la
+     puerta en `css/estilos.css`. Sin ella, `.portada { right: 60% }` se
+     aplicaba también dentro de la app y el login tapaba media pantalla. -->
+<html lang="es" class="puerta">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -102,6 +105,21 @@
      abriera de día se comía la pantalla de noche hasta estar dentro. Los dos
      van juntos abajo a la izquierda porque son la misma clase de cosa: cómo te
      habla la app, decidido antes de entrar. -->
+<!-- ============ LA MARCA, EN LA ESQUINA (0.7.123) ============
+     Fuera de la tarjeta y quieta, como la de Supabase. Dentro crecía y se
+     encogía con la pantalla y empujaba el título a una altura distinta en cada
+     una de las dos pantallas; aquí no se mueve, y nada de lo de abajo depende
+     de su alto.
+
+     Sin `src`: lo pone `pintarTema()` —que ya recorre todos los
+     `.portada-logo`— porque es quien sabe cuál de los dos archivos toca. Con
+     uno escrito aquí, en modo claro se vería el logotipo equivocado un
+     fotograma. Su hueco está reservado en el CSS, así que la esquina no salta
+     cuando llega. -->
+<div class="puerta-marca">
+  <img class="portada-logo" alt="Norata">
+</div>
+
 <div class="puerta-ajustes" id="puerta-ajustes">
   <div class="puerta-idioma" id="puerta-idioma" role="group" aria-label="Idioma"></div>
   <!-- El sol y la luna son EL MISMO control de Ajustes (`temaSwitchHTML`), no
