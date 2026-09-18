@@ -699,6 +699,7 @@ const TEXTOS_EN = {
   "Gracias por el tiempo que le diste a Norata. Lo que aprendiste jugando a esto sigue siendo tuyo, esté o no la app de por medio.":
     "Thank you for the time you gave Norata. What you learned playing this is still yours, with or without the app in between.",
   "Volver a entrar": "Sign back in",
+  "Ir a la web de Norata": "Go to the Norata website",
   "Ya casi: te mandé un correo": "Almost there: I sent you an email",
   "Va para": "It's on its way to",
   /* En inglés no se entrecomilla el nombre del botón. Los seis correos están
@@ -2134,16 +2135,16 @@ const TEXTOS_EN = {
     "Tell me your name: it's what I'll use to talk to you.",
   "Escribe el correo con el que quieres entrar.": "Type the email you want to sign in with.",
   "Ese correo no parece completo. Revísalo.": "That email doesn't look complete. Check it.",
-  "Las dos contraseñas no coinciden. Míralas con el ojito para compararlas.":
-    "The two passwords don't match. Use the little eye to compare them.",
+  "Las dos contraseñas no coinciden. Muéstralas para compararlas.":
+    "The two passwords don't match. Reveal them to compare.",
   "Ir a iniciar sesión": "Go to sign in",
   "Escribe arriba tu correo y vuelve a pulsar: ahí te mando el enlace.":
     "Type your email above and tap again: that's where I'll send the link.",
   "Para poner una contraseña nueva, comprueba que el correo de abajo es el tuyo y pulsa «¿Olvidaste tu contraseña?».":
     "To set a new password, check that the email below is yours and tap «Forgot your password?».",
   "Escribe arriba tu correo.": "Type your email above.",
-  "Las dos no coinciden. Míralas con el ojito para comprobarlo.":
-    "The two don't match. Use the little eye to check.",
+  "Las dos no coinciden. Muéstralas para comprobarlo.":
+    "The two don't match. Reveal them to check.",
   "Contraseña cambiada. Cerré la sesión en los demás dispositivos":
     "Password changed. I signed you out on your other devices",
   "Ese enlace ya caducó o se usó. Pide uno nuevo con «¿Olvidaste tu contraseña?».":
