@@ -8026,6 +8026,10 @@
   .portada.ocupada { pointer-events: none; opacity: 0.65; }
   .portada-caja { width: 100%; max-width: 360px; }
   .portada-logo { display: block; width: 172px; max-width: 62%; margin: 0 auto 18px; }
+  /* El de las pantallas que ahora llevan TÍTULO debajo (0.7.122). Con los 172
+     px de siempre más el título, los tres puntos y el formulario, la tarjeta de
+     crear cuenta no cabía en una pantalla de 480 px de alto. */
+  .portada-logo.chico { width: 124px; margin-bottom: 14px; }
   .portada-lema {
     text-align: center; color: var(--muted); font-size: 14px;
     line-height: 1.6; margin: 0 0 24px;
@@ -8080,7 +8084,14 @@
   /* Colgando del título en vez de cerrando la pantalla: el mismo renglón, con
      aire por los dos lados para que se lea como una nota del encabezado y no
      como la letra chica del botón que tiene debajo. */
-  .portada-legal-arriba { margin: -8px 0 18px; }
+  /* Al pie de la tarjeta y separada de lo de encima, como la de Supabase. Va
+     en el FLUJO de la tarjeta y no fija al borde de la ventana: abajo a la
+     izquierda viven el idioma y el sol/luna de la puerta, y en el teléfono esos
+     están centrados al fondo — una frase fija ahí se les monta encima. */
+  .portada-legal-pie {
+    margin: 26px 0 0; padding-top: 16px;
+    border-top: var(--borde-fino) solid var(--line);
+  }
   .portada-legal a { color: var(--muted); text-decoration: underline; }
   .portada-legal a:hover, .portada-legal a:focus-visible { color: var(--text); }
 
@@ -8100,6 +8111,18 @@
     color: var(--text); cursor: pointer; font-size: 17px; font-family: inherit;
   }
   .portada-volver:hover { border-color: var(--mint); color: var(--mint); }
+
+  /* La flecha que cruza a la OTRA pantalla, al otro extremo de la cabecera.
+     `margin-left: auto` y no `justify-content: space-between`: la cabecera de
+     crear cuenta es una fila con la flecha de volver y el título pegados por
+     su `gap`, y repartir el espacio los habría separado. */
+  .portada-cruce {
+    margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 5px;
+    background: none; border: 0; padding: 6px 2px; cursor: pointer;
+    font: inherit; font-size: 13px; font-weight: 700; color: var(--mint);
+  }
+  .portada-cruce span { font-size: 15px; line-height: 1; }
+  .portada-cruce:hover { text-decoration: underline; }
 
   /* El puente entre las dos pantallas. Va en tono apagado y con el verbo en
      menta: quien busca crear cuenta lo encuentra, y quien no, no lo lee. */
@@ -8220,27 +8243,13 @@
     @keyframes pasoAparece { from { opacity: 0; } to { opacity: 1; } }
   }
 
-  /* La línea legal colgando de un botón: más pegada arriba que abajo, para que
-     se lea como la letra chica de ESE botón y no como un párrafo suelto. */
-  .portada-legal-bajo { margin: 10px 0 0; }
-  /* La del final solo se LEE en la última pantalla, que es donde está el botón
-     al que acompaña. Fuera de los `.paso` porque el botón también lo está.
-
-     Y se apaga con `visibility` y no con `display`, que es lo que hacía antes:
-     quitándola del todo la tarjeta medía dos líneas menos en los dos primeros
-     pasos, y como está centrada a lo alto, eso subía el botón 14 px justo al
-     llegar al último. El hueco reservado cuesta dos líneas en blanco y hace lo
-     que el `min-height` de abajo: que el sitio donde hay que volver a pulsar no
-     se mueva bajo el dedo. Medido paso a paso: 568, 568, 568. */
-  .crear-pasos .solo-ultimo { visibility: hidden; }
-  .crear-pasos[data-en="3"] .solo-ultimo { visibility: visible; }
-
   /* Los tres pasos miden distinto —uno pide un campo, los otros dos— y sin un
      mínimo el botón de abajo salta de sitio en cada pantalla. Que el sitio
      donde hay que volver a pulsar se mueva bajo el dedo es justo lo que hace
-     que un camino de tres pasos se sienta largo. Medido uno por uno: 262 el
-     primero —con Google y su frase legal dentro— y 271 los otros dos, así que
-     el mínimo es 271 y el botón no se mueve ni un píxel en todo el camino. */
+     que un camino de tres pasos se sienta largo. Medido uno por uno: 234 el
+     primero —con Google dentro— y 271 los otros dos, así que el mínimo es 271
+     y el botón no se mueve ni un píxel en todo el camino: 574 en escritorio y
+     613 en un teléfono, en los tres pasos. */
   .crear-pasos .paso { min-height: 271px; }
 
   /* Los tres puntos. No es una barra de progreso con porcentaje: son tres, se

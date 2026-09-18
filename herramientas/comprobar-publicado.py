@@ -96,6 +96,42 @@ def codigo(ruta):
         return "sin red (%s)" % e.reason
 
 
+def cuerpo(ruta):
+    """Devuelve (código, texto). Descarga el cuerpo, así que solo se usa
+    donde hace falta saber QUÉ contestó y no solo con qué número."""
+    url = SITIO + "/" + ruta.lstrip("./")
+    pet = Request(url, headers={"User-Agent": "norata-comprobador"})
+    try:
+        with urlopen(pet, timeout=20) as r:
+            return r.status, r.read(4096).decode("utf-8", "replace")
+    except HTTPError as e:
+        return e.code, e.read(4096).decode("utf-8", "replace")
+    except URLError as e:
+        return "sin red (%s)" % e.reason, ""
+
+
+def comprobar_404():
+    """La pantalla de error es NUESTRA, y sigue dando 404.
+
+    Las dos mitades importan y por motivos distintos. El 404 tiene que
+    seguir siendo un 404 —si `404.html` empezara a contestar 200 a
+    cualquier dirección, un archivo que falta parecería estar— y el
+    cuerpo tiene que ser el nuestro, porque el día que Jekyll dejara de
+    publicar ese archivo el sitio seguiría dando 404, pero con la página
+    gris de GitHub y su enlace a la documentación. O sea: el fallo que
+    esto vigila no cambia el número, solo lo que se ve.
+
+    `exclude` de `_config.yml` es lo único que puede quitarlo, y es
+    justo el fichero cuyos descuidos esta herramienta existe para
+    cazar."""
+    ruta = "esta-direccion-no-existe-comprobador"
+    c, texto = cuerpo(ruta)
+    nuestra = "Norata" in texto and "githubstatus" not in texto
+    print("Pantalla de error propia: %s, %s" % (
+        c, "nuestra" if nuestra else "la de GitHub"))
+    return c == 404 and nuestra
+
+
 def lista_de_assets(raiz):
     """Lee ASSETS de sw.js. La lista vive allí, no aquí."""
     with open(os.path.join(raiz, "sw.js"), encoding="utf-8") as f:
@@ -133,6 +169,9 @@ def main():
     print("  %d comprobadas, %d fallan" % (
         len(lista_de_assets(raiz)) + len(EN_CALIENTE), len(faltan)))
 
+    print()
+    error_propio = comprobar_404()
+
     print("\nLo que no debe servirse:")
     for ruta in NO_DEBE_ESTAR:
         c = codigo(ruta)
@@ -149,6 +188,10 @@ def main():
     if sobran:
         print("A MEDIAS: la app está entera, pero %d documentos siguen "
               "abiertos." % len(sobran))
+        return 1
+    if not error_propio:
+        print("A MEDIAS: la app está entera, pero la pantalla de error no es")
+        print("la nuestra. Mira que `404.html` no esté en el `exclude`.")
         return 1
     print("Bien: está todo lo que hace falta y nada de lo que no.")
     return 0

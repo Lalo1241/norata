@@ -15,6 +15,31 @@
      "local"   eligió usarla sin cuenta
      "cuenta"  entró (y entonces syncReady() también es cierto) */
 
+/* ---- «Probar sin cuenta» dejó de ofrecerse (0.7.122) ----
+   Lo decidió Eduardo: quien se registra está más cerca de la app y más cerca
+   de pagar, y una app común pide cuenta. El párrafo de arriba sigue siendo
+   verdad —por eso existía— pero la fricción que lo justificaba era una columna
+   de cinco casillas, y desde la 0.7.121 el alta se pregunta de una en una con
+   Google arriba en las dos pantallas. Eso es lo que cambió el precio de cerrar
+   la única salida.
+
+   **Se apaga para quien LLEGA NUEVO, no para quien ya lo eligió.** Esto no es
+   un detalle: hay perfiles con `entrada: "local"` cuyo progreso vive SOLO en su
+   dispositivo, y no está en ningún servidor. Quitarles el botón no sería dejar
+   de ofrecerlo, sería pedirle una cuenta a quien ya tiene una vida dentro y
+   dejarlo fuera de ella. Es la misma regla del cobro: congelar, nunca quitar.
+   Por eso `portadaSinCuenta()` se queda viva y `yaEntroSinCuenta` se pregunta
+   ANTES que esta constante.
+
+   Y se apaga con una constante y no borrando el código: la decisión es de
+   negocio y se toma con lo que se vea pasar. Volver a abrirla es poner `true`.
+
+   Lo que hay que saber al mirar si funcionó: **quien usa la app sin cuenta no
+   toca Supabase**, así que no aparece en ninguna cifra. Lo que se puede medir
+   es lo de después —altas, y cuántas confirman el correo—, no lo que se dejó
+   de hacer. */
+const PUERTA_SIN_CUENTA = false;
+
 /* Mínimo de 8. No es un número mágico: por debajo de ocho, una contraseña se
    adivina a fuerza bruta en un tiempo que ya no es abstracto. No hay máximo a
    propósito — limitar por arriba solo estorba a quien usa una frase larga,
@@ -203,6 +228,15 @@ function portadaPasoPintar() {
   document.querySelectorAll(".paso-puntos i").forEach((punto, i) => {
     punto.classList.toggle("on", i + 1 <= portadaPaso);
   });
+  /* La flecha de arriba también, porque lo que HACE cambia con el paso: en el
+     primero sale a iniciar sesión y en los otros retrocede uno. La cabecera se
+     pinta una sola vez, así que si no se actualiza aquí se queda con la
+     etiqueta del paso en que se abrió. */
+  const flecha = document.querySelector(".portada-volver");
+  if (flecha) {
+    flecha.setAttribute("aria-label", portadaPaso > 1
+      ? tx("Volver al paso anterior") : tx("Volver a iniciar sesión"));
+  }
   const b = document.getElementById("portada-ok");
   if (!b) return;
   const ultimo = portadaPaso === PORTADA_PASOS;
@@ -267,11 +301,22 @@ function mostrarPortada(modo) {
   document.title = "Norata";
 }
 
-/* La frase legal cuelga del BOTÓN QUE DA DE ALTA, y en el alta por pasos hay
-   dos —el de Google y el de «Crear cuenta»— que viven en pantallas distintas.
-   Por eso sale de aquí y no escrita tres veces dentro de la plantilla: tres
-   copias de la misma frase son dos que se quedan sin arreglar el día que
-   cambie.
+/* La frase legal es de PÁGINA y va al final, como la de Supabase — lo pidió
+   Eduardo mirándola al lado de la nuestra. Estuvo tres sitios en tres tandas
+   —debajo del botón, arriba del todo, y colgando de cada botón que daba de
+   alta— y esta vez el cambio no es de sitio, es de ALCANCE: una sola frase
+   por pantalla, en las DOS pantallas, y por eso dice «al continuar» y no «al
+   crear tu cuenta».
+
+   Con ella puesta se fueron las de los botones (0.7.121). No era una
+   repetición mientras vivían en pasos distintos, pero al lado de una frase de
+   página sí lo es: decir lo mismo dos veces en la misma pantalla es la forma
+   más rápida de que no se lea ninguna.
+
+   Y NO se copia entera la de Supabase: la suya incluye «and to receive
+   periodic emails with updates», que no es una frase de estilo sino un
+   consentimiento para mandar correo. Eso se decide aparte y con cuidado, no de
+   rebote al copiar una maqueta.
 
    Los dos enlaces se arman FUERA del texto para que la frase que los envuelve
    quepa en una sola clave del diccionario. Escritos dentro, el barrido veía
@@ -283,7 +328,7 @@ function mostrarPortada(modo) {
 function portadaLegalHTML(clase) {
   const aTerminos = `<a href="${legalBase()}terminos/" target="_blank" rel="noopener">${tx("términos")}</a>`;
   const aPrivacidad = `<a href="${legalBase()}privacidad/" target="_blank" rel="noopener">${tx("aviso de privacidad")}</a>`;
-  return `<p class="portada-legal ${clase}">${T`Al crear tu cuenta aceptas los ${aTerminos} y el ${aPrivacidad}.`}</p>`;
+  return `<p class="portada-legal ${clase}">${T`Al continuar aceptas los ${aTerminos} y el ${aPrivacidad} de Norata.`}</p>`;
 }
 
 function portadaPintar(modo) {
@@ -305,8 +350,22 @@ function portadaPintar(modo) {
        nada—, y su ayuda dice qué usaremos si se deja vacío en vez de callarlo:
        nadie escribe un apodo si no sabe qué se evita con él. */
     dentro =
-      `<div class="portada-cab">
-         <button class="portada-volver" onclick="portadaCrearAtras()" aria-label="${escapeAttr(tx("Volver a iniciar sesión"))}">←</button>
+      `${/* El logotipo va también aquí, y hasta ahora solo estaba en la
+             pantalla de entrar. Quien llega por «Empieza gratis» de la landing
+             aterriza DIRECTO en esta: sin marca, la única pantalla donde se
+             escribe una contraseña no decía de quién era. Lo pidió Eduardo.
+
+             Y es el `chico`: con el logotipo de 172 px, el título y los tres
+             puntos encima del formulario, la tarjeta no cabía en una pantalla
+             de 480 px de alto — medido. */""}
+       <img class="portada-logo chico" src="${logotipoSrc()}" alt="Norata">
+       <div class="portada-cab">
+         ${/* La flecha dice a dónde va, y eso CAMBIA con el paso: en el primero
+              sale a iniciar sesión y en los otros dos retrocede un paso. Con
+              una sola etiqueta fija, en el paso 3 el lector de pantalla
+              prometía «volver a iniciar sesión» y lo que hacía era ir al 2. */""}
+         <button class="portada-volver" onclick="portadaCrearAtras()" aria-label="${
+           escapeAttr(portadaPaso > 1 ? tx("Volver al paso anterior") : tx("Volver a iniciar sesión"))}">←</button>
          <h2>${tx("Crear tu cuenta")}</h2>
        </div>
        <div id="portada-error" class="portada-error" hidden></div>
@@ -402,7 +461,6 @@ function portadaPintar(modo) {
              <div class="stack">
                <button class="btn btn-primary btn-block" id="portada-ok" onclick="portadaPasoIr(${portadaPaso + 1})">${tx("Siguiente")}</button>
              </div>
-             ${portadaLegalHTML("portada-legal-bajo solo-ultimo")}
            </div>`;
        })()}
        <p class="portada-pie">${tx("¿Ya tienes una?")} <button onclick="portadaIrA('entrar')">${tx("Entra aquí")}</button></p>`;
@@ -501,7 +559,24 @@ function portadaPintar(modo) {
            <h2>Hola de nuevo, ${escapeHtml(sync.ultimoSaludo)}</h2>
            <p class="portada-lema">${tx("Escribe tu contraseña y sigues donde lo dejaste.")}</p>
          </div>`
-      : `<img class="portada-logo" src="${logotipoSrc()}" alt="Norata">
+      : `${/* Esta pantalla no decía qué era: el logotipo hacía de título y el
+               párrafo hablaba de la app, así que «iniciar sesión» había que
+               deducirlo de los dos campos. Lo paró Eduardo comparándola con la
+               de Supabase, que es logotipo, título y una línea debajo.
+
+               Los otros dos casos —quien vuelve y quien añade otra cuenta— ya
+               tenían el suyo («Hola de nuevo, X», «Entrar con otra cuenta») y
+               no se tocan: un saludo con tu nombre dice más que un rótulo. */""}
+         <img class="portada-logo chico" src="${logotipoSrc()}" alt="Norata">
+         <div class="portada-cab">
+           <h2>${tx("Iniciar sesión")}</h2>
+           ${/* La flecha que va a la otra pantalla. La de vuelta ya existía —la
+                de la cabecera de crear cuenta— y con esta las dos se cruzan en
+                los dos sentidos, que es lo que pidió Eduardo. Lleva la palabra
+                al lado a propósito: una flecha sola no dice a dónde lleva. */""}
+           <button class="portada-cruce" onclick="portadaIrA('crear')">${
+             tx("Crear cuenta")} <span aria-hidden="true">›</span></button>
+         </div>
          <p class="portada-lema">${tx("Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.")}</p>`;
 
     /* Google, LO PRIMERO, igual que en crear cuenta (0.7.115). Estaba debajo
@@ -539,13 +614,27 @@ function portadaPintar(modo) {
        <p class="portada-pie">${tx("¿Todavía no tienes cuenta?")} <button onclick="portadaIrA('crear')">${tx("Créala aquí")}</button></p>
        ${agregando
          ? '<button class="portada-sin" onclick="volverDeAgregar()">Volver a mi cuenta</button>'
-         : `<button class="portada-sin" onclick="portadaSinCuenta()">${yaEntroSinCuenta ? tx("Volver sin iniciar sesión") : tx("Probar sin cuenta")}</button>
-       <p class="portada-nota">${yaEntroSinCuenta
-         ? tx("Seguirás guardando solo en este dispositivo.")
-         : tx("Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crear una cuenta cuando quieras y llevártelo.")}</p>`}`;
+         : (yaEntroSinCuenta
+         ? `<button class="portada-sin" onclick="portadaSinCuenta()">${tx("Volver sin iniciar sesión")}</button>
+       <p class="portada-nota">${tx("Seguirás guardando solo en este dispositivo.")}</p>`
+         : PUERTA_SIN_CUENTA
+         ? `<button class="portada-sin" onclick="portadaSinCuenta()">${tx("Probar sin cuenta")}</button>
+       <p class="portada-nota">${tx("Sin cuenta, tu progreso se guarda solo en este dispositivo. Puedes crear una cuenta cuando quieras y llevártelo.")}</p>`
+         : "")}`;
   }
 
-  cap.innerHTML = `<div class="portada-caja">${dentro}</div>`;
+  /* La frase legal, al final y en las dos pantallas donde se acepta algo. Las
+     otras tres —«te mandé un correo», «esta cuenta se va a borrar», «hasta
+     pronto»— no la llevan: ahí no se está continuando hacia ninguna cuenta, y
+     una condición de uso debajo de una despedida es ruido. */
+  /* Se nombran las que NO la llevan y no las que sí: una pantalla nueva del
+     formulario nacería con la frase puesta, que es el lado seguro por el que
+     equivocarse en algo que es una condición de uso. */
+  const sinLegal = ["enviado", "rescate", "adios"];
+  const legal = sinLegal.indexOf(modo) < 0
+    ? portadaLegalHTML("portada-legal-pie") : "";
+
+  cap.innerHTML = `<div class="portada-caja">${dentro}${legal}</div>`;
 
   // Enter en cualquier campo hace lo mismo que el botón grande de esa pantalla
   cap.querySelectorAll("input").forEach(el => {
@@ -712,10 +801,6 @@ async function portadaOfrecerGoogle(modo) {
        </svg>
        <span>${tx(creando ? "Crear cuenta con Google" : "Continuar con Google")}</span>
      </button>
-     ${/* Entre el botón y la rayita: ahí la frase se lee como la letra
-          pequeña de ESE botón, que es de lo que avisa. Solo al CREAR: en la
-          pantalla de entrar, «al crear tu cuenta aceptas» no viene a cuento. */
-       creando ? portadaLegalHTML("portada-legal-bajo") : ""}
      <div class="portada-o"><span>${tx("o")}</span></div>`;
 }
 
