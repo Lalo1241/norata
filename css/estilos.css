@@ -8290,19 +8290,41 @@
   /* Los tres pasos miden distinto —uno pide un campo, los otros dos— y sin un
      mínimo el botón de abajo salta de sitio en cada pantalla. Que el sitio
      donde hay que volver a pulsar se mueva bajo el dedo es justo lo que hace
-     que un camino de tres pasos se sienta largo. Medido uno por uno: 234 el
-     primero —con Google dentro— y 271 los otros dos, así que el mínimo es 271
-     y el botón no se mueve ni un píxel en todo el camino: 574 en escritorio y
-     613 en un teléfono, en los tres pasos. */
-  .crear-pasos .paso { min-height: 271px; }
+     que un camino de tres pasos se sienta largo.
+
+     Medido uno por uno: 289 el primero —con Google dentro— y 329 los otros
+     dos, así que el mínimo es 329. Con `box-sizing: border-box` el mínimo
+     incluye el relleno de arriba, así que las dos cosas se cuentan juntas y no
+     hay que sumarlas a mano.
+
+     **Este número se vuelve a medir cada vez que cambia lo que hay dentro de
+     un paso.** Ya se quedó corto dos veces: al mover el contador dentro de los
+     pasos el botón saltaba 34 px, y antes al sacar de ahí la frase legal. La medición está en `altos123.mjs`: se pone cada paso en
+     `display: block; min-height: 0` y se lee su alto. */
+  .crear-pasos .paso { min-height: 329px; }
 
   /* La fila de los puntos, con el paso atrás a su izquierda. Tres columnas y
      no dos: la tercera está vacía y existe para que los puntos queden
-     centrados en la TARJETA y no en el hueco que le deja el enlace. */
+     centrados en la TARJETA y no en el hueco que le deja el enlace.
+
+     El respiro de arriba lo pidió Eduardo: pegada a lo de encima se veía
+     apretada. Y no es el mismo en los dos casos, porque encima hay cosas
+     distintas — en el primer paso la rayita del «o», que ya trae 12 px
+     propios, y en los otros dos el título de la tarjeta, que trae 18. Se
+     escriben los dos números aquí para que se puedan medir juntos. */
   .paso-fila {
     display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
-    margin-bottom: 4px;
+    margin: 0 0 12px;
   }
+  /* En el primer paso el contador cuelga de la rayita del «o», que ya trae sus
+     doce píxeles de margen: con ocho más queda a la misma distancia que en los
+     otros dos, donde el respiro lo pone el relleno del paso. */
+  .crear-pasos[data-en="1"] .paso-fila { margin-top: 8px; }
+  /* Y el respiro de arriba va en el PASO y no en la fila: el margen de un
+     primer hijo se colapsa fuera de su padre y no separa nada — medido, el
+     contador quedaba a 18 px del título en los pasos 2 y 3 en vez de a 32, y
+     por eso se veía apretado. Lo paró Eduardo. */
+  .crear-pasos .paso { padding-top: 14px; }
   .paso-fila .paso-puntos { grid-column: 2; }
   .paso-atras { grid-column: 1; margin: 0; justify-self: start; font-size: 12.5px; }
   /* En el primer paso no hay atrás, pero su hueco se queda: con `display:
@@ -8312,7 +8334,7 @@
   /* Los tres puntos. No es una barra de progreso con porcentaje: son tres, se
      cuentan de un vistazo, y lo que hay que saber aquí no es «cuánto llevas»
      sino «cuánto falta» — y falta poco, que es justo lo que hay que decir. */
-  .paso-puntos { display: flex; gap: 6px; justify-content: center; margin-bottom: 22px; }
+  .paso-puntos { display: flex; gap: 6px; justify-content: center; }
   .paso-puntos i {
     width: 22px; height: 4px; border-radius: var(--r-barra);
     background: var(--carril);

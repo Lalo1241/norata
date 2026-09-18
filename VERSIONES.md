@@ -197,6 +197,34 @@ enlace dice «Atrás» y se lee tal cual, que es mejor que una flecha con etique
 —la vieja prometía «volver a iniciar sesión» también en el paso 3, donde iba
 al 2—.
 
+**El contador de tres barras baja DEBAJO del botón de Google, y dentro de cada
+paso.** Lo vio Eduardo y el argumento es del tipo que no se discute: estaba
+encima de Google, o sea que lo primero que leía quien iba a entrar con Google
+era el anuncio de tres pantallas que no va a ver ninguna. Ahora cuelga del
+camino a pie, debajo de la rayita del «o», que es el único que las tiene.
+
+Por eso se escribe una vez por paso en vez de una sola encima de los tres: la
+alternativa era dejarlo arriba y esconderlo en el primer paso, y entonces al
+pasar al segundo APARECÍA y empujaba todo — el salto que esta misma versión
+acaba de quitar. Solo hay un `.paso` visible a la vez, así que solo se ve uno.
+
+**Y un poco más de aire encima**, que también lo pidió: se veía apretado. El
+respiro va en el relleno del PASO y no en el margen de la fila, porque el
+margen de un primer hijo se colapsa fuera de su padre y no separa nada —
+medido, el contador quedaba a 18 px del título en vez de a 32.
+
+**Tres fallos que salieron al mover eso, y los tres los cazó la medición:**
+
+| Qué se rompió | Por qué |
+| --- | --- |
+| Los puntos dejaron de encenderse en los pasos 2 y 3 | `portadaPasoPintar` recorría `.paso-puntos i` de toda la página, y con tres filas eso son nueve puntos: el índice se salía de cuenta a partir del cuarto. Ahora va fila por fila |
+| El botón saltaba 34 px al pasar del primero al segundo | El `min-height` de un paso estaba medido sin el contador dentro. 289 el primero y 329 los otros dos, así que el mínimo es 329 |
+| «Atrás» y los puntos no estaban a la misma altura | `.paso-puntos` conservaba un `margin-bottom: 22px` de cuando era una fila suelta: su hueco en la rejilla medía 4+22 y el centrado dejaba los puntos 11 px por encima del enlace |
+
+El del `min-height` se repetirá, así que está escrito al lado del número: **se
+vuelve a medir cada vez que cambia lo que hay dentro de un paso.** Ya se quedó
+corto dos veces.
+
 **El idioma y el sol/luna se van arriba a la derecha**, a la altura de la marca
 y en la misma línea: donde Supabase pone «Documentation». Los dos bloques se
 apoyan en una caja de 30 px de alto, así que quedan alineados sin depender de
