@@ -170,9 +170,9 @@ salida no llega ni a `mi.norata.app` ni a `supabase.co`.
 
 ### 0.7.124 · 18 sep 2026
 
-**El banco de frases de la puerta: de 10 a 24, y una decisión de qué se dice
-ahí.** Eduardo pidió más frases para no repetirse, y al mirarlas de cerca el
-problema no era la cantidad.
+**El banco de frases de la puerta: de 10 a 24, con una decisión de qué se dice
+ahí y una pasada de tono encima.** Eduardo pidió más frases para no repetirse, y
+al mirarlas de cerca el problema no era la cantidad.
 
 **Lo que salió al contarlas por IDEA y no por número:**
 
@@ -192,33 +192,59 @@ decir qué es Norata; la frase grande, que es lo primero que se lee, no decía
 nada que no dijera la competencia.
 
 **Lo decidió Eduardo: ahí se dice lo que Norata hace y nadie más.** Las doce
-nuevas hablan de las habilidades que BAJAN si las dejas, del árbol que se abre
-conforme avanzas, de los cinco rangos, de que subes de nivel por lo que haces y
-no por lo que te propones. La regla queda escrita al lado del banco: **si la
-frase la podría firmar una app de hábitos cualquiera, no es de este banco.**
+nuevas hablan de las habilidades que BAJAN si las dejas, del árbol donde vive lo
+que no cabe en una lista, de que subes de nivel por hacerlo y no por planearlo.
+La regla queda escrita al lado del banco: **si la frase la podría firmar una app
+de hábitos cualquiera, no es de este banco.**
 
-**El de «entrar» se queda en aspiracional, y es correcto que así sea**: quien
-vuelve ya decidió, y el formulario de al lado son dos campos. Ahí la frase no
-vende, acompaña — sobre todo a quien vuelve después de semanas, que es quien
-más miedo tiene de haber perdido algo. Lo que cambia es que las doce se
-reparten en cinco familias en vez de repetir una.
+**La segunda vuelta, que es la que dejó el banco como está.** La primera versión
+pasaba ese filtro y aun así Eduardo la paró: *«les falta impacto y dirección»*.
+Tenía razón y el diagnóstico se ve en tres sitios concretos:
+
+- «…pero aquí se ve» era una coletilla explicativa pegada al final. Lo que
+  hacía era rematar la frase EXPLICÁNDOLA, que es lo contrario de rematarla.
+- «Lo que se mide se ve, y lo que se ve se sostiene» es un proverbio. Suena a
+  sabiduría de nadie, y por eso no era de aquí.
+- «Empiezas de Andante. A Navegante se llega caminando» se cayó entera: era
+  correcta contra `EXP_RANGOS` y no le decía nada a quien acaba de llegar y no
+  sabe qué es un Andante.
+
+**La vara nueva es suya y es más exigente que «que suene bien»: si alguien la
+lee de imprevisto, tiene que darle ganas de sonreír un instante.** De ahí salen
+las cuatro cosas que ahora se le piden a una frase, escritas al lado del banco
+(`PUERTA_FRASES`, `js/12-login.js`): una **vuelta** al final —la segunda mitad
+tuerce a la primera—, algo **concreto** y a ser posible incómodamente
+reconocible, **complicidad y no consejo**, y el filtro de genérico de arriba. Lo
+que queda descartado por escrito: el proverbio, la coletilla explicativa y
+cualquier cosa que suene a taller de superación.
+
+Las dos mitades las usan distinto, y es a propósito. En «crear» la vuelta es
+humor —«Subes de nivel por hacerlo, no por planearlo. Una lástima, ya sé»—
+porque ahí hay que ganarse a alguien que no conoce la app. En «entrar» es
+complicidad, que es lo que pide quien vuelve después de semanas y tiene miedo
+de haber perdido algo: «Volviste, que es más de lo que hiciste con las otras
+apps que bajaste.»
 
 **Lo que NO se prometió, que es donde una frase de marketing se vuelve mentira:**
 talentos y proyectos no están el primer día —los abre el nivel de expedición—
-así que la frase que los nombra dice que *se abren*, igual que la viñeta de
-abajo. Y «Empiezas de Andante. A Navegante se llega caminando» se comprobó
-contra `EXP_RANGOS`: Andante es el del nivel 1 y Navegante el último.
+así que la frase que los nombra dice que *se abren*: «No todo está abierto el
+primer día. Como en cualquier juego que valga la pena.»
 
-**Tres frases se fueron** —las del aforismo repetido— y con ellas sus entradas
-del diccionario, para no dejar huérfanas. Una se quedó fuera de la puerta a
-propósito: «Tienes por delante un camino largo, y se recorre en días pequeños»
-vive en `js/10h-lecturas.js` y en el correo de bienvenida, así que tenerla
-TAMBIÉN aquí era decir lo mismo en dos sitios.
+**Las 24 traducidas, y tres de ellas no literalmente.** «Las palomitas no se
+acumulan» no significa nada fuera de México; en inglés el chiste lo hace
+`checkmarks`. Al traducir una de estas lo que hay que salvar es la vuelta, no
+las palabras: una traducción literal que pierde el giro deja una frase correcta
+y muerta, que es justo lo que este banco se rehizo para no tener. Se fueron las
+17 entradas del diccionario que quedaron huérfanas. Una se quedó fuera de la
+puerta a propósito: «Tienes por delante un camino largo, y se recorre en días
+pequeños» vive en `js/10h-lecturas.js` y en el correo de bienvenida, así que
+tenerla TAMBIÉN aquí era decir lo mismo en dos sitios.
 
 **Comprobado abriendo la puerta veinte veces**, catorce en español y seis en
-inglés: rotan de verdad (10 frases distintas de 12 en catorce aperturas), las
-24 se traducen, ninguna se sale del panel y la más alta mide 116 px. Cero
-errores.
+inglés: rotan de verdad (9 de 12 en «entrar» y 11 de 12 en «crear», en catorce
+aperturas), ninguna se sale del panel y la más alta mide 116 px. Y las 24 se
+traducen, comprobado pidiéndole a la puerta en inglés el `tx()` de las 24 en
+vez de fiarlo a lo que salga al azar: 0 sin traducir. Cero errores en consola.
 
 
 ### 0.7.123.1 · 18 sep 2026

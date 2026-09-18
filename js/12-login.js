@@ -239,55 +239,67 @@ function puertaIdioma(cod) {
    Las viñetas de «soy nuevo» NO rotan y se quedan en el marcado: eso no es una
    frase, es lo que hace la app. Lo que rota es la voz de arriba. */
 const PUERTA_FRASES = {
+  /* ---- CÓMO SE ESCRIBE UNA DE ESTAS ----
+     Es de Eduardo, y es más exigente que «que suene bonito»: **si alguien la
+     lee de imprevisto, tiene que darle ganas de sonreír un instante.** De ahí
+     salen cuatro cosas que una frase tiene que traer, y si no trae ninguna se
+     cae del banco:
+
+       · una VUELTA al final — la segunda mitad tuerce a la primera;
+       · algo CONCRETO, mejor si es incómodamente reconocible;
+       · complicidad, no consejo: se habla de tú a tú, sin enseñar nada;
+       · y el filtro de siempre: si la podría firmar una app de hábitos
+         cualquiera, no es de aquí.
+
+     Lo que NO funciona, comprobado: el proverbio («lo que se mide se ve»), la
+     coletilla explicativa («…pero aquí se ve»), y cualquier cosa que suene a
+     taller de superación. Suenan a relleno y se leen como una frase más del
+     montón. */
+
   /* ---- QUIEN VUELVE ----
      Aquí no hay nada que vender: ya decidió, y el formulario de al lado es de
      dos campos. El trabajo de la frase es EMOCIONAL, y sobre todo con quien
      vuelve después de semanas, que es quien más miedo tiene de haber perdido
-     algo. Cinco familias y no una repetida cinco veces:
-
-       lo tuyo sigue ahí · volver cuenta · lo de hoy es pequeño ·
-       la racha no es el camino · el progreso lento sigue siendo progreso */
+     algo. La sonrisa, en este lado, es complicidad y no chiste. */
   entrar: [
-    "Del otro lado está lo tuyo: tus habilidades, tu progreso y lo que toca hoy.",
+    "Del otro lado está todo lo tuyo, tal como lo dejaste. Nadie lo tocó.",
     "Nada de lo que construiste se fue a ningún lado. Te estaba esperando.",
     "Volver también cuenta. De hecho, es la parte difícil.",
     "Tu expedición sigue abierta, justo donde la dejaste.",
     "Los días que no abriste la app también son parte del camino.",
-    "Hoy hay algo pequeño esperándote. Con eso basta.",
+    "Hoy basta con una cosa pequeña. En serio, con una.",
     "La racha se corta; el camino no.",
     "Nadie lleva un año seguido. Se lleva un día, y luego otro.",
-    "Tus habilidades bajan si las dejas, pero nunca vuelves a empezar de cero.",
+    "Tus habilidades bajan si las dejas. Nunca vuelves a empezar de cero.",
     "Lo que dejaste a medias sigue a medias, que es mucho mejor que en blanco.",
-    "Entra, mira qué toca hoy, y ya. Así se hace largo.",
-    "El progreso lento sigue siendo progreso."
+    "Entra, mira qué toca hoy y cierra. Nadie te va a pedir más.",
+    "Volviste, que es más de lo que hiciste con las otras apps que bajaste."
   ],
 
   /* ---- QUIEN LLEGA NUEVO ----
-     Este es el ÚNICO sitio de toda la app donde se le habla a alguien que no
-     la conoce, y hasta hoy lo gastaba en un aforismo que podía firmar
-     cualquiera —cuatro de las cinco frases decían lo mismo: «lo grande se hace
-     de días pequeños»—. Lo decidió Eduardo al revisarlo: aquí se dice **lo que
-     Norata hace y nadie más**.
+     El ÚNICO sitio de toda la app donde se le habla a alguien que no la
+     conoce. Aquí se dice lo que Norata hace y nadie más — y se dice con
+     gracia, que es lo que separa una frase de una descripción de producto.
 
-     La regla al escribir una nueva: si la frase la podría firmar una app de
-     hábitos cualquiera, no es de este banco. Y no se promete lo que no hay —
-     talentos y proyectos NO están el primer día, así que la frase que los
-     nombra dice que se abren, igual que la viñeta de abajo. */
+     Ojo con no prometer lo que no hay: talentos y proyectos NO están el primer
+     día, así que la frase que lo toca lo convierte en lo que es —una puerta
+     que se abre— en vez de esconderlo. */
   crear: [
-    "Tus habilidades bajan si las dejas. Como en la vida real, pero aquí se ve.",
-    "Un hábito no es una casilla: es una habilidad que sube de nivel.",
-    "Las cosas grandes viven en un árbol que se abre conforme avanzas.",
-    "Tu vida, tratada como la partida larga que es.",
-    "Las misiones de hoy se marcan de un toque. El resto lo lleva la app.",
-    "Subes de nivel por lo que haces, no por lo que te propones.",
-    "Empiezas de Andante. A Navegante se llega caminando.",
-    "No es una lista de pendientes. Es una partida que ya empezó.",
-    "Lo que se mide se ve, y lo que se ve se sostiene.",
-    "Un proyecto grande avanza por etapas, y aquí se ven todas.",
-    "Rachas, XP y niveles: lo que un videojuego te da por jugar, por vivir.",
-    "Talentos y proyectos no están el primer día. Se abren, y por eso saben a algo."
+    "Aquí las habilidades bajan si las dejas. Sí, ya sabemos cuál estás pensando.",
+    "Las palomitas no se acumulan. Los niveles sí.",
+    "Si tu vida fuera un videojuego, llevarías rato sin abrir el menú de personaje.",
+    "Lo grande no cabe en una lista de pendientes. Por eso aquí hay un árbol.",
+    "Lo de hoy se marca de un toque. Lo de dentro de un año lo lleva la app.",
+    "Subes de nivel por hacerlo, no por planearlo. Una lástima, ya sé.",
+    "Ganas XP por lavar los platos, si resulta que eso es lo que estás construyendo.",
+    "Una lista de pendientes te recuerda lo que debes. Esto te enseña lo que llevas.",
+    "Tu constancia, por fin, con un número encima.",
+    "«Algún día» no es una fecha. Aquí es una etapa, y tiene barra de avance.",
+    "Rachas, niveles y XP: lo mismo que te engancha en un juego, pero con tu vida.",
+    "No todo está abierto el primer día. Como en cualquier juego que valga la pena."
   ]
 };
+
 
 
 /* Una al azar, pero nunca la misma dos veces seguidas en esta pestaña. Con
