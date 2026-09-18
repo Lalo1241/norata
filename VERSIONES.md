@@ -184,6 +184,24 @@ la separa del formulario, y pegada a ella parecía la segunda columna de una
 tabla en vez de una página aparte. El relleno deja de ser simétrico: más por
 ese lado que por el de fuera. Medido a 1440: 80 px antes, 127 ahora.
 
+**Y en el teléfono la tarjeta baja cuando hay sitio.** Apoyada arriba del todo
+desperdiciaba 190 px de hueco abajo en un teléfono de 844 y 295 en uno de 932 —
+lo vio Eduardo—. El margen de arriba sale ahora de lo que mide la VENTANA y no
+de la tarjeta, que es lo que deja las dos cosas a la vez: medio píxel por cada
+uno que la ventana pase de 700, hasta 140.
+
+| Ventana | Margen | Arriba | Abajo |
+| --- | --- | --- | --- |
+| 640 | 0 | 82 | se desplaza, igual que antes |
+| 740 | 20 | 102 | 66 |
+| 844 | 72 | 154 | 118 |
+| 932 | 116 | 198 | 179 |
+
+Y sigue sin poderse centrar, por lo mismo de antes: las dos tarjetas miden
+distinto —572 y 553— y el centrado las colgaría de alturas distintas. Un margen
+que solo depende de la ventana mantiene el título en el mismo píxel en las dos,
+y en las pantallas bajas vale cero, así que no hay nada que recortar por arriba.
+
 **La fila de la esquina baja y se mete un poco**, las dos mitades a la vez: la
 marca a 30 de arriba y 34 de la izquierda, y los controles a 30 y 34 de la
 derecha. **El mismo número en los dos lados y no uno parecido** — eran 22

@@ -8412,18 +8412,34 @@
     padding-top: calc(env(safe-area-inset-top) + 82px);
     padding-bottom: calc(env(safe-area-inset-bottom) + 28px);
   }
-  /* La tarjeta se apoya ARRIBA y el hueco que sobra se va abajo (`margin-top:
-     0`, `margin-bottom: auto`). Dos cosas se ganan con eso y las dos se
-     midieron:
+  /* La tarjeta NO se centra, y el hueco de arriba NO depende de ella: sale de
+     lo que mide la VENTANA y nada más. Las dos cosas que eso resuelve a la vez
+     se midieron las dos:
 
        · el título cae en el mismo píxel en las dos pantallas —lo pidió
-         Eduardo—, y centrando no puede: las dos tarjetas miden distinto y el
-         centrado las cuelga de alturas distintas (248 contra 296 en un
-         teléfono de 844);
-       · y nada queda inalcanzable cuando no cabe, que es lo que tenía que
-         resolver el `auto` de arriba: con cero no hay nada que recortar por
-         arriba, y el desplazamiento no llega a negativos. */
-  html.puerta .portada > .portada-caja { margin: 0 auto auto; }
+         Eduardo—, y centrando no puede: las dos tarjetas miden distinto (572 y
+         553 en un teléfono) y el centrado las cuelga de alturas distintas;
+       · y nada queda inalcanzable cuando no cabe: el margen de arriba se queda
+         en cero en las pantallas bajas, así que no hay nada que recortar por
+         arriba — y el desplazamiento no llega a negativos.
+
+     Y la fórmula baja la tarjeta SOLO cuando hay sitio, que es lo que Eduardo
+     vio: apoyada arriba del todo desperdiciaba 190 px abajo en un teléfono de
+     844 y 295 en uno de 932. Medio píxel por cada uno que la ventana pase de
+     700, hasta 140:
+
+       ventana   margen   arriba   abajo
+       640       0        82       (se desplaza, como antes)
+       740       20       102      66
+       844       72       154      118
+       932       116      198      179
+
+     Por debajo de 700 vale cero y la pantalla se comporta igual que antes. La
+     regla de ≥900 px la pisa con su propio número, porque ahí la tarjeta vive
+     en una columna y no en la pantalla entera. */
+  html.puerta .portada > .portada-caja {
+    margin: clamp(0px, calc((100vh - 700px) * 0.5), 140px) auto auto;
+  }
   .puerta-lado {
     display: flex; flex-direction: column; gap: 16px;
     width: 100%; max-width: 360px; margin: 26px auto auto;
