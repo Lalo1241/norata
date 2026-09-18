@@ -183,7 +183,7 @@ function portadaPasoFalla(paso) {
   if (paso === 2) {
     const clave = valorDe("portada-clave");
     if (clave.length < CLAVE_MIN) return { msg: T`La contraseña necesita al menos ${CLAVE_MIN} caracteres.`, campo: "portada-clave" };
-    if (clave !== valorDe("portada-clave2")) return { msg: tx("Las dos contraseñas no coinciden. Míralas con el ojito para compararlas."), campo: "portada-clave2" };
+    if (clave !== valorDe("portada-clave2")) return { msg: tx("Las dos contraseñas no coinciden. Muéstralas para compararlas."), campo: "portada-clave2" };
     return null;
   }
   return null;
@@ -331,15 +331,22 @@ function mostrarPortada(modo) {
 
    Y el enlace es un ENLACE con su palabra, no una flecha suelta: la flecha
    cuadrada que había antes pesaba como un botón, movía el título de sitio
-   según si estaba o no, y no decía a dónde llevaba. El galón (‹ ›) es un
-   adorno y va fuera del árbol de accesibilidad; lo que se lee es la palabra. */
+   según si estaba o no, y no decía a dónde llevaba. El galón es un adorno y va
+   fuera del árbol de accesibilidad; lo que se lee es la palabra. */
 function portadaCabHTML(titulo, cruce) {
-  const enlace = cruce
-    ? `<button class="portada-cruce" onclick="${cruce.fn}">${
-        cruce.atras ? '<span aria-hidden="true">\u2039</span> ' : ""}${escapeHtml(cruce.texto)}${
-        cruce.atras ? "" : ' <span aria-hidden="true">\u203a</span>'}</button>`
-    : "";
+  const enlace = cruce ? portadaCruceHTML(cruce) : "";
   return `<div class="portada-cab"><h2>${escapeHtml(titulo)}</h2>${enlace}</div>`;
+}
+
+/* El galón va SIEMPRE detrás de la palabra y SIEMPRE apunta a la derecha, lo
+   diga el enlace lo que diga — también en «Atrás». Lo pidió Eduardo mirando
+   los tres juntos, y tiene razón en lo que importa: aquí el galón no es una
+   brújula, es la marca de «esto lleva a algún sitio», y cuatro enlaces con la
+   punta en dos direcciones distintas se leen como cuatro controles distintos.
+   A dónde va lo dice la palabra, que es lo que se lee. */
+function portadaCruceHTML(cruce) {
+  return `<button class="portada-cruce" onclick="${cruce.fn}">${
+    escapeHtml(cruce.texto)} <span aria-hidden="true">\u203a</span></button>`;
 }
 
 function portadaLegalHTML(clase) {
@@ -373,7 +380,7 @@ function portadaPintar(modo) {
              pantalla y empujaba el título a una altura distinta en cada una,
              que es justo lo que Eduardo pidió arreglar. */""}
        ${portadaCabHTML(tx("Crear tu cuenta"),
-         { fn: "portadaIrA('entrar')", texto: tx("Iniciar sesión"), atras: true })}
+         { fn: "portadaIrA('entrar')", texto: tx("Iniciar sesión") })}
        <div id="portada-error" class="portada-error" hidden></div>
        <!-- ---- Dónde está el consentimiento, que se ha movido dos veces ----
             Empezó debajo del botón, subió al principio en la 0.7.115 —cuando
@@ -453,7 +460,7 @@ function portadaPintar(modo) {
             reserva en el primer paso en vez de quitarlo (`visibility`), o los
             puntos se descentrarían al pasar al segundo. */
          const fila = `<div class="paso-fila">
-               <button class="portada-cruce paso-atras" onclick="portadaCrearAtras()"><span aria-hidden="true">\u2039</span> ${tx("Atrás")}</button>
+               ${portadaCruceHTML({ fn: "portadaCrearAtras()", texto: tx("Atrás") }).replace("portada-cruce", "portada-cruce paso-atras")}
                <div class="paso-puntos" aria-hidden="true">${
                  [1, 2, 3].map(n => `<i class="${n <= portadaPaso ? "on" : ""}"></i>`).join("")}</div>
              </div>`;
@@ -550,7 +557,7 @@ function portadaPintar(modo) {
        <p class="portada-lema">${tx("Gracias por el tiempo que le diste a Norata. Lo que aprendiste jugando a esto sigue siendo tuyo, esté o no la app de por medio.")}</p>
        <div class="stack">
          <button class="btn btn-soft btn-block" onclick="irALaPuerta()">${tx("Volver a entrar")}</button>
-         <a class="btn btn-ghost btn-block" href="https://www.norata.app">Ir a norata.app</a>
+         <a class="btn btn-ghost btn-block" href="${WEB_NORATA}">${tx("Ir a la web de Norata")}</a>
        </div>`;
 
   } else if (modo === "enviado") {
@@ -594,7 +601,7 @@ function portadaPintar(modo) {
     const vuelve = !agregando && !!(sync.ultimoSaludo && sync.ultimoCorreo);
     dentro = agregando
       ? `${portadaCabHTML(tx("Entrar con otra cuenta"),
-           { fn: "volverDeAgregar()", texto: tx("Volver a mi cuenta"), atras: true })}
+           { fn: "volverDeAgregar()", texto: tx("Volver a mi cuenta") })}
          <p class="portada-lema">${tx("La cuenta en la que estás ahora se queda guardada en este dispositivo: podrás volver a ella con un toque.")}</p>`
       : vuelve
       ? `<div class="portada-vuelve">
@@ -920,7 +927,7 @@ async function portadaRegistrar() {
   if (!correo) { portadaAviso(tx("Escribe el correo con el que quieres entrar.")); return; }
   if (!/.+@.+\..+/.test(correo)) { portadaAviso(tx("Ese correo no parece completo. Revísalo.")); return; }
   if (clave.length < CLAVE_MIN) { portadaAviso(T`La contraseña necesita al menos ${CLAVE_MIN} caracteres.`); return; }
-  if (clave !== clave2) { portadaAviso(tx("Las dos contraseñas no coinciden. Míralas con el ojito para compararlas.")); return; }
+  if (clave !== clave2) { portadaAviso(tx("Las dos contraseñas no coinciden. Muéstralas para compararlas.")); return; }
 
   portadaRecordar();
   portadaAviso(""); portadaOcupada(true, "Creando tu cuenta…");
@@ -1524,7 +1531,7 @@ async function guardarNuevaClave() {
   const aviso = (m) => { const el = document.getElementById("nc-error"); el.textContent = m || ""; el.hidden = !m; };
 
   if (a.length < CLAVE_MIN) { aviso(T`Necesita al menos ${CLAVE_MIN} caracteres.`); return; }
-  if (a !== b) { aviso(tx("Las dos no coinciden. Míralas con el ojito para comprobarlo.")); return; }
+  if (a !== b) { aviso(tx("Las dos no coinciden. Muéstralas para comprobarlo.")); return; }
 
   aviso("");
   const btn = document.getElementById("nc-ok");

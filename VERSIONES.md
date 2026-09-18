@@ -136,6 +136,17 @@ Por eso no se hizo con las otras tres: es la única de las cuatro que no se pued
 terminar desde aquí. Cuando se haga: **primero el alta en Supabase, después la
 página**, y no al revés.
 
+### Cambiar `WEB_NORATA` el día que el dominio esté en alta
+
+`www.norata.app` todavía no responde, así que la constante `WEB_NORATA`
+(`js/01-base.js`) apunta a `https://norata.framer.website`. La enlazan la marca
+de la esquina de la puerta y el botón de la pantalla de despedida, y las dos
+salen de ahí: **es una línea, no dos.**
+
+Lo que hay que comprobar ese día, y en este orden: que el dominio contesta,
+cambiar la línea, subir la versión —toca un archivo de `ASSETS`— y volver a
+mirar los dos enlaces.
+
 ### La confirmación del correo, ahora que no hay salida sin cuenta
 
 No es un pendiente de código, es una decisión que quedó a la vista al cerrar la
@@ -156,6 +167,60 @@ siempre» sin cifra, y desde una sesión en la nube no se puede mirar — la red
 salida no llega ni a `mi.norata.app` ni a `supabase.co`.
 
 ## La lista
+
+### 0.7.123.1 · 18 sep 2026
+
+Tres retoques de Eduardo mirando la puerta ya publicada.
+
+**El galón de los enlaces apunta SIEMPRE a la derecha**, lo diga el enlace lo
+que diga — también «Atrás ›». Había dos que apuntaban a la izquierda porque
+volvían, y visto de golpe parecían otro control. Tiene razón en lo que importa:
+aquí el galón no es una brújula, es la marca de «esto lleva a algún sitio», y a
+dónde lleva lo dice la palabra, que es lo que se lee. Los cuatro salen ahora de
+la misma función (`portadaCruceHTML`), así que no hay dos formas de escribirlo.
+
+**La frase del panel se separa del marco.** Por la izquierda toca la línea que
+la separa del formulario, y pegada a ella parecía la segunda columna de una
+tabla en vez de una página aparte. El relleno deja de ser simétrico: más por
+ese lado que por el de fuera. Medido a 1440: 80 px antes, 127 ahora.
+
+**La fila de la esquina baja y se mete un poco**, las dos mitades a la vez: la
+marca a 30 de arriba y 34 de la izquierda, y los controles a 30 y 34 de la
+derecha. **El mismo número en los dos lados y no uno parecido** — eran 22
+contra 24 y se notaba.
+
+Y una trampa de medición nueva, que costó una vuelta: **el borde derecho de la
+página no es `documentElement.clientWidth`**. Los últimos píxeles del vistazo
+son el hueco de la barra de desplazamiento, así que midiendo contra él las dos
+sangrías salían 34 y 44 —una asimetría que no existía— y contra
+`document.body.clientWidth` salen 34 y 34. Se confirmó con un tercer punto de
+apoyo: el borde del panel de la frase, que llega hasta el borde de verdad.
+
+**La marca de la esquina lleva a la web pública**, como en cualquier sitio. En
+la misma pestaña y no en otra: es lo que hace el logotipo de cualquier página,
+y quien esté a medio formulario lo pierde — es el precio conocido de la
+convención, porque un enlace que se abre donde no se espera desorienta más que
+volver atrás.
+
+Y la dirección vive en UN solo sitio (`WEB_NORATA`, en `js/01-base.js`), no
+escrita en los dos que la enlazan, **porque la de verdad todavía no está en
+alta**: `www.norata.app` no responde, así que hoy apunta a la de Framer.
+
+Eso destapó un enlace roto que llevaba ahí desde antes: el botón «Ir a
+norata.app» de la pantalla de despedida tenía `https://www.norata.app` escrito
+a mano, o sea que llevaba a una dirección que no contesta. Ahora sale de la
+misma constante —y dice «Ir a la web de Norata», que no promete un dominio
+concreto—, así que el día que el dominio exista se cambia una línea y los dos
+se enteran.
+
+**Y «míralas con el ojito» se fue.** Era el aviso de que las dos contraseñas no
+coinciden, y el diminutivo que en voz alta suena simpático, escrito suena raro
+— lo dijo Eduardo riéndose, que es la peor forma de que algo se quede. Ahora
+dice «Muéstralas para compararlas», sin nombrar el control: el ojo está en el
+campo, a dos centímetros de la frase. Eran tres frases —dos en la puerta y una
+en la pantalla de contraseña nueva— y en inglés decía «use the little eye»,
+que arrastraba lo mismo.
+
 
 ### 0.7.123 · 17 sep 2026
 
