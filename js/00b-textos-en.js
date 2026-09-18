@@ -725,10 +725,27 @@ const TEXTOS_EN = {
   "Al continuar aceptas los {0} y el {1} de Norata.":
     "By continuing you agree to Norata's {0} and {1}.",
 
-  /* El panel de al lado de la puerta (en prueba, 0.7.115). Se va con la prueba
-     si no se queda, y entonces estas siete frases se van con él. */
-  "Del otro lado está lo tuyo: tus habilidades, tu progreso y lo que toca hoy.":
-    "What's yours is on the other side: your skills, your progress and what today asks of you.",
+  /* Esta no es de la puerta: la escribe el informe de un periodo
+     (`js/10h-lecturas.js`). Vive aquí desde que se escribieron juntas. */
+  "Tienes por delante un camino largo, y se recorre en días pequeños.":
+    "You have a long road ahead, and it's walked in small days.",
+
+  /* ---- Las 24 frases del panel de la puerta (`PUERTA_FRASES`, js/12-login.js) ----
+
+     Traducirlas es más difícil que traducir un rótulo, porque lo que hay que
+     salvar no son las palabras: es la VUELTA del final. Una traducción literal
+     que pierde el giro deja una frase correcta y muerta, que es justo lo que
+     este banco se rehizo para no tener. Cuando la broma no cruza, se cambia la
+     broma — «las palomitas» no significan nada fuera de México, y en inglés lo
+     que hace ese chiste es `checkmarks`.
+
+     Al tocar una frase en `12-login.js` hay que venir aquí: la clave es el
+     texto español entero, así que cambiarle una coma allí deja la traducción
+     huérfana y la puerta en inglés enseña español, sin avisar. */
+
+  /* Quien vuelve. */
+  "Del otro lado está todo lo tuyo, tal como lo dejaste. Nadie lo tocó.":
+    "Everything of yours is on the other side, just as you left it. Nobody touched it.",
   "Nada de lo que construiste se fue a ningún lado. Te estaba esperando.":
     "Nothing you built went anywhere. It was waiting for you.",
   "Volver también cuenta. De hecho, es la parte difícil.":
@@ -737,47 +754,46 @@ const TEXTOS_EN = {
     "Your expedition is still open, right where you left it.",
   "Los días que no abriste la app también son parte del camino.":
     "The days you didn't open the app are part of the road too.",
-  "Tienes por delante un camino largo, y se recorre en días pequeños.":
-    "You have a long road ahead, and it's walked in small days.",
-  /* Las frases del panel de la puerta (`PUERTA_FRASES`, js/12-login.js). */
-  "Hoy hay algo pequeño esperándote. Con eso basta.":
-    "There's something small waiting for you today. That's enough.",
+  "Hoy basta con una cosa pequeña. En serio, con una.":
+    "One small thing is enough today. Seriously, one.",
   "La racha se corta; el camino no.":
     "A streak breaks; the road doesn't.",
   "Nadie lleva un año seguido. Se lleva un día, y luego otro.":
     "Nobody does a year straight. You do a day, and then another.",
-  "Tus habilidades bajan si las dejas, pero nunca vuelves a empezar de cero.":
-    "Your skills drop if you leave them, but you never start over from zero.",
+  "Tus habilidades bajan si las dejas. Nunca vuelves a empezar de cero.":
+    "Your skills drop if you leave them. You never start over from zero.",
   "Lo que dejaste a medias sigue a medias, que es mucho mejor que en blanco.":
     "What you left half done is still half done, which beats blank by a lot.",
-  "Entra, mira qué toca hoy, y ya. Así se hace largo.":
-    "Come in, see what today asks, and that's it. That's how it lasts.",
-  "El progreso lento sigue siendo progreso.":
-    "Slow progress is still progress.",
-  "Tus habilidades bajan si las dejas. Como en la vida real, pero aquí se ve.":
-    "Your skills drop if you leave them. Like real life, only here you can see it.",
-  "Un hábito no es una casilla: es una habilidad que sube de nivel.":
-    "A habit isn't a checkbox here: it's a skill that levels up.",
-  "Las cosas grandes viven en un árbol que se abre conforme avanzas.":
-    "The big things live in a tree that opens as you go.",
-  "Tu vida, tratada como la partida larga que es.":
-    "Your life, treated like the long game it is.",
-  "Las misiones de hoy se marcan de un toque. El resto lo lleva la app.":
-    "Today's missions take one tap. The app carries the rest.",
-  "Subes de nivel por lo que haces, no por lo que te propones.":
-    "You level up for what you do, not for what you mean to do.",
-  "Empiezas de Andante. A Navegante se llega caminando.":
-    "You start as Wayfarer. Navigator is reached on foot.",
-  "No es una lista de pendientes. Es una partida que ya empezó.":
-    "It isn't a to-do list. It's a game already under way.",
-  "Un proyecto grande avanza por etapas, y aquí se ven todas.":
-    "A big project moves in stages, and here you see every one.",
-  "Rachas, XP y niveles: lo que un videojuego te da por jugar, por vivir.":
-    "Streaks, XP and levels: what a video game gives you for playing, for living.",
-  "Talentos y proyectos no están el primer día. Se abren, y por eso saben a algo.":
-    "Talents and projects aren't there on day one. They open, and that's why they land.",
-  "Lo que se mide se ve, y lo que se ve se sostiene.":
-    "What gets measured gets seen, and what gets seen holds up.",
+  "Entra, mira qué toca hoy y cierra. Nadie te va a pedir más.":
+    "Come in, see what today asks, and close it. Nobody's going to ask you for more.",
+  "Volviste, que es más de lo que hiciste con las otras apps que bajaste.":
+    "You came back, which is more than you did with the other apps you downloaded.",
+
+  /* Quien llega nuevo. */
+  "Aquí las habilidades bajan si las dejas. Sí, ya sabemos cuál estás pensando.":
+    "Skills drop here if you leave them. Yes, we know which one you're thinking of.",
+  "Las palomitas no se acumulan. Los niveles sí.":
+    "Checkmarks don't add up to anything. Levels do.",
+  "Si tu vida fuera un videojuego, llevarías rato sin abrir el menú de personaje.":
+    "If your life were a video game, you'd have gone a while without opening the character menu.",
+  "Lo grande no cabe en una lista de pendientes. Por eso aquí hay un árbol.":
+    "The big things don't fit in a to-do list. That's why there's a tree in here.",
+  "Lo de hoy se marca de un toque. Lo de dentro de un año lo lleva la app.":
+    "Today's part takes one tap. The part a year out, the app carries for you.",
+  "Subes de nivel por hacerlo, no por planearlo. Una lástima, ya sé.":
+    "You level up for doing it, not for planning it. A shame, I know.",
+  "Ganas XP por lavar los platos, si resulta que eso es lo que estás construyendo.":
+    "You earn XP for doing the dishes, if that happens to be what you're building.",
+  "Una lista de pendientes te recuerda lo que debes. Esto te enseña lo que llevas.":
+    "A to-do list reminds you what you owe. This one shows you what you've got.",
+  "Tu constancia, por fin, con un número encima.":
+    "Your consistency, at last, with a number on it.",
+  "«Algún día» no es una fecha. Aquí es una etapa, y tiene barra de avance.":
+    "“Someday” isn't a date. In here it's a stage, and it has a progress bar.",
+  "Rachas, niveles y XP: lo mismo que te engancha en un juego, pero con tu vida.":
+    "Streaks, levels and XP: the same thing that hooks you in a game, only it's your life.",
+  "No todo está abierto el primer día. Como en cualquier juego que valga la pena.":
+    "Not everything is open on day one. Like in any game worth playing.",
   "Misiones para hoy, que se marcan de un toque.":
     "Missions for today, checked off in one tap.",
   "Habilidades que suben con la práctica y bajan si las dejas.":

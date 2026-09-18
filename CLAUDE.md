@@ -104,7 +104,8 @@ retoque suelto, el 3º una tanda, el 2º algo que la app no hacía antes, y el
 **`0.8` está apartado para la beta** y no se coge por acumulación: hasta que
 Eduardo lo diga, la cuenta sigue por dentro de `0.7` (`0.7.1`, `0.7.2`…).
 
-Al subirlo: `VERSION` y `VERSION_FECHA` en `js/01-base.js`, `CACHE` en `sw.js`
+Al subirlo: `VERSION` y `VERSION_FECHA` en `js/01-base.js`, `CACHE` en `sw.js`
+
 con el mismo número, y una línea en `VERSIONES.md`.
 
 **Las fechas van en hora de México, siempre** — no en UTC ni en la del reloj de
@@ -746,6 +747,23 @@ tenía cinco por camino y se sentía repetitivo porque cuatro de las cinco
 decían lo mismo con otras palabras; subir a quince más de lo mismo no lo
 habría arreglado. Al añadir una, la pregunta es a qué familia pertenece —
 están escritas junto a `PUERTA_FRASES` (`js/12-login.js`).
+
+**Y la vara para una frase de esas es de Eduardo (0.7.124): si alguien la lee
+de imprevisto, tiene que darle ganas de sonreír un instante.** No es «que suene
+bonito». Son cuatro cosas, y una frase que no trae ninguna se cae del banco:
+una **vuelta** al final —la segunda mitad tuerce a la primera—, algo
+**concreto** y a ser posible incómodamente reconocible, **complicidad y no
+consejo**, y el filtro de genérico de arriba. Descartado por escrito, porque
+las tres se colaron en la primera versión y suenan a relleno: el proverbio
+(«lo que se mide se ve»), la coletilla que EXPLICA la frase en vez de rematarla
+(«…pero aquí se ve») y cualquier cosa que suene a taller de superación.
+
+**Al traducir una de estas, lo que hay que salvar es la vuelta, no las
+palabras.** Una traducción literal que pierde el giro deja una frase correcta y
+muerta. Cuando la broma no cruza, se cambia la broma: «las palomitas» no
+significan nada fuera de México y en inglés ese chiste lo hace `checkmarks`.
+La clave del diccionario es el texto español ENTERO, así que cambiarle una coma
+a una frase deja su traducción huérfana sin avisar.
 
 ## Correos
 
