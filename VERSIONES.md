@@ -218,6 +218,25 @@ reconocible, **complicidad y no consejo**, y el filtro de genérico de arriba. L
 que queda descartado por escrito: el proverbio, la coletilla explicativa y
 cualquier cosa que suene a taller de superación.
 
+**Y una quinta, que salió leyendo ya la tanda buena: la coletilla que REPITE.**
+«Del otro lado está todo lo tuyo, tal como lo dejaste. Nadie lo tocó» pasaba
+los cuatro filtros y aun así le sobraba la mitad: «tal como lo dejaste» ya dice
+que nadie lo tocó. Una vuelta remata; una coletilla subraya, y las dos se
+escriben igual de fácil. Se quedó en «Del otro lado está todo lo tuyo, tal como
+lo dejaste.»
+
+**Eso destapó algo que no se ve mirando una frase sola**, que es como se
+escriben: al cortarle el remate, esa frase terminaba en «tal como lo dejaste» y
+la de al lado en «justo donde la dejaste». Dos de doce con la misma cadencia.
+La segunda pasó a «Tu expedición sigue abierta. Nunca tuvo prisa.» Al tocar una
+frase hay que releer el banco entero.
+
+**Y una broma puede no cruzar sin salir de México.** «Las palomitas no se
+acumulan. Los niveles sí» hablaba de las marcas de verificación; Eduardo leyó
+botanas. La frase se cayó entera y en su sitio entró una que abre una familia
+que al banco le faltaba —lo que Norata NO hace—: «Aquí nadie te regaña por
+fallar. Solo ves el número, que es peor.»
+
 Las dos mitades las usan distinto, y es a propósito. En «crear» la vuelta es
 humor —«Subes de nivel por hacerlo, no por planearlo. Una lástima, ya sé»—
 porque ahí hay que ganarse a alguien que no conoce la app. En «entrar» es
@@ -230,9 +249,7 @@ talentos y proyectos no están el primer día —los abre el nivel de expedició
 así que la frase que los nombra dice que *se abren*: «No todo está abierto el
 primer día. Como en cualquier juego que valga la pena.»
 
-**Las 24 traducidas, y tres de ellas no literalmente.** «Las palomitas no se
-acumulan» no significa nada fuera de México; en inglés el chiste lo hace
-`checkmarks`. Al traducir una de estas lo que hay que salvar es la vuelta, no
+**Las 24 traducidas**, y al traducirlas lo que hay que salvar es la vuelta y no
 las palabras: una traducción literal que pierde el giro deja una frase correcta
 y muerta, que es justo lo que este banco se rehizo para no tener. Se fueron las
 17 entradas del diccionario que quedaron huérfanas. Una se quedó fuera de la
@@ -241,7 +258,7 @@ pequeños» vive en `js/10h-lecturas.js` y en el correo de bienvenida, así que
 tenerla TAMBIÉN aquí era decir lo mismo en dos sitios.
 
 **Comprobado abriendo la puerta veinte veces**, catorce en español y seis en
-inglés: rotan de verdad (9 de 12 en «entrar» y 11 de 12 en «crear», en catorce
+inglés: rotan de verdad (11 de 12 en «entrar» y 9 de 12 en «crear», en catorce
 aperturas), ninguna se sale del panel y la más alta mide 116 px. Y las 24 se
 traducen, comprobado pidiéndole a la puerta en inglés el `tx()` de las 24 en
 vez de fiarlo a lo que salga al azar: 0 sin traducir. Cero errores en consola.

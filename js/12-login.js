@@ -254,7 +254,24 @@ const PUERTA_FRASES = {
      Lo que NO funciona, comprobado: el proverbio («lo que se mide se ve»), la
      coletilla explicativa («…pero aquí se ve»), y cualquier cosa que suene a
      taller de superación. Suenan a relleno y se leen como una frase más del
-     montón. */
+     montón.
+
+     Y una quinta, que la vio Eduardo sobre la tanda ya buena: **la coletilla
+     que REPITE lo que la frase acaba de decir.** «…tal como lo dejaste. Nadie
+     lo tocó» — la segunda mitad no tuerce nada, subraya. Una vuelta remata;
+     una coletilla subraya, y las dos se escriben igual de fácil.
+
+     Dos cosas al tocar una frase de aquí:
+       · **releer el banco entero.** Al cortarle esa coletilla, esa frase
+         acabó en «tal como lo dejaste» y la de abajo en «justo donde la
+         dejaste»: dos de doce con el mismo remate, y eso no se ve mirando
+         una sola, que es como se escriben;
+       · **la traducción se va con ella** (`js/00b-textos-en.js`). La clave
+         del diccionario es el texto español entero, así que cambiarle una
+         coma deja la puerta en inglés enseñando español, y sin avisar.
+
+     Y una broma puede no cruzar sin salir de México: «las palomitas no se
+     acumulan» hablaba de las marcas de verificación y se leyó como botanas. */
 
   /* ---- QUIEN VUELVE ----
      Aquí no hay nada que vender: ya decidió, y el formulario de al lado es de
@@ -262,10 +279,10 @@ const PUERTA_FRASES = {
      vuelve después de semanas, que es quien más miedo tiene de haber perdido
      algo. La sonrisa, en este lado, es complicidad y no chiste. */
   entrar: [
-    "Del otro lado está todo lo tuyo, tal como lo dejaste. Nadie lo tocó.",
+    "Del otro lado está todo lo tuyo, tal como lo dejaste.",
     "Nada de lo que construiste se fue a ningún lado. Te estaba esperando.",
     "Volver también cuenta. De hecho, es la parte difícil.",
-    "Tu expedición sigue abierta, justo donde la dejaste.",
+    "Tu expedición sigue abierta. Nunca tuvo prisa.",
     "Los días que no abriste la app también son parte del camino.",
     "Hoy basta con una cosa pequeña. En serio, con una.",
     "La racha se corta; el camino no.",
@@ -286,7 +303,7 @@ const PUERTA_FRASES = {
      que se abre— en vez de esconderlo. */
   crear: [
     "Aquí las habilidades bajan si las dejas. Sí, ya sabemos cuál estás pensando.",
-    "Las palomitas no se acumulan. Los niveles sí.",
+    "Aquí nadie te regaña por fallar. Solo ves el número, que es peor.",
     "Si tu vida fuera un videojuego, llevarías rato sin abrir el menú de personaje.",
     "Lo grande no cabe en una lista de pendientes. Por eso aquí hay un árbol.",
     "Lo de hoy se marca de un toque. Lo de dentro de un año lo lleva la app.",
