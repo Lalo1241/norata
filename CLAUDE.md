@@ -735,6 +735,18 @@ Decisiones ya cerradas. No volver a proponerlas.
 - **Los comentarios del código explican POR QUÉ**, no qué hace la línea, y
   cuentan el fallo que motivó la decisión para que nadie lo deshaga sin saber.
 
+**Y donde se le habla a quien NO conoce la app, se dice lo que Norata hace y
+nadie más.** Es de Eduardo (0.7.124), y el único sitio así hoy es el panel de
+la puerta en «crear cuenta». La regla para escribir una frase nueva ahí: **si
+la podría firmar una app de hábitos cualquiera, no es de ese banco.** Lo que
+había era un aforismo bonito y genérico ocupando lo primero que se lee.
+
+**Un banco de frases se cuenta por IDEAS, no por frases.** El de la puerta
+tenía cinco por camino y se sentía repetitivo porque cuatro de las cinco
+decían lo mismo con otras palabras; subir a quince más de lo mismo no lo
+habría arreglado. Al añadir una, la pregunta es a qué familia pertenece —
+están escritas junto a `PUERTA_FRASES` (`js/12-login.js`).
+
 ## Correos
 
 Son seis; cinco se pegan a mano en Supabase y el de bienvenida lo manda una

@@ -737,16 +737,47 @@ const TEXTOS_EN = {
     "Your expedition is still open, right where you left it.",
   "Los días que no abriste la app también son parte del camino.":
     "The days you didn't open the app are part of the road too.",
-  "Todo lo que admiras de alguien empezó siendo un martes cualquiera.":
-    "Everything you admire in someone started out as an ordinary Tuesday.",
-  "Una habilidad no sube porque lo decidas hoy. Sube porque lo repitas.":
-    "A skill doesn't rise because you decide it today. It rises because you repeat it.",
   "Tienes por delante un camino largo, y se recorre en días pequeños.":
     "You have a long road ahead, and it's walked in small days.",
+  /* Las frases del panel de la puerta (`PUERTA_FRASES`, js/12-login.js). */
+  "Hoy hay algo pequeño esperándote. Con eso basta.":
+    "There's something small waiting for you today. That's enough.",
+  "La racha se corta; el camino no.":
+    "A streak breaks; the road doesn't.",
+  "Nadie lleva un año seguido. Se lleva un día, y luego otro.":
+    "Nobody does a year straight. You do a day, and then another.",
+  "Tus habilidades bajan si las dejas, pero nunca vuelves a empezar de cero.":
+    "Your skills drop if you leave them, but you never start over from zero.",
+  "Lo que dejaste a medias sigue a medias, que es mucho mejor que en blanco.":
+    "What you left half done is still half done, which beats blank by a lot.",
+  "Entra, mira qué toca hoy, y ya. Así se hace largo.":
+    "Come in, see what today asks, and that's it. That's how it lasts.",
+  "El progreso lento sigue siendo progreso.":
+    "Slow progress is still progress.",
+  "Tus habilidades bajan si las dejas. Como en la vida real, pero aquí se ve.":
+    "Your skills drop if you leave them. Like real life, only here you can see it.",
+  "Un hábito no es una casilla: es una habilidad que sube de nivel.":
+    "A habit isn't a checkbox here: it's a skill that levels up.",
+  "Las cosas grandes viven en un árbol que se abre conforme avanzas.":
+    "The big things live in a tree that opens as you go.",
+  "Tu vida, tratada como la partida larga que es.":
+    "Your life, treated like the long game it is.",
+  "Las misiones de hoy se marcan de un toque. El resto lo lleva la app.":
+    "Today's missions take one tap. The app carries the rest.",
+  "Subes de nivel por lo que haces, no por lo que te propones.":
+    "You level up for what you do, not for what you mean to do.",
+  "Empiezas de Andante. A Navegante se llega caminando.":
+    "You start as Wayfarer. Navigator is reached on foot.",
+  "No es una lista de pendientes. Es una partida que ya empezó.":
+    "It isn't a to-do list. It's a game already under way.",
+  "Un proyecto grande avanza por etapas, y aquí se ven todas.":
+    "A big project moves in stages, and here you see every one.",
+  "Rachas, XP y niveles: lo que un videojuego te da por jugar, por vivir.":
+    "Streaks, XP and levels: what a video game gives you for playing, for living.",
+  "Talentos y proyectos no están el primer día. Se abren, y por eso saben a algo.":
+    "Talents and projects aren't there on day one. They open, and that's why they land.",
   "Lo que se mide se ve, y lo que se ve se sostiene.":
     "What gets measured gets seen, and what gets seen holds up.",
-  "Los días grandes no se deciden: se construyen con los pequeños.":
-    "Big days aren't decided. They're built out of small ones.",
   "Misiones para hoy, que se marcan de un toque.":
     "Missions for today, checked off in one tap.",
   "Habilidades que suben con la práctica y bajan si las dejas.":
