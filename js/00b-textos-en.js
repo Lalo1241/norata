@@ -736,22 +736,21 @@ const TEXTOS_EN = {
      salvar no son las palabras: es la VUELTA del final. Una traducción literal
      que pierde el giro deja una frase correcta y muerta, que es justo lo que
      este banco se rehizo para no tener. Cuando la broma no cruza, se cambia la
-     broma — «las palomitas» no significan nada fuera de México, y en inglés lo
-     que hace ese chiste es `checkmarks`.
+     broma.
 
      Al tocar una frase en `12-login.js` hay que venir aquí: la clave es el
      texto español entero, así que cambiarle una coma allí deja la traducción
      huérfana y la puerta en inglés enseña español, sin avisar. */
 
   /* Quien vuelve. */
-  "Del otro lado está todo lo tuyo, tal como lo dejaste. Nadie lo tocó.":
-    "Everything of yours is on the other side, just as you left it. Nobody touched it.",
+  "Del otro lado está todo lo tuyo, tal como lo dejaste.":
+    "Everything of yours is on the other side, just as you left it.",
   "Nada de lo que construiste se fue a ningún lado. Te estaba esperando.":
     "Nothing you built went anywhere. It was waiting for you.",
   "Volver también cuenta. De hecho, es la parte difícil.":
     "Coming back counts too. It's the hard part, actually.",
-  "Tu expedición sigue abierta, justo donde la dejaste.":
-    "Your expedition is still open, right where you left it.",
+  "Tu expedición sigue abierta. Nunca tuvo prisa.":
+    "Your expedition is still open. It was never in a hurry.",
   "Los días que no abriste la app también son parte del camino.":
     "The days you didn't open the app are part of the road too.",
   "Hoy basta con una cosa pequeña. En serio, con una.":
@@ -772,8 +771,8 @@ const TEXTOS_EN = {
   /* Quien llega nuevo. */
   "Aquí las habilidades bajan si las dejas. Sí, ya sabemos cuál estás pensando.":
     "Skills drop here if you leave them. Yes, we know which one you're thinking of.",
-  "Las palomitas no se acumulan. Los niveles sí.":
-    "Checkmarks don't add up to anything. Levels do.",
+  "Aquí nadie te regaña por fallar. Solo ves el número, que es peor.":
+    "Nobody here scolds you for missing a day. You just see the number, which is worse.",
   "Si tu vida fuera un videojuego, llevarías rato sin abrir el menú de personaje.":
     "If your life were a video game, you'd have gone a while without opening the character menu.",
   "Lo grande no cabe en una lista de pendientes. Por eso aquí hay un árbol.":

@@ -758,12 +758,27 @@ las tres se colaron en la primera versión y suenan a relleno: el proverbio
 («lo que se mide se ve»), la coletilla que EXPLICA la frase en vez de rematarla
 («…pero aquí se ve») y cualquier cosa que suene a taller de superación.
 
+**Y la quinta cosa, que es un NO y la puso Eduardo leyendo la tanda buena:
+la coletilla que repite lo que la frase ya dijo, sobra.** «Del otro lado está
+todo lo tuyo, tal como lo dejaste. Nadie lo tocó» — «tal como lo dejaste» ya
+dice que nadie lo tocó, así que la segunda mitad no tuerce nada: subraya. Una
+vuelta REMATA; una coletilla REPITE, y las dos se escriben igual de fácil, que
+es por lo que hay que mirarlas.
+
+**Y ojo con lo que una frase le hace a su vecina.** Al quitar esa coletilla, la
+frase acabó en «tal como lo dejaste» y la de al lado terminaba en «justo donde
+la dejaste»: dos de doce con el mismo remate. No lo ve nadie mirando una sola
+frase, que es como se escriben — hay que releer el banco entero después de
+tocar una.
+
 **Al traducir una de estas, lo que hay que salvar es la vuelta, no las
 palabras.** Una traducción literal que pierde el giro deja una frase correcta y
-muerta. Cuando la broma no cruza, se cambia la broma: «las palomitas» no
-significan nada fuera de México y en inglés ese chiste lo hace `checkmarks`.
-La clave del diccionario es el texto español ENTERO, así que cambiarle una coma
-a una frase deja su traducción huérfana sin avisar.
+muerta. Cuando la broma no cruza, se cambia la broma. Y hay una trampa antes de
+esa: una broma puede no cruzar dentro del propio español de México — «las
+palomitas no se acumulan» hablaba de las marcas de verificación y Eduardo leyó
+botanas. Esa se cayó del banco entera. La clave del diccionario es el texto
+español ENTERO, así que cambiarle una coma a una frase deja su traducción
+huérfana sin avisar.
 
 ## Correos
 
