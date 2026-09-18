@@ -8043,6 +8043,44 @@
   }
   .portada-o { display: flex; align-items: center; gap: 10px; margin: 18px 0 12px; color: var(--faint); font-size: 12px; }
   .portada-o::before, .portada-o::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  /* ---- El hueco de Google, reservado desde el primer fotograma ----
+     El botón llega de una petición al servidor de cuentas, así que hasta que
+     contesta no hay nada aquí — y sin reserva, al llegar empujaba todo lo de
+     abajo 88 px de golpe. Eduardo lo pidió pulido y es de las cosas que se
+     notan sin poder decir qué fue.
+
+     Los 88 son el botón (46) más la rayita del «o» con sus márgenes (42), y
+     están escritos aquí porque es donde se puede medir: si alguna de las dos
+     cosas cambia de alto, este número cambia con ellas.
+
+     Tres estados y cada clase es un momento:
+       `reservado`  esperando: el alto está guardado y no hay nada dentro
+       `puesto`     llegó: se desvanece hacia arriba
+       `vacio`      no hay Google: el hueco se cierra en vez de quedarse blanco
+
+     Se anima `opacity` y `transform` —valores literales— y NUNCA algo que
+     salga de una variable, que es la trampa de la casa: se quedaría congelado
+     en el inicial. Y es una ANIMACIÓN y no una transición porque el contenido
+     acaba de nacer: desde algo que no existía, una transición no arranca. */
+  #portada-google.reservado { min-height: 88px; }
+  #portada-google.puesto > * { animation: googleEntra 0.3s var(--curva) both; }
+  #portada-google.puesto > .portada-o { animation-delay: 0.05s; }
+  @keyframes googleEntra {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: none; }
+  }
+  /* Cerrarse SÍ se puede animar —el alto es un número literal— y estirarse no,
+     que es por lo que se reserva de más y no de menos cuando no se sabe. */
+  #portada-google.vacio {
+    min-height: 0;
+    transition: min-height 0.26s var(--curva);
+  }
+  /* Quien no quiere movimiento ve el botón aparecer puesto, sin desvanecido: lo
+     que molesta es el desplazamiento, no que algo exista. */
+  @media (prefers-reduced-motion: reduce) {
+    #portada-google.puesto > * { animation: none; }
+  }
+
   .portada-google { display: flex; align-items: center; justify-content: center; gap: 10px; }
   .portada-google svg { width: 17px; height: 17px; flex: none; }
   .portada-sin {
@@ -8100,28 +8138,34 @@
      dos desvanecidos solo consigue enseñar un instante lo que hay debajo. */
   .portada.sin-anim { animation: none; }
 
-  /* Cabecera de «crear cuenta». La flecha de volver no es un adorno: una
-     pantalla nueva sin salida visible es la forma más rápida de que alguien
-     se sienta atrapado y cierre la app. */
-  .portada-cab { display: flex; align-items: center; gap: 11px; margin-bottom: 20px; }
-  .portada-cab h2 { font-size: 19px; }
-  .portada-volver {
-    width: 38px; height: 38px; flex: none; display: grid; place-items: center;
-    background: none; border: var(--borde-fino) solid var(--line); border-radius: 11px;
-    color: var(--text); cursor: pointer; font-size: 17px; font-family: inherit;
-  }
-  .portada-volver:hover { border-color: var(--mint); color: var(--mint); }
+  /* La cabecera, y es LA MISMA en las dos pantallas: el título a la izquierda
+     y el enlace a la otra al otro extremo. La escribe `portadaCabHTML`
+     (`js/10c-portada.js`), que es lo que garantiza que el título caiga en el
+     mismo sitio — con dos maquetaciones no se sostiene.
 
-  /* La flecha que cruza a la OTRA pantalla, al otro extremo de la cabecera.
-     `margin-left: auto` y no `justify-content: space-between`: la cabecera de
-     crear cuenta es una fila con la flecha de volver y el título pegados por
-     su `gap`, y repartir el espacio los habría separado. */
-  .portada-cruce {
-    margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 5px;
-    background: none; border: 0; padding: 6px 2px; cursor: pointer;
-    font: inherit; font-size: 13px; font-weight: 700; color: var(--mint);
+     `align-items: baseline` para que el título y el enlace se apoyen en la
+     misma línea de escritura aunque midan distinto; con `center` el enlace
+     quedaba medio píxel alto y se notaba al comparar las dos pantallas. */
+  .portada-cab {
+    display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px;
   }
-  .portada-cruce span { font-size: 15px; line-height: 1; }
+  .portada-cab h2 { font-size: 21px; margin: 0; }
+
+  /* El enlace a la otra pantalla. Va en menta y en negrita porque es el único
+     camino que se ofrece ahí, pero sin fondo ni borde: con caja competía con
+     el botón de abajo, que es lo que se ha venido a pulsar.
+
+     `margin-left: auto` y no `justify-content: space-between`: así la regla
+     vale igual el día que la cabecera tenga tres cosas en vez de dos. */
+  .portada-cruce {
+    margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 4px;
+    background: none; border: 0; padding: 4px 2px; cursor: pointer;
+    font: inherit; font-size: 13px; font-weight: 700; color: var(--mint);
+    white-space: nowrap;
+  }
+  /* El galón es un adorno —`aria-hidden` en el marcado— y se dibuja un pelo
+     más grande que la palabra para que no parezca una errata. */
+  .portada-cruce span { font-size: 16px; line-height: 1; }
   .portada-cruce:hover { text-decoration: underline; }
 
   /* El puente entre las dos pantallas. Va en tono apagado y con el verbo en
@@ -8252,6 +8296,19 @@
      613 en un teléfono, en los tres pasos. */
   .crear-pasos .paso { min-height: 271px; }
 
+  /* La fila de los puntos, con el paso atrás a su izquierda. Tres columnas y
+     no dos: la tercera está vacía y existe para que los puntos queden
+     centrados en la TARJETA y no en el hueco que le deja el enlace. */
+  .paso-fila {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+    margin-bottom: 4px;
+  }
+  .paso-fila .paso-puntos { grid-column: 2; }
+  .paso-atras { grid-column: 1; margin: 0; justify-self: start; font-size: 12.5px; }
+  /* En el primer paso no hay atrás, pero su hueco se queda: con `display:
+     none` los puntos se descentraban al pasar del primero al segundo. */
+  .crear-pasos[data-en="1"] .paso-atras { visibility: hidden; }
+
   /* Los tres puntos. No es una barra de progreso con porcentaje: son tres, se
      cuentan de un vistazo, y lo que hay que saber aquí no es «cuánto llevas»
      sino «cuánto falta» — y falta poco, que es justo lo que hay que decir. */
@@ -8285,9 +8342,16 @@
      en `VERSIONES.md` cuenta cómo era. */
 
   /* ---------- La puerta de dos columnas (0.7.117) ----------
-     Solo vive en la PUERTA: el bloque no toca a `.portada` cuando se abre
-     dentro de la app —desde Ajustes, a crear la cuenta—, porque el panel de al
-     lado solo existe en `login/index.html`. Estuvo detrás de `?puerta=` toda
+     Solo vive en la PUERTA, y desde 0.7.123 eso está ESCRITO: todas las reglas
+     que tocan `.portada` van detrás de `html.puerta`, que es una clase estática
+     de `login/index.html`.
+
+     Antes decía aquí mismo que el bloque «no toca a la app porque el panel de
+     al lado solo existe en la puerta», y era falso: `.portada { right: 46% }`
+     no necesita el panel para aplicarse. Medido a 1440 px con la portada
+     abierta desde Ajustes: `right: 658px`, 772 px de ancho — o sea que el login
+     que tapa la pantalla entera tapaba solo la mitad izquierda y dejaba la app
+     a la vista y pulsable por la derecha. Lo cazó una medición, no la vista. Estuvo detrás de `?puerta=` toda
      la 0.7.115 y se encendió para todos en la 0.7.117.
 
      Lo que hace y lo que no: el formulario no cambia ni una línea. Lo único
@@ -8317,21 +8381,27 @@
      centrado: medido, el principio del formulario quedaba 80 px por encima del
      borde de arriba, y ahí no llega el desplazamiento. Es la misma trampa que
      ya mordió en la portada, y por eso `.portada` no se centra así. */
-  .portada {
+  html.puerta .portada {
     flex-direction: column; justify-content: flex-start;
-    /* Hueco arriba y abajo para lo que flota encima: el rótulo de la prueba
-       —que se va con ella— y el grupo de idioma y aspecto, que se queda. Los
-       92 de arriba son para el teléfono, donde el rótulo se parte en dos
-       renglones y mide 68; en pantalla ancha no hace falta ninguno porque el
-       rótulo cae sobre el panel de al lado y no sobre el formulario, y la
-       regla de abajo devuelve el relleno normal. */
-    padding-top: calc(env(safe-area-inset-top) + 92px);
-    padding-bottom: calc(env(safe-area-inset-bottom) + 74px);
+    /* Hueco arriba para la fila de la esquina —la marca y los dos controles—,
+       que va fija encima de todo: 30 de alto, 20 de borde y un respiro. Los 92
+       de antes eran del rótulo de la prueba, que ya no existe, y los 74 de
+       abajo eran de los controles cuando vivían en esa esquina. */
+    padding-top: calc(env(safe-area-inset-top) + 72px);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 28px);
   }
-  /* Auto arriba y cero abajo en el formulario, y al revés en el panel: entre
-     los dos se reparten el hueco libre y el grupo queda centrado, pero al
-     faltar sitio los dos `auto` se quedan en cero y no hay nada inalcanzable. */
-  .portada > .portada-caja { margin: auto auto 0; }
+  /* La tarjeta se apoya ARRIBA y el hueco que sobra se va abajo (`margin-top:
+     0`, `margin-bottom: auto`). Dos cosas se ganan con eso y las dos se
+     midieron:
+
+       · el título cae en el mismo píxel en las dos pantallas —lo pidió
+         Eduardo—, y centrando no puede: las dos tarjetas miden distinto y el
+         centrado las cuelga de alturas distintas (248 contra 296 en un
+         teléfono de 844);
+       · y nada queda inalcanzable cuando no cabe, que es lo que tenía que
+         resolver el `auto` de arriba: con cero no hay nada que recortar por
+         arriba, y el desplazamiento no llega a negativos. */
+  html.puerta .portada > .portada-caja { margin: 0 auto auto; }
   .puerta-lado {
     display: flex; flex-direction: column; gap: 16px;
     width: 100%; max-width: 360px; margin: 26px auto auto;
@@ -8390,13 +8460,24 @@
   /* Desde 900 px hay sitio para las dos columnas de verdad: el formulario se
      queda en la izquierda y el panel se va a la derecha de borde a borde. */
   @media (min-width: 900px) {
-    .portada { right: 46%; padding: 34px 34px 62px; }
+    html.puerta .portada { right: 60%; padding: 34px 34px 62px; }
     /* Con el panel ya fuera del flujo, el formulario vuelve a ser hijo único y
        se centra como siempre: con `margin: auto`, que reparte el hueco cuando
        sobra y vale cero cuando falta. */
-    .portada > .portada-caja { margin: auto; }
+    /* El título en el MISMO sitio en las dos pantallas, que es lo que pidió
+       Eduardo. Centrado a lo alto no se puede: las dos tarjetas miden distinto
+       —una tiene dos campos y la otra uno más los puntos— y el centrado las
+       cuelga de alturas distintas. Con un margen de arriba fijo, el título de
+       las dos cae en el mismo píxel.
+
+       Y `auto` abajo, no un número: así la tarjeta se apoya arriba y el hueco
+       que sobra se va abajo, en vez de tener que sumar dos márgenes que
+       peleen. Por debajo de 900 px manda la regla de arriba (`auto auto 0`),
+       que es la que evita que el principio del formulario quede fuera cuando
+       no cabe. */
+    html.puerta .portada > .portada-caja { margin: clamp(74px, 15vh, 168px) auto auto; }
     .puerta-lado {
-      position: fixed; inset: 0 0 0 54%;
+      position: fixed; inset: 0 0 0 40%;
       width: auto; max-width: none; margin: 0;
       justify-content: center; gap: 20px;
       padding: 48px min(7vw, 78px);
@@ -8407,11 +8488,42 @@
     .puerta-lista li { font-size: 14.5px; }
   }
 
+  /* ---- La marca, quieta en la esquina (0.7.123) ----
+     Arriba a la izquierda y FUERA de la tarjeta, como la de Supabase. Dentro
+     de la tarjeta crecía y se encogía con la pantalla y empujaba el título a
+     una altura distinta en cada una de las dos — que es lo que Eduardo pidió
+     arreglar. Aquí no se mueve nunca, y de paso nada de lo que hay debajo
+     depende de su alto.
+
+     Nace SIN `src`: lo pone `pintarTema()`, que es quien sabe cuál de los dos
+     archivos toca —el claro va sobre fondo oscuro—. Escribir uno en el marcado
+     habría enseñado el logotipo equivocado durante un fotograma en modo claro.
+     El hueco está reservado con ancho y alto, así que la esquina no se mueve
+     cuando llega. */
+  .puerta-marca {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 20px); left: 24px;
+    z-index: var(--piso-idioma-puerta);
+    height: 30px; display: flex; align-items: center;
+  }
+  .puerta-marca .portada-logo {
+    width: 118px; max-width: none; height: auto; margin: 0;
+  }
+  /* Y en la pantalla de contraseña nueva se quita el de la tarjeta: en la
+     puerta ya hay uno en la esquina, y dos logotipos en una pantalla que se
+     abre desde el enlace de un correo se leen como un error. */
+  html.puerta #nueva-clave .portada-logo { display: none; }
+
   /* ---- Idioma y aspecto, en la puerta ----
-     Abajo a la izquierda, los dos juntos y en la misma esquina: son la misma
-     clase de cosa —cómo te habla la app, decidido antes de entrar— y separados
-     se leen como dos controles que no tienen que ver. Fuera del formulario,
-     que es donde se buscan y donde no estorban a lo que se ha venido a hacer.
+     Arriba a la DERECHA desde 0.7.123, a la altura de la marca y en la misma
+     línea: es donde Supabase pone su «Documentation», y lo pidió Eduardo
+     comparando las dos pantallas. Antes vivían abajo a la izquierda, que era
+     el sitio libre cuando la marca estaba dentro de la tarjeta.
+
+     Los dos juntos y en la misma esquina: son la misma clase de cosa —cómo te
+     habla la app, decidido antes de entrar— y separados se leen como dos
+     controles que no tienen que ver. Fuera del formulario, que es donde se
+     buscan y donde no estorban a lo que se ha venido a hacer.
 
      Encima de la portada (`--piso-idioma-puerta`), porque la portada tapa la
      pantalla entera y cualquier cosa por debajo se dibuja pero no se puede
@@ -8423,7 +8535,11 @@
   .puerta-ajustes {
     display: flex; align-items: center; gap: 8px;
     position: fixed;
-    left: 12px; bottom: calc(env(safe-area-inset-bottom) + 14px);
+    top: calc(env(safe-area-inset-top) + 20px); right: 22px;
+    /* Los 30 px son el alto de `.puerta-marca`: las dos esquinas se apoyan en
+       la misma caja, así que el logotipo y las pastillas quedan alineados a lo
+       alto sin depender de cuánto mida cada uno por dentro. */
+    height: 30px;
     z-index: var(--piso-idioma-puerta);
   }
   /* Las dos pastillas se dibujan igual, y la del aspecto es el control de
@@ -8496,14 +8612,18 @@
      a ser el normal, porque ahí ya no flota nada desde que se fue el rótulo de
      la prueba. */
   @media (max-width: 640px) {
-    .puerta-ajustes {
-      left: 50%; right: auto; transform: translateX(-50%);
-      bottom: calc(env(safe-area-inset-bottom) + 14px); top: auto;
-    }
+    /* Se quedan arriba a la derecha, enfrente de la marca, y NO centrados
+       abajo como estaban: la marca se mudó a esta esquina en la 0.7.123 y los
+       dos controles son su pareja. El fondo queda libre, que es donde acaba el
+       formulario. */
+    .puerta-marca { left: 18px; }
+    .puerta-ajustes { right: 14px; }
     .puerta-lado { display: none; }
-    .portada {
-      padding-top: calc(env(safe-area-inset-top) + 24px);
-      padding-bottom: calc(env(safe-area-inset-bottom) + 70px);
+    html.puerta .portada {
+      /* Sitio para la fila de arriba: 30 de alto más los 20 del borde y un
+         respiro. Antes eran 92 por el rótulo de la prueba, que ya no está. */
+      padding-top: calc(env(safe-area-inset-top) + 72px);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
     }
     /* Y el dedo pide más que el ratón: los mismos botones vuelven a 32 px de
        alto. Se escribe como `min-height` y no como relleno para que el número

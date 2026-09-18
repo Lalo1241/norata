@@ -674,7 +674,7 @@ const TEXTOS_EN = {
   "Repítela": "Type it again",
   "Crear cuenta": "Create account",
   "Iniciar sesión": "Sign in",
-  "Volver al paso anterior": "Back to the previous step",
+  "Volver a mi cuenta": "Back to my account",
   /* Los tres pasos del alta (`crear-pasos`, `js/10c-portada.js`). La puerta se
      abre en inglés igual que en español, así que un paso sin traducir se ve en
      mitad del camino y no al final, que es donde se mira. */
