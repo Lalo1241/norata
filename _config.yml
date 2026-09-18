@@ -46,6 +46,11 @@
 #    vuelve a pedir una imagen que ya guardó. Quitarlas rompería los
 #    correos viejos para siempre.
 #  · `caminos/caminos.json` — se pide en caliente, no está en `ASSETS`.
+#  · `404.html` — es la pantalla de error propia (0.7.122). GitHub Pages la
+#    sirve para cualquier dirección que no exista; excluida, el 404 vuelve a
+#    ser el gris de GitHub. Y el fallo no cambia el NÚMERO de la respuesta,
+#    solo lo que se ve, así que lo vigila `comprobar-publicado.py` mirando el
+#    cuerpo y no el código.
 #  · `css/mundos.css` y `css/ambientes.css` — son los archivos GENERADOS
 #    que sí usa la app. Sus fuentes (`mundos/`, `apariencias/`) no, y por
 #    eso esas carpetas enteras sí se excluyen: se comprobó que ningún
