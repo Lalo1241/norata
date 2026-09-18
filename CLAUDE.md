@@ -178,6 +178,13 @@ La pista que lo delata: `el.getAnimations()` devuelve transiciones `running`
 que no terminan. Y afecta a todo lo que se anime — el ancho de la barra
 plegada medía 246 px en vez de 84 por lo mismo.
 
+**Y la hermana de esa trampa, que es al revés: medir MIENTRAS una animación
+avanza.** Hay que saltarlas antes de CADA medición, no solo antes de la
+última. El salto del botón de Google (0.7.123) salió primero en 7-8 px y no
+había ningún salto: la medición pillaba la animación de entrada del paso a
+medio vuelo, así que lo que se leía era su `translateY` y no la maqueta. Dos
+vueltas buscando una maqueta que estaba bien.
+
 Y contrastar con un control conocido: al comprobar si algo ya está publicado,
 pedir también un archivo que ya funcionaba. Si el control falla, lo que está
 roto es la prueba, no el archivo.

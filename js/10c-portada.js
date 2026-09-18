@@ -225,18 +225,16 @@ function portadaPasoIr(n) {
 function portadaPasoPintar() {
   const caja = document.querySelector(".crear-pasos");
   if (caja) caja.setAttribute("data-en", portadaPaso);
-  document.querySelectorAll(".paso-puntos i").forEach((punto, i) => {
-    punto.classList.toggle("on", i + 1 <= portadaPaso);
+  /* Fila por fila, y no todos los puntos de la página de una vez: desde que el
+     contador vive DENTRO de cada paso hay TRES filas en el marcado, así que un
+     `querySelectorAll` de los puntos devuelve nueve y el índice se sale de
+     cuenta a partir del cuarto — los pasos 2 y 3 salían con los tres puntos
+     apagados. */
+  document.querySelectorAll(".paso-puntos").forEach(fila => {
+    Array.prototype.forEach.call(fila.children, (punto, i) => {
+      punto.classList.toggle("on", i + 1 <= portadaPaso);
+    });
   });
-  /* La flecha de arriba también, porque lo que HACE cambia con el paso: en el
-     primero sale a iniciar sesión y en los otros retrocede uno. La cabecera se
-     pinta una sola vez, así que si no se actualiza aquí se queda con la
-     etiqueta del paso en que se abrió. */
-  const flecha = document.querySelector(".portada-volver");
-  if (flecha) {
-    flecha.setAttribute("aria-label", portadaPaso > 1
-      ? tx("Volver al paso anterior") : tx("Volver a iniciar sesión"));
-  }
   const b = document.getElementById("portada-ok");
   if (!b) return;
   const ultimo = portadaPaso === PORTADA_PASOS;
@@ -325,6 +323,25 @@ function mostrarPortada(modo) {
    los enlaces traducidos y la frase en español. Y «y el» no se puede meter en
    el diccionario por su cuenta: es un fragmento que aparece suelto en media
    app. */
+/* La cabecera de las dos pantallas, en una sola función: el título a la
+   izquierda y el enlace a la OTRA pantalla al otro extremo. Existe porque
+   Eduardo pidió que el título cayera en el mismo sitio en las dos, y con dos
+   maquetaciones eso no se sostiene — la primera vez que una cambie, la otra
+   se queda atrás.
+
+   Y el enlace es un ENLACE con su palabra, no una flecha suelta: la flecha
+   cuadrada que había antes pesaba como un botón, movía el título de sitio
+   según si estaba o no, y no decía a dónde llevaba. El galón (‹ ›) es un
+   adorno y va fuera del árbol de accesibilidad; lo que se lee es la palabra. */
+function portadaCabHTML(titulo, cruce) {
+  const enlace = cruce
+    ? `<button class="portada-cruce" onclick="${cruce.fn}">${
+        cruce.atras ? '<span aria-hidden="true">\u2039</span> ' : ""}${escapeHtml(cruce.texto)}${
+        cruce.atras ? "" : ' <span aria-hidden="true">\u203a</span>'}</button>`
+    : "";
+  return `<div class="portada-cab"><h2>${escapeHtml(titulo)}</h2>${enlace}</div>`;
+}
+
 function portadaLegalHTML(clase) {
   const aTerminos = `<a href="${legalBase()}terminos/" target="_blank" rel="noopener">${tx("términos")}</a>`;
   const aPrivacidad = `<a href="${legalBase()}privacidad/" target="_blank" rel="noopener">${tx("aviso de privacidad")}</a>`;
@@ -350,24 +367,13 @@ function portadaPintar(modo) {
        nada—, y su ayuda dice qué usaremos si se deja vacío en vez de callarlo:
        nadie escribe un apodo si no sabe qué se evita con él. */
     dentro =
-      `${/* El logotipo va también aquí, y hasta ahora solo estaba en la
-             pantalla de entrar. Quien llega por «Empieza gratis» de la landing
-             aterriza DIRECTO en esta: sin marca, la única pantalla donde se
-             escribe una contraseña no decía de quién era. Lo pidió Eduardo.
-
-             Y es el `chico`: con el logotipo de 172 px, el título y los tres
-             puntos encima del formulario, la tarjeta no cabía en una pantalla
-             de 480 px de alto — medido. */""}
-       <img class="portada-logo chico" src="${logotipoSrc()}" alt="Norata">
-       <div class="portada-cab">
-         ${/* La flecha dice a dónde va, y eso CAMBIA con el paso: en el primero
-              sale a iniciar sesión y en los otros dos retrocede un paso. Con
-              una sola etiqueta fija, en el paso 3 el lector de pantalla
-              prometía «volver a iniciar sesión» y lo que hacía era ir al 2. */""}
-         <button class="portada-volver" onclick="portadaCrearAtras()" aria-label="${
-           escapeAttr(portadaPaso > 1 ? tx("Volver al paso anterior") : tx("Volver a iniciar sesión"))}">←</button>
-         <h2>${tx("Crear tu cuenta")}</h2>
-       </div>
+      `${/* El logotipo NO va en la tarjeta: vive fijo en la esquina de la
+             puerta (`.puerta-marca` en `login/index.html`), como el de
+             Supabase. Dentro de la tarjeta crecía y se encogía según la
+             pantalla y empujaba el título a una altura distinta en cada una,
+             que es justo lo que Eduardo pidió arreglar. */""}
+       ${portadaCabHTML(tx("Crear tu cuenta"),
+         { fn: "portadaIrA('entrar')", texto: tx("Iniciar sesión"), atras: true })}
        <div id="portada-error" class="portada-error" hidden></div>
        <!-- ---- Dónde está el consentimiento, que se ha movido dos veces ----
             Empezó debajo del botón, subió al principio en la 0.7.115 —cuando
@@ -425,15 +431,51 @@ function portadaPintar(modo) {
             cuenta ya existía, se descubre en el primer paso y no después de
             haber contestado tres. */
          const titulo = (n, t, p) => `<p class="paso-tit"><b>${escapeHtml(tx(t))}</b><span>${escapeHtml(tx(p))}</span></p>`;
+
+         /* ---- El contador va DENTRO de cada paso, y en el primero DEBAJO de
+                 Google ----
+            Estaba encima de los tres, y encima también del botón de Google — y
+            ahí decía una mentira: anuncia tres pantallas que quien entra con
+            Google no hace ninguna. Lo vio Eduardo. Ahora cuelga del camino a
+            pie, que es el único que las tiene: debajo de la rayita del «o».
+
+            Por eso se escribe tres veces, una por paso, en vez de una sola
+            encima: la alternativa era dejarlo arriba y esconderlo en el primer
+            paso, y entonces al pasar al segundo APARECÍA y empujaba todo —el
+            salto que la 0.7.123 acaba de quitar—. Solo hay un `.paso` visible
+            a la vez, así que solo se ve uno; `portadaPasoPintar` marca los
+            puntos de los tres con un `querySelectorAll`, que ya los recorría
+            todos.
+
+            El paso atrás vive en esta misma fila —antes era la flecha cuadrada
+            de la cabecera, y allí ya no cabe: esa fila la ocupan el título y
+            el enlace a la otra pantalla, iguales en las dos—. Su hueco se
+            reserva en el primer paso en vez de quitarlo (`visibility`), o los
+            puntos se descentrarían al pasar al segundo. */
+         const fila = `<div class="paso-fila">
+               <button class="portada-cruce paso-atras" onclick="portadaCrearAtras()"><span aria-hidden="true">\u2039</span> ${tx("Atrás")}</button>
+               <div class="paso-puntos" aria-hidden="true">${
+                 [1, 2, 3].map(n => `<i class="${n <= portadaPaso ? "on" : ""}"></i>`).join("")}</div>
+             </div>`;
          return `<div class="crear-pasos" data-en="${portadaPaso}">
-             <div class="paso-puntos" aria-hidden="true">${
-               [1, 2, 3].map(n => `<i class="${n <= portadaPaso ? "on" : ""}"></i>`).join("")}</div>
              <div class="paso" data-paso="1">
                ${/* Google vive AQUÍ y no encima de las tres pantallas: quien
                      pasa del primer paso ya decidió no entrar por ahí, y un
                      atajo que sigue ofreciéndose después de rechazarlo deja de
                      ser un atajo y pasa a ser ruido. Lo pidió Eduardo. */""}
-               <div id="portada-google"></div>
+               ${/* El hueco se reserva ANTES de saber si hay Google, y por eso
+                      lleva clase desde el marcado: el botón llega de una
+                      petición al servidor de cuentas, y hasta ayer lo que se
+                      veía era un salto —aparecía el botón y todo lo de abajo
+                      bajaba 88 px de golpe—. Se pidió pulido y es de las cosas
+                      que se notan sin saber por qué.
+
+                      Lo que se reserva se decide con la respuesta de la ÚLTIMA
+                      vez (`portadaGoogleProbable`): quien ya abrió la puerta
+                      una vez acierta siempre, y quien llega por primera vez
+                      reserva de más —que es el lado bueno del error, porque
+                      encogerse al final se puede animar y estirarse no—. */""}
+               <div id="portada-google" class="${portadaGoogleProbable() ? "reservado" : ""}"></div>
                ${/* Y la frase legal de ESTE camino no se escribe aquí: la pone
                      `portadaOfrecerGoogle` pegada al botón, dentro del mismo
                      hueco. Escrita aquí caía detrás de la rayita del «o» —que
@@ -442,10 +484,12 @@ function portadaPintar(modo) {
                      hace falta ninguna: el camino a pie la encuentra en el
                      último paso, debajo de «Crear cuenta», que es el botón que
                      de verdad da de alta. */""}
+               ${fila}
                ${titulo(1, "¿Cuál es tu correo?", "Con él entras, y ahí llega lo que la app te mande.")}
                ${cCorreo}
              </div>
              <div class="paso" data-paso="2">
+               ${fila}
                ${titulo(2, "Elige una contraseña", "Larga es mejor que rara: una frase que recuerdes gana a ocho símbolos.")}
                ${cClave}
              </div>
@@ -455,6 +499,7 @@ function portadaPintar(modo) {
                      dos líneas seguidas se leen como un fallo de la app. Dice
                      dónde estás —en la última— que es lo que más ayuda justo
                      antes del botón que da de alta. */""}
+               ${fila}
                ${titulo(3, "Una última cosa", "Es lo que usaré para hablarte, empezando por el correo de confirmación.")}
                ${cNombre}
              </div>
@@ -548,10 +593,8 @@ function portadaPintar(modo) {
     const agregando = puertaAgregando();
     const vuelve = !agregando && !!(sync.ultimoSaludo && sync.ultimoCorreo);
     dentro = agregando
-      ? `<div class="portada-cab">
-           <button class="portada-volver" onclick="volverDeAgregar()" aria-label="Volver a mi cuenta">←</button>
-           <h2>${tx("Entrar con otra cuenta")}</h2>
-         </div>
+      ? `${portadaCabHTML(tx("Entrar con otra cuenta"),
+           { fn: "volverDeAgregar()", texto: tx("Volver a mi cuenta"), atras: true })}
          <p class="portada-lema">${tx("La cuenta en la que estás ahora se queda guardada en este dispositivo: podrás volver a ella con un toque.")}</p>`
       : vuelve
       ? `<div class="portada-vuelve">
@@ -562,21 +605,13 @@ function portadaPintar(modo) {
       : `${/* Esta pantalla no decía qué era: el logotipo hacía de título y el
                párrafo hablaba de la app, así que «iniciar sesión» había que
                deducirlo de los dos campos. Lo paró Eduardo comparándola con la
-               de Supabase, que es logotipo, título y una línea debajo.
+               de Supabase, que es marca en la esquina, título y una línea.
 
                Los otros dos casos —quien vuelve y quien añade otra cuenta— ya
                tenían el suyo («Hola de nuevo, X», «Entrar con otra cuenta») y
                no se tocan: un saludo con tu nombre dice más que un rótulo. */""}
-         <img class="portada-logo chico" src="${logotipoSrc()}" alt="Norata">
-         <div class="portada-cab">
-           <h2>${tx("Iniciar sesión")}</h2>
-           ${/* La flecha que va a la otra pantalla. La de vuelta ya existía —la
-                de la cabecera de crear cuenta— y con esta las dos se cruzan en
-                los dos sentidos, que es lo que pidió Eduardo. Lleva la palabra
-                al lado a propósito: una flecha sola no dice a dónde lleva. */""}
-           <button class="portada-cruce" onclick="portadaIrA('crear')">${
-             tx("Crear cuenta")} <span aria-hidden="true">›</span></button>
-         </div>
+         ${portadaCabHTML(tx("Iniciar sesión"),
+           { fn: "portadaIrA('crear')", texto: tx("Crear cuenta") })}
          <p class="portada-lema">${tx("Tu vida como videojuego: habilidades que suben con la práctica y metas que avanzan de verdad.")}</p>`;
 
     /* Google, LO PRIMERO, igual que en crear cuenta (0.7.115). Estaba debajo
@@ -588,7 +623,7 @@ function portadaPintar(modo) {
        Va antes de las cuentas guardadas y no después, y las dos rayitas que
        quedan dicen la verdad cada una: la de aquí separa Google de lo que
        sigue, y la de abajo anuncia el formulario. */
-    dentro += `<div id="portada-google"></div>`;
+    dentro += `<div id="portada-google" class="${portadaGoogleProbable() ? "reservado" : ""}"></div>`;
 
     /* Las cuentas que ya entraron aquí, arriba del formulario y no debajo: si
        una de ellas es la que se busca, no hay que leer nada más. Debajo del
@@ -770,6 +805,23 @@ function portadaOcupada(si, texto) {
   }
 }
 
+/* ---- ¿Es probable que haya botón de Google? ----
+   La respuesta de la última vez, guardada en el dispositivo. NO es una caché
+   de la que se sirva nada: el botón solo se dibuja cuando el servidor contesta
+   que sí, aquí y ahora. Esto decide una cosa y nada más: cuánto ALTO reservar
+   mientras se espera.
+
+   Y por eso vive en `localStorage` y no en los datos del perfil: en la puerta
+   todavía no hay perfil de nadie. Si la llave no está o no se puede leer, se
+   reserva igual — ver el comentario del hueco, en `portadaPintar`. */
+const LLAVE_GOOGLE = "norata-google";
+function portadaGoogleProbable() {
+  try { return localStorage.getItem(LLAVE_GOOGLE) !== "no"; } catch (e) { return true; }
+}
+function portadaGoogleRecordar(hay) {
+  try { localStorage.setItem(LLAVE_GOOGLE, hay ? "si" : "no"); } catch (e) {}
+}
+
 /* El botón de Google solo aparece si el proveedor está activado de verdad en
    Supabase. Se pregunta en vez de darlo por hecho: un botón que lleva a una
    pantalla de error es peor que no tener botón. */
@@ -788,10 +840,26 @@ async function portadaOfrecerGoogle(modo) {
   try {
     const r = await sbFetch("/auth/v1/settings", { method: "GET" });
     hay = !!(r.ok && r.body && r.body.external && r.body.external.google);
+    /* Solo se recuerda lo que el servidor CONTESTÓ. Un fallo de red no es un
+       «no hay Google»: apuntarlo dejaría el hueco sin reservar la próxima vez
+       y el salto volvería justo a quien tiene mala conexión, que es quien más
+       lo va a ver. */
+    portadaGoogleRecordar(hay);
   } catch (e) { /* sin conexión: se queda sin el botón, y hay dos formas más */ }
-  if (!hay || !document.getElementById("portada-google")) return;
+
+  /* Se vuelve a buscar el hueco: entre la pregunta y la respuesta se puede
+     haber cambiado de pantalla, y entonces el de antes ya no está en el
+     documento — escribirle no se ve, y marcarlo tampoco. */
+  const sitio = document.getElementById("portada-google");
+  if (!sitio) return;
+
+  /* Y si no hay, el hueco reservado se cierra en vez de quedarse en blanco.
+     Con una transición sobre `min-height`, que es un valor literal: si saliera
+     de una variable se quedaría congelada en el inicial (la trampa de la
+     casa). */
+  if (!hay) { sitio.classList.add("vacio"); return; }
   const creando = modo === "crear";
-  hueco.innerHTML =
+  sitio.innerHTML =
     `<button class="btn btn-soft btn-block portada-google" onclick="sbEntrarConGoogle()">
        <svg viewBox="0 0 48 48" aria-hidden="true">
          <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.2-.4-4.7H24v8.9h11.8c-.5 2.7-2 5-4.4 6.6v5.5h7.1c4.2-3.8 6.6-9.5 6.6-16.3z"/>
@@ -802,6 +870,12 @@ async function portadaOfrecerGoogle(modo) {
        <span>${tx(creando ? "Crear cuenta con Google" : "Continuar con Google")}</span>
      </button>
      <div class="portada-o"><span>${tx("o")}</span></div>`;
+  /* Y entra desvaneciéndose. Es una ANIMACIÓN y no una transición por el mismo
+     motivo que los pasos del alta: el contenido acaba de nacer, y desde algo
+     que no existía una transición no arranca. La clase se pone en el fotograma
+     siguiente para que el navegador tenga un estado del que partir. */
+  sitio.classList.add("reservado");
+  requestAnimationFrame(() => sitio.classList.add("puesto"));
 }
 
 async function portadaEntrar() {
