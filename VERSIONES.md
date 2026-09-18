@@ -116,87 +116,159 @@ Lo que se vio, se entendió y NO se arregló todavía. Vive aquí y no en la cab
 de nadie: una decisión que solo existe en una conversación se vuelve a discutir
 desde cero dentro de tres semanas.
 
-### La puerta, cuatro cosas (17 sep 2026)
+**Lo que sale de aquí, sale con su entrada en la lista.** De las cuatro cosas
+de la puerta que Eduardo apuntó el 16 de septiembre, tres se hicieron en la
+0.7.122 —la pantalla de error propia con el arreglo de la mayúscula, los
+títulos con la flecha en los dos sentidos, y la frase legal al pie— y también
+se cerró la pregunta de «Probar sin cuenta», que se apagó para quien llega
+nuevo. Queda una.
 
-Eduardo las vio probando la 0.7.121 en vivo. Ninguna es un fallo de esa tanda:
-tres venían de antes y la cuarta es un cambio de diseño.
+### `/crear-cuenta/` como pantalla propia
 
-**1 · `/Crear-cuenta/` con mayúscula da el 404 de GitHub.** Pages distingue
-mayúsculas y minúsculas, así que la dirección bien escrita funciona y esa no.
-Lo arregla un **`404.html` propio en la raíz**: Pages lo sirve para cualquier
-ruta que no exista, sin configurar nada. Y de paso puede arreglar el caso solo
-—si la ruta en minúsculas existe, redirigir— que es lo que convierte una errata
-de mayúscula en un parpadeo en vez de en una pared.
+Sigue siendo un **desvío** a `/login/?nuevo` y no una página. La razón está
+escrita entera en `crear-cuenta/index.html` y no ha cambiado: **`redirect_to`
+sale de `location.pathname`** (`sbVuelta`, en `js/10b-supabase.js`), así que una
+segunda puerta de verdad no es un archivo más — es **otra dirección de vuelta
+que dar de alta en Supabase**, configuración fuera de este repositorio, y si
+falta hace rebotar a quien entre con Google.
 
-**2 · Y ese 404 delata que esto vive en GitHub Pages**, que es lo que preocupa
-a Eduardo. El mismo `404.html` lo tapa: con la marca de Norata y una salida, la
-página de GitHub no se ve. **Pero hay que decirlo claro para no vender lo que
-no es:** eso tapa lo que se VE, no el hosting. Los encabezados de la respuesta
-siguen diciendo `server: GitHub.com` y el DNS de `mi.norata.app` sigue
-apuntando a Pages; quien mire con herramientas lo ve igual. Esconderlo de
-verdad es poner un CDN delante, que es otra decisión y otra factura.
+Por eso no se hizo con las otras tres: es la única de las cuatro que no se puede
+terminar desde aquí. Cuando se haga: **primero el alta en Supabase, después la
+página**, y no al revés.
 
-**3 · `/crear-cuenta/` sigue siendo un desvío a `/login/?nuevo`** y no una
-pantalla propia. La razón está escrita entera en `crear-cuenta/index.html` y no
-ha cambiado: **`redirect_to` sale de `location.pathname`** (`sbVuelta`, en
-`js/10b-supabase.js`), así que una segunda puerta de verdad no es un archivo
-más, es **otra dirección de vuelta que dar de alta en Supabase** — una
-configuración fuera de este repositorio, que si falta hace rebotar a quien
-entre con Google. Cuando se haga: primero el alta en Supabase, después la
-página, y no al revés.
+### La confirmación del correo, ahora que no hay salida sin cuenta
 
-**4 · Las dos pantallas tienen que decir qué son, cruzarse con una flecha y
-llevar el disclaimer abajo.** Esto es lo que pidió Eduardo mirando la puerta de
-Supabase, y hoy falta casi todo:
+No es un pendiente de código, es una decisión que quedó a la vista al cerrar la
+puerta en la 0.7.122. La confirmación está **encendida** —ver la entrada de esa
+versión para la prueba, que es de comportamiento observado y no de suposición—,
+así que quien llega nuevo tiene dos peajes seguidos: crear la cuenta y volver
+del buzón. Antes uno de los dos era opcional.
 
-| Qué pide | Cómo está hoy |
-| --- | --- |
-| Un título grande en cada una | «Crear tu cuenta» sí; en entrar el logo hace de título y no dice nada |
-| El logo, sin perderlo | Está solo en entrar, y solo para quien llega nuevo |
-| Cruzarse con una flecha | La flecha va en un solo sentido: `portadaCrearAtras` lleva de crear a entrar, y de entrar a crear solo hay un enlace de texto al pie |
-| Un disclaimer abajo, como el de Supabase | Solo existe en el alta, y colgando de cada botón (0.7.121) |
+Las salidas, para cuando Eduardo lo mire: apagar «Confirm email» en el panel de
+Supabase (Authentication → Providers → Email), que deja entrar en el momento y
+manda el correo igual; o dejarlo y aceptar que la primera sentada acaba en el
+buzón. **Lo segundo es lo que está pasando ahora**, no hace falta hacer nada
+para que siga así.
 
-Y una advertencia sobre lo último, porque muerde de dos maneras:
-
-- **Contradice a la 0.7.121 y hay que elegir.** Esa tanda movió la frase legal
-  a colgar del botón que da de alta, con su motivo escrito. Un disclaimer
-  abajo, de página, dice «al continuar aceptas» y vale para las dos pantallas —
-  y entonces la de los botones sobra. Dejar las dos es decir lo mismo dos veces
-  en la misma pantalla.
-- **El de Supabase incluye «and to receive periodic emails with updates»**, que
-  no es una frase de estilo: es un consentimiento para mandar correo. Norata
-  manda seis correos y eso hay que mirarlo con cuidado antes de copiar la
-  frase, no después.
-
-### ¿Se quita «Probar sin cuenta»? (17 sep 2026)
-
-Eduardo lo preguntó: si conviene quitarlo para que todo el mundo se registre,
-«como se espera de una app común». **La respuesta de hoy es que no hace falta
-todavía, y la razón principal no es de diseño:**
-
-- **Hay gente dentro con `entrada: "local"`.** Su progreso vive SOLO en su
-  dispositivo. Quitar el modo no es dejar de ofrecerlo: es pedirle una cuenta a
-  quien ya tiene un perfil que no está en ningún servidor. Eso es exactamente
-  lo que la regla del cobro prohíbe — **congelar, nunca quitar**. Si algún día
-  se quita, se quita **solo para quien llega nuevo**, y quien ya entró así
-  sigue entrando así.
-- **La razón por la que existe sigue siendo verdad**, y está escrita arriba de
-  `js/10c-portada.js`: quien solo venía a curiosear se va si lo primero que ve
-  es un registro, y el ejemplo completo de Norata es lo que convence.
-- **Y el problema que preocupa acaba de bajar de precio.** La fricción que
-  justificaba el atajo era una columna de cinco casillas; desde la 0.7.121 el
-  alta se pregunta de una en una y Google va arriba en las dos pantallas. Lo
-  razonable es ver cómo se comporta eso antes de cerrar la única salida.
-
-**Lo que sí se puede hacer sin quitar nada:** está al final de la pantalla, en
-letra pequeña y con su nota — o sea, ya está en el último lugar. Lo que falta no
-es cerrarle la puerta, es **invitar a la cuenta desde DENTRO**, cuando ya hay
-progreso que perder: ahí «llévate esto a una cuenta» es una oferta y no un
-peaje. Y ojo con una cosa que hace imposible decidirlo con números: **quien usa
-la app sin cuenta no toca Supabase, así que no aparece en ninguna parte.** No se
-puede medir cuántos son; se decide por criterio.
+Y de paso, el número que falta desde la 0.7.121: **cuánto dura el enlace de ese
+correo**. Vive en ese mismo panel, la pantalla del alta dice «no dura para
+siempre» sin cifra, y desde una sesión en la nube no se puede mirar — la red de
+salida no llega ni a `mi.norata.app` ni a `supabase.co`.
 
 ## La lista
+
+### 0.7.122 · 17 sep 2026
+
+**La puerta dice qué es, y el 404 ya no es de GitHub.** Tres de los cuatro
+pendientes que Eduardo apuntó el 16 de septiembre, más una decisión suya sobre
+el registro. El cuarto —`/crear-cuenta/` como pantalla propia— sigue apuntado,
+porque pide dar de alta otra dirección de vuelta en Supabase y eso es
+configuración fuera de este repositorio.
+
+**Una pantalla de error propia (`404.html`).** GitHub Pages la sirve para
+cualquier dirección que no exista, con solo dejarla en la raíz. Cierra las dos
+cosas de golpe:
+
+- **`mi.norata.app/Crear-cuenta/` daba 404 por la C mayúscula.** Pages distingue
+  el caso. Ahora, si la misma ruta en minúsculas es una de las cinco que
+  existen, se va allí sola —y con la barra final puesta, que casi nunca se
+  escribe a mano: `/Login` acaba en `/login/`—. Se comprueba contra una LISTA de
+  rutas y no bajando la dirección a minúsculas a ciegas: eso mandaría
+  `/loquesea/` a `/loquesea/`, que tampoco existe, y el navegador se quedaría
+  dando vueltas entre esta página y ella misma.
+- **Y la página gris de GitHub, con su logotipo y su enlace a la documentación,
+  ya no se ve.** Aquí hay que ser exacto para no vender lo que no es: **eso tapa
+  lo que se VE, no el hosting.** Los encabezados siguen diciendo
+  `server: GitHub.com` y el DNS sigue apuntando a Pages. Esconderlo de verdad es
+  poner un CDN delante (hay una rama `cloudflare` aparcada).
+
+Tres cosas de cómo está hecha: **no va en `ASSETS`** —la sirve el servidor, no
+el service worker, que además descarta cualquier respuesta que no traiga un 200,
+así que pedir algo que no existe siempre llega hasta la red—; **todas sus rutas
+son absolutas**, porque la misma página se sirve desde cualquier profundidad
+(`/a/b/c/`) y una ruta relativa apuntaría a otro sitio en cada error; y **no
+depende de la hoja de estilos**, porque es la pantalla que se ve cuando algo ya
+falló y hacerla depender de otro archivo que también podría faltar es una pared
+sin salida. Lee las dos llaves de siempre (`norata-tema`, `norata-idioma`), así
+que sale en el modo y el idioma que la persona eligió.
+
+**Y una guarda nueva en `herramientas/comprobar-publicado.py`**, que es donde
+tenía que ir: comprueba que una dirección inventada siga dando 404 **y** que el
+cuerpo sea el nuestro. Las dos mitades hacen falta, porque el fallo que vigila
+—que `404.html` acabe en el `exclude` de `_config.yml`— no cambia el número:
+seguiría siendo un 404, con la página de GitHub dentro.
+
+**La puerta: título, logotipo y una flecha en cada sentido.** Lo pidió Eduardo
+comparándola con la de Supabase, y lo que faltaba era casi todo:
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| Iniciar sesión | El logotipo hacía de título: «iniciar sesión» había que deducirlo de los dos campos | Logotipo, «Iniciar sesión» y la línea de siempre debajo |
+| Crear cuenta | Sin logotipo. Quien llega por «Empieza gratis» de la landing aterriza DIRECTO aquí, así que la única pantalla donde se escribe una contraseña no decía de quién era | Con logotipo |
+| Cruzarse | La flecha iba en un solo sentido | «Crear cuenta ›» en la cabecera de entrar, y la ← de crear cuenta, que ya volvía |
+
+El logotipo de las dos es el `chico` (124 px): con los 172 de siempre más el
+título, los tres puntos y el formulario, la tarjeta de crear cuenta no cabía en
+una pantalla de 480 px de alto. Y la flecha lleva la palabra al lado a
+propósito: una flecha sola no dice a dónde lleva.
+
+**Los otros tres casos de esa pantalla no se tocaron**, y es a conciencia: quien
+vuelve ve «Hola de nuevo, Eduardo» con su avatar, y quien añade otra cuenta ve
+«Entrar con otra cuenta». Los dos ya tenían título, y un saludo con tu nombre
+dice más que un rótulo.
+
+**Un fallo que salió al mirarlo: la flecha mentía en los pasos 2 y 3.** Su
+etiqueta para lectores de pantalla decía «Volver a iniciar sesión» siempre, y en
+el paso 3 lo que hace es ir al 2. Ahora lo dice según el paso, y se actualiza en
+`portadaPasoPintar` —la cabecera se pinta una sola vez, así que sin eso se
+quedaba con la etiqueta del paso en que se abrió—.
+
+**La frase legal cambia de ALCANCE, no de sitio.** Es la cuarta vez que se
+mueve, y esta es la que la deja quieta: **una sola frase, al pie de la tarjeta,
+en las DOS pantallas** — y por eso dice «al continuar» y no «al crear tu
+cuenta». Con ella puesta se fueron las de los botones de la 0.7.121: no eran una
+repetición mientras vivían en pasos distintos, pero al lado de una frase de
+página sí lo es, y decir lo mismo dos veces en la misma pantalla es la forma más
+rápida de que no se lea ninguna.
+
+**Lo que NO se copió de Supabase**, aunque la maqueta venía de ahí: su frase
+incluye «and to receive periodic emails with updates». Eso no es estilo, es un
+consentimiento para mandar correo. Se decide aparte y con cuidado, no de rebote
+al copiar una pantalla.
+
+Va en el flujo de la tarjeta y no fija al borde de la ventana: abajo a la
+izquierda viven el idioma y el sol/luna de la puerta, y en el teléfono esos
+están centrados al fondo. Una frase fija ahí se les monta encima.
+
+**«Probar sin cuenta» deja de ofrecerse a quien llega nuevo** (`PUERTA_SIN_CUENTA`
+en `js/10c-portada.js`). Lo decidió Eduardo: quien se registra está más cerca de
+la app y más cerca de pagar, y una app común pide cuenta. El motivo por el que
+existía sigue siendo verdad —quien venía a curiosear se va si lo primero que ve
+es un registro— pero la fricción que lo justificaba era una columna de cinco
+casillas, y desde la 0.7.121 el alta se pregunta de una en una con Google arriba
+en las dos pantallas.
+
+**Se apaga para quien LLEGA NUEVO, no para quien ya lo eligió**, y esto no es un
+detalle: hay perfiles con `entrada: "local"` cuyo progreso vive SOLO en su
+dispositivo y no está en ningún servidor. Quitarles el botón no sería dejar de
+ofrecerlo, sería pedirle una cuenta a quien ya tiene una vida dentro y dejarlo
+fuera de ella. Es la misma regla del cobro: **congelar, nunca quitar.** Medido:
+con `entrada: "local"` sigue saliendo «Volver sin iniciar sesión»; sin nada
+guardado, no sale nada.
+
+Se apaga con una constante y no borrando el código, porque la decisión es de
+negocio y se revisa con lo que se vea pasar. Volver a abrirla es poner `true`.
+
+**Y lo que hay que saber para juzgarlo: la confirmación del correo está
+ENCENDIDA.** Está escrito en `sbRegistrar` (`js/10b-supabase.js`) y no es una
+suposición: el fallo de la 0.7.x por el que Supabase contestaba «todo bien» ante
+un correo ya registrado —con un usuario inventado y sin sesión— solo pasa con la
+confirmación activada, y se vio de verdad. O sea que **desde hoy, quien llega
+nuevo no entra en la primera sentada**: crea la cuenta, se va al buzón y vuelve.
+Cerrar la salida sin cuenta y pedir confirmación son dos peajes, y ahora están
+los dos seguidos. Apagar «Confirm email» en Supabase es lo que dejaría entrar en
+el momento; es una decisión de Eduardo y del panel, no de este repositorio.
+
 
 ### Sin número · 16 sep 2026 · dejan de publicarse los documentos
 

@@ -673,6 +673,8 @@ const TEXTOS_EN = {
   "Contraseña": "Password",
   "Repítela": "Type it again",
   "Crear cuenta": "Create account",
+  "Iniciar sesión": "Sign in",
+  "Volver al paso anterior": "Back to the previous step",
   /* Los tres pasos del alta (`crear-pasos`, `js/10c-portada.js`). La puerta se
      abre en inglés igual que en español, así que un paso sin traducir se ve en
      mitad del camino y no al final, que es donde se mira. */
@@ -719,8 +721,8 @@ const TEXTOS_EN = {
   "¿Olvidaste tu contraseña?": "Forgot your password?",
   "Mínimo {0} caracteres. Cuanto más larga, mejor.":
     "At least {0} characters. The longer, the better.",
-  "Al crear tu cuenta aceptas los {0} y el {1}.":
-    "By creating your account you accept the {0} and the {1}.",
+  "Al continuar aceptas los {0} y el {1} de Norata.":
+    "By continuing you agree to Norata's {0} and {1}.",
 
   /* El panel de al lado de la puerta (en prueba, 0.7.115). Se va con la prueba
      si no se queda, y entonces estas siete frases se van con él. */
