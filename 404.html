@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#10151d">
+<meta name="color-scheme" content="dark light">
+<meta name="robots" content="noindex">
+<!-- La muralla, cerrada a lo poco que hace esta página: dos `<script>` en
+     línea, estilos en línea y el logotipo, que sale de este mismo sitio. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'none';
+  img-src 'self';
+  script-src 'unsafe-inline';
+  style-src 'unsafe-inline';
+  form-action 'none';
+  base-uri 'none'">
+<title>Aquí no hay nada · Norata</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<!--
+  ============ La pantalla de «esta dirección no existe» (0.7.122) ============
+
+  GitHub Pages sirve este archivo para CUALQUIER dirección que no exista, sin
+  configurar nada más que dejarlo en la raíz. Existe por dos cosas que Eduardo
+  vio el mismo día:
+
+    1. `mi.norata.app/Crear-cuenta/` —con la C mayúscula— daba un 404. Pages
+       distingue mayúsculas de minúsculas, así que la dirección bien escrita
+       funciona y esa no. Aquí abajo se arregla: si la misma ruta en minúsculas
+       es una de las que existen, se va allí sola.
+    2. Ese 404 era la página gris de GitHub, con su logotipo y su enlace a la
+       documentación. O sea que la pantalla de error contaba dónde vive el
+       sitio.
+
+  ---- Lo que esto NO hace, y hay que decirlo ----
+
+  Tapa lo que se VE, no el hosting. Los encabezados de la respuesta siguen
+  diciendo `server: GitHub.com` y el DNS de `mi.norata.app` sigue apuntando a
+  Pages; quien mire con herramientas lo ve igual. Esconderlo de verdad es poner
+  un CDN delante, y eso es otra decisión (hay una rama `cloudflare` aparcada;
+  ver `CLAUDE.md`).
+
+  ---- Por qué no va en `ASSETS` ----
+
+  Porque no la sirve el service worker: la sirve el SERVIDOR cuando pide una
+  dirección que no está. El worker ni la guarda —`seguardase()` descarta
+  cualquier respuesta que no venga con un 200— así que pedir algo que no existe
+  siempre llega hasta la red y siempre trae esta página. Meterla en la lista de
+  la instalación sería bajarla a todo el mundo para no usarla nunca.
+
+  Y por lo mismo **todas sus rutas son absolutas** (`/favicon.svg`, `/login/`):
+  esta página se sirve tal cual desde cualquier profundidad —`/a/b/c/`—, así que
+  una ruta relativa apuntaría a un sitio distinto en cada error.
+
+  ---- Sin hoja de estilos ----
+
+  Todo va en línea. Es la página que se ve cuando algo ya falló; hacerla
+  depender de otro archivo que también podría faltar es la clase de pared de la
+  que no se sale.
+-->
+<style>
+  :root {
+    --bg: #10151d; --card: #1d2530; --text: #f7f8fa;
+    --muted: #9aa7b8; --line: #2b3542; --mint: #5fe0b0;
+  }
+  /* El modo claro sale de la misma llave que la app y la puerta. Se lee abajo
+     con JavaScript, no con `prefers-color-scheme`: lo que manda es lo que la
+     persona eligió en Ajustes, no lo que diga su sistema. */
+  html.claro {
+    --bg: #dcdef0; --card: #f2f0f9; --text: #10151d;
+    --muted: #55617a; --line: #c9cde4; --mint: #007046;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    display: grid; place-items: center; padding: 32px 20px;
+    font: 15px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .caja { width: 100%; max-width: 380px; text-align: center; }
+  .logo { display: block; width: 124px; max-width: 58%; margin: 0 auto 26px; }
+  h1 { font-size: 21px; line-height: 1.3; margin: 0 0 10px; font-weight: 800; }
+  p { color: var(--muted); margin: 0 0 26px; }
+  .btn {
+    display: block; width: 100%; padding: 13px 16px; margin-top: 10px;
+    border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 15px;
+    border: 1px solid var(--line); color: var(--text); background: var(--card);
+  }
+  .btn.mc { background: var(--mint); border-color: var(--mint); color: #08121a; }
+  html.claro .btn.mc { color: #ffffff; }
+</style>
+</head>
+<body>
+<script>
+  /* ---- Antes de pintar: ¿es solo una mayúscula? ----
+     Se comprueba contra una lista de las rutas que EXISTEN, y no bajando la
+     dirección a minúsculas y redirigiendo a ciegas: eso mandaría
+     `/loquesea/` a `/loquesea/`, que tampoco existe, y el navegador se
+     quedaría dando vueltas entre esta página y ella misma.
+
+     `replace` para no dejar la parada en el historial: el gesto de atrás tiene
+     que llevar de donde se venía, no a este error. */
+  try {
+    var rutas = ["/", "/login/", "/crear-cuenta/", "/terminos/", "/privacidad/"];
+    var pedida = location.pathname;
+    /* Con y sin la barra final, porque una dirección escrita a mano casi nunca
+       la lleva: `/Login` y `/Login/` tienen que acabar los dos en `/login/`. */
+    var baja = pedida.toLowerCase();
+    if (baja.charAt(baja.length - 1) !== "/") baja += "/";
+    if (baja !== pedida && rutas.indexOf(baja) >= 0) {
+      location.replace(baja + location.search + location.hash);
+    }
+  } catch (e) {}
+
+  /* El modo claro, antes de pintar, igual que en la puerta: si esperara al
+     final del documento se vería un fogonazo oscuro antes de aclararse. */
+  try {
+    if (localStorage.getItem("norata-tema") === "claro") {
+      document.documentElement.classList.add("claro");
+      var mtc = document.querySelector('meta[name="theme-color"]');
+      if (mtc) mtc.setAttribute("content", "#dcdef0");
+    }
+  } catch (e) {}
+</script>
+
+<div class="caja">
+  <!-- El claro va sobre fondo oscuro, que es lo que dicen los nombres de los
+       dos archivos de `marca/`. Se cambia abajo si la app está en modo claro. -->
+  <img class="logo" id="logo" src="/marca/logotipo-claro.svg" alt="Norata">
+  <h1 id="tit">Aquí no hay nada</h1>
+  <p id="txt">Esta dirección no existe. Puede ser una letra de más, o algo que
+    cambió de sitio.</p>
+  <a class="btn mc" id="b1" href="/">Ir a Norata</a>
+  <a class="btn" id="b2" href="/login/">Iniciar sesión</a>
+</div>
+
+<script>
+  /* En los dos idiomas, leyendo el mismo espejo que la app y la puerta
+     (`norata-idioma`). Cuatro frases escritas dos veces es más barato que
+     traerse el diccionario entero —200 KB— a una pantalla de error. */
+  try {
+    if (localStorage.getItem("norata-idioma") === "en") {
+      document.documentElement.lang = "en";
+      document.title = "Nothing here · Norata";
+      document.getElementById("tit").textContent = "Nothing here";
+      document.getElementById("txt").textContent =
+        "This address doesn't exist. It may be a stray letter, or something that moved.";
+      document.getElementById("b1").textContent = "Go to Norata";
+      document.getElementById("b2").textContent = "Sign in";
+    }
+  } catch (e) {}
+
+  try {
+    if (document.documentElement.classList.contains("claro")) {
+      document.getElementById("logo").src = "/marca/logotipo-oscuro.svg";
+    }
+  } catch (e) {}
+</script>
+</body>
+</html>
