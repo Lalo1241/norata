@@ -168,7 +168,7 @@ salida no llega ni a `mi.norata.app` ni a `supabase.co`.
 
 ## La lista
 
-### 0.7.124 · 18 sep 2026
+### 0.7.124 · 21 sep 2026
 
 **El banco de frases de la puerta: de 10 a 24, con una decisión de qué se dice
 ahí y una pasada de tono encima.** Eduardo pidió más frases para no repetirse, y
@@ -258,8 +258,10 @@ pequeños» vive en `js/10h-lecturas.js` y en el correo de bienvenida, así que
 tenerla TAMBIÉN aquí era decir lo mismo en dos sitios.
 
 **Comprobado abriendo la puerta veinte veces**, catorce en español y seis en
-inglés: rotan de verdad (11 de 12 en «entrar» y 9 de 12 en «crear», en catorce
-aperturas), ninguna se sale del panel y la más alta mide 116 px. Y las 24 se
+inglés: rotan de verdad (entre 8 y 11 frases distintas de las 12 por camino,
+según la tanda — se sortean, así que el número cambia y lo que importa es que
+no se repita siempre la misma), ninguna se sale del panel y la más alta mide
+116 px. Y las 24 se
 traducen, comprobado pidiéndole a la puerta en inglés el `tx()` de las 24 en
 vez de fiarlo a lo que salga al azar: 0 sin traducir. Cero errores en consola.
 
