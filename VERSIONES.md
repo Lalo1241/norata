@@ -155,16 +155,50 @@ versión para la prueba, que es de comportamiento observado y no de suposición�
 así que quien llega nuevo tiene dos peajes seguidos: crear la cuenta y volver
 del buzón. Antes uno de los dos era opcional.
 
-Las salidas, para cuando Eduardo lo mire: apagar «Confirm email» en el panel de
-Supabase (Authentication → Providers → Email), que deja entrar en el momento y
-manda el correo igual; o dejarlo y aceptar que la primera sentada acaba en el
-buzón. **Lo segundo es lo que está pasando ahora**, no hace falta hacer nada
-para que siga así.
+**Eduardo lo decidió el 21 de septiembre: se apaga.** No por él —él ya tiene su
+cuenta— sino para que quien llegue nuevo no se tope con dos peajes seguidos.
 
-Y de paso, el número que falta desde la 0.7.121: **cuánto dura el enlace de ese
-correo**. Vive en ese mismo panel, la pantalla del alta dice «no dura para
-siempre» sin cifra, y desde una sesión en la nube no se puede mirar — la red de
-salida no llega ni a `mi.norata.app` ni a `supabase.co`.
+**Y el interruptor NO está en el panel, que es lo que costó la sesión entera.**
+Este documento decía «Authentication → Providers → Email» y ahí ya no existe: ese
+modal salta de «Enable email provider» a «Secure email change» sin nada en medio.
+Tampoco está en Authentication → Emails, que solo trae las plantillas, ni lo
+encuentra el buscador del panel con `Ctrl+K` — «confirm» no devuelve nada. Se
+buscó por los tres sitios antes de rendirse, así que no hay que repetir la ronda.
+
+Donde sí está es en la **API de administración**, y ahí el ajuste tiene nombre
+fijo: **`mailer_autoconfirm`**, que en `true` significa «da la cuenta por
+confirmada al crearla». El proyecto es `wifffghnyrqfuwqlatci`, hace falta un token
+personal de `supabase.com/dashboard/account/tokens`, y son dos comandos — leer
+antes de escribir, que así se comprueba de paso que el token sirve:
+
+```sh
+curl -s -X GET   "https://api.supabase.com/v1/projects/wifffghnyrqfuwqlatci/config/auth" \
+  -H "Authorization: Bearer $SBPAT" | grep -o '"mailer_autoconfirm":[^,]*'
+
+curl -s -X PATCH "https://api.supabase.com/v1/projects/wifffghnyrqfuwqlatci/config/auth" \
+  -H "Authorization: Bearer $SBPAT" -H "Content-Type: application/json" \
+  -d '{"mailer_autoconfirm": true}' | grep -o '"mailer_autoconfirm":[^,]*'
+```
+
+**No hay nada que programar después, y está comprobado leyendo el código, no
+supuesto.** `portadaRegistrar` (`js/10c-portada.js`) ya bifurca —`if (!sesion)`
+manda a la pantalla «enviado», y con sesión entra directo—, así que los dos
+caminos llevan funcionando desde siempre. Y el correo de bienvenida no se cae:
+`avisarBienvenida` (`js/10a-perfil.js`) se dispara **al entrar**, no al confirmar,
+y quién decide si toca mandarlo es la función del servidor con su propia marca.
+Solo llegará antes.
+
+**Lo que sí hay que mirar después**, y es un fallo conocido de Supabase
+—[supabase/supabase#29632](https://github.com/supabase/supabase/issues/29632)—:
+apagarlo **no desbloquea a quien ya se registró y nunca confirmó**. Esas cuentas
+siguen sin poder entrar y se arreglan a mano con una consulta. Hoy da igual
+porque el único usuario es Eduardo, pero el día que haya gente registrada antes
+de este cambio, hay que acordarse.
+
+**Y el número que faltaba desde la 0.7.121 ya está: el enlace dura una hora.**
+Es el `Email OTP expiration` del panel, 3600 segundos, leído de la pantalla y no
+deducido. La pantalla del alta dice «no dura para siempre» sin cifra; ahora se
+puede escribir el dato si se quiere.
 
 ## La lista
 
