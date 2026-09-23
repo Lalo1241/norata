@@ -222,6 +222,15 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.127 · 23 sep 2026
+
+**Romper el candado, para todos.** Eduardo lo probó con `?romper=1` en su
+teléfono y pidió encenderlo. Se quitó la prueba por nombre, no por rango: el
+bloque `romper` del script de arriba de `index.html`, el `#rotulo-romper` y sus
+cuatro selectores en `css/estilos.css`, `pruebaRomper()` y su clave en
+inglés. El cuadro de un módulo cerrado lleva `.rompible` y arma los golpes
+siempre. Lo roto durante la prueba se queda roto: vive en `settings.rotos`.
+
 ### 0.7.126 · 23 sep 2026
 
 **Romper el candado a golpes (EN PRUEBA, `?romper=1`).** Un secreto que pidió

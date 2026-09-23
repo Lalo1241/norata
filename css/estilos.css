@@ -3174,9 +3174,9 @@
   }
   .cerr-espera svg { flex: none; margin-top: 2px; color: var(--mint); }
 
-  /* ---------- El candado que se rompe (0.7.126, en prueba) ----------
+  /* ---------- El candado que se rompe (0.7.126, para todos desde 0.7.127) ----------
      Todo cuelga de `.rompible`, que solo lleva el cuadro de un módulo cerrado
-     y solo con `?romper=1` puesto. Ver `armarGolpes` en js/04-misiones.js.
+     por nivel. Ver `armarGolpes` en js/04-misiones.js.
 
      `touch-action: manipulation` es lo que quita el zoom del doble toque en el
      teléfono: el navegador deja de esperar un segundo toque, y de paso el
@@ -9306,8 +9306,7 @@
      id-de-rótulo y no clase con clase: con un selector suelto, encender una
      sacaba también el rótulo de la otra. Hoy queda una sola prueba viva
      (`?informes=demo`), y el emparejamiento se deja puesto para la siguiente. */
-  html.informes-demo #rotulo-informes,
-  html.romper-prueba #rotulo-romper {
+  html.informes-demo #rotulo-informes {
     display: flex; align-items: center; gap: 8px;
     position: fixed;
     left: 12px;
@@ -9320,8 +9319,7 @@
     letter-spacing: 0.06em; text-transform: uppercase;
     max-width: calc(100vw - 24px);
   }
-  html.informes-demo #rotulo-informes a,
-  html.romper-prueba #rotulo-romper a {
+  html.informes-demo #rotulo-informes a {
     color: inherit;
     background: rgba(16, 21, 29, 0.14);
     border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
@@ -9330,12 +9328,10 @@
   }
   /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
      deja congelado en el inicial. */
-  html.informes-demo #rotulo-informes a:hover,
-  html.romper-prueba #rotulo-romper a:hover { background: rgba(16, 21, 29, 0.24); }
+  html.informes-demo #rotulo-informes a:hover { background: rgba(16, 21, 29, 0.24); }
   @media (min-width: 900px) {
     /* En pantalla ancha la barra de navegación no está abajo. */
-    html.informes-demo #rotulo-informes,
-    html.romper-prueba #rotulo-romper { bottom: calc(env(safe-area-inset-bottom) + 14px); }
+    html.informes-demo #rotulo-informes { bottom: calc(env(safe-area-inset-bottom) + 14px); }
   }
 
 

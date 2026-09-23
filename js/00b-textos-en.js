@@ -3628,7 +3628,6 @@ const TEXTOS_EN = {
   "«{0}» dura {1}.": "«{0}» lasts {1}.",
   "Tu ritmo no cabe ahí.": "Your rhythm doesn't fit there.",
   "Cuadrar: {0} × {1} min": "Fit: {0} × {1} min",
-  "Prueba: el candado se rompe a golpes": "Test: the lock breaks if you hit it",
   "¡Módulo «{0}» desbloqueado!": "«{0}» module unlocked!",
   "{0} no te esperaba tan pronto.": "{0} wasn't expecting you this soon.",
   "Tu rama de {0} ya está dentro.": "Your {0} branch is already inside.",

@@ -1119,10 +1119,9 @@ function moduloAbierto(id) {
   const pide = MODULO_NIVEL[id];
   if (!pide) return true;
   if (moduloConCosas(id)) return true;
-  /* Lo que se abrió a golpes (`romperCandado`, más abajo). Se mira aquí y no
-     solo con la prueba encendida: romperlo es para siempre, y el día que la
-     prueba se quite, quien ya lo rompió no puede volver a encontrarse el
-     candado puesto. */
+  /* Lo que se abrió a golpes (`romperCandado`, más abajo). Romperlo es para
+     siempre: pase lo que pase con el secreto, quien ya lo rompió no puede
+     volver a encontrarse el candado puesto. */
   if (moduloRoto(id)) return true;
   const n = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 99;
   return n >= pide;
@@ -1250,8 +1249,8 @@ function avisoModuloCerrado(id) {
      Eduardo: el marco avisa, el botón solo cierra. */
   const cuadro = askBase(cuerpo, true, tx("Entendido"), false, false, null,
                  { tono: "oro", titulo: titulo, soloOk: true,
-                   clase: pruebaRomper() ? "rompible" : "" });
-  if (pruebaRomper()) armarGolpes(id);
+                   clase: ROMPIBLES.indexOf(id) >= 0 ? "rompible" : "" });
+  armarGolpes(id);
   return cuadro;
 }
 
@@ -1266,7 +1265,7 @@ function irAModulo(name) {
   showView(name);
 }
 
-/* ================= Romper el candado (0.7.126, EN PRUEBA) =================
+/* ================= Romper el candado (0.7.126; para todos desde 0.7.127) =================
    Un secreto: golpear el candado del cuadro de un módulo cerrado entre 80 y
    100 veces seguidas lo abre antes de tiempo. Cada golpe hace temblar el
    cuadro y le abre grietas; al llegar a la meta se rompe en pedazos que caen,
@@ -1283,18 +1282,13 @@ function irAModulo(name) {
      cerradas del todo se olvidan: el siguiente intento traza otras.
    - **Es para siempre.** Se guarda en `settings.rotos`, que viaja con la
      cuenta y se UNE al sincronizar (js/10-fusion.js), y `moduloAbierto` lo
-     mira siempre, con la prueba puesta o sin ella.
+     mira siempre.
 
-   Apagado para todos: se enciende con `?romper=1` y se apaga con `?romper=0`
-   o cerrando la pestaña. Qué hay que borrar al quitar la prueba (pero NO lo
-   roto, que se queda): ver la entrada 0.7.126 de VERSIONES.md. */
+   Nació en prueba detrás de `?romper=1` (0.7.126) y lo encendió Eduardo para
+   todos después de probarlo (0.7.127). */
 const ROMPIBLES = ["tree", "projects"];
 const ROMPER_ESPERA = 1500;   // ms sin tocar antes de que empiecen a cerrarse
 const ROMPER_CIERRA = 22;     // golpes por segundo que se deshacen al cerrarse
-
-function pruebaRomper() {
-  return document.documentElement.classList.contains("romper-prueba");
-}
 
 function moduloRoto(id) {
   const r = state && state.settings && state.settings.rotos;
