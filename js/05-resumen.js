@@ -97,6 +97,41 @@ function renderSummary() {
   const invested = perks.reduce((a, p) => a + (p.investedTotal || 0), 0);
 
   const readyList = perks.filter(p => perkStatus(p) === "available");
+
+  /* ---- «Atención hoy» se topa en TRES ----
+
+     Medido el 21 sep 2026 abriendo la app con el reloj adelantado: al corriente
+     este bloque trae UN aviso; a los diez días fuera trae siete, y seis son
+     «estás perdiendo». Y no crece con la ausencia — a los 10, a los 30 y a los
+     90 días son los mismos seis—, porque cada habilidad pasada su gracia se
+     gana un renglón y ahí se queda. O sea que no es una lista de cosas que
+     atender: es un muro que aparece de golpe y no se mueve.
+
+     Se topa porque quien vuelve después de un tiempo puede hacer UNA cosa, no
+     siete, y una lista que no se puede atender no se atiende: se cierra la app.
+     El daño real es pequeño —el desgaste está topado al 25% de lo acumulado y
+     a cinco días de práctica—, así que enseñarlo siete veces cuenta algo peor
+     de lo que pasa.
+
+     Lo que sobra no se pierde: cada habilidad lo dice en su ficha, el contador
+     honesto sigue en la tarjeta de niveles («DECAYENDO», más abajo, que usa la
+     lista entera a propósito) y el recuento de la ausencia lo da la ventana de
+     vuelta. Aquí solo se elige qué se enseña primero. */
+  const ATENCION_TOPE = 3;
+
+  /* Y con un tope, el ORDEN deja de ser un detalle: lo que quede fuera tiene
+     que ser lo que menos corre prisa. Se ordena por lo que falta para bajar de
+     nivel, no por cuándo se creó la habilidad — sin esto el tope enseñaba las
+     tres primeras que hubiera y escondía justo la que baja mañana.
+     `diasParaBajarNivel` da null cuando no hay nivel que perder: esas al final. */
+  const decayPorUrgencia = decayingList.slice().sort((a, b) => {
+    const da = diasParaBajarNivel(a), db = diasParaBajarNivel(b);
+    if (da == null && db == null) return 0;
+    if (da == null) return 1;
+    if (db == null) return -1;
+    return da - db;
+  });
+
   const attention = [
     ...dueList.map(p => `
       <button class="att-item" onclick="openPerk('${p.id}')">
@@ -104,7 +139,7 @@ function renderSummary() {
         <span class="tx"><b>${escapeHtml(p.name)}</b><span>${tx("El plan venció — confirma si lo lograste")}</span></span>
         <span class="go">→</span>
       </button>`),
-    ...decayingList.map(s => {
+    ...decayPorUrgencia.map(s => {
       const d = diasParaBajarNivel(s);
       return `
       <button class="att-item" onclick="openDetail('${s.id}')">
@@ -177,11 +212,22 @@ function renderSummary() {
          asustar: dice que falta y con que se resuelve, nunca cuanto vas a
          perder. */
       const hoyCuenta = (cuentas.get(hoy) || 0) > 0;
+      /* Con la racha rota, el numero grande dice 0 y esa es toda la verdad que
+         daba la tarjeta: parece que no hay nada detras. Pero `streakInfo` ya
+         sabe a cuanto llegaste, asi que la frase —que es la unica pieza de esta
+         tarjeta que habla— lo dice antes de pedir nada. No es una cuarta pieza:
+         es la misma frase diciendo algo cierto en vez de nada. Y el cierre se
+         queda al final, en aspiracional, como manda el tono.
+
+         Pide `best > 1` porque «tu mejor racha fue 1 dia» no consuela a nadie:
+         ahi vale mas la frase corta de siempre. */
       const frase = hoyCuenta
         ? tx("Hoy ya cuenta.")
         : (stk.cur > 0
           ? tx("Hoy todavía no cuenta. Cualquier registro la mantiene viva.")
-          : tx("Cualquier registro de hoy la echa a andar."));
+          : (stk.best > 1
+            ? T`Llegaste a ${stk.best} días seguidos. Cualquier registro de hoy la echa a andar.`
+            : tx("Cualquier registro de hoy la echa a andar.")));
 
       return `
       <div class="scene-card streak-card">
@@ -454,11 +500,21 @@ function renderSummary() {
       </button>`;
     },
 
-    atencion: () => `
+    /* El recorte se hace AQUÍ y no al construir `attention`, para que la lista
+       entera siga disponible para quien la cuenta de verdad. */
+    atencion: () => {
+      const sobran = Math.max(0, attention.length - ATENCION_TOPE);
+      return `
       <div class="panel">
         <h3>${tx("Atención hoy")}</h3>
-        ${attention.length ? attention.join("") : `<p class="settings-note" style="margin:0">${tx("Todo bajo control. Nada urge hoy — sigue explorando.")}</p>`}
-      </div>`,
+        ${attention.length
+          ? attention.slice(0, ATENCION_TOPE).join("")
+          : `<p class="settings-note" style="margin:0">${tx("Todo bajo control. Nada urge hoy — sigue explorando.")}</p>`}
+        ${sobran ? `<p class="settings-note" style="margin:12px 0 0">${
+          sobran === 1 ? tx("Hay una más, en su propia ficha.")
+                       : T`Hay ${sobran} más, cada una en su ficha.`}</p>` : ""}
+      </div>`;
+    },
 
     listos: () => !readyList.length ? "" : `
       <div class="panel alt ready-panel">

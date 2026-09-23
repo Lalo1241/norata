@@ -311,6 +311,12 @@ showView("summary");
        justamente lo que hacía parpadear la app al abrirla. */
     cargaCerrar();
     quizaTutorialDeEntrada();
+    /* Después de `applyDecay()` y del tutorial, y las dos cosas por un motivo:
+       el desgaste de la ausencia entera se escribe en el registro justo ahí
+       arriba y la ventana lo LEE en vez de recalcularlo, y quien todavía no ha
+       visto el tutorial tiene algo más urgente que una vuelta. La propia
+       función se abstiene si hay cualquier otra capa encima. */
+    quizaVentanaDeVuelta();
   }
 
   /* El latido va aquí, lo último de todo y sin esperarlo: es una libreta para

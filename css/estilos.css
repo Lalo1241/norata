@@ -575,6 +575,7 @@
     --piso-nivel: 130;     /* subir de nivel: encima de la fiesta de racha */
     --piso-arrastre: 200;  /* la copia que sigue al dedo al reordenar */
     --piso-confeti: 300;   /* la luz de celebrar, que no se toca */
+    --piso-vuelta: 390;    /* la vuelta tras una ausencia: sale sola al abrir */
     --piso-ventana: 400;   /* ventanas: la caja del ático, Ajustes */
     --piso-menucito: 420;  /* el mini menú del engrane */
     --piso-encima: 500;    /* lo que una ventana abre y la reemplaza */
@@ -5968,6 +5969,56 @@
      la de Ajustes no lo tape mientras se cierra. */
   #modal { z-index: var(--piso-confirmar); }
   #tuto { z-index: var(--piso-encima); }
+
+  /* ---------- La ventana de vuelta ----------
+     Un piso POR DEBAJO de las ventanas, y el motivo es la regla de siempre —lo
+     que abre algo va por debajo de lo que abre—: esta no la abre nadie, sale
+     sola al arrancar, así que cualquier ventana de verdad que se abra después
+     tiene que poder taparla. Por encima sí de la barra y de la app, que es lo
+     que hace que sea un momento y no un cartel más del tablero. */
+  #vuelta { z-index: var(--piso-vuelta); }
+  /* La hoja se desplaza si no cabe. Medido a 390x480 —un teléfono corto, o
+     cualquiera en horizontal—: sin esto la tarjeta mide 561 px de alto contra
+     480 de pantalla y el botón de cerrar queda FUERA, o sea una ventana que
+     tapa la app y de la que no se puede salir. `dvh` y no `vh` porque en el
+     móvil la barra del navegador entra y sale, y `vh` mide la pantalla sin
+     ella: justo los píxeles que faltaban. */
+  #vuelta .modal-card { max-height: 100vh; max-height: 100dvh; overflow-y: auto; }
+  .vu-head { text-align: center; margin-bottom: 22px; }
+  .vu-ic {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 52px; height: 52px; margin-bottom: 12px;
+    border-radius: var(--r-redondo);
+    background: var(--mint-soft); color: var(--mint);
+  }
+  .vu-head h2 { margin: 0 0 6px; font-family: var(--tipo-titulo); font-size: 23px; }
+  .vu-head p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .vu-tit {
+    margin: 0 0 10px; font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .vu-lista { list-style: none; margin: 0 0 22px; padding: 0; }
+  /* `--sup-tarjeta2` y NO `--sup-hondo`: este último es el suelo de lo grande
+     —el lienzo, el tablero— y de día es más OSCURO que la tarjeta, así que
+     dentro de una hoja clara cada fila se leía como un hueco excavado en vez
+     de como algo apoyado encima. Y además no llegaba: medido en modo claro,
+     la menta daba 4,24 y la luciérnaga 4,39 sobre él, las dos por debajo del
+     4,5 que pide un texto. Sobre la superficie levantada dan 5,7 y 5,9. */
+  .vu-lista li {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 9px 12px; border-radius: var(--r-chico);
+    background: var(--sup-tarjeta2);
+  }
+  .vu-lista li + li { margin-top: 6px; }
+  .vu-lista b { font-family: var(--tipo-cifra); font-size: 19px; min-width: 2.4em; text-align: right; }
+  .vu-lista span { font-size: 14px; color: var(--text); line-height: 1.4; }
+  /* Lo que conservas en menta y lo que se movió en luciérnaga, NO en coral: el
+     coral es para lo que destruye o no tiene vuelta, y aquí nada de eso pasó
+     —el desgaste está topado y se recupera practicando—. Pintarlo de rojo sería
+     volver a contar la historia como la contaba el tablero, que es justo de lo
+     que esta ventana viene a sacarnos. */
+  .vu-lista.tuyo b { color: var(--mint); }
+  .vu-lista.movido b { color: var(--fire); }
   .modal-card {
     background: var(--sup-tarjeta);
     border: var(--borde-tarjeta) solid var(--line);

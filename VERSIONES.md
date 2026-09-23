@@ -202,6 +202,121 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.125 · 22 sep 2026
+
+**La app dejó de recibirte con la factura.** Eduardo dijo que le había perdido
+el interés a Norata y que no la usaba, y en vez de opinar se midió: se levantó
+la app en local, se sembró con `verElEjemplo()` y se **adelantó el reloj del
+navegador** 10, 30 y 90 días para abrirla exactamente como la abre quien vuelve.
+
+**Lo que salió, que es el motivo de toda la tanda:**
+
+| Al abrir | Al corriente | 10 días fuera | 30 días | 90 días |
+| --- | --- | --- | --- | --- |
+| Racha | 5 | 0 | 0 | 0 |
+| Avisos en «Atención hoy» | **1** | **7** | 7 | 7 |
+| …de ellos, pérdidas | 0 | **6** | 6 | 6 |
+
+Tres cosas que no se veían sin medirlas:
+
+1. **El muro no crece con la ausencia: aparece de golpe y se queda.** A los 10
+   días son seis avisos y a los 90 son los mismos seis, porque cada habilidad
+   pasada su gracia se gana un renglón y ahí se queda. No medía nada — era un
+   estado en el que caías.
+2. **Los números son amables y la pantalla no.** El desgaste está topado al 25%
+   de lo acumulado y a lo ganado en cinco días: a los 90 días sigues teniendo
+   tus niveles y tus talentos. Pero la primera pantalla no lo decía ni una vez;
+   decía seis veces «estás perdiendo».
+3. **Incluso en tu mejor día te regaña.** Al corriente, con racha de 5 y 1 310
+   XP esa semana, «Atención hoy» abría con *«Estancado 58 días — retómalo o
+   suéltalo»*. Nunca había un día en que la app dijera que vas bien y ya.
+
+Júntalo con que **nada te trae de vuelta** —`sw.js` no tiene una línea de push
+y los seis correos son todos de trámite— y queda el resumen entero: nadie te
+llama, y el día que vuelves por tu cuenta, te pasan la factura.
+
+**Nada de esto toca el desgaste**, que es lo que la app ES. Lo que cambia es
+quién cuenta la historia.
+
+#### 1 · «Atención hoy» se topa en tres
+
+`ATENCION_TOPE` en `js/05-resumen.js`. Quien vuelve puede hacer UNA cosa, no
+siete, y una lista que no se puede atender no se atiende: se cierra la app.
+
+Con el tope, el ORDEN deja de ser un detalle, así que lo que decae se ordena por
+**lo que falta para bajar de nivel** y no por cuándo se creó la habilidad — sin
+eso el tope enseñaba las tres primeras que hubiera y escondía justo la que baja
+mañana. Comprobado: a los 10 días ahora encabeza «Reparaciones, a 10 días», que
+antes salía la sexta.
+
+Lo que sobra se dice en un renglón y no se pierde: cada habilidad lo cuenta en
+su ficha, y el contador honesto sigue en la tarjeta de niveles («DECAYENDO»),
+que usa la lista entera a propósito.
+
+#### 2 · La ventana de vuelta
+
+Lo pidió Eduardo: que al volver haya un momento, antes del tablero, para ver qué
+pasó mientras no estabas. Sale sola pasados **siete días** sin registrar nada
+—la gracia por defecto, que es justo cuando aparece el muro— y dentro va
+**primero lo que sigue siendo tuyo y después lo que se movió**. Ese orden es la
+mitad del asunto: al revés es la misma factura con otro marco.
+
+Cinco decisiones que no se ven y que hay que saber antes de tocarla:
+
+- **Vive en `js/09-inicio.js` y no en un archivo nuevo.** Un archivo más son dos
+  altas más (`index.html` y `ASSETS`), y ese es el tercer sitio que se olvida.
+  `09-inicio.js` ya es dueño de la bienvenida y del tutorial.
+- **Lee el desgaste del registro, no lo recalcula.** `applyDecay` escribe la
+  ausencia entera en UNA anotación por habilidad, fechada el día en que abres,
+  así que la ventana corre después de él y suma lo que hay. Un segundo cálculo
+  del mismo número es un número que algún día dirá otra cosa.
+- **Distingue el desgaste por la FORMA, no por el texto.** Las anotaciones de
+  desgaste no traen campo `at` y las bajadas escritas a mano sí (`js/06-detalle.js`).
+  Mirar la nota habría funcionado en español y fallado en inglés.
+- **Una ausencia se cuenta una vez, y lo guardado es el día en que EMPEZÓ.**
+  Guardando la fecha de hoy, quien vuelve, no registra nada y abre mañana tendría
+  31 días de ausencia, otra marca y otra ventana: la bienvenida todos los días.
+- **El cero de «ninguna bajó de nivel» sí se escribe**, aunque los ceros del otro
+  bloque se callen. Es la frase más tranquilizadora de la ventana, y callarla
+  dejaba al desgaste contando la historia solo.
+
+Y los números en luciérnaga, **no en coral**: el coral es para lo que destruye o
+no tiene vuelta, y aquí nada de eso pasó.
+
+#### 3 · La racha en cero dice a cuánto llegaste
+
+`streakInfo()` ya calculaba `best` y nadie lo enseñaba. Con la racha rota, el
+número grande decía 0 y esa era toda la verdad de la tarjeta. Ahora la frase
+—que es la única pieza que habla— lo dice antes de pedir nada: «Llegaste a 12
+días seguidos. Cualquier registro de hoy la echa a andar.»
+
+**No es una cuarta pieza** y eso importa, porque la regla de la 0.7.100 es que
+esta tarjeta dice tres cosas y ni una más: es la MISMA frase diciendo algo cierto
+en vez de nada. Pide `best > 1`, porque «tu mejor racha fue 1 día» no consuela.
+
+#### Lo que cazó la medición y no la vista
+
+Dos fallos de los que no se ven mirando, los dos en la ventana nueva:
+
+- **A 390×480 el botón de cerrar quedaba FUERA de la pantalla** —la tarjeta medía
+  561 px contra 480—, o sea una ventana que tapa la app y de la que no se puede
+  salir. Se topa con `max-height: 100dvh` y se desplaza; medido después: caja de
+  479, contenido de 608, botón alcanzable. `dvh` y no `vh` porque en el móvil la
+  barra del navegador entra y sale y `vh` mide sin ella, que eran justo los
+  píxeles que faltaban.
+- **En modo claro el contraste no llegaba:** las filas iban en `--sup-hondo`, que
+  es el suelo de lo GRANDE y de día es más oscuro que la tarjeta, así que cada
+  fila se leía como un hueco excavado. Y no llegaba de verdad: 4,24 la menta y
+  4,39 la luciérnaga, las dos por debajo de 4,5. En `--sup-tarjeta2` —la
+  superficie levantada— dan 5,80 y 6,01.
+
+#### Lo que NO se hizo, y es a propósito
+
+**Ni notificaciones ni correo de vuelta, todavía.** Un aviso que te lleva a esa
+pantalla no te recupera: te enseña la factura antes y quema el canal. Primero se
+arregla a dónde llega la gente. Queda apuntado para después de ver cómo se siente
+esto.
+
 ### 0.7.124 · 21 sep 2026
 
 **El banco de frases de la puerta: de 10 a 24, con una decisión de qué se dice

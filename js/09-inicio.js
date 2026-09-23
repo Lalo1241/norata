@@ -875,6 +875,165 @@ function marcarPresentado(id) {
    · Una vez, y la marca se siembra para quien ya lo usaba (ver `migrar`).
    · Y no encima de otra cosa: la celebración del nivel dura lo suyo, y quien
      acaba de tocar «Ver Talentos» llega aquí con la escena todavía cerrándose. */
+/* ================= La ventana de vuelta (0.7.125) =================
+
+   ---- El número que la pidió ----
+
+   Medido el 21 sep 2026 abriendo la app con el reloj adelantado sobre los datos
+   del ejemplo: «Atención hoy» trae UN aviso estando al corriente y SIETE a los
+   diez días fuera, y seis de los siete son «estás perdiendo». Esa era toda la
+   bienvenida que tenía quien volvía.
+
+   Y no crece con la ausencia: a los 10, a los 30 y a los 90 días son los mismos
+   seis, porque cada habilidad pasada su gracia se gana un renglón y ahí se
+   queda. O sea que no medía nada — era un estado en el que caías.
+
+   Lo peor es que el daño real es PEQUEÑO: el desgaste está topado al 25% de lo
+   acumulado y a lo ganado en cinco días de práctica, así que a los tres meses
+   sigues teniendo tus niveles y tus talentos. La app se contaba a sí misma
+   mucho peor de lo que se porta.
+
+   ---- Lo que Eduardo pidió, y el orden que es la mitad del asunto ----
+
+   Que al volver haya un momento, antes del tablero, para ver qué pasó mientras
+   no estabas. Dentro va PRIMERO lo que sigue siendo tuyo y DESPUÉS lo que se
+   movió: al revés es la misma factura con otro marco.
+
+   Lo que NO hace: no pide nada, no mete prisa, no ofrece arreglar nada y no
+   tiene segunda pantalla. Se lee y se cierra. */
+
+/* Siete días, que es la gracia por defecto de una habilidad — o sea, justo
+   cuando el desgaste empieza a contar y aparece el muro de avisos. Por debajo
+   de eso no hay ausencia que contar y la ventana sería una interrupción. */
+const VUELTA_DIAS = 7;
+
+/* El último día con actividad de verdad, que es el mismo dato del que vive la
+   racha. Se usa este y no «la última vez que abrió la app» porque abrir sin
+   registrar nada no es volver: es asomarse. */
+function vueltaUltimoDia() {
+  const dias = [...activityDayCounts().keys()].sort();
+  return dias.length ? dias[dias.length - 1] : null;
+}
+
+function vueltaDatos() {
+  const ultimo = vueltaUltimoDia();
+  if (!ultimo) return null;                       // sin historial no hay vuelta
+  const hoy = todayKey();
+  const fuera = daysBetween(ultimo, hoy);
+  if (fuera < VUELTA_DIAS) return null;
+
+  /* El desgaste de la ausencia ENTERA llega en una sola anotación por
+     habilidad, fechada el día en que se abre: `applyDecay` acumula todos los
+     días que pasaron y escribe una línea (ver js/02-progreso.js). Por eso esto
+     tiene que correr DESPUÉS de `applyDecay`, y por eso se lee del registro en
+     vez de recalcularse — un segundo cálculo del mismo número es un número que
+     algún día dirá otra cosa.
+
+     Se reconoce por NO traer `at`: las bajadas escritas a mano sí lo traen (ver
+     js/06-detalle.js). Se distingue por la forma y no por el texto de la nota,
+     que cambia con el idioma. */
+  let perdido = 0, tocadas = 0, bajaron = 0;
+  (state.skills || []).forEach(s => {
+    const cayo = (s.log || [])
+      .filter(e => e.date === hoy && !e.at && e.xp < 0)
+      .reduce((a, e) => a + (-e.xp), 0);
+    if (!cayo) return;
+    perdido += cayo;
+    tocadas++;
+    if (levelInfo(s.xp + cayo).level > levelInfo(s.xp).level) bajaron++;
+  });
+
+  const stk = streakInfo();
+  return {
+    desde: ultimo, fuera: fuera, perdido: perdido, tocadas: tocadas, bajaron: bajaron,
+    niveles: (state.skills || []).reduce((a, s) => a + levelInfo(s.xp).level, 0),
+    habilidades: (state.skills || []).length,
+    talentos: (state.perks || []).filter(p => p.status === "completed").length,
+    mejorRacha: stk.best,
+    vencidos: (state.perks || []).filter(p => perkStatus(p) === "due").length
+  };
+}
+
+function quizaVentanaDeVuelta() {
+  /* Dentro del ejemplo no: sus datos son de mentira y sus fechas están
+     fabricadas, así que la ventana contaría una ausencia que no existió. Y al
+     salir del ejemplo el estado vuelve como estaba, con lo que la marca de «ya
+     vista» se iría con él y la ventana volvería a salir en la app de verdad.
+     Es la misma razón por la que `quizaPresentarModulo` se abstiene. */
+  if (typeof modoEjemplo !== "undefined" && modoEjemplo) return;
+  if (bienvenidaPendiente()) return;              // primero se presenta la app
+  if (document.querySelector(CAPAS_QUE_TAPAN)) return;   // nunca encima de otra
+
+  const d = vueltaDatos();
+  if (!d) return;
+
+  /* Una ausencia se cuenta UNA vez, y lo que se guarda es el día en que empezó
+     —el último con actividad—, no la fecha de hoy. Guardando hoy, quien vuelve,
+     no registra nada y abre mañana tendría 31 días de ausencia, otra marca
+     distinta y otra ventana: la app le daría la bienvenida todos los días.
+     Con el día de inicio, la ventana no vuelve hasta que la persona registre
+     algo (que es lo que mueve ese día) y se vaya otra vez. */
+  state.ui = state.ui || {};
+  if (state.ui.vueltaVista === d.desde) return;
+  state.ui.vueltaVista = d.desde;
+  save();
+
+  renderVuelta(d);
+  document.getElementById("vuelta").classList.add("show");
+}
+
+function cerrarVuelta() {
+  const el = document.getElementById("vuelta");
+  if (el) el.classList.remove("show");
+}
+
+function renderVuelta(d) {
+  const fila = (valor, texto) => `<li><b>${escapeHtml(String(valor))}</b><span>${texto}</span></li>`;
+
+  /* Lo que sigue siendo tuyo. Los niveles van siempre —es el número que
+     contesta «¿perdí todo?»— y los otros dos solo si existen: un cero aquí
+     dentro trabajaría en contra de lo único que este bloque viene a decir. */
+  const tuyo = [
+    fila(d.niveles, d.habilidades === 1
+      ? tx("niveles, en tu habilidad")
+      : T`niveles, repartidos en ${d.habilidades} habilidades`)
+  ];
+  if (d.talentos > 0) {
+    tuyo.push(fila(d.talentos, d.talentos === 1 ? tx("talento que ya es tuyo")
+                                                : tx("talentos que ya son tuyos")));
+  }
+  if (d.mejorRacha > 1) tuyo.push(fila(d.mejorRacha, tx("días seguidos, tu mejor racha")));
+
+  /* Lo que se movió. Aquí el cero SÍ se escribe, y es a propósito: «ninguna
+     bajó de nivel» es la frase más tranquilizadora de toda la ventana, y
+     callarla dejaría al desgaste contando la historia solo. */
+  const movido = [];
+  if (d.perdido > 0) {
+    movido.push(fila("−" + d.perdido, d.tocadas === 1
+      ? tx("XP de desgaste, en una habilidad")
+      : T`XP de desgaste, repartidos en ${d.tocadas} habilidades`));
+  }
+  movido.push(fila(d.bajaron, d.bajaron === 1 ? tx("habilidad bajó de nivel")
+                                              : tx("habilidades bajaron de nivel")));
+  if (d.vencidos > 0) {
+    movido.push(fila(d.vencidos, d.vencidos === 1 ? tx("plan de talento venció")
+                                                  : tx("planes de talento vencieron")));
+  }
+
+  document.getElementById("vuelta-card").innerHTML = `
+    <div class="vu-head">
+      <span class="vu-ic">${icon("compass", 24)}</span>
+      <h2>${T`Pasaron ${d.fuera} días`}</h2>
+      <p>${tx("Antes del tablero, un momento para ver cómo quedó todo.")}</p>
+    </div>
+    <h4 class="vu-tit">${tx("Lo que sigue siendo tuyo")}</h4>
+    <ul class="vu-lista tuyo">${tuyo.join("")}</ul>
+    <h4 class="vu-tit">${tx("Lo que se movió mientras tanto")}</h4>
+    <ul class="vu-lista movido">${movido.join("")}</ul>
+    <button class="btn btn-primary" style="width:100%" onclick="cerrarVuelta()">${
+      tx("Ir a mi tablero")}</button>`;
+}
+
 function quizaPresentarModulo(vista) {
   const id = VISTA_MODULO[vista];
   if (!id || !MODULO_NIVEL[id]) return;

@@ -632,6 +632,32 @@ const TEXTOS_EN = {
   "Atención hoy": "Needs you today",
   "Todo bajo control. Nada urge hoy — sigue explorando.":
     "All under control. Nothing is urgent today — keep exploring.",
+  /* El bloque se topa en tres (ver `ATENCION_TOPE` en js/05-resumen.js) y esto
+     es lo que cierra la cuenta. «Ficha» es la pantalla de esa habilidad o de
+     ese proyecto, que en inglés no es «file» sino el sitio donde vive. */
+  /* ---- La ventana de vuelta (0.7.125) ----
+     Lo que hay que salvar al traducirla no son las palabras: es que el primer
+     bloque suene a inventario de lo que tienes y el segundo a parte meteorológico
+     — nunca a factura. «Se movió» y no «perdiste», y en inglés igual. */
+  "Pasaron {0} días": "It's been {0} days",
+  "Antes del tablero, un momento para ver cómo quedó todo.":
+    "Before the board, a moment to see how everything held up.",
+  "Lo que sigue siendo tuyo": "What's still yours",
+  "Lo que se movió mientras tanto": "What shifted meanwhile",
+  "niveles, en tu habilidad": "levels, in your one skill",
+  "niveles, repartidos en {0} habilidades": "levels, across {0} skills",
+  "talento que ya es tuyo": "perk that's already yours",
+  "talentos que ya son tuyos": "perks that are already yours",
+  "días seguidos, tu mejor racha": "days in a row, your best streak",
+  "XP de desgaste, en una habilidad": "XP of decay, in one skill",
+  "XP de desgaste, repartidos en {0} habilidades": "XP of decay, across {0} skills",
+  "habilidad bajó de nivel": "skill dropped a level",
+  "habilidades bajaron de nivel": "skills dropped a level",
+  "plan de talento venció": "perk plan ran out",
+  "planes de talento vencieron": "perk plans ran out",
+  "Ir a mi tablero": "Go to my board",
+  "Hay una más, en su propia ficha.": "There's one more, on its own page.",
+  "Hay {0} más, cada una en su ficha.": "There are {0} more, each on its own page.",
   "Listos para empezar": "Ready to start",
   "Estos talentos están desbloqueados y esperando. Empieza uno para ponerlo en progreso.":
     "These talents are unlocked and waiting. Start one to put it in progress.",
@@ -1333,6 +1359,10 @@ const TEXTOS_EN = {
   "Hoy todavía no cuenta. Cualquier registro la mantiene viva.":
     "Today doesn't count yet. Any entry keeps it alive.",
   "Cualquier registro de hoy la echa a andar.": "Any entry today gets it going.",
+  /* Lo que hay que salvar aquí no son las palabras, es que la frase mire atrás
+     antes de pedir: primero a cuánto llegaste, y el empujón al final. */
+  "Llegaste a {0} días seguidos. Cualquier registro de hoy la echa a andar.":
+    "You once reached {0} days in a row. Any entry today gets it going.",
   "día<br>de racha": "day<br>streak",
   "días<br>de racha": "day<br>streak",
   "en {0}": "in {0}",

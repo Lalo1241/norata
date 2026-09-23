@@ -48,8 +48,8 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.124";
-const VERSION_FECHA = "21 sep 2026";
+const VERSION = "0.7.125";
+const VERSION_FECHA = "22 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
    La página pública de Norata, la que no es la app. Vive aquí y no escrita en
@@ -1793,6 +1793,7 @@ function modalDone(v) {
 const CAPAS_QUE_TAPAN = [
   "#modal.show",            // confirmar
   "#tuto.show",             // el tutorial
+  "#vuelta.show",           // la vuelta tras una ausencia
   "#caja-modal.show",       // una caja del ático
   "#jornada-modal.show",    // una hoja de la Jornada (en prueba)
   "#cajon.show",            // el cajón de caminos
