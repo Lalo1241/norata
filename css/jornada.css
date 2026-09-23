@@ -205,8 +205,16 @@ html.claro {
 .jor-destino { stroke: var(--text); stroke-width: 1.5; stroke-dasharray: 5 6; opacity: .75; }
 .jor-tick { stroke: var(--faint); stroke-width: 1; }
 .jor-tick.mayor { stroke: var(--muted); stroke-width: 1.6; }
-.jor-num { fill: var(--muted); font-family: inherit; font-size: 10px; font-weight: 500; text-anchor: middle; dominant-baseline: central; }
-.jor-num.mayor { fill: var(--text); font-weight: 700; }
+/* Las horas del aro. Van como `text.jor-num` y NO como `.jor-num` a secas, y
+   esa palabra de más es el arreglo de un fallo que duró ocho versiones: la
+   0.7.119 añadió una casilla para escribir los minutos a mano y la llamó
+   `.jor-num` también. Esa regla vive más abajo en este archivo, tiene la misma
+   especificidad y lleva `font: inherit`, así que GANABA — y las horas llevaban
+   desde entonces a 16 px y en negrita todas, cuando su diseño son 10 px y solo
+   las de las seis en punto marcadas. Se veía como «los números salen demasiado
+   grandes», que es exactamente como lo dijo Eduardo. */
+text.jor-num { fill: var(--muted); font-family: inherit; font-size: 10px; font-weight: 500; text-anchor: middle; dominant-baseline: central; }
+text.jor-num.mayor { fill: var(--text); font-weight: 700; }
 .jor-blq { stroke: var(--jor-borde, var(--jor-sep)); stroke-width: 2; cursor: grab; }
 /* Con la rueda quieta —durmiendo, o con un tramo en curso— los bloques no
    se arrastran, y el cursor lo dice antes de intentarlo. */
@@ -504,13 +512,13 @@ html.claro .jor-despertar .btn { animation: jor-respira-dia 2.8s ease-in-out inf
 .jor-paso button { width: 32px; height: 32px; border-radius: var(--r-chico); border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; font-size: 16px; line-height: 1; cursor: pointer; }
 /* El número escrito a mano (0.7.119): mismo hueco que el `output` para que la
    fila no salte al abrirlo, y el lápiz al lado de los botones. */
-.jor-num {
+input.jor-num {
   width: 72px; text-align: center; font: inherit; font-weight: 700;
   font-variant-numeric: tabular-nums; color: var(--text);
   background: var(--bg); border: 1px solid var(--mint); border-radius: var(--r-chico);
   padding: 4px 6px;
 }
-.jor-num::-webkit-outer-spin-button, .jor-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input.jor-num::-webkit-outer-spin-button, input.jor-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .jor-lapiz-num {
   width: 26px; height: 26px; padding: 0; border: 0; border-radius: var(--r-redondo);
   background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer;
@@ -615,4 +623,23 @@ html.claro .jor-despertar .btn { animation: jor-respira-dia 2.8s ease-in-out inf
 @media (prefers-reduced-motion: reduce) {
   #jor-giro, .jor-sw::after { transition: none; }
   #jor-chorro { animation: none; }
+}
+
+/* ---------- El teléfono: el dedo es primero de la página ----------
+   Va al final del archivo a propósito: son dos reglas que PISAN a las de
+   arriba, y una sola de ellas suelta en su sección se leería como un olvido.
+
+   `#jor-svg` y `.jor-previa` nacen con `touch-action: none` porque son
+   superficies de arrastre. En el teléfono eso costaba caro: con el dedo
+   apoyado en cualquier punto de la rueda —también sobre el hueco vacío, y
+   también con la rueda quieta— la pantalla dejaba de desplazarse. Así que de
+   día a día se desplazan como cualquier otra cosa, y solo dejan de hacerlo
+   mientras hay un bloque en la mano de verdad (`jor-arrastrando`, que pone el
+   JavaScript al sostener; ver `jGuardia` en js/09d-jornada.js).
+
+   `pan-y` y no `auto`: de lado no hay nada que desplazar aquí, y dejarlo
+   abierto invita a que la rueda se vaya con un deslizamiento torcido. */
+@media (max-width: 899px) {
+  #jor-svg, .jor-previa { touch-action: pan-y; }
+  #jor-svg.jor-arrastrando, .jor-previa.jor-arrastrando { touch-action: none; }
 }
