@@ -437,11 +437,61 @@ window.addEventListener("online", () => syncRun({ silent: true }));
        `html`), este es el ÚNICO tirón, y la ruedita hacía algo que este no:
        recargar, que es como entraba una versión que ya estaba esperando. Sin
        esto, en el teléfono —donde no hay barra lateral con el botón— tirar
-       dejaba de traer la app nueva. Si no hay nada esperando, solo se pregunta
-       por detrás, para que la próxima vez ya esté. */
+       dejaba de traer la app nueva. */
     if (window.norataHayVersion && window.norataHayVersion()) { norataActualizar(); return; }
-    if (swRegistro) swRegistro.update().catch(() => {});
+
+    /* ---- Y SI NO HAY NADA ESPERANDO, SE CONTESTA IGUAL ----
+       Esto era `swRegistro.update().catch(() => {})` y `quitar()`: la pregunta
+       se hacía por detrás y el fallo se tragaba entero. O sea que «no pude
+       preguntar» y «ya estás al día» se veían EXACTAMENTE igual — la cápsula
+       subía, bajaba, y nada más.
+
+       Costó una mañana averiguarlo (23 sep 2026). La app de Eduardo llevaba
+       días clavada en una versión vieja y no había forma de saber por qué: la
+       app se sirve de su propia copia desde la 0.7.38, así que sin red abre
+       igual de rápido y se ve perfecta. El único aviso posible era este, y
+       estaba mudo. Peor: en otro navegador del mismo teléfono la app abría al
+       instante con una versión AÚN más vieja, y eso parecía decir que el sitio
+       estaba bien — cuando lo único que decía es que ese navegador también
+       tenía su propia copia guardada.
+
+       **Una app que se sirve de su copia no puede callarse cuando no alcanza a
+       su origen**, porque entonces «funciona» y «está incomunicada» se ven
+       idénticas. Un tirón es una pregunta que hace una persona, así que se
+       contesta siempre: o hay algo nuevo, o ya estás al día, o no se pudo
+       preguntar.
+
+       El plazo es para que la respuesta llegue: `update()` rechaza cuando la
+       red falla, pero una red que ni contesta ni falla dejaría esto esperando
+       para siempre y la cápsula colgada. Es el mismo tope que ya lleva
+       `norataActualizar` unas líneas más abajo, y por el mismo motivo. */
+    let sinRespuesta = false, relevo = false;
+    if (swRegistro) {
+      /* El worker que manda AHORA. Si al terminar manda otro, es que entró una
+         versión nueva — y esa comparación es la buena, no el aviso que manda el
+         worker por mensaje: ese llega por su cuenta un instante DESPUÉS de
+         activarse, y preguntando por él aquí se contestaba «ya tienes la última
+         versión» justo antes de que el propio worker anunciara la nueva. Dos
+         avisos seguidos diciendo lo contrario. Medido con una versión de
+         mentira publicada a mitad de la prueba. */
+      const mandaba = swRegistro.active;
+      try {
+        await Promise.race([
+          swRegistro.update().then(() => esperarAlWorker(swRegistro)),
+          new Promise((_, no) => setTimeout(() => no(new Error("sin respuesta")), 8000)),
+        ]);
+        /* Un respiro para que el aviso del worker llegue si venía de camino:
+           así las dos señales apuntan a lo mismo y ninguna se adelanta. */
+        await new Promise((r) => setTimeout(r, 300));
+        relevo = (swRegistro.active && swRegistro.active !== mandaba) ||
+                 !!(swRegistro.installing || swRegistro.waiting) ||
+                 !!(window.norataHayVersion && window.norataHayVersion());
+      } catch (e) { sinRespuesta = true; }
+    }
     quitar();
+    if (relevo) { norataActualizar(); return; }
+    if (sinRespuesta) toast(tx("No pude comprobar si hay versión nueva: Norata no contestó"), "atencion");
+    else if (swRegistro) toast(tx("Ya tienes la última versión"), "calma");
   }, { passive: true });
 })();
 

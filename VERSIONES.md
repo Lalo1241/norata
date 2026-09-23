@@ -222,6 +222,52 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.128.2 · 23 sep 2026
+
+**El tirón hacia abajo deja de callarse cuando no alcanza a Norata.** Hacía la
+pregunta por detrás con `swRegistro.update().catch(() => {})` y quitaba la
+cápsula: el fallo se tragaba entero, así que **«no pude preguntar» y «ya estás
+al día» se veían exactamente igual**. La cápsula subía, bajaba, y nada más.
+
+**Lo que costó averiguarlo.** La app de Eduardo llevaba días clavada en una
+versión vieja sin forma de saber por qué. Desde la 0.7.38 la app se sirve de su
+propia copia y no le pide nada a la red, así que sin conexión con su origen abre
+igual de rápido y se ve perfecta — el único aviso posible era este, y estaba
+mudo. Peor todavía: otro navegador del mismo teléfono abría **al instante** con
+una versión aún más vieja, y eso parecía decir que el sitio estaba bien, cuando
+lo único que decía es que ese navegador también tenía su copia guardada. Una
+app que se sirve de su copia **no puede callarse cuando no alcanza a su
+origen**, porque entonces «funciona» y «está incomunicada» se ven idénticas.
+
+Ahora un tirón se contesta siempre, con una de tres:
+
+| Qué pasó | Qué dice |
+| --- | --- |
+| Hay algo nuevo | nada: recarga y entra sola, como antes |
+| No hay nada nuevo | «Ya tienes la última versión» |
+| No se pudo preguntar | «No pude comprobar si hay versión nueva: Norata no contestó» |
+
+Dos cosas que hubo que resolver para que no mintiera:
+
+- **El plazo.** `update()` rechaza cuando la red falla, pero una red que ni
+  contesta ni falla dejaría esto esperando para siempre y la cápsula colgada. Es
+  el mismo tope que ya lleva `norataActualizar`.
+- **Quién avisa de que entró una versión nueva.** La primera versión de esto
+  preguntaba por el mensaje que manda el worker, y ese llega por su cuenta un
+  instante DESPUÉS de activarse: contestaba «ya tienes la última versión» justo
+  antes de que el propio worker anunciara la nueva. Dos avisos seguidos diciendo
+  lo contrario. Se arregla comparando **qué worker mandaba antes y cuál manda
+  después**, que es la señal de verdad.
+
+**Medido de punta a punta**, con un servidor HTTPS local para que el service
+worker se registre de verdad —sin `https:` no se registra, así que en HTTP esto
+no se puede probar— y el tirón despachado como toques por CDP. Los tres casos:
+con red y sin novedad dice «Ya tienes la última versión»; con el servidor
+apagado a mitad de la prueba —su caso exacto— dice que no contestó; y publicando
+una versión falsa en caliente, recarga sola y no dice nada contradictorio. En
+los tres, la cápsula se quita. Cero errores de consola, cero traducciones que
+falten y las cuatro combinaciones de humo limpias.
+
 ### 0.7.128.1 · 23 sep 2026
 
 **La tableta también es una pantalla táctil.** Lo de sostener-para-mover salió
