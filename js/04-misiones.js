@@ -1119,6 +1119,11 @@ function moduloAbierto(id) {
   const pide = MODULO_NIVEL[id];
   if (!pide) return true;
   if (moduloConCosas(id)) return true;
+  /* Lo que se abrió a golpes (`romperCandado`, más abajo). Se mira aquí y no
+     solo con la prueba encendida: romperlo es para siempre, y el día que la
+     prueba se quite, quien ya lo rompió no puede volver a encontrarse el
+     candado puesto. */
+  if (moduloRoto(id)) return true;
   const n = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 99;
   return n >= pide;
 }
@@ -1243,8 +1248,11 @@ function avisoModuloCerrado(id) {
 
      Un solo botón, y en MENTA aunque el marco sea amarillo — lo confirmó
      Eduardo: el marco avisa, el botón solo cierra. */
-  return askBase(cuerpo, true, tx("Entendido"), false, false, null,
-                 { tono: "oro", titulo: titulo, soloOk: true });
+  const cuadro = askBase(cuerpo, true, tx("Entendido"), false, false, null,
+                 { tono: "oro", titulo: titulo, soloOk: true,
+                   clase: pruebaRomper() ? "rompible" : "" });
+  if (pruebaRomper()) armarGolpes(id);
+  return cuadro;
 }
 
 /* La puerta de los cinco botones del menú. Existe para que el candado HAGA algo
@@ -1256,6 +1264,370 @@ function irAModulo(name) {
   const mod = VISTA_MODULO[name] || name;
   if (!moduloAbierto(mod)) { avisoModuloCerrado(mod); return; }
   showView(name);
+}
+
+/* ================= Romper el candado (0.7.126, EN PRUEBA) =================
+   Un secreto: golpear el candado del cuadro de un módulo cerrado entre 80 y
+   100 veces seguidas lo abre antes de tiempo. Cada golpe hace temblar el
+   cuadro y le abre grietas; al llegar a la meta se rompe en pedazos que caen,
+   y el módulo queda abierto para siempre. Lo pidió Eduardo, y lo aprobó en un
+   boceto antes de llegar aquí.
+
+   Tres reglas que no se negocian:
+
+   - **Solo los candados de NIVEL, y solo Talentos y Proyectos.** Los golpes se
+     escuchan únicamente en el cuadro de `avisoModuloCerrado`. Un candado de
+     plan no se entera: romperlo sería llevarse gratis lo que se cobra.
+   - **Si dejas de tocar 1,5 s, las grietas se cierran solas.** Es lo que
+     impide romperlo sin querer, a plazos, a lo largo de varios días. Y
+     cerradas del todo se olvidan: el siguiente intento traza otras.
+   - **Es para siempre.** Se guarda en `settings.rotos`, que viaja con la
+     cuenta y se UNE al sincronizar (js/10-fusion.js), y `moduloAbierto` lo
+     mira siempre, con la prueba puesta o sin ella.
+
+   Apagado para todos: se enciende con `?romper=1` y se apaga con `?romper=0`
+   o cerrando la pestaña. Qué hay que borrar al quitar la prueba (pero NO lo
+   roto, que se queda): ver la entrada 0.7.126 de VERSIONES.md. */
+const ROMPIBLES = ["tree", "projects"];
+const ROMPER_ESPERA = 1500;   // ms sin tocar antes de que empiecen a cerrarse
+const ROMPER_CIERRA = 22;     // golpes por segundo que se deshacen al cerrarse
+
+function pruebaRomper() {
+  return document.documentElement.classList.contains("romper-prueba");
+}
+
+function moduloRoto(id) {
+  const r = state && state.settings && state.settings.rotos;
+  return Array.isArray(r) && r.indexOf(id) >= 0;
+}
+
+let golpes = null;
+
+/* Se llama justo después de abrir el cuadro. `askBase` rellena el cuadro sin
+   esperar, así que el aro ya está en el DOM. */
+function armarGolpes(id) {
+  soltarGolpes();
+  if (ROMPIBLES.indexOf(id) < 0) return;
+  const card = document.querySelector("#modal .modal-card");
+  const blanco = card && card.querySelector(".cerr-aro .aro-nivel");
+  if (!blanco) return;
+  golpes = {
+    id, card, blanco, n: 0, ultimo: 0, grietas: null, roto: false,
+    meta: 80 + Math.floor(Math.random() * 21),
+    antes: Date.now(), reloj: null
+  };
+  /* `pointerdown` y no `click`: el golpe responde al tocar, no al soltar, y
+     no hay retardo que esperar. El zoom del doble toque lo quita el CSS
+     (`touch-action: manipulation`); el `dblclick` es la red para un iOS
+     viejo que todavía lo intente. */
+  blanco.addEventListener("pointerdown", golpeCandado);
+  blanco.addEventListener("dblclick", e => e.preventDefault());
+  /* Con setInterval y no con fotogramas: en una pestaña de fondo no hay
+     fotogramas, y las grietas tienen que seguir cerrándose. */
+  golpes.reloj = setInterval(curarGrietas, 50);
+}
+
+function soltarGolpes() {
+  if (!golpes) return;
+  clearInterval(golpes.reloj);
+  golpes.blanco.removeEventListener("pointerdown", golpeCandado);
+  golpes = null;
+}
+
+function golpeCandado(e) {
+  const g = golpes;
+  if (!g || g.roto) return;
+  if (e) e.preventDefault();
+  if (!g.grietas) trazarGrietas();
+  g.n = Math.min(g.meta, Math.floor(g.n) + 1);
+  g.ultimo = Date.now();
+  const p = g.n / g.meta;
+  g.blanco.classList.remove("golpe"); void g.blanco.offsetWidth; g.blanco.classList.add("golpe");
+  /* Muy poco: de 1 px al principio a 2,5 px cerca del final. Es un aviso de
+     que algo pasó, no un terremoto. */
+  if (!menosMovimiento() && g.card.animate) {
+    const amp = 1 + 1.5 * p, a = Math.random() * Math.PI * 2;
+    const dx = Math.cos(a) * amp, dy = Math.sin(a) * amp;
+    g.card.animate([{ transform: "translate(0,0)" }, { transform: `translate(${dx}px,${dy}px)` },
+      { transform: `translate(${-dx * 0.6}px,${-dy * 0.6}px)` }, { transform: "translate(0,0)" }],
+      { duration: 110, easing: "ease-out" });
+  }
+  if (navigator.vibrate) { try { navigator.vibrate(Math.round(6 + p * 12)); } catch (x) {} }
+  dibujarGrietas();
+  if (g.n >= g.meta) romperCandado();
+}
+
+function menosMovimiento() {
+  try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; }
+}
+
+function curarGrietas() {
+  const g = golpes;
+  if (!g) return;
+  /* El cuadro se cerró por su cuenta —Entendido, tocar fuera, el enlace a la
+     expedición—: se suelta todo. Se MIRA en vez de engancharse a cada salida,
+     que son varias y alguna nueva se olvidaría. */
+  if (!document.getElementById("modal").classList.contains("show") ||
+      !g.card.classList.contains("rompible")) { if (!g.roto) soltarGolpes(); return; }
+  const ahora = Date.now(), dt = (ahora - g.antes) / 1000;
+  g.antes = ahora;
+  if (g.roto || g.n <= 0 || ahora - g.ultimo < ROMPER_ESPERA) return;
+  g.n = Math.max(0, g.n - ROMPER_CIERRA * dt);
+  dibujarGrietas();
+  if (g.n === 0) {
+    const capa = g.card.querySelector(".grietas");
+    if (capa) capa.remove();
+    g.grietas = null;
+  }
+}
+
+/* ---- Las grietas ----
+   Se trazan en el primer golpe, desde el borde del aro hacia fuera, al azar.
+   Cada una sabe en qué punto del avance empieza a verse y en cuál termina de
+   crecer, así que avanzar y retroceder es solo mover un número.
+
+   Van dentro de la tarjeta y no del `#modal-msg`: el cuerpo se reescribe en
+   cada apertura, pero la capa tiene que cubrir la tarjeta entera, título y
+   botón incluidos. Se quita en `curarGrietas` y en `askBase` (js/01-base.js),
+   porque el modal es UNO y se reutiliza. */
+function trazarGrietas() {
+  const g = golpes, card = g.card;
+  const rc = card.getBoundingClientRect(), ra = g.blanco.getBoundingClientRect();
+  const W = card.clientWidth, H = card.scrollHeight;
+  const ox = ra.left + ra.width / 2 - rc.left - card.clientLeft;
+  const oy = ra.top + ra.height / 2 - rc.top - card.clientTop + card.scrollTop;
+  const radio = ra.width / 2;
+  g.ox = ox; g.oy = oy;
+  const R = Math.random, out = [];
+
+  function rama(x, y, ang, s, e, prof) {
+    const pts = [[x, y]];
+    let len = 0, a = ang;
+    const tope = prof === 0 ? 1e4 : 26 + R() * (prof === 1 ? 80 : 40);
+    const hijos = [];
+    for (let i = 0; i < 80; i++) {
+      const paso = 7 + R() * 13;
+      a += (R() - 0.5) * 0.75; a = a * 0.78 + ang * 0.22;
+      x += Math.cos(a) * paso; y += Math.sin(a) * paso; len += paso;
+      pts.push([+x.toFixed(1), +y.toFixed(1)]);
+      if (x < -8 || y < -8 || x > W + 8 || y > H + 8 || len > tope) break;
+      if (prof < 2 && i > 1 && R() < (prof === 0 ? 0.24 : 0.14)) hijos.push({ x, y, len, a });
+    }
+    out.push({ pts, len, s, e, w: prof === 0 ? 1.9 : prof === 1 ? 1.3 : 0.9 });
+    hijos.forEach(h => {
+      const nace = s + (e - s) * (h.len / len);
+      const giro = (R() < 0.5 ? -1 : 1) * (0.5 + R() * 0.7);
+      rama(h.x, h.y, h.a + giro, nace, Math.min(0.995, nace + 0.18 + R() * 0.2), prof + 1);
+    });
+  }
+  // El punto de impacto: unas rayitas cortas alrededor del aro, las primeras en verse.
+  for (let i = 0; i < 6; i++) {
+    const a = R() * Math.PI * 2, r0 = radio - 2, r1 = r0 + 6 + R() * 8;
+    out.push({ pts: [[ox + Math.cos(a) * r0, oy + Math.sin(a) * r0], [ox + Math.cos(a + 0.1) * r1, oy + Math.sin(a + 0.1) * r1]],
+      len: r1 - r0, s: 0.005 + i * 0.008, e: 0.03 + i * 0.01, w: 1.1 });
+  }
+  const nMain = 7 + Math.floor(R() * 3), base = R() * Math.PI * 2;
+  for (let i = 0; i < nMain; i++) {
+    const a = base + i * (2 * Math.PI / nMain) + (R() - 0.5) * 0.5;
+    const s = 0.015 + (i / nMain) * 0.42 + R() * 0.04;
+    rama(ox + Math.cos(a) * radio, oy + Math.sin(a) * radio, a, s, Math.min(0.97, s + 0.5 + R() * 0.1), 0);
+  }
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("class", "grietas");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.style.height = H + "px";
+  svg.innerHTML = out.map(c => {
+    const d = "M" + c.pts.map(p => p[0] + " " + p[1]).join("L");
+    return `<path class="g-h" d="${d}" stroke-width="${c.w + 1.3}" transform="translate(.6 .8)"/>` +
+           `<path class="g-f" d="${d}" stroke-width="${c.w}"/>`;
+  }).join("");
+  const vieja = card.querySelector(".grietas");
+  if (vieja) vieja.remove();
+  card.appendChild(svg);
+  g.grietas = out.map((c, i) => ({ c, h: svg.children[i * 2], f: svg.children[i * 2 + 1] }));
+}
+
+function dibujarGrietas() {
+  const g = golpes;
+  if (!g || !g.grietas) return;
+  const p = g.n / g.meta;
+  g.grietas.forEach(({ c, h, f }) => {
+    const t = Math.max(0, Math.min(1, (p - c.s) / (c.e - c.s)));
+    const v = t * c.len, da = v.toFixed(1) + " " + (c.len + 20);
+    /* Una raya de largo cero con la punta redonda se pinta como un PUNTO, y
+       así se veía por dónde iba a pasar cada grieta antes de nacer. Lo cazó
+       Eduardo en el boceto. Lo que no ha empezado no se dibuja. */
+    const oculta = v < 0.5 ? "none" : "";
+    h.style.display = oculta; f.style.display = oculta;
+    h.setAttribute("stroke-dasharray", da); f.setAttribute("stroke-dasharray", da);
+  });
+}
+
+/* ---- Se rompe ----
+   La tarjeta se parte en trozos que salen del aro, como rayos hasta el borde.
+   Cada trozo es una COPIA de la tarjeta recortada con clip-path, así que lo
+   que vuela es el cuadro de verdad y no un dibujo que lo imita. */
+function romperCandado() {
+  const g = golpes;
+  g.roto = true;
+  clearInterval(g.reloj);
+  const card = g.card, id = g.id;
+  const rc = card.getBoundingClientRect();
+  const W = rc.width, H = rc.height;
+  const ox = g.ox + card.clientLeft, oy = g.oy + card.clientTop - card.scrollTop;
+  if (navigator.vibrate) { try { navigator.vibrate([25, 40, 60]); } catch (x) {} }
+
+  const n = 11, angs = [], b0 = Math.random() * Math.PI * 2;
+  for (let i = 0; i < n; i++) angs.push(b0 + i * 2 * Math.PI / n + (Math.random() - 0.5) * 0.35);
+  const borde = a => {
+    const dx = Math.cos(a), dy = Math.sin(a);
+    const tx_ = dx > 0 ? (W - ox) / dx : dx < 0 ? -ox / dx : Infinity;
+    const ty = dy > 0 ? (H - oy) / dy : dy < 0 ? -oy / dy : Infinity;
+    const t = Math.min(tx_, ty);
+    return [ox + dx * t, oy + dy * t];
+  };
+  const esquinas = [[0, 0], [W, 0], [W, H], [0, H]].map(p => ({ p, a: Math.atan2(p[1] - oy, p[0] - ox) }));
+  const norm = a => ((a % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
+  const capa = document.createElement("div");
+  capa.className = "rotura";
+  document.body.appendChild(capa);
+  const trozos = [];
+  for (let i = 0; i < n; i++) {
+    const a1 = angs[i], a2 = angs[(i + 1) % n] + (i === n - 1 ? 2 * Math.PI : 0);
+    const poly = [[ox, oy], borde(a1)];
+    esquinas.map(c => ({ p: c.p, d: norm(c.a - a1) })).filter(c => c.d > 0 && c.d < a2 - a1)
+      .sort((x, y) => x.d - y.d).forEach(c => poly.push(c.p));
+    poly.push(borde(a2));
+    const cx = poly.reduce((s, p) => s + p[0], 0) / poly.length;
+    const cy = poly.reduce((s, p) => s + p[1], 0) / poly.length;
+    const trozo = document.createElement("div");
+    trozo.style.cssText = `left:${rc.left}px;top:${rc.top}px;width:${W}px;height:${H}px;` +
+      `clip-path:polygon(${poly.map(p => p[0].toFixed(1) + "px " + p[1].toFixed(1) + "px").join(",")});` +
+      `transform-origin:${cx}px ${cy}px`;
+    const copia = card.cloneNode(true);
+    // Sin ids: dos `#modal-msg` en el documento confunden a quien lo busque.
+    copia.querySelectorAll("[id]").forEach(x => x.removeAttribute("id"));
+    copia.style.cssText = `width:${W}px;height:${H}px;max-width:none;margin:0`;
+    copia.scrollTop = card.scrollTop;
+    trozo.appendChild(copia);
+    capa.appendChild(trozo);
+    /* Sale disparado desde el aro: más rápido cuanto más cerca del golpe,
+       con un salto hacia arriba, girando en los tres ejes. */
+    const dir = Math.atan2(cy - oy, cx - ox);
+    const cerca = 1 - Math.min(1, Math.hypot(cx - ox, cy - oy) / Math.max(W, H));
+    const v = 340 + cerca * 380 + Math.random() * 260;
+    trozos.push({ el: trozo, top: rc.top + cy, x: 0, y: 0, a: 0, rx: 0, ry: 0,
+      vx: Math.cos(dir) * v, vy: Math.sin(dir) * v - (240 + Math.random() * 280),
+      va: (Math.random() - 0.5) * 820, vrx: (Math.random() - 0.5) * 520, vry: (Math.random() - 0.5) * 520,
+      dx: Math.cos(dir), dy: Math.sin(dir), alto: 26 });
+  }
+  // Esquirlas: trocitos del mismo material, más pequeños y más rápidos.
+  for (let i = 0; i < 18; i++) {
+    const e = document.createElement("div"), t = 4 + Math.random() * 7;
+    e.className = "esquirla";
+    e.style.cssText = `left:${rc.left + ox - t / 2}px;top:${rc.top + oy - t / 2}px;width:${t}px;height:${t}px;` +
+      `clip-path:polygon(50% 0,100% ${60 + Math.random() * 40}%,0 100%)`;
+    capa.appendChild(e);
+    const a = Math.random() * Math.PI * 2, v = 500 + Math.random() * 600;
+    trozos.push({ el: e, top: rc.top + oy, x: 0, y: 0, a: 0, rx: 0, ry: 0,
+      vx: Math.cos(a) * v, vy: Math.sin(a) * v - 300, va: (Math.random() - 0.5) * 1400,
+      vrx: 0, vry: 0, dx: 0, dy: 0, alto: 4 });
+  }
+
+  /* La tarjeta de verdad se esconde y el modal se cierra por debajo de los
+     trozos. Se le devuelve la visibilidad cuando el velo ya se fue: el modal
+     es UNO, y escondido se quedaría escondido para la siguiente pregunta. */
+  card.style.visibility = "hidden";
+  modalDone(false);
+  setTimeout(() => { card.style.visibility = ""; const c = card.querySelector(".grietas"); if (c) c.remove(); }, 400);
+  soltarGolpes();
+
+  volarTrozos(trozos, () => {
+    capa.remove();
+    abrirARomper(id);
+  });
+}
+
+/* Las físicas, a mano: gravedad, rebote contra el borde de abajo de la
+   pantalla con rozamiento, y desvanecerse al final. `setTimeout` y no
+   fotogramas, por lo mismo que las grietas. */
+function volarTrozos(trozos, fin) {
+  const piso = window.innerHeight, GRAV = 2600, REBOTE = 0.34, ROCE = 0.72;
+  const CRUJE = 0.09, APAGA = 1.05, DURA = 0.7;
+  const quieto = menosMovimiento();
+  let t = 0, antes = Date.now();
+  const paso = () => {
+    const ahora = Date.now(), dt = Math.min(0.04, (ahora - antes) / 1000);
+    antes = ahora; t += dt;
+    trozos.forEach(p => {
+      if (quieto) { p.el.style.opacity = Math.max(0, 1 - t / 0.6); return; }
+      if (t < CRUJE) {
+        // El crujido: los trozos se separan un pelo antes de salir.
+        const k = t / CRUJE * 3;
+        p.el.style.transform = `translate(${p.dx * k}px,${p.dy * k}px)`;
+        return;
+      }
+      p.vy += GRAV * dt;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.a += p.va * dt; p.rx += p.vrx * dt; p.ry += p.vry * dt;
+      const fondo = p.top + p.y + p.alto;
+      if (fondo > piso && p.vy > 0) {
+        p.y -= fondo - piso;
+        p.vy = -p.vy * REBOTE; p.vx *= ROCE; p.va *= ROCE; p.vrx *= 0.5; p.vry *= 0.5;
+        if (Math.abs(p.vy) < 60) p.vy = 0;
+      }
+      p.el.style.opacity = t < APAGA ? 1 : Math.max(0, 1 - (t - APAGA) / DURA);
+      p.el.style.transform = `translate3d(${p.x.toFixed(1)}px,${p.y.toFixed(1)}px,0) rotate(${p.a.toFixed(1)}deg)` +
+        ` rotateX(${p.rx.toFixed(1)}deg) rotateY(${p.ry.toFixed(1)}deg)`;
+    });
+    const dura = quieto ? 0.65 : APAGA + DURA + 0.05;
+    if (t < dura) setTimeout(paso, 16); else fin();
+  };
+  paso();
+}
+
+/* Lo que pasa cuando se rompe: lo mismo que cuando se llega al nivel, en el
+   mismo orden que `revisarNivelExpedicion` (js/02-progreso.js). Apuntar,
+   sembrar lo que la bienvenida dejó para este módulo, guardar, quitar el
+   candado del menú, y la fiesta. */
+function abrirARomper(id) {
+  const m = MODULOS.find(x => x.id === id);
+  const nombre = m ? tx(m.label) : id;
+  /* Lo que hay dentro se escribe ANTES de sembrar: se lee de la misma nota
+     (`settings.siembra`) que va a usarse para plantarlo. */
+  const s = state.settings && state.settings.siembra;
+  let dentro = "";
+  if (s && id === "tree") {
+    const ramas = (typeof ONBOARD_AREAS !== "undefined" ? ONBOARD_AREAS : [])
+      .filter(a => (s.areas || []).indexOf(a.id) >= 0).map(a => tx(a.branch));
+    if (ramas.length === 1) dentro = T`Tu rama de ${ramas[0]} ya está dentro.`;
+    else if (ramas.length > 1) dentro = T`Tus ramas de ${enLista(ramas)} ya están dentro.`;
+  } else if (s && id === "projects" && s.project) {
+    dentro = T`«${s.project}» ya está dentro.`;
+  }
+
+  state.settings = state.settings || {};
+  const rotos = Array.isArray(state.settings.rotos) ? state.settings.rotos : [];
+  if (rotos.indexOf(id) < 0) rotos.push(id);
+  state.settings.rotos = rotos;
+  if (typeof sembrarLoApuntado === "function") sembrarLoApuntado();
+  save();
+  aplicarModulos();
+  const resumen = document.getElementById("view-summary");
+  if (resumen && resumen.classList.contains("active") && typeof renderSummary === "function") renderSummary();
+
+  const trazo = trazoDeModulo(id);
+  const cuerpo =
+    (trazo ? '<span class="roto-medalla"><svg viewBox="0 0 24 24" aria-hidden="true">' + trazo + '</svg></span>' : "") +
+    '<span class="cerr-tx">' + escapeHtml(T`${nombre} no te esperaba tan pronto.`) +
+    (dentro ? " " + escapeHtml(dentro) : "") + '</span>';
+  if (navigator.vibrate) { try { navigator.vibrate([40, 60, 40, 60, 140]); } catch (x) {} }
+  askBase(cuerpo, true, T`Ver ${nombre}`, false, false, null,
+          { tono: "menta", titulo: T`¡Módulo «${nombre}» desbloqueado!`, soloOk: true })
+    .then(ir => { if (ir) irAModulo(id === "tree" ? "tree" : "projects"); });
 }
 
 /* A qué módulo pertenece cada vista, incluidas sus pantallas hijas: si

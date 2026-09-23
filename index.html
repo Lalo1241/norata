@@ -169,6 +169,18 @@
 
      Aquí arriba y no en el script principal por lo mismo que el modo claro:
      abajo se vería un instante la app de verdad y luego el cambio. */
+  /* La prueba del candado que se rompe (0.7.126). Solo enciende los GOLPES;
+     lo que ya se rompió se queda roto con la prueba apagada, porque vive en la
+     cuenta (`settings.rotos`). ?romper=1 la enciende, ?romper=0 la apaga. */
+  try {
+    var qr = new URLSearchParams(location.search).get("romper");
+    if (qr === "1") sessionStorage.setItem("norata-prueba-romper", "1");
+    if (qr === "0") sessionStorage.removeItem("norata-prueba-romper");
+    if (sessionStorage.getItem("norata-prueba-romper") === "1") {
+      document.documentElement.classList.add("romper-prueba");
+    }
+  } catch (e) {}
+
   try {
     var qi = new URLSearchParams(location.search).get("informes");
     if (qi === "demo" || qi === "no") sessionStorage.setItem("norata-prueba-informes", qi);
@@ -314,6 +326,11 @@
 <!-- El rótulo del escaparate. Solo se dibuja con `?informes=demo` puesto, y
      tiene que estar: una pantalla enseñando datos que no son tuyos sin
      avisarlo es peor que no poder mirarla. -->
+<!-- El rótulo de la prueba del candado que se rompe (0.7.126). -->
+<div class="rotulo-prueba" id="rotulo-romper">
+  Prueba: el candado se rompe a golpes
+  <a href="?romper=0">salir</a>
+</div>
 <div class="rotulo-prueba" id="rotulo-informes">
   Estás viendo números inventados, no son tus datos
   <a href="?informes=no">salir</a>

@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.125.2";
+const VERSION = "0.7.126";
 const VERSION_FECHA = "23 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -1724,6 +1724,11 @@ function askBase(msg, esHtml, okLabel, danger, alarm, cancelLabel, extra) {
     if (card.dataset.claseSuelta) card.classList.remove(card.dataset.claseSuelta);
     if (ex.clase) { card.classList.add(ex.clase); card.dataset.claseSuelta = ex.clase; }
     else delete card.dataset.claseSuelta;
+    /* Las grietas del candado que se rompe (js/04-misiones.js) cuelgan de la
+       TARJETA y no del cuerpo, así que no se van con el `innerHTML` de arriba:
+       sin esto, la siguiente pregunta saldría agrietada. */
+    const grietas = card.querySelector(".grietas");
+    if (grietas) grietas.remove();
     if (alarm) { void card.offsetWidth; card.classList.add("alarm"); }
     const fondo = document.getElementById("modal");
     fondo.classList.toggle("fijo", !!ex.fijo);

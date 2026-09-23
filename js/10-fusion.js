@@ -138,6 +138,17 @@ function fusionarEstados(a, b, bEsMasNuevo) {
   unirRamas("ramasTalentos");
   unirRamas("ramasProyectos");
 
+  /* Los candados rotos a golpes (js/04-misiones.js) también se unen, y por una
+     razón más fuerte que las ramas: romper uno es para siempre. `settings`
+     viene entero del lado más nuevo, así que un dispositivo que guardó después
+     sin enterarse le volvía a poner el candado a quien ya lo había roto. */
+  const rotosA = (base.settings && base.settings.rotos) || [];
+  const rotosB = (otro.settings && otro.settings.rotos) || [];
+  if (rotosA.length || rotosB.length) {
+    out.settings = out.settings || {};
+    out.settings.rotos = [...rotosA, ...rotosB.filter(x => !rotosA.includes(x))];
+  }
+
   /* Qué rama vino de qué camino. Es un mapa `rama -> id`, así que se unen las
      dos caras y gana la del lado más nuevo cuando la misma rama aparece en
      ambos — pero eso casi no pasa, porque una rama la crea un solo dispositivo.

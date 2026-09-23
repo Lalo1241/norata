@@ -3627,5 +3627,11 @@ const TEXTOS_EN = {
   "A «{0}» le quedan {1}.": "«{0}» has {1} left.",
   "«{0}» dura {1}.": "«{0}» lasts {1}.",
   "Tu ritmo no cabe ahí.": "Your rhythm doesn't fit there.",
-  "Cuadrar: {0} × {1} min": "Fit: {0} × {1} min"
+  "Cuadrar: {0} × {1} min": "Fit: {0} × {1} min",
+  "Prueba: el candado se rompe a golpes": "Test: the lock breaks if you hit it",
+  "¡Módulo «{0}» desbloqueado!": "«{0}» module unlocked!",
+  "{0} no te esperaba tan pronto.": "{0} wasn't expecting you this soon.",
+  "Tu rama de {0} ya está dentro.": "Your {0} branch is already inside.",
+  "Tus ramas de {0} ya están dentro.": "Your {0} branches are already inside.",
+  "«{0}» ya está dentro.": "«{0}» is already inside."
 };

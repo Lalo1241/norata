@@ -709,8 +709,12 @@ function revisarNivelExpedicion() {
     return;
   }
 
+  /* Un módulo que ya se abrió a golpes (`romperCandado`, js/04-misiones.js)
+     no se vuelve a anunciar como premio al llegar a su nivel: sería regalar lo
+     que la persona ya tiene. */
   const abre = typeof desbloqueosDeExpedicion === "function"
-    ? desbloqueosDeExpedicion(ahora).filter(x => x.nivel > visto)
+    ? desbloqueosDeExpedicion(ahora).filter(x => x.nivel > visto &&
+        !(x.tipo === "modulo" && typeof moduloRoto === "function" && moduloRoto(x.id)))
     : [];
   state.ui.expNivelVisto = ahora;
 

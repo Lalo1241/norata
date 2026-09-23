@@ -227,6 +227,12 @@
     --sombra-m: rgba(0, 0, 0, 0.45);
     --sombra-l: rgba(0, 0, 0, 0.6);
 
+    /* Las grietas del candado que se rompe: un surco hondo y un filo encima,
+       desplazados medio píxel. De noche el filo es luz; de día es blanco sobre
+       un surco de tinta, y sin resplandor en ninguno de los dos. */
+    --grieta-hondo: rgba(0, 0, 0, 0.62);
+    --grieta-filo: rgba(234, 241, 239, 0.78);
+
     /* El carril por el que avanza un aro o una barra de progreso. No es
        `--line`: un borde tiene que apenas notarse y un carril tiene que
        dejar ver por dónde va lo lleno. De noche coinciden; de día el carril
@@ -726,6 +732,8 @@
     --velo-macizo: rgba(16, 24, 34, 0.62);
 
     --sombra-s: rgba(23, 38, 56, 0.07);
+    --grieta-hondo: rgba(22, 32, 43, 0.72);
+    --grieta-filo: rgba(255, 255, 255, 0.9);
     --sombra-m: rgba(23, 38, 56, 0.10);
     --sombra-l: rgba(23, 38, 56, 0.14);
 
@@ -3165,6 +3173,58 @@
     text-align: left;
   }
   .cerr-espera svg { flex: none; margin-top: 2px; color: var(--mint); }
+
+  /* ---------- El candado que se rompe (0.7.126, en prueba) ----------
+     Todo cuelga de `.rompible`, que solo lleva el cuadro de un módulo cerrado
+     y solo con `?romper=1` puesto. Ver `armarGolpes` en js/04-misiones.js.
+
+     `touch-action: manipulation` es lo que quita el zoom del doble toque en el
+     teléfono: el navegador deja de esperar un segundo toque, y de paso el
+     golpe responde sin el retardo de 300 ms. En la tarjeta entera y no solo
+     en el aro, porque un dedo que golpea rápido no cae siempre en el mismo
+     sitio. */
+  .modal-card.rompible {
+    position: relative;
+    touch-action: manipulation;
+    user-select: none; -webkit-user-select: none;
+  }
+  .rompible .cerr-aro .aro-nivel {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .rompible .aro-nivel.golpe .aro-llave { animation: golpe-llave 90ms ease-out; }
+  @keyframes golpe-llave { 40% { transform: scale(0.88); } }
+  .modal-card .grietas {
+    position: absolute; left: 0; top: 0; width: 100%;
+    pointer-events: none; overflow: hidden; border-radius: inherit;
+  }
+  .grietas path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .grietas .g-h { stroke: var(--grieta-hondo); }
+  .grietas .g-f { stroke: var(--grieta-filo); }
+  /* Los trozos que vuelan. En el piso del cuadro que se rompió, que es el
+     más alto de las ventanas, y sin atrapar ni un toque. */
+  .rotura {
+    position: fixed; inset: 0;
+    z-index: var(--piso-confirmar);
+    pointer-events: none;
+    perspective: 1100px;
+    overflow: hidden;
+  }
+  .rotura > div { position: absolute; }
+  .rotura .esquirla { background: var(--sup-tarjeta); border: var(--borde-fino) solid var(--fire); }
+  /* La fiesta de después: el dibujo del módulo, el de su botón de la barra. */
+  .roto-medalla {
+    display: grid; place-items: center;
+    width: 76px; height: 76px; margin: 0 auto 14px;
+    border-radius: var(--r-redondo);
+    background: var(--mint-soft); color: var(--mint);
+    border: 2px solid var(--mint);
+  }
+  .roto-medalla svg {
+    width: 34px; height: 34px;
+    fill: none; stroke: currentColor; stroke-width: 1.8;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
 
   /* ---------- La tarjeta de un módulo que aún no abre el nivel ----------
      Se queda en el tablero en vez de desaparecer (0.7.96, decisión de Eduardo):
@@ -9246,7 +9306,8 @@
      id-de-rótulo y no clase con clase: con un selector suelto, encender una
      sacaba también el rótulo de la otra. Hoy queda una sola prueba viva
      (`?informes=demo`), y el emparejamiento se deja puesto para la siguiente. */
-  html.informes-demo #rotulo-informes {
+  html.informes-demo #rotulo-informes,
+  html.romper-prueba #rotulo-romper {
     display: flex; align-items: center; gap: 8px;
     position: fixed;
     left: 12px;
@@ -9259,7 +9320,8 @@
     letter-spacing: 0.06em; text-transform: uppercase;
     max-width: calc(100vw - 24px);
   }
-  html.informes-demo #rotulo-informes a {
+  html.informes-demo #rotulo-informes a,
+  html.romper-prueba #rotulo-romper a {
     color: inherit;
     background: rgba(16, 21, 29, 0.14);
     border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
@@ -9268,10 +9330,12 @@
   }
   /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
      deja congelado en el inicial. */
-  html.informes-demo #rotulo-informes a:hover { background: rgba(16, 21, 29, 0.24); }
+  html.informes-demo #rotulo-informes a:hover,
+  html.romper-prueba #rotulo-romper a:hover { background: rgba(16, 21, 29, 0.24); }
   @media (min-width: 900px) {
     /* En pantalla ancha la barra de navegación no está abajo. */
-    html.informes-demo #rotulo-informes { bottom: calc(env(safe-area-inset-bottom) + 14px); }
+    html.informes-demo #rotulo-informes,
+    html.romper-prueba #rotulo-romper { bottom: calc(env(safe-area-inset-bottom) + 14px); }
   }
 
 

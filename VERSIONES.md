@@ -222,6 +222,46 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.126 · 23 sep 2026
+
+**Romper el candado a golpes (EN PRUEBA, `?romper=1`).** Un secreto que pidió
+Eduardo: en el cuadro de un módulo cerrado por nivel —solo Talentos y
+Proyectos—, golpear el candado del aro entre 80 y 100 veces seguidas (la meta se
+sortea cada vez) abre el módulo antes de tiempo. Cada golpe hace temblar el
+cuadro entre 1 y 2,5 px y le abre grietas al azar desde el aro; al llegar a la
+meta la tarjeta se parte en once trozos con físicas —gravedad, giro en tres
+ejes, rebote contra el borde de abajo— más dieciocho esquirlas, se desvanecen,
+y sale «¡Módulo «Proyectos» desbloqueado!». Lo aprobó en un boceto antes de
+tocar la app.
+
+Lo que no se negocia, y por qué:
+
+- **Ningún candado de pago se entera.** Los golpes se enganchan solo en
+  `avisoModuloCerrado`. Romper uno de plan sería regalar lo que se cobra.
+- **Si dejas de tocar 1,5 s, las grietas se cierran**, y cerradas del todo se
+  olvidan: el siguiente intento traza otras. Sin eso se rompería sin querer, a
+  plazos, a lo largo de varios días.
+- **Romperlo es para siempre.** Va en `settings.rotos` y `moduloAbierto` lo mira
+  con la prueba puesta o sin ella. `settings` viaja entero desde el dispositivo
+  más nuevo, así que `fusionarEstados` ahora UNE las dos listas: sin eso, un
+  teléfono que guardaba después le devolvía el candado a quien ya lo rompió.
+- **Al romperse pasa lo mismo que al llegar al nivel**: se siembra lo que la
+  bienvenida dejó apuntado, se quita el candado del menú y del tablero. Y al
+  llegar de verdad a ese nivel, la fiesta ya no lo anuncia como premio.
+- **Sin zoom en el teléfono**: `touch-action: manipulation` en la tarjeta.
+
+Dos trampas que salieron en el boceto: una raya de largo cero con la punta
+redonda se pinta como un PUNTO —se veía por dónde iban a pasar las grietas
+antes de nacer, lo cazó Eduardo—; y las grietas cuelgan de la tarjeta y no del
+cuerpo, así que `askBase` las quita al abrir la siguiente pregunta.
+
+**Para quitar la prueba** (pero NO lo roto, que se queda en las cuentas): el
+bloque `romper` del script de arriba de `index.html` y el `#rotulo-romper`; en
+`css/estilos.css`, los selectores `html.romper-prueba #rotulo-romper`; en
+`avisoModuloCerrado`, el `clase: pruebaRomper()…` y la llamada a
+`armarGolpes`. Para hacerlo de todos, basta con que `pruebaRomper()` devuelva
+`true`.
+
 ### 0.7.125.2 · 23 sep 2026
 
 **El icono de Android se encoge hasta la carga.** Eduardo notó que la app
