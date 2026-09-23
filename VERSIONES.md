@@ -123,18 +123,38 @@ títulos con la flecha en los dos sentidos, y la frase legal al pie— y tambié
 se cerró la pregunta de «Probar sin cuenta», que se apagó para quien llega
 nuevo. Queda una.
 
-### `/crear-cuenta/` como pantalla propia
+### `/crear-cuenta/` se queda como desvío — CERRADO el 22 sep 2026
 
-Sigue siendo un **desvío** a `/login/?nuevo` y no una página. La razón está
-escrita entera en `crear-cuenta/index.html` y no ha cambiado: **`redirect_to`
-sale de `location.pathname`** (`sbVuelta`, en `js/10b-supabase.js`), así que una
-segunda puerta de verdad no es un archivo más — es **otra dirección de vuelta
-que dar de alta en Supabase**, configuración fuera de este repositorio, y si
-falta hace rebotar a quien entre con Google.
+**Sale de esta lista porque ya no es un pendiente: es una decisión.** Eduardo
+pidió hacerla página de verdad, y al ir a construirla salió el dato que cambia
+el veredicto — **el desvío YA cumple lo que se quería**.
 
-Por eso no se hizo con las otras tres: es la única de las cuatro que no se puede
-terminar desde aquí. Cuando se haga: **primero el alta en Supabase, después la
-página**, y no al revés.
+`/crear-cuenta/` manda a `/login/?nuevo`, y ese `?nuevo` hace que la puerta abra
+**directamente en el formulario de crear cuenta** en vez del de entrar
+(`puertaEsNueva` → `mostrarPortada("crear")`, `js/12-login.js`). O sea que el
+camino partido de la landing funciona hoy. Lo único que cambiaría una página de
+verdad es lo que se lee en la barra de direcciones.
+
+Y cuesta cuatro cosas, tres de ellas para siempre:
+
+1. Otro HTML casi idéntico al de la puerta, que es como se desincronizan las
+   cosas.
+2. Dos altas más en `ASSETS` (`./crear-cuenta/` y `./crear-cuenta/index.html`).
+3. Un tercer sitio que enseñar a `logotipoSrc()` y a `legalBase()`, que resuelven
+   su ruta mirando dónde están.
+4. Y la de Supabase: `redirect_to` sale de `location.pathname` (`sbVuelta`, en
+   `js/10b-supabase.js`), así que habría que dar de alta otra dirección de vuelta
+   fuera de este repositorio, o clavar `sbVuelta()` en `/login/` — que cambia a
+   dónde vuelven los enlaces de recuperación de TODA la app.
+
+**Hay salida para la cuarta y no la hay para las tres primeras**, y son las que
+se pagan cada vez que se toca la puerta. Cambiar eso por una dirección más bonita
+es mal negocio.
+
+**Si algún día se retoma**, que sea por una razón que no existe hoy: que
+`/crear-cuenta/` tenga que decir algo DISTINTO de `/login/` —otro panel, otro
+texto, otra prueba A/B—. Mientras las dos pantallas sean la misma, el desvío es
+la forma correcta y no un apaño.
 
 ### Cambiar `WEB_NORATA` el día que el dominio esté en alta
 

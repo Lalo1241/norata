@@ -18,7 +18,8 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
 | **Diseñado y medido, sin construir** | Los doce restantes de este documento (revisados tres veces). |
 | **Ya está en la app** (antes de todo esto) | La caja registradora: `js/10d-plan.js` ya tiene la llave `apariencia` —Gratuito «las paletas de color», Pro «todas las apariencias»—. El cobro está resuelto; lo que no existe es qué vender. |
 | **Ya está en la app** (0.7.40) | **El motor**, apagado detrás de `?apariencia=`: `data-apariencia`, los siete ambientes, `--tipo-titulo-escala` y el guardado. Con la apariencia de casa puesta no se movió un píxel de 25 848. |
-| **Propuesto, NO existe** | La pantalla de Apariencia en Ajustes, el nivel de expedición —sin él nada se desbloquea—, la carga diferida de los mundos y las tres intensidades de fiesta. |
+| **Ya está en la app** (0.7.55 y después) | La pantalla **Mi apariencia** en Ajustes, encendida para todo el mundo (`APARIENCIA_PUBLICA` en `js/10i-apariencia.js`); el **nivel de expedición**, que es de lo que cuelga todo (`js/02b-expedicion.js`); y la **carga diferida** de los mundos, con su huella en la dirección (ver «Cómo llega la app» en `CLAUDE.md`). |
+| **Propuesto, NO existe** | Las tres intensidades de fiesta, y los once mundos que faltan por construir. |
 
 ## Las tres reglas
 

@@ -237,8 +237,11 @@ lleva su rótulo de modo prueba. Medido: **con la apariencia de casa puesta no
 se movió un píxel de 25 848**, y las únicas ocho propiedades que cambiaron son
 el ancho del número de versión en Ajustes.
 
-Falta la pantalla de Ajustes y falta el nivel que los desbloquea. Lo de abajo
-es el contrato con el que se construyó.
+**Y desde entonces se encendió entero.** La pantalla de Ajustes existe («Mi
+apariencia», `APARIENCIA_PUBLICA` en `js/10i-apariencia.js`) y el nivel que los
+desbloquea también (`js/02b-expedicion.js`). Lo de abajo es el contrato con el
+que se construyó, y se deja escrito porque sigue explicando POR QUÉ está hecho
+así — no porque falte.
 
 Antes de eso no existía. Comprobado el 30 de agosto sobre `origin/main` en 0.7.39.1: no hay
 cargador, ni `--m-*`, ni CSS de apariencia servido, en ninguna rama ni en ningún
@@ -376,9 +379,15 @@ congela. Aplicada aquí:
 
 ## El nivel de expedición
 
-Es la cifra de la que cuelga todo lo anterior, y **hoy no existe**: `levelInfo()`
-da niveles por habilidad y nadie suma el total. Sin ella un ambiente que se gana
-no sabe cuándo se ganó.
+Es la cifra de la que cuelga todo lo anterior. **Ya existe**, en
+`js/02b-expedicion.js`: lo de abajo es el diseño con el que se construyó y se
+queda escrito por eso, no porque esté pendiente.
+
+Cuando se escribió esta sección todavía no existía —`levelInfo()` daba niveles
+por habilidad y nadie sumaba el total—, y esa frase se quedó aquí diciendo que
+faltaba mucho después de estar hecho. Corregido el 22 sep 2026, junto con las
+otras dos del mismo error: una sesión que las leyera se pondría a construir por
+segunda vez algo que ya está publicado, y este documento es justo el que manda.
 
 El nombre ya estaba puesto sin querer: la pantalla de bienvenida dice «Tu
 expedición empieza aquí».
