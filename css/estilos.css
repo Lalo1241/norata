@@ -13,6 +13,13 @@
      esas variables y nada más. Si al añadir algo hace falta un tono nuevo,
      el sitio donde se declara es este, con su pareja clara al lado. */
   :root {
+    /* Los tres tonos del ICONO de la app, leídos de `icon-512.png`. Sin
+       pareja clara a propósito: copian la pantalla con la que abre Android,
+       que es siempre esta, y el relevo de la carga (`.carga-sello`) solo
+       funciona si coinciden al píxel. */
+    --sello-fondo: #5fe0b0;
+    --sello-tinta: #131823;
+    --sello-suelo: #10151d;
     --bg: #10151d;
     --bg2: #151b25;
     --card: #1d2530;
@@ -8949,6 +8956,43 @@
   }
   .carga-marca svg { width: 42px; height: 42px; fill: var(--mint-macizo); animation: cargaLate 1.9s ease-in-out infinite; }
   .carga-msg { color: var(--muted); font-size: 14px; text-align: center; line-height: 1.55; max-width: 300px; }
+  /* ---- El relevo con la app de Android (0.7.125.2) ----
+     Solo con `html.desde-app`, que pone el script de arriba de `index.html`.
+     Arranca siendo el icono con el que abre Android —300 px, centrado en la
+     pantalla, sobre carbón— y lo encoge hasta el logo de la carga, que va
+     apareciendo debajo. Las medidas salen del icono: el logo ocupa el 61% del
+     cuadro (183 px de 300) y su trazo el 87% de su `viewBox`, así que el svg
+     mide 210. El radio se escribe suelto a propósito: copia la esquina del
+     icono, y pasarlo por `--r-factor` la enderezaría en un mundo cuadrado.
+
+     `--sello-dy` lleva el centro del icono al del aro: la carga centra el aro
+     MÁS el texto, así que el aro queda por encima del centro la mitad del
+     hueco y la línea de texto. */
+  .carga-sello { display: none; }
+  html.desde-app .carga::before {
+    content: ""; position: absolute; inset: 0; background: var(--sello-suelo);
+    animation: selloSuelo 480ms ease 140ms both;
+  }
+  html.desde-app .carga-marca, html.desde-app .carga-msg {
+    position: relative; animation: selloAparece 320ms ease 380ms both;
+  }
+  html.desde-app .carga-sello {
+    --sello-dy: -22px;
+    display: grid; place-items: center;
+    position: fixed; left: 50%; top: 50%;
+    width: 300px; height: 300px; margin: -150px 0 0 -150px;
+    border-radius: 58px; background: var(--sello-fondo);
+    animation: selloEncoge 520ms cubic-bezier(0.5, 0, 0.2, 1) 140ms both;
+  }
+  .carga-sello svg { width: 210px; height: 210px; fill: var(--sello-tinta); }
+  @keyframes selloEncoge {
+    60%  { opacity: 1; }
+    100% { transform: translateY(var(--sello-dy)) scale(0.2); opacity: 0; }
+  }
+  @keyframes selloSuelo { to { opacity: 0; } }
+  @keyframes selloAparece { from { opacity: 0; } }
+  /* Sin movimiento no hay nada que encoger: el script de arriba ni siquiera
+     pone `desde-app`, y se ve la carga de siempre. */
   @keyframes cargaGira { to { transform: rotate(360deg); } }
   @keyframes cargaLate {
     0%, 100% { opacity: 0.55; transform: scale(0.94); }

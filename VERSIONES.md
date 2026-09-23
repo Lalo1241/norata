@@ -222,6 +222,28 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.125.2 · 23 sep 2026
+
+**El icono de Android se encoge hasta la carga.** Eduardo notó que la app
+instalada abría «poco orgánica». Son tres pantallas seguidas: la de Android
+(el icono entero, el cuadro menta de 300 dp sobre carbón), la ventana de Chrome
+que crece —esa es de Android y desde la web no se toca— y la carga, con un
+logo de 42 px y otro color. El salto de la primera a la tercera sí era nuestro.
+
+Ahora, cuando la app se abre desde Android (se sabe por el `referrer`
+`android-app://app.norata`), la carga empieza siendo ese mismo icono en el
+mismo sitio y lo encoge hasta el logo del aro, y la carga no se va hasta que
+termina (`cargaCerrar`, con tope de 1,6 s). Medido en el DOM y congelando la
+animación: al empezar, cuadro de 300 px centrado con el logo a 183 px (el 61%
+del icono, como en `icon-512.png`); al terminar, el centro del logo cae en el
+del aro, a 1024 y a 375 de ancho. `?sello=1` lo enseña en el navegador, una
+vez por pestaña. Los tres tonos del icono son variables nuevas (`--sello-*`)
+sin pareja clara, a propósito: copian una pantalla que no cambia de modo.
+
+**Lo que NO se probó: en el teléfono.** Si el cuadro de Android no mide 300 dp
+en algún dispositivo, el relevo se verá con un pequeño salto de tamaño. Se
+arregla cambiando los 300 px y el 210 del svg.
+
 ### 0.7.125.1 · 23 sep 2026
 
 **Un solo «desliza para actualizar», el de la app.** Con la app de Android
