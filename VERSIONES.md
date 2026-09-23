@@ -222,6 +222,21 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.125.1 · 23 sep 2026
+
+**Un solo «desliza para actualizar», el de la app.** Con la app de Android
+instalada (el APK de PWABuilder, paquete `app.norata`), Eduardo vio que al tirar
+hacia abajo salía la ruedita de Chrome encima de nuestra pastilla, y la ruedita
+ganaba: recargaba la página entera. Se apaga con `overscroll-behavior-y: none`
+en `html` —en `body` Chrome no la lee—.
+
+La ruedita hacía una cosa que la pastilla no: recargar, que es como entraba una
+versión que ya estaba esperando. En el teléfono no hay barra lateral con el
+botón de actualizar, así que sin cubrir eso, tirar habría dejado de traer la
+app nueva. Ahora la pastilla, después de sincronizar, pregunta
+`norataHayVersion()` y, si hay una esperando, llama a `norataActualizar()`; si
+no, pide `update()` por detrás para que la próxima vez ya esté.
+
 ### 0.7.125 · 22 sep 2026
 
 **La app dejó de recibirte con la factura.** Eduardo dijo que le había perdido

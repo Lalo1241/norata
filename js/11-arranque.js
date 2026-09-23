@@ -433,6 +433,14 @@ window.addEventListener("online", () => syncRun({ silent: true }));
     pintar(UMBRAL, "Actualizando…");
     if (syncReady()) await syncRun({ silent: true });
     else toast(tx("Sin cuenta: no hay nada que traer"), "calma");
+    /* Desde que la ruedita de Chrome está apagada (`overscroll-behavior` en
+       `html`), este es el ÚNICO tirón, y la ruedita hacía algo que este no:
+       recargar, que es como entraba una versión que ya estaba esperando. Sin
+       esto, en el teléfono —donde no hay barra lateral con el botón— tirar
+       dejaba de traer la app nueva. Si no hay nada esperando, solo se pregunta
+       por detrás, para que la próxima vez ya esté. */
+    if (window.norataHayVersion && window.norataHayVersion()) { norataActualizar(); return; }
+    if (swRegistro) swRegistro.update().catch(() => {});
     quitar();
   }, { passive: true });
 })();
@@ -574,6 +582,8 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
   function versionAlDia() {
     return !!versionQueEntra && versionQueEntra === VERSION;
   }
+  // Para el «desliza para actualizar», que vive fuera de este bloque.
+  window.norataHayVersion = () => hayVersionNueva && !versionAlDia();
 
   function avisarDeLaVersion() {
     const btn = document.getElementById("nav-update-side");

@@ -1109,6 +1109,12 @@
     scrollbar-gutter: stable;
     color-scheme: var(--esquema);
     background: var(--fondo-raiz);
+    /* Apaga la ruedita de recargar de Chrome. La app tiene su propio «desliza
+       para actualizar» (`11-arranque.js`), y con las dos puestas el mismo tirón
+       sacaba la pastilla Y la ruedita, y la ruedita ganaba recargando la página
+       entera. Tiene que ir en `html`: es el que se desplaza, y en `body` Chrome
+       no la lee. */
+    overscroll-behavior-y: none;
   }
   body {
     font-family: var(--sans);
