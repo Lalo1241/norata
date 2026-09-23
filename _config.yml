@@ -57,6 +57,21 @@
 #    `url()` de los css apunta a ellas, porque los svg y las tipografías
 #    van incrustados en base64 dentro del propio css.
 
+#  ---- Lo único que se INCLUYE a la fuerza ----
+#
+#  Jekyll se salta en silencio toda carpeta que empiece por punto, y
+#  `.well-known/assetlinks.json` tiene que servirse: es lo que le prueba a
+#  Android que la app instalada (el APK de PWABuilder, paquete
+#  `app.norata`) y `mi.norata.app` son del mismo dueño. Sin él la app abre
+#  con la barra del navegador arriba, y el fallo no avisa: el archivo está
+#  en el repositorio y el sitio contesta 404.
+#
+#  El archivo solo lleva la HUELLA de la firma, que es pública por diseño.
+#  La llave de firma de verdad no entra nunca en este repositorio.
+
+include:
+  - .well-known
+
 exclude:
   # Los documentos. Esto es lo que de verdad se está cerrando.
   - CLAUDE.md

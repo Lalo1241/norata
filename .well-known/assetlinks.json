@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.norata",
+        "sha256_cert_fingerprints": ["68:16:77:41:69:A6:DD:9B:EE:57:84:E5:23:64:83:5D:49:D8:E4:6E:C0:B1:C9:BE:ED:53:6C:F4:FE:7D:56:28"]
+      }
+    }]
