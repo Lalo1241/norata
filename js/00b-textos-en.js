@@ -2526,6 +2526,9 @@ const TEXTOS_EN = {
   "Tu rango": "Your rank",
   "Suelta para actualizar": "Let go to refresh",
   "Desliza para actualizar": "Pull to refresh",
+  "Ya tienes la última versión": "You already have the latest version",
+  "No pude comprobar si hay versión nueva: Norata no contestó":
+    "I couldn't check for a new version: Norata didn't answer",
   "Hay una versión nueva de Norata": "There's a new version of Norata",
   "Niveles {0} a {1}.": "Levels {0} to {1}.",
   "Práctica de {0}": "{0} practice",
