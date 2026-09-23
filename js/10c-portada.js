@@ -116,15 +116,6 @@ function cargaMostrar(mensaje) {
 function cargaCerrar(seca) {
   const el = document.getElementById("carga");
   if (!el || el.classList.contains("oculta")) return;
-  /* Si la carga está haciendo el relevo con el icono de Android, no se va a
-     media animación: se apunta y se cierra al terminar (ver `desde-app` en
-     `index.html`). La app abre de su copia en ~120 ms y el icono tarda ~660,
-     así que sin esto la carga se iba con el icono todavía a medio encoger. */
-  const h = document.documentElement;
-  if (h.classList.contains("desde-app") && !h.classList.contains("sello-hecho")) {
-    window.norataSelloLuego = () => cargaCerrar(seca);
-    return;
-  }
   const mio = ++cargaTurno;
   if (seca) { el.classList.add("oculta"); el.classList.remove("fuera"); return; }
   el.classList.add("fuera");

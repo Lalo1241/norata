@@ -73,39 +73,6 @@
     }
   } catch (e) {}
 
-  /* ---- El relevo con la app de Android (0.7.125.2) ----
-     La app instalada (paquete `app.norata`) abre con la pantalla de Android:
-     el icono entero, el cuadro menta de 300 dp, sobre carbón. Y luego
-     aparecía la carga, con un logo de 42 px y otro color: dos pantallas que
-     no tenían nada que ver, y el salto se notaba. Ahora la carga EMPIEZA
-     siendo ese mismo icono en el mismo sitio, y lo encoge hasta su logo.
-
-     Se sabe que viene de la app por el `referrer`, que Android pone solo al
-     abrirla. Una vez por pestaña, para que recargar no lo repita, y
-     `?sello=1` lo enciende en el navegador para probarlo. La carga no se va
-     hasta que el icono termina (`cargaCerrar`), con un tope por si la
-     animación no llega a correr. */
-  (function () { try {
-    var html = document.documentElement;
-    var desdeApp = document.referrer.indexOf("android-app://app.norata") === 0
-                || new URLSearchParams(location.search).get("sello") === "1";
-    var quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (desdeApp && !quieto && !sessionStorage.getItem("norata-sello")) {
-      sessionStorage.setItem("norata-sello", "1");
-      html.classList.add("desde-app");
-      window.norataSelloFin = function () {
-        if (html.classList.contains("sello-hecho")) return;
-        html.classList.add("sello-hecho");
-        var luego = window.norataSelloLuego; window.norataSelloLuego = null;
-        if (luego) luego();
-      };
-      document.addEventListener("animationend", function (e) {
-        if (e.target.classList && e.target.classList.contains("carga-sello")) window.norataSelloFin();
-      });
-      setTimeout(window.norataSelloFin, 1600);
-    }
-  } catch (e) {} })();
-
   /* Y lo mismo para la apariencia, por el mismo motivo que el modo claro: si
      esperara al script principal, cada carga empezaría con la apariencia de
      casa y daría un fogonazo antes de cambiarse. Aquí solo se pone el
@@ -300,11 +267,9 @@
 <div class="carga" id="carga" role="status" aria-live="polite">
   <div class="carga-marca">
     <span class="carga-anillo"></span>
-    <svg viewBox="0 0 250 250" aria-hidden="true"><path id="carga-logo" d="M224.919,110.004h-5.319c-2.476,0-4.487-2.011-4.487-4.487V25.081c0-4.947-4.027-8.973-8.973-8.973h-87.162c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487H31.811c-8.658,0-15.703,7.046-15.703,15.703v80.436c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v80.432c0,4.947,4.027,8.973,8.973,8.973h87.166c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h55.755c18.556,0,33.65-15.094,33.65-33.65v-62.485c0-4.947-4.027-8.973-8.973-8.973ZM55.91,128.783h-5.319c-2.476,0-4.487-2.011-4.487-4.487v-54.927c0-2.476,2.011-4.487,4.487-4.487h61.657c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h54.923c2.476,0,4.487,2.011,4.487,4.487v61.657c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v45.949c0,7.422-6.038,13.46-13.46,13.46h-52.679c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487h-54.927c-2.476,0-4.487-2.011-4.487-4.487v-61.653c0-4.947-4.027-8.973-8.973-8.973Z"/></svg>
+    <svg viewBox="0 0 250 250" aria-hidden="true"><path d="M224.919,110.004h-5.319c-2.476,0-4.487-2.011-4.487-4.487V25.081c0-4.947-4.027-8.973-8.973-8.973h-87.162c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487H31.811c-8.658,0-15.703,7.046-15.703,15.703v80.436c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v80.432c0,4.947,4.027,8.973,8.973,8.973h87.166c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h55.755c18.556,0,33.65-15.094,33.65-33.65v-62.485c0-4.947-4.027-8.973-8.973-8.973ZM55.91,128.783h-5.319c-2.476,0-4.487-2.011-4.487-4.487v-54.927c0-2.476,2.011-4.487,4.487-4.487h61.657c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h54.923c2.476,0,4.487,2.011,4.487,4.487v61.657c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v45.949c0,7.422-6.038,13.46-13.46,13.46h-52.679c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487h-54.927c-2.476,0-4.487-2.011-4.487-4.487v-61.653c0-4.947-4.027-8.973-8.973-8.973Z"/></svg>
   </div>
   <p class="carga-msg" id="carga-msg">Abriendo Norata…</p>
-  <!-- El icono de Android, para el relevo (ver «desde-app» arriba). -->
-  <div class="carga-sello" aria-hidden="true"><svg viewBox="0 0 250 250"><use href="#carga-logo"/></svg></div>
 </div>
 
 <!-- Rótulo de la prueba de las flechas (0.7.20). Sin él es facilísimo olvidar

@@ -222,6 +222,19 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.127.1 · 23 sep 2026
+
+**Fuera el relevo del icono de la 0.7.125.2.** Eduardo lo vio en el teléfono:
+«pasan mil cosas a la vez y ya después se abre la app». No suavizaba la
+cadena, le añadía un eslabón. La lección, para no volver a intentarlo: el
+arranque de la app de PWABuilder YA son tres pasos que no controlamos (la
+pantalla de Android, el paso a Chrome con la ventana que crece y la pantalla
+de Chrome con el icono), y cualquier cosa que la web ponga encima es un cuarto.
+Lo instalado desde Chrome («Instalar app», un WebAPK) no lo hace porque es
+Chrome mismo quien abre: un solo paso. Se revirtió `ccaa752` entero (el
+script de `index.html`, `.carga-sello` y las `--sello-*`, y la espera en
+`cargaCerrar`).
+
 ### 0.7.127 · 23 sep 2026
 
 **Romper el candado, para todos.** Eduardo lo probó con `?romper=1` en su
