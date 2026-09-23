@@ -222,6 +222,59 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.128 · 23 sep 2026
+
+**En el teléfono, el dedo vuelve a ser de la página: sostener para mover.** Y de
+paso, los números de las horas dejan de estar al doble de su tamaño — que
+resultó ser un fallo y no una cuestión de gusto.
+
+**El desplazamiento.** `#jor-svg` nace con `touch-action: none` porque es una
+superficie de arrastre, y eso en el teléfono costaba caro: con el dedo apoyado
+en cualquier punto de la rueda —también sobre el hueco vacío, y también con la
+rueda quieta, donde no hay nada que mover— la pantalla dejaba de desplazarse. Y
+al revés: bastaba rozar un bloque al empezar a deslizar para cambiarlo de hora
+sin querer. Las dos mitades del mismo fallo, y las dos las cazó Eduardo.
+
+Se resuelve preguntando qué quiere el dedo ANTES de quitarle el desplazamiento,
+que es lo que pidió: **apoyas y no pasa nada; si te mueves, era un
+desplazamiento y la página se va contigo; si lo sostienes 420 ms sin moverte, el
+bloque pasa a tu mano**, con un toque del motor de vibración que lo dice sin
+mirar. Un toque corto sigue eligiendo el bloque, y abriéndolo si ya estaba
+elegido.
+
+Tres reglas y ninguna es un detalle:
+
+1. **Solo con el dedo.** Con ratón no hay nada que decidir —el cursor no
+   desplaza la página—, así que ahí se arrastra al instante como siempre. Por
+   eso se mira `pointerType` y no el ancho de la pantalla.
+2. **El movimiento CANCELA la espera**, no la retrasa: quien ya empezó a
+   deslizar no quería mover nada.
+3. **`touch-action` se cierra al armar y no antes**, y como el dedo lleva quieto
+   todo ese rato el navegador aún no ha decidido desplazar nada, así que lo
+   respeta. El `touchmove` que lo acompaña es el cinturón.
+
+Lo mismo en la previa de la hoja, que tenía el mismo `touch-action` y el mismo
+problema, y el mismo guardián (`jGuardia`, js/09d-jornada.js). Soltar la
+elección tocando fuera también pasó a ser cosa del toque: quitarla al apoyar
+hacía desaparecer las asas de lo que estabas editando solo por bajar a mirar la
+lista.
+
+**Los números.** Estaban a 16 px y en negrita TODOS, cuando su diseño son 10 px
+y con negrita solo los de las seis en punto. No era el diseño: la 0.7.119 añadió
+una casilla para escribir los minutos a mano y la llamó `.jor-num` también. Esa
+regla vive más abajo en el mismo archivo, tiene la misma especificidad y lleva
+`font: inherit` — así que ganaba, y se llevaba por delante el tamaño y el peso
+de las horas del aro. Llevaba ocho versiones así. Ahora cada una va atada a su
+elemento (`text.jor-num` e `input.jor-num`) y no se pueden volver a pisar.
+
+**Medido** con dedos de verdad, despachando los toques por CDP: deslizar sobre
+un bloque desplaza 519 px y no mueve ni una hora; sostener y mover cambia el
+bloque de 1380 a 1410 y no desplaza nada; el toque corto elige y no mueve;
+deslizar sobre el hueco vacío desplaza y ya no borra la elección. Con ratón,
+idéntico a antes: arma al instante y arrastra. Las horas, a 10 px en los dos
+tamaños de pantalla, y la casilla de escribir sin tocar. Cero errores de
+consola y las cuatro combinaciones de humo limpias.
+
 ### 0.7.127.2 · 23 sep 2026
 
 **Cambiar de tema o de mundo ya no se ve: la carga sale ANTES.** Eduardo: «la

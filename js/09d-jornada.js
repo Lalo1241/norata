@@ -1057,41 +1057,144 @@ function jAterrizar(b, ini0) {
   b.ini = c; b.fin = (c + d) % J_DIA;
   toast(T`«${jNombreBloque(pisado)}» ya ocupa esa hora. Tu bloque se acomodó en el hueco libre de las ${jH12(c)}.`, "atencion");
 }
+/* ---------- En el teléfono, el dedo es primero de la página ----------
+   `#jor-svg` llevaba `touch-action: none`, así que CUALQUIER dedo apoyado en la
+   rueda dejaba de poder desplazar la pantalla —también sobre el hueco vacío, y
+   también con la rueda quieta, donde no hay nada que arrastrar—. Y al revés:
+   bastaba rozar un bloque al empezar a deslizar para moverlo de hora sin
+   querer. Las dos mitades del mismo fallo, y las dos las cazó Eduardo.
+
+   Se resuelve preguntando qué quiere hacer el dedo ANTES de quitarle el
+   desplazamiento, que es lo que pidió: **sostener para editar.** Apoyas y no
+   pasa nada; si te mueves, era un desplazamiento y la página se va con tu dedo;
+   si lo sostienes sin moverte, el bloque pasa a tu mano —con un toque del motor
+   de vibración, que es lo que lo dice sin mirar—.
+
+   Tres reglas y ninguna es un detalle:
+
+   1. **Solo con el dedo.** Con ratón no hay nada que decidir: el cursor no
+      desplaza la página, así que ahí se arrastra al instante como siempre. Por
+      eso se mira `pointerType` y no el ancho de la pantalla.
+   2. **El movimiento CANCELA la espera**, no la retrasa: quien ya empezó a
+      deslizar no quería mover nada, y esperar a que levante el dedo para
+      decidirlo sería justo el accidente que esto evita.
+   3. **`touch-action` se cierra al armar y no antes**, y como el dedo lleva
+      quieto todo ese rato el navegador todavía no ha decidido desplazar nada,
+      así que lo respeta. El `touchmove` que lo acompaña es el cinturón: si
+      algún navegador ya se había puesto en marcha, ahí se para.
+
+   Un TOQUE corto sigue haciendo lo de siempre —elegir el bloque, y abrirlo si
+   ya estaba elegido—, que es como se llega a la ficha sin arrastrar nada. */
+const J_MANTENER = 420, J_FUGA = 10;
+function jEsDedo(e) { return !!e.pointerType && e.pointerType !== "mouse"; }
+
+/* El guardián del gesto. Lo usan la rueda y la previa de la hoja, que tienen
+   el mismo problema y merecen la misma respuesta.
+
+   `armar` puede venir vacío: eso es «aquí no hay nada que arrastrar, pero sí
+   algo que contestar al toque» —la rueda quieta—, y entonces no se pone reloj
+   y basta con que el dedo no se escape. */
+function jGuardia() {
+  let esp = null;
+  const cancelar = () => { if (esp) { clearTimeout(esp.t); esp = null; } };
+  return {
+    apoyar(e, datos, armar) {
+      cancelar();
+      esp = { datos, x: e.clientX, y: e.clientY, pid: e.pointerId, t: 0 };
+      if (!armar) return;
+      esp.t = setTimeout(() => {
+        const w = esp; esp = null;
+        if (!w) return;
+        try { if (navigator.vibrate) navigator.vibrate(12); } catch (x) { /* sin motor, se ve igual */ }
+        armar(w.pid, w.datos);
+      }, J_MANTENER);
+    },
+    /* Devuelve si la espera sigue viva DESPUÉS de mirar el movimiento: mientras
+       lo esté, este dedo no es de la rueda y el que mueve no tiene que hacer
+       nada con él. */
+    mover(e) {
+      if (esp && Math.hypot(e.clientX - esp.x, e.clientY - esp.y) > J_FUGA) cancelar();
+      return !!esp;
+    },
+    levantar() { const w = esp; cancelar(); return w; },
+    viva() { return !!esp; },
+    cancelar,
+  };
+}
+
 function jEngancharRueda(svg) {
   let arr = null;
+  const guardia = jGuardia();
+
+  /* De aquí en adelante el dedo es del bloque. */
+  const armar = (pid, a) => {
+    arr = a;
+    svg.classList.add("jor-arrastrando");
+    try { svg.setPointerCapture(pid); } catch (x) { /* sin captura, sigue igual */ }
+    if (a.modo === "todo") { jSelId = a.b.id; jVolando = a.b.id; }
+    jPintarRueda(); jPintarLista();
+  };
+
+  /* Lo que hace un toque corto. Con ratón esto ocurre dentro del `pointerdown`
+     de siempre; con el dedo, al levantarlo. */
+  const toque = (a) => {
+    if (!a) return;
+    if (a.modo === "avisar") { toast(a.txt, "atencion"); return; }
+    /* Soltar la elección también es cosa del toque: con el dedo, tocar fuera de
+       los bloques para deseleccionar y empezar a deslizar la pantalla son el
+       mismo gesto hasta que se levanta, y quitarla al apoyar hacía desaparecer
+       las asas de lo que estabas editando solo por bajar a mirar la lista. */
+    if (a.modo === "vaciar") {
+      if (jSelId) { jSelId = null; jPintarRueda(); jPintarLista(); }
+      return;
+    }
+    if (a.modo === "ini" || a.modo === "fin") return;
+    const b = a.b;
+    if (!b) return;
+    if (jSelId === b.id) jAbrirBloque(b.id);
+    else { jSelId = b.id; jPintarRueda(); jPintarLista(); }
+  };
+
   svg.addEventListener("pointerdown", e => {
     const asa = e.target.closest("[data-h]"), p = e.target.closest(".jor-blq");
     const bloques = jBloques();
     const s = bloques.find(b => b.id === jSelId);
     const quieta = jQuieta();
+    const dedo = jEsDedo(e);
+
     if (quieta && (asa || p)) {
       /* Se dice por qué en el momento de intentarlo, que es cuando la pregunta
          existe. Con un tramo en curso el bloque sí se puede elegir y abrir. */
-      if (quieta.todo || asa || !p) { toast(quieta.txt, "atencion"); return; }
-      const b = bloques.find(x => x.id === p.dataset.id);
-      if (!b) return;
-      if (jSelId === b.id) jAbrirBloque(b.id);
-      else { jSelId = b.id; jPintarRueda(); jPintarLista(); }
+      const a = (quieta.todo || asa || !p)
+        ? { modo: "avisar", txt: quieta.txt }
+        : { modo: "elegir", b: bloques.find(x => x.id === p.dataset.id) };
+      /* Aquí no hay arrastre, así que el dedo NO se retiene: se contesta al
+         levantarlo y mientras tanto la pantalla se sigue desplazando. */
+      if (dedo) guardia.apoyar(e, a, null);
+      else toque(a);
       return;
     }
+
+    let a = null;
     if (asa && s) {
-      arr = { modo: asa.dataset.h, b: s, v: jVecinos(s), x: e.clientX, y: e.clientY, movido: false };
+      a = { modo: asa.dataset.h, b: s, v: jVecinos(s), x: e.clientX, y: e.clientY, movido: false };
     } else if (p) {
       const b = bloques.find(x => x.id === p.dataset.id);
       if (!b) return;
-      const ya = jSelId === b.id;
-      jSelId = b.id;
-      arr = { modo: "todo", b, v: jVecinos(b), m0: jMinEn(svg, e), ini0: b.ini, x: e.clientX, y: e.clientY, movido: false, ya };
-      jVolando = b.id;
-      jPintarRueda(); jPintarLista();
+      a = { modo: "todo", b, v: jVecinos(b), m0: jMinEn(svg, e), ini0: b.ini, x: e.clientX, y: e.clientY, movido: false, ya: jSelId === b.id };
     } else {
-      if (jSelId) { jSelId = null; jPintarRueda(); jPintarLista(); }
+      if (dedo) guardia.apoyar(e, { modo: "vaciar" }, null);
+      else if (jSelId) { jSelId = null; jPintarRueda(); jPintarLista(); }
       return;
     }
-    try { svg.setPointerCapture(e.pointerId); } catch (x) { /* sin captura, sigue igual */ }
+
+    if (dedo) { guardia.apoyar(e, a, armar); return; }
+    armar(e.pointerId, a);
     e.preventDefault();
   });
+
   svg.addEventListener("pointermove", e => {
+    if (guardia.viva()) { guardia.mover(e); return; }
     if (!arr) return;
     if (!arr.movido && Math.hypot(e.clientX - arr.x, e.clientY - arr.y) < 6) return;
     arr.movido = true;
@@ -1107,9 +1210,17 @@ function jEngancharRueda(svg) {
     }
     jPintarRueda(); jPintarLista();
   });
-  const soltar = () => {
+
+  /* El cinturón del punto 3 de arriba: con el bloque ya en la mano, la página
+     no se mueve pase lo que pase. Va sin `passive` o el navegador lo ignora. */
+  svg.addEventListener("touchmove", e => { if (arr) e.preventDefault(); }, { passive: false });
+
+  const soltar = (e) => {
+    const esperaba = guardia.levantar();
+    if (esperaba) { if (!e || e.type === "pointerup") toque(esperaba.datos); return; }
     if (!arr) return;
     const a = arr; arr = null; jVolando = null; jDestino = null;
+    svg.classList.remove("jor-arrastrando");
     if (a.movido && a.modo === "todo") jAterrizar(a.b, a.ini0);
     if (a.movido) save();
     else if (a.modo === "todo" && a.ya) jAbrirBloque(a.b.id);
@@ -2027,24 +2138,43 @@ function jEngancharPrevia(svg) {
   if (!svg || svg.dataset.listo) return;
   svg.dataset.listo = "1";
   let arr = null;
+  /* La misma espera que la rueda grande, y por lo mismo: esta previa también
+     llevaba `touch-action: none`, así que dentro de la hoja no se podía
+     desplazar con el dedo. Sostener para mover, deslizar para leer. */
+  const guardia = jGuardia();
+  const armar = (pid, a) => {
+    arr = a;
+    svg.classList.add("jor-arrastrando");
+    try { svg.setPointerCapture(pid); } catch (x) { /* sin captura, sigue igual */ }
+    if (a.modo === "todo") { jPrevVolando = true; jPintarPrevia(); }
+  };
+  const toque = (a) => {
+    if (!a || a.modo !== "otro") return;
+    if (!jGuardarBloque()) { toast(tx("Guarda este bloque antes de pasar a otro"), "atencion"); return; }
+    jSelId = a.id; jAbrirBloque(a.id); jPintar();
+  };
   svg.addEventListener("pointerdown", ev => {
     const asa = ev.target.closest("[data-h]"), p = ev.target.closest(".jor-blq");
+    const dedo = jEsDedo(ev);
+    let a = null;
     if (asa) {
-      arr = { modo: asa.dataset.h, v: jVecinos(jEdit), ini0: jEdit.ini, fin0: jEdit.fin, x: ev.clientX, y: ev.clientY, movido: false };
+      a = { modo: asa.dataset.h, v: jVecinos(jEdit), ini0: jEdit.ini, fin0: jEdit.fin, x: ev.clientX, y: ev.clientY, movido: false };
     } else if (p && p.dataset.id === J_BORRADOR) {
-      arr = { modo: "todo", m0: jMinEn(svg, ev), ini0: jEdit.ini, fin0: jEdit.fin, x: ev.clientX, y: ev.clientY, movido: false };
-      jPrevVolando = true; jPintarPrevia();
+      a = { modo: "todo", m0: jMinEn(svg, ev), ini0: jEdit.ini, fin0: jEdit.fin, x: ev.clientX, y: ev.clientY, movido: false };
     } else if (p) {
-      /* Otro bloque: guardas lo que llevas y te pasas a ese. */
-      const id = p.dataset.id;
-      if (!jGuardarBloque()) { toast(tx("Guarda este bloque antes de pasar a otro"), "atencion"); return; }
-      jSelId = id; jAbrirBloque(id); jPintar();
+      /* Otro bloque: guardas lo que llevas y te pasas a ese. Eso es un TOQUE,
+         no un arrastre, así que con el dedo se contesta al levantarlo. */
+      const a2 = { modo: "otro", id: p.dataset.id };
+      if (dedo) guardia.apoyar(ev, a2, null); else toque(a2);
       return;
     } else return;
-    try { svg.setPointerCapture(ev.pointerId); } catch (x) { /* sin captura, sigue igual */ }
+    if (dedo) { guardia.apoyar(ev, a, armar); return; }
+    armar(ev.pointerId, a);
     ev.preventDefault();
   });
+  svg.addEventListener("touchmove", ev => { if (arr) ev.preventDefault(); }, { passive: false });
   svg.addEventListener("pointermove", ev => {
+    if (guardia.viva()) { guardia.mover(ev); return; }
     if (!arr) return;
     if (!arr.movido && Math.hypot(ev.clientX - arr.x, ev.clientY - arr.y) < 6) return;
     arr.movido = true;
@@ -2060,11 +2190,14 @@ function jEngancharPrevia(svg) {
     }
     jPintarPrevia();
   });
-  const soltar = () => {
+  const soltar = (ev) => {
+    const esperaba = guardia.levantar();
+    if (esperaba) { if (!ev || ev.type === "pointerup") toque(esperaba.datos); return; }
     if (!arr) return;
     const a = arr; arr = null;
     const destino = jDestino;
     jPrevVolando = false; jDestino = null;
+    svg.classList.remove("jor-arrastrando");
     if (a.movido && a.modo === "todo" && jChoca(jEdit.ini, jEdit.fin, jEdit.id)) {
       const d = jDur(jEdit);
       if (destino == null) { jEdit.ini = a.ini0; jEdit.fin = a.fin0; toast(tx("No cabe: a esa hora la rueda está llena"), "atencion"); }
