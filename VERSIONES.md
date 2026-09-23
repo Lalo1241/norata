@@ -222,6 +222,33 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.128.1 · 23 sep 2026
+
+**La tableta también es una pantalla táctil.** Lo de sostener-para-mover salió
+metido en `@media (max-width: 899px)`, y eso deja fuera a una tableta en
+horizontal: 1.024 px de ancho, un dedo, y la rueda sin poder desplazarse —
+exactamente el fallo que la 0.7.128 vino a cerrar, pero un palmo más grande. Lo
+cazó Eduardo con una frase: «y tabletas también, ya que son pantallas táctiles».
+
+**El arreglo es quitar la condición, no ensancharla.** Preguntar por el ancho
+era la pregunta equivocada, y `any-pointer: coarse` sería la correcta pero
+tampoco hace falta ninguna: **`touch-action` solo se lo mira el dedo y el
+lápiz** — un ratón lo ignora—, y quien decide si se arrastra al instante o hay
+que sostener es el `pointerType` del propio gesto, que es lo que ya hacía el
+JavaScript desde el principio. Sin condición no hay dispositivo que se quede
+fuera: teléfono, tableta, portátil con pantalla táctil y lápiz, todos igual.
+
+Esa mitad, la del JavaScript, ya estaba bien: por eso el fallo era solo de CSS y
+el arreglo son dos líneas sin envolver.
+
+**Medido en cuatro pantallas**, con los toques despachados por CDP: tableta
+horizontal (1366×1024), tableta vertical (1024×1366), teléfono (390×844) y
+escritorio sin táctil (1280×900). En las tres táctiles, `touch-action: pan-y` y
+el mismo par de resultados: deslizar sobre un bloque desplaza la página —en la
+tableta, de 681 a 552— y no mueve ni una hora; sostener y mover cambia el bloque
+y deja el desplazamiento clavado. Con ratón, idéntico a antes: arma al instante
+y arrastra. Cero errores de consola y las cuatro combinaciones de humo limpias.
+
 ### 0.7.128 · 23 sep 2026
 
 **En el teléfono, el dedo vuelve a ser de la página: sostener para mover.** Y de
