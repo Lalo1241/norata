@@ -625,21 +625,32 @@ input.jor-num::-webkit-outer-spin-button, input.jor-num::-webkit-inner-spin-butt
   #jor-chorro { animation: none; }
 }
 
-/* ---------- El teléfono: el dedo es primero de la página ----------
+/* ---------- Donde hay dedo, el dedo es primero de la página ----------
    Va al final del archivo a propósito: son dos reglas que PISAN a las de
    arriba, y una sola de ellas suelta en su sección se leería como un olvido.
 
    `#jor-svg` y `.jor-previa` nacen con `touch-action: none` porque son
-   superficies de arrastre. En el teléfono eso costaba caro: con el dedo
-   apoyado en cualquier punto de la rueda —también sobre el hueco vacío, y
-   también con la rueda quieta— la pantalla dejaba de desplazarse. Así que de
-   día a día se desplazan como cualquier otra cosa, y solo dejan de hacerlo
-   mientras hay un bloque en la mano de verdad (`jor-arrastrando`, que pone el
+   superficies de arrastre. Con el dedo eso costaba caro: apoyado en cualquier
+   punto de la rueda —también sobre el hueco vacío, y también con la rueda
+   quieta, donde no hay nada que mover— la pantalla dejaba de desplazarse. Así
+   que se desplazan como cualquier otra cosa, y solo dejan de hacerlo mientras
+   hay un bloque en la mano de verdad (`jor-arrastrando`, que pone el
    JavaScript al sostener; ver `jGuardia` en js/09d-jornada.js).
+
+   **Y van SIN media query, que es el arreglo de la 0.7.128.1.** Salieron
+   metidas en `max-width: 899px`, y eso deja fuera a la tableta en horizontal —
+   que es una pantalla táctil de 1.024 px y se quedaba sin poder desplazar,
+   igual que el teléfono antes—. Lo cazó Eduardo con una frase: «y tabletas
+   también, ya que son pantallas táctiles».
+
+   Preguntar por el ancho era la pregunta equivocada; preguntar por
+   `any-pointer: coarse` sería la correcta, pero tampoco hace falta ninguna:
+   **`touch-action` solo se lo mira el dedo y el lápiz.** Un ratón lo ignora, y
+   quien decide si se arrastra al instante o hay que sostener es el
+   `pointerType` del propio gesto, no la hoja de estilos. Sin condición no hay
+   dispositivo que se quede fuera, ni un quinto sitio donde acordarse de esto.
 
    `pan-y` y no `auto`: de lado no hay nada que desplazar aquí, y dejarlo
    abierto invita a que la rueda se vaya con un deslizamiento torcido. */
-@media (max-width: 899px) {
-  #jor-svg, .jor-previa { touch-action: pan-y; }
-  #jor-svg.jor-arrastrando, .jor-previa.jor-arrastrando { touch-action: none; }
-}
+#jor-svg, .jor-previa { touch-action: pan-y; }
+#jor-svg.jor-arrastrando, .jor-previa.jor-arrastrando { touch-action: none; }
