@@ -76,9 +76,9 @@ vez, no calculando a ojo.
 
 Dos avisos que cuestan tiempo si se ignoran:
 
-- **`--tipo-titulo-escala` todavía no existe** en `css/estilos.css`. Hay que
-  añadirla al bloque de material y multiplicar por ella los `font-size` de los
-  encabezados.
+- ~~**`--tipo-titulo-escala` todavía no existe.**~~ **Ya existe** en
+  `css/estilos.css` desde la 0.7.40, y los `font-size` de los encabezados ya la
+  multiplican. Un mundo solo tiene que darle su valor.
 - **Poppins es un 11% más ancha que Outfit** y deja 3 px. Fijar la app a
   Poppins no quita el riesgo: se queda con el menor margen de las que pasan.
 - **`document.fonts.ready` no carga nada.** Se resuelve antes de que nadie use
@@ -300,14 +300,21 @@ bajo el texto. Las dos medidas no dicen lo mismo y no se sustituyen.
   a tamaño de tarjeta son ilegibles. Están fuera de los mundos y solo quedan en
   la pista de pruebas, de contraejemplo.
 - **Cuáles se ganan y cuáles se compran**, y si las dos listas se cruzan.
-- **Si el nivel de expedición** —la cifra que sumaría todo el progreso, que hoy
-  no existe— es de dónde cuelgan los desbloqueos.
+- ~~**Si el nivel de expedición** es de dónde cuelgan los desbloqueos.~~
+  **Decidido y construido**: sí, y ya existe (`js/02b-expedicion.js`). El
+  reparto de qué abre cada nivel está en `apariencias/LEEME.md`, que es el
+  documento que manda en esto.
 
 ## Cómo seguir aquí
 
-Rama: **`claude/norata-apariencias-skins-p52cpj`**. Ya está publicado en `main`
-todo lo de 0.7.37 y 0.7.38; esta carpeta es lo que viene después y todavía no
-toca la app.
+**Se trabaja en `main`**, no en una rama aparte. Aquí decía
+`claude/norata-apariencias-skins-p52cpj`, que se fusionó hace versiones y quedó
+muerta; mandar a una sesión a una rama que ya no existe es peor que no decir
+nada.
+
+Y esta carpeta **ya toca la app**: el motor, los siete ambientes y tres de los
+mundos (Averno, Blueprint y Reliquia) están publicados. Lo que falta son los
+otros doce.
 
 Nada de `mundos/` se sirve ni entra en `ASSETS`: es documentación, como
 `herramientas/`. La app sigue sin compilación.
