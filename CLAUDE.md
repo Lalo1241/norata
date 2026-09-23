@@ -425,8 +425,8 @@ Tres palabras y ninguna es intercambiable:
 | | Qué es | Cuántos |
 | --- | --- | --- |
 | **Apariencia** | El paraguas, y la palabra que ya usa `js/10d-plan.js` | — |
-| **Ambiente** | Un recolor: el mismo material con otra luz | 8, en `apariencias/` |
-| **Mundo** | Otro material: superficie, marco, letra y peso al moverse | 14, en `mundos/` |
+| **Ambiente** | Un recolor: el mismo material con otra luz | 7, en `apariencias/` |
+| **Mundo** | Otro material: superficie, marco, letra y peso al moverse | 15 diseñados, 3 construidos, en `mundos/` |
 
 Son **excluyentes** —un mundo declara sus propios colores— y el modo claro es
 un eje aparte. Nada de esto existe todavía en la app: lo que hay es el camino

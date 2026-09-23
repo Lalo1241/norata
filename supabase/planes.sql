@@ -119,6 +119,15 @@ begin
 end;
 $fn$;
 
+/* El `revoke` antes del `grant`, y no es adorno: en Postgres una función nace
+   con EXECUTE para PUBLIC, así que sin esta línea `mi_plan()` quedaba llamable
+   por `anon`. Hoy no filtra nada —es `security definer` pero todo lo que lee lo
+   filtra por `auth.uid()`, que para un anónimo es NULL—, y aun así se pone:
+   era la ÚNICA función del proyecto sin su revoke, y una `security definer`
+   abierta a `anon` es la forma que tiene de volverse un fallo el día que alguien
+   la edite y deje de depender de `auth.uid()`. Encontrado en la auditoría del
+   22 sep 2026. */
+revoke all on function public.mi_plan() from public, anon;
 grant execute on function public.mi_plan() to authenticated;
 
 
