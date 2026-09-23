@@ -127,7 +127,7 @@ async function cuponDeLoQueYaPago(
   precioFundador: string,
   llave: string,
   soloCalcular?: boolean,
-): Promise<{ id: string; centavos: number } | null> {
+): Promise<{ id: string; centavos: number; pagado?: number; cupon?: boolean } | null> {
   if (!cliente) return null;
 
   /* Se le pregunta a Stripe por las suscripciones del cliente en vez de fiarse
@@ -143,6 +143,12 @@ async function cuponDeLoQueYaPago(
   const ahora = Math.floor(Date.now() / 1000);
   let credito = 0;
   let moneda = "";
+  /* Lo que se cobró y si entró con cupón, para que la app lo DIGA. Un abono de
+     $10 sobre un Pro que figura a $590 se lee como un fallo: Eduardo lo
+     preguntó mirando su propia cuenta, y quien llegue así no va a preguntar,
+     va a desconfiar. */
+  let pagado = 0;
+  let cupon = false;
 
   for (const sub of subs) {
     if (sub.status !== "active" && sub.status !== "trialing") continue;
@@ -170,9 +176,13 @@ async function cuponDeLoQueYaPago(
         "/invoices?subscription=" + encodeURIComponent(sub.id) + "&status=paid&limit=1",
         llave,
       );
-      importe = Number(facturas?.data?.[0]?.amount_paid || 0);
+      const factura = facturas?.data?.[0];
+      importe = Number(factura?.amount_paid || 0);
+      const rebajas = Array.isArray(factura?.total_discount_amounts) ? factura.total_discount_amounts : [];
+      if (rebajas.some((d: { amount?: number }) => Number(d?.amount || 0) > 0)) cupon = true;
     } catch (_e) { /* sin factura fiable no se abona nada por esta */ }
     if (!importe) continue;
+    pagado += importe;
 
     /* `current_period_*` cambio de sitio entre versiones de la API de Stripe:
        dejo de estar en la suscripcion y paso a cada renglon. Se prueban las
@@ -188,7 +198,7 @@ async function cuponDeLoQueYaPago(
   }
 
   if (credito <= 0 || !moneda) return null;
-  if (soloCalcular) return { id: "", centavos: credito };
+  if (soloCalcular) return { id: "", centavos: credito, pagado, cupon };
 
   /* El precio de Fundador, para toparlo. Si por lo que sea no se puede leer,
      se prefiere no descontar a descontar de mas. */
@@ -343,7 +353,11 @@ Deno.serve(async (req: Request) => {
     if (!cliente || !precioF) return responder({ centavos: 0 }, 200, origen);
     try {
       const r = await cuponDeLoQueYaPago(cliente, precioF, LLAVE, true);
-      return responder({ centavos: r ? r.centavos : 0 }, 200, origen);
+      return responder({
+        centavos: r ? r.centavos : 0,
+        pagado: r ? r.pagado || 0 : 0,
+        cupon: !!(r && r.cupon),
+      }, 200, origen);
     } catch (e) {
       /* Que falle la cuenta no puede romper la pantalla del plan: se contesta
          cero y el renglon del abono no sale. El descuento de verdad se calcula

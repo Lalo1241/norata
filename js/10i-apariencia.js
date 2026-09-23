@@ -1303,27 +1303,99 @@ function elegirApariencia(id) {
     else if (typeof toast === "function") toast(e.titulo, "atencion");
     return;
   }
-  if (!ponerApariencia(id)) return;
-  pintarSeleccion();
+  /* Dentro del EJEMPLO no se recarga: el ejemplo vive en memoria y una recarga
+     lo borraría sin avisar. Así que ahí se aplica en caliente y ya. */
+  if (typeof modoEjemplo !== "undefined" && modoEjemplo) {
+    if (!ponerApariencia(id)) return;
+    pintarSeleccion();
+    renderPanelApariencia();
+    return;
+  }
+  cambiarTapado(id);
+}
 
-  /* Y se recarga la página. Lo pidió Eduardo y resuelve de raíz una clase
-     entera de problemas: un mundo trae su propio archivo de estilos, que llega
-     por la red DESPUÉS de que el atributo ya esté puesto, y el árbol de
-     talentos y las escenas se dibujan una vez con los colores que había al
-     dibujarlas. Aplicarlo en caliente deja media app con lo nuevo y media con
-     lo viejo; recargar la deja entera, y el arranque ya sabe pintar la
-     apariencia guardada antes del primer fotograma.
+/* Cambiar de apariencia DETRÁS de la pantalla de carga, y no delante.
 
-     Dentro del EJEMPLO no se recarga: el ejemplo vive en memoria y una recarga
-     lo borraría sin avisar. */
-  if (typeof modoEjemplo !== "undefined" && modoEjemplo) { renderPanelApariencia(); return; }
-  /* Sin el nombre: lo pidió Eduardo y tiene razón — el nombre ya está en la
-     ventana que acabas de cerrar, y repetirlo en el aviso es decir dos veces lo
-     mismo medio segundo antes de que la app se recargue y lo enseñe. */
-  if (typeof toast === "function") toast("Cambiando tema…", "calma");
-  /* Un respiro para que el aviso se vea y para que `localStorage` haya
-     escrito de verdad antes de irse. */
-  setTimeout(() => location.reload(), 420);
+   Antes se aplicaba primero, salía un aviso y a los 420 ms se recargaba: lo
+   que se veía era justo lo que la recarga existe para esconder —la app
+   cambiando de piel a medias, con el árbol y las escenas todavía en los
+   colores viejos— y la carga llegaba después, cuando ya no tapaba nada.
+   Eduardo: «la pantalla de carga sale demasiado tarde».
+
+   Ahora el orden es el contrario, en tres tiempos:
+     1. La cortina entra con los colores de ANTES, encima de todo.
+     2. Detrás de ella se pone la apariencia nueva, y la cortina pasa del
+        fondo viejo al nuevo con un fundido.
+     3. Se recarga, y la carga del arranque —que ya sale con la apariencia
+        nueva— la releva sin que cambie nada.
+
+   El fondo de la cortina se escribe con el color LEÍDO y no con `var(--bg)`
+   durante el fundido: una transición sobre un valor que sale de una variable
+   se queda congelada en esta app (ver `ponerTema`), y el fundido saltaría de
+   golpe. Entre dos colores escritos sí avanza.
+
+   Y se RECARGA, que lo pidió Eduardo y resuelve de raíz una clase entera de
+   problemas: un mundo trae su propio archivo de estilos, que llega por la red
+   después de poner el atributo, y el árbol de talentos y las escenas se
+   dibujan una vez con los colores que había al dibujarlas. En caliente queda
+   media app con lo nuevo y media con lo viejo; recargar la deja entera.
+
+   Sin el nombre en el mensaje: ya está en la ventana que acabas de cerrar. */
+function cambiarTapado(id) {
+  const cortina = document.getElementById("carga");
+  const raiz = document.documentElement;
+  const fondoDe = () => {
+    const c = getComputedStyle(raiz).getPropertyValue("--bg").trim();
+    return c && c.indexOf("(") === -1 ? c : "";
+  };
+  /* Sin cortina —no debería pasar, vive en el marcado— se hace como antes. */
+  if (!cortina || typeof cargaMostrar !== "function") {
+    if (ponerApariencia(id)) setTimeout(() => location.reload(), 60);
+    return;
+  }
+
+  const antes = fondoDe();
+  if (antes) cortina.style.background = antes;
+  /* Entra con fundido, desde transparente: `fuera` la deja montada y a opacidad
+     cero, y quitarla en el turno siguiente es lo que dispara la transición. Si
+     se quitara `oculta` y ya, aparecería de golpe, y un cambio de golpe en
+     toda la pantalla se lee como un fallo. */
+  cargaMostrar(tx("Cambiando tema…"));
+  cortina.classList.add("fuera");
+  cortina.style.transition = "opacity 0.16s ease";
+  cortina.getBoundingClientRect();
+  cortina.classList.remove("fuera");
+
+  setTimeout(() => {
+    /* Se CIERRA el fundido de entrada antes de tocar nada, pase lo que pase:
+       en un teléfono con tirones la transición puede ir por la mitad a esta
+       altura, y cambiar la apariencia con la cortina a medio opacar enseña
+       justo lo que se quería tapar. */
+    cortina.style.transition = "none";
+    cortina.getBoundingClientRect();
+    /* Ya tapado. Si a última hora la puerta dice que no, se destapa y la app
+       se queda como estaba: no cambió nada por debajo. */
+    if (!ponerApariencia(id)) {
+      cortina.style.background = "";
+      cortina.style.transition = "";
+      if (typeof cargaCerrar === "function") cargaCerrar();
+      return;
+    }
+    pintarSeleccion();
+    /* Un turno después y no en el acto: `ponerApariencia` apaga todas las
+       transiciones durante uno (`cambiando-modo`), y el fundido de la cortina
+       nacería apagado. */
+    setTimeout(() => {
+      const despues = fondoDe();
+      if (despues && despues !== antes) {
+        cortina.style.transition = "background-color 0.3s ease";
+        cortina.style.backgroundColor = despues;
+      }
+      /* `localStorage` ya escribió dentro de `ponerApariencia`; el respiro es
+         para que el fundido termine antes de irse. */
+      setTimeout(() => location.reload(), 320);
+    }, 30);
+  }, 200);
 }
 
 /* Desde la tarjeta del Resumen: lleva a Ajustes con la sección ya abierta. Es

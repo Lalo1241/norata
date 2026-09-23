@@ -688,6 +688,8 @@ const TEXTOS_EN = {
   "Total estimado del ascenso": "Estimated total to upgrade",
   "El prorrateo son los días que todavía no has usado de tu {0}, no el recibo completo: la parte que ya disfrutaste se queda gastada. La cifra exacta la calcula Stripe y la ves antes de meter la tarjeta.":
     "The prorated credit covers the days you have not used yet from your {0}, not the whole receipt: the part you already enjoyed stays spent. Stripe works out the exact figure and you see it before entering your card.",
+  "Tu {0} entró con un cupón: se cobraron ${1} MXN y no el precio de lista. El prorrateo sale de lo que pagaste, por eso es más chico.":
+    "Your {0} came in with a coupon: you were charged ${1} MXN, not the list price. The prorated credit comes from what you paid, which is why it is smaller.",
   "Pasar a {0}": "Upgrade to {0}",
   "Quiero {0}": "I want {0}",
   "Más opciones de esta rama": "More options for this branch",
@@ -2199,6 +2201,7 @@ const TEXTOS_EN = {
   "Recorre la rama con sitio de sobra": "Move around the branch with room to spare",
   "Ocultar la contraseña": "Hide the password",
   "Un momento…": "One moment…",
+  "Cambiando tema…": "Changing theme…",
   "dentro de unos días": "in a few days",
   "Volver sin iniciar sesión": "Go back without signing in",
   "Probar sin cuenta": "Try it without an account",

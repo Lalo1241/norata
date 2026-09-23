@@ -222,6 +222,34 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.127.2 · 23 sep 2026
+
+**Cambiar de tema o de mundo ya no se ve: la carga sale ANTES.** Eduardo: «la
+pantalla de carga sale demasiado tarde». Era el orden: `elegirApariencia`
+aplicaba la apariencia en caliente, sacaba un aviso y recargaba a los 420 ms,
+así que lo que se veía era la app cambiando de piel a medias —justo lo que la
+recarga existe para esconder— y la carga llegaba cuando ya no tapaba nada.
+
+Ahora `cambiarTapado` (`js/10i-apariencia.js`) lo hace al revés: la cortina
+(`#carga`) entra en 160 ms con los colores de antes y el mensaje «Cambiando
+tema…»; con ella YA opaca —el fundido se cierra a la fuerza, por si un
+teléfono con tirones lo tiene a medias— se pone la apariencia debajo; la
+cortina funde de su fondo viejo al nuevo, y se recarga a los ~600 ms. La carga
+del arranque sale ya con la apariencia nueva, así que el relevo no se nota.
+El fondo del fundido va con el color LEÍDO y no con `var(--bg)`, por la trampa
+de las transiciones sobre variables. El aviso de abajo se quitó: el mensaje va
+en la cortina. Dentro del ejemplo se sigue aplicando en caliente, sin recargar.
+
+Medido en el DOM: el atributo `data-apariencia` cambia solo con la cortina a
+opacidad 1, y lo guardado es lo nuevo en el momento de recargar.
+
+**El prorrateo a Fundador explica cuando sale chico por un cupón:** `pagar`
+devuelve además lo que se cobró (`pagado`) y si la factura trajo descuento
+(`cupon`), y el panel lo dice —«Tu Pro anual entró con un cupón: se cobraron
+$11.80 MXN y no el precio de lista…»—. Lo preguntó Eduardo al ver −$10 en su
+propia cuenta, que pagó $11.80 con un cupón de prueba: la cuenta estaba bien y
+solo parecía un fallo. Pide desplegar `pagar`; sin eso la nota no sale.
+
 ### 0.7.127.1 · 23 sep 2026
 
 **Fuera el relevo del icono de la 0.7.125.2.** Eduardo lo vio en el teléfono:

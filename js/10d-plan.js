@@ -1291,6 +1291,12 @@ function planActivoHTML() {
    preguntado; `0` = no hay nada que abonar. Vive fuera de la función porque el
    panel se repinta varias veces y no puede preguntar en cada una. */
 let planAbono = null;
+/* Lo que de verdad se cobró por el plan actual (centavos) y si entró con
+   cupón. Hacen falta para EXPLICAR un abono chico: sin ellos, $10 sobre un Pro
+   que figura a $590 se lee como un fallo, y Eduardo lo preguntó así mirando su
+   propia cuenta. */
+let planAbonoPagado = 0;
+let planAbonoCupon = false;
 
 function planAbonoEstimado() {
   if (!PLAN.pro || PLAN.plan === "fundador" || PLAN.deCasa) return 0;
@@ -1327,8 +1333,12 @@ async function pedirAbono() {
     });
     const b = await res.json().catch(function () { return {}; });
     const pesos = res.ok && typeof b.centavos === "number" ? Math.floor(b.centavos / 100) : 0;
-    if (pesos === planAbono) return;
+    const pagado = res.ok && typeof b.pagado === "number" ? b.pagado : 0;
+    const cupon = !!(res.ok && b.cupon);
+    if (pesos === planAbono && pagado === planAbonoPagado && cupon === planAbonoCupon) return;
     planAbono = pesos;
+    planAbonoPagado = pagado;
+    planAbonoCupon = cupon;
     /* Solo se repinta si el panel sigue en pantalla: quien ya se fue a otra
        sección no tiene por qué ver cómo se le mueve algo por detrás. */
     if (document.getElementById("panel-plan")) renderPanelPlan();
@@ -1393,6 +1403,12 @@ function planSubirAFundadorHTML() {
             días que aún no ha usado, no el recibo entero. */""}
       ${abono > 0 ? `<p class="settings-note">${
         T`El prorrateo son los días que todavía no has usado de tu ${actual}, no el recibo completo: la parte que ya disfrutaste se queda gastada. La cifra exacta la calcula Stripe y la ves antes de meter la tarjeta.`
+      }</p>` : ""}
+      ${/* Si el plan entró con cupón, el abono sale de lo que se COBRÓ y no del
+            precio de arriba, y se ve raro de chico. Se dice por qué antes de
+            que parezca un error. Con centavos solo si los hay: $11.80, $590. */
+        abono > 0 && planAbonoCupon && planAbonoPagado > 0 ? `<p class="settings-note">${
+        T`Tu ${actual} entró con un cupón: se cobraron $${planAbonoPagado % 100 ? (planAbonoPagado / 100).toFixed(2) : planAbonoPagado / 100} MXN y no el precio de lista. El prorrateo sale de lo que pagaste, por eso es más chico.`
       }</p>` : ""}
       ${/* La misma lista que usan las tarjetas de precio, con su propia
             palomita puesta por CSS —en lila, que es el color de Fundador—.
