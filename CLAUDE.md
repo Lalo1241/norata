@@ -190,6 +190,50 @@ Y contrastar con un control conocido: al comprobar si algo ya está publicado,
 pedir también un archivo que ya funcionaba. Si el control falla, lo que está
 roto es la prueba, no el archivo.
 
+**Que la app cargue rápido no dice nada de la red: dice que tiene copia.** Es la
+otra cara de «de la copia primero» (0.7.38), y hay que tenerla presente cada vez
+que se mire si algo llegó al dispositivo. La app se sirve de su propio almacén y
+no le pide nada a la red, así que **incomunicada abre igual de rápido y se ve
+perfecta**; lo único que se congela es el número de la versión.
+
+Costó una mañana entera (23 sep 2026). El teléfono de Eduardo llevaba días en
+una versión vieja, y las tres lecturas que hicimos se contradecían entre ellas —
+porque **las tres salían de una copia y ninguna tocó el servidor**:
+
+| Dónde | Qué se vio | Qué decía en realidad |
+| --- | --- | --- |
+| Chrome, la app instalada | 0.7.127.2, al instante | su copia, del día anterior |
+| Opera | 0.7.123.1, al instante | su copia, de cinco días antes |
+| Opera «en incógnito» | otra vez una vieja | su privado no separa el almacén como el de Chrome |
+| **Chrome en incógnito** | **la barra colgada para siempre** | **el único dato limpio: sin copia, hay que ir a la red, y la red no contestaba** |
+
+Lo peor fue el segundo renglón: que otro navegador abriera al instante pareció
+demostrar que el sitio estaba bien, y con eso se cerró en falso el diagnóstico.
+Lo único que demostraba es que ese navegador también tenía lo suyo guardado.
+
+**La regla que queda: la única medición que habla de la red es la que NO puede
+salir de una copia.** Un navegador donde la app nunca se abrió, o un incógnito
+de verdad, y con un `?x=` pegado a la dirección para que ninguna caché conteste
+por ella. Cualquier otra cosa mide el almacén, no el servidor.
+
+Y dos trampas dentro de la trampa:
+
+- **Dentro del alcance del service worker, la dirección la atiende ÉL**, aunque
+  te la inventes: si no la tiene y la red falla, contesta `Response.error()`, que
+  el navegador enseña como `ERR_FAILED`. El error es verdadero —la red falló—
+  pero está medido desde dentro, así que no distingue la red del worker.
+- **Si el entorno no tiene salida a internet, el control conocido también falla**
+  — y eso es lo que hay que leer antes de concluir nada. Aquí pedir
+  `mi.norata.app/index.html` dio cero, igual que el archivo que se investigaba:
+  lo roto era la prueba. Es la misma regla del párrafo de arriba, y salvó de dar
+  por caído un sitio que estaba perfecto.
+
+El final: no era el sitio, ni GitHub, ni Supabase, ni la versión recién
+publicada. **Eran los datos móviles de ese teléfono, que no alcanzaban el
+origen; por wifi entró sola.** De ahí salió la 0.7.128.2, que es lo que impide
+que vuelva a costar una mañana: el tirón hacia abajo ya no se calla cuando no
+alcanza a Norata.
+
 Probar **el caso vacío y el extremo**, no solo el feliz: un perfil recién
 creado, un nombre de 200 letras, la pantalla a 480 px de alto. Ahí han salido
 todos los fallos reales.
