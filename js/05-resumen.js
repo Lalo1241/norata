@@ -3339,10 +3339,9 @@ function pasoLuciernagas() {
     }
     if (t > b.dura || irse || b.vida > LUCI_TOPE - 2) b.huye = true;
     if (b.huye && b.huyeDesde == null) b.huyeDesde = b.vida;
-    /* Una vez que echan a volar, a lo mucho tres segundos de verdad —dos si se
-       asustaron—: el vuelo va con `dt`, que lleva tope, y en un teléfono lento
+    /* Una vez que echan a volar, a lo mucho tres segundos de verdad: el vuelo va con `dt`, que lleva tope, y en un teléfono lento
        la salida sola tardaba el triple. */
-    if (b.vida > LUCI_TOPE || (b.huyeDesde != null && b.vida - b.huyeDesde > (b.susto ? 2 : 3))) { b.fuera = true; b.el.remove(); return; }
+    if (b.vida > LUCI_TOPE || (b.huyeDesde != null && b.vida - b.huyeDesde > 3)) { b.fuera = true; b.el.remove(); return; }
     b.rumbo += (Math.random() - 0.5) * 2.4 * dt;
     if (!b.huye) {
       const m = 40, adentro = Math.atan2(H / 2 - b.y, W / 2 - b.x);
@@ -3352,7 +3351,7 @@ function pasoLuciernagas() {
         b.rumbo += d * 1.8 * dt;
       }
     }
-    const v = b.vel * (b.huye ? (irse || b.susto ? 6 : 3.2) : 1);
+    const v = b.vel * (b.huye ? (irse ? 6 : 3.2) : 1);
     // La rara vuela como un sprite: solo en ocho direcciones y sin vaivén.
     const rumbo = b.rara ? Math.round(b.rumbo / (Math.PI / 4)) * (Math.PI / 4) : b.rumbo;
     b.x += Math.cos(rumbo) * v * dt;
@@ -3368,24 +3367,20 @@ function pasoLuciernagas() {
     luciReloj = null;
     luciBichos = [];
     const cap = document.querySelector(".enjambre");
-    if (cap) setTimeout(() => cap.remove(), 1000);   // deja acabar las chispas
+    // Deja acabar las chispas y la desbandada, que dura hasta 1,15 s.
+    if (cap) setTimeout(() => cap.remove(), 1500);
   }
 }
 
 function atraparLuciernaga(b) {
   if (b.atrapada || b.fuera) return;
-  /* **Una sola por noche** (Eduardo, 0.7.133.2): atrapada una, las demás ya no
-     se dejan. Salen volando deprisa y dejan de atender el dedo, que es lo que
-     impedía coger una segunda mientras se iban. */
+  /* **Una sola por noche** (Eduardo, 0.7.133.2): atrapada una, ya no se deja
+     ninguna más. */
   if (luciBichos.some(o => o.atrapada)) return;
   b.atrapada = true;
   if (navigator.vibrate) { try { navigator.vibrate(12); } catch (x) {} }
-  const luz = b.el.querySelector(".luz");
-  if (luz.animate && !luciQuieto()) {
-    luz.animate([{ transform: "scale(1)", opacity: 1 }, { transform: "scale(2.6)", opacity: 1, offset: 0.3 },
-      { transform: "scale(0)", opacity: 0 }], { duration: 650, easing: "ease-out", fill: "forwards" });
-    b.el.querySelector(".cuerpo").animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: "forwards" });
-    b.el.querySelectorAll(".ala").forEach(a => a.animate([{ opacity: 0.35 }, { opacity: 0 }], { duration: 300, fill: "forwards" }));
+  // Unas chispas donde la tocaste: es lo que dice «la tienes».
+  if (!luciQuieto()) {
     const cap = b.el.parentNode;
     for (let i = 0; i < 7; i++) {
       const c = document.createElement("i");
@@ -3399,25 +3394,77 @@ function atraparLuciernaga(b) {
       setTimeout(() => c.remove(), 900);
     }
   }
-  setTimeout(() => { b.fuera = true; b.el.remove(); }, 700);
-  // Las demás se asustan y se van, deprisa y sin dejarse atrapar.
+  desbandadaLuciernagas(b);
+
+  /* La frase, un poco DESPUÉS: la ventana trae su velo, y saliendo al mismo
+     tiempo tapaba justo la desbandada. */
+  const frase = () => {
+    // La rara no suma a la cuenta: da la pista de Arcade (js/10k-arcade.js).
+    if (b.rara && typeof arcadeRaraAtrapada === "function") { arcadeRaraAtrapada(); return; }
+    let i;
+    do { i = Math.floor(Math.random() * LUCI_FRASES.length); } while (i === luciUltimaFrase);
+    luciUltimaFrase = i;
+    fraseDeLuciernaga(LUCI_FRASES[i](luciHora()), tx("¡Atrapaste una luciérnaga!"));
+  };
+  if (!b.rara) {
+    state.settings = state.settings || {};
+    state.settings.luciernagas = (Number(state.settings.luciernagas) || 0) + 1;
+    save();
+  }
+  setTimeout(frase, luciQuieto() ? 0 : 650);
+}
+
+/* ---- La desbandada (0.7.133.3) ----
+   Eduardo: al atrapar una, que TODAS salgan volando fuera de la pantalla, la
+   atrapada y la rara incluidas. Cada una se aleja del punto donde tocaste,
+   cada vez más deprisa; la atrapada, un respiro después y hacia arriba, que es
+   por donde se va algo que se suelta.
+
+   Va con animaciones del navegador y no con el reloj de `pasoLuciernagas`: ese
+   lleva tope por paso y en un teléfono lento la huida salía a cámara lenta.
+   Cada una se marca `fuera` para que el reloj deje de moverla, y se quita del
+   documento al llegar.
+
+   La rara vuela como lo que es: en ocho direcciones y a saltos. Con «menos
+   movimiento», se desvanecen donde están. */
+function desbandadaLuciernagas(atrapada) {
+  const W = innerWidth, H = innerHeight, lejos = Math.hypot(W, H) + 80;
+  const quieto = luciQuieto();
   luciBichos.forEach(o => {
-    if (o === b) return;
-    o.huye = true; o.susto = true; o.huyeDesde = o.vida;
+    if (o.fuera) return;
+    o.fuera = true;
     o.el.style.pointerEvents = "none";
+    // Las que aún no habían entrado, ni se asoman.
+    if (o.vida < o.espera || !o.el.animate) { o.el.remove(); return; }
+    if (quieto) {
+      o.el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: "forwards" }).onfinish = () => o.el.remove();
+      return;
+    }
+    let ang = o === atrapada
+      ? -Math.PI / 2 + (Math.random() - 0.5) * 0.9
+      : Math.atan2(o.y - atrapada.y, o.x - atrapada.x) + (Math.random() - 0.5) * 0.5;
+    if (o.rara) ang = Math.round(ang / (Math.PI / 4)) * (Math.PI / 4);
+    const giro = Math.cos(ang) < 0 ? -1 : 1;
+    const x1 = o.x + Math.cos(ang) * lejos, y1 = o.y + Math.sin(ang) * lejos;
+    // Encendidas al huir: el susto las prende.
+    const luz = o.el.querySelector(".luz");
+    if (luz) luz.style.opacity = 1;
+    if (o === atrapada && luz) {
+      luz.animate([{ transform: "scale(1)" }, { transform: "scale(2.2)", offset: 0.35 }, { transform: "scale(1)" }],
+        { duration: 320, easing: "ease-out" });
+    }
+    const vuelo = o.el.animate([
+      { transform: `translate(${o.x.toFixed(1)}px,${o.y.toFixed(1)}px) scaleX(${giro})` },
+      { transform: `translate(${x1.toFixed(1)}px,${y1.toFixed(1)}px) scaleX(${giro})` }
+    ], {
+      duration: o === atrapada ? 950 : 700 + Math.random() * 250,
+      delay: o === atrapada ? 200 : Math.random() * 90,
+      // Arranca despacio y acelera: así se va algo que se asusta.
+      easing: o.rara ? "steps(9, end)" : "cubic-bezier(0.5, 0, 0.9, 0.4)",
+      fill: "forwards"
+    });
+    vuelo.onfinish = () => o.el.remove();
   });
-
-  // La rara no suma a la cuenta: da la pista de Arcade (js/10k-arcade.js).
-  if (b.rara && typeof arcadeRaraAtrapada === "function") { arcadeRaraAtrapada(); return; }
-
-  state.settings = state.settings || {};
-  state.settings.luciernagas = (Number(state.settings.luciernagas) || 0) + 1;
-  save();
-
-  let i;
-  do { i = Math.floor(Math.random() * LUCI_FRASES.length); } while (i === luciUltimaFrase);
-  luciUltimaFrase = i;
-  fraseDeLuciernaga(LUCI_FRASES[i](luciHora()), tx("¡Atrapaste una luciérnaga!"));
 }
 
 /* La ventana de la frase. No es `askBase`: Eduardo la pidió con una X y una

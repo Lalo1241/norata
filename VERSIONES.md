@@ -222,6 +222,17 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.133.3 · 25 sep 2026
+
+**La desbandada: al atrapar una, TODAS salen volando fuera de la pantalla**, la
+atrapada y la rara incluidas (Eduardo). Cada una se aleja del punto donde
+tocaste, arrancando despacio y acelerando; la atrapada se enciende un instante
+y sale hacia arriba. La rara, a saltos y en ocho direcciones, como un sprite.
+Va con animaciones del navegador y no con el reloj de pasos, así que no sale a
+cámara lenta en un teléfono que ahorra batería (`desbandadaLuciernagas`,
+js/05-resumen.js). La frase sale 650 ms después: su velo tapaba la desbandada.
+Con «menos movimiento», se desvanecen donde están.
+
 ### 0.7.133.2 · 25 sep 2026
 
 **Las luciérnagas: menos tiempo, una sola por noche y un aviso que dice lo que
