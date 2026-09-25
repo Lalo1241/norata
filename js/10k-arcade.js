@@ -425,17 +425,28 @@ function arcadeRaraAtrapada() {
   if (typeof fraseDeLuciernaga === "function") fraseDeLuciernaga(ARCADE_PISTA(), "???", true);
   state.ui = state.ui || {};
   state.ui.arcPixel = todayKey();
+  state.ui.arcPixelToque = null;   // una rara nueva trae un píxel nuevo, sin reloj
   if (typeof guardarLocal === "function") guardarLocal(state);
   arcadeQuizaPixel();
 }
 
-/* El píxel dura el resto de ESA noche y solo se ve en el Resumen. Se mira
-   al pintar el Resumen y cada segundo, que es lo que lo quita al cambiar de
-   pantalla o al dar las 4:00. */
+/* Cuánto dura el píxel, que lo decidió Eduardo (0.7.131.1): sin tocarlo se
+   queda en la esquina el resto de esa noche, hasta las 4:00. Al TOCARLO por
+   primera vez empiezan a correr 20 minutos y al cumplirse se va, aunque ya
+   hayan dado las 4:00: quien lo abrió a las 3:55 no pierde la pista cinco
+   minutos después. Así no se queda ahí para siempre, y tampoco se va en la
+   cara de quien lo está intentando.
+
+   Solo se ve en el Resumen. Se mira al pintar el Resumen y cada segundo, que
+   es lo que lo quita al cambiar de pantalla o al cumplirse el plazo. */
+const ARC_PIXEL_MIN = 20;
 let arcPixelReloj = null;
 function arcadePixelToca() {
-  return !arcadeEncontrado() && state.ui && state.ui.arcPixel === todayKey() &&
-    new Date().getHours() < 4 && typeof activeMainView !== "undefined" && activeMainView === "summary";
+  if (arcadeEncontrado() || !state.ui || state.ui.arcPixel !== todayKey()) return false;
+  if (typeof activeMainView === "undefined" || activeMainView !== "summary") return false;
+  const toque = Number(state.ui.arcPixelToque) || 0;
+  if (toque) return Date.now() - toque < ARC_PIXEL_MIN * 60000;
+  return new Date().getHours() < 4;
 }
 function arcadeQuizaPixel() {
   if (!arcadePixelToca()) { arcadeQuitarPixel(); return; }
@@ -445,7 +456,14 @@ function arcadeQuizaPixel() {
     p.type = "button";
     p.setAttribute("aria-label", tx("Un píxel"));
     p.innerHTML = "<i></i>";
-    p.addEventListener("click", arcadeAbrirMando);
+    p.addEventListener("click", () => {
+      // El primer toque pone en marcha los 20 minutos; los siguientes, no.
+      if (!state.ui.arcPixelToque) {
+        state.ui.arcPixelToque = Date.now();
+        if (typeof guardarLocal === "function") guardarLocal(state);
+      }
+      arcadeAbrirMando();
+    });
     document.body.appendChild(p);
   }
   if (!arcPixelReloj) arcPixelReloj = setInterval(() => { if (!arcadePixelToca()) arcadeQuitarPixel(); }, 1000);

@@ -240,7 +240,10 @@ teléfono, una luciérnaga RARA: blanca azulada, cuadrada, parpadea a saltos y
 vuela en ocho direcciones; una noche de cada quince y solo a quien ya atrapó
 tres. Su frase: «Arriba, arriba, abajo, abajo… lo demás lo sabe quien creció
 con un control en las manos.» No suma a la cuenta y deja un píxel en la esquina
-del Resumen el resto de la noche; el píxel abre un mando (cruceta, B y A).
+del Resumen; el píxel abre un mando (cruceta, B y A). **El píxel no se queda
+para siempre** (0.7.131.1): sin tocarlo dura hasta las 4:00, y desde el primer
+toque, 20 minutos. Las luciérnagas, la rara incluida, están a lo mucho 30
+segundos en pantalla y salen una sola vez por noche.
 
 **Al acertar, en orden y nunca a la vez**: el mensaje («Encontraste un mundo
 que no sale en ningún menú. Ya es tuyo.»); al cerrarlo, la pantalla de carga;

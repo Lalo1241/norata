@@ -56,6 +56,9 @@ html[data-material="arcade"] {
   --px-ficha-luz: rgba(255, 255, 255, .38);
   --px-ficha-sombra: rgba(0, 0, 0, .16);
   --px-ficha-canto: color-mix(in srgb, var(--mint-macizo) 55%, #000);
+  /* Un redondeo LIGERO para lo que con la esquina viva se veía filoso: los
+     iconos de los bloques del Pomodoro (Eduardo, 0.7.131.1). */
+  --px-suave: 4px;
   --px-esquina: polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px);
   --px-redondo: polygon(0px 14px, 2px 14px, 2px 8px, 4px 8px, 4px 6px, 6px 6px, 6px 4px, 8px 4px, 8px 2px, 14px 2px, 14px 0px, calc(100% - 14px) 0px, calc(100% - 14px) 2px, calc(100% - 8px) 2px, calc(100% - 8px) 4px, calc(100% - 6px) 4px, calc(100% - 6px) 6px, calc(100% - 4px) 6px, calc(100% - 4px) 8px, calc(100% - 2px) 8px, calc(100% - 2px) 14px, 100% 14px, 100% calc(100% - 14px), calc(100% - 2px) calc(100% - 14px), calc(100% - 2px) calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) calc(100% - 2px), calc(100% - 14px) calc(100% - 2px), calc(100% - 14px) 100%, 14px 100%, 14px calc(100% - 2px), 8px calc(100% - 2px), 8px calc(100% - 4px), 6px calc(100% - 4px), 6px calc(100% - 6px), 4px calc(100% - 6px), 4px calc(100% - 8px), 2px calc(100% - 8px), 2px calc(100% - 14px), 0px calc(100% - 14px));
 
@@ -113,7 +116,7 @@ html[data-material="arcade"] :is(.barra-viva, .sw-bar, .bar) { border-radius: 0;
 /* ---------- Las cifras ----------
    Lo que la app ya marca como cifra pasa por --tipo-cifra; estas se escriben
    sueltas y se quedaban en la letra de la casa. */
-html[data-material="arcade"] :is(.count, .nod-etapas, .proj-state, .jor-tile, .rc-d, #ncel-num) {
+html[data-material="arcade"] :is(.count, .nod-etapas, .proj-state, .rc-d, #ncel-num) {
   font-family: var(--tipo-cifra);
 }
 
@@ -189,6 +192,9 @@ html[data-material="arcade"] .jor-rueda .jor-tick { stroke-linecap: butt; shape-
 html[data-material="arcade"] .jor-rueda .jor-tick.mayor { stroke-width: 4; }
 html[data-material="arcade"] .jor-rueda .jor-guia { stroke-dasharray: 4 4; shape-rendering: crispEdges; }
 html[data-material="arcade"] .jor-rueda .jor-num { font-family: var(--tipo-cifra); }
+/* Los iconos de la lista de bloques (Traslado, Comer, Dormir…): con la
+   esquina viva se veían filosos. */
+html[data-material="arcade"] .jor-tile { border-radius: var(--px-suave); }
 /* Los tres relojes de arena, en bloques de 3 px de pantalla; el grande del
    Hiperfoco en bloques de 4, que con 3 se leía casi liso. */
 html[data-material="arcade"] .jor-arena { filter: url(#arc-px-3); }

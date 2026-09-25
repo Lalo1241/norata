@@ -3196,6 +3196,14 @@ const LUCI_FRASES = [
 
 let luciBichos = [], luciReloj = null, luciAntes = 0, luciUltimaFrase = -1;
 
+/* **A lo mucho 30 segundos en pantalla**, y es regla de Eduardo (0.7.131.1):
+   pueden salir en cualquier momento de la noche, pero una vez que salen no se
+   quedan todo el rato, y no vuelven esa noche. Con `dura` (7 a 10 s) ya se
+   van mucho antes; el tope está para que la regla no dependa de esos números
+   el día que alguien los mueva. A los 28 s echan a volar y a los 30 ya no
+   están. */
+const LUCI_TOPE = 30;
+
 function luciQuieto() {
   try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; }
 }
@@ -3300,13 +3308,14 @@ function pasoLuciernagas() {
     const luz = b.el.querySelector(".luz");
     if (quieto) {
       const op = t > b.dura * 0.5 || irse ? Math.max(0, 1 - (t - b.dura * 0.5) / 2) : 1;
-      if (op <= 0 || irse) { b.fuera = true; b.el.remove(); return; }
+      if (op <= 0 || irse || b.vida > LUCI_TOPE) { b.fuera = true; b.el.remove(); return; }
       b.el.style.opacity = op;
       b.el.style.transform = `translate(${b.x}px,${b.y}px)`;
       luz.style.opacity = brilloLuciernaga(b, t).toFixed(2);
       return;
     }
-    if (t > b.dura || irse) b.huye = true;
+    if (t > b.dura || irse || b.vida > LUCI_TOPE - 2) b.huye = true;
+    if (b.vida > LUCI_TOPE) { b.fuera = true; b.el.remove(); return; }
     b.rumbo += (Math.random() - 0.5) * 2.4 * dt;
     if (!b.huye) {
       const m = 40, adentro = Math.atan2(H / 2 - b.y, W / 2 - b.x);

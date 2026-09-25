@@ -222,6 +222,20 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.131.1 · 24 sep 2026
+
+Tres ajustes de Eduardo a Arcade y a las luciérnagas:
+
+- **El píxel que deja la rara ya no se queda toda la noche por gusto.** Sin
+  tocarlo, sigue en la esquina hasta las 4:00. Al TOCARLO por primera vez
+  empiezan a correr 20 minutos, y al cumplirse se va, aunque ya hayan dado las
+  4:00 (`state.ui.arcPixelToque`). Una rara nueva trae un píxel sin reloj.
+- **Una luciérnaga está a lo mucho 30 segundos en pantalla** (`LUCI_TOPE`,
+  js/05-resumen.js). Ya se iban a los 7-10 s; el tope está para que la regla
+  no dependa de esos números. Siguen saliendo una sola vez por noche.
+- **Los iconos de la lista del Pomodoro, con un redondeo ligero** en Arcade
+  (`--px-suave`, 4 px): con la esquina viva se veían filosos.
+
 ### 0.7.131 · 24 sep 2026
 
 **Arcade, el mundo que no sale en ningún menú.** Letra de píxel, cajas de
