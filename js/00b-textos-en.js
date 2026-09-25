@@ -3684,5 +3684,9 @@ const TEXTOS_EN = {
   "Constante": "Steady",
   "Estratega": "Strategist",
   "Imparable": "Unstoppable",
-  "Leyenda": "Legend"
+  "Leyenda": "Legend",
+  /* La salida y la cuenta del descanso del Pomodoro (0.7.132). */
+  "Tu siguiente tramo empieza en": "Your next block starts in",
+  "Tu respiro termina en": "Your breather ends in",
+  "Tu descanso termina en": "Your break ends in"
 };

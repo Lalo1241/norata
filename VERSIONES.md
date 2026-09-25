@@ -222,6 +222,27 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.132 · 25 sep 2026
+
+**El Pomodoro avisa al empezar y al acabar el descanso.** Dos piezas que
+salieron de las ideas de Arcade y que Eduardo aprobó para la APP entera, no
+para un mundo: hasta la 1.0, un mundo viste pero no actúa. Existen en todas
+las apariencias y Arcade las viste solo (letra de píxel, latido a saltos y
+pitidos de 8 bits), porque van en `--tipo-cifra` y `--curva-rebote`.
+
+- **La salida, «3, 2, 1»** (`jSalida`, js/09d-jornada.js). Al tocar Iniciar
+  —un tramo del día o el Hiperfoco—, un número grande por segundo con su
+  pitido, y el tramo arranca. Lleva «Cancelar». Un Respiro no la lleva: es
+  descanso.
+- **La cuenta del final del descanso** (`jCuentaDescanso`). Los últimos diez
+  segundos, una tarjeta que no tapa nada: «Tu descanso termina en 9». Si el
+  tramo siguiente empieza solo (encadenar tramos, o una Travesía) dice «Tu
+  siguiente tramo empieza en», y esa cuenta ya hace de salida: no se encima
+  una segunda. Solo en la pantalla del Pomodoro, con la app a la vista y en el
+  dispositivo que lleva el reloj. Pitidos en los tres últimos.
+- Los dos respetan el interruptor de sonido del Pomodoro. Pisos nuevos:
+  `--piso-cuenta` y `--piso-salida`; la salida está en `CAPAS_QUE_TAPAN`.
+
 ### 0.7.131.1 · 24 sep 2026
 
 Tres ajustes de Eduardo a Arcade y a las luciérnagas:

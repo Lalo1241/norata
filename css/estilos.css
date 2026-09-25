@@ -589,6 +589,8 @@
     --piso-despertar: 106; /* «Ya desperté»: la única salida encendida sobre el velo */
     --piso-reloj: 110;     /* la píldora del reloj de la Jornada: bajo las fiestas */
     --piso-luciernagas: 115; /* las luciérnagas de medianoche: sobre la barra, bajo lo demás */
+    --piso-cuenta: 116;    /* la cuenta del final del descanso: no tapa nada, se lee encima */
+    --piso-salida: 125;    /* la salida «3, 2, 1» del Pomodoro: sobre las fiestas, bajo el nivel */
     --piso-fiesta: 120;    /* celebraciones que ocupan la pantalla */
     --piso-nivel: 130;     /* subir de nivel: encima de la fiesta de racha */
     --piso-arrastre: 200;  /* la copia que sigue al dedo al reordenar */

@@ -48,8 +48,8 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.131.1";
-const VERSION_FECHA = "24 sep 2026";
+const VERSION = "0.7.132";
+const VERSION_FECHA = "25 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
    La página pública de Norata, la que no es la app. Vive aquí y no escrita en
@@ -1800,6 +1800,7 @@ const CAPAS_QUE_TAPAN = [
   "#luci-frase.show",       // la frase de una luciérnaga
   "#arc-mando.show",        // el mando del código Konami (Arcade)
   "#arc-abierto.show",      // «Mundo Arcade: ya es tuyo»
+  "#jor-salida",            // la salida «3, 2, 1» del Pomodoro
   "#tuto.show",             // el tutorial
   "#vuelta.show",           // la vuelta tras una ausencia
   "#caja-modal.show",       // una caja del ático

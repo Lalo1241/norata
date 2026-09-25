@@ -164,6 +164,9 @@ const ARC_SONIDOS = {
   },
   rara: () => [ARC_F.C7, ARC_F.E7, ARC_F.G7].forEach((n, i) => arcNota(n, i * 0.05, i === 2 ? 0.14 : 0.05, { tipo: "triangle", vol: 0.06 })),
   tic: () => arcNota(1200, 0, 0.04, { vol: 0.025 }),
+  // La salida «3, 2, 1» y la cuenta del descanso, vestidas de 8 bits.
+  cuenta: () => arcNota(ARC_F.A5, 0, 0.09, { vol: 0.045 }),
+  ya: () => { arcNota(ARC_F.A6, 0, 0.32, { vol: 0.045 }); arcNota(ARC_F.A5 / 2, 0, 0.32, { tipo: "triangle", vol: 0.1 }); },
   error: () => { arcRuido(0.06, 0.05); arcNota(110, 0, 0.1, { vol: 0.04 }); }
 };
 /* Lo que pasa en la app, con Arcade puesto. */

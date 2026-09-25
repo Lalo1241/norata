@@ -1934,6 +1934,7 @@ function jPaso() {
   if (!jornadaEncendida()) { jPintarPildora(); return; }
   const run = jDatos().run;
   if (run && (run.fase === "foco" || run.fase === "descanso") && run.dur && run.seg && jTrans(run) >= run.dur && jPuedoCerrar(run)) jFinFase();
+  jCuentaDescanso(jDatos().run);
   jAvisoSueno();
   /* Cada cuarto de hora puede cambiar el bloque de «ahora», y con él se olvida
      el «Enfocar de todos modos» del bloque que ya pasó. Y es cuando se apunta
@@ -1955,6 +1956,90 @@ function jPaso() {
     }
   }
   jPintarPildora();
+}
+
+/* ---------- La salida y la cuenta del descanso (0.7.132) ----------
+   Dos piezas que Eduardo aprobó para la APP y no para un mundo: salieron de
+   las ideas de Arcade, y su regla es que un mundo viste pero no actúa. Así que
+   las dos existen en todas las apariencias, y cada una solo las viste —en
+   Arcade, la letra de píxel, el movimiento a saltos y los pitidos de 8 bits—.
+
+   **La salida, «3, 2, 1».** Al tocar Iniciar, como la salida de una carrera:
+   un número grande por segundo, un pitido con cada uno y el tramo arranca.
+   Lleva «Cancelar», porque tres segundos son lo que tarda en notarse un toque
+   sin querer. Solo cuando lo arrancas tú: un Respiro es descanso y no la
+   lleva, y lo que arranca solo ya trae su aviso —la cuenta de abajo—.
+
+   **La cuenta al final del descanso.** Los últimos diez segundos, una tarjeta
+   que NO tapa nada dice cuánto falta, con pitidos en los tres últimos. Si el
+   tramo siguiente empieza solo (encadenar tramos, o una Travesía), lo dice así,
+   y esa cuenta ya hace de salida. Solo en la pantalla del Pomodoro, con la app
+   a la vista y en el dispositivo que lleva el reloj: fuera de ahí ya está la
+   píldora, y un número grande en mitad de otra pantalla sería un susto. */
+let jSalidaViva = false;
+function jSalida(arrancar) {
+  if (jSalidaViva) return;
+  jSalidaViva = true;
+  jAudio();   // el toque de Iniciar es el que deja sonar
+  const v = document.createElement("div");
+  v.id = "jor-salida";
+  v.className = "jor-salida";
+  v.setAttribute("role", "status");
+  v.innerHTML = '<span class="jor-salida-n" aria-live="assertive">3</span>' +
+    '<button type="button" class="btn btn-ghost jor-salida-x">' + escapeHtml(tx("Cancelar")) + "</button>";
+  document.body.appendChild(v);
+  const num = v.querySelector(".jor-salida-n");
+  let n = 3, iv = null;
+  const cerrar = () => { clearInterval(iv); jSalidaViva = false; v.remove(); };
+  const latir = () => { num.classList.remove("late"); void num.offsetWidth; num.classList.add("late"); };
+  latir(); jPitido(false);
+  iv = setInterval(() => {
+    n--;
+    if (n > 0) { num.textContent = n; latir(); jPitido(false); return; }
+    cerrar(); jPitido(true); arrancar();
+  }, 1000);
+  v.querySelector(".jor-salida-x").addEventListener("click", cerrar);
+}
+
+let jCuentaAntes = null;
+function jCuentaDescanso(run) {
+  const el = document.getElementById("jor-cuenta");
+  const falta = run && run.fase === "descanso" && run.dur && run.seg ? run.dur - jTrans(run) : null;
+  const ver = falta !== null && falta > 0 && falta <= 10000 && jEsMio(run) && !document.hidden &&
+    !!document.querySelector("#view-jornada.active");
+  if (!ver) { if (el) el.remove(); jCuentaAntes = null; return; }
+  const n = Math.ceil(falta / 1000);
+  if (n === jCuentaAntes && el) return;
+  jCuentaAntes = n;
+  const sola = run.lite ? run.modo === "travesia" && run.tramo < (run.rondas || 1) : !!jDatos().cfg.auto;
+  const rotulo = sola ? tx("Tu siguiente tramo empieza en")
+    : run.lite && run.modo === "respiro" ? tx("Tu respiro termina en") : tx("Tu descanso termina en");
+  let c = el;
+  if (!c) {
+    c = document.createElement("div");
+    c.id = "jor-cuenta";
+    c.className = "jor-cuenta";
+    c.setAttribute("role", "status");
+    c.innerHTML = '<span class="jor-cuenta-t"></span><span class="jor-cuenta-n"></span>';
+    document.body.appendChild(c);
+  }
+  c.querySelector(".jor-cuenta-t").textContent = rotulo;
+  const num = c.querySelector(".jor-cuenta-n");
+  num.textContent = n;
+  num.classList.remove("late"); void num.offsetWidth; num.classList.add("late");
+  if (n <= 3) jPitido(false);
+}
+
+/* El pitido de la salida y de la cuenta. Del sonido del Pomodoro: si está
+   apagado, no suena; con Arcade puesto, el de 8 bits. */
+function jPitido(ya) {
+  if (!jDatos().cfg.sonido) return;
+  if (typeof arcadePuesto === "function" && arcadePuesto()) { arcadeSonar(ya ? "ya" : "cuenta"); return; }
+  if (!jCtx) return;
+  const o = jCtx.createOscillator(), g = jCtx.createGain(), t0 = jCtx.currentTime, d = ya ? 0.45 : 0.16;
+  o.type = "sine"; o.frequency.value = ya ? 990 : 660;
+  g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.14, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t0 + d);
+  o.connect(g).connect(jCtx.destination); o.start(t0); o.stop(t0 + d + 0.02);
 }
 
 /* ---------- Avisos ----------
@@ -2490,7 +2575,7 @@ function jClickControles(e) {
   if (a === "enque") return jAbrirHoja("enque");
   if (a === "ritmo") return jAbrirHoja("ritmo");
   if (a === "nuevo") return jAbrirBloque(null);
-  if (a === "iniciar") return jIniciar();
+  if (a === "iniciar") return jSalida(jIniciar);
   if (a === "dormir") return jBuenasNoches();
   if (a === "despertar") return jBuenosDias(btn);
   if (a === "forzar") { const b = jBloqueEn(jAhora()); jForzado = b ? b.id : null; jPintar(); return; }
@@ -2514,7 +2599,8 @@ function jClickControles(e) {
     });
     return;
   }
-  if (a === "lite-go") return jIniciarLite();
+  // Un Respiro es descanso: arranca sin salida.
+  if (a === "lite-go") return jHfCfg().hfModo === "respiro" ? jIniciarLite() : jSalida(jIniciarLite);
   if (!j.run) return;
   if (a === "pausa") jPausa();
   if (a === "terminar") jTerminarLibre();
@@ -2570,7 +2656,7 @@ function iniciarRelojJornada() {
       if (md) { if (md.dataset.modo !== jModo()) jPonerModo(md.dataset.modo); return; }
       const bien = e.target.closest("[data-jbien]");
       if (bien) {
-        if (bien.dataset.jbien === "iniciar") jIniciar(); else jAbrirBloque(null);
+        if (bien.dataset.jbien === "iniciar") jSalida(jIniciar); else jAbrirBloque(null);
         return;
       }
       const dia = e.target.closest("[data-jdia]");

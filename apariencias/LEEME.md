@@ -254,9 +254,9 @@ después el mundo puesto. Lo encontrado se guarda en la cuenta
 mundo viste, no actúa.** Cambia cómo se ve y cómo suena lo que la app ya hace;
 lo que cambie lo que PASA (una cuenta atrás, una pantalla, un contador) es de
 la app entera y cada mundo solo lo viste. De las ideas para el Pomodoro, la
-salida «3, 2, 1» quedó aprobada **como función de la app**, la cuenta al final
-del descanso quedó por decidir con la misma condición, y el combo y el bloque
-que suelta moneda se descartaron. Los rasgos propios de cada mundo, después de
+salida «3, 2, 1» y la cuenta al final del descanso entraron **como funciones de
+la app** en la 0.7.132 —en todas las apariencias, y Arcade solo las viste—, y
+el combo y el bloque que suelta moneda se descartaron. Los rasgos propios de cada mundo, después de
 la 1.0.
 
 Dónde vive: `js/10k-arcade.js`, `css/arcade.css` (se edita en
