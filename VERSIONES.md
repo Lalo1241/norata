@@ -222,6 +222,42 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.136 · 25 sep 2026
+
+**Averno, rehecho en pixel art gótico, con cuatro paletas.** El Averno de la
+0.7.59 era «piedra quemada con la brasa debajo» y en la práctica casi todo
+naranja. Eduardo pidió llevarlo a píxel de horror gótico, con el porte de
+Arcade y sin pisarlo. Se diseñó en un boceto con la app de verdad dentro
+(https://claude.ai/artifact/VCyfNRKmmDutsFmW5T1giN) y tres vueltas de ajustes.
+El Averno anterior se retira: quien lo llevaba ve el nuevo, en Vitral.
+
+- **La regla: «labrado en piedra, la luz por el vitral».** Cada pieza es un
+  sillar con marco de hierro, filete de luz, sombra en tramado y cuatro
+  remaches; barras emplomadas; puntos del mapa al tresbolillo; movimiento en 4
+  pasos. En el teléfono los botones del menú son escudos de punta redonda y el
+  «+» es un rosetón (la firma del mundo). Los círculos de Dante se fueron: la
+  banda donde vivían ya no existía y llevaban tiempo sin salir.
+- **Cuatro paletas** —Vitral (índigo, de partida), Hueso, Hierro (verdín) y
+  Espectro (cian)—, todas con el rojo de protagonista y un segundo tono que no
+  es rojo. **Con Averno elegido sustituyen a los ambientes en Mi apariencia**;
+  se guardan en el dispositivo (`norata-paletas`) y cambian sin recargar.
+  Peligro en brasa naranja (el coral se confundía con el rojo); el segundo
+  tono va en los botones de consultar: el rojo es actuar, el segundo es mirar.
+- **Letras incrustadas:** Jacquard 24 (gótica de píxel) en títulos y Jersey 10
+  en cifras. Una gótica nunca va en mayúsculas ni a 12 px: los rótulos chicos
+  se quedan en la letra de la casa. Trampa: la app solo admite letras
+  incrustadas, y pedida a Google Fonts una letra no carga y sale la de respaldo.
+- **Los cinco rangos**, los mismos, redibujados en píxel sobre rejilla de 16
+  (`svgDeTrazo` lee la rejilla de `data-px`); la constelación sale del dibujo
+  de línea de siempre (`trazoCielo`), así que no cambió.
+- Medido: 4,5 y 3 en las dos caras de las cuatro, y 7 pantallas × 2 modos ×
+  4 paletas contra la casa sin un solo fallo que la casa no tenga ya.
+- Por dentro: Averno ya no sale de `mundos/datos.py` sino de `mundos/averno/`
+  (paletas, material, generador y medidas), que `mundos/app.py` mete en
+  `css/mundos.css`. De paso, Averno declara los vidrios flotantes
+  (`--flotante-lateral`, `--flotante-macizo`): ningún mundo lo hacía y la barra
+  de la PC salía en el azul de la casa.
+
 ### 0.7.135.2 · 25 sep 2026
 
 **«Hoy ya sumó al plano», no «a el plano».** El mensaje de la racha armaba
