@@ -481,7 +481,7 @@ function jIniciar() {
   }
   j.run = { fase: "foco", tramo, dur: libre ? null : c.foco * J_MS, acum: 0, seg: Date.now(), pausas: 0, libre, ref: ref || null, bloque,
     origen: jEsteDispositivo(), fid: uid(), reloj: jTipoReloj(libre ? 0 : c.foco) };
-  save(); jPintar();
+  save(); jPantallaDespierta(); jPintar();
 }
 function jPausa() {
   const run = jDatos().run; if (!run || run.fase !== "foco") return;
@@ -629,7 +629,7 @@ function jIniciarLite() {
   j.run = k === "respiro"
     ? Object.assign(base, { fase: "descanso", dur: h.desc * J_MS })
     : Object.assign(base, { fase: "foco", dur: h.foco * J_MS, rondas: k === "travesia" ? h.rondas : 1 });
-  save(); jPintar();
+  save(); jPantallaDespierta(); jPintar();
 }
 /* Lo que se hizo en Hiperfoco queda en el registro sin vincular: no da XP
    —no está atado a nada que la reciba— pero cuenta como foco en el informe,
@@ -1929,7 +1929,51 @@ function jQuieta() {
   }
   return null;
 }
+/* ---- La pantalla no se apaga mientras corre el reloj (0.7.137) ----
+   Lo pidió Eduardo: un tramo de hiperfoco con la pantalla apagándose sola cada
+   treinta segundos obliga a tocar el teléfono para ver cuánto falta, que es
+   justo lo contrario de enfocarse. Lo sostiene `navigator.wakeLock`, y hay
+   tres cosas que no son opcionales:
+
+     - El navegador SUELTA el permiso en cuanto la pestaña deja de verse, y no
+       lo devuelve al volver. Así que no basta con pedirlo al empezar: se vuelve
+       a pedir desde `jPaso`, que ya corre cada cuarto de segundo y también al
+       cambiar de visibilidad.
+     - Solo mientras el reloj CORRE (`run.seg`). En pausa, dormido, en el cierre
+       o con el tramo esperando, la pantalla se apaga como siempre: sostenerla
+       ahí es gastarle la batería a quien no está mirando nada.
+     - Pedirlo es asíncrono y puede fallar —sin permiso, con la batería muy
+       baja, o en un navegador que no lo trae—. Falla en silencio: esto es una
+       comodidad, no una función, y un aviso por algo que nadie pidió es ruido.
+       `jPidiendo` evita pedirlo cuatro veces por segundo mientras la primera
+       petición sigue en el aire. */
+let jCentinela = null, jPidiendo = false;
+function jRelojCorriendo() {
+  const j = jDatos();
+  if (j.dormido) return false;
+  const r = j.run;
+  return !!(r && r.seg && (r.fase === "foco" || r.fase === "descanso"));
+}
+function jPantallaDespierta() {
+  if (!navigator.wakeLock) return;
+  if (jRelojCorriendo() && !document.hidden) {
+    if (jCentinela || jPidiendo) return;
+    jPidiendo = true;
+    navigator.wakeLock.request("screen").then(s => {
+      jPidiendo = false;
+      /* Pudo dejar de hacer falta mientras la petición iba en el aire. */
+      if (!jRelojCorriendo()) { try { s.release(); } catch (e) { /* ya está suelto */ } return; }
+      jCentinela = s;
+      s.addEventListener("release", () => { if (jCentinela === s) jCentinela = null; });
+    }).catch(() => { jPidiendo = false; });
+  } else if (jCentinela) {
+    const s = jCentinela; jCentinela = null;
+    try { s.release(); } catch (e) { /* ya lo soltó el navegador */ }
+  }
+}
+
 function jPaso() {
+  jPantallaDespierta();
   jModoDormir();
   if (!jornadaEncendida()) { jPintarPildora(); return; }
   const run = jDatos().run;
