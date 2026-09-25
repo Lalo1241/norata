@@ -92,10 +92,31 @@ function arcDibujo(filas, tam) {
    Leyenda» le dice lo mismo a todo el mundo— y los niveles no se tocan: son
    los de la casa. El `data-px` es lo que le dice a `svgDeTrazo` que este
    dibujo es de relleno. */
+/* Sus cinco constelaciones, dibujadas a mano sobre la MISMA rejilla de píxel
+   que las insignias (12 casillas, cada una de 8,3 en el espacio de 100 de las
+   constelaciones): las estrellas caen en las esquinas de los píxeles, así que
+   el cielo se lee como un sprite encendido estrella a estrella. */
+const ARCADE_CIELOS = [
+  /* La ficha: el canto en doce esquinas y la ranura. */
+  { p: [[33,8],[67,8],[83,17],[92,33],[92,67],[83,83],[67,92],[33,92],[17,83],[8,67],[8,33],[17,17],[50,33],[50,67]],
+    l: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,0],[12,13]] },
+  /* El corazón: los dos lóbulos y la punta. */
+  { p: [[8,25],[17,8],[33,8],[50,25],[67,8],[83,8],[92,25],[92,50],[75,67],[50,92],[25,67],[8,50]],
+    l: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,0]] },
+  /* La cruceta: la cruz en sus doce esquinas. */
+  { p: [[33,8],[67,8],[67,33],[92,33],[92,67],[67,67],[67,92],[33,92],[33,67],[8,67],[8,33],[33,33]],
+    l: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,0]] },
+  /* La estrella: cinco puntas y cinco quiebres. */
+  { p: [[50,8],[62,33],[92,42],[71,58],[83,92],[50,75],[17,92],[29,58],[8,42],[38,33]],
+    l: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,0]] },
+  /* La corona: tres picos, el aro y la banda de abajo. */
+  { p: [[8,12],[25,33],[50,12],[75,33],[92,12],[92,58],[83,75],[17,75],[8,58],[17,88],[83,88]],
+    l: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,0],[9,10]] }
+];
 const ARCADE_RANGOS = [
   ["Aspirante", "ficha"], ["Constante", "corazon"], ["Estratega", "cruceta"],
   ["Imparable", "estrella"], ["Leyenda", "corona"]
-].map(([nombre, g]) => ({ nombre, trazo: '<g data-px="1">' + arcRects(ARC_G[g]) + "</g>" }));
+].map(([nombre, g], i) => ({ nombre, trazo: '<g data-px="1">' + arcRects(ARC_G[g]) + "</g>", cielo: ARCADE_CIELOS[i] }));
 
 /* ---------- El sonido ----------
    Sintetizado en el momento, onda cuadrada y triangular: pesa cero. Ninguna

@@ -1094,6 +1094,11 @@ function expFiguraDeTrazo(trazo) {
    de la casa. `i` es su sitio entre los cinco, que es lo que un mundo no
    mueve. */
 function expFiguraDeRango(r, i) {
+  /* Un rango puede traer su cielo DIBUJADO (`cielo: { p, l }`, en el espacio
+     de 100 de las constelaciones). Lo usa Arcade: sus insignias son de píxel
+     —filas de cuadritos— y derivarlas sembraba estrellas por cada fila, un
+     puñado de rayas en vez de una ficha o una corona. */
+  if (r && r.cielo && r.cielo.p && r.cielo.p.length >= 4) return r.cielo;
   if (r && r.trazo) {
     const fig = expFiguraDeTrazo(r.trazo);
     if (fig && fig.p.length >= 4) return fig;

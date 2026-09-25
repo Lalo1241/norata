@@ -95,6 +95,20 @@ const NCEL_FIGURAS = [
    rango. Se reparten proporcionalmente, así que un rango con catorce enciende
    de dos en dos y uno con doce de dos en dos justas: lo que se ve es que cada
    nivel AVANZA el dibujo, no que cada nivel vale un punto. */
+/* La figura de un rango en la fiesta: la MISMA que pinta Mi expedición
+   (`expFiguraDeRango`, js/02b-expedicion.js). Hasta la 0.7.133.4 la fiesta
+   leía `NCEL_FIGURAS` a secas, así que con un mundo puesto la insignia era la
+   suya y el cielo dibujaba la bota de la casa. Lo vio Eduardo con Arcade: la
+   cruceta en la insignia y el farol en las estrellas. Sexto sitio con el
+   mismo despiste que ya recoge `norata-mundo-blueprint`. */
+function ncelFiguraRango(i) {
+  if (typeof expFiguraDeRango === "function" && typeof rangosVigentes === "function") {
+    const fig = expFiguraDeRango(rangosVigentes()[i], i);
+    if (fig && fig.p && fig.p.length) return fig;
+  }
+  return NCEL_FIGURAS[i];
+}
+
 function ncelHasta(fig, k) {
   return Math.max(1, Math.round(fig.p.length * k / EXP_POR_RANGO));
 }
@@ -277,7 +291,7 @@ function ncelPintarMapa(nivel) {
   if (!cielo || !mapa) return;
   cielo.innerHTML = ncelCielo();
 
-  const iR = ncelIndiceRango(nivel), fig = NCEL_FIGURAS[iR], k = ncelEstrella(nivel);
+  const iR = ncelIndiceRango(nivel), fig = ncelFiguraRango(iR), k = ncelEstrella(nivel);
   const nuevoRango = k === 1 && nivel > 1;
   /* Toda la escena —trazo, estrellas, halo, insignia, cifra y el nombre del
      rango— sale de esta variable. Se pone en el contenedor y no en cada regla
@@ -333,8 +347,8 @@ function ncelPintarMapa(nivel) {
        estante es una colección, y una colección de cinco cosas del mismo color
        es una sola cosa repetida. */
     estante += `<g class="${recien ? "ncel-med-nueva" : ""}"${ncelEstiloRango(i)}>` +
-      ncelFigura(NCEL_FIGURAS[i], NCEL_FIGURAS[i].p.length, x0 + i * ANCHO, 12, ESC_MEDALLA, medalla) + `</g>`;
-    anota(x0 + i * ANCHO, ncelCentroDe(NCEL_FIGURAS[i]).w * ESC_MEDALLA);
+      ncelFigura(ncelFiguraRango(i), ncelFiguraRango(i).p.length, x0 + i * ANCHO, 12, ESC_MEDALLA, medalla) + `</g>`;
+    anota(x0 + i * ANCHO, ncelCentroDe(ncelFiguraRango(i)).w * ESC_MEDALLA);
   }
 
   const viva = { linea: "ncel-linea", astro: "ncel-astro" };
@@ -352,7 +366,7 @@ function ncelPintarMapa(nivel) {
     /* La que se va lleva SU escala y no la de la que entra: son dos dibujos de
        proporciones distintas y con la escala de la otra salía recortada o
        diminuta justo en el momento en que hay que mirarla. */
-    const previa = NCEL_FIGURAS[iR - 1], cajaPrevia = ncelCentroDe(previa);
+    const previa = ncelFiguraRango(iR - 1), cajaPrevia = ncelCentroDe(previa);
     const escPrevia = Math.min(ANCHO_FIGURA / cajaPrevia.w, ALTO_FIGURA / cajaPrevia.h);
     cuerpo += `<g class="ncel-viva cerrando"${ncelEstiloRango(iR - 1)}>` +
       ncelFigura(previa, previa.p.length, CX, ncelEncuadreY(cajaPrevia, escPrevia), escPrevia, viva) + `</g>`;

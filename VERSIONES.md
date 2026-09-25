@@ -222,6 +222,25 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.133.4 · 25 sep 2026
+
+**La fiesta de nivel dibuja la constelación del mundo que llevas puesto.** Mi
+expedición ya derivaba el cielo del dibujo de cada rango, pero la fiesta seguía
+leyendo `NCEL_FIGURAS` —las cinco de la casa—, así que con un mundo puesto la
+insignia era la suya y las estrellas dibujaban la bota, la huella o el farol.
+Lo vio Eduardo con Arcade (la cruceta en la insignia y el farol en el cielo) y
+pidió corregirlo en todos los mundos.
+
+- `ncelFiguraRango` (js/02-progreso.js) usa la MISMA figura que Mi
+  expedición: la derivada del trazo para Reliquia, Blueprint y Averno, y la de
+  la casa cuando un mundo no trae dibujo. Así no pueden volver a separarse.
+- **Un rango puede traer su cielo dibujado a mano** (`cielo: { p, l }`).
+  Arcade lo necesita: sus insignias son de píxel y derivarlas sembraba una
+  estrella por fila. Sus cinco constelaciones —ficha, corazón, cruceta,
+  estrella y corona— caen sobre la rejilla de 12 de sus insignias.
+- Comprobado en los cuatro mundos: la figura de la fiesta es la de Mi
+  expedición y distinta de la de la casa; con la casa puesta no cambió nada.
+
 ### 0.7.133.3 · 25 sep 2026
 
 **La desbandada: al atrapar una, TODAS salen volando fuera de la pantalla**, la

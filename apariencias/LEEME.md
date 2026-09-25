@@ -233,7 +233,11 @@ es suave. De día: bisel claro, tramado apenas visible, sin brillo en nada.
 
 **Los cinco rangos**, aprobados: **Aspirante · Constante · Estratega ·
 Imparable · Leyenda** (ficha, corazón, cruceta, estrella y corona, en píxel de
-relleno). Ninguno inflexiona. Los niveles son los de la casa.
+relleno). Ninguno inflexiona. Los niveles son los de la casa. Sus
+constelaciones van dibujadas a mano sobre la misma rejilla (`ARCADE_CIELOS`):
+derivadas del píxel salían hechas rayas. **Regla para cualquier mundo:** la
+constelación de la fiesta y la de Mi expedición son la misma figura, y sale
+del dibujo del rango salvo que el rango traiga `cielo` propio.
 
 **Cómo se encuentra.** En la PC, el teclado en cualquier momento. En el
 teléfono, una luciérnaga RARA: blanca azulada, cuadrada, parpadea a saltos y
