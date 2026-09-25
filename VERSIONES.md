@@ -222,6 +222,13 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.135.2 · 25 sep 2026
+
+**«Hoy ya sumó al plano», no «a el plano».** El mensaje de la racha armaba
+«a» + el objeto del mundo, y en Blueprint salía «a el plano». Cada mundo lleva
+ahora su forma con la preposición ya contraída (`aObj` en `VOZ_RACHA`,
+`js/05c-racha.js`). Salió al armar el borrador de la racha de Averno.
+
 ### 0.7.135.1 · 25 sep 2026
 
 **«Tu racha» en el teléfono: un toque no es un deslizamiento.** La tarjeta

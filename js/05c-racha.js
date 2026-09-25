@@ -42,12 +42,15 @@ function temaRacha() {
 }
 
 /* Las palabras de cada mundo. La regla no cambia; cambia qué se hace con los
-   días. Cada frase pasa por el diccionario al usarse. */
+   días. Cada frase pasa por el diccionario al usarse.
+
+   `aObj` va aparte y no se arma con «a» + `obj`: el español contrae «a el»
+   en «al», y la 0.7.135 salió diciendo «Hoy ya sumó a el plano». */
 const VOZ_RACHA = {
-  casa:     { una: "semana encendida", varias: "semanas encendidas", hecho: "encendida", hechas: "encendidas", obj: "la fogata", hacer: "encenderla" },
-  plano:    { una: "semana trazada", varias: "semanas trazadas", hecho: "trazada", hechas: "trazadas", obj: "el plano", hacer: "trazarla" },
-  reliquia: { una: "semana en vitrina", varias: "semanas en vitrina", hecho: "en vitrina", hechas: "en vitrina", obj: "la vitrina", hacer: "ponerla en la vitrina" },
-  arcade:   { una: "semana superada", varias: "semanas superadas", hecho: "superada", hechas: "superadas", obj: "la fogata", hacer: "superarla" }
+  casa:     { una: "semana encendida", varias: "semanas encendidas", hecho: "encendida", hechas: "encendidas", obj: "la fogata", aObj: "a la fogata", hacer: "encenderla" },
+  plano:    { una: "semana trazada", varias: "semanas trazadas", hecho: "trazada", hechas: "trazadas", obj: "el plano", aObj: "al plano", hacer: "trazarla" },
+  reliquia: { una: "semana en vitrina", varias: "semanas en vitrina", hecho: "en vitrina", hechas: "en vitrina", obj: "la vitrina", aObj: "a la vitrina", hacer: "ponerla en la vitrina" },
+  arcade:   { una: "semana superada", varias: "semanas superadas", hecho: "superada", hechas: "superadas", obj: "la fogata", aObj: "a la fogata", hacer: "superarla" }
 };
 
 const actividadEn = (m, k) => (m.get(k) || 0) > 0;
@@ -96,7 +99,7 @@ function mensajeRacha(Z, t) {
     const seguidas = previas + 1;
     let l2;
     if (Z.n === 7) l2 = seguidas > 1 ? T`Los siete días. Van ${seguidas} semanas seguidas.` : tx("Los siete días, completa.");
-    else if (hoyCuenta) l2 = seguidas > 1 ? T`Hoy ya sumó. Van ${seguidas} semanas seguidas.` : T`Hoy ya sumó a ${tx(V.obj)}.`;
+    else if (hoyCuenta) l2 = seguidas > 1 ? T`Hoy ya sumó. Van ${seguidas} semanas seguidas.` : T`Hoy ya sumó ${tx(V.aObj)}.`;
     else l2 = T`Si hoy haces algo, ${tx(V.obj)} crece.`;
     return { tono: "bien", l1: T`Semana ${tx(V.hecho)}`, l2 };
   }
