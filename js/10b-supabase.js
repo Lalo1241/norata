@@ -252,19 +252,48 @@ async function sbRevivir(refresh) {
 }
 
 /* El token de acceso caduca en una hora. Esto lo renueva solo con el de
-   refresco, para que una sesión larga no se corte a media tarde. */
+   refresco, para que una sesión larga no se corte a media tarde.
+
+   UNA SOLA RENOVACIÓN A LA VEZ (0.7.128). Al abrir la app tras más de una hora
+   piden token cinco cosas casi en el mismo instante —la sincronía, el plan, el
+   panel, el latido, la bienvenida— y cada una mandaba su propia renovación con
+   el MISMO token de refresco. El servidor gasta ese token con la primera; las
+   demás entran por el margen de reutilización, pero si una llega tarde —el
+   teléfono que suspende la pestaña a media petición— el servidor lo lee como un
+   token robado que se reutiliza y tumba la sesión entera. Así que la primera
+   que llega renueva y las otras esperan su resultado. */
+let sbRenovando = null;
+
 async function sbToken() {
   const s = (sync.cfg || {}).sesion;
   if (!s || !s.refresh) throw new Error(tx("No hay sesión iniciada. Vuelve a conectar."));
   if (Date.now() < s.expira) return s.access;
+  /* Ya se sabe que no vale: el servidor lo dijo con un 4xx, que no cambia de
+     opinión. Volver a preguntar en cada toque solo llena la red de rechazos. */
+  if (sync.caducada) throw new Error(tx("Tu sesión caducó. Entra otra vez con tu correo y contraseña."));
+  if (!sbRenovando) {
+    sbRenovando = sbRenovar(s).finally(() => { sbRenovando = null; });
+  }
+  return sbRenovando;
+}
 
+async function sbRenovar(s) {
   const r = await sbFetch("/auth/v1/token?grant_type=refresh_token", {
     method: "POST", body: JSON.stringify({ refresh_token: s.refresh })
   });
-  if (!r.ok) throw new Error(tx("Tu sesión caducó. Entra otra vez con tu correo y contraseña."));
+  if (!r.ok) {
+    /* «No vale» y «no pude preguntar» son cosas distintas, y solo la primera
+       es una sesión caducada. Un 4xx es el servidor diciendo que ese permiso
+       ya no existe; un 5xx o un 429 es el servidor con un mal día, y por eso no
+       se echa a nadie de su cuenta. Sin red ni siquiera se llega aquí: `fetch`
+       lanza antes. */
+    if (r.status >= 400 && r.status < 500 && r.status !== 429) sesionMarcarCaducada();
+    throw new Error(tx("Tu sesión caducó. Entra otra vez con tu correo y contraseña."));
+  }
   const nueva = sbSesionDe(r.body);
   if (!nueva.uid) nueva.uid = s.uid;   // el refresco no siempre repite el usuario
   sync.cfg.sesion = nueva;
+  sync.caducada = false;
   saveSync();
   /* Y la copia de la lista de cuentas de este dispositivo, que si no se queda con
      el token viejo. El de refresco se gasta al usarlo: una copia que no se
@@ -272,6 +301,23 @@ async function sbToken() {
      cuenta fallaría justo cuando ya se confía en él. */
   cuentaApuntar();
   return nueva.access;
+}
+
+/* ---- La sesión caducada ----
+   El servidor dijo que el permiso guardado ya no vale. Se APUNTA y no se
+   cierra nada aquí: la sesión se queda puesta para que la app siga abierta con
+   todo lo tuyo, y lo que hagas mientras se sigue guardando en el dispositivo.
+   Quien decide qué enseñar es la app (`avisarSesionCaducada`, en
+   `10-sincronia.js`); este archivo también lo carga la puerta, que no tiene
+   ventanas que abrir. */
+function sesionMarcarCaducada() {
+  if (sync.caducada) return;
+  sync.caducada = true;
+  saveSync();
+}
+
+function sesionCaducada() {
+  return !!(sync && sync.caducada && almacen().listo());
 }
 
 /* ---- Borrar la cuenta, con 30 días para arrepentirse ----
@@ -505,6 +551,13 @@ async function sbDatos(ruta, opts) {
 
 function sbError(r) {
   if (r.status === 401 || r.status === 403) {
+    /* El token de acceso todavía no había vencido por reloj, pero el servidor
+       ya no lo acepta: la sesión se cerró desde otro sitio. Se da por vencido
+       para que la próxima petición intente renovarlo, que es la que contesta de
+       verdad si la sesión sigue viva. Sin esto la app esperaba la hora entera
+       sin enterarse, y sin enterarse no podía avisar. */
+    const s = (sync.cfg || {}).sesion;
+    if (s) { s.expira = 0; saveSync(); }
     return new Error(tx("Tu sesión ya no vale. Entra otra vez con tu correo y contraseña."));
   }
   return new Error(T`El servidor respondió: ${sbMensaje(r)}`);

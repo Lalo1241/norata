@@ -222,6 +222,45 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.130 · 24 sep 2026
+
+**Una sesión caducada ya no se esconde: sale una ventana al abrir la app y
+obliga a volver a entrar.** Eduardo lo vivió en el teléfono: hizo una misión, la
+app la apuntó y no subió nunca; tampoco bajó el módulo que había abierto a
+golpes en la computadora. Lo único que lo decía era el renglón de la sincronía
+en Ajustes → Mi perfil, y la salida era bajar hasta «Cerrar sesión». Su regla:
+quien usa cuenta espera que funcione, no está probando la app.
+
+- `sbToken` (`js/10b-supabase.js`) distingue «no vale» (un 4xx del servidor)
+  de «no pude preguntar» (sin red, 5xx, 429). Solo lo primero apunta
+  `sync.caducada`, y a partir de ahí no vuelve a pedir: un 4xx no cambia de
+  opinión. Un 401/403 en una petición de datos da el token por vencido para
+  que la siguiente lo compruebe, en vez de esperar la hora entera.
+- **Una sola renovación a la vez.** Al abrir tras más de una hora pedían token
+  cinco cosas a la vez con el MISMO permiso de refresco. Si una llegaba tarde
+  —el teléfono suspende la pestaña a media petición—, Supabase lo lee como un
+  permiso robado que se reutiliza y tumba la sesión entera. Es la causa más
+  probable de lo que le pasó, aunque no está comprobada.
+- `avisarSesionCaducada` (`js/10-sincronia.js`): ventana fija, un botón,
+  «Iniciar sesión». Sale al arrancar —antes del tutorial y de la vuelta, y
+  también sin red, porque el aviso viene apuntado— y al volver a la pestaña.
+- `volverAEntrar` NO es cerrar sesión: quita solo el permiso muerto y su atajo
+  de la lista, pero deja `sync.dueño` y los datos. Al entrar con la misma
+  cuenta, `adoptarSesion` junta lo del dispositivo con lo del servidor (así
+  llega también el candado roto de la computadora); con otra cuenta, lo aparta
+  a una copia. La puerta abre en «Hola de nuevo» con el correo ya puesto.
+
+**La cuenta de ahora, en la lista de cuentas.** En el índice de Ajustes del
+teléfono salían las OTRAS cuentas y «Entrar con otra cuenta», sin decir en cuál
+se estaba. Ahora va arriba con su chapa: «Sesión actual» en menta, o «Caducada»
+en coral con «Esta sesión caducó · toca para volver a entrar». La misma chapa
+en la ficha del menú del engrane (computadora) y en la de Mi perfil, donde
+además «Sincronizar ahora» se cambia por «Volver a entrar».
+
+Medido en el DOM con una sesión falsa: la ventana sale al arrancar, lleva a
+`/login/` sin rebotar, la puerta ya no ofrece la cuenta muerta, y al abrir
+se piden 1 renovación (antes, una por pieza) y 0 si ya se sabía caducada.
+
 ### 0.7.129.2 · 24 sep 2026
 
 **Una versión nueva ya no se cae por un bache de red: la instalación reintenta

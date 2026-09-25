@@ -1087,6 +1087,7 @@ async function adoptarSesion(mensaje) {
 
   sync.device = sync.device || guessDeviceName();
   sync.enabled = true;
+  sync.caducada = false;
   sync.entrada = "cuenta";
   sync.marca = null;
   sync.rev = 0;
@@ -1333,7 +1334,29 @@ function cuentasMenuHTML(pref) {
       <span class="${pref}-ic">${icon("mas", 16)}</span>
       <span class="${pref}-tx"><b>${tx("Entrar con otra cuenta")}</b></span>
     </button>`;
-  return `<div class="menu-cuentas">${cuentasOtras().map(fila).join("")}${anadir}</div>`;
+  return `<div class="menu-cuentas">${cuentaActualMenuHTML(pref)}${cuentasOtras().map(fila).join("")}${anadir}</div>`;
+}
+
+/* LA CUENTA DE AHORA, arriba de las otras (0.7.128). En el menú del engrane
+   ya la dice la ficha de arriba, así que ahí no se repite; en el índice de
+   Ajustes del teléfono no había nada encima, y Eduardo lo encontró así: una
+   lista de OTRAS cuentas y un «Entrar con otra cuenta», sin decir en cuál se
+   estaba — ni que esa había caducado, que es lo que le hacía falta saber.
+
+   Caducada, la fila deja de llevar a Mi perfil y lleva a volver a entrar: es
+   lo único que hay que hacer con ella. */
+function cuentaActualMenuHTML(pref) {
+  if (pref !== "aj") return "";
+  const cfg = sync.cfg || {};
+  const muerta = sesionCaducada();
+  const saludo = perfilActual().saludo;
+  return `<button class="${pref}-item ${pref}-cuenta es-actual" onclick="${muerta ? "volverAEntrar()" : "mostrarAjuste('cuenta')"}">
+      ${avatarHTML(30)}
+      <span class="${pref}-tx"><b class="con-chapa"><span class="cuenta-nombre">${escapeHtml(saludo || cfg.correo || tx("Sin nombre"))}</span>${chapaSesionHTML()}</b>
+      ${muerta
+        ? `<span class="aviso-caducada">${tx("Esta sesión caducó · toca para volver a entrar")}</span>`
+        : (saludo && cfg.correo ? `<span>${escapeHtml(cfg.correo)}</span>` : "")}</span>
+    </button>`;
 }
 
 /* La misma lista con su rótulo, para el panel de la cuenta en Ajustes. Sin

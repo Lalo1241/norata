@@ -357,7 +357,69 @@ async function syncRun(opts) {
        cambia de golpe en el mismo dispositivo. Es barato: `refrescarApariencia`
        se sale sola si no hay nada que cambiar. */
     if (typeof refrescarApariencia === "function") refrescarApariencia();
+    /* Con la pantalla de carga puesta no: eso es el arranque, y el arranque lo
+       pregunta él mismo al destaparse, antes del tutorial y de la vuelta. */
+    if (sesionCaducada() && !(typeof cargaVisible === "function" && cargaVisible())) {
+      avisarSesionCaducada();
+    }
   }
+}
+
+/* ---- La sesión caducó (0.7.128) ----
+   Antes esto solo se decía en Ajustes → Mi perfil, en el renglón de la
+   sincronía, y la única salida era bajar hasta «Cerrar sesión». Eduardo lo
+   vivió en el teléfono: hizo una misión, la app la apuntó, y no subió nunca —
+   ni el módulo que había abierto en la computadora bajó—, sin que nada en la
+   pantalla lo dijera.
+
+   Quien tiene cuenta espera que su cuenta funcione; no está probando la app.
+   Así que al enterarse se avisa con una ventana que no se cierra tocando fuera
+   y que tiene una sola salida: volver a entrar. Lo hecho mientras tanto no se
+   pierde — se queda en el dispositivo, y al entrar `adoptarSesion` lo junta con
+   lo de la cuenta en vez de pisarlo (mismo dueño: no se aparta nada). */
+let avisoCaducadaAbierto = false;
+
+async function avisarSesionCaducada() {
+  if (avisoCaducadaAbierto || !sesionCaducada() || modoEjemplo) return;
+  avisoCaducadaAbierto = true;
+  await askBase(
+    tx("Para que tu progreso siga llegando a tus otros dispositivos, entra otra vez. Lo que hiciste aquí no se pierde: se sube solo en cuanto entres."),
+    false, tx("Iniciar sesión"), false, false, null,
+    { icono: "shield", fijo: true, soloOk: true, titulo: tx("Tu sesión caducó"), tono: "oro" });
+  volverAEntrar();
+}
+
+/* A la puerta, SIN borrar nada de lo tuyo. No es `syncDisconnect`, y la
+   diferencia es la que importa: aquel suelta el dueño y da por subido lo
+   pendiente; esto solo quita el permiso muerto. `sync.dueño` se queda, y es lo
+   que hace que al volver a entrar con la misma cuenta lo de este dispositivo se
+   JUNTE con lo del servidor, y que con otra cuenta se aparte a una copia.
+
+   El atajo de la lista de cuentas también se va: su permiso es el mismo que
+   acaba de morir, y ofrecerlo en la puerta sería un botón que no lleva a
+   ninguna parte. El correo se queda para escribirlo por ti. */
+function volverAEntrar() {
+  const cfg = sync.cfg || {};
+  /* Antes de soltar la sesión, que es de donde saca el identificador: con esto
+     la puerta abre en «Hola de nuevo» con tu correo ya escrito. */
+  recordarUltimo();
+  cuentaOlvidar((cfg.sesion || {}).uid);
+  sync.cfg = { correo: cfg.correo || "", perfil: cfg.perfil || null };
+  sync.enabled = false;
+  sync.caducada = false;
+  sync.entrada = "cuenta";
+  saveSync();
+  if (typeof cargaMostrar === "function") cargaMostrar(tx("Abriendo la entrada…"));
+  location.assign("login/");
+}
+
+/* La chapa de la cuenta abierta. En los tres sitios donde se ve quién eres —la
+   ficha de Mi perfil, el menú del engrane y el índice de Ajustes— dice lo
+   mismo: que ESA es la sesión de ahora, o que caducó. */
+function chapaSesionHTML() {
+  return sesionCaducada()
+    ? '<span class="cuenta-actual chapa-sesion caducada">' + tx("Caducada") + '</span>'
+    : '<span class="cuenta-actual chapa-sesion">' + tx("Sesión actual") + '</span>';
 }
 
 /* ---- Ajustes: conectar, estado y desconexión ---- */
@@ -381,6 +443,9 @@ function estadoSyncHTML(bajoLaFicha) {
   if (!syncReady()) {
     dot = ""; titulo = tx("Solo en este dispositivo");
     detalle = tx("Tu progreso no sale de este navegador.");
+  } else if (sesionCaducada()) {
+    dot = "bad"; titulo = tx("Esta sesión caducó");
+    detalle = tx("Lo que hagas aquí se guarda en este dispositivo y se sube cuando vuelvas a entrar.");
   } else if (syncBusy) {
     dot = "busy"; titulo = tx("Sincronizando…"); detalle = bajoLaFicha ? "" : alm.etiqueta();
   } else if (syncError) {
@@ -462,10 +527,11 @@ function renderSync() {
       /* LA CHAPA DE «ACTUAL», que es lo otro que faltaba: la ficha enseñaba tu
          cara y tu correo pero nada decía que ESA es la sesión abierta, y con
          otras cuentas listadas debajo eso se vuelve una adivinanza. */
-      '<button class="perfil-ficha es-actual" onclick="abrirColeccion(\'settings\')">' + avatarHTML(48) +
+      '<button class="perfil-ficha es-actual" onclick="' +
+      (sesionCaducada() ? 'volverAEntrar()' : 'abrirColeccion(\'settings\')') + '">' + avatarHTML(48) +
       '<div class="perfil-quien"><b>' +
       '<span class="cuenta-nombre">' + escapeHtml(p.saludo || tx("Sin nombre")) + '</span>' +
-      '<span class="cuenta-actual">' + tx("Actual") + '</span></b>' +
+      chapaSesionHTML() + '</b>' +
       '<span>' + escapeHtml((sync.cfg || {}).correo || "") + '</span></div>' +
       /* La insignia del nivel, al otro extremo: quién eres a la izquierda, por
          dónde vas a la derecha. Con `typeof` porque esta ficha se dibuja
@@ -483,7 +549,11 @@ function renderSync() {
          la fila partida, la que se lleva la anchura entera es la única con
          consecuencias. Lo pidió Eduardo. */
       '<div class="stack cuentas-acciones">' +
-      '<button class="btn btn-soft" onclick="syncRun({})">' + tx("Sincronizar ahora") + '</button>' +
+      /* Con la sesión caducada, sincronizar no puede hacer nada: en su hueco va
+         la única salida que sí sirve. */
+      (sesionCaducada()
+        ? '<button class="btn btn-primary" onclick="volverAEntrar()">' + tx("Volver a entrar") + '</button>'
+        : '<button class="btn btn-soft" onclick="syncRun({})">' + tx("Sincronizar ahora") + '</button>') +
       /* `btn-linea` y no `btn-soft`: no escribe nada tuyo, te lleva a otro
          sitio. Y separado de «Cerrar sesión» a propósito, porque son cosas
          distintas y confundirlas cuesta caro: cerrar sesión borra el atajo

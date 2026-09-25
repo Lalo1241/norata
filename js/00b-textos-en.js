@@ -3647,5 +3647,12 @@ const TEXTOS_EN = {
   "{0} no te esperaba tan pronto.": "{0} wasn't expecting you this soon.",
   "Tu rama de {0} ya está dentro.": "Your {0} branch is already inside.",
   "Tus ramas de {0} ya están dentro.": "Your {0} branches are already inside.",
-  "«{0}» ya está dentro.": "«{0}» is already inside."
+  "«{0}» ya está dentro.": "«{0}» is already inside.",
+  "Tu sesión caducó": "Your session expired",
+  "Para que tu progreso siga llegando a tus otros dispositivos, entra otra vez. Lo que hiciste aquí no se pierde: se sube solo en cuanto entres.": "To keep your progress reaching your other devices, sign in again. What you did here isn't lost: it uploads on its own as soon as you're in.",
+  "Esta sesión caducó": "This session expired",
+  "Lo que hagas aquí se guarda en este dispositivo y se sube cuando vuelvas a entrar.": "What you do here is saved on this device and uploads when you sign back in.",
+  "Esta sesión caducó · toca para volver a entrar": "This session expired · tap to sign back in",
+  "Sesión actual": "Current session",
+  "Caducada": "Expired"
 };

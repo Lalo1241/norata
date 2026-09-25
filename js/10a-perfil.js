@@ -435,6 +435,7 @@ function cuentaPonerSesion(c) {
      Ajustes escribiendo «undefined». */
   sync.cfg = { correo: c.correo, sesion: c.sesion, perfil: perfilDe(c.perfil || {}) };
   sync.enabled = true;
+  sync.caducada = false;
   sync.entrada = "cuenta";
   sync.marca = null;
   sync.rev = 0;

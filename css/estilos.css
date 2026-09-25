@@ -9059,6 +9059,36 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
 
+  /* ---------- La chapa de la sesión en los menús (0.7.128) ----------
+     La misma pastilla que la de la ficha de Mi perfil, ahora también en el
+     índice de Ajustes y en el menú del engrane. Hay que repetirla aquí porque
+     dentro de un renglón de menú manda `.aj-tx span` / `.mm-tx span` —el estilo
+     de la línea gris de abajo— y le ganaba a la clase sola: la chapa salía gris
+     y pequeña, y el NOMBRE también, porque va envuelto en un `span` para poder
+     recortarse sin empujar la chapa fuera. */
+  .con-chapa { display: flex; align-items: center; min-width: 0; }
+  .con-chapa .cuenta-nombre {
+    min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: inherit; color: inherit;
+  }
+  .con-chapa .chapa-sesion {
+    flex: none;
+    display: inline-block;
+    margin: 0 0 0 8px;
+    padding: 2px 7px;
+    border-radius: var(--r-pastilla);
+    background: var(--mint-soft); color: var(--mint);
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: .04em; text-transform: uppercase;
+    white-space: nowrap; overflow: visible;
+  }
+  /* Caducada va en coral y no en luciérnaga: no es «ojo con esto», es «esto ya
+     no funciona». Vale igual en la ficha de Mi perfil, que usa la otra clase. */
+  .con-chapa .chapa-sesion.caducada,
+  .perfil-quien .cuenta-actual.caducada { background: var(--coral-soft); color: var(--coral); }
+  .menu-cuentas .aviso-caducada,
+  .mm-perfil .aviso-caducada { color: var(--coral); }
+
   /* En la puerta la lista va dentro de la caja del formulario, que es
      estrecha: sin esto el correo largo de una cuenta estira la caja entera y
      saca una barra horizontal en el teléfono. */

@@ -310,13 +310,23 @@ showView("summary");
        dibujado. Es lo último de todo a propósito — destaparla antes es
        justamente lo que hacía parpadear la app al abrirla. */
     cargaCerrar();
-    quizaTutorialDeEntrada();
-    /* Después de `applyDecay()` y del tutorial, y las dos cosas por un motivo:
-       el desgaste de la ausencia entera se escribe en el registro justo ahí
-       arriba y la ventana lo LEE en vez de recalcularlo, y quien todavía no ha
-       visto el tutorial tiene algo más urgente que una vuelta. La propia
-       función se abstiene si hay cualquier otra capa encima. */
-    quizaVentanaDeVuelta();
+    /* La sesión caducada va ANTES que todo lo demás que se abre al entrar
+       (0.7.128): mientras no se resuelva, nada de lo que se haga aquí llega a
+       la cuenta, y un tutorial o una vuelta encima lo taparían. Se pregunta
+       también sin red: el aviso viene apuntado de la vez anterior, y la sesión
+       sigue muerta aunque ahora no se pueda comprobar. Sin `return`: lo de
+       más abajo —el plan, el latido— tiene que correr igual. */
+    if (sesionCaducada()) {
+      avisarSesionCaducada();
+    } else {
+      quizaTutorialDeEntrada();
+      /* Después de `applyDecay()` y del tutorial, y las dos cosas por un motivo:
+         el desgaste de la ausencia entera se escribe en el registro justo ahí
+         arriba y la ventana lo LEE en vez de recalcularlo, y quien todavía no ha
+         visto el tutorial tiene algo más urgente que una vuelta. La propia
+         función se abstiene si hay cualquier otra capa encima. */
+      quizaVentanaDeVuelta();
+    }
   }
 
   /* El latido va aquí, lo último de todo y sin esperarlo: es una libreta para

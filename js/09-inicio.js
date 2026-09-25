@@ -2132,10 +2132,12 @@ function abrirMenuAjustes(btn) {
      sitio natural: aquí es donde vive la insignia, y tocar tu insignia
      tiene que llevar a tu recorrido. */
   const ficha = dentro
-    ? `<button class="mm-perfil" onclick="abrirColeccion()">
+    ? `<button class="mm-perfil" onclick="${sesionCaducada() ? "volverAEntrar()" : "abrirColeccion()"}">
          ${avatarHTML(48)}
-         <span class="mm-tx"><b>${escapeHtml(perfilActual().saludo || tx("Sin nombre"))}</b>
-         <span>${escapeHtml(cfg.correo || "")}</span>
+         <span class="mm-tx"><b class="con-chapa"><span class="cuenta-nombre">${escapeHtml(perfilActual().saludo || tx("Sin nombre"))}</span>${chapaSesionHTML()}</b>
+         ${sesionCaducada()
+           ? `<span class="aviso-caducada">${tx("Esta sesión caducó · toca para volver a entrar")}</span>`
+           : `<span>${escapeHtml(cfg.correo || "")}</span>`}
          ${chapa}</span>
          ${insignia}
        </button>`
