@@ -14,6 +14,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
 | --- | --- |
 | **Ya está en la app** (0.7.37) | La capa de material: `--r-*`, `--sup-*`, `--marco-*`, `--tipo-titulo`, `--tipo-cifra`, `--dur-*`. Ver la sección «El material» de `CLAUDE.md`. |
 | **Ya está en la app** (0.7.38) | Servir de la copia primero, para que un mundo se baje UNA vez y no cada mañana. |
+| **Construido aparte, en `css/arcade.css`** (0.7.131) | **Arcade**, el mundo secreto. No es uno de los quince: es una capa de material que va encima del ambiente, sin colores propios. Se genera con `python mundos/arcade.py` desde `mundos/arcade/arcade.css`. Ver la sección «Arcade» de `apariencias/LEEME.md`. |
 | **Construidos, en `css/mundos.css`** | Tres: **Reliquia** (Fundador), **Blueprint** y **Averno**, los tres con sus dos caras. Cada uno se da de alta en cuatro sitios: sus tokens en `mundos/datos.py`, el id en `LISTOS` y la letra en `FUENTES` de `mundos/app.py`, y el `listo: true` con sus cinco rangos en `js/10i-apariencia.js`. |
 | **Diseñado y medido, sin construir** | Los doce restantes de este documento (revisados tres veces). |
 | **Ya está en la app** (antes de todo esto) | La caja registradora: `js/10d-plan.js` ya tiene la llave `apariencia` —Gratuito «las paletas de color», Pro «todas las apariencias»—. El cobro está resuelto; lo que no existe es qué vender. |

@@ -193,6 +193,74 @@ Consola es la excepción del negocio: **gratis siempre**, por lo mismo que Tinta
 los tonos—, y porque conviene que se vea que los mundos existen antes de que
 haya nada que comprar.
 
+## Arcade, el mundo secreto (0.7.131)
+
+**Construido y publicado.** Todo lo de aquí lo decidió Eduardo entre el
+concepto, un boceto con la app de verdad dentro y cuatro vueltas de ajustes.
+
+**Qué es.** Un mundo de estética de 8 bits que no sale en ningún menú. Se abre
+con el código Konami y es **gratis para siempre** para quien lo teclee, pague
+o no: es la única excepción al cobro, y **ningún otro secreto abre nada de
+pago**. No es «Consola», que sigue apartado como mundo gratis y visible con
+estética de terminal: Consola es una terminal y Arcade una maquinita.
+
+**No es un mundo como los quince: es una CAPA DE MATERIAL.** Esta es la
+decisión que lo ordena todo, y rompe a propósito una regla de este documento
+—que ambiente y mundo son excluyentes—. Eduardo lo quiso como una versión
+alterada de la Norata original, así que Arcade no trae colores: los pone el
+ambiente que tengas, en sus dos caras, con los contrastes que ya están medidos.
+Por eso vive en su propio atributo (`data-material="arcade"`) y no en
+`data-apariencia`. Con un mundo sí es excluyente, porque un mundo ya trae su
+material: encender Arcade te devuelve a tu ambiente, y elegir un mundo lo
+apaga. Se descartaron dos paletas propias que llegaron al boceto, Sala y
+Bolsillo.
+
+| Familia | Qué hace Arcade |
+| --- | --- |
+| Letra | CelestiByte, de Eduardo, en títulos y cifras. «Árbol de talentos» mide 247 de 266: no pide escala. El cuerpo sigue en Outfit |
+| Superficie | Caja de sprite: bisel por dentro y el canto de abajo más grueso. Las piezas chicas pierden el píxel de cada esquina |
+| Suelo | El del ambiente, con tramado de ajedrez abajo en vez de degradado. De noche, un cielo de seis píxeles en lugar de los orbes |
+| Barras | Barra de vida, por celdas |
+| Movimiento | A saltos (`steps`), sin curvas |
+| Mapa | Puntitos cuadrados, hilos en guiones de píxel y dibujo sin suavizar. Las formas de los nodos no cambian: dicen qué es cada cosa |
+| Menú y «+» | En el teléfono, círculos de píxel en escalón («no tan cuadrados», Eduardo) y el «+» como ficha maciza con bisel |
+| Pomodoro | La rueda y los relojes de arena se redibujan en bloques con un filtro SVG; granos que caen a saltos; la hora con los dos puntos parpadeando |
+| Sonido | Sintetizado: moneda al cumplir, nota al desmarcar, fiestas, racha y el final de tramo. **Encendido de entrada**, con su interruptor en Mi apariencia |
+
+**De día no pierde el encanto de la casa.** La primera versión de día llevaba
+contornos negros de instructivo impreso y Eduardo la paró: el claro de Norata
+es suave. De día: bisel claro, tramado apenas visible, sin brillo en nada.
+
+**Los cinco rangos**, aprobados: **Aspirante · Constante · Estratega ·
+Imparable · Leyenda** (ficha, corazón, cruceta, estrella y corona, en píxel de
+relleno). Ninguno inflexiona. Los niveles son los de la casa.
+
+**Cómo se encuentra.** En la PC, el teclado en cualquier momento. En el
+teléfono, una luciérnaga RARA: blanca azulada, cuadrada, parpadea a saltos y
+vuela en ocho direcciones; una noche de cada quince y solo a quien ya atrapó
+tres. Su frase: «Arriba, arriba, abajo, abajo… lo demás lo sabe quien creció
+con un control en las manos.» No suma a la cuenta y deja un píxel en la esquina
+del Resumen el resto de la noche; el píxel abre un mando (cruceta, B y A).
+
+**Al acertar, en orden y nunca a la vez**: el mensaje («Encontraste un mundo
+que no sale en ningún menú. Ya es tuyo.»); al cerrarlo, la pantalla de carga;
+después el mundo puesto. Lo encontrado se guarda en la cuenta
+(`settings.secretos`) y nunca se vuelve a cerrar.
+
+**La regla que salió de aquí y vale para todos los mundos, hasta la 1.0: un
+mundo viste, no actúa.** Cambia cómo se ve y cómo suena lo que la app ya hace;
+lo que cambie lo que PASA (una cuenta atrás, una pantalla, un contador) es de
+la app entera y cada mundo solo lo viste. De las ideas para el Pomodoro, la
+salida «3, 2, 1» quedó aprobada **como función de la app**, la cuenta al final
+del descanso quedó por decidir con la misma condición, y el combo y el bloque
+que suelta moneda se descartaron. Los rasgos propios de cada mundo, después de
+la 1.0.
+
+Dónde vive: `js/10k-arcade.js`, `css/arcade.css` (se edita en
+`mundos/arcade/arcade.css` y se genera con `python mundos/arcade.py`),
+`css/celestibyte.woff2`, y en `css/estilos.css` lo que existe antes de
+encontrarlo (la rara, el píxel, el mando y el `@font-face`).
+
 ## Qué declara una apariencia, de verdad
 
 **Actualizado en 0.7.55, y esta lista manda sobre cualquier otra.** Un ambiente

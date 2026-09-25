@@ -3174,9 +3174,12 @@ function branchHeader(name, countLabel, buttons) {
    - **Con «menos movimiento» no vuelan**: aparecen quietas, parpadean y se
      desvanecen.
 
-   Y lo que NO está todavía: la luciérnaga RARA, la de luz blanca azulada que
-   da la pista del mundo Arcade. Eduardo la quiere cuando el mundo exista, no
-   antes: una pista hacia nada es una broma pesada. */
+   Y la luciérnaga RARA (0.7.131), la de luz blanca azulada que da la pista
+   del mundo Arcade. Esperó a que el mundo existiera: una pista hacia nada es
+   una broma pesada. Es cuadrada —un píxel—, parpadea a saltos y vuela solo en
+   ocho direcciones; sale una noche de cada quince y solo a quien ya atrapó
+   tres normales (`arcadeTocaRara`). No suma a la cuenta, y deja un píxel en
+   una esquina que abre el mando del código. Ver js/10k-arcade.js. */
 /* **Ninguna frase puede hacer sentir mal a nadie** (Eduardo, 0.7.129.1). La
    segunda decía que las luciérnagas encienden la luz «para encontrar pareja»:
    graciosa para unos, un piquete para quien está solo a las tres de la mañana,
@@ -3210,6 +3213,8 @@ function luciHora() {
 /* Se llama al pintar el Resumen, que es muchas veces al día: casi siempre
    sale en la primera línea. */
 function quizaLuciernagas() {
+  // El píxel que dejó la rara sigue ahí el resto de la noche (Arcade).
+  if (typeof arcadeQuizaPixel === "function") arcadeQuizaPixel();
   const h = new Date().getHours();
   if (h >= 4) return;
   state.ui = state.ui || {};
@@ -3255,6 +3260,13 @@ function soltarLuciernagas() {
     el.style.opacity = 0;
     luciBichos.push(b);
   }
+  /* La rara va en lugar de la última: una luciérnaga más no se nota, una
+     distinta sí. */
+  if (typeof arcadeTocaRara === "function" && arcadeTocaRara()) {
+    const b = luciBichos[luciBichos.length - 1];
+    b.rara = true;
+    b.el.classList.add("rara");
+  }
   luciAntes = Date.now();
   // Con setInterval y no con fotogramas, por lo mismo que el candado que se rompe.
   luciReloj = setInterval(pasoLuciernagas, 16);
@@ -3267,6 +3279,7 @@ function brilloLuciernaga(b, t) {
   const c = ((t + b.fase) % b.periodo) / b.periodo;
   const on = c < 0.55 ? Math.sin(c / 0.55 * Math.PI) : 0;
   const suelo = document.documentElement.classList.contains("claro") ? 0.35 : 0.08;
+  if (b.rara) return on > 0.3 ? 1 : suelo;   // la rara, a saltos, como un píxel
   return suelo + (1 - suelo) * Math.pow(on, 0.7);
 }
 
@@ -3304,8 +3317,10 @@ function pasoLuciernagas() {
       }
     }
     const v = b.vel * (b.huye ? (irse ? 6 : 3.2) : 1);
-    b.x += Math.cos(b.rumbo) * v * dt;
-    b.y += Math.sin(b.rumbo) * v * dt + Math.sin(t * 2.1 + b.fase) * 6 * dt;   // un vaivén suave
+    // La rara vuela como un sprite: solo en ocho direcciones y sin vaivén.
+    const rumbo = b.rara ? Math.round(b.rumbo / (Math.PI / 4)) * (Math.PI / 4) : b.rumbo;
+    b.x += Math.cos(rumbo) * v * dt;
+    b.y += Math.sin(rumbo) * v * dt + (b.rara ? 0 : Math.sin(t * 2.1 + b.fase) * 6 * dt);   // un vaivén suave
     if (b.huye && (b.x < -40 || b.x > W + 40 || b.y < -40 || b.y > H + 40)) { b.fuera = true; b.el.remove(); return; }
     const giro = Math.cos(b.rumbo) < 0 ? -1 : 1;
     b.el.style.opacity = 1;
@@ -3348,6 +3363,9 @@ function atraparLuciernaga(b) {
   // Las demás se asustan y se van.
   luciBichos.forEach(o => { if (o !== b) o.huye = true; });
 
+  // La rara no suma a la cuenta: da la pista de Arcade (js/10k-arcade.js).
+  if (b.rara && typeof arcadeRaraAtrapada === "function") { arcadeRaraAtrapada(); return; }
+
   state.settings = state.settings || {};
   state.settings.luciernagas = (Number(state.settings.luciernagas) || 0) + 1;
   save();
@@ -3363,7 +3381,7 @@ function atraparLuciernaga(b) {
    de siempre sí se lleva el VELO (`.modal-backdrop`), para que se lea como las
    demás ventanas de la app. Está en `CAPAS_QUE_TAPAN`, así que la página de
    detrás se queda quieta mientras tanto. */
-function fraseDeLuciernaga(texto, numero) {
+function fraseDeLuciernaga(texto, numero, rara) {
   const vieja = document.getElementById("luci-frase");
   if (vieja) vieja.remove();
   const dura = 6000 + texto.length * 70;
@@ -3371,7 +3389,7 @@ function fraseDeLuciernaga(texto, numero) {
   v.id = "luci-frase";
   v.className = "modal-backdrop";
   v.innerHTML =
-    '<div class="luci-card" role="dialog" aria-live="polite">' +
+    '<div class="luci-card' + (rara ? " rara" : "") + '" role="dialog" aria-live="polite">' +
       '<button type="button" class="luci-x" aria-label="' + escapeAttr(tx("Cerrar")) + '">' + icon("close", 16) + '</button>' +
       '<span class="luci-ic" aria-hidden="true"><i></i></span>' +
       '<span class="luci-num">' + escapeHtml(T`Luciérnaga nº ${numero}`) + '</span>' +

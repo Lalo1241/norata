@@ -115,6 +115,22 @@
     }
   } catch (e) {}
 
+  /* Arcade (0.7.131), el mundo secreto: aquí por lo mismo que la apariencia,
+     para que la primera imagen ya salga de píxel y no haya fogonazo. Es una
+     CAPA que va encima del ambiente, así que tiene su propio atributo y su
+     propio archivo. `js/10k-arcade.js` la quita al arrancar si la cuenta que
+     entra no lo ha encontrado: la llave es del dispositivo, el hallazgo es de
+     la cuenta. */
+  try {
+    if (localStorage.getItem("norata-material") === "arcade") {
+      document.documentElement.setAttribute("data-material", "arcade");
+      var la = document.createElement("link");
+      la.rel = "stylesheet";
+      la.href = "css/arcade.css?h=9285210644";
+      document.head.appendChild(la);
+    }
+  } catch (e) {}
+
   /* ---- El escaparate: `?informes=demo` ----
      Aquí vivía el interruptor de la reforma de los paneles (0.7.20 a 0.7.27),
      y se fue en 0.7.28 cuando Eduardo la dio por buena: las flechas y el botón
@@ -1296,6 +1312,7 @@
 <script defer src="js/10h-lecturas.js"></script>
 <script defer src="js/10i-apariencia.js"></script>
 <script defer src="js/10j-caminos.js"></script>
+<script defer src="js/10k-arcade.js"></script>
 <script defer src="js/11-arranque.js"></script>
 </body>
 </html>

@@ -1967,6 +1967,12 @@ function jAudio() {
   try { jCtx = jCtx || new (window.AudioContext || window.webkitAudioContext)(); jCtx.resume(); } catch (e) { /* sin sonido */ }
 }
 function jCampana() {
+  /* Con Arcade puesto, el final de fase de 8 bits en vez de la campana. El
+     interruptor de sonido del Pomodoro manda igual sobre los dos. */
+  if (typeof arcadePuesto === "function" && arcadePuesto()) {
+    if (jDatos().cfg.sonido) arcadeSonar("fase");
+    return;
+  }
   if (!jCtx || !jDatos().cfg.sonido) return;
   [[660, 0], [880, .18], [990, .36]].forEach(([f, t]) => {
     const o = jCtx.createOscillator(), g = jCtx.createGain(), t0 = jCtx.currentTime + t;

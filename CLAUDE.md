@@ -476,6 +476,13 @@ Son **excluyentes** —un mundo declara sus propios colores— y el modo claro e
 un eje aparte. Nada de esto existe todavía en la app: lo que hay es el camino
 (la capa de material de 0.7.37) y la caja registradora (la llave `apariencia`).
 
+**Y una cuarta cosa desde 0.7.131: Arcade**, el mundo secreto (código Konami,
+gratis para siempre). No es un mundo de esos quince sino una **capa de
+material** que va ENCIMA del ambiente, en su propio atributo
+(`data-material`); con un mundo sí es excluyente. Todo lo decidido está en la
+sección «Arcade» de `apariencias/LEEME.md`. Y la regla que dejó, hasta la 1.0:
+**un mundo viste, no actúa** — lo que cambie lo que pasa es de la app entera.
+
 ## El material
 
 La paleta de arriba resuelve el COLOR. Desde 0.7.37 hay una segunda familia al

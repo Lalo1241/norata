@@ -6,6 +6,8 @@ let userHasTapped = false;
 document.addEventListener("pointerdown", () => { userHasTapped = true; }, { once: true, capture: true });
 
 function celebrate(title, sub, color, iconName) {
+  // Con Arcade puesto, cada fiesta suena (js/10k-arcade.js). Sin él, calla.
+  if (typeof arcadeSonar === "function") arcadeSonar("fiesta");
   const el = document.getElementById("celebrate");
   /* La de pantalla completa, que abre el nivel 15 con Pro: la misma noticia
      con el peso del sello —la insignia cae, golpea y levanta polvo—. Sigue sin
@@ -567,6 +569,7 @@ let ncelTimer = null;
 function celebrarNivel(nivel, abre) {
   const el = document.getElementById("ncel");
   if (!el) return;
+  if (typeof arcadeSonar === "function") arcadeSonar("rango");
   abre = abre || [];
   const r = typeof rangoExpedicion === "function" ? rangoExpedicion(nivel) : null;
 
@@ -816,6 +819,7 @@ let scelTimer = null;
 function celebrateStreak(n) {
   const el = document.getElementById("scel");
   if (!el) return;
+  if (typeof arcadeSonar === "function") arcadeSonar("racha");
   /* La segunda escena de racha, que se desbloquea en el nivel 9: la MISMA
      brasa, avivada. Aquí hubo un amanecer con abetos y duró lo que tardó
      Eduardo en verlo: la escena de racha aprobada es la brasa, y cambiarla

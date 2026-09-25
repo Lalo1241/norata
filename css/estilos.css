@@ -230,6 +230,12 @@
     --luci-luz: #f5d76e;
     --luci-cuerpo: #3a3222;
     --luci-halo: 0 0 8px 3px rgba(245, 215, 110, 0.6), 0 0 26px 10px rgba(245, 215, 110, 0.18);
+    /* La luciérnaga RARA, la que da la pista de Arcade (0.7.131): luz blanca
+       azulada y cuadrada, un píxel. Y la tinta de su número, del mismo tono. */
+    --luci-rara: #d6ecff;
+    --luci-rara-halo: 0 0 7px 3px rgba(190, 225, 255, 0.55), 0 0 22px 9px rgba(190, 225, 255, 0.16);
+    --luci-rara-filo: none;
+    --luci-rara-tinta: #bfe0ff;
 
     /* El carril por el que avanza un aro o una barra de progreso. No es
        `--line`: un borde tiene que apenas notarse y un carril tiene que
@@ -737,6 +743,11 @@
     --luci-luz: #f5c314;
     --luci-cuerpo: #2b2a26;
     --luci-halo: none;
+    /* La rara, de día: sin halo, y con un filo para que el píxel se vea sobre
+       el papel. La tinta baja hasta pasar 4,5 sobre la tarjeta. */
+    --luci-rara-halo: none;
+    --luci-rara-filo: 1.5px solid #2c4d70;
+    --luci-rara-tinta: #1f5d94;
     --sombra-m: rgba(23, 38, 56, 0.10);
     --sombra-l: rgba(23, 38, 56, 0.14);
 
@@ -3296,6 +3307,102 @@
     font-size: 13px; font-weight: 700; color: var(--fire);
   }
   .exp-luci i { width: 8px; height: 8px; flex: none; }
+
+  /* ---------- El camino a Arcade (0.7.131) ----------
+     Lo que tiene que existir ANTES de encontrar el mundo, así que vive aquí y
+     no en `css/arcade.css`, que solo baja quien lo lleva puesto: la luciérnaga
+     rara, el píxel que deja, el mando y el mensaje de «ya es tuyo». Todo en
+     `js/10k-arcade.js`.
+
+     La letra es CelestiByte, de Eduardo. Declararla aquí no la descarga: el
+     navegador pide una tipografía la primera vez que algo la usa, y eso solo
+     pasa en estas cuatro piezas o con Arcade puesto. La dirección lleva su
+     huella (la estampa `mundos/arcade.py`) por lo mismo que `css/mundos.css`:
+     no está en ASSETS. Un solo peso, declarado para todo el rango para que el
+     navegador no le invente una negrita encima. */
+  @font-face {
+    font-family: "CelestiByte";
+    src: url("celestibyte.woff2?h=e89437e4ee") format("woff2");
+    font-weight: 100 900;
+    font-display: swap;
+  }
+  /* La rara: la luz es un PÍXEL. Cuadrada, sin cuerpo ni alas, y blanca
+     azulada. El parpadeo a saltos y el vuelo en ocho direcciones van en JS. */
+  .luci.rara .cuerpo, .luci.rara .ala { display: none; }
+  .luci.rara .luz {
+    left: 2.5px; top: 2.5px; width: 7px; height: 7px; border-radius: 0;
+    background: var(--luci-rara); box-shadow: var(--luci-rara-halo); outline: var(--luci-rara-filo);
+  }
+  .luci-card.rara { border-color: var(--luci-rara-tinta); }
+  .luci-card.rara .luci-ic { background: color-mix(in srgb, var(--luci-rara-tinta) 14%, transparent); }
+  .luci-card.rara .luci-ic i {
+    border-radius: 0; background: var(--luci-rara); box-shadow: var(--luci-rara-halo); outline: var(--luci-rara-filo);
+  }
+  .luci-card.rara .luci-num { font: 15px/1.4 "CelestiByte", var(--sans); letter-spacing: 0.08em; color: var(--luci-rara-tinta); }
+  .luci-card.rara .luci-resta i { background: var(--luci-rara-tinta); }
+
+  /* El píxel que deja la rara, parpadeando en una esquina el resto de la
+     noche. Encima de la barra y a su lado, con un blanco de 44 px. */
+  #arc-pixel {
+    position: fixed; right: 10px; bottom: calc(96px + env(safe-area-inset-bottom));
+    z-index: var(--piso-luciernagas);
+    width: 44px; height: 44px; padding: 0; border: 0; background: none; cursor: pointer;
+    display: grid; place-items: center; -webkit-tap-highlight-color: transparent;
+  }
+  #arc-pixel i {
+    width: 5px; height: 5px; background: var(--luci-rara);
+    box-shadow: var(--luci-rara-halo); outline: var(--luci-rara-filo);
+    animation: arcLatido 2.4s steps(1) infinite;
+  }
+  @keyframes arcLatido { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0.15; } }
+
+  /* El mando y el mensaje: el velo de las ventanas y la tarjeta de la frase. */
+  #arc-mando, #arc-abierto { z-index: var(--piso-ventana); align-items: center; padding: 20px; }
+  .arc-pista {
+    margin: 2px 0 14px;
+    font: 15px/1.4 "CelestiByte", var(--sans); letter-spacing: 0.08em; color: var(--muted);
+  }
+  .arc-puntos { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; }
+  .arc-puntos i { width: 8px; height: 8px; background: var(--carril); }
+  .arc-puntos i.on { background: var(--luci-rara-tinta); }
+  .arc-fila { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .arc-cruz { display: grid; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px); }
+  .arc-cruz button {
+    display: grid; place-items: center; padding: 0; cursor: pointer;
+    border: var(--borde-fino) solid var(--line); background: var(--sup-tarjeta2); color: var(--text);
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  }
+  .arc-cruz .u { grid-area: 1 / 2; border-radius: var(--r-micro) var(--r-micro) 0 0; }
+  .arc-cruz .d { grid-area: 3 / 2; border-radius: 0 0 var(--r-micro) var(--r-micro); }
+  .arc-cruz .l { grid-area: 2 / 1; border-radius: var(--r-micro) 0 0 var(--r-micro); }
+  .arc-cruz .r { grid-area: 2 / 3; border-radius: 0 var(--r-micro) var(--r-micro) 0; }
+  .arc-cruz .c { grid-area: 2 / 2; background: var(--sup-tarjeta2); border-top: var(--borde-fino) solid var(--line); border-bottom: var(--borde-fino) solid var(--line); }
+  .arc-cruz svg { width: 18px; height: 18px; fill: currentColor; }
+  .arc-ab { display: flex; gap: 12px; transform: rotate(-20deg); }
+  .arc-ab button {
+    width: 54px; height: 54px; border: 0; border-radius: var(--r-redondo); cursor: pointer;
+    background: var(--fire-macizo); color: var(--sobre-vivo); font: 20px "CelestiByte", var(--sans);
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  }
+  .arc-mando.mal { animation: arcNo 0.3s; }
+  @keyframes arcNo { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+  .arc-titulo { display: block; margin: 2px 0 12px; font: 26px/1.2 "CelestiByte", var(--sans); letter-spacing: 0.04em; color: var(--mint); }
+  .arc-pie { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+  #arc-abierto .btn { margin-top: 18px; }
+
+  /* La fila de Arcade en Mi apariencia: solo sale a quien lo encontró. */
+  .arc-ap { display: grid; gap: 10px; }
+  .arc-ap-m {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    border: var(--borde-fino) dashed var(--mint); border-radius: var(--r-caja);
+    background: var(--sup-tarjeta);
+  }
+  .arc-ap-ic { flex: none; width: 40px; height: 40px; display: grid; place-items: center; color: var(--mint); background: var(--mint-soft); border-radius: var(--r-chico); }
+  .arc-ap-ic svg { width: 24px; height: 24px; }
+  .arc-ap-tx { flex: 1; min-width: 0; }
+  .arc-ap-tx b { display: block; font: 19px/1.2 "CelestiByte", var(--sans); }
+  .arc-ap-tx span { display: block; font-size: 13px; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { #arc-pixel i { animation: none; } }
 
   /* La fiesta de después: el dibujo del módulo, el de su botón de la barra. */
   .roto-medalla {

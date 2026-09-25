@@ -1630,6 +1630,12 @@ function desbloqueosDeExpedicion(nivel) {
 
 /* El mismo envoltorio que `icon()`, para un trazo que no vive en ICONS. */
 function svgDeTrazo(d, tam) {
+  /* Los rangos de Arcade (0.7.131) son de píxel: de RELLENO, en rejilla de 12
+     y sin suavizar. Un trazo de 1,7 de grosor no se puede pixelar. */
+  if (d && d.indexOf("data-px") >= 0) {
+    return '<svg width="' + tam + '" height="' + tam + '" viewBox="0 0 12 12" fill="currentColor" ' +
+      'shape-rendering="crispEdges" aria-hidden="true">' + d + '</svg>';
+  }
   return '<svg width="' + tam + '" height="' + tam + '" viewBox="0 0 24 24" fill="none" ' +
     'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" ' +
     'stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';

@@ -298,6 +298,10 @@ function logMission(id, delta, opciones) {
 
   const wasDone = before >= target;
   const nowDone = after >= target;
+  /* Arcade (0.7.131): con el mundo puesto, cumplir suelta una moneda donde
+     estaba el dedo —`dondeCaja`, medida antes de repintar— y suena. Sin él
+     no hace nada. */
+  if (typeof arcadeMision === "function") arcadeMision(dondeCaja, nowDone && !wasDone, !nowDone && wasDone, after > before);
 
   /* Los días que estuvo esperando se cobran aquí: al cumplirla. Es el
      "periodo donde corresponde" —el de verdad, no aquel en el que debía

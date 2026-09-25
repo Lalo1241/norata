@@ -381,6 +381,9 @@ function mundoPorId(id) {
    null cuando la apariencia puesta es la casa o un ambiente — **un ambiente
    NUNCA renombra los rangos**: cambia la luz, no el vocabulario. */
 function rangosDeApariencia() {
+  /* Arcade va encima del ambiente, así que no es un mundo de esta lista, pero
+     sí renombra el camino (js/10k-arcade.js). */
+  if (typeof arcadePuesto === "function" && arcadePuesto()) return ARCADE_RANGOS;
   const m = mundoPorId(apariencia());
   return m ? m.rangos : null;
 }
@@ -1274,9 +1277,13 @@ function renderPanelApariencia() {
       <div class="amb-rej" id="ap-ambientes"></div>
       <h3 class="amb-h2">${tx("Mundos")}</h3>
       <p class="settings-note">${tx("Un mundo no es otra luz: es otro material. Cambia la superficie, el marco, la letra y hasta cómo se llama tu camino. Van aparte de los ambientes porque no se combinan — llevas uno o llevas el otro.")}</p>
-      <div class="mun-rej" id="ap-mundos"></div>`;
+      <div class="mun-rej" id="ap-mundos"></div>
+      <div id="ap-arcade"></div>`;
   }
   document.getElementById("ap-ambientes").innerHTML = muestras;
+  /* Arcade, el secreto: solo existe aquí para quien lo encontró. */
+  const arc = document.getElementById("ap-arcade");
+  if (arc) arc.innerHTML = typeof arcadeApariencia === "function" ? arcadeApariencia() : "";
   document.getElementById("ap-mundos").innerHTML = (listos.length || salida) ? mundos : "";
 
   /* Al abrir se mira lo que se lleva puesto, que es de donde parte cualquiera
@@ -1296,6 +1303,12 @@ function elegirApariencia(id) {
   const a = aparienciaPorId(id);
   if (!a) return;
   const e = estadoApariencia(a);
+  /* Un mundo ya trae su propio material: elegirlo quita Arcade, que es una
+     capa para ir encima de un ambiente (js/10k-arcade.js). */
+  if (e.ok && esMundo(id) && typeof arcadePuesto === "function" && arcadePuesto()) {
+    try { localStorage.removeItem(ARCADE_LLAVE); } catch (x) {}
+    if (typeof modoEjemplo !== "undefined" && modoEjemplo) arcadeEnCaliente(false);
+  }
   if (!e.ok) {
     /* Lo que se paga saca el cuadro del plan; lo que se gana se queda en la
        ventana, que ya dice cuánto falta y no tiene nada más que ofrecer. */

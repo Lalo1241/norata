@@ -159,6 +159,14 @@ function fusionarEstados(a, b, bEsMasNuevo) {
     out.settings = out.settings || {};
     out.settings.rotos = [...rotosA, ...rotosB.filter(x => !rotosA.includes(x))];
   }
+  /* Los secretos encontrados (Arcade, 0.7.131), igual: lo encontrado nunca se
+     vuelve a cerrar, lo haya encontrado el teléfono o la PC. */
+  const secA = (base.settings && base.settings.secretos) || [];
+  const secB = (otro.settings && otro.settings.secretos) || [];
+  if (secA.length || secB.length) {
+    out.settings = out.settings || {};
+    out.settings.secretos = [...secA, ...secB.filter(x => !secA.includes(x))];
+  }
 
   /* Qué rama vino de qué camino. Es un mapa `rama -> id`, así que se unen las
      dos caras y gana la del lado más nuevo cuando la misma rama aparece en

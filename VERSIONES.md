@@ -222,6 +222,65 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.131 · 24 sep 2026
+
+**Arcade, el mundo que no sale en ningún menú.** Letra de píxel, cajas de
+sprite, barras por celdas, tramado en vez de degradado y sonidos de 8 bits. Se
+abre con el código Konami (↑ ↑ ↓ ↓ ← → ← → B A) y es **gratis para siempre**
+para quien lo teclee: la única excepción al cobro. Lo diseñó Eduardo sobre un
+boceto que llevaba la app de verdad dentro, y lo decidido está en
+`apariencias/LEEME.md`, sección «Arcade».
+
+- **No es un mundo de `mundos/`: es una capa de material** que va encima del
+  ambiente (`data-material="arcade"`, aparte de `data-apariencia`). Los colores
+  son los del ambiente que tengas; Arcade cambia la letra (CelestiByte, de
+  Eduardo), las esquinas, el bisel, las barras, el suelo, el movimiento y los
+  sonidos. Con un mundo puesto no va: encenderlo te devuelve a tu ambiente, y
+  elegir un mundo lo apaga.
+- **Cómo se encuentra.** En la PC, el teclado vale en cualquier momento (nunca
+  dentro de un campo). En el teléfono, una **luciérnaga rara** —blanca
+  azulada, cuadrada, parpadea a saltos y vuela en ocho direcciones— sale una
+  noche de cada quince y solo a quien ya atrapó tres. No suma a la cuenta, da
+  la pista y deja un píxel en la esquina del Resumen el resto de la noche; el
+  píxel abre un mando para teclear el código.
+- **Al acertar, en este orden y nunca a la vez** (lo pidió Eduardo): el
+  mensaje «Mundo Arcade · Ya es tuyo»; al cerrarlo, la pantalla de carga; y la
+  app recarga con Arcade puesto, como al cambiar de apariencia.
+- **Lo encontrado no se vuelve a cerrar**: `settings.secretos`, que
+  `fusionarEstados` une como los candados rotos. Llevarlo puesto es del
+  dispositivo (`norata-material` en localStorage) y se quita al arrancar si la
+  cuenta que entra no lo encontró.
+- **Mi apariencia** tiene una sección «Secreto» que solo existe para quien lo
+  encontró: ponerlo, quitarlo y el interruptor de los sonidos.
+- **Los cinco rangos**: Aspirante, Constante, Estratega, Imparable y Leyenda,
+  con dibujos de píxel de relleno (`svgDeTrazo` ya sabe pintarlos). Los
+  niveles son los de la casa.
+- **Los sonidos**, sintetizados y sin archivos: la moneda al cumplir una misión
+  (y una moneda que salta en pantalla), la nota que cae al desmarcar, las
+  fiestas, la racha y el final de un tramo del Pomodoro en vez de la campana.
+  Solo con Arcade puesto; el interruptor del Pomodoro manda igual.
+- **El Pomodoro, de píxel**: un filtro SVG redibuja en bloques la rueda y los
+  tres relojes de arena mientras se mueven, el chorro cae en granos y la hora
+  lleva los dos puntos parpadeando.
+- **En el teléfono**, los botones del menú son círculos de píxel y el «+» una
+  ficha maciza con bisel; Eduardo pidió que no fueran tan cuadrados.
+
+Archivos nuevos: `js/10k-arcade.js` (en `index.html` y en ASSETS),
+`css/arcade.css` y `css/celestibyte.woff2`, que **no** van en ASSETS: los baja
+solo quien lo lleva puesto, con su huella en la dirección. Se editan en
+`mundos/arcade/arcade.css` y los genera `python mundos/arcade.py`, que estampa
+las dos huellas.
+
+Tres trampas que ya costaron un rato:
+- **Dentro de un SVG, la rejilla del filtro de píxel va en `userSpaceOnUse`.**
+  Medida en la caja de cada arco, la muestra caía fuera del dibujo y los
+  arcos de la rueda desaparecían enteros.
+- **El contorno de un círculo de píxel no puede ser un borde**: el recorte en
+  escalón se lo come en las esquinas. Son dos capas (`::before` y `::after`)
+  con la misma silueta.
+- **La huella del CSS se calcula sobre el texto con saltos LF**, que es como lo
+  sirve GitHub; el árbol de trabajo está en CRLF y daría otra.
+
 ### 0.7.130 · 24 sep 2026
 
 **Una sesión caducada ya no se esconde: sale una ventana al abrir la app y
