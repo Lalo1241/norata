@@ -1041,6 +1041,25 @@ function expFiguraDeTrazo(trazo) {
     caja.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">' + trazo + "</svg>";
     document.body.appendChild(caja);
 
+    /* Un `<path>` con VARIOS trazos sueltos —«M6 3.8v6.4M18 3.8v6.4», los dos
+       postes de Guía; los dos travesaños de Leviatán— se mide como una sola
+       pieza, y las estrellas del final de un trazo se unían con las del
+       principio del siguiente: una raya que el dibujo no tiene. Se parte en un
+       path por trazo antes de medir. Solo por la `M` MAYÚSCULA, que empieza en
+       un punto absoluto; una `m` minúscula depende de dónde acabó el anterior
+       y partirla lo movería. (0.7.133.5) */
+    caja.querySelectorAll("path").forEach(el => {
+      const d = el.getAttribute("d") || "";
+      const trozos = d.split(/(?=M)/).map(t => t.trim()).filter(Boolean);
+      if (trozos.length < 2 || !/^M/.test(trozos[0])) return;
+      trozos.forEach(t => {
+        const n = el.cloneNode(false);
+        n.setAttribute("d", t);
+        el.parentNode.insertBefore(n, el);
+      });
+      el.remove();
+    });
+
     const piezas = [];
     caja.querySelectorAll("path, circle, ellipse, rect, polygon, polyline").forEach(el => {
       if (typeof el.getTotalLength !== "function") return;

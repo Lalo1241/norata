@@ -222,6 +222,16 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.134.2 · 25 sep 2026
+
+**Las constelaciones derivadas ya no llevan rayas que el dibujo no tiene.**
+Revisadas en un borrador las veinte de los cuatro mundos, dos salían sucias:
+Guía (Blueprint) con diagonales cruzando la barra y Leviatán (Averno) con los
+travesaños de la cruz unidos en zigzag. La causa: un `<path>` con varios
+trazos sueltos («M6 3.8v6.4M18 3.8v6.4») se medía como una sola pieza y el
+final de un trazo se unía con el principio del siguiente. `expFiguraDeTrazo`
+parte ahora cada path por sus `M` mayúsculas antes de sembrar las estrellas.
+De paso quedó limpio Proyectista, cuyas patas del compás se unían entre sí.
 ### 0.7.134.1 · 25 sep 2026
 
 **Quien nunca eligió acomodo recibe «El día», y el Modo Editor habla inglés.**
