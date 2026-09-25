@@ -156,10 +156,47 @@ const TEXTOS_EN = {
   "el mes": "the month",
   "el año": "the year",
 
-  /* Cómo se acomoda el tablero (DASH_ACOMODOS, js/05-resumen.js) */
-  "Columnas": "Columns",
-  "Panorama": "Panorama",
-  "Mirador": "Overlook",
+  /* Cómo se acomoda el tablero (DASH_ACOMODOS, js/05-resumen.js). Los
+     nombres —«El día», «Constancia», «Lo que construyo»— están más abajo,
+     junto a los del teléfono, que son los mismos desde la 0.7.134. */
+  "Las misiones al centro; la racha y lo urgente a la izquierda":
+    "Missions in the middle; the streak and what's urgent on the left",
+  "La racha preside al centro, y el día a su lado":
+    "The streak presides in the middle, with the day beside it",
+  "Proyectos y talentos a la izquierda; el día, después":
+    "Projects and talents on the left; the day after",
+  "Misiones y lo urgente; al lado, la racha y tus cifras":
+    "Missions and what's urgent; beside them, the streak and your numbers",
+  "La racha primero; tus cifras y el día al lado":
+    "The streak first; your numbers and the day beside it",
+  "Proyectos y talentos a la izquierda; el día al lado":
+    "Projects and talents on the left; the day beside them",
+  "Tus cifras arriba; misiones y racha debajo": "Your numbers on top; missions and streak below",
+  "La racha y las misiones; tus cifras al pie": "The streak and missions; your numbers at the bottom",
+  "Tus cifras arriba; talentos listos, proyectos y lo urgente":
+    "Your numbers on top; ready talents, projects and what's urgent",
+  "Acomodo {0}": "Layout {0}",
+  /* La tarjeta que junta las tres cifras (0.7.134) */
+  "Tus cifras": "Your numbers",
+  "{0} puntos para el {1}": "{0} points to {1}",
+  "{0} XP en 7 días": "{0} XP in 7 days",
+  "Se abre en el nivel {0}": "Opens at level {0}",
+  /* Mis acomodos: las tres casillas del Modo Editor (0.7.134) */
+  "Mis acomodos": "My layouts",
+  "Casilla libre": "Empty slot",
+  "Guardar aquí el de ahora": "Save the current one here",
+  "Guardar el de ahora": "Save the current one",
+  "Vaciar": "Clear",
+  "Casilla vacía": "Slot cleared",
+  "Mi acomodo {0}": "My layout {0}",
+  "Guardado en «{0}» para {1}": "Saved to “{0}” for {1}",
+  "«{0}»": "“{0}”",
+  "«{0}» se guardó en {1}: aquí se acomodó solo": "“{0}” was saved on {1}: here it arranged itself",
+  "Opciones de {0}": "Options for {0}",
+  "Teléfono": "Phone",
+  "Tableta": "Tablet",
+  "Laptop": "Laptop",
+  "Monitor": "Monitor",
 
   /* Los planes. Los NOMBRES se traducen porque las frases de al lado ya lo
      hacían —«You're on Free», «Move to the Founder plan»—, así que la columna
@@ -2318,16 +2355,8 @@ const TEXTOS_EN = {
   "Se reescribe en todos sus talentos y en sus cajas.":
     "It's rewritten across all its talents and boxes.",
   "Se reescribe en todos sus encargos.": "It's rewritten across all its assignments.",
-  "Tres columnas parejas, las misiones al centro": "Three even columns, missions in the middle",
-  "La escena a lo ancho, arriba a la derecha": "The scene across the top, on the right",
-  "La escena grande, presidiendo el tablero": "The big scene, presiding over the board",
-  "Las dos columnas parejas, y el día arriba": "Two even columns, with the day on top",
-  "El mes a lo ancho arriba; lo demás, debajo":
-    "The month across the top; everything else below",
   "Proyectos y talentos al frente; el día, después":
     "Projects and talents up front; the day after",
-  "El día arriba, y el mes a lo ancho debajo": "The day on top, and the month across below",
-  "El mes preside, y debajo lo que lo llena": "The month presides, and below it what fills it",
   "El día": "The day",
   "Lo de hoy primero: misiones, racha y lo que urge":
     "Today first: missions, streak and what's urgent",

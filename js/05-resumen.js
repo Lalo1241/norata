@@ -479,6 +479,59 @@ function renderSummary() {
       </button>`;
     },
 
+    /* ---- Tus cifras: las tres de arriba en una sola tarjeta (0.7.134) ----
+       Expedición, Niveles e Invertido son la misma pieza —cifra grande, rótulo
+       y un renglón—, y en dos columnas ocupaban diez filas de las ocho que hay.
+       Juntas caben en dos, y de paso se acaba para siempre la regla de que dos
+       de ellas no se toquen: aquí no pueden, son una.
+
+       Cada celda es un botón y lleva a donde llevaba su tarjeta. Lo que se
+       queda fuera es el renglón de «lo más cerca»: la tira es un vistazo, y el
+       detalle vive en las tarjetas sueltas, que siguen en el ＋.
+
+       Una celda por módulo ENCENDIDO: con Habilidades apagado no hay niveles
+       que contar, y con Talentos cerrado por nivel la celda se queda con su
+       candado, como la tarjeta cerrada del tablero. */
+    cifras: () => {
+      const info = nivelExpedicion();
+      const r = rangoExpedicion(info.nivel);
+      const celdas = [`
+        <button class="tc" onclick="abrirColeccion('summary')">
+          <span class="tc-n">${info.nivel}</span>
+          <span class="tc-t">${tx("de expedición")}${r ? " · " + escapeHtml(nombreDeRango(r)) : ""}</span>
+          <span class="tc-x">${T`${info.faltan} puntos para el ${info.nivel + 1}`}</span>
+          <i style="--p:${info.pct}%"></i>
+        </button>`];
+      if (moduloOn("home")) {
+        const xp = metricasHabilidades(ventanaDe(7, 0)).ganada;
+        celdas.push(`
+        <button class="tc" onclick="showView('home')">
+          <span class="tc-n">${totalLevels}</span>
+          <span class="tc-t">${skills.length === 1 ? T`niveles en ${skills.length} habilidad` : T`niveles en ${skills.length} habilidades`}</span>
+          <span class="tc-x">${T`${fmtXp(xp)} XP en 7 días`}</span>
+        </button>`);
+      }
+      if (moduloOn("tree")) {
+        if (!moduloAbierto("tree")) {
+          celdas.push(`
+          <button class="tc tc-cerrada" onclick="avisoModuloCerrado('tree')">
+            <span class="tc-n">${icon("lock", 18)}</span>
+            <span class="tc-t">${tx("Talentos")}</span>
+            <span class="tc-x">${T`Se abre en el nivel ${MODULO_NIVEL.tree}`}</span>
+          </button>`);
+        } else {
+          const tuyos = perks.filter(p => p.status === "completed").length;
+          celdas.push(`
+          <button class="tc b" onclick="showView('tree')">
+            <span class="tc-n">${tuyos}</span>
+            <span class="tc-t">${tuyos === 1 ? tx("talento ya es tuyo") : tx("talentos ya son tuyos")}</span>
+            <span class="tc-x">${T`${activeList.length + dueList.length} en curso`}</span>
+          </button>`);
+        }
+      }
+      return `<div class="panel tira-cifras" style="--celdas:${celdas.length}">${celdas.join("")}</div>`;
+    },
+
     proyectos: () => {
       const live = projects.filter(p => p.status === "active" || p.status === "paused");
       if (!live.length) return "";
@@ -665,9 +718,17 @@ const DASH_META = {
   expedicion: { title: "Expedición", w: 1, h: 4 },
   invertido: { title: "Invertido", w: 1, h: 3 },
   proyectos: { title: "Proyectos", w: 1, h: 3 },
-  listos:    { title: "Listos para empezar", w: 1, h: 4 }
+  listos:    { title: "Listos para empezar", w: 1, h: 4 },
+  /* Las tres cifras en una (0.7.134). Dos filas y no más de tres: estirada
+     solo gana aire. */
+  cifras:    { title: "Tus cifras", w: 1, h: 2 }
 };
-const DASH_DEFAULT = ["racha", "misiones", "atencion", "expedicion", "niveles", "invertido", "proyectos", "listos"];
+const DASH_DEFAULT = ["racha", "misiones", "atencion", "expedicion", "niveles", "invertido", "proyectos", "listos", "cifras"];
+/* Tarjetas que llegan escondidas. Un tablero ya acomodado recibe las tarjetas
+   nuevas al fondo (ver `dashLayout`), y con "Tus cifras" eso ponía debajo de
+   todo lo mismo que ya dicen tres tarjetas de más arriba. Entra en el tablero
+   cuando un acomodo la pone o cuando alguien la trae con el ＋. */
+const DASH_LLEGAN_OCULTAS = ["cifras"];
 /* Qué módulo alimenta cada tarjeta del tablero. "racha" y "atencion" no
    aparecen porque se nutren de todo y siguen teniendo sentido con
    cualquier combinación encendida. */
@@ -686,7 +747,7 @@ const ROW_PITCH = ROW_H + ROW_GAP_V;
    —"Listos para empezar" es una lista y necesita cuatro; "Proyectos" es un
    dato suelto y se apaña con dos—. El techo sigue siendo el mismo para
    todas: encoger estropea, agrandar no. */
-const DASH_MIN_H = { racha: 6, misiones: 3, atencion: 2, expedicion: 3, niveles: 3, invertido: 3, proyectos: 2, listos: 4 };
+const DASH_MIN_H = { racha: 6, misiones: 3, atencion: 2, expedicion: 3, niveles: 3, invertido: 3, proyectos: 2, listos: 4, cifras: 2 };
 /* Techo generoso: son 40 filas de la cuadrícula, más de dos pantallas de
    alto. Existe solo para que un tirón desbocado del asa no deje una tarjeta
    de mil filas imposible de volver a encoger. */
@@ -698,203 +759,116 @@ const DASH_MAX_H = 40;
    Estos tres son puntos de partida ya probados; desde cualquiera de ellos se
    sigue arrastrando a gusto.
 
-   Se guardan como orden + tamaños y nada más. En concreto NO tocan qué
-   tarjetas están puestas: si alguien quitó "Invertido" o apagó el módulo de
-   Proyectos, elegir un acomodo no se lo devuelve a la cara. El acomodo dice
-   cómo repartir lo que hay, no qué debe haber.
+   ---- Se rehicieron los doce en la 0.7.134, y por qué ----
+   Los de la 0.7.56 se escribieron cuando la racha podía ir a lo ancho, y desde
+   la 0.7.100 va siempre en una columna. Nadie los rehízo, y se notaba en tres
+   cosas medidas: "Panorama" y "Mirador" prometían la escena a lo ancho y
+   salían casi iguales; para tapar huecos se estiraban tarjetas de cifra
+   (Niveles con 6 filas para 3 de contenido, Proyectos con 7), y en dos
+   columnas el tablero pedía casi dos pantallas — 640 px de más en una laptop
+   de 1366 x 768.
 
-   La diferencia entre los tres es a qué se le da el sitio de honor: al reparto
-   parejo, a la escena a lo ancho, o a la escena presidiendo.
+   **Lo último no se arreglaba con ningún orden, y eso decidió lo demás.** Las
+   ocho tarjetas piden 30 filas como poco; en dos columnas son 15, unos 1200
+   px, y una laptop de 768 tiene sitio para 8. Así que en dos columnas el
+   acomodo **también elige qué tarjetas salen**: cuatro o cinco, y las demás
+   esperan en el ＋ del Modo Editor. Es un cambio sobre la regla de antes —«el
+   acomodo reparte lo que hay, no qué debe haber»—, y lo aprobó Eduardo. Si
+   alguien devuelve una con el ＋, el scroll es decisión suya.
 
-   ---- Las dos reglas con las que se rehicieron los doce (0.7.56) ----
+   ---- Cómo se escriben ahora ----
+   Por COLUMNAS: qué tarjetas van en cada una, de arriba abajo. Las alturas no
+   se escriben: salen de lo que cada tarjeta mide (`filasQuePide`), y lo que
+   sobre de pantalla se reparte solo entre las LISTAS —misiones, atención,
+   listos, proyectos—. Una tarjeta de cifra nunca se estira: con tres renglones
+   de contenido en seis filas se lee como una tarjeta rota. Ver `colocarAcomodo`.
 
-   1. **Ninguna columna termina antes que las otras.** Se buscó para cada uno
-      el reparto que no deja ni una celda vacía, y once de los doce salen ya
-      sin agujeros del empaquetador. Lo que quede lo tapa `emparejarColumnas`,
-      que es quien lo garantiza de verdad — porque las alturas de aquí abajo
-      cambian en cuanto la pantalla es otra.
+   "cifras" es "Tus cifras" —Expedición, Niveles y Talentos en una sola
+   tarjeta— en vez de las tres sueltas. Va en todas las pantallas menos en el
+   monitor de tres columnas, que es la única donde hay sitio para las tres.
+   `ancha` la pone a lo ancho, arriba o abajo: es para la tableta, donde una
+   columna mide 333 px y tres cifras no caben en ella.
 
-   2. **Dos tarjetas de cifra no se tocan.** "Expedición", "Niveles" e
-      "Invertido" son la misma pieza —`.sum-card` con icono, cifra grande,
-      rótulo y barra—, y desde que Expedición entró en la 0.7.44 son TRES de
-      ocho y no dos. Dos iguales pegadas no se leen como dos datos: se leen
-      como una repetición. Así que entre dos de ellas va siempre una lista, y
-      eso vale para arriba y abajo igual que para izquierda y derecha.
+   Las dos reglas de antes siguen: **ninguna columna termina antes que las
+   otras** (lo garantiza el reparto, que llena cada columna hasta el mismo
+   fondo) y **dos tarjetas de cifra no se tocan**, ni de lado ni de arriba
+   abajo. En la tira no pueden tocarse porque son una.
 
-   ---- Y por qué hay tres listas de escritorio y no una ----
-   Un acomodo son alturas escritas a mano, y unas alturas escritas a mano dan
-   por hecha una pantalla. La lista se elige por la FORMA de la ventana (ver
-   `formaTablero`), y lo que separa una forma de otra son las columnas: cuántas
-   hay y cómo de anchas. En la tableta la columna baja de 430 px y la racha de
-   una columna se apila, que es el salto más caro de todos.
-
-   Los tres nombres se repiten en las tres listas a propósito: la pregunta que
-   contesta un acomodo —a qué se le da el sitio de honor— es la misma en todas
-   partes, y lo que cambia es cuánto sitio hay para contestarla. Elegir
-   "Mirador" tiene que dar lo mismo en las tres pantallas; lo que no puede ser
-   igual son las alturas con las que se consigue. */
+   Los tres nombres se repiten en todas las pantallas a propósito, y ahora se
+   distinguen por lo que va PRIMERO: el día, la constancia o lo que construyes.
+   Es la misma pregunta en todas partes; lo que cambia es cuánto sitio hay. */
 const DASH_ACOMODOS = [
   {
-    nombre: "Columnas",
-    sub: "Tres columnas parejas, las misiones al centro",
-    /* Once filas justas, sin una celda vacía y sin dos cifras pegadas: 856 px,
-       que es lo único de los tres que cabe entero en una pantalla de 1000. */
-    order: ["racha", "misiones", "atencion", "expedicion", "niveles", "listos", "proyectos", "invertido"],
-    sizes: {
-      /* Misiones va deliberadamente más alta de lo que su contenido pide: es
-         lo que la mantiene en la columna del centro, que es lo que promete el
-         rótulo. Con la altura justa se desliza a la primera columna y el
-         acomodo deja de llamarse como se llama. */
-      racha: { w: 1, h: 6 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 4 },
-      expedicion: { w: 1, h: 4 }, niveles: { w: 1, h: 3 }, listos: { w: 1, h: 4 },
-      proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
-    }
+    nombre: "El día",
+    sub: "Las misiones al centro; la racha y lo urgente a la izquierda",
+    cols: [["racha", "invertido", "atencion"], ["misiones", "proyectos"], ["expedicion", "listos", "niveles"]]
   },
   {
-    nombre: "Panorama",
-    sub: "La escena a lo ancho, arriba a la derecha",
-    /* El orden importa más que los tamaños: "Misiones" tiene que ir PRIMERA
-       para quedarse la columna de la izquierda y empujar la racha a las dos de
-       la derecha, que es lo que dice el rótulo. */
-    order: ["misiones", "racha", "expedicion", "listos", "atencion", "niveles", "proyectos", "invertido"],
-    sizes: {
-      racha: { w: 1, h: 6 }, misiones: { w: 1, h: 6 }, expedicion: { w: 1, h: 4 },
-      listos: { w: 1, h: 4 }, atencion: { w: 1, h: 3 }, niveles: { w: 1, h: 3 },
-      proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
-    }
+    nombre: "Constancia",
+    sub: "La racha preside al centro, y el día a su lado",
+    /* "Invertido" arriba a la izquierda y "Niveles" arriba a la derecha, con
+       la racha entre las dos: es el único sitio donde las tres cifras quedan
+       lejos entre sí. En la primera versión "Invertido" iba al pie de la
+       tercera columna y se tocaba de lado con "Expedición". */
+    cols: [["invertido", "misiones", "atencion"], ["racha", "expedicion", "proyectos"], ["niveles", "listos"]]
   },
   {
-    nombre: "Mirador",
-    sub: "La escena grande, presidiendo el tablero",
-    /* La racha ocupa las TRES columnas desde la 0.7.56, y ese es el cambio que
-       hace verdad el rótulo. Con dos se quedaba a un lado, que es exactamente
-       lo que ya hace "Panorama": los dos acomodos se veían casi iguales y solo
-       se distinguían por en qué borde caía la escena.
-
-       Se paga: catorce filas contra las once de "Columnas". Es un intercambio
-       y no un descuido — se baja un poco a cambio de ver el mes a metro y
-       medio de ancho. */
-    order: ["racha", "misiones", "expedicion", "atencion", "proyectos", "listos", "niveles", "invertido"],
-    sizes: {
-      racha: { w: 1, h: 6 }, misiones: { w: 1, h: 6 }, expedicion: { w: 1, h: 4 },
-      atencion: { w: 1, h: 3 }, proyectos: { w: 1, h: 3 }, listos: { w: 1, h: 5 },
-      niveles: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
-    }
+    nombre: "Lo que construyo",
+    sub: "Proyectos y talentos a la izquierda; el día, después",
+    cols: [["proyectos", "listos", "niveles"], ["invertido", "misiones"], ["racha", "expedicion", "atencion"]]
   }
 ];
 
-/* ---- Acomodos de DOS columnas anchas ----
-   Sirven para la laptop de 1366 —504 px por columna, sitio de sobra, la racha
-   no se apila— y desde la 0.7.56 también para cualquier ventana de dos
-   columnas que antes recibía la lista de escritorio: un monitor de 1512 x 950,
-   una ventana a media pantalla en un 4K. Ahí se servía un reparto escrito para
-   TRES columnas y salía lo que tenía que salir — agujeros, dos tarjetas de
-   cifra pegadas, y un botón que prometía "tres columnas parejas" delante de
-   dos columnas sin centro. Ver `formaTablero`.
-
-   Aquí no se persigue que todo quepa de una: no puede. Las ocho tarjetas piden
-   31 filas de contenido, y en dos columnas eso son dieciséis por poco que se
-   apriete. Perseguirlo es lo que hacía `encajarEnPantalla` cuando su suelo era
-   una tabla: dejaba "Misiones de hoy" con 283 px de lista cortada para ganar
-   una pantalla que igualmente no se ganaba.
-
-   Lo que sí se decide es QUÉ CAE EN LA PRIMERA PANTALLA, y que ninguna tarjeta
-   reciba menos de lo que necesita para leerse. */
+/* ---- Dos columnas anchas: la laptop, y cualquier ventana de dos columnas ----
+   Ocho filas de pantalla en una de 768 (con la cabecera de 0.7.134), nueve en
+   una de 900. La racha son seis y la tira dos, así que una columna con las dos
+   ya está llena: por eso cada acomodo lleva cuatro o cinco tarjetas y no más. */
 const DASH_ACOMODOS_LAPTOP = [
   {
-    nombre: "Columnas",
-    sub: "Las dos columnas parejas, y el día arriba",
-    order: ["misiones", "racha", "niveles", "atencion", "expedicion", "proyectos", "listos", "invertido"],
-    sizes: {
-      misiones: { w: 1, h: 8 }, racha: { w: 1, h: 6 }, niveles: { w: 1, h: 3 },
-      atencion: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 }, proyectos: { w: 1, h: 3 },
-      listos: { w: 1, h: 4 }, invertido: { w: 1, h: 3 }
-    }
+    nombre: "El día",
+    sub: "Misiones y lo urgente; al lado, la racha y tus cifras",
+    cols: [["misiones", "atencion"], ["racha", "cifras"]]
   },
   {
-    nombre: "Panorama",
-    sub: "El mes a lo ancho arriba; lo demás, debajo",
-    /* La racha de dos columnas cuesta tres filas de tablero más que la de una:
-       ocupa cinco filas de las DOS columnas y deja el resto para las otras
-       siete tarjetas. Es un intercambio, no un descuido — se paga alto para
-       ver el mes grande, que es de lo que va este acomodo. */
-    order: ["racha", "misiones", "atencion", "expedicion", "listos", "niveles", "proyectos", "invertido"],
-    sizes: {
-      racha: { w: 1, h: 6 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 3 },
-      expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 4 }, niveles: { w: 1, h: 3 },
-      proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
-    }
+    nombre: "Constancia",
+    sub: "La racha primero; tus cifras y el día al lado",
+    cols: [["racha", "atencion"], ["cifras", "misiones"]]
   },
   {
-    nombre: "Mirador",
-    sub: "Proyectos y talentos al frente; el día, después",
-    /* La racha va la ÚLTIMA de la lista y por eso cae al fondo: aquí el sitio
-       de honor es de lo que construyes, y el día viene detrás. */
-    order: ["listos", "proyectos", "niveles", "misiones", "atencion", "invertido", "expedicion", "racha"],
-    sizes: {
-      listos: { w: 1, h: 4 }, proyectos: { w: 1, h: 3 }, niveles: { w: 1, h: 3 },
-      misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 3 }, invertido: { w: 1, h: 3 },
-      expedicion: { w: 1, h: 4 }, racha: { w: 1, h: 6 }
-    }
+    nombre: "Lo que construyo",
+    sub: "Proyectos y talentos a la izquierda; el día al lado",
+    cols: [["proyectos", "listos", "atencion"], ["cifras", "misiones"]]
   }
 ];
 
-/* ---- Acomodos de tableta (dos columnas ESTRECHAS) ----
-   Lo que separa esta forma de la anterior no es el alto: es que la columna baja
-   de 430 px —333 en un iPad apaisado, 411 en uno de 11 pulgadas— y ahí la racha
-   de una columna se apila y pasa de cuatro filas a siete. Ese es el número que
-   manda en toda esta lista, y por eso la racha va a lo ancho en los TRES: de
-   dos columnas mide 688 px, se pone en dos bloques y cuesta cinco filas en vez
-   de las siete que costaría apilada.
-
-   Sirve igual para la tableta en vertical, que tiene las mismas columnas
-   estrechas y muchísimo más alto: ahí lo que sobra es sitio, y un acomodo que
-   no corta nada sigue siendo el acomodo correcto. */
+/* ---- Tableta: dos columnas ESTRECHAS ----
+   A 333 px por columna la racha se apila y tres cifras no caben de lado, así
+   que la tira va a lo ancho y debajo quedan seis filas para dos columnas. */
 const DASH_ACOMODOS_TABLETA = [
   {
-    nombre: "Columnas",
-    sub: "El día arriba, y el mes a lo ancho debajo",
-    order: ["misiones", "racha", "expedicion", "listos", "atencion", "niveles", "invertido", "proyectos"],
-    sizes: {
-      misiones: { w: 1, h: 8 }, racha: { w: 1, h: 6 }, expedicion: { w: 1, h: 4 },
-      listos: { w: 1, h: 4 }, atencion: { w: 1, h: 3 }, niveles: { w: 1, h: 3 },
-      invertido: { w: 1, h: 3 }, proyectos: { w: 1, h: 3 }
-    }
+    nombre: "El día",
+    sub: "Tus cifras arriba; misiones y racha debajo", ancha: "arriba",
+    cols: [["misiones"], ["racha"]]
   },
   {
-    nombre: "Panorama",
-    sub: "El mes preside, y debajo lo que lo llena",
-    order: ["racha", "misiones", "atencion", "expedicion", "listos", "niveles", "proyectos", "invertido"],
-    sizes: {
-      racha: { w: 1, h: 6 }, misiones: { w: 1, h: 8 }, atencion: { w: 1, h: 3 },
-      expedicion: { w: 1, h: 4 }, listos: { w: 1, h: 4 }, niveles: { w: 1, h: 3 },
-      proyectos: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
-    }
+    nombre: "Constancia",
+    sub: "La racha y las misiones; tus cifras al pie", ancha: "abajo",
+    cols: [["racha"], ["misiones"]]
   },
   {
-    nombre: "Mirador",
-    sub: "Proyectos y talentos al frente; el día, después",
-    /* "Niveles" va segunda y no por gusto: es la única tarjeta corta que cabe
-       al lado de "Listos" sin dejar hueco, y con cualquier otra ahí el tablero
-       se descuadra dos filas más abajo. */
-    order: ["listos", "niveles", "misiones", "racha", "proyectos", "expedicion", "atencion", "invertido"],
-    sizes: {
-      listos: { w: 1, h: 4 }, niveles: { w: 1, h: 3 }, misiones: { w: 1, h: 8 },
-      racha: { w: 1, h: 6 }, proyectos: { w: 1, h: 3 }, expedicion: { w: 1, h: 4 },
-      atencion: { w: 1, h: 3 }, invertido: { w: 1, h: 3 }
-    }
+    nombre: "Lo que construyo",
+    sub: "Tus cifras arriba; talentos listos, proyectos y lo urgente", ancha: "arriba",
+    /* Sin misiones: proyectos y talentos listos, uno encima de otro, ya
+       piden siete filas de las seis que quedan debajo de la tira. */
+    cols: [["listos"], ["proyectos", "atencion"]]
   }
 ];
 
 /* ---- Acomodos del teléfono ----
    En una sola columna no hay nada que repartir a lo ancho ni alturas que
-   elegir: lo único que cambia el tablero es QUÉ VA PRIMERO. Por eso son otros
-   tres, y no los de la computadora traducidos —allí un acomodo reparte tres
-   columnas; aquí decide con qué te encuentras al abrir la app—.
-
-   La regla de las gemelas vale aquí igual, y aquí es más fácil de ver: en una
-   columna "pegadas" quiere decir simplemente "seguidas en la lista". Entre
-   Expedición, Niveles e Invertido va siempre otra cosa.
+   elegir: lo único que cambia el tablero es QUÉ VA PRIMERO, y el teléfono se
+   baja siempre. Llevan la tira igual que la laptop: son dos tarjetas menos que
+   recorrer con el dedo.
 
    El arrastre y el resto del Modo Editor están apagados en el teléfono a
    propósito: la personalización de móvil se va a rehacer con otro gesto, y
@@ -903,17 +877,17 @@ const DASH_ACOMODOS_MOVIL = [
   {
     nombre: "El día",
     sub: "Lo de hoy primero: misiones, racha y lo que urge",
-    order: ["misiones", "racha", "atencion", "expedicion", "proyectos", "niveles", "listos", "invertido"]
+    order: ["misiones", "racha", "atencion", "cifras", "proyectos", "listos"]
   },
   {
     nombre: "Constancia",
     sub: "La racha arriba, y debajo lo que la alimenta",
-    order: ["racha", "misiones", "expedicion", "atencion", "niveles", "listos", "invertido", "proyectos"]
+    order: ["racha", "cifras", "misiones", "atencion", "listos", "proyectos"]
   },
   {
     nombre: "Lo que construyo",
     sub: "Proyectos y talentos al frente; el día, después",
-    order: ["proyectos", "listos", "invertido", "misiones", "atencion", "expedicion", "racha", "niveles"]
+    order: ["proyectos", "listos", "cifras", "misiones", "atencion", "racha"]
   }
 ];
 
@@ -931,7 +905,7 @@ const DASH_ACOMODOS_MOVIL = [
 
    Ahora el salto es el número de columnas, que es lo que de verdad cambia el
    reparto. El alto no elige lista y no hace falta que lo haga: de que quepa ya
-   se encarga `encajarEnPantalla`, que mide en vez de suponer. */
+   se encarga `colocarAcomodo`, que mide en vez de suponer. */
 function formaTablero() {
   if (!isDesktop()) return "telefono";
   const col = anchoDeColumna();
@@ -1001,46 +975,106 @@ function aplicarAcomodo(i) {
   const a = acomodosDeAhora()[i];
   if (!a) return;
   recordarTablero("acomodo " + a.nombre);
-
-  /* En el teléfono solo cambia el orden: no hay columnas que repartir ni
-     alturas que encoger, así que aquí se acaba. */
-  if (!isDesktop()) {
-    saveDash(a.order.slice(), null, null);
-    marcarAcomodo(a.nombre);
-    save();
-    /* Sin aviso: el botón se queda encendido, que ya dice cuál está puesta, y
-       cambiar de idea es tocar otro. Un aviso por cada toque estorbaba más de
-       lo que ayudaba. */
-    flipRender(document.getElementById("summary-content"), renderSummary);
-    return;
-  }
-  /* Un acomodo sigue estando escrito como una lista ordenada, que es como se
-     piensa al diseñarlo. Se empaqueta a coordenadas aquí: a partir de ese
-     momento las tarjetas tienen sitio propio y dejan de fluir. */
-  const sizes = JSON.parse(JSON.stringify(a.sizes));
-  // `hidden` se pasa como null a propósito: saveDash conserva el que ya había
-  saveDash(a.order.slice(), null, sizes);
-  saveDash(null, null, null, empaquetar(a.order.filter(id => !dashLayout().hidden.includes(id)), sizes, dashCols()));
+  colocarAcomodo(a);
   marcarAcomodo(a.nombre);
   save();
-  flipRender(document.getElementById("summary-content"), renderSummary);
-  /* Un acomodo sugerido que obliga a bajar por la pantalla para verse entero
-     no es un acomodo: es una lista. Las alturas de aquí arriba están escritas
-     a mano y no saben en qué pantalla van a caer —ni el alto de la ventana, ni
-     si el tablero tiene dos columnas o tres—, así que después de ponerlo se
-     mide lo que ocupa de verdad y se encoge hasta que quepa.
+  /* Sin aviso en el teléfono: el botón se queda encendido, que ya dice cuál
+     está puesta, y cambiar de idea es tocar otro. */
+  if (isDesktop()) toast(T`Acomodo ${tx(a.nombre)}`, "hecho", { label: tx("Deshacer"), onclick: "deshacerTablero()" });
+}
 
-     Se hace solo al elegir un acomodo. Si alguien estira una tarjeta a mano
-     hasta pasarse de pantalla, eso es su decisión y no hay que corregirla. */
-  requestAnimationFrame(() => {
-    encajarEnPantalla();
-    /* Y después de encoger, se tapan los huecos. Este orden importa y no es
-       intercambiable: `encajarEnPantalla` cambia alturas y vuelve a
-       empaquetar, así que rellenar antes de que termine deja el tablero con
-       los agujeros de la vuelta anterior. */
-    if (emparejarColumnas()) { save(); renderSummary(); }
+/* Las listas que pueden crecer para llenar su columna. Una tarjeta de cifra
+   no está: estirada se lee como una tarjeta rota. "Tus cifras" sí, pero solo
+   hasta tres filas, que es lo que tarda en sobrarle aire. */
+const DASH_CRECEN = ["misiones", "atencion", "listos", "proyectos"];
+const CIFRAS_TOPE = 3;
+
+/* ---- Cuántas filas caben debajo de la cabecera ----
+   Se cuenta con lo que la página deja debajo del tablero, que se MIDE: solo se
+   puede leer cuando el tablero se sale de la pantalla (si cabe, la página mide
+   lo que la ventana), así que se guarda lo último medido. Con los 26 px que
+   daba por hecho `encajarEnPantalla`, una laptop de 768 salía con 7 filas y no
+   con 8, y el acomodo se pasaba 8 px. */
+let _pieTablero = 28;
+function filasDePantalla() {
+  const el = document.getElementById("summary-content");
+  if (!el) return 1;
+  const alto = document.scrollingElement.scrollHeight;
+  if (alto > window.innerHeight + 2) {
+    const p = alto - (el.getBoundingClientRect().bottom + window.scrollY);
+    if (p >= 0 && p < 200) _pieTablero = p;
+  }
+  /* La bandeja del Modo Editor no cuenta: se va al pulsar «Listo», y lo que
+     tiene que caber es el tablero de después. */
+  const host = document.getElementById("dash-tray-host");
+  const bandeja = host && host.firstElementChild ? host.getBoundingClientRect().height + 26 : 0;
+  const disp = window.innerHeight - (el.getBoundingClientRect().top + window.scrollY - bandeja) - _pieTablero;
+  return Math.max(1, Math.floor((disp + ROW_GAP_V) / ROW_PITCH));
+}
+
+/* ---- Poner un acomodo ----
+   Tres pasos, y el orden importa:
+   1. se ponen SOLO las tarjetas que van, para poder medirlas;
+   2. cada una recibe lo que mide —nunca menos— y lo que sobra de pantalla va
+      a las listas de su columna, una fila cada vez a la que menos aire lleva;
+   3. se escribe el sitio de cada una, columna por columna, sin huecos.
+
+   Medir antes de colocar es lo que hace que funcione con los datos de cada
+   quien: "Misiones de hoy" con dos misiones pide cuatro filas y con cinco,
+   seis. Una tabla escrita a mano acierta con unos datos y falla con otros. */
+function colocarAcomodo(a) {
+  const el = document.getElementById("summary-content");
+  const visibles = a.order ? a.order.slice() : [].concat(...a.cols, a.ancha ? ["cifras"] : []);
+  const hidden = Object.keys(DASH_META).filter(id => !visibles.includes(id));
+
+  if (!isDesktop()) {
+    saveDash(visibles.concat(hidden), hidden, null, null);
+    flipRender(el, renderSummary);
+    return;
+  }
+
+  const antes = new Map();
+  [...el.children].forEach(c => { if (c.dataset.w) antes.set(c.dataset.w, c.getBoundingClientRect()); });
+
+  const sizes = {};
+  visibles.forEach(id => sizes[id] = { w: 1, h: DASH_META[id].h });
+  if (a.ancha) sizes.cifras = { w: 2, h: DASH_META.cifras.h };
+  saveDash(visibles.concat(hidden), hidden, sizes, null);
+  renderSummary();
+  const pide = filasQuePide();
+
+  const h = {};
+  visibles.forEach(id => {
+    if (id === "racha") h[id] = ALTO_RACHA;
+    else if (id === "cifras") h[id] = clamp(pide[id] || 2, altoMinimo(id), CIFRAS_TOPE);
+    else h[id] = Math.max(altoMinimo(id), pide[id] || 0);
   });
-  toast("Acomodo " + a.nombre, "hecho", { label: "Deshacer", onclick: "deshacerTablero()" });
+  const tiraH = a.ancha ? h.cifras : 0;
+  const cols = a.cols.map(col => col.filter(id => !(a.ancha && id === "cifras")));
+  const sumas = cols.map(col => col.reduce((s, id) => s + h[id], 0));
+  const fondo = Math.max(filasDePantalla() - tiraH, ...sumas);
+  cols.forEach((col, i) => {
+    for (let n = sumas[i]; n < fondo; n++) {
+      const crecen = col.filter(id => DASH_CRECEN.includes(id) || (id === "cifras" && h[id] < CIFRAS_TOPE));
+      if (!crecen.length) break;
+      crecen.sort((x, y) => (h[x] - (pide[x] || 0)) - (h[y] - (pide[y] || 0)));
+      h[crecen[0]]++;
+    }
+  });
+
+  const pos = {};
+  const arranque = a.ancha === "arriba" ? tiraH : 0;
+  cols.forEach((col, c) => {
+    let f = arranque;
+    col.forEach(id => { pos[id] = { c, f }; f += h[id]; });
+  });
+  if (a.ancha) pos.cifras = { c: 0, f: a.ancha === "arriba" ? 0 : fondo };
+  Object.keys(h).forEach(id => sizes[id] = { w: a.ancha && id === "cifras" ? 2 : 1, h: h[id] });
+
+  const orden = Object.keys(pos).sort((x, y) => pos[x].f - pos[y].f || pos[x].c - pos[y].c);
+  saveDash(orden.concat(hidden), hidden, sizes, pos);
+  renderSummary();
+  animarDesde(el, antes);
 }
 
 /* ---- Cuántas filas pide de verdad cada tarjeta ----
@@ -1069,162 +1103,6 @@ function filasQuePide() {
   return pide;
 }
 
-/* Encoge las tarjetas —nunca por debajo de lo que necesitan para leerse—
-   hasta que el tablero entero quepa en lo que queda de ventana. Devuelve si
-   tocó algo.
-
-   El suelo era `DASH_MIN_H`, una tabla, y en una ventana baja eso no encogía:
-   destrozaba. En una laptop de 1366 x 768 las siete tarjetas piden 28 filas y
-   en dos columnas eso son catorce: no caben en las seis y media que hay, no
-   van a caber, y el intento dejaba "Misiones de hoy" con 283 px de lista
-   cortada a cambio de nada. Ahora el suelo es lo que la tarjeta MIDE, así que
-   esto quita el aire que sobra y se para donde empezaría a esconder algo. El
-   nombre sigue siendo el correcto en las pantallas donde sí cabe todo; en las
-   demás, deja el tablero tan corto como puede ser sin mentir. */
-function encajarEnPantalla() {
-  if (!isDesktop()) return false;
-  const el = document.getElementById("summary-content");
-  if (!el) return false;
-  let tocado = false;
-  let pide = filasQuePide();
-
-  for (let vuelta = 0; vuelta < 6; vuelta++) {
-    const caja = el.getBoundingClientRect();
-    /* La bandeja del editor no cuenta: desaparece al salir del modo, y lo que
-       tiene que caber es el tablero que quedará después. Mientras está puesta,
-       empuja el tablero hacia abajo, así que se le devuelve ese sitio a la
-       cuenta —si no, se encogería más de lo necesario o se daría por vencido
-       creyendo que no hay hueco. */
-    const host = document.getElementById("dash-tray-host");
-    const bandeja = host && host.firstElementChild
-      ? host.getBoundingClientRect().height + 26 : 0;
-    const disponible = window.innerHeight - (caja.top - bandeja) - 26;
-    const alto = caja.height;
-    if (alto <= disponible) break;
-
-    const factor = disponible / alto;
-    const { order, hidden, sizes } = dashLayout();
-    let cambio = false;
-    order.forEach(id => {
-      if (hidden.includes(id) || !DASH_META[id]) return;
-      /* La racha no entra: su alto no se elige, sale de su ancho (ver
-         `ALTO_RACHA`). Escribirle uno aquí no hacía nada salvo dar el bucle
-         por vivo seis vueltas seguidas. */
-      if (id === "racha") return;
-      const s = dashSize(id);
-      const suelo = Math.max(altoMinimo(id), pide[id] || 0);
-      const nuevo = Math.max(suelo, Math.floor(s.h * factor));
-      if (nuevo !== s.h) { sizes[id] = { w: s.w, h: nuevo }; cambio = true; }
-    });
-    if (!cambio) break;                 // todas están ya en lo que piden
-    state.ui[ranuraTablero()].sizes = sizes;
-    /* Al cambiar los altos, lo que había debajo puede subir: se vuelve a
-       colocar para que no queden agujeros. Pero SIN cambiar de columna, y eso
-       es el arreglo de la 0.7.56: aquí se llamaba a `empaquetar`, que coloca
-       desde cero, y eso deshacía el acomodo que se acababa de elegir. Al
-       encoger "Misiones de hoy", "Invertido" se colaba en su columna y el
-       tablero dejaba de tener las misiones al centro, que es exactamente lo
-       que promete el rótulo del botón que se acaba de pulsar. Y de paso dos
-       tarjetas de cifra que el acomodo había separado a propósito acababan
-       una encima de otra. */
-    const vis = dashLayout().order.filter(id => !dashLayout().hidden.includes(id) && DASH_META[id]);
-    state.ui[ranuraTablero()].pos = compactarEnSuColumna(dashLayout().pos || empaquetar(vis, sizes, dashCols()), vis, dashCols());
-    tocado = true;
-    renderSummary();
-    /* Al encoger una tarjeta cambia su ancho solo si cambió de columna, pero
-       lo que sí cambia siempre es el contenido que le cabe: se vuelve a medir
-       para que el suelo de la vuelta siguiente sea el de ahora. */
-    pide = filasQuePide();
-  }
-  if (tocado) save();
-  return tocado;
-}
-
-/* ---- Igualar las columnas: un tablero sin agujeros (0.7.56) ----
-   Un acomodo se escribe con alturas a mano y se coloca con `empaquetar`, que
-   busca el primer hueco libre. Casi siempre sobra algo: una columna acaba dos
-   filas más corta que las otras y queda un rectángulo vacío al pie, o en
-   medio si lo que venía detrás era una tarjeta de dos columnas y tuvo que
-   esperar a que las dos estuvieran libres. Con siete tarjetas se notaba poco;
-   con ocho, once de los doce acomodos tenían al menos un agujero.
-
-   **No se arregla escribiendo mejores alturas, y esa es la razón de que esto
-   exista.** Las alturas cambian después de escribirlas: `encajarEnPantalla`
-   las encoge para que quepan, quien haya quitado una tarjeta reparte lo que
-   sobra de otra manera, y "Misiones de hoy" mide lo que midan las misiones de
-   esa persona. Cualquier tabla afinada a mano deja de cuadrar al primer
-   cambio, y el agujero vuelve.
-
-   Así que el hueco se rellena DESPUÉS de colocar: se busca cada celda vacía y
-   se estira hacia abajo la tarjeta que tiene justo encima. Como solo se ocupan
-   celdas que ya estaban vacías, nadie se mueve de sitio y el tablero no crece
-   ni una fila — lo único que cambia es que la tarjeta de abajo de la columna
-   corta llega hasta el fondo.
-
-   Dos tarjetas se quedan fuera y por motivos distintos: la racha, porque su
-   alto sale de su ancho y escribirle uno aquí no haría nada (ver
-   `ALTO_RACHA`); y cualquiera que ya esté en `DASH_MAX_H`, que es el tope de
-   siempre. Si un hueco no se puede tapar se deja y se sigue con el siguiente:
-   más vale un agujero que un bucle. */
-function emparejarColumnas() {
-  const cols = dashCols();
-  if (cols < 2) return false;              // en una columna no hay nada que igualar
-  const d = dashLayout();
-  const vis = d.order.filter(id => !d.hidden.includes(id) && DASH_META[id]);
-  if (!vis.length) return false;
-
-  /* Las alturas se escriben en el sitio de verdad ANTES de empezar: `dashSize`
-     lee de ahí, y con una copia suelta las vueltas siguientes seguirían viendo
-     los altos viejos. */
-  state.ui = state.ui || {};
-  const ranura = ranuraTablero();
-  state.ui[ranura] = state.ui[ranura] || {};
-  const sizes = state.ui[ranura].sizes = d.sizes || {};
-  const pos = state.ui[ranura].pos = d.pos || empaquetar(vis, sizes, cols);
-
-  const imposibles = new Set();
-  let tocado = false;
-
-  for (let vuelta = 0; vuelta < 60; vuelta++) {
-    const rejilla = [];
-    let fondo = 0;
-    vis.forEach(id => {
-      const p = pos[id];
-      if (!p) return;
-      const { w, h } = dashSize(id);
-      for (let f = p.f; f < p.f + h; f++) {
-        rejilla[f] = rejilla[f] || [];
-        for (let c = p.c; c < p.c + w; c++) rejilla[f][c] = id;
-      }
-      fondo = Math.max(fondo, p.f + h);
-    });
-
-    let hueco = null;
-    for (let f = 0; f < fondo && !hueco; f++)
-      for (let c = 0; c < cols; c++)
-        if (!(rejilla[f] || [])[c] && !imposibles.has(f + ":" + c)) { hueco = { f, c }; break; }
-    if (!hueco) break;
-
-    const marcarImposible = () => imposibles.add(hueco.f + ":" + hueco.c);
-    const arriba = hueco.f > 0 ? (rejilla[hueco.f - 1] || [])[hueco.c] : null;
-    if (!arriba || arriba === "racha") { marcarImposible(); continue; }
-
-    const p = pos[arriba];
-    const { w, h } = dashSize(arriba);
-    /* Tiene que terminar justo donde empieza el hueco —si no, no es la de
-       encima— y todo su ancho tiene que estar libre en esa fila: una tarjeta
-       de dos columnas no puede crecer si solo una de las dos está vacía. */
-    let puede = p.f + h === hueco.f && h < DASH_MAX_H;
-    for (let c = p.c; puede && c < p.c + w; c++) if ((rejilla[hueco.f] || [])[c]) puede = false;
-    if (!puede) { marcarImposible(); continue; }
-
-    sizes[arriba] = { w, h: h + 1 };
-    tocado = true;
-  }
-
-  return tocado;
-}
-
 let dashEditing = false;
 
 /* ---- Un tablero por tamaño de pantalla ----
@@ -1244,9 +1122,11 @@ function dashLayout() {
   const d = ui[ranuraTablero()] || ui.dash || {};
   const saved = Array.isArray(d.order) ? d.order.filter(id => DASH_META[id]) : [];
   const order = [...saved, ...DASH_DEFAULT.filter(id => !saved.includes(id))];
+  const hidden = Array.isArray(d.hidden) ? d.hidden.slice() : [];
+  DASH_LLEGAN_OCULTAS.forEach(id => { if (!saved.includes(id) && !hidden.includes(id)) hidden.push(id); });
   return {
     order,
-    hidden: Array.isArray(d.hidden) ? d.hidden : [],
+    hidden,
     sizes: d.sizes || {},
     /* Dónde está cada tarjeta: `pos[id] = {c, f}`, columna y fila. Puede no
        existir —tableros de antes de que esto fuera posicional— y entonces se
@@ -1308,42 +1188,6 @@ function empaquetar(order, sizes, cols) {
 
    Se ordena por fila y luego por columna —el orden en que se lee— para que el
    resultado no dependa de en qué orden estén guardadas las tarjetas. */
-/* ---- Subir lo que quepa, cada una por su columna ----
-   La hermana de `empaquetar` para cuando ya hay un reparto que respetar. Sube
-   cada tarjeta hasta donde llegue sin salirse de la columna en la que estaba,
-   y en el orden en que estaban de arriba abajo, así que dos tarjetas nunca se
-   cruzan ni cambian de vecina. Lo que se conserva es la FORMA del acomodo; lo
-   que se recupera es el hueco que dejó una tarjeta al encogerse. */
-function compactarEnSuColumna(pos, vis, cols) {
-  const usado = [], nueva = {};
-  const libre = (c, f, w, h) => {
-    for (let i = f; i < f + h; i++) {
-      if (!usado[i]) continue;
-      for (let j = c; j < c + w; j++) if (usado[i][j]) return false;
-    }
-    return true;
-  };
-  const marcar = (c, f, w, h) => {
-    for (let i = f; i < f + h; i++) {
-      usado[i] = usado[i] || [];
-      for (let j = c; j < c + w; j++) usado[i][j] = true;
-    }
-  };
-  vis.filter(id => pos[id] && DASH_META[id])
-     .sort((a, b) => pos[a].f - pos[b].f || pos[a].c - pos[b].c)
-     .forEach(id => {
-       const s = dashSize(id);
-       /* El tope por si el tablero perdió una columna desde que se guardó:
-          una tarjeta de la tercera no puede quedarse apuntando a una que ya
-          no existe. */
-       const c = Math.min(pos[id].c, Math.max(0, cols - s.w));
-       for (let f = 0; f < 500; f++) {
-         if (libre(c, f, s.w, s.h)) { nueva[id] = { c, f }; marcar(c, f, s.w, s.h); break; }
-       }
-     });
-  return nueva;
-}
-
 function disposicionTablero(ids, cols, extra) {
   const { pos, sizes, order, hidden } = dashLayout();
   // Las escondidas no ocupan sitio en el reparto de estreno
@@ -1549,9 +1393,13 @@ function saveDash(order, hidden, sizes, pos) {
   state.ui = state.ui || {};
   const ranura = ranuraTablero();
   const cur = state.ui[ranura] || state.ui.dash || {};
+  /* Lo que no se pasa sale de `dashLayout` y no de lo guardado a secas: ahí
+     es donde una tarjeta que llega escondida (DASH_LLEGAN_OCULTAS) entra en
+     `hidden`. Con lo guardado a secas, el primer arrastre la destapaba. */
+  const d = dashLayout();
   state.ui[ranura] = {
-    order: order || cur.order,
-    hidden: hidden || cur.hidden || [],
+    order: order || d.order,
+    hidden: hidden || d.hidden,
     sizes: sizes || cur.sizes || {},
     pos: pos || cur.pos || null
   };
@@ -1676,7 +1524,154 @@ function dashTray(hidden) {
           </button>`).join("")}
       </div>
     </div>
+    ${misAcomodosHTML()}
   </div>`;
+}
+
+/* ================= Mis acomodos (0.7.134) =================
+   Tres casillas donde guardar el tablero como lo dejaste, para volver a él de
+   un toque. Las pidió Eduardo, y son gratis: es tu propio tablero, y cobrar por
+   volver a algo que ya hiciste tú sería cobrar por la memoria.
+
+   **Una casilla recuerda cómo la dejaste en CADA forma de pantalla**, no una
+   sola foto. Las posiciones de tres columnas no sirven en dos, y el teléfono ni
+   siquiera tiene posiciones: guardar «Mi acomodo 1» en la laptop y tocarlo en
+   el monitor no puede poner las tarjetas en sitios que allí no existen. Así
+   que cada casilla guarda una foto por forma (`pantallas[forma]`), y en una
+   forma donde no se guardó se acomoda sola: mismo orden y mismas tarjetas,
+   repartidas como un acomodo sugerido (`recolocarMio`).
+
+   Viven en `state.ui.misAcomodos`, que viaja con la cuenta. Tres y no más: una
+   cuarta ya es una lista que hay que administrar, y esto es un atajo. */
+const MIS_ACOMODOS = 3;
+const NOMBRE_FORMA = { telefono: "Teléfono", tableta: "Tableta", laptop: "Laptop", escritorio: "Monitor" };
+let misAcomodoMenu = -1;
+
+function misAcomodos() {
+  state.ui = state.ui || {};
+  const cs = Array.isArray(state.ui.misAcomodos) ? state.ui.misAcomodos : [];
+  while (cs.length < MIS_ACOMODOS) cs.push(null);
+  state.ui.misAcomodos = cs.slice(0, MIS_ACOMODOS);
+  return state.ui.misAcomodos;
+}
+
+function guardarMiAcomodo(i) {
+  const cs = misAcomodos();
+  const forma = formaTablero();
+  const d = dashLayout();
+  const c = cs[i] || { nombre: T`Mi acomodo ${i + 1}`, pantallas: {} };
+  c.pantallas[forma] = JSON.parse(JSON.stringify({
+    order: d.order, hidden: d.hidden, sizes: d.sizes, pos: d.pos, acomodo: acomodoActivo()
+  }));
+  cs[i] = c;
+  misAcomodoMenu = -1;
+  save();
+  refrescarBandeja();
+  toast(T`Guardado en «${c.nombre}» para ${tx(NOMBRE_FORMA[forma])}`, "hecho");
+}
+
+function usarMiAcomodo(i) {
+  const c = misAcomodos()[i];
+  if (!c) return;
+  recordarTablero("mi acomodo " + c.nombre);
+  const forma = formaTablero();
+  const foto = c.pantallas[forma];
+  if (foto) {
+    saveDash(foto.order, foto.hidden, foto.sizes, foto.pos);
+    marcarAcomodo(foto.acomodo || null);
+    save();
+    flipRender(document.getElementById("summary-content"), renderSummary);
+    toast(T`«${c.nombre}»`, "hecho", { label: tx("Deshacer"), onclick: "deshacerTablero()" });
+  } else {
+    const otra = Object.keys(c.pantallas)[0];
+    if (!otra) return;
+    recolocarMio(c.pantallas[otra]);
+    toast(T`«${c.nombre}» se guardó en ${tx(NOMBRE_FORMA[otra])}: aquí se acomodó solo`, "hecho",
+      { label: tx("Deshacer"), onclick: "deshacerTablero()" });
+  }
+  misAcomodoMenu = -1;
+  refrescarBandeja();
+}
+
+/* Lo guardado en otra pantalla llega sin posiciones que sirvan aquí. Se toma
+   su orden y sus tarjetas, y se reparten como un acomodo sugerido: cada una a
+   la columna más corta en ese momento. No se marca ningún botón encendido,
+   porque no es ninguno de los tres. */
+function recolocarMio(foto) {
+  const vis = foto.order.filter(id => !foto.hidden.includes(id) && DASH_META[id]);
+  if (!isDesktop()) {
+    colocarAcomodo({ order: vis });
+  } else {
+    const n = dashCols();
+    const cols = [...Array(n)].map(() => []);
+    const altos = Array(n).fill(0);
+    vis.forEach(id => {
+      const c = altos.indexOf(Math.min(...altos));
+      cols[c].push(id);
+      altos[c] += DASH_META[id].h;
+    });
+    colocarAcomodo({ cols });
+  }
+  marcarAcomodo(null);
+  save();
+}
+
+function menuMiAcomodo(i) { misAcomodoMenu = misAcomodoMenu === i ? -1 : i; refrescarBandeja(); }
+function cerrarMenuMiAcomodo() { misAcomodoMenu = -1; refrescarBandeja(); }
+
+function renombrarMiAcomodo(i, valor) {
+  const c = misAcomodos()[i];
+  if (!c) return;
+  const limpio = String(valor || "").trim().slice(0, 28);
+  if (limpio) { c.nombre = limpio; save(); }
+}
+
+/* Vaciar no pide confirmación: lo que se pierde es un atajo, no el tablero,
+   y el tablero de ahora se queda tal cual. */
+function vaciarMiAcomodo(i) {
+  misAcomodos()[i] = null;
+  misAcomodoMenu = -1;
+  save();
+  refrescarBandeja();
+  toast(tx("Casilla vacía"), "deshecho");
+}
+
+function misAcomodosHTML() {
+  const forma = formaTablero();
+  return `
+    <div class="mis-acomodos">
+      <span class="lbl">${tx("Mis acomodos")}</span>
+      <div class="ma-fila">${misAcomodos().map((c, i) => {
+        if (!c) return `
+          <button class="ma ma-vacia" onclick="guardarMiAcomodo(${i})">
+            <span class="ac-n">${i + 1}</span>
+            <span class="ac-tx"><b>${tx("Casilla libre")}</b><span>${tx("Guardar aquí el de ahora")}</span></span>
+          </button>`;
+        if (misAcomodoMenu === i) return `
+          <div class="ma ma-menu">
+            <label class="ma-lbl" for="ma-nombre-${i}">${tx("Nombre")}</label>
+            <input id="ma-nombre-${i}" class="ma-input" maxlength="28" value="${escapeAttr(c.nombre)}"
+              onchange="renombrarMiAcomodo(${i}, this.value)"
+              onkeydown="if (event.key === 'Enter') { renombrarMiAcomodo(${i}, this.value); cerrarMenuMiAcomodo(); }">
+            <div class="ma-botones">
+              <button class="btn btn-soft btn-sm" onclick="guardarMiAcomodo(${i})">${tx("Guardar el de ahora")}</button>
+              <button class="btn btn-danger-ghost btn-sm" onclick="vaciarMiAcomodo(${i})">${tx("Vaciar")}</button>
+              <button class="btn btn-ghost btn-sm" onclick="cerrarMenuMiAcomodo()">${tx("Listo")}</button>
+            </div>
+          </div>`;
+        /* Dónde se guardó, con una ✓ en la pantalla de ahora: sin ella no se
+           sabe si tocarla va a poner lo que dejaste o a acomodarse sola. */
+        const donde = Object.keys(c.pantallas).map(k => tx(NOMBRE_FORMA[k]) + (k === forma ? " ✓" : "")).join(" · ");
+        return `
+          <div class="ma ma-llena">
+            <button class="ma-usar" onclick="usarMiAcomodo(${i})">
+              <span class="ac-n">${i + 1}</span>
+              <span class="ac-tx"><b>${escapeHtml(c.nombre)}</b><span>${escapeHtml(donde)}</span></span>
+            </button>
+            <button class="ma-mas" onclick="menuMiAcomodo(${i})" aria-label="${escapeAttr(T`Opciones de ${c.nombre}`)}">⋯</button>
+          </div>`;
+      }).join("")}</div>
+    </div>`;
 }
 
 function setDashEdit(on) {

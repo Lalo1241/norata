@@ -222,6 +222,37 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.134 · 25 sep 2026
+
+**Los acomodos del Resumen, rehechos, y tres casillas para guardar los tuyos.**
+Los doce acomodos de la 0.7.56 se escribieron cuando la racha podía ir a lo
+ancho; desde la 0.7.100 va en una columna y nadie los rehízo. Medido antes de
+tocarlos: "Panorama" y "Mirador" salían casi iguales, se estiraban tarjetas de
+cifra para tapar huecos (Niveles con 6 filas para 3 de contenido) y en dos
+columnas el tablero se pasaba 430-640 px de la pantalla. Se diseñó con Eduardo
+en un borrador con la app de verdad dentro:
+https://claude.ai/artifact/SCNyRq6NhQmudAF813UjYt
+
+- **Tres acomodos por pantalla, con los mismos nombres en todas:** «El día»,
+  «Constancia» y «Lo que construyo». Se escriben por columnas y las alturas se
+  MIDEN (`colocarAcomodo`, `js/05-resumen.js`); lo que sobra de pantalla va a
+  las listas y nunca a una tarjeta de cifra.
+- **Ninguno genera scroll** en monitor 1920×1080, laptop 1440×900 y 1366×768,
+  ni en tableta 1024×768. Para eso, en dos columnas **el acomodo también elige
+  qué tarjetas salen** —las ocho piden 30 filas y caben 8—, y las demás esperan
+  en el ＋ del Modo Editor. Lo aprobó Eduardo.
+- **«Tus cifras»**, tarjeta nueva (`cifras`): Expedición, Niveles y Talentos en
+  una tira. La usan todos los acomodos menos los del monitor. Llega ESCONDIDA a
+  los tableros ya acomodados (`DASH_LLEGAN_OCULTAS`): sin eso aparecía al fondo
+  de todos, repitiendo tres tarjetas.
+- **Mis acomodos:** tres casillas en el Modo Editor, gratis. Cada una guarda una
+  foto por forma de pantalla; en una donde no se guardó se acomoda sola con el
+  mismo orden. Viven en `state.ui.misAcomodos` y viajan con la cuenta.
+- **La cabecera del Resumen, 8 px más arriba** en la computadora: era justo lo
+  que faltaba para 8 filas en una laptop de 768.
+- **Fuera `encajarEnPantalla`, `emparejarColumnas` y `compactarEnSuColumna`**:
+  eran el arreglo a posteriori de los acomodos viejos y nadie más las llamaba.
+
 ### 0.7.133.4 · 25 sep 2026
 
 **La fiesta de nivel dibuja la constelación del mundo que llevas puesto.** Mi
