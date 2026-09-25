@@ -307,7 +307,7 @@ function cuerpoRacha() {
   return `
     <div class="scene-card streak-card rt-card" role="button" tabindex="0"
       aria-label="${escapeAttr(T`${Z.seguidas} ${tx(Z.seguidas === 1 ? V.una : V.varias)}. ${M.l1}. Toca para ver tu calendario`)}"
-      onclick="tocarTarjetaRacha()" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); tocarTarjetaRacha(); }">
+      onclick="tocarTarjetaRacha(event)" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); tocarTarjetaRacha(); }">
       ${scene(820, 230, 11)}
       <div class="scene-fade"></div>
       <div class="scene-body">
@@ -339,9 +339,25 @@ function pintarArteRacha() {
 let _redimRacha = null;
 window.addEventListener("resize", () => { clearTimeout(_redimRacha); _redimRacha = setTimeout(pintarArteRacha, 150); });
 
+/* ---- Un toque, no un deslizamiento (0.7.135.1) ----
+   La tarjeta ocupa media pantalla del teléfono, así que es justo donde cae el
+   dedo al deslizar el Resumen. Un navegador suele cancelar el clic cuando el
+   dedo se movió, pero no siempre, y un deslizamiento corto abría «Tu racha»
+   sin querer. Lo pidió Eduardo: solo cuenta como toque si el dedo se movió
+   menos de 10 px y se levantó en menos de 700 ms. Vale también para la tira
+   de meses, que se desliza de lado, y para el velo que cierra la hoja.
+   Un clic de teclado (`detail === 0`) no tiene dedo y siempre cuenta. */
+let _toqueRacha = null;
+document.addEventListener("pointerdown", e => { _toqueRacha = { x: e.clientX, y: e.clientY, t: Date.now() }; }, true);
+function toqueLimpio(e) {
+  if (!e || e.detail === 0 || !_toqueRacha) return true;
+  return Math.hypot(e.clientX - _toqueRacha.x, e.clientY - _toqueRacha.y) < 10 && Date.now() - _toqueRacha.t < 700;
+}
+
 /* Mientras se acomoda el tablero, tocar una tarjeta es para moverla. */
-function tocarTarjetaRacha() {
+function tocarTarjetaRacha(e) {
   if (typeof dashEditing !== "undefined" && dashEditing) return;
+  if (!toqueLimpio(e)) return;
   abrirTuRacha();
 }
 
@@ -420,7 +436,7 @@ function pintarMesRacha() {
     if (i < limite) continue;
     const a = Math.floor((i - 1) / 12), b = i - a * 12;
     const n = semanasDelMes(m, hoy, a, b).filter(s => s.ok && s.ini.slice(5, 7) === String(b).padStart(2, "0")).length;
-    tira += `<button class="rb-chip${i === visto ? " on" : ""}" onclick="irAMesDeRacha(${a}, ${b})" aria-pressed="${i === visto}">
+    tira += `<button class="rb-chip${i === visto ? " on" : ""}" onclick="irAMesDeRacha(${a}, ${b}, event)" aria-pressed="${i === visto}">
       <b>${nombreDeMesCapital(a, b)}</b><span aria-hidden="true">${"<i></i>".repeat(n) || "<em>·</em>"}</span></button>`;
   }
 
@@ -468,7 +484,7 @@ function moverMesDeRacha(d) {
   rachaMesVisto = [y, mo];
   pintarMesRacha();
 }
-function irAMesDeRacha(y, mo) { rachaMesVisto = [y, mo]; pintarMesRacha(); }
+function irAMesDeRacha(y, mo, e) { if (!toqueLimpio(e)) return; rachaMesVisto = [y, mo]; pintarMesRacha(); }
 
 function abrirTuRacha() {
   cerrarTuRacha();
@@ -507,7 +523,7 @@ function abrirTuRacha() {
         <p class="rb-ley"><span class="rb-ley-hilo"></span>${escapeHtml(T`Semana ${tx(V.hecho)}: ${UMBRAL_SEMANA} días con algo o más`)}</p>
       </section>
     </div>`;
-  capa.addEventListener("click", e => { if (e.target === capa) cerrarTuRacha(); });
+  capa.addEventListener("click", e => { if (e.target === capa && toqueLimpio(e)) cerrarTuRacha(); });
   document.body.appendChild(capa);
   pintarMesRacha();
   /* `.show` en el turno siguiente, para que la entrada se anime; y con ella

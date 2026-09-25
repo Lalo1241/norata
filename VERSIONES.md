@@ -222,6 +222,17 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.135.1 · 25 sep 2026
+
+**«Tu racha» en el teléfono: un toque no es un deslizamiento.** La tarjeta
+ocupa media pantalla y es justo donde cae el dedo al deslizar el Resumen; un
+deslizamiento corto la abría sin querer. Ahora solo cuenta como toque si el
+dedo se movió menos de 10 px y se levantó en menos de 700 ms (`toqueLimpio`,
+`js/05c-racha.js`), y vale también para la tira de meses y el velo que cierra
+la hoja. Además, la X lleva el marco de las flechas del mes y en el teléfono
+las esquinas de arriba de la hoja y de su escena son más discretas. Lo pidió
+Eduardo.
+
 ### 0.7.135 · 25 sep 2026
 
 **La racha cuenta semanas encendidas, y al tocarla se abre «Tu racha».**

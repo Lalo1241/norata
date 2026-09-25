@@ -12881,8 +12881,10 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
     padding: 12px 12px 10px 20px; background: var(--sup-tarjeta); border-bottom: var(--borde-fino) solid var(--line);
   }
   .rb-barra b { font-size: 16px; }
-  .rb-cerrar { flex: none; width: 40px; height: 40px; border: 0; background: none; border-radius: var(--r-redondo); cursor: pointer; display: grid; place-items: center; color: var(--muted); }
-  .rb-cerrar:hover { background: var(--carril); color: var(--text); }
+  /* La X lleva el mismo marco que las flechas del mes (0.7.135.1): suelta sobre
+     la barra se perdía, y con marco se ve dónde tocar. */
+  .rb-cerrar { flex: none; width: 36px; height: 36px; border: var(--borde-fino) solid var(--line); background: var(--sup-panel); border-radius: var(--r-boton); cursor: pointer; display: grid; place-items: center; color: var(--text); }
+  .rb-cerrar:hover { border-color: var(--rb-linea); }
   .rb-cerrar svg, .rb-flechas svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .rb-rot { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 
@@ -12947,9 +12949,11 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
 
   @media (max-width: 899px) {
     #racha-hoja { align-items: flex-end; padding: 0; }
-    .rb { grid-template-columns: 1fr; max-width: none; max-height: 92%; border-radius: var(--r-grande) var(--r-grande) 0 0; padding: 0 14px 18px; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+    /* Esquinas de arriba más discretas en el teléfono (0.7.135.1): con el
+       radio grande, la hoja y la escena de dentro parecían dos burbujas. */
+    .rb { grid-template-columns: 1fr; max-width: none; max-height: 92%; border-radius: var(--r-chico) var(--r-chico) 0 0; padding: 0 14px 18px; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
     .rb-barra { margin: 0 -14px; padding-left: 16px; }
-    .rb-escena { height: 220px; }
+    .rb-escena { height: 220px; border-radius: var(--r-tarjeta); }
     .rb-d { width: 30px; height: 30px; }
   }
 
