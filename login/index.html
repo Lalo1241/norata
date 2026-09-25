@@ -53,6 +53,112 @@
   } catch (e) {}
 </script>
 
+<!-- ============ LA RED DE SEGURIDAD DE LA PUERTA (0.7.138) ============
+     La app tiene una desde siempre (ver el mismo bloque en `index.html`); la
+     puerta no tenía ninguna, y es al revés de lo que parece: **el botón del
+     bicho vive DENTRO**, así que quien se queda fuera por un error de esta
+     pantalla es justo quien no tiene forma de avisar de que se quedó fuera.
+     Un fallo aquí era invisible para todos.
+
+     Corre ANTES de los ocho archivos y sin depender de ninguno, por lo mismo
+     que en la app: una red que dependiera de lo que falló, fallaría con ello.
+     De ahí los `var`, el `try` alrededor de todo y los colores escritos a
+     mano — aquí no se puede suponer que `css/estilos.css` haya llegado.
+
+     Tres diferencias con la de la app, y ninguna es de estilo:
+
+       - **No ofrece guardar un respaldo.** Aquí no hay nada guardado de esta
+         sesión: lo que se pueda salvar está del otro lado y se salva entrando.
+         Un botón que descargara un archivo vacío sería peor que no tenerlo.
+       - **El aviso dice qué hacer para ENTRAR**, que es lo único que se venía
+         a hacer, y nombra el correo como salida cuando recargar no baste.
+       - **La cola la vacía `12-login.js`**, no el arranque de la app: es el
+         único que corre aquí. `sbVaciarTropiezos()` sale de `10b-supabase.js`
+         y no necesita sesión a propósito (ver su nota), que es exactamente el
+         caso de esta pantalla. -->
+<script>
+  (function () {
+    try {
+      var yaAvisado = false;
+
+      /* La lista la lee `sbVaciarTropiezos()` cuando ya hay con qué mandarla.
+         Mismo nombre que en la app porque es la MISMA función la que la
+         recoge; cambiarlo aquí obligaría a mantener dos. */
+      window.__tropiezos = [];
+      function apuntar(donde, mensaje) {
+        try {
+          /* Tope de diez, igual que en la app: un error dentro de un bucle
+             dispara miles en un segundo. */
+          if (window.__tropiezos.length >= 10) return;
+          window.__tropiezos.push({ donde: donde, mensaje: String(mensaje).slice(0, 300) });
+        } catch (e) { /* ni aquí se puede fallar */ }
+      }
+
+      /* La pantalla de carga tapa la puerta entera, así que si el arranque
+         muere a medias tiene que irse igualmente: una carga eterna se ve igual
+         que una puerta rota, pero sin el aviso que explica qué pasó. El plazo
+         cubre además el caso sin error ninguno — una petición que no contesta
+         ni falla, que en esta pantalla es el fallo más probable de todos. */
+      function destapar() {
+        var c = document.getElementById("carga");
+        if (c) c.className = "carga oculta";
+      }
+      setTimeout(destapar, 15000);
+
+      function avisar(detalle) {
+        if (yaAvisado || !document.body) return;
+        yaAvisado = true;
+        var BOTON = "border:0;border-radius:10px;padding:9px 14px;font:600 13px system-ui,sans-serif;cursor:pointer";
+        var caja = document.createElement("div");
+        caja.setAttribute("style",
+          "position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#1a1219;" +
+          "border-top:2px solid #ff8a70;color:#f7f8fa;padding:16px 18px;" +
+          "font:14px/1.5 system-ui,-apple-system,sans-serif;box-shadow:0 -8px 24px rgba(0,0,0,.45)");
+        caja.innerHTML =
+          '<b style="color:#ff8a70">Algo falló al abrir la pantalla de entrar.</b><br>' +
+          'Tu cuenta y tu progreso no se han tocado. Vuelve a cargar; si sigue igual, ' +
+          'entra desde el enlace del correo que te mandamos.' +
+          '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' +
+            '<button data-a="rl" style="' + BOTON + ';background:#5fe0b0;color:#10151d">Volver a cargar</button>' +
+            '<button data-a="cl" style="' + BOTON + ';background:transparent;color:#8b93a1">Ocultar</button>' +
+          '</div>';
+
+        /* El detalle técnico va con textContent y no dentro del innerHTML: el
+           mensaje de un error puede traer cualquier cosa, incluso algo que
+           parezca HTML. */
+        var pie = document.createElement("div");
+        pie.setAttribute("style", "margin-top:10px;font-size:11.5px;color:#8b93a1;word-break:break-word");
+        pie.textContent = detalle || "";
+        caja.appendChild(pie);
+
+        caja.addEventListener("click", function (ev) {
+          var a = ev.target && ev.target.getAttribute && ev.target.getAttribute("data-a");
+          if (a === "rl") location.reload();
+          else if (a === "cl") caja.remove();
+        });
+
+        document.body.appendChild(caja);
+        destapar();
+      }
+
+      window.onerror = function (msg, url, linea) {
+        var texto = String(msg) + (linea ? " (linea " + linea + ")" : "");
+        apuntar("puerta", texto);
+        avisar(texto);
+      };
+      /* Y las promesas, que en ESTA pantalla son casi todo: entrar, crear la
+         cuenta, volver de Google y recoger la sesión del enlace del correo son
+         cuatro `async` y ninguna la mira `window.onerror`. */
+      window.addEventListener("unhandledrejection", function (ev) {
+        var r = ev && ev.reason;
+        var texto = (r && r.message) ? r.message : String(r);
+        apuntar("puerta-promesa", texto);
+        avisar(texto);
+      });
+    } catch (e) { /* una red que reviente deja la puerta peor que sin red */ }
+  })();
+</script>
+
 <!-- Los tres huecos que la portada necesita para hablar: la pantalla de
      esperar, el cuadro de confirmar y los avisos de abajo. Son los mismos
      ids que en la app porque los usan las MISMAS funciones de `01-base.js`;
@@ -179,9 +285,13 @@
 </aside>
 
 <!-- ============ LOS ARCHIVOS ============
-     CINCO de los diecisiete que carga la app, y ni uno más. Se pudo hacer
-     porque ninguno de ellos ejecuta nada al cargarse: todos son declaraciones,
-     así que traerlos aquí no arranca la app por accidente.
+     OCHO de los treinta que carga la app, y ni uno más. Se pudo hacer porque
+     ninguno de ellos ejecuta nada al cargarse: todos son declaraciones, así
+     que traerlos aquí no arranca la app por accidente.
+
+     El número se cuenta, no se recuerda: decía «cinco de los diecisiete» y
+     eran ocho de treinta desde hacía versiones, porque a esta lista se le
+     suman archivos y a la frase no. `grep -c 'script defer' los dos archivos."
 
      Lo que NO está es lo que dibuja la app —las vistas, el árbol, el resumen,
      los ajustes— y `11-arranque.js`, que es lo que la enciende. Esta pantalla
