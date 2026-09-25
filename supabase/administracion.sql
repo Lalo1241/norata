@@ -80,7 +80,10 @@ create table if not exists public.tropiezos (
   dia     date    not null default current_date,
   version text    not null default '',
   aparato text    not null default '',
-  donde   text    not null default '',   -- 'error' | 'promesa'
+  -- 'error' | 'promesa' los caza la red de index.html, 'puerta' y
+  -- 'puerta-promesa' la de login/ (0.7.138), 'reporte' lo escribe una
+  -- persona, y 'tope' lo pone la propia función cuando se llena el cupo.
+  donde   text    not null default '',
   mensaje text    not null,
   cuantos integer not null default 1,
   visto   boolean not null default false
@@ -112,7 +115,10 @@ declare
   v_limpio text := left(coalesce(v,   ''), 20);
   a_limpio text := left(coalesce(ap,  ''), 20);
   d_limpio text := left(coalesce(dnd, ''), 20);
+  cubo     text;
+  tope     integer;
   hoy      integer;
+  tocadas  integer;
 begin
   -- El mensaje se recorta a 300 caracteres por dos razones distintas y las
   -- dos importan. La primera es de privacidad: un volcado de error completo
@@ -122,17 +128,60 @@ begin
   m_limpio := left(coalesce(msg, ''), 300);
   if m_limpio = '' then return; end if;
 
-  -- Tope diario. Cualquiera puede llamar a esta función sin sesión, así que
-  -- cualquiera podría llenar la tabla variando el mensaje. Pasadas 500 filas
-  -- en un día se dejan de crear nuevas, pero se siguen contando las que ya
-  -- existen: así un ataque no borra la información de un fallo real.
-  select count(*) into hoy from public.tropiezos where dia = current_date;
+  -- 'tope' es de la casa: lo escribe esta función y nadie desde fuera, o el
+  -- aviso de que se llenó el cupo se podría falsificar desde el navegador.
+  if d_limpio = 'tope' then d_limpio := 'otro'; end if;
 
-  if hoy >= 500 then
+  -- ---- DOS cupos y no uno (0.7.140) ----
+  -- Cualquiera puede llamar a esta función sin sesión, así que cualquiera
+  -- puede llenar la tabla variando el mensaje. Con UN solo tope de 500 para
+  -- todo, gastarlo salía por unas 500 peticiones baratas — y a partir de ahí
+  -- lo que se perdía era TODO, incluidos los reportes que escribe una persona
+  -- a mano, que son los que traen contexto y valen diez veces más que un
+  -- volcado de JavaScript.
+  --
+  -- Con el cupo partido, un aluvión de avisos automáticos ya no puede ahogar
+  -- lo que alguien se sentó a escribir: son dos presupuestos y se gastan
+  -- aparte.
+  cubo := case when d_limpio = 'reporte' then 'reporte' else 'auto' end;
+  tope := case when cubo = 'reporte' then 150 else 500 end;
+
+  select count(*) into hoy
+    from public.tropiezos
+   where dia = current_date
+     and donde <> 'tope'
+     and (donde = 'reporte') = (cubo = 'reporte');
+
+  if hoy >= tope then
+    -- Lo que YA existe sigue contando: un error que se repite no deja de
+    -- sumar porque la tabla esté llena, y así un ataque no borra la
+    -- información de un fallo real.
     update public.tropiezos
        set cuantos = cuantos + 1
      where dia = current_date and version = v_limpio
        and donde = d_limpio and mensaje = m_limpio;
+    get diagnostics tocadas = row_count;
+
+    -- ---- Y lo que no cabe NO se calla (0.7.140) ----
+    -- Antes, pasado el tope, un mensaje nuevo desaparecía sin dejar rastro:
+    -- el `update` de arriba no casaba con nada y la función volvía. O sea que
+    -- por ~500 peticiones cualquiera dejaba ciego el buzón el resto del día,
+    -- y justo el día que algo se rompiera de verdad no se vería nada — que es
+    -- peor que ver un error, porque el silencio se lee como «no pasó nada».
+    --
+    -- Una fila por día y cubo, y `metricas()` ordena por `cuantos desc`, así
+    -- que sale ARRIBA justo cuando importa. La pinta el panel sola: los
+    -- automáticos son todo lo que no es 'reporte' (ver `renderPanelAdmin`).
+    if tocadas = 0 then
+      insert into public.tropiezos (dia, version, aparato, donde, mensaje)
+      values (current_date, '', '', 'tope',
+              case when cubo = 'reporte'
+                   then 'Se llenó el cupo de REPORTES de hoy: hay cosas que alguien escribió y no se guardaron.'
+                   else 'Se llenó el cupo de avisos automáticos de hoy: hay errores que no se guardaron.'
+              end)
+      on conflict (dia, version, donde, mensaje)
+      do update set cuantos = public.tropiezos.cuantos + 1;
+    end if;
     return;
   end if;
 
