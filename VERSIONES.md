@@ -222,6 +222,40 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.137 · 25 sep 2026
+
+**La pantalla no se apaga mientras corre el Pomodoro.** Lo pidió Eduardo
+nombrando el Hiperfoco: un tramo de veinticinco minutos con la pantalla
+apagándose sola cada treinta segundos obliga a tocar el teléfono para ver
+cuánto falta, que es justo lo contrario de enfocarse. Lo sostiene
+`navigator.wakeLock` desde `jPantallaDespierta()` (`js/09d-jornada.js`), y vale
+para los dos relojes —el de la rueda y el de Hiperfoco—, no solo para el que
+él nombró: es el mismo `state.jornada.run` y el mismo problema.
+
+Tres cosas que no son opcionales, y están escritas junto al código:
+
+- **Solo mientras el reloj CORRE** (`run.seg`, en fase `foco` o `descanso`).
+  En pausa, dormido, en el cierre o con el tramo esperando, la pantalla se
+  apaga como siempre: sostenerla ahí es gastarle la batería a quien no está
+  mirando nada.
+- **El navegador SUELTA el permiso en cuanto la pestaña deja de verse, y no lo
+  devuelve al volver.** Así que no basta con pedirlo al empezar: se vuelve a
+  pedir desde `jPaso`, que ya corre cada cuarto de segundo y también al cambiar
+  de visibilidad. Se toma además en el mismo gesto de Iniciar, para no esperar
+  al paso siguiente.
+- **Falla en silencio.** Pedirlo es asíncrono y puede negarse —sin permiso, con
+  la batería muy baja, o en un navegador que no trae la API—. Esto es una
+  comodidad, no una función, y un aviso por algo que nadie pidió es ruido.
+  `jPidiendo` evita pedirlo cuatro veces por segundo mientras la primera
+  petición sigue en el aire.
+
+Medido con un espía sobre `navigator.wakeLock` (y comprobado también contra la
+API de verdad): al arrancar sin reloj, 0 peticiones; al iniciar Hiperfoco, 1 y
+el centinela vivo; en pausa, suelto; al seguir, otra petición; **dos segundos
+corriendo, cero peticiones de más** pese a los ocho `jPaso` de por medio; si el
+navegador lo suelta, `jPaso` lo recupera; al parar, al abandonar y con la app
+dormida, suelto. Sin errores de consola.
+
 ### 0.7.136.1 · 25 sep 2026
 
 **La barra lateral de la PC ya lleva el color del mundo.** Con Reliquia o
