@@ -538,11 +538,19 @@ nuevo, se baja todo por detrás, se activa, y avisa a la app —un toast con un
 botón de recargar—. Quien abra justo después de una publicación ve **una vez**
 la versión anterior; la nueva entra sola en la siguiente apertura.
 
-Tres cosas del `sw.js` que no se pueden tocar sin entender por qué están:
+Cuatro cosas del `sw.js` que no se pueden tocar sin entender por qué están:
 
-- **`install` pide con `cache: "reload"`.** Sin eso el `addAll` llena la caché
-  nueva con los bytes viejos que el navegador tuviera guardados, y subir la
-  versión no cambia nada de lo que se ve.
+- **`install` pide con `cache: "reload"`.** Sin eso se llena la caché nueva con
+  los bytes viejos que el navegador tuviera guardados, y subir la versión no
+  cambia nada de lo que se ve.
+- **Un corte de RED se reintenta; una respuesta mala NO** (0.7.128.3). La
+  instalación es todo-o-nada con los cuarenta y ocho archivos, así que una sola
+  petición caída la tumbaba entera: **medido, con TRES segundos sin red la
+  versión nueva no entraba**, y por eso con datos móviles no actualizaba nunca
+  y con wifi sí. Ahora un fallo de red se reintenta cinco veces (hasta 11,5 s) y
+  un 404 o un 5xx sigue fallando a la primera, que es lo que impide guardar una
+  página de error de una publicación a medias como si fuera un archivo. Las dos
+  cosas parecen «que falló la descarga» y no son lo mismo.
 - **Cada worker sirve de SU caché** (`caches.open(CACHE).then(c => c.match(…))`,
   no `caches.match` a secas). Mientras se instala una versión conviven dos
   almacenes, y el de a secas busca en todos: el worker viejo podía servir un
