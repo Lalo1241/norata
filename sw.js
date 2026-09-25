@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.134.2";
+const CACHE = "norata-0.7.135";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -37,7 +37,7 @@ const ASSETS = [
   "./css/jornada.css",
   "./js/00-idioma.js", "./js/00b-textos-en.js",
   "./js/01-base.js", "./js/02-progreso.js", "./js/02b-expedicion.js", "./js/03-talentos.js",
-  "./js/04-misiones.js", "./js/05-resumen.js", "./js/05b-aniversario.js", "./js/06-detalle.js",
+  "./js/04-misiones.js", "./js/05-resumen.js", "./js/05b-aniversario.js", "./js/05c-racha.js", "./js/06-detalle.js",
   "./js/07-lienzo.js", "./js/08-formularios.js", "./js/09-inicio.js", "./js/09c-region.js", "./js/09d-jornada.js",
   "./js/10-fusion.js", "./js/10-sincronia.js", "./js/10a-perfil.js", "./js/10b-supabase.js", "./js/10c-portada.js", "./js/10d-plan.js", "./js/10e-panel.js", "./js/10f-informes.js", "./js/10g-informe.js", "./js/10h-lecturas.js",
   "./js/10i-apariencia.js",

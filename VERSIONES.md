@@ -222,6 +222,36 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.135 · 25 sep 2026
+
+**La racha cuenta semanas encendidas, y al tocarla se abre «Tu racha».**
+La tarjeta era un mes en casillas: se vaciaba cada día 1, cambiaba de alto con
+el mes y en los de seis semanas se cortaba 5 px. Se probaron once versiones con
+Eduardo en un borrador con la app dentro:
+https://claude.ai/artifact/TLxT4kqJXbbrZUUjesAfBU
+
+- **La regla:** una semana se enciende con 3 días con algo, y la tarjeta cuenta
+  semanas encendidas seguidas. **La racha de DÍAS sigue por debajo**: los hitos
+  y su celebración no cambian. Pasarlos a semanas está pendiente de Eduardo.
+- **Un objeto por mundo**, dibujado al tamaño real de la tarjeta: fogata con un
+  leño por día (la casa y sus ambientes), plano que se traza (Blueprint),
+  vitrina que se llena (Reliquia) y fogata de 8 bits (Arcade). **Averno usa la
+  fogata a propósito**: el mundo se está rediseñando (gótico, píxel, vitral) y
+  su versión se hace con ese diseño.
+- **El mensaje**, arriba a la derecha en dos renglones y con color: menta si
+  la semana ya cuenta, texto si hay días de sobra, luciérnaga si vas justo y
+  coral si esta semana ya no llega (sin regañar: dice qué pasa y da la salida).
+- **«Tu racha»** al tocar la tarjeta: la escena con tu número, la nota del día,
+  tres cifras y el mes. La semana encendida es un hilo que une sus días, con la
+  marca del mundo al final de la fila; los meses se recorren con una tira de
+  seis y con flechas hasta un año atrás. En el teléfono sube desde abajo, la X
+  va en su barra y el fondo se queda quieto (`#racha-hoja` en CAPAS_QUE_TAPAN).
+- **Archivo nuevo:** `js/05c-racha.js`, registrado en `index.html` y en
+  `ASSETS`. Salen de `js/05-resumen.js` el calendario de la tarjeta, su hito y
+  `proximoHito`, que solo usaba ella.
+- **Corrección de la 0.7.134.1:** el mes de seis semanas que se cortaba no era
+  noviembre sino enero de 2027. Ya no aplica: la tarjeta no lleva calendario.
+
 ### 0.7.134.2 · 25 sep 2026
 
 **Las constelaciones derivadas ya no llevan rayas que el dibujo no tiene.**
