@@ -815,6 +815,14 @@ la dejaste»: dos de doce con el mismo remate. No lo ve nadie mirando una sola
 frase, que es como se escriben — hay que releer el banco entero después de
 tocar una.
 
+**Y la sexta, que manda sobre las otras cinco: ninguna frase puede hacer
+sentir mal a nadie** (Eduardo, 0.7.129.1). Una luciérnaga decía que encienden
+la luz «para encontrar pareja» y la persona «para revisar el celular»: graciosa
+para unos, un piquete para quien está solo, que es justo quien abre la app a
+las tres de la mañana. La broma es CON quien lee, nunca sobre algo suyo —su
+pareja, su cuerpo, su dinero, su soledad—. Si una frase puede doler leída en
+un mal día, se cae aunque sea la más graciosa del banco.
+
 **Al traducir una de estas, lo que hay que salvar es la vuelta, no las
 palabras.** Una traducción literal que pierde el giro deja una frase correcta y
 muerta. Cuando la broma no cruza, se cambia la broma. Y hay una trampa antes de

@@ -2798,7 +2798,7 @@ const TEXTOS_EN = {
     "A world is the app made of another material: its type, its textures, its frame and its own names for each rank of the path. With {0} the three that are built open, and the ones that come later.",
   "Ver {0}": "See {0}",
   "A esta hora solo quedamos las luciérnagas y quien jura que ya se iba a dormir.": "At this hour it's just us fireflies and whoever swears they were about to go to bed.",
-  "Nosotras encendemos la luz para encontrar pareja. Tú, para revisar el celular.": "We light up to find a mate. You, to check your phone.",
+  "Brillamos unas pocas semanas al año, y esta noche nos tocó brillar contigo.": "We only glow a few weeks a year, and tonight we got to glow with you.",
   "Solo salimos cuando el mundo está dormido. Por eso nos sorprendió verte.": "We only come out when the world is asleep. That's why seeing you surprised us.",
   "Qué reflejos para ser {0}.": "Pretty good reflexes for {0}.",
   "Las únicas que seguimos trabajando somos nosotras. Y, por lo visto, tú.": "We're the only ones still working. And, apparently, you.",

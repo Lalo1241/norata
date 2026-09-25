@@ -3177,9 +3177,14 @@ function branchHeader(name, countLabel, buttons) {
    Y lo que NO está todavía: la luciérnaga RARA, la de luz blanca azulada que
    da la pista del mundo Arcade. Eduardo la quiere cuando el mundo exista, no
    antes: una pista hacia nada es una broma pesada. */
+/* **Ninguna frase puede hacer sentir mal a nadie** (Eduardo, 0.7.129.1). La
+   segunda decía que las luciérnagas encienden la luz «para encontrar pareja»:
+   graciosa para unos, un piquete para quien está solo a las tres de la mañana,
+   que es justo quien la va a leer. Se cayó. A esta hora la persona está
+   despierta y a veces no por gusto: la broma es CON ella, nunca de algo suyo. */
 const LUCI_FRASES = [
   () => tx("A esta hora solo quedamos las luciérnagas y quien jura que ya se iba a dormir."),
-  () => tx("Nosotras encendemos la luz para encontrar pareja. Tú, para revisar el celular."),
+  () => tx("Brillamos unas pocas semanas al año, y esta noche nos tocó brillar contigo."),
   () => tx("Solo salimos cuando el mundo está dormido. Por eso nos sorprendió verte."),
   h => T`Qué reflejos para ser ${h}.`,
   () => tx("Las únicas que seguimos trabajando somos nosotras. Y, por lo visto, tú."),

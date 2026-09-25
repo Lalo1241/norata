@@ -222,6 +222,15 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.129.1 · 24 sep 2026
+
+**Fuera la frase de la pareja.** La segunda frase de las luciérnagas —«Nosotras
+encendemos la luz para encontrar pareja. Tú, para revisar el celular.»— la paró
+Eduardo: puede hacer sentir mal a alguien, y eso no debe pasar nunca. Quien la
+lee sigue en pie a las tres de la mañana, y a veces sin compañía. Ahora dice
+«Brillamos unas pocas semanas al año, y esta noche nos tocó brillar contigo.»
+La regla quedó escrita en CLAUDE.md, en «El tono».
+
 ### 0.7.129 · 24 sep 2026
 
 **Las luciérnagas de medianoche.** Un secreto de Eduardo, aprobado en un
