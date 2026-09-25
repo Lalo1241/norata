@@ -6,6 +6,43 @@ panel de Supabase y se quedan hechos para siempre.
 Viven aquí y no solo dentro del panel para que tengan historial: algo que solo
 existe dentro de una página web ajena no se puede comparar ni volver atrás.
 
+---
+
+## ⚠ Pendiente de pegar
+
+**Esta lista es la única fuente de verdad de lo que el repositorio dice y la
+base de datos todavía no sabe.** Existe porque los dos relojes van por separado:
+una versión de la app llega sola a los dispositivos —basta con subir el número—
+y un cambio de SQL **no llega nunca** hasta que alguien lo pega a mano. Sin una
+lista, esa diferencia solo vive en una conversación, y una conversación se
+cierra.
+
+**Cómo se usa, y son dos reglas:**
+
+1. **Al cambiar cualquier `.sql` de esta carpeta, se añade una fila aquí**, en
+   el mismo commit. No en el mensaje del commit ni en `VERSIONES.md`: aquí, que
+   es lo que se abre el día que uno se sienta delante de Supabase.
+2. **Al pegarlo, se borra la fila** y ya está. Una lista que solo crece se deja
+   de mirar.
+
+Lo de abajo está escrito por orden: lo de más arriba es lo más antiguo.
+
+### 1. `apuntar_tropiezo` — 25 sep 2026
+
+**Qué**: volver a pegar la función entera desde `administracion.sql` (la
+sección «Los tropiezos» de más abajo cuenta el porqué). Es un
+`create or replace`: **no toca la tabla ni los datos que ya haya**, así que se
+puede pegar dos veces sin consecuencias.
+
+**Por qué corre prisa lo justo**: sin esto, el buzón de errores se puede cegar
+con unas 500 peticiones baratas y a partir de ahí lo que llegue se pierde en
+silencio. Mientras no haya nadie más que Eduardo usando la app, el riesgo real
+es bajo; el día que haya gente fuera, no.
+
+**Dónde**: panel de Supabase → SQL Editor → pegar → Run.
+
+---
+
 ## Borrar la cuenta (`borrar-cuenta.sql`)
 
 **Sin esto, el botón «Borrar mi cuenta» de Ajustes no funciona**: avisa de que

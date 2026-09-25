@@ -983,3 +983,12 @@ que cambiarle el nombre: `-v1` → `-v2`).
   hacerlo explícito aunque puede que ya lo hiciera solo.
 - **Supabase es la base de datos, no el hosting.** La web sale de GitHub
   Pages. Subir código no toca los datos de nadie.
+- **Y por eso los dos relojes van por separado: un `.sql` fusionado NO está
+  puesto.** Una versión de la app llega sola a los dispositivos —basta con
+  subir el número—; un cambio de SQL no llega nunca hasta que alguien lo pega a
+  mano en el panel. Al tocar cualquier `.sql` de `supabase/`, la fila va en la
+  lista **«Pendiente de pegar»** de `supabase/LEEME.md`, arriba del todo, **en
+  el mismo commit** — y no en el mensaje del commit ni en `VERSIONES.md`, que
+  no son lo que se abre el día que uno se sienta delante de Supabase. Al
+  pegarlo se borra la fila: una lista que solo crece se deja de mirar.
+  Decir «ya está subido» de un cambio de SQL es decir algo que no es.
