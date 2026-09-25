@@ -428,7 +428,7 @@ function arcadeTocaRara() {
 }
 function arcadeRaraAtrapada() {
   arcadeSonarSiempre("rara");
-  if (typeof fraseDeLuciernaga === "function") fraseDeLuciernaga(ARCADE_PISTA(), "???", true);
+  if (typeof fraseDeLuciernaga === "function") fraseDeLuciernaga(ARCADE_PISTA(), T`Luciérnaga nº ${"???"}`, true);
   state.ui = state.ui || {};
   state.ui.arcPixel = todayKey();
   state.ui.arcPixelToque = null;   // una rara nueva trae un píxel nuevo, sin reloj

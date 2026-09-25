@@ -232,6 +232,8 @@
     --luci-halo: 0 0 8px 3px rgba(245, 215, 110, 0.6), 0 0 26px 10px rgba(245, 215, 110, 0.18);
     /* La luciérnaga RARA, la que da la pista de Arcade (0.7.131): luz blanca
        azulada y cuadrada, un píxel. Y la tinta de su número, del mismo tono. */
+    /* El icono de la luciérnaga: su abdomen brilla de noche. */
+    --luci-halo-ic: drop-shadow(0 0 4px rgba(245, 215, 110, 0.75));
     --luci-rara: #d6ecff;
     --luci-rara-halo: 0 0 7px 3px rgba(190, 225, 255, 0.55), 0 0 22px 9px rgba(190, 225, 255, 0.16);
     --luci-rara-filo: none;
@@ -749,6 +751,7 @@
     /* La rara, de día: sin halo, y con un filo para que el píxel se vea sobre
        el papel. La tinta baja hasta pasar 4,5 sobre la tarjeta. */
     --luci-rara-halo: none;
+    --luci-halo-ic: none;
     --luci-rara-filo: 1.5px solid #2c4d70;
     --luci-rara-tinta: #1f5d94;
     --sombra-m: rgba(23, 38, 56, 0.10);
@@ -3310,6 +3313,16 @@
     font-size: 13px; font-weight: 700; color: var(--fire);
   }
   .exp-luci i { width: 8px; height: 8px; flex: none; }
+  /* El icono de la luciérnaga (0.7.133.2). El cuerpo y las alas van en la
+     tinta de la tarjeta y solo el abdomen lleva la luz: sin color en el resto,
+     se lee como un bicho a cualquier tamaño y en los dos modos. */
+  .luci-svg { width: 40px; height: 40px; overflow: visible; }
+  .luci-svg-ala { fill: var(--text); opacity: 0.22; }
+  .luci-svg-cuerpo { fill: var(--text); opacity: 0.85; }
+  .luci-svg-ant { fill: none; stroke: var(--text); stroke-width: 1.3; stroke-linecap: round; opacity: 0.7; }
+  .luci-svg-luz { fill: var(--luci-luz); filter: var(--luci-halo-ic); }
+  .exp-luci-ic { display: grid; place-items: center; flex: none; width: 20px; height: 20px; }
+  .exp-luci-ic .luci-svg { width: 20px; height: 20px; }
 
   /* ---------- El camino a Arcade (0.7.131) ----------
      Lo que tiene que existir ANTES de encontrar el mundo, así que vive aquí y

@@ -222,6 +222,26 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.133.2 · 25 sep 2026
+
+**Las luciérnagas: menos tiempo, una sola por noche y un aviso que dice lo que
+pasó.** Lo pidió Eduardo al verlas en vivo.
+
+- **Se iban tarde, y era un fallo de reloj.** La edad de cada una se contaba en
+  pasos de la animación con un tope por paso, así que en un teléfono que ahorra
+  batería —menos cuadros por segundo— sus segundos se estiraban al doble o al
+  triple, y el tope de 30 s con ellos. Ahora la edad va con el reloj de verdad
+  y el vuelo de salida tiene plazo: tres segundos, dos si se asustaron. Además
+  pasan menos tiempo: de 5 a 7 s en vez de 7 a 10.
+- **Se atrapa una por noche.** Atrapada una, las demás salen volando deprisa y
+  dejan de atender el dedo; antes se podía coger otra mientras se iban.
+- **El aviso dice «¡Atrapaste una luciérnaga!»** y ya no lleva la cuenta; la
+  cuenta sigue en Mi expedición, bajo la barra del nivel. La rara conserva su
+  «Luciérnaga nº ???».
+- **Un icono de luciérnaga** (`LUCI_ICONO`): alas y cuerpo en la tinta de la
+  tarjeta y el abdomen encendido, con halo de noche y sin él de día. Acompaña
+  al aviso y a la cuenta de Mi expedición.
+
 ### 0.7.133.1 · 25 sep 2026
 
 **Ningún sonido sin que estés mirando.** Eduardo oía la app sonar varias veces

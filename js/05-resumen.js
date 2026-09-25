@@ -3162,7 +3162,9 @@ function branchHeader(name, countLabel, buttons) {
      todavía les toca.
    - **Poco tiempo en pantalla.** Eduardo pidió que no se quedaran esperando a
      que las toques: sin saber qué pasa, cinco bichos dando vueltas un minuto
-     abruman. Entran casi juntas, pasan de 7 a 10 s y se van.
+     abruman. Entran casi juntas, pasan de 5 a 7 s y se van (0.7.133.2; antes 7 a 10).
+   - **Se atrapa UNA por noche.** Atrapada una, las demás salen volando deprisa y
+     ya no se dejan: el aviso dice «¡Atrapaste una luciérnaga!», sin la cuenta.
    - **La frase se queda lo que tarda en leerse dos veces**: 6 s más 70 ms por
      letra, con una barra que dice cuánto queda y una X para irse antes. Con
      los 7 s fijos del boceto, la primera se sentía corta.
@@ -3197,9 +3199,23 @@ const LUCI_FRASES = [
 
 let luciBichos = [], luciReloj = null, luciAntes = 0, luciUltimaFrase = -1;
 
+/* El icono de la luciérnaga (0.7.133.2): alas, cuerpo y el abdomen encendido,
+   que es lo único con color. Lo acompaña al aviso de atraparla y a la cuenta
+   de Mi expedición. Los tonos salen de variables —el abdomen es `--luci-luz`
+   y su halo, `--luci-halo-ic`, que de día no existe—. */
+const LUCI_ICONO =
+  '<svg class="luci-svg" viewBox="0 0 32 32" aria-hidden="true">' +
+    '<path class="luci-svg-ant" d="M14.6 7.6C13.6 5.4 12 4.3 10.2 4.1M17.4 7.6c1-2.2 2.6-3.3 4.4-3.5"/>' +
+    '<ellipse class="luci-svg-ala" cx="10.6" cy="13.4" rx="6.2" ry="3.3" transform="rotate(-32 10.6 13.4)"/>' +
+    '<ellipse class="luci-svg-ala" cx="21.4" cy="13.4" rx="6.2" ry="3.3" transform="rotate(32 21.4 13.4)"/>' +
+    '<circle class="luci-svg-cuerpo" cx="16" cy="9.3" r="2.3"/>' +
+    '<ellipse class="luci-svg-cuerpo" cx="16" cy="14.2" rx="3" ry="3.6"/>' +
+    '<ellipse class="luci-svg-luz" cx="16" cy="21.6" rx="4.1" ry="5.6"/>' +
+  '</svg>';
+
 /* **A lo mucho 30 segundos en pantalla**, y es regla de Eduardo (0.7.131.1):
    pueden salir en cualquier momento de la noche, pero una vez que salen no se
-   quedan todo el rato, y no vuelven esa noche. Con `dura` (7 a 10 s) ya se
+   quedan todo el rato, y no vuelven esa noche. Con `dura` (5 a 7 s) ya se
    van mucho antes; el tope está para que la regla no dependa de esos números
    el día que alguien los mueva. A los 28 s echan a volar y a los 30 ya no
    están. */
@@ -3261,7 +3277,7 @@ function soltarLuciernagas() {
     if (quieto) { x = W * (0.15 + Math.random() * 0.7); y = H * (0.15 + Math.random() * 0.6); }
     const b = { el, x, y, rumbo: Math.atan2(H / 2 - y, W / 2 - x) + (Math.random() - 0.5),
       vel: 34 + Math.random() * 18, fase: Math.random() * 6.28, periodo: 1.6 + Math.random() * 1.2,
-      espera: i * (0.3 + Math.random() * 0.4), vida: 0, dura: 7 + Math.random() * 3,
+      espera: i * (0.3 + Math.random() * 0.4), vida: 0, dura: 5 + Math.random() * 2,
       huye: false, atrapada: false, fuera: false };
     /* `pointerdown` y no `click`: vuelan, y entre bajar y levantar el dedo la
        luciérnaga ya se movió de debajo. */
@@ -3293,7 +3309,13 @@ function brilloLuciernaga(b, t) {
 }
 
 function pasoLuciernagas() {
-  const ahora = Date.now(), dt = Math.min(0.05, (ahora - luciAntes) / 1000);
+  /* Dos relojes distintos, y el segundo es el arreglo de 0.7.133.2. `dt` mueve
+     el bicho y lleva tope, para que un tirón no lo teletransporte. Pero la
+     EDAD (`vida`) va con el reloj de verdad: con el tope también ahí, un
+     teléfono que ahorra batería y va a menos cuadros las dejaba el doble o el
+     triple de tiempo en pantalla —y el tope de 30 s, con ellas—. Eduardo lo
+     vio así: «no deben salir tanto tiempo». */
+  const ahora = Date.now(), real = Math.min(1, (ahora - luciAntes) / 1000), dt = Math.min(0.05, real);
   luciAntes = ahora;
   const W = innerWidth, H = innerHeight, quieto = luciQuieto();
   // Si la persona se fue del Resumen, se van todas deprisa.
@@ -3302,7 +3324,7 @@ function pasoLuciernagas() {
   luciBichos.forEach(b => {
     if (b.fuera) return;
     vivas++;
-    b.vida += dt;
+    b.vida += real;
     if (b.vida < b.espera) return;
     const t = b.vida - b.espera;
     if (b.atrapada) return;
@@ -3316,7 +3338,11 @@ function pasoLuciernagas() {
       return;
     }
     if (t > b.dura || irse || b.vida > LUCI_TOPE - 2) b.huye = true;
-    if (b.vida > LUCI_TOPE) { b.fuera = true; b.el.remove(); return; }
+    if (b.huye && b.huyeDesde == null) b.huyeDesde = b.vida;
+    /* Una vez que echan a volar, a lo mucho tres segundos de verdad —dos si se
+       asustaron—: el vuelo va con `dt`, que lleva tope, y en un teléfono lento
+       la salida sola tardaba el triple. */
+    if (b.vida > LUCI_TOPE || (b.huyeDesde != null && b.vida - b.huyeDesde > (b.susto ? 2 : 3))) { b.fuera = true; b.el.remove(); return; }
     b.rumbo += (Math.random() - 0.5) * 2.4 * dt;
     if (!b.huye) {
       const m = 40, adentro = Math.atan2(H / 2 - b.y, W / 2 - b.x);
@@ -3326,7 +3352,7 @@ function pasoLuciernagas() {
         b.rumbo += d * 1.8 * dt;
       }
     }
-    const v = b.vel * (b.huye ? (irse ? 6 : 3.2) : 1);
+    const v = b.vel * (b.huye ? (irse || b.susto ? 6 : 3.2) : 1);
     // La rara vuela como un sprite: solo en ocho direcciones y sin vaivén.
     const rumbo = b.rara ? Math.round(b.rumbo / (Math.PI / 4)) * (Math.PI / 4) : b.rumbo;
     b.x += Math.cos(rumbo) * v * dt;
@@ -3348,6 +3374,10 @@ function pasoLuciernagas() {
 
 function atraparLuciernaga(b) {
   if (b.atrapada || b.fuera) return;
+  /* **Una sola por noche** (Eduardo, 0.7.133.2): atrapada una, las demás ya no
+     se dejan. Salen volando deprisa y dejan de atender el dedo, que es lo que
+     impedía coger una segunda mientras se iban. */
+  if (luciBichos.some(o => o.atrapada)) return;
   b.atrapada = true;
   if (navigator.vibrate) { try { navigator.vibrate(12); } catch (x) {} }
   const luz = b.el.querySelector(".luz");
@@ -3370,8 +3400,12 @@ function atraparLuciernaga(b) {
     }
   }
   setTimeout(() => { b.fuera = true; b.el.remove(); }, 700);
-  // Las demás se asustan y se van.
-  luciBichos.forEach(o => { if (o !== b) o.huye = true; });
+  // Las demás se asustan y se van, deprisa y sin dejarse atrapar.
+  luciBichos.forEach(o => {
+    if (o === b) return;
+    o.huye = true; o.susto = true; o.huyeDesde = o.vida;
+    o.el.style.pointerEvents = "none";
+  });
 
   // La rara no suma a la cuenta: da la pista de Arcade (js/10k-arcade.js).
   if (b.rara && typeof arcadeRaraAtrapada === "function") { arcadeRaraAtrapada(); return; }
@@ -3383,7 +3417,7 @@ function atraparLuciernaga(b) {
   let i;
   do { i = Math.floor(Math.random() * LUCI_FRASES.length); } while (i === luciUltimaFrase);
   luciUltimaFrase = i;
-  fraseDeLuciernaga(LUCI_FRASES[i](luciHora()), state.settings.luciernagas);
+  fraseDeLuciernaga(LUCI_FRASES[i](luciHora()), tx("¡Atrapaste una luciérnaga!"));
 }
 
 /* La ventana de la frase. No es `askBase`: Eduardo la pidió con una X y una
@@ -3391,7 +3425,10 @@ function atraparLuciernaga(b) {
    de siempre sí se lleva el VELO (`.modal-backdrop`), para que se lea como las
    demás ventanas de la app. Está en `CAPAS_QUE_TAPAN`, así que la página de
    detrás se queda quieta mientras tanto. */
-function fraseDeLuciernaga(texto, numero, rara) {
+/* El rótulo dice lo que acaba de pasar —«¡Atrapaste una luciérnaga!»— y no
+   lleva la cuenta: Eduardo lo pidió así (0.7.133.2). La cuenta sigue en Mi
+   expedición, que es donde se mira con calma. La rara trae el suyo. */
+function fraseDeLuciernaga(texto, rotulo, rara) {
   const vieja = document.getElementById("luci-frase");
   if (vieja) vieja.remove();
   const dura = 6000 + texto.length * 70;
@@ -3401,8 +3438,8 @@ function fraseDeLuciernaga(texto, numero, rara) {
   v.innerHTML =
     '<div class="luci-card' + (rara ? " rara" : "") + '" role="dialog" aria-live="polite">' +
       '<button type="button" class="luci-x" aria-label="' + escapeAttr(tx("Cerrar")) + '">' + icon("close", 16) + '</button>' +
-      '<span class="luci-ic" aria-hidden="true"><i></i></span>' +
-      '<span class="luci-num">' + escapeHtml(T`Luciérnaga nº ${numero}`) + '</span>' +
+      '<span class="luci-ic" aria-hidden="true">' + (rara ? "<i></i>" : LUCI_ICONO) + '</span>' +
+      '<span class="luci-num">' + escapeHtml(rotulo) + '</span>' +
       '<span class="luci-tx">' + escapeHtml(texto) + '</span>' +
       '<span class="luci-resta" aria-hidden="true"><i></i></span>' +
     '</div>';
@@ -3432,6 +3469,6 @@ function fraseDeLuciernaga(texto, numero, rara) {
 function luciernagasHTML() {
   const n = Number(state.settings && state.settings.luciernagas) || 0;
   if (!n) return "";
-  return '<div class="exp-luci"><i aria-hidden="true"></i>' +
+  return '<div class="exp-luci"><span class="exp-luci-ic" aria-hidden="true">' + LUCI_ICONO + '</span>' +
     escapeHtml(n === 1 ? tx("1 luciérnaga atrapada") : T`${n} luciérnagas atrapadas`) + '</div>';
 }
