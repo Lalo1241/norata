@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.133";
+const VERSION = "0.7.133.1";
 const VERSION_FECHA = "25 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -1438,6 +1438,45 @@ function tzParts(date, opts) {
 }
 
 /* Día actual (o el de una fecha dada) en la zona del perfil. */
+/* ================= Ningún sonido sin que estés mirando (0.7.133.1) =================
+   Eduardo oía la app sonar varias veces seguidas sin saber por qué: no estaba
+   viéndola. La causa es cómo trata el navegador el audio de una pestaña de
+   fondo: la congela, y lo que se programó mientras tanto se queda formado y
+   suena TODO JUNTO al volver. Una ráfaga de campanas sin nada en pantalla que
+   las explique asusta.
+
+   Así que TODO sonido de la app —los de hoy y los que vengan— pasa por aquí
+   antes de programarse, y la regla es de Eduardo: un sonido solo suena si lo
+   estás viendo pasar.
+
+   1. **Con la app fuera de la vista, nada.** No se guarda para después: un
+      sonido fuera de su momento no dice nada. Lo que tenga que avisar de fondo
+      lo hace el aviso del SISTEMA, que trae su propio sonido y su motivo
+      escrito.
+   2. **Con el audio del navegador dormido, tampoco.** Se le pide despertar y
+      este sonido se pierde: programarlo ahí es justo lo que forma la cola que
+      luego suena de golpe.
+   3. **Nunca en ráfaga.** Si en el último segundo y medio ya sonaron tres, el
+      cuarto se calla. Una cuenta de 3, 2, 1 va a uno por segundo y cabe
+      entera; lo que no cabe es una docena de premios llegando a la vez con la
+      sincronía.
+
+   Al añadir un sonido nuevo: `if (!puedeSonar(ctx)) return;` una vez por
+   SONIDO —no por nota—, antes de crear nada. */
+const SONIDOS_RECIENTES = [];
+function puedeSonar(ctx) {
+  if (typeof document !== "undefined" && document.visibilityState !== "visible") return false;
+  if (ctx && ctx.state !== "running") {
+    try { ctx.resume(); } catch (e) { /* sin audio */ }
+    return false;
+  }
+  const ahora = Date.now();
+  while (SONIDOS_RECIENTES.length && ahora - SONIDOS_RECIENTES[0] > 1500) SONIDOS_RECIENTES.shift();
+  if (SONIDOS_RECIENTES.length >= 3) return false;
+  SONIDOS_RECIENTES.push(ahora);
+  return true;
+}
+
 function todayKey(date) {
   const p = tzParts(date || new Date(), { year: "numeric", month: "2-digit", day: "2-digit" });
   const get = (t) => (p.find(x => x.type === t) || {}).value;

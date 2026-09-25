@@ -2035,7 +2035,7 @@ function jCuentaDescanso(run) {
 function jPitido(ya) {
   if (!jDatos().cfg.sonido) return;
   if (typeof arcadePuesto === "function" && arcadePuesto()) { arcadeSonar(ya ? "ya" : "cuenta"); return; }
-  if (!jCtx) return;
+  if (!jCtx || !puedeSonar(jCtx)) return;
   const o = jCtx.createOscillator(), g = jCtx.createGain(), t0 = jCtx.currentTime, d = ya ? 0.45 : 0.16;
   o.type = "sine"; o.frequency.value = ya ? 990 : 660;
   g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.14, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t0 + d);
@@ -2058,7 +2058,7 @@ function jCampana() {
     if (jDatos().cfg.sonido) arcadeSonar("fase");
     return;
   }
-  if (!jCtx || !jDatos().cfg.sonido) return;
+  if (!jCtx || !jDatos().cfg.sonido || !puedeSonar(jCtx)) return;
   [[660, 0], [880, .18], [990, .36]].forEach(([f, t]) => {
     const o = jCtx.createOscillator(), g = jCtx.createGain(), t0 = jCtx.currentTime + t;
     o.type = "sine"; o.frequency.value = f;
@@ -2074,8 +2074,10 @@ function jCampana() {
 
      - app a la vista: campana y un aviso que dice «Pomodoro · …», con un
        botón para ir y diez segundos para leerlo;
-     - app de fondo, con permiso: campana y el aviso del SISTEMA, que es lo que
-       se ve fuera de la app;
+     - app de fondo, con permiso: el aviso del SISTEMA, que es lo que se ve
+       fuera de la app y trae el sonido del teléfono. La campana ya no suena
+       ahí (0.7.133.1, `puedeSonar` en js/01-base.js): de fondo, el navegador
+       la congelaba y sonaba al volver, junto con todo lo demás;
      - app de fondo, sin permiso: NO suena. Se guarda, y al volver se dice
        «Mientras no estabas · …».
 

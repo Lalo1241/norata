@@ -222,6 +222,17 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.133.1 · 25 sep 2026
+
+**Ningún sonido sin que estés mirando.** Eduardo oía la app sonar varias veces
+seguidas sin saber por qué: no la estaba viendo. El navegador congela el audio
+de una pestaña de fondo y lo programado mientras tanto suena todo junto al
+volver. Ahora todo sonido —la campana y la cuenta del Pomodoro, los de Arcade y
+los que vengan— pasa por `puedeSonar(ctx)` (`js/01-base.js`): con la app fuera
+de la vista no suena, con el audio dormido tampoco, y nunca más de tres en
+segundo y medio. De fondo avisa el aviso del sistema, con su propio sonido. La
+regla quedó escrita en CLAUDE.md, «El sonido».
+
 ### 0.7.133 · 25 sep 2026
 
 **El aniversario de expedición.** El día que se cumple un año desde que

@@ -286,6 +286,19 @@ del DOM, no la vista.
 - **No verificar DNS con `nslookup`** — devuelve respuestas cacheadas. Usar
   `dns.google/resolve`.
 
+## El sonido
+
+**Un sonido solo suena si lo estás viendo pasar.** Es de Eduardo (0.7.133.1):
+la app sonaba varias veces seguidas sin que él supiera por qué, porque no la
+estaba mirando. El navegador congela el audio de una pestaña de fondo y lo
+programado mientras tanto suena todo junto al volver.
+
+Por eso **todo sonido pasa por `puedeSonar(ctx)`** (`js/01-base.js`), una vez
+por sonido y antes de crear nada: con la app fuera de la vista no suena, con
+el audio dormido tampoco (se despierta y ese se pierde), y nunca más de tres
+en segundo y medio. Lo que tenga que avisar de fondo lo hace el aviso del
+sistema, que trae su propio sonido y su motivo escrito.
+
 ## Las capas
 
 **Ningún `z-index` se escribe a mano:** salen de variables `--piso-*`

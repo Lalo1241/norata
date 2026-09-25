@@ -172,12 +172,15 @@ const ARC_SONIDOS = {
 /* Lo que pasa en la app, con Arcade puesto. */
 function arcadeSonar(k) {
   if (!arcadePuesto() || !arcadeConSonido() || !ARC_SONIDOS[k]) return;
+  // La puerta de todos los sonidos (js/01-base.js): una vez por sonido, no por nota.
+  if (!puedeSonar(arcAudio())) return;
   ARC_SONIDOS[k]();
 }
 /* El camino para encontrarlo: la rara, el mando y el código suenan aunque
    Arcade todavía no exista para esta cuenta. Son el momento del hallazgo. */
 function arcadeSonarSiempre(k) {
   if (!arcadeConSonido() || !ARC_SONIDOS[k]) return;
+  if (!puedeSonar(arcAudio())) return;
   ARC_SONIDOS[k]();
 }
 
