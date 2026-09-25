@@ -222,6 +222,100 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.139 · 25 sep 2026
+
+**Las dos puertas que estaban abiertas: un respaldo trucado y un marco
+ajeno.** Salieron de intentar reventar la app a propósito, no de leerla. Las
+dos van juntas porque las dos son lo mismo: sitios por donde algo de FUERA
+entra sin que nadie le pregunte nada.
+
+**1. Un respaldo importado ya no puede ejecutar código.** `importData`
+comprobaba dos cosas —que `skills` fuera un array y que la versión no viniera
+del futuro— y el resto entraba tal cual. Medido de punta a punta: un respaldo
+con `missions[0].color = '#fff" onmouseover="…"'` entra, al abrir Misiones ese
+atributo se sale de su comilla, el código corre, y desde ahí lee
+`mainquest-sync-v1` con el `access_token` y el `refresh_token` dentro. La CSP
+corta la salida por `fetch`, por `img` y por `sendBeacon` —comprobado,
+«Refused to connect»— pero **no mira la navegación**, así que un
+`location.href` a otro dominio se lleva lo robado.
+
+Lo que NO fallaba, y conviene que quede escrito: **los campos que escribe una
+persona.** 16 campos por 3 cargas en 8 pantallas dieron cero. `escapeHtml`,
+`escapeAttr` y `enJS` están bien puestos donde hay texto de alguien. Fallaban
+los seis que el código da por «de máquina» y por eso no escapa —`missions[].id`,
+`missions[].color`, `perks[].id`, `perks[].color`, `cajas[].id`,
+`jornada.rutinas[][].id`—, y un respaldo los trae igual que los otros.
+
+Lo cierra `sanearEstado()` (`js/01-base.js`) desde `load()`, que es la ÚNICA
+puerta por la que los datos llegan a memoria: el disco al abrir, el respaldo
+importado y lo que baja de la sincronía pasan los tres por ahí. Un sitio en
+vez de los doscientos donde se pinta.
+
+**Valida por CARÁCTER y no por forma, y esa es la decisión de diseño.** Pedir
+que un id case `/^[a-z0-9]{6,24}$/` es una apuesta sobre datos que no he visto
+—hay módulos que se llaman `tree`, tableros de fábrica, refs con dos puntos
+dentro, y un `#fff` es tan válido como un `#ffffff`—, y **una validación
+estricta de más corrompe datos reales, que es peor que el agujero**. Un
+carácter no es una apuesta: ningún valor de máquina legítimo lleva
+`< > " '` ni una barra invertida. Quitarlos de un valor bueno es siempre una
+operación vacía.
+
+El texto libre no se toca: una misión puede llamarse `Rock'n'roll` o
+`Leer "Dune"`. `CAMPOS_LIBRES` son los nombres de campo, y `MAPAS_LIBRES` los
+dos sitios donde el texto libre vive como VALOR de una clave de máquina
+—`ui.nombresTablero` y `jornada.cfg.hfNombres`— que por nombre de campo no se
+reconocen. Lo de fuera es la excepción a propósito: olvidarse deja unas
+comillas caídas, que se ven; con la lista invertida, lo que se olvida queda
+abierto y no se ve nunca.
+
+**Y un fallo mío que cazó la prueba y no la vista:** el bloque estaba debajo de
+`let state = load()`, y un `const` no se iza. Esa primera llamada lo encontraba
+en zona muerta, reventaba, y `state` se quedaba sin declarar: la app no
+arrancaba y la consola hablaba de `state`, no de esto. Ahora vive arriba, con
+el motivo escrito al lado.
+
+Comprobado en tres pruebas: los seis campos que ejecutaban ya **no ejecutan
+nada**; la cadena entera —importar, abrir, robar— se queda en el primer paso; y
+un estado realista con `'`, `"`, `<`, `>` y `\` metidos en TODOS los campos
+libres y en los dos mapas **entra y sale idéntico byte por byte** (27 567
+caracteres, ni una diferencia). Más el barrido de siempre: 1 455 nodos de texto
+en la puerta y siete pantallas, sin más cambios que la versión y el reloj.
+
+**2. La app ya no se deja meter en un marco ajeno.** Medido antes: entraba en
+un `<iframe>` de otro sitio sin una queja. Eso es clickjacking — otro la pone
+invisible debajo de su página y te hace pulsar lo que él quiera.
+
+Dos cosas que hay que saber antes de escribir la línea evidente:
+
+- **`frame-ancestors` no sirve aquí.** Es la directiva que existe justo para
+  esto y es de las que **el navegador IGNORA dentro de un `<meta>`**: solo vale
+  como cabecera HTTP, y GitHub Pages no deja poner cabeceras. Escrita en la CSP
+  quedaría puesta y sin efecto, que es peor que no tenerla.
+- **Saltar fuera del marco tampoco basta.** `top.location = self.location` lo
+  bloquean los navegadores desde un marco de otro origen si no ha habido un
+  gesto de la persona — o sea, justo en el caso que importa. Se intenta igual
+  porque cuando funciona es la mejor salida.
+
+Lo que protege es lo otro: **la página nace escondida (`html { display: none }`)
+y un script de dos líneas la enseña solo si no está dentro de un marco.** Eso no
+hay manera de bloquearlo. Va en las dos páginas, arriba del todo, antes de las
+hojas de estilo, para que no se llegue a ver un fotograma.
+
+El modo de fallo se miró antes de meterlo: si ese script no corriera, la página
+quedaría en blanco. No añade riesgo nuevo —sin JavaScript esta app no pinta nada
+de todos modos, ni la puerta dibuja el formulario— y el `<noscript>` de al lado
+devuelve el comportamiento de siempre a quien lo tenga apagado. El script no
+puede reventar: `self`, `top` y `documentElement` existen siempre.
+
+Medido: dentro de un marco ajeno, `display: none` y **0 px de alto**; suelta, la
+app da `display: block`, 800 px de body y 1 175 caracteres de texto, y la puerta
+`block` con 466. Sin errores de consola en ninguna.
+
+**Lo que sigue abierto y no se toca aquí:** no hay captcha en crear cuenta,
+entrar ni recuperar —Supabase lo trae, pide elegir proveedor— y `unsafe-inline`
+en `script-src` seguirá mientras la app llame a todo con `onclick=`, que es un
+rediseño y no un parche.
+
 ### 0.7.138 · 25 sep 2026
 
 **La puerta ya no se rompe en silencio, la pantalla encendida es solo de

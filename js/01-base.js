@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.138";
+const VERSION = "0.7.139";
 const VERSION_FECHA = "25 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -1067,6 +1067,95 @@ function monedaActual() {
   return MONEDAS[c] ? c : MONEDA_POR_DEFECTO;
 }
 
+/* Este bloque vive ARRIBA de `let state = load()` y no junto a `load()`, y no
+   es colocación: un `const` no se iza. Declarado debajo, la primera llamada a
+   `load()` —la de esa misma línea— lo encuentra en zona muerta, revienta, y
+   `state` se queda sin declarar: la app no arranca y la consola habla de
+   `state`, no de esto. Lo cazó la prueba, no la vista. */
+/* ================= La puerta de los datos que vienen de fuera (0.7.139) =================
+
+   Los datos de la app entran por TRES sitios y dos de ellos no son tuyos: un
+   respaldo que alguien te pasó (`importData`, js/09-inicio.js) y lo que baja
+   de la sincronía (js/10-sincronia.js). Hasta aquí `importData` comprobaba
+   dos cosas —que `skills` fuera un array y que la versión no viniera del
+   futuro— y lo demás entraba tal cual.
+
+   **Por qué eso era un agujero y no una imprudencia teórica.** Medido de
+   punta a punta: un respaldo con
+   `missions[0].color = '#fff" onmouseover="…"'` entra, y al abrir Misiones
+   ese atributo se sale de su comilla y el código corre. Desde ahí lee
+   `mainquest-sync-v1`, que lleva dentro el `access_token` y el
+   `refresh_token` de la sesión. La CSP corta la salida por `fetch`, por `img`
+   y por `sendBeacon` —comprobado, «Refused to connect»— pero no mira la
+   NAVEGACIÓN, así que un `location.href` a otro dominio se lleva lo robado.
+
+   Los campos que escribe una persona no tenían nada: 16 campos por 3 cargas
+   en 8 pantallas dieron CERO. `escapeHtml`, `escapeAttr` y `enJS` están bien
+   puestos donde hay texto de alguien. Los que fallaban son los que el código
+   da por «de máquina» y por eso no escapa —`id`, `color`—, y un respaldo los
+   trae todos igual que los otros.
+
+   ---- Por qué se valida por CARÁCTER y no por forma ----
+
+   La tentación es pedir formas: el id contra `/^[a-z0-9]{6,24}$/`, el color
+   contra `/^#[0-9a-f]{6}$/`. No se hace, y el motivo es que **una validación
+   demasiado estricta corrompe datos reales, que es peor que el agujero**: los
+   `id` no salen todos de `uid()` —hay módulos que se llaman `tree`, tableros
+   de fábrica, refs con dos puntos dentro— y un `#fff` de tres cifras es tan
+   válido como uno de seis. Cada regla de forma es una apuesta sobre datos que
+   no he visto.
+
+   Un carácter, en cambio, no es una apuesta: ningún valor de máquina legítimo
+   lleva `< > " ' \` ni una barra invertida, porque son justo los que rompen
+   un atributo o una cadena de JavaScript. Quitarlos de un valor bueno es SIEMPRE
+   una operación vacía — y eso se comprueba, que es lo que hace la prueba de
+   esta versión: un estado realista entra y sale idéntico byte por byte.
+
+   ---- Lo que NO se toca, y es la mitad importante ----
+
+   El texto que escribe una persona se queda tal cual: una misión puede
+   llamarse `Rock'n'roll` o `Leer "Dune"`, y esos caminos ya escapan bien. La
+   lista `CAMPOS_LIBRES` son los nombres de campo; `MAPAS_LIBRES` son los dos
+   sitios donde el texto libre vive como VALOR de una clave de máquina —los
+   tableros renombrados y los nombres propios del Hiperfoco—, que por nombre
+   de campo no se pueden reconocer.
+
+   **Al añadir un campo que alguien escriba, va en una de las dos listas.** Se
+   eligió que lo de fuera sea la excepción y no al revés a propósito: si se
+   olvida uno, se le caen las comillas y se ve; con la lista invertida, lo que
+   se olvida queda abierto y no se ve nunca. */
+const CAMPOS_LIBRES = new Set([
+  "name", "nombre", "nombreF", "nombreX", "desc", "descripcion", "note", "nota",
+  "event", "evento", "branch", "category", "categoria", "ancla", "apodo",
+  "titulo", "texto", "label", "motivo", "comentario", "res", "acomodo", "saludo"
+]);
+const MAPAS_LIBRES = new Set(["ui.nombresTablero", "jornada.cfg.hfNombres"]);
+/* Los que rompen un atributo o una cadena, y nada más. El `&` no está: no
+   rompe nada y `escapeHtml` ya lo trata. */
+const SIN_ROMPER = /[<>"'`\\\u0000-\u001f\u007f]/g;
+
+function sanearEstado(data, ruta, prof) {
+  if (!data || typeof data !== "object") return data;
+  if (prof > 12) return data;              // un respaldo no anida doce niveles
+  if (MAPAS_LIBRES.has(ruta)) return data; // texto libre bajo clave de máquina
+  const enLista = Array.isArray(data);
+  for (const k of Object.keys(data)) {
+    const v = data[k];
+    if (typeof v === "string") {
+      if (!CAMPOS_LIBRES.has(k)) {
+        const limpio = v.replace(SIN_ROMPER, "");
+        if (limpio !== v) data[k] = limpio;
+      }
+    } else if (v && typeof v === "object") {
+      /* La ruta no cuenta los índices: `ui.nombresTablero` es el mismo sitio
+         esté donde esté, y un array por medio no cambia de qué se trata. */
+      sanearEstado(v, enLista ? ruta : (ruta ? ruta + "." + k : k), prof + 1);
+    }
+  }
+  return data;
+}
+
+
 let state = load();
 let currentSkillId = null;
 let editingSkillId = null;
@@ -1095,6 +1184,11 @@ function load() {
      esta app, `migrar` enciende el modo solo lectura y a partir de ahí lo que
      sigue se hace en memoria sin llegar nunca al disco. */
   data = migrar(data);
+  /* Y aquí, que es la ÚNICA puerta por la que los datos llegan a memoria: lo
+     del disco al abrir, lo de un respaldo importado (`state = load()`) y lo
+     que baja de la sincronía (otro `state = load()`). Un solo sitio en vez de
+     los doscientos donde se pinta. */
+  data = sanearEstado(data, "", 0);
   if (!Array.isArray(data.skills)) data.skills = [];
   if (!Array.isArray(data.perks)) data.perks = [];
   if (!Array.isArray(data.projects)) data.projects = [];
