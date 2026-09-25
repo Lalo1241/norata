@@ -220,6 +220,31 @@ Es el `Email OTP expiration` del panel, 3600 segundos, leído de la pantalla y n
 deducido. La pantalla del alta dice «no dura para siempre» sin cifra; ahora se
 puede escribir el dato si se quiere.
 
+### El captcha de la puerta, para una sesión de escritorio
+
+Salió del repaso de seguridad del 25 de septiembre de 2026 y es lo único de
+aquel reporte que sigue abierto. **No hay captcha en ningún sitio**: ni al crear
+cuenta, ni al entrar, ni al recuperar la contraseña. Supabase lo trae de fábrica
+—hCaptcha o Turnstile—: se enciende en su panel y el cliente manda el token en
+el cuerpo de la petición.
+
+Lo que hoy está abierto, y son dos cosas distintas:
+
+- **Alta masiva por bots.** Cada alta dispara la función de bienvenida, así que
+  no es solo coste: es la **reputación del dominio en Gmail**, que es lo que no
+  se recupera.
+- **Credential stuffing** contra `/auth/v1/token`. `CLAVE_MIN` son 8 caracteres
+  y no hay comprobación contra contraseñas ya filtradas.
+
+**Por qué no se hizo aquí:** pide elegir proveedor y tocar el panel de Supabase,
+y Eduardo lo movió a una conversación desde su computadora. Turnstile es gratis
+y sin cookies; hCaptcha también está integrado. **Cuando se retome, el paso de
+Supabase va además a la lista «Pendiente de pegar» de `supabase/LEEME.md`**, que
+es donde vive lo que el repositorio ya dice y la base de datos todavía no.
+
+Lo demás de aquel reporte está cerrado: el respaldo trucado y el marco ajeno en
+la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
+
 ## La lista
 
 ### 0.7.139 · 25 sep 2026
