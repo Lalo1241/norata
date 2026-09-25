@@ -768,21 +768,27 @@ FUENTES = {
    español —á é í ó ú ñ ü— caen todos dentro del latino.""",
     caras=[("rajdhani-600.woff2", "600"), ("rajdhani-700.woff2", "700")]),
   "averno": dict(
-    familia="Grenze Gotisch",
-    nota=u"""Grenze Gotisch, la letra de Averno. Licencia SIL Open Font 1.1 (Omnibus-Type),
-   que permite incrustarla; pesa 42 KB.
+    familia="Jacquard 24",
+    nota=u"""Jacquard 24 y Jersey 10, las letras de Averno (0.7.136). Las dos con
+   licencia SIL Open Font 1.1 (Sarah Cadigan-Fried), que permite incrustarlas;
+   pesan 35 y 13 KB. Sustituyen a Grenze Gotisch, que era la del Averno
+   anterior y se fue con él.
 
-   **Es UN archivo y no dos, al revés que Rajdhani**, porque sí es variable: el
-   mismo woff2 cubre el rango entero y aquí se declara de 600 a 700, como Syne.
-   Declarar el rango no es cosmética — es lo que impide que el navegador
-   SINTETICE un peso que no existe en el archivo, que es lo que le pasaba a
-   Rajdhani cuando solo se declaraba el 700.
+   **Dos familias en un mundo, y es la primera vez.** Jacquard 24 es la gótica
+   de píxel de los títulos; Jersey 10, el píxel de palo seco de las cifras (una
+   cifra se lee, no se mira). Por eso cada cara lleva su familia en la tabla.
 
-   **Y solo el subconjunto latino** (`U+0000-00FF`), que es donde caen todos
-   los acentos del español. Es la única cara gótica de los quince mundos, y la
-   segunda serif: la lista de MUNDOS.md deja las serif en dos a propósito,
-   porque una serif de titular a 15 px dentro de una tarjeta se lee peor.""",
-    caras=[("grenze-gotisch.woff2", "600 700")]),
+   **Solo el subconjunto latino** (`U+0000-00FF` y compañía), que es donde
+   caen todos los acentos del español. Y un solo peso cada una, que se
+   declara de 100 a 900 A PROPÓSITO: son de píxel y no traen negrita, y la app
+   pide 700 en títulos y cifras. Con el rango declarado el navegador usa la
+   misma cara para todo; con solo 400, SINTETIZA la negrita engordando el
+   dibujo y el píxel se emborrona.
+
+   **Trampa que costó una vuelta del boceto:** la app solo admite letras
+   propias o incrustadas (`font-src 'self' data:` en `index.html`). Pedida a
+   Google Fonts no carga, y en silencio sale la de respaldo.""",
+    caras=[("jacquard-24.woff2", "100 900", "Jacquard 24"), ("jersey-10.woff2", "100 900", "Jersey 10")]),
 }
 
 def fuentes_de(ids):
@@ -796,7 +802,10 @@ def fuentes_de(ids):
                 "  arranca con la letra de la casa y se ve casi bien, que es\n"
                 "  peor que verse mal." % i)
         salida.append("/* " + f["nota"] + " */")
-        for archivo, peso in f["caras"]:
+        for cara in f["caras"]:
+            # Una cara puede traer su propia familia: Averno lleva dos.
+            archivo, peso = cara[0], cara[1]
+            familia = cara[2] if len(cara) > 2 else f["familia"]
             ruta = os.path.join(AQUI, "fuentes", archivo)
             if not os.path.exists(ruta):
                 raise SystemExit("falta mundos/fuentes/%s" % archivo)
@@ -808,7 +817,7 @@ def fuentes_de(ids):
                 "  font-weight: %s;\n"
                 "  font-display: swap;\n"
                 '  src: url(data:font/woff2;base64,%s) format("woff2");\n'
-                "}" % (f["familia"], peso, b64))
+                "}" % (familia, peso, b64))
     return "\n".join(salida)
 
 
@@ -834,7 +843,14 @@ if __name__ == "__main__":
     # que nadie puede encender es peso muerto en un archivo que ya pesa.
     partes = [CAB, fuentes_de([m["id"] for m in listos])]
     for m in listos:
-        partes.append(bloque(m))
+        # Averno no sale del bloque genérico desde la 0.7.136: trae cuatro
+        # paletas y un material propio. Ver `mundos/averno/averno.py`.
+        if m["id"] == "averno":
+            sys.path.insert(0, os.path.join(AQUI, "averno"))
+            import averno as AV
+            partes.append(AV.css())
+        else:
+            partes.append(bloque(m))
     txt = "\n".join(partes)
     raiz = os.path.dirname(AQUI)
     destino = os.path.join(raiz, "css", "mundos.css")

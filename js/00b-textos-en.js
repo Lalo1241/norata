@@ -2834,8 +2834,8 @@ const TEXTOS_EN = {
     "The mint turns sky blue and the app goes from celebrating to keeping you company.",
   "El desierto cuando se mete el sol: el cielo en violeta y la arena en lavanda.":
     "The desert as the sun goes down: the sky in violet and the sand in lavender.",
-  "Piedra quemada con la brasa debajo, y los círculos del poema. Demonología de la que se lee, no de la que se disfraza.":
-    "Burnt stone with the embers underneath, and the circles from the poem. The demonology you read, not the kind you dress up as.",
+  "Un castillo gótico en pixel art: piedra labrada, hierro y la luz que entra por el vitral. Demonología de la que se lee, no de la que se disfraza.":
+    "A gothic castle in pixel art: carved stone, iron and the light coming in through stained glass. The demonology you read, not the kind you dress up as.",
   "Me arrepiento en polvo y ceniza.": "I repent in dust and ashes.",
   "Lo ató, y puso su sello sobre él.": "He bound him, and set a seal upon him.",
   "No hay sobre la tierra quien se le parezca.": "Upon earth there is not his like.",
@@ -3875,5 +3875,15 @@ const TEXTOS_EN = {
   "Tu respiro termina en": "Your breather ends in",
   "Tu descanso termina en": "Your break ends in",
   /* El aviso de atrapar una luciérnaga (0.7.133.2). */
-  "¡Atrapaste una luciérnaga!": "You caught a firefly!"
+  "¡Atrapaste una luciérnaga!": "You caught a firefly!",
+  /* Las paletas de un mundo, en Mi apariencia (Averno, 0.7.136). Los nombres
+     de las paletas se traducen: son palabras, no marcas. */
+  "Paletas de {0}": "{0} palettes",
+  "{0} trae sus propias luces, y aquí sustituyen a los ambientes. Cada paleta tiene su cara de día y de noche.":
+    "{0} brings its own light, and here it takes the place of the ambiences. Each palette has a day and a night side.",
+  "De partida": "Default",
+  "Vitral": "Stained glass",
+  "Hueso": "Bone",
+  "Hierro": "Iron",
+  "Espectro": "Specter"
 };

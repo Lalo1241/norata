@@ -268,6 +268,71 @@ Dónde vive: `js/10k-arcade.js`, `css/arcade.css` (se edita en
 `css/celestibyte.woff2`, y en `css/estilos.css` lo que existe antes de
 encontrarlo (la rara, el píxel, el mando y el `@font-face`).
 
+## Averno, rehecho en píxel (0.7.136)
+
+**Construido.** Eduardo lo diseñó sobre un boceto con la app de verdad dentro y
+tres vueltas de ajustes: https://claude.ai/artifact/VCyfNRKmmDutsFmW5T1giN. El
+Averno anterior —piedra quemada, la brasa y los círculos de Dante— **se retiró
+para siempre**: quien lo llevaba puesto ve el nuevo, en Vitral.
+
+**La regla que lo ordena: «labrado en piedra, la luz por el vitral».** Arcade y
+Averno son los dos de píxel y no se pisan: Arcade es una maquinita (una luz,
+una sombra, la cuadrícula manda); Averno es un castillo gótico (volumen de
+tramado, marcos de hierro, y el único color que brilla entra por el vidrio).
+Eduardo ve en él más **Castlevania** que Dante o Diablo, y dijo que el nombre
+se acerca a «Gótico»: no se renombra todavía, pero queda dicho.
+
+| Familia | Arcade | Averno |
+| --- | --- | --- |
+| Color | El del ambiente | Cuatro paletas propias |
+| Letra | CelestiByte | Jacquard 24 (títulos) y Jersey 10 (cifras) |
+| Superficie | Caja de sprite, 2 tonos | Sillar: hierro, filete de luz, tramado, 4 remaches |
+| Suelo | Cielo de 6 píxeles | Muro de sillería y la luz del vitral en el piso |
+| Barras | Celdas de 6 | Emplomado: paños de 10 |
+| Movimiento | 3 pasos, .12-.18 s | 4 pasos, .2-.3 s |
+| Mapa | Puntos en cuadrícula | Puntos al tresbolillo, hilos en cadena |
+| Menú del teléfono | Círculos en escalón | Escudos de punta redonda |
+| El «+» | Ficha maciza | Rosetón |
+
+**Las cuatro paletas, y dónde se eligen.** Vitral (índigo, la de partida),
+Hueso, Hierro (verdín) y Espectro (cian). Todas con base casi negra, el rojo de
+protagonista y **un segundo tono que no es rojo**, que era lo que le faltaba al
+Averno anterior. Con Averno mirado o puesto, en Mi apariencia **sustituyen a
+los ambientes** («sustituyentes del área donde están las paletas del clásico»,
+Eduardo): con un mundo puesto los ambientes no se pueden usar, y las paletas
+son lo mismo —otra luz— para el material del mundo. Se guardan por dispositivo
+(`norata-paletas`) y cambian en caliente, sin recargar.
+
+**El reparto de significados es el mismo en las cuatro**: rojo = acento, oro =
+aviso, **brasa naranja = peligro** (el coral se confundía con el rojo; Eduardo
+dirá si molesta con el uso) y el segundo tono en el sitio del celeste, con un
+oficio: **el rojo es actuar y el segundo tono es mirar** (los botones de
+consultar van en él).
+
+**Medido, no a ojo:** 4,5 para escribir y 3 para trazar en las dos caras de las
+cuatro, y un barrido de 7 pantallas × 2 modos contra la casa: ningún fallo que
+la casa no tenga ya.
+
+**Las letras, y dos trampas que costaron una vuelta del boceto.** La primera
+elección fue Jacquard 12 y Eduardo no la veía de píxel. Tenía razón dos veces:
+la app solo admite letras incrustadas (`font-src 'self' data:`) y pedida a
+Google Fonts no cargaba —salía Grenze de respaldo—; y su rejilla real no es de
+12 sino de 21 por eme. Se quedó **Jacquard 24**, la hermana más legible.
+**Una gótica nunca va en mayúsculas ni a 12 px**: los rótulos diminutos se
+quedan en la letra de la casa.
+
+**Los rangos** son los mismos cinco (Ceniza · Sello · Leviatán · Legión ·
+Abadón), con sus versículos, redibujados en píxel sobre rejilla de 16. La
+constelación sigue saliendo del dibujo de línea de siempre (`trazoCielo`).
+
+**El sonido** lo lleva otra conversación. Revisado contra el diseño nuevo: el
+órgano, la campana y la menor armónica se quedan; entra el clavecín; los
+trombones, el tambor de guerra y el retumbo grave son de Diablo y se van.
+
+Dónde vive: `mundos/averno/` (paletas, material, generador y medidas), que
+`mundos/app.py` mete en `css/mundos.css`; el registro y las paletas en
+`js/10i-apariencia.js`; el icono (`roseton`) en `js/01-base.js`.
+
 ## Qué declara una apariencia, de verdad
 
 **Actualizado en 0.7.55, y esta lista manda sobre cualquier otra.** Un ambiente

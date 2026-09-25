@@ -88,6 +88,14 @@
     var puesta = sessionStorage.getItem("norata-apariencia-prueba")
               || localStorage.getItem("norata-apariencia");
     if (puesta && puesta !== "casa") document.documentElement.setAttribute("data-apariencia", puesta);
+    /* Y la paleta del mundo, si trae (Averno, 0.7.136): aquí por lo mismo, o
+       cada carga saldría un instante en la paleta de partida. Se pone la que
+       esté guardada tal cual; la de partida no necesita atributo, y un valor
+       que no exista no pinta nada, así que no hay que validarlo aquí. */
+    try {
+      var pals = JSON.parse(localStorage.getItem("norata-paletas") || "{}") || {};
+      if (puesta && pals[puesta]) document.documentElement.setAttribute("data-paleta", pals[puesta]);
+    } catch (e) {}
     /* Y si lo puesto es un MUNDO, su hoja de estilos se pide aquí mismo. Los
        mundos no viajan con la app —pesan lo que pesan una tipografía y unas
        texturas— y `js/10i-apariencia.js` la engancha cuando arranca; el
@@ -110,7 +118,7 @@
     if (["reliquia", "plano", "averno"].indexOf(puesta) >= 0) {
       var lm = document.createElement("link");
       lm.rel = "stylesheet";
-      lm.href = "css/mundos.css?h=28e3f8e4db";
+      lm.href = "css/mundos.css?h=93548d5abc";
       document.head.appendChild(lm);
     }
   } catch (e) {}

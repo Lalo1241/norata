@@ -20,6 +20,11 @@
 
 const APARIENCIA_LLAVE = "norata-apariencia";
 const APARIENCIA_PRUEBA = "norata-apariencia-prueba";
+/* La paleta elegida DENTRO de un mundo que las trae (Averno, 0.7.136). Un
+   mapa por mundo —`{ "averno": "hueso" }`— y no una llave suelta, para que el
+   segundo mundo con paletas no tenga que inventar la suya. Vive en el
+   dispositivo, como la apariencia. */
+const PALETA_LLAVE = "norata-paletas";
 
 /* ---- Qué se ENSEÑA hoy, que no es lo mismo que qué está construido ----
 
@@ -123,6 +128,44 @@ const AMBIENTES = [
    rangos viajan con su mundo y no con la app: meter en ICONS los cinco rangos
    de quince mundos serían setenta y cinco dibujos que se baja todo el mundo
    para no usar ninguno. */
+/* ================= Averno: los rangos en píxel y las cuatro paletas =================
+   Averno se rehízo en la 0.7.136 como un castillo gótico de pixel art (ver la
+   sección «Averno» de `apariencias/LEEME.md`, que manda). De aquí salen dos
+   cosas que el registro de abajo usa:
+
+   - **Los cinco rangos, redibujados en píxel** sobre rejilla de 16 y de
+     RELLENO (Arcade usa 12). Se escriben fila a fila —`#` es píxel lleno— y
+     `pxDeFilas` los convierte en rectángulos. La constelación NO sale de aquí:
+     derivada de filas de cuadritos siembra rayas (la lección de Arcade), así
+     que cada rango guarda su dibujo de línea de siempre en `trazoCielo`, que
+     es la misma figura.
+   - **Las muestras de las cuatro paletas** para Mi apariencia: suelo,
+     tarjeta, marco, rojo y segundo tono de cada cara. Salen de
+     `mundos/averno/paletas.py` (`python mundos/averno/averno.py` las
+     imprime); si se toca un tono allí, se vuelven a pegar aquí. */
+const AVERNO_PX = {
+  ceniza: ["................", ".....######.....", "...##########...", "..############..", ".##############.", ".##############.", ".##...####...##.", ".##...####...##.", ".##...####...##.", ".###.######.###.", "..#####..#####..", "...##########...", "....########....", "....##.##.##....", "....##.##.##....", "................"],
+  sello: [".....######.....", "...##......##...", "..#..........#..", ".#............#.", ".#.##########.#.", "#...########...#", "#...########...#", "#....##..##....#", "#....##..##....#", "#.....####.....#", ".#....####....#.", ".#.....##.....#.", "..#..........#..", "...##......##...", ".....######.....", "................"],
+  leviatan: [".......##.......", ".......##.......", "...##########...", "...##########...", ".......##.......", ".....######.....", ".....######.....", ".......##.......", ".......##.......", ".......##.......", "..####.##.####..", ".#....####....#.", "#.....####.....#", ".#....####....#.", "..####....####..", "................"],
+  legion: ["................", "................", "......####......", ".....######.....", "....###..###....", ".##.##....##.##.", "####.#....#.####", "#..#.##..##.#..#", "#..#.######.#..#", "####.######.####", "####.######.####", "####.######.####", "####.######.####", "####.######.####", "####.######.####", "................"],
+  abadon: [".....######.....", "...##......##...", "..#..........#..", ".#.#........#.#.", ".#.###....###.#.", "#...#.####.#...#", "#...#.####.#...#", "#...##....##...#", "#.##.#....#.##.#", "################", "#.....#..#.....#", ".#....#..#....#.", "..#...#..#...#..", "...##..##..##...", ".....######.....", "................"]
+};
+function pxDeFilas(filas) {
+  let r = "";
+  filas.forEach((fila, y) => {
+    let x = 0;
+    while (x < fila.length) {
+      if (fila[x] !== "#") { x++; continue; }
+      let w = 1;
+      while (fila[x + w] === "#") w++;
+      r += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="1"/>';
+      x += w;
+    }
+  });
+  return '<g data-px="16">' + r + "</g>";
+}
+const AVERNO_PALETAS = {"vitral": {"nombre": "Vitral", "noche": ["#07080f", "#191a2c", "#4a4d78", "#ff3d4f", "#8c86ff"], "dia": ["#dfdde9", "#f4f2f8", "#8e8aab", "#ff3d4f", "#8c86ff"]}, "hueso": {"nombre": "Hueso", "noche": ["#0b0507", "#221318", "#5e3a41", "#ff3b45", "#e8d2b8"], "dia": ["#e9e1da", "#faf5f0", "#9e8a82", "#ff3b45", "#e8d2b8"]}, "hierro": {"nombre": "Hierro", "noche": ["#090c0d", "#1a2022", "#4d5a5c", "#ff5563", "#5fc4ae"], "dia": ["#dde2e1", "#f3f5f4", "#86928f", "#ff5563", "#5fc4ae"]}, "espectro": {"nombre": "Espectro", "noche": ["#07030a", "#1b0f20", "#56355e", "#ff2a5c", "#2fe3f0"], "dia": ["#e6dfe6", "#f8f3f7", "#9a8698", "#ff2a5c", "#2fe3f0"]}};
+
 const MUNDOS = [
   {
     id: "arboleda", nombre: "Arboleda",
@@ -191,8 +234,12 @@ const MUNDOS = [
      lo es — el arco es «de las cenizas», que se entiende solo y es el que hace
      que el primer peldaño signifique algo: no empiezas en nada, empiezas en lo
      que quedó. Se propuso Yesca y se descartó. No volver a proponerlo. */
-  { id: "averno", nombre: "Averno", listo: true, pro: true, icon: "eclipse", estrena: "2026-09-01",
-    premisa: "Piedra quemada con la brasa debajo, y los círculos del poema. Demonología de la que se lee, no de la que se disfraza.",
+  { id: "averno", nombre: "Averno", listo: true, pro: true, pixel: true, icon: "roseton", estrena: "2026-09-26",
+    premisa: "Un castillo gótico en pixel art: piedra labrada, hierro y la luz que entra por el vitral. Demonología de la que se lee, no de la que se disfraza.",
+    /* Las paletas propias: con Averno elegido sustituyen a los ambientes en
+       Mi apariencia. Lo decidió Eduardo al ver el boceto, con Vitral de
+       partida. La primera entra sin atributo (es la de partida). */
+    paletas: AVERNO_PALETAS,
     rangos: [
       /* **Caput mortuum**, la «cabeza muerta»: el nombre que la alquimia le dio
          al residuo que queda en el fondo después de calcinar, lo que ya no
@@ -204,7 +251,7 @@ const MUNDOS = [
          El cráneo es además memento mori, que es cristiano y viejo, no de
          película. Y es la silueta más distinta de las cinco, así que se
          reconoce antes de mirarlo. */
-      { nombre: "Ceniza", trazo: '<path d="M12 3.2c4.3 0 7.4 3.1 7.4 7.3 0 2.2-.9 3.6-1.9 4.5-.5.5-.8 1-.8 1.7v1.5c0 1-.8 1.8-1.8 1.8H9.1c-1 0-1.8-.8-1.8-1.8v-1.5c0-.7-.3-1.2-.8-1.7-1-.9-1.9-2.3-1.9-4.5 0-4.2 3.1-7.3 7.4-7.3z"/><ellipse cx="8.9" cy="11.2" rx="1.9" ry="2.2" fill="currentColor" stroke="none"/><ellipse cx="15.1" cy="11.2" rx="1.9" ry="2.2" fill="currentColor" stroke="none"/><path d="M12 13.6l1.3 2.6h-2.6z" fill="currentColor" stroke="none"/>',
+      { nombre: "Ceniza", trazo: pxDeFilas(AVERNO_PX.ceniza), trazoCielo: '<path d="M12 3.2c4.3 0 7.4 3.1 7.4 7.3 0 2.2-.9 3.6-1.9 4.5-.5.5-.8 1-.8 1.7v1.5c0 1-.8 1.8-1.8 1.8H9.1c-1 0-1.8-.8-1.8-1.8v-1.5c0-.7-.3-1.2-.8-1.7-1-.9-1.9-2.3-1.9-4.5 0-4.2 3.1-7.3 7.4-7.3z"/><ellipse cx="8.9" cy="11.2" rx="1.9" ry="2.2" fill="currentColor" stroke="none"/><ellipse cx="15.1" cy="11.2" rx="1.9" ry="2.2" fill="currentColor" stroke="none"/><path d="M12 13.6l1.3 2.6h-2.6z" fill="currentColor" stroke="none"/>',
         linea: { texto: "Me arrepiento en polvo y ceniza.", fuente: "Job 42:6" } },
       /* **La cruz de Leviatán**, que es el signo del AZUFRE en su forma de cruz:
          doble travesaño sobre una lemniscata. Viene de la alquimía —el azufre
@@ -227,7 +274,7 @@ const MUNDOS = [
          devolvió — el encargo era Ceniza, no éste—, y visto puesto tenía razón:
          un pentagrama y un triángulo dentro de un aro no se confunden, porque
          lo que separa un glifo de otro es la FIGURA y no el marco. */
-      { nombre: "Sello", trazo: '<circle cx="12" cy="12" r="9.2"/><path d="M12 18.7L5.7 8.1h12.6z"/><circle cx="12" cy="11.4" r="1.7"/>',
+      { nombre: "Sello", trazo: pxDeFilas(AVERNO_PX.sello), trazoCielo: '<circle cx="12" cy="12" r="9.2"/><path d="M12 18.7L5.7 8.1h12.6z"/><circle cx="12" cy="11.4" r="1.7"/>',
         linea: { texto: "Lo ató, y puso su sello sobre él.", fuente: "Apocalipsis 20:2-3" } },
       /* **Leviatán**, y el dibujo pasó a llamarse como lo que ya era. El glifo
          no cambió ni un punto: es la cruz de Leviatán, que entró aquí como el
@@ -239,7 +286,7 @@ const MUNDOS = [
          dos que vienen detrás. La escalera de arriba abajo queda: lo que
          quedó, lo que tiene nombre, lo que es grande, lo que es muchos y quien
          reina sobre ellos. */
-      { nombre: "Leviatán", trazo: '<path d="M12 2.4v12.8"/><path d="M6.6 6h10.8M8.8 9.8h6.4"/><path d="M12 18.4c-1.5-2-2.7-2.9-4.1-2.9-1.5 0-2.6 1.2-2.6 2.7s1.1 2.7 2.6 2.7c1.4 0 2.6-.9 4.1-2.5z"/><path d="M12 18.4c1.5-2 2.7-2.9 4.1-2.9 1.5 0 2.6 1.2 2.6 2.7s-1.1 2.7-2.6 2.7c-1.4 0-2.6-.9-4.1-2.5z"/>',
+      { nombre: "Leviatán", trazo: pxDeFilas(AVERNO_PX.leviatan), trazoCielo: '<path d="M12 2.4v12.8"/><path d="M6.6 6h10.8M8.8 9.8h6.4"/><path d="M12 18.4c-1.5-2-2.7-2.9-4.1-2.9-1.5 0-2.6 1.2-2.6 2.7s1.1 2.7 2.6 2.7c1.4 0 2.6-.9 4.1-2.5z"/><path d="M12 18.4c1.5-2 2.7-2.9 4.1-2.9 1.5 0 2.6 1.2 2.6 2.7s-1.1 2.7-2.6 2.7c-1.4 0-2.6-.9-4.1-2.5z"/>',
         linea: { texto: "No hay sobre la tierra quien se le parezca.", fuente: "Job 41:33" } },
       /* Tres siluetas encapuchadas, LAS TRES IGUALES y la de en medio delante,
          con el hueco de la cara relleno. Dos correcciones seguidas:
@@ -253,7 +300,7 @@ const MUNDOS = [
          El hueco relleno donde va la cara es lo que la vuelve demoníaca sin
          dibujar un demonio. Una cara a 20 px es una caricatura; un hueco a
          20 px es una presencia. */
-      { nombre: "Legión", trazo: '<path d="M5.6 12.9c1.14 0 1.9.91 1.9 2.13 0 .61-.15 1.14-.46 1.52 1.14.53 1.82 1.52 1.82 2.96v1.9H2.34v-1.9c0-1.44.68-2.43 1.82-2.96-.3-.38-.46-.91-.46-1.52 0-1.22.76-2.13 1.9-2.13z"/><path d="M18.4 12.9c1.14 0 1.9.91 1.9 2.13 0 .61-.15 1.14-.46 1.52 1.14.53 1.82 1.52 1.82 2.96v1.9h-6.52v-1.9c0-1.44.68-2.43 1.82-2.96-.3-.38-.46-.91-.46-1.52 0-1.22.76-2.13 1.9-2.13z"/><path d="M12 10.2c1.5 0 2.5 1.2 2.5 2.8 0 .8-.2 1.5-.6 2 1.5.7 2.4 2 2.4 3.9v2.5H7.7v-2.5c0-1.9.9-3.2 2.4-3.9-.4-.5-.6-1.2-.6-2 0-1.6 1-2.8 2.5-2.8z"/><ellipse cx="12" cy="12.9" rx="1.35" ry="1.75" fill="currentColor" stroke="none"/>',
+      { nombre: "Legión", trazo: pxDeFilas(AVERNO_PX.legion), trazoCielo: '<path d="M5.6 12.9c1.14 0 1.9.91 1.9 2.13 0 .61-.15 1.14-.46 1.52 1.14.53 1.82 1.52 1.82 2.96v1.9H2.34v-1.9c0-1.44.68-2.43 1.82-2.96-.3-.38-.46-.91-.46-1.52 0-1.22.76-2.13 1.9-2.13z"/><path d="M18.4 12.9c1.14 0 1.9.91 1.9 2.13 0 .61-.15 1.14-.46 1.52 1.14.53 1.82 1.52 1.82 2.96v1.9h-6.52v-1.9c0-1.44.68-2.43 1.82-2.96-.3-.38-.46-.91-.46-1.52 0-1.22.76-2.13 1.9-2.13z"/><path d="M12 10.2c1.5 0 2.5 1.2 2.5 2.8 0 .8-.2 1.5-.6 2 1.5.7 2.4 2 2.4 3.9v2.5H7.7v-2.5c0-1.9.9-3.2 2.4-3.9-.4-.5-.6-1.2-.6-2 0-1.6 1-2.8 2.5-2.8z"/><ellipse cx="12" cy="12.9" rx="1.35" ry="1.75" fill="currentColor" stroke="none"/>',
         linea: { texto: "Legión me llamo, porque somos muchos.", fuente: "Marcos 5:9" } },
       /* **Abadón**, y el quinto rango deja de ser un sitio para ser ALGUIEN.
          Era «Abismo» y su dibujo —el brocal que se estrecha con el hueco
@@ -283,7 +330,7 @@ const MUNDOS = [
          la premisa del mundo: era mía, es de cuando el concepto era otro, y la
          decisión de ahora es de Eduardo. Lo que sigue en pie de aquella regla
          es lo que de verdad importaba: nada de diablillos ni tridentes. */
-      { nombre: "Abadón", trazo: '<circle cx="12" cy="12" r="9.6"/><path d="M12 20.6L6.94 5.04L20.18 14.66L3.82 14.66L17.06 5.04z"/>',
+      { nombre: "Abadón", trazo: pxDeFilas(AVERNO_PX.abadon), trazoCielo: '<circle cx="12" cy="12" r="9.6"/><path d="M12 20.6L6.94 5.04L20.18 14.66L3.82 14.66L17.06 5.04z"/>',
         linea: { texto: "Su rey es el ángel del abismo, cuyo nombre es Abadón.", fuente: "Apocalipsis 9:11" } }
     ] },
   /* El nombre de éste está decidido; sus dibujos se hacen cuando se construya
@@ -440,7 +487,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=28e3f8e4db";
+  l.href = "css/mundos.css?h=93548d5abc";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
@@ -517,6 +564,8 @@ function ponerApariencia(cual, opciones) {
   raiz.classList.add("cambiando-modo");
   if (a === "casa") raiz.removeAttribute("data-apariencia");
   else raiz.setAttribute("data-apariencia", a);
+  aplicarPaleta();
+  filtrosDePixel();
   getComputedStyle(raiz).backgroundColor;   // obliga a recalcular ya, no luego
   setTimeout(() => raiz.classList.remove("cambiando-modo"), 0);
 
@@ -525,6 +574,69 @@ function ponerApariencia(cual, opciones) {
   }
   pintarColorDeBarra();
   return true;
+}
+
+/* ================= Las paletas de un mundo =================
+   Un mundo puede traer paletas propias (`paletas` en su entrada de MUNDOS):
+   Averno trae cuatro desde la 0.7.136. No son ambientes —un ambiente es otra
+   luz para el material de la casa; esto es otra luz para el material DEL
+   MUNDO— y por eso, con ese mundo elegido, ocupan en Mi apariencia el sitio
+   de los ambientes, que con un mundo puesto no se pueden usar.
+
+   La primera de la lista es la de partida y va SIN atributo: es lo que ve
+   quien nunca eligió, y lo que vio quien ya llevaba el mundo antes de que
+   tuviera paletas. Las demás, con `data-paleta` en <html>, que el script de
+   arriba de `index.html` pone antes de pintar para que no haya fogonazo. */
+/* Un mundo de píxel (`pixel: true`) reutiliza los filtros de bloques que
+   hizo Arcade para el Pomodoro (`arcPonerFiltros`, en js/10k-arcade.js): la
+   rueda y los relojes de arena se redibujan en bloques. Se reutilizan, no se
+   copian. Sin ellos, las reglas de `mundos.css` apuntan a un filtro que no
+   existe y el navegador no pinta el dibujo: la rueda desaparece. */
+function filtrosDePixel() {
+  const m = mundoPorId(apariencia());
+  if (m && m.pixel && typeof arcPonerFiltros === "function" && document.body) arcPonerFiltros();
+}
+function paletasDe(id) {
+  const m = mundoPorId(id);
+  return m && m.paletas ? m.paletas : null;
+}
+function paletaDe(id) {
+  const ps = paletasDe(id);
+  if (!ps) return null;
+  let guardada = null;
+  try { guardada = (JSON.parse(localStorage.getItem(PALETA_LLAVE) || "{}") || {})[id]; } catch (e) {}
+  return guardada && ps[guardada] ? guardada : Object.keys(ps)[0];
+}
+/* Pone en <html> la paleta que toca a la apariencia puesta, o la quita. */
+function aplicarPaleta() {
+  const raiz = document.documentElement;
+  const p = paletaDe(apariencia());
+  if (p) raiz.setAttribute("data-paleta", p);
+  else raiz.removeAttribute("data-paleta");
+}
+/* Elegir una paleta: se guarda siempre (aunque el mundo solo se esté
+   mirando, para que al ponérselo salga la que eligió) y, si el mundo está
+   puesto, se aplica en caliente. No hace falta recargar como al cambiar de
+   mundo: una paleta solo mueve variables, igual que el modo claro, y el mapa
+   las lee con `var()`. Mismo cuidado que `ponerTema` con las transiciones. */
+function elegirPaleta(mundo, pal) {
+  const ps = paletasDe(mundo);
+  if (!ps || !ps[pal]) return;
+  try {
+    const mapa = JSON.parse(localStorage.getItem(PALETA_LLAVE) || "{}") || {};
+    mapa[mundo] = pal;
+    localStorage.setItem(PALETA_LLAVE, JSON.stringify(mapa));
+  } catch (e) {}
+  if (apariencia() === mundo) {
+    const raiz = document.documentElement;
+    raiz.classList.add("cambiando-modo");
+    aplicarPaleta();
+    getComputedStyle(raiz).backgroundColor;
+    setTimeout(() => raiz.classList.remove("cambiando-modo"), 0);
+    pintarColorDeBarra();
+  }
+  pintarRejaAmbientes();
+  if (aparienciaMirada === mundo && typeof pintarEscena === "function") pintarEscena(mundo);
 }
 
 /* La franja del navegador de arriba —y en Android la barra de estado de la app
@@ -606,6 +718,7 @@ function arrancarApariencia() {
      fogonazo, así que sin esto la app arrancaría con el atributo puesto y sin
      ninguna regla que lo lea — o sea, con la casa pintada y el nombre de otro. */
   if (esMundo(puesta)) pedirLosMundos();
+  filtrosDePixel();
   /* AQUÍ NO SE QUITA NADA, y esto costó un fallo que Eduardo vio en su
      teléfono: «no cambia el tema y quita el recolor».
 
@@ -988,7 +1101,8 @@ function escenaCuerpo(id) {
 
 function escenaDoc(id) {
   const claro = document.documentElement.classList.contains("claro");
-  const attr = (id && id !== "casa" ? ` data-apariencia="${id}"` : "") + (claro ? ' class="claro"' : "");
+  const pal = id && id !== "casa" ? paletaDe(id) : null;
+  const attr = (id && id !== "casa" ? ` data-apariencia="${id}"` : "") + (pal ? ` data-paleta="${pal}"` : "") + (claro ? ' class="claro"' : "");
   const mundos = direccionDeLosMundos();
   return `<!doctype html><html lang="es"${attr}><head><meta charset="utf-8">` +
     `<meta name="viewport" content="width=device-width,initial-scale=1">` +
@@ -1061,6 +1175,12 @@ function pintarEscena(id) {
   const raiz = doc.documentElement;
   if (id && id !== "casa") raiz.setAttribute("data-apariencia", id);
   else raiz.removeAttribute("data-apariencia");
+  /* Y la paleta, que se reescribe aquí y no solo al montar: el documento se
+     reutiliza entre vistazos, así que sin esto la vista previa se quedaba en
+     la paleta con la que se montó aunque se eligiera otra. */
+  const pal = id && id !== "casa" ? paletaDe(id) : null;
+  if (pal) raiz.setAttribute("data-paleta", pal);
+  else raiz.removeAttribute("data-paleta");
   raiz.classList.toggle("claro", document.documentElement.classList.contains("claro"));
   doc.body.innerHTML = escenaCuerpo(id);
   ajustarEscena();
@@ -1167,6 +1287,7 @@ function mirarApariencia(id, comoMundo) {
   miradaComoMundo = !!comoMundo;
   pintarEscena(id);
   pintarFicha(id);
+  pintarRejaAmbientes();
   pintarSeleccion();
 }
 
@@ -1204,6 +1325,53 @@ function filaMundo(m, esSalida) {
         : chapaApariencia(e, true)}
       <span class="mun-ok" aria-hidden="true">${icon("check", 13)}</span>
     </button>`;
+}
+
+/* ================= La reja de arriba: ambientes, o las paletas del mundo =================
+   Lo pidió Eduardo al ver Averno: con un mundo que trae paletas, su sitio en
+   Mi apariencia es el de los ambientes —«sustituyentes del área donde están
+   las paletas del clásico»—. Tiene sentido de dos maneras: con un mundo puesto
+   los ambientes no se pueden usar (son excluyentes), y las paletas del mundo
+   son justo eso, otra luz, solo que para su material.
+
+   Manda lo que se está MIRANDO, y si no se mira nada, lo que se lleva puesto.
+   Asomarse a un ambiente o a otro mundo devuelve la reja de los ambientes. */
+let ambientesHTML = "";
+function pintarRejaAmbientes() {
+  const reja = document.getElementById("ap-ambientes");
+  if (!reja) return;
+  const tit = document.getElementById("ap-amb-tit"), nota = document.getElementById("ap-amb-nota");
+  const cual = aparienciaMirada || apariencia();
+  const ps = paletasDe(cual);
+  if (!ps) {
+    if (tit) tit.textContent = tx("Ambientes");
+    if (nota) nota.textContent = tx("El mismo Norata con otra luz. Se van desbloqueando conforme avanzas, y el modo de día y de noche sigue arriba: cada ambiente tiene sus dos caras.");
+    reja.classList.remove("pal-rej");
+    reja.innerHTML = ambientesHTML;
+    return;
+  }
+  const m = mundoPorId(cual), nombre = tx(m.nombre);
+  if (tit) tit.textContent = T`Paletas de ${nombre}`;
+  if (nota) nota.textContent = T`${nombre} trae sus propias luces, y aquí sustituyen a los ambientes. Cada paleta tiene su cara de día y de noche.`;
+  const cara = document.documentElement.classList.contains("claro") ? "dia" : "noche";
+  const elegida = paletaDe(cual), primera = Object.keys(ps)[0];
+  reja.classList.add("pal-rej");
+  reja.innerHTML = Object.keys(ps).map((id) => {
+    const p = ps[id], c = p[cara], si = id === elegida;
+    /* La misma muestra que un ambiente —suelo, tarjeta y acento— y un punto
+       más: el segundo tono, que es lo que distingue una paleta de otra. */
+    return `
+      <button type="button" class="amb-m pal-m${si ? " on" : ""}" aria-pressed="${si}"
+        onclick="elegirPaleta('${cual}', '${id}')" title="${escapeHtml(tx(p.nombre))}">
+        <span class="amb-mini" aria-hidden="true" style="background:${c[0]}">
+          <span class="amb-tarj" style="background:${c[1]};border-color:${c[2]}"></span>
+          <span class="amb-pt" style="background:${c[3]}"></span><span class="amb-pt pal-pt2" style="background:${c[4]}"></span>
+          <span class="amb-ok" aria-hidden="true">${icon("check", 12)}</span>
+        </span>
+        <span class="amb-n">${escapeHtml(tx(p.nombre))}</span>
+        ${id === primera ? `<span class="amb-p">${escapeHtml(tx("De partida"))}</span>` : ""}
+      </button>`;
+  }).join("");
 }
 
 /* ================= El panel de Ajustes ================= */
@@ -1272,15 +1440,16 @@ function renderPanelApariencia() {
         <div class="ap-marco"><iframe id="ap-vista" title="${escapeAttr(tx("Vista previa de la apariencia"))}" scrolling="no" tabindex="-1" aria-hidden="true"></iframe></div>
         <div class="ap-ficha" id="ap-ficha"></div>
       </div>
-      <h3 class="amb-h2">${tx("Ambientes")}</h3>
-      <p class="settings-note">${tx("El mismo Norata con otra luz. Se van desbloqueando conforme avanzas, y el modo de día y de noche sigue arriba: cada ambiente tiene sus dos caras.")}</p>
+      <h3 class="amb-h2" id="ap-amb-tit">${tx("Ambientes")}</h3>
+      <p class="settings-note" id="ap-amb-nota">${tx("El mismo Norata con otra luz. Se van desbloqueando conforme avanzas, y el modo de día y de noche sigue arriba: cada ambiente tiene sus dos caras.")}</p>
       <div class="amb-rej" id="ap-ambientes"></div>
       <h3 class="amb-h2">${tx("Mundos")}</h3>
       <p class="settings-note">${tx("Un mundo no es otra luz: es otro material. Cambia la superficie, el marco, la letra y hasta cómo se llama tu camino. Van aparte de los ambientes porque no se combinan — llevas uno o llevas el otro.")}</p>
       <div class="mun-rej" id="ap-mundos"></div>
       <div id="ap-arcade"></div>`;
   }
-  document.getElementById("ap-ambientes").innerHTML = muestras;
+  ambientesHTML = muestras;
+  pintarRejaAmbientes();
   /* Arcade, el secreto: solo existe aquí para quien lo encontró. */
   const arc = document.getElementById("ap-arcade");
   if (arc) arc.innerHTML = typeof arcadeApariencia === "function" ? arcadeApariencia() : "";

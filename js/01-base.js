@@ -318,16 +318,12 @@ const ICONS = {
   /* La luna va con el hueco a la DERECHA, mirando al sol de al lado: al
      revés los dos iconos se dan la espalda y la pareja se lee peor. */
   luna: '<path d="M20 14.2A8.4 8.4 0 019.8 4 8.4 8.4 0 1020 14.2z"/>',
-  /* El sol eclipsado: anillo encendido y centro muerto. Es el sello de Averno,
-     y va aquí y no con sus vectores porque el icono de un mundo sale de este
-     mapa —lo pide `js/10i-apariencia.js` por nombre—, igual que Reliquia usa
-     `gem`. Es el MISMO dibujo que `mundos/svg/averno-sello.svg`, pasado a
-     trazo. Con `flame` puesto, Averno se anunciaba con la llamita genérica que
-     ya usan las habilidades: un mundo tiene que traer su propia marca.
-
-     Los rayos van a ocho y no a doce por lo mismo que el sol de arriba: a
-     15 px los doce se empastan. */
-  eclipse: '<circle cx="12" cy="12" r="6.2"/><circle cx="12" cy="12" r="2.4"/><path d="M12 1.9v2.5M12 19.6v2.5M1.9 12h2.5M19.6 12h2.5M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/>'
+  /* El rosetón: el aro, el centro y los ocho radios de la tracería. Es el
+     icono de Averno desde la 0.7.136 y el mismo dibujo que su «+» (ver
+     `mundos/averno/averno.py`), pasado a trazo. Sustituye al sol eclipsado,
+     que era el sello del Averno anterior y se fue con él. Ocho radios y no
+     dieciséis: a 15 px, dieciséis se empastan. */
+  roseton: '<circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="3.1"/><path d="M15.10 12.00L21.20 12.00M14.19 14.19L18.51 18.51M12.00 15.10L12.00 21.20M9.81 14.19L5.49 18.51M8.90 12.00L2.80 12.00M9.81 9.81L5.49 5.49M12.00 8.90L12.00 2.80M14.19 9.81L18.51 5.49"/>'
 };
 
 /* El orden de la rejilla no es el de cómo se fueron dibujando: los iconos van

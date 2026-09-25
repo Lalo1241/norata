@@ -12473,6 +12473,15 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
     border-radius: var(--r-redondo);
     background: var(--mu-acento);
   }
+  /* Las paletas de un mundo (Averno, 0.7.136) usan la misma muestra que un
+     ambiente, con dos cosas más: el marco de la tarjeta en el hierro de la
+     paleta y un segundo punto para el segundo tono, que es lo que distingue
+     una paleta de otra. Son cuatro, así que van en cuatro columnas y no en
+     tres: en tres, la cuarta se quedaba sola en su fila. Los colores van en
+     `style` porque salen de la tabla del mundo, no de una clase. */
+  .amb-rej.pal-rej { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .pal-m .amb-tarj { border: 2px solid; }
+  .pal-m .pal-pt2 { left: 46%; }
   /* El icono va DENTRO de la muestra, en la esquina de abajo, y del color del
      acento de ese ambiente. Lo pidió Eduardo y resuelve algo que la muestra de
      tres tonos no dice: cuál es cuál de un vistazo, sin leer el nombre. Va
