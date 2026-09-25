@@ -86,6 +86,13 @@ def variables(m, t, dia):
         # salen bien de la misma línea.
         ("--card2", mover(tarj_plana, 0.022)),
         ("--flotante", tarj_plana),
+        # Las dos superficies flotantes que llevan la transparencia dentro. Sin
+        # declararlas, la barra lateral de la PC salía con el azul de la casa
+        # encima de cualquier mundo, porque es la única pieza grande que no lee
+        # `--sup-flotante` sino `--flotante-lateral`. La lateral sale del panel
+        # (`--bg2`) y no de la tarjeta, que es como la casa la separa del fondo.
+        ("--flotante-macizo", _rgba(tarj_plana, "0.97")),
+        ("--flotante-lateral", _rgba(mezcla(fondo, tarj_plana, 0.6), "0.84" if dia else "0.72")),
         # Las superficies, que son lo que de verdad se pinta. La página lleva su
         # degradado Y su grano; la tarjeta, el color plano —un grano repetido en
         # cada tarjeta de una lista se convierte en ruido, y el forro se ve

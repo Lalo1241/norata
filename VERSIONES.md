@@ -222,6 +222,17 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.136.1 · 25 sep 2026
+
+**La barra lateral de la PC ya lleva el color del mundo.** Con Reliquia o
+Blueprint puestos salía con el azul de la casa, porque lee `--flotante-lateral`
+y ningún mundo del bloque genérico la declaraba (ni `--flotante-macizo`, que
+pinta el menú flotante). Ahora `variables()` en `mundos/app.py` las deriva
+igual que Averno en la 0.7.136: el macizo de la tarjeta al 97% y la lateral del
+panel (`--bg2`) al 72% de noche y al 84% de día. Medido a 1200 px sobre
+`.thumb-cluster`: Reliquia `rgba(22,17,36,.72)` / `rgba(228,223,239,.84)`,
+Blueprint `rgba(12,28,48,.72)` / `rgba(238,242,247,.84)`; la casa sin cambios.
+
 ### 0.7.136 · 25 sep 2026
 
 **Averno, rehecho en pixel art gótico, con cuatro paletas.** El Averno de la

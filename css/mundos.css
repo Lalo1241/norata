@@ -99,6 +99,8 @@ html:not(.claro)[data-apariencia="plano"] {
   --card: #0b1219;
   --card2: #10171e;
   --flotante: #0b1219;
+  --flotante-macizo: rgba(11, 18, 25, 0.97);
+  --flotante-lateral: rgba(12, 28, 48, 0.72);
   --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E %3Cg stroke='%237fb4e8' fill='none'%3E %3Cg stroke-width='.5' opacity='0.135'%3E %3Cpath d='M8 0v80M16 0v80M24 0v80M32 0v80M48 0v80M56 0v80M64 0v80M72 0v80'/%3E %3Cpath d='M0 8h80M0 16h80M0 24h80M0 32h80M0 48h80M0 56h80M0 64h80M0 72h80'/%3E %3C/g%3E %3Cg stroke-width='.9' opacity='0.26'%3E%3Cpath d='M40 0v80M0 40h80M0 0h80M0 0v80'/%3E%3C/g%3E %3Cg stroke-width='1.1' opacity='0.39'%3E%3Cpath d='M36 40h8M40 36v8M-4 0h8M0 -4v8'/%3E%3C/g%3E %3C/g%3E %3C/svg%3E"), #0d2b52;
   --fondo-pagina: #0d2b52;
   --fondo-raiz: #0d2b52;
@@ -156,6 +158,8 @@ html.claro[data-apariencia="plano"] {
   --card: #f4f7fb;
   --card2: #fbfeff;
   --flotante: #f4f7fb;
+  --flotante-macizo: rgba(244, 247, 251, 0.97);
+  --flotante-lateral: rgba(238, 242, 247, 0.84);
   --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E %3Cg stroke='%233b6f9e' fill='none'%3E %3Cg stroke-width='.5' opacity='0.161'%3E %3Cpath d='M8 0v80M16 0v80M24 0v80M32 0v80M48 0v80M56 0v80M64 0v80M72 0v80'/%3E %3Cpath d='M0 8h80M0 16h80M0 24h80M0 32h80M0 48h80M0 56h80M0 64h80M0 72h80'/%3E %3C/g%3E %3Cg stroke-width='.9' opacity='0.31'%3E%3Cpath d='M40 0v80M0 40h80M0 0h80M0 0v80'/%3E%3C/g%3E %3Cg stroke-width='1.1' opacity='0.465'%3E%3Cpath d='M36 40h8M40 36v8M-4 0h8M0 -4v8'/%3E%3C/g%3E %3C/g%3E %3C/svg%3E"), #e4eaf2;
   --fondo-pagina: #e4eaf2;
   --fondo-raiz: #e4eaf2;
@@ -390,6 +394,8 @@ html:not(.claro)[data-apariencia="reliquia"] {
   --card: #1e1930;
   --card2: #231e36;
   --flotante: #1e1930;
+  --flotante-macizo: rgba(30, 25, 48, 0.97);
+  --flotante-lateral: rgba(22, 17, 36, 0.72);
   --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cdefs%3E %3Cg id='rq-forro'%3E %3Cg stroke='%232a2140' stroke-width='.9' opacity='.16'%3E %3Cpath d='M-20 20 60-60M0 40 80-40M20 60 100-20M40 80 120 0M60 100 140 20M80 120 160 40M100 140 180 60'/%3E %3C/g%3E %3Cg stroke='%231a1428' stroke-width='.7' opacity='.18'%3E %3Cpath d='M-20 40 60-40M0 60 80-20M20 80 100 0M40 100 120 20M60 120 140 40M80 140 160 60'/%3E %3C/g%3E %3Cg fill='%23cbb8f0'%3E %3Ccircle cx='26' cy='34' r='1.1' opacity='.34'/%3E %3Ccircle cx='88' cy='62' r='.8' opacity='.26'/%3E %3Ccircle cx='54' cy='97' r='.9' opacity='.2'/%3E %3C/g%3E %3C/g%3E %3C/defs%3E %3Cuse href='%23rq-forro'/%3E %3Cuse href='%23rq-forro' x='-120'/%3E%3Cuse href='%23rq-forro' x='120'/%3E %3Cuse href='%23rq-forro' y='-120'/%3E%3Cuse href='%23rq-forro' y='120'/%3E %3Cuse href='%23rq-forro' x='-120' y='-120'/%3E%3Cuse href='%23rq-forro' x='120' y='-120'/%3E %3Cuse href='%23rq-forro' x='-120' y='120'/%3E%3Cuse href='%23rq-forro' x='120' y='120'/%3E %3C/svg%3E") center / 150px 150px repeat, radial-gradient(126% 82% at 50% -6%, #1c1530 0%, #130e22 44%, #090612 100%);
   --fondo-pagina: radial-gradient(126% 82% at 50% -6%, #1c1530 0%, #130e22 44%, #090612 100%);
   --fondo-raiz: #090612;
@@ -452,6 +458,8 @@ html.claro[data-apariencia="reliquia"] {
   --card: #f4f1fa;
   --card2: #fbf8ff;
   --flotante: #f4f1fa;
+  --flotante-macizo: rgba(244, 241, 250, 0.97);
+  --flotante-lateral: rgba(228, 223, 239, 0.84);
   --sup-pagina: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E %3Cdefs%3E %3Cg id='rq-forro-d'%3E %3Cg stroke='%239a8cb8' stroke-width='.9' opacity='.11'%3E %3Cpath d='M-20 20 60-60M0 40 80-40M20 60 100-20M40 80 120 0M60 100 140 20M80 120 160 40M100 140 180 60'/%3E %3C/g%3E %3Cg stroke='%238579a4' stroke-width='.7' opacity='.085'%3E %3Cpath d='M-20 40 60-40M0 60 80-20M20 80 100 0M40 100 120 20M60 120 140 40M80 140 160 60'/%3E %3C/g%3E %3Cg fill='%235b4d7d'%3E %3Ccircle cx='26' cy='34' r='1.1' opacity='.24'/%3E %3Ccircle cx='88' cy='62' r='.8' opacity='.18'/%3E %3Ccircle cx='54' cy='97' r='.9' opacity='.14'/%3E %3C/g%3E %3C/g%3E %3C/defs%3E %3Cuse href='%23rq-forro-d'/%3E %3Cuse href='%23rq-forro-d' x='-120'/%3E%3Cuse href='%23rq-forro-d' x='120'/%3E %3Cuse href='%23rq-forro-d' y='-120'/%3E%3Cuse href='%23rq-forro-d' y='120'/%3E %3Cuse href='%23rq-forro-d' x='-120' y='-120'/%3E%3Cuse href='%23rq-forro-d' x='120' y='-120'/%3E %3Cuse href='%23rq-forro-d' x='-120' y='120'/%3E%3Cuse href='%23rq-forro-d' x='120' y='120'/%3E %3C/svg%3E") center / 150px 150px repeat, radial-gradient(126% 82% at 50% -6%, #eae4f6 0%, #ded7ec 44%, #cdc5de 100%);
   --fondo-pagina: radial-gradient(126% 82% at 50% -6%, #eae4f6 0%, #ded7ec 44%, #cdc5de 100%);
   --fondo-raiz: #cdc5de;
