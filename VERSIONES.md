@@ -222,6 +222,63 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.129.2 · 24 sep 2026
+
+**Una versión nueva ya no se cae por un bache de red: la instalación reintenta
+lo que no llegó.** Lo trajo Eduardo con la frase exacta —*«no va si tienes
+datos, solo pasa con wifi»*— y resultó ser un fallo de mecanismo, distinto del
+que cerró la 0.7.128.2.
+
+**Lo que pasaba.** La instalación era un `addAll` de los cuarenta y ocho
+archivos, y `addAll` es TODO-O-NADA: si una sola petición se cae, se cae la
+instalación entera y la versión nueva no entra. Con wifi las cuarenta y ocho
+llegan y no falla nunca. Con datos —un cambio de celda, un segundo sin señal—
+basta con que se caiga una; y como cada intento va con `cache: "reload"`,
+vuelve a bajar los 460 KB enteros, así que la ventana para que algo falle es
+grande. Y de eso la app no avisaba: simplemente se quedaba en la versión vieja.
+
+**La distinción que lo arregla, que es toda la idea:**
+
+| Qué pasó | Qué se hace | Por qué |
+| --- | --- | --- |
+| Una RESPUESTA mala (404, 5xx) | falla la instalación, a la primera | es la publicación a medias de GitHub Pages, y ahí fallar es lo correcto: impide guardar una página de error como si fuera un archivo |
+| Un fallo de RED (no llegó) | se reintenta, cinco veces | es una red floja, y fallar ahí deja el dispositivo clavado en la versión vieja sin decir nada |
+
+Las dos se veían igual desde dentro —«no pude bajar ese archivo»— y se trataban
+igual. Son cosas distintas.
+
+**Medido en un laboratorio con HTTPS** —sin `https:` el service worker no se
+registra, así que en HTTP esto no se puede probar—, cortando la red de UN
+archivo de los cuarenta y ocho durante una ventana de tiempo, y solo a la
+petición del worker (la página pide esa misma hoja de estilo al cargar, y si la
+avería se la come ella el worker instala tan tranquilo y no se prueba nada):
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| Sin averías | instala, 48 archivos | instala, 48 archivos |
+| **3 s sin red** | **no instala, 0 archivos** | **instala, 48** |
+| 10 s sin red | no instala | instala, 48 |
+| 20 s sin red | no instala | no instala — se rinde, y está bien |
+| Un 404 | no instala | **no instala** (la protección, intacta) |
+
+Los cinco intentos y los 11,5 segundos salen de ahí: con tres segundos ya se
+caía, así que cubrir uno o dos no arreglaba nada. Esperar no le cuesta a nadie
+porque esto corre por detrás, con la app ya sirviendo de su copia.
+
+**Y una cosa que hubo que conservar a mano: la instalación sigue siendo
+todo-o-nada.** Se piden los cuarenta y ocho ANTES de guardar ninguno, porque
+media caché guardada es peor que ninguna: el worker podría activarse con
+archivos que faltan y la app arrancaría rota. De regalo, cuando falla ya no
+queda ni el almacén vacío que dejaba el `addAll`.
+
+Comprobado además que lo de siempre sigue igual: la app abre **sin servidor**
+desde su copia con su JavaScript y sus 43 iconos, y la subida de versión a
+versión hace lo de siempre —primera apertura con el aviso, la siguiente ya en
+la nueva, y el almacén viejo borrado—.
+
+**Lo que esto NO arregla**, y conviene tenerlo claro: si la red no alcanza el
+origen en absoluto, no hay reintento que valga. Eso es lo de la 0.7.128.2, y lo
+que se hace ahí es avisar.
 ### 0.7.129.1 · 24 sep 2026
 
 **Fuera la frase de la pareja.** La segunda frase de las luciérnagas —«Nosotras

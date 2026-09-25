@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.129.1";
+const CACHE = "norata-0.7.129.2";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -74,20 +74,73 @@ const ASSETS = [
    anterior; la nueva entra sola en la siguiente apertura.
 
    El susto de la publicación a medias, además, aquí no puede pasar: durante
-   ese minuto no se pide nada a la red, y si el `addAll` de la instalación
-   pilla un 404, la instalación falla entera y se sigue con la copia buena de
-   antes. Fallar así es lo correcto. */
+   ese minuto no se pide nada a la red, y si la instalación pilla un 404, falla
+   entera y se sigue con la copia buena de antes. Fallar así es lo correcto. */
+
+/* ---- Bajar la app: lo que se reintenta y lo que no (0.7.129.2) ----
+   Esto era un `addAll` de los cuarenta y ocho archivos, y `addAll` es
+   TODO-O-NADA: si UNA sola petición se cae, la instalación entera se cae con
+   ella y la versión nueva no entra. Medido: con un archivo cortado —uno de
+   cuarenta y ocho— el worker no se activa y el almacén queda en CERO.
+
+   Con wifi las cuarenta y ocho llegan y no falla nunca. Con datos móviles
+   —cambio de celda, un segundo sin señal— basta con que se caiga una, y como
+   cada intento va con `cache: "reload"`, vuelve a bajar los 460 KB enteros:
+   la ventana para que algo falle es grande. Lo trajo Eduardo con la frase
+   exacta: «no va si tienes datos, solo pasa con wifi».
+
+   La distinción que arregla eso, y es toda la idea:
+
+     una RESPUESTA mala (404, 5xx)  ->  NO se reintenta, falla la instalación
+     un fallo de RED (no llegó)     ->  se reintenta
+
+   La primera es la publicación a medias de GitHub Pages, y ahí fallar sigue
+   siendo lo correcto: es lo que impide guardar una página de error como si
+   fuera un archivo. La segunda es una red floja, y ahí fallar deja el
+   dispositivo clavado en la versión vieja sin decir nada. No son lo mismo y
+   antes se trataban igual. */
+/* Cinco intentos y once segundos y medio de ventana cubierta. El número sale
+   de medirlo: con TRES segundos sin red la instalación ya se caía entera, así
+   que cubrir uno o dos no arregla nada. Y esperar aquí no le cuesta nada a
+   nadie —esto corre por detrás, con la app ya sirviendo de su copia—; si la
+   red no vuelve en ese rato, falla y se reintenta en la siguiente apertura. */
+const ESPERA_REINTENTO = [500, 1500, 3500, 6000];
+
+function pedirParaInstalar(url, intento) {
+  return fetch(new Request(url, { cache: "reload" })).then(
+    (res) => {
+      /* Va en el camino del ÉXITO a propósito: un 404 llega como respuesta, no
+         como fallo, así que este `throw` no lo ve el manejador de al lado y
+         sube tal cual, sin reintentarse. */
+      if (!res.ok) throw new Error("respuesta " + res.status + " al instalar " + url);
+      return res;
+    },
+    (fallo) => {
+      if (intento >= ESPERA_REINTENTO.length) throw fallo;
+      return new Promise((sigue) => setTimeout(sigue, ESPERA_REINTENTO[intento]))
+        .then(() => pedirParaInstalar(url, intento + 1));
+    }
+  );
+}
+
+/* Se piden TODOS antes de guardar ninguno, que es lo que hacía `addAll` y hay
+   que conservar: media caché guardada es peor que ninguna, porque el worker
+   podría activarse con archivos que faltan y la app arrancaría rota. */
+function bajarLaApp() {
+  return Promise.all(ASSETS.map((u) => pedirParaInstalar(u, 0)))
+    .then((respuestas) =>
+      caches.open(CACHE).then((c) =>
+        Promise.all(ASSETS.map((u, i) => c.put(new Request(u), respuestas[i])))
+      )
+    );
+}
 
 self.addEventListener("install", (e) => {
-  /* `cache: "reload"` en cada uno, y esto no es adorno: sin ello el `addAll`
-     puede llenar la caché NUEVA con los bytes viejos que el navegador tuviera
-     guardados de la versión anterior, y entonces subir la versión no cambia
-     nada de lo que se ve. */
-  e.waitUntil(
-    caches.open(CACHE).then((c) =>
-      c.addAll(ASSETS.map((u) => new Request(u, { cache: "reload" })))
-    )
-  );
+  /* `cache: "reload"` en cada uno (dentro de `pedirParaInstalar`), y esto no
+     es adorno: sin ello se llena la caché NUEVA con los bytes viejos que el
+     navegador tuviera guardados de la versión anterior, y entonces subir la
+     versión no cambia nada de lo que se ve. */
+  e.waitUntil(bajarLaApp());
   self.skipWaiting();
 });
 
