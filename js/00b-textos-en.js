@@ -193,6 +193,21 @@ const TEXTOS_EN = {
   "«{0}»": "“{0}”",
   "«{0}» se guardó en {1}: aquí se acomodó solo": "“{0}” was saved on {1}: here it arranged itself",
   "Opciones de {0}": "Options for {0}",
+  /* La bandeja del Modo Editor y lo que dice deshacer (0.7.134.1). El
+     `{0}` de la primera son las teclas Ctrl Z, que no se traducen. */
+  "Modo Editor": "Editor mode",
+  "Acomodos": "Layouts",
+  "Arrastra para acomodar · esquina inferior derecha para cambiar el tamaño · ✕ para quitar · {0} deshacer":
+    "Drag to arrange · bottom-right corner to resize · ✕ to remove · {0} to undo",
+  "Elige con qué quieres encontrarte al abrir la app. Acomodar tarjeta por tarjeta llegará más adelante, con un gesto pensado para el teléfono.":
+    "Choose what you want to see when you open the app. Arranging card by card will come later, with a gesture made for the phone.",
+  "Deshecho: {0}": "Undone: {0}",
+  "acomodo {0}": "layout {0}",
+  "mi acomodo {0}": "my layout {0}",
+  "quitar {0}": "remove {0}",
+  "añadir {0}": "add {0}",
+  "mover {0}": "move {0}",
+  "tamaño de {0}": "resize {0}",
   "Teléfono": "Phone",
   "Tableta": "Tablet",
   "Laptop": "Laptop",

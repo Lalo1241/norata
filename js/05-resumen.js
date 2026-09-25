@@ -667,6 +667,35 @@ function renderSummary() {
 
   marcarDesbordes();
   if (dashEditing && isDesktop()) attachDashHandlers();
+  quizaAcomodoDeEstreno(el);
+}
+
+/* ---- El acomodo de estreno (0.7.134.1) ----
+   Quien nunca eligió acomodo ni movió nada veía el tablero de fábrica: las
+   ocho tarjetas en orden, que en una laptop o una tableta se pasan de la
+   pantalla. Ahora recibe «El día», el primero de su pantalla, y lo recibe
+   como si lo hubiera pulsado: queda guardado y su botón encendido.
+
+   Solo sin NADA guardado. Un tablero movido a mano es una decisión, y no se
+   pisa. En el teléfono cuenta también el de la computadora: el del teléfono
+   estrena copiándolo (ver `ranuraTablero`), y ese sigue siendo el trato.
+
+   Y solo con el Resumen a la vista, porque el acomodo MIDE las tarjetas: con
+   la vista escondida todo mide cero y saldría un reparto de mentira. Lo
+   llama `renderSummary` al final, así que la primera vez que se pinta de
+   verdad es la que lo pone; el `renderSummary` de dentro ya encuentra el
+   tablero guardado y no vuelve a entrar. */
+function quizaAcomodoDeEstreno(el) {
+  const ui = state.ui || {};
+  if (ui[ranuraTablero()] || (ranuraTablero() === "dashMovil" && ui.dash)) return;
+  const vista = document.getElementById("view-summary");
+  if (!vista || !vista.classList.contains("active") || !el.getBoundingClientRect().width) return;
+  if (el.querySelectorAll(".widget").length < 2) return;
+  const a = acomodosDeAhora()[0];
+  if (!a) return;
+  colocarAcomodo(a);
+  marcarAcomodo(a.nombre);
+  save();
 }
 
 /* ================= Tablero personalizable =================
@@ -974,7 +1003,7 @@ function olvidarAcomodo() {
 function aplicarAcomodo(i) {
   const a = acomodosDeAhora()[i];
   if (!a) return;
-  recordarTablero("acomodo " + a.nombre);
+  recordarTablero(T`acomodo ${tx(a.nombre)}`);
   colocarAcomodo(a);
   marcarAcomodo(a.nombre);
   save();
@@ -1459,7 +1488,7 @@ function deshacerTablero() {
   marcarAcomodo(d.acomodo || null);
   save();
   renderSummary();
-  toast(`Deshecho: ${prev.etiqueta}`, "deshecho");
+  toast(T`Deshecho: ${prev.etiqueta}`, "deshecho");
 }
 
 /* Qué pasa cuando el contenido no cabe en el alto elegido.
@@ -1503,10 +1532,10 @@ function dashTray(hidden) {
   <div class="dash-tray full-row">
     <div class="tray-head">
       <div class="tray-tx">
-        <h3>${escritorio ? "Modo Editor" : "Acomodos"}</h3>
+        <h3>${escritorio ? tx("Modo Editor") : tx("Acomodos")}</h3>
         <p class="settings-note" style="margin:0">${escritorio
-          ? `Arrastra para acomodar · esquina inferior derecha para cambiar el tamaño · ✕ para quitar · <kbd>Ctrl</kbd><kbd>Z</kbd> deshacer`
-          : `Elige con qué quieres encontrarte al abrir la app. Acomodar tarjeta por tarjeta llegará más adelante, con un gesto pensado para el teléfono.`}</p>
+          ? T`Arrastra para acomodar · esquina inferior derecha para cambiar el tamaño · ✕ para quitar · ${"<kbd>Ctrl</kbd><kbd>Z</kbd>"} deshacer`
+          : tx("Elige con qué quieres encontrarte al abrir la app. Acomodar tarjeta por tarjeta llegará más adelante, con un gesto pensado para el teléfono.")}</p>
       </div>
       <button class="btn btn-primary" onclick="setDashEdit(false)">${tx("Listo")}</button>
     </div>
@@ -1573,7 +1602,7 @@ function guardarMiAcomodo(i) {
 function usarMiAcomodo(i) {
   const c = misAcomodos()[i];
   if (!c) return;
-  recordarTablero("mi acomodo " + c.nombre);
+  recordarTablero(T`mi acomodo ${c.nombre}`);
   const forma = formaTablero();
   const foto = c.pantallas[forma];
   if (foto) {
@@ -1686,7 +1715,7 @@ function setDashEdit(on) {
 function hideWidget(id) {
   const { order, hidden } = dashLayout();
   if (hidden.includes(id)) return;
-  recordarTablero(`quitar ${DASH_META[id].title}`);
+  recordarTablero(T`quitar ${tx(DASH_META[id].title)}`);
   marcarAcomodo(null);
   saveDash(order, [...hidden, id]);
   flipRender(document.getElementById("summary-content"), renderSummary);
@@ -1695,7 +1724,7 @@ function hideWidget(id) {
 
 function showWidget(id) {
   const { order, hidden } = dashLayout();
-  recordarTablero(`añadir ${DASH_META[id].title}`);
+  recordarTablero(T`añadir ${tx(DASH_META[id].title)}`);
   marcarAcomodo(null);
   saveDash(order, hidden.filter(h => h !== id));
   flipRender(document.getElementById("summary-content"), renderSummary);
@@ -1759,7 +1788,7 @@ function attachDashHandlers() {
     /* Un solo paso por arrastre, no uno por cada intercambio del camino:
        deshacer debe devolver la tarjeta a donde estaba antes de agarrarla,
        que es lo que el usuario recuerda. */
-    recordarTablero(`mover ${DASH_META[id].title}`);
+    recordarTablero(T`mover ${tx(DASH_META[id].title)}`);
     dragId = id;
     const el = cont.querySelector(`.widget[data-w="${id}"]`);
     if (!el) return;
@@ -1783,7 +1812,7 @@ function attachDashHandlers() {
 
     // Esquina inferior derecha: cambia el tamaño en unidades de la cuadrícula
     if (e.target.closest(".w-resize")) {
-      recordarTablero(`tamaño de ${DASH_META[w.dataset.w].title}`);
+      recordarTablero(T`tamaño de ${tx(DASH_META[w.dataset.w].title)}`);
       sizeId = w.dataset.w;
       const total = cont.getBoundingClientRect().width;
       const n = cols();

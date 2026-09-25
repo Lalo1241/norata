@@ -222,6 +222,22 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.134.1 · 25 sep 2026
+
+**Quien nunca eligió acomodo recibe «El día», y el Modo Editor habla inglés.**
+- **El acomodo de estreno** (`quizaAcomodoDeEstreno`, `js/05-resumen.js`): sin
+  ningún tablero guardado, el Resumen se pone «El día» de su pantalla, guardado
+  y con su botón encendido. Un tablero movido a mano no se pisa. El ejemplo
+  también abre así: `verElEjemplo` suelta el tablero de quien lo mira, y al
+  salir vuelve entero. Lo pidió Eduardo.
+- **La bandeja del Modo Editor y los avisos de deshacer, traducidos** («Editor
+  mode», «Undone: move Streak»…). El rótulo de cada paso se traduce al
+  apuntarlo, porque es lo que enseña el aviso después.
+- **Revisado y sin arreglar todavía:** en una columna de ~500 px (laptop y
+  monitor), un mes de SEIS semanas no cabe en las 6 filas de la racha —el
+  calendario crece 46 px y se cortan 5 px arriba y abajo—. Septiembre tiene
+  cinco; el próximo de seis es noviembre de 2026. En la tableta cabe.
+
 ### 0.7.134 · 25 sep 2026
 
 **Los acomodos del Resumen, rehechos, y tres casillas para guardar los tuyos.**

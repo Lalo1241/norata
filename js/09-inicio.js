@@ -1308,6 +1308,12 @@ function verElEjemplo() {
   COLECCIONES.forEach(c => { state[c] = []; });
   state.borrados = {};
   state.ui = Object.assign({}, state.ui || {}, { ramasTalentos: [], ramasProyectos: [] });
+  /* El ejemplo abre con el acomodo «El día» y no con el tablero de quien lo
+     mira (0.7.134.1): sin tablero guardado, `renderSummary` le pone el de
+     estreno. Lo pidió Eduardo, que revisa la app desde aquí. Lo suyo no se
+     pierde: al salir vuelve la copia de `estadoAntesDelEjemplo` entera. */
+  delete state.ui.dash;
+  delete state.ui.dashMovil;
 
   loadExamples();
   pintarAvisoEjemplo();
