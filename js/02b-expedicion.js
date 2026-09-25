@@ -1455,6 +1455,7 @@ function renderColeccion() {
           <span>${info.puntos} en total</span>
         </div>
         ${luciernagasHTML()}
+        ${typeof aniversariosHTML === "function" ? aniversariosHTML() : ""}
       </div>
     </div>
 

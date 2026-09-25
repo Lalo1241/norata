@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.132.1";
+const VERSION = "0.7.133";
 const VERSION_FECHA = "25 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -1161,6 +1161,15 @@ function load() {
       (data.skills.length || data.missions.length || data.perks.length || data.projects.length)) {
     data.settings.bienvenida = "previa";
   }
+  /* El día en que empezaste, para el aniversario (js/05b-aniversario.js). No
+     se guardaba en ningún sitio: se siembra UNA vez con lo más viejo que haya
+     en la cuenta, y si no hay nada, con hoy. Después no se mueve aunque se
+     borre lo más viejo — un aniversario que cambia de fecha no es un
+     aniversario. */
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data.settings.inicio || "")) {
+    const viejo = typeof anivInicioDeDatos === "function" ? anivInicioDeDatos(data) : null;
+    data.settings.inicio = viejo || todayKey();
+  }
   /* Y lo mismo con la presentación de un módulo, por el mismo motivo y con el
      mismo criterio: quien ya tiene talentos dentro lleva meses usándolos, y al
      entrar a Talentos le saldría una tarjeta explicándole qué es un talento.
@@ -1798,6 +1807,7 @@ function modalDone(v) {
 const CAPAS_QUE_TAPAN = [
   "#modal.show",            // confirmar
   "#luci-frase.show",       // la frase de una luciérnaga
+  "#aniv.show",             // el aniversario de expedición
   "#arc-mando.show",        // el mando del código Konami (Arcade)
   "#arc-abierto.show",      // «Mundo Arcade: ya es tuyo»
   "#jor-salida",            // la salida «3, 2, 1» del Pomodoro

@@ -24,6 +24,7 @@ function greeting() {
 
 function renderSummary() {
   quizaLuciernagas();
+  if (typeof quizaAniversario === "function") quizaAniversario();
   const el = document.getElementById("summary-content");
   const skills = state.skills;
   const perks = state.perks;

@@ -222,6 +222,36 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.133 · 25 sep 2026
+
+**El aniversario de expedición.** El día que se cumple un año desde que
+empezaste, la app te recibe con tu año contado como el resumen anual de las
+apps de música: hasta diez láminas que avanzan solas cada 7 s y también
+tocando, cada una con su cielo, su icono y su gráfica animada. A los seis
+meses, solo un guiño arriba. Todo en `js/05b-aniversario.js`, archivo nuevo
+(registrado en `index.html` y en `ASSETS`). Se diseñó con Eduardo en un
+borrador lámina por lámina: https://claude.ai/artifact/KdNxzCeeDYug1uBPnyM97Q
+
+Las diez láminas: el comienzo (los días desde que empezaste), la primera misión
+—del segundo año en adelante, la que ABRIÓ ese año—, misiones cumplidas por mes
+de enero a diciembre, tu hora fuerte en doce franjas de dos horas, la mejor
+racha, la habilidad que más creció con su icono, los días encendidos como
+estrellas —que dibujan el logotipo con su hueco a partir del 40% de los días—,
+lo que construiste, quién eras y quién eres con las cinco constelaciones de
+rango, y el cierre: «Un año juntos. Vamos por más.» con un agradecimiento.
+
+- **Nada duele.** Ni días perdidos, ni rachas rotas, ni números chiquitos: cada
+  lámina tiene su mínimo y por debajo no sale. Con poco uso, el cierre cambia.
+- **Una vez por aniversario**, con una semana de gracia. Después, desde Mi
+  expedición («Tu primer año · Ver»).
+- **Dos datos que la app no guardaba:** `settings.inicio` (el día en que
+  empezaste; se siembra en `load()` con lo más viejo de la cuenta y se une al
+  sincronizar quedándose con el más viejo) y `settings.nivelesAniv` (el nivel
+  de expedición en cada aniversario, porque el nivel solo se sabe «ahora»; el
+  primer año parte del 1). `aniversarios` y `guinoSeisMeses` también se unen.
+- **Para mirarlo sin esperar un año:** `?aniversario=1` (o `=2`, `=6m`) lo abre
+  con tus datos de verdad y no apunta nada.
+
 ### 0.7.132.1 · 25 sep 2026
 
 **La chapa de la sesión, solo en Mi perfil y montada en el borde.** Eduardo,

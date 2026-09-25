@@ -146,6 +146,29 @@ function fusionarEstados(a, b, bEsMasNuevo) {
      cuenta que solo sube, y con `settings` entero del más nuevo, atrapar una
      en la computadora y luego abrir un teléfono que guardó después la
      borraba. */
+  /* El aniversario (js/05b-aniversario.js). El inicio se queda con el MÁS
+     VIEJO: dos dispositivos que lo sembraron por su cuenta pueden no
+     coincidir, y el de verdad es el primero. Los aniversarios vistos se unen
+     —verlo en uno es haberlo visto—, y la foto del nivel de cada año se
+     conserva de donde la haya. */
+  const bs = base.settings || {}, os = otro.settings || {};
+  if (bs.inicio || os.inicio) {
+    out.settings = out.settings || {};
+    out.settings.inicio = [bs.inicio, os.inicio].filter(Boolean).sort()[0];
+  }
+  if ((bs.aniversarios || []).length || (os.aniversarios || []).length) {
+    out.settings = out.settings || {};
+    out.settings.aniversarios = [...new Set([...(bs.aniversarios || []), ...(os.aniversarios || [])])];
+  }
+  if (bs.nivelesAniv || os.nivelesAniv) {
+    out.settings = out.settings || {};
+    out.settings.nivelesAniv = Object.assign({}, os.nivelesAniv || {}, bs.nivelesAniv || {});
+  }
+  if (bs.guinoSeisMeses || os.guinoSeisMeses) {
+    out.settings = out.settings || {};
+    out.settings.guinoSeisMeses = true;
+  }
+
   const luciA = Number(base.settings && base.settings.luciernagas) || 0;
   const luciB = Number(otro.settings && otro.settings.luciernagas) || 0;
   if (luciA || luciB) {
