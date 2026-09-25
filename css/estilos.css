@@ -9082,38 +9082,34 @@
      como si fuera su pie. */
   .cuenta-nota + .cuentas-tit { margin-top: 20px; }
 
-  /* La chapa de «esta es la sesión abierta». Va pegada al nombre y no en una
-     esquina: la pregunta que contesta —«¿cuál de estas cuentas soy ahora?»—
-     se hace mirando los nombres, con las otras cuentas listadas justo debajo.
-     En su propio renglón se leía como un rótulo más del panel. */
-  /* `.perfil-quien .cuenta-actual` y no `.cuenta-actual` a secas: dentro de la
-     ficha ya manda `.perfil-quien span`, que es el estilo del CORREO —gris,
-     12,5 px, en su propio renglón y partido por donde sea— y le gana en
-     especificidad a una clase sola. Con el selector corto la chapa salía gris
-     y del tamaño del correo: medido, la letra era `rgb(139,153,165)` y no
-     menta. Por eso se repiten aquí las cuatro que hay que deshacer. */
-  .perfil-quien .cuenta-actual {
-    display: inline-block;
-    margin: 0 0 0 8px;
-    padding: 2px 7px;
+  /* La chapa de «esta es la sesión abierta», MONTADA EN EL BORDE de arriba de
+     la ficha y no al lado del nombre. Al lado le robaba el ancho y lo cortaba
+     en «Edua…»; ahí arriba no le quita nada a nadie. Lo pidió Eduardo con la
+     captura delante (0.7.132.1).
+
+     El fondo tiene que ser OPACO: la chapa tapa la raya del borde, y con el
+     velo menta a secas (13%) la raya se veía cruzándola por la mitad. Por eso
+     el velo va encima de la superficie de la ficha, en dos capas. */
+  .perfil-ficha.es-actual { position: relative; margin-top: 10px; }
+  .perfil-ficha > .cuenta-actual {
+    position: absolute; top: 0; right: 16px;
+    transform: translateY(-50%);
+    padding: 2px 8px;
     border-radius: var(--r-pastilla);
-    background: var(--mint-soft); color: var(--mint);
-    font-size: 10.5px; font-weight: 700;
+    border: var(--borde-fino) solid var(--mint-soft);
+    background: linear-gradient(var(--mint-soft), var(--mint-soft)), var(--sup-tarjeta2);
+    color: var(--mint);
+    font-size: 10.5px; font-weight: 700; line-height: 1.4;
     letter-spacing: .04em; text-transform: uppercase;
-    word-break: normal; white-space: nowrap;
+    white-space: nowrap; pointer-events: none;
   }
-  /* UN NOMBRE LARGO NO PUEDE EMPUJAR LA CHAPA FUERA DE LA FICHA, y por eso el
-     nombre va envuelto en su propio `span` desde el HTML: un nodo de texto
-     suelto dentro de un flex se convierte en un elemento anónimo, y a un
-     anónimo no se le puede poner `min-width: 0` — o sea que no encoge, y lo
-     que se sale es lo de al lado. Medido: con «Eduardo Camarillo» la chapa ya
-     asomaba por el borde derecho. Ahora se recorta el nombre, que es lo que
-     sobra, y la chapa se queda entera. */
-  .es-actual .perfil-quien b { display: flex; align-items: center; min-width: 0; }
-  .perfil-quien .cuenta-nombre {
-    min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  /* Caducada va en coral y no en luciérnaga: no es «ojo con esto», es «esto ya
+     no funciona». */
+  .perfil-ficha > .cuenta-actual.caducada {
+    border-color: var(--coral-soft);
+    background: linear-gradient(var(--coral-soft), var(--coral-soft)), var(--sup-tarjeta2);
+    color: var(--coral);
   }
-  .perfil-quien .cuenta-actual { flex: none; }
 
   /* ---------- Elegir el color de tu círculo ----------
      Nueve casillas: «el de siempre» y los ocho. Se envuelven en vez de
@@ -9168,33 +9164,8 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
 
-  /* ---------- La chapa de la sesión en los menús (0.7.128) ----------
-     La misma pastilla que la de la ficha de Mi perfil, ahora también en el
-     índice de Ajustes y en el menú del engrane. Hay que repetirla aquí porque
-     dentro de un renglón de menú manda `.aj-tx span` / `.mm-tx span` —el estilo
-     de la línea gris de abajo— y le ganaba a la clase sola: la chapa salía gris
-     y pequeña, y el NOMBRE también, porque va envuelto en un `span` para poder
-     recortarse sin empujar la chapa fuera. */
-  .con-chapa { display: flex; align-items: center; min-width: 0; }
-  .con-chapa .cuenta-nombre {
-    min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    font-size: inherit; color: inherit;
-  }
-  .con-chapa .chapa-sesion {
-    flex: none;
-    display: inline-block;
-    margin: 0 0 0 8px;
-    padding: 2px 7px;
-    border-radius: var(--r-pastilla);
-    background: var(--mint-soft); color: var(--mint);
-    font-size: 10.5px; font-weight: 700;
-    letter-spacing: .04em; text-transform: uppercase;
-    white-space: nowrap; overflow: visible;
-  }
-  /* Caducada va en coral y no en luciérnaga: no es «ojo con esto», es «esto ya
-     no funciona». Vale igual en la ficha de Mi perfil, que usa la otra clase. */
-  .con-chapa .chapa-sesion.caducada,
-  .perfil-quien .cuenta-actual.caducada { background: var(--coral-soft); color: var(--coral); }
+  /* El renglón de «esta sesión caducó» en los menús (0.7.130): coral, porque
+     la línea gris de abajo (`.aj-tx span` / `.mm-tx span`) se lo comía. */
   .menu-cuentas .aviso-caducada,
   .mm-perfil .aviso-caducada { color: var(--coral); }
 

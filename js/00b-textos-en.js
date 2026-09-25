@@ -3655,6 +3655,7 @@ const TEXTOS_EN = {
   "Esta sesión caducó · toca para volver a entrar": "This session expired · tap to sign back in",
   "Sesión actual": "Current session",
   "Caducada": "Expired",
+  "Sincronizado con nuestros servidores": "Synced with our servers",
   /* Arcade, el mundo secreto (0.7.131). Al traducir la pista se salvó la
      vuelta y no las palabras: «lo sabe quien creció con un control». */
   "Cargando Arcade…": "Loading Arcade…",

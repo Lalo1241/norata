@@ -1352,7 +1352,7 @@ function cuentaActualMenuHTML(pref) {
   const saludo = perfilActual().saludo;
   return `<button class="${pref}-item ${pref}-cuenta es-actual" onclick="${muerta ? "volverAEntrar()" : "mostrarAjuste('cuenta')"}">
       ${avatarHTML(30)}
-      <span class="${pref}-tx"><b class="con-chapa"><span class="cuenta-nombre">${escapeHtml(saludo || cfg.correo || tx("Sin nombre"))}</span>${chapaSesionHTML()}</b>
+      <span class="${pref}-tx"><b>${escapeHtml(saludo || cfg.correo || tx("Sin nombre"))}</b>
       ${muerta
         ? `<span class="aviso-caducada">${tx("Esta sesión caducó · toca para volver a entrar")}</span>`
         : (saludo && cfg.correo ? `<span>${escapeHtml(cfg.correo)}</span>` : "")}</span>

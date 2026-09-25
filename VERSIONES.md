@@ -222,6 +222,25 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.132.1 · 25 sep 2026
+
+**La chapa de la sesión, solo en Mi perfil y montada en el borde.** Eduardo,
+con la captura del menú delante: la chapa al lado del nombre le robaba el ancho
+y lo cortaba en «Edua…». Ahora va sobre el borde de arriba de la ficha de Mi
+perfil, a la derecha (`.perfil-ficha > .cuenta-actual`), con fondo opaco para
+tapar la raya del borde. Se quitó del menú del engrane y de la fila de la
+cuenta del índice de Ajustes: ahí no hay otras cuentas con qué confundirla, y
+en la computadora el índice está al lado del bloque «Tu cuenta», que ya lo dice.
+La línea coral de «Esta sesión caducó · toca para volver a entrar» se queda en
+los menús. De paso el nombre de la ficha dejó de salir en gris: iba envuelto en
+un `span` que heredaba el estilo del correo.
+
+**«Al día con tu cuenta» → «Sincronizado con nuestros servidores».** Justo
+debajo de la ficha de TU CUENTA no decía con qué se estaba al día.
+
+Medido en el DOM a 1280 y a 375 px: el centro de la chapa cae a 1 px del borde,
+queda dentro de la ficha, el nombre ya no se recorta y no hay desborde lateral.
+
 ### 0.7.132 · 25 sep 2026
 
 **El Pomodoro avisa al empezar y al acabar el descanso.** Dos piezas que

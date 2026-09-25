@@ -413,9 +413,10 @@ function volverAEntrar() {
   location.assign("login/");
 }
 
-/* La chapa de la cuenta abierta. En los tres sitios donde se ve quién eres —la
-   ficha de Mi perfil, el menú del engrane y el índice de Ajustes— dice lo
-   mismo: que ESA es la sesión de ahora, o que caducó. */
+/* La chapa de la cuenta abierta: que ESA es la sesión de ahora, o que caducó.
+   Solo en la ficha de Mi perfil, que es donde se listan las otras cuentas y
+   hace falta distinguirla. En el menú del engrane y en el índice de Ajustes
+   la quitó Eduardo: ahí no hay con qué confundirla. */
 function chapaSesionHTML() {
   return sesionCaducada()
     ? '<span class="cuenta-actual chapa-sesion caducada">' + tx("Caducada") + '</span>'
@@ -452,7 +453,11 @@ function estadoSyncHTML(bajoLaFicha) {
     dot = "bad"; titulo = tx("No pude sincronizar"); detalle = syncError;
   } else {
     dot = "ok";
-    titulo = sync.dirty ? tx("Cambios sin subir") : T`Al día con ${alm.nombre}`;
+    /* «Al día con tu cuenta» se leía raro justo debajo de la ficha de TU
+       CUENTA: no decía con qué se estaba al día. Lo que se quiere saber es que
+       lo de aquí ya llegó a los servidores (Eduardo, 0.7.132.1). Sin nombrar al
+       proveedor, por lo mismo que `nombre` en el almacén. */
+    titulo = sync.dirty ? tx("Cambios sin subir") : tx("Sincronizado con nuestros servidores");
     let cuando = "";
     if (sync.lastAt) {
       try {
@@ -528,10 +533,12 @@ function renderSync() {
          cara y tu correo pero nada decía que ESA es la sesión abierta, y con
          otras cuentas listadas debajo eso se vuelve una adivinanza. */
       '<button class="perfil-ficha es-actual" onclick="' +
-      (sesionCaducada() ? 'volverAEntrar()' : 'abrirColeccion(\'settings\')') + '">' + avatarHTML(48) +
-      '<div class="perfil-quien"><b>' +
-      '<span class="cuenta-nombre">' + escapeHtml(p.saludo || tx("Sin nombre")) + '</span>' +
-      chapaSesionHTML() + '</b>' +
+      (sesionCaducada() ? 'volverAEntrar()' : 'abrirColeccion(\'settings\')') + '">' +
+      /* La chapa va FUERA del nombre, montada en el borde de arriba de la
+         caja. Al lado del nombre le robaba el ancho y lo cortaba en «Edua…»:
+         lo paró Eduardo con la captura delante. */
+      chapaSesionHTML() + avatarHTML(48) +
+      '<div class="perfil-quien"><b>' + escapeHtml(p.saludo || tx("Sin nombre")) + '</b>' +
       '<span>' + escapeHtml((sync.cfg || {}).correo || "") + '</span></div>' +
       /* La insignia del nivel, al otro extremo: quién eres a la izquierda, por
          dónde vas a la derecha. Con `typeof` porque esta ficha se dibuja
