@@ -1947,7 +1947,30 @@ function jQuieta() {
        comodidad, no una función, y un aviso por algo que nadie pidió es ruido.
        `jPidiendo` evita pedirlo cuatro veces por segundo mientras la primera
        petición sigue en el aire. */
-let jCentinela = null, jPidiendo = false;
+let jCentinela = null, jPidiendo = false, jTactil = null;
+/* ---- Y solo en pantallas táctiles (0.7.138) ----
+   Lo acotó Eduardo: en laptop y PC no aplica. Ahí la pantalla no se apaga a
+   los treinta segundos, quien trabaja tiene el ratón delante, y un portátil
+   que no se duerme durante una Inmersión de cincuenta minutos es batería
+   regalada por un problema que no tiene.
+
+   `(pointer: coarse) and (hover: none)` y no un ancho: un ancho deja fuera a
+   la tableta apaisada —que es táctil y sí lo necesita— y mete dentro al
+   portátil con pantalla táctil, que no. Las dos mitades hacen falta: la
+   gruesa sola incluiría ese portátil, porque ahí el dedo es UN puntero más;
+   pidiendo además que no haya `hover` se queda solo lo que se maneja con el
+   dedo y nada más.
+
+   Se guarda la consulta y no se crea una en cada `jPaso`: esto corre cuatro
+   veces por segundo. Se lee `.matches` cada vez —no el resultado— porque
+   enchufar un ratón a una tableta cambia la respuesta sin recargar. */
+function jEsTactil() {
+  if (!jTactil) {
+    try { jTactil = matchMedia("(pointer: coarse) and (hover: none)"); }
+    catch (e) { return false; }
+  }
+  return jTactil.matches;
+}
 function jRelojCorriendo() {
   const j = jDatos();
   if (j.dormido) return false;
@@ -1956,7 +1979,7 @@ function jRelojCorriendo() {
 }
 function jPantallaDespierta() {
   if (!navigator.wakeLock) return;
-  if (jRelojCorriendo() && !document.hidden) {
+  if (jRelojCorriendo() && jEsTactil() && !document.hidden) {
     if (jCentinela || jPidiendo) return;
     jPidiendo = true;
     navigator.wakeLock.request("screen").then(s => {

@@ -15,13 +15,31 @@ navegador entiende tal cual. Tres consecuencias que muerden si se olvidan:
 1. **El orden de los `<script>` importa.** Están numerados (`01-base.js` →
    `11-arranque.js`) y el último es el que arranca. Al añadir un archivo hay
    que registrarlo en DOS sitios: `index.html` y la lista `ASSETS` de `sw.js`.
-   **Y hay DOS páginas desde 0.7.14:** `index.html` es la app (los diecisiete
-   archivos) y `login/index.html` es la puerta (seis: `01-base`, `10-sincronia`,
-   `10a-perfil`, `10b-supabase`, `10c-portada` y `12-login.js`, que es el que
-   arranca allí). La puerta funciona porque **ninguno de esos seis ejecuta nada
-   al cargarse**; si algún día uno empieza a hacerlo, la puerta arrancará media
-   app sin querer. Sus rutas van con `../`, y `logotipoSrc()` lo resuelve mirando
-   si existe la app.
+   **Y hay DOS páginas desde 0.7.14:** `index.html` es la app y
+   `login/index.html` es la puerta (`00-idioma`, `00b-textos-en`, `01-base`,
+   `10-sincronia`, `10a-perfil`, `10b-supabase`, `10c-portada` y `12-login.js`,
+   que es el que arranca allí). La puerta funciona porque **ninguno de esos
+   ejecuta nada al cargarse**; si algún día uno empieza a hacerlo, la puerta
+   arrancará media app sin querer. Sus rutas van con `../`, y `logotipoSrc()`
+   lo resuelve mirando si existe la app.
+
+   **El número de archivos se CUENTA, no se recuerda.** Aquí ponía «los
+   diecisiete» y «seis», y eran treinta y ocho desde hacía versiones: a las dos
+   listas se les suman archivos y a las frases que las cuentan no. Cuesta un
+   comando y no hay que fiarse de nadie:
+
+   ```sh
+   grep -c 'script defer' index.html login/index.html
+   ```
+
+   **Y la puerta tiene su propia red de seguridad desde 0.7.138**, en su
+   marcado y antes de esos ocho: `window.onerror`, `unhandledrejection`, la
+   cola `__tropiezos` y el plazo que destapa la pantalla de carga. No es un
+   duplicado por comodidad — **el botón de reportar un fallo vive DENTRO de la
+   app**, así que sin esto un error de la puerta era invisible para todos,
+   justo para quien no puede entrar a avisar de que no puede entrar. La vacía
+   `12-login.js` al final de su arranque, porque aquí no corre
+   `11-arranque.js`.
 2. **Hay que subir la versión al tocar cualquier archivo de `ASSETS`** (ver
    abajo). Desde 0.7.38 esto no es una buena práctica: es el ÚNICO mecanismo
    por el que una versión llega a un dispositivo. La app se sirve de su propia

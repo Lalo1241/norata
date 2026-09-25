@@ -222,6 +222,81 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
+### 0.7.138 · 25 sep 2026
+
+**La puerta ya no se rompe en silencio, la pantalla encendida es solo de
+dedos, y se cerró la traducción al inglés.** Tres cosas y una sola versión
+porque las tres son de la misma clase: agujeros que ya estaban abiertos y que
+nadie veía.
+
+**1. La red de seguridad de la puerta.** `index.html` la tenía desde siempre
+—`window.onerror`, `unhandledrejection`, la cola `__tropiezos` y el plazo de
+15 s que destapa la pantalla de carga—. `login/index.html` no tenía **ninguna
+de las cuatro**, y es al revés de lo que parece: el botón del bicho vive
+DENTRO de la app, así que quien se queda fuera por un error de esa pantalla es
+justo quien no tiene forma de avisar. Un fallo en la puerta era invisible para
+todos. Corre antes de los ocho archivos y sin depender de ninguno, por lo
+mismo que en la app: una red que dependiera de lo que falló, fallaría con
+ello.
+
+Tres diferencias con la de la app, y ninguna es de estilo: **no ofrece guardar
+un respaldo** —aquí no hay nada guardado de esta sesión, y un botón que
+descargue un archivo vacío es peor que no tenerlo—; el aviso dice qué hacer
+para **entrar**, y nombra el enlace del correo como salida; y la cola la vacía
+`12-login.js` al final de su arranque, porque aquí no corre `11-arranque.js`.
+`sbTropiezo` no necesita sesión a propósito, que es exactamente este caso.
+
+Medido en seis casos: abre limpia sin autoavisarse (cola 0, sin caja); un
+`TypeError` se apunta como `puerta` y saca la caja; una promesa rota se apunta
+como `puerta-promesa`; con **cuarenta errores seguidos la cola se queda en
+diez y la caja sale una sola vez**; un mensaje de error que trae
+`<img src=x onerror=…>` dentro **no ejecuta nada ni inyecta ningún nodo** —el
+detalle va por `textContent`—; y la pantalla de carga se destapa igual.
+
+**2. La pantalla encendida, solo en pantallas táctiles.** Lo acotó Eduardo: en
+laptop y PC no aplica. La condición es
+`(pointer: coarse) and (hover: none)` y no un ancho, porque un ancho deja
+fuera a la tableta apaisada —que sí lo necesita— y mete dentro al portátil con
+pantalla táctil, que no. Las dos mitades hacen falta: la gruesa sola incluiría
+ese portátil, porque ahí el dedo es un puntero más. La consulta se guarda y se
+lee `.matches` en cada paso, no el resultado: enchufar un ratón a una tableta
+cambia la respuesta sin recargar.
+
+**3. La traducción al inglés, cerrada — y dos fallos de la propia medición.**
+Salió de cruzar cada `tx()` y cada `` T` `` del código contra
+`js/00b-textos-en.js`, no de recorrer la app a mano. Las que faltaban de
+verdad eran once, y dos de ellas se ven en pantallas que importan: la tarjeta
+de **Fundador** («Todo lo de Pro, sin fecha y sin renovaciones» y «Tu
+distintivo: el anillo lila y tu propia insignia»), o sea la pantalla de pagar,
+y la **«o»** que separa el botón de Google del formulario de la puerta.
+
+Dos cosas que la medición enseñó y que no se buscaban:
+
+- **Seis frases que parecían sin traducir están bien así**: las de la pregunta
+  de género viven detrás de `preguntaGenero()`, que devuelve `false` en
+  inglés. No se pueden ver nunca, y traducirlas sería escribir para nadie.
+  Queda dicho junto a las claves nuevas para que la próxima tanda no las
+  «arregle».
+- **Siete claves estaban DUPLICADAS** —`Terminado`, `Estancado`,
+  `Enfriándose`, `Casi listo`, `al mes`, `Misiones cumplidas`, `días
+  seguidos`—. Las siete con el mismo valor, así que hoy no se notaba nada; es
+  exactamente la mina que la cabecera del propio archivo describe («la segunda
+  escritura se lleva por delante a la primera, sin un aviso»), esperando a que
+  alguien corrija una de las dos. Se quedó una de cada. La comprobación va con
+  las claves DESESCAPADAS: comparar el literal del código contra el texto del
+  diccionario da falsos «falta esta» en cuanto la frase lleva comillas dentro
+  —así se colaron dos claves repetidas en el primer intento de esta misma
+  entrada—.
+
+Comprobado con una foto de TODOS los nodos de texto de la puerta y de siete
+pantallas en inglés, antes y después: **1 455 nodos y el único cambio es la
+frase que la puerta sortea en cada apertura**. Y la «o» a mano en los dos
+idiomas: `"o"` en español, `"or"` en inglés.
+
+Y de paso, dos números de `CLAUDE.md` que llevaban versiones mal: la puerta
+carga ocho archivos y no seis, y la app treinta y no diecisiete. El número se
+cuenta con `grep -c 'script defer'`, no se recuerda.
+
 ### 0.7.137 · 25 sep 2026
 
 **La pantalla no se apaga mientras corre el Pomodoro.** Lo pidió Eduardo
