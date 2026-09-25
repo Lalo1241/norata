@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.128.3";
+const VERSION = "0.7.129.2";
 const VERSION_FECHA = "24 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -1797,6 +1797,7 @@ function modalDone(v) {
    cuando una cambia de clase y cuando nace o muere una nueva. */
 const CAPAS_QUE_TAPAN = [
   "#modal.show",            // confirmar
+  "#luci-frase.show",       // la frase de una luciérnaga
   "#tuto.show",             // el tutorial
   "#vuelta.show",           // la vuelta tras una ausencia
   "#caja-modal.show",       // una caja del ático

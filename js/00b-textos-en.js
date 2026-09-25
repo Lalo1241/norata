@@ -2797,6 +2797,15 @@ const TEXTOS_EN = {
   "Un mundo es la app hecha de otro material: su tipografía, sus texturas, su marco y sus propios nombres para cada rango del camino. Con {0} se abren los tres construidos y los que lleguen después.":
     "A world is the app made of another material: its type, its textures, its frame and its own names for each rank of the path. With {0} the three that are built open, and the ones that come later.",
   "Ver {0}": "See {0}",
+  "A esta hora solo quedamos las luciérnagas y quien jura que ya se iba a dormir.": "At this hour it's just us fireflies and whoever swears they were about to go to bed.",
+  "Brillamos unas pocas semanas al año, y esta noche nos tocó brillar contigo.": "We only glow a few weeks a year, and tonight we got to glow with you.",
+  "Solo salimos cuando el mundo está dormido. Por eso nos sorprendió verte.": "We only come out when the world is asleep. That's why seeing you surprised us.",
+  "Qué reflejos para ser {0}.": "Pretty good reflexes for {0}.",
+  "Las únicas que seguimos trabajando somos nosotras. Y, por lo visto, tú.": "We're the only ones still working. And, apparently, you.",
+  "Una luz encendida a {0}. Ya somos dos.": "A light still on at {0}. That makes two of us.",
+  "Luciérnaga nº {0}": "Firefly #{0}",
+  "1 luciérnaga atrapada": "1 firefly caught",
+  "{0} luciérnagas atrapadas": "{0} fireflies caught",
 
   /* ---- Lo que trajo la fusion con origin/main (0.7.74 -> 0.7.83) ----
      El cajon de los caminos, el cambio de cuenta con un toque, la rama de pie y

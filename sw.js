@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.128.3";
+const CACHE = "norata-0.7.129.2";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -77,7 +77,7 @@ const ASSETS = [
    ese minuto no se pide nada a la red, y si la instalación pilla un 404, falla
    entera y se sigue con la copia buena de antes. Fallar así es lo correcto. */
 
-/* ---- Bajar la app: lo que se reintenta y lo que no (0.7.128.3) ----
+/* ---- Bajar la app: lo que se reintenta y lo que no (0.7.129.2) ----
    Esto era un `addAll` de los cuarenta y ocho archivos, y `addAll` es
    TODO-O-NADA: si UNA sola petición se cae, la instalación entera se cae con
    ella y la versión nueva no entra. Medido: con un archivo cortado —uno de

@@ -226,6 +226,11 @@
     --grieta-hondo: rgba(0, 0, 0, 0.62);
     --grieta-filo: rgba(234, 241, 239, 0.78);
 
+    /* La luciérnaga de medianoche: de noche es luz con su halo. */
+    --luci-luz: #f5d76e;
+    --luci-cuerpo: #3a3222;
+    --luci-halo: 0 0 8px 3px rgba(245, 215, 110, 0.6), 0 0 26px 10px rgba(245, 215, 110, 0.18);
+
     /* El carril por el que avanza un aro o una barra de progreso. No es
        `--line`: un borde tiene que apenas notarse y un carril tiene que
        dejar ver por dónde va lo lleno. De noche coinciden; de día el carril
@@ -577,6 +582,7 @@
     --piso-dormir: 105;    /* el velo del modo dormir: tapa la app, NO la píldora */
     --piso-despertar: 106; /* «Ya desperté»: la única salida encendida sobre el velo */
     --piso-reloj: 110;     /* la píldora del reloj de la Jornada: bajo las fiestas */
+    --piso-luciernagas: 115; /* las luciérnagas de medianoche: sobre la barra, bajo lo demás */
     --piso-fiesta: 120;    /* celebraciones que ocupan la pantalla */
     --piso-nivel: 130;     /* subir de nivel: encima de la fiesta de racha */
     --piso-arrastre: 200;  /* la copia que sigue al dedo al reordenar */
@@ -727,6 +733,10 @@
     --sombra-s: rgba(23, 38, 56, 0.07);
     --grieta-hondo: rgba(22, 32, 43, 0.72);
     --grieta-filo: rgba(255, 255, 255, 0.9);
+    /* De día no hay resplandor: el bicho se ve entero, con el abdomen macizo. */
+    --luci-luz: #f5c314;
+    --luci-cuerpo: #2b2a26;
+    --luci-halo: none;
     --sombra-m: rgba(23, 38, 56, 0.10);
     --sombra-l: rgba(23, 38, 56, 0.14);
 
@@ -3205,6 +3215,88 @@
   }
   .rotura > div { position: absolute; }
   .rotura .esquirla { background: var(--sup-tarjeta); border: var(--borde-fino) solid var(--fire); }
+  /* ---------- Las luciérnagas de medianoche (0.7.129) ----------
+     Una capa encima de la página que no atrapa toques: solo cada luciérnaga
+     los atrapa, con un blanco de 44 px aunque el bicho mida 10. Ver
+     `quizaLuciernagas` en js/05-resumen.js. */
+  .enjambre {
+    position: fixed; inset: 0;
+    z-index: var(--piso-luciernagas);
+    pointer-events: none; overflow: hidden;
+  }
+  .luci {
+    position: absolute; left: 0; top: 0;
+    width: 44px; height: 44px; margin: -22px 0 0 -22px;
+    pointer-events: auto; cursor: pointer;
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  }
+  .luci .bicho { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; }
+  .luci .cuerpo {
+    position: absolute; left: 3px; top: 0; width: 6px; height: 8px;
+    border-radius: 50% 50% 45% 45%; background: var(--luci-cuerpo);
+  }
+  .luci .luz {
+    position: absolute; left: 2px; top: 5px; width: 8px; height: 8px;
+    border-radius: var(--r-redondo); background: var(--luci-luz); box-shadow: var(--luci-halo);
+  }
+  html:not(.claro) .luci .cuerpo { opacity: 0.55; }
+  /* Las alitas, solo de día: sin halo, el bicho tiene que leerse como bicho. */
+  .luci .ala {
+    position: absolute; top: -1px; width: 6px; height: 4px;
+    border-radius: 50%; background: var(--luci-cuerpo); opacity: 0.35;
+  }
+  .luci .ala.i { left: -2px; transform: rotate(-25deg); }
+  .luci .ala.d { left: 8px; transform: rotate(25deg); }
+  html:not(.claro) .luci .ala { display: none; }
+  .enjambre .chispa {
+    position: absolute; width: 4px; height: 4px;
+    border-radius: var(--r-redondo); background: var(--luci-luz);
+  }
+  /* La ventana de la frase: el velo de las ventanas y una tarjeta propia. */
+  #luci-frase { z-index: var(--piso-ventana); align-items: center; padding: 20px; }
+  .luci-card {
+    position: relative; overflow: hidden;
+    width: 100%; max-width: 380px;
+    background: var(--sup-tarjeta);
+    border: var(--borde-tarjeta) solid var(--fire);
+    border-radius: var(--r-grande);
+    padding: 26px 22px 24px;
+    text-align: center;
+  }
+  .luci-x {
+    position: absolute; top: 10px; right: 10px;
+    width: 36px; height: 36px; border: 0; border-radius: var(--r-redondo);
+    background: none; color: var(--muted); cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .luci-x:hover { background: var(--card2); color: var(--text); }
+  .luci-ic {
+    display: grid; place-items: center;
+    width: 58px; height: 58px; margin: 0 auto 12px;
+    border-radius: var(--r-redondo); background: var(--fire-soft);
+  }
+  .luci-ic i, .exp-luci i {
+    width: 13px; height: 13px; border-radius: var(--r-redondo);
+    background: var(--luci-luz); box-shadow: var(--luci-halo);
+  }
+  .luci-num {
+    display: block; margin-bottom: 8px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--fire); font-variant-numeric: tabular-nums;
+  }
+  .luci-tx { display: block; font-size: 17px; line-height: 1.5; font-weight: 500; text-wrap: balance; }
+  /* El tiempo que queda, en la luz de la luciérnaga. Se vacía hacia la izquierda. */
+  .luci-resta { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--carril); }
+  .luci-resta i { display: block; height: 100%; background: var(--fire); transform-origin: 0 50%; }
+  /* El renglón de Mi expedición. Va dentro de la escena del cielo, que se
+     queda de noche en los dos modos: el dorado y el halo son los de noche. */
+  .exp-luci {
+    display: flex; align-items: center; gap: 9px;
+    margin-top: 12px;
+    font-size: 13px; font-weight: 700; color: var(--fire);
+  }
+  .exp-luci i { width: 8px; height: 8px; flex: none; }
+
   /* La fiesta de después: el dibujo del módulo, el de su botón de la barra. */
   .roto-medalla {
     display: grid; place-items: center;

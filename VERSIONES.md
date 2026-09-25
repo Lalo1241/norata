@@ -222,7 +222,7 @@ puede escribir el dato si se quiere.
 
 ## La lista
 
-### 0.7.128.3 · 24 sep 2026
+### 0.7.129.2 · 24 sep 2026
 
 **Una versión nueva ya no se cae por un bache de red: la instalación reintenta
 lo que no llegó.** Lo trajo Eduardo con la frase exacta —*«no va si tienes
@@ -279,6 +279,41 @@ la nueva, y el almacén viejo borrado—.
 **Lo que esto NO arregla**, y conviene tenerlo claro: si la red no alcanza el
 origen en absoluto, no hay reintento que valga. Eso es lo de la 0.7.128.2, y lo
 que se hace ahí es avisar.
+### 0.7.129.1 · 24 sep 2026
+
+**Fuera la frase de la pareja.** La segunda frase de las luciérnagas —«Nosotras
+encendemos la luz para encontrar pareja. Tú, para revisar el celular.»— la paró
+Eduardo: puede hacer sentir mal a alguien, y eso no debe pasar nunca. Quien la
+lee sigue en pie a las tres de la mañana, y a veces sin compañía. Ahora dice
+«Brillamos unas pocas semanas al año, y esta noche nos tocó brillar contigo.»
+La regla quedó escrita en CLAUDE.md, en «El tono».
+
+### 0.7.129 · 24 sep 2026
+
+**Las luciérnagas de medianoche.** Un secreto de Eduardo, aprobado en un
+boceto: si abres Norata entre las 00:00 y las 3:59, de tres a cinco
+luciérnagas cruzan el Resumen. Atrapar una deja una frase, en una ventana con
+el velo de las demás, una X y una barra con el tiempo que queda (6 s más 70 ms
+por letra); las otras se asustan y se van. Si nadie las toca, se van solas en
+unos diez segundos. Todo en `js/05-resumen.js`, desde `quizaLuciernagas`.
+
+- **Una vez por noche, y solo en el Resumen.** Se apunta en `state.ui.luciNoche`
+  al SOLTARLAS: si había una ventana encima —el selector de idioma de la
+  primera vez, por ejemplo—, no salieron y todavía les toca. Fuera del
+  Resumen se van deprisa.
+- **Las atrapadas se cuentan como curiosidad**, en dorado, bajo la barra de Mi
+  expedición, y solo desde la primera: un «0» contaría el secreto.
+  `settings.luciernagas` se une al sincronizar quedándose con el mayor.
+- **De día no brillan** (`--luci-halo: none`): se ven como bicho, con alitas y
+  el abdomen amarillo. Con «menos movimiento» no vuelan.
+- **Seis frases** con la vara de la puerta, en voz de las luciérnagas. Dos
+  llevan la hora de verdad, con su artículo: «la 1:05», «las 2:47». La 2 y la 3
+  son la tercera versión: las dos anteriores no le convencieron a Eduardo, y
+  estas salieron sin que las viera — si alguna no pasa, se cambia sola.
+
+Pendiente, a propósito: **la luciérnaga rara**, de luz blanca azulada, que da
+media pista del código Konami y deja un píxel que abre un mando. Llega cuando
+exista el mundo Arcade, no antes.
 
 ### 0.7.128.2 · 23 sep 2026
 
