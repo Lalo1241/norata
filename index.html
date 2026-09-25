@@ -47,6 +47,44 @@
      pide al mirar uno. Lo genera `mundos/app.py`. -->
 <link rel="stylesheet" href="css/muestras.css">
 <link rel="stylesheet" href="css/jornada.css">
+
+<!-- ============ NI DENTRO DE UN MARCO AJENO (0.7.139) ============
+     Medido: la app se dejaba meter en un `<iframe>` de cualquier sitio, sin
+     una queja. Eso es clickjacking — otro pone Norata invisible debajo de su
+     propia página y te hace pulsar lo que él quiera: «borrar todos mis
+     datos», «cerrar sesión», o mañana un botón de pagar.
+
+     **Por qué no se arregla con la CSP.** `frame-ancestors` es la directiva
+     que existe justo para esto, y es de las que **el navegador IGNORA dentro
+     de un `<meta>`**: solo vale como cabecera HTTP. GitHub Pages no deja
+     poner cabeceras. Así que aquí, hoy, la CSP no puede cerrar esta puerta
+     por mucho que se le escriba la línea — quedaría puesta y sin efecto, que
+     es peor que no tenerla.
+
+     **Y por qué se esconde con CSS en vez de saltar fuera del marco.** El
+     truco de toda la vida es `top.location = self.location`, y los
+     navegadores modernos lo BLOQUEAN desde un marco de otro origen si no ha
+     habido un gesto de la persona — o sea, justo en el caso que importa. Se
+     intenta igual porque cuando funciona es la mejor salida, pero lo que de
+     verdad protege es lo de abajo: la página nace escondida y solo se enseña
+     si NO está dentro de un marco. Eso no hay manera de bloquearlo.
+
+     **El modo de fallo, que es lo que hay que mirar antes de meter esto.** Si
+     este script no corriera, la página se quedaría en blanco. No añade un
+     riesgo nuevo: sin JavaScript esta app no pinta nada de todos modos —la
+     puerta no dibuja ni el formulario y la app se queda en la pantalla de
+     carga—, y el `<noscript>` de abajo devuelve el comportamiento de siempre
+     a quien lo tenga apagado. El script en sí no puede reventar: `self`,
+     `top` y `documentElement` existen siempre y no toca nada más.
+
+     Va ARRIBA DEL TODO, antes de las hojas de estilo, porque lo que se quiere
+     evitar es que se llegue a ver un fotograma. -->
+<style>html { display: none }</style>
+<noscript><style>html { display: block }</style></noscript>
+<script>
+  if (self === top) document.documentElement.style.display = "block";
+  else { try { top.location = self.location; } catch (e) { /* el navegador lo bloquea desde otro origen */ } }
+</script>
 </head>
 <body>
 <script>

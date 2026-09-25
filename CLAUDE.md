@@ -317,6 +317,83 @@ el audio dormido tampoco (se despierta y ese se pierde), y nunca más de tres
 en segundo y medio. Lo que tenga que avisar de fondo lo hace el aviso del
 sistema, que trae su propio sonido y su motivo escrito.
 
+## Lo que entra de fuera
+
+**Los datos llegan por tres puertas y dos no son tuyas**: un respaldo que
+alguien te pasó (`importData`, `js/09-inicio.js`) y lo que baja de la
+sincronía. Hasta 0.7.139 `importData` comprobaba dos cosas —que `skills`
+fuera un array y que la versión no viniera del futuro— y el resto entraba tal
+cual.
+
+**Lo que eso costaba, medido:** un respaldo con
+`missions[0].color = '#fff" onmouseover="…"'` entra, y al abrir Misiones ese
+atributo se sale de su comilla y el código corre. Desde ahí lee la sesión
+—`access_token` y `refresh_token` viven en `localStorage`— y aunque la CSP
+corta `fetch`, `img` y `sendBeacon`, **no mira la navegación**, así que un
+`location.href` a otro dominio se lo lleva.
+
+**El texto que escribe una persona nunca fue el problema.** 16 campos por 3
+cargas en 8 pantallas: cero. `escapeHtml`, `escapeAttr` y `enJS` están bien
+puestos. Fallaban los que el código da por «de máquina» —`id`, `color`— y por
+eso no escapa; un respaldo los trae igual que los otros.
+
+Lo cierra `sanearEstado()` (`js/01-base.js`), llamado desde `load()`, que es
+**la única puerta por la que los datos llegan a memoria**: el disco al abrir,
+un respaldo importado y lo que baja de la sincronía pasan los tres por ahí. Un
+sitio en vez de los doscientos donde se pinta.
+
+Tres cosas que no se pueden tocar sin entender por qué están:
+
+- **Valida por CARÁCTER, no por forma.** Pedir que un id case
+  `/^[a-z0-9]{6,24}$/` es una apuesta sobre datos que no has visto —hay
+  módulos que se llaman `tree`, tableros de fábrica, refs con dos puntos
+  dentro— y **una validación estricta de más corrompe datos reales, que es
+  peor que el agujero**. Un carácter no es una apuesta: ningún valor de
+  máquina legítimo lleva `< > " '` ni una barra invertida. Quitarlos de un
+  valor bueno es siempre una operación vacía, y eso se comprueba.
+- **Lo libre es la EXCEPCIÓN, no al revés.** `CAMPOS_LIBRES` son los nombres
+  de campo que alguien escribe; `MAPAS_LIBRES` son los dos sitios donde el
+  texto libre vive como VALOR de una clave de máquina (`ui.nombresTablero`,
+  `jornada.cfg.hfNombres`) y por nombre de campo no se reconocen. **Al añadir
+  un campo que alguien escriba, va en una de las dos listas.** Se eligió así
+  porque olvidarse deja unas comillas caídas, que se ven; con la lista
+  invertida, lo que se olvida queda abierto y no se ve nunca.
+- **Vive ARRIBA de `let state = load()`, y no es colocación.** Un `const` no se
+  iza: declarado debajo, esa primera llamada lo encuentra en zona muerta,
+  revienta, y `state` se queda sin declarar — la app no arranca y la consola
+  habla de `state`, no de esto.
+
+**Cómo se comprueba que no rompió nada:** un estado realista —el ejemplo
+sembrado, con `'`, `"`, `<`, `>` y `\` metidos en TODOS los campos libres y en
+los dos mapas— entra y sale idéntico byte por byte. En 0.7.139 fueron 27 567
+caracteres sin una diferencia. Un «no cambió nada» aquí significa algo.
+
+## Ni dentro de un marco ajeno
+
+**La app se dejaba meter en un `<iframe>` de cualquier sitio** —medido, sin
+una queja—, que es clickjacking: otro la pone invisible debajo de su página y
+te hace pulsar lo que él quiera.
+
+**`frame-ancestors` no sirve aquí y hay que saberlo antes de escribirla.** Es
+la directiva que existe justo para esto y es de las que **el navegador IGNORA
+dentro de un `<meta>`**: solo vale como cabecera HTTP, y GitHub Pages no deja
+poner cabeceras. Puesta en la CSP quedaría escrita y sin efecto, que es peor
+que no tenerla. (El día que se retome la rama `cloudflare`, su `_headers` sí
+puede llevarla — y entonces esto de abajo sobra.)
+
+**Y saltar fuera del marco tampoco basta:** `top.location = self.location` lo
+BLOQUEAN los navegadores desde un marco de otro origen sin un gesto de la
+persona, o sea justo en el caso que importa. Se intenta igual porque cuando
+funciona es la mejor salida, pero lo que protege es lo otro: **la página nace
+escondida (`html { display: none }`) y un script de dos líneas la enseña solo
+si no está dentro de un marco.** Eso no hay manera de bloquearlo. Está en las
+dos páginas, arriba del todo, antes de las hojas de estilo.
+
+El modo de fallo se miró antes de meterlo: si ese script no corriera, la
+página quedaría en blanco. No añade riesgo nuevo —sin JavaScript esta app no
+pinta nada de todos modos— y el `<noscript>` de al lado devuelve el
+comportamiento de siempre a quien lo tenga apagado.
+
 ## Las capas
 
 **Ningún `z-index` se escribe a mano:** salen de variables `--piso-*`
