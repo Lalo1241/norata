@@ -23,6 +23,7 @@ function greeting() {
 }
 
 function renderSummary() {
+  quizaLuciernagas();
   const el = document.getElementById("summary-content");
   const skills = state.skills;
   const perks = state.perks;
@@ -3145,3 +3146,259 @@ function branchHeader(name, countLabel, buttons) {
     </div>`;
 }
 
+
+/* ================= Las luciérnagas de medianoche (0.7.129) =================
+   Un secreto que pidió Eduardo y aprobó en un boceto: si abres Norata entre
+   las 00:00 y las 3:59, de tres a cinco luciérnagas cruzan el Resumen. Si
+   atrapas una, te deja una frase y las demás se van; si no, se van solas en
+   unos diez segundos. Una vez por noche, y solo en el Resumen.
+
+   Lo que se decidió y por qué:
+
+   - **Una vez por noche.** Si salieran siempre, dejarían de ser un secreto y
+     serían decoración. Se apunta en `state.ui.luciNoche` AL SOLTARLAS, no al
+     intentarlo: si en ese momento había una ventana encima, no salieron y
+     todavía les toca.
+   - **Poco tiempo en pantalla.** Eduardo pidió que no se quedaran esperando a
+     que las toques: sin saber qué pasa, cinco bichos dando vueltas un minuto
+     abruman. Entran casi juntas, pasan de 7 a 10 s y se van.
+   - **La frase se queda lo que tarda en leerse dos veces**: 6 s más 70 ms por
+     letra, con una barra que dice cuánto queda y una X para irse antes. Con
+     los 7 s fijos del boceto, la primera se sentía corta.
+   - **Las atrapadas se cuentan, como curiosidad**, en dorado, en Mi
+     expedición. No dan puntos ni abren nada. Van en `settings.luciernagas` y
+     `fusionarEstados` se queda con el mayor, para que dos dispositivos no se
+     roben la cuenta.
+   - **De día no brillan**: el bicho se ve entero, con el abdomen amarillo y
+     sin halo (`--luci-halo: none` en `html.claro`). Es la regla de siempre.
+   - **Con «menos movimiento» no vuelan**: aparecen quietas, parpadean y se
+     desvanecen.
+
+   Y lo que NO está todavía: la luciérnaga RARA, la de luz blanca azulada que
+   da la pista del mundo Arcade. Eduardo la quiere cuando el mundo exista, no
+   antes: una pista hacia nada es una broma pesada. */
+const LUCI_FRASES = [
+  () => tx("A esta hora solo quedamos las luciérnagas y quien jura que ya se iba a dormir."),
+  () => tx("Nosotras encendemos la luz para encontrar pareja. Tú, para revisar el celular."),
+  () => tx("Solo salimos cuando el mundo está dormido. Por eso nos sorprendió verte."),
+  h => T`Qué reflejos para ser ${h}.`,
+  () => tx("Las únicas que seguimos trabajando somos nosotras. Y, por lo visto, tú."),
+  h => T`Una luz encendida a ${h}. Ya somos dos.`
+];
+
+let luciBichos = [], luciReloj = null, luciAntes = 0, luciUltimaFrase = -1;
+
+function luciQuieto() {
+  try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; }
+}
+
+/* La hora de verdad, escrita para meterla en una frase. En español lleva su
+   artículo, y la 1 es singular: «para ser la 1:05», «para ser las 2:47». En
+   inglés va la hora sola, que es como la pide la traducción. */
+function luciHora() {
+  const d = new Date(), h = d.getHours() % 12 || 12;
+  const hhmm = h + ":" + String(d.getMinutes()).padStart(2, "0");
+  if (IDIOMA !== IDIOMA_POR_DEFECTO) return hhmm;
+  return (h === 1 ? "la " : "las ") + hhmm;
+}
+
+/* Se llama al pintar el Resumen, que es muchas veces al día: casi siempre
+   sale en la primera línea. */
+function quizaLuciernagas() {
+  const h = new Date().getHours();
+  if (h >= 4) return;
+  state.ui = state.ui || {};
+  if (state.ui.luciNoche === todayKey() || luciBichos.length) return;
+  // Dentro del ejemplo no: al salir, la marca de «ya salieron» se iría con él.
+  if (typeof modoEjemplo !== "undefined" && modoEjemplo) return;
+  if (bienvenidaPendiente()) return;
+  setTimeout(() => {
+    // Se vuelve a mirar al disparar: pudo abrirse una ventana o cambiar de pantalla.
+    if (activeMainView !== "summary" || document.hidden) return;
+    if (document.documentElement.classList.contains("quieto")) return;
+    if (state.ui.luciNoche === todayKey() || luciBichos.length) return;
+    if (new Date().getHours() >= 4) return;
+    state.ui.luciNoche = todayKey();
+    guardarLocal(state);
+    soltarLuciernagas();
+  }, 900);
+}
+
+function soltarLuciernagas() {
+  const cap = document.createElement("div");
+  cap.className = "enjambre";
+  document.body.appendChild(cap);
+  const W = innerWidth, H = innerHeight, quieto = luciQuieto();
+  const n = 3 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement("div");
+    el.className = "luci";
+    el.setAttribute("aria-hidden", "true");
+    el.innerHTML = '<span class="bicho"><i class="ala i"></i><i class="ala d"></i><i class="cuerpo"></i><i class="luz"></i></span>';
+    cap.appendChild(el);
+    const borde = Math.floor(Math.random() * 4);
+    let x = borde === 0 ? -20 : borde === 1 ? W + 20 : Math.random() * W;
+    let y = borde === 2 ? -20 : borde === 3 ? H + 20 : H * (0.15 + Math.random() * 0.6);
+    if (quieto) { x = W * (0.15 + Math.random() * 0.7); y = H * (0.15 + Math.random() * 0.6); }
+    const b = { el, x, y, rumbo: Math.atan2(H / 2 - y, W / 2 - x) + (Math.random() - 0.5),
+      vel: 34 + Math.random() * 18, fase: Math.random() * 6.28, periodo: 1.6 + Math.random() * 1.2,
+      espera: i * (0.3 + Math.random() * 0.4), vida: 0, dura: 7 + Math.random() * 3,
+      huye: false, atrapada: false, fuera: false };
+    /* `pointerdown` y no `click`: vuelan, y entre bajar y levantar el dedo la
+       luciérnaga ya se movió de debajo. */
+    el.addEventListener("pointerdown", e => { e.preventDefault(); atraparLuciernaga(b); });
+    el.style.opacity = 0;
+    luciBichos.push(b);
+  }
+  luciAntes = Date.now();
+  // Con setInterval y no con fotogramas, por lo mismo que el candado que se rompe.
+  luciReloj = setInterval(pasoLuciernagas, 16);
+}
+
+/* El parpadeo: se enciende despacio, se sostiene y se apaga, con pausas. Una
+   onda seno pura se ve como un faro. De día nunca se apaga del todo, porque
+   sin halo una luz apagada es un bicho invisible. */
+function brilloLuciernaga(b, t) {
+  const c = ((t + b.fase) % b.periodo) / b.periodo;
+  const on = c < 0.55 ? Math.sin(c / 0.55 * Math.PI) : 0;
+  const suelo = document.documentElement.classList.contains("claro") ? 0.35 : 0.08;
+  return suelo + (1 - suelo) * Math.pow(on, 0.7);
+}
+
+function pasoLuciernagas() {
+  const ahora = Date.now(), dt = Math.min(0.05, (ahora - luciAntes) / 1000);
+  luciAntes = ahora;
+  const W = innerWidth, H = innerHeight, quieto = luciQuieto();
+  // Si la persona se fue del Resumen, se van todas deprisa.
+  const irse = activeMainView !== "summary";
+  let vivas = 0;
+  luciBichos.forEach(b => {
+    if (b.fuera) return;
+    vivas++;
+    b.vida += dt;
+    if (b.vida < b.espera) return;
+    const t = b.vida - b.espera;
+    if (b.atrapada) return;
+    const luz = b.el.querySelector(".luz");
+    if (quieto) {
+      const op = t > b.dura * 0.5 || irse ? Math.max(0, 1 - (t - b.dura * 0.5) / 2) : 1;
+      if (op <= 0 || irse) { b.fuera = true; b.el.remove(); return; }
+      b.el.style.opacity = op;
+      b.el.style.transform = `translate(${b.x}px,${b.y}px)`;
+      luz.style.opacity = brilloLuciernaga(b, t).toFixed(2);
+      return;
+    }
+    if (t > b.dura || irse) b.huye = true;
+    b.rumbo += (Math.random() - 0.5) * 2.4 * dt;
+    if (!b.huye) {
+      const m = 40, adentro = Math.atan2(H / 2 - b.y, W / 2 - b.x);
+      if (b.x < m || b.x > W - m || b.y < m || b.y > H - m) {
+        let d = adentro - b.rumbo;
+        d = Math.atan2(Math.sin(d), Math.cos(d));
+        b.rumbo += d * 1.8 * dt;
+      }
+    }
+    const v = b.vel * (b.huye ? (irse ? 6 : 3.2) : 1);
+    b.x += Math.cos(b.rumbo) * v * dt;
+    b.y += Math.sin(b.rumbo) * v * dt + Math.sin(t * 2.1 + b.fase) * 6 * dt;   // un vaivén suave
+    if (b.huye && (b.x < -40 || b.x > W + 40 || b.y < -40 || b.y > H + 40)) { b.fuera = true; b.el.remove(); return; }
+    const giro = Math.cos(b.rumbo) < 0 ? -1 : 1;
+    b.el.style.opacity = 1;
+    b.el.style.transform = `translate(${b.x.toFixed(1)}px,${b.y.toFixed(1)}px) scaleX(${giro})`;
+    luz.style.opacity = brilloLuciernaga(b, t).toFixed(2);
+  });
+  if (!vivas) {
+    clearInterval(luciReloj);
+    luciReloj = null;
+    luciBichos = [];
+    const cap = document.querySelector(".enjambre");
+    if (cap) setTimeout(() => cap.remove(), 1000);   // deja acabar las chispas
+  }
+}
+
+function atraparLuciernaga(b) {
+  if (b.atrapada || b.fuera) return;
+  b.atrapada = true;
+  if (navigator.vibrate) { try { navigator.vibrate(12); } catch (x) {} }
+  const luz = b.el.querySelector(".luz");
+  if (luz.animate && !luciQuieto()) {
+    luz.animate([{ transform: "scale(1)", opacity: 1 }, { transform: "scale(2.6)", opacity: 1, offset: 0.3 },
+      { transform: "scale(0)", opacity: 0 }], { duration: 650, easing: "ease-out", fill: "forwards" });
+    b.el.querySelector(".cuerpo").animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: "forwards" });
+    b.el.querySelectorAll(".ala").forEach(a => a.animate([{ opacity: 0.35 }, { opacity: 0 }], { duration: 300, fill: "forwards" }));
+    const cap = b.el.parentNode;
+    for (let i = 0; i < 7; i++) {
+      const c = document.createElement("i");
+      c.className = "chispa";
+      c.style.left = b.x - 2 + "px"; c.style.top = b.y - 2 + "px";
+      cap.appendChild(c);
+      const a = Math.random() * 6.28, d = 14 + Math.random() * 18;
+      c.animate([{ transform: "translate(0,0)", opacity: 1 },
+        { transform: `translate(${Math.cos(a) * d}px,${Math.sin(a) * d}px)`, opacity: 0 }],
+        { duration: 500 + Math.random() * 300, easing: "ease-out", fill: "forwards" });
+      setTimeout(() => c.remove(), 900);
+    }
+  }
+  setTimeout(() => { b.fuera = true; b.el.remove(); }, 700);
+  // Las demás se asustan y se van.
+  luciBichos.forEach(o => { if (o !== b) o.huye = true; });
+
+  state.settings = state.settings || {};
+  state.settings.luciernagas = (Number(state.settings.luciernagas) || 0) + 1;
+  save();
+
+  let i;
+  do { i = Math.floor(Math.random() * LUCI_FRASES.length); } while (i === luciUltimaFrase);
+  luciUltimaFrase = i;
+  fraseDeLuciernaga(LUCI_FRASES[i](luciHora()), state.settings.luciernagas);
+}
+
+/* La ventana de la frase. No es `askBase`: Eduardo la pidió con una X y una
+   barra de tiempo, y el cuadro de siempre tiene botones y no se va solo. Del
+   de siempre sí se lleva el VELO (`.modal-backdrop`), para que se lea como las
+   demás ventanas de la app. Está en `CAPAS_QUE_TAPAN`, así que la página de
+   detrás se queda quieta mientras tanto. */
+function fraseDeLuciernaga(texto, numero) {
+  const vieja = document.getElementById("luci-frase");
+  if (vieja) vieja.remove();
+  const dura = 6000 + texto.length * 70;
+  const v = document.createElement("div");
+  v.id = "luci-frase";
+  v.className = "modal-backdrop";
+  v.innerHTML =
+    '<div class="luci-card" role="dialog" aria-live="polite">' +
+      '<button type="button" class="luci-x" aria-label="' + escapeAttr(tx("Cerrar")) + '">' + icon("close", 16) + '</button>' +
+      '<span class="luci-ic" aria-hidden="true"><i></i></span>' +
+      '<span class="luci-num">' + escapeHtml(T`Luciérnaga nº ${numero}`) + '</span>' +
+      '<span class="luci-tx">' + escapeHtml(texto) + '</span>' +
+      '<span class="luci-resta" aria-hidden="true"><i></i></span>' +
+    '</div>';
+  document.body.appendChild(v);
+  void v.offsetWidth;
+  v.classList.add("show");
+  let hecho = false, reloj = null;
+  const irse = () => {
+    if (hecho) return;
+    hecho = true;
+    clearInterval(reloj);
+    v.classList.remove("show");
+    setTimeout(() => v.remove(), 300);
+  };
+  v.querySelector(".luci-x").addEventListener("click", irse);
+  v.addEventListener("click", e => { if (e.target === v) irse(); });
+  const inicio = Date.now(), tira = v.querySelector(".luci-resta i");
+  reloj = setInterval(() => {
+    const q = Math.max(0, 1 - (Date.now() - inicio) / dura);
+    tira.style.transform = "scaleX(" + q.toFixed(4) + ")";
+    if (q === 0) irse();
+  }, 50);
+}
+
+/* El renglón de Mi expedición. No sale hasta la primera: un «0 luciérnagas»
+   le contaría el secreto a quien todavía no lo ha encontrado. */
+function luciernagasHTML() {
+  const n = Number(state.settings && state.settings.luciernagas) || 0;
+  if (!n) return "";
+  return '<div class="exp-luci"><i aria-hidden="true"></i>' +
+    escapeHtml(n === 1 ? tx("1 luciérnaga atrapada") : T`${n} luciérnagas atrapadas`) + '</div>';
+}

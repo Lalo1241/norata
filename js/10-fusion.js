@@ -142,6 +142,17 @@ function fusionarEstados(a, b, bEsMasNuevo) {
      razón más fuerte que las ramas: romper uno es para siempre. `settings`
      viene entero del lado más nuevo, así que un dispositivo que guardó después
      sin enterarse le volvía a poner el candado a quien ya lo había roto. */
+  /* Las luciérnagas atrapadas (js/05-resumen.js): gana el MAYOR. Es una
+     cuenta que solo sube, y con `settings` entero del más nuevo, atrapar una
+     en la computadora y luego abrir un teléfono que guardó después la
+     borraba. */
+  const luciA = Number(base.settings && base.settings.luciernagas) || 0;
+  const luciB = Number(otro.settings && otro.settings.luciernagas) || 0;
+  if (luciA || luciB) {
+    out.settings = out.settings || {};
+    out.settings.luciernagas = Math.max(luciA, luciB);
+  }
+
   const rotosA = (base.settings && base.settings.rotos) || [];
   const rotosB = (otro.settings && otro.settings.rotos) || [];
   if (rotosA.length || rotosB.length) {

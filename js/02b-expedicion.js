@@ -1454,6 +1454,7 @@ function renderColeccion() {
             : T`<b>${info.faltan}</b> puntos para el nivel ${nivel + 1}`}
           <span>${info.puntos} en total</span>
         </div>
+        ${luciernagasHTML()}
       </div>
     </div>
 
