@@ -247,6 +247,58 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.140 · 26 sep 2026
+
+**Norata suena, en toda la app.** Hasta aquí sonaban el Pomodoro y Arcade,
+cada uno por su cuenta. Se diseñó con Eduardo en un boceto de doce vueltas
+(https://claude.ai/artifact/FFN8qAzr28YroBbgfboPFd) y vive entero en un
+archivo nuevo, `js/01c-sonido.js`, con las reglas escritas arriba de todo.
+
+**Qué suena.** Lo que lograste, no lo que tocaste, y cuanto más raro el
+momento, más largo el sonido: cumplir una misión (cada una del día un peldaño
+más arriba), el Pomodoro, subir una habilidad, un hito, la racha, la
+luciérnaga, el nivel de expedición, un módulo que se estrena, el candado (cada
+grieta y la rotura), la bienvenida y el recap del aniversario, que es una
+pieza con ritmo mientras duran las láminas. **Calla** todo lo demás: botones,
+crear, borrar, desmarcar, pagar, la racha rota y la habilidad que baja. Nada
+suena a «fallaste».
+
+**Cada mundo lo toca con su material.** La casa en cristal; Averno en órgano,
+coro grave y campana (menor armónica: la escala «In» japonesa que tenía el
+boceto al principio nunca iba a sonar a infierno); Blueprint en marimba;
+Reliquia en coro y celesta; Arcade con sus 8 bits de siempre, ahora una octava
+abajo. Lo decide la apariencia puesta, y hay UN solo interruptor.
+
+**El control.** Encendido de entrada y a volumen moderado. Debajo de
+«Aspecto» —en Ajustes del teléfono y en el menú del engrane de la PC— van
+«Silencio | Con sonido» (Silencio en coral) y una barra de volumen de 0 a 100.
+El interruptor va en la cuenta (`settings.sonido`); el volumen en cada
+dispositivo (localStorage `norata-volumen`). Al terminar la bienvenida suena
+algo y sale la tarjeta «Esto que oíste es Norata», con el interruptor, la barra
+y «Escuchar otra vez»; quien ya usaba la app recibe un aviso con «Silenciar» en
+su primer sonido.
+
+**Lo que costó y no se deshace:**
+
+- **El techo de los agudos.** Una luciérnaga de 8 kHz le dio dolor de cabeza
+  a Eduardo con auriculares. Ninguna nota pasa de 1,1 kHz, y un armónico por
+  encima de 2,5 kHz solo entra si es bajito y corto: la versión que cortaba
+  también eso «perdió nitidez».
+- **Sin ruido.** El chisporroteo de la racha sonaba «como un bug». La única
+  fuente con ruido es la cuerda pulsada, suavizada tres veces.
+- **Sin saturar.** Lo «pixeloso» fuera de Arcade era recorte: muchas notas
+  sumadas pasaban de 1. Hay margen por nota y un tope al final que suelta
+  despacio (con 80 ms deformaba el bombo del recap).
+- **Pausar el recap para cada nota**, no baja un volumen: el eco va por otro
+  camino y seguía sonando bajito.
+- **El recap tiene voces propias** (`RECAP_VOCES`): cambiar los instrumentos
+  de un mundo lo arruinó una vez de rebote.
+
+**Quien había apagado los «Sonidos de 8 bits» de Arcade** sigue en silencio
+hasta que toque el interruptor nuevo. El botón de Arcade en Mi apariencia se
+fue; los sonidos de Arcade se mudaron al motor, y `10k-arcade.js` solo le pide
+que suene. El Pomodoro conserva su propio interruptor para la campana.
+
 ### 0.7.139 · 25 sep 2026
 
 **Las dos puertas que estaban abiertas: un respaldo trucado y un marco

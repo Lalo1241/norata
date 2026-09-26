@@ -317,6 +317,21 @@ el audio dormido tampoco (se despierta y ese se pierde), y nunca más de tres
 en segundo y medio. Lo que tenga que avisar de fondo lo hace el aviso del
 sistema, que trae su propio sonido y su motivo escrito.
 
+**Desde 0.7.140 toda la app suena, y todo sale de `js/01c-sonido.js`**: un
+solo motor, sintetizado (pesa cero, nada en ASSETS), con `sonar(momento)`. Las
+reglas están escritas arriba de ese archivo y son de Eduardo; las que más
+muerden:
+
+- **Suena lo que lograste, no lo que tocaste.** Nada suena a «fallaste».
+- **El techo de los agudos**: ninguna nota por encima de 1,1 kHz; un armónico
+  agudo solo si es bajito y corto. Lo agudo sostenido marea con auriculares, y
+  cortar también lo corto deja todo apagado.
+- **Sin ruido y sin saturar**: los dos se oyen como «pixeloso» o «un bug».
+- **Un mundo cambia el material, no el momento**, y lo decide la apariencia
+  puesta. Hay UN interruptor (`settings.sonido`, en la cuenta) y el volumen va
+  por dispositivo.
+- **Los recaps del aniversario no se tocan**: tienen voces propias.
+
 ## Lo que entra de fuera
 
 **Los datos llegan por tres puertas y dos no son tuyas**: un respaldo que

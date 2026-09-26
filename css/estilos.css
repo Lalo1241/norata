@@ -3902,7 +3902,7 @@
   }
   .mm-tema .tema-tit { font-size: 13px; color: var(--muted); font-weight: 650; }
 
-  /* ---- El sonido (0.7.136), debajo del aspecto ----
+  /* ---- El sonido (0.7.140), debajo del aspecto ----
      La misma fila que el sol y la luna, con la barra de volumen debajo. El
      estado se dice con COLOR y no solo con el relleno: «Silencio» puesto va
      en coral y «Con sonido» en la menta de siempre (Eduardo). Sin transición

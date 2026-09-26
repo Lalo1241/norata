@@ -225,7 +225,7 @@ Bolsillo.
 | Mapa | Puntitos cuadrados, hilos en guiones de píxel y dibujo sin suavizar. Las formas de los nodos no cambian: dicen qué es cada cosa |
 | Menú y «+» | En el teléfono, círculos de píxel en escalón («no tan cuadrados», Eduardo) y el «+» como ficha maciza con bisel |
 | Pomodoro | La rueda y los relojes de arena se redibujan en bloques con un filtro SVG; granos que caen a saltos; la hora con los dos puntos parpadeando |
-| Sonido | Sintetizado: moneda al cumplir, nota al desmarcar, fiestas, racha y el final de tramo. **Encendido de entrada**, con su interruptor en Mi apariencia |
+| Sonido | Sintetizado: moneda al cumplir, nota al desmarcar, fiestas, racha y el final de tramo. Desde 0.7.140 vive en el motor de toda la app (`js/01c-sonido.js`), una octava abajo y bajo su techo de agudos; con Arcade puesto, TODA la app suena en 8 bits. **Ya no tiene interruptor propio**: lo manda el general, junto a Aspecto |
 
 **De día no pierde el encanto de la casa.** La primera versión de día llevaba
 contornos negros de instructivo impreso y Eduardo la paró: el claro de Norata

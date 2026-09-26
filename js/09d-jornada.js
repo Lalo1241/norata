@@ -2109,7 +2109,7 @@ function jPitido(ya) {
    el aviso del sistema, si se dio permiso. Con la app CERRADA no hay nada que
    pueda avisar desde una página web: eso pide avisos desde el servidor, y
    llegará en otra versión. */
-/* Desde 0.7.136 el Pomodoro suena con la voz de toda la app
+/* Desde 0.7.140 el Pomodoro suena con la voz de toda la app
    (js/01c-sonido.js): la del mundo que tengas puesto, Arcade incluido. Su
    interruptor propio sigue mandando sobre la campana, y el general de la app
    sobre todo. */

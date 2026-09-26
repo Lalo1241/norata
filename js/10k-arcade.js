@@ -116,7 +116,7 @@ const ARCADE_RANGOS = [
 ].map(([nombre, g], i) => ({ nombre, trazo: '<g data-px="1">' + arcRects(ARC_G[g]) + "</g>", cielo: ARCADE_CIELOS[i] }));
 
 /* ---------- El sonido ----------
-   Desde 0.7.136 los 8 bits viven en el motor de sonido de la app
+   Desde 0.7.140 los 8 bits viven en el motor de sonido de la app
    (js/01c-sonido.js), con las mismas melodías una octava abajo y bajo el mismo
    techo de agudos que todo lo demás: la rara llegaba a 3 kHz. Con Arcade
    puesto, TODA la app suena en 8 bits (misiones, fiestas, Pomodoro, el recap),

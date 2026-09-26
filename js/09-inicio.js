@@ -1862,7 +1862,7 @@ function renderAjustes() {
   nav.innerHTML = (typeof cuentasMenuHTML === "function" ? cuentasMenuHTML("aj") : "") +
     `<div class="tema-hueco">${temaSwitchHTML()}</div>` +
     /* El sonido, justo debajo del aspecto: los dos se cambian de un toque y
-       tienen que estar a la mano (Eduardo, 0.7.136). */
+       tienen que estar a la mano (Eduardo, 0.7.140). */
     (typeof sonidoControlesHTML === "function" ? `<div class="sonido-hueco">${sonidoControlesHTML()}</div>` : "") +
     seccionesAjustes().map(sec => `
     <button class="aj-item ${ajusteAbierto === sec.id ? "on" : ""} ${sec.tono ? "t-" + sec.tono : ""}"

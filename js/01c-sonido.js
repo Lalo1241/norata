@@ -1,4 +1,4 @@
-/* ================= El sonido de Norata (0.7.136) =================
+/* ================= El sonido de Norata (0.7.140) =================
    Diseñado con Eduardo en un boceto de doce vueltas
    (https://claude.ai/artifact/FFN8qAzr28YroBbgfboPFd). Las reglas que salieron
    de ahí, y que no se tocan sin volver a hablarlo:
@@ -40,7 +40,15 @@ function volumen() {
   try { const v = localStorage.getItem(VOL_CLAVE); if (v !== null && v !== "" && !isNaN(+v)) return Math.max(0, Math.min(100, Math.round(+v))); } catch (e) { /* sin almacén */ }
   return 50;
 }
-function encendido() { return !(typeof state !== "undefined" && state && state.settings && state.settings.sonido === false); }
+/* Quien había apagado los «Sonidos de 8 bits» de Arcade (`arcadeSonido`,
+   0.7.131) ya dijo que no quería oír la app: se le respeta hasta que toque el
+   interruptor nuevo, en vez de encontrársela sonando de golpe. */
+function encendido() {
+  const s = typeof state !== "undefined" && state && state.settings;
+  if (!s) return true;
+  if (s.sonido === undefined) return s.arcadeSonido !== false;
+  return s.sonido !== false;
+}
 
 function audio() {
   if (AC) return AC;
