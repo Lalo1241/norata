@@ -18,8 +18,9 @@ navegador entiende tal cual. Tres consecuencias que muerden si se olvidan:
    **Y hay DOS páginas desde 0.7.14:** `index.html` es la app y
    `login/index.html` es la puerta (`00-idioma`, `00b-textos-en`, `01-base`,
    `10-sincronia`, `10a-perfil`, `10b-supabase`, `10c-portada` y `12-login.js`,
-   que es el que arranca allí). La puerta funciona porque **ninguno de esos
-   ejecuta nada al cargarse**; si algún día uno empieza a hacerlo, la puerta
+   que es el que arranca allí, más `13-nativo.js`). La puerta funciona porque
+   **ninguno de esos ejecuta nada al cargarse** —salvo `13-nativo.js`, que
+   fuera de la app de Android se sale en su primera línea—; si algún día uno empieza a hacerlo, la puerta
    arrancará media app sin querer. Sus rutas van con `../`, y `logotipoSrc()`
    lo resuelve mirando si existe la app.
 
@@ -49,6 +50,27 @@ navegador entiende tal cual. Tres consecuencias que muerden si se olvidan:
    la red acababa trayendo lo nuevo; ahora no hay quien lo rescate.
 3. **Hace falta servirla por HTTP.** `python -m http.server 8123`. Abrir
    `index.html` con doble clic no funciona.
+
+## La app de Android (desde 0.7.140.1)
+
+Además de la web hay una app nativa de Android hecha con **Capacitor**, en la
+carpeta hermana `Norata App Android` —fuera de este repositorio, porque ella SÍ
+tiene compilación—. **No carga mi.norata.app: lleva los archivos dentro**, así
+que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
+
+- **Las versiones le llegan por otro camino.** Al subir la versión,
+  `.github/workflows/paquete-app.yml` fabrica un `.zip` y un `ultima.json` en
+  los releases del repositorio; `js/13-nativo.js` los mira al abrir, baja el
+  nuevo por detrás y lo estrena en la siguiente apertura, con vuelta atrás
+  sola si arranca roto. **No hay que hacer nada más que la regla de siempre**:
+  subir `VERSION` y `CACHE` juntos. Si no coinciden, el trabajo se niega.
+- **Allí no hay service worker** (`enAppNativa` en `11-arranque.js`): se
+  pisaría con el paquete.
+- **Un archivo nuevo que la app pida tiene que viajar en el paquete.** El
+  trabajo comprueba que esté todo lo de `ASSETS`; lo que se pida en caliente y
+  no esté ahí, hay que añadirlo a mano a su lista de `cp`.
+- **El APK solo se reinstala si cambia lo nativo** (el icono, un permiso, un
+  complemento nuevo). Los pasos están en `LEEME.md` de esa carpeta.
 
 ## Lo que no se publica
 

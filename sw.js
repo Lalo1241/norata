@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.140";
+const CACHE = "norata-0.7.140.1";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -46,7 +46,7 @@ const ASSETS = [
      luciérnaga rara, que le puede salir a cualquiera. Su hoja de estilos y
      su letra NO van aquí: solo las baja quien lo encuentra. */
   "./js/10k-arcade.js",
-  "./js/11-arranque.js", "./js/12-login.js",
+  "./js/11-arranque.js", "./js/12-login.js", "./js/13-nativo.js",
   /* Los dos logotipos, porque desde el modo claro la portada usa uno u otro
      según cómo esté la app. Sin el segundo aquí, quien entre de día y sin red
      se queda con el hueco de una imagen que no llegó. */

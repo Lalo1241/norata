@@ -560,7 +560,14 @@ async function norataActualizar(btn) {
   location.reload();
 }
 
-if ("serviceWorker" in navigator && location.protocol === "https:") {
+/* Dentro de la app de Android no hay service worker: allí la app se sirve
+   de sus propios archivos (`https://localhost`, que también es https) y las
+   versiones las trae `js/13-nativo.js`. Con los dos puestos, el worker
+   guardaría su copia encima de la del paquete y serviría la vieja después de
+   cada actualización. */
+const enAppNativa = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+
+if ("serviceWorker" in navigator && location.protocol === "https:" && !enAppNativa) {
   /* ---- «Hay una versión nueva» ----
      Desde 0.7.38 la app se sirve de su propia copia, así que abrirla no espera
      a la red. Lo que avisa de que hay algo nuevo es `sw.js`, que el navegador

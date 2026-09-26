@@ -247,6 +247,31 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.140.1 · 26 sep 2026
+
+**La app de Android se actualiza sola, sin reinstalar el APK.** Eduardo pidió
+una app nativa de verdad —no el envoltorio de PWABuilder, que abre Chrome por
+dentro— y que las versiones le llegaran solas. La app está en la carpeta
+hermana `Norata App Android` (Capacitor 8), lleva los archivos dentro, y esta
+versión es la mitad de la web:
+
+- `js/13-nativo.js`, nuevo, en `index.html`, en `login/index.html` y en
+  `ASSETS`. Solo hace algo dentro de la app: avisa «arranqué bien» al
+  complemento de actualización, mira `ultima.json` en los releases, y si hay
+  algo más nuevo lo baja con su huella y lo deja para la próxima apertura.
+- `11-arranque.js` no registra el service worker dentro de la app
+  (`enAppNativa`): allí también es https (`https://localhost`) y el worker se
+  habría quedado sirviendo su copia encima del paquete nuevo.
+- El paquete lo fabrica `.github/workflows/paquete-app.yml` (subido en el
+  commit anterior, sin versión porque no toca `ASSETS`).
+
+Probado en el navegador con un puente nativo de mentira: en la web no hace
+nada y no deja errores; dentro, llama a lo que debe y en ese orden
+(listo → mirar → bajar con huella → dejar para la próxima), y con la misma
+versión no baja nada. **Falta probarlo en un teléfono.** El complemento es
+`@capgo/capacitor-updater` en modo manual y con toda su estadística apagada:
+por defecto le manda datos de uso a su fabricante.
+
 ### 0.7.140 · 26 sep 2026
 
 **Norata suena, en toda la app.** Hasta aquí sonaban el Pomodoro y Arcade,
