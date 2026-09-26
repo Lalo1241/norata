@@ -1118,8 +1118,13 @@ function expFiguraDeRango(r, i) {
      —filas de cuadritos— y derivarlas sembraba estrellas por cada fila, un
      puñado de rayas en vez de una ficha o una corona. */
   if (r && r.cielo && r.cielo.p && r.cielo.p.length >= 4) return r.cielo;
-  if (r && r.trazo) {
-    const fig = expFiguraDeTrazo(r.trazo);
+  /* O su dibujo de LÍNEA aparte (`trazoCielo`): Averno (0.7.136) pinta la
+     insignia en píxel y siembra el cielo sobre el dibujo de línea de siempre,
+     que es la misma figura. Así la constelación no cambió al rehacer el
+     mundo, y quien ya la llevaba a medias la sigue viendo igual. */
+  const trazoCielo = r && (r.trazoCielo || r.trazo);
+  if (trazoCielo) {
+    const fig = expFiguraDeTrazo(trazoCielo);
     if (fig && fig.p.length >= 4) return fig;
   }
   return NCEL_FIGURAS[i];
@@ -1658,7 +1663,10 @@ function svgDeTrazo(d, tam) {
   /* Los rangos de Arcade (0.7.131) son de píxel: de RELLENO, en rejilla de 12
      y sin suavizar. Un trazo de 1,7 de grosor no se puede pixelar. */
   if (d && d.indexOf("data-px") >= 0) {
-    return '<svg width="' + tam + '" height="' + tam + '" viewBox="0 0 12 12" fill="currentColor" ' +
+    /* La rejilla la dice el propio dibujo: `data-px="16"` en Averno (0.7.136),
+       que tiene más detalle que Arcade. `data-px="1"` es el de Arcade, de 12. */
+    const m = /data-px="(\d+)"/.exec(d), n = m && +m[1] > 1 ? +m[1] : 12;
+    return '<svg width="' + tam + '" height="' + tam + '" viewBox="0 0 ' + n + " " + n + '" fill="currentColor" ' +
       'shape-rendering="crispEdges" aria-hidden="true">' + d + '</svg>';
   }
   return '<svg width="' + tam + '" height="' + tam + '" viewBox="0 0 24 24" fill="none" ' +

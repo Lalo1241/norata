@@ -15,7 +15,7 @@ todavía NO existe en la app, para no dar por hecho lo que aún no está.
 | **Ya está en la app** (0.7.37) | La capa de material: `--r-*`, `--sup-*`, `--marco-*`, `--tipo-titulo`, `--tipo-cifra`, `--dur-*`. Ver la sección «El material» de `CLAUDE.md`. |
 | **Ya está en la app** (0.7.38) | Servir de la copia primero, para que un mundo se baje UNA vez y no cada mañana. |
 | **Construido aparte, en `css/arcade.css`** (0.7.131) | **Arcade**, el mundo secreto. No es uno de los quince: es una capa de material que va encima del ambiente, sin colores propios. Se genera con `python mundos/arcade.py` desde `mundos/arcade/arcade.css`. Ver la sección «Arcade» de `apariencias/LEEME.md`. |
-| **Construidos, en `css/mundos.css`** | Tres: **Reliquia** (Fundador), **Blueprint** y **Averno**, los tres con sus dos caras. Cada uno se da de alta en cuatro sitios: sus tokens en `mundos/datos.py`, el id en `LISTOS` y la letra en `FUENTES` de `mundos/app.py`, y el `listo: true` con sus cinco rangos en `js/10i-apariencia.js`. |
+| **Construidos, en `css/mundos.css`** | Tres: **Reliquia** (Fundador), **Blueprint** y **Averno**, los tres con sus dos caras. **Averno no sale de `datos.py` desde la 0.7.136**: trae cuatro paletas y un material propio, y lo genera `mundos/averno/averno.py` (ver «Averno, rehecho en píxel» en `apariencias/LEEME.md`). Cada uno se da de alta en cuatro sitios: sus tokens en `mundos/datos.py`, el id en `LISTOS` y la letra en `FUENTES` de `mundos/app.py`, y el `listo: true` con sus cinco rangos en `js/10i-apariencia.js`. |
 | **Diseñado y medido, sin construir** | Los doce restantes de este documento (revisados tres veces). |
 | **Ya está en la app** (antes de todo esto) | La caja registradora: `js/10d-plan.js` ya tiene la llave `apariencia` —Gratuito «las paletas de color», Pro «todas las apariencias»—. El cobro está resuelto; lo que no existe es qué vender. |
 | **Ya está en la app** (0.7.40) | **El motor**, apagado detrás de `?apariencia=`: `data-apariencia`, los siete ambientes, `--tipo-titulo-escala` y el guardado. Con la apariencia de casa puesta no se movió un píxel de 25 848. |
@@ -44,7 +44,7 @@ Sobran 38: **un 16% de holgura**, y eso es toda la pista.
 | Cara | vs Outfit | Ancho | Escala | Mundo |
 | --- | --- | --- | --- | --- |
 | Big Shoulders Display | −26% | 174,2 | 1 | Ventisca |
-| Grenze Gotisch | −17% | 195,3 | 1 | Averno |
+| Jacquard 24 | −18% | 193,3 | 1,07 | Averno (desde 0.7.136) |
 | Alegreya Sans | −14% | 204,2 | 1 | Talavera |
 | Rajdhani | −10% | 212,5 | 1 | Blueprint |
 | Patrick Hand | −22% | 185,6 | 1 | Post-it |
@@ -62,7 +62,7 @@ Sobran 38: **un 16% de holgura**, y eso es toda la pista.
 | Monoton | +42% | 335,5 | — | *descartada* |
 
 **Serif, las justas.** De quince mundos solo dos llevan serif —Forja (Cinzel,
-inscripcional, que es piedra tallada) y Averno (Grenze Gotisch, que es gótica—.
+inscripcional, que es piedra tallada) y Averno (Jacquard 24, gótica de píxel desde la 0.7.136)—.
 Todo lo demás va en sans. Una serif de titular a 15 px dentro de una tarjeta se
 lee peor y envejece antes.
 
@@ -107,7 +107,7 @@ casa, y ninguno lleva marca, icono ni tipografía de nadie.
 | **Obsidiana** | El oscuro elegante | Sora | +13% | 0.99 | 0 px · vivas | ~80 KB | Noche |
 | **Cénit** | Vidriera de cielo | Julius Sans One | +23% | 0.91 | 3 px · casi vivas | ~85 KB | Noche |
 | **Reliquia** | El de Fundador | Syne | +18% | 0.95 | 4 px · vitrina | ~75 KB | Noche |
-| **Averno** | El oscuro de verdad | Grenze Gotisch | −17% | 1 | 2 px · piedra tallada | ~95 KB | Noche |
+| **Averno** | Gótico de píxel, cuatro paletas | Jacquard 24 | −18% | 1,07 | 0 px · piedra labrada | ~50 KB | Las dos |
 | **Ventisca** | Frío con una hoguera | Big Shoulders Display | −26% | 1 | 3 px · chapa | ~90 KB | Noche |
 | **Bastión** | Blindaje | Michroma | +9% | 0.81 | 4 px · placa | ~105 KB | Noche |
 

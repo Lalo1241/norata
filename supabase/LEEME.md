@@ -6,6 +6,43 @@ panel de Supabase y se quedan hechos para siempre.
 Viven aquí y no solo dentro del panel para que tengan historial: algo que solo
 existe dentro de una página web ajena no se puede comparar ni volver atrás.
 
+---
+
+## ⚠ Pendiente de pegar
+
+**Esta lista es la única fuente de verdad de lo que el repositorio dice y la
+base de datos todavía no sabe.** Existe porque los dos relojes van por separado:
+una versión de la app llega sola a los dispositivos —basta con subir el número—
+y un cambio de SQL **no llega nunca** hasta que alguien lo pega a mano. Sin una
+lista, esa diferencia solo vive en una conversación, y una conversación se
+cierra.
+
+**Cómo se usa, y son dos reglas:**
+
+1. **Al cambiar cualquier `.sql` de esta carpeta, se añade una fila aquí**, en
+   el mismo commit. No en el mensaje del commit ni en `VERSIONES.md`: aquí, que
+   es lo que se abre el día que uno se sienta delante de Supabase.
+2. **Al pegarlo, se borra la fila** y ya está. Una lista que solo crece se deja
+   de mirar.
+
+Lo de abajo está escrito por orden: lo de más arriba es lo más antiguo.
+
+### 1. `apuntar_tropiezo` — 25 sep 2026
+
+**Qué**: volver a pegar la función entera desde `administracion.sql` (la
+sección «Los tropiezos» de más abajo cuenta el porqué). Es un
+`create or replace`: **no toca la tabla ni los datos que ya haya**, así que se
+puede pegar dos veces sin consecuencias.
+
+**Por qué corre prisa lo justo**: sin esto, el buzón de errores se puede cegar
+con unas 500 peticiones baratas y a partir de ahí lo que llegue se pierde en
+silencio. Mientras no haya nadie más que Eduardo usando la app, el riesgo real
+es bajo; el día que haya gente fuera, no.
+
+**Dónde**: panel de Supabase → SQL Editor → pegar → Run.
+
+---
+
 ## Borrar la cuenta (`borrar-cuenta.sql`)
 
 **Sin esto, el botón «Borrar mi cuenta» de Ajustes no funciona**: avisa de que
@@ -195,10 +232,43 @@ sin sesión**, y tiene que serlo: los errores más graves son los del arranque,
 antes de que nadie haya entrado. Un fallo que solo se pudiera reportar tras
 iniciar sesión sería invisible justo cuando importa.
 
-Como es abierta, lleva dos frenos: el mensaje se recorta a 300 caracteres, y
-pasadas 500 filas en un día se dejan de crear nuevas pero se siguen contando
-las que ya existen — así, quien quisiera llenar la tabla no borra de paso la
-información de un fallo real.
+Como es abierta, lleva frenos. El mensaje se recorta a 300 caracteres, y lo que
+ya existe sigue contando aunque el día esté lleno — así, quien quisiera llenar
+la tabla no borra de paso la información de un fallo real.
+
+**Y desde el 25 de septiembre de 2026 el cupo está PARTIDO EN DOS, porque uno
+solo se podía gastar y dejaba ciego el buzón el resto del día.** Con un único
+tope de 500 para todo, gastarlo salía por unas 500 peticiones baratas; a partir
+de ahí un mensaje nuevo desaparecía **sin dejar rastro**, y eso incluía los
+reportes que escribe una persona a mano, que son los que traen contexto. Peor
+aún: el día que algo se rompiera de verdad no se vería nada, y el silencio se
+lee como «no pasó nada».
+
+Dos cambios, y hacen falta los dos:
+
+| | Cupo al día | Qué protege |
+| --- | --- | --- |
+| `reporte` (lo escribe una persona) | 150 | un aluvión de errores automáticos ya no lo ahoga |
+| todo lo demás (automáticos) | 500 | igual que antes, sin cambios |
+
+Y **lo que no cabe ya no se calla**: se guarda una fila `donde = 'tope'` por día
+y cupo, contando cuántos se descartaron. `metricas()` ordena por `cuantos desc`,
+así que esa fila sale ARRIBA en «Lo que se rompe solo» justo cuando importa —
+ver un aluvión es la mitad de enterarse de que lo hay. `'tope'` es de la casa:
+si alguien lo manda desde fuera se reescribe a `'otro'`, o el aviso se podría
+falsificar desde el navegador.
+
+**Hay que volver a pegar la función** (`apuntar_tropiezo` en
+`administracion.sql`) para que esto entre. Es un `create or replace`: no toca
+la tabla ni los datos que ya haya.
+
+**Lo que esto NO arregla, y conviene tenerlo escrito:** quien insista puede
+llenar también el cupo de reportes. Un tope de verdad pide limitar por IP, y
+eso significa guardar algo derivado de la IP de cualquiera que tenga un error
+— mal negocio para proteger un registro de errores, y contra la privacidad que
+el resto del proyecto cuida. Lo que corresponde es limitar en el borde (las
+reglas de Cloudflare, ver la rama aparcada), no en la base de datos. Mientras
+tanto, el aluvión se **ve**, que es lo que faltaba.
 
 ## Cobrar (`planes.sql` + las funciones `pagar` y `cobro`)
 

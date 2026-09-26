@@ -541,159 +541,35 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
    "--m-peligro":"#ff603d","--m-peligro-tinta":"#bd2200","--m-peligro-velo":"rgba(189,34,0,.11)",
    "--m-carril":"#a7a0b6","--m-engaste":"#8a6d2f"}),
 
- dict(id="averno", nombre="Averno", familia="de-relato", llave="El oscuro de verdad", color="#ff7a3d",
+ dict(id="averno", nombre="Averno", familia="de-relato", llave="Gótico de píxel", color="#ff3d4f",
   plan="Pro",
-  premisa="Piedra quemada con la brasa debajo. Del poema se cita lo único que hay que citar —los círculos—: arcos concéntricos que se estrechan al bajar y solo el de dentro sigue ardiendo. Cae ceniza en el fondo, con tres motas que todavía no se han apagado, y el icono es un sol eclipsado: anillo encendido y centro muerto. El concepto es demonología cristiana leída, no disfrazada: la referencia es el texto y el glifo —el sello, Leviatán, la legión, Abadón—, nunca el cuerno ni el tridente. Esa es la línea que separa esto de una caricatura, y la pidió Eduardo con esas palabras: que no se vea infantil.",
-  letra="Grenze Gotisch", ancho="−17%", escala="1", esquinas="2 px · piedra tallada", peso="~95 KB", horas="Noche",
-  nota="Tercero construido, después de Reliquia y Blueprint. Lo que cambió al pasar de la lámina a la app fue todo de MEDIDA y nada de dibujo: la tarjeta subió de #1d0f0b a #2e1e18 —contra la parte plana de la página daba 1,10 y contra la de en medio 1,03, o sea que desaparecía—, el carril subió de #1a0c08 a #422c23 —daba 1,02, que es no verlo— y el peligro pasó de #ff3b6b a #ff5c80 porque su chip se quedaba en 3,95 sobre su propio velo. Los tres son fallos que la lámina no enseña: ahí la tarjeta se ve sola sobre un recorte de página, no en una lista de veinte.",
-  # ---- El balance, después de mirarlo puesto ----
-  # Lo paró Eduardo con la frase justa: «usas demasiado naranja/rojo y nada de
-  # negros cálidos como el tono que tienes en el menú». Medido en OKLCh, tenía
-  # razón y se veía dónde: **el problema era el CROMA, no la luz.** La brasa
-  # del degradado llevaba 0,091 de croma sobre el 38% de abajo de cada
-  # pantalla, el borde de las tarjetas 0,059 —el doble que el de la casa,
-  # multiplicado por las cuarenta piezas con borde que hay en una pantalla— y
-  # la tarjeta 0,028. Nada de eso es naranja de acento: es naranja de fondo.
-  #
-  # Así que baja el color y no la luz, que es lo que deja los contrastes donde
-  # estaban: la tarjeta pasa a 0,017 —por debajo del 0,024 de la casa, o sea un
-  # negro cálido de verdad y no un marrón—, el borde a 0,020 y la brasa a
-  # 0,048. El acento sigue en 0,178: lo que se enciende no se toca, lo que se
-  # apagó es el fondo sobre el que se enciende.
-  tokens={"--m-pagina":"radial-gradient(ellipse 115% 58% at 50% 120%, #391d12 0%, #130a06 52%, #050302 100%)",
-   # El 0,9 vive DENTRO del vector y por eso esto vale 1. `--m-grano-op` no
-   # cruza a la app —`app.py` mete el grano en `--sup-pagina` como una capa de
-   # `background`, y a una capa de fondo no se le pone opacidad por CSS—, así
-   # que lo que se escriba aquí solo lo ve la lámina. Es la lección que dejó
-   # Blueprint, cuya retícula saltaba de 2,17 a 4,32 por no hornearla.
-   # La ceniza se aligeró: «el fondo está demasiado cargado de elementos y
-   # agobia con el tiempo». Un fondo se mira mil veces, así que lo que en la
-   # primera pasada es atmósfera en la décima es ruido. Menos motas y más
-   # apagadas — ver el vector, que lleva la cuenta.
-   "--m-grano":f'url("{svg("averno-ceniza.svg")}")',"--m-grano-op":"1",
-   # La tarjeta es PLANA y no un degradado, y subió tres escalones desde la
-   # lámina. Los dos cambios salen de lo mismo: medida contra la página, la
-   # tarjeta de la lámina daba 1,03 en la mitad de arriba —donde el fondo es
-   # plano #050302— y hasta se INVERTÍA cerca del borde de abajo, donde la
-   # brasa aclara la página. Una tarjeta que no se ve apoyada encima no es una
-   # tarjeta. Ahora da 1,29 arriba y 1,09 abajo, siempre por encima, y la
-   # tinta sigue en 12,28. El degradado se fue porque en una lista de veinte
-   # misiones se lee como un manchón y no como relieve: el relieve lo pone la
-   # sombra de dentro, que sí se ve una vez por tarjeta.
-   "--m-tarjeta":"#261c18","--m-borde":"1px","--m-borde-color":"#382c28",
-   "--m-sombra":"inset 0 1px 0 rgba(255,150,80,.16), 0 12px 30px rgba(0,0,0,.62)",
-   "--m-r-tarjeta":"2px","--m-r-mini":"2px","--m-r-barra":"2px","--m-r-chip":"2px",
-   "--m-tinta":"#f2ded1","--m-tinta-2":"#a68873",
-   "--m-acento":"#ff7a3d","--m-acento-velo":"rgba(255,122,61,.14)",
-   "--m-aviso":"#f0c24a","--m-aviso-velo":"rgba(240,194,74,.14)",
-   # El peligro subió de #ff3b6b, y no por gusto: encima de su propio velo
-   # —que es donde vive un chip— daba 3,95, por debajo del 4,5 que pide un
-   # texto. Es el fallo que MUNDOS.md encontró en nueve chips de cinco mundos
-   # al mirarlos por primera vez. Con el velo bajado además al 10%, el chip da
-   # 4,69 y el rótulo suelto 5,39, y el tono sigue siendo carmesí y no rosa.
-   "--m-peligro":"#ff5c80","--m-peligro-velo":"rgba(255,92,128,.10)",
-   # El carril daba 1,02 sobre la tarjeta: invisible. Un carril tiene que
-   # dejar ver por dónde va lo lleno —no es un borde— y encima suyo hay que
-   # distinguir los ocho colores del usuario. Éste da 1,23, igual que la casa,
-   # y el peor de los ocho encima da 5,32 contra los 5,16 de la casa.
-   "--m-carril":"#372b26",
-   "--m-icono":f'url("{svg("averno-sello.svg")}") center/contain no-repeat',
-   # Los anillos, que son la firma del mundo y hasta ahora solo vivían en
-   # `extra=` —o sea, solo en la lámina—. Cruzan a la app desde aquí; dónde se
-   # ponen lo decide `app.py`, y la respuesta corta es: en la escena, que es la
-   # única pieza que sale UNA vez por pantalla.
-   "--m-anillos":f'url("{svg("averno-anillos.svg")}")',
-   "--m-titulo":'"Grenze Gotisch",Georgia,serif',"--m-titulo-px":"17px","--m-titulo-peso":"700","--m-titulo-esp":".01em",
-   # **Las cifras NO van en la gótica**, y es lo único del mundo que usa la
-   # letra de la casa a propósito. Grenze Gotisch tiene numerales de estilo
-   # antiguo y muy dibujados: un titular en esa cara es carácter, pero un «3»
-   # a 18 px dentro de un banner es un acertijo. Lo pidió Eduardo —«haz que
-   # los números en los banners sean más legibles»— y el arreglo no es
-   # agrandarlos: es que una cifra se lee y un título se mira.
-   "--m-cifra":'"Outfit",system-ui,sans-serif',"--m-cifra-peso":"700","--m-cifra-esp":"-.01em",
-   "--m-chip-fuente":'"Grenze Gotisch",Georgia,serif',"--m-chip-esp":".05em",
-   # La lámina decía 1,3 s, y ahí se entiende: se mira UNA tarjeta y el peso de
-   # la piedra se lee como carácter. En la app este número es `--dur-media`, o
-   # sea cada menú que se abre y cada pestaña que se cambia — segundo y medio
-   # para ver una pantalla es lento, no pesado. Se queda en .6, que sigue
-   # siendo el triple que la casa (.22) y algo menos que Reliquia (.9).
-   "--m-dur":".6s","--m-curva":"cubic-bezier(.15,.8,.25,1)"},
-  # ---- Y la piedra de día ----
-  # No es la noche aclarada, que es el error que ya costó una cara en Reliquia:
-  # es LA CENIZA A PLENA LUZ, con la brasa todavía debajo. De noche la ceniza
-  # es lo claro sobre el carbón; de día es lo oscuro —el hollín— sobre la
-  # ceniza apagada, y por eso el grano cambia de SIGNO en vez de aclararse.
-  # La geometría del fondo no se mueve: la brasa sigue abajo y fuera de cuadro,
-  # sólo que ahora lo que llega hasta arriba es calor y no luz.
-  #
-  # Hay que declararla entera. El bloque del mundo le gana a `html.claro`
-  # porque `css/mundos.css` se carga después, pero SOLO en lo que declara: sin
-  # esta cara saldría la noche de Averno con los tonos de papel de la casa
-  # colados por los huecos.
-  #
-  # El acento se parte en dos como manda la casa —`--m-acento` rellena y
-  # `--m-acento-tinta` escribe— y los dos salen medidos: la tinta llega a 8,34
-  # sobre la tarjeta y a 2,92 encima de su propio relleno, que es exactamente
-  # lo que da la casa ahí y es donde vive el rótulo de estado de un proyecto.
-  # ---- Y la cara de día, levantada ----
-  # «Corrige los fondos que usen este tono de gris oscuro y sucio, se pierde
-  # mucho y se ve mal en pantalla.» El diagnóstico no era el croma sino la
-  # LUZ: la página de día estaba en L 0,852 y la de la casa está en 0,904, o
-  # sea que todo el modo claro era un beige oscuro. Y el suelo de los mapas,
-  # que se deriva de la página hundiéndola, caía en L 0,821 — ahí es donde un
-  # cálido con algo de croma deja de ser beige y pasa a ser barro. La casa se
-  # salva de eso porque su gris es AZUL, y un azul sucio no se ve sucio.
-  #
-  # Sube la luz y baja el croma: la página a 0,900 y el suelo a #d8d4d1, que
-  # es un gris cálido limpio. La tarjeta no se movió —ya estaba en 0,961— y
-  # sigue apoyada encima con 1,21, que es lo que da la casa (1,18).
-  dia={"--m-pagina":"radial-gradient(ellipse 115% 58% at 50% 120%, #fde5d0 0%, #ebe0d8 52%, #e4dcd6 100%)",
-   "--m-grano":f'url("{svg("averno-ceniza-dia.svg")}")',
-   # Horneado al 0,7 y no al 0,9 de la noche: una mota oscura sobre papel se ve
-   # más que una clara sobre negro. Sigue siendo filigrana —1,4 contra la
-   # página, por debajo del 1,6 en que un fondo empieza a competir con lo que
-   # hay que leer—, que es la regla que dejó escrita Talavera.
-   "--m-grano-op":"1",
-   # La tarjeta queda por encima de las TRES paradas del degradado (1,18 sobre
-   # la brasa de abajo, 1,24 en medio y 1,40 arriba) y no sólo de la más honda,
-   # que es la única que `app.py` traduce a `--bg`. Con una página en degradado
-   # eso hay que comprobarlo parada por parada: si una sola queda por encima,
-   # las tarjetas se hunden en esa franja de la pantalla y flotan en el resto.
-   "--m-tarjeta":"#f7f1ea","--m-borde-color":"#c4bcb7",
-   "--m-sombra":"inset 0 1px 0 #fffdfa, 0 8px 22px rgba(74,36,24,.14)",
-   # El apagado se mide contra la PÁGINA y no contra la tarjeta, que es lo
-   # que lo hizo bajar de #725442. Media docena de rótulos —los chips sin
-   # elegir, el signo de añadir, la leyenda del mapa, la nota de Ajustes—
-   # no viven dentro de ninguna tarjeta: se apoyan en el fondo, y ahí el
-   # tono anterior daba 4,36, por debajo del 4,5 de un texto. Con éste da
-   # 5,32 sobre la página —la casa da 5,21— y 7,47 sobre la tarjeta.
-   "--m-tinta":"#331911","--m-tinta-2":"#654736",
-   "--m-acento":"#f2621f","--m-acento-tinta":"#920500","--m-acento-velo":"rgba(146,5,0,.10)",
-   "--m-aviso":"#f0b41c","--m-aviso-tinta":"#794f00","--m-aviso-velo":"rgba(121,79,0,.12)",
-   "--m-peligro":"#ff3b6b","--m-peligro-tinta":"#b30031","--m-peligro-velo":"rgba(179,0,49,.11)",
-   # El carril de día sale hex y no rgba porque hay que MEDIRLO por los dos
-   # lados: da 1,21 sobre la tarjeta —la casa da 1,21— y el peor de los ocho
-   # colores del usuario encima da 1,86, por encima del 1,84 de la casa.
-   # El carril de día se vuelve a medir contra la página nueva: 1,21 sobre la
-   # tarjeta —igual que la casa— y el peor de los ocho colores del usuario
-   # encima da 1,85, por encima del 1,84 de la casa.
-   "--m-carril":"#e3dcd7",
-   "--m-icono":f'url("{svg("averno-sello-dia.svg")}") center/contain no-repeat'},
-  # Los anillos iban en una caja de 120x120 anclada abajo a la derecha, y la
-  # tarjeta mide 88 de alto: se recortaban y lo que quedaba a la vista era la
-  # parte de arriba del dibujo, que cae hacia la IZQUIERDA. Por eso parecía
-  # que se habían mudado de lado. Ahora la caja mide lo que mide la tarjeta y
-  # el dibujo se ajusta dentro, pegado al borde derecho.
-  #
-  # OJO: `extra=` sólo lo lee la lámina. En la app los anillos todavía NO
-  # están —`app.py` no traduce este bloque—, así que Averno llega sin su firma
-  # de dibujo. Está apuntado, y no se resuelve escribiendo una regla global
-  # sobre `.ficha::after`: eso es exactamente lo que ya costó tres rondas.
-  extra=""".averno .ficha{ overflow:hidden; }
-  .averno .ficha::after{
-    content:""; position:absolute; left:auto; right:0; top:0; width:46%%; height:100%%;
-    background:url("%s") right center/contain no-repeat; opacity:.8; pointer-events:none;
-  }""" % svg("averno-anillos.svg")),
+  premisa="Un castillo gótico en pixel art: piedra labrada con marco de hierro, sombras de tramado y la luz que entra por el vitral. El rojo es el protagonista y cada paleta trae un segundo tono que no es rojo —índigo, hueso, verdín o cian—. Los botones del menú son escudos y el «+» es un rosetón. Rehecho entero en la 0.7.136; el Averno anterior (piedra quemada y los círculos de Dante) se retiró.",
+  letra="Jacquard 24", ancho="−18%", escala="1.07", esquinas="0 px · piedra labrada", peso="~50 KB", horas="Las dos",
+  nota="Desde la 0.7.136 esta entrada ya no genera el CSS de la app: lo genera `mundos/averno/averno.py`, porque Averno trae cuatro paletas y un material propio que el vocabulario `--m-*` no alcanza a decir. Aquí se queda con los tonos de Vitral, la paleta de partida, para la lámina y para la muestra del catálogo.",
+  # Vitral, la paleta de partida. La fuente de verdad es mundos/averno/paletas.py:
+  # si se toca un tono allí, se copia aquí para que la muestra no discrepe.
+  tokens={"--m-pagina":"#07080f",
+   "--m-tarjeta":"#191a2c","--m-borde":"2px","--m-borde-color":"#4a4d78",
+   "--m-sombra":"inset 0 2px 0 #3b3d63",
+   "--m-r-tarjeta":"0px","--m-r-mini":"0px","--m-r-barra":"0px","--m-r-chip":"0px",
+   "--m-tinta":"#ece6f0","--m-tinta-2":"#a09bbc",
+   "--m-acento":"#ff3d4f","--m-acento-velo":"rgba(255,61,79,.09)",
+   "--m-aviso":"#f2c94c","--m-aviso-velo":"rgba(242,201,76,.14)",
+   "--m-peligro":"#ff8a3d","--m-peligro-velo":"rgba(255,138,61,.10)",
+   "--m-carril":"#2c2e48",
+   "--m-titulo":'"Jacquard 24",Georgia,serif',"--m-titulo-px":"21px","--m-titulo-peso":"400","--m-titulo-esp":"0",
+   "--m-cifra":'"Jersey 10","Outfit",system-ui,sans-serif',"--m-cifra-peso":"400","--m-cifra-esp":"0",
+   "--m-chip-fuente":'"Outfit",system-ui,sans-serif',"--m-chip-esp":"0",
+   "--m-dur":".3s","--m-curva":"steps(4, end)"},
+  dia={"--m-pagina":"#dfdde9",
+   "--m-tarjeta":"#f4f2f8","--m-borde-color":"#8e8aab",
+   "--m-sombra":"inset 0 2px 0 rgba(255,255,255,.9)",
+   "--m-tinta":"#15142a","--m-tinta-2":"#4c4868",
+   "--m-acento":"#ff3d4f","--m-acento-tinta":"#b3001b","--m-acento-velo":"rgba(179,0,27,.07)",
+   "--m-aviso":"#f2c94c","--m-aviso-tinta":"#6f5600","--m-aviso-velo":"rgba(111,86,0,.12)",
+   "--m-peligro":"#ff8a3d","--m-peligro-tinta":"#a33a00","--m-peligro-velo":"rgba(163,58,0,.11)",
+   "--m-carril":"#e1dfea"},
+  extra=""),
 
  dict(id="ventisca", nombre="Ventisca", familia="de-relato", llave="Frío con una hoguera", color="#8fd4ff",
   premisa="Chapa de hierro a la intemperie y el hielo ganándole terreno: dendritas de verdad creciendo desde las esquinas —tallo que avanza y ramas al mismo ángulo a los dos lados, que es lo que hace el hielo— y un filo de agujas colgando del borde de arriba. La interfaz es de hielo; el calor está detrás, en el resplandor ámbar que sube desde abajo de la pantalla. Esa tensión ES el mundo.",

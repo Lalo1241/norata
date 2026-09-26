@@ -222,7 +222,10 @@ const TEXTOS_EN = {
   "Los siete días. Van {0} semanas seguidas.": "All seven days. {0} weeks in a row.",
   "Los siete días, completa.": "All seven days, complete.",
   "Hoy ya sumó. Van {0} semanas seguidas.": "Today already counts. {0} weeks in a row.",
-  "Hoy ya sumó a {0}.": "Today already added to {0}.",
+  "Hoy ya sumó {0}.": "Today already added to {0}.",
+  "a la fogata": "the campfire",
+  "al plano": "the blueprint",
+  "a la vitrina": "the display case",
   "Si hoy haces algo, {0} crece.": "Do something today and {0} grows.",
   "Semana {0}": "Week {0}",
   "Esta semana ya no llega": "This week won't make it",
@@ -1402,7 +1405,6 @@ const TEXTOS_EN = {
  "Enfriándose": "Cooling off",
  "Casi listo": "Almost there",
  "En pausa": "Paused",
-  "Terminado": "Finished",
    "Espera su turno": "Waiting its turn",
   /* ---- Los cuatro tipos de encargo ----
      Salen de `TIPOS_ENCARGO` y no del barrido, igual que los veredictos de
@@ -1429,9 +1431,6 @@ const TEXTOS_EN = {
   "Vas igual que la semana pasada": "Same as last week",
   "{0} de {1} días · la semana pasada, {2}": "{0} of {1} days · last week, {2}",
   "{0} de {1} días esta semana": "{0} of {1} days this week",
-  "Estancado": "Stalled",
-  "Enfriándose": "Cooling off",
-  "Casi listo": "Almost there",
   "Con ritmo": "Keeping pace",
   "Cerrado y guardado en tu historial.": "Closed and kept in your history.",
   "Lo soltaste. Puedes retomarlo cuando quieras.":
@@ -2816,7 +2815,6 @@ const TEXTOS_EN = {
  "el ＋ de cada tablero crea una misión ya puesta ahí": "the ＋ on each board creates a mission already placed there",
  "Cada cuánto se cobra Pro": "How often Pro is charged",
  /* Las tarjetas del escaparate de planes. */
- "al mes": "a month",
  "Si no es para ti, te devolvemos los primeros {0} días. Sin explicaciones.": "If it isn't for you, we refund the first {0} days. No questions asked.",
  "Y si no es para ti, te devolvemos los primeros {0} días.": "And if it isn't for you, we refund the first {0} days.",
  "Norata Clásico": "Norata Classic",
@@ -2834,8 +2832,8 @@ const TEXTOS_EN = {
     "The mint turns sky blue and the app goes from celebrating to keeping you company.",
   "El desierto cuando se mete el sol: el cielo en violeta y la arena en lavanda.":
     "The desert as the sun goes down: the sky in violet and the sand in lavender.",
-  "Piedra quemada con la brasa debajo, y los círculos del poema. Demonología de la que se lee, no de la que se disfraza.":
-    "Burnt stone with the embers underneath, and the circles from the poem. The demonology you read, not the kind you dress up as.",
+  "Un castillo gótico en pixel art: piedra labrada, hierro y la luz que entra por el vitral. Demonología de la que se lee, no de la que se disfraza.":
+    "A gothic castle in pixel art: carved stone, iron and the light coming in through stained glass. The demonology you read, not the kind you dress up as.",
   "Me arrepiento en polvo y ceniza.": "I repent in dust and ashes.",
   "Lo ató, y puso su sello sobre él.": "He bound him, and set a seal upon him.",
   "No hay sobre la tierra quien se le parezca.": "Upon earth there is not his like.",
@@ -2920,7 +2918,6 @@ const TEXTOS_EN = {
   "Así abriste tu {0} año": "How you opened your {0} year",
   "Tu primera misión. La que abrió el mapa entero.": "Your first mission. The one that opened the whole map.",
   "La primera misión que cumpliste este año. Con ella empezó un capítulo nuevo.": "The first mission you completed this year. A new chapter started with it.",
-  "Misiones cumplidas": "Missions completed",
   "Tu mejor mes fue {0}, con {1} misiones terminadas.": "Your best month was {0}, with {1} missions done.",
   "Tu hora fuerte": "Your power hours",
   "De medianoche a las 2": "Midnight to 2 AM",
@@ -2948,7 +2945,6 @@ const TEXTOS_EN = {
   "Cuando el día ya se había ido, tú todavía le sacabas algo.": "When the day was already gone, you still got something out of it.",
   "Antes de apagar la luz, siempre un último paso.": "Before lights out, always one last step.",
   "Tu mejor racha": "Your best streak",
-  "días seguidos": "days in a row",
   "Más de un mes sin soltar el hilo. Eso ya tiene nombre: constancia.": "Over a month without letting go. That has a name: consistency.",
   "Días enteros encadenados, uno detrás de otro.": "Whole days linked together, one after another.",
   "La que más creció": "The one that grew the most",
@@ -3876,7 +3872,41 @@ const TEXTOS_EN = {
   "Tu descanso termina en": "Your break ends in",
   /* El aviso de atrapar una luciérnaga (0.7.133.2). */
   "¡Atrapaste una luciérnaga!": "You caught a firefly!",
-  /* El sonido de toda la app (0.7.136). */
+  /* Las paletas de un mundo, en Mi apariencia (Averno, 0.7.136). Los nombres
+     de las paletas se traducen: son palabras, no marcas. */
+  "Paletas de {0}": "{0} palettes",
+  "{0} trae sus propias luces, y aquí sustituyen a los ambientes. Cada paleta tiene su cara de día y de noche.":
+    "{0} brings its own light, and here it takes the place of the ambiences. Each palette has a day and a night side.",
+  "De partida": "Default",
+  "Vitral": "Stained glass",
+  "Hueso": "Bone",
+  "Hierro": "Iron",
+  "Espectro": "Specter",
+
+  /* ---- La tanda que faltaba (0.7.138) ----
+     Salieron de cruzar cada `tx()` y cada `T` del código contra este archivo,
+     no de recorrer la app a mano. Lo que NO está aquí y sigue en español es
+     deliberado: las seis frases de la pregunta de género viven detrás de
+     `preguntaGenero()`, que devuelve `false` en inglés, así que no se pueden
+     ver nunca — traducirlas sería escribir para nadie. */
+  "Tu día: arrastra el bloque o toca otro para editarlo": "Your day: drag a block, or tap another one to edit it",
+  "Guarda este bloque antes de pasar a otro": "Save this block before you move to another",
+  "«{0}» ya ocupa esa hora, y no hay ningún hueco de {1} libre. Tu bloque volvió a las {2}.": "\"{0}\" already has that hour, and there is no free gap of {1}. Your block went back to {2}.",
+  "«{0}» ya ocupa esa hora. Tu bloque se acomodó en el hueco libre de las {1}.": "\"{0}\" already has that hour. Your block moved into the free gap at {1}.",
+
+  "o": "or",
+
+  "Todo lo de Pro, sin fecha y sin renovaciones": "Everything in Pro, with no end date and no renewals",
+  "Tu distintivo: el anillo lila y tu propia insignia": "Your mark: the violet ring and a badge of your own",
+
+  "· nivel {0} de {1}": "· level {0} of {1}",
+  "· racha {0}": "· streak {0}",
+  "El módulo de {0} se desbloquea en el nivel {1} de": "The {0} module unlocks at level {1} of",
+
+  "· {0} de {1} días con actividad": "· {0} of {1} days with activity",
+  "· {0} por cuenta al día": "· {0} per account per day",
+
+  /* El sonido de toda la app (0.7.140). */
   "Sonido de Norata": "Norata sound",
   "Silencio": "Muted",
   "Con sonido": "Sound on",

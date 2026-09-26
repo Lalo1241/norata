@@ -117,6 +117,18 @@ traducirDOM();
   }
 
   cargaCerrar();
+
+  /* Lo que cazó la red de seguridad del marcado, al servidor. Va aquí y no en
+     el arranque de la app porque esta pantalla no llega a él: quien se queda
+     atascado en la puerta no pasa nunca por `11-arranque.js`, que es
+     exactamente el fallo que más importa ver.
+
+     Al final y sin `await`: mandar un tropiezo no puede retrasar ni un
+     fotograma de la puerta, y `sbTropiezo` ya falla en silencio a propósito
+     —si la queja provoca otra queja, se entra en bucle encima de alguien que
+     ya está teniendo un mal rato—. Y no necesita sesión, que es justo por lo
+     que sirve aquí (ver su nota en `10b-supabase.js`). */
+  try { sbVaciarTropiezos(); } catch (e) { /* una red que reviente no ayuda */ }
 })();
 
 /* ---- Por qué puerta se entró (0.7.117) ----

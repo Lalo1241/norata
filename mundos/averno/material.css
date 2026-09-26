@@ -1,0 +1,247 @@
+/* ================= Averno · el material (0.7.136) =================
+
+   La regla que lo ordena todo: **«labrado en piedra, la luz por el vitral».**
+   Arcade es una maquinita: sprites planos con UNA luz y UNA sombra. Averno es
+   un castillo gótico: cada pieza es un sillar con marco de hierro, la sombra
+   se hace con TRAMADO y no con degradado, y el único color que brilla entra
+   por el vidrio —el rojo y el segundo tono de la paleta—. Cuatro tonos por
+   pieza (piedra, hierro, luz de canto, tramado) donde Arcade pone dos.
+
+   Lo diseñó Eduardo sobre un boceto con la app de verdad dentro; lo decidido
+   está en `apariencias/LEEME.md`, sección «Averno». Los colores salen de las
+   paletas (arriba, generados por `averno.py`). Aquí no se escribe ningún tono
+   suelto: el tramado y los remaches van en negro o blanco translúcido, o en
+   variables de la paleta.
+
+   Se edita AQUÍ. `python mundos/app.py` lo mete en `css/mundos.css`. */
+
+html[data-apariencia="averno"] {
+  /* ---- La letra ----
+     Títulos en Jacquard 24, gótica de píxel (OFL, Sarah Cadigan-Fried). Se
+     eligió sobre Jacquard 12, su hermana, porque se lee mejor: el trazo es
+     menos apretado. Su píxel mide 1/43 de la eme, así que a 32 px cada píxel
+     de letra cae en unos dos del teléfono y se ve de píxel sin dibujarla
+     aparte. «Árbol de talentos» mide 193 de 266.
+     Cifras en Jersey 10, píxel de palo seco: los números de una gótica llevan
+     rabos de estilo antiguo, y una cifra se lee, no se mira. */
+  --tipo-titulo: "Jacquard 24", Georgia, serif;
+  --tipo-cifra: "Jersey 10", "Outfit", system-ui, sans-serif;
+  --tipo-titulo-escala: 1.07;
+
+  /* ---- Las esquinas: vivas; el círculo sigue redondo ---- */
+  --r-factor: 0;
+  --r-barra: 0;
+  --r-pastilla: 0;
+  --r-boton: 0;
+
+  /* ---- El movimiento: a saltos, como Arcade, pero con PESO ----
+     Arcade: 3 pasos en .12-.18 s (un sprite que salta). Averno: 4 pasos en
+     .2-.3 s (una losa que se arrastra). */
+  --curva: steps(4, end);
+  --curva-rebote: steps(5, end);
+  --dur-corta: .2s;
+  --dur-media: .3s;
+
+  /* La esquina labrada: dos escalones de 2 px, donde Arcade quita uno. */
+  --av-esquina: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 2px 4px, 2px 2px, 4px 2px);
+
+  /* ---- El suelo: un muro de sillería, y la luz del vitral en el piso ----
+     Las juntas de la piedra, casi invisibles: un fondo se mira mil veces (la
+     lección del Averno anterior, «agobia con el tiempo»). Abajo, la luz de
+     color que cae de un vitral: dos franjas del SEGUNDO tono con el borde
+     tramado. De día no hay luz de color —no hay resplandor—: las franjas son
+     sombra de tinta, apenas. */
+  --fondo-pagina: var(--bg);
+  --sup-pagina:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='48' shape-rendering='crispEdges'%3E%3Cg fill='%23fff' fill-opacity='.02'%3E%3Cpath d='M0 0h96v2H0zM0 24h96v2H0zM0 2h2v22H0zM48 26h2v22h-2z'/%3E%3C/g%3E%3C/svg%3E") left top / 96px 48px repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='8' shape-rendering='crispEdges'%3E%3Cg fill='%23000' fill-opacity='.5'%3E%3Cpath d='M0 0h2v2H0zM2 2h2v2H2zM0 4h2v2H0zM0 6h4v2H0z'/%3E%3C/g%3E%3C/svg%3E") left bottom 96px / 4px 8px repeat-x,
+    linear-gradient(to top, var(--av-bruma) 0 48px, var(--av-bruma2) 48px 96px, transparent 96px),
+    var(--bg);
+
+  /* ---- La superficie: un sillar con marco de hierro ----
+     Cuatro cosas en cada tarjeta, y ninguna es un degradado: la piedra (el
+     color de la tarjeta), la sombra de abajo en tramado, cuatro remaches en
+     las esquinas —en el segundo tono de noche— y la luz que entra por el
+     canto de arriba (un filete de 2 px, en la regla de las piezas). */
+  --sup-tarjeta:
+    linear-gradient(var(--av-remache), var(--av-remache)) left 4px top 4px / 2px 2px no-repeat,
+    linear-gradient(var(--av-remache), var(--av-remache)) right 4px top 4px / 2px 2px no-repeat,
+    linear-gradient(var(--av-remache), var(--av-remache)) left 4px bottom 4px / 2px 2px no-repeat,
+    linear-gradient(var(--av-remache), var(--av-remache)) right 4px bottom 4px / 2px 2px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='6' shape-rendering='crispEdges'%3E%3Cg fill='%23000' fill-opacity='.28'%3E%3Cpath d='M0 0h2v2H0zM0 2h2v2H0zM2 4h2v2H2zM0 4h2v2H0z'/%3E%3C/g%3E%3C/svg%3E") left bottom / 4px 6px repeat-x,
+    var(--card);
+}
+
+html.claro[data-apariencia="averno"] {
+  --sup-pagina:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='48' shape-rendering='crispEdges'%3E%3Cg fill='%23000' fill-opacity='.018'%3E%3Cpath d='M0 0h96v2H0zM0 24h96v2H0zM0 2h2v22H0zM48 26h2v22h-2z'/%3E%3C/g%3E%3C/svg%3E") left top / 96px 48px repeat,
+    linear-gradient(to top, var(--av-bruma) 0 48px, var(--av-bruma2) 48px 96px, transparent 96px),
+    var(--bg);
+  --sup-tarjeta:
+    linear-gradient(var(--av-remache), var(--av-remache)) left 4px top 4px / 2px 2px no-repeat,
+    linear-gradient(var(--av-remache), var(--av-remache)) right 4px top 4px / 2px 2px no-repeat,
+    linear-gradient(var(--av-remache), var(--av-remache)) left 4px bottom 4px / 2px 2px no-repeat,
+    linear-gradient(var(--av-remache), var(--av-remache)) right 4px bottom 4px / 2px 2px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='6' shape-rendering='crispEdges'%3E%3Cg fill='%23000' fill-opacity='.05'%3E%3Cpath d='M0 0h2v2H0zM0 2h2v2H0zM2 4h2v2H2zM0 4h2v2H0z'/%3E%3C/g%3E%3C/svg%3E") left bottom / 4px 6px repeat-x,
+    var(--card);
+}
+
+/* ---------- La pieza: sillar, hierro y canto de luz ---------- */
+html[data-apariencia="averno"] :is(.panel, .sum-card, .ms-card, .skill-card, .branch-card, .proj-card, .aj-item, .mod-row, .modal-card, .jor-fila, .jor-dia) {
+  border-color: var(--av-hierro);
+  box-shadow: inset 0 2px 0 var(--av-piedra);
+}
+html.claro[data-apariencia="averno"] :is(.panel, .sum-card, .ms-card, .skill-card, .branch-card, .proj-card, .aj-item, .mod-row, .modal-card, .jor-fila, .jor-dia) {
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .9);
+}
+/* Las piezas medianas y chicas pierden la esquina en dos escalones: piedra
+   labrada, no caja de sprite. Las grandes no, por lo mismo que en Arcade: el
+   recorte cortaría sus menús desplegables. */
+html[data-apariencia="averno"] :is(.btn, .chip, .icon-btn, .sum-card, .ms-card, .skill-card, .proj-card, .ready-chip, .badd, .jor-pild, .jor-dia, .ts-op) {
+  clip-path: var(--av-esquina);
+}
+/* Tres piezas traen su redondeo escrito a mano y el factor no las alcanza:
+   las tarjetas de Habilidades (28 y 14 px en diagonal) y las dos manchas
+   orgánicas (el fondo del icono de una habilidad y el del Pomodoro vacío).
+   Eran lo único redondo del mundo; en piedra son un sillar. */
+html[data-apariencia="averno"] .skill-card { border-radius: 0; }
+html[data-apariencia="averno"] :is(.skill-emoji, .bubble) { border-radius: 0; clip-path: var(--av-esquina); }
+
+/* ---------- Los títulos ----------
+   Una sombra DURA de 2 px en el rojo hundido: tinta de iluminador, no halo.
+   De día no lleva (la variable vale `transparent`): no hay nada que ilumine.
+
+   **Una gótica nunca va en mayúsculas.** En mayúsculas la letra negra es
+   famosa por ilegible, así que los títulos de sección dejan las mayúsculas
+   espaciadas de la casa y pasan a minúscula gótica de 21 px —«Atención hoy»
+   se lee como el encabezado de un códice—, y los rótulos diminutos (12 px)
+   se quedan en la letra de la casa: una gótica de 12 px no se lee. */
+html[data-apariencia="averno"] :is(h1, h2) { text-shadow: 2px 2px 0 var(--av-letra-sombra); letter-spacing: 0; font-weight: 400; }
+html[data-apariencia="averno"] h3 { font-weight: 400; letter-spacing: 0; }
+html[data-apariencia="averno"] :is(h2, h3):not(.jor-rot) { font-size: 21px; line-height: 1.05; text-transform: none; }
+/* Lo mismo para la etiqueta «Pre alpha» que va DENTRO del título del
+   Pomodoro: hereda la gótica, a 11 px y en mayúsculas, que es ilegible. */
+html[data-apariencia="averno"] :is(.jor-rot, .jor-prueba) { font-family: var(--sans); text-shadow: none; }
+html[data-apariencia="averno"] .page-head h1 { line-height: 1; }
+/* En la PC el título de página va a 43 px (una unidad de su rejilla por
+   píxel): hay sitio. */
+@media (min-width: 900px) { html[data-apariencia="averno"] .page-head h1 { font-size: 43px; } }
+
+/* ---------- Los botones: vidrio emplomado ----------
+   El macizo es un vidrio: filete de luz arriba, plomo abajo y marco oscuro.
+   Se hunde al pulsarlo, como en Arcade, pero dos píxeles y con peso. */
+html[data-apariencia="averno"] .btn { box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .3); }
+html[data-apariencia="averno"] .btn-primary {
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .38), inset 0 -3px 0 rgba(0, 0, 0, .32), inset 0 0 0 2px var(--mint-deep);
+}
+html[data-apariencia="averno"] .btn:active { transform: translateY(2px); }
+/* El segundo tono tiene un oficio, no solo un sitio: **el rojo es actuar y el
+   segundo tono es mirar.** Los botones de consultar (`btn-linea`: ver el
+   informe, seleccionar) pasan del rojo al segundo tono. No cambia qué hacen:
+   cambia que el rojo deja de estar en todo, que era el fallo del Averno
+   anterior («casi monocromático, todo en naranjas»). */
+html[data-apariencia="averno"] .btn-linea { color: var(--celeste); border-color: color-mix(in srgb, var(--celeste) 55%, transparent); }
+
+/* ---------- Las cifras ---------- */
+html[data-apariencia="averno"] :is(.count, .nod-etapas, .proj-state, .rc-d, #ncel-num) { font-family: var(--tipo-cifra); }
+
+/* ---------- Las barras: emplomado ----------
+   Arcade: celdas de 6 con hueco de 2 (barra de vida). Averno: paños de 10
+   con plomo de 2, y cada paño con su filete de luz arriba: un vitral que se
+   va llenando. */
+html[data-apariencia="averno"] :is(.barra-viva i, .sw-bar i, .bar-fill) {
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 10px, transparent 10px 12px);
+  mask: repeating-linear-gradient(90deg, #000 0 10px, transparent 10px 12px);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .3), inset 0 -2px 0 rgba(0, 0, 0, .25);
+}
+html.claro[data-apariencia="averno"] :is(.barra-viva i, .sw-bar i, .bar-fill) { box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .12); }
+html[data-apariencia="averno"] :is(.barra-viva, .sw-bar, .bar) { border-radius: 0; box-shadow: inset 0 0 0 1px var(--av-hierro); }
+
+/* ---------- El mapa: liso, con los puntitos en TRESBOLILLO ----------
+   Arcade pone los puntos en cuadrícula; Averno, al tresbolillo, como las
+   losas de un suelo de iglesia. Sigue siendo tono liso más puntos: ninguna
+   textura (la regla de CLAUDE.md). Los hilos de flujo, en cadena. */
+html[data-apariencia="averno"] .const-wrap {
+  background:
+    conic-gradient(at 2px 2px, transparent 75%, var(--lienzo-punto) 0) 0 0 / 28px 28px,
+    conic-gradient(at 2px 2px, transparent 75%, var(--lienzo-punto) 0) 14px 14px / 28px 28px,
+    var(--sup-hondo);
+}
+html[data-apariencia="averno"] .const-wrap svg { shape-rendering: crispEdges; }
+html[data-apariencia="averno"] .const-wrap svg path[stroke-dasharray="6 7"] { stroke-dasharray: 6 2 2 2; stroke-linecap: butt; }
+html[data-apariencia="averno"] .const-wrap svg .edges path { stroke-linecap: butt; }
+
+/* ---------- El menú y el «+» (teléfono) ----------
+   Arcade: círculos de píxel en escalón. Averno: ESCUDOS de punta redonda, el
+   blasón de un castillo. La forma (`--av-forma`, generada en `averno.py`) es
+   una máscara de píxel en rejilla de 20: el contorno de hierro y el vidrio de
+   dentro llevan la misma. El contorno no puede ser un borde —la máscara se lo
+   comería—, así que van en dos capas. */
+@media (max-width: 899px) {
+  html[data-apariencia="averno"] .thumb-cluster :is(.c-nav, .c-main) {
+    clip-path: none; border-radius: 0; background: transparent; border-color: transparent;
+    box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; isolation: isolate; position: relative;
+  }
+  html[data-apariencia="averno"] .thumb-cluster :is(.c-nav, .c-main)::before,
+  html[data-apariencia="averno"] .thumb-cluster .c-nav::after { content: ""; position: absolute; pointer-events: none; }
+  html[data-apariencia="averno"] .thumb-cluster .c-nav::before { inset: 0; z-index: -2; background: var(--av-hierro); -webkit-mask: var(--av-forma) center / 100% 100% no-repeat; mask: var(--av-forma) center / 100% 100% no-repeat; }
+  html[data-apariencia="averno"] .thumb-cluster .c-nav::after {
+    inset: 3px; z-index: -1; -webkit-mask: var(--av-forma) center / 100% 100% no-repeat; mask: var(--av-forma) center / 100% 100% no-repeat;
+    background: linear-gradient(var(--av-piedra), var(--av-piedra)) top / 100% 3px no-repeat, var(--sup-flotante);
+  }
+  html[data-apariencia="averno"] .thumb-cluster .c-nav.active::before { background: var(--mint); }
+  html[data-apariencia="averno"] .thumb-cluster .c-nav.active::after { background: linear-gradient(var(--av-piedra), var(--av-piedra)) top / 100% 3px no-repeat, color-mix(in srgb, var(--mint) 18%, var(--sup-flotante)); }
+  /* El «+» ES el rosetón, y es la firma del mundo. Sustituye a los círculos
+     de Dante del Averno anterior, que vivían en la banda de cabecera — y esa
+     banda ya no existe en la app, así que llevaban tiempo sin salir en
+     ninguna pantalla. El «+» sale en todas. */
+  /* Se dibuja con gradientes que leen la paleta —centro rojo, plomo, ocho
+     paños y el marco— y el filtro de bloques del Pomodoro lo redibuja en
+     píxel de 3. Fue primero un SVG píxel a píxel, uno por paleta y por cara:
+     ocho copias que subían `css/mundos.css` de 185 a 337 KB. Así es uno solo
+     para todas, y el color lo pone la variable. */
+  html[data-apariencia="averno"] .thumb-cluster .c-main::before {
+    inset: -3px; z-index: -2; border-radius: 50%; filter: url(#arc-px-3);
+    background:
+      radial-gradient(circle closest-side, var(--mint-macizo) 0 47%, var(--av-plomo) 47% 55%, transparent 55% 84%, var(--av-marco) 84% 100%),
+      repeating-conic-gradient(from -22.5deg, var(--av-pano-1) 0 40deg, var(--av-plomo) 40deg 45deg, var(--av-pano-2) 45deg 85deg, var(--av-plomo) 85deg 90deg);
+  }
+  html[data-apariencia="averno"] .thumb-cluster .c-main { color: var(--sobre-macizo); }
+  html[data-apariencia="averno"] .thumb-cluster .c-main:active { transform: translateY(2px); }
+}
+/* La cruz del «+»: una cruz griega de píxel, lisa. Hubo una patada (los
+   brazos abiertos) y era un detalle de más. */
+html[data-apariencia="averno"] .c-main .fab-plus {
+  font-size: 0; width: 18px; height: 18px; position: relative; display: inline-block; background: currentColor;
+  clip-path: polygon(6px 0, 12px 0, 12px 6px, 18px 6px, 18px 12px, 12px 12px, 12px 18px, 6px 18px, 6px 12px, 0 12px, 0 6px, 6px 6px);
+}
+@media (min-width: 900px) {
+  html[data-apariencia="averno"] .thumb-cluster .c-main { border-radius: 0; clip-path: var(--av-esquina); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .3), inset 0 -4px 0 rgba(0, 0, 0, .3); }
+  html[data-apariencia="averno"] .thumb-cluster .c-main .fab-plus { width: 12px; height: 12px;
+    clip-path: polygon(4px 0, 8px 0, 8px 4px, 12px 4px, 12px 8px, 8px 8px, 8px 12px, 4px 12px, 4px 8px, 0 8px, 0 4px, 4px 4px); }
+  /* En la PC, el sitio elegido del menú lleva un filete rojo a la izquierda,
+     como la vela de un nicho. */
+  html[data-apariencia="averno"] .thumb-cluster .c-nav { border-radius: 0; clip-path: var(--av-esquina); }
+  html[data-apariencia="averno"] .thumb-cluster .c-nav.active { box-shadow: inset 3px 0 0 var(--mint); }
+}
+
+/* ---------- El Pomodoro ----------
+   El mismo filtro de bloques que hizo Arcade (se reutiliza, no se copia: los
+   pone `arcPonerFiltros`, y `js/10i-apariencia.js` lo llama con Averno
+   puesto), con dos cosas propias: las marcas de hora mayores en hierro y la
+   arena que cae en gotas. */
+html[data-apariencia="averno"] .jor-rueda :is(.jor-blq, .jor-transcurrido, .jor-aguja, .jor-media) { filter: url(#arc-px-rueda); }
+html[data-apariencia="averno"] .jor-rueda .jor-tick { stroke-linecap: butt; shape-rendering: crispEdges; }
+html[data-apariencia="averno"] .jor-rueda .jor-tick.mayor { stroke-width: 4; stroke: var(--av-hierro); }
+html[data-apariencia="averno"] .jor-rueda .jor-guia { stroke-dasharray: 6 2 2 2; shape-rendering: crispEdges; }
+html[data-apariencia="averno"] .jor-rueda .jor-num { font-family: var(--tipo-cifra); }
+html[data-apariencia="averno"] .jor-tile { border-radius: 2px; }
+html[data-apariencia="averno"] .jor-arena { filter: url(#arc-px-3); }
+html[data-apariencia="averno"] .jor-lite .jor-arena { filter: url(#arc-px-4); }
+html[data-apariencia="averno"] .jor-arena #jor-chorro { stroke-dasharray: 3 9; stroke-linecap: butt; animation: avGotas .6s steps(4) infinite; }
+@keyframes avGotas { to { stroke-dashoffset: -12; } }
+html[data-apariencia="averno"] #jor-tiempo { font-family: var(--tipo-cifra); letter-spacing: .02em; }
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-apariencia="averno"] .jor-arena #jor-chorro { animation: none; }
+}

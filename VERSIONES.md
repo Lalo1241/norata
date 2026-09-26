@@ -220,7 +220,300 @@ Es el `Email OTP expiration` del panel, 3600 segundos, leído de la pantalla y n
 deducido. La pantalla del alta dice «no dura para siempre» sin cifra; ahora se
 puede escribir el dato si se quiere.
 
+### El captcha de la puerta, para una sesión de escritorio
+
+Salió del repaso de seguridad del 25 de septiembre de 2026 y es lo único de
+aquel reporte que sigue abierto. **No hay captcha en ningún sitio**: ni al crear
+cuenta, ni al entrar, ni al recuperar la contraseña. Supabase lo trae de fábrica
+—hCaptcha o Turnstile—: se enciende en su panel y el cliente manda el token en
+el cuerpo de la petición.
+
+Lo que hoy está abierto, y son dos cosas distintas:
+
+- **Alta masiva por bots.** Cada alta dispara la función de bienvenida, así que
+  no es solo coste: es la **reputación del dominio en Gmail**, que es lo que no
+  se recupera.
+- **Credential stuffing** contra `/auth/v1/token`. `CLAVE_MIN` son 8 caracteres
+  y no hay comprobación contra contraseñas ya filtradas.
+
+**Por qué no se hizo aquí:** pide elegir proveedor y tocar el panel de Supabase,
+y Eduardo lo movió a una conversación desde su computadora. Turnstile es gratis
+y sin cookies; hCaptcha también está integrado. **Cuando se retome, el paso de
+Supabase va además a la lista «Pendiente de pegar» de `supabase/LEEME.md`**, que
+es donde vive lo que el repositorio ya dice y la base de datos todavía no.
+
+Lo demás de aquel reporte está cerrado: el respaldo trucado y el marco ajeno en
+la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
+
 ## La lista
+
+### 0.7.139 · 25 sep 2026
+
+**Las dos puertas que estaban abiertas: un respaldo trucado y un marco
+ajeno.** Salieron de intentar reventar la app a propósito, no de leerla. Las
+dos van juntas porque las dos son lo mismo: sitios por donde algo de FUERA
+entra sin que nadie le pregunte nada.
+
+**1. Un respaldo importado ya no puede ejecutar código.** `importData`
+comprobaba dos cosas —que `skills` fuera un array y que la versión no viniera
+del futuro— y el resto entraba tal cual. Medido de punta a punta: un respaldo
+con `missions[0].color = '#fff" onmouseover="…"'` entra, al abrir Misiones ese
+atributo se sale de su comilla, el código corre, y desde ahí lee
+`mainquest-sync-v1` con el `access_token` y el `refresh_token` dentro. La CSP
+corta la salida por `fetch`, por `img` y por `sendBeacon` —comprobado,
+«Refused to connect»— pero **no mira la navegación**, así que un
+`location.href` a otro dominio se lleva lo robado.
+
+Lo que NO fallaba, y conviene que quede escrito: **los campos que escribe una
+persona.** 16 campos por 3 cargas en 8 pantallas dieron cero. `escapeHtml`,
+`escapeAttr` y `enJS` están bien puestos donde hay texto de alguien. Fallaban
+los seis que el código da por «de máquina» y por eso no escapa —`missions[].id`,
+`missions[].color`, `perks[].id`, `perks[].color`, `cajas[].id`,
+`jornada.rutinas[][].id`—, y un respaldo los trae igual que los otros.
+
+Lo cierra `sanearEstado()` (`js/01-base.js`) desde `load()`, que es la ÚNICA
+puerta por la que los datos llegan a memoria: el disco al abrir, el respaldo
+importado y lo que baja de la sincronía pasan los tres por ahí. Un sitio en
+vez de los doscientos donde se pinta.
+
+**Valida por CARÁCTER y no por forma, y esa es la decisión de diseño.** Pedir
+que un id case `/^[a-z0-9]{6,24}$/` es una apuesta sobre datos que no he visto
+—hay módulos que se llaman `tree`, tableros de fábrica, refs con dos puntos
+dentro, y un `#fff` es tan válido como un `#ffffff`—, y **una validación
+estricta de más corrompe datos reales, que es peor que el agujero**. Un
+carácter no es una apuesta: ningún valor de máquina legítimo lleva
+`< > " '` ni una barra invertida. Quitarlos de un valor bueno es siempre una
+operación vacía.
+
+El texto libre no se toca: una misión puede llamarse `Rock'n'roll` o
+`Leer "Dune"`. `CAMPOS_LIBRES` son los nombres de campo, y `MAPAS_LIBRES` los
+dos sitios donde el texto libre vive como VALOR de una clave de máquina
+—`ui.nombresTablero` y `jornada.cfg.hfNombres`— que por nombre de campo no se
+reconocen. Lo de fuera es la excepción a propósito: olvidarse deja unas
+comillas caídas, que se ven; con la lista invertida, lo que se olvida queda
+abierto y no se ve nunca.
+
+**Y un fallo mío que cazó la prueba y no la vista:** el bloque estaba debajo de
+`let state = load()`, y un `const` no se iza. Esa primera llamada lo encontraba
+en zona muerta, reventaba, y `state` se quedaba sin declarar: la app no
+arrancaba y la consola hablaba de `state`, no de esto. Ahora vive arriba, con
+el motivo escrito al lado.
+
+Comprobado en tres pruebas: los seis campos que ejecutaban ya **no ejecutan
+nada**; la cadena entera —importar, abrir, robar— se queda en el primer paso; y
+un estado realista con `'`, `"`, `<`, `>` y `\` metidos en TODOS los campos
+libres y en los dos mapas **entra y sale idéntico byte por byte** (27 567
+caracteres, ni una diferencia). Más el barrido de siempre: 1 455 nodos de texto
+en la puerta y siete pantallas, sin más cambios que la versión y el reloj.
+
+**2. La app ya no se deja meter en un marco ajeno.** Medido antes: entraba en
+un `<iframe>` de otro sitio sin una queja. Eso es clickjacking — otro la pone
+invisible debajo de su página y te hace pulsar lo que él quiera.
+
+Dos cosas que hay que saber antes de escribir la línea evidente:
+
+- **`frame-ancestors` no sirve aquí.** Es la directiva que existe justo para
+  esto y es de las que **el navegador IGNORA dentro de un `<meta>`**: solo vale
+  como cabecera HTTP, y GitHub Pages no deja poner cabeceras. Escrita en la CSP
+  quedaría puesta y sin efecto, que es peor que no tenerla.
+- **Saltar fuera del marco tampoco basta.** `top.location = self.location` lo
+  bloquean los navegadores desde un marco de otro origen si no ha habido un
+  gesto de la persona — o sea, justo en el caso que importa. Se intenta igual
+  porque cuando funciona es la mejor salida.
+
+Lo que protege es lo otro: **la página nace escondida (`html { display: none }`)
+y un script de dos líneas la enseña solo si no está dentro de un marco.** Eso no
+hay manera de bloquearlo. Va en las dos páginas, arriba del todo, antes de las
+hojas de estilo, para que no se llegue a ver un fotograma.
+
+El modo de fallo se miró antes de meterlo: si ese script no corriera, la página
+quedaría en blanco. No añade riesgo nuevo —sin JavaScript esta app no pinta nada
+de todos modos, ni la puerta dibuja el formulario— y el `<noscript>` de al lado
+devuelve el comportamiento de siempre a quien lo tenga apagado. El script no
+puede reventar: `self`, `top` y `documentElement` existen siempre.
+
+Medido: dentro de un marco ajeno, `display: none` y **0 px de alto**; suelta, la
+app da `display: block`, 800 px de body y 1 175 caracteres de texto, y la puerta
+`block` con 466. Sin errores de consola en ninguna.
+
+**Lo que sigue abierto y no se toca aquí:** no hay captcha en crear cuenta,
+entrar ni recuperar —Supabase lo trae, pide elegir proveedor— y `unsafe-inline`
+en `script-src` seguirá mientras la app llame a todo con `onclick=`, que es un
+rediseño y no un parche.
+
+### 0.7.138 · 25 sep 2026
+
+**La puerta ya no se rompe en silencio, la pantalla encendida es solo de
+dedos, y se cerró la traducción al inglés.** Tres cosas y una sola versión
+porque las tres son de la misma clase: agujeros que ya estaban abiertos y que
+nadie veía.
+
+**1. La red de seguridad de la puerta.** `index.html` la tenía desde siempre
+—`window.onerror`, `unhandledrejection`, la cola `__tropiezos` y el plazo de
+15 s que destapa la pantalla de carga—. `login/index.html` no tenía **ninguna
+de las cuatro**, y es al revés de lo que parece: el botón del bicho vive
+DENTRO de la app, así que quien se queda fuera por un error de esa pantalla es
+justo quien no tiene forma de avisar. Un fallo en la puerta era invisible para
+todos. Corre antes de los ocho archivos y sin depender de ninguno, por lo
+mismo que en la app: una red que dependiera de lo que falló, fallaría con
+ello.
+
+Tres diferencias con la de la app, y ninguna es de estilo: **no ofrece guardar
+un respaldo** —aquí no hay nada guardado de esta sesión, y un botón que
+descargue un archivo vacío es peor que no tenerlo—; el aviso dice qué hacer
+para **entrar**, y nombra el enlace del correo como salida; y la cola la vacía
+`12-login.js` al final de su arranque, porque aquí no corre `11-arranque.js`.
+`sbTropiezo` no necesita sesión a propósito, que es exactamente este caso.
+
+Medido en seis casos: abre limpia sin autoavisarse (cola 0, sin caja); un
+`TypeError` se apunta como `puerta` y saca la caja; una promesa rota se apunta
+como `puerta-promesa`; con **cuarenta errores seguidos la cola se queda en
+diez y la caja sale una sola vez**; un mensaje de error que trae
+`<img src=x onerror=…>` dentro **no ejecuta nada ni inyecta ningún nodo** —el
+detalle va por `textContent`—; y la pantalla de carga se destapa igual.
+
+**2. La pantalla encendida, solo en pantallas táctiles.** Lo acotó Eduardo: en
+laptop y PC no aplica. La condición es
+`(pointer: coarse) and (hover: none)` y no un ancho, porque un ancho deja
+fuera a la tableta apaisada —que sí lo necesita— y mete dentro al portátil con
+pantalla táctil, que no. Las dos mitades hacen falta: la gruesa sola incluiría
+ese portátil, porque ahí el dedo es un puntero más. La consulta se guarda y se
+lee `.matches` en cada paso, no el resultado: enchufar un ratón a una tableta
+cambia la respuesta sin recargar.
+
+**3. La traducción al inglés, cerrada — y dos fallos de la propia medición.**
+Salió de cruzar cada `tx()` y cada `` T` `` del código contra
+`js/00b-textos-en.js`, no de recorrer la app a mano. Las que faltaban de
+verdad eran once, y dos de ellas se ven en pantallas que importan: la tarjeta
+de **Fundador** («Todo lo de Pro, sin fecha y sin renovaciones» y «Tu
+distintivo: el anillo lila y tu propia insignia»), o sea la pantalla de pagar,
+y la **«o»** que separa el botón de Google del formulario de la puerta.
+
+Dos cosas que la medición enseñó y que no se buscaban:
+
+- **Seis frases que parecían sin traducir están bien así**: las de la pregunta
+  de género viven detrás de `preguntaGenero()`, que devuelve `false` en
+  inglés. No se pueden ver nunca, y traducirlas sería escribir para nadie.
+  Queda dicho junto a las claves nuevas para que la próxima tanda no las
+  «arregle».
+- **Siete claves estaban DUPLICADAS** —`Terminado`, `Estancado`,
+  `Enfriándose`, `Casi listo`, `al mes`, `Misiones cumplidas`, `días
+  seguidos`—. Las siete con el mismo valor, así que hoy no se notaba nada; es
+  exactamente la mina que la cabecera del propio archivo describe («la segunda
+  escritura se lleva por delante a la primera, sin un aviso»), esperando a que
+  alguien corrija una de las dos. Se quedó una de cada. La comprobación va con
+  las claves DESESCAPADAS: comparar el literal del código contra el texto del
+  diccionario da falsos «falta esta» en cuanto la frase lleva comillas dentro
+  —así se colaron dos claves repetidas en el primer intento de esta misma
+  entrada—.
+
+Comprobado con una foto de TODOS los nodos de texto de la puerta y de siete
+pantallas en inglés, antes y después: **1 455 nodos y el único cambio es la
+frase que la puerta sortea en cada apertura**. Y la «o» a mano en los dos
+idiomas: `"o"` en español, `"or"` en inglés.
+
+Y de paso, dos números de `CLAUDE.md` que llevaban versiones mal: la puerta
+carga ocho archivos y no seis, y la app treinta y no diecisiete. El número se
+cuenta con `grep -c 'script defer'`, no se recuerda.
+
+### 0.7.137 · 25 sep 2026
+
+**La pantalla no se apaga mientras corre el Pomodoro.** Lo pidió Eduardo
+nombrando el Hiperfoco: un tramo de veinticinco minutos con la pantalla
+apagándose sola cada treinta segundos obliga a tocar el teléfono para ver
+cuánto falta, que es justo lo contrario de enfocarse. Lo sostiene
+`navigator.wakeLock` desde `jPantallaDespierta()` (`js/09d-jornada.js`), y vale
+para los dos relojes —el de la rueda y el de Hiperfoco—, no solo para el que
+él nombró: es el mismo `state.jornada.run` y el mismo problema.
+
+Tres cosas que no son opcionales, y están escritas junto al código:
+
+- **Solo mientras el reloj CORRE** (`run.seg`, en fase `foco` o `descanso`).
+  En pausa, dormido, en el cierre o con el tramo esperando, la pantalla se
+  apaga como siempre: sostenerla ahí es gastarle la batería a quien no está
+  mirando nada.
+- **El navegador SUELTA el permiso en cuanto la pestaña deja de verse, y no lo
+  devuelve al volver.** Así que no basta con pedirlo al empezar: se vuelve a
+  pedir desde `jPaso`, que ya corre cada cuarto de segundo y también al cambiar
+  de visibilidad. Se toma además en el mismo gesto de Iniciar, para no esperar
+  al paso siguiente.
+- **Falla en silencio.** Pedirlo es asíncrono y puede negarse —sin permiso, con
+  la batería muy baja, o en un navegador que no trae la API—. Esto es una
+  comodidad, no una función, y un aviso por algo que nadie pidió es ruido.
+  `jPidiendo` evita pedirlo cuatro veces por segundo mientras la primera
+  petición sigue en el aire.
+
+Medido con un espía sobre `navigator.wakeLock` (y comprobado también contra la
+API de verdad): al arrancar sin reloj, 0 peticiones; al iniciar Hiperfoco, 1 y
+el centinela vivo; en pausa, suelto; al seguir, otra petición; **dos segundos
+corriendo, cero peticiones de más** pese a los ocho `jPaso` de por medio; si el
+navegador lo suelta, `jPaso` lo recupera; al parar, al abandonar y con la app
+dormida, suelto. Sin errores de consola.
+
+### 0.7.136.1 · 25 sep 2026
+
+**La barra lateral de la PC ya lleva el color del mundo.** Con Reliquia o
+Blueprint puestos salía con el azul de la casa, porque lee `--flotante-lateral`
+y ningún mundo del bloque genérico la declaraba (ni `--flotante-macizo`, que
+pinta el menú flotante). Ahora `variables()` en `mundos/app.py` las deriva
+igual que Averno en la 0.7.136: el macizo de la tarjeta al 97% y la lateral del
+panel (`--bg2`) al 72% de noche y al 84% de día. Medido a 1200 px sobre
+`.thumb-cluster`: Reliquia `rgba(22,17,36,.72)` / `rgba(228,223,239,.84)`,
+Blueprint `rgba(12,28,48,.72)` / `rgba(238,242,247,.84)`; la casa sin cambios.
+
+### 0.7.136 · 25 sep 2026
+
+**Averno, rehecho en pixel art gótico, con cuatro paletas.** El Averno de la
+0.7.59 era «piedra quemada con la brasa debajo» y en la práctica casi todo
+naranja. Eduardo pidió llevarlo a píxel de horror gótico, con el porte de
+Arcade y sin pisarlo. Se diseñó en un boceto con la app de verdad dentro
+(https://claude.ai/artifact/VCyfNRKmmDutsFmW5T1giN) y tres vueltas de ajustes.
+El Averno anterior se retira: quien lo llevaba ve el nuevo, en Vitral.
+
+- **La regla: «labrado en piedra, la luz por el vitral».** Cada pieza es un
+  sillar con marco de hierro, filete de luz, sombra en tramado y cuatro
+  remaches; barras emplomadas; puntos del mapa al tresbolillo; movimiento en 4
+  pasos. En el teléfono los botones del menú son escudos de punta redonda y el
+  «+» es un rosetón (la firma del mundo). Los círculos de Dante se fueron: la
+  banda donde vivían ya no existía y llevaban tiempo sin salir.
+- **Cuatro paletas** —Vitral (índigo, de partida), Hueso, Hierro (verdín) y
+  Espectro (cian)—, todas con el rojo de protagonista y un segundo tono que no
+  es rojo. **Con Averno elegido sustituyen a los ambientes en Mi apariencia**;
+  se guardan en el dispositivo (`norata-paletas`) y cambian sin recargar.
+  Peligro en brasa naranja (el coral se confundía con el rojo); el segundo
+  tono va en los botones de consultar: el rojo es actuar, el segundo es mirar.
+- **Letras incrustadas:** Jacquard 24 (gótica de píxel) en títulos y Jersey 10
+  en cifras. Una gótica nunca va en mayúsculas ni a 12 px: los rótulos chicos
+  se quedan en la letra de la casa. Trampa: la app solo admite letras
+  incrustadas, y pedida a Google Fonts una letra no carga y sale la de respaldo.
+- **Los cinco rangos**, los mismos, redibujados en píxel sobre rejilla de 16
+  (`svgDeTrazo` lee la rejilla de `data-px`); la constelación sale del dibujo
+  de línea de siempre (`trazoCielo`), así que no cambió.
+- Medido: 4,5 y 3 en las dos caras de las cuatro, y 7 pantallas × 2 modos ×
+  4 paletas contra la casa sin un solo fallo que la casa no tenga ya.
+- Por dentro: Averno ya no sale de `mundos/datos.py` sino de `mundos/averno/`
+  (paletas, material, generador y medidas), que `mundos/app.py` mete en
+  `css/mundos.css`. De paso, Averno declara los vidrios flotantes
+  (`--flotante-lateral`, `--flotante-macizo`): ningún mundo lo hacía y la barra
+  de la PC salía en el azul de la casa.
+
+### 0.7.135.2 · 25 sep 2026
+
+**«Hoy ya sumó al plano», no «a el plano».** El mensaje de la racha armaba
+«a» + el objeto del mundo, y en Blueprint salía «a el plano». Cada mundo lleva
+ahora su forma con la preposición ya contraída (`aObj` en `VOZ_RACHA`,
+`js/05c-racha.js`). Salió al armar el borrador de la racha de Averno.
+
+### 0.7.135.1 · 25 sep 2026
+
+**«Tu racha» en el teléfono: un toque no es un deslizamiento.** La tarjeta
+ocupa media pantalla y es justo donde cae el dedo al deslizar el Resumen; un
+deslizamiento corto la abría sin querer. Ahora solo cuenta como toque si el
+dedo se movió menos de 10 px y se levantó en menos de 700 ms (`toqueLimpio`,
+`js/05c-racha.js`), y vale también para la tira de meses y el velo que cierra
+la hoja. Además, la X lleva el marco de las flechas del mes y en el teléfono
+las esquinas de arriba de la hoja y de su escena son más discretas. Lo pidió
+Eduardo.
 
 ### 0.7.135 · 25 sep 2026
 
