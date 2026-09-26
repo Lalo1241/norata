@@ -247,6 +247,22 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.140.2 · 26 sep 2026
+
+**La app de Android abría sin estilos ni código.** Eduardo instaló el primer
+APK y le salió la app «rota»: todo en lista, el logo enorme en negro. Se
+reprodujo en un teléfono simulado y la causa estaba en la dirección: la app
+rebotaba a `login/`, y el servidor interno de Capacitor **no sabe que una
+carpeta sirve su `index.html`** — cuando no encuentra algo devuelve la portada
+de la app. Así que la puerta recibía la página equivocada, y además cada
+`css/…` y `js/…` que pedía (relativos a `/login/`) volvía también como HTML.
+
+Ahora toda navegación a una carpeta lleva el `index.html` escrito: los tres
+`location` que mandan a la puerta, los enlaces a privacidad y términos (en la
+app, en la puerta y cruzados entre ellos) y el desvío de `crear-cuenta/`. En la
+web hace exactamente lo mismo que antes. **La regla que queda: nunca enlazar
+a una carpeta a secas.** Probado en el simulador: la puerta sale entera.
+
 ### 0.7.140.1 · 26 sep 2026
 
 **La app de Android se actualiza sola, sin reinstalar el APK.** Eduardo pidió

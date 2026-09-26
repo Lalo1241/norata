@@ -350,8 +350,8 @@ function portadaCruceHTML(cruce) {
 }
 
 function portadaLegalHTML(clase) {
-  const aTerminos = `<a href="${legalBase()}terminos/" target="_blank" rel="noopener">${tx("términos")}</a>`;
-  const aPrivacidad = `<a href="${legalBase()}privacidad/" target="_blank" rel="noopener">${tx("aviso de privacidad")}</a>`;
+  const aTerminos = `<a href="${legalBase()}terminos/index.html" target="_blank" rel="noopener">${tx("términos")}</a>`;
+  const aPrivacidad = `<a href="${legalBase()}privacidad/index.html" target="_blank" rel="noopener">${tx("aviso de privacidad")}</a>`;
   return `<p class="portada-legal ${clase}">${T`Al continuar aceptas los ${aTerminos} y el ${aPrivacidad} de Norata.`}</p>`;
 }
 
@@ -1002,7 +1002,7 @@ function legalBase() {
    el día que se mueva otra vez, se mueve aquí. */
 function irALaPuerta() {
   if (enLaPuerta()) { portadaPintar("entrar"); return; }
-  location.assign("login/");
+  location.assign("login/index.html");
 }
 
 /* Alguien acaba de entrar. Lo que pasa después depende de dónde estemos, y el
@@ -1274,7 +1274,7 @@ async function irAAgregarCuenta() {
     return;
   }
   cargaMostrar(tx("Abriendo la entrada…"));
-  location.assign("login/");
+  location.assign("login/index.html");
 }
 
 /* La salida de ese modo, para quien llegó a la puerta y se arrepintió. Sin

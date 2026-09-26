@@ -64,6 +64,10 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   nuevo por detrás y lo estrena en la siguiente apertura, con vuelta atrás
   sola si arranca roto. **No hay que hacer nada más que la regla de siempre**:
   subir `VERSION` y `CACHE` juntos. Si no coinciden, el trabajo se niega.
+- **Nunca enlazar a una carpeta a secas** (`login/`): allí el servidor no
+  sabe servir el `index.html` de una carpeta y devuelve la portada de la app,
+  con lo que la página y todo lo que pida sale roto (0.7.140.2). Siempre
+  `login/index.html`.
 - **Allí no hay service worker** (`enAppNativa` en `11-arranque.js`): se
   pisaría con el paquete.
 - **Un archivo nuevo que la app pida tiene que viajar en el paquete.** El

@@ -410,7 +410,7 @@ function volverAEntrar() {
   sync.entrada = "cuenta";
   saveSync();
   if (typeof cargaMostrar === "function") cargaMostrar(tx("Abriendo la entrada…"));
-  location.assign("login/");
+  location.assign("login/index.html");
 }
 
 /* La chapa de la cuenta abierta: que ESA es la sesión de ahora, o que caducó.

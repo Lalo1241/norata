@@ -218,7 +218,11 @@ showView("summary");
     try { vueltas = Number(sessionStorage.getItem("norata-rebotes") || 0) || 0; } catch (e) {}
     if (vueltas < 2) {
       try { sessionStorage.setItem("norata-rebotes", String(vueltas + 1)); } catch (e) {}
-      location.replace("login/");
+      /* Con `index.html` escrito, y no `login/` a secas: el servidor de la app
+         de Android no sabe que una carpeta sirve su `index.html` y devuelve
+         la portada de la app en su lugar, con lo que la puerta salía sin
+         estilos ni código (0.7.140.2). Vale para todo enlace a una carpeta. */
+      location.replace("login/index.html");
       return;
     }
     /* Se cae a la portada de aquí abajo, como se hacía antes de 0.7.14. */
