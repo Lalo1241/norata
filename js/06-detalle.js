@@ -1226,7 +1226,7 @@ async function logActivity() {
   if (real === 0) {
     toast(`Nivel máximo: práctica registrada, decaimiento frenado`, "logro");
   } else if (after > before) {
-    celebrate(`Nivel ${after}`, `${s.name} sube de nivel`, s.color, s.icon);
+    celebrate(`Nivel ${after}`, `${s.name} sube de nivel`, s.color, s.icon, "habilidad");
   } else {
     toast(`+${real} XP · práctica ${p.nivel}`, "logro");
   }

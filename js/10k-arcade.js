@@ -54,9 +54,6 @@ function arcadeEncontrado() {
 function arcadePuesto() {
   return document.documentElement.getAttribute("data-material") === "arcade";
 }
-function arcadeConSonido() {
-  return !(state && state.settings && state.settings.arcadeSonido === false);
-}
 
 /* ---------- Los dibujos de píxel ----------
    En rejilla de 12 y de RELLENO, no de trazo: un dibujo de línea a 1,7 de
@@ -119,101 +116,26 @@ const ARCADE_RANGOS = [
 ].map(([nombre, g], i) => ({ nombre, trazo: '<g data-px="1">' + arcRects(ARC_G[g]) + "</g>", cielo: ARCADE_CIELOS[i] }));
 
 /* ---------- El sonido ----------
-   Sintetizado en el momento, onda cuadrada y triangular: pesa cero. Ninguna
-   melodía es copia de un juego. Solo suenan los premios; los botones callan.
-   Y solo con Arcade puesto: el sonido es del mundo, no de la app. */
-let arcCtx = null;
-function arcAudio() {
-  try {
-    arcCtx = arcCtx || new (window.AudioContext || window.webkitAudioContext)();
-    if (arcCtx.state === "suspended") arcCtx.resume();
-  } catch (e) { return null; }
-  return arcCtx;
-}
-/* El navegador solo deja sonar después de un toque. Se despierta en cada uno,
-   porque el final de un tramo del Pomodoro suena sin que nadie toque nada. */
-document.addEventListener("pointerdown", () => { if (arcadePuesto() || arcCtx) arcAudio(); }, true);
-
-function arcNota(f, t, d, o) {
-  o = o || {};
-  const c = arcAudio();
-  if (!c) return;
-  const os = c.createOscillator(), g = c.createGain(), t0 = c.currentTime + 0.01 + t, v = o.vol || 0.05;
-  os.type = o.tipo || "square";
-  os.frequency.setValueAtTime(f, t0);
-  if (o.a) os.frequency.exponentialRampToValueAtTime(o.a, t0 + d);
-  g.gain.setValueAtTime(v, t0);
-  g.gain.setValueAtTime(v, t0 + d * 0.55);
-  g.gain.exponentialRampToValueAtTime(0.0008, t0 + d);
-  os.connect(g); g.connect(c.destination);
-  os.start(t0); os.stop(t0 + d + 0.03);
-}
-function arcRuido(d, vol) {
-  const c = arcAudio();
-  if (!c) return;
-  const b = c.createBuffer(1, Math.floor(c.sampleRate * d), c.sampleRate), x = b.getChannelData(0);
-  for (let i = 0; i < x.length; i++) x[i] = (Math.random() * 2 - 1) * (1 - i / x.length);
-  const s = c.createBufferSource(), g = c.createGain();
-  s.buffer = b; g.gain.value = vol;
-  s.connect(g); g.connect(c.destination); s.start();
-}
-const ARC_F = { C3: 130.81, F3: 174.61, G3: 196, C4: 261.63, G4: 392, C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99, A5: 880,
-  C6: 1046.5, D6: 1174.66, E6: 1318.51, G6: 1567.98, A6: 1760, B6: 1975.53, C7: 2093, E7: 2637, G7: 3136 };
-const ARC_SONIDOS = {
-  moneda: () => { arcNota(ARC_F.C6, 0, 0.07); arcNota(ARC_F.G6, 0.07, 0.26); },
-  paso: () => arcNota(ARC_F.E6, 0, 0.06, { vol: 0.035 }),
-  desmarcar: () => arcNota(ARC_F.G5, 0, 0.14, { a: ARC_F.G4, vol: 0.035 }),
-  fiesta: () => {
-    [ARC_F.C5, ARC_F.E5, ARC_F.G5, ARC_F.C6, ARC_F.E6, ARC_F.G6].forEach((n, i) => arcNota(n, i * 0.05, 0.07, { vol: 0.04 }));
-    arcNota(ARC_F.C7, 0.3, 0.22, { vol: 0.04 });
-  },
-  racha: () => { arcNota(ARC_F.E6, 0, 0.06, { vol: 0.04 }); arcNota(ARC_F.B6, 0.07, 0.16, { vol: 0.04 }); },
-  rango: () => {
-    [[ARC_F.C5, 0, 0.09], [ARC_F.E5, 0.09, 0.09], [ARC_F.G5, 0.18, 0.09], [ARC_F.C6, 0.27, 0.18], [ARC_F.A5, 0.5, 0.09], [ARC_F.C6, 0.59, 0.5]]
-      .forEach(([n, t, d]) => arcNota(n, t, d, { vol: 0.045 }));
-    [[ARC_F.C3, 0, 0.27], [ARC_F.F3, 0.27, 0.23], [ARC_F.G3, 0.5, 0.6]].forEach(([n, t, d]) => arcNota(n, t, d, { tipo: "triangle", vol: 0.12 }));
-  },
-  fase: () => {
-    [[ARC_F.G5, 0, 0.08], [ARC_F.C6, 0.08, 0.08], [ARC_F.E6, 0.16, 0.08], [ARC_F.G6, 0.24, 0.12], [ARC_F.E6, 0.38, 0.08], [ARC_F.C7, 0.46, 0.4]]
-      .forEach(([n, t, d]) => arcNota(n, t, d, { vol: 0.045 }));
-    [[ARC_F.C3, 0, 0.36], [ARC_F.G3, 0.38, 0.5]].forEach(([n, t, d]) => arcNota(n, t, d, { tipo: "triangle", vol: 0.12 }));
-  },
-  konami: () => {
-    [ARC_F.C5, ARC_F.D5, ARC_F.E5, ARC_F.G5, ARC_F.A5, ARC_F.C6, ARC_F.D6, ARC_F.E6, ARC_F.G6, ARC_F.A6].forEach((n, i) => arcNota(n, i * 0.045, 0.06, { vol: 0.035 }));
-    [ARC_F.C6, ARC_F.E6, ARC_F.G6].forEach(n => arcNota(n, 0.48, 0.55, { vol: 0.03 }));
-    arcNota(ARC_F.C4, 0.48, 0.55, { tipo: "triangle", vol: 0.12 });
-  },
-  rara: () => [ARC_F.C7, ARC_F.E7, ARC_F.G7].forEach((n, i) => arcNota(n, i * 0.05, i === 2 ? 0.14 : 0.05, { tipo: "triangle", vol: 0.06 })),
-  tic: () => arcNota(1200, 0, 0.04, { vol: 0.025 }),
-  // La salida «3, 2, 1» y la cuenta del descanso, vestidas de 8 bits.
-  cuenta: () => arcNota(ARC_F.A5, 0, 0.09, { vol: 0.045 }),
-  ya: () => { arcNota(ARC_F.A6, 0, 0.32, { vol: 0.045 }); arcNota(ARC_F.A5 / 2, 0, 0.32, { tipo: "triangle", vol: 0.1 }); },
-  error: () => { arcRuido(0.06, 0.05); arcNota(110, 0, 0.1, { vol: 0.04 }); }
-};
-/* Lo que pasa en la app, con Arcade puesto. */
+   Desde 0.7.136 los 8 bits viven en el motor de sonido de la app
+   (js/01c-sonido.js), con las mismas melodías una octava abajo y bajo el mismo
+   techo de agudos que todo lo demás: la rara llegaba a 3 kHz. Con Arcade
+   puesto, TODA la app suena en 8 bits (misiones, fiestas, Pomodoro, el recap),
+   y lo manda el interruptor general: Arcade ya no lleva botón propio. */
 function arcadeSonar(k) {
-  if (!arcadePuesto() || !arcadeConSonido() || !ARC_SONIDOS[k]) return;
-  // La puerta de todos los sonidos (js/01-base.js): una vez por sonido, no por nota.
-  if (!puedeSonar(arcAudio())) return;
-  ARC_SONIDOS[k]();
+  if (arcadePuesto() && typeof sonarArcade === "function") sonarArcade(k);
 }
 /* El camino para encontrarlo: la rara, el mando y el código suenan aunque
    Arcade todavía no exista para esta cuenta. Son el momento del hallazgo. */
 function arcadeSonarSiempre(k) {
-  if (!arcadeConSonido() || !ARC_SONIDOS[k]) return;
-  if (!puedeSonar(arcAudio())) return;
-  ARC_SONIDOS[k]();
+  if (typeof sonarArcade === "function") sonarArcade(k);
 }
 
 /* ---------- Al cumplir una misión ----------
    La llama `logMission` con la caja del botón de ANTES de repintar, que es
    donde está el dedo: la fila cambia de columna al cumplirse. */
 function arcadeMision(caja, cumplida, deshecha, avanzo) {
-  if (!arcadePuesto()) return;
-  if (deshecha) { arcadeSonar("desmarcar"); return; }
-  if (!cumplida) { if (avanzo) arcadeSonar("paso"); return; }
-  arcadeSonar("moneda");
-  if (!caja) return;
+  // El sonido lo pone `sonidoMision` (js/01c-sonido.js); aquí solo la moneda que salta.
+  if (!arcadePuesto() || !cumplida || !caja) return;
   try { if (matchMedia("(prefers-reduced-motion: reduce)").matches) return; } catch (e) {}
   const x = caja.left + caja.width / 2, y = caja.top;
   const m = document.createElement("span");
@@ -326,19 +248,12 @@ function arcadeDireccion() {
   const m = s.match(/css\/arcade\.css\?h=[0-9a-f]+/);
   return m ? m[0] : "css/arcade.css";
 }
-function arcadeAlternarSonido() {
-  state.settings = state.settings || {};
-  state.settings.arcadeSonido = !arcadeConSonido();
-  save();
-  if (typeof renderPanelApariencia === "function") renderPanelApariencia();
-  if (arcadeConSonido()) arcadeSonarSiempre("moneda");
-}
 
 /* La fila de Mi apariencia. Solo existe para quien lo encontró: a los demás
    la pantalla no les dice que haya nada más. */
 function arcadeApariencia() {
   if (!arcadeEncontrado()) return "";
-  const on = arcadePuesto(), son = arcadeConSonido();
+  const on = arcadePuesto();
   const conMundo = !on && typeof esMundo === "function" && esMundo(apariencia());
   return `
     <h3 class="amb-h2">${tx("Secreto")}</h3>
@@ -349,10 +264,6 @@ function arcadeApariencia() {
         <span class="arc-ap-tx"><b>Arcade</b><span>${escapeHtml(on ? tx("Lo llevas puesto") : tx("La cuadrícula manda"))}</span></span>
         <button type="button" class="btn btn-sm ${on ? "btn-ghost" : "btn-soft"}" onclick="arcadeAlternar(${!on})">${escapeHtml(on ? tx("Quitar") : tx("Ponerlo"))}</button>
       </div>
-      <button type="button" class="mod-row ${son ? "on" : ""}" onclick="arcadeAlternarSonido()">
-        <span class="mod-tx"><b>${tx("Sonidos de 8 bits")}</b><span>${tx("Al cumplir una misión, al subir de nivel y al terminar un tramo del Pomodoro.")}</span></span>
-        <span class="mod-sw"><i></i></span>
-      </button>
     </div>`;
 }
 

@@ -77,6 +77,9 @@ const WEB_NORATA = "https://norata.framer.website";
    son los tres tonos que la app ya usa para calma, recomendado y aviso. Coral
    no: en esta app coral es lo que destruye, y ser exigente es una elección. */
 const ICONS = {
+  // El sonido (0.7.136): la bocina con sus dos ondas, y la misma con la cruz.
+  sonido: '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4.2 4.2 0 010 6"/><path d="M18 6.5a8 8 0 010 11"/>',
+  silencio: '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5"/><path d="M21 9.5l-5 5"/>',
   ritmo1: '<path d="M4.5 17.5a7.5 7.5 0 0115 0"/><path d="M12 17.5l-3.8-3.8"/><circle cx="12" cy="17.5" r="1.1"/>',
   ritmo2: '<path d="M4.5 17.5a7.5 7.5 0 0115 0"/><path d="M12 17.5V12.1"/><circle cx="12" cy="17.5" r="1.1"/>',
   ritmo3: '<path d="M4.5 17.5a7.5 7.5 0 0115 0"/><path d="M12 17.5l3.8-3.8"/><circle cx="12" cy="17.5" r="1.1"/>',

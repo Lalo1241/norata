@@ -828,7 +828,7 @@ function jGuardar(descansar) {
   if (typeof checkStreakMilestone === "function") checkStreakMilestone();
   if (typeof revisarNivelExpedicion === "function") revisarNivelExpedicion();
   if (ef.skill && levelInfo(ef.skill.xp).level > antes) {
-    celebrate(T`Nivel ${levelInfo(ef.skill.xp).level}`, T`${ef.skill.name} sube de nivel`, ef.skill.color, ef.skill.icon);
+    celebrate(T`Nivel ${levelInfo(ef.skill.xp).level}`, T`${ef.skill.name} sube de nivel`, ef.skill.color, ef.skill.icon, "habilidad");
   } else if (!ef.propio) {
     toast(ultimo ? T`${ef.t} · terminaste los ${j.cfg.ciclos} tramos` : ef.t, "logro");
   }
@@ -2034,12 +2034,7 @@ function jCuentaDescanso(run) {
    apagado, no suena; con Arcade puesto, el de 8 bits. */
 function jPitido(ya) {
   if (!jDatos().cfg.sonido) return;
-  if (typeof arcadePuesto === "function" && arcadePuesto()) { arcadeSonar(ya ? "ya" : "cuenta"); return; }
-  if (!jCtx || !puedeSonar(jCtx)) return;
-  const o = jCtx.createOscillator(), g = jCtx.createGain(), t0 = jCtx.currentTime, d = ya ? 0.45 : 0.16;
-  o.type = "sine"; o.frequency.value = ya ? 990 : 660;
-  g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.14, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t0 + d);
-  o.connect(g).connect(jCtx.destination); o.start(t0); o.stop(t0 + d + 0.02);
+  if (typeof sonar === "function") sonar(ya ? "ya" : "cuenta");
 }
 
 /* ---------- Avisos ----------
@@ -2047,24 +2042,16 @@ function jPitido(ya) {
    el aviso del sistema, si se dio permiso. Con la app CERRADA no hay nada que
    pueda avisar desde una página web: eso pide avisos desde el servidor, y
    llegará en otra versión. */
-let jCtx = null;
+/* Desde 0.7.136 el Pomodoro suena con la voz de toda la app
+   (js/01c-sonido.js): la del mundo que tengas puesto, Arcade incluido. Su
+   interruptor propio sigue mandando sobre la campana, y el general de la app
+   sobre todo. */
 function jAudio() {
-  try { jCtx = jCtx || new (window.AudioContext || window.webkitAudioContext)(); jCtx.resume(); } catch (e) { /* sin sonido */ }
+  if (typeof sonidoDespertar === "function") sonidoDespertar();
 }
 function jCampana() {
-  /* Con Arcade puesto, el final de fase de 8 bits en vez de la campana. El
-     interruptor de sonido del Pomodoro manda igual sobre los dos. */
-  if (typeof arcadePuesto === "function" && arcadePuesto()) {
-    if (jDatos().cfg.sonido) arcadeSonar("fase");
-    return;
-  }
-  if (!jCtx || !jDatos().cfg.sonido || !puedeSonar(jCtx)) return;
-  [[660, 0], [880, .18], [990, .36]].forEach(([f, t]) => {
-    const o = jCtx.createOscillator(), g = jCtx.createGain(), t0 = jCtx.currentTime + t;
-    o.type = "sine"; o.frequency.value = f;
-    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.18, t0 + .02); g.gain.exponentialRampToValueAtTime(.001, t0 + .9);
-    o.connect(g).connect(jCtx.destination); o.start(t0); o.stop(t0 + 1);
-  });
+  if (!jDatos().cfg.sonido) return;
+  if (typeof sonar === "function") sonar("fase");
 }
 /* ---- Nada suena sin decir por qué (0.7.105.1) ----
    Antes la campana sonaba SIEMPRE y la explicación iba a un aviso dentro de

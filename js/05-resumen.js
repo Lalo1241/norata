@@ -3153,6 +3153,8 @@ function atraparLuciernaga(b) {
   if (luciBichos.some(o => o.atrapada)) return;
   b.atrapada = true;
   if (navigator.vibrate) { try { navigator.vibrate(12); } catch (x) {} }
+  // La rara trae su propia nota de 8 bits (arcadeRaraAtrapada); la normal, la de su mundo.
+  if (!b.rara && typeof sonar === "function") sonar("luciernaga");
   // Unas chispas donde la tocaste: es lo que dice «la tienes».
   if (!luciQuieto()) {
     const cap = b.el.parentNode;

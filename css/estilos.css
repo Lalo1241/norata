@@ -3902,6 +3902,48 @@
   }
   .mm-tema .tema-tit { font-size: 13px; color: var(--muted); font-weight: 650; }
 
+  /* ---- El sonido (0.7.136), debajo del aspecto ----
+     La misma fila que el sol y la luna, con la barra de volumen debajo. El
+     estado se dice con COLOR y no solo con el relleno: «Silencio» puesto va
+     en coral y «Con sonido» en la menta de siempre (Eduardo). Sin transición
+     en ningún color: sale de variables y se quedaría congelado (CLAUDE.md). */
+  .son-fila { flex-wrap: wrap; row-gap: 8px; }
+  .son-sw .ts-op.on[data-son="off"] {
+    background: var(--coral-macizo);
+    color: var(--sobre-vivo);
+  }
+  .son-vol {
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+  }
+  .son-vol input {
+    flex: 1;
+    min-width: 0;
+    height: 22px;
+    accent-color: var(--mint-macizo);
+    cursor: pointer;
+  }
+  .son-vol output {
+    width: 40px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+  }
+  .son-vol.apagada { opacity: .4; }
+  .son-vol.apagada input { cursor: not-allowed; }
+  .mm-tema.sonido-hueco .tema-fila { border-top: none; margin-top: 0; padding-top: 4px; }
+
+  /* La tarjeta de la bienvenida: la fila sin marco propio, porque el cuadro
+     ya es la tarjeta, y el botón de volver a oír a lo ancho. */
+  .son-intro { margin: 0 0 12px; color: var(--muted); line-height: 1.5; }
+  .son-bienvenida .tema-fila { background: transparent; border: none; border-image: none; padding: 4px 0; }
+  .son-otra { width: 100%; margin-top: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+  .son-otra:disabled { opacity: .45; cursor: not-allowed; }
+
   /* El mismo dato en el teléfono, al final de la pantalla de Ajustes: ahí no
      hay barra lateral donde ponerlo. Centrado y con aire por arriba, para que
      se lea como el pie de la pantalla y no como una opción más de la lista. */

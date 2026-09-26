@@ -3875,5 +3875,15 @@ const TEXTOS_EN = {
   "Tu respiro termina en": "Your breather ends in",
   "Tu descanso termina en": "Your break ends in",
   /* El aviso de atrapar una luciérnaga (0.7.133.2). */
-  "¡Atrapaste una luciérnaga!": "You caught a firefly!"
+  "¡Atrapaste una luciérnaga!": "You caught a firefly!",
+  /* El sonido de toda la app (0.7.136). */
+  "Sonido de Norata": "Norata sound",
+  "Silencio": "Muted",
+  "Con sonido": "Sound on",
+  "Volumen de Norata": "Norata volume",
+  "Silenciar": "Mute",
+  "Norata tiene sonido. Si ahora no es buen momento, se silencia aquí o en Ajustes.": "Norata has sound. If now isn't a good moment, mute it here or in Settings.",
+  "Esto que oíste es Norata": "That was Norata",
+  "Suenan tus logros, nunca los botones. Ajusta el volumen y pruébalo las veces que quieras; si prefieres el silencio, se apaga aquí. Lo tienes siempre a la mano en Ajustes, junto al modo oscuro y claro.": "Your wins make a sound, never the buttons. Set the volume and try it as many times as you like; if you'd rather have silence, turn it off here. It's always at hand in Settings, next to dark and light mode.",
+  "Escuchar otra vez": "Play it again"
 };

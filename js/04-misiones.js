@@ -302,6 +302,9 @@ function logMission(id, delta, opciones) {
      estaba el dedo —`dondeCaja`, medida antes de repintar— y suena. Sin él
      no hace nada. */
   if (typeof arcadeMision === "function") arcadeMision(dondeCaja, nowDone && !wasDone, !nowDone && wasDone, after > before);
+  /* El sonido (js/01c-sonido.js): cada misión del día un peldaño más arriba.
+     Deshacer calla, salvo en Arcade, que tiene su nota. */
+  if (typeof sonidoMision === "function") sonidoMision(nowDone && !wasDone, !nowDone && wasDone, after > before);
 
   /* Los días que estuvo esperando se cobran aquí: al cumplirla. Es el
      "periodo donde corresponde" —el de verdad, no aquel en el que debía
@@ -373,7 +376,7 @@ function logMission(id, delta, opciones) {
   if (nowDone && !wasDone) {
     const st = missionStreak(m);
     if (st > 0 && st % 7 === 0) {
-      celebrate(`${st} días seguidos`, m.name, m.color || "#5fe0b0", m.icon);
+      celebrate(`${st} días seguidos`, m.name, m.color || "#5fe0b0", m.icon, "racha");
     } else {
       toast(`${m.name} cumplida${m.xp ? ` · +${m.xp} XP` : ""}${st > 1 ? ` · racha ${st}` : ""}${
         esperaba > 0 ? ` · tras ${fraseDias(esperaba)} esperando` : ""}`, "logro");
@@ -1351,6 +1354,13 @@ function golpeCandado(e) {
       { duration: 110, easing: "ease-out" });
   }
   if (navigator.vibrate) { try { navigator.vibrate(Math.round(6 + p * 12)); } catch (x) {} }
+  /* Suena cada GRIETA nueva, no cada golpe, y como mucho una por segundo: son
+     ochenta golpes, y la regla de la ráfaga (tres en segundo y medio) se
+     habría comido el sonido de romperse, que es el que importa. */
+  if (g.grietas && typeof sonar === "function") {
+    const abiertas = g.grietas.filter(({ c }) => p > c.s).length, ahora = Date.now();
+    if (abiertas > (g.sonadas || 0) && ahora - (g.sonoGrieta || 0) > 1000) { g.sonadas = abiertas; g.sonoGrieta = ahora; sonar("grieta"); }
+  }
   dibujarGrietas();
   if (g.n >= g.meta) romperCandado();
 }
@@ -1476,6 +1486,7 @@ function romperCandado() {
   const W = rc.width, H = rc.height;
   const ox = g.ox + card.clientLeft, oy = g.oy + card.clientTop - card.scrollTop;
   if (navigator.vibrate) { try { navigator.vibrate([25, 40, 60]); } catch (x) {} }
+  if (typeof sonar === "function") sonar("rotura");
 
   const n = 11, angs = [], b0 = Math.random() * Math.PI * 2;
   for (let i = 0; i < n; i++) angs.push(b0 + i * 2 * Math.PI / n + (Math.random() - 0.5) * 0.35);

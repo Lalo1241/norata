@@ -665,9 +665,14 @@ function buildFromOnboarding() {
   showView("summary");
   celebrate(tx("Tu tablero está listo"),
     areas.length === 1 ? T`${areas.length} área para empezar` : T`${areas.length} áreas para empezar`,
-    "#5fe0b0", "compass");
-  // Después de la celebración, no encima de ella
-  quizaTutorial(2600);
+    "#5fe0b0", "compass", "bienvenida");
+  /* Lo que acaba de sonar es lo primero que se oye de Norata, así que justo
+     después sale la tarjeta que lo dice, con el interruptor y el volumen ahí
+     mismo (Eduardo). Y el tutorial, después de la tarjeta, no encima. */
+  setTimeout(() => {
+    const t = typeof sonidoTarjetaBienvenida === "function" ? sonidoTarjetaBienvenida() : Promise.resolve();
+    t.then(() => quizaTutorial(300));
+  }, 2400);
 }
 
 /* ================= Sembrar lo que la bienvenida dejó apuntado =================
@@ -1058,6 +1063,8 @@ function presentarModulo(id) {
   if (!TUTO_PASOS.some(p => p.modulo === id)) { marcarPresentado(id); save(); return; }
   tutoSuelto = id;
   tutoPaso = 0;
+  // El módulo que se estrena suena: una cerradura y una campana (js/01c-sonido.js).
+  if (typeof sonar === "function") sonar("abre");
   renderTutorial();
   document.getElementById("tuto").classList.add("show");
 }
@@ -1854,6 +1861,9 @@ function renderAjustes() {
      otra cosa. */
   nav.innerHTML = (typeof cuentasMenuHTML === "function" ? cuentasMenuHTML("aj") : "") +
     `<div class="tema-hueco">${temaSwitchHTML()}</div>` +
+    /* El sonido, justo debajo del aspecto: los dos se cambian de un toque y
+       tienen que estar a la mano (Eduardo, 0.7.136). */
+    (typeof sonidoControlesHTML === "function" ? `<div class="sonido-hueco">${sonidoControlesHTML()}</div>` : "") +
     seccionesAjustes().map(sec => `
     <button class="aj-item ${ajusteAbierto === sec.id ? "on" : ""} ${sec.tono ? "t-" + sec.tono : ""}"
       onclick="mostrarAjuste('${sec.id}')">
@@ -2167,7 +2177,8 @@ function abrirMenuAjustes(btn) {
         <span class="mm-ic">${icon(sec.icon, 16)}</span>
         <span class="mm-tx"><b>${escapeHtml(sec.nombre)}</b><span>${escapeHtml(sec.sub)}</span></span>
       </button>`).join("")}
-    <div class="tema-hueco mm-tema">${temaSwitchHTML()}</div>`;
+    <div class="tema-hueco mm-tema">${temaSwitchHTML()}</div>
+    ${typeof sonidoControlesHTML === "function" ? `<div class="sonido-hueco mm-tema">${sonidoControlesHTML()}</div>` : ""}`;
   m.classList.add("show");
   // Se coloca ya dibujado: antes de tener contenido no se sabe cuánto mide
   const r = btn.getBoundingClientRect();

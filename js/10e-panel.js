@@ -767,7 +767,7 @@ function verLaFiesta(cual) {
   if (typeof showView === "function") showView("summary");
 
   if (cual === "racha") { celebrateStreak(30); return; }
-  if (cual === "chica") { celebrate("Nivel 7", tx("Guitarra sube de nivel"), "#f5d76e", "music"); return; }
+  if (cual === "chica") { celebrate("Nivel 7", tx("Guitarra sube de nivel"), "#f5d76e", "music", "habilidad"); return; }
 
   /* Se toma un nivel de verdad de la escalera para que lo que se vea sea lo
      que va a ver la gente, no un ejemplo inventado: los nombres, los iconos y

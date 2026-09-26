@@ -420,6 +420,8 @@ function abrirAniversario(a, opciones) {
   void v.offsetWidth;
   v.classList.add("show");
   anivPintar();
+  // Su música (js/01c-sonido.js): una sola pieza que se apaga al cerrar.
+  if (typeof sonidoRecapEmpezar === "function") sonidoRecapEmpezar();
   /* Se apunta al ABRIR: si la persona cierra a la mitad, ya lo vio. Y la foto
      del nivel se queda para el año que viene. */
   if (!op.prueba && !op.revivir) {
@@ -452,6 +454,8 @@ function anivPintar() {
   // Con «menos movimiento» no avanza sola: se pasa tocando.
   if (!ultima && !quieto) est.reloj = setTimeout(() => anivIr(1), ANIV_DURA);
   if (ultima && !quieto) anivChispas(v.querySelector(".av-chispas"));
+  // En la última lámina la música remata en el siguiente compás.
+  if (ultima && typeof sonidoRecapFinal === "function") sonidoRecapFinal();
 }
 
 function anivIr(d) {
@@ -465,6 +469,7 @@ function anivIr(d) {
 
 function cerrarAniversario(sinRepintar) {
   if (anivEstado) clearTimeout(anivEstado.reloj);
+  if (typeof sonidoRecapParar === "function") sonidoRecapParar();
   anivEstado = null;
   const v = document.getElementById("aniv");
   if (v) v.remove();
