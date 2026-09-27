@@ -301,6 +301,44 @@ Averno, que son los que tenía; una catedral pide los suyos, y es de Eduardo),
 y separar el sonido de los dos (hoy suenan igual; es de la conversación del
 sonido). Grabado sigue en lámina, con la caja «pliego» ya elegida.
 
+### 0.7.140.4 · 26 sep 2026
+
+**Entrar con Google desde la app de Android, y las versiones que ya no se
+quedan esperando.** Tres arreglos, los tres probados en el teléfono simulado:
+
+- **Google.** En la app, la vuelta de Google era esta misma página
+  (`https://localhost`), que para Google no existe: acababa en la web. Ahora
+  `sbEntrarConGoogle` pide volver a `app.norata://login`, el APK nuevo
+  (`versionCode 3`, complemento `@capacitor/app`) se registra como dueño de esa
+  dirección, y `js/13-nativo.js` se la pasa a la puerta, que ya sabía leerla.
+  Dos trampas que salieron en el simulador: estando ya en la puerta, cambiar
+  solo la `#` no recarga la página (de ahí `?vuelta=`), y la vuelta llega DOS
+  veces y `getLaunchUrl` repite la del arranque en cada carga (de ahí la lista
+  de las ya atendidas, que se apunta ANTES de viajar). Con eso: una recarga
+  por vuelta, en frío y en caliente. **Hace falta que `app.norata://login`
+  esté en la lista de direcciones de vuelta de Supabase**; si no, Supabase
+  manda a la web.
+- **Las versiones.** El complemento solo cambia de versión cuando la app se va
+  al fondo; cerrarla de golpe desde recientes no cuenta. A Eduardo no le llegó
+  la 0.7.140.3 por eso, con ella ya bajada. Ahora, al arrancar, si hay una más
+  nueva bajada se pone en ese momento; y se pregunta a los 1,5 s, no a los 4.
+- **La puerta tras un enlace con error** (Google cancelado, un correo
+  caducado) se quedaba sin logotipo y sin los botones de idioma: se pintaban
+  dentro de un `if` que ese camino se saltaba. Pasaba también en la web.
+
+### 0.7.140.3 · 26 sep 2026
+
+**El título ya no queda debajo de la hora.** En el teléfono de Eduardo la app de
+Android se dibujaba debajo de la barra de estado: con un WebView 140 o más
+nuevo, Capacitor 8 no aparta la página, le pasa el hueco en
+`env(safe-area-inset-top)`, y `.app` no lo usaba (la puerta sí). Ahora
+`html.nativa .app` suma ese hueco más 10 px de respiro, que pidió él. En el
+simulador no se veía porque su WebView es el 133, y ahí Capacitor aparta la
+página por su cuenta; en la web el hueco vale 0.
+
+Es también **la primera versión que tiene que llegar sola** a la app de
+Android, sin reinstalar el APK.
+
 ### 0.7.140.2 · 26 sep 2026
 
 **La app de Android abría sin estilos ni código.** Eduardo instaló el primer

@@ -40,6 +40,70 @@
 
   act.notifyAppReady().catch(() => {});
 
+  /* ---- Estrenar lo que ya está bajado (0.7.140.4) ----
+     `next()` deja una versión lista, pero el complemento solo la cambia cuando
+     la app se va al FONDO. Cerrarla de golpe desde recientes no cuenta, y así
+     le pasó a Eduardo: abría, cerraba, abría, y seguía en la vieja con la nueva
+     bajada y esperando. Ahora, al arrancar, si hay una más nueva ya bajada se
+     pone en ese momento — la carga de la app tapa la recarga. Lo que falló una
+     vez (`error`) no se vuelve a probar: eso es la vuelta atrás del complemento,
+     y reintentarla aquí sería un bucle. */
+  const estrenar = act.list().then(({ bundles }) => {
+    const lista = (bundles || [])
+      .filter((b) => (b.status === "success" || b.status === "pending") && masNueva(b.version, VERSION))
+      .sort((x, y) => (masNueva(x.version, y.version) ? -1 : 1));
+    if (lista[0]) return act.set({ id: lista[0].id }).then(() => true);
+    return false;
+  }).catch(() => false);
+
+  /* ---- La vuelta de Google (0.7.140.4) ----
+     Google se abre en el navegador del teléfono y vuelve a
+     `app.norata://login#access_token=…`; Android le da esa dirección a la app y
+     aquí se pasa a la puerta, que ya sabe leer lo que cuelga de ella
+     (`sbVolverDeEnlace`). Llega por dos caminos: con la app abierta
+     (`appUrlOpen`) o arrancándola (`getLaunchUrl`). El segundo devuelve la MISMA
+     dirección en cada carga de página, así que se apunta la que ya se atendió:
+     sin eso, la puerta la volvería a recibir al cargar y entraría en bucle. */
+  const appNativa = cap.Plugins.App;
+  function volverDeFuera(url) {
+    if (!url || url.indexOf("app.norata://login") !== 0) return;
+    /* Solo la puerta. Fuera de ella la app rebota sola a la puerta si no hay
+       sesión, y allí se vuelve a pedir; atenderlo en los dos sitios hacía que
+       los dos viajes se pisaran. */
+    if (document.getElementById("view-summary")) return;
+    /* Se apunta ANTES de viajar, y por eso no hay bucle: la vuelta llega dos
+       veces —`appUrlOpen` guarda el aviso y lo repite al escuchar, y
+       `getLaunchUrl` lo devuelve en cada carga— y la segunda ya se encuentra
+       apuntada. Mirar la dirección al llegar no servía: la puerta la limpia
+       en cuanto la lee, y a veces antes de que esto corra. En el simulador
+       eso fueron tres recargas en vez de una. */
+    /* Una LISTA y no la última: `getLaunchUrl` sigue devolviendo la dirección
+       con la que se ARRANCÓ la app aunque después hayan llegado otras, y
+       guardando solo la última, esa vieja volvía a colarse. */
+    try {
+      const vistas = JSON.parse(sessionStorage.getItem("norata-vueltas-atendidas") || "[]");
+      if (vistas.indexOf(url) >= 0) return;
+      vistas.push(url);
+      sessionStorage.setItem("norata-vueltas-atendidas", JSON.stringify(vistas.slice(-10)));
+    } catch (e) { return; }
+    /* `vuelta=` en la consulta obliga a una carga de verdad. Sin ella, estando
+       ya en la puerta, cambiar solo lo de detrás de la `#` NO recarga la
+       página, y la puerta —que lee la sesión al cargarse— nunca la veía. */
+    const q = url.indexOf("?"), h = url.indexOf("#");
+    const consulta = q >= 0 ? url.slice(q + 1, h > q ? h : undefined) : "";
+    const ancla = h >= 0 ? url.slice(h) : "";
+    location.replace("/login/index.html?" + (consulta ? consulta + "&" : "") + "vuelta=" + Date.now() + ancla);
+  }
+  /* Con `try`: esta parte llega también por actualización a los APK de antes
+     de 0.7.140.4, que no traen el complemento `App`, y allí llamarlo puede
+     fallar de golpe en vez de devolver una promesa rechazada. */
+  if (appNativa) {
+    try {
+      Promise.resolve(appNativa.addListener("appUrlOpen", (e) => volverDeFuera(e && e.url))).catch(() => {});
+      Promise.resolve(appNativa.getLaunchUrl()).then((r) => volverDeFuera(r && r.url)).catch(() => {});
+    } catch (e) { /* APK sin el complemento: Google seguirá volviendo a la web */ }
+  }
+
   const ULTIMA = "https://github.com/Lalo1241/norata/releases/latest/download/ultima.json";
   /* Al volver a la app se pregunta otra vez, pero no más de una vez cada
      diez minutos: ir y venir entre apps es constante en un teléfono. */
@@ -85,8 +149,11 @@
     }
   }
 
-  /* Un momento después de abrir, para no competir con el arranque. */
-  setTimeout(buscar, 4000);
+  /* Un momento después de abrir, para no competir con el arranque. Eran
+     cuatro segundos y es mucho: quien abre, mira y cierra no llegaba a
+     bajarla nunca. Si al arrancar se estrenó una, esta carga se va a tirar, así
+     que no se pregunta. */
+  estrenar.then((cambio) => { if (!cambio) setTimeout(buscar, 1500); });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") buscar();
   });

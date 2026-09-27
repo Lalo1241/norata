@@ -1594,7 +1594,14 @@ async function guardarNuevaClave() {
    Al volver hay que limpiarla de la barra: si se queda, cualquiera que mire
    el historial se lleva un token de sesión. */
 function sbEntrarConGoogle() {
-  const vuelta = location.origin + location.pathname;
+  /* En la app de Android la vuelta no puede ser esta página: vive en
+     `https://localhost`, que para Google y Supabase no existe, y Google se abre
+     en el navegador del teléfono, fuera de la app. Se vuelve por la dirección
+     propia de la app (`app.norata://login`), que Android le entrega a la app y
+     `js/13-nativo.js` pasa a la puerta tal cual. Tiene que estar en la lista de
+     direcciones de vuelta de Supabase, o Supabase manda a la web (0.7.140.4). */
+  const nativa = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  const vuelta = nativa ? "app.norata://login" : location.origin + location.pathname;
   location.href = SB_URL + "/auth/v1/authorize?provider=google&redirect_to=" + encodeURIComponent(vuelta);
 }
 
