@@ -247,6 +247,47 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.141.1 · 26 sep 2026
+
+**Catedral y Averno suenan cada uno a lo suyo, y subir de nivel ya suena a
+subir.** Lo pidió Eduardo por la conversación del rediseño de Averno.
+
+**Los dos mundos, separados** (`js/01c-sonido.js`). En la 0.7.141 Catedral
+tomó prestado el sonido del gótico y el Averno nuevo también; ahora:
+
+- **Catedral**: órgano, clavecín (el que sube la escalera de las misiones),
+  campana y coro. Sin tambores de guerra, trombones ni retumbo, como quedó
+  escrito en `apariencias/LEEME.md`.
+- **Averno**, el de hueso y sangre: tambores de guerra, trombones, el retumbo,
+  un coro de guerra que sostiene los acordes, un gong y una marimba de HUESO
+  que sube la escalera.
+- **El recap del aniversario de Catedral es el que ya sonaba**: los recaps no
+  se tocan.
+
+**La subida de nivel sonaba negativa, y eran tres cosas:**
+
+1. **La de una habilidad, en la casa**, tocaba mi-la-do-mi: un la menor. Los
+   grados salían de la escala de cada mundo y en la pentatónica caían ahí.
+   Ahora son semitonos fijos, do-mi-sol-do, en todos.
+2. **La del nivel de expedición, en la casa**, acababa en la, la nota más
+   alta de su escalera: la subida se quedaba en el aire. Ahora remata en do
+   mayor, arriba. El módulo que se abre, igual.
+3. **Las campanas tenían una tercera menor dentro**: así son las de iglesia
+   (el parcial 1,183), y rematar con ellas volvía menor cualquier final. La
+   campana de Catedral y el gong de Averno llevan ahora la tercera mayor
+   (1,25), que también existe en los campanarios.
+
+Y en los mundos oscuros, el camino puede ser menor pero **el final no**: el
+nivel de Averno va de do menor a do mayor por la bemol y si bemol, el de
+Catedral por la bemol y sol (la tercera de Picardía de los corales), y los
+hitos van del napolitano a do MAYOR. En Arcade, el nivel se quedaba en el
+quinto grado y ahora cierra en do.
+
+Comprobado leyendo las notas de cada final en los seis sonidos (casa,
+Averno, Catedral, Blueprint, Reliquia y Arcade): todos rematan en do sin
+tercera menor, y los catorce momentos suenan sin error en los dos mundos
+nuevos, también en la app de verdad.
+
 ### 0.7.141 · 26 sep 2026
 
 **Dos temas donde había uno: Averno es ahora hueso y sangre, y el gótico se

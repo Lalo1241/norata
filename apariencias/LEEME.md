@@ -367,11 +367,11 @@ regla que ya hay es la de siempre: palabras que no marquen género.
 **El sonido** lo lleva otra conversación. Revisado contra el diseño nuevo: el
 órgano, la campana y la menor armónica se quedan; entra el clavecín; los
 trombones, el tambor de guerra y el retumbo grave son de Diablo y se van.
-**En la 0.7.141 Catedral suena exactamente como sonaba** (`js/01c-sonido.js`
-apunta su nombre nuevo al material de siempre) y el Averno nuevo toma prestado
-ese mismo sonido. Separarlos es de esa conversación, y con la separación de los
-temas el reparto sale solo: lo de Diablo —tambores, trombones, retumbo— tiene
-por fin un mundo que es de Diablo.
+**Separados desde la 0.7.141.1** (`js/01c-sonido.js`): Catedral suena a órgano,
+clavecín, campana y coro; lo de Diablo —tambores, trombones, retumbo, y ahora
+un gong y una marimba de hueso— es de Averno. Su recap del aniversario es el
+que ya sonaba. Las dos campanas llevan la tercera mayor: la menor de una
+campana de iglesia volvía negativo cualquier final.
 
 **El Pomodoro, en píxel fino (0.7.141).** Eduardo: «aún no se mira el reloj»
 y «sube la resolución de bits de todo Pomodoro». Las dos cosas eran una: el
