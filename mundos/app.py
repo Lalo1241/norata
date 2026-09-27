@@ -775,9 +775,15 @@ FUENTES = {
    español —á é í ó ú ñ ü— caen todos dentro del latino.""",
     caras=[("rajdhani-600.woff2", "600"), ("rajdhani-700.woff2", "700")]),
   "catedral": dict(
-    familia="Jacquard 24",
-    nota=u"""Jacquard 24 y Jersey 10, las letras de Catedral (0.7.136, cuando se llamaba
-   Averno). Las dos con
+    familia="Pixelify Sans",
+    nota=u"""Pixelify Sans y Jersey 10, las letras de Catedral. **Pixelify la eligió
+   Eduardo en la 0.7.141** entre cuatro, al ver la gótica puesta: los títulos
+   fueron Jacquard 24 desde la 0.7.136, cuando el mundo se llamaba Averno, y lo
+   que viene abajo de la gótica se queda escrito por las trampas que enseña.
+   Pixelify (OFL, Stefie Justprince) es una fuente variable: un solo archivo,
+   declarado de 400 a 700, pesa 8 KB.
+
+   Lo de la gótica: Las dos con
    licencia SIL Open Font 1.1 (Sarah Cadigan-Fried), que permite incrustarlas;
    pesan 35 y 13 KB. **La gótica es la pieza que más dice «catedral»**: es la
    letra textura de los libros de coro. Por eso, al separar los dos temas, se
@@ -797,7 +803,7 @@ FUENTES = {
    **Trampa que costó una vuelta del boceto:** la app solo admite letras
    propias o incrustadas (`font-src 'self' data:` en `index.html`). Pedida a
    Google Fonts no carga, y en silencio sale la de respaldo.""",
-    caras=[("jacquard-24.woff2", "100 900", "Jacquard 24"), ("jersey-10.woff2", "100 900", "Jersey 10")]),
+    caras=[("pixelify-600.woff2", "400 700", "Pixelify Sans"), ("jersey-10.woff2", "100 900", "Jersey 10")]),
   "averno": dict(
     familia="Silkscreen",
     nota=u"""Silkscreen y Tiny5, las letras de Averno (0.7.141). Las dos con licencia

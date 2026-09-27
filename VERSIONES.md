@@ -262,10 +262,12 @@ infierno. Lo decidido está en `apariencias/LEEME.md`, en una sección cada uno.
   paletas PROPIAS (Sangre, Cocito, Ponzoña, Tormento), a 20 o más de distancia
   de las de Catedral, y letra propia: Silkscreen y Tiny5, incrustadas.
 - **Catedral** (`mundos/catedral/`, antes `mundos/averno/`): se le quitó lo
-  que era de castillo. Cuadrifolios en el menú en vez de escudos, un arco
-  apuntado en lo alto de los paneles grandes en vez de remaches, trifolios en
-  los nodos, y Hueso y Hierro pasan a llamarse **Alabastro** y **Bronce**. La
-  gótica se queda.
+  que era de castillo, y Eduardo eligió entre opciones en la prueba lo que va
+  en su lugar: **losas** en el menú (los escudos, y después unos cuadrifolios
+  que «eran un desastre»), **herrajes** en las esquinas de los paneles (un arco
+  apuntado que «parecía una casa») y **Pixelify** en los títulos (la gótica
+  Jacquard 24 no pasó la prueba de verla puesta). Trifolios en los nodos, y
+  Hueso y Hierro pasan a llamarse **Alabastro** y **Bronce**.
 - **Los nodos del mapa llevan el adorno de su mundo** (`adornoNodo`,
   js/07-lienzo.js): rombos de hueso en Averno, plomo y trifolios en Catedral.
   La silueta no se toca.
@@ -288,8 +290,9 @@ por el camino y se arregló: en Silkscreen «Árbol de talentos» es tan ancho q
 empujaba «Ver el informe» 36 px fuera del teléfono; ahora el botón baja de
 línea.
 
-**Peso:** `css/mundos.css` pasa de 224 a 332 KB (comprimido, de 135 a 164 KB).
-La primera versión llegaba a 435: las piezas de píxel iban cuadrito por
+**Peso:** `css/mundos.css` pasa de 224 a 289 KB, y comprimido se queda igual
+(de 135 a 136 KB): Averno suma lo suyo y Catedral deja la gótica, que pesaba
+35. La primera versión llegaba a 435: las piezas de píxel iban cuadrito por
 cuadrito, repetidas en cada paleta, cada cara y la escena.
 
 **Lo que queda abierto:** los rangos de Catedral (hoy lleva prestados los de

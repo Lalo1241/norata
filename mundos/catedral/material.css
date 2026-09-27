@@ -20,16 +20,15 @@
 
 html[data-apariencia="catedral"] {
   /* ---- La letra ----
-     Títulos en Jacquard 24, gótica de píxel (OFL, Sarah Cadigan-Fried). Se
-     eligió sobre Jacquard 12, su hermana, porque se lee mejor: el trazo es
-     menos apretado. Su píxel mide 1/43 de la eme, así que a 32 px cada píxel
-     de letra cae en unos dos del teléfono y se ve de píxel sin dibujarla
-     aparte. «Árbol de talentos» mide 193 de 266.
-     Cifras en Jersey 10, píxel de palo seco: los números de una gótica llevan
-     rabos de estilo antiguo, y una cifra se lee, no se mira. */
-  --tipo-titulo: "Jacquard 24", Georgia, serif;
+     Títulos en PIXELIFY SANS, píxel claro y sin gótico. Hasta la 0.7.141 fue
+     Jacquard 24, la gótica de píxel, y Eduardo no la quiso al verla puesta:
+     la eligió él entre cuatro (Bastarda 9, Pirata One, Pixelify y Cinzel) en
+     la prueba con la app dentro. Lo gótico ya lo dicen la piedra, el vitral y
+     el rosetón; la letra solo tiene que leerse.
+     Cifras en Jersey 10, píxel de palo seco: una cifra se lee, no se mira. */
+  --tipo-titulo: "Pixelify Sans", "Jersey 10", system-ui, sans-serif;
   --tipo-cifra: "Jersey 10", "Outfit", system-ui, sans-serif;
-  --tipo-titulo-escala: 1.07;
+  --tipo-titulo-escala: 1;
 
   /* ---- Las esquinas: vivas; el círculo sigue redondo ---- */
   --r-factor: 0;
@@ -66,8 +65,8 @@ html[data-apariencia="catedral"] {
      color de la tarjeta), la sombra de abajo en tramado y la luz que entra
      por el canto de arriba (un filete de 2 px, en la regla de las piezas).
      Llevaba además cuatro remaches en las esquinas y se fueron en la 0.7.141:
-     un remache es de puerta de fortaleza, no de iglesia. En su lugar, los
-     paneles grandes llevan un arco apuntado (abajo). */
+     un remache es de puerta de fortaleza, no de iglesia. Los paneles grandes
+     llevan en su lugar herrajes en las esquinas (abajo). */
   --sup-tarjeta:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='6' shape-rendering='crispEdges'%3E%3Cg fill='%23000' fill-opacity='.28'%3E%3Cpath d='M0 0h2v2H0zM0 2h2v2H0zM2 4h2v2H2zM0 4h2v2H0z'/%3E%3C/g%3E%3C/svg%3E") left bottom / 4px 6px repeat-x,
     var(--card);
@@ -91,11 +90,23 @@ html[data-apariencia="catedral"] :is(.panel, .sum-card, .ms-card, .skill-card, .
 html.claro[data-apariencia="catedral"] :is(.panel, .sum-card, .ms-card, .skill-card, .branch-card, .proj-card, .aj-item, .mod-row, .modal-card, .jor-fila, .jor-dia) {
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, .9);
 }
-/* El arco apuntado en lo alto de los paneles grandes: el hueco de una ventana
-   gótica, en el tono del plomo y apenas asomado. Solo en `.panel`: en una
-   tarjeta de misión o un chip no cabe una ventana, y repetido en cada una se
-   volvería papel tapiz. El dibujo lo hornea `catedral.py` (`--av-arco`). */
-html[data-apariencia="catedral"] .panel { background: var(--av-arco) center top 8px / 40px 26px no-repeat, var(--sup-tarjeta); }
+/* Los HERRAJES de los paneles grandes: cuatro escuadras de metal de píxel en
+   las esquinas, con su clavo, como las cantoneras de un libro de coro. Las
+   eligió Eduardo. Antes hubo un arco apuntado en lo alto y lo quitó a la
+   primera: «parece una casa». Solo en `.panel`: repetido en cada tarjeta de
+   misión se volvería papel tapiz. En el segundo tono hundido en el plomo, que
+   se ve sin gritar. */
+html[data-apariencia="catedral"] .panel {
+  --av-herraje: linear-gradient(color-mix(in srgb, var(--celeste) 55%, var(--av-hierro)), color-mix(in srgb, var(--celeste) 55%, var(--av-hierro)));
+  background:
+    var(--av-herraje) left 6px top 6px / 12px 2px no-repeat, var(--av-herraje) left 6px top 6px / 2px 12px no-repeat,
+    var(--av-herraje) right 6px top 6px / 12px 2px no-repeat, var(--av-herraje) right 6px top 6px / 2px 12px no-repeat,
+    var(--av-herraje) left 6px bottom 6px / 12px 2px no-repeat, var(--av-herraje) left 6px bottom 6px / 2px 12px no-repeat,
+    var(--av-herraje) right 6px bottom 6px / 12px 2px no-repeat, var(--av-herraje) right 6px bottom 6px / 2px 12px no-repeat,
+    var(--av-herraje) left 10px top 10px / 2px 2px no-repeat, var(--av-herraje) right 10px top 10px / 2px 2px no-repeat,
+    var(--av-herraje) left 10px bottom 10px / 2px 2px no-repeat, var(--av-herraje) right 10px bottom 10px / 2px 2px no-repeat,
+    var(--sup-tarjeta);
+}
 
 /* Las piezas medianas y chicas pierden la esquina en dos escalones: piedra
    labrada, no caja de sprite. Las grandes no, por lo mismo que en Arcade: el
@@ -111,24 +122,17 @@ html[data-apariencia="catedral"] .skill-card { border-radius: 0; }
 html[data-apariencia="catedral"] :is(.skill-emoji, .bubble) { border-radius: 0; clip-path: var(--av-esquina); }
 
 /* ---------- Los títulos ----------
-   Una sombra DURA de 2 px en el rojo hundido: tinta de iluminador, no halo.
-   De día no lleva (la variable vale `transparent`): no hay nada que ilumine.
-
-   **Una gótica nunca va en mayúsculas.** En mayúsculas la letra negra es
-   famosa por ilegible, así que los títulos de sección dejan las mayúsculas
-   espaciadas de la casa y pasan a minúscula gótica de 21 px —«Atención hoy»
-   se lee como el encabezado de un códice—, y los rótulos diminutos (12 px)
-   se quedan en la letra de la casa: una gótica de 12 px no se lee. */
-html[data-apariencia="catedral"] :is(h1, h2) { text-shadow: 2px 2px 0 var(--av-letra-sombra); letter-spacing: 0; font-weight: 400; }
-html[data-apariencia="catedral"] h3 { font-weight: 400; letter-spacing: 0; }
-html[data-apariencia="catedral"] :is(h2, h3):not(.jor-rot) { font-size: 21px; line-height: 1.05; text-transform: none; }
-/* Lo mismo para la etiqueta «Pre alpha» que va DENTRO del título del
-   Pomodoro: hereda la gótica, a 11 px y en mayúsculas, que es ilegible. */
+   En Pixelify a 600, en minúscula y sin las mayúsculas espaciadas de la casa.
+   **Sin sombra**, y no por gusto: con la gótica llevaban una sombra dura de
+   2 px en el rojo hundido, y en una letra de píxel esa sombra cae a medio
+   punto y se lee como un trazo doble y borroso. Los rótulos diminutos (12 px)
+   se quedan en la letra de la casa. */
+html[data-apariencia="catedral"] :is(h1, h2, h3):not(.jor-rot) { text-shadow: none; letter-spacing: 0; font-weight: 600; }
+html[data-apariencia="catedral"] :is(h2, h3):not(.jor-rot) { font-size: 18px; line-height: 1.1; text-transform: none; }
+/* La etiqueta «Pre alpha» va DENTRO del título del Pomodoro: heredaría la
+   letra del título a 11 px. */
 html[data-apariencia="catedral"] :is(.jor-rot, .jor-prueba) { font-family: var(--sans); text-shadow: none; }
-html[data-apariencia="catedral"] .page-head h1 { line-height: 1; }
-/* En la PC el título de página va a 43 px (una unidad de su rejilla por
-   píxel): hay sitio. */
-@media (min-width: 900px) { html[data-apariencia="catedral"] .page-head h1 { font-size: 43px; } }
+html[data-apariencia="catedral"] .page-head h1 { line-height: 1; font-size: 32px; }
 
 /* ---------- Los botones: vidrio emplomado ----------
    El macizo es un vidrio: filete de luz arriba, plomo abajo y marco oscuro.
@@ -175,13 +179,12 @@ html[data-apariencia="catedral"] .const-wrap svg path[stroke-dasharray="6 7"] { 
 html[data-apariencia="catedral"] .const-wrap svg .edges path { stroke-linecap: butt; }
 
 /* ---------- El menú y el «+» (teléfono) ----------
-   Arcade: círculos de píxel en escalón. Catedral: CUADRIFOLIOS, la tracería
-   de cuatro lóbulos de las ventanas góticas. Fueron escudos hasta la 0.7.141,
-   y el escudo es heráldica de castillo. La forma (`--av-forma`, generada en
-   `catedral.py`) es
-   una máscara de píxel en rejilla de 20: el contorno de hierro y el vidrio de
-   dentro llevan la misma. El contorno no puede ser un borde —la máscara se lo
-   comería—, así que van en dos capas. */
+   Arcade: círculos de píxel en escalón. Catedral: LOSAS, la piedra labrada de
+   las tarjetas en pequeño, con su marco de hierro y el canto de luz arriba; la
+   elegida, enmarcada en rojo. La eligió Eduardo entre tres. Antes fueron
+   escudos —heráldica de castillo— y luego cuadrifolios, que a ese tamaño se
+   leían como engranes: «el menú es un desastre». Dos capas, el marco y la
+   piedra, recortadas con la misma esquina. */
 @media (max-width: 899px) {
   html[data-apariencia="catedral"] .thumb-cluster :is(.c-nav, .c-main) {
     clip-path: none; border-radius: 0; background: transparent; border-color: transparent;
@@ -189,13 +192,13 @@ html[data-apariencia="catedral"] .const-wrap svg .edges path { stroke-linecap: b
   }
   html[data-apariencia="catedral"] .thumb-cluster :is(.c-nav, .c-main)::before,
   html[data-apariencia="catedral"] .thumb-cluster .c-nav::after { content: ""; position: absolute; pointer-events: none; }
-  html[data-apariencia="catedral"] .thumb-cluster .c-nav::before { inset: 0; z-index: -2; background: var(--av-hierro); -webkit-mask: var(--av-forma) center / 100% 100% no-repeat; mask: var(--av-forma) center / 100% 100% no-repeat; }
+  html[data-apariencia="catedral"] .thumb-cluster .c-nav::before { inset: 0; z-index: -2; clip-path: var(--av-esquina); background: var(--av-hierro); }
   html[data-apariencia="catedral"] .thumb-cluster .c-nav::after {
-    inset: 3px; z-index: -1; -webkit-mask: var(--av-forma) center / 100% 100% no-repeat; mask: var(--av-forma) center / 100% 100% no-repeat;
-    background: linear-gradient(var(--av-piedra), var(--av-piedra)) top / 100% 3px no-repeat, var(--sup-flotante);
+    inset: 2px; z-index: -1; clip-path: var(--av-esquina);
+    background: linear-gradient(var(--av-piedra), var(--av-piedra)) top / 100% 2px no-repeat, var(--sup-flotante);
   }
   html[data-apariencia="catedral"] .thumb-cluster .c-nav.active::before { background: var(--mint); }
-  html[data-apariencia="catedral"] .thumb-cluster .c-nav.active::after { background: linear-gradient(var(--av-piedra), var(--av-piedra)) top / 100% 3px no-repeat, color-mix(in srgb, var(--mint) 18%, var(--sup-flotante)); }
+  html[data-apariencia="catedral"] .thumb-cluster .c-nav.active::after { background: linear-gradient(var(--av-piedra), var(--av-piedra)) top / 100% 2px no-repeat, color-mix(in srgb, var(--mint) 18%, var(--sup-flotante)); }
   /* El «+» ES el rosetón, y es la firma del mundo. Sustituye a los círculos
      de Dante del Averno anterior, que vivían en la banda de cabecera — y esa
      banda ya no existe en la app, así que llevaban tiempo sin salir en

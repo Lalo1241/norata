@@ -12,9 +12,11 @@ lo guardado de un nombre al otro una sola vez.
 
 Y al separarlo se le quitó lo que era de CASTILLO y no de iglesia (Eduardo,
 0.7.141): los escudos del menú pasaron a cuadrifolios —la tracería de cuatro
-lóbulos de las ventanas góticas—, los remaches de las tarjetas a un arco
-apuntado en lo alto de los paneles, los remaches de los nodos a trifolios, y
-dos paletas cambiaron de nombre: Hueso a Alabastro y Hierro a Bronce.
+lóbulos de las ventanas góticas—, los remaches de los nodos a trifolios, y
+dos paletas cambiaron de nombre: Hueso a Alabastro y Hierro a Bronce. Y al
+verlo puesto Eduardo cambió tres cosas más: la letra de los títulos pasó de la
+gótica a Pixelify, el menú de cuadrifolios («un desastre») a losas, y el arco
+apuntado de los paneles («parece una casa») a herrajes en las esquinas.
 
 Por qué no sale de `datos.py`: trae CUATRO paletas y no una, y un material que
 el vocabulario `--m-*` no alcanza a decir. Es el mismo camino que abrió Arcade:
@@ -48,49 +50,6 @@ def mix(a, b, t):
     A, B = _hex(a), _hex(b)
     return "#" + "".join("%02x" % round(x*t + y*(1-t)) for x, y in zip(A, B))
 
-def _svg(cuerpo, vb):
-    s = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='%s' preserveAspectRatio='none' shape-rendering='crispEdges'>%s</svg>" % (vb, cuerpo)
-    return 'url("data:image/svg+xml,' + s.replace("#", "%23").replace("<", "%3C").replace(">", "%3E") + '")'
-
-# El CUADRIFOLIO de los botones del menú en el teléfono: la tracería de cuatro
-# lóbulos de las ventanas góticas. Sustituye al escudo (0.7.141): el escudo es
-# heráldica de castillo, no de iglesia. Se dibuja un lóbulo y los otros tres
-# salen por simetría, así que no puede quedar torcido; la muesca de un píxel
-# entre lóbulo y lóbulo es lo que lo separa de un círculo.
-_LOBULO = [3, 4, 5, 5, 5, 4, 3, 3, 3, 3]
-def _cuadrifolio():
-    def dentro(x, y):
-        if y >= 10: y = 19 - y
-        return abs(x + .5 - 10) <= _LOBULO[y]
-    return ["".join("#" if (dentro(x, y) or dentro(y, x)) else "." for x in range(20)) for y in range(20)]
-CUADRIFOLIO = _cuadrifolio()
-
-def mascara(filas):
-    out = ""
-    for y, f in enumerate(filas):
-        x = 0
-        while x < len(f):
-            if f[x] != "#": x += 1; continue
-            w = 1
-            while x + w < len(f) and f[x + w] == "#": w += 1
-            out += "<rect x='%d' y='%d' width='%d' height='1'/>" % (x, y, w); x += w
-    return _svg(out, "0 0 %d %d" % (len(filas[0]), len(filas)))
-
-def arco(color):
-    """El arco apuntado que va en lo alto de un panel grande: el hueco de una
-    ventana gótica, en trazo de píxel de 2. Sustituye a los cuatro remaches de
-    las tarjetas (0.7.141), que eran de puerta de fortaleza. Va horneado con el
-    color porque un fondo en `url()` no puede leer variables; son unos
-    cientos de bytes por cara."""
-    filas = [
-      ".........##.........", "........#..#........", ".......#....#.......", "......#......#......",
-      ".....#........#.....", ".....#........#.....", "....#..........#....", "....#..........#....",
-      "....#..........#....", "....#..........#....", "....#..........#....", "....#..........#....",
-      "....#..........#...."]
-    d = "".join("M%d %dh1v1h-1z" % (x, y) for y, f in enumerate(filas) for x, ch in enumerate(f) if ch == "#")
-    s = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 13' shape-rendering='crispEdges'><path fill='%s' d='%s'/></svg>" % (color, d)
-    return 'url("data:image/svg+xml,' + s.replace("#", "%23").replace("<", "%3C").replace(">", "%3E") + '")'
-
 def vars_cara(c, dia):
     """El vocabulario de la app para una cara de una paleta. `--celeste` es el
     SEGUNDO TONO: es el sitio que la casa ya tenía para «mirar, informar», y
@@ -121,10 +80,6 @@ def vars_cara(c, dia):
       "--lienzo-suelo": c["hondo"], "--sup-hondo": c["hondo"], "--borde-panel": c["line"],
       # Las piezas propias del material:
       "--av-hierro": c["hierro"], "--av-piedra": c["piedra"],
-      # El arco de los paneles grandes (ver `arco`). En su propia variable y no
-      # dentro de `--sup-panel`: esa la leen cincuenta sitios —chips, menús,
-      # el fondo de un botón al pasar por encima— y el arco saldría en todos.
-      "--av-arco": arco(mix(c["hierro"], c["bg2"], .55 if dia else .75)),
       # El adorno de los nodos del mapa (lo dibuja `adornoNodo` en
       # js/07-lienzo.js): el filete de plomo por dentro de la figura y un
       # TRIFOLIO en cada vértice, en el segundo tono hundido de noche. Hasta la
@@ -171,7 +126,6 @@ def css():
                     "--escena-fondo": _rgb(n["bg"]), "--escena-vidrio": _rgb(n["card"]), "--escena-tinta": _rgb(n["text"]),
                     "--escena-tinte": n["card"]})
         out.append(_bloque('html[data-apariencia="catedral"]%s :is(.scene-card, .celebrate, .ncel, .scel)' % cond, esc))
-    out.append('html[data-apariencia="catedral"] { --av-forma: %s; }\n' % mascara(CUADRIFOLIO))
     out.append(open(os.path.join(AQUI, "material.css"), encoding="utf-8").read())
     return "\n".join(out)
 

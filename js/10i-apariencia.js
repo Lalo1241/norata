@@ -349,9 +349,10 @@ const MUNDOS = [
      0.7.136. En la 0.7.141 Eduardo pidió quedarse con los dos temas y le dio
      el nombre que siempre le correspondió: vitral, rosetón, sillares y la
      letra de los libros de coro son de una catedral, no de un infierno. De
-     paso se le quitó lo que era de castillo —los escudos del menú pasaron a
-     cuadrifolios, los remaches a un arco apuntado— y dos paletas cambiaron de
-     nombre (Hueso a Alabastro, Hierro a Bronce).
+     paso se le quitó lo que era de castillo —los escudos y los remaches— y
+     dos paletas cambiaron de nombre (Hueso a Alabastro, Hierro a Bronce). Al
+     verlo puesto Eduardo eligió además la letra (Pixelify en vez de la
+     gótica), las losas del menú y los herrajes de los paneles.
 
      Quien lo llevaba puesto sigue en él sin hacer nada: el script de arriba
      de `index.html` mueve lo guardado de `averno` a `catedral` una sola vez.
@@ -361,7 +362,7 @@ const MUNDOS = [
      nombre de su camino. Una catedral pide los suyos: queda en manos de
      Eduardo, y cuando los elija se escriben aquí y esta línea se va. */
   { id: "catedral", nombre: "Catedral", listo: true, pro: true, pixel: true, icon: "roseton", estrena: "2026-09-26",
-    premisa: "Una catedral gótica en pixel art: sillares, cuadrifolios, la luz que entra por el vitral y la letra de los libros de coro.",
+    premisa: "Una catedral gótica en pixel art: sillares con herrajes, la luz que entra por el vitral y el rosetón.",
     paletas: CATEDRAL_PALETAS,
     get rangos() { return mundoPorId("averno").rangos; } },
   /* El nombre de éste está decidido; sus dibujos se hacen cuando se construya
@@ -518,7 +519,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=a735abb3f7";
+  l.href = "css/mundos.css?h=5ff6b300a9";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.

@@ -293,6 +293,21 @@ los nodos del mapa a **trifolios**, y dos paletas cambiaron de nombre: Hueso a
 **Alabastro** y Hierro a **Bronce** (los tonos son los mismos). La gótica se
 quedó: es la pieza que más dice «catedral».
 
+**Y al verlo puesto, Eduardo cambió tres cosas más** (26 sep 2026, eligiendo
+entre opciones en la prueba con la app dentro):
+
+| Qué | Lo que no quiso | Lo que eligió | Las que se descartaron |
+| --- | --- | --- | --- |
+| Letra de los títulos | Jacquard 24, la gótica | **Pixelify Sans**, píxel claro sin gótico | Bastarda 9, Pirata One, Cinzel |
+| Dentro de los paneles | El arco apuntado: «parece una casa» | **Herrajes**: escuadras de metal en las cuatro esquinas | Franja de vitral, nada |
+| Menú del teléfono | Los cuadrifolios: «un desastre» (a ese tamaño, engranes) | **Losas**: la piedra labrada de las tarjetas | Medallón, anillo |
+
+Así que lo de arriba sobre la gótica es historia: la letra que «más decía
+catedral» no pasó la prueba de verla puesta, y el tema se sostiene con la
+piedra, el vitral y el rosetón. **Sin sombra en los títulos**: en una letra de
+píxel la sombra de 2 px cae a medio punto y se lee como un trazo doble. El «+»
+está en elección (vitral en losa, losa roja, medallón o sello de lacre).
+
 **La regla que lo ordena: «labrado en piedra, la luz por el vitral».** Arcade y
 Averno son los dos de píxel y no se pisan: Arcade es una maquinita (una luz,
 una sombra, la cuadrícula manda); Averno es un castillo gótico (volumen de
@@ -303,13 +318,13 @@ se acerca a «Gótico»: no se renombra todavía, pero queda dicho.
 | Familia | Arcade | Catedral |
 | --- | --- | --- |
 | Color | El del ambiente | Cuatro paletas propias |
-| Letra | CelestiByte | Jacquard 24 (títulos) y Jersey 10 (cifras) |
-| Superficie | Caja de sprite, 2 tonos | Sillar: hierro, filete de luz y tramado; un arco apuntado en los paneles grandes |
+| Letra | CelestiByte | Pixelify Sans (títulos, desde la 0.7.141) y Jersey 10 (cifras) |
+| Superficie | Caja de sprite, 2 tonos | Sillar: hierro, filete de luz y tramado; herrajes en las esquinas de los paneles grandes |
 | Suelo | Cielo de 6 píxeles | Muro de sillería y la luz del vitral en el piso |
 | Barras | Celdas de 6 | Emplomado: paños de 10 |
 | Movimiento | 3 pasos, .12-.18 s | 4 pasos, .2-.3 s |
 | Mapa | Puntos en cuadrícula | Puntos al tresbolillo, hilos en cadena |
-| Menú del teléfono | Círculos en escalón | Cuadrifolios |
+| Menú del teléfono | Círculos en escalón | Losas |
 | Nodos del mapa | Sombra de sprite | Filete de plomo por dentro y un trifolio en cada vértice |
 | El «+» | Ficha maciza | Rosetón |
 
@@ -390,14 +405,14 @@ tres.
 | Familia | Catedral | Averno |
 | --- | --- | --- |
 | Color | Cuatro paletas: base de color, rojo y un segundo tono de vidrio | Cuatro paletas propias: base negra neutra, rojo sangre y un segundo tono que Catedral no usa |
-| Letra | Jacquard 24 (gótica) y Jersey 10 | Silkscreen (mayúsculas de píxel) y Tiny5 |
-| Marco | Sillar con tramado | Esquina cortada a 45° con filete de hueso y bisel (9 trozos) |
+| Letra | Pixelify Sans y Jersey 10 | Silkscreen (mayúsculas de píxel) y Tiny5 |
+| Marco | Sillar con tramado y herrajes | Esquina cortada a 45° con filete de hueso y bisel (9 trozos) |
 | Iconos | Casilla labrada | Rombo de píxel con doble filete |
 | Botones y fichas | Esquina en dos escalones | Sesgo a 45° y bisel; lo elegido, enmarcado en sangre |
 | Barras | Emplomado, paños de 10 | Una pieza con bisel, carril sesgado con filete de hueso |
-| Títulos | Gótica con sombra de iluminador | Doble raya que remata en un rombo de sangre |
+| Títulos | Píxel claro, sin sombra | Doble raya que remata en un rombo de sangre |
 | Suelo | Muro de sillería y la luz del vitral | Sello de geometría sagrada casi invisible y brasas que suben |
-| Menú del teléfono | Cuadrifolios | Sellos: doble aro con cuatro rombos |
+| Menú del teléfono | Losas | Sellos: doble aro con cuatro rombos |
 | El «+» | Rosetón | Orbe de sangre dentro del sello |
 | Nodos del mapa | Plomo y trifolios | Un rombo de hueso en cada vértice y un filete fino por fuera |
 
@@ -410,7 +425,7 @@ debajo de 20 el ojo las confunde, y así pasó con los primeros intentos de
 Cocito y Tormento, que salieron a 9 y 14. Todas pasan 4,5 para escribir en sus
 dos caras.
 
-**La letra también es suya.** La gótica se la quedó Catedral. Silkscreen para
+**La letra también es suya.** Catedral llevaba la gótica y ahora Pixelify. Silkscreen para
 los títulos —mayúsculas de píxel, como los rótulos de las cartas de la
 referencia— y Tiny5 para las cifras, porque Silkscreen a tamaño de número no se
 lee. Rejilla de 8: por eso los tamaños son 16, 24 y 32. Y es ANCHA: «Árbol de

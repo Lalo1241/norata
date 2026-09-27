@@ -44,7 +44,7 @@ Sobran 38: **un 16% de holgura**, y eso es toda la pista.
 | Cara | vs Outfit | Ancho | Escala | Mundo |
 | --- | --- | --- | --- | --- |
 | Big Shoulders Display | −26% | 174,2 | 1 | Ventisca |
-| Jacquard 24 | −18% | 193,3 | 1,07 | Catedral (desde 0.7.136, cuando se llamaba Averno) |
+| Jacquard 24 | −18% | 193,3 | 1,07 | Ninguno: fue de Catedral (0.7.136 a 0.7.141) |
 | Alegreya Sans | −14% | 204,2 | 1 | Talavera |
 | Rajdhani | −10% | 212,5 | 1 | Blueprint |
 | Patrick Hand | −22% | 185,6 | 1 | Post-it |
@@ -107,7 +107,7 @@ casa, y ninguno lleva marca, icono ni tipografía de nadie.
 | **Obsidiana** | El oscuro elegante | Sora | +13% | 0.99 | 0 px · vivas | ~80 KB | Noche |
 | **Cénit** | Vidriera de cielo | Julius Sans One | +23% | 0.91 | 3 px · casi vivas | ~85 KB | Noche |
 | **Reliquia** | El de Fundador | Syne | +18% | 0.95 | 4 px · vitrina | ~75 KB | Noche |
-| **Catedral** | Gótico de píxel, cuatro paletas | Jacquard 24 | −18% | 1,07 | 0 px · piedra labrada | ~50 KB | Las dos |
+| **Catedral** | Gótico de píxel, cuatro paletas | Pixelify Sans | — | 1 | 0 px · piedra labrada | ~45 KB | Las dos |
 | **Averno** | Hueso y sangre, cuatro paletas | Silkscreen | +12% | 0,8 | corte a 45° · bisel | ~70 KB | Las dos |
 | **Ventisca** | Frío con una hoguera | Big Shoulders Display | −26% | 1 | 3 px · chapa | ~90 KB | Noche |
 | **Bastión** | Blindaje | Michroma | +9% | 0.81 | 4 px · placa | ~105 KB | Noche |
