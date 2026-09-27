@@ -247,6 +247,31 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.140.4 · 26 sep 2026
+
+**Entrar con Google desde la app de Android, y las versiones que ya no se
+quedan esperando.** Tres arreglos, los tres probados en el teléfono simulado:
+
+- **Google.** En la app, la vuelta de Google era esta misma página
+  (`https://localhost`), que para Google no existe: acababa en la web. Ahora
+  `sbEntrarConGoogle` pide volver a `app.norata://login`, el APK nuevo
+  (`versionCode 3`, complemento `@capacitor/app`) se registra como dueño de esa
+  dirección, y `js/13-nativo.js` se la pasa a la puerta, que ya sabía leerla.
+  Dos trampas que salieron en el simulador: estando ya en la puerta, cambiar
+  solo la `#` no recarga la página (de ahí `?vuelta=`), y la vuelta llega DOS
+  veces y `getLaunchUrl` repite la del arranque en cada carga (de ahí la lista
+  de las ya atendidas, que se apunta ANTES de viajar). Con eso: una recarga
+  por vuelta, en frío y en caliente. **Hace falta que `app.norata://login`
+  esté en la lista de direcciones de vuelta de Supabase**; si no, Supabase
+  manda a la web.
+- **Las versiones.** El complemento solo cambia de versión cuando la app se va
+  al fondo; cerrarla de golpe desde recientes no cuenta. A Eduardo no le llegó
+  la 0.7.140.3 por eso, con ella ya bajada. Ahora, al arrancar, si hay una más
+  nueva bajada se pone en ese momento; y se pregunta a los 1,5 s, no a los 4.
+- **La puerta tras un enlace con error** (Google cancelado, un correo
+  caducado) se quedaba sin logotipo y sin los botones de idioma: se pintaban
+  dentro de un `if` que ese camino se saltaba. Pasaba también en la web.
+
 ### 0.7.140.3 · 26 sep 2026
 
 **El título ya no queda debajo de la hora.** En el teléfono de Eduardo la app de

@@ -111,10 +111,15 @@ traducirDOM();
        formulario de crear cuenta: ese es el camino partido de la landing, y no
        un adorno de la pantalla. */
     mostrarPortada(puertaEsNueva() ? "crear" : undefined);
-    puertaLadoPegar();
-    puertaIdiomaPintar();
-    puertaMarcaEnlazar();
   }
+  /* Fuera del `if` desde 0.7.140.4: un enlace que vuelve con ERROR —Google
+     cancelado, un correo caducado— también se queda en la puerta, y dentro
+     del `if` se la dejaba sin logotipo (un `<img>` sin dirección) y sin los
+     botones de idioma. Si se entró y la página se está yendo, pintarlos no
+     cuesta nada. */
+  puertaLadoPegar();
+  puertaIdiomaPintar();
+  puertaMarcaEnlazar();
 
   cargaCerrar();
 
