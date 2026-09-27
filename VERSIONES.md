@@ -266,7 +266,8 @@ infierno. Lo decidido está en `apariencias/LEEME.md`, en una sección cada uno.
   en su lugar: **losas** en el menú (los escudos, y después unos cuadrifolios
   que «eran un desastre»), **herrajes** en las esquinas de los paneles (un arco
   apuntado que «parecía una casa») y **Pixelify** en los títulos (la gótica
-  Jacquard 24 no pasó la prueba de verla puesta). Trifolios en los nodos, y
+  Jacquard 24 no pasó la prueba de verla puesta). El «+» deja el rosetón y es
+  una **losa roja**, la del menú en macizo. Trifolios en los nodos, y
   Hueso y Hierro pasan a llamarse **Alabastro** y **Bronce**.
 - **Los nodos del mapa llevan el adorno de su mundo** (`adornoNodo`,
   js/07-lienzo.js): rombos de hueso en Averno, plomo y trifolios en Catedral.

@@ -23,8 +23,8 @@ html[data-apariencia="catedral"] {
      Títulos en PIXELIFY SANS, píxel claro y sin gótico. Hasta la 0.7.141 fue
      Jacquard 24, la gótica de píxel, y Eduardo no la quiso al verla puesta:
      la eligió él entre cuatro (Bastarda 9, Pirata One, Pixelify y Cinzel) en
-     la prueba con la app dentro. Lo gótico ya lo dicen la piedra, el vitral y
-     el rosetón; la letra solo tiene que leerse.
+     la prueba con la app dentro. Lo gótico ya lo dicen la piedra y el vitral;
+     la letra solo tiene que leerse.
      Cifras en Jersey 10, píxel de palo seco: una cifra se lee, no se mira. */
   --tipo-titulo: "Pixelify Sans", "Jersey 10", system-ui, sans-serif;
   --tipo-cifra: "Jersey 10", "Outfit", system-ui, sans-serif;
@@ -199,20 +199,19 @@ html[data-apariencia="catedral"] .const-wrap svg .edges path { stroke-linecap: b
   }
   html[data-apariencia="catedral"] .thumb-cluster .c-nav.active::before { background: var(--mint); }
   html[data-apariencia="catedral"] .thumb-cluster .c-nav.active::after { background: linear-gradient(var(--av-piedra), var(--av-piedra)) top / 100% 2px no-repeat, color-mix(in srgb, var(--mint) 18%, var(--sup-flotante)); }
-  /* El «+» ES el rosetón, y es la firma del mundo. Sustituye a los círculos
-     de Dante del Averno anterior, que vivían en la banda de cabecera — y esa
-     banda ya no existe en la app, así que llevaban tiempo sin salir en
-     ninguna pantalla. El «+» sale en todas. */
-  /* Se dibuja con gradientes que leen la paleta —centro rojo, plomo, ocho
-     paños y el marco— y el filtro de bloques del Pomodoro lo redibuja en
-     píxel de 3. Fue primero un SVG píxel a píxel, uno por paleta y por cara:
-     ocho copias que subían `css/mundos.css` de 185 a 337 KB. Así es uno solo
-     para todas, y el color lo pone la variable. */
+  /* El «+» es una LOSA ROJA: la misma losa del menú, maciza en rojo, con su
+     marco de hierro, el canto de luz arriba y la sombra abajo. La eligió
+     Eduardo entre cuatro (vitral en losa, losa roja, medallón y sello de
+     lacre). Hasta entonces fue un rosetón de ocho paños, que junto a las
+     losas del menú era la única pieza redonda y a ese tamaño se volvía ruido.
+     Dos capas, como el menú: el marco y la piedra roja. */
   html[data-apariencia="catedral"] .thumb-cluster .c-main::before {
-    inset: -3px; z-index: -2; border-radius: 50%; filter: url(#arc-px-3);
-    background:
-      radial-gradient(circle closest-side, var(--mint-macizo) 0 47%, var(--av-plomo) 47% 55%, transparent 55% 84%, var(--av-marco) 84% 100%),
-      repeating-conic-gradient(from -22.5deg, var(--av-pano-1) 0 40deg, var(--av-plomo) 40deg 45deg, var(--av-pano-2) 45deg 85deg, var(--av-plomo) 85deg 90deg);
+    inset: -2px; z-index: -2; border-radius: 0; clip-path: var(--av-esquina); background: var(--av-hierro);
+  }
+  html[data-apariencia="catedral"] .thumb-cluster .c-main::after {
+    content: ""; position: absolute; pointer-events: none; inset: 1px; z-index: -1; clip-path: var(--av-esquina);
+    background: linear-gradient(rgba(255, 255, 255, .35), rgba(255, 255, 255, .35)) top / 100% 2px no-repeat,
+                linear-gradient(rgba(0, 0, 0, .3), rgba(0, 0, 0, .3)) bottom / 100% 3px no-repeat, var(--mint-macizo);
   }
   html[data-apariencia="catedral"] .thumb-cluster .c-main { color: var(--sobre-macizo); }
   html[data-apariencia="catedral"] .thumb-cluster .c-main:active { transform: translateY(2px); }

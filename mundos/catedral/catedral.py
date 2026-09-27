@@ -86,7 +86,8 @@ def vars_cara(c, dia):
       # 0.7.141 eran remaches, y un remache es de fortaleza.
       "--nodo-adorno": "catedral",
       "--nodo-adorno-metal": c["hierro"] if dia else mix(c["segundoM"], c["bg"], .55),
-      # El rosetón del «+» se dibuja en CSS con estos tres (ver material.css):
+      # El plomo y los paños del vidrio (el «+» fue un rosetón hecho con ellos
+      # hasta la 0.7.141; hoy es una losa roja):
       # el plomo es el suelo de noche y el hierro de día; los paños, el segundo
       # tono y el rojo hundido.
       "--av-plomo": c["hierro"] if dia else c["bg"],

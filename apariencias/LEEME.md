@@ -305,8 +305,9 @@ entre opciones en la prueba con la app dentro):
 Así que lo de arriba sobre la gótica es historia: la letra que «más decía
 catedral» no pasó la prueba de verla puesta, y el tema se sostiene con la
 piedra, el vitral y el rosetón. **Sin sombra en los títulos**: en una letra de
-píxel la sombra de 2 px cae a medio punto y se lee como un trazo doble. El «+»
-está en elección (vitral en losa, losa roja, medallón o sello de lacre).
+píxel la sombra de 2 px cae a medio punto y se lee como un trazo doble. Y el «+»
+dejó de ser el rosetón: es una **losa roja**, la del menú en macizo (se
+descartaron vitral en losa, medallón y sello de lacre).
 
 **La regla que lo ordena: «labrado en piedra, la luz por el vitral».** Arcade y
 Averno son los dos de píxel y no se pisan: Arcade es una maquinita (una luz,
@@ -326,7 +327,7 @@ se acerca a «Gótico»: no se renombra todavía, pero queda dicho.
 | Mapa | Puntos en cuadrícula | Puntos al tresbolillo, hilos en cadena |
 | Menú del teléfono | Círculos en escalón | Losas |
 | Nodos del mapa | Sombra de sprite | Filete de plomo por dentro y un trifolio en cada vértice |
-| El «+» | Ficha maciza | Rosetón |
+| El «+» | Ficha maciza | Losa roja |
 
 **Las cuatro paletas, y dónde se eligen.** Vitral (índigo, la de partida),
 Alabastro, Bronce (verdín) y Espectro (cian). Todas con base casi negra, el rojo de
@@ -413,7 +414,7 @@ tres.
 | Títulos | Píxel claro, sin sombra | Doble raya que remata en un rombo de sangre |
 | Suelo | Muro de sillería y la luz del vitral | Sello de geometría sagrada casi invisible y brasas que suben |
 | Menú del teléfono | Losas | Sellos: doble aro con cuatro rombos |
-| El «+» | Rosetón | Orbe de sangre dentro del sello |
+| El «+» | Losa roja | Orbe de sangre dentro del sello |
 | Nodos del mapa | Plomo y trifolios | Un rombo de hueso en cada vértice y un filete fino por fuera |
 
 **Las cuatro paletas son suyas y no las de Catedral repintadas**, y fue un
