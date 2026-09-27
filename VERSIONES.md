@@ -262,6 +262,29 @@ toca, y lo que cambia es el nombre y el dibujo con que se enseña.
 **Comprobado:** Mi expedición en el teléfono (el aro, las constelaciones y la
 lista de los cinco, sin salirse de lado) y la fiesta de rango con su versículo.
 
+**Y seis arreglos de Averno que pidió Eduardo mirándolo en vivo:**
+
+- **Botones con el marco cortado.** La inclinación a 45° les comía el borde
+  en las dos puntas («Entrar con otra cuenta», «Ver el informe»). Ahora solo
+  se inclinan los macizos; los que tienen borde llevan el marco de esquina
+  cortada de las tarjetas.
+- **Menos decorado debajo.** El bisel de los botones rojos pasa de 3 px de luz
+  y 3 de sombra a 1 y 2.
+- **Aspecto y Sonido ya no se cortan.** El interruptor elegido llevaba un marco
+  de sangre de 6 px que lo engordaba 12; ahora el marco lo pone la caja, y el
+  relleno es menor.
+- **La barra del volumen tiene diseño, en toda la app.** Solo llevaba
+  `accent-color` y cada navegador ponía la suya (en Chrome, dos carriles grises
+  con un hueco). Ahora se dibuja entera, con lo lleno en el color de la app; en
+  Averno es una barra de vida con tirador en rombo.
+- **El calor de abajo, pegado al borde y animado.** Iba en el fondo de la
+  página con dos escalones duros (18 y 72 px) y se leía como una franja
+  flotando más arriba. Pasa a su propia capa fija, con un degradado suave, y
+  las chispas suben como en el boceto. Se quedan quietas si el sistema pide
+  menos movimiento.
+- **En la PC el sello del fondo es casi el doble** (1040 px, centrado), porque
+  a 560 se perdía entre las columnas.
+
 ### 0.7.141 · 26 sep 2026
 
 **Dos temas donde había uno: Averno es ahora hueso y sangre, y el gótico se

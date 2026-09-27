@@ -652,7 +652,7 @@ function sonidoControlesHTML() {
       </div>
       <div class="son-vol${on ? "" : " apagada"}">
         ${icon("sonido", 16)}
-        <input type="range" min="0" max="100" step="1" value="${v}" ${on ? "" : "disabled"}
+        <input type="range" min="0" max="100" step="1" value="${v}" style="--v:${v}%" ${on ? "" : "disabled"}
           aria-label="${escapeAttr(tx("Volumen de Norata"))}"
           oninput="sonidoVolumen(this.value)" onchange="sonidoVolumen(this.value, true)">
         <output>${v}%</output>
@@ -682,7 +682,9 @@ function sonidoVolumen(v, soltar) {
   try { localStorage.setItem(VOL_CLAVE, String(v)); } catch (e) { /* sin almacén: dura lo que la pestaña */ }
   if (masterReal) masterReal.gain.value = ganancia(v);
   document.querySelectorAll(".son-vol output").forEach(o => { o.textContent = v + "%"; });
-  document.querySelectorAll(".son-vol input").forEach(i => { if (+i.value !== v) i.value = v; });
+  /* `--v` es lo lleno de la barra: el navegador no sabe pintar «hasta aquí»
+     en la pista de un control de rango, así que se lo dice el CSS. */
+  document.querySelectorAll(".son-vol input").forEach(i => { if (+i.value !== v) i.value = v; i.style.setProperty("--v", v + "%"); });
   if (soltar) sonar(document.getElementById("son-otra") ? "bienvenida" : "mision", 4);
 }
 

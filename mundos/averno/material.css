@@ -62,32 +62,54 @@ html[data-apariencia="averno"] {
   --sup-tarjeta: var(--card);
 }
 
-/* ---------- El fondo: el sello y las brasas ----------
-   Arriba, un sello grande de geometría sagrada casi invisible; abajo, chispas
-   de píxel y el calor que sube. Un fondo se mira mil veces, así que va muy
-   tenue. De día no hay brasas ni calor: sobre papel un resplandor es una
-   mancha. */
-html:not(.claro)[data-apariencia="averno"] {
-  --sup-pagina:
-    var(--av-brasas) left bottom / 300px 160px repeat-x,
-    linear-gradient(to top, color-mix(in srgb, var(--av-brasa) 45%, transparent) 0 18px, color-mix(in srgb, var(--av-brasa) 18%, transparent) 18px 72px, transparent 160px),
-    var(--av-geometria) center 60px / 560px 560px no-repeat,
-    var(--bg);
+/* ---------- El fondo: el sello, y las brasas en su propia capa ----------
+   En el suelo de la página va solo el sello de geometría sagrada, casi
+   invisible: un fondo se mira mil veces.
+
+   Las brasas y el calor NO van en el suelo, y es por dos cosas que dijo
+   Eduardo mirándolo puesto: el calor «queda más arriba de lo que debería»
+   (el degradado iba en dos escalones duros, a 18 y a 72 px, y se leía como
+   una franja flotando), y en el boceto «los píxeles de fondo estaban
+   animados, para parecer fuego». Animar una capa del fondo de la página
+   obliga a animar el fondo entero; así que van en la tercera mancha de luz
+   (`.orb-3`), que ya es una capa fija de la pantalla, por debajo del
+   contenido y que no se toca. Ahí se pega de verdad al borde de abajo —en el
+   teléfono, `background-attachment: fixed` no siempre se respeta— y puede
+   moverse sola. */
+html[data-apariencia="averno"] { --sup-pagina: var(--av-geometria) center 60px / 560px 560px no-repeat, var(--bg); }
+/* En la PC el sello se agranda y se centra en la pantalla: a 560 px se perdía
+   entre las columnas y no se apreciaba (Eduardo). */
+@media (min-width: 900px) {
+  html[data-apariencia="averno"] { --sup-pagina: var(--av-geometria) calc(50% + 120px) center / 1040px 1040px no-repeat, var(--bg); }
 }
-html.claro[data-apariencia="averno"] {
-  --sup-pagina: var(--av-geometria) center 60px / 560px 560px no-repeat, var(--bg);
+/* En el Pomodoro el sello se va: caía justo detrás de la rueda y competía con
+   la esfera, que es lo único que hay que leer ahí. Donde hay algo que leer,
+   el suelo es liso (la regla de los mapas). Las brasas sí se quedan. */
+html[data-apariencia="averno"]:has(#view-jornada.active) { --sup-pagina: var(--bg); }
+
+/* Las brasas: chispas de píxel que SUBEN, con el calor debajo que respira.
+   Suben a saltos de 2 px (`steps`), como en el resto del mundo, y se
+   desvanecen hacia arriba con una máscara. De día no hay: sobre papel un
+   resplandor es una mancha. */
+html:not(.claro)[data-apariencia="averno"] .orb-3 {
+  inset: auto 0 0 0; width: auto; height: 190px; border-radius: 0; filter: none; opacity: 1;
+  background: var(--av-brasas) 0 0 / 300px 160px repeat;
+  -webkit-mask: linear-gradient(to top, #000 0, #000 30%, transparent 100%);
+  mask: linear-gradient(to top, #000 0, #000 30%, transparent 100%);
+  animation: avBrasasSuben 12s steps(80) infinite;
 }
-/* En el Pomodoro el sello se va: caía justo detrás de la rueda y sus círculos
-   y sus rayas competían con los de la esfera, que es lo único que hay que
-   leer ahí. Es la misma regla que la de los mapas —donde hay algo que leer,
-   el suelo es liso—. Las brasas de abajo se quedan. */
-html:not(.claro)[data-apariencia="averno"]:has(#view-jornada.active) {
-  --sup-pagina:
-    var(--av-brasas) left bottom / 300px 160px repeat-x,
-    linear-gradient(to top, color-mix(in srgb, var(--av-brasa) 45%, transparent) 0 18px, color-mix(in srgb, var(--av-brasa) 18%, transparent) 18px 72px, transparent 160px),
-    var(--bg);
+/* El calor, en un degradado SUAVE y pegado al borde (sin escalones). */
+html:not(.claro)[data-apariencia="averno"] .orb-3::before {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to top, color-mix(in srgb, var(--av-brasa) 55%, transparent) 0, color-mix(in srgb, var(--av-brasa) 22%, transparent) 45px, transparent 150px);
+  animation: avCalor 3.2s steps(4) infinite alternate;
 }
-html.claro[data-apariencia="averno"]:has(#view-jornada.active) { --sup-pagina: var(--bg); }
+html.claro[data-apariencia="averno"] .orb-3 { display: none; }
+@keyframes avBrasasSuben { to { background-position: 0 -160px; } }
+@keyframes avCalor { from { opacity: .75; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  html[data-apariencia="averno"] .orb-3, html[data-apariencia="averno"] .orb-3::before { animation: none; }
+}
 
 /* ---------- Las piezas: esquina a 45° y bisel ----------
    Un marco de nueve trozos: filete de hueso por fuera, la esquina cortada en
@@ -145,18 +167,66 @@ html[data-apariencia="averno"] :is(h2, h3):not(.jor-rot) { font-size: 16px; font
 html[data-apariencia="averno"] :is(.jor-rot, .jor-prueba) { font-family: var(--sans); text-shadow: none; }
 html[data-apariencia="averno"] .sec-label { font-family: var(--tipo-cifra); letter-spacing: .14em; font-size: 14px; }
 
-/* ---------- Botones y fichas: sesgo a 45° y bisel ----------
-   Como los rótulos del Necromancer: la pieza se inclina por los dos lados y
-   lleva luz arriba y sombra abajo. Lo elegido se enmarca en sangre. */
-html[data-apariencia="averno"] :is(.btn, .chip, .ready-chip, .ts-op, .jor-pild) {
+/* ---------- Botones y fichas: sesgo a 45° o marco a 45° ----------
+   Como los rótulos del Necromancer. Dos familias, y la separa una sola
+   pregunta: ¿el botón tiene BORDE?
+
+   - Los MACIZOS (el principal y el suave) se inclinan por los dos lados.
+   - Los que tienen borde (línea, fantasma, peligro, «listo», las fichas)
+     llevan el marco de esquina cortada de las tarjetas. Iban inclinados
+     también, y la inclinación les comía el borde en las dos puntas: el marco
+     se veía cortado (Eduardo, sobre «Entrar con otra cuenta»). El marco se
+     dibuja con `border-image` más ancho que el borde, así que el botón no
+     cambia de tamaño.
+
+   El bisel es CORTO: un píxel de luz arriba y dos de sombra abajo. Era de 3 y
+   3, y con el marco encima «tiene mucho decorado» (Eduardo). */
+html[data-apariencia="averno"] :is(.btn-primary, .btn-soft) {
   clip-path: var(--av-sesgo); border-radius: 0; padding-left: 18px; padding-right: 18px;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .12), inset 0 -3px 0 rgba(0, 0, 0, .35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), inset 0 -2px 0 rgba(0, 0, 0, .2);
 }
-html[data-apariencia="averno"] .btn-primary { box-shadow: inset 0 3px 0 rgba(255, 255, 255, .28), inset 0 -3px 0 rgba(0, 0, 0, .38); }
+html[data-apariencia="averno"] :is(.btn-linea, .btn-ghost, .btn-aviso, .btn-danger-ghost, .chip, .ready-chip, .jor-pild) {
+  clip-path: var(--av-esquina); border-radius: 0; box-shadow: none;
+  border-style: solid; border-image: var(--av-marco-bisel) 6 / 6px stretch;
+}
+html[data-apariencia="averno"] .btn-danger-ghost { border-image: var(--av-marco-bisel-sangre) 6 / 6px stretch; }
 html[data-apariencia="averno"] .btn:active { transform: translateY(2px); }
-html[data-apariencia="averno"] .btn-linea { color: var(--text); border-color: var(--av-hueso); }
-html[data-apariencia="averno"] :is(.chip.active, .ts-op.on) {
-  border: 6px solid transparent; border-image: var(--av-marco-bisel-sangre) 6 / 6px stretch; clip-path: none;
+html[data-apariencia="averno"] .btn-linea { color: var(--text); }
+html[data-apariencia="averno"] .chip.active { border-image: var(--av-marco-bisel-sangre) 6 / 6px stretch; }
+
+/* ---------- Los interruptores (Aspecto, Sonido y los de su familia) ----------
+   Sin inclinación y sin marco propio: el marco lo pone la caja que los
+   agrupa. El elegido es rojo macizo con la esquina cortada y el bisel corto.
+   Llevaba además el marco de sangre de 6 px, que lo engordaba 12 px: con
+   «Aspecto» o «Sonido» al lado, la fila no cabía en el teléfono y se cortaba
+   (Eduardo). Por lo mismo, menos relleno que en la casa. */
+html[data-apariencia="averno"] .ts-op { clip-path: none; border-radius: 0; box-shadow: none; padding: 9px 10px; }
+html[data-apariencia="averno"] .ts-op.on {
+  clip-path: var(--av-esquina);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), inset 0 -2px 0 rgba(0, 0, 0, .2);
+}
+html[data-apariencia="averno"] .tema-sw {
+  border-radius: 0; border-color: transparent;
+  border-image: var(--av-marco-bisel) 6 / 6px stretch; clip-path: var(--av-esquina);
+}
+
+/* ---------- El volumen: la barra de vida ----------
+   El control de la casa lo dibuja el navegador (ver `.son-vol` en
+   css/estilos.css); aquí se vuelve la barra del Necromancer: carril con
+   filete de hueso, lo lleno en sangre, y el tirador en ROMBO. */
+html[data-apariencia="averno"] .son-vol input::-webkit-slider-runnable-track {
+  height: 10px; border-radius: 0; box-shadow: inset 0 0 0 2px var(--av-hueso);
+  background: linear-gradient(90deg, var(--mint-macizo) var(--v, 50%), var(--bg2) var(--v, 50%));
+}
+html[data-apariencia="averno"] .son-vol input::-webkit-slider-thumb {
+  width: 18px; height: 18px; margin-top: -4px; border: 0; border-radius: 0;
+  background: var(--av-hueso); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); box-shadow: none;
+}
+html[data-apariencia="averno"] .son-vol input::-moz-range-track { height: 10px; border-radius: 0; background: var(--bg2); box-shadow: inset 0 0 0 2px var(--av-hueso); }
+html[data-apariencia="averno"] .son-vol input::-moz-range-progress { height: 10px; border-radius: 0; background: var(--mint-macizo); }
+html[data-apariencia="averno"] .son-vol input::-moz-range-thumb {
+  width: 18px; height: 18px; border: 0; border-radius: 0;
+  background: var(--av-hueso); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
 }
 
 /* ---------- Las cifras ---------- */

@@ -3919,13 +3919,47 @@
     gap: 10px;
     color: var(--muted);
   }
+  /* La barra de volumen, dibujada entera y no la del navegador. Con solo
+     `accent-color` cada navegador ponía la suya —en Chrome, dos carriles
+     grises con un hueco— y en ningún tema se veía como parte de la app
+     (Eduardo: «siempre sale sin diseño»). Lo lleno sale de `--v`, que pone
+     `sonidoVolumen` (js/01c-sonido.js): la pista no sabe hasta dónde va.
+     Un mundo puede cambiarla (Averno la vuelve barra de vida). */
   .son-vol input {
     flex: 1;
     min-width: 0;
     height: 22px;
-    accent-color: var(--mint-macizo);
+    margin: 0;
+    background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
     cursor: pointer;
   }
+  .son-vol input::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: var(--r-barra);
+    background: linear-gradient(90deg, var(--mint-macizo) var(--v, 50%), var(--carril) var(--v, 50%));
+  }
+  .son-vol input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    margin-top: -6px;
+    border-radius: var(--r-redondo);
+    background: var(--text);
+    border: 3px solid var(--mint-macizo);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .35);
+  }
+  .son-vol input::-moz-range-track { height: 6px; border-radius: var(--r-barra); background: var(--carril); }
+  .son-vol input::-moz-range-progress { height: 6px; border-radius: var(--r-barra); background: var(--mint-macizo); }
+  .son-vol input::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: var(--r-redondo);
+    background: var(--text);
+    border: 3px solid var(--mint-macizo);
+  }
+  .son-vol input:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; }
   .son-vol output {
     width: 40px;
     text-align: right;
