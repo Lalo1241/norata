@@ -9487,6 +9487,13 @@
   /* Y el hueco que la barra reserva, medido en JavaScript sobre la barra ya
      dibujada y no clavado a un número: con dos renglones mide otra cosa. */
   .app { padding-top: var(--alto-aviso, 0); }
+  /* En la app de Android (0.7.140.3) la página se dibuja DEBAJO de la barra
+     de estado —la hora, la batería—: con un WebView nuevo Capacitor le pasa el
+     hueco a la página en `env(safe-area-inset-top)` en vez de apartarla él. En
+     la web y en la app instalada desde Chrome ese hueco vale 0, así que esto
+     solo lo pinta quien lo necesita. Los 10 de encima son de Eduardo: con el
+     hueco justo, el título seguía viéndose pegado a la barra. */
+  html.nativa .app { padding-top: calc(var(--alto-aviso, 0px) + env(safe-area-inset-top, 0px) + 10px); }
 
   /* ================= El teléfono tumbado: los botones al canto =================
      Lo único que cambia al girar el teléfono, y es de Eduardo. Estuvo detrás de

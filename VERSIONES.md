@@ -247,6 +247,19 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.140.3 · 26 sep 2026
+
+**El título ya no queda debajo de la hora.** En el teléfono de Eduardo la app de
+Android se dibujaba debajo de la barra de estado: con un WebView 140 o más
+nuevo, Capacitor 8 no aparta la página, le pasa el hueco en
+`env(safe-area-inset-top)`, y `.app` no lo usaba (la puerta sí). Ahora
+`html.nativa .app` suma ese hueco más 10 px de respiro, que pidió él. En el
+simulador no se veía porque su WebView es el 133, y ahí Capacitor aparta la
+página por su cuenta; en la web el hueco vale 0.
+
+Es también **la primera versión que tiene que llegar sola** a la app de
+Android, sin reinstalar el APK.
+
 ### 0.7.140.2 · 26 sep 2026
 
 **La app de Android abría sin estilos ni código.** Eduardo instaló el primer
