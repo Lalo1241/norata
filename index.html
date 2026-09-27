@@ -120,13 +120,39 @@
      `?apariencia=` la enciende solo en esta pestaña, guardada en
      sessionStorage para que no se quede pegada como si fuera un ajuste. Es la
      misma receta con la que se probaron los tonos del modo claro. */
+  /* ---- La mudanza de Averno a Catedral (0.7.141), una sola vez ----
+     El gótico de vitrales se publicó con el nombre `averno` (0.7.136) y en la
+     0.7.141 pasó a llamarse `catedral`; `averno` es ahora el de hueso y
+     sangre. Sin esto, quien llevaba el gótico puesto abriría un día la app y
+     se encontraría OTRO mundo con su nombre, sin haber tocado nada. Aquí
+     arriba y no en `js/10i-apariencia.js` porque las líneas de abajo ya ponen
+     el atributo antes de pintar: movido después, la primera imagen saldría en
+     el mundo equivocado.
+
+     Una sola vez por dispositivo, con su marca: sin ella, quien eligiera el
+     Averno nuevo volvería a Catedral en cada apertura. Y con la paleta
+     traducida, porque dos cambiaron de nombre (Hueso → Alabastro, Hierro →
+     Bronce). */
+  try {
+    if (!localStorage.getItem("norata-mudanza-catedral")) {
+      if (localStorage.getItem("norata-apariencia") === "averno") localStorage.setItem("norata-apariencia", "catedral");
+      var pmud = JSON.parse(localStorage.getItem("norata-paletas") || "{}") || {};
+      if (pmud.averno) {
+        pmud.catedral = { hueso: "alabastro", hierro: "bronce" }[pmud.averno] || pmud.averno;
+        delete pmud.averno;
+        localStorage.setItem("norata-paletas", JSON.stringify(pmud));
+      }
+      localStorage.setItem("norata-mudanza-catedral", "1");
+    }
+  } catch (e) {}
+
   try {
     var apr = new URLSearchParams(location.search).get("apariencia");
     if (apr) sessionStorage.setItem("norata-apariencia-prueba", apr);
     var puesta = sessionStorage.getItem("norata-apariencia-prueba")
               || localStorage.getItem("norata-apariencia");
     if (puesta && puesta !== "casa") document.documentElement.setAttribute("data-apariencia", puesta);
-    /* Y la paleta del mundo, si trae (Averno, 0.7.136): aquí por lo mismo, o
+    /* Y la paleta del mundo, si trae (Catedral y Averno): aquí por lo mismo, o
        cada carga saldría un instante en la paleta de partida. Se pone la que
        esté guardada tal cual; la de partida no necesita atributo, y un valor
        que no exista no pinta nada, así que no hay que validarlo aquí. */
@@ -143,7 +169,7 @@
 
        La lista va escrita a mano porque este script corre antes que todo, y
        tiene que decir lo mismo que los mundos con `listo` de ese archivo: hoy,
-       uno. Si algún día discrepan, lo que se ve es el fogonazo, no un error.
+       cuatro. Si algún día discrepan, lo que se ve es el fogonazo, no un error.
 
        Y la dirección lleva una HUELLA del contenido (`?h=…`) que estampa
        `mundos/app.py` al generar el archivo. No es un adorno: este archivo no
@@ -153,10 +179,10 @@
        que `sw.js` ya es el nuevo y esto todavía es lo viejo, y quien abra ahí
        se queda con el mundo congelado y el número de versión nuevo puesto.
        Cambiando la dirección, una copia vieja ni siquiera es la misma cosa. */
-    if (["reliquia", "plano", "averno"].indexOf(puesta) >= 0) {
+    if (["reliquia", "plano", "catedral", "averno"].indexOf(puesta) >= 0) {
       var lm = document.createElement("link");
       lm.rel = "stylesheet";
-      lm.href = "css/mundos.css?h=51ce1599e8";
+      lm.href = "css/mundos.css?h=a735abb3f7";
       document.head.appendChild(lm);
     }
   } catch (e) {}

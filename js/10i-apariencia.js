@@ -128,10 +128,11 @@ const AMBIENTES = [
    rangos viajan con su mundo y no con la app: meter en ICONS los cinco rangos
    de quince mundos serían setenta y cinco dibujos que se baja todo el mundo
    para no usar ninguno. */
-/* ================= Averno: los rangos en píxel y las cuatro paletas =================
-   Averno se rehízo en la 0.7.136 como un castillo gótico de pixel art (ver la
-   sección «Averno» de `apariencias/LEEME.md`, que manda). De aquí salen dos
-   cosas que el registro de abajo usa:
+/* ================= Catedral y Averno: los rangos en píxel y las paletas =================
+   El gótico de pixel art se publicó como Averno en la 0.7.136 y en la 0.7.141
+   se partió en dos temas (ver `apariencias/LEEME.md`, que manda): el gótico
+   pasó a llamarse **Catedral** y **Averno** es ahora hueso y sangre. De aquí
+   salen tres cosas que el registro de abajo usa:
 
    - **Los cinco rangos, redibujados en píxel** sobre rejilla de 16 y de
      RELLENO (Arcade usa 12). Se escriben fila a fila —`#` es píxel lleno— y
@@ -139,10 +140,13 @@ const AMBIENTES = [
      derivada de filas de cuadritos siembra rayas (la lección de Arcade), así
      que cada rango guarda su dibujo de línea de siempre en `trazoCielo`, que
      es la misma figura.
-   - **Las muestras de las cuatro paletas** para Mi apariencia: suelo,
-     tarjeta, marco, rojo y segundo tono de cada cara. Salen de
-     `mundos/averno/paletas.py` (`python mundos/averno/averno.py` las
-     imprime); si se toca un tono allí, se vuelven a pegar aquí. */
+   - **Las muestras de las paletas** de cada mundo para Mi apariencia: suelo,
+     tarjeta, marco, rojo y segundo tono de cada cara. Salen de su
+     `paletas.py` (`python mundos/catedral/catedral.py` y
+     `python mundos/averno/averno.py` las imprimen); si se toca un tono allí,
+     se vuelven a pegar aquí.
+   - **Los cinco rangos**, que los dos mundos comparten por ahora (ver la
+     entrada de Catedral). */
 const AVERNO_PX = {
   ceniza: ["................", ".....######.....", "...##########...", "..############..", ".##############.", ".##############.", ".##...####...##.", ".##...####...##.", ".##...####...##.", ".###.######.###.", "..#####..#####..", "...##########...", "....########....", "....##.##.##....", "....##.##.##....", "................"],
   sello: [".....######.....", "...##......##...", "..#..........#..", ".#............#.", ".#.##########.#.", "#...########...#", "#...########...#", "#....##..##....#", "#....##..##....#", "#.....####.....#", ".#....####....#.", ".#.....##.....#.", "..#..........#..", "...##......##...", ".....######.....", "................"],
@@ -164,7 +168,8 @@ function pxDeFilas(filas) {
   });
   return '<g data-px="16">' + r + "</g>";
 }
-const AVERNO_PALETAS = {"vitral": {"nombre": "Vitral", "noche": ["#07080f", "#191a2c", "#4a4d78", "#ff3d4f", "#8c86ff"], "dia": ["#dfdde9", "#f4f2f8", "#8e8aab", "#ff3d4f", "#8c86ff"]}, "hueso": {"nombre": "Hueso", "noche": ["#0b0507", "#221318", "#5e3a41", "#ff3b45", "#e8d2b8"], "dia": ["#e9e1da", "#faf5f0", "#9e8a82", "#ff3b45", "#e8d2b8"]}, "hierro": {"nombre": "Hierro", "noche": ["#090c0d", "#1a2022", "#4d5a5c", "#ff5563", "#5fc4ae"], "dia": ["#dde2e1", "#f3f5f4", "#86928f", "#ff5563", "#5fc4ae"]}, "espectro": {"nombre": "Espectro", "noche": ["#07030a", "#1b0f20", "#56355e", "#ff2a5c", "#2fe3f0"], "dia": ["#e6dfe6", "#f8f3f7", "#9a8698", "#ff2a5c", "#2fe3f0"]}};
+const CATEDRAL_PALETAS = {"vitral": {"nombre": "Vitral", "noche": ["#07080f", "#191a2c", "#4a4d78", "#ff3d4f", "#8c86ff"], "dia": ["#dfdde9", "#f4f2f8", "#8e8aab", "#ff3d4f", "#8c86ff"]}, "alabastro": {"nombre": "Alabastro", "noche": ["#0b0507", "#221318", "#5e3a41", "#ff3b45", "#e8d2b8"], "dia": ["#e9e1da", "#faf5f0", "#9e8a82", "#ff3b45", "#e8d2b8"]}, "bronce": {"nombre": "Bronce", "noche": ["#090c0d", "#1a2022", "#4d5a5c", "#ff5563", "#5fc4ae"], "dia": ["#dde2e1", "#f3f5f4", "#86928f", "#ff5563", "#5fc4ae"]}, "espectro": {"nombre": "Espectro", "noche": ["#07030a", "#1b0f20", "#56355e", "#ff2a5c", "#2fe3f0"], "dia": ["#e6dfe6", "#f8f3f7", "#9a8698", "#ff2a5c", "#2fe3f0"]}};
+const AVERNO_PALETAS = {"sangre": {"nombre": "Sangre", "noche": ["#060506", "#171415", "#696563", "#ff2d3f", "#b8bccb"], "dia": ["#e2dfdd", "#f6f4f2", "#8d8a89", "#ff2d3f", "#b8bccb"]}, "cocito": {"nombre": "Cocito", "noche": ["#04060c", "#121827", "#636875", "#ff3548", "#6ec0ff"], "dia": ["#dde1ea", "#f3f5f9", "#878b95", "#ff3548", "#6ec0ff"]}, "ponzona": {"nombre": "Ponzoña", "noche": ["#050805", "#131a13", "#636b63", "#ff3a3a", "#8ad550"], "dia": ["#dfe4dc", "#f4f7f2", "#888d86", "#ff3a3a", "#8ad550"]}, "tormento": {"nombre": "Tormento", "noche": ["#07040a", "#19111f", "#6b6270", "#ff3040", "#ff4fd8"], "dia": ["#e4dde8", "#f7f2f9", "#8f8693", "#ff3040", "#ff4fd8"]}};
 
 const MUNDOS = [
   {
@@ -234,11 +239,18 @@ const MUNDOS = [
      lo es — el arco es «de las cenizas», que se entiende solo y es el que hace
      que el primer peldaño signifique algo: no empiezas en nada, empiezas en lo
      que quedó. Se propuso Yesca y se descartó. No volver a proponerlo. */
-  { id: "averno", nombre: "Averno", listo: true, pro: true, pixel: true, icon: "roseton", estrena: "2026-09-26",
-    premisa: "Un castillo gótico en pixel art: piedra labrada, hierro y la luz que entra por el vitral. Demonología de la que se lee, no de la que se disfraza.",
-    /* Las paletas propias: con Averno elegido sustituyen a los ambientes en
-       Mi apariencia. Lo decidió Eduardo al ver el boceto, con Vitral de
-       partida. La primera entra sin atributo (es la de partida). */
+  /* **Hueso y sangre sobre negro (0.7.141).** Es el segundo Averno de
+     píxel: el primero, el de vitrales, se quedó como Catedral (abajo). El
+     material lo ordena una sola regla —círculo, rombo y corte a 45°, todo con
+     bisel— y está entero en `mundos/averno/`.
+
+     Los rangos siguen siendo los de la demonología, y es aquí donde viven:
+     un infierno es su casa. Catedral los toma prestados. */
+  { id: "averno", nombre: "Averno", listo: true, pro: true, pixel: true, icon: "sello", estrena: "2026-09-26",
+    premisa: "Hueso y sangre sobre negro, en pixel art: marcos con la esquina a 45°, iconos en rombo y el menú en sellos. Demonología de la que se lee, no de la que se disfraza.",
+    /* Sus cuatro paletas propias —Sangre de partida—, que con Averno elegido
+       ocupan en Mi apariencia el sitio de los ambientes. Son suyas y no las
+       de Catedral repintadas: en el boceto lo eran y Eduardo lo paró. */
     paletas: AVERNO_PALETAS,
     rangos: [
       /* **Caput mortuum**, la «cabeza muerta»: el nombre que la alquimia le dio
@@ -333,6 +345,25 @@ const MUNDOS = [
       { nombre: "Abadón", trazo: pxDeFilas(AVERNO_PX.abadon), trazoCielo: '<circle cx="12" cy="12" r="9.6"/><path d="M12 20.6L6.94 5.04L20.18 14.66L3.82 14.66L17.06 5.04z"/>',
         linea: { texto: "Su rey es el ángel del abismo, cuyo nombre es Abadón.", fuente: "Apocalipsis 9:11" } }
     ] },
+  /* **Catedral**, el gótico de pixel art que se publicó como Averno en la
+     0.7.136. En la 0.7.141 Eduardo pidió quedarse con los dos temas y le dio
+     el nombre que siempre le correspondió: vitral, rosetón, sillares y la
+     letra de los libros de coro son de una catedral, no de un infierno. De
+     paso se le quitó lo que era de castillo —los escudos del menú pasaron a
+     cuadrifolios, los remaches a un arco apuntado— y dos paletas cambiaron de
+     nombre (Hueso a Alabastro, Hierro a Bronce).
+
+     Quien lo llevaba puesto sigue en él sin hacer nada: el script de arriba
+     de `index.html` mueve lo guardado de `averno` a `catedral` una sola vez.
+
+     **Los rangos son los de Averno, prestados**, porque son los que tenía
+     quien ya lo usaba y cambiárselos de un día para otro sería quitarle el
+     nombre de su camino. Una catedral pide los suyos: queda en manos de
+     Eduardo, y cuando los elija se escriben aquí y esta línea se va. */
+  { id: "catedral", nombre: "Catedral", listo: true, pro: true, pixel: true, icon: "roseton", estrena: "2026-09-26",
+    premisa: "Una catedral gótica en pixel art: sillares, cuadrifolios, la luz que entra por el vitral y la letra de los libros de coro.",
+    paletas: CATEDRAL_PALETAS,
+    get rangos() { return mundoPorId("averno").rangos; } },
   /* El nombre de éste está decidido; sus dibujos se hacen cuando se construya
      el mundo, con el resto de sus vectores. Escribirlo ahora sin dibujo no es
      una promesa a medias: mientras el mundo no exista, esta lista no la lee
@@ -487,7 +518,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=51ce1599e8";
+  l.href = "css/mundos.css?h=a735abb3f7";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
@@ -594,7 +625,21 @@ function ponerApariencia(cual, opciones) {
    existe y el navegador no pinta el dibujo: la rueda desaparece. */
 function filtrosDePixel() {
   const m = mundoPorId(apariencia());
-  if (m && m.pixel && typeof arcPonerFiltros === "function" && document.body) arcPonerFiltros();
+  if (!m || !m.pixel || typeof arcPonerFiltros !== "function" || !document.body) return;
+  arcPonerFiltros();
+  /* Y dos FINOS, de bloques de 2, para el Pomodoro de los mundos (0.7.141).
+     Eduardo pidió más resolución, y con bloques de 4 el filtro se comía lo
+     delgado —muestrea un píxel de cada bloque—: el aro de puntos de la esfera
+     desaparecía y la rueda dejaba de parecer un reloj. Arcade conserva los
+     suyos, gordos: allí la cuadrícula es el tema. En su propio `<svg>` para
+     no tocar el de Arcade. */
+  if (document.getElementById("mun-filtros") || typeof arcFiltro !== "function") return;
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.id = "mun-filtros";
+  s.setAttribute("width", "0"); s.setAttribute("height", "0"); s.setAttribute("aria-hidden", "true");
+  s.style.position = "absolute";
+  s.innerHTML = arcFiltro("mun-px-2", 2) + arcFiltro("mun-px-rueda-2", 2, true);
+  document.body.appendChild(s);
 }
 function paletasDe(id) {
   const m = mundoPorId(id);

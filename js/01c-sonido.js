@@ -477,6 +477,17 @@ const RECAP_VOCES = {
 // El tambor de Averno como estaba en la v5, solo para el recap.
 const tamborRecap = (t, v) => golpe(t, 90, 32, .45, v || .75);
 
+/* Catedral suena como sonaba el gótico cuando se llamaba Averno (0.7.136 a
+   0.7.141): es el mismo mundo con otro nombre, y quien lo lleva no tiene por
+   qué notar la mudanza. El Averno nuevo, el de hueso y sangre, se queda por
+   ahora con ese mismo sonido. Separarlos —Catedral sin los tambores de
+   guerra, más órgano y campana— es de la conversación del sonido, y lo
+   decidido está en `apariencias/LEEME.md`. */
+MATERIAL.catedral = MATERIAL.averno;
+PROPIO.catedral = PROPIO.averno;
+RECAP.catedral = RECAP.averno;
+RECAP_VOCES.catedral = RECAP_VOCES.averno;
+
 /* ---------- Qué material suena ----------
    Lo decide la apariencia puesta. Los ambientes (Tinta, Musgo…) son recolores
    de la casa y suenan como ella; solo los mundos con material propio cambian. */

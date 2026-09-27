@@ -1975,6 +1975,80 @@ function engasteNodo() {
   return engasteCache;
 }
 
+/* ---- El adorno: lo que un mundo pone ALREDEDOR de la figura (0.7.141) ----
+   El engaste de arriba es un adorno, el primero. Averno y Catedral traen el
+   suyo, y la regla es la misma que dejó Reliquia: **la silueta no se toca**.
+   Rombo, hexágono, círculo y encargo dicen qué es cada cosa; el adorno se
+   pone alrededor y sale de los vértices de la figura, así que vale para las
+   cuatro formas sin dibujar ninguna a mano.
+
+     averno    un rombo de hueso en cada vértice y un filete fino por fuera:
+               el sello del fondo en pequeño
+     catedral  un filete de plomo por dentro y un trifolio en cada vértice: la
+               tracería de una vidriera (eran remaches, que son de castillo)
+
+   El ESTILO se lee del CSS (`--nodo-adorno`) y el COLOR no: va escrito como
+   `var(--nodo-adorno-metal)` dentro del dibujo. El mapa no se vuelve a
+   dibujar al cambiar de modo ni de paleta, así que un color leído aquí se
+   quedaría con la cara en la que se dibujó. */
+let adornoDe = null, adornoCache = null;
+function estiloDeAdorno() {
+  const ap = document.documentElement.getAttribute("data-apariencia") || "casa";
+  if (adornoCache === null || adornoDe !== ap) {
+    const v = (getComputedStyle(document.documentElement).getPropertyValue("--nodo-adorno") || "").trim();
+    adornoCache = (v === "averno" || v === "catedral") ? v : "";
+    adornoDe = ap;
+  }
+  return adornoCache;
+}
+function verticesDeFigura(t, x, y, crece) {
+  const c = crece || 0;
+  if (t.forma === "encargo") {
+    const w = t.ancho / 2 + c, h = t.alto / 2 + c;
+    return [[x - w, y - h], [x + w, y - h], [x + w, y + h], [x - w, y + h]];
+  }
+  if (t.forma === "hexagono") {
+    const out = [];
+    for (let i = 0; i < 6; i++) { const a = Math.PI / 6 + i * Math.PI / 3; out.push([x + (t.radio + c) * Math.cos(a), y + (t.radio + c) * Math.sin(a)]); }
+    return out;
+  }
+  // El rombo es un cuadrado girado: sus puntas están a radio·√2 del centro.
+  const R = t.forma === "circulo" ? t.radio + c : (t.radio + c) * Math.SQRT2;
+  return [[x, y - R], [x + R, y], [x, y + R], [x - R, y]];
+}
+function adornoNodo(p, x, y, cerrado) {
+  const estilo = estiloDeAdorno();
+  if (!estilo || p.esCaja) return null;
+  const t = figuraDe(p);
+  const n1 = v => v.toFixed(1);
+  const metal = "var(--nodo-adorno-metal)";
+  const op = cerrado ? ` opacity=".45"` : "";
+  const contorno = (crece, attrs) => t.forma === "circulo"
+    ? `<circle cx="${n1(x)}" cy="${n1(y)}" r="${n1(t.radio + crece)}" ${attrs}/>`
+    : `<polygon points="${verticesDeFigura(t, x, y, crece).map(q => n1(q[0]) + "," + n1(q[1])).join(" ")}" ${attrs}/>`;
+  // Hacia fuera desde el centro, `d` píxeles.
+  const fuera = (q, d) => { const dx = q[0] - x, dy = q[1] - y, L = Math.hypot(dx, dy) || 1; return [q[0] + dx / L * d, q[1] + dy / L * d]; };
+  if (estilo === "averno") {
+    const rombos = verticesDeFigura(t, x, y, 0).map(q => {
+      const [cx, cy] = fuera(q, 7), s = 3.5;
+      return `<path d="M${n1(cx)} ${n1(cy - s)}l${s} ${s}-${s} ${s}-${s}-${s}z" fill="${metal}"/>`;
+    }).join("");
+    return { antes: `<g${op}>${contorno(4, `fill="none" stroke="${metal}" stroke-width="1" stroke-opacity=".55" shape-rendering="crispEdges"`)}</g>`,
+             despues: `<g${op}>${rombos}</g>` };
+  }
+  /* Catedral: el trifolio son tres círculos pequeños en triángulo, con la
+     punta hacia fuera. A este tamaño (dos píxeles de radio) no se lee como
+     tres hojas sino como un nudo de tracería, que es lo que tiene que ser. */
+  const trifolios = verticesDeFigura(t, x, y, 0).map(q => {
+    const [cx, cy] = fuera(q, 1.5), dx = q[0] - x, dy = q[1] - y, L = Math.hypot(dx, dy) || 1;
+    const ux = dx / L, uy = dy / L;
+    return [[ux * 2.2, uy * 2.2], [-uy * 2.2 - ux * 1.2, ux * 2.2 - uy * 1.2], [uy * 2.2 - ux * 1.2, -ux * 2.2 - uy * 1.2]]
+      .map(o => `<circle cx="${n1(cx + o[0])}" cy="${n1(cy + o[1])}" r="1.8"/>`).join("");
+  }).join("");
+  return { antes: "",
+           despues: `<g${op}>${contorno(-5, `fill="none" stroke="${metal}" stroke-width="1.5"`)}<g fill="${metal}" stroke="var(--bg)" stroke-width=".8">${trifolios}</g></g>` };
+}
+
 function nodeShape(p, x, y, conf, fid, crecer) {
   const c = crecer || 0;
   const gw = conf.ancho || 2;
@@ -2651,10 +2725,11 @@ function constellation(nodes, key, editing, branch, mod) {
        que sintetiza el navegador llega al lienzo y no al nodo, así que un
        onclick aquí no se disparaba nunca. */
     const eng = engasteNodo();
+    const ador = adornoNodo(n, x, y, cerrado);
     nds += `<g class="cnode" data-id="${n.id}">
       ${st === "available" && !editing ? `<circle class="node-pulse" cx="${x}" cy="${y}" r="${R + 4}" fill="none" stroke="${colT}" stroke-width="2.5"/>` : ""}
       ${eng ? nodeShape(n, x, y, { fill: "none", stroke: eng.col, ancho: 1, sop: cerrado ? 0.42 : 0.9 }, fid, eng.sep) : ""}
-      ${nodeShape(n, x, y, conf, fid)}
+      ${ador ? ador.antes : ""}${nodeShape(n, x, y, conf, fid)}${ador ? ador.despues : ""}
       <g transform="translate(${x - 12 * isc}, ${y - 12 * isc}) scale(${isc})"
          stroke="${cerrado ? "var(--faint)" : conf.stroke}" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[iname] || ICONS.star}</g>
       ${conf.mark ? `<g class="nod-chapa"><circle cx="${x + markR.dx}" cy="${y + markR.dy}" r="9.5" fill="${conf.badge}"/>

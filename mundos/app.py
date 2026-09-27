@@ -774,12 +774,14 @@ FUENTES = {
    no se dibuja nunca y multiplica por tres el peso del mundo. Los acentos del
    español —á é í ó ú ñ ü— caen todos dentro del latino.""",
     caras=[("rajdhani-600.woff2", "600"), ("rajdhani-700.woff2", "700")]),
-  "averno": dict(
+  "catedral": dict(
     familia="Jacquard 24",
-    nota=u"""Jacquard 24 y Jersey 10, las letras de Averno (0.7.136). Las dos con
+    nota=u"""Jacquard 24 y Jersey 10, las letras de Catedral (0.7.136, cuando se llamaba
+   Averno). Las dos con
    licencia SIL Open Font 1.1 (Sarah Cadigan-Fried), que permite incrustarlas;
-   pesan 35 y 13 KB. Sustituyen a Grenze Gotisch, que era la del Averno
-   anterior y se fue con él.
+   pesan 35 y 13 KB. **La gótica es la pieza que más dice «catedral»**: es la
+   letra textura de los libros de coro. Por eso, al separar los dos temas, se
+   quedó aquí y Averno llevó otra (0.7.141).
 
    **Dos familias en un mundo, y es la primera vez.** Jacquard 24 es la gótica
    de píxel de los títulos; Jersey 10, el píxel de palo seco de las cifras (una
@@ -796,6 +798,23 @@ FUENTES = {
    propias o incrustadas (`font-src 'self' data:` en `index.html`). Pedida a
    Google Fonts no carga, y en silencio sale la de respaldo.""",
     caras=[("jacquard-24.woff2", "100 900", "Jacquard 24"), ("jersey-10.woff2", "100 900", "Jersey 10")]),
+  "averno": dict(
+    familia="Silkscreen",
+    nota=u"""Silkscreen y Tiny5, las letras de Averno (0.7.141). Las dos con licencia
+   SIL Open Font 1.1 —Silkscreen de Jason Kottke, Tiny5 de Stefie
+   Justprince—, que permite incrustarlas; pesan 8 y 9 KB.
+
+   **Por qué no la gótica:** en el boceto Averno y Catedral llevaban la misma
+   letra y las mismas paletas, y Eduardo lo paró — «están duplicadas». La
+   gótica se quedó con Catedral y Averno llevó mayúsculas de píxel, como los
+   rótulos de las cartas de la referencia. Silkscreen para los títulos y Tiny5
+   para las cifras: Silkscreen a tamaño de número no se lee.
+
+   Mismas trampas que la gótica: solo el subconjunto latino, un solo peso
+   declarado de 100 a 900 (son de píxel y no traen negrita; con solo 400 el
+   navegador ENGORDA el dibujo para la negrita y el píxel se emborrona), e
+   incrustadas porque la app no admite letras de fuera.""",
+    caras=[("silkscreen-400.woff2", "100 900", "Silkscreen"), ("tiny5.woff2", "100 900", "Tiny5")]),
 }
 
 def fuentes_de(ids):
@@ -844,18 +863,26 @@ if __name__ == "__main__":
     # delante. Es el primero que se construyó SIN inventar nada del generador:
     # los dos arreglos que costó Blueprint —la tabla `FUENTES` y el freno de
     # `plano_o_muere`— son justo lo que lo hizo salir en una tanda.
-    LISTOS = ("reliquia", "plano", "averno")
+    #
+    # Catedral es el gótico que se publicó como Averno en la 0.7.136; en la
+    # 0.7.141 se separó y Averno pasó a ser el de hueso y sangre. Los dos
+    # traen su propio generador (ver abajo).
+    LISTOS = ("reliquia", "plano", "catedral", "averno")
     listos = [m for m in D.MUNDOS if m["id"] in LISTOS]
     # Solo se incrusta la letra de los mundos que se construyen: la de un mundo
     # que nadie puede encender es peso muerto en un archivo que ya pesa.
     partes = [CAB, fuentes_de([m["id"] for m in listos])]
     for m in listos:
-        # Averno no sale del bloque genérico desde la 0.7.136: trae cuatro
-        # paletas y un material propio. Ver `mundos/averno/averno.py`.
-        if m["id"] == "averno":
-            sys.path.insert(0, os.path.join(AQUI, "averno"))
-            import averno as AV
-            partes.append(AV.css())
+        # Catedral y Averno no salen del bloque genérico: traen cuatro paletas
+        # y un material propio cada uno. Ver `mundos/catedral/catedral.py` y
+        # `mundos/averno/averno.py`. Se cargan por su ruta y con nombre
+        # propio: los dos tienen un `paletas.py`, y con `import` a secas el
+        # segundo se quedaba con el del primero.
+        if m["id"] in ("catedral", "averno"):
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("mundo_" + m["id"], os.path.join(AQUI, m["id"], m["id"] + ".py"))
+            gen = importlib.util.module_from_spec(spec); spec.loader.exec_module(gen)
+            partes.append(gen.css())
         else:
             partes.append(bloque(m))
     txt = "\n".join(partes)

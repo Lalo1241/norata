@@ -1,4 +1,4 @@
-# Los cinco rangos de Averno, redibujados en píxel sobre rejilla de 16 y de
+# Los cinco rangos de Catedral y Averno, redibujados en píxel sobre rejilla de 16 y de
 # RELLENO. Se escriben a mano, fila a fila, y este guion comprueba que cada
 # fila mida 16 y que el dibujo sea simétrico donde tiene que serlo.
 import json, sys

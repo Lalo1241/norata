@@ -625,11 +625,18 @@ Son **excluyentes** —un mundo declara sus propios colores— y el modo claro e
 un eje aparte. Nada de esto existe todavía en la app: lo que hay es el camino
 (la capa de material de 0.7.37) y la caja registradora (la llave `apariencia`).
 
-**Un mundo puede traer paletas propias (0.7.136, Averno).** Con ese mundo
-mirado o puesto, en Mi apariencia ocupan el sitio de los ambientes. Van en
+**Un mundo puede traer paletas propias (0.7.136).** Con ese mundo mirado o
+puesto, en Mi apariencia ocupan el sitio de los ambientes. Van en
 `data-paleta` en `<html>` (la pone el script de arriba de `index.html`) y la
-primera es la de partida, sin atributo. Averno ya no sale de `datos.py`: lo
-genera `mundos/averno/averno.py`.
+primera es la de partida, sin atributo. Hoy son dos, y ninguno sale de
+`datos.py`: **Catedral** (`mundos/catedral/`) y **Averno** (`mundos/averno/`).
+
+**Y ojo con el nombre, que cambió de dueño (0.7.141).** `averno` fue el gótico
+de vitrales hasta la 0.7.141; ese mundo es hoy `catedral`, y `averno` es el de
+hueso y sangre. El script de arriba de `index.html` mueve lo guardado una sola
+vez por dispositivo (marca `norata-mudanza-catedral`). **No se quita**: un
+dispositivo que no abra la app en meses tiene que encontrarla ahí el día que
+vuelva, o se despertaría en otro mundo.
 
 **Y una cuarta cosa desde 0.7.131: Arcade**, el mundo secreto (código Konami,
 gratis para siempre). No es un mundo de esos quince sino una **capa de

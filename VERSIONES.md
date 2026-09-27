@@ -247,6 +247,56 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.141 · 26 sep 2026
+
+**Dos temas donde había uno: Averno es ahora hueso y sangre, y el gótico se
+llama Catedral.** Eduardo pidió el Averno de la 0.7.136 «más oscuro, más
+demoníaco», lo rehicimos en siete vueltas de boceto con la app dentro
+(https://claude.ai/artifact/57vwBvcMiCizqoBZXSqjeA), y al verlo quiso quedarse
+con los dos. El gótico de vitrales se quedó como **Catedral**, que es lo que
+siempre fue, y el nombre de **Averno** pasó al nuevo, que por fin es un
+infierno. Lo decidido está en `apariencias/LEEME.md`, en una sección cada uno.
+
+- **Averno nuevo** (`mundos/averno/`): tres figuras y ninguna más —círculo,
+  rombo y corte a 45°—, todo con bisel, en hueso y sangre sobre negro. Cuatro
+  paletas PROPIAS (Sangre, Cocito, Ponzoña, Tormento), a 20 o más de distancia
+  de las de Catedral, y letra propia: Silkscreen y Tiny5, incrustadas.
+- **Catedral** (`mundos/catedral/`, antes `mundos/averno/`): se le quitó lo
+  que era de castillo. Cuadrifolios en el menú en vez de escudos, un arco
+  apuntado en lo alto de los paneles grandes en vez de remaches, trifolios en
+  los nodos, y Hueso y Hierro pasan a llamarse **Alabastro** y **Bronce**. La
+  gótica se queda.
+- **Los nodos del mapa llevan el adorno de su mundo** (`adornoNodo`,
+  js/07-lienzo.js): rombos de hueso en Averno, plomo y trifolios en Catedral.
+  La silueta no se toca.
+- **El Pomodoro de los dos, en píxel fino.** «Aún no se mira el reloj»: el
+  filtro de bloques de 4 se comía el aro de puntos de la esfera y media
+  manecilla, porque muestrea un píxel de cada bloque. Ahora los bloques son de
+  2 y lo delgado no se filtra. En Averno, además, el sello del fondo se retira
+  de esa pantalla.
+
+**Quien llevaba el gótico no nota nada.** El script de arriba de `index.html`
+mueve lo guardado de `averno` a `catedral` una sola vez por dispositivo, con la
+paleta traducida (Hueso → Alabastro, Hierro → Bronce) y la marca
+`norata-mudanza-catedral`. Medido: un dispositivo con `averno` + `hueso` abre en
+`catedral` + `alabastro`, y en la segunda apertura ya no toca nada.
+
+**Comprobado:** los dos mundos, sus ocho paletas, de noche y de día, en las
+siete pantallas (Resumen, Misiones, Habilidades, Talentos, Proyectos, Pomodoro
+y Ajustes), a 390 y a 1280 px: nada se sale de lado y ningún error. Salió uno
+por el camino y se arregló: en Silkscreen «Árbol de talentos» es tan ancho que
+empujaba «Ver el informe» 36 px fuera del teléfono; ahora el botón baja de
+línea.
+
+**Peso:** `css/mundos.css` pasa de 224 a 332 KB (comprimido, de 135 a 164 KB).
+La primera versión llegaba a 435: las piezas de píxel iban cuadrito por
+cuadrito, repetidas en cada paleta, cada cara y la escena.
+
+**Lo que queda abierto:** los rangos de Catedral (hoy lleva prestados los de
+Averno, que son los que tenía; una catedral pide los suyos, y es de Eduardo),
+y separar el sonido de los dos (hoy suenan igual; es de la conversación del
+sonido). Grabado sigue en lámina, con la caja «pliego» ya elegida.
+
 ### 0.7.140.2 · 26 sep 2026
 
 **La app de Android abría sin estilos ni código.** Eduardo instaló el primer

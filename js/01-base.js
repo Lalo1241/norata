@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.140.2";
+const VERSION = "0.7.141";
 const VERSION_FECHA = "26 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -322,11 +322,14 @@ const ICONS = {
      revés los dos iconos se dan la espalda y la pareja se lee peor. */
   luna: '<path d="M20 14.2A8.4 8.4 0 019.8 4 8.4 8.4 0 1020 14.2z"/>',
   /* El rosetón: el aro, el centro y los ocho radios de la tracería. Es el
-     icono de Averno desde la 0.7.136 y el mismo dibujo que su «+» (ver
-     `mundos/averno/averno.py`), pasado a trazo. Sustituye al sol eclipsado,
-     que era el sello del Averno anterior y se fue con él. Ocho radios y no
-     dieciséis: a 15 px, dieciséis se empastan. */
-  roseton: '<circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="3.1"/><path d="M15.10 12.00L21.20 12.00M14.19 14.19L18.51 18.51M12.00 15.10L12.00 21.20M9.81 14.19L5.49 18.51M8.90 12.00L2.80 12.00M9.81 9.81L5.49 5.49M12.00 8.90L12.00 2.80M14.19 9.81L18.51 5.49"/>'
+     icono de Catedral —que se llamó Averno de la 0.7.136 a la 0.7.141— y el
+     mismo dibujo que su «+» (ver `mundos/catedral/material.css`), pasado a
+     trazo. Ocho radios y no dieciséis: a 15 px, dieciséis se empastan. */
+  roseton: '<circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="3.1"/><path d="M15.10 12.00L21.20 12.00M14.19 14.19L18.51 18.51M12.00 15.10L12.00 21.20M9.81 14.19L5.49 18.51M8.90 12.00L2.80 12.00M9.81 9.81L5.49 5.49M12.00 8.90L12.00 2.80M14.19 9.81L18.51 5.49"/>',
+  /* El sello de Averno (0.7.141): un círculo con un rombo dentro. Son dos de
+     las tres figuras de las que está hecho el mundo entero —círculo, rombo y
+     corte a 45°—, así que el icono dice el tema sin dibujar nada más. */
+  sello: '<circle cx="12" cy="12" r="9.2"/><path d="M12 5.6l6.4 6.4-6.4 6.4-6.4-6.4z"/><path d="M12 10l2 2-2 2-2-2z"/>'
 };
 
 /* El orden de la rejilla no es el de cómo se fueron dibujando: los iconos van

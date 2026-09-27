@@ -541,12 +541,43 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
    "--m-peligro":"#ff603d","--m-peligro-tinta":"#bd2200","--m-peligro-velo":"rgba(189,34,0,.11)",
    "--m-carril":"#a7a0b6","--m-engaste":"#8a6d2f"}),
 
- dict(id="averno", nombre="Averno", familia="de-relato", llave="Gótico de píxel", color="#ff3d4f",
+ dict(id="averno", nombre="Averno", familia="de-relato", llave="Hueso y sangre", color="#ff2d3f",
   plan="Pro",
-  premisa="Un castillo gótico en pixel art: piedra labrada con marco de hierro, sombras de tramado y la luz que entra por el vitral. El rojo es el protagonista y cada paleta trae un segundo tono que no es rojo —índigo, hueso, verdín o cian—. Los botones del menú son escudos y el «+» es un rosetón. Rehecho entero en la 0.7.136; el Averno anterior (piedra quemada y los círculos de Dante) se retiró.",
+  premisa="Hueso y sangre sobre negro, en pixel art. Tres figuras y ninguna más —círculo, rombo y corte a 45°— y todo con bisel, como la barra de vida de un juego de rol oscuro: los iconos en rombo, los marcos con la esquina cortada, el menú en sellos redondos y el «+» como un orbe de sangre. Detrás, un sello de geometría sagrada casi invisible y brasas que suben del suelo. Cuatro paletas propias: Sangre, Cocito, Ponzoña y Tormento. Es de la 0.7.141; el Averno de antes, el de vitrales, sigue como Catedral.",
+  letra="Silkscreen", ancho="+12%", escala=".8", esquinas="corte a 45° · bisel", peso="~70 KB", horas="Las dos",
+  nota="Esta entrada no genera el CSS de la app: lo genera `mundos/averno/averno.py`, porque Averno trae cuatro paletas y piezas de píxel horneadas por paleta. Aquí se queda con los tonos de Sangre, la paleta de partida, para la lámina y la muestra del catálogo.",
+  # Sangre, la paleta de partida. La fuente de verdad es mundos/averno/paletas.py:
+  # si se toca un tono allí, se copia aquí para que la muestra no discrepe. El
+  # borde es el HUESO de esa cara (`hasta` en averno.py).
+  tokens={"--m-pagina":"#060506",
+   "--m-tarjeta":"#171415","--m-borde":"2px","--m-borde-color":"#696563",
+   "--m-sombra":"inset 0 2px 0 #585453",
+   "--m-r-tarjeta":"0px","--m-r-mini":"0px","--m-r-barra":"0px","--m-r-chip":"0px",
+   "--m-tinta":"#efe9e3","--m-tinta-2":"#a39a94",
+   "--m-acento":"#ff2d3f","--m-acento-velo":"rgba(255,45,63,.09)",
+   "--m-aviso":"#f2c94c","--m-aviso-velo":"rgba(242,201,76,.14)",
+   "--m-peligro":"#ff8a3d","--m-peligro-velo":"rgba(255,138,61,.10)",
+   "--m-carril":"#2b2527",
+   "--m-titulo":'"Silkscreen","Tiny5",monospace',"--m-titulo-px":"16px","--m-titulo-peso":"400","--m-titulo-esp":".02em",
+   "--m-cifra":'"Tiny5","Outfit",system-ui,sans-serif',"--m-cifra-peso":"400","--m-cifra-esp":"0",
+   "--m-chip-fuente":'"Outfit",system-ui,sans-serif',"--m-chip-esp":"0",
+   "--m-dur":".3s","--m-curva":"steps(4, end)"},
+  dia={"--m-pagina":"#e2dfdd",
+   "--m-tarjeta":"#f6f4f2","--m-borde-color":"#8d8a89",
+   "--m-sombra":"inset 0 2px 0 rgba(255,255,255,.9)",
+   "--m-tinta":"#1b1718","--m-tinta-2":"#554e4b",
+   "--m-acento":"#ff2d3f","--m-acento-tinta":"#b0001c","--m-acento-velo":"rgba(176,0,28,.07)",
+   "--m-aviso":"#f2c94c","--m-aviso-tinta":"#6d5500","--m-aviso-velo":"rgba(109,85,0,.12)",
+   "--m-peligro":"#ff8a3d","--m-peligro-tinta":"#a13a00","--m-peligro-velo":"rgba(161,58,0,.11)",
+   "--m-carril":"#e4e0dd"},
+  extra=""),
+
+ dict(id="catedral", nombre="Catedral", familia="de-relato", llave="Vitral y rosetón", color="#ff3d4f",
+  plan="Pro",
+  premisa="Una catedral gótica en pixel art: sillares con la sombra en tramado, la luz de color que entra por el vitral, la letra de los libros de coro. El rojo es el protagonista y cada paleta trae un segundo tono que no es rojo —índigo, alabastro, verdín o cian—. Los botones del menú son cuadrifolios, los paneles grandes llevan un arco apuntado y el «+» es un rosetón. Se publicó como Averno en la 0.7.136 y se separó con su nombre en la 0.7.141, cuando Averno pasó a ser hueso y sangre.",
   letra="Jacquard 24", ancho="−18%", escala="1.07", esquinas="0 px · piedra labrada", peso="~50 KB", horas="Las dos",
-  nota="Desde la 0.7.136 esta entrada ya no genera el CSS de la app: lo genera `mundos/averno/averno.py`, porque Averno trae cuatro paletas y un material propio que el vocabulario `--m-*` no alcanza a decir. Aquí se queda con los tonos de Vitral, la paleta de partida, para la lámina y para la muestra del catálogo.",
-  # Vitral, la paleta de partida. La fuente de verdad es mundos/averno/paletas.py:
+  nota="Esta entrada no genera el CSS de la app: lo genera `mundos/catedral/catedral.py`, porque Catedral trae cuatro paletas y un material propio que el vocabulario `--m-*` no alcanza a decir. Aquí se queda con los tonos de Vitral, la paleta de partida, para la lámina y para la muestra del catálogo.",
+  # Vitral, la paleta de partida. La fuente de verdad es mundos/catedral/paletas.py:
   # si se toca un tono allí, se copia aquí para que la muestra no discrepe.
   tokens={"--m-pagina":"#07080f",
    "--m-tarjeta":"#191a2c","--m-borde":"2px","--m-borde-color":"#4a4d78",

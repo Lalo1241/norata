@@ -268,12 +268,30 @@ Dónde vive: `js/10k-arcade.js`, `css/arcade.css` (se edita en
 `css/celestibyte.woff2`, y en `css/estilos.css` lo que existe antes de
 encontrarlo (la rara, el píxel, el mando y el `@font-face`).
 
-## Averno, rehecho en píxel (0.7.136)
+## Catedral, el gótico de píxel (0.7.136; se llamó Averno hasta la 0.7.141)
 
 **Construido.** Eduardo lo diseñó sobre un boceto con la app de verdad dentro y
 tres vueltas de ajustes: https://claude.ai/artifact/VCyfNRKmmDutsFmW5T1giN. El
 Averno anterior —piedra quemada, la brasa y los círculos de Dante— **se retiró
-para siempre**: quien lo llevaba puesto ve el nuevo, en Vitral.
+para siempre**.
+
+**Se publicó como Averno y en la 0.7.141 pasó a llamarse Catedral.** Eduardo
+pidió un Averno «más oscuro, más demoníaco», le gustó, y no quiso perder éste:
+quedaron los dos. El nombre de Averno se lo quedó el nuevo (sección de abajo),
+porque éste nunca fue un infierno: vitral, rosetón, sillares y la letra de los
+libros de coro son de una catedral. Ya lo había dicho él al verlo por primera
+vez —«se acerca más a Gótico»—. **Quien lo llevaba puesto sigue en él**: el
+script de arriba de `index.html` mueve lo guardado de `averno` a `catedral` una
+sola vez por dispositivo (marca `norata-mudanza-catedral`), paleta incluida.
+
+**Y al separarlo se le quitó lo que era de castillo** (Eduardo, 0.7.141, sobre
+un análisis pieza por pieza: la mitad del tema venía de una fortaleza y no de
+una iglesia). Los escudos del menú pasaron a **cuadrifolios** —la tracería de
+cuatro lóbulos de las ventanas góticas—, los cuatro remaches de cada tarjeta a
+un **arco apuntado** tenue en lo alto de los paneles grandes, los remaches de
+los nodos del mapa a **trifolios**, y dos paletas cambiaron de nombre: Hueso a
+**Alabastro** y Hierro a **Bronce** (los tonos son los mismos). La gótica se
+quedó: es la pieza que más dice «catedral».
 
 **La regla que lo ordena: «labrado en piedra, la luz por el vitral».** Arcade y
 Averno son los dos de píxel y no se pisan: Arcade es una maquinita (una luz,
@@ -282,22 +300,23 @@ tramado, marcos de hierro, y el único color que brilla entra por el vidrio).
 Eduardo ve en él más **Castlevania** que Dante o Diablo, y dijo que el nombre
 se acerca a «Gótico»: no se renombra todavía, pero queda dicho.
 
-| Familia | Arcade | Averno |
+| Familia | Arcade | Catedral |
 | --- | --- | --- |
 | Color | El del ambiente | Cuatro paletas propias |
 | Letra | CelestiByte | Jacquard 24 (títulos) y Jersey 10 (cifras) |
-| Superficie | Caja de sprite, 2 tonos | Sillar: hierro, filete de luz, tramado, 4 remaches |
+| Superficie | Caja de sprite, 2 tonos | Sillar: hierro, filete de luz y tramado; un arco apuntado en los paneles grandes |
 | Suelo | Cielo de 6 píxeles | Muro de sillería y la luz del vitral en el piso |
 | Barras | Celdas de 6 | Emplomado: paños de 10 |
 | Movimiento | 3 pasos, .12-.18 s | 4 pasos, .2-.3 s |
 | Mapa | Puntos en cuadrícula | Puntos al tresbolillo, hilos en cadena |
-| Menú del teléfono | Círculos en escalón | Escudos de punta redonda |
+| Menú del teléfono | Círculos en escalón | Cuadrifolios |
+| Nodos del mapa | Sombra de sprite | Filete de plomo por dentro y un trifolio en cada vértice |
 | El «+» | Ficha maciza | Rosetón |
 
 **Las cuatro paletas, y dónde se eligen.** Vitral (índigo, la de partida),
-Hueso, Hierro (verdín) y Espectro (cian). Todas con base casi negra, el rojo de
+Alabastro, Bronce (verdín) y Espectro (cian). Todas con base casi negra, el rojo de
 protagonista y **un segundo tono que no es rojo**, que era lo que le faltaba al
-Averno anterior. Con Averno mirado o puesto, en Mi apariencia **sustituyen a
+Averno anterior. Con el mundo mirado o puesto, en Mi apariencia **sustituyen a
 los ambientes** («sustituyentes del área donde están las paletas del clásico»,
 Eduardo): con un mundo puesto los ambientes no se pueden usar, y las paletas
 son lo mismo —otra luz— para el material del mundo. Se guardan por dispositivo
@@ -324,14 +343,110 @@ quedan en la letra de la casa.
 **Los rangos** son los mismos cinco (Ceniza · Sello · Leviatán · Legión ·
 Abadón), con sus versículos, redibujados en píxel sobre rejilla de 16. La
 constelación sigue saliendo del dibujo de línea de siempre (`trazoCielo`).
+**Desde la 0.7.141 son de Averno y Catedral los lleva prestados**: son los que
+tenía quien ya lo usaba, y cambiárselos sin aviso sería quitarle el nombre de su
+camino. Una catedral pide los suyos; **queda pendiente de Eduardo**, y la única
+regla que ya hay es la de siempre: palabras que no marquen género.
 
 **El sonido** lo lleva otra conversación. Revisado contra el diseño nuevo: el
 órgano, la campana y la menor armónica se quedan; entra el clavecín; los
 trombones, el tambor de guerra y el retumbo grave son de Diablo y se van.
+**En la 0.7.141 Catedral suena exactamente como sonaba** (`js/01c-sonido.js`
+apunta su nombre nuevo al material de siempre) y el Averno nuevo toma prestado
+ese mismo sonido. Separarlos es de esa conversación, y con la separación de los
+temas el reparto sale solo: lo de Diablo —tambores, trombones, retumbo— tiene
+por fin un mundo que es de Diablo.
 
-Dónde vive: `mundos/averno/` (paletas, material, generador y medidas), que
+**El Pomodoro, en píxel fino (0.7.141).** Eduardo: «aún no se mira el reloj»
+y «sube la resolución de bits de todo Pomodoro». Las dos cosas eran una: el
+filtro de bloques muestrea un píxel de cada bloque, así que con bloques de 4 se
+comía lo delgado —el aro de puntos de la esfera desaparecía y la manecilla
+salía a trozos— y la rueda dejaba de leerse como reloj. Ahora los bloques son
+de 2 (`mun-px-2`, `mun-px-rueda-2`, en `filtrosDePixel`) y lo delgado no se
+filtra. Vale para los dos mundos. Arcade conserva sus bloques gordos: allí la
+cuadrícula es el tema.
+
+Dónde vive: `mundos/catedral/` (paletas, material, generador y medidas), que
 `mundos/app.py` mete en `css/mundos.css`; el registro y las paletas en
-`js/10i-apariencia.js`; el icono (`roseton`) en `js/01-base.js`.
+`js/10i-apariencia.js`; el icono (`roseton`) en `js/01-base.js`; el adorno de
+los nodos en `adornoNodo` (`js/07-lienzo.js`).
+
+## Averno, hueso y sangre (0.7.141)
+
+**Construido.** El segundo Averno de píxel, y el primero que es de verdad un
+infierno. Salió de siete vueltas de boceto con la app dentro
+(https://claude.ai/artifact/57vwBvcMiCizqoBZXSqjeA): Eduardo pidió el gótico
+«más oscuro, más demoníaco», luego «a lo Diablo 4», con piedra y más tema, y
+lo ordenó con una referencia: la barra de vida del Necromancer.
+
+**La regla que lo ordena: tres figuras y ninguna más —círculo, rombo y corte a
+45°—, y todo con bisel** (luz arriba, sombra abajo). Hueso para dibujar,
+sangre para lo elegido, negro para todo lo demás. La vuelta que no funcionó
+mezclaba escuadras, chevrones, manchas de sangre y círculos a la vez, y
+Eduardo lo vio antes que nadie: «hay cosas que no coinciden y deben ser todas
+parte de un mismo estilo gráfico». Al añadir una pieza, que sea una de las
+tres.
+
+| Familia | Catedral | Averno |
+| --- | --- | --- |
+| Color | Cuatro paletas: base de color, rojo y un segundo tono de vidrio | Cuatro paletas propias: base negra neutra, rojo sangre y un segundo tono que Catedral no usa |
+| Letra | Jacquard 24 (gótica) y Jersey 10 | Silkscreen (mayúsculas de píxel) y Tiny5 |
+| Marco | Sillar con tramado | Esquina cortada a 45° con filete de hueso y bisel (9 trozos) |
+| Iconos | Casilla labrada | Rombo de píxel con doble filete |
+| Botones y fichas | Esquina en dos escalones | Sesgo a 45° y bisel; lo elegido, enmarcado en sangre |
+| Barras | Emplomado, paños de 10 | Una pieza con bisel, carril sesgado con filete de hueso |
+| Títulos | Gótica con sombra de iluminador | Doble raya que remata en un rombo de sangre |
+| Suelo | Muro de sillería y la luz del vitral | Sello de geometría sagrada casi invisible y brasas que suben |
+| Menú del teléfono | Cuadrifolios | Sellos: doble aro con cuatro rombos |
+| El «+» | Rosetón | Orbe de sangre dentro del sello |
+| Nodos del mapa | Plomo y trifolios | Un rombo de hueso en cada vértice y un filete fino por fuera |
+
+**Las cuatro paletas son suyas y no las de Catedral repintadas**, y fue un
+encargo: en el boceto lo eran y Eduardo lo paró —«están duplicadas»—. Sangre
+(plata, la de partida), Cocito (azul hielo, el lago helado del noveno círculo),
+Ponzoña (verde veneno) y Tormento (magenta de espina). El segundo tono de cada
+una está a 20 o más de distancia (dE2000) del más parecido de Catedral; por
+debajo de 20 el ojo las confunde, y así pasó con los primeros intentos de
+Cocito y Tormento, que salieron a 9 y 14. Todas pasan 4,5 para escribir en sus
+dos caras.
+
+**La letra también es suya.** La gótica se la quedó Catedral. Silkscreen para
+los títulos —mayúsculas de píxel, como los rótulos de las cartas de la
+referencia— y Tiny5 para las cifras, porque Silkscreen a tamaño de número no se
+lee. Rejilla de 8: por eso los tamaños son 16, 24 y 32. Y es ANCHA: «Árbol de
+talentos» mide 262 px a 24, así que la cabecera de una página deja bajar el
+botón de al lado a otra línea (sin eso, la página se salía 36 px en un teléfono
+de 390).
+
+**Los nodos del mapa llevan adorno, y la silueta no se toca** (la regla de
+Reliquia). Todos los de la lámina gustaron; construidos, dos: el de Averno y el
+de Catedral, en `adornoNodo` (`js/07-lienzo.js`), que los saca de los vértices
+de la figura y pinta con `var(--nodo-adorno-metal)` para seguir al modo y a la
+paleta sin redibujar el mapa.
+
+**En el Pomodoro el sello del fondo se va** (con `:has`, mirando la pantalla
+abierta): caía justo detrás de la rueda y sus círculos competían con los de la
+esfera. Donde hay algo que leer, el suelo es liso. Y los bloques del píxel son
+finos, como en Catedral (ver arriba).
+
+**Peso.** Las piezas de píxel se hornean por paleta y por cara, y la primera
+vez subieron `css/mundos.css` de 224 a 435 KB. Agrupadas en un trazo por color,
+con el sello del fondo como uno solo para todas y sin copiarlas en la escena,
+quedó en 332 KB: **comprimido, de 135 a 164 KB**, que es lo que viaja.
+
+Dónde vive: `mundos/averno/` (paletas, piezas, material y generador); el
+registro y las muestras en `js/10i-apariencia.js`; el icono (`sello`) en
+`js/01-base.js`. Los rangos son los de la demonología de siempre, y viven aquí.
+
+### Grabado: la caja es el pliego (26 sep 2026)
+
+Todavía lámina, no mundo. Eduardo aprobó el rumbo —serigrafía: tinta roja y
+negra sobre papel hueso, trama de puntos, letra condensada, código de barras—
+salvo una cosa: **las cajas no pueden parecer boletos** (esquinas mordidas).
+Entre las dos que se le enseñaron eligió la **A, «pliego»**: papel cortado
+recto, marcas de corte de imprenta en las cuatro esquinas y la plancha roja
+corrida detrás, como cuando la segunda tinta no cae en su sitio. La B —borde
+rasgado— se descartó: en una lista larga los bordes son ruido.
 
 ## Qué declara una apariencia, de verdad
 

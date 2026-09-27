@@ -1,5 +1,5 @@
 # Mide las cuatro paletas contra las reglas de la casa y dice qué falla.
-# `python mundos/averno/medir.py` después de tocar cualquier tono.
+# `python mundos/catedral/medir.py` después de tocar cualquier tono.
 from color import cr, de, mezcla, oklch
 from paletas import PALETAS
 

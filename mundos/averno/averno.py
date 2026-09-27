@@ -1,109 +1,79 @@
 # -*- coding: utf-8 -*-
-"""Averno, el mundo gótico de píxel (0.7.136): lo que `mundos/app.py` mete en
+"""Averno, hueso y sangre (0.7.141): lo que `mundos/app.py` mete en
 `css/mundos.css` en lugar del bloque genérico.
 
-Por qué no sale de `datos.py` como los otros dos mundos: Averno dejó de caber en
-el vocabulario `--m-*`. Trae CUATRO paletas y no una, y un material (sillar,
-hierro, tramado, escudos, el rosetón) que ningún otro mundo declara. Es el mismo
-camino que ya abrió Arcade (`mundos/arcade/arcade.css`): el material se escribe
-a mano en CSS y los colores se generan desde una tabla medida.
+**Es el segundo Averno en píxel, y el primero ya no se llama así.** El de la
+0.7.136 era una catedral gótica —vitral, rosetón, sillares— y Eduardo, al
+pedirlo «más oscuro, más demoníaco», quiso quedarse con los dos: ése pasó a
+llamarse Catedral (`mundos/catedral/`) y el nombre de Averno se lo quedó éste,
+que es por fin un infierno. Quien llevaba el gótico puesto sigue en el gótico:
+el script de arriba de `index.html` le mueve lo guardado al nombre nuevo.
 
-`datos.py` conserva la entrada de Averno solo para la lámina y para la muestra
-del catálogo, con los tonos de Vitral.
+La regla que ordena el mundo, y la que hay que sostener al tocar cualquier
+cosa: **tres figuras y ninguna más —círculo, rombo y corte a 45°—, y todo con
+bisel** (luz arriba, sombra abajo). Hueso para dibujar, sangre para lo
+elegido, negro para todo lo demás. Salió de la barra del Necromancer de
+Diablo 4, que fue la referencia que la ordenó: la vuelta anterior mezclaba
+escuadras, chevrones, manchas de sangre y círculos, y «hay cosas que no
+coinciden».
 
 Aquí:
-  - `paletas.py`  las cuatro paletas, en sus dos caras (la fuente de verdad);
-  - `material.css` el material, escrito a mano;
-  - `medir.py`    las medidas de contraste; se corre al tocar un tono.
+  - `paletas.py`   las cuatro paletas propias (Sangre, Cocito, Ponzoña y
+                   Tormento), en sus dos caras;
+  - `piezas.py`    las piezas de píxel, horneadas por paleta y por cara;
+  - `material.css` el material, escrito a mano.
+
+El vocabulario de la app para cada cara (`vars_cara`) se toma de Catedral y no
+se copia: los dos mundos hablan el mismo idioma de variables, y lo que cambia
+son las piezas.
 """
-import os, sys
+import os, importlib.util
 AQUI = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, AQUI)
-from paletas import PALETAS
 
-DE_PARTIDA = "vitral"
+def _cargar(nombre, ruta):
+    """Por su ruta y con nombre propio, NO con `import paletas`: Catedral tiene
+    su propio `paletas.py`, `mundos/app.py` construye los dos mundos en el
+    mismo proceso, y Python guarda los módulos por nombre — el segundo
+    `import paletas` devolvía las paletas del primero sin avisar."""
+    spec = importlib.util.spec_from_file_location(nombre, ruta)
+    m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    return m
 
-def _hex(c):
-    c = c.lstrip("#"); return [int(c[i:i+2], 16) for i in (0, 2, 4)]
+PALETAS = _cargar("averno_paletas", os.path.join(AQUI, "paletas.py")).PALETAS
+P = _cargar("averno_piezas", os.path.join(AQUI, "piezas.py"))
+CT = _cargar("averno_catedral", os.path.join(os.path.dirname(AQUI), "catedral", "catedral.py"))
+cr = _cargar("averno_color", os.path.join(AQUI, "color.py")).cr
 
-def rgba(h, a):
-    return "rgba(%d,%d,%d,%s)" % tuple(_hex(h) + [a])
+DE_PARTIDA = "sangre"
+mix, _hex = CT.mix, CT._hex
 
-def mix(a, b, t):
-    """`a` con una fracción `t` de sí mismo sobre `b`."""
-    A, B = _hex(a), _hex(b)
-    return "#" + "".join("%02x" % round(x*t + y*(1-t)) for x, y in zip(A, B))
+def hasta(a, b, fondo, meta):
+    """El primer tono entre `b` y `a` que llega a `meta` sobre `fondo`. Es lo
+    que decide el HUESO de cada cara: el trazo más apagado que todavía se lee
+    como línea (3 sobre 1) encima de la tarjeta."""
+    for i in range(101):
+        c = mix(a, b, i / 100)
+        if cr(c, fondo) >= meta: return c
+    return a
 
-def _svg(cuerpo, vb):
-    s = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='%s' preserveAspectRatio='none' shape-rendering='crispEdges'>%s</svg>" % (vb, cuerpo)
-    return 'url("data:image/svg+xml,' + s.replace("#", "%23").replace("<", "%3C").replace(">", "%3E") + '")'
-
-# El escudo de los botones del menú en el teléfono: cabeza recta y punta
-# REDONDA, el escudo español. Hubo dos antes: la ojiva, que en fila parecía un
-# cementerio («no deben parecer lápidas», Eduardo), y un escudo francés de
-# punta afilada que pidió «más romano, no tan de punta hacia abajo».
-ESCUDO = [
-    "####################", "####################", "####################", "####################",
-    "####################", "####################", "####################", "####################",
-    "####################", "####################", "####################", ".##################.",
-    ".##################.", ".##################.", "..################..", "..################..",
-    "...##############...", "....############....", "......########......", "........####........"]
-
-def mascara(filas):
-    out = ""
-    for y, f in enumerate(filas):
-        x = 0
-        while x < len(f):
-            if f[x] != "#": x += 1; continue
-            w = 1
-            while x + w < len(f) and f[x + w] == "#": w += 1
-            out += "<rect x='%d' y='%d' width='%d' height='1'/>" % (x, y, w); x += w
-    return _svg(out, "0 0 %d %d" % (len(filas[0]), len(filas)))
-
-def vars_cara(c, dia):
-    """El vocabulario de la app para una cara de una paleta. `--celeste` es el
-    SEGUNDO TONO: es el sitio que la casa ya tenía para «mirar, informar», y
-    Averno le da el mismo oficio (los botones de consultar, el flujo del
-    mapa, los remaches)."""
+def piezas_cara(c, dia):
+    """Las piezas propias, con los tonos de una cara. De día no hay brasas ni
+    luz de abajo: sobre papel un resplandor es una mancha (la regla de
+    CLAUDE.md, «de día no hay resplandor»)."""
+    h = hasta(c["text"], c["card"], c["card"], 3.1)
     return {
-      "--bg": c["bg"], "--bg2": c["bg2"], "--card": c["card"], "--card2": c["card2"], "--flotante": c["card"],
-      # Los vidrios que flotan (la barra lateral de la PC, los menús). Ningún
-      # mundo los declaraba y se quedaban en el azul de la casa: con Averno
-      # puesto, la barra de la PC salía en `rgba(21, 27, 37, .72)`.
-      "--flotante-macizo": rgba(c["card"], ".97"), "--flotante-lateral": rgba(c["bg2"], ".84" if dia else ".72"),
-      "--sup-panel": c["bg2"], "--sup-tarjeta2": c["card2"], "--sup-flotante": c["card"],
-      "--line": c["line"], "--carril": c["carril"], "--borde-tarjeta": "2px",
-      "--text": c["text"], "--muted": c["muted"], "--faint": c["faint"],
-      # El velo del acento es más ligero que en la casa (9 % y no 14 %): con el
-      # rojo encima de su propio velo rojo, un botón suave se quedaba en 4,27.
-      "--mint": c["acento"], "--mint-macizo": c["acentoM"], "--mint-deep": mix(c["acentoM"], "#000000", .8),
-      "--mint-soft": rgba(c["acento"], ".07" if dia else ".09"), "--aro-alto": c["acento"] if dia else c["acentoM"],
-      "--fire": c["aviso"], "--fire-macizo": c["avisoM"], "--fire-soft": rgba(c["aviso"], ".12" if dia else ".14"),
-      "--coral": c["peligro"], "--coral-macizo": c["peligroM"], "--coral-soft": rgba(c["peligro"], ".11" if dia else ".10"),
-      "--celeste": c["segundo"], "--celeste-soft": rgba(c["segundo"], ".10" if dia else ".12"), "--aro-medio": c["segundo"],
-      "--sobre-macizo": c["sobre"], "--sobre-acento": c["sobre"], "--sobre-vivo": c["sobre"],
-      "--fondo-raiz": c["bg"],
-      "--orbe-1": "transparent", "--orbe-2": "transparent", "--orbe-3": "transparent",
-      "--lienzo-apagado": mix(c["muted"], c["hondo"], .45), "--lienzo-hilo": c["line"], "--lienzo-rotulo": c["muted"],
-      "--lienzo-ficha": c["card"], "--lienzo-caja": c["bg2"], "--lienzo-bloqueado": c["bg2"], "--lienzo-candado": c["line"],
-      "--lienzo-flujo": c["segundo"] if dia else c["segundoM"], "--lienzo-punto": rgba(c["text"], ".12" if dia else ".10"),
-      "--lienzo-suelo": c["hondo"], "--sup-hondo": c["hondo"], "--borde-panel": c["line"],
-      # Las piezas propias del material:
-      "--av-hierro": c["hierro"], "--av-piedra": c["piedra"],
-      "--av-remache": c["hierro"] if dia else rgba(c["segundoM"], ".55"),
-      # El rosetón del «+» se dibuja en CSS con estos tres (ver material.css):
-      # el plomo es el suelo de noche y el hierro de día; los paños, el segundo
-      # tono y el rojo hundido.
-      "--av-plomo": c["hierro"] if dia else c["bg"],
-      "--av-pano-1": c["segundoM"], "--av-pano-2": mix(c["acentoM"], c["bg"], .6),
-      "--av-marco": mix(c["hierro"], "#000000", .8) if dia else c["hierro"],
-      "--av-bruma": rgba(c["text"], ".035") if dia else rgba(c["segundoM"], ".07"),
-      "--av-bruma2": rgba(c["text"], ".018") if dia else rgba(c["segundoM"], ".035"),
-      "--av-letra-sombra": "transparent" if dia else mix(c["acentoM"], c["bg"], .35),
+      "--av-hueso": h, "--av-brasa": "transparent" if dia else c["brasa"],
+      "--av-marco-bisel": P.marco_bisel(h, "#ffffff" if dia else mix(c["text"], c["card"], .3), mix(c["line"], "#000000", .7) if dia else mix(c["bg"], "#000000", .5)),
+      "--av-marco-bisel-sangre": P.marco_bisel(c["acento"] if dia else c["acentoM"], mix(c["acentoM"], "#ffffff", .5), mix(c["acento"], "#000000", .6)),
+      "--av-rombo": P.rombo(h, mix(h, c["card"], .45) if dia else mix(c["text"], c["card"], .2), c["card2"]),
+      "--av-brasas": "none" if dia else P.brasas(c["acentoM"], c["aviso"]),
+      "--av-remate": P.remate(h, c["acento"] if dia else c["acentoM"]),
+      "--mint-deep": mix(c["acentoM"], "#000000", .75),
+      # El adorno de los nodos del mapa (`adornoNodo`, js/07-lienzo.js): un
+      # rombo de hueso en cada vértice y un filete fino por fuera, el sello del
+      # fondo en pequeño. La silueta no se toca: es la regla de Reliquia.
+      "--nodo-adorno": "averno", "--nodo-adorno-metal": h,
     }
-
-def _rgb(h):
-    return "%d, %d, %d" % tuple(_hex(h))
 
 def _bloque(sel, v):
     return sel + " {\n" + "".join("  %s: %s;\n" % kv for kv in v.items()) + "}\n"
@@ -111,37 +81,54 @@ def _bloque(sel, v):
 def css():
     """Los colores de las cuatro paletas y el material, listos para mundos.css."""
     out = ["/* ================= Averno · las cuatro paletas =================\n"
-           "   Vitral es la de partida y va SIN atributo: es lo que se ve si nadie\n"
-           "   eligió nada, y lo que ve quien llevaba el Averno de antes. Las otras\n"
-           "   tres se encienden con `data-paleta` en <html> (el script de arriba de\n"
-           "   `index.html` lo pone antes de pintar, igual que la apariencia).\n"
-           "   Generado por mundos/averno/averno.py desde paletas.py. */\n"]
+           "   Sangre es la de partida y va SIN atributo; las otras tres se\n"
+           "   encienden con `data-paleta` en <html>, que pone el script de arriba\n"
+           "   de `index.html` antes de pintar. Generado por mundos/averno/averno.py\n"
+           "   desde paletas.py y piezas.py. */\n"]
     for pid, p in PALETAS.items():
         cond = "" if pid == DE_PARTIDA else '[data-paleta="%s"]' % pid
-        n, d = p["noche"], p["dia"]
-        out.append(_bloque('html:not(.claro)[data-apariencia="averno"]%s' % cond, vars_cara(n, False)))
-        out.append(_bloque('html.claro[data-apariencia="averno"]%s' % cond, vars_cara(d, True)))
-        # La escena (racha, fiestas) se queda de noche en los dos modos, como en
-        # la casa: es un dibujo, no interfaz.
-        esc = dict(vars_cara(n, False))
+        for cara, dia in (("noche", False), ("dia", True)):
+            c = p[cara]
+            v = CT.vars_cara(c, dia); v.update(piezas_cara(c, dia))
+            # Lo de Catedral que aquí no se dibuja no viaja: el arco de sus
+            # paneles son unos cientos de bytes por cara que nadie leería.
+            v.pop("--av-arco", None)
+            sel = 'html%s[data-apariencia="averno"]%s' % (".claro" if dia else ":not(.claro)", cond)
+            out.append(_bloque(sel, v))
+        # La escena (racha, fiestas) se queda de noche en los dos modos.
+        n = p["noche"]
+        # Sin las piezas grandes: una escena no lleva marcos ni iconos en rombo,
+        # y cada una son kilobytes que irían por triplicado (noche, día y
+        # escena). Lo que sí lee —el hueso, la brasa, el remate— va.
+        esc = dict(CT.vars_cara(n, False)); esc.pop("--av-arco", None)
+        pz = piezas_cara(n, False)
+        esc.update({k: pz[k] for k in ("--av-hueso", "--av-brasa", "--av-remate", "--mint-deep")})
         esc.update({"--sup-pagina": "var(--bg)", "--sup-panel": "var(--bg2)", "--sup-tarjeta": "var(--card)",
                     "--sup-tarjeta2": "var(--card2)",
                     "--motivo-cielo-1": n["card"], "--motivo-cielo-2": n["bg2"], "--motivo-chispa": n["text"],
                     "--motivo-lienzo": n["bg2"], "--motivo-curva": n["line"],
-                    "--escena-fondo": _rgb(n["bg"]), "--escena-vidrio": _rgb(n["card"]), "--escena-tinta": _rgb(n["text"]),
+                    "--escena-fondo": CT._rgb(n["bg"]), "--escena-vidrio": CT._rgb(n["card"]), "--escena-tinta": CT._rgb(n["text"]),
                     "--escena-tinte": n["card"]})
         out.append(_bloque('html[data-apariencia="averno"]%s :is(.scene-card, .celebrate, .ncel, .scel)' % cond, esc))
-    out.append('html[data-apariencia="averno"] { --av-forma: %s; }\n' % mascara(ESCUDO))
+    # El sello del fondo es UNO para las cuatro paletas, en blanco de noche y
+    # en negro de día: al 6 % la diferencia entre el blanco y el tono de texto
+    # de cada paleta no se ve, y ocho copias pesaban 18 KB.
+    out.append('html:not(.claro)[data-apariencia="averno"] { --av-geometria: %s; }\n' % P.geometria("#ffffff", ".06"))
+    out.append('html.claro[data-apariencia="averno"] { --av-geometria: %s; }\n' % P.geometria("#000000", ".06"))
     out.append(open(os.path.join(AQUI, "material.css"), encoding="utf-8").read())
     return "\n".join(out)
 
 def muestras_js():
     """Las muestras de Mi apariencia, para pegar en `js/10i-apariencia.js`:
-    suelo, tarjeta, marco, rojo y segundo tono de cada cara."""
+    suelo, tarjeta, marco, rojo y segundo tono de cada cara. El marco es el
+    HUESO y no el hierro: en Averno lo que enmarca es hueso."""
     import json
     t = {}
     for pid, p in PALETAS.items():
-        t[pid] = {"nombre": p["nombre"], **{cara: [p[cara][k] for k in ("bg", "card", "hierro", "acentoM", "segundoM")] for cara in ("noche", "dia")}}
+        t[pid] = {"nombre": p["nombre"]}
+        for cara in ("noche", "dia"):
+            c = p[cara]
+            t[pid][cara] = [c["bg"], c["card"], hasta(c["text"], c["card"], c["card"], 3.1), c["acentoM"], c["segundoM"]]
     return json.dumps(t, ensure_ascii=False)
 
 if __name__ == "__main__":
