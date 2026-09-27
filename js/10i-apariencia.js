@@ -154,6 +154,17 @@ const AVERNO_PX = {
   legion: ["................", "................", "......####......", ".....######.....", "....###..###....", ".##.##....##.##.", "####.#....#.####", "#..#.##..##.#..#", "#..#.######.#..#", "####.######.####", "####.######.####", "####.######.####", "####.######.####", "####.######.####", "####.######.####", "................"],
   abadon: [".....######.....", "...##......##...", "..#..........#..", ".#.#........#.#.", ".#.###....###.#.", "#...#.####.#...#", "#...#.####.#...#", "#...##....##...#", "#.##.#....#.##.#", "################", "#.....#..#.....#", ".#....#..#....#.", "..#...#..#...#..", "...##..##..##...", ".....######.....", "................"]
 };
+/* Los cinco de Catedral (0.7.142), con la misma rejilla y el mismo relleno.
+   El rosetón se dibujó a mano: calculado con círculos, a 16 px los radios y
+   el aro se deshacían en puntos sueltos. Aro, rosa, centro y cuatro radios
+   es lo más que cabe y todavía se lee. */
+const CATEDRAL_PX = {
+  piedra: ["................", "................", ".....######.....", ".....######.....", ".....######.....", ".....######.....", "................", "..#####..#####..", "..#####..#####..", "..#####..#####..", "..#####..#####..", "................", "###..######..###", "###..######..###", "###..######..###", "................"],
+  columna: ["................", ".##############.", ".##############.", "...##########...", "....##.##.##....", "....##.##.##....", "....##.##.##....", "....##.##.##....", "....##.##.##....", "....##.##.##....", "....##.##.##....", "...##########...", "..############..", ".##############.", "................", "................"],
+  campana: [".......##.......", "......####......", ".....######.....", "....########....", "....########....", "....########....", "....########....", "...##########...", "...##########...", "..############..", ".##############.", "################", "................", "......####......", ".......##.......", "................"],
+  vitral: [".......##.......", "......####......", ".....######.....", "....###..###....", "....###..###....", "....###..###....", "....###..###....", "................", "....###..###....", "....###..###....", "....###..###....", "....###..###....", "................", "..############..", "..############..", "................"],
+  roseton: [".....######.....", "...##......##...", "..#....##....#..", ".#....####....#.", ".#...#....#...#.", "#...#......#...#", "#..#...##...#..#", "####..####..####", "####..####..####", "#..#...##...#..#", "#...#......#...#", ".#...#....#...#.", ".#....####....#.", "..#....##....#..", "...##......##...", ".....######....."]
+};
 function pxDeFilas(filas) {
   let r = "";
   filas.forEach((fila, y) => {
@@ -357,14 +368,51 @@ const MUNDOS = [
      Quien lo llevaba puesto sigue en él sin hacer nada: el script de arriba
      de `index.html` mueve lo guardado de `averno` a `catedral` una sola vez.
 
-     **Los rangos son los de Averno, prestados**, porque son los que tenía
-     quien ya lo usaba y cambiárselos de un día para otro sería quitarle el
-     nombre de su camino. Una catedral pide los suyos: queda en manos de
-     Eduardo, y cuando los elija se escriben aquí y esta línea se va. */
+     **Los rangos son las partes de la catedral, de abajo arriba (0.7.142).**
+     En la 0.7.141 llevaba prestados los de Averno —la demonología—, que en
+     una iglesia no tenían sentido; Eduardo pidió los suyos. La escalera es
+     la de la obra: lo que se pone primero, lo que sostiene, lo que se oye
+     lejos, lo que deja pasar la luz y lo que la corona.
+
+       Piedra    «como piedras vivas, sed edificados» (1 Pedro 2:5)
+       Columna   «al que venciere, yo lo haré columna» (Apocalipsis 3:12)
+       Campana   «por toda la tierra salió su voz» (Salmo 19:4)
+       Vitral    «así alumbre vuestra luz» (Mateo 5:16)
+       Rosetón   «su fulgor era semejante a una piedra preciosísima»
+                 (Apocalipsis 21:11, la ciudad que baja del cielo)
+
+     Pasan las pruebas de siempre: ninguno INFLEXIONA —son cosas, como
+     Ceniza o Sello en Averno—, así que «Ahora eres Columna» le dice lo mismo
+     a todo el mundo; y cada uno solo se le ocurre al anterior. Los dibujos
+     son las cinco piezas, cinco siluetas que no se parecen entre sí. Se
+     descartó el ARCO, que era lo obvio para el tercero: la última vez que
+     entró un arco en Catedral, Eduardo dijo que parecía una casa. */
   { id: "catedral", nombre: "Catedral", listo: true, pro: true, pixel: true, icon: "roseton", estrena: "2026-09-26",
     premisa: "Una catedral gótica en pixel art: sillares con herrajes, la luz que entra por el vitral y el rosetón.",
     paletas: CATEDRAL_PALETAS,
-    get rangos() { return mundoPorId("averno").rangos; } },
+    rangos: [
+      /* Tres sillares: uno encima de dos. Lo primero que se pone. */
+      { nombre: "Piedra", trazo: pxDeFilas(CATEDRAL_PX.piedra),
+        trazoCielo: '<rect x="8" y="4.5" width="8" height="6"/><rect x="3.5" y="13" width="8" height="6"/><rect x="12.5" y="13" width="8" height="6"/>',
+        linea: { texto: "Vosotros también, como piedras vivas, sed edificados.", fuente: "1 Pedro 2:5" } },
+      /* Capitel, fuste estriado y basa: lo que carga con lo de arriba. */
+      { nombre: "Columna", trazo: pxDeFilas(CATEDRAL_PX.columna),
+        trazoCielo: '<path d="M3.5 4.5h17M6 7.5h12M8 7.5v10M12 7.5v10M16 7.5v10M6 17.5h12M4 20.5h16"/>',
+        linea: { texto: "Al que venciere, yo lo haré columna en el templo.", fuente: "Apocalipsis 3:12" } },
+      /* La campana y su badajo: lo que se oye desde lejos, el primer peldaño
+         que no es para ti sino para los demás. */
+      { nombre: "Campana", trazo: pxDeFilas(CATEDRAL_PX.campana),
+        trazoCielo: '<path d="M12 3.5c-3.6 0-5.6 2.9-5.6 6.6v4.2L4 18h16l-2.4-3.7v-4.2c0-3.7-2-6.6-5.6-6.6z"/><circle cx="12" cy="20.4" r="1.4"/>',
+        linea: { texto: "Por toda la tierra salió su voz.", fuente: "Salmo 19:4" } },
+      /* La ventana apuntada con su plomo en cruz. La luz no es suya: pasa por
+         ella, y de color. */
+      { nombre: "Vitral", trazo: pxDeFilas(CATEDRAL_PX.vitral),
+        trazoCielo: '<path d="M7 20.5V10.5C7 7.2 9 4.9 12 3.5c3 1.4 5 3.7 5 7v10z"/><path d="M12 3.5v17M7 13.5h10M5 20.5h14"/>',
+        linea: { texto: "Así alumbre vuestra luz delante de los hombres.", fuente: "Mateo 5:16" } },
+      /* El rosetón: lo que corona la fachada. Es también el icono del mundo. */
+      { nombre: "Rosetón", trazo: pxDeFilas(CATEDRAL_PX.roseton), trazoCielo: ICONS.roseton,
+        linea: { texto: "Su fulgor era semejante al de una piedra preciosísima.", fuente: "Apocalipsis 21:11" } }
+    ] },
   /* El nombre de éste está decidido; sus dibujos se hacen cuando se construya
      el mundo, con el resto de sus vectores. Escribirlo ahora sin dibujo no es
      una promesa a medias: mientras el mundo no exista, esta lista no la lee

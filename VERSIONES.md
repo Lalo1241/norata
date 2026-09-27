@@ -247,6 +247,21 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.142 · 26 sep 2026
+
+**Catedral tiene sus propios rangos.** En la 0.7.141 llevaba prestados los de
+Averno —Ceniza, Sello, Leviatán, Legión, Abadón—, que son demonología y en una
+iglesia no tenían sentido. Ahora son las partes de la obra, de abajo arriba:
+**Piedra, Columna, Campana, Vitral y Rosetón**, cada uno con su versículo en la
+fiesta de rango y su dibujo en píxel. La tabla y el porqué, en la sección de
+Catedral de `apariencias/LEEME.md`.
+
+Quien ya iba por un rango no pierde nada: el rango sale del nivel, que no se
+toca, y lo que cambia es el nombre y el dibujo con que se enseña.
+
+**Comprobado:** Mi expedición en el teléfono (el aro, las constelaciones y la
+lista de los cinco, sin salirse de lado) y la fiesta de rango con su versículo.
+
 ### 0.7.141 · 26 sep 2026
 
 **Dos temas donde había uno: Averno es ahora hueso y sangre, y el gótico se
