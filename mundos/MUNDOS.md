@@ -151,6 +151,9 @@ el mismo hueco —papel, día, alegre— y no pelea con su propio formato.
 icono; lo que cambió tres veces fue el fondo, hasta llegar a algo que se lee
 sin que nadie lo explique.
 
+Los **iconos de app**, uno por mundo y todos con el mismo isotipo, están en
+**`mundos/iconos/`** (con su `LEEME.md`); todavía no los usa la app.
+
 Las variables de cada uno están en **`mundos/mundos.css`**, los vectores
 editables en **`mundos/svg/`**, y la vista comparada en **`mundos/vista.html`**
 (ábrela con doble clic, no necesita servidor).
