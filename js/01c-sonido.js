@@ -354,7 +354,8 @@ const dflt = {
   abre:       m => { madera(0,420,.3); madera(.07,300,.28); nota(B(m),G(m,7),.14,1.5,.4); nota(V(m),G(m,2),.14,1.6,.24); nota(B(m),G(m,9),.38,1.3,.2); if (m.tambor) tambor(.14,.7); },
   // La bienvenida: suave, corta y hacia arriba. Es lo primero que alguien oye de Norata.
   bienvenida: m => { [0,2,4].forEach((g,i) => nota(B(m),G(m,g+2),i*.12,.9,.26)); nota(B(m),G(m,9),.4,1.4,.24); nota(V(m),G(m,0),.36,1.6,.14); },
-  grieta:     m => madera(0,500+Math.random()*200,.24),
+  // Un golpe por toque y siempre el mismo: con el tono al azar, ochenta seguidos sonaban a ruido.
+  grieta:     m => madera(0,600,.24),
   rotura:     m => {
     golpe(0,140,50,.25,.5);
     for (let i = 0; i < 8; i++) nota(B(m),G(m,5+Math.floor(Math.random()*5)),.05+i*.07+Math.random()*.03,.45,.13);
@@ -409,7 +410,7 @@ const PROPIO = {
       [0,4,7,12].forEach((s,i) => nota(m.voz,S(m,s+12),.3+i*.08,1.6-i*.08,.12));
       nota(m.coro,S(m,12),.3,1.6,.16); nota(m.brillo,G(m,14),.6,1.8,.3);
     },
-    grieta:     m => { madera(0,300+Math.random()*80,.26); nota(m.brillo,G(m,12+Math.floor(Math.random()*3)),0,.3,.1); },
+    grieta:     m => { madera(0,340,.26); nota(m.brillo,G(m,12),0,.3,.1); },
     rotura:     m => {
       tambor(0,.9); retumbo(0,1.4,.16);
       for (let i = 0; i < 6; i++) nota(m.brillo,G(m,9+Math.floor(Math.random()*6)),.05+i*.11,1.2,.16);
@@ -426,7 +427,7 @@ const ARC_MOM = { mision:()=>ARC.moneda(), paso:()=>ARC.paso(), cuenta:()=>ARC.c
   abre:()=>ARC.konami(), bienvenida:()=>ARC.fase(), grieta:()=>ARC.tic(), rotura:()=>{ ARC.fiesta(); golpe(0,140,50,.2,.4); } };
 const TIPO = { mision:{}, paso:{}, cuenta:{pomodoro:true}, ya:{pomodoro:true}, fase:{pomodoro:true},
   habilidad:{grande:true}, hito:{grande:true}, racha:{grande:true}, luciernaga:{grande:true}, expedicion:{grande:true},
-  abre:{grande:true}, bienvenida:{grande:true}, grieta:{grande:true}, rotura:{grande:true} };
+  abre:{grande:true}, bienvenida:{grande:true}, grieta:{grande:true, toque:true}, rotura:{grande:true} };
 const MOMENTOS = {};
 Object.keys(TIPO).forEach(k => MOMENTOS[k] = Object.assign({}, TIPO[k], {
   casa: (m, a) => { const p = PROPIO[mundoSonido()] && PROPIO[mundoSonido()][k]; (p || dflt[k])(m, a); },
@@ -498,15 +499,15 @@ function mundoSonido() {
 function conArcade() { return typeof arcadePuesto === "function" && arcadePuesto(); }
 
 /* ---------- La puerta de todo sonido ---------- */
-function puedeYa() {
+function puedeYa(alToque) {
   if (!encendido()) return null;
   const c = audio();
-  if (!c || typeof puedeSonar !== "function" || !puedeSonar(c)) return null;
+  if (!c || typeof puedeSonar !== "function" || !puedeSonar(c, alToque)) return null;
   return c;
 }
 function sonar(k, arg) {
   const mo = MOMENTOS[k];
-  if (!mo || !puedeYa()) return false;
+  if (!mo || !puedeYa(mo.toque)) return false;
   try {
     if (conArcade()) { if (ARC_MOM[k]) ARC_MOM[k](arg); }
     else mo.casa(MATERIAL[mundoSonido()], arg);

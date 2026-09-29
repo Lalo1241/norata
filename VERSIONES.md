@@ -247,6 +247,24 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.142.1 · 29 sep 2026
+
+**Romper el candado suena en cada golpe, y siempre igual.** Sonaba lejano y a
+saltos: solo sonaba cuando se abría una grieta nueva, como mucho una vez por
+segundo, y encima la regla de la ráfaga (tres sonidos en segundo y medio) se
+comía casi todos. Con ochenta toques seguidos eso no daba ninguna respuesta.
+Eduardo lo pidió al revés: el mismo golpe a cada toque.
+
+- **`puedeSonar(ctx, alToque)`** (`js/01-base.js`): lo que responde a un toque
+  se salta la regla de la ráfaga y no cuenta para ella, así que la rotura del
+  final sigue sonando. Lo demás de la regla no cambia: con la app fuera de la
+  vista no suena nada. Es la única excepción, y va marcada con `toque` en el
+  momento `grieta` de `js/01c-sonido.js`.
+- **El mismo tono en cada golpe**: la madera de la grieta ya no cambia de tono
+  al azar (en la casa y en Averno/Catedral).
+- **Comprobado**: doce golpes a 90 ms suenan los doce, la rotura suena justo
+  después, y cinco fiestas seguidas siguen cortándose en la tercera.
+
 ### 0.7.142 · 29 sep 2026
 
 **Catedral tiene sus propios rangos.** En la 0.7.141 llevaba prestados los de

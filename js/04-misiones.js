@@ -1354,13 +1354,13 @@ function golpeCandado(e) {
       { duration: 110, easing: "ease-out" });
   }
   if (navigator.vibrate) { try { navigator.vibrate(Math.round(6 + p * 12)); } catch (x) {} }
-  /* Suena cada GRIETA nueva, no cada golpe, y como mucho una por segundo: son
-     ochenta golpes, y la regla de la ráfaga (tres en segundo y medio) se
-     habría comido el sonido de romperse, que es el que importa. */
-  if (g.grietas && typeof sonar === "function") {
-    const abiertas = g.grietas.filter(({ c }) => p > c.s).length, ahora = Date.now();
-    if (abiertas > (g.sonadas || 0) && ahora - (g.sonoGrieta || 0) > 1000) { g.sonadas = abiertas; g.sonoGrieta = ahora; sonar("grieta"); }
-  }
+  /* Suena CADA golpe, y siempre igual (0.7.142.1). Antes sonaba solo cada
+     grieta nueva y como mucho una por segundo, para no chocar con la regla de
+     la ráfaga; con ochenta toques eso dejaba el sonido lejano y a saltos, y
+     Eduardo lo pidió al revés: el mismo golpe a cada toque, que es lo que da
+     el feedback. `grieta` va marcado `toque` en js/01c-sonido.js, así que no
+     cuenta para la ráfaga y la rotura sigue sonando. */
+  if (typeof sonar === "function") sonar("grieta");
   dibujarGrietas();
   if (g.n >= g.meta) romperCandado();
 }
