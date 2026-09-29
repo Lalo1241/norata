@@ -49,7 +49,7 @@
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
 const VERSION = "0.7.142";
-const VERSION_FECHA = "26 sep 2026";
+const VERSION_FECHA = "29 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
    La página pública de Norata, la que no es la app. Vive aquí y no escrita en

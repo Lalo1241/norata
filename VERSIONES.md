@@ -247,7 +247,7 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
-### 0.7.142 · 26 sep 2026
+### 0.7.142 · 29 sep 2026
 
 **Catedral tiene sus propios rangos.** En la 0.7.141 llevaba prestados los de
 Averno —Ceniza, Sello, Leviatán, Legión, Abadón—, que son demonología y en una
