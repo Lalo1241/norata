@@ -12851,9 +12851,9 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .rt-msg.pausa b { color: var(--coral); }
   .rt-arte { flex: 1; min-height: 0; position: relative; }
   .rt-svg { position: absolute; inset: 0; overflow: visible; }
-  .rt-pie { margin: 0; font-size: 11.5px; color: rgba(var(--escena-tinta), .55); text-align: center; }
+  .rt-pie { margin: 0; font-size: 12px; color: rgba(var(--escena-tinta), .82); text-align: center; }
   @media (max-width: 899px) {
-    .rt-arte { flex: none; height: 270px; }
+    .rt-arte { flex: none; height: 290px; }
     .rt-num { font-size: 38px; }
     .rt-msg b { font-size: 12.5px; }
     .rt-msg span { font-size: 11px; }
@@ -12864,8 +12864,13 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .rt-rot.fuerte { fill: rgb(var(--escena-tinta)); font-size: 11px; }
   .rt-rot.tenue { fill: var(--faint); }
   .rt-rot.oscuro { fill: var(--sobre-macizo); }
-  .rt-carril { stroke: rgba(var(--escena-tinta), .14); stroke-width: 1.5; stroke-dasharray: 2 4; }
-  .rt-ficha { fill: rgba(var(--escena-tinta), .06); stroke: rgba(var(--escena-tinta), .25); stroke-width: 1; }
+  .rt-carril { stroke: rgba(var(--escena-tinta), .3); stroke-width: 1.5; stroke-dasharray: 2 4; }
+  .rt-franja { fill: rgba(var(--escena-fondo), .8); stroke: rgba(var(--escena-tinta), .12); stroke-width: 1; }
+  .rt-franja-tit { font: 800 10.5px var(--tipo-cifra, inherit); letter-spacing: .08em; text-transform: uppercase; fill: rgba(var(--escena-tinta), .8); text-anchor: middle; }
+  .rt-ficha-n { font: 800 13px var(--tipo-cifra, inherit); fill: rgb(var(--escena-tinta)); text-anchor: middle; }
+  .rt-ficha-n.oscuro { fill: var(--sobre-macizo); }
+  .rt-rango { font: 700 11px var(--tipo-cifra, inherit); fill: rgba(var(--escena-tinta), .88); text-anchor: middle; }
+  .rt-ficha { fill: rgba(var(--escena-tinta), .08); stroke: rgba(var(--escena-tinta), .5); stroke-width: 1.2; }
   .rt-ficha.si { fill: var(--fire); stroke: none; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--fire) 70%, transparent)); }
   .t-plano .rt-ficha.si, .t-reliquia .rt-ficha.si { fill: var(--mint); filter: none; }
   .rt-ficha.px.si { filter: none; }
@@ -12912,10 +12917,14 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .pl-hoja { fill: rgba(var(--escena-tinta), .035); stroke: rgba(var(--escena-tinta), .28); stroke-width: 1.2; }
   .pl-reticula { stroke: rgba(var(--escena-tinta), .07); stroke-width: 1; }
   .pl-trazo { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
-  .pl-trazo.si { stroke: var(--mint); stroke-dasharray: 1; stroke-dashoffset: 1; animation: plTraza 1.1s ease-out forwards; }
+  /* Dibujado DE BASE y trazado encima (0.7.143): nacía invisible y dependía de
+     que la animación llegara al final; si el navegador la frenaba o la
+     reiniciaba al redibujar la tarjeta, la línea se quedaba a medias. */
+  .pl-trazo.si { stroke: var(--mint); stroke-dasharray: 1; stroke-dashoffset: 0; animation: trazaDesdeCero 1.1s ease-out backwards; }
+  @keyframes trazaDesdeCero { from { stroke-dashoffset: 1; } }
+  @keyframes trazaMedida { from { stroke-dashoffset: var(--lt); } }
   .pl-trazo.no { stroke: rgba(var(--escena-tinta), .28); stroke-dasharray: .015 .02; stroke-width: 1.4; }
   .pl-trazo.futuro { stroke: rgba(var(--escena-tinta), .16); stroke-dasharray: .015 .02; stroke-width: 1.2; }
-  @keyframes plTraza { to { stroke-dashoffset: 0; } }
   .pl-cota { fill: none; stroke: rgba(var(--escena-tinta), .4); stroke-width: 1; }
   .pl-sello rect { fill: none; stroke: var(--coral); stroke-width: 2.4; }
   .pl-sello text { fill: var(--coral); font: 800 13px var(--tipo-titulo, inherit); letter-spacing: .14em; text-anchor: middle; }
@@ -13049,9 +13058,137 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
     .rb-d { width: 30px; height: 30px; }
   }
 
+  /* ---- La racha de cada mundo (0.7.143, js/05d-racha-mundos.js) ----
+     Todo sale de las variables del mundo: en Catedral y Averno, --av-piedra,
+     --av-hierro, --av-plomo y --av-hueso; en Reliquia el latón es --fire y el
+     lila es --mint. La escena se queda de noche en los dos modos, como la de
+     la casa. Catedral y Averno se dibujan en píxel. */
+  .t-catedral svg, .t-averno svg, svg.t-catedral, svg.t-averno, .fm-averno { shape-rendering: crispEdges; }
+  :is(.t-catedral, .t-averno) .rt-rot { fill: rgba(var(--escena-tinta), .85); font-size: 11px; }
+  :is(.t-catedral, .t-averno) .rt-rot.fuerte { fill: rgb(var(--escena-tinta)); }
+  :is(.t-catedral, .t-averno) .rt-carril { stroke: rgba(var(--escena-tinta), .3); }
+  .rb.t-catedral, .rb.t-averno { --rb-relleno: var(--mint-macizo); --rb-linea: var(--mint); }
+  /* El hilo de la semana es una cadena, como los hilos del mapa de Averno */
+  .rb.t-catedral .rb-hilo, .rb.t-averno .rb-hilo { height: 4px; margin-top: -2px; background: repeating-linear-gradient(90deg, var(--rb-linea) 0 6px, transparent 6px 9px); }
+
+  /* Catedral · el candelabro */
+  .avr-hierro { fill: color-mix(in srgb, var(--av-hierro, rgb(var(--escena-tinta))) 70%, rgb(var(--escena-tinta))); }
+  .avr-cera { fill: rgb(var(--escena-tinta)); }
+  .avr-cera.apagada { fill: color-mix(in srgb, rgb(var(--escena-tinta)) 55%, var(--av-hierro, rgb(var(--escena-fondo)))); }
+  .avr-cera.futuro { fill: var(--av-hierro, rgba(var(--escena-tinta), .25)); opacity: .7; }
+  .avr-mecha { fill: rgb(var(--escena-tinta)); }
+  .avr-halo { fill: var(--fire); opacity: .22; }
+  .avr-f.f1 { fill: var(--coral); }
+  .avr-f.f2 { fill: var(--fire); }
+  .avr-f.f3 { fill: rgb(var(--escena-tinta)); }
+  .avr-nudo.oro { fill: var(--fire); }
+  .avr-charco.luz { fill: var(--fire); opacity: .35; }
+
+  /* Averno · el sello */
+  .avs-aro { fill: var(--av-hueso, rgba(var(--escena-tinta), .6)); }
+  .avs-aro.fino { opacity: .45; }
+  .avs-aro.vivo { fill: var(--mint-macizo); }
+  .avs-linea { fill: none; stroke: var(--av-hueso, rgba(var(--escena-tinta), .5)); stroke-width: 1; opacity: .35; }
+  .avs-linea.viva { stroke: var(--mint-macizo); stroke-width: 2; opacity: 1; stroke-dasharray: var(--lt); stroke-dashoffset: 0; animation: trazaMedida .9s ease-out backwards; }
+  .avs-linea.viva.toda { filter: drop-shadow(0 0 3px var(--mint)); }
+  .avs-fondo { fill: var(--bg); }
+  .avs-rombo { fill: none; }
+  .avs-rombo.no { fill: var(--av-hueso, rgba(var(--escena-tinta), .6)); opacity: .55; }
+  .avs-rombo.futuro { fill: var(--av-hueso, rgba(var(--escena-tinta), .4)); opacity: .25; }
+  .avs-rombo.si { fill: var(--mint-macizo); }
+  .avs-centro { fill: var(--av-hueso, rgba(var(--escena-tinta), .5)); opacity: .5; }
+  .avs-centro.vivo { fill: var(--mint); opacity: 1; animation: avsLuz 2.4s steps(4, end) infinite; }
+  @keyframes avsLuz { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+  .rt-rombo-in { fill: none; stroke: var(--av-hueso, rgba(var(--escena-tinta), .5)); stroke-width: 1; opacity: .5; pointer-events: none; }
+  .t-averno .rt-ficha.rombo { fill: rgba(var(--escena-tinta), .08); stroke: var(--av-hueso, rgba(var(--escena-tinta), .5)); stroke-width: 1.5; }
+  .t-averno .rt-ficha.rombo.si { fill: var(--mint-macizo); stroke: var(--av-hueso, none); filter: none; }
+
+  /* Reliquia · el astrolabio */
+  .rq2-disco { fill: color-mix(in srgb, var(--fire) 22%, var(--card)); stroke: var(--line); stroke-width: 2; }
+  .rq2-tramo { fill: none; stroke-width: 7; stroke-linecap: butt; }
+  .rq2-tramo.si { stroke: var(--fire); stroke-dasharray: var(--lt); stroke-dashoffset: 0; animation: trazaMedida 1.1s ease-out backwards; }
+  .rq2-tramo.no { stroke: color-mix(in srgb, var(--line) 60%, var(--bg)); }
+  .rq2-tramo.futuro { stroke: color-mix(in srgb, var(--line) 30%, var(--bg)); }
+  .rq2-tramo.si.hoy { animation: trazaMedida 1.1s ease-out backwards, rq2Hoy 2.6s ease-in-out 1.4s infinite; }
+  .rq2-tramo.hoy.no, .rq2-tramo.hoy.futuro { animation: rq2Hoy 2.6s ease-in-out infinite; }
+  @keyframes rq2Hoy { 50% { opacity: .45; } }
+  .rq2-grado { stroke: color-mix(in srgb, var(--fire) 55%, transparent); stroke-width: 1; }
+  .rq2-placa { fill: color-mix(in srgb, var(--mint) 10%, var(--bg)); stroke: var(--line); stroke-width: 1.2; }
+  .rq2-linea { fill: none; stroke: rgba(var(--escena-tinta), .16); stroke-width: 1; }
+  .rq2-arana { fill: none; stroke: var(--fire); stroke-width: 1.6; }
+  .rq2-estrella { fill: var(--fire); }
+  .rq2-estrella.viva { fill: rgb(var(--escena-tinta)); filter: drop-shadow(0 0 4px var(--fire)); }
+  /* La araña gira siempre; con la semana encendida, al doble */
+  .rq2-rete { transform-box: view-box; animation: rq2Gira 26s linear infinite; }
+  .rq2-rete.viva { animation-duration: 14s; }
+  @keyframes rq2Gira { to { transform: rotate(360deg); } }
+  .rq2-perno { fill: var(--fire); stroke: color-mix(in srgb, var(--fire) 50%, rgb(var(--escena-fondo))); }
+
+  /* Reliquia · el orbe de las semanas de antes */
+  .fq-orbe-vidrio { fill: color-mix(in srgb, var(--bg) 70%, var(--card)); }
+  .fq-orbe-liq { fill: color-mix(in srgb, var(--mint) 38%, var(--card)); }
+  .fq-orbe-liq.si { fill: var(--fire); }
+  .fq-orbe-nivel { fill: none; stroke: color-mix(in srgb, var(--mint) 60%, var(--card)); stroke-width: 1.2; }
+  .fq-orbe-nivel.si { stroke: color-mix(in srgb, var(--fire) 55%, rgb(var(--escena-tinta))); }
+  .fq-orbe-brillo { fill: none; stroke: rgba(var(--escena-tinta), .45); stroke-width: 1.6; stroke-linecap: round; }
+  .fq-orbe-borde { fill: none; stroke: var(--line); stroke-width: 1.5; }
+  .fq-orbe-borde.si { stroke: color-mix(in srgb, var(--fire) 60%, rgb(var(--escena-fondo))); }
+  .fq-sube, .fq-mece { transform-box: view-box; }
+  .fq-sube { animation: fqSube 1.1s cubic-bezier(.25, .8, .35, 1) var(--d, 0s) both; }
+  @keyframes fqSube { from { transform: translateY(var(--h, 20px)); } }
+  .fq-mece { animation: fqMece 3.2s ease-in-out 1.4s infinite; }
+  @keyframes fqMece { 50% { transform: translateY(-1.2px); } }
+  /* El número va encima de lo lleno y de lo vacío a la vez: letra clara con
+     un filo oscuro, y un pelín más arriba, que se veía caído (Eduardo). */
+  .t-reliquia .rt-ficha-n, .t-reliquia .rt-ficha-n.oscuro { fill: rgb(var(--escena-tinta)); paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; transform: translateY(-1.5px); }
+
+  /* Catedral · la vela de las semanas de antes */
+  .t-catedral svg :is(.fc-cera, .fc-hierro, .fc-llama) { shape-rendering: crispEdges; }
+  .fc-cera { fill: color-mix(in srgb, rgb(var(--escena-tinta)) 22%, var(--card)); stroke: rgba(var(--escena-tinta), .35); stroke-width: 1; }
+  .fc-cera.si { fill: rgb(var(--escena-tinta)); stroke: none; }
+  .fc-hierro { fill: color-mix(in srgb, var(--av-hierro, rgb(var(--escena-tinta))) 70%, rgb(var(--escena-tinta))); }
+  .fc-mecha { fill: rgba(var(--escena-tinta), .6); }
+  .fc-llama.f1 { fill: var(--coral); }
+  .fc-llama.f2 { fill: var(--fire); }
+  .fc-llama.f3 { fill: rgb(var(--escena-tinta)); }
+  .t-catedral .rt-ficha-n.oscuro { fill: var(--bg); }
+
+  /* Blueprint · la torre: muchas líneas, más finas que las siete de antes */
+  .pl-trazo.torre { stroke-width: 1.7; }
+  .pl-trazo.torre.no { stroke-width: 1.1; }
+  .pl-trazo.torre.futuro { stroke-width: 1; }
+
+  /* El suelo de la escena de cada mundo (el paisaje es solo de la casa) */
+  .fm-suelo-base { fill: var(--bg); }
+  .fm-sillar { fill: var(--av-piedra); }
+  .fm-grieta { fill: var(--av-plomo); }
+  .fm-losa { fill: var(--av-hierro); opacity: .45; }
+  .fm-canto { fill: var(--av-hierro); }
+  /* Una sombra sobre el muro: es escenario, no protagonista */
+  .fm-sombra { fill: rgba(var(--escena-fondo), .62); }
+  .fm-linea { stroke: rgba(var(--escena-tinta), .07); stroke-width: 1; }
+  .fm-linea.mayor { stroke: rgba(var(--escena-tinta), .16); }
+  .fm-margen { fill: none; stroke: rgba(var(--escena-tinta), .3); stroke-width: 1.2; }
+  .fm-pliegue { fill: none; stroke: rgba(var(--escena-tinta), .025); }
+  .fm-boton { fill: rgba(var(--escena-tinta), .06); }
+  .fm-foco { fill: var(--fire); opacity: .035; filter: blur(18px); }
+  .fm-sombra-rq { fill: rgba(var(--escena-fondo), .45); }
+  .fm-brasa { fill: var(--av-brasa, var(--mint-macizo)); }
+  .fm-chispa { fill: var(--mint-macizo); animation: fmChispa 4s steps(8, end) infinite; }
+  .fm-chispa.clara { fill: var(--fire); }
+  @keyframes fmChispa { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .9; } 100% { transform: translateY(-36px); opacity: 0; } }
+  .fm-hueso { fill: none; stroke: var(--av-hueso, rgba(var(--escena-tinta), .7)); stroke-width: 1.5; }
+  .fm-hueso-punto { fill: var(--mint-macizo); }
+  .con-fondo-mundo .scene-fade { background: linear-gradient(180deg, rgba(var(--escena-fondo), .35), transparent 30%, transparent 75%, rgba(var(--escena-fondo), .4)); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .avs-linea.viva, .avs-centro.vivo, .rq2-tramo.si, .rq2-tramo.hoy, .rq2-rete, .fq-sube, .fq-mece { animation: none; }
+    .fm-chispa { animation: none; opacity: .5; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .fx *, .fx-chispa, .fx-brasas, .fx-humo, .rq-luz, .rq-brillo, .rq-gema, .ar-cuadro { animation: none !important; }
-    .pl-trazo.si { animation: none; stroke-dashoffset: 0; }
+    .pl-trazo.si { animation: none; }
     .ar-cuadro.f1 { opacity: 0; }
     #racha-hoja { transition: none; }
   }

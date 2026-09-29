@@ -247,6 +247,44 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.143 · 29 sep 2026
+
+**Cada mundo tiene su racha.** Hasta ahora Catedral y Averno usaban la fogata
+de la casa, y Blueprint y Reliquia llevaban el plano y la vitrina de la
+0.7.135. Eduardo eligió los cuatro objetos en ocho vueltas de boceto con la
+app dentro (https://claude.ai/artifact/CwegthWZ2BwqVNc354zHWk), y las fichas
+en otro (https://claude.ai/artifact/UAmxkGbBue3wLvyzfdwCyj):
+
+| Mundo | Objeto | Semanas de antes | Se dice |
+| --- | --- | --- | --- |
+| Catedral | el candelabro de pie: una vela por día | la vela, encendida si contó | semana encendida |
+| Averno | el sello: siete rombos y la estrella de siete puntas | el rombo de doble filete | semana sellada |
+| Blueprint | la torre: cada día traza una parte | la de siempre | semana trazada |
+| Reliquia | el astrolabio: cada día dora un tramo | el orbe que se llena con los días | semana dorada |
+
+- **Cada mundo trae el suelo de su escena**: sillares en Catedral, brasas y
+  marco de hueso en Averno, papel cuadriculado en Blueprint y terciopelo
+  apagado en Reliquia. El paisaje queda solo para la casa.
+- **«Semanas de antes» va sobre una franja opaca**, con letra de 11 a 13 px:
+  encima del muro de Averno o del papel de Blueprint los rótulos de 10 px no
+  se leían.
+- **Lo que se anima se ve completo sin la animación.** Los tramos del
+  astrolabio, las puntas del sello y las líneas del plano nacían invisibles y
+  solo aparecían si su animación llegaba al final; si el navegador la frenaba
+  o la reiniciaba al redibujar, se quedaban a medias. Ahora están dibujados de
+  base y la animación solo los traza encima. Arregla también el plano de
+  Blueprint de antes.
+- **La araña del astrolabio gira siempre.** Solo giraba con la semana
+  encendida, y como la semana empieza en domingo, de domingo a martes estaba
+  quieta para todos. Con la semana encendida va al doble y su estrella se
+  prende; el tramo de hoy late.
+- **Archivo nuevo:** `js/05d-racha-mundos.js`, registrado en `index.html` y en
+  `ASSETS`. Solo añade a las tablas de `js/05c-racha.js`; la casa, sus
+  ambientes y Arcade no cambian.
+
+**Comprobado:** los cuatro mundos y la casa, en la tarjeta y en «Tu racha», a
+390 y a 1280 px, sin errores y sin nada que se salga de lado.
+
 ### 0.7.142.1 · 29 sep 2026
 
 **Romper el candado suena en cada golpe, y siempre igual.** Sonaba lejano y a
