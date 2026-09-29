@@ -247,46 +247,61 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
-### 0.7.141.1 · 26 sep 2026
+### 0.7.142.1 · 29 sep 2026
 
-**Catedral y Averno suenan cada uno a lo suyo, y subir de nivel ya suena a
-subir.** Lo pidió Eduardo por la conversación del rediseño de Averno.
+**Romper el candado suena en cada golpe, y siempre igual.** Sonaba lejano y a
+saltos: solo sonaba cuando se abría una grieta nueva, como mucho una vez por
+segundo, y encima la regla de la ráfaga (tres sonidos en segundo y medio) se
+comía casi todos. Con ochenta toques seguidos eso no daba ninguna respuesta.
+Eduardo lo pidió al revés: el mismo golpe a cada toque.
 
-**Los dos mundos, separados** (`js/01c-sonido.js`). En la 0.7.141 Catedral
-tomó prestado el sonido del gótico y el Averno nuevo también; ahora:
+- **`puedeSonar(ctx, alToque)`** (`js/01-base.js`): lo que responde a un toque
+  se salta la regla de la ráfaga y no cuenta para ella, así que la rotura del
+  final sigue sonando. Lo demás de la regla no cambia: con la app fuera de la
+  vista no suena nada. Es la única excepción, y va marcada con `toque` en el
+  momento `grieta` de `js/01c-sonido.js`.
+- **El mismo tono en cada golpe**: la madera de la grieta ya no cambia de tono
+  al azar (en la casa y en Averno/Catedral).
+- **Comprobado**: doce golpes a 90 ms suenan los doce, la rotura suena justo
+  después, y cinco fiestas seguidas siguen cortándose en la tercera.
 
-- **Catedral**: órgano, clavecín (el que sube la escalera de las misiones),
-  campana y coro. Sin tambores de guerra, trombones ni retumbo, como quedó
-  escrito en `apariencias/LEEME.md`.
-- **Averno**, el de hueso y sangre: tambores de guerra, trombones, el retumbo,
-  un coro de guerra que sostiene los acordes, un gong y una marimba de HUESO
-  que sube la escalera.
-- **El recap del aniversario de Catedral es el que ya sonaba**: los recaps no
-  se tocan.
+### 0.7.142 · 29 sep 2026
 
-**La subida de nivel sonaba negativa, y eran tres cosas:**
+**Catedral tiene sus propios rangos.** En la 0.7.141 llevaba prestados los de
+Averno —Ceniza, Sello, Leviatán, Legión, Abadón—, que son demonología y en una
+iglesia no tenían sentido. Ahora son las partes de la obra, de abajo arriba:
+**Piedra, Columna, Campana, Vitral y Rosetón**, cada uno con su versículo en la
+fiesta de rango y su dibujo en píxel. La tabla y el porqué, en la sección de
+Catedral de `apariencias/LEEME.md`.
 
-1. **La de una habilidad, en la casa**, tocaba mi-la-do-mi: un la menor. Los
-   grados salían de la escala de cada mundo y en la pentatónica caían ahí.
-   Ahora son semitonos fijos, do-mi-sol-do, en todos.
-2. **La del nivel de expedición, en la casa**, acababa en la, la nota más
-   alta de su escalera: la subida se quedaba en el aire. Ahora remata en do
-   mayor, arriba. El módulo que se abre, igual.
-3. **Las campanas tenían una tercera menor dentro**: así son las de iglesia
-   (el parcial 1,183), y rematar con ellas volvía menor cualquier final. La
-   campana de Catedral y el gong de Averno llevan ahora la tercera mayor
-   (1,25), que también existe en los campanarios.
+Quien ya iba por un rango no pierde nada: el rango sale del nivel, que no se
+toca, y lo que cambia es el nombre y el dibujo con que se enseña.
 
-Y en los mundos oscuros, el camino puede ser menor pero **el final no**: el
-nivel de Averno va de do menor a do mayor por la bemol y si bemol, el de
-Catedral por la bemol y sol (la tercera de Picardía de los corales), y los
-hitos van del napolitano a do MAYOR. En Arcade, el nivel se quedaba en el
-quinto grado y ahora cierra en do.
+**Comprobado:** Mi expedición en el teléfono (el aro, las constelaciones y la
+lista de los cinco, sin salirse de lado) y la fiesta de rango con su versículo.
 
-Comprobado leyendo las notas de cada final en los seis sonidos (casa,
-Averno, Catedral, Blueprint, Reliquia y Arcade): todos rematan en do sin
-tercera menor, y los catorce momentos suenan sin error en los dos mundos
-nuevos, también en la app de verdad.
+**Y seis arreglos de Averno que pidió Eduardo mirándolo en vivo:**
+
+- **Botones con el marco cortado.** La inclinación a 45° les comía el borde
+  en las dos puntas («Entrar con otra cuenta», «Ver el informe»). Ahora solo
+  se inclinan los macizos; los que tienen borde llevan el marco de esquina
+  cortada de las tarjetas.
+- **Menos decorado debajo.** El bisel de los botones rojos pasa de 3 px de luz
+  y 3 de sombra a 1 y 2.
+- **Aspecto y Sonido ya no se cortan.** El interruptor elegido llevaba un marco
+  de sangre de 6 px que lo engordaba 12; ahora el marco lo pone la caja, y el
+  relleno es menor.
+- **La barra del volumen tiene diseño, en toda la app.** Solo llevaba
+  `accent-color` y cada navegador ponía la suya (en Chrome, dos carriles grises
+  con un hueco). Ahora se dibuja entera, con lo lleno en el color de la app; en
+  Averno es una barra de vida con tirador en rombo.
+- **El calor de abajo, pegado al borde y animado.** Iba en el fondo de la
+  página con dos escalones duros (18 y 72 px) y se leía como una franja
+  flotando más arriba. Pasa a su propia capa fija, con un degradado suave, y
+  las chispas suben como en el boceto. Se quedan quietas si el sistema pide
+  menos movimiento.
+- **En la PC el sello del fondo es casi el doble** (1040 px, centrado), porque
+  a 560 se perdía entre las columnas.
 
 ### 0.7.141 · 26 sep 2026
 

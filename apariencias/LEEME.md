@@ -359,10 +359,24 @@ quedan en la letra de la casa.
 **Los rangos** son los mismos cinco (Ceniza · Sello · Leviatán · Legión ·
 Abadón), con sus versículos, redibujados en píxel sobre rejilla de 16. La
 constelación sigue saliendo del dibujo de línea de siempre (`trazoCielo`).
-**Desde la 0.7.141 son de Averno y Catedral los lleva prestados**: son los que
-tenía quien ya lo usaba, y cambiárselos sin aviso sería quitarle el nombre de su
-camino. Una catedral pide los suyos; **queda pendiente de Eduardo**, y la única
-regla que ya hay es la de siempre: palabras que no marquen género.
+**Desde la 0.7.141 esos son de Averno, y Catedral tiene los suyos (0.7.142)**:
+las partes de la obra, de abajo arriba, cada una con su versículo.
+
+| Rango | Qué es | La cita |
+| --- | --- | --- |
+| **Piedra** | Lo que se pone primero | «Vosotros también, como piedras vivas, sed edificados» (1 Pedro 2:5) |
+| **Columna** | Lo que sostiene | «Al que venciere, yo lo haré columna en el templo» (Apocalipsis 3:12) |
+| **Campana** | Lo que se oye lejos | «Por toda la tierra salió su voz» (Salmo 19:4) |
+| **Vitral** | Lo que deja pasar la luz | «Así alumbre vuestra luz delante de los hombres» (Mateo 5:16) |
+| **Rosetón** | Lo que corona la fachada | «Su fulgor era semejante al de una piedra preciosísima» (Apocalipsis 21:11) |
+
+Ninguno inflexiona (son cosas, como Ceniza o Sello), y los cinco dibujos son
+siluetas que no se parecen entre sí: tres sillares, una columna, una campana,
+una ventana apuntada con su plomo y el rosetón. **El arco se descartó a
+propósito** para el tercero, que era lo obvio: el último arco que entró en
+Catedral «parecía una casa». Los dibujos de píxel están en `CATEDRAL_PX`
+(`js/10i-apariencia.js`); el rosetón se dibujó a mano, porque calculado con
+círculos se deshacía a 16 px.
 
 **El sonido** lo lleva otra conversación. Revisado contra el diseño nuevo: el
 órgano, la campana y la menor armónica se quedan; entra el clavecín; los

@@ -48,8 +48,8 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.141.1";
-const VERSION_FECHA = "26 sep 2026";
+const VERSION = "0.7.142.1";
+const VERSION_FECHA = "29 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
    La página pública de Norata, la que no es la app. Vive aquí y no escrita en
@@ -1557,15 +1557,24 @@ function tzParts(date, opts) {
       entera; lo que no cabe es una docena de premios llegando a la vez con la
       sincronía.
 
+   La excepción a la tercera, y solo a ella: **lo que respondes a un toque
+   (`alToque`)**. Romper el candado son ochenta golpes seguidos, y con la regla
+   de la ráfaga sonaba uno de cada varios, espaciados y al azar; Eduardo lo
+   pidió al revés (0.7.142.1): el mismo sonido en CADA toque, que es lo que hace
+   que se sienta. No rompe el motivo de la regla —una cola que suena sola—,
+   porque lo dispara el dedo mientras lo miras. Tampoco cuenta para la
+   ráfaga: si contara, ochenta golpes dejarían sin sonido a la rotura.
+
    Al añadir un sonido nuevo: `if (!puedeSonar(ctx)) return;` una vez por
    SONIDO —no por nota—, antes de crear nada. */
 const SONIDOS_RECIENTES = [];
-function puedeSonar(ctx) {
+function puedeSonar(ctx, alToque) {
   if (typeof document !== "undefined" && document.visibilityState !== "visible") return false;
   if (ctx && ctx.state !== "running") {
     try { ctx.resume(); } catch (e) { /* sin audio */ }
     return false;
   }
+  if (alToque) return true;
   const ahora = Date.now();
   while (SONIDOS_RECIENTES.length && ahora - SONIDOS_RECIENTES[0] > 1500) SONIDOS_RECIENTES.shift();
   if (SONIDOS_RECIENTES.length >= 3) return false;
