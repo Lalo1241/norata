@@ -239,19 +239,6 @@
     }
   } catch (e) {}
 
-  /* PRUEBA de la carga con zoom (0.7.147.1). `?carga=zoom` la enciende en esta
-     pestaña y `?carga=no` la apaga; lo demás está en `cargaEntrar`
-     (js/10c-portada.js). Al quitarla, la lista de qué borrar está en
-     VERSIONES.md. */
-  try {
-    var qc = new URLSearchParams(location.search).get("carga");
-    if (qc === "zoom") sessionStorage.setItem("norata-carga-prueba", "zoom");
-    if (qc === "no") sessionStorage.removeItem("norata-carga-prueba");
-    if (sessionStorage.getItem("norata-carga-prueba") === "zoom") {
-      document.documentElement.classList.add("carga-zoom");
-    }
-  } catch (e) {}
-
 
 
   /* ---- Red de seguridad ----
@@ -387,13 +374,6 @@
 <!-- El rótulo del escaparate. Solo se dibuja con `?informes=demo` puesto, y
      tiene que estar: una pantalla enseñando datos que no son tuyos sin
      avisarlo es peor que no poder mirarla. -->
-<!-- El rótulo de la prueba de la carga con zoom (0.7.147.1). Vive DEBAJO de la
-     carga (su piso es menor), así que solo aparece cuando la app ya entró. -->
-<div class="rotulo-prueba" id="rotulo-carga">
-  Prueba: carga con zoom
-  <a href="?carga=zoom">otra vez</a>
-  <a href="?carga=no">quitar</a>
-</div>
 <div class="rotulo-prueba" id="rotulo-informes">
   Estás viendo números inventados, no son tus datos
   <a href="?informes=no">salir</a>

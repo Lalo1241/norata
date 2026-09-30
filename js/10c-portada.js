@@ -96,12 +96,15 @@ function alternarClave(id, boton) {
    hacer falta a mitad del desvanecido, el temporizador viejo ya no la apaga. */
 let cargaTurno = 0;
 
-/* `sale` es la salida grande (abajo): mientras dura, la app de debajo ya es lo
-   que se ve y ya se puede tocar, así que cuenta como NO visible. */
+/* Mientras dura la salida grande (`sale`, abajo) la carga CUENTA como puesta,
+   aunque ya deje ver la app por el hueco. Hasta la 0.7.147.8 contaba como
+   quitada, y cualquier cosa que preguntara en ese segundo y medio —el aviso
+   de sesión caducada al acabar una sincronía, deslizar para actualizar— podía
+   salir a media animación, cruzada con la marca. Lo que se abre al entrar ya
+   espera al final de la salida (`cargaEntrar`), así que no pierde nada. */
 function cargaVisible() {
   const el = document.getElementById("carga");
-  return !!(el && !el.classList.contains("oculta") && !el.classList.contains("fuera")
-            && !el.classList.contains("sale"));
+  return !!(el && !el.classList.contains("oculta") && !el.classList.contains("fuera"));
 }
 
 function cargaMostrar(mensaje) {
@@ -114,15 +117,16 @@ function cargaMostrar(mensaje) {
   el.classList.remove("oculta", "fuera");
 }
 
-/* ================= La salida grande (EN PRUEBA, 0.7.147.1) =================
+/* ================= La salida grande (0.7.147.1; para todos desde 0.7.147.9) =================
    Lo pidió Eduardo: que la carga del inicio dure un poco más y se vaya con un
    zoom hacia el frente, «como en motion graphics». Solo en los momentos de
    ENTRAR —abrir la app y entrar a una cuenta—; las esperas
    cortas («Guardando lo último…») se siguen yendo con el desvanecido de
    siempre, porque un zoom de un segundo y medio para eso sería teatro.
 
-   Está detrás de `?carga=zoom` (y `?carga=no` la apaga), leído arriba de
-   index.html y guardado en `sessionStorage`.
+   Se probó detrás de `?carga=zoom` (0.7.147.1 a 0.7.147.8) y Eduardo la
+   aprobó tal cual: desde la 0.7.147.9 la ve todo el mundo y el interruptor
+   ya no existe.
 
    La puerta (login/index.html) no la usa, y no por olvido: allí el formulario
    releva a la carga en seco nada más pintarse (`cargaCerrar(true)` en
@@ -169,9 +173,6 @@ let cargaTelonPintar = null;
 const HUECO_MEDIO = 42 * 79 / 250;       // la mitad del ancho de la caja
 const HUECO_RADIO = 42 * 6 / 250;        // el redondeo de sus esquinas
 
-function cargaZoomPuesto() {
-  try { return sessionStorage.getItem("norata-carga-prueba") === "zoom"; } catch (e) { return false; }
-}
 
 /* Si vuelve a hacer falta a media salida, se deshace todo lo que la salida
    dejó puesto: sin esto la siguiente carga saldría con la marca enorme y el
@@ -209,7 +210,6 @@ function cargaRectRedondo(cx, cy, m, r) {
        logo. Congelado parecía un fallo de dibujo; lo vio Eduardo en la
        simulación (0.7.147.6). */
 function cargaEntrar() {
-  if (!cargaZoomPuesto()) { cargaCerrar(); return Promise.resolve(); }
   const el = document.getElementById("carga");
   if (!el || el.classList.contains("oculta")) return Promise.resolve();
   const mio = ++cargaTurno;

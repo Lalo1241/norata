@@ -247,6 +247,33 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.147.9 · 30 sep 2026
+
+**La carga con zoom, para todos.** Eduardo la aprobó tal cual («déjala así»):
+se quita el interruptor de prueba y desde ahora la ve todo el mundo al abrir
+la app y al entrar a una cuenta.
+
+- **Quitado, por nombre:** `cargaZoomPuesto()` y su pregunta en `cargaEntrar`
+  (`js/10c-portada.js`); el bloque «PRUEBA de la carga con zoom» del script de
+  arriba de `index.html` y el `<div id="rotulo-carga">`; las tres reglas
+  `html.carga-zoom #rotulo-carga` de `css/estilos.css`. `?carga=zoom` y
+  `?carga=no` ya no hacen nada; la llave `norata-carga-prueba` que quedara en
+  alguna pestaña no la lee nadie y muere al cerrarla.
+- **`cargaVisible()` cuenta la salida como carga puesta.** Hasta aquí la
+  contaba como quitada, y lo que preguntara en ese segundo y medio —el aviso de
+  sesión caducada al terminar una sincronía, deslizar para actualizar— podía
+  salir a media animación, cruzado con la marca. Lo que se abre al entrar ya
+  espera al final (`cargaEntrar`), así que no se pierde nada.
+- **La puerta no cambia.** Allí el formulario releva a la carga en seco al
+  pintarse y nunca pasa por el zoom. Medido: sin sesión, la app manda a la
+  puerta y la carga de la puerta se quita a los 53 ms, como antes.
+- **Medido en los caminos de entrada:** abrir la app ya dentro (la salida
+  empieza a los 3,04 s y la carga se quita a los 4,58 s); entrar a una cuenta
+  (`adoptarSesion`): la página ya lleva los 3 s, así que el zoom arranca al
+  momento, dura 1,5 s y después sale el saludo. Sin errores en ninguno.
+- **Lo que queda de la prueba y NO se quita:** el `:not(.sale)` de
+  `CAPAS_QUE_TAPAN` y todo el telón. Son la animación, no el interruptor.
+
 ### 0.7.147.8 · 30 sep 2026
 
 **La carga con zoom se vuelve un portal, y la ventana de vuelta llega un
