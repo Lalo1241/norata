@@ -40,7 +40,7 @@ const UMBRAL_SEMANA = 3;
 function temaRacha() {
   if (typeof arcadePuesto === "function" && arcadePuesto()) return "arcade";
   const a = typeof apariencia === "function" ? apariencia() : "casa";
-  return ["plano", "reliquia", "catedral", "averno"].indexOf(a) >= 0 ? a : "casa";
+  return ["plano", "reliquia", "catedral", "averno", "cyber"].indexOf(a) >= 0 ? a : "casa";
 }
 
 /* Las palabras de cada mundo. La regla no cambia; cambia qué se hace con los

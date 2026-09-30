@@ -834,6 +834,15 @@ FUENTES = {
    navegador ENGORDA el dibujo para la negrita y el píxel se emborrona), e
    incrustadas porque la app no admite letras de fuera.""",
     caras=[("silkscreen-400.woff2", "100 900", "Silkscreen"), ("tiny5.woff2", "100 900", "Tiny5")]),
+  "cyber": dict(
+    familia="Chakra Petch",
+    nota=u"""Chakra Petch, la letra de Cyberpunk (0.7.148). Licencia SIL Open Font
+   1.1 (Cadson Demak), que permite incrustarla; pesan 10 KB cada una.
+
+   Dos archivos, como Rajdhani: no es variable, y declarando solo el 700 el
+   navegador sintetizaría el 600. Solo el subconjunto latino, que es donde
+   caen todos los acentos del español.""",
+    caras=[("chakra-petch-600.woff2", "600"), ("chakra-petch-700.woff2", "700")]),
 }
 
 def fuentes_de(ids):
@@ -886,7 +895,10 @@ if __name__ == "__main__":
     # Catedral es el gótico que se publicó como Averno en la 0.7.136; en la
     # 0.7.141 se separó y Averno pasó a ser el de hueso y sangre. Los dos
     # traen su propio generador (ver abajo).
-    LISTOS = ("reliquia", "plano", "catedral", "averno")
+    # Cyberpunk entra el quinto (0.7.148), salido del laboratorio de mundos.
+    # Trae su propio generador como Catedral y Averno, pero por otra razón:
+    # sus cinco paletas son cinco juegos de tokens del MISMO bloque genérico.
+    LISTOS = ("reliquia", "plano", "catedral", "averno", "cyber")
     listos = [m for m in D.MUNDOS if m["id"] in LISTOS]
     # Solo se incrusta la letra de los mundos que se construyen: la de un mundo
     # que nadie puede encender es peso muerto en un archivo que ya pesa.
@@ -897,7 +909,7 @@ if __name__ == "__main__":
         # `mundos/averno/averno.py`. Se cargan por su ruta y con nombre
         # propio: los dos tienen un `paletas.py`, y con `import` a secas el
         # segundo se quedaba con el del primero.
-        if m["id"] in ("catedral", "averno"):
+        if m["id"] in ("catedral", "averno", "cyber"):
             import importlib.util
             spec = importlib.util.spec_from_file_location("mundo_" + m["id"], os.path.join(AQUI, m["id"], m["id"] + ".py"))
             gen = importlib.util.module_from_spec(spec); spec.loader.exec_module(gen)

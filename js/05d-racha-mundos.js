@@ -11,6 +11,7 @@
    | Averno    | el sello de siete rombos | el rombo de doble filete         |
    | Blueprint | la torre                 | la de siempre                    |
    | Reliquia  | el astrolabio            | el orbe que se llena             |
+   | Cyberpunk | la placa (0.7.148)       | el chip, lleno si contó          |
 
    La casa, sus ambientes y Arcade no cambian: siguen en js/05c-racha.js. Este
    archivo solo AÑADE a sus tablas (`VOZ_RACHA`, `HEROES_RACHA`, y las tres de
@@ -32,7 +33,8 @@ const VOZ_MUNDOS = {
   catedral: { una: "semana encendida", varias: "semanas encendidas", hecho: "encendida", hechas: "encendidas", obj: "el candelabro", aObj: "al candelabro", hacer: "encenderla" },
   averno:   { una: "semana sellada", varias: "semanas selladas", hecho: "sellada", hechas: "selladas", obj: "el sello", aObj: "al sello", hacer: "sellarla" },
   plano:    { una: "semana trazada", varias: "semanas trazadas", hecho: "trazada", hechas: "trazadas", obj: "la torre", aObj: "a la torre", hacer: "trazarla" },
-  reliquia: { una: "semana dorada", varias: "semanas doradas", hecho: "dorada", hechas: "doradas", obj: "el astrolabio", aObj: "al astrolabio", hacer: "dorarla" }
+  reliquia: { una: "semana dorada", varias: "semanas doradas", hecho: "dorada", hechas: "doradas", obj: "el astrolabio", aObj: "al astrolabio", hacer: "dorarla" },
+  cyber:    { una: "semana en línea", varias: "semanas en línea", hecho: "en línea", hechas: "en línea", obj: "el chip", aObj: "al chip", hacer: "conectarla" }
 };
 Object.assign(VOZ_RACHA, VOZ_MUNDOS);
 
@@ -282,7 +284,67 @@ function heroTorre(x, y, w, h, Z) {
   return s + filaDeDias(Z, x + 10, y + h - 34, w - 20, "caja");
 }
 
-Object.assign(HEROES_RACHA, { catedral: heroCandelabro, averno: heroSello, plano: heroTorre, reliquia: heroAstrolabio });
+/* ---------- Cyberpunk · la placa (0.7.148) ----------
+   Un chip en medio y siete pistas que llegan a él, una por día, cada una
+   saliendo del pie de su letra. Un día que contó enciende su pista y por ella
+   corre un paquete de datos hacia el chip; con la semana encendida el núcleo
+   se enciende —cuando la última pista ACABÓ de trazarse, la regla del sello
+   de Blueprint— y salen los buses hacia los lados.
+
+   Las pistas son ortogonales con la esquina a 45°, como en una placa de
+   verdad, y no se cruzan: la de más afuera gira más arriba. */
+// Una pista de (x0,y0) a (x1,y1): sube, gira a 45° y entra en horizontal
+function pistaDePlaca(x0, y0, yG, x1, y1) {
+  const ch = Math.min(6, Math.abs(x1 - x0) / 2, Math.abs(y0 - yG));
+  const sx = Math.sign(x1 - x0);
+  if (!sx) return `M${r1(x0)} ${r1(y0)}V${r1(y1)}`;
+  const ch2 = Math.min(6, Math.abs(x1 - x0) / 2, Math.abs(yG - y1));
+  return `M${r1(x0)} ${r1(y0)}V${r1(yG + ch)}L${r1(x0 + sx * ch)} ${r1(yG)}H${r1(x1 - sx * ch2)}L${r1(x1)} ${r1(yG - ch2)}V${r1(y1)}`;
+}
+
+function heroCircuito(x, y, w, h, Z) {
+  const top = y + 8, base = y + h - 44, H = base - top, cx = x + w / 2;
+  const c = Math.max(46, Math.min(w * .3, H * .42, 120)), cy = top + H * .36;
+  const cB = cy + c / 2, paso = (w - 20) / 7, gap = Math.max(9, Math.min(14, (base - 12 - cB) / 4));
+  let s = "", paquetes = "", fin = 0;
+  // Los buses de salida, detrás del chip: se encienden con la semana
+  const buses = [-.28, -.08, .12, .32].map(k => cy + c * k);
+  buses.forEach((yy, k) => {
+    const lado = k % 2 ? 1 : -1, x0 = cx + lado * c / 2, x1 = lado < 0 ? x + 6 : x + w - 6;
+    const d = `M${r1(x0)} ${r1(yy)}H${r1(x0 + lado * 14)}L${r1(x0 + lado * 20)} ${r1(yy + (k < 2 ? -6 : 6))}H${r1(x1)}`;
+    s += `<path class="cy-bus${Z.ok ? " vivo" : ""}" d="${d}"/>`;
+    s += `<circle class="cy-via${Z.ok ? " vivo" : ""}" cx="${r1(x1)}" cy="${r1(yy + (k < 2 ? -6 : 6))}" r="2.6"/>`;
+  });
+  Z.dias.forEach((d, i) => {
+    const xi = x + 10 + paso * (i + .5), pin = cx - c / 2 + (i + 1) * c / 8;
+    const lejos = Math.abs(i - 3), yG = cB + gap * (lejos ? 4 - lejos : 1), dl = .15 + i * .12;
+    const p = pistaDePlaca(xi, base - 4, i === 3 ? cB : yG, pin, cB);
+    if (d.estado === "si") {
+      fin = Math.max(fin, dl + 1);
+      paquetes += `<path class="cy-paquete" pathLength="1" d="${p}" style="animation-delay:${r1(dl + 1 + i * .23)}s"/>`;
+    }
+    s += `<path class="cy-pista ${d.estado}${d.hoy ? " hoy" : ""}" pathLength="1" d="${p}" style="animation-delay:${r1(dl)}s"/>`;
+    s += `<rect class="cy-pad ${d.estado}${d.hoy ? " hoy" : ""}" x="${r1(xi - 4)}" y="${r1(base - 5)}" width="8" height="8"/>`;
+  });
+  s += paquetes;
+  // El chip: el encapsulado con su esquina cortada, las patas y el núcleo
+  const q = c / 2, n = 6;
+  let patas = "";
+  for (let k = 1; k <= n; k++) {
+    const t = -q + k * c / (n + 1);
+    patas += `M${r1(cx - q - 6)} ${r1(cy + t)}h6M${r1(cx + q)} ${r1(cy + t)}h6M${r1(cx + t)} ${r1(cy - q - 6)}v6`;
+  }
+  s += `<path class="cy-pata" d="${patas}"/>`;
+  const e = c * .16;
+  s += `<path class="cy-chip${Z.ok ? " vivo" : ""}" d="M${r1(cx - q + e)} ${r1(cy - q)}H${r1(cx + q)}V${r1(cy + q)}H${r1(cx - q)}V${r1(cy - q + e)}Z"/>`;
+  const nq = c * .22;
+  s += `<rect class="cy-nucleo${Z.ok ? " vivo" : ""}" x="${r1(cx - nq)}" y="${r1(cy - nq)}" width="${r1(nq * 2)}" height="${r1(nq * 2)}" style="animation-delay:${r1(fin + .1)}s"/>`;
+  s += `<text class="cy-cuenta${Z.ok ? " vivo" : ""}" x="${r1(cx)}" y="${r1(cy + q * .78)}">${Z.n}/7</text>`;
+  // «EN LÍNEA» va a la derecha: en «Tu racha» la cifra grande ocupa la izquierda
+  if (Z.ok) s += `<g class="cy-linea" style="animation-delay:${r1(fin + .25)}s"><text x="${r1(x + w - 14)}" y="${r1(top + 12)}">${escapeHtml(tx("EN LÍNEA"))}</text><path d="M${r1(x + w - 72)} ${r1(top + 17)}h58"/></g>`;
+  return s + filaDeDias(Z, x + 10, y + h - 34, w - 20, "caja");
+}
+Object.assign(HEROES_RACHA, { catedral: heroCandelabro, averno: heroSello, plano: heroTorre, reliquia: heroAstrolabio, cyber: heroCircuito });
 
 /* ---------- Las fichas de «Semanas de antes» ----------
    Cada ficha sale del mismo objeto que la racha. El número lo escribe
@@ -316,6 +378,13 @@ const FICHAS_RACHA = {
     t += `<path class="fq-orbe-brillo" d="${arcoRacha(cx, cy, ro * .72, Math.PI * 1.08, Math.PI * 1.42)}"/>`;
     return t + `<circle class="fq-orbe-borde${ok}" cx="${r1(cx)}" cy="${r1(cy)}" r="${r1(ro)}"/>`;
   },
+  // Cyberpunk: un chip pequeño; lleno si la semana contó
+  cyber(w, cx, cy, s) {
+    const q = s * .95, e = q * .35;
+    let patas = "";
+    [-.5, 0, .5].forEach(k => { patas += `M${r1(cx - q - 4)} ${r1(cy + k * q)}h4M${r1(cx + q)} ${r1(cy + k * q)}h4`; });
+    return `<path class="cy-ficha-pata" d="${patas}"/><path class="rt-ficha${w.ok ? " si" : ""}" d="M${r1(cx - q + e)} ${r1(cy - q)}H${r1(cx + q)}V${r1(cy + q)}H${r1(cx - q)}V${r1(cy - q + e)}Z"/>`;
+  },
   // Catedral: la vela, con el número en la cera; encendida si la semana contó
   catedral(w, cx, cy, s) {
     const ok = !!w.ok, q = Math.max(2, s / 8), oy = cy + 3;
@@ -334,7 +403,8 @@ const FICHAS_RACHA = {
 const MARCAS_RACHA = {
   catedral: '<path d="M12 3c1.6 2 1.6 3.4 0 4.6-1.6-1.2-1.6-2.6 0-4.6z"/><path d="M10.5 9h3v9h-3z"/><path d="M7 18h10"/>',
   averno: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5l3 8.5-7.5-5h9L9 12z"/>',
-  reliquia: '<circle cx="12" cy="13" r="8"/><circle cx="12" cy="13" r="2"/><path d="M12 3v2M12 13l4-5"/>'
+  reliquia: '<circle cx="12" cy="13" r="8"/><circle cx="12" cy="13" r="2"/><path d="M12 3v2M12 13l4-5"/>',
+  cyber: '<path d="M9 5h10v14H5V9z"/><path d="M10 10h4v4h-4zM3 11h2M3 15h2M19 11h2M19 15h2"/>'
 };
 
 /* ---------- El suelo de la escena ----------
@@ -379,6 +449,13 @@ function fondoRachaMundo(m, W, H) {
     // Se quedan el foco de arriba y la sombra, que no son malla.
     s += `<ellipse class="fm-foco" cx="${W / 2}" cy="-10" rx="${W * .45}" ry="${H * .8}"/>`;
     s += `<rect class="fm-sombra-rq" width="${W}" height="${H}"/>`;
+  } else if (m === "cyber") {
+    // Líneas de barrido y unas pistas apagadas por detrás de la placa
+    for (let y = 0; y < H; y += 4) s += `<rect class="fm-barrido" x="0" y="${y}" width="${W}" height="1"/>`;
+    for (let k = 0; k < 9; k++) {
+      const x0 = Math.floor(r() * W), y0 = Math.floor(r() * H), l = 30 + r() * 90, dx = r() > .5 ? 1 : -1;
+      s += `<path class="fm-pista" d="M${x0} ${y0}h${r1(l * dx)}l${10 * dx} 10v${r1(20 + r() * 40)}"/><circle class="fm-pista-via" cx="${x0}" cy="${y0}" r="2.2"/>`;
+    }
   } else return null;
   return `<svg class="scene fm fm-${m}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect class="fm-suelo-base" width="${W}" height="${H}"/>${s}</svg>`;
 }

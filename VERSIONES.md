@@ -247,6 +247,43 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.148 · 30 sep 2026
+
+**Cyberpunk, el quinto mundo.** Salió del laboratorio de mundos
+(https://claude.ai/artifact/CwegthWZ2BwqVNc354zHWk), donde Eduardo lo eligió
+antes que Talavera y lo aprobó con sus paletas y su cara de día.
+
+- **«Visor, no marco».** Los paneles grandes (`.panel`, `.sum-card`) no llevan
+  marco: cuatro escuadras, una regla de marcas arriba y la esquina de abajo a
+  la derecha cortada en chaflán, con su filo dibujado. Las filas de las listas
+  no lo llevan, por lo mismo que el latón de Reliquia. Letra Chakra Petch
+  (600 y 700, latino, incrustada) y los títulos desdoblados.
+- **El acento es cian, no el amarillo ácido de la lámina**: el amarillo en
+  Norata es «en curso» y aviso. El magenta queda de segundo tono.
+- **Cinco paletas y dos caras**: Visor (de partida), Ácido, Cobalto,
+  Ultravioleta (de «darkworld9», la que trajo Eduardo) y Voltaje, la quinta,
+  que se gana con el tercer rango y lleva el amarillo del icono porque él lo
+  pidió así. Sintético se descartó. Cada paleta es otro juego de tokens del
+  MISMO bloque genérico (`mundos/cyber/cyber.py`), no un recolor por anclas.
+  De día: papel frío teñido del acento, el acento partido en vivo (rellenar)
+  y hondo (escribir, 4,5 sobre la tarjeta), y el visor dibujado con los tonos
+  hondos, que con el cian vivo sobre papel no llegaba a 3.
+- **La racha es una placa** (`heroCircuito`, `js/05d-racha-mundos.js`): un
+  chip y siete pistas, una por día, que no se cruzan. Lo que contó enciende
+  su pista y por ella corre un paquete de datos; el núcleo se enciende y sale
+  «EN LÍNEA» cuando la última pista ACABÓ de trazarse (la regla del sello de
+  Blueprint, 0.7.147.3). Las semanas de antes son chips pequeños.
+- **Rangos**: Señal, Enlace, Protocolo, Núcleo y Leyenda. Cosas y no oficios,
+  como en Reliquia, para que ninguno marque género.
+- **Dónde se dio de alta**: `FUENTES` y `LISTOS` de `mundos/app.py`, la
+  entrada en `MUNDOS` y `PALETA_DE_RANGO` de `js/10i-apariencia.js`,
+  `temaRacha` en `js/05c-racha.js`, y la lista del script de arriba de
+  `index.html` —sin ella, quien lo tenga puesto vería la casa un instante al
+  abrir—. El icono del menú y del APK ya existían en amarillo y se quedan
+  así: es el de Voltaje.
+
+Probado en el laboratorio y en la app servida: cinco paletas por dos caras
+por siete pantallas en teléfono y PC, sin desbordes ni errores.
 ### 0.7.147.11 · 30 sep 2026
 
 **En Mi apariencia, el botón lleva la cara del mundo que miras.** Lo pidió

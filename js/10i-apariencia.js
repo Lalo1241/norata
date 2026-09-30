@@ -198,6 +198,8 @@ const AVERNO_PALETAS = {"sangre": {"nombre": "Tormento", "noche": ["#060506", "#
    estas muestras: `python mundos/recolores/recolores.py`). */
 const PLANO_PALETAS = {"cianotipo": {"nombre": "Cian", "noche": ["#0d2b52", "#0b1219", "#8fb6db", "#9fd0ff", "#6ea2d8"], "dia": ["#e4eaf2", "#f4f7fb", "#54708f", "#4c9ade", "#3b6f9e"]}, "archivo": {"nombre": "Archivo", "noche": ["#2c3350", "#191c2d", "#bcb6a8", "#ecd8b4", "#6fa39a"], "dia": ["#e1e6f5", "#f3f5fe", "#52576a", "#ecd8b4", "#41746c"]}, "prisma": {"nombre": "Prisma", "noche": ["#221c42", "#120f25", "#bab0dc", "#86ead9", "#a58be0"], "dia": ["#e5e4f8", "#f5f5ff", "#56556e", "#86ead9", "#7158a5"]}, "acero": {"nombre": "Acero", "noche": ["#1f2433", "#12141e", "#a5adbf", "#e9f0c6", "#6d7694"], "dia": ["#e3e6ee", "#f4f6fa", "#545862", "#e9f0c6", "#5f6885"]}, "laser": {"nombre": "Láser", "noche": ["#08203a", "#04111e", "#8fc5c2", "#7fe69a", "#2a8cc4"], "dia": ["#dce8f6", "#f0f7fe", "#4a5a6b", "#7fe69a", "#1470a1"]}};
 const RELIQUIA_PALETAS = {"terciopelo": {"nombre": "Terciopelo", "noche": ["#090612", "#1e1930", "#8a6d2f", "#b7a2ea", "#c8a24e"], "dia": ["#cdc5de", "#f4f1fa", "#8a6d2f", "#a278e4", "#8a6d2f"]}, "granate": {"nombre": "Granate", "noche": ["#0f0508", "#2a1019", "#96644d", "#7fe0c8", "#da9575"], "dia": ["#d6c6ca", "#f6f0f2", "#96644d", "#7fe0c8", "#96644d"]}, "lapislazuli": {"nombre": "Lapislázuli", "noche": ["#050a1a", "#121e40", "#8a6d2f", "#e8ecf5", "#c8a24e"], "dia": ["#c1cbe0", "#eef2f9", "#8a6d2f", "#e8ecf5", "#8a6d2f"]}, "esmeralda": {"nombre": "Esmeralda", "noche": ["#041109", "#0f2a1b", "#8a6d2f", "#f4a3ba", "#c8a24e"], "dia": ["#bed0c4", "#eef3f0", "#8a6d2f", "#f4a3ba", "#8a6d2f"]}, "obsidiana": {"nombre": "Obsidiana", "noche": ["#070707", "#1a1a1c", "#797e85", "#7fd4e6", "#afb5bc"], "dia": ["#cacaca", "#f2f2f2", "#797e85", "#7fd4e6", "#797e85"]}};
+/* Cyberpunk (0.7.148): sale de `python mundos/cyber/cyber.py`. */
+const CYBER_PALETAS = {"visor": {"nombre": "Visor", "noche": ["#05080d", "#0b1119", "#8ea6b8", "#27e2ff", "#ff3d8b"], "dia": ["#d6ebef", "#f4fcfd", "#506677", "#067c8e", "#ee4e89"]}, "acido": {"nombre": "Ácido", "noche": ["#050a06", "#0a130c", "#9fb391", "#b4f23a", "#a472ff"], "dia": ["#e2e9da", "#f9fbf5", "#586a4b", "#5a7c13", "#a170fb"]}, "cobalto": {"nombre": "Cobalto", "noche": ["#050716", "#0b0f26", "#9ea5cf", "#7c95ff", "#ff6fb3"], "dia": ["#e1e6f5", "#f8faff", "#5a6086", "#556ad0", "#e4569c"]}, "ultravioleta": {"nombre": "Ultravioleta", "noche": ["#0a0614", "#170a33", "#b99ad9", "#d08bf0", "#ffcf85"], "dia": ["#ece2f1", "#fcf9fe", "#71548e", "#9956b6", "#b08338"]}, "voltaje": {"nombre": "Voltaje", "noche": ["#07070a", "#121208", "#a9ab8a", "#fcee0a", "#ff2e6e"], "dia": ["#e8e7d7", "#fbfaf4", "#646647", "#787210", "#f24e75"]}};
 
 const MUNDOS = [
   {
@@ -499,6 +501,28 @@ const MUNDOS = [
          eso este rango no habla de ti sino de los demás. */
       { nombre: "Guía", trazo: '<path d="M2.8 7h18.4"/><path d="M6 3.8v6.4M18 3.8v6.4"/><path d="M12 7v6.2"/><path d="M12 13.2l2.2 3-2.2 2.8-2.2-2.8z"/>' }
     ] },
+  /* Cyberpunk, el quinto (0.7.148), salido del laboratorio de mundos.
+
+     Los rangos son COSAS y no oficios, como en Reliquia, y por lo mismo que
+     allí: una cosa no tiene género, y la celebración «Ahora eres X» tiene que
+     valerle a todos. Van de aparecer en la red a que la red cuente tu
+     historia, y cada dibujo es una pieza de ese mundo a 20 px: las barras de
+     la señal, el eslabón, los corchetes del código, el chip y la estrella. */
+  { id: "cyber", nombre: "Cyberpunk", listo: true, pro: true, icon: "target", estrena: "2026-09-30",
+    premisa: "El visor, no el letrero: cuatro escuadras y una regla de marcas en vez de marco, la esquina cortada en chaflán y el título desdoblado como una señal mal sincronizada.",
+    paletas: CYBER_PALETAS,
+    rangos: [
+      /* Apareces en la red: tres barras y el punto de la antena. */
+      { nombre: "Señal",     trazo: '<path d="M5 19v-3M10 19v-7M15 19v-11"/><circle cx="19.5" cy="5" r="1.4"/>' },
+      /* Te conectas: dos eslabones. */
+      { nombre: "Enlace",    trazo: '<path d="M10.5 13.5l3-3"/><path d="M8.6 11.4L6 14a2.8 2.8 0 004 4l2.6-2.6"/><path d="M15.4 12.6L18 10a2.8 2.8 0 00-4-4l-2.6 2.6"/>' },
+      /* Escribes tus reglas: los corchetes del código. */
+      { nombre: "Protocolo", trazo: '<path d="M8 5H5v14h3M16 5h3v14h-3"/><path d="M9.5 12h5"/>' },
+      /* Eres el centro de la red: el chip con sus patas. */
+      { nombre: "Núcleo",    trazo: '<rect x="7" y="7" width="10" height="10"/><rect x="10" y="10" width="4" height="4"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>' },
+      /* La red cuenta tu historia: la estrella sobre su línea. */
+      { nombre: "Leyenda",   trazo: '<path d="M12 3l2.3 5.6 6 .5-4.6 3.9 1.4 5.9L12 15.8 6.9 18.9l1.4-5.9L3.7 9.1l6-.5z"/><path d="M4 21h16"/>' }
+    ] },
   /* Reliquia es el primero construido, y va antes que Averno y Blueprint
      porque lo decidió Eduardo: es lo único que Fundador tiene además de Pro
      —`LIMITES` no tiene entrada de fundador, así que Fundador ES Pro sin
@@ -586,7 +610,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=4a244a74ae";
+  l.href = "css/mundos.css?h=9fc105d60c";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
@@ -739,7 +763,7 @@ function aplicarPaleta() {
    ya usaba las cuatro de Catedral o Averno habría que habérselas quitado).
    Es una sola y es un trofeo, lo que el mundo tiene de propio que conseguir.
    En el ejemplo se ve abierta, como todo lo demás. */
-const PALETA_DE_RANGO = { plano: "laser", catedral: "roseton", averno: "cienaga", reliquia: "obsidiana" };
+const PALETA_DE_RANGO = { plano: "laser", catedral: "roseton", averno: "cienaga", reliquia: "obsidiana", cyber: "voltaje" };
 const RANGO_DE_PALETA = 3;
 function paletaAbierta(mundo, pal) {
   if (PALETA_DE_RANGO[mundo] !== pal) return { ok: true };

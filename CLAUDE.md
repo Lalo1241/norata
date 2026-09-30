@@ -652,7 +652,7 @@ Tres palabras y ninguna es intercambiable:
 | --- | --- | --- |
 | **Apariencia** | El paraguas, y la palabra que ya usa `js/10d-plan.js` | — |
 | **Ambiente** | Un recolor: el mismo material con otra luz | 7, en `apariencias/` |
-| **Mundo** | Otro material: superficie, marco, letra y peso al moverse | 15 diseñados, 3 construidos, en `mundos/` |
+| **Mundo** | Otro material: superficie, marco, letra y peso al moverse | 15 diseñados, 5 construidos, en `mundos/` |
 
 Son **excluyentes** —un mundo declara sus propios colores— y el modo claro es
 un eje aparte. Nada de esto existe todavía en la app: lo que hay es el camino
@@ -676,6 +676,11 @@ el peligro no se tocan, y el generador se niega a escribir si una tinta no
 llega a 4,5. Un mundo nuevo nace con sus cinco. Al tocar una paleta, las
 muestras de Mi apariencia se sacan con `python mundos/<mundo>/<mundo>.py` o
 `python mundos/recolores/recolores.py` y se pegan en `js/10i-apariencia.js`.
+**Cyberpunk (0.7.148) es la tercera vía**: no recolorea, genera. Cada paleta
+es otro juego de tokens pasado por el mismo `bloque()` de `mundos/app.py`
+(`mundos/cyber/cyber.py`), con su cara de día calculada. Un mundo nuevo que
+salga del bloque genérico puede nacer así, y se prueba antes en el
+laboratorio de mundos.
 
 **Y ojo con el nombre, que cambió de dueño (0.7.141).** `averno` fue el gótico
 de vitrales hasta la 0.7.141; ese mundo es hoy `catedral`, y `averno` es el de
