@@ -552,7 +552,8 @@ este reparto:
 - **Por qué no en la puerta ni en la tienda:** ahí es donde alguien conoce
   Norata por primera vez, y una marca nueva vive de repetirse.
 - **El icono del APK sí (0.7.145), y lo decidió Eduardo:** elegir un mundo
-  cierra la app y la vuelve a abrir con el icono de ese mundo. Es donde más
+  carga el mundo, avisa y, al aceptar, reinicia la app con el icono de ese
+  mundo (el orden es de la 0.7.146.1; el porqué, en `recargarApp`). Es donde más
   rinde, porque se ve todos los días fuera de la app. En la web no se puede
   (el icono lo fija el `manifest` al instalar) y no se intenta. Lo nativo y
   los pasos, en `mundos/iconos/android/LEEME.md`.

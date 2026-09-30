@@ -247,6 +247,34 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.146.1 · 30 sep 2026
+
+**El icono del APK ya no deja el mundo a medias.** Eduardo lo probó en su
+teléfono con la 0.7.145: al elegir un mundo se veía el cambio un instante, la
+app se cerraba, el icono sí cambiaba, y al volver el tema no estaba. El
+reinicio llegaba a los 0,3 s de guardar, y el WebView escribe `localStorage`
+al disco unos segundos después: matar el proceso tan pronto se llevaba el
+mundo recién elegido.
+
+El orden nuevo es el que pidió él:
+
+1. La pantalla de carga, nunca menos de 2,5 s (`CAMBIO_MINIMO`), para que el
+   mundo baje su hoja de estilos y quede guardado.
+2. La app recarga y sale entera con el mundo nuevo.
+3. Un aviso, «Falta el icono», con un solo botón: **Aceptar**.
+4. Al aceptar, se reinicia y vuelve con el icono nuevo.
+
+`recargarApp` ya no reinicia: apunta el icono pedido (`norata-icono-pedido`)
+y recarga cuando pasa el mínimo. `revisarIconoPedido` (`js/13-nativo.js`)
+espera a que la app termine de arrancar, y si el icono puesto ya es el que
+toca, olvida el pedido sin preguntar. Y se quitó el cambio de icono al irse
+la app al fondo: también se disparaba en la recarga misma del cambio de
+mundo. En la web no cambia nada.
+
+**Comprobado en Chromium con el complemento simulado:** la recarga llega a
+los 2,6 s, sale el aviso con «Aceptar», solo entonces se pide el reinicio, y
+al volver a abrir ya no pregunta. Falta verlo en el teléfono.
+
 ### 0.7.146 · 30 sep 2026
 
 **Talentos y Proyectos son ya un solo módulo: Ramas.** Lo pidió Eduardo tras

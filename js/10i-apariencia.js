@@ -1636,6 +1636,7 @@ function cambiarTapado(id) {
   }
 
   const antes = fondoDe();
+  const tapadoDesde = Date.now();
   if (antes) cortina.style.background = antes;
   /* Entra con fundido, desde transparente: `fuera` la deja montada y a opacidad
      cero, y quitarla en el turno siguiente es lo que dispara la transición. Si
@@ -1674,9 +1675,9 @@ function cambiarTapado(id) {
       }
       /* `localStorage` ya escribió dentro de `ponerApariencia`; el respiro es
          para que el fundido termine antes de irse. `recargarApp` y no
-         `location.reload()`: en el APK, si el icono de la pantalla de inicio
-         cambia con el mundo, la app se reinicia entera en vez de recargar. */
-      setTimeout(() => recargarApp(), 320);
+         `location.reload()`: en el APK la carga dura un mínimo y después se
+         pide el icono (ver js/01-base.js). */
+      setTimeout(() => recargarApp(tapadoDesde), 320);
     }, 30);
   }, 200);
 }
