@@ -891,6 +891,16 @@ if __name__ == "__main__":
             partes.append(gen.css())
         else:
             partes.append(bloque(m))
+    # La marca del menú, vestida por cada mundo (0.7.144). La dibuja el mismo
+    # generador que los iconos de la app, `mundos/iconos/generar.py`, para que
+    # el icono y el menú no puedan contar dos materiales distintos.
+    import sys
+    sys.path.insert(0, os.path.join(AQUI, "iconos"))
+    import generar as ICONOS
+    partes.append("/* La marca del menú en cada mundo: solo dos variables. Las leen las\n"
+                  "   reglas de `.side-brand` en `css/estilos.css`; el porqué, junto a\n"
+                  "   `--marca-iso`. Generado desde `mundos/iconos/generar.py`. */\n"
+                  + "".join(ICONOS.marca_css(m["id"]) for m in listos))
     txt = "\n".join(partes)
     raiz = os.path.dirname(AQUI)
     destino = os.path.join(raiz, "css", "mundos.css")

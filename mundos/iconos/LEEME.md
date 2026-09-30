@@ -22,41 +22,26 @@ node mundos/iconos/rasterizar.js
 artefacto): la rejilla de los iconos, el mundo elegido con las máscaras de
 Android e iOS, y la propuesta del logo del menú en cada mundo.
 
-## El logo del menú (propuesta)
+## El logo del menú (en la app desde la 0.7.144)
 
-`generar.py` también escribe `svg/menu-<id>.svg`: el logotipo de la barra
-lateral con la pieza vestida por el mundo —el mismo material que el icono,
-reducido a lo que se lee a 30 px— y la palabra «Norata» solo cambiada de
-tinta. El logotipo se lee de `index.html` y no se copia.
+`generar.py` también dibuja el logotipo de la barra lateral vestido por cada
+mundo (`svg/menu-<id>.svg` para verlo, y `marca_css()` para la app): la pieza
+con el mismo material que el icono, reducida a lo que se lee a 30 px, y la
+palabra «Norata» sin tocar. El logotipo se lee de `index.html` y no se copia.
 
-**Esto va contra una regla vigente y hay que decidirlo antes de montarlo:**
-hoy el isotipo del menú va en `--marca-iso` y ningún mundo lo toca («un tema
-puede cambiarlo todo menos quién eres», ver `css/estilos.css`, 0.7.54).
+Llega a la app por `mundos/app.py` (los mundos de `LISTOS`) y
+`mundos/arcade.py`. Al cambiar un dibujo del menú hay que volver a correr
+esos dos, no solo este. El reparto de dónde sí se viste la marca y dónde no,
+en «La marca, dentro de un mundo» de `apariencias/LEEME.md`.
 
-## Las reglas
-
-1. **El isotipo no se redibuja: se viste.** Los tres pixelados (Arcade,
-   Catedral, Averno) salen de muestrear el trazo de la marca en una cuadrícula;
-   dibujados a ojo en otra, dejarían de ser la marca aunque se parecieran.
-2. **A sangre, con la pieza en la zona segura.** El cuadrado entero lleva
-   fondo y el isotipo ocupa 264 de 512, dentro del círculo del 80 % que
-   `maskable` garantiza. Nada importante va en las esquinas del cuadrado: un
-   icono casi siempre se ve redondo. Los marcos son aros u octógonos y los
-   adornos van en un círculo entre la pieza (167 px) y el borde seguro (205).
-3. **El hueco no lleva nada.** Es lo que hace del isotipo un marco, y por él
-   solo se ve el suelo del mundo. La primera tanda puso ahí una flor, un
-   astro, un cursor, una hoja y un copo; Eduardo los quitó.
+**Una trampa que ya mordió:** en `pieza_menu` los grosores de trazo van en
+unidades del isotipo (el trazo de 250), no del logotipo. Con las unidades del
+logotipo salían 4,5 veces más finos, y el canto de Blueprint se perdía.
 
 ## Lo que todavía no existe
 
-**Nada de esto está en la app.** `mundos/` no se publica (`_config.yml`) y
-ningún archivo de aquí está en `ASSETS`, así que no subió la versión.
-Para usarlos hay dos caminos, y ninguno es de solo copiar:
-
-- **Web (PWA):** el icono de la pantalla de inicio lo fija el `manifest` al
-  instalar y no se cambia desde JavaScript. Lo que sí se puede cambiar al
-  vuelo es el favicon de la pestaña, y eso pide llevar los SVG fuera de
-  `mundos/` a un sitio que sí se publique.
-- **La app de Android:** los iconos alternativos van por `activity-alias` en
-  el manifiesto de Android y un complemento de Capacitor. Es lo nativo, así
-  que pide reinstalar el APK (ver `LEEME.md` de `Norata App Android`).
+**Los iconos de la app no están en la app.** `mundos/` no se publica
+(`_config.yml`) y el icono se queda en menta a propósito (ver arriba). El que
+tendría sentido es el de la pantalla de inicio en Android, por
+`activity-alias` y un complemento de Capacitor: es lo nativo, así que pide
+reinstalar el APK. Está apuntado para cuando la app esté en la Play Store.

@@ -29,7 +29,7 @@ Tres reglas, y las tres son de marca antes que de dibujo:
 Los tonos salen de `mundos/datos.py` y de las paletas de Catedral y Averno;
 donde un mundo no tenía el tono (el ocre de Talavera, el brillo del metal),
 está apuntado junto a su dibujo."""
-import os, math, html
+import os, re, math, html
 import isotipo
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
@@ -479,10 +479,10 @@ def arcade(p):
 
 
 # ======================= el logo del menú =======================
-# PROPUESTA, no está en la app. Hoy el isotipo del menú va en `--marca-iso` y
-# ningún mundo lo toca («un tema puede cambiarlo todo menos quién eres»,
-# 0.7.54). Esto es cómo se vería si cada mundo lo vistiera igual que el icono
-# de la app: la pieza cambia de material, la palabra «Norata» solo de tinta.
+# En la app desde la 0.7.144: cada mundo viste el isotipo del menú igual que
+# el icono de la app. La pieza cambia de material; la silueta y la palabra
+# «Norata», no. El reparto de dónde sí y dónde no, en «La marca, dentro de un
+# mundo» de `apariencias/LEEME.md`. Lo que llega a la app es `marca_css()`.
 #
 # El logotipo se lee de `index.html` (el botón `.side-brand`) y no se copia:
 # así no hay dos versiones de la marca que puedan separarse.
@@ -522,32 +522,43 @@ def _grad(p, n, paradas, x2=0, y2=1):
             (p, n, x2, y2, "".join('<stop offset="%s" stop-color="%s"/>' % o for o in paradas)))
 
 
-def pieza_menu(id_, p):
+def pieza_menu(id_, p, dia=False):
     """(defs, dibujo) del isotipo del menú en el mundo `id_`. Es el mismo
     material que el icono de la app, reducido a lo que se lee a 30 px: sin
-    fondo, sin adornos alrededor, y nada en el hueco."""
+    fondo, sin adornos alrededor, y nada en el hueco. `dia` da la cara del
+    modo claro, para los que de noche usan un tono que sobre papel se pierde
+    (el blanco del plano, el hueso de Averno, el lila y la menta clara)."""
     u = LPX
+    # Un grosor de trazo va en unidades del ISOTIPO (el trazo de 250, que se
+    # escala por LESC dentro del logotipo), no del logotipo: con `u` a secas
+    # salían 4,5 veces más finos de lo pedido, y el canto de Blueprint se
+    # perdía en el menú. Los desplazamientos y los desenfoques sí van en `u`,
+    # porque se aplican sobre el <use>, que vive en el logotipo.
+    w = lambda px: "%.2f" % (px * LPX / LESC)
     if id_ == "talavera":
         return (_grad(p, "v", [("0", "#4a6cc0"), (".5", "#1e3f8f"), ("1", "#15306f")]),
                 isl(p, fill="url(#%s-v)" % p))
     if id_ == "grabado":
         return "", (isl(p, fill="#181410", transform="translate(%.2f %.2f)" % (2 * u, 2 * u))
-                    + isl(p, fill="#a32615", stroke="#181410", stroke_width="%.2f" % (.9 * u)))
+                    + isl(p, fill="#a32615", stroke="#181410", stroke_width=w(.9)))
     if id_ == "consola":
         return ('<filter id="%s-f" x="-40%%" y="-40%%" width="180%%" height="180%%"><feGaussianBlur stdDeviation="1.4"/></filter>' % p,
                 isl(p, fill="#3bff9e", filter="url(#%s-f)" % p, opacity=".7") + isl(p, fill="#3bff9e"))
     if id_ == "neon":
         return ('<filter id="%s-f" x="-40%%" y="-40%%" width="180%%" height="180%%"><feGaussianBlur stdDeviation="1.3"/></filter>' % p,
-                isl(p, fill="none", stroke="#3febff", stroke_width="%.2f" % (3.4 * u), filter="url(#%s-f)" % p)
-                + isl(p, fill="none", stroke="#3febff", stroke_width="%.2f" % (2 * u), stroke_linejoin="round")
-                + isl(p, fill="none", stroke="#eafcff", stroke_width="%.2f" % (.7 * u), stroke_linejoin="round"))
+                isl(p, fill="none", stroke="#3febff", stroke_width=w(3.4), filter="url(#%s-f)" % p)
+                + isl(p, fill="none", stroke="#3febff", stroke_width=w(2), stroke_linejoin="round")
+                + isl(p, fill="none", stroke="#eafcff", stroke_width=w(.7), stroke_linejoin="round"))
     if id_ == "cyber":
         return "", (isl(p, fill="#ff2e6e", transform="translate(%.2f 0)" % (-1.3 * u))
                     + isl(p, fill="#00e5ff", transform="translate(%.2f 0)" % (1.3 * u))
                     + isl(p, fill="#fcee0a"))
+    if id_ == "plano" and dia:
+        return "", isl(p, fill="#4c9ade", fill_opacity=".18", stroke="#0c4677",
+                       stroke_width=w(1.8), stroke_linejoin="round")
     if id_ == "plano":
         return "", isl(p, fill="#9fd0ff", fill_opacity=".22", stroke="#ffffff",
-                       stroke_width="%.2f" % (2.4 * u), stroke_linejoin="round")
+                       stroke_width=w(1.8), stroke_linejoin="round")
     if id_ == "forja":
         return (_grad(p, "r", [("0", "#ffe0a3"), (".4", "#ff9d3d"), ("1", "#c2410c")])
                 + '<filter id="%s-f" x="-40%%" y="-40%%" width="180%%" height="180%%"><feGaussianBlur stdDeviation="2.2"/></filter>' % p,
@@ -564,14 +575,20 @@ def pieza_menu(id_, p):
                 isl(p, fill="url(#%s-c)" % p))
     if id_ == "cenit":
         return (_grad(p, "a", [("0", "#fbf0d6"), ("1", "#e2c690")]),
-                isl(p, fill="url(#%s-a)" % p, stroke="#070a20", stroke_width="%.2f" % (1.4 * u), paint_order="stroke"))
+                isl(p, fill="url(#%s-a)" % p, stroke="#070a20", stroke_width=w(1.4), paint_order="stroke"))
+    if id_ == "reliquia" and dia:
+        return (_grad(p, "l", [("0", "#b596ec"), (".55", "#8a5ed0"), ("1", "#5a2a94")], .4),
+                isl(p, fill="url(#%s-l)" % p, stroke="#8a6d2f", stroke_width=w(1.1), paint_order="stroke"))
     if id_ == "reliquia":
         return (_grad(p, "l", [("0", "#d9cbf7"), (".55", "#b7a2ea"), ("1", "#8c72cf")], .4)
                 + _grad(p, "o", [("0", "#f0d58f"), (".5", "#b8923f"), ("1", "#e3c374")], 1, 1),
-                isl(p, fill="url(#%s-l)" % p, stroke="url(#%s-o)" % p, stroke_width="%.2f" % (1.3 * u), paint_order="stroke"))
+                isl(p, fill="url(#%s-l)" % p, stroke="url(#%s-o)" % p, stroke_width=w(1.3), paint_order="stroke"))
     if id_ == "catedral":
         d = 48.5 / 14 * .5
         return "", lpixel(14, p, d, d, fill="#5a0d18") + lpixel(14, p, fill="#ff3d4f")
+    if id_ == "averno" and dia:
+        d = 48.5 / 12 * .3
+        return "", lpixel(12, p, d, d, fill="#7a0f1c") + lpixel(12, p, fill="#ff2d3f")
     if id_ == "averno":
         d = 48.5 / 12 * .3
         return "", (lpixel(12, p, d, d, fill="#3a0209") + lpixel(12, p, -d * .6, -d * .6, fill="#efe9e3")
@@ -586,6 +603,9 @@ def pieza_menu(id_, p):
                 isl(p, fill="#06090c", transform="translate(0 %.2f)" % (1.4 * u), opacity=".85")
                 + isl(p, fill="#a9dcff", transform="translate(0 %.2f)" % (-.6 * u), opacity=".7")
                 + isl(p, fill="url(#%s-a)" % p))
+    if id_ == "arcade" and dia:
+        d = 48.5 / 12 * .3
+        return "", lpixel(12, p, d, d, fill="#0b2e24") + lpixel(12, p, fill="#00cc7f")
     if id_ == "arcade":
         d = 48.5 / 12 * .3
         return "", (lpixel(12, p, d, d, fill="#0b2e24") + lpixel(12, p, -d * .5, -d * .5, fill="#c9fbe6")
@@ -593,15 +613,43 @@ def pieza_menu(id_, p):
     return "", isl(p, fill="#5fe0b0")          # casa
 
 
-def logo_menu(id_, p, tinta, solo_iso=False):
-    """El logotipo del menú vestido por el mundo. `solo_iso` da el de la
-    barra plegada: el mismo dibujo con la caja recortada a la pieza."""
-    defs, pieza = pieza_menu(id_, p)
+def logo_menu(id_, p, tinta, solo_iso=False, dia=False):
+    """El logotipo del menú vestido por el mundo. `solo_iso` da solo la pieza,
+    con la caja recortada a ella más 3 unidades de aire por lado (lo que
+    necesitan el resplandor y el desdoble para no cortarse)."""
+    defs, pieza = pieza_menu(id_, p, dia)
     caja = "%.2f %.2f %.2f %.2f" % (_lx0 - 3, _ly0 - 3, _lx1 - _lx0 + 6, _ly1 - _ly0 + 6) if solo_iso else "24 32 205 55"
     palabra = "" if solo_iso else '<g fill="%s" style="color:%s">%s</g>' % (tinta, tinta, PALABRA)
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="%s" overflow="visible"><defs>'
             '<path id="%s-isl" d="%s" transform="%s" fill-rule="evenodd"/>%s</defs>%s%s</svg>'
             % (caja, p, isotipo.D, LPOS, defs, pieza, palabra))
+
+
+def uri(svg_txt):
+    """Un SVG como `url(...)` para CSS, con la misma codificación que usa
+    `mundos/datos.py` para las texturas de los mundos."""
+    s = re.sub(r"\s+", " ", svg_txt).strip().replace('"', "'")
+    for a, b in [("%", "%25"), ("#", "%23"), ("<", "%3C"), (">", "%3E"), ("&", "%26"), ("?", "%3F")]:
+        s = s.replace(a, b)
+    return 'url("data:image/svg+xml,%s")' % s
+
+
+def marca_css(id_, selector=None):
+    """El bloque que viste la marca del menú en la app (0.7.144).
+
+    Solo pone dos variables y nada más: `--marca-pieza` (la pieza dibujada)
+    y `--marca-vector: hidden` (esconde el isotipo vectorial de siempre). Las
+    reglas que las leen viven en `css/estilos.css`, junto a `.side-brand`, y
+    son las mismas para todos los mundos. Lo llaman `mundos/app.py` (para
+    `css/mundos.css`) y `mundos/arcade.py` (para `css/arcade.css`)."""
+    sel = selector or 'html[data-apariencia="%s"]' % id_
+    dia = sel.replace("html[", "html.claro[", 1)
+    noche_svg = logo_menu(id_, "m" + id_, "#fff", solo_iso=True)
+    dia_svg = logo_menu(id_, "m" + id_ + "d", "#000", solo_iso=True, dia=True)
+    txt = ("%s {\n  --marca-pieza: %s;\n  --marca-vector: hidden;\n}\n" % (sel, uri(noche_svg)))
+    if dia_svg != noche_svg.replace("m%s-" % id_, "m%sd-" % id_):
+        txt += "%s {\n  --marca-pieza: %s;\n}\n" % (dia, uri(dia_svg))
+    return txt
 
 
 def barra(id_):

@@ -247,6 +247,33 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.144 · 29 sep 2026
+
+**Cada mundo viste la marca del menú.** El isotipo de la barra lateral, abierta
+y plegada, toma el material del mundo puesto: píxel con canto de hueso en
+Averno, píxel con su sombra en Catedral, contorno blanco en Blueprint, lila con
+canto de oro en Reliquia, y píxel menta en Arcade. La silueta es la de siempre
+en todos, y la palabra «Norata» no cambia.
+
+Reescribe una regla: hasta ahora «un tema puede cambiarlo todo menos quién
+eres», y ningún mundo tocaba `--marca-iso`. Ahora la silueta no la cambia nadie
+y el material solo un mundo, y solo en el menú: la puerta, la portada, el
+favicon, el icono de la app y los correos siguen en menta, y un ambiente no la
+toca nunca. El reparto, en «La marca, dentro de un mundo» de
+`apariencias/LEEME.md`.
+
+**Cómo:** dos variables que pone el mundo (`--marca-pieza`, `--marca-vector`) y
+dos reglas junto a `.side-brand`. Los dibujos los genera
+`mundos/iconos/generar.py`, el mismo que hace los iconos de la app de cada mundo
+(también en esa carpeta, sin usar todavía), y los estampan `mundos/app.py` en
+`css/mundos.css` y `mundos/arcade.py` en `css/arcade.css`. Cada uno lleva cara
+de día donde el tono de noche se perdía sobre papel.
+
+**Comprobado en la app** (servida en local, con el ejemplo sembrado): con la
+casa se ve el isotipo vectorial y ninguna imagen; con cada uno de los cuatro
+mundos y con Arcade, el vectorial queda en `visibility: hidden` y la pieza
+dibujada ocupa su sitio, de noche y de día. Sin errores en la consola.
+
 ### 0.7.143.2 · 29 sep 2026
 
 **Tu mundo ya no se cae a la casa al abrir, y la racha lo sigue.** Eduardo:
