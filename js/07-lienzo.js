@@ -1156,7 +1156,7 @@ function renderFullscreen(mod) {
          centrada abajo, sobre el mapa y sin franja propia: así no le vuelve a
          quitar los 54 px de arriba. Solo en PC: en el teléfono ese sitio es
          de la tira de herramientas. */
-      !editing ? (isDesktop() && !esProy ? `<div class="fs-leyenda">${atajosLegend(true)}</div>` : "")
+      !editing ? (isDesktop() && !esProy ? `<div class="fs-leyenda">${atajosLegend("fs")}</div>` : "")
         : `<div class="fs-hint">${esProy
         ? tx("Tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno")
         : tx("Tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · <b>Shift</b> y clic elige varios · el círculo <b>Y/O</b> cambia la regla de entrada")}${
@@ -1341,7 +1341,10 @@ function atajosLegend(compacta) {
     .map(t => `${k(TIPOS[t].tecla)} <b class="gl">${TIPOS[t].glifo}</b> ${tx(TIPOS[t].nombre).toLowerCase()}`)
     .join('<i class="sep">·</i>');
   const partes = compacta
-    ? [crear, `${k("C")} ${tx("editar el mapa")}`, `${k("M")} ${tx("pantalla completa")}`,
+    ? [crear, `${k("C")} ${tx("editar el mapa")}`,
+       /* A pantalla completa la M SALE: ofrecerla como «pantalla completa»
+          allí dentro prometía lo que ya está puesto. */
+       `${k("M")} ${compacta === "fs" ? tx("salir de pantalla completa") : tx("pantalla completa")}`,
        `${raton} ${tx("clic derecho: crear, editar y pantalla completa")}`]
     : [crear, `${k("C")} ${tx("salir de edición")}`, `${k("M")} ${tx("pantalla completa")}`,
        `${k("Ctrl")}${k("Z")} ${tx("deshacer")}`, `${raton} ${tx("clic derecho: crear y más acciones")}`];
@@ -1361,13 +1364,28 @@ async function crearTalentoRapido(branch, tipo, pos) {
      cuando uno lo tiene en la cabeza. Cancelar no crea nada. */
   const nombre = await askText(T`${tx(t.nombre)} nuevo en ${branch}`, "", tx("Crear"), tx(t.sub), 60);
   if (!nombre) return;
+  /* ---- La cifra, también al crear (0.7.146.4) ----
+     Una compra nacía sin importe —y una compra es una llave que se paga— y
+     Acumular con un objetivo de 1000 que nadie eligió. El formulario ya las
+     pedía; el atajo del mapa se las saltaba. Cancelar no crea nada. */
+  let cifra = 0;
+  if (tipo === "compra" || tipo === "acumular") {
+    const pregunta = tipo === "compra" ? T`¿Cuánto cuesta? (${monedaActual()})` : tx("¿Hasta dónde quieres llegar?");
+    while (!(cifra > 0)) {
+      const v = await askText(pregunta, "", tx("Crear"),
+        tipo === "compra" ? tx("Una compra es una llave que se paga.") : tx("La cifra a la que quieres llegar. La unidad se cambia después en su ficha."), 14);
+      if (v == null) return;
+      cifra = parseFloat(String(v).replace(/[\s,$]/g, "")) || 0;
+      if (!(cifra > 0)) toast(tx("Escribe una cifra mayor que cero"), "atencion");
+    }
+  }
   pushUndo(`crear ${t.nombre.toLowerCase()}`);
   fijarPosiciones(branch);
   const n = state.perks.length;
   const nuevo = {
     id: uid(), name: nombre, branch, desc: "",
     /* Sin plazo en una rama de proyecto; en una de talento, el año de siempre */
-    tipo, cost: 0, planDays: esRamaDeProyecto(branch) ? 0 : 360, steps: [],
+    tipo, cost: tipo === "compra" ? cifra : 0, planDays: esRamaDeProyecto(branch) ? 0 : 360, steps: [],
     skillId: null, xpReward: tipo === "hito" ? 120 : 600, requiere: [], modo: "todos",
     icon: ICON_LIST[(n * 5 + 3) % ICON_LIST.length],
     color: COLORS[(n * 3 + 2) % COLORS.length],
@@ -1375,7 +1393,7 @@ async function crearTalentoRapido(branch, tipo, pos) {
     investedTotal: 0, progress: 0, createdAt: todayKey(),
     history: [{ date: todayKey(), at: stamp(), event: `Talento creado en la rama ${branch}` }]
   };
-  if (tipo === "acumular") { nuevo.objetivo = 1000; nuevo.unidad = "dinero"; nuevo.llevas = 0; }
+  if (tipo === "acumular") { nuevo.objetivo = cifra; nuevo.unidad = "dinero"; nuevo.llevas = 0; }
   if (pos) {
     /* `pos` es donde está el cursor, o sea una coordenada DEL DIBUJO; lo que
        se guarda tiene que ir sin girar, o al volver la rama a horizontal el
@@ -2499,23 +2517,29 @@ function constellation(nodes, key, editing, branch, mod) {
     const fuera = requisitosVivos(n).filter(r => (r.branch || "General") !== (n.branch || "General"));
     if (fuera.length) {
       const cF = tinta(fuera.every(r => nodoHecho(r, esNodoDeProyecto(n))) ? (n.color || "#5fe0b0") : "var(--lienzo-apagado)");
+      /* El cabo se TOCA y lleva a lo que falta (0.7.146.4): antes decía de
+         dónde venía y no dejaba ir. Con varios, al primero sin terminar. El
+         círculo invisible es la zona del dedo: cae dentro de lo que ya ocupa
+         el rótulo, así que no cambia el tamaño del dibujo. */
+      const irA = (fuera.find(r => !nodoHecho(r, esNodoDeProyecto(n))) || fuera[0]).id;
+      const caboAbre = (cx, cy) => `<g class="cabo-fuera" data-ir="${escapeAttr(irA)}" role="link" aria-label="${escapeAttr(T`Ir a ${fuera[0].name}`)}"><circle cx="${cx}" cy="${cy}" r="12" fill="transparent"/>`;
       /* El cabo sale por donde se recibe. El rótulo se queda DERECHO y colgado
          del extremo: es texto, y el texto no gira. Sin girar se escribe
          exactamente igual que siempre —con la `H` y todo— para que la huella
          del lienzo no se mueva. */
       if (!gir) {
         const x0 = x - R - 21, x1 = x0 - 26;
-        out += `<path d="M${x1} ${y} H${x0}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
+        out += caboAbre(x1, y) + `<path d="M${x1} ${y} H${x0}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
         <circle cx="${x1}" cy="${y}" r="3" fill="${cF}"/>
         <text x="${x1 - 5}" y="${y + 3.4}" text-anchor="end" font-size="8.5" fill="var(--faint)">${
-          escapeHtml(fuera.length === 1 ? (fuera[0].branch || "General") : fuera.length + " ramas")}</text>`;
+          escapeHtml(fuera.length === 1 ? (fuera[0].branch || "General") : fuera.length + " ramas")}</text></g>`;
       } else {
         const A = ladoDelPuerto(n, x, y, "w", 21, R);
         const B = ladoDelPuerto(n, x, y, "w", 47, R);
-        out += `<path d="M${B.x.toFixed(1)} ${B.y.toFixed(1)} L${A.x.toFixed(1)} ${A.y.toFixed(1)}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
+        out += caboAbre(B.x.toFixed(1), B.y.toFixed(1)) + `<path d="M${B.x.toFixed(1)} ${B.y.toFixed(1)} L${A.x.toFixed(1)} ${A.y.toFixed(1)}" stroke="${cF}" stroke-width="2" stroke-dasharray="4 4" fill="none" stroke-linecap="round"/>
         <circle cx="${B.x.toFixed(1)}" cy="${B.y.toFixed(1)}" r="3" fill="${cF}"/>
         <text x="${B.x.toFixed(1)}" y="${(B.y + A.uy * 11 + 3.4).toFixed(1)}" text-anchor="middle" font-size="8.5" fill="var(--faint)">${
-          escapeHtml(fuera.length === 1 ? (fuera[0].branch || "General") : fuera.length + " ramas")}</text>`;
+          escapeHtml(fuera.length === 1 ? (fuera[0].branch || "General") : fuera.length + " ramas")}</text></g>`;
       }
     }
 
@@ -3285,6 +3309,14 @@ function attachPanHandlers(scope) {
         e.preventDefault();
         return;
       }
+      // El cabo de otra rama lleva a lo que falta allá
+      const cabo = e.target.closest(".cabo-fuera");
+      if (cabo) {
+        gesto = { tipo: "cabo", id: cabo.dataset.ir, cli };
+        capturar();
+        e.preventDefault();
+        return;
+      }
       // La etiqueta de un grupo desplegado abre su ventana
       const tag = e.target.closest(".grupo-tag");
       if (tag) {
@@ -3414,6 +3446,7 @@ function attachPanHandlers(scope) {
 
       if (g.tipo === "modo") { if (esClic) alternarModo(g.id); return; }
       if (g.tipo === "grupo") { if (esClic) verCaja(g.id); return; }
+      if (g.tipo === "cabo") { if (esClic) openPerk(g.id); return; }
 
       if (g.moviendo) {
         /* Las reglas de alinear se van EN CUANTO se suelta. Se pintaban en

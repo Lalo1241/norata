@@ -5558,6 +5558,7 @@
     font: inherit; color: var(--text); cursor: pointer;
   }
   .lr-item.e-locked, .lr-item.e-paused, .lr-item.e-dropped { opacity: .66; }
+  .lr-item:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
   .lr-fig { line-height: 0; padding-top: 1px; }
   .lr-cuerpo { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
   .lr-cuerpo b { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
@@ -5602,6 +5603,31 @@
     display: grid; place-items: center; font-size: 11px; font-weight: 800; line-height: 1;
   }
   .pista-ramas button { margin-left: auto; background: none; border: 0; color: var(--muted); font: inherit; font-size: 14px; cursor: pointer; padding: 0 2px; }
+
+  /* ---- Buscar en todas las ramas (0.7.146.4) ---- */
+  .buscar-ramas {
+    display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 12px; margin: 0 0 12px;
+    background: var(--sup-tarjeta2); border: var(--borde-fino, 1px) solid var(--line);
+    border-radius: var(--r-media, 12px); color: var(--muted);
+  }
+  .buscar-ramas:focus-within { border-color: var(--mint); }
+  .buscar-ramas svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+  .buscar-ramas input {
+    flex: 1; min-width: 0; height: 100%; background: none; border: 0; outline: none;
+    color: var(--text); font: inherit; font-size: 14px;
+  }
+  /* `html body` delante porque los mundos visten TODOS los campos con su
+     borde y su fondo; aquí el marco es la caja de fuera, y dentro quedaba un
+     segundo recuadro. */
+  html body .buscar-ramas input { border: 0; background: none; box-shadow: none; border-radius: 0; padding: 0; }
+  .buscar-ramas-res { display: flex; flex-direction: column; gap: 6px; }
+  .buscar-ramas-res:not(:empty) { margin-bottom: 16px; }
+  /* Mientras se busca, los resultados son la pantalla */
+  #tree-content.buscando .ramas-label,
+  #tree-content.buscando .ramas-rejilla { display: none; }
+  /* El cabo de otra rama se toca y lleva allá */
+  .cabo-fuera { cursor: pointer; }
+  .cabo-fuera:hover text { fill: var(--text); }
 
   /* ---- Amplio o Grande (solo PC) ---- */
   .ramas-rejilla { display: flex; flex-direction: column; }
@@ -8380,6 +8406,12 @@
      Fichas encendibles en vez de un desplegable: desde que se pueden elegir
      varios, un <select multiple> sería impracticable con el pulgar. */
   .req-list { display: flex; flex-wrap: wrap; gap: 7px; }
+  /* El rótulo de cada rama dentro de los requisitos: ocupa la fila entera */
+  .req-grupo {
+    flex-basis: 100%; margin: 6px 2px 0; font-size: 10.5px; font-weight: 800;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  }
+  .req-grupo:first-child { margin-top: 0; }
   .req-chip {
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--sup-panel);

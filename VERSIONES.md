@@ -247,6 +247,38 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.146.4 · 30 sep 2026
+
+**Lo que quedaba abierto de la auditoría de Ramas**, y un fallo que salió al
+probarlo. Lo pidió Eduardo al ver la auditoría con sus palomitas.
+
+- **Buscar en todas las ramas.** Un campo arriba de «Tus ramas» busca en los
+  nombres y en las etapas, sin distinguir acentos. Mientras se busca, los
+  resultados son la pantalla y las tarjetas se apartan. La búsqueda vive en
+  memoria, no en el estado.
+- **El cabo de otra rama se toca y lleva allá** (al primer requisito sin
+  terminar). La zona del dedo cae dentro del rótulo, así que el dibujo no
+  cambia de tamaño.
+- **Los requisitos del formulario, por rama** y con la del nodo primero, cada
+  grupo con su rótulo. Antes era una lista plana de todos los nodos.
+- **Crear desde el mapa pide la cifra:** una compra, su importe (no acepta
+  cero), y Acumular, hasta dónde. Nacían con 0 y con un 1000 que nadie eligió.
+  Cancelar no crea nada.
+- **Subir y bajar una rama** desde su ···. El orden es el de
+  `ui.ramasTalentos`, que ya se sincroniza.
+- **Arreglado: la vista de lista rompía la rejilla.** Cada fila era un
+  `<button>` con los botones de sus etapas dentro, y un botón dentro de otro no
+  existe: el navegador cerraba la fila en la primera etapa, el pie se salía de
+  la tarjeta y la tarjeta de la rejilla. En PC a dos columnas se descuadraba.
+  La fila es ahora un `div` con `role="button"` que se abre también con Enter.
+  Se buscó el mismo fallo en Resumen, Misiones, Habilidades, Ajustes, las
+  fichas y el formulario, contando botones escritos contra botones en el DOM:
+  ninguno más.
+- De paso: el buscador dice «Ya es tuyo» o «Terminado» según la clase de la
+  rama, no «Permanente»; a pantalla completa la leyenda ofrece «M salir de
+  pantalla completa»; y el campo de búsqueda no lleva el marco que los mundos
+  ponen a todos los campos.
+
 ### 0.7.146.3 · 30 sep 2026
 
 **Retoques de la pantalla de Ramas.** Los pidió Eduardo mirándola en Averno.

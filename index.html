@@ -765,7 +765,7 @@
     <div class="panel">
       <label class="field">
         <span>Rama</span>
-        <input type="text" id="p-branch" placeholder="Ej. Dibujo, Música, Negocio…" maxlength="30" list="branch-list">
+        <input type="text" id="p-branch" placeholder="Ej. Dibujo, Música, Negocio…" maxlength="30" list="branch-list" onchange="renderPerkReqs()">
         <datalist id="branch-list"></datalist>
         <div class="field-hint">Primero la rama: es donde vivirá este nodo. Escribe una nueva o elige una existente.</div>
       </label>

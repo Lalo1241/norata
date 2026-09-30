@@ -1363,11 +1363,17 @@ function listaDeRamaHTML(b) {
     const pct = perkProgress(x);
     const derecha = salud ? `<span class="lr-salud ${salud.key}">${escapeHtml(salud.label)}</span>`
       : e === "active" && pct ? `<span class="lr-pct">${pct}%</span>` : "";
-    return `<button type="button" class="lr-item e-${e}" onclick="openPerk('${enJS(x.id)}')">
+    /* Un `div` que se porta como botón, y no un `<button>`: lleva DENTRO los
+       botones de sus etapas, y un botón dentro de otro no existe en HTML. El
+       navegador cerraba la fila en la primera etapa y todo lo de después se
+       descolocaba: el pie se salía de la tarjeta y la tarjeta de la rejilla,
+       con lo que en PC a dos columnas la rejilla se descuadraba (0.7.146.4). */
+    return `<div role="button" tabindex="0" class="lr-item e-${e}" onclick="openPerk('${enJS(x.id)}')"
+      onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openPerk('${enJS(x.id)}')}">
       <span class="lr-fig">${figuraMini(x, 24)}</span>
       <span class="lr-cuerpo"><b>${nombre(x)}</b><span class="lr-meta">${meta}</span>${etapas}</span>
       ${derecha}
-    </button>`;
+    </div>`;
   };
   const grupo = (t, lista) => lista.length ? `<div class="lr-grupo">${t}</div>${lista.map(item).join("")}` : "";
   return `<div class="rama-lista">
@@ -1405,6 +1411,66 @@ function pistaRamasHTML() {
   return `<div class="pista-ramas"><span>${tx("Toca un nodo para abrirlo. Lo gris se abre cuando terminas lo que tiene antes. Cada rama se ve como mapa o como lista.")}</span>
     <button type="button" onclick="cerrarPistaRamas()" aria-label="${escapeAttr(tx("Entendido"))}">✕</button></div>`;
 }
+/* ---- Buscar un nodo en todas las ramas ----
+   Antes había que saber en qué rama estaba, abrirla y recorrer el mapa. Busca
+   en el nombre y en las etapas, sin distinguir acentos ni mayúsculas. La
+   búsqueda vive en memoria y no en el estado: no es un dato, es un momento.
+   Al escribir solo se repinta la lista de resultados, no la pantalla, o el
+   campo perdería el foco a cada letra. */
+let buscarRamasQ = "";
+const sinAcentos = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+function buscadorRamasHTML() {
+  return `<label class="buscar-ramas">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+    <input id="buscar-ramas" type="search" autocomplete="off" enterkeyhint="search"
+      placeholder="${escapeAttr(tx("Busca en todas tus ramas"))}" aria-label="${escapeAttr(tx("Busca en todas tus ramas"))}"
+      value="${escapeAttr(buscarRamasQ)}" oninput="buscarEnRamas(this.value)">
+  </label>
+  <div id="buscar-ramas-res" class="buscar-ramas-res">${resultadosRamasHTML()}</div>`;
+}
+function resultadosRamasHTML() {
+  const q = sinAcentos(buscarRamasQ.trim());
+  if (!q) return "";
+  const res = state.perks.filter(p => sinAcentos(p.name).includes(q) ||
+    (p.steps || []).some(e => sinAcentos(e.name).includes(q)));
+  if (!res.length) return `<p class="col-vacia">${tx("Nada se llama así en tus ramas.")}</p>`;
+  return res.slice(0, 40).map(p => {
+    const st = perkStatus(p);
+    const etapa = !sinAcentos(p.name).includes(q) && (p.steps || []).find(e => sinAcentos(e.name).includes(q));
+    return `<button type="button" class="lr-item e-${st}" onclick="openPerk('${enJS(p.id)}')">
+      <span class="lr-fig">${figuraMini(p, 22)}</span>
+      <span class="lr-cuerpo"><b>${escapeHtml(p.name)}</b><span class="lr-meta">${escapeHtml(p.branch || "General")} · ${
+        st === "completed" ? (esRamaDeProyecto(p.branch || "General") ? tx("Terminado") : tx("Ya es tuyo")) : tx(STATUS_LABEL[st])}${
+        etapa ? ` · ${tx("etapa")} <b>${escapeHtml(etapa.name)}</b>` : ""}</span></span>
+    </button>`;
+  }).join("");
+}
+function buscarEnRamas(v) {
+  buscarRamasQ = String(v || "").slice(0, 80);
+  const caja = document.getElementById("buscar-ramas-res");
+  if (caja) caja.innerHTML = resultadosRamasHTML();
+  /* Mientras se busca, las tarjetas se apartan: los resultados SON la
+     pantalla, y debajo de ellos seis mapas solo empujaban la lista. */
+  const cont = document.getElementById("tree-content");
+  if (cont) cont.classList.toggle("buscando", !!buscarRamasQ.trim());
+}
+
+/* ---- Subir y bajar una rama ----
+   Las tarjetas de Proyectos se podían reordenar y las de Talentos no; al
+   juntarlas se perdió también lo de Proyectos. El orden ya vivía en
+   `ui.ramasTalentos` —es el que se sincroniza—, así que basta con moverla ahí. */
+function moverRama(b, paso) {
+  const orden = ramasDe("perks");
+  const i = orden.indexOf(b), j = i + paso;
+  if (i < 0 || j < 0 || j >= orden.length) return;
+  [orden[i], orden[j]] = [orden[j], orden[i]];
+  state.ui.ramasTalentos = orden;
+  save();
+  renderTree();
+  const el = document.querySelector(`.branch-card[data-rama="${CSS.escape(b)}"]`);
+  if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
 function cerrarPistaRamas() {
   try { localStorage.setItem("norata-pista-ramas", "1"); } catch (e) {}
   const el = document.querySelector(".pista-ramas");
@@ -1525,7 +1591,7 @@ function renderTree() {
     focus: Object.assign(focus, {
       onclick: focus.id ? `openPerk('${focus.id}')` : null
     })
-  }) + pistaRamasHTML() + `<div class="sec-label ramas-label">${tx("Tus ramas")}<span class="sec-acciones">${
+  }) + pistaRamasHTML() + (perks.length ? buscadorRamasHTML() : "") + `<div class="sec-label ramas-label">${tx("Tus ramas")}<span class="sec-acciones">${
     ramasT.length > 1 ? `
       <button type="button" onclick="plegarTodasLasRamas(true)"${
         ramasT.every(b => isCollapsed(b)) ? " disabled" : ""}>${tx("Plegar todas")}</button>
@@ -1657,6 +1723,8 @@ function renderTree() {
                 ? { title: tx("Terminar de editar"), hint: tx("Vuelve al modo normal"), icon: "lapiz", onclick: `toggleEditBranch('${bj}')` }
                 : { title: tx("Editar el mapa"), hint: tx("Mueve y conecta los nodos"), icon: "lapiz", onclick: `toggleEditBranch('${bj}')` }
             ]),
+            ...(bi > 0 ? [{ title: tx("Subir esta rama"), hint: tx("Un lugar más arriba en la lista"), icon: "flecha", onclick: `moverRama('${bj}', -1)` }] : []),
+            ...(bi < branches.length - 1 ? [{ title: tx("Bajar esta rama"), hint: tx("Un lugar más abajo en la lista"), icon: "flecha", onclick: `moverRama('${bj}', 1)` }] : []),
             { title: esP ? tx("Convertir en rama de talento") : tx("Convertir en proyecto"),
               hint: esP ? tx("Lo logrado se vuelve permanente y deja de vigilarse su ritmo") : tx("Algo que se termina: se vigila su ritmo y avisa si se estanca"),
               icon: "reordenar", onclick: `cambiarClaseDeRama('${bj}')` },
@@ -1678,6 +1746,7 @@ function renderTree() {
   });
   html += `</div>`;
   el.innerHTML = html;
+  el.classList.toggle("buscando", !!buscarRamasQ.trim());
   /* La pantalla completa se pinta DESPUÉS de la lista, a propósito:
      constellation() deja apuntadas en variables globales las posiciones del
      último lienzo dibujado, y las que deben quedar vigentes son las del

@@ -4248,5 +4248,20 @@ const TEXTOS_EN = {
   "Primero la rama: es donde vivirá este nodo. Escribe una nueva o elige una existente.": "Branch first: it's where this node will live. Type a new one or pick an existing one.",
   "¿Qué quieres lograr, en concreto?": "What do you want to achieve, exactly?",
   "Talentos y proyectos, en ramas que se abren": "Talents and projects, in branches that open up",
-  "Ya no sigues un camino: escribes el tuyo. Habilidades, talentos y proyectos con historia detrás.": "You're no longer following a path: you're writing yours. Skills, talents and projects with a story behind them."
+  "Ya no sigues un camino: escribes el tuyo. Habilidades, talentos y proyectos con historia detrás.": "You're no longer following a path: you're writing yours. Skills, talents and projects with a story behind them.",
+  "Busca en todas tus ramas": "Search all your branches",
+  "Nada se llama así en tus ramas.": "Nothing in your branches goes by that name.",
+  "etapa": "stage",
+  "Subir esta rama": "Move this branch up",
+  "Un lugar más arriba en la lista": "One spot higher in the list",
+  "Bajar esta rama": "Move this branch down",
+  "Un lugar más abajo en la lista": "One spot lower in the list",
+  "Ir a {0}": "Go to {0}",
+  "esta rama": "this branch",
+  "¿Cuánto cuesta? ({0})": "How much does it cost? ({0})",
+  "¿Hasta dónde quieres llegar?": "How far do you want to go?",
+  "Una compra es una llave que se paga.": "A purchase is a key you pay for.",
+  "La cifra a la que quieres llegar. La unidad se cambia después en su ficha.": "The number you want to reach. You can change the unit later on its card.",
+  "Escribe una cifra mayor que cero": "Type a number greater than zero",
+  "salir de pantalla completa": "exit full screen"
 };

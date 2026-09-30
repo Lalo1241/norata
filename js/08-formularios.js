@@ -738,7 +738,16 @@ function renderPerkReqs() {
   if (!otros.length) {
     cont.innerHTML = `<p class="settings-note" style="margin:0">${tx("Todavía no hay otros nodos a los que encadenarlo.")}</p>`;
   } else {
-    cont.innerHTML = otros.map(x => {
+    /* Por rama y con la suya primero (0.7.146.4): era una lista plana de
+       todos los nodos de todas las ramas, y el requisito casi siempre está en
+       la misma. Cada grupo lleva su rótulo para no leer la rama en cada ficha. */
+    const aqui = (document.getElementById("p-branch").value || "").trim() || "General";
+    const orden = ramasDe("perks");
+    const pos = r => r === aqui ? -1 : (orden.indexOf(r) < 0 ? 999 : orden.indexOf(r));
+    const grupos = {};
+    otros.forEach(x => { const r = x.branch || "General"; (grupos[r] = grupos[r] || []).push(x); });
+    cont.innerHTML = Object.keys(grupos).sort((r1, r2) => pos(r1) - pos(r2)).map(r =>
+      `<div class="req-grupo">${escapeHtml(r)}${r === aqui ? ` · ${tx("esta rama")}` : ""}</div>` + grupos[r].map(x => {
       const on = pReq.includes(x.id);
       /* Elegir un descendiente cerraría un bucle. Se muestra apagado y sin
          poder marcarse, en vez de dejar intentarlo y rechazarlo después. */
@@ -746,9 +755,8 @@ function renderPerkReqs() {
       return `<button type="button" class="req-chip ${on ? "on" : ""} ${bucle ? "no" : ""}"
         ${bucle ? "disabled title=\"Crearía un bucle\"" : `onclick="togglePerkReq('${x.id}')"`}>
         ${icon(x.icon || "star", 13)}<span>${escapeHtml(x.name)}</span>
-        <i>${escapeHtml(x.branch || "General")}</i>
       </button>`;
-    }).join("");
+    }).join("")).join("");
   }
 
   const varios = pReq.length > 1;
