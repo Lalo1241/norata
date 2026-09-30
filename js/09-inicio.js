@@ -1856,7 +1856,10 @@ function seccionesAjustes() {
   if (perfil && typeof planSub === "function" && typeof syncReady === "function" && syncReady()) {
     perfil.sub = planSub();
     perfil.icon = planIcono();
-    if (typeof planTono === "function") perfil.tono = planTono();
+    /* `plan-*` y no el tono pelado: el icono de Mi perfil lleva SIEMPRE el
+       color del plan que pagas, también dentro de un mundo (Eduardo,
+       0.7.148.3), y esas clases leen `--casa-*`, que ningún mundo pisa. */
+    if (typeof planTono === "function") perfil.tono = "plan-" + (planTono() || "menta");
   }
 
   /* La de administración solo existe para quien el servidor reconoce como tal.

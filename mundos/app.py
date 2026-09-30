@@ -927,42 +927,22 @@ if __name__ == "__main__":
                   "   porqué, junto a `--marca-iso` en `css/estilos.css`. Generado desde\n"
                   "   `mundos/iconos/generar.py`. */\n"
                   + "".join(ICONOS.marca_css(m["id"]) for m in listos))
-    # ---- El menú dentro de un mundo (0.7.147.10) ----
-    # Las casillas de icono de Ajustes y del menú de la cuenta llevan un tono
-    # por fila, y dos de esos tonos son de la CASA: el lila de Fundador y el
-    # amarillo de «Norata por dentro». Dentro de un mundo se leían como piezas
-    # de otra app —un lila y un oliva al lado de la sangre de Averno—, y
-    # Eduardo lo pidió con esas palabras: que los iconos también se adapten.
+    # ---- El menú dentro de un mundo ----
+    # En la 0.7.147.10 este bloque pasaba el lila de Fundador y el amarillo de
+    # «Norata por dentro» al acento y a la tinta de cada mundo. En la 0.7.148.3
+    # Eduardo lo dio la vuelta: esas dos filas llevan SIEMPRE su color —el del
+    # plan que pagas y el amarillo— sin importar el mundo. Salen de `--casa-*`
+    # (css/estilos.css) y aquí no se escribe nada de color; lo único que es
+    # del mundo es la FORMA de la casilla: el rombo de Averno, la esquina de
+    # Catedral y las marcas de Blueprint.
     #
-    # Lo que se queda: el oro del plan que se acaba y el coral del recibo
-    # impago, porque esos son AVISOS y un aviso dice lo mismo en cualquier
-    # mundo (la misma regla que `--estado-*`, más abajo). Lo que se va:
-    #   Fundador    no avisa de nada, es tu plan → el acento del mundo
-    #   trastienda  tiene que separarse de lo tuyo, pero no es un aviso →
-    #               la tinta secundaria del mundo, el hueso de Averno
-    # Un solo bloque con el nombre de cada mundo dentro: el que entre mañana
-    # lo hereda sin que nadie se acuerde de venir aquí. La FORMA de la casilla
-    # (el rombo de Averno, la esquina de Catedral) sí es de cada material.
-    mun = ":is(%s)" % ", ".join('html[data-apariencia="%s"]' % m["id"] for m in listos)
-    partes.append("\n".join([
-        "/* El menú dentro de un mundo (0.7.147.10): el lila y el amarillo de la casa",
-        "   pasan al acento y a la tinta del mundo. Generado desde `mundos/app.py`. */",
-        mun + " :is(.aj-item, .mm-item).t-lila :is(.aj-ic, .mm-ic), " + mun + " .mm-plan.t-lila { background: var(--mint-soft); color: var(--mint); }",
-        mun + " .aj-item.t-lila.on { border-color: var(--mint); }",
-        mun + " .mm-item.t-lila:is(:hover, :focus-visible) .mm-ic { background: var(--mint-macizo); color: var(--sobre-macizo); }",
-        mun + " :is(.aj-item, .mm-item).t-trastienda :is(.aj-ic, .mm-ic) { background: color-mix(in srgb, var(--muted) 16%, transparent); color: var(--muted); }",
-        mun + " .aj-item.t-trastienda.on { border-color: var(--muted); }",
-        mun + " .mm-item.t-trastienda:is(:hover, :focus-visible) .mm-ic { background: var(--muted); color: var(--card); }",
-        ""]))
     # ---- La casilla de Blueprint (0.7.147.10) ----
-    # Averno y Catedral ya tenían casilla propia (el rombo, la esquina cortada)
-    # y el menú solo la heredó. Blueprint no, y Eduardo lo vio: «en blueprint
-    # no cambió nada». La suya sale del plano: sin relleno, un contorno de
-    # línea fina y las marcas de corte en las cuatro esquinas, como el recuadro
-    # de un detalle en una lámina. Todo en `currentColor`, así que el tono de
-    # cada fila (Fundador, trastienda, los avisos) lo pone el icono y no hay
-    # que repetirlo aquí. `!important` en el fondo por lo mismo que el rombo de
-    # Averno: las reglas de tono de arriba ponen un velo y aquí no va ninguno.
+    # Averno y Catedral ya tenían casilla propia y el menú solo la heredó.
+    # Blueprint no, y Eduardo lo vio: «en blueprint no cambió nada». La suya
+    # sale del plano: sin relleno, un contorno de línea fina y las marcas de
+    # corte en las cuatro esquinas, como el recuadro de un detalle en una
+    # lámina. Todo en `currentColor`, así que el tono de cada fila lo pone el
+    # icono. `!important` en el fondo por lo mismo que el rombo de Averno.
     if any(m["id"] == "plano" for m in listos):
         pl = 'html[data-apariencia="plano"]'
         esquinas = ", ".join(
@@ -974,13 +954,11 @@ if __name__ == "__main__":
             "   fina, sin relleno. Generado desde `mundos/app.py`. */",
             pl + " :is(.aj-ic, .mm-ic) { background: " + esquinas + " !important;"
             " box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 24%, transparent); border-radius: 0; }",
-            # Al pasar el ratón la casa llena la casilla y oscurece el dibujo;
-            # aquí no hay relleno que llenar, así que se enciende el contorno y
-            # el dibujo se queda con su tono.
-            pl + " .mm-item:is(:hover, :focus-visible) .mm-ic { color: var(--mint) !important; box-shadow: inset 0 0 0 1px currentColor; }",
-            pl + " .mm-item:is(.t-oro):is(:hover, :focus-visible) .mm-ic { color: var(--fire) !important; }",
-            pl + " .mm-item.t-coral:is(:hover, :focus-visible) .mm-ic { color: var(--coral) !important; }",
-            pl + " .mm-item.t-trastienda:is(:hover, :focus-visible) .mm-ic { color: var(--muted) !important; }",
+            # Al pasar el ratón se rellena como en la casa (0.7.148.3). Antes se
+            # quedaba sin relleno y el ratón le ponía igual la tinta oscura del
+            # relleno: el icono se volvía negro. `background-color` y no
+            # `background`, para que las marcas sigan encima.
+            pl + " .mm-item:is(:hover, :focus-visible) .mm-ic { background-color: var(--ic-lleno, var(--mint-macizo)) !important; }",
             pl + " .aj-item.on .aj-ic { box-shadow: inset 0 0 0 1px currentColor; }",
             ""]))
     txt = "\n".join(partes)
@@ -1000,6 +978,10 @@ if __name__ == "__main__":
     # note, así que aquí no se genera.
     if "--estado-" in txt:
         raise SystemExit("un mundo redefine --estado-*: los tonos de estado son de Norata, no del mundo")
+    # Y los colores de la casa, por lo mismo (0.7.148.3): el icono de Mi perfil
+    # lleva el color de tu plan y «Norata por dentro» el amarillo, en todos.
+    if re.search(r"--(casa-|sobre-casa)", txt):
+        raise SystemExit("un mundo redefine --casa-*: el color del plan y el de la trastienda no son del mundo")
     raiz = os.path.dirname(AQUI)
     destino = os.path.join(raiz, "css", "mundos.css")
     open(destino, "w", encoding="utf-8").write(txt)

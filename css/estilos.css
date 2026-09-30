@@ -73,6 +73,26 @@
     --estado-fallo-tinta: #ff8a70;
     --estado-fallo-soft: rgba(255, 138, 112, 0.13);
     --sobre-estado: #10151d;
+    /* ---------- Los colores de la casa, que ningún mundo toca (0.7.148.3) ----------
+       Dos cosas del menú se pintan SIEMPRE igual, pase el mundo o el ambiente
+       que pase, y es regla de Eduardo: el icono de Mi perfil lleva el color del
+       plan que pagas (menta; lila de Fundador; oro si se acaba, coral si no se
+       pudo cobrar) y «Norata por dentro» va en amarillo. Salen de aquí y no de
+       `--mint` o `--lila`, que son lo que cada mundo recolorea. Igual que
+       `--estado-*`: `mundos/app.py` se niega a generar un mundo que las pise. */
+    --casa-menta: #5fe0b0;
+    --casa-menta-soft: rgba(95, 224, 176, 0.13);
+    --casa-menta-macizo: #5fe0b0;
+    --casa-lila: #b7a2ea;
+    --casa-lila-soft: rgba(183, 162, 234, 0.13);
+    --casa-lila-macizo: #b7a2ea;
+    --casa-oro: #f5d76e;
+    --casa-oro-soft: rgba(245, 215, 110, 0.13);
+    --casa-oro-macizo: #f5d76e;
+    --casa-coral: #ff8a70;
+    --casa-coral-soft: rgba(255, 138, 112, 0.13);
+    --casa-coral-macizo: #ff8a70;
+    --sobre-casa: #10151d;
     --celeste: #8ecdf5;
     --celeste-soft: rgba(142, 205, 245, 0.1);
 
@@ -228,7 +248,7 @@
        - **Un ambiente no la toca nunca.** Solo recolorea; vestir la marca es
          parte de lo que se paga con un mundo, y una marca teñida de celeste
          es justo el accidente de antes.
-       - **En el menú, un mundo solo la RECOLOREA** (0.7.148.2, Eduardo): el
+       - **En el menú, un mundo solo la RECOLOREA** (0.7.148.4, Eduardo): el
          isotipo vectorial de siempre, en el acento del mundo
          (`--marca-menu`). La 0.7.145 le ponía la pieza con material (píxel,
          oro, contorno) y no le convenció: en el menú el dibujo se queda.
@@ -781,6 +801,19 @@
     --estado-fallo: #ff603d;
     --estado-fallo-tinta: #bd2200;
     --estado-fallo-soft: #f8e9e6;
+    /* Los colores de la casa de día (ver la nota en la cara de noche). */
+    --casa-menta: #007046;
+    --casa-menta-soft: #e6f1ec;
+    --casa-menta-macizo: #00cc7f;
+    --casa-lila: #5b32c0;
+    --casa-lila-soft: #eeeaf7;
+    --casa-lila-macizo: #9b6bff;
+    --casa-oro: #755c05;
+    --casa-oro-soft: #eeebe1;
+    --casa-oro-macizo: #f5c314;
+    --casa-coral: #bd2200;
+    --casa-coral-soft: #f8e9e6;
+    --casa-coral-macizo: #ff603d;
     /* Más claro que el lila de la paleta (#7d50ea) a propósito: con el vivo,
        la tinta oscura de encima daba 3,67 sobre 1. */
     --lila-macizo: #9b6bff;
@@ -3949,8 +3982,8 @@
     border-radius: var(--r-caja);
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    background: var(--mint-soft);
-    color: var(--mint);
+    background: var(--ic-velo, var(--mint-soft));
+    color: var(--ic-tono, var(--mint));
   }
   .aj-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
   .aj-tx b { font-size: 14px; }
@@ -3970,13 +4003,22 @@
      a secas es una palabra que cualquiera puede usar mañana para otra cosa en
      otro sitio del CSS, y estas clases las escribe JavaScript pegando un
      trozo de texto. */
-  .aj-item:is(.t-oro, .t-trastienda) .aj-ic { background: var(--fire-soft); color: var(--fire); }
-  .aj-item.t-lila .aj-ic { background: var(--lila-soft); color: var(--lila); }
-  .aj-item.t-coral .aj-ic { background: var(--coral-soft); color: var(--coral); }
-  .aj-item.on { border-color: var(--mint); background: var(--sup-tarjeta2); }
-  .aj-item:is(.t-oro, .t-trastienda).on { border-color: var(--fire); }
-  .aj-item.t-lila.on { border-color: var(--lila); }
-  .aj-item.t-coral.on { border-color: var(--coral); }
+  /* Desde la 0.7.148.3 el tono va en CUATRO variables puestas en la fila
+     (`--ic-tono`, `--ic-velo`, `--ic-lleno`, `--ic-sobre`) y la casilla las
+     lee. Antes cada tono repetía sus reglas para reposo, `.on` y ratón, y un
+     mundo que quisiera su propio relleno tenía que reescribirlas todas — y se
+     le escapaba una: en Averno el icono de Mi perfil se volvía negro al pasar
+     el cursor, porque el ratón le ponía la tinta oscura del relleno y el rombo
+     no dejaba poner el relleno. `t-trastienda` y `t-plan-*` salen de
+     `--casa-*`: son los dos colores que ningún mundo cambia. */
+  :is(.aj-item, .mm-item).t-oro { --ic-tono: var(--fire); --ic-velo: var(--fire-soft); --ic-lleno: var(--fire-macizo); --ic-sobre: var(--sobre-vivo); }
+  :is(.aj-item, .mm-item).t-lila { --ic-tono: var(--lila); --ic-velo: var(--lila-soft); --ic-lleno: var(--lila-macizo); --ic-sobre: var(--sobre-vivo); }
+  :is(.aj-item, .mm-item).t-coral { --ic-tono: var(--coral); --ic-velo: var(--coral-soft); --ic-lleno: var(--coral-macizo); --ic-sobre: var(--sobre-vivo); }
+  :is(.aj-item, .mm-item):is(.t-trastienda, .t-plan-oro) { --ic-tono: var(--casa-oro); --ic-velo: var(--casa-oro-soft); --ic-lleno: var(--casa-oro-macizo); --ic-sobre: var(--sobre-casa); }
+  :is(.aj-item, .mm-item).t-plan-menta { --ic-tono: var(--casa-menta); --ic-velo: var(--casa-menta-soft); --ic-lleno: var(--casa-menta-macizo); --ic-sobre: var(--sobre-casa); }
+  :is(.aj-item, .mm-item).t-plan-lila { --ic-tono: var(--casa-lila); --ic-velo: var(--casa-lila-soft); --ic-lleno: var(--casa-lila-macizo); --ic-sobre: var(--sobre-casa); }
+  :is(.aj-item, .mm-item).t-plan-coral { --ic-tono: var(--casa-coral); --ic-velo: var(--casa-coral-soft); --ic-lleno: var(--casa-coral-macizo); --ic-sobre: var(--sobre-casa); }
+  .aj-item.on { border-color: var(--ic-tono, var(--mint)); background: var(--sup-tarjeta2); }
 
   /* ---------- Sol y luna ----------
      Dos posiciones a la vista y no un interruptor de encender/apagar: con un
@@ -4284,12 +4326,9 @@
     border-radius: var(--r-chico);
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    background: var(--mint-soft);
-    color: var(--mint);
+    background: var(--ic-velo, var(--mint-soft));
+    color: var(--ic-tono, var(--mint));
   }
-  .mm-item:is(.t-oro, .t-trastienda) .mm-ic { background: var(--fire-soft); color: var(--fire); }
-  .mm-item.t-lila .mm-ic { background: var(--lila-soft); color: var(--lila); }
-  .mm-item.t-coral .mm-ic { background: var(--coral-soft); color: var(--coral); }
 
   /* ---------- El mini menú responde al ratón ----------
      Era una tarjeta completamente quieta: se pasaba el cursor por encima de
@@ -4312,23 +4351,8 @@
   }
   .mm-item:hover .mm-ic,
   .mm-item:focus-visible .mm-ic {
-    background: var(--mint-macizo);
-    color: var(--sobre-macizo);
-  }
-  .mm-item:is(.t-oro, .t-trastienda):hover .mm-ic,
-  .mm-item:is(.t-oro, .t-trastienda):focus-visible .mm-ic {
-    background: var(--fire-macizo);
-    color: var(--sobre-vivo);
-  }
-  .mm-item.t-lila:hover .mm-ic,
-  .mm-item.t-lila:focus-visible .mm-ic {
-    background: var(--lila-macizo);
-    color: var(--sobre-vivo);
-  }
-  .mm-item.t-coral:hover .mm-ic,
-  .mm-item.t-coral:focus-visible .mm-ic {
-    background: var(--coral-macizo);
-    color: var(--sobre-vivo);
+    background: var(--ic-lleno, var(--mint-macizo));
+    color: var(--ic-sobre, var(--sobre-macizo));
   }
   /* La ficha de la cuenta ya tiene fondo propio, así que sube al tono de
      encima para que el salto se note igual que en las filas. */
@@ -4364,12 +4388,14 @@
     font-size: 11px;
     font-weight: 650;
     line-height: 1.5;
-    background: var(--mint-soft);
-    color: var(--mint);
+    /* Los colores de la casa y no los del mundo (0.7.148.3): la chapa dice
+       qué plan pagas, y eso se lee igual en Averno que en la casa. */
+    background: var(--casa-menta-soft);
+    color: var(--casa-menta);
   }
-  .mm-plan.t-oro { background: var(--fire-soft); color: var(--fire); }
-  .mm-plan.t-lila { background: var(--lila-soft); color: var(--lila); }
-  .mm-plan.t-coral { background: var(--coral-soft); color: var(--coral); }
+  .mm-plan.t-oro { background: var(--casa-oro-soft); color: var(--casa-oro); }
+  .mm-plan.t-lila { background: var(--casa-lila-soft); color: var(--casa-lila); }
+  .mm-plan.t-coral { background: var(--casa-coral-soft); color: var(--casa-coral); }
   .mm-plan .ic svg { width: 12px; height: 12px; }
   /* La chapa no cambia con el ratón: la fila entera lleva a Mi perfil y el
      resto de la ficha ya se enciende. Dos cosas encendiéndose a la vez dentro
@@ -9970,6 +9996,22 @@
   /* En el índice de Ajustes los renglónes llevan una flecha al final; estos no
      van a ninguna sección, así que el hueco de la flecha sobra. */
   .aj-cuenta { grid-template-columns: none; }
+  /* «Sesión actual» en la lista de cuentas (0.7.148.3), al final de la fila de
+     la cuenta abierta. Verde de la casa siempre, pase el mundo que pase: es lo
+     que se busca de un vistazo entre varias cuentas, y en Averno el acento la
+     dejaba roja, que se lee como un aviso. */
+  .aj-cuenta .chapa-lista {
+    flex: none;
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: var(--r-pastilla);
+    border: var(--borde-fino) solid var(--casa-menta-soft);
+    background: var(--casa-menta-soft);
+    color: var(--casa-menta);
+    font-size: 10px; font-weight: 700; line-height: 1.4;
+    letter-spacing: .04em; text-transform: uppercase;
+    white-space: nowrap;
+  }
   .menu-cuentas .aj-item, .menu-cuentas .mm-item { min-width: 0; }
   .menu-cuentas b, .menu-cuentas span span {
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -10849,9 +10891,13 @@
     background: var(--vidrio); border: var(--borde-fino) solid var(--line);
   }
   .sync-dot { width: 9px; height: 9px; border-radius: var(--r-disco); flex: none; background: var(--faint); }
-  .sync-dot.ok { background: var(--mint); box-shadow: 0 0 0 3px color-mix(in srgb, var(--mint-macizo) 16%, transparent); }
-  .sync-dot.busy { background: var(--fire); animation: syncPulse 1s ease-in-out infinite; }
-  .sync-dot.bad { background: var(--coral); box-shadow: 0 0 0 3px var(--coral-soft); }
+  /* Un semáforo, y los semáforos no cambian de color con el mundo (Eduardo,
+     0.7.148.3): verde funciona, amarillo va en camino, rojo falló. Salen de
+     `--estado-*`, que ningún mundo toca. Con el acento, en Averno el punto de
+     «Sincronizado» salía ROJO — justo lo contrario de lo que decía. */
+  .sync-dot.ok { background: var(--estado-hecho); box-shadow: 0 0 0 3px var(--estado-hecho-soft); }
+  .sync-dot.busy { background: var(--estado-curso); animation: syncPulse 1s ease-in-out infinite; }
+  .sync-dot.bad { background: var(--estado-fallo); box-shadow: 0 0 0 3px var(--estado-fallo-soft); }
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
   /* Los conflictos de sincronía se explican en varias líneas: sin esto el
      modal las aplasta en un párrafo ilegible. */

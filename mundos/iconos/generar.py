@@ -638,7 +638,7 @@ def marca_css(id_, selector=None, menu=True):
     """Las variables de la marca de un mundo, para la app.
 
     - `--marca-menu`: el color del isotipo del MENÚ, que es el acento del
-      mundo (`--mint`, así sigue también a su paleta). Desde la 0.7.148.2 el
+      mundo (`--mint`, así sigue también a su paleta). Desde la 0.7.148.4 el
       menú solo se recolorea: Eduardo vio la pieza con material ahí y no le
       convenció. `menu=False` lo omite (Arcade no trae colores: se queda la
       menta).

@@ -535,8 +535,8 @@ escribir un `dict` de tonos: lo demás sale solo.
 
 **La silueta no la cambia nadie. En el menú, un mundo solo la recolorea; el
 material (píxel, oro, contorno…) vive solo en el icono del APK.** (El menú
-llevó el material de la 0.7.145 a la 0.7.148.2, y Eduardo lo quitó en la
-0.7.148.3: «te doy permiso de recolorearlo, pero no de cambiarle el diseño».) Hasta la 0.7.143 la regla era «un tema puede cambiarlo todo menos
+llevó el material de la 0.7.145 a la 0.7.148.3, y Eduardo lo quitó en la
+0.7.148.4: «te doy permiso de recolorearlo, pero no de cambiarle el diseño».) Hasta la 0.7.143 la regla era «un tema puede cambiarlo todo menos
 quién eres», y el isotipo del menú era menta en todos. Esa regla nació de un
 accidente (el acento de Escarcha tiñendo la marca de celeste), no de una
 decisión. Eduardo la reescribió al ver los iconos de los mundos juntos, con

@@ -1571,6 +1571,10 @@ function cuentaActualMenuHTML(pref) {
       ${muerta
         ? `<span class="aviso-caducada">${tx("Esta sesión caducó · toca para volver a entrar")}</span>`
         : (saludo && cfg.correo ? `<span>${escapeHtml(cfg.correo)}</span>` : "")}</span>
+      ${/* La chapa vive AQUÍ desde la 0.7.148.3, en la lista donde se
+           distingue de las otras cuentas, y ya no en la ficha de «Tu cuenta»,
+           donde era obvio (Eduardo). Caducada no la lleva: la frase de abajo
+           ya lo dice. */ muerta ? "" : `<span class="chapa-lista">${tx("Sesión actual")}</span>`}
     </button>`;
 }
 
