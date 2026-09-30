@@ -613,7 +613,7 @@ function verCaja(id) {
   if (!c || !el) return;
   ventanaCajaId = id;
   const { total, hechos, pendientes, dentro } = resumenCaja(c);
-  const cc = pendientes === 0 ? "var(--mint)" : "var(--fire)";
+  const cc = pendientes === 0 ? "var(--estado-hecho-tinta)" : "var(--estado-curso-tinta)";
   const dib = nodoDeVista(c.branch, c.id);
   const enlaces = dib ? dib.requiere.length : 0;
 
@@ -622,7 +622,7 @@ function verCaja(id) {
     return `
     <div class="caja-row ${st === "completed" ? "ok" : ""}">
       <button type="button" class="caja-ir" onclick="irATalentoDeCaja('${escapeAttr(p.id)}')">
-        <span class="ci" style="color:${tinta(p.color)}">${icon(st === "completed" ? "check" : (p.icon || "star"), 15)}</span>
+        <span class="ci" style="color:${st === "completed" ? "var(--estado-hecho-tinta)" : tinta(p.color)}">${icon(st === "completed" ? "check" : (p.icon || "star"), 15)}</span>
         <span class="ct"><b>${escapeHtml(p.name)}</b><span>${tx(metaDe(p).nombre)} · ${tx(STATUS_LABEL[st])}</span></span>
       </button>
       <button type="button" class="caja-sacar" title="${escapeAttr(tx("Sacar del ático"))}" aria-label="Sacar ${escapeAttr(p.name)} del ático"
@@ -638,8 +638,8 @@ function verCaja(id) {
       <span class="caja-sub">${escapeHtml(c.branch)} · ${tituloTrimestre(c.trimestre)} · guardada el ${formatDate(c.guardadoEl)}</span>
     </div>
     <div class="caja-stats">
-      <div><b style="color:var(--mint)">${hechos}</b><span>${tx("hechos")}</span></div>
-      <div><b style="color:${pendientes ? "var(--fire)" : "var(--muted)"}">${pendientes}</b><span>${tx("sin terminar")}</span></div>
+      <div><b style="color:var(--estado-hecho-tinta)">${hechos}</b><span>${tx("hechos")}</span></div>
+      <div><b style="color:${pendientes ? "var(--estado-curso-tinta)" : "var(--muted)"}">${pendientes}</b><span>${tx("sin terminar")}</span></div>
       <div><b>${total}</b><span>${tx("en total")}</span></div>
     </div>
     <p class="settings-note" style="text-align:left;margin:0 0 12px">${

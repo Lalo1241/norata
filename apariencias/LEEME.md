@@ -480,6 +480,14 @@ rasgado— se descartó: en una lista larga los bordes son ruido.
 
 ## Qué declara una apariencia, de verdad
 
+**Y lo que una apariencia NO declara nunca: los tonos de estado** (0.7.143.4,
+Eduardo). Hecho es verde, en curso es amarillo, perdido es coral, en todos los
+mundos, ambientes y paletas. Viven en `--estado-*` de `css/estilos.css` y los
+dos generadores se niegan a escribir un archivo que los toque. El motivo: el
+check de un talento logrado se pintaba con el acento, y en Catedral y Averno el
+acento es rojo — un «lo lograste» que se leía como «fallaste». Un mundo viste;
+el significado de un estado es de la app entera.
+
 **Actualizado en 0.7.55, y esta lista manda sobre cualquier otra.** Un ambiente
 son tonos y un mundo es material; las dos cosas se sirven de las MISMAS cuatro
 familias de variables, y tres de ellas se descubrieron una a una porque nadie
