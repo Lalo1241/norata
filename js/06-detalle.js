@@ -1690,6 +1690,7 @@ function renderTree() {
        un template literal lo cierra. */
     html += `
     <div class="branch-card clase-${esP ? "proyecto" : "talento"}${isDesktop() && ramaDeAtajo() === b ? " rama-activa" : ""}" data-rama="${ba}" data-cota="${doneN} de ${reales.length}" style="--rc:${trazo(colR)}">
+      <span class="rama-pleca" aria-hidden="true"></span>
       <span class="rama-clase ${esP ? "proyecto" : "talento"}">${esP ? tx("Proyecto") : tx("Talento")}</span>
       <div class="branch-head">
         <button class="badd solid" onclick="toggleBranch('${bj}')" aria-label="${escapeAttr(collapsed ? T`Desplegar ${b}` : T`Plegar ${b}`)}" style="margin-right:2px">

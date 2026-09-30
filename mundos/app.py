@@ -536,7 +536,18 @@ def bloque(m):
           "/* Y la pastilla de la cuenta se apaga en la pieza que lleva cota: la",
           "   cota NO añade un dato, se queda con el que ya había. Con las dos",
           "   puestas, «4 de 10» salía dos veces en la misma tarjeta. */",
-          "%s [data-cota] .branch-head .count { display: none; }" % sel]
+          "%s [data-cota] .branch-head .count { display: none; }" % sel,
+          "",
+          "/* La etiqueta Talento/Proyecto se va al CENTRO y acompaña a la cota,",
+          "   encima de ella (Eduardo, 0.7.146.4). Montada a la izquierda cortaba la",
+          "   flecha de la cota justo donde empieza, y en un plano nada se escribe",
+          "   encima de una línea de medida. */",
+          "%s [data-cota] > .rama-clase { left: 50%%; transform: translateX(-50%%); }" % sel,
+          "/* Y la cota de una tarjeta que lleva etiqueta baja 14 px, para que la",
+          "   etiqueta quede ENCIMA de su medida y no montada sobre la cifra. */",
+          "%s [data-cota]:has(> .rama-clase) { padding-top: calc(%s + 26px); }" % (sel, alto),
+          "%s [data-cota]:has(> .rama-clase)::before { top: 14px; }" % sel,
+          "%s [data-cota]:has(> .rama-clase)::after { top: calc(%s / 2 + 14px); }" % (sel, alto)]
 
     # ---- Los anillos ----
     # `--m-anillos` es el motivo grande de un mundo: en Averno, los círculos

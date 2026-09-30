@@ -277,6 +277,17 @@ html[data-apariencia="plano"] [data-cota]::after {
    puestas, «4 de 10» salía dos veces en la misma tarjeta. */
 html[data-apariencia="plano"] [data-cota] .branch-head .count { display: none; }
 
+/* La etiqueta Talento/Proyecto se va al CENTRO y acompaña a la cota,
+   encima de ella (Eduardo, 0.7.146.4). Montada a la izquierda cortaba la
+   flecha de la cota justo donde empieza, y en un plano nada se escribe
+   encima de una línea de medida. */
+html[data-apariencia="plano"] [data-cota] > .rama-clase { left: 50%; transform: translateX(-50%); }
+/* Y la cota de una tarjeta que lleva etiqueta baja 14 px, para que la
+   etiqueta quede ENCIMA de su medida y no montada sobre la cifra. */
+html[data-apariencia="plano"] [data-cota]:has(> .rama-clase) { padding-top: calc(26px + 26px); }
+html[data-apariencia="plano"] [data-cota]:has(> .rama-clase)::before { top: 14px; }
+html[data-apariencia="plano"] [data-cota]:has(> .rama-clase)::after { top: calc(26px / 2 + 14px); }
+
 
 /* ================= La celebracion de Blueprint =================
    La casa teje una CONSTELACION: un cielo de estrellas, una figura por rango

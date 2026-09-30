@@ -5451,8 +5451,12 @@
      sobre el color habría sido caer otra vez en la trampa de siempre: una
      propiedad cuyo valor sale de una variable se queda congelada en el tono
      de partida (ver la nota de `ponerTema` en js/01-base.js). */
-  .branch-card::after {
-    content: "";
+  /* Un elemento propio y NO el `::after` de la tarjeta (0.7.146.4): Blueprint
+     escribe su cota («4 de 10») en ese mismo `::after`, y cada propiedad que
+     la pleca ponía y la cota no —bottom, right, width, el borde— se le pegaba
+     encima. La cota salía como un rectángulo negro con rayas que cruzaban
+     media pantalla. Un pseudo-elemento solo puede tener un dueño. */
+  .rama-pleca {
     position: absolute;
     left: 0;
     top: 0;
@@ -5466,7 +5470,7 @@
     transition: opacity var(--dur-media) var(--curva);
     pointer-events: none;
   }
-  .branch-card.rama-activa::after { opacity: 1; }
+  .branch-card.rama-activa > .rama-pleca { opacity: 1; }
 
   /* ================= Ramas: la tarjeta (0.7.145) ================= */
   /* La etiqueta de la clase va MONTADA en el borde de arriba, como
@@ -5481,7 +5485,7 @@
      el borde izquierdo de una caja con la misma curva que la tarjeta, así que
      en la casa se afina al doblar la esquina y en un mundo de esquinas rectas
      llega entera. */
-  .branch-card::after {
+  .rama-pleca {
     top: 0; bottom: 0; left: 0; right: 0; width: auto;
     background: none;
     border-left: 3px solid var(--rc, var(--mint));

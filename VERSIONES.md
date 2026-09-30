@@ -252,6 +252,19 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 **Lo que quedaba abierto de la auditoría de Ramas**, y un fallo que salió al
 probarlo. Lo pidió Eduardo al ver la auditoría con sus palomitas.
 
+- **Urgente: Ramas en Blueprint estaba rota desde la 0.7.146.3.** La pleca
+  vivía en el `::after` de la tarjeta, y Blueprint escribe ahí su cota («4 de
+  10»). Todo lo que la pleca ponía y la cota no —`bottom`, `right`, `width`, el
+  borde— se le pegaba a la cota: salía un rectángulo negro con rayas que
+  cruzaban media pantalla. **La pleca es ahora su propio elemento
+  (`.rama-pleca`)**, y un pseudo-elemento vuelve a tener un solo dueño.
+  Medido en los cinco mundos: solo Blueprint lleva cota, y la pleca va de
+  arriba abajo en todos.
+- **En Blueprint la etiqueta Talento/Proyecto va al centro, encima de su
+  cota** (Eduardo). Montada a la izquierda cortaba la flecha de la medida. Sale
+  del generador (`mundos/app.py`): la cota de una tarjeta con etiqueta baja
+  14 px para dejarle sitio.
+
 - **Buscar en todas las ramas.** Un campo arriba de «Tus ramas» busca en los
   nombres y en las etapas, sin distinguir acentos. Mientras se busca, los
   resultados son la pantalla y las tarjetas se apartan. La búsqueda vive en
