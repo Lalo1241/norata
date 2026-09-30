@@ -2130,7 +2130,7 @@
      de dentro. Está aquí y no solo en JavaScript para que el hueco ya tenga su
      tamaño antes del primer fotograma: sin esto, la ficha y las dos rejas dan
      un salto hacia abajo al terminar de cargar el escaparate. */
-  #ap-vista {
+  #ap-vista, .ap-vista {
     display: block; width: 100%; height: 210px;
     border: 0; background: transparent;
     /* Se MIRA, no se usa: sin esto, un toque dentro del iframe cae en una app
@@ -2142,6 +2142,45 @@
   .ap-ficha.con-boton { padding-bottom: 0; }
   .ap-boton { display: block; width: 100%; height: 62px; border: 0; background: transparent; }
   .ap-boton[hidden] { display: none; }
+
+  /* ---------- Lo puesto, arriba; lo demás, en su plegable (0.7.148.5) ----------
+     La etiqueta dice qué enseña el hueco de arriba: lo que llevas, o un
+     vistazo a otro recolor. Va en su renglón y no junto a las cápsulas, que en
+     un teléfono ya llenan el del nombre. */
+  .ap-actual {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-bottom: 9px;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; white-space: nowrap;
+    color: var(--mint); background: var(--mint-soft);
+    border-radius: var(--r-pastilla); padding: 3px 8px 3px 6px;
+  }
+  .ap-actual .ic svg { width: 11px; height: 11px; stroke-width: 2.6; }
+  .ap-actual.ap-vistazo { color: var(--muted); background: var(--sup-panel); padding-left: 8px; }
+  /* Con «Predeterminado» flotando en el borde, la etiqueta baja un poco. */
+  .ap-ficha:has(.ap-base) .ap-actual { margin-top: 6px; }
+  .ap-actual + .ap-cab:has(.ap-base) { padding-top: 0; }
+  /* El plegable va pegado a su renglón: un hueco más corto que el de la
+     reja deja claro de quién es. */
+  .ap-pliegue { margin-top: -2px; animation: ap-pliegue-entra var(--dur-media, .22s) var(--curva, ease) both; }
+  .ap-pliegue .ap-escena { margin-bottom: 4px; }
+  @keyframes ap-pliegue-entra { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .ap-pliegue-rej:not(:empty) { padding: 12px 14px 2px; border-top: 1px solid var(--line); }
+  /* Chicas y en una sola fila de cinco, también en el teléfono: aquí son un
+     vistazo al lado del mundo, no la reja entera de arriba, y a dos por fila
+     empujaban el botón de aplicar una pantalla hacia abajo. */
+  .ap-pliegue-rej .amb-rej { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; margin-top: 8px; }
+  .ap-pliegue-rej .amb-m { gap: 4px; }
+  .ap-pliegue-rej .amb-n { font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ap-pliegue-rej .amb-p { font-size: 8.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ap-pliegue-rej .amb-nueva { display: none; }
+  /* La flecha dice que el renglón se abre. Gira sin transición: en esta app
+     una transición puede quedarse congelada (ver CLAUDE.md), y aquí basta con
+     que apunte bien. El mundo puesto no la lleva: no se abre, ya está arriba. */
+  .mun-flecha { flex: none; display: flex; color: var(--muted); }
+  .mun-flecha svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .mun-m[aria-expanded="true"] .mun-flecha { transform: rotate(180deg); color: var(--mint); }
+  .mun-m.on .mun-flecha { display: none; }
 
   /* ---------- Las cápsulas del candado ----------
      Tres colores porque son tres candados distintos, y hasta la 0.7.64 iban las
@@ -13986,13 +14025,13 @@ html:is([data-apariencia="averno"], [data-apariencia="catedral"]):not(#_) .son-v
 /* La ventana de Mi apariencia (`vestirVentana`, js/10i-apariencia.js) lleva las
    variables del mundo que se MIRA pero no su atributo: esto es lo mismo para
    cuando ese mundo es Averno o Catedral. */
-#ap-escena:is([data-mundo="averno"], [data-mundo="catedral"]) :is(.btn-primary, .ap-nueva) {
+:is(#ap-escena, #apx-escena):is([data-mundo="averno"], [data-mundo="catedral"]) :is(.btn-primary, .ap-nueva) {
   background: color-mix(in srgb, var(--mint-macizo) 42%, var(--card));
   color: var(--text);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mint-macizo) 80%, transparent),
               inset 0 1px 0 rgba(255, 255, 255, .1), inset 0 -2px 0 rgba(0, 0, 0, .22);
 }
-html.claro #ap-escena:is([data-mundo="averno"], [data-mundo="catedral"]) :is(.btn-primary, .ap-nueva) {
+html.claro :is(#ap-escena, #apx-escena):is([data-mundo="averno"], [data-mundo="catedral"]) :is(.btn-primary, .ap-nueva) {
   background: color-mix(in srgb, var(--mint-macizo) 20%, var(--card));
   color: var(--mint);
 }
