@@ -5451,7 +5451,7 @@
      sobre el color habría sido caer otra vez en la trampa de siempre: una
      propiedad cuyo valor sale de una variable se queda congelada en el tono
      de partida (ver la nota de `ponerTema` en js/01-base.js). */
-  /* Un elemento propio y NO el `::after` de la tarjeta (0.7.146.4): Blueprint
+  /* Un elemento propio y NO el `::after` de la tarjeta (0.7.147.2): Blueprint
      escribe su cota («4 de 10») en ese mismo `::after`, y cada propiedad que
      la pleca ponía y la cota no —bottom, right, width, el borde— se le pegaba
      encima. La cota salía como un rectángulo negro con rayas que cruzaban
@@ -5608,7 +5608,7 @@
   }
   .pista-ramas button { margin-left: auto; background: none; border: 0; color: var(--muted); font: inherit; font-size: 14px; cursor: pointer; padding: 0 2px; }
 
-  /* ---- Buscar en todas las ramas (0.7.146.4) ---- */
+  /* ---- Buscar en todas las ramas (0.7.147.2) ---- */
   .buscar-ramas {
     display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 12px; margin: 0 0 12px;
     background: var(--sup-tarjeta2); border: var(--borde-fino, 1px) solid var(--line);
@@ -9934,6 +9934,13 @@
   }
   .carga.fuera { opacity: 0; pointer-events: none; }
   .carga.oculta { display: none; }
+  /* La salida grande (`cargaZoom`, js/10c-portada.js). La marca llega a
+     medir cuarenta veces lo que mide: sin `overflow` la página ganaría una
+     barra de desplazamiento durante un segundo. Deja pasar los toques desde
+     el primer instante, porque lo que se ve debajo ya es la app.
+     Sin `will-change` a propósito: con él el navegador dibuja la marca UNA
+     vez a su tamaño y la estira, y a cuarenta veces se vería borrosa. */
+  .carga.sale { pointer-events: none; overflow: hidden; }
 
   /* Dos señales distintas y no una: el anillo gira (esto avanza) y el
      isotipo late (esto sigue vivo). Solo con el giro, un tirón del navegador
@@ -10230,9 +10237,32 @@
   /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
      deja congelado en el inicial. */
   html.informes-demo #rotulo-informes a:hover { background: rgba(16, 21, 29, 0.24); }
+  /* La prueba de la carga con zoom (0.7.147.1): el mismo rótulo, en menta para
+     no confundirlo con el de los números inventados. */
+  html.carga-zoom #rotulo-carga {
+    display: flex; align-items: center; gap: 8px;
+    position: fixed;
+    left: 12px;
+    bottom: calc(env(safe-area-inset-bottom) + 64px);
+    z-index: var(--piso-rotulo-prueba);
+    background: var(--mint-macizo); color: var(--sobre-macizo);
+    border-radius: var(--r-pastilla);
+    padding: 5px 8px 5px 13px;
+    font-size: 10.5px; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    max-width: calc(100vw - 24px);
+  }
+  html.carga-zoom #rotulo-carga a {
+    color: inherit;
+    background: rgba(16, 21, 29, 0.14);
+    border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
+    border-radius: var(--r-boton); padding: 4px 10px 5px;
+    text-decoration: none;
+  }
   @media (min-width: 900px) {
     /* En pantalla ancha la barra de navegación no está abajo. */
     html.informes-demo #rotulo-informes { bottom: calc(env(safe-area-inset-bottom) + 14px); }
+    html.carga-zoom #rotulo-carga { bottom: calc(env(safe-area-inset-bottom) + 14px); }
   }
 
 
@@ -13117,9 +13147,12 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
      Los tonos salen de las clases `.mues-*` de `css/ambientes.css`, generadas
      de los mismos datos que los ambientes de verdad, así que no pueden
      discrepar. */
+  /* Cinco por fila en la PC y dos en el teléfono, en ambientes y en paletas
+     por igual (Eduardo, 0.7.147: «homologarlo»). Con `auto-fill` salían siete
+     en una fila y cuatro en otra según el ancho. */
   .amb-rej {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 10px;
     margin-top: 14px;
   }
@@ -13168,9 +13201,14 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
      una paleta de otra. Son cuatro, así que van en cuatro columnas y no en
      tres: en tres, la cuarta se quedaba sola en su fila. Los colores van en
      `style` porque salen de la tabla del mundo, no de una clase. */
-  .amb-rej.pal-rej { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 767px) { .amb-rej { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .pal-m .amb-tarj { border: 2px solid; }
-  .pal-m .pal-pt2 { left: 46%; }
+  .pal-pt2 { left: 46%; }
+  /* El ambiente lleva ya la muestra de las paletas (0.7.147): dos bolitas y el
+     marco de la tarjeta, sin el icono de la esquina. La segunda es
+     `--mu-segundo`, elegida a mano en `apariencias/datos.py`. */
+  .amb-m:not(.pal-m) .pal-pt2 { background: var(--mu-segundo, var(--mu-acento)); }
+  .amb-m:not(.pal-m) .amb-tarj { border: 2px solid color-mix(in srgb, var(--mu-acento) 35%, var(--mu-card)); }
   /* El icono va DENTRO de la muestra, en la esquina de abajo, y del color del
      acento de ese ambiente. Lo pidió Eduardo y resuelve algo que la muestra de
      tres tonos no dice: cuál es cuál de un vistazo, sin leer el nombre. Va
@@ -13801,8 +13839,6 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .fm-linea { stroke: rgba(var(--escena-tinta), .07); stroke-width: 1; }
   .fm-linea.mayor { stroke: rgba(var(--escena-tinta), .16); }
   .fm-margen { fill: none; stroke: rgba(var(--escena-tinta), .3); stroke-width: 1.2; }
-  .fm-pliegue { fill: none; stroke: rgba(var(--escena-tinta), .025); }
-  .fm-boton { fill: rgba(var(--escena-tinta), .06); }
   .fm-foco { fill: var(--fire); opacity: .035; filter: blur(18px); }
   .fm-sombra-rq { fill: rgba(var(--escena-fondo), .45); }
   .fm-brasa { fill: var(--av-brasa, var(--mint-macizo)); }
@@ -13824,3 +13860,64 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
     .ar-cuadro.f1 { opacity: 0; }
     #racha-hoja { transition: none; }
   }
+
+/* ================= Averno y Catedral: sin rojo duro (0.7.147) =================
+   Eduardo: «esos botones rojos duros se ven demasiado agresivos». El rojo vivo
+   se queda en el FILO —un píxel— y el relleno es el rojo mezclado con la
+   tarjeta, con la letra clara encima; de día, un rosado tenue con la letra en
+   el rojo oscuro. Vale para el botón principal, el interruptor encendido, la
+   chapa de «Nuevo», el filtro elegido y lo lleno del volumen. Con una paleta
+   de acento no rojo (Ruina, Estigia) hace lo mismo con su acento.
+   `:not(#_)` solo sube el peso: `css/mundos.css` se carga después y, a igual
+   peso, ganaría. Y nada de esto entra en la ventana de Mi apariencia, que
+   enseña OTRO mundo (sus reglas van abajo, con `data-mundo`). */
+html:is([data-apariencia="averno"], [data-apariencia="catedral"]):not(#_) {
+  --relleno-sangre: color-mix(in srgb, var(--mint-macizo) 42%, var(--card));
+  --relleno-sangre-hover: color-mix(in srgb, var(--mint-macizo) 55%, var(--card));
+  --tinta-sangre: var(--text);
+}
+html.claro:is([data-apariencia="averno"], [data-apariencia="catedral"]):not(#_) {
+  --relleno-sangre: color-mix(in srgb, var(--mint-macizo) 20%, var(--card));
+  --relleno-sangre-hover: color-mix(in srgb, var(--mint-macizo) 30%, var(--card));
+  --tinta-sangre: var(--mint);
+}
+html:is([data-apariencia="averno"], [data-apariencia="catedral"]):not(#_) :is(.btn-primary, .ts-op.on, .ap-nueva, .chip.active):not(.ventana *) {
+  background: var(--relleno-sangre);
+  color: var(--tinta-sangre);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mint-macizo) 80%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, .1), inset 0 -2px 0 rgba(0, 0, 0, .22);
+}
+html:is([data-apariencia="averno"], [data-apariencia="catedral"]):not(#_) .btn-primary:not(.ventana *):hover { background: var(--relleno-sangre-hover); }
+html:is([data-apariencia="averno"], [data-apariencia="catedral"]):not(#_) .son-vol input::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, var(--relleno-sangre-hover) var(--v, 50%), var(--carril) var(--v, 50%));
+}
+/* La ventana de Mi apariencia (`vestirVentana`, js/10i-apariencia.js) lleva las
+   variables del mundo que se MIRA pero no su atributo: esto es lo mismo para
+   cuando ese mundo es Averno o Catedral. */
+#ap-escena:is([data-mundo="averno"], [data-mundo="catedral"]) :is(.btn-primary, .ap-nueva) {
+  background: color-mix(in srgb, var(--mint-macizo) 42%, var(--card));
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mint-macizo) 80%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, .1), inset 0 -2px 0 rgba(0, 0, 0, .22);
+}
+html.claro #ap-escena:is([data-mundo="averno"], [data-mundo="catedral"]) :is(.btn-primary, .ap-nueva) {
+  background: color-mix(in srgb, var(--mint-macizo) 20%, var(--card));
+  color: var(--mint);
+}
+
+/* ================= Las Habilidades, con su forma en todos los mundos (0.7.147) =================
+   Eduardo: «esas deben mantenerse en todos los mundos, para que sigan
+   respetando la línea correcta del arte de Norata». La tarjeta con sus esquinas
+   en diagonal (28 y 14 px, alternadas) y el icono en su gota. Un mundo cambia
+   el color y el material, no esta silueta. Catedral las enderezaba y Averno
+   ponía el icono en rombo, tapando su color: el velo se rehace desde su tinta
+   (`currentColor`), que es el mismo color, porque el que viene escrito en el
+   elemento ya no se puede recuperar debajo de un `!important`. */
+html[data-apariencia]:not(#_) .skill-card.r-a { border-radius: 28px 14px 28px 14px !important; clip-path: none !important; border-image: none !important; }
+html[data-apariencia]:not(#_) .skill-card.r-b { border-radius: 14px 28px 14px 28px !important; clip-path: none !important; border-image: none !important; }
+html:is([data-apariencia="averno"], [data-apariencia="catedral"]):not(#_) .skill-card { border: 1px solid var(--line) !important; }
+html[data-apariencia]:not(#_) .skill-card .skill-emoji {
+  border-radius: 58% 42% 55% 45% / 52% 48% 60% 40% !important; clip-path: none !important;
+  background: color-mix(in srgb, currentColor 15%, transparent) !important; image-rendering: auto;
+}
+html[data-apariencia]:not(#_) .skill-card:nth-of-type(even) .skill-emoji { border-radius: 42% 58% 45% 55% / 48% 52% 40% 60% !important; }

@@ -247,7 +247,7 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
-### 0.7.146.4 · 30 sep 2026
+### 0.7.147.2 · 30 sep 2026
 
 **Lo que quedaba abierto de la auditoría de Ramas**, y un fallo que salió al
 probarlo. Lo pidió Eduardo al ver la auditoría con sus palomitas.
@@ -291,6 +291,103 @@ probarlo. Lo pidió Eduardo al ver la auditoría con sus palomitas.
   rama, no «Permanente»; a pantalla completa la leyenda ofrece «M salir de
   pantalla completa»; y el campo de búsqueda no lleva el marco que los mundos
   ponen a todos los campos.
+
+### 0.7.147.1 · 30 sep 2026
+
+**La carga del inicio se va con un zoom que atraviesa la marca. EN PRUEBA,
+apagada para todos.** Lo pidió Eduardo: que la carga dure un poco más (3 s
+mínimo) y al terminar haga un zoom hacia el frente y se desvanezca, con
+velocidad variable, «como en motion graphics».
+
+- **Encender:** `mi.norata.app/?carga=zoom`. **Apagar:** `?carga=no`. Vive en
+  `sessionStorage`: en esa pestaña se queda puesta al recargar, que es como se
+  vuelve a ver; con la pestaña cerrada desaparece. Un rótulo menta abajo a la
+  izquierda recuerda que está puesta, con «otra vez» y «quitar».
+- **Solo al ENTRAR:** abrir la app (`js/11-arranque.js`) y entrar a una cuenta
+  (`adoptarSesion`). Las esperas cortas se van con el desvanecido de siempre.
+  La puerta no la lleva: allí el formulario releva a la carga en seco al
+  pintarse, así que no hay nada que atravesar.
+- **El mínimo cuenta desde que se abrió la página**, no desde que la app está
+  lista: a quien ya tardó 3 s por la red no se le suman 3 más.
+- **La coreografía (1,5 s), en `cargaZoom`:** el texto se hunde; la marca toma
+  aire (baja a 0,86) mientras el anillo se abre como una onda; luego un zoom
+  exponencial hasta 40 veces, desde el centro del hueco del isotipo —a esa
+  escala el hueco es más grande que la pantalla y la app aparece a través de
+  él—; se desvanece en los últimos 300 ms y el fondo se abre a la vez.
+- **Medido, no mirado:** el panel del navegador no avanza las animaciones, así
+  que se congelaron y se llevaron a mano a cada instante. Eso cazó dos cosas
+  de la primera versión: el zoom grande pasaba ya invisible (se desvanecía a
+  media salida) y **en los últimos milisegundos la marca y el fondo volvían a
+  aparecer**, porque a una animación sin fotograma del 100 % el navegador le
+  inventa uno con el valor de partida. Ahora todas lo llevan.
+- `cargaEntrar()` devuelve una promesa y **hay que esperarla**: el tutorial, la
+  elección de idioma y el aviso de la sesión preguntan si la carga sigue puesta
+  y se callan si sí. Llamados durante el mínimo se habrían perdido.
+- Con «menos movimiento» pedido, se va con el desvanecido de siempre (el
+  mínimo sí se respeta).
+
+**Visto de paso y sin tocar:** `quizaVentanaDeVuelta` (la ventana tras una
+ausencia) se llama justo después de cerrar la carga, cuando `#carga` todavía
+no tiene `.oculta`, y `CAPAS_QUE_TAPAN` la cuenta como capa encima: la ventana
+se calla. Pasaba igual antes de esto; se deja apuntado.
+
+**Al decidir, qué tocar:**
+
+- *Si se queda:* en `js/10c-portada.js`, `cargaEntrar` deja de preguntar
+  `cargaZoomPuesto()` (y esa función se borra); en `index.html`, el bloque
+  «PRUEBA de la carga con zoom» del script de arriba y el `<div
+  id="rotulo-carga">`; en `css/estilos.css`, las reglas `html.carga-zoom
+  #rotulo-carga` (tres). Borrar por nombre, no por rango.
+- *Si no se queda:* lo mismo, más `cargaEntrar` vuelve a ser `cargaCerrar` en
+  sus dos llamadas, y se borran `cargaZoom`, `cargaSoltarZoom`, sus dos
+  llamadas en `cargaMostrar` y `cargaCerrar`, la condición `sale` de
+  `cargaVisible` y la regla `.carga.sale`.
+
+### 0.7.147 · 30 sep 2026
+
+**Cinco paletas por mundo, diez ambientes, y los mundos se ven desde Mi
+apariencia.** Salió entero del laboratorio de mundos, donde Eduardo lo fue
+eligiendo pieza por pieza.
+
+- **Cinco paletas por mundo** (regla de Eduardo). Cuatro llegan con el mundo
+  y **la quinta se gana con el tercer rango de su camino** (nivel 18): un
+  mundo se paga, y cerrar tres de cinco habría sido entregar la compra
+  incompleta. `PALETA_DE_RANGO` en `js/10i-apariencia.js`.
+  - **Blueprint:** Cian (la de siempre), Archivo, Prisma, Acero y Láser.
+  - **Reliquia:** Terciopelo (la de siempre), Granate, Lapislázuli, Esmeralda
+    y Obsidiana. Cada una cambia el forro, el acento y **el metal** (oro, oro
+    rosa, plata), y el astrolabio de la racha lo sigue.
+  - **Catedral:** + Rosetón.
+  - **Averno:** Tormento (era Sangre; el id sigue siendo `sangre`), Lamento,
+    Plaga, Ruina y Estigia (id `cienaga`). El Tormento de antes se apagó:
+    quien lo tenía vuelve a la de partida (script de arriba de `index.html`).
+  - Blueprint y Reliquia no las escribe nadie a mano: las recolorea
+    `mundos/recolores/` desde su bloque, dentro de `mundos/app.py`. **Primera
+    vuelta descartada:** girar el matiz salía monocromo («no se salen de una
+    misma línea de color»). Ahora cada paleta declara sus papeles con colores
+    complementarios de paletas de Lospec y se interpola en OKLab. El aviso y
+    el peligro no se tocan, y el generador se niega a escribir si una tinta
+    no llega a 4,5. Cada paleta lleva solo lo que cambia: sin eso
+    `mundos.css` crecía un 40 %.
+- **El mapa de talentos de Blueprint, hondo** en todas sus paletas: el azul
+  medio de antes se veía «plastoso».
+- **Norata clásico llega a diez ambientes:** Cobre (nivel 10), Zafiro (16,
+  Pro, el único acento libre que quedaba: azul aciano) y Oliva (30). **Duna,
+  rehecha** como desierto de verdad (arena, con el índigo del atardecer).
+- **Mi apariencia, homologada:** 5 por fila en la PC y 2 en el teléfono, y
+  los ambientes con la muestra de las paletas (dos bolitas, sin el icono;
+  `--mu-segundo`, elegido a mano en `apariencias/datos.py`). **La tarjeta es
+  una ventana al mundo que miras** (`vestirVentana`): toma sus variables
+  aunque lleves puesto otro.
+- **Averno y Catedral sin rojo duro:** el botón principal, el interruptor
+  encendido, «Nuevo», el filtro elegido y el volumen pasan a sangre honda
+  (el rojo mezclado con la tarjeta y un filo rojo de un píxel).
+- **Las Habilidades conservan su forma en todos los mundos:** la tarjeta con
+  sus esquinas en diagonal y el icono en su gota. Catedral y Averno las
+  aplanaban.
+- **Averno:** en el teléfono el saludo del Resumen ya no baja los botones; y
+  con Plaga la racha entera va en verde.
+- **Reliquia:** sin la malla de capitoné detrás de la racha.
 
 ### 0.7.146.3 · 30 sep 2026
 

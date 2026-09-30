@@ -1367,7 +1367,7 @@ function listaDeRamaHTML(b) {
        botones de sus etapas, y un botón dentro de otro no existe en HTML. El
        navegador cerraba la fila en la primera etapa y todo lo de después se
        descolocaba: el pie se salía de la tarjeta y la tarjeta de la rejilla,
-       con lo que en PC a dos columnas la rejilla se descuadraba (0.7.146.4). */
+       con lo que en PC a dos columnas la rejilla se descuadraba (0.7.147.2). */
     return `<div role="button" tabindex="0" class="lr-item e-${e}" onclick="openPerk('${enJS(x.id)}')"
       onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openPerk('${enJS(x.id)}')}">
       <span class="lr-fig">${figuraMini(x, 24)}</span>

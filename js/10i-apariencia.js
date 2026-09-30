@@ -96,10 +96,22 @@ const AMBIENTES = [
     premisa: "Verdiazul de agua honda, con la menta de la casa vista desde el fondo." },
   { id: "adobe",    nombre: "Adobe",    grado: 1, abre: 7,  icon: "sol",
     premisa: "Barro cocido: terracota apagada con cal encima, el color de una pared vieja." },
+  /* Cobre, Zafiro y Oliva (0.7.147): Norata clásico llega a diez, por nivel.
+     Cobre rellena el hueco entre Adobe y Escarcha; Zafiro, con Pro, junta su
+     nivel con la celebración del 16; Oliva da algo que esperar después de
+     Duna, donde la escalera se quedaba vacía. */
+  { id: "cobre",    nombre: "Cobre",    grado: 1, abre: 10, icon: "sol",
+    premisa: "La pátina del cobre viejo: suelo verde cardenillo y el cobre asomando." },
   { id: "escarcha", nombre: "Escarcha", grado: 2, abre: 12, pro: true, icon: "luna",
     premisa: "La menta se vuelve celeste y la app pasa de festejar a acompañar." },
+  { id: "zafiro",   nombre: "Zafiro",   grado: 2, abre: 16, pro: true, icon: "luna",
+    premisa: "Azul de piedra preciosa, con un acento azul aciano." },
+  /* Rehecha en la 0.7.147: era violeta y «carecía de sentido» para Eduardo.
+     Ahora es arena, con el índigo del atardecer de segundo tono. */
   { id: "duna",     nombre: "Duna",     grado: 1, abre: 20, icon: "star",
-    premisa: "El desierto cuando se mete el sol: el cielo en violeta y la arena en lavanda." }
+    premisa: "El desierto de verdad: arena, y el índigo del cielo cuando se mete el sol." },
+  { id: "oliva",    nombre: "Oliva",    grado: 1, abre: 30, icon: "plant",
+    premisa: "Oliva oscuro con un lavanda de segundo tono." }
 ];
 
 /* ================= Los mundos =================
@@ -179,8 +191,13 @@ function pxDeFilas(filas) {
   });
   return '<g data-px="16">' + r + "</g>";
 }
-const CATEDRAL_PALETAS = {"vitral": {"nombre": "Vitral", "noche": ["#07080f", "#191a2c", "#4a4d78", "#ff3d4f", "#8c86ff"], "dia": ["#dfdde9", "#f4f2f8", "#8e8aab", "#ff3d4f", "#8c86ff"]}, "alabastro": {"nombre": "Alabastro", "noche": ["#0b0507", "#221318", "#5e3a41", "#ff3b45", "#e8d2b8"], "dia": ["#e9e1da", "#faf5f0", "#9e8a82", "#ff3b45", "#e8d2b8"]}, "bronce": {"nombre": "Bronce", "noche": ["#090c0d", "#1a2022", "#4d5a5c", "#ff5563", "#5fc4ae"], "dia": ["#dde2e1", "#f3f5f4", "#86928f", "#ff5563", "#5fc4ae"]}, "espectro": {"nombre": "Espectro", "noche": ["#07030a", "#1b0f20", "#56355e", "#ff2a5c", "#2fe3f0"], "dia": ["#e6dfe6", "#f8f3f7", "#9a8698", "#ff2a5c", "#2fe3f0"]}};
-const AVERNO_PALETAS = {"sangre": {"nombre": "Sangre", "noche": ["#060506", "#171415", "#696563", "#ff2d3f", "#b8bccb"], "dia": ["#e2dfdd", "#f6f4f2", "#8d8a89", "#ff2d3f", "#b8bccb"]}, "cocito": {"nombre": "Lamento", "noche": ["#04060c", "#121827", "#636875", "#ff3548", "#6ec0ff"], "dia": ["#dde1ea", "#f3f5f9", "#878b95", "#ff3548", "#6ec0ff"]}, "ponzona": {"nombre": "Plaga", "noche": ["#050805", "#131a13", "#636b63", "#ff3a3a", "#8ad550"], "dia": ["#dfe4dc", "#f4f7f2", "#888d86", "#ff3a3a", "#8ad550"]}, "tormento": {"nombre": "Tormento", "noche": ["#07040a", "#19111f", "#6b6270", "#ff3040", "#ff4fd8"], "dia": ["#e4dde8", "#f7f2f9", "#8f8693", "#ff3040", "#ff4fd8"]}};
+const CATEDRAL_PALETAS = {"vitral": {"nombre": "Vitral", "noche": ["#07080f", "#191a2c", "#4a4d78", "#ff3d4f", "#8c86ff"], "dia": ["#dfdde9", "#f4f2f8", "#8e8aab", "#ff3d4f", "#8c86ff"]}, "alabastro": {"nombre": "Alabastro", "noche": ["#0b0507", "#221318", "#5e3a41", "#ff3b45", "#e8d2b8"], "dia": ["#e9e1da", "#faf5f0", "#9e8a82", "#ff3b45", "#e8d2b8"]}, "bronce": {"nombre": "Bronce", "noche": ["#090c0d", "#1a2022", "#4d5a5c", "#ff5563", "#5fc4ae"], "dia": ["#dde2e1", "#f3f5f4", "#86928f", "#ff5563", "#5fc4ae"]}, "espectro": {"nombre": "Espectro", "noche": ["#07030a", "#1b0f20", "#56355e", "#ff2a5c", "#2fe3f0"], "dia": ["#e6dfe6", "#f8f3f7", "#9a8698", "#ff2a5c", "#2fe3f0"]}, "roseton": {"nombre": "Rosetón", "noche": ["#060d10", "#10222a", "#3a5a66", "#ff3d4f", "#ff9ad5"], "dia": ["#dce6e8", "#f3f7f8", "#82979c", "#ff3d4f", "#ff9ad5"]}};
+const AVERNO_PALETAS = {"sangre": {"nombre": "Tormento", "noche": ["#060506", "#171415", "#696563", "#ff2d3f", "#b8bccb"], "dia": ["#e2dfdd", "#f6f4f2", "#8d8a89", "#ff2d3f", "#b8bccb"]}, "cocito": {"nombre": "Lamento", "noche": ["#04060c", "#121827", "#636875", "#ff3548", "#6ec0ff"], "dia": ["#dde1ea", "#f3f5f9", "#878b95", "#ff3548", "#6ec0ff"]}, "ponzona": {"nombre": "Plaga", "noche": ["#050805", "#131a13", "#636b63", "#ff3a3a", "#8ad550"], "dia": ["#dfe4dc", "#f4f7f2", "#888d86", "#ff3a3a", "#8ad550"]}, "ruina": {"nombre": "Ruina", "noche": ["#0e161f", "#1b2230", "#6d6e6d", "#8fb3a4", "#b89598"], "dia": ["#e2e4df", "#f5f6f2", "#888c8c", "#8fb3a4", "#b89598"]}, "cienaga": {"nombre": "Estigia", "noche": ["#0d1030", "#1f2540", "#727175", "#6fae8a", "#a19a58"], "dia": ["#dfe0ea", "#f4f4f9", "#88899a", "#6fae8a", "#a19a58"]}};
+/* Blueprint y Reliquia nacieron con una paleta; desde la 0.7.147 traen
+   cinco, recoloreadas de su bloque por `mundos/recolores/` (de ahí salen
+   estas muestras: `python mundos/recolores/recolores.py`). */
+const PLANO_PALETAS = {"cianotipo": {"nombre": "Cian", "noche": ["#0d2b52", "#0b1219", "#8fb6db", "#9fd0ff", "#6ea2d8"], "dia": ["#e4eaf2", "#f4f7fb", "#54708f", "#4c9ade", "#3b6f9e"]}, "archivo": {"nombre": "Archivo", "noche": ["#2c3350", "#191c2d", "#bcb6a8", "#ecd8b4", "#6fa39a"], "dia": ["#e1e6f5", "#f3f5fe", "#52576a", "#ecd8b4", "#41746c"]}, "prisma": {"nombre": "Prisma", "noche": ["#221c42", "#120f25", "#bab0dc", "#86ead9", "#a58be0"], "dia": ["#e5e4f8", "#f5f5ff", "#56556e", "#86ead9", "#7158a5"]}, "acero": {"nombre": "Acero", "noche": ["#1f2433", "#12141e", "#a5adbf", "#e9f0c6", "#6d7694"], "dia": ["#e3e6ee", "#f4f6fa", "#545862", "#e9f0c6", "#5f6885"]}, "laser": {"nombre": "Láser", "noche": ["#08203a", "#04111e", "#8fc5c2", "#7fe69a", "#2a8cc4"], "dia": ["#dce8f6", "#f0f7fe", "#4a5a6b", "#7fe69a", "#1470a1"]}};
+const RELIQUIA_PALETAS = {"terciopelo": {"nombre": "Terciopelo", "noche": ["#090612", "#1e1930", "#8a6d2f", "#b7a2ea", "#c8a24e"], "dia": ["#cdc5de", "#f4f1fa", "#8a6d2f", "#a278e4", "#8a6d2f"]}, "granate": {"nombre": "Granate", "noche": ["#0f0508", "#2a1019", "#96644d", "#7fe0c8", "#da9575"], "dia": ["#d6c6ca", "#f6f0f2", "#96644d", "#7fe0c8", "#96644d"]}, "lapislazuli": {"nombre": "Lapislázuli", "noche": ["#050a1a", "#121e40", "#8a6d2f", "#e8ecf5", "#c8a24e"], "dia": ["#c1cbe0", "#eef2f9", "#8a6d2f", "#e8ecf5", "#8a6d2f"]}, "esmeralda": {"nombre": "Esmeralda", "noche": ["#041109", "#0f2a1b", "#8a6d2f", "#f4a3ba", "#c8a24e"], "dia": ["#bed0c4", "#eef3f0", "#8a6d2f", "#f4a3ba", "#8a6d2f"]}, "obsidiana": {"nombre": "Obsidiana", "noche": ["#070707", "#1a1a1c", "#797e85", "#7fd4e6", "#afb5bc"], "dia": ["#cacaca", "#f2f2f2", "#797e85", "#7fd4e6", "#797e85"]}};
 
 const MUNDOS = [
   {
@@ -467,6 +484,7 @@ const MUNDOS = [
      alinean los demás. */
   { id: "plano", nombre: "Blueprint", listo: true, pro: true, icon: "map", estrena: "2026-09-01",
     premisa: "El papel de plano: retícula de dos pesos, cotas con puntas de flecha y marcas de sección. Todo lo tuyo, todavía en obra.",
+    paletas: PLANO_PALETAS,
     rangos: [
       /* El lápiz: lo primero que te dan y lo único que sabes usar. */
       { nombre: "Aprendiz", trazo: '<path d="M5 19l.9-3.7L16.4 4.8a2 2 0 012.8 2.8L8.7 18.1z"/><path d="M14.2 7l2.8 2.8"/>' },
@@ -491,6 +509,7 @@ const MUNDOS = [
      lo mismo que `pro`: éste NO se abre pagando cada mes. */
   { id: "reliquia", nombre: "Reliquia", listo: true, plan: "fundador", icon: "gem", estrena: "2026-09-01",
     premisa: "Una pieza en su vitrina: forro de terciopelo, marco de latón y el vidrio por encima.",
+    paletas: RELIQUIA_PALETAS,
     rangos: [
       { nombre: "Hallazgo", trazo: '<path d="M11 3.6l7.4 4.3v8.2L11 20.4 3.6 16.1V7.9z"/><path d="M11 3.6v16.8"/>' },
       { nombre: "Pieza",    trazo: '<path d="M12 3.4l3.1 5.1 5.7 1.3-3.9 4.5.5 5.9-5.4-2.4-5.4 2.4.5-5.9L3.2 9.8l5.7-1.3z"/>' },
@@ -567,7 +586,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=22c2587010";
+  l.href = "css/mundos.css?h=c5c8736fad";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
@@ -713,9 +732,33 @@ function aplicarPaleta() {
    puesto, se aplica en caliente. No hace falta recargar como al cambiar de
    mundo: una paleta solo mueve variables, igual que el modo claro, y el mapa
    las lee con `var()`. Mismo cuidado que `ponerTema` con las transiciones. */
+/* ---- La quinta paleta de cada mundo se GANA (0.7.147) ----
+   Eduardo: cinco paletas por mundo. Cuatro llegan con el mundo y la quinta se
+   consigue con el tercer rango de su camino. No es un muro: un mundo se paga,
+   y cerrar tres de cinco habría sido entregar la compra incompleta (y a quien
+   ya usaba las cuatro de Catedral o Averno habría que habérselas quitado).
+   Es una sola y es un trofeo, lo que el mundo tiene de propio que conseguir.
+   En el ejemplo se ve abierta, como todo lo demás. */
+const PALETA_DE_RANGO = { plano: "laser", catedral: "roseton", averno: "cienaga", reliquia: "obsidiana" };
+const RANGO_DE_PALETA = 3;
+function paletaAbierta(mundo, pal) {
+  if (PALETA_DE_RANGO[mundo] !== pal) return { ok: true };
+  if (typeof modoEjemplo !== "undefined" && modoEjemplo) return { ok: true };
+  const r = typeof EXP_RANGOS !== "undefined" ? EXP_RANGOS[RANGO_DE_PALETA - 1] : null;
+  const nivel = r && typeof expNivelDeRango === "function" ? expNivelDeRango(r) : 18;
+  const tengo = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 0;
+  const m = mundoPorId(mundo), rn = m && m.rangos && m.rangos[RANGO_DE_PALETA - 1];
+  return { ok: tengo >= nivel, nivel, rango: rn ? tx(rn.nombre) : "" };
+}
+
 function elegirPaleta(mundo, pal) {
   const ps = paletasDe(mundo);
   if (!ps || !ps[pal]) return;
+  const ab = paletaAbierta(mundo, pal);
+  if (!ab.ok) {
+    if (typeof toast === "function") toast(ab.rango ? T`Se gana con el rango ${ab.rango}, en el nivel ${ab.nivel}.` : T`Se gana en el nivel ${ab.nivel}.`);
+    return;
+  }
   try {
     const mapa = JSON.parse(localStorage.getItem(PALETA_LLAVE) || "{}") || {};
     mapa[mundo] = pal;
@@ -1267,7 +1310,7 @@ function pintarEscena(id) {
     /* Al montar hay que esperar: el alto de dentro no significa nada hasta que
        las hojas de estilo llegaron, y la letra de un mundo cambia lo que mide
        un renglón. `load` del iframe es después de sus `link`. */
-    marco.addEventListener("load", ajustarEscena, { once: true });
+    marco.addEventListener("load", () => { ajustarEscena(); vestirVentana(); }, { once: true });
     marco.srcdoc = escenaDoc(id);
     return;
   }
@@ -1283,6 +1326,30 @@ function pintarEscena(id) {
   raiz.classList.toggle("claro", document.documentElement.classList.contains("claro"));
   doc.body.innerHTML = escenaCuerpo(id);
   ajustarEscena();
+  vestirVentana();
+}
+
+/* ---- La tarjeta, ventana al mundo que se mira (0.7.147) ----
+   Eduardo: que la tarjeta ENTERA —botones, bordes y demás— cambie al estilo
+   del mundo que estás mirando, aunque lleves puesto otro. La vista de arriba
+   ya vive en su marco con ese mundo; aquí se le copian a la tarjeta TODAS las
+   variables de ese marco (colores, superficies, marcos, esquinas, letras), y
+   como en la app todo se pinta con variables, lo de dentro cambia solo.
+   `data-mundo` es para lo poco que un mundo escribe con reglas propias y que
+   así no llegaría (los rellenos de sangre honda, en css/estilos.css).
+   Se lee con `getComputedStyle` del documento del marco: ahí ya están
+   resueltas la paleta, el modo claro y el mundo. */
+function vestirVentana() {
+  const esc = document.getElementById("ap-escena"), marco = document.getElementById("ap-vista");
+  const doc = marco && marco.contentDocument;
+  if (!esc || !doc || !doc.documentElement || !marco.contentWindow) return;
+  const cs = marco.contentWindow.getComputedStyle(doc.documentElement);
+  for (let i = 0; i < cs.length; i++) {
+    const n = cs[i];
+    if (n.startsWith("--")) esc.style.setProperty(n, cs.getPropertyValue(n));
+  }
+  esc.classList.add("ventana");
+  esc.setAttribute("data-mundo", doc.documentElement.getAttribute("data-apariencia") || "casa");
 }
 
 /* El alto se MIDE, no se escribe. Con un alto fijo los diez de hoy cabían por
@@ -1456,11 +1523,11 @@ function pintarRejaAmbientes() {
   const elegida = paletaDe(cual), primera = Object.keys(ps)[0];
   reja.classList.add("pal-rej");
   reja.innerHTML = Object.keys(ps).map((id) => {
-    const p = ps[id], c = p[cara], si = id === elegida;
+    const p = ps[id], c = p[cara], si = id === elegida, ab = paletaAbierta(cual, id);
     /* La misma muestra que un ambiente —suelo, tarjeta y acento— y un punto
        más: el segundo tono, que es lo que distingue una paleta de otra. */
     return `
-      <button type="button" class="amb-m pal-m${si ? " on" : ""}" aria-pressed="${si}"
+      <button type="button" class="amb-m pal-m${si ? " on" : ""}${ab.ok ? "" : " cerrado"}" aria-pressed="${si}"
         onclick="elegirPaleta('${cual}', '${id}')" title="${escapeHtml(tx(p.nombre))}">
         <span class="amb-mini" aria-hidden="true" style="background:${c[0]}">
           <span class="amb-tarj" style="background:${c[1]};border-color:${c[2]}"></span>
@@ -1469,6 +1536,7 @@ function pintarRejaAmbientes() {
         </span>
         <span class="amb-n">${escapeHtml(tx(p.nombre))}</span>
         ${id === primera ? `<span class="amb-p">${escapeHtml(tx("De partida"))}</span>` : ""}
+        ${ab.ok ? "" : `<span class="amb-p">${escapeHtml(T`Nivel ${ab.nivel}`)}</span>`}
       </button>`;
   }).join("");
 }
@@ -1502,8 +1570,7 @@ function renderPanelApariencia() {
         data-ap="${a.id}" onclick="mirarApariencia('${a.id}')"
         title="${escapeHtml(tx(a.nombre))}${pie ? " · " + escapeHtml(pie) : ""}">
         <span class="amb-mini" aria-hidden="true">
-          <span class="amb-tarj"></span><span class="amb-pt"></span>
-          ${a.icon ? `<span class="amb-ic">${icon(a.icon, 15)}</span>` : ""}
+          <span class="amb-tarj"></span><span class="amb-pt"></span><span class="amb-pt pal-pt2"></span>
           <span class="amb-ok" aria-hidden="true">${icon("check", 12)}</span>
           ${esNovedad(a) ? `<span class="amb-nueva">${escapeHtml(tx("Nuevo"))}</span>` : ""}
         </span>

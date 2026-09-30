@@ -19,10 +19,12 @@ CONTRASTES. De aquí salen `ambientes.css` y la lámina del conjunto."""
 # pasó a ser un material. El lila vuelve a ser lo que era: la insignia.
 AMBIENTES = [
  dict(id="casa", nombre="Noche de expedición", grado=0, abre="Desde el día uno",
+  segundo=("#f5d76e", "#c79a06"),
   premisa="El punto cero. No se desbloquea porque es donde empiezas.",
   noche={}, dia={}),
 
  dict(id="tinta", nombre="Tinta", grado=3, abre="Desde el día uno · gratis siempre",
+  segundo=("#8a8f98", "#6b7079"),
   premisa="Tinta china sobre papel: grafito frío en los oscuros y un blanco cálido de papel como acento. El amarillo y el coral siguen siendo los únicos con color, y ahí está toda la gracia — cuando lo demás no compite, lo que avisa se ve desde la otra punta del cuarto. No es un adorno: para quien no distingue bien los colores es la única manera de usar la app, y por eso cobrarla sería cobrar por entrar.",
   nota="No es negro puro a propósito. El negro absoluto solo se luce en OLED y en una pantalla normal se ve gris apagado y triste, así que la idea cambió de «apagar la pantalla» a «tinta sobre papel»: un monocromo elegido, no la ausencia de color.",
   noche={"--bg":"#16181b","--bg2":"#1c1f23","--card":"#23272c","--card2":"#2a2f35",
@@ -34,6 +36,7 @@ AMBIENTES = [
    "--sobre-macizo":"#f7f9fc"}),
 
  dict(id="musgo", nombre="Musgo", grado=1, abre="Nivel 3 · con el rango Brote",
+  segundo=("#a6c46a", "#5d8a2c"),
   premisa="Verde hondo de bosque cerrado de noche, y luz entre hojas de día. El primero que se gana, y llega pronto a propósito: la gracia de desbloquear algo es descubrir que se desbloquean cosas.",
   nota="El verde de día se corrigió una vez: estaba demasiado oscuro y saturado para ser papel, y a ese nivel deja de leerse como una hoja y se lee como una pared pintada. Se le subió la luz y se le bajó la saturación sin cambiar el matiz. La noche no se tocó.",
   noche={"--bg":"#05180f","--bg2":"#0b2115","--card":"#042815","--card2":"#0e301b",
@@ -42,6 +45,7 @@ AMBIENTES = [
    "--line":"#c2c9c0","--carril":"#ccd4cb","--text":"#16211a","--muted":"#57655b","--faint":"#78877c"}),
 
  dict(id="adobe", nombre="Adobe", grado=1, abre="Nivel 7 · con el rango Refugio",
+  segundo=("#e8b98a", "#b0703a"),
   premisa="Barro cocido, no arena dorada. Terracota apagada con cal encima — el color de una pared vieja, que es cálido sin ser oro. La cálida amable, y la más fácil de querer.",
   noche={"--bg":"#170802","--bg2":"#210e05","--card":"#301105","--card2":"#3a1a0c",
    "--line":"#462a20","--carril":"#462a20","--text":"#f4ebe4","--muted":"#ab958a","--faint":"#7c6a60"},
@@ -49,14 +53,16 @@ AMBIENTES = [
    "--line":"#c2ad9f","--carril":"#d0bdaf","--text":"#241a14","--muted":"#6b5a50","--faint":"#8c7a70"}),
 
  dict(id="duna", nombre="Duna", grado=1, abre="Nivel 20 · con el rango Norte",
-  premisa="El desierto después de que se mete el sol: el cielo se va a violeta y la arena se pone lavanda. Lo único que sigue caliente es la roca — y en la app, los acentos. El más raro de los ocho y el que menos se parece a nada que ya tengas.",
-  nota="La primera versión era café oscuro con crema, que es la paleta cálida por defecto —la que sale sola al pensar «desierto» sin mirar ninguno—. El error de fondo resultó más útil que el descarte: el desierto solo es café en las fotos de la hora dorada; de noche es violeta y frío. De ahí salieron Duna y Adobe, que son ambientes distintos.",
-  noche={"--bg":"#1d1220","--bg2":"#251829","--card":"#36203a","--card2":"#402944",
-   "--line":"#553a5c","--carril":"#553a5c","--text":"#f6e9f4","--muted":"#b48fae","--faint":"#836781"},
-  dia={"--bg":"#e0cbdb","--bg2":"#ebdde8","--card":"#f4ecf2","--card2":"#faf6f9",
-   "--line":"#c0a5b8","--carril":"#cdb4c6","--text":"#251728","--muted":"#6a5468","--faint":"#8b7488"}),
+  premisa="El desierto de verdad: arena de día, arena en sombra de noche, y el índigo del cielo al atardecer como segundo tono.",
+  nota="Rehecha en la 0.7.147. La primera Duna era violeta y lavanda —el desierto de noche— y Eduardo la paró: «necesita parecerse algo más al desierto, ahorita carece de sentido ese color y ese nombre». Ahora el suelo es arena y el violeta se quedó en el cielo, de segundo tono. Con eso Cobre dejó de ser bronce (bronce y arena daban 3 de distancia) y pasó a su pátina.",
+  segundo=("#8c86e0", "#5a52c0"),
+  noche={"--bg":"#1b140c","--bg2":"#231a10","--card":"#332616","--card2":"#3d2e1b",
+   "--line":"#54402a","--carril":"#54402a","--text":"#f5eee2","--muted":"#b3a38a","--faint":"#85765f"},
+  dia={"--bg":"#eadcc4","--bg2":"#f0e6d3","--card":"#f8f2e7","--card2":"#fcf9f3",
+   "--line":"#cdb894","--carril":"#d9c6a4","--text":"#2a1f10","--muted":"#6b5a40","--faint":"#8a785c"}),
 
  dict(id="escarcha", nombre="Escarcha", grado=2, abre="Nivel 12 · con el rango Cima · Pro",
+  segundo=("#b8b2f0", "#6f66cf"),
   premisa="La menta se vuelve celeste y la app pasa de festejar a acompañar. El primero que cambia el acento, y ahí es donde se nota que un recolor puede cambiar el carácter y no solo el fondo.",
   noche={"--bg":"#071421","--bg2":"#0b1b2a","--card":"#0a223a","--card2":"#0c2a41",
    "--line":"#1f3448","--carril":"#1f3448","--text":"#e7f0f5","--muted":"#8496a3","--faint":"#5a6b78",
@@ -64,6 +70,7 @@ AMBIENTES = [
   dia={"--mint":"#0f688f","--mint-macizo":"#3ab0e0","--aro-alto":"#1a8cbe"}),
 
  dict(id="marea", nombre="Marea", grado=2, abre="Nivel 5 · Pro",
+  segundo=("#3a8fc9", "#1f6fa8"),
   premisa="Verdiazul de agua honda, con la menta de la casa vista bajo el agua. El más lejano de la casa de los ocho, y por eso el más tarde: se disfruta más cuando ya te sabes de memoria cómo se veía antes.",
   nota="La primera versión era la casa con otro azul, y con razón: el clásico ya es un carbón azulado, así que ponerle más azul no lo aleja, lo confirma. Se arregló en dos movimientos — la tarjeta dejó de ser gris azulado y se volvió verdiazul de verdad, y el acento se corrió hacia el agua. Eso lo subió a grado 2.",
   noche={"--bg":"#01161d","--bg2":"#042029","--card":"#002d3c","--card2":"#043746",
@@ -72,6 +79,39 @@ AMBIENTES = [
   dia={"--bg":"#d3e4e6","--bg2":"#e2eeef","--card":"#ebf4f4","--card2":"#f5fafa",
    "--line":"#a5bfc3","--carril":"#b9d2d4","--text":"#06232a","--muted":"#4f717a","--faint":"#6d8b93",
    "--mint":"#006b62","--mint-macizo":"#00d4bd","--aro-alto":"#009083"}),
+
+ # ---- Los tres de la 0.7.147 ----
+ # Eduardo quiere diez en Norata clásico, por nivel. El acento casi no tiene
+ # sitio: menta, celeste, verdiazul y violeta están tomados y amarillo y coral
+ # son aviso y peligro. Por eso Cobre y Oliva cambian el SUELO y el segundo
+ # tono con el menta de siempre (como Musgo o Adobe), y Zafiro es el único que
+ # estrena acento: el azul aciano, el único tono que quedaba libre (40 del
+ # coral, 60 del aviso).
+ dict(id="cobre", nombre="Cobre", grado=1, abre="Nivel 10",
+  premisa="La pátina del cobre viejo: suelo verde cardenillo y el cobre asomando de segundo tono.",
+  segundo=("#d08a55", "#a55e2a"),
+  noche={"--bg":"#0f1714","--bg2":"#141e1a","--card":"#1d2b26","--card2":"#243430",
+   "--line":"#34473f","--carril":"#34473f","--text":"#eaf2ee","--muted":"#97aaa2","--faint":"#687a73"},
+  dia={"--bg":"#dde6e1","--bg2":"#e6ede9","--card":"#f1f6f3","--card2":"#f8fbf9",
+   "--line":"#b3c4bb","--carril":"#c2d1c9","--text":"#13201b","--muted":"#4e6159","--faint":"#6d8078"}),
+
+ dict(id="zafiro", nombre="Zafiro", grado=2, abre="Nivel 16 · Pro",
+  premisa="Azul de piedra preciosa con acento azul aciano: el único tono de acento que quedaba libre.",
+  segundo=("#7ee8d6", "#0f8f7c"),
+  noche={"--bg":"#0b0d22","--bg2":"#10132b","--card":"#1b1f42","--card2":"#22274d",
+   "--line":"#313764","--carril":"#313764","--text":"#eceefb","--muted":"#9ba1c9","--faint":"#6a7099",
+   "--mint":"#7f95ff","--mint-macizo":"#7f95ff","--aro-alto":"#7f95ff"},
+  dia={"--bg":"#dfe1f3","--bg2":"#e8e9f7","--card":"#f3f3fc","--card2":"#fafaff",
+   "--line":"#b7bbdd","--carril":"#c5c8e6","--text":"#161a33","--muted":"#50557a","--faint":"#6d7298",
+   "--mint":"#3446c2","--mint-macizo":"#7f95ff","--aro-alto":"#5064e0"}),
+
+ dict(id="oliva", nombre="Oliva", grado=1, abre="Nivel 30",
+  premisa="Oliva oscuro con un lavanda de segundo tono: el complementario del verde.",
+  segundo=("#c2b3f2", "#6d5bc4"),
+  noche={"--bg":"#101209","--bg2":"#161a0e","--card":"#242a16","--card2":"#2d341c",
+   "--line":"#3c4527","--carril":"#3c4527","--text":"#eef0e4","--muted":"#a2a88e","--faint":"#737a60"},
+  dia={"--bg":"#e4e6d6","--bg2":"#ecede1","--card":"#f5f6ee","--card2":"#fafbf6",
+   "--line":"#c3c7ad","--carril":"#cfd2bb","--text":"#1c2012","--muted":"#5d634a","--faint":"#7b8166"}),
 
 ]
 

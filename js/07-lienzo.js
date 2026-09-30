@@ -1364,7 +1364,7 @@ async function crearTalentoRapido(branch, tipo, pos) {
      cuando uno lo tiene en la cabeza. Cancelar no crea nada. */
   const nombre = await askText(T`${tx(t.nombre)} nuevo en ${branch}`, "", tx("Crear"), tx(t.sub), 60);
   if (!nombre) return;
-  /* ---- La cifra, también al crear (0.7.146.4) ----
+  /* ---- La cifra, también al crear (0.7.147.2) ----
      Una compra nacía sin importe —y una compra es una llave que se paga— y
      Acumular con un objetivo de 1000 que nadie eligió. El formulario ya las
      pedía; el atajo del mapa se las saltaba. Cancelar no crea nada. */
@@ -2517,7 +2517,7 @@ function constellation(nodes, key, editing, branch, mod) {
     const fuera = requisitosVivos(n).filter(r => (r.branch || "General") !== (n.branch || "General"));
     if (fuera.length) {
       const cF = tinta(fuera.every(r => nodoHecho(r, esNodoDeProyecto(n))) ? (n.color || "#5fe0b0") : "var(--lienzo-apagado)");
-      /* El cabo se TOCA y lleva a lo que falta (0.7.146.4): antes decía de
+      /* El cabo se TOCA y lleva a lo que falta (0.7.147.2): antes decía de
          dónde venía y no dejaba ir. Con varios, al primero sin terminar. El
          círculo invisible es la zona del dedo: cae dentro de lo que ya ocupa
          el rótulo, así que no cambia el tamaño del dibujo. */

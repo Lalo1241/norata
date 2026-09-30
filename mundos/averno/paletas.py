@@ -15,8 +15,11 @@
 # mundos/catedral/paletas.py para reutilizar su `vars_cara`, más `brasa` (la luz de
 # abajo) de noche.
 PALETAS = {
+  # Se llamó Sangre hasta la 0.7.147. El Tormento de antes (magenta y, en la
+  # prueba, violeta) se apagó y su nombre pasó aquí: lo pidió Eduardo. El id
+  # sigue siendo `sangre`, que es lo que cada dispositivo guardó.
   "sangre": dict(
-    nombre="Sangre", segundo_nombre="plata",
+    nombre="Tormento", segundo_nombre="plata",
     idea="Negro puro, rojo sangre y plata fría: las cartas de píxel de la referencia.",
     noche=dict(bg="#060506", bg2="#0e0c0d", card="#171415", card2="#1d191a", line="#302a2c", carril="#2b2527",
                text="#efe9e3", muted="#a39a94", faint="#716a66",
@@ -53,18 +56,34 @@ PALETAS = {
              text="#131a12", muted="#4a5747", faint="#5a6757",
              acento="#b0001a", acentoM="#ff3a3a", segundo="#2c700c", segundoM="#8ad550",
              aviso="#6d5500", avisoM="#f2c94c", peligro="#a13a00", peligroM="#ff8a3d", sobre="#131a12",
-             piedra="#cbd3c8", hierro="#82907e", hondo="#e8ece6")),
-  "tormento": dict(
-    nombre="Tormento", segundo_nombre="magenta de espina",
-    idea="El magenta encendido de las barras de espinas, sobre negro morado.",
-    noche=dict(bg="#07040a", bg2="#0f0914", card="#19111f", card2="#1f1527", line="#352341", carril="#31203c",
-               text="#f0e6f3", muted="#aa95b5", faint="#786585",
-               acento="#ff3040", acentoM="#ff3040", segundo="#ff4fd8", segundoM="#ff4fd8",
-               aviso="#f2c94c", avisoM="#f2c94c", peligro="#ff8a3d", peligroM="#ff8a3d", sobre="#07040a",
-               piedra="#3c2a49", hierro="#3a2747", hondo="#120b19", brasa="#6e0e2a"),
-    dia=dict(bg="#e4dde8", bg2="#eae4ee", card="#f7f2f9", card2="#fbf8fc", line="#c4b6cc", carril="#e6dfea",
-             text="#1e1024", muted="#574461", faint="#685372",
-             acento="#b0001c", acentoM="#ff3040", segundo="#b23797", segundoM="#ff4fd8",
-             aviso="#6d5500", avisoM="#f2c94c", peligro="#a13a00", peligroM="#ff8a3d", sobre="#1e1024",
-             piedra="#d6cadd", hierro="#9a86a4", hondo="#eee8f1")),
+             piedra="#cbd3c8", hierro="#82907e", hondo="#e8ece6"))
 }
+
+# Las dos nuevas (0.7.147), de dos paletas de Lospec que trajo Eduardo
+# («busca otra cosa que se diferencie mucho más»): las únicas de Averno que
+# no son «rojo + otro tono».
+PALETAS["ruina"] = dict(
+    nombre="Ruina", ref="ochreruin", segundo_nombre="malva de ruina",
+    idea="Una ruina en la niebla: noche azul, piedra verdosa, niebla salvia de acento y el malva de lo que queda.",
+    noche=dict(bg="#0e161f", bg2="#131c27", card="#1b2230", card2="#212a39", line="#33404a", carril="#2f3b45",
+               text="#eee4cc", muted="#a9a393", faint="#767264", acento="#8fb3a4", acentoM="#8fb3a4", segundo="#b89598",
+               segundoM="#b89598", aviso="#f2c94c", avisoM="#f2c94c", peligro="#ff8a3d", peligroM="#ff8a3d", sobre="#0e161f",
+               piedra="#2c3a40", hierro="#34424a", hondo="#121a24", brasa="#1d3a36"),
+    dia=dict(bg="#e2e4df", bg2="#e9ebe6", card="#f5f6f2", card2="#fafbf8", line="#b9c0b8", carril="#dfe3dd",
+             text="#161d22", muted="#4c5452", faint="#5d6562", acento="#2f6558", acentoM="#8fb3a4", segundo="#7a4f55",
+             segundoM="#b89598", aviso="#6d5500", avisoM="#f2c94c", peligro="#a13a00", peligroM="#ff8a3d", sobre="#161d22",
+             piedra="#cfd5cf", hierro="#8b948f", hondo="#edf0ec"))
+
+# Estigia: el id es `cienaga` porque así se llamó en la prueba. Es la
+# quinta, la del rango.
+PALETAS["cienaga"] = dict(
+    nombre="Estigia", ref="la de ocho colores", segundo_nombre="oliva de pantano",
+    idea="La laguna Estigia, el pantano del quinto círculo: azul marino, agua verde mar de acento, el oliva del lodo y la luz crema de un fuego fatuo.",
+    noche=dict(bg="#0d1030", bg2="#121638", card="#1f2540", card2="#252c4a", line="#37415c", carril="#333c56",
+               text="#efe3c4", muted="#aeb1a8", faint="#7a7e7c", acento="#6fae8a", acentoM="#6fae8a", segundo="#a19a58",
+               segundoM="#a19a58", aviso="#f2c94c", avisoM="#f2c94c", peligro="#ff8a3d", peligroM="#ff8a3d", sobre="#0d1030",
+               piedra="#2a3350", hierro="#2f3a58", hondo="#10143a", brasa="#16324a"),
+    dia=dict(bg="#dfe0ea", bg2="#e7e8f0", card="#f4f4f9", card2="#f9f9fc", line="#b6b9cc", carril="#dddfea",
+             text="#131634", muted="#474b66", faint="#585c78", acento="#2c6b48", acentoM="#6fae8a", segundo="#5f5a1e",
+             segundoM="#a19a58", aviso="#6d5500", avisoM="#f2c94c", peligro="#a13a00", peligroM="#ff8a3d", sobre="#131634",
+             piedra="#c9ccdc", hierro="#858aa4", hondo="#eceef4"))

@@ -312,8 +312,9 @@ showView("summary");
 
     /* Y hasta aquí la pantalla de carga: ya se sabe qué hay que enseñar y está
        dibujado. Es lo último de todo a propósito — destaparla antes es
-       justamente lo que hacía parpadear la app al abrirla. */
-    cargaCerrar();
+       justamente lo que hacía parpadear la app al abrirla. Se ESPERA: lo de
+       abajo pregunta si la carga sigue puesta y se callaría (ver `cargaEntrar`). */
+    await cargaEntrar();
     /* La sesión caducada va ANTES que todo lo demás que se abre al entrar
        (0.7.128): mientras no se resuelva, nada de lo que se haga aquí llega a
        la cuenta, y un tutorial o una vuelta encima lo taparían. Se pregunta

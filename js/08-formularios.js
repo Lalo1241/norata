@@ -738,7 +738,7 @@ function renderPerkReqs() {
   if (!otros.length) {
     cont.innerHTML = `<p class="settings-note" style="margin:0">${tx("Todavía no hay otros nodos a los que encadenarlo.")}</p>`;
   } else {
-    /* Por rama y con la suya primero (0.7.146.4): era una lista plana de
+    /* Por rama y con la suya primero (0.7.147.2): era una lista plana de
        todos los nodos de todas las ramas, y el requisito casi siempre está en
        la misma. Cada grupo lleva su rótulo para no leer la rama en cada ficha. */
     const aqui = (document.getElementById("p-branch").value || "").trim() || "General";
