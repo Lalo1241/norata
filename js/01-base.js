@@ -48,8 +48,8 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.144";
-const VERSION_FECHA = "29 sep 2026";
+const VERSION = "0.7.145";
+const VERSION_FECHA = "30 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
    La página pública de Norata, la que no es la app. Vive aquí y no escrita en
@@ -498,6 +498,29 @@ function logotipoSrc() {
      sitio. */
   const raiz = document.getElementById("view-summary") ? "" : "../";
   return raiz + "marca/" + archivo;
+}
+
+/* Recargar la app después de cambiar de apariencia (0.7.145).
+
+   En la web es `location.reload()` y nada más. En el APK hay una cosa que la
+   web no tiene: el icono de la pantalla de inicio es del mundo puesto, y ese
+   icono no lo pinta la app sino Android. Así que allí, antes de recargar, se
+   le pregunta a `norataIcono` (js/13-nativo.js) si el icono tiene que
+   cambiar. Si sí, Android lo cambia y la app se REINICIA ENTERA —lo pidió
+   Eduardo: cerrar y volver a abrir ya con el ajuste hecho—, y la recarga de
+   aquí sobra. Si no hace falta, o el APK es de antes y no sabe cambiarlo, se
+   recarga como siempre.
+
+   El plazo de cuatro segundos es la red de debajo: si Android dijo que sí y
+   el reinicio no llega, la app no se puede quedar colgada detrás de la
+   pantalla de carga. */
+function recargarApp() {
+  const icono = typeof window.norataIcono === "function" ? window.norataIcono : null;
+  if (!icono) { location.reload(); return; }
+  icono(true).then((cambio) => {
+    if (cambio) setTimeout(() => location.reload(), 4000);
+    else location.reload();
+  }).catch(() => location.reload());
 }
 
 function ponerTema(cual) {

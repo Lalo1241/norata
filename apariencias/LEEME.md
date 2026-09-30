@@ -531,6 +531,42 @@ escribir un `dict` de tonos: lo demás sale solo.
    está pegada al blanco: de noche salía bien y de día se quedaba en 2,57
    contra los 4,69 de la casa.
 
+## La marca, dentro de un mundo (0.7.145)
+
+**La silueta no la cambia nadie; el material, solo un mundo, y solo en el menú
+de la app y en el icono del APK.** Hasta la 0.7.143 la regla era «un tema puede cambiarlo todo menos
+quién eres», y el isotipo del menú era menta en todos. Esa regla nació de un
+accidente (el acento de Escarcha tiñendo la marca de celeste), no de una
+decisión. Eduardo la reescribió al ver los iconos de los mundos juntos, con
+este reparto:
+
+| Se queda en menta, siempre | Lo viste el mundo |
+| --- | --- |
+| La puerta, la portada, el favicon | El logo de la barra lateral, abierta y plegada |
+| El icono de la web instalada y el de la tienda | El icono del APK en la pantalla de inicio |
+| Correos, landing, capturas oficiales (con la casa) | |
+
+- **Un ambiente no la toca nunca.** Vestir la marca es parte de lo que se
+  paga con un mundo, y un recoloreado de la marca es justo el accidente de
+  antes.
+- **Por qué no en la puerta ni en la tienda:** ahí es donde alguien conoce
+  Norata por primera vez, y una marca nueva vive de repetirse.
+- **El icono del APK sí (0.7.145), y lo decidió Eduardo:** elegir un mundo
+  cierra la app y la vuelve a abrir con el icono de ese mundo. Es donde más
+  rinde, porque se ve todos los días fuera de la app. En la web no se puede
+  (el icono lo fija el `manifest` al instalar) y no se intenta. Lo nativo y
+  los pasos, en `mundos/iconos/android/LEEME.md`.
+- **Cómo:** el mundo pone dos variables, `--marca-pieza` (la pieza dibujada)
+  y `--marca-vector: hidden`, y las reglas de `.side-brand` en
+  `css/estilos.css` las leen. Los dibujos salen de `mundos/iconos/generar.py`
+  —el mismo que hace los iconos de la app, así que no pueden contar dos
+  materiales distintos— y los estampan `mundos/app.py` y `mundos/arcade.py`.
+  **Un mundo nuevo no tiene que hacer nada**: si está en `LISTOS`, su marca
+  sale sola. Si su pieza no tiene dibujo propio en `pieza_menu`, sale la
+  menta de la casa, que es lo seguro.
+- **Las cuatro paletas de Catedral y Averno llevan la misma pieza.** Los rojos
+  de las cuatro se separan en décimas y a 30 px no se distingue.
+
 ## El motor
 
 **Construido y publicado apagado en 0.7.40.** `js/10i-apariencia.js`,

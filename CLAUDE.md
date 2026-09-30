@@ -75,6 +75,13 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   no esté ahí, hay que añadirlo a mano a su lista de `cp`.
 - **El APK solo se reinstala si cambia lo nativo** (el icono, un permiso, un
   complemento nuevo). Los pasos están en `LEEME.md` de esa carpeta.
+- **El icono de la pantalla de inicio sigue al mundo (0.7.145), y solo en el
+  APK.** Elegir un mundo o Arcade cierra la app y la vuelve a abrir con su
+  icono (`recargarApp` → `norataIcono` → el complemento `IconoNorata`). Lo
+  nativo —el complemento, los dieciocho iconos y el trozo de manifiesto— lo
+  genera `mundos/iconos/android.js` y se copia a mano a esa carpeta con los
+  pasos de `mundos/iconos/android/LEEME.md`. Un APK sin él cambia de mundo
+  como siempre y se queda con el icono de la casa.
 
 ## Lo que no se publica
 
@@ -662,6 +669,12 @@ material** que va ENCIMA del ambiente, en su propio atributo
 (`data-material`); con un mundo sí es excluyente. Todo lo decidido está en la
 sección «Arcade» de `apariencias/LEEME.md`. Y la regla que dejó, hasta la 1.0:
 **un mundo viste, no actúa** — lo que cambie lo que pasa es de la app entera.
+
+**La marca en un mundo (0.7.145).** La silueta del isotipo no la cambia
+nadie; el material, solo un mundo, y solo en dos sitios: el menú de la app y
+el icono del APK. La puerta, la portada, el favicon, el icono de la web y los
+correos se quedan en menta, y un ambiente no la toca nunca. El reparto y el porqué, en «La marca, dentro de un mundo» de
+`apariencias/LEEME.md`.
 
 ## El material
 
