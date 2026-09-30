@@ -9,11 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-<<<<<<< HEAD
-const CACHE = "norata-0.7.147.10";
-=======
 const CACHE = "norata-0.7.148";
->>>>>>> f209d1b (0.7.148: Cyberpunk, el quinto mundo — visor, cinco paletas con su cara de día y la racha de la placa)
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
