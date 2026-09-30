@@ -30,7 +30,7 @@ mundo (`svg/menu-<id>.svg`): la pieza con el mismo material que el icono,
 reducida a lo que se lee a 30 px, y la palabra «Norata» sin tocar. El logotipo
 se lee de `index.html` y no se copia.
 
-**En la app ya no sale** (0.7.148.4 el menú, 0.7.148.6 el aviso del APK):
+**En la app ya no sale** (0.7.148.4 el menú, 0.7.148.7 el aviso del APK):
 Eduardo prefirió el isotipo de siempre, solo recoloreado. `marca_css()` da hoy
 únicamente `--marca-menu`; los dibujos se quedan para `vista.html`.
 

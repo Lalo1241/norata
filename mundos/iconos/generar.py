@@ -640,7 +640,7 @@ def marca_css(id_, selector=None, menu=True):
     Solo `--marca-menu`: el color del isotipo del menú y del aviso de antes de
     reiniciar el APK, que es el acento del mundo (`--mint`, así sigue también
     a su paleta). Desde la 0.7.148.4 el menú solo se recolorea —Eduardo vio
-    la pieza con material ahí y no le convenció— y desde la 0.7.148.6 el
+    la pieza con material ahí y no le convenció— y desde la 0.7.148.7 el
     aviso tampoco la enseña, así que `--marca-pieza` y `--marca-vector` se
     dejaron de generar. `menu=False` no devuelve nada (Arcade no trae
     colores: se queda la menta).

@@ -563,7 +563,7 @@ este reparto:
   también a su paleta— y las reglas de `.side-brand` en `css/estilos.css`
   pintan con él el isotipo vectorial de siempre. Arcade no la pone: no trae
   colores. El aviso de antes de reiniciar el APK usa el mismo isotipo en el
-  mismo color: desde la 0.7.148.6 tampoco enseña la pieza con material, y
+  mismo color: desde la 0.7.148.7 tampoco enseña la pieza con material, y
   `--marca-pieza`/`--marca-vector` se dejaron de generar. Todo sale de `mundos/iconos/generar.py`
   —el mismo que hace los iconos de la app, así que no pueden contar dos
   materiales distintos— y los estampan `mundos/app.py` y `mundos/arcade.py`.

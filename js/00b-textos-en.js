@@ -2762,6 +2762,11 @@ const TEXTOS_EN = {
  "Consola": "Console",
  "Nuevo": "New",
  "Predeterminado": "Default",
+ /* La etiqueta del hueco de arriba y el rótulo del plegable (0.7.148.5). */
+ "Mundo actual": "Current world",
+ "Ambiente actual": "Current ambience",
+ "Vista previa": "Preview",
+ "Paletas": "Palettes",
  "Solo Fundador": "Founder only",
  "Solo {0} tiene {1}": "Only {0} has {1}",
  "Con {0}": "With {0}",

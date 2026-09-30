@@ -247,7 +247,7 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
-### 0.7.148.6 · 30 sep 2026
+### 0.7.148.7 · 30 sep 2026
 
 **El aviso de antes de reiniciar el APK dice lo que pasa, con el isotipo liso
 y un aro que baja suave.** Lo pidió Eduardo al verlo en Averno.
@@ -269,6 +269,41 @@ y un aro que baja suave.** Lo pidió Eduardo al verlo en Averno.
   `requestAnimationFrame`, sin transición y con `geometricPrecision` para que
   el `crispEdges` de Catedral y Averno no lo escalone. Un reloj aparte cierra
   la cuenta aunque los fotogramas se paren con la app fuera de la vista.
+
+### 0.7.148.6 · 30 sep 2026
+
+**En Mi apariencia, lo de arriba se queda quieto y cada mundo se abre en su
+renglón.** Lo pidió Eduardo: tocar un mundo al final de la lista cambiaba la
+vista de arriba del todo, y para comparar había que subir a verla y bajar a
+tocar el siguiente, una y otra vez.
+
+- **Arriba, lo que llevas puesto**, con una etiqueta que lo dice («Mundo
+  actual», o «Ambiente actual» si es un recolor). Sigue sirviendo para
+  asomarse a los recolores —los ambientes, o las paletas del mundo puesto—, y
+  entonces la etiqueta pasa a «Vista previa».
+- **Un mundo se abre como plegable** debajo de su renglón, con la misma vista,
+  su ficha, sus paletas en una fila de cinco y el botón de aplicar. Solo uno a
+  la vez: abrir otro cierra el anterior, y tocar el abierto lo cierra. El
+  renglón lleva una flecha que gira al abrirse. El mundo puesto no se abre:
+  tocarlo lleva a la vista de arriba.
+- La Noche de expedición abierta enseña los ambientes, para asomarse a ellos
+  sin tener que quitarse el mundo primero.
+
+Las funciones del escaparate (`pintarEscena`, `pintarFicha`, `pintarBoton`…)
+reciben ahora el HUECO que pintan (`HUECO_ARRIBA` o `HUECO_PLIEGUE`,
+`js/10i-apariencia.js`). La regla de los botones de Averno y Catedral pasó de
+`#ap-escena` a los dos huecos, con la misma especificidad de `id`.
+
+**Y un fallo que salió al probarlo:** el observador del botón medía y cambiaba
+el alto dentro de su propio aviso, que lo volvía a disparar; el navegador lo
+cortaba con un «ResizeObserver loop» y la red de seguridad lo enseñaba como
+«Algo falló». Ahora solo atiende al ancho y mide en el fotograma siguiente.
+
+**Comprobado** en la app servida en local, con Averno puesto: arriba se queda
+Averno con su etiqueta mientras se abren Catedral, Blueprint y la Noche de
+expedición; nunca hay más de un plegable; elegir una paleta de Catedral dentro
+de su plegable la cambia en su vista; el modo claro llega al plegable; sin
+desbordes a 390 px y sin errores en la consola.
 
 ### 0.7.148.5 · 30 sep 2026
 

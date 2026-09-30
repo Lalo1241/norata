@@ -824,6 +824,7 @@ function elegirPaleta(mundo, pal) {
   }
   pintarRejaAmbientes();
   if (aparienciaMirada === mundo && typeof pintarEscena === "function") pintarEscena(mundo);
+  if (pliegueVista === mundo && typeof pintarPliegue === "function") pintarPliegue();
 }
 
 /* La franja del navegador de arriba —y en Android la barra de estado de la app
@@ -1319,7 +1320,7 @@ function escenaDoc(id) {
    encontraba nada y el modo día no llegaba adentro. Ningún error, ninguna
    pista: el preview simplemente se quedaba de noche. */
 function sincronizarVistas() {
-  ["ap-vista", "ap-boton"].forEach(idMarco => {
+  ["ap-vista", "ap-boton", "apx-vista", "apx-boton"].forEach(idMarco => {
     const f = document.getElementById(idMarco);
     const d = f && f.contentDocument;
     if (!d || !d.documentElement) return;
@@ -1345,10 +1346,28 @@ new MutationObserver(sincronizarVistas)
 let aparienciaMirada = null;
 let miradaComoMundo = false;
 
+/* ---- Dos huecos, y no uno (0.7.148.5) ----
+   Eduardo: el de ARRIBA se queda quieto con lo que llevas puesto, con una
+   etiqueta que lo dice, y sirve para asomarse a los recolores —ambientes o
+   paletas—, que es donde de verdad ayuda tenerlo a la vista. Un MUNDO se mira
+   en un plegable que se abre debajo de su renglón: antes, tocar un mundo al
+   final de la lista cambiaba lo de arriba y había que subir a verlo y bajar a
+   tocar el siguiente, una y otra vez. Solo hay un plegable abierto a la vez.
+
+   Las funciones de abajo pintan cualquiera de los dos: reciben el hueco con
+   los `id` de sus cuatro piezas. */
+const HUECO_ARRIBA = { escena: "ap-escena", vista: "ap-vista", ficha: "ap-ficha", boton: "ap-boton", arriba: true };
+const HUECO_PLIEGUE = { escena: "apx-escena", vista: "apx-vista", ficha: "apx-ficha", boton: "apx-boton", arriba: false };
+/* El renglón abierto, y lo que enseña su plegable: casi siempre el mismo
+   mundo, salvo en la Noche de expedición, que deja asomarse a sus ambientes. */
+let mundoDesplegado = null;
+let pliegueVista = null;
+
 /* El documento entero se rehace SOLO al montar. Cambiar de apariencia es
    cambiar un atributo y el cuerpo, que cuesta un pestañeo en vez de una carga. */
-function pintarEscena(id) {
-  const marco = document.getElementById("ap-vista");
+function pintarEscena(id, h) {
+  h = h || HUECO_ARRIBA;
+  const marco = document.getElementById(h.vista);
   if (!marco) return;
   const doc = marco.contentDocument;
   /* Se rehace cuando no hay documento todavía Y cuando el que hay se montó sin
@@ -1362,7 +1381,7 @@ function pintarEscena(id) {
     /* Al montar hay que esperar: el alto de dentro no significa nada hasta que
        las hojas de estilo llegaron, y la letra de un mundo cambia lo que mide
        un renglón. `load` del iframe es después de sus `link`. */
-    marco.addEventListener("load", () => { ajustarEscena(); vestirVentana(); }, { once: true });
+    marco.addEventListener("load", () => { ajustarEscena(h); vestirVentana(h); }, { once: true });
     marco.srcdoc = escenaDoc(id);
     return;
   }
@@ -1377,8 +1396,8 @@ function pintarEscena(id) {
   else raiz.removeAttribute("data-paleta");
   raiz.classList.toggle("claro", document.documentElement.classList.contains("claro"));
   doc.body.innerHTML = escenaCuerpo(id);
-  ajustarEscena();
-  vestirVentana();
+  ajustarEscena(h);
+  vestirVentana(h);
 }
 
 /* ---- La tarjeta, ventana al mundo que se mira (0.7.147) ----
@@ -1391,8 +1410,9 @@ function pintarEscena(id) {
    así no llegaría (los rellenos de sangre honda, en css/estilos.css).
    Se lee con `getComputedStyle` del documento del marco: ahí ya están
    resueltas la paleta, el modo claro y el mundo. */
-function vestirVentana() {
-  const esc = document.getElementById("ap-escena"), marco = document.getElementById("ap-vista");
+function vestirVentana(h) {
+  h = h || HUECO_ARRIBA;
+  const esc = document.getElementById(h.escena), marco = document.getElementById(h.vista);
   const doc = marco && marco.contentDocument;
   if (!esc || !doc || !doc.documentElement || !marco.contentWindow) return;
   const cs = marco.contentWindow.getComputedStyle(doc.documentElement);
@@ -1413,8 +1433,8 @@ function vestirVentana() {
    `overflow: hidden` y entonces devuelve el alto de la caja y no el del
    contenido. Decía que cabía mientras la barra salía cortada por la mitad. Se
    mide contra el borde de abajo de la última pieza. */
-function ajustarEscena() {
-  const marco = document.getElementById("ap-vista");
+function ajustarEscena(h) {
+  const marco = document.getElementById((h || HUECO_ARRIBA).vista);
   const doc = marco && marco.contentDocument;
   const ultima = doc && doc.body && doc.body.lastElementChild;
   if (!ultima) return;
@@ -1426,8 +1446,9 @@ function ajustarEscena() {
    El nombre, la premisa, los cinco nombres del camino si es un mundo, y —si
    está cerrado— por qué y por dónde se abre. Es el sitio donde vive lo que
    antes cabía en un toast de cuatro segundos. */
-function pintarFicha(id) {
-  const caja = document.getElementById("ap-ficha");
+function pintarFicha(id, h, comoMundo) {
+  h = h || HUECO_ARRIBA;
+  const caja = document.getElementById(h.ficha);
   if (!caja) return;
   /* `casa` existe en AMBIENTES, así que sale por aquí como cualquier otra: es
      el recolor de partida Y el mundo de partida, y son la misma cosa mirada
@@ -1437,7 +1458,7 @@ function pintarFicha(id) {
   const m = mundoPorId(id);
   const e = estadoApariencia(a);
   const puesta = apariencia() === id;
-  const comoMundo = miradaComoMundo;
+  if (comoMundo === undefined) comoMundo = miradaComoMundo;
   const nombre = nombreApariencia(a, comoMundo);
   const premisa = tx((comoMundo && id === "casa") ? CASA_MUNDO.premisa : (a.premisa || ""));
 
@@ -1485,7 +1506,15 @@ function pintarFicha(id) {
   /* El nombre y las cápsulas arriba en su renglón, y la premisa ENTERA debajo.
      Los tres iban en la misma fila y en un teléfono la cápsula larga dejaba la
      premisa en una columna de media pantalla. Medido a 375 px. */
+  /* La etiqueta del hueco de arriba: dice si lo que enseña es lo que llevas
+     o solo un vistazo a otro recolor. En el plegable no hace falta, porque
+     ahí siempre es lo segundo. */
+  const actual = !h.arriba ? ""
+    : puesta
+      ? `<span class="ap-actual">${icon("check", 11)}<span>${escapeHtml(tx(esMundo(id) || (comoMundo && id === "casa") ? "Mundo actual" : "Ambiente actual"))}</span></span>`
+      : `<span class="ap-actual ap-vistazo"><span>${escapeHtml(tx("Vista previa"))}</span></span>`;
   caja.innerHTML = `
+    ${actual}
     <div class="ap-cab">
       <span class="ap-ic mues-${id}">${icon((m && m.icon) || (ambientePorId(id) || {}).icon || "compass", 20)}</span>
       <b class="ap-nom">${escapeHtml(nombre)}</b>
@@ -1496,7 +1525,7 @@ function pintarFicha(id) {
     <p class="ap-premisa">${escapeHtml(premisa)}</p>
     ${rangos}
     ${abajo}`;
-  pintarBoton(id, boton);
+  pintarBoton(id, boton, h);
 }
 
 /* ---- El botón, con la cara del mundo que se mira (0.7.147.11) ----
@@ -1530,8 +1559,8 @@ function botonDoc(id, html) {
     (mundos ? `<link rel="stylesheet" href="${mundos}">` : "") +
     `<style>${BOTON_CSS}</style></head><body>${html}</body></html>`;
 }
-function ajustarBoton() {
-  const marco = document.getElementById("ap-boton");
+function ajustarBoton(h) {
+  const marco = document.getElementById((h || HUECO_ARRIBA).boton);
   const doc = marco && marco.contentDocument;
   const b = doc && doc.body && doc.body.firstElementChild;
   if (!b) return;
@@ -1540,14 +1569,25 @@ function ajustarBoton() {
   const abajo = b.getBoundingClientRect().bottom;
   if (abajo > 0) marco.style.height = Math.ceil(abajo + 14) + "px";
 }
-let botonObservado = false;
-function pintarBoton(id, html) {
-  const marco = document.getElementById("ap-boton");
-  const ficha = document.getElementById("ap-ficha");
+function pintarBoton(id, html, h) {
+  h = h || HUECO_ARRIBA;
+  const marco = document.getElementById(h.boton);
+  const ficha = document.getElementById(h.ficha);
   if (!marco) return;
-  if (!botonObservado && typeof ResizeObserver === "function") {
-    new ResizeObserver(ajustarBoton).observe(marco);
-    botonObservado = true;
+  /* Uno por marco: el del plegable nace y muere con cada renglón abierto.
+     Solo le importa el ANCHO —es lo que cambia al abrirse el panel— y mide en
+     el fotograma siguiente: medir y cambiar el alto dentro del aviso volvía a
+     disparar el aviso, y el navegador lo cortaba con un «ResizeObserver loop»
+     que la red de seguridad de la app enseñaba como «Algo falló». */
+  if (!marco.dataset.observado && typeof ResizeObserver === "function") {
+    let ancho = -1;
+    new ResizeObserver((vistos) => {
+      const w = vistos[0] ? Math.round(vistos[0].contentRect.width) : 0;
+      if (w === ancho) return;
+      ancho = w;
+      requestAnimationFrame(() => ajustarBoton(h));
+    }).observe(marco);
+    marco.dataset.observado = "1";
   }
   marco.hidden = !html;
   if (ficha) ficha.classList.toggle("con-boton", !!html);
@@ -1556,7 +1596,7 @@ function pintarBoton(id, html) {
   const faltaMundos = !!direccionDeLosMundos() &&
     !!(doc && !doc.querySelector('link[href^="css/mundos.css"]'));
   if (!doc || !doc.body || !doc.querySelector("style") || faltaMundos) {
-    marco.addEventListener("load", ajustarBoton, { once: true });
+    marco.addEventListener("load", () => ajustarBoton(h), { once: true });
     marco.srcdoc = botonDoc(id, html);
     return;
   }
@@ -1568,11 +1608,13 @@ function pintarBoton(id, html) {
   else raiz.removeAttribute("data-paleta");
   raiz.classList.toggle("claro", document.documentElement.classList.contains("claro"));
   doc.body.innerHTML = html;
-  ajustarBoton();
+  ajustarBoton(h);
 }
 
 /* Mirar no es ponerse. No guarda nada, no recarga y funciona igual con lo
-   cerrado — que es justo lo que hay que poder ver antes de pagarlo. */
+   cerrado — que es justo lo que hay que poder ver antes de pagarlo.
+   Esto es el hueco de ARRIBA; los mundos se miran en su plegable
+   (`desplegarMundo`). */
 function mirarApariencia(id, comoMundo) {
   aparienciaMirada = id;
   /* Por cuál de las dos rejas se entró, que solo cambia algo en `casa` —el
@@ -1593,20 +1635,101 @@ function pintarSeleccion() {
   const puesta = apariencia();
   document.querySelectorAll("#panel-apariencia [data-ap]").forEach((b) => {
     const id = b.getAttribute("data-ap");
-    b.classList.toggle("mirando", id === aparienciaMirada);
+    /* Un renglón de mundo se marca por estar ABIERTO; una muestra, por ser lo
+       que enseña su hueco — el de arriba o, dentro del plegable, el suyo. */
+    const esMundo = b.classList.contains("mun-m");
+    const enPliegue = !!b.closest("#apx-escena");
+    const mirando = esMundo ? id === mundoDesplegado
+      : enPliegue ? id === pliegueVista : id === aparienciaMirada;
+    b.classList.toggle("mirando", mirando);
     b.classList.toggle("on", id === puesta);
     b.setAttribute("aria-pressed", String(id === puesta));
+    if (esMundo) b.setAttribute("aria-expanded", String(mirando));
   });
 }
 
+/* ================= El plegable de un mundo =================
+   Tocar un renglón lo abre debajo de sí mismo con la vista, la ficha y el
+   botón de ese mundo, y cierra el que hubiera abierto. Tocarlo otra vez lo
+   cierra. El mundo que llevas puesto no se abre: ya está arriba, así que
+   tocarlo lleva hasta allí. */
+function desplegarMundo(id) {
+  if (id === apariencia()) {
+    mundoDesplegado = null;
+    pliegueVista = null;
+    montarPliegue();
+    mirarApariencia(id, true);
+    const arriba = document.getElementById("ap-escena");
+    if (arriba && arriba.scrollIntoView) arriba.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    return;
+  }
+  mundoDesplegado = mundoDesplegado === id ? null : id;
+  pliegueVista = mundoDesplegado;
+  montarPliegue();
+  pintarSeleccion();
+  /* Al cerrarse uno de ARRIBA, el renglón tocado sube de golpe: se le sigue
+     para que el dedo no quede sobre otro. */
+  const fila = document.querySelector(`#ap-mundos .mun-m[data-ap="${mundoDesplegado || id}"]`);
+  if (fila && fila.scrollIntoView) fila.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  const pl = document.getElementById("ap-pliegue");
+  if (pl && pl.scrollIntoView) setTimeout(() => pl.scrollIntoView({ behavior: "smooth", block: "nearest" }), 60);
+}
+
+/* Dentro del plegable de la Noche de expedición: asomarse a un ambiente. */
+function mirarEnPliegue(id) {
+  pliegueVista = id;
+  pintarPliegue();
+}
+
+/* Quita el plegable que haya y, si toca, lo vuelve a poner debajo de su
+   renglón. Se rehace entero porque la lista también se rehace (cambia el
+   plan, se abre Ajustes) y un iframe movido de sitio se recarga igual. */
+function montarPliegue() {
+  const viejo = document.getElementById("ap-pliegue");
+  if (viejo) viejo.remove();
+  if (!mundoDesplegado) return;
+  const fila = document.querySelector(`#ap-mundos .mun-m[data-ap="${mundoDesplegado}"]`);
+  if (!fila) { mundoDesplegado = null; pliegueVista = null; return; }
+  fila.insertAdjacentHTML("afterend", `
+    <div class="ap-pliegue" id="ap-pliegue">
+      <div class="ap-escena" id="apx-escena">
+        <div class="ap-marco"><iframe id="apx-vista" class="ap-vista" title="${escapeAttr(tx("Vista previa de la apariencia"))}" scrolling="no" tabindex="-1" aria-hidden="true"></iframe></div>
+        <div class="ap-ficha" id="apx-ficha"></div>
+        <div class="ap-pliegue-rej" id="apx-rej"></div>
+        <iframe class="ap-boton" id="apx-boton" title="${escapeAttr(tx("Aplicar"))}" scrolling="no" hidden></iframe>
+      </div>
+    </div>`);
+  pintarPliegue();
+}
+
+function pintarPliegue() {
+  if (!mundoDesplegado || !document.getElementById("ap-pliegue")) return;
+  const id = pliegueVista || mundoDesplegado;
+  pintarEscena(id, HUECO_PLIEGUE);
+  pintarFicha(id, HUECO_PLIEGUE, id === mundoDesplegado);
+  /* Sus recolores, aquí mismo y no en la reja de arriba, que ya es la del
+     mundo que llevas: las paletas de un mundo, o los ambientes de la casa. */
+  const rej = document.getElementById("apx-rej");
+  if (rej) {
+    const ps = paletasDe(mundoDesplegado);
+    const muestras = ps ? paletasHTML(mundoDesplegado)
+      : mundoDesplegado === "casa" ? muestrasAmbientes("mirarEnPliegue") : "";
+    rej.innerHTML = muestras
+      ? `<span class="ap-rot">${escapeHtml(tx(ps ? "Paletas" : "Ambientes"))}</span><div class="amb-rej${ps ? " pal-rej" : ""}">${muestras}</div>`
+      : "";
+  }
+  pintarSeleccion();
+}
+
 /* ================= Un mundo, en la lista =================
-   Un renglón con su icono, su nombre y su frase. Lo que hace es MIRARLO: lo
-   que se ve arriba cambia y no se toca nada de lo que llevas puesto. */
+   Un renglón con su icono, su nombre y su frase. Lo que hace es MIRARLO: se
+   abre debajo en su plegable (`desplegarMundo`) y no se toca nada de lo que
+   llevas puesto. */
 function filaMundo(m, esSalida) {
   const e = esSalida ? { ok: true } : estadoApariencia(m);
   return `
     <button type="button" class="mun-m mues-${m.id}${esSalida ? " mun-salida" : ""}${e.ok ? "" : " cerrado"}"
-      data-ap="${m.id}" onclick="mirarApariencia('${m.id}', true)"
+      data-ap="${m.id}" aria-expanded="false" onclick="desplegarMundo('${m.id}')"
       title="${escapeHtml(tx(m.nombre))}${e.ok ? "" : " · " + escapeHtml(e.chapa)}">
       ${m.icon ? `<span class="mun-ic">${icon(m.icon, 20)}</span>` : ""}
       <span class="mun-tx">
@@ -1619,6 +1742,7 @@ function filaMundo(m, esSalida) {
         ? `<span class="mun-p ap-base">${escapeHtml(tx("Predeterminado"))}</span>`
         : chapaApariencia(e, true)}
       <span class="mun-ok" aria-hidden="true">${icon("check", 13)}</span>
+      <span class="mun-flecha" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 9l6 6 6-6"/></svg></span>
     </button>`;
 }
 
@@ -1629,8 +1753,8 @@ function filaMundo(m, esSalida) {
    los ambientes no se pueden usar (son excluyentes), y las paletas del mundo
    son justo eso, otra luz, solo que para su material.
 
-   Manda lo que se está MIRANDO, y si no se mira nada, lo que se lleva puesto.
-   Asomarse a un ambiente o a otro mundo devuelve la reja de los ambientes. */
+   Manda lo que enseña el hueco de arriba —lo puesto, o un ambiente al que te
+   asomas—. Los otros mundos llevan sus paletas en su plegable. */
 let ambientesHTML = "";
 function pintarRejaAmbientes() {
   const reja = document.getElementById("ap-ambientes");
@@ -1648,10 +1772,18 @@ function pintarRejaAmbientes() {
   const m = mundoPorId(cual), nombre = tx(m.nombre);
   if (tit) tit.textContent = T`Paletas de ${nombre}`;
   if (nota) nota.textContent = T`${nombre} trae sus propias luces, y aquí sustituyen a los ambientes. Cada paleta tiene su cara de día y de noche.`;
+  reja.classList.add("pal-rej");
+  reja.innerHTML = paletasHTML(cual);
+}
+
+/* Las muestras de las paletas de un mundo: en la reja de arriba y en su
+   plegable. */
+function paletasHTML(cual) {
+  const ps = paletasDe(cual);
+  if (!ps) return "";
   const cara = document.documentElement.classList.contains("claro") ? "dia" : "noche";
   const elegida = paletaDe(cual), primera = Object.keys(ps)[0];
-  reja.classList.add("pal-rej");
-  reja.innerHTML = Object.keys(ps).map((id) => {
+  return Object.keys(ps).map((id) => {
     const p = ps[id], c = p[cara], si = id === elegida, ab = paletaAbierta(cual, id);
     /* La misma muestra que un ambiente —suelo, tarjeta y acento— y un punto
        más: el segundo tono, que es lo que distingue una paleta de otra. */
@@ -1666,6 +1798,32 @@ function pintarRejaAmbientes() {
         <span class="amb-n">${escapeHtml(tx(p.nombre))}</span>
         ${id === primera ? `<span class="amb-p">${escapeHtml(tx("De partida"))}</span>` : ""}
         ${ab.ok ? "" : `<span class="amb-p">${escapeHtml(T`Nivel ${ab.nivel}`)}</span>`}
+      </button>`;
+  }).join("");
+}
+
+/* Las muestras de los ambientes. `accion` es a qué hueco van al tocarlas:
+   el de arriba (`mirarApariencia`) o el plegable de la casa
+   (`mirarEnPliegue`). */
+function muestrasAmbientes(accion) {
+  return AMBIENTES.filter((a) => seExhibe(a.id)).map((a) => {
+    const e = estadoApariencia(a);
+    /* La chapa se escribe AL LADO: es lo que convierte «no lo tienes» en «lo
+       tendrás», y es la mitad del premio. Aquí va en TEXTO y sin insignia, a
+       diferencia de la fila de un mundo: la muestra mide 88 px y una piedra de
+       10 px al lado de «NIVEL 12» en ese ancho es una mancha, no un símbolo. */
+    const pie = e.ok ? "" : e.chapa;
+    return `
+      <button type="button" class="amb-m mues-${a.id}${e.ok ? "" : " cerrado"}"
+        data-ap="${a.id}" onclick="${accion}('${a.id}')"
+        title="${escapeHtml(tx(a.nombre))}${pie ? " · " + escapeHtml(pie) : ""}">
+        <span class="amb-mini" aria-hidden="true">
+          <span class="amb-tarj"></span><span class="amb-pt"></span><span class="amb-pt pal-pt2"></span>
+          <span class="amb-ok" aria-hidden="true">${icon("check", 12)}</span>
+          ${esNovedad(a) ? `<span class="amb-nueva">${escapeHtml(tx("Nuevo"))}</span>` : ""}
+        </span>
+        <span class="amb-n">${escapeHtml(tx(a.nombre))}</span>
+        ${pie ? `<span class="amb-p">${escapeHtml(pie)}</span>` : ""}
       </button>`;
   }).join("");
 }
@@ -1687,26 +1845,7 @@ function renderPanelApariencia() {
      en llegar, así que la huella ya está disponible en esta misma línea. */
   if (typeof pedirLosMundos === "function") pedirLosMundos();
 
-  const muestras = AMBIENTES.filter((a) => seExhibe(a.id)).map((a) => {
-    const e = estadoApariencia(a);
-    /* La chapa se escribe AL LADO: es lo que convierte «no lo tienes» en «lo
-       tendrás», y es la mitad del premio. Aquí va en TEXTO y sin insignia, a
-       diferencia de la fila de un mundo: la muestra mide 88 px y una piedra de
-       10 px al lado de «NIVEL 12» en ese ancho es una mancha, no un símbolo. */
-    const pie = e.ok ? "" : e.chapa;
-    return `
-      <button type="button" class="amb-m mues-${a.id}${e.ok ? "" : " cerrado"}"
-        data-ap="${a.id}" onclick="mirarApariencia('${a.id}')"
-        title="${escapeHtml(tx(a.nombre))}${pie ? " · " + escapeHtml(pie) : ""}">
-        <span class="amb-mini" aria-hidden="true">
-          <span class="amb-tarj"></span><span class="amb-pt"></span><span class="amb-pt pal-pt2"></span>
-          <span class="amb-ok" aria-hidden="true">${icon("check", 12)}</span>
-          ${esNovedad(a) ? `<span class="amb-nueva">${escapeHtml(tx("Nuevo"))}</span>` : ""}
-        </span>
-        <span class="amb-n">${escapeHtml(tx(a.nombre))}</span>
-        ${pie ? `<span class="amb-p">${escapeHtml(pie)}</span>` : ""}
-      </button>`;
-  }).join("");
+  const muestras = muestrasAmbientes("mirarApariencia");
 
   /* Los mundos van en su PROPIA reja y no mezclados con los ambientes, y no es
      una cuestión de orden: son cosas de distinta especie. Un ambiente le cambia
@@ -1750,12 +1889,16 @@ function renderPanelApariencia() {
   const arc = document.getElementById("ap-arcade");
   if (arc) arc.innerHTML = typeof arcadeApariencia === "function" ? arcadeApariencia() : "";
   document.getElementById("ap-mundos").innerHTML = (listos.length || salida) ? mundos : "";
+  /* La lista se acaba de rehacer: el plegable abierto vuelve a su sitio. */
+  montarPliegue();
 
   /* Al abrir se mira lo que se lleva puesto, que es de donde parte cualquiera
      para decidir si quiere otra cosa. Y se conserva por qué reja se había
      entrado, que es lo que decide cómo se llama `casa`. */
-  const sigue = aparienciaMirada && aparienciaPorId(aparienciaMirada) && seExhibe(aparienciaMirada);
-  mirarApariencia(sigue ? aparienciaMirada : apariencia(), sigue && miradaComoMundo);
+  const sigue = aparienciaMirada && aparienciaPorId(aparienciaMirada) && seExhibe(aparienciaMirada) &&
+    (!esMundo(aparienciaMirada) || aparienciaMirada === apariencia());
+  /* Arriba, lo puesto se nombra como MUNDO: es lo que dice su etiqueta. */
+  mirarApariencia(sigue ? aparienciaMirada : apariencia(), sigue ? miradaComoMundo : true);
 }
 
 /* Ponérsela de verdad: se guarda y se recarga. Si no se puede, sale el cuadro
@@ -1785,6 +1928,9 @@ function elegirApariencia(id) {
      lo borraría sin avisar. Así que ahí se aplica en caliente y ya. */
   if (typeof modoEjemplo !== "undefined" && modoEjemplo) {
     if (!ponerApariencia(id)) return;
+    /* Lo recién puesto pasa arriba: su plegable ya no tiene nada que enseñar. */
+    if (mundoDesplegado === id || pliegueVista === id) { mundoDesplegado = null; pliegueVista = null; }
+    aparienciaMirada = null;
     pintarSeleccion();
     renderPanelApariencia();
     return;
@@ -1895,7 +2041,7 @@ function cambiarTapado(aplicar) {
    - **Va con el diseño.** Nada de coral de alarma: el tono menta de los
      cuadros normales —en un mundo es su acento— y el isotipo en el color del
      mundo, dentro de un aro que se vacía con la cuenta.
-   - **Dice lo que pasa, sin adivinanzas (0.7.148.6).** La primera versión
+   - **Dice lo que pasa, sin adivinanzas (0.7.148.7).** La primera versión
      insinuaba («Esto no se queda aquí adentro») y enseñaba la pieza con el
      material del icono; las dos se fueron. El isotipo es el liso, solo
      recoloreado, como el del menú; el título va en blanco en todos los
@@ -1928,7 +2074,7 @@ function avisarRenacer() {
       .then(acabar);
     /* Por fotogramas y no con una transición de CSS: una transición puede no
        avanzar (ver «Cómo verificar» en CLAUDE.md), y aquí el aro ES la cuenta.
-       Hasta la 0.7.148.5 se pintaba cada décima, y a diez saltos por segundo
+       Hasta la 0.7.148.6 se pintaba cada décima, y a diez saltos por segundo
        el aro bajaba a trompicones. El número solo se reescribe al cambiar.
        `requestAnimationFrame` se para con la app fuera de la vista, así que
        un reloj aparte asegura que la cuenta termine igual. */
