@@ -479,7 +479,7 @@ def arcade(p):
 
 
 # ======================= el logo del menú =======================
-# En la app desde la 0.7.144: cada mundo viste el isotipo del menú igual que
+# En la app desde la 0.7.145: cada mundo viste el isotipo del menú igual que
 # el icono de la app. La pieza cambia de material; la silueta y la palabra
 # «Norata», no. El reparto de dónde sí y dónde no, en «La marca, dentro de un
 # mundo» de `apariencias/LEEME.md`. Lo que llega a la app es `marca_css()`.
@@ -635,7 +635,7 @@ def uri(svg_txt):
 
 
 def marca_css(id_, selector=None):
-    """El bloque que viste la marca del menú en la app (0.7.144).
+    """El bloque que viste la marca del menú en la app (0.7.145).
 
     Solo pone dos variables y nada más: `--marca-pieza` (la pieza dibujada)
     y `--marca-vector: hidden` (esconde el isotipo vectorial de siempre). Las

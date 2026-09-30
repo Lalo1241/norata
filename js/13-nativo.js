@@ -37,7 +37,7 @@
   const http = cap.Plugins && cap.Plugins.CapacitorHttp;
   document.documentElement.classList.add("nativa");
 
-  /* ---- El icono de cada mundo (0.7.144) ----
+  /* ---- El icono de cada mundo (0.7.145) ----
      En el APK, el icono de la pantalla de inicio es el del mundo puesto. Los
      dieciocho viajan dentro del APK como entradas de la app (`activity-alias`)
      y el complemento `IconoNorata` —nativo, en la carpeta de Android; su

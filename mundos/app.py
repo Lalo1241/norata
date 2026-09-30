@@ -893,7 +893,7 @@ if __name__ == "__main__":
             partes.append(gen.css())
         else:
             partes.append(bloque(m))
-    # La marca del menú, vestida por cada mundo (0.7.144). La dibuja el mismo
+    # La marca del menú, vestida por cada mundo (0.7.145). La dibuja el mismo
     # generador que los iconos de la app, `mundos/iconos/generar.py`, para que
     # el icono y el menú no puedan contar dos materiales distintos.
     import sys

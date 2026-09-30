@@ -388,11 +388,11 @@ círculos se deshacía a 16 px.
 **El sonido** lo lleva otra conversación. Revisado contra el diseño nuevo: el
 órgano, la campana y la menor armónica se quedan; entra el clavecín; los
 trombones, el tambor de guerra y el retumbo grave son de Diablo y se van.
-**En la 0.7.141 Catedral suena exactamente como sonaba** (`js/01c-sonido.js`
-apunta su nombre nuevo al material de siempre) y el Averno nuevo toma prestado
-ese mismo sonido. Separarlos es de esa conversación, y con la separación de los
-temas el reparto sale solo: lo de Diablo —tambores, trombones, retumbo— tiene
-por fin un mundo que es de Diablo.
+**Separados desde la 0.7.144** (`js/01c-sonido.js`): Catedral suena a órgano,
+clavecín, campana y coro; lo de Diablo —tambores, trombones, retumbo, y ahora
+un gong y una marimba de hueso— es de Averno. Su recap del aniversario es el
+que ya sonaba. Las dos campanas llevan la tercera mayor: la menor de una
+campana de iglesia volvía negativo cualquier final.
 
 **El Pomodoro, en píxel fino (0.7.141).** Eduardo: «aún no se mira el reloj»
 y «sube la resolución de bits de todo Pomodoro». Las dos cosas eran una: el
@@ -531,7 +531,7 @@ escribir un `dict` de tonos: lo demás sale solo.
    está pegada al blanco: de noche salía bien y de día se quedaba en 2,57
    contra los 4,69 de la casa.
 
-## La marca, dentro de un mundo (0.7.144)
+## La marca, dentro de un mundo (0.7.145)
 
 **La silueta no la cambia nadie; el material, solo un mundo, y solo en el menú
 de la app y en el icono del APK.** Hasta la 0.7.143 la regla era «un tema puede cambiarlo todo menos
@@ -551,7 +551,7 @@ este reparto:
   antes.
 - **Por qué no en la puerta ni en la tienda:** ahí es donde alguien conoce
   Norata por primera vez, y una marca nueva vive de repetirse.
-- **El icono del APK sí (0.7.144), y lo decidió Eduardo:** elegir un mundo
+- **El icono del APK sí (0.7.145), y lo decidió Eduardo:** elegir un mundo
   cierra la app y la vuelve a abrir con el icono de ese mundo. Es donde más
   rinde, porque se ve todos los días fuera de la app. En la web no se puede
   (el icono lo fija el `manifest` al instalar) y no se intenta. Lo nativo y

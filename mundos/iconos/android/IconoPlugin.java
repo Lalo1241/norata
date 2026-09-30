@@ -21,7 +21,7 @@ import com.jakewharton.processphoenix.ProcessPhoenix;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/* El icono de la pantalla de inicio, uno por mundo (0.7.144).
+/* El icono de la pantalla de inicio, uno por mundo (0.7.145).
 
    Los dieciocho iconos son entradas de la app (`activity-alias` en el
    manifiesto, todas apuntando a MainActivity) y solo una está encendida: la

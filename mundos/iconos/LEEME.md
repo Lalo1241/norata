@@ -23,7 +23,7 @@ node mundos/iconos/rasterizar.js
 artefacto): la rejilla de los iconos, el mundo elegido con las máscaras de
 Android e iOS, y la propuesta del logo del menú en cada mundo.
 
-## El logo del menú (en la app desde la 0.7.144)
+## El logo del menú (en la app desde la 0.7.145)
 
 `generar.py` también dibuja el logotipo de la barra lateral vestido por cada
 mundo (`svg/menu-<id>.svg` para verlo, y `marca_css()` para la app): la pieza
@@ -44,7 +44,7 @@ logotipo salían 4,5 veces más finos, y el canto de Blueprint se perdía.
 **En la web, el icono se queda en menta**: lo fija el `manifest` al instalar
 y `mundos/` ni siquiera se publica (`_config.yml`).
 
-**En el APK sí cambia con el mundo (0.7.144).** `node mundos/iconos/android.js`
+**En el APK sí cambia con el mundo (0.7.145).** `node mundos/iconos/android.js`
 saca de estos SVG todo lo nativo —los iconos adaptativos, la capa monocroma,
 el trozo de manifiesto— en `android/`, junto al complemento `IconoPlugin.java`
 y los pasos para copiarlo (`android/LEEME.md`). Al cambiar un icono: correr

@@ -53,7 +53,7 @@ def estampar(rel, marca, patron, huella):
 
 def main():
     fuente = open(os.path.join(AQUI, "arcade", "arcade.css"), encoding="utf-8").read()
-    # La marca del menú en píxel (0.7.144), dibujada por el mismo generador
+    # La marca del menú en píxel (0.7.145), dibujada por el mismo generador
     # que los iconos de la app. Se añade aquí y no en la fuente porque es un
     # dibujo generado: escrito a mano en `arcade/arcade.css`, se separaría.
     import sys
