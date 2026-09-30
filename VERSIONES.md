@@ -247,6 +247,38 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.148.2 · 30 sep 2026
+
+**Cambiar de mundo ya no parpadea, el menú responde al cursor en cualquier
+mundo, y cuatro cosas llevan su color pase el mundo que pase.** Todo lo pidió
+Eduardo mirando el menú en la PC con Averno puesto.
+
+- **El parpadeo al cambiar de mundo.** La hoja de los mundos se engancha
+  desde el script de arriba de `index.html`, y una hoja insertada así NO
+  bloquea el primer pintado aunque esté en la cabeza: medido con
+  `renderBlockingStatus`, salía «non-blocking». Tras la recarga la primera
+  imagen salía sin el mundo y se corregía un instante después. Ahora lleva
+  `blocking="render"` (y la de Arcade igual), y mide «blocking».
+- **El cursor encima, en los menús de los mundos.** En Averno el icono de Mi
+  perfil se volvía negro y los demás no reaccionaban: el ratón le ponía la
+  tinta oscura del relleno, pero el rombo (con `!important`) no dejaba poner
+  el relleno. Ahora el tono de cada fila va en cuatro variables (`--ic-tono`,
+  `--ic-velo`, `--ic-lleno`, `--ic-sobre`) que la casilla lee, y Averno y
+  Blueprint rellenan su propia figura: el rombo se llena del tono de la fila.
+- **Los colores de la casa (`--casa-*`), que ningún mundo toca**, igual que
+  `--estado-*`: el icono de Mi perfil lleva siempre el color del plan que
+  pagas (clases `t-plan-*`: menta, lila de Fundador, oro si se acaba, coral si
+  no se pudo cobrar), la chapa del plan en el menú de la cuenta también, y
+  «Norata por dentro» va siempre en amarillo. Esto da la vuelta a lo de la
+  0.7.147.10, que los pasaba al acento del mundo. `mundos/app.py` y
+  `apariencias/css.py` se niegan a generar algo que redefina `--casa-*`.
+- **El punto de la sincronía es un semáforo** y sale de `--estado-*`: verde
+  sincronizado, amarillo sincronizando, rojo falló. En Averno «Sincronizado»
+  salía con el punto rojo.
+- **«Sesión actual» se mudó** de la ficha de «Tu cuenta» (donde ya se sabe) a
+  la lista de cuentas del índice de Ajustes, en verde de la casa. La chapa de
+  «Caducada» se queda en la ficha.
+
 ### 0.7.148.1 · 30 sep 2026
 
 **La barra de abajo baja, y lleva un velo debajo.** Lo pidió Eduardo: los

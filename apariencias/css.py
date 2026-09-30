@@ -221,6 +221,10 @@ if __name__ == "__main__":
     # toca: un check es verde en todos. Misma guarda que en mundos/app.py.
     if "--estado-" in txt:
         raise SystemExit("un ambiente redefine --estado-*: los tonos de estado son de Norata")
+    # Ni los colores de la casa (0.7.148.2): el color del plan en Mi perfil y
+    # el amarillo de «Norata por dentro» valen igual con cualquier ambiente.
+    if "--casa-" in txt or "--sobre-casa" in txt:
+        raise SystemExit("un ambiente redefine --casa-*: el color del plan y el de la trastienda son de Norata")
     open(os.path.join(AQUI, "ambientes.css"), "w", encoding="utf-8").write(txt)
     print("ambientes.css", len(txt.encode()), "bytes ·",
           sum(1 for m in datos.AMBIENTES if m["grado"] > 0), "ambientes")
