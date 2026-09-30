@@ -97,19 +97,40 @@ function heroCandelabro(x, y, w, h, Z) {
 /* ---------- Averno · el sello ----------
    Un círculo de invocación con siete rombos en sus vértices. Cada día llena
    un rombo de sangre y traza su punta de la estrella; con tres, la estrella
-   de siete puntas se traza entera y el rombo del centro se enciende. */
+   de siete puntas se traza entera y el rombo del centro se enciende.
+
+   Va en una rejilla el DOBLE de fina que el candelabro (0.7.143.1): con
+   píxeles de 8 el aro se leía a escalones gruesos y las letras de los días
+   quedaban pegadas al texto de arriba. Eduardo pidió más resolución en el
+   aro, una estrella más gruesa y letras con presencia y con aire. */
+const romboDe = (P, rx, ry, n, cls) => {
+  let s = "";
+  for (let k = -n; k <= n; k++) { const a = n - Math.abs(k); s += P(rx - a, ry + k, 2 * a + 1, 1, cls); }
+  return s;
+};
 function heroSello(x, y, w, h, Z) {
-  const { P, cols, filas, x0, y0, p } = rejillaRacha(x, y, w, h, 60, 36);
-  const R = Math.min(Math.floor(filas / 2) - 1, Math.floor(cols / 2) - 8, 20), cx = Math.floor(cols / 2), cy = R + 1;
+  const p = Math.max(2, Math.floor(Math.min(w / 120, (h - 16) / 76)));
+  const cols = Math.floor(w / p), filas = Math.floor((h - 8) / p);
+  const x0 = x + (w - cols * p) / 2, y0 = y + 4, P = pxRacha(p, x0, y0);
+  /* Las letras van a R + ESP celdas del centro, y arriba se deja AIRE en
+     píxeles de pantalla para que la «D» no toque el mensaje de la tarjeta. */
+  /* Primero el rombo y después la letra, que va por FUERA del rombo: con la
+     letra en el mismo sitio que el vértice, el rombo se la comía. */
+  const AIRE = Math.ceil(22 / p), LETRA = Math.ceil(12 / p);
+  const cabe = r => Math.max(3, Math.round(r / 8)) + 2 + LETRA;
+  let R = Math.min(Math.floor(cols / 2) - 12, 44);
+  while (R > 12 && AIRE + 2 * (R + cabe(R)) + Math.ceil(10 / p) > filas) R--;
+  const rv = Math.max(3, Math.round(R / 8)), ESP = cabe(R);   // rombo y distancia de la letra, en celdas
+  const cx = Math.floor(cols / 2), cy = AIRE + ESP + R;
   const sx = v => r1(x0 + (cx + .5 + v) * p), sy = v => r1(y0 + (cy + .5 + v) * p);
   let s = "";
-  // El aro doble, en píxel
-  for (let j = -R - 1; j <= R + 1; j++) for (let i = -R - 1; i <= R + 1; i++) {
+  // El aro: dos celdas de grueso por fuera y una fina por dentro
+  for (let j = -R - 2; j <= R + 2; j++) for (let i = -R - 2; i <= R + 2; i++) {
     const d = Math.hypot(i + .5, j + .5);
-    if (d <= R + .5 && d > R - .5) s += P(cx + i, cy + j, 1, 1, Z.ok ? "avs-aro vivo" : "avs-aro");
-    else if (d <= R - 2 && d > R - 2.9) s += P(cx + i, cy + j, 1, 1, "avs-aro fino");
+    if (d <= R + .5 && d > R - 1.5) s += P(cx + i, cy + j, 1, 1, Z.ok ? "avs-aro vivo" : "avs-aro");
+    else if (d <= R - 4 && d > R - 5) s += P(cx + i, cy + j, 1, 1, "avs-aro fino");
   }
-  const V = [...Array(7)].map((_, k) => { const a = -Math.PI / 2 + k * 2 * Math.PI / 7; return [Math.cos(a) * (R - 1), Math.sin(a) * (R - 1)]; });
+  const V = [...Array(7)].map((_, k) => { const a = -Math.PI / 2 + k * 2 * Math.PI / 7; return [Math.cos(a) * (R - .5), Math.sin(a) * (R - .5)]; });
   /* La estrella {7/3}: un trazo por punta. El largo va medido y no con
      `pathLength`, y el trazo está dibujado de base (ver arriba). */
   V.forEach((v, k) => {
@@ -119,12 +140,11 @@ function heroSello(x, y, w, h, Z) {
   });
   Z.dias.forEach((d, k) => {
     const [vx, vy] = V[k], rx = Math.round(cx + vx), ry = Math.round(cy + vy);
-    s += romboPx(P, rx, ry, "avs-fondo", true);
-    s += d.estado === "si" ? romboPx(P, rx, ry, "avs-rombo si", true) : romboPx(P, rx, ry, "avs-rombo " + d.estado);
+    s += romboDe(P, rx, ry, rv + 1, "avs-fondo") + romboDe(P, rx, ry, rv, "avs-rombo " + d.estado);
     const a = -Math.PI / 2 + k * 2 * Math.PI / 7;
-    s += rotuloDia(x0 + (cx + .5 + Math.cos(a) * (R + 4)) * p, y0 + (cy + .5 + Math.sin(a) * (R + 4)) * p + 4, d, k);
+    s += `<text class="rt-rot centro sello-dia${d.hoy ? " fuerte" : ""}" x="${r1(x0 + (cx + .5 + Math.cos(a) * (R + ESP)) * p)}" y="${r1(y0 + (cy + .5 + Math.sin(a) * (R + ESP)) * p + 5)}">${letrasDeSemana()[k]}</text>`;
   });
-  s += romboPx(P, cx, cy, Z.ok ? "avs-centro vivo" : "avs-centro", true);
+  s += romboDe(P, cx, cy, rv + 1, Z.ok ? "avs-centro vivo" : "avs-centro");
   return s;
 }
 

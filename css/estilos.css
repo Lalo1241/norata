@@ -13088,8 +13088,8 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .avs-aro { fill: var(--av-hueso, rgba(var(--escena-tinta), .6)); }
   .avs-aro.fino { opacity: .45; }
   .avs-aro.vivo { fill: var(--mint-macizo); }
-  .avs-linea { fill: none; stroke: var(--av-hueso, rgba(var(--escena-tinta), .5)); stroke-width: 1; opacity: .35; }
-  .avs-linea.viva { stroke: var(--mint-macizo); stroke-width: 2; opacity: 1; stroke-dasharray: var(--lt); stroke-dashoffset: 0; animation: trazaMedida .9s ease-out backwards; }
+  .avs-linea { fill: none; stroke: var(--av-hueso, rgba(var(--escena-tinta), .5)); stroke-width: 2; opacity: .4; stroke-linecap: square; }
+  .avs-linea.viva { stroke: var(--mint-macizo); stroke-width: 3.2; opacity: 1; stroke-dasharray: var(--lt); stroke-dashoffset: 0; animation: trazaMedida .9s ease-out backwards; }
   .avs-linea.viva.toda { filter: drop-shadow(0 0 3px var(--mint)); }
   .avs-fondo { fill: var(--bg); }
   .avs-rombo { fill: none; }
@@ -13099,6 +13099,9 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .avs-centro { fill: var(--av-hueso, rgba(var(--escena-tinta), .5)); opacity: .5; }
   .avs-centro.vivo { fill: var(--mint); opacity: 1; animation: avsLuz 2.4s steps(4, end) infinite; }
   @keyframes avsLuz { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+  /* Las letras de los días del sello: con presencia, en tinta clara, y la de hoy en sangre */
+  .t-averno .rt-rot.sello-dia { font-size: 14px; font-weight: 800; fill: rgb(var(--escena-tinta)); paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; }
+  .t-averno .rt-rot.sello-dia.fuerte { fill: var(--mint); }
   .rt-rombo-in { fill: none; stroke: var(--av-hueso, rgba(var(--escena-tinta), .5)); stroke-width: 1; opacity: .5; pointer-events: none; }
   .t-averno .rt-ficha.rombo { fill: rgba(var(--escena-tinta), .08); stroke: var(--av-hueso, rgba(var(--escena-tinta), .5)); stroke-width: 1.5; }
   .t-averno .rt-ficha.rombo.si { fill: var(--mint-macizo); stroke: var(--av-hueso, none); filter: none; }

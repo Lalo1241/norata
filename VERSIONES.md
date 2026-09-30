@@ -247,6 +247,20 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.143.1 · 29 sep 2026
+
+**El sello de Averno, más fino y más legible.** Eduardo, viéndolo en vivo:
+
+- **El aro, a doble resolución.** El sello va en una rejilla el doble de fina
+  que el candelabro, así que sus bordes ya no se leen a escalones gruesos; el
+  aro tiene dos celdas de grueso para no perder presencia.
+- **La estrella, más gruesa**: 2 px apagada y 3,2 encendida (antes 1 y 2).
+- **Las letras de los días, con presencia y con aire.** Van a 14 px, en tinta
+  clara con un filo oscuro y la de hoy en sangre, y por FUERA de los rombos.
+  El sello se mide para dejar 22 px arriba, así que la «D» ya no toca el
+  mensaje de la tarjeta. Medido: 28 px de aire en el teléfono y 31 en la PC,
+  y en «Tu racha» todas las letras caben dentro de la escena.
+
 ### 0.7.143 · 29 sep 2026
 
 **Cada mundo tiene su racha.** Hasta ahora Catedral y Averno usaban la fogata
