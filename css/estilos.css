@@ -3310,6 +3310,26 @@
   .cerr-enlace:hover { color: var(--mint-deep); }
   .cerr-tx { display: block; }
   .cerr-como { margin-top: 10px; color: var(--muted); font-size: 13px; }
+  /* El candado va ARRIBA del título, no debajo (Eduardo, 0.7.143.6, en todos
+     los temas): se ve primero lo que está cerrado y luego cuánto falta. El
+     problema es que el título es la cabecera del cuadro y el aro vive dentro
+     del texto, en otro padre; el cuadro lo comparten todos los avisos de la
+     app, así que moverlo con JavaScript lo desordenaría para los demás. Se
+     hace aquí y solo cuando el cuadro lleva el aro: el texto deja de ser una
+     caja (`display: contents`) y sus piezas se ordenan junto al título.
+     Heredan igual su letra y su color, pero pierden el margen del párrafo, así
+     que los botones recuperan su aire con `margin-top`. */
+  .modal-card:has(> #modal-msg .cerr-aro) { display: flex; flex-direction: column; }
+  .modal-card:has(> #modal-msg .cerr-aro) > #modal-msg { display: contents; }
+  .modal-card:has(> #modal-msg .cerr-aro) > *,
+  .modal-card:has(> #modal-msg .cerr-aro) > #modal-msg > * { order: 3; }
+  .modal-card:has(> #modal-msg .cerr-aro) > .modal-ic { order: 0; }
+  /* Con la misma ruta que la regla de arriba (`> #modal-msg > …`): escrita
+     solo como `.cerr-aro` pesaba menos que esa, que nombra un id, y el aro se
+     quedaba en el orden 3, debajo del título. */
+  .modal-card:has(> #modal-msg .cerr-aro) > #modal-msg > .cerr-aro { order: 1; margin-bottom: 12px; }
+  .modal-card:has(> #modal-msg .cerr-aro) > .modal-titulo { order: 2; }
+  .modal-card:has(> #modal-msg .cerr-aro) > .modal-actions { order: 4; margin-top: 20px; }
   /* Lo que espera dentro. En menta y con la gema porque no es una advertencia:
      es lo único de este cuadro que da ganas de volver. */
   .cerr-espera {

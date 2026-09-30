@@ -280,6 +280,15 @@ los «+» de añadir y ese botón. Ahora llevan el marco de esquina cortada, que
 trae el corte dibujado; el de actualizar, en oro (`--av-marco-bisel-oro`, nuevo
 en `mundos/averno/averno.py`). La misma medida, repetida, da cero.
 
+**Y el candado va encima del título, en todos los temas.** En el cuadro de un
+módulo cerrado el título salía arriba y el aro con el candado debajo; Eduardo
+lo quiso al revés: primero lo cerrado, luego cuánto falta. Como el título es la
+cabecera del cuadro y el aro va dentro del texto —y ese cuadro lo comparten
+todos los avisos—, se ordena solo con CSS y solo cuando el cuadro lleva el aro
+(`.modal-card:has(> #modal-msg .cerr-aro)`, en `css/estilos.css`). Medido en la
+casa, Tinta, Averno, Catedral, Blueprint y Reliquia: aro, título, texto y
+botón, en ese orden.
+
 ### 0.7.143.5 · 29 sep 2026
 
 **La frase de la puerta se lee en dos renglones, y el banco se limpió.** Lo
