@@ -51,6 +51,28 @@
     /* La tinta encima de un relleno macizo. Oscura en los dos modos, porque
        los tres tonos vivos son claros en los dos modos. */
     --sobre-macizo: #10151d;
+    /* ---- Los tonos de ESTADO: no son del mundo, son de Norata ----
+       Un check dice «lo lograste» y tiene que decirlo en verde en todos los
+       mundos y ambientes; lo que va en curso, en amarillo; lo que se perdió,
+       en coral. Es psicología del color, no decoración: el rojo se lee como
+       incompleto o fallado, así que un check rojo contradice lo que dice.
+
+       Por eso NO salen del acento (`--mint`), que es lo que cada mundo
+       cambia: en Averno y Catedral el acento es rojo sangre, y la palomita
+       de un talento logrado salía roja (Eduardo, 0.7.143.4). Ningún mundo ni
+       ambiente redefine estas variables — `mundos/app.py` se niega a generar
+       uno que lo intente. La tinta de encima es oscura siempre, porque los
+       tres rellenos son claros en los dos modos. */
+    --estado-hecho: #5fe0b0;
+    --estado-hecho-tinta: #5fe0b0;
+    --estado-hecho-soft: rgba(95, 224, 176, 0.13);
+    --estado-curso: #f5d76e;
+    --estado-curso-tinta: #f5d76e;
+    --estado-curso-soft: rgba(245, 215, 110, 0.13);
+    --estado-fallo: #ff8a70;
+    --estado-fallo-tinta: #ff8a70;
+    --estado-fallo-soft: rgba(255, 138, 112, 0.13);
+    --sobre-estado: #10151d;
     --celeste: #8ecdf5;
     --celeste-soft: rgba(142, 205, 245, 0.1);
 
@@ -735,6 +757,18 @@
     --mint-macizo: #00cc7f;
     --fire-macizo: #f5c314;
     --coral-macizo: #ff603d;
+    /* Los tonos de estado de día: el mismo verde, amarillo y coral de la
+       lámina, rellenando en su tono vivo y escribiendo en el oscuro. Ver la
+       nota de `--estado-hecho` arriba: ningún mundo los toca. */
+    --estado-hecho: #00cc7f;
+    --estado-hecho-tinta: #007046;
+    --estado-hecho-soft: #e6f1ec;
+    --estado-curso: #f5c314;
+    --estado-curso-tinta: #755c05;
+    --estado-curso-soft: #eeebe1;
+    --estado-fallo: #ff603d;
+    --estado-fallo-tinta: #bd2200;
+    --estado-fallo-soft: #f8e9e6;
     /* Más claro que el lila de la paleta (#7d50ea) a propósito: con el vivo,
        la tinta oscura de encima daba 3,67 sobre 1. */
     --lila-macizo: #9b6bff;
@@ -1056,6 +1090,15 @@
     --lila: #b7a2ea;
     --lila-soft: rgba(183, 162, 234, 0.13);
     --lila-macizo: #b7a2ea;
+    --estado-hecho: #5fe0b0;
+    --estado-hecho-tinta: #5fe0b0;
+    --estado-hecho-soft: rgba(95, 224, 176, 0.13);
+    --estado-curso: #f5d76e;
+    --estado-curso-tinta: #f5d76e;
+    --estado-curso-soft: rgba(245, 215, 110, 0.13);
+    --estado-fallo: #ff8a70;
+    --estado-fallo-tinta: #ff8a70;
+    --estado-fallo-soft: rgba(255, 138, 112, 0.13);
     --lila-halo: rgba(183, 162, 234, 0.42);
     --motivo-cielo-1: #1c2534;
     --motivo-cielo-2: #141b26;
@@ -1980,6 +2023,18 @@
     color: var(--mu-acento, var(--lila));
   }
   .mun-ic svg { width: 20px; height: 20px; stroke-width: 1.6; }
+  /* Averno y Catedral eran clónicos en esta lista —el mismo rojo, la misma
+     casilla, dos iconos redondos— y Eduardo pidió que se distinguieran en
+     color y en diseño. El color lo pone su muestra (Catedral va en el índigo
+     de su vitral, `--m-muestra` en mundos/datos.py); la figura, la de cada
+     mundo: el ROMBO de Averno y la LOSA de esquina labrada de Catedral, las
+     mismas de su menú. */
+  .mues-averno .mun-ic { border-radius: 0; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); width: 42px; height: 42px; margin: -2px; }
+  .mues-catedral .mun-ic {
+    border-radius: 0;
+    clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 2px 4px, 2px 2px, 4px 2px);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--mu-acento) 45%, transparent);
+  }
   .mun-tx { min-width: 0; flex: 1; }
   .mun-tx b { display: block; font-size: 14px; font-weight: 700; }
   .mun-tx > span {
@@ -3278,6 +3333,26 @@
   .cerr-enlace:hover { color: var(--mint-deep); }
   .cerr-tx { display: block; }
   .cerr-como { margin-top: 10px; color: var(--muted); font-size: 13px; }
+  /* El candado va ARRIBA del título, no debajo (Eduardo, 0.7.143.6, en todos
+     los temas): se ve primero lo que está cerrado y luego cuánto falta. El
+     problema es que el título es la cabecera del cuadro y el aro vive dentro
+     del texto, en otro padre; el cuadro lo comparten todos los avisos de la
+     app, así que moverlo con JavaScript lo desordenaría para los demás. Se
+     hace aquí y solo cuando el cuadro lleva el aro: el texto deja de ser una
+     caja (`display: contents`) y sus piezas se ordenan junto al título.
+     Heredan igual su letra y su color, pero pierden el margen del párrafo, así
+     que los botones recuperan su aire con `margin-top`. */
+  .modal-card:has(> #modal-msg .cerr-aro) { display: flex; flex-direction: column; }
+  .modal-card:has(> #modal-msg .cerr-aro) > #modal-msg { display: contents; }
+  .modal-card:has(> #modal-msg .cerr-aro) > *,
+  .modal-card:has(> #modal-msg .cerr-aro) > #modal-msg > * { order: 3; }
+  .modal-card:has(> #modal-msg .cerr-aro) > .modal-ic { order: 0; }
+  /* Con la misma ruta que la regla de arriba (`> #modal-msg > …`): escrita
+     solo como `.cerr-aro` pesaba menos que esa, que nombra un id, y el aro se
+     quedaba en el orden 3, debajo del título. */
+  .modal-card:has(> #modal-msg .cerr-aro) > #modal-msg > .cerr-aro { order: 1; margin-bottom: 12px; }
+  .modal-card:has(> #modal-msg .cerr-aro) > .modal-titulo { order: 2; }
+  .modal-card:has(> #modal-msg .cerr-aro) > .modal-actions { order: 4; margin-top: 20px; }
   /* Lo que espera dentro. En menta y con la gema porque no es una advertencia:
      es lo único de este cuadro que da ganas de volver. */
   .cerr-espera {
@@ -6197,9 +6272,10 @@
     padding: 5px 14px;
     margin-bottom: 12px;
   }
-  .perk-hero.h-completed .state-big { background: var(--mint-soft); color: var(--mint); }
-  .perk-hero.h-active .state-big, .perk-hero.h-due .state-big { background: var(--fire-soft); color: var(--fire); }
-  .perk-hero.h-expired .state-big { background: var(--coral-soft); color: var(--coral); }
+  /* Los estados salen de `--estado-*`, no del acento: ver `:root`. */
+  .perk-hero.h-completed .state-big { background: var(--estado-hecho-soft); color: var(--estado-hecho-tinta); }
+  .perk-hero.h-active .state-big, .perk-hero.h-due .state-big { background: var(--estado-curso-soft); color: var(--estado-curso-tinta); }
+  .perk-hero.h-expired .state-big { background: var(--estado-fallo-soft); color: var(--estado-fallo-tinta); }
   .perk-hero h2 { font-size: 23px; font-weight: 700; letter-spacing: -0.4px; }
   .perk-hero .branch-lbl { color: var(--muted); font-size: 12.5px; font-weight: 600; margin-top: 5px; }
   .perk-hero .desc { font-size: 14px; color: var(--muted); line-height: 1.55; margin-top: 12px; }
@@ -6814,7 +6890,7 @@
     cursor: pointer;
     min-width: 0;
   }
-  .caja-row.ok .caja-ir { border-color: color-mix(in srgb, var(--mint-macizo) 32%, transparent); }
+  .caja-row.ok .caja-ir { border-color: color-mix(in srgb, var(--estado-hecho) 32%, transparent); }
   .caja-ir .ct { min-width: 0; }
   .caja-ir .ct b { display: block; font-size: 13.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .caja-ir .ct span { font-size: 10.5px; color: var(--faint); }
@@ -8006,8 +8082,8 @@
     color: var(--text);
   }
   .req-chip.on .ic { color: var(--mint); }
-  .req-chip.hecho { border-color: var(--mint); color: var(--text); }
-  .req-chip.hecho .ic { color: var(--mint); }
+  .req-chip.hecho { border-color: var(--estado-hecho-tinta); color: var(--text); }
+  .req-chip.hecho .ic { color: var(--estado-hecho-tinta); }
   .req-chip.no { opacity: 0.35; cursor: not-allowed; }
   @media (hover: hover) and (pointer: fine) {
     .req-chip:not(.no):hover { border-color: var(--faint); background: var(--sup-tarjeta2); }
@@ -8060,7 +8136,7 @@
     color: #0e131b;
   }
   .pk-box svg { stroke-width: 3.2; }
-  .pk-step.ok .pk-box { background: var(--pc); border-color: var(--pc); }
+  .pk-step.ok .pk-box { background: var(--estado-hecho); border-color: var(--estado-hecho); color: var(--sobre-estado); }
   .pk-step.ok .pk-tx { color: var(--muted); text-decoration: line-through; }
   .pk-tx { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   .pk-del {
@@ -8353,8 +8429,8 @@
     align-self: flex-start;
   }
   .pstep i svg { width: 9px; height: 9px; stroke-width: 3.4; }
-  .pstep.ok { color: var(--text); border-color: color-mix(in srgb, var(--pc) 45%, transparent); }
-  .pstep.ok i { background: var(--pc); border-color: var(--pc); color: #10151d; font-weight: 800; }
+  .pstep.ok { color: var(--text); border-color: color-mix(in srgb, var(--estado-hecho) 45%, transparent); }
+  .pstep.ok i { background: var(--estado-hecho); border-color: var(--estado-hecho); color: var(--sobre-estado); font-weight: 800; }
   .pstep.more { color: var(--faint); padding: 4px 11px; }
 
   /* ---- Marcar y crear sin salir de la lista ----
@@ -8976,6 +9052,12 @@
     font-family: var(--tipo-titulo);
     font-size: clamp(19px, 2.4vw, 27px); line-height: 1.35; font-weight: 700;
     color: var(--text); margin: 0;
+    /* Una cita se lee en dos o tres renglones, no en uno de borde a borde. En
+       PC el panel mide el 60% de la pantalla y la frase entera cabía en una
+       línea de 850 px: se leía como un titular y no como alguien hablando.
+       El tope va en `ch` para que siga a la letra, y `balance` reparte las
+       palabras para que el último renglón no se quede con una sola. */
+    max-width: 24ch; text-wrap: balance;
   }
   /* La comilla es un adorno y no se lee: fuera del árbol de accesibilidad y
      sin ocupar renglón propio. */
@@ -13156,8 +13238,15 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .rq2-disco { fill: color-mix(in srgb, var(--fire) 22%, var(--card)); stroke: var(--line); stroke-width: 2; }
   .rq2-tramo { fill: none; stroke-width: 7; stroke-linecap: butt; }
   .rq2-tramo.si { stroke: var(--fire); stroke-dasharray: var(--lt); stroke-dashoffset: 0; animation: trazaMedida 1.1s ease-out backwards; }
-  .rq2-tramo.no { stroke: color-mix(in srgb, var(--line) 60%, var(--bg)); }
-  .rq2-tramo.futuro { stroke: color-mix(in srgb, var(--line) 30%, var(--bg)); }
+  /* Los tres estados, que se distingan de un vistazo (0.7.143.3): un día que
+     ya pasó sin nada es un gajo apagado pero sólido; uno que no ha llegado es
+     casi el fondo del disco; hoy, si todavía no cuenta, lleva el borde de oro
+     y late. Antes «no» y «futuro» eran dos grises casi iguales. */
+  .rq2-tramo.no { stroke: color-mix(in srgb, var(--line) 85%, rgb(var(--escena-tinta))); opacity: .55; }
+  .rq2-tramo.futuro { stroke: color-mix(in srgb, var(--line) 35%, var(--bg)); }
+  .rq2-tramo.hoy:not(.si) { stroke: color-mix(in srgb, var(--fire) 40%, var(--bg)); opacity: 1; }
+  .rq2-aura { fill: none; stroke: var(--fire); stroke-width: 14; stroke-linecap: butt; filter: blur(4px); opacity: .5; animation: rq2Aura 2.8s ease-in-out infinite; }
+  @keyframes rq2Aura { 0%, 100% { opacity: .28; } 50% { opacity: .75; } }
   .rq2-tramo.si.hoy { animation: trazaMedida 1.1s ease-out backwards, rq2Hoy 2.6s ease-in-out 1.4s infinite; }
   .rq2-tramo.hoy.no, .rq2-tramo.hoy.futuro { animation: rq2Hoy 2.6s ease-in-out infinite; }
   @keyframes rq2Hoy { 50% { opacity: .45; } }
@@ -13175,9 +13264,12 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
 
   /* Reliquia · el orbe de las semanas de antes */
   .fq-orbe-vidrio { fill: color-mix(in srgb, var(--bg) 70%, var(--card)); }
-  .fq-orbe-liq { fill: color-mix(in srgb, var(--mint) 38%, var(--card)); }
+  /* El líquido es siempre de oro (Eduardo, 0.7.143.3): el nivel ya dice
+     cuántos días tuvo; la semana que contó lo lleva pleno y la que no, más
+     apagado. En lila no se leía como un orbe que se llena. */
+  .fq-orbe-liq { fill: color-mix(in srgb, var(--fire) 55%, var(--card)); }
   .fq-orbe-liq.si { fill: var(--fire); }
-  .fq-orbe-nivel { fill: none; stroke: color-mix(in srgb, var(--mint) 60%, var(--card)); stroke-width: 1.2; }
+  .fq-orbe-nivel { fill: none; stroke: color-mix(in srgb, var(--fire) 75%, var(--card)); stroke-width: 1.2; }
   .fq-orbe-nivel.si { stroke: color-mix(in srgb, var(--fire) 55%, rgb(var(--escena-tinta))); }
   .fq-orbe-brillo { fill: none; stroke: rgba(var(--escena-tinta), .45); stroke-width: 1.6; stroke-linecap: round; }
   .fq-orbe-borde { fill: none; stroke: var(--line); stroke-width: 1.5; }
@@ -13201,6 +13293,18 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .fc-llama.f2 { fill: var(--fire); }
   .fc-llama.f3 { fill: rgb(var(--escena-tinta)); }
   .t-catedral .rt-ficha-n.oscuro { fill: var(--bg); }
+  /* Las letras y los números de la racha de Catedral, en su letra de títulos
+     (CelestiByte, la de Eduardo) y no en la de las cifras. La de las cifras (Jersey 10) es
+     estrecha a propósito, y a 10-13 px dentro de una vela o bajo un brazo de
+     hierro «se ve demasiado compactada» (Eduardo, 0.7.143.3). Las letras de los
+     días llevan además un contorno del color del fondo, como las del sello de
+     Averno: la de en medio cae sobre el fuste del candelabro y sin él no se
+     leía. */
+  .t-catedral :is(.rt-ficha-n, .rt-rango, .rt-franja-tit, .rt-rot) { font-family: var(--tipo-titulo); font-weight: 400; }
+  .t-catedral .rt-ficha-n { font-size: 15px; letter-spacing: .02em; }
+  .t-catedral .rt-rango { font-size: 12px; letter-spacing: .02em; }
+  .t-catedral .rt-rot.cand-dia { font-size: 14px; letter-spacing: 0; fill: rgb(var(--escena-tinta)); paint-order: stroke; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round; }
+  .t-catedral .rt-rot.cand-dia.fuerte { fill: var(--fire); }
 
   /* Blueprint · la torre: muchas líneas, más finas que las siete de antes */
   .pl-trazo.torre { stroke-width: 1.7; }
@@ -13231,7 +13335,7 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .con-fondo-mundo .scene-fade { background: linear-gradient(180deg, rgba(var(--escena-fondo), .35), transparent 30%, transparent 75%, rgba(var(--escena-fondo), .4)); }
 
   @media (prefers-reduced-motion: reduce) {
-    .avs-linea.viva, .avs-centro.vivo, .rq2-tramo.si, .rq2-tramo.hoy, .rq2-rete, .fq-sube, .fq-mece { animation: none; }
+    .avs-linea.viva, .avs-centro.vivo, .rq2-tramo.si, .rq2-tramo.hoy, .rq2-rete, .rq2-aura, .fq-sube, .fq-mece { animation: none; }
     .fm-chispa { animation: none; opacity: .5; }
   }
 

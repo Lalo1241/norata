@@ -2553,7 +2553,7 @@ function constellation(nodes, key, editing, branch, mod) {
       const done = c.esCaja ? c.todoHecho : nodoHecho(c, esNodoDeProyecto(c));
       const inProgress = !c.esCaja && (cst === "active" || cst === "due");
       const lit = done || inProgress;
-      const col = trazo(done ? (c.color || "#5fe0b0") : (inProgress ? "var(--fire)" : "var(--lienzo-hilo)"));
+      const col = trazo(done ? (c.color || "#5fe0b0") : (inProgress ? "var(--estado-curso-tinta)" : "var(--lienzo-hilo)"));
       const P = edgePath(a, b, n, c, gir);
       const wdt = lit ? 3 : 2;
       // Sin filtro SVG: un trazo perfectamente horizontal tiene caja de altura
@@ -2598,7 +2598,7 @@ function constellation(nodes, key, editing, branch, mod) {
          rótulo y el contorno de la caja no se veían, que es lo que Eduardo
          señaló como «el amarillo tiene mal contraste». El del propio mundo da
          3,84, y de noche los dos valen lo mismo que valían. */
-      const cc = n.colorPropio || (n.todoHecho ? "var(--mint)" : "var(--fire)");
+      const cc = n.colorPropio || (n.todoHecho ? "var(--estado-hecho-tinta)" : "var(--estado-curso-tinta)");
       const ccT = tinta(cc), ccZ = trazo(cc);   // ver la nota del recinto
       /* Dos líneas como mucho: la caja tiene una altura fija y un nombre
          largo se saldría por abajo, encima del texto que dice qué guarda.
@@ -2638,14 +2638,14 @@ function constellation(nodes, key, editing, branch, mod) {
        vivo, porque lleva tinta oscura encima y tiene que resaltar. */
     const colT = trazo(col);
     const conf = {
-      completed: { stroke: colT, fill: relleno(col, "33"), glow: true, badge: "var(--mint-macizo)", mark: "check" },
-      active:    { stroke: colT, fill: relleno(col, "1f"), glow: true, badge: "var(--fire-macizo)", mark: "play" },
+      completed: { stroke: colT, fill: relleno(col, "33"), glow: true, badge: "var(--estado-hecho)", mark: "check" },
+      active:    { stroke: colT, fill: relleno(col, "1f"), glow: true, badge: "var(--estado-curso)", mark: "play" },
       /* Los dos avisos salen del acento de la apariencia y no del amarillo y
          el coral de la casa escritos aquí, que es lo que había: sobre el
          lienzo claro de Reliquia el `#f5d76e` de la casa daba 1,28 —o sea,
          invisible— mientras que el aviso del propio mundo da 3,84. */
-      due:       { stroke: "var(--fire)", fill: relleno("var(--fire-macizo)", "33"), glow: true, badge: "var(--fire-macizo)", mark: "alert" },
-      expired:   { stroke: "var(--coral)", fill: relleno("var(--coral-macizo)", "1a"), glow: false, badge: "var(--coral-macizo)", mark: "close" },
+      due:       { stroke: "var(--estado-curso-tinta)", fill: relleno("var(--estado-curso)", "33"), glow: true, badge: "var(--estado-curso)", mark: "alert" },
+      expired:   { stroke: "var(--estado-fallo-tinta)", fill: relleno("var(--estado-fallo)", "1a"), glow: false, badge: "var(--estado-fallo)", mark: "close" },
       locked:    { stroke: "var(--lienzo-candado)", fill: "var(--lienzo-bloqueado)", glow: false },
       available: { stroke: colT, fill: relleno(col, "12"), glow: false, sop: 0.55 },
       /* Los dos que solo usa Proyectos. Van en la misma tabla para que los
@@ -2707,8 +2707,8 @@ function constellation(nodes, key, editing, branch, mod) {
        un encargo terminado no puede estar estancado. */
     const salud = (esNodoDeProyecto(n)
                    && (n.status === "active" || n.status === "paused"))
-      ? { stalled: { col: "var(--coral-macizo)", ic: "alert" },
-          cooling: { col: "var(--fire-macizo)", ic: "luna" } }[projectHealth(n).key]
+      ? { stalled: { col: "var(--estado-fallo)", ic: "alert" },
+          cooling: { col: "var(--estado-curso)", ic: "luna" } }[projectHealth(n).key]
       : null;
     /* Y su esquina. En la caja normal cabe enfrente de la chapa de estado sin
        más, pero en el círculo de un gasto —que mide 19 de radio— las dos
@@ -2734,7 +2734,7 @@ function constellation(nodes, key, editing, branch, mod) {
          stroke="${cerrado ? "var(--faint)" : conf.stroke}" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[iname] || ICONS.star}</g>
       ${conf.mark ? `<g class="nod-chapa"><circle cx="${x + markR.dx}" cy="${y + markR.dy}" r="9.5" fill="${conf.badge}"/>
         <g transform="translate(${x + markR.dx - 6}, ${y + markR.dy - 6}) scale(0.5)"
-           stroke="var(--sobre-macizo)" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g></g>` : ""}${/* Pegado a la línea de arriba y no en la
+           stroke="var(--sobre-estado)" fill="none" stroke-width="${conf.mark === "play" ? 2.6 : 3}" stroke-linecap="round" stroke-linejoin="round">${ICONS[conf.mark]}</g></g>` : ""}${/* Pegado a la línea de arriba y no en la
         suya: una interpolación en su propia línea mete un salto y seis
         espacios en el SVG de CADA nodo —también en los de Talentos, que no
         tienen nada que ver con esto—. Cero píxeles y huella distinta, que es
@@ -2775,7 +2775,7 @@ function constellation(nodes, key, editing, branch, mod) {
             adelantada. Se dice en etapas y no en porcentaje porque es lo que
             se marca: "2/4" es accionable, "50%" es un resumen. */
         (verEtapas && (n.steps || []).length)
-          ? `<text class="nod-etapas" x="${sitio.anclaX}" y="${topY + (lines.length - 1) * 12 + 13}" text-anchor="${sitio.ancla}" font-size="9" fill="var(--fire)" font-weight="700">${
+          ? `<text class="nod-etapas" x="${sitio.anclaX}" y="${topY + (lines.length - 1) * 12 + 13}" text-anchor="${sitio.ancla}" font-size="9" fill="var(--estado-curso-tinta)" font-weight="700">${
               T`${n.steps.filter(s2 => s2.done).length}/${n.steps.length} etapas`}</text>`
           : ""}
     </g>`;
@@ -3901,7 +3901,7 @@ function attachEditHandlers(scope) {
         if (c) {
           const cst = estadoDeNodo(c);
           color = tinta(nodoHecho(c, mod === "proyectos") ? (c.color || "#5fe0b0")
-            : ((cst === "active" || cst === "due") ? "var(--fire)" : "var(--lienzo-hilo)"));
+            : ((cst === "active" || cst === "due") ? "var(--estado-curso-tinta)" : "var(--lienzo-hilo)"));
         }
         removeLink(curId);
         // Después del redibujado: la línea ya no está, así que lo que se ve

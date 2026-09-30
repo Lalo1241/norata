@@ -5,8 +5,8 @@
 # Son propias y NO repiten las de Catedral, y eso fue un encargo: en el boceto
 # Averno llevaba las cuatro de Catedral repintadas y Eduardo lo paró —«están
 # duplicadas»—. La distancia de cada segundo tono al más parecido de Catedral
-# es de 20 o más en dE2000 (Sangre 20 con Alabastro, Cocito 20 con Espectro,
-# Ponzoña 23 con Bronce, Tormento 24 con Vitral); por debajo de 20 el ojo las
+# es de 20 o más en dE2000 (Sangre 20 con Alabastro, Lamento 20 con Espectro,
+# Plaga 23 con Bronce, Tormento 24 con Vitral); por debajo de 20 el ojo las
 # confunde. Todas pasan 4,5 para escribir en las dos caras.
 #
 # Mismo reparto que Catedral (rojo = acento, oro = aviso, brasa naranja =
@@ -29,7 +29,7 @@ PALETAS = {
              aviso="#6d5500", avisoM="#f2c94c", peligro="#a13a00", peligroM="#ff8a3d", sobre="#1b1718",
              piedra="#cfc9c6", hierro="#8d8589", hondo="#ebe8e6")),
   "cocito": dict(
-    nombre="Cocito", segundo_nombre="azul hielo",
+    nombre="Lamento", segundo_nombre="azul hielo",
     idea="El lago helado del noveno círculo de Dante: la sangre sobre hielo, en un negro azulado.",
     noche=dict(bg="#04060c", bg2="#0a0e18", card="#121827", card2="#171e30", line="#28334d", carril="#242e46",
                text="#e6ebf5", muted="#95a0b8", faint="#646e88",
@@ -42,7 +42,7 @@ PALETAS = {
              aviso="#6d5500", avisoM="#f2c94c", peligro="#a13a00", peligroM="#ff8a3d", sobre="#121828",
              piedra="#c9cfdb", hierro="#7e889f", hondo="#e8ebf1")),
   "ponzona": dict(
-    nombre="Ponzoña", segundo_nombre="verde veneno",
+    nombre="Plaga", segundo_nombre="verde veneno",
     idea="Sangre y veneno: el rojo de siempre y un verde ácido que no es natural.",
     noche=dict(bg="#050805", bg2="#0b100b", card="#131a13", card2="#182118", line="#283528", carril="#253125",
                text="#e6eee5", muted="#96a694", faint="#667464",

@@ -332,7 +332,10 @@ def muestra(m):
         if dia and m.get("dia"): t.update(m["dia"])
         fondo = plano_o_muere(t["--m-pagina"], "--m-pagina", m["id"])[-1]
         tarj = plano_o_muere(t["--m-tarjeta"], "--m-tarjeta", m["id"])[0]
-        return (fondo, tarj, t["--m-acento"])
+        # `--m-muestra` es el color con que el mundo se enseña en la lista de
+        # Mi apariencia, cuando no es su acento: Catedral y Averno comparten el
+        # rojo, y en la lista salían clónicos. Sin él, manda el acento.
+        return (fondo, tarj, t.get("--m-muestra", t["--m-acento"]))
     n = toma(False); d = toma(True)
     return ('.mues-%s { --mu-bg: %s; --mu-card: %s; --mu-acento: %s; }\n'
             'html.claro .mues-%s { --mu-bg: %s; --mu-card: %s; --mu-acento: %s; }'
@@ -775,13 +778,12 @@ FUENTES = {
    español —á é í ó ú ñ ü— caen todos dentro del latino.""",
     caras=[("rajdhani-600.woff2", "600"), ("rajdhani-700.woff2", "700")]),
   "catedral": dict(
-    familia="Pixelify Sans",
-    nota=u"""Pixelify Sans y Jersey 10, las letras de Catedral. **Pixelify la eligió
-   Eduardo en la 0.7.141** entre cuatro, al ver la gótica puesta: los títulos
-   fueron Jacquard 24 desde la 0.7.136, cuando el mundo se llamaba Averno, y lo
-   que viene abajo de la gótica se queda escrito por las trampas que enseña.
-   Pixelify (OFL, Stefie Justprince) es una fuente variable: un solo archivo,
-   declarado de 400 a 700, pesa 8 KB.
+    familia="Jersey 10",
+    nota=u"""Jersey 10, la letra de las cifras de Catedral. Los títulos van en
+   CelestiByte, la letra de Eduardo, que NO se incrusta aquí: ya la declara
+   `css/estilos.css` para Arcade y el navegador la baja al usarla. Fueron
+   Jacquard 24 (0.7.136) y luego Pixelify Sans (0.7.141); Eduardo pidió la
+   suya en la 0.7.143.3.
 
    Lo de la gótica: Las dos con
    licencia SIL Open Font 1.1 (Sarah Cadigan-Fried), que permite incrustarlas;
@@ -803,7 +805,7 @@ FUENTES = {
    **Trampa que costó una vuelta del boceto:** la app solo admite letras
    propias o incrustadas (`font-src 'self' data:` en `index.html`). Pedida a
    Google Fonts no carga, y en silencio sale la de respaldo.""",
-    caras=[("pixelify-600.woff2", "400 700", "Pixelify Sans"), ("jersey-10.woff2", "100 900", "Jersey 10")]),
+    caras=[("jersey-10.woff2", "100 900", "Jersey 10")]),
   "averno": dict(
     familia="Silkscreen",
     nota=u"""Silkscreen y Tiny5, las letras de Averno (0.7.141). Las dos con licencia
@@ -902,6 +904,14 @@ if __name__ == "__main__":
                   "   `--marca-iso`. Generado desde `mundos/iconos/generar.py`. */\n"
                   + "".join(ICONOS.marca_css(m["id"]) for m in listos))
     txt = "\n".join(partes)
+    # ---- Los tonos de estado no son del mundo ----
+    # Un check es verde, lo que va en curso amarillo y lo perdido coral, en
+    # TODOS los mundos: lo pidió Eduardo al ver la palomita de un talento
+    # salir roja en Catedral (0.7.143.4). Viven en `--estado-*` de
+    # css/estilos.css; un mundo que los redefina rompe esa regla sin que se
+    # note, así que aquí no se genera.
+    if "--estado-" in txt:
+        raise SystemExit("un mundo redefine --estado-*: los tonos de estado son de Norata, no del mundo")
     raiz = os.path.dirname(AQUI)
     destino = os.path.join(raiz, "css", "mundos.css")
     open(destino, "w", encoding="utf-8").write(txt)

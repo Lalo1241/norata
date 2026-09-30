@@ -18,7 +18,7 @@ escuadras, chevrones, manchas de sangre y círculos, y «hay cosas que no
 coinciden».
 
 Aquí:
-  - `paletas.py`   las cuatro paletas propias (Sangre, Cocito, Ponzoña y
+  - `paletas.py`   las cuatro paletas propias (Sangre, Lamento, Plaga y
                    Tormento), en sus dos caras;
   - `piezas.py`    las piezas de píxel, horneadas por paleta y por cara;
   - `material.css` el material, escrito a mano.
@@ -65,6 +65,10 @@ def piezas_cara(c, dia):
       "--av-hueso": h, "--av-brasa": "transparent" if dia else c["brasa"],
       "--av-marco-bisel": P.marco_bisel(h, "#ffffff" if dia else mix(c["text"], c["card"], .3), mix(c["line"], "#000000", .7) if dia else mix(c["bg"], "#000000", .5)),
       "--av-marco-bisel-sangre": P.marco_bisel(c["acento"] if dia else c["acentoM"], mix(c["acentoM"], "#ffffff", .5), mix(c["acento"], "#000000", .6)),
+      # El mismo marco en ORO, para lo que avisa (el botón de actualizar de la
+      # barra de la PC): con el marco de hueso dejaba de decir «aviso», y con su
+      # borde dorado de la casa la esquina a 45° se lo comía (0.7.143.6).
+      "--av-marco-bisel-oro": P.marco_bisel(c["aviso"], mix(c["avisoM"], "#ffffff", .5), mix(c["aviso"], "#000000", .6)),
       "--av-rombo": P.rombo(h, mix(h, c["card"], .45) if dia else mix(c["text"], c["card"], .2), c["card2"]),
       "--av-brasas": "none" if dia else P.brasas(c["acentoM"], c["aviso"]),
       "--av-remate": P.remate(h, c["acento"] if dia else c["acentoM"]),

@@ -297,13 +297,11 @@ const PUERTA_FRASES = {
      algo. La sonrisa, en este lado, es complicidad y no chiste. */
   entrar: [
     "Del otro lado está todo lo tuyo, tal como lo dejaste.",
-    "Nada de lo que construiste se fue a ningún lado. Te estaba esperando.",
+    "Tus cosas no se enteraron de que te fuiste.",
     "Volver también cuenta. De hecho, es la parte difícil.",
     "Tu expedición sigue abierta. Nunca tuvo prisa.",
-    "Los días que no abriste la app también son parte del camino.",
     "Hoy basta con una cosa pequeña. En serio, con una.",
     "La racha se corta; el camino no.",
-    "Nadie lleva un año seguido. Se lleva un día, y luego otro.",
     "Tus habilidades bajan si las dejas. Nunca vuelves a empezar de cero.",
     "Lo que dejaste a medias sigue a medias, que es mucho mejor que en blanco.",
     "Entra, mira qué toca hoy y cierra. Nadie te va a pedir más.",
@@ -323,13 +321,10 @@ const PUERTA_FRASES = {
     "Aquí nadie te regaña por fallar. Solo ves el número, que es peor.",
     "Si tu vida fuera un videojuego, llevarías rato sin abrir el menú de personaje.",
     "Lo grande no cabe en una lista de pendientes. Por eso aquí hay un árbol.",
-    "Lo de hoy se marca de un toque. Lo de dentro de un año lo lleva la app.",
     "Subes de nivel por hacerlo, no por planearlo. Una lástima, ya sé.",
-    "Ganas XP por lavar los platos, si resulta que eso es lo que estás construyendo.",
     "Una lista de pendientes te recuerda lo que debes. Esto te enseña lo que llevas.",
-    "Tu constancia, por fin, con un número encima.",
     "«Algún día» no es una fecha. Aquí es una etapa, y tiene barra de avance.",
-    "Rachas, niveles y XP: lo mismo que te engancha en un juego, pero con tu vida.",
+    "La racha cuenta semanas, no días. Un mal martes no te la tumba.",
     "No todo está abierto el primer día. Como en cualquier juego que valga la pena."
   ]
 };

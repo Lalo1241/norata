@@ -907,20 +907,16 @@ const TEXTOS_EN = {
   /* Quien vuelve. */
   "Del otro lado está todo lo tuyo, tal como lo dejaste.":
     "Everything of yours is on the other side, just as you left it.",
-  "Nada de lo que construiste se fue a ningún lado. Te estaba esperando.":
-    "Nothing you built went anywhere. It was waiting for you.",
+  "Tus cosas no se enteraron de que te fuiste.":
+    "Your stuff never noticed you were gone.",
   "Volver también cuenta. De hecho, es la parte difícil.":
     "Coming back counts too. It's the hard part, actually.",
   "Tu expedición sigue abierta. Nunca tuvo prisa.":
     "Your expedition is still open. It was never in a hurry.",
-  "Los días que no abriste la app también son parte del camino.":
-    "The days you didn't open the app are part of the road too.",
   "Hoy basta con una cosa pequeña. En serio, con una.":
     "One small thing is enough today. Seriously, one.",
   "La racha se corta; el camino no.":
     "A streak breaks; the road doesn't.",
-  "Nadie lleva un año seguido. Se lleva un día, y luego otro.":
-    "Nobody does a year straight. You do a day, and then another.",
   "Tus habilidades bajan si las dejas. Nunca vuelves a empezar de cero.":
     "Your skills drop if you leave them. You never start over from zero.",
   "Lo que dejaste a medias sigue a medias, que es mucho mejor que en blanco.":
@@ -939,20 +935,14 @@ const TEXTOS_EN = {
     "If your life were a video game, you'd have gone a while without opening the character menu.",
   "Lo grande no cabe en una lista de pendientes. Por eso aquí hay un árbol.":
     "The big things don't fit in a to-do list. That's why there's a tree in here.",
-  "Lo de hoy se marca de un toque. Lo de dentro de un año lo lleva la app.":
-    "Today's part takes one tap. The part a year out, the app carries for you.",
   "Subes de nivel por hacerlo, no por planearlo. Una lástima, ya sé.":
     "You level up for doing it, not for planning it. A shame, I know.",
-  "Ganas XP por lavar los platos, si resulta que eso es lo que estás construyendo.":
-    "You earn XP for doing the dishes, if that happens to be what you're building.",
   "Una lista de pendientes te recuerda lo que debes. Esto te enseña lo que llevas.":
     "A to-do list reminds you what you owe. This one shows you what you've got.",
-  "Tu constancia, por fin, con un número encima.":
-    "Your consistency, at last, with a number on it.",
   "«Algún día» no es una fecha. Aquí es una etapa, y tiene barra de avance.":
     "“Someday” isn't a date. In here it's a stage, and it has a progress bar.",
-  "Rachas, niveles y XP: lo mismo que te engancha en un juego, pero con tu vida.":
-    "Streaks, levels and XP: the same thing that hooks you in a game, only it's your life.",
+  "La racha cuenta semanas, no días. Un mal martes no te la tumba.":
+    "Your streak counts weeks, not days. One bad Tuesday won't knock it down.",
   "No todo está abierto el primer día. Como en cualquier juego que valga la pena.":
     "Not everything is open on day one. Like in any game worth playing.",
   "Misiones para hoy, que se marcan de un toque.":
@@ -3901,6 +3891,12 @@ const TEXTOS_EN = {
   "Hueso": "Bone",
   "Hierro": "Iron",
   "Espectro": "Specter",
+  "Alabastro": "Alabaster",
+  "Bronce": "Bronze",
+  "Sangre": "Blood",
+  "Lamento": "Lament",
+  "Plaga": "Plague",
+  "Tormento": "Torment",
 
   /* ---- La tanda que faltaba (0.7.138) ----
      Salieron de cruzar cada `tx()` y cada `T` del código contra este archivo,

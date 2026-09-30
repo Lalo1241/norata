@@ -79,7 +79,10 @@ function heroCandelabro(x, y, w, h, Z) {
   let s = "";
   const fe = "avr-hierro", brazoY = Math.round(filas * .3), paso = Math.min(8, Math.floor((cols - 6) / 7)), ancho = paso * 6;
   const xs = [...Array(7)].map((_, i) => c - ancho / 2 + i * paso), pie = filas - 3;
-  s += P(xs[0] - 2, brazoY + 6, ancho + 5, 1, fe) + romboPx(P, xs[0] - 4, brazoY + 6, fe) + romboPx(P, xs[6] + 5, brazoY + 6, fe);
+  /* El brazo va de dos píxeles antes de la primera vela a dos después de la
+     última, y cada vela mide dos: son `ancho + 6`. Era `+ 5`, y el rombo de la
+     derecha se quedaba flotando a un píxel del brazo (Eduardo, 0.7.143.3). */
+  s += P(xs[0] - 2, brazoY + 6, ancho + 6, 1, fe) + romboPx(P, xs[0] - 4, brazoY + 6, fe) + romboPx(P, xs[6] + 5, brazoY + 6, fe);
   const nudo = Math.round((brazoY + pie) / 2);
   s += P(c, brazoY + 7, 1, pie - brazoY - 9, fe) + romboPx(P, c, brazoY + 9, fe) + romboPx(P, c, nudo, Z.ok ? "avr-nudo oro" : fe);
   s += P(c - 1, pie - 2, 3, 1, fe) + P(c - 3, pie - 1, 7, 1, fe) + P(c - 5, pie, 11, 1, fe);
@@ -89,7 +92,10 @@ function heroCandelabro(x, y, w, h, Z) {
     s += P(cx - 1, brazoY + 5, 4, 1, fe) + P(cx, brazoY, 2, 5, claseVela(d));
     if (d.estado === "si") s += P(cx - 2, brazoY - 9, 6, 8, "avr-halo") + llamaPx(P, cx + .5, brazoY - 8);
     else s += P(cx + .5, brazoY - 1, 1, 1, "avr-mecha");
-    s += rotuloDia(x0 + (cx + 1) * p, y0 + (brazoY + 7) * p + 14, d, i);
+    /* La letra, con su propia clase: a 11 px y en la letra de las cifras «no
+       se leían, sobre todo la que choca con el soporte» (la vela de en medio
+       cae justo encima del fuste). Ver `.cand-dia` en css/estilos.css. */
+    s += rotuloDia(x0 + (cx + 1) * p, y0 + (brazoY + 7) * p + 16, d, i).replace('class="rt-rot', 'class="rt-rot cand-dia');
   });
   return s;
 }
@@ -161,17 +167,26 @@ function heroSello(x, y, w, h, Z) {
    del primer día (Eduardo). */
 function heroAstrolabio(x, y, w, h, Z) {
   const L = letrasDeSemana();
-  const R = Math.min((h - 30) / 2, w * .3, 92), cx = x + w / 2, cy = y + 6 + R;
+  /* Centrado en su hueco, a lo alto y a lo ancho, con aire para las letras:
+     arriba del todo la «D» tocaba el mensaje de la tarjeta (0.7.143.3). */
+  const R = Math.max(40, Math.min(h / 2 - 34, w * .3, 92)), cx = x + w / 2, cy = y + h / 2;
   const pt = (a, r) => [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
   let s = `<circle class="rq2-disco" cx="${r1(cx)}" cy="${r1(cy)}" r="${r1(R)}"/>`;
-  const tramo = 2 * Math.PI / 7, ra = R - 7;
+  /* Los gajos casi juntos (0.7.143.3): con el hueco de antes se leían como
+     siete piezas sueltas y no como un anillo. Y un día que ya cuenta lleva
+     debajo un resplandor dorado que respira, para que se vea de lejos. */
+  const tramo = 2 * Math.PI / 7, ra = R - 7, hueco = .022;
+  let brillo = "";
   Z.dias.forEach((d, i) => {
-    const a0 = -Math.PI / 2 + i * tramo + .06 - tramo / 2, a1 = a0 + tramo - .12;
+    const a0 = -Math.PI / 2 + i * tramo + hueco - tramo / 2, a1 = a0 + tramo - 2 * hueco;
     const [x1, y1] = pt(a0, ra), [x2, y2] = pt(a1, ra), lt = r1(ra * (a1 - a0) + 1);
-    s += `<path class="rq2-tramo ${d.estado}${d.hoy ? " hoy" : ""}" d="M${r1(x1)} ${r1(y1)}A${r1(ra)} ${r1(ra)} 0 0 1 ${r1(x2)} ${r1(y2)}" style="--lt:${lt}px;animation-delay:${r1(.2 + i * .16)}s"/>`;
+    const arco = `M${r1(x1)} ${r1(y1)}A${r1(ra)} ${r1(ra)} 0 0 1 ${r1(x2)} ${r1(y2)}`;
+    if (d.estado === "si") brillo += `<path class="rq2-aura" d="${arco}" style="animation-delay:-${r1(i * .35)}s"/>`;
+    s += `<path class="rq2-tramo ${d.estado}${d.hoy ? " hoy" : ""}" d="${arco}" style="--lt:${lt}px;animation-delay:${r1(.2 + i * .16)}s"/>`;
     const [lx, ly] = pt(-Math.PI / 2 + i * tramo, R + 11);
     s += `<text class="rt-rot centro${d.hoy ? " fuerte" : ""}" x="${r1(lx)}" y="${r1(ly + 4)}">${L[i]}</text>`;
   });
+  s = s.replace(`r="${r1(R)}"/>`, `r="${r1(R)}"/>${brillo}`);
   // Las graduaciones, finas, por dentro del anillo
   for (let k = 0; k < 56; k++) {
     const a = k * 2 * Math.PI / 56, [ax, ay] = pt(a, R - 14), [bx, by] = pt(a, R - (k % 4 ? 17 : 20));
@@ -300,7 +315,9 @@ const FICHAS_RACHA = {
   catedral(w, cx, cy, s) {
     const ok = !!w.ok, q = Math.max(2, s / 8), oy = cy + 3;
     const P = (x, y, ww, hh, cls) => `<rect class="${cls}" x="${r1(cx + x * q)}" y="${r1(oy + y * q)}" width="${r1(ww * q)}" height="${r1(hh * q)}"/>`;
-    let t = P(-4, -5, 8, 11, ok ? "fc-cera si" : "fc-cera") + P(-5, 6, 10, 1, "fc-hierro") + P(-3, 7, 6, 1, "fc-hierro");
+    /* Diez de ancho y no ocho: el número va escrito en la cera, y con dos
+       cifras se salía por los lados; «demasiado compactadas» (Eduardo). */
+    let t = P(-5, -5, 10, 11, ok ? "fc-cera si" : "fc-cera") + P(-6, 6, 12, 1, "fc-hierro") + P(-4, 7, 8, 1, "fc-hierro");
     t += ok ? P(0, -10, 1, 1, "fc-llama f1") + P(-1, -9, 3, 1, "fc-llama f1") + P(-1, -8, 3, 2, "fc-llama f2") + P(0, -8, 1, 1, "fc-llama f3")
       : P(0, -7, 1, 2, "fc-mecha");
     return t;

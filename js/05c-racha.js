@@ -346,6 +346,7 @@ function pintarArteRacha() {
   const Z = semanasDeRacha(activityDayCounts(), todayKey());
   arte.innerHTML = `<svg class="rt-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">${dibujoDeRacha(W, H, Z, t)}</svg>`;
   if (typeof vestirFondoRacha === "function") vestirFondoRacha(arte.closest(".rt-card"));
+  vigilarArteRacha(arte, W);
 }
 /* Si la apariencia cambia con la tarjeta ya pintada, la tarjeta se rehace
    (0.7.143.2). El objeto se decide al pintar (`temaRacha`), y la apariencia
@@ -365,6 +366,24 @@ try {
 } catch (e) { /* sin observador: se rehace al volver al Resumen, como antes */ }
 
 let _redimRacha = null;
+/* Y si el HUECO cambia de ancho sin que cambie la ventana —la barra lateral
+   que se pliega, la letra de un mundo que llega tarde, el tablero que se
+   acomoda—, se vuelve a pintar. El dibujo se hace al ancho medido; con un
+   ancho viejo el objeto quedaba corrido a un lado (Eduardo lo vio con el
+   astrolabio, 0.7.143.3). Se vigila el hueco de la tarjeta de ahora: cada
+   repintado del Resumen lo cambia por otro. */
+let _obsArte = null, _anchoArte = 0;
+function vigilarArteRacha(arte, W) {
+  if (typeof ResizeObserver === "undefined") return;
+  if (!_obsArte) _obsArte = new ResizeObserver(es => {
+    const w = Math.round(es[es.length - 1].contentRect.width);
+    if (!w || Math.abs(w - _anchoArte) < 2) return;
+    clearTimeout(_redimRacha); _redimRacha = setTimeout(pintarArteRacha, 60);
+  });
+  _obsArte.disconnect();
+  _anchoArte = W;
+  _obsArte.observe(arte);
+}
 window.addEventListener("resize", () => { clearTimeout(_redimRacha); _redimRacha = setTimeout(pintarArteRacha, 150); });
 
 /* ---- Un toque, no un deslizamiento (0.7.135.1) ----
