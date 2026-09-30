@@ -1,0 +1,40 @@
+# ============================================================
+#  Marcas de conflicto
+# ============================================================
+#
+#  La última red, para cuando los hooks de .githooks/ no estaban puestos
+#  en la máquina que subió (hay que activarlos a mano en cada copia del
+#  repositorio; ver CLAUDE.md). La 0.7.148 llegó a main con un conflicto
+#  sin resolver en sw.js y solo lo paró, de rebote, el trabajo del
+#  paquete de Android, con un error que hablaba de VERSION y CACHE y no
+#  del conflicto.
+#
+#  Corre en toda rama y en todo PR, así que en una rama avisa ANTES de
+#  fusionar. En main ya llega tarde para evitarlo, pero avisa en segundos
+#  y diciendo qué es.
+
+name: Marcas de conflicto
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  conflictos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Buscar marcas de conflicto
+        run: |
+          if ! sh .githooks/marcas-de-conflicto.sh HEAD 2> salida.txt; then
+            cat salida.txt
+            grep -E '^    [^:]+:[^:]+:[0-9]+:' salida.txt | sed 's/^    //' |
+            while IFS=: read -r _arbol archivo linea _; do
+              echo "::error file=$archivo,line=$linea::Marca de conflicto sin resolver"
+            done
+            exit 1
+          fi
+          echo "Sin marcas de conflicto."

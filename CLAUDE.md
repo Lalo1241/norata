@@ -367,6 +367,40 @@ del DOM, no la vista.
 - **No verificar DNS con `nslookup`** — devuelve respuestas cacheadas. Usar
   `dns.google/resolve`.
 
+## Marcas de conflicto
+
+**La 0.7.148 llegó a `main` con un conflicto sin resolver dentro de `sw.js`**
+(30 sep 2026): `<<<<<<< HEAD`, las dos líneas de `CACHE` y `>>>>>>>`. Salió
+de un rebase donde se hizo `git add` sin resolver nada. Un service worker con
+dos `const CACHE` no arranca, así que esa versión no se habría instalado en
+ningún dispositivo. La paró de rebote el trabajo del paquete de Android, con
+un error que hablaba de VERSION y CACHE y no del conflicto. Se arregló en 19
+segundos, pero por suerte.
+
+Desde entonces hay tres redes, y todas usan el mismo
+`.githooks/marcas-de-conflicto.sh`:
+
+| Dónde | Qué para |
+| --- | --- |
+| `.githooks/pre-commit` | un commit con marcas |
+| `.githooks/pre-push` | **la que importa**: `git rebase --continue` NO ejecuta pre-commit (comprobado), y fue un rebase lo que lo coló |
+| `.github/workflows/conflictos.yml` | lo que llegue de una máquina sin los hooks. En una rama o un PR avisa antes de fusionar; en `main`, ya tarde, pero diciendo qué es |
+
+**Los hooks no se activan solos al clonar**: Git no los lee del repositorio
+sin que se le diga. En cada copia nueva, una sola vez —y **una sesión en la
+nube, que siempre es una copia nueva, lo corre antes de su primer commit**—:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+No va en `.claude/settings.json` como hook de arranque porque `.claude/` está
+en `.gitignore` a propósito: es configuración local de cada máquina.
+
+`.gitattributes` los fija en LF: en el árbol CRLF de Windows, `sh` no
+entiende el retorno de carro y fallarían. Saltárselos a propósito es
+`git push --no-verify`, y no debería hacer falta nunca.
+
 ## El sonido
 
 **Un sonido solo suena si lo estás viendo pasar.** Es de Eduardo (0.7.133.1):

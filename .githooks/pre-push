@@ -1,0 +1,16 @@
+#!/bin/sh
+# Al subir: el estado final de cada rama que se empuja. Es la red que
+# importa, porque `git rebase --continue` se salta pre-commit y fue un
+# rebase lo que coló las marcas de la 0.7.148. Ver marcas-de-conflicto.sh.
+#
+# Se mira el árbol de la punta y no commit por commit: lo que llega a la
+# web y al paquete es la punta, y un commit intermedio con marcas que el
+# siguiente ya arregló no rompe nada.
+comprobar="$(git rev-parse --show-toplevel)/.githooks/marcas-de-conflicto.sh"
+cero=0000000000000000000000000000000000000000
+fallo=0
+while read -r _local sha _remota _rsha; do
+  [ "$sha" = "$cero" ] && continue   # borrar una rama no sube nada
+  sh "$comprobar" "$sha" || fallo=1
+done
+exit $fallo

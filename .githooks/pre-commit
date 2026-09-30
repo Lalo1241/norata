@@ -1,0 +1,4 @@
+#!/bin/sh
+# Al hacer commit: lo que va a entrar (el índice). Ver marcas-de-conflicto.sh.
+# Ojo: un rebase no pasa por aquí; eso lo recoge pre-push.
+exec sh "$(git rev-parse --show-toplevel)/.githooks/marcas-de-conflicto.sh"

@@ -1,0 +1,4 @@
+# Los hooks se ejecutan con sh, y un sh no entiende un retorno de carro al
+# final de la línea: en el árbol CRLF de Windows fallarían con «$'\r':
+# command not found». Solo ellos; el resto sigue como estaba.
+.githooks/* text eol=lf
