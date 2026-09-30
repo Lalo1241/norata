@@ -247,6 +247,25 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.148.1 · 30 sep 2026
+
+**La barra de abajo baja, y lleva un velo debajo.** Lo pidió Eduardo: los
+botones del menú y el ＋ «siguen quedando muy arriba», sobre todo en el APK.
+
+- **Más cerca del borde:** `.thumb-cluster` pasa de `18px + margen seguro` a
+  `max(10px, 4px + margen seguro)`. Baja entre 8 y 14 px según el teléfono, y
+  el ＋ con ella porque vive dentro. Medido a 375 × 812: la barra a 10 px del
+  borde (antes 18).
+- **El velo:** `.thumb-cluster::before`, una franja de 104 px (más el margen
+  seguro) pegada abajo que va del transparente al fondo del mundo puesto
+  (`--bg`: 62 % a media altura, 93 % abajo). Separa los botones de lo que
+  pasa por detrás al desplazarse. Al salir de `--bg` vale en todos los mundos,
+  paletas y en el modo claro sin reglas propias — comprobado en la casa de
+  noche, de día y en Averno. De día aclara, que es lo correcto sobre papel.
+- **Solo con la barra abajo.** En el teléfono tumbado (el carril) y en
+  escritorio (la barra lateral) el velo se apaga: no tiene nada que separar.
+  Comprobado a 844 × 390 y a 1280 × 800.
+
 ### 0.7.148 · 30 sep 2026
 
 **Cyberpunk, el quinto mundo.** Salió del laboratorio de mundos

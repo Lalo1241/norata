@@ -4638,7 +4638,11 @@
   .thumb-cluster {
     position: fixed;
     left: 0; right: 0;
-    bottom: calc(18px + env(safe-area-inset-bottom));
+    /* Pegada al borde, y es de Eduardo (0.7.148.1): con 18 px encima del
+       margen del sistema la barra se quedaba «muy arriba», sobre todo en el
+       APK. Ahora son 4 px sobre ese margen y nunca menos de 10 del borde:
+       baja entre 8 y 14 px según el teléfono, y el ＋ con ella. */
+    bottom: max(10px, calc(4px + env(safe-area-inset-bottom)));
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -4654,6 +4658,32 @@
     z-index: var(--piso-barra);
   }
   .thumb-cluster > * { pointer-events: auto; }
+  /* El velo de debajo (0.7.148.1, de Eduardo): separa los botones de lo que
+     pasa por detrás al desplazarse. Va del transparente al FONDO del mundo
+     puesto (`--bg`), así que vale en todos los mundos, paletas y en el modo
+     claro sin una regla más — y de día aclara en vez de oscurecer, que es lo
+     correcto sobre papel. Es un velo, no una sombra ni un resplandor.
+
+     `fixed` dentro de la barra, que es `fixed` sin transformar: se mide contra
+     la pantalla entera y no contra los 560 px de la barra. `z-index: -1`
+     dentro de su contexto: detrás de los botones, delante del contenido. */
+  .thumb-cluster::before {
+    content: "";
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: calc(104px + env(safe-area-inset-bottom));
+    background: linear-gradient(to bottom,
+      transparent,
+      color-mix(in srgb, var(--bg) 62%, transparent) 42%,
+      color-mix(in srgb, var(--bg) 93%, transparent));
+    pointer-events: none;
+    z-index: -1;
+  }
+  /* Donde la barra deja de estar abajo —el carril del teléfono tumbado y la
+     barra lateral de escritorio— el velo no tiene nada que separar. */
+  @media (orientation: landscape) and (max-height: 500px), (min-width: 900px) {
+    .thumb-cluster::before { display: none; }
+  }
   .thumb-cluster .nav-circles {
     display: flex;
     gap: 7px;
