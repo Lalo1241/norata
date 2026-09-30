@@ -223,7 +223,9 @@ def plano(p):
             '<path d="M16 0V64M32 0V64M48 0V64M0 16H64M0 32H64M0 48H64" stroke="#9fd0ff" stroke-width="1" opacity=".13"/>'
             '<path d="M0 0V64M0 0H64" stroke="#9fd0ff" stroke-width="2" opacity=".28"/></pattern>' % p)
     cuerpo = ('<rect width="512" height="512" fill="#0d2b52"/><rect width="512" height="512" fill="url(#%s-r)"/>' % p
-              + iso(p, fill="#9fd0ff", fill_opacity=".14", stroke="#eaf4ff", stroke_width="%.2f" % (5 * PX), stroke_linejoin="round"))
+              # El canto en blanco y a 10 px: a 5 y en celeste pálido se perdía
+              # contra la retícula, sobre todo en el menú.
+              + iso(p, fill="#9fd0ff", fill_opacity=".2", stroke="#ffffff", stroke_width="%.2f" % (10 * PX), stroke_linejoin="round"))
     return defs, cuerpo
 
 
@@ -285,9 +287,11 @@ def arboleda(p):
             '<stop offset=".35" stop-color="#16281c"/><stop offset=".7" stop-color="#0e1b13"/><stop offset="1" stop-color="#08110c"/></radialGradient>'
             '<linearGradient id="%s-h" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#c3f59f"/>'
             '<stop offset=".5" stop-color="#8fe36a"/><stop offset="1" stop-color="#4f9d38"/></linearGradient>' % (p, p))
+    # Cuatro anillos y todos por FUERA de la pieza: eran doce, y los de
+    # dentro se veían por el hueco, que va vacío.
     anillos = "".join('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="#8fe36a" stroke-width="%.1f" opacity="%.3f"/>'
-                      % (256 + math.sin(k) * 4, 256 + math.cos(k * 1.3) * 3, 40 + k * 26 + (k % 3) * 3,
-                         38 + k * 25.5, 2 if k % 3 else 3.5, .1 - k * .005) for k in range(1, 13))
+                      % (256 + math.sin(k) * 3, 256 + math.cos(k * 1.3) * 3, r, r - 2, w, o)
+                      for k, (r, w, o) in enumerate([(192, 2.5, .1), (226, 3.5, .08), (262, 2.5, .07), (300, 3, .06)]))
     cuerpo = ('<rect width="512" height="512" fill="url(#%s-f)"/>' % p + anillos
               + '<g transform="translate(0 6)">' + iso(p, fill="#040806", opacity=".6") + '</g>'
               + iso(p, fill="url(#%s-h)" % p))
@@ -295,19 +299,24 @@ def arboleda(p):
 
 
 def obsidiana(p):
-    # Vidrio volcánico tallado: la pieza lleva las facetas del mundo en corte
-    # seco (el degradado de 124° con paradas duras), y un solo destello del
-    # verde azulado que es su color en el catálogo.
-    defs = ('<linearGradient id="%s-fac" x1="0" y1="0" x2="1" y2=".7">'
-            '<stop offset=".0" stop-color="#f4f8fa"/><stop offset=".34" stop-color="#dfe6ea"/>'
-            '<stop offset=".34" stop-color="#8e9aa3"/><stop offset=".62" stop-color="#a9b4bb"/>'
-            '<stop offset=".62" stop-color="#c3ced5"/><stop offset="1" stop-color="#6e7a83"/></linearGradient>' % p)
-    lascas = ('<path d="M0 0H300L0 230Z" fill="#12151a"/><path d="M512 512H170L512 250Z" fill="#101318"/>'
-              '<path d="M512 0V210L330 0Z" fill="#0c0e12"/><path d="M0 512V300L150 512Z" fill="#0b0d10"/>'
-              '<path d="M300 0L0 230M170 512L512 250M330 0L512 210M0 300L150 512" stroke="#333c44" stroke-width="1.5" opacity=".7"/>')
-    cuerpo = ('<rect width="512" height="512" fill="#07080a"/>' + lascas
-              + iso(p, fill="url(#%s-fac)" % p, stroke="#ffffff", stroke_opacity=".55", stroke_width="%.2f" % (1.5 * PX))
-              + '<g transform="translate(372 140)" fill="#3fd0c9"><path d="M0 -22L4 -4L22 0L4 4L0 22L-4 4L-22 0L-4 -4Z"/></g>')
+    # Vidrio volcánico PULIDO: la pieza maciza en plata, con un degradado
+    # suave y un reflejo arriba, sobre un suelo carbón que se abre en el
+    # centro. Hubo una versión tallada —facetas en corte seco y lascas en el
+    # fondo— y Eduardo la paró: a tamaño de icono las paradas duras se leían
+    # como un fallo de dibujo, no como una talla. Y vidrio negro con el canto
+    # de plata tampoco: se leía como un contorno, que es lo de Blueprint.
+    defs = ('<radialGradient id="%s-s" cx=".5" cy=".42" r=".7"><stop offset="0" stop-color="#1f252c"/>'
+            '<stop offset=".6" stop-color="#0f1216"/><stop offset="1" stop-color="#060708"/></radialGradient>'
+            '<linearGradient id="%s-v" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#3b444d"/>'
+            '<stop offset=".5" stop-color="#161a1f"/><stop offset="1" stop-color="#0a0c0e"/></linearGradient>'
+            '<linearGradient id="%s-c" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="#eef3f5"/>'
+            '<stop offset=".5" stop-color="#b3bec6"/><stop offset="1" stop-color="#6c7883"/></linearGradient>'
+            '<linearGradient id="%s-r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".3"/>'
+            '<stop offset=".42" stop-color="#fff" stop-opacity="0"/></linearGradient>' % (p, p, p, p))
+    cuerpo = ('<rect width="512" height="512" fill="url(#%s-s)"/>' % p
+              + '<g transform="translate(0 8)">' + iso(p, fill="#000", opacity=".55") + '</g>'
+              + iso(p, fill="url(#%s-c)" % p, stroke="#ffffff", stroke_opacity=".35", stroke_width="%.2f" % (1.5 * PX))
+              + iso(p, fill="url(#%s-r)" % p))
     return defs, cuerpo
 
 
@@ -335,8 +344,10 @@ def cenit(p):
 
 
 def reliquia(p):
-    # El de Fundador: terciopelo morado dentro de una vitrina con filete de
-    # oro, y la pieza lila con su canto dorado, como algo que se guarda.
+    # El de Fundador: terciopelo morado y la pieza lila con su canto dorado,
+    # como algo que se guarda. Llevó una vitrina —primero un filete cuadrado,
+    # luego un medallón— y las dos quedaban pegadas a la pieza; Eduardo la
+    # quitó. Lo que queda de ella es el oro del canto.
     defs = ('<radialGradient id="%s-t" cx=".5" cy="-.06" r="1.1"><stop offset="0" stop-color="#2a1f48"/>'
             '<stop offset=".44" stop-color="#130e22"/><stop offset="1" stop-color="#090612"/></radialGradient>'
             '<linearGradient id="%s-l" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="#d9cbf7"/>'
@@ -347,66 +358,51 @@ def reliquia(p):
             % (p, p, p, p))
     brillo = lambda x, y, r: '<path transform="translate(%d %d) scale(%.2f)" d="M0 -10L2 -2L10 0L2 2L0 10L-2 2L-10 0L-2 -2Z" fill="#f0d58f"/>' % (x, y, r)
     cuerpo = ('<rect width="512" height="512" fill="url(#%s-t)"/>' % p
-              # La vitrina era un filete cuadrado a 34 px del borde, y con la
-              # máscara redonda quedaban cuatro trozos de raya sueltos. Ahora
-              # es un medallón: se ve entero en cualquier forma.
-              + '<circle cx="256" cy="256" r="200" fill="none" stroke="url(#%s-oro)" stroke-width="5"/>' % p
-              + '<circle cx="256" cy="256" r="187" fill="none" stroke="#8a6d2f" stroke-width="1.5" opacity=".8"/>'
               + iso(p, fill="#b7a2ea", filter="url(#%s-lu)" % p, opacity=".35")
               + iso(p, fill="url(#%s-l)" % p, stroke="url(#%s-oro)" % p, stroke_width="%.2f" % (5 * PX), paint_order="stroke")
-              + brillo(376, 104, 1.5) + brillo(128, 404, 1.1) + brillo(408, 380, .8))
+              + brillo(392, 104, 1.5) + brillo(118, 410, 1.1))
     return defs, cuerpo
 
 
 def catedral(p):
-    # Gótico de píxel: un ventanal ojival de piedra con el vitral rojo e
-    # índigo detrás, y la pieza pixelada en el rojo del mundo con la sombra
-    # en tramado, que es como este mundo sombrea la piedra.
+    # Gótico de píxel, con el fondo LISO: piedra oscura y la luz roja del
+    # vitral cayendo desde arriba, sin dibujar el vitral. La primera versión
+    # llevaba el ventanal ojival con sus paños y los sillares del muro, y
+    # Eduardo la paró: ensuciaba el icono. Lo gótico lo pone la pieza en
+    # píxel con su sombra, no el decorado.
     pie, lado = pixel(24, p, fill="#ff3d4f")
-    som, _ = pixel(24, p, fill="#5a0d18")
-    defs = ('<pattern id="%s-tr" width="8" height="8" patternUnits="userSpaceOnUse">'
-            '<rect width="4" height="4" fill="#000" opacity=".35"/><rect x="4" y="4" width="4" height="4" fill="#000" opacity=".35"/></pattern>'
-            '<clipPath id="%s-oj"><path d="M86 512V250Q86 90 256 40Q426 90 426 250V512Z"/></clipPath>' % (p, p))
-    vitral = "".join('<rect x="%d" y="%d" width="48" height="48" fill="%s"/>' %
-                     (x, y, ["#2a1a4a", "#4a4d78", "#7a1426", "#1d2350", "#3a2a66"][(x // 48 * 3 + y // 48) % 5])
-                     for x in range(72, 440, 48) for y in range(24, 520, 48))
-    sillares = "".join('<rect x="%d" y="%d" width="%d" height="30" fill="none" stroke="#07080f" stroke-width="4"/>' %
-                       (x + (16 if (y // 32) % 2 else 0), y, 64) for y in range(0, 512, 32) for x in range(-64, 512, 64))
-    cuerpo = ('<rect width="512" height="512" fill="#262840"/>' + sillares
-              + '<rect width="512" height="512" fill="url(#%s-tr)" opacity=".5"/>' % p
-              + '<path d="M70 512V250Q70 76 256 22Q442 76 442 250V512Z" fill="#07080f"/>'
-              + '<g clip-path="url(#%s-oj)">%s<g stroke="#07080f" stroke-width="6">%s</g></g>' % (p, vitral,
-                  "".join('<path d="M%d 0V512"/>' % x for x in range(72, 440, 48)) + "".join('<path d="M0 %dH512"/>' % y for y in range(24, 520, 48)))
+    som, _ = pixel(24, p, fill="#4a0a14")
+    defs = ('<linearGradient id="%s-pi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#23243a"/>'
+            '<stop offset="1" stop-color="#0d0e18"/></linearGradient>'
+            '<radialGradient id="%s-luz" cx=".5" cy="0" r=".8"><stop offset="0" stop-color="#ff3d4f" stop-opacity=".28"/>'
+            '<stop offset=".6" stop-color="#4a4d78" stop-opacity=".12"/><stop offset="1" stop-color="#4a4d78" stop-opacity="0"/></radialGradient>' % (p, p))
+    cuerpo = ('<rect width="512" height="512" fill="url(#%s-pi)"/><rect width="512" height="512" fill="url(#%s-luz)"/>' % (p, p)
               + '<g transform="translate(%.2f %.2f)">%s</g>' % (lado * ESC * .5, lado * ESC * .5, som)
               + pie)
     return defs, cuerpo
 
 
 def averno(p):
-    # Hueso y sangre: la placa de corte a 45° con su bisel de hueso, la brasa
-    # que sube desde abajo, y la pieza pixelada en sangre con el canto claro
-    # arriba y el oscuro abajo (el bisel de sprite de la paleta Sangre).
+    # Hueso y sangre, con fondo simple: negro que se enrojece hacia abajo en
+    # franjas de píxel —el cielo de un juego de 8 bits, sin degradado suave—,
+    # un puñado de brasas sueltas abajo, fuera de la pieza, y la pieza en
+    # sangre con el canto de hueso arriba y el oscuro abajo. Llevó una placa
+    # octogonal de piedra y Eduardo la quitó: se veía fea y pesaba en las
+    # esquinas.
     pie, lado = pixel(22, p, fill="#ff2d3f")
     luz, _ = pixel(22, p, fill="#efe9e3")
     som, _ = pixel(22, p, fill="#3a0209")
     d = lado * ESC * .28
-    defs = ('<radialGradient id="%s-br" cx=".5" cy="1.15" r=".85"><stop offset="0" stop-color="#b3121f" stop-opacity=".85"/>'
-            '<stop offset=".5" stop-color="#7a0f1c" stop-opacity=".35"/><stop offset="1" stop-color="#7a0f1c" stop-opacity="0"/></radialGradient>' % p)
-    # Octógono inscrito en un círculo de 200: con el corte a 45° en las
-    # esquinas del cuadrado (y luego a 228), la máscara redonda le mordía
-    # los chaflanes. A 200 se ve entero hasta en la máscara más cerrada.
-    placa = "M" + "L".join("%.1f %.1f" % (256 + 200 * math.cos(math.radians(22.5 + k * 45)),
-                                           256 + 200 * math.sin(math.radians(22.5 + k * 45))) for k in range(8)) + "Z"
-    brasas = "".join('<rect x="%d" y="%d" width="8" height="8" fill="#ff8a3d" opacity="%.2f"/>' % (x, y, o)
-                     for x, y, o in [(150, 392, .8), (182, 416, .5), (356, 398, .7), (320, 420, .45), (384, 364, .35), (132, 360, .3)])
-    cuerpo = ('<rect width="512" height="512" fill="#060506"/><rect width="512" height="512" fill="url(#%s-br)"/>' % p
-              + '<path d="%s" fill="#100d0e" stroke="#3d3537" stroke-width="8"/>' % placa
-              + '<path d="%s" fill="none" stroke="#efe9e3" stroke-width="2" opacity=".22" transform="translate(256 256) scale(.955) translate(-256 -256)"/>' % placa
-              + brasas
+    franjas = ["#060506", "#0b0607", "#120709", "#1a080c", "#24090f", "#300a13"]
+    cielo = "".join('<rect x="0" y="%d" width="512" height="%d" fill="%s"/>' % (256 + k * 44, 45, c)
+                    for k, c in enumerate(franjas))
+    brasas = "".join('<rect x="%d" y="%d" width="10" height="10" fill="#ff8a3d" opacity="%.2f"/>' % (x, y, o)
+                     for x, y, o in [(150, 430, .85), (200, 456, .5), (336, 440, .75), (296, 470, .45), (390, 412, .4)])
+    cuerpo = ('<rect width="512" height="512" fill="#060506"/>' + cielo + brasas
               + '<g transform="translate(%.2f %.2f)">%s</g>' % (d, d, som)
               + '<g transform="translate(%.2f %.2f)">%s</g>' % (-d * .6, -d * .6, luz)
               + pie)
-    return defs, cuerpo
+    return "", cuerpo
 
 
 def ventisca(p):
@@ -422,22 +418,19 @@ def ventisca(p):
             '<linearGradient id="%s-hi" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="#f4fbff"/>'
             '<stop offset=".45" stop-color="#8fd4ff"/><stop offset="1" stop-color="#4c8fc2"/></linearGradient>'
             '<linearGradient id="%s-lu" x1="0" y1="0" x2="0" y2="1"><stop offset=".6" stop-color="#ff9a3c" stop-opacity="0"/>'
-            '<stop offset="1" stop-color="#ff9a3c" stop-opacity=".6"/></linearGradient>' % (p, p, p, p))
-    # Las rachas, con una semilla fija: el mismo icono cada vez que se genere.
-    semilla, rachas = 7, []
-    def azar():
-        nonlocal semilla
-        semilla = (semilla * 1103515245 + 12345) % 2 ** 31
-        return semilla / 2 ** 31
-    for k in range(26):
-        x, y = azar() * 620 - 80, azar() * 470 - 30
-        largo, grueso, op = 50 + azar() * 110, 3 + azar() * 4, .18 + azar() * .32
-        rachas.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke-width="%.1f" opacity="%.2f"/>'
-                      % (x, y, x + largo, y + largo * .32, grueso, op))
+            '<stop offset="1" stop-color="#ff9a3c" stop-opacity=".6"/></linearGradient>'
+            '<clipPath id="%s-fuera"><path d="M0 0H512V512H0ZM100 100V412H412V100Z" clip-rule="evenodd"/></clipPath>' % (p, p, p, p, p))
+    # Siete rachas, puestas a mano en la orilla y fuera de la pieza: eran
+    # veintiséis cruzando todo el icono, y por el hueco se veía nieve, que
+    # tiene que ir vacío. El recorte (`-fuera`) lo garantiza aunque se muevan.
+    rachas = "".join('<line x1="%d" y1="%d" x2="%.1f" y2="%.1f" stroke-width="%.1f" opacity="%.2f"/>'
+                     % (x, y, x + l, y + l * .32, w, o) for x, y, l, w, o in
+                     [(96, 56, 120, 6, .45), (290, 40, 90, 5, .35), (380, 74, 110, 6, .4), (40, 150, 70, 5, .3),
+                      (430, 190, 60, 5, .3), (30, 330, 60, 5, .28), (420, 318, 70, 5, .3)])
     cuerpo = ('<rect width="512" height="512" fill="url(#%s-f)"/>' % p
               + '<rect width="512" height="512" fill="url(#%s-lum)"/>' % p
               + '<path d="M0 452Q128 404 256 430T512 418V512H0Z" fill="#d7e9f5" opacity=".22"/>'
-              + '<g stroke="#eaf5fc" stroke-linecap="round">' + "".join(rachas) + '</g>'
+              + '<g stroke="#eaf5fc" stroke-linecap="round" clip-path="url(#%s-fuera)">' % p + rachas + '</g>'
               + iso(p, fill="url(#%s-hi)" % p, stroke="#f4fbff", stroke_opacity=".6", stroke_width="%.2f" % (1.5 * PX))
               + iso(p, fill="url(#%s-lu)" % p))
     return defs, cuerpo
@@ -553,8 +546,8 @@ def pieza_menu(id_, p):
                     + isl(p, fill="#00e5ff", transform="translate(%.2f 0)" % (1.3 * u))
                     + isl(p, fill="#fcee0a"))
     if id_ == "plano":
-        return "", isl(p, fill="#9fd0ff", fill_opacity=".16", stroke="#eaf4ff",
-                       stroke_width="%.2f" % (1.2 * u), stroke_linejoin="round")
+        return "", isl(p, fill="#9fd0ff", fill_opacity=".22", stroke="#ffffff",
+                       stroke_width="%.2f" % (2.4 * u), stroke_linejoin="round")
     if id_ == "forja":
         return (_grad(p, "r", [("0", "#ffe0a3"), (".4", "#ff9d3d"), ("1", "#c2410c")])
                 + '<filter id="%s-f" x="-40%%" y="-40%%" width="180%%" height="180%%"><feGaussianBlur stdDeviation="2.2"/></filter>' % p,
@@ -567,9 +560,8 @@ def pieza_menu(id_, p):
         return (_grad(p, "h", [("0", "#c3f59f"), (".5", "#8fe36a"), ("1", "#4f9d38")], .3),
                 isl(p, fill="url(#%s-h)" % p))
     if id_ == "obsidiana":
-        return (_grad(p, "o", [("0", "#f4f8fa"), (".34", "#dfe6ea"), (".34", "#8e9aa3"), (".62", "#a9b4bb"),
-                               (".62", "#c3ced5"), ("1", "#6e7a83")], 1, .7),
-                isl(p, fill="url(#%s-o)" % p, stroke="#fff", stroke_opacity=".5", stroke_width="%.2f" % (.5 * u)))
+        return (_grad(p, "c", [("0", "#eef3f5"), (".5", "#b3bec6"), ("1", "#6c7883")], .5),
+                isl(p, fill="url(#%s-c)" % p))
     if id_ == "cenit":
         return (_grad(p, "a", [("0", "#fbf0d6"), ("1", "#e2c690")]),
                 isl(p, fill="url(#%s-a)" % p, stroke="#070a20", stroke_width="%.2f" % (1.4 * u), paint_order="stroke"))
