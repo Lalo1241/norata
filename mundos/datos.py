@@ -575,7 +575,7 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
  dict(id="catedral", nombre="Catedral", familia="de-relato", llave="Vitral y rosetón", color="#ff3d4f",
   plan="Pro",
   premisa="Una catedral gótica en pixel art: sillares con la sombra en tramado y la luz de color que entra por el vitral. El rojo es el protagonista y cada paleta trae un segundo tono que no es rojo —índigo, alabastro, verdín o cian—. Los botones del menú son losas de piedra, los paneles grandes llevan herrajes en las esquinas y el «+» es una losa roja. Se publicó como Averno en la 0.7.136 y se separó con su nombre en la 0.7.141, cuando Averno pasó a ser hueso y sangre.",
-  letra="Pixelify Sans", ancho="—", escala="1", esquinas="0 px · piedra labrada", peso="~45 KB", horas="Las dos",
+  letra="CelestiByte", ancho="—", escala="1", esquinas="0 px · piedra labrada", peso="~45 KB", horas="Las dos",
   nota="Esta entrada no genera el CSS de la app: lo genera `mundos/catedral/catedral.py`, porque Catedral trae cuatro paletas y un material propio que el vocabulario `--m-*` no alcanza a decir. Aquí se queda con los tonos de Vitral, la paleta de partida, para la lámina y para la muestra del catálogo.",
   # Vitral, la paleta de partida. La fuente de verdad es mundos/catedral/paletas.py:
   # si se toca un tono allí, se copia aquí para que la muestra no discrepe.
@@ -588,7 +588,7 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
    "--m-aviso":"#f2c94c","--m-aviso-velo":"rgba(242,201,76,.14)",
    "--m-peligro":"#ff8a3d","--m-peligro-velo":"rgba(255,138,61,.10)",
    "--m-carril":"#2c2e48",
-   "--m-titulo":'"Pixelify Sans","Jersey 10",system-ui,sans-serif',"--m-titulo-px":"18px","--m-titulo-peso":"600","--m-titulo-esp":"0",
+   "--m-titulo":'"CelestiByte","Jersey 10",system-ui,sans-serif',"--m-titulo-px":"18px","--m-titulo-peso":"400","--m-titulo-esp":"0",
    "--m-cifra":'"Jersey 10","Outfit",system-ui,sans-serif',"--m-cifra-peso":"400","--m-cifra-esp":"0",
    "--m-chip-fuente":'"Outfit",system-ui,sans-serif',"--m-chip-esp":"0",
    "--m-dur":".3s","--m-curva":"steps(4, end)"},

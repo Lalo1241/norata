@@ -20,13 +20,15 @@
 
 html[data-apariencia="catedral"] {
   /* ---- La letra ----
-     Títulos en PIXELIFY SANS, píxel claro y sin gótico. Hasta la 0.7.141 fue
-     Jacquard 24, la gótica de píxel, y Eduardo no la quiso al verla puesta:
-     la eligió él entre cuatro (Bastarda 9, Pirata One, Pixelify y Cinzel) en
-     la prueba con la app dentro. Lo gótico ya lo dicen la piedra y el vitral;
-     la letra solo tiene que leerse.
+     Títulos en CELESTIBYTE, la letra de Eduardo —la misma de Arcade, declarada
+     en `css/estilos.css` y que solo se baja cuando algo la usa—. Hasta la
+     0.7.141 fue Jacquard 24, la gótica de píxel, y Eduardo no la quiso al
+     verla puesta; eligió «píxel claro, sin gótico», y con eso puse Pixelify
+     Sans, que era la de la prueba. No: **cuando haga falta un píxel claro, se
+     usa la suya.** Lo aclaró él mismo (0.7.143.3). Lo gótico ya lo dicen la
+     piedra y el vitral; la letra solo tiene que leerse.
      Cifras en Jersey 10, píxel de palo seco: una cifra se lee, no se mira. */
-  --tipo-titulo: "Pixelify Sans", "Jersey 10", system-ui, sans-serif;
+  --tipo-titulo: "CelestiByte", "Jersey 10", system-ui, sans-serif;
   --tipo-cifra: "Jersey 10", "Outfit", system-ui, sans-serif;
   --tipo-titulo-escala: 1;
 
@@ -122,17 +124,22 @@ html[data-apariencia="catedral"] .skill-card { border-radius: 0; }
 html[data-apariencia="catedral"] :is(.skill-emoji, .bubble) { border-radius: 0; clip-path: var(--av-esquina); }
 
 /* ---------- Los títulos ----------
-   En Pixelify a 600, en minúscula y sin las mayúsculas espaciadas de la casa.
+   En CelestiByte, en minúscula y sin las mayúsculas espaciadas de la casa.
+   Con su único peso: pedirle 600 o 700 no la engorda (está declarada para todo
+   el rango), pero deja claro que no hay negrita que buscar.
    **Sin sombra**, y no por gusto: con la gótica llevaban una sombra dura de
    2 px en el rojo hundido, y en una letra de píxel esa sombra cae a medio
    punto y se lee como un trazo doble y borroso. Los rótulos diminutos (12 px)
    se quedan en la letra de la casa. */
-html[data-apariencia="catedral"] :is(h1, h2, h3):not(.jor-rot) { text-shadow: none; letter-spacing: 0; font-weight: 600; }
+html[data-apariencia="catedral"] :is(h1, h2, h3):not(.jor-rot) { text-shadow: none; letter-spacing: 0; font-weight: 400; }
 html[data-apariencia="catedral"] :is(h2, h3):not(.jor-rot) { font-size: 18px; line-height: 1.1; text-transform: none; }
 /* La etiqueta «Pre alpha» va DENTRO del título del Pomodoro: heredaría la
    letra del título a 11 px. */
 html[data-apariencia="catedral"] :is(.jor-rot, .jor-prueba) { font-family: var(--sans); text-shadow: none; }
 html[data-apariencia="catedral"] .page-head h1 { line-height: 1; font-size: 32px; }
+/* Si con el título no cabe el botón de al lado, el botón baja de línea: el
+   mismo arreglo que Averno, porque una letra de píxel a 32 px es ancha. */
+html[data-apariencia="catedral"] .page-head { flex-wrap: wrap; row-gap: 10px; }
 
 /* ---------- Los botones: vidrio emplomado ----------
    El macizo es un vidrio: filete de luz arriba, plomo abajo y marco oscuro.

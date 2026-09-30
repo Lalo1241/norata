@@ -362,8 +362,8 @@ const MUNDOS = [
      letra de los libros de coro son de una catedral, no de un infierno. De
      paso se le quitó lo que era de castillo —los escudos y los remaches— y
      dos paletas cambiaron de nombre (Hueso a Alabastro, Hierro a Bronce). Al
-     verlo puesto Eduardo eligió además la letra (Pixelify en vez de la
-     gótica), las losas del menú y los herrajes de los paneles.
+     verlo puesto Eduardo eligió además la letra (CelestiByte, la suya, en vez
+     de la gótica), las losas del menú y los herrajes de los paneles.
 
      Quien lo llevaba puesto sigue en él sin hacer nada: el script de arriba
      de `index.html` mueve lo guardado de `averno` a `catedral` una sola vez.
@@ -567,7 +567,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=f54ab65602";
+  l.href = "css/mundos.css?h=c99ad034a6";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.

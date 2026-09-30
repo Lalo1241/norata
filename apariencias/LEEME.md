@@ -298,9 +298,16 @@ entre opciones en la prueba con la app dentro):
 
 | Qué | Lo que no quiso | Lo que eligió | Las que se descartaron |
 | --- | --- | --- | --- |
-| Letra de los títulos | Jacquard 24, la gótica | **Pixelify Sans**, píxel claro sin gótico | Bastarda 9, Pirata One, Cinzel |
+| Letra de los títulos | Jacquard 24, la gótica | **CelestiByte**, la letra de Eduardo: píxel claro sin gótico | Bastarda 9, Pirata One, Cinzel |
 | Dentro de los paneles | El arco apuntado: «parece una casa» | **Herrajes**: escuadras de metal en las cuatro esquinas | Franja de vitral, nada |
 | Menú del teléfono | Los cuadrifolios: «un desastre» (a ese tamaño, engranes) | **Losas**: la piedra labrada de las tarjetas | Medallón, anillo |
+
+**Y la letra no es Pixelify, es la de Eduardo** (0.7.143.3). En la prueba él
+eligió «píxel claro, sin gótico», y yo puse Pixelify Sans, que era la opción de
+la mesa. Él quería su CelestiByte, la de Arcade: **cuando un mundo necesite un
+píxel claro, se usa la suya, no una de Google.** No se incrusta en
+`css/mundos.css`: ya la declara `css/estilos.css` y el navegador la baja al
+usarla.
 
 Así que lo de arriba sobre la gótica es historia: la letra que «más decía
 catedral» no pasó la prueba de verla puesta, y el tema se sostiene con la
@@ -319,7 +326,7 @@ se acerca a «Gótico»: no se renombra todavía, pero queda dicho.
 | Familia | Arcade | Catedral |
 | --- | --- | --- |
 | Color | El del ambiente | Cuatro paletas propias |
-| Letra | CelestiByte | Pixelify Sans (títulos, desde la 0.7.141) y Jersey 10 (cifras) |
+| Letra | CelestiByte | CelestiByte también (títulos, desde la 0.7.143.3) y Jersey 10 (cifras) |
 | Superficie | Caja de sprite, 2 tonos | Sillar: hierro, filete de luz y tramado; herrajes en las esquinas de los paneles grandes |
 | Suelo | Cielo de 6 píxeles | Muro de sillería y la luz del vitral en el piso |
 | Barras | Celdas de 6 | Emplomado: paños de 10 |
@@ -420,7 +427,7 @@ tres.
 | Familia | Catedral | Averno |
 | --- | --- | --- |
 | Color | Cuatro paletas: base de color, rojo y un segundo tono de vidrio | Cuatro paletas propias: base negra neutra, rojo sangre y un segundo tono que Catedral no usa |
-| Letra | Pixelify Sans y Jersey 10 | Silkscreen (mayúsculas de píxel) y Tiny5 |
+| Letra | CelestiByte y Jersey 10 | Silkscreen (mayúsculas de píxel) y Tiny5 |
 | Marco | Sillar con tramado y herrajes | Esquina cortada a 45° con filete de hueso y bisel (9 trozos) |
 | Iconos | Casilla labrada | Rombo de píxel con doble filete |
 | Botones y fichas | Esquina en dos escalones | Sesgo a 45° y bisel; lo elegido, enmarcado en sangre |
@@ -440,7 +447,7 @@ debajo de 20 el ojo las confunde, y así pasó con los primeros intentos de
 Cocito y Tormento, que salieron a 9 y 14. Todas pasan 4,5 para escribir en sus
 dos caras.
 
-**La letra también es suya.** Catedral llevaba la gótica y ahora Pixelify. Silkscreen para
+**La letra también es suya.** Catedral llevaba la gótica y ahora CelestiByte. Silkscreen para
 los títulos —mayúsculas de píxel, como los rótulos de las cartas de la
 referencia— y Tiny5 para las cifras, porque Silkscreen a tamaño de número no se
 lee. Rejilla de 8: por eso los tamaños son 16, 24 y 32. Y es ANCHA: «Árbol de

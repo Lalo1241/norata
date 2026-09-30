@@ -254,13 +254,18 @@ Eduardo mirándolo en vivo.
 
 - **Las letras del candelabro** («no se leen a duras penas, sobre todo la que
   choca con el soporte»): iban a 11 px en la letra de las cifras, y la vela de
-  en medio cae justo encima del fuste. Ahora van en Pixelify a 14 px con un
+  en medio cae justo encima del fuste. Ahora van en CelestiByte a 14 px con un
   contorno del color del fondo, como las del sello de Averno, y se leen encima
   del hierro.
 - **El brazo del candelabro** medía un píxel menos por la derecha y el rombo de
   ese lado se quedaba flotando. Ahora es simétrico.
 - **Las velas de «Semanas de antes»** («demasiado compactadas»): la vela es
-  más ancha, y su número y sus fechas pasan a Pixelify.
+  más ancha, y su número y sus fechas pasan a CelestiByte.
+- **Los títulos de Catedral en la letra de Eduardo.** En la 0.7.141 él eligió
+  «píxel claro, sin gótico», y yo puse Pixelify Sans, que era la opción de la
+  prueba; él quería su **CelestiByte**, la de Arcade. Ya no se incrusta ninguna
+  letra de títulos en `css/mundos.css` (baja de 293 a 282 KB): CelestiByte la
+  declara `css/estilos.css` y se baja al usarla.
 - **Averno y Catedral en Mi apariencia**, que salían iguales (el mismo rojo, la
   misma casilla): Catedral se enseña en el índigo de su vitral, con un token
   nuevo, `--m-muestra`, en `mundos/datos.py`, y cada uno lleva su figura: el
