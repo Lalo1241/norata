@@ -123,10 +123,14 @@ function sala(seg, caida) {
 const ESCALAS = {
   penta:      [0, 2, 4, 7, 9],     // la casa: pentatónica mayor
   suspendida: [0, 2, 5, 7, 10],    // Blueprint: cuartas y quintas, abierta, de estructura
-  /* Averno: menor armónica, la escala del órgano de catedral (Bach, el
-     réquiem). La v1-v7 usaba [0,1,5,7,8], que es la escala «In» japonesa:
-     por eso nunca sonó a infierno cristiano, y encima sonaba a Oriente. */
-  averno:     [0, 2, 3, 5, 7, 8, 11],
+  /* Catedral: menor armónica, la escala del órgano de catedral (Bach, el
+     réquiem). La v1-v7 del boceto usaba [0,1,5,7,8], que es la escala «In»
+     japonesa: nunca iba a sonar a infierno cristiano y encima sonaba a Oriente. */
+  armonica:   [0, 2, 3, 5, 7, 8, 11],
+  /* Averno: frigia, la de la segunda menor (re bemol) pegada a la tónica. Es
+     la del doom y la del metal: lo que la separa de Catedral al primer oído,
+     antes que ningún instrumento. */
+  frigia:     [0, 1, 3, 5, 7, 8, 10],
   lidia:      [0, 2, 4, 6, 9]      // Reliquia: la cuarta aumentada, lo que flota
 };
 function G(m, i) { const e = ESCALAS[m.escala], n = e.length, o = Math.floor(i / n), g = ((i % n) + n) % n; return m.base * Math.pow(2, (12 * o + e[g]) / 12); }
@@ -230,6 +234,10 @@ function retumbo(t, d, v) {
     o.connect(g).connect(master); o.start(t0); o.stop(t0 + d + .05); atrapa(o, g);
   });
 }
+/* El latido de Averno: dos golpes graves, el segundo más flojo. Es lo que dice
+   «sangre» sin un solo ruido. Cortos, para no llenar de graves (Eduardo ya
+   paró un Averno por eso). */
+const latido = (t, v) => { golpe(t, 72, 40, .12, (v || .5)); golpe(t + .17, 62, 36, .15, (v || .5) * .75); };
 const madera = (t, f, v) => golpe(t, f || 620, (f || 620) * .8, .05, v || .22);
 
 /* ---------- Los materiales ----------
@@ -248,27 +256,40 @@ const MATERIAL = {
     brasa: { partes:[[1,"sawtooth",.45,1],[1,"sawtooth",.45,1,7],[.5,"sine",.6,1]], filtro:300, barrido:[260,2400,.9], ataque:.38, envio:.15, sala:[1.8,3.5], dur:1 },
     bajo:  { cuerda:true, amort:.99, filtro:1400, dur:1 } },
 
-  averno: { nombre:"Averno", base:130.81, escala:"averno", tambor:true,
-    /* Rehecho en la v9 para la visión de Eduardo: el infierno de Dante y de
-       Diablo, o sea una CATEDRAL que se hunde, no un monstruo. Cinco
-       instrumentos y todos de iglesia o de guerra:
-         - órgano de tubos (registros de 16', 8', 4' y la quinta);
-         - coro de hombres en vocal «o», grave y lento, como un canto llano;
-         - campana de bronce que dobla, con sus parciales de verdad;
-         - metales graves (trombones) que se abren al soplar;
-         - tambor de guerra y un retumbo hecho con tres senos muy graves que
-           baten entre sí (sin ruido: el ruido es lo que sonó a grano).
-       Menor armónica, el acorde napolitano (re bemol) para el vértigo y el
-       tritono solo en lo grande. Graves medidos: nada por debajo de 65 Hz
-       salvo el retumbo, que va bajito. */
-    /* v10: sonaba «parecido a Arcade» porque el coro, los trombones y la voz
-       lejana eran ondas de sierra: zumban, y un zumbido filtrado es justo el
-       timbre de 8 bits. Ahora todo se arma con senos (armónico por armónico),
-       que suenan a cuerpo y no a chip, y la catedral tiene menos eco. */
+  /* Averno desde la 0.7.141 es el mundo de hueso y sangre, el de Diablo; el
+     gótico de vitrales pasó a llamarse Catedral y se llevó el órgano, la
+     campana y el clavecín. Lo que lo separa de Catedral, de más a menos
+     audible:
+       - la ESCALA: frigia, con la segunda menor pegada a la tónica;
+       - la ARMONÍA DEL CAMINO: quintas al aire (do-sol-do), sin tercera. El
+         FINAL de un logro, en cambio, es do mayor como en todos los mundos:
+         en quinta al aire Eduardo lo oyó como derrota (0.7.144);
+       - el LATIDO, la marimba de HUESO y los tambores de guerra en galope;
+       - un coro de guerra en «u», más grave y más cerrado que el de Catedral.
+     Todo con senos armónico por armónico: una sierra zumba y suena a chip. */
+  averno: { nombre:"Averno", base:130.81, escala:"frigia", tambor:true,
+    voz:     { partes:[[1,"sine",.5,1,-12],[1,"sine",.5,1,12],[2,"sine",.45,1],[3,"sine",.38,1],[4,"sine",.26,1],[5,"sine",.16,1]], formantes:[[320,4,1],[620,5,.5],[2300,7,.05]], vibrato:[4.2,14], tremolo:[6,.18], ataque:.22, sostiene:true, suelta:.45, envio:.28, sala:[3,2], dur:1 },
+    // Hueso: el golpe seco de una marimba de hueso. El parcial alto se apaga enseguida.
+    brillo:  { partes:[[1,"sine",1,.35],[3.2,"sine",.26,.1],[6.1,"sine",.06,.04]], ataque:.002, filtro:4500, envio:.16, sala:[3,2], dur:.8 },
+    /* Un gong de guerra: grave, oscuro, con la tercera MAYOR (1,25) y no la
+       menor (1,183) de una campana de iglesia — esa va dentro de cada golpe y
+       rematar con ella sonaba a derrota (0.7.144). */
+    gong:    { partes:[[.5,"sine",.25,1],[1,"sine",1,.8],[1.25,"sine",.4,.6],[1.5,"sine",.35,.5],[2,"sine",.3,.35],[2.514,"sine",.08,.2]], ataque:.003, filtro:2600, envio:.35, sala:[3,2], dur:2.6 },
+    metal:   { partes:[[1,"sine",.7,1,-4],[1,"sine",.7,1,4],[2,"sine",.55,1],[3,"sine",.45,1],[4,"sine",.32,1],[5,"sine",.22,1],[6,"sine",.14,1]], filtro:400, barrido:[400,2600,.18], q:.8, ataque:.04, sostiene:true, suelta:.25, envio:.22, sala:[3,2], dur:1 },
+    luz:     { partes:[[1,"sine",.45,1,-10],[1,"sine",.45,1,10],[2,"sine",.3,1],[3,"sine",.18,1]], formantes:[[300,4,1],[600,5,.3]], vibrato:[4.2,10], ataque:.6, sostiene:true, suelta:.8, envio:.45, sala:[3,2], dur:1 } },
+
+  /* Catedral: el gótico de vitrales, que se llamó Averno de la 0.7.136 a la
+     0.7.141. Lo decidido en `apariencias/LEEME.md`: el órgano, la campana y la
+     menor armónica se quedan, entra el clavecín, y los tambores de guerra, los
+     trombones y el retumbo se van a Averno. El clavecín es el que sube la
+     escalera: un cuerpo pulsado y brillante que se apaga solo. */
+  catedral: { nombre:"Catedral", base:130.81, escala:"armonica",
     voz:     { partes:[[.5,"sine",.3,1],[1,"sine",1,1],[2,"sine",.5,1],[3,"sine",.16,1],[4,"sine",.18,1],[1,"sine",.25,1,6]], ataque:.07, sostiene:true, suelta:.35, filtro:3800, envio:.3, sala:[4,1.8], dur:1 },
     coro:    { partes:[[1,"sine",.5,1,-10],[1,"sine",.5,1,10],[2,"sine",.45,1],[3,"sine",.4,1],[4,"sine",.3,1],[5,"sine",.22,1],[6,"sine",.14,1],[8,"sine",.07,1]], formantes:[[400,4,1],[750,5,.6],[2400,7,.08]], vibrato:[4.8,14], ataque:.35, sostiene:true, suelta:.5, envio:.35, sala:[4,1.8], dur:1 },
-    brillo:  { partes:[[.5,"sine",.5,1],[1,"sine",1,.8],[1.183,"sine",.55,.6],[1.506,"sine",.35,.45],[2,"sine",.45,.35],[2.514,"sine",.14,.2],[3.011,"sine",.09,.15],[4.166,"sine",.05,.08]], ataque:.002, filtro:6000, envio:.33, sala:[4,1.8], dur:2.2 },
-    metal:   { partes:[[1,"sine",.7,1,-4],[1,"sine",.7,1,4],[2,"sine",.55,1],[3,"sine",.45,1],[4,"sine",.32,1],[5,"sine",.22,1],[6,"sine",.14,1]], filtro:450, barrido:[450,3000,.2], q:.8, ataque:.05, sostiene:true, suelta:.25, envio:.25, sala:[4,1.8], dur:1 },
+    // La campana, también con la tercera mayor (ver el gong de Averno).
+    campana: { partes:[[.5,"sine",.5,1],[1,"sine",1,.8],[1.25,"sine",.55,.6],[1.506,"sine",.35,.45],[2,"sine",.45,.35],[2.514,"sine",.14,.2],[3.011,"sine",.09,.15],[4.166,"sine",.05,.08]], ataque:.002, filtro:6000, envio:.33, sala:[4,1.8], dur:2.2 },
+    // Clavecín: la púa pellizca y los armónicos caen antes que la fundamental.
+    brillo:  { partes:[[1,"sine",1,.55],[2,"sine",.6,.42],[3,"sine",.42,.3],[4,"sine",.28,.2],[5,"sine",.16,.14],[6,"sine",.09,.1],[8,"sine",.05,.07]], ataque:.002, filtro:6500, envio:.22, sala:[4,1.8], dur:1 },
     luz:     { partes:[[1,"sine",.45,1,-10],[1,"sine",.45,1,10],[2,"sine",.3,1],[3,"sine",.18,1]], formantes:[[330,4,1],[680,5,.35]], vibrato:[4.5,10], ataque:.5, sostiene:true, suelta:.8, envio:.45, sala:[4,1.8], dur:1 } },
 
   plano: { nombre:"Blueprint", base:261.63, escala:"suspendida", regla:true,
@@ -289,6 +310,10 @@ const MATERIAL = {
 
 };
 const V = m => m.voz, B = m => m.brillo || m.voz, A = m => m.arpa || B(m);
+// Un acorde de quinta al aire (tónica, quinta y octava), sin tercera: el de Averno.
+const quinta = (m, s, t, d, v) => [0, 7, 12].forEach(x => nota(V(m), S(m, s + x), t, d, v));
+// Y el mayor con su octava, el que cierra un logro en todos los mundos.
+const mayor = (m, s, t, d, v) => [0, 4, 7, 12].forEach(x => nota(V(m), S(m, s + x), t, d, v));
 
 /* ---------- Arcade: los de hoy, una octava abajo ---------- */
 function arcNota(f, t, d, o) {
@@ -307,7 +332,7 @@ const ARC = {
   desmarcar:()=>arcNota(F.G5,0,.14,{a:F.G4,vol:.035}),
   fiesta:()=>{[F.C5,F.E5,F.G5,F.C6,F.E6,F.G6].forEach((n,i)=>arcNota(n,i*.05,.07,{vol:.04}));arcNota(F.C7,.3,.22,{vol:.04});},
   racha:()=>{arcNota(F.E6,0,.06,{vol:.04});arcNota(F.B6,.07,.16,{vol:.04});},
-  rango:()=>{[[F.C5,0,.09],[F.E5,.09,.09],[F.G5,.18,.09],[F.C6,.27,.18],[F.A5,.5,.09],[F.C6,.59,.5]].forEach(([n,t,d])=>arcNota(n,t,d,{vol:.045}));[[F.C3*2,0,.27],[F.F3*2,.27,.23],[F.G3*2,.5,.6]].forEach(([n,t,d])=>arcNota(n,t,d,{tipo:"triangle",vol:.12}));},
+  rango:()=>{[[F.C5,0,.09],[F.E5,.09,.09],[F.G5,.18,.09],[F.C6,.27,.18],[F.A5,.5,.09],[F.C6,.59,.5]].forEach(([n,t,d])=>arcNota(n,t,d,{vol:.045}));[[F.C3*2,0,.27],[F.F3*2,.27,.23],[F.G3*2,.5,.14],[F.C4*2,.64,.5]].forEach(([n,t,d])=>arcNota(n,t,d,{tipo:"triangle",vol:.12}));},
   fase:()=>{[[F.G5,0,.08],[F.C6,.08,.08],[F.E6,.16,.08],[F.G6,.24,.12],[F.E6,.38,.08],[F.C7,.46,.4]].forEach(([n,t,d])=>arcNota(n,t,d,{vol:.045}));[[F.C3*2,0,.36],[F.G3*2,.38,.5]].forEach(([n,t,d])=>arcNota(n,t,d,{tipo:"triangle",vol:.12}));},
   konami:()=>{[F.C5,F.D5,F.E5,F.G5,F.A5,F.C6,F.D6,F.E6,F.G6,F.A6].forEach((n,i)=>arcNota(n,i*.045,.06,{vol:.035}));[F.C6,F.E6,F.G6].forEach(n=>arcNota(n,.48,.55,{vol:.03}));arcNota(F.C4*2,.48,.55,{tipo:"triangle",vol:.12});},
   // La rara iba a do7-sol7 (hasta 3 kHz). Ahora sol5-do6-mi6 antes de bajar la octava.
@@ -327,10 +352,14 @@ const dflt = {
   cuenta:     m => nota(B(m),G(m,6),0,.18,.35),
   ya:         m => { nota(B(m),G(m,8),0,.5,.4); nota(B(m),G(m,3),0,.5,.2); },
   fase:       m => { [[4,0],[6,.18],[8,.36]].forEach(([g,t]) => nota(B(m),G(m,g),t,.95,.38)); },
+  /* Una subida tiene que resolver HACIA ARRIBA y en MAYOR (Eduardo, 0.7.144:
+     «suena negativo, no suena como progreso»). Antes se tomaban grados de la
+     escala de cada mundo, y en la pentatónica eso daba mi-la-do-mi: un la
+     menor. Ahora son semitonos fijos, do-mi-sol-do, sea cual sea la escala. */
   habilidad:  m => {
     if (m.regla) madera(0,520,.1);
-    [[2,0,.5],[4,.08,.5],[5,.16,.5],[7,.24,1]].forEach(([g,t,d]) => nota(B(m),G(m,g),t,d,.38));
-    nota(V(m),G(m,0),.24,1.2,.26);
+    [[0,0,.5],[4,.08,.5],[7,.16,.5],[12,.24,1]].forEach(([s,t,d]) => nota(B(m),S(m,s),t,d,.38));
+    nota(V(m),S(m,0),.24,1.2,.22);
     if (m.tambor) { tambor(0,.6); tambor(.24,.7); }
   },
   hito:       m => {
@@ -342,16 +371,18 @@ const dflt = {
   racha:      m => { nota(V(m),G(m,0),0,1.4,.3,{ataque:.35}); nota(V(m),G(m,2),.15,1.3,.26,{ataque:.3}); nota(B(m),G(m,7),.55,1,.3); },
   luciernaga: m => { [[7,0,1.0,.15],[8,.2,1.0,.13],[9,.42,1.6,.13]].forEach(([g,t,d,v]) => nota(B(m),G(m,g),t,d,v,{ataque:.05})); },
   expedicion: m => {
-    [0,2,4].forEach(g => nota(V(m),G(m,g),0,2.6,.2,{ataque:.45}));
+    [0,4,7].forEach(s => nota(V(m),S(m,s),0,2.6,.2,{ataque:.45}));
     if (m.regla) [0,.12,.24,.36].forEach((t,i) => madera(t,i === 3 ? 640 : 520,.09));
     // Sin cuerda pulsada aquí: arpa + escala de cinco notas subiendo sonaba a guzheng (Eduardo, v7).
     for (let i = 0; i <= 9; i++) nota(B(m),G(m,i),.45+i*.085,.55,.24);
-    nota(B(m),G(m,9),1.35,1.8,.36); nota(V(m),G(m,4),1.35,1.8,.22);
+    /* Remata en do mayor, arriba. Terminaba en la —la nota más alta de la
+       escalera— y la subida se quedaba en el aire, en menor. */
+    nota(B(m),S(m,24),1.35,1.8,.36); nota(V(m),S(m,12),1.35,1.8,.2); nota(V(m),S(m,16),1.35,1.8,.16);
     bombo(1.35,.4);
     if (m.tambor) { tambor(0,.7); tambor(.45,.6); tambor(1.35,.9); }
     if (m.coro) { nota(m.coro,S(m,0),.3,2.6,.22); nota(m.coro,S(m,6),.3,2.6,.16); nota(m.coro,S(m,12),1.35,2.2,.2); }
   },
-  abre:       m => { madera(0,420,.3); madera(.07,300,.28); nota(B(m),G(m,7),.14,1.5,.4); nota(V(m),G(m,2),.14,1.6,.24); nota(B(m),G(m,9),.38,1.3,.2); if (m.tambor) tambor(.14,.7); },
+  abre:       m => { madera(0,420,.3); madera(.07,300,.28); nota(B(m),S(m,16),.14,1.5,.4); nota(V(m),S(m,4),.14,1.6,.24); nota(B(m),S(m,24),.38,1.3,.2); if (m.tambor) tambor(.14,.7); },
   // La bienvenida: suave, corta y hacia arriba. Es lo primero que alguien oye de Norata.
   bienvenida: m => { [0,2,4].forEach((g,i) => nota(B(m),G(m,g+2),i*.12,.9,.26)); nota(B(m),G(m,9),.4,1.4,.24); nota(V(m),G(m,0),.36,1.6,.14); },
   // Un golpe por toque y siempre el mismo: con el tono al azar, ochenta seguidos sonaban a ruido.
@@ -368,53 +399,123 @@ const PROPIO = {
   casa: {
     racha: m => { nota(m.brasa,G(m,0),0,1.6,.34); nota(m.brasa,G(m,2),.12,1.5,.28); nota(B(m),G(m,7),.7,1.1,.3); nota(B(m),G(m,5),.7,1.1,.18); }
   },
+  /* Averno, el de Diablo: guerra, hueso y sangre. Lo oscuro lo ponen la
+     frigia, los tambores, el hueso y el latido por el CAMINO; el FINAL de un
+     logro es do mayor, arriba, igual que en todos los mundos. Primero acababa
+     en quinta al aire (do-sol-do) y Eduardo lo oyó como derrota (29 sep 2026);
+     y el gong del final caía una octava por debajo de todo, que también se oye
+     como caer: ahora suena en el do de en medio. `quinta()` queda para los
+     acordes de paso; `mayor()` es el que cierra. */
   averno: {
-    // Diario: una campana pequeña que sube por la escala. Corta, porque se oye muchas veces.
-    mision:     (m,k) => { const g = Math.min(k,7) + 7; nota(m.brillo,G(m,g),0,.5,.42); if (k >= 7) nota(m.voz,G(m,g-7),0,.6,.14); },
-    paso:       (m,k) => nota(m.brillo,G(m,Math.min(k,7)+7),0,.3,.22),
-    cuenta:     m => nota(m.brillo,G(m,11),0,.4,.32),
-    ya:         m => { nota(m.brillo,G(m,14),0,1,.38); nota(m.voz,G(m,7),0,.6,.18); },
-    // El final de fase: la campana dobla tres veces, la misma nota, como en un campanario.
-    fase:       m => { [0,.55,1.1].forEach(t => nota(m.brillo,G(m,9),t,1.2,.34)); nota(m.voz,G(m,7),0,1.6,.12); },
-    // Una habilidad: los trombones suben el acorde menor y el órgano lo sostiene.
+    // Diario: el hueso sube por la frigia. Corto, porque se oye muchas veces.
+    mision:     (m,k) => { const g = Math.min(k,7) + 7; nota(m.brillo,G(m,g),0,.45,.46); if (k >= 7) mayor(m,12,0,.5,.1); },
+    paso:       (m,k) => nota(m.brillo,G(m,Math.min(k,7)+7),0,.28,.24),
+    cuenta:     m => nota(m.brillo,G(m,11),0,.3,.34),
+    ya:         m => { nota(m.gong,S(m,12),0,1.3,.3); nota(m.metal,S(m,19),0,.45,.14); tambor(0,.4); },
+    // El final de fase: el gong dobla tres veces y el latido debajo.
+    fase:       m => { [0,.65,1.3].forEach(t => nota(m.gong,S(m,12),t,1.4,.34)); latido(0,.35); },
+    // Una habilidad: galope de tambores y los trombones suben do-mi-sol-do; el coro cierra en mayor.
     habilidad:  m => {
-      [[7,0,.22],[9,.14,.22],[11,.28,.22],[14,.42,.6]].forEach(([g,t,d]) => nota(m.metal,G(m,g),t,d,.3));
-      [7,9,11].forEach(g => nota(m.voz,G(m,g),.42,1,.12)); tambor(0,.55); tambor(.42,.7);
+      tambor(0,.5); tambor(.12,.35); tambor(.24,.6);
+      [[0,0,.2],[4,.14,.2],[7,.28,.2],[12,.42,.7]].forEach(([s,t,d]) => nota(m.metal,S(m,s+12),t,d,.28));
+      mayor(m,12,.42,1.2,.12);
     },
-    // Un hito: del napolitano (re bemol) a do menor, con la campana encima. Es la cadencia más dramática que existe.
+    /* Un hito: de si bemol mayor a do mayor, SUBIENDO un tono en todas las voces
+       y con el trombón de si bemol a do. Iba de re bemol a do —todo medio tono
+       abajo— y después en quintas al aire: las dos se oyeron como derrota
+       (Eduardo, 29 sep 2026). */
+    hito:       m => { mayor(m,10,0,.45,.12); nota(m.metal,S(m,22),0,.45,.18); mayor(m,12,.45,1.4,.13); nota(m.metal,S(m,24),.45,1,.2); nota(m.gong,S(m,12),.45,2,.28); tambor(0,.5); tambor(.45,.7); },
+    // La racha: dos latidos, el coro crece en una segunda que raspa y se abre a do mayor.
+    racha:      m => {
+      latido(0,.5); latido(.55,.55);
+      nota(m.voz,S(m,12),0,1.1,.18,{ataque:.9}); nota(m.voz,S(m,13),0,1.1,.12,{ataque:.9}); retumbo(0,1.2,.14);
+      mayor(m,12,1.1,1.3,.13); nota(m.metal,S(m,24),1.1,.9,.16); nota(m.gong,S(m,12),1.1,2,.28); tambor(1.1,.8);
+    },
+    // La luciérnaga: un coro lejano en «u» y un hueso casi sin voz. Es de madrugada: sin tambores.
+    luciernaga: m => { nota(m.luz,S(m,12),0,2.2,.12); nota(m.luz,S(m,19),.3,2,.08); nota(m.brillo,G(m,14),.5,.8,.1); },
+    /* El nivel de expedición: el latido, el retumbo y los tambores de guerra;
+       do, la bemol y si bemol en quintas al aire, y el último, do MAYOR
+       (i – VI – VII – I): los trombones suben al do de arriba y el gong suena
+       en el do de en medio, no debajo de todo. */
+    expedicion: m => {
+      latido(0,.5); retumbo(0,3,.14);
+      const ac = [0,-4,-2,0], alto = [7,8,10,12];
+      ac.forEach((a,i) => { const t = .45 + i*.42, d = i === 3 ? 2.2 : .45;
+        (i === 3 ? mayor : quinta)(m,a+12,t,d,.11); nota(m.metal,S(m,alto[i]+12),t,d,.22);
+        tambor(t,.55 + i*.08); tambor(t+.14,.3); });
+      nota(m.metal,S(m,31),1.71,1.6,.12);
+      nota(m.gong,S(m,12),1.71,2.6,.32);
+    },
+    // Se abre un módulo: un portón de hierro (golpe grave y clac) y el coro se abre en do mayor.
+    abre:       m => {
+      tambor(0,.8); madera(.08,240,.26); madera(.16,190,.2);
+      [0,4,7,12].forEach((s,i) => nota(m.voz,S(m,s+12),.3+i*.08,1.6-i*.08,.12));
+      nota(m.metal,S(m,24),.6,1,.14); nota(m.gong,S(m,12),.6,2,.24);
+    },
+    // Un golpe de hueso contra piedra, siempre igual: suena en cada toque (0.7.142.1), ochenta seguidos.
+    grieta:     m => { madera(0,280,.26); nota(m.brillo,G(m,7),0,.16,.1); },
+    rotura:     m => {
+      tambor(0,.9); retumbo(0,1.4,.14); latido(.1,.4);
+      for (let i = 0; i < 6; i++) nota(m.brillo,G(m,9+Math.floor(Math.random()*6)),.05+i*.11,.6,.2);
+      mayor(m,12,.2,1.6,.12); nota(m.gong,S(m,12),.2,2,.24);
+    }
+  },
+  /* Catedral: órgano, clavecín, campana y coro; ni tambores, ni trombones, ni
+     retumbo. Mismas reglas: lo que sube acaba en do mayor, arriba. */
+  catedral: {
+    // Diario: el clavecín sube por la escala.
+    mision:     (m,k) => { const g = Math.min(k,7) + 7; nota(m.brillo,G(m,g),0,.5,.4); if (k >= 7) nota(m.voz,G(m,g-7),0,.6,.12); },
+    paso:       (m,k) => nota(m.brillo,G(m,Math.min(k,7)+7),0,.3,.2),
+    cuenta:     m => nota(m.brillo,G(m,11),0,.35,.3),
+    ya:         m => { nota(m.campana,G(m,14),0,1,.36); nota(m.voz,G(m,7),0,.6,.16); },
+    // El final de fase: la campana dobla tres veces, la misma nota, como en un campanario.
+    fase:       m => { [0,.55,1.1].forEach(t => nota(m.campana,G(m,9),t,1.2,.34)); nota(m.voz,G(m,7),0,1.6,.12); },
+    // Una habilidad: el clavecín sube do-mi-sol-do y el órgano lo sostiene en mayor.
+    habilidad:  m => {
+      [[12,0,.3],[16,.1,.3],[19,.2,.3],[24,.3,.9]].forEach(([s,t,d]) => nota(m.brillo,S(m,s),t,d,.38));
+      [12,16,19].forEach(s => nota(m.voz,S(m,s),.3,1.2,.11)); nota(m.campana,S(m,24),.3,1.6,.18);
+    },
+    /* Un hito: de sol mayor a do mayor en el órgano (V – I), y TODAS las voces
+       suben o se quedan: la melodía va de si a do y el bajo de sol a do. Antes
+       iba del napolitano (re bemol) a do y todas bajaban medio tono a la vez:
+       se oía como un suspiro, «como derrota» (Eduardo, 29 sep 2026). */
     hito:       m => {
-      [1,5,8].forEach(s => nota(m.voz,S(m,s+12),0,.5,.12)); [0,3,7].forEach(s => nota(m.voz,S(m,s+12),.5,1.3,.13));
-      nota(m.coro,S(m,12),.5,1.3,.16); nota(m.brillo,G(m,14),.5,1.8,.34); tambor(.5,.7);
+      [-5,-1,2].forEach(s => nota(m.voz,S(m,s+12),0,.42,.12)); nota(m.brillo,S(m,23),0,.42,.3);
+      [0,4,7,12].forEach(s => nota(m.voz,S(m,s+12),.42,1.4,.12));
+      [16,19,24].forEach((s,i) => nota(m.brillo,S(m,s),.42+i*.08,.6,.3));
+      nota(m.coro,S(m,12),.42,1.4,.14); nota(m.campana,S(m,24),.62,1.8,.34);
     },
-    // La racha: el coro y el órgano crecen desde nada (como algo que sube del fondo) y rompen en la campana.
+    // La racha: el coro y el órgano crecen desde nada y se abren a do mayor con la campana.
     racha:      m => {
       nota(m.coro,S(m,12),0,1.1,.2,{ataque:.9}); nota(m.coro,S(m,13),0,1.1,.12,{ataque:.9});
-      nota(m.voz,S(m,0),0,1.1,.12,{ataque:.9}); retumbo(0,1.2,.16);
-      nota(m.voz,S(m,12),1.05,1.2,.14); nota(m.voz,S(m,15),1.05,1.2,.12); nota(m.brillo,G(m,14),1.05,1.8,.36); tambor(1.05,.8);
+      nota(m.voz,S(m,0),0,1.1,.12,{ataque:.9});
+      nota(m.voz,S(m,12),1.05,1.2,.14); nota(m.voz,S(m,16),1.05,1.2,.12); nota(m.campana,G(m,14),1.05,1.8,.36);
     },
-    // La luciérnaga: un coro lejano en «u», casi un susurro, y una campanita. Es de madrugada.
-    luciernaga: m => { nota(m.luz,S(m,15),0,2.2,.12); nota(m.luz,S(m,19),.3,2,.08); nota(m.brillo,G(m,16),.5,1.6,.12); },
-    // El nivel de expedición: tambores de guerra, i – napolitano – V – i en el órgano, trombones y coro, y la campana grande al final.
+    // La luciérnaga: un coro lejano en «u», casi un susurro, y una campanita.
+    luciernaga: m => { nota(m.luz,S(m,16),0,2.2,.12); nota(m.luz,S(m,19),.3,2,.08); nota(m.campana,G(m,16),.5,1.6,.12); },
+    /* El nivel de expedición: do menor, la bemol, sol y do MAYOR en el órgano
+       (i – VI – V – I, la tercera de Picardía de los corales), el clavecín
+       subiendo por encima y la campana grande al final. */
     expedicion: m => {
-      retumbo(0,2.8,.16); tambor(0,.7); tambor(.3,.5);
-      const ac = [[0,3,7],[1,5,8],[-1,2,7],[0,3,7]];
-      ac.forEach((a,i) => { const t = .3 + i*.45, d = i === 3 ? 2.2 : .5;
-        a.forEach(s => nota(m.voz,S(m,s+12),t,d,.11));
-        nota(m.metal,S(m,a[a.length-1]+12),t,d,.22); tambor(t,.55 + i*.08); });
-      nota(m.coro,S(m,12),.3,3,.18); nota(m.coro,S(m,19),.3,3,.12);
-      nota(m.brillo,G(m,7),1.65,2.4,.42); nota(m.brillo,G(m,14),1.65,2.4,.24);
+      const ac = [[0,3,7],[-4,0,3],[-5,-1,2],[0,4,7]];
+      ac.forEach((a,i) => { const t = .15 + i*.45, d = i === 3 ? 2.2 : .5;
+        a.forEach(s => nota(m.voz,S(m,s+12),t,d,.11)); });
+      nota(m.coro,S(m,12),.15,3,.16); nota(m.coro,S(m,19),1.5,1.8,.1);
+      [12,14,15,17,19,20,23,24].forEach((s,i) => nota(m.brillo,S(m,s),.15+i*.17,.4,.18));
+      nota(m.campana,S(m,24),1.5,2.4,.4); nota(m.campana,G(m,7),1.5,2.4,.22);
     },
-    // Se abre un módulo: un portón pesado (golpe grave y clac) y el órgano sube un acorde mayor: lo que se abre es luz.
+    // Se abre un módulo: una puerta de madera y el órgano sube un acorde mayor.
     abre:       m => {
-      tambor(0,.8); madera(.08,260,.26); madera(.16,200,.2);
-      [0,4,7,12].forEach((s,i) => nota(m.voz,S(m,s+12),.3+i*.08,1.6-i*.08,.12));
-      nota(m.coro,S(m,12),.3,1.6,.16); nota(m.brillo,G(m,14),.6,1.8,.3);
+      madera(0,300,.2); madera(.08,240,.16);
+      [0,4,7,12].forEach((s,i) => nota(m.voz,S(m,s+12),.25+i*.08,1.6-i*.08,.12));
+      nota(m.coro,S(m,12),.25,1.6,.16); nota(m.campana,G(m,14),.55,1.8,.3);
     },
-    grieta:     m => { madera(0,340,.26); nota(m.brillo,G(m,12),0,.3,.1); },
+    // Un golpe de cincel en la piedra, siempre igual: suena en cada toque (0.7.142.1), ochenta seguidos.
+    grieta:     m => madera(0,380,.22),
     rotura:     m => {
-      tambor(0,.9); retumbo(0,1.4,.16);
-      for (let i = 0; i < 6; i++) nota(m.brillo,G(m,9+Math.floor(Math.random()*6)),.05+i*.11,1.2,.16);
-      [0,3,7].forEach(s => nota(m.voz,S(m,s+12),.2,1.6,.12)); nota(m.coro,S(m,12),.2,1.6,.16);
+      golpe(0,140,50,.25,.4);
+      for (let i = 0; i < 6; i++) nota(m.campana,G(m,9+Math.floor(Math.random()*6)),.05+i*.11,1.2,.16);
+      [0,4,7].forEach(s => nota(m.voz,S(m,s+12),.2,1.6,.12)); nota(m.coro,S(m,12),.2,1.6,.16);
     }
   },
   reliquia: {
@@ -447,7 +548,8 @@ const RECAP = {
               acordes:[MAY.C,MAY.G,MAY.Am,MAY.F,MAY.C,MAY.G,MAY.F,MAY.G,MAY.Am,MAY.F], fin:[0,4,7,12] },
   plano:    { bpm:108, sub:8, arp:[0,2,1,3,0,2,1,3], regla:true,
               acordes:[[0,4,7,14],[-7,-3,0,4],[-3,0,4,7],[-5,-1,2,4],[0,4,7,14],[-7,-3,0,4],[-3,0,4,7],[-5,-1,2,4],[-7,-3,0,4],[-5,-1,2,5]], fin:[0,4,7,11,14] },
-  averno:   { bpm:120, sub:8, arp:[0,1,2,1,0,2,1,2], coro:true,
+  // Catedral: el que sonaba cuando el gótico se llamaba Averno. No se toca.
+  catedral: { bpm:120, sub:8, arp:[0,1,2,1,0,2,1,2], coro:true,
               acordes:[[0,3,7],[-4,0,3],[3,7,10],[-2,2,5],[0,3,7],[-4,0,3],[-7,-4,0],[-5,-1,2],[-4,0,3],[-2,2,5]], fin:[0,4,7,12] },
   reliquia: { bpm:100, sub:8, arp:[0,1,2,3,2,3,1,2],
               acordes:[[0,4,7],[2,6,9],[4,7,11],[0,4,7],[2,6,9],[-1,2,6],[-3,0,4],[2,6,9],[-5,-1,2],[2,6,9]], fin:[0,4,7,11,18] },
@@ -463,7 +565,7 @@ const RECAP_VOCES = {
   casa: {
     brillo:{ partes:[[1,"sine",1,1],[2,"triangle",.16,.45],[3,"sine",.08,.15],[4,"sine",.05,.1],[6,"sine",.03,.06]], ataque:.003, filtro:9000, envio:.11, sala:[1.8,3.5], dur:1 },
     bajo:  { partes:[[1,"triangle",1,1],[1,"sine",.5,1]], filtro:900, ataque:.01, dur:1 } },
-  averno: {
+  catedral: {
     voz:   { partes:[[1,"sawtooth",.45,1,-10],[1,"sawtooth",.45,1,10],[.5,"sine",.9,1.1]], filtro:1400, q:2, tremolo:[5.5,.35], ataque:.04, envio:.28, sala:[3.5,2.2], dur:1.5 },
     brillo:{ partes:[[1,"sine",1,1.2],[2.76,"sine",.24,.5],[5.4,"sine",.06,.15],[.5,"sine",.45,1]], filtro:6000, ataque:.003, envio:.26, sala:[3.5,2.2], dur:1.3 },
     coro:  { partes:[[1,"sawtooth",.4,1,-7],[1,"sawtooth",.4,1,7],[.5,"sawtooth",.35,1]], formantes:[[420,5,1],[780,6,.45],[2500,8,.12]], vibrato:[4.2,12], ataque:.25, envio:.32, sala:[3.5,2.2], dur:2 },
@@ -478,16 +580,28 @@ const RECAP_VOCES = {
 // El tambor de Averno como estaba en la v5, solo para el recap.
 const tamborRecap = (t, v) => golpe(t, 90, 32, .45, v || .75);
 
-/* Catedral suena como sonaba el gótico cuando se llamaba Averno (0.7.136 a
-   0.7.141): es el mismo mundo con otro nombre, y quien lo lleva no tiene por
-   qué notar la mudanza. El Averno nuevo, el de hueso y sangre, se queda por
-   ahora con ese mismo sonido. Separarlos —Catedral sin los tambores de
-   guerra, más órgano y campana— es de la conversación del sonido, y lo
-   decidido está en `apariencias/LEEME.md`. */
-MATERIAL.catedral = MATERIAL.averno;
-PROPIO.catedral = PROPIO.averno;
-RECAP.catedral = RECAP.averno;
-RECAP_VOCES.catedral = RECAP_VOCES.averno;
+/* El recap del aniversario de Catedral es el que ya sonaba (los recaps no se
+   tocan), con su tambor de entonces: por eso lleva `tambor` en sus voces. */
+// Su tambor de entonces: el material de Catedral ya no lleva tambores.
+RECAP_VOCES.catedral.tambor = true;
+
+/* ---- El recap de Averno, propio (29 sep 2026) ----
+   Eduardo: «no representa Averno y es igual o demasiado parecido a Catedral».
+   Lo era: los dos compartían el recap del gótico de antes. Este es de guerra:
+   el LATIDO abre los dos primeros compases, a partir del cuarto galopan los
+   tambores, el acorde es de quinta al aire por la frigia (do, re bemol, si
+   bemol, la bemol) y el arpegio lo toca el HUESO. Sigue siendo animado, como
+   todos los recaps, y el final sube a do MAYOR: un año entero no se cierra en
+   derrota. */
+RECAP.averno = { bpm:126, sub:8, arp:[0,1,2,1,0,2,1,2], latido:true, galope:true,
+  acordes:[[0,7,12],[1,8,13],[0,7,12],[-2,5,10],[-4,3,8],[-2,5,10],[0,7,12],[1,8,13],[-4,3,8],[-2,5,10]], fin:[0,4,7,12,16] };
+RECAP_VOCES.averno = {
+  voz:    MATERIAL.averno.voz,
+  brillo: MATERIAL.averno.brillo,
+  // Un bajo corto y limpio: Eduardo ya paró un Averno por exceso de graves.
+  bajo:   { partes:[[1,"sine",1,1],[2,"sine",.35,.5],[3,"sine",.12,.3]], filtro:900, ataque:.006, dur:.8 },
+  recapTambor: tambor
+};
 
 /* ---------- Qué material suena ----------
    Lo decide la apariencia puesta. Los ambientes (Tinta, Musgo…) son recolores
@@ -558,7 +672,7 @@ function recapCompas() {
   const base = arc ? 261.63 : m.base, s2f = s => base * Math.pow(2, s / 12);
   const tono = (voz, s, tt, d, v) => arc ? arcNota(s2f(s) * 2, tt, d, { tipo: voz === "bajo" ? "triangle" : "square", vol: v * .12 }) : nota(voz, s2f(s), tt, d, v);
   const pad = arc ? null : (m.coro || V(m)), arpa = arc ? "arpa" : B(m), bajo = arc ? "bajo" : m.bajo;
-  const pulso = (tt, v) => arc ? golpe(tt, 150, 50, .12, v * .8) : m.tambor ? tamborRecap(tt, v) : bombo(tt, v * .8);
+  const pulso = (tt, v) => arc ? golpe(tt, 150, 50, .12, v * .8) : m.tambor ? (m.recapTambor || tamborRecap)(tt, v) : bombo(tt, v * .8);
   const antes = master; master = rec.bus; captura = rec.notas;
   try {
     if (!rec.fin) {
@@ -569,7 +683,10 @@ function recapCompas() {
         tono(arpa, s, t + j * bar / r.sub, (bar / r.sub) * (arc ? .8 : 1.2), (j % 4 === 0 ? .2 : .14) * (fuerte ? 1.15 : 1));
       }
       if (i >= 2) { const b = ac[0] - 12; tono(bajo, b, t, beat * 1.4, .34); tono(bajo, b, t + beat * 2, beat * .9, .3); tono(bajo, b + 7, t + beat * 3.5, beat * .45, .24); }
+      if (r.latido && i < 3) { latido(t, .42); latido(t + beat * 2, .38); }
       if (i >= 3) { pulso(t, .55); pulso(t + beat * 2, .5); }
+      // El galope: dos golpes flojos antes de cada tiempo fuerte (ta-ta-TÚM).
+      if (r.galope && i >= 3) [1, 3].forEach(q => { pulso(t + q * beat - beat * .5, .22); pulso(t + q * beat - beat * .25, .26); });
       if (i >= 6) { pulso(t + beat, .3); pulso(t + beat * 3, .3); }
       if (r.regla && i >= 1) [1, 3].forEach(q => madera(t + q * beat, 560, .05));
       if (i >= 6) [0, 1, 2, 3].forEach(q => tono(arpa, ac[(q + i) % ac.length] + 24 - (arc ? 12 : 0), t + q * beat, beat * .9, .1));
@@ -579,6 +696,7 @@ function recapCompas() {
       // En Arcade el remate va una octava abajo y corto: subía hasta el do6 en onda cuadrada.
       for (let j = 0; j < 8; j++) tono(arpa, r.fin[j % r.fin.length] + 12 * ((arc ? 0 : 1) + Math.floor(j / r.fin.length)), t + j * .07, arc ? .16 : .9, .16);
       tono(bajo, r.fin[0] - 12, t, 2.5, .38); pulso(t, .8);
+      if (m.gong) nota(m.gong, s2f(12), t, 2.4, .3);
       rec.rematado = true;
     }
   } finally { master = antes; captura = null; }

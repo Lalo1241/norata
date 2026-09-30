@@ -247,6 +247,125 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.144 · 29 sep 2026
+
+**Catedral y Averno suenan cada uno a lo suyo, y ningún logro suena a
+derrota.** Desde la 0.7.141 eran dos mundos con el mismo sonido: Catedral
+apuntaba al material del gótico de antes y el Averno nuevo lo tomaba
+prestado. Se eligió en el boceto «El sonido de Norata», con los catorce
+momentos de la casa, Catedral y Averno lado a lado
+(https://claude.ai/artifact/FFN8qAzr28YroBbgfboPFd).
+
+- **Catedral**: órgano, clavecín (sube la escalera de las misiones), campana
+  y coro, en menor armónica. Sin tambores de guerra, trombones ni retumbo, como
+  estaba escrito en `apariencias/LEEME.md`. **Su recap del aniversario es el
+  que ya sonaba**: el del gótico de antes, con su tambor.
+- **Averno**: frigia (la segunda menor pegada a la tónica), tambores de guerra
+  en galope, trombones, retumbo, un gong, una marimba de HUESO y el LATIDO.
+  **Recap propio** (Eduardo: «no representa Averno y es demasiado parecido a
+  Catedral»): abre con el latido, galopa, va en quintas por la frigia con el
+  hueso en el arpegio y cierra en mayor.
+- **El golpe del candado es de tono fijo en los dos**, para aguantar los
+  ochenta toques seguidos de la 0.7.142.1.
+
+**Lo que sonaba a derrota, y ya no:**
+
+1. **La subida de una habilidad en la casa** tocaba mi-la-do-mi: un la menor
+   (los grados salían de la pentatónica). Ahora do-mi-sol-do en todos.
+2. **El nivel de expedición en la casa** acababa en la y la subida quedaba en
+   el aire. Remata en do mayor, arriba; el módulo que se abre, igual.
+3. **Las campanas de iglesia llevan una tercera menor dentro** (parcial
+   1,183) y volvían menor cualquier final. La de Catedral y el gong de Averno
+   van con tercera mayor (1,25).
+4. **Un logro no puede bajar.** El hito de Catedral iba del napolitano a do y
+   todas las voces caían medio tono: «como derrota». Ahora sol → do con cada
+   voz subiendo o quieta; el de Averno, si bemol → do.
+5. **En Averno, las quintas al aire del final también se oyeron como
+   derrota**, y el gong caía una octava por debajo de todo. Lo oscuro queda en
+   el camino (escala, tambores, hueso, latido) y todo logro cierra en do
+   mayor, con el gong en el do de en medio. En Arcade, el nivel ya no se queda
+   en el quinto grado.
+
+Comprobado en node con el motor tal cual se publica: los catorce momentos en
+los seis sonidos y los seis recaps sin un error, cada subida acaba en mayor,
+el golpe del candado pasa como toque, y nada pasa de 1,1 kHz. No se pudo abrir
+en el navegador: el cupo de servidores lo tenían otras conversaciones.
+
+### 0.7.143.7 · 29 sep 2026
+
+**Averno: Cocito y Ponzoña pasan a llamarse Lamento y Plaga.** Eduardo: «no le
+pega nada ese nombre». Con Sangre y Tormento queda una serie de estados del
+infierno. Cambia solo el nombre que se ve: los id (`cocito`, `ponzona`) se
+quedan, porque es lo que cada dispositivo guardó, y quien ya tenía una de las
+dos la sigue teniendo.
+
+Y las paletas de Averno y dos de Catedral (Alabastro y Bronce) no tenían su
+nombre en inglés: salían en español con la app en inglés. Ya lo tienen.
+
+### 0.7.143.6 · 29 sep 2026
+
+**Catedral: la racha se lee, y en el menú ya no es un clon de Averno.** Lo pidió
+Eduardo mirándolo en vivo.
+
+- **Las letras del candelabro** («no se leen a duras penas, sobre todo la que
+  choca con el soporte»): iban a 11 px en la letra de las cifras, y la vela de
+  en medio cae justo encima del fuste. Ahora van en CelestiByte a 14 px con un
+  contorno del color del fondo, como las del sello de Averno, y se leen encima
+  del hierro.
+- **El brazo del candelabro** medía un píxel menos por la derecha y el rombo de
+  ese lado se quedaba flotando. Ahora es simétrico.
+- **Las velas de «Semanas de antes»** («demasiado compactadas»): la vela es
+  más ancha, y su número y sus fechas pasan a CelestiByte.
+- **Los títulos de Catedral en la letra de Eduardo.** En la 0.7.141 él eligió
+  «píxel claro, sin gótico», y yo puse Pixelify Sans, que era la opción de la
+  prueba; él quería su **CelestiByte**, la de Arcade. Ya no se incrusta ninguna
+  letra de títulos en `css/mundos.css` (baja de 293 a 282 KB): CelestiByte la
+  declara `css/estilos.css` y se baja al usarla.
+- **Averno y Catedral en Mi apariencia**, que salían iguales (el mismo rojo, la
+  misma casilla): Catedral se enseña en el índigo de su vitral, con un token
+  nuevo, `--m-muestra`, en `mundos/datos.py`, y cada uno lleva su figura: el
+  rombo de Averno y la losa de Catedral.
+
+**Y en Averno, las esquinas incompletas.** El recorte a 45° quita píxeles, no
+los dibuja: en una pieza con borde propio se comía el borde en las cuatro puntas
+(Eduardo lo vio en «Actualizar», el botón de la barra de la PC). Se buscaron
+todas midiendo —piezas con `clip-path` y borde visible sin `border-image`, en
+siete pantallas, noche y día, teléfono y PC— y eran tres: los botones de icono,
+los «+» de añadir y ese botón. Ahora llevan el marco de esquina cortada, que sí
+trae el corte dibujado; el de actualizar, en oro (`--av-marco-bisel-oro`, nuevo
+en `mundos/averno/averno.py`). La misma medida, repetida, da cero.
+
+**Y el candado va encima del título, en todos los temas.** En el cuadro de un
+módulo cerrado el título salía arriba y el aro con el candado debajo; Eduardo
+lo quiso al revés: primero lo cerrado, luego cuánto falta. Como el título es la
+cabecera del cuadro y el aro va dentro del texto —y ese cuadro lo comparten
+todos los avisos—, se ordena solo con CSS y solo cuando el cuadro lleva el aro
+(`.modal-card:has(> #modal-msg .cerr-aro)`, en `css/estilos.css`). Medido en la
+casa, Tinta, Averno, Catedral, Blueprint y Reliquia: aro, título, texto y
+botón, en ese orden.
+
+### 0.7.143.5 · 29 sep 2026
+
+**La frase de la puerta se lee en dos renglones, y el banco se limpió.** Lo
+pidió Eduardo viendo «Nada de lo que construiste se fue a ningún lado. Te
+estaba esperando.» en una sola línea de 850 px en PC: se leía como titular.
+
+- **La caja.** `.puerta-cita` lleva `max-width: 24ch` y `text-wrap: balance`.
+  Medido a 1440: esa frase pasa de 1 renglón a 2, las cortas siguen en 1 y
+  las largas quedan en 3.
+- **Esa frase tenía además un fallo:** el sujeto de «te estaba esperando» se
+  leía como «nada» — «nada te estaba esperando». Y decía lo mismo que otras
+  dos. Se quitó.
+- **Fuera, por las reglas del banco** (`PUERTA_FRASES`, `js/12-login.js`):
+  «Los días que no abriste la app…» (taller de superación), «Nadie lleva un
+  año seguido…» (proverbio), «Lo de hoy se marca de un toque…» y «Rachas,
+  niveles y XP…» (descripción de producto), «Ganas XP por lavar los platos…»
+  (enredada) y «Tu constancia, por fin…» (sin vuelta).
+- **Entran dos:** «Tus cosas no se enteraron de que te fuiste.» (quien
+  vuelve) y «La racha cuenta semanas, no días. Un mal martes no te la
+  tumba.» (quien llega; es verdad desde 0.7.135). Las dos con su inglés en
+  `js/00b-textos-en.js`, y las seis quitadas, fuera del diccionario.
+
 ### 0.7.143.4 · 29 sep 2026
 
 **Un check es verde en todos los mundos.** Lo pidió Eduardo viendo la palomita

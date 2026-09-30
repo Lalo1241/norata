@@ -2007,6 +2007,18 @@
     color: var(--mu-acento, var(--lila));
   }
   .mun-ic svg { width: 20px; height: 20px; stroke-width: 1.6; }
+  /* Averno y Catedral eran clónicos en esta lista —el mismo rojo, la misma
+     casilla, dos iconos redondos— y Eduardo pidió que se distinguieran en
+     color y en diseño. El color lo pone su muestra (Catedral va en el índigo
+     de su vitral, `--m-muestra` en mundos/datos.py); la figura, la de cada
+     mundo: el ROMBO de Averno y la LOSA de esquina labrada de Catedral, las
+     mismas de su menú. */
+  .mues-averno .mun-ic { border-radius: 0; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); width: 42px; height: 42px; margin: -2px; }
+  .mues-catedral .mun-ic {
+    border-radius: 0;
+    clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 2px 4px, 2px 2px, 4px 2px);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--mu-acento) 45%, transparent);
+  }
   .mun-tx { min-width: 0; flex: 1; }
   .mun-tx b { display: block; font-size: 14px; font-weight: 700; }
   .mun-tx > span {
@@ -3305,6 +3317,26 @@
   .cerr-enlace:hover { color: var(--mint-deep); }
   .cerr-tx { display: block; }
   .cerr-como { margin-top: 10px; color: var(--muted); font-size: 13px; }
+  /* El candado va ARRIBA del título, no debajo (Eduardo, 0.7.143.6, en todos
+     los temas): se ve primero lo que está cerrado y luego cuánto falta. El
+     problema es que el título es la cabecera del cuadro y el aro vive dentro
+     del texto, en otro padre; el cuadro lo comparten todos los avisos de la
+     app, así que moverlo con JavaScript lo desordenaría para los demás. Se
+     hace aquí y solo cuando el cuadro lleva el aro: el texto deja de ser una
+     caja (`display: contents`) y sus piezas se ordenan junto al título.
+     Heredan igual su letra y su color, pero pierden el margen del párrafo, así
+     que los botones recuperan su aire con `margin-top`. */
+  .modal-card:has(> #modal-msg .cerr-aro) { display: flex; flex-direction: column; }
+  .modal-card:has(> #modal-msg .cerr-aro) > #modal-msg { display: contents; }
+  .modal-card:has(> #modal-msg .cerr-aro) > *,
+  .modal-card:has(> #modal-msg .cerr-aro) > #modal-msg > * { order: 3; }
+  .modal-card:has(> #modal-msg .cerr-aro) > .modal-ic { order: 0; }
+  /* Con la misma ruta que la regla de arriba (`> #modal-msg > …`): escrita
+     solo como `.cerr-aro` pesaba menos que esa, que nombra un id, y el aro se
+     quedaba en el orden 3, debajo del título. */
+  .modal-card:has(> #modal-msg .cerr-aro) > #modal-msg > .cerr-aro { order: 1; margin-bottom: 12px; }
+  .modal-card:has(> #modal-msg .cerr-aro) > .modal-titulo { order: 2; }
+  .modal-card:has(> #modal-msg .cerr-aro) > .modal-actions { order: 4; margin-top: 20px; }
   /* Lo que espera dentro. En menta y con la gema porque no es una advertencia:
      es lo único de este cuadro que da ganas de volver. */
   .cerr-espera {
@@ -9102,6 +9134,12 @@
     font-family: var(--tipo-titulo);
     font-size: clamp(19px, 2.4vw, 27px); line-height: 1.35; font-weight: 700;
     color: var(--text); margin: 0;
+    /* Una cita se lee en dos o tres renglones, no en uno de borde a borde. En
+       PC el panel mide el 60% de la pantalla y la frase entera cabía en una
+       línea de 850 px: se leía como un titular y no como alguien hablando.
+       El tope va en `ch` para que siga a la letra, y `balance` reparte las
+       palabras para que el último renglón no se quede con una sola. */
+    max-width: 24ch; text-wrap: balance;
   }
   /* La comilla es un adorno y no se lee: fuera del árbol de accesibilidad y
      sin ocupar renglón propio. */
@@ -13331,6 +13369,18 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .fc-llama.f2 { fill: var(--fire); }
   .fc-llama.f3 { fill: rgb(var(--escena-tinta)); }
   .t-catedral .rt-ficha-n.oscuro { fill: var(--bg); }
+  /* Las letras y los números de la racha de Catedral, en su letra de títulos
+     (CelestiByte, la de Eduardo) y no en la de las cifras. La de las cifras (Jersey 10) es
+     estrecha a propósito, y a 10-13 px dentro de una vela o bajo un brazo de
+     hierro «se ve demasiado compactada» (Eduardo, 0.7.143.3). Las letras de los
+     días llevan además un contorno del color del fondo, como las del sello de
+     Averno: la de en medio cae sobre el fuste del candelabro y sin él no se
+     leía. */
+  .t-catedral :is(.rt-ficha-n, .rt-rango, .rt-franja-tit, .rt-rot) { font-family: var(--tipo-titulo); font-weight: 400; }
+  .t-catedral .rt-ficha-n { font-size: 15px; letter-spacing: .02em; }
+  .t-catedral .rt-rango { font-size: 12px; letter-spacing: .02em; }
+  .t-catedral .rt-rot.cand-dia { font-size: 14px; letter-spacing: 0; fill: rgb(var(--escena-tinta)); paint-order: stroke; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round; }
+  .t-catedral .rt-rot.cand-dia.fuerte { fill: var(--fire); }
 
   /* Blueprint · la torre: muchas líneas, más finas que las siete de antes */
   .pl-trazo.torre { stroke-width: 1.7; }

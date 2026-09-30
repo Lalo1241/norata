@@ -182,7 +182,7 @@
     if (["reliquia", "plano", "catedral", "averno"].indexOf(puesta) >= 0) {
       var lm = document.createElement("link");
       lm.rel = "stylesheet";
-      lm.href = "css/mundos.css?h=2037520f87";
+      lm.href = "css/mundos.css?h=58f3ae40e7";
       document.head.appendChild(lm);
     }
   } catch (e) {}
@@ -1262,11 +1262,6 @@
      Vacío en el HTML y pintado desde `js/10j-caminos.js`, igual que la caja
      del ático: su contenido depende de un archivo que se pide por la red y no
      tiene sentido dejarlo escrito aquí. -->
-<!-- La hoja del ＋ grande: qué crear, con lo más común primero (0.7.143.5) -->
-<div class="modal-backdrop" id="hoja-crear" onclick="if(event.target===this)cerrarHojaCrear()">
-  <div class="modal-card" id="hoja-crear-body"></div>
-</div>
-
 <div class="modal-backdrop" id="cajon" onclick="if(event.target===this)cerrarCajon()">
   <div class="modal-card cajon-card" id="cajon-body"></div>
 </div>

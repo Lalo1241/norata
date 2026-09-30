@@ -79,7 +79,10 @@ function heroCandelabro(x, y, w, h, Z) {
   let s = "";
   const fe = "avr-hierro", brazoY = Math.round(filas * .3), paso = Math.min(8, Math.floor((cols - 6) / 7)), ancho = paso * 6;
   const xs = [...Array(7)].map((_, i) => c - ancho / 2 + i * paso), pie = filas - 3;
-  s += P(xs[0] - 2, brazoY + 6, ancho + 5, 1, fe) + romboPx(P, xs[0] - 4, brazoY + 6, fe) + romboPx(P, xs[6] + 5, brazoY + 6, fe);
+  /* El brazo va de dos píxeles antes de la primera vela a dos después de la
+     última, y cada vela mide dos: son `ancho + 6`. Era `+ 5`, y el rombo de la
+     derecha se quedaba flotando a un píxel del brazo (Eduardo, 0.7.143.3). */
+  s += P(xs[0] - 2, brazoY + 6, ancho + 6, 1, fe) + romboPx(P, xs[0] - 4, brazoY + 6, fe) + romboPx(P, xs[6] + 5, brazoY + 6, fe);
   const nudo = Math.round((brazoY + pie) / 2);
   s += P(c, brazoY + 7, 1, pie - brazoY - 9, fe) + romboPx(P, c, brazoY + 9, fe) + romboPx(P, c, nudo, Z.ok ? "avr-nudo oro" : fe);
   s += P(c - 1, pie - 2, 3, 1, fe) + P(c - 3, pie - 1, 7, 1, fe) + P(c - 5, pie, 11, 1, fe);
@@ -89,7 +92,10 @@ function heroCandelabro(x, y, w, h, Z) {
     s += P(cx - 1, brazoY + 5, 4, 1, fe) + P(cx, brazoY, 2, 5, claseVela(d));
     if (d.estado === "si") s += P(cx - 2, brazoY - 9, 6, 8, "avr-halo") + llamaPx(P, cx + .5, brazoY - 8);
     else s += P(cx + .5, brazoY - 1, 1, 1, "avr-mecha");
-    s += rotuloDia(x0 + (cx + 1) * p, y0 + (brazoY + 7) * p + 14, d, i);
+    /* La letra, con su propia clase: a 11 px y en la letra de las cifras «no
+       se leían, sobre todo la que choca con el soporte» (la vela de en medio
+       cae justo encima del fuste). Ver `.cand-dia` en css/estilos.css. */
+    s += rotuloDia(x0 + (cx + 1) * p, y0 + (brazoY + 7) * p + 16, d, i).replace('class="rt-rot', 'class="rt-rot cand-dia');
   });
   return s;
 }
@@ -309,7 +315,9 @@ const FICHAS_RACHA = {
   catedral(w, cx, cy, s) {
     const ok = !!w.ok, q = Math.max(2, s / 8), oy = cy + 3;
     const P = (x, y, ww, hh, cls) => `<rect class="${cls}" x="${r1(cx + x * q)}" y="${r1(oy + y * q)}" width="${r1(ww * q)}" height="${r1(hh * q)}"/>`;
-    let t = P(-4, -5, 8, 11, ok ? "fc-cera si" : "fc-cera") + P(-5, 6, 10, 1, "fc-hierro") + P(-3, 7, 6, 1, "fc-hierro");
+    /* Diez de ancho y no ocho: el número va escrito en la cera, y con dos
+       cifras se salía por los lados; «demasiado compactadas» (Eduardo). */
+    let t = P(-5, -5, 10, 11, ok ? "fc-cera si" : "fc-cera") + P(-6, 6, 12, 1, "fc-hierro") + P(-4, 7, 8, 1, "fc-hierro");
     t += ok ? P(0, -10, 1, 1, "fc-llama f1") + P(-1, -9, 3, 1, "fc-llama f1") + P(-1, -8, 3, 2, "fc-llama f2") + P(0, -8, 1, 1, "fc-llama f3")
       : P(0, -7, 1, 2, "fc-mecha");
     return t;

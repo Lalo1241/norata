@@ -180,7 +180,7 @@ function pxDeFilas(filas) {
   return '<g data-px="16">' + r + "</g>";
 }
 const CATEDRAL_PALETAS = {"vitral": {"nombre": "Vitral", "noche": ["#07080f", "#191a2c", "#4a4d78", "#ff3d4f", "#8c86ff"], "dia": ["#dfdde9", "#f4f2f8", "#8e8aab", "#ff3d4f", "#8c86ff"]}, "alabastro": {"nombre": "Alabastro", "noche": ["#0b0507", "#221318", "#5e3a41", "#ff3b45", "#e8d2b8"], "dia": ["#e9e1da", "#faf5f0", "#9e8a82", "#ff3b45", "#e8d2b8"]}, "bronce": {"nombre": "Bronce", "noche": ["#090c0d", "#1a2022", "#4d5a5c", "#ff5563", "#5fc4ae"], "dia": ["#dde2e1", "#f3f5f4", "#86928f", "#ff5563", "#5fc4ae"]}, "espectro": {"nombre": "Espectro", "noche": ["#07030a", "#1b0f20", "#56355e", "#ff2a5c", "#2fe3f0"], "dia": ["#e6dfe6", "#f8f3f7", "#9a8698", "#ff2a5c", "#2fe3f0"]}};
-const AVERNO_PALETAS = {"sangre": {"nombre": "Sangre", "noche": ["#060506", "#171415", "#696563", "#ff2d3f", "#b8bccb"], "dia": ["#e2dfdd", "#f6f4f2", "#8d8a89", "#ff2d3f", "#b8bccb"]}, "cocito": {"nombre": "Cocito", "noche": ["#04060c", "#121827", "#636875", "#ff3548", "#6ec0ff"], "dia": ["#dde1ea", "#f3f5f9", "#878b95", "#ff3548", "#6ec0ff"]}, "ponzona": {"nombre": "Ponzoña", "noche": ["#050805", "#131a13", "#636b63", "#ff3a3a", "#8ad550"], "dia": ["#dfe4dc", "#f4f7f2", "#888d86", "#ff3a3a", "#8ad550"]}, "tormento": {"nombre": "Tormento", "noche": ["#07040a", "#19111f", "#6b6270", "#ff3040", "#ff4fd8"], "dia": ["#e4dde8", "#f7f2f9", "#8f8693", "#ff3040", "#ff4fd8"]}};
+const AVERNO_PALETAS = {"sangre": {"nombre": "Sangre", "noche": ["#060506", "#171415", "#696563", "#ff2d3f", "#b8bccb"], "dia": ["#e2dfdd", "#f6f4f2", "#8d8a89", "#ff2d3f", "#b8bccb"]}, "cocito": {"nombre": "Lamento", "noche": ["#04060c", "#121827", "#636875", "#ff3548", "#6ec0ff"], "dia": ["#dde1ea", "#f3f5f9", "#878b95", "#ff3548", "#6ec0ff"]}, "ponzona": {"nombre": "Plaga", "noche": ["#050805", "#131a13", "#636b63", "#ff3a3a", "#8ad550"], "dia": ["#dfe4dc", "#f4f7f2", "#888d86", "#ff3a3a", "#8ad550"]}, "tormento": {"nombre": "Tormento", "noche": ["#07040a", "#19111f", "#6b6270", "#ff3040", "#ff4fd8"], "dia": ["#e4dde8", "#f7f2f9", "#8f8693", "#ff3040", "#ff4fd8"]}};
 
 const MUNDOS = [
   {
@@ -362,8 +362,8 @@ const MUNDOS = [
      letra de los libros de coro son de una catedral, no de un infierno. De
      paso se le quitó lo que era de castillo —los escudos y los remaches— y
      dos paletas cambiaron de nombre (Hueso a Alabastro, Hierro a Bronce). Al
-     verlo puesto Eduardo eligió además la letra (Pixelify en vez de la
-     gótica), las losas del menú y los herrajes de los paneles.
+     verlo puesto Eduardo eligió además la letra (CelestiByte, la suya, en vez
+     de la gótica), las losas del menú y los herrajes de los paneles.
 
      Quien lo llevaba puesto sigue en él sin hacer nada: el script de arriba
      de `index.html` mueve lo guardado de `averno` a `catedral` una sola vez.
@@ -567,7 +567,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=2037520f87";
+  l.href = "css/mundos.css?h=58f3ae40e7";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.

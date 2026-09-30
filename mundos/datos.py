@@ -543,7 +543,7 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
 
  dict(id="averno", nombre="Averno", familia="de-relato", llave="Hueso y sangre", color="#ff2d3f",
   plan="Pro",
-  premisa="Hueso y sangre sobre negro, en pixel art. Tres figuras y ninguna más —círculo, rombo y corte a 45°— y todo con bisel, como la barra de vida de un juego de rol oscuro: los iconos en rombo, los marcos con la esquina cortada, el menú en sellos redondos y el «+» como un orbe de sangre. Detrás, un sello de geometría sagrada casi invisible y brasas que suben del suelo. Cuatro paletas propias: Sangre, Cocito, Ponzoña y Tormento. Es de la 0.7.141; el Averno de antes, el de vitrales, sigue como Catedral.",
+  premisa="Hueso y sangre sobre negro, en pixel art. Tres figuras y ninguna más —círculo, rombo y corte a 45°— y todo con bisel, como la barra de vida de un juego de rol oscuro: los iconos en rombo, los marcos con la esquina cortada, el menú en sellos redondos y el «+» como un orbe de sangre. Detrás, un sello de geometría sagrada casi invisible y brasas que suben del suelo. Cuatro paletas propias: Sangre, Lamento, Plaga y Tormento. Es de la 0.7.141; el Averno de antes, el de vitrales, sigue como Catedral.",
   letra="Silkscreen", ancho="+12%", escala=".8", esquinas="corte a 45° · bisel", peso="~70 KB", horas="Las dos",
   nota="Esta entrada no genera el CSS de la app: lo genera `mundos/averno/averno.py`, porque Averno trae cuatro paletas y piezas de píxel horneadas por paleta. Aquí se queda con los tonos de Sangre, la paleta de partida, para la lámina y la muestra del catálogo.",
   # Sangre, la paleta de partida. La fuente de verdad es mundos/averno/paletas.py:
@@ -575,11 +575,11 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
  dict(id="catedral", nombre="Catedral", familia="de-relato", llave="Vitral y rosetón", color="#ff3d4f",
   plan="Pro",
   premisa="Una catedral gótica en pixel art: sillares con la sombra en tramado y la luz de color que entra por el vitral. El rojo es el protagonista y cada paleta trae un segundo tono que no es rojo —índigo, alabastro, verdín o cian—. Los botones del menú son losas de piedra, los paneles grandes llevan herrajes en las esquinas y el «+» es una losa roja. Se publicó como Averno en la 0.7.136 y se separó con su nombre en la 0.7.141, cuando Averno pasó a ser hueso y sangre.",
-  letra="Pixelify Sans", ancho="—", escala="1", esquinas="0 px · piedra labrada", peso="~45 KB", horas="Las dos",
+  letra="CelestiByte", ancho="—", escala="1", esquinas="0 px · piedra labrada", peso="~45 KB", horas="Las dos",
   nota="Esta entrada no genera el CSS de la app: lo genera `mundos/catedral/catedral.py`, porque Catedral trae cuatro paletas y un material propio que el vocabulario `--m-*` no alcanza a decir. Aquí se queda con los tonos de Vitral, la paleta de partida, para la lámina y para la muestra del catálogo.",
   # Vitral, la paleta de partida. La fuente de verdad es mundos/catedral/paletas.py:
   # si se toca un tono allí, se copia aquí para que la muestra no discrepe.
-  tokens={"--m-pagina":"#07080f",
+  tokens={"--m-pagina":"#07080f","--m-muestra":"#8c86ff",
    "--m-tarjeta":"#191a2c","--m-borde":"2px","--m-borde-color":"#4a4d78",
    "--m-sombra":"inset 0 2px 0 #3b3d63",
    "--m-r-tarjeta":"0px","--m-r-mini":"0px","--m-r-barra":"0px","--m-r-chip":"0px",
@@ -588,11 +588,11 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
    "--m-aviso":"#f2c94c","--m-aviso-velo":"rgba(242,201,76,.14)",
    "--m-peligro":"#ff8a3d","--m-peligro-velo":"rgba(255,138,61,.10)",
    "--m-carril":"#2c2e48",
-   "--m-titulo":'"Pixelify Sans","Jersey 10",system-ui,sans-serif',"--m-titulo-px":"18px","--m-titulo-peso":"600","--m-titulo-esp":"0",
+   "--m-titulo":'"CelestiByte","Jersey 10",system-ui,sans-serif',"--m-titulo-px":"18px","--m-titulo-peso":"400","--m-titulo-esp":"0",
    "--m-cifra":'"Jersey 10","Outfit",system-ui,sans-serif',"--m-cifra-peso":"400","--m-cifra-esp":"0",
    "--m-chip-fuente":'"Outfit",system-ui,sans-serif',"--m-chip-esp":"0",
    "--m-dur":".3s","--m-curva":"steps(4, end)"},
-  dia={"--m-pagina":"#dfdde9",
+  dia={"--m-pagina":"#dfdde9","--m-muestra":"#3d33c4",
    "--m-tarjeta":"#f4f2f8","--m-borde-color":"#8e8aab",
    "--m-sombra":"inset 0 2px 0 rgba(255,255,255,.9)",
    "--m-tinta":"#15142a","--m-tinta-2":"#4c4868",
