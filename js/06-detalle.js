@@ -1027,10 +1027,10 @@ function linkedToSkill(s) {
     return `
     <div class="panel alt">
       <h3>${tx("Qué alimenta esta habilidad")}</h3>
-      <p class="settings-note" style="margin:0 0 12px">${tx("Nada apunta aquí todavía. Cuando vincules una misión, un talento o un encargo a")} <b>${escapeHtml(s.name)}</b>${tx(", aparecerán en esta lista y su XP subirá sola.")}</p>
+      <p class="settings-note" style="margin:0 0 12px">${tx("Nada apunta aquí todavía. Cuando vincules una misión o un nodo a")} <b>${escapeHtml(s.name)}</b>${tx(", aparecerán en esta lista y su XP subirá sola.")}</p>
       <div class="stack">
         <button class="btn btn-soft btn-block" onclick="openMissionForm()">${tx("Crear una misión diaria")}</button>
-        <button class="btn btn-ghost btn-block" onclick="openPerkForm()">${tx("Crear un talento")}</button>
+        <button class="btn btn-ghost btn-block" onclick="openPerkForm()">${tx("Crear un nodo")}</button>
       </div>
     </div>`;
   }

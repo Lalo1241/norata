@@ -563,7 +563,7 @@ function ncelTarjetaPremio(x, i) {
     '<span class="ncel-fulgor" aria-hidden="true"></span>' +
     '<div class="ncel-vista">' + vista + '</div>' +
     '<div class="ncel-pie">' +
-      '<div class="ncel-quees">' + tx(esAmb ? "Ambiente nuevo" : esMod ? "Módulo nuevo" : "Celebración nueva") + '</div>' +
+      '<div class="ncel-quees">' + tx(esAmb ? "Ambiente nuevo" : esMod ? (x.quees || "Módulo nuevo") : "Celebración nueva") + '</div>' +
       '<div class="ncel-nom">' + escapeHtml(tx(x.corto || x.nombre)) + '</div>' +
     '</div>' +
     '</article>';
@@ -714,6 +714,10 @@ function tocarFondoNivel(ev) {
    cuenta nueva sería justo la del primer nivel, se sembraría el marcador y la
    fiesta más importante de todas —la primera— no saldría nunca. */
 function revisarNivelExpedicion() {
+  /* Cada avance —una misión, XP a una habilidad— puede alimentar un nodo
+     conectado (ver `revisarPuentes`, js/03-talentos.js). Se revisa aquí porque
+     este es el sitio que ya llaman todos los que registran algo. */
+  if (typeof revisarPuentes === "function") revisarPuentes();
   if (typeof nivelExpedicion !== "function") return;
   state.ui = state.ui || {};
   const ahora = nivelExpedicion().nivel;

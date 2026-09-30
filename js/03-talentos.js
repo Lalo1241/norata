@@ -141,6 +141,11 @@ const STATUS_LABEL = {
    etapa: 0 hasta que la confirmas, 100 al confirmarla. Así no queda ningún
    caso donde haya que inventarse una cifra. */
 function perkProgress(p) {
+  /* Cada tipo avanza a su manera (0.7.145): una meta conectada a una misión
+     cuenta sus cumplimientos, lo que se acumula cuenta su cifra. */
+  if (p.status === "completed") return 100;
+  if (tipoDe(p) === "acumular") return Math.min(100, Math.round(totalAcumulado(p) / Math.max(1, p.objetivo || 1) * 100));
+  if (tipoDe(p) === "meta" && p.puente && p.puente.mision) return Math.min(100, Math.round(cuentaDelPuente(p) / Math.max(1, p.veces || 1) * 100));
   const st = p.steps || [];
   if (!st.length) return p.status === "completed" ? 100 : 0;
   return Math.round(st.filter(s => s.done).length / st.length * 100);
@@ -302,19 +307,19 @@ async function quitarEtapa(perkId, stepId) {
    etapa ya es empezarla. El plazo, si lo tiene, empieza a correr ahí; si no lo
    tiene, no vence nunca. Con costo sí se pasa por `investPerk`, que es donde
    se decide pagar. */
-function empezarSinPlan(p) {
+function empezarSinPlan(p, motivo) {
   if (!p || p.status) return;
   p.status = "active";
   p.startDate = todayKey();
   p.endDate = p.planDays > 0 ? addDaysKey(p.startDate, p.planDays) : null;
   p.history = p.history || [];
-  p.history.unshift({ date: todayKey(), at: stamp(), event: tx("Empezó al marcar su primera etapa") });
+  p.history.unshift({ date: todayKey(), at: stamp(), event: motivo || tx("Empezó") });
 }
 
 function togglePerkStep(perkId, stepId) {
   const p = state.perks.find(x => x.id === perkId);
   if (!p) return;
-  if (perkStatus(p) === "available" && !(p.cost > 0)) empezarSinPlan(p);
+  if (perkStatus(p) === "available" && !(p.cost > 0)) empezarSinPlan(p, tx("Empezó al marcar su primera etapa"));
   if (perkStatus(p) !== "active") return;
   const s = (p.steps || []).find(x => x.id === stepId);
   if (!s) return;
@@ -334,6 +339,257 @@ function togglePerkStep(perkId, stepId) {
   const ahora = perkProgress(p);
   if (ahora >= 100 && antes < 100) toast(tx("Todas las etapas hechas. Confirma la meta cuando quieras"), "logro");
   else toast(`${p.name}: ${ahora}%`, s.done ? "hecho" : "deshecho");
+}
+
+/* ================= El puente con otros módulos (0.7.145) =================
+   Un nodo puede avanzar SOLO con lo que ya haces en otra parte de la app. Es
+   opcional —nadie lo ve si no lo busca— y hay uno por nodo:
+
+     meta     ← una misión: cada cumplimiento cuenta uno, hasta N veces
+     hito     ← una habilidad: se logra al llegar a un nivel
+     acumular ← una misión: cada cumplimiento suma una cantidad
+
+   La compra no se conecta: pagar es un acto tuyo.
+
+   Lo que el puente cuenta NO se guarda: se DERIVA de las marcas de la misión
+   desde el día en que se conectó, y del XP de la habilidad. Un contador
+   guardado se desincroniza entre dos dispositivos; una cuenta derivada no
+   puede, porque las marcas ya se fusionan bien (js/10-fusion.js). */
+function marcasDeMisionDesde(mId, desde) {
+  const m = (state.missions || []).find(x => x.id === mId);
+  if (!m || !m.log) return 0;
+  let n = 0;
+  Object.keys(m.log).forEach(k => { if (!desde || k >= desde) n += (Array.isArray(m.log[k]) ? m.log[k].length : 0); });
+  return n;
+}
+function cuentaDelPuente(p) {
+  if (!p.puente || !p.puente.mision) return 0;
+  return marcasDeMisionDesde(p.puente.mision, p.puente.desde);
+}
+function totalAcumulado(p) {
+  const aMano = Number(p.llevas) || 0;
+  if (p.puente && p.puente.mision) return aMano + cuentaDelPuente(p) * (Number(p.puente.porVez) || 1);
+  return aMano;
+}
+function nivelDeHabilidad(id) {
+  const s = (state.skills || []).find(x => x.id === id);
+  return s ? levelInfo(s.xp || 0).level : 0;
+}
+/* Cuánto le falta al puente, de 0 a 1, o null si el nodo no tiene puente. */
+function fraccionDelPuente(p) {
+  if (!p.puente) return null;
+  const t = tipoDe(p);
+  if (t === "meta" && p.puente.mision) return cuentaDelPuente(p) / Math.max(1, p.veces || 1);
+  if (t === "acumular" && p.puente.mision) return totalAcumulado(p) / Math.max(1, p.objetivo || 1);
+  if (t === "hito" && p.puente.habilidad) return nivelDeHabilidad(p.puente.habilidad) >= (p.puente.nivel || 1) ? 1 : 0;
+  return null;
+}
+/* Lo que se logra solo, se logra: con su XP, su marca y un aviso. Y lo que
+   empieza a avanzar, empieza (su plazo, si lo tiene, corre desde ahí). Un
+   nodo con candado no avanza por su puente: primero se abre. */
+let revisandoPuentes = false;
+function revisarPuentes() {
+  if (revisandoPuentes || modoSoloLectura) return;
+  revisandoPuentes = true;
+  const logrados = [];
+  let cambio = false;
+  try {
+    (state.perks || []).forEach(p => {
+      if (!p.puente || p.status === "completed" || p.soltado || p.pausa) return;
+      if (p.status !== "active" && !requisitosCumplidos(p)) return;
+      const f = fraccionDelPuente(p);
+      if (f === null) return;
+      if (f >= 1) {
+        p.status = "completed";
+        p.completedAt = todayKey();
+        p.history = p.history || [];
+        p.history.unshift({ date: todayKey(), at: stamp(), event: tx("Se logró solo, por su conexión") });
+        grantPerkReward(p);
+        logrados.push(p);
+        cambio = true;
+      } else if (f > 0 && !p.status) {
+        empezarSinPlan(p);
+        cambio = true;
+      }
+    });
+    if (cambio) save();
+  } finally {
+    revisandoPuentes = false;
+  }
+  logrados.forEach(p => toast(T`Se logró solo: ${p.name}`, "logro"));
+}
+
+/* ---- Sumar a lo que se acumula ---- */
+function sumarAcumulado(id) {
+  const p = state.perks.find(x => x.id === id);
+  const input = document.getElementById("fa-sumar");
+  if (!p || !input) return;
+  const v = parseFloat(input.value);
+  if (!(v > 0)) { toast(tx("Escribe cuánto sumas"), "atencion"); input.focus(); return; }
+  const e = perkStatus(p);
+  if (e === "locked") { toast(tx("Primero completa lo que necesita"), "atencion"); return; }
+  if (e === "available") empezarSinPlan(p);
+  p.llevas = (Number(p.llevas) || 0) + v;
+  p.lastActivity = todayKey();
+  p.history = p.history || [];
+  p.history.unshift({ date: todayKey(), at: stamp(), event: T`Sumaste ${cantidadNodo(p, v)}` });
+  const antes = p.status;
+  if (totalAcumulado(p) >= (p.objetivo || 1) && antes !== "completed") {
+    p.status = "completed";
+    p.completedAt = todayKey();
+    p.history.unshift({ date: todayKey(), at: stamp(), event: tx("Objetivo alcanzado") });
+    grantPerkReward(p);
+    save();
+    celebrate(tx("Objetivo alcanzado"), p.name, "#5fe0b0", p.icon);
+  } else {
+    save();
+    toast(T`${p.name}: ${cantidadNodo(p, totalAcumulado(p))} de ${cantidadNodo(p, p.objetivo)}`, "hecho");
+  }
+  renderPerkDetail();
+  renderTree();
+}
+
+/* ---- Lograr sin plan: un hito, o una meta sin costo y sin etapas ---- */
+async function lograrNodo(id) {
+  const p = state.perks.find(x => x.id === id);
+  if (!p || p.status === "completed") return;
+  const e = perkStatus(p);
+  if (e === "locked") { toast(tx("Primero completa lo que necesita"), "atencion"); return; }
+  if (tipoDe(p) === "hito") return completeHito(id);
+  /* Se pregunta ANTES de empezarlo: cancelar no puede dejarlo en curso y con el plazo corriendo */
+  if (!await ask(T`¿Lograste «${p.name}»?`, tx("Sí, lo logré"))) return;
+  if (e === "available") empezarSinPlan(p);
+  p.status = "completed";
+  p.completedAt = todayKey();
+  p.history = p.history || [];
+  p.history.unshift({ date: todayKey(), at: stamp(), event: esNodoEnProyecto(p) ? tx("Terminado") : tx("Meta lograda: talento permanente") });
+  grantPerkReward(p);
+  save();
+  celebrate(esNodoEnProyecto(p) ? tx("Terminado") : tx("Talento desbloqueado"), p.name, "#5fe0b0", p.icon);
+  renderPerkDetail();
+  renderTree();
+}
+
+/* ---- Pausar, soltar y retomar (vienen de Proyectos; valen para todo nodo) ----
+   Los decide la persona, por eso mandan sobre el plazo y el candado. Una pausa
+   CONGELA el plazo: al retomar, la fecha límite se corre los días pausados,
+   igual que dentro de una caja del ático. Soltar no es fallar: no quita nada
+   y se retoma cuando quieras. */
+function pausarNodo(id) {
+  const p = state.perks.find(x => x.id === id);
+  if (!p || p.status === "completed") return;
+  p.pausa = true;
+  p.pausadoEl = todayKey();
+  p.history = p.history || [];
+  p.history.unshift({ date: todayKey(), at: stamp(), event: tx("En pausa") });
+  save(); renderPerkDetail(); renderTree();
+  toast(T`«${p.name}» en pausa. No cuenta como estancado.`, "hecho");
+}
+function soltarNodo(id) {
+  const p = state.perks.find(x => x.id === id);
+  if (!p || p.status === "completed") return;
+  p.soltado = true;
+  if (!p.pausadoEl) p.pausadoEl = todayKey();
+  p.history = p.history || [];
+  p.history.unshift({ date: todayKey(), at: stamp(), event: tx("Soltado") });
+  save(); renderPerkDetail(); renderTree();
+  toast(T`«${p.name}» soltado. Sigue aquí por si vuelves.`, "hecho");
+}
+function retomarNodo(id) {
+  const p = state.perks.find(x => x.id === id);
+  if (!p) return;
+  if (p.pausadoEl && p.endDate && p.status === "active") {
+    const dias = Math.max(0, daysBetween(p.pausadoEl, todayKey()));
+    if (dias) p.endDate = addDaysKey(p.endDate, dias);
+  }
+  delete p.pausa; delete p.soltado; delete p.pausadoEl;
+  p.lastActivity = todayKey();
+  p.history = p.history || [];
+  p.history.unshift({ date: todayKey(), at: stamp(), event: tx("Retomado") });
+  save(); renderPerkDetail(); renderTree();
+  toast(T`«${p.name}» retomado`, "hecho");
+}
+
+/* ---- La lista voluntaria (0.7.145) ----
+   Cualquier nodo puede llevar una lista, si quieres y solo si quieres: qué
+   llevar, qué comprar, a quién llamar. NO cuenta para el avance, y eso es lo
+   que la separa de las etapas. */
+function empezarLista(id) {
+  const p = state.perks.find(x => x.id === id);
+  if (!p) return;
+  p.lista = p.lista || [];
+  save(); renderPerkDetail();
+  const i = document.getElementById("fa-lista-nueva");
+  if (i) i.focus();
+}
+function anadirALista(id) {
+  const p = state.perks.find(x => x.id === id);
+  const i = document.getElementById("fa-lista-nueva");
+  if (!p || !i) return;
+  const name = i.value.trim();
+  if (!name) return;
+  p.lista = p.lista || [];
+  p.lista.push({ id: uid(), name, done: false });
+  save(); renderPerkDetail();
+  const j = document.getElementById("fa-lista-nueva");
+  if (j) j.focus();
+}
+function marcarEnLista(id, itemId) {
+  const p = state.perks.find(x => x.id === id);
+  const it = p && (p.lista || []).find(x => x.id === itemId);
+  if (!it) return;
+  it.done = !it.done;
+  save(); renderPerkDetail();
+}
+function quitarDeLista(id, itemId) {
+  const p = state.perks.find(x => x.id === id);
+  if (!p) return;
+  p.lista = (p.lista || []).filter(x => x.id !== itemId);
+  save(); renderPerkDetail();
+}
+async function quitarLista(id) {
+  const p = state.perks.find(x => x.id === id);
+  if (!p) return;
+  if ((p.lista || []).length && !await ask(T`¿Quitar la lista de «${p.name}»? Se van sus ${p.lista.length} puntos.`, tx("Quitar"), true)) return;
+  delete p.lista;
+  save(); renderPerkDetail();
+}
+
+/* ---- Conexiones desde la ficha: sin entrar al modo edición ---- */
+function quitarRequisito(id, reqId) {
+  const p = state.perks.find(x => x.id === id);
+  if (!p) return;
+  pushUndo(tx("quitar una conexión"));
+  p.requiere = requisitosDe(p).filter(x => x !== reqId);
+  save(); renderPerkDetail(); renderTree();
+  toast(tx("Conexión quitada"), "deshecho", { label: tx("Deshacer"), onclick: "undoEditor();renderPerkDetail()" });
+}
+function anadirRequisito(id, reqId) {
+  const p = state.perks.find(x => x.id === id);
+  if (!p || !reqId || reqId === id) return;
+  if (isDescendant(id, reqId)) { toast(tx("Eso cerraría un círculo: ese nodo ya va después de este"), "atencion"); return; }
+  pushUndo(tx("añadir una conexión"));
+  p.requiere = [...new Set([...requisitosDe(p), reqId])];
+  save(); renderPerkDetail(); renderTree();
+}
+
+/* ---- Borrar un nodo, con vuelta atrás ----
+   Antes solo se podía desde el formulario y no se deshacía. Ahora va en el
+   ··· de la ficha y entra en la pila de deshacer del mapa. */
+async function borrarNodo(id) {
+  const p = state.perks.find(x => x.id === id);
+  if (!p) return;
+  if (!await ask(T`¿Borrar «${p.name}»? Lo que dependía de él se queda sin ese requisito. Lo ya logrado no te quita XP.`, tx("Borrar"), true)) return;
+  pushUndo(T`borrar ${p.name}`);
+  state.perks = state.perks.filter(x => x.id !== id);
+  state.perks.forEach(x => { if (requisitosDe(x).includes(id)) x.requiere = requisitosDe(x).filter(r => r !== id); });
+  (state.cajas || []).forEach(c => { c.perkIds = (c.perkIds || []).filter(r => r !== id); c.requiere = (c.requiere || []).filter(r => r !== id); });
+  state.cajas = (state.cajas || []).filter(c => c.perkIds.length);
+  currentPerkId = null;
+  save();
+  volverDeFicha(true);
+  renderTree();
+  toast(T`Borrado: ${p.name}`, "deshecho", { label: tx("Deshacer"), onclick: "undoEditor()" });
 }
 
 function retryPerk(id) {
@@ -583,7 +839,7 @@ function sacarDeCaja(cajaId, perkId) {
   const c = cajaPorId(cajaId);
   const p = state.perks.find(x => x.id === perkId);
   if (!c || !p) return;
-  pushUndo(tx("sacar un talento de la caja"));
+  pushUndo(tx("sacar un nodo de la caja"));
   c.perkIds = c.perkIds.filter(id => id !== perkId);
   if (c.pos) delete c.pos[perkId];
   // Vuelve a correr su plazo: fuera de la caja el compromiso está vivo
@@ -619,7 +875,7 @@ function sacarDeCaja(cajaId, perkId) {
    solo pasa al guardarlo de verdad, desde su propia ventana—. */
 async function crearGrupoCon(ids, branch) {
   const dentro = ids.map(id => state.perks.find(p => p.id === id)).filter(Boolean);
-  if (dentro.length < 2) { toast(tx("Elige al menos dos talentos"), "atencion"); return null; }
+  if (dentro.length < 2) { toast(tx("Elige al menos dos nodos"), "atencion"); return null; }
   const yaAgrupado = dentro.filter(p => (state.cajas || []).some(c => c.perkIds.includes(p.id)));
   if (yaAgrupado.length) {
     toast(`${yaAgrupado[0].name} ya está en otro grupo`, "atencion");
@@ -717,7 +973,7 @@ function verCaja(id) {
     </div>
     <p class="settings-note" style="text-align:left;margin:0 0 12px">${
       c.abierta
-        ? tx("Está desplegada: sus talentos viven en el mapa, dentro del recinto del grupo.")
+        ? tx("Está desplegada: sus nodos viven en el mapa, dentro del recinto del grupo.")
         : `Está guardada: en el mapa ocupa un solo nodo${
             pendientes ? ` y los plazos de lo pendiente están congelados` : ""}${
             enlaces ? ` · ${enlaces} conexión${enlaces === 1 ? "" : "es"} entrando` : ""}.`}</p>
@@ -786,7 +1042,7 @@ async function borrarCaja(id) {
   if (!c) return;
   const { total, hechos } = resumenCaja(c);
   if (!await ask(
-    `¿Borrar "${nombreCaja(c)}"? Se van sus ${total} talento${total === 1 ? "" : "s"} y no se puede deshacer. ` +
+    `¿Borrar "${nombreCaja(c)}"? Se van sus ${total} nodo${total === 1 ? "" : "s"} y no se puede deshacer. ` +
     `El XP que dieron los ${hechos} logrado${hechos === 1 ? "" : "s"} se queda en tus habilidades.`,
     "Borrar", true)) return;
   cerrarVentanaCaja();

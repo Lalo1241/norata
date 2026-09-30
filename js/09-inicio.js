@@ -819,7 +819,7 @@ const TUTO_PASOS = [
     pie: "Es el módulo para lo que lleva semanas o meses, no para lo de esta tarde."
   },
   {
-    modulo: "projects", icon: "flag", color: "#6fc3e8", titulo: "Proyectos",
+    modulo: "projects", icon: "flag", color: "#6fc3e8", titulo: "Ramas de proyecto",
     /* La misma frase que había en la pantalla vacía de Proyectos, y con el
        mismo error: describía un proyecto y lo llamaba encargo. Aquí pesa
        incluso más, porque esta tarjeta es donde alguien aprende cómo se llama

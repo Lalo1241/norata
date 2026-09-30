@@ -631,7 +631,7 @@ const TIPOS = {
   },
   meta: {
     nombre: "Meta",
-    sub: "Algo que sostienes en el tiempo. Avanza por etapas y tiene fecha límite.",
+    sub: "Algo que sostienes en el tiempo. Avanza por etapas, y el plazo es opcional.",
     icono: "target",
     pideImporte: false,
     llevaPlan: true,
@@ -639,8 +639,34 @@ const TIPOS = {
     glifo: "◇",
     radio: 23,
     tecla: "W"
+  },
+  /* ---- Acumular (0.7.145) ----
+     El único tipo que avanza con una CIFRA y no con pasos: pesos ahorrados,
+     kilómetros, libros, horas. «Ahorrar $15,000» no son etapas, y una compra
+     es un pago único, no un ahorro. Lo eligió Eduardo de entre tres propuestas
+     porque es el que de verdad no se parecía a ninguno. El triángulo es un
+     montón que sube. */
+  acumular: {
+    nombre: "Acumular",
+    sub: "Una cifra que crece hasta un objetivo: pesos ahorrados, kilómetros, libros, horas.",
+    icono: "chart",
+    pideImporte: false,
+    llevaPlan: false,
+    forma: "triangulo",
+    glifo: "△",
+    radio: 27,
+    tecla: "R"
   }
 };
+
+/* Las unidades de lo que se acumula. «dinero» se escribe con la moneda del
+   ajuste; las demás, con su palabra. */
+const UNIDADES = ["dinero", "km", "libros", "horas", "veces"];
+function cantidadNodo(p, v) {
+  const u = UNIDADES.includes(p.unidad) ? p.unidad : "dinero";
+  if (u === "dinero") return money(v || 0);
+  return `${Number(v || 0).toLocaleString(IDIOMA === "en" ? "en-US" : "es-MX")} ${tx(u)}`;
+}
 
 function tipoDe(p) { return TIPOS[p.tipo] ? p.tipo : "meta"; }
 function metaDe(p) { return TIPOS[tipoDe(p)]; }

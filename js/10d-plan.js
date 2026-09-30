@@ -659,8 +659,8 @@ function ventajasPro() {
      describe la ausencia de una traba —habla del límite, no de lo que
      abres— y en una lista que existe para convencer, cada renglón tiene que
      decir lo que ganas. */
-  if (p.ramas > l.ramas) v.push(tx("Ramas de talentos ilimitadas"));
-  if (p.talentos > l.talentos) v.push(tx("Talentos ilimitados en cada rama"));
+  if (p.ramas > l.ramas) v.push(tx("Ramas ilimitadas"));
+  if (p.talentos > l.talentos) v.push(tx("Nodos ilimitados en cada rama"));
   if (p.resumen.length > l.resumen.length) v.push(tx("Informes de la semana, del mes y del año"));
   if (p.apariencia && !l.apariencia) v.push(tx("Todas las apariencias"));
   return v;
@@ -1059,8 +1059,8 @@ function compraPintar(estado) {
 
   const l = LIMITES.pro;
   const abiertas = [
-    l.ramas === Infinity ? tx("Las ramas de talentos que quieras") : tx("Más ramas de talentos"),
-    l.talentos === Infinity ? tx("Talentos sin tope dentro de cada rama") : tx("Más talentos por rama"),
+    l.ramas === Infinity ? tx("Las ramas que quieras") : tx("Más ramas"),
+    l.talentos === Infinity ? tx("Nodos sin tope dentro de cada rama") : tx("Más nodos por rama"),
     tx("Los resúmenes del mes y del año"),
     tx("Todas las apariencias")
   ];
@@ -1220,14 +1220,14 @@ function planCabeceraHTML() {
 function planIncluyeHTML(pro) {
   const l = LIMITES[pro ? "pro" : "libre"];
   const filas = [
-    [tx("Ramas de talentos"), l.ramas === Infinity ? "Ilimitadas" : (l.ramas === 1 ? "Una" : String(l.ramas))],
-    [tx("Talentos por rama"), l.talentos === Infinity ? "Ilimitados" : String(l.talentos)],
+    [tx("Ramas"), l.ramas === Infinity ? "Ilimitadas" : (l.ramas === 1 ? "Una" : String(l.ramas))],
+    [tx("Nodos por rama"), l.talentos === Infinity ? "Ilimitados" : String(l.talentos)],
     ["Informes", l.resumen.length ? tx("De la semana, del mes y del año") : tx("El panel de tu día")],
     ["Apariencias", l.apariencia ? "Todas" : tx("Las paletas que vayas desbloqueando")],
     /* Estas dos no salen de `LIMITES` porque no tienen tope en ningún plan, y
        decirlo aquí es la mitad del mensaje: lo que se cobra no es la app, son
        los topes. Sin ellas la lista del plan libre parece una lista de peros. */
-    [tx("Misiones, habilidades y proyectos"), "Ilimitados"],
+    [tx("Misiones y habilidades"), "Ilimitados"],
     [tx("Sincronía entre dispositivos"), "Incluida"]
   ];
   return `<h4 class="plan-h">${pro ? tx("Qué tienes abierto") : tx("Qué tienes ahora")}</h4>
@@ -2062,11 +2062,11 @@ function planFilasComparadas() {
   const aparFundador = tx("Todas, y Reliquia");
 
   return [
-    [tx("Ramas de talentos"), ramas(l.ramas), ramas(p.ramas), ramas(p.ramas)],
-    [tx("Talentos por rama"), tope(l.talentos), tope(p.talentos), tope(p.talentos)],
+    [tx("Ramas"), ramas(l.ramas), ramas(p.ramas), ramas(p.ramas)],
+    [tx("Nodos por rama"), tope(l.talentos), tope(p.talentos), tope(p.talentos)],
     ["Informes", resu(l.resumen), resu(p.resumen), resu(p.resumen)],
     ["Apariencias", apar(l.apariencia), apar(p.apariencia), aparFundador],
-    [tx("Misiones, habilidades y proyectos"), "Ilimitados", "Ilimitados", "Ilimitados"],
+    [tx("Misiones y habilidades"), "Ilimitados", "Ilimitados", "Ilimitados"],
     [tx("Sincronía entre dispositivos"), "Incluida", "Incluida", "Incluida"],
     [tx("Tu progreso y tu XP"), "Tuyos", "Tuyos", "Tuyos"],
     /* "Es gratis" y no "No se paga": la primera dice lo que hay, la segunda lo

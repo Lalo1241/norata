@@ -765,7 +765,7 @@ function vigilarFueraDeVista() {
     }
     const esProy = fullscreenMod === "proyectos";
     aviso.innerHTML = `<span class="ic" aria-hidden="true">i</span><span><b>${
-      esProy ? tx("Tus encargos") : tx("Tus talentos")}</b> ${tx("quedaron fuera de vista.")}</span>
+      esProy ? tx("Tus encargos") : tx("Tus nodos")}</b> ${tx("quedaron fuera de vista.")}</span>
       <button type="button" class="btn btn-soft" onclick="volverALoTuyo()">${tx("Mostrar")}</button>`;
     /* Debajo de la barra de arriba, que mide distinto según la pantalla */
     const barra = ov.querySelector(".fs-bar");
@@ -820,7 +820,7 @@ function focusBranchFront(b, silent, mod) {
 }
 
 async function resetBranchLayout(b, mod) {
-  if (!await ask(`Esto va a reordenar automáticamente todos los talentos de "${b}". Si habías acomodado esta rama a mano, ese orden se pierde.`, "Reacomodar")) return;
+  if (!await ask(`Esto va a reordenar automáticamente todos los nodos de "${b}". Si habías acomodado esta rama a mano, ese orden se pierde.`, "Reacomodar")) return;
   pushUndo(tx("reacomodar la rama"), null, mod);
   /* Sobre los objetos REALES: branchNodes devuelve copias de los talentos
      (con sus requisitos ya traducidos a las cajas), y borrarles ahí las
@@ -831,7 +831,7 @@ async function resetBranchLayout(b, mod) {
   });
   save();
   repintarModulo(mod);
-  toast(mod === "proyectos" ? "Encargos reacomodados" : "Talentos reacomodados", "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
+  toast(mod === "proyectos" ? "Encargos reacomodados" : "Nodos reacomodados", "deshecho", { label: "Deshacer", onclick: "undoEditor()" });
 }
 
 function cssEscape(s) {
@@ -954,7 +954,7 @@ function abrirSaltoDeRama(e) {
       const aqui = n === fullscreenBranch;
       return `<button${aqui ? ' class="aqui"' : ""} onclick="cerrarCtxMenu();saltarARama('${enJS(n)}')">
         <span class="ctx-tx"><b>${escapeHtml(n)}</b><span>${cuantos} ${
-          esProy ? (cuantos === 1 ? "encargo" : "encargos") : (cuantos === 1 ? "talento" : "talentos")}</span></span>
+          esProy ? (cuantos === 1 ? "encargo" : "encargos") : (cuantos === 1 ? "nodo" : "nodos")}</span></span>
         ${aqui ? `<span class="ctx-ic">${PALOMITA}</span>` : ""}
       </button>`;
     }).join("");
@@ -1039,7 +1039,7 @@ function renderFullscreen(mod) {
   const hermanas = ramasDe(esProy ? "projects" : "perks");
   document.getElementById("fs-name").innerHTML = `
     <button type="button" class="fs-mod" onclick="closeBranchFullscreen()">${
-      esProy ? "Proyectos" : "Talentos"}</button>
+      tx("Ramas")}</button>
     <span class="fs-sep">›</span>
     <button type="button" class="fs-rama${hermanas.length > 1 ? " saltable" : ""}"${
       hermanas.length > 1 ? ` onclick="abrirSaltoDeRama(event)"` : ""}>${escapeHtml(b)}${
@@ -1110,7 +1110,7 @@ function renderFullscreen(mod) {
         aria-pressed="${ramaGirada(b, fullscreenMod)}"
         title="${ramaGirada(b, fullscreenMod)
           ? tx("Volver a lo ancho, como estaba")
-          : `Poner de pie: el primer ${esProy ? "encargo" : "talento"} abajo y el camino subiendo`}"><svg viewBox="0 0 24 24">${
+          : `Poner de pie: el primer ${esProy ? "encargo" : "nodo"} abajo y el camino subiendo`}"><svg viewBox="0 0 24 24">${
           ramaGirada(b, fullscreenMod) ? BM_ICONS.girarVuelta : BM_ICONS.girar}</svg></button>
       <button type="button" class="mt-btn ${editing ? "on" : ""}"
         onclick="toggleEditBranch('${bj}', '${fullscreenMod}')"
@@ -1122,9 +1122,9 @@ function renderFullscreen(mod) {
         title="${esProy ? "Elegir varios es del árbol de Talentos" : tx("Elegir varios para moverlos juntos o agruparlos")}"><svg viewBox="0 0 24 24">${BM_ICONS.caja}</svg></button>
       <button type="button" class="mt-btn crear"
         onclick="${esProy ? `openProjectForm(null, '${bj}')` : `abrirMenuCrear('${bj}', event)`}"
-        aria-label="Añadir ${esProy ? "encargo" : "talento"} a ${ba}"
+        aria-label="Añadir ${esProy ? "encargo" : "nodo"} a ${ba}"
         aria-haspopup="${esProy ? "false" : "true"}"
-        title="Añadir ${esProy ? "un encargo" : "un talento"}">＋</button>
+        title="Añadir ${esProy ? "un encargo" : "un nodo"}">＋</button>
     </div>`;
 
   /* ---- La rama vacía, con la puerta puesta ----
@@ -1137,7 +1137,7 @@ function renderFullscreen(mod) {
   document.getElementById("fs-body").innerHTML = !nodes.length
     ? `<div class="fs-vacio">
          <p class="col-vacia">Todavía no hay ${
-           esProy ? tx("encargos en este proyecto") : tx("talentos en esta rama")}.</p>
+           esProy ? tx("encargos en este proyecto") : tx("nodos en esta rama")}.</p>
          <button type="button" class="btn btn-primary"
            onclick="${esProy ? `openProjectForm(null, '${bj}')` : `abrirMenuCrear('${bj}', event)`}">${
            tx("Crear el primero")}</button>
@@ -1320,14 +1320,14 @@ function atajosLegend(compacta) {
      Va en el renglón que ya existe para esto, así que no cuesta un píxel
      nuevo — que es exactamente por lo que ese renglón se ganó su sitio. */
   if (!isDesktop()) {
-    return `<span class="keys">${tx("Deja el dedo quieto sobre el mapa para crear, editar y más")}</span>`;
+    return `<span class="keys">${tx("Sostén un nodo para elegir varios · el ＋ crea")}</span>`;
   }
   const k = (t) => `<kbd>${t}</kbd>`;
   const raton = `<kbd class="kb-raton">${RATON_DERECHO}</kbd>`;
   /* Tecla, figura y nombre juntos. Antes la figura vivia en una fila de
      simbologia aparte y el nombre en la de atajos, asi que los tres tipos se
      listaban dos veces y ninguna de las dos filas se bastaba sola. */
-  const crear = ["hito", "meta", "compra"]
+  const crear = ["hito", "meta", "compra", "acumular"]
     .map(t => `${k(TIPOS[t].tecla)} <b class="gl">${TIPOS[t].glifo}</b> ${tx(TIPOS[t].nombre).toLowerCase()}`)
     .join('<i class="sep">·</i>');
   const partes = compacta
@@ -1338,19 +1338,26 @@ function atajosLegend(compacta) {
   return `<span class="keys">${partes.join('<i class="sep">·</i>')}</span>`;
 }
 
-function crearTalentoRapido(branch, tipo, pos) {
+async function crearTalentoRapido(branch, tipo, pos) {
   const t = TIPOS[tipo];
   if (!branch || !t) return;
   /* El tope del plan se mira aquí y no dentro del atajo de teclado: por esta
      puerta se entra también desde el menú del clic derecho, y un tope que solo
      vigila una de las dos entradas no es un tope. */
   if (!cabeUnoMas("talentos", talentosDeRama(branch).length)) { topeAlcanzado("talentos"); return; }
+  /* ---- El nombre PRIMERO (0.7.145) ----
+     Nacía llamado «Meta» o «Hito» y ponerle nombre costaba tres toques más:
+     abrirlo, tocar el icono, guardar. Ahora se pregunta al crear, que es
+     cuando uno lo tiene en la cabeza. Cancelar no crea nada. */
+  const nombre = await askText(T`${tx(t.nombre)} nuevo en ${branch}`, "", tx("Crear"), tx(t.sub), 60);
+  if (!nombre) return;
   pushUndo(`crear ${t.nombre.toLowerCase()}`);
   fijarPosiciones(branch);
   const n = state.perks.length;
   const nuevo = {
-    id: uid(), name: t.nombre, branch, desc: "",
-    tipo, cost: 0, planDays: 360, steps: [],
+    id: uid(), name: nombre, branch, desc: "",
+    /* Sin plazo en una rama de proyecto; en una de talento, el año de siempre */
+    tipo, cost: 0, planDays: esRamaDeProyecto(branch) ? 0 : 360, steps: [],
     skillId: null, xpReward: tipo === "hito" ? 120 : 600, requiere: [], modo: "todos",
     icon: ICON_LIST[(n * 5 + 3) % ICON_LIST.length],
     color: COLORS[(n * 3 + 2) % COLORS.length],
@@ -1358,6 +1365,7 @@ function crearTalentoRapido(branch, tipo, pos) {
     investedTotal: 0, progress: 0, createdAt: todayKey(),
     history: [{ date: todayKey(), at: stamp(), event: `Talento creado en la rama ${branch}` }]
   };
+  if (tipo === "acumular") { nuevo.objetivo = 1000; nuevo.unidad = "dinero"; nuevo.llevas = 0; }
   if (pos) {
     /* `pos` es donde está el cursor, o sea una coordenada DEL DIBUJO; lo que
        se guarda tiene que ir sin girar, o al volver la rama a horizontal el
@@ -1369,7 +1377,7 @@ function crearTalentoRapido(branch, tipo, pos) {
   state.perks.push(nuevo);
   save();
   renderTree();
-  toast(T`${tx(t.nombre)} creado · ábrelo para ponerle nombre`, "hecho");
+  toast(T`«${nombre}» creado en ${branch}`, "hecho");
 }
 
 /* Copia el PLAN, no lo logrado: el duplicado nace sin progreso, sin dinero
@@ -1382,7 +1390,7 @@ function duplicarTalento(id, pos) {
   /* Duplicar es crear: si no se mirara aquí, el tope se saltaría con el atajo
      más cómodo que tiene la app. */
   if (!cabeUnoMas("talentos", talentosDeRama(branch).length)) { topeAlcanzado("talentos"); return; }
-  pushUndo(tx("duplicar un talento"));
+  pushUndo(tx("duplicar un nodo"));
   fijarPosiciones(branch);
 
   const copia = JSON.parse(JSON.stringify(orig));
@@ -1658,7 +1666,7 @@ document.addEventListener("keydown", (e) => {
     return;
   }
   if (modAtajo !== "talentos") return;
-  const tipo = k === "q" ? "hito" : k === "w" ? "meta" : k === "e" ? "compra" : null;
+  const tipo = k === "q" ? "hito" : k === "w" ? "meta" : k === "e" ? "compra" : k === "r" ? "acumular" : null;
   if (!tipo) return;
   e.preventDefault();
   if (!atajoEnfriado()) return;
@@ -1690,7 +1698,8 @@ function lineasDeCrear(branch, conTeclas) {
   const t = (k) => conTeclas ? k : "";
   return ctxItem(`${TIPOS.meta.glifo} ${TIPOS.meta.nombre}`, tx("Se sostiene en el tiempo y avanza por etapas"), t("W"), `ctxCrear('${enJS(branch)}','meta')`) +
     ctxItem(`${TIPOS.compra.glifo} ${TIPOS.compra.nombre}`, tx("Una llave que se paga y abre el paso"), t("E"), `ctxCrear('${enJS(branch)}','compra')`) +
-    ctxItem(`${TIPOS.hito.glifo} ${TIPOS.hito.nombre}`, tx("Una acción puntual que se cierra en sí misma"), t("Q"), `ctxCrear('${enJS(branch)}','hito')`);
+    ctxItem(`${TIPOS.hito.glifo} ${TIPOS.hito.nombre}`, tx("Una acción puntual que se cierra en sí misma"), t("Q"), `ctxCrear('${enJS(branch)}','hito')`) +
+    ctxItem(`${TIPOS.acumular.glifo} ${TIPOS.acumular.nombre}`, tx("Una cifra que crece hasta un objetivo"), t("R"), `ctxCrear('${enJS(branch)}','acumular')`);
 }
 
 /* ---- El ＋ del mapa pregunta QUÉ ----
@@ -1789,14 +1798,14 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
     const { total, hechos, pendientes } = resumenCaja(caja);
     el.innerHTML =
       `<div class="ctx-head">${escapeHtml(nombreCaja(caja))}</div>` +
-      item(tx("Ver qué lleva"), pendientes ? T`${hechos} hechos y ${pendientes} sin terminar` : T`${total} talentos guardados`,
+      item(tx("Ver qué lleva"), pendientes ? T`${hechos} hechos y ${pendientes} sin terminar` : T`${total} nodos guardados`,
         "", `cerrarCtxMenu();verCaja('${escapeAttr(caja.id)}')`, BM_ICONS.caja) +
       item(tx("Renombrar la caja"), tx("Ponle el nombre de lo que fue esa época"), "",
         `cerrarCtxMenu();renombrarCaja('${escapeAttr(caja.id)}')`, BM_ICONS.lapiz) +
       item(tx("Desplegarla en el mapa"), tx("Todo vuelve donde estaba"), "",
         `cerrarCtxMenu();abrirCaja('${escapeAttr(caja.id)}')`, BM_ICONS.expandir) +
       `<div class="ctx-sep"></div>` +
-      item(tx("Borrar la caja"), `Se van sus ${total} talento${total === 1 ? "" : "s"}`, "",
+      item(tx("Borrar la caja"), `Se van sus ${total} nodo${total === 1 ? "" : "s"}`, "",
         `cerrarCtxMenu();borrarCaja('${escapeAttr(caja.id)}')`, BM_ICONS.bote);
     colocarCtxMenu(el, clientX, clientY);
     return;
@@ -2116,6 +2125,10 @@ function verticesDeFigura(t, x, y, crece) {
     for (let i = 0; i < 6; i++) { const a = Math.PI / 6 + i * Math.PI / 3; out.push([x + (t.radio + c) * Math.cos(a), y + (t.radio + c) * Math.sin(a)]); }
     return out;
   }
+  if (t.forma === "triangulo") {
+    const r = t.radio + c;
+    return [[x, y - r], [x + r * 0.866, y + r * 0.5], [x - r * 0.866, y + r * 0.5]];
+  }
   // El rombo es un cuadrado girado: sus puntas están a radio·√2 del centro.
   const R = t.forma === "circulo" ? t.radio + c : (t.radio + c) * Math.SQRT2;
   return [[x, y - R], [x + R, y], [x, y + R], [x - R, y]];
@@ -2192,6 +2205,10 @@ function nodeShape(p, x, y, conf, fid, crecer) {
   }
   if (t.forma === "circulo") {
     return `<circle cx="${x}" cy="${y}" r="${t.radio + c}" ${common}/>`;
+  }
+  // El triángulo de Acumular: un montón que sube, con la punta arriba
+  if (t.forma === "triangulo") {
+    return `<polygon points="${verticesDeFigura(t, x, y, c).map(q => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" ")}" stroke-linejoin="round" ${common}/>`;
   }
   if (t.forma === "hexagono") {
     const pts = [];
@@ -2290,6 +2307,7 @@ function radioEnRumbo(p, rumbo) {
     return Math.min(c ? (t.ancho / 2) / c : 1e9, sn ? (t.alto / 2) / sn : 1e9);
   }
   if (t.forma === "hexagono") return radioPoligono(t.radio, 6, Math.PI / 6, th);
+  if (t.forma === "triangulo") return radioPoligono(t.radio, 3, -Math.PI / 2, th);
   return radioPoligono(t.radio * Math.SQRT2, 4, 0, th);
 }
 
@@ -3196,7 +3214,6 @@ function deslizar(wrap, vx, vy) {
 }
 
 const UMBRAL_ARRASTRE = 5;    // px de pantalla que separan un clic de un arrastre
-const ESPERA_TACTIL = 240;    // ms sostenidos en pantalla táctil, donde no hay ratón
 
 function attachPanHandlers(scope) {
   (scope || document).querySelectorAll(".const-wrap:not(.editing)").forEach(wrap => {
@@ -3240,7 +3257,7 @@ function attachPanHandlers(scope) {
         const d = alDibujo(n.x, n.y, ramaGirada(b, mod));
         gesto.dx = d.x - p.x; gesto.dy = d.y - p.y;
       }
-      pushUndo(gesto.esCaja ? tx("mover una caja") : (mod === "proyectos" ? tx("mover un encargo") : tx("mover un talento")), null, mod);
+      pushUndo(gesto.esCaja ? tx("mover una caja") : (mod === "proyectos" ? tx("mover un encargo") : tx("mover un nodo")), null, mod);
       wrap.classList.add("moviendo");
       if (userHasTapped && navigator.vibrate) navigator.vibrate(12);
     };
@@ -3283,8 +3300,11 @@ function attachPanHandlers(scope) {
         /* Solo con ratón: evita que el navegador arranque una selección de
            texto sobre las etiquetas del SVG. En táctil hay que dejar pasar el
            gesto, o la página no se podría desplazar tocando un nodo. */
+        /* En táctil un nodo ya NO se arrastra (0.7.145, Eduardo): sostenerlo
+           lo levantaba y parecía que el mapa se podía descomponer con el dedo
+           por accidente. En el teléfono sostener solo ELIGE (ver
+           `attachToqueSostenido`); acomodar a mano es cosa del ratón. */
         if (e.pointerType === "mouse") e.preventDefault();
-        else espera = setTimeout(arrancar, ESPERA_TACTIL);
         return;
       }
 
@@ -3554,7 +3574,9 @@ function attachZoomHandlers(scope) {
 function attachCtxHandlers(scope) {
   (scope || document).querySelectorAll(".const-wrap").forEach(wrap => {
     wrap.addEventListener("contextmenu", (e) => {
-      if (!isDesktop()) return;
+      /* En el teléfono, sostener un nodo es elegirlo: el menú propio del
+         navegador (copiar, compartir) encima de eso solo estorba. */
+      if (!isDesktop()) { if (e.target.closest && e.target.closest(".cnode")) e.preventDefault(); return; }
       e.preventDefault();
       e.stopPropagation();
       const p = puntoEnLienzo(wrap, e.clientX, e.clientY);
@@ -3597,15 +3619,18 @@ function attachToqueSostenido(wrap) {
     const t = e.touches[0];
     x0 = t.clientX; y0 = t.clientY;
     blanco = e.target;
+    const nodo = blanco && blanco.closest ? blanco.closest(".cnode") : null;
+    /* Desde la 0.7.145 sostener un nodo solo lo ELIGE, como en la galería del
+       teléfono: el menú de clic derecho con su «mover» hacía pensar que el
+       mapa se podía descomponer con el dedo (Eduardo). Sostener el fondo no
+       hace nada; crear está en el «+» y lo demás en la ficha. */
+    if (!nodo || nodo.classList.contains("caja")) return;
     reloj = setTimeout(() => {
       reloj = null;
-      const p = puntoEnLienzo(wrap, x0, y0);
-      const nodo = blanco && blanco.closest ? blanco.closest(".cnode") : null;
       /* Un golpecito, si el dispositivo lo tiene: sin él no hay forma de saber
-         que el menú salió porque lo pediste y no por un toque suelto. */
+         que quedó elegido porque lo pediste y no por un toque suelto. */
       try { if (navigator.vibrate) navigator.vibrate(12); } catch (x) { /* sin vibrador */ }
-      abrirCtxMenu(x0, y0, wrap.dataset.branch, p, nodo && nodo.dataset.id,
-                   wrap.dataset.mod || "talentos");
+      elegirPorSostenido(nodo.dataset.id, wrap.dataset.branch);
       tragarSiguienteToque();
     }, SOSTENIDO_MS);
   }, { passive: true });
@@ -3674,8 +3699,19 @@ function toggleElegirVarios(rama) {
   renderTree();
   if (fullscreenBranch) renderFullscreen();
   toast(modoElegir
-    ? tx("Toca los talentos que quieras juntar")
+    ? tx("Toca los nodos que quieras juntar")
     : tx("Listo, ya no estás eligiendo"), modoElegir ? "calma" : "hecho");
+}
+
+/* Sostener un nodo en el teléfono: entra en «elegir varios» con ese ya
+   elegido, y desde ahí cada toque suma o quita. */
+function elegirPorSostenido(id, rama) {
+  if (!modoElegir) { modoElegir = true; limpiarSeleccion(); }
+  alternarSeleccion(id, rama);
+  if (!selNodos.size) modoElegir = false;
+  renderTree();
+  if (fullscreenBranch) renderFullscreen();
+  if (modoElegir && selNodos.size === 1) toast(tx("Elegido. Toca otros para sumarlos"), "calma");
 }
 
 function alternarSeleccion(id, rama) {
@@ -3721,7 +3757,7 @@ function pintarBarraSeleccion(wrap) {
        <button type="button" class="btn btn-soft btn-sm" onclick="agruparElegidos()">${tx("Agruparlos")}</button>
        <button type="button" class="btn btn-danger-ghost btn-sm" onclick="borrarElegidos()">${T`Borrar ${n}`}</button>
        <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">${modoElegir ? "Salir" : tx("Quitar la selección")}</button>`
-    : `<b>${tx("Toca los talentos que quieras juntar")}</b>
+    : `<b>${tx("Toca los nodos que quieras juntar")}</b>
        <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">${tx("Salir")}</button>`;
 }
 
@@ -4112,7 +4148,7 @@ function attachEditHandlers(scope) {
       // Solo cuenta como acción si de verdad cambió algo: un clic sin
       // arrastre llenaría la pila de pasos vacíos que no deshacen nada.
       if (snapAntes && snapAntes !== snapshotPerks(mod)) {
-        const uno = mod === "proyectos" ? "un encargo" : "un talento";
+        const uno = mod === "proyectos" ? "un encargo" : "un nodo";
         const varios = mod === "proyectos" ? "encargos" : "talentos";
         pushUndo(grupoIni ? `mover ${grupoIni.size} ${varios}`
           : (cajaPorId(curId) ? tx("mover una caja") : `mover ${uno}`), snapAntes, mod);

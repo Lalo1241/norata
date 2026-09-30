@@ -264,8 +264,10 @@ const EXP_ESCALERA = [
   /* Sin `icon`, y es la corrección de 0.7.94.2: decían `star` y `flag`, que no
      son los dibujos de esos módulos en ninguna parte de la app. El de verdad lo
      saca `trazoDeModulo()` del propio botón de la barra — un dibujo, un sitio. */
-  { nivel: 0,  tipo: "modulo", id: "tree",     nombre: "El árbol de talentos", corto: "Talentos",  listo: true },
-  { nivel: 0,  tipo: "modulo", id: "projects", nombre: "Ramas de proyecto", corto: "Proyectos", listo: true },
+  { nivel: 0,  tipo: "modulo", id: "tree",     nombre: "Tus ramas", corto: "Ramas",  listo: true },
+  /* Desde la 0.7.145 no es un módulo aparte: abre la segunda clase de rama
+     dentro de Ramas, y por eso su tarjeta no dice «Módulo nuevo». */
+  { nivel: 0,  tipo: "modulo", id: "projects", nombre: "Ramas de proyecto", corto: "Ramas de proyecto", quees: "Nuevo en Ramas", listo: true },
   { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión", corto: "Destello propio", listo: true },
   { nivel: 6,  tipo: "rango",       nombre: "Rango Andante", listo: true },
   { nivel: 9,  tipo: "celebracion", nombre: "Racha avivada", corto: "Racha avivada", listo: true },

@@ -133,7 +133,7 @@ function envelope(rev) {
 function syncCount(s) {
   if (!s) return "sin datos";
   return (s.skills || []).length + " habilidades, " + (s.missions || []).length +
-    " misiones, " + (s.perks || []).length + " talentos y " + (s.projects || []).length + " proyectos";
+    " misiones y " + ((s.perks || []).length + (s.projects || []).length) + " nodos";
 }
 
 /* Fecha y hora completas: en un conflicto lo que se compara es justo eso.

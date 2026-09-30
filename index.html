@@ -684,8 +684,9 @@
   <!-- ============ VISTA: DETALLE TALENTO ============ -->
   <div class="view" id="view-perk">
     <div class="back-row">
-      <button class="icon-btn" onclick="showView('tree')" aria-label="Volver">←</button>
-      <h2>Talento</h2>
+      <button class="icon-btn" onclick="volverDeFicha()" aria-label="Volver">←</button>
+      <h2>Nodo</h2>
+      <div id="perk-menu" class="perk-menu"></div>
       <!-- Sin botón de editar: el icono grande de la ficha ya lleva ahí,
            igual que en habilidades. Dos accesos a lo mismo en la misma
            pantalla solo ocupaban sitio. -->
@@ -758,7 +759,7 @@
   <div class="view form-view" id="view-perk-form">
     <div class="back-row">
       <button class="icon-btn" onclick="cancelPerkForm()" aria-label="Volver">←</button>
-      <h2 id="perk-form-title">Nuevo talento</h2>
+      <h2 id="perk-form-title">Nuevo nodo</h2>
     </div>
 
     <div class="panel">
@@ -766,15 +767,15 @@
         <span>Rama</span>
         <input type="text" id="p-branch" placeholder="Ej. Dibujo, Música, Negocio…" maxlength="30" list="branch-list">
         <datalist id="branch-list"></datalist>
-        <div class="field-hint">Primero la rama: es el mapa donde vivirá este talento. Escribe una nueva o elige una existente.</div>
+        <div class="field-hint">Primero la rama: es donde vivirá este nodo. Escribe una nueva o elige una existente.</div>
       </label>
       <label class="field">
-        <span>Nombre del talento</span>
+        <span>Nombre</span>
         <input type="text" id="p-name" placeholder="Ej. Curso de ilustración digital" maxlength="60" oninput="refrescarSugerencias('p')">
       </label>
       <label class="field">
         <span>Descripción (opcional)</span>
-        <textarea id="p-desc" rows="2" placeholder="¿Qué desbloquea este talento? ¿Cuál es la meta concreta?" maxlength="240"></textarea>
+        <textarea id="p-desc" rows="2" placeholder="¿Qué quieres lograr, en concreto?" maxlength="240"></textarea>
       </label>
       <div class="field">
         <span class="lbl">Icono</span>
@@ -787,7 +788,7 @@
     </div>
 
     <div class="panel alt">
-      <h3>Tipo de talento</h3>
+      <h3>Qué es</h3>
       <!-- Tres botones excluyentes y no dos interruptores sueltos. Con
            interruptores se podía marcar "Asegurado al pagar" dentro de un
            mini-talento, verlo marcado, y que al guardar se descartara sin
@@ -804,18 +805,40 @@
         </label>
       </div>
 
+      <div id="campo-acumular" style="margin-top:16px;display:none">
+        <div class="row2" style="gap:8px">
+          <label class="field" style="margin-bottom:0">
+            <span>Hasta dónde</span>
+            <input type="number" id="p-objetivo" value="1000" min="1" step="any" inputmode="decimal">
+          </label>
+          <label class="field" style="margin-bottom:0">
+            <span>De qué</span>
+            <select id="p-unidad">
+              <option value="dinero">Dinero</option>
+              <option value="km">km</option>
+              <option value="libros">libros</option>
+              <option value="horas">horas</option>
+              <option value="veces">veces</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <!-- El plazo, opcional (0.7.145): un toque para «sin plazo» o uno de los
+           de siempre, y «otro» para escribirlo. -->
       <div id="campo-plan" style="margin-top:16px">
-        <label class="field" style="margin-bottom:0">
-          <span>Plan de duración</span>
-          <div class="row2" style="gap:6px">
-            <input type="number" id="p-plan-n" value="12" min="1" max="999" inputmode="numeric">
-            <select id="p-plan-u">
+        <div class="field" style="margin-bottom:0">
+          <span class="lbl">Plazo</span>
+          <div class="seg plazo-seg" id="p-plazo"></div>
+          <div class="row2" id="p-plazo-otro" style="gap:6px;margin-top:8px;display:none">
+            <input type="number" id="p-plan-n" value="2" min="1" max="999" inputmode="numeric" oninput="leerPlazoOtro()">
+            <select id="p-plan-u" onchange="leerPlazoOtro()">
               <option value="d">días</option>
               <option value="m" selected>meses</option>
             </select>
           </div>
-          <div class="field-hint">Al comenzar arranca el plazo. Cuando termina confirmas si la lograste: si sí, el talento se vuelve permanente; si no, se pierde.</div>
-        </label>
+          <div class="field-hint" id="p-plazo-hint"></div>
+        </div>
       </div>
     </div>
 
@@ -856,8 +879,8 @@
     </div>
 
     <div class="stack">
-      <button class="btn btn-primary btn-block" onclick="savePerk()">Guardar talento</button>
-      <button class="btn btn-danger-ghost btn-block" id="p-delete" style="display:none" onclick="deletePerk()">Eliminar talento</button>
+      <button class="btn btn-primary btn-block" onclick="savePerk()">Guardar</button>
+      <button class="btn btn-danger-ghost btn-block" id="p-delete" style="display:none" onclick="deletePerk()">Borrar</button>
     </div>
   </div>
 

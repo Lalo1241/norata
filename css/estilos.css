@@ -8431,6 +8431,113 @@
   }
   .seg button.on { border-color: var(--mint); background: var(--mint-soft); color: var(--mint); }
 
+  /* ================= La ficha de un nodo (0.7.145) =================
+     Una columna que se lee de arriba abajo: qué es, qué toca, cómo va, de
+     qué depende. Los colores de avance son los de ESTADO, nunca el acento. */
+  .perk-menu { flex: none; }
+  .perk-menu .bmenu-wrap .badd { width: 38px; height: 38px; }
+  .ficha-ahora { display: flex; flex-direction: column; gap: 10px; }
+  .ficha-ahora h3 { margin: 0; }
+  .ficha-ahora .btn-block { margin: 0; }
+  .fa-avance { display: flex; flex-direction: column; gap: 6px; }
+  .fa-salud {
+    align-self: flex-start; font-size: 11px; font-weight: 800;
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .fa-salud.stalled { color: var(--estado-fallo-tinta); background: var(--estado-fallo-soft); }
+  .fa-salud.cooling { color: var(--estado-curso-tinta); background: var(--estado-curso-soft); }
+  .fa-carril { height: 8px; border-radius: 999px; background: var(--carril); overflow: hidden; }
+  .fa-carril i { display: block; height: 100%; border-radius: 999px; background: var(--estado-curso); }
+  .fa-carril i.hecho { background: var(--estado-hecho); }
+  .fa-lee { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .fa-lee span:last-child { font-weight: 700; color: var(--text); }
+  .fa-nota { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .fa-nota b { color: var(--text); font-weight: 600; }
+  .fa-sumar { display: flex; gap: 8px; }
+  .fa-sumar input { flex: 1; min-width: 0; }
+
+  .fa-checks { display: flex; flex-direction: column; }
+  .fa-check {
+    display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 10px;
+    align-items: center; padding: 8px 2px; border-top: 1px solid var(--line);
+  }
+  .fa-check:first-child { border-top: 0; }
+  .fa-tx { font-size: 14px; overflow-wrap: anywhere; }
+  .fa-check.hecho .fa-tx { color: var(--muted); text-decoration: line-through; }
+  .fa-caja {
+    width: 22px; height: 22px; border-radius: var(--r-micro);
+    border: 2px solid var(--muted); background: none; color: var(--sobre-estado);
+    display: grid; place-items: center; cursor: pointer; padding: 0;
+  }
+  .fa-caja:disabled { opacity: .5; cursor: default; }
+  .fa-check.hecho .fa-caja { background: var(--estado-hecho); border-color: var(--estado-hecho); }
+  .fa-caja svg { width: 12px; height: 12px; stroke-width: 3.4; }
+  .fa-quitar {
+    background: none; border: 0; color: var(--faint); cursor: pointer;
+    font-size: 13px; padding: 4px 6px; border-radius: var(--r-micro);
+  }
+  .fa-enlace {
+    align-self: flex-start; background: none; border: 0; padding: 0; margin-top: 8px;
+    font: inherit; font-size: 12.5px; color: var(--muted); text-decoration: underline;
+    text-underline-offset: 3px; cursor: pointer;
+  }
+  .fa-datos .fa-enlace, .fa-datos dd .fa-enlace { margin: 0; }
+  /* Lo opcional se ofrece como una fila discreta, no como una caja vacía */
+  .fa-opcional {
+    display: flex; flex-direction: column; gap: 2px; width: 100%; text-align: left;
+    margin: 0 0 14px; padding: 12px 16px; cursor: pointer; font: inherit; color: var(--text);
+    background: none; border: 1.5px dashed var(--line); border-radius: var(--r-burbuja);
+  }
+  .fa-opcional b { font-size: 13.5px; font-weight: 600; }
+  .fa-opcional span { font-size: 12px; color: var(--muted); }
+  @media (hover: hover) {
+    .fa-opcional:hover { border-color: var(--muted); }
+    .fa-quitar:hover { color: var(--estado-fallo-tinta); }
+  }
+
+  .fa-grupo { display: flex; flex-direction: column; gap: 6px; }
+  .fa-grupo + .fa-grupo { margin-top: 14px; }
+  .fa-sub {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  }
+  .fa-modo { gap: 3px; text-transform: none; letter-spacing: 0; }
+  .fa-modo button { flex: none; padding: 3px 10px; font-size: 11.5px; border-width: 1px; }
+  .fa-enl { display: flex; align-items: center; gap: 4px; }
+  .fa-enl-b {
+    flex: 1; min-width: 0; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto;
+    align-items: center; gap: 10px; text-align: left; cursor: pointer; font: inherit; color: var(--text);
+    background: var(--sup-tarjeta2); border: 1px solid var(--line); border-radius: var(--r-media, 12px);
+    padding: 8px 12px;
+  }
+  .fa-enl-b span { font-size: 13.5px; overflow-wrap: anywhere; }
+  .fa-enl-b small { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .fa-anadir { font-size: 13px; }
+
+  .fa-datos {
+    display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 16px; margin: 0;
+  }
+  .fa-datos dt { font-size: 12.5px; color: var(--muted); }
+  .fa-datos dd { margin: 0; font-size: 13.5px; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .fa-hist summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+  .fa-hist[open] summary { margin-bottom: 10px; }
+  .fa-rama { background: none; border: 0; font: inherit; cursor: pointer; }
+
+  /* El plazo: seis opciones que SÍ doblan de renglón, en píldoras */
+  .plazo-seg { flex-wrap: wrap; gap: 6px; }
+  .plazo-seg button { flex: 0 0 auto; padding: 7px 14px; border-radius: 999px; font-size: 13px; }
+
+  /* Lo que pasa al cambiar de tipo */
+  .fa-efectos { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+  .fa-ef { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; font-size: 13px; line-height: 1.45; }
+  .fa-ef span {
+    width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 11px; font-weight: 800; margin-top: 1px;
+  }
+  .fa-ef.ok span { color: var(--estado-hecho-tinta); background: var(--estado-hecho-soft); }
+  .fa-ef.pierde span { color: var(--estado-fallo-tinta); background: var(--estado-fallo-soft); }
+  #hoja-crear .tipo-seg button:disabled { opacity: .4; cursor: default; }
+
   /* ---------- Los planes que se pueden fingir ----------
      Ocho botones no caben en una fila de `.seg`, que no dobla a propósito —un
      segmentado que se parte en dos renglones deja de leerse como un grupo de

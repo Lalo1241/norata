@@ -400,7 +400,7 @@ function renderSummary() {
           celdas.push(`
           <button class="tc tc-cerrada" onclick="avisoModuloCerrado('tree')">
             <span class="tc-n">${icon("lock", 18)}</span>
-            <span class="tc-t">${tx("Talentos")}</span>
+            <span class="tc-t">${tx("Ramas")}</span>
             <span class="tc-x">${T`Se abre en el nivel ${MODULO_NIVEL.tree}`}</span>
           </button>`);
         } else {
@@ -408,7 +408,7 @@ function renderSummary() {
           celdas.push(`
           <button class="tc b" onclick="showView('tree')">
             <span class="tc-n">${tuyos}</span>
-            <span class="tc-t">${tuyos === 1 ? tx("talento ya es tuyo") : tx("talentos ya son tuyos")}</span>
+            <span class="tc-t">${tuyos === 1 ? tx("nodo logrado") : tx("nodos logrados")}</span>
             <span class="tc-x">${T`${activeList.length + dueList.length} en curso`}</span>
           </button>`);
         }
@@ -463,7 +463,7 @@ function renderSummary() {
     listos: () => !readyList.length ? "" : `
       <div class="panel alt ready-panel">
         <h3>${tx("Listos para empezar")}</h3>
-        <p class="settings-note">${tx("Estos talentos están desbloqueados y esperando. Empieza uno para ponerlo en progreso.")}</p>
+        <p class="settings-note">${tx("Estos nodos están abiertos y esperando. Empieza uno para ponerlo en marcha.")}</p>
         <div class="ready-grid">
           ${readyList.slice(0, 6).map(p => `
             <button class="ready-chip" onclick="openPerk('${p.id}')" style="${tonos("rc", p.color)}">
