@@ -21,9 +21,10 @@
    La regla es la misma en todos; lo que cambia es con qué se dibuja y cómo
    se dice. En la casa y sus ambientes, una fogata con un leño por día. En
    Blueprint, un plano que se traza. En Reliquia, una vitrina que se llena.
-   En Arcade, la fogata en píxeles. **Averno usa la fogata de la casa a
-   propósito**: el mundo se está rediseñando entero (gótico, píxel, vitral) y
-   el suyo se hace con ese diseño y no con el que se va a tirar.
+   En Arcade, la fogata en píxeles. Desde la 0.7.143, Catedral, Averno,
+   Blueprint y Reliquia traen su propio objeto, sus fichas y el suelo de su
+   escena, en js/05d-racha-mundos.js: un candelabro, un sello, una torre y un
+   astrolabio.
 
    ---- El calendario de siempre ----
    Semanas encendidas se lee rápido cuando ya sabes qué es. Quien acaba de
@@ -34,11 +35,12 @@
 
 const UMBRAL_SEMANA = 3;
 
-/* Qué objeto le toca. Averno cae en la casa: ver arriba. */
+/* Qué objeto le toca. Un mundo sin objeto propio, un ambiente y la casa
+   caen en la fogata. */
 function temaRacha() {
   if (typeof arcadePuesto === "function" && arcadePuesto()) return "arcade";
   const a = typeof apariencia === "function" ? apariencia() : "casa";
-  return a === "plano" || a === "reliquia" ? a : "casa";
+  return ["plano", "reliquia", "catedral", "averno"].indexOf(a) >= 0 ? a : "casa";
 }
 
 /* Las palabras de cada mundo. La regla no cambia; cambia qué se hace con los
@@ -271,6 +273,7 @@ const HEROES_RACHA = { casa: heroFogata, plano: heroPlano, reliquia: heroVitrina
 
 /* La marca pequeña de una semana: una ficha con la forma del mundo. */
 function fichaDeSemana(t, w, cx, cy, s) {
+  if (typeof FICHAS_RACHA !== "undefined" && FICHAS_RACHA[t]) return FICHAS_RACHA[t](w, cx, cy, s);
   const c = `rt-ficha${w.ok ? " si" : ""}`;
   if (t === "plano") return `<rect class="${c}" x="${r1(cx - s)}" y="${r1(cy - s * .8)}" width="${r1(s * 2)}" height="${r1(s * 1.6)}" rx="2"/>`;
   if (t === "reliquia") return `<path class="${c}" d="M${r1(cx)} ${r1(cy - s)}L${r1(cx + s)} ${r1(cy - s * .2)}L${r1(cx)} ${r1(cy + s)}L${r1(cx - s)} ${r1(cy - s * .2)}Z"/>`;
@@ -284,17 +287,21 @@ function fichaDeSemana(t, w, cx, cy, s) {
    eran ocho, dos meses, que en una tarjeta de hoy ya es historia. Lo paró
    Eduardo las dos veces. */
 function dibujoDeRacha(W, H, Z, t) {
-  const FILA = 78;
+  /* Las semanas de antes van sobre una FRANJA opaca, con letra de 11 a 13 px.
+     Sin ella, encima de un fondo con dibujo —el muro de Averno, el papel de
+     Blueprint— los rótulos de 10 px no se leían. Lo paró Eduardo. */
+  const FILA = 92;
   let s = HEROES_RACHA[t](0, 0, W, H - FILA, Z);
   const prev = Z.lista.slice(1, 5).reverse();
-  const y0 = H - FILA + 8, paso = Math.min(W / 4, 100), x0 = (W - paso * 4) / 2, r = Math.min(16, paso * .22);
-  s += `<path class="rt-carril" d="M${r1(x0 + paso / 2)} ${r1(y0 + 24)}H${r1(x0 + paso * 3.5)}"/>`;
-  s += `<text class="rt-rot centro" x="${r1(W / 2)}" y="${r1(y0 - 2)}">${escapeHtml(tx("Semanas de antes"))}</text>`;
+  const y0 = H - FILA, paso = Math.min(W / 4, 110), x0 = (W - paso * 4) / 2, r = Math.min(18, paso * .24), cy = y0 + 44;
+  s += `<rect class="rt-franja" x="0" y="${r1(y0)}" width="${W}" height="${FILA}" rx="8"/>`;
+  s += `<text class="rt-franja-tit" x="${r1(W / 2)}" y="${r1(y0 + 17)}">${escapeHtml(tx("Semanas de antes"))}</text>`;
+  s += `<path class="rt-carril" d="M${r1(x0 + paso / 2)} ${r1(cy)}H${r1(x0 + paso * 3.5)}"/>`;
   prev.forEach((w, i) => {
-    const cx = x0 + paso * (i + .5), cy = y0 + 24;
+    const cx = x0 + paso * (i + .5);
     s += fichaDeSemana(t, w, cx, cy, r);
-    s += `<text class="rt-rot centro${w.ok ? " oscuro" : ""}" x="${r1(cx)}" y="${r1(cy + 4)}">${w.n}</text>`;
-    s += `<text class="rt-rot centro tenue" x="${r1(cx)}" y="${r1(cy + r + 14)}">${rangoDeSemana(w.ini)}</text>`;
+    s += `<text class="rt-ficha-n${w.ok ? " oscuro" : ""}" x="${r1(cx)}" y="${r1(cy + 4.5)}">${w.n}</text>`;
+    s += `<text class="rt-rango" x="${r1(cx)}" y="${r1(cy + r + 16)}">${rangoDeSemana(w.ini)}</text>`;
   });
   return s;
 }
@@ -338,7 +345,25 @@ function pintarArteRacha() {
   const t = arte.dataset.tema || "casa";
   const Z = semanasDeRacha(activityDayCounts(), todayKey());
   arte.innerHTML = `<svg class="rt-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">${dibujoDeRacha(W, H, Z, t)}</svg>`;
+  if (typeof vestirFondoRacha === "function") vestirFondoRacha(arte.closest(".rt-card"));
 }
+/* Si la apariencia cambia con la tarjeta ya pintada, la tarjeta se rehace
+   (0.7.143.2). El objeto se decide al pintar (`temaRacha`), y la apariencia
+   puede llegar después: al volver del servidor, al elegir otra en Ajustes o
+   con Arcade. Sin esto se quedaba la fogata puesta en un mundo que tiene su
+   propio objeto hasta volver a entrar al Resumen. */
+function rehacerRachaSiCambio() {
+  const tarjeta = document.querySelector('#summary-content .widget[data-w="racha"] .rt-card');
+  const arte = tarjeta && tarjeta.querySelector(".rt-arte");
+  if (!arte || arte.dataset.tema === temaRacha()) return;
+  tarjeta.outerHTML = cuerpoRacha();
+  pintarArteRacha();
+}
+try {
+  new MutationObserver(() => setTimeout(rehacerRachaSiCambio, 0))
+    .observe(document.documentElement, { attributes: true, attributeFilter: ["data-apariencia", "data-material"] });
+} catch (e) { /* sin observador: se rehace al volver al Resumen, como antes */ }
+
 let _redimRacha = null;
 window.addEventListener("resize", () => { clearTimeout(_redimRacha); _redimRacha = setTimeout(pintarArteRacha, 150); });
 
@@ -396,6 +421,7 @@ function mejorRachaDeSemanas(m, hoy) {
 }
 
 function marcaDelMundo(t) {
+  if (typeof MARCAS_RACHA !== "undefined" && MARCAS_RACHA[t]) return MARCAS_RACHA[t];
   return { plano: '<path d="M5 12.5l4 4 10-10"/>', reliquia: '<path d="M12 3l7 6-7 12-7-12z"/>' }[t] || ICONS.flame;
 }
 
@@ -528,6 +554,7 @@ function abrirTuRacha() {
     </div>`;
   capa.addEventListener("click", e => { if (e.target === capa && toqueLimpio(e)) cerrarTuRacha(); });
   document.body.appendChild(capa);
+  if (typeof vestirFondoRacha === "function") vestirFondoRacha(capa.querySelector(".rb-escena"));
   pintarMesRacha();
   /* `.show` en el turno siguiente, para que la entrada se anime; y con ella
      entra en CAPAS_QUE_TAPAN y la página de detrás se queda quieta. */

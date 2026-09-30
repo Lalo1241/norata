@@ -247,6 +247,108 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.143.2 · 29 sep 2026
+
+**Tu mundo ya no se cae a la casa al abrir, y la racha lo sigue.** Eduardo:
+«muchas veces me sale la versión de base» y «aparece el diseño de la fogata
+más a menudo de lo que debería». Eran dos fallos que se veían juntos:
+
+- **La apariencia se revisaba antes de que llegara el plan.** Al terminar la
+  sincronía, `refrescarApariencia` preguntaba si el mundo seguía siendo tuyo;
+  si el plan todavía no había contestado, `PLAN` era el «libre» de partida, un
+  mundo de Pro no pasaba y la app lo bajaba a la casa. Cuando el plan llegaba,
+  nadie volvía a preguntar (`planCargar` solo repintaba), así que te quedabas
+  en la casa toda la sesión. Ahora `planCargar` vuelve a revisar al contestar
+  el servidor, y **ante la duda se queda lo que elegiste**: mientras el plan no
+  haya contestado (`PLAN_CONFIRMADO`), un «no puedes» no quita nada. Congelar,
+  nunca quitar, también aquí.
+- **La tarjeta de la racha no se enteraba del cambio.** El objeto se decide al
+  pintarla, y si la apariencia llegaba después se quedaba la fogata hasta
+  volver a entrar al Resumen. Ahora un observador sobre `data-apariencia` y
+  `data-material` la rehace sola (`rehacerRachaSiCambio`). Medido: pintada en
+  la casa, cambiar a Reliquia la rehace con el astrolabio al instante.
+
+**El sello de Averno vuelve al marco de la 0.7.143**, que es el que gustaba:
+el mismo tamaño, un aro fino y otro más fino por dentro, y rombos chicos. La
+0.7.143.1 lo había engordado y agrandado, y perdió el encanto. Lo que se queda
+es la NITIDEZ, que era lo que se pedía: se mide con aquella rejilla y se dibuja
+en una el doble de fina, así que los bordes bajan en escalones pequeños. Va un
+poco más abajo (24 px de aire sobre la «D») y encoge lo justo si no cabe:
+medido, 12 px sobre la franja en el teléfono y 16 en la PC, y en «Tu racha»
+todo dentro de la escena.
+
+**Las fechas de «Semanas de antes», a 12,5 px** (antes 11), sin pisarse a 390.
+
+### 0.7.143.1 · 29 sep 2026
+
+**El sello de Averno, más fino y más legible.** Eduardo, viéndolo en vivo:
+
+- **El aro, a doble resolución.** El sello va en una rejilla el doble de fina
+  que el candelabro, así que sus bordes ya no se leen a escalones gruesos; el
+  aro tiene dos celdas de grueso para no perder presencia.
+- **La estrella, más gruesa**: 2 px apagada y 3,2 encendida (antes 1 y 2).
+- **Las letras de los días, con presencia y con aire.** Van a 14 px, en tinta
+  clara con un filo oscuro y la de hoy en sangre, y por FUERA de los rombos.
+  El sello se mide para dejar 22 px arriba, así que la «D» ya no toca el
+  mensaje de la tarjeta. Medido: 28 px de aire en el teléfono y 31 en la PC,
+  y en «Tu racha» todas las letras caben dentro de la escena.
+
+### 0.7.143 · 29 sep 2026
+
+**Cada mundo tiene su racha.** Hasta ahora Catedral y Averno usaban la fogata
+de la casa, y Blueprint y Reliquia llevaban el plano y la vitrina de la
+0.7.135. Eduardo eligió los cuatro objetos en ocho vueltas de boceto con la
+app dentro (https://claude.ai/artifact/CwegthWZ2BwqVNc354zHWk), y las fichas
+en otro (https://claude.ai/artifact/UAmxkGbBue3wLvyzfdwCyj):
+
+| Mundo | Objeto | Semanas de antes | Se dice |
+| --- | --- | --- | --- |
+| Catedral | el candelabro de pie: una vela por día | la vela, encendida si contó | semana encendida |
+| Averno | el sello: siete rombos y la estrella de siete puntas | el rombo de doble filete | semana sellada |
+| Blueprint | la torre: cada día traza una parte | la de siempre | semana trazada |
+| Reliquia | el astrolabio: cada día dora un tramo | el orbe que se llena con los días | semana dorada |
+
+- **Cada mundo trae el suelo de su escena**: sillares en Catedral, brasas y
+  marco de hueso en Averno, papel cuadriculado en Blueprint y terciopelo
+  apagado en Reliquia. El paisaje queda solo para la casa.
+- **«Semanas de antes» va sobre una franja opaca**, con letra de 11 a 13 px:
+  encima del muro de Averno o del papel de Blueprint los rótulos de 10 px no
+  se leían.
+- **Lo que se anima se ve completo sin la animación.** Los tramos del
+  astrolabio, las puntas del sello y las líneas del plano nacían invisibles y
+  solo aparecían si su animación llegaba al final; si el navegador la frenaba
+  o la reiniciaba al redibujar, se quedaban a medias. Ahora están dibujados de
+  base y la animación solo los traza encima. Arregla también el plano de
+  Blueprint de antes.
+- **La araña del astrolabio gira siempre.** Solo giraba con la semana
+  encendida, y como la semana empieza en domingo, de domingo a martes estaba
+  quieta para todos. Con la semana encendida va al doble y su estrella se
+  prende; el tramo de hoy late.
+- **Archivo nuevo:** `js/05d-racha-mundos.js`, registrado en `index.html` y en
+  `ASSETS`. Solo añade a las tablas de `js/05c-racha.js`; la casa, sus
+  ambientes y Arcade no cambian.
+
+**Comprobado:** los cuatro mundos y la casa, en la tarjeta y en «Tu racha», a
+390 y a 1280 px, sin errores y sin nada que se salga de lado.
+
+### 0.7.142.1 · 29 sep 2026
+
+**Romper el candado suena en cada golpe, y siempre igual.** Sonaba lejano y a
+saltos: solo sonaba cuando se abría una grieta nueva, como mucho una vez por
+segundo, y encima la regla de la ráfaga (tres sonidos en segundo y medio) se
+comía casi todos. Con ochenta toques seguidos eso no daba ninguna respuesta.
+Eduardo lo pidió al revés: el mismo golpe a cada toque.
+
+- **`puedeSonar(ctx, alToque)`** (`js/01-base.js`): lo que responde a un toque
+  se salta la regla de la ráfaga y no cuenta para ella, así que la rotura del
+  final sigue sonando. Lo demás de la regla no cambia: con la app fuera de la
+  vista no suena nada. Es la única excepción, y va marcada con `toque` en el
+  momento `grieta` de `js/01c-sonido.js`.
+- **El mismo tono en cada golpe**: la madera de la grieta ya no cambia de tono
+  al azar (en la casa y en Averno/Catedral).
+- **Comprobado**: doce golpes a 90 ms suenan los doce, la rotura suena justo
+  después, y cinco fiestas seguidas siguen cortándose en la tercera.
+
 ### 0.7.142 · 29 sep 2026
 
 **Catedral tiene sus propios rangos.** En la 0.7.141 llevaba prestados los de

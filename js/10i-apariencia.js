@@ -852,6 +852,11 @@ function refrescarApariencia() {
   const puesta = aparienciaGuardada();
   const raiz = document.documentElement;
   const puedo = puesta === "casa" || aparienciaDisponible(puesta) === true;
+  /* Ante la duda, lo que eligió (0.7.143.2). Mientras el servidor no haya
+     contestado el plan, «no puedes» no es una respuesta: es el «libre» de
+     partida. Quitar el mundo en ese instante es lo que dejaba la app en la
+     casa; se quita solo cuando el «no» es de verdad. */
+  if (!puedo && typeof PLAN_CONFIRMADO !== "undefined" && !PLAN_CONFIRMADO) return;
   const ahora = raiz.getAttribute("data-apariencia") || "casa";
   const debe = puedo ? puesta : "casa";
   if (ahora === debe) return;
