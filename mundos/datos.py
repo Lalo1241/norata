@@ -543,7 +543,7 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
 
  dict(id="averno", nombre="Averno", familia="de-relato", llave="Hueso y sangre", color="#ff2d3f",
   plan="Pro",
-  premisa="Hueso y sangre sobre negro, en pixel art. Tres figuras y ninguna más —círculo, rombo y corte a 45°— y todo con bisel, como la barra de vida de un juego de rol oscuro: los iconos en rombo, los marcos con la esquina cortada, el menú en sellos redondos y el «+» como un orbe de sangre. Detrás, un sello de geometría sagrada casi invisible y brasas que suben del suelo. Cuatro paletas propias: Sangre, Cocito, Ponzoña y Tormento. Es de la 0.7.141; el Averno de antes, el de vitrales, sigue como Catedral.",
+  premisa="Hueso y sangre sobre negro, en pixel art. Tres figuras y ninguna más —círculo, rombo y corte a 45°— y todo con bisel, como la barra de vida de un juego de rol oscuro: los iconos en rombo, los marcos con la esquina cortada, el menú en sellos redondos y el «+» como un orbe de sangre. Detrás, un sello de geometría sagrada casi invisible y brasas que suben del suelo. Cuatro paletas propias: Sangre, Lamento, Plaga y Tormento. Es de la 0.7.141; el Averno de antes, el de vitrales, sigue como Catedral.",
   letra="Silkscreen", ancho="+12%", escala=".8", esquinas="corte a 45° · bisel", peso="~70 KB", horas="Las dos",
   nota="Esta entrada no genera el CSS de la app: lo genera `mundos/averno/averno.py`, porque Averno trae cuatro paletas y piezas de píxel horneadas por paleta. Aquí se queda con los tonos de Sangre, la paleta de partida, para la lámina y la muestra del catálogo.",
   # Sangre, la paleta de partida. La fuente de verdad es mundos/averno/paletas.py:

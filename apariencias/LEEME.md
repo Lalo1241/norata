@@ -440,11 +440,15 @@ tres.
 
 **Las cuatro paletas son suyas y no las de Catedral repintadas**, y fue un
 encargo: en el boceto lo eran y Eduardo lo paró —«están duplicadas»—. Sangre
-(plata, la de partida), Cocito (azul hielo, el lago helado del noveno círculo),
-Ponzoña (verde veneno) y Tormento (magenta de espina). El segundo tono de cada
+(plata, la de partida), Lamento (azul hielo), Plaga (verde veneno) y Tormento
+(magenta de espina). Lamento y Plaga se llamaron Cocito y Ponzoña hasta la
+0.7.143.7; Eduardo los cambió porque no le pegaban, y quedó una serie de
+estados del infierno. **Sus id siguen siendo `cocito` y `ponzona`**: es lo que
+cada dispositivo guardó en `norata-paletas`, y cambiarlos dejaría sin su paleta
+a quien ya la eligió. El segundo tono de cada
 una está a 20 o más de distancia (dE2000) del más parecido de Catedral; por
 debajo de 20 el ojo las confunde, y así pasó con los primeros intentos de
-Cocito y Tormento, que salieron a 9 y 14. Todas pasan 4,5 para escribir en sus
+Lamento y Tormento, que salieron a 9 y 14. Todas pasan 4,5 para escribir en sus
 dos caras.
 
 **La letra también es suya.** Catedral llevaba la gótica y ahora CelestiByte. Silkscreen para

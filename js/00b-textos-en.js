@@ -3891,6 +3891,12 @@ const TEXTOS_EN = {
   "Hueso": "Bone",
   "Hierro": "Iron",
   "Espectro": "Specter",
+  "Alabastro": "Alabaster",
+  "Bronce": "Bronze",
+  "Sangre": "Blood",
+  "Lamento": "Lament",
+  "Plaga": "Plague",
+  "Tormento": "Torment",
 
   /* ---- La tanda que faltaba (0.7.138) ----
      Salieron de cruzar cada `tx()` y cada `T` del código contra este archivo,

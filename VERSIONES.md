@@ -247,6 +247,17 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.143.7 · 29 sep 2026
+
+**Averno: Cocito y Ponzoña pasan a llamarse Lamento y Plaga.** Eduardo: «no le
+pega nada ese nombre». Con Sangre y Tormento queda una serie de estados del
+infierno. Cambia solo el nombre que se ve: los id (`cocito`, `ponzona`) se
+quedan, porque es lo que cada dispositivo guardó, y quien ya tenía una de las
+dos la sigue teniendo.
+
+Y las paletas de Averno y dos de Catedral (Alabastro y Bronce) no tenían su
+nombre en inglés: salían en español con la app en inglés. Ya lo tienen.
+
 ### 0.7.143.6 · 29 sep 2026
 
 **Catedral: la racha se lee, y en el menú ya no es un clon de Averno.** Lo pidió

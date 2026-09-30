@@ -18,7 +18,7 @@ escuadras, chevrones, manchas de sangre y círculos, y «hay cosas que no
 coinciden».
 
 Aquí:
-  - `paletas.py`   las cuatro paletas propias (Sangre, Cocito, Ponzoña y
+  - `paletas.py`   las cuatro paletas propias (Sangre, Lamento, Plaga y
                    Tormento), en sus dos caras;
   - `piezas.py`    las piezas de píxel, horneadas por paleta y por cara;
   - `material.css` el material, escrito a mano.
