@@ -829,6 +829,13 @@ const TUTO_PASOS = [
     pie: "Un proyecto que lleva semanas quieto te lo dirá, sin regañarte."
   },
   {
+    /* Llega en el nivel 4 (0.7.147.6). Sin esta tarjeta el módulo se abría y
+       nadie lo presentaba: `quizaPresentarModulo` la busca por `modulo`. */
+    modulo: "jornada", icon: "target", color: "#ff8a70", titulo: "Pomodoro",
+    tx: "Tu día en una <b>rueda</b>: tramos de enfoque con su descanso, y la rutina de cada día acomodada alrededor.",
+    pie: "No hace falta armar el día entero: con un tramo ya lo estás usando."
+  },
+  {
     modulo: null, icon: "compass", color: "#5fe0b0", titulo: "Y todo se conecta",
     /* Igual que la portada: nombraba «un talento logrado o una etapa de
        proyecto» a alguien que todavía no tiene ni Talentos ni Proyectos. */
@@ -1848,7 +1855,11 @@ function seccionesAjustes() {
      los módulos y no decía nada de esto. */
   if (typeof esAdmin !== "undefined" && esAdmin) {
     secs.push({
-      id: "admin", nombre: tx("Norata por dentro"), icon: "chart", tono: "oro",
+      /* `trastienda` y no `oro` desde la 0.7.147.6: en la casa se ven igual,
+         pero dentro de un mundo el oro sigue siendo un aviso —el plan que se
+         acaba— y la trastienda pasa a la tinta del mundo (ver el bloque «El
+         menú dentro de un mundo» de `mundos/app.py`). */
+      id: "admin", nombre: tx("Norata por dentro"), icon: "chart", tono: "trastienda",
       sub: tx("El modo de pruebas, cuánta gente la usa y lo que se rompe")
     });
   }

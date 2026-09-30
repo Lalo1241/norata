@@ -265,6 +265,8 @@ const EXP_ESCALERA = [
      son los dibujos de esos módulos en ninguna parte de la app. El de verdad lo
      saca `trazoDeModulo()` del propio botón de la barra — un dibujo, un sitio. */
   { nivel: 0,  tipo: "modulo", id: "tree",     nombre: "Tus ramas", corto: "Ramas",  listo: true },
+  /* El Pomodoro, desde la 0.7.147.6: el tercer módulo que llega por el camino. */
+  { nivel: 0,  tipo: "modulo", id: "jornada",  nombre: "El Pomodoro", corto: "Pomodoro", listo: true },
   /* Desde la 0.7.145 no es un módulo aparte: abre la segunda clase de rama
      dentro de Ramas, y por eso su tarjeta no dice «Módulo nuevo». */
   { nivel: 0,  tipo: "modulo", id: "projects", nombre: "Ramas de proyecto", corto: "Ramas de proyecto", quees: "Nuevo en Ramas", listo: true },

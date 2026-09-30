@@ -914,6 +914,33 @@ if __name__ == "__main__":
                   "   reglas de `.side-brand` en `css/estilos.css`; el porqué, junto a\n"
                   "   `--marca-iso`. Generado desde `mundos/iconos/generar.py`. */\n"
                   + "".join(ICONOS.marca_css(m["id"]) for m in listos))
+    # ---- El menú dentro de un mundo (0.7.147.6) ----
+    # Las casillas de icono de Ajustes y del menú de la cuenta llevan un tono
+    # por fila, y dos de esos tonos son de la CASA: el lila de Fundador y el
+    # amarillo de «Norata por dentro». Dentro de un mundo se leían como piezas
+    # de otra app —un lila y un oliva al lado de la sangre de Averno—, y
+    # Eduardo lo pidió con esas palabras: que los iconos también se adapten.
+    #
+    # Lo que se queda: el oro del plan que se acaba y el coral del recibo
+    # impago, porque esos son AVISOS y un aviso dice lo mismo en cualquier
+    # mundo (la misma regla que `--estado-*`, más abajo). Lo que se va:
+    #   Fundador    no avisa de nada, es tu plan → el acento del mundo
+    #   trastienda  tiene que separarse de lo tuyo, pero no es un aviso →
+    #               la tinta secundaria del mundo, el hueso de Averno
+    # Un solo bloque con el nombre de cada mundo dentro: el que entre mañana
+    # lo hereda sin que nadie se acuerde de venir aquí. La FORMA de la casilla
+    # (el rombo de Averno, la esquina de Catedral) sí es de cada material.
+    mun = ":is(%s)" % ", ".join('html[data-apariencia="%s"]' % m["id"] for m in listos)
+    partes.append("\n".join([
+        "/* El menú dentro de un mundo (0.7.147.6): el lila y el amarillo de la casa",
+        "   pasan al acento y a la tinta del mundo. Generado desde `mundos/app.py`. */",
+        mun + " :is(.aj-item, .mm-item).t-lila :is(.aj-ic, .mm-ic), " + mun + " .mm-plan.t-lila { background: var(--mint-soft); color: var(--mint); }",
+        mun + " .aj-item.t-lila.on { border-color: var(--mint); }",
+        mun + " .mm-item.t-lila:is(:hover, :focus-visible) .mm-ic { background: var(--mint-macizo); color: var(--sobre-macizo); }",
+        mun + " :is(.aj-item, .mm-item).t-trastienda :is(.aj-ic, .mm-ic) { background: color-mix(in srgb, var(--muted) 16%, transparent); color: var(--muted); }",
+        mun + " .aj-item.t-trastienda.on { border-color: var(--muted); }",
+        mun + " .mm-item.t-trastienda:is(:hover, :focus-visible) .mm-ic { background: var(--muted); color: var(--card); }",
+        ""]))
     txt = "\n".join(partes)
     # ---- Las paletas de Blueprint y Reliquia (0.7.147) ----
     # Los dos salen del bloque genérico con una sola paleta; la regla de

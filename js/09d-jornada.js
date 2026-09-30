@@ -87,7 +87,11 @@ const J_DESCANSOS = {
   traslado: { nombre: "Traslado", fase: "En camino",      icono: '<path d="M5.5 16.5V8a3 3 0 013-3h7a3 3 0 013 3v8.5M5.5 12h13M5.5 16.5h13M7.5 16.5V19M16.5 16.5V19"/>' }
 };
 
-function jornadaEncendida() { return typeof moduloOn === "function" ? moduloOn("jornada") : true; }
+/* `moduloUsable` y no `moduloOn` desde que el Pomodoro llega por nivel
+   (0.7.147.6): con el candado puesto no corre el reloj, no sale la píldora y
+   no se siembran datos — que es lo que deja a `moduloConCosas` distinguir a
+   quien de verdad lo usó. */
+function jornadaEncendida() { return typeof moduloUsable === "function" ? moduloUsable("jornada") : true; }
 
 /* La marca de la 0.7.101-0.7.102 pasa al sistema de todos los módulos: quien
    lo había APAGADO a propósito lo sigue teniendo apagado; a los demás no se

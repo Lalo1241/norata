@@ -1110,7 +1110,12 @@ const MODULOS = [
    —congelar, nunca quitar—: quien ya tiene talentos los ve, tenga el nivel que
    tenga. Sin eso, publicar esto le habría escondido el árbol a todo el que
    ya lo estaba usando, que es exactamente el fallo que nadie perdona. */
-const MODULO_NIVEL = { tree: 3, projects: 5 };
+/* El Pomodoro entró en la escalera en la 0.7.147.6 (Eduardo: «bloqueado por
+   nivel, así como estuvo Proyectos»). En el 4, entre Ramas y las ramas de
+   proyecto: es la herramienta más suelta de las tres —no pide entender nada
+   de lo demás—, pero sigue siendo un vocabulario más (tramos, rutina,
+   hiperfoco) que el primer día no hace falta. */
+const MODULO_NIVEL = { tree: 3, jornada: 4, projects: 5 };
 
 /* Lo que hay dentro de un módulo, para la regla de arriba. Se mira la
    colección y no una marca guardada: un respaldo importado, el ejemplo
@@ -1123,6 +1128,15 @@ function moduloConCosas(id) {
   if (id === "projects") {
     const c = (state.ui && state.ui.ramaClase) || {};
     return Object.keys(c).some(b => c[b] === "proyecto");
+  }
+  /* El Pomodoro NO se mira por `state.jornada`: `jPaso` lo sembraba cada
+     cuarto de segundo para todo el que tuviera el módulo encendido, así que
+     existe en casi todos los perfiles aunque nadie haya usado el Pomodoro.
+     Cuenta lo que solo deja quien lo usó: un tramo apuntado, uno corriendo o
+     el modo dormir puesto. */
+  if (id === "jornada") {
+    const j = state.jornada;
+    return !!(j && ((Array.isArray(j.registro) && j.registro.length) || j.run || j.dormido));
   }
   return true;
 }
@@ -1697,6 +1711,10 @@ function aplicarModulos() {
   /* Con la Jornada la barra del teléfono lleva seis círculos y hay que
      apretarlos para que quepan (css/jornada.css). */
   document.documentElement.classList.toggle("con-jornada", moduloOn("jornada"));
+  /* El Pomodoro puede estar encendido y con candado a la vez (0.7.147.6). La
+     barra le guarda el hueco igual —el candado se queda a la vista—, y lo que
+     no debe correr cerrado lo para `jornadaEncendida()`, que pregunta por las
+     dos cosas. */
 }
 
 function setModulo(id, on) {

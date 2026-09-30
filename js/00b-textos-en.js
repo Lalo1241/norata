@@ -1702,6 +1702,11 @@ const TEXTOS_EN = {
     "The <b>projects</b> you take on: things you build in stages, with a beginning and an end. The app measures your pace and tells you which ones are still alive.",
   "Un proyecto que lleva semanas quieto te lo dirá, sin regañarte.":
     "A project that's been still for weeks will tell you, without scolding you.",
+  "Tu día en una <b>rueda</b>: tramos de enfoque con su descanso, y la rutina de cada día acomodada alrededor.":
+    "Your day on a <b>wheel</b>: focus stretches with their breaks, and each day's routine arranged around them.",
+  "No hace falta armar el día entero: con un tramo ya lo estás usando.":
+    "No need to plan the whole day: one stretch and you're already using it.",
+  "El Pomodoro": "The Pomodoro",
   "Y todo se conecta": "And it all connects",
   "Una misión cumplida, un talento logrado o una etapa de proyecto terminan en el mismo sitio: <b>XP para tus habilidades</b>.":
     "A mission completed, a talent achieved or a project stage all end up in the same place: <b>XP for your skills</b>.",

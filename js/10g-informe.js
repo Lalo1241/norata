@@ -57,7 +57,7 @@ function volverDeInforme() {
 /* De qué MÓDULO habla cada rama del informe. Existe para el candado del nivel:
    sin esta tabla habría que adivinarlo del `id`, y «habilidades» no se llama
    igual que su módulo, que es `home`. */
-const INFORME_MODULO = { misiones: "missions", habilidades: "home", talentos: "tree", proyectos: "projects" };
+const INFORME_MODULO = { misiones: "missions", habilidades: "home", talentos: "tree", proyectos: "projects", pomodoro: "jornada" };
 
 /* ¿Está cerrada por NIVEL? Es distinto de estar cerrada por plan, y las dos
    puertas se preguntan en este orden —primero el nivel, que se gana; después

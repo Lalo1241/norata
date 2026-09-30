@@ -3952,11 +3952,11 @@
      a secas es una palabra que cualquiera puede usar mañana para otra cosa en
      otro sitio del CSS, y estas clases las escribe JavaScript pegando un
      trozo de texto. */
-  .aj-item.t-oro .aj-ic { background: var(--fire-soft); color: var(--fire); }
+  .aj-item:is(.t-oro, .t-trastienda) .aj-ic { background: var(--fire-soft); color: var(--fire); }
   .aj-item.t-lila .aj-ic { background: var(--lila-soft); color: var(--lila); }
   .aj-item.t-coral .aj-ic { background: var(--coral-soft); color: var(--coral); }
   .aj-item.on { border-color: var(--mint); background: var(--sup-tarjeta2); }
-  .aj-item.t-oro.on { border-color: var(--fire); }
+  .aj-item:is(.t-oro, .t-trastienda).on { border-color: var(--fire); }
   .aj-item.t-lila.on { border-color: var(--lila); }
   .aj-item.t-coral.on { border-color: var(--coral); }
 
@@ -4269,7 +4269,7 @@
     background: var(--mint-soft);
     color: var(--mint);
   }
-  .mm-item.t-oro .mm-ic { background: var(--fire-soft); color: var(--fire); }
+  .mm-item:is(.t-oro, .t-trastienda) .mm-ic { background: var(--fire-soft); color: var(--fire); }
   .mm-item.t-lila .mm-ic { background: var(--lila-soft); color: var(--lila); }
   .mm-item.t-coral .mm-ic { background: var(--coral-soft); color: var(--coral); }
 
@@ -4297,8 +4297,8 @@
     background: var(--mint-macizo);
     color: var(--sobre-macizo);
   }
-  .mm-item.t-oro:hover .mm-ic,
-  .mm-item.t-oro:focus-visible .mm-ic {
+  .mm-item:is(.t-oro, .t-trastienda):hover .mm-ic,
+  .mm-item:is(.t-oro, .t-trastienda):focus-visible .mm-ic {
     background: var(--fire-macizo);
     color: var(--sobre-vivo);
   }
