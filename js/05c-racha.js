@@ -347,6 +347,23 @@ function pintarArteRacha() {
   arte.innerHTML = `<svg class="rt-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">${dibujoDeRacha(W, H, Z, t)}</svg>`;
   if (typeof vestirFondoRacha === "function") vestirFondoRacha(arte.closest(".rt-card"));
 }
+/* Si la apariencia cambia con la tarjeta ya pintada, la tarjeta se rehace
+   (0.7.143.2). El objeto se decide al pintar (`temaRacha`), y la apariencia
+   puede llegar después: al volver del servidor, al elegir otra en Ajustes o
+   con Arcade. Sin esto se quedaba la fogata puesta en un mundo que tiene su
+   propio objeto hasta volver a entrar al Resumen. */
+function rehacerRachaSiCambio() {
+  const tarjeta = document.querySelector('#summary-content .widget[data-w="racha"] .rt-card');
+  const arte = tarjeta && tarjeta.querySelector(".rt-arte");
+  if (!arte || arte.dataset.tema === temaRacha()) return;
+  tarjeta.outerHTML = cuerpoRacha();
+  pintarArteRacha();
+}
+try {
+  new MutationObserver(() => setTimeout(rehacerRachaSiCambio, 0))
+    .observe(document.documentElement, { attributes: true, attributeFilter: ["data-apariencia", "data-material"] });
+} catch (e) { /* sin observador: se rehace al volver al Resumen, como antes */ }
+
 let _redimRacha = null;
 window.addEventListener("resize", () => { clearTimeout(_redimRacha); _redimRacha = setTimeout(pintarArteRacha, 150); });
 

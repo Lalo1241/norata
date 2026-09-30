@@ -247,6 +247,38 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.143.2 · 29 sep 2026
+
+**Tu mundo ya no se cae a la casa al abrir, y la racha lo sigue.** Eduardo:
+«muchas veces me sale la versión de base» y «aparece el diseño de la fogata
+más a menudo de lo que debería». Eran dos fallos que se veían juntos:
+
+- **La apariencia se revisaba antes de que llegara el plan.** Al terminar la
+  sincronía, `refrescarApariencia` preguntaba si el mundo seguía siendo tuyo;
+  si el plan todavía no había contestado, `PLAN` era el «libre» de partida, un
+  mundo de Pro no pasaba y la app lo bajaba a la casa. Cuando el plan llegaba,
+  nadie volvía a preguntar (`planCargar` solo repintaba), así que te quedabas
+  en la casa toda la sesión. Ahora `planCargar` vuelve a revisar al contestar
+  el servidor, y **ante la duda se queda lo que elegiste**: mientras el plan no
+  haya contestado (`PLAN_CONFIRMADO`), un «no puedes» no quita nada. Congelar,
+  nunca quitar, también aquí.
+- **La tarjeta de la racha no se enteraba del cambio.** El objeto se decide al
+  pintarla, y si la apariencia llegaba después se quedaba la fogata hasta
+  volver a entrar al Resumen. Ahora un observador sobre `data-apariencia` y
+  `data-material` la rehace sola (`rehacerRachaSiCambio`). Medido: pintada en
+  la casa, cambiar a Reliquia la rehace con el astrolabio al instante.
+
+**El sello de Averno vuelve al marco de la 0.7.143**, que es el que gustaba:
+el mismo tamaño, un aro fino y otro más fino por dentro, y rombos chicos. La
+0.7.143.1 lo había engordado y agrandado, y perdió el encanto. Lo que se queda
+es la NITIDEZ, que era lo que se pedía: se mide con aquella rejilla y se dibuja
+en una el doble de fina, así que los bordes bajan en escalones pequeños. Va un
+poco más abajo (24 px de aire sobre la «D») y encoge lo justo si no cabe:
+medido, 12 px sobre la franja en el teléfono y 16 en la PC, y en «Tu racha»
+todo dentro de la escena.
+
+**Las fechas de «Semanas de antes», a 12,5 px** (antes 11), sin pisarse a 390.
+
 ### 0.7.143.1 · 29 sep 2026
 
 **El sello de Averno, más fino y más legible.** Eduardo, viéndolo en vivo:

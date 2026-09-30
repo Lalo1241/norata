@@ -12869,7 +12869,8 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .rt-franja-tit { font: 800 10.5px var(--tipo-cifra, inherit); letter-spacing: .08em; text-transform: uppercase; fill: rgba(var(--escena-tinta), .8); text-anchor: middle; }
   .rt-ficha-n { font: 800 13px var(--tipo-cifra, inherit); fill: rgb(var(--escena-tinta)); text-anchor: middle; }
   .rt-ficha-n.oscuro { fill: var(--sobre-macizo); }
-  .rt-rango { font: 700 11px var(--tipo-cifra, inherit); fill: rgba(var(--escena-tinta), .88); text-anchor: middle; }
+  /* Las fechas de las semanas, a 12,5 px: a 11 se perdían (Eduardo, 0.7.143.2) */
+  .rt-rango { font: 700 12.5px var(--tipo-cifra, inherit); fill: rgba(var(--escena-tinta), .88); text-anchor: middle; }
   .rt-ficha { fill: rgba(var(--escena-tinta), .08); stroke: rgba(var(--escena-tinta), .5); stroke-width: 1.2; }
   .rt-ficha.si { fill: var(--fire); stroke: none; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--fire) 70%, transparent)); }
   .t-plano .rt-ficha.si, .t-reliquia .rt-ficha.si { fill: var(--mint); filter: none; }
