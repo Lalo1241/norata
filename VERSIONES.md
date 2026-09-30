@@ -262,6 +262,8 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
   «Plegar todas». La regla va ahora solo a los hijos directos, las pastillas
   usan `--r-pastilla` (rectas en los mundos de píxel) y el elegido tiene la
   misma cara que el Mapa | Lista de cada tarjeta.
+- **La cuenta «4 de 10» va en neutro.** Salía en el acento del mundo, y en
+  Averno el rojo se leía como fallado; es una cuenta, no un estado.
 - **La pista de arriba se despega del panel** (14 px) y va en el celeste de
   aviso con su «i», para que se lea como una nota que se cierra y no como una
   fila más del panel.

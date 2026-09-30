@@ -5659,11 +5659,14 @@
     margin-bottom: 10px;
   }
   .branch-head h3 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; }
+  /* Neutra y no en el acento (0.7.146.3, Eduardo): es una cuenta, no un
+     estado, y el acento cambia con el mundo — en Averno «0 de 4» salía rojo,
+     que se lee como fallado. */
   .branch-head .count {
     font-size: 11px;
     font-weight: 800;
-    color: var(--mint);
-    background: var(--mint-soft);
+    color: var(--muted);
+    background: color-mix(in srgb, var(--text) 8%, transparent);
     border-radius: var(--r-pastilla);
     padding: 3px 10px;
     white-space: nowrap;
