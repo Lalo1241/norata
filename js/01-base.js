@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.146.1";
+const VERSION = "0.7.146.2";
 const VERSION_FECHA = "30 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -510,8 +510,10 @@ function logotipoSrc() {
      1. Pantalla de carga, y NUNCA menos de `CAMBIO_MINIMO`: el mundo nuevo
         tiene que bajar su hoja de estilos y quedar guardado.
      2. Se recarga, y la app sale ya entera con el mundo nuevo.
-     3. Un aviso encima dice que falta el icono, y al aceptarlo se reinicia
-        (`revisarIconoPedido`, en js/13-nativo.js).
+     3. Un aviso que no se puede saltar, con una cuenta de 10 s; al pulsar o
+        al llegar a cero se reinicia (`revisarIconoPedido`, en
+        js/13-nativo.js, y el aviso es `avisarRenacer`, en
+        js/10i-apariencia.js).
 
    La primera versión reiniciaba DENTRO del paso 1, a los 0,3 s, y el mundo se
    quedaba a medias: el cambio se veía un instante, la app se cerraba y volvía

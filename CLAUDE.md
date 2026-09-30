@@ -79,10 +79,13 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   complemento nuevo). Los pasos están en `LEEME.md` de esa carpeta.
 - **El icono de la pantalla de inicio sigue al mundo (0.7.145), y solo en el
   APK.** Elegir un mundo o Arcade tapa con la carga (2,5 s mínimo), recarga
-  ya con el mundo puesto, avisa, y al aceptar reinicia la app con su icono
+  ya con el mundo puesto, avisa (`avisarRenacer`: sin saltarse, cuenta de
+  10 s) y reinicia la app con su icono
   (`recargarApp` → `revisarIconoPedido` → el complemento `IconoNorata`). **No
   se reinicia antes de ese aviso**: el WebView escribe `localStorage` al disco
-  segundos después, y reiniciar pronto dejaba el mundo a medias (0.7.146.1). Lo
+  segundos después, y reiniciar pronto dejaba el mundo a medias (0.7.146.1).
+  El mismo instalador deja la pantalla de arranque de Android sin icono: el
+  sistema ponía el de siempre en medio al abrir, y rompía la entrada. Lo
   nativo —el complemento, los dieciocho iconos y el trozo de manifiesto— lo
   genera `mundos/iconos/android.js` y se copia a mano a esa carpeta con los
   pasos de `mundos/iconos/android/LEEME.md`. Un APK sin él cambia de mundo

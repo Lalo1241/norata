@@ -1682,6 +1682,70 @@ function cambiarTapado(id) {
   }, 200);
 }
 
+/* El aviso antes de reiniciar el APK para cambiar el icono (0.7.146.2).
+
+   Lo pide `revisarIconoPedido` (js/13-nativo.js) con la app ya en el mundo
+   nuevo. Tres decisiones de Eduardo, al ver la primera versión en su
+   teléfono:
+
+   - **No se explica.** «Para que el icono cambie, la app se reinicia» sonaba
+     a «¿en serio reinicias por eso?». El texto insinúa —algo de lo que
+     elegiste vive fuera de la app— y deja que la pantalla de inicio conteste
+     sola al salir.
+   - **No se puede saltar.** Sin cancelar, sin clic fuera, y con una cuenta de
+     10 segundos que reinicia sola: un icono a medio cambiar es peor que
+     esperar. Si la app se cierra antes (el botón de atrás), el pedido sigue
+     apuntado y el aviso vuelve al abrir.
+   - **Va con el diseño.** Nada de coral de alarma: el tono menta de los
+     cuadros normales —en un mundo es su acento—, y en vez de un icono de
+     catálogo, la pieza del propio mundo (la de `--marca-pieza`, la misma del
+     menú) dentro de un aro que se vacía con la cuenta.
+
+   Devuelve una promesa que se cumple cuando toca reiniciar: al pulsar o al
+   llegar a cero, lo que pase antes. */
+const RENACER_SEGUNDOS = 10;
+function avisarRenacer() {
+  const r = 44, vuelta = 2 * Math.PI * r;
+  const iso = '<svg viewBox="0 0 250 250" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M224.919,110.004h-5.319c-2.476,0-4.487-2.011-4.487-4.487V25.081c0-4.947-4.027-8.973-8.973-8.973h-87.162c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487H31.811c-8.658,0-15.703,7.046-15.703,15.703v80.436c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v80.432c0,4.947,4.027,8.973,8.973,8.973h87.166c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h55.755c18.556,0,33.65-15.094,33.65-33.65v-62.485c0-4.947-4.027-8.973-8.973-8.973ZM55.91,128.783h-5.319c-2.476,0-4.487-2.011-4.487-4.487v-54.927c0-2.476,2.011-4.487,4.487-4.487h61.657c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h54.923c2.476,0,4.487,2.011,4.487,4.487v61.657c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v45.949c0,7.422-6.038,13.46-13.46,13.46h-52.679c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487h-54.927c-2.476,0-4.487-2.011-4.487-4.487v-61.653c0-4.947-4.027-8.973-8.973-8.973Z"/></svg>';
+  const cuerpo =
+    '<span class="renace-aro">' +
+      '<svg viewBox="0 0 100 100" aria-hidden="true"><circle class="pista" cx="50" cy="50" r="' + r + '"/>' +
+      '<circle class="lleno" id="renace-lleno" cx="50" cy="50" r="' + r + '" stroke-dasharray="' + vuelta.toFixed(2) + '" stroke-dashoffset="0"/></svg>' +
+      '<span class="renace-pieza">' + iso + '</span>' +
+    '</span>' +
+    '<span class="renace-tx">' + escapeHtml(tx("Una parte de lo que elegiste vive fuera de la app. Norata se cierra un instante para llevarla a su lugar. Cuando salgas, búscala.")) + '</span>' +
+    '<span class="renace-cuenta" id="renace-cuenta"></span>';
+  let listo = false, reloj = null;
+  const fin = new Promise((resolver) => {
+    const acabar = () => {
+      if (listo) return;
+      listo = true;
+      clearInterval(reloj);
+      if (typeof modalDone === "function") modalDone(true);
+      resolver();
+    };
+    askBase(cuerpo, true, tx("Llévala ya"), false, false, null,
+            { fijo: true, soloOk: true, tono: "menta", clase: "renace", titulo: tx("Esto no se queda aquí adentro") })
+      .then(acabar);
+    /* Por reloj y no con una transición de CSS: una transición puede no
+       avanzar (ver «Cómo verificar» en CLAUDE.md), y aquí el aro ES la cuenta.
+       Se pinta cada décima para que el aro baje suave y el número salte al
+       segundo. */
+    const empezo = Date.now(), total = RENACER_SEGUNDOS * 1000;
+    const pintar = () => {
+      const pasado = Math.min(total, Date.now() - empezo);
+      const lleno = document.getElementById("renace-lleno");
+      const cuenta = document.getElementById("renace-cuenta");
+      if (lleno) lleno.setAttribute("stroke-dashoffset", (vuelta * pasado / total).toFixed(2));
+      if (cuenta) cuenta.textContent = T`Se cierra en ${Math.ceil((total - pasado) / 1000)}`;
+      if (pasado >= total) acabar();
+    };
+    pintar();
+    reloj = setInterval(pintar, 100);
+  });
+  return fin;
+}
+
 /* Desde la tarjeta del Resumen: lleva a Ajustes con la sección ya abierta. Es
    el único camino corto que hay a lo que se acaba de desbloquear, y sin él la
    tarjeta anuncia un premio sin decir dónde se recoge. */

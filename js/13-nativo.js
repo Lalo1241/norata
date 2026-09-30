@@ -93,7 +93,7 @@
       (function mirar() {
         const modal = document.getElementById("modal");
         const lista = typeof cargaVisible === "function" && !cargaVisible() &&
-                      !(modal && modal.classList.contains("show")) && typeof avisar === "function";
+                      !(modal && modal.classList.contains("show")) && typeof avisarRenacer === "function";
         if (lista) hacer();
         else if (Date.now() < tope) setTimeout(mirar, 300);
       })();
@@ -112,10 +112,7 @@
           /* Ya es ese: pasa después del reinicio, o si el mundo no se quedó.
              Nada que avisar. */
           if (r && r.icono === id) { olvidarPedido(); return; }
-          return avisar(
-            tx("El cambio ya está hecho. Para que el icono de Norata en tu pantalla de inicio también cambie, la app se reinicia un momento. Todo lo tuyo se queda como está."),
-            "paleta", tx("Aceptar"), tx("Falta el icono")
-          ).then(() => {
+          return avisarRenacer().then(() => {
             /* Se olvida ANTES de reiniciar: si no, la app volvería a preguntar
                al abrir. Y si el disco no alcanzó a guardarlo, al abrir ya
                coincide el icono y se olvida sin avisar (arriba). */
