@@ -579,7 +579,7 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
   nota="Esta entrada no genera el CSS de la app: lo genera `mundos/catedral/catedral.py`, porque Catedral trae cuatro paletas y un material propio que el vocabulario `--m-*` no alcanza a decir. Aquí se queda con los tonos de Vitral, la paleta de partida, para la lámina y para la muestra del catálogo.",
   # Vitral, la paleta de partida. La fuente de verdad es mundos/catedral/paletas.py:
   # si se toca un tono allí, se copia aquí para que la muestra no discrepe.
-  tokens={"--m-pagina":"#07080f",
+  tokens={"--m-pagina":"#07080f","--m-muestra":"#8c86ff",
    "--m-tarjeta":"#191a2c","--m-borde":"2px","--m-borde-color":"#4a4d78",
    "--m-sombra":"inset 0 2px 0 #3b3d63",
    "--m-r-tarjeta":"0px","--m-r-mini":"0px","--m-r-barra":"0px","--m-r-chip":"0px",
@@ -592,7 +592,7 @@ SELECTOR .ncel.show .ncel-rango.nuevo::before { animation: plano-marca .62s var(
    "--m-cifra":'"Jersey 10","Outfit",system-ui,sans-serif',"--m-cifra-peso":"400","--m-cifra-esp":"0",
    "--m-chip-fuente":'"Outfit",system-ui,sans-serif',"--m-chip-esp":"0",
    "--m-dur":".3s","--m-curva":"steps(4, end)"},
-  dia={"--m-pagina":"#dfdde9",
+  dia={"--m-pagina":"#dfdde9","--m-muestra":"#3d33c4",
    "--m-tarjeta":"#f4f2f8","--m-borde-color":"#8e8aab",
    "--m-sombra":"inset 0 2px 0 rgba(255,255,255,.9)",
    "--m-tinta":"#15142a","--m-tinta-2":"#4c4868",

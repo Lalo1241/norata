@@ -1957,6 +1957,18 @@
     color: var(--mu-acento, var(--lila));
   }
   .mun-ic svg { width: 20px; height: 20px; stroke-width: 1.6; }
+  /* Averno y Catedral eran clónicos en esta lista —el mismo rojo, la misma
+     casilla, dos iconos redondos— y Eduardo pidió que se distinguieran en
+     color y en diseño. El color lo pone su muestra (Catedral va en el índigo
+     de su vitral, `--m-muestra` en mundos/datos.py); la figura, la de cada
+     mundo: el ROMBO de Averno y la LOSA de esquina labrada de Catedral, las
+     mismas de su menú. */
+  .mues-averno .mun-ic { border-radius: 0; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); width: 42px; height: 42px; margin: -2px; }
+  .mues-catedral .mun-ic {
+    border-radius: 0;
+    clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 2px 4px, 2px 2px, 4px 2px);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--mu-acento) 45%, transparent);
+  }
   .mun-tx { min-width: 0; flex: 1; }
   .mun-tx b { display: block; font-size: 14px; font-weight: 700; }
   .mun-tx > span {
@@ -13156,6 +13168,18 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .fc-llama.f2 { fill: var(--fire); }
   .fc-llama.f3 { fill: rgb(var(--escena-tinta)); }
   .t-catedral .rt-ficha-n.oscuro { fill: var(--bg); }
+  /* Las letras y los números de la racha de Catedral, en su letra de títulos
+     (Pixelify) y no en la de las cifras. La de las cifras (Jersey 10) es
+     estrecha a propósito, y a 10-13 px dentro de una vela o bajo un brazo de
+     hierro «se ve demasiado compactada» (Eduardo, 0.7.143.3). Las letras de los
+     días llevan además un contorno del color del fondo, como las del sello de
+     Averno: la de en medio cae sobre el fuste del candelabro y sin él no se
+     leía. */
+  .t-catedral :is(.rt-ficha-n, .rt-rango, .rt-franja-tit, .rt-rot) { font-family: var(--tipo-titulo); font-weight: 600; }
+  .t-catedral .rt-ficha-n { font-size: 15px; letter-spacing: .02em; }
+  .t-catedral .rt-rango { font-size: 12px; letter-spacing: .02em; }
+  .t-catedral .rt-rot.cand-dia { font-size: 14px; letter-spacing: 0; fill: rgb(var(--escena-tinta)); paint-order: stroke; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round; }
+  .t-catedral .rt-rot.cand-dia.fuerte { fill: var(--fire); }
 
   /* Blueprint · la torre: muchas líneas, más finas que las siete de antes */
   .pl-trazo.torre { stroke-width: 1.7; }

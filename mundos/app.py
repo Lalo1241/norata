@@ -332,7 +332,10 @@ def muestra(m):
         if dia and m.get("dia"): t.update(m["dia"])
         fondo = plano_o_muere(t["--m-pagina"], "--m-pagina", m["id"])[-1]
         tarj = plano_o_muere(t["--m-tarjeta"], "--m-tarjeta", m["id"])[0]
-        return (fondo, tarj, t["--m-acento"])
+        # `--m-muestra` es el color con que el mundo se enseña en la lista de
+        # Mi apariencia, cuando no es su acento: Catedral y Averno comparten el
+        # rojo, y en la lista salían clónicos. Sin él, manda el acento.
+        return (fondo, tarj, t.get("--m-muestra", t["--m-acento"]))
     n = toma(False); d = toma(True)
     return ('.mues-%s { --mu-bg: %s; --mu-card: %s; --mu-acento: %s; }\n'
             'html.claro .mues-%s { --mu-bg: %s; --mu-card: %s; --mu-acento: %s; }'

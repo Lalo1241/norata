@@ -247,6 +247,25 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.143.3 · 29 sep 2026
+
+**Catedral: la racha se lee, y en el menú ya no es un clon de Averno.** Lo pidió
+Eduardo mirándolo en vivo.
+
+- **Las letras del candelabro** («no se leen a duras penas, sobre todo la que
+  choca con el soporte»): iban a 11 px en la letra de las cifras, y la vela de
+  en medio cae justo encima del fuste. Ahora van en Pixelify a 14 px con un
+  contorno del color del fondo, como las del sello de Averno, y se leen encima
+  del hierro.
+- **El brazo del candelabro** medía un píxel menos por la derecha y el rombo de
+  ese lado se quedaba flotando. Ahora es simétrico.
+- **Las velas de «Semanas de antes»** («demasiado compactadas»): la vela es
+  más ancha, y su número y sus fechas pasan a Pixelify.
+- **Averno y Catedral en Mi apariencia**, que salían iguales (el mismo rojo, la
+  misma casilla): Catedral se enseña en el índigo de su vitral, con un token
+  nuevo, `--m-muestra`, en `mundos/datos.py`, y cada uno lleva su figura: el
+  rombo de Averno y la losa de Catedral.
+
 ### 0.7.143.2 · 29 sep 2026
 
 **Tu mundo ya no se cae a la casa al abrir, y la racha lo sigue.** Eduardo:
