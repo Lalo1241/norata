@@ -301,6 +301,13 @@
        robar atención. Un punto de orientación tiene que estar cuando lo buscas
        y no antes. */
     --lienzo-punto: rgba(139, 153, 165, 0.055);
+    /* La TRAMA del lienzo (los puntos), como variable y no escrita dentro de
+       `.const-wrap`: la usan el lienzo y la tarjeta de una rama entera, que
+       desde 0.7.143.5 lleva los puntos también debajo del título y de la
+       ayuda. Un mundo que quiera otra trama redefine ESTA variable, no el
+       fondo del lienzo — así no hay dos sitios que tocar. Lleva su posición
+       y su tamaño dentro, porque cada mundo usa otra rejilla. */
+    --lienzo-trama: radial-gradient(circle at 1px 1px, var(--lienzo-punto) 1px, transparent 1.6px) 0 0 / 26px 26px;
     /* ---------- El suelo HONDO ----------
        El fondo de las superficies GRANDES: el lienzo de un mapa, la tarjeta de
        una rama y las columnas del tablero de misiones. Una superficie que se
@@ -5355,6 +5362,28 @@
   }
   .branch-card.rama-activa::after { opacity: 1; }
 
+  /* ---- La tarjeta de una rama con mapa: una sola pieza, sin franjas ----
+     El título de arriba y la ayuda de abajo vivían FUERA del lienzo, sobre el
+     color liso de la tarjeta, y se veían como dos rectángulos planos que
+     cortaban la trama de puntos. Lo paró Eduardo (0.7.143.5): ahora la trama
+     cubre la tarjeta entera y, arriba y abajo, se DESVANECE hacia el suelo en
+     vez de cortarse. El lienzo de dentro se vuelve transparente para que no
+     haya dos tramas descuadradas en la costura.
+
+     `html body` delante no es adorno: los mundos con material pintan todas
+     las tarjetas con `html[data-apariencia] :is(… .branch-card …)`, que pesa
+     (0,2,1), y esta regla tiene que ganarles en TODOS los mundos. Solo toca
+     las tarjetas que tienen un lienzo dentro: una rama plegada o un proyecto
+     en lista se quedan como estaban. */
+  html body .branch-card:has(.const-wrap) {
+    background:
+      linear-gradient(to bottom, var(--sup-hondo) 0, transparent 88px),
+      linear-gradient(to top, var(--sup-hondo) 0, transparent 80px),
+      var(--lienzo-trama),
+      var(--sup-hondo);
+  }
+  .branch-card .const-wrap { background: transparent; }
+
   .branch-card .branch-head {
     display: flex;
     align-items: center;
@@ -5510,10 +5539,7 @@
        lienzo, una textura no es carácter, es suciedad — compite con lo único
        que hay que leer ahí, que son los nodos y los cables. Un mundo cambia
        el TONO de este suelo; no le pone dibujo encima. */
-    background:
-      radial-gradient(circle at 1px 1px, var(--lienzo-punto) 1px, transparent 1.6px),
-      var(--sup-hondo);
-    background-size: 26px 26px, auto;
+    background: var(--lienzo-trama), var(--sup-hondo);
     /* La letra del mapa se queda en Outfit pase lo que pase. Un mundo cambia
        `--tipo-titulo` y `--tipo-cifra`, no `--sans`, así que hoy ya sale así;
        esto lo deja escrito para que un mundo futuro no se lleve por delante

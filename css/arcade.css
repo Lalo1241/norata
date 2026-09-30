@@ -124,12 +124,9 @@ html[data-material="arcade"] :is(.count, .nod-etapas, .proj-state, .rc-d, #ncel-
    Las formas de los nodos no cambian: dicen qué es cada cosa. Cambian el
    suelo, los hilos (guiones de píxel, sin punta redonda) y el dibujo, que
    pierde el suavizado. */
-html[data-material="arcade"] .const-wrap {
-  background:
-    conic-gradient(at 2px 2px, transparent 75%, var(--lienzo-punto) 0),
-    conic-gradient(at 2px 2px, transparent 75%, var(--lienzo-punto) 0),
-    var(--sup-hondo);
-  background-size: 26px 26px, 26px 26px, auto;
+/* La trama va en la variable, que la usan el lienzo y la tarjeta de la rama (0.7.143.5). */
+html[data-material="arcade"] {
+  --lienzo-trama: conic-gradient(at 2px 2px, transparent 75%, var(--lienzo-punto) 0) 0 0 / 26px 26px;
 }
 html[data-material="arcade"] .const-wrap svg { shape-rendering: crispEdges; }
 html[data-material="arcade"] .const-wrap svg path[stroke-dasharray="6 7"] { stroke-dasharray: 4 4; stroke-linecap: butt; }

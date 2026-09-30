@@ -168,11 +168,11 @@ html[data-apariencia="catedral"] :is(.barra-viva, .sw-bar, .bar) { border-radius
    Arcade pone los puntos en cuadrícula; Averno, al tresbolillo, como las
    losas de un suelo de iglesia. Sigue siendo tono liso más puntos: ninguna
    textura (la regla de CLAUDE.md). Los hilos de flujo, en cadena. */
-html[data-apariencia="catedral"] .const-wrap {
-  background:
+/* La trama va en la variable, que la usan el lienzo y la tarjeta de la rama (0.7.143.5). */
+html[data-apariencia="catedral"] {
+  --lienzo-trama:
     conic-gradient(at 2px 2px, transparent 75%, var(--lienzo-punto) 0) 0 0 / 28px 28px,
-    conic-gradient(at 2px 2px, transparent 75%, var(--lienzo-punto) 0) 14px 14px / 28px 28px,
-    var(--sup-hondo);
+    conic-gradient(at 2px 2px, transparent 75%, var(--lienzo-punto) 0) 14px 14px / 28px 28px;
 }
 html[data-apariencia="catedral"] .const-wrap svg { shape-rendering: crispEdges; }
 html[data-apariencia="catedral"] .const-wrap svg path[stroke-dasharray="6 7"] { stroke-dasharray: 6 2 2 2; stroke-linecap: butt; }

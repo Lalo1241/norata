@@ -249,11 +249,11 @@ html.claro[data-apariencia="averno"] :is(.barra-viva i, .sw-bar i, .bar-fill) { 
    Tono liso más puntos, ninguna textura (la regla de CLAUDE.md). Lo que
    cambia la figura de cada nodo es su adorno —rombos de hueso en los
    vértices—, y ése lo dibuja `adornoNodo` en js/07-lienzo.js. */
-html[data-apariencia="averno"] .const-wrap {
-  background:
+/* La trama va en la variable, que la usan el lienzo y la tarjeta de la rama (0.7.143.5). */
+html[data-apariencia="averno"] {
+  --lienzo-trama:
     conic-gradient(at 2px 2px, transparent 75%, var(--lienzo-punto) 0) 0 0 / 28px 28px,
-    conic-gradient(at 2px 2px, transparent 75%, var(--lienzo-punto) 0) 14px 14px / 28px 28px,
-    var(--sup-hondo);
+    conic-gradient(at 2px 2px, transparent 75%, var(--lienzo-punto) 0) 14px 14px / 28px 28px;
 }
 html[data-apariencia="averno"] .const-wrap svg { shape-rendering: crispEdges; }
 html[data-apariencia="averno"] .const-wrap svg path[stroke-dasharray="6 7"] { stroke-dasharray: 6 2 2 2; stroke-linecap: butt; }
