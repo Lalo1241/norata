@@ -1110,7 +1110,7 @@ const MODULOS = [
    —congelar, nunca quitar—: quien ya tiene talentos los ve, tenga el nivel que
    tenga. Sin eso, publicar esto le habría escondido el árbol a todo el que
    ya lo estaba usando, que es exactamente el fallo que nadie perdona. */
-/* El Pomodoro entró en la escalera en la 0.7.147.6 (Eduardo: «bloqueado por
+/* El Pomodoro entró en la escalera en la 0.7.147.10 (Eduardo: «bloqueado por
    nivel, así como estuvo Proyectos»). En el 4, entre Ramas y las ramas de
    proyecto: es la herramienta más suelta de las tres —no pide entender nada
    de lo demás—, pero sigue siendo un vocabulario más (tramos, rutina,
@@ -1711,7 +1711,7 @@ function aplicarModulos() {
   /* Con la Jornada la barra del teléfono lleva seis círculos y hay que
      apretarlos para que quepan (css/jornada.css). */
   document.documentElement.classList.toggle("con-jornada", moduloOn("jornada"));
-  /* El Pomodoro puede estar encendido y con candado a la vez (0.7.147.6). La
+  /* El Pomodoro puede estar encendido y con candado a la vez (0.7.147.10). La
      barra le guarda el hueco igual —el candado se queda a la vista—, y lo que
      no debe correr cerrado lo para `jornadaEncendida()`, que pregunta por las
      dos cosas. */

@@ -189,7 +189,7 @@
     if (["reliquia", "plano", "catedral", "averno"].indexOf(puesta) >= 0) {
       var lm = document.createElement("link");
       lm.rel = "stylesheet";
-      lm.href = "css/mundos.css?h=6af5c6c109";
+      lm.href = "css/mundos.css?h=72d7fbdc9e";
       document.head.appendChild(lm);
     }
   } catch (e) {}
@@ -963,6 +963,15 @@
             <h3>Tus datos</h3>
             <div id="sync-panel"></div>
           </div>
+          <!-- El plan vive aquí desde la 0.7.147.10: era una sección propia y
+               Eduardo la metió en Mi perfil para acortar el menú. Va justo
+               debajo de tus datos porque contesta lo mismo -en qué estado está
+               tu cuenta-, y la fila de Mi perfil en el índice lo dice por fuera
+               (`seccionesAjustes`). Lo dibuja `renderPanelPlan`. -->
+          <div class="panel" id="panel-plan-marco">
+            <div id="panel-plan"></div>
+          </div>
+
           <!-- La exigencia vive aquí y no en una sección propia: quien viene a
                cambiarla viene a cambiar algo SUYO, y aquí es donde están las
                otras cosas suyas. Lo dibuja `renderPanelRitmo`. -->
@@ -977,56 +986,59 @@
                la misma pregunta -en que palabras te habla Norata-, la una en
                que lengua y la otra en que forma. Lo dibuja `renderGenero`
                (js/09-inicio.js). -->
-          <div class="panel" id="panel-genero">
-            <h3>Como te hablo</h3>
-            <p class="settings-note">El español pone género en muchas palabras. Esto decide cuál uso contigo: los avisos, los saludos y los correos. Se pregunta al armar tu tablero, y aquí se cambia cuando quieras. Los rangos de tu expedición no cambian: los cinco valen igual para todo el mundo.</p>
-            <div id="genero-opciones"></div>
-          </div>
-
           <div class="panel">
             <h3>Idioma</h3>
             <p class="settings-note">En qué idioma te habla Norata. Cambiarlo no toca nada de lo que has escrito tú: tus habilidades, misiones y talentos se quedan como los nombraste.</p>
             <div id="idioma-opciones"></div>
           </div>
 
-          <div class="panel">
-            <h3>Moneda</h3>
-            <p class="settings-note">Con la que se escribe lo que te cuesta un talento y lo que llevas invertido. Al cambiarla te pregunto el tipo de cambio y convierto tus importes —guardando antes una copia—.</p>
-            <div id="moneda-opciones"></div>
-            <div id="moneda-cambio"></div>
-          </div>
-
-          <!-- Las dos respuestas de la bienvenida que hasta 0.7.96 se guardaban
-               y no las leia ninguna pantalla: se contestaban una vez y no
-               habia donde cambiarlas, cuando sus vecinas -genero, idioma,
-               moneda, exigencia- si la tenian. Van aqui, en Mi perfil, porque
-               son cosas TUYAS, y en este orden porque asi se preguntan en la
-               bienvenida. Las dibuja `renderTiempo` y `renderFlaqueza`
-               (js/09-inicio.js). -->
-          <div class="panel">
-            <h3>Cuanto tiempo tienes al dia</h3>
-            <p class="settings-note">Lo que contestaste al armar tu tablero. Decide cuantas habilidades trae un area nueva, si su mision es diaria o de tres dias, y cuanto tiempo se le da a cada meta. Cambiarlo no toca nada de lo que ya tienes: manda sobre lo que se cree a partir de ahora.</p>
-            <div id="tiempo-opciones"></div>
-          </div>
-
-          <div class="panel">
-            <h3>Donde se te suele caer</h3>
-            <p class="settings-note">Con esto decido que NO ponerte: menos plazos si te cuesta arrancar, menos metas largas si te cuesta sostener, y ramas mas cortas si lo que te cuesta es cerrar.</p>
-            <div id="flaqueza-opciones"></div>
-          </div>
-
-          <div class="panel">
-            <h3>Qué tan exigente lo quieres</h3>
-            <p class="settings-note">Cuánto aguanta una habilidad sin que la practiques antes de empezar a bajar, y a qué ritmo baja. Es lo que eliges al armar tu tablero, y aquí se cambia cuando quieras.</p>
-            <div id="ritmo-opciones"></div>
-            <div id="ritmo-aplicar"></div>
-          </div>
-        </section>
-
-        <section class="ajuste-bloque" data-sec="plan">
-          <div class="panel">
-            <div id="panel-plan"></div>
-          </div>
+          <!-- «Más preferencias» (0.7.147.10). Lo de aquí dentro se contesta una
+               vez al armar el tablero y casi nunca se vuelve a tocar, y abierto
+               hacía de Mi perfil el scroll más largo de la app. El idioma se
+               queda fuera porque es lo único de la lista que sí se busca.
+               Plegado siempre al entrar: nada de recordar si se abrió. -->
+          <details class="aj-mas" id="aj-mas">
+            <summary>
+              <span class="aj-mas-tx"><b>Más preferencias</b><span>Cómo te hablo, moneda, tu tiempo, dónde se te cae y exigencia</span></span>
+              <span class="aj-chev" aria-hidden="true">›</span>
+            </summary>
+            <div class="aj-mas-cuerpo">
+            <div class="panel" id="panel-genero">
+              <h3>Como te hablo</h3>
+              <p class="settings-note">El español pone género en muchas palabras. Esto decide cuál uso contigo: los avisos, los saludos y los correos. Se pregunta al armar tu tablero, y aquí se cambia cuando quieras. Los rangos de tu expedición no cambian: los cinco valen igual para todo el mundo.</p>
+              <div id="genero-opciones"></div>
+            </div>
+            <div class="panel">
+              <h3>Moneda</h3>
+              <p class="settings-note">Con la que se escribe lo que te cuesta un talento y lo que llevas invertido. Al cambiarla te pregunto el tipo de cambio y convierto tus importes —guardando antes una copia—.</p>
+              <div id="moneda-opciones"></div>
+              <div id="moneda-cambio"></div>
+            </div>
+            <!-- Las dos respuestas de la bienvenida que hasta 0.7.96 se guardaban
+                 y no las leia ninguna pantalla: se contestaban una vez y no
+                 habia donde cambiarlas, cuando sus vecinas -genero, idioma,
+                 moneda, exigencia- si la tenian. Van aqui, en Mi perfil, porque
+                 son cosas TUYAS, y en este orden porque asi se preguntan en la
+                 bienvenida. Las dibuja `renderTiempo` y `renderFlaqueza`
+                 (js/09-inicio.js). -->
+            <div class="panel">
+              <h3>Cuanto tiempo tienes al dia</h3>
+              <p class="settings-note">Lo que contestaste al armar tu tablero. Decide cuantas habilidades trae un area nueva, si su mision es diaria o de tres dias, y cuanto tiempo se le da a cada meta. Cambiarlo no toca nada de lo que ya tienes: manda sobre lo que se cree a partir de ahora.</p>
+              <div id="tiempo-opciones"></div>
+            </div>
+            <div class="panel">
+              <h3>Donde se te suele caer</h3>
+              <p class="settings-note">Con esto decido que NO ponerte: menos plazos si te cuesta arrancar, menos metas largas si te cuesta sostener, y ramas mas cortas si lo que te cuesta es cerrar.</p>
+              <div id="flaqueza-opciones"></div>
+            </div>
+            <div class="panel">
+              <h3>Qué tan exigente lo quieres</h3>
+              <p class="settings-note">Cuánto aguanta una habilidad sin que la practiques antes de empezar a bajar, y a qué ritmo baja. Es lo que eliges al armar tu tablero, y aquí se cambia cuando quieras.</p>
+              <div id="ritmo-opciones"></div>
+              <div id="ritmo-aplicar"></div>
+            </div>
+            </div>
+          </details>
         </section>
 
         <section class="ajuste-bloque" data-sec="aspecto">

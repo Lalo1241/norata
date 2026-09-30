@@ -829,7 +829,7 @@ const TUTO_PASOS = [
     pie: "Un proyecto que lleva semanas quieto te lo dirá, sin regañarte."
   },
   {
-    /* Llega en el nivel 4 (0.7.147.6). Sin esta tarjeta el módulo se abría y
+    /* Llega en el nivel 4 (0.7.147.10). Sin esta tarjeta el módulo se abría y
        nadie lo presentaba: `quizaPresentarModulo` la busca por `modulo`. */
     modulo: "jornada", icon: "target", color: "#ff8a70", titulo: "Pomodoro",
     tx: "Tu día en una <b>rueda</b>: tramos de enfoque con su descanso, y la rutina de cada día acomodada alrededor.",
@@ -1796,13 +1796,28 @@ function detectedTZ() {
    "Secciones" y "Tus datos" describían el contenido desde fuera; "Mi perfil",
    "Mis módulos" y "Almacenamiento" se buscan solos cuando uno viene a cambiar
    algo suyo. */
+/* «Mi plan» dejó de ser fila en la 0.7.147.10: Eduardo lo metió en Mi perfil
+   para acortar el menú, y la fila de Mi perfil pasó a decir lo que decía la
+   suya (ver `seccionesAjustes`). El id `plan` sigue valiendo en `abrirAjustes`
+   y `mostrarAjuste` —hay botones por toda la app que llevan ahí— y abre Mi
+   perfil a la altura del plan (`seccionDeAjuste`). En el mismo cambio
+   apariencia subió por encima de módulos, que se toca mucho menos. */
 const AJUSTES_SECS = [
   { id: "cuenta", nombre: "Mi perfil",         icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
-  { id: "plan",   nombre: "Mi plan",           icon: "gem",     sub: "Tu plan, qué incluye y hasta cuándo va" },
-  { id: "menu",   nombre: "Mis módulos",       icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
   { id: "aspecto", nombre: "Mi apariencia",    icon: "brush",   sub: "Con qué luz se ve Norata" },
+  { id: "menu",   nombre: "Mis módulos",       icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
   { id: "datos",  nombre: "Mi almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" }
 ];
+
+/* Lo que se pide abrir → la sección que de verdad existe. Devuelve también si
+   hay que bajar hasta el plan, que ahora vive dentro de Mi perfil. */
+function seccionDeAjuste(id) {
+  return id === "plan" ? { sec: "cuenta", alPlan: true } : { sec: id, alPlan: false };
+}
+function bajarAlPlan() {
+  const p = document.getElementById("panel-plan-marco");
+  if (p && p.scrollIntoView) setTimeout(() => p.scrollIntoView({ block: "start" }), 0);
+}
 
 /* Las secciones que se dibujan HOY, que no siempre son las tres de arriba: la
    de administración solo existe para quien el servidor reconoce como tal.
@@ -1833,11 +1848,15 @@ function seccionesAjustes() {
      enterarse de nada—. Ahora dice qué plan hay y hasta cuándo, que es
      exactamente lo que trae aquí a la gente; entrar deja de ser la única
      forma de saberlo. */
-  const plan = secs.find(x => x.id === "plan");
-  if (plan && typeof planSub === "function") {
-    plan.sub = planSub();
-    plan.icon = planIcono();
-    if (typeof planTono === "function") plan.tono = planTono();
+  /* Desde la 0.7.147.10 lo dice la fila de Mi perfil, que es donde vive el
+     plan. Solo con cuenta: sin ella la frase del plan («Con una cuenta puedes
+     tener plan») contesta una pregunta que nadie hizo, y lo que hace falta
+     saber ahí es que no hay sesión. */
+  const perfil = secs.find(x => x.id === "cuenta");
+  if (perfil && typeof planSub === "function" && typeof syncReady === "function" && syncReady()) {
+    perfil.sub = planSub();
+    perfil.icon = planIcono();
+    if (typeof planTono === "function") perfil.tono = planTono();
   }
 
   /* La de administración solo existe para quien el servidor reconoce como tal.
@@ -1855,7 +1874,7 @@ function seccionesAjustes() {
      los módulos y no decía nada de esto. */
   if (typeof esAdmin !== "undefined" && esAdmin) {
     secs.push({
-      /* `trastienda` y no `oro` desde la 0.7.147.6: en la casa se ven igual,
+      /* `trastienda` y no `oro` desde la 0.7.147.10: en la casa se ven igual,
          pero dentro de un mundo el oro sigue siendo un aviso —el plan que se
          acaba— y la trastienda pasa a la tinta del mundo (ver el bloque «El
          menú dentro de un mundo» de `mundos/app.py`). */
@@ -1919,11 +1938,12 @@ function renderAjustes() {
      cada vez que alguien entra a Ajustes a cambiar la zona horaria. */
   if (ajusteAbierto === "aspecto" && typeof renderPanelApariencia === "function") renderPanelApariencia();
   if (ajusteAbierto === "admin" && typeof renderPanelAdmin === "function") renderPanelAdmin();
-  if (ajusteAbierto === "plan" && typeof renderPanelPlan === "function") renderPanelPlan();
+
   /* La exigencia se dibuja al abrir «Mi perfil», que es donde vive desde que
      dejó de ser sección propia: quien viene a cambiarla viene a cambiar algo
      suyo, y ahí es donde están las otras cosas suyas. */
   if (ajusteAbierto === "cuenta") {
+    if (typeof renderPanelPlan === "function") renderPanelPlan();
     renderPanelRitmo();
     /* Con `typeof` porque `js/09c-region.js` carga DESPUÉS que este
        archivo, y el service worker puede servir un index.html viejo con
@@ -1960,9 +1980,15 @@ function renderGenero() {
      un ajuste que no hace nada es peor que no tenerlo, porque promete algo—.
      Es la misma decisión que esconde la pregunta en la bienvenida
      (`preguntaGenero`); se pregunta una vez y las dos pantallas obedecen. */
+  /* Se pregunta por el IDIOMA y no por `preguntaGenero()`, aunque sea la
+     misma decisión. Desde la 0.7.121 esa función también dice «no» cuando ya
+     hay un género guardado —es para que la bienvenida no lo pregunte dos
+     veces—, y aquí eso dejaba el panel sin repintar justo en cuanto alguien
+     elegía: la opción se guardaba y ninguna salía marcada (0.7.147.10). */
+  const enEspanol = typeof idiomaActual !== "function" || idiomaActual() === "es";
   const panel = document.getElementById("panel-genero");
-  if (panel) panel.hidden = !preguntaGenero();
-  if (!preguntaGenero()) return;
+  if (panel) panel.hidden = !enEspanol;
+  if (!enEspanol) return;
   /* ---- Y la salida de vuelta al neutro ----
      Desde 0.7.110 la lista son DOS, porque el neutro dejó de ser una opción
      con forma propia y pasó a ser lo que hace la app cuando no le has dicho
@@ -2443,9 +2469,11 @@ function abrirAjustes(sec) {
      a null a propósito (entrar por el menú de abajo siempre empieza igual), y
      si se eligiera primero la sección, el viaje la borraría por el camino. */
   showView("settings");
-  ajusteAbierto = sec || AJUSTES_SECS[0].id;
+  const d = seccionDeAjuste(sec || AJUSTES_SECS[0].id);
+  ajusteAbierto = d.sec;
   renderAjustes();
   window.scrollTo(0, 0);
+  if (d.alPlan) bajarAlPlan();
 }
 
 document.addEventListener("keydown", (e) => {
@@ -2455,9 +2483,11 @@ document.addEventListener("keydown", (e) => {
 });
 
 function mostrarAjuste(id) {
-  ajusteAbierto = id;
+  const d = seccionDeAjuste(id);
+  ajusteAbierto = d.sec;
   renderAjustes();
   if (!isDesktop()) window.scrollTo(0, 0);
+  if (d.alPlan) bajarAlPlan();
 }
 
 /* La flecha de arriba vuelve un paso, no a la portada: desde una sección del

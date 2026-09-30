@@ -247,10 +247,31 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
-### 0.7.147.6 · 30 sep 2026
+### 0.7.147.10 · 30 sep 2026
 
-**El Pomodoro llega por nivel, y los iconos del menú se visten con el mundo.**
-Las dos las pidió Eduardo mirando Ajustes con Averno puesto.
+**El Pomodoro llega por nivel, los iconos del menú se visten con el mundo, y
+Ajustes adelgaza.** Todo lo pidió Eduardo mirando Ajustes con Averno puesto;
+lo vio antes en una página con capturas de los cinco mundos.
+
+- **«Mi plan» deja de ser fila y vive dentro de Mi perfil**, debajo de «Tus
+  datos». La fila de Mi perfil dice ahora lo que decía la suya (Fundador ·
+  Vigente, su piedra y su tono), solo con cuenta. `abrirAjustes('plan')` y
+  `mostrarAjuste('plan')` siguen valiendo —hay botones por toda la app— y abren
+  Mi perfil a la altura del plan (`seccionDeAjuste`). Sin cuenta el marco del
+  plan se esconde: su «Crear mi cuenta» abría la misma pantalla.
+- **Orden nuevo**: Mi perfil, Mi apariencia, Mis módulos, Mi almacenamiento.
+- **«Más preferencias», plegado** (`details.aj-mas`): cómo te hablo, moneda,
+  tiempo al día, dónde se te cae y exigencia. El idioma se queda fuera. Mi
+  perfil pasa de 2815 px a 617 plegado, medido a 420 de ancho.
+- **«Cómo te hablo» no marcaba la opción elegida.** `renderGenero` preguntaba
+  `preguntaGenero()` para saber si la app está en español, y desde la 0.7.121
+  esa función también dice «no» cuando YA hay género guardado (es para que la
+  bienvenida no pregunte dos veces). Así que en cuanto alguien elegía, el panel
+  dejaba de repintarse: se guardaba «f» y ninguna salía marcada. Ahora pregunta
+  por el idioma.
+- **Blueprint con casilla propia**: sin relleno, línea fina y marcas de corte
+  en las esquinas, todo en `currentColor`. Eduardo vio que ahí «no cambió
+  nada»: Averno y Catedral ya tenían casilla y el menú solo la heredó.
 
 - **Pomodoro en el nivel 4** (`MODULO_NIVEL`), entre Ramas (3) y las ramas de
   proyecto (5): lleva candado en el menú, el aviso al tocarlo, su peldaño en la

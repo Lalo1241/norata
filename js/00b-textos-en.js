@@ -468,6 +468,8 @@ const TEXTOS_EN = {
   /* ---------- Ajustes ---------- */
   "Mi perfil": "My profile",
   "Mi plan": "My plan",
+  "Más preferencias": "More preferences",
+  "Cómo te hablo, moneda, tu tiempo, dónde se te cae y exigencia": "Currency, your time, where you slip and how demanding",
   "Mis módulos": "My modules",
   "Mi apariencia": "My look",
   "Mi almacenamiento": "My storage",

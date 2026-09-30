@@ -115,7 +115,7 @@ html.claro[data-apariencia="averno"] .orb-3 { display: none; }
    Un marco de nueve trozos: filete de hueso por fuera, la esquina cortada en
    escalones, y el bisel por dentro. `stretch` y no `round`: con `round` los
    lados se partían en trozos y el filete salía punteado. */
-html[data-apariencia="averno"] :is(.panel, .modal-card, .sum-card, .ms-card, .skill-card, .proj-card, .branch-card, .aj-item, .mod-row, .jor-fila, .jor-dia) {
+html[data-apariencia="averno"] :is(.panel, .modal-card, .sum-card, .ms-card, .skill-card, .proj-card, .branch-card, .aj-item, .aj-mas > summary, .mod-row, .jor-fila, .jor-dia) {
   border: 6px solid transparent; border-image: var(--av-marco-bisel) 6 / 6px stretch;
   border-radius: 0; clip-path: none; box-shadow: none; background: var(--card);
 }
@@ -142,7 +142,7 @@ html[data-apariencia="averno"] :is(.skill-emoji, .ms-ic, .aj-ic, .mm-ic) {
   background: var(--av-rombo) center / 100% 100% no-repeat !important;
   border-radius: 0; clip-path: none; box-shadow: none; image-rendering: pixelated;
 }
-/* Los del menú de Ajustes y del menú de la cuenta, también en rombo (0.7.147.6:
+/* Los del menú de Ajustes y del menú de la cuenta, también en rombo (0.7.147.10:
    «que los iconos también se adapten con los mundos»). En la casa, al pasar el
    ratón la casilla se llena y el dibujo se oscurece; aquí el rombo no se llena,
    así que el dibujo se queda con su tono o desaparecería sobre la tarjeta. */

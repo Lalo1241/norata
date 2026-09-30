@@ -88,7 +88,7 @@ const J_DESCANSOS = {
 };
 
 /* `moduloUsable` y no `moduloOn` desde que el Pomodoro llega por nivel
-   (0.7.147.6): con el candado puesto no corre el reloj, no sale la píldora y
+   (0.7.147.10): con el candado puesto no corre el reloj, no sale la píldora y
    no se siembran datos — que es lo que deja a `moduloConCosas` distinguir a
    quien de verdad lo usó. */
 function jornadaEncendida() { return typeof moduloUsable === "function" ? moduloUsable("jornada") : true; }

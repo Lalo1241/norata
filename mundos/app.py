@@ -422,7 +422,7 @@ def bloque(m):
         # que de verdad enmarcan: el panel y la tarjeta del Resumen. Once
         # marcos en siete pantallas se leen como un marco; cincuenta y tres, no.
         filas = [".ms-card", ".skill-card", ".branch-card", ".pstep", ".cat-item",
-                 ".aj-item", ".history-item", ".col-rango-uno", ".amb-m", ".mun-m",
+                 ".aj-item", ".aj-mas > summary", ".history-item", ".col-rango-uno", ".amb-m", ".mun-m",
                  ".glass-chip", ".sh-focus", ".btn", ".icon-btn", ".tema-fila",
                  ".seg", ".chip", ".pill"]
         salida += ["",
@@ -914,7 +914,7 @@ if __name__ == "__main__":
                   "   reglas de `.side-brand` en `css/estilos.css`; el porqué, junto a\n"
                   "   `--marca-iso`. Generado desde `mundos/iconos/generar.py`. */\n"
                   + "".join(ICONOS.marca_css(m["id"]) for m in listos))
-    # ---- El menú dentro de un mundo (0.7.147.6) ----
+    # ---- El menú dentro de un mundo (0.7.147.10) ----
     # Las casillas de icono de Ajustes y del menú de la cuenta llevan un tono
     # por fila, y dos de esos tonos son de la CASA: el lila de Fundador y el
     # amarillo de «Norata por dentro». Dentro de un mundo se leían como piezas
@@ -932,7 +932,7 @@ if __name__ == "__main__":
     # (el rombo de Averno, la esquina de Catedral) sí es de cada material.
     mun = ":is(%s)" % ", ".join('html[data-apariencia="%s"]' % m["id"] for m in listos)
     partes.append("\n".join([
-        "/* El menú dentro de un mundo (0.7.147.6): el lila y el amarillo de la casa",
+        "/* El menú dentro de un mundo (0.7.147.10): el lila y el amarillo de la casa",
         "   pasan al acento y a la tinta del mundo. Generado desde `mundos/app.py`. */",
         mun + " :is(.aj-item, .mm-item).t-lila :is(.aj-ic, .mm-ic), " + mun + " .mm-plan.t-lila { background: var(--mint-soft); color: var(--mint); }",
         mun + " .aj-item.t-lila.on { border-color: var(--mint); }",
@@ -941,6 +941,35 @@ if __name__ == "__main__":
         mun + " .aj-item.t-trastienda.on { border-color: var(--muted); }",
         mun + " .mm-item.t-trastienda:is(:hover, :focus-visible) .mm-ic { background: var(--muted); color: var(--card); }",
         ""]))
+    # ---- La casilla de Blueprint (0.7.147.10) ----
+    # Averno y Catedral ya tenían casilla propia (el rombo, la esquina cortada)
+    # y el menú solo la heredó. Blueprint no, y Eduardo lo vio: «en blueprint
+    # no cambió nada». La suya sale del plano: sin relleno, un contorno de
+    # línea fina y las marcas de corte en las cuatro esquinas, como el recuadro
+    # de un detalle en una lámina. Todo en `currentColor`, así que el tono de
+    # cada fila (Fundador, trastienda, los avisos) lo pone el icono y no hay
+    # que repetirlo aquí. `!important` en el fondo por lo mismo que el rombo de
+    # Averno: las reglas de tono de arriba ponen un velo y aquí no va ninguno.
+    if any(m["id"] == "plano" for m in listos):
+        pl = 'html[data-apariencia="plano"]'
+        esquinas = ", ".join(
+            "linear-gradient(currentColor, currentColor) %s / %s no-repeat" % (pos, tam)
+            for pos in ("left top", "right top", "left bottom", "right bottom")
+            for tam in ("7px 1.5px", "1.5px 7px"))
+        partes.append("\n".join([
+            "/* La casilla de icono de Blueprint (0.7.147.10): marcas de corte y línea",
+            "   fina, sin relleno. Generado desde `mundos/app.py`. */",
+            pl + " :is(.aj-ic, .mm-ic) { background: " + esquinas + " !important;"
+            " box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 24%, transparent); border-radius: 0; }",
+            # Al pasar el ratón la casa llena la casilla y oscurece el dibujo;
+            # aquí no hay relleno que llenar, así que se enciende el contorno y
+            # el dibujo se queda con su tono.
+            pl + " .mm-item:is(:hover, :focus-visible) .mm-ic { color: var(--mint) !important; box-shadow: inset 0 0 0 1px currentColor; }",
+            pl + " .mm-item:is(.t-oro):is(:hover, :focus-visible) .mm-ic { color: var(--fire) !important; }",
+            pl + " .mm-item.t-coral:is(:hover, :focus-visible) .mm-ic { color: var(--coral) !important; }",
+            pl + " .mm-item.t-trastienda:is(:hover, :focus-visible) .mm-ic { color: var(--muted) !important; }",
+            pl + " .aj-item.on .aj-ic { box-shadow: inset 0 0 0 1px currentColor; }",
+            ""]))
     txt = "\n".join(partes)
     # ---- Las paletas de Blueprint y Reliquia (0.7.147) ----
     # Los dos salen del bloque genérico con una sola paleta; la regla de

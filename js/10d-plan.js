@@ -1088,6 +1088,13 @@ function renderPanelPlan() {
   const caja = document.getElementById("panel-plan");
   if (!caja) return;
 
+  /* Desde la 0.7.147.10 el plan vive dentro de Mi perfil, justo debajo de
+     «Tus datos», que sin cuenta ya es la puerta para crear una. Su marco se
+     esconde entonces: un segundo «Crear mi cuenta» que abre la misma pantalla
+     en la que ya estás no lleva a ningún sitio. */
+  const marco = document.getElementById("panel-plan-marco");
+  if (marco) marco.hidden = typeof syncReady === "function" && !syncReady();
+
   /* Sin cuenta no hay plan que enseñar ni a quién cobrarle. Se dice y se
      ofrece la salida, en vez de pintar tres botones que van a fallar. */
   if (typeof syncReady === "function" && !syncReady()) {
