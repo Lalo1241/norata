@@ -2765,6 +2765,22 @@ const TEXTOS_EN = {
  /* La etiqueta del hueco de arriba y el rótulo del plegable (0.7.148.5). */
  "Mundo actual": "Current world",
  "Ambiente actual": "Current ambience",
+ /* Las novedades y el aviso de versión lista (0.7.149). */
+ "Novedades": "What's new",
+ "Lo que ha cambiado en Norata": "What has changed in Norata",
+ "Novedades de Norata": "What's new in Norata",
+ "Borrador": "Draft",
+ "Y un retoque": "And one touch-up",
+ "Y {0} retoques": "And {0} touch-ups",
+ "Hay una novedad más que no habías visto.": "There's one more update you hadn't seen.",
+ "Hay {0} novedades más que no habías visto.": "There are {0} more updates you hadn't seen.",
+ "Ver todas las novedades": "See everything new",
+ "Estás viendo los borradores": "You're looking at the drafts",
+ "Solo en esta pestaña. Lo que dice «Borrador» no lo ve nadie hasta que se apruebe.": "Only in this tab. Anything marked \"Draft\" stays hidden until it's approved.",
+ "Ver la ventana de la más reciente": "Preview the latest window",
+ "Lo que ha ido cambiando en Norata, de lo más nuevo a lo más viejo.": "What has been changing in Norata, newest first.",
+ "Todavía no hay novedades publicadas.": "No updates published yet.",
+ "Actualiza y te cuento qué trae.": "Update and I'll tell you what it brings.",
  /* Las versiones en la app de Android (0.7.148.9). */
  "Norata se actualizó a la versión {0}": "Norata updated to version {0}",
  "Actualizando…": "Updating…",

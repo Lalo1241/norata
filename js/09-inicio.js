@@ -1806,7 +1806,11 @@ const AJUSTES_SECS = [
   { id: "cuenta", nombre: "Mi perfil",         icon: "shield",  sub: "Tu sesión y la sincronía entre dispositivos" },
   { id: "aspecto", nombre: "Mi apariencia",    icon: "brush",   sub: "Con qué luz se ve Norata" },
   { id: "menu",   nombre: "Mis módulos",       icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
-  { id: "datos",  nombre: "Mi almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" }
+  { id: "datos",  nombre: "Mi almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" },
+  /* Las novedades (0.7.149): lo que ha cambiado, contado para quien usa la app.
+     Al final porque se lee y no se ajusta nada; la ventana que sale al llegar
+     una versión lleva aquí con «Ver todas». */
+  { id: "novedades", nombre: "Novedades",      icon: "star",    sub: "Lo que ha cambiado en Norata" }
 ];
 
 /* Lo que se pide abrir → la sección que de verdad existe. Devuelve también si
@@ -1941,6 +1945,7 @@ function renderAjustes() {
      cada vez que alguien entra a Ajustes a cambiar la zona horaria. */
   if (ajusteAbierto === "aspecto" && typeof renderPanelApariencia === "function") renderPanelApariencia();
   if (ajusteAbierto === "admin" && typeof renderPanelAdmin === "function") renderPanelAdmin();
+  if (ajusteAbierto === "novedades" && typeof renderPanelNovedades === "function") renderPanelNovedades();
 
   /* La exigencia se dibuja al abrir «Mi perfil», que es donde vive desde que
      dejó de ser sección propia: quien viene a cambiarla viene a cambiar algo

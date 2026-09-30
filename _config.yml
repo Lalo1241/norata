@@ -99,3 +99,5 @@ exclude:
   - marca/generar-iconos-correo.html
 
   - correos/LEEME.md
+  # Las novedades: el JSON se publica (lo lee la app); su guía no.
+  - novedades/LEEME.md

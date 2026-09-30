@@ -249,10 +249,10 @@
         let paquete = (bundles || []).find((b) => b.version === u.version && b.status !== "error");
         if (!paquete) paquete = await act.download({ url: u.url, version: u.version, checksum: u.sha256 });
         /* `next()` se queda: si nadie pulsa el aviso, entra sola al irse la app
-           al fondo — y al volver, `avisarEstreno` dice que entró. */
+           al fondo — y al volver, `revisarNovedades` (js/10l-novedades.js) dice que entró. */
         await act.next({ id: paquete.id });
         lista = { id: paquete.id, version: u.version };
-        avisarLista(true);
+        avisarLista();
         return "lista";
       } catch (e) {
         /* Sin red, o GitHub sin contestar: se vuelve a intentar en la
@@ -266,47 +266,25 @@
     return busqueda;
   }
 
-  /* ---- Decirlo (0.7.148.9) ----
-     Hasta aquí todo esto pasaba en silencio: la versión se bajaba sin avisar,
-     y entraba sola cuando la app se iba al fondo, así que de repente se estaba
-     en otra sin saber cuándo ni por qué. Lo contó Eduardo: «tiende a no
-     comunicarme ni cuando llegan ni cuando hay alguna disponible».
+  /* ---- Decirlo (0.7.148.9; la tarjeta, desde 0.7.149) ----
+     Hasta la 0.7.148.9 todo esto pasaba en silencio: la versión se bajaba sin
+     avisar, y entraba sola cuando la app se iba al fondo, así que de repente
+     se estaba en otra sin saber cuándo ni por qué. Lo contó Eduardo: «tiende a
+     no comunicarme ni cuando llegan ni cuando hay alguna disponible».
 
      Son dos avisos, los mismos que la web:
-       - **Hay una lista**, con un botón que la estrena en el acto. Un toast se
-         lo lleva el viento, así que al volver a la app se repite, con un suelo
-         de cinco minutos para no perseguir.
-       - **Ya entró**, al abrir con una versión más nueva que la última que se
-         vio aquí. Es lo que convierte «de repente está activa» en algo que se
-         entiende.
+       - **Hay una lista**: la tarjeta que se queda (`avisoVersionLista`,
+         js/10l-novedades.js), con un botón que la estrena en el acto. Si se
+         cierra, vuelve al volver a la app.
+       - **Ya entró**: lo dice `revisarNovedades` al abrir, con la ventana de
+         Novedades si hay algo publicado que contar, o con un aviso chico si no.
      Solo en la app: en la puerta no hay dónde pintarlos. */
-  const ENTRE_TOASTS = 5 * 60 * 1000;
-  let ultimoToast = 0;
   const enLaApp = () => !!document.getElementById("view-summary");
-  function avisarLista(nueva) {
-    if (!lista || !enLaApp() || typeof toast !== "function" || document.hidden) return;
-    const ahora = Date.now();
-    if (!nueva && ahora - ultimoToast < ENTRE_TOASTS) return;
-    ultimoToast = ahora;
-    toast(T`Ya está lista la versión ${lista.version}`, "atencion",
-          { label: tx("Actualizar"), onclick: "norataActualizar()", ms: 12000 });
-  }
-
-  const VISTA_LLAVE = "norata-version-vista";
-  function avisarEstreno() {
-    if (!enLaApp()) return;
-    let vista = null;
-    try { vista = localStorage.getItem(VISTA_LLAVE); } catch (e) {}
-    try { localStorage.setItem(VISTA_LLAVE, VERSION); } catch (e) {}
-    /* Sin nada apuntado es la primera vez (o la primera con este aviso): no hay
-       «antes» que contar. */
-    if (!vista || !masNueva(VERSION, vista)) return;
-    /* Con la carga cerrada, o el aviso saldría debajo de ella. */
-    const tope = Date.now() + 20000;
-    (function mirar() {
-      if (typeof cargaVisible === "function" && cargaVisible() && Date.now() < tope) { setTimeout(mirar, 300); return; }
-      if (typeof toast === "function") toast(T`Norata se actualizó a la versión ${VERSION}`, "hecho", { label: tx("Cerrar"), onclick: "", ms: 6000 });
-    })();
+  function avisarLista() {
+    if (!lista || !enLaApp() || document.hidden) return;
+    if (typeof avisoVersionLista === "function") avisoVersionLista(lista.version, "norataActualizar()");
+    else if (typeof toast === "function")
+      toast(T`Ya está lista la versión ${lista.version}`, "atencion", { label: tx("Actualizar"), onclick: "norataActualizar()", ms: 12000 });
   }
 
   /* El botón del aviso, y el tirón hacia abajo cuando hay una esperando: se
@@ -333,12 +311,11 @@
      arrancar se estrenó una, esta carga se va a tirar, así que no se pregunta. */
   estrenar.then((cambio) => {
     if (cambio) return;
-    avisarEstreno();
     setTimeout(() => buscar(), 1500);
   });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState !== "visible") return;
-    avisarLista(false);
+    avisarLista();
     buscar();
   });
   window.addEventListener("online", () => buscar());

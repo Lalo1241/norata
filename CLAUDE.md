@@ -160,15 +160,34 @@ uno, no los dos.
 ## Versiones
 
 El número se ve debajo de Ajustes y **las reglas están en `VERSIONES.md`** —
-leerlo antes de subirlo. En corto: cuatro tramos, `0.6.2.1`; el 4º es un
-retoque suelto, el 3º una tanda, el 2º algo que la app no hacía antes, y el
-1º llega a `1.0` el día de la Play Store. **Ningún tramo se para en 9.**
+leerlo antes de subirlo. En corto: cuatro tramos, `0.6.2.1`; el 4º pule lo que
+trajo SU 3º y nada más, el 3º es una tanda o cualquier tema nuevo aunque sea
+chico, el 2º algo que la app no hacía antes, y el 1º llega a `1.0` el día de la
+Play Store. **Ningún tramo se para en 9.** **El 4º se decide por TEMA, no por
+tamaño** (Eduardo, 0.7.149): de la 0.7.148.1 a la .9 eran siete temas distintos
+colgados de Cyberpunk porque cada sesión leía «retoque» como «cambio chico».
 **`0.8` está apartado para la beta** y no se coge por acumulación: hasta que
 Eduardo lo diga, la cuenta sigue por dentro de `0.7` (`0.7.1`, `0.7.2`…).
 
 Al subirlo: `VERSION` y `VERSION_FECHA` en `js/01-base.js`, `CACHE` en `sw.js`
+con el mismo número, una línea en `VERSIONES.md` y **su novedad en
+`novedades/novedades.json`, en borrador** (0.7.149).
 
-con el mismo número, y una línea en `VERSIONES.md`.
+## Las novedades
+
+**Lo que cambió, contado para quien usa la app**, en `novedades/novedades.json`:
+una entrada por 3º, con sus 4º dentro como retoques. La lee la app —una
+ventana al estrenar una versión y Ajustes → Novedades (`js/10l-novedades.js`)—
+y la leerá la página de changelog del sitio el día que exista.
+
+- **Nada sale sin que Eduardo lo apruebe.** Las entradas nacen en
+  `"borrador"` y la app solo enseña `"publicado"`. Él las revisa con
+  `?novedades=borrador`. Las reglas para escribirlas, en `novedades/LEEME.md`.
+- **Se apuntan como vistas POR ENTRADA, no por versión**: una aprobada días
+  después sale igual.
+- **«Ya está lista la versión X» es una tarjeta que se queda**
+  (`avisoVersionLista`), en la web del teléfono y en el APK. En la computadora
+  sigue el botón de la barra lateral.
 
 **Las fechas van en hora de México, siempre** — no en UTC ni en la del reloj de
 la máquina que toque. Ya se coló tres veces desde una sesión que commiteaba en

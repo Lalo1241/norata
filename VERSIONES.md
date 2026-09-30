@@ -16,8 +16,8 @@ nombrar una tanda de trabajo en vez de decir «lo de ayer».
 
 | Tramo | Cuándo sube |
 | --- | --- |
-| **el 4º** | Un retoque suelto. Arreglar lo que se acaba de ver, cambiar un rótulo, corregir un color. |
-| **el 3º** | Una tanda: varias cosas de una sentada. Al subirlo, el 4º vuelve a 0. |
+| **el 4º** | Pule o arregla **lo que trajo su 3º**, y nada más. Ver «El 4º es del tema de su 3º», abajo. |
+| **el 3º** | Una tanda, o **cualquier tema nuevo aunque sea chico**. Al subirlo, el 4º vuelve a 0. |
 | **el 2º** | La app hace algo que antes no hacía, o cambia la forma de usarla: un módulo nuevo, una pantalla nueva. Vuelven el 3º y el 4º a 0. |
 | **el 1º** | El lanzamiento en la Play Store. Lo decide Eduardo, no se llega solo. |
 
@@ -28,6 +28,29 @@ llena. Se sube de nivel cuando lo que se hizo lo merece, y solo entonces.
 
 La prueba para el 2º: **si el salto no se cuenta en una frase, no es un 2º.**
 Diez tandas de arreglos siguen siendo arreglos.
+
+### El 4º es del tema de su 3º (0.7.149)
+
+La pregunta que decide no es «¿es chico?», sino **«¿esto pule lo que trajo la
+X.Y.Z?»**. Si sí, es un 4º de la X.Y.Z. Si es otro tema —aunque sea un rótulo—,
+sube el 3º.
+
+Es de Eduardo, y salió de medir un solo día: el 30 de septiembre de 2026 hubo
+27 publicaciones, y de la 0.7.148.1 a la .9 casi nada era de la 0.7.148
+(Cyberpunk): la barra de abajo, Mi apariencia, el logo del menú, las paletas,
+el aviso de reinicio del APK, las actualizaciones del APK. Siete temas
+colgados del número de otro, porque cada sesión leía «retoque suelto» por
+TAMAÑO y cogía el siguiente 4º libre. Con eso el 4º dejaba de decir nada, y el
+changelog público no podría agruparlos: sus retoques no hablaban de él.
+
+- **Se mira el tema del 3º vigente antes de numerar.** Si la sesión trabaja en
+  otra cosa, el suyo es un 3º nuevo.
+- **Dos sesiones a la vez con temas distintos son dos 3º**, no dos 4º del mismo.
+- **Los números de antes no se tocan.** La 0.7.148.1–.9 se quedan como están:
+  renumerar historia rompe los enlaces y los paquetes del APK.
+
+Cada 3º es además **una entrada de `novedades/novedades.json`**, y sus 4º van
+dentro como `retoques` (ver `novedades/LEEME.md`).
 
 ## `0.8` está apartado: es la beta
 
@@ -42,13 +65,17 @@ Eduardo, igual que el `1.0`.
 
 ## Al subir la versión
 
-Cuatro sitios, y son cuatro a propósito:
+Cinco sitios, y son cinco a propósito:
 
 1. `VERSION` en `js/01-base.js`
 2. `VERSION_FECHA`, ahí mismo
 3. `CACHE` en `sw.js`, con el mismo número — es lo que obliga a los dispositivos
    ya instalados a soltar la copia vieja
 4. Una línea en esta lista
+5. Desde 0.7.149, **su novedad en `novedades/novedades.json`**, en borrador: una
+   entrada si es un 3º, un retoque dentro de la de su 3º si es un 4º. Nada de
+   eso sale hasta que Eduardo lo aprueba (`novedades/LEEME.md`). Lo que no le
+   importa a quien usa la app no lleva novedad.
 
 **El número se coge al PUBLICAR, no al empezar a trabajar.** Con dos ramas
 abiertas a la vez pasó lo que tenía que pasar: una iba por el Pomodoro y otra
@@ -246,6 +273,49 @@ Lo demás de aquel reporte está cerrado: el respaldo trucado y el marco ajeno e
 la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
+
+### 0.7.149 · 30 sep 2026
+
+**Las novedades: una ventana al estrenar una versión, su historial en
+Ajustes, y el aviso de «ya está lista» que se queda.** Lo pidió Eduardo: el
+aviso de actualización tenía que ser más llamativo y enseñar qué trae, y hacía
+falta empezar a escribir un changelog que algún día sirva también para la
+página del sitio. Es la primera versión con la regla nueva del 4º (arriba, «El
+4º es del tema de su 3º»): no es de Cyberpunk, así que no es la 0.7.148.10.
+
+- **`novedades/novedades.json`**: lo que cambió, contado para quien usa la app.
+  Una entrada por cada 3º, con sus 4º dentro como `retoques`, y en inglés si
+  se escribe. Es JSON para que lo pueda leer la web tal cual, y está en
+  `ASSETS` (y en el paquete del APK) porque la ventana sale al abrir, a menudo
+  sin red. Cómo se escribe y cómo se aprueba: `novedades/LEEME.md`.
+- **Nada sale sin que Eduardo lo apruebe** (decisión suya): las entradas nacen
+  en `"borrador"` y la app solo enseña las `"publicado"`. Se revisan en la app
+  con `?novedades=borrador`, que en Ajustes → Novedades enseña los borradores
+  marcados y un botón para ver la ventana tal como saldrá. Hoy hay tres
+  borradores: 0.7.147, 0.7.148 (con sus nueve retoques) y esta.
+- **La ventana de Novedades** sale al abrir si hay una entrada publicada que
+  este dispositivo no vio: la más nueva entera, y cuántas más hay. Se apunta
+  POR ENTRADA y no por versión, para que una aprobada días después salga igual.
+  La primera vez que un dispositivo abre esto no enseña nada.
+- **Si hubo versión nueva pero nada que contar** (un 4º, o un 3º aún en
+  borrador), un aviso chico con el número y un botón a Novedades. Vale para la
+  web y el APK; el del APK de la 0.7.148.9 se mudó aquí.
+- **«Ya está lista la versión X» es una tarjeta arriba que se queda**
+  (`avisoVersionLista`) hasta que se pulsa Actualizar o se cierra; cerrada,
+  vuelve al volver a la app, no antes de cinco minutos. En la web del teléfono
+  sustituye al toast de doce segundos, y en el APK al de la 0.7.148.9. En la
+  computadora sigue el botón de la barra lateral.
+- **Ajustes → Novedades**, al final de la lista (`js/10l-novedades.js`).
+- **La regla del 4º, reescrita** en esta misma lista y en `CLAUDE.md`, y los
+  cinco sitios de subir la versión (el quinto es su novedad en borrador).
+
+**Comprobado** en la app servida en local, a 390 px: la primera apertura no
+enseña nada y apunta lo visto; con una versión vista vieja sale el aviso
+chico; con `?novedades=borrador` salen los tres borradores y la ventana de
+prueba; con dos entradas aprobadas (simulado) sale la ventana con la 0.7.148,
+«Y 8 retoques» y «una novedad más», y al cerrarla no vuelve; la tarjeta sale
+arriba a 12 px y «Actualizar» hace lo suyo. Sin desbordes y sin errores en la
+consola.
 
 ### 0.7.148.9 · 30 sep 2026
 

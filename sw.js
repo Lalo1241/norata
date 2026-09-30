@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.148.9";
+const CACHE = "norata-0.7.149";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -46,6 +46,10 @@ const ASSETS = [
      luciérnaga rara, que le puede salir a cualquiera. Su hoja de estilos y
      su letra NO van aquí: solo las baja quien lo encuentra. */
   "./js/10k-arcade.js",
+  /* Las novedades (0.7.149): el código y lo que cuenta. El JSON va aquí y no
+     pedido en caliente porque la ventana sale al ABRIR, a menudo sin red, y
+     porque el APK solo lleva dentro lo que está en esta lista. */
+  "./js/10l-novedades.js", "./novedades/novedades.json",
   "./js/11-arranque.js", "./js/12-login.js", "./js/13-nativo.js",
   /* Los dos logotipos, porque desde el modo claro la portada usa uno u otro
      según cómo esté la app. Sin el segundo aquí, quien entre de día y sin red

@@ -688,6 +688,10 @@ if ("serviceWorker" in navigator && location.protocol === "https:" && !enAppNati
       // `offsetParent` es null cuando algo no se está pintando: barra escondida.
       if (btn.offsetParent !== null) return;
     }
+    /* Desde 0.7.149, una tarjeta que se queda en vez del toast de doce
+       segundos (ver `avisoVersionLista`, js/10l-novedades.js). Se pinta cada
+       vez: si ya está, solo se refresca el número. */
+    if (typeof avisoVersionLista === "function") { avisoVersionLista(versionQueEntra, "norataActualizar()"); return; }
     const ahora = Date.now();
     if (ahora - ultimoToast < ENTRE_TOASTS) return;
     ultimoToast = ahora;
