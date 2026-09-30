@@ -103,6 +103,12 @@ function fusionarItem(col, viejo, nuevo) {
 /* Junta dos estados completos. `bEsMasNuevo` decide quién manda en lo que no
    se puede unir; todo lo demás se une venga de donde venga. */
 function fusionarEstados(a, b, bEsMasNuevo) {
+  /* Los dos lados, en el formato de esta versión ANTES de juntarlos. Un
+     dispositivo sin actualizar todavía trae encargos en `projects`; sin mudar
+     primero, la fusión los metería tal cual y marcaría el resultado como
+     formato nuevo, con lo que la mudanza ya no volvería a correr sobre ellos. */
+  a = migrar(JSON.parse(JSON.stringify(a || {})));
+  b = migrar(JSON.parse(JSON.stringify(b || {})));
   const base = bEsMasNuevo ? b : a;
   const otro = bEsMasNuevo ? a : b;
   const out = JSON.parse(JSON.stringify(base));
@@ -137,6 +143,16 @@ function fusionarEstados(a, b, bEsMasNuevo) {
   };
   unirRamas("ramasTalentos");
   unirRamas("ramasProyectos");
+  /* La clase y la vista de cada rama se unen igual: una rama de proyecto
+     creada en el teléfono no puede volverse de talento al abrir la PC. Gana el
+     lado más nuevo si los dos dicen algo distinto de la misma rama. */
+  ["ramaClase", "ramaVista"].forEach(k => {
+    const x = (otro.ui && otro.ui[k]) || {}, y = (base.ui && base.ui[k]) || {};
+    if (Object.keys(x).length || Object.keys(y).length) {
+      out.ui = out.ui || {};
+      out.ui[k] = Object.assign({}, x, y);
+    }
+  });
 
   /* Los candados rotos a golpes (js/04-misiones.js) también se unen, y por una
      razón más fuerte que las ramas: romper uno es para siempre. `settings`

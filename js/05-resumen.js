@@ -28,7 +28,8 @@ function renderSummary() {
   const el = document.getElementById("summary-content");
   const skills = state.skills;
   const perks = state.perks;
-  const projects = state.projects;
+  /* Lo que era Proyectos: los nodos de las ramas de clase proyecto (0.7.145). */
+  const projects = state.perks.filter(esNodoEnProyecto);
   const missions = state.missions;
 
   /* Con el tablero vacío no hay tablero que acomodar. El botón de ordenar
@@ -151,11 +152,11 @@ function renderSummary() {
       </button>`;
     })
   ];
-  const stalledProjects = projects.filter(p => projectHealth(p).key === "stalled");
+  const stalledProjects = projects.filter(p => (saludDeNodo(p) || {}).key === "stalled");
   stalledProjects.forEach(p => attention.push(`
-      <button class="att-item" onclick="openProject('${p.id}')">
-        <span class="dot" style="background:var(--coral-soft);color:var(--coral)">${icon(p.icon, 17)}</span>
-        <span class="tx"><b>${escapeHtml(p.name)}</b><span>${T`Estancado ${daysIdle(p)} días — retómalo o suéltalo`}</span></span>
+      <button class="att-item" onclick="openPerk('${p.id}')">
+        <span class="dot" style="background:var(--estado-fallo-soft);color:var(--estado-fallo-tinta)">${icon(p.icon, 17)}</span>
+        <span class="tx"><b>${escapeHtml(p.name)}</b><span>${T`Estancado ${saludDeNodo(p).idle} días — retómalo o suéltalo`}</span></span>
         <span class="go">→</span>
       </button>`));
   if (!stk.activeToday) {
@@ -415,25 +416,30 @@ function renderSummary() {
       return `<div class="panel tira-cifras" style="--celdas:${celdas.length}">${celdas.join("")}</div>`;
     },
 
+    /* Desde la 0.7.145 un renglón por PROYECTO (una rama de clase proyecto),
+       con cuánto lleva: nodos logrados entre nodos. Antes era un renglón por
+       encargo, que es el nivel de detalle de la rama, no del tablero. */
     proyectos: () => {
-      const live = projects.filter(p => p.status === "active" || p.status === "paused");
-      if (!live.length) return "";
+      const ramasP = ramasDe("perks").filter(esRamaDeProyecto).map(b => {
+        const ns = projects.filter(p => (p.branch || "General") === b && !p.soltado);
+        const hechos = ns.filter(p => p.status === "completed").length;
+        const estanca = ns.some(p => (saludDeNodo(p) || {}).key === "stalled");
+        return { b, ns, pg: ns.length ? Math.round(hechos / ns.length * 100) : 0, estanca };
+      }).filter(x => x.ns.length && x.pg < 100);
+      if (!ramasP.length) return "";
       return `
-      <button class="sum-card wide" onclick="showView('projects')" style="width:100%">
+      <button class="sum-card wide" onclick="showView('tree')" style="width:100%">
         <div class="sw-head">
           ${icon("flag", 20)}
           <span>${tx("Proyectos")}</span>
           <span class="sw-go">→</span>
         </div>
         <div class="sw-rows">
-          ${live.slice(0, 4).map(p => {
-            const pg = projectProgress(p), hh = projectHealth(p);
-            return `<div class="sw-row">
-              <span class="sw-name">${escapeHtml(p.name)}</span>
-              <span class="sw-bar"><i style="width:${pg}%;background:${trazo(p.color)}"></i></span>
-              <span class="sw-pct" style="color:${hh.color}">${pg}%</span>
-            </div>`;
-          }).join("")}
+          ${ramasP.slice(0, 4).map(x => `<div class="sw-row">
+              <span class="sw-name">${escapeHtml(x.b)}</span>
+              <span class="sw-bar"><i style="width:${x.pg}%;background:${x.estanca ? "var(--estado-fallo)" : "var(--estado-curso)"}"></i></span>
+              <span class="sw-pct" style="color:${x.estanca ? "var(--estado-fallo-tinta)" : "var(--estado-curso-tinta)"}">${x.pg}%</span>
+            </div>`).join("")}
         </div>
       </button>`;
     },
@@ -2724,52 +2730,36 @@ function crearRama(kind) {
 }
 
 async function crearRamaDeCero(kind) {
-  const esTalentos = kind === "perks";
-  /* Cada módulo tiene su propia clave de tope porque los números son
-     distintos: tres ramas de talentos y dos proyectos. Antes esto miraba solo
-     Talentos y Proyectos no miraba nada, así que la tabla de precios prometía
-     un límite que la app no aplicaba en ningún sitio. Se pregunta ANTES de
-     pedir el nombre, para no hacer escribir algo que se va a tirar. */
-  const claveTope = esTalentos ? "ramas" : "ramasProyectos";
-  if (!cabeUnoMas(claveTope, ramasDe(kind).length)) {
-    topeAlcanzado(claveTope);
+  /* Desde la 0.7.145 hay UNA lista de ramas y dos clases. `kind` ya no elige
+     colección —todo vive en `perks`— sino la clase de la rama nueva: el cajón
+     de caminos de talento pasa "perks" y el de proyecto "projects". */
+  const esProyecto = kind === "projects";
+  if (esProyecto && !moduloAbierto("projects")) { avisoModuloCerrado("projects"); return; }
+  // El tope cuenta las ramas de las dos clases juntas: cuatro en el plan Gratuito
+  if (!cabeUnoMas("ramas", ramasDe("perks").length)) {
+    topeAlcanzado("ramas");
     return;
   }
   const nombre = await askText(
-    esTalentos ? tx("Nueva rama de talentos") : tx("Nueva rama de proyectos"), "", "Crear",
-    esTalentos
-      ? tx("Un ámbito donde agrupar talentos: un oficio, un instrumento, un plan.")
-      : tx("Algo que estás construyendo: una mudanza, un lanzamiento, un trámite largo. Dentro van los encargos que lo hacen avanzar."),
+    esProyecto ? tx("Nueva rama de proyecto") : tx("Nueva rama de talento"), "", tx("Crear"),
+    esProyecto
+      ? tx("Algo que quieres terminar: una mudanza, un lanzamiento, un trámite largo. Dentro van sus nodos, por etapas.")
+      : tx("Algo que quieres hacer crecer: un oficio, un instrumento, tu salud. Lo que logres ahí es tuyo para siempre."),
     30);
   if (!nombre) return;
-  const ramas = ramasDe(kind);
-  /* ---- Cómo se llama cada cosa en Proyectos ----
-     La jerarquía, tal como la fijó Eduardo el 27 ago 2026:
-
-       rama de proyectos  →  encargos  →  etapas
-
-     Y el detalle que parece un capricho y no lo es: **la rama de proyectos,
-     una vez creada, se llama PROYECTO**. Se crean ramas y se tienen
-     proyectos. Por eso este cuadro dice «Nueva rama de proyectos» y el aviso
-     de dos líneas más abajo dice «Proyecto X creado»: no es una
-     inconsistencia, es el ciclo de vida de la misma cosa.
-
-     Los encargos son las tarjetas de dentro —«son como quests», palabras
-     suyas— y las etapas son los pasos de cada quest.
-
-     Él mismo avisó de que suena raro y de que parece faltar un eslabón. Se
-     queda así a propósito: es como entiende hoy el asunto, y el vocabulario
-     de la app tiene que ser el suyo y no uno más ordenado que nadie usa. Si
-     algún día aparece el eslabón que falta, este comentario es el sitio por
-     donde empezar. */
+  const ramas = ramasDe("perks");
   if (ramas.includes(nombre)) {
-    toast(`Ya tienes ${esTalentos ? "una rama" : "un proyecto"} "${nombre}"`, "atencion");
+    toast(T`Ya tienes una rama "${nombre}"`, "atencion");
     return;
   }
-  state.ui[claveRamas(kind)] = [...ramas, nombre];
+  state.ui.ramasTalentos = [...ramas, nombre];
+  ponerClaseDeRama(nombre, esProyecto ? "proyecto" : "talento");
+  /* Una rama de proyecto nace en lista, que es como se piensa un proyecto al
+     empezar; una de talento, en mapa. Las dos se cambian con un toque. */
+  if (esProyecto) { state.ui.ramaVista = state.ui.ramaVista || {}; state.ui.ramaVista[nombre] = "lista"; }
   save();
-  if (esTalentos) renderTree(); else renderProjects();
-  toast(`${esTalentos ? "Rama" : "Proyecto"} "${nombre}" ${esTalentos ? "creada" : "creado"}`, "hecho");
+  renderTree();
+  toast(T`Rama "${nombre}" creada`, "hecho");
 }
 
 /* Al renombrar, la rama conserva su sitio en la lista. Si se juntó con otra,
@@ -2784,67 +2774,40 @@ function renombrarEnRamas(kind, viejo, nuevo) {
 }
 
 async function deleteBranch(kind, b) {
-  const esTalentos = kind === "perks";
-  const lista = (esTalentos ? state.perks : state.projects).filter(p => (p.branch || "General") === b);
-  const singular = esTalentos ? "talento" : "encargo";
-  const plural = esTalentos ? "talentos" : "encargos";
+  const lista = state.perks.filter(p => (p.branch || "General") === b);
   const n = lista.length;
-
-  const arrastra = fraseCantidad(n, singular, plural);
-  /* Cada módulo llama a su contenedor por su nombre: en Talentos es una rama y
-     en Proyectos es el proyecto entero. Un cuadro que dice «se borrará la
-     rama» cuando lo que se borra es un proyecto con sus encargos dentro le
-     pide a la persona que traduzca, y justo antes de confirmar algo que no se
-     deshace. */
-  const cont = esTalentos ? "la rama" : "el proyecto";
+  const arrastra = fraseCantidad(n, "nodo", "nodos");
   const ok = await ask(
     (arrastra
-      ? `Se borrará ${cont} "${b}" y con ${esTalentos ? "ella" : "él"} ${arrastra}.`
-      : `Se borrará ${cont} "${b}", que está ${esTalentos ? "vacía" : "vacío"}.`) + "\n\n" +
-    (esTalentos && n ? tx("También se pierden las conexiones que llegaban a esos talentos desde otras ramas.\n\n") : "") +
+      ? T`Se borrará la rama "${b}" y con ella ${arrastra}.`
+      : T`Se borrará la rama "${b}", que está vacía.`) + "\n\n" +
+    (n ? tx("También se pierden las conexiones que llegaban a esos nodos desde otras ramas. Lo ya logrado no te quita XP.") + "\n\n" : "") +
     tx("Esto no se puede deshacer."),
-    esTalentos ? tx("Borrar la rama") : tx("Borrar el proyecto"), true);
+    tx("Borrar la rama"), true);
   if (!ok) return;
 
-  state.ui[claveRamas(kind)] = ramasDe(kind).filter(n => n !== b);
-
+  state.ui.ramasTalentos = ramasDe("perks").filter(x => x !== b);
   const ids = new Set(lista.map(p => p.id));
-  if (esTalentos) {
-    state.perks = state.perks.filter(p => !ids.has(p.id));
-    // Nadie puede quedar exigiendo un talento que ya no existe: eso dejaría
-    // nodos bloqueados para siempre, sin forma de desbloquearlos.
-    state.perks.forEach(p => {
-      const r = requisitosDe(p);
-      if (r.some(id => ids.has(id))) p.requiere = r.filter(id => !ids.has(id));
-    });
-    /* Y sus cajas del ático. Se quedaban huérfanas hasta la siguiente carga, y
-       si se creaba otra rama con el mismo nombre aparecía dentro una caja
-       «0 guardados» que no venía de ningún sitio. */
-    state.cajas = (state.cajas || []).filter(c => c.branch !== b);
-    if (editandoRama(b, "talentos")) editBranch = null;
-    /* Y si se estaba viendo a pantalla completa, se sale: quedarse dentro de
-       una rama borrada es lo que dejaba la capa encima con datos fantasma. */
-    if (typeof fullscreenBranch !== "undefined" && fullscreenBranch === b
-        && fullscreenMod === "talentos") closeBranchFullscreen();
-  } else {
-    state.projects = state.projects.filter(p => !ids.has(p.id));
-    /* Igual que en Talentos: quedarse dentro de un proyecto borrado deja la
-       capa encima enseñando algo que ya no existe. */
-    if (typeof fullscreenBranch !== "undefined" && fullscreenBranch === b
-        && fullscreenMod === "proyectos") closeBranchFullscreen();
-    /* La misma trampa que en Talentos, y ahora tambien aqui porque un
-       encargo puede depender de otro: sin limpiar, los que apuntaban a uno
-       borrado se quedarian esperando un turno que no va a llegar nunca. */
-    state.projects.forEach(p => {
-      const r = requisitosDe(p);
-      if (r.some(id => ids.has(id))) p.requiere = r.filter(id => !ids.has(id));
-    });
-    if (editandoRama(b, "proyectos")) editBranch = null;
-    if (state.ui.mapaProyectos) delete state.ui.mapaProyectos[b];
-  }
+  state.perks = state.perks.filter(p => !ids.has(p.id));
+  // Nadie puede quedar exigiendo un nodo que ya no existe: se quedaría
+  // bloqueado para siempre, sin forma de desbloquearlo.
+  state.perks.forEach(p => {
+    const r = requisitosDe(p);
+    if (r.some(id => ids.has(id))) p.requiere = r.filter(id => !ids.has(id));
+  });
+  /* Y sus cajas del ático. Se quedaban huérfanas hasta la siguiente carga, y
+     si se creaba otra rama con el mismo nombre aparecía dentro una caja
+     «0 guardados» que no venía de ningún sitio. */
+  state.cajas = (state.cajas || []).filter(c => c.branch !== b);
+  // Lo de la pantalla que iba pegado al nombre
+  ["collapsed", "ramaClase", "ramaVista"].forEach(k => { if (state.ui[k]) delete state.ui[k][b]; });
+  if (editandoRama(b, "talentos")) editBranch = null;
+  /* Y si se estaba viendo a pantalla completa, se sale: quedarse dentro de
+     una rama borrada es lo que dejaba la capa encima con datos fantasma. */
+  if (typeof fullscreenBranch !== "undefined" && fullscreenBranch === b) closeBranchFullscreen();
   save();
-  if (esTalentos) renderTree(); else renderProjects();
-  toast(`Rama "${b}" borrada`, "deshecho");
+  renderTree();
+  toast(T`Rama "${b}" borrada`, "deshecho");
 }
 
 /* ---- Renombrar una rama de talentos ----
@@ -2857,24 +2820,28 @@ async function deleteBranch(kind, b) {
    perfectamente buena para renombrar— pero sí se avisa antes, porque el
    resultado no se puede adivinar desde el teclado. */
 async function renombrarRama(b) {
-  const nuevo = await askText(`Renombrar la rama "${b}"`, b, "Renombrar",
-    tx("Se reescribe en todos sus talentos y en sus cajas."));
+  const nuevo = await askText(T`Renombrar la rama "${b}"`, b, tx("Renombrar"),
+    tx("Se reescribe en todos sus nodos y en sus cajas."));
   if (nuevo === null || !nuevo || nuevo === b) return;
 
   const existe = state.perks.some(p => (p.branch || "General") === nuevo);
   if (existe && !await ask(
-    `Ya tienes una rama llamada "${nuevo}". Los talentos de "${b}" se van a juntar con los suyos en una sola rama.`,
-    "Juntarlas")) return;
+    T`Ya tienes una rama llamada "${nuevo}". Los nodos de "${b}" se van a juntar con los suyos en una sola rama.`,
+    tx("Juntarlas"))) return;
 
   state.perks.forEach(p => { if ((p.branch || "General") === b) p.branch = nuevo; });
   (state.cajas || []).forEach(c => { if (c.branch === b) c.branch = nuevo; });
   renombrarEnRamas("perks", b, nuevo);
   // El estado de la interfaz va pegado al nombre: si no se muda, la rama
-  // renombrada aparecería desplegada y la vieja seguiría "plegada" sin existir
-  if (state.ui && state.ui.collapsed && state.ui.collapsed[b]) {
-    delete state.ui.collapsed[b];
-    state.ui.collapsed[nuevo] = true;
-  }
+  // renombrada aparecería desplegada y la vieja seguiría "plegada" sin existir.
+  // Y desde la 0.7.145 también su clase y su vista: sin mudarlas, un proyecto
+  // renombrado se volvía rama de talento.
+  ["collapsed", "ramaClase", "ramaVista"].forEach(k => {
+    if (state.ui && state.ui[k] && state.ui[k][b] !== undefined) {
+      if (!existe) state.ui[k][nuevo] = state.ui[k][b];
+      delete state.ui[k][b];
+    }
+  });
   if (editandoRama(b, "talentos")) editBranch = nuevo;
   if (fullscreenBranch === b && fullscreenMod === "talentos") fullscreenBranch = nuevo;
   save();
@@ -2886,31 +2853,7 @@ async function renombrarRama(b) {
    lo que arrastra cada una es distinto —allí también hay cajas del ático y un
    modo edición abierto— y unificarlas dejaría una función con dos mitades que
    nunca se ejecutan juntas. */
-async function renombrarRamaProyectos(b) {
-  const nuevo = await askText(`Renombrar el proyecto "${b}"`, b, "Renombrar",
-    tx("Se reescribe en todos sus encargos."));
-  if (nuevo === null || !nuevo || nuevo === b) return;
-
-  const existe = state.projects.some(p => (p.branch || "General") === nuevo);
-  if (existe && !await ask(
-    `Ya tienes un proyecto llamado "${nuevo}". Los encargos de "${b}" se van a juntar con los suyos en uno solo.`,
-    "Juntarlos")) return;
-
-  state.projects.forEach(p => { if ((p.branch || "General") === b) p.branch = nuevo; });
-  renombrarEnRamas("projects", b, nuevo);
-  /* Igual que "plegada" en Talentos: si la vista no se muda con el nombre, el
-     proyecto renombrado vuelve a la lista y el nombre viejo se queda marcado
-     como "en mapa" sin existir. */
-  if (state.ui && state.ui.mapaProyectos && state.ui.mapaProyectos[b]) {
-    delete state.ui.mapaProyectos[b];
-    state.ui.mapaProyectos[nuevo] = true;
-  }
-  if (editandoRama(b, "proyectos")) editBranch = nuevo;
-  if (fullscreenBranch === b && fullscreenMod === "proyectos") fullscreenBranch = nuevo;
-  save();
-  renderProjects();
-  toast(existe ? `Proyectos juntados en "${nuevo}"` : `Ahora se llama "${nuevo}"`, "hecho");
-}
+async function renombrarRamaProyectos(b) { return renombrarRama(b); }
 
 /* Etiqueta de rama reutilizable: el mismo concepto en todas las secciones. */
 function branchHeader(name, countLabel, buttons) {

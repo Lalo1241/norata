@@ -56,14 +56,65 @@ function requisitosCumplidos(p) {
   return modoDe(p) === "cualquiera" ? hechos.length > 0 : hechos.length === reqs.length;
 }
 
+/* ================= Las ramas y su clase =================
+   Desde la 0.7.145 talentos y encargos son NODOS de la misma colección, y lo
+   que decide si una rama es de talento o de proyecto es su clase (ver
+   `mudarProyectos` en js/01-base.js). Talento es lo de siempre y no se
+   escribe: solo se apunta lo que es proyecto. */
+function claseDeRama(b) {
+  const c = state.ui && state.ui.ramaClase;
+  return c && c[b || "General"] === "proyecto" ? "proyecto" : "talento";
+}
+function esRamaDeProyecto(b) { return claseDeRama(b) === "proyecto"; }
+function esNodoEnProyecto(p) { return !!p && esRamaDeProyecto(p.branch || "General"); }
+function ponerClaseDeRama(b, clase) {
+  state.ui = state.ui || {};
+  state.ui.ramaClase = state.ui.ramaClase || {};
+  if (clase === "proyecto") state.ui.ramaClase[b] = "proyecto";
+  else delete state.ui.ramaClase[b];
+}
+/* Mapa o lista, por rama. Las de talento nacen en mapa, que es como siempre
+   se vieron; las que vienen de Proyectos traen la suya. */
+function vistaRama(b) {
+  const v = state.ui && state.ui.ramaVista;
+  return v && v[b] === "lista" ? "lista" : "mapa";
+}
+
+/* ---- La salud de un nodo de proyecto ----
+   Lo que antes era `projectHealth` para los encargos: cuánto lleva sin
+   moverse contra cuánto avanzó. Solo en ramas de proyecto (un talento no se
+   estanca: se sostiene con su plan) y solo en lo vivo — lo logrado, lo
+   soltado, lo pausado y lo que aún espera su candado no pueden estancarse.
+   Mismos umbrales de siempre: 45 días con menos del 60% es estancado, 21 es
+   enfriándose. */
+function saludDeNodo(p) {
+  if (!esNodoEnProyecto(p)) return null;
+  const st = perkStatus(p);
+  if (st === "completed" || st === "dropped" || st === "paused" || st === "locked") return null;
+  const ult = p.lastActivity || p.startDate || p.createdAt;
+  if (!ult) return null;
+  const idle = daysBetween(ult, todayKey());
+  const prog = perkProgress(p);
+  if (idle >= 45 && prog < 60) return { key: "stalled", idle, label: tx("Estancado") };
+  if (idle >= 21) return { key: "cooling", idle, label: tx("Enfriándose") };
+  return null;
+}
+
 /* ================= Talentos: estados ================= */
 
 function perkStatus(p) {
   if (p.status === "completed") return "completed";
+  /* Pausado y soltado vienen de Proyectos y valen para cualquier nodo. Los
+     pide la persona, así que mandan sobre el plazo y sobre el candado: una
+     pausa no vence ni se queda esperando a nadie. */
+  if (p.soltado) return "dropped";
+  if (p.pausa) return "paused";
   if (p.status === "expired") return "expired";
   if (p.status === "active") {
     // Congelado dentro de una caja: el plazo no corre, así que no vence
     if (p.congeladoEl) return "active";
+    // Sin plazo no hay fecha que vencer (el plazo es opcional desde la 0.7.145)
+    if (!p.endDate) return "active";
     return daysBetween(todayKey(), p.endDate) < 0 ? "due" : "active";
   }
   return requisitosCumplidos(p) ? "available" : "locked";
@@ -75,7 +126,9 @@ const STATUS_LABEL = {
   active: "En progreso",
   due: "Plan vencido",
   completed: "Permanente",
-  expired: "Perdido"
+  expired: "Perdido",
+  paused: "En pausa",
+  dropped: "Soltado"
 };
 
 /* ---- Avance de una meta: se cuenta, no se estima ----

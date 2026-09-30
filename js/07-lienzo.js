@@ -2759,8 +2759,11 @@ function constellation(nodes, key, editing, branch, mod) {
          llave lo dice el candado, no un color distinto. `paused` es gris del
          todo, porque una pausa la pediste tu y no espera a nada. */
       esperando: { stroke: colT, fill: relleno(col, "10"), glow: false, sop: 0.45 },
-      paused:    { stroke: "var(--lienzo-candado)", fill: "var(--lienzo-bloqueado)", glow: false }
-    }[st];
+      paused:    { stroke: "var(--lienzo-candado)", fill: "var(--lienzo-bloqueado)", glow: false },
+      /* Soltado: lo decidiste tú, como la pausa, y por eso gris y no coral.
+         Soltar no es fallar. */
+      dropped:   { stroke: "var(--lienzo-candado)", fill: "var(--lienzo-bloqueado)", glow: false, sop: 0.6 }
+    }[st] || { stroke: colT, fill: relleno(col, "12"), glow: false };
     /* El candado. En Talentos lo pone el estado "locked"; en Proyectos lo
        pone el interruptor del propio encargo, porque alli un nodo apagado
        casi siempre SI deja pasar y el candado tiene que significar que este
@@ -2809,10 +2812,12 @@ function constellation(nodes, key, editing, branch, mod) {
        Solo los dos avisos: "Con ritmo" y "Casi listo" son la mayoría de los
        encargos y una chapa en todos no distingue nada. Y solo en los vivos —
        un encargo terminado no puede estar estancado. */
-    const salud = (esNodoDeProyecto(n)
-                   && (n.status === "active" || n.status === "paused"))
+    /* Desde la 0.7.145 la salud es de los nodos de una rama de PROYECTO (un
+       talento no se estanca: se sostiene con su plan). */
+    const sal = esNodoEnProyecto(n) ? saludDeNodo(n) : null;
+    const salud = sal
       ? { stalled: { col: "var(--estado-fallo)", ic: "alert" },
-          cooling: { col: "var(--estado-curso)", ic: "luna" } }[projectHealth(n).key]
+          cooling: { col: "var(--estado-curso)", ic: "luna" } }[sal.key]
       : null;
     /* Y su esquina. En la caja normal cabe enfrente de la chapa de estado sin
        más, pero en el círculo de un gasto —que mide 19 de radio— las dos
@@ -2869,7 +2874,7 @@ function constellation(nodes, key, editing, branch, mod) {
         ${hecho > 0 ? `<path d="M ${x1} ${yb} H ${(x1 + w * hecho).toFixed(1)}" stroke="${colT}" stroke-width="3" stroke-linecap="round" fill="none"/>` : ""}
       </g>`; })() : ""}${salud ? `<g class="nod-salud"><circle cx="${x + saludR.dx}" cy="${y + saludR.dy}" r="9.5" fill="${salud.col}"/>
         <g transform="translate(${x + saludR.dx - 6}, ${y + saludR.dy - 6}) scale(0.5)"
-           stroke="var(--sobre-macizo)" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${ICONS[salud.ic]}</g></g>` : ""}
+           stroke="var(--sobre-estado)" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${ICONS[salud.ic]}</g></g>` : ""}
       <text class="nod-nombre" x="${sitio.anclaX}" y="${topY}" text-anchor="${sitio.ancla}" font-size="${esHito ? 9.5 : 10.5}" fill="var(--lienzo-rotulo)" font-weight="500">
         ${lines.map((ln, i) => `<tspan x="${sitio.anclaX}" dy="${i === 0 ? 0 : 12}">${escapeHtml(ln)}</tspan>`).join("")}
       </text>

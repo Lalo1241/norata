@@ -704,7 +704,101 @@ const STORE_KEY = "mainquest-v1";
    La regla va en un solo sentido: los datos VIEJOS se suben de escalón; los
    datos NUEVOS no se tocan, y mucho menos se escriben. */
 
-const SCHEMA = 2;
+const SCHEMA = 3;
+
+/* ================= Talentos y Proyectos, una sola estructura (v3) =================
+   Desde la 0.7.145 todo lo que antes era un talento o un encargo es un NODO,
+   y todos viven en `perks`. Lo que distingue un talento de un proyecto ya no
+   es la colección sino la CLASE DE SU RAMA (`ui.ramaClase[nombre]`): una rama
+   de talento crece —lo logrado es tuyo para siempre— y una de proyecto se
+   entrega. Lo pidió Eduardo: una sola estructura, con las reglas de Talentos.
+
+   La mudanza es DETERMINISTA a propósito: cada encargo conserva su id, y dos
+   dispositivos que mudan por su cuenta llegan exactamente al mismo resultado.
+   Si no, al sincronizarse se duplicaría todo. Y es IDEMPOTENTE: un encargo
+   cuyo id ya está en `perks` no se vuelve a mudar, así que puede correr en la
+   migración, al cargar y al fusionar sin pisarse.
+
+   Lo que se conserva, y por qué:
+     · el XP y el dinero ya ganados: lo terminado entra como logrado, sin
+       volver a pagar nada;
+     · lo empezado no amanece bloqueado: un encargo con etapas hechas entra
+       «en curso», que es un estado que ignora los candados;
+     · pausado y descartado siguen siendo lo que eran (`pausa`, `soltado`);
+     · la vista (lista o mapa) y el orden de las ramas.
+   Un proyecto que se llamaba igual que una rama de talentos se renombra a
+   «Nombre (proyecto)»: dos ramas no pueden compartir nombre, porque todo lo
+   de la pantalla —plegar, girar, el encuadre— va por nombre. */
+const TIPO_DE_ENCARGO = { tarea: "meta", entrega: "hito", decision: "hito", gasto: "compra" };
+function mudarProyectos(d) {
+  const prs = d && Array.isArray(d.projects) ? d.projects : [];
+  if (!d) return d;
+  d.ui = d.ui && typeof d.ui === "object" ? d.ui : {};
+  const clase = d.ui.ramaClase = (d.ui.ramaClase && typeof d.ui.ramaClase === "object") ? d.ui.ramaClase : {};
+  const vista = d.ui.ramaVista = (d.ui.ramaVista && typeof d.ui.ramaVista === "object") ? d.ui.ramaVista : {};
+  const ordenP = Array.isArray(d.ui.ramasProyectos) ? d.ui.ramasProyectos : [];
+  if (!prs.length && !ordenP.length) return d;
+  d.perks = Array.isArray(d.perks) ? d.perks : [];
+
+  const deTalento = new Set();
+  d.perks.forEach(p => { const b = (p && p.branch) || "General"; if (clase[b] !== "proyecto") deTalento.add(b); });
+  (Array.isArray(d.ui.ramasTalentos) ? d.ui.ramasTalentos : []).forEach(b => { if (clase[b] !== "proyecto") deTalento.add(b); });
+  const renombre = {};
+  const nombreDe = viejo => {
+    if (renombre[viejo]) return renombre[viejo];
+    let n = viejo;
+    if (deTalento.has(n)) {
+      n = viejo + " (proyecto)";
+      for (let k = 2; deTalento.has(n); k++) n = viejo + " (proyecto " + k + ")";
+    }
+    renombre[viejo] = n;
+    clase[n] = "proyecto";
+    return n;
+  };
+
+  const ids = new Set(d.perks.map(p => p && p.id));
+  prs.forEach(pr => {
+    if (!pr || !pr.id) return;
+    const b = nombreDe(pr.branch || "General");
+    if (ids.has(pr.id)) return;
+    const steps = Array.isArray(pr.steps) ? pr.steps : [];
+    const p = {
+      id: pr.id, name: pr.name, branch: b, desc: pr.desc || "",
+      icon: pr.icon, color: pr.color,
+      tipo: TIPO_DE_ENCARGO[pr.tipo] || "meta",
+      cost: 0, investedTotal: 0, planDays: 0,
+      steps, skillId: pr.skillId || null, xpReward: Number(pr.xpReward) || 0,
+      requiere: Array.isArray(pr.requiere) ? pr.requiere : [],
+      modo: pr.modo === "cualquiera" ? "cualquiera" : "todos",
+      status: null, startDate: null, endDate: null,
+      completedAt: pr.completedAt || null,
+      createdAt: pr.createdAt || null,
+      lastActivity: pr.lastActivity || null,
+      history: Array.isArray(pr.history) ? pr.history : []
+    };
+    if (typeof pr.x === "number") p.x = pr.x;
+    if (typeof pr.y === "number") p.y = pr.y;
+    if (pr.status === "done") p.status = "completed";
+    else if (steps.some(s => s && s.done)) { p.status = "active"; p.startDate = pr.createdAt || null; }
+    if (pr.status === "paused") p.pausa = true;
+    if (pr.status === "dropped") p.soltado = true;
+    d.perks.push(p);
+    ids.add(p.id);
+  });
+
+  /* Las ramas de proyecto, detrás de las de talento y en su orden de siempre.
+     También las vacías, que solo existían en esa lista. */
+  const nombresP = ordenP.map(nombreDe);
+  const ordenT = Array.isArray(d.ui.ramasTalentos) ? d.ui.ramasTalentos : [];
+  d.ui.ramasTalentos = [...ordenT, ...nombresP.filter(n => !ordenT.includes(n))];
+  const enMapa = (d.ui.mapaProyectos && typeof d.ui.mapaProyectos === "object") ? d.ui.mapaProyectos : {};
+  Object.keys(renombre).forEach(v => {
+    if (!vista[renombre[v]]) vista[renombre[v]] = enMapa[v] ? "mapa" : "lista";
+  });
+  d.projects = [];
+  d.ui.ramasProyectos = [];
+  return d;
+}
 
 /* Cada entrada sube un escalón: `MIGRACIONES[n]` convierte datos de la
    versión n a la n+1. */
@@ -735,7 +829,10 @@ const MIGRACIONES = {
       });
     });
     return d;
-  }
+  },
+  /* v2 -> v3. Talentos y Proyectos pasan a ser una sola estructura: ver
+     `mudarProyectos` arriba. */
+  2(d) { return mudarProyectos(d); }
 };
 
 /* Mientras esté puesto, la app mira pero no escribe. Es la única defensa
@@ -1341,6 +1438,13 @@ function load() {
     if (!Array.isArray(s.log)) s.log = [];
     if (typeof s.xp !== "number" || !isFinite(s.xp)) s.xp = 0;
   });
+  /* Si todavía queda algún encargo en la colección vieja —un respaldo de antes
+     importado, lo que baje de un dispositivo sin actualizar—, se muda aquí.
+     Es la misma función que la migración y no hace nada si no hay nada que
+     mudar. */
+  mudarProyectos(data);
+  data.ui.ramaClase = (data.ui.ramaClase && typeof data.ui.ramaClase === "object") ? data.ui.ramaClase : {};
+  data.ui.ramaVista = (data.ui.ramaVista && typeof data.ui.ramaVista === "object") ? data.ui.ramaVista : {};
   const idsDeTalento = new Set(data.perks.map(p => p.id));
   data.cajas.forEach(c => {
     if (!Array.isArray(c.perkIds)) c.perkIds = [];

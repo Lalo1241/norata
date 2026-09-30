@@ -139,9 +139,9 @@ function anivDatos(a) {
   });
 
   // Lo que construiste: talentos terminados y etapas de proyectos cerradas.
-  const talentos = (state.perks || []).filter(p => p.status === "completed" && p.completedAt && dentro(p.completedAt)).length;
+  const talentos = (state.perks || []).filter(p => !esNodoEnProyecto(p) && p.status === "completed" && p.completedAt && dentro(p.completedAt)).length;
   let etapas = 0;
-  (state.projects || []).forEach(pr => (pr.steps || []).forEach(st => {
+  (state.perks || []).filter(esNodoEnProyecto).forEach(pr => (pr.steps || []).forEach(st => {
     const k = st.done && st.at ? diaDeSello(st.at) : null;
     if (k && dentro(k)) etapas++;
   }));

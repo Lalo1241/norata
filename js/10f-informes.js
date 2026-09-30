@@ -101,7 +101,7 @@ function diaDeSello(at) {
    - `porHora`: solo las marcas que llevan hora. Las de antes del 27 de agosto
      de 2026 no la llevan y no se pueden inventar. */
 function metricasMisiones(r, D) {
-  const datos = D || state;
+  const datos = vistaInforme(D);
   const dias = diasDe(r);
   const m0 = { marcas: 0, tocaban: 0, completas: 0, porHora: new Array(24).fill(0), porDiaSemana: new Array(7).fill(0), conHora: 0 };
 
@@ -157,7 +157,7 @@ function familiaDeFuente(e) {
 }
 
 function metricasHabilidades(r, D) {
-  const datos = D || state;
+  const datos = vistaInforme(D);
   const out = {
     ganada: 0, perdida: 0, minutos: 0, niveles: 0, sesiones: 0,
     porFuente: { misiones: 0, talentos: 0, proyectos: 0, practica: 0, pomodoro: 0 },
@@ -226,7 +226,7 @@ function diaDeInversion(p) {
 }
 
 function metricasTalentos(r, D) {
-  const datos = D || state;
+  const datos = vistaInforme(D);
   const out = { invertido: 0, completados: 0, abiertos: 0, vencidos: 0, invertidoPorRama: new Map() };
 
   for (const p of datos.perks) {
@@ -249,13 +249,13 @@ function metricasTalentos(r, D) {
    panel, no de informe: contesta «¿qué tengo que mirar ya?». */
 function talentosPorVencer(dias, D) {
   const tope = addDaysKey(todayKey(), dias);
-  return (D || state).perks.filter(p => p.status === "active" && p.endDate && p.endDate >= todayKey() && p.endDate <= tope);
+  return (vistaInforme(D)).perks.filter(p => p.status === "active" && p.endDate && p.endDate >= todayKey() && p.endDate <= tope);
 }
 
 /* ================= Proyectos ================= */
 
 function metricasProyectos(r, D) {
-  const datos = D || state;
+  const datos = vistaInforme(D);
   const out = { etapas: 0, terminados: 0, soltados: 0, creados: 0 };
 
   for (const pr of datos.projects) {
@@ -296,7 +296,7 @@ function metricasProyectos(r, D) {
    - `xp`: lo que el Pomodoro dio a las habilidades, leído del historial de
      cada una por su origen — la misma cuenta que el reparto de Habilidades. */
 function metricasPomodoro(r, D) {
-  const datos = D || state;
+  const datos = vistaInforme(D);
   const j = datos.jornada || {};
   const reg = Array.isArray(j.registro) ? j.registro : [];
   const out = {
@@ -567,6 +567,25 @@ function rachaDemo(D) {
    cuando la pestaña está en modo demo. Una sola función para no tener que
    acordarse en cada sitio; devuelve null con tus datos, que es lo que las
    funciones de métricas entienden como «usa `state`». */
+/* ---- Lo que leen los informes ----
+   Desde la 0.7.145 talentos y encargos son nodos de la misma colección, y lo
+   que era un encargo es un nodo de una rama de PROYECTO. Los informes se
+   escribieron con dos colecciones y así los siguen viendo: esta vista les da
+   `perks` con los de talento y `projects` con los de proyecto, cada uno con
+   la palabra de estado que esperan (done, paused, dropped, active). Una
+   puerta aquí en vez de tocar cada gráfica: si algún día se reescriben,
+   basta con quitarla. */
+function vistaInforme(D) {
+  if (D) return D;
+  const todos = state.perks || [];
+  return Object.assign({}, state, {
+    perks: todos.filter(p => !esNodoEnProyecto(p)),
+    projects: todos.filter(esNodoEnProyecto).map(p => Object.assign({}, p, {
+      status: p.status === "completed" ? "done" : p.soltado ? "dropped" : p.pausa ? "paused" : "active"
+    }))
+  });
+}
+
 function datosDeAhora() {
   return pruebaDemo() ? datosDemo() : null;
 }
@@ -628,7 +647,7 @@ function statsPanelHabilidades(ctx) {
   const D = datosDeAhora();
   const { a, b } = ventanasPanel();
   const m = metricasHabilidades(a, D), p = metricasHabilidades(b, D);
-  const cuantas = (D || state).skills.length;
+  const cuantas = (vistaInforme(D)).skills.length;
   const decayendo = D ? D.skills.filter(isDecaying).length : ctx.decaying;
 
   return [

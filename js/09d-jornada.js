@@ -322,7 +322,8 @@ function jHm(min) {
 
 /* ---------- A qué apunta un bloque ---------- */
 function jColeccion(t) {
-  return ({ mision: state.missions, habilidad: state.skills, talento: state.perks, proyecto: state.projects })[t] || [];
+  // Un encargo es un nodo desde la 0.7.145, con el mismo id: se busca en perks
+  return ({ mision: state.missions, habilidad: state.skills, talento: state.perks, proyecto: state.perks })[t] || [];
 }
 function jRef(ref) {
   if (!ref) return null;
@@ -400,8 +401,8 @@ function jCandidatos() {
   return [
     ["mision", tx("Misiones de hoy"), (state.missions || []).filter(m => missionDueToday(m))],
     ["habilidad", tx("Habilidades"), state.skills || []],
-    ["talento", tx("Talentos en curso"), (state.perks || []).filter(p => p.status === "active")],
-    ["proyecto", tx("Encargos en curso"), (state.projects || []).filter(p => p.status === "active" || p.status === "paused")]
+    ["talento", tx("Talentos en curso"), (state.perks || []).filter(p => p.status === "active" && !esNodoEnProyecto(p))],
+    ["proyecto", tx("Proyectos en curso"), (state.perks || []).filter(p => esNodoEnProyecto(p) && ["active", "available", "paused"].includes(perkStatus(p)))]
   ].filter(g => g[2].length);
 }
 

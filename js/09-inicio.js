@@ -57,6 +57,10 @@
    Las llaves `k` y `req` son de aquí y no llegan a los datos: `uid()` no existe
    hasta crear el nodo, así que los requisitos se escriben con nombres cortos y
    `buildFromOnboarding` los traduce a ids de verdad. */
+/* Cuántas áreas deja elegir la bienvenida. Antes salía del tope de ramas del
+   plan gratuito; desde que ese tope es 4 (0.7.145) va aparte, porque cada área
+   trae dos habilidades y el tope de habilidades sigue siendo seis. */
+const AREAS_BIENVENIDA = 3;
 const ONBOARD_AREAS = [
   { id: "salud", proyectos: ["Correr mi primera carrera", "Armar mi rutina en casa"],     label: "Mover mi cuerpo",     icon: "dumbbell", color: "#ff8a70",
     skills: ["Ejercicio", "Correr"],
@@ -501,7 +505,7 @@ function toggleArea(id) {
      tener — y la persona se encontraría el tope alcanzado sin haber hecho
      nada. Se lee el de `libre` incluso para quien paga: la bienvenida es
      la primera vez para todos, y ya podrá añadir más después. */
-  else if (onboardPick.areas.length < LIMITES.libre.ramas) onboardPick.areas.push(id);
+  else if (onboardPick.areas.length < AREAS_BIENVENIDA) onboardPick.areas.push(id);
   else { toast(tx("Tres es suficiente para empezar"), "atencion"); return; }
   renderOnboarding();
 }
@@ -763,6 +767,9 @@ function sembrarLoApuntado() {
       createdAt: today, lastActivity: today, completedAt: null,
       history: [{ date: today, at: stamp(), event: tx("Proyecto creado desde la bienvenida") }]
     });
+    /* Lo que la bienvenida apuntó como proyecto entra como nodo de una rama de
+       proyecto, por la misma puerta que la mudanza (js/01-base.js). */
+    mudarProyectos(state);
     s.project = "";
     algo = true;
   }
@@ -807,9 +814,9 @@ const TUTO_PASOS = [
     pie: "Y si dejas una abandonada mucho tiempo, baja. El progreso se sostiene, no se guarda."
   },
   {
-    modulo: "tree", icon: "gem", color: "#b7a2ea", titulo: "Talentos",
-    tx: "Lo que <b>te propones</b>, en un mapa. Cada nodo es una compra, un hito o una meta, y se encadenan: unos abren el paso a otros.",
-    pie: "Es el módulo para lo que cuesta dinero o meses, no para lo de esta tarde."
+    modulo: "tree", icon: "gem", color: "#b7a2ea", titulo: "Ramas",
+    tx: "Lo que <b>te propones</b>, en ramas que se abren como un árbol. Cada nodo es una meta, un hito, una compra o algo que acumulas, y se encadenan: unos abren el paso a otros.",
+    pie: "Es el módulo para lo que lleva semanas o meses, no para lo de esta tarde."
   },
   {
     modulo: "projects", icon: "flag", color: "#6fc3e8", titulo: "Proyectos",
@@ -818,7 +825,7 @@ const TUTO_PASOS = [
        incluso más, porque esta tarjeta es donde alguien aprende cómo se llama
        cada cosa — si el módulo se llama Proyectos y el tutorial dice
        «encargos», el nombre queda torcido desde el primer minuto. */
-    tx: "Los <b>proyectos</b> que te haces a ti: cosas que construyes por etapas, con principio y final. La app mide tu ritmo y te dice cuáles siguen vivos.",
+    tx: "Una rama también puede ser un <b>proyecto</b>: algo con principio y final, que se entrega. La app mide su ritmo y te dice cuáles siguen vivos.",
     pie: "Un proyecto que lleva semanas quieto te lo dirá, sin regañarte."
   },
   {
@@ -1621,7 +1628,7 @@ function loadProjectExamples(silent) {
 
   state.projects.push(
     {
-      id: uid(), name: tx("Renovar la cocina"), branch: "Casa", icon: "wrench", color: "#f5d76e",
+      id: uid(), name: tx("Renovar la cocina"), branch: tx("Hogar"), icon: "wrench", color: "#f5d76e",
       desc: tx("Dejar la cocina funcional y ordenada, sin obra mayor."),
       status: "active", skillId: skillBy("Reparaciones"), xpReward: 250,
       steps: steps([[tx("Medir y hacer lista de lo que falta"), true], ["Comprar organizadores", true], ["Ordenar alacena", false], [tx("Cambiar la iluminación"), false]]),
@@ -1654,7 +1661,10 @@ function loadProjectExamples(silent) {
       ]
     }
   );
-  if (!silent) { save(); renderProjects(); toast(tx("Proyectos de ejemplo cargados")); }
+  /* Por la misma puerta que la mudanza: los encargos de ejemplo entran como
+     nodos de ramas de proyecto (0.7.145). */
+  mudarProyectos(state);
+  if (!silent) { save(); renderTree(); toast(tx("Proyectos de ejemplo cargados")); }
 }
 
 /* ================= Zona horaria ================= */

@@ -833,7 +833,10 @@ let prColor = COLORS[0];
 let formSteps = [];
 let prTipo = "tarea";
 
-function openProjectForm(id, presetBranch) {
+/* Un encargo nuevo es un nodo de la rama (0.7.145): se abre el formulario de
+   siempre con la rama puesta. */
+function openProjectForm(id, presetBranch) { return openPerkForm(id, presetBranch); }
+function openProjectFormViejo(id, presetBranch) {
   editingProjectId = id || null;
   const pr = id ? state.projects.find(x => x.id === id) : null;
 

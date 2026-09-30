@@ -265,7 +265,7 @@ const EXP_ESCALERA = [
      son los dibujos de esos módulos en ninguna parte de la app. El de verdad lo
      saca `trazoDeModulo()` del propio botón de la barra — un dibujo, un sitio. */
   { nivel: 0,  tipo: "modulo", id: "tree",     nombre: "El árbol de talentos", corto: "Talentos",  listo: true },
-  { nivel: 0,  tipo: "modulo", id: "projects", nombre: "Proyectos y encargos", corto: "Proyectos", listo: true },
+  { nivel: 0,  tipo: "modulo", id: "projects", nombre: "Ramas de proyecto", corto: "Proyectos", listo: true },
   { nivel: 3,  tipo: "celebracion", nombre: "Destello propio al cumplir una misión", corto: "Destello propio", listo: true },
   { nivel: 6,  tipo: "rango",       nombre: "Rango Andante", listo: true },
   { nivel: 9,  tipo: "celebracion", nombre: "Racha avivada", corto: "Racha avivada", listo: true },
@@ -451,16 +451,20 @@ function expDesgloseCrudo() {
     if (typeof fingidos === "number") return { pruebas: fingidos };
   }
 
-  const perks = state.perks || [];
-  const proyectos = state.projects || [];
+  /* Desde la 0.7.145 talentos y encargos viven juntos: lo que era un encargo
+     es un nodo de una rama de PROYECTO, y se cuenta como encargo — 50 puntos
+     haga lo que haga su tipo. Si no, un encargo «Entrega» mudado a hito
+     valdría 20 en vez de 50 y el nivel de expedición bajaría solo al
+     actualizar, que es justo lo que la regla del nivel prohíbe. */
+  const todos = state.perks || [];
+  const perks = todos.filter(p => !esNodoEnProyecto(p));
+  const proyectos = todos.filter(esNodoEnProyecto);
 
-  const etapas =
-    perks.reduce((n, p) => n + (p.steps || []).filter(x => x.done).length, 0) +
-    proyectos.reduce((n, p) => n + (p.steps || []).filter(x => x.done).length, 0);
+  const etapas = todos.reduce((n, p) => n + (p.steps || []).filter(x => x.done).length, 0);
 
   const hitos = perks.filter(p => p.status === "completed" && tipoDe(p) === "hito").length;
   const talentos = perks.filter(p => p.status === "completed" && tipoDe(p) !== "hito").length;
-  const encargos = proyectos.filter(p => p.status === "done").length;
+  const encargos = proyectos.filter(p => p.status === "completed").length;
 
   const niveles = state.skills.reduce((n, s) => n + expNivelMaximo(s), 0);
 

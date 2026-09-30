@@ -366,7 +366,7 @@ const LECTURAS = {
    regla llamaría a las métricas por su cuenta y un informe recorrería el
    historial treinta veces para dibujar cuatro frases. */
 function contextoLecturas(r, rAntes, D) {
-  const datos = D || state;
+  const datos = vistaInforme(D);
   const m = metricasMisiones(r, D);
   const h = metricasHabilidades(r, D);
 

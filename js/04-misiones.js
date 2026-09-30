@@ -1068,8 +1068,12 @@ async function setProjectStatus(prId, status) {
 const MODULOS = [
   { id: "missions", nav: "nav-missions", label: "Misiones",    hint: "Lo que haces hoy, con su racha" },
   { id: "home",     nav: "nav-home",     label: "Habilidades", hint: "Lo que practicas y sube de nivel" },
-  { id: "tree",     nav: "nav-tree",     label: "Talentos",    hint: "Metas con inversión de dinero real" },
-  { id: "projects", nav: "nav-projects", label: "Proyectos",   hint: "Lo que construyes, encargo a encargo" },
+  /* «Ramas» desde la 0.7.145: Talentos y Proyectos son un solo módulo, con
+     ramas de dos clases. El id sigue siendo `tree` para no dejar huérfanos los
+     interruptores y los datos guardados con él. «projects» ya no es un módulo
+     con pantalla: queda como el nombre del candado que abre las ramas de
+     PROYECTO en el nivel 5 (ver `MODULO_NIVEL`). */
+  { id: "tree",     nav: "nav-tree",     label: "Ramas",       hint: "Talentos y proyectos, en ramas que se abren" },
   /* El Pomodoro. Nació en la 0.7.101 APAGADO y detrás de `?jornada=1`, y en la
      0.7.103 pasó a ser un módulo como los otros cuatro: encendido para todos y
      con su interruptor en Ajustes. Lo pidió Eduardo porque «no siempre sale»,
@@ -1114,7 +1118,12 @@ const MODULO_NIVEL = { tree: 3, projects: 5 };
    pasar por ninguna bandera nuestra. */
 function moduloConCosas(id) {
   if (id === "tree") return (state.perks || []).length > 0;
-  if (id === "projects") return (state.projects || []).length > 0;
+  /* Las ramas de proyecto están abiertas si ya hay alguna, tenga nodos o no:
+     quien ya las usa las ve, tenga el nivel que tenga. */
+  if (id === "projects") {
+    const c = (state.ui && state.ui.ramaClase) || {};
+    return Object.keys(c).some(b => c[b] === "proyecto");
+  }
   return true;
 }
 
@@ -1652,6 +1661,8 @@ const VISTA_MODULO = {
 
 function moduloOn(id) {
   const off = (state.ui && state.ui.modulosOff) || [];
+  // Las ramas de proyecto viven dentro de Ramas: se apagan con ella
+  if (id === "projects") return !off.includes("tree");
   return !off.includes(id);
 }
 
@@ -2002,6 +2013,10 @@ function esqQuitar(name) {
 }
 
 function showView(name) {
+  /* Las pantallas de Proyectos ya no existen (0.7.145): todo vive en Ramas.
+     Un enlace viejo, un botón que se quedara apuntando ahí o el gesto de atrás
+     aterrizan en la pantalla nueva en vez de en una vacía. */
+  if (name === "projects" || name === "project" || name === "project-form") name = "tree";
   /* Un módulo apagado —o que el nivel todavía no abrió— no se abre ni por un
      enlace que quedara apuntando ahí. Aquí se rebota en silencio a propósito:
      esta función la llaman el arranque, el gesto de atrás y una docena de

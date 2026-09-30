@@ -538,7 +538,7 @@ function portadaHTML(r, rAntes, D) {
    éste. Se corta en los bordes a propósito — una racha que viene de diciembre
    se cuenta desde el 1 de enero, porque lo que se está contando es el año. */
 function rachaMasLarga(r, D) {
-  const datos = D || state;
+  const datos = vistaInforme(D);
   const dias = diasDe(r);
   let mejor = 0, run = 0;
   dias.forEach(k => {
@@ -624,7 +624,7 @@ function antesalaHTML() {
 
 function infMisiones(r, rAntes, D) {
   const m = metricasMisiones(r, D), p = metricasMisiones(rAntes, D);
-  const datos = D || state;
+  const datos = vistaInforme(D);
 
   let html = bloque(tx("Tu constancia"), tx("De todo lo que tocaba hacer, ¿cuánto hiciste?"),
     `<div class="inf-doble">
@@ -714,7 +714,7 @@ function infMisiones(r, rAntes, D) {
 
 function infHabilidades(r, rAntes, D) {
   const h = metricasHabilidades(r, D), p = metricasHabilidades(rAntes, D);
-  const datos = D || state;
+  const datos = vistaInforme(D);
   const f = h.porFuente;
 
   let html = bloque(tx("¿De dónde sale tu XP?"),
@@ -876,7 +876,7 @@ function jHm2(min) {
 
 function infTalentos(r, rAntes, D) {
   const t = metricasTalentos(r, D), p = metricasTalentos(rAntes, D);
-  const datos = D || state;
+  const datos = vistaInforme(D);
 
   let html = bloque(tx("En qué se te va el dinero"), tx("Lo invertido en este periodo, por rama."),
     gBarrasH([...t.invertidoPorRama.entries()]
@@ -956,7 +956,7 @@ function infTalentos(r, rAntes, D) {
 
 function infProyectos(r, rAntes, D) {
   const pr = metricasProyectos(r, D), pa = metricasProyectos(rAntes, D);
-  const datos = D || state;
+  const datos = vistaInforme(D);
   const vivos = datos.projects.filter(x => x.status === "active" || x.status === "paused");
 
   /* La salud sale de `projectHealth`, que ya existía: repetir aquí esa

@@ -173,14 +173,19 @@ const LIMITES = {
        dibuja un árbol: dibuja una lista. La pantalla más trabajada de la app
        quedaba entera detrás del muro, y lo que hay que enseñar para que
        alguien quiera pagar es justo eso. */
-    ramas: 3,
+    /* Cuatro ramas de CUALQUIER clase —talento o proyecto— con quince nodos
+       cada una (0.7.145, lo fijó Eduardo al juntar los dos módulos). Antes
+       eran 3×12 talentos y 2×3 encargos por separado. La bienvenida NO lee de
+       aquí cuántas áreas deja elegir: son tres (ver `AREAS_BIENVENIDA`),
+       porque cada área trae dos habilidades y el tope de habilidades es seis. */
+    ramas: 4,
     /* Doce POR RAMA, no doce en total: la cuenta se hace con
        `talentosDeRama()` en 07 y en 08, así que quien no paga llega a 36. Le
        advertí que doce se tocan en semanas y que eso convierte lo gratis en
        una prueba más que en una app; con tres ramas eso ya no muerde igual.
        Los dos límites van juntos porque limitar ramas sin limitar talentos
        invita a meter todo en una y no pagar nunca. */
-    talentos: 12,
+    talentos: 15,
     /* Proyectos no tenía tope de NINGUNA clase hasta aquí: ni ramas ni
        encargos, en ningún plan, mientras la tabla de precios ya hablaba de
        límites. Dos y no una por lo mismo que las tres de talentos: con un

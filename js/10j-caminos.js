@@ -111,7 +111,8 @@ function caminoYaPuesto(id) {
    sobrescribir. El numero es feo los diez segundos que se tarda en renombrarla,
    que ya se puede porque el camino entra tal cual y se edita sobre la marcha. */
 function ramaLibre(base, kind) {
-  const usadas = ramasDe(kind || "perks");
+  // Una sola lista de ramas para las dos clases (0.7.145)
+  const usadas = ramasDe("perks");
   if (!usadas.includes(base)) return base;
   let n = 2;
   while (usadas.includes(base + " " + n)) n++;
@@ -289,7 +290,7 @@ function cerrarCajon() {
    ya están guardadas. Los demás se ven igual: un catálogo que solo enseña lo
    tuyo encierra a la gente en la respuesta que dio un martes. */
 function caminosSugeridos(lista) {
-  const mias = ramasDe(cajonKind || "perks");
+  const mias = ramasDe("perks");
   return lista.filter(c => mias.includes(c.rama));
 }
 
@@ -300,8 +301,9 @@ function pintarCajon() {
   /* Dos motivos distintos para no poder soltar uno, y cada uno con su cuadro:
      no tener plan, o tener el plan y las ramas llenas. Se mira el plan primero
      porque es el que se puede resolver. */
-  const claveTope = proy ? "ramasProyectos" : "ramas";
-  const cabe = cabeUnoMas(claveTope, ramasDe(cajonKind).length);
+  /* Un solo tope para las ramas de las dos clases: cuatro en el plan Gratuito */
+  const claveTope = "ramas";
+  const cabe = cabeUnoMas(claveTope, ramasDe("perks").length);
   const trabada = !planPermite("caminos") ? "caminos" : (!cabe ? claveTope : null);
 
   const sug = caminosSugeridos(lista);
@@ -330,7 +332,7 @@ function pintarCajon() {
       </button>` : ""}
       ${trabada ? `<p class="cam-aviso">${trabada === "caminos"
         ? `Los caminos vienen con <b>${NOMBRE_PRO}</b>. Puedes mirarlos y quedarte con el que quieras.`
-        : `Tus ${LIMITES.libre[claveTope]} ${proy ? "proyectos" : "ramas"} están llenas. Puedes mirarlos y quedarte con uno para cuando abras ${proy ? "otro" : "otra"}.`}</p>` : ""}
+        : T`Tus ${LIMITES.libre[claveTope]} ramas están llenas. Puedes mirarlos y quedarte con uno para cuando abras otra.`}</p>` : ""}
       ${sug.length ? `<p class="cam-rot">${tx("Por lo que elegiste al empezar")}</p>
         <div class="cam-rejilla">${sug.map(c => cartaDeCamino(c, trabada)).join("")}</div>` : ""}
       ${resto.length ? `<p class="cam-rot">${sug.length ? tx("Los demás") : tx("Los caminos")}</p>
@@ -461,9 +463,12 @@ function ponerCamino(id) {
         ? T`Encargo creado en el proyecto ${rama}` : T`Talento creado en la rama ${rama}` }]
     };
     if (proy) {
-      state.projects.push(Object.assign(base, {
-        mod: "proyectos", status: "active", steps: pasos,
-        xpReward: xpDePeldano(p), espera: p.espera === true, lastActivity: hoy
+      /* Un encargo de camino es un NODO de una rama de proyecto (0.7.145),
+         con el tipo traducido igual que en la mudanza y sin plazo. */
+      state.perks.push(Object.assign(base, {
+        tipo: TIPO_DE_ENCARGO[p.tipo] || "meta", cost: 0, planDays: 0, steps: pasos,
+        xpReward: xpDePeldano(p), status: null, startDate: null, endDate: null,
+        investedTotal: 0, lastActivity: hoy
       }));
     } else {
       state.perks.push(Object.assign(base, {
@@ -492,13 +497,13 @@ function ponerCamino(id) {
   state.ui = state.ui || {};
   state.ui.caminos = state.ui.caminos || {};
   state.ui.caminos[rama] = c.id;
-  const clave = proy ? "ramasProyectos" : "ramasTalentos";
-  state.ui[clave] = state.ui[clave] || [];
-  if (!state.ui[clave].includes(rama)) state.ui[clave].push(rama);
+  state.ui.ramasTalentos = state.ui.ramasTalentos || [];
+  if (!state.ui.ramasTalentos.includes(rama)) state.ui.ramasTalentos.push(rama);
+  if (proy) ponerClaseDeRama(rama, "proyecto");
 
   save();
   cerrarCajon();
-  showView(proy ? "projects" : "tree");
+  showView("tree");
 
   /* Una celebración de las pequeñas: se va sola a los 2,2 s y no se puede
      pulsar, así que no interrumpe. Y la segunda línea no felicita — señala el

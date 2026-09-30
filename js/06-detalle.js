@@ -714,11 +714,9 @@ function guardarEtapaEnLista(prId, valor) {
   renderProjects();
 }
 
-function openProject(id) {
-  currentProjectId = id;
-  renderProjectDetail();
-  showView("project");
-}
+/* Un encargo es un nodo desde la 0.7.145, con el mismo id: se abre su ficha.
+   Queda esta puerta porque la llaman enlaces viejos y el Pomodoro. */
+function openProject(id) { openPerk(id); }
 
 function renderProjectDetail() {
   const pr = state.projects.find(x => x.id === currentProjectId);
@@ -1023,8 +1021,8 @@ function renderDetail() {
    entrenan a diario, los talentos que la desbloquean y los proyectos que la usan. */
 function linkedToSkill(s) {
   const ms = state.missions.filter(m => m.skillId === s.id);
-  const pk = state.perks.filter(p => p.skillId === s.id);
-  const pr = state.projects.filter(p => p.skillId === s.id);
+  const pk = state.perks.filter(p => p.skillId === s.id && !esNodoEnProyecto(p));
+  const pr = state.perks.filter(p => p.skillId === s.id && esNodoEnProyecto(p));
   if (!ms.length && !pk.length && !pr.length) {
     return `
     <div class="panel alt">
@@ -1065,9 +1063,9 @@ function linkedToSkill(s) {
         </button>`;
       }))}
       ${group("encargo", "encargos", "flag", pr.map(p => `
-        <button class="linked-row" style="--lc:${pinta(p.color)}" onclick="openProject('${p.id}')">
+        <button class="linked-row" style="--lc:${pinta(p.color)}" onclick="openPerk('${p.id}')">
           <span class="lr-ic">${icon(p.icon, 16)}</span>
-          <span class="lr-tx"><b>${escapeHtml(p.name)}</b><span>${projectProgress(p)}% · ${tx(PROJECT_STATUS[p.status].label)}</span></span>
+          <span class="lr-tx"><b>${escapeHtml(p.name)}</b><span>${perkProgress(p)}% · ${tx(STATUS_LABEL[perkStatus(p)])}</span></span>
           <span class="lr-go">→</span>
         </button>`))}
     </div>`;
