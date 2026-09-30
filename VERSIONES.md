@@ -247,6 +247,50 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.144 · 29 sep 2026
+
+**Catedral y Averno suenan cada uno a lo suyo, y ningún logro suena a
+derrota.** Desde la 0.7.141 eran dos mundos con el mismo sonido: Catedral
+apuntaba al material del gótico de antes y el Averno nuevo lo tomaba
+prestado. Se eligió en el boceto «El sonido de Norata», con los catorce
+momentos de la casa, Catedral y Averno lado a lado
+(https://claude.ai/artifact/FFN8qAzr28YroBbgfboPFd).
+
+- **Catedral**: órgano, clavecín (sube la escalera de las misiones), campana
+  y coro, en menor armónica. Sin tambores de guerra, trombones ni retumbo, como
+  estaba escrito en `apariencias/LEEME.md`. **Su recap del aniversario es el
+  que ya sonaba**: el del gótico de antes, con su tambor.
+- **Averno**: frigia (la segunda menor pegada a la tónica), tambores de guerra
+  en galope, trombones, retumbo, un gong, una marimba de HUESO y el LATIDO.
+  **Recap propio** (Eduardo: «no representa Averno y es demasiado parecido a
+  Catedral»): abre con el latido, galopa, va en quintas por la frigia con el
+  hueso en el arpegio y cierra en mayor.
+- **El golpe del candado es de tono fijo en los dos**, para aguantar los
+  ochenta toques seguidos de la 0.7.142.1.
+
+**Lo que sonaba a derrota, y ya no:**
+
+1. **La subida de una habilidad en la casa** tocaba mi-la-do-mi: un la menor
+   (los grados salían de la pentatónica). Ahora do-mi-sol-do en todos.
+2. **El nivel de expedición en la casa** acababa en la y la subida quedaba en
+   el aire. Remata en do mayor, arriba; el módulo que se abre, igual.
+3. **Las campanas de iglesia llevan una tercera menor dentro** (parcial
+   1,183) y volvían menor cualquier final. La de Catedral y el gong de Averno
+   van con tercera mayor (1,25).
+4. **Un logro no puede bajar.** El hito de Catedral iba del napolitano a do y
+   todas las voces caían medio tono: «como derrota». Ahora sol → do con cada
+   voz subiendo o quieta; el de Averno, si bemol → do.
+5. **En Averno, las quintas al aire del final también se oyeron como
+   derrota**, y el gong caía una octava por debajo de todo. Lo oscuro queda en
+   el camino (escala, tambores, hueso, latido) y todo logro cierra en do
+   mayor, con el gong en el do de en medio. En Arcade, el nivel ya no se queda
+   en el quinto grado.
+
+Comprobado en node con el motor tal cual se publica: los catorce momentos en
+los seis sonidos y los seis recaps sin un error, cada subida acaba en mayor,
+el golpe del candado pasa como toque, y nada pasa de 1,1 kHz. No se pudo abrir
+en el navegador: el cupo de servidores lo tenían otras conversaciones.
+
 ### 0.7.143.7 · 29 sep 2026
 
 **Averno: Cocito y Ponzoña pasan a llamarse Lamento y Plaga.** Eduardo: «no le

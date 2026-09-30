@@ -388,7 +388,7 @@ círculos se deshacía a 16 px.
 **El sonido** lo lleva otra conversación. Revisado contra el diseño nuevo: el
 órgano, la campana y la menor armónica se quedan; entra el clavecín; los
 trombones, el tambor de guerra y el retumbo grave son de Diablo y se van.
-**Separados desde la 0.7.141.1** (`js/01c-sonido.js`): Catedral suena a órgano,
+**Separados desde la 0.7.144** (`js/01c-sonido.js`): Catedral suena a órgano,
 clavecín, campana y coro; lo de Diablo —tambores, trombones, retumbo, y ahora
 un gong y una marimba de hueso— es de Averno. Su recap del aniversario es el
 que ya sonaba. Las dos campanas llevan la tercera mayor: la menor de una

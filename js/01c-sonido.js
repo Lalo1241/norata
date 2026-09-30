@@ -261,9 +261,9 @@ const MATERIAL = {
      campana y el clavecín. Lo que lo separa de Catedral, de más a menos
      audible:
        - la ESCALA: frigia, con la segunda menor pegada a la tónica;
-       - los FINALES: quintas al aire (do-sol-do), sin tercera. Ni la alegría
-         del mayor ni la derrota del menor: fuerza. Siguen subiendo, que es la
-         regla de Eduardo para todo lo que es progreso (0.7.141.1);
+       - la ARMONÍA DEL CAMINO: quintas al aire (do-sol-do), sin tercera. El
+         FINAL de un logro, en cambio, es do mayor como en todos los mundos:
+         en quinta al aire Eduardo lo oyó como derrota (0.7.144);
        - el LATIDO, la marimba de HUESO y los tambores de guerra en galope;
        - un coro de guerra en «u», más grave y más cerrado que el de Catedral.
      Todo con senos armónico por armónico: una sierra zumba y suena a chip. */
@@ -273,7 +273,7 @@ const MATERIAL = {
     brillo:  { partes:[[1,"sine",1,.35],[3.2,"sine",.26,.1],[6.1,"sine",.06,.04]], ataque:.002, filtro:4500, envio:.16, sala:[3,2], dur:.8 },
     /* Un gong de guerra: grave, oscuro, con la tercera MAYOR (1,25) y no la
        menor (1,183) de una campana de iglesia — esa va dentro de cada golpe y
-       rematar con ella sonaba a derrota (0.7.141.1). */
+       rematar con ella sonaba a derrota (0.7.144). */
     gong:    { partes:[[.5,"sine",.25,1],[1,"sine",1,.8],[1.25,"sine",.4,.6],[1.5,"sine",.35,.5],[2,"sine",.3,.35],[2.514,"sine",.08,.2]], ataque:.003, filtro:2600, envio:.35, sala:[3,2], dur:2.6 },
     metal:   { partes:[[1,"sine",.7,1,-4],[1,"sine",.7,1,4],[2,"sine",.55,1],[3,"sine",.45,1],[4,"sine",.32,1],[5,"sine",.22,1],[6,"sine",.14,1]], filtro:400, barrido:[400,2600,.18], q:.8, ataque:.04, sostiene:true, suelta:.25, envio:.22, sala:[3,2], dur:1 },
     luz:     { partes:[[1,"sine",.45,1,-10],[1,"sine",.45,1,10],[2,"sine",.3,1],[3,"sine",.18,1]], formantes:[[300,4,1],[600,5,.3]], vibrato:[4.2,10], ataque:.6, sostiene:true, suelta:.8, envio:.45, sala:[3,2], dur:1 } },
@@ -352,7 +352,7 @@ const dflt = {
   cuenta:     m => nota(B(m),G(m,6),0,.18,.35),
   ya:         m => { nota(B(m),G(m,8),0,.5,.4); nota(B(m),G(m,3),0,.5,.2); },
   fase:       m => { [[4,0],[6,.18],[8,.36]].forEach(([g,t]) => nota(B(m),G(m,g),t,.95,.38)); },
-  /* Una subida tiene que resolver HACIA ARRIBA y en MAYOR (Eduardo, 0.7.141.1:
+  /* Una subida tiene que resolver HACIA ARRIBA y en MAYOR (Eduardo, 0.7.144:
      «suena negativo, no suena como progreso»). Antes se tomaban grados de la
      escala de cada mundo, y en la pentatónica eso daba mi-la-do-mi: un la
      menor. Ahora son semitonos fijos, do-mi-sol-do, sea cual sea la escala. */
