@@ -247,6 +247,34 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.146.2 · 30 sep 2026
+
+**El aviso antes de reiniciar el APK, rehecho, y la entrada sin el icono de
+Android.** Lo pidió Eduardo al ver la 0.7.146.1 en su teléfono.
+
+- **El aviso ya no explica.** «Para que el icono cambie, la app se reinicia»
+  sonaba a «¿en serio reinicias por eso?». Ahora insinúa: *Esto no se queda
+  aquí adentro — Una parte de lo que elegiste vive fuera de la app. Norata se
+  cierra un instante para llevarla a su lugar. Cuando salgas, búscala.* Botón:
+  «Llévala ya».
+- **No se puede saltar**: sin cancelar, sin clic fuera, y con una cuenta de 10
+  segundos que reinicia sola. Si la app se cierra antes, el aviso vuelve al
+  abrir.
+- **Va con el diseño**: tono menta (en un mundo, su acento) y no el coral de
+  alarma que salía con `avisar`; en vez de un icono de catálogo, la pieza del
+  propio mundo —la del menú— dentro de un aro que se vacía con la cuenta.
+  `avisarRenacer` en `js/10i-apariencia.js`, estilos `.renace-*`.
+- **La pantalla de arranque de Android, sin icono.** Al abrir, el sistema
+  ponía el icono de siempre en medio antes de que la app pintara nada. Es
+  nativo: lo quita el instalador de `mundos/iconos/android/` (paso nuevo, en
+  `styles.xml`) y hace falta volver a armar el APK una vez.
+
+**Comprobado en Chromium** con el complemento simulado, a 390 px: el aviso en
+la casa y en Blueprint, el clic fuera no lo cierra, a los 10,0 s se cierra
+solo, y el flujo entero pide el reinicio solo al final. El instalador, sobre
+un proyecto de prueba con el tema de Capacitor: añade las dos líneas y la
+segunda vez no toca nada. Falta verlo en el teléfono.
+
 ### 0.7.146.1 · 30 sep 2026
 
 **El icono del APK ya no deja el mundo a medias.** Eduardo lo probó en su

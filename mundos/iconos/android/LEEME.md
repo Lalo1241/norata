@@ -2,9 +2,15 @@
 
 Desde la 0.7.145, en la app de Android el icono de la pantalla de inicio es
 el del mundo puesto. Al elegir un mundo (o Arcade) en Mi apariencia sale la
-pantalla de carga, la app vuelve ya con el mundo puesto y un aviso dice que
-falta el icono; al darle Aceptar, la app se reinicia con el icono nuevo
-(0.7.146.1). Con un ambiente, o sin
+pantalla de carga, la app vuelve ya con el mundo puesto y sale un aviso que
+no se puede saltar; al pulsarlo, o a los 10 segundos, la app se reinicia con
+el icono nuevo (0.7.146.2).
+
+El instalador también deja **la pantalla de arranque de Android sin icono**
+(paso 6, en `res/values/styles.xml`): desde Android 12 el sistema pone el
+icono de la app en medio al abrir, antes de que la app pinte nada, y era el
+de siempre aunque hubiera un mundo puesto. Queda el fondo de la noche de la
+app (`#10151d`), el mismo de su pantalla de carga. Con un ambiente, o sin
 nada puesto, va el de la casa.
 
 **Solo en el APK.** En la web y en la app instalada desde el navegador no

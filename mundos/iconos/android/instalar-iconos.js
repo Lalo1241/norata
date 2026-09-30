@@ -195,6 +195,50 @@ async function instalar() {
     ok("La dependencia que reinicia la app, en build.gradle");
   }
 
+  // 6. La pantalla de arranque de Android, sin icono (0.7.146.2).
+  //    Desde Android 12, antes de que la app pinte nada, el sistema pone una
+  //    pantalla con el icono de la app en medio. Eduardo: «rompe con la
+  //    magia» — y además es el icono de siempre, no el del mundo. Se deja el
+  //    fondo de la noche de la app (#10151d, el mismo de su carga) y el icono
+  //    en transparente. Con `Theme.SplashScreen` (el de Capacitor) los
+  //    nombres van sin `android:`; con un tema de Android a secas, con él.
+  const rutaEstilos = path.join(main, "res", "values", "styles.xml");
+  if (!fs.existsSync(rutaEstilos)) {
+    nada("No encontré res/values/styles.xml: la pantalla de arranque se queda como estaba");
+  } else {
+    let estilos = fs.readFileSync(rutaEstilos, "utf8");
+    const nle = salto(estilos);
+    const tema = estilos.match(/<style\s+name="([^"]*Launch[^"]*)"([^>]*)>([\s\S]*?)<\/style>/);
+    if (!tema) {
+      nada("No encontré el tema de arranque («…Launch») en styles.xml: se queda como estaba");
+    } else {
+      const pre = /SplashScreen/.test(tema[2]) ? "" : "android:";
+      const poner = { [pre + "windowSplashScreenAnimatedIcon"]: "@android:color/transparent",
+                      [pre + "windowSplashScreenBackground"]: "#10151d" };
+      let cuerpo = tema[3];
+      const sangria = (cuerpo.match(/\n([ \t]+)<item/) || [, "        "])[1];
+      let cambio = false;
+      for (const [nombre, valor] of Object.entries(poner)) {
+        const re = new RegExp('<item\\s+name="' + nombre.replace(":", "\\:") + '"\\s*>[^<]*</item>');
+        const linea = `<item name="${nombre}">${valor}</item>`;
+        if (re.test(cuerpo)) {
+          if (!cuerpo.match(re)[0].includes(valor)) { cuerpo = cuerpo.replace(re, linea); cambio = true; }
+        } else {
+          cuerpo = cuerpo.replace(/\s*$/, nle + sangria + linea + cuerpo.match(/\s*$/)[0]);
+          cambio = true;
+        }
+      }
+      if (!cambio) {
+        nada("La pantalla de arranque ya iba sin icono");
+      } else {
+        respaldar(rutaEstilos);
+        estilos = estilos.replace(tema[0], tema[0].replace(tema[3], cuerpo));
+        fs.writeFileSync(rutaEstilos, estilos);
+        ok("La pantalla de arranque de Android, sin icono y con el fondo de la app");
+      }
+    }
+  }
+
   console.log(`
 Listo. Ahora el APK, firmado con tu llave, como dice el LEEME de esta carpeta
 (NO con el ▶ de Android Studio: firma con otra llave y el teléfono no deja
