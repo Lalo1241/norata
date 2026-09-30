@@ -696,9 +696,9 @@ material** que va ENCIMA del ambiente, en su propio atributo
 sección «Arcade» de `apariencias/LEEME.md`. Y la regla que dejó, hasta la 1.0:
 **un mundo viste, no actúa** — lo que cambie lo que pasa es de la app entera.
 
-**La marca en un mundo (0.7.145).** La silueta del isotipo no la cambia
-nadie; el material, solo un mundo, y solo en dos sitios: el menú de la app y
-el icono del APK. La puerta, la portada, el favicon, el icono de la web y los
+**La marca en un mundo (0.7.145; el menú, desde 0.7.148.4).** La silueta del
+isotipo no la cambia nadie. En el menú de la app un mundo solo la RECOLOREA
+(`--marca-menu`, su acento); el material vive solo en el icono del APK. La puerta, la portada, el favicon, el icono de la web y los
 correos se quedan en menta, y un ambiente no la toca nunca. El reparto y el porqué, en «La marca, dentro de un mundo» de
 `apariencias/LEEME.md`.
 

@@ -248,16 +248,21 @@
        - **Un ambiente no la toca nunca.** Solo recolorea; vestir la marca es
          parte de lo que se paga con un mundo, y una marca teñida de celeste
          es justo el accidente de antes.
-       - **Un mundo la viste en el menú y en ningún otro sitio.** La puerta, la
-         portada, el favicon, el icono de la app, los correos y la landing se
-         quedan en menta: ahí es donde alguien conoce Norata por primera vez,
-         y una marca nueva vive de repetirse.
-       - **La silueta es siempre la de `marca/`.** El mundo cambia de qué está
-         hecha la pieza (píxel, neón, oro), nunca su forma ni su hueco.
+       - **En el menú, un mundo solo la RECOLOREA** (0.7.148.4, Eduardo): el
+         isotipo vectorial de siempre, en el acento del mundo
+         (`--marca-menu`). La 0.7.145 le ponía la pieza con material (píxel,
+         oro, contorno) y no le convenció: en el menú el dibujo se queda.
+       - **El material vive solo en el icono del APK** —y en el aviso que lo
+         anuncia (`avisarRenacer`), que lo enseña—. La puerta, la portada, el
+         favicon, el icono de la web, los correos y la landing se quedan en
+         menta: ahí es donde alguien conoce Norata por primera vez, y una
+         marca nueva vive de repetirse.
+       - **La silueta es siempre la de `marca/`.** Nadie cambia su forma ni
+         su hueco.
 
-       Lo hacen dos variables que pone el mundo (`--marca-pieza` y
-       `--marca-vector`), leídas junto a `.side-brand`. Los dibujos salen de
-       `mundos/iconos/generar.py`, el mismo que hace los iconos de la app. */
+       `--marca-menu` lo pone cada mundo desde `css/mundos.css` (Arcade no:
+       no trae colores). `--marca-pieza` y `--marca-vector` también, pero ya
+       solo las lee el aviso del APK. Salen de `mundos/iconos/generar.py`. */
     --marca-iso: #5fe0b0;
     /* Sin mundo, no hay pieza y se ve el isotipo vectorial de siempre. */
     --marca-pieza: none;
@@ -10999,37 +11004,19 @@
        lila. Se quedo fuera del arreglo de 0.7.54 porque este isotipo pinta con
        `currentColor` desde el CSS y el otro lleva el `fill` escrito en el SVG:
        son dos caminos distintos al mismo dibujo, y solo se arreglo uno. */
-    .side-brand .sb-mark { color: var(--marca-iso); }
+    /* Con un mundo puesto, el color del mundo (`--marca-menu`, 0.7.148.2): el
+       dibujo es el de siempre y solo cambia la tinta. El porqué, junto a
+       `--marca-iso`. Sin mundo, la menta de la marca. */
+    .side-brand .sb-mark { color: var(--marca-menu, var(--marca-iso)); }
     .side-brand .sb-mark svg { width: 22px; height: 22px; display: block; }
-    /* La marca vestida por un mundo (0.7.145; el porqué, junto a `--marca-iso`).
-       El mundo pone la pieza como imagen y esconde el isotipo vectorial; aquí
-       solo se dice DÓNDE va, que es igual para todos. La imagen trae 3
-       unidades de aire por lado para el resplandor, así que mide 1,1236 veces
-       el isotipo: 21,5 px sobre los 19,2 que ocupa el de 22 px. */
-    .side-brand .sb-mark { background: var(--marca-pieza) center / 21.5px 21.5px no-repeat; }
-    .side-brand .sb-mark svg,
-    .side-brand .sb-iso { visibility: var(--marca-vector); }
+    .side-brand .sb-iso { fill: var(--marca-menu, var(--marca-iso)); }
     .side-brand .sb-expand { color: var(--muted); }
     /* Dos píxeles menos que el isotipo: uno es una silueta maciza y el otro
        un contorno fino, así que a igual medida el contorno se ve más
        pequeño. Esto los iguala a la vista, que es lo que importa. */
     .side-brand .sb-expand svg { width: 20px; height: 20px; display: block; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-    .side-brand .sb-logo-full { color: var(--marca); position: relative; }
+    .side-brand .sb-logo-full { color: var(--marca); }
     .side-brand .sb-logo-full svg { height: 30px; width: auto; display: block; }
-    /* Y en el logotipo entero, encima del hueco que deja la pieza escondida.
-       Las medidas salen del viewBox (27 33 200 51 a 30 px de alto, o sea
-       0,588 px por unidad) y de la caja de la imagen (23,81 · 32,73 · 54,54
-       unidades): se recalculan solo si cambia ese viewBox. */
-    .side-brand .sb-logo-full::before {
-      content: "";
-      position: absolute;
-      left: -1.88px;
-      top: -0.16px;
-      width: 32.08px;
-      height: 32.08px;
-      background: var(--marca-pieza) center / contain no-repeat;
-      pointer-events: none;
-    }
 
     .side-toggle {
       flex-shrink: 0;

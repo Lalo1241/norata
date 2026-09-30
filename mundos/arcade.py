@@ -60,7 +60,7 @@ def main():
     sys.path.insert(0, os.path.join(AQUI, "iconos"))
     import generar as ICONOS
     marca = ("\n/* La marca del menú en píxel. Generado desde `mundos/iconos/generar.py`. */\n"
-             + ICONOS.marca_css("arcade", 'html[data-material="arcade"]'))
+             + ICONOS.marca_css("arcade", 'html[data-material="arcade"]', menu=False))
     txt = CABECERA + fuente + marca
     open(os.path.join(RAIZ, "css", "arcade.css"), "w", encoding="utf-8").write(txt)
     # Sobre el texto con saltos LF, que es como lo guarda git y lo sirve

@@ -247,6 +247,26 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.148.4 · 30 sep 2026
+
+**El logo del menú vuelve a ser el de siempre, en el color del mundo.** La
+0.7.145 le ponía la pieza con el material del mundo —píxel en Averno y
+Catedral, contorno en Blueprint, oro en Reliquia— y a Eduardo no le convenció
+en el menú: «te doy permiso de recolorearlo, pero no de cambiarle el diseño».
+Ahora el isotipo vectorial de siempre, abierto y plegado, se pinta con
+`--marca-menu`, que cada mundo pone en su acento (`var(--mint)`, así que
+sigue también a su paleta y a su cara de día). Sin mundo y en Arcade, la
+menta de la marca.
+
+**El icono del APK no cambia**: sigue con el material de cada mundo, y el
+aviso de antes de reiniciar lo sigue enseñando (`--marca-pieza`, que ya solo
+lee ese aviso).
+
+**Comprobado** en la app servida en local, con el ejemplo sembrado: la casa en
+menta; Averno y Catedral en rojo, Blueprint en celeste (azul hondo de día) y
+Reliquia en lila, todos con el dibujo de siempre, de noche y de día; Arcade en
+menta. Sin errores en la consola.
+
 ### 0.7.148.3 · 30 sep 2026
 
 **Cambiar de mundo ya no parpadea, el menú responde al cursor en cualquier

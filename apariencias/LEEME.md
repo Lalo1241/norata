@@ -533,8 +533,10 @@ escribir un `dict` de tonos: lo demás sale solo.
 
 ## La marca, dentro de un mundo (0.7.145)
 
-**La silueta no la cambia nadie; el material, solo un mundo, y solo en el menú
-de la app y en el icono del APK.** Hasta la 0.7.143 la regla era «un tema puede cambiarlo todo menos
+**La silueta no la cambia nadie. En el menú, un mundo solo la recolorea; el
+material (píxel, oro, contorno…) vive solo en el icono del APK.** (El menú
+llevó el material de la 0.7.145 a la 0.7.148.3, y Eduardo lo quitó en la
+0.7.148.4: «te doy permiso de recolorearlo, pero no de cambiarle el diseño».) Hasta la 0.7.143 la regla era «un tema puede cambiarlo todo menos
 quién eres», y el isotipo del menú era menta en todos. Esa regla nació de un
 accidente (el acento de Escarcha tiñendo la marca de celeste), no de una
 decisión. Eduardo la reescribió al ver los iconos de los mundos juntos, con
@@ -542,7 +544,7 @@ este reparto:
 
 | Se queda en menta, siempre | Lo viste el mundo |
 | --- | --- |
-| La puerta, la portada, el favicon | El logo de la barra lateral, abierta y plegada |
+| La puerta, la portada, el favicon | El color del logo de la barra lateral (solo el color) |
 | El icono de la web instalada y el de la tienda | El icono del APK en la pantalla de inicio |
 | Correos, landing, capturas oficiales (con la casa) | |
 
@@ -557,9 +559,12 @@ este reparto:
   rinde, porque se ve todos los días fuera de la app. En la web no se puede
   (el icono lo fija el `manifest` al instalar) y no se intenta. Lo nativo y
   los pasos, en `mundos/iconos/android/LEEME.md`.
-- **Cómo:** el mundo pone dos variables, `--marca-pieza` (la pieza dibujada)
-  y `--marca-vector: hidden`, y las reglas de `.side-brand` en
-  `css/estilos.css` las leen. Los dibujos salen de `mundos/iconos/generar.py`
+- **Cómo:** el mundo pone `--marca-menu: var(--mint)` —su acento, que sigue
+  también a su paleta— y las reglas de `.side-brand` en `css/estilos.css`
+  pintan con él el isotipo vectorial de siempre. Arcade no la pone: no trae
+  colores. `--marca-pieza` y `--marca-vector` (la pieza con material) se
+  siguen generando, pero ya solo las lee el aviso de antes de reiniciar el
+  APK, que enseña el icono que viene. Los dibujos salen de `mundos/iconos/generar.py`
   —el mismo que hace los iconos de la app, así que no pueden contar dos
   materiales distintos— y los estampan `mundos/app.py` y `mundos/arcade.py`.
   **Un mundo nuevo no tiene que hacer nada**: si está en `LISTOS`, su marca
