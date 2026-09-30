@@ -5475,7 +5475,18 @@
      entera, la tarjeta ya no recorta lo que sobresale; la pleca de la
      izquierda se aparta de las esquinas redondas. */
   .branch-card { position: relative; overflow: visible; margin-top: 12px; }
-  .branch-card::after { top: 14px; bottom: 14px; }
+  /* La pleca va de arriba abajo SIGUIENDO el canto de la tarjeta (0.7.146.3,
+     Eduardo: «que no se corte y llegue más arriba y abajo»). Se apartaba 14 px
+     de cada punta porque, recta, se salía de las esquinas redondas; ahora es
+     el borde izquierdo de una caja con la misma curva que la tarjeta, así que
+     en la casa se afina al doblar la esquina y en un mundo de esquinas rectas
+     llega entera. */
+  .branch-card::after {
+    top: 0; bottom: 0; left: 0; right: 0; width: auto;
+    background: none;
+    border-left: 3px solid var(--rc, var(--mint));
+    border-radius: inherit;
+  }
   .rama-clase {
     position: absolute; top: -9px; left: 18px; z-index: 1;
     font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
@@ -5490,18 +5501,38 @@
     overflow-wrap: anywhere; line-height: 1.2;
   }
   .branch-card .branch-head .count { align-self: flex-start; margin-top: 2px; }
-  /* La barra de avance de la rama, en el color de la rama */
-  .rama-barra {
-    height: 4px; margin: 4px 18px 10px; border-radius: 999px;
-    background: var(--carril); overflow: hidden;
-  }
-  .rama-barra i { display: block; height: 100%; border-radius: 999px; background: var(--rc, var(--mint)); }
+  /* La barra de avance bajo el título se quitó en la 0.7.146.3 (Eduardo: «no
+     se necesita»): la pastilla «4 de 10» ya dice lo mismo, y vacía era una
+     raya que partía la tarjeta en dos. */
   /* El pie: el conmutador Mapa | Lista y la pantalla completa */
   .rama-pie {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
     flex-wrap: wrap; padding: 6px 18px 4px;
   }
   .rama-pie .fs-open { margin: 0; }
+  /* La leyenda de las formas, abajo a la derecha. `margin-left: auto` la
+     empuja a la esquina aunque no haya nada entre ella y el Mapa | Lista; en
+     el teléfono, si no cabe, baja a su propia línea y sigue a la derecha. */
+  .rama-leyenda {
+    margin-left: auto; min-width: 0; max-width: 100%;
+    font-size: 10.5px; line-height: 1.5; letter-spacing: 0.3px;
+    color: var(--faint); text-align: right;
+  }
+  .rama-leyenda .keys { margin: 0; justify-content: flex-end; }
+  /* Mientras se eligen varios, la barra de lo elegido es lo que importa */
+  .branch-card:has(.sel-flota) .rama-leyenda,
+  .fs-body:has(.sel-flota) .fs-leyenda { visibility: hidden; }
+  .fs-leyenda {
+    position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+    z-index: var(--piso-mando);
+    max-width: calc(100% - 360px);
+    padding: 6px 14px; text-align: center;
+    font-size: 11px; line-height: 1.5; color: var(--muted);
+    background: var(--sup-flotante); border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-boton);
+    pointer-events: none;
+  }
+  .fs-leyenda .keys { margin: 0; justify-content: center; }
   .vista-seg {
     display: inline-flex; padding: 2px; gap: 2px;
     background: var(--sup-tarjeta2); border-radius: var(--r-chico);
@@ -5554,10 +5585,21 @@
   .lr-hechos[open] { display: flex; flex-direction: column; gap: 6px; }
 
   /* ---- La pista, una sola vez arriba ---- */
+  /* Se despega del panel de arriba y lleva el tono de AVISO (el celeste, que
+     en cada mundo es el suyo), para que se lea como una nota que se cierra y
+     no como una fila más del panel: pegada y en el gris de las tarjetas
+     parecía parte de él (Eduardo, 0.7.146.3). */
   .pista-ramas {
-    display: flex; align-items: flex-start; gap: 10px; margin: 0 0 12px;
-    padding: 9px 12px; font-size: 12.5px; color: var(--muted); line-height: 1.45;
-    background: var(--sup-tarjeta2); border: 1px solid var(--line); border-radius: var(--r-media, 12px);
+    display: flex; align-items: center; gap: 10px; margin: 14px 0 16px;
+    padding: 10px 12px; font-size: 12.5px; color: var(--text); line-height: 1.45;
+    background: color-mix(in srgb, var(--celeste) 12%, var(--sup-tarjeta2));
+    border: 1px solid color-mix(in srgb, var(--celeste) 45%, var(--line));
+    border-radius: var(--r-media, 12px);
+  }
+  .pista-ramas::before {
+    content: "i"; flex: none; width: 18px; height: 18px; border-radius: var(--r-redondo, 50%);
+    border: 2px solid var(--celeste); color: var(--celeste);
+    display: grid; place-items: center; font-size: 11px; font-weight: 800; line-height: 1;
   }
   .pista-ramas button { margin-left: auto; background: none; border: 0; color: var(--muted); font: inherit; font-size: 14px; cursor: pointer; padding: 0 2px; }
 
@@ -5576,7 +5618,8 @@
     width: 34px; height: 26px; border: 0; background: none; color: var(--muted);
     border-radius: calc(var(--r-chico) - 2px); display: grid; place-items: center; cursor: pointer;
   }
-  .rejilla-sel button.on { background: var(--text); color: var(--bg); }
+  /* Igual que el Mapa | Lista de cada tarjeta: el mismo control, la misma cara */
+  .rejilla-sel button.on { background: var(--sup-tarjeta); color: var(--text); box-shadow: 0 1px 3px rgba(0, 0, 0, .18); }
   .rejilla-sel svg { width: 18px; height: 14px; }
 
   /* ---- La tira plegada: chips en su color de ESTADO y la forma de la rama ---- */
@@ -5612,7 +5655,8 @@
     align-items: center;
     gap: 10px;
     padding: 0 18px;
-    margin-bottom: 4px;
+    /* 10 y no 4 desde que no hay barra de avance debajo (0.7.146.3) */
+    margin-bottom: 10px;
   }
   .branch-head h3 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; }
   .branch-head .count {
@@ -6479,8 +6523,11 @@
   /* `order: 1` para que caigan DESPUÉS de la línea que rellena el rótulo
      (`sec-label::after`, que es flex:1). Sin esto quedaban pegados al texto
      y la línea los empujaba a media fila, no a la esquina. */
-  .sec-acciones { display: flex; gap: 4px; order: 1; flex: none; }
-  .sec-acciones button {
+  .sec-acciones { display: flex; align-items: center; gap: 6px; order: 1; flex: none; }
+  /* Solo sus HIJOS directos: con `.sec-acciones button` a secas el selector de
+     rejilla, que vive dentro, heredaba el borde, el relleno y el radio de
+     pastilla, y sus dos botones salían recortados y ajenos al mundo. */
+  .sec-acciones > button {
     font: inherit;
     font-size: 10.5px;
     font-weight: 700;
@@ -6489,12 +6536,15 @@
     color: var(--muted);
     background: transparent;
     border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 3px 10px;
+    border-radius: var(--r-pastilla);
+    height: 30px;
+    padding: 0 12px;
     cursor: pointer;
   }
-  .sec-acciones button:hover:not(:disabled) { color: var(--mint); border-color: var(--mint); }
-  .sec-acciones button:disabled { opacity: 0.35; cursor: default; }
+  .sec-acciones > button:hover:not(:disabled) { color: var(--mint); border-color: var(--mint); }
+  .sec-acciones > button:disabled { opacity: 0.35; cursor: default; }
+  .sec-acciones .rejilla-sel { margin-left: 4px; }
+  .sec-acciones .rejilla-sel button { height: 26px; }
   @keyframes dashFlow { to { stroke-dashoffset: -24; } }
   .edge-flow { animation: dashFlow 1.1s linear infinite; }
   @media (prefers-reduced-motion: reduce) { .edge-flow { animation: none; } }

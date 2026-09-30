@@ -1550,7 +1550,6 @@ function renderTree() {
     const esP = esRamaDeProyecto(b);
     const vista = vistaRama(b);
     const colR = colorDeRama(b);
-    const pct = reales.length ? Math.round(doneN / reales.length * 100) : 0;
     const ba = escapeAttr(b);
     /* Dos escapes para el mismo nombre, y no es redundancia: `ba` va en
        atributos normales y `bj` dentro de las comillas simples de un
@@ -1607,6 +1606,13 @@ function renderTree() {
         <button class="fs-open" onclick="openBranchFullscreen('${bj}')">
           <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> ${tx("Ver la rama completa")}
         </button>
+        ${/* La leyenda de las formas y los atajos, en la esquina de abajo a la
+              derecha. Se fue en la 0.7.146 junto con la ayuda repetida y Eduardo
+              la echó de menos: la pista de arriba dice cómo se USA la rama, esta
+              dice qué es cada figura, y eso no lo dice nadie más. No lleva la
+              clase `const-hint` a propósito: esa línea la reescribe la barra de
+              elegir varios. */
+          editing ? "" : `<div class="rama-leyenda">${atajosLegend(true)}</div>`}
       </div>
       ${editing ? `<div class="const-hint edit">${
             T`Arrastra para acomodar · <b>Shift</b> y clic (o Shift y arrastra un recuadro) elige varios para moverlos juntos o agruparlos · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos los requisitos o basta uno`
@@ -1667,7 +1673,6 @@ function renderTree() {
           <button class="badd badd-talento" onclick="openPerkForm(null, '${bj}')" aria-label="${escapeAttr(T`Añadir un nodo a ${b}`)}">＋</button>
         </div>
       </div>
-      ${reales.length ? `<div class="rama-barra" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="${escapeAttr(T`${pct}% de la rama`)}"><i style="width:${pct}%"></i></div>` : ""}
       ${body}
     </div>`;
   });

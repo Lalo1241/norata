@@ -247,6 +247,30 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.146.3 · 30 sep 2026
+
+**Retoques de la pantalla de Ramas.** Los pidió Eduardo mirándola en Averno.
+
+- **La pleca de la izquierda llega de arriba abajo.** Se apartaba 14 px de cada
+  punta para no salirse de las esquinas redondas; ahora es el borde izquierdo de
+  una caja con la curva de la tarjeta, así que en la casa se afina al doblar la
+  esquina y en un mundo de esquinas rectas llega entera.
+- **Sin la raya de avance bajo el título.** La pastilla «4 de 10» ya dice lo
+  mismo, y vacía era una raya morada que partía la tarjeta.
+- **El selector Amplio | Grande ya no sale recortado.** Vivía dentro de
+  `.sec-acciones` y heredaba el borde, el relleno y el radio de pastilla de
+  «Plegar todas». La regla va ahora solo a los hijos directos, las pastillas
+  usan `--r-pastilla` (rectas en los mundos de píxel) y el elegido tiene la
+  misma cara que el Mapa | Lista de cada tarjeta.
+- **La pista de arriba se despega del panel** (14 px) y va en el celeste de
+  aviso con su «i», para que se lea como una nota que se cierra y no como una
+  fila más del panel.
+- **Vuelve la leyenda de las formas y los atajos**, que se fue en la 0.7.146:
+  en la tarjeta, abajo a la derecha; a pantalla completa en PC, flotando
+  centrada abajo sin franja propia. En el teléfono enseña las cuatro figuras y
+  «sostén para elegir varios». Se esconde mientras se eligen varios, que es
+  cuando manda la barra de lo elegido.
+
 ### 0.7.146.2 · 30 sep 2026
 
 **El aviso antes de reiniciar el APK, rehecho, y la entrada sin el icono de

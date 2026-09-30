@@ -1152,7 +1152,12 @@ function renderFullscreen(mod) {
           tira, así que las herramientas no cuestan un píxel nuevo. Dentro de
           la edición sí se queda: tirar del punto ▸ y tocar una línea para
           cortarla no se adivinan solos. */
-      !editing ? "" : `<div class="fs-hint">${esProy
+      /* Fuera de edición, la leyenda de las formas y los atajos flota
+         centrada abajo, sobre el mapa y sin franja propia: así no le vuelve a
+         quitar los 54 px de arriba. Solo en PC: en el teléfono ese sitio es
+         de la tira de herramientas. */
+      !editing ? (isDesktop() && !esProy ? `<div class="fs-leyenda">${atajosLegend(true)}</div>` : "")
+        : `<div class="fs-hint">${esProy
         ? tx("Tira del punto ▸ hacia otro encargo para ponerlo después · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno")
         : tx("Tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · <b>Shift</b> y clic elige varios · el círculo <b>Y/O</b> cambia la regla de entrada")}${
         esProy ? atajosLegendProyectos() : atajosLegend()}</div>`}`;
@@ -1319,15 +1324,20 @@ function atajosLegend(compacta) {
 
      Va en el renglón que ya existe para esto, así que no cuesta un píxel
      nuevo — que es exactamente por lo que ese renglón se ganó su sitio. */
+  const tipos = ["hito", "meta", "compra", "acumular"];
+  /* En el teléfono no hay teclas, pero las figuras sí hay que aprenderlas:
+     cuatro formas y ningún sitio que diga cuál es cuál. */
   if (!isDesktop()) {
-    return `<span class="keys">${tx("Sostén un nodo para elegir varios · el ＋ crea")}</span>`;
+    const formas = tipos.map(t => `<b class="gl">${TIPOS[t].glifo}</b> ${tx(TIPOS[t].nombre).toLowerCase()}`)
+      .join('<i class="sep">·</i>');
+    return `<span class="keys">${formas}<i class="sep">·</i>${tx("Sostén un nodo para elegir varios · el ＋ crea")}</span>`;
   }
   const k = (t) => `<kbd>${t}</kbd>`;
   const raton = `<kbd class="kb-raton">${RATON_DERECHO}</kbd>`;
   /* Tecla, figura y nombre juntos. Antes la figura vivia en una fila de
      simbologia aparte y el nombre en la de atajos, asi que los tres tipos se
      listaban dos veces y ninguna de las dos filas se bastaba sola. */
-  const crear = ["hito", "meta", "compra", "acumular"]
+  const crear = tipos
     .map(t => `${k(TIPOS[t].tecla)} <b class="gl">${TIPOS[t].glifo}</b> ${tx(TIPOS[t].nombre).toLowerCase()}`)
     .join('<i class="sep">·</i>');
   const partes = compacta
