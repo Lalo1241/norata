@@ -1,8 +1,10 @@
 # El icono de cada mundo en el APK
 
 Desde la 0.7.145, en la app de Android el icono de la pantalla de inicio es
-el del mundo puesto. Al elegir un mundo (o Arcade) en Mi apariencia, la app
-se cierra y se vuelve a abrir ya con el icono nuevo. Con un ambiente, o sin
+el del mundo puesto. Al elegir un mundo (o Arcade) en Mi apariencia sale la
+pantalla de carga, la app vuelve ya con el mundo puesto y un aviso dice que
+falta el icono; al darle Aceptar, la app se reinicia con el icono nuevo
+(0.7.146.1). Con un ambiente, o sin
 nada puesto, va el de la casa.
 
 **Solo en el APK.** En la web y en la app instalada desde el navegador no

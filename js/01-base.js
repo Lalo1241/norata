@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.146";
+const VERSION = "0.7.146.1";
 const VERSION_FECHA = "30 sep 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -500,27 +500,35 @@ function logotipoSrc() {
   return raiz + "marca/" + archivo;
 }
 
-/* Recargar la app después de cambiar de apariencia (0.7.145).
+/* Recargar la app después de cambiar de apariencia.
 
-   En la web es `location.reload()` y nada más. En el APK hay una cosa que la
-   web no tiene: el icono de la pantalla de inicio es del mundo puesto, y ese
-   icono no lo pinta la app sino Android. Así que allí, antes de recargar, se
-   le pregunta a `norataIcono` (js/13-nativo.js) si el icono tiene que
-   cambiar. Si sí, Android lo cambia y la app se REINICIA ENTERA —lo pidió
-   Eduardo: cerrar y volver a abrir ya con el ajuste hecho—, y la recarga de
-   aquí sobra. Si no hace falta, o el APK es de antes y no sabe cambiarlo, se
-   recarga como siempre.
+   En la web es `location.reload()` y nada más. En el APK, además, el icono
+   de la pantalla de inicio es del mundo puesto (0.7.145), y cambiarlo pide
+   reiniciar la app entera. El orden lo decidió Eduardo al probarlo en su
+   teléfono (0.7.146.1), y es el que manda:
 
-   El plazo de cuatro segundos es la red de debajo: si Android dijo que sí y
-   el reinicio no llega, la app no se puede quedar colgada detrás de la
-   pantalla de carga. */
-function recargarApp() {
-  const icono = typeof window.norataIcono === "function" ? window.norataIcono : null;
-  if (!icono) { location.reload(); return; }
-  icono(true).then((cambio) => {
-    if (cambio) setTimeout(() => location.reload(), 4000);
-    else location.reload();
-  }).catch(() => location.reload());
+     1. Pantalla de carga, y NUNCA menos de `CAMBIO_MINIMO`: el mundo nuevo
+        tiene que bajar su hoja de estilos y quedar guardado.
+     2. Se recarga, y la app sale ya entera con el mundo nuevo.
+     3. Un aviso encima dice que falta el icono, y al aceptarlo se reinicia
+        (`revisarIconoPedido`, en js/13-nativo.js).
+
+   La primera versión reiniciaba DENTRO del paso 1, a los 0,3 s, y el mundo se
+   quedaba a medias: el cambio se veía un instante, la app se cerraba y volvía
+   sin el tema. El WebView escribe `localStorage` al disco unos segundos
+   DESPUÉS, así que matar el proceso tan pronto se llevaba lo recién guardado.
+   Con el aviso en medio pasan segundos de sobra entre guardar y reiniciar.
+
+   `desde` es cuándo se tapó la pantalla, para contar el mínimo desde ahí. Solo
+   se espera en el APK con el complemento: en la web no hay icono que cambiar
+   y el cambio de siempre ya era rápido. */
+const CAMBIO_MINIMO = 2500;
+const ICONO_PEDIDO_LLAVE = "norata-icono-pedido";
+function recargarApp(desde) {
+  if (typeof window.norataIcono !== "function") { location.reload(); return; }
+  try { localStorage.setItem(ICONO_PEDIDO_LLAVE, "1"); } catch (e) {}
+  const falta = CAMBIO_MINIMO - (Date.now() - (desde || Date.now()));
+  setTimeout(() => location.reload(), Math.max(0, falta));
 }
 
 function ponerTema(cual) {

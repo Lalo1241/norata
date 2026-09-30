@@ -44,13 +44,17 @@
      código y los pasos están en `mundos/iconos/android/`— enciende la del
      mundo y apaga las demás.
 
-     Dos momentos, y cada uno con su porqué:
-       - Al ELEGIR un mundo (o Arcade), `recargarApp` pide el cambio con
-         reinicio: Android cambia el icono y la app se cierra y se vuelve a
-         abrir ya con él. Lo pidió Eduardo así.
-       - Al irse la app al FONDO, sin reiniciar. Es lo que cubre los cambios
-         que no eligió nadie en este teléfono: el plan que venció y devolvió
-         la casa, o una prueba (`?apariencia=`), que no toca el icono.
+     Cambia en UN solo momento, y siempre con aviso (0.7.146.1): al elegir un
+     mundo, `recargarApp` apunta que hay un icono pedido y recarga; aquí, ya
+     con la app entera en el mundo nuevo, sale un aviso, y al aceptarlo la app
+     se reinicia con el icono. Lo pidió Eduardo así después de verlo en su
+     teléfono (el porqué del orden, en `recargarApp`, js/01-base.js).
+
+     Ya no cambia al irse la app al fondo, como hacía la 0.7.145. Eso cubría
+     lo que nadie eligió —un plan que vence y devuelve la casa—, pero también
+     se disparaba en la recarga misma del cambio de mundo, y un icono que
+     cambia sin que nadie lo pida es justo el cambio a medias que se quería
+     quitar. Ese caso raro se corrige solo en el siguiente cambio de mundo.
 
      Con `isPluginAvailable` y no mirando `Plugins.IconoNorata`: los APK de
      antes de esto no lo traen y el objeto existe igual, como una sombra que
@@ -73,15 +77,62 @@
       } catch (e) {}
       return "casa";
     };
-    window.norataIcono = (reiniciar) => {
-      const id = iconoQueToca();
-      if (!id) return Promise.resolve(false);
-      return Promise.resolve(iconoNativo.poner({ icono: id, reiniciar: !!reiniciar }))
-        .then((r) => !!(r && r.cambiado));
+    /* `recargarApp` solo pregunta si existe: es la señal de que este APK sabe
+       cambiar el icono. */
+    window.norataIcono = () => Promise.resolve(iconoQueToca());
+
+    const olvidarPedido = () => {
+      try { localStorage.removeItem(ICONO_PEDIDO_LLAVE); } catch (e) {}
     };
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") window.norataIcono(false).catch(() => {});
-    });
+    /* Se espera a que la app haya terminado de arrancar: la pantalla de carga
+       cerrada y ninguna otra ventana abierta. Encima de la carga el aviso no
+       se vería, y encima de otra ventana la pisaría. Con un tope, para no
+       quedarse preguntando para siempre si algo no cierra. */
+    const cuandoEsteLista = (hacer) => {
+      const tope = Date.now() + 20000;
+      (function mirar() {
+        const modal = document.getElementById("modal");
+        const lista = typeof cargaVisible === "function" && !cargaVisible() &&
+                      !(modal && modal.classList.contains("show")) && typeof avisar === "function";
+        if (lista) hacer();
+        else if (Date.now() < tope) setTimeout(mirar, 300);
+      })();
+    };
+    const revisarIconoPedido = () => {
+      let pedido = false;
+      try { pedido = localStorage.getItem(ICONO_PEDIDO_LLAVE) === "1"; } catch (e) {}
+      if (!pedido) return;
+      cuandoEsteLista(() => {
+        /* Se decide con la app ya asentada, no al cargar: el mundo pedido
+           puede no quedarse (un plan que el servidor no confirma devuelve la
+           casa), y el icono tiene que ser el del mundo que se VE. */
+        const id = iconoQueToca();
+        if (!id) return;
+        Promise.resolve(iconoNativo.actual()).then((r) => {
+          /* Ya es ese: pasa después del reinicio, o si el mundo no se quedó.
+             Nada que avisar. */
+          if (r && r.icono === id) { olvidarPedido(); return; }
+          return avisar(
+            tx("El cambio ya está hecho. Para que el icono de Norata en tu pantalla de inicio también cambie, la app se reinicia un momento. Todo lo tuyo se queda como está."),
+            "paleta", tx("Aceptar"), tx("Falta el icono")
+          ).then(() => {
+            /* Se olvida ANTES de reiniciar: si no, la app volvería a preguntar
+               al abrir. Y si el disco no alcanzó a guardarlo, al abrir ya
+               coincide el icono y se olvida sin avisar (arriba). */
+            olvidarPedido();
+            if (typeof cargaMostrar === "function") cargaMostrar(tx("Reiniciando…"));
+            return Promise.resolve(iconoNativo.poner({ icono: id, reiniciar: true })).then((p) => {
+              /* Si no hubo nada que cambiar, no hay reinicio que tape la carga. */
+              if (!(p && p.cambiado) && typeof cargaCerrar === "function") cargaCerrar();
+            });
+          });
+        }).catch(() => {
+          if (typeof cargaCerrar === "function") cargaCerrar();
+        });
+      });
+    };
+    if (document.readyState === "complete") revisarIconoPedido();
+    else window.addEventListener("load", revisarIconoPedido);
   }
 
   if (!act) return;
