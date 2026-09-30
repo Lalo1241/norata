@@ -58,9 +58,45 @@ function buscarArchivo(dir, nombres) {
 // escribirle LF en medio de un archivo CRLF lo deja mezclado.
 function salto(txt) { return txt.includes("\r\n") ? "\r\n" : "\n"; }
 
+// Dentro de res/, Gradle lee TODO archivo como recurso y se niega a armar con
+// uno que no acabe en .xml: «styles.xml.antes-iconos» junto a su original
+// tumbó el APK entero (Resource and asset merger: The file name must end with
+// .xml). Así que lo de res/ se respalda en una carpeta hermana, res.antes-iconos/,
+// que Gradle no mira; lo demás, al lado como siempre.
+const RES_COPIAS = "res.antes-iconos";
+function copiaDe(ruta) {
+  const partes = ruta.split(path.sep);
+  const i = partes.lastIndexOf("res");
+  if (i < 0) return ruta + ".antes-iconos";
+  partes[i] = RES_COPIAS;
+  return partes.join(path.sep);
+}
+
 function respaldar(ruta) {
-  const copia = ruta + ".antes-iconos";
-  if (!fs.existsSync(copia)) fs.copyFileSync(ruta, copia);
+  const copia = copiaDe(ruta);
+  if (fs.existsSync(copia)) return;
+  fs.mkdirSync(path.dirname(copia), { recursive: true });
+  fs.copyFileSync(ruta, copia);
+}
+
+// Las copias que una versión anterior dejó DENTRO de res/ se mudan a su sitio:
+// sin esto, quien ya lo corrió una vez no vuelve a armar nunca, porque el
+// paso de styles.xml ya no respalda nada («ya iba sin icono») y la copia mala
+// se queda ahí.
+function rescatarCopias(main) {
+  const res = path.join(main, "res");
+  if (!fs.existsSync(res)) return;
+  (function recorrer(dir) {
+    for (const f of fs.readdirSync(dir)) {
+      const p = path.join(dir, f);
+      if (fs.statSync(p).isDirectory()) { recorrer(p); continue; }
+      if (!f.endsWith(".antes-iconos")) continue;
+      const destino = copiaDe(p.slice(0, -".antes-iconos".length));
+      fs.mkdirSync(path.dirname(destino), { recursive: true });
+      if (fs.existsSync(destino)) fs.unlinkSync(p); else fs.renameSync(p, destino);
+      ok("Respaldo sacado de res/ (Gradle no arma con él dentro): " + path.relative(main, destino));
+    }
+  })(res);
 }
 
 // ---------- De dónde salen los archivos ----------
@@ -96,6 +132,7 @@ async function instalar() {
   const proyecto = buscarProyecto();
   const main = path.join(proyecto, "app", "src", "main");
   console.log("\nProyecto: " + proyecto);
+  rescatarCopias(main);
   const src = await fuente();
   console.log("Archivos: " + src.donde + "\n");
 
@@ -265,7 +302,22 @@ function deshacer() {
   (function recorrer(dir) {
     for (const f of fs.readdirSync(dir)) {
       const p = path.join(dir, f);
-      if (fs.statSync(p).isDirectory()) { if (f !== "build" && f !== "node_modules") recorrer(p); }
+      if (fs.statSync(p).isDirectory()) {
+        if (f === RES_COPIAS) {
+          // Las copias de lo que vive en res/ (ver copiaDe): vuelven a res/.
+          (function devolver(d) {
+            for (const g of fs.readdirSync(d)) {
+              const q = path.join(d, g);
+              if (fs.statSync(q).isDirectory()) { devolver(q); continue; }
+              const original = path.join(dir, "res", path.relative(p, q));
+              fs.copyFileSync(q, original);
+              ok("Devuelto " + path.relative(proyecto, original));
+              n++;
+            }
+          })(p);
+          fs.rmSync(p, { recursive: true, force: true });
+        } else if (f !== "build" && f !== "node_modules") recorrer(p);
+      }
       else if (f.endsWith(".antes-iconos")) {
         fs.copyFileSync(p, p.slice(0, -".antes-iconos".length));
         fs.unlinkSync(p);
