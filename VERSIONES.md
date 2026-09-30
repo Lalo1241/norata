@@ -295,6 +295,92 @@ lo vio antes en una página con capturas de los cinco mundos.
 - Medido: la casa sale idéntica; en Averno, Catedral, Blueprint y Reliquia las
   tres filas (normal, Fundador, trastienda) salen con los tonos del mundo.
 
+### 0.7.147.9 · 30 sep 2026
+
+**La carga con zoom, para todos.** Eduardo la aprobó tal cual («déjala así»):
+se quita el interruptor de prueba y desde ahora la ve todo el mundo al abrir
+la app y al entrar a una cuenta.
+
+- **Quitado, por nombre:** `cargaZoomPuesto()` y su pregunta en `cargaEntrar`
+  (`js/10c-portada.js`); el bloque «PRUEBA de la carga con zoom» del script de
+  arriba de `index.html` y el `<div id="rotulo-carga">`; las tres reglas
+  `html.carga-zoom #rotulo-carga` de `css/estilos.css`. `?carga=zoom` y
+  `?carga=no` ya no hacen nada; la llave `norata-carga-prueba` que quedara en
+  alguna pestaña no la lee nadie y muere al cerrarla.
+- **`cargaVisible()` cuenta la salida como carga puesta.** Hasta aquí la
+  contaba como quitada, y lo que preguntara en ese segundo y medio —el aviso de
+  sesión caducada al terminar una sincronía, deslizar para actualizar— podía
+  salir a media animación, cruzado con la marca. Lo que se abre al entrar ya
+  espera al final (`cargaEntrar`), así que no se pierde nada.
+- **La puerta no cambia.** Allí el formulario releva a la carga en seco al
+  pintarse y nunca pasa por el zoom. Medido: sin sesión, la app manda a la
+  puerta y la carga de la puerta se quita a los 53 ms, como antes.
+- **Medido en los caminos de entrada:** abrir la app ya dentro (la salida
+  empieza a los 3,04 s y la carga se quita a los 4,58 s); entrar a una cuenta
+  (`adoptarSesion`): la página ya lleva los 3 s, así que el zoom arranca al
+  momento, dura 1,5 s y después sale el saludo. Sin errores en ninguno.
+- **Lo que queda de la prueba y NO se quita:** el `:not(.sale)` de
+  `CAPAS_QUE_TAPAN` y todo el telón. Son la animación, no el interruptor.
+
+### 0.7.147.8 · 30 sep 2026
+
+**La carga con zoom se vuelve un portal, y la ventana de vuelta llega un
+segundo después.** Las dos cosas las pidió Eduardo mirando la simulación.
+
+- **El telón.** El fondo de la carga ya no se desvanece parejo: se queda el
+  tono plano y la app se ve SOLO por el hueco del isotipo, como por una
+  ventana. De 250 a 750 ms la ventana se abre desde el centro del hueco, y
+  luego crece con el zoom hasta tapar la pantalla. Es `.carga-telon`, una capa
+  del color del fondo con un rectángulo recortado (`clip-path: path(evenodd,
+  …)`) que se repinta en cada cuadro leyendo la escala de la marca. No es un
+  hijo de la marca a propósito: ahí se escalaría con ella y el navegador
+  tendría que dibujar una capa gigante.
+- **La escala final ya no es 40 fijo:** es la que haga falta para que el hueco
+  tape la pantalla con holgura (nunca menos de 40). En un monitor de 1920 un
+  40 dejaba el hueco en 1060 px y se habría visto el borde del telón.
+- **Medido en teléfono (375 × 812), congelando:** a 600 ms la ventana empieza a
+  abrirse dentro del logo; a 1250 ms la app se ve solo por el hueco, con el
+  oscuro alrededor; a 1400 ms la ventana ocupa casi toda la pantalla. Al
+  terminar, el telón se retira con la carga.
+- **La ventana de vuelta, con un segundo de espera** (`setTimeout(…, 1000)` en
+  `js/11-arranque.js`): primero se ve el tablero y después llega la ventana.
+  Medido: la carga se oculta a los 4,575 s y la ventana sale a los 5,594 s.
+  Vale también sin el zoom. Y como el tutorial sale a los 500 ms, la ventana
+  ahora llega después de él y se calla si el tutorial está abierto.
+- Si la prueba del zoom se quita, del telón hay que borrar además
+  `cargaTelonPintar`, `HUECO_MEDIO`, `HUECO_RADIO`, `cargaRectRedondo` y las
+  reglas `.carga-telon` y `.carga.sale .carga-msg`.
+
+### 0.7.147.7 · 30 sep 2026
+
+**La vista previa de una rama ya no corta el primer nodo.** Con dos ramas por
+fila la tarjeta mide la mitad, y centrar en lo que sigue dejaba el principio
+cortado en el borde (en Salud se leía «…correr una vez»). Lo pidió Eduardo:
+
+- **Con dos por fila, arranca por el principio** a lo ancho; a lo alto sigue
+  mirando lo que sigue. Una rama larga se desliza para ver el resto.
+- **En cualquier tarjeta, si lo que sigue ya se ve arrancando por el
+  principio, se arranca por el principio.** Con una por fila también se
+  cortaban 11 px del primer nodo sin enseñar nada nuevo.
+- Nada cambia de pie ni a pantalla completa, y un encuadre que ya moviste se
+  respeta.
+
+### 0.7.147.6 · 30 sep 2026
+
+**Con la carga con zoom, lo que se abre al entrar espera a que termine la
+salida.** Lo vio Eduardo en la simulación: la ventana de vuelta salía al
+EMPEZAR el zoom, debajo de la marca, y sus letras blancas asomaban por el hueco
+mientras el botón menta se fundía con el logo. Congelado parecía un fallo de
+dibujo; en movimiento, un cruce raro.
+
+- `cargaEntrar()` se cumple ahora al TERMINAR la salida, no al empezarla, y
+  `cargaZoom` devuelve cuánto tarda para que la espera sea exacta. Medido: la
+  carga se oculta a los 4,555 s y la ventana sale a los 4,558 s.
+- Vale para todo lo que va detrás en el arranque: la ventana de vuelta, el
+  tutorial y la elección de idioma.
+- Con la carga de siempre (`?carga=no`) no cambia nada: la promesa se cumple
+  al momento, como antes.
+
 ### 0.7.147.5 · 30 sep 2026
 
 **La ventana de vuelta tras una ausencia sale por fin.** Lo que se apuntó de

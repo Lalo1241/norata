@@ -96,12 +96,15 @@ function alternarClave(id, boton) {
    hacer falta a mitad del desvanecido, el temporizador viejo ya no la apaga. */
 let cargaTurno = 0;
 
-/* `sale` es la salida grande (abajo): mientras dura, la app de debajo ya es lo
-   que se ve y ya se puede tocar, así que cuenta como NO visible. */
+/* Mientras dura la salida grande (`sale`, abajo) la carga CUENTA como puesta,
+   aunque ya deje ver la app por el hueco. Hasta la 0.7.147.8 contaba como
+   quitada, y cualquier cosa que preguntara en ese segundo y medio —el aviso
+   de sesión caducada al acabar una sincronía, deslizar para actualizar— podía
+   salir a media animación, cruzada con la marca. Lo que se abre al entrar ya
+   espera al final de la salida (`cargaEntrar`), así que no pierde nada. */
 function cargaVisible() {
   const el = document.getElementById("carga");
-  return !!(el && !el.classList.contains("oculta") && !el.classList.contains("fuera")
-            && !el.classList.contains("sale"));
+  return !!(el && !el.classList.contains("oculta") && !el.classList.contains("fuera"));
 }
 
 function cargaMostrar(mensaje) {
@@ -114,15 +117,16 @@ function cargaMostrar(mensaje) {
   el.classList.remove("oculta", "fuera");
 }
 
-/* ================= La salida grande (EN PRUEBA, 0.7.147.1) =================
+/* ================= La salida grande (0.7.147.1; para todos desde 0.7.147.9) =================
    Lo pidió Eduardo: que la carga del inicio dure un poco más y se vaya con un
    zoom hacia el frente, «como en motion graphics». Solo en los momentos de
    ENTRAR —abrir la app y entrar a una cuenta—; las esperas
    cortas («Guardando lo último…») se siguen yendo con el desvanecido de
    siempre, porque un zoom de un segundo y medio para eso sería teatro.
 
-   Está detrás de `?carga=zoom` (y `?carga=no` la apaga), leído arriba de
-   index.html y guardado en `sessionStorage`.
+   Se probó detrás de `?carga=zoom` (0.7.147.1 a 0.7.147.8) y Eduardo la
+   aprobó tal cual: desde la 0.7.147.9 la ve todo el mundo y el interruptor
+   ya no existe.
 
    La puerta (login/index.html) no la usa, y no por olvido: allí el formulario
    releva a la carga en seco nada más pintarse (`cargaCerrar(true)` en
@@ -136,7 +140,7 @@ function cargaMostrar(mensaje) {
      0–300 ms   ANTICIPACIÓN: la marca retrocede un 14 %. Es el «coger aire»
                 de cualquier animación con peso; sin él el zoom arranca en seco.
      120–1020   el anillo se abre como una onda y se deshace.
-     300–1500   el zoom: de 0,86 a 40 con aceleración exponencial — casi quieto
+     300–1500   el zoom: de 0,86 a 40 o más con aceleración exponencial — casi quieto
                 al principio y disparado al final, que es lo que se lee como
                 «viene hacia ti». El hueco del isotipo está justo en el centro
                 del dibujo, que es de donde crece: a 40 veces el hueco es más
@@ -144,24 +148,31 @@ function cargaMostrar(mensaje) {
      1200–1500  la marca se desvanece, ya enorme. No antes: medido, con el
                 desvanecido a media salida lo grande del zoom pasaba invisible
                 y solo se veía crecer un logo hasta el cuádruple.
-     870–1425   el fondo se abre mientras la marca ya llena la pantalla, así
-                que la app aparece a través del hueco y no alrededor del logo.
+     250–750    se abre la ventana en el hueco: desde ahí la app se ve por
+                dentro de la marca, y afuera se queda el tono plano (el telón,
+                abajo). Crece con el zoom hasta tapar la pantalla.
 
    Cada animación lleva su fotograma del 100 %. Sin él, el navegador inventa
    uno con el valor de PARTIDA, y en los últimos milisegundos la marca y el
    fondo volvían a aparecer: un destello justo al terminar. Lo cazó la medición.
 
-   Solo se animan `transform`, `scale`, `opacity` y el color de fondo: lo que
-   el teléfono compone sin volver a dibujar. Un desenfoque de movimiento quedó
-   fuera: sobre un elemento escalado 40 veces es caro justo en los teléfonos
-   donde más se nota. */
+   Solo se animan `transform`, `scale` y `opacity`, más el recorte del telón:
+   lo que el teléfono compone sin volver a dibujar, y una capa plana. Un
+   desenfoque de movimiento quedó fuera: sobre un elemento escalado 40 veces
+   es caro justo en los teléfonos donde más se nota. */
 const CARGA_MINIMO = 3000;     // ms desde que se abrió la página
 const CARGA_SALIDA = 1500;
 let cargaAnims = [];
+/* El que pinta la ventana del telón en el instante en que va la salida. Vive
+   aquí fuera para poder llamarlo a mano con las animaciones congeladas: el
+   panel del navegador donde se verifica no avanza cuadros. */
+let cargaTelonPintar = null;
 
-function cargaZoomPuesto() {
-  try { return sessionStorage.getItem("norata-carga-prueba") === "zoom"; } catch (e) { return false; }
-}
+/* El hueco del isotipo, en píxeles del logo a su tamaño (42 px sobre un dibujo
+   de 250): su caja va de 46 a 204, o sea 158 de ancho, centrada en 125. */
+const HUECO_MEDIO = 42 * 79 / 250;       // la mitad del ancho de la caja
+const HUECO_RADIO = 42 * 6 / 250;        // el redondeo de sus esquinas
+
 
 /* Si vuelve a hacer falta a media salida, se deshace todo lo que la salida
    dejó puesto: sin esto la siguiente carga saldría con la marca enorme y el
@@ -173,14 +184,32 @@ function cargaSoltarZoom(el) {
   el.classList.remove("sale");
   const logo = el.querySelector(".carga-marca svg");
   if (logo) logo.style.animation = "";
+  const telon = el.querySelector(".carga-telon");
+  if (telon) telon.remove();
+  cargaTelonPintar = null;
 }
 
-/* La que se llama al ENTRAR. Devuelve una promesa que se cumple cuando la app
-   ya está a la vista, y hay que esperarla: el tutorial y el aviso de la
-   sesión preguntan `cargaVisible()` y se callan si la carga sigue puesta, así
-   que llamarlos durante el mínimo los perdería para siempre. */
+/* Un rectángulo redondeado como trozo de trazado, para recortarlo del telón. */
+function cargaRectRedondo(cx, cy, m, r) {
+  r = Math.min(r, m);
+  const x0 = cx - m, x1 = cx + m, y0 = cy - m, y1 = cy + m;
+  const f = n => n.toFixed(1);
+  return `M${f(x0 + r)} ${f(y0)}H${f(x1 - r)}A${f(r)} ${f(r)} 0 0 1 ${f(x1)} ${f(y0 + r)}` +
+         `V${f(y1 - r)}A${f(r)} ${f(r)} 0 0 1 ${f(x1 - r)} ${f(y1)}H${f(x0 + r)}` +
+         `A${f(r)} ${f(r)} 0 0 1 ${f(x0)} ${f(y1 - r)}V${f(y0 + r)}A${f(r)} ${f(r)} 0 0 1 ${f(x0 + r)} ${f(y0)}Z`;
+}
+
+/* La que se llama al ENTRAR. Devuelve una promesa que se cumple cuando la
+   salida TERMINÓ, y hay que esperarla, por dos motivos:
+     - el tutorial y el aviso de la sesión preguntan `cargaVisible()` y se
+       callan si la carga sigue puesta: llamados durante el mínimo se perderían;
+     - lo que se abre al entrar (la ventana de vuelta, el tutorial, el idioma)
+       tiene que llegar sobre la app LIMPIA. En la 0.7.147.5 se cumplía al
+       EMPEZAR el zoom, y la ventana de vuelta salía debajo de la marca: sus
+       letras blancas asomaban por el hueco y su botón menta se fundía con el
+       logo. Congelado parecía un fallo de dibujo; lo vio Eduardo en la
+       simulación (0.7.147.6). */
 function cargaEntrar() {
-  if (!cargaZoomPuesto()) { cargaCerrar(); return Promise.resolve(); }
   const el = document.getElementById("carga");
   if (!el || el.classList.contains("oculta")) return Promise.resolve();
   const mio = ++cargaTurno;
@@ -189,14 +218,15 @@ function cargaEntrar() {
      quien tiene la red lenta. Al entrar a una cuenta ya pasó de sobra. */
   const falta = Math.max(0, CARGA_MINIMO - performance.now());
   return new Promise(listo => setTimeout(() => {
-    if (cargaTurno === mio) cargaZoom(el, mio);
-    listo();
+    if (cargaTurno !== mio) { listo(); return; }
+    setTimeout(listo, cargaZoom(el, mio));
   }, falta));
 }
 
+/* Devuelve cuántos ms tarda en irse, para que `cargaEntrar` espere justo eso. */
 function cargaZoom(el, mio) {
   const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (quieto || typeof el.animate !== "function") { cargaCerrar(); return; }
+  if (quieto || typeof el.animate !== "function") { cargaCerrar(); return 300; }
 
   const marca = el.querySelector(".carga-marca");
   const logo = marca && marca.querySelector("svg");
@@ -223,24 +253,64 @@ function cargaZoom(el, mio) {
      se abre. */
   anim(anillo, [{ scale: "1", opacity: 1 }, { scale: "2.6", opacity: 0 }],
     { duration: 900, delay: 120, easing: "cubic-bezier(.22,1,.36,1)" });
+  /* Hasta dónde crece: lo que haga falta para que el hueco tape la pantalla
+     entera con holgura, y nunca menos de 40. Con un 40 fijo, en un monitor de
+     1920 el hueco se quedaba en 1060 px y se habría visto el borde del telón. */
+  const W = el.clientWidth || innerWidth, H = el.clientHeight || innerHeight;
+  const escalaFinal = Math.max(40, 1.3 * Math.max(W, H) / (2 * HUECO_MEDIO));
+  const caja = marca ? marca.getBoundingClientRect() : { left: W / 2, top: H / 2, width: 0, height: 0 };
+  const cx = caja.left + caja.width / 2, cy = caja.top + caja.height / 2;
   anim(marca, [
     { transform: "scale(1)",    offset: 0,   easing: "cubic-bezier(.33,0,.2,1)" },
     { transform: "scale(.86)",  offset: 0.2, easing: "cubic-bezier(.7,0,.84,0)" },
-    { transform: "scale(40)",   offset: 1 }
+    { transform: `scale(${escalaFinal.toFixed(2)})`, offset: 1 }
   ]);
+  const zoom = cargaAnims[cargaAnims.length - 1];
   anim(marca, [
     { opacity: 1, offset: 0 },
     { opacity: 1, offset: 0.8, easing: "cubic-bezier(.4,0,1,1)" },
     { opacity: 0, offset: 1 }
   ]);
-  const fondo = getComputedStyle(el).backgroundColor;
-  anim(el, [
-    { backgroundColor: fondo, offset: 0 },
-    { backgroundColor: fondo, offset: 0.58, easing: "cubic-bezier(.65,0,.35,1)" },
-    { backgroundColor: "transparent", offset: 0.95 },
-    { backgroundColor: "transparent", offset: 1 }
-  ]);
+
+  /* EL TELÓN (0.7.147.8, de Eduardo): el fondo no se desvanece parejo. Se
+     queda el tono plano de la carga y la app se ve SOLO por el hueco del
+     isotipo, como por una ventana que crece con el zoom hasta ocupar la
+     pantalla. Es una capa del mismo color que el fondo con un rectángulo
+     recortado (`clip-path` con `evenodd`), y no un hijo de la marca: dentro
+     de ella se escalaría hasta 100 veces y el navegador tendría que dibujar
+     una capa de cientos de miles de píxeles. Así cada cuadro solo cambia un
+     recorte sobre una capa del tamaño de la pantalla.
+
+     La ventana no aparece de golpe: de 250 a 750 ms se abre desde el centro
+     del hueco (`k` de 0 a 1), así que la app «empieza a verse por el centro».
+     Antes de eso el hueco sigue oscuro, como en la carga. La caja recortada
+     es la del hueco entero; donde el hueco tiene escalones, el trazo menta de
+     la marca, que va encima, tapa la diferencia. */
+  let telon = el.querySelector(".carga-telon");
+  if (!telon) {
+    telon = document.createElement("div");
+    telon.className = "carga-telon";
+    el.insertBefore(telon, el.firstChild);
+  }
+  const marco = `M0 0H${W}V${H}H0Z`;
+  const pintar = () => {
+    if (!zoom || !marca) return;
+    const t = Number(zoom.currentTime) || 0;
+    const s = new DOMMatrix(getComputedStyle(marca).transform).a || 1;
+    const p = Math.min(1, Math.max(0, (t - 250) / 500));
+    const k = 1 - Math.pow(1 - p, 3);                // sale rápido y se asienta
+    const m = HUECO_MEDIO * s * k;
+    telon.style.clipPath = m < 0.5 ? "none"
+      : `path(evenodd, "${marco} ${cargaRectRedondo(cx, cy, m, HUECO_RADIO * s)}")`;
+  };
+  cargaTelonPintar = pintar;
   el.classList.add("sale");
+  pintar();
+  (function cuadro() {
+    if (cargaTurno !== mio || cargaTelonPintar !== pintar) return;
+    pintar();
+    requestAnimationFrame(cuadro);
+  })();
 
   /* Se cierra por reloj y no por el `finished` de las animaciones: donde el
      navegador no pinta cuadros (una pestaña de fondo) las animaciones no
@@ -251,6 +321,7 @@ function cargaZoom(el, mio) {
     el.classList.add("oculta");
     cargaSoltarZoom(el);
   }, T + 40);
+  return T + 40;
 }
 
 /* `seca` la quita de golpe, sin desvanecido. Es lo correcto cuando quien

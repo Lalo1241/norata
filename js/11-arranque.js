@@ -329,8 +329,12 @@ showView("summary");
          el desgaste de la ausencia entera se escribe en el registro justo ahí
          arriba y la ventana lo LEE en vez de recalcularlo, y quien todavía no ha
          visto el tutorial tiene algo más urgente que una vuelta. La propia
-         función se abstiene si hay cualquier otra capa encima. */
-      quizaVentanaDeVuelta();
+         función se abstiene si hay cualquier otra capa encima.
+         Y con un segundo de espera (0.7.147.8, de Eduardo): recién destapada
+         la app, primero se ve el tablero y después llega la ventana; al
+         instante se leía como parte de la carga. De paso llega DESPUÉS del
+         tutorial (que sale a los 500 ms) y se calla si el tutorial salió. */
+      setTimeout(quizaVentanaDeVuelta, 1000);
     }
   }
 
