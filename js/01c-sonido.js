@@ -414,8 +414,10 @@ const PROPIO = {
       [[0,0,.2],[7,.14,.2],[12,.28,.2],[19,.42,.7]].forEach(([s,t,d]) => nota(m.metal,S(m,s+12),t,d,.28));
       quinta(m,12,.42,1.2,.12);
     },
-    // Un hito: de re bemol a do, las dos en quinta al aire. La segunda menor que baja a casa.
-    hito:       m => { quinta(m,13,0,.5,.12); quinta(m,12,.5,1.4,.13); nota(m.metal,S(m,24),.5,1,.18); nota(m.gong,S(m,0),.5,2,.3); tambor(.5,.7); },
+    /* Un hito: de si bemol a do, en quinta al aire, y SUBIENDO. Iba de re bemol a
+       do —todo medio tono abajo— y bajar suena a derrota (Eduardo, 29 sep 2026,
+       sobre el de Catedral, que hacía lo mismo). */
+    hito:       m => { quinta(m,10,0,.45,.12); nota(m.metal,S(m,22),0,.45,.18); quinta(m,12,.45,1.4,.13); nota(m.metal,S(m,24),.45,1,.2); nota(m.gong,S(m,0),.45,2,.3); tambor(0,.5); tambor(.45,.7); },
     // La racha: dos latidos, el coro crece en una segunda que raspa y se abre en quinta.
     racha:      m => {
       latido(0,.5); latido(.55,.55);
@@ -465,10 +467,15 @@ const PROPIO = {
       [[12,0,.3],[16,.1,.3],[19,.2,.3],[24,.3,.9]].forEach(([s,t,d]) => nota(m.brillo,S(m,s),t,d,.38));
       [12,16,19].forEach(s => nota(m.voz,S(m,s),.3,1.2,.11)); nota(m.campana,S(m,24),.3,1.6,.18);
     },
-    // Un hito: del napolitano a do MAYOR en el órgano, con la campana encima.
+    /* Un hito: de sol mayor a do mayor en el órgano (V – I), y TODAS las voces
+       suben o se quedan: la melodía va de si a do y el bajo de sol a do. Antes
+       iba del napolitano (re bemol) a do y todas bajaban medio tono a la vez:
+       se oía como un suspiro, «como derrota» (Eduardo, 29 sep 2026). */
     hito:       m => {
-      [1,5,8].forEach(s => nota(m.voz,S(m,s+12),0,.5,.12)); [0,4,7].forEach(s => nota(m.voz,S(m,s+12),.5,1.3,.13));
-      nota(m.coro,S(m,12),.5,1.3,.16); nota(m.campana,G(m,14),.5,1.8,.34);
+      [-5,-1,2].forEach(s => nota(m.voz,S(m,s+12),0,.42,.12)); nota(m.brillo,S(m,23),0,.42,.3);
+      [0,4,7,12].forEach(s => nota(m.voz,S(m,s+12),.42,1.4,.12));
+      [16,19,24].forEach((s,i) => nota(m.brillo,S(m,s),.42+i*.08,.6,.3));
+      nota(m.coro,S(m,12),.42,1.4,.14); nota(m.campana,S(m,24),.62,1.8,.34);
     },
     // La racha: el coro y el órgano crecen desde nada y se abren a do mayor con la campana.
     racha:      m => {
