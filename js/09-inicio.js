@@ -1047,7 +1047,11 @@ function renderVuelta(d) {
 }
 
 function quizaPresentarModulo(vista) {
-  const id = VISTA_MODULO[vista];
+  let id = VISTA_MODULO[vista];
+  /* Desde la 0.7.145 las ramas de proyecto viven dentro de Ramas y ya no hay
+     pantalla propia a la que «entrar por primera vez»: su tarjeta sale al
+     entrar a Ramas, cuando la de Ramas ya se presentó. */
+  if (vista === "tree" && (moduloPresentado("tree") || !moduloAbierto("tree"))) id = "projects";
   if (!id || !MODULO_NIVEL[id]) return;
   if (!moduloAbierto(id) || moduloPresentado(id)) return;
   /* Dentro del ejemplo no. Ahí los talentos son de mentira y el módulo está

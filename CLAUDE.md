@@ -1,11 +1,13 @@
 # Norata
 
 La vida tratada como un videojuego. Vive en `https://mi.norata.app`, publicada
-con GitHub Pages desde `main`. **Cuatro módulos:** Misiones (lo de hoy),
-Habilidades (suben con la práctica y bajan si las dejas), Talentos (las cosas
-grandes, en un árbol por ramas) y Proyectos (lo que avanza por etapas). **Los
-dos últimos no están el primer día**: los abre el nivel de expedición (ver «Lo
-que llega por el camino»).
+con GitHub Pages desde `main`. **Tres módulos:** Misiones (lo de hoy),
+Habilidades (suben con la práctica y bajan si las dejas) y **Ramas** (las cosas
+grandes, en árboles de **nodos**). Desde la 0.7.146 Ramas junta lo que antes
+eran Talentos y Proyectos: una rama es de clase **talento** o **proyecto**, y
+se ve como mapa o como lista (ver «Ramas: una sola estructura»). **Ramas no
+está el primer día**, y la clase proyecto tampoco: los abre el nivel de
+expedición (ver «Lo que llega por el camino»).
 
 ## No hay compilación
 
@@ -786,10 +788,31 @@ ejecutar TODO el JavaScript cuesta 12-17 ms en un teléfono de gama media.
 Partir archivos que se pasan globales entre ellos para ganar milisegundos es
 mal negocio. Está apuntado en `VERSIONES.md` por si algún día cambia.
 
+## Ramas: una sola estructura
+
+**Todo nodo vive en `state.perks`, sea de la clase que sea** (formato 3,
+0.7.146). Los nombres internos se quedaron —`perks`, `tree`, `projects`,
+`js/03-talentos.js`— porque renombrarlos era tocar cientos de sitios para que
+nada cambiara; en pantalla se dice Ramas y nodos. Cuatro cosas que muerden:
+
+- **La clase es de la RAMA, no del nodo**: `ui.ramaClase[nombre] = "proyecto"`
+  (sin entrada es talento), y la vista en `ui.ramaVista`. Por eso renombrar,
+  borrar y fusionar una rama tienen que llevarse esas dos llaves con ella
+  (`renombrarRama`, `deleteBranch`, `js/10-fusion.js`).
+- **Lo de antes se muda al cargar** con `mudarProyectos()` (`js/01-base.js`),
+  que es idempotente. La fusión muda los dos lados ANTES de juntar: un
+  dispositivo que siga en v2 manda `state.projects` y hay que convertirlo.
+- **El puente con Misiones y Habilidades se CUENTA, no se guarda**: sale de
+  las marcas de la misión desde `puente.desde` y del nivel de la habilidad
+  (`revisarPuentes`). Un contador aparte se desincroniza en la fusión.
+- **El módulo viejo de Proyectos sigue en el código sin camino que llegue a
+  él** (`renderProjects`, `openProjectForm`, el modo `"proyectos"` del
+  lienzo). No arreglar nada ahí: se quita entero en una tanda propia.
+
 ## Lo que llega por el camino
 
-**Talentos y Proyectos no están el primer día: se abren en el nivel 3 y en el 5
-de expedición.** La tabla es `MODULO_NIVEL` (`js/04-misiones.js`) y los números
+**Ramas no está el primer día: se abre en el nivel 3, y la clase proyecto en el
+5 de expedición.** La tabla es `MODULO_NIVEL` (`js/04-misiones.js`) y los números
 son un calendario, no una preferencia: medidos sobre un perfil de cuatro días por
 semana, el 3 cae en la primera semana y el 5 en la tercera. Misiones y
 Habilidades no tienen nivel porque son las dos que se entienden sin que nadie las

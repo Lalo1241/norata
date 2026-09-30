@@ -247,6 +247,97 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.146 · 30 sep 2026
+
+**Talentos y Proyectos son ya un solo módulo: Ramas.** Lo pidió Eduardo tras
+la auditoría del 29 de septiembre: la misma estructura para las dos cosas, con
+la fuerza del árbol de Talentos y sin perder la lista de Proyectos. Lo que hay
+dentro de una rama se llama **nodo**, y una rama es de una de dos clases:
+**talento** (lo logrado es tuyo para siempre) o **proyecto** (se vigila su
+ritmo y avisa si se estanca). Cada rama se ve como **mapa** o como **lista**.
+
+**Los datos: formato 3.** Todos los nodos viven en `state.perks`; la clase de
+la rama va en `ui.ramaClase` y su vista en `ui.ramaVista`. `mudarProyectos()`
+(`js/01-base.js`) muda lo de antes al abrir, y es determinista e idempotente:
+
+| Encargo | Nodo |
+| --- | --- |
+| tarea | meta |
+| entrega, decisión | hito |
+| gasto | compra |
+| terminado / etapas hechas / en pausa / soltado | lo mismo, con su historial |
+
+Un proyecto con el nombre de una rama que ya existe se muda como «X
+(proyecto)». El XP y los puntos de expedición no se mueven: medidos antes y
+después sobre datos de v2 hechos a mano, con choque de nombres y todos los
+estados. **La fusión con un dispositivo viejo muda los DOS lados antes de
+juntar** (`js/10-fusion.js`): sin eso, lo que bajaba de un teléfono en v2
+entraba sin mudar.
+
+**Lo que cambió al usarlo:**
+
+- **La pantalla de Ramas** (`renderTree`, `js/06-detalle.js`): un panel arriba
+  para las dos clases, la etiqueta Talento/Proyecto montada en el borde de la
+  tarjeta, el título que baja de línea en vez de cortarse, la pleca izquierda en
+  el color de la rama (tenue, y entera en la que estás) y la tira plegada con
+  más información. En PC se elige **Amplio** (una por fila) o **Grande** (dos);
+  en el teléfono siempre Amplio.
+- **La ficha de un nodo, rehecha** (`renderPerkDetail`, `js/08-formularios.js`):
+  qué es → **una sola acción** según su estado → etapas → conexión → lista →
+  de qué depende y qué abre → datos → historial plegado. Lo delicado (pausar,
+  soltar, cambiar de tipo, rendirse, deshacer, borrar) vive en el ··· de arriba.
+  Volver regresa a donde estabas, no siempre al árbol.
+- **Un tipo nuevo, Acumular (triángulo):** una cifra que crece hasta un
+  objetivo, en dinero, km, libros, horas o veces.
+- **El puente con otros módulos, opcional en todo tipo menos la compra:** una
+  meta avanza sola con una misión (hasta N veces), un hito se logra solo al
+  llegar una habilidad a un nivel, y Acumular suma con cada misión cumplida. Se
+  cuenta DERIVADO de las marcas de la misión desde el día en que se conectó, no
+  se guarda un contador (`revisarPuentes`, llamado desde
+  `revisarNivelExpedicion`).
+- **Una lista voluntaria en cualquier nodo**, que no cuenta para el avance.
+- **Cambiar de tipo**, con la lista de qué se conserva (✓) y qué se pierde (!)
+  antes de confirmar. Las etapas no se tiran: pasan a la lista.
+- **El plazo es opcional:** Sin plazo · 1 mes · 3 · 6 · 1 año · Otro. Una rama
+  de proyecto nace sin plazo; una de talento, con el año de siempre. Una meta
+  sin plazo no vence nunca.
+- **Pausar y soltar** (venían de Proyectos) valen para todo nodo. En pausa el
+  plazo se congela y al retomar se corre la fecha.
+- **El «+» grande abre una hoja con lo más común primero**: en Misiones, una
+  misión en cada columna que ya existe; en Ramas, un nodo en la rama que ves,
+  luego en las otras, y al final una rama nueva (eligiendo su clase; la de
+  proyecto sigue pidiendo el nivel 5).
+- **Misiones en PC**: hasta cuatro columnas llenan el ancho; con cinco o más
+  mantienen su anchura y se desliza de lado, sin apretarlas.
+- **A pantalla completa en PC el mapa no tiene bordes**, y si lo tuyo queda
+  fuera de la vista sale «Tus nodos quedaron fuera de vista · Mostrar». En el
+  teléfono no: ahí el dedo tiene que poder bajar la página.
+- **En el teléfono, sostener un nodo solo lo ELIGE** (y desde ahí se borran o
+  se agrupan varios). Ya no sale el menú de clic derecho ni se levanta el nodo
+  para arrastrarlo: parecía que el mapa se descomponía con el dedo.
+- **Borrar varios nodos de golpe**, con deshacer; deshacer un acomodo ya no se
+  lleva el avance por delante.
+- **El icono grande de la ficha dibuja la figura de su tipo** (rombo, hexágono,
+  círculo, triángulo) en los cuatro mundos.
+- **Límites del plan Gratuito: 4 ramas y 15 nodos por rama.** La bienvenida
+  siembra 3 áreas para dejar hueco a una rama propia.
+
+**Los colores de estado** (verde hecho, amarillo en curso, coral fallo) salieron
+antes, en la 0.7.143.4; aquí se usan en todo lo nuevo.
+
+**Lo que queda del módulo viejo:** `renderProjects`, `openProjectForm` y el
+modo `"proyectos"` del lienzo siguen en el código pero ya no se llega a ellos
+(`showView` manda `projects`, `project` y `project-form` a Ramas). Se quitan en
+una tanda aparte: son cientos de líneas y ahora mismo no estorban.
+
+**Comprobado en la app** (local, Chromium, 375 px y PC): la ficha en los seis
+estados del ejemplo (hecho, en curso, en pausa, soltado, cerrado y abierto) sin errores; cambiar de meta a Acumular conserva las etapas en la
+lista; una meta conectada a una misión pasa a en curso a la segunda marca y se
+logra sola a la tercera; el plazo «Otro» no se confunde con los fijos; sostener
+un nodo con un toque simulado lo elige sin abrir menú; sin desborde lateral y
+con la pleca de color a la vista. En inglés, 291 frases nuevas y ninguna que
+falte en las pantallas recorridas con `?i18n=audita`.
+
 ### 0.7.145 · 30 sep 2026
 
 **Cada mundo viste la marca del menú.** El isotipo de la barra lateral, abierta
