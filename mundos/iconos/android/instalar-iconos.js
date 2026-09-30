@@ -196,9 +196,16 @@ async function instalar() {
   }
 
   console.log(`
-Listo. Lo que falta, en Android Studio:
-  1. Arriba, el botón del elefante («Sync Project with Gradle Files»).
-  2. Conecta el teléfono y dale al triángulo verde ▶ («Run»).
+Listo. Ahora el APK, firmado con tu llave, como dice el LEEME de esta carpeta
+(NO con el ▶ de Android Studio: firma con otra llave y el teléfono no deja
+instalarla encima sin desinstalar). En PowerShell, una línea a la vez:
+
+  node traer-web.mjs
+  npx cap sync android
+  cd android; $env:JAVA_HOME = "$PWD\\..\\.herramientas\\jdk-21"; .\\gradlew.bat assembleRelease
+
+Queda en android\\app\\build\\outputs\\apk\\release\\app-release.apk: pásalo al
+teléfono y ábrelo para actualizar.
 
 La primera vez puede desaparecer el acceso directo de la pantalla de inicio:
 se vuelve a arrastrar desde el cajón de apps.

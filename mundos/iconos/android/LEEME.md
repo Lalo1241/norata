@@ -30,8 +30,21 @@ siempre y el icono se queda en el de la casa.
 
    Baja los iconos de GitHub, pone el complemento, lo registra, arregla el
    manifiesto y añade la dependencia. Va diciendo cada cosa con una ✓.
-3. En Android Studio: el botón del elefante (**Sync Project with Gradle
-   Files**) y luego el triángulo verde ▶ (**Run**) con el teléfono conectado.
+3. Arma el APK **firmado con la llave de siempre**, como dice el `LEEME.md`
+   de esa carpeta. En la Terminal de Android Studio (PowerShell), una línea a
+   la vez:
+
+   ```powershell
+   node traer-web.mjs
+   npx cap sync android
+   cd android; $env:JAVA_HOME = "$PWD\..\.herramientas\jdk-21"; .\gradlew.bat assembleRelease
+   ```
+
+   **No con el ▶ de Android Studio**: ese firma con una llave de pruebas, y
+   Android no deja instalarla encima de la que ya está sin desinstalar (y
+   desinstalar se lleva la sesión y lo guardado). El APK queda en
+   `android\app\build\outputs\apk\release\app-release.apk`: se pasa al
+   teléfono y se abre para actualizar.
 
 Se puede correr dos veces: lo que ya está hecho se lo salta. Antes de editar
 guarda una copia de cada archivo (`.antes-iconos`), y
@@ -93,8 +106,8 @@ Todo lo genera `node mundos/iconos/android.js`, después de
 
    Es lo que reinicia la app (el porqué, arriba de `IconoPlugin.java`).
 
-6. `npx cap sync android`, compila e **instala el APK encima** del que ya
-   tienes (sin desinstalar: así no se pierde la sesión).
+6. Arma el APK firmado (el paso 3 de la forma fácil) e **instálalo encima**
+   del que ya tienes, sin desinstalar: así no se pierde la sesión.
 
 ## Lo que pasa la primera vez
 
