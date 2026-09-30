@@ -247,6 +247,28 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.143.4 · 29 sep 2026
+
+**Un check es verde en todos los mundos.** Lo pidió Eduardo viendo la palomita
+de un talento logrado salir ROJA en Catedral: el rojo se lee como incompleto o
+fallado, justo lo contrario de lo que decía.
+
+- **La causa.** La chapa de «hecho» del mapa se pintaba con `--mint-macizo`,
+  que es el ACENTO, y el acento es lo que cada mundo cambia: rojo en Catedral
+  y Averno, morado en Reliquia, azul en Plano, blanco o negro en Tinta.
+- **El arreglo.** Nacen los tonos de estado en `css/estilos.css`:
+  `--estado-hecho` (verde Norata), `--estado-curso` (amarillo) y
+  `--estado-fallo` (coral), cada uno con su `-tinta` y su `-soft`, más
+  `--sobre-estado` para la tinta de encima. Los usan la chapa del mapa, las
+  casillas de las etapas de talentos y encargos, los requisitos cumplidos, la
+  etiqueta de estado de la ficha, el panel de «Permanente», la ventana de una
+  caja y los avisos de vencido y estancado.
+- **Para que no vuelva.** `mundos/app.py` y `apariencias/css.py` se niegan a
+  generar un mundo o ambiente que redefina `--estado-*`. La regla está en
+  `CLAUDE.md` (La paleta) y en `apariencias/LEEME.md`.
+- **Medido:** la chapa sale verde en los once mundos y ambientes, las seis
+  paletas propias y los dos modos. Los archivos generados salen idénticos.
+
 ### 0.7.143.3 · 29 sep 2026
 
 **El astrolabio de Reliquia, centrado y con los días que ya cuentan
