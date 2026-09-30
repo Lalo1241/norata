@@ -1023,9 +1023,13 @@ function renderFullscreen(mod) {
      comillas simples de un `onclick`. Ver `enJS`. */
   const bj = enJS(b);
   const editing = editandoRama(b, fullscreenMod);
+  /* Se cuentan los talentos REALES de la rama, también los guardados en una
+     caja, igual que la tarjeta. Contando lo dibujado —donde una caja es un
+     solo nodo— la misma rama decía «2 de 5» aquí y «12 de 18» en su tarjeta. */
+  const reales = esProy ? nodes : state.perks.filter(p => (p.branch || "General") === b);
   const doneN = esProy
     ? nodes.filter(n => n.status === "done").length
-    : nodes.filter(n => n.status === "completed").length;
+    : reales.filter(n => n.status === "completed").length;
 
   /* ---- Dónde estás ----
      Antes esta barra decía solo el nombre de la rama. Quien entraba a
@@ -1041,7 +1045,7 @@ function renderFullscreen(mod) {
       hermanas.length > 1 ? ` onclick="abrirSaltoDeRama(event)"` : ""}>${escapeHtml(b)}${
       hermanas.length > 1 ? `<i>▾</i>` : ""}</button>`;
   document.getElementById("fs-count").textContent =
-    `${doneN} de ${nodes.length} ${esProy ? "terminados" : "logrados"}`;
+    `${doneN} de ${reales.length} ${esProy ? "terminados" : "logrados"}`;
   /* ---- La esquina derecha de la barra ----
      Las herramientas bajaron a la tira flotante y esto se quedó vacío. En vez
      de rellenarlo con adorno, va lo que responde a las dos preguntas que uno
@@ -1077,7 +1081,7 @@ function renderFullscreen(mod) {
       linea.className = "fs-avance";
       barra.appendChild(linea);
     }
-    const pct = nodes.length ? Math.round(doneN / nodes.length * 100) : 0;
+    const pct = reales.length ? Math.round(doneN / reales.length * 100) : 0;
     linea.style.width = pct + "%";
     linea.title = `${pct}% de la rama`;
   }
@@ -1209,12 +1213,36 @@ function undoEditor() {
     toast(`Deshecho: ${prev.etiqueta}`, "deshecho");
     return;
   }
+  /* ---- Deshacer revierte la FORMA del mapa, no lo que pasó ----
+     Antes se restauraba la lista entera tal como estaba, y eso incluía el
+     avance: crear un hito, darlo por hecho desde su ficha y pulsar Ctrl+Z lo
+     devolvía a pendiente, pero el XP que ya se había dado a la habilidad se
+     quedaba. Ahora lo que se revierte es lo del editor —dónde está cada nodo,
+     qué conecta con qué, qué se creó o se borró—, y el avance se conserva tal
+     como está hoy. Y si deshacer tuviera que BORRAR algo ya logrado, no se
+     hace: se avisa, porque eso sí sería perder XP ganado. */
+  const vivos = new Map(state.perks.map(p => [p.id, p]));
+  const enAntes = new Set(antes.perks.map(p => p.id));
+  const logrado = state.perks.find(p => !enAntes.has(p.id) && p.status === "completed");
+  if (logrado) {
+    undoStack.push(prev);
+    toast(`No se puede deshacer: «${logrado.name}» ya está logrado`, "atencion");
+    return;
+  }
+  antes.perks.forEach(a => {
+    const v = vivos.get(a.id);
+    if (!v) return;
+    CAMPOS_DE_AVANCE.forEach(k => { if (k in v) a[k] = v[k]; else delete a[k]; });
+  });
   state.perks = antes.perks;
   state.cajas = antes.cajas || [];
   save();
   renderTree();
   toast(`Deshecho: ${prev.etiqueta}`, "deshecho");
 }
+/* Lo que es AVANCE y no forma: deshacer en el mapa nunca lo toca. */
+const CAMPOS_DE_AVANCE = ["status", "completedAt", "startDate", "endDate", "investedTotal",
+  "steps", "history", "pausa", "soltado", "lastActivity", "lista", "llevas", "cuenta", "vas"];
 
 /* Al salir del editor la pila se vacía: deshacer un movimiento de hace tres
    sesiones sorprendería más de lo que ayudaría. */
@@ -1778,8 +1806,8 @@ function abrirCtxMenu(clientX, clientY, branch, pos, nodoId, mod) {
   const nodo = nodoId ? state.perks.find(p => p.id === nodoId) : null;
   const bloqueNodo = nodo ? (
     `<div class="ctx-head">${escapeHtml(nodo.name)}</div>` +
-    item("Duplicar talento", tx("Copia su forma, sin el progreso"), "", `ctxDuplicar('${escapeAttr(nodo.id)}')`, BM_ICONS.copiar) +
-    item("Abrir talento", tx("Ver y editar sus datos"), "", `cerrarCtxMenu();openPerk('${escapeAttr(nodo.id)}')`, BM_ICONS.lapiz) +
+    item(tx("Duplicar nodo"), tx("Copia su forma, sin el progreso"), "", `ctxDuplicar('${escapeAttr(nodo.id)}')`, BM_ICONS.copiar) +
+    item(tx("Abrir nodo"), tx("Ver y editar sus datos"), "", `cerrarCtxMenu();openPerk('${escapeAttr(nodo.id)}')`, BM_ICONS.lapiz) +
     `<div class="ctx-sep"></div>`
   ) : "";
 
@@ -3657,8 +3685,19 @@ function alternarSeleccion(id, rama) {
    sitio donde ya se mira para saber qué se puede hacer. */
 function pintarBarraSeleccion(wrap) {
   const caja = wrap && wrap.parentElement;
-  const pista = caja && caja.querySelector(".const-hint, .fs-hint");
+  let pista = caja && caja.querySelector(".const-hint, .fs-hint, .sel-flota");
+  /* A pantalla completa y fuera del editor no hay línea de ayuda que
+     reutilizar: se podía elegir, pero la barra con «Agruparlos» no tenía
+     dónde pintarse y el modo se quedaba sin salida. Ahí se crea una barra
+     flotante propia, que desaparece al soltar la selección. */
+  if (!pista && caja && (selNodos.size || modoElegir)) {
+    pista = document.createElement("div");
+    pista.className = "sel-flota";
+    pista.dataset.pistaOriginal = "";
+    caja.appendChild(pista);
+  }
   if (!pista) return;
+  if (pista.classList.contains("sel-flota") && !selNodos.size && !modoElegir) { pista.remove(); return; }
   if (!selNodos.size && !modoElegir) {
     if (pista.dataset.pistaOriginal !== undefined) {
       pista.innerHTML = pista.dataset.pistaOriginal;
@@ -3675,6 +3714,7 @@ function pintarBarraSeleccion(wrap) {
   pista.innerHTML = n
     ? `<b>${n} elegido${n === 1 ? "" : "s"}</b>
        <button type="button" class="btn btn-soft btn-sm" onclick="agruparElegidos()">${tx("Agruparlos")}</button>
+       <button type="button" class="btn btn-danger-ghost btn-sm" onclick="borrarElegidos()">${T`Borrar ${n}`}</button>
        <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">${modoElegir ? "Salir" : tx("Quitar la selección")}</button>`
     : `<b>${tx("Toca los talentos que quieras juntar")}</b>
        <button type="button" class="btn btn-ghost btn-sm" onclick="soltarSeleccion()">${tx("Salir")}</button>`;
@@ -3721,6 +3761,34 @@ async function agruparElegidos() {
     renderTree();
     if (fullscreenBranch) renderFullscreen();
   } else repintarSeleccion();
+}
+
+/* ---- Borrar varios de una vez ----
+   Solo se podía borrar un talento desde su formulario, uno por uno. Lo que se
+   borra entra en la pila de deshacer, y el aviso lleva el botón para volver
+   atrás. Las cajas no se borran desde aquí: tienen su propio menú, porque
+   borrar una caja no es lo mismo que borrar lo que lleva dentro. */
+async function borrarElegidos() {
+  const ids = [...selNodos].filter(id => !cajaPorId(id));
+  if (!ids.length) { toast(tx("Las cajas se borran desde su propio menú"), "atencion"); return; }
+  const nombres = ids.map(id => (state.perks.find(p => p.id === id) || {}).name).filter(Boolean);
+  const cuerpo = nombres.length === 1 ? `«${nombres[0]}»` : T`estos ${nombres.length} nodos`;
+  if (!await ask(T`¿Borrar ${cuerpo}? Lo que dependía de ellos se queda sin ese requisito. Lo ya logrado no te quita XP.`, tx("Borrar"), true)) return;
+  pushUndo(nombres.length === 1 ? T`borrar ${nombres[0]}` : T`borrar ${nombres.length} nodos`);
+  const fuera = new Set(ids);
+  state.perks = state.perks.filter(p => !fuera.has(p.id));
+  state.perks.forEach(p => { if (Array.isArray(p.requiere)) p.requiere = p.requiere.filter(id => !fuera.has(id)); });
+  (state.cajas || []).forEach(c => {
+    c.perkIds = (c.perkIds || []).filter(id => !fuera.has(id));
+    c.requiere = (c.requiere || []).filter(id => !fuera.has(id));
+  });
+  state.cajas = (state.cajas || []).filter(c => c.perkIds.length);
+  modoElegir = false;
+  limpiarSeleccion();
+  save();
+  renderTree();
+  if (fullscreenBranch) renderFullscreen();
+  toast(nombres.length === 1 ? T`Borrado: ${nombres[0]}` : T`Borrados ${nombres.length} nodos`, "deshecho", { label: tx("Deshacer"), onclick: "undoEditor()" });
 }
 
 function attachEditHandlers(scope) {
@@ -3836,7 +3904,9 @@ function attachEditHandlers(scope) {
     } else {
       // Fondo: se desplaza el lienzo, para que nada quede fuera de alcance
       mode = "pan";
-      panFrom = { x: e.clientX, scroll: wrap.scrollLeft };
+      /* Los dos ejes: con solo el de lado, una rama de pie o un mapa alto no
+         se podían bajar dentro del editor. */
+      panFrom = { x: e.clientX, y: e.clientY, scroll: wrap.scrollLeft, scrollY: wrap.scrollTop };
       /* Tocar el fondo sin Shift es "ya no quiero nada de esto elegido": la
          selección no puede sobrevivir a un clic en el vacío, o acabaría
          agrupando cosas que uno ya no tenía en la cabeza. */
@@ -3852,6 +3922,7 @@ function attachEditHandlers(scope) {
 
     if (mode === "pan") {
       wrap.scrollLeft = panFrom.scroll - (e.clientX - panFrom.x);
+      wrap.scrollTop = panFrom.scrollY - (e.clientY - panFrom.y);
       return;
     }
 

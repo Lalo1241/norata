@@ -6077,6 +6077,18 @@
     color: var(--text);
   }
   .const-hint.con-seleccion b, .fs-hint.con-seleccion b { color: var(--celeste); }
+  /* La barra de lo elegido cuando no hay línea de ayuda que reutilizar (a
+     pantalla completa, fuera del editor). Flota abajo, encima de la tira. */
+  .sel-flota {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    bottom: calc(80px + env(safe-area-inset-bottom)); z-index: var(--piso-mando);
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
+    max-width: calc(100% - 32px); padding: 8px 12px;
+    background: var(--sup-tarjeta); border: 1px solid var(--line); border-radius: var(--r-grande);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .25); font-size: 13px;
+  }
+  .sel-flota b { color: var(--celeste); }
+  @media (min-width: 900px) { .sel-flota { bottom: 24px; } }
 
   /* El color de un grupo, en su ventana */
   .caja-color { margin-top: 14px; }

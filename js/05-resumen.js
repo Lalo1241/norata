@@ -2817,6 +2817,10 @@ async function deleteBranch(kind, b) {
       const r = requisitosDe(p);
       if (r.some(id => ids.has(id))) p.requiere = r.filter(id => !ids.has(id));
     });
+    /* Y sus cajas del ático. Se quedaban huérfanas hasta la siguiente carga, y
+       si se creaba otra rama con el mismo nombre aparecía dentro una caja
+       «0 guardados» que no venía de ningún sitio. */
+    state.cajas = (state.cajas || []).filter(c => c.branch !== b);
     if (editandoRama(b, "talentos")) editBranch = null;
     /* Y si se estaba viendo a pantalla completa, se sale: quedarse dentro de
        una rama borrada es lo que dejaba la capa encima con datos fantasma. */

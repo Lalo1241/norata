@@ -256,8 +256,12 @@ function togglePerkStep(perkId, stepId) {
     date: todayKey(), at: stamp(),
     event: `${s.done ? "Etapa hecha" : "Etapa reabierta"}: ${s.name}`
   });
+  p.lastActivity = todayKey();
   save();
   renderPerkDetail();
+  /* El mapa también: la barrita de avance del nodo vive allí, y sin repintar
+     se quedaba con el porcentaje viejo hasta la siguiente vez que se abría. */
+  renderTree();
   const ahora = perkProgress(p);
   if (ahora >= 100 && antes < 100) toast(tx("Todas las etapas hechas. Confirma la meta cuando quieras"), "logro");
   else toast(`${p.name}: ${ahora}%`, s.done ? "hecho" : "deshecho");

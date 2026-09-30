@@ -1333,7 +1333,11 @@ function renderTree() {
   const total = perks.length;
 
   // Lo que más urge: un plan vencido, el próximo a vencer, o algo listo para abrir
-  const soonest = [...inProgress].sort((a, b) =>
+  /* Solo cuenta lo que tiene un plazo que CORRE. Un talento guardado en una
+     caja cerrada sigue «en curso» con su plazo congelado, y ese plazo ya
+     vencido salía aquí como «Vence en -50 días». Y una meta sin plazo no
+     vence nunca, así que tampoco entra. */
+  const soonest = inProgress.filter(p => !p.congeladoEl && p.endDate).sort((a, b) =>
     daysBetween(todayKey(), a.endDate) - daysBetween(todayKey(), b.endDate))[0];
   const avgProgress = inProgress.length
     ? Math.round(inProgress.reduce((a, p) => a + perkProgress(p), 0) / inProgress.length) : 0;

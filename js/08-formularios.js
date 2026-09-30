@@ -189,13 +189,6 @@ function renderPerkDetail() {
       <button class="btn btn-ghost btn-block" onclick="revertirTalento('${p.id}')">${tx("Deshacer — no llegó a pasar")}</button>
     </div>`;
   }
-  if (st === "completed") {
-    actionPanel = `
-    <div class="panel alt" style="border-color:var(--estado-hecho)">
-      <h3 style="color:var(--estado-hecho-tinta)">${T`Permanente desde el ${formatDate(p.completedAt)}`}</h3>
-      <p class="settings-note" style="margin:0">${tx("Este talento ya es parte de ti. Nadie te lo quita. 🎉")}</p>
-    </div>`;
-  }
 
   const historyHtml = (p.history || []).length === 0
     ? `<p class="settings-note" style="margin:0">${tx("Sin movimientos todavía.")}</p>`
