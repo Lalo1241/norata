@@ -1292,6 +1292,161 @@ async function borrarHistSeleccion() {
 
 /* ================= Render: árbol ================= */
 
+/* ================= Ramas: piezas de la pantalla (0.7.145) =================
+   Talentos y Proyectos son una sola pantalla. Estas piezas las usan la tarjeta
+   de cada rama, su lista y la tira plegada. */
+
+/* La figura de un nodo en chico: la MISMA que en el mapa (rombo, hexágono,
+   círculo o triángulo), para que el tipo se aprenda en un solo sitio. El
+   relleno dice el estado: macizo lo logrado, apagado lo que espera. */
+function figuraMini(p, tam) {
+  tam = tam || 22;
+  const st = perkStatus(p);
+  const c = tam / 2, r = tam * 0.38;
+  const forma = figuraDe(p).forma;
+  const col = trazo(p.color || "#5fe0b0");
+  const apagado = st === "locked" || st === "paused" || st === "dropped";
+  const trazoC = apagado ? "var(--faint)" : col;
+  const rell = st === "completed" ? pinta(p.color || "#5fe0b0") : "none";
+  let fig;
+  if (forma === "circulo") fig = `<circle cx="${c}" cy="${c}" r="${r * 0.95}"/>`;
+  else if (forma === "rombo") fig = `<polygon points="${c},${c - r * 1.15} ${c + r * 1.15},${c} ${c},${c + r * 1.15} ${c - r * 1.15},${c}"/>`;
+  else if (forma === "triangulo") fig = `<polygon points="${c},${c - r * 1.1} ${c + r * 1.1},${c + r * 0.8} ${c - r * 1.1},${c + r * 0.8}"/>`;
+  else { const q = []; for (let k = 0; k < 6; k++) { const a = Math.PI / 180 * (60 * k - 90); q.push((c + r * Math.cos(a)).toFixed(1) + "," + (c + r * Math.sin(a)).toFixed(1)); } fig = `<polygon points="${q.join(" ")}"/>`; }
+  return `<svg class="fig-mini" width="${tam}" height="${tam}" viewBox="0 0 ${tam} ${tam}" aria-hidden="true"><g fill="${rell}" stroke="${trazoC}" stroke-width="2"${apagado ? ' stroke-dasharray="3 2"' : ""}>${fig}</g></svg>`;
+}
+
+/* El color de una rama: el de su primer nodo. Una rama no tiene color propio
+   todavía; así la línea de la izquierda y la barra hablan con lo de dentro. */
+function colorDeRama(b) {
+  const n = talentosDeRama(b)[0];
+  return (n && n.color) || "#5fe0b0";
+}
+
+/* ---- La lista de una rama: el MISMO árbol, ordenado por lo que toca ----
+   No es otra estructura: son los mismos nodos con sus candados, leídos de
+   arriba abajo. Primero lo que puedes hacer hoy, luego lo que se abrirá y qué
+   le falta, luego lo que quedó fuera del camino y al final lo ya logrado,
+   plegado. Las etapas se marcan ahí mismo, sin entrar. */
+function listaDeRamaHTML(b) {
+  const ns = talentosDeRama(b);
+  const esP = esRamaDeProyecto(b);
+  const st = x => perkStatus(x);
+  const orden = { due: 0, active: 1, available: 2 };
+  const ahora = ns.filter(x => orden[st(x)] !== undefined).sort((a, c) => orden[st(a)] - orden[st(c)]);
+  const luego = ns.filter(x => st(x) === "locked");
+  const fuera = ns.filter(x => ["paused", "dropped", "expired"].includes(st(x)));
+  const hechos = ns.filter(x => st(x) === "completed");
+  const nombre = x => escapeHtml(x.name);
+
+  const item = x => {
+    const e = st(x);
+    // Lo que abre y todavía no está logrado: lo logrado ya no espera a nadie
+    const abre = ns.filter(y => requisitosDe(y).includes(x.id) && y.status !== "completed");
+    let meta;
+    if (e === "locked") {
+      const faltan = requisitosVivos(x).filter(r => r.status !== "completed");
+      meta = `${tx("Te falta:")} <b>${faltan.map(nombre).join(modoDe(x) === "cualquiera" ? tx(" o ") : tx(" y "))}</b>`;
+    } else if (e === "due") meta = `<b>${tx("Plan vencido")}</b>`;
+    else if (e === "active" && x.endDate && !x.congeladoEl) {
+      const q = daysBetween(todayKey(), x.endDate);
+      meta = q === 1 ? tx("Queda 1 día") : T`Quedan ${q} días`;
+    } else if (abre.length && e !== "completed") meta = `${tx("Abre:")} <b>${abre.map(nombre).join(", ")}</b>`;
+    else if (tipoDe(x) === "compra" && e !== "completed") meta = x.cost > 0 ? money(x.cost) : tx("Le falta el importe");
+    else meta = tx(metaDe(x).nombre);
+    const salud = saludDeNodo(x);
+    const etapas = (tipoDe(x) === "meta" && e !== "completed" && e !== "dropped" && (x.steps || []).length)
+      ? `<div class="lr-etapas">${x.steps.map(s2 => `<button type="button" class="lr-eta${s2.done ? " hecha" : ""}"
+          onclick="event.stopPropagation();marcarEtapaDesdeLista('${enJS(x.id)}','${enJS(s2.id)}')"
+          aria-pressed="${s2.done}" aria-label="${escapeAttr((s2.done ? tx("Desmarcar ") : tx("Marcar ")) + s2.name)}">${
+          s2.done ? icon("check", 10) : ""}${escapeHtml(s2.name)}</button>`).join("")}</div>` : "";
+    const pct = perkProgress(x);
+    const derecha = salud ? `<span class="lr-salud ${salud.key}">${escapeHtml(salud.label)}</span>`
+      : e === "active" && pct ? `<span class="lr-pct">${pct}%</span>` : "";
+    return `<button type="button" class="lr-item e-${e}" onclick="openPerk('${enJS(x.id)}')">
+      <span class="lr-fig">${figuraMini(x, 24)}</span>
+      <span class="lr-cuerpo"><b>${nombre(x)}</b><span class="lr-meta">${meta}</span>${etapas}</span>
+      ${derecha}
+    </button>`;
+  };
+  const grupo = (t, lista) => lista.length ? `<div class="lr-grupo">${t}</div>${lista.map(item).join("")}` : "";
+  return `<div class="rama-lista">
+    ${grupo(tx("Ahora puedes"), ahora)}
+    ${grupo(tx("Se abre después"), luego)}
+    ${grupo(tx("Fuera del camino"), fuera)}
+    ${hechos.length ? `<details class="lr-hechos"><summary>${esP ? tx("Terminado") : tx("Ya es tuyo")} · ${hechos.length}</summary>${hechos.map(item).join("")}</details>` : ""}
+  </div>`;
+}
+
+/* Marcar una etapa desde la lista. Si el nodo aún no había empezado y no
+   tiene costo, marcar su primera etapa lo EMPIEZA: pedir un paso aparte de
+   «comenzar» para algo que no se paga era un trámite. Si tiene costo, se abre
+   su ficha, que es donde se decide pagarlo. */
+function marcarEtapaDesdeLista(id, stepId) {
+  const p = state.perks.find(x => x.id === id);
+  if (!p) return;
+  const e = perkStatus(p);
+  if (e === "locked") { toast(tx("Primero completa lo que necesita"), "atencion"); return; }
+  if (e === "available") {
+    if (p.cost > 0) { openPerk(id); return; }
+    empezarSinPlan(p);
+  }
+  togglePerkStep(id, stepId);
+  renderTree();
+}
+
+/* La pista de cómo se usa, UNA vez arriba y no en cada rama: repetida debajo
+   de cada tarjeta ocupaba 89 px por rama en el teléfono para decir siempre lo
+   mismo. Se cierra con la ✕ y no vuelve en este dispositivo. */
+function pistaRamasHTML() {
+  let vista = false;
+  try { vista = localStorage.getItem("norata-pista-ramas") === "1"; } catch (e) {}
+  if (vista) return "";
+  return `<div class="pista-ramas"><span>${tx("Toca un nodo para abrirlo. Lo gris se abre cuando terminas lo que tiene antes. Cada rama se ve como mapa o como lista.")}</span>
+    <button type="button" onclick="cerrarPistaRamas()" aria-label="${escapeAttr(tx("Entendido"))}">✕</button></div>`;
+}
+function cerrarPistaRamas() {
+  try { localStorage.setItem("norata-pista-ramas", "1"); } catch (e) {}
+  const el = document.querySelector(".pista-ramas");
+  if (el) el.remove();
+}
+
+/* Amplio (una rama por fila) o Grande (dos por fila). Solo en PC y laptop: en
+   el teléfono es siempre Amplio. Es preferencia de este dispositivo. */
+function acomodoRamas() {
+  if (!isDesktop()) return "amplio";
+  try { return localStorage.getItem("norata-acomodo-ramas") === "grande" ? "grande" : "amplio"; } catch (e) { return "amplio"; }
+}
+function ponerAcomodoRamas(a) {
+  try { localStorage.setItem("norata-acomodo-ramas", a); } catch (e) {}
+  renderTree();
+}
+function ponerVistaRama(b, v) {
+  state.ui = state.ui || {};
+  state.ui.ramaVista = state.ui.ramaVista || {};
+  if (v === "lista") state.ui.ramaVista[b] = "lista"; else delete state.ui.ramaVista[b];
+  save();
+  renderTree();
+}
+/* Cambiar la clase de una rama: talento o proyecto. No toca ningún nodo; solo
+   cambia cómo se cuenta y si se vigila su ritmo. Pasar a proyecto pide el
+   nivel que abre los proyectos. */
+function cambiarClaseDeRama(b) {
+  const aProyecto = !esRamaDeProyecto(b);
+  if (aProyecto && !moduloAbierto("projects")) { avisoModuloCerrado("projects"); return; }
+  ponerClaseDeRama(b, aProyecto ? "proyecto" : "talento");
+  save();
+  renderTree();
+  toast(aProyecto ? T`"${b}" ahora es un proyecto` : T`"${b}" ahora es una rama de talento`, "hecho");
+}
+
+function vistaSeg(bj, vista) {
+  return `<span class="vista-seg" role="group" aria-label="${escapeAttr(tx("Cómo ver esta rama"))}">
+    <button type="button" class="${vista === "mapa" ? "on" : ""}" aria-pressed="${vista === "mapa"}" onclick="ponerVistaRama('${bj}','mapa')">${tx("Mapa")}</button>
+    <button type="button" class="${vista === "lista" ? "on" : ""}" aria-pressed="${vista === "lista"}" onclick="ponerVistaRama('${bj}','lista')">${tx("Lista")}</button>
+  </span>`;
+}
+
 function renderTree() {
   const el = document.getElementById("tree-content");
   const perks = state.perks;
@@ -1307,8 +1462,8 @@ function renderTree() {
     el.innerHTML = `
       <div class="empty">
         <div class="bubble">${icon("map", 34)}</div>
-        <h2>${tx("Tu mapa está por trazarse")}</h2>
-        <p>${tx("Un talento es una meta con inversión real: un curso, un equipo, una certificación. Al pagarla arranca un plan con fecha límite — si logras la meta, el talento es tuyo para siempre.")}</p>
+        <h2>${tx("Tus ramas están por trazarse")}</h2>
+        <p>${tx("Una rama es algo que quieres hacer crecer —un oficio, tu salud— o terminar —una mudanza, un lanzamiento—. Dentro van sus nodos, que se abren unos a otros como en un árbol de habilidades.")}</p>
         <!-- El botón va dentro de un "stack" aunque sea uno solo, como en las
              otras cuatro pantallas vacías. No es orden por el orden: el CSS le
              reserva a esa caja el alto del cartel más alto para que la burbuja y
@@ -1316,90 +1471,86 @@ function renderTree() {
              fuera de esa cuenta. -->
         <div class="stack" style="align-items:center">
           ${bloqueBienvenida()}
-          <button class="${claseAccionPropia()}" onclick="openPerkForm()">${tx("Crear mi primer talento")}</button>
+          <button class="${claseAccionPropia()}" onclick="elegirClaseDeRamaNueva()">${tx("Crear mi primera rama")}</button>
         </div>
       </div>`;
     return;
   }
 
-  const invested = perks.reduce((a, p) => a + (p.investedTotal || 0), 0);
-  const completed = perks.filter(p => p.status === "completed").length;
-  const inProgress = perks.filter(p => perkStatus(p) === "active");
-  const dueNow = perks.filter(p => perkStatus(p) === "due");
-  const readyNow = perks.filter(p => perkStatus(p) === "available");
+  const estados = perks.map(p => perkStatus(p));
+  const completed = estados.filter(e => e === "completed").length;
+  const inProgress = perks.filter((p, k) => estados[k] === "active");
+  const dueNow = perks.filter((p, k) => estados[k] === "due");
+  const readyNow = perks.filter((p, k) => estados[k] === "available");
+  const estancados = perks.filter(p => (saludDeNodo(p) || {}).key === "stalled");
   const activeN = inProgress.length + dueNow.length;
-  const total = perks.length;
 
-  // Lo que más urge: un plan vencido, el próximo a vencer, o algo listo para abrir
-  /* Solo cuenta lo que tiene un plazo que CORRE. Un talento guardado en una
-     caja cerrada sigue «en curso» con su plazo congelado, y ese plazo ya
-     vencido salía aquí como «Vence en -50 días». Y una meta sin plazo no
-     vence nunca, así que tampoco entra. */
+  /* ---- Lo que más urge: UNA escalera para las dos clases ----
+     Vencido → estancado → lo que vence antes → lo que está listo. Solo cuenta
+     un plazo que CORRE: lo guardado en una caja lo tiene congelado (de ahí
+     salía «Vence en -50 días») y una meta sin plazo no vence nunca. */
   const soonest = inProgress.filter(p => !p.congeladoEl && p.endDate).sort((a, b) =>
     daysBetween(todayKey(), a.endDate) - daysBetween(todayKey(), b.endDate))[0];
-  const avgProgress = inProgress.length
-    ? Math.round(inProgress.reduce((a, p) => a + perkProgress(p), 0) / inProgress.length) : 0;
-
   let focus;
   if (dueNow.length) {
-    focus = { k: "Plan vencido", v: dueNow[0].name, color: "var(--estado-curso-tinta)", id: dueNow[0].id };
+    focus = { k: tx("Plan vencido"), v: dueNow[0].name, color: "var(--estado-curso-tinta)", id: dueNow[0].id };
+  } else if (estancados.length) {
+    focus = { k: T`Estancado ${saludDeNodo(estancados[0]).idle} días`, v: estancados[0].name, color: "var(--estado-fallo-tinta)", id: estancados[0].id };
   } else if (soonest) {
     const left = daysBetween(todayKey(), soonest.endDate);
-    focus = { k: left === 1 ? tx("Vence en 1 día") : T`Vence en ${left} días`, v: soonest.name, color: "var(--estado-curso-tinta)", id: soonest.id };
+    focus = { k: left === 1 ? tx("Vence en 1 día") : T`Vence en ${left} días`, v: soonest.name, color: "var(--estado-curso-tinta)", id: soonest.id,
+      pct: perkProgress(soonest) };
+  } else if (inProgress.length) {
+    const cerca = inProgress.slice().sort((a, b) => perkProgress(b) - perkProgress(a))[0];
+    focus = { k: tx("En curso"), v: cerca.name, color: "var(--estado-curso-tinta)", id: cerca.id, pct: perkProgress(cerca) };
   } else if (readyNow.length) {
-    focus = { k: tx("Listo para empezar"), v: readyNow[0].name, color: "var(--mint)", id: readyNow[0].id };
+    focus = { k: tx("Listo para empezar"), v: readyNow[0].name, color: "var(--estado-hecho-tinta)", id: readyNow[0].id };
   } else {
-    focus = { k: tx("Sin planes en curso"), v: tx("Abre un talento cuando quieras"), color: "var(--muted)", id: null };
+    focus = { k: tx("Todo al día"), v: tx("Abre un nodo cuando quieras"), color: "var(--muted)", id: null };
   }
 
   const branches = ramasT;
+  const acomodo = acomodoRamas();
 
   let html = sectionHero({
-    /* Aquí ponía «Invertido en ti» y el total gastado, en la cifra más grande
-       de la pantalla. Lo cambió Eduardo, y el motivo es de marca antes que de
-       diseño: **una persona vale por lo que es, no por lo que gastó.** Que el
-       dinero fuera lo primero que se ve al entrar en Talentos decía justo lo
-       contrario de por qué existe el módulo.
-
-       Lo que encabeza ahora es lo que ya conseguiste y no se puede perder: un
-       talento completado no decae nunca. El dinero no desaparece —sigue en la
-       fila de abajo, en el informe y en el Resumen—, pero deja de presidir. */
+    /* Lo que encabeza es lo que ya conseguiste y no se puede perder —en las
+       dos clases de rama—, no lo que gastaste: una persona vale por lo que es
+       (Eduardo). El dinero sigue en las cifras de abajo y en el informe. */
     lead: `<div>
-      <div class="label">${tx("Ya son tuyos")}</div>
-      <div class="big"><b>${completed}</b><span> ${completed === 1 ? tx("talento") : tx("talentos")}</span></div>
+      <div class="label">${tx("Logrado")}</div>
+      <div class="big"><b>${completed}</b><span> ${completed === 1 ? tx("nodo") : tx("nodos")}</span></div>
     </div>`,
-    /* «Por abrir» era un inventario que no pide nada: dejó sitio al dinero de
-       la semana y a lo que se vence, que sí. */
-    stats: statsPanelTalentos({ activeN }),
+    stats: statsPanelRamas({ activeN, disponibles: readyNow.length, estancados: estancados.length }),
     informe: "talentos",
     focus: Object.assign(focus, {
-      onclick: focus.id ? `openPerk('${focus.id}')` : null,
-      pct: inProgress.length ? avgProgress : undefined
+      onclick: focus.id ? `openPerk('${focus.id}')` : null
     })
-  /* Los dos botones solo con MÁS DE UNA rama: con una sola, «plegarlas todas»
-     no es una acción, es el mismo botón que ya tiene su cabecera. Y cada uno se
-     apaga cuando no haría nada, que es lo que evita el «le doy y no pasa nada».
-
-     Cada botón lleva su propio `tx()` y no va dentro del rótulo: la rama `mapa`
-     es de antes de que la app hablara inglés, y una cadena con HTML dentro no
-     se traduce. */
-  }) + `<div class="sec-label">${tx("Tus ramas de talentos")}${
-    ramasT.length > 1 ? `<span class="sec-acciones">
+  }) + pistaRamasHTML() + `<div class="sec-label ramas-label">${tx("Tus ramas")}<span class="sec-acciones">${
+    ramasT.length > 1 ? `
       <button type="button" onclick="plegarTodasLasRamas(true)"${
         ramasT.every(b => isCollapsed(b)) ? " disabled" : ""}>${tx("Plegar todas")}</button>
       <button type="button" onclick="plegarTodasLasRamas(false)"${
-        ramasT.every(b => !isCollapsed(b)) ? " disabled" : ""}>${tx("Desplegar todas")}</button>
-    </span>` : ""}</div>`;
+        ramasT.every(b => !isCollapsed(b)) ? " disabled" : ""}>${tx("Desplegar todas")}</button>` : ""}
+      ${/* El selector de rejilla, solo en PC: en el teléfono no hay dos columnas
+            que elegir. Dibuja lo que hace, como el de tu captura. */
+        isDesktop() && ramasT.length > 1 ? `<span class="rejilla-sel" role="group" aria-label="${escapeAttr(tx("Cómo ver las ramas"))}">
+        <button type="button" class="${acomodo === "amplio" ? "on" : ""}" onclick="ponerAcomodoRamas('amplio')" title="${escapeAttr(tx("Amplio: una rama por fila"))}" aria-label="${escapeAttr(tx("Amplio"))}" aria-pressed="${acomodo === "amplio"}"><svg viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="2" width="16" height="10" rx="2"/></svg></button>
+        <button type="button" class="${acomodo === "grande" ? "on" : ""}" onclick="ponerAcomodoRamas('grande')" title="${escapeAttr(tx("Grande: dos por fila"))}" aria-label="${escapeAttr(tx("Grande"))}" aria-pressed="${acomodo === "grande"}"><svg viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="2" width="7" height="10" rx="1.5"/><rect x="10" y="2" width="7" height="10" rx="1.5"/></svg></button>
+      </span>` : ""}</span></div><div class="ramas-rejilla ${acomodo}">`;
 
   branches.forEach((b, bi) => {
-    // Lo que se dibuja: talentos sueltos y cajas cerradas. La cuenta de la
-    // cabecera, en cambio, sigue siendo de talentos de verdad — una caja no
-    // es un talento y contarla como uno mentiría sobre el tamaño de la rama.
+    // Lo que se dibuja: nodos sueltos y cajas cerradas. La cuenta de la
+    // cabecera, en cambio, es de nodos de verdad — una caja no es un nodo y
+    // contarla como uno mentiría sobre el tamaño de la rama.
     const nodes = branchNodes(b);
     const reales = talentosDeRama(b);
     const collapsed = isCollapsed(b);
     const editing = editandoRama(b, "talentos");
     const doneN = reales.filter(n => n.status === "completed").length;
+    const esP = esRamaDeProyecto(b);
+    const vista = vistaRama(b);
+    const colR = colorDeRama(b);
+    const pct = reales.length ? Math.round(doneN / reales.length * 100) : 0;
     const ba = escapeAttr(b);
     /* Dos escapes para el mismo nombre, y no es redundancia: `ba` va en
        atributos normales y `bj` dentro de las comillas simples de un
@@ -1408,159 +1559,119 @@ function renderTree() {
     const bj = enJS(b);
 
     let body;
-    if (!nodes.length) {
+    if (!reales.length) {
       /* Una rama vacía no se dibuja como un lienzo en blanco —parecería rota—
-         sino como lo que es: un sitio esperando su primer talento.
-
-         Con un BOTÓN y no señalando al ＋ de la cabecera, que en el teléfono
-         ya no está (ver arriba). Un mensaje que manda a un botón invisible es
-         peor que no decir nada: deja al que acaba de crear la rama sin ninguna
-         puerta a la vista, y es justo el momento en que va a llenarla. */
+         sino como lo que es: un sitio esperando su primer nodo, con el botón
+         a la vista (en el teléfono no hay ＋ en la cabecera). */
       body = `
         <div class="rama-vacia">
-          <p class="col-vacia">${tx("Todavía no hay talentos en esta rama.")}</p>
+          <p class="col-vacia">${tx("Todavía no hay nodos en esta rama.")}</p>
           <button type="button" class="btn btn-soft btn-sm"
-            onclick="abrirMenuCrear('${bj}', event)">${tx("Crear el primero")}</button>
+            onclick="openPerkForm(null, '${bj}')">${tx("Crear el primero")}</button>
         </div>`;
     } else if (collapsed) {
-      /* ---- La rama plegada ----
-         Antes eran doce rombitos de color y la cuenta. Los rombos no decían
-         nada: a ese tamaño el estado no se distingue, y dos ramas distintas
-         se veían igual. Plegar servía para ahorrar sitio y costaba saber qué
-         había dentro, así que había que desplegar para enterarse — es decir,
-         plegar no ahorraba nada.
-
-         Ahora dice lo que se preguntaría uno antes de desplegarla: cuánto
-         llevas, qué tienes en marcha y qué toca después. La barra da el
-         vistazo y los números el detalle. */
-      const enCurso = reales.filter(n => { const e = perkStatus(n); return e === "active" || e === "due"; }).length;
-      const porAbrir = reales.filter(n => perkStatus(n) === "available").length;
-      const trabados = reales.filter(n => perkStatus(n) === "locked").length;
-      const pct = reales.length ? Math.round(doneN / reales.length * 100) : 0;
+      /* ---- La rama plegada es una TIRA que dice en qué va ----
+         Cuánto llevas, qué hay en cada estado —cada uno con su color de
+         estado y no con el acento del mundo, que en Catedral pintaba de rojo
+         lo que está por abrir—, qué sigue, y la forma de la rama en
+         figuritas, cada una tocable. */
+      const cuenta = e => reales.filter(n => perkStatus(n) === e).length;
+      const enCurso = cuenta("active") + cuenta("due");
+      const porAbrir = cuenta("available");
+      const trabados = cuenta("locked");
+      const estanca = reales.filter(n => (saludDeNodo(n) || {}).key === "stalled").length;
       const sigue = frontNode(nodes);
-      const sigueVale = sigue && !["completed", "expired"].includes(perkStatus(sigue));
-      /* ---- Una rama plegada dice EN QUÉ VA, no cuántos tiene ----
-         Antes eran doce puntitos de colores y la cuenta: «14 talentos». Eso
-         dice el tamaño de la rama, que es justo lo que no cambia nunca — la
-         plegaste porque ya sabes lo que hay dentro. Ahora dice lo que sí
-         cambia: cuánto llevas, qué hay en curso, qué está por abrir y cuál
-         sigue. Viene de la rama `mapa`.
-
-         Los textos pasan por `tx()`, que en esa rama no existía: es de antes
-         de la 0.7.84, cuando la app pasó a hablar inglés. */
+      const sigueVale = sigue && !sigue.esCaja && !["completed", "expired", "dropped"].includes(perkStatus(sigue));
+      const ordenFig = reales.slice().sort((x, y) => requisitosDe(x).length - requisitosDe(y).length);
       body = `
       <div class="branch-collapsed">
-        <div class="bc-barra"><i style="width:${pct}%"></i></div>
         <div class="bc-datos">
           ${enCurso ? `<span class="bc-d curso">${T`${enCurso} en curso`}</span>` : ""}
           ${porAbrir ? `<span class="bc-d abre">${T`${porAbrir} por abrir`}</span>` : ""}
+          ${estanca ? `<span class="bc-d fallo">${estanca === 1 ? tx("1 estancado") : T`${estanca} estancados`}</span>` : ""}
           ${trabados ? `<span class="bc-d">${T`${trabados} por desbloquear`}</span>` : ""}
-          ${!enCurso && !porAbrir && !trabados ? `<span class="bc-d">${
-            reales.length ? tx("todo conseguido") : tx("sin talentos todavía")}</span>` : ""}
+          ${!enCurso && !porAbrir && !trabados ? `<span class="bc-d abre">${tx("todo conseguido")}</span>` : ""}
         </div>
-        ${sigueVale ? `<div class="bc-sigue">${icon(sigue.icon || "star", 13)} <b>${tx("Sigue:")}</b> ${escapeHtml(sigue.name)}</div>` : ""}
+        ${sigueVale ? `<button type="button" class="bc-sigue" onclick="openPerk('${enJS(sigue.id)}')">${icon(sigue.icon || "star", 13)} <b>${tx("Sigue:")}</b> ${escapeHtml(sigue.name)}</button>` : ""}
+        <div class="bc-figuras" aria-label="${escapeAttr(tx("Los nodos de la rama"))}">${ordenFig.map(n =>
+          `<button type="button" onclick="openPerk('${enJS(n.id)}')" title="${escapeAttr(n.name)}" aria-label="${escapeAttr(n.name)}">${figuraMini(n, 20)}</button>`).join("")}</div>
       </div>`;
+    } else if (vista === "lista") {
+      body = listaDeRamaHTML(b) + `
+      <div class="rama-pie">${vistaSeg(bj, vista)}</div>`;
     } else {
       body = `
       <div class="const-wrap ${editing ? "editing" : ""}" data-branch="${ba}">${constellation(nodes, bi, editing, b)}</div>
-      <button class="fs-open" onclick="openBranchFullscreen('${bj}')">
-        <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> ${tx("Ver la rama completa")}
-      </button>
-      ${/* Una sola línea, y que diga lo que la mano puede hacer AHORA. Fuera
-            de edición el gesto es el que hay que aprender; dentro, las
-            herramientas. */
-        editing
-        ? `<div class="const-hint edit">${
+      <div class="rama-pie">
+        ${vistaSeg(bj, vista)}
+        <button class="fs-open" onclick="openBranchFullscreen('${bj}')">
+          <svg viewBox="0 0 24 24">${BM_ICONS.expandir}</svg> ${tx("Ver la rama completa")}
+        </button>
+      </div>
+      ${editing ? `<div class="const-hint edit">${
             T`Arrastra para acomodar · <b>Shift</b> y clic (o Shift y arrastra un recuadro) elige varios para moverlos juntos o agruparlos · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos los requisitos o basta uno`
-          }${atajosLegend()}</div>`
-        : `<div class="const-hint">${
-            T`Toca un nodo para abrirlo · arrástralo para acomodarlo · el círculo <b>Y/O</b> cambia si hacen falta todos sus requisitos o basta uno`
-          }${atajosLegend(true)}</div>`}`;
+          }${atajosLegend()}</div>` : ""}`;
     }
 
-    /* `data-cota` es la cifra de la cota de Blueprint, y lleva LO MISMO que la
-       pastilla de la cuenta a propósito: la cota no añade un dato, se queda con
-       el que ya había. Repetir la misma cifra dos veces en la misma tarjeta la
-       abarata, así que el mundo que enciende la cota esconde la pastilla
-       (`css/mundos.css`). Inerte para los demás mundos y para la casa.
-
-       Y va aquí fuera y no dentro de la plantilla: este comentario lleva
-       backticks, y un backtick dentro de un template literal lo CIERRA. Con él
-       dentro, la app entera dejaba de arrancar. */
+    /* `data-cota` es la cifra de la cota de Blueprint: la misma de la pastilla.
+       Va aquí fuera y no dentro de la plantilla porque un backtick dentro de
+       un template literal lo cierra. */
     html += `
-    <div class="branch-card${isDesktop() && ramaDeAtajo() === b ? " rama-activa" : ""}" data-rama="${ba}" data-cota="${doneN} de ${reales.length}">
+    <div class="branch-card clase-${esP ? "proyecto" : "talento"}${isDesktop() && ramaDeAtajo() === b ? " rama-activa" : ""}" data-rama="${ba}" data-cota="${doneN} de ${reales.length}" style="--rc:${trazo(colR)}">
+      <span class="rama-clase ${esP ? "proyecto" : "talento"}">${esP ? tx("Proyecto") : tx("Talento")}</span>
       <div class="branch-head">
         <button class="badd solid" onclick="toggleBranch('${bj}')" aria-label="${escapeAttr(collapsed ? T`Desplegar ${b}` : T`Plegar ${b}`)}" style="margin-right:2px">
           <svg viewBox="0 0 24 24"><path d="${collapsed ? "M9 6l6 6-6 6" : "M6 9l6 6 6-6"}"/></svg>
         </button>
         <!-- El nombre abre el renombrado, no el plegado: plegar ya tiene su
-             flecha justo al lado, y escribir encima de un título es el gesto
-             que todo el mundo prueba primero. -->
+             flecha justo al lado. El título baja de línea: nunca se corta con
+             puntos suspensivos. -->
         <h3 class="renombrable" onclick="renombrarRama('${bj}')" title="${escapeAttr(tx("Toca el nombre para renombrar la rama"))}">${escapeHtml(b)}${selloDeRama(b)}${icon("pen", 11)}</h3>
         <span class="count">${doneN} de ${reales.length}</span>
         <div class="bhead-btns">
           ${editing ? `
-          <button class="badd solid on" onclick="toggleEditBranch('${bj}')" aria-label="${escapeAttr(tx("Salir del modo edición"))}" title="Salir de edición${isDesktop() ? " (C)" : ""}">
+          <button class="badd solid on" onclick="toggleEditBranch('${bj}')" aria-label="${escapeAttr(tx("Salir del modo edición"))}" title="${escapeAttr(tx("Salir de edición"))}${isDesktop() ? " (C)" : ""}">
             <svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg>
           </button>` : ""}
           ${branchMenu("t:" + b, [
-            /* Fuera del bloque de "no plegada" a propósito: entrar a pantalla
-               completa despliega la rama de todos modos, y quien la tiene
-               plegada es justo quien no tiene a mano el botón de debajo del
-               lienzo. */
             { title: tx("Ver en pantalla completa"), hint: tx("Recorre la rama con sitio de sobra"), icon: "expandir", onclick: `openBranchFullscreen('${bj}')` },
-            ...(collapsed ? [] : [
-              /* Elegir varios sin teclado: en el teléfono es la única forma
-                 de juntar talentos, y en la computadora convive con Shift. */
-              { title: modoElegir ? "Salir de elegir" : "Elegir varios talentos",
-                hint: modoElegir ? "Vuelve a tocar para abrir fichas" : "Tócalos y agrúpalos o muévelos juntos",
+            { title: vista === "lista" ? tx("Verla como mapa") : tx("Verla como lista"),
+              hint: vista === "lista" ? tx("Los nodos en su árbol, con sus caminos") : tx("Lo que toca primero, de arriba abajo"),
+              icon: vista === "lista" ? "expandir" : "reordenar", onclick: `ponerVistaRama('${bj}','${vista === "lista" ? "mapa" : "lista"}')` },
+            ...(collapsed || vista === "lista" ? [] : [
+              { title: modoElegir ? tx("Salir de elegir") : tx("Elegir varios nodos"),
+                hint: modoElegir ? tx("Vuelve a tocar para abrir fichas") : tx("Para agruparlos, moverlos juntos o borrarlos"),
                 icon: "caja", onclick: `toggleElegirVarios('${bj}')` },
-              /* "Reacomodar solos" queda fuera a propósito hasta pulir cómo
-                 decide el orden; la función sigue existiendo, sin puerta. */
-              ...(editing ? [] : [{ title: "Centrar en lo que sigue", hint: "Te lleva al talento en curso o al siguiente por abrir", icon: "flecha", onclick: `focusBranchFront('${bj}')` }]),
-              /* Solo cambia cómo la miras: los talentos no se mueven de donde
-                 los pusiste, y volver a tocarlo la deja como estaba. */
-              { title: ramaGirada(b, "talentos") ? "Verla en horizontal" : "Ver la rama de pie",
-                hint: ramaGirada(b, "talentos") ? "Vuelve a lo ancho, como estaba" : "El primer talento abajo y el camino subiendo",
+              ...(editing ? [] : [{ title: tx("Centrar en lo que sigue"), hint: tx("Te lleva al nodo en curso o al siguiente por abrir"), icon: "flecha", onclick: `focusBranchFront('${bj}')` }]),
+              { title: ramaGirada(b, "talentos") ? tx("Verla en horizontal") : tx("Ver la rama de pie"),
+                hint: ramaGirada(b, "talentos") ? tx("Vuelve a lo ancho, como estaba") : tx("El primer nodo abajo y el camino subiendo"),
                 icon: ramaGirada(b, "talentos") ? "girarVuelta" : "girar",
                 onclick: `girarRama('${bj}','talentos')` },
               editing
-                ? { title: "Terminar de editar", hint: "Vuelve al modo normal", icon: "lapiz", onclick: `toggleEditBranch('${bj}')` }
-                : { title: "Editar el mapa", hint: "Mueve y conecta los talentos", icon: "lapiz", onclick: `toggleEditBranch('${bj}')` }
+                ? { title: tx("Terminar de editar"), hint: tx("Vuelve al modo normal"), icon: "lapiz", onclick: `toggleEditBranch('${bj}')` }
+                : { title: tx("Editar el mapa"), hint: tx("Mueve y conecta los nodos"), icon: "lapiz", onclick: `toggleEditBranch('${bj}')` }
             ]),
+            { title: esP ? tx("Convertir en rama de talento") : tx("Convertir en proyecto"),
+              hint: esP ? tx("Lo logrado se vuelve permanente y deja de vigilarse su ritmo") : tx("Algo que se termina: se vigila su ritmo y avisa si se estanca"),
+              icon: "reordenar", onclick: `cambiarClaseDeRama('${bj}')` },
             /* Una entrada por trimestre cerrable, y ninguna opción de
                cerrarlos todos de golpe: es justo el atajo que un día mueve
                algo que no querías mover (R8). */
             ...trimestresGuardables(b).map(t => ({
-              title: `Guardar el ${tituloTrimestre(t.id)}`,
-              hint: t.n === 1 ? T`${t.n} talento al ático` : T`${t.n} talentos al ático`,
+              title: T`Guardar el ${tituloTrimestre(t.id)}`,
+              hint: t.n === 1 ? T`${t.n} nodo al ático` : T`${t.n} nodos al ático`,
               icon: "caja", onclick: `guardarTrimestre('${bj}','${t.id}')`
             })),
-            { title: "Borrar esta rama", hint: reales.length === 0 ? "Está vacía" : (reales.length === 1 ? "Se va también su único talento" : `Se van también sus ${reales.length} talentos`), icon: "bote", danger: true, onclick: `deleteBranch('perks','${bj}')` }
+            { title: tx("Borrar esta rama"), hint: reales.length === 0 ? tx("Está vacía") : (reales.length === 1 ? tx("Se va también su único nodo") : T`Se van también sus ${reales.length} nodos`), icon: "bote", danger: true, onclick: `deleteBranch('perks','${bj}')` }
           ])}
-          ${/* ---- El ＋ de la cabecera, y por qué en el teléfono se va ----
-                En PC hace de puerta corta: el clic derecho y las teclas Q, W y
-                E hacen lo mismo mejor, pero un ＋ visible no estorba en una
-                pantalla con sitio.
-
-                En el teléfono sí estorbaba, y no por el tamaño: fuera de
-                pantalla completa la rama es SOLO una vista previa —no se
-                recorre, no se toca por dentro—, así que un ＋ ahí ofrece crear
-                justo donde no se puede colocar nada. Lo que hacía era abrir el
-                formulario largo y sacarte del árbol. Lo pidió Eduardo: aquí se
-                quita, y crear pasa a ser algo que se hace DENTRO del mapa, con
-                el ＋ de la tira, que además pregunta qué tipo.
-
-                Se esconde con CSS y no con un `if`: la misma tarjeta se pinta
-                una sola vez y tiene que seguir siendo correcta si la ventana
-                cambia de ancho sin repintar —una computadora que se acopla a
-                media pantalla, o el teléfono al girarse—. Ver `.badd-talento`. */
-            `<button class="badd badd-talento" onclick="openPerkForm(null, '${bj}')" aria-label="${escapeAttr(T`Añadir talento a ${b}`)}">＋</button>`}
+          <button class="badd badd-talento" onclick="openPerkForm(null, '${bj}')" aria-label="${escapeAttr(T`Añadir un nodo a ${b}`)}">＋</button>
         </div>
       </div>
+      ${reales.length ? `<div class="rama-barra" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="${escapeAttr(T`${pct}% de la rama`)}"><i style="width:${pct}%"></i></div>` : ""}
       ${body}
     </div>`;
   });
+  html += `</div>`;
   el.innerHTML = html;
   /* La pantalla completa se pinta DESPUÉS de la lista, a propósito:
      constellation() deja apuntadas en variables globales las posiciones del

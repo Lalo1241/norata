@@ -297,9 +297,25 @@ async function quitarEtapa(perkId, stepId) {
   renderTree();
 }
 
+/* ---- Empezar sin trámite ----
+   Una meta sin costo no necesita un botón de «comenzar»: marcar su primera
+   etapa ya es empezarla. El plazo, si lo tiene, empieza a correr ahí; si no lo
+   tiene, no vence nunca. Con costo sí se pasa por `investPerk`, que es donde
+   se decide pagar. */
+function empezarSinPlan(p) {
+  if (!p || p.status) return;
+  p.status = "active";
+  p.startDate = todayKey();
+  p.endDate = p.planDays > 0 ? addDaysKey(p.startDate, p.planDays) : null;
+  p.history = p.history || [];
+  p.history.unshift({ date: todayKey(), at: stamp(), event: tx("Empezó al marcar su primera etapa") });
+}
+
 function togglePerkStep(perkId, stepId) {
   const p = state.perks.find(x => x.id === perkId);
-  if (!p || perkStatus(p) !== "active") return;
+  if (!p) return;
+  if (perkStatus(p) === "available" && !(p.cost > 0)) empezarSinPlan(p);
+  if (perkStatus(p) !== "active") return;
   const s = (p.steps || []).find(x => x.id === stepId);
   if (!s) return;
   const antes = perkProgress(p);

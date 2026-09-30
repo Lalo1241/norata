@@ -709,6 +709,22 @@ function statsPanelTalentos(ctx) {
   ];
 }
 
+/* Las cifras del panel de Ramas (0.7.145): una fila para las dos clases, y
+   cada cifra en el color de SU estado —amarillo lo que va en curso, verde lo
+   disponible, coral lo estancado—, no en el acento del mundo. */
+function statsPanelRamas(ctx) {
+  const D = datosDeAhora();
+  const { a, b } = ventanasPanel();
+  const m = metricasTalentos(a, D), p = metricasTalentos(b, D);
+  return [
+    { n: ctx.activeN, t: tx("En curso"), tone: ctx.activeN ? "curso" : "" },
+    { n: ctx.disponibles, t: tx("Disponibles"), tone: ctx.disponibles ? "hecho" : "" },
+    { n: ctx.estancados, t: tx("Estancados"), tone: ctx.estancados ? "fallo" : "" },
+    { n: moneyHTML(m.invertido), t: T`Invertido · ${PANEL_DIAS} días`,
+      d: flechaHTML(variacion(m.invertido, p.invertido, { dinero: true }), T`Invertido ${contra()}`) }
+  ];
+}
+
 function statsPanelProyectos(ctx) {
   const D = datosDeAhora();
   const { a, b } = ventanasPanel();

@@ -2187,8 +2187,8 @@ function showView(name) {
 
    Ajustes se queda fuera a propósito, por petición de Eduardo. */
 const ROTULO_PESTANA = {
-  // Su encabezado es "Árbol de talentos", que recortado no dice nada
-  tree: "Talentos",
+  // Desde la 0.7.145 la pantalla se llama Ramas (Talentos y Proyectos juntos)
+  tree: "Ramas",
   // El suyo lleva pegada la chapa de «Prueba», que en la pestaña sobra
   jornada: "Pomodoro"
 };
@@ -2234,38 +2234,55 @@ function opcionesDeCrear() {
     ];
   }
   if (v === "tree" || v === "projects") {
-    const esProy = v === "projects";
-    const kind = esProy ? "projects" : "perks";
-    const ramas = ramasDe(kind);
+    const ramas = ramasDe("perks");
     /* La rama que estás mirando va primero: la del ratón o la de pantalla
-       completa. Sin ninguna, la primera de la lista. */
-    const viendo = esProy ? ramaDeAtajoProyectos() : ramaDeAtajo();
+       completa. Sin ninguna, la primera de la lista. Cada opción dice la rama
+       y su clase, para que no haya que adivinar dónde cae el nodo. */
+    const viendo = ramaDeAtajo();
     const orden = viendo && ramas.includes(viendo) ? [viendo, ...ramas.filter(b => b !== viendo)] : ramas;
     return [
       ...orden.map((b, i) => ({
         principal: i === 0,
-        titulo: esProy ? T`Encargo en ${b}` : T`Talento en ${b}`,
-        sub: i === 0 ? (b === viendo ? tx("La rama que estás viendo") : (esProy ? tx("Un paso más de este proyecto") : tx("Meta, hito o compra, dentro de esta rama"))) : "",
-        hacer: () => esProy ? openProjectForm(null, b) : openPerkForm(null, b)
+        titulo: T`Un nodo en ${b}`,
+        sub: (esRamaDeProyecto(b) ? tx("Proyecto") : tx("Talento")) + (i === 0 && b === viendo ? " · " + tx("la rama que estás viendo") : ""),
+        hacer: () => openPerkForm(null, b)
       })),
-      { titulo: esProy ? tx("Proyecto nuevo") : tx("Rama nueva"),
-        sub: esProy ? tx("Algo que quieres terminar, con sus encargos") : tx("Un camino entero: Salud, Dinero, Cocina…"),
-        hacer: () => crearRama(kind), contenedor: true }
+      { titulo: tx("Una rama nueva"),
+        sub: tx("Un talento que quieres hacer crecer, o un proyecto que quieres terminar"),
+        hacer: () => elegirClaseDeRamaNueva(), contenedor: true }
     ];
   }
   return [{ titulo: tx("Nueva habilidad"), hacer: () => openSkillForm() }];
 }
 
 let opcionesAbiertas = [];
+
+/* «Una rama nueva» pregunta primero de qué clase. Son dos cosas distintas
+   —una crece, la otra se termina— y la clase decide cómo se cuenta y si se
+   vigila su ritmo. La de proyecto lleva su candado de nivel. */
+function elegirClaseDeRamaNueva() {
+  const proyAbierto = moduloAbierto("projects");
+  const ops = [
+    { principal: true, titulo: tx("Rama de talento"), sub: tx("Algo que quieres hacer crecer: un oficio, tu salud. Lo que logres es tuyo para siempre."),
+      hacer: () => crearRama("perks") },
+    { titulo: proyAbierto ? tx("Rama de proyecto") : T`Rama de proyecto · se abre en el nivel ${MODULO_NIVEL.projects}`,
+      sub: tx("Algo que quieres terminar: una mudanza, un lanzamiento. Vigila su ritmo y avisa si se estanca."),
+      hacer: () => proyAbierto ? crearRama("projects") : avisoModuloCerrado("projects") }
+  ];
+  mostrarHojaCrear(ops, tx("¿Qué clase de rama?"));
+}
 function fabAction() {
   const ops = opcionesDeCrear();
   /* Sin ramas o sin columnas propias solo queda crear el contenedor, o solo
      hay una cosa que crear: directo, sin hoja. */
   if (ops.length === 1) { ops[0].hacer(); return; }
+  mostrarHojaCrear(ops, tx("¿Qué quieres crear?"));
+}
+function mostrarHojaCrear(ops, titulo) {
   opcionesAbiertas = ops;
   const el = document.getElementById("hoja-crear");
   document.getElementById("hoja-crear-body").innerHTML = `
-    <h3 class="modal-titulo" style="color:var(--text)">${tx("¿Qué quieres crear?")}</h3>
+    <h3 class="modal-titulo" style="color:var(--text)">${escapeHtml(titulo)}</h3>
     <div class="hc-ops">${ops.map((o, i) => `
       <button type="button" class="hc-op${o.principal ? " principal" : ""}${o.contenedor ? " contenedor" : ""}" onclick="elegirCrear(${i})">
         <span class="hc-mas" aria-hidden="true">＋</span>
