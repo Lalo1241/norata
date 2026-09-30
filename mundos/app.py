@@ -922,9 +922,10 @@ if __name__ == "__main__":
     import sys
     sys.path.insert(0, os.path.join(AQUI, "iconos"))
     import generar as ICONOS
-    partes.append("/* La marca del menú en cada mundo: solo dos variables. Las leen las\n"
-                  "   reglas de `.side-brand` en `css/estilos.css`; el porqué, junto a\n"
-                  "   `--marca-iso`. Generado desde `mundos/iconos/generar.py`. */\n"
+    partes.append("/* La marca en cada mundo: el color del isotipo del menú (`--marca-menu`)\n"
+                  "   y la pieza del icono del APK, que enseña el aviso de reinicio. El\n"
+                  "   porqué, junto a `--marca-iso` en `css/estilos.css`. Generado desde\n"
+                  "   `mundos/iconos/generar.py`. */\n"
                   + "".join(ICONOS.marca_css(m["id"]) for m in listos))
     # ---- El menú dentro de un mundo (0.7.147.10) ----
     # Las casillas de icono de Ajustes y del menú de la cuenta llevan un tono
