@@ -21,7 +21,7 @@ const TAMAÑOS = [512, 192, 180];
   fs.mkdirSync(PNG, { recursive: true });
   const nav = await chromium.launch();
   const pag = await nav.newPage();
-  const ids = fs.readdirSync(SVG).filter(f => f.endsWith(".svg")).map(f => f.slice(0, -4));
+  const ids = fs.readdirSync(SVG).filter(f => f.endsWith(".svg") && !f.startsWith("menu-")).map(f => f.slice(0, -4));
   for (const id of ids) {
     const src = fs.readFileSync(path.join(SVG, id + ".svg"), "utf8");
     for (const t of TAMAÑOS) {

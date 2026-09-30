@@ -1,31 +1,159 @@
-<!doctype html>
-<html lang="es"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Iconos de los mundos</title>
-<!-- Generada por generar.py: se edita la plantilla, no esta página. -->
+<!-- Generada por generar.py: se edita la plantilla, no vista.html. Va sin
+     <html>/<head>/<body> porque se publica tal cual como artefacto, que pone
+     ese esqueleto él solo; el navegador la abre igual con doble clic. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
-  :root { --bg:#10151d; --card:#1d2530; --text:#e8eef5; --muted:#9aa7b6; --line:#2a3442; }
-  @media (prefers-color-scheme: light) { :root { --bg:#dcdef0; --card:#f2f0f9; --text:#131823; --muted:#4a5568; --line:#c5c8dc; } }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 system-ui, sans-serif; padding:28px 16px 60px; }
-  header { max-width:1100px; margin:0 auto 22px; }
-  h1 { font-size:22px; margin:0 0 6px; }
-  p { color:var(--muted); margin:0; max-width:70ch; }
-  main { max-width:1100px; margin:0 auto; display:grid; gap:14px; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); }
-  figure { margin:0; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; }
-  .fila { display:flex; align-items:flex-end; gap:10px; }
-  .fila svg { display:block; width:100%; height:100%; }
-  .g { width:104px; height:104px; border-radius:23px; overflow:hidden; flex:none; }
-  .c { width:56px; height:56px; border-radius:50%; overflow:hidden; flex:none; }
-  .m { width:40px; height:40px; border-radius:10px; overflow:hidden; flex:none; }
-  figcaption { margin-top:12px; display:flex; flex-direction:column; }
-  figcaption span { color:var(--muted); font-size:13px; }
-</style></head>
-<body>
-<header>
-  <h1>Iconos de los mundos</h1>
-  <p>El mismo isotipo en los diecisiete, vestido con el material de cada mundo. Cada ficha lo enseña
-     con la máscara de iOS, con la redonda de Android y a 40 px, que es lo que tiene que aguantar.</p>
-</header>
-<main><!--FICHAS--></main>
-</body></html>
+  /* Una mesa de revisión: la rejilla de los diecisiete arriba, el mundo
+     elegido en grande con su menú, y todos los menús juntos para comparar. */
+  :root {
+    --bg: #0e1218; --panel: #161c25; --panel-2: #1c2430; --line: #273140;
+    --fg: #eef2f6; --muted: #93a0b0; --accent: #5fe0b0; --sel: #5fe0b0;
+    --sans: "Outfit", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+    --bg: #e3e5f2; --panel: #f4f3fa; --panel-2: #eceaf5; --line: #cdd0e2;
+    --fg: #131823; --muted: #4f5869; --accent: #007046; --sel: #00a86b; color-scheme: light; } }
+  :root[data-theme="light"] {
+    --bg: #e3e5f2; --panel: #f4f3fa; --panel-2: #eceaf5; --line: #cdd0e2;
+    --fg: #131823; --muted: #4f5869; --accent: #007046; --sel: #00a86b; color-scheme: light; }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--sans); }
+  .hoja { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 72px; display: grid; gap: 56px; }
+  h1, h2, h3 { text-wrap: balance; margin: 0; font-weight: 700; letter-spacing: -.015em; }
+  h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.08; }
+  h2 { font-size: 22px; }
+  h3 { font-size: 24px; }
+  p { margin: 0; max-width: 64ch; color: var(--muted); }
+  .etq, .ceja { font: 500 11px/1 var(--mono); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+  .ceja { color: var(--accent); }
+  svg { display: block; }
+
+  .cabeza { display: grid; gap: 14px; }
+  .aviso { display: inline-flex; width: fit-content; gap: 8px; align-items: center; padding: 6px 12px;
+           border: 1px solid var(--line); border-radius: 999px; font-size: 13px; color: var(--muted); }
+  .aviso::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .seccion { display: grid; gap: 20px; }
+  .seccion > header { display: grid; gap: 6px; }
+
+  /* La rejilla: el icono manda, el texto va debajo y apagado. */
+  .rejilla { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); }
+  .mundo { appearance: none; border: 1px solid transparent; background: none; color: inherit; font: inherit;
+           padding: 12px 8px 10px; border-radius: 18px; cursor: pointer; display: grid; justify-items: center; gap: 4px;
+           text-align: center; transition: background .15s, border-color .15s; }
+  .mundo:hover { background: var(--panel); }
+  .mundo:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+  .mundo[aria-pressed="true"] { background: var(--panel); border-color: var(--sel); }
+  .mundo .ico { width: 84px; height: 84px; border-radius: 19px; overflow: hidden; margin-bottom: 6px;
+                box-shadow: 0 6px 18px rgba(0,0,0,.28); }
+  .mundo .ico svg, .d-grande svg, .d-mascaras svg { width: 100%; height: 100%; }
+  .mundo .nom { font-weight: 600; font-size: 14px; }
+  .mundo .lla { font-size: 12px; color: var(--muted); line-height: 1.3; }
+
+  /* El detalle */
+  .detalle { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 24px; display: grid; gap: 22px; }
+  .detalle header { display: grid; gap: 2px; }
+  .d-cuerpo { display: grid; gap: 28px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; }
+  .d-app, .d-menu { display: grid; gap: 14px; min-width: 0; }
+  .d-grande { width: min(240px, 100%); aspect-ratio: 1; border-radius: 22.5%; overflow: hidden; box-shadow: 0 14px 40px rgba(0,0,0,.35); }
+  .d-mascaras { display: flex; gap: 22px; align-items: flex-end; flex-wrap: wrap; }
+  .d-mascaras figure { margin: 0; display: grid; justify-items: center; gap: 8px; }
+  .d-mascaras figcaption { font: 500 11px/1 var(--mono); color: var(--muted); }
+  .m-circ { width: 88px; height: 88px; border-radius: 50%; overflow: hidden; }
+  .m-ios { width: 60px; height: 60px; border-radius: 22.5%; overflow: hidden; }
+  .m-mini { width: 32px; height: 32px; border-radius: 22.5%; overflow: hidden; }
+  .d-barras { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+  .nav { display: flex; gap: 8px; }
+  .nav button { appearance: none; font: 600 13px var(--sans); color: var(--fg); background: var(--panel-2);
+                border: 1px solid var(--line); border-radius: 10px; padding: 7px 12px; cursor: pointer; }
+  .nav button:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+  .detalle-cabeza { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+
+  /* La barra lateral de la app, de mentiras: solo lo de arriba. Los tonos
+     llegan en variables --b-* desde cada mundo. */
+  .barra { width: 250px; max-width: 100%; background: var(--b-bg); color: var(--b-text); border-radius: 16px;
+           padding: 18px 12px 14px; display: grid; gap: 4px; border: 1px solid rgba(128,128,128,.18); }
+  .b-top { display: flex; align-items: center; justify-content: space-between; padding: 0 2px 16px 8px; }
+  .b-logo svg { height: 30px; width: auto; }
+  .b-panel { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px;
+             border: 1px solid var(--b-linea); color: var(--b-muted); }
+  .b-panel svg, .b-item svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8;
+                              stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .b-item { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 10px;
+            font-weight: 600; font-size: 14px; color: var(--b-muted); border-left: 3px solid transparent; }
+  .b-item.on { background: var(--b-velo); color: var(--b-acento-t); border-left-color: var(--b-acento); }
+  .barra.plegada { width: 68px; justify-items: center; padding: 16px 8px; }
+  .barra.plegada .b-marca { width: 40px; height: 40px; display: grid; place-items: center; margin-bottom: 14px; }
+  .barra.plegada .b-marca svg { width: 26px; height: 26px; }
+  .barra.plegada .b-item { padding: 11px; border-left: 0; }
+  .barra.plegada .b-item.on { box-shadow: inset 3px 0 0 var(--b-acento); }
+
+  .menus { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+  .m-carta { margin: 0; display: grid; gap: 8px; }
+  .m-carta .barra { width: 100%; }
+  .m-carta figcaption { font-size: 13px; color: var(--muted); padding-left: 4px; }
+
+  @media (max-width: 760px) {
+    .d-cuerpo { grid-template-columns: minmax(0, 1fr); }
+    .detalle { padding: 18px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .mundo { transition: none; } }
+</style>
+
+<div class="hoja">
+  <section class="cabeza">
+    <span class="ceja">Norata · Apariencias</span>
+    <h1>Iconos de los mundos</h1>
+    <p>Diecisiete mundos y un solo isotipo. Cada mundo cambia el material de la pieza y el suelo donde
+       se apoya. La silueta es la de la marca en todos, y el hueco del centro va vacío.</p>
+    <span class="aviso">Propuesta · todavía no está en la app</span>
+  </section>
+
+  <section class="seccion" aria-labelledby="t-app">
+    <header><h2 id="t-app">El icono de la app</h2>
+      <p>Toca uno para verlo en grande, con las máscaras de Android y de iOS, y con el menú de ese mundo.</p></header>
+    <div class="rejilla" role="group" aria-label="Mundos"><!--REJILLA--></div>
+  </section>
+
+  <section class="seccion" aria-live="polite">
+    <div class="detalle-cabeza">
+      <span class="etq">El mundo elegido</span>
+      <div class="nav"><button type="button" id="ant" aria-label="Mundo anterior">← Anterior</button>
+        <button type="button" id="sig" aria-label="Mundo siguiente">Siguiente →</button></div>
+    </div>
+    <!--DETALLES-->
+  </section>
+
+  <section class="seccion" aria-labelledby="t-menu">
+    <header><h2 id="t-menu">El logo del menú, mundo por mundo</h2>
+      <p>Hoy el isotipo del menú se queda menta en todos los mundos. Así se vería si se vistiera igual que el
+         icono de la app: la pieza cambia de color y de material, y la palabra «Norata» solo cambia de tinta.
+         La barra lleva los tonos de cada mundo.</p></header>
+    <div class="menus"><!--MENUS--></div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const botones = [...document.querySelectorAll(".mundo")];
+  const detalles = [...document.querySelectorAll(".detalle")];
+  const ids = botones.map(b => b.dataset.id);
+  let actual = ids.includes(location.hash.slice(1)) ? location.hash.slice(1) : "catedral";
+  function elegir(id, mover) {
+    actual = id;
+    botones.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === id)));
+    detalles.forEach(d => { d.hidden = d.dataset.id !== id; });
+    try { history.replaceState(null, "", "#" + id); } catch (e) {}
+    if (mover) document.querySelector(".detalle:not([hidden])").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+  botones.forEach(b => b.addEventListener("click", () => elegir(b.dataset.id, true)));
+  const paso = n => elegir(ids[(ids.indexOf(actual) + n + ids.length) % ids.length], false);
+  document.getElementById("ant").addEventListener("click", () => paso(-1));
+  document.getElementById("sig").addEventListener("click", () => paso(1));
+  elegir(actual, false);
+})();
+</script>

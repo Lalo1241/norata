@@ -18,8 +18,20 @@ python mundos/iconos/generar.py
 node mundos/iconos/rasterizar.js
 ```
 
-`vista.html` se abre con doble clic: enseña cada icono con la máscara de iOS,
-la redonda de Android y a 40 px.
+`vista.html` se abre con doble clic (y es la misma página que se publicó como
+artefacto): la rejilla de los iconos, el mundo elegido con las máscaras de
+Android e iOS, y la propuesta del logo del menú en cada mundo.
+
+## El logo del menú (propuesta)
+
+`generar.py` también escribe `svg/menu-<id>.svg`: el logotipo de la barra
+lateral con la pieza vestida por el mundo —el mismo material que el icono,
+reducido a lo que se lee a 30 px— y la palabra «Norata» solo cambiada de
+tinta. El logotipo se lee de `index.html` y no se copia.
+
+**Esto va contra una regla vigente y hay que decidirlo antes de montarlo:**
+hoy el isotipo del menú va en `--marca-iso` y ningún mundo lo toca («un tema
+puede cambiarlo todo menos quién eres», ver `css/estilos.css`, 0.7.54).
 
 ## Las reglas
 
@@ -30,9 +42,9 @@ la redonda de Android y a 40 px.
    fondo y el isotipo ocupa 288 de 512, dentro del círculo del 80 % que
    `maskable` garantiza. Lo que va en las esquinas (remaches, escuadras,
    flores) puede perderse con la máscara sin que el icono deje de decir nada.
-3. **El hueco se toca poco.** Es lo que hace del isotipo un marco. Cuando un
-   mundo pone algo ahí (la flor de Talavera, el astro de Cénit, el cursor de
-   Consola), es pequeño y no compite con la pieza.
+3. **El hueco no lleva nada.** Es lo que hace del isotipo un marco, y por él
+   solo se ve el suelo del mundo. La primera tanda puso ahí una flor, un
+   astro, un cursor, una hoja y un copo; Eduardo los quitó.
 
 ## Lo que todavía no existe
 
