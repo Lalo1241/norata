@@ -418,7 +418,7 @@ function volverAEntrar() {
    hace falta distinguirla. En el menú del engrane y en el índice de Ajustes
    la quitó Eduardo: ahí no hay con qué confundirla. */
 function chapaSesionHTML() {
-  /* Desde la 0.7.148.2 solo queda la de CADUCADA. «Sesión actual» se fue a la
+  /* Desde la 0.7.148.3 solo queda la de CADUCADA. «Sesión actual» se fue a la
      lista de cuentas del índice (`cuentaActualMenuHTML`): aquí, debajo de «Tu
      cuenta», ya se sabe que es la de ahora (Eduardo). */
   return sesionCaducada()

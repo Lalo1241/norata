@@ -928,7 +928,7 @@ if __name__ == "__main__":
                   + "".join(ICONOS.marca_css(m["id"]) for m in listos))
     # ---- El menú dentro de un mundo ----
     # En la 0.7.147.10 este bloque pasaba el lila de Fundador y el amarillo de
-    # «Norata por dentro» al acento y a la tinta de cada mundo. En la 0.7.148.2
+    # «Norata por dentro» al acento y a la tinta de cada mundo. En la 0.7.148.3
     # Eduardo lo dio la vuelta: esas dos filas llevan SIEMPRE su color —el del
     # plan que pagas y el amarillo— sin importar el mundo. Salen de `--casa-*`
     # (css/estilos.css) y aquí no se escribe nada de color; lo único que es
@@ -953,7 +953,7 @@ if __name__ == "__main__":
             "   fina, sin relleno. Generado desde `mundos/app.py`. */",
             pl + " :is(.aj-ic, .mm-ic) { background: " + esquinas + " !important;"
             " box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 24%, transparent); border-radius: 0; }",
-            # Al pasar el ratón se rellena como en la casa (0.7.148.2). Antes se
+            # Al pasar el ratón se rellena como en la casa (0.7.148.3). Antes se
             # quedaba sin relleno y el ratón le ponía igual la tinta oscura del
             # relleno: el icono se volvía negro. `background-color` y no
             # `background`, para que las marcas sigan encima.
@@ -977,7 +977,7 @@ if __name__ == "__main__":
     # note, así que aquí no se genera.
     if "--estado-" in txt:
         raise SystemExit("un mundo redefine --estado-*: los tonos de estado son de Norata, no del mundo")
-    # Y los colores de la casa, por lo mismo (0.7.148.2): el icono de Mi perfil
+    # Y los colores de la casa, por lo mismo (0.7.148.3): el icono de Mi perfil
     # lleva el color de tu plan y «Norata por dentro» el amarillo, en todos.
     if re.search(r"--(casa-|sobre-casa)", txt):
         raise SystemExit("un mundo redefine --casa-*: el color del plan y el de la trastienda no son del mundo")

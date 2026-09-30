@@ -2712,7 +2712,7 @@ html[data-apariencia="averno"] :is(.skill-emoji, .ms-ic, .aj-ic, .mm-ic) {
 /* Los del menú de Ajustes y del menú de la cuenta, también en rombo (0.7.147.10:
    «que los iconos también se adapten con los mundos»). Al pasar el ratón el
    rombo se RELLENA del tono de su fila, como en la casa se rellena el cuadro
-   (0.7.148.2). Antes no se rellenaba y el ratón le ponía igual la tinta oscura
+   (0.7.148.3). Antes no se rellenaba y el ratón le ponía igual la tinta oscura
    del relleno: el icono de Mi perfil se volvía negro y los demás, al conservar
    su tono, no reaccionaban. */
 html[data-apariencia="averno"] .mm-item:is(:hover, :focus-visible) .mm-ic {

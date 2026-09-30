@@ -73,7 +73,7 @@
     --estado-fallo-tinta: #ff8a70;
     --estado-fallo-soft: rgba(255, 138, 112, 0.13);
     --sobre-estado: #10151d;
-    /* ---------- Los colores de la casa, que ningún mundo toca (0.7.148.2) ----------
+    /* ---------- Los colores de la casa, que ningún mundo toca (0.7.148.3) ----------
        Dos cosas del menú se pintan SIEMPRE igual, pase el mundo o el ambiente
        que pase, y es regla de Eduardo: el icono de Mi perfil lleva el color del
        plan que pagas (menta; lila de Fundador; oro si se acaba, coral si no se
@@ -2108,6 +2108,15 @@
     overflow: hidden;
     margin-bottom: 6px;
   }
+  /* El color del texto se DECLARA aquí y no se hereda (0.7.148.2): la ventana
+     copia las variables del mundo mirado (`vestirVentana`), pero `color` llega
+     ya resuelto desde la página, con el `--text` del mundo PUESTO. Todo el
+     texto de la tarjeta —y los bordes en `currentColor`— salía con la tinta del
+     otro mundo. Medido contra ese mundo puesto de verdad. */
+  .ap-escena.ventana { color: var(--text); }
+  /* La etiqueta «Predeterminado» va montada en el borde de arriba de la ficha;
+     sin este respiro pisaba 2 px el icono de la Casa. */
+  .ap-cab:has(.ap-base) { padding-top: 10px; }
   /* El marco lleva el suelo hondo por debajo y no el de la tarjeta: sin un tono
      que separe, lo de dentro se lee como si fuera esta app. Es la misma razón
      por la que el lienzo del árbol no vale el fondo de la página. */
@@ -3989,7 +3998,7 @@
      a secas es una palabra que cualquiera puede usar mañana para otra cosa en
      otro sitio del CSS, y estas clases las escribe JavaScript pegando un
      trozo de texto. */
-  /* Desde la 0.7.148.2 el tono va en CUATRO variables puestas en la fila
+  /* Desde la 0.7.148.3 el tono va en CUATRO variables puestas en la fila
      (`--ic-tono`, `--ic-velo`, `--ic-lleno`, `--ic-sobre`) y la casilla las
      lee. Antes cada tono repetía sus reglas para reposo, `.on` y ratón, y un
      mundo que quisiera su propio relleno tenía que reescribirlas todas — y se
@@ -4374,7 +4383,7 @@
     font-size: 11px;
     font-weight: 650;
     line-height: 1.5;
-    /* Los colores de la casa y no los del mundo (0.7.148.2): la chapa dice
+    /* Los colores de la casa y no los del mundo (0.7.148.3): la chapa dice
        qué plan pagas, y eso se lee igual en Averno que en la casa. */
     background: var(--casa-menta-soft);
     color: var(--casa-menta);
@@ -9982,7 +9991,7 @@
   /* En el índice de Ajustes los renglónes llevan una flecha al final; estos no
      van a ninguna sección, así que el hueco de la flecha sobra. */
   .aj-cuenta { grid-template-columns: none; }
-  /* «Sesión actual» en la lista de cuentas (0.7.148.2), al final de la fila de
+  /* «Sesión actual» en la lista de cuentas (0.7.148.3), al final de la fila de
      la cuenta abierta. Verde de la casa siempre, pase el mundo que pase: es lo
      que se busca de un vistazo entre varias cuentas, y en Averno el acento la
      dejaba roja, que se lee como un aviso. */
@@ -10878,7 +10887,7 @@
   }
   .sync-dot { width: 9px; height: 9px; border-radius: var(--r-disco); flex: none; background: var(--faint); }
   /* Un semáforo, y los semáforos no cambian de color con el mundo (Eduardo,
-     0.7.148.2): verde funciona, amarillo va en camino, rojo falló. Salen de
+     0.7.148.3): verde funciona, amarillo va en camino, rojo falló. Salen de
      `--estado-*`, que ningún mundo toca. Con el acento, en Averno el punto de
      «Sincronizado» salía ROJO — justo lo contrario de lo que decía. */
   .sync-dot.ok { background: var(--estado-hecho); box-shadow: 0 0 0 3px var(--estado-hecho-soft); }
