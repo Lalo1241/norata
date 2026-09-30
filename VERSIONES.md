@@ -247,6 +247,52 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.147 · 30 sep 2026
+
+**Cinco paletas por mundo, diez ambientes, y los mundos se ven desde Mi
+apariencia.** Salió entero del laboratorio de mundos, donde Eduardo lo fue
+eligiendo pieza por pieza.
+
+- **Cinco paletas por mundo** (regla de Eduardo). Cuatro llegan con el mundo
+  y **la quinta se gana con el tercer rango de su camino** (nivel 18): un
+  mundo se paga, y cerrar tres de cinco habría sido entregar la compra
+  incompleta. `PALETA_DE_RANGO` en `js/10i-apariencia.js`.
+  - **Blueprint:** Cian (la de siempre), Archivo, Prisma, Acero y Láser.
+  - **Reliquia:** Terciopelo (la de siempre), Granate, Lapislázuli, Esmeralda
+    y Obsidiana. Cada una cambia el forro, el acento y **el metal** (oro, oro
+    rosa, plata), y el astrolabio de la racha lo sigue.
+  - **Catedral:** + Rosetón.
+  - **Averno:** Tormento (era Sangre; el id sigue siendo `sangre`), Lamento,
+    Plaga, Ruina y Estigia (id `cienaga`). El Tormento de antes se apagó:
+    quien lo tenía vuelve a la de partida (script de arriba de `index.html`).
+  - Blueprint y Reliquia no las escribe nadie a mano: las recolorea
+    `mundos/recolores/` desde su bloque, dentro de `mundos/app.py`. **Primera
+    vuelta descartada:** girar el matiz salía monocromo («no se salen de una
+    misma línea de color»). Ahora cada paleta declara sus papeles con colores
+    complementarios de paletas de Lospec y se interpola en OKLab. El aviso y
+    el peligro no se tocan, y el generador se niega a escribir si una tinta
+    no llega a 4,5. Cada paleta lleva solo lo que cambia: sin eso
+    `mundos.css` crecía un 40 %.
+- **El mapa de talentos de Blueprint, hondo** en todas sus paletas: el azul
+  medio de antes se veía «plastoso».
+- **Norata clásico llega a diez ambientes:** Cobre (nivel 10), Zafiro (16,
+  Pro, el único acento libre que quedaba: azul aciano) y Oliva (30). **Duna,
+  rehecha** como desierto de verdad (arena, con el índigo del atardecer).
+- **Mi apariencia, homologada:** 5 por fila en la PC y 2 en el teléfono, y
+  los ambientes con la muestra de las paletas (dos bolitas, sin el icono;
+  `--mu-segundo`, elegido a mano en `apariencias/datos.py`). **La tarjeta es
+  una ventana al mundo que miras** (`vestirVentana`): toma sus variables
+  aunque lleves puesto otro.
+- **Averno y Catedral sin rojo duro:** el botón principal, el interruptor
+  encendido, «Nuevo», el filtro elegido y el volumen pasan a sangre honda
+  (el rojo mezclado con la tarjeta y un filo rojo de un píxel).
+- **Las Habilidades conservan su forma en todos los mundos:** la tarjeta con
+  sus esquinas en diagonal y el icono en su gota. Catedral y Averno las
+  aplanaban.
+- **Averno:** en el teléfono el saludo del Resumen ya no baja los botones; y
+  con Plaga la racha entera va en verde.
+- **Reliquia:** sin la malla de capitoné detrás de la racha.
+
 ### 0.7.146.3 · 30 sep 2026
 
 **Retoques de la pantalla de Ramas.** Los pidió Eduardo mirándola en Averno.

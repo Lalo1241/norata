@@ -145,6 +145,13 @@
       localStorage.setItem("norata-mudanza-catedral", "1");
     }
   } catch (e) {}
+  /* Averno se quedó sin su Tormento de antes (0.7.147): el nombre pasó a la
+     paleta de partida. Quien lo tenía elegido vuelve a ella —que ahora se
+     llama Tormento—, en vez de quedarse con un atributo que ya no pinta nada. */
+  try {
+    var pt = JSON.parse(localStorage.getItem("norata-paletas") || "{}") || {};
+    if (pt.averno === "tormento") { delete pt.averno; localStorage.setItem("norata-paletas", JSON.stringify(pt)); }
+  } catch (e) {}
 
   try {
     var apr = new URLSearchParams(location.search).get("apariencia");
@@ -182,7 +189,7 @@
     if (["reliquia", "plano", "catedral", "averno"].indexOf(puesta) >= 0) {
       var lm = document.createElement("link");
       lm.rel = "stylesheet";
-      lm.href = "css/mundos.css?h=533f921b33";
+      lm.href = "css/mundos.css?h=6e84572f69";
       document.head.appendChild(lm);
     }
   } catch (e) {}

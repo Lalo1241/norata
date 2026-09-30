@@ -80,3 +80,18 @@ PALETAS = {
              aviso="#6d5500", avisoM="#f2cc4a", peligro="#a13a00", peligroM="#ff8a3a", sobre="#1d0f1c",
              piedra="#d6c9d4", hierro="#9a8698", hondo="#f0ebf0")),
 }
+
+# La QUINTA (0.7.147): Eduardo pidió cinco por mundo. El rosa del rosetón
+# queda a 26 del índigo de Vitral y a 27 del rojo; es la de su rango (se
+# gana con el camino de Catedral, ver `rango` en js/10i-apariencia.js).
+PALETAS["roseton"] = dict(
+    nombre="Rosetón", ref="propia", segundo_nombre="rosa de vitral",
+    idea="La luz del rosetón al atardecer: piedra verde azulada y el rosa de los vidrios, con el rojo encima.",
+    noche=dict(bg="#060d10", bg2="#0c171c", card="#10222a", card2="#152930", line="#243e48", carril="#213a44",
+               text="#e8f0f2", muted="#97acb3", faint="#677c83", acento="#ff3d4f", acentoM="#ff3d4f", segundo="#ff9ad5",
+               segundoM="#ff9ad5", aviso="#f2c94c", avisoM="#f2c94c", peligro="#ff8a3d", peligroM="#ff8a3d", sobre="#060d10",
+               piedra="#2c4852", hierro="#3a5a66", hondo="#0c171c"),
+    dia=dict(bg="#dce6e8", bg2="#e4ecee", card="#f3f7f8", card2="#f8fbfb", line="#b2c3c7", carril="#dde6e8",
+             text="#0f1b1f", muted="#425960", faint="#546a71", acento="#b0001c", acentoM="#ff3d4f", segundo="#a3246e",
+             segundoM="#ff9ad5", aviso="#6d5500", avisoM="#f2c94c", peligro="#a13a00", peligroM="#ff8a3d", sobre="#0f1b1f",
+             piedra="#c3d1d4", hierro="#82979c", hondo="#e8eff0"))

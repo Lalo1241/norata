@@ -904,6 +904,14 @@ if __name__ == "__main__":
                   "   `--marca-iso`. Generado desde `mundos/iconos/generar.py`. */\n"
                   + "".join(ICONOS.marca_css(m["id"]) for m in listos))
     txt = "\n".join(partes)
+    # ---- Las paletas de Blueprint y Reliquia (0.7.147) ----
+    # Los dos salen del bloque genérico con una sola paleta; la regla de
+    # Eduardo es cinco por mundo. `mundos/recolores/` recolorea lo que acaba
+    # de armarse (bloque + marca del menú) para cada paleta nueva, y se niega a
+    # seguir si una tinta no llega a 4,5. El porqué, arriba de recolores.py.
+    sys.path.insert(0, os.path.join(AQUI, "recolores"))
+    import recolores as RECOLORES
+    txt = txt + "\n" + RECOLORES.css(txt)[0]
     # ---- Los tonos de estado no son del mundo ----
     # Un check es verde, lo que va en curso amarillo y lo perdido coral, en
     # TODOS los mundos: lo pidió Eduardo al ver la palomita de un talento

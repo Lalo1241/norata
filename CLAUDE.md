@@ -664,6 +664,19 @@ puesto, en Mi apariencia ocupan el sitio de los ambientes. Van en
 primera es la de partida, sin atributo. Hoy son dos, y ninguno sale de
 `datos.py`: **Catedral** (`mundos/catedral/`) y **Averno** (`mundos/averno/`).
 
+**Cinco paletas por mundo (0.7.147), y es regla de Eduardo.** Cuatro llegan
+con el mundo y la quinta se gana con el tercer rango de su camino
+(`PALETA_DE_RANGO`, `js/10i-apariencia.js`). Catedral y Averno las escriben en
+su `paletas.py`; **Blueprint y Reliquia las genera `mundos/recolores/`** desde
+su bloque dentro de `mundos/app.py`: cada paleta declara papeles (papel,
+cuadrícula, trazo, tinta; en Reliquia además el METAL) con colores
+complementarios de paletas de Lospec, y se interpola en OKLab. **Nunca girar
+el matiz de la de partida**: sale monocromo y Eduardo ya lo rechazó. El aviso y
+el peligro no se tocan, y el generador se niega a escribir si una tinta no
+llega a 4,5. Un mundo nuevo nace con sus cinco. Al tocar una paleta, las
+muestras de Mi apariencia se sacan con `python mundos/<mundo>/<mundo>.py` o
+`python mundos/recolores/recolores.py` y se pegan en `js/10i-apariencia.js`.
+
 **Y ojo con el nombre, que cambió de dueño (0.7.141).** `averno` fue el gótico
 de vitrales hasta la 0.7.141; ese mundo es hoy `catedral`, y `averno` es el de
 hueso y sangre. El script de arriba de `index.html` mueve lo guardado una sola

@@ -355,3 +355,22 @@ html[data-apariencia="averno"] #jor-tiempo { font-family: var(--tipo-cifra); let
 @media (prefers-reduced-motion: reduce) {
   html[data-apariencia="averno"] .jor-arena #jor-chorro { animation: none; }
 }
+
+/* ---------- En el teléfono, el saludo no baja los botones (0.7.147) ----------
+   El encabezado puede partirse en dos renglones —así cabe «Árbol de talentos»
+   con su botón—, y con eso el saludo del Resumen («Buenas noches · miércoles,
+   30 de septiembre», 254 px), en vez de doblarse como en los otros mundos,
+   mandaba los botones abajo. Lo vio Eduardo. Con ancho cero y mínimo del 100 %
+   no cuenta para decidir el renglón y ocupa todo el hueco; y el bloque del
+   título se estira hasta los botones, pero solo baja si el TÍTULO no cabe. */
+html[data-apariencia="averno"] .page-head .page-saludo { width: 0; min-width: 100%; }
+html[data-apariencia="averno"] .page-head > :first-child { flex: 1 1 0; min-width: min-content; }
+
+/* ---------- Plaga: la racha entera en verde (0.7.147) ----------
+   Eduardo: la estrella y «lo demás en rojo», a verde. Dentro de la racha el
+   rojo de la paleta pasa a su segundo tono. */
+html[data-apariencia="averno"][data-paleta="ponzona"] :is(.rt.t-averno, .rb.t-averno) {
+  --mint: var(--celeste); --mint-macizo: var(--celeste);
+}
+html[data-apariencia="averno"][data-paleta="ponzona"] .avs-linea.viva { stroke: var(--celeste); }
+html[data-apariencia="averno"][data-paleta="ponzona"] .avs-linea.viva.toda { filter: drop-shadow(0 0 3px var(--celeste)); }

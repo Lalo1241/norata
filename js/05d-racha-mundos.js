@@ -370,11 +370,8 @@ function fondoRachaMundo(m, W, H) {
     for (let y = 0; y < H; y += 12) s += `<path class="fm-linea${y % 60 ? "" : " mayor"}" d="M0 ${y}H${W}"/>`;
     s += `<rect class="fm-margen" x="10" y="10" width="${W - 20}" height="${H - 20}"/>`;
   } else if (m === "reliquia") {
-    // El terciopelo capitoné, apagado: el astrolabio manda (Eduardo)
-    const p = 34;
-    for (let y = -p; y < H + p; y += p / 2) for (let x = ((y / (p / 2)) % 2 ? p / 2 : 0) - p; x < W + p; x += p) {
-      s += `<path class="fm-pliegue" d="M${x} ${y}l${p / 2} ${p / 2}l${-p / 2} ${p / 2}l${-p / 2} ${-p / 2}z"/><circle class="fm-boton" cx="${x}" cy="${y}" r="1.6"/>`;
-    }
+    // Sin el capitoné de rombos (0.7.147): Eduardo, «no me gusta, retírala».
+    // Se quedan el foco de arriba y la sombra, que no son malla.
     s += `<ellipse class="fm-foco" cx="${W / 2}" cy="-10" rx="${W * .45}" ry="${H * .8}"/>`;
     s += `<rect class="fm-sombra-rq" width="${W}" height="${H}"/>`;
   } else return null;

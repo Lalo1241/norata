@@ -3922,6 +3922,33 @@ const TEXTOS_EN = {
   "Lamento": "Lament",
   "Plaga": "Plague",
   "Tormento": "Torment",
+  /* Las paletas de la 0.7.147: cinco por mundo, y los ambientes nuevos. */
+  "Rosetón": "Rose window",
+  "Ruina": "Ruin",
+  "Estigia": "Styx",
+  "Cian": "Cyan",
+  "Archivo": "Archive",
+  "Prisma": "Prism",
+  "Acero": "Steel",
+  "Láser": "Laser",
+  "Terciopelo": "Velvet",
+  "Granate": "Garnet",
+  "Lapislázuli": "Lapis lazuli",
+  "Esmeralda": "Emerald",
+  "Obsidiana": "Obsidian",
+  "Cobre": "Copper",
+  "Zafiro": "Sapphire",
+  "Oliva": "Olive",
+  "La pátina del cobre viejo: suelo verde cardenillo y el cobre asomando.":
+    "The patina of old copper: a verdigris ground with the copper showing through.",
+  "Azul de piedra preciosa, con un acento azul aciano.":
+    "Gemstone blue, with a cornflower accent.",
+  "El desierto de verdad: arena, y el índigo del cielo cuando se mete el sol.":
+    "A real desert: sand, and the indigo of the sky as the sun goes down.",
+  "Oliva oscuro con un lavanda de segundo tono.":
+    "Dark olive with a lavender second tone.",
+  "Se gana con el rango {0}, en el nivel {1}.": "Earned with the {0} rank, at level {1}.",
+  "Se gana en el nivel {0}.": "Earned at level {0}.",
 
   /* ---- La tanda que faltaba (0.7.138) ----
      Salieron de cruzar cada `tx()` y cada `T` del código contra este archivo,

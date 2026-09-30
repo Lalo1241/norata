@@ -205,8 +205,12 @@ def muestra(m):
         pon = lambda k: tabla.get(k, casa[k])
         return (pon("--bg"), pon("--card"), pon("--mint-macizo"))
     n = toma(False); d = toma(True)
-    return (f'.mues-{m["id"]} {{ --mu-bg: {n[0]}; --mu-card: {n[1]}; --mu-acento: {n[2]}; }}\n'
-            f'html.claro .mues-{m["id"]} {{ --mu-bg: {d[0]}; --mu-card: {d[1]}; --mu-acento: {d[2]}; }}')
+    # La segunda bolita (0.7.147): la muestra de un ambiente se homologó con
+    # la de las paletas de un mundo. Se eligió a mano por ambiente: sacarla de
+    # sus luces de fondo caía en el coral de peligro en cinco de siete.
+    sn, sd = m.get("segundo", (n[2], d[2]))
+    return (f'.mues-{m["id"]} {{ --mu-bg: {n[0]}; --mu-card: {n[1]}; --mu-acento: {n[2]}; --mu-segundo: {sn}; }}\n'
+            f'html.claro .mues-{m["id"]} {{ --mu-bg: {d[0]}; --mu-card: {d[1]}; --mu-acento: {d[2]}; --mu-segundo: {sd}; }}')
 
 if __name__ == "__main__":
     partes = [CAB] + [bloque(m) for m in datos.AMBIENTES if m["grado"] > 0]
