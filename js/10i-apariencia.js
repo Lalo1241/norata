@@ -783,11 +783,37 @@ function elegirPaleta(mundo, pal) {
     if (typeof toast === "function") toast(ab.rango ? T`Se gana con el rango ${ab.rango}, en el nivel ${ab.nivel}.` : T`Se gana en el nivel ${ab.nivel}.`);
     return;
   }
-  try {
-    const mapa = JSON.parse(localStorage.getItem(PALETA_LLAVE) || "{}") || {};
-    mapa[mundo] = pal;
-    localStorage.setItem(PALETA_LLAVE, JSON.stringify(mapa));
-  } catch (e) {}
+  const guardar = () => {
+    try {
+      const mapa = JSON.parse(localStorage.getItem(PALETA_LLAVE) || "{}") || {};
+      mapa[mundo] = pal;
+      localStorage.setItem(PALETA_LLAVE, JSON.stringify(mapa));
+    } catch (e) {}
+  };
+  /* La paleta del mundo PUESTO cambia la app entera, así que pasa por la misma
+     cortina y la misma recarga que cambiar de mundo (0.7.148.5). Hasta aquí se
+     aplicaba en caliente: lo vio Eduardo en la PC como «solo la primera vez
+     carga y cambia» —el mundo pasaba por la cortina y la paleta de después
+     no—, y en caliente el árbol y las escenas, que se dibujan una vez, se
+     quedaban con los colores de la paleta anterior. Es exactamente lo que la
+     recarga existe para evitar (ver `cambiarTapado`).
+     La de un mundo que solo se MIRA no toca la app: se guarda y ya. Y dentro
+     del ejemplo nada se recarga, que lo borraría. */
+  const enEjemplo = typeof modoEjemplo !== "undefined" && modoEjemplo;
+  if (apariencia() === mundo && !enEjemplo) {
+    cambiarTapado(() => {
+      guardar();
+      const raiz = document.documentElement;
+      raiz.classList.add("cambiando-modo");
+      aplicarPaleta();
+      getComputedStyle(raiz).backgroundColor;
+      setTimeout(() => raiz.classList.remove("cambiando-modo"), 0);
+      pintarColorDeBarra();
+      return true;
+    });
+    return;
+  }
+  guardar();
   if (apariencia() === mundo) {
     const raiz = document.documentElement;
     raiz.classList.add("cambiando-modo");
@@ -1909,7 +1935,7 @@ function elegirApariencia(id) {
     renderPanelApariencia();
     return;
   }
-  cambiarTapado(id);
+  cambiarTapado(() => ponerApariencia(id));
 }
 
 /* Cambiar de apariencia DETRÁS de la pantalla de carga, y no delante.
@@ -1938,8 +1964,12 @@ function elegirApariencia(id) {
    dibujan una vez con los colores que había al dibujarlas. En caliente queda
    media app con lo nuevo y media con lo viejo; recargar la deja entera.
 
-   Sin el nombre en el mensaje: ya está en la ventana que acabas de cerrar. */
-function cambiarTapado(id) {
+   Sin el nombre en el mensaje: ya está en la ventana que acabas de cerrar.
+
+   Recibe QUÉ cambiar como una función que devuelve si se pudo: la usan el
+   mundo o ambiente (`ponerApariencia`) y la paleta del mundo puesto
+   (`elegirPaleta`, desde la 0.7.148.5). */
+function cambiarTapado(aplicar) {
   const cortina = document.getElementById("carga");
   const raiz = document.documentElement;
   const fondoDe = () => {
@@ -1948,7 +1978,7 @@ function cambiarTapado(id) {
   };
   /* Sin cortina —no debería pasar, vive en el marcado— se hace como antes. */
   if (!cortina || typeof cargaMostrar !== "function") {
-    if (ponerApariencia(id)) setTimeout(() => recargarApp(), 60);
+    if (aplicar()) setTimeout(() => recargarApp(), 60);
     return;
   }
 
@@ -1974,7 +2004,7 @@ function cambiarTapado(id) {
     cortina.getBoundingClientRect();
     /* Ya tapado. Si a última hora la puerta dice que no, se destapa y la app
        se queda como estaba: no cambió nada por debajo. */
-    if (!ponerApariencia(id)) {
+    if (!aplicar()) {
       cortina.style.background = "";
       cortina.style.transition = "";
       if (typeof cargaCerrar === "function") cargaCerrar();

@@ -322,7 +322,12 @@
       var c = document.getElementById("carga");
       if (c) c.className = "carga oculta";
     }
-    setTimeout(destaparApp, 15000);
+    /* Con nombre, para poder CANCELARLO: `cargaCerrar` y `cargaEntrar` lo
+       sueltan en cuanto la app cierra la carga por su cuenta, que es la prueba
+       de que arrancó. Sin cancelar, a los 15 s exactos de abrir escondía
+       cualquier carga que estuviera puesta —la cortina de cambiar de tema,
+       «Guardando lo último…»— y enseñaba de golpe lo que tapaba (0.7.148.5). */
+    window.__plazoCarga = setTimeout(destaparApp, 15000);
 
     /* Además de avisar al usuario, se apunta qué se rompió para poder verlo
        después en el panel. Va a una lista y no directo al servidor porque

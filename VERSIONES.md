@@ -247,7 +247,7 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
-### 0.7.148.5 · 30 sep 2026
+### 0.7.148.6 · 30 sep 2026
 
 **En Mi apariencia, lo de arriba se queda quieto y cada mundo se abre en su
 renglón.** Lo pidió Eduardo: tocar un mundo al final de la lista cambiaba la
@@ -281,6 +281,38 @@ Averno con su etiqueta mientras se abren Catedral, Blueprint y la Noche de
 expedición; nunca hay más de un plegable; elegir una paleta de Catedral dentro
 de su plegable la cambia en su vista; el modo claro llega al plegable; sin
 desbordes a 390 px y sin errores en la consola.
+
+### 0.7.148.5 · 30 sep 2026
+
+**Cambiar la paleta del mundo puesto también pasa por la cortinilla, y el
+plazo de emergencia de la carga ya no la corta.** Lo vio Eduardo en la PC:
+«solo la primera vez que cargas el tema carga y cambia; cuando vuelves a
+cambiar no se repite la secuencia».
+
+- **La causa principal: las paletas.** Elegir un mundo o un ambiente pasa por
+  `cambiarTapado` (cortina, cambio detrás, recarga y la carga con zoom). Pero
+  elegir OTRA PALETA del mundo que ya llevas puesto se aplicaba en caliente:
+  sin cortina, sin recarga. Así que el primer cambio se veía con su
+  secuencia y los siguientes no. Y en caliente el árbol y las escenas, que se
+  dibujan una sola vez, se quedaban con los colores de la paleta anterior.
+- **El arreglo:** `cambiarTapado` recibe ahora QUÉ aplicar como una función
+  (`() => ponerApariencia(id)` o, desde `elegirPaleta`, guardar la paleta y
+  aplicarla), y la paleta del mundo puesto va por ahí. La de un mundo que solo
+  se mira sigue guardándose sin recarga: no toca la app. Dentro del ejemplo,
+  todo sigue en caliente, porque una recarga lo borraría.
+- **Y un segundo fallo, cazado al medirlo:** el plazo de emergencia de 15 s
+  del marcado (`destaparApp` en index.html, `destapar` en la puerta) no se
+  cancelaba nunca. Si a los 15 s exactos de abrir la página había una carga
+  puesta —la cortina de cambiar de tema, «Guardando lo último…»—, la escondía
+  de golpe y enseñaba lo que tapaba. Ahora tiene nombre
+  (`window.__plazoCarga`) y `cargaCerrar`/`cargaEntrar` lo sueltan en cuanto
+  la app cierra la carga por su cuenta, que es la prueba de que arrancó. Si el
+  arranque se cuelga de verdad, el plazo sigue rescatando como antes.
+- **Medido a 1280 × 800:** con Averno puesto y la página abierta 15,6 s, la
+  paleta cambia a los 242 ms con la cortina opaca todo el tiempo, se recarga y
+  el arranque hace su zoom; el plazo queda en 0 tras arrancar. Mundo y
+  ambiente siguen igual (casa y Tinta, con clic real en «Aplicar»). Sin
+  errores.
 
 ### 0.7.148.4 · 30 sep 2026
 

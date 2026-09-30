@@ -107,6 +107,14 @@ function cargaVisible() {
   return !!(el && !el.classList.contains("oculta") && !el.classList.contains("fuera"));
 }
 
+/* El plazo de emergencia del marcado (15 s, arriba de index.html y de la
+   puerta) solo tiene sentido mientras la app no ha dado señales de vida.
+   Cerrar la carga por su cuenta es esa señal: desde ahí, el plazo ya no
+   rescata nada y solo puede estropear una carga posterior. */
+function cargaSoltarPlazo() {
+  if (window.__plazoCarga) { clearTimeout(window.__plazoCarga); window.__plazoCarga = 0; }
+}
+
 function cargaMostrar(mensaje) {
   const el = document.getElementById("carga");
   if (!el) return;
@@ -210,6 +218,7 @@ function cargaRectRedondo(cx, cy, m, r) {
        logo. Congelado parecía un fallo de dibujo; lo vio Eduardo en la
        simulación (0.7.147.6). */
 function cargaEntrar() {
+  cargaSoltarPlazo();
   const el = document.getElementById("carga");
   if (!el || el.classList.contains("oculta")) return Promise.resolve();
   const mio = ++cargaTurno;
@@ -328,6 +337,7 @@ function cargaZoom(el, mio) {
    releva —la portada— ya tapa lo mismo: encadenar dos desvanecidos enseña un
    instante lo que hay debajo, que es justo el parpadeo que se quiere quitar. */
 function cargaCerrar(seca) {
+  cargaSoltarPlazo();
   const el = document.getElementById("carga");
   if (!el || el.classList.contains("oculta")) return;
   const mio = ++cargaTurno;

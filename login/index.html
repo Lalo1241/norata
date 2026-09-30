@@ -141,7 +141,9 @@
         var c = document.getElementById("carga");
         if (c) c.className = "carga oculta";
       }
-      setTimeout(destapar, 15000);
+      /* Con nombre por lo mismo que en la app: `cargaCerrar` lo suelta en
+         cuanto la puerta cierra la carga por su cuenta (0.7.148.5). */
+      window.__plazoCarga = setTimeout(destapar, 15000);
 
       function avisar(detalle) {
         if (yaAvisado || !document.body) return;
