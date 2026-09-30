@@ -247,6 +247,28 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.143.5 · 29 sep 2026
+
+**La frase de la puerta se lee en dos renglones, y el banco se limpió.** Lo
+pidió Eduardo viendo «Nada de lo que construiste se fue a ningún lado. Te
+estaba esperando.» en una sola línea de 850 px en PC: se leía como titular.
+
+- **La caja.** `.puerta-cita` lleva `max-width: 24ch` y `text-wrap: balance`.
+  Medido a 1440: esa frase pasa de 1 renglón a 2, las cortas siguen en 1 y
+  las largas quedan en 3.
+- **Esa frase tenía además un fallo:** el sujeto de «te estaba esperando» se
+  leía como «nada» — «nada te estaba esperando». Y decía lo mismo que otras
+  dos. Se quitó.
+- **Fuera, por las reglas del banco** (`PUERTA_FRASES`, `js/12-login.js`):
+  «Los días que no abriste la app…» (taller de superación), «Nadie lleva un
+  año seguido…» (proverbio), «Lo de hoy se marca de un toque…» y «Rachas,
+  niveles y XP…» (descripción de producto), «Ganas XP por lavar los platos…»
+  (enredada) y «Tu constancia, por fin…» (sin vuelta).
+- **Entran dos:** «Tus cosas no se enteraron de que te fuiste.» (quien
+  vuelve) y «La racha cuenta semanas, no días. Un mal martes no te la
+  tumba.» (quien llega; es verdad desde 0.7.135). Las dos con su inglés en
+  `js/00b-textos-en.js`, y las seis quitadas, fuera del diccionario.
+
 ### 0.7.143.4 · 29 sep 2026
 
 **Un check es verde en todos los mundos.** Lo pidió Eduardo viendo la palomita

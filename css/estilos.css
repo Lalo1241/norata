@@ -8997,6 +8997,12 @@
     font-family: var(--tipo-titulo);
     font-size: clamp(19px, 2.4vw, 27px); line-height: 1.35; font-weight: 700;
     color: var(--text); margin: 0;
+    /* Una cita se lee en dos o tres renglones, no en uno de borde a borde. En
+       PC el panel mide el 60% de la pantalla y la frase entera cabía en una
+       línea de 850 px: se leía como un titular y no como alguien hablando.
+       El tope va en `ch` para que siga a la letra, y `balance` reparte las
+       palabras para que el último renglón no se quede con una sola. */
+    max-width: 24ch; text-wrap: balance;
   }
   /* La comilla es un adorno y no se lee: fuera del árbol de accesibilidad y
      sin ocupar renglón propio. */
