@@ -270,6 +270,16 @@ Eduardo mirándolo en vivo.
   misma casilla): Catedral se enseña en el índigo de su vitral, con un token
   nuevo, `--m-muestra`, en `mundos/datos.py`, y cada uno lleva su figura: el
   rombo de Averno y la losa de Catedral.
+
+**Y en Averno, las esquinas incompletas.** El recorte a 45° quita píxeles, no
+los dibuja: en una pieza con borde propio se comía el borde en las cuatro puntas
+(Eduardo lo vio en «Actualizar», el botón de la barra de la PC). Se buscaron
+todas midiendo —piezas con `clip-path` y borde visible sin `border-image`, en
+siete pantallas, noche y día, teléfono y PC— y eran tres: los botones de icono,
+los «+» de añadir y ese botón. Ahora llevan el marco de esquina cortada, que sí
+trae el corte dibujado; el de actualizar, en oro (`--av-marco-bisel-oro`, nuevo
+en `mundos/averno/averno.py`). La misma medida, repetida, da cero.
+
 ### 0.7.143.5 · 29 sep 2026
 
 **La frase de la puerta se lee en dos renglones, y el banco se limpió.** Lo
