@@ -247,6 +247,18 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.147.3 · 30 sep 2026
+
+**El sello de Blueprint cae al final del dibujo.** Eduardo: «debe salir solo
+al final de todo el dibujo, cuando lo hayas concluido por completo». Salía
+estampado desde el primer instante, mientras la torre se seguía trazando
+debajo. Ahora `heroTorre` calcula cuándo termina el último trazo vivo (su
+retraso más los 1,1 s de `trazaDesdeCero`) y el sello cae 0,15 s después, con
+un golpe corto (`selloCae`). La animación va en un grupo de dentro
+(`.pl-sello-cae`) porque una transformación CSS en el de fuera pisaría su
+`transform` de SVG, que es la posición y el giro. Con menos movimiento sale
+quieto desde el principio. Medido: 2,6 s en la tarjeta y 3 s en «Tu racha».
+
 ### 0.7.147.2 · 30 sep 2026
 
 **Lo que quedaba abierto de la auditoría de Ramas**, y un fallo que salió al

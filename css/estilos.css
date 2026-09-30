@@ -13573,6 +13573,11 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
   .pl-cota { fill: none; stroke: rgba(var(--escena-tinta), .4); stroke-width: 1; }
   .pl-sello rect { fill: none; stroke: var(--coral); stroke-width: 2.4; }
   .pl-sello text { fill: var(--coral); font: 800 13px var(--tipo-titulo, inherit); letter-spacing: .14em; text-anchor: middle; }
+  /* Cae al final del dibujo: el retraso lo pone heroTorre. Va en un grupo
+     de dentro porque una transformación CSS en el de fuera pisaría su
+     `transform` de SVG (la posición y el giro). */
+  .pl-sello-cae { transform-box: fill-box; transform-origin: center; animation: selloCae .38s cubic-bezier(.3, 1.5, .5, 1) backwards; }
+  @keyframes selloCae { from { opacity: 0; transform: scale(1.8); } 60% { opacity: 1; } }
 
   /* ---- Reliquia: la vitrina ---- */
   .rq-vitrina { fill: rgba(var(--escena-tinta), .035); stroke: rgba(var(--escena-tinta), .38); stroke-width: 1.6; }
@@ -13856,7 +13861,7 @@ html.claro .pn-riel i.t-ojo { background: var(--fire); }
 
   @media (prefers-reduced-motion: reduce) {
     .fx *, .fx-chispa, .fx-brasas, .fx-humo, .rq-luz, .rq-brillo, .rq-gema, .ar-cuadro { animation: none !important; }
-    .pl-trazo.si { animation: none; }
+    .pl-trazo.si, .pl-sello-cae { animation: none; }
     .ar-cuadro.f1 { opacity: 0; }
     #racha-hoja { transition: none; }
   }

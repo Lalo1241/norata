@@ -269,11 +269,16 @@ function heroTorre(x, y, w, h, Z) {
     `M${r1(cx)} ${r1(aguja + 1)}l10 3.5l-10 3.5`,
     `M${r1(cX)} ${r1(base)}V${r1(aguja)}M${r1(cX - 4)} ${r1(base)}h8M${r1(cX - 4)} ${r1(aguja)}h8`
   ]);
-  let s = "";
+  /* El sello cae cuando el dibujo ACABÓ, no a la vez (Eduardo, 0.7.147.1):
+     salía estampado mientras la torre se seguía trazando debajo. Se espera al
+     último trazo vivo —su retraso más los 1,1 s de `trazaDesdeCero`—. */
+  let s = "", fin = 0;
   L.forEach((g, i) => g.forEach((d, j) => {
-    s += `<path class="pl-trazo torre ${Z.dias[i].estado}" pathLength="1" d="${d}" style="animation-delay:${r1(i * .18 + j * .09)}s"/>`;
+    const dl = i * .18 + j * .09;
+    if (Z.dias[i].estado === "si") fin = Math.max(fin, dl + 1.1);
+    s += `<path class="pl-trazo torre ${Z.dias[i].estado}" pathLength="1" d="${d}" style="animation-delay:${r1(dl)}s"/>`;
   }));
-  if (Z.ok) s += `<g class="pl-sello" transform="translate(${r1(sx + 52)} ${r1(top + 30)}) rotate(-12)"><rect x="-44" y="-15" width="88" height="30" rx="4"/><text x="0" y="5">${escapeHtml(tx("TRAZADA"))}</text></g>`;
+  if (Z.ok) s += `<g class="pl-sello" transform="translate(${r1(sx + 52)} ${r1(top + 30)}) rotate(-12)"><g class="pl-sello-cae" style="animation-delay:${r1(fin + .15)}s"><rect x="-44" y="-15" width="88" height="30" rx="4"/><text x="0" y="5">${escapeHtml(tx("TRAZADA"))}</text></g></g>`;
   return s + filaDeDias(Z, x + 10, y + h - 34, w - 20, "caja");
 }
 
