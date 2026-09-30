@@ -894,6 +894,14 @@ if __name__ == "__main__":
         else:
             partes.append(bloque(m))
     txt = "\n".join(partes)
+    # ---- Los tonos de estado no son del mundo ----
+    # Un check es verde, lo que va en curso amarillo y lo perdido coral, en
+    # TODOS los mundos: lo pidió Eduardo al ver la palomita de un talento
+    # salir roja en Catedral (0.7.143.4). Viven en `--estado-*` de
+    # css/estilos.css; un mundo que los redefina rompe esa regla sin que se
+    # note, así que aquí no se genera.
+    if "--estado-" in txt:
+        raise SystemExit("un mundo redefine --estado-*: los tonos de estado son de Norata, no del mundo")
     raiz = os.path.dirname(AQUI)
     destino = os.path.join(raiz, "css", "mundos.css")
     open(destino, "w", encoding="utf-8").write(txt)

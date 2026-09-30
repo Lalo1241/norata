@@ -495,6 +495,24 @@ esas variables y nada más — incluido el árbol de talentos, que se dibuja
 desde JavaScript y lee `var(--...)` en los atributos del SVG. Al añadir un
 tono nuevo: se declara arriba, con su pareja clara en `html.claro`.
 
+**Los ESTADOS no son del mundo: son de Norata, y hablan con psicología del
+color.** Es de Eduardo (0.7.143.4), y vale para todo mundo, ambiente y paleta
+que exista o se invente:
+
+| Estado | Tono | Variables |
+| --- | --- | --- |
+| Hecho, logrado, el check | verde Norata | `--estado-hecho`, `-tinta`, `-soft` |
+| En curso, en progreso, vence pronto | amarillo | `--estado-curso`, `-tinta`, `-soft` |
+| Perdido, fallado, estancado | coral | `--estado-fallo`, `-tinta`, `-soft` |
+
+La tinta encima de un relleno de estado es `--sobre-estado`, oscura siempre.
+**Nunca se pinta un estado con el acento (`--mint`)**: el acento es lo que cada
+mundo cambia, y así la palomita de un talento logrado salió ROJA en Catedral y
+Averno — y el rojo se lee como incompleto o fallado, justo lo contrario de lo
+que decía. Ningún mundo ni ambiente redefine `--estado-*`: `mundos/app.py` y
+`apariencias/css.py` se niegan a generar uno que lo intente. Al añadir un
+estado nuevo, se le busca su tono por lo que significa, no por el mundo.
+
 **Una apariencia no cambia solo los tonos: cambia CUATRO familias**, y las
 tres últimas se descubrieron una por una porque nadie las declaraba y el fallo
 se veía como «no cambió nada» o «cambió solo en medio»:

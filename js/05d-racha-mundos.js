@@ -167,17 +167,26 @@ function heroSello(x, y, w, h, Z) {
    del primer día (Eduardo). */
 function heroAstrolabio(x, y, w, h, Z) {
   const L = letrasDeSemana();
-  const R = Math.min((h - 30) / 2, w * .3, 92), cx = x + w / 2, cy = y + 6 + R;
+  /* Centrado en su hueco, a lo alto y a lo ancho, con aire para las letras:
+     arriba del todo la «D» tocaba el mensaje de la tarjeta (0.7.143.3). */
+  const R = Math.max(40, Math.min(h / 2 - 34, w * .3, 92)), cx = x + w / 2, cy = y + h / 2;
   const pt = (a, r) => [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
   let s = `<circle class="rq2-disco" cx="${r1(cx)}" cy="${r1(cy)}" r="${r1(R)}"/>`;
-  const tramo = 2 * Math.PI / 7, ra = R - 7;
+  /* Los gajos casi juntos (0.7.143.3): con el hueco de antes se leían como
+     siete piezas sueltas y no como un anillo. Y un día que ya cuenta lleva
+     debajo un resplandor dorado que respira, para que se vea de lejos. */
+  const tramo = 2 * Math.PI / 7, ra = R - 7, hueco = .022;
+  let brillo = "";
   Z.dias.forEach((d, i) => {
-    const a0 = -Math.PI / 2 + i * tramo + .06 - tramo / 2, a1 = a0 + tramo - .12;
+    const a0 = -Math.PI / 2 + i * tramo + hueco - tramo / 2, a1 = a0 + tramo - 2 * hueco;
     const [x1, y1] = pt(a0, ra), [x2, y2] = pt(a1, ra), lt = r1(ra * (a1 - a0) + 1);
-    s += `<path class="rq2-tramo ${d.estado}${d.hoy ? " hoy" : ""}" d="M${r1(x1)} ${r1(y1)}A${r1(ra)} ${r1(ra)} 0 0 1 ${r1(x2)} ${r1(y2)}" style="--lt:${lt}px;animation-delay:${r1(.2 + i * .16)}s"/>`;
+    const arco = `M${r1(x1)} ${r1(y1)}A${r1(ra)} ${r1(ra)} 0 0 1 ${r1(x2)} ${r1(y2)}`;
+    if (d.estado === "si") brillo += `<path class="rq2-aura" d="${arco}" style="animation-delay:-${r1(i * .35)}s"/>`;
+    s += `<path class="rq2-tramo ${d.estado}${d.hoy ? " hoy" : ""}" d="${arco}" style="--lt:${lt}px;animation-delay:${r1(.2 + i * .16)}s"/>`;
     const [lx, ly] = pt(-Math.PI / 2 + i * tramo, R + 11);
     s += `<text class="rt-rot centro${d.hoy ? " fuerte" : ""}" x="${r1(lx)}" y="${r1(ly + 4)}">${L[i]}</text>`;
   });
+  s = s.replace(`r="${r1(R)}"/>`, `r="${r1(R)}"/>${brillo}`);
   // Las graduaciones, finas, por dentro del anillo
   for (let k = 0; k < 56; k++) {
     const a = k * 2 * Math.PI / 56, [ax, ay] = pt(a, R - 14), [bx, by] = pt(a, R - (k % 4 ? 17 : 20));

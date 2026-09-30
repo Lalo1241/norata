@@ -301,7 +301,7 @@ function renderProjects() {
     .sort((a, b) => projectProgress(b) - projectProgress(a))[0];
   let pFocus;
   if (stalled.length) {
-    pFocus = { k: T`Estancado ${daysIdle(stalled[0])} días`, v: stalled[0].name, color: "var(--coral)", onclick: `openProject('${stalled[0].id}')`, pct: projectProgress(stalled[0]) };
+    pFocus = { k: T`Estancado ${daysIdle(stalled[0])} días`, v: stalled[0].name, color: "var(--estado-fallo-tinta)", onclick: `openProject('${stalled[0].id}')`, pct: projectProgress(stalled[0]) };
   } else if (closing) {
     pFocus = { k: "A punto de cerrarse", v: closing.name, color: "var(--mint)", onclick: `openProject('${closing.id}')`, pct: projectProgress(closing) };
   } else if (live.length) {
@@ -325,11 +325,11 @@ function renderProjects() {
   if (stalled.length) {
     html += `
     <div class="panel alt full-row" style="border-color:rgba(255,138,112,0.4)">
-      <h3 style="color:var(--coral)">${tx("Decisión pendiente")}</h3>
+      <h3 style="color:var(--estado-fallo-tinta)">${tx("Decisión pendiente")}</h3>
       <p class="settings-note">${tx("Estos encargos llevan mucho sin avanzar. Retomarlos o soltarlos libera tu atención — dejarlos en el limbo es lo único que no ayuda.")}</p>
       ${stalled.map(p => `
         <button class="att-item" onclick="openProject('${p.id}')">
-          <span class="dot" style="background:var(--coral-soft);color:var(--coral)">${icon(p.icon, 17)}</span>
+          <span class="dot" style="background:var(--estado-fallo-soft);color:var(--estado-fallo-tinta)">${icon(p.icon, 17)}</span>
           <span class="tx"><b>${escapeHtml(p.name)}</b><span>${T`${daysIdle(p)} días sin avance · ${projectProgress(p)}% hecho`}</span></span>
           <span class="go">→</span>
         </button>`).join("")}
@@ -1318,10 +1318,10 @@ function renderTree() {
 
   let focus;
   if (dueNow.length) {
-    focus = { k: "Plan vencido", v: dueNow[0].name, color: "var(--fire)", id: dueNow[0].id };
+    focus = { k: "Plan vencido", v: dueNow[0].name, color: "var(--estado-curso-tinta)", id: dueNow[0].id };
   } else if (soonest) {
     const left = daysBetween(todayKey(), soonest.endDate);
-    focus = { k: left === 1 ? tx("Vence en 1 día") : T`Vence en ${left} días`, v: soonest.name, color: "var(--fire)", id: soonest.id };
+    focus = { k: left === 1 ? tx("Vence en 1 día") : T`Vence en ${left} días`, v: soonest.name, color: "var(--estado-curso-tinta)", id: soonest.id };
   } else if (readyNow.length) {
     focus = { k: tx("Listo para empezar"), v: readyNow[0].name, color: "var(--mint)", id: readyNow[0].id };
   } else {
