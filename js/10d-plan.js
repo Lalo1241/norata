@@ -252,6 +252,11 @@ let PLAN = { plan: "libre", pro: false, estado: "ninguna", vence_el: null, renue
    valen lo mismo siempre. */
 let PLAN_REAL = null;
 
+/* Si el servidor YA contestó en esta sesión. Hasta entonces `PLAN` es la copia
+   guardada o el «libre» de partida, que no es una respuesta sino una espera, y
+   con una espera no se le quita nada a nadie (`refrescarApariencia`). */
+let PLAN_CONFIRMADO = false;
+
 const PLAN_GUARDADO = "norata-plan";
 
 /* Una semana. El plan se guarda en el dispositivo para que quien pagó y abre la
@@ -296,6 +301,12 @@ async function planCargar() {
 
   PLAN_REAL = await planDelServidor(PLAN_REAL || PLAN);
   PLAN = planConSimulacion(PLAN_REAL);
+  /* Con el plan ya contestado, volver a mirar la apariencia (0.7.143.2). No se
+     hacía: la sincronía la revisaba ANTES de que llegara el plan —con el
+     «libre» de partida un mundo de Pro no pasa— y la bajaba a la casa, y
+     cuando el plan llegaba nadie volvía a preguntar. Eduardo: «muchas veces
+     me sale la versión de base». */
+  if (typeof refrescarApariencia === "function") refrescarApariencia();
   return PLAN;
 }
 
@@ -307,6 +318,7 @@ async function planDelServidor(antes) {
     if (typeof syncReady === "function" && !syncReady()) {
       /* Sin cuenta no hay plan que preguntar. Y sin cuenta tampoco tiene
          sentido arrastrar la copia guardada de otra sesión. */
+      PLAN_CONFIRMADO = true;
       return { plan: "libre", pro: false, estado: "ninguna", vence_el: null, renueva: false, compro: "libre" };
     }
     const r = await sbDatos("/rpc/mi_plan", { method: "POST", body: "{}" });
@@ -319,6 +331,7 @@ async function planDelServidor(antes) {
        a esta línea, cerrar la pestaña dejaría a alguien creyéndose fundador
        durante una semana entera (ver `PLAN_CADUCA`). */
     planEscribirGuardado(r.body);
+    PLAN_CONFIRMADO = true;
     return r.body;
   } catch (e) {
     /* A propósito. Ver arriba. */

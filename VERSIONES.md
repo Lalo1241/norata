@@ -247,6 +247,215 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.143.7 · 29 sep 2026
+
+**Averno: Cocito y Ponzoña pasan a llamarse Lamento y Plaga.** Eduardo: «no le
+pega nada ese nombre». Con Sangre y Tormento queda una serie de estados del
+infierno. Cambia solo el nombre que se ve: los id (`cocito`, `ponzona`) se
+quedan, porque es lo que cada dispositivo guardó, y quien ya tenía una de las
+dos la sigue teniendo.
+
+Y las paletas de Averno y dos de Catedral (Alabastro y Bronce) no tenían su
+nombre en inglés: salían en español con la app en inglés. Ya lo tienen.
+
+### 0.7.143.6 · 29 sep 2026
+
+**Catedral: la racha se lee, y en el menú ya no es un clon de Averno.** Lo pidió
+Eduardo mirándolo en vivo.
+
+- **Las letras del candelabro** («no se leen a duras penas, sobre todo la que
+  choca con el soporte»): iban a 11 px en la letra de las cifras, y la vela de
+  en medio cae justo encima del fuste. Ahora van en CelestiByte a 14 px con un
+  contorno del color del fondo, como las del sello de Averno, y se leen encima
+  del hierro.
+- **El brazo del candelabro** medía un píxel menos por la derecha y el rombo de
+  ese lado se quedaba flotando. Ahora es simétrico.
+- **Las velas de «Semanas de antes»** («demasiado compactadas»): la vela es
+  más ancha, y su número y sus fechas pasan a CelestiByte.
+- **Los títulos de Catedral en la letra de Eduardo.** En la 0.7.141 él eligió
+  «píxel claro, sin gótico», y yo puse Pixelify Sans, que era la opción de la
+  prueba; él quería su **CelestiByte**, la de Arcade. Ya no se incrusta ninguna
+  letra de títulos en `css/mundos.css` (baja de 293 a 282 KB): CelestiByte la
+  declara `css/estilos.css` y se baja al usarla.
+- **Averno y Catedral en Mi apariencia**, que salían iguales (el mismo rojo, la
+  misma casilla): Catedral se enseña en el índigo de su vitral, con un token
+  nuevo, `--m-muestra`, en `mundos/datos.py`, y cada uno lleva su figura: el
+  rombo de Averno y la losa de Catedral.
+
+**Y en Averno, las esquinas incompletas.** El recorte a 45° quita píxeles, no
+los dibuja: en una pieza con borde propio se comía el borde en las cuatro puntas
+(Eduardo lo vio en «Actualizar», el botón de la barra de la PC). Se buscaron
+todas midiendo —piezas con `clip-path` y borde visible sin `border-image`, en
+siete pantallas, noche y día, teléfono y PC— y eran tres: los botones de icono,
+los «+» de añadir y ese botón. Ahora llevan el marco de esquina cortada, que sí
+trae el corte dibujado; el de actualizar, en oro (`--av-marco-bisel-oro`, nuevo
+en `mundos/averno/averno.py`). La misma medida, repetida, da cero.
+
+**Y el candado va encima del título, en todos los temas.** En el cuadro de un
+módulo cerrado el título salía arriba y el aro con el candado debajo; Eduardo
+lo quiso al revés: primero lo cerrado, luego cuánto falta. Como el título es la
+cabecera del cuadro y el aro va dentro del texto —y ese cuadro lo comparten
+todos los avisos—, se ordena solo con CSS y solo cuando el cuadro lleva el aro
+(`.modal-card:has(> #modal-msg .cerr-aro)`, en `css/estilos.css`). Medido en la
+casa, Tinta, Averno, Catedral, Blueprint y Reliquia: aro, título, texto y
+botón, en ese orden.
+
+### 0.7.143.5 · 29 sep 2026
+
+**La frase de la puerta se lee en dos renglones, y el banco se limpió.** Lo
+pidió Eduardo viendo «Nada de lo que construiste se fue a ningún lado. Te
+estaba esperando.» en una sola línea de 850 px en PC: se leía como titular.
+
+- **La caja.** `.puerta-cita` lleva `max-width: 24ch` y `text-wrap: balance`.
+  Medido a 1440: esa frase pasa de 1 renglón a 2, las cortas siguen en 1 y
+  las largas quedan en 3.
+- **Esa frase tenía además un fallo:** el sujeto de «te estaba esperando» se
+  leía como «nada» — «nada te estaba esperando». Y decía lo mismo que otras
+  dos. Se quitó.
+- **Fuera, por las reglas del banco** (`PUERTA_FRASES`, `js/12-login.js`):
+  «Los días que no abriste la app…» (taller de superación), «Nadie lleva un
+  año seguido…» (proverbio), «Lo de hoy se marca de un toque…» y «Rachas,
+  niveles y XP…» (descripción de producto), «Ganas XP por lavar los platos…»
+  (enredada) y «Tu constancia, por fin…» (sin vuelta).
+- **Entran dos:** «Tus cosas no se enteraron de que te fuiste.» (quien
+  vuelve) y «La racha cuenta semanas, no días. Un mal martes no te la
+  tumba.» (quien llega; es verdad desde 0.7.135). Las dos con su inglés en
+  `js/00b-textos-en.js`, y las seis quitadas, fuera del diccionario.
+
+### 0.7.143.4 · 29 sep 2026
+
+**Un check es verde en todos los mundos.** Lo pidió Eduardo viendo la palomita
+de un talento logrado salir ROJA en Catedral: el rojo se lee como incompleto o
+fallado, justo lo contrario de lo que decía.
+
+- **La causa.** La chapa de «hecho» del mapa se pintaba con `--mint-macizo`,
+  que es el ACENTO, y el acento es lo que cada mundo cambia: rojo en Catedral
+  y Averno, morado en Reliquia, azul en Plano, blanco o negro en Tinta.
+- **El arreglo.** Nacen los tonos de estado en `css/estilos.css`:
+  `--estado-hecho` (verde Norata), `--estado-curso` (amarillo) y
+  `--estado-fallo` (coral), cada uno con su `-tinta` y su `-soft`, más
+  `--sobre-estado` para la tinta de encima. Los usan la chapa del mapa, las
+  casillas de las etapas de talentos y encargos, los requisitos cumplidos, la
+  etiqueta de estado de la ficha, el panel de «Permanente», la ventana de una
+  caja y los avisos de vencido y estancado.
+- **Para que no vuelva.** `mundos/app.py` y `apariencias/css.py` se niegan a
+  generar un mundo o ambiente que redefina `--estado-*`. La regla está en
+  `CLAUDE.md` (La paleta) y en `apariencias/LEEME.md`.
+- **Medido:** la chapa sale verde en los once mundos y ambientes, las seis
+  paletas propias y los dos modos. Los archivos generados salen idénticos.
+
+### 0.7.143.3 · 29 sep 2026
+
+**El astrolabio de Reliquia, centrado y con los días que ya cuentan
+encendidos.** Lo pidió Eduardo viéndolo en vivo:
+
+- **Centrado.** El dibujo se hace al ancho que mide el hueco, y si el hueco
+  cambiaba de ancho sin que cambiara la ventana —la barra lateral, la letra de
+  un mundo que llega tarde, el tablero que se acomoda— se quedaba pintado al
+  ancho viejo y corrido a un lado. Ahora un `ResizeObserver` sobre el hueco
+  (`vigilarArteRacha`) lo vuelve a pintar. Y a lo alto va centrado en su
+  espacio, con 26 px de aire sobre la «D»: antes tocaba el mensaje de arriba.
+- **Los tres estados se distinguen.** «Ya pasó sin nada» y «todavía no llega»
+  eran dos grises casi iguales. Ahora el día pasado es un gajo sólido y
+  apagado, el que no ha llegado es casi el fondo del disco, y hoy —si todavía
+  no cuenta— lleva un borde de oro que late.
+- **Un día que ya cuenta brilla.** Además del gajo en oro, lleva debajo un
+  resplandor dorado que respira (`rq2-aura`). La escena se queda de noche en
+  los dos modos, así que la regla de «de día no hay resplandor» no aplica.
+- **Los gajos, casi juntos**: el hueco entre ellos baja a menos de la mitad, y
+  el anillo se lee como anillo y no como siete piezas.
+- **Los orbes de las semanas de antes son de oro siempre.** El nivel ya dice
+  cuántos días tuvo la semana; la que contó lo lleva pleno y la que no, más
+  apagado. En lila no se leía como un orbe que se llena.
+
+**Comprobado** a 390 y 1280 px: el disco a 0 px del centro del hueco, también
+después de encogerlo 60 px sin tocar la ventana; 26 px de aire arriba y 24-26
+abajo; cuatro días encendidos con su resplandor, y sin errores.
+
+### 0.7.143.2 · 29 sep 2026
+
+**Tu mundo ya no se cae a la casa al abrir, y la racha lo sigue.** Eduardo:
+«muchas veces me sale la versión de base» y «aparece el diseño de la fogata
+más a menudo de lo que debería». Eran dos fallos que se veían juntos:
+
+- **La apariencia se revisaba antes de que llegara el plan.** Al terminar la
+  sincronía, `refrescarApariencia` preguntaba si el mundo seguía siendo tuyo;
+  si el plan todavía no había contestado, `PLAN` era el «libre» de partida, un
+  mundo de Pro no pasaba y la app lo bajaba a la casa. Cuando el plan llegaba,
+  nadie volvía a preguntar (`planCargar` solo repintaba), así que te quedabas
+  en la casa toda la sesión. Ahora `planCargar` vuelve a revisar al contestar
+  el servidor, y **ante la duda se queda lo que elegiste**: mientras el plan no
+  haya contestado (`PLAN_CONFIRMADO`), un «no puedes» no quita nada. Congelar,
+  nunca quitar, también aquí.
+- **La tarjeta de la racha no se enteraba del cambio.** El objeto se decide al
+  pintarla, y si la apariencia llegaba después se quedaba la fogata hasta
+  volver a entrar al Resumen. Ahora un observador sobre `data-apariencia` y
+  `data-material` la rehace sola (`rehacerRachaSiCambio`). Medido: pintada en
+  la casa, cambiar a Reliquia la rehace con el astrolabio al instante.
+
+**El sello de Averno vuelve al marco de la 0.7.143**, que es el que gustaba:
+el mismo tamaño, un aro fino y otro más fino por dentro, y rombos chicos. La
+0.7.143.1 lo había engordado y agrandado, y perdió el encanto. Lo que se queda
+es la NITIDEZ, que era lo que se pedía: se mide con aquella rejilla y se dibuja
+en una el doble de fina, así que los bordes bajan en escalones pequeños. Va un
+poco más abajo (24 px de aire sobre la «D») y encoge lo justo si no cabe:
+medido, 12 px sobre la franja en el teléfono y 16 en la PC, y en «Tu racha»
+todo dentro de la escena.
+
+**Las fechas de «Semanas de antes», a 12,5 px** (antes 11), sin pisarse a 390.
+
+### 0.7.143.1 · 29 sep 2026
+
+**El sello de Averno, más fino y más legible.** Eduardo, viéndolo en vivo:
+
+- **El aro, a doble resolución.** El sello va en una rejilla el doble de fina
+  que el candelabro, así que sus bordes ya no se leen a escalones gruesos; el
+  aro tiene dos celdas de grueso para no perder presencia.
+- **La estrella, más gruesa**: 2 px apagada y 3,2 encendida (antes 1 y 2).
+- **Las letras de los días, con presencia y con aire.** Van a 14 px, en tinta
+  clara con un filo oscuro y la de hoy en sangre, y por FUERA de los rombos.
+  El sello se mide para dejar 22 px arriba, así que la «D» ya no toca el
+  mensaje de la tarjeta. Medido: 28 px de aire en el teléfono y 31 en la PC,
+  y en «Tu racha» todas las letras caben dentro de la escena.
+
+### 0.7.143 · 29 sep 2026
+
+**Cada mundo tiene su racha.** Hasta ahora Catedral y Averno usaban la fogata
+de la casa, y Blueprint y Reliquia llevaban el plano y la vitrina de la
+0.7.135. Eduardo eligió los cuatro objetos en ocho vueltas de boceto con la
+app dentro (https://claude.ai/artifact/CwegthWZ2BwqVNc354zHWk), y las fichas
+en otro (https://claude.ai/artifact/UAmxkGbBue3wLvyzfdwCyj):
+
+| Mundo | Objeto | Semanas de antes | Se dice |
+| --- | --- | --- | --- |
+| Catedral | el candelabro de pie: una vela por día | la vela, encendida si contó | semana encendida |
+| Averno | el sello: siete rombos y la estrella de siete puntas | el rombo de doble filete | semana sellada |
+| Blueprint | la torre: cada día traza una parte | la de siempre | semana trazada |
+| Reliquia | el astrolabio: cada día dora un tramo | el orbe que se llena con los días | semana dorada |
+
+- **Cada mundo trae el suelo de su escena**: sillares en Catedral, brasas y
+  marco de hueso en Averno, papel cuadriculado en Blueprint y terciopelo
+  apagado en Reliquia. El paisaje queda solo para la casa.
+- **«Semanas de antes» va sobre una franja opaca**, con letra de 11 a 13 px:
+  encima del muro de Averno o del papel de Blueprint los rótulos de 10 px no
+  se leían.
+- **Lo que se anima se ve completo sin la animación.** Los tramos del
+  astrolabio, las puntas del sello y las líneas del plano nacían invisibles y
+  solo aparecían si su animación llegaba al final; si el navegador la frenaba
+  o la reiniciaba al redibujar, se quedaban a medias. Ahora están dibujados de
+  base y la animación solo los traza encima. Arregla también el plano de
+  Blueprint de antes.
+- **La araña del astrolabio gira siempre.** Solo giraba con la semana
+  encendida, y como la semana empieza en domingo, de domingo a martes estaba
+  quieta para todos. Con la semana encendida va al doble y su estrella se
+  prende; el tramo de hoy late.
+- **Archivo nuevo:** `js/05d-racha-mundos.js`, registrado en `index.html` y en
+  `ASSETS`. Solo añade a las tablas de `js/05c-racha.js`; la casa, sus
+  ambientes y Arcade no cambian.
+
+**Comprobado:** los cuatro mundos y la casa, en la tarjeta y en «Tu racha», a
+390 y a 1280 px, sin errores y sin nada que se salga de lado.
+
 ### 0.7.142.1 · 29 sep 2026
 
 **Romper el candado suena en cada golpe, y siempre igual.** Sonaba lejano y a

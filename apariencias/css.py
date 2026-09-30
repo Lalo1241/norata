@@ -213,6 +213,10 @@ if __name__ == "__main__":
     partes += [ESCENAS] + [escena(m) for m in datos.AMBIENTES if m["grado"] > 0]
     partes += [MUESTRAS] + [muestra(m) for m in datos.AMBIENTES]
     txt = "\n".join(partes)
+    # Los tonos de estado (`--estado-*`) son de Norata y ningún ambiente los
+    # toca: un check es verde en todos. Misma guarda que en mundos/app.py.
+    if "--estado-" in txt:
+        raise SystemExit("un ambiente redefine --estado-*: los tonos de estado son de Norata")
     open(os.path.join(AQUI, "ambientes.css"), "w", encoding="utf-8").write(txt)
     print("ambientes.css", len(txt.encode()), "bytes ·",
           sum(1 for m in datos.AMBIENTES if m["grado"] > 0), "ambientes")

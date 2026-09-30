@@ -108,7 +108,7 @@ function renderPerkDetail() {
     </div>
     <div class="panel alt">
       <h3>${tx("Plan de tiempo")}</h3>
-      <div class="bar" style="height:6px"><div class="bar-fill" style="width:${Math.min(100, Math.round(gone / total * 100))}%;background:var(--fire)"></div></div>
+      <div class="bar" style="height:6px"><div class="bar-fill" style="width:${Math.min(100, Math.round(gone / total * 100))}%;background:var(--estado-curso)"></div></div>
       <div class="xp-note">${left === 1
         ? T`Del ${formatDate(p.startDate)} al ${formatDate(p.endDate)} — queda <b>${left}</b> día.`
         : T`Del ${formatDate(p.startDate)} al ${formatDate(p.endDate)} — quedan <b>${left}</b> días.`}</div>
@@ -121,7 +121,7 @@ function renderPerkDetail() {
   if (st === "due") {
     planPanel = `
     <div class="panel alt">
-      <h3 style="color:var(--fire)">${tx("El plan terminó — momento de la verdad")}</h3>
+      <h3 style="color:var(--estado-curso-tinta)">${tx("El plan terminó — momento de la verdad")}</h3>
       <p class="settings-note">El plazo venció el ${formatDate(p.endDate)}. Sé honesto: ¿lograste la meta de este talento?</p>
       <div class="stack">
         <button class="btn btn-primary btn-block" onclick="completePerk('${p.id}')">${tx("Sí, lo logré — hacerlo permanente")}</button>
@@ -140,8 +140,8 @@ function renderPerkDetail() {
          llave y no un hito. El botón lo dice en vez de fallar al pulsarlo. */
       actionPanel = p.cost > 0
         ? `<button class="btn btn-primary btn-block" style="margin-bottom:14px" onclick="investPerk('${p.id}')">Comprar y asegurar${importe}</button>`
-        : `<div class="panel alt" style="border-color:var(--fire)">
-             <h3 style="color:var(--fire)">${tx("Le falta el importe")}</h3>
+        : `<div class="panel alt" style="border-color:var(--estado-curso)">
+             <h3 style="color:var(--estado-curso-tinta)">${tx("Le falta el importe")}</h3>
              <p class="settings-note" style="margin:0 0 12px">${tx("Una compra es una llave que se paga. Ponle cuánto costó y podrás asegurarla.")}</p>
              <button class="btn btn-soft btn-block" onclick="openPerkForm('${p.id}')">${tx("Editar y ponerle importe")}</button>
            </div>`;
@@ -176,23 +176,23 @@ function renderPerkDetail() {
   if (st === "expired") {
     actionPanel = `
     <div class="panel alt">
-      <h3 style="color:var(--coral)">${tx("Talento perdido")}</h3>
+      <h3 style="color:var(--estado-fallo-tinta)">${tx("Talento perdido")}</h3>
       <p class="settings-note">${tx("El plan venció sin lograr la meta. Puedes reintentarlo: volverás a invertir y arrancará un plan nuevo.")}</p>
       <button class="btn btn-soft btn-block" onclick="retryPerk('${p.id}')">Reintentar${p.cost > 0 ? " · " + money(p.cost) : ""}</button>
     </div>`;
   }
   if (st === "completed") {
     actionPanel = `
-    <div class="panel alt" style="border-color:var(--mint)">
-      <h3 style="color:var(--mint)">${T`Permanente desde el ${formatDate(p.completedAt)}`}</h3>
+    <div class="panel alt" style="border-color:var(--estado-hecho)">
+      <h3 style="color:var(--estado-hecho-tinta)">${T`Permanente desde el ${formatDate(p.completedAt)}`}</h3>
       <p class="settings-note">${tx("Este talento ya es parte de ti. Nadie te lo quita.")}</p>
       <button class="btn btn-ghost btn-block" onclick="revertirTalento('${p.id}')">${tx("Deshacer — no llegó a pasar")}</button>
     </div>`;
   }
   if (st === "completed") {
     actionPanel = `
-    <div class="panel alt" style="border-color:var(--mint)">
-      <h3 style="color:var(--mint)">${T`Permanente desde el ${formatDate(p.completedAt)}`}</h3>
+    <div class="panel alt" style="border-color:var(--estado-hecho)">
+      <h3 style="color:var(--estado-hecho-tinta)">${T`Permanente desde el ${formatDate(p.completedAt)}`}</h3>
       <p class="settings-note" style="margin:0">${tx("Este talento ya es parte de ti. Nadie te lo quita. 🎉")}</p>
     </div>`;
   }

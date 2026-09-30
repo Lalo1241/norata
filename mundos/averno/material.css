@@ -120,7 +120,18 @@ html[data-apariencia="averno"] :is(.panel, .modal-card, .sum-card, .ms-card, .sk
   border-radius: 0; clip-path: none; box-shadow: none; background: var(--card);
 }
 html[data-apariencia="averno"] .panel { background: var(--bg2); }
-html[data-apariencia="averno"] :is(.icon-btn, .badd) { clip-path: var(--av-esquina); }
+/* Lo pequeño que tiene BORDE —los botones de icono, los «+» de añadir— lleva
+   el marco de esquina cortada, no un recorte a secas. Con solo el recorte, la
+   esquina se comía el borde en las cuatro puntas y quedaba «incompleta»
+   (Eduardo, 0.7.143.6): el recorte quita píxeles, no los dibuja. El marco sí
+   trae el corte dibujado, y el recorte de debajo solo quita el relleno que
+   asomaría por fuera. **Regla del mundo: nada con borde se recorta sin su
+   marco.** Se comprueba buscando piezas con `clip-path` y borde visible sin
+   `border-image` (ver la entrada de 0.7.143.6 en VERSIONES.md). */
+html[data-apariencia="averno"] :is(.icon-btn, .badd) {
+  clip-path: var(--av-esquina); border-radius: 0; border-style: solid;
+  border-image: var(--av-marco-bisel) 6 / 6px stretch;
+}
 html[data-apariencia="averno"] .bubble { border-radius: 0; clip-path: var(--av-esquina); }
 
 /* ---------- Los iconos: en rombo ----------
@@ -312,6 +323,8 @@ html[data-apariencia="averno"] .c-main .fab-plus {
      izquierda. */
   html[data-apariencia="averno"] .thumb-cluster .c-nav { border-radius: 0; clip-path: var(--av-esquina); }
   html[data-apariencia="averno"] .thumb-cluster .c-nav.active { box-shadow: inset 3px 0 0 var(--mint); }
+  /* El botón de actualizar lleva borde dorado de la casa: aquí, su marco en oro. */
+  html[data-apariencia="averno"] #nav-update-side { border-style: solid; border-image: var(--av-marco-bisel-oro) 6 / 6px stretch; }
 }
 
 /* ---------- El Pomodoro ----------
