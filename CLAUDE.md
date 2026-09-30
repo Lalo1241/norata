@@ -62,9 +62,12 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
 
 - **Las versiones le llegan por otro camino.** Al subir la versión,
   `.github/workflows/paquete-app.yml` fabrica un `.zip` y un `ultima.json` en
-  los releases del repositorio; `js/13-nativo.js` los mira al abrir, baja el
-  nuevo por detrás y lo estrena en la siguiente apertura, con vuelta atrás
-  sola si arranca roto. **No hay que hacer nada más que la regla de siempre**:
+  los releases del repositorio; `js/13-nativo.js` los mira al abrir, al volver,
+  cada quince minutos y al recuperar la red, baja el nuevo por detrás y lo
+  estrena en la siguiente apertura, con vuelta atrás sola si arranca roto.
+  **Y lo dice (0.7.148.9)**: un aviso con botón cuando hay una lista, otro al
+  abrir con una recién estrenada, y el tirón hacia abajo contesta. Antes todo
+  eso era mudo y la versión «aparecía de repente». **No hay que hacer nada más que la regla de siempre**:
   subir `VERSION` y `CACHE` juntos. Si no coinciden, el trabajo se niega.
 - **Nunca enlazar a una carpeta a secas** (`login/`): allí el servidor no
   sabe servir el `index.html` de una carpeta y devuelve la portada de la app,

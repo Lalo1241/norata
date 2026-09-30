@@ -17,7 +17,9 @@
      2. Aquí, al abrir y al volver a la app, se mira ese `ultima.json`. Si es
         más nuevo que `VERSION`, se baja por detrás con su huella.
      3. `next()` lo deja listo para la PRÓXIMA apertura, igual que en la web:
-        nunca se cambia la app debajo del dedo de nadie.
+        nunca se cambia la app debajo del dedo de nadie. Y desde 0.7.148.9 se
+        DICE: un aviso con botón para estrenarla ya, y otro al abrir con la
+        versión nueva puesta (ver «Decirlo», abajo).
      4. Si esa versión arranca rota, el complemento vuelve solo a la anterior:
         lo que la da por buena es `notifyAppReady()`, que se llama arriba del
         todo y no al final. Llamarlo tarde, detrás de la red, haría que una
@@ -201,11 +203,19 @@
   }
 
   const ULTIMA = "https://github.com/Lalo1241/norata/releases/latest/download/ultima.json";
-  /* Al volver a la app se pregunta otra vez, pero no más de una vez cada
-     diez minutos: ir y venir entre apps es constante en un teléfono. */
-  const ENTRE_PREGUNTAS = 10 * 60 * 1000;
+  /* ---- Cuándo se pregunta (0.7.148.9) ----
+     Eran diez minutos entre preguntas y solo al abrir o al volver: con varias
+     publicaciones al día, el teléfono de Eduardo se quedaba en la 0.7.148.4
+     mientras la web iba por la .8. Ahora es lo mismo que la web
+     (js/11-arranque.js): al abrir, al volver (con un suelo de un minuto, que
+     ir y venir entre apps es constante), cada quince minutos a la vista y al
+     recuperar la red. */
+  const ENTRE_PREGUNTAS = 60 * 1000;
+  const CADA = 15 * 60 * 1000;
   let ultimaPregunta = 0;
-  let enCurso = false;
+  let busqueda = null;
+  /* La versión bajada y esperando: `{ id, version }`, o nada. */
+  let lista = null;
 
   /* 0.7.140.1 contra 0.7.140: por tramos y como números, no como texto —
      como texto, «0.7.99» saldría más nuevo que «0.7.140». */
@@ -218,39 +228,119 @@
     return false;
   }
 
-  async function buscar() {
-    if (enCurso || Date.now() - ultimaPregunta < ENTRE_PREGUNTAS) return;
-    enCurso = true;
+  /* Contesta qué pasó, porque el tirón hacia abajo lo pregunta y tiene que
+     poder decirlo (ver abajo): "lista", "aldia" o "error". */
+  function buscar(forzar) {
+    if (busqueda) return busqueda;
+    if (!forzar && Date.now() - ultimaPregunta < ENTRE_PREGUNTAS) return Promise.resolve(lista ? "lista" : "aldia");
     ultimaPregunta = Date.now();
-    try {
-      /* Por el puente nativo y no con `fetch`: GitHub redirige el archivo a
-         otro dominio que no deja leerlo desde una página, y el puente no
-         tiene esa restricción. */
-      const r = await http.get({ url: ULTIMA + "?x=" + Date.now(), responseType: "json" });
-      const u = typeof r.data === "string" ? JSON.parse(r.data) : r.data;
-      if (!u || !u.version || !u.url || !masNueva(u.version, VERSION)) return;
+    busqueda = (async () => {
+      try {
+        /* Por el puente nativo y no con `fetch`: GitHub redirige el archivo a
+           otro dominio que no deja leerlo desde una página, y el puente no
+           tiene esa restricción. */
+        const r = await http.get({ url: ULTIMA + "?x=" + Date.now(), responseType: "json" });
+        const u = typeof r.data === "string" ? JSON.parse(r.data) : r.data;
+        if (!u || !u.version || !u.url || !masNueva(u.version, VERSION)) return lista ? "lista" : "aldia";
+        if (lista && lista.version === u.version) return "lista";
 
-      /* Si ya se bajó en otra apertura y está esperando, no se vuelve a bajar. */
-      const { bundles } = await act.list();
-      let paquete = (bundles || []).find((b) => b.version === u.version && b.status !== "error");
-      if (!paquete) paquete = await act.download({ url: u.url, version: u.version, checksum: u.sha256 });
-      await act.next({ id: paquete.id });
-    } catch (e) {
-      /* Sin red, o GitHub sin contestar: se vuelve a intentar en la
-         siguiente vuelta. Nada de esto se le enseña a nadie; la app sigue
-         funcionando con la versión que tiene. */
-      ultimaPregunta = 0;
-    } finally {
-      enCurso = false;
-    }
+        /* Si ya se bajó en otra apertura y está esperando, no se vuelve a bajar. */
+        const { bundles } = await act.list();
+        let paquete = (bundles || []).find((b) => b.version === u.version && b.status !== "error");
+        if (!paquete) paquete = await act.download({ url: u.url, version: u.version, checksum: u.sha256 });
+        /* `next()` se queda: si nadie pulsa el aviso, entra sola al irse la app
+           al fondo — y al volver, `avisarEstreno` dice que entró. */
+        await act.next({ id: paquete.id });
+        lista = { id: paquete.id, version: u.version };
+        avisarLista(true);
+        return "lista";
+      } catch (e) {
+        /* Sin red, o GitHub sin contestar: se vuelve a intentar en la
+           siguiente vuelta. La app sigue funcionando con la que tiene. */
+        ultimaPregunta = 0;
+        return "error";
+      } finally {
+        busqueda = null;
+      }
+    })();
+    return busqueda;
   }
 
-  /* Un momento después de abrir, para no competir con el arranque. Eran
-     cuatro segundos y es mucho: quien abre, mira y cierra no llegaba a
-     bajarla nunca. Si al arrancar se estrenó una, esta carga se va a tirar, así
-     que no se pregunta. */
-  estrenar.then((cambio) => { if (!cambio) setTimeout(buscar, 1500); });
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") buscar();
+  /* ---- Decirlo (0.7.148.9) ----
+     Hasta aquí todo esto pasaba en silencio: la versión se bajaba sin avisar,
+     y entraba sola cuando la app se iba al fondo, así que de repente se estaba
+     en otra sin saber cuándo ni por qué. Lo contó Eduardo: «tiende a no
+     comunicarme ni cuando llegan ni cuando hay alguna disponible».
+
+     Son dos avisos, los mismos que la web:
+       - **Hay una lista**, con un botón que la estrena en el acto. Un toast se
+         lo lleva el viento, así que al volver a la app se repite, con un suelo
+         de cinco minutos para no perseguir.
+       - **Ya entró**, al abrir con una versión más nueva que la última que se
+         vio aquí. Es lo que convierte «de repente está activa» en algo que se
+         entiende.
+     Solo en la app: en la puerta no hay dónde pintarlos. */
+  const ENTRE_TOASTS = 5 * 60 * 1000;
+  let ultimoToast = 0;
+  const enLaApp = () => !!document.getElementById("view-summary");
+  function avisarLista(nueva) {
+    if (!lista || !enLaApp() || typeof toast !== "function" || document.hidden) return;
+    const ahora = Date.now();
+    if (!nueva && ahora - ultimoToast < ENTRE_TOASTS) return;
+    ultimoToast = ahora;
+    toast(T`Ya está lista la versión ${lista.version}`, "atencion",
+          { label: tx("Actualizar"), onclick: "norataActualizar()", ms: 12000 });
+  }
+
+  const VISTA_LLAVE = "norata-version-vista";
+  function avisarEstreno() {
+    if (!enLaApp()) return;
+    let vista = null;
+    try { vista = localStorage.getItem(VISTA_LLAVE); } catch (e) {}
+    try { localStorage.setItem(VISTA_LLAVE, VERSION); } catch (e) {}
+    /* Sin nada apuntado es la primera vez (o la primera con este aviso): no hay
+       «antes» que contar. */
+    if (!vista || !masNueva(VERSION, vista)) return;
+    /* Con la carga cerrada, o el aviso saldría debajo de ella. */
+    const tope = Date.now() + 20000;
+    (function mirar() {
+      if (typeof cargaVisible === "function" && cargaVisible() && Date.now() < tope) { setTimeout(mirar, 300); return; }
+      if (typeof toast === "function") toast(T`Norata se actualizó a la versión ${VERSION}`, "hecho", { label: tx("Cerrar"), onclick: "", ms: 6000 });
+    })();
+  }
+
+  /* El botón del aviso, y el tirón hacia abajo cuando hay una esperando: se
+     estrena en el acto, detrás de la pantalla de carga. Sustituye a la de
+     js/11-arranque.js, que en la web recarga para que entre el service worker
+     nuevo y aquí no haría nada. */
+  window.norataHayVersion = () => !!lista;
+  window.norataActualizar = function () {
+    if (!lista) return;
+    if (typeof cargaMostrar === "function") cargaMostrar(tx("Actualizando…"));
+    act.set({ id: lista.id }).catch(() => {
+      if (typeof cargaCerrar === "function") cargaCerrar();
+      if (typeof toast === "function") toast(tx("No pude estrenar la versión nueva. Se pondrá sola al cerrar la app."), "atencion");
+    });
+  };
+  /* El tirón hacia abajo pregunta por aquí, y con tope: una red que ni
+     contesta ni falla no puede dejar la cápsula colgada. */
+  window.norataBuscarNativo = () => Promise.race([
+    buscar(true),
+    new Promise((r) => setTimeout(() => r("error"), 30000)),
+  ]);
+
+  /* Un momento después de abrir, para no competir con el arranque. Si al
+     arrancar se estrenó una, esta carga se va a tirar, así que no se pregunta. */
+  estrenar.then((cambio) => {
+    if (cambio) return;
+    avisarEstreno();
+    setTimeout(() => buscar(), 1500);
   });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    avisarLista(false);
+    buscar();
+  });
+  window.addEventListener("online", () => buscar());
+  setInterval(() => { if (!document.hidden) buscar(); }, CADA);
 })();

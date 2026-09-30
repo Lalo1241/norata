@@ -459,6 +459,18 @@ window.addEventListener("online", () => syncRun({ silent: true }));
        dejaba de traer la app nueva. */
     if (window.norataHayVersion && window.norataHayVersion()) { norataActualizar(); return; }
 
+    /* En el APK no hay service worker: pregunta `js/13-nativo.js`, que baja la
+       versión si la hay, y se contesta igual que aquí abajo (0.7.148.9). Antes
+       el tirón en el teléfono subía y bajaba sin decir nada. */
+    if (window.norataBuscarNativo) {
+      const r = await window.norataBuscarNativo();
+      quitar();
+      if (r === "lista") norataActualizar();
+      else if (r === "aldia") toast(tx("Ya tienes la última versión"), "calma");
+      else toast(tx("No pude comprobar si hay versión nueva: Norata no contestó"), "atencion");
+      return;
+    }
+
     /* ---- Y SI NO HAY NADA ESPERANDO, SE CONTESTA IGUAL ----
        Esto era `swRegistro.update().catch(() => {})` y `quitar()`: la pregunta
        se hacía por detrás y el fallo se tragaba entero. O sea que «no pude

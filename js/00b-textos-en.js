@@ -2765,6 +2765,10 @@ const TEXTOS_EN = {
  /* La etiqueta del hueco de arriba y el rótulo del plegable (0.7.148.5). */
  "Mundo actual": "Current world",
  "Ambiente actual": "Current ambience",
+ /* Las versiones en la app de Android (0.7.148.9). */
+ "Norata se actualizó a la versión {0}": "Norata updated to version {0}",
+ "Actualizando…": "Updating…",
+ "No pude estrenar la versión nueva. Se pondrá sola al cerrar la app.": "I couldn't switch to the new version. It will apply when you close the app.",
  "Vista previa": "Preview",
  "Paletas": "Palettes",
  "Solo Fundador": "Founder only",

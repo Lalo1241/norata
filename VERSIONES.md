@@ -247,6 +247,39 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.148.9 · 30 sep 2026
+
+**El APK avisa de las versiones, y las busca más seguido.** Lo contó Eduardo:
+su teléfono seguía en la 0.7.148.4 con la .8 publicada, no le decía ni cuándo
+había una lista ni cuándo entraba, y de repente ya estaba en la última.
+
+Las tres cosas que lo causaban, en `js/13-nativo.js`:
+
+- **Preguntaba poco:** al abrir y al volver, con un suelo de diez minutos.
+  Ahora es lo de la web: al abrir, al volver (suelo de un minuto), cada quince
+  minutos a la vista y al recuperar la red.
+- **Bajaba en silencio.** Ahora, en cuanto está lista, sale «Ya está lista la
+  versión X» con un botón **Actualizar** que la estrena en el acto, detrás de
+  la carga. Si se va sin pulsarlo, vuelve a salir al volver a la app (como
+  mucho cada cinco minutos).
+- **Entraba en silencio.** Si nadie pulsa, el complemento la pone al irse la
+  app al fondo —eso era el «de repente»—. Ahora, al abrir con una versión más
+  nueva que la última vista en ese teléfono, sale «Norata se actualizó a la
+  versión X». La última vista se guarda en `norata-version-vista`.
+
+Y **el tirón hacia abajo contesta en el APK**: busca en el acto (con tope de
+30 s) y dice si la estrena, si ya estás al día o si no pudo preguntar. Antes
+subía y bajaba sin decir nada, porque preguntaba al service worker y allí no
+hay.
+
+Nada de esto toca lo nativo: llega por la misma actualización y no hay que
+reinstalar el APK.
+
+**Comprobado** en el navegador con un puente de Android simulado: al abrir
+sale el aviso de la versión lista y el del estreno, «Actualizar» estrena la
+bajada, y el tirón contesta «lista». Sin errores en la consola. En el teléfono
+de verdad no se pudo probar desde aquí.
+
 ### 0.7.148.8 · 30 sep 2026
 
 **El cuerpo del aviso de reinicio del APK, en palabras de Eduardo:** «Para
