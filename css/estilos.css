@@ -261,12 +261,13 @@
          su hueco.
 
        `--marca-menu` lo pone cada mundo desde `css/mundos.css` (Arcade no:
-       no trae colores). `--marca-pieza` y `--marca-vector` también, pero ya
-       solo las lee el aviso del APK. Salen de `mundos/iconos/generar.py`. */
+       no trae colores), y sale de `mundos/iconos/generar.py`. La lee también
+       el aviso de antes de reiniciar el APK. */
     --marca-iso: #5fe0b0;
-    /* Sin mundo, no hay pieza y se ve el isotipo vectorial de siempre. */
-    --marca-pieza: none;
-    --marca-vector: visible;
+    /* El título de ese aviso: blanco en todos los mundos, por encima del
+       acento que tiñe los demás títulos (Eduardo, 0.7.148.6). De día pasa a
+       la tinta, porque blanco sobre la tarjeta clara no se lee. */
+    --titulo-renace: #ffffff;
 
     /* El velo claro con el que se marca lo pulsado. Sobre papel blanco un
        blanco al 4% no existe, así que en claro se vuelve tinta. */
@@ -712,6 +713,7 @@
      Y funcionan también al revés —blanco encima de ellos— que es lo que pide
      un botón macizo: 6,5 el de menta, 6,2 el de coral. */
   html.claro {
+    --titulo-renace: var(--text);
     /* Los tres neutros salen de la lamina que dibujo Eduardo, columna por
        columna: #10151d (el fondo) -> #dcdef0, #1d2530 (la tarjeta) -> #f2f0f9,
        y #131924 -> #f7f8fa, que era la franja de en medio del degradado.
@@ -3414,8 +3416,8 @@
   /* ---- El aviso de antes de reiniciar el APK (0.7.146.2) ----
      El porqué, en `avisarRenacer` (js/10i-apariencia.js). Mismo truco que el
      candado de arriba para subir el aro encima del título. El aro va en
-     `--mint`, que en un mundo es su acento, y la pieza es la del menú:
-     `--marca-pieza` con el mundo puesto, el isotipo menta sin él. */
+     `--mint`, que en un mundo es su acento, y el isotipo es el liso del menú,
+     en su mismo color (desde 0.7.148.6 ya no lleva el material del icono). */
   .modal-card.renace { display: flex; flex-direction: column; text-align: center; }
   .modal-card.renace > #modal-msg { display: contents; }
   .modal-card.renace > *, .modal-card.renace > #modal-msg > * { order: 3; }
@@ -3424,16 +3426,14 @@
   .modal-card.renace > .modal-actions { order: 4; margin-top: 18px; }
   .modal-card.renace .modal-actions .btn { flex: 1; }
   .renace-aro { position: relative; display: block; width: 104px; height: 104px; margin: 2px auto 14px; }
-  .renace-aro > svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+  /* `geometricPrecision` porque Catedral y Averno ponen `crispEdges` a sus
+     dibujos, y un aro con los bordes en escalera es justo lo tosco que se
+     quitó. Sin transición: lo mueve `avisarRenacer` fotograma a fotograma. */
+  .renace-aro > svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; shape-rendering: geometricPrecision; }
   .renace-aro .pista { fill: none; stroke: var(--carril); stroke-width: 3.5; }
-  .renace-aro .lleno { fill: none; stroke: var(--mint); stroke-width: 3.5; stroke-linecap: round; }
-  .renace-pieza {
-    position: absolute;
-    inset: 27px;
-    background: var(--marca-pieza) center / contain no-repeat;
-    color: var(--marca-iso);
-  }
-  .renace-pieza svg { display: block; width: 100%; height: 100%; padding: 5%; box-sizing: border-box; visibility: var(--marca-vector); }
+  .renace-aro .lleno { fill: none; stroke: var(--mint); stroke-width: 3.5; stroke-linecap: round; transition: none; will-change: stroke-dashoffset; }
+  .renace-pieza { position: absolute; inset: 27px; color: var(--marca-menu, var(--marca-iso)); }
+  .renace-pieza svg { display: block; width: 100%; height: 100%; padding: 5%; box-sizing: border-box; }
   .renace-tx { display: block; color: var(--muted); line-height: 1.5; text-align: center; }
   .renace-cuenta { display: block; text-align: center; margin-top: 12px; color: var(--faint); font-size: 13px; font-variant-numeric: tabular-nums; }
   /* Lo que espera dentro. En menta y con la gema porque no es una advertencia:
@@ -7534,6 +7534,10 @@
      de `.modal-card` cuenta las dos veces que ya mordió en esta misma caja). */
   .modal-card.menta { border-color: var(--mint); }
   .modal-card.menta .modal-titulo { color: var(--mint); }
+  /* El aviso del APK es menta, pero su título va en blanco en todos los
+     mundos (0.7.148.6). Debajo de la menta y no junto a su bloque: con la
+     misma fuerza, gana la regla que va después. */
+  .modal-card.renace .modal-titulo { color: var(--titulo-renace); }
   .modal-ic.menta { background: var(--mint-soft); color: var(--mint); }
 
   /* El cuerpo, alineado a la izquierda. Centrada se lee bien una frase suelta

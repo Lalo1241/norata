@@ -637,26 +637,20 @@ def uri(svg_txt):
 def marca_css(id_, selector=None, menu=True):
     """Las variables de la marca de un mundo, para la app.
 
-    - `--marca-menu`: el color del isotipo del MENÚ, que es el acento del
-      mundo (`--mint`, así sigue también a su paleta). Desde la 0.7.148.4 el
-      menú solo se recolorea: Eduardo vio la pieza con material ahí y no le
-      convenció. `menu=False` lo omite (Arcade no trae colores: se queda la
-      menta).
-    - `--marca-pieza` y `--marca-vector`: la pieza con material del mundo. Ya
-      no las lee el menú, solo el aviso de antes de reiniciar el APK
-      (`avisarRenacer`), que enseña el icono que viene.
+    Solo `--marca-menu`: el color del isotipo del menú y del aviso de antes de
+    reiniciar el APK, que es el acento del mundo (`--mint`, así sigue también
+    a su paleta). Desde la 0.7.148.4 el menú solo se recolorea —Eduardo vio
+    la pieza con material ahí y no le convenció— y desde la 0.7.148.6 el
+    aviso tampoco la enseña, así que `--marca-pieza` y `--marca-vector` se
+    dejaron de generar. `menu=False` no devuelve nada (Arcade no trae
+    colores: se queda la menta).
 
     Lo llaman `mundos/app.py` (para `css/mundos.css`) y `mundos/arcade.py`
     (para `css/arcade.css`)."""
+    if not menu:
+        return ""
     sel = selector or 'html[data-apariencia="%s"]' % id_
-    dia = sel.replace("html[", "html.claro[", 1)
-    noche_svg = logo_menu(id_, "m" + id_, "#fff", solo_iso=True)
-    dia_svg = logo_menu(id_, "m" + id_ + "d", "#000", solo_iso=True, dia=True)
-    txt = ("%s {\n%s  --marca-pieza: %s;\n  --marca-vector: hidden;\n}\n"
-           % (sel, "  --marca-menu: var(--mint);\n" if menu else "", uri(noche_svg)))
-    if dia_svg != noche_svg.replace("m%s-" % id_, "m%sd-" % id_):
-        txt += "%s {\n  --marca-pieza: %s;\n}\n" % (dia, uri(dia_svg))
-    return txt
+    return "%s {\n  --marca-menu: var(--mint);\n}\n" % sel
 
 
 def barra(id_):
