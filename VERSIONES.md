@@ -247,6 +247,22 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.147.6 · 30 sep 2026
+
+**Con la carga con zoom, lo que se abre al entrar espera a que termine la
+salida.** Lo vio Eduardo en la simulación: la ventana de vuelta salía al
+EMPEZAR el zoom, debajo de la marca, y sus letras blancas asomaban por el hueco
+mientras el botón menta se fundía con el logo. Congelado parecía un fallo de
+dibujo; en movimiento, un cruce raro.
+
+- `cargaEntrar()` se cumple ahora al TERMINAR la salida, no al empezarla, y
+  `cargaZoom` devuelve cuánto tarda para que la espera sea exacta. Medido: la
+  carga se oculta a los 4,555 s y la ventana sale a los 4,558 s.
+- Vale para todo lo que va detrás en el arranque: la ventana de vuelta, el
+  tutorial y la elección de idioma.
+- Con la carga de siempre (`?carga=no`) no cambia nada: la promesa se cumple
+  al momento, como antes.
+
 ### 0.7.147.5 · 30 sep 2026
 
 **La ventana de vuelta tras una ausencia sale por fin.** Lo que se apuntó de

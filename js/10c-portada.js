@@ -175,10 +175,16 @@ function cargaSoltarZoom(el) {
   if (logo) logo.style.animation = "";
 }
 
-/* La que se llama al ENTRAR. Devuelve una promesa que se cumple cuando la app
-   ya está a la vista, y hay que esperarla: el tutorial y el aviso de la
-   sesión preguntan `cargaVisible()` y se callan si la carga sigue puesta, así
-   que llamarlos durante el mínimo los perdería para siempre. */
+/* La que se llama al ENTRAR. Devuelve una promesa que se cumple cuando la
+   salida TERMINÓ, y hay que esperarla, por dos motivos:
+     - el tutorial y el aviso de la sesión preguntan `cargaVisible()` y se
+       callan si la carga sigue puesta: llamados durante el mínimo se perderían;
+     - lo que se abre al entrar (la ventana de vuelta, el tutorial, el idioma)
+       tiene que llegar sobre la app LIMPIA. En la 0.7.147.5 se cumplía al
+       EMPEZAR el zoom, y la ventana de vuelta salía debajo de la marca: sus
+       letras blancas asomaban por el hueco y su botón menta se fundía con el
+       logo. Congelado parecía un fallo de dibujo; lo vio Eduardo en la
+       simulación (0.7.147.6). */
 function cargaEntrar() {
   if (!cargaZoomPuesto()) { cargaCerrar(); return Promise.resolve(); }
   const el = document.getElementById("carga");
@@ -189,14 +195,15 @@ function cargaEntrar() {
      quien tiene la red lenta. Al entrar a una cuenta ya pasó de sobra. */
   const falta = Math.max(0, CARGA_MINIMO - performance.now());
   return new Promise(listo => setTimeout(() => {
-    if (cargaTurno === mio) cargaZoom(el, mio);
-    listo();
+    if (cargaTurno !== mio) { listo(); return; }
+    setTimeout(listo, cargaZoom(el, mio));
   }, falta));
 }
 
+/* Devuelve cuántos ms tarda en irse, para que `cargaEntrar` espere justo eso. */
 function cargaZoom(el, mio) {
   const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (quieto || typeof el.animate !== "function") { cargaCerrar(); return; }
+  if (quieto || typeof el.animate !== "function") { cargaCerrar(); return 300; }
 
   const marca = el.querySelector(".carga-marca");
   const logo = marca && marca.querySelector("svg");
@@ -251,6 +258,7 @@ function cargaZoom(el, mio) {
     el.classList.add("oculta");
     cargaSoltarZoom(el);
   }, T + 40);
+  return T + 40;
 }
 
 /* `seca` la quita de golpe, sin desvanecido. Es lo correcto cuando quien
