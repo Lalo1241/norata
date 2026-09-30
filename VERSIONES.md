@@ -247,6 +247,59 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.145 · 30 sep 2026
+
+**Cada mundo viste la marca del menú.** El isotipo de la barra lateral, abierta
+y plegada, toma el material del mundo puesto: píxel con canto de hueso en
+Averno, píxel con su sombra en Catedral, contorno blanco en Blueprint, lila con
+canto de oro en Reliquia, y píxel menta en Arcade. La silueta es la de siempre
+en todos, y la palabra «Norata» no cambia.
+
+Reescribe una regla: hasta ahora «un tema puede cambiarlo todo menos quién
+eres», y ningún mundo tocaba `--marca-iso`. Ahora la silueta no la cambia nadie
+y el material solo un mundo, y solo en el menú: la puerta, la portada, el
+favicon, el icono de la app y los correos siguen en menta, y un ambiente no la
+toca nunca. El reparto, en «La marca, dentro de un mundo» de
+`apariencias/LEEME.md`.
+
+**Cómo:** dos variables que pone el mundo (`--marca-pieza`, `--marca-vector`) y
+dos reglas junto a `.side-brand`. Los dibujos los genera
+`mundos/iconos/generar.py`, el mismo que hace los iconos de la app de cada mundo
+(también en esa carpeta, sin usar todavía), y los estampan `mundos/app.py` en
+`css/mundos.css` y `mundos/arcade.py` en `css/arcade.css`. Cada uno lleva cara
+de día donde el tono de noche se perdía sobre papel.
+
+**Comprobado en la app** (servida en local, con el ejemplo sembrado): con la
+casa se ve el isotipo vectorial y ninguna imagen; con cada uno de los cuatro
+mundos y con Arcade, el vectorial queda en `visibility: hidden` y la pieza
+dibujada ocupa su sitio, de noche y de día. Sin errores en la consola.
+
+**Y en el APK, el icono de la pantalla de inicio también es del mundo.**
+Elegir un mundo o Arcade ya recargaba la app detrás de la pantalla de carga;
+en el APK esa recarga pasa a ser un REINICIO cuando el icono tiene que
+cambiar: Android enciende la entrada del mundo, apaga las demás, y la app se
+cierra y se vuelve a abrir ya con él. Lo pidió Eduardo así, y solo para el
+APK: en la web el icono lo fija el `manifest` y no se toca.
+
+- `recargarApp()` (`js/01-base.js`) sustituye a `location.reload()` en los
+  dos sitios que cambian de apariencia (`cambiarTapado` y `arcadeAlternar`).
+  En la web recarga igual que antes.
+- `norataIcono` (`js/13-nativo.js`) decide qué icono toca —el mundo, Arcade
+  o la casa; un ambiente no tiene icono— y se lo pide al complemento
+  `IconoNorata`. También al irse la app al fondo y sin reiniciar, para lo que
+  cambia sin que nadie lo elija (un plan que vence y devuelve la casa).
+- **Lo nativo no llega con la actualización**: el complemento, los dieciocho
+  iconos adaptativos y el trozo de manifiesto están en
+  `mundos/iconos/android/`, con los pasos para copiarlos a la carpeta de
+  Android y reinstalar el APK una vez. Un APK sin eso no tiene el complemento,
+  `norataIcono` no se define y la app cambia de mundo como siempre.
+
+**Comprobado en la web** (Chromium, en local): `recargarApp` sin complemento
+recarga al momento. Con un complemento de mentira inyectado, elegir Blueprint
+le pide `{icono: "plano", reiniciar: true}` y no recarga (espera el reinicio);
+volver a la casa pide `casa` y, como no hay nada que cambiar, recarga. El
+reinicio de verdad en un teléfono **no está probado**: pide el APK nuevo.
+
 ### 0.7.144 · 29 sep 2026
 
 **Catedral y Averno suenan cada uno a lo suyo, y ningún logro suena a

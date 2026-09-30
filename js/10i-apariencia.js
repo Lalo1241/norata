@@ -567,7 +567,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=58f3ae40e7";
+  l.href = "css/mundos.css?h=533f921b33";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
@@ -1631,7 +1631,7 @@ function cambiarTapado(id) {
   };
   /* Sin cortina —no debería pasar, vive en el marcado— se hace como antes. */
   if (!cortina || typeof cargaMostrar !== "function") {
-    if (ponerApariencia(id)) setTimeout(() => location.reload(), 60);
+    if (ponerApariencia(id)) setTimeout(() => recargarApp(), 60);
     return;
   }
 
@@ -1673,8 +1673,10 @@ function cambiarTapado(id) {
         cortina.style.backgroundColor = despues;
       }
       /* `localStorage` ya escribió dentro de `ponerApariencia`; el respiro es
-         para que el fundido termine antes de irse. */
-      setTimeout(() => location.reload(), 320);
+         para que el fundido termine antes de irse. `recargarApp` y no
+         `location.reload()`: en el APK, si el icono de la pantalla de inicio
+         cambia con el mundo, la app se reinicia entera en vez de recargar. */
+      setTimeout(() => recargarApp(), 320);
     }, 30);
   }, 200);
 }

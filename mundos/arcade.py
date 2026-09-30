@@ -53,7 +53,15 @@ def estampar(rel, marca, patron, huella):
 
 def main():
     fuente = open(os.path.join(AQUI, "arcade", "arcade.css"), encoding="utf-8").read()
-    txt = CABECERA + fuente
+    # La marca del menú en píxel (0.7.145), dibujada por el mismo generador
+    # que los iconos de la app. Se añade aquí y no en la fuente porque es un
+    # dibujo generado: escrito a mano en `arcade/arcade.css`, se separaría.
+    import sys
+    sys.path.insert(0, os.path.join(AQUI, "iconos"))
+    import generar as ICONOS
+    marca = ("\n/* La marca del menú en píxel. Generado desde `mundos/iconos/generar.py`. */\n"
+             + ICONOS.marca_css("arcade", 'html[data-material="arcade"]'))
+    txt = CABECERA + fuente + marca
     open(os.path.join(RAIZ, "css", "arcade.css"), "w", encoding="utf-8").write(txt)
     # Sobre el texto con saltos LF, que es como lo guarda git y lo sirve
     # GitHub; el árbol de trabajo está en CRLF y daría otra huella.

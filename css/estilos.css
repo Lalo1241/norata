@@ -216,9 +216,32 @@
     --marca: #f7f8fa;
     /* Y la menta de la MARCA, que NO es `--mint`. Un ambiente cambia el acento
        de la app —Escarcha lo pone celeste— y el isotipo acababa azul: la marca
-       dejaba de ser la marca. Un tema puede cambiarlo todo menos quién eres.
-       Se declara aquí y en `html.claro`, y NINGÚN ambiente ni mundo la toca. */
+       dejaba de ser la marca. Se declara aquí y en `html.claro`, y NINGÚN
+       ambiente ni mundo la toca.
+
+       **La regla, reescrita en la 0.7.145 con Eduardo: la silueta no la
+       cambia nadie; el material, solo un mundo, y solo dentro de la app.**
+       Antes decía «un tema puede cambiarlo todo menos quién eres», y nació de
+       un accidente —el acento de un ambiente colándose en la marca—, no de
+       una decisión. Lo de ahora es a propósito, y tiene tres límites:
+
+       - **Un ambiente no la toca nunca.** Solo recolorea; vestir la marca es
+         parte de lo que se paga con un mundo, y una marca teñida de celeste
+         es justo el accidente de antes.
+       - **Un mundo la viste en el menú y en ningún otro sitio.** La puerta, la
+         portada, el favicon, el icono de la app, los correos y la landing se
+         quedan en menta: ahí es donde alguien conoce Norata por primera vez,
+         y una marca nueva vive de repetirse.
+       - **La silueta es siempre la de `marca/`.** El mundo cambia de qué está
+         hecha la pieza (píxel, neón, oro), nunca su forma ni su hueco.
+
+       Lo hacen dos variables que pone el mundo (`--marca-pieza` y
+       `--marca-vector`), leídas junto a `.side-brand`. Los dibujos salen de
+       `mundos/iconos/generar.py`, el mismo que hace los iconos de la app. */
     --marca-iso: #5fe0b0;
+    /* Sin mundo, no hay pieza y se ve el isotipo vectorial de siempre. */
+    --marca-pieza: none;
+    --marca-vector: visible;
 
     /* El velo claro con el que se marca lo pulsado. Sobre papel blanco un
        blanco al 4% no existe, así que en claro se vuelve tinta. */
@@ -10734,13 +10757,35 @@
        son dos caminos distintos al mismo dibujo, y solo se arreglo uno. */
     .side-brand .sb-mark { color: var(--marca-iso); }
     .side-brand .sb-mark svg { width: 22px; height: 22px; display: block; }
+    /* La marca vestida por un mundo (0.7.145; el porqué, junto a `--marca-iso`).
+       El mundo pone la pieza como imagen y esconde el isotipo vectorial; aquí
+       solo se dice DÓNDE va, que es igual para todos. La imagen trae 3
+       unidades de aire por lado para el resplandor, así que mide 1,1236 veces
+       el isotipo: 21,5 px sobre los 19,2 que ocupa el de 22 px. */
+    .side-brand .sb-mark { background: var(--marca-pieza) center / 21.5px 21.5px no-repeat; }
+    .side-brand .sb-mark svg,
+    .side-brand .sb-iso { visibility: var(--marca-vector); }
     .side-brand .sb-expand { color: var(--muted); }
     /* Dos píxeles menos que el isotipo: uno es una silueta maciza y el otro
        un contorno fino, así que a igual medida el contorno se ve más
        pequeño. Esto los iguala a la vista, que es lo que importa. */
     .side-brand .sb-expand svg { width: 20px; height: 20px; display: block; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-    .side-brand .sb-logo-full { color: var(--marca); }
+    .side-brand .sb-logo-full { color: var(--marca); position: relative; }
     .side-brand .sb-logo-full svg { height: 30px; width: auto; display: block; }
+    /* Y en el logotipo entero, encima del hueco que deja la pieza escondida.
+       Las medidas salen del viewBox (27 33 200 51 a 30 px de alto, o sea
+       0,588 px por unidad) y de la caja de la imagen (23,81 · 32,73 · 54,54
+       unidades): se recalculan solo si cambia ese viewBox. */
+    .side-brand .sb-logo-full::before {
+      content: "";
+      position: absolute;
+      left: -1.88px;
+      top: -0.16px;
+      width: 32.08px;
+      height: 32.08px;
+      background: var(--marca-pieza) center / contain no-repeat;
+      pointer-events: none;
+    }
 
     .side-toggle {
       flex-shrink: 0;

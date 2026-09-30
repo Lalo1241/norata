@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generado por mundos/iconos/android.js: el color de la orilla de cada icono. -->
+<resources>
+    <color name="icono_arboleda_fondo">#122117</color>
+    <color name="icono_arcade_fondo">#0f141b</color>
+    <color name="icono_averno_fondo">#15070a</color>
+    <color name="icono_bastion_fondo">#202932</color>
+    <color name="icono_casa_fondo">#131823</color>
+    <color name="icono_catedral_fondo">#201c2d</color>
+    <color name="icono_cenit_fondo">#171b45</color>
+    <color name="icono_consola_fondo">#020503</color>
+    <color name="icono_cyber_fondo">#0a1415</color>
+    <color name="icono_forja_fondo">#1f1811</color>
+    <color name="icono_grabado_fondo">#d1cbbc</color>
+    <color name="icono_neon_fondo">#211628</color>
+    <color name="icono_obsidiana_fondo">#0a0c0f</color>
+    <color name="icono_plano_fondo">#102e56</color>
+    <color name="icono_postit_fondo">#c8a776</color>
+    <color name="icono_reliquia_fondo">#110c1f</color>
+    <color name="icono_talavera_fondo">#f4f1e8</color>
+    <color name="icono_ventisca_fondo">#32373c</color>
+</resources>
