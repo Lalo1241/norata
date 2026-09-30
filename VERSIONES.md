@@ -247,6 +247,13 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.147.4 · 30 sep 2026
+
+**La leyenda de las formas cabe en un renglón con dos ramas por fila.** En el
+acomodo Grande la tarjeta mide la mitad y la leyenda entera se partía en tres
+renglones. Ahí se queda con las cuatro figuras y su tecla, que es lo único que
+no se dice en otro sitio; en Amplio y a pantalla completa sigue entera.
+
 ### 0.7.147.3 · 30 sep 2026
 
 **El sello de Blueprint cae al final del dibujo.** Eduardo: «debe salir solo
