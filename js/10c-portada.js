@@ -96,18 +96,161 @@ function alternarClave(id, boton) {
    hacer falta a mitad del desvanecido, el temporizador viejo ya no la apaga. */
 let cargaTurno = 0;
 
+/* `sale` es la salida grande (abajo): mientras dura, la app de debajo ya es lo
+   que se ve y ya se puede tocar, así que cuenta como NO visible. */
 function cargaVisible() {
   const el = document.getElementById("carga");
-  return !!(el && !el.classList.contains("oculta") && !el.classList.contains("fuera"));
+  return !!(el && !el.classList.contains("oculta") && !el.classList.contains("fuera")
+            && !el.classList.contains("sale"));
 }
 
 function cargaMostrar(mensaje) {
   const el = document.getElementById("carga");
   if (!el) return;
   cargaTurno++;
+  cargaSoltarZoom(el);
   const msg = document.getElementById("carga-msg");
   if (msg) msg.textContent = mensaje || tx("Un momento…");
   el.classList.remove("oculta", "fuera");
+}
+
+/* ================= La salida grande (EN PRUEBA, 0.7.147.1) =================
+   Lo pidió Eduardo: que la carga del inicio dure un poco más y se vaya con un
+   zoom hacia el frente, «como en motion graphics». Solo en los momentos de
+   ENTRAR —abrir la app y entrar a una cuenta—; las esperas
+   cortas («Guardando lo último…») se siguen yendo con el desvanecido de
+   siempre, porque un zoom de un segundo y medio para eso sería teatro.
+
+   Está detrás de `?carga=zoom` (y `?carga=no` la apaga), leído arriba de
+   index.html y guardado en `sessionStorage`.
+
+   La puerta (login/index.html) no la usa, y no por olvido: allí el formulario
+   releva a la carga en seco nada más pintarse (`cargaCerrar(true)` en
+   `mostrarPortada`), así que no hay espera que alargar ni nada que atravesar.
+
+   La coreografía, en 1,5 s y por capas, porque un solo objeto creciendo
+   parece un error de escala y no un movimiento:
+
+     0–280 ms   el texto se hunde y se apaga; el isotipo deja de latir y se
+                asienta entero.
+     0–300 ms   ANTICIPACIÓN: la marca retrocede un 14 %. Es el «coger aire»
+                de cualquier animación con peso; sin él el zoom arranca en seco.
+     120–1020   el anillo se abre como una onda y se deshace.
+     300–1500   el zoom: de 0,86 a 40 con aceleración exponencial — casi quieto
+                al principio y disparado al final, que es lo que se lee como
+                «viene hacia ti». El hueco del isotipo está justo en el centro
+                del dibujo, que es de donde crece: a 40 veces el hueco es más
+                grande que la pantalla y la cámara pasa POR DENTRO de la marca.
+     1200–1500  la marca se desvanece, ya enorme. No antes: medido, con el
+                desvanecido a media salida lo grande del zoom pasaba invisible
+                y solo se veía crecer un logo hasta el cuádruple.
+     870–1425   el fondo se abre mientras la marca ya llena la pantalla, así
+                que la app aparece a través del hueco y no alrededor del logo.
+
+   Cada animación lleva su fotograma del 100 %. Sin él, el navegador inventa
+   uno con el valor de PARTIDA, y en los últimos milisegundos la marca y el
+   fondo volvían a aparecer: un destello justo al terminar. Lo cazó la medición.
+
+   Solo se animan `transform`, `scale`, `opacity` y el color de fondo: lo que
+   el teléfono compone sin volver a dibujar. Un desenfoque de movimiento quedó
+   fuera: sobre un elemento escalado 40 veces es caro justo en los teléfonos
+   donde más se nota. */
+const CARGA_MINIMO = 3000;     // ms desde que se abrió la página
+const CARGA_SALIDA = 1500;
+let cargaAnims = [];
+
+function cargaZoomPuesto() {
+  try { return sessionStorage.getItem("norata-carga-prueba") === "zoom"; } catch (e) { return false; }
+}
+
+/* Si vuelve a hacer falta a media salida, se deshace todo lo que la salida
+   dejó puesto: sin esto la siguiente carga saldría con la marca enorme y el
+   fondo transparente. */
+function cargaSoltarZoom(el) {
+  cargaAnims.forEach(a => { try { a.cancel(); } catch (e) {} });
+  cargaAnims = [];
+  if (!el) return;
+  el.classList.remove("sale");
+  const logo = el.querySelector(".carga-marca svg");
+  if (logo) logo.style.animation = "";
+}
+
+/* La que se llama al ENTRAR. Devuelve una promesa que se cumple cuando la app
+   ya está a la vista, y hay que esperarla: el tutorial y el aviso de la
+   sesión preguntan `cargaVisible()` y se callan si la carga sigue puesta, así
+   que llamarlos durante el mínimo los perdería para siempre. */
+function cargaEntrar() {
+  if (!cargaZoomPuesto()) { cargaCerrar(); return Promise.resolve(); }
+  const el = document.getElementById("carga");
+  if (!el || el.classList.contains("oculta")) return Promise.resolve();
+  const mio = ++cargaTurno;
+  /* Contado desde que se abrió la página y no desde aquí: el arranque ya tardó
+     lo que tardó, y sumarle tres segundos enteros encima sería castigar a
+     quien tiene la red lenta. Al entrar a una cuenta ya pasó de sobra. */
+  const falta = Math.max(0, CARGA_MINIMO - performance.now());
+  return new Promise(listo => setTimeout(() => {
+    if (cargaTurno === mio) cargaZoom(el, mio);
+    listo();
+  }, falta));
+}
+
+function cargaZoom(el, mio) {
+  const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (quieto || typeof el.animate !== "function") { cargaCerrar(); return; }
+
+  const marca = el.querySelector(".carga-marca");
+  const logo = marca && marca.querySelector("svg");
+  const anillo = el.querySelector(".carga-anillo");
+  const msg = document.getElementById("carga-msg");
+  const T = CARGA_SALIDA;
+  const anim = (nodo, frames, opts) => {
+    if (nodo) cargaAnims.push(nodo.animate(frames, Object.assign({ duration: T, fill: "forwards" }, opts)));
+  };
+
+  /* El latido se para donde esté y se lleva a lleno. Con `animation: none` a
+     secas el isotipo saltaría de golpe desde su punto del latido. */
+  if (logo) {
+    const cs = getComputedStyle(logo);
+    const desde = { opacity: cs.opacity, transform: cs.transform === "none" ? "scale(1)" : cs.transform };
+    logo.style.animation = "none";
+    anim(logo, [desde, { opacity: 1, transform: "scale(1)" }],
+      { duration: 280, easing: "cubic-bezier(.22,1,.36,1)" });
+  }
+  anim(msg, [{ opacity: 1, transform: "translateY(0)" }, { opacity: 0, transform: "translateY(10px)" }],
+    { duration: 280, easing: "cubic-bezier(.55,0,1,.45)" });
+  /* `scale` y no `transform`: el anillo ya gira con `transform`, y esta
+     propiedad se compone con ella en vez de pisarla. Sigue girando mientras
+     se abre. */
+  anim(anillo, [{ scale: "1", opacity: 1 }, { scale: "2.6", opacity: 0 }],
+    { duration: 900, delay: 120, easing: "cubic-bezier(.22,1,.36,1)" });
+  anim(marca, [
+    { transform: "scale(1)",    offset: 0,   easing: "cubic-bezier(.33,0,.2,1)" },
+    { transform: "scale(.86)",  offset: 0.2, easing: "cubic-bezier(.7,0,.84,0)" },
+    { transform: "scale(40)",   offset: 1 }
+  ]);
+  anim(marca, [
+    { opacity: 1, offset: 0 },
+    { opacity: 1, offset: 0.8, easing: "cubic-bezier(.4,0,1,1)" },
+    { opacity: 0, offset: 1 }
+  ]);
+  const fondo = getComputedStyle(el).backgroundColor;
+  anim(el, [
+    { backgroundColor: fondo, offset: 0 },
+    { backgroundColor: fondo, offset: 0.58, easing: "cubic-bezier(.65,0,.35,1)" },
+    { backgroundColor: "transparent", offset: 0.95 },
+    { backgroundColor: "transparent", offset: 1 }
+  ]);
+  el.classList.add("sale");
+
+  /* Se cierra por reloj y no por el `finished` de las animaciones: donde el
+     navegador no pinta cuadros (una pestaña de fondo) las animaciones no
+     avanzan nunca, y la carga se quedaría puesta —transparente, pero
+     tapando— para siempre. */
+  setTimeout(() => {
+    if (cargaTurno !== mio) return;
+    el.classList.add("oculta");
+    cargaSoltarZoom(el);
+  }, T + 40);
 }
 
 /* `seca` la quita de golpe, sin desvanecido. Es lo correcto cuando quien
@@ -117,6 +260,7 @@ function cargaCerrar(seca) {
   const el = document.getElementById("carga");
   if (!el || el.classList.contains("oculta")) return;
   const mio = ++cargaTurno;
+  cargaSoltarZoom(el);
   if (seca) { el.classList.add("oculta"); el.classList.remove("fuera"); return; }
   el.classList.add("fuera");
   setTimeout(() => {
@@ -1138,7 +1282,7 @@ async function adoptarSesion(mensaje) {
 
   // La app ya está pintada con lo que toca: recién ahora se destapa
   cerrarPortada(true);
-  cargaCerrar();
+  await cargaEntrar();
   toast(mensaje || (tx("Hola de nuevo") + coma()), "logro");
   quizaTutorialDeEntrada();
 }

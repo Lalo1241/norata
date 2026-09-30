@@ -9898,6 +9898,13 @@
   }
   .carga.fuera { opacity: 0; pointer-events: none; }
   .carga.oculta { display: none; }
+  /* La salida grande (`cargaZoom`, js/10c-portada.js). La marca llega a
+     medir cuarenta veces lo que mide: sin `overflow` la página ganaría una
+     barra de desplazamiento durante un segundo. Deja pasar los toques desde
+     el primer instante, porque lo que se ve debajo ya es la app.
+     Sin `will-change` a propósito: con él el navegador dibuja la marca UNA
+     vez a su tamaño y la estira, y a cuarenta veces se vería borrosa. */
+  .carga.sale { pointer-events: none; overflow: hidden; }
 
   /* Dos señales distintas y no una: el anillo gira (esto avanza) y el
      isotipo late (esto sigue vivo). Solo con el giro, un tirón del navegador
@@ -10194,9 +10201,32 @@
   /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
      deja congelado en el inicial. */
   html.informes-demo #rotulo-informes a:hover { background: rgba(16, 21, 29, 0.24); }
+  /* La prueba de la carga con zoom (0.7.147.1): el mismo rótulo, en menta para
+     no confundirlo con el de los números inventados. */
+  html.carga-zoom #rotulo-carga {
+    display: flex; align-items: center; gap: 8px;
+    position: fixed;
+    left: 12px;
+    bottom: calc(env(safe-area-inset-bottom) + 64px);
+    z-index: var(--piso-rotulo-prueba);
+    background: var(--mint-macizo); color: var(--sobre-macizo);
+    border-radius: var(--r-pastilla);
+    padding: 5px 8px 5px 13px;
+    font-size: 10.5px; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    max-width: calc(100vw - 24px);
+  }
+  html.carga-zoom #rotulo-carga a {
+    color: inherit;
+    background: rgba(16, 21, 29, 0.14);
+    border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
+    border-radius: var(--r-boton); padding: 4px 10px 5px;
+    text-decoration: none;
+  }
   @media (min-width: 900px) {
     /* En pantalla ancha la barra de navegación no está abajo. */
     html.informes-demo #rotulo-informes { bottom: calc(env(safe-area-inset-bottom) + 14px); }
+    html.carga-zoom #rotulo-carga { bottom: calc(env(safe-area-inset-bottom) + 14px); }
   }
 
 

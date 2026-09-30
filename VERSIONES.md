@@ -247,6 +247,57 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.147.1 · 30 sep 2026
+
+**La carga del inicio se va con un zoom que atraviesa la marca. EN PRUEBA,
+apagada para todos.** Lo pidió Eduardo: que la carga dure un poco más (3 s
+mínimo) y al terminar haga un zoom hacia el frente y se desvanezca, con
+velocidad variable, «como en motion graphics».
+
+- **Encender:** `mi.norata.app/?carga=zoom`. **Apagar:** `?carga=no`. Vive en
+  `sessionStorage`: en esa pestaña se queda puesta al recargar, que es como se
+  vuelve a ver; con la pestaña cerrada desaparece. Un rótulo menta abajo a la
+  izquierda recuerda que está puesta, con «otra vez» y «quitar».
+- **Solo al ENTRAR:** abrir la app (`js/11-arranque.js`) y entrar a una cuenta
+  (`adoptarSesion`). Las esperas cortas se van con el desvanecido de siempre.
+  La puerta no la lleva: allí el formulario releva a la carga en seco al
+  pintarse, así que no hay nada que atravesar.
+- **El mínimo cuenta desde que se abrió la página**, no desde que la app está
+  lista: a quien ya tardó 3 s por la red no se le suman 3 más.
+- **La coreografía (1,5 s), en `cargaZoom`:** el texto se hunde; la marca toma
+  aire (baja a 0,86) mientras el anillo se abre como una onda; luego un zoom
+  exponencial hasta 40 veces, desde el centro del hueco del isotipo —a esa
+  escala el hueco es más grande que la pantalla y la app aparece a través de
+  él—; se desvanece en los últimos 300 ms y el fondo se abre a la vez.
+- **Medido, no mirado:** el panel del navegador no avanza las animaciones, así
+  que se congelaron y se llevaron a mano a cada instante. Eso cazó dos cosas
+  de la primera versión: el zoom grande pasaba ya invisible (se desvanecía a
+  media salida) y **en los últimos milisegundos la marca y el fondo volvían a
+  aparecer**, porque a una animación sin fotograma del 100 % el navegador le
+  inventa uno con el valor de partida. Ahora todas lo llevan.
+- `cargaEntrar()` devuelve una promesa y **hay que esperarla**: el tutorial, la
+  elección de idioma y el aviso de la sesión preguntan si la carga sigue puesta
+  y se callan si sí. Llamados durante el mínimo se habrían perdido.
+- Con «menos movimiento» pedido, se va con el desvanecido de siempre (el
+  mínimo sí se respeta).
+
+**Visto de paso y sin tocar:** `quizaVentanaDeVuelta` (la ventana tras una
+ausencia) se llama justo después de cerrar la carga, cuando `#carga` todavía
+no tiene `.oculta`, y `CAPAS_QUE_TAPAN` la cuenta como capa encima: la ventana
+se calla. Pasaba igual antes de esto; se deja apuntado.
+
+**Al decidir, qué tocar:**
+
+- *Si se queda:* en `js/10c-portada.js`, `cargaEntrar` deja de preguntar
+  `cargaZoomPuesto()` (y esa función se borra); en `index.html`, el bloque
+  «PRUEBA de la carga con zoom» del script de arriba y el `<div
+  id="rotulo-carga">`; en `css/estilos.css`, las reglas `html.carga-zoom
+  #rotulo-carga` (tres). Borrar por nombre, no por rango.
+- *Si no se queda:* lo mismo, más `cargaEntrar` vuelve a ser `cargaCerrar` en
+  sus dos llamadas, y se borran `cargaZoom`, `cargaSoltarZoom`, sus dos
+  llamadas en `cargaMostrar` y `cargaCerrar`, la condición `sale` de
+  `cargaVisible` y la regla `.carga.sale`.
+
 ### 0.7.147 · 30 sep 2026
 
 **Cinco paletas por mundo, diez ambientes, y los mundos se ven desde Mi
