@@ -120,6 +120,9 @@ html[data-apariencia="catedral"] :is(.btn, .chip, .icon-btn, .sum-card, .ms-card
    Eran lo único redondo del mundo; en piedra son un sillar. */
 html[data-apariencia="catedral"] .skill-card { border-radius: 0; }
 html[data-apariencia="catedral"] :is(.skill-emoji, .bubble) { border-radius: 0; clip-path: var(--av-esquina); }
+/* La figura del tipo en la ficha no se recorta con la esquina del mundo:
+   se la comería (0.7.143.5). */
+html[data-apariencia="catedral"] .detail-hero .skill-emoji:is(.fig-meta, .fig-hito, .fig-compra, .enc-entrega, .enc-decision, .enc-gasto) { clip-path: none; }
 
 /* ---------- Los títulos ----------
    En Pixelify a 600, en minúscula y sin las mayúsculas espaciadas de la casa.

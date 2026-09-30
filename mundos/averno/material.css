@@ -131,6 +131,10 @@ html[data-apariencia="averno"] :is(.skill-emoji, .ms-ic) {
   background: var(--av-rombo) center / 100% 100% no-repeat !important;
   border-radius: 0; clip-path: none; box-shadow: none; image-rendering: pixelated;
 }
+/* En la ficha, el icono grande lleva la FIGURA de su tipo (rombo, hexágono,
+   círculo…), igual que en el mapa: ahí manda la forma, no el rombo del mundo.
+   El tono sigue siendo el del mundo, porque sale del velo del color (0.7.143.5). */
+html[data-apariencia="averno"] .detail-hero .skill-emoji:is(.fig-meta, .fig-hito, .fig-compra, .enc-entrega, .enc-decision, .enc-gasto) { background: none !important; }
 
 /* ---------- Los títulos: doble raya con remate en rombo ---------- */
 html[data-apariencia="averno"] :is(.panel > h2, .panel > h3, .panel-head h2, .panel-head h3, .page-head h1) {

@@ -4797,6 +4797,26 @@
     clip-path: polygon(36% 0, 64% 0, 100% 36%, 100% 64%, 64% 100%, 36% 100%, 0 64%, 0 36%);
   }
   .detail-hero .skill-emoji.enc-gasto::before { border-radius: var(--r-redondo); }
+  /* ---- Y la figura del TALENTO, igual que en el mapa (0.7.143.5) ----
+     El icono grande de la ficha de un talento era un cuadrado para los tres
+     tipos, y en el mapa cada uno tiene su figura. Lo paró Eduardo: el icono
+     tiene que dibujar lo que es. Misma técnica que los encargos de arriba —el
+     recorte en un `::before`, para no llevarse el lapicito de editar— y las
+     mismas figuras que `TIPOS` (js/01-base.js): Meta rombo, Hito hexágono y
+     Compra círculo. El rombo va más grande porque su hueco útil es la mitad. */
+  .detail-hero .skill-emoji.fig-meta,
+  .detail-hero .skill-emoji.fig-hito,
+  .detail-hero .skill-emoji.fig-compra { border: 0; background: none; }
+  .detail-hero .skill-emoji.fig-meta { width: 76px; height: 76px; margin-top: -36px; }
+  .detail-hero .skill-emoji.fig-meta::before,
+  .detail-hero .skill-emoji.fig-hito::before,
+  .detail-hero .skill-emoji.fig-compra::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--velo-forma);
+  }
+  .detail-hero .skill-emoji.fig-meta::before { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+  .detail-hero .skill-emoji.fig-hito::before { clip-path: polygon(50% 0, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%); }
+  .detail-hero .skill-emoji.fig-compra::before { border-radius: var(--r-redondo); }
   /* El icono del héroe también edita. Es el elemento más grande y más
      obvio de la ficha, y hasta ahora era el único que no hacía nada; el
      lápiz de la esquina seguía estando, así que esto es un segundo camino

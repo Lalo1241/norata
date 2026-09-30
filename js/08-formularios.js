@@ -207,7 +207,7 @@ function renderPerkDetail() {
   document.getElementById("perk-content").innerHTML = `
     <div class="detail-hero perk-hero h-${st}">
       <div class="strip">${motifScene(560, 156, hashSeed(p.id), motifFor(p.icon), trazo(p.color))}</div>
-      <button type="button" class="skill-emoji editable" style="background:${velo(p.color, "30")};color:${tinta(p.color)}"
+      <button type="button" class="skill-emoji editable fig-${tipoDe(p)}" style="--velo-forma:${velo(p.color, "4a")};color:${tinta(p.color)}"
         onclick="openPerkForm(currentPerkId)" title="${escapeAttr(tx("Editar talento"))}" aria-label="${escapeAttr(tx("Editar talento"))}">
         ${icon(p.icon, 26)}
         <span class="edit-hint">${icon("pen", 11)}</span>
