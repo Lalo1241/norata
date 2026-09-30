@@ -534,7 +534,7 @@ escribir un `dict` de tonos: lo demás sale solo.
 ## La marca, dentro de un mundo (0.7.144)
 
 **La silueta no la cambia nadie; el material, solo un mundo, y solo en el menú
-de la app.** Hasta la 0.7.143 la regla era «un tema puede cambiarlo todo menos
+de la app y en el icono del APK.** Hasta la 0.7.143 la regla era «un tema puede cambiarlo todo menos
 quién eres», y el isotipo del menú era menta en todos. Esa regla nació de un
 accidente (el acento de Escarcha tiñendo la marca de celeste), no de una
 decisión. Eduardo la reescribió al ver los iconos de los mundos juntos, con
@@ -543,17 +543,19 @@ este reparto:
 | Se queda en menta, siempre | Lo viste el mundo |
 | --- | --- |
 | La puerta, la portada, el favicon | El logo de la barra lateral, abierta y plegada |
-| El icono de la app y de la tienda | |
+| El icono de la web instalada y el de la tienda | El icono del APK en la pantalla de inicio |
 | Correos, landing, capturas oficiales (con la casa) | |
 
 - **Un ambiente no la toca nunca.** Vestir la marca es parte de lo que se
   paga con un mundo, y un recoloreado de la marca es justo el accidente de
   antes.
-- **Por qué no en la puerta ni en el icono:** ahí es donde alguien conoce
-  Norata por primera vez, y una marca nueva vive de repetirse. El icono de
-  la pantalla de inicio por mundo (Android, `activity-alias`) está apuntado
-  para cuando la app esté en la Play Store: es donde más rinde, pero es
-  trabajo nativo.
+- **Por qué no en la puerta ni en la tienda:** ahí es donde alguien conoce
+  Norata por primera vez, y una marca nueva vive de repetirse.
+- **El icono del APK sí (0.7.144), y lo decidió Eduardo:** elegir un mundo
+  cierra la app y la vuelve a abrir con el icono de ese mundo. Es donde más
+  rinde, porque se ve todos los días fuera de la app. En la web no se puede
+  (el icono lo fija el `manifest` al instalar) y no se intenta. Lo nativo y
+  los pasos, en `mundos/iconos/android/LEEME.md`.
 - **Cómo:** el mundo pone dos variables, `--marca-pieza` (la pieza dibujada)
   y `--marca-vector: hidden`, y las reglas de `.side-brand` en
   `css/estilos.css` las leen. Los dibujos salen de `mundos/iconos/generar.py`

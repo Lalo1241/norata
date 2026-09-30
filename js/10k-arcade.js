@@ -220,7 +220,9 @@ function arcadeAlternar(si) {
     return;
   }
   if (typeof cargaMostrar === "function") cargaMostrar(si ? tx("Cargando Arcade…") : tx("Cambiando tema…"));
-  setTimeout(() => { guardar(); location.reload(); }, 220);
+  /* `recargarApp`: en el APK, Arcade también trae su icono, y cambiarlo
+     reinicia la app entera (ver js/01-base.js). */
+  setTimeout(() => { guardar(); recargarApp(); }, 220);
 }
 function arcadeEnCaliente(si) {
   const raiz = document.documentElement;

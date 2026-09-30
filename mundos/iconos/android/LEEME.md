@@ -1,0 +1,93 @@
+# El icono de cada mundo en el APK
+
+Desde la 0.7.144, en la app de Android el icono de la pantalla de inicio es
+el del mundo puesto. Al elegir un mundo (o Arcade) en Mi apariencia, la app
+se cierra y se vuelve a abrir ya con el icono nuevo. Con un ambiente, o sin
+nada puesto, va el de la casa.
+
+**Solo en el APK.** En la web y en la app instalada desde el navegador no
+cambia nada: allí el icono lo fija el `manifest` al instalar, y
+`js/13-nativo.js` no hace nada fuera de la app nativa.
+
+La parte de la página ya está en la app (`recargarApp` en `js/01-base.js` y
+`norataIcono` en `js/13-nativo.js`) y llega sola con la actualización. **Lo
+nativo no llega solo**: hay que copiarlo a la carpeta «Norata App Android» y
+reinstalar el APK UNA vez. Mientras no se haga, la app cambia de mundo como
+siempre y el icono se queda en el de la casa.
+
+## Qué hay aquí
+
+| Archivo | Adónde va |
+| --- | --- |
+| `res/` (todo) | `android/app/src/main/res/`, **sumándolo** a lo que ya hay |
+| `IconoPlugin.java` | junto a `MainActivity.java` |
+| `manifiesto-iconos.xml` | dentro de `AndroidManifest.xml` (paso 4) |
+
+Todo lo genera `node mundos/iconos/android.js`, después de
+`python mundos/iconos/generar.py`. No se edita a mano.
+
+## Los pasos
+
+1. **Copia `res/`** encima de `android/app/src/main/res/`. Son carpetas
+   `mipmap-*`, `drawable` y `values` con archivos nuevos (`icono_*`,
+   `iconos_mundos.xml`); no reemplaza ninguno de los que ya tienes.
+
+2. **Copia `IconoPlugin.java`** a la misma carpeta que `MainActivity.java` y
+   cambia su primera línea (`package app.norata;`) por la que tenga
+   `MainActivity.java` arriba.
+
+3. **Regístralo en `MainActivity.java`**, antes de `super.onCreate`:
+
+   ```java
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+       registerPlugin(IconoPlugin.class);
+       super.onCreate(savedInstanceState);
+   }
+   ```
+
+   (Si ya tiene un `onCreate`, solo se añade la línea de `registerPlugin`
+   arriba. Hace falta `import android.os.Bundle;` si no estaba.)
+
+4. **En `android/app/src/main/AndroidManifest.xml`:**
+   - Dentro de la `<activity>` de `MainActivity`, **borra el `<intent-filter>`
+     que tiene `MAIN` y `LAUNCHER`**. Solo ese: el de `app.norata://login`
+     (la vuelta de Google) se queda. Si no se borra, sale un icono de más en
+     el cajón de apps.
+   - Justo **después** del cierre `</activity>` de `MainActivity`, pega el
+     contenido de `manifiesto-iconos.xml`. Tiene que ir detrás: una entrada
+     apunta a una actividad que ya tiene que estar declarada.
+
+5. **En `android/app/build.gradle`**, dentro de `dependencies { … }`:
+
+   ```gradle
+   implementation "com.jakewharton:process-phoenix:3.0.0"
+   ```
+
+   Es lo que reinicia la app (el porqué, arriba de `IconoPlugin.java`).
+
+6. `npx cap sync android`, compila e **instala el APK encima** del que ya
+   tienes (sin desinstalar: así no se pierde la sesión).
+
+## Lo que pasa la primera vez
+
+- **El acceso directo de la pantalla de inicio puede desaparecer una vez.**
+  La app pasa a abrirse por la entrada de la casa y no por `MainActivity`, y
+  algunos lanzadores lo toman como otra app. Se vuelve a arrastrar desde el
+  cajón y ya no se va.
+- **Cómo se comprueba:** en Mi apariencia elige Blueprint. Sale «Cambiando
+  tema…», la app se cierra sola y se abre con el icono azul. Vuelve a la casa
+  y regresa el menta.
+
+## Lo que hay que saber después
+
+- **Los dieciocho iconos viajan en el APK**, aunque hoy solo cuatro mundos y
+  Arcade se puedan poner. Cuando se construya otro de los quince, su icono ya
+  está instalado y funciona sin reinstalar nada.
+- **Un mundo que no esté en esta lista** (uno nuevo, fuera de los quince)
+  pide volver a generar, copiar `res/` y el trozo de manifiesto, y reinstalar.
+  Mientras tanto no se rompe nada: `IconoPlugin` no encuentra su entrada y se
+  queda el icono que había.
+- **Algunos lanzadores tardan unos segundos** en enseñar el icono nuevo, y
+  alguno (Samsung, Xiaomi) puede quitar el acceso directo al cambiarlo. Es
+  cosa del lanzador; la app sigue en el cajón con su icono nuevo.

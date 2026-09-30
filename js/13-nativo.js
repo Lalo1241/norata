@@ -36,6 +36,54 @@
   const act = cap.Plugins && cap.Plugins.CapacitorUpdater;
   const http = cap.Plugins && cap.Plugins.CapacitorHttp;
   document.documentElement.classList.add("nativa");
+
+  /* ---- El icono de cada mundo (0.7.144) ----
+     En el APK, el icono de la pantalla de inicio es el del mundo puesto. Los
+     dieciocho viajan dentro del APK como entradas de la app (`activity-alias`)
+     y el complemento `IconoNorata` —nativo, en la carpeta de Android; su
+     código y los pasos están en `mundos/iconos/android/`— enciende la del
+     mundo y apaga las demás.
+
+     Dos momentos, y cada uno con su porqué:
+       - Al ELEGIR un mundo (o Arcade), `recargarApp` pide el cambio con
+         reinicio: Android cambia el icono y la app se cierra y se vuelve a
+         abrir ya con él. Lo pidió Eduardo así.
+       - Al irse la app al FONDO, sin reiniciar. Es lo que cubre los cambios
+         que no eligió nadie en este teléfono: el plan que venció y devolvió
+         la casa, o una prueba (`?apariencia=`), que no toca el icono.
+
+     Con `isPluginAvailable` y no mirando `Plugins.IconoNorata`: los APK de
+     antes de esto no lo traen y el objeto existe igual, como una sombra que
+     rechaza cada llamada. Sin complemento no se define `norataIcono`, y
+     `recargarApp` recarga como siempre. */
+  if (typeof cap.isPluginAvailable === "function" && cap.isPluginAvailable("IconoNorata")) {
+    const iconoNativo = cap.Plugins.IconoNorata;
+    /* Qué icono toca. Un mundo manda sobre Arcade (son excluyentes) y un
+       ambiente no tiene icono propio: con un ambiente va el de la casa, como
+       manda la regla de la marca. Arcade se lee de lo GUARDADO y no del
+       atributo, porque al quitarlo se recarga con el atributo todavía puesto.
+       En la puerta no hay apariencia, así que no se decide nada. */
+    const iconoQueToca = () => {
+      if (typeof apariencia !== "function") return null;
+      if (typeof aparienciaDePrueba === "function" && aparienciaDePrueba()) return null;
+      const a = apariencia();
+      if (typeof esMundo === "function" && esMundo(a)) return a;
+      try {
+        if (typeof ARCADE_LLAVE !== "undefined" && localStorage.getItem(ARCADE_LLAVE) === "arcade") return "arcade";
+      } catch (e) {}
+      return "casa";
+    };
+    window.norataIcono = (reiniciar) => {
+      const id = iconoQueToca();
+      if (!id) return Promise.resolve(false);
+      return Promise.resolve(iconoNativo.poner({ icono: id, reiniciar: !!reiniciar }))
+        .then((r) => !!(r && r.cambiado));
+    };
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") window.norataIcono(false).catch(() => {});
+    });
+  }
+
   if (!act) return;
 
   act.notifyAppReady().catch(() => {});

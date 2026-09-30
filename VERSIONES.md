@@ -273,6 +273,32 @@ de día donde el tono de noche se perdía sobre papel.
 casa se ve el isotipo vectorial y ninguna imagen; con cada uno de los cuatro
 mundos y con Arcade, el vectorial queda en `visibility: hidden` y la pieza
 dibujada ocupa su sitio, de noche y de día. Sin errores en la consola.
+
+**Y en el APK, el icono de la pantalla de inicio también es del mundo.**
+Elegir un mundo o Arcade ya recargaba la app detrás de la pantalla de carga;
+en el APK esa recarga pasa a ser un REINICIO cuando el icono tiene que
+cambiar: Android enciende la entrada del mundo, apaga las demás, y la app se
+cierra y se vuelve a abrir ya con él. Lo pidió Eduardo así, y solo para el
+APK: en la web el icono lo fija el `manifest` y no se toca.
+
+- `recargarApp()` (`js/01-base.js`) sustituye a `location.reload()` en los
+  dos sitios que cambian de apariencia (`cambiarTapado` y `arcadeAlternar`).
+  En la web recarga igual que antes.
+- `norataIcono` (`js/13-nativo.js`) decide qué icono toca —el mundo, Arcade
+  o la casa; un ambiente no tiene icono— y se lo pide al complemento
+  `IconoNorata`. También al irse la app al fondo y sin reiniciar, para lo que
+  cambia sin que nadie lo elija (un plan que vence y devuelve la casa).
+- **Lo nativo no llega con la actualización**: el complemento, los dieciocho
+  iconos adaptativos y el trozo de manifiesto están en
+  `mundos/iconos/android/`, con los pasos para copiarlos a la carpeta de
+  Android y reinstalar el APK una vez. Un APK sin eso no tiene el complemento,
+  `norataIcono` no se define y la app cambia de mundo como siempre.
+
+**Comprobado en la web** (Chromium, en local): `recargarApp` sin complemento
+recarga al momento. Con un complemento de mentira inyectado, elegir Blueprint
+le pide `{icono: "plano", reiniciar: true}` y no recarga (espera el reinicio);
+volver a la casa pide `casa` y, como no hay nada que cambiar, recarga. El
+reinicio de verdad en un teléfono **no está probado**: pide el APK nuevo.
 ### 0.7.143.7 · 29 sep 2026
 
 **Averno: Cocito y Ponzoña pasan a llamarse Lamento y Plaga.** Eduardo: «no le

@@ -11,6 +11,7 @@ compararlos.
 | `isotipo.py` | El trazo de la marca, su caja y su versión pixelada (se muestrea, no se redibuja) |
 | `generar.py` | Los dibujos. Escribe `svg/<id>.svg` y `vista.html` |
 | `rasterizar.js` | Saca `png/<id>-512.png`, `-192` y `-180` con Chromium, y `hoja.png` |
+| `android.js` | Saca lo del APK en `android/`: iconos adaptativos y trozo de manifiesto |
 | `vista.plantilla.html` | De donde sale `vista.html`. Se edita la plantilla, no la vista |
 
 ```sh
@@ -38,10 +39,13 @@ en «La marca, dentro de un mundo» de `apariencias/LEEME.md`.
 unidades del isotipo (el trazo de 250), no del logotipo. Con las unidades del
 logotipo salían 4,5 veces más finos, y el canto de Blueprint se perdía.
 
-## Lo que todavía no existe
+## El icono de la app, en la web y en el APK
 
-**Los iconos de la app no están en la app.** `mundos/` no se publica
-(`_config.yml`) y el icono se queda en menta a propósito (ver arriba). El que
-tendría sentido es el de la pantalla de inicio en Android, por
-`activity-alias` y un complemento de Capacitor: es lo nativo, así que pide
-reinstalar el APK. Está apuntado para cuando la app esté en la Play Store.
+**En la web, el icono se queda en menta**: lo fija el `manifest` al instalar
+y `mundos/` ni siquiera se publica (`_config.yml`).
+
+**En el APK sí cambia con el mundo (0.7.144).** `node mundos/iconos/android.js`
+saca de estos SVG todo lo nativo —los iconos adaptativos, la capa monocroma,
+el trozo de manifiesto— en `android/`, junto al complemento `IconoPlugin.java`
+y los pasos para copiarlo (`android/LEEME.md`). Al cambiar un icono: correr
+`generar.py`, `android.js`, copiar `res/` y reinstalar el APK.
