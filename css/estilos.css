@@ -2075,6 +2075,15 @@
     overflow: hidden;
     margin-bottom: 6px;
   }
+  /* El color del texto se DECLARA aquí y no se hereda (0.7.148.2): la ventana
+     copia las variables del mundo mirado (`vestirVentana`), pero `color` llega
+     ya resuelto desde la página, con el `--text` del mundo PUESTO. Todo el
+     texto de la tarjeta —y los bordes en `currentColor`— salía con la tinta del
+     otro mundo. Medido contra ese mundo puesto de verdad. */
+  .ap-escena.ventana { color: var(--text); }
+  /* La etiqueta «Predeterminado» va montada en el borde de arriba de la ficha;
+     sin este respiro pisaba 2 px el icono de la Casa. */
+  .ap-cab:has(.ap-base) { padding-top: 10px; }
   /* El marco lleva el suelo hondo por debajo y no el de la tarjeta: sin un tono
      que separe, lo de dentro se lee como si fuera esta app. Es la misma razón
      por la que el lienzo del árbol no vale el fondo de la página. */

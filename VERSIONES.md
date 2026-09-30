@@ -247,6 +247,23 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.148.2 · 30 sep 2026
+
+**Mi apariencia, revisada en todos los mundos.** Lo pidió Eduardo. Con cada
+mundo puesto (Casa, Blueprint, Reliquia, Averno, Catedral, Cyberpunk y Arcade),
+de noche y de día, en PC y teléfono, se miraron los mundos y ambientes uno por
+uno y se comparó la tarjeta contra ese mismo mundo puesto de verdad, elemento
+por elemento.
+
+- **Arreglado: el texto de la tarjeta llevaba la tinta del mundo PUESTO.** La
+  ventana copia las variables del mundo mirado, pero `color` llega heredado y
+  ya resuelto desde la página. Ahora `.ap-escena.ventana` lo declara. Tras el
+  arreglo, la tarjeta sale idéntica al mundo puesto en los seis, noche y día.
+- **La etiqueta «Predeterminado» ya no pisa el icono de la Casa** (8 px de
+  aire).
+- Lo demás, sin fallos: nada se desborda, la vista de arriba no se corta, el
+  botón cabe en su marco y ningún nombre de tarjeta sale recortado.
+
 ### 0.7.148.1 · 30 sep 2026
 
 **La barra de abajo baja, y lleva un velo debajo.** Lo pidió Eduardo: los
