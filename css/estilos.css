@@ -6632,6 +6632,24 @@
     text-align: center;
   }
   .modal-actions { display: flex; gap: 10px; }
+  /* ---- La hoja del ＋ grande ----
+     Lo común arriba y marcado; el contenedor nuevo (rama, columna) al final y
+     con el borde punteado, que es como la app ya dibuja «añadir un sitio». */
+  .hc-ops { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 18px; max-height: 52vh; overflow-y: auto; }
+  .hc-op {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+    background: var(--sup-tarjeta2); border: 1px solid var(--line); border-radius: var(--r-grande);
+    padding: 12px 14px; font-family: inherit; color: var(--text); cursor: pointer;
+  }
+  .hc-op.principal { border: 2px solid var(--mint); }
+  .hc-op.contenedor { background: none; border-style: dashed; }
+  .hc-op b { display: block; font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+  .hc-op small { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .hc-mas {
+    width: 32px; height: 32px; flex: none; display: grid; place-items: center;
+    border-radius: var(--r-redondo); background: var(--mint-soft); color: var(--mint); font-size: 18px;
+  }
+  .hc-op.contenedor .hc-mas { background: none; border: 1px dashed var(--line); color: var(--muted); }
   .modal-actions .btn { flex: 1; }
   /* El botón de confirmar es el ÚNICO de la app que no se vuelve a dibujar:
      es siempre el mismo nodo y lo que le cambia es la clase, de menta a coral
@@ -11167,6 +11185,9 @@
       overflow-x: auto;
       overscroll-behavior-x: contain;
       padding-bottom: 12px;
+      /* Sin barra a la vista: se recorre con la rueda, el trackpad o
+         arrastrando una misión al borde (el carril se desplaza solo). */
+      scrollbar-width: none;
       /* El alto lo pone ajustarAltoTablero() midiendo lo que queda de
          pantalla: en CSS habría que adivinar cuánto ocupa la cabecera, y esa
          cuenta se rompe sola en cuanto cambia una cifra del encabezado. El
@@ -11181,10 +11202,17 @@
        partir palabras; el techo (480) evita la columna gigantesca con dos
        tarjetas dentro, que se ve más vacía todavía — y da justo para que
        tres tableros llenen una pantalla ancha sin dejar un pasillo muerto. */
+    /* ---- Hasta el borde derecho, y sin apretar (0.7.143.5) ----
+       Antes cada columna tenía techo (480) y se repartían lo que hubiera: con
+       tres no llegaban al borde derecho, que es el límite de todos los demás
+       módulos, y con cinco se encogían hasta partir palabras. Lo pidió
+       Eduardo: hasta cuatro se reparten TODO el ancho; desde la quinta cada
+       una se queda con el ancho de cuatro y el carril se recorre de lado, con
+       la siguiente asomándose un tercio para que se note que hay más. */
     .col-mis {
-      flex: 1 1 302px;
-      min-width: 272px;
-      max-width: 480px;
+      flex: 1 1 0;
+      min-width: 300px;
+      max-width: none;
       /* El suelo hondo, como la tarjeta de una rama y por el mismo motivo: son
          tres cajas de 345×518 y con el tono de una tarjeta el tablero entero
          se leía como una plasta del mismo color, con las misiones encima sin
@@ -11199,6 +11227,12 @@
       flex-direction: column;
       min-height: 0;
     }
+    .tablero-mis::-webkit-scrollbar { display: none; }
+    .tablero-mis.muchas .col-mis { flex: 0 0 calc((100% - 4 * 14px) / 4.33); }
+    /* El borde que queda por ver se desvanece, y deja de hacerlo al llegar */
+    .tablero-mis.muchas.hay-mas { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 80px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 80px), transparent); }
+    .tablero-mis.muchas.hay-antes { -webkit-mask-image: linear-gradient(to right, transparent, #000 56px); mask-image: linear-gradient(to right, transparent, #000 56px); }
+    .tablero-mis.muchas.hay-antes.hay-mas { -webkit-mask-image: linear-gradient(to right, transparent, #000 56px, #000 calc(100% - 80px), transparent); mask-image: linear-gradient(to right, transparent, #000 56px, #000 calc(100% - 80px), transparent); }
     .col-head {
       display: flex;
       align-items: center;

@@ -2061,8 +2061,8 @@ function showView(name) {
        que pide el nombre —igual que Talentos, cuyo botón también dice «Nueva
        rama» y cuyo cuadro dice «Nueva rama de talentos»—, porque en el botón
        ya se sabe en qué pantalla estás. */
-    home: tx("Nueva habilidad"), tree: tx("Nueva rama"),
-    projects: tx("Nueva rama"), missions: tx("Nuevo tablero")
+    home: tx("Nueva habilidad"), tree: tx("Crear"),
+    projects: tx("Crear"), missions: tx("Crear")
   }[name] || "";
 
   /* La pantalla completa es una capa por encima de todo, así que taparía
@@ -2194,10 +2194,83 @@ function titularPestana(name) {
 
 const VISTAS_ANCHAS = new Set(["summary", "missions", "home", "tree", "projects", "jornada"]);
 
-function fabAction() {
-  if (activeMainView === "tree") crearRama("perks");
-  else if (activeMainView === "projects") crearRama("projects");
-  else if (activeMainView === "missions") crearTableroMisiones();
-  else openSkillForm();
+/* ---- El ＋ grande: crea lo que MÁS se crea aquí (0.7.143.5) ----
+   Hasta aquí creaba el contenedor —una rama, un tablero— y no lo que va dentro,
+   así que el botón más visible de la pantalla hacía lo que menos se hace. Lo
+   vio Eduardo, y en Misiones era lo peor: el botón grande creaba columnas, que
+   casi nunca se crean, y la misión de todos los días no tenía botón grande.
+
+   Ahora abre una hoja con lo común PRIMERO y ya apuntado a donde estás; el
+   contenedor nuevo queda al final. Si solo hay una cosa que crear
+   (Habilidades), la hace directo, sin hoja: una hoja con una opción es un toque
+   de más. */
+function opcionesDeCrear() {
+  const v = activeMainView;
+  if (v === "missions") {
+    const cols = tablerosDeMisiones().filter(c => c.id !== "hechas" && c.id !== "terminadas");
+    return [
+      ...cols.map((c, i) => ({
+        principal: i === 0,
+        titulo: T`Misión en ${c.nombre}`,
+        sub: i === 0 ? tx("Nace ya puesta en esa columna") : "",
+        hacer: () => openMissionForm(null, c.id)
+      })),
+      { titulo: tx("Columna nueva"), sub: tx("Un tablero propio para apartar misiones"), hacer: () => crearTableroMisiones(), contenedor: true }
+    ];
+  }
+  if (v === "tree" || v === "projects") {
+    const esProy = v === "projects";
+    const kind = esProy ? "projects" : "perks";
+    const ramas = ramasDe(kind);
+    /* La rama que estás mirando va primero: la del ratón o la de pantalla
+       completa. Sin ninguna, la primera de la lista. */
+    const viendo = esProy ? ramaDeAtajoProyectos() : ramaDeAtajo();
+    const orden = viendo && ramas.includes(viendo) ? [viendo, ...ramas.filter(b => b !== viendo)] : ramas;
+    return [
+      ...orden.map((b, i) => ({
+        principal: i === 0,
+        titulo: esProy ? T`Encargo en ${b}` : T`Talento en ${b}`,
+        sub: i === 0 ? (b === viendo ? tx("La rama que estás viendo") : (esProy ? tx("Un paso más de este proyecto") : tx("Meta, hito o compra, dentro de esta rama"))) : "",
+        hacer: () => esProy ? openProjectForm(null, b) : openPerkForm(null, b)
+      })),
+      { titulo: esProy ? tx("Proyecto nuevo") : tx("Rama nueva"),
+        sub: esProy ? tx("Algo que quieres terminar, con sus encargos") : tx("Un camino entero: Salud, Dinero, Cocina…"),
+        hacer: () => crearRama(kind), contenedor: true }
+    ];
+  }
+  return [{ titulo: tx("Nueva habilidad"), hacer: () => openSkillForm() }];
 }
+
+let opcionesAbiertas = [];
+function fabAction() {
+  const ops = opcionesDeCrear();
+  /* Sin ramas o sin columnas propias solo queda crear el contenedor, o solo
+     hay una cosa que crear: directo, sin hoja. */
+  if (ops.length === 1) { ops[0].hacer(); return; }
+  opcionesAbiertas = ops;
+  const el = document.getElementById("hoja-crear");
+  document.getElementById("hoja-crear-body").innerHTML = `
+    <h3 class="modal-titulo" style="color:var(--text)">${tx("¿Qué quieres crear?")}</h3>
+    <div class="hc-ops">${ops.map((o, i) => `
+      <button type="button" class="hc-op${o.principal ? " principal" : ""}${o.contenedor ? " contenedor" : ""}" onclick="elegirCrear(${i})">
+        <span class="hc-mas" aria-hidden="true">＋</span>
+        <span class="hc-tx"><b>${escapeHtml(o.titulo)}</b>${o.sub ? `<small>${escapeHtml(o.sub)}</small>` : ""}</span>
+      </button>`).join("")}</div>
+    <div class="modal-actions"><button type="button" class="btn btn-ghost" onclick="cerrarHojaCrear()">${tx("Cancelar")}</button></div>`;
+  el.classList.add("show");
+  revisarFondoQuieto();
+}
+function elegirCrear(i) {
+  const o = opcionesAbiertas[i];
+  cerrarHojaCrear();
+  if (o) o.hacer();
+}
+function cerrarHojaCrear() {
+  const el = document.getElementById("hoja-crear");
+  if (el) el.classList.remove("show");
+  revisarFondoQuieto();
+}
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && document.querySelector("#hoja-crear.show")) cerrarHojaCrear();
+});
 

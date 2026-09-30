@@ -198,7 +198,7 @@ function renderMissions() {
     <div class="tablero-pista full-row">
       <span class="hint-hold">${tx("Arrastra una misión de una columna a otra: a la semana queda pospuesta, a las terminadas queda cerrada. El ＋ de cada columna crea una misión ya puesta ahí.")}</span>
     </div>
-    <div class="tablero-mis full-row" data-carril>
+    <div class="tablero-mis full-row${visibles.length > 4 ? " muchas" : ""}" data-carril>
       ${visibles.map(c => `
         <section class="col-mis">
           <div class="col-head">
@@ -234,9 +234,31 @@ function renderMissions() {
    Se mide dónde empieza el carril y se le da todo lo que queda de ventana.
    El hueco pasa a ser de las columnas, que es donde sirve: es sitio donde
    soltar una tarjeta. */
+/* El carril de columnas de Misiones: dice si queda algo por ver a cada lado
+   (para el desvanecido) y, con muchas columnas, deja recorrerlo con la rueda
+   normal sobre las cabeceras y los huecos. Dentro de una lista la rueda sigue
+   siendo de la lista, que se desplaza hacia abajo. */
+function vigilarCarrilMisiones() {
+  const c = document.querySelector(".tablero-mis");
+  if (!c) return;
+  const ver = () => {
+    c.classList.toggle("hay-mas", c.scrollLeft + c.clientWidth < c.scrollWidth - 4);
+    c.classList.toggle("hay-antes", c.scrollLeft > 4);
+  };
+  ver();
+  if (c.dataset.vigilado) return;
+  c.dataset.vigilado = "1";
+  c.addEventListener("scroll", ver, { passive: true });
+  c.addEventListener("wheel", e => {
+    if (!c.classList.contains("muchas") || e.target.closest(".ms-list")) return;
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { c.scrollLeft += e.deltaY; e.preventDefault(); }
+  }, { passive: false });
+}
+
 function ajustarAltoTablero() {
   const carril = document.querySelector(".tablero-mis");
   if (!carril) return;
+  vigilarCarrilMisiones();
   if (!isDesktop()) { carril.style.height = ""; return; }
   const arriba = carril.getBoundingClientRect().top + window.scrollY;
   const alto = window.innerHeight - arriba - 26;

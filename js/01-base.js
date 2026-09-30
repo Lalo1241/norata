@@ -1961,6 +1961,7 @@ const CAPAS_QUE_TAPAN = [
   "#caja-modal.show",       // una caja del ático
   "#jornada-modal.show",    // una hoja de la Jornada (en prueba)
   "#cajon.show",            // el cajón de caminos
+  "#hoja-crear.show",       // la hoja del ＋ grande: qué crear
   "#scel.show",             // celebrar una racha
   "#ncel.show",             // subir de nivel de expedición
   "#fs-overlay.show",       // una rama a pantalla completa

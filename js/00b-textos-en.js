@@ -124,6 +124,21 @@ const TEXTOS_EN = {
   "Hito": "Milestone",
   "Meta": "Goal",
 
+  /* La hoja del ＋ grande (opcionesDeCrear, js/04-misiones.js) */
+  "¿Qué quieres crear?": "What do you want to create?",
+  "Misión en {0}": "Mission in {0}",
+  "Nace ya puesta en esa columna": "It starts right in that column",
+  "Columna nueva": "New column",
+  "Un tablero propio para apartar misiones": "A board of your own to set missions aside",
+  "Encargo en {0}": "Assignment in {0}",
+  "Talento en {0}": "Talent in {0}",
+  "La rama que estás viendo": "The branch you are looking at",
+  "Un paso más de este proyecto": "One more step in this project",
+  "Meta, hito o compra, dentro de esta rama": "Goal, milestone or purchase, inside this branch",
+  "Un camino entero: Salud, Dinero, Cocina…": "A whole path: Health, Money, Cooking…",
+  "Algo que quieres terminar, con sus encargos": "Something you want to finish, with its assignments",
+  "Proyecto nuevo": "New project",
+  "Rama nueva": "New branch",
   /* El aviso del mapa sin bordes (vigilarFueraDeVista, js/07-lienzo.js) */
   "Tus encargos": "Your assignments",
   "Tus talentos": "Your talents",
