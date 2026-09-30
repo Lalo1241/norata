@@ -549,7 +549,20 @@ function encuadrarLienzo(wrap, b) {
        encuadre guardado justo para volver a pasar por aquí—. */
     const rama = b === undefined ? wrap.dataset.branch : b;
     const frente = pixelDelFrente(wrap, rama, wrap.dataset.mod || "talentos");
-    const enc = encuadreDe(wrap, frente && frente.px);
+    /* Con dos ramas por fila la tarjeta mide la mitad, y centrar en lo que
+       sigue dejaba el principio de la rama cortado en el borde izquierdo
+       (0.7.147.7, Eduardo: se leía «…correr una vez»). Ahí la vista previa
+       arranca por el PRINCIPIO a lo ancho, que en una rama tumbada es su raíz;
+       a lo alto sigue mirando lo que sigue. De pie no aplica: su principio es
+       el extremo lejano del camino (ver arriba). */
+    /* Y en una rama tumbada de cualquier tarjeta, si lo que sigue ya se ve
+       arrancando por el principio, se arranca por el principio: centrar en él
+       solo cortaba unos píxeles del primer nodo sin enseñar nada nuevo. */
+    const tumbada = !wrap.closest("#fs-overlay") && !ramaGirada(rama, wrap.dataset.mod || "talentos");
+    const mitad = tumbada && !!wrap.closest(".ramas-rejilla.grande");
+    const desdeInicio = tumbada ? encuadreDe(wrap, frente && frente.px ? { x: null, y: frente.px.y } : null) : null;
+    const cabeElFrente = desdeInicio && frente && frente.px && frente.px.x + 90 <= desdeInicio.left + wrap.clientWidth;
+    const enc = (mitad || cabeElFrente) ? desdeInicio : encuadreDe(wrap, frente && frente.px);
     if (enc) { wrap.scrollLeft = enc.left; wrap.scrollTop = enc.top; }
   }
   wrap.addEventListener("scroll", () => {

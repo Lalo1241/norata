@@ -247,6 +247,20 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.147.7 · 30 sep 2026
+
+**La vista previa de una rama ya no corta el primer nodo.** Con dos ramas por
+fila la tarjeta mide la mitad, y centrar en lo que sigue dejaba el principio
+cortado en el borde (en Salud se leía «…correr una vez»). Lo pidió Eduardo:
+
+- **Con dos por fila, arranca por el principio** a lo ancho; a lo alto sigue
+  mirando lo que sigue. Una rama larga se desliza para ver el resto.
+- **En cualquier tarjeta, si lo que sigue ya se ve arrancando por el
+  principio, se arranca por el principio.** Con una por fila también se
+  cortaban 11 px del primer nodo sin enseñar nada nuevo.
+- Nada cambia de pie ni a pantalla completa, y un encuadre que ya moviste se
+  respeta.
+
 ### 0.7.147.6 · 30 sep 2026
 
 **Con la carga con zoom, lo que se abre al entrar espera a que termine la
