@@ -247,6 +247,29 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.148.7 · 30 sep 2026
+
+**El aviso de antes de reiniciar el APK dice lo que pasa, con el isotipo liso
+y un aro que baja suave.** Lo pidió Eduardo al verlo en Averno.
+
+- **El isotipo, sin material.** Enseñaba la pieza del icono (el píxel de
+  Averno, el vidrio de Catedral…); ahora es el isotipo de siempre en el color
+  del mundo, igual que el del menú desde la 0.7.148.4. Con eso nadie leía ya
+  `--marca-pieza` ni `--marca-vector` y `generar.py` dejó de generarlas:
+  `css/mundos.css` baja de 496 a 447 KB y `css/arcade.css` de 25 a 15.
+- **Los textos, directos.** Título «Norata necesita reiniciarse», el cuerpo
+  «Para terminar de realizar los ajustes con el nuevo mundo, la app necesita
+  reiniciarse un instante para aplicar todos los ajustes correctamente.» y el
+  botón «Reiniciar ahora». Salen las adivinanzas de la 0.7.146.2.
+- **El título, blanco en todos los mundos** (`--titulo-renace`), por encima
+  del acento que tiñe los otros títulos. De día es la tinta: blanco sobre la
+  tarjeta clara no se lee.
+- **El aro, por fotogramas.** Se repintaba cada décima de segundo y a diez
+  saltos por segundo bajaba a trompicones; ahora va con
+  `requestAnimationFrame`, sin transición y con `geometricPrecision` para que
+  el `crispEdges` de Catedral y Averno no lo escalone. Un reloj aparte cierra
+  la cuenta aunque los fotogramas se paren con la app fuera de la vista.
+
 ### 0.7.148.6 · 30 sep 2026
 
 **En Mi apariencia, lo de arriba se queda quieto y cada mundo se abre en su

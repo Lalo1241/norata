@@ -610,7 +610,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=cfecb5c32a";
+  l.href = "css/mundos.css?h=855195c514";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
@@ -2032,24 +2032,21 @@ function cambiarTapado(aplicar) {
 /* El aviso antes de reiniciar el APK para cambiar el icono (0.7.146.2).
 
    Lo pide `revisarIconoPedido` (js/13-nativo.js) con la app ya en el mundo
-   nuevo. Tres decisiones de Eduardo, al ver la primera versión en su
-   teléfono:
+   nuevo. Lo que decidió Eduardo al verlo en su teléfono:
 
-   - **No se explica.** «Para que el icono cambie, la app se reinicia» sonaba
-     a «¿en serio reinicias por eso?». El texto insinúa —algo de lo que
-     elegiste vive fuera de la app— y deja que la pantalla de inicio conteste
-     sola al salir.
    - **No se puede saltar.** Sin cancelar, sin clic fuera, y con una cuenta de
      10 segundos que reinicia sola: un icono a medio cambiar es peor que
      esperar. Si la app se cierra antes (el botón de atrás), el pedido sigue
      apuntado y el aviso vuelve al abrir.
    - **Va con el diseño.** Nada de coral de alarma: el tono menta de los
-     cuadros normales —en un mundo es su acento—, y en vez de un icono de
-     catálogo, la pieza del propio mundo (la de `--marca-pieza`, la misma del
-     menú) dentro de un aro que se vacía con la cuenta.
-
-   Devuelve una promesa que se cumple cuando toca reiniciar: al pulsar o al
-   llegar a cero, lo que pase antes. */
+     cuadros normales —en un mundo es su acento— y el isotipo en el color del
+     mundo, dentro de un aro que se vacía con la cuenta.
+   - **Dice lo que pasa, sin adivinanzas (0.7.148.7).** La primera versión
+     insinuaba («Esto no se queda aquí adentro») y enseñaba la pieza con el
+     material del icono; las dos se fueron. El isotipo es el liso, solo
+     recoloreado, como el del menú; el título va en blanco en todos los
+     mundos (`--titulo-renace`), y el aro se mueve por fotogramas: a saltos
+     de una décima se veía tosco. */
 const RENACER_SEGUNDOS = 10;
 function avisarRenacer() {
   const r = 44, vuelta = 2 * Math.PI * r;
@@ -2060,35 +2057,42 @@ function avisarRenacer() {
       '<circle class="lleno" id="renace-lleno" cx="50" cy="50" r="' + r + '" stroke-dasharray="' + vuelta.toFixed(2) + '" stroke-dashoffset="0"/></svg>' +
       '<span class="renace-pieza">' + iso + '</span>' +
     '</span>' +
-    '<span class="renace-tx">' + escapeHtml(tx("Una parte de lo que elegiste vive fuera de la app. Norata se cierra un instante para llevarla a su lugar. Cuando salgas, búscala.")) + '</span>' +
+    '<span class="renace-tx">' + escapeHtml(tx("Para terminar de realizar los ajustes con el nuevo mundo, la app necesita reiniciarse un instante para aplicar todos los ajustes correctamente.")) + '</span>' +
     '<span class="renace-cuenta" id="renace-cuenta"></span>';
-  let listo = false, reloj = null;
+  let listo = false, reloj = null, fotograma = 0;
   const fin = new Promise((resolver) => {
     const acabar = () => {
       if (listo) return;
       listo = true;
-      clearInterval(reloj);
+      clearTimeout(reloj);
+      cancelAnimationFrame(fotograma);
       if (typeof modalDone === "function") modalDone(true);
       resolver();
     };
-    askBase(cuerpo, true, tx("Llévala ya"), false, false, null,
-            { fijo: true, soloOk: true, tono: "menta", clase: "renace", titulo: tx("Esto no se queda aquí adentro") })
+    askBase(cuerpo, true, tx("Reiniciar ahora"), false, false, null,
+            { fijo: true, soloOk: true, tono: "menta", clase: "renace", titulo: tx("Norata necesita reiniciarse") })
       .then(acabar);
-    /* Por reloj y no con una transición de CSS: una transición puede no
+    /* Por fotogramas y no con una transición de CSS: una transición puede no
        avanzar (ver «Cómo verificar» en CLAUDE.md), y aquí el aro ES la cuenta.
-       Se pinta cada décima para que el aro baje suave y el número salte al
-       segundo. */
-    const empezo = Date.now(), total = RENACER_SEGUNDOS * 1000;
+       Hasta la 0.7.148.6 se pintaba cada décima, y a diez saltos por segundo
+       el aro bajaba a trompicones. El número solo se reescribe al cambiar.
+       `requestAnimationFrame` se para con la app fuera de la vista, así que
+       un reloj aparte asegura que la cuenta termine igual. */
+    const empezo = performance.now(), total = RENACER_SEGUNDOS * 1000;
+    let ultimo = -1;
     const pintar = () => {
-      const pasado = Math.min(total, Date.now() - empezo);
+      if (listo) return;
+      const pasado = Math.min(total, performance.now() - empezo);
       const lleno = document.getElementById("renace-lleno");
       const cuenta = document.getElementById("renace-cuenta");
-      if (lleno) lleno.setAttribute("stroke-dashoffset", (vuelta * pasado / total).toFixed(2));
-      if (cuenta) cuenta.textContent = T`Se cierra en ${Math.ceil((total - pasado) / 1000)}`;
-      if (pasado >= total) acabar();
+      if (lleno) lleno.style.strokeDashoffset = (vuelta * pasado / total).toFixed(3);
+      const quedan = Math.ceil((total - pasado) / 1000);
+      if (cuenta && quedan !== ultimo) { ultimo = quedan; cuenta.textContent = T`Se cierra en ${quedan}`; }
+      if (pasado >= total) { acabar(); return; }
+      fotograma = requestAnimationFrame(pintar);
     };
     pintar();
-    reloj = setInterval(pintar, 100);
+    reloj = setTimeout(acabar, total + 50);
   });
   return fin;
 }

@@ -26,13 +26,15 @@ Android e iOS, y la propuesta del logo del menú en cada mundo.
 ## El logo del menú (en la app desde la 0.7.145)
 
 `generar.py` también dibuja el logotipo de la barra lateral vestido por cada
-mundo (`svg/menu-<id>.svg` para verlo, y `marca_css()` para la app): la pieza
-con el mismo material que el icono, reducida a lo que se lee a 30 px, y la
-palabra «Norata» sin tocar. El logotipo se lee de `index.html` y no se copia.
+mundo (`svg/menu-<id>.svg`): la pieza con el mismo material que el icono,
+reducida a lo que se lee a 30 px, y la palabra «Norata» sin tocar. El logotipo
+se lee de `index.html` y no se copia.
 
-Llega a la app por `mundos/app.py` (los mundos de `LISTOS`) y
-`mundos/arcade.py`. Al cambiar un dibujo del menú hay que volver a correr
-esos dos, no solo este. El reparto de dónde sí se viste la marca y dónde no,
+**En la app ya no sale** (0.7.148.4 el menú, 0.7.148.7 el aviso del APK):
+Eduardo prefirió el isotipo de siempre, solo recoloreado. `marca_css()` da hoy
+únicamente `--marca-menu`; los dibujos se quedan para `vista.html`.
+
+El color llega a la app por `mundos/app.py` (los mundos de `LISTOS`). El reparto de dónde sí se viste la marca y dónde no,
 en «La marca, dentro de un mundo» de `apariencias/LEEME.md`.
 
 **Una trampa que ya mordió:** en `pieza_menu` los grosores de trazo van en
