@@ -39,9 +39,10 @@ puede cambiarlo todo menos quién eres», ver `css/estilos.css`, 0.7.54).
    Catedral, Averno) salen de muestrear el trazo de la marca en una cuadrícula;
    dibujados a ojo en otra, dejarían de ser la marca aunque se parecieran.
 2. **A sangre, con la pieza en la zona segura.** El cuadrado entero lleva
-   fondo y el isotipo ocupa 288 de 512, dentro del círculo del 80 % que
-   `maskable` garantiza. Lo que va en las esquinas (remaches, escuadras,
-   flores) puede perderse con la máscara sin que el icono deje de decir nada.
+   fondo y el isotipo ocupa 264 de 512, dentro del círculo del 80 % que
+   `maskable` garantiza. Nada importante va en las esquinas del cuadrado: un
+   icono casi siempre se ve redondo. Los marcos son aros u octógonos y los
+   adornos van en un círculo entre la pieza (167 px) y el borde seguro (205).
 3. **El hueco no lleva nada.** Es lo que hace del isotipo un marco, y por él
    solo se ve el suelo del mundo. La primera tanda puso ahí una flor, un
    astro, un cursor, una hoja y un copo; Eduardo los quitó.

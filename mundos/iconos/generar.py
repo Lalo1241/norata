@@ -14,9 +14,13 @@ Tres reglas, y las tres son de marca antes que de dibujo:
 2. **Se dibuja a sangre y el isotipo va en la zona segura.** Android recorta
    el icono con la máscara que le dé la gana —círculo, gota, cuadrado
    redondeado—, así que el cuadrado entero lleva fondo y el isotipo ocupa
-   288 de 512: su esquina más lejana cae dentro del círculo del 80 % que
-   `maskable` garantiza. Lo que va en las esquinas (remaches, escuadras,
-   flores) es adorno que puede perderse sin que el icono deje de decir nada.
+   264 de 512: su punto más lejano cae a 167 px del centro, dentro del
+   círculo del 80 % (205 px) que
+   `maskable` garantiza. **Y nada importante va en las esquinas del
+   cuadrado**: un icono casi siempre se ve redondo, y lo que vivía ahí (el
+   filete de Reliquia, los remaches de Forja, las escuadras de Cyberpunk, el
+   doblez del Post-it) se perdía entero. Los marcos son aros y los adornos
+   van entre la pieza (167) y el círculo seguro (205), con `en_aro`.
 3. **El hueco del centro no lleva nada.** Es lo que hace del isotipo un
    marco, y por él solo se ve el suelo del mundo. La primera tanda puso ahí
    una flor, un astro, un cursor, una hoja y un copo, y Eduardo los quitó:
@@ -31,7 +35,10 @@ import isotipo
 AQUI = os.path.dirname(os.path.abspath(__file__))
 L = 512
 X0, Y0, X1, Y1 = isotipo.caja()
-ESC = 288 / (X1 - X0)
+# 264 de 512 y no 288: a 288 la pieza llegaba a 182 px del centro y no
+# dejaba sitio para un marco dentro del círculo que se ve con la máscara
+# redonda (el aro de Talavera y el octógono de Averno salían mordidos).
+ESC = 264 / (X1 - X0)
 CX, CY = (X0 + X1) / 2, (Y0 + Y1) / 2
 POS = "translate(%.3f %.3f) scale(%.4f)" % (L / 2 - CX * ESC, L / 2 - CY * ESC, ESC)
 # Un píxel de pantalla en unidades del isotipo, para dar trazos en px.
@@ -45,13 +52,45 @@ def iso(p, **a):
     return '<use href="#%s-iso" %s/>' % (p, extra)
 
 
+def _tiras(cs, lado):
+    """Las celdas, juntadas en tiras por fila y un pelo solapadas. Celda por
+    celda, el suavizado del borde dejaba una rejilla de rayas claras dentro
+    de cada píxel grande: se veía como una malla y no como un bloque."""
+    filas = {}
+    for c, f in cs:
+        filas.setdefault(f, []).append(c)
+    sol = lado * .06
+    out = []
+    for f, cols in sorted(filas.items()):
+        cols.sort()
+        ini = prev = cols[0]
+        for c in cols[1:] + [None]:
+            if c is not None and c == prev + 1:
+                prev = c
+                continue
+            out.append('<rect x="%.2f" y="%.2f" width="%.2f" height="%.2f"/>' %
+                       (X0 + ini * lado, Y0 + f * lado, (prev - ini + 1) * lado + sol, lado + sol))
+            if c is not None:
+                ini = prev = c
+    return "".join(out)
+
+
 def pixel(n, p, **a):
     """El isotipo pixelado: el mismo trazo muestreado en n×n celdas."""
     lado, cs = isotipo.celdas(n)
     extra = " ".join('%s="%s"' % (k.rstrip("_").replace("_", "-"), v) for k, v in a.items())
-    r = "".join('<rect x="%.2f" y="%.2f" width="%.2f" height="%.2f"/>' %
-                (X0 + c * lado, Y0 + f * lado, lado + .02, lado + .02) for c, f in cs)
-    return '<g transform="%s" %s>%s</g>' % (POS, extra, r), lado
+    return '<g transform="%s" %s>%s</g>' % (POS, extra, _tiras(cs, lado)), lado
+
+
+def en_aro(dibujo, r, angulos=(45, 135, 225, 315), girar=True):
+    """Un adorno repetido sobre un círculo alrededor del centro. Es lo que
+    sustituye a las esquinas: un icono casi siempre se ve redondo —la máscara
+    de Android es un círculo y la de iOS una esquina muy abierta—, y lo que
+    va en la esquina del cuadrado se pierde entero. Entre 180 y 205 queda
+    fuera de la pieza y dentro de cualquier máscara."""
+    return "".join('<g transform="translate(%.1f %.1f)%s">%s</g>' % (
+        256 + r * math.cos(math.radians(a)), 256 + r * math.sin(math.radians(a)),
+        " rotate(%d)" % (a + 135) if girar else "", dibujo) for a in angulos)
 
 
 def esquinas(dibujo, m=62):
@@ -73,8 +112,11 @@ def copo(x, y, r, color, w=2.2, op=1):
 # Cada uno devuelve (defs, cuerpo). `p` es su prefijo de id.
 
 def casa(p):
-    # La de siempre (`icon.svg`), para comparar: menta maciza y tinta noche.
-    return "", ('<rect width="512" height="512" fill="#5fe0b0"/>' + iso(p, fill="#131823"))
+    # La de siempre, con los colores al revés que `icon.svg`: la pieza en la
+    # menta de la marca sobre la noche de la app. Lo pidió Eduardo al ver los
+    # diecisiete juntos: con el fondo menta era el único claro y macizo de la
+    # fila, y así el isotipo sale igual que en el menú.
+    return "", ('<rect width="512" height="512" fill="#131823"/>' + iso(p, fill="#5fe0b0"))
 
 
 def talavera(p):
@@ -82,19 +124,17 @@ def talavera(p):
     # Talavera lleva amarillo, y el mundo no lo necesitaba porque no escribe
     # con él). El cobalto de la pieza lleva una veladura clara arriba, que es
     # lo que hace que se lea como vidriado y no como tinta plana.
-    flor = ('<g fill="#1e3f8f">%s</g><circle r="7" fill="#d99a1e"/>' %
-            "".join('<ellipse cx="0" cy="-15" rx="8" ry="14" transform="rotate(%d)"/>' % (k * 90)
-                    for k in range(4)))
-    greca = "".join('<rect x="%d" y="%d" width="12" height="12" fill="#1e3f8f" transform="rotate(45 %d %d)"/>'
-                    % (x, 12, x + 6, 18) for x in range(26, 500, 32))
+    # La greca va en aro, como la cenefa del filo de un plato: en las cuatro
+    # orillas del cuadrado se la comía la máscara redonda.
+    greca = en_aro('<rect x="-6" y="-6" width="12" height="12" fill="#1e3f8f" transform="rotate(45)"/>',
+                   196, range(0, 360, 12), girar=False)
+    puntos = en_aro('<circle r="4" fill="#d99a1e"/>', 196, range(6, 360, 12), girar=False)
     defs = ('<linearGradient id="%s-vid" x1="0" y1="0" x2="0" y2="1">'
             '<stop offset="0" stop-color="#fff" stop-opacity=".38"/>'
             '<stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient>' % p)
     cuerpo = ('<rect width="512" height="512" fill="#f4f1e8"/>'
-              '<rect x="30" y="30" width="452" height="452" rx="14" fill="none" stroke="#1e3f8f" stroke-width="3" opacity=".55"/>'
-              + greca + '<g transform="rotate(180 256 256)">' + greca + '</g>'
-              + '<g transform="rotate(90 256 256)">' + greca + '</g><g transform="rotate(-90 256 256)">' + greca + '</g>'
-              + esquinas(flor, 30)
+              '<circle cx="256" cy="256" r="180" fill="none" stroke="#1e3f8f" stroke-width="2.5" opacity=".5"/>'
+              + greca + puntos
               + iso(p, fill="#1e3f8f") + iso(p, fill="url(#%s-vid)" % p))
     return defs, cuerpo
 
@@ -159,38 +199,30 @@ def cyber(p):
             '<stop offset="1" stop-color="#00e5ff" stop-opacity="0"/></radialGradient>'
             '<pattern id="%s-lin" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="1.5" fill="#fcee0a" opacity=".07"/></pattern>'
             % (p, p, p, p))
-    esq = '<path d="M0 44V0H44" fill="none" stroke="#fcee0a" stroke-width="6"/><path d="M14 58V14" stroke="#fcee0a" stroke-width="2" opacity=".5"/>'
-    regla = "".join('<rect x="%d" y="452" width="3" height="%d" fill="#fcee0a" opacity=".6"/>' % (x, 14 if i % 4 == 0 else 7)
-                    for i, x in enumerate(range(176, 340, 10)))
+    # Las escuadras abrazan la pieza, no el cuadrado: clavadas a la esquina
+    # del icono, la máscara redonda se las llevaba enteras.
+    esq = '<path d="M0 40V0H40" fill="none" stroke="#fcee0a" stroke-width="6"/>'
+    regla = "".join('<rect x="%d" y="416" width="3" height="%d" fill="#fcee0a" opacity=".6"/>' % (x, 14 if i % 4 == 0 else 7)
+                    for i, x in enumerate(range(196, 320, 10)))
     pieza = (iso(p, fill="#ff2e6e", transform="translate(-9 0)", opacity=".9")
              + iso(p, fill="#00e5ff", transform="translate(9 0)", opacity=".9")
              + iso(p, fill="#fcee0a"))
     cuerpo = ('<rect width="512" height="512" fill="#05070c"/>'
               '<rect width="512" height="512" fill="url(#%s-c)"/><rect width="512" height="512" fill="url(#%s-lin)"/>' % (p, p)
-              + esquinas(esq, 40) + regla
+              + esquinas(esq, 106) + regla
               + '<g clip-path="url(#%s-r)">%s</g>' % (p, pieza)
               + '<g clip-path="url(#%s-f)"><g transform="translate(22 0)">%s</g></g>' % (p, pieza))
     return defs, cuerpo
 
 
 def plano(p):
-    # El negativo del plano: retícula de dos pesos, la pieza ACOTADA —línea
-    # de medida arriba y a la derecha.
-    # Es el único que se queda en contorno: nada está terminado.
-    m = L / 2 - 144
+    # El negativo del plano: retícula de dos pesos y la pieza en contorno,
+    # que es el único que se queda así: nada está terminado. Llevaba sus
+    # líneas de medida arriba y a la derecha, y Eduardo las quitó.
     defs = ('<pattern id="%s-r" width="64" height="64" patternUnits="userSpaceOnUse">'
             '<path d="M16 0V64M32 0V64M48 0V64M0 16H64M0 32H64M0 48H64" stroke="#9fd0ff" stroke-width="1" opacity=".13"/>'
-            '<path d="M0 0V64M0 0H64" stroke="#9fd0ff" stroke-width="2" opacity=".28"/></pattern>'
-            '<marker id="%s-fl" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">'
-            '<path d="M0 1L10 5L0 9Z" fill="#9fd0ff"/></marker>' % (p, p))
-    a, b = m, L - m
-    cotas = ('<g stroke="#9fd0ff" stroke-width="2.5" fill="none">'
-             '<path d="M%.1f %.1fV%.1fM%.1f %.1fV%.1f" opacity=".6"/>' % (a, a - 14, a - 58, b, a - 14, a - 58)
-             + '<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" marker-start="url(#%s-fl)" marker-end="url(#%s-fl)"/>' % (a + 2, a - 38, b - 2, a - 38, p, p)
-             + '<path d="M%.1f %.1fH%.1fM%.1f %.1fH%.1f" opacity=".6"/>' % (b + 14, a, b + 58, b + 14, b, b + 58)
-             + '<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" marker-start="url(#%s-fl)" marker-end="url(#%s-fl)"/></g>' % (b + 38, a + 2, b + 38, b - 2, p, p))
+            '<path d="M0 0V64M0 0H64" stroke="#9fd0ff" stroke-width="2" opacity=".28"/></pattern>' % p)
     cuerpo = ('<rect width="512" height="512" fill="#0d2b52"/><rect width="512" height="512" fill="url(#%s-r)"/>' % p
-              + cotas
               + iso(p, fill="#9fd0ff", fill_opacity=".14", stroke="#eaf4ff", stroke_width="%.2f" % (5 * PX), stroke_linejoin="round"))
     return defs, cuerpo
 
@@ -209,8 +241,8 @@ def forja(p):
             % (p, p, p, p, p))
     rem = '<circle r="15" fill="#0d0905" cx="2" cy="3"/><circle r="14" fill="url(#%s-rem)"/>' % p
     cuerpo = ('<rect width="512" height="512" fill="url(#%s-ac)"/><rect width="512" height="512" fill="url(#%s-ce)"/>' % (p, p)
-              + '<rect x="26" y="26" width="460" height="460" fill="none" stroke="#6b5636" stroke-width="3" opacity=".6"/>'
-              + esquinas(rem, 56)
+              + '<circle cx="256" cy="256" r="196" fill="none" stroke="#6b5636" stroke-width="3" opacity=".6"/>'
+              + en_aro(rem, 196, girar=False)
               + iso(p, fill="#ff7a1a", filter="url(#%s-cal)" % p, opacity=".55")
               + '<g transform="translate(0 5)">' + iso(p, fill="#0d0905", opacity=".7") + '</g>'
               + iso(p, fill="url(#%s-rojo)" % p, stroke="#ffd08a", stroke_opacity=".5", stroke_width="%.2f" % (1.5 * PX)))
@@ -230,16 +262,18 @@ def postit(p):
             '<pattern id="%s-co" width="18" height="18" patternUnits="userSpaceOnUse">'
             '<circle cx="4" cy="5" r="1.6" fill="#8a6a3c" opacity=".35"/><circle cx="13" cy="13" r="1.2" fill="#5c4424" opacity=".3"/></pattern>'
             % (p, p, p, p))
-    n0, n1 = 70, 442
+    # La nota cabe entera en el círculo: el doblez de abajo a la derecha es
+    # lo que la hace nota, y en la esquina del icono se lo comía la máscara.
+    n0, n1 = 104, 408
     nota = ('<path d="M%d %dH%dV%dL%d %dH%dZ" fill="url(#%s-n)"/>' % (n0, n0, n1, n1 - 52, n1 - 52, n1, n0, p)
             + '<path d="M%d %dL%d %dQ%d %d %d %dZ" fill="#e0cc5c"/>' % (n1, n1 - 52, n1 - 52, n1, n1 - 40, n1 - 40, n1, n1 - 52))
     cuerpo = ('<rect width="512" height="512" fill="#c9a877"/><rect width="512" height="512" fill="url(#%s-co)"/>' % p
               + '<g transform="rotate(-3 256 256)">'
               + '<rect x="%d" y="%d" width="%d" height="%d" fill="#3a2a10" opacity=".45" filter="url(#%s-som)" transform="translate(6 12)"/>' % (n0, n0, n1 - n0, n1 - n0, p)
               + nota
-              + '<g transform="translate(256 256) scale(.9) translate(-256 -256)" filter="url(#%s-pulso)">' % p
+              + '<g transform="translate(256 256) scale(.8) translate(-256 -256)" filter="url(#%s-pulso)">' % p
               + iso(p, fill="#1f5fa8") + '</g>'
-              + '<rect x="196" y="50" width="120" height="38" fill="#fff" opacity=".5" transform="rotate(4 256 69)"/>'
+              + '<rect x="204" y="86" width="104" height="34" fill="#fff" opacity=".5" transform="rotate(4 256 103)"/>'
               + '</g>')
     return defs, cuerpo
 
@@ -313,11 +347,14 @@ def reliquia(p):
             % (p, p, p, p))
     brillo = lambda x, y, r: '<path transform="translate(%d %d) scale(%.2f)" d="M0 -10L2 -2L10 0L2 2L0 10L-2 2L-10 0L-2 -2Z" fill="#f0d58f"/>' % (x, y, r)
     cuerpo = ('<rect width="512" height="512" fill="url(#%s-t)"/>' % p
-              + '<rect x="34" y="34" width="444" height="444" rx="4" fill="none" stroke="url(#%s-oro)" stroke-width="5"/>' % p
-              + '<rect x="50" y="50" width="412" height="412" rx="4" fill="none" stroke="#8a6d2f" stroke-width="1.5" opacity=".8"/>'
+              # La vitrina era un filete cuadrado a 34 px del borde, y con la
+              # máscara redonda quedaban cuatro trozos de raya sueltos. Ahora
+              # es un medallón: se ve entero en cualquier forma.
+              + '<circle cx="256" cy="256" r="200" fill="none" stroke="url(#%s-oro)" stroke-width="5"/>' % p
+              + '<circle cx="256" cy="256" r="187" fill="none" stroke="#8a6d2f" stroke-width="1.5" opacity=".8"/>'
               + iso(p, fill="#b7a2ea", filter="url(#%s-lu)" % p, opacity=".35")
               + iso(p, fill="url(#%s-l)" % p, stroke="url(#%s-oro)" % p, stroke_width="%.2f" % (5 * PX), paint_order="stroke")
-              + brillo(380, 118, 1.6) + brillo(132, 398, 1.1) + brillo(404, 382, .8))
+              + brillo(376, 104, 1.5) + brillo(128, 404, 1.1) + brillo(408, 380, .8))
     return defs, cuerpo
 
 
@@ -355,12 +392,15 @@ def averno(p):
     d = lado * ESC * .28
     defs = ('<radialGradient id="%s-br" cx=".5" cy="1.15" r=".85"><stop offset="0" stop-color="#b3121f" stop-opacity=".85"/>'
             '<stop offset=".5" stop-color="#7a0f1c" stop-opacity=".35"/><stop offset="1" stop-color="#7a0f1c" stop-opacity="0"/></radialGradient>' % p)
-    c = 60
-    placa = 'M%d 26H%dL486 %dV%dL%d 486H%dL26 %dV%dZ' % (26 + c, 486 - c, 26 + c, 486 - c, 486 - c, 26 + c, 486 - c, 26 + c)
+    # Octógono inscrito en un círculo de 200: con el corte a 45° en las
+    # esquinas del cuadrado (y luego a 228), la máscara redonda le mordía
+    # los chaflanes. A 200 se ve entero hasta en la máscara más cerrada.
+    placa = "M" + "L".join("%.1f %.1f" % (256 + 200 * math.cos(math.radians(22.5 + k * 45)),
+                                           256 + 200 * math.sin(math.radians(22.5 + k * 45))) for k in range(8)) + "Z"
     brasas = "".join('<rect x="%d" y="%d" width="8" height="8" fill="#ff8a3d" opacity="%.2f"/>' % (x, y, o)
-                     for x, y, o in [(96, 420, .8), (140, 452, .5), (400, 430, .7), (360, 462, .45), (430, 398, .35), (70, 380, .3)])
+                     for x, y, o in [(150, 392, .8), (182, 416, .5), (356, 398, .7), (320, 420, .45), (384, 364, .35), (132, 360, .3)])
     cuerpo = ('<rect width="512" height="512" fill="#060506"/><rect width="512" height="512" fill="url(#%s-br)"/>' % p
-              + '<path d="%s" fill="#100d0e" stroke="#3d3537" stroke-width="10"/>' % placa
+              + '<path d="%s" fill="#100d0e" stroke="#3d3537" stroke-width="8"/>' % placa
               + '<path d="%s" fill="none" stroke="#efe9e3" stroke-width="2" opacity=".22" transform="translate(256 256) scale(.955) translate(-256 -256)"/>' % placa
               + brasas
               + '<g transform="translate(%.2f %.2f)">%s</g>' % (d, d, som)
@@ -370,17 +410,34 @@ def averno(p):
 
 
 def ventisca(p):
-    # Frío con una hoguera: hielo arriba y la luz de la lumbre abajo, que
-    # también le calienta el canto inferior a la pieza.
-    defs = ('<radialGradient id="%s-f" cx=".5" cy="1.12" r="1.05"><stop offset="0" stop-color="#8a4a14"/>'
-            '<stop offset=".48" stop-color="#17222c"/><stop offset="1" stop-color="#0d151d"/></radialGradient>'
+    # Frío con una hoguera, y el frío es VIENTO: la nieve cruza el icono en
+    # rachas inclinadas, gruesas y largas, que es lo que se sigue leyendo a
+    # 40 px. La primera versión llevaba copos sueltos, y a tamaño de icono
+    # eran motas que no se distinguían de ruido. Abajo, la loma de nieve y
+    # la lumbre detrás, que también le calienta el canto inferior a la pieza.
+    defs = ('<linearGradient id="%s-f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1a28"/>'
+            '<stop offset=".62" stop-color="#1a2c3b"/><stop offset="1" stop-color="#2a2a2c"/></linearGradient>'
+            '<radialGradient id="%s-lum" cx=".5" cy="1" r=".55"><stop offset="0" stop-color="#ff9a3c" stop-opacity=".75"/>'
+            '<stop offset=".45" stop-color="#b8561a" stop-opacity=".3"/><stop offset="1" stop-color="#b8561a" stop-opacity="0"/></radialGradient>'
             '<linearGradient id="%s-hi" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="#f4fbff"/>'
             '<stop offset=".45" stop-color="#8fd4ff"/><stop offset="1" stop-color="#4c8fc2"/></linearGradient>'
             '<linearGradient id="%s-lu" x1="0" y1="0" x2="0" y2="1"><stop offset=".6" stop-color="#ff9a3c" stop-opacity="0"/>'
-            '<stop offset="1" stop-color="#ff9a3c" stop-opacity=".6"/></linearGradient>' % (p, p, p))
-    copos = "".join(copo(x, y, r, "#eaf5fc", 2.4, o) for x, y, r, o in
-                    [(78, 84, 22, .55), (430, 70, 16, .4), (452, 196, 11, .35), (60, 250, 12, .3), (120, 170, 8, .3), (380, 128, 9, .3)])
-    cuerpo = ('<rect width="512" height="512" fill="url(#%s-f)"/>' % p + copos
+            '<stop offset="1" stop-color="#ff9a3c" stop-opacity=".6"/></linearGradient>' % (p, p, p, p))
+    # Las rachas, con una semilla fija: el mismo icono cada vez que se genere.
+    semilla, rachas = 7, []
+    def azar():
+        nonlocal semilla
+        semilla = (semilla * 1103515245 + 12345) % 2 ** 31
+        return semilla / 2 ** 31
+    for k in range(26):
+        x, y = azar() * 620 - 80, azar() * 470 - 30
+        largo, grueso, op = 50 + azar() * 110, 3 + azar() * 4, .18 + azar() * .32
+        rachas.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke-width="%.1f" opacity="%.2f"/>'
+                      % (x, y, x + largo, y + largo * .32, grueso, op))
+    cuerpo = ('<rect width="512" height="512" fill="url(#%s-f)"/>' % p
+              + '<rect width="512" height="512" fill="url(#%s-lum)"/>' % p
+              + '<path d="M0 452Q128 404 256 430T512 418V512H0Z" fill="#d7e9f5" opacity=".22"/>'
+              + '<g stroke="#eaf5fc" stroke-linecap="round">' + "".join(rachas) + '</g>'
               + iso(p, fill="url(#%s-hi)" % p, stroke="#f4fbff", stroke_opacity=".6", stroke_width="%.2f" % (1.5 * PX))
               + iso(p, fill="url(#%s-lu)" % p))
     return defs, cuerpo
@@ -399,7 +456,7 @@ def bastion(p):
              '<path d="M-8 0H8" stroke="#141a20" stroke-width="3.5" stroke-linecap="round" transform="rotate(35)"/>' % p)
     juntas = ('<path d="M0 118H512M0 394H512" stroke="#0a0e12" stroke-width="4"/>'
               '<path d="M0 121H512M0 397H512" stroke="#3c4854" stroke-width="1.5" opacity=".8"/>')
-    cuerpo = ('<rect width="512" height="512" fill="url(#%s-pl)"/>' % p + juntas + esquinas(perno, 52)
+    cuerpo = ('<rect width="512" height="512" fill="url(#%s-pl)"/>' % p + juntas + en_aro(perno, 198, girar=False)
               + '<g transform="translate(0 7)">' + iso(p, fill="#06090c", opacity=".85") + '</g>'
               + '<g transform="translate(0 -3)">' + iso(p, fill="#a9dcff", opacity=".7") + '</g>'
               + iso(p, fill="url(#%s-az)" % p))
@@ -415,9 +472,9 @@ def arcade(p):
     som, _ = pixel(16, p, fill="#0b2e24")
     d = lado * ESC * .3
     estrellas = "".join('<rect x="%d" y="%d" width="%d" height="%d" fill="%s"/>' % (x, y, s, s, c)
-                        for x, y, s, c in [(60, 72, 8, "#f5d76e"), (440, 96, 8, "#8ecdf5"), (96, 430, 8, "#ff8a70"),
-                                           (416, 424, 8, "#5fe0b0"), (132, 128, 4, "#e8eef5"), (380, 160, 4, "#e8eef5"),
-                                           (452, 300, 4, "#e8eef5"), (48, 300, 4, "#e8eef5"), (300, 470, 4, "#e8eef5")])
+                        for x, y, s, c in [(104, 112, 8, "#f5d76e"), (400, 100, 8, "#8ecdf5"), (112, 396, 8, "#ff8a70"),
+                                           (396, 404, 8, "#5fe0b0"), (160, 70, 4, "#e8eef5"), (440, 200, 4, "#e8eef5"),
+                                           (430, 330, 4, "#e8eef5"), (70, 300, 4, "#e8eef5"), (300, 450, 4, "#e8eef5")])
     defs = ('<pattern id="%s-lin" width="6" height="6" patternUnits="userSpaceOnUse">'
             '<rect width="6" height="2" fill="#000" opacity=".16"/></pattern>' % p)
     cuerpo = ('<rect width="512" height="512" fill="#10151d"/>' + estrellas
@@ -464,9 +521,7 @@ def isl(p, **a):
 def lpixel(n, p, dx=0, dy=0, **a):
     lado, cs = isotipo.celdas(n)
     extra = " ".join('%s="%s"' % (k.rstrip("_").replace("_", "-"), v) for k, v in a.items())
-    r = "".join('<rect x="%.2f" y="%.2f" width="%.2f" height="%.2f"/>' %
-                (X0 + c * lado, Y0 + f * lado, lado + .05, lado + .05) for c, f in cs)
-    return '<g transform="translate(%.2f %.2f) %s" %s>%s</g>' % (dx, dy, LPOS, extra, r)
+    return '<g transform="translate(%.2f %.2f) %s" %s>%s</g>' % (dx, dy, LPOS, extra, _tiras(cs, lado))
 
 
 def _grad(p, n, paradas, x2=0, y2=1):

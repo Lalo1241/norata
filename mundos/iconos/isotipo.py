@@ -63,18 +63,59 @@ def dentro(px, py, polys):
     return n
 
 
+def _cortes():
+    """Las coordenadas donde el isotipo tiene una pared recta. Son las mismas
+    en x y en y, y simétricas alrededor del centro. La pieza girada media
+    vuelta NO es igual —dos esquinas son más redondas que sus opuestas—, pero
+    sus paredes sí caen en los mismos sitios."""
+    xs = set()
+    for poly in contornos(pasos=1):
+        for (x1, y1), (x2, y2) in zip(poly, poly[1:] + poly[:1]):
+            if abs(x1 - x2) < 1e-6 and abs(y1 - y2) > 5: xs.add(round(x1, 2))
+            if abs(y1 - y2) < 1e-6 and abs(x1 - x2) > 5: xs.add(round(y1, 2))
+    return sorted(xs)
+
+
 def celdas(n):
-    """Las celdas de una cuadrícula de n×n (sobre la caja) que el isotipo
-    cubre, mirando el centro de cada una."""
-    polys = contornos()
+    """El isotipo pixelado en unas n×n celdas: (lado, [(col, fila)…]).
+
+    No se muestrea sobre una cuadrícula uniforme, y eso es lo que lo deja
+    derecho. Las paredes de la pieza no caen en múltiplos de ningún lado de
+    celda, así que una cuadrícula igual para todo redondeaba unas paredes
+    hacia fuera y otras hacia dentro: el brazo izquierdo salía de tres
+    celdas y el derecho de dos, y la figura se veía torcida (Arcade, primera
+    tanda). Aquí cada tramo entre dos paredes recibe su propio número de
+    celdas —redondeado, nunca cero, y el mismo para los tramos que miden lo
+    mismo—, y la pieza se deforma por tramos para caer en esa rejilla antes
+    de muestrearla. Todas las paredes de 30 unidades salen del mismo grueso."""
     x0, y0, x1, y1 = caja()
-    lado = max(x1 - x0, y1 - y0) / n
-    return lado, [(c, f) for f in range(n) for c in range(n)
+    ks = _cortes()
+    u = (x1 - x0) / n
+    tramos = [max(1, round((b - a) / u)) for a, b in zip(ks, ks[1:])]
+    # Simétrico a la fuerza: la segunda mitad copia la primera, al revés.
+    m = len(tramos)
+    for k in range(m // 2):
+        tramos[m - 1 - k] = tramos[k]
+    total = sum(tramos)
+    lado = (x1 - x0) / total
+    borde = [0]
+    for t in tramos:
+        borde.append(borde[-1] + t)
+
+    def mapa(v):
+        for k in range(len(ks) - 1):
+            if v <= ks[k + 1] or k == len(ks) - 2:
+                a, b = ks[k], ks[k + 1]
+                return x0 + (borde[k] + (v - a) / (b - a) * tramos[k]) * lado
+    polys = [[(mapa(x), mapa(y)) for x, y in p] for p in contornos(pasos=24)]
+    return lado, [(c, f) for f in range(total) for c in range(total)
                   if dentro(x0 + (c + .5) * lado, y0 + (f + .5) * lado, polys)]
 
 if __name__ == "__main__":
     print(caja())
-    lado, cs = celdas(22)
-    s = set(cs)
-    for f in range(22):
-        print("".join("█" if (c, f) in s else "·" for c in range(22)))
+    for n in (12, 16, 22):
+        lado, cs = celdas(n)
+        s, t = set(cs), round((caja()[2] - caja()[0]) / lado)
+        print(n, "->", t)
+        for f in range(t):
+            print("".join("█" if (c, f) in s else "·" for c in range(t)))
