@@ -1269,10 +1269,12 @@ function escenaDoc(id) {
    encontraba nada y el modo día no llegaba adentro. Ningún error, ninguna
    pista: el preview simplemente se quedaba de noche. */
 function sincronizarVistas() {
-  const f = document.getElementById("ap-vista");
-  const d = f && f.contentDocument;
-  if (!d || !d.documentElement) return;
-  d.documentElement.classList.toggle("claro", document.documentElement.classList.contains("claro"));
+  ["ap-vista", "ap-boton"].forEach(idMarco => {
+    const f = document.getElementById(idMarco);
+    const d = f && f.contentDocument;
+    if (!d || !d.documentElement) return;
+    d.documentElement.classList.toggle("claro", document.documentElement.classList.contains("claro"));
+  });
 }
 
 new MutationObserver(sincronizarVistas)
@@ -1416,15 +1418,19 @@ function pintarFicha(id) {
           va en lila, y un botón menta que dice «Ver Norata Fundador» lo pinta
           del color del otro plan. El nivel del botón es el mismo —es la única
           acción de la ficha cuando está cerrada—; lo que cambia es el tinte. */
-       (e.accion ? `<button type="button" class="btn btn-block ap-btn ${e.clase === "fundador" ? "btn-fundador" : "btn-primary"}" onclick="aparienciaAPagar()">${e.accion.insignia ? icon(e.accion.insignia, 16) : ""}<span>${escapeHtml(e.accion.texto)}</span></button>` : "")
+       ""
     /* «Aplicar» y no «Ponérmelo», que es lo que decía y lo paró Eduardo. La app
        tutea y habla cerca, pero un botón no es una frase: «Ponérmelo» le pone
        voz de primera persona a algo que solo tiene que decir qué hace, y encima
        suena a ropa. «Aplicar» es lo que hace y se lee igual para un recolor que
        para un mundo. */
-    : (puesta
-        ? `<p class="ap-yaesta">${icon("check", 15)}<span>${tx("Es la que llevas puesta.")}</span></p>`
-        : `<button type="button" class="btn btn-primary btn-block" onclick="elegirApariencia('${id}')">${tx("Aplicar")}</button>`);
+    : (puesta ? `<p class="ap-yaesta">${icon("check", 15)}<span>${tx("Es la que llevas puesta.")}</span></p>` : "");
+  /* El botón va en su propio marco, vestido con el mundo que se MIRA (ver
+     `pintarBoton`). Los `onclick` llaman a `parent`: el marco es de este mismo
+     origen y la función vive aquí. */
+  const boton = !e.ok
+    ? (e.accion ? `<button type="button" class="btn btn-block ap-btn ${e.clase === "fundador" ? "btn-fundador" : "btn-primary"}" onclick="parent.aparienciaAPagar()">${e.accion.insignia ? icon(e.accion.insignia, 16) : ""}<span>${escapeHtml(e.accion.texto)}</span></button>` : "")
+    : (puesta ? "" : `<button type="button" class="btn btn-primary btn-block" onclick="parent.elegirApariencia('${id}')">${tx("Aplicar")}</button>`);
 
   /* El nombre y las cápsulas arriba en su renglón, y la premisa ENTERA debajo.
      Los tres iban en la misma fila y en un teléfono la cápsula larga dejaba la
@@ -1440,6 +1446,79 @@ function pintarFicha(id) {
     <p class="ap-premisa">${escapeHtml(premisa)}</p>
     ${rangos}
     ${abajo}`;
+  pintarBoton(id, boton);
+}
+
+/* ---- El botón, con la cara del mundo que se mira (0.7.147.11) ----
+   Eduardo: «que el botón se vea idéntico al mundo que le corresponda, en lugar
+   de seguir reciclando el del tema actual». La tarjeta ya copia las VARIABLES
+   del mundo mirado (`vestirVentana`), pero la forma de un botón no es una
+   variable: el escalonado de Averno o el vitral de Catedral son reglas atadas
+   a `html[data-apariencia]`, y en la página esas son las del mundo PUESTO.
+   Imitarlas a mano por mundo —lo que se intentó con `#ap-escena[data-mundo]`—
+   se queda en «parecido» y hay que repetirlo con cada mundo nuevo.
+
+   Así que el botón se pinta como la vista de arriba: dentro de un marco cuyo
+   `<html>` lleva el mundo mirado. Sale idéntico por construcción, en todos los
+   mundos que existen y en los que vengan. El marco es uno y se reutiliza —
+   rehacerlo a cada vistazo volvería a pedir las hojas y el botón parpadearía—. */
+const BOTON_CSS = `
+  html, body { background: transparent !important; }
+  html::before, html::after, body::before, body::after { display: none !important; }
+  body { margin: 0; min-height: 0; padding: 12px 14px 14px; overflow: hidden; }
+  * { transition: none !important; animation: none !important; }`;
+function botonDoc(id, html) {
+  const claro = document.documentElement.classList.contains("claro");
+  const pal = id && id !== "casa" ? paletaDe(id) : null;
+  const attr = (id && id !== "casa" ? ` data-apariencia="${id}"` : "") + (pal ? ` data-paleta="${pal}"` : "") + (claro ? ' class="claro"' : "");
+  const mundos = direccionDeLosMundos();
+  return `<!doctype html><html lang="${escapeAttr(document.documentElement.lang || "es")}"${attr}><head><meta charset="utf-8">` +
+    `<meta name="viewport" content="width=device-width,initial-scale=1">` +
+    `<link rel="stylesheet" href="css/fuente.css">` +
+    `<link rel="stylesheet" href="css/estilos.css">` +
+    `<link rel="stylesheet" href="css/ambientes.css">` +
+    (mundos ? `<link rel="stylesheet" href="${mundos}">` : "") +
+    `<style>${BOTON_CSS}</style></head><body>${html}</body></html>`;
+}
+function ajustarBoton() {
+  const marco = document.getElementById("ap-boton");
+  const doc = marco && marco.contentDocument;
+  const b = doc && doc.body && doc.body.firstElementChild;
+  if (!b) return;
+  /* Escondido (el panel de Ajustes cerrado) todo mide cero: se deja el alto
+     que traía y se vuelve a medir cuando el marco cobra ancho (abajo). */
+  const abajo = b.getBoundingClientRect().bottom;
+  if (abajo > 0) marco.style.height = Math.ceil(abajo + 14) + "px";
+}
+let botonObservado = false;
+function pintarBoton(id, html) {
+  const marco = document.getElementById("ap-boton");
+  const ficha = document.getElementById("ap-ficha");
+  if (!marco) return;
+  if (!botonObservado && typeof ResizeObserver === "function") {
+    new ResizeObserver(ajustarBoton).observe(marco);
+    botonObservado = true;
+  }
+  marco.hidden = !html;
+  if (ficha) ficha.classList.toggle("con-boton", !!html);
+  if (!html) return;
+  const doc = marco.contentDocument;
+  const faltaMundos = !!direccionDeLosMundos() &&
+    !!(doc && !doc.querySelector('link[href^="css/mundos.css"]'));
+  if (!doc || !doc.body || !doc.querySelector("style") || faltaMundos) {
+    marco.addEventListener("load", ajustarBoton, { once: true });
+    marco.srcdoc = botonDoc(id, html);
+    return;
+  }
+  const raiz = doc.documentElement;
+  if (id && id !== "casa") raiz.setAttribute("data-apariencia", id);
+  else raiz.removeAttribute("data-apariencia");
+  const pal = id && id !== "casa" ? paletaDe(id) : null;
+  if (pal) raiz.setAttribute("data-paleta", pal);
+  else raiz.removeAttribute("data-paleta");
+  raiz.classList.toggle("claro", document.documentElement.classList.contains("claro"));
+  doc.body.innerHTML = html;
+  ajustarBoton();
 }
 
 /* Mirar no es ponerse. No guarda nada, no recarga y funciona igual con lo
@@ -1605,6 +1684,7 @@ function renderPanelApariencia() {
       <div class="ap-escena" id="ap-escena">
         <div class="ap-marco"><iframe id="ap-vista" title="${escapeAttr(tx("Vista previa de la apariencia"))}" scrolling="no" tabindex="-1" aria-hidden="true"></iframe></div>
         <div class="ap-ficha" id="ap-ficha"></div>
+        <iframe class="ap-boton" id="ap-boton" title="${escapeAttr(tx("Aplicar"))}" scrolling="no" hidden></iframe>
       </div>
       <h3 class="amb-h2" id="ap-amb-tit">${tx("Ambientes")}</h3>
       <p class="settings-note" id="ap-amb-nota">${tx("El mismo Norata con otra luz. Se van desbloqueando conforme avanzas, y el modo de día y de noche sigue arriba: cada ambiente tiene sus dos caras.")}</p>

@@ -247,6 +247,27 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.147.11 · 30 sep 2026
+
+**En Mi apariencia, el botón lleva la cara del mundo que miras.** Lo pidió
+Eduardo: con Averno puesto y mirando la Casa, «Aplicar» salía con el escalonado
+de Averno. La tarjeta ya copiaba los colores del mundo mirado, pero la forma de
+un botón no es un color: son reglas atadas a `html[data-apariencia]`, que en la
+página son las del mundo PUESTO. Imitarlas a mano por mundo
+(`#ap-escena[data-mundo]`) se quedaba en «parecido».
+
+- **El botón va en su propio marco** (`#ap-boton`, `pintarBoton` en
+  `js/10i-apariencia.js`), como la vista de arriba: su `<html>` lleva el mundo,
+  la paleta y el modo que se miran. Sale idéntico por construcción, en todos los
+  mundos y ambientes, y en los que vengan. Vale para «Aplicar» y para «Ver
+  Norata Pro/Fundador».
+- El marco es uno y se reutiliza, para que no parpadee a cada vistazo; se mide
+  solo cuando cobra ancho (con Ajustes cerrado mide cero), y sigue al modo día.
+- Comprobado contra un documento con ese mundo puesto de verdad: forma, radio,
+  relleno y letra, iguales en Casa, Blueprint, Reliquia, Averno, Catedral y
+  Tinta. Fondo transparente, sin desborde en teléfono, y el clic llega a
+  `elegirApariencia`.
+
 ### 0.7.147.10 · 30 sep 2026
 
 **El Pomodoro llega por nivel, los iconos del menú se visten con el mundo, y

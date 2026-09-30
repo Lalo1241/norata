@@ -2091,6 +2091,10 @@
     pointer-events: none;
   }
   .ap-ficha { padding: 12px 14px 14px; border-top: 1px solid var(--line); }
+  /* Con el botón en su marco (`pintarBoton`), el aire de abajo lo pone el marco */
+  .ap-ficha.con-boton { padding-bottom: 0; }
+  .ap-boton { display: block; width: 100%; height: 62px; border: 0; background: transparent; }
+  .ap-boton[hidden] { display: none; }
 
   /* ---------- Las cápsulas del candado ----------
      Tres colores porque son tres candados distintos, y hasta la 0.7.64 iban las
