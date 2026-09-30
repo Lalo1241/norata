@@ -247,6 +247,13 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.148.8 · 30 sep 2026
+
+**El cuerpo del aviso de reinicio del APK, en palabras de Eduardo:** «Para
+terminar de mudarnos al nuevo mundo que elegiste, la aplicación necesita
+reiniciarse un instante y aplicar todos los ajustes correctamente.» (con su
+inglés). Sustituye al de la 0.7.148.7; lo demás del aviso no cambia.
+
 ### 0.7.148.7 · 30 sep 2026
 
 **El aviso de antes de reiniciar el APK dice lo que pasa, con el isotipo liso

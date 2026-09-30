@@ -2057,7 +2057,7 @@ function avisarRenacer() {
       '<circle class="lleno" id="renace-lleno" cx="50" cy="50" r="' + r + '" stroke-dasharray="' + vuelta.toFixed(2) + '" stroke-dashoffset="0"/></svg>' +
       '<span class="renace-pieza">' + iso + '</span>' +
     '</span>' +
-    '<span class="renace-tx">' + escapeHtml(tx("Para terminar de realizar los ajustes con el nuevo mundo, la app necesita reiniciarse un instante para aplicar todos los ajustes correctamente.")) + '</span>' +
+    '<span class="renace-tx">' + escapeHtml(tx("Para terminar de mudarnos al nuevo mundo que elegiste, la aplicación necesita reiniciarse un instante y aplicar todos los ajustes correctamente.")) + '</span>' +
     '<span class="renace-cuenta" id="renace-cuenta"></span>';
   let listo = false, reloj = null, fotograma = 0;
   const fin = new Promise((resolver) => {

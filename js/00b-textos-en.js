@@ -2358,7 +2358,7 @@ const TEXTOS_EN = {
   "Cambiando tema…": "Changing theme…",
   "Reiniciando…": "Restarting…",
   "Norata necesita reiniciarse": "Norata needs to restart",
-  "Para terminar de realizar los ajustes con el nuevo mundo, la app necesita reiniciarse un instante para aplicar todos los ajustes correctamente.": "To finish setting up the new world, the app needs to restart for a moment so every change is applied correctly.",
+  "Para terminar de mudarnos al nuevo mundo que elegiste, la aplicación necesita reiniciarse un instante y aplicar todos los ajustes correctamente.": "To finish moving into the new world you picked, the app needs to restart for a moment and apply every change correctly.",
   "Reiniciar ahora": "Restart now",
   "Se cierra en {0}": "Closes in {0}",
   "dentro de unos días": "in a few days",
