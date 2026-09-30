@@ -18,8 +18,8 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.jakewharton.processphoenix.ProcessPhoenix;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /* El icono de la pantalla de inicio, uno por mundo (0.7.144).
 
@@ -35,7 +35,10 @@ import java.util.List;
      justo ahí da la app por desinstalada y quita su acceso directo.
    - **Las entradas se DESCUBREN, no se listan aquí.** Se leen del propio
      paquete (todas las que se llaman `.Icono_*`), así que un icono nuevo solo
-     se añade en el manifiesto y en `res/`, y este archivo no se toca.
+     se añade en el manifiesto y en `res/`, y este archivo no se toca. Y se
+     usa el nombre COMPLETO que devuelve Android, no el paquete de la app más
+     `.Icono_x`: si el `applicationId` no es igual al paquete del código, ese
+     nombre armado a mano no existe y el cambio no hace nada.
    - **El reinicio es con ProcessPhoenix y no con `System.exit` ni una
      alarma.** Matar el proceso después de abrir la actividad nueva la mata a
      ella también (es el mismo proceso), y desde Android 10 una alarma no
@@ -46,39 +49,34 @@ public class IconoPlugin extends Plugin {
 
     private static final String PREFIJO = ".Icono_";
 
-    /** Todas las entradas de icono que trae el APK, por su id («casa», «plano»…). */
-    private List<String> iconos() {
+    /** Las entradas de icono que trae el APK: id («casa», «plano»…) → nombre completo. */
+    private Map<String, String> iconos() {
         Context ctx = getContext();
-        List<String> ids = new ArrayList<>();
+        Map<String, String> ids = new LinkedHashMap<>();
         try {
             PackageInfo info = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(),
                     PackageManager.GET_ACTIVITIES | PackageManager.MATCH_DISABLED_COMPONENTS);
             if (info.activities != null) {
                 for (ActivityInfo a : info.activities) {
                     int i = a.name.lastIndexOf(PREFIJO);
-                    if (i >= 0) ids.add(a.name.substring(i + PREFIJO.length()));
+                    if (i >= 0) ids.put(a.name.substring(i + PREFIJO.length()), a.name);
                 }
             }
         } catch (PackageManager.NameNotFoundException e) { /* no pasa: es nuestro propio paquete */ }
         return ids;
     }
 
-    private ComponentName componente(String id) {
-        Context ctx = getContext();
-        return new ComponentName(ctx.getPackageName(), ctx.getPackageName() + PREFIJO + id);
+    private ComponentName componente(Map<String, String> ids, String id) {
+        return new ComponentName(getContext().getPackageName(), ids.get(id));
     }
 
     /** La que está encendida ahora. Sin tocar nunca, vale lo del manifiesto:
         la casa nace encendida y las demás apagadas. */
-    private String encendido(List<String> ids) {
+    private String encendido(Map<String, String> ids) {
         PackageManager pm = getContext().getPackageManager();
-        for (String id : ids) {
-            int e = pm.getComponentEnabledSetting(componente(id));
+        for (String id : ids.keySet()) {
+            int e = pm.getComponentEnabledSetting(componente(ids, id));
             if (e == PackageManager.COMPONENT_ENABLED_STATE_ENABLED) return id;
-        }
-        for (String id : ids) {
-            int e = pm.getComponentEnabledSetting(componente(id));
-            if (e == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT && "casa".equals(id)) return id;
         }
         return "casa";
     }
@@ -97,19 +95,19 @@ public class IconoPlugin extends Plugin {
     public void poner(PluginCall call) {
         final String id = call.getString("icono", "casa");
         final boolean reiniciar = Boolean.TRUE.equals(call.getBoolean("reiniciar", false));
-        List<String> ids = iconos();
+        final Map<String, String> ids = iconos();
         JSObject r = new JSObject();
-        if (!ids.contains(id) || id.equals(encendido(ids))) {
+        if (!ids.containsKey(id) || id.equals(encendido(ids))) {
             r.put("cambiado", false);
             call.resolve(r);
             return;
         }
         PackageManager pm = getContext().getPackageManager();
-        pm.setComponentEnabledSetting(componente(id),
+        pm.setComponentEnabledSetting(componente(ids, id),
                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-        for (String otro : ids) {
+        for (String otro : ids.keySet()) {
             if (otro.equals(id)) continue;
-            pm.setComponentEnabledSetting(componente(otro),
+            pm.setComponentEnabledSetting(componente(ids, otro),
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         }
         r.put("cambiado", true);
@@ -122,7 +120,7 @@ public class IconoPlugin extends Plugin {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             Intent abrir = new Intent(Intent.ACTION_MAIN);
             abrir.addCategory(Intent.CATEGORY_LAUNCHER);
-            abrir.setComponent(componente(id));
+            abrir.setComponent(componente(ids, id));
             abrir.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             ProcessPhoenix.triggerRebirth(getContext(), abrir);
         }, 300);

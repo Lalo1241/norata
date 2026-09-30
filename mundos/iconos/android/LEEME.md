@@ -15,18 +15,45 @@ nativo no llega solo**: hay que copiarlo a la carpeta «Norata App Android» y
 reinstalar el APK UNA vez. Mientras no se haga, la app cambia de mundo como
 siempre y el icono se queda en el de la casa.
 
+## La forma fácil: un comando
+
+`instalar-iconos.js` hace los seis pasos de abajo solo, sin abrir un archivo.
+
+1. Baja `instalar-iconos.js` y déjalo dentro de la carpeta «Norata App
+   Android» (la que tiene la carpeta `android/` adentro).
+2. Abre una terminal en esa carpeta (en Android Studio, la pestaña
+   **Terminal** de abajo ya se abre ahí) y escribe:
+
+   ```sh
+   node instalar-iconos.js
+   ```
+
+   Baja los iconos de GitHub, pone el complemento, lo registra, arregla el
+   manifiesto y añade la dependencia. Va diciendo cada cosa con una ✓.
+3. En Android Studio: el botón del elefante (**Sync Project with Gradle
+   Files**) y luego el triángulo verde ▶ (**Run**) con el teléfono conectado.
+
+Se puede correr dos veces: lo que ya está hecho se lo salta. Antes de editar
+guarda una copia de cada archivo (`.antes-iconos`), y
+`node instalar-iconos.js --deshacer` deja el proyecto como estaba.
+
+Si algún paso no le cuadra (un `MainActivity` con una forma rara), se para
+y dice qué línea poner a mano; no adivina.
+
 ## Qué hay aquí
 
 | Archivo | Adónde va |
 | --- | --- |
+| `instalar-iconos.js` | lo de arriba: hace todo lo de esta tabla |
 | `res/` (todo) | `android/app/src/main/res/`, **sumándolo** a lo que ya hay |
 | `IconoPlugin.java` | junto a `MainActivity.java` |
 | `manifiesto-iconos.xml` | dentro de `AndroidManifest.xml` (paso 4) |
+| `archivos.json` | la lista de `res/`, para que el instalador sepa qué bajar |
 
 Todo lo genera `node mundos/iconos/android.js`, después de
 `python mundos/iconos/generar.py`. No se edita a mano.
 
-## Los pasos
+## Los pasos a mano (lo mismo que hace el instalador)
 
 1. **Copia `res/`** encima de `android/app/src/main/res/`. Son carpetas
    `mipmap-*`, `drawable` y `values` con archivos nuevos (`icono_*`,

@@ -108,5 +108,15 @@ const ISO = fs.readFileSync(path.join(AQUI, "..", "..", "marca", "isotipo-menta.
     `            <intent-filter>\n                <action android:name="android.intent.action.MAIN" />\n                <category android:name="android.intent.category.LAUNCHER" />\n            </intent-filter>\n        </activity-alias>`).join("\n");
   fs.writeFileSync(path.join(AQUI, "android", "manifiesto-iconos.xml"),
     `<!-- Generado por mundos/iconos/android.js. Va DENTRO de <application>, DESPUÉS\n     de la <activity> de MainActivity (un alias tiene que ir detrás de la\n     actividad a la que apunta). Ver LEEME.md. -->\n` + alias + "\n");
+  // La lista de lo que hay en `res/`, para que `instalar-iconos.js` sepa qué
+  // bajar cuando se corre suelto, lejos de este repositorio.
+  const lista = [];
+  (function recorrer(dir, rel) {
+    for (const f of fs.readdirSync(dir).sort()) {
+      const p = path.join(dir, f), r = rel ? rel + "/" + f : f;
+      if (fs.statSync(p).isDirectory()) recorrer(p, r); else lista.push(r);
+    }
+  })(RES, "");
+  fs.writeFileSync(path.join(AQUI, "android", "archivos.json"), JSON.stringify(lista, null, 1) + "\n");
   console.log(`${ids.length} iconos para Android`);
 })();
