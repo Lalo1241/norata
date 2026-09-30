@@ -247,6 +247,33 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.147.6 · 30 sep 2026
+
+**El Pomodoro llega por nivel, y los iconos del menú se visten con el mundo.**
+Las dos las pidió Eduardo mirando Ajustes con Averno puesto.
+
+- **Pomodoro en el nivel 4** (`MODULO_NIVEL`), entre Ramas (3) y las ramas de
+  proyecto (5): lleva candado en el menú, el aviso al tocarlo, su peldaño en la
+  escalera, su fila cerrada en Mis módulos y en el informe, y su tarjeta de
+  presentación al entrar la primera vez (`TUTO_PASOS`). El 4 es elección mía;
+  se cambia en esa tabla y nada más.
+- **El nivel solo abre**: `moduloConCosas("jornada")` NO mira `state.jornada`,
+  que `jPaso` sembraba cada cuarto de segundo para todo el que tuviera el
+  módulo encendido. Mira un tramo apuntado, uno corriendo o el modo dormir.
+  `jornadaEncendida()` pasa a `moduloUsable`: con candado no corre el reloj ni
+  sale la píldora.
+- **Los iconos del menú en un mundo.** El lila de Fundador y el amarillo de
+  «Norata por dentro» eran de la casa y dentro de un mundo se leían como de
+  otra app. Ahora Fundador toma el acento del mundo y la trastienda su tinta
+  secundaria (clase nueva `t-trastienda`, que en la casa se ve igual que
+  `t-oro`). El oro del plan que se acaba y el coral del impago se quedan: son
+  avisos. Lo genera un bloque común de `mundos/app.py` para todos los mundos.
+- **La forma, del material**: rombo en Averno y esquina cortada en Catedral,
+  para `.aj-ic` y `.mm-ic`. En Averno el rombo no se llena al pasar el ratón,
+  así que el dibujo conserva su tono.
+- Medido: la casa sale idéntica; en Averno, Catedral, Blueprint y Reliquia las
+  tres filas (normal, Fundador, trastienda) salen con los tonos del mundo.
+
 ### 0.7.147.5 · 30 sep 2026
 
 **La ventana de vuelta tras una ausencia sale por fin.** Lo que se apuntó de
