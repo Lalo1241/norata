@@ -247,6 +247,34 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.143.3 · 29 sep 2026
+
+**El astrolabio de Reliquia, centrado y con los días que ya cuentan
+encendidos.** Lo pidió Eduardo viéndolo en vivo:
+
+- **Centrado.** El dibujo se hace al ancho que mide el hueco, y si el hueco
+  cambiaba de ancho sin que cambiara la ventana —la barra lateral, la letra de
+  un mundo que llega tarde, el tablero que se acomoda— se quedaba pintado al
+  ancho viejo y corrido a un lado. Ahora un `ResizeObserver` sobre el hueco
+  (`vigilarArteRacha`) lo vuelve a pintar. Y a lo alto va centrado en su
+  espacio, con 26 px de aire sobre la «D»: antes tocaba el mensaje de arriba.
+- **Los tres estados se distinguen.** «Ya pasó sin nada» y «todavía no llega»
+  eran dos grises casi iguales. Ahora el día pasado es un gajo sólido y
+  apagado, el que no ha llegado es casi el fondo del disco, y hoy —si todavía
+  no cuenta— lleva un borde de oro que late.
+- **Un día que ya cuenta brilla.** Además del gajo en oro, lleva debajo un
+  resplandor dorado que respira (`rq2-aura`). La escena se queda de noche en
+  los dos modos, así que la regla de «de día no hay resplandor» no aplica.
+- **Los gajos, casi juntos**: el hueco entre ellos baja a menos de la mitad, y
+  el anillo se lee como anillo y no como siete piezas.
+- **Los orbes de las semanas de antes son de oro siempre.** El nivel ya dice
+  cuántos días tuvo la semana; la que contó lo lleva pleno y la que no, más
+  apagado. En lila no se leía como un orbe que se llena.
+
+**Comprobado** a 390 y 1280 px: el disco a 0 px del centro del hueco, también
+después de encogerlo 60 px sin tocar la ventana; 26 px de aire arriba y 24-26
+abajo; cuatro días encendidos con su resplandor, y sin errores.
+
 ### 0.7.143.2 · 29 sep 2026
 
 **Tu mundo ya no se cae a la casa al abrir, y la racha lo sigue.** Eduardo:
