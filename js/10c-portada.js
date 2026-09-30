@@ -136,7 +136,7 @@ function cargaMostrar(mensaje) {
      0–300 ms   ANTICIPACIÓN: la marca retrocede un 14 %. Es el «coger aire»
                 de cualquier animación con peso; sin él el zoom arranca en seco.
      120–1020   el anillo se abre como una onda y se deshace.
-     300–1500   el zoom: de 0,86 a 40 con aceleración exponencial — casi quieto
+     300–1500   el zoom: de 0,86 a 40 o más con aceleración exponencial — casi quieto
                 al principio y disparado al final, que es lo que se lee como
                 «viene hacia ti». El hueco del isotipo está justo en el centro
                 del dibujo, que es de donde crece: a 40 veces el hueco es más
@@ -144,20 +144,30 @@ function cargaMostrar(mensaje) {
      1200–1500  la marca se desvanece, ya enorme. No antes: medido, con el
                 desvanecido a media salida lo grande del zoom pasaba invisible
                 y solo se veía crecer un logo hasta el cuádruple.
-     870–1425   el fondo se abre mientras la marca ya llena la pantalla, así
-                que la app aparece a través del hueco y no alrededor del logo.
+     250–750    se abre la ventana en el hueco: desde ahí la app se ve por
+                dentro de la marca, y afuera se queda el tono plano (el telón,
+                abajo). Crece con el zoom hasta tapar la pantalla.
 
    Cada animación lleva su fotograma del 100 %. Sin él, el navegador inventa
    uno con el valor de PARTIDA, y en los últimos milisegundos la marca y el
    fondo volvían a aparecer: un destello justo al terminar. Lo cazó la medición.
 
-   Solo se animan `transform`, `scale`, `opacity` y el color de fondo: lo que
-   el teléfono compone sin volver a dibujar. Un desenfoque de movimiento quedó
-   fuera: sobre un elemento escalado 40 veces es caro justo en los teléfonos
-   donde más se nota. */
+   Solo se animan `transform`, `scale` y `opacity`, más el recorte del telón:
+   lo que el teléfono compone sin volver a dibujar, y una capa plana. Un
+   desenfoque de movimiento quedó fuera: sobre un elemento escalado 40 veces
+   es caro justo en los teléfonos donde más se nota. */
 const CARGA_MINIMO = 3000;     // ms desde que se abrió la página
 const CARGA_SALIDA = 1500;
 let cargaAnims = [];
+/* El que pinta la ventana del telón en el instante en que va la salida. Vive
+   aquí fuera para poder llamarlo a mano con las animaciones congeladas: el
+   panel del navegador donde se verifica no avanza cuadros. */
+let cargaTelonPintar = null;
+
+/* El hueco del isotipo, en píxeles del logo a su tamaño (42 px sobre un dibujo
+   de 250): su caja va de 46 a 204, o sea 158 de ancho, centrada en 125. */
+const HUECO_MEDIO = 42 * 79 / 250;       // la mitad del ancho de la caja
+const HUECO_RADIO = 42 * 6 / 250;        // el redondeo de sus esquinas
 
 function cargaZoomPuesto() {
   try { return sessionStorage.getItem("norata-carga-prueba") === "zoom"; } catch (e) { return false; }
@@ -173,6 +183,19 @@ function cargaSoltarZoom(el) {
   el.classList.remove("sale");
   const logo = el.querySelector(".carga-marca svg");
   if (logo) logo.style.animation = "";
+  const telon = el.querySelector(".carga-telon");
+  if (telon) telon.remove();
+  cargaTelonPintar = null;
+}
+
+/* Un rectángulo redondeado como trozo de trazado, para recortarlo del telón. */
+function cargaRectRedondo(cx, cy, m, r) {
+  r = Math.min(r, m);
+  const x0 = cx - m, x1 = cx + m, y0 = cy - m, y1 = cy + m;
+  const f = n => n.toFixed(1);
+  return `M${f(x0 + r)} ${f(y0)}H${f(x1 - r)}A${f(r)} ${f(r)} 0 0 1 ${f(x1)} ${f(y0 + r)}` +
+         `V${f(y1 - r)}A${f(r)} ${f(r)} 0 0 1 ${f(x1 - r)} ${f(y1)}H${f(x0 + r)}` +
+         `A${f(r)} ${f(r)} 0 0 1 ${f(x0)} ${f(y1 - r)}V${f(y0 + r)}A${f(r)} ${f(r)} 0 0 1 ${f(x0 + r)} ${f(y0)}Z`;
 }
 
 /* La que se llama al ENTRAR. Devuelve una promesa que se cumple cuando la
@@ -230,24 +253,64 @@ function cargaZoom(el, mio) {
      se abre. */
   anim(anillo, [{ scale: "1", opacity: 1 }, { scale: "2.6", opacity: 0 }],
     { duration: 900, delay: 120, easing: "cubic-bezier(.22,1,.36,1)" });
+  /* Hasta dónde crece: lo que haga falta para que el hueco tape la pantalla
+     entera con holgura, y nunca menos de 40. Con un 40 fijo, en un monitor de
+     1920 el hueco se quedaba en 1060 px y se habría visto el borde del telón. */
+  const W = el.clientWidth || innerWidth, H = el.clientHeight || innerHeight;
+  const escalaFinal = Math.max(40, 1.3 * Math.max(W, H) / (2 * HUECO_MEDIO));
+  const caja = marca ? marca.getBoundingClientRect() : { left: W / 2, top: H / 2, width: 0, height: 0 };
+  const cx = caja.left + caja.width / 2, cy = caja.top + caja.height / 2;
   anim(marca, [
     { transform: "scale(1)",    offset: 0,   easing: "cubic-bezier(.33,0,.2,1)" },
     { transform: "scale(.86)",  offset: 0.2, easing: "cubic-bezier(.7,0,.84,0)" },
-    { transform: "scale(40)",   offset: 1 }
+    { transform: `scale(${escalaFinal.toFixed(2)})`, offset: 1 }
   ]);
+  const zoom = cargaAnims[cargaAnims.length - 1];
   anim(marca, [
     { opacity: 1, offset: 0 },
     { opacity: 1, offset: 0.8, easing: "cubic-bezier(.4,0,1,1)" },
     { opacity: 0, offset: 1 }
   ]);
-  const fondo = getComputedStyle(el).backgroundColor;
-  anim(el, [
-    { backgroundColor: fondo, offset: 0 },
-    { backgroundColor: fondo, offset: 0.58, easing: "cubic-bezier(.65,0,.35,1)" },
-    { backgroundColor: "transparent", offset: 0.95 },
-    { backgroundColor: "transparent", offset: 1 }
-  ]);
+
+  /* EL TELÓN (0.7.147.8, de Eduardo): el fondo no se desvanece parejo. Se
+     queda el tono plano de la carga y la app se ve SOLO por el hueco del
+     isotipo, como por una ventana que crece con el zoom hasta ocupar la
+     pantalla. Es una capa del mismo color que el fondo con un rectángulo
+     recortado (`clip-path` con `evenodd`), y no un hijo de la marca: dentro
+     de ella se escalaría hasta 100 veces y el navegador tendría que dibujar
+     una capa de cientos de miles de píxeles. Así cada cuadro solo cambia un
+     recorte sobre una capa del tamaño de la pantalla.
+
+     La ventana no aparece de golpe: de 250 a 750 ms se abre desde el centro
+     del hueco (`k` de 0 a 1), así que la app «empieza a verse por el centro».
+     Antes de eso el hueco sigue oscuro, como en la carga. La caja recortada
+     es la del hueco entero; donde el hueco tiene escalones, el trazo menta de
+     la marca, que va encima, tapa la diferencia. */
+  let telon = el.querySelector(".carga-telon");
+  if (!telon) {
+    telon = document.createElement("div");
+    telon.className = "carga-telon";
+    el.insertBefore(telon, el.firstChild);
+  }
+  const marco = `M0 0H${W}V${H}H0Z`;
+  const pintar = () => {
+    if (!zoom || !marca) return;
+    const t = Number(zoom.currentTime) || 0;
+    const s = new DOMMatrix(getComputedStyle(marca).transform).a || 1;
+    const p = Math.min(1, Math.max(0, (t - 250) / 500));
+    const k = 1 - Math.pow(1 - p, 3);                // sale rápido y se asienta
+    const m = HUECO_MEDIO * s * k;
+    telon.style.clipPath = m < 0.5 ? "none"
+      : `path(evenodd, "${marco} ${cargaRectRedondo(cx, cy, m, HUECO_RADIO * s)}")`;
+  };
+  cargaTelonPintar = pintar;
   el.classList.add("sale");
+  pintar();
+  (function cuadro() {
+    if (cargaTurno !== mio || cargaTelonPintar !== pintar) return;
+    pintar();
+    requestAnimationFrame(cuadro);
+  })();
 
   /* Se cierra por reloj y no por el `finished` de las animaciones: donde el
      navegador no pinta cuadros (una pestaña de fondo) las animaciones no

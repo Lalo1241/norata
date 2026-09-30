@@ -9935,12 +9935,19 @@
   .carga.fuera { opacity: 0; pointer-events: none; }
   .carga.oculta { display: none; }
   /* La salida grande (`cargaZoom`, js/10c-portada.js). La marca llega a
-     medir cuarenta veces lo que mide: sin `overflow` la página ganaría una
+     medir cuarenta veces lo que mide (o más, en pantallas grandes): sin
+     `overflow` la página ganaría una
      barra de desplazamiento durante un segundo. Deja pasar los toques desde
      el primer instante, porque lo que se ve debajo ya es la app.
      Sin `will-change` a propósito: con él el navegador dibuja la marca UNA
      vez a su tamaño y la estira, y a cuarenta veces se vería borrosa. */
-  .carga.sale { pointer-events: none; overflow: hidden; }
+  .carga.sale { pointer-events: none; overflow: hidden; background: transparent; }
+  /* El telón (0.7.147.8): el mismo fondo de la carga, con la ventana del hueco
+     recortada desde `cargaZoom`. Lo pone y lo quita el JavaScript; el fondo
+     de la carga pasa a transparente en el mismo instante, así que no hay
+     salto. El texto se levanta encima porque se apaga en esos mismos 280 ms. */
+  .carga-telon { position: absolute; inset: 0; background: var(--bg); }
+  .carga.sale .carga-msg { position: relative; }
 
   /* Dos señales distintas y no una: el anillo gira (esto avanza) y el
      isotipo late (esto sigue vivo). Solo con el giro, un tirón del navegador

@@ -247,6 +247,35 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.147.8 · 30 sep 2026
+
+**La carga con zoom se vuelve un portal, y la ventana de vuelta llega un
+segundo después.** Las dos cosas las pidió Eduardo mirando la simulación.
+
+- **El telón.** El fondo de la carga ya no se desvanece parejo: se queda el
+  tono plano y la app se ve SOLO por el hueco del isotipo, como por una
+  ventana. De 250 a 750 ms la ventana se abre desde el centro del hueco, y
+  luego crece con el zoom hasta tapar la pantalla. Es `.carga-telon`, una capa
+  del color del fondo con un rectángulo recortado (`clip-path: path(evenodd,
+  …)`) que se repinta en cada cuadro leyendo la escala de la marca. No es un
+  hijo de la marca a propósito: ahí se escalaría con ella y el navegador
+  tendría que dibujar una capa gigante.
+- **La escala final ya no es 40 fijo:** es la que haga falta para que el hueco
+  tape la pantalla con holgura (nunca menos de 40). En un monitor de 1920 un
+  40 dejaba el hueco en 1060 px y se habría visto el borde del telón.
+- **Medido en teléfono (375 × 812), congelando:** a 600 ms la ventana empieza a
+  abrirse dentro del logo; a 1250 ms la app se ve solo por el hueco, con el
+  oscuro alrededor; a 1400 ms la ventana ocupa casi toda la pantalla. Al
+  terminar, el telón se retira con la carga.
+- **La ventana de vuelta, con un segundo de espera** (`setTimeout(…, 1000)` en
+  `js/11-arranque.js`): primero se ve el tablero y después llega la ventana.
+  Medido: la carga se oculta a los 4,575 s y la ventana sale a los 5,594 s.
+  Vale también sin el zoom. Y como el tutorial sale a los 500 ms, la ventana
+  ahora llega después de él y se calla si el tutorial está abierto.
+- Si la prueba del zoom se quita, del telón hay que borrar además
+  `cargaTelonPintar`, `HUECO_MEDIO`, `HUECO_RADIO`, `cargaRectRedondo` y las
+  reglas `.carga-telon` y `.carga.sale .carga-msg`.
+
 ### 0.7.147.7 · 30 sep 2026
 
 **La vista previa de una rama ya no corta el primer nodo.** Con dos ramas por
