@@ -124,6 +124,11 @@ const TEXTOS_EN = {
   "Hito": "Milestone",
   "Meta": "Goal",
 
+  /* El aviso del mapa sin bordes (vigilarFueraDeVista, js/07-lienzo.js) */
+  "Tus encargos": "Your assignments",
+  "Tus talentos": "Your talents",
+  "quedaron fuera de vista.": "are out of view.",
+  "Mostrar": "Show",
   /* En qué estado está un talento (STATUS_LABEL, js/03-talentos.js) */
   "Disponible": "Available",
   "Plan vencido": "Plan overdue",

@@ -443,13 +443,20 @@ function pixelEnLienzo(wrap, x, y) {
   if (!svg || !svg.viewBox || !svg.viewBox.baseVal) return null;
   const vb = svg.viewBox.baseVal;
   if (!vb.width || !vb.height) return null;
-  const cs = getComputedStyle(wrap);
+  /* Dónde empieza el SVG dentro de lo que se recorre, MEDIDO y no supuesto.
+     Antes se daba por hecho que estaba pegado al borde (más el `padding`), y
+     eso dejó de ser cierto con el mapa sin bordes de PC, donde el dibujo vive
+     a 2400 px del borde. Medido vale en todos los casos, también cuando un
+     dibujo que cabe entero sale centrado con `margin: auto`. */
   const r = svg.getBoundingClientRect();
+  const rw = wrap.getBoundingClientRect();
+  const ox = r.left - rw.left - wrap.clientLeft + wrap.scrollLeft;
+  const oy = r.top - rw.top - wrap.clientTop + wrap.scrollTop;
   const ex = (r.width || vb.width) / vb.width;
   const ey = (r.height || vb.height) / vb.height;
   return {
-    x: parseFloat(cs.paddingLeft) + (x - vb.x) * ex,
-    y: parseFloat(cs.paddingTop) + (y - vb.y) * ey
+    x: ox + (x - vb.x) * ex,
+    y: oy + (y - vb.y) * ey
   };
 }
 
@@ -716,6 +723,74 @@ function pixelDelFrente(wrap, b, mod) {
   return px ? { px, nodo } : null;
 }
 
+/* ================= El mapa sin bordes (solo PC) =================
+   A pantalla completa y con ratón, el lienzo lleva un margen enorme (ver
+   `.fs-overlay .const-wrap` en el CSS) para poder irse lejos de lo que ya
+   existe. Y como irse lejos es perderse, cuando ningún nodo queda a la vista
+   sale un aviso que devuelve la cámara — la idea es de Framer, la pidió
+   Eduardo. En el teléfono no hay ni margen ni aviso. */
+const LIENZO_INFINITO = "(min-width: 900px) and (hover: hover) and (pointer: fine)";
+
+function nadaALaVista(wrap) {
+  const r = wrap.getBoundingClientRect();
+  const nodos = wrap.querySelectorAll(".cnode");
+  if (!nodos.length || !r.width) return false;
+  for (const n of nodos) {
+    const q = n.getBoundingClientRect();
+    if (q.right > r.left && q.left < r.right && q.bottom > r.top && q.top < r.bottom) return false;
+  }
+  return true;
+}
+
+let fueraPendiente = false;
+function vigilarFueraDeVista() {
+  if (fueraPendiente) return;
+  fueraPendiente = true;
+  /* Un temporizador y no `requestAnimationFrame`: sin fotogramas (una
+     pestaña de fondo, un panel que no compone) el cuadro nunca llegaba y el
+     aviso se quedaba sin decidir. 60 ms bastan para no medir en cada scroll. */
+  setTimeout(() => {
+    fueraPendiente = false;
+    const ov = document.getElementById("fs-overlay");
+    if (!ov) return;
+    let aviso = ov.querySelector(":scope > .fs-fuera");
+    const wrap = ov.querySelector("#fs-body .const-wrap");
+    const toca = !!(fullscreenBranch && wrap && matchMedia(LIENZO_INFINITO).matches && nadaALaVista(wrap));
+    if (!toca) { if (aviso) aviso.hidden = true; return; }
+    if (!aviso) {
+      aviso = document.createElement("div");
+      aviso.className = "fs-fuera";
+      aviso.setAttribute("role", "status");
+      ov.appendChild(aviso);
+    }
+    const esProy = fullscreenMod === "proyectos";
+    aviso.innerHTML = `<span class="ic" aria-hidden="true">i</span><span><b>${
+      esProy ? tx("Tus encargos") : tx("Tus talentos")}</b> ${tx("quedaron fuera de vista.")}</span>
+      <button type="button" class="btn btn-soft" onclick="volverALoTuyo()">${tx("Mostrar")}</button>`;
+    /* Debajo de la barra de arriba, que mide distinto según la pantalla */
+    const barra = ov.querySelector(".fs-bar");
+    aviso.style.top = ((barra ? barra.getBoundingClientRect().bottom : 60) + 14) + "px";
+    aviso.hidden = false;
+  }, 60);
+}
+
+function volverALoTuyo() {
+  const wrap = document.querySelector("#fs-body .const-wrap");
+  if (!wrap || !fullscreenBranch) return;
+  const frente = pixelDelFrente(wrap, fullscreenBranch, fullscreenMod);
+  const enc = encuadreDe(wrap, frente && frente.px);
+  if (!enc) return;
+  wrap.scrollTo({ left: enc.left, top: enc.top, behavior: "smooth" });
+  scrollRama[llaveDeLienzo(wrap, fullscreenBranch)] = { x: enc.left, y: enc.top };
+}
+
+/* `scroll` no sube por el árbol, así que se escucha en captura: vale para el
+   arrastre, la rueda, el zoom y los saltos de cámara, que mueven lo mismo. */
+document.addEventListener("scroll", e => {
+  const t = e.target;
+  if (t && t.classList && t.classList.contains("const-wrap") && t.closest("#fs-overlay")) vigilarFueraDeVista();
+}, true);
+
 function focusBranchFront(b, silent, mod) {
   const wrap = constWrapFor(b);
   if (!wrap) return;
@@ -817,6 +892,7 @@ function openBranchFullscreen(b, mod) {
   requestAnimationFrame(() => {
     encuadrarAlAbrir(b);
     focusBranchFront(b, true, mod);
+    vigilarFueraDeVista();
   });
 }
 
