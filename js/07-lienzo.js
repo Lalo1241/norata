@@ -1340,7 +1340,11 @@ function atajosLegend(compacta) {
   const crear = tipos
     .map(t => `${k(TIPOS[t].tecla)} <b class="gl">${TIPOS[t].glifo}</b> ${tx(TIPOS[t].nombre).toLowerCase()}`)
     .join('<i class="sep">·</i>');
-  const partes = compacta
+  /* Con dos ramas por fila la tarjeta mide la mitad y la leyenda entera se
+     partía en tres renglones (0.7.147.4, Eduardo). Ahí se queda con lo único
+     que no se dice en otro sitio: qué es cada figura y su tecla. */
+  const partes = compacta === "corta" ? [crear]
+    : compacta
     ? [crear, `${k("C")} ${tx("editar el mapa")}`,
        /* A pantalla completa la M SALE: ofrecerla como «pantalla completa»
           allí dentro prometía lo que ya está puesto. */

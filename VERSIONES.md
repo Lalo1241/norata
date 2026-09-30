@@ -247,6 +247,33 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.147.5 · 30 sep 2026
+
+**La ventana de vuelta tras una ausencia sale por fin.** Lo que se apuntó de
+paso en la 0.7.147.1: `quizaVentanaDeVuelta` se llama al abrir la app justo
+después de cerrar la carga, y en ese instante `#carga` ya se estaba yendo
+(`.fuera`) pero aún no tenía `.oculta`. `CAPAS_QUE_TAPAN` la contaba como capa
+encima y la ventana se callaba antes de apuntarse como vista, así que **no
+salía nunca**, en ninguna apertura.
+
+- Reproducido antes de tocar nada: un perfil con su última actividad hace 10
+  días, `vueltaDatos()` con datos, y la ventana sin salir.
+- El arreglo es el selector: `#carga:not(.oculta):not(.fuera):not(.sale)`. Una
+  carga que se va ya no tapa: lo de debajo es lo que se ve. Como efecto, la
+  página deja de estar quieta durante el desvanecido, que es lo correcto.
+- Comprobado con la carga de siempre, con la del zoom (sale a los 3,05 s,
+  justo al empezar la salida, y se descubre a través de la marca) y en una
+  segunda apertura, donde ya no se repite.
+- Si la prueba del zoom se quita, el `:not(.sale)` puede quedarse: sin esa
+  clase no hace nada.
+
+### 0.7.147.4 · 30 sep 2026
+
+**La leyenda de las formas cabe en un renglón con dos ramas por fila.** En el
+acomodo Grande la tarjeta mide la mitad y la leyenda entera se partía en tres
+renglones. Ahí se queda con las cuatro figuras y su tecla, que es lo único que
+no se dice en otro sitio; en Amplio y a pantalla completa sigue entera.
+
 ### 0.7.147.3 · 30 sep 2026
 
 **El sello de Blueprint cae al final del dibujo.** Eduardo: «debe salir solo

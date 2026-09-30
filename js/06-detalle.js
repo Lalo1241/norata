@@ -1678,7 +1678,7 @@ function renderTree() {
               dice qué es cada figura, y eso no lo dice nadie más. No lleva la
               clase `const-hint` a propósito: esa línea la reescribe la barra de
               elegir varios. */
-          editing ? "" : `<div class="rama-leyenda">${atajosLegend(true)}</div>`}
+          editing ? "" : `<div class="rama-leyenda">${atajosLegend(acomodo === "grande" ? "corta" : true)}</div>`}
       </div>
       ${editing ? `<div class="const-hint edit">${
             T`Arrastra para acomodar · <b>Shift</b> y clic (o Shift y arrastra un recuadro) elige varios para moverlos juntos o agruparlos · tira del punto ▸ hacia otro nodo para conectarlos · toca una línea para cortarla · el círculo <b>Y/O</b> cambia si hacen falta todos los requisitos o basta uno`
