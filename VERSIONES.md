@@ -274,6 +274,39 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.152 · 1 oct 2026
+
+**Todo interruptor se desliza, y en Averno el menú brilla al pasar el cursor.**
+Las dos las pidió Eduardo mirando el menú de la cuenta en la PC con Averno.
+
+- **El deslizamiento es del motor, no de cada pantalla.** Eduardo preguntó si
+  cualquier interruptor, de hoy o de mañana y en cualquier mundo, podía enseñar
+  su animación «como si fuese parte del motor». No se veía ninguna, y no por
+  falta de CSS: casi todos los interruptores se REDIBUJAN al tocarlos
+  (`innerHTML`), así que lo encendido deja de existir y aparece otro ya
+  encendido; la transición que `.mod-sw i` tenía escrita no corría nunca. Y un
+  fondo que sale de una variable se congela con una transición.
+- **Cómo**: `instalarDesliza()` (`js/01-base.js`, encendido desde
+  `js/11-arranque.js`) pone UN oyente en captura. Apunta dónde estaba lo
+  encendido, y un turno después anima sobre el DOM nuevo con la Web Animations
+  API. Dos figuras: **opciones** (la nueva se destapa por el lado por el que
+  llega la pastilla, y sobre la vieja se retira una copia encendida: juntas son
+  una ventana cruzando, con el material del mundo) y **perilla** (viaja con
+  `translate`, sin pisar su `transform`).
+- **El peso lo pone el mundo**: `--dur-media` y `--curva`. Medido: en la casa
+  220 ms `ease`; en Averno 300 ms `steps(4)`. Con «menos movimiento» no anima.
+- **Para lo que venga**: tres listas (`DESLIZA_GRUPOS`, `DESLIZA_PUESTO`,
+  `DESLIZA_PERILLA`) y los atributos `data-desliza` y `data-perilla`. Está
+  escrito en CLAUDE.md, «Los interruptores».
+- Probado pulsando de verdad: Oscuro/Claro, Silencio/Con sonido y la perilla de
+  Mis módulos. Las copias caen sobre el original al píxel y se retiran solas
+  (con temporizador, no con `onfinish`: en una pestaña que no pinta, las
+  animaciones no terminan y se quedarían encima).
+- **Averno, el cursor sobre el menú**: el icono ya no se rellena ni se pone
+  negro. Se aclara hacia el hueso y de noche lleva resplandor; de día no hay
+  resplandor y la misma mezcla lo oscurece. Es la tercera vuelta de esto
+  (0.7.147.10 sin relleno y negro, 0.7.148.3 con el rombo relleno y aún negro).
+
 ### 0.7.151 · 1 oct 2026
 
 **Las novedades se clasifican por tamaño, las grandes traen imagen y gráfico,

@@ -2710,14 +2710,23 @@ html[data-apariencia="averno"] :is(.skill-emoji, .ms-ic, .aj-ic, .mm-ic) {
   border-radius: 0; clip-path: none; box-shadow: none; image-rendering: pixelated;
 }
 /* Los del menú de Ajustes y del menú de la cuenta, también en rombo (0.7.147.10:
-   «que los iconos también se adapten con los mundos»). Al pasar el ratón el
-   rombo se RELLENA del tono de su fila, como en la casa se rellena el cuadro
-   (0.7.148.3). Antes no se rellenaba y el ratón le ponía igual la tinta oscura
-   del relleno: el icono de Mi perfil se volvía negro y los demás, al conservar
-   su tono, no reaccionaban. */
+   «que los iconos también se adapten con los mundos»).
+
+   Al pasar el cursor el icono BRILLA, no se rellena (Eduardo, 0.7.152: «no se
+   hagan negros, más bien deberían brillar más, con una estela si quieres»).
+   La casa llena el cuadro y oscurece el dibujo; aquí eso se probó dos veces y
+   las dos salió mal: sin relleno el dibujo quedaba negro sobre negro
+   (0.7.147.10) y con el rombo relleno seguía siendo un icono negro (0.7.148.3).
+   En este mundo lo elegido se enciende: el tono de la fila se aclara hacia el
+   hueso y de noche lleva resplandor. De día no hay resplandor —es regla de
+   toda la app— y la misma mezcla, que ahí tira a la tinta, lo oscurece. */
 html[data-apariencia="averno"] .mm-item:is(:hover, :focus-visible) .mm-ic {
-  background-color: var(--ic-lleno, var(--mint-macizo)) !important;
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  color: color-mix(in srgb, var(--ic-tono, var(--mint)) 58%, var(--text));
+}
+html:not(.claro)[data-apariencia="averno"] .mm-item:is(:hover, :focus-visible) .mm-ic {
+  filter: brightness(1.2)
+          drop-shadow(0 0 3px var(--ic-tono, var(--mint)))
+          drop-shadow(0 0 9px color-mix(in srgb, var(--ic-tono, var(--mint)) 55%, transparent));
 }
 /* En la ficha, el icono grande lleva la FIGURA de su tipo (rombo, hexágono,
    círculo…), igual que en el mapa: ahí manda la forma, no el rombo del mundo.

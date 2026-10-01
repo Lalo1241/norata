@@ -513,6 +513,30 @@ página quedaría en blanco. No añade riesgo nuevo —sin JavaScript esta app n
 pinta nada de todos modos— y el `<noscript>` de al lado devuelve el
 comportamiento de siempre a quien lo tenga apagado.
 
+## Los interruptores
+
+**Todo interruptor se desliza, y lo hace el motor** (Eduardo, 0.7.152): vale
+para los de hoy, los que vengan y cualquier mundo. No se escribe una animación
+por pantalla: `instalarDesliza()` (`js/01-base.js`) pone un solo oyente y anima
+cualquier control que se parezca a los que ya hay.
+
+**Por qué no es una transición de CSS:** casi todos se redibujan al tocarlos
+(`innerHTML`), así que el elemento encendido deja de existir y no hay nada que
+el navegador pueda animar. El motor apunta dónde estaba ANTES del redibujado y
+anima sobre el DOM nuevo.
+
+Al escribir uno nuevo, entra solo si cumple una de estas dos formas:
+
+| Figura | El contenedor | Lo encendido |
+| --- | --- | --- |
+| Opciones en fila | `role="radiogroup"`, `role="tablist"`, `.seg`, `.tema-sw` o `data-desliza` | `.on`, `.active` o su `aria-checked` / `aria-selected` / `aria-pressed` |
+| Perilla de encender/apagar | un `button` | la bolita casa con `.mod-sw i` o lleva `data-perilla` |
+
+Si un control nuevo no encaja, **se amplía una de las tres listas de arriba de
+`instalarDesliza`**, no se le pone una animación suelta. El peso del movimiento
+sale de `--dur-media` y `--curva`, así que cada mundo lo mueve a su manera, y
+con «menos movimiento» no se mueve nada.
+
 ## Las capas
 
 **Ningún `z-index` se escribe a mano:** salen de variables `--piso-*`

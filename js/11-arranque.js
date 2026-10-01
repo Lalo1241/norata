@@ -163,6 +163,10 @@ if (typeof iniciarRelojJornada === "function") iniciarRelojJornada();
 
 aplicarModulos();
 
+/* Todo interruptor se desliza (0.7.152): un solo oyente para toda la app.
+   Vive en `js/01-base.js`, junto a los interruptores de Aspecto. */
+if (typeof instalarDesliza === "function") instalarDesliza();
+
 /* El gesto de atrás del teléfono pasa por aquí. Ver atrasApp(): si la app se
    ocupa, se repone el colchón; si no, se deja ir de verdad —el gesto ya
    consumió una entrada, así que hace falta soltar otra—. */
