@@ -50,9 +50,41 @@
         posponer: t("En 5 min"),
         enPausa: t("En pausa"),
       },
-      color: "#00cc7f",
+      color: colorDeMarca(),
       zona: typeof userTZ === "function" ? userTZ() : "",
     })).catch(() => null);
+  }
+
+  /* ---- El tono de los avisos sigue al mundo (0.7.154) ----
+     Lo pidió Eduardo: los avisos «tienen que venir de la mano del diseño del
+     mundo seleccionado». Es la misma regla que la marca en el menú
+     (`--marca-menu`, 0.7.148.4): un MUNDO recolorea, y la casa, un ambiente y
+     Arcade se quedan en la menta. Se usa la cara MACIZA del acento, la que
+     rellena: Android pinta con este tono el círculo del isotipo y los
+     botones, y él mismo lo ajusta para que se lea sobre su cortina clara u
+     oscura. Al cambiar de mundo la app se recarga, y con eso se vuelve a
+     mandar. */
+  const MENTA = "#00cc7f";
+  function aHex(css) {
+    const m = String(css || "").match(/rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+    if (!m) return /^#[0-9a-f]{6}$/i.test(css) ? css : null;
+    return "#" + [m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, "0")).join("");
+  }
+  function colorDeMarca() {
+    try {
+      const cs = getComputedStyle(document.documentElement);
+      if (!cs.getPropertyValue("--marca-menu").trim()) return MENTA;
+      return aHex(colorDe("var(--mint-macizo)")) || MENTA;
+    } catch (e) { return MENTA; }
+  }
+  /* Las esquinas del icono grande, las del mundo: `--r-factor` es el mismo
+     interruptor que endereza las tarjetas de Blueprint, Catedral, Averno y
+     Cyberpunk (0 es cuadrado, 1 es el redondeo de la casa). */
+  function factorEsquinas() {
+    try {
+      const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--r-factor"));
+      return isFinite(v) ? Math.max(0, Math.min(1, v)) : 1;
+    } catch (e) { return 1; }
   }
 
   /* ---- El icono de un aviso ----
@@ -75,12 +107,13 @@
   function iconoPNG(ic) {
     if (!ic || !ic.dibujo) return Promise.resolve("");
     const fondo = colorDe(ic.color);
-    const k = fondo + "|" + ic.dibujo;
+    const rx = +(6 * factorEsquinas()).toFixed(2);
+    const k = fondo + "|" + rx + "|" + ic.dibujo;
     if (hechos.has(k)) return hechos.get(k);
     const p = new Promise((listo) => {
       const n = 144;
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${n}" height="${n}" viewBox="0 0 24 24">` +
-        `<rect width="24" height="24" rx="6" fill="${fondo}"/>` +
+        `<rect width="24" height="24" rx="${rx}" fill="${fondo}"/>` +
         `<g transform="translate(5 5) scale(0.5833)" fill="none" stroke="#10151d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" color="#10151d">${ic.dibujo}</g></svg>`;
       const img = new Image();
       img.onload = () => {
@@ -157,8 +190,11 @@
   };
 
   try { Promise.resolve(av.addListener("acciones", () => repasar())).catch(() => {}); } catch (e) { /* sin oyente: se repasa al volver */ }
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) repasar(); });
-  const arrancar = () => { configurar().then(repasar); };
+  /* Se vuelve a configurar al volver y un rato después de abrir: el CSS de un
+     mundo se pide aparte y puede llegar después de `load`, y sin él el tono
+     saldría el de la casa. */
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) { configurar(); repasar(); } });
+  const arrancar = () => { configurar().then(repasar); setTimeout(configurar, 3000); };
   if (document.readyState === "complete") arrancar();
   else window.addEventListener("load", arrancar);
 })();

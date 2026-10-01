@@ -313,6 +313,14 @@ actividad.
 - **Sin servicio en primer plano:** la cuenta atrás la dibuja el sistema
   (`setUsesChronometer`). Las alarmas son exactas si se permite
   `SCHEDULE_EXACT_ALARM` (desde Android 14 nace apagado; se ofrece un botón).
+- **Siguen al mundo puesto** (Eduardo: «tienen que venir de la mano del
+  diseño del mundo seleccionado»). Lo que Android deja tocar en su plantilla:
+  el tono del círculo del isotipo y de los botones es el acento macizo del
+  mundo —la misma regla que la marca en el menú: un mundo recolorea, la casa,
+  un ambiente y Arcade se quedan en menta— y el icono grande lleva las
+  esquinas del mundo (`--r-factor`). Una vista propia con el fondo, la letra y
+  la cuenta del mundo queda como propuesta: pide meter las letras en el APK y
+  un molde por mundo. Las dos, en la lámina «Avisos de Norata».
 
 **Comprobado:** el Java compila contra Android 16 (`android-all` de
 Robolectric) y Capacitor 8.5 sin advertencias propias; el instalador, contra

@@ -91,6 +91,9 @@ suenan igual, pero el sistema puede retrasarlas con el teléfono dormido.
   único que se hace aquí con la app cerrada (pausar, seguir, iniciar) se
   apunta en una cola con su hora, y la página lo aplica al abrir
   (`jAplicarAvisos`): el estado de verdad sigue siendo el suyo.
+- **El tono y las esquinas siguen al mundo.** El color de cada aviso lo manda
+  la página (`colorDeMarca`, js/13b-avisos.js): el acento macizo del mundo, o
+  la menta con la casa, un ambiente o Arcade. Aquí solo se guarda y se usa.
 - **No hay servicio en primer plano.** La cuenta atrás la dibuja el sistema
   (`setUsesChronometer`), y el final lo dice una alarma. Un servicio pediría
   otro permiso, una declaración en la Play Store y batería.
