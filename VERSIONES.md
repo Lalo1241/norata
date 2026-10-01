@@ -272,12 +272,22 @@ es donde vive lo que el repositorio ya dice y la base de datos todavía no.
 Lo demás de aquel reporte está cerrado: el respaldo trucado y el marco ajeno en
 la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
+### Apagar los borradores a la vista antes de la beta
+
+Desde la 0.7.155 el panel de Ajustes → Novedades enseña los borradores a
+cualquiera (`NOVEDADES_BORRADORES_A_LA_VISTA = true`, `js/10l-novedades.js`).
+Lo pidió Eduardo porque hoy es la única persona que usa la app y el parámetro
+de la dirección no lo recordaba. **El día que entre alguien más, eso es un
+texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
+`?novedades=borrador`— o se aprueban antes las entradas que haya.
+
 ## La lista
 
-### 0.7.153.3 · 1 oct 2026
+### 0.7.156 · 1 oct 2026
 
 **Las novedades de la 0.7.147 a la 0.7.151, publicadas, y la insignia de la
-beta, rehecha.** Eduardo las aprobó: ya salen sin `?novedades=borrador`.
+beta, rehecha.** Eduardo las aprobó: ya le salen a todos, no solo en su panel (0.7.155). Es un
+3º y no un 4º de la 0.7.153 porque `main` ya iba en la 0.7.155.
 
 **La insignia.** La medalla de la 1.0 (cinta, «1.0» y la letra de la etapa)
 se cambió por solo el símbolo dentro de una figura de los nodos de Ramas, que
@@ -294,6 +304,54 @@ de la tarjeta y se leía como tres barras grises: las columnas miden 9 px. Y
 los días desde que empezaste contaban desde `settings.inicio` aunque hubiera
 actividad de antes (un respaldo importado): ahora cuentan desde lo más viejo
 de las dos cosas.
+
+### 0.7.155 · 1 oct 2026
+
+**Ajustes → Novedades enseña los borradores sin pedir nada en la dirección.**
+Eduardo lo abrió en la versión correcta y estaba vacío: todo está en borrador
+y solo salía con `?novedades=borrador`. «Evita que sea necesario para poder
+verlo siempre, total, solo estoy yo.»
+
+- `NOVEDADES_BORRADORES_A_LA_VISTA` (`js/10l-novedades.js`), en `true`: el
+  panel lista también los borradores, cada uno con su etiqueta «Borrador».
+- **La ventana que sale sola al abrir no cambia**: solo lo publicado.
+- Las herramientas de prueba (ver la ventana, probar los anuncios de la beta y
+  la 1.0) siguen detrás de `?novedades=borrador`.
+- **Hay que apagarlo antes de la beta**: ver «Apuntado y sin hacer».
+- Sin entrada en `novedades.json`: no le cambia nada a quien usa la app.
+
+### 0.7.154 · 1 oct 2026
+
+**Todo interruptor se desliza, y en Averno el menú brilla al pasar el cursor.**
+Las dos las pidió Eduardo mirando el menú de la cuenta en la PC con Averno.
+
+- **El deslizamiento es del motor, no de cada pantalla.** Eduardo preguntó si
+  cualquier interruptor, de hoy o de mañana y en cualquier mundo, podía enseñar
+  su animación «como si fuese parte del motor». No se veía ninguna, y no por
+  falta de CSS: casi todos los interruptores se REDIBUJAN al tocarlos
+  (`innerHTML`), así que lo encendido deja de existir y aparece otro ya
+  encendido; la transición que `.mod-sw i` tenía escrita no corría nunca. Y un
+  fondo que sale de una variable se congela con una transición.
+- **Cómo**: `instalarDesliza()` (`js/01-base.js`, encendido desde
+  `js/11-arranque.js`) pone UN oyente en captura. Apunta dónde estaba lo
+  encendido, y un turno después anima sobre el DOM nuevo con la Web Animations
+  API. Dos figuras: **opciones** (la nueva se destapa por el lado por el que
+  llega la pastilla, y sobre la vieja se retira una copia encendida: juntas son
+  una ventana cruzando, con el material del mundo) y **perilla** (viaja con
+  `translate`, sin pisar su `transform`).
+- **El peso lo pone el mundo**: `--dur-media` y `--curva`. Medido: en la casa
+  220 ms `ease`; en Averno 300 ms `steps(4)`. Con «menos movimiento» no anima.
+- **Para lo que venga**: tres listas (`DESLIZA_GRUPOS`, `DESLIZA_PUESTO`,
+  `DESLIZA_PERILLA`) y los atributos `data-desliza` y `data-perilla`. Está
+  escrito en CLAUDE.md, «Los interruptores».
+- Probado pulsando de verdad: Oscuro/Claro, Silencio/Con sonido y la perilla de
+  Mis módulos. Las copias caen sobre el original al píxel y se retiran solas
+  (con temporizador, no con `onfinish`: en una pestaña que no pinta, las
+  animaciones no terminan y se quedarían encima).
+- **Averno, el cursor sobre el menú**: el icono ya no se rellena ni se pone
+  negro. Se aclara hacia el hueso y de noche lleva resplandor; de día no hay
+  resplandor y la misma mezcla lo oscurece. Es la tercera vuelta de esto
+  (0.7.147.10 sin relleno y negro, 0.7.148.3 con el rombo relleno y aún negro).
 
 ### 0.7.153.2 · 1 oct 2026
 

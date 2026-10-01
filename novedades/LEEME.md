@@ -77,7 +77,7 @@ la Play Store (`"version": "1.0"`, `"hito": "1.0"`). Eduardo pidió para ellos
   - **`{versiones}` en un texto se rellena solo** con cuántas versiones van
     (`camino` más las entradas de 3º hasta la vigente). Un número escrito a
     mano en un borrador se queda viejo antes de publicarse.
-  - **Una insignia por etapa** (0.7.153.3): la de la etapa en que llegaste,
+  - **Una insignia por etapa** (0.7.156): la de la etapa en que llegaste,
     igual en los dos hitos. Hexágono con α para la alpha, rombo con β para la
     beta. Es el lenguaje de todas las insignias de la app (`insigniaSVG`,
     ver «Las insignias» en `CLAUDE.md`).

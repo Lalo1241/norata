@@ -181,8 +181,12 @@ ventana al estrenar una versión y Ajustes → Novedades (`js/10l-novedades.js`)
 y la leerá la página de changelog del sitio el día que exista.
 
 - **Nada sale sin que Eduardo lo apruebe.** Las entradas nacen en
-  `"borrador"` y la app solo enseña `"publicado"`. Él las revisa con
-  `?novedades=borrador`. Las reglas para escribirlas, en `novedades/LEEME.md`.
+  `"borrador"` y la ventana que sale al abrir solo enseña `"publicado"`. Las
+  reglas para escribirlas, en `novedades/LEEME.md`.
+- **El panel de Ajustes sí enseña los borradores, y es provisional (0.7.155)**:
+  `NOVEDADES_BORRADORES_A_LA_VISTA` está en `true` porque hoy solo usa la app
+  Eduardo. **Se apaga antes de la beta.** Las herramientas de prueba (la
+  ventana, los anuncios de hito) siguen con `?novedades=borrador`.
 - **Se apuntan como vistas POR ENTRADA, no por versión**: una aprobada días
   después sale igual.
 - **Cada entrada tiene `clase` (0.7.151): `expansion`, `mejora` o `arreglo`**,
@@ -522,6 +526,30 @@ El modo de fallo se miró antes de meterlo: si ese script no corriera, la
 página quedaría en blanco. No añade riesgo nuevo —sin JavaScript esta app no
 pinta nada de todos modos— y el `<noscript>` de al lado devuelve el
 comportamiento de siempre a quien lo tenga apagado.
+
+## Los interruptores
+
+**Todo interruptor se desliza, y lo hace el motor** (Eduardo, 0.7.154): vale
+para los de hoy, los que vengan y cualquier mundo. No se escribe una animación
+por pantalla: `instalarDesliza()` (`js/01-base.js`) pone un solo oyente y anima
+cualquier control que se parezca a los que ya hay.
+
+**Por qué no es una transición de CSS:** casi todos se redibujan al tocarlos
+(`innerHTML`), así que el elemento encendido deja de existir y no hay nada que
+el navegador pueda animar. El motor apunta dónde estaba ANTES del redibujado y
+anima sobre el DOM nuevo.
+
+Al escribir uno nuevo, entra solo si cumple una de estas dos formas:
+
+| Figura | El contenedor | Lo encendido |
+| --- | --- | --- |
+| Opciones en fila | `role="radiogroup"`, `role="tablist"`, `.seg`, `.tema-sw` o `data-desliza` | `.on`, `.active` o su `aria-checked` / `aria-selected` / `aria-pressed` |
+| Perilla de encender/apagar | un `button` | la bolita casa con `.mod-sw i` o lleva `data-perilla` |
+
+Si un control nuevo no encaja, **se amplía una de las tres listas de arriba de
+`instalarDesliza`**, no se le pone una animación suelta. El peso del movimiento
+sale de `--dur-media` y `--curva`, así que cada mundo lo mueve a su manera, y
+con «menos movimiento» no se mueve nada.
 
 ## Las capas
 
@@ -985,7 +1013,7 @@ actual al 5% y llevar media escalera. Sale del `ring()` que ya existía.
 ## Las insignias
 
 **Toda insignia de un logro es UNA figura de los nodos de Ramas con UN símbolo
-dentro**, y nada más (Eduardo, 0.7.153.3: la medalla de la 1.0 llevaba cinta,
+dentro**, y nada más (Eduardo, 0.7.156: la medalla de la 1.0 llevaba cinta,
 «1.0» y una β diminuta, y pidió «solo el símbolo, con una forma de algún logro
 del módulo de talentos»). Se dibuja con `insigniaSVG(tipo, simbolo)`
 (`js/01-base.js`) y la figura dice qué clase de logro es, con el significado
