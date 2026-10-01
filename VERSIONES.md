@@ -274,6 +274,57 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.153 · 1 oct 2026
+
+**Los gráficos de las novedades, rehechos, y el anuncio de la beta y la 1.0,
+rehecho con lo que pidió Eduardo al verlo.** Nada de esto lo ve hoy nadie más
+que él en el modo revisión; por eso no lleva novedad propia.
+
+**Los gráficos.** Eduardo: las barras eran largas, todas del mismo verde, sin
+iconos, y el «antes y ahora» eran cuatro barras sueltas. Ahora hay cuatro
+formas y `grafico` puede ser una lista: `cifras` (con icono y su tono),
+`comparar` (puntitos apagados y encendidos, «1 → 5» y la diferencia en una
+pastilla), `barras` (cortas, 220 px como mucho, cada una en su tono) y
+`colores` (las paletas con sus muestras de verdad y su nombre, que es lo que
+pidió: «cuando presentemos colores, mencionar con color qué colores son»).
+Cada dato en uno de los ocho tonos de la app, escrito con la mezcla de
+`tinta()`. La 0.7.147 y la 0.7.148 los estrenan. El exportador de Framer
+dibuja las cuatro formas.
+
+**El anuncio del hito**, punto por punto de lo que pidió:
+- **«Beta» no se leía y no usar esa fuente**: el número, el título y el texto
+  van en `--sans`; los mundos cambian `--tipo-cifra` y en Arcade y Averno la
+  «a» y la «e» se perdían. Y sus reglas cuelgan de `#hito`, porque en Averno
+  un `h2` suelto tiene las suyas y el título salía chico.
+- **El estilo de cada mundo**: el acento entra por `--mint-macizo` (la cara
+  viva en los dos modos) y los botones son los del mundo; el cielo sigue de
+  noche, teñido del acento.
+- **Una insignia distinta por hito**: sello hexagonal con α (beta) y medalla
+  con cinta, «1.0» y α o β según cuándo llegaste (1.0).
+- **Más tiempo al número, y en la 1.0 un desfile desde la primera versión**:
+  el número recorre cada 3º publicado (4,8 s en la beta, 9 s en la 1.0), lento
+  al salir y al llegar; al cruzar la 0.8 la etiqueta pasa de «Alpha» a «Beta»
+  con un destello, y debajo una vía con un tramo por etapa y un punto que
+  avanza. La lista es `camino` en `novedades/novedades.json` —los 156 3º de
+  `VERSIONES.md`, de la 0.6.1 a la 0.7.152— más las entradas. En la prueba de
+  la 1.0, sin betas todavía, se inventan 25 para que se vea el cruce.
+- **«Tu parte en esto», con otro título y más datos**: «Tu alpha, en números»
+  o «Tu camino hasta la 1.0»; días, días con algo hecho y su porcentaje, mejor
+  racha, misiones, nodos, la habilidad más alta, nivel y rango, la primera
+  misión con su fecha, y un punto por día de las últimas 26 semanas. Cada
+  tarjeta en su tono y con icono, y aparece al bajar con su número contando.
+  **Sin láminas**: las láminas son del aniversario, y aquí el espectáculo ya lo
+  dio la escena; el reporte es para leerse con calma.
+- Lo de debajo del número espera a que el desfile aterrice (`.llego`), porque
+  el desfile dura distinto en cada hito.
+
+**Comprobado** en la app servida en local: beta en la casa y 1.0 en Averno a
+390 px, beta en Cyberpunk a 1440 px. El número en Outfit en los tres mundos,
+el título en Outfit en Averno, el aterrizaje en «Beta» y en «1.0» con
+«Lanzamiento», las nueve tarjetas del reporte marcadas al bajar, sin desbordes
+ni errores; con «menos movimiento» sale el final quieto con los números ya
+puestos.
+
 ### 0.7.152 · 1 oct 2026
 
 **El anuncio de los dos hitos —la beta y la 1.0— ya está construido, apagado
