@@ -283,7 +283,7 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
-### 0.7.156.1 · 1 oct 2026
+### 0.7.157.1 · 1 oct 2026
 
 **El anuncio de un hito gira en el centro de la pantalla.** Eduardo: «al
 centro debería salir la animación y el conteo; cerca de los últimos números,
@@ -295,6 +295,28 @@ aquí se congelan— y llega justo cuando la ruleta para; entonces se despliega
 lo de abajo, como antes. Las luciérnagas se bajan lo mismo para posarse en el
 isotipo. Medido en teléfono y PC: el centro de la cabeza en 422 de 844 durante
 el giro y en 228 al acabar. Con «menos movimiento» no se mueve nada.
+### 0.7.157 · 1 oct 2026
+
+**Los paneles del anuncio de hito tienen diseño, y el número de versión deja
+de ir en rojo.** Las pidió Eduardo mirando Novedades y el anuncio de la beta
+con Averno puesto. Nació como 0.7.156 en la conversación del menú, a la vez que
+la otra publicaba la suya; de aquella tanda se quedó fuera la insignia fija que
+traía, porque la de `insigniaSVG` (figuras de nodos) es la que decidió él.
+
+- **Los paneles del reporte, rehechos** (`hitoReporteHTML`): casilla llena con
+  el icono, cifra de 36 px y el mismo icono de marca de agua en la esquina. Con
+  un número impar de tarjetas la última ocupa la fila entera (una cuenta de
+  tres días era una tarjeta y media pantalla vacía al lado).
+- **El mapa de días**: eran rectángulos del ancho de la columna y los días de
+  antes de empezar eran transparentes, así que una cuenta nueva enseñaba una
+  caja vacía con tres rayas. Con ocho semanas o menos es un calendario —una
+  fila por semana, con la inicial del día arriba—, y con más, una columna por
+  semana. Lleva leyenda, el día de hoy marcado y la cuenta de la ventana.
+- **El número de versión, neutro** (`.nov-ver`): tinta del mundo sobre un velo
+  de ella misma. Iba relleno del acento: rojo sobre rojo en Averno, ilegible, y
+  el rojo es «falló». «EXPANSIÓN» pasa al verde de la casa por lo mismo.
+- Probado con una cuenta de 3 días y una de 162, a 720 y a 400 px: nada
+  desborda.
 
 ### 0.7.156 · 1 oct 2026
 

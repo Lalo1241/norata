@@ -8266,28 +8266,66 @@
   #hito .hito-reporte { margin-top: 14px; display: grid; gap: 14px; text-align: left; }
   #hito .hito-rep-titulo { margin: 0; font-family: var(--sans); font-size: 22px; font-weight: 800; text-align: center; }
   #hito .hito-reps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  /* Las tarjetas (rehechas en la 0.7.157: «métele más diseño a los paneles de
+     abajo»). Cada una lleva su icono en una casilla llena, la cifra grande, y
+     el mismo icono enorme de marca de agua saliéndose por la esquina. */
   #hito .hito-rep {
-    position: relative; display: flex; flex-direction: column; gap: 4px; min-width: 0;
-    padding: 14px; border-radius: var(--r-grande);
-    background: color-mix(in srgb, var(--t) 10%, var(--hito-tarjeta)); border: 1px solid color-mix(in srgb, var(--t) 28%, transparent);
+    position: relative; overflow: hidden; isolation: isolate;
+    display: flex; flex-direction: column; gap: 3px; min-width: 0;
+    padding: 16px 16px 15px; border-radius: var(--r-grande);
+    background:
+      radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--t) 20%, transparent), transparent 62%),
+      color-mix(in srgb, var(--t) 7%, var(--hito-tarjeta));
+    border: 1px solid color-mix(in srgb, var(--t) 30%, transparent);
   }
-  #hito .hito-rep-ic { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--r-chico); color: var(--t); background: color-mix(in srgb, var(--t) 18%, transparent); margin-bottom: 4px; }
-  #hito .hito-rep-ic svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  #hito .hito-rep > b { font-family: var(--sans); font-size: 30px; line-height: 1.05; font-weight: 800; color: var(--t); font-variant-numeric: tabular-nums; }
-  #hito .hito-rep > span:not(.hito-rep-ic):not(.hito-rep-cita):not(.hito-rep-tit) { font-size: 13px; color: var(--hito-suave); line-height: 1.35; }
-  #hito .hito-rep > i { font-style: normal; font-size: 11.5px; color: var(--hito-tenue); }
+  #hito .hito-rep-agua {
+    position: absolute; z-index: -1; right: -18px; bottom: -22px;
+    color: var(--t); opacity: .11; transform: rotate(-12deg); pointer-events: none;
+  }
+  #hito .hito-rep-agua svg { width: 104px; height: 104px; stroke: currentColor; fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  #hito .hito-rep-ic {
+    display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+    border-radius: var(--r-chico); color: var(--hito-noche); background: var(--t); margin-bottom: 8px;
+  }
+  #hito .hito-rep-ic svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  #hito .hito-rep > b { font-family: var(--sans); font-size: 36px; line-height: 1; font-weight: 800; color: var(--t); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+  #hito .hito-rep > span:not(.hito-rep-ic):not(.hito-rep-cita):not(.hito-rep-tit):not(.hito-rep-agua):not(.hito-mapa):not(.hito-mapa-cab):not(.hito-mapa-ley):not(.hito-mapa-dias) { font-size: 13.5px; font-weight: 600; color: var(--hito-texto); line-height: 1.35; }
+  #hito .hito-rep > i { font-style: normal; font-size: 11.5px; color: var(--hito-suave); }
   #hito .hito-rep-ancha { grid-column: 1 / -1; }
+  /* La tarjeta que ocupa la fila entera pone la casilla a la izquierda y lo
+     demás a su lado: en columna, con todo el ancho, quedaba un renglón corto
+     arriba de un campo vacío. */
+  #hito .hito-rep-ancha:not(.hito-mapa-caja) {
+    display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; align-items: center;
+  }
+  #hito .hito-rep-ancha:not(.hito-mapa-caja) .hito-rep-ic { grid-row: 1 / span 3; margin-bottom: 0; width: 48px; height: 48px; }
+  #hito .hito-rep-ancha:not(.hito-mapa-caja) .hito-rep-ic svg { width: 24px; height: 24px; }
+  #hito .hito-rep-ancha:not(.hito-mapa-caja) > :not(.hito-rep-ic):not(.hito-rep-agua) { grid-column: 2; }
   #hito .hito-rep-cita { font-size: 15px; line-height: 1.4; color: var(--hito-suave); }
   #hito .hito-rep-cita b { color: var(--hito-texto); }
-  #hito .hito-rep-tit { font-size: 12px; font-weight: 700; color: var(--hito-suave); }
-  /* Columnas de 9 px y no de una fracción: con cuatro semanas (alguien que
-     acaba de empezar) cada día se estiraba a lo ancho de la tarjeta y el mapa
-     se leía como tres barras grises. */
-  #hito .hito-mapa { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 9px); grid-template-columns: repeat(var(--semanas), minmax(0, 9px)); justify-content: start; gap: 3px; margin-top: 6px; }
-  #hito .hito-mapa i { border-radius: 2px; }
-  #hito .hito-mapa i.p0 { background: transparent; }
-  #hito .hito-mapa i.p1 { background: color-mix(in srgb, var(--hito-texto) 8%, transparent); }
-  #hito .hito-mapa i.p2 { background: var(--t); }
+  #hito .hito-rep-tit { font-size: 12.5px; font-weight: 700; color: var(--hito-texto); }
+  /* El mapa de días: cuadros del mismo tamaño, una columna por semana. */
+  #hito .hito-mapa-caja { gap: 12px; }
+  #hito .hito-mapa-cab { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  #hito .hito-mapa-cuenta { font-size: 12px; color: var(--hito-suave); white-space: nowrap; }
+  #hito .hito-mapa-cuenta b { font-size: 20px; font-weight: 800; color: var(--t); font-variant-numeric: tabular-nums; }
+  #hito .hito-mapa {
+    display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, auto);
+    grid-template-columns: repeat(var(--semanas), minmax(0, 18px)); gap: 4px; justify-content: start;
+  }
+  /* Con ocho semanas o menos, calendario: una fila por semana. */
+  #hito .hito-mapa.cal { grid-auto-flow: row; grid-template-rows: none; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; justify-content: stretch; }
+  #hito .hito-mapa.cal i { aspect-ratio: auto; height: 26px; border-radius: 6px; }
+  #hito .hito-mapa-dias { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: -6px; }
+  #hito .hito-mapa-dias b { text-align: center; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; color: var(--hito-suave); }
+  #hito :is(.hito-mapa, .hito-mapa-ley) i { display: block; aspect-ratio: 1; border-radius: 3px; }
+  #hito :is(.hito-mapa, .hito-mapa-ley) i.p0 { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hito-texto) 14%, transparent); }
+  #hito :is(.hito-mapa, .hito-mapa-ley) i.p1 { background: color-mix(in srgb, var(--hito-texto) 13%, transparent); }
+  #hito :is(.hito-mapa, .hito-mapa-ley) i.p2 { background: var(--t); }
+  #hito :is(.hito-mapa, .hito-mapa-ley) i.hoy { outline: 2px solid var(--hito-texto); outline-offset: 1px; }
+  #hito .hito-mapa-ley { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11.5px; color: var(--hito-suave); }
+  #hito .hito-mapa-ley span { display: inline-flex; align-items: center; gap: 6px; }
+  #hito .hito-mapa-ley i { width: 10px; }
   #hito .hito-rep, .hito-insignia, .hito-rep-titulo { opacity: 0; transform: translateY(18px); }
   :is(.hito-rep, .hito-insignia, .hito-rep-titulo).visto { animation: hito-sube .6s ease forwards; }
   #hito .hito-reps .hito-rep.visto:nth-child(2n) { animation-delay: .08s; }
@@ -8376,9 +8414,16 @@
     padding: 13px 14px;
   }
   .nov-cab { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  /* El número de versión es un DATO, y va neutro (0.7.157). Iba en el acento
+     del mundo, relleno: en Averno eso era un número rojo sobre rojo, que ni se
+     leía ni decía lo que es —el rojo es «falló», y una versión no falla—. Lo
+     paró Eduardo: «no puedes usar rojo en un número de versión… esto igual se
+     aplica para cualquier mundo». La tinta del mundo sobre un velo de ella
+     misma se lee en todos, porque es el par que cada mundo ya afinó para leer. */
   .nov-ver {
     font-family: var(--tipo-cifra); font-size: 10.5px; font-weight: 800;
-    color: var(--sobre-macizo); background: var(--mint-macizo);
+    color: var(--text); background: color-mix(in srgb, var(--text) 9%, transparent);
+    border: var(--borde-fino) solid color-mix(in srgb, var(--text) 22%, transparent);
     border-radius: var(--r-pastilla); padding: 2px 8px;
   }
   .nov-fecha { font-size: 11.5px; color: var(--muted); }
@@ -8405,7 +8450,10 @@
     font-size: 9px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
     border-radius: var(--r-pastilla); padding: 2px 8px;
   }
-  .nov-clase.c-expansion { color: var(--mint); background: var(--mint-soft); }
+  /* La expansión va en el verde de la casa y no en el acento (0.7.157): en
+     Averno y Catedral el acento es rojo, y «EXPANSIÓN» en rojo se lee como un
+     aviso. Lo nuevo que crece es verde en cualquier mundo. */
+  .nov-clase.c-expansion { color: var(--casa-menta); background: var(--casa-menta-soft); }
   .nov-clase.c-mejora { color: var(--celeste); background: var(--celeste-soft); }
   .nov-clase.c-arreglo { color: var(--muted); background: var(--sup-panel); }
   /* El hito va en la luciérnaga de la marca: no hay otro momento así. */

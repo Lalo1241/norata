@@ -69,7 +69,7 @@ la Play Store (`"version": "1.0"`, `"hito": "1.0"`). Eduardo pidió para ellos
   - **Con el estilo del mundo puesto** (su acento, sus botones), pero de noche.
   - **El número grande y el texto en la letra de la app** (`--sans`), nunca en
     la del mundo: en Arcade y Averno «Beta» no se leía.
-  - **Gira en el centro de la pantalla** (0.7.156.1): isotipo, etiqueta y
+  - **Gira en el centro de la pantalla** (0.7.157.1): isotipo, etiqueta y
     ruleta; con los últimos números suben a su sitio y al parar se despliega
     lo demás.
   - **El número gira como una ruleta** (0.7.153.2) por cada 3º publicado: en
