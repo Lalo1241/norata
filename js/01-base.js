@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.157.2";
+const VERSION = "0.7.158";
 const VERSION_FECHA = "1 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -2404,7 +2404,7 @@ const CAPAS_QUE_TAPAN = [
      es lo que se ve. Contándola, la ventana de vuelta tras una ausencia no
      salía NUNCA — se pregunta justo al cerrar la carga, con el desvanecido en
      marcha, y se callaba (0.7.147.5). */
-  "#carga:not(.oculta):not(.fuera):not(.sale)"     // esperando
+  "#carga:not(.oculta):not(.fuera):not(.sale):not(.corta)"     // esperando
 ].join(",");
 
 function revisarFondoQuieto() {

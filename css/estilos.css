@@ -10536,6 +10536,34 @@
      de la carga pasa a transparente en el mismo instante, así que no hay
      salto. El texto se levanta encima porque se apaga en esos mismos 280 ms. */
   .carga-telon { position: absolute; inset: 0; background: var(--bg); }
+  /* La salida corta (`cargaCorta`, 0.7.158): la app de debajo ya es la que
+     manda desde el primer instante. */
+  .carga.corta { pointer-events: none; }
+  /* El aro del ESTRENO (0.7.158). Vive en el marcado y solo se ve con
+     `html.carga-estreno`, que pone el script de arriba de index.html cuando la
+     carga viene de pulsar «Actualizar». Se cierra UNA vez —0,9 s, desde el
+     primer cuadro— en vez de girar sin fin: un aro que se completa dice «esto
+     terminó», y uno que gira dice «espera». El anillo de siempre se queda
+     quieto y tenue debajo, de carril.
+     La especificidad va a propósito por encima de `.carga-marca svg`, que es
+     la regla del isotipo y le pondría 42 px y el latido. Los tonos salen de
+     las mismas variables que el resto de la carga, así que cada mundo lo
+     pinta con los suyos. */
+  .carga-marca svg.carga-aro {
+    position: absolute; inset: 0; width: 96px; height: 96px;
+    fill: none; animation: none; transform: rotate(-90deg); display: none;
+  }
+  .carga-aro circle {
+    stroke: var(--mint-macizo); stroke-width: 2; stroke-linecap: round;
+    stroke-dasharray: 295.3; stroke-dashoffset: 295.3;
+  }
+  html.carga-estreno .carga-marca svg.carga-aro { display: block; }
+  html.carga-estreno .carga-aro circle { animation: cargaAro 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+  html.carga-estreno .carga-anillo { animation: none; border-color: var(--mint-soft); }
+  @keyframes cargaAro { to { stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    html.carga-estreno .carga-aro circle { animation: none; stroke-dashoffset: 0; }
+  }
   .carga.sale .carga-msg { position: relative; }
 
   /* Dos señales distintas y no una: el anillo gira (esto avanza) y el

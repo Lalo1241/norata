@@ -283,6 +283,63 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
+### 0.7.158 · 1 oct 2026
+
+**Tres cargas en vez de una, y ni un cuadro con otro mundo.** Dos encargos de
+Eduardo en la misma tanda: que el zoom del logo no se gaste («si entras sale,
+le das a actualizar y vuelve a salir»), y que deje de verse «por un frame otro
+color o diseño de mundo que no es el mío… lo detesto».
+
+**Las tres cargas** (boceto aprobado: «me parecen excelente»). Cuál toca lo
+decide el script de arriba de `index.html` (`window.__carga`) y lo ejecuta
+`cargaEntrar(modo)` en `js/10c-portada.js`:
+
+- **Entrada** — primera apertura de la pestaña o de la app, e iniciar sesión
+  (`adoptarSesion` y la vuelta de Google la fuerzan): el mínimo de 3 s y el
+  zoom de siempre.
+- **Refresco** — recargar, tirar para actualizar, cambiar de mundo o paleta:
+  sin mínimo y con la salida corta de 0,4 s (`cargaCorta`).
+- **Estreno** — pulsar «Actualizar»: «Estrenando la X», el aro se cierra una
+  vez (0,9 s, CSS desde el primer cuadro), un latido y la salida corta
+  (`cargaEstreno`). Si la versión que se ve no es la anunciada, no lo anuncia.
+- La marca es `norata-abierta` en `sessionStorage`: dura lo que la pestaña o la
+  app abiertas. El estreno se apunta en `norata-estreno` antes de recargar
+  (`norataActualizar` en la web y en `js/13-nativo.js`). En el APK, la versión
+  que se estrena sola AL ABRIR quita la marca: para quien abre es su entrada.
+- Medido: entrada, la salida empieza a los 3,02 s; refresco, la app de vuelta
+  a los 0,49 s; estreno, 1,77 s; entrar a una cuenta, zoom al momento.
+
+**Ni un cuadro con otro mundo.** La hoja del mundo ya bloqueaba el primer
+pintado en Chrome (0.7.148.3), pero quedaban tres huecos, medidos:
+
+- **Las letras.** Todas las de los mundos entran con `font-display: swap`: el
+  primer cuadro salía con la de respaldo.
+- **Firefox y Safari** ignoran `blocking="render"` en una hoja enganchada
+  desde un script.
+- **`theme-color`** se quedaba en el color de la casa hasta arrancar el JS.
+
+Ahora la página no enseña nada suyo hasta que la hoja del mundo (y la de
+Arcade) y las letras que pide ese mundo están cargadas: un `<style>` puesto
+arriba deja `body` invisible y pinta `html` de un solo color liso, el fondo del
+mundo puesto, que `pintarColorDeBarra` deja apuntado en `norata-fondo` —solo
+cuando lo que se ve es lo guardado, no una vista previa—. Ese mismo color va a
+`theme-color` antes de que arranque nada. Las letras se leen de `--tipo-titulo`,
+`--tipo-cifra` y `--sans` ya calculadas, así que un mundo nuevo entra solo.
+
+- **Con tope de 2,5 s**, y mirando además de escuchar: `js/10k-arcade.js`
+  retira la hoja de Arcade cuando la cuenta no lo ha encontrado, y una hoja
+  retirada no avisa. La primera versión se quedó 2,5 s en blanco en ese caso.
+- Medido (`window.__veloFuera`, ms desde abrir): Averno 36 con la hoja a los 23
+  y Silkscreen, Tiny5 y Outfit cargadas; Catedral 60 con `celestibyte.woff2` a
+  los 52; Blueprint 58; Cyberpunk 37; Arcade retirado 28; Tinta 23; la casa 38.
+- **Y después de destaparse:** foto de los estilos de la barra, los botones y
+  las tarjetas al empezar a irse la carga y 2,5 s después, con Averno: cero
+  diferencias de color, letra, radio o borde.
+
+**Lo que NO cubre:** la puerta sigue en los colores de la casa por decisión
+(«La marca, dentro de un mundo»), y la pantalla de arranque nativa del APK es
+un color fijo del sistema; cambiarla pide tocar lo nativo.
+
 ### 0.7.157.2 · 1 oct 2026
 
 **La ruleta del anuncio dura lo mismo haya las versiones que haya, y para en

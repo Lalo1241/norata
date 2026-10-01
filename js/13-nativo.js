@@ -150,7 +150,13 @@
     const lista = (bundles || [])
       .filter((b) => (b.status === "success" || b.status === "pending") && masNueva(b.version, VERSION))
       .sort((x, y) => (masNueva(x.version, y.version) ? -1 : 1));
-    if (lista[0]) return act.set({ id: lista[0].id }).then(() => true);
+    if (lista[0]) {
+      /* Esto pasa AL ABRIR la app y recarga la página por debajo: para quien
+         la abre sigue siendo su primera apertura, así que se quita la marca y
+         la carga que viene es la de entrada, con su zoom (0.7.158). */
+      try { sessionStorage.removeItem("norata-abierta"); } catch (e) {}
+      return act.set({ id: lista[0].id }).then(() => true);
+    }
     return false;
   }).catch(() => false);
 
@@ -295,7 +301,10 @@
   window.norataActualizar = function () {
     if (!lista) return;
     if (typeof cargaMostrar === "function") cargaMostrar(tx("Actualizando…"));
+    /* La carga que viene es la del estreno, con su versión (0.7.158). */
+    try { sessionStorage.setItem("norata-estreno", lista.version || "1"); } catch (e) {}
     act.set({ id: lista.id }).catch(() => {
+      try { sessionStorage.removeItem("norata-estreno"); } catch (e) {}
       if (typeof cargaCerrar === "function") cargaCerrar();
       if (typeof toast === "function") toast(tx("No pude estrenar la versión nueva. Se pondrá sola al cerrar la app."), "atencion");
     });

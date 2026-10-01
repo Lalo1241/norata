@@ -673,6 +673,27 @@
       }
     },
     {
+      "version": "0.7.158",
+      "fecha": "2026-10-01",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "El zoom del logo, solo cuando entras",
+      "resumen": "La animación del logo se queda para cuando abres Norata o inicias sesión. Refrescar es casi instantáneo y actualizar tiene su propia carga.",
+      "puntos": [
+        "Al actualizar, la carga te dice qué versión estrenas.",
+        "Tu mundo se ve completo desde el primer instante, sin un parpadeo con otros colores ni con otra letra."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "The logo zoom, only when you come in",
+        "resumen": "The logo animation is now saved for when you open Norata or sign in. Refreshing is almost instant, and updating has a loading screen of its own.",
+        "puntos": [
+          "When you update, the loading screen tells you which version you're getting.",
+          "Your world shows up whole from the first instant, with no flicker of other colors or another typeface."
+        ]
+      }
+    },
+    {
       "version": "0.7.157",
       "fecha": "2026-10-01",
       "estado": "borrador",

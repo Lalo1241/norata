@@ -218,6 +218,121 @@
     }
   } catch (e) {}
 
+  /* ---- Ni un cuadro con otro mundo (0.7.158) ----
+     Es de Eduardo y no admite matices: «por un frame sale otro color o diseño
+     de mundo que no es el mío… lo detesto». El `blocking="render"` de arriba
+     tapa la hoja del mundo en Chrome, pero quedaban tres huecos, medidos:
+
+       1. LAS LETRAS. Todas las de los mundos entran con `font-display: swap`,
+          así que el primer cuadro salía con la letra de respaldo y luego
+          cambiaba: otro diseño por un instante.
+       2. Firefox y Safari ignoran `blocking="render"` en una hoja enganchada
+          desde un script: allí la hoja del mundo llegaba tarde.
+       3. La barra del navegador y la de estado (`theme-color`) se quedaban en
+          el color de la casa hasta que arrancaba el JavaScript.
+
+     Así que la página no enseña NADA suyo hasta que la hoja del mundo y sus
+     letras están cargadas. Mientras tanto se ve un solo color liso: el fondo
+     del mundo puesto, guardado la última vez que se pintó (`norata-fondo`, lo
+     escribe `pintarColorDeBarra`). Es el mismo tono con el que nace la carga,
+     así que el relevo no se nota.
+
+     Vale para todos, también en la casa: Outfit entra con `swap` igual.
+
+     Con TOPE (2,5 s): una hoja que no llega nunca no puede dejar la página en
+     blanco. Cumplido el plazo se enseña lo que haya, que es lo de antes. */
+  try {
+    (function () {
+      var raiz = document.documentElement;
+      var fondo = "";
+      try { fondo = localStorage.getItem("norata-fondo") || ""; } catch (e) {}
+      var guardado = /^(#[0-9a-f]{3,8}|rgba?\([\d\s.,%\/]+\))$/i.test(fondo);
+      if (!guardado) fondo = raiz.classList.contains("claro") ? "#dcdef0" : "#10151d";
+      if (guardado) {
+        var mb = document.querySelector('meta[name="theme-color"]');
+        if (mb) mb.setAttribute("content", fondo);
+      }
+      var velo = document.createElement("style");
+      velo.textContent = "html{background:" + fondo + " !important}body{visibility:hidden !important}";
+      document.head.appendChild(velo);
+      var suelto = false;
+      function soltar() {
+        if (suelto) return;
+        suelto = true;
+        if (velo.parentNode) velo.parentNode.removeChild(velo);
+        /* Para medirlo: cuándo se enseñó la página (ver VERSIONES.md, 0.7.158). */
+        window.__veloFuera = Math.round(performance.now());
+      }
+      function letras() {
+        try {
+          var cs = getComputedStyle(raiz), pedir = [];
+          ["--tipo-titulo", "--tipo-cifra", "--sans"].forEach(function (v) {
+            var f = cs.getPropertyValue(v).trim();
+            if (!f) return;
+            pedir.push(document.fonts.load("16px " + f));
+            pedir.push(document.fonts.load("700 16px " + f));
+          });
+          Promise.all(pedir).then(soltar, soltar);
+        } catch (e) { soltar(); }
+      }
+      var hojas = [];
+      if (typeof lm !== "undefined" && lm) hojas.push(lm);
+      if (typeof la !== "undefined" && la) hojas.push(la);
+      /* Una hoja está resuelta si ya cargó (`sheet`), si falló, o si YA NO
+         ESTÁ: `js/10k-arcade.js` retira la de Arcade al arrancar cuando la
+         cuenta que entra no lo ha encontrado, y una hoja retirada a medio
+         camino no avisa nunca. Esperando solo el aviso, esa cuenta se quedaba
+         2,5 s en blanco —medido—, hasta el tope. Por eso se MIRA además de
+         escuchar. */
+      var pedidas = false, fallidas = [];
+      function resueltas() {
+        for (var i = 0; i < hojas.length; i++) {
+          var h = hojas[i];
+          if (h.isConnected && !h.sheet && fallidas.indexOf(h) < 0) return false;
+        }
+        return true;
+      }
+      function mirar() {
+        if (suelto || pedidas) return;
+        if (!resueltas()) { setTimeout(mirar, 40); return; }
+        pedidas = true;
+        letras();
+      }
+      hojas.forEach(function (h) {
+        h.addEventListener("load", mirar);
+        h.addEventListener("error", function () { fallidas.push(h); mirar(); });
+      });
+      mirar();
+      setTimeout(soltar, 2500);
+    })();
+  } catch (e) {}
+
+  /* ---- Qué carga toca (0.7.158) ----
+     Tres, para que el zoom del logo no se gaste (Eduardo): salía al abrir, al
+     refrescar y al actualizar, y a la tercera ya no decía nada.
+
+       entrada   la primera apertura de esta pestaña o de la app, e iniciar
+                 sesión: 3 s y el zoom que atraviesa la marca.
+       refresco  recargar, tirar para actualizar, cambiar de mundo o paleta:
+                 sin espera mínima y con la salida corta.
+       estreno   pulsar «Actualizar»: dice qué versión, el aro se cierra una
+                 vez, un latido y la salida corta.
+
+     La marca vive en `sessionStorage`: dura lo que dure la pestaña o la app
+     abiertas, así que la siguiente apertura vuelve a tener su zoom. Aquí
+     arriba y no en el script principal porque la carga de estreno tiene otro
+     dibujo desde el primer cuadro. Lo lee `cargaEntrar` (js/10c-portada.js). */
+  try {
+    var est = sessionStorage.getItem("norata-estreno");
+    window.__carga = est ? "estreno" : (sessionStorage.getItem("norata-abierta") ? "refresco" : "entrada");
+    if (est) {
+      sessionStorage.removeItem("norata-estreno");
+      window.__estreno = est;
+      document.documentElement.classList.add("carga-estreno");
+    }
+    sessionStorage.setItem("norata-abierta", "1");
+  } catch (e) { window.__carga = "entrada"; }
+
   /* ---- El escaparate: `?informes=demo` ----
      Aquí vivía el interruptor de la reforma de los paneles (0.7.20 a 0.7.27),
      y se fue en 0.7.28 cuando Eduardo la dio por buena: las flechas y el botón
@@ -376,9 +491,28 @@
   <div class="carga-marca">
     <span class="carga-anillo"></span>
     <svg viewBox="0 0 250 250" aria-hidden="true"><path d="M224.919,110.004h-5.319c-2.476,0-4.487-2.011-4.487-4.487V25.081c0-4.947-4.027-8.973-8.973-8.973h-87.162c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487H31.811c-8.658,0-15.703,7.046-15.703,15.703v80.436c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v80.432c0,4.947,4.027,8.973,8.973,8.973h87.166c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h55.755c18.556,0,33.65-15.094,33.65-33.65v-62.485c0-4.947-4.027-8.973-8.973-8.973ZM55.91,128.783h-5.319c-2.476,0-4.487-2.011-4.487-4.487v-54.927c0-2.476,2.011-4.487,4.487-4.487h61.657c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h54.923c2.476,0,4.487,2.011,4.487,4.487v61.657c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v45.949c0,7.422-6.038,13.46-13.46,13.46h-52.679c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487h-54.927c-2.476,0-4.487-2.011-4.487-4.487v-61.653c0-4.947-4.027-8.973-8.973-8.973Z"/></svg>
+    <!-- El aro del ESTRENO (0.7.158): se cierra una sola vez en vez de girar.
+         Va DESPUÉS del isotipo a propósito: `cargaZoom` y el aniversario
+         cogen el primer `svg` de la marca, y tiene que seguir siendo el logo. -->
+    <svg class="carga-aro" viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="47"/></svg>
   </div>
   <p class="carga-msg" id="carga-msg">Abriendo Norata…</p>
 </div>
+<script>
+  /* El texto de la carga de estreno, antes del primer cuadro. La versión la
+     dejó apuntada quien pulsó «Actualizar»; si no se supo cuál era, se dice
+     sin número. Sin `tx()`: aquí todavía no ha cargado nada. */
+  (function () {
+    try {
+      if (window.__carga !== "estreno") return;
+      var m = document.getElementById("carga-msg"), v = String(window.__estreno || "");
+      var en = localStorage.getItem("norata-idioma") === "en";
+      var num = /^\d[\d.]*$/.test(v);
+      m.textContent = num ? (en ? "Updating to " + v : "Estrenando la " + v)
+                          : (en ? "Updating…" : "Estrenando la versión nueva");
+    } catch (e) {}
+  })();
+</script>
 
 <!-- Rótulo de la prueba de las flechas (0.7.20). Sin él es facilísimo olvidar
      que la pestaña está en modo prueba y acabar juzgando la app de verdad por

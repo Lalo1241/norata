@@ -848,6 +848,18 @@ function pintarColorDeBarra() {
   }
   if (!color || color.indexOf("(") !== -1) return;
 
+  /* El mismo color, apuntado para la SIGUIENTE apertura (0.7.158): el script
+     de arriba de index.html lo pinta liso mientras cargan la hoja y las
+     letras del mundo, y lo pone en esta etiqueta antes de que arranque nada.
+     Sin él, la barra del sistema salía un instante en el color de la casa.
+     Solo cuando lo que se ve es lo que está GUARDADO: una vista previa (mirar
+     un mundo, el ambiente que estrena una celebración) no es tu apariencia y
+     no puede quedarse apuntada como si lo fuera. */
+  try {
+    const guardada = localStorage.getItem(APARIENCIA_LLAVE) || "casa";
+    if ((raiz.getAttribute("data-apariencia") || "casa") === guardada) localStorage.setItem("norata-fondo", color);
+  } catch (e) {}
+
   /* Y se REEMPLAZA la etiqueta en vez de cambiarle el atributo. Parece lo
      mismo y no lo es: Chrome en Android elige el color de los iconos del
      sistema —la hora, la señal, la batería— al leer esta etiqueta, y cambiando

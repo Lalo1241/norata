@@ -326,7 +326,9 @@ showView("summary");
        dibujado. Es lo último de todo a propósito — destaparla antes es
        justamente lo que hacía parpadear la app al abrirla. Se ESPERA: lo de
        abajo pregunta si la carga sigue puesta y se callaría (ver `cargaEntrar`). */
-    await cargaEntrar();
+    /* Quien vuelve de Google acaba de iniciar sesión: es una entrada, con su
+       zoom, aunque la pestaña ya tuviera la marca puesta (ver `cargaEntrar`). */
+    await cargaEntrar(veniaDeGoogle ? "entrada" : undefined);
     /* La sesión caducada va ANTES que todo lo demás que se abre al entrar
        (0.7.128): mientras no se resuelva, nada de lo que se haga aquí llega a
        la cuenta, y un tutorial o una vuelta encima lo taparían. Se pregunta
@@ -590,6 +592,10 @@ async function norataActualizar(btn) {
      nada en ningún navegador, y aquí sobra, porque la copia buena ya es la
      nueva antes de llegar a esta línea. */
   if (rotulo && antes !== null) rotulo.innerHTML = antes;
+  /* La carga que viene es la del ESTRENO, no el zoom ni la corta (0.7.158):
+     se apunta qué versión entra para que lo diga desde el primer cuadro. Si
+     no se sabe cuál es, se dice sin número. */
+  try { sessionStorage.setItem("norata-estreno", window.__versionQueEntra || "1"); } catch (e) {}
   location.reload();
 }
 
@@ -717,6 +723,9 @@ if ("serviceWorker" in navigator && location.protocol === "https:" && !enAppNati
     hayVersionNueva = true;
     /* La caché se llama «norata-0.7.60»; lo que se enseña es el número. */
     versionQueEntra = String(ev.data.version || "").replace(/^norata-/, "");
+    /* A la vista de `norataActualizar`, que vive fuera de este cierre y la
+       necesita para la carga de estreno. */
+    window.__versionQueEntra = versionQueEntra;
     avisarDeLaVersion();
   });
 
