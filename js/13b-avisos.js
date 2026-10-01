@@ -74,9 +74,27 @@
     try {
       const cs = getComputedStyle(document.documentElement);
       if (!cs.getPropertyValue("--marca-menu").trim()) return MENTA;
-      return aHex(colorDe("var(--mint-macizo)")) || MENTA;
+      const hex = aHex(colorDe("var(--mint-macizo)"));
+      return hex && !esRojo(hex) ? hex : MENTA;
     } catch (e) { return MENTA; }
   }
+  /* ---- Un acento rojo no pinta botones ----
+     Android usa este mismo tono para los botones del aviso, y en Catedral y
+     Averno el acento es rojo: un «Iniciar» rojo se lee como peligro, que es
+     justo lo que la regla de los botones de la app no permite (lo paró
+     Eduardo). Con un acento rojo, los avisos se quedan en la menta. Se mira
+     el MATIZ y no una lista de mundos, para que valga también para uno que
+     llegue mañana. */
+  function esRojo(hex) {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+    if (!d) return false;
+    let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h = (h * 60 + 360) % 360;
+    const sat = d / (1 - Math.abs(mx + mn - 1));
+    return (h <= 20 || h >= 340) && sat >= 0.45;
+  }
+
   /* Las esquinas del icono grande, las del mundo: `--r-factor` es el mismo
      interruptor que endereza las tarjetas de Blueprint, Catedral, Averno y
      Cyberpunk (0 es cuadrado, 1 es el redondeo de la casa). */

@@ -318,7 +318,10 @@ actividad.
   el tono del círculo del isotipo y de los botones es el acento macizo del
   mundo —la misma regla que la marca en el menú: un mundo recolorea, la casa,
   un ambiente y Arcade se quedan en menta— y el icono grande lleva las
-  esquinas del mundo (`--r-factor`). Una vista propia con el fondo, la letra y
+  esquinas del mundo (`--r-factor`). **Salvo un acento rojo** (Catedral,
+  Averno): Android pinta con ese tono también los botones, y un «Iniciar» rojo
+  se lee como peligro; ahí se queda la menta (`esRojo`, por matiz y no por
+  lista de mundos). Una vista propia con el fondo, la letra y
   la cuenta del mundo queda como propuesta: pide meter las letras en el APK y
   un molde por mundo. Las dos, en la lámina «Avisos de Norata».
 
