@@ -677,6 +677,7 @@
     --piso-arrastre: 200;  /* la copia que sigue al dedo al reordenar */
     --piso-confeti: 300;   /* la luz de celebrar, que no se toca */
     --piso-vuelta: 390;    /* la vuelta tras una ausencia: sale sola al abrir */
+    --piso-hito: 395;      /* el anuncio de la beta o la 1.0: sale solo al abrir, sobre la vuelta */
     --piso-ventana: 400;   /* ventanas: la caja del ático, Ajustes */
     --piso-menucito: 420;  /* el mini menú del engrane */
     --piso-encima: 500;    /* lo que una ventana abre y la reemplaza */
@@ -8114,6 +8115,121 @@
 
   @media (prefers-reduced-motion: reduce) { .toast { transition: opacity 0.2s ease; transform: none; } }
 
+  /* ---------- El anuncio de un hito: la beta y la 1.0 (0.7.152) ----------
+     Una escena y no una ventana (ver `abrirHito`, js/10l-novedades.js). Se
+     queda de noche en los dos modos, como el aniversario y la celebración: es
+     un dibujo, no interfaz. Por eso sus tonos son los `--hito-*`, fijos, y
+     usa la menta de la MARCA y no `--mint`, que es el acento del mundo puesto:
+     el que cumple años es Norata, no Cyberpunk. Todo se mueve con animaciones
+     y ninguna transición —una transición sobre variables se congela en esta
+     app—, y los tiempos de abajo son la partitura entera: 0 noche, 0,3 vuelo,
+     1,6 trazo, 2,3 ondas y sonido, 2,8 número, 3,4 en adelante el texto. */
+  #hito {
+    --hito-cielo-1: #0b1a24; --hito-cielo-2: #05070b; --hito-texto: #eef1f6;
+    --hito-suave: #a3adbd; --hito-marca: #5fe0b0; --hito-luz: #f5d76e;
+    --hito-tarjeta: rgba(29, 37, 48, 0.82); --hito-linea: rgba(238, 241, 246, 0.12);
+    --hito-c1: #ff8a70; --hito-c2: #8ecdf5; --hito-c3: #c9a6f2; --hito-cielo-oro: #1d1a10;
+    position: fixed; inset: 0; z-index: var(--piso-hito);
+    display: none; overflow-y: auto; overscroll-behavior: contain;
+    color: var(--hito-texto);
+  }
+  #hito.show { display: block; animation: hito-entra 0.6s ease both; }
+  #hito.fuera { animation: hito-sale 0.36s ease both; }
+  @keyframes hito-entra { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes hito-sale { to { opacity: 0; } }
+  .hito-cielo { position: fixed; inset: 0; background: radial-gradient(120% 80% at 50% 30%, var(--hito-cielo-1) 0%, var(--hito-cielo-2) 70%); }
+  .hito-lanzamiento .hito-cielo { background: radial-gradient(120% 80% at 50% 30%, var(--hito-cielo-oro) 0%, var(--hito-cielo-1) 40%, var(--hito-cielo-2) 78%); }
+  .hito-estrellas { position: fixed; inset: 0; pointer-events: none; }
+  .hito-estrellas i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: var(--hito-texto); opacity: 0.5; animation: hito-parpadeo 3.2s ease-in-out infinite; }
+  @keyframes hito-parpadeo { 50% { opacity: 0.12; } }
+  /* Las luciérnagas: salen de su ángulo y se posan donde nace el isotipo. */
+  /* Donde se posan es el centro del isotipo: el relleno de arriba de la escena
+     (28 px), su margen (6vh) y medio isotipo (56 px). Si cambia uno, cambia
+     esta cuenta, y la de las chispas, que salen del mismo punto. */
+  .hito-bichos { position: fixed; left: 50%; top: calc(6vh + 84px + env(safe-area-inset-top)); width: 0; height: 0; pointer-events: none; }
+  .hito-bichos i {
+    position: absolute; width: 7px; height: 7px; margin: -3.5px; border-radius: 50%;
+    background: var(--hito-luz); box-shadow: 0 0 12px 3px color-mix(in srgb, var(--hito-luz) 60%, transparent);
+    opacity: 0; animation: hito-vuelo 1.7s cubic-bezier(.3, .1, .3, 1) both;
+  }
+  @keyframes hito-vuelo {
+    0% { opacity: 0; transform: translate(var(--x), var(--y)) scale(.6); }
+    20% { opacity: 1; }
+    80% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(0, 0) scale(.2); }
+  }
+  /* `margin: auto` y no `align-items: center`: con la pantalla baja, centrar
+     escondería para siempre la parte de arriba (CLAUDE.md, «Trampas»). */
+  .hito-escena {
+    position: relative; min-height: 100%; max-width: 560px; margin: 0 auto;
+    padding: calc(28px + env(safe-area-inset-top)) 22px calc(32px + env(safe-area-inset-bottom));
+    display: flex; flex-direction: column; align-items: stretch; text-align: center;
+  }
+  .hito-marca { position: relative; width: 112px; height: 112px; margin: 6vh auto 0; flex: none; }
+  .hito-marca svg { position: relative; width: 100%; height: 100%; overflow: visible; }
+  .hito-iso {
+    fill: var(--hito-marca); fill-opacity: 0; stroke: var(--hito-marca); stroke-width: 4;
+    stroke-dasharray: 1600; stroke-dashoffset: 1600;
+    filter: drop-shadow(0 0 18px color-mix(in srgb, var(--hito-marca) 55%, transparent));
+    animation: hito-trazo 1.1s ease-in-out 1.6s forwards, hito-relleno 0.6s ease 2.5s forwards;
+  }
+  @keyframes hito-trazo { to { stroke-dashoffset: 0; } }
+  @keyframes hito-relleno { to { fill-opacity: 1; } }
+  .hito-onda {
+    position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--hito-marca);
+    /* `forwards` y no `both`: con `both` el primer fotograma —el anillo a 0,7—
+       se pintaba durante la espera, y el aro salía antes que el isotipo. */
+    opacity: 0; animation: hito-onda 1.6s ease-out 2.3s forwards;
+  }
+  .hito-onda.dos { animation-delay: 2.6s; }
+  .hito-lanzamiento .hito-onda.dos { border-color: var(--hito-luz); }
+  @keyframes hito-onda { 0% { opacity: .7; transform: scale(.7); } 100% { opacity: 0; transform: scale(2.6); } }
+  /* El número: la versión que tenías sube y se va, y entra la etapa. */
+  .hito-numero { position: relative; height: 92px; margin-top: 22px; overflow: hidden; flex: none; }
+  .hito-numero span { position: absolute; left: 0; right: 0; font-family: var(--tipo-cifra); font-weight: 800; letter-spacing: -0.02em; }
+  .hito-antes { top: 26px; font-size: 32px; color: var(--hito-suave); opacity: 0; animation: hito-antes 0.9s ease 2.6s both; }
+  @keyframes hito-antes { 0% { opacity: 0; transform: translateY(20px); } 35% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-60px); } }
+  .hito-ahora {
+    top: 0; font-size: 76px; line-height: 92px; opacity: 0;
+    background: linear-gradient(180deg, var(--hito-texto), var(--hito-marca)); -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: hito-ahora 0.8s cubic-bezier(.2, 1.3, .4, 1) 3.1s both;
+  }
+  .hito-lanzamiento .hito-ahora { background-image: linear-gradient(180deg, var(--hito-luz), var(--hito-marca)); font-size: 88px; }
+  @keyframes hito-ahora { from { opacity: 0; transform: translateY(70px) scale(.8); } to { opacity: 1; transform: none; } }
+  .hito-tit, .hito-res, .hito-puntos, .hito-tuyo, .hito-botones, .hito-prueba { opacity: 0; animation: hito-sube 0.7s ease both; }
+  .hito-tit { animation-delay: 3.5s; margin: 18px 0 0; font-family: var(--tipo-titulo); font-size: 28px; line-height: 1.15; font-weight: 800; text-wrap: balance; }
+  .hito-res { animation-delay: 3.75s; margin: 10px auto 0; max-width: 46ch; font-size: 15.5px; line-height: 1.55; color: var(--hito-suave); }
+  .hito-puntos { animation-delay: 4s; margin: 16px auto 0; padding: 0; list-style: none; display: grid; gap: 8px; max-width: 46ch; text-align: left; font-size: 14.5px; line-height: 1.45; }
+  .hito-puntos li { position: relative; padding-left: 20px; }
+  .hito-puntos li::before { content: ""; position: absolute; left: 2px; top: 0.5em; width: 7px; height: 7px; border-radius: 50%; background: var(--hito-luz); box-shadow: 0 0 8px var(--hito-luz); }
+  @keyframes hito-sube { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .hito-tuyo { animation-delay: 4.3s; margin-top: 22px; padding: 16px; border-radius: 18px; background: var(--hito-tarjeta); border: 1px solid var(--hito-linea); text-align: left; }
+  .hito-tuyo-tit { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--hito-suave); }
+  .hito-cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 10px; margin-top: 10px; }
+  .hito-cifra { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .hito-cifra b { font-family: var(--tipo-cifra); font-size: 30px; line-height: 1; font-weight: 800; color: var(--hito-marca); font-variant-numeric: tabular-nums; }
+  .hito-cifra span { font-size: 12px; color: var(--hito-suave); line-height: 1.3; }
+  .hito-insignia { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--hito-linea); }
+  .hito-insignia svg { flex: none; width: 44px; height: 44px; }
+  .hito-insignia svg path:first-child { fill: color-mix(in srgb, var(--hito-luz) 18%, transparent); stroke: var(--hito-luz); stroke-width: 2; }
+  .hito-insignia svg path:last-child { fill: var(--hito-luz); }
+  .hito-insignia b { display: block; font-size: 15px; }
+  .hito-insignia span span { display: block; font-size: 12.5px; color: var(--hito-suave); line-height: 1.4; margin-top: 2px; }
+  .hito-botones { animation-delay: 5s; display: grid; gap: 10px; margin-top: 22px; }
+  .hito-prueba { animation-delay: 5.2s; margin: 12px 0 0; font-size: 12px; color: var(--hito-luz); }
+  /* El estallido, desde el isotipo: más grande en la 1.0. */
+  .hito-chispas { position: fixed; left: 50%; top: calc(6vh + 84px + env(safe-area-inset-top)); width: 0; height: 0; pointer-events: none; }
+  .hito-chispas i { position: absolute; width: 6px; height: 6px; margin: -3px; border-radius: 2px; background: var(--hito-marca); opacity: 0; animation: hito-chispa 1.3s cubic-bezier(.1, .7, .3, 1) both; }
+  .hito-chispas i.c1 { background: var(--hito-luz); } .hito-chispas i.c2 { background: var(--hito-c1); } .hito-chispas i.c3 { background: var(--hito-c2); }
+  .hito-lanzamiento .hito-chispas i.c2 { background: var(--hito-c3); }
+  @keyframes hito-chispa { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(260deg); } }
+  /* Con «menos movimiento», el final y nada más: ni vuelo, ni trazo, ni conteo. */
+  #hito.quieto *, #hito.quieto { animation: none !important; }
+  #hito.quieto .hito-iso { stroke-dashoffset: 0; fill-opacity: 1; }
+  #hito.quieto :is(.hito-tit, .hito-res, .hito-puntos, .hito-tuyo, .hito-botones, .hito-prueba, .hito-ahora) { opacity: 1; }
+  #hito.quieto .hito-bichos, #hito.quieto .hito-antes, #hito.quieto .hito-onda { display: none; }
+  @media (prefers-reduced-motion: reduce) { #hito.show { animation: none; } }
+
   /* ---------- «Ya está lista la versión X» (0.7.149) ----------
      Arriba y no abajo con los toasts: abajo compite con ellos y con la barra,
      y lo que se quería es que se VEA. Se queda hasta que se usa o se cierra
@@ -8202,6 +8318,8 @@
   .nov-clase.c-expansion { color: var(--mint); background: var(--mint-soft); }
   .nov-clase.c-mejora { color: var(--celeste); background: var(--celeste-soft); }
   .nov-clase.c-arreglo { color: var(--muted); background: var(--sup-panel); }
+  /* El hito va en la luciérnaga de la marca: no hay otro momento así. */
+  .nov-clase.c-hito { color: var(--sobre-vivo); background: var(--fire); }
   /* La expansión pesa más también en la lista: su tarjeta lleva el filo del
      acento y el título más grande. */
   .nov-lista .nov-expansion { border-color: color-mix(in srgb, var(--mint) 45%, var(--line)); }
@@ -8242,6 +8360,7 @@
   .nov-prueba b { font-size: 13px; }
   .nov-prueba span { font-size: 12px; color: var(--muted); line-height: 1.45; }
   .nov-prueba .btn { margin-top: 6px; }
+  .nov-prueba-hitos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
 
   .sum-card.wide {
     width: 100%;

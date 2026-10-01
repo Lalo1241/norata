@@ -274,6 +274,45 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.152 · 1 oct 2026
+
+**El anuncio de los dos hitos —la beta y la 1.0— ya está construido, apagado
+hasta que lleguen.** Lo pidió Eduardo: «un anuncio muy especial en diseño para
+cuando subamos de alpha a beta y el lanzamiento 1.0, con animaciones, y más
+cosas». No cambia nada de lo que se ve hoy; por eso no lleva novedad propia.
+
+- **Una cuarta clase, `hito`**, con `"hito": "beta"` o `"1.0"`. En vez de la
+  ventana abre una escena a pantalla completa (`abrirHito`,
+  `js/10l-novedades.js`), con su capa (`--piso-hito`, 395, y su línea en
+  `CAPAS_QUE_TAPAN`). La partitura, en el CSS de `#hito`: noche, luciérnagas
+  que vuelan al centro, el isotipo que se dibuja con dos ondas y el sonido
+  `hito` que ya existía, la versión que tenías rodando hasta «Beta» o «1.0», y
+  el texto. Se queda de noche en los dos modos y usa la menta de la marca, no
+  el acento del mundo.
+- **«Tu parte en esto»**: días en Norata, misiones cumplidas y nivel, contando
+  hacia arriba, y una insignia según cuándo llegaste (Expedición alpha o
+  beta). La 1.0 lee la fecha de la entrada de la beta para decidirlo.
+- **Una vez por persona** (`settings.hitosVistos`, con la cuenta), y manda
+  sobre la ventana si llega junto a otras novedades.
+- **Con «menos movimiento»** sale el final, quieto, sin vuelo ni conteo.
+- **Los dos borradores escritos** en `novedades/novedades.json` (`0.8` y
+  `1.0`, sin fecha). Se prueban con `?novedades=borrador` → Ajustes →
+  Novedades → «Probar el anuncio».
+- **La etiqueta de la etapa sale del número**: «Alpha» hasta la `0.7.x`,
+  «Beta» desde la `0.8` y ninguna en la `1.0`.
+- `herramientas/novedades-framer.py` conoce la clase «Hito» y la marca como
+  destacada.
+
+**Comprobado** en la app servida en local, a 390 y 1440 px, las dos escenas:
+capa 395, el título, «Beta» y «1.0», los botones visibles al final, las tres
+cifras (213 días, 9 misiones, nivel 8 con el ejemplo y un inicio de hace 212
+días), la insignia que toca, sin desbordes; al cerrar desaparece y en prueba
+no apunta nada; con «menos movimiento» sale el final directo. Sin errores en
+la consola. Al revisar los fotogramas salieron dos cosas, arregladas antes de
+subir: el aro se veía antes que el isotipo (la animación iba con `both` y
+pintaba su primer fotograma durante la espera) y las luciérnagas se posaban
+debajo del isotipo.
+
 ### 0.7.151 · 1 oct 2026
 
 **Las novedades se clasifican por tamaño, las grandes traen imagen y gráfico,

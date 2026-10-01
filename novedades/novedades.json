@@ -2,6 +2,54 @@
   "formato": 2,
   "entradas": [
     {
+      "version": "1.0",
+      "fecha": "",
+      "estado": "borrador",
+      "clase": "hito",
+      "hito": "1.0",
+      "titulo": "Norata 1.0",
+      "resumen": "Norata llega a la Play Store. Lo que empezó como una expedición de pocos ahora está a un toque de cualquiera.",
+      "puntos": [
+        "Búscala como Norata en la Play Store y compártela con quien quieras.",
+        "Tu cuenta, tu progreso y tus mundos vienen contigo, en todos tus dispositivos.",
+        "Gracias por recorrer el camino antes de que tuviera mapa."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Norata 1.0",
+        "resumen": "Norata arrives on the Play Store. What began as an expedition of a few is now one tap away for anyone.",
+        "puntos": [
+          "Find it as Norata on the Play Store and share it with whoever you like.",
+          "Your account, your progress and your worlds come with you, on every device.",
+          "Thank you for walking the path before it had a map."
+        ]
+      }
+    },
+    {
+      "version": "0.8",
+      "fecha": "",
+      "estado": "borrador",
+      "clase": "hito",
+      "hito": "beta",
+      "titulo": "Norata entra en beta",
+      "resumen": "Lo que empezó como una alpha ya se sostiene sola. Desde hoy Norata es beta: más estable, más cuidada y abierta a más gente.",
+      "puntos": [
+        "Todo lo tuyo sigue aquí: tus misiones, tus ramas y tus rachas.",
+        "Ganaste la insignia Expedición alpha, que solo tiene quien llegó antes de hoy.",
+        "Desde aquí, cada versión te cuenta lo que trae."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Norata enters beta",
+        "resumen": "What began as an alpha now stands on its own. From today Norata is in beta: steadier, more polished and open to more people.",
+        "puntos": [
+          "Everything of yours is still here: your missions, your branches and your streaks.",
+          "You earned the Alpha expedition badge, held only by those who arrived before today.",
+          "From here on, every version tells you what it brings."
+        ]
+      }
+    },
+    {
       "version": "0.7.151",
       "fecha": "2026-10-01",
       "estado": "borrador",

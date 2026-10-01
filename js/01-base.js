@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.151";
+const VERSION = "0.7.152";
 const VERSION_FECHA = "1 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -2115,6 +2115,7 @@ const CAPAS_QUE_TAPAN = [
   "#modal.show",            // confirmar
   "#luci-frase.show",       // la frase de una luciérnaga
   "#aniv.show",             // el aniversario de expedición
+  "#hito.show",             // el anuncio de la beta o la 1.0 (js/10l-novedades.js)
   "#racha-hoja.show",       // «Tu racha», al tocar la tarjeta
   "#arc-mando.show",        // el mando del código Konami (Arcade)
   "#arc-abierto.show",      // «Mundo Arcade: ya es tuyo»

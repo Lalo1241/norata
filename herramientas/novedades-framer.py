@@ -34,7 +34,7 @@ SALIDA = RAIZ / "novedades" / "framer.csv"
 IMG = RAIZ / "novedades" / "img"
 WEB = "https://mi.norata.app/"
 
-CLASES = {"expansion": ("Expansión", "Expansion"), "mejora": ("Mejora", "Improvement"),
+CLASES = {"hito": ("Hito", "Milestone"), "expansion": ("Expansión", "Expansion"), "mejora": ("Mejora", "Improvement"),
           "arreglo": ("Arreglo", "Fix")}
 
 # La paleta de noche de Norata (css/estilos.css, :root). El SVG no puede leer
@@ -138,7 +138,7 @@ def main():
             "Versión": e["version"],
             "Fecha": e["fecha"],
             "Clase": CLASES[clase][0],
-            "Destacada": "true" if clase == "expansion" else "false",
+            "Destacada": "true" if clase in ("expansion", "hito") else "false",
             "Resumen": e.get("resumen", ""),
             "Contenido": contenido(e),
             "Imagen": (WEB + img["src"]) if img.get("src") else "",

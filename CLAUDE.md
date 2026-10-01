@@ -189,6 +189,11 @@ y la leerá la página de changelog del sitio el día que exista.
   por lo que le cambia a quien usa la app y no por el número. Un arreglo no
   abre ventana. Las grandes pueden llevar `imagen` (en `novedades/img/`, que
   nunca se sobrescribe) y `grafico` (datos, no dibujo).
+- **La beta y la 1.0 tienen su propio anuncio (0.7.152)**: la clase `hito`
+  abre una escena a pantalla completa en vez de la ventana (`abrirHito`), una
+  vez por persona. Sus borradores ya están escritos; se prueban con
+  `?novedades=borrador`. Y la etiqueta «Alpha» del número cambia sola a «Beta»
+  en la `0.8` y se va en la `1.0`.
 - **El changelog del sitio sale del mismo JSON**: el sitio es Framer, y
   `herramientas/novedades-framer.py` escribe el CSV para su CMS y dibuja los
   gráficos como SVG. Nada se escribe dos veces.

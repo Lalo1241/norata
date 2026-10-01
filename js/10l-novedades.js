@@ -120,6 +120,10 @@ function novedadFecha(iso) {
    pedirle a alguien que se detenga por un problema que quizá ni vio. Sale en
    Ajustes → Novedades como todas. Sin `clase`, una entrada es una mejora. */
 const NOVEDAD_CLASES = {
+  /* El cuarto, que no es un tamaño sino un momento (0.7.152): la entrada en
+     la beta (`0.8`) y el lanzamiento (`1.0`). En vez de la ventana abre la
+     escena de `abrirHito`, y lleva además `"hito": "beta"` o `"1.0"`. */
+  hito:      { nombre: "Hito",      ventana: true },
   expansion: { nombre: "Expansión", ventana: true },
   mejora:    { nombre: "Mejora",    ventana: true },
   arreglo:   { nombre: "Arreglo",   ventana: false }
@@ -245,6 +249,21 @@ async function revisarNovedades() {
     guardarVistas(vistas.concat(pendientes.map((e) => e.version)));
   }
 
+  /* Un hito pendiente manda sobre todo lo demás: es su escena y no la ventana.
+     Lo que hubiera detrás queda para Ajustes → Novedades. */
+  const yaCelebrados = (typeof state !== "undefined" && state && state.settings && state.settings.hitosVistos) || [];
+  const hito = conVentana.find((e) => novedadClase(e) === "hito" && yaCelebrados.indexOf(hitoDeEntrada(e)) < 0);
+  if (hito) {
+    cuandoNadaTape(() => {
+      /* El número que rueda es el que esta persona tenía ANTES de actualizar:
+         «0.7.163 → Beta» cuenta su salto, no el de otro. */
+      abrirHito(hito, { desde: vista || "" }).then(() => {
+        guardarVistas((leerVistas() || []).concat(pendientes.map((e) => e.version)));
+      });
+    });
+    return;
+  }
+
   if (conVentana.length) {
     cuandoNadaTape(() => {
       ventanaNovedades(conVentana).then(() => {
@@ -278,6 +297,10 @@ async function renderPanelNovedades() {
       <b>${escapeHtml(tx("Estás viendo los borradores"))}</b>
       <span>${escapeHtml(tx("Solo en esta pestaña. Lo que dice «Borrador» no lo ve nadie hasta que se apruebe."))}</span>
       ${lista.length ? `<button type="button" class="btn btn-soft btn-block" onclick="novedadesProbarVentana()">${escapeHtml(tx("Ver la ventana de la más reciente"))}</button>` : ""}
+      <div class="nov-prueba-hitos">
+        <button type="button" class="btn btn-linea" onclick="probarHito('beta')">${escapeHtml(tx("Probar el anuncio de la beta"))}</button>
+        <button type="button" class="btn btn-linea" onclick="probarHito('1.0')">${escapeHtml(tx("Probar el anuncio de la 1.0"))}</button>
+      </div>
     </div>` : "";
   caja.innerHTML = `
     <h3>${escapeHtml(tx("Novedades"))}</h3>
@@ -291,7 +314,8 @@ async function renderPanelNovedades() {
 /* Para revisar un borrador tal como se verá: no apunta nada como visto. */
 async function novedadesProbarVentana() {
   /* La más reciente que de verdad abriría ventana: un arreglo no la abre. */
-  const lista = novedadesVisibles(await cargarNovedades(), true).filter((e) => NOVEDAD_CLASES[novedadClase(e)].ventana);
+  const lista = novedadesVisibles(await cargarNovedades(), true)
+    .filter((e) => NOVEDAD_CLASES[novedadClase(e)].ventana && novedadClase(e) !== "hito");
   if (lista.length) ventanaNovedades(lista.slice(0, 1));
 }
 
@@ -334,3 +358,207 @@ function cerrarAvisoVersion() {
 }
 
 window.addEventListener("load", () => setTimeout(revisarNovedades, 600));
+
+/* ================= Los hitos: la beta y la 1.0 (0.7.152) =================
+   Eduardo: «un anuncio muy especial en diseño para cuando subamos de alpha a
+   beta y el lanzamiento 1.0, con animaciones, y más cosas». Son dos veces en
+   la vida de la app, así que no es una ventana con más adornos: es una escena,
+   como el aniversario, y como él se queda de noche en los dos modos (no es
+   interfaz, es un dibujo) y usa la menta de la MARCA y no el acento del mundo
+   —es la marca la que cumple, no el mundo que lleves puesto—.
+
+   Lo que pasa, en orden (los tiempos viven en el CSS, `#hito`):
+     1. Se hace de noche y aparecen las estrellas.
+     2. Las luciérnagas —el bicho de Norata— vuelan desde los bordes al centro.
+     3. Donde se juntan se dibuja el isotipo, y suenan dos ondas y el `hito`.
+     4. El número rueda: de la versión que tenías a «Beta» o a «1.0».
+     5. El título y el texto de la novedad.
+     6. Tu parte: días en Norata, misiones cumplidas, nivel, y una insignia
+        que dice cuándo llegaste («Expedición alpha» o «Expedición beta»).
+   Con «menos movimiento» todo sale ya en su sitio y sin vuelo.
+
+   Se apunta como visto POR PERSONA, en `settings.hitosVistos` (viaja con la
+   cuenta): un hito no se celebra dos veces porque tengas dos dispositivos. */
+const HITO_ETIQUETA = { beta: "Beta", "1.0": "1.0" };
+
+function hitoDeEntrada(e) {
+  return e && (e.hito === "beta" || e.hito === "1.0") ? e.hito : (versionMasNueva(e && e.version || "0", "0.9.999") ? "1.0" : "beta");
+}
+
+/* Tu parte, de lo que la app ya guarda. Sin cuenta ni datos sale lo que haya:
+   una tarjeta con ceros no se pinta. */
+function hitoTuParte(hito, e) {
+  const s = (typeof state !== "undefined" && state && state.settings) || {};
+  const hoy = typeof todayKey === "function" ? todayKey() : "";
+  const ini = s.inicio || null;
+  const dias = ini && typeof daysBetween === "function" ? daysBetween(ini, hoy) + 1 : 0;
+  let misiones = 0;
+  if (typeof missionDone === "function") (state.missions || []).forEach((m) => {
+    Object.keys(m.log || {}).forEach((k) => { if (missionDone(m, k)) misiones++; });
+  });
+  const nivel = typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 0;
+  /* La insignia: dónde estabas cuando cambió la etapa. Para la beta, todo el
+     que la ve llegó en la alpha. Para la 1.0 se mira la fecha de la beta en
+     las novedades; sin ella, se dice la alpha solo si llevas más de un año. */
+  let etapa = "alpha";
+  if (hito === "1.0") {
+    const beta = (novedadesCache || []).find((x) => x.hito === "beta" && x.fecha);
+    etapa = ini && beta ? (ini < beta.fecha ? "alpha" : "beta") : (dias > 365 ? "alpha" : "beta");
+  }
+  return { dias, misiones, nivel, etapa };
+}
+let novedadesCache = null;
+cargarNovedades().then((es) => { novedadesCache = es; });
+
+function hitoNum(n) {
+  try { return Number(n).toLocaleString(typeof idiomaActual === "function" && idiomaActual() === "en" ? "en-US" : "es-MX"); }
+  catch (x) { return String(n); }
+}
+
+function hitoQuieto() {
+  try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (x) { return false; }
+}
+
+/* Devuelve una promesa que se cumple al cerrarla, como `ventanaNovedades`. */
+function abrirHito(e, opciones) {
+  const op = opciones || {};
+  const hito = hitoDeEntrada(e);
+  const quieto = hitoQuieto();
+  const t = tuParteHTML(hitoTuParte(hito, e), hito);
+  cerrarHito(true);
+
+  let estrellas = "", bichos = "";
+  for (let i = 0; i < 60; i++) estrellas += `<i style="left:${(Math.random() * 100).toFixed(1)}%;top:${(Math.random() * 100).toFixed(1)}%;animation-delay:${(Math.random() * 3).toFixed(2)}s"></i>`;
+  /* Las luciérnagas salen de un anillo alrededor del centro, cada una de su
+     ángulo, y vuelan hacia el isotipo. Las posiciones van en variables y el
+     vuelo en una animación: una transición sobre variables se congela aquí
+     (CLAUDE.md, «Trampas»). */
+  for (let i = 0; i < 36; i++) {
+    const ang = Math.random() * Math.PI * 2, r = 46 + Math.random() * 30;
+    bichos += `<i style="--x:${(Math.cos(ang) * r).toFixed(1)}vmax;--y:${(Math.sin(ang) * r).toFixed(1)}vmax;animation-delay:${(0.3 + Math.random() * 0.7).toFixed(2)}s"></i>`;
+  }
+  const puntos = novedadCampo(e, "puntos") || [];
+  const v = document.createElement("div");
+  v.id = "hito";
+  v.className = "hito-" + (hito === "1.0" ? "lanzamiento" : "beta") + (quieto ? " quieto" : "");
+  v.setAttribute("role", "dialog");
+  v.setAttribute("aria-modal", "true");
+  v.setAttribute("aria-label", novedadCampo(e, "titulo") || "");
+  v.innerHTML = `
+    <div class="hito-cielo"></div>
+    <div class="hito-estrellas" aria-hidden="true">${estrellas}</div>
+    <div class="hito-bichos" aria-hidden="true">${bichos}</div>
+    <div class="hito-escena">
+      <div class="hito-marca" aria-hidden="true">
+        <span class="hito-onda"></span><span class="hito-onda dos"></span>
+        <svg viewBox="0 0 250 250"><path class="hito-iso" d="${HITO_ISOTIPO}"/></svg>
+      </div>
+      <div class="hito-numero" aria-hidden="true">
+        <span class="hito-antes">${escapeHtml(op.desde || (op.prueba && typeof VERSION !== "undefined" ? VERSION : ""))}</span>
+        <span class="hito-ahora">${escapeHtml(HITO_ETIQUETA[hito])}</span>
+      </div>
+      <h2 class="hito-tit">${escapeHtml(novedadCampo(e, "titulo") || "")}</h2>
+      ${novedadCampo(e, "resumen") ? `<p class="hito-res">${escapeHtml(novedadCampo(e, "resumen"))}</p>` : ""}
+      ${puntos.length ? `<ul class="hito-puntos">${puntos.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>` : ""}
+      ${t}
+      <div class="hito-botones">
+        <button type="button" class="btn btn-primary hito-seguir">${escapeHtml(tx(hito === "1.0" ? "Seguir la expedición" : "Seguir adelante"))}</button>
+        <button type="button" class="btn btn-linea hito-todas">${escapeHtml(tx("Ver todas las novedades"))}</button>
+      </div>
+      ${op.prueba ? `<p class="hito-prueba">${escapeHtml(tx("Prueba: así saldrá. No se apunta como visto."))}</p>` : ""}
+    </div>
+    <div class="hito-chispas" aria-hidden="true"></div>`;
+  document.body.appendChild(v);
+
+  return new Promise((listo) => {
+    const cerrar = (yNovedades) => {
+      cerrarHito();
+      if (!op.prueba) {
+        try {
+          state.settings.hitosVistos = [...new Set([...(state.settings.hitosVistos || []), hito])];
+          if (typeof save === "function") save();
+        } catch (x) {}
+      }
+      listo();
+      if (yNovedades) abrirNovedades();
+    };
+    v.querySelector(".hito-seguir").addEventListener("click", () => cerrar(false));
+    v.querySelector(".hito-todas").addEventListener("click", () => cerrar(true));
+    void v.offsetWidth;
+    v.classList.add("show");
+    setTimeout(() => { const b = v.querySelector(".hito-seguir"); if (b) b.focus({ preventScroll: true }); }, quieto ? 0 : 5200);
+    /* El sonido, cuando el isotipo termina de dibujarse. `sonar` ya pasa por
+       `puedeSonar`: con la app escondida o el audio dormido, no suena. */
+    hitoReloj = setTimeout(() => {
+      if (typeof sonar === "function") sonar("hito");
+      if (!quieto) hitoChispas(v.querySelector(".hito-chispas"), hito === "1.0" ? 90 : 50);
+    }, quieto ? 0 : 2300);
+    v.querySelectorAll("[data-contar]").forEach((el) => {
+      const hasta = Number(el.dataset.contar) || 0;
+      if (quieto) { el.textContent = hitoNum(hasta); return; }
+      setTimeout(() => {
+        const t0 = Date.now();
+        const r = setInterval(() => {
+          if (!el.isConnected) return clearInterval(r);
+          const q = Math.min(1, (Date.now() - t0) / 1400), f = 1 - Math.pow(1 - q, 3);
+          el.textContent = hitoNum(Math.round(hasta * f));
+          if (q === 1) clearInterval(r);
+        }, 30);
+      }, 4300);
+    });
+  });
+}
+let hitoReloj = null;
+
+function tuParteHTML(d, hito) {
+  const cifras = [
+    d.dias ? `<span class="hito-cifra"><b data-contar="${d.dias}">0</b><span>${escapeHtml(tx(d.dias === 1 ? "día en Norata" : "días en Norata"))}</span></span>` : "",
+    d.misiones ? `<span class="hito-cifra"><b data-contar="${d.misiones}">0</b><span>${escapeHtml(tx(d.misiones === 1 ? "misión cumplida" : "misiones cumplidas"))}</span></span>` : "",
+    d.nivel ? `<span class="hito-cifra"><b data-contar="${d.nivel}">0</b><span>${escapeHtml(tx("nivel de expedición"))}</span></span>` : ""
+  ].join("");
+  const insignia = d.etapa === "alpha" ? tx("Expedición alpha") : tx("Expedición beta");
+  const porque = d.etapa === "alpha"
+    ? tx(hito === "1.0" ? "Llegaste cuando Norata todavía era alpha." : "Llegaste antes de la beta, cuando todo esto apenas se estaba armando.")
+    : tx("Llegaste en la beta, antes de que Norata estuviera en la tienda.");
+  return `
+    <div class="hito-tuyo">
+      <span class="hito-tuyo-tit">${escapeHtml(tx("Tu parte en esto"))}</span>
+      ${cifras ? `<div class="hito-cifras">${cifras}</div>` : ""}
+      <div class="hito-insignia">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3l17 9.5v21L24 45 7 33.5v-21z"/><path d="M24 14l3.2 6.6 7.2.9-5.3 5 1.4 7.1L24 30.1l-6.5 3.5 1.4-7.1-5.3-5 7.2-.9z"/></svg>
+        <span><b>${escapeHtml(insignia)}</b><span>${escapeHtml(porque)}</span></span>
+      </div>
+    </div>`;
+}
+
+function hitoChispas(c, n) {
+  if (!c) return;
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement("i");
+    const ang = Math.random() * Math.PI * 2, r = 120 + Math.random() * 260;
+    s.style.cssText = `--dx:${(Math.cos(ang) * r).toFixed(0)}px;--dy:${(Math.sin(ang) * r).toFixed(0)}px;animation-delay:${(Math.random() * 0.35).toFixed(2)}s`;
+    s.className = "c" + (i % 4);
+    c.appendChild(s);
+  }
+}
+
+function cerrarHito(enSeco) {
+  clearTimeout(hitoReloj);
+  const v = document.getElementById("hito");
+  if (!v) return;
+  if (enSeco || hitoQuieto()) { v.remove(); return; }
+  v.classList.add("fuera");
+  setTimeout(() => v.remove(), 380);
+}
+
+/* Desde Ajustes → Novedades en modo revisión: la escena tal como saldrá, con
+   el texto de su borrador si existe, y sin apuntar nada. */
+async function probarHito(cual) {
+  const es = await cargarNovedades();
+  const e = es.find((x) => x.hito === cual) ||
+    { version: cual === "1.0" ? "1.0" : "0.8", hito: cual, titulo: cual === "1.0" ? "Norata 1.0" : "Norata entra en beta" };
+  abrirHito(e, { prueba: true });
+}
+
+/* El isotipo de la marca, el mismo trazo que `avisarRenacer` (js/10i-apariencia.js). */
+const HITO_ISOTIPO = "M224.919,110.004h-5.319c-2.476,0-4.487-2.011-4.487-4.487V25.081c0-4.947-4.027-8.973-8.973-8.973h-87.162c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487H31.811c-8.658,0-15.703,7.046-15.703,15.703v80.436c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v80.432c0,4.947,4.027,8.973,8.973,8.973h87.166c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h55.755c18.556,0,33.650-15.094,33.650-33.650v-62.485c0-4.947-4.027-8.973-8.973-8.973ZM55.91,128.783h-5.319c-2.476,0-4.487-2.011-4.487-4.487v-54.927c0-2.476,2.011-4.487,4.487-4.487h61.657c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h54.923c2.476,0,4.487,2.011,4.487,4.487v61.657c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v45.949c0,7.422-6.038,13.460-13.460,13.460h-52.679c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487h-54.927c-2.476,0-4.487-2.011-4.487-4.487v-61.653c0-4.947-4.027-8.973-8.973-8.973Z";

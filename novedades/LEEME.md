@@ -57,6 +57,29 @@ que se detenga por un problema que quizá ni vio.
 Si sí, es una expansión. Si lo notaría al usarlo pero no lo contaría, es una
 mejora. Si solo lo nota quien lo sufría, es un arreglo.
 
+### El hito: la beta y la 1.0 (0.7.152)
+
+Una cuarta clase que no es un tamaño sino un momento, y solo hay dos: la
+entrada en la beta (`"version": "0.8"`, `"hito": "beta"`) y el lanzamiento en
+la Play Store (`"version": "1.0"`, `"hito": "1.0"`). Eduardo pidió para ellos
+«un anuncio muy especial en diseño, con animaciones, y más cosas».
+
+- **No abre la ventana: abre una escena** (`abrirHito`, `js/10l-novedades.js`).
+  Se hace de noche, las luciérnagas vuelan al centro y forman el isotipo, el
+  número que tenías rueda hasta «Beta» o «1.0», y después el texto y **tu
+  parte**: días en Norata, misiones cumplidas, nivel, y una insignia que dice
+  cuándo llegaste (`Expedición alpha` o `Expedición beta`).
+- **Se celebra una vez por persona**, no por dispositivo (`settings.hitosVistos`
+  viaja con la cuenta).
+- **Sus borradores ya están escritos** (las entradas `0.8` y `1.0`, sin fecha).
+  El día del hito se les pone la fecha, se aprueban y salen con esa versión.
+  **La de la 1.0 lee la fecha de la de la beta** para saber quién llegó antes
+  de ella: no se borra la de la beta.
+- **Se prueban sin esperar**: con `?novedades=borrador`, en Ajustes →
+  Novedades, «Probar el anuncio de la beta» y «de la 1.0». No apunta nada.
+- **La etiqueta «Alpha» del número de versión cambia sola**: `0.8` y siguientes
+  dicen «Beta», y en la `1.0` desaparece (`pintarVersion`, `js/11-arranque.js`).
+
 ## La imagen y el gráfico (opcionales)
 
 Para las que lo merecen, que casi siempre son expansiones.
