@@ -181,8 +181,12 @@ ventana al estrenar una versión y Ajustes → Novedades (`js/10l-novedades.js`)
 y la leerá la página de changelog del sitio el día que exista.
 
 - **Nada sale sin que Eduardo lo apruebe.** Las entradas nacen en
-  `"borrador"` y la app solo enseña `"publicado"`. Él las revisa con
-  `?novedades=borrador`. Las reglas para escribirlas, en `novedades/LEEME.md`.
+  `"borrador"` y la ventana que sale al abrir solo enseña `"publicado"`. Las
+  reglas para escribirlas, en `novedades/LEEME.md`.
+- **El panel de Ajustes sí enseña los borradores, y es provisional (0.7.155)**:
+  `NOVEDADES_BORRADORES_A_LA_VISTA` está en `true` porque hoy solo usa la app
+  Eduardo. **Se apaga antes de la beta.** Las herramientas de prueba (la
+  ventana, los anuncios de hito) siguen con `?novedades=borrador`.
 - **Se apuntan como vistas POR ENTRADA, no por versión**: una aprobada días
   después sale igual.
 - **Cada entrada tiene `clase` (0.7.151): `expansion`, `mejora` o `arreglo`**,

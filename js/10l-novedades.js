@@ -56,6 +56,22 @@ function novedadesEnBorrador() {
   try { return sessionStorage.getItem(NOVEDADES_BORRADOR) === "1"; } catch (e) { return false; }
 }
 
+/* ---- Los borradores, a la vista en el panel (0.7.155) ----
+   Eduardo abrió Ajustes → Novedades en la versión correcta y lo encontró
+   vacío: todas las entradas estaban en borrador y solo salían con
+   `?novedades=borrador` en la dirección, que no recordaba. Lo pidió así: «evita
+   que sea necesario para poder verlo siempre, total, solo estoy yo».
+
+   Así que el PANEL enseña también los borradores, cada uno con su etiqueta.
+   Lo que NO cambia es la ventana que sale sola al abrir: esa sigue siendo
+   solo para lo publicado, o cada versión le saltaría con un texto sin aprobar.
+
+   **Esto se apaga antes de la beta.** Vale mientras la única persona que usa
+   la app es él; el día que entre alguien más, un borrador a la vista es un
+   texto sin aprobar publicado. Se pone en `false` y el panel vuelve a pedir el
+   parámetro (está apuntado en VERSIONES.md, «Apuntado y sin hacer»). */
+const NOVEDADES_BORRADORES_A_LA_VISTA = true;
+
 /* 0.7.149.1 contra 0.7.149: por tramos y como números — como texto, «0.7.99»
    saldría más nuevo que «0.7.149». */
 function versionMasNueva(a, b) {
@@ -361,8 +377,12 @@ function abrirNovedades() {
 async function renderPanelNovedades() {
   const caja = document.getElementById("panel-novedades");
   if (!caja) return;
+  /* Dos cosas distintas desde la 0.7.155: la LISTA lleva los borradores
+     siempre (ver `NOVEDADES_BORRADORES_A_LA_VISTA`), y las HERRAMIENTAS de
+     prueba —la ventana y los dos anuncios de hito— siguen detrás del
+     parámetro, que es donde tienen sentido. */
   const borrador = novedadesEnBorrador();
-  const lista = novedadesVisibles(await cargarNovedades(), borrador);
+  const lista = novedadesVisibles(await cargarNovedades(), borrador || NOVEDADES_BORRADORES_A_LA_VISTA);
   const aviso = borrador ? `
     <div class="nov-prueba">
       <b>${escapeHtml(tx("Estás viendo los borradores"))}</b>

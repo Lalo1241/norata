@@ -272,7 +272,31 @@ es donde vive lo que el repositorio ya dice y la base de datos todavía no.
 Lo demás de aquel reporte está cerrado: el respaldo trucado y el marco ajeno en
 la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
+### Apagar los borradores a la vista antes de la beta
+
+Desde la 0.7.155 el panel de Ajustes → Novedades enseña los borradores a
+cualquiera (`NOVEDADES_BORRADORES_A_LA_VISTA = true`, `js/10l-novedades.js`).
+Lo pidió Eduardo porque hoy es la única persona que usa la app y el parámetro
+de la dirección no lo recordaba. **El día que entre alguien más, eso es un
+texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
+`?novedades=borrador`— o se aprueban antes las entradas que haya.
+
 ## La lista
+
+### 0.7.155 · 1 oct 2026
+
+**Ajustes → Novedades enseña los borradores sin pedir nada en la dirección.**
+Eduardo lo abrió en la versión correcta y estaba vacío: todo está en borrador
+y solo salía con `?novedades=borrador`. «Evita que sea necesario para poder
+verlo siempre, total, solo estoy yo.»
+
+- `NOVEDADES_BORRADORES_A_LA_VISTA` (`js/10l-novedades.js`), en `true`: el
+  panel lista también los borradores, cada uno con su etiqueta «Borrador».
+- **La ventana que sale sola al abrir no cambia**: solo lo publicado.
+- Las herramientas de prueba (ver la ventana, probar los anuncios de la beta y
+  la 1.0) siguen detrás de `?novedades=borrador`.
+- **Hay que apagarlo antes de la beta**: ver «Apuntado y sin hacer».
+- Sin entrada en `novedades.json`: no le cambia nada a quien usa la app.
 
 ### 0.7.154 · 1 oct 2026
 
