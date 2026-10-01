@@ -982,6 +982,27 @@ del árbol cuelgan dos y salía repetida.
 llevas del nivel en curso: quien va por el 2 camino del 3 puede tener el nivel
 actual al 5% y llevar media escalera. Sale del `ring()` que ya existía.
 
+## Las insignias
+
+**Toda insignia de un logro es UNA figura de los nodos de Ramas con UN símbolo
+dentro**, y nada más (Eduardo, 0.7.153.3: la medalla de la 1.0 llevaba cinta,
+«1.0» y una β diminuta, y pidió «solo el símbolo, con una forma de algún logro
+del módulo de talentos»). Se dibuja con `insigniaSVG(tipo, simbolo)`
+(`js/01-base.js`) y la figura dice qué clase de logro es, con el significado
+que ya tiene en el árbol:
+
+| Figura | Tipo de nodo | Para un logro que… |
+| --- | --- | --- |
+| hexágono | `hito` | pasó una vez y se cierra |
+| rombo | `meta` | se sostuvo en el tiempo |
+| triángulo | `acumular` | fue sumando |
+| círculo | `compra` | abre algo |
+
+El símbolo va en `--sans`, nunca en la letra del mundo. Los tonos los pone quien
+la pinta (`--ins-tono`, `--ins-fondo`, `--ins-tinta`). Hoy hay dos: la alpha
+(hexágono, α) y la beta (rombo, β). **Un logro nuevo no inventa otra forma de
+medalla**: elige figura por lo que significa y un símbolo.
+
 ## Cómo se le habla a quien usa la app
 
 El español pone género donde el inglés no pone nada. Se pregunta en la bienvenida

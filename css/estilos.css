@@ -8115,6 +8115,13 @@
 
   @media (prefers-reduced-motion: reduce) { .toast { transition: opacity 0.2s ease; transform: none; } }
 
+  /* Las insignias de logro (`insigniaSVG`, js/01-base.js): una figura de los
+     nodos y un símbolo. Quien la pinta decide sus tres tonos. */
+  .insignia { --ins-tono: var(--mint); --ins-fondo: var(--card); --ins-tinta: var(--text); overflow: visible; }
+  .insignia .aro { fill: color-mix(in srgb, var(--ins-tono) 20%, transparent); stroke: var(--ins-tono); stroke-width: 2.5; stroke-linejoin: round; }
+  .insignia .dentro { fill: color-mix(in srgb, var(--ins-tono) 35%, var(--ins-fondo)); stroke-linejoin: round; }
+  .insignia .simbolo { font-family: var(--sans); font-weight: 800; font-size: 26px; fill: var(--ins-tinta); }
+
   /* ---------- El anuncio de un hito: la beta y la 1.0 (0.7.152; rehecho en 0.7.153) ----------
      Una escena y no una ventana (ver `abrirHito`, js/10l-novedades.js).
 
@@ -8272,7 +8279,10 @@
   #hito .hito-rep-cita { font-size: 15px; line-height: 1.4; color: var(--hito-suave); }
   #hito .hito-rep-cita b { color: var(--hito-texto); }
   #hito .hito-rep-tit { font-size: 12px; font-weight: 700; color: var(--hito-suave); }
-  #hito .hito-mapa { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 9px); grid-template-columns: repeat(var(--semanas), minmax(0, 1fr)); gap: 3px; margin-top: 6px; }
+  /* Columnas de 9 px y no de una fracción: con cuatro semanas (alguien que
+     acaba de empezar) cada día se estiraba a lo ancho de la tarjeta y el mapa
+     se leía como tres barras grises. */
+  #hito .hito-mapa { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 9px); grid-template-columns: repeat(var(--semanas), minmax(0, 9px)); justify-content: start; gap: 3px; margin-top: 6px; }
   #hito .hito-mapa i { border-radius: 2px; }
   #hito .hito-mapa i.p0 { background: transparent; }
   #hito .hito-mapa i.p1 { background: color-mix(in srgb, var(--hito-texto) 8%, transparent); }
@@ -8285,20 +8295,7 @@
   #hito .hito-insignia { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: var(--r-grande); background: var(--hito-tarjeta); border: 1px solid var(--hito-borde); }
   #hito .hito-insignia b { display: block; font-size: 17px; }
   #hito .hito-insignia span span { display: block; font-size: 13px; color: var(--hito-suave); line-height: 1.4; margin-top: 2px; }
-  #hito .hito-ins-svg { flex: none; width: 64px; height: 64px; overflow: visible; }
-  #hito .hito-ins-svg text { font-family: var(--sans); font-weight: 800; }
-  /* El sello de la beta: hexágono en el acento del mundo, con la alfa. */
-  #hito .sello .aro { fill: color-mix(in srgb, var(--hito-marca) 20%, transparent); stroke: var(--hito-marca); stroke-width: 2.5; }
-  #hito .sello .dentro { fill: color-mix(in srgb, var(--hito-marca) 35%, var(--hito-tarjeta)); }
-  #hito .sello .letra { font-size: 26px; fill: var(--hito-texto); }
-  /* La medalla de la 1.0: redonda, en luciérnaga, con cinta del acento. */
-  #hito .medalla { height: 72px; }
-  #hito .medalla .cinta { fill: var(--hito-marca); opacity: .85; }
-  #hito .medalla .aro { fill: var(--hito-luz); }
-  #hito .medalla .dentro { fill: color-mix(in srgb, var(--hito-luz) 55%, var(--hito-noche)); stroke: var(--hito-noche); stroke-opacity: .3; stroke-width: 1; }
-  #hito .medalla .num { font-size: 13px; fill: var(--hito-noche); }
-  #hito .medalla .letra { font-size: 12px; fill: var(--hito-noche); }
-  #hito .hito-medalla { border-color: color-mix(in srgb, var(--hito-luz) 40%, transparent); }
+  #hito .hito-ins-svg { flex: none; width: 64px; height: 64px; --ins-tono: var(--hito-marca); --ins-fondo: var(--hito-tarjeta); --ins-tinta: var(--hito-texto); }
   #hito .visto .hito-ins-svg { animation: hito-insignia .9s cubic-bezier(.2, 1.4, .4, 1) .15s both; }
   @keyframes hito-insignia { from { transform: rotate(-25deg) scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
 

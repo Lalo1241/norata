@@ -77,8 +77,10 @@ la Play Store (`"version": "1.0"`, `"hito": "1.0"`). Eduardo pidió para ellos
   - **`{versiones}` en un texto se rellena solo** con cuántas versiones van
     (`camino` más las entradas de 3º hasta la vigente). Un número escrito a
     mano en un borrador se queda viejo antes de publicarse.
-  - **Una insignia por hito**: sello hexagonal con α para la beta; medalla con
-    cinta, «1.0» y la letra de la etapa en que llegaste, para la 1.0.
+  - **Una insignia por etapa** (0.7.153.3): la de la etapa en que llegaste,
+    igual en los dos hitos. Hexágono con α para la alpha, rombo con β para la
+    beta. Es el lenguaje de todas las insignias de la app (`insigniaSVG`,
+    ver «Las insignias» en `CLAUDE.md`).
   - **Debajo, un reporte que aparece al bajar**: días, días con algo hecho,
     mejor racha, misiones, nodos, la habilidad más alta, nivel y rango, la
     primera misión y un punto por día de las últimas semanas. Sin láminas:

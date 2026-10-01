@@ -445,8 +445,8 @@ window.addEventListener("load", () => setTimeout(revisarNovedades, 600));
      Tarda —en la 1.0, nueve segundos—, y es a propósito: es la celebración.
      La lista sale de `camino` (lo de antes de las novedades) y de las
      entradas (lo de después), así que no hay que mantenerla a mano.
-   - **Cada hito tiene su insignia**: un sello hexagonal para la beta y una
-     medalla con cinta para la 1.0.
+   - **La insignia es la de la etapa en que llegaste** (`hitoInsigniaSVG`):
+     hexágono con α para la alpha, rombo con β para la beta.
    - **Abajo, un reporte**: lo que recorriste, en tarjetas que aparecen al
      bajar. Sin láminas: las láminas son del aniversario, y aquí el
      espectáculo ya lo dio la escena de arriba.
@@ -495,10 +495,13 @@ function hitoReporte(hito, doc) {
   const st = (typeof state !== "undefined" && state) || {};
   const s = st.settings || {};
   const hoy = typeof todayKey === "function" ? todayKey() : "";
-  const ini = s.inicio || null;
-  const dias = ini && typeof daysBetween === "function" ? daysBetween(ini, hoy) + 1 : 0;
-
   const activos = typeof activityDaySet === "function" ? [...activityDaySet()].sort() : [];
+  /* El primer día es el más viejo entre el inicio apuntado y lo primero que se
+     hizo: un respaldo importado trae días de antes del inicio de este
+     dispositivo, y sin esto salían «3 días desde que empezaste» y «10 días con
+     algo hecho, 350%». */
+  const ini = [s.inicio, activos[0]].filter(Boolean).sort()[0] || null;
+  const dias = ini && typeof daysBetween === "function" ? daysBetween(ini, hoy) + 1 : 0;
   let racha = 0, corrida = 0, previo = null;
   activos.forEach((k) => {
     corrida = previo && typeof addDaysKey === "function" && addDaysKey(previo, 1) === k ? corrida + 1 : 1;
@@ -544,24 +547,13 @@ function hitoReporte(hito, doc) {
   return { dias, ini, activos: activos.length, racha, misiones, primera, hab, nodos, nivel, rango, etapa, puntos, semanas };
 }
 
-function hitoInsigniaSVG(hito, etapa) {
-  const letra = etapa === "beta" ? "β" : "α";
-  if (hito === "1.0") {
-    /* La medalla de la 1.0: redonda, con su cinta, el número dentro y la letra
-       de la etapa en la que llegaste. */
-    return `<svg class="hito-ins-svg medalla" viewBox="0 0 64 72" aria-hidden="true">
-      <path class="cinta" d="M20 40 L12 70 L22 64 L28 72 L32 46 Z M44 40 L52 70 L42 64 L36 72 L32 46 Z"/>
-      <circle class="aro" cx="32" cy="28" r="24"/><circle class="dentro" cx="32" cy="28" r="18"/>
-      <text x="32" y="27" text-anchor="middle" class="num">1.0</text>
-      <text x="32" y="40" text-anchor="middle" class="letra">${letra}</text>
-    </svg>`;
-  }
-  /* El sello de la beta: un hexágono con la alfa en medio. */
-  return `<svg class="hito-ins-svg sello" viewBox="0 0 64 64" aria-hidden="true">
-    <path class="aro" d="M32 3l25 14.5v29L32 61 7 46.5v-29z"/>
-    <path class="dentro" d="M32 11l18 10.5v21L32 53 14 42.5v-21z"/>
-    <text x="32" y="41" text-anchor="middle" class="letra">${letra}</text>
-  </svg>`;
+/* La insignia de la etapa en la que llegaste, la misma en los dos hitos: quien
+   estuvo en la alpha la recibe en la beta y la vuelve a ver en la 1.0. La alpha
+   es un hexágono (un hito: pasó una vez) y la beta un rombo (una meta: la
+   sostuviste hasta la tienda). Hasta 0.7.153.2 la 1.0 daba una medalla con
+   cinta y «1.0»; Eduardo la cambió por solo el símbolo. Ver `insigniaSVG`. */
+function hitoInsigniaSVG(etapa) {
+  return etapa === "beta" ? insigniaSVG("meta", "β", "hito-ins-svg") : insigniaSVG("hito", "α", "hito-ins-svg");
 }
 
 function hitoReporteHTML(d, hito) {
@@ -599,8 +591,8 @@ function hitoReporteHTML(d, hito) {
   return `
     <section class="hito-reporte">
       <h3 class="hito-rep-titulo">${escapeHtml(tx(hito === "1.0" ? "Tu camino hasta la 1.0" : "Tu alpha, en números"))}</h3>
-      <div class="hito-insignia hito-${hito === "1.0" ? "medalla" : "sello"}">
-        ${hitoInsigniaSVG(hito, d.etapa)}
+      <div class="hito-insignia">
+        ${hitoInsigniaSVG(d.etapa)}
         <span><b>${escapeHtml(insignia)}</b><span>${escapeHtml(porque)}</span></span>
       </div>
       <div class="hito-reps">${t.join("")}${primera}${mapa}</div>

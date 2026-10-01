@@ -274,6 +274,27 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.153.3 · 1 oct 2026
+
+**Las novedades de la 0.7.147 a la 0.7.151, publicadas, y la insignia de la
+beta, rehecha.** Eduardo las aprobó: ya salen sin `?novedades=borrador`.
+
+**La insignia.** La medalla de la 1.0 (cinta, «1.0» y la letra de la etapa)
+se cambió por solo el símbolo dentro de una figura de los nodos de Ramas, que
+es lo que pidió y lo que ya hacía el sello de la alpha. Queda como lenguaje
+para todo logro futuro: `insigniaSVG(tipo, simbolo)` en `js/01-base.js`, la
+figura por su significado en el árbol (hexágono = hito, rombo = meta,
+triángulo = acumular, círculo = compra). La alpha es hexágono con α; la beta,
+rombo con β. En los dos hitos sale la de la etapa en que llegaste. Escrito en
+«Las insignias» de `CLAUDE.md`.
+
+**Dos cosas del reporte que se vieron en su captura.** El mapa de puntos con
+cuatro semanas (alguien que acaba de empezar) estiraba cada columna a lo ancho
+de la tarjeta y se leía como tres barras grises: las columnas miden 9 px. Y
+los días desde que empezaste contaban desde `settings.inicio` aunque hubiera
+actividad de antes (un respaldo importado): ahora cuentan desde lo más viejo
+de las dos cosas.
+
 ### 0.7.153.2 · 1 oct 2026
 
 **El anuncio de la beta y la 1.0: los textos sin relleno y el número en

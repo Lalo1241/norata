@@ -675,7 +675,7 @@
     {
       "version": "0.7.151",
       "fecha": "2026-10-01",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Las novedades, por tamaño",
       "resumen": "Cada novedad dice si es una expansión, una mejora o un arreglo, y las grandes llegan con imagen.",
@@ -694,7 +694,7 @@
     {
       "version": "0.7.150",
       "fecha": "2026-10-01",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "arreglo",
       "titulo": "Tu Resumen, sin huecos",
       "resumen": "Al juntar Talentos y Proyectos en Ramas, el Resumen se quedó con espacios vacíos. Ya está parejo en todas las pantallas.",
@@ -715,7 +715,7 @@
     {
       "version": "0.7.149",
       "fecha": "2026-09-30",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Ahora te enteras de lo que llega",
       "resumen": "Cuando hay una versión nueva, Norata te lo dice, y al estrenarla te cuenta qué trae.",
@@ -736,7 +736,7 @@
     {
       "version": "0.7.148",
       "fecha": "2026-09-30",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "expansion",
       "titulo": "Cyberpunk, el quinto mundo",
       "resumen": "Paneles con visor en vez de marco, cinco paletas con su cara de día y una racha que se enciende como un circuito.",
@@ -928,7 +928,7 @@
     {
       "version": "0.7.147",
       "fecha": "2026-09-30",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "expansion",
       "titulo": "Cinco paletas por mundo y diez ambientes",
       "resumen": "Cada mundo trae cinco paletas, Norata clásico llega a diez ambientes, y los mundos se miran desde Mi apariencia antes de ponértelos.",

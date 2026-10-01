@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.153.2";
+const VERSION = "0.7.153.3";
 const VERSION_FECHA = "1 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -691,6 +691,40 @@ const TIPOS = {
     tecla: "R"
   }
 };
+
+/* ---- Las insignias (0.7.153.3) ----
+   Toda insignia que la app dé por un logro se dibuja con UNA figura de los
+   nodos de Ramas y UN símbolo dentro, y nada más. Lo pidió Eduardo al ver la
+   medalla de la 1.0 (cinta, «1.0» y una β diminuta): «que sea solo el símbolo,
+   y que use una forma de algún logro del módulo de talentos», para que sea el
+   lenguaje de los logros que vengan. La figura dice qué CLASE de logro es, con
+   el mismo significado que en el árbol:
+
+     hito      hexágono   algo que pasó una vez y se cierra
+     meta      rombo      algo que sostuviste en el tiempo
+     acumular  triángulo  algo que fue sumando
+     compra    círculo    una llave
+
+   Dos contornos —el aro y el relleno de dentro— y el símbolo en la letra de la
+   app, nunca en la del mundo: en Arcade y Averno una letra suelta no se lee.
+   Los colores son de quien la pinta (`--ins-tono`, `--ins-fondo`,
+   `--ins-tinta`, ver `.insignia` en css/estilos.css). */
+function insigniaSVG(tipo, simbolo, clase) {
+  const forma = (TIPOS[tipo] || TIPOS.hito).forma;
+  const fig = (r) => {
+    if (forma === "circulo") return (k) => `<circle class="${k}" cx="32" cy="32" r="${r}"/>`;
+    let v;
+    if (forma === "rombo") v = [[32, 32 - r], [32 + r, 32], [32, 32 + r], [32 - r, 32]];
+    else if (forma === "triangulo") v = [[32, 36 - r * 1.15], [32 + r, 36 + r * .58], [32 - r, 36 + r * .58]];
+    else v = [0, 1, 2, 3, 4, 5].map((i) => { const a = -Math.PI / 2 + i * Math.PI / 3; return [32 + r * Math.cos(a), 32 + r * Math.sin(a)]; });
+    return (k) => `<polygon class="${k}" points="${v.map((q) => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" ")}"/>`;
+  };
+  const [rAro, rDentro, y] = forma === "triangulo" ? [30, 20, 47] : forma === "rombo" ? [30, 20, 41] : [29, 21, 41];
+  return `<svg class="insignia${clase ? " " + clase : ""}" viewBox="0 0 64 64" aria-hidden="true">
+    ${fig(rAro)("aro")}${fig(rDentro)("dentro")}
+    <text x="32" y="${y}" text-anchor="middle" class="simbolo">${escapeHtml(simbolo)}</text>
+  </svg>`;
+}
 
 /* Las unidades de lo que se acumula. «dinero» se escribe con la moneda del
    ajuste; las demás, con su palabra. */
