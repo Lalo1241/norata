@@ -87,6 +87,9 @@ exclude:
   #   plantillas/    -> caminos/caminos.json
   - apariencias/
   - mundos/
+  # El código nativo de la app de Android (los avisos). Su instalador lo baja
+  # de raw.githubusercontent.com, no del sitio.
+  - nativo/
   - plantillas/
   - caminos/app.py
 

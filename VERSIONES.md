@@ -274,6 +274,57 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.152 · 1 oct 2026
+
+**Los avisos del Pomodoro en la app de Android: el reloj en la cortina, el
+final de cada fase con la app cerrada y una alarma al empezar cada actividad.**
+Lo pidió Eduardo: avisos con diseño en el APK, que el Pomodoro se pueda iniciar
+y pausar desde el aviso, y que sirva de alarma para el inicio de cada
+actividad.
+
+- **Por qué no salía nada:** el Pomodoro avisaba con la API `Notification` del
+  navegador (`jAvisar`), y el WebView de Android no la trae; en el APK tampoco
+  hay service worker. Con la app de fondo los avisos se quedaban en
+  `jPendientes` y se decían al volver. Y una página dormida no puede sonar a
+  una hora: eso lo hace `AlarmManager`.
+- **Lo nativo, en `nativo/avisos/`**: el complemento `AvisosNorata` (tres
+  archivos Java), el isotipo blanco de la barra y `instalar-avisos.js`, que lo
+  mete en «Norata App Android» de un comando, como el de los iconos. **Pide
+  reinstalar el APK una vez**; sin eso no cambia nada. Pasos en su `LEEME.md`.
+- **La página decide y lo nativo pinta.** `js/13b-avisos.js` es el puente:
+  manda los textos en el idioma de la app, convierte los iconos de la app en
+  PNG sobre su color y pone en fila lo que se manda. El Pomodoro calcula cada
+  aviso (`jEstadoAviso`, `jEntradasAgenda`) y lo manda solo cuando cambia
+  (`jSincronizarAvisos`, en `jPaso`).
+- **Lo que se toca con la app cerrada** se hace en el acto sobre el aviso y se
+  apunta en una cola con su hora; la página lo aplica al abrir
+  (`jAplicarAvisos`), y no cierra una fase hasta haberla repasado: una pausa
+  de hace diez minutos cambia si el tramo ya acabó. Una pausa de una fase que
+  ya no corre no se aplica.
+- **Cada aviso se dice una vez:** la alarma del final y la página usan la
+  misma clave (`fid|fase`). Para eso `jFinFase` saca sus textos de
+  `jMensajeFin`, que el aviso fijo guarda por adelantado. `jIniciar` acepta la
+  hora, el `fid` y el bloque de un tramo iniciado desde la cortina.
+- **La agenda** son las alarmas de la semana: el inicio de cada bloque de
+  enfoque (`cfg.alarmas`, interruptor nuevo que solo sale en el APK) y media
+  hora antes de dormir. Cada una se vuelve a programar sola al sonar y tras un
+  reinicio del teléfono. Van en la zona del perfil (`userTZ`), la misma de la
+  rueda.
+- **Sin servicio en primer plano:** la cuenta atrás la dibuja el sistema
+  (`setUsesChronometer`). Las alarmas son exactas si se permite
+  `SCHEDULE_EXACT_ALARM` (desde Android 14 nace apagado; se ofrece un botón).
+
+**Comprobado:** el Java compila contra Android 16 (`android-all` de
+Robolectric) y Capacitor 8.5 sin advertencias propias; el instalador, contra
+un proyecto de mentira con saltos CRLF (instala, la segunda vez se salta todo,
+`--deshacer` lo devuelve); el cálculo de la próxima alarma, con cinco casos y
+el cruce de semana. La página, servida en local con un complemento de mentira:
+el reloj sale con su fin exacto, la pausa y un «Seguir» de hace 2 s se
+aplican, una pausa vieja no, el final con la app de fondo va al sistema con su
+clave, el de dormir se calla, iniciar desde la alarma arranca el tramo a la
+hora del toque y abre el Pomodoro, y los iconos llegan en PNG. Sin errores en
+la consola. **Falta verlo en un teléfono de verdad.**
+
 ### 0.7.151 · 1 oct 2026
 
 **Las novedades se clasifican por tamaño, las grandes traen imagen y gráfico,

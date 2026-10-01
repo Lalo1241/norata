@@ -3700,6 +3700,21 @@ const TEXTOS_EN = {
   "Descansar {0} min": "Rest {0} min",
   "Seguir sin descanso": "Keep going without a break",
   "Sin permiso para avisar: el navegador lo tiene bloqueado": "No permission to notify: the browser has it blocked",
+  /* Los avisos de la app de Android (0.7.150): los botones y los canales que
+     Android enseña en sus ajustes, y lo que dice la cortina. */
+  "Pomodoro en curso": "Pomodoro running",
+  "Avisos del Pomodoro": "Pomodoro alerts",
+  "Inicio de actividad": "Activity start",
+  "Pausar": "Pause",
+  "En 5 min": "In 5 min",
+  "Tramo libre": "Open session",
+  "Toca para cerrarlo y apuntar tu avance": "Tap to wrap it up and log your progress",
+  "Empieza {0}": "{0} starts now",
+  "Alarma al empezar cada actividad": "Alarm when each activity starts",
+  "Suena a su hora aunque la app esté cerrada, con un botón para iniciar": "Rings on time even with the app closed, with a button to start",
+  "Sin permiso para avisar: actívalo en los ajustes de Android": "No permission to notify: turn it on in Android settings",
+  "Para que suene a la hora justa, permite las alarmas": "To ring right on time, allow alarms",
+  "Permitir": "Allow",
   "Otra vez para abandonar": "Again to abandon",
 
   /* ---- El Pomodoro: descansos y dormir (0.7.102) ---- */

@@ -152,7 +152,7 @@ function jDatos() {
      reemplazaba por una copia en cada llamada —cuatro veces por segundo—, y
      quien guardaba el de antes escribía en una copia huérfana: el reloj no
      cambiaba al mover los minutos. */
-  const porDefecto = { preset: "clasico", foco: 25, desc: 5, ciclos: 4, auto: false, sonido: true, notificar: true, hfModo: "travesia" };
+  const porDefecto = { preset: "clasico", foco: 25, desc: 5, ciclos: 4, auto: false, sonido: true, notificar: true, alarmas: true, hfModo: "travesia" };
   for (const k in porDefecto) if (!(k in j.cfg)) j.cfg[k] = porDefecto[k];
   if (!Array.isArray(j.registro)) j.registro = [];
   return j;
@@ -471,21 +471,34 @@ function jPuedoCerrar(run) { return jEsMio(run) || jTrans(run) - run.dur > 90000
    de la app no puede explicar nada, y una campana sin explicación es ruido. */
 function jPedirPermiso() {
   const c = jDatos().cfg;
-  if (c.notificar === false || !("Notification" in window) || Notification.permission !== "default") return;
+  if (c.notificar === false) return;
+  /* En la app de Android el permiso es del sistema y lo pide su complemento:
+     el WebView no trae `Notification` (ver js/13b-avisos.js). */
+  if (jNativo()) { jNativo().pedir(); return; }
+  if (!("Notification" in window) || Notification.permission !== "default") return;
   try { Notification.requestPermission(); } catch (e) { /* sin avisos del sistema */ }
 }
 
-function jIniciar() {
-  jAudio(); jPedirPermiso();
+/* `op` solo lo pasa el aviso de la app de Android (`jAplicarAvisos`): el
+   tramo que se inició desde la cortina empezó CUANDO se tocó (`seg`), con el
+   id de fase que ya lleva su alarma (`fid`) y en el bloque de esa alarma. */
+function jIniciar(op) {
+  op = op || {};
+  if (!op.seg) { jAudio(); jPedirPermiso(); }
   const j = jDatos(), c = j.cfg, libre = c.preset === "libre";
   let tramo = 1, ref = jObjetivo(), bloque = null;
   if (j.run && j.run.fase === "listo" && !j.run.lite) { tramo = j.run.tramo; ref = j.run.ref; bloque = j.run.bloque; }
+  else if (op.bloque) {
+    const b = jBuscarBloque(op.bloque);
+    bloque = b ? b.id : null;
+    ref = b && jRef(b.ref) ? b.ref : null;
+  }
   else {
     const b = jBloqueEn(jAhora());
     bloque = b && !b.descanso && jEleccion === undefined ? b.id : null;
   }
-  j.run = { fase: "foco", tramo, dur: libre ? null : c.foco * J_MS, acum: 0, seg: Date.now(), pausas: 0, libre, ref: ref || null, bloque,
-    origen: jEsteDispositivo(), fid: uid(), reloj: jTipoReloj(libre ? 0 : c.foco) };
+  j.run = { fase: "foco", tramo, dur: libre ? null : c.foco * J_MS, acum: 0, seg: op.seg || Date.now(), pausas: 0, libre, ref: ref || null, bloque,
+    origen: jEsteDispositivo(), fid: op.fid || uid(), reloj: jTipoReloj(libre ? 0 : c.foco) };
   save(); jPantallaDespierta(); jPintar();
 }
 function jPausa() {
@@ -500,11 +513,31 @@ function jSiguiente() {
   if (j.cfg.auto) jIniciar();
   else { save(); jPintarControles(); }
 }
+/* Lo que se dice al acabar la fase que corre, calculado ANTES de pasar a la
+   siguiente. Lo usan dos: `jFinFase`, al acabar, y el aviso fijo de la app de
+   Android (`jEstadoAviso`), que lo guarda por adelantado para poder decirlo
+   con la app cerrada. Una sola fuente, para que los dos digan lo mismo. */
+function jMensajeFin(run) {
+  const j = jDatos();
+  if (run.lite) {
+    const k = run.modo || "travesia", h = jHfCfg().hf[k] || {};
+    if (run.fase === "foco") {
+      if (k === "travesia" && run.tramo < (run.rondas || 1)) return [T`Ronda ${run.tramo} de ${run.rondas} lista`, T`Descansa ${h.desc || 5} min.`];
+      const min = Math.round(run.dur / J_MS);
+      return [tx("Listo"), k === "travesia" && (run.rondas || 1) > 1 ? T`Terminaste tus ${run.rondas} rondas.` : T`${min} min de hiperfoco.`];
+    }
+    if (k === "respiro") return [tx("Tu respiro terminó"), tx("Vuelve cuando quieras.")];
+    return [tx("De vuelta al foco"), T`Ronda ${run.tramo + 1} de ${run.rondas}.`];
+  }
+  if (run.fase === "foco") return [T`Tramo ${run.tramo} de ${j.cfg.ciclos} listo`, T`${Math.round(run.dur / J_MS)} min de foco. Toca descansar.`];
+  return [tx("Se acabó el descanso"), T`Sigue el tramo ${run.tramo + 1}.`];
+}
 function jFinFase() {
   const j = jDatos(), run = j.run;
   /* Cada final de fase suena UNA vez (`clave`) y solo en el dispositivo que
      lleva el reloj (`mio`). */
   const mio = jEsMio(run), clave = (run.fid || run.seg || "") + "|" + run.fase;
+  const [titulo, texto] = jMensajeFin(run);
   if (run.lite) {
     const k = run.modo || "travesia", h = jHfCfg().hf[k] || {};
     if (run.fase === "foco") {
@@ -513,24 +546,20 @@ function jFinFase() {
       /* Una Travesía sigue sola: foco, descanso, foco… hasta sus rondas. */
       if (k === "travesia" && run.tramo < (run.rondas || 1)) {
         Object.assign(run, { fase: "descanso", dur: (h.desc || 5) * J_MS, acum: 0, seg: Date.now(), fid: uid() });
-        save();
-        jAvisar(T`Ronda ${run.tramo} de ${run.rondas} lista`, T`Descansa ${h.desc || 5} min.`, clave, mio);
       } else {
         Object.assign(run, { fase: "listo", min, acum: 0, seg: null });
-        save();
-        jAvisar(tx("Listo"), k === "travesia" && (run.rondas || 1) > 1 ? T`Terminaste tus ${run.rondas} rondas.` : T`${min} min de hiperfoco.`, clave, mio);
       }
+      save();
+      jAvisar(titulo, texto, clave, mio);
     } else if (run.fase === "descanso") {
       if (k === "respiro") {
         jApuntarRespiro(Math.round(run.dur / J_MS));
         j.run = null;
-        save();
-        jAvisar(tx("Tu respiro terminó"), tx("Vuelve cuando quieras."), clave, mio);
       } else {
         Object.assign(run, { fase: "foco", tramo: run.tramo + 1, dur: (h.foco || 25) * J_MS, acum: 0, seg: Date.now(), pausas: 0, fid: uid() });
-        save();
-        jAvisar(tx("De vuelta al foco"), T`Ronda ${run.tramo} de ${run.rondas}.`, clave, mio);
       }
+      save();
+      jAvisar(titulo, texto, clave, mio);
     }
     jPintar();
     return;
@@ -539,11 +568,11 @@ function jFinFase() {
     run.min = Math.round(run.dur / J_MS);
     run.fase = "cierre"; run.seg = null;
     save();
-    jAvisar(T`Tramo ${run.tramo} de ${j.cfg.ciclos} listo`, T`${run.min} min de foco. Toca descansar.`, clave, mio);
+    jAvisar(titulo, texto, clave, mio);
     if (document.querySelector("#view-jornada.active")) jAbrirHoja("cierre");
     jPintarControles();
   } else if (run.fase === "descanso") {
-    jAvisar(tx("Se acabó el descanso"), T`Sigue el tramo ${run.tramo + 1}.`, clave, mio);
+    jAvisar(titulo, texto, clave, mio);
     jSiguiente();
   }
 }
@@ -2003,9 +2032,13 @@ function jPantallaDespierta() {
 function jPaso() {
   jPantallaDespierta();
   jModoDormir();
+  jSincronizarAvisos();
   if (!jornadaEncendida()) { jPintarPildora(); return; }
   const run = jDatos().run;
-  if (run && (run.fase === "foco" || run.fase === "descanso") && run.dur && run.seg && jTrans(run) >= run.dur && jPuedoCerrar(run)) jFinFase();
+  /* Con la app de Android, primero lo que se tocó en la cortina con la app
+     cerrada: una pausa de hace diez minutos cambia si el tramo ya acabó. */
+  const colaLista = !jNativo() || jNativo().revisada();
+  if (colaLista && run && (run.fase === "foco" || run.fase === "descanso") && run.dur && run.seg && jTrans(run) >= run.dur && jPuedoCerrar(run)) jFinFase();
   jCuentaDescanso(jDatos().run);
   jAvisoSueno();
   /* Cada cuarto de hora puede cambiar el bloque de «ahora», y con él se olvida
@@ -2156,6 +2189,14 @@ function jAvisar(titulo, texto, clave, mio) {
     return;
   }
   const cfg = jDatos().cfg;
+  /* En la app de Android avisa el sistema, con el sonido y la vibración de su
+     canal. La clave va con él: si la alarma del final ya lo dijo con la app
+     cerrada, este se calla. El de ir a dormir no se dice desde aquí, porque
+     lo tiene su propia alarma a la hora justa (`jEntradasAgenda`). */
+  if (jNativo() && cfg.notificar !== false) {
+    if (!(clave && String(clave).indexOf("sueno|") === 0)) jNativo().avisar(t, texto, clave);
+    return;
+  }
   if (cfg.notificar !== false && "Notification" in window && Notification.permission === "granted") {
     jCampana(); vibrar();
     const op = { body: texto, tag: "jornada", icon: "icon-192.png", badge: "icon-192.png" };
@@ -2173,6 +2214,191 @@ function jMostrarPendientes() {
   jPendientes = [];
   lista.forEach((m, i) => setTimeout(() =>
     toast(T`Mientras no estabas · ${m}`, "logro", { label: tx("Ver"), onclick: "irAModulo('jornada')", ms: 10000 }), i * 400));
+}
+
+/* ---------- Los avisos de la app de Android (0.7.150) ----------
+   En el APK los avisos los pone el sistema, con el complemento `AvisosNorata`
+   (su código, en `nativo/avisos/`; el puente, en js/13b-avisos.js). Fuera del
+   APK, o en uno que no lo traiga, `jNativo()` es nada y todo sigue como antes.
+
+   Tres cosas, y las tres las pidió Eduardo:
+
+     - **El reloj en la cortina.** Un aviso fijo con la cuenta atrás mientras
+       corre un tramo, con Pausar y Seguir. Se puede pausar sin abrir la app.
+     - **El final de cada fase, con la app cerrada.** Lo dice la alarma del
+       sistema a su hora; la página, dormida, ya no tiene que estar viva.
+     - **Una alarma al empezar cada actividad de la rueda**, con Iniciar (el
+       tramo arranca desde la cortina) y «En 5 min».
+
+   **La página decide y lo nativo pinta.** Todo lo que se dice se calcula
+   aquí —los textos, el icono, lo que pasa al acabar— y se le manda hecho:
+   así un cambio llega con la versión, sin reinstalar el APK. Lo que se toca
+   con la app cerrada queda apuntado con su hora y se aplica al abrir
+   (`jAplicarAvisos`); el estado de verdad sigue siendo `state.jornada.run`.
+
+   Solo el dispositivo que lleva el reloj lo enseña (`jEsMio`): el tramo viaja
+   con la sincronía, y una cuenta empezada en la computadora sonaría también
+   en el teléfono — justo lo que la 0.7.105.1 quitó. */
+const jNativo = () => window.norataAvisos || null;
+
+function jBuscarBloque(id) {
+  for (const bs of jDatos().rutinas) {
+    const b = bs.find(x => x.id === id);
+    if (b) return b;
+  }
+  return null;
+}
+
+/* El icono grande del aviso: el de lo que se enfoca, sobre su color. */
+function jIconoAviso(ref, b) {
+  const r = jRef(ref);
+  const color = b ? jColorBloque(b) : r && r.o.color ? pinta(r.o.color) : "var(--jor-libre)";
+  return { dibujo: b ? jIconoBloque(b) : r ? jIconoDe(r.o) : J_ARENA, color };
+}
+
+function jEstadoAviso(run) {
+  const j = jDatos(), c = j.cfg, r = jRef(run.ref);
+  const nombre = run.lite ? jHfNombre(run.modo || "travesia") : r ? r.nombre : tx("Sin vincular");
+  const ronda = run.lite
+    ? ((run.modo || "travesia") === "travesia" && (run.rondas || 1) > 1 ? T`Ronda ${run.tramo} de ${run.rondas}` : jHfResumen(run.modo || "travesia"))
+    : run.libre ? tx("Tramo libre") : T`Tramo ${run.tramo} de ${c.ciclos}`;
+  const [ft, fx] = jMensajeFin(run);
+  const e = {
+    clave: (run.fid || run.seg || "") + "|" + run.fase,
+    alFinal: { titulo: tx("Pomodoro") + " · " + ft, texto: fx },
+    pausable: run.fase === "foco",
+    icono: jIconoAviso(run.ref, null)
+  };
+  if (run.fase === "foco" || run.fase === "descanso") {
+    e.titulo = run.fase === "foco" ? nombre : run.lite && run.modo === "respiro" ? nombre : tx("Descanso");
+    e.texto = ronda;
+    const dur = run.dur || 0;
+    if (run.seg) {
+      if (dur) e.fin = run.seg + dur - (run.acum || 0);
+      else e.inicio = run.seg - (run.acum || 0);
+    } else {
+      e.pausado = true;
+      e.restante = dur ? Math.max(0, dur - jTrans(run)) : 0;
+      e.transcurrido = dur ? 0 : jTrans(run);
+    }
+  } else if (run.fase === "listo") {
+    /* Entre tramos: el siguiente se puede iniciar desde la cortina. */
+    const dur = c.preset === "libre" ? 0 : (run.dur || c.foco * J_MS);
+    e.titulo = T`Tramo ${run.tramo} de ${c.ciclos}`;
+    e.texto = tx("Listo para empezar");
+    e.siguiente = {
+      titulo: nombre, texto: T`Tramo ${run.tramo} de ${c.ciclos}`, dur, bloque: run.bloque || "", icono: e.icono,
+      alFinal: { titulo: tx("Pomodoro") + " · " + T`Tramo ${run.tramo} de ${c.ciclos} listo`, texto: T`${Math.round(dur / J_MS)} min de foco. Toca descansar.` }
+    };
+  } else {
+    // El cierre: lo que pide la hoja de «¿cómo te fue?», que vive en la app.
+    e.titulo = run.libre ? tx("Tramo libre") : T`Tramo ${run.tramo} de ${c.ciclos} listo`;
+    e.texto = tx("Toca para cerrarlo y apuntar tu avance");
+  }
+  return e;
+}
+
+/* Las alarmas de la semana: el inicio de cada actividad de la rueda, y media
+   hora antes de dormir (lo de `jAvisoSueno`, que con la app cerrada no corre). */
+function jEntradasAgenda() {
+  const j = jDatos(), c = j.cfg, out = [];
+  if (!jornadaEncendida()) return out;
+  const dur = c.preset === "libre" ? 0 : c.foco * J_MS;
+  j.rutinas.forEach((bs, d) => bs.forEach(b => {
+    if (!b.descanso && c.alarmas !== false) {
+      const nombre = jNombreBloque(b), icono = jIconoAviso(b.ref, b);
+      out.push({
+        id: "i" + b.id, dia: d, min: Math.round(b.ini) % J_DIA,
+        titulo: T`Empieza ${nombre}`, texto: jRango(b), icono, visible: true,
+        iniciar: {
+          // Sin icono propio: lo nativo le pone el de la entrada (pesa ~6 KB).
+          titulo: nombre, texto: c.preset === "libre" ? tx("Tramo libre") : T`Tramo ${1} de ${c.ciclos}`, dur, bloque: b.id,
+          alFinal: { titulo: tx("Pomodoro") + " · " + T`Tramo ${1} de ${c.ciclos} listo`, texto: T`${c.foco} min de foco. Toca descansar.` }
+        }
+      });
+    } else if (b.descanso === "dormir" && c.notificar !== false) {
+      let m = Math.round(b.ini) - 30, dd = d;
+      if (m < 0) { m += J_DIA; dd = (d + 6) % 7; }
+      out.push({
+        id: "s" + b.id, dia: dd, min: m, visible: false, posponible: false,
+        titulo: T`En ${30} min toca dormir`, texto: T`Tu bloque de dormir empieza a las ${jH12(b.ini)}.`,
+        icono: { dibujo: J_LUNA, color: "var(--jor-sueno)" }
+      });
+    }
+  }));
+  return out;
+}
+
+/* Corre en cada `jPaso` (cuatro veces por segundo) y solo manda cuando algo
+   cambió: la firma es lo que se ve en el aviso, no la hora. La agenda se mira
+   cada pocos segundos, que la rueda no cambia sola. */
+let jRelojFirma = null, jAgendaFirma = null, jAgendaMirada = 0;
+function jSincronizarAvisos() {
+  const av = jNativo();
+  if (!av) return;
+  const j = jDatos(), run = j.run;
+  const ver = !!run && jornadaEncendida() && jEsMio(run) && !j.dormido && j.cfg.notificar !== false &&
+    !(run.lite && run.fase === "listo");
+  const firma = ver ? JSON.stringify([run.fase, run.tramo, run.seg, run.acum, run.dur, run.fid, run.ref, run.modo, run.rondas,
+    j.cfg.ciclos, j.cfg.foco, j.cfg.preset, idiomaActual()]) : "";
+  if (firma !== jRelojFirma) {
+    jRelojFirma = firma;
+    av.reloj(ver ? jEstadoAviso(run) : null);
+  }
+  if (Date.now() - jAgendaMirada < 5000) return;
+  jAgendaMirada = Date.now();
+  const entradas = jEntradasAgenda();
+  const fa = JSON.stringify([entradas, userTZ(), idiomaActual()]);
+  if (fa !== jAgendaFirma) { jAgendaFirma = fa; av.agenda(entradas); }
+}
+
+/* Lo que se tocó en la cortina, con su hora. Una pausa o un «seguir» solo
+   valen para la fase de la que hablaba el aviso (`clave`): si la página ya
+   pasó a otra, ese toque llegó tarde y no se aplica. */
+function jAplicarAvisos(lista) {
+  if (!Array.isArray(lista) || !lista.length) return;
+  const j = jDatos();
+  let cambio = false;
+  lista.slice().sort((a, b) => (a.t || 0) - (b.t || 0)).forEach(ev => {
+    const run = j.run, t = Math.min(Number(ev.t) || Date.now(), Date.now());
+    const deEste = !!run && !!ev.clave && ((run.fid || run.seg || "") + "|" + run.fase) === ev.clave;
+    if (ev.accion === "pausa" && deEste && run.fase === "foco" && run.seg) {
+      run.acum = (run.acum || 0) + Math.max(0, t - run.seg); run.seg = null; run.pausas++;
+      cambio = true;
+    } else if (ev.accion === "seguir" && deEste && run.fase === "foco" && !run.seg) {
+      run.seg = t;
+      cambio = true;
+    } else if (ev.accion === "iniciar") {
+      // Con un tramo ya en marcha no se empieza otro encima.
+      if (run && !(run.fase === "listo")) return;
+      if (run && run.lite) j.run = null;
+      jIniciar({ seg: t, fid: ev.fid, bloque: run && !run.lite ? null : ev.bloque || null });
+      cambio = true;
+    }
+  });
+  if (cambio) save();
+  // Lo nativo pudo adelantarse a lo que de verdad pasó: se le vuelve a mandar.
+  jRelojFirma = null;
+  jPintar();
+}
+
+/* Al encender «Avisarme fuera de la app» o las alarmas. Las alarmas exactas
+   no se piden con un cuadro, sino en los ajustes del sistema: se ofrecen con
+   un botón, y sin ellas suenan igual, solo que pueden llegar unos minutos
+   tarde con el teléfono dormido. */
+function jPedirAvisosNativos(alarmas) {
+  const av = jNativo();
+  if (!av) return;
+  av.pedir().then(p => {
+    if (!p.avisos) {
+      toast(tx("Sin permiso para avisar: actívalo en los ajustes de Android"), "atencion");
+      return;
+    }
+    if (alarmas && !p.exactas) {
+      toast(tx("Para que suene a la hora justa, permite las alarmas"), "atencion",
+        { label: tx("Permitir"), onclick: "norataAvisos.pedirExactas()", ms: 12000 });
+    }
+  });
 }
 
 /* ---------- Las hojas ---------- */
@@ -2458,6 +2684,7 @@ function jPintarHoja() {
         ${sw("auto", tx("Seguir solo"), tx("El siguiente tramo arranca sin tocar nada"))}
         ${sw("sonido", tx("Sonido"))}
         ${sw("notificar", tx("Avisarme fuera de la app"), tx("Con un aviso del sistema que dice qué pasó"))}
+        ${jNativo() ? sw("alarmas", tx("Alarma al empezar cada actividad"), tx("Suena a su hora aunque la app esté cerrada, con un botón para iniciar")) : ""}
       </div>
       <button type="button" class="btn btn-primary btn-block" data-act="cerrar">${tx("Listo")}</button>`;
   } else if (jHoja === "enque") {
@@ -2556,7 +2783,8 @@ function jClickHoja(e) {
     cfg[v] = !cfg[v];
     /* El permiso se pide al ENCENDER el interruptor, que es un gesto tuyo: pedirlo
        al abrir la pantalla es el cuadro que todo el mundo cierra sin leer. */
-    if (v === "notificar" && cfg.notificar && "Notification" in window && Notification.permission !== "granted") {
+    if ((v === "notificar" || v === "alarmas") && cfg[v] && jNativo()) jPedirAvisosNativos(v === "alarmas");
+    else if (v === "notificar" && cfg.notificar && "Notification" in window && Notification.permission !== "granted") {
       Notification.requestPermission().then(p => {
         if (p !== "granted") { cfg.notificar = false; save(); jPintarHoja(); toast(tx("Sin permiso para avisar: el navegador lo tiene bloqueado"), "atencion"); }
       });
