@@ -773,7 +773,7 @@
           },
           "datos": [
             {
-              "valor": "5º",
+              "valor": "5.º",
               "texto": "mundo de Norata",
               "en": {
                 "texto": "Norata world"
@@ -787,7 +787,7 @@
               "en": {
                 "texto": "palettes with a daytime face"
               },
-              "icono": "paleta",
+              "icono": "brush",
               "tono": 4
             },
             {
@@ -1003,7 +1003,7 @@
               },
               "antes": 7,
               "ahora": 10,
-              "icono": "brush",
+              "icono": "sol",
               "tono": 1
             }
           ]

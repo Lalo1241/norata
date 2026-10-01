@@ -274,6 +274,15 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.153.1 · 1 oct 2026
+
+**El «antes y ahora» de las novedades ya no corta los nombres.** En una sola
+fila, con diez puntitos, «Ambientes de la casa» se quedaba en «Ambi…»: ahora
+el nombre va en su renglón y los puntitos con los números debajo, con una
+raya entre filas. Y dos cosas de los borradores: el icono `paleta` de la app es
+una paleta de hielo, no de pintor (las paletas de color van con `brush`), y
+«5º» se leía como grados (ahora «5.º»).
+
 ### 0.7.153 · 1 oct 2026
 
 **Los gráficos de las novedades, rehechos, y el anuncio de la beta y la 1.0,
