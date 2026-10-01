@@ -673,6 +673,27 @@
       }
     },
     {
+      "version": "0.7.157",
+      "fecha": "2026-10-01",
+      "estado": "borrador",
+      "clase": "arreglo",
+      "titulo": "Novedades, legible en cualquier mundo",
+      "resumen": "El número de versión de cada novedad ya se lee bien en todos los mundos.",
+      "puntos": [
+        "En Averno y Catedral salía en rojo sobre rojo.",
+        "La etiqueta de «Expansión» va en verde en todos los mundos."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "What's new, readable in any world",
+        "resumen": "The version number on each update is now easy to read in every world.",
+        "puntos": [
+          "In Averno and Catedral it showed red on red.",
+          "The “Expansion” label is green in every world."
+        ]
+      }
+    },
+    {
       "version": "0.7.154",
       "fecha": "2026-10-01",
       "estado": "borrador",

@@ -577,9 +577,13 @@ function hitoInsigniaSVG(etapa) {
 }
 
 function hitoReporteHTML(d, hito) {
+  /* Cada tarjeta lleva su icono DOS veces: chico en su casilla y grande, de
+     marca de agua, en la esquina. Con una sola cifra dentro la tarjeta era un
+     rectángulo con un número; el dibujo grande es lo que la hace de algo. */
   const tarjeta = (tono, ico, valor, texto, extra) => `
     <div class="hito-rep" style="--t: var(--paleta-${tono})">
-      <span class="hito-rep-ic">${icon(ico, 18)}</span>
+      <span class="hito-rep-agua" aria-hidden="true">${icon(ico, 96)}</span>
+      <span class="hito-rep-ic">${icon(ico, 20)}</span>
       <b>${valor}</b><span>${escapeHtml(texto)}</span>${extra || ""}
     </div>`;
   const cont = (n) => `<span data-contar="${n}">${hitoNum(n)}</span>`;
@@ -593,16 +597,59 @@ function hitoReporteHTML(d, hito) {
   if (d.nodos) t.push(tarjeta(4, "star", cont(d.nodos), tx(d.nodos === 1 ? "nodo logrado" : "nodos logrados")));
   if (d.hab && d.hab.n) t.push(tarjeta(6, "bolt", T`Nivel ${d.hab.n}`, d.hab.nombre || ""));
   if (d.nivel) t.push(tarjeta(7, "crown", T`Nivel ${d.nivel}`, d.rango ? T`de expedición · ${d.rango}` : tx("de expedición")));
+  /* Con un número impar, la última se queda sola en media fila y se lee como
+     un hueco —es lo que vio Eduardo en una cuenta de tres días: una tarjeta y
+     media pantalla vacía al lado—. La última ocupa la fila entera. */
+  if (t.length % 2) t[t.length - 1] = t[t.length - 1].replace('class="hito-rep"', 'class="hito-rep hito-rep-ancha"');
   const primera = d.primera ? `
-    <div class="hito-rep hito-rep-ancha" style="--t: var(--paleta-1)">
-      <span class="hito-rep-ic">${icon("flag", 18)}</span>
+    <div class="hito-rep hito-rep-ancha hito-rep-origen" style="--t: var(--paleta-1)">
+      <span class="hito-rep-agua" aria-hidden="true">${icon("flag", 96)}</span>
+      <span class="hito-rep-ic">${icon("flag", 20)}</span>
       <span class="hito-rep-cita">${escapeHtml(tx("Todo empezó con"))} <b>«${escapeHtml(d.primera.nombre || "")}»</b></span>
       <i>${escapeHtml(novedadFecha(d.primera.k))}</i>
     </div>` : "";
+  /* El mapa de días. Eran rectángulos del ancho de la columna sin nada que
+     dijera qué era cada cosa, y los días de antes de empezar eran
+     transparentes: con una cuenta nueva quedaba una caja vacía con tres rayas
+     en una esquina. Ahora cada día es un cuadro del mismo tamaño, los de antes
+     de empezar se ven como un hueco con borde, hoy lleva su aro, y debajo va
+     la leyenda. La cuenta de arriba a la derecha es la de esa ventana. */
+  const hechos = d.puntos.filter((p) => p === 2).length;
+  const vividos = d.puntos.filter((p) => p > 0).length;
+  /* Dos formas según cuánto hay que enseñar. Con muchas semanas, una columna
+     por semana y cuadros chicos (caben 26). Con ocho o menos eso son cuatro
+     columnitas en una esquina de una caja vacía, así que se vuelve un
+     CALENDARIO: una fila por semana, siete casillas a todo lo ancho y arriba
+     la inicial de cada día. La última casilla siempre es hoy, así que las
+     iniciales se cuentan hacia atrás desde hoy. */
+  const calendario = d.semanas <= 8;
+  let iniciales = "";
+  if (calendario) {
+    let fmt = null;
+    try { fmt = new Intl.DateTimeFormat(typeof idiomaActual === "function" ? idiomaActual() : "es", { weekday: "narrow" }); } catch (e) {}
+    const hoyD = new Date();
+    const dias7 = [];
+    for (let j = 6; j >= 0; j--) {
+      const f = new Date(hoyD.getFullYear(), hoyD.getMonth(), hoyD.getDate() - j);
+      dias7.push(fmt ? fmt.format(f).toUpperCase() : "");
+    }
+    iniciales = `<span class="hito-mapa-dias" aria-hidden="true">${dias7.map((x) => `<b>${escapeHtml(x)}</b>`).join("")}</span>`;
+  }
   const mapa = d.puntos.length ? `
     <div class="hito-rep hito-rep-ancha hito-mapa-caja" style="--t: var(--paleta-5)">
-      <span class="hito-rep-tit">${escapeHtml(T`Tus últimas ${d.semanas} semanas, un punto por día`)}</span>
-      <span class="hito-mapa" style="--semanas:${d.semanas}">${d.puntos.map((p) => `<i class="p${p}"></i>`).join("")}</span>
+      <span class="hito-mapa-cab">
+        <span class="hito-rep-tit">${escapeHtml(T`Tus últimas ${d.semanas} semanas, un cuadro por día`)}</span>
+        <span class="hito-mapa-cuenta"><b>${hitoNum(hechos)}</b> ${escapeHtml(T`de ${hitoNum(vividos)}`)}</span>
+      </span>
+      ${iniciales}
+      <span class="hito-mapa${calendario ? " cal" : ""}" style="--semanas:${d.semanas}">${d.puntos.map((p, i) =>
+        `<i class="p${p}${i === d.puntos.length - 1 ? " hoy" : ""}"></i>`).join("")}</span>
+      <span class="hito-mapa-ley">
+        <span><i class="p2"></i>${escapeHtml(tx("Con algo hecho"))}</span>
+        <span><i class="p1"></i>${escapeHtml(tx("Sin nada"))}</span>
+        ${d.puntos.indexOf(0) >= 0 ? `<span><i class="p0"></i>${escapeHtml(tx("Antes de que empezaras"))}</span>` : ""}
+        <span><i class="p1 hoy"></i>${escapeHtml(tx("Hoy"))}</span>
+      </span>
     </div>` : "";
   const insignia = d.etapa === "alpha" ? tx("Expedición alpha") : tx("Expedición beta");
   const porque = d.etapa === "alpha"
