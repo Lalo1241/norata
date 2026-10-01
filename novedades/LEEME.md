@@ -79,7 +79,7 @@ la Play Store (`"version": "1.0"`, `"hito": "1.0"`). Eduardo pidió para ellos
     lo demás.
   - **El número gira como una ruleta** (0.7.153.2) por cada 3º publicado: en
     la beta, por la alpha hasta caer en «Beta»; en la 1.0, desde la primera
-    versión, por la beta y sus actualizaciones, hasta la 1.0 (nueve segundos).
+    versión, por la beta y sus actualizaciones, hasta la 1.0 (la pantalla entera, 9 s como mucho: 0.7.159).
     La lista es `camino` —lo de antes de las novedades, sacado de
     `VERSIONES.md` y que ya no se toca— más las entradas.
   - **`{versiones}` en un texto se rellena solo** con cuántas versiones van
