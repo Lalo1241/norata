@@ -98,6 +98,7 @@ window.addEventListener("resize", () => {
   reajusteVentana = setTimeout(() => {
     marcarDesbordes();
     revisarAnchoDePantalla();
+    revisarFormaTablero();
     ajustarAltoTablero();
   }, 150);
 });

@@ -502,13 +502,22 @@ function renderSummary() {
      queda la primera en el orden que tenga puesto la persona, que es la que
      ella colocó más arriba. Lo cazó una medición, no la vista. */
   const yaCerrado = {};
+  /* **El cuerpo se pinta UNA vez y aquí, antes de repartir.** Una tarjeta que
+     entra en `visibles` recibe su rectángulo en la cuadrícula; si luego su
+     cuerpo sale vacío, el rectángulo se queda sin nadie encima. Eso pasaba con
+     la tarjeta cerrada de Proyectos desde que «projects» salió de MODULOS
+     (0.7.145): contaba como visible, `cuerpoCerrado` no encontraba su ficha, y
+     el Resumen de todo el que va por debajo del nivel 5 tenía un hueco de dos
+     filas donde el acomodo la había puesto (0.7.150). */
+  const cuerpos = {};
   const visibles = order.filter(id => {
     if (hidden.includes(id)) return false;
     if (DASH_MODULO[id] && !moduloOn(DASH_MODULO[id])) return false;
     if (!W[id]) return false;
-    if (!cerrado(id)) return !!W[id]();
+    if (!cerrado(id)) return !!(cuerpos[id] = W[id]());
     const mod = DASH_MODULO[id];
     if (yaCerrado[mod]) return false;
+    if (!(cuerpos[id] = cuerpoCerrado(id))) return false;
     yaCerrado[mod] = true;
     return true;
   });
@@ -517,7 +526,7 @@ function renderSummary() {
   const sitio = isDesktop() ? disposicionTablero(visibles, dashCols()) : {};
   const piezas = visibles
     .map(id => {
-      const body = cerrado(id) ? cuerpoCerrado(id) : (W[id] ? W[id]() : "");
+      const body = cuerpos[id];
       if (!body) return "";
       const meta = DASH_META[id];
       const sz = dashSize(id);
@@ -558,6 +567,58 @@ function renderSummary() {
   if (dashEditing && isDesktop()) attachDashHandlers();
   if (typeof pintarArteRacha === "function") pintarArteRacha();
   quizaAcomodoDeEstreno(el);
+  quizaReacomodar(el);
+}
+
+/* ---- Un acomodo puesto se rehace cuando deja de ser el que hay ----
+   Un acomodo sugerido se calcula UNA vez, con las tarjetas y la pantalla de
+   ese momento, y queda escrito como posiciones. Dos cosas lo dejaban viejo sin
+   que nadie tocara nada, y las dos se veían como un Resumen roto:
+
+   - **Cambia la forma de la pantalla.** Las tres formas de escritorio escriben
+     en la misma ranura (`dash`). Poner «El día» con la ventana a tamaño laptop
+     —o estrenarlo así, que es lo que hace `quizaAcomodoDeEstreno`— y luego
+     agrandarla a monitor dejaba el reparto de DOS columnas en uno de tres: la
+     tercera vacía entera, «Tus cifras» —la tarjeta compacta, que en el monitor
+     no va— en vez de Expedición, Niveles e Invertido, y Proyectos y Listos
+     escondidos. Los tres nombres existen en todas las formas, así que se pone
+     el mismo por su nombre.
+   - **Cambian las tarjetas que tienen algo que decir.** Proyectos sin ninguna
+     rama de proyecto en curso, Listos sin nodos abiertos: no se pintan, y su
+     columna se quedaba dos filas más corta que las otras.
+
+   Solo mientras el acomodo siga puesto (`d.acomodo`): en cuanto la persona
+   mueve algo a mano el tablero es suyo y no se toca. `puestas` es la huella de
+   las tarjetas que había al colocarlo; un tablero de antes no la trae y se
+   rehace una vez, que es justo lo que arregla a quien ya tiene el hueco. */
+let _colocando = false;
+function huellaTarjetas(el) {
+  return [...el.children].map(c => c.dataset.w).filter(Boolean).sort().join(",");
+}
+function quizaReacomodar(el) {
+  if (_colocando || !isDesktop()) return;
+  const d = (state.ui || {})[ranuraTablero()];
+  if (!d || !d.acomodo) return;
+  const vista = document.getElementById("view-summary");
+  if (!vista || !vista.classList.contains("active") || !el.getBoundingClientRect().width) return;
+  const forma = formaTablero();
+  if ((!d.forma || d.forma === forma) && d.puestas === huellaTarjetas(el)) return;
+  const a = acomodosDeAhora().find(x => x.nombre === d.acomodo);
+  if (!a) return;
+  colocarAcomodo(a);
+  marcarAcomodo(a.nombre);
+  save();
+}
+
+/* Pasar de laptop a monitor arrastrando el borde de la ventana no cruza los
+   900 px, así que nadie volvía a pintar el Resumen: el reparto viejo se
+   quedaba hasta el siguiente clic. Lo llama el `resize` de js/11-arranque.js. */
+function revisarFormaTablero() {
+  const d = (state.ui || {})[ranuraTablero()];
+  const vista = document.getElementById("view-summary");
+  if (!d || !d.acomodo || !d.forma || !isDesktop()) return;
+  if (!vista || !vista.classList.contains("active")) return;
+  if (d.forma !== formaTablero()) renderSummary();
 }
 
 /* ---- El acomodo de estreno (0.7.134.1) ----
@@ -605,7 +666,7 @@ function quizaAcomodoDeEstreno(el) {
    el tabulador ni contesta al Enter. */
 function cuerpoCerrado(id) {
   const mod = DASH_MODULO[id];
-  const m = (typeof MODULOS !== "undefined" ? MODULOS : []).find(x => x.id === mod);
+  const m = typeof moduloDeCandado === "function" ? moduloDeCandado(mod) : null;
   const pide = (typeof MODULO_NIVEL !== "undefined" && MODULO_NIVEL[mod]) || 0;
   if (!m || !pide) return "";
   const trazo = typeof trazoDeModulo === "function" ? trazoDeModulo(mod) : "";
@@ -942,6 +1003,10 @@ function filasDePantalla() {
    quien: "Misiones de hoy" con dos misiones pide cuatro filas y con cinco,
    seis. Una tabla escrita a mano acierta con unos datos y falla con otros. */
 function colocarAcomodo(a) {
+  _colocando = true;
+  try { colocarAcomodoYa(a); } finally { _colocando = false; }
+}
+function colocarAcomodoYa(a) {
   const el = document.getElementById("summary-content");
   const visibles = a.order ? a.order.slice() : [].concat(...a.cols, a.ancha ? ["cifras"] : []);
   const hidden = Object.keys(DASH_META).filter(id => !visibles.includes(id));
@@ -961,6 +1026,13 @@ function colocarAcomodo(a) {
   saveDash(visibles.concat(hidden), hidden, sizes, null);
   renderSummary();
   const pide = filasQuePide();
+  /* Solo se reparte lo que SE PINTÓ. Una tarjeta sin nada que decir hoy
+     —Proyectos sin ninguno en curso, Listos sin nodos abiertos— no está en el
+     tablero, y contarla dejaba su columna dos filas más corta que las otras:
+     el sitio se le guardaba a alguien que no iba a llegar. No se esconde: se
+     le da sitio al FONDO de su columna, así que el día que tenga algo que
+     decir aparece debajo, sin empujar nada de lo que ya estaba. */
+  const dibujadas = new Set([...el.children].map(c => c.dataset.w).filter(Boolean));
 
   const h = {};
   visibles.forEach(id => {
@@ -969,29 +1041,59 @@ function colocarAcomodo(a) {
     else h[id] = Math.max(altoMinimo(id), pide[id] || 0);
   });
   const tiraH = a.ancha ? h.cifras : 0;
-  const cols = a.cols.map(col => col.filter(id => !(a.ancha && id === "cifras")));
+  const cols = a.cols.map(col => col.filter(id => !(a.ancha && id === "cifras") && dibujadas.has(id)));
   const sumas = cols.map(col => col.reduce((s, id) => s + h[id], 0));
-  const fondo = Math.max(filasDePantalla() - tiraH, ...sumas);
-  cols.forEach((col, i) => {
-    for (let n = sumas[i]; n < fondo; n++) {
-      const crecen = col.filter(id => DASH_CRECEN.includes(id) || (id === "cifras" && h[id] < CIFRAS_TOPE));
-      if (!crecen.length) break;
-      crecen.sort((x, y) => (h[x] - (pide[x] || 0)) - (h[y] - (pide[y] || 0)));
-      h[crecen[0]]++;
-    }
-  });
+  const medido = Object.assign({}, h);
+  const llenar = (hasta, cualquiera) => {
+    Object.assign(h, medido);
+    return cols.map((col, i) => {
+      let n = sumas[i];
+      for (; n < hasta; n++) {
+        let crecen = col.filter(id => DASH_CRECEN.includes(id) || (id === "cifras" && h[id] < CIFRAS_TOPE));
+        if (!crecen.length && cualquiera) crecen = col.filter(id => id !== "racha");
+        if (!crecen.length) break;
+        crecen.sort((x, y) => (h[x] - (pide[x] || 0)) - (h[y] - (pide[y] || 0)));
+        h[crecen[0]]++;
+      }
+      return n;
+    });
+  };
+  let fondo = Math.max(filasDePantalla() - tiraH, ...sumas);
+  /* Una columna sin ninguna lista que estirar —en «Constancia», la racha y la
+     Expedición cuando Proyectos no tiene nada que decir— no llega al fondo de
+     la pantalla, y las otras sí: quedaba dos filas más corta (0.7.150). Si
+     pasa, el fondo baja hasta donde llega ella y las demás se emparejan ahí.
+     Un tablero un poco más bajo se lee entero; una columna que acaba antes se
+     lee como un hueco. Las columnas vacías no cuentan: no hay nada que
+     emparejar.
+
+     Y si las otras no pueden bajar —sus listas ya piden ese alto—, la columna
+     corta estira lo que tenga, aunque sea una cifra. Es la regla de «una
+     cifra no se estira» cediendo ante la de «ninguna columna termina antes»:
+     un poco de aire al pie de una tarjeta se lee mejor que un agujero debajo. */
+  const cortas = (fines) => fines.filter((n, i) => cols[i].length);
+  const corto = Math.min(fondo, ...cortas(llenar(fondo)));
+  if (corto < fondo) {
+    fondo = Math.max(corto, ...sumas);
+    if (Math.min(fondo, ...cortas(llenar(fondo))) < fondo) llenar(fondo, true);
+  }
 
   const pos = {};
   const arranque = a.ancha === "arriba" ? tiraH : 0;
   cols.forEach((col, c) => {
     let f = arranque;
     col.forEach(id => { pos[id] = { c, f }; f += h[id]; });
+    a.cols[c].forEach(id => {
+      if (dibujadas.has(id) || (a.ancha && id === "cifras")) return;
+      pos[id] = { c, f }; f += h[id];
+    });
   });
   if (a.ancha) pos.cifras = { c: 0, f: a.ancha === "arriba" ? 0 : fondo };
   Object.keys(h).forEach(id => sizes[id] = { w: a.ancha && id === "cifras" ? 2 : 1, h: h[id] });
 
   const orden = Object.keys(pos).sort((x, y) => pos[x].f - pos[y].f || pos[x].c - pos[y].c);
   saveDash(orden.concat(hidden), hidden, sizes, pos);
+  state.ui[ranuraTablero()].puestas = [...dibujadas].sort().join(",");
   renderSummary();
   animarDesde(el, antes);
 }

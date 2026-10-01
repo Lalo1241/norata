@@ -1707,10 +1707,15 @@
     display: block; height: 4px; margin-top: 6px; border-radius: var(--r-redondo);
     background: linear-gradient(90deg, var(--mint) var(--p), var(--carril) var(--p));
   }
-  /* En una tarjeta estrecha el renglón de abajo sobra antes que la cifra. */
+  /* En una tarjeta estrecha el renglón de abajo sobra antes que la cifra.
+     Y el rótulo PARTE en dos renglones en vez de cortarse: en el teléfono cada
+     celda deja 78 px, y «niveles en 10 habilidades» salía «niveles en…» —la
+     cifra sin decir de qué es— (0.7.150). Arriba y no centradas, para que
+     las tres cifras sigan en la misma línea aunque un rótulo ocupe dos. */
   @container (max-width: 380px) {
-    .tira-cifras .tc { padding: 12px 10px; }
+    .tira-cifras .tc { padding: 12px 10px; justify-content: flex-start; }
     .tira-cifras .tc-n { font-size: 20px; }
+    .tira-cifras .tc-t { white-space: normal; text-overflow: clip; overflow-wrap: break-word; }
     .tira-cifras .tc-x { display: none; }
   }
   @media (prefers-reduced-motion: reduce) { .dash.editing .widget { animation: none; } }

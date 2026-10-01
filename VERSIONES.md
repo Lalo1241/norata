@@ -274,6 +274,47 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.150 · 1 oct 2026
+
+**El Resumen sin huecos después de juntar Talentos y Proyectos, «Tus cifras»
+sin cortar en el teléfono, y el acomodo que se rehace al cambiar de pantalla.**
+Lo pidió Eduardo: revisar los acomodos porque un módulo se fue al unirse con
+otro y dejó un vacío.
+
+- **El hueco de Proyectos.** «projects» salió de `MODULOS` en la 0.7.145 pero
+  sigue siendo un candado. La tarjeta cerrada de Proyectos contaba como
+  visible, `cuerpoCerrado` no encontraba su ficha y salía vacía: dos filas sin
+  nada donde el acomodo la había puesto, para todo el que va por debajo del
+  nivel 5. Medido: 160 px arriba a la izquierda en «Lo que construyo». Ahora
+  `moduloDeCandado` (js/04-misiones.js) le da ficha —Proyectos, con el dibujo
+  de Ramas— y la tarjeta sale con su candado, como las otras. De paso vuelve a
+  contestar `avisoModuloCerrado("projects")`, que desde la 0.7.145 no hacía
+  nada: tocar «crear proyecto» con el candado puesto no sacaba ningún cuadro.
+- **Y el mismo hueco con Proyectos abierto y vacío.** Sin ninguna rama de
+  proyecto en curso la tarjeta no se pinta, y el acomodo le guardaba su sitio
+  igual: la columna acababa 160 px antes que las otras en los tres acomodos
+  del monitor. Ahora `colocarAcomodo` solo reparte lo que se pintó, y lo que
+  no, va al fondo de su columna para cuando tenga algo que decir. Si una
+  columna no tiene ninguna lista que estirar, las otras se emparejan con ella
+  o, si no pueden bajar, ella estira su tarjeta (una cifra centra su
+  contenido).
+- **El acomodo de laptop pegado en el monitor.** Las tres formas de escritorio
+  escriben en la misma ranura: poner «El día» con la ventana a tamaño laptop
+  —o estrenarlo así— y agrandarla dejaba en tres columnas el reparto de dos:
+  la tercera vacía entera y «Tus cifras», la compacta, en vez de Expedición,
+  Niveles e Invertido. Ahora un acomodo puesto se rehace por su nombre cuando
+  cambia la forma o cambian las tarjetas que se pintan (`quizaReacomodar`,
+  con la huella `puestas`), y el `resize` lo revisa sin esperar al siguiente
+  clic. Un tablero movido a mano no se toca.
+- **«Tus cifras» en el teléfono.** Cada celda deja 78 px y los rótulos salían
+  «niveles en…» y «de expedic…». Ahora parten en dos renglones, con las tres
+  cifras alineadas arriba. Medido a 375 y a 320 px: ningún corte.
+
+Medido en monitor (1920), laptop (1440), tableta (1024) y teléfono, en cuatro
+perfiles —nivel 2 con todo cerrado, nivel 4 con Proyectos cerrado, abierto sin
+proyectos y con proyectos— y los tres acomodos de cada uno: cero huecos, cero
+encimados, cero columnas desiguales y sin scroll (la tableta ya tenía 5 px en
+«El día» y «Constancia», por el alto fijo de la racha).
 ### 0.7.149 · 30 sep 2026
 
 **Las novedades: una ventana al estrenar una versión, su historial en

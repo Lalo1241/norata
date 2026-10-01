@@ -1171,8 +1171,21 @@ function moduloAbierto(id) {
 
    Cadena vacía si no lo encuentra —y quien llama tiene que aguantarlo—: la
    celebración también existe cuando la barra todavía no se ha pintado. */
+/* ---- La ficha de un candado, esté o no en MODULOS ----
+   «projects» salió de MODULOS en la 0.7.145 —ya no tiene pantalla, vive dentro
+   de Ramas— pero sigue siendo un candado (`MODULO_NIVEL`). Los cuatro sitios
+   que buscaban su nombre y su dibujo en MODULOS se quedaban sin nada y se
+   callaban: tocar «crear proyecto» con el candado puesto no sacaba ningún
+   cuadro, y la tarjeta cerrada de Proyectos del Resumen salía vacía y dejaba
+   su hueco en el acomodo (0.7.150). Se llama Proyectos y se dibuja con el
+   botón de Ramas, que es donde vive. */
+function moduloDeCandado(id) {
+  return MODULOS.find(x => x.id === id)
+    || (id === "projects" ? { id: "projects", nav: "nav-tree", label: "Proyectos" } : null);
+}
+
 function trazoDeModulo(id) {
-  const m = MODULOS.find(x => x.id === id);
+  const m = moduloDeCandado(id);
   const svg = m && document.querySelector("#" + m.nav + " svg");
   return svg ? svg.innerHTML : "";
 }
@@ -1223,7 +1236,7 @@ function loQueEsperaDentro(id) {
 }
 
 function avisoModuloCerrado(id) {
-  const m = MODULOS.find(x => x.id === id);
+  const m = moduloDeCandado(id);
   if (!m) return;
   const pide = MODULO_NIVEL[id] || 0;
   const f = faltaParaNivel(pide);
@@ -1626,7 +1639,7 @@ function volarTrozos(trozos, fin) {
    sembrar lo que la bienvenida dejó para este módulo, guardar, quitar el
    candado del menú, y la fiesta. */
 function abrirARomper(id) {
-  const m = MODULOS.find(x => x.id === id);
+  const m = moduloDeCandado(id);
   const nombre = m ? tx(m.label) : id;
   /* Lo que hay dentro se escribe ANTES de sembrar: se lee de la misma nota
      (`settings.siembra`) que va a usarse para plantarlo. */

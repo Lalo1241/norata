@@ -2,6 +2,28 @@
   "formato": 1,
   "entradas": [
     {
+      "version": "0.7.150",
+      "fecha": "2026-10-01",
+      "estado": "borrador",
+      "titulo": "Tu Resumen, sin huecos",
+      "resumen": "Al juntar Talentos y Proyectos en Ramas, el Resumen se quedó con espacios vacíos. Ya está parejo en todas las pantallas.",
+      "puntos": [
+        "Los acomodos ya no dejan huecos donde iba la tarjeta de Proyectos.",
+        "En el teléfono, Tus cifras se lee completa, sin textos cortados.",
+        "Si cambias el tamaño de la ventana, tu acomodo se ajusta solo a la pantalla."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Your Summary, without gaps",
+        "resumen": "When Talents and Projects merged into Branches, the Summary was left with empty spaces. It's even again on every screen.",
+        "puntos": [
+          "Layouts no longer leave gaps where the Projects card used to go.",
+          "On the phone, Your numbers reads in full, with no cut-off text.",
+          "If you resize the window, your layout adjusts to the screen on its own."
+        ]
+      }
+    },
+    {
       "version": "0.7.149",
       "fecha": "2026-09-30",
       "estado": "borrador",
