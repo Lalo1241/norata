@@ -69,10 +69,14 @@ la Play Store (`"version": "1.0"`, `"hito": "1.0"`). Eduardo pidió para ellos
   - **Con el estilo del mundo puesto** (su acento, sus botones), pero de noche.
   - **El número grande y el texto en la letra de la app** (`--sans`), nunca en
     la del mundo: en Arcade y Averno «Beta» no se leía.
-  - **El número desfila** por cada 3º publicado: en la beta, por la alpha; en
-    la 1.0, desde la primera versión, por la beta y sus actualizaciones, hasta
-    la 1.0 (nueve segundos). La lista es `camino` —lo de antes de las
-    novedades, sacado de `VERSIONES.md` y que ya no se toca— más las entradas.
+  - **El número gira como una ruleta** (0.7.153.2) por cada 3º publicado: en
+    la beta, por la alpha hasta caer en «Beta»; en la 1.0, desde la primera
+    versión, por la beta y sus actualizaciones, hasta la 1.0 (nueve segundos).
+    La lista es `camino` —lo de antes de las novedades, sacado de
+    `VERSIONES.md` y que ya no se toca— más las entradas.
+  - **`{versiones}` en un texto se rellena solo** con cuántas versiones van
+    (`camino` más las entradas de 3º hasta la vigente). Un número escrito a
+    mano en un borrador se queda viejo antes de publicarse.
   - **Una insignia por hito**: sello hexagonal con α para la beta; medalla con
     cinta, «1.0» y la letra de la etapa en que llegaste, para la 1.0.
   - **Debajo, un reporte que aparece al bajar**: días, días con algo hecho,
@@ -170,3 +174,7 @@ Las reglas de «El tono» de `CLAUDE.md`, y además:
   gritar.
 - **Corto.** El título en una línea; los puntos, uno por renglón en el
   teléfono.
+- **Cada punto dice algo que el resumen no dijo.** Si repite el resumen con
+  otras palabras, o tranquiliza («no cambia nada de lo tuyo») en vez de
+  contar, se quita (Eduardo, 0.7.153.2). Un hito se festeja: lo hicimos
+  bien, y eso se celebra con quien lo usa, no se le explica.

@@ -8206,28 +8206,32 @@
   #hito.hito-lanzamiento.aterriza .hito-etapa { background: var(--hito-luz); }
   #hito.cruce .hito-etapa { animation: hito-cruce .7s ease; }
   @keyframes hito-cruce { 0% { transform: scale(1); } 35% { transform: scale(1.35); box-shadow: 0 0 0 10px color-mix(in srgb, var(--hito-marca) 25%, transparent); } 100% { transform: scale(1); } }
-  #hito .hito-rodillo {
-    font-family: var(--sans); font-weight: 800; letter-spacing: -.02em; line-height: 1;
-    font-size: 60px; min-height: 1.15em; font-variant-numeric: tabular-nums; color: var(--hito-texto);
+  /* La ruleta: una ventana de tres filas por la que baja la tira de
+     versiones. La del centro se lee; la de arriba y la de abajo asoman
+     difuminadas por la máscara. `--fila` es el alto de una fila, y lo mide el
+     JavaScript (`hitoPonerTira`), así que cambiarlo aquí basta. */
+  #hito .hito-ruleta {
+    --fila: 76px;
+    position: relative; display: block; width: 100%; height: calc(var(--fila) * 3); overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 34%, #000 66%, transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0%, #000 34%, #000 66%, transparent 100%);
   }
-  #hito.desfila .hito-rodillo { color: var(--hito-suave); }
-  #hito.aterriza .hito-rodillo {
-    font-size: 92px; animation: hito-aterriza .9s cubic-bezier(.2, 1.4, .4, 1) both;
+  #hito .hito-tira { display: flex; flex-direction: column; will-change: transform; }
+  #hito .hito-fila {
+    flex: none; height: var(--fila); display: flex; align-items: center; justify-content: center;
+    font-family: var(--sans); font-weight: 800; font-size: 56px; letter-spacing: -.02em; line-height: 1;
+    font-variant-numeric: tabular-nums; color: var(--hito-suave);
+  }
+  #hito.veloz .hito-tira { filter: blur(1.4px); }
+  #hito .hito-fila.meta {
+    font-size: 80px;
     background: linear-gradient(180deg, var(--hito-texto), var(--hito-marca)); -webkit-background-clip: text; background-clip: text; color: transparent;
   }
-  #hito.hito-lanzamiento.aterriza .hito-rodillo { font-size: 108px; background-image: linear-gradient(180deg, var(--hito-luz), var(--hito-marca)); }
-  @keyframes hito-aterriza { from { opacity: 0; transform: translateY(40px) scale(.7); } to { opacity: 1; transform: none; } }
-  /* La vía: un tramo por etapa, del largo de las versiones que tuvo, y un
-     punto que avanza con el desfile. */
-  #hito .hito-via { position: relative; display: flex; align-items: center; gap: 4px; width: min(100%, 360px); height: 26px; margin-top: 6px; }
-  #hito .hito-via-tramo { position: relative; height: 4px; border-radius: var(--r-barra); }
-  #hito .hito-via-tramo.alpha { background: color-mix(in srgb, var(--hito-marca) 45%, var(--hito-tarjeta)); }
-  #hito .hito-via-tramo.beta { background: var(--hito-marca); }
-  #hito .hito-via-tramo em, .hito-via-meta em { position: absolute; top: 9px; left: 0; font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--hito-tenue); }
-  #hito .hito-via-meta { position: relative; flex: none; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--hito-luz); }
-  #hito .hito-via-meta em { left: auto; right: 0; top: 15px; color: var(--hito-luz); }
-  #hito .hito-via-punto { position: absolute; left: 0; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--hito-texto); box-shadow: 0 0 12px var(--hito-marca); }
-  #hito.aterriza .hito-via-punto { left: calc(100% - 6px) !important; background: var(--hito-luz); }
+  #hito.hito-lanzamiento .hito-fila.meta { font-size: 92px; background-image: linear-gradient(180deg, var(--hito-luz), var(--hito-marca)); }
+  #hito.aterriza .hito-fila.meta { animation: hito-golpe .7s cubic-bezier(.2, 1.6, .4, 1); }
+  @keyframes hito-golpe { 0% { transform: scale(.82); } 100% { transform: scale(1); } }
+  /* Para los lectores de pantalla: la ruleta es dibujo; esto dice adónde llega. */
+  #hito .hito-ruleta-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
   /* ---- Lo de debajo: espera a que aterrice ---- */
   #hito .hito-texto > * { opacity: 0; }
@@ -8305,17 +8309,17 @@
   @keyframes hito-chispa { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(260deg); } }
 
   @media (max-width: 420px) {
-    #hito .hito-rodillo { font-size: 50px; }
-    #hito.aterriza .hito-rodillo { font-size: 78px; }
-    #hito.hito-lanzamiento.aterriza .hito-rodillo { font-size: 90px; }
+    #hito .hito-ruleta { --fila: 64px; }
+    #hito .hito-fila { font-size: 46px; }
+    #hito .hito-fila.meta { font-size: 68px; }
+    #hito.hito-lanzamiento .hito-fila.meta { font-size: 78px; }
     #hito .hito-rep > b { font-size: 26px; }
   }
   /* Con «menos movimiento», el final y nada más. */
   #hito.quieto *, #hito.quieto { animation: none !important; }
   #hito.quieto .hito-iso { stroke-dashoffset: 0; fill-opacity: 1; }
   #hito.quieto :is(.hito-numero, .hito-texto > *, .hito-rep, .hito-insignia, .hito-rep-titulo) { opacity: 1; transform: none; }
-  #hito.quieto .hito-bichos, #hito.quieto .hito-onda, #hito.quieto .hito-via-punto { display: none; }
-  #hito.quieto .hito-rodillo { font-size: 92px; background: linear-gradient(180deg, var(--hito-texto), var(--hito-marca)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #hito.quieto .hito-bichos, #hito.quieto .hito-onda { display: none; }
   @media (prefers-reduced-motion: reduce) { #hito.show { animation: none; } }
 
   /* ---------- «Ya está lista la versión X» (0.7.149) ----------

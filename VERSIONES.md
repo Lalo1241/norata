@@ -274,6 +274,25 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.153.2 · 1 oct 2026
+
+**El anuncio de la beta y la 1.0: los textos sin relleno y el número en
+ruleta.** Eduardo, al leer los borradores: «no seas redundante, festeja, lo
+hicimos bien tú y yo, no que vamos y le decimos eso al usuario». Los puntos que
+tranquilizaban («no cambia nada de lo tuyo») o que repetían el resumen se
+cayeron en las siete entradas; quedó lo que se celebra. El resumen de la beta
+dice cuántas versiones hubo con `{versiones}`, que la app rellena contando
+`camino` más las entradas de 3º publicadas hasta hoy (`novedadRellenar`): un
+número escrito a mano en el borrador se habría quedado viejo el día del hito.
+
+**La vía horizontal se cambió por una ruleta**, que es lo que pidió: el
+contador de la primera versión, que giraba de arriba abajo, ahora pasa por
+todas las versiones y se para en «Beta» (o en «1.0», pasando por la beta). Una
+tira vertical con una fila por versión que se desplaza con `translateY`,
+acelera y frena (cúbica), se desenfoca a toda velocidad (`veloz`) y enseña
+tres filas con la de en medio nítida. La altura de la fila se mide después de
+`.show`: antes, con la escena oculta, medía cero.
+
 ### 0.7.153.1 · 1 oct 2026
 
 **El «antes y ahora» de las novedades ya no corta los nombres.** En una sola

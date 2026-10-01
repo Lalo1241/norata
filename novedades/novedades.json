@@ -635,19 +635,17 @@
       "clase": "hito",
       "hito": "1.0",
       "titulo": "Norata 1.0",
-      "resumen": "Norata llega a la Play Store. Lo que empezó como una expedición de pocos ahora está a un toque de cualquiera.",
+      "resumen": "Norata ya está en la Play Store. Ahora cualquiera puede encontrarla; tú llegaste antes.",
       "puntos": [
-        "Búscala como Norata en la Play Store y compártela con quien quieras.",
-        "Tu cuenta, tu progreso y tus mundos vienen contigo, en todos tus dispositivos.",
+        "Para cuando te pregunten qué es eso que abres cada mañana, ya tienes adónde mandarlos.",
         "Gracias por recorrer el camino antes de que tuviera mapa."
       ],
       "retoques": [],
       "en": {
         "titulo": "Norata 1.0",
-        "resumen": "Norata arrives on the Play Store. What began as an expedition of a few is now one tap away for anyone.",
+        "resumen": "Norata is on the Play Store now. Anyone can find it; you got here first.",
         "puntos": [
-          "Find it as Norata on the Play Store and share it with whoever you like.",
-          "Your account, your progress and your worlds come with you, on every device.",
+          "For when someone asks what that thing you open every morning is, you finally have somewhere to send them.",
           "Thank you for walking the path before it had a map."
         ]
       }
@@ -659,20 +657,18 @@
       "clase": "hito",
       "hito": "beta",
       "titulo": "Norata entra en beta",
-      "resumen": "Lo que empezó como una alpha ya se sostiene sola. Desde hoy Norata es beta: más estable, más cuidada y abierta a más gente.",
+      "resumen": "{versiones} versiones después, la alpha nos quedó chica.",
       "puntos": [
-        "Todo lo tuyo sigue aquí: tus misiones, tus ramas y tus rachas.",
-        "Ganaste la insignia Expedición alpha, que solo tiene quien llegó antes de hoy.",
-        "Desde aquí, cada versión te cuenta lo que trae."
+        "En la alpha nacieron cinco mundos, las ramas y la expedición.",
+        "Tu sello de la alpha es de los que ya no se reparten."
       ],
       "retoques": [],
       "en": {
         "titulo": "Norata enters beta",
-        "resumen": "What began as an alpha now stands on its own. From today Norata is in beta: steadier, more polished and open to more people.",
+        "resumen": "{versiones} versions later, the alpha got too small for us.",
         "puntos": [
-          "Everything of yours is still here: your missions, your branches and your streaks.",
-          "You earned the Alpha expedition badge, held only by those who arrived before today.",
-          "From here on, every version tells you what it brings."
+          "The alpha gave birth to five worlds, the branches and the expedition.",
+          "Your alpha seal is one they don't hand out anymore."
         ]
       }
     },
@@ -684,18 +680,14 @@
       "titulo": "Las novedades, por tamaño",
       "resumen": "Cada novedad dice si es una expansión, una mejora o un arreglo, y las grandes llegan con imagen.",
       "puntos": [
-        "Una expansión trae una imagen y unas cifras para verla de un vistazo.",
-        "Los arreglos ya no te interrumpen con una ventana: te avisa la barrita de abajo.",
-        "En Ajustes → Novedades cada una lleva su etiqueta."
+        "Los arreglos ya no te detienen con una ventana: te avisa la barrita de abajo."
       ],
       "retoques": [],
       "en": {
         "titulo": "Updates, by size",
         "resumen": "Each update says whether it's an expansion, an improvement or a fix, and the big ones come with a picture.",
         "puntos": [
-          "An expansion brings a picture and a few numbers to take it in at a glance.",
-          "Fixes no longer interrupt you with a window: the small notice at the bottom lets you know.",
-          "In Settings → What's new each one carries its label."
+          "Fixes no longer stop you with a window: the small notice at the bottom lets you know."
         ]
       }
     },
@@ -707,18 +699,16 @@
       "titulo": "Tu Resumen, sin huecos",
       "resumen": "Al juntar Talentos y Proyectos en Ramas, el Resumen se quedó con espacios vacíos. Ya está parejo en todas las pantallas.",
       "puntos": [
-        "Los acomodos ya no dejan huecos donde iba la tarjeta de Proyectos.",
-        "En el teléfono, Tus cifras se lee completa, sin textos cortados.",
-        "Si cambias el tamaño de la ventana, tu acomodo se ajusta solo a la pantalla."
+        "En el teléfono, Tus cifras se lee completa.",
+        "Si cambias el tamaño de la ventana, el acomodo se ajusta solo."
       ],
       "retoques": [],
       "en": {
         "titulo": "Your Summary, without gaps",
         "resumen": "When Talents and Projects merged into Branches, the Summary was left with empty spaces. It's even again on every screen.",
         "puntos": [
-          "Layouts no longer leave gaps where the Projects card used to go.",
-          "On the phone, Your numbers reads in full, with no cut-off text.",
-          "If you resize the window, your layout adjusts to the screen on its own."
+          "On the phone, Your numbers reads in full.",
+          "If you resize the window, the layout adjusts on its own."
         ]
       }
     },
@@ -730,18 +720,16 @@
       "titulo": "Ahora te enteras de lo que llega",
       "resumen": "Cuando hay una versión nueva, Norata te lo dice, y al estrenarla te cuenta qué trae.",
       "puntos": [
-        "Una tarjeta arriba te avisa cuando hay una versión lista, y se queda hasta que la usas.",
-        "Al actualizar sale esta ventana con lo nuevo, contado en corto.",
-        "En Ajustes → Novedades está todo lo que ha ido cambiando."
+        "La tarjeta de «versión lista» se queda arriba hasta que la usas o la cierras.",
+        "Lo que cambió antes vive en Ajustes → Novedades."
       ],
       "retoques": [],
       "en": {
         "titulo": "Now you'll know what's arriving",
         "resumen": "When a new version is ready, Norata tells you, and once it's in, it tells you what it brings.",
         "puntos": [
-          "A card at the top lets you know a version is ready, and it stays until you use it.",
-          "After updating, this window shows what's new, in short.",
-          "Settings → What's new keeps everything that has changed."
+          "The \"version ready\" card stays at the top until you use it or close it.",
+          "What changed before lives in Settings → What's new."
         ]
       }
     },
@@ -753,9 +741,8 @@
       "titulo": "Cyberpunk, el quinto mundo",
       "resumen": "Paneles con visor en vez de marco, cinco paletas con su cara de día y una racha que se enciende como un circuito.",
       "puntos": [
-        "Tu camino en Cyberpunk: Señal, Enlace, Protocolo, Núcleo y Leyenda.",
-        "Cinco paletas: Visor, Ácido, Cobalto y Ultravioleta llegan con el mundo; Voltaje se gana con el tercer rango.",
-        "La racha es una placa: cada día que cuenta enciende su pista."
+        "Tu camino ahí: Señal, Enlace, Protocolo, Núcleo y Leyenda.",
+        "Voltaje, la quinta paleta, se gana con el tercer rango."
       ],
       "imagen": {
         "src": "novedades/img/0.7.148-cyberpunk.jpg",
@@ -933,9 +920,8 @@
         "titulo": "Cyberpunk, the fifth world",
         "resumen": "Panels with a visor instead of a frame, five palettes with their daytime face, and a streak that lights up like a circuit.",
         "puntos": [
-          "Your path in Cyberpunk: Signal, Link, Protocol, Core and Legend.",
-          "Five palettes: Visor, Acid, Cobalt and Ultraviolet come with the world; Voltage is earned with the third rank.",
-          "Your streak is a board: every day that counts lights up its track."
+          "Your path there: Signal, Link, Protocol, Core and Legend.",
+          "Voltage, the fifth palette, is earned with the third rank."
         ]
       }
     },
@@ -947,9 +933,8 @@
       "titulo": "Cinco paletas por mundo y diez ambientes",
       "resumen": "Cada mundo trae cinco paletas, Norata clásico llega a diez ambientes, y los mundos se miran desde Mi apariencia antes de ponértelos.",
       "puntos": [
-        "Cuatro paletas llegan con cada mundo, y la quinta se gana con el tercer rango de su camino.",
-        "Tres ambientes nuevos: Cobre, Zafiro y Oliva. Duna, rehecha como desierto de verdad.",
-        "En Mi apariencia la tarjeta toma la cara del mundo que estás mirando, aunque lleves puesto otro."
+        "La quinta paleta de cada mundo se gana con el tercer rango de su camino.",
+        "Los ambientes nuevos son Cobre, Zafiro y Oliva, y Duna se rehízo como desierto de verdad."
       ],
       "imagen": {
         "src": "novedades/img/0.7.147-paletas.jpg",
@@ -1083,9 +1068,8 @@
         "titulo": "Five palettes per world and ten ambiences",
         "resumen": "Every world brings five palettes, classic Norata reaches ten ambiences, and you can look at worlds from My look before wearing them.",
         "puntos": [
-          "Four palettes come with each world, and the fifth is earned with the third rank of its path.",
-          "Three new ambiences: Copper, Sapphire and Olive. Dune, remade as a real desert.",
-          "In My look the card takes on the face of the world you're looking at, even if you're wearing another."
+          "Each world's fifth palette is earned with the third rank of its path.",
+          "The new ambiences are Copper, Sapphire and Olive, and Dune was remade as a real desert."
         ]
       }
     }
