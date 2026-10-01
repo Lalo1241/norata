@@ -485,9 +485,15 @@ const HITO_ETIQUETA = { beta: "0.8.0", "1.0": "1.0.0" };
 /* Cuántas versiones pasan por la ruleta, como mucho. El giro dura lo mismo
    haya las que haya (`HITO_DESFILE`), así que sin tope cada versión nueva
    lo hacía más rápido hasta volverlo un borrón; con tope se elige cuáles. */
-const HITO_FILAS = { beta: 36, "1.0": 56 };
-/* Cuánto dura el desfile, en milisegundos. */
-const HITO_DESFILE = { beta: 4800, "1.0": 9000 };
+const HITO_FILAS = { beta: 36, "1.0": 44 };
+/* Cuánto dura el desfile, en milisegundos. La 1.0 tiene un techo de Eduardo
+   (0.7.159): la pantalla entera, con todo ya en su sitio, en 9 s. La cuenta:
+   el giro empieza a los 2,9 s y, al parar, lo último de abajo entra a los
+   1,5 s y tarda 0,7 (`#hito.llego …` en css/estilos.css). 2,9 + 3,8 + 2,2 =
+   8,9: la décima de margen es lo que se retrasa el reloj del giro (medido,
+   unos 90 ms). Si cambia una de esas tres, se recorta aquí. Y la 1.0 lleva
+   menos filas que antes: 56 en menos de 4 s eran un borrón. */
+const HITO_DESFILE = { beta: 4800, "1.0": 3800 };
 
 /* Las versiones se escriben con tres tramos en la ruleta: «0.8» es «0.8.0». */
 function hitoVer(v) {

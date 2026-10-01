@@ -283,6 +283,16 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
+### 0.7.159 · 1 oct 2026
+
+**El anuncio de la 1.0 cabe en 9 segundos, con todo ya en su sitio.** Eduardo
+puso el techo y dijo de dónde recortar: de la ruleta. El giro de la 1.0 pasa
+de 9 s a 3,8 (`HITO_DESFILE`): empieza a los 2,9 s, para a los 6,7 y lo último
+de abajo termina de entrar 2,2 s después. Medido: aterriza a los 6,9 s (el
+reloj se retrasa unos 90 ms). Con menos tiempo, menos filas: 44 en vez de 56
+(`HITO_FILAS`). La beta no cambia. Es un 3º y no un 4º de la 0.7.157 porque
+`main` ya iba en la 0.7.158.
+
 ### 0.7.158 · 1 oct 2026
 
 **Tres cargas en vez de una, y ni un cuadro con otro mundo.** Dos encargos de

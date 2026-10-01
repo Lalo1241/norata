@@ -70,7 +70,7 @@ la Play Store (`"version": "1.0"`, `"hito": "1.0"`). Eduardo pidió para ellos
   - **El número grande y el texto en la letra de la app** (`--sans`), nunca en
     la del mundo: en Arcade y Averno «Beta» no se leía.
   - **La ruleta no crece con las versiones** (0.7.157.2): pasan como mucho 36
-    (beta) o 56 (1.0), elegidas por `hitoMuestra` —la primera, la primera de
+    (beta) o 44 (1.0), elegidas por `hitoMuestra` —la primera, la primera de
     cada 2º tramo, las expansiones, las de `camino` con `"relevante": true`, y
     relleno repartido—, y para en «0.8.0» o «1.0.0». Para que una versión
     vieja pase siempre, se le pone `"relevante": true` en `camino`.
