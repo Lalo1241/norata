@@ -1,6 +1,6 @@
 {
   "formato": 2,
-  "_camino": "Cada 3º publicado antes de que existieran las novedades, sacado de VERSIONES.md (0.7.153). Lo recorre el anuncio de la beta y de la 1.0. Lo de después sale de las entradas, así que esta lista no se toca más.",
+  "_camino": "Las marcadas con «relevante» pasan siempre por la ruleta del anuncio de hito (hitoMuestra). Cada 3º publicado antes de que existieran las novedades, sacado de VERSIONES.md (0.7.153). Lo recorre el anuncio de la beta y de la 1.0. Lo de después sale de las entradas, así que esta lista no se toca más.",
   "camino": [
     {
       "version": "0.6.1",
@@ -72,7 +72,7 @@
     },
     {
       "version": "0.7.14",
-      "fecha": "2026-08-27"
+      "fecha": "2026-08-27", "relevante": true
     },
     {
       "version": "0.7.15",
@@ -168,7 +168,7 @@
     },
     {
       "version": "0.7.38",
-      "fecha": "2026-08-29"
+      "fecha": "2026-08-29", "relevante": true
     },
     {
       "version": "0.7.39",
@@ -540,7 +540,7 @@
     },
     {
       "version": "0.7.131",
-      "fecha": "2026-09-24"
+      "fecha": "2026-09-24", "relevante": true
     },
     {
       "version": "0.7.132",
@@ -560,7 +560,7 @@
     },
     {
       "version": "0.7.136",
-      "fecha": "2026-09-25"
+      "fecha": "2026-09-25", "relevante": true
     },
     {
       "version": "0.7.137",
@@ -576,7 +576,7 @@
     },
     {
       "version": "0.7.140",
-      "fecha": "2026-09-26"
+      "fecha": "2026-09-26", "relevante": true
     },
     {
       "version": "0.7.141",
@@ -600,7 +600,7 @@
     },
     {
       "version": "0.7.146",
-      "fecha": "2026-09-30"
+      "fecha": "2026-09-30", "relevante": true
     },
     {
       "version": "0.7.147",

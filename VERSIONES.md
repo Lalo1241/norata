@@ -283,6 +283,25 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
+### 0.7.157.2 · 1 oct 2026
+
+**La ruleta del anuncio dura lo mismo haya las versiones que haya, y para en
+el número.** Eduardo: que no se haga exageradamente larga con cada versión, y
+que se vean sí o sí la más vieja, las relevantes, algunas de relleno, la 0.8.0,
+la 0.9.0 y aterrice en la 1.0.0; la de la beta, en la 0.8.0.
+
+- **`hitoMuestra`** elige como mucho 36 filas para la beta y 56 para la 1.0
+  (`HITO_FILAS`). Fijas: la primera, la primera de cada 2º tramo, las
+  expansiones, las de `camino` con `"relevante": true` (0.7.14, 0.7.38,
+  0.7.131, 0.7.136, 0.7.140, 0.7.146) y las tres últimas; el hueco que queda
+  se reparte a partes iguales entre las demás. El giro sigue durando 4,8 y 9 s.
+- **Para en «0.8.0» y en «1.0.0»** (`HITO_ETIQUETA`); «Beta» y «Lanzamiento»
+  los dice la etiqueta de arriba. Las versiones se escriben con tres tramos
+  (`hitoVer`: «0.8» es «0.8.0»).
+- **La 0.8 se vuelve a meter en la ruleta de la 1.0.** `hitoCamino` deja fuera
+  las entradas de hito, así que el día de la 1.0 el cruce a la beta no habría
+  tenido su número. La prueba de la 1.0 inventa también una 0.9.
+
 ### 0.7.157.1 · 1 oct 2026
 
 **El anuncio de un hito gira en el centro de la pantalla.** Eduardo: «al

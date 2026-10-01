@@ -478,9 +478,53 @@ window.addEventListener("load", () => setTimeout(revisarNovedades, 600));
 
    Se apunta como visto POR PERSONA, en `settings.hitosVistos` (viaja con la
    cuenta): un hito no se celebra dos veces porque tengas dos dispositivos. */
-const HITO_ETIQUETA = { beta: "Beta", "1.0": "1.0" };
+/* Dónde para la ruleta: el número de la versión, con sus tres tramos (Eduardo,
+   0.7.157.2). Hasta entonces paraba en la palabra «Beta»; la palabra ya la
+   dice la etiqueta de arriba. */
+const HITO_ETIQUETA = { beta: "0.8.0", "1.0": "1.0.0" };
+/* Cuántas versiones pasan por la ruleta, como mucho. El giro dura lo mismo
+   haya las que haya (`HITO_DESFILE`), así que sin tope cada versión nueva
+   lo hacía más rápido hasta volverlo un borrón; con tope se elige cuáles. */
+const HITO_FILAS = { beta: 36, "1.0": 56 };
 /* Cuánto dura el desfile, en milisegundos. */
 const HITO_DESFILE = { beta: 4800, "1.0": 9000 };
+
+/* Las versiones se escriben con tres tramos en la ruleta: «0.8» es «0.8.0». */
+function hitoVer(v) {
+  const t = String(v).split(".");
+  while (t.length < 3) t.push("0");
+  return t.join(".");
+}
+
+/* Cuáles pasan por la ruleta (0.7.157.2). Eduardo: que no se haga larga con
+   cada versión, pero que se vean sí o sí la más vieja, las relevantes, algunas
+   de relleno, la 0.8.0, la 0.9.0 y que aterrice en la 1.0.0. Así que primero
+   las que no pueden faltar, y el hueco que quede se reparte a partes iguales
+   entre las demás, para que se note que hubo muchas.
+
+   Relevantes son: la primera de cada 2º tramo (0.7.0, 0.8.0, 0.9.0…), las
+   que `camino` marca con `"relevante": true`, las expansiones de las
+   entradas y las tres últimas, que son las que se leen al frenar. */
+function hitoMuestra(doc, camino, hito) {
+  const max = HITO_FILAS[hito] || 40;
+  const lista = camino.map(hitoVer);
+  if (lista.length <= max) return lista;
+  const fijas = new Set([lista[0]]);
+  const relevantes = new Set();
+  (doc.camino || []).forEach((c) => { if (c.relevante) relevantes.add(hitoVer(c.version)); });
+  (doc.entradas || []).forEach((e) => { if (e.clase === "expansion" || e.clase === "hito") relevantes.add(hitoVer(e.version)); });
+  let tramo = "";
+  lista.forEach((v) => {
+    const t2 = v.split(".").slice(0, 2).join(".");
+    if (t2 !== tramo) { tramo = t2; fijas.add(v); }
+    if (relevantes.has(v)) fijas.add(v);
+  });
+  lista.slice(-3).forEach((v) => fijas.add(v));
+  const resto = lista.filter((v) => !fijas.has(v));
+  const hueco = Math.max(0, max - fijas.size);
+  for (let k = 0; k < hueco && k < resto.length; k++) fijas.add(resto[Math.floor((k + 0.5) * resto.length / hueco)]);
+  return lista.filter((v) => fijas.has(v));
+}
 
 function hitoDeEntrada(e) {
   return e && (e.hito === "beta" || e.hito === "1.0") ? e.hito : (versionMasNueva(e && e.version || "0", "0.9.999") ? "1.0" : "beta");
@@ -672,13 +716,22 @@ async function abrirHito(e, opciones) {
   const hito = hitoDeEntrada(e);
   const quieto = hitoQuieto();
   const doc = await cargarDocNovedades();
-  const camino = hitoCamino(doc, hito);
+  let camino = hitoCamino(doc, hito);
+  /* La 0.8 es un hito y `hitoCamino` deja fuera las entradas de hito: en la
+     1.0 se vuelve a meter, que es justo el cruce que hay que ver. */
+  if (hito === "1.0" && (doc.entradas || []).some((x) => x.hito === "beta" && x.estado === "publicado") && camino.indexOf("0.8") < 0) {
+    camino.push("0.8");
+    camino.sort((a, b) => (versionMasNueva(a, b) ? 1 : -1));
+  }
   /* En la prueba de la 1.0, mientras no exista ninguna beta, se inventan unas
      cuantas para que se vea el cruce de «Alpha» a «Beta». Solo en la prueba. */
   if (op.prueba && hito === "1.0" && !camino.some((v) => versionMasNueva(v, "0.7.9999"))) {
     camino.push("0.8");
     for (let i = 1; i <= 24; i++) camino.push("0.8." + i);
+    camino.push("0.9");
+    for (let i = 1; i <= 8; i++) camino.push("0.9." + i);
   }
+  camino = hitoMuestra(doc, camino, hito);
   const rep = hitoReporteHTML(hitoReporte(hito, doc), hito);
   cerrarHito(true);
 
@@ -718,7 +771,7 @@ async function abrirHito(e, opciones) {
         <svg viewBox="0 0 250 250"><path class="hito-iso" d="${HITO_ISOTIPO}"/></svg>
       </div>
       <div class="hito-numero">
-        <span class="hito-etapa">${escapeHtml(quieto ? HITO_ETIQUETA[hito] === "1.0" ? tx("Lanzamiento") : "Beta" : "Alpha")}</span>
+        <span class="hito-etapa">${escapeHtml(quieto ? hito === "1.0" ? tx("Lanzamiento") : "Beta" : "Alpha")}</span>
         ${ruleta}
       </div>
       </div>
