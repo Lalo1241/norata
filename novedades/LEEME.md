@@ -57,6 +57,39 @@ que se detenga por un problema que quizá ni vio.
 Si sí, es una expansión. Si lo notaría al usarlo pero no lo contaría, es una
 mejora. Si solo lo nota quien lo sufría, es un arreglo.
 
+### El hito: la beta y la 1.0 (0.7.152)
+
+Una cuarta clase que no es un tamaño sino un momento, y solo hay dos: la
+entrada en la beta (`"version": "0.8"`, `"hito": "beta"`) y el lanzamiento en
+la Play Store (`"version": "1.0"`, `"hito": "1.0"`). Eduardo pidió para ellos
+«un anuncio muy especial en diseño, con animaciones, y más cosas».
+
+- **No abre la ventana: abre una escena** (`abrirHito`, `js/10l-novedades.js`),
+  rehecha en 0.7.153 con lo que Eduardo pidió al verla:
+  - **Con el estilo del mundo puesto** (su acento, sus botones), pero de noche.
+  - **El número grande y el texto en la letra de la app** (`--sans`), nunca en
+    la del mundo: en Arcade y Averno «Beta» no se leía.
+  - **El número desfila** por cada 3º publicado: en la beta, por la alpha; en
+    la 1.0, desde la primera versión, por la beta y sus actualizaciones, hasta
+    la 1.0 (nueve segundos). La lista es `camino` —lo de antes de las
+    novedades, sacado de `VERSIONES.md` y que ya no se toca— más las entradas.
+  - **Una insignia por hito**: sello hexagonal con α para la beta; medalla con
+    cinta, «1.0» y la letra de la etapa en que llegaste, para la 1.0.
+  - **Debajo, un reporte que aparece al bajar**: días, días con algo hecho,
+    mejor racha, misiones, nodos, la habilidad más alta, nivel y rango, la
+    primera misión y un punto por día de las últimas semanas. Sin láminas:
+    las láminas son del aniversario.
+- **Se celebra una vez por persona**, no por dispositivo (`settings.hitosVistos`
+  viaja con la cuenta).
+- **Sus borradores ya están escritos** (las entradas `0.8` y `1.0`, sin fecha).
+  El día del hito se les pone la fecha, se aprueban y salen con esa versión.
+  **La de la 1.0 lee la fecha de la de la beta** para saber quién llegó antes
+  de ella: no se borra la de la beta.
+- **Se prueban sin esperar**: con `?novedades=borrador`, en Ajustes →
+  Novedades, «Probar el anuncio de la beta» y «de la 1.0». No apunta nada.
+- **La etiqueta «Alpha» del número de versión cambia sola**: `0.8` y siguientes
+  dicen «Beta», y en la `1.0` desaparece (`pintarVersion`, `js/11-arranque.js`).
+
 ## La imagen y el gráfico (opcionales)
 
 Para las que lo merecen, que casi siempre son expansiones.
@@ -67,10 +100,25 @@ Para las que lo merecen, que casi siempre son expansiones.
   service worker y Framer guardan la imagen por su dirección y no la vuelven a
   pedir. JPG a 1440×810 (16:9) y por debajo de 150 KB. `alt` dice lo que se
   ve, no lo que significa.
-- **`grafico`**: datos, no un dibujo. `cifras` son dos a cuatro números grandes
-  con su rótulo; `barras` son barras de lado, proporcionales a la mayor. La app
-  lo dibuja con los colores del mundo de quien mira; para la web lo dibuja
-  `herramientas/novedades-framer.py` como SVG.
+- **`grafico`**: datos, no un dibujo, y puede ser uno o una lista. Cuatro formas
+  (rehechas en 0.7.153, cuando Eduardo vio las primeras barras: «largas, sin
+  diferenciar, y el antes y ahora como cuatro barras sueltas»):
+
+  | `tipo` | Para qué | Cada dato |
+  | --- | --- | --- |
+  | `cifras` | dos a cuatro números que cuentan | `valor`, `texto`, `icono`, `tono` |
+  | `comparar` | **un antes y un ahora**: puntitos, «1 → 5» y la diferencia | `texto`, `antes`, `ahora`, `icono`, `tono` |
+  | `barras` | proporciones entre cosas, cortas | `valor`, `texto`, `icono`, `tono` |
+  | `colores` | **presentar paletas o colores**: sus muestras y su nombre | `nombre`, `colores: ["#…"]` |
+
+  `tono` es uno de los ocho colores de la app (1-8): **cada dato en uno
+  distinto**, que es lo que los separa de un vistazo. `icono`, uno de los de la
+  app (`js/01-base.js`, `ICONS`). **Cuando una novedad hable de colores, va un
+  bloque `colores`**: decir «Ácido» sin enseñar el ácido no presenta nada. La
+  app lo dibuja con los colores del mundo de quien mira; para la web lo dibuja
+  `herramientas/novedades-framer.py` como SVG, que se rehace al correrlo
+  —mientras la entrada sea borrador da igual; publicada, si cambia el gráfico
+  cambia su nombre, como las imágenes—.
 - **En la app de Android no sale la imagen** (sí el gráfico): solo puede
   enseñar lo que viaja dentro del paquete, y meter todas las imágenes lo haría
   crecer con cada expansión. Se quita sola, sin dejar hueco.

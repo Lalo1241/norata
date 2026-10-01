@@ -1,8 +1,683 @@
 {
   "formato": 2,
-  "entradas": [
+  "_camino": "Cada 3º publicado antes de que existieran las novedades, sacado de VERSIONES.md (0.7.153). Lo recorre el anuncio de la beta y de la 1.0. Lo de después sale de las entradas, así que esta lista no se toca más.",
+  "camino": [
+    {
+      "version": "0.6.1",
+      "fecha": "2026-08-20"
+    },
+    {
+      "version": "0.6.2",
+      "fecha": "2026-08-20"
+    },
+    {
+      "version": "0.6.3",
+      "fecha": "2026-08-22"
+    },
+    {
+      "version": "0.7",
+      "fecha": "2026-08-25"
+    },
+    {
+      "version": "0.7.1",
+      "fecha": "2026-08-25"
+    },
+    {
+      "version": "0.7.2",
+      "fecha": "2026-08-25"
+    },
+    {
+      "version": "0.7.3",
+      "fecha": "2026-08-25"
+    },
+    {
+      "version": "0.7.4",
+      "fecha": "2026-08-25"
+    },
+    {
+      "version": "0.7.5",
+      "fecha": "2026-08-25"
+    },
+    {
+      "version": "0.7.6",
+      "fecha": "2026-08-25"
+    },
+    {
+      "version": "0.7.7",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.8",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.9",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.10",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.11",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.12",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.13",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.14",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.15",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.16",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.17",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.18",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.19",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.20",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.21",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.22",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.23",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.24",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.25",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.26",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.27",
+      "fecha": "2026-08-27"
+    },
+    {
+      "version": "0.7.28",
+      "fecha": "2026-08-28"
+    },
+    {
+      "version": "0.7.29",
+      "fecha": "2026-08-28"
+    },
+    {
+      "version": "0.7.30",
+      "fecha": "2026-08-28"
+    },
+    {
+      "version": "0.7.31",
+      "fecha": "2026-08-28"
+    },
+    {
+      "version": "0.7.32",
+      "fecha": "2026-08-28"
+    },
+    {
+      "version": "0.7.33",
+      "fecha": "2026-08-28"
+    },
+    {
+      "version": "0.7.34",
+      "fecha": "2026-08-28"
+    },
+    {
+      "version": "0.7.35",
+      "fecha": "2026-08-28"
+    },
+    {
+      "version": "0.7.36",
+      "fecha": "2026-08-28"
+    },
+    {
+      "version": "0.7.37",
+      "fecha": "2026-08-28"
+    },
+    {
+      "version": "0.7.38",
+      "fecha": "2026-08-29"
+    },
+    {
+      "version": "0.7.39",
+      "fecha": "2026-08-30"
+    },
+    {
+      "version": "0.7.40",
+      "fecha": "2026-08-30"
+    },
+    {
+      "version": "0.7.41",
+      "fecha": "2026-08-30"
+    },
+    {
+      "version": "0.7.42",
+      "fecha": "2026-08-30"
+    },
+    {
+      "version": "0.7.43",
+      "fecha": "2026-08-30"
+    },
+    {
+      "version": "0.7.44",
+      "fecha": "2026-08-30"
+    },
+    {
+      "version": "0.7.45",
+      "fecha": "2026-08-30"
+    },
+    {
+      "version": "0.7.46",
+      "fecha": "2026-08-30"
+    },
+    {
+      "version": "0.7.47",
+      "fecha": "2026-08-30"
+    },
+    {
+      "version": "0.7.48",
+      "fecha": "2026-08-31"
+    },
+    {
+      "version": "0.7.49",
+      "fecha": "2026-08-30"
+    },
+    {
+      "version": "0.7.50",
+      "fecha": "2026-08-30"
+    },
+    {
+      "version": "0.7.51",
+      "fecha": "2026-08-31"
+    },
+    {
+      "version": "0.7.52",
+      "fecha": "2026-08-31"
+    },
+    {
+      "version": "0.7.53",
+      "fecha": "2026-08-31"
+    },
+    {
+      "version": "0.7.54",
+      "fecha": "2026-08-31"
+    },
+    {
+      "version": "0.7.55",
+      "fecha": "2026-09-01"
+    },
+    {
+      "version": "0.7.56",
+      "fecha": "2026-09-01"
+    },
+    {
+      "version": "0.7.57",
+      "fecha": "2026-09-01"
+    },
+    {
+      "version": "0.7.58",
+      "fecha": "2026-09-01"
+    },
+    {
+      "version": "0.7.59",
+      "fecha": "2026-09-01"
+    },
+    {
+      "version": "0.7.60",
+      "fecha": "2026-09-01"
+    },
+    {
+      "version": "0.7.61",
+      "fecha": "2026-09-01"
+    },
+    {
+      "version": "0.7.62",
+      "fecha": "2026-09-01"
+    },
+    {
+      "version": "0.7.63",
+      "fecha": "2026-09-01"
+    },
+    {
+      "version": "0.7.64",
+      "fecha": "2026-09-01"
+    },
+    {
+      "version": "0.7.65",
+      "fecha": "2026-09-02"
+    },
+    {
+      "version": "0.7.66",
+      "fecha": "2026-09-02"
+    },
+    {
+      "version": "0.7.67",
+      "fecha": "2026-09-02"
+    },
+    {
+      "version": "0.7.68",
+      "fecha": "2026-09-02"
+    },
+    {
+      "version": "0.7.69",
+      "fecha": "2026-09-02"
+    },
+    {
+      "version": "0.7.70",
+      "fecha": "2026-09-02"
+    },
+    {
+      "version": "0.7.71",
+      "fecha": "2026-09-02"
+    },
+    {
+      "version": "0.7.72",
+      "fecha": "2026-09-02"
+    },
+    {
+      "version": "0.7.73",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.74",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.75",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.76",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.77",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.78",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.79",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.80",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.81",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.82",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.83",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.84",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.85",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.86",
+      "fecha": "2026-09-03"
+    },
+    {
+      "version": "0.7.87",
+      "fecha": "2026-09-04"
+    },
+    {
+      "version": "0.7.88",
+      "fecha": "2026-09-04"
+    },
+    {
+      "version": "0.7.89",
+      "fecha": "2026-09-04"
+    },
+    {
+      "version": "0.7.90",
+      "fecha": "2026-09-05"
+    },
+    {
+      "version": "0.7.91",
+      "fecha": "2026-09-05"
+    },
+    {
+      "version": "0.7.92",
+      "fecha": "2026-09-06"
+    },
+    {
+      "version": "0.7.93",
+      "fecha": "2026-09-06"
+    },
+    {
+      "version": "0.7.94",
+      "fecha": "2026-09-06"
+    },
+    {
+      "version": "0.7.95",
+      "fecha": "2026-09-07"
+    },
+    {
+      "version": "0.7.96",
+      "fecha": "2026-09-07"
+    },
+    {
+      "version": "0.7.97",
+      "fecha": "2026-09-07"
+    },
+    {
+      "version": "0.7.98",
+      "fecha": "2026-09-08"
+    },
+    {
+      "version": "0.7.99",
+      "fecha": "2026-09-09"
+    },
+    {
+      "version": "0.7.100",
+      "fecha": "2026-09-09"
+    },
+    {
+      "version": "0.7.101",
+      "fecha": "2026-09-11"
+    },
+    {
+      "version": "0.7.102",
+      "fecha": "2026-09-11"
+    },
+    {
+      "version": "0.7.103",
+      "fecha": "2026-09-11"
+    },
+    {
+      "version": "0.7.104",
+      "fecha": "2026-09-11"
+    },
+    {
+      "version": "0.7.105",
+      "fecha": "2026-09-11"
+    },
+    {
+      "version": "0.7.106",
+      "fecha": "2026-09-11"
+    },
+    {
+      "version": "0.7.107",
+      "fecha": "2026-09-11"
+    },
+    {
+      "version": "0.7.108",
+      "fecha": "2026-09-11"
+    },
+    {
+      "version": "0.7.109",
+      "fecha": "2026-09-13"
+    },
+    {
+      "version": "0.7.110",
+      "fecha": "2026-09-13"
+    },
+    {
+      "version": "0.7.111",
+      "fecha": "2026-09-14"
+    },
+    {
+      "version": "0.7.112",
+      "fecha": "2026-09-14"
+    },
+    {
+      "version": "0.7.113",
+      "fecha": "2026-09-14"
+    },
+    {
+      "version": "0.7.114",
+      "fecha": "2026-09-14"
+    },
+    {
+      "version": "0.7.115",
+      "fecha": "2026-09-15"
+    },
+    {
+      "version": "0.7.116",
+      "fecha": "2026-09-15"
+    },
+    {
+      "version": "0.7.117",
+      "fecha": "2026-09-15"
+    },
+    {
+      "version": "0.7.118",
+      "fecha": "2026-09-15"
+    },
+    {
+      "version": "0.7.119",
+      "fecha": "2026-09-15"
+    },
+    {
+      "version": "0.7.120",
+      "fecha": "2026-09-15"
+    },
+    {
+      "version": "0.7.121",
+      "fecha": "2026-09-15"
+    },
+    {
+      "version": "0.7.122",
+      "fecha": "2026-09-17"
+    },
+    {
+      "version": "0.7.123",
+      "fecha": "2026-09-17"
+    },
+    {
+      "version": "0.7.124",
+      "fecha": "2026-09-21"
+    },
+    {
+      "version": "0.7.125",
+      "fecha": "2026-09-22"
+    },
+    {
+      "version": "0.7.126",
+      "fecha": "2026-09-23"
+    },
+    {
+      "version": "0.7.127",
+      "fecha": "2026-09-23"
+    },
+    {
+      "version": "0.7.128",
+      "fecha": "2026-09-23"
+    },
+    {
+      "version": "0.7.129",
+      "fecha": "2026-09-24"
+    },
+    {
+      "version": "0.7.130",
+      "fecha": "2026-09-24"
+    },
+    {
+      "version": "0.7.131",
+      "fecha": "2026-09-24"
+    },
+    {
+      "version": "0.7.132",
+      "fecha": "2026-09-25"
+    },
+    {
+      "version": "0.7.133",
+      "fecha": "2026-09-25"
+    },
+    {
+      "version": "0.7.134",
+      "fecha": "2026-09-25"
+    },
+    {
+      "version": "0.7.135",
+      "fecha": "2026-09-25"
+    },
+    {
+      "version": "0.7.136",
+      "fecha": "2026-09-25"
+    },
+    {
+      "version": "0.7.137",
+      "fecha": "2026-09-25"
+    },
+    {
+      "version": "0.7.138",
+      "fecha": "2026-09-25"
+    },
+    {
+      "version": "0.7.139",
+      "fecha": "2026-09-25"
+    },
+    {
+      "version": "0.7.140",
+      "fecha": "2026-09-26"
+    },
+    {
+      "version": "0.7.141",
+      "fecha": "2026-09-26"
+    },
+    {
+      "version": "0.7.142",
+      "fecha": "2026-09-29"
+    },
+    {
+      "version": "0.7.143",
+      "fecha": "2026-09-29"
+    },
+    {
+      "version": "0.7.144",
+      "fecha": "2026-09-29"
+    },
+    {
+      "version": "0.7.145",
+      "fecha": "2026-09-30"
+    },
+    {
+      "version": "0.7.146",
+      "fecha": "2026-09-30"
+    },
+    {
+      "version": "0.7.147",
+      "fecha": "2026-09-30"
+    },
+    {
+      "version": "0.7.148",
+      "fecha": "2026-09-30"
+    },
+    {
+      "version": "0.7.149",
+      "fecha": "2026-09-30"
+    },
+    {
+      "version": "0.7.150",
+      "fecha": "2026-10-01"
+    },
+    {
+      "version": "0.7.151",
+      "fecha": "2026-10-01"
+    },
     {
       "version": "0.7.152",
+      "fecha": "2026-10-01"
+    }
+  ],
+  "entradas": [
+    {
+      "version": "1.0",
+      "fecha": "",
+      "estado": "borrador",
+      "clase": "hito",
+      "hito": "1.0",
+      "titulo": "Norata 1.0",
+      "resumen": "Norata llega a la Play Store. Lo que empezó como una expedición de pocos ahora está a un toque de cualquiera.",
+      "puntos": [
+        "Búscala como Norata en la Play Store y compártela con quien quieras.",
+        "Tu cuenta, tu progreso y tus mundos vienen contigo, en todos tus dispositivos.",
+        "Gracias por recorrer el camino antes de que tuviera mapa."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Norata 1.0",
+        "resumen": "Norata arrives on the Play Store. What began as an expedition of a few is now one tap away for anyone.",
+        "puntos": [
+          "Find it as Norata on the Play Store and share it with whoever you like.",
+          "Your account, your progress and your worlds come with you, on every device.",
+          "Thank you for walking the path before it had a map."
+        ]
+      }
+    },
+    {
+      "version": "0.8",
+      "fecha": "",
+      "estado": "borrador",
+      "clase": "hito",
+      "hito": "beta",
+      "titulo": "Norata entra en beta",
+      "resumen": "Lo que empezó como una alpha ya se sostiene sola. Desde hoy Norata es beta: más estable, más cuidada y abierta a más gente.",
+      "puntos": [
+        "Todo lo tuyo sigue aquí: tus misiones, tus ramas y tus rachas.",
+        "Ganaste la insignia Expedición alpha, que solo tiene quien llegó antes de hoy.",
+        "Desde aquí, cada versión te cuenta lo que trae."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Norata enters beta",
+        "resumen": "What began as an alpha now stands on its own. From today Norata is in beta: steadier, more polished and open to more people.",
+        "puntos": [
+          "Everything of yours is still here: your missions, your branches and your streaks.",
+          "You earned the Alpha expedition badge, held only by those who arrived before today.",
+          "From here on, every version tells you what it brings."
+        ]
+      }
+    },
+    {
+      "version": "0.7.154",
       "fecha": "2026-10-01",
       "estado": "borrador",
       "clase": "expansion",
@@ -112,36 +787,113 @@
           "alt": "Norata's Summary with Cyberpunk on: panels with corner brackets and the streak drawn as a circuit."
         }
       },
-      "grafico": {
-        "tipo": "cifras",
-        "titulo": "Cyberpunk en números",
-        "en": {
-          "titulo": "Cyberpunk in numbers"
+      "grafico": [
+        {
+          "tipo": "cifras",
+          "titulo": "Cyberpunk en números",
+          "en": {
+            "titulo": "Cyberpunk in numbers"
+          },
+          "datos": [
+            {
+              "valor": "5.º",
+              "texto": "mundo de Norata",
+              "en": {
+                "texto": "Norata world"
+              },
+              "icono": "globe",
+              "tono": 5
+            },
+            {
+              "valor": "5",
+              "texto": "paletas con su cara de día",
+              "en": {
+                "texto": "palettes with a daytime face"
+              },
+              "icono": "brush",
+              "tono": 4
+            },
+            {
+              "valor": "5",
+              "texto": "rangos en tu camino",
+              "en": {
+                "texto": "ranks on your path"
+              },
+              "icono": "crown",
+              "tono": 2
+            }
+          ]
         },
-        "datos": [
-          {
-            "valor": "5º",
-            "texto": "mundo de Norata",
-            "en": {
-              "texto": "Norata world"
-            }
+        {
+          "tipo": "colores",
+          "titulo": "Sus cinco paletas",
+          "en": {
+            "titulo": "Its five palettes"
           },
-          {
-            "valor": "5",
-            "texto": "paletas, cada una con su cara de día",
-            "en": {
-              "texto": "palettes, each with a daytime face"
+          "datos": [
+            {
+              "nombre": "Visor",
+              "en": {
+                "nombre": "Visor"
+              },
+              "colores": [
+                "#05080d",
+                "#0b1119",
+                "#27e2ff",
+                "#ff3d8b"
+              ]
+            },
+            {
+              "nombre": "Ácido",
+              "en": {
+                "nombre": "Acid"
+              },
+              "colores": [
+                "#050a06",
+                "#0a130c",
+                "#b4f23a",
+                "#a472ff"
+              ]
+            },
+            {
+              "nombre": "Cobalto",
+              "en": {
+                "nombre": "Cobalt"
+              },
+              "colores": [
+                "#050716",
+                "#0b0f26",
+                "#7c95ff",
+                "#ff6fb3"
+              ]
+            },
+            {
+              "nombre": "Ultravioleta",
+              "en": {
+                "nombre": "Ultraviolet"
+              },
+              "colores": [
+                "#0a0614",
+                "#170a33",
+                "#d08bf0",
+                "#ffcf85"
+              ]
+            },
+            {
+              "nombre": "Voltaje",
+              "en": {
+                "nombre": "Voltage"
+              },
+              "colores": [
+                "#07070a",
+                "#121208",
+                "#fcee0a",
+                "#ff2e6e"
+              ]
             }
-          },
-          {
-            "valor": "5",
-            "texto": "rangos en tu camino",
-            "en": {
-              "texto": "ranks on your path"
-            }
-          }
-        ]
-      },
+          ]
+        }
+      ],
       "retoques": [
         {
           "version": "0.7.148.1",
@@ -229,43 +981,126 @@
           "alt": "My look with Blueprint on: its five palettes, from Cyan to Laser, and the list of worlds."
         }
       },
-      "grafico": {
-        "tipo": "barras",
-        "titulo": "Paletas por mundo, antes y ahora",
-        "en": {
-          "titulo": "Palettes per world, before and now"
+      "grafico": [
+        {
+          "tipo": "comparar",
+          "titulo": "Antes y ahora",
+          "en": {
+            "titulo": "Before and now"
+          },
+          "datos": [
+            {
+              "texto": "Paletas de Blueprint",
+              "en": {
+                "texto": "Blueprint palettes"
+              },
+              "antes": 1,
+              "ahora": 5,
+              "icono": "map",
+              "tono": 5
+            },
+            {
+              "texto": "Paletas de Reliquia",
+              "en": {
+                "texto": "Relic palettes"
+              },
+              "antes": 1,
+              "ahora": 5,
+              "icono": "gem",
+              "tono": 4
+            },
+            {
+              "texto": "Paletas de Catedral",
+              "en": {
+                "texto": "Cathedral palettes"
+              },
+              "antes": 4,
+              "ahora": 5,
+              "icono": "roseton",
+              "tono": 3
+            },
+            {
+              "texto": "Ambientes de la casa",
+              "en": {
+                "texto": "Home ambiences"
+              },
+              "antes": 7,
+              "ahora": 10,
+              "icono": "sol",
+              "tono": 1
+            }
+          ]
         },
-        "datos": [
-          {
-            "valor": 1,
-            "texto": "Blueprint antes",
-            "en": {
-              "texto": "Blueprint before"
-            }
+        {
+          "tipo": "colores",
+          "titulo": "Las cinco de Blueprint",
+          "en": {
+            "titulo": "Blueprint's five"
           },
-          {
-            "valor": 5,
-            "texto": "Blueprint ahora",
-            "en": {
-              "texto": "Blueprint now"
+          "datos": [
+            {
+              "nombre": "Cian",
+              "en": {
+                "nombre": "Cyan"
+              },
+              "colores": [
+                "#0d2b52",
+                "#0b1219",
+                "#9fd0ff",
+                "#6ea2d8"
+              ]
+            },
+            {
+              "nombre": "Archivo",
+              "en": {
+                "nombre": "Archive"
+              },
+              "colores": [
+                "#2c3350",
+                "#191c2d",
+                "#ecd8b4",
+                "#6fa39a"
+              ]
+            },
+            {
+              "nombre": "Prisma",
+              "en": {
+                "nombre": "Prism"
+              },
+              "colores": [
+                "#221c42",
+                "#120f25",
+                "#86ead9",
+                "#a58be0"
+              ]
+            },
+            {
+              "nombre": "Acero",
+              "en": {
+                "nombre": "Steel"
+              },
+              "colores": [
+                "#1f2433",
+                "#12141e",
+                "#e9f0c6",
+                "#6d7694"
+              ]
+            },
+            {
+              "nombre": "Láser",
+              "en": {
+                "nombre": "Laser"
+              },
+              "colores": [
+                "#08203a",
+                "#04111e",
+                "#7fe69a",
+                "#2a8cc4"
+              ]
             }
-          },
-          {
-            "valor": 4,
-            "texto": "Catedral antes",
-            "en": {
-              "texto": "Cathedral before"
-            }
-          },
-          {
-            "valor": 5,
-            "texto": "Catedral ahora",
-            "en": {
-              "texto": "Cathedral now"
-            }
-          }
-        ]
-      },
+          ]
+        }
+      ],
       "retoques": [],
       "en": {
         "titulo": "Five palettes per world and ten ambiences",

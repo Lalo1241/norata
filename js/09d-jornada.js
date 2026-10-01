@@ -2216,7 +2216,7 @@ function jMostrarPendientes() {
     toast(T`Mientras no estabas · ${m}`, "logro", { label: tx("Ver"), onclick: "irAModulo('jornada')", ms: 10000 }), i * 400));
 }
 
-/* ---------- Los avisos de la app de Android (0.7.150) ----------
+/* ---------- Los avisos de la app de Android (0.7.154) ----------
    En el APK los avisos los pone el sistema, con el complemento `AvisosNorata`
    (su código, en `nativo/avisos/`; el puente, en js/13b-avisos.js). Fuera del
    APK, o en uno que no lo traiga, `jNativo()` es nada y todo sigue como antes.

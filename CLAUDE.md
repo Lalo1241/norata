@@ -80,7 +80,7 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   no esté ahí, hay que añadirlo a mano a su lista de `cp`.
 - **El APK solo se reinstala si cambia lo nativo** (el icono, un permiso, un
   complemento nuevo). Los pasos están en `LEEME.md` de esa carpeta.
-- **Los avisos del sistema son nativos (0.7.152).** El WebView no trae la API
+- **Los avisos del sistema son nativos (0.7.154).** El WebView no trae la API
   `Notification` del navegador, así que en el APK avisa el complemento
   `AvisosNorata` (`nativo/avisos/`, con su instalador y su `LEEME.md`): el
   reloj del Pomodoro en la cortina, el final de fase con la app cerrada y una
@@ -197,6 +197,16 @@ y la leerá la página de changelog del sitio el día que exista.
   por lo que le cambia a quien usa la app y no por el número. Un arreglo no
   abre ventana. Las grandes pueden llevar `imagen` (en `novedades/img/`, que
   nunca se sobrescribe) y `grafico` (datos, no dibujo).
+- **La beta y la 1.0 tienen su propio anuncio (0.7.152, rehecho en 0.7.153)**:
+  la clase `hito` abre una escena a pantalla completa en vez de la ventana
+  (`abrirHito`), una vez por persona, con el estilo del mundo puesto pero el
+  número y el texto SIEMPRE en `--sans` (en Arcade y Averno «Beta» no se
+  leía). El número desfila por cada 3º publicado (`camino` + las entradas).
+- **Los gráficos de una novedad son datos en cuatro formas** (`cifras`,
+  `comparar`, `barras`, `colores`), cada dato en uno de los ocho tonos de la
+  app. Si una novedad habla de colores, lleva un bloque `colores`. Sus borradores ya están escritos; se prueban con
+  `?novedades=borrador`. Y la etiqueta «Alpha» del número cambia sola a «Beta»
+  en la `0.8` y se va en la `1.0`.
 - **El changelog del sitio sale del mismo JSON**: el sitio es Framer, y
   `herramientas/novedades-framer.py` escribe el CSV para su CMS y dibuja los
   gráficos como SVG. Nada se escribe dos veces.

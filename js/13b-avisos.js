@@ -1,5 +1,5 @@
 /* ============================================================
-   Los avisos en la app de Android (0.7.150)
+   Los avisos en la app de Android (0.7.154)
    ============================================================
 
    El puente entre el Pomodoro (js/09d-jornada.js) y el complemento nativo
