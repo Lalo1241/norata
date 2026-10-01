@@ -677,6 +677,7 @@
     --piso-arrastre: 200;  /* la copia que sigue al dedo al reordenar */
     --piso-confeti: 300;   /* la luz de celebrar, que no se toca */
     --piso-vuelta: 390;    /* la vuelta tras una ausencia: sale sola al abrir */
+    --piso-hito: 395;      /* el anuncio de la beta o la 1.0: sale solo al abrir, sobre la vuelta */
     --piso-ventana: 400;   /* ventanas: la caja del ático, Ajustes */
     --piso-menucito: 420;  /* el mini menú del engrane */
     --piso-encima: 500;    /* lo que una ventana abre y la reemplaza */
@@ -8114,6 +8115,213 @@
 
   @media (prefers-reduced-motion: reduce) { .toast { transition: opacity 0.2s ease; transform: none; } }
 
+  /* ---------- El anuncio de un hito: la beta y la 1.0 (0.7.152; rehecho en 0.7.153) ----------
+     Una escena y no una ventana (ver `abrirHito`, js/10l-novedades.js).
+
+     DE NOCHE, PERO CON EL MUNDO PUESTO. Es un dibujo y no interfaz, así que
+     el cielo y las tarjetas son oscuros en los dos modos (`--hito-noche`,
+     `--hito-tarjeta`), pero teñidos del acento del mundo y con sus botones:
+     Eduardo pidió que cada mundo se viera en su estilo. El acento entra por
+     `--mint-macizo`, que es la cara VIVA en los dos modos —`--mint` de día es
+     la oscura, la de escribir sobre papel, y aquí no hay papel—.
+
+     LA LETRA DEL NÚMERO ES SIEMPRE `--sans`. Los mundos cambian `--tipo-cifra`
+     y `--tipo-titulo`, y en Arcade y Averno la «a» y la «e» de «Beta» salían
+     ilegibles a 80 px. El título y el resto también van en `--sans`: es un
+     momento para leerse sin esfuerzo.
+
+     Todo se mueve con animaciones y ninguna transición —una transición sobre
+     variables se congela en esta app—. Lo de arriba lleva sus tiempos; lo de
+     debajo del número espera a `.llego`, que pone el JavaScript cuando el
+     desfile aterriza, porque el desfile dura distinto en cada hito. */
+  #hito {
+    --hito-noche: #06090e; --hito-texto: #eef1f6; --hito-suave: #a3adbd; --hito-tenue: #6b7586;
+    --hito-tarjeta: #141a23; --hito-luz: #f5d76e; --hito-c1: #ff8a70; --hito-c2: #8ecdf5;
+    --hito-marca: var(--mint-macizo);
+    --hito-borde: color-mix(in srgb, var(--hito-marca) 22%, transparent);
+    position: fixed; inset: 0; z-index: var(--piso-hito);
+    display: none; overflow-y: auto; overscroll-behavior: contain;
+    color: var(--hito-texto); font-family: var(--sans);
+  }
+  #hito.show { display: block; animation: hito-entra 0.6s ease both; }
+  #hito.fuera { animation: hito-sale 0.36s ease both; }
+  @keyframes hito-entra { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes hito-sale { to { opacity: 0; } }
+  #hito .hito-cielo { position: fixed; inset: 0;
+    background: radial-gradient(120% 80% at 50% 22%, color-mix(in srgb, var(--hito-marca) 16%, var(--hito-noche)) 0%, var(--hito-noche) 72%); }
+  #hito.hito-lanzamiento .hito-cielo {
+    background: radial-gradient(120% 80% at 50% 22%, color-mix(in srgb, var(--hito-luz) 14%, var(--hito-noche)) 0%, color-mix(in srgb, var(--hito-marca) 8%, var(--hito-noche)) 42%, var(--hito-noche) 78%); }
+  #hito .hito-estrellas { position: fixed; inset: 0; pointer-events: none; }
+  #hito .hito-estrellas i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: var(--hito-texto); opacity: 0.5; animation: hito-parpadeo 3.2s ease-in-out infinite; }
+  @keyframes hito-parpadeo { 50% { opacity: 0.12; } }
+  /* Las luciérnagas se posan en el centro del isotipo: el relleno de arriba de
+     la escena (28 px), su margen (6vh) y medio isotipo (56 px). Si cambia uno,
+     cambia esta cuenta, y la de las chispas, que salen del mismo punto. */
+  #hito .hito-bichos { position: fixed; left: 50%; top: calc(6vh + 84px + env(safe-area-inset-top)); width: 0; height: 0; pointer-events: none; }
+  #hito .hito-bichos i {
+    position: absolute; width: 7px; height: 7px; margin: -3.5px; border-radius: 50%;
+    background: var(--hito-luz); box-shadow: 0 0 12px 3px color-mix(in srgb, var(--hito-luz) 60%, transparent);
+    opacity: 0; animation: hito-vuelo 1.7s cubic-bezier(.3, .1, .3, 1) both;
+  }
+  @keyframes hito-vuelo {
+    0% { opacity: 0; transform: translate(var(--x), var(--y)) scale(.6); }
+    20% { opacity: 1; }
+    80% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(0, 0) scale(.2); }
+  }
+  /* `margin: auto` y no `align-items: center`: con la pantalla baja, centrar
+     escondería para siempre la parte de arriba (CLAUDE.md, «Trampas»). */
+  #hito .hito-escena {
+    position: relative; max-width: 620px; margin: 0 auto;
+    padding: calc(28px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom));
+    display: flex; flex-direction: column; align-items: stretch; text-align: center;
+  }
+  #hito .hito-marca { position: relative; width: 112px; height: 112px; margin: 6vh auto 0; flex: none; }
+  #hito .hito-marca svg { position: relative; width: 100%; height: 100%; overflow: visible; }
+  #hito .hito-iso {
+    fill: var(--hito-marca); fill-opacity: 0; stroke: var(--hito-marca); stroke-width: 4;
+    stroke-dasharray: 1600; stroke-dashoffset: 1600;
+    filter: drop-shadow(0 0 18px color-mix(in srgb, var(--hito-marca) 55%, transparent));
+    animation: hito-trazo 1.1s ease-in-out 1.6s forwards, hito-relleno 0.6s ease 2.5s forwards;
+  }
+  @keyframes hito-trazo { to { stroke-dashoffset: 0; } }
+  @keyframes hito-relleno { to { fill-opacity: 1; } }
+  /* `forwards` y no `both`: con `both` el primer fotograma —el aro a 0,7— se
+     pintaba durante la espera, y el aro salía antes que el isotipo. */
+  #hito .hito-onda { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--hito-marca); opacity: 0; animation: hito-onda 1.6s ease-out 2.3s forwards; }
+  #hito .hito-onda.dos { animation-delay: 2.6s; }
+  #hito.hito-lanzamiento .hito-onda.dos { border-color: var(--hito-luz); }
+  #hito.aterriza .hito-onda { animation: hito-onda 1.4s ease-out forwards; }
+  #hito.aterriza .hito-onda.dos { animation-delay: .25s; }
+  @keyframes hito-onda { 0% { opacity: .7; transform: scale(.7); } 100% { opacity: 0; transform: scale(2.6); } }
+
+  /* Las reglas cuelgan de `#hito` para ganarle a las de cada mundo: en Averno
+     un `h2` suelto tiene las suyas y el título salía chico (0.7.153). */
+  /* ---- El número, que desfila ---- */
+  #hito .hito-numero { margin-top: 18px; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; animation: hito-sube .5s ease 2.8s both; }
+  #hito .hito-etapa {
+    font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--hito-noche); background: var(--hito-marca); border-radius: var(--r-pastilla); padding: 3px 11px;
+  }
+  #hito.hito-lanzamiento.aterriza .hito-etapa { background: var(--hito-luz); }
+  #hito.cruce .hito-etapa { animation: hito-cruce .7s ease; }
+  @keyframes hito-cruce { 0% { transform: scale(1); } 35% { transform: scale(1.35); box-shadow: 0 0 0 10px color-mix(in srgb, var(--hito-marca) 25%, transparent); } 100% { transform: scale(1); } }
+  /* La ruleta: una ventana de tres filas por la que baja la tira de
+     versiones. La del centro se lee; la de arriba y la de abajo asoman
+     difuminadas por la máscara. `--fila` es el alto de una fila, y lo mide el
+     JavaScript (`hitoPonerTira`), así que cambiarlo aquí basta. */
+  #hito .hito-ruleta {
+    --fila: 76px;
+    position: relative; display: block; width: 100%; height: calc(var(--fila) * 3); overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 34%, #000 66%, transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0%, #000 34%, #000 66%, transparent 100%);
+  }
+  #hito .hito-tira { display: flex; flex-direction: column; will-change: transform; }
+  #hito .hito-fila {
+    flex: none; height: var(--fila); display: flex; align-items: center; justify-content: center;
+    font-family: var(--sans); font-weight: 800; font-size: 56px; letter-spacing: -.02em; line-height: 1;
+    font-variant-numeric: tabular-nums; color: var(--hito-suave);
+  }
+  #hito.veloz .hito-tira { filter: blur(1.4px); }
+  #hito .hito-fila.meta {
+    font-size: 80px;
+    background: linear-gradient(180deg, var(--hito-texto), var(--hito-marca)); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  #hito.hito-lanzamiento .hito-fila.meta { font-size: 92px; background-image: linear-gradient(180deg, var(--hito-luz), var(--hito-marca)); }
+  #hito.aterriza .hito-fila.meta { animation: hito-golpe .7s cubic-bezier(.2, 1.6, .4, 1); }
+  @keyframes hito-golpe { 0% { transform: scale(.82); } 100% { transform: scale(1); } }
+  /* Para los lectores de pantalla: la ruleta es dibujo; esto dice adónde llega. */
+  #hito .hito-ruleta-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* ---- Lo de debajo: espera a que aterrice ---- */
+  #hito .hito-texto > * { opacity: 0; }
+  #hito.llego .hito-texto > :not(.hito-reporte) { animation: hito-sube .7s ease both; }
+  #hito.llego .hito-tit { animation-delay: .5s; }
+  #hito.llego .hito-res { animation-delay: .75s; }
+  #hito.llego .hito-puntos { animation-delay: 1s; }
+  #hito.llego .hito-botones { animation-delay: 1.3s; }
+  #hito.llego .hito-prueba, #hito.llego .hito-baja { animation-delay: 1.5s; }
+  #hito.llego .hito-reporte { opacity: 1; }
+  @keyframes hito-sube { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  #hito .hito-tit { margin: 22px 0 0; font-family: var(--sans); font-size: 30px; line-height: 1.15; font-weight: 800; letter-spacing: -.01em; text-wrap: balance; }
+  #hito .hito-res { margin: 10px auto 0; max-width: 46ch; font-size: 16px; line-height: 1.55; color: var(--hito-suave); }
+  #hito .hito-puntos { margin: 16px auto 0; padding: 0; list-style: none; display: grid; gap: 8px; max-width: 46ch; text-align: left; font-size: 14.5px; line-height: 1.45; }
+  #hito .hito-puntos li { position: relative; padding-left: 20px; }
+  #hito .hito-puntos li::before { content: ""; position: absolute; left: 2px; top: 0.5em; width: 7px; height: 7px; border-radius: 50%; background: var(--hito-luz); box-shadow: 0 0 8px var(--hito-luz); }
+  #hito .hito-botones { display: grid; gap: 10px; margin-top: 22px; }
+  #hito .hito-prueba { margin: 12px 0 0; font-size: 12px; color: var(--hito-luz); }
+  #hito .hito-baja { display: block; margin-top: 26px; font-size: 12.5px; color: var(--hito-tenue); }
+
+  /* ---- El reporte: lo que recorriste ----
+     Cada tarjeta en uno de los ocho tonos de la app y con su icono, para que
+     se distingan de un vistazo; entran al verse (`hitoRevelar`). */
+  #hito .hito-reporte { margin-top: 14px; display: grid; gap: 14px; text-align: left; }
+  #hito .hito-rep-titulo { margin: 0; font-family: var(--sans); font-size: 22px; font-weight: 800; text-align: center; }
+  #hito .hito-reps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  #hito .hito-rep {
+    position: relative; display: flex; flex-direction: column; gap: 4px; min-width: 0;
+    padding: 14px; border-radius: var(--r-grande);
+    background: color-mix(in srgb, var(--t) 10%, var(--hito-tarjeta)); border: 1px solid color-mix(in srgb, var(--t) 28%, transparent);
+  }
+  #hito .hito-rep-ic { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--r-chico); color: var(--t); background: color-mix(in srgb, var(--t) 18%, transparent); margin-bottom: 4px; }
+  #hito .hito-rep-ic svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  #hito .hito-rep > b { font-family: var(--sans); font-size: 30px; line-height: 1.05; font-weight: 800; color: var(--t); font-variant-numeric: tabular-nums; }
+  #hito .hito-rep > span:not(.hito-rep-ic):not(.hito-rep-cita):not(.hito-rep-tit) { font-size: 13px; color: var(--hito-suave); line-height: 1.35; }
+  #hito .hito-rep > i { font-style: normal; font-size: 11.5px; color: var(--hito-tenue); }
+  #hito .hito-rep-ancha { grid-column: 1 / -1; }
+  #hito .hito-rep-cita { font-size: 15px; line-height: 1.4; color: var(--hito-suave); }
+  #hito .hito-rep-cita b { color: var(--hito-texto); }
+  #hito .hito-rep-tit { font-size: 12px; font-weight: 700; color: var(--hito-suave); }
+  #hito .hito-mapa { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 9px); grid-template-columns: repeat(var(--semanas), minmax(0, 1fr)); gap: 3px; margin-top: 6px; }
+  #hito .hito-mapa i { border-radius: 2px; }
+  #hito .hito-mapa i.p0 { background: transparent; }
+  #hito .hito-mapa i.p1 { background: color-mix(in srgb, var(--hito-texto) 8%, transparent); }
+  #hito .hito-mapa i.p2 { background: var(--t); }
+  #hito .hito-rep, .hito-insignia, .hito-rep-titulo { opacity: 0; transform: translateY(18px); }
+  :is(.hito-rep, .hito-insignia, .hito-rep-titulo).visto { animation: hito-sube .6s ease forwards; }
+  #hito .hito-reps .hito-rep.visto:nth-child(2n) { animation-delay: .08s; }
+
+  /* ---- Las insignias: una por hito ---- */
+  #hito .hito-insignia { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: var(--r-grande); background: var(--hito-tarjeta); border: 1px solid var(--hito-borde); }
+  #hito .hito-insignia b { display: block; font-size: 17px; }
+  #hito .hito-insignia span span { display: block; font-size: 13px; color: var(--hito-suave); line-height: 1.4; margin-top: 2px; }
+  #hito .hito-ins-svg { flex: none; width: 64px; height: 64px; overflow: visible; }
+  #hito .hito-ins-svg text { font-family: var(--sans); font-weight: 800; }
+  /* El sello de la beta: hexágono en el acento del mundo, con la alfa. */
+  #hito .sello .aro { fill: color-mix(in srgb, var(--hito-marca) 20%, transparent); stroke: var(--hito-marca); stroke-width: 2.5; }
+  #hito .sello .dentro { fill: color-mix(in srgb, var(--hito-marca) 35%, var(--hito-tarjeta)); }
+  #hito .sello .letra { font-size: 26px; fill: var(--hito-texto); }
+  /* La medalla de la 1.0: redonda, en luciérnaga, con cinta del acento. */
+  #hito .medalla { height: 72px; }
+  #hito .medalla .cinta { fill: var(--hito-marca); opacity: .85; }
+  #hito .medalla .aro { fill: var(--hito-luz); }
+  #hito .medalla .dentro { fill: color-mix(in srgb, var(--hito-luz) 55%, var(--hito-noche)); stroke: var(--hito-noche); stroke-opacity: .3; stroke-width: 1; }
+  #hito .medalla .num { font-size: 13px; fill: var(--hito-noche); }
+  #hito .medalla .letra { font-size: 12px; fill: var(--hito-noche); }
+  #hito .hito-medalla { border-color: color-mix(in srgb, var(--hito-luz) 40%, transparent); }
+  #hito .visto .hito-ins-svg { animation: hito-insignia .9s cubic-bezier(.2, 1.4, .4, 1) .15s both; }
+  @keyframes hito-insignia { from { transform: rotate(-25deg) scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* El estallido, al aterrizar: más grande en la 1.0. */
+  #hito .hito-chispas { position: fixed; left: 50%; top: calc(6vh + 84px + env(safe-area-inset-top)); width: 0; height: 0; pointer-events: none; }
+  #hito .hito-chispas i { position: absolute; width: 6px; height: 6px; margin: -3px; border-radius: 2px; background: var(--hito-marca); opacity: 0; animation: hito-chispa 1.4s cubic-bezier(.1, .7, .3, 1) both; }
+  #hito .hito-chispas i.c1 { background: var(--hito-luz); } .hito-chispas i.c2 { background: var(--hito-c1); } .hito-chispas i.c3 { background: var(--hito-c2); }
+  @keyframes hito-chispa { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(260deg); } }
+
+  @media (max-width: 420px) {
+    #hito .hito-ruleta { --fila: 64px; }
+    #hito .hito-fila { font-size: 46px; }
+    #hito .hito-fila.meta { font-size: 68px; }
+    #hito.hito-lanzamiento .hito-fila.meta { font-size: 78px; }
+    #hito .hito-rep > b { font-size: 26px; }
+  }
+  /* Con «menos movimiento», el final y nada más. */
+  #hito.quieto *, #hito.quieto { animation: none !important; }
+  #hito.quieto .hito-iso { stroke-dashoffset: 0; fill-opacity: 1; }
+  #hito.quieto :is(.hito-numero, .hito-texto > *, .hito-rep, .hito-insignia, .hito-rep-titulo) { opacity: 1; transform: none; }
+  #hito.quieto .hito-bichos, #hito.quieto .hito-onda { display: none; }
+  @media (prefers-reduced-motion: reduce) { #hito.show { animation: none; } }
+
   /* ---------- «Ya está lista la versión X» (0.7.149) ----------
      Arriba y no abajo con los toasts: abajo compite con ellos y con la barra,
      y lo que se quería es que se VEA. Se queda hasta que se usa o se cierra
@@ -8202,6 +8410,8 @@
   .nov-clase.c-expansion { color: var(--mint); background: var(--mint-soft); }
   .nov-clase.c-mejora { color: var(--celeste); background: var(--celeste-soft); }
   .nov-clase.c-arreglo { color: var(--muted); background: var(--sup-panel); }
+  /* El hito va en la luciérnaga de la marca: no hay otro momento así. */
+  .nov-clase.c-hito { color: var(--sobre-vivo); background: var(--fire); }
   /* La expansión pesa más también en la lista: su tarjeta lleva el filo del
      acento y el título más grande. */
   .nov-lista .nov-expansion { border-color: color-mix(in srgb, var(--mint) 45%, var(--line)); }
@@ -8209,18 +8419,55 @@
   .nov-lista .nov-arreglo .nov-tit { font-size: 14.5px; }
   .nov-img { margin: 0 0 12px; border-radius: var(--r-chico); overflow: hidden; background: var(--sup-hondo); }
   .nov-img img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
-  .nov-graf { margin-top: 12px; padding: 12px; border-radius: var(--r-chico); background: var(--sup-hondo); }
-  .nov-graf-tit { display: block; margin-bottom: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
-  .nov-cifras-fila { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 10px; }
-  .nov-cifra { display: flex; flex-direction: column; gap: 2px; min-width: 0; text-align: left; }
-  .nov-cifra b { font-family: var(--tipo-cifra); font-size: 24px; font-weight: 800; line-height: 1.1; color: var(--mint); font-variant-numeric: tabular-nums; }
-  .nov-cifra span { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
-  .nov-barra { display: grid; grid-template-columns: minmax(0, 7em) minmax(0, 1fr) auto; gap: 9px; align-items: center; font-size: 12px; }
-  .nov-barra + .nov-barra { margin-top: 6px; }
-  .nov-barra-et { color: var(--muted); text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* ---- Los gráficos de una novedad (rehechos en 0.7.153) ----
+     Cada dato en su tono (`--t`, uno de los ocho de la app) con su icono, y
+     escrito con la mezcla de `tinta()` para que de día llegue a 4,5. Nada se
+     estira a lo ancho: las barras topan en 220 px y la comparación son
+     puntitos, que se cuentan sin medir. */
+  .nov-graf { margin-top: 12px; padding: 12px; border-radius: var(--r-chico); background: var(--sup-hondo); display: grid; gap: 9px; }
+  .nov-graf-tit { display: block; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+  .nov-g-ic { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: var(--r-mini); color: var(--t, var(--mint)); background: color-mix(in srgb, var(--t, var(--mint)) 16%, transparent); }
+  .nov-g-ic svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .nov-cifras-fila { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 10px; }
+  .nov-cifra { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; text-align: left; padding: 9px 10px; border-radius: var(--r-mini); background: color-mix(in srgb, var(--t) 8%, transparent); }
+  .nov-cifra b { font-family: var(--sans); font-size: 24px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums;
+    color: color-mix(in srgb, var(--t), var(--tinta-fondo) var(--hundir)); }
+  .nov-cifra > span:last-child { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
+  /* Antes y ahora: lo que había, apagado; lo que llegó, encendido. */
+  /* El nombre en su renglón y los puntitos con los números debajo: en una sola
+     fila, con diez puntitos, el nombre se quedaba en «Ambi…» (0.7.153). */
+  .nov-cmp { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "et et et" "pips num dif"; column-gap: 10px; row-gap: 6px; align-items: center; font-size: 12.5px; }
+  .nov-cmp + .nov-cmp { padding-top: 9px; border-top: 1px solid var(--line); }
+  .nov-cmp-et { grid-area: et; display: flex; align-items: center; gap: 8px; min-width: 0; text-align: left; font-weight: 600; }
+  .nov-cmp-pips { grid-area: pips; padding-left: 32px; }
+  .nov-cmp-num { grid-area: num; }
+  .nov-cmp-dif { grid-area: dif; }
+  .nov-cmp-pips { display: flex; flex-wrap: wrap; gap: 3px; }
+  .nov-cmp-pips i { width: 9px; height: 9px; border-radius: var(--r-redondo); }
+  .nov-cmp-pips i.ya { background: color-mix(in srgb, var(--t-linea) 45%, var(--carril)); }
+  .nov-cmp-pips i.nuevo { background: var(--t-linea); }
+  .nov-cmp-pips i.fue { box-shadow: inset 0 0 0 1.5px var(--carril); }
+  .nov-cmp-barra { display: flex; width: 110px; height: 9px; border-radius: var(--r-barra); background: var(--carril); overflow: hidden; }
+  .nov-cmp-barra i.ya { background: color-mix(in srgb, var(--t-linea) 45%, var(--carril)); }
+  .nov-cmp-barra i.nuevo { background: var(--t-linea); }
+  .nov-cmp-num { display: inline-flex; align-items: baseline; gap: 5px; font-family: var(--sans); font-variant-numeric: tabular-nums; }
+  .nov-cmp-num .antes { color: var(--faint); text-decoration: line-through; }
+  .nov-cmp-num .flecha { color: var(--faint); }
+  .nov-cmp-num b { font-size: 15px; color: color-mix(in srgb, var(--t), var(--tinta-fondo) var(--hundir)); }
+  .nov-cmp-dif { font-size: 10px; font-weight: 800; color: var(--sobre-vivo); background: var(--t); border-radius: var(--r-pastilla); padding: 1px 6px; }
+  /* Las barras, cortas y cada una en su tono. */
+  .nov-barra { display: grid; grid-template-columns: minmax(0, 1fr) minmax(60px, 220px) 2.5ch; gap: 9px; align-items: center; font-size: 12.5px; }
+  .nov-barra-et { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--muted); text-align: left; }
+  .nov-barra-et > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .nov-barra-carril { height: 8px; border-radius: var(--r-barra); background: var(--carril); overflow: hidden; }
-  .nov-barra-carril i { display: block; height: 100%; border-radius: inherit; background: var(--mint); }
-  .nov-barra b { font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
+  .nov-barra-carril i { display: block; height: 100%; border-radius: inherit; background: var(--t); }
+  .nov-barra b { font-family: var(--sans); font-variant-numeric: tabular-nums; text-align: right; }
+  /* Las paletas: cada una con sus muestras de verdad y su nombre debajo. */
+  .nov-col-fila { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 10px; }
+  .nov-col { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .nov-col-muestras { display: flex; height: 26px; border-radius: var(--r-mini); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+  .nov-col-muestras i { flex: 1; }
+  .nov-col-nom { font-size: 11.5px; font-weight: 600; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* Una novedad se lee a la izquierda, también dentro de la ventana. La regla
      que centraba es `.modal-card p` —todo párrafo de cualquier cuadro—, que
      le gana a `.nov-res` por especificidad: el resumen salía centrado entre el
@@ -8242,6 +8489,7 @@
   .nov-prueba b { font-size: 13px; }
   .nov-prueba span { font-size: 12px; color: var(--muted); line-height: 1.45; }
   .nov-prueba .btn { margin-top: 6px; }
+  .nov-prueba-hitos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
 
   .sum-card.wide {
     width: 100%;

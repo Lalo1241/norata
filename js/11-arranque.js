@@ -47,7 +47,14 @@ if (typeof revisarNivelExpedicion === "function") revisarNivelExpedicion();
      hijo se COLAPSA. Con `Alpha ` y ` · ` escritos a mano salía
      «Alphav0.7.24· 27 ago 2026», todo pegado. La separación la pone el `gap`
      del contenedor, que es lo único que un flex respeta. */
-  const html = `<span class="sv-etapa">Alpha</span>` +
+  /* La etapa sale del número desde la 0.7.152: `0.7.x` es Alpha, `0.8` en
+     adelante es Beta, y en la `1.0` la etiqueta se va, que es lo que significa
+     salir a la tienda. Así el día del hito nadie tiene que acordarse de
+     cambiarla aquí. */
+  const etapa = typeof versionMasNueva === "function"
+    ? (versionMasNueva(VERSION, "0.9.9999") ? "" : versionMasNueva(VERSION, "0.7.9999") ? "Beta" : "Alpha")
+    : "Alpha";
+  const html = (etapa ? `<span class="sv-etapa">${etapa}</span>` : "") +
                `<span class="sv-num">V${VERSION}</span>` +
                `<span class="sv-fecha">· ${VERSION_FECHA}</span>`;
   /* «sv-txt» y no «side-version»: desde que la bolita de reportar vive
@@ -163,7 +170,7 @@ if (typeof iniciarRelojJornada === "function") iniciarRelojJornada();
 
 aplicarModulos();
 
-/* Todo interruptor se desliza (0.7.152): un solo oyente para toda la app.
+/* Todo interruptor se desliza (0.7.154): un solo oyente para toda la app.
    Vive en `js/01-base.js`, junto a los interruptores de Aspecto. */
 if (typeof instalarDesliza === "function") instalarDesliza();
 

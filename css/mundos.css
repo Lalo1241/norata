@@ -2712,7 +2712,7 @@ html[data-apariencia="averno"] :is(.skill-emoji, .ms-ic, .aj-ic, .mm-ic) {
 /* Los del menú de Ajustes y del menú de la cuenta, también en rombo (0.7.147.10:
    «que los iconos también se adapten con los mundos»).
 
-   Al pasar el cursor el icono BRILLA, no se rellena (Eduardo, 0.7.152: «no se
+   Al pasar el cursor el icono BRILLA, no se rellena (Eduardo, 0.7.154: «no se
    hagan negros, más bien deberían brillar más, con una estela si quieres»).
    La casa llena el cuadro y oscurece el dibujo; aquí eso se probó dos veces y
    las dos salió mal: sin relleno el dibujo quedaba negro sobre negro

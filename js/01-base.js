@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.152";
+const VERSION = "0.7.154";
 const VERSION_FECHA = "1 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -585,7 +585,7 @@ function alternarTema() {
    del engrane en la computadora—, y dos copias escritas a mano acabarían
    diciendo cosas distintas. Por eso también va con clases y no con ids. */
 /* ================= Todo interruptor se desliza =================
-   Regla del motor, y es de Eduardo (0.7.152): cualquier interruptor de la app,
+   Regla del motor, y es de Eduardo (0.7.154): cualquier interruptor de la app,
    de hoy o de mañana y en cualquier mundo, enseña su deslizamiento al cambiar.
 
    **Por qué no bastaba con una transición de CSS.** Casi todos los
@@ -2348,6 +2348,7 @@ const CAPAS_QUE_TAPAN = [
   "#modal.show",            // confirmar
   "#luci-frase.show",       // la frase de una luciérnaga
   "#aniv.show",             // el aniversario de expedición
+  "#hito.show",             // el anuncio de la beta o la 1.0 (js/10l-novedades.js)
   "#racha-hoja.show",       // «Tu racha», al tocar la tarjeta
   "#arc-mando.show",        // el mando del código Konami (Arcade)
   "#arc-abierto.show",      // «Mundo Arcade: ya es tuyo»
