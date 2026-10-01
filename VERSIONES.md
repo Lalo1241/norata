@@ -283,6 +283,19 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
+### 0.7.156.1 · 1 oct 2026
+
+**El anuncio de un hito gira en el centro de la pantalla.** Eduardo: «al
+centro debería salir la animación y el conteo; cerca de los últimos números,
+subir a donde están ahora, y al acabar desplegar todo lo demás». El isotipo, la
+etiqueta y la ruleta van juntos en `.hito-cabeza`, que nace bajada lo justo
+para quedar centrada (`hitoCentrar`, medido después de `.show`). Al 80% del
+giro sube a su sitio con la Web Animations API —nada de transiciones, que
+aquí se congelan— y llega justo cuando la ruleta para; entonces se despliega
+lo de abajo, como antes. Las luciérnagas se bajan lo mismo para posarse en el
+isotipo. Medido en teléfono y PC: el centro de la cabeza en 422 de 844 durante
+el giro y en 228 al acabar. Con «menos movimiento» no se mueve nada.
+
 ### 0.7.156 · 1 oct 2026
 
 **Las novedades de la 0.7.147 a la 0.7.151, publicadas, y la insignia de la

@@ -665,6 +665,7 @@ async function abrirHito(e, opciones) {
     <div class="hito-estrellas" aria-hidden="true">${estrellas}</div>
     <div class="hito-bichos" aria-hidden="true">${bichos}</div>
     <div class="hito-escena">
+      <div class="hito-cabeza">
       <div class="hito-marca" aria-hidden="true">
         <span class="hito-onda"></span><span class="hito-onda dos"></span>
         <svg viewBox="0 0 250 250"><path class="hito-iso" d="${HITO_ISOTIPO}"/></svg>
@@ -672,6 +673,7 @@ async function abrirHito(e, opciones) {
       <div class="hito-numero">
         <span class="hito-etapa">${escapeHtml(quieto ? HITO_ETIQUETA[hito] === "1.0" ? tx("Lanzamiento") : "Beta" : "Alpha")}</span>
         ${ruleta}
+      </div>
       </div>
       <div class="hito-texto">
         <h2 class="hito-tit">${escapeHtml(novedadCampo(e, "titulo") || "")}</h2>
@@ -709,6 +711,7 @@ async function abrirHito(e, opciones) {
        número entra a los 2,8 s): si no, la etapa asomaría antes de girar. Y
        después de `show`, que con la escena escondida las filas miden cero. */
     hitoPonerTira(v, quieto ? 0 : v.querySelectorAll(".hito-fila").length - 1);
+    if (!quieto) hitoCentrar(v);
 
     const llegar = () => {
       if (!v.isConnected) return;
@@ -741,7 +744,7 @@ function hitoDesfile(v, camino, hito, alFinal) {
   const tira = v.querySelector(".hito-tira"), etapa = v.querySelector(".hito-etapa");
   const filas = tira ? tira.children.length : 0;
   const total = HITO_DESFILE[hito], t0 = Date.now(), n = camino.length;
-  let enBeta = false;
+  let enBeta = false, subio = false;
   const poner = (fila) => hitoPonerTira(v, fila);
   poner(filas - 1);
   v.classList.add("desfila");
@@ -753,6 +756,9 @@ function hitoDesfile(v, camino, hito, alFinal) {
     poner(fila);
     /* Desenfoque solo cuando va rápido: un rodillo de verdad se emborrona. */
     v.classList.toggle("veloz", q > 0.18 && q < 0.82);
+    /* Con los últimos números, la cabeza sube del centro a su sitio y llega
+       justo cuando la ruleta para. */
+    if (!subio && q >= HITO_SUBIR) { subio = true; hitoSubir(v, Math.max(400, total * (1 - q))); }
     /* La fila k de la tira es la versión n-k (la 0 es la etapa). */
     const i = Math.min(n - 1, Math.max(0, Math.round(n - fila)));
     if (!enBeta && camino[i] && versionMasNueva(camino[i], "0.7.9999")) {
@@ -762,12 +768,36 @@ function hitoDesfile(v, camino, hito, alFinal) {
     }
     if (q < 1) { hitoRelojes.push(setTimeout(paso, 16)); return; }
     v.classList.remove("desfila", "veloz");
+    if (!subio) hitoSubir(v, 400);
     poner(0);
     etapa.textContent = hito === "1.0" ? tx("Lanzamiento") : "Beta";
     v.classList.add("aterriza");
     alFinal();
   };
   paso();
+}
+
+/* El isotipo y la ruleta giran en el centro de la pantalla (Eduardo,
+   0.7.156.1): es lo único que hay que mirar mientras cuenta. Cerca del final
+   suben a su sitio, arriba, y al parar se despliega lo demás (`.llego`).
+   Se mueve la cabeza entera con un `transform` puesto a mano y una animación
+   de la Web Animations API —nada de transiciones, que aquí se congelan—, y las
+   luciérnagas se mueven lo mismo para posarse donde está el isotipo. */
+const HITO_SUBIR = 0.8;
+function hitoCentrar(v) {
+  const cabeza = v.querySelector(".hito-cabeza");
+  if (!cabeza) return;
+  const r = cabeza.getBoundingClientRect();
+  const dy = Math.max(0, Math.round(innerHeight / 2 - (r.top + r.height / 2)));
+  v._hitoBajada = dy;
+  [cabeza, v.querySelector(".hito-bichos")].forEach((el) => { if (el) el.style.transform = `translateY(${dy}px)`; });
+}
+function hitoSubir(v, ms) {
+  const cabeza = v.querySelector(".hito-cabeza"), dy = v._hitoBajada || 0;
+  if (!cabeza || !dy) return;
+  cabeza.style.transform = "";
+  if (cabeza.animate) cabeza.animate([{ transform: `translateY(${dy}px)` }, { transform: "none" }],
+    { duration: ms, easing: "cubic-bezier(.45, 0, .2, 1)" });
 }
 
 /* Deja la fila `fila` de la tira en el centro de la ventana de la ruleta, que
