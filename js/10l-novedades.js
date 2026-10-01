@@ -106,12 +106,66 @@ function novedadFecha(iso) {
   return d.toLocaleDateString(lengua, { day: "numeric", month: "short", year: "numeric" });
 }
 
-function novedadHTML(e) {
+/* ---- La clase de una novedad (0.7.151) ----
+   Eduardo: «para distinguir qué novedad es más grande que otras». No sale del
+   número —un 3º puede ser un mundo entero o tres arreglos—, sale de qué le
+   cambia a quien usa la app, y decide cuánto ruido hace:
+
+   | clase       | qué es                                          | en la app                     |
+   | expansion   | algo que no existía: un mundo, un módulo        | ventana, con imagen y gráfico |
+   | mejora      | algo que ya tenías, ahora mejor                 | ventana                       |
+   | arreglo     | algo que fallaba y ya no                        | sin ventana: el aviso chico   |
+
+   Un arreglo no interrumpe: avisar con una ventana de que algo ya no falla es
+   pedirle a alguien que se detenga por un problema que quizá ni vio. Sale en
+   Ajustes → Novedades como todas. Sin `clase`, una entrada es una mejora. */
+const NOVEDAD_CLASES = {
+  expansion: { nombre: "Expansión", ventana: true },
+  mejora:    { nombre: "Mejora",    ventana: true },
+  arreglo:   { nombre: "Arreglo",   ventana: false }
+};
+function novedadClase(e) {
+  return NOVEDAD_CLASES[e && e.clase] ? e.clase : "mejora";
+}
+
+/* ---- El gráfico de una novedad ----
+   Datos y no una imagen, para que salga con los colores de quien lo mira (su
+   mundo, su modo) y en el idioma de la app. Dos formas, las dos sin librería:
+   `cifras` (dos a cuatro números grandes con su rótulo) y `barras` (de lado,
+   proporcionales al mayor). La web lo recibe dibujado como SVG desde
+   `herramientas/novedades-framer.py`, porque Framer no ejecuta esto. */
+function novedadGraficoHTML(g) {
+  if (!g || !Array.isArray(g.datos) || !g.datos.length) return "";
+  const titulo = novedadCampo(g, "titulo");
+  const cab = titulo ? `<span class="nov-graf-tit">${escapeHtml(titulo)}</span>` : "";
+  if (g.tipo === "barras") {
+    const max = Math.max.apply(null, g.datos.map((d) => Number(d.valor) || 0)) || 1;
+    return `<div class="nov-graf nov-barras">${cab}${g.datos.map((d) => `
+      <div class="nov-barra">
+        <span class="nov-barra-et">${escapeHtml(novedadCampo(d, "texto") || "")}</span>
+        <span class="nov-barra-carril"><i style="width:${Math.round((Number(d.valor) || 0) / max * 100)}%"></i></span>
+        <b>${escapeHtml(String(d.valor))}</b>
+      </div>`).join("")}</div>`;
+  }
+  return `<div class="nov-graf nov-cifras">${cab}<div class="nov-cifras-fila">${g.datos.slice(0, 4).map((d) => `
+    <span class="nov-cifra"><b>${escapeHtml(String(d.valor))}</b><span>${escapeHtml(novedadCampo(d, "texto") || "")}</span></span>`).join("")}</div></div>`;
+}
+
+/* `medios`: la imagen y el gráfico. Van en la ventana de una expansión y en
+   Ajustes; no en la ventana de una mejora, que se lee de pie y en corto. La
+   imagen, si no llega (sin red, o el APK sin ella), se quita sola y no deja un
+   hueco roto. */
+function novedadHTML(e, medios) {
   const puntos = novedadCampo(e, "puntos") || [];
   const retoques = Array.isArray(e.retoques) ? e.retoques : [];
+  const clase = novedadClase(e);
+  const img = medios && e.imagen && e.imagen.src ? `
+      <figure class="nov-img"><img src="${escapeAttr(e.imagen.src)}" alt="${escapeAttr(novedadCampo(e.imagen, "alt") || "")}" loading="lazy" onerror="this.parentNode.remove()"></figure>` : "";
   return `
-    <article class="nov-ent">
+    <article class="nov-ent nov-${clase}">
+      ${img}
       <div class="nov-cab">
+        <span class="nov-clase c-${clase}">${escapeHtml(tx(NOVEDAD_CLASES[clase].nombre))}</span>
         <span class="nov-ver">V${escapeHtml(e.version)}</span>
         <span class="nov-fecha">${escapeHtml(novedadFecha(e.fecha))}</span>
         ${e.estado === "borrador" ? `<span class="nov-borrador">${escapeHtml(tx("Borrador"))}</span>` : ""}
@@ -119,6 +173,7 @@ function novedadHTML(e) {
       <h4 class="nov-tit">${escapeHtml(novedadCampo(e, "titulo") || "")}</h4>
       ${novedadCampo(e, "resumen") ? `<p class="nov-res">${escapeHtml(novedadCampo(e, "resumen"))}</p>` : ""}
       ${puntos.length ? `<ul class="nov-puntos">${puntos.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>` : ""}
+      ${medios ? novedadGraficoHTML(e.grafico) : ""}
       ${retoques.length ? `
         <details class="nov-ret">
           <summary>${escapeHtml(retoques.length === 1 ? tx("Y un retoque") : T`Y ${retoques.length} retoques`)}</summary>
@@ -136,7 +191,7 @@ function ventanaNovedades(lista) {
   const mas = lista.length - 1;
   const cuerpo = `
     <div class="nov-ventana">
-      ${novedadHTML(e)}
+      ${novedadHTML(e, novedadClase(e) === "expansion")}
       ${mas > 0 ? `<p class="nov-mas">${escapeHtml(mas === 1 ? tx("Hay una novedad más que no habías visto.") : T`Hay ${mas} novedades más que no habías visto.`)}</p>` : ""}
       <button type="button" class="btn btn-linea btn-block nov-todas" onclick="modalDone(true); abrirNovedades()">${escapeHtml(tx("Ver todas las novedades"))}</button>
     </div>`;
@@ -183,10 +238,16 @@ async function revisarNovedades() {
     guardarVistas(vistas);
   }
   const pendientes = publicadas.filter((e) => vistas.indexOf(e.version) < 0);
+  /* Los arreglos no abren ventana (ver `NOVEDAD_CLASES`): se dan por vistos y,
+     si solo hay arreglos, se avisa con el aviso chico de abajo. */
+  const conVentana = pendientes.filter((e) => NOVEDAD_CLASES[novedadClase(e)].ventana);
+  if (pendientes.length && !conVentana.length) {
+    guardarVistas(vistas.concat(pendientes.map((e) => e.version)));
+  }
 
-  if (pendientes.length) {
+  if (conVentana.length) {
     cuandoNadaTape(() => {
-      ventanaNovedades(pendientes).then(() => {
+      ventanaNovedades(conVentana).then(() => {
         /* Se apuntan al CERRARLA, no al pedirla: si la app se cierra antes de
            que salga, la próxima vez vuelve a salir. */
         guardarVistas((leerVistas() || []).concat(pendientes.map((e) => e.version)));
@@ -223,13 +284,14 @@ async function renderPanelNovedades() {
     <p class="settings-note">${escapeHtml(tx("Lo que ha ido cambiando en Norata, de lo más nuevo a lo más viejo."))}</p>
     ${aviso}
     ${lista.length
-      ? `<div class="nov-lista">${lista.map(novedadHTML).join("")}</div>`
+      ? `<div class="nov-lista">${lista.map((e) => novedadHTML(e, true)).join("")}</div>`
       : `<p class="nov-vacio">${escapeHtml(tx("Todavía no hay novedades publicadas."))}</p>`}`;
 }
 
 /* Para revisar un borrador tal como se verá: no apunta nada como visto. */
 async function novedadesProbarVentana() {
-  const lista = novedadesVisibles(await cargarNovedades(), true);
+  /* La más reciente que de verdad abriría ventana: un arreglo no la abre. */
+  const lista = novedadesVisibles(await cargarNovedades(), true).filter((e) => NOVEDAD_CLASES[novedadClase(e)].ventana);
   if (lista.length) ventanaNovedades(lista.slice(0, 1));
 }
 
@@ -254,13 +316,13 @@ function avisoVersionLista(version, accion) {
     document.body.appendChild(caja);
   }
   caja.innerHTML = `
-    <span class="av-ic">${icon("star", 20)}</span>
-    <span class="av-tx">
+    <span class="avv-ic">${icon("star", 20)}</span>
+    <span class="avv-tx">
       <b>${escapeHtml(version ? T`Ya está lista la versión ${version}` : tx("Hay una versión nueva de Norata"))}</b>
       <span>${escapeHtml(tx("Actualiza y te cuento qué trae."))}</span>
     </span>
-    <button type="button" class="btn btn-primary av-si" onclick="cerrarAvisoVersion(); ${accion}">${escapeHtml(tx("Actualizar"))}</button>
-    <button type="button" class="av-no" onclick="cerrarAvisoVersion()" aria-label="${escapeAttr(tx("Cerrar"))}">${icon("close", 16)}</button>`;
+    <button type="button" class="btn btn-primary avv-si" onclick="cerrarAvisoVersion(); ${accion}">${escapeHtml(tx("Actualizar"))}</button>
+    <button type="button" class="avv-no" onclick="cerrarAvisoVersion()" aria-label="${escapeAttr(tx("Cerrar"))}">${icon("close", 16)}</button>`;
   caja.dataset.version = version || "";
   caja.classList.add("show");
 }

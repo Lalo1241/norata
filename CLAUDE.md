@@ -185,6 +185,13 @@ y la leerá la página de changelog del sitio el día que exista.
   `?novedades=borrador`. Las reglas para escribirlas, en `novedades/LEEME.md`.
 - **Se apuntan como vistas POR ENTRADA, no por versión**: una aprobada días
   después sale igual.
+- **Cada entrada tiene `clase` (0.7.151): `expansion`, `mejora` o `arreglo`**,
+  por lo que le cambia a quien usa la app y no por el número. Un arreglo no
+  abre ventana. Las grandes pueden llevar `imagen` (en `novedades/img/`, que
+  nunca se sobrescribe) y `grafico` (datos, no dibujo).
+- **El changelog del sitio sale del mismo JSON**: el sitio es Framer, y
+  `herramientas/novedades-framer.py` escribe el CSV para su CMS y dibuja los
+  gráficos como SVG. Nada se escribe dos veces.
 - **«Ya está lista la versión X» es una tarjeta que se queda**
   (`avisoVersionLista`), en la web del teléfono y en el APK. En la computadora
   sigue el botón de la barra lateral.

@@ -274,6 +274,51 @@ la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
 ## La lista
 
+### 0.7.151 · 1 oct 2026
+
+**Las novedades se clasifican por tamaño, las grandes traen imagen y gráfico,
+y el changelog del sitio sale del mismo archivo.** Lo pidió Eduardo al ver los
+borradores: «para distinguir qué novedad es más grande que otras», y pensando
+ya en el changelog de la web, «con imágenes alusivas de vez en cuando, o algún
+gráfico bonito». Es un 3º y no un 4º de la 0.7.149 porque el 3º vigente era la
+0.7.150 (el Resumen): la regla mira el tema del 3º vigente.
+
+- **`clase` en cada entrada: `expansion`, `mejora` o `arreglo`**, por lo que le
+  cambia a quien usa la app y no por el número. La expansión abre ventana con
+  imagen y gráfico; la mejora, ventana con texto; **el arreglo no abre
+  ventana**, sale el aviso chico. Etiqueta de color en la ventana y en Ajustes
+  (acento, celeste, apagado: tonos de categoría, no de estado). La pregunta
+  para decidir y la tabla, en `novedades/LEEME.md`.
+- **`imagen` y `grafico`, opcionales.** La imagen vive en `novedades/img/`,
+  nombrada por versión y sin sobrescribirse nunca; no está en `ASSETS` (se
+  pide al verla) y no viaja en el APK, donde se quita sola. El gráfico son
+  datos (`cifras` o `barras`) y la app lo dibuja con los colores del mundo.
+  Las dos primeras imágenes son capturas de la app: Cyberpunk puesto (0.7.148)
+  y las paletas de Blueprint (0.7.147).
+- **`herramientas/novedades-framer.py`**: convierte el JSON en
+  `novedades/framer.csv` para importarlo como colección del CMS de Framer
+  (columnas en español e inglés, «Destacada», el cuerpo en HTML con los
+  retoques, direcciones completas de imagen y gráfico) y dibuja cada gráfico
+  como SVG para la web. Sin dependencias.
+- **Arreglado: el resumen salía centrado en la ventana.** No era `.nov-res`:
+  `.modal-card p` centra todo párrafo de cualquier cuadro y le ganaba por
+  especificidad. Ahora se apunta a los párrafos de dentro de una novedad.
+- **Arreglado: la tarjeta de «Ya está lista la versión» pisaba al rótulo del
+  modo ejemplo y de pruebas.** La 0.7.149 llamó a sus piezas `.av-tx`,
+  `.av-ic`…, y `.av-tx` ya era de `.aviso-modo`: sus reglas sueltas cambiaban
+  aquel texto. Ahora son `.avv-*` y cuelgan de `.aviso-version`.
+- **Las cuatro entradas que había, clasificadas** (en borrador): 0.7.150
+  arreglo, 0.7.149 mejora, 0.7.148 y 0.7.147 expansiones con su imagen y su
+  gráfico. Y la de esta, como mejora.
+
+**Comprobado** en la app servida en local, a 390 y 1440 px: con solo un
+arreglo aprobado no sale ventana, sale el aviso chico y queda apuntado como
+visto; con una expansión aprobada sale la ventana con su etiqueta, la imagen
+(1440 px de ancho natural, cargada), las tres cifras y el texto a la
+izquierda; en Ajustes salen las cuatro etiquetas, las dos imágenes y las
+cuatro barras; el rótulo del modo ejemplo vuelve a su forma. Sin desbordes ni
+errores en la consola.
+
 ### 0.7.150 · 1 oct 2026
 
 **El Resumen sin huecos después de juntar Talentos y Proyectos, «Tus cifras»

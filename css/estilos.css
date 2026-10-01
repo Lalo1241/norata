@@ -8139,18 +8139,22 @@
     from { opacity: 0; transform: translate(-50%, -14px); }
     to { opacity: 1; transform: translate(-50%, 0); }
   }
-  .av-ic { flex: none; display: inline-flex; color: var(--mint); }
-  .av-ic svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  .av-tx { flex: 1; min-width: 0; line-height: 1.3; }
-  .av-tx b { display: block; font-size: 13.5px; font-weight: 700; }
-  .av-tx span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 1px; }
-  .aviso-version .av-si { flex: none; padding: 7px 13px; font-size: 12.5px; }
-  .av-no {
+  /* Sus piezas van con `avv-` y colgadas de `.aviso-version`: la 0.7.149 las
+     llamó `av-tx`, `av-ic`… y `.av-tx` ya era del rótulo del modo ejemplo y del
+     de pruebas (`.aviso-modo`), así que sus reglas sueltas les cambiaban el
+     texto a aquellos. Visto en la 0.7.151 al ir a reutilizar el nombre. */
+  .aviso-version .avv-ic { flex: none; display: inline-flex; color: var(--mint); }
+  .aviso-version .avv-ic svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .aviso-version .avv-tx { flex: 1; min-width: 0; line-height: 1.3; }
+  .aviso-version .avv-tx b { display: block; font-size: 13.5px; font-weight: 700; }
+  .aviso-version .avv-tx span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+  .aviso-version .avv-si { flex: none; padding: 7px 13px; font-size: 12.5px; }
+  .aviso-version .avv-no {
     flex: none; display: inline-flex; align-items: center; justify-content: center;
     width: 30px; height: 30px; border: 0; background: none; cursor: pointer;
     color: var(--muted); border-radius: var(--r-redondo);
   }
-  .av-no svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+  .aviso-version .avv-no svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
   @media (prefers-reduced-motion: reduce) { .aviso-version.show { animation: none; } }
 
   /* ---------- Las novedades (0.7.149) ----------
@@ -8187,6 +8191,43 @@
   .nov-ret ul { margin: 7px 0 0; padding-left: 18px; line-height: 1.5; }
   .nov-ret li + li { margin-top: 3px; }
   .nov-ret b { font-family: var(--tipo-cifra); font-size: 10.5px; color: var(--faint); margin-right: 3px; }
+  /* La clase (0.7.151): cuánto pesa la novedad. Son tonos de CATEGORÍA, no de
+     estado —ninguna es «hecho» ni «falla»—: la expansión con el acento, que es
+     lo más vistoso que tiene cada mundo; la mejora en celeste; el arreglo
+     apagado, porque no tiene que llamar la atención. */
+  .nov-clase {
+    font-size: 9px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
+    border-radius: var(--r-pastilla); padding: 2px 8px;
+  }
+  .nov-clase.c-expansion { color: var(--mint); background: var(--mint-soft); }
+  .nov-clase.c-mejora { color: var(--celeste); background: var(--celeste-soft); }
+  .nov-clase.c-arreglo { color: var(--muted); background: var(--sup-panel); }
+  /* La expansión pesa más también en la lista: su tarjeta lleva el filo del
+     acento y el título más grande. */
+  .nov-lista .nov-expansion { border-color: color-mix(in srgb, var(--mint) 45%, var(--line)); }
+  .nov-expansion .nov-tit { font-size: 18px; }
+  .nov-lista .nov-arreglo .nov-tit { font-size: 14.5px; }
+  .nov-img { margin: 0 0 12px; border-radius: var(--r-chico); overflow: hidden; background: var(--sup-hondo); }
+  .nov-img img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+  .nov-graf { margin-top: 12px; padding: 12px; border-radius: var(--r-chico); background: var(--sup-hondo); }
+  .nov-graf-tit { display: block; margin-bottom: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+  .nov-cifras-fila { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 10px; }
+  .nov-cifra { display: flex; flex-direction: column; gap: 2px; min-width: 0; text-align: left; }
+  .nov-cifra b { font-family: var(--tipo-cifra); font-size: 24px; font-weight: 800; line-height: 1.1; color: var(--mint); font-variant-numeric: tabular-nums; }
+  .nov-cifra span { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
+  .nov-barra { display: grid; grid-template-columns: minmax(0, 7em) minmax(0, 1fr) auto; gap: 9px; align-items: center; font-size: 12px; }
+  .nov-barra + .nov-barra { margin-top: 6px; }
+  .nov-barra-et { color: var(--muted); text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nov-barra-carril { height: 8px; border-radius: var(--r-barra); background: var(--carril); overflow: hidden; }
+  .nov-barra-carril i { display: block; height: 100%; border-radius: inherit; background: var(--mint); }
+  .nov-barra b { font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
+  /* Una novedad se lee a la izquierda, también dentro de la ventana. La regla
+     que centraba es `.modal-card p` —todo párrafo de cualquier cuadro—, que
+     le gana a `.nov-res` por especificidad: el resumen salía centrado entre el
+     título y los puntos, que iban a la izquierda (0.7.149, visto en sus
+     capturas). Se apunta a los párrafos de DENTRO de una novedad, y «Hay una
+     novedad más…», que va fuera, sigue centrado como el resto del cuadro. */
+  .modal-card .nov-ent, .modal-card .nov-ent p { text-align: left; }
   .nov-ventana { max-height: min(58vh, 520px); overflow-y: auto; }
   .nov-mas { margin: 12px 0 0; font-size: 12px; color: var(--muted); }
   .nov-todas { margin-top: 12px; }

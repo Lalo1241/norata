@@ -101,3 +101,5 @@ exclude:
   - correos/LEEME.md
   # Las novedades: el JSON se publica (lo lee la app); su guía no.
   - novedades/LEEME.md
+  # El CSV para el CMS de Framer: es de trabajo, no lo pide nadie por la red.
+  - novedades/framer.csv

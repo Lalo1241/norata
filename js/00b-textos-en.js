@@ -2767,6 +2767,10 @@ const TEXTOS_EN = {
  "Ambiente actual": "Current ambience",
  /* Las novedades y el aviso de versión lista (0.7.149). */
  "Novedades": "What's new",
+ /* La clase de una novedad (0.7.151). */
+ "Expansión": "Expansion",
+ "Mejora": "Improvement",
+ "Arreglo": "Fix",
  "Lo que ha cambiado en Norata": "What has changed in Norata",
  "Novedades de Norata": "What's new in Norata",
  "Borrador": "Draft",

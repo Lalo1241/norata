@@ -16,9 +16,12 @@ Esto dice qué ganas tú, en dos o tres renglones.
   "version": "0.7.149",
   "fecha": "2026-09-30",
   "estado": "borrador",
+  "clase": "mejora",
   "titulo": "Lo que llegó, en una frase corta",
   "resumen": "Una o dos frases: qué cambia para ti.",
   "puntos": ["Dos o tres cosas concretas", "…"],
+  "imagen": { "src": "novedades/img/0.7.149-algo.jpg", "alt": "Qué se ve", "en": { "alt": "…" } },
+  "grafico": { "tipo": "cifras", "titulo": "…", "datos": [{ "valor": "5", "texto": "…" }] },
   "retoques": [
     { "version": "0.7.149.1", "texto": "Un renglón por cada 4º.", "en": { "texto": "…" } }
   ],
@@ -33,6 +36,62 @@ Esto dice qué ganas tú, en dos o tres renglones.
   nada.
 - Lo que no le importa a quien usa la app —un arreglo interno, un
   documento— no lleva entrada ni retoque.
+
+## La clase: cuánto pesa (0.7.151)
+
+Eduardo pidió distinguir qué novedad es más grande que otra. **La decide qué le
+cambia a quien usa la app, no el número**: un 3º puede ser un mundo entero o
+tres arreglos.
+
+| `clase` | Qué es | En la app | En la web |
+| --- | --- | --- | --- |
+| `expansion` | Algo que no existía: un mundo, un módulo, una forma nueva de usar Norata | Ventana, con imagen y gráfico | Destacada: tarjeta grande con su imagen |
+| `mejora` | Algo que ya tenías, ahora mejor | Ventana, solo texto | Tarjeta normal |
+| `arreglo` | Algo que fallaba y ya no | **Sin ventana**: el aviso chico | Renglón compacto |
+
+Sin `clase`, una entrada cuenta como `mejora`. Un arreglo no abre ventana a
+propósito: interrumpir a alguien para decirle que algo ya no falla es pedirle
+que se detenga por un problema que quizá ni vio.
+
+**Al dudar entre dos, la pregunta es «¿lo contaría alguien a otra persona?»**
+Si sí, es una expansión. Si lo notaría al usarlo pero no lo contaría, es una
+mejora. Si solo lo nota quien lo sufría, es un arreglo.
+
+## La imagen y el gráfico (opcionales)
+
+Para las que lo merecen, que casi siempre son expansiones.
+
+- **`imagen`**: una captura de la app de verdad, o una ilustración aprobada.
+  Va en `novedades/img/`, se llama por su versión (`0.7.148-cyberpunk.jpg`) y
+  **nunca se sobrescribe**: si cambia, cambia de nombre. Un dispositivo, el
+  service worker y Framer guardan la imagen por su dirección y no la vuelven a
+  pedir. JPG a 1440×810 (16:9) y por debajo de 150 KB. `alt` dice lo que se
+  ve, no lo que significa.
+- **`grafico`**: datos, no un dibujo. `cifras` son dos a cuatro números grandes
+  con su rótulo; `barras` son barras de lado, proporcionales a la mayor. La app
+  lo dibuja con los colores del mundo de quien mira; para la web lo dibuja
+  `herramientas/novedades-framer.py` como SVG.
+- **En la app de Android no sale la imagen** (sí el gráfico): solo puede
+  enseñar lo que viaja dentro del paquete, y meter todas las imágenes lo haría
+  crecer con cada expansión. Se quita sola, sin dejar hueco.
+
+## El changelog del sitio (Framer)
+
+El sitio vive en Framer y su changelog es una colección del CMS. Sale del
+mismo JSON:
+
+```sh
+python herramientas/novedades-framer.py              # lo publicado
+python herramientas/novedades-framer.py --borradores # para probar el diseño
+```
+
+Escribe `novedades/framer.csv` (una fila por entrada, con las columnas en
+español y en inglés, la clase, «Destacada» para las expansiones, el cuerpo en
+HTML con los retoques, y las direcciones completas de la imagen y del gráfico)
+y los SVG de los gráficos en `novedades/img/`. En Framer: la colección se
+importa desde ese CSV. **Antes de importar hay que publicar** —subir a `main` y
+esperar el minuto de GitHub Pages—, porque Framer baja las imágenes de
+`mi.norata.app` en ese momento.
 
 ## Nada sale sin que Eduardo lo apruebe
 
