@@ -72,7 +72,8 @@
     },
     {
       "version": "0.7.14",
-      "fecha": "2026-08-27", "relevante": true
+      "fecha": "2026-08-27",
+      "relevante": true
     },
     {
       "version": "0.7.15",
@@ -168,7 +169,8 @@
     },
     {
       "version": "0.7.38",
-      "fecha": "2026-08-29", "relevante": true
+      "fecha": "2026-08-29",
+      "relevante": true
     },
     {
       "version": "0.7.39",
@@ -540,7 +542,8 @@
     },
     {
       "version": "0.7.131",
-      "fecha": "2026-09-24", "relevante": true
+      "fecha": "2026-09-24",
+      "relevante": true
     },
     {
       "version": "0.7.132",
@@ -560,7 +563,8 @@
     },
     {
       "version": "0.7.136",
-      "fecha": "2026-09-25", "relevante": true
+      "fecha": "2026-09-25",
+      "relevante": true
     },
     {
       "version": "0.7.137",
@@ -576,7 +580,8 @@
     },
     {
       "version": "0.7.140",
-      "fecha": "2026-09-26", "relevante": true
+      "fecha": "2026-09-26",
+      "relevante": true
     },
     {
       "version": "0.7.141",
@@ -600,7 +605,8 @@
     },
     {
       "version": "0.7.146",
-      "fecha": "2026-09-30", "relevante": true
+      "fecha": "2026-09-30",
+      "relevante": true
     },
     {
       "version": "0.7.147",
@@ -669,6 +675,29 @@
         "puntos": [
           "The alpha gave birth to five worlds, the branches and the expedition.",
           "Your alpha seal is one they don't hand out anymore."
+        ]
+      }
+    },
+    {
+      "version": "0.7.163",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "expansion",
+      "titulo": "El Pomodoro te avisa aunque la app esté cerrada",
+      "resumen": "En la app de Android, el Pomodoro vive también en la cortina de avisos, con los tonos de tu mundo, y cada actividad de tu día te llama a su hora.",
+      "puntos": [
+        "La cuenta de tu tramo, en la cortina, con un botón para pausarla.",
+        "Al acabar cada fase suena aunque hayas cerrado la app.",
+        "Cada actividad de tu rueda suena al empezar, y la inicias desde el aviso."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "The Pomodoro reaches you even with the app closed",
+        "resumen": "In the Android app, the Pomodoro also lives in your notification shade, in your world's colors, and each activity of your day calls you on time.",
+        "puntos": [
+          "Your session's countdown in the shade, with a button to pause it.",
+          "When each phase ends, it rings even if you closed the app.",
+          "Each activity on your wheel rings as it starts, and you start it from the notification."
         ]
       }
     },
