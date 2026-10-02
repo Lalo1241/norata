@@ -281,8 +281,106 @@ de la dirección no lo recordaba. **El día que entre alguien más, eso es un
 texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 `?novedades=borrador`— o se aprueban antes las entradas que haya.
 
+### «Norata por dentro»: lo que el boceto tenía y todavía no existe
+
+La 0.7.167 conecta lo que el servidor ya da. Lo demás se diseñó con Eduardo
+sobre el boceto (`https://claude.ai/artifact/A7bwfCvJSRdFhTGbKBDHoi`) y espera
+esto, en el orden en que conviene hacerlo:
+
+- **El formulario con cuatro tipos** (fallo, sugerencia, duda, «me gustó»). Es
+  solo JavaScript —el tipo viaja en el mensaje, ver la entrada de la 0.7.167—,
+  pero cambia lo que ve todo el mundo al reportar, así que va detrás de un
+  enlace de prueba y con sus frases en inglés.
+- **Estados, nota privada y «salió en la versión»** en el buzón: columnas nuevas
+  en `tropiezos` y `metricas()` devolviéndolas. Hoy solo existe `visto`.
+- **La respuesta de vuelta** («Lo que me contaste», en Ajustes): hay que atar el
+  reporte a la cuenta, y solo si quien reporta marca «Avísame cuando lo revises».
+- **Rango de 30 y 90 días, la curva de cuántas siguen y el histórico del
+  cobro** con sus devoluciones: `metricas()` solo da 14 días, y el cobro solo
+  sabe cómo está cada suscripción ahora. El histórico pide apuntar cada pago
+  desde la función `cobro`.
+- **Beta testers**: una tabla con el rol, la invitación por enlace y un botón
+  en su menú. Hoy una prueba solo se enciende con su enlace, en la pestaña.
+- **La barrera de subidas**: `main` como cola, una rama `vivo` protegida que es
+  la única que se publica, y un trabajo de GitHub que la mueve cuando el panel
+  aprueba. Con ella llegan los paquetes semanales, el grifo con su llave y el
+  regreso a una versión sana. **Tiene que ser automática** —es regla de Eduardo:
+  no puede depender de que una sesión se acuerde— y arrastra cambiar
+  `paquete-app.yml`, `herramientas/comprobar-publicado.py` y lo que este
+  documento y CLAUDE.md dicen de `main`.
+
 ## La lista
 
+### 0.7.167 · 2 oct 2026
+
+**«Norata por dentro» deja de ser una lista dentro de Ajustes y pasa a ser una
+consola aparte.** Eduardo pidió «algo completamente distinto, más como un panel
+exclusivo»: ver con más atención los reportes, mejor presencia de las gráficas y
+todo lo que está en pruebas en un mismo sistema. Se afinó primero en un boceto
+funcional, sala por sala, y esto es lo que de ese boceto ya se puede conectar a
+datos de verdad. Número propio: es un tema nuevo, no pule los interruptores.
+
+**Lo que hay.** Una capa a pantalla completa (`#dentro`, `--piso-dentro`), con
+el menú en el lateral izquierdo en la computadora y cinco pestañas abajo en el
+teléfono. La fila de Ajustes la abre de un toque. Cinco salas:
+
+- **Hoy**: lo que hay que atender, en orden y con su número —reportes nuevos,
+  errores automáticos, cuentas sin confirmar, novedades en borrador—, cuatro
+  cifras y las personas que abrieron en 14 días.
+- **Buzón**: lo que escribe la gente y lo que caza la app por la misma puerta,
+  con filtro por tipo —cada uno con su color—, buscador, lista y detalle. Un
+  error automático dice si sigue activo en la versión publicada o si lleva días
+  callado. «Copiar para Claude» deja el reporte listo para pegarlo en una sesión.
+- **Subidas**: la versión publicada, cuánta gente la tiene ya y las novedades
+  que esperan aprobación, cada una con su etiqueta del changelog y marcada si
+  lleva cinco días o más en borrador.
+- **Números**: la gente día a día en líneas, el embudo con forma de cono, las
+  versiones como puntos —una versión con errores automáticos va sombreada en
+  coral— y el cobro en su pestaña.
+- **Laboratorio**: una fila por prueba con su enlace, si está encendida aquí y
+  un botón para encenderla o apagarla; y las herramientas de siempre (modo de
+  pruebas, plan simulado, celebraciones, pantallas de una vez) en una pestaña.
+
+**Solo se dibuja lo que el servidor da.** El boceto tenía más —estados y
+respuestas en el buzón, paquetes con su grifo, beta testers, el histórico del
+cobro— y nada de eso existe todavía en Supabase ni en GitHub. Un panel de
+administración que enseña un número inventado es peor que uno al que le falta
+una sala. Lo que falta, y qué pide cada cosa, está en «Apuntado y sin hacer».
+
+**Tres cosas que el boceto tenía mal y aquí están bien**, porque se cazaron al
+leer el código en vez de recordarlo: el Pomodoro ya no es una prueba —salió para
+todos en la 0.7.103—, así que no está en el Laboratorio; la hora en que se
+tomaron los números se leía recortando el texto del servidor, que viene en UTC,
+y salía seis horas adelantada; y de día los puntos amarillos de las versiones
+daban 1,47 sobre el papel y 2,22 con su tono «de línea», así que se dibujan con
+la tinta del oro, que pasa de 5.
+
+**Los colores salen de `--casa-*` y no de `--mint` o `--coral`.** Aquí el color
+es un juicio —oro lo que hay que mirar, coral lo que se pierde, menta lo que
+llega a la vara— y un mundo de acento rojo lo pondría del revés, igual que pasó
+con los estados en la 0.7.143.4.
+
+**Los tipos de reporte viajan dentro del mensaje**, pegados al lugar:
+`[Misiones|idea] …`. No hace falta tocar el servidor, y `donde` se queda en
+«reporte», que es lo que le da su cupo aparte. El panel ya los entiende; el
+formulario de la app todavía manda solo fallos, así que las pestañas de
+sugerencias, dudas y «me gustó» no se dibujan hasta que exista al menos uno.
+
+**Sin novedad en `novedades.json`**: solo lo ve la cuenta administradora.
+
+**Lo que quedó muerto y sin borrar**: las reglas `.pn-*` de `css/estilos.css` y
+las frases del panel viejo en `js/00b-textos-en.js`. El panel nuevo va solo en
+español y sin `tx()` a propósito: envolver sus frases las apuntaría como
+pendientes de traducir y ensuciaría la única lista que dice cuánto falta.
+
+**Cómo se comprobó.** Sin sesión de administrador no hay números, así que se
+probó con la respuesta del servidor imitada en la consola, con su misma forma:
+las cinco salas en computadora y en teléfono, de noche y de día, sin desbordar
+de lado y sin huecos dentro de las tarjetas; un reporte con `<b>` dentro sale
+escapado; uno sin corchetes cae en «Sin ubicar»; la fila del cupo lleno no
+ofrece atenderse porque no tiene `id`; con diez versiones las más viejas se
+juntan en una columna, y con 290 personas en una sola cada punto pasa a valer
+ocho. **No se probó contra el servidor de verdad**: eso lo ve Eduardo al abrirlo.
 ### 0.7.166 · 2 oct 2026
 
 **La app de Android abre en el color de tu tema, y sin el logo de Capacitor.**

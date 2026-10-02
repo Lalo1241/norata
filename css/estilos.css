@@ -692,6 +692,7 @@
     --piso-vuelta: 390;    /* la vuelta tras una ausencia: sale sola al abrir */
     --piso-hito: 395;      /* el anuncio de la beta o la 1.0: sale solo al abrir, sobre la vuelta */
     --piso-ventana: 400;   /* ventanas: la caja del ático, Ajustes */
+    --piso-dentro: 410;    /* Norata por dentro: tapa Ajustes, que es desde donde se abre */
     --piso-menucito: 420;  /* el mini menú del engrane */
     --piso-encima: 500;    /* lo que una ventana abre y la reemplaza */
     --piso-tirar: 7000;    /* deslizar para actualizar */

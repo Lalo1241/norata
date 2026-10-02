@@ -1,4 +1,4 @@
-/* El panel de administración: los números de Norata, dentro de Ajustes.
+/* El panel de administración: Norata por dentro.
  *
  * AVISO, y es el mismo que lleva 10d-plan.js: NADA de este archivo es
  * seguridad. Que `esAdmin` valga false solo hace que el botón no se dibuje;
@@ -117,673 +117,185 @@ async function revisarAdmin() {
    Dónde NO se toca: la tendencia de la gráfica (▲▼) ya usaba `--var-sube` y
    `--var-baja`, que es esta misma idea escrita antes y en todos los mundos. */
 
-/* De un porcentaje y su vara sale la clase, y de ningún otro sitio. El escalón
-   de en medio existe porque «no llega» no es lo mismo que «se está cayendo»:
-   con la vara en 20 y un 19, pintar coral asusta por un punto. */
-function panelTono(pct, vara) {
-  if (!vara || pct == null) return "";
-  if (pct >= vara) return "bien";
-  if (pct >= vara * 0.6) return "ojo";
-  return "mal";
+/* ================= Norata por dentro, como consola aparte (0.7.167) =================
+
+   Hasta la 0.7.164 esto era una lista larga dentro de Ajustes. Eduardo pidió
+   «algo completamente distinto, más como un panel exclusivo», y lo afinó sobre
+   un boceto funcional antes de que se escribiera una línea aquí. Lo que salió:
+
+     una capa a pantalla completa (`#dentro`), con su barra a la izquierda en la
+     computadora y sus pestañas abajo en el teléfono, y cinco salas:
+
+       Hoy          lo que hay que atender, en orden, y cuatro cifras
+       Buzón        lo que escribe la gente y lo que caza la app, uno a uno
+       Subidas      la versión publicada y las novedades que esperan aprobación
+       Números      la gente y el cobro, en líneas
+       Laboratorio  lo que está en pruebas y las herramientas para revisarlo
+
+   **Aquí solo se dibuja lo que el servidor da de verdad.** El boceto tenía
+   más: estados y respuestas en el buzón, paquetes de subida con su grifo,
+   beta testers, el histórico del cobro. Nada de eso existe todavía en
+   Supabase ni en GitHub, y un panel de administración que enseña un número
+   inventado es peor que uno al que le falta una sala. Lo que falta está
+   apuntado en VERSIONES.md, «Apuntado y sin hacer».
+
+   Tres reglas que pidió él y que valen para todo lo que se añada:
+
+     - **Cada explicación se dice una vez.** Si una frase se repite en cada
+       fila, sobra en todas: va en la cabecera.
+     - **Ni un hueco dentro de una tarjeta.** En una fila de dos, la gráfica o
+       la lista crece hasta llenar la suya (`dnDibuja` pasa dos veces por eso).
+     - **El color es un juicio** (ver la nota de arriba, la del 28 ago): oro lo
+       que hay que mirar, coral lo que se pierde, menta lo que llega a la vara.
+       Y sale de `--casa-*`, que ningún mundo pisa. */
+
+const DN_IC = {
+  rombo: "M12 2.5l9.5 9.5-9.5 9.5L2.5 12z M9.5 14.5v-2 M12 14.5v-5 M14.5 14.5v-3.5",
+  hoy: "M3 11l9-7 9 7v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",
+  buzon: "M3 13l3-8h12l3 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z M3 13h5l1 3h6l1-3h5",
+  subidas: "M12 16V4 M7 9l5-5 5 5 M4 20h16",
+  numeros: "M4 5v14h16 M7 15l4-5 3 3 5-7",
+  lab: "M9 3h6 M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3 M7.5 15h9",
+  fallo: "M8 8a4 4 0 0 1 8 0v1H8z M6 9h12v4a6 6 0 0 1-12 0z M12 9v10 M3 13h3 M18 13h3 M4 6l3 3 M20 6l-3 3 M4 20l3-3 M20 20l-3-3",
+  idea: "M9 18h6 M10 21h4 M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z",
+  duda: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1.9-1.1 1.8 M12 17h.01",
+  gusto: "M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z",
+  auto: "M13 3L5 14h6l-1 7 8-11h-6z",
+  buscar: "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14z M20 20l-4-4",
+  copiar: "M9 9h10v11H9z M5 15V4h10",
+  flecha: "M9 5l7 7-7 7", atras: "M15 5l-7 7 7 7", salir: "M10 6l-6 6 6 6 M4 12h16",
+  candado: "M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 7 0v3",
+  check: "M5 12l5 5 9-10", x: "M6 6l12 12 M18 6L6 18",
+  reloj: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 7v5l3 2"
+};
+const dnIc = n => `<svg class="dn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${DN_IC[n] || ""}"/></svg>`;
+const dnE = s => escapeHtml(String(s == null ? "" : s));
+const dnSuma = a => a.reduce((t, x) => t + (Number(x) || 0), 0);
+const DN_MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+/* «2026-10-02» → «2 oct». A mano y no con `Date`: una fecha sin hora se lee en
+   UTC y en México sale el día anterior. */
+function dnDia(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ""));
+  return m ? Number(m[3]) + " " + DN_MESES[Number(m[2]) - 1] : String(iso || "");
+}
+/* Días enteros entre esa fecha y hoy, las dos en hora local. */
+function dnHace(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ""));
+  if (!m) return null;
+  const h = new Date(), a = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return Math.max(0, Math.round((new Date(h.getFullYear(), h.getMonth(), h.getDate()) - a) / 86400000));
+}
+/* Cuándo se tomaron los números. El servidor contesta en UTC; recortar el texto
+   tal cual enseñaba una hora seis horas adelantada en México. */
+function dnMomento(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  return "el " + d.getDate() + " " + DN_MESES[d.getMonth()] + " a las " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+}
+const dnHaceTx = n => n === null ? "" : n === 0 ? "hoy" : n === 1 ? "ayer" : "hace " + n + " días";
+
+/* ---- Los tipos de lo que llega al buzón ----
+   Una fila por tipo: añadir uno es añadir una línea aquí. Hoy la gente solo
+   puede mandar fallos —el formulario de la app tiene un solo tipo—, así que las
+   pestañas de sugerencias, dudas y «me gustó» no se dibujan hasta que exista al
+   menos uno: una pestaña que no se puede llenar es una pantalla sin camino.
+
+   El tipo viaja DENTRO del mensaje, pegado al lugar: `[Misiones|idea] …`. No
+   hace falta tocar el servidor, y `donde` se queda en «reporte», que es lo que
+   le da su cupo aparte (ver `apuntar_tropiezo`). Lo que no traiga tipo es un
+   fallo, que es lo que eran todos hasta hoy. */
+const DN_TIPOS = {
+  fallo: { n: "Fallo", pl: "Fallos", tono: "coral" },
+  idea:  { n: "Sugerencia", pl: "Sugerencias", tono: "celeste" },
+  duda:  { n: "Duda", pl: "Dudas", tono: "lila" },
+  gusto: { n: "Me gustó", pl: "Me gustó", tono: "menta" },
+  auto:  { n: "Error automático", pl: "Automáticos", tono: "acero" }
+};
+const DN_DONDE_AUTO = { error: "Error de la app", promesa: "Promesa sin atender", puerta: "Error en la puerta", "puerta-promesa": "Promesa en la puerta", tope: "Cupo del día lleno" };
+const DN_PREFIJO = /^\s*\[([^\]|]{1,40})(?:\|([a-z]{3,8}))?\]\s*/;
+
+function dnTipo(t) {
+  if (t.donde !== "reporte") return "auto";
+  const m = DN_PREFIJO.exec(String(t.mensaje || ""));
+  return m && m[2] && m[2] !== "auto" && DN_TIPOS[m[2]] ? m[2] : "fallo";
+}
+function dnLugar(t) {
+  if (t.donde !== "reporte") return DN_DONDE_AUTO[t.donde] || String(t.donde || "Sin ubicar");
+  const m = DN_PREFIJO.exec(String(t.mensaje || ""));
+  return m ? m[1].trim() : "Sin ubicar";
+}
+/* El mensaje sin la etiqueta del lugar, partido en lo que pasó y lo que hacía
+   antes: `reportarFallo` los junta con « · antes: ». */
+function dnTexto(t) {
+  const s = String(t.mensaje || "");
+  if (t.donde !== "reporte") return { que: s, antes: "" };
+  const cuerpo = s.replace(DN_PREFIJO, ""), i = cuerpo.lastIndexOf(" · antes: ");
+  return i < 0 ? { que: cuerpo, antes: "" } : { que: cuerpo.slice(0, i), antes: cuerpo.slice(i + 10) };
 }
 
-function panelCifra(valor, rotulo, pista, tono) {
-  return `<div class="pn-kpi${tono ? " " + tono : ""}">
-      <b>${escapeHtml(String(valor))}</b>
-      <span>${escapeHtml(rotulo)}</span>
-      ${pista ? `<i>${escapeHtml(pista)}</i>` : ""}
-    </div>`;
+/* El estado de la capa. En memoria y no en `state`: es dónde estabas mirando,
+   no un dato de nadie. */
+const DN = { sala: "hoy", tipo: "todo", ver: "abiertos", q: "", sel: null, num: "gente", lab: "pruebas", cargando: false, error: "", nov: null };
+
+const dnTropiezos = () => (metricasCache && metricasCache.tropiezos) || [];
+const dnClave = t => t.id != null ? "i" + t.id : [t.dia, t.version, t.donde, t.mensaje].join("|");
+function dnFiltrados() {
+  const q = DN.q.trim().toLowerCase();
+  return dnTropiezos().filter(t =>
+    (DN.tipo === "todo" || dnTipo(t) === DN.tipo) &&
+    (DN.ver === "todos" || (DN.ver === "abiertos" ? !t.visto : !!t.visto)) &&
+    (!q || (t.mensaje + " " + t.version + " " + dnLugar(t)).toLowerCase().includes(q)));
 }
 
-/* De cuántos, cuántos — con el divisor a la vista. Un «3 siguen» no significa
-   nada sin saber de cuántos: puede ser estupendo o ser un desastre.
-
-   `vara` es el número a partir del cual esto va bien, y es UN solo dato para
-   dos cosas: escribe el «señal buena: 20%» del pie y decide el color de la
-   cifra. Iban por separado —el texto a mano en la llamada, el color en ningún
-   sitio— y ahí es donde nacen las dos verdades: cambiar la vara habría dejado
-   el rótulo diciendo una cosa y el color juzgando por otra.
-
-   Sin `vara` la cifra sale en tinta, que es lo correcto: un porcentaje del que
-   no sabemos qué esperar no puede estar bien ni mal. */
-function panelDeCada(parte, total, rotulo, vara) {
-  const p = total > 0 ? Math.round((parte / total) * 100) : 0;
-  const texto = total > 0 ? p + "%" : "—";
-  /* Sin datos no hay juicio: cero de cero no es un desastre, es que todavía
-     no ha pasado nada. */
-  const tono = total > 0 ? panelTono(p, vara) : "";
-  return `<div class="pn-kpi${tono ? " " + tono : ""}">
-      <b>${texto}</b>
-      <span>${escapeHtml(rotulo)}</span>
-      <i>${total > 0 ? T`${parte} de ${total}` : tx("todavía sin datos")}${vara ? T` · señal buena: ${vara}%` : ""}</i>
-    </div>`;
-}
-
-/* Los últimos catorce días, dibujados como una constelación: un punto por día
-   y un hilo que los une. Lo eligió Eduardo y encaja con la casa — el árbol de
-   Talentos ya es eso mismo.
- *
- * Dos cosas que aquí importan más de lo que parece:
- *
- * 1. **Nada de `preserveAspectRatio="none"`.** La versión de barras estiraba
- *    el lienzo para ocupar el ancho, y eso deformaba también los números del
- *    eje: los días salían aplastados e ilegibles. Con el viewBox proporcional
- *    y `width:100%; height:auto`, el dibujo entero escala sin achatarse.
- * 2. **Los colores salen de variables del CSS, no de atributos.** La versión
- *    anterior escribía `fill="var(--menta)"` — una variable que en Norata no
- *    existe, porque aquí se llama `--mint`. Un `fill` que no resuelve no
- *    avisa: pinta negro. Por eso ahora el color va en clases y no a mano.
- */
-/* Los meses cortos los da `nombreDeMes(n, false)` (js/00-idioma.js), con el
-   idioma puesto. */
-
-function panelConstelacion(dias, distintas) {
-  if (!dias || !dias.length) {
-    return `<p class="settings-note">${tx("Todavía no hay ni un día con actividad. Aparecerá en cuanto alguien abra la app con su cuenta.")}</p>`;
-  }
-
-  /* Con sitio a la izquierda para la escala —los números del eje no cabían en
-     los 14 de margen que había— pero MÁS BAJO que antes. Subió a 190 al añadir
-     la escala y quedó demasiado aire entre la línea y el suelo: con cifras
-     pequeñas la gráfica es casi toda hueco. 132 la deja proporcionada sin
-     apretar los números del eje. */
-  const W = 340, H = 132;
-  const izq = 30, der = 16, arr = 14, aba = 26;
-  const util = W - izq - der;
-  const alto = H - arr - aba;
-  const suelo = arr + alto;
-
-  const n = dias.length;
-  const valores = dias.map(d => Number(d.personas) || 0);
-  const altas = dias.map(d => Number(d.altas) || 0);
-  const hayAltas = altas.some(v => v > 0);
-
-  /* ---- Una sola escala para las dos series, y esto es el cambio de fondo ----
-     Las cuentas nuevas se dibujaban como barras al fondo Y con su propia
-     escala, estirada al 42% del alto. Eso hacía que un día de 2 altas se
-     viera casi tan alto como un día de 9 personas, y que las dos cosas no se
-     pudieran comparar aunque estuvieran en el mismo dibujo. Un segundo eje
-     escondido es la forma más común de que una gráfica mienta sin que nadie
-     escriba una cifra falsa.
-
-     Ahora las dos series miden lo mismo —personas— y se leen contra los
-     mismos números de la izquierda. La línea de altas va a ir casi siempre
-     pegada al suelo, y eso ES el dato: las cuentas nuevas son una parte
-     pequeña de quien abre la app. */
-  const tope = Math.max(...valores, ...altas, 1);
-
-  /* Con un solo día no hay recta que trazar: el punto va al centro, que es
-     donde se lee como «esto es lo que hay» y no como el principio de algo. */
-  const x = (i) => n === 1 ? izq + util / 2 : izq + (i * util) / (n - 1);
-  const y = (v) => arr + (1 - (Number(v) || 0) / tope) * alto;
-
-  const fecha = (s) => new Date(String(s) + "T00:00:00");
-
-  /* ---- La escala, escrita ----
-     Tres renglones con su número al lado: cero, la mitad y el máximo. Es lo
-     que faltaba. Antes había tres rayas sin decir qué valían, así que un punto
-     a media altura podía ser 3 personas o 300 y no había forma de saberlo sin
-     pasar el ratón por encima — y el único número escrito estaba en una frase
-     DEBAJO del dibujo, que es donde nadie busca la escala de una gráfica.
-
-     Se redondea a entero y se quitan los repetidos: con un máximo de 1, la
-     serie «0 · 0,5 · 1» sobra por la mitad y además inventa medias personas.
-
-     El renglón del máximo va más marcado que los otros dos: es la referencia
-     contra la que se lee todo lo demás, y en el mismo gris se perdía entre
-     ellos. */
-  const escalones = [...new Set([0, Math.round(tope / 2), tope])].sort((a, b) => a - b);
-  const reja = escalones.map(v => {
-    const yy = y(v);
-    const cima = v === tope && tope > 0;
-    return `<line x1="${izq}" y1="${yy.toFixed(1)}" x2="${W - der}" y2="${yy.toFixed(1)}" class="pn-reja${cima ? " cima" : ""}"/>
-            <text x="${izq - 7}" y="${(yy + 3.2).toFixed(1)}" class="pn-eje-y${cima ? " cima" : ""}" text-anchor="end">${v}</text>`;
-  }).join("");
-
-  /* Las líneas de referencia caen en LUNES, no cada tres días sueltos: lo que
-     se quiere leer aquí es «esta semana contra la anterior», y una marca que
-     no coincide con el principio de la semana no ayuda a compararlas. La de
-     hoy va aparte y con su propio trazo, porque el último punto casi siempre
-     es un día a medias y conviene que se note. */
-  const marcas = dias.map((d, i) => {
-    const dw = fecha(d.dia).getDay();
-    const hoy = i === n - 1;
-    if (!hoy && dw !== 1) return "";
-    return `<line x1="${x(i).toFixed(1)}" y1="${arr - 4}" x2="${x(i).toFixed(1)}" y2="${suelo}"
-              class="pn-guia ${hoy ? "hoy" : ""}"/>`;
-  }).join("");
-
-  /* Las altas del día, en LÍNEA y no en barras. Lo pidió Eduardo el 28 de
-     agosto con una palabra que lo describe mejor que cualquier explicación:
-     mezclar barras y líneas en el mismo dibujo se le veía «sucio». Y tenía más
-     razón de la que parecía: dos formas distintas se leen como dos cosas de
-     distinta naturaleza, y aquí no lo son —las dos cuentan personas—, así que
-     la diferencia de forma no significaba nada y solo estorbaba.
-
-     Va debajo de la principal en el orden de dibujo: es el contexto —de dónde
-     salió la gente— y no la cifra que se viene a mirar. Y en trazo discontinuo
-     además de en otro color, porque de las dos maneras se distingue también
-     para quien no separa bien el verde del azul. */
-  const hiloAltas = !hayAltas ? "" :
-    `<polyline points="${altas.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ")}"
-       class="pn-hilo-altas"/>`;
-
-  /* Un punto solo en los días que tuvieron alguna: la línea ya dice el cero,
-     y catorce puntos pegados al suelo lo único que hacen es ensuciar el
-     suelo. Los que se dibujan llevan el título, que es lo que se lee al pasar
-     por encima. */
-  const puntosAltas = !hayAltas ? "" : altas.map((v, i) => {
-    if (v <= 0) return "";
-    return `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.4"
-              class="pn-punto-alta"><title>${escapeHtml(String(dias[i].dia))}: ${v} ${v === 1 ? tx("cuenta nueva") : tx("cuentas nuevas")}</title></circle>`;
-  }).join("");
-
-  const pts = dias.map((d, i) => [x(i), y(d.personas)]);
-  const hilo = pts.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
-
-  const estrellas = dias.map((d, i) => {
-    const v = Number(d.personas) || 0;
-    /* Un día sin nadie no se borra: se apaga. Un hueco en la línea se lee
-       como «falta el dato», y un punto tenue como «ese día no vino nadie»,
-       que es lo que de verdad pasó. */
-    const clase = v === 0 ? "vacia" : (v === tope ? "cima" : "");
-    const r = v === 0 ? 2.2 : (v === tope ? 4.6 : 3.4);
-    return `<circle cx="${pts[i][0].toFixed(1)}" cy="${pts[i][1].toFixed(1)}" r="${r}" class="pn-estrella ${clase}"><title>${escapeHtml(String(d.dia))}: ${v} ${v === 1 ? "persona" : "personas"}</title></circle>`;
-  }).join("");
-
-  /* La fecha se escribe solo donde hay una marca, y con el mes puesto: un «26»
-     suelto no dice de qué mes es, y a fin de mes la serie cruza dos. */
-  const fechas = dias.map((d, i) => {
-    const f = fecha(d.dia);
-    const hoy = i === n - 1;
-    if (!hoy && f.getDay() !== 1) return "";
-    const txt = hoy ? tx("hoy") : T`día ${f.getDate()} de ${nombreDeMes(f.getMonth() + 1, false)}`;
-    /* Pegada al borde, la etiqueta se sale del lienzo. Se ancla al principio o
-       al final según de qué lado esté, en vez de centrarse siempre. */
-    const px = x(i);
-    const ancla = px < izq + 22 ? "start" : (px > W - der - 22 ? "end" : "middle");
-    return `<text x="${px.toFixed(1)}" y="${H - 12}" class="pn-eje" text-anchor="${ancla}">${escapeHtml(txt)}</text>`;
-  }).join("");
-
-  const pie = hayAltas
-    ? `<div class="pn-pie-graf">
-         <span><i class="pn-mu-linea"></i> ${tx("personas que abrieron")}</span>
-         <span><i class="pn-mu-linea altas"></i> ${tx("cuentas nuevas")}</span>
-       </div>`
-    : "";
-
-  /* ---- Las cifras que la línea no dice ----
-     Una serie de catorce puntos enseña la FORMA —si sube o baja— y esconde
-     todo lo demás: cuánto suma, cuánto es un día normal, y si esta semana fue
-     mejor que la anterior. Eran justo las preguntas que había que contestar
-     mirando fijamente el dibujo, y dos de ellas no se podían contestar.
-
-     La comparación va contra los SIETE DÍAS ANTERIORES y no contra la semana
-     natural: la ventana es de catorce, así que parte por la mitad y las dos
-     mitades miden lo mismo. Comparar «esta semana» con «la pasada» un lunes
-     sería comparar un día contra siete.
-
-     Solo aparece con las dos mitades completas. Con menos de catorce días de
-     historia el porcentaje sería ruido, y un número inventado en un panel que
-     existe para decidir es peor que un hueco. */
-  const suma = (a) => a.reduce((t, v) => t + v, 0);
-  const total = suma(valores);
-  const media = n ? Math.round((total / n) * 10) / 10 : 0;
-
-  /* ---- Cuánta gente hay, en vez de un promedio por día ----
-     La primera cifra era «personas al día», la media de los catorce días con
-     los ceros dentro. Estaba bien calculada y era mala métrica, y Eduardo lo
-     preguntó con la frase exacta: «0,6 personas al día, ¿es normal eso?».
-
-     No lo era, y el problema no es el número: es la pregunta. Con tres cuentas,
-     un promedio diario habla más de cuántos días pasaron que de cuánta gente
-     hay — y baja cada vez que se añade un día tranquilo, que es justo cuando
-     menos hace falta desanimar a nadie.
-
-     Ahora van las dos cifras que sí se sostienen a cualquier escala: cuántas
-     cuentas DISTINTAS aparecieron en el periodo, y en cuántos de los catorce
-     días hubo alguien. La primera la cuenta el servidor —desde el navegador no
-     se puede: sumar los días contaría catorce veces a quien abrió catorce
-     días—; la segunda sale de la propia serie.
-
-     Si `distintas` no viene —un servidor que todavía no tiene el `metricas()`
-     nuevo— se cae a la media de antes en vez de enseñar un hueco. */
-  const conActividad = valores.filter(v => v > 0).length;
-
-  /* ---- Personas y aperturas son DOS cosas, y aquí se llamaban igual ----
-     Es el punto 2 de los cinco de Eduardo: «distinguir usuarios únicos por
-     cuenta, no solo aperturas». En los datos ya estaba bien —la tabla `pulsos`
-     tiene la clave (user_id, dia), así que una fila por cuenta y día, y lo que
-     cuenta la serie son cuentas—, pero esta caja sumaba esas cuentas de los
-     catorce días y al resultado le ponía el rótulo «aperturas con cuenta».
-
-     Eso no eran aperturas: era la suma de cuentas-por-día, que no es ninguna
-     magnitud que interese a nadie —alguien que abrió los catorce días contaba
-     catorce—. Y el número de aperturas de verdad venía en los datos, en su
-     propia columna, sin que ninguna pantalla lo usara.
-
-     Ahora son dos cifras distintas y el par dice algo que ninguna decía sola:
-     cuántas veces se abre la app por cada persona que la abre. */
-  const aperturas = suma(dias.map(d => Number(d.aperturas) || 0));
-  const porPersona = total > 0 ? Math.round((aperturas / total) * 10) / 10 : 0;
-  const iCima = valores.indexOf(tope);
-  const diaCima = dias[iCima] ? fecha(dias[iCima].dia) : null;
-
-  let tendencia = "";
-  if (n >= 14) {
-    const ult = suma(valores.slice(-7)), prev = suma(valores.slice(-14, -7));
-    if (prev > 0 || ult > 0) {
-      const dif = prev === 0 ? null : Math.round(((ult - prev) / prev) * 100);
-      const sube = ult >= prev;
-      tendencia = `<span class="pn-tend ${sube ? "sube" : "baja"}">
-          ${sube ? "▲" : "▼"} ${dif === null ? tx("nuevo") : Math.abs(dif) + "%"}
-        </span><span class="pn-tend-pie">${T`${ult} contra ${prev} los 7 días de antes`}</span>`;
-    }
-  }
-
-  const resumen = `<div class="pn-graf-cifras">
-      ${distintas == null
-        ? `<div class="pn-gc"><b>${media}</b><span>${tx("cuentas al día")}</span></div>`
-        : `<div class="pn-gc"><b>${distintas}</b><span>${
-            distintas === 1 ? tx("cuenta distinta") : tx("cuentas distintas")}${T` · ${conActividad} de ${n} días con actividad`}</span></div>`}
-      <div class="pn-gc"><b>${tope}</b><span>${tx("el mejor día")}${
-        diaCima ? T` · día ${diaCima.getDate()} de ${nombreDeMes(diaCima.getMonth() + 1, false)}` : ""}</span></div>
-      <div class="pn-gc"><b>${aperturas}</b><span>${tx("aperturas")}${
-        porPersona ? T` · ${porPersona} por cuenta al día` : ""}</span></div>
-      ${tendencia ? `<div class="pn-gc tend">${tendencia}</div>` : ""}
-    </div>`;
-
-  /* La gráfica arriba y las cifras debajo, que es como lo quiso Eduardo al
-     verlo montado. Estuvieron encima un rato y el orden se lee peor de lo que
-     parecía sobre el papel: la caja ya tiene su título y su párrafo, así que
-     tres números más antes del dibujo eran un cuarto bloque de texto antes de
-     llegar a lo que se viene a ver. Debajo funcionan como el pie de una foto —
-     miras la forma, y ahí está lo que no se podía leer de ella. */
-  /* El rótulo se arma ANTES y por trozos. Dentro del atributo, cada pedazo
-     condicional era una frase suelta —«, con una media de »— pegada a la
-     siguiente con un «+»: en inglés eso ata el orden de las palabras al que
-     tenían en español. Pasando cada trozo por `T`, el diccionario puede
-     colocar los huecos donde le toque. */
-  const cuantas = distintas == null
-    ? T`, con una media de ${media}`
-    : T`, ${distintas} distintas en total`;
-  const rotulo = T`Dos líneas sobre la misma escala durante los últimos catorce días: cuentas que abrieron la app cada día${cuantas}, con un máximo de ${tope} en un día y actividad en ${conActividad} de ${n} días${hayAltas ? tx(", y cuentas nuevas creadas cada día") : ""}.`;
-
-  return `<svg class="pn-cielo" viewBox="0 0 ${W} ${H}" role="img"
-            aria-label="${rotulo}">
-      ${reja}
-      ${marcas}
-      ${hiloAltas}
-      ${puntosAltas}
-      <polyline points="${hilo}" class="pn-hilo"/>
-      ${estrellas}
-      ${fechas}
-    </svg>
-    ${pie}
-    ${resumen}`;
-}
-
-/* ---- La dona ----
-   Para un reparto que suma un todo y tiene pocas partes: teléfono contra
-   computadora, instalada contra navegador. Con más de cuatro trozos deja de
-   leerse y hay que usar barras — un pastel de ocho gajos no lo lee nadie.
-
-   Se dibuja con `stroke-dasharray` sobre un círculo y no con arcos calculados
-   a mano: son cuatro números en vez de trigonometría, y no hay forma de que
-   un redondeo deje una rendija blanca entre dos gajos. */
-function panelDona(filas, claveNombre, claveValor, vacio) {
-  const datos = (filas || []).filter(f => (Number(f[claveValor]) || 0) > 0);
-  if (!datos.length) return `<p class="settings-note">${escapeHtml(vacio)}</p>`;
-
-  const total = datos.reduce((s, f) => s + (Number(f[claveValor]) || 0), 0);
-  const R = 42, GRUESO = 15, C = 2 * Math.PI * R;
-
-  let acumulado = 0;
-  const gajos = datos.map((f, i) => {
-    const v = Number(f[claveValor]) || 0;
-    const frac = v / total;
-    const largo = frac * C;
-    /* El desfase va en negativo porque el trazo avanza en sentido horario
-       desde donde lo dejó el gajo anterior. */
-    const off = -acumulado * C;
-    acumulado += frac;
-    return `<circle cx="60" cy="60" r="${R}" class="pn-gajo pn-gajo-${(i % 4) + 1}"
-              stroke-width="${GRUESO}"
-              stroke-dasharray="${largo.toFixed(2)} ${(C - largo).toFixed(2)}"
-              stroke-dashoffset="${off.toFixed(2)}"><title>${escapeHtml(String(f[claveNombre]))}: ${v}</title></circle>`;
-  }).join("");
-
-  const leyenda = datos.map((f, i) => {
-    const v = Number(f[claveValor]) || 0;
-    return `<div class="pn-ley">
-        <i class="pn-gajo-${(i % 4) + 1}"></i>
-        <span>${escapeHtml(String(f[claveNombre]))}</span>
-        <b>${Math.round((v / total) * 100)}%</b>
-      </div>`;
-  }).join("");
-
-  return `<div class="pn-dona-caja">
-      <svg class="pn-dona" viewBox="0 0 120 120" role="img"
-           aria-label="${T`Reparto: ${escapeHtml(datos.map(f => f[claveNombre] + " " + f[claveValor]).join(", "))}`}">
-        <g transform="rotate(-90 60 60)">
-          <circle cx="60" cy="60" r="${R}" class="pn-dona-riel" stroke-width="${GRUESO}"/>
-          ${gajos}
-        </g>
-        <text x="60" y="58" class="pn-dona-num">${total}</text>
-        <text x="60" y="70" class="pn-dona-pie">${total === 1 ? tx("persona") : tx("personas")}</text>
-      </svg>
-      <div class="pn-leyenda">${leyenda}</div>
-    </div>`;
-}
-
-/* ---- El embudo ----
-   Cada paso es un subconjunto del anterior, así que se lee de arriba abajo y
-   el escalón que más cae es el que hay que arreglar. La caída se escribe al
-   lado en vez de dejarla deducir: «de 40 a 12» obliga a hacer la cuenta
-   mentalmente cada vez que se mira. */
-function panelEmbudo(pasos) {
-  const ps = (pasos || []).map(p => ({ paso: String(p.paso), n: Number(p.personas) || 0 }));
-  if (!ps.length || ps[0].n === 0) {
-    return `<p class="settings-note">${tx("Todavía no hay nadie registrado, así que no hay embudo que mirar.")}</p>`;
-  }
-  const tope = ps[0].n;
-
-  /* Cuánta gente se cae en cada escalón, y cuál es el peor. El panel ya
-     prometía «el escalón donde más gente se cae es el que hay que arreglar
-     primero» y luego pintaba los cuatro iguales, así que había que contarlos a
-     ojo. Ahora se marca UNO solo: si se marcan dos, vuelve a no haber ninguno.
-
-     Se mide en PERSONAS y no en porcentaje, que es lo que dice la frase y
-     además lo que se puede arreglar: un 80% de caída sobre tres personas son
-     dos personas, y un 30% sobre doscientas son sesenta. */
-  const perdidas = ps.map((p, i) => (i > 0 ? Math.max(ps[i - 1].n - p.n, 0) : 0));
-  const maxPerdida = Math.max(...perdidas);
-  const iPeor = maxPerdida > 0 ? perdidas.indexOf(maxPerdida) : -1;
-
-  return `<div class="pn-embudo">` + ps.map((p, i) => {
-    const ancho = Math.max((p.n / tope) * 100, p.n > 0 ? 4 : 0);
-    const antes = i > 0 ? ps[i - 1].n : null;
-    /* Solo se marca la caída cuando hay gente que perder. Escribir «−0%»
-       debajo de un cero es ruido con aire de dato. */
-    const cae = (antes && antes > 0) ? Math.round(((antes - p.n) / antes) * 100) : 0;
-    /* Un escalón MÁS GRANDE que el de arriba no es una buena noticia: es la
-       señal de que ese paso no se está calculando como un trozo del anterior.
-       Pasaba de verdad —«Siguen esta semana» se contaba suelto y podía salir
-       un 3 debajo de un 2—, y se arregló en el servidor el 3 de septiembre de
-       2026: ahora los tres últimos pasos salen de la misma CTE.
-
-       Esto se queda igualmente, y no por desconfianza: es un centinela. Si
-       algún día alguien vuelve a separar un paso del anterior, la pantalla lo
-       dice en vez de disimularlo — que es lo que hacía antes, cuando un
-       escalón que crecía caía en el «no se pierde nadie», la lectura más
-       halagadora posible de un dato roto. */
-    const crece = antes != null && p.n > antes;
-    const clase = crece ? "crece" : (i === iPeor ? "peor" : "");
-    return `<div class="pn-paso ${clase}">
-        <div class="pn-paso-tit">
-          <span>${escapeHtml(p.paso)}</span>
-          <b>${p.n}</b>
-        </div>
-        <div class="pn-paso-riel"><i style="width:${ancho.toFixed(1)}%"></i></div>
-        ${crece
-          ? `<div class="pn-caida ojo">${tx("sube en vez de bajar: este paso no se cuenta como un trozo del anterior")}</div>`
-          : (i === iPeor
-            ? `<div class="pn-caida">${T`aquí se pierde más gente que en ningún otro paso: ${maxPerdida} ${maxPerdida === 1 ? tx("persona") : tx("personas")}, el ${cae}% del anterior`}</div>`
-            : (i > 0 && cae > 0
-              ? `<div class="pn-caida ok">${T`se pierde el ${cae}% del paso anterior`}</div>`
-              : (i > 0 ? `<div class="pn-caida ok">${tx("no se pierde nadie")}</div>` : "")))}
-      </div>`;
-  }).join("") + `</div>`;
-}
-
-/* Barras horizontales para lo que es una lista con pesos: versiones, planes. */
-/* `nombra` traduce la clave cruda a lo que se lee en pantalla, y `tono` da
-   color a la barra. Los dos son opcionales: las listas que ya se entendían
-   —los tramos de antigüedad, las versiones— siguen llamando igual que antes.
-
-   Nacieron por «El cobro», donde las filas decían `mensual` y `anual` a
-   secas. Un renglón que pone «anual» al lado de un número no dice si eso son
-   personas, pesos o meses; y sin color, tres planes con precios muy distintos
-   se leen como tres barras iguales. */
-function panelListaBarras(filas, claveNombre, claveValor, vacio, nombra, tono) {
-  if (!filas || !filas.length) return `<p class="settings-note">${escapeHtml(vacio)}</p>`;
-  const tope = Math.max(...filas.map(f => Number(f[claveValor]) || 0), 1);
-  return `<div class="pn-lista">` + filas.map(f => {
-    const v = Number(f[claveValor]) || 0;
-    const crudo = String(f[claveNombre] || "—") || tx("(sin dato)");
-    const nombre = nombra ? nombra(crudo) : crudo;
-    const t = tono ? tono(crudo) : "";
-    return `<div class="pn-fila">
-        <span class="pn-nom">${escapeHtml(nombre)}</span>
-        <span class="pn-riel"><i class="${t}" style="width:${Math.round((v / tope) * 100)}%"></i></span>
-        <span class="pn-val ${t}">${v}</span>
-      </div>`;
-  }).join("") + `</div>`;
-}
-
-/* ================= Lo que se rompe =================
-
-   Dos cosas muy distintas caen en la misma tabla del servidor: los errores que
-   la app caza sola —un volcado de JavaScript, siempre igual— y los reportes
-   que escribe una persona. El servidor los junta por mensaje idéntico, que es
-   lo correcto para los primeros: un fallo dentro de un bucle escribiría miles
-   de filas iguales.
-
-   Para los reportes esa regla no sirve, y lo dijo Eduardo: «no se pueden sumar
-   en uno mismo si el contexto es distinto». Dos personas contando dos cosas
-   distintas de la misma pantalla no son «2×» de nada — son dos historias, y
-   sumarlas borra justo lo que las hace útiles.
-
-   Así que se agrupan por el ÚNICO dato que de verdad tienen en común: el lugar
-   donde dicen que pasó. Ese lugar lo escribe `reportarFallo` al principio del
-   mensaje entre corchetes (`[Talentos] …`), así que se lee de ahí. Lo que no
-   traiga corchetes —un reporte de antes de que existiera el formulario— cae en
-   «Sin ubicar», que es honesto y no lo esconde. */
-
-function lugarDelReporte(mensaje) {
-  const m = String(mensaje || "").match(/^\s*\[([^\]]{1,40})\]\s*/);
-  return m ? m[1].trim() : tx("Sin ubicar");
-}
-
-/* El mensaje sin la etiqueta del lugar: dentro del grupo ya se sabe dónde fue,
-   y repetir «[Talentos]» en las seis filas es ruido. */
-function reporteSinLugar(mensaje) {
-  return String(mensaje || "").replace(/^\s*\[[^\]]{1,40}\]\s*/, "");
-}
-
-/* Qué grupos están abiertos. En memoria y no en `state`: es una preferencia de
-   este rato mirando el panel, no un dato de nadie.
-
-   `reportesAbiertos` y no `gruposAbiertos` a secas: ese nombre ya lo usa una
-   FUNCIÓN de Talentos (`gruposAbiertos(rama)`, las cajas del ático), y los
-   archivos de la app comparten un único ámbito global — todos son `<script>`
-   sueltos, sin módulos. Declararlo repetido con `let` no da un aviso: parte el
-   archivo entero con «Identifier has already been declared», y con él se cayó
-   el panel completo. */
-let reportesAbiertos = {};
-
-function alternarGrupoReporte(clave) {
-  reportesAbiertos[clave] = !reportesAbiertos[clave];
-  renderPanelAdmin();
-}
-
-/* Los reportes de gente, agrupados por lugar y ordenados por cuántos hay. Cada
-   grupo trae sus mensajes enteros dentro, que es lo que se despliega al tocar:
-   la lista de lo que dijo cada quien, sin sumar ni resumir. */
-function agruparReportes(tropiezos) {
-  const mapa = new Map();
-  (tropiezos || []).forEach(t => {
-    if (t.donde !== "reporte") return;
-    const lugar = lugarDelReporte(t.mensaje);
-    if (!mapa.has(lugar)) mapa.set(lugar, { lugar, cuantos: 0, sinVer: 0, dia: "", filas: [] });
-    const g = mapa.get(lugar);
-    /* `cuantos` del servidor puede ser mayor que uno si dos personas
-       escribieron LO MISMO letra por letra. Es raro y no se pierde: se suma. */
-    g.cuantos += Number(t.cuantos) || 1;
-    if (!t.visto) g.sinVer++;
-    if (String(t.dia) > g.dia) g.dia = String(t.dia);
-    g.filas.push(t);
-  });
-  return [...mapa.values()]
-    .map(g => { g.filas.sort((a, b) => String(b.dia).localeCompare(String(a.dia))); return g; })
-    .sort((a, b) => (b.sinVer - a.sinVer) || String(b.dia).localeCompare(String(a.dia)) || (b.cuantos - a.cuantos));
-}
-
-/* Archivar UN reporte, que es lo que pidió Eduardo: «para irlos archivando y
-   ver qué está corregido y qué no». Con el botón de «dar por vistos» a secas
-   eso no se podía — marcaba todos de golpe, así que atender uno enterraba
-   también los que no habías mirado.
-
-   Se pinta con lo que CONTESTA el servidor y no con lo que suponíamos antes de
-   preguntar: si la fila ya no está —dos pestañas archivando a la vez— la
-   respuesta es `null` y se vuelven a pedir los números en vez de dejar la
-   pantalla diciendo algo que no es.
-
-   Y no se recargan las métricas enteras en el caso normal: son unos cientos de
-   milisegundos y un salto de la lista entera para cambiar una palabra. Se
-   toca la fila que hay en memoria y se vuelve a pintar. */
-async function archivarReporte(id, visto) {
-  const t = (metricasCache && metricasCache.tropiezos || []).find(x => Number(x.id) === Number(id));
-  try {
-    const quedo = await sbTropiezoVisto(id, visto);
-    if (quedo === null || quedo === undefined) {
-      /* La fila se fue. Se piden los números otra vez y que mande el servidor. */
-      metricasCache = null;
-      await cargarMetricas();
-      return;
-    }
-    if (t) t.visto = !!quedo;
-    renderPanelAdmin();
-  } catch (e) {
-    toast(e.message || String(e), "atencion");
-  }
-}
-
-function panelReportesHTML(tropiezos) {
-  const grupos = agruparReportes(tropiezos);
-  if (!grupos.length) return "";
-  const total = grupos.reduce((t, g) => t + g.cuantos, 0);
-  const sinVer = grupos.reduce((t, g) => t + g.sinVer, 0);
-
-  return `<div class="panel">
-      <div class="pn-cab">
-        <h3>${tx("Lo que la gente reporta")}</h3>
-        <span class="pn-cuenta${sinVer ? " nuevo" : ""}">${total} ${total === 1 ? tx("reporte") : tx("reportes")}</span>
-      </div>
-      <p class="settings-note">${tx("Agrupados por dónde dicen que pasó, no por el texto: dos personas contando dos cosas distintas de la misma pantalla son dos historias, y sumarlas borraría lo que las hace útiles. Toca un grupo para leerlos.")}</p>
-      <div class="pn-grupos">` + grupos.map(g => {
-    const abierto = !!reportesAbiertos[g.lugar];
-    return `<div class="pn-grupo ${abierto ? "abierto" : ""}">
-        <button class="pn-grupo-cab" onclick="alternarGrupoReporte('${enJS(g.lugar)}')"
-                aria-expanded="${abierto}">
-          <span class="pn-grupo-ic">${icon("bicho", 15)}</span>
-          <span class="pn-grupo-nom">${escapeHtml(g.lugar)}</span>
-          ${g.sinVer ? `<span class="pn-globo">${g.sinVer}</span>` : ""}
-          <span class="pn-grupo-n">${g.cuantos}</span>
-          <span class="pn-grupo-flecha">${abierto ? "▾" : "▸"}</span>
-        </button>
-        ${abierto ? `<div class="pn-grupo-lista">` + g.filas.map(t => `
-            <div class="pn-dicho ${t.visto ? "visto" : ""}">
-              <p>${escapeHtml(reporteSinLugar(t.mensaje))}</p>
-              <span>${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")}${
-                (Number(t.cuantos) || 1) > 1 ? T` · lo dijeron ${t.cuantos} veces` : ""}</span>
-              ${t.id == null ? "" : `<button class="pn-palomita ${t.visto ? "on" : ""}"
-                onclick="archivarReporte(${Number(t.id)}, ${t.visto ? "false" : "true"})"
-                aria-pressed="${t.visto ? "true" : "false"}"
-                title="${t.visto ? tx("Volver a dejarlo abierto") : tx("Darlo por atendido")}">
-                ${icon("check", 14)}<span>${t.visto ? tx("Atendido") : tx("Atender")}</span>
-              </button>`}
-            </div>`).join("") + `</div>` : ""}
-      </div>`;
-  }).join("") + `</div>
-    </div>`;
-}
-
-/* ---- El modo de pruebas ----
-   Vive aquí y no en Mi perfil porque solo le sirve a quien revisa Norata, y
-   porque uno de sus dos efectos es quitar la confirmación de borrar: eso no
-   puede estar al alcance de alguien que entró a cambiarse el apodo.
-
-   Dos cosas dentro, y la segunda cuelga de la primera:
-
-     el interruptor   marca esta cuenta como de pruebas (rótulo arriba, y
-                      borrar deja de pedir el correo)
-     los planes       enseña la app como si tuvieras otro plan
-
-   Los planes solo aparecen con el modo encendido, y no es por orden: el rótulo
-   de arriba es lo único que avisa de que el plan que estás viendo no es el
-   tuyo. Sin el modo no hay rótulo, y una app que miente sin nada que lo diga
-   es peor que no poder probarla. */
-function panelPruebasHTML() {
-  const on = typeof esCuentaDePruebas === "function" && esCuentaDePruebas();
-  const cual = typeof planLeerSimulado === "function" ? planLeerSimulado() : "";
-  const lista = typeof PLANES_SIMULABLES !== "undefined" ? PLANES_SIMULABLES : [];
-
-  return `<div class="panel">
-      <h3>${tx("Modo de pruebas")}</h3>
-      <p class="settings-note">${tx("Solo lo ves tú, y solo mientras esta cuenta sea administradora. No cambia nada en el servidor: lo que hay aquí decide qué se DIBUJA, no lo que la base de datos cree.")}</p>
-
-      <div class="field">
-        <span class="lbl">${tx("Esta cuenta")}</span>
-        <div class="seg">
-          <button${on ? "" : ' class="on"'} onclick="marcarCuentaDePruebas(false)">${tx("Normal")}</button>
-          <button${on ? ' class="on"' : ""} onclick="marcarCuentaDePruebas(true)">${tx("De pruebas")}</button>
-        </div>
-        <div class="field-hint">${on
-          ? tx("Verás un marco punteado amarillo mientras la uses, y borrar todo no pedirá confirmación extra.")
-          : tx("Borrar todo te pedirá escribir tu correo. Es a propósito: obliga a mirar en qué cuenta estás.")}</div>
-      </div>
-
-      ${on ? `<div class="field" style="margin-bottom:0">
-        <span class="lbl">${tx("Ver la app como si tuviera")}</span>
-        <div class="pn-planes">` +
-          lista.map(x => `<button class="${cual === x.id ? "on" : ""}"
-            onclick="planSimular('${x.id}')">${escapeHtml(tx(x.rotulo))}</button>`).join("") +
-        `</div>
-        <div class="field-hint">${cual
-          ? T`Estás viendo la app como <b>${escapeHtml(planNombreSimulado())}</b>. Se cae sola al cerrar la pestaña, y no toca lo que pagaste.`
-          : tx("Los topes, las pantallas y los avisos de cada plan, sin tener que comprarlos. Vive en la pestaña: aguanta una recarga y muere al cerrarla.")}</div>
-      </div>` : ""}
-    </div>`;
-}
-
-/* ---- El escaparate de las celebraciones ----
-   Las fiestas de la app solo se ven cuando pasan de verdad, y algunas pasan una
-   vez en la vida de una cuenta: llegar al rango Red pide veintiocho niveles.
-   Revisar cómo se ven a base de esperarlas es imposible, así que aquí se
-   disparan a mano.
-
-   Lo pidió Eduardo, y de paso resuelve una trampa vieja: sin componer
-   fotogramas no hay forma de MEDIR una animación —se queda en el valor de
-   partida—, así que la única prueba real de una celebración es mirarla. */
+/* ---- Lo que está en pruebas ----
+   Una fila por prueba, y cada fila sabe decir si está encendida AQUÍ. Hoy una
+   prueba vive en la pestaña (`sessionStorage`) o en el perfil, y se enciende
+   con un enlace: no hay todavía beta testers ni un «para todos» que se pueda
+   decidir desde el panel. Al añadir una prueba a la app, su fila va aquí. */
+const dnSesion = (k, v) => { try { return sessionStorage.getItem(k) === v; } catch (e) { return false; } };
+const DN_PRUEBAS = [
+  { id: "novedades", n: "Novedades en borrador", q: "La ventana y los anuncios de hito, con lo que todavía no apruebas.", on: "?novedades=borrador", off: "?novedades=",
+    esta: () => typeof novedadesEnBorrador === "function" && novedadesEnBorrador(),
+    ojo: () => typeof NOVEDADES_BORRADORES_A_LA_VISTA !== "undefined" && NOVEDADES_BORRADORES_A_LA_VISTA ? "Ajustes → Novedades enseña los borradores sin enlace. Se apaga antes de la beta." : "" },
+  { id: "informes", n: "Informes con datos de ejemplo", q: "Llena los informes con datos falsos para revisar las gráficas.", on: "?informes=demo", off: "?informes=no",
+    esta: () => dnSesion("norata-prueba-informes", "demo") },
+  { id: "esqueleto", n: "Esqueletos de carga", tag: "mejora", q: "Las siluetas mientras carga una pantalla. Se descartaron en la 0.7.96.", on: "?esqueleto=1", off: "?esqueleto=0",
+    esta: () => dnSesion("norata-prueba-esqueleto", "1") },
+  { id: "i18n", n: "Auditoría de textos", q: "Señala lo que falta por traducir al inglés.", on: "?i18n=audita", off: "?i18n=no",
+    esta: () => dnSesion("norata-i18n-audita", "1") },
+  { id: "aniversario", n: "Aniversario de expedición", q: "Abre el recap con tus datos de verdad. Se gasta al verlo.", on: "?aniversario=1", off: "",
+    esta: () => false }
+];
+const dnEncendidas = () => DN_PRUEBAS.filter(p => { try { return p.esta(); } catch (e) { return false; } });
+
+const DN_ETQ = { expansion: "Expansión", mejora: "Mejora", arreglo: "Arreglo", hito: "Nueva etapa" };
+const dnEtq = k => DN_ETQ[k] ? `<span class="dn-etq c-${k}">${DN_ETQ[k]}</span>` : "";
+
+/* ---- Las celebraciones y las pantallas de una vez ----
+   Se disparan aquí porque algunas pasan una vez en la vida de una cuenta y no
+   hay forma de revisarlas esperándolas. No tocan los datos ni el nivel. */
 const FIESTAS = [
-  { id: "nivel", rotulo: "Nivel a secas",
-    nota: "La que pasa: se va sola a los ocho segundos y se corta tocando fuera." },
-  { id: "rango", rotulo: "Nivel con rango",
-    nota: "Cuando el nivel además te cambia el nombre del camino." },
-  { id: "premio", rotulo: "Nivel con premio",
-    nota: "La ventana que NO se cierra tocando fuera ni sola. Lleva a lo que abriste." },
-  { id: "racha", rotulo: "Hito de racha",
-    nota: "La de los días seguidos, en amarillo." },
-  { id: "chica", rotulo: "La chica",
-    nota: "El destello de subir una habilidad o cumplir un talento." }
+  { id: "nivel", rotulo: "Nivel a secas", nota: "Se va sola a los ocho segundos." },
+  { id: "rango", rotulo: "Nivel con rango", nota: "Cuando además cambia el nombre del camino." },
+  { id: "premio", rotulo: "Nivel con premio", nota: "La que no se cierra tocando fuera." },
+  { id: "racha", rotulo: "Hito de racha", nota: "La de las semanas encendidas." },
+  { id: "chica", rotulo: "La chica", nota: "El destello de subir una habilidad." }
 ];
 
 function verLaFiesta(cual) {
-  /* Primero se sale de Ajustes. Las celebraciones viven en el piso de las
-     fiestas (120-130) y Ajustes en el de las ventanas (400): disparada desde
-     aquí, la fiesta se dibujaba DEBAJO del panel y solo asomaba por los huecos
-     —medido: a media pantalla el fondo era la tarjeta clara de Ajustes—.
-     Subirle el piso arreglaría el escaparate y rompería la regla de las capas;
-     volver a la app enseña además la fiesta donde de verdad va a salir. */
+  /* Primero se sale de la capa y de Ajustes. Las celebraciones viven en el
+     piso de las fiestas (120-130) y esto en el 410: disparada desde aquí, la
+     fiesta se dibujaría DEBAJO. Subirle el piso arreglaría el escaparate y
+     rompería la regla de las capas; volver a la app enseña además la fiesta
+     donde de verdad va a salir. */
+  cerrarDentro();
   if (typeof showView === "function") showView("summary");
 
   if (cual === "racha") { celebrateStreak(30); return; }
   if (cual === "chica") { celebrate("Nivel 7", tx("Guitarra sube de nivel"), "#f5d76e", "music", "habilidad"); return; }
 
   /* Se toma un nivel de verdad de la escalera para que lo que se vea sea lo
-     que va a ver la gente, no un ejemplo inventado: los nombres, los iconos y
-     los premios salen del catálogo. */
+     que va a ver la gente, no un ejemplo inventado. */
   const escalera = typeof escaleraDeExpedicion === "function" ? escaleraDeExpedicion() : [];
   if (cual === "rango") {
     const r = escalera.find(x => x.tipo === "rango" && x.listo && x.nivel > 1) || { nivel: 4 };
@@ -798,246 +310,575 @@ function verLaFiesta(cual) {
   celebrarNivel(Math.max(2, (typeof nivelExpedicion === "function" ? nivelExpedicion().nivel : 2)), []);
 }
 
-/* ---- El escaparate de las pantallas que solo salen una vez ----
-
-   Hermano del de las celebraciones y por el mismo motivo: hay pantallas que un
-   perfil ve UNA vez en su vida, y revisarlas obligaba a vaciar la app y
-   empezar de cero. Lo pidió Eduardo después de tener que borrar sus datos para
-   volver a ver la de idioma y moneda.
-
-   Cada una se abre en ENSAYO —lo que se toque dentro se deshace al cerrar—, y
-   eso no es prudencia de más: elegir moneda ahí dentro no convierte nada, así
-   que en un perfil con años de importes guardados dejaría los mismos números
-   leyéndose como dólares. */
+/* Cada una se abre en ENSAYO: lo que se toque dentro se deshace al cerrar. */
 const PANTALLAS_DE_UNA_VEZ = [
-  { id: "region", rotulo: "Idioma y moneda",
-    nota: "La primera de todas: sale antes del tablero y antes del tutorial." }
+  { id: "region", rotulo: "Idioma y moneda", nota: "La primera de todas, en ensayo." },
+  { id: "ventana", rotulo: "La ventana de novedades", nota: "La más reciente que abriría ventana." },
+  { id: "beta", rotulo: "El anuncio de la beta", nota: "La escena a pantalla completa de la 0.8." },
+  { id: "1.0", rotulo: "El anuncio de la 1.0", nota: "Nueve segundos como mucho." }
 ];
 
 function verLaPantalla(cual) {
+  cerrarDentro();
   if (cual === "region" && typeof verLaPantallaDeRegion === "function") verLaPantallaDeRegion();
+  if (cual === "ventana" && typeof novedadesProbarVentana === "function") novedadesProbarVentana();
+  if ((cual === "beta" || cual === "1.0") && typeof probarHito === "function") probarHito(cual);
 }
 
-function panelPantallasHTML() {
-  return `<div class="panel">
-      <h3>${tx("Ver una pantalla de la primera vez")}</h3>
-      <p class="settings-note">${tx("Un perfil las ve una sola vez, así que revisarlas costaba vaciar la app. Se abren en ensayo: lo que toques dentro se deshace al cerrar, y tus datos no se tocan.")}</p>
-      <div class="pn-fiestas">
-        ${PANTALLAS_DE_UNA_VEZ.map(p => `<button class="btn btn-linea btn-block" onclick="verLaPantalla('${p.id}')">
-          <b>${escapeHtml(tx(p.rotulo))}</b><span>${escapeHtml(tx(p.nota))}</span>
-        </button>`).join("")}
+/* ---- Abrir y cerrar la capa ---- */
+
+function abrirDentro() {
+  if (!esAdmin) return;
+  let capa = document.getElementById("dentro");
+  if (!capa) {
+    capa = document.createElement("div");
+    capa.id = "dentro";
+    capa.className = "dn";
+    capa.setAttribute("role", "dialog");
+    capa.setAttribute("aria-label", "Norata por dentro");
+    document.body.appendChild(capa);
+    capa.addEventListener("click", dnClic);
+    capa.addEventListener("input", dnEscribe);
+    window.addEventListener("resize", () => { if (dnAbierta()) { clearTimeout(dnDibuja.t); dnDibuja.t = setTimeout(dnDibuja, 120); } });
+    document.addEventListener("keydown", ev => { if (ev.key === "Escape" && dnAbierta() && !document.querySelector("#modal.show")) cerrarDentro(); });
+  }
+  capa.classList.add("show");
+  dnPinta();
+  /* Los números se piden al abrir: quien entra aquí viene a verlos. Antes iban
+     detrás de un botón, porque esto vivía en Ajustes y no tenía sentido pagar
+     la llamada cada vez que alguien entraba a cambiar la zona horaria. */
+  if (!metricasCache && !DN.cargando) cargarMetricas();
+  if (!DN.nov && typeof cargarNovedades === "function") {
+    cargarNovedades().then(es => { DN.nov = es || []; if (dnAbierta()) dnPinta(); }).catch(() => { DN.nov = []; });
+  }
+}
+const dnAbierta = () => { const c = document.getElementById("dentro"); return !!(c && c.classList.contains("show")); };
+function cerrarDentro() {
+  const c = document.getElementById("dentro");
+  if (c) c.classList.remove("show");
+}
+
+/* ---- Las salas ---- */
+
+function dnKpi(rot, val, uni, pie, serie) {
+  let spark = "";
+  if (serie && serie.length > 1) {
+    const mx = Math.max(1, ...serie);
+    const p = serie.map((v, i) => (i ? "L" : "M") + (i * 100 / (serie.length - 1)).toFixed(1) + " " + (26 - v / mx * 23).toFixed(1)).join(" ");
+    spark = `<svg viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><path d="${p} L100 28 L0 28Z" fill="var(--muted)" opacity=".12"/><path d="${p}" fill="none" stroke="var(--muted)" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>`;
+  }
+  return `<div class="dn-kpi"><span class="rot">${rot}</span><span class="val">${val}<small>${uni || ""}</small></span><span class="pie">${pie || ""}</span>${spark}</div>`;
+}
+/* «24 de cada 100», con su vara: llega, va a medias o se pierde. Sin gente
+   suficiente no hay proporción que valga, y se dice en vez de pintar un cero. */
+function dnDeCada(parte, total, vara) {
+  if (!total) return { val: "—", uni: "", pie: "Todavía no hay con qué medirlo" };
+  const pc = Math.round(parte / total * 100), tono = pc >= vara ? "bien" : pc >= vara / 2 ? "ojo" : "mal";
+  const juicio = { bien: "Llega a la vara", ojo: "A medias de la vara", mal: "Lejos de la vara" }[tono];
+  return { val: pc, uni: " de cada 100", pie: `<span class="dn-vara ${tono}">${juicio}</span> de ${vara}` };
+}
+
+function dnBorradores() {
+  return (DN.nov || []).filter(e => e && e.estado !== "publicado");
+}
+
+function dnSalaHoy() {
+  const m = metricasCache, r = m.resumen || {}, c = m.cobro || {}, dias = m.dias || [];
+  const tr = dnTropiezos(), gente = tr.filter(t => t.donde === "reporte" && !t.visto).length;
+  const autos = tr.filter(t => t.donde !== "reporte" && !t.visto);
+  const enVivo = autos.filter(t => t.version === VERSION).length;
+  const bor = dnBorradores(), viejo = Math.max(0, ...bor.map(e => dnHace(e.fecha) || 0));
+  const enc = dnEncendidas();
+  const filas = [
+    gente ? ["ojo", gente, gente === 1 ? "reporte nuevo en el buzón" : "reportes nuevos en el buzón", "Lo que alguien se sentó a escribir", "ir:buzon"] : null,
+    autos.length ? [enVivo ? "mal" : "ojo", autos.length, autos.length === 1 ? "error automático nuevo" : "errores automáticos nuevos",
+      enVivo ? enVivo + (enVivo === 1 ? " se vio" : " se vieron") + " en la " + VERSION + ", la publicada" : "Ninguno en la " + VERSION + ", la publicada", "auto"] : null,
+    (r.pidieron_borrado || 0) > 0 ? ["mal", r.pidieron_borrado, r.pidieron_borrado === 1 ? "cuenta pidió borrarse" : "cuentas pidieron borrarse", "En el plazo de 30 días para arrepentirse", "ir:numeros"] : null,
+    (r.sin_confirmar || 0) > 0 ? ["ojo", r.sin_confirmar, r.sin_confirmar === 1 ? "cuenta sin confirmar el correo" : "cuentas sin confirmar el correo", "Se registraron y nunca pulsaron el enlace", "ir:numeros"] : null,
+    (r.nunca_abrieron || 0) > 0 ? ["ojo", r.nunca_abrieron, r.nunca_abrieron === 1 ? "cuenta nunca abrió la app" : "cuentas nunca abrieron la app", "Tienen cuenta y jamás entraron", "ir:numeros"] : null,
+    bor.length ? [viejo >= 5 ? "ojo" : "dato", bor.length, bor.length === 1 ? "novedad en borrador" : "novedades en borrador", viejo >= 5 ? "La más vieja lleva " + viejo + " días sin aprobar" : "Esperan tu visto bueno antes de salir", "ir:subidas"] : null,
+    enc.length ? ["dato", enc.length, enc.length === 1 ? "prueba encendida aquí" : "pruebas encendidas aquí", enc.map(p => p.n).join(", "), "ir:lab"] : null
+  ].filter(Boolean);
+  const sig = dnDeCada(r.siguen30 || 0, r.maduros || 0, 20);
+  const altas7 = dnSuma(dias.slice(-7).map(d => d.altas));
+  const pers = dias.map(d => Number(d.personas) || 0);
+  const s7 = pers.slice(-7), p7 = pers.slice(-14, -7);
+  return `
+    <div class="dn-cab"><h2>Hoy</h2><div class="dn-der"><button class="btn btn-ghost dn-mini" data-a="repedir">Volver a pedirlos</button></div>
+      <p>Números tomados ${dnE(dnMomento(m.al_momento))} · versión publicada ${dnE(VERSION)}</p></div>
+    <div class="dn-kpis">
+      ${dnKpi("Personas activas esta semana", r.activos7 || 0, "", (r.activos30 || 0) + " en 30 días", pers)}
+      ${dnKpi("Cuentas creadas", r.cuentas || 0, "", "+" + altas7 + " esta semana", dias.map(d => Number(d.altas) || 0))}
+      ${dnKpi("Siguen tras 30 días", sig.val, sig.uni, sig.pie)}
+      ${c.desplegado === false ? dnKpi("Pagando ahora", "—", "", "El cobro no está desplegado") : dnKpi("Pagando ahora", c.pagando || 0, "", "$" + (c.mrr || 0) + " MXN al mes")}
+    </div>
+    <div class="dn-rejilla hoy">
+      <div class="dn-panel"><h3>Para atender</h3>
+        ${filas.length ? `<div class="dn-atender">${filas.map(f => `<button data-a="${f[4]}"><span class="n ${f[0]}">${f[1]}</span><span><b>${f[2]}</b><small>${dnE(f[3])}</small></span>${dnIc("flecha")}</button>`).join("")}</div>`
+          : `<div class="dn-vacio">Nada pide tu atención ahora mismo.</div>`}
+      </div>
+      <div class="dn-panel"><div class="dn-pcab"><h3>Personas que abrieron la app</h3><span class="dn-chip dn-der">14 días</span></div>
+        <div class="dn-graf" data-g="mini"></div>
+        ${p7.length === 7 ? `<p class="dn-nota">Promedio de los últimos siete días: ${(dnSuma(s7) / 7).toFixed(1)} al día, contra ${(dnSuma(p7) / 7).toFixed(1)} la semana anterior.</p>` : ""}
       </div>
     </div>`;
 }
 
-function panelFiestasHTML() {
-  return `<div class="panel">
-      <h3>${tx("Ver una celebración")}</h3>
-      <p class="settings-note">${tx("Se disparan aquí porque algunas pasan una vez en la vida de una cuenta y no hay forma de revisarlas esperándolas. No tocan tus datos ni tu nivel: solo dibujan.")}</p>
-      <div class="pn-fiestas">
-        ${FIESTAS.map(f => `<button class="btn btn-linea btn-block" onclick="verLaFiesta('${f.id}')">
-          <b>${escapeHtml(tx(f.rotulo))}</b><span>${escapeHtml(tx(f.nota))}</span>
-        </button>`).join("")}
-      </div>
+function dnSalaBuzon() {
+  const tr = dnTropiezos();
+  const abiertos = t => tr.filter(x => (t === "todo" || dnTipo(x) === t) && !x.visto).length;
+  /* Fallos y automáticos, siempre; los demás, cuando haya al menos uno. */
+  const tipos = Object.keys(DN_TIPOS).filter(t => t === "fallo" || t === "auto" || tr.some(x => dnTipo(x) === t));
+  const sel = tr.find(t => dnClave(t) === DN.sel);
+  const sinVer = tr.filter(t => !t.visto).length;
+  return `
+    <div class="dn-cab"><h2>Buzón</h2>${sinVer ? `<div class="dn-der"><button class="btn btn-soft dn-mini" data-a="vistos">Dar por atendidos los ${sinVer}</button></div>` : ""}</div>
+    <div class="dn-tipos">
+      <button class="${DN.tipo === "todo" ? "on" : ""}" data-a="tipo:todo">Todo <em>${abiertos("todo")}</em></button>
+      ${tipos.map(t => `<button class="c-${DN_TIPOS[t].tono} ${DN.tipo === t ? "on" : ""}" data-a="tipo:${t}">${dnIc(t)}${DN_TIPOS[t].pl} <em>${abiertos(t)}</em></button>`).join("")}
+    </div>
+    <div class="dn-filtros">
+      <div class="dn-seg" role="radiogroup" aria-label="Qué se ve">${[["abiertos", "Nuevos"], ["cerrados", "Atendidos"], ["todos", "Todos"]].map(o => `<button class="${DN.ver === o[0] ? "on" : ""}" data-a="ver:${o[0]}">${o[1]}</button>`).join("")}</div>
+      <label class="dn-buscar">${dnIc("buscar")}<input id="dn-q" type="search" placeholder="Buscar por texto, lugar o versión" value="${escapeAttr(DN.q)}" aria-label="Buscar en el buzón"></label>
+    </div>
+    <div class="dn-bz" data-abierto="${sel ? 1 : 0}">
+      <div class="dn-lista" id="dn-lista">${dnListaHTML()}</div>
+      <div class="dn-det">${sel ? dnDetalleHTML(sel) : `<div class="dn-vacio">Elige uno de la lista para leerlo entero.</div>`}</div>
+    </div>
+    <p class="dn-nota">Llegan los de los últimos treinta días, cuarenta como mucho.</p>`;
+}
+function dnListaHTML() {
+  const f = dnFiltrados();
+  if (!f.length) return `<div class="dn-vacio">${DN.q ? "Nada coincide con esa búsqueda." : DN.ver === "abiertos" ? "No queda nada nuevo aquí." : "Todavía no hay nada en esta lista."}</div>`;
+  return f.map(t => {
+    const tipo = dnTipo(t), k = dnClave(t);
+    return `<button class="dn-it ${t.visto ? "" : "nuevo"} ${k === DN.sel ? "sel" : ""}" data-a="sel" data-k="${escapeAttr(k)}">
+      <span class="dn-tic t-${DN_TIPOS[tipo].tono}">${dnIc(tipo)}</span>
+      <span><span class="tx">${dnE(dnTexto(t).que)}</span>
+        <span class="meta"><span class="dn-est ${t.visto ? "hecho" : "nuevo"}">${t.visto ? "Atendido" : "Nuevo"}</span><span>${dnE(dnLugar(t))}</span><span>· v${dnE(t.version || "?")}</span><span>· ${dnE(dnDia(t.dia))}</span>${(Number(t.cuantos) || 1) > 1 ? `<span class="dn-chip">${Number(t.cuantos)}×</span>` : ""}</span></span>
+    </button>`;
+  }).join("");
+}
+function dnDetalleHTML(t) {
+  const tipo = dnTipo(t), T = DN_TIPOS[tipo], maq = tipo === "auto", tx2 = dnTexto(t), n = Number(t.cuantos) || 1, hace = dnHace(t.dia);
+  let auto = "";
+  if (maq && t.donde !== "tope") {
+    const repite = t.version !== VERSION && dnTropiezos().some(x => x !== t && x.mensaje === t.mensaje && x.version === VERSION);
+    auto = `<div class="dn-aviso">${t.version === VERSION ? `<b>Sigue activo.</b> Se vio en la ${dnE(VERSION)}, que es la publicada.`
+      : repite ? `<b>Sigue activo.</b> El mismo error aparece también en la ${dnE(VERSION)}.`
+      : `<b>Callado.</b> No se ha repetido en la ${dnE(VERSION)}; la última vez fue ${dnE(dnHaceTx(hace))}.`}</div>`;
+  }
+  return `
+    <button class="btn btn-ghost dn-mini dn-volver" data-a="volver">${dnIc("atras")}Buzón</button>
+    <div class="dn-dcab"><span class="dn-tic t-${T.tono}">${dnIc(tipo)}</span><h3>${T.n}</h3><span class="dn-est ${t.visto ? "hecho" : "nuevo"}">${t.visto ? "Atendido" : "Nuevo"}</span></div>
+    <p class="dn-dicho ${maq ? "maq" : ""}">${dnE(tx2.que)}</p>
+    <dl class="dn-ficha">
+      <dt>${maq ? "Origen" : "Dónde"}</dt><dd>${dnE(dnLugar(t))}</dd>
+      ${tx2.antes ? `<dt>Justo antes</dt><dd>${dnE(tx2.antes)}</dd>` : ""}
+      <dt>Versión</dt><dd>${dnE(t.version || "?")}${t.version === VERSION ? " · la publicada" : ""}</dd>
+      <dt>Llegó</dt><dd>${dnE(dnDia(t.dia))}${hace ? " · " + dnHaceTx(hace) : ""}${n > 1 ? (maq ? ` · pasó ${n} veces ese día` : ` · lo escribieron ${n} veces`) : ""}</dd>
+    </dl>
+    ${auto}
+    <div class="dn-acciones">
+      ${t.id == null ? "" : `<button class="btn ${t.visto ? "btn-ghost" : "btn-soft"} dn-mini" data-a="atender">${dnIc(t.visto ? "atras" : "check")}${t.visto ? "Volver a dejarlo abierto" : "Darlo por atendido"}</button>`}
+      <button class="btn btn-linea dn-mini" data-a="copiar:reporte">${dnIc("copiar")}Copiar para Claude</button>
     </div>`;
 }
 
-/* ---- La pantalla ---- */
+function dnSalaSubidas() {
+  const m = metricasCache, vs = (m && m.versiones) || [], total = dnSuma(vs.map(v => v.personas));
+  const conLa = dnSuma(vs.filter(v => v.version === VERSION).map(v => v.personas));
+  const bor = dnBorradores().slice().sort((a, b) => String(b.fecha || "").localeCompare(String(a.fecha || "")));
+  return `
+    <div class="dn-cab"><h2>Subidas</h2></div>
+    <div class="dn-kpis tres">
+      ${dnKpi("Versión publicada", dnE(VERSION), "", dnE(typeof VERSION_FECHA !== "undefined" ? VERSION_FECHA : ""))}
+      ${total ? dnKpi("Ya la tienen", conLa, " de " + total, "personas que abrieron en 14 días") : dnKpi("Ya la tienen", "—", "", "Nadie abrió en 14 días")}
+      ${dnKpi("Novedades por aprobar", DN.nov ? bor.length : "…", "", "en borrador")}
+    </div>
+    <div class="dn-panel"><div class="dn-pcab"><h3>Novedades por aprobar</h3><div class="dn-der"><button class="btn btn-linea dn-mini" data-a="novedades">Leerlas en Novedades</button></div></div>
+      <p class="dn-nota">Ninguna sale en la ventana de la app hasta que su estado pase a «publicado» en <code>novedades/novedades.json</code>.</p>
+      ${!DN.nov ? `<div class="dn-vacio">Leyendo las novedades…</div>` : !bor.length ? `<div class="dn-vacio">No hay ninguna en borrador.</div>` : bor.map(e => {
+        const h = dnHace(e.fecha), clase = typeof novedadClase === "function" ? novedadClase(e) : (e.clase || "mejora");
+        return `<div class="dn-prueba"><div>
+            <div class="dn-sobre-t">${dnEtq(clase)}<span class="dn-estado ${h !== null && h >= 5 ? "e-espera" : "e-no"}">${dnIc("reloj")}${h === null ? "Sin fecha" : h >= 5 ? "Lleva " + h + " días sin aprobar" : "En borrador, " + dnHaceTx(h)}</span></div>
+            <h4>${dnE(e.titulo || "Sin título")}<span class="dn-chip">${dnE(e.version || "")}</span></h4>
+            <p>${dnE(e.resumen || "")}</p></div></div>`;
+      }).join("")}
+    </div>
+    <div class="dn-panel"><h3>La barrera todavía no está puesta</h3>
+      <p class="dn-nota">Hoy cada subida a <code>main</code> llega directo al vivo. Los paquetes semanales, el grifo con su llave y el regreso a una versión sana se conectan cuando exista la rama <code>vivo</code> en GitHub; hasta entonces aquí no hay nada que apruebe o frene una subida.</p>
+    </div>`;
+}
 
+function dnPartes(tit, filas, claveNombre) {
+  const t = dnSuma(filas.map(f => f.personas));
+  if (!t) return `<div class="dn-campo"><span>${tit}</span><p class="dn-nota">Todavía no hay datos.</p></div>`;
+  const tonos = ["--dn-l1", "--dn-l2", "--faint"];
+  const f3 = filas.slice(0, 3), tono = (f, i) => f.tono || tonos[i];
+  return `<div class="dn-campo"><span>${tit}</span><div class="dn-partes">${f3.map((f, i) => `<i style="flex:${Number(f.personas) || 0};background:var(${tono(f, i)})"></i>`).join("")}</div>
+    <div class="dn-uso">${f3.map((f, i) => `<div><small><i class="dn-punto" style="background:var(${tono(f, i)})"></i>${dnE(f[claveNombre])}</small><b>${Math.round(f.personas / t * 100)}%</b></div>`).join("")}</div></div>`;
+}
+
+function dnSalaNumeros() {
+  const m = metricasCache, r = m.resumen || {}, c = m.cobro || {};
+  const cab = `<div class="dn-cab"><h2>Números</h2>
+      <div class="dn-seg" role="radiogroup" aria-label="Qué números">${[["gente", "Gente"], ["cobro", "Cobro"]].map(o => `<button class="${DN.num === o[0] ? "on" : ""}" data-a="num:${o[0]}">${o[1]}</button>`).join("")}</div></div>`;
+  if (DN.num === "cobro") {
+    if (c.desplegado === false) return cab + `<div class="dn-panel"><h3>El cobro</h3><p class="dn-nota">Todavía no está puesto en el servidor. Cuando corras <code>planes.sql</code> y despliegues Stripe, esta sala se llena sola; los pasos están en <code>supabase/LEEME.md</code>.</p></div>`;
+    const activos = (c.planes || []).filter(p => p.estado === "activa");
+    const otros = (c.planes || []).filter(p => p.estado !== "activa");
+    const nombre = k => ({ mensual: "Pro mensual", anual: "Pro anual", fundador: "Fundador" })[k] || k;
+    return cab + `
+      <div class="dn-panel"><div class="dn-pcab"><h3>El cobro</h3><span class="dn-chip dn-der">MXN, con IVA</span></div>
+        <div class="dn-kpis tres">
+          ${dnKpi("Pagando ahora", c.pagando || 0)}
+          ${dnKpi("Al mes", "$" + (c.mrr || 0), "", "sin contar Fundador")}
+          ${dnKpi("Lugares de Fundador", c.lugares_fundador == null ? "—" : c.lugares_fundador, " de 200", "los que quedan")}
+        </div>
+        ${dnPartes("Planes activos", activos.map(p => ({ personas: p.personas, n: nombre(p.plan), tono: { mensual: "--dn-l1", anual: "--faint", fundador: "--dn-l2" }[p.plan] })), "n")}
+        ${otros.length ? `<p class="dn-nota">Además: ${otros.map(p => dnE(nombre(p.plan)) + " " + dnE(p.estado) + ", " + Number(p.personas)).join(" · ")}.</p>` : ""}
+      </div>
+      <div class="dn-panel"><h3>Lo que el cobro todavía no guarda</h3>
+        <p class="dn-nota">El servidor solo sabe cómo está cada suscripción ahora. Las ventas por fecha, Fundador contra suscripciones en el tiempo y las devoluciones necesitan que se empiece a apuntar cada pago; hasta entonces no hay histórico que dibujar.</p></div>`;
+  }
+  const vol = dnDeCada(r.volvieron || 0, r.abrieron || 0, 40), sig = dnDeCada(r.siguen30 || 0, r.maduros || 0, 20), ins = dnDeCada(r.instalaron || 0, r.abrieron || 0, 30);
+  const hayErr = (m.versiones || []).some(v => dnTropiezos().some(t => t.donde !== "reporte" && t.donde !== "tope" && t.version === v.version));
+  return cab + `
+    <div class="dn-panel"><div class="dn-pcab"><h3>La gente, día a día</h3>
+        <div class="dn-ley dn-der"><span><i class="dn-raya" style="border-color:var(--dn-l1)"></i>Personas que abrieron</span><span><i class="dn-raya p" style="border-color:var(--dn-l2)"></i>Cuentas nuevas</span></div></div>
+      <div class="dn-graf" data-g="gente"></div>
+      <p class="dn-nota">En 14 días abrieron ${r.distintas14 == null ? "—" : Number(r.distintas14)} personas distintas y se crearon ${dnSuma((m.dias || []).map(d => d.altas))} cuentas.</p></div>
+    <div class="dn-kpis">
+      ${dnKpi("Volvieron otro día", vol.val, vol.uni, vol.pie)}
+      ${dnKpi("Siguen tras 30 días", sig.val, sig.uni, sig.pie)}
+      ${dnKpi("La instalaron", ins.val, ins.uni, ins.pie)}
+      ${dnKpi("Días de uso por persona", r.dias_medios || 0, "", (r.aperturas7 || 0) + " aperturas esta semana")}
+    </div>
+    <div class="dn-rejilla dos">
+      <div class="dn-panel"><div class="dn-pcab"><h3>El embudo</h3><span class="dn-chip dn-der">% que pasa al paso siguiente</span></div>
+        <div class="dn-graf" data-g="embudo"></div></div>
+      <div class="dn-panel"><div class="dn-pcab"><h3>En qué versión se quedó cada quien</h3><span class="dn-chip dn-der" id="dn-escala">un punto, una persona</span></div>
+        <div class="dn-ley"><span><i class="dn-punto" style="background:var(--dn-l1)"></i>Al día</span><span><i class="dn-punto" style="background:var(--dn-l3)"></i>Sin actualizar</span>${hayErr ? `<span><i class="dn-punto" style="background:var(--dn-coral-s);outline:1px solid var(--dn-coral)"></i>Versión con errores automáticos</span>` : ""}</div>
+        <div class="dn-graf" data-g="versiones"></div>
+        <p class="dn-nota">La última versión que vio cada persona en 14 días.</p></div>
+    </div>
+    <div class="dn-panel"><h3>Cómo la usan</h3>
+      <div class="dn-rejilla dos">
+        ${dnPartes("Desde qué dispositivo", m.aparatos || [], "grupo")}
+        ${dnPartes("Instalada o en el navegador", m.instalacion || [], "grupo")}
+      </div>
+      ${dnPartes("Cuánto llevan con cuenta", m.antiguedad || [], "tramo")}
+    </div>`;
+}
+
+function dnSalaLab() {
+  const cab = `<div class="dn-cab"><h2>Laboratorio</h2></div>
+    <div class="dn-seg" role="radiogroup" aria-label="Qué parte del laboratorio">${[["pruebas", "En pruebas"], ["cuenta", "Herramientas"]].map(o => `<button class="${DN.lab === o[0] ? "on" : ""}" data-a="lab:${o[0]}">${o[1]}</button>`).join("")}</div>`;
+  if (DN.lab === "pruebas") {
+    const enc = dnEncendidas();
+    return cab + `
+      <div class="dn-panel"><div class="dn-pcab"><h3>Lo que está en fase de pruebas</h3><span class="dn-chip ${enc.length ? "yo" : ""} dn-der">${enc.length} ${enc.length === 1 ? "encendida aquí" : "encendidas aquí"}</span></div>
+        <p class="dn-nota">Cada prueba se enciende con su enlace, solo donde lo abras. Encender o apagar recarga la app.</p>
+        ${DN_PRUEBAS.map(p => {
+          let on = false, ojo = ""; try { on = !!p.esta(); ojo = p.ojo ? p.ojo() : ""; } catch (e) {}
+          return `<div class="dn-prueba"><div>
+              <div class="dn-sobre-t">${p.tag ? dnEtq(p.tag) : `<span class="dn-chip">Herramienta</span>`}${p.off ? `<span class="dn-estado ${on ? "e-yo" : "e-no"}">${dnIc(on ? "check" : "x")}${on ? "Encendida aquí" : "Apagada aquí"}</span>` : ""}</div>
+              <h4>${dnE(p.n)}</h4>
+              <p>${dnE(p.q)}</p>${ojo ? `<span class="ojo">${dnE(ojo)}</span>` : ""}
+              <div class="pie"><code>${dnE(p.on)}</code><button class="btn btn-ghost dn-mini" data-a="copiar:${p.id}">${dnIc("copiar")}Copiar enlace</button></div></div>
+            <div class="dn-acciones">${!p.off ? `<button class="btn btn-linea dn-mini" data-a="prueba:${p.id}:on">Verlo</button>`
+              : on ? `<button class="btn btn-ghost dn-mini" data-a="prueba:${p.id}:off">Apagar aquí</button>`
+              : `<button class="btn dn-btn-coral dn-mini" data-a="prueba:${p.id}:on">Encender aquí</button>`}</div></div>`;
+        }).join("")}
+      </div>`;
+  }
+  const on = typeof esCuentaDePruebas === "function" && esCuentaDePruebas();
+  const cual = typeof planLeerSimulado === "function" ? planLeerSimulado() : "";
+  const lista = typeof PLANES_SIMULABLES !== "undefined" ? PLANES_SIMULABLES : [];
+  return cab + `
+    <div class="dn-panel"><h3>Modo de pruebas</h3>
+      <div class="dn-campo"><span>Esta cuenta</span>
+        <div class="dn-seg" role="radiogroup" aria-label="Esta cuenta"><button class="${on ? "" : "on"}" data-a="cuenta:0">Normal</button><button class="${on ? "on" : ""}" data-a="cuenta:1">De pruebas</button></div>
+        <p class="dn-nota">${on ? "Verás un marco punteado amarillo mientras la uses, y borrar todo no pedirá confirmación extra." : "Borrar todo te pedirá escribir tu correo. Es a propósito: obliga a mirar en qué cuenta estás."}</p></div>
+      ${on ? `<div class="dn-campo"><span>Ver la app como si tuviera</span>
+        <div class="dn-seg" role="radiogroup" aria-label="Plan simulado">${lista.map(x => `<button class="${cual === x.id ? "on" : ""}" data-a="plan:${x.id}">${dnE(x.rotulo)}</button>`).join("")}</div>
+        <p class="dn-nota">Vive en la pestaña: aguanta una recarga y se cae al cerrarla. No toca lo que pagaste.</p></div>` : ""}
+      <div class="dn-campo"><span>Celebraciones</span><div class="dn-botonera">${FIESTAS.map(f => `<button data-a="fiesta:${f.id}"><b>${dnE(f.rotulo)}</b><span>${dnE(f.nota)}</span></button>`).join("")}</div></div>
+      <div class="dn-campo"><span>Pantallas que salen una vez</span><div class="dn-botonera">${PANTALLAS_DE_UNA_VEZ.map(p => `<button data-a="pantalla:${p.id}"><b>${dnE(p.rotulo)}</b><span>${dnE(p.nota)}</span></button>`).join("")}</div></div>
+    </div>`;
+}
+
+/* ---- Pintar ---- */
+const DN_NAV = [["hoy", "Hoy"], ["buzon", "Buzón"], ["subidas", "Subidas"], ["numeros", "Números"], ["lab", "Laboratorio"]];
+/* Las salas que no pueden dibujarse sin los números del servidor. */
+const DN_CON_NUMEROS = { hoy: 1, buzon: 1, numeros: 1 };
+
+function dnPinta() {
+  const capa = document.getElementById("dentro");
+  if (!capa || !dnAbierta()) return;
+  if (!esAdmin) { cerrarDentro(); capa.innerHTML = ""; return; }
+  const nuevos = dnTropiezos().filter(t => !t.visto).length, bor = dnBorradores().length;
+  const nav = () => DN_NAV.map(v => `<button class="${DN.sala === v[0] ? "on" : ""}" data-a="ir:${v[0]}" ${DN.sala === v[0] ? 'aria-current="page"' : ""}>${dnIc(v[0])}<span>${v[1]}</span>${v[0] === "buzon" && nuevos ? `<span class="dn-globo">${nuevos}</span>` : ""}${v[0] === "subidas" && bor ? `<span class="dn-globo">${bor}</span>` : ""}</button>`).join("");
+  const marca = `<div class="dn-marca"><span class="dn-rombo">${dnIc("rombo")}</span><span><b>Norata por dentro</b><small>Solo administración</small></span></div>`;
+  let sala;
+  if (DN_CON_NUMEROS[DN.sala] && !metricasCache) {
+    sala = `<div class="dn-cab"><h2>${DN_NAV.find(v => v[0] === DN.sala)[1]}</h2></div>` + (DN.error
+      ? `<div class="dn-panel"><h3>No pude traer los números</h3><p class="dn-nota">${dnE(DN.error)}</p><div class="dn-acciones"><button class="btn btn-linea dn-mini" data-a="repedir">Intentar otra vez</button></div></div>`
+      : `<div class="dn-panel"><div class="dn-vacio">Pidiendo los números…</div></div>`);
+  } else {
+    sala = { hoy: dnSalaHoy, buzon: dnSalaBuzon, subidas: dnSalaSubidas, numeros: dnSalaNumeros, lab: dnSalaLab }[DN.sala]();
+  }
+  /* El desplazamiento de la sala se conserva al repintar la MISMA sala: marcar
+     un reporte como atendido no puede devolverte al principio de la lista. */
+  const vieja = capa.querySelector(".dn-sala"), salaVieja = capa.dataset.sala, arriba = vieja ? vieja.scrollTop : 0;
+  capa.innerHTML = `<div class="dn-caja">
+    <header class="dn-cima">${marca}<button class="dn-cerrar" data-a="cerrar">${dnIc("x")}Cerrar</button></header>
+    <aside class="dn-lateral">${marca}<nav aria-label="Salas">${nav()}</nav>
+      <div class="pie"><span class="dn-chip">${dnIc("candado")}Solo tú lo ves</span><span>${dnE(VERSION)}</span>
+        <button class="dn-salir" data-a="cerrar">${dnIc("salir")}Volver a Norata</button></div></aside>
+    <main class="dn-sala">${sala}</main>
+    <nav class="dn-tabs" aria-label="Salas">${nav()}</nav></div>`;
+  capa.dataset.sala = DN.sala;
+  if (salaVieja === DN.sala) capa.querySelector(".dn-sala").scrollTop = arriba;
+  dnDibuja();
+}
+
+/* ---- Gráficas ----
+   A mano, con SVG: no hay librería y no la va a haber (ver la nota de arriba
+   del todo). Lo que pasa en el tiempo va en LÍNEAS y sobre una sola escala; lo
+   pidió Eduardo el 28 ago: barras y líneas mezcladas en un dibujo le resultaban
+   sucias. Cada gráfica trae su cruz: al pasar el cursor o el dedo dice el valor
+   exacto del día. */
+function dnGrafica(caja, cfg) {
+  caja.innerHTML = "";
+  const W = Math.max(240, caja.clientWidth || 560), H = Math.max(cfg.alto || 210, caja.clientHeight || 0), L = 30, R = 12, T = 10, B = 22, n = cfg.dias.length;
+  if (!n) { caja.innerHTML = `<div class="dn-vacio">Todavía no hay datos.</div>`; return; }
+  let mx = Math.max(1, ...cfg.series.reduce((a, s) => a.concat(s.d), []));
+  const b10 = Math.pow(10, Math.floor(Math.log10(mx / 4 || 1))), paso = Math.max(1, [1, 2, 5, 10].map(k => k * b10).find(q => mx / q <= 5) || 10 * b10);
+  mx = Math.ceil(mx / paso) * paso;
+  const x = i => L + (W - L - R) * (n > 1 ? i / (n - 1) : 0), y = v => T + (H - T - B) * (1 - v / mx);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${escapeAttr(cfg.titulo)}">`;
+  for (let v = 0; v <= mx; v += paso) s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1" ${v ? 'stroke-dasharray="2 4"' : ""}/><text x="${L - 6}" y="${y(v) + 3.5}" text-anchor="end" class="eje">${v}</text>`;
+  const cada = Math.max(1, Math.ceil(n / (W < 420 ? 4 : 7)));
+  cfg.dias.forEach((d, i) => { if ((n - 1 - i) % cada === 0) s += `<text x="${x(i)}" y="${H - 5}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}" class="eje">${dnE(d)}</text>`; });
+  cfg.series.forEach((se, k) => {
+    const p = se.d.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join(" ");
+    if (k === 0) s += `<path d="${p} L${x(n - 1)} ${y(0)} L${x(0)} ${y(0)}Z" fill="var(${se.c})" opacity=".1"/>`;
+    s += `<path d="${p}" fill="none" stroke="var(${se.c})" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" ${se.p ? 'stroke-dasharray="5 4"' : ""}/>`;
+    s += `<circle cx="${x(n - 1)}" cy="${y(se.d[n - 1])}" r="4" fill="var(${se.c})" stroke="var(--card)" stroke-width="2"/>`;
+  });
+  s += `<g class="cruz" display="none"><line y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-width="1"/>${cfg.series.map(se => `<circle r="4.5" fill="var(${se.c})" stroke="var(--card)" stroke-width="2"/>`).join("")}</g></svg><div class="dn-tip" hidden></div>`;
+  caja.innerHTML = s;
+  const cruz = caja.querySelector(".cruz"), tip = caja.querySelector(".dn-tip"), svg = caja.querySelector("svg");
+  const mueve = ev => {
+    const b = svg.getBoundingClientRect(), px = (ev.clientX - b.left) * W / b.width;
+    const i = Math.max(0, Math.min(n - 1, Math.round((px - L) / (W - L - R) * (n - 1))));
+    cruz.setAttribute("display", "inline");
+    cruz.querySelector("line").setAttribute("x1", x(i)); cruz.querySelector("line").setAttribute("x2", x(i));
+    cruz.querySelectorAll("circle").forEach((c, k) => { c.setAttribute("cx", x(i)); c.setAttribute("cy", y(cfg.series[k].d[i])); });
+    tip.hidden = false;
+    tip.innerHTML = `<b>${dnE(cfg.dias[i])}</b>` + cfg.series.map(se => `<span><i class="dn-raya ${se.p ? "p" : ""}" style="border-color:var(${se.c})"></i>${dnE(se.n)}<em>${se.d[i]}</em></span>`).join("");
+    const izq = x(i) * b.width / W;
+    tip.style.left = (izq > b.width / 2 ? Math.max(0, izq - tip.offsetWidth - 10) : izq + 10) + "px";
+  };
+  svg.addEventListener("pointermove", mueve); svg.addEventListener("pointerdown", mueve);
+  svg.addEventListener("pointerleave", () => { cruz.setAttribute("display", "none"); tip.hidden = true; });
+}
+
+/* El embudo: un cono de tramos pegados. El ancho de arriba de cada tramo es la
+   gente que llegó a ese paso y el de abajo la que pasa al siguiente, así que la
+   pendiente de cada tramo ES lo que pierde. En coral, el que más pierde. */
+function dnEmbudo(caja, pasos) {
+  caja.innerHTML = "";
+  const E = (pasos || []).map(p => [String(p.paso), Number(p.personas) || 0]), n = E.length;
+  if (!n || !E[0][1]) { caja.innerHTML = `<div class="dn-vacio">Todavía no se ha registrado nadie.</div>`; return; }
+  const libre = caja.clientHeight || 0, W = Math.max(240, caja.clientWidth || 400), gap = 3;
+  const hs = Math.min(60, Math.max(40, (libre - gap * (n - 1) - 4) / n)), H = n * hs + gap * (n - 1) + 4;
+  const F = Math.min(W * 0.46, 250), cx = F / 2, mx = E[0][1], w = v => Math.max(30, F * v / mx);
+  let peor = -1, rp = 1;
+  for (let i = 0; i < n - 1; i++) { const q = E[i][1] ? E[i + 1][1] / E[i][1] : 1; if (q < rp) { rp = q; peor = i; } }
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Embudo">`;
+  E.forEach((x, i) => {
+    const y = 2 + i * (hs + gap), a = w(x[1]), b = i < n - 1 ? w(E[i + 1][1]) : w(x[1]) * 0.78, mal = i === peor;
+    s += `<polygon points="${cx - a / 2},${y} ${cx + a / 2},${y} ${cx + b / 2},${y + hs} ${cx - b / 2},${y + hs}" fill="var(${mal ? "--dn-coral-m" : "--dn-l1"})" opacity="${mal ? 1 : 1 - i * 0.07}"/>`;
+    s += `<text x="${cx}" y="${y + hs / 2 + 5}" text-anchor="middle" class="dentro">${x[1]}</text>`;
+    s += `<text x="${F + 14}" y="${y + hs / 2 + (i < n - 1 ? -2 : 5)}" class="nom">${dnE(x[0])}</text>`;
+    if (i < n - 1) s += `<text x="${F + 14}" y="${y + hs / 2 + 13}" class="eje ${mal ? "mal" : ""}">${x[1] ? Math.round(E[i + 1][1] / x[1] * 100) : 0}%${mal ? " · la mayor caída" : ""}</text>`;
+  });
+  caja.innerHTML = s + `</svg><div class="dn-tip" hidden></div>`;
+  const svg = caja.querySelector("svg"), tip = caja.querySelector(".dn-tip");
+  const mueve = ev => {
+    const b = svg.getBoundingClientRect(), py = (ev.clientY - b.top) * H / b.height;
+    const i = Math.max(0, Math.min(n - 1, Math.floor((py - 2) / (hs + gap)))), x = E[i];
+    tip.hidden = false;
+    tip.innerHTML = `<b>${dnE(x[0])}</b><span>Personas<em>${x[1]}</em></span><span>De las registradas<em>${Math.round(x[1] / mx * 100)}%</em></span>` + (i < n - 1 ? `<span>No pasan al siguiente<em>${x[1] - E[i + 1][1]}</em></span>` : "");
+    tip.style.left = (F + 14) * b.width / W + "px"; tip.style.top = Math.max(0, Math.min(b.height - tip.offsetHeight, (2 + i * (hs + gap)) * b.height / H)) + "px";
+  };
+  svg.addEventListener("pointermove", mueve); svg.addEventListener("pointerdown", mueve);
+  svg.addEventListener("pointerleave", () => { tip.hidden = true; });
+}
+
+/* Las versiones: puntos apilados sobre la versión en la que se quedó cada
+   persona, de la más vieja a la publicada. Puntos y no barras, y lo pidió
+   Eduardo: lo que quiere ver es si hay gente atorada en una subida mala. Por
+   eso una versión que tuvo errores automáticos va sombreada en coral. */
+function dnPuntos(caja, versiones) {
+  caja.innerHTML = "";
+  let V = (versiones || []).map(v => ({ v: String(v.version || "?"), n: Number(v.personas) || 0 })).filter(v => v.n > 0)
+    .sort((a, b) => versionMasNueva(a.v, b.v) ? 1 : versionMasNueva(b.v, a.v) ? -1 : 0);
+  if (!V.length) { caja.innerHTML = `<div class="dn-vacio">Nadie abrió la app en 14 días.</div>`; return; }
+  /* Más de ocho columnas no caben en un teléfono: las más viejas se juntan. */
+  if (V.length > 8) { const viejas = V.slice(0, V.length - 7); V = [{ v: "antes", n: dnSuma(viejas.map(x => x.n)), junta: viejas.length }].concat(V.slice(-7)); }
+  const err = v => dnTropiezos().filter(t => t.donde !== "reporte" && t.donde !== "tope" && t.version === v).length;
+  const libre = caja.clientHeight || 0, W = Math.max(240, caja.clientWidth || 400), n = V.length, col = W / n;
+  /* Si hay mucha gente, cada punto vale por varias personas: sin esto la
+     columna de la versión publicada se saldría por arriba. */
+  const tope0 = Math.max(...V.map(v => v.n)), vale = Math.max(1, Math.ceil(tope0 / 40)), tope = Math.ceil(tope0 / vale);
+  const escala = document.getElementById("dn-escala");
+  if (escala) escala.textContent = vale === 1 ? "un punto, una persona" : "un punto, " + vale + " personas";
+  let por = 3, d = 8;
+  for (let k = 2; k <= 6; k++) { const dk = Math.min(15, (col - 8) / k - 2.5, libre ? (libre - 38) / Math.ceil(tope / k) - 2.5 : 8); if (dk > d || k === 2) { d = Math.max(6, dk); por = k; } }
+  const paso = d + 2.5, filas = Math.ceil(tope / por), H = Math.max(libre, 12 + filas * paso + 26), base = H - 22;
+  /* Si todas las versiones comparten el principio («0.7.»), se quita de las
+     etiquetas: repetido ocho veces no deja sitio para lo que cambia. */
+  const pref = V.every(v => v.v === "antes" || /^\d+\.\d+\./.test(v.v) && v.v.split(".").slice(0, 2).join(".") === V[n - 1].v.split(".").slice(0, 2).join(".")) ? V[n - 1].v.split(".").slice(0, 2).join(".") : "";
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Personas por versión">`;
+  V.forEach((v, i) => {
+    const x0 = col * i + col / 2 - (por * paso - 2.5) / 2, hoy = v.v === VERSION, e = v.junta ? 0 : err(v.v), puntos = Math.ceil(v.n / vale);
+    if (e) s += `<rect x="${col * i + 2}" y="2" width="${col - 4}" height="${base - 2}" rx="6" fill="var(--dn-coral-s)"/>`;
+    for (let k = 0; k < puntos; k++) s += `<circle cx="${x0 + (k % por) * paso + d / 2}" cy="${base - 5 - Math.floor(k / por) * paso - d / 2}" r="${d / 2}" fill="var(${hoy ? "--dn-l1" : "--dn-l3"})"/>`;
+    s += `<text x="${col * i + col / 2}" y="${H - 6}" text-anchor="middle" class="eje ${e ? "mal" : ""}">${dnE(v.junta ? "antes" : pref && v.v.indexOf(pref + ".") === 0 ? v.v.slice(pref.length) : v.v)}</text>`;
+  });
+  s += `<line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="var(--line)" stroke-width="1"/>`;
+  caja.innerHTML = s + `</svg><div class="dn-tip" hidden></div>`;
+  const svg = caja.querySelector("svg"), tip = caja.querySelector(".dn-tip");
+  const mueve = ev => {
+    const b = svg.getBoundingClientRect(), i = Math.max(0, Math.min(n - 1, Math.floor((ev.clientX - b.left) / b.width * n))), v = V[i], e = v.junta ? 0 : err(v.v);
+    tip.hidden = false;
+    tip.innerHTML = `<b>${dnE(v.junta ? v.junta + " versiones más viejas" : v.v)}</b><span>${v.v === VERSION ? "Al día" : "Sin actualizar"}<em>${v.n}</em></span>` + (e ? `<span>Errores automáticos<em>${e}</em></span>` : "");
+    const izq = (i + .5) * b.width / n;
+    tip.style.left = Math.max(0, Math.min(b.width - tip.offsetWidth, izq > b.width / 2 ? izq - tip.offsetWidth - 14 : izq + 14)) + "px";
+  };
+  svg.addEventListener("pointermove", mueve); svg.addEventListener("pointerdown", mueve);
+  svg.addEventListener("pointerleave", () => { tip.hidden = true; });
+}
+
+/* Dos pasadas, y no es descuido: la primera dibuja cada gráfica a su alto
+   mínimo, y con eso ya se sabe cuánto mide cada fila; la segunda las estira
+   hasta llenar su tarjeta. Con una sola, la tarjeta más baja de cada fila se
+   quedaba con un hueco debajo, que es lo que Eduardo pidió que no pasara. */
+function dnDibuja() { dnDibujaUna(); dnDibujaUna(); }
+function dnDibujaUna() {
+  const m = metricasCache;
+  if (!m) return;
+  const dias = m.dias || [], rot = dias.map(d => dnDia(d.dia));
+  document.querySelectorAll("#dentro .dn-graf").forEach(c => {
+    const g = c.dataset.g;
+    if (g === "mini") dnGrafica(c, { titulo: "Personas que abrieron la app, 14 días", alto: 170, dias: rot, series: [{ n: "Personas", c: "--dn-l1", d: dias.map(d => Number(d.personas) || 0) }] });
+    if (g === "gente") dnGrafica(c, { titulo: "Personas que abrieron y cuentas nuevas", alto: 240, dias: rot, series: [{ n: "Personas que abrieron", c: "--dn-l1", d: dias.map(d => Number(d.personas) || 0) }, { n: "Cuentas nuevas", c: "--dn-l2", d: dias.map(d => Number(d.altas) || 0), p: 1 }] });
+    if (g === "embudo") dnEmbudo(c, m.embudo);
+    if (g === "versiones") dnPuntos(c, m.versiones);
+  });
+}
+
+/* ---- Acciones ---- */
+
+function dnCopia(texto) {
+  const no = () => toast("No pude copiarlo.", "atencion");
+  try { navigator.clipboard.writeText(texto).then(() => toast("Copiado", "hecho"), no); } catch (e) { no(); }
+}
+
+/* Dar por atendido UN reporte, o volver a abrirlo. Se pinta con lo que
+   CONTESTA el servidor y no con lo que suponíamos: si la fila ya no está —dos
+   pestañas archivando a la vez— la respuesta es `null` y se vuelven a pedir
+   los números en vez de dejar la pantalla diciendo algo que no es. */
+async function archivarReporte(id, visto) {
+  const t = dnTropiezos().find(x => Number(x.id) === Number(id));
+  try {
+    const quedo = await sbTropiezoVisto(id, visto);
+    if (quedo === null || quedo === undefined) { metricasCache = null; await cargarMetricas(); return; }
+    if (t) t.visto = !!quedo;
+    dnPinta();
+  } catch (e) {
+    toast(e.message || String(e), "atencion");
+  }
+}
+
+function dnClic(ev) {
+  const el = ev.target.closest("[data-a]");
+  if (!el) return;
+  const partes = el.dataset.a.split(":"), a = partes[0], v = partes[1], w = partes[2];
+  const primero = () => { const f = dnFiltrados()[0]; return f && isDesktop() ? dnClave(f) : null; };
+  const sel = dnTropiezos().find(t => dnClave(t) === DN.sel);
+  switch (a) {
+    case "cerrar": cerrarDentro(); return;
+    case "ir": DN.sala = v; if (v === "buzon" && !sel) DN.sel = primero(); break;
+    case "auto": DN.sala = "buzon"; DN.tipo = "auto"; DN.ver = "abiertos"; DN.sel = primero(); break;
+    case "tipo": DN.tipo = v; DN.sel = primero(); break;
+    case "ver": DN.ver = v; DN.sel = primero(); break;
+    case "sel": DN.sel = el.dataset.k; break;
+    case "volver": DN.sel = null; break;
+    case "atender": if (sel && sel.id != null) archivarReporte(sel.id, !sel.visto); return;
+    case "vistos": marcarTropiezosVistos(); return;
+    case "repedir": metricasCache = null; cargarMetricas(); return;
+    case "num": DN.num = v; break;
+    case "lab": DN.lab = v; break;
+    case "novedades": cerrarDentro(); if (typeof mostrarAjuste === "function") mostrarAjuste("novedades"); return;
+    case "cuenta": if (typeof marcarCuentaDePruebas === "function") marcarCuentaDePruebas(v === "1"); break;
+    case "plan": if (typeof planSimular === "function") planSimular(v || ""); break;
+    case "fiesta": verLaFiesta(v); return;
+    case "pantalla": verLaPantalla(v); return;
+    case "prueba": { const p = DN_PRUEBAS.find(x => x.id === v); if (p) location.href = location.pathname + (w === "off" ? p.off : p.on); return; }
+    case "copiar":
+      if (v === "reporte" && sel) { const tx2 = dnTexto(sel); dnCopia(DN_TIPOS[dnTipo(sel)].n + " · " + dnLugar(sel) + " · v" + (sel.version || "?") + " · " + dnDia(sel.dia) + ((Number(sel.cuantos) || 1) > 1 ? " · " + sel.cuantos + " veces" : "") + "\nQué pasó: " + tx2.que + (tx2.antes ? "\nJusto antes: " + tx2.antes : "")); }
+      else { const p = DN_PRUEBAS.find(x => x.id === v); if (p) dnCopia(location.origin + location.pathname + p.on); }
+      return;
+    default: return;
+  }
+  dnPinta();
+}
+function dnEscribe(ev) {
+  if (ev.target.id !== "dn-q") return;
+  DN.q = ev.target.value;
+  /* Solo la lista, no la sala entera: repintarlo todo le quitaría el foco al
+     campo a cada letra. */
+  const l = document.getElementById("dn-lista");
+  if (l) l.innerHTML = dnListaHTML();
+}
+
+/* ---- Lo que el resto de la app sigue llamando ----
+
+   `renderPanelAdmin` es el nombre que usan Ajustes, el plan simulado y el modo
+   de pruebas para decir «repíntate». Sigue existiendo y hace dos cosas: deja en
+   el bloque de Ajustes una puerta —por si alguien llega a esa sección— y
+   repinta la capa si está abierta. */
 function renderPanelAdmin() {
   const caja = document.getElementById("panel-admin");
-  if (!caja) return;
-  if (!esAdmin) { caja.innerHTML = ""; return; }
-
-  const m = metricasCache;
-  /* El modo de pruebas va PRIMERO y en los dos caminos. Es lo único de esta
-     sección con lo que se interactúa —el resto se lee— y no depende de que las
-     métricas hayan llegado: dejarlo debajo de una tabla que todavía se está
-     pidiendo lo escondía justo cuando hace falta. */
-  if (!m) {
-    caja.innerHTML = panelPruebasHTML() + panelFiestasHTML() + panelPantallasHTML() + `<div class="panel">
-        <h3>${tx("Los números")}</h3>
-        <p class="settings-note">${tx("Se piden al servidor cuando abres esta sección.")}</p>
-        <button class="btn btn-linea btn-block" onclick="cargarMetricas()">${tx("Cargar los números")}</button>
-      </div>`;
-    return;
+  if (caja) {
+    caja.innerHTML = esAdmin ? `<div class="panel">
+        <h3>${tx("Norata por dentro")}</h3>
+        <button class="btn btn-linea btn-block" onclick="abrirDentro()">${tx("Abrir")}</button>
+      </div>` : "";
   }
-
-  const r = m.resumen || {};
-  const c = m.cobro || {};
-  const tropiezos = m.tropiezos || [];
-  const sinVer = tropiezos.filter(t => !t.visto).length;
-  /* Los automáticos por un lado y lo que escribe una persona por otro: son
-     dos cosas distintas y se leen distinto. Ver `panelReportesHTML`. */
-  const autos = tropiezos.filter(t => t.donde !== "reporte");
-  const autoSinVer = autos.some(t => !t.visto);
-
-  /* Los avisos solo aparecen si hay algo que mirar. Una fila de ceros
-     permanente enseña a no mirarla, y entonces el día que deja de ser cero
-     tampoco se mira. */
-  /* Los tres avisos salían del mismo oro, y no son lo mismo: dos son gente que
-     todavía se puede recuperar —un correo sin confirmar se vuelve a mandar— y
-     el tercero es alguien que ya se va. La nomenclatura de color lo separa sin
-     una palabra más: oro lo que hay que mirar, coral lo que se pierde. */
-  const avisos = [
-    (r.sin_confirmar || 0) > 0
-      ? { n: r.sin_confirmar, k: "ojo", t: "sin confirmar el correo", d: "se registraron y nunca pulsaron el enlace" }
-      : null,
-    (r.nunca_abrieron || 0) > 0
-      ? { n: r.nunca_abrieron, k: "ojo", t: "nunca abrieron la app", d: "tienen cuenta y jamás entraron" }
-      : null,
-    (r.pidieron_borrado || 0) > 0
-      ? { n: r.pidieron_borrado, k: "mal", t: "pidieron borrar su cuenta", d: "en el plazo de 30 días para arrepentirse" }
-      : null
-  ].filter(Boolean);
-
-  caja.innerHTML = panelPruebasHTML() + panelFiestasHTML() + panelPantallasHTML() + `
-    ${avisos.length ? `<div class="panel">
-      <h3>${tx("Para mirar")}</h3>
-      <div class="pn-avisos">
-        ${avisos.map(a => `<div class="pn-aviso ${a.k}">
-            <b>${a.n}</b>
-            <span>${escapeHtml(tx(a.t))}</span>
-            <i>${escapeHtml(tx(a.d))}</i>
-          </div>`).join("")}
-      </div>
-    </div>` : ""}
-
-    <div class="panel">
-      <h3>${tx("El embudo")}</h3>
-      <p class="settings-note">${tx("Cada paso es un trozo del anterior. El escalón donde más gente se cae es el que hay que arreglar primero — y casi nunca es el que uno cree.")}</p>
-      ${panelEmbudo(m.embudo)}
-    </div>
-
-    <div class="panel">
-      <h3>${tx("La gente")}</h3>
-      <div class="pn-kpis">
-        ${panelCifra(r.cuentas || 0, tx("Cuentas creadas"))}
-        ${panelCifra(r.activos7 || 0, tx("Activos esta semana"), tx("abrieron en 7 días"))}
-        ${panelDeCada(r.siguen30 || 0, r.maduros || 0, tx("Siguen tras 30 días"), 20)}
-        ${panelDeCada(r.volvieron || 0, r.abrieron || 0, tx("Volvieron otro día"), 40)}
-        ${panelCifra(r.dias_medios || 0, tx("Días de uso por persona"), tx("cuántos días distintos abre cada quien"))}
-        ${panelCifra(r.aperturas7 || 0, tx("Aperturas esta semana"), tx("veces que se abrió, en total"))}
-      </div>
-    </div>
-
-    <div class="panel">
-      <h3>${tx("Los últimos 14 días")}</h3>
-      <p class="settings-note">${tx("Dos líneas sobre la misma escala: la de arriba son las personas que abrieron la app, la punteada las cuentas nuevas de ese día. Que la segunda vaya casi siempre por abajo es el dato, no un problema de la gráfica. Las líneas verticales marcan cada lunes, para comparar una semana con otra.")}</p>
-      ${panelConstelacion(m.dias, r.distintas14 == null ? null : Number(r.distintas14))}
-    </div>
-
-    <div class="panel">
-      <h3>${tx("Cómo la usan")}</h3>
-      <div class="pn-donas">
-        <div>
-          <h4 class="pn-sub">${tx("Desde qué dispositivo")}</h4>
-          ${panelDona(m.aparatos, "grupo", "personas", tx("Nadie ha abierto la app todavía."))}
-          <p class="settings-note" style="margin-top:8px">${tx("Sale del ancho de la ventana, no de fichar el dispositivo: dos teléfonos distintos cuentan como uno.")}</p>
-        </div>
-        <div>
-          <h4 class="pn-sub">${tx("Instalada o en el navegador")}</h4>
-          ${panelDona(m.instalacion, "grupo", "personas", tx("Nadie ha abierto la app todavía."))}
-          <p class="settings-note" style="margin-top:8px">${tx("Instalada se abre sola; en una pestaña se olvida. Señal buena: 30 de cada 100.")}</p>
-        </div>
-      </div>
-      <h4 class="pn-sub" style="margin-top:18px">${tx("Cuánto llevan con cuenta")}</h4>
-      ${panelListaBarras(m.antiguedad, "tramo", "personas", tx("Todavía no hay ninguna cuenta."))}
-    </div>
-
-    <div class="panel">
-      <h3>${tx("El cobro")}</h3>
-      ${c.desplegado === false
-        ? `<p class="settings-note">${tx("El cobro todavía no está puesto en el servidor, así que aquí no hay nada que contar. Cuando corras")} <code>planes.sql</code> ${tx("y despliegues Stripe, esta caja se llena sola — los pasos están en")} <code>supabase/LEEME.md</code>.</p>`
-        : `<div class="pn-kpis">
-             ${panelCifra(c.pagando || 0, tx("Pagando ahora"))}
-             ${panelCifra("$" + (c.mrr || 0), tx("Al mes"), tx("sin contar fundador"))}
-             ${panelCifra(c.lugares_fundador == null ? "—" : c.lugares_fundador, tx("Lugares de fundador"), tx("de 200"))}
-           </div>
-           ${panelListaBarras(c.planes, "plan", "personas", tx("Todavía no hay ninguna suscripción."),
-               /* «Plan mensual» y no «mensual». La palabra suelta obliga a
-                  adivinar de qué se está hablando, y en la única caja de la
-                  app donde se cuenta dinero eso no puede pasar. Fundador
-                  lleva su nombre sin «Plan» delante porque no es una
-                  suscripción: es un pago único, y llamarlo plan lo mete en el
-                  mismo saco que los otros dos. */
-               (k) => ({ mensual: tx("Plan mensual"), anual: tx("Plan anual"), fundador: tx("Fundador") })[k] || k,
-               /* Cada uno con su color, el mismo que ya usa la app: menta los
-                  que se renuevan y lila el fundador, que es el color de su
-                  anillo y de su piedra desde 0.7.15. Así la barra se reconoce
-                  antes de leer el rótulo. */
-               (k) => k === "fundador" ? "t-lila" : "t-menta")}`}
-    </div>
-
-    <div class="panel">
-      <h3>${tx("Con qué versión se quedó cada quien")}</h3>
-      <p class="settings-note">${tx("Una fila por persona:")} <strong>${tx("la última versión que vio")}</strong>${tx(", no todas las que ha usado nunca. Si aquí aparece una que ya no existe, hay alguien pegado a una copia vieja — casi siempre porque no se subió el número de")} <code>CACHE</code> ${tx("en")} <code>sw.js</code>.</p>
-      ${panelListaBarras(m.versiones, "version", "personas", tx("Nadie ha abierto la app en los últimos treinta días."),
-          null,
-          /* Las barras oscuras y solo la de hoy destacada, que es lo que pidió
-             Eduardo. Con todas en menta, la fila que importa —cuánta gente ya
-             estrenó lo último— había que buscarla leyendo los números uno por
-             uno, y son quince o veinte. `VERSION` es la constante que esta
-             pestaña está ejecutando, así que la marca se mueve sola con cada
-             publicación y no hay una segunda lista que actualizar. */
-          (v) => (typeof VERSION !== "undefined" && v === VERSION) ? "t-bien" : "")}
-    </div>
-
-    ${panelReportesHTML(tropiezos)}
-
-    <div class="panel">
-      <div class="pn-cab">
-        <h3>${tx("Lo que se rompe solo")}</h3>
-        <span class="pn-cuenta${autos.length && autoSinVer ? " nuevo" : ""}">${autos.length} ${autos.length === 1 ? tx("error") : tx("errores")}</span>
-      </div>
-      <p class="settings-note">${tx("Los que caza la app por su cuenta. Cada fila es un error distinto de un día, con las veces que pasó: se agrupan a propósito, porque un fallo dentro de un bucle escribiría miles de filas iguales. Lo que escribe una persona va arriba, en su propia caja.")}</p>
-      ${autos.length
-        ? `<div class="pn-errores">` + autos.map(t => `
-            <div class="pn-error ${t.visto ? "visto" : ""}">
-              <div class="pn-error-tit">
-                <b>${escapeHtml(String(t.mensaje))}</b>
-                <span>${t.cuantos}×</span>
-              </div>
-              <div class="pn-error-pie">${escapeHtml(String(t.dia))} · v${escapeHtml(String(t.version) || "?")} · ${escapeHtml(String(t.donde) || "?")}</div>
-            </div>`).join("") + `</div>`
-        : `<p class="settings-note">${tx("Ni un error en los últimos treinta días.")}</p>`}
-      ${sinVer ? `<button class="btn btn-soft btn-block" style="margin-top:12px" onclick="marcarTropiezosVistos()">${T`Dar por vistos los ${sinVer} nuevos`}</button>` : ""}
-    </div>
-
-    <div class="panel">
-      <!-- La clave de los colores va al FINAL y no arriba. Es una referencia:
-           se consulta la primera vez y las dos que uno se olvida, y puesta
-           encima de los números sería un bloque de texto antes de lo que se
-           viene a ver — el mismo motivo por el que las cifras de la gráfica
-           bajaron debajo del dibujo. -->
-      <div class="pn-clave">
-        <span><i class="bien"></i>${tx("llega a la vara")}</span>
-        <span><i class="ojo"></i>${tx("hay que mirarlo")}</span>
-        <span><i class="mal"></i>${tx("se pierde gente")}</span>
-      </div>
-      <p class="settings-note">${tx("Lo demás va en tinta normal a propósito: es un dato, no un juicio. Un número sin una vara contra la que compararse no puede estar bien ni mal.")}</p>
-      <p class="settings-note" style="margin:0">${T`Números tomados ${escapeHtml(String(m.al_momento || "").slice(0, 16).replace("T", tx(" a las ")))}.`}</p>
-      <button class="btn btn-linea btn-block" style="margin-top:10px" onclick="cargarMetricas()">${tx("Volver a pedirlos")}</button>
-    </div>`;
+  if (!esAdmin) { cerrarDentro(); return; }
+  dnPinta();
 }
 
 async function cargarMetricas() {
-  const caja = document.getElementById("panel-admin");
-  if (caja) caja.innerHTML = `<div class="panel"><p class="settings-note">${tx("Pidiendo los números…")}</p></div>`;
+  DN.cargando = true; DN.error = "";
+  dnPinta();
   try {
     metricasCache = await sbMetricas();
-    renderPanelAdmin();
   } catch (e) {
     /* Aquí sí se enseña el error, al revés que en el latido: quien abrió el
        panel está esperando algo y merece saber por qué no llegó. */
-    if (caja) {
-      caja.innerHTML = `<div class="panel">
-          <h3>${tx("No pude traer los números")}</h3>
-          <p class="settings-note">${escapeHtml(e.message || String(e))}</p>
-          <button class="btn btn-linea btn-block" onclick="cargarMetricas()">${tx("Intentar otra vez")}</button>
-        </div>`;
-    }
+    metricasCache = null;
+    DN.error = e.message || String(e);
   }
+  DN.cargando = false;
+  if (isDesktop() && DN.sala === "buzon" && !DN.sel) { const f = dnFiltrados()[0]; DN.sel = f ? dnClave(f) : null; }
+  dnPinta();
 }
 
 async function marcarTropiezosVistos() {
@@ -1045,7 +886,7 @@ async function marcarTropiezosVistos() {
     await sbTropiezosVistos();
     metricasCache = null;
     await cargarMetricas();
-    toast(tx("Errores dados por vistos"), "hecho");
+    toast("Todo dado por atendido", "hecho");
   } catch (e) {
     toast(e.message || String(e), "atencion");
   }

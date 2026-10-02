@@ -550,6 +550,34 @@ página quedaría en blanco. No añade riesgo nuevo —sin JavaScript esta app n
 pinta nada de todos modos— y el `<noscript>` de al lado devuelve el
 comportamiento de siempre a quien lo tenga apagado.
 
+## Norata por dentro
+
+**La consola de administración es una capa aparte (`#dentro`), no una sección
+de Ajustes** (0.7.167). La abre `abrirDentro()` desde la fila de Ajustes, y todo
+lo suyo vive en `js/10e-panel.js` y `css/dentro.css`, con el prefijo `dn-`:
+la app ya tiene `.panel`, `.seg` y `.chip`, y los archivos comparten ámbito.
+
+Cinco salas —Hoy, Buzón, Subidas, Números y Laboratorio— y cuatro reglas que
+puso Eduardo sobre el boceto y valen para cualquier cosa que se añada:
+
+- **Solo se dibuja lo que el servidor da.** Sin dato real no hay sala, ni
+  pestaña, ni cifra de ejemplo. Lo que falta está en `VERSIONES.md`, «Apuntado
+  y sin hacer».
+- **Cada explicación se dice una vez.** Una frase que se repite en cada fila
+  sobra en todas: va en la cabecera.
+- **Ni un hueco dentro de una tarjeta.** En una fila de dos, la gráfica o la
+  lista crece hasta llenar la suya; por eso `dnDibuja` pasa dos veces.
+- **El color es un juicio y sale de `--casa-*`**: oro lo que hay que mirar,
+  coral lo que se pierde, menta lo que llega a la vara. Lo demás, tinta normal.
+
+Al añadir una prueba con enlace a la app, **su fila va en `DN_PRUEBAS`**, con
+cómo saber si está encendida. Y un tipo de reporte nuevo es una línea en
+`DN_TIPOS`: el tipo viaja dentro del mensaje (`[Lugar|tipo] …`).
+
+**Sin sesión de administrador no hay números**, así que se prueba imitando la
+respuesta de `metricas()` en la consola: `esAdmin = true`, `metricasCache =
+{…}` con su misma forma, y `abrirDentro()`.
+
 ## Los interruptores
 
 **Todo interruptor se desliza, y lo hace el motor** (Eduardo, 0.7.154): vale

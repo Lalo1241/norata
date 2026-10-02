@@ -1917,7 +1917,7 @@ function renderAjustes() {
     (typeof sonidoControlesHTML === "function" ? `<div class="sonido-hueco">${sonidoControlesHTML()}</div>` : "") +
     seccionesAjustes().map(sec => `
     <button class="aj-item ${ajusteAbierto === sec.id ? "on" : ""} ${sec.tono ? "t-" + sec.tono : ""}"
-      onclick="mostrarAjuste('${sec.id}')">
+      onclick="${sec.id === "admin" ? "abrirDentro()" : `mostrarAjuste('${sec.id}')`}">
       <span class="aj-ic">${icon(sec.icon, 17)}</span>
       ${/* El `sub` de la fila del plan lo escribe `planSub()`, que ya lo
              devuelve traducido. Volver a traducir lo ya traducido no cambia
